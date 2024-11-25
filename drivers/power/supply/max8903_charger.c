@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * max8903_charger.c - Maxim 8903 USB/Adapter Charger Driver
  *
  * Copyright (C) 2011 Samsung Electronics
  * MyungJoo Ham <myungjoo.ham@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,10 +26,16 @@
  */
 
 #include <linux/gpio.h>
+=======
+ */
+
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/interrupt.h>
 #include <linux/module.h>
 #include <linux/of.h>
 #include <linux/of_device.h>
+<<<<<<< HEAD
 #include <linux/of_gpio.h>
 #include <linux/slab.h>
 #include <linux/power_supply.h>
@@ -36,6 +47,29 @@ struct max8903_data {
 	struct device *dev;
 	struct power_supply *psy;
 	struct power_supply_desc psy_desc;
+=======
+#include <linux/slab.h>
+#include <linux/power_supply.h>
+#include <linux/platform_device.h>
+
+struct max8903_data {
+	struct device *dev;
+	struct power_supply *psy;
+	struct power_supply_desc psy_desc;
+	/*
+	 * GPIOs
+	 * chg, flt, dcm and usus are optional.
+	 * dok or uok must be present.
+	 * If dok is present, cen must be present.
+	 */
+	struct gpio_desc *cen; /* Charger Enable input */
+	struct gpio_desc *dok; /* DC (Adapter) Power OK output */
+	struct gpio_desc *uok; /* USB Power OK output */
+	struct gpio_desc *chg; /* Charger status output */
+	struct gpio_desc *flt; /* Fault output */
+	struct gpio_desc *dcm; /* Current-Limit Mode input (1: DC, 2: USB) */
+	struct gpio_desc *usus; /* USB Suspend Input (1: suspended) */
+>>>>>>> upstream/android-13
 	bool fault;
 	bool usb_in;
 	bool ta_in;
@@ -56,8 +90,14 @@ static int max8903_get_property(struct power_supply *psy,
 	switch (psp) {
 	case POWER_SUPPLY_PROP_STATUS:
 		val->intval = POWER_SUPPLY_STATUS_UNKNOWN;
+<<<<<<< HEAD
 		if (gpio_is_valid(data->pdata->chg)) {
 			if (gpio_get_value(data->pdata->chg) == 0)
+=======
+		if (data->chg) {
+			if (gpiod_get_value(data->chg))
+				/* CHG asserted */
+>>>>>>> upstream/android-13
 				val->intval = POWER_SUPPLY_STATUS_CHARGING;
 			else if (data->usb_in || data->ta_in)
 				val->intval = POWER_SUPPLY_STATUS_NOT_CHARGING;
@@ -85,11 +125,25 @@ static int max8903_get_property(struct power_supply *psy,
 static irqreturn_t max8903_dcin(int irq, void *_data)
 {
 	struct max8903_data *data = _data;
+<<<<<<< HEAD
 	struct max8903_pdata *pdata = data->pdata;
 	bool ta_in;
 	enum power_supply_type old_type;
 
 	ta_in = gpio_get_value(pdata->dok) ? false : true;
+=======
+	bool ta_in;
+	enum power_supply_type old_type;
+
+	/*
+	 * This means the line is asserted.
+	 *
+	 * The signal is active low, but the inversion is handled in the GPIO
+	 * library as the line should be flagged GPIO_ACTIVE_LOW in the device
+	 * tree.
+	 */
+	ta_in = gpiod_get_value(data->dok);
+>>>>>>> upstream/android-13
 
 	if (ta_in == data->ta_in)
 		return IRQ_HANDLED;
@@ -97,6 +151,7 @@ static irqreturn_t max8903_dcin(int irq, void *_data)
 	data->ta_in = ta_in;
 
 	/* Set Current-Limit-Mode 1:DC 0:USB */
+<<<<<<< HEAD
 	if (gpio_is_valid(pdata->dcm))
 		gpio_set_value(pdata->dcm, ta_in ? 1 : 0);
 
@@ -104,6 +159,27 @@ static irqreturn_t max8903_dcin(int irq, void *_data)
 	if (gpio_is_valid(pdata->cen))
 		gpio_set_value(pdata->cen, ta_in ? 0 :
 				(data->usb_in ? 0 : 1));
+=======
+	if (data->dcm)
+		gpiod_set_value(data->dcm, ta_in);
+
+	/* Charger Enable / Disable */
+	if (data->cen) {
+		int val;
+
+		if (ta_in)
+			/* Certainly enable if DOK is asserted */
+			val = 1;
+		else if (data->usb_in)
+			/* Enable if the USB charger is enabled */
+			val = 1;
+		else
+			/* Else default-disable */
+			val = 0;
+
+		gpiod_set_value(data->cen, val);
+	}
+>>>>>>> upstream/android-13
 
 	dev_dbg(data->dev, "TA(DC-IN) Charger %s.\n", ta_in ?
 			"Connected" : "Disconnected");
@@ -126,11 +202,25 @@ static irqreturn_t max8903_dcin(int irq, void *_data)
 static irqreturn_t max8903_usbin(int irq, void *_data)
 {
 	struct max8903_data *data = _data;
+<<<<<<< HEAD
 	struct max8903_pdata *pdata = data->pdata;
 	bool usb_in;
 	enum power_supply_type old_type;
 
 	usb_in = gpio_get_value(pdata->uok) ? false : true;
+=======
+	bool usb_in;
+	enum power_supply_type old_type;
+
+	/*
+	 * This means the line is asserted.
+	 *
+	 * The signal is active low, but the inversion is handled in the GPIO
+	 * library as the line should be flagged GPIO_ACTIVE_LOW in the device
+	 * tree.
+	 */
+	usb_in = gpiod_get_value(data->uok);
+>>>>>>> upstream/android-13
 
 	if (usb_in == data->usb_in)
 		return IRQ_HANDLED;
@@ -139,10 +229,29 @@ static irqreturn_t max8903_usbin(int irq, void *_data)
 
 	/* Do not touch Current-Limit-Mode */
 
+<<<<<<< HEAD
 	/* Charger Enable / Disable (cen is negated) */
 	if (gpio_is_valid(pdata->cen))
 		gpio_set_value(pdata->cen, usb_in ? 0 :
 				(data->ta_in ? 0 : 1));
+=======
+	/* Charger Enable / Disable */
+	if (data->cen) {
+		int val;
+
+		if (usb_in)
+			/* Certainly enable if UOK is asserted */
+			val = 1;
+		else if (data->ta_in)
+			/* Enable if the DC charger is enabled */
+			val = 1;
+		else
+			/* Else default-disable */
+			val = 0;
+
+		gpiod_set_value(data->cen, val);
+	}
+>>>>>>> upstream/android-13
 
 	dev_dbg(data->dev, "USB Charger %s.\n", usb_in ?
 			"Connected" : "Disconnected");
@@ -165,10 +274,23 @@ static irqreturn_t max8903_usbin(int irq, void *_data)
 static irqreturn_t max8903_fault(int irq, void *_data)
 {
 	struct max8903_data *data = _data;
+<<<<<<< HEAD
 	struct max8903_pdata *pdata = data->pdata;
 	bool fault;
 
 	fault = gpio_get_value(pdata->flt) ? false : true;
+=======
+	bool fault;
+
+	/*
+	 * This means the line is asserted.
+	 *
+	 * The signal is active low, but the inversion is handled in the GPIO
+	 * library as the line should be flagged GPIO_ACTIVE_LOW in the device
+	 * tree.
+	 */
+	fault = gpiod_get_value(data->flt);
+>>>>>>> upstream/android-13
 
 	if (fault == data->fault)
 		return IRQ_HANDLED;
@@ -183,6 +305,7 @@ static irqreturn_t max8903_fault(int irq, void *_data)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static struct max8903_pdata *max8903_parse_dt_data(struct device *dev)
 {
 	struct device_node *np = dev->of_node;
@@ -233,10 +356,13 @@ static struct max8903_pdata *max8903_parse_dt_data(struct device *dev)
 	return pdata;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int max8903_setup_gpios(struct platform_device *pdev)
 {
 	struct max8903_data *data = platform_get_drvdata(pdev);
 	struct device *dev = &pdev->dev;
+<<<<<<< HEAD
 	struct max8903_pdata *pdata = pdev->dev.platform_data;
 	int ret = 0;
 	int gpio;
@@ -336,6 +462,98 @@ static int max8903_setup_gpios(struct platform_device *pdev)
 			return ret;
 		}
 	}
+=======
+	bool ta_in = false;
+	bool usb_in = false;
+	enum gpiod_flags flags;
+
+	data->dok = devm_gpiod_get_optional(dev, "dok", GPIOD_IN);
+	if (IS_ERR(data->dok))
+		return dev_err_probe(dev, PTR_ERR(data->dok),
+				     "failed to get DOK GPIO");
+	if (data->dok) {
+		gpiod_set_consumer_name(data->dok, data->psy_desc.name);
+		/*
+		 * The DC OK is pulled up to 1 and goes low when a charger
+		 * is plugged in (active low) but in the device tree the
+		 * line is marked as GPIO_ACTIVE_LOW so we get a 1 (asserted)
+		 * here if the DC charger is plugged in.
+		 */
+		ta_in = gpiod_get_value(data->dok);
+	}
+
+	data->uok = devm_gpiod_get_optional(dev, "uok", GPIOD_IN);
+	if (IS_ERR(data->uok))
+		return dev_err_probe(dev, PTR_ERR(data->uok),
+				     "failed to get UOK GPIO");
+	if (data->uok) {
+		gpiod_set_consumer_name(data->uok, data->psy_desc.name);
+		/*
+		 * The USB OK is pulled up to 1 and goes low when a USB charger
+		 * is plugged in (active low) but in the device tree the
+		 * line is marked as GPIO_ACTIVE_LOW so we get a 1 (asserted)
+		 * here if the USB charger is plugged in.
+		 */
+		usb_in = gpiod_get_value(data->uok);
+	}
+
+	/* Either DC OK or USB OK must be provided */
+	if (!data->dok && !data->uok) {
+		dev_err(dev, "no valid power source\n");
+		return -EINVAL;
+	}
+
+	/*
+	 * If either charger is already connected at this point,
+	 * assert the CEN line and enable charging from the start.
+	 *
+	 * The line is active low but also marked with GPIO_ACTIVE_LOW
+	 * in the device tree, so when we assert the line with
+	 * GPIOD_OUT_HIGH the line will be driven low.
+	 */
+	flags = (ta_in || usb_in) ? GPIOD_OUT_HIGH : GPIOD_OUT_LOW;
+	/*
+	 * If DC OK is provided, Charger Enable CEN is compulsory
+	 * so this is not optional here.
+	 */
+	data->cen = devm_gpiod_get(dev, "cen", flags);
+	if (IS_ERR(data->cen))
+		return dev_err_probe(dev, PTR_ERR(data->cen),
+				     "failed to get CEN GPIO");
+	gpiod_set_consumer_name(data->cen, data->psy_desc.name);
+
+	/*
+	 * If the DC charger is connected, then select it.
+	 *
+	 * The DCM line should be marked GPIO_ACTIVE_HIGH in the
+	 * device tree. Driving it high will enable the DC charger
+	 * input over the USB charger input.
+	 */
+	flags = ta_in ? GPIOD_OUT_HIGH : GPIOD_OUT_LOW;
+	data->dcm = devm_gpiod_get_optional(dev, "dcm", flags);
+	if (IS_ERR(data->dcm))
+		return dev_err_probe(dev, PTR_ERR(data->dcm),
+				     "failed to get DCM GPIO");
+	gpiod_set_consumer_name(data->dcm, data->psy_desc.name);
+
+	data->chg = devm_gpiod_get_optional(dev, "chg", GPIOD_IN);
+	if (IS_ERR(data->chg))
+		return dev_err_probe(dev, PTR_ERR(data->chg),
+				     "failed to get CHG GPIO");
+	gpiod_set_consumer_name(data->chg, data->psy_desc.name);
+
+	data->flt = devm_gpiod_get_optional(dev, "flt", GPIOD_IN);
+	if (IS_ERR(data->flt))
+		return dev_err_probe(dev, PTR_ERR(data->flt),
+				     "failed to get FLT GPIO");
+	gpiod_set_consumer_name(data->flt, data->psy_desc.name);
+
+	data->usus = devm_gpiod_get_optional(dev, "usus", GPIOD_IN);
+	if (IS_ERR(data->usus))
+		return dev_err_probe(dev, PTR_ERR(data->usus),
+				     "failed to get USUS GPIO");
+	gpiod_set_consumer_name(data->usus, data->psy_desc.name);
+>>>>>>> upstream/android-13
 
 	data->fault = false;
 	data->ta_in = ta_in;
@@ -348,7 +566,10 @@ static int max8903_probe(struct platform_device *pdev)
 {
 	struct max8903_data *data;
 	struct device *dev = &pdev->dev;
+<<<<<<< HEAD
 	struct max8903_pdata *pdata = pdev->dev.platform_data;
+=======
+>>>>>>> upstream/android-13
 	struct power_supply_config psy_cfg = {};
 	int ret = 0;
 
@@ -356,6 +577,7 @@ static int max8903_probe(struct platform_device *pdev)
 	if (!data)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	if (IS_ENABLED(CONFIG_OF) && !pdata && dev->of_node)
 		pdata = max8903_parse_dt_data(dev);
 
@@ -374,6 +596,11 @@ static int max8903_probe(struct platform_device *pdev)
 		return -EINVAL;
 	}
 
+=======
+	data->dev = dev;
+	platform_set_drvdata(pdev, data);
+
+>>>>>>> upstream/android-13
 	ret = max8903_setup_gpios(pdev);
 	if (ret)
 		return ret;
@@ -395,41 +622,68 @@ static int max8903_probe(struct platform_device *pdev)
 		return PTR_ERR(data->psy);
 	}
 
+<<<<<<< HEAD
 	if (pdata->dc_valid) {
 		ret = devm_request_threaded_irq(dev, gpio_to_irq(pdata->dok),
+=======
+	if (data->dok) {
+		ret = devm_request_threaded_irq(dev, gpiod_to_irq(data->dok),
+>>>>>>> upstream/android-13
 					NULL, max8903_dcin,
 					IRQF_TRIGGER_FALLING |
 					IRQF_TRIGGER_RISING | IRQF_ONESHOT,
 					"MAX8903 DC IN", data);
 		if (ret) {
 			dev_err(dev, "Cannot request irq %d for DC (%d)\n",
+<<<<<<< HEAD
 					gpio_to_irq(pdata->dok), ret);
+=======
+					gpiod_to_irq(data->dok), ret);
+>>>>>>> upstream/android-13
 			return ret;
 		}
 	}
 
+<<<<<<< HEAD
 	if (pdata->usb_valid) {
 		ret = devm_request_threaded_irq(dev, gpio_to_irq(pdata->uok),
+=======
+	if (data->uok) {
+		ret = devm_request_threaded_irq(dev, gpiod_to_irq(data->uok),
+>>>>>>> upstream/android-13
 					NULL, max8903_usbin,
 					IRQF_TRIGGER_FALLING |
 					IRQF_TRIGGER_RISING | IRQF_ONESHOT,
 					"MAX8903 USB IN", data);
 		if (ret) {
 			dev_err(dev, "Cannot request irq %d for USB (%d)\n",
+<<<<<<< HEAD
 					gpio_to_irq(pdata->uok), ret);
+=======
+					gpiod_to_irq(data->uok), ret);
+>>>>>>> upstream/android-13
 			return ret;
 		}
 	}
 
+<<<<<<< HEAD
 	if (gpio_is_valid(pdata->flt)) {
 		ret = devm_request_threaded_irq(dev, gpio_to_irq(pdata->flt),
+=======
+	if (data->flt) {
+		ret = devm_request_threaded_irq(dev, gpiod_to_irq(data->flt),
+>>>>>>> upstream/android-13
 					NULL, max8903_fault,
 					IRQF_TRIGGER_FALLING |
 					IRQF_TRIGGER_RISING | IRQF_ONESHOT,
 					"MAX8903 Fault", data);
 		if (ret) {
 			dev_err(dev, "Cannot request irq %d for Fault (%d)\n",
+<<<<<<< HEAD
 					gpio_to_irq(pdata->flt), ret);
+=======
+					gpiod_to_irq(data->flt), ret);
+>>>>>>> upstream/android-13
 			return ret;
 		}
 	}

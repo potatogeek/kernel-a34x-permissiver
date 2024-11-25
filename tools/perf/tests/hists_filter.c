@@ -1,13 +1,21 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 #include "perf.h"
 #include "util/debug.h"
+=======
+#include "util/debug.h"
+#include "util/map.h"
+>>>>>>> upstream/android-13
 #include "util/symbol.h"
 #include "util/sort.h"
 #include "util/evsel.h"
 #include "util/event.h"
 #include "util/evlist.h"
 #include "util/machine.h"
+<<<<<<< HEAD
 #include "util/thread.h"
+=======
+>>>>>>> upstream/android-13
 #include "util/parse-events.h"
 #include "tests/tests.h"
 #include "tests/hists_common.h"
@@ -46,10 +54,17 @@ static struct sample fake_samples[] = {
 	{ .pid = FAKE_PID_BASH,  .ip = FAKE_IP_KERNEL_PAGE_FAULT, .socket = 3 },
 };
 
+<<<<<<< HEAD
 static int add_hist_entries(struct perf_evlist *evlist,
 			    struct machine *machine)
 {
 	struct perf_evsel *evsel;
+=======
+static int add_hist_entries(struct evlist *evlist,
+			    struct machine *machine)
+{
+	struct evsel *evsel;
+>>>>>>> upstream/android-13
 	struct addr_location al;
 	struct perf_sample sample = { .period = 100, };
 	size_t i;
@@ -107,8 +122,13 @@ int test__hists_filter(struct test *test __maybe_unused, int subtest __maybe_unu
 	int err = TEST_FAIL;
 	struct machines machines;
 	struct machine *machine;
+<<<<<<< HEAD
 	struct perf_evsel *evsel;
 	struct perf_evlist *evlist = perf_evlist__new();
+=======
+	struct evsel *evsel;
+	struct evlist *evlist = evlist__new();
+>>>>>>> upstream/android-13
 
 	TEST_ASSERT_VAL("No memory", evlist);
 
@@ -143,7 +163,11 @@ int test__hists_filter(struct test *test __maybe_unused, int subtest __maybe_unu
 		struct hists *hists = evsel__hists(evsel);
 
 		hists__collapse_resort(hists, NULL);
+<<<<<<< HEAD
 		perf_evsel__output_resort(evsel, NULL);
+=======
+		evsel__output_resort(evsel, NULL);
+>>>>>>> upstream/android-13
 
 		if (verbose > 2) {
 			pr_info("Normal histogram\n");
@@ -151,13 +175,21 @@ int test__hists_filter(struct test *test __maybe_unused, int subtest __maybe_unu
 		}
 
 		TEST_ASSERT_VAL("Invalid nr samples",
+<<<<<<< HEAD
 				hists->stats.nr_events[PERF_RECORD_SAMPLE] == 10);
+=======
+				hists->stats.nr_samples == 10);
+>>>>>>> upstream/android-13
 		TEST_ASSERT_VAL("Invalid nr hist entries",
 				hists->nr_entries == 9);
 		TEST_ASSERT_VAL("Invalid total period",
 				hists->stats.total_period == 1000);
 		TEST_ASSERT_VAL("Unmatched nr samples",
+<<<<<<< HEAD
 				hists->stats.nr_events[PERF_RECORD_SAMPLE] ==
+=======
+				hists->stats.nr_samples ==
+>>>>>>> upstream/android-13
 				hists->stats.nr_non_filtered_samples);
 		TEST_ASSERT_VAL("Unmatched nr hist entries",
 				hists->nr_entries == hists->nr_non_filtered_entries);
@@ -176,7 +208,11 @@ int test__hists_filter(struct test *test __maybe_unused, int subtest __maybe_unu
 
 		/* normal stats should be invariant */
 		TEST_ASSERT_VAL("Invalid nr samples",
+<<<<<<< HEAD
 				hists->stats.nr_events[PERF_RECORD_SAMPLE] == 10);
+=======
+				hists->stats.nr_samples == 10);
+>>>>>>> upstream/android-13
 		TEST_ASSERT_VAL("Invalid nr hist entries",
 				hists->nr_entries == 9);
 		TEST_ASSERT_VAL("Invalid total period",
@@ -205,7 +241,11 @@ int test__hists_filter(struct test *test __maybe_unused, int subtest __maybe_unu
 
 		/* normal stats should be invariant */
 		TEST_ASSERT_VAL("Invalid nr samples",
+<<<<<<< HEAD
 				hists->stats.nr_events[PERF_RECORD_SAMPLE] == 10);
+=======
+				hists->stats.nr_samples == 10);
+>>>>>>> upstream/android-13
 		TEST_ASSERT_VAL("Invalid nr hist entries",
 				hists->nr_entries == 9);
 		TEST_ASSERT_VAL("Invalid total period",
@@ -240,7 +280,11 @@ int test__hists_filter(struct test *test __maybe_unused, int subtest __maybe_unu
 
 		/* normal stats should be invariant */
 		TEST_ASSERT_VAL("Invalid nr samples",
+<<<<<<< HEAD
 				hists->stats.nr_events[PERF_RECORD_SAMPLE] == 10);
+=======
+				hists->stats.nr_samples == 10);
+>>>>>>> upstream/android-13
 		TEST_ASSERT_VAL("Invalid nr hist entries",
 				hists->nr_entries == 9);
 		TEST_ASSERT_VAL("Invalid total period",
@@ -269,7 +313,11 @@ int test__hists_filter(struct test *test __maybe_unused, int subtest __maybe_unu
 
 		/* normal stats should be invariant */
 		TEST_ASSERT_VAL("Invalid nr samples",
+<<<<<<< HEAD
 				hists->stats.nr_events[PERF_RECORD_SAMPLE] == 10);
+=======
+				hists->stats.nr_samples == 10);
+>>>>>>> upstream/android-13
 		TEST_ASSERT_VAL("Invalid nr hist entries",
 				hists->nr_entries == 9);
 		TEST_ASSERT_VAL("Invalid total period",
@@ -300,7 +348,11 @@ int test__hists_filter(struct test *test __maybe_unused, int subtest __maybe_unu
 
 		/* normal stats should be invariant */
 		TEST_ASSERT_VAL("Invalid nr samples",
+<<<<<<< HEAD
 				hists->stats.nr_events[PERF_RECORD_SAMPLE] == 10);
+=======
+				hists->stats.nr_samples == 10);
+>>>>>>> upstream/android-13
 		TEST_ASSERT_VAL("Invalid nr hist entries",
 				hists->nr_entries == 9);
 		TEST_ASSERT_VAL("Invalid total period",
@@ -320,7 +372,11 @@ int test__hists_filter(struct test *test __maybe_unused, int subtest __maybe_unu
 
 out:
 	/* tear down everything */
+<<<<<<< HEAD
 	perf_evlist__delete(evlist);
+=======
+	evlist__delete(evlist);
+>>>>>>> upstream/android-13
 	reset_output_field();
 	machines__exit(&machines);
 

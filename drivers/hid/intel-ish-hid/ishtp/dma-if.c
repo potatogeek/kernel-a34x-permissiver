@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ISHTP DMA I/F functions
  *
  * Copyright (c) 2003-2016, Intel Corporation.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -12,6 +17,8 @@
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>

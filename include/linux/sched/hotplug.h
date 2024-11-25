@@ -11,8 +11,15 @@ extern int sched_cpu_activate(unsigned int cpu);
 extern int sched_cpu_deactivate(unsigned int cpu);
 
 #ifdef CONFIG_HOTPLUG_CPU
+<<<<<<< HEAD
 extern int sched_cpu_dying(unsigned int cpu);
 #else
+=======
+extern int sched_cpu_wait_empty(unsigned int cpu);
+extern int sched_cpu_dying(unsigned int cpu);
+#else
+# define sched_cpu_wait_empty	NULL
+>>>>>>> upstream/android-13
 # define sched_cpu_dying	NULL
 #endif
 

@@ -29,7 +29,11 @@ int main(void)
 
 	if (unshare(CLONE_NEWPID) == -1) {
 		if (errno == ENOSYS || errno == EPERM)
+<<<<<<< HEAD
 			return 2;
+=======
+			return 4;
+>>>>>>> upstream/android-13
 		return 1;
 	}
 

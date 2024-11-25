@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *
  *			Linux MegaRAID device driver
  *
  * Copyright (c) 2002  LSI Logic Corporation.
  *
+<<<<<<< HEAD
  *	   This program is free software; you can redistribute it and/or
  *	   modify it under the terms of the GNU General Public License
  *	   as published by the Free Software Foundation; either version
  *	   2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * Copyright (c) 2002  Red Hat, Inc. All rights reserved.
  *	  - fixes
  *	  - speed-ups (list handling fixes, issued_list, optimizations.)
@@ -28,7 +35,10 @@
  * This driver is supported by LSI Logic, with assistance from Red Hat, Dell,
  * and others. Please send updates to the mailing list
  * linux-scsi@vger.kernel.org .
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/mm.h>
@@ -129,7 +139,11 @@ static int trace_level;
 
 /**
  * mega_setup_mailbox()
+<<<<<<< HEAD
  * @adapter - pointer to our soft state
+=======
+ * @adapter: pointer to our soft state
+>>>>>>> upstream/android-13
  *
  * Allocates a 8 byte aligned memory for the handshake mailbox.
  */
@@ -138,8 +152,15 @@ mega_setup_mailbox(adapter_t *adapter)
 {
 	unsigned long	align;
 
+<<<<<<< HEAD
 	adapter->una_mbox64 = pci_alloc_consistent(adapter->dev,
 			sizeof(mbox64_t), &adapter->una_mbox64_dma);
+=======
+	adapter->una_mbox64 = dma_alloc_coherent(&adapter->dev->dev,
+						 sizeof(mbox64_t),
+						 &adapter->una_mbox64_dma,
+						 GFP_KERNEL);
+>>>>>>> upstream/android-13
 
 	if( !adapter->una_mbox64 ) return -1;
 		
@@ -227,8 +248,14 @@ mega_query_adapter(adapter_t *adapter)
 		mraid_inquiry		*inq;
 		dma_addr_t		dma_handle;
 
+<<<<<<< HEAD
 		ext_inq = pci_alloc_consistent(adapter->dev,
 				sizeof(mraid_ext_inquiry), &dma_handle);
+=======
+		ext_inq = dma_alloc_coherent(&adapter->dev->dev,
+					     sizeof(mraid_ext_inquiry),
+					     &dma_handle, GFP_KERNEL);
+>>>>>>> upstream/android-13
 
 		if( ext_inq == NULL ) return -1;
 
@@ -248,8 +275,14 @@ mega_query_adapter(adapter_t *adapter)
 		mega_8_to_40ld(inq, inquiry3,
 				(mega_product_info *)&adapter->product_info);
 
+<<<<<<< HEAD
 		pci_free_consistent(adapter->dev, sizeof(mraid_ext_inquiry),
 				ext_inq, dma_handle);
+=======
+		dma_free_coherent(&adapter->dev->dev,
+				  sizeof(mraid_ext_inquiry), ext_inq,
+				  dma_handle);
+>>>>>>> upstream/android-13
 
 	} else {		/*adapter supports 40ld */
 		adapter->flag |= BOARD_40LD;
@@ -258,9 +291,16 @@ mega_query_adapter(adapter_t *adapter)
 		 * get product_info, which is static information and will be
 		 * unchanged
 		 */
+<<<<<<< HEAD
 		prod_info_dma_handle = pci_map_single(adapter->dev, (void *)
 				&adapter->product_info,
 				sizeof(mega_product_info), PCI_DMA_FROMDEVICE);
+=======
+		prod_info_dma_handle = dma_map_single(&adapter->dev->dev,
+						      (void *)&adapter->product_info,
+						      sizeof(mega_product_info),
+						      DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 
 		mbox->m_out.xferaddr = prod_info_dma_handle;
 
@@ -272,8 +312,13 @@ mega_query_adapter(adapter_t *adapter)
 				"Product_info cmd failed with error: %d\n",
 				retval);
 
+<<<<<<< HEAD
 		pci_unmap_single(adapter->dev, prod_info_dma_handle,
 				sizeof(mega_product_info), PCI_DMA_FROMDEVICE);
+=======
+		dma_unmap_single(&adapter->dev->dev, prod_info_dma_handle,
+				 sizeof(mega_product_info), DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 	}
 
 
@@ -352,7 +397,11 @@ mega_query_adapter(adapter_t *adapter)
 
 /**
  * mega_runpendq()
+<<<<<<< HEAD
  * @adapter - pointer to our soft state
+=======
+ * @adapter: pointer to our soft state
+>>>>>>> upstream/android-13
  *
  * Runs through the list of pending requests.
  */
@@ -418,8 +467,13 @@ static DEF_SCSI_QCMD(megaraid_queue)
 
 /**
  * mega_allocate_scb()
+<<<<<<< HEAD
  * @adapter - pointer to our soft state
  * @cmd - scsi command from the mid-layer
+=======
+ * @adapter: pointer to our soft state
+ * @cmd: scsi command from the mid-layer
+>>>>>>> upstream/android-13
  *
  * Allocate a SCB structure. This is the central structure for controller
  * commands.
@@ -449,9 +503,15 @@ mega_allocate_scb(adapter_t *adapter, struct scsi_cmnd *cmd)
 
 /**
  * mega_get_ldrv_num()
+<<<<<<< HEAD
  * @adapter - pointer to our soft state
  * @cmd - scsi mid layer command
  * @channel - channel on the controller
+=======
+ * @adapter: pointer to our soft state
+ * @cmd: scsi mid layer command
+ * @channel: channel on the controller
+>>>>>>> upstream/android-13
  *
  * Calculate the logical drive number based on the information in scsi command
  * and the channel number.
@@ -496,9 +556,15 @@ mega_get_ldrv_num(adapter_t *adapter, struct scsi_cmnd *cmd, int channel)
 
 	if (adapter->support_random_del && adapter->read_ldidmap )
 		switch (cmd->cmnd[0]) {
+<<<<<<< HEAD
 		case READ_6:	/* fall through */
 		case WRITE_6:	/* fall through */
 		case READ_10:	/* fall through */
+=======
+		case READ_6:
+		case WRITE_6:
+		case READ_10:
+>>>>>>> upstream/android-13
 		case WRITE_10:
 			ldrv_num += 0x80;
 		}
@@ -508,9 +574,15 @@ mega_get_ldrv_num(adapter_t *adapter, struct scsi_cmnd *cmd, int channel)
 
 /**
  * mega_build_cmd()
+<<<<<<< HEAD
  * @adapter - pointer to our soft state
  * @cmd - Prepare using this scsi command
  * @busy - busy flag if no resources
+=======
+ * @adapter: pointer to our soft state
+ * @cmd: Prepare using this scsi command
+ * @busy: busy flag if no resources
+>>>>>>> upstream/android-13
  *
  * Prepares a command and scatter gather list for the controller. This routine
  * also finds out if the commands is intended for a logical drive or a
@@ -522,7 +594,10 @@ mega_get_ldrv_num(adapter_t *adapter, struct scsi_cmnd *cmd, int channel)
 static scb_t *
 mega_build_cmd(adapter_t *adapter, struct scsi_cmnd *cmd, int *busy)
 {
+<<<<<<< HEAD
 	mega_ext_passthru	*epthru;
+=======
+>>>>>>> upstream/android-13
 	mega_passthru	*pthru;
 	scb_t	*scb;
 	mbox_t	*mbox;
@@ -651,7 +726,11 @@ mega_build_cmd(adapter_t *adapter, struct scsi_cmnd *cmd, int *busy)
 			scb->raw_mbox[2] = MEGA_RESERVATION_STATUS;
 			scb->raw_mbox[3] = ldrv_num;
 
+<<<<<<< HEAD
 			scb->dma_direction = PCI_DMA_NONE;
+=======
+			scb->dma_direction = DMA_NONE;
+>>>>>>> upstream/android-13
 
 			return scb;
 #else
@@ -715,7 +794,11 @@ mega_build_cmd(adapter_t *adapter, struct scsi_cmnd *cmd, int *busy)
 				mbox->m_out.cmd = MEGA_MBOXCMD_PASSTHRU;
 			}
 
+<<<<<<< HEAD
 			scb->dma_direction = PCI_DMA_FROMDEVICE;
+=======
+			scb->dma_direction = DMA_FROM_DEVICE;
+>>>>>>> upstream/android-13
 
 			pthru->numsgelements = mega_build_sglist(adapter, scb,
 				&pthru->dataxferaddr, &pthru->dataxferlen);
@@ -845,10 +928,17 @@ mega_build_cmd(adapter_t *adapter, struct scsi_cmnd *cmd, int *busy)
 			 * If it is a read command
 			 */
 			if( (*cmd->cmnd & 0x0F) == 0x08 ) {
+<<<<<<< HEAD
 				scb->dma_direction = PCI_DMA_FROMDEVICE;
 			}
 			else {
 				scb->dma_direction = PCI_DMA_TODEVICE;
+=======
+				scb->dma_direction = DMA_FROM_DEVICE;
+			}
+			else {
+				scb->dma_direction = DMA_TO_DEVICE;
+>>>>>>> upstream/android-13
 			}
 
 			/* Calculate Scatter-Gather info */
@@ -858,7 +948,11 @@ mega_build_cmd(adapter_t *adapter, struct scsi_cmnd *cmd, int *busy)
 			return scb;
 
 #if MEGA_HAVE_CLUSTERING
+<<<<<<< HEAD
 		case RESERVE:	/* Fall through */
+=======
+		case RESERVE:
+>>>>>>> upstream/android-13
 		case RELEASE:
 
 			/*
@@ -883,7 +977,11 @@ mega_build_cmd(adapter_t *adapter, struct scsi_cmnd *cmd, int *busy)
 
 			scb->raw_mbox[3] = ldrv_num;
 
+<<<<<<< HEAD
 			scb->dma_direction = PCI_DMA_NONE;
+=======
+			scb->dma_direction = DMA_NONE;
+>>>>>>> upstream/android-13
 
 			return scb;
 #endif
@@ -910,7 +1008,11 @@ mega_build_cmd(adapter_t *adapter, struct scsi_cmnd *cmd, int *busy)
 
 		if( adapter->support_ext_cdb ) {
 
+<<<<<<< HEAD
 			epthru = mega_prepare_extpassthru(adapter, scb, cmd,
+=======
+			mega_prepare_extpassthru(adapter, scb, cmd,
+>>>>>>> upstream/android-13
 					channel, target);
 
 			mbox->m_out.cmd = MEGA_MBOXCMD_EXTPTHRU;
@@ -942,11 +1044,19 @@ mega_build_cmd(adapter_t *adapter, struct scsi_cmnd *cmd, int *busy)
 
 /**
  * mega_prepare_passthru()
+<<<<<<< HEAD
  * @adapter - pointer to our soft state
  * @scb - our scsi control block
  * @cmd - scsi command from the mid-layer
  * @channel - actual channel on the controller
  * @target - actual id on the controller.
+=======
+ * @adapter: pointer to our soft state
+ * @scb: our scsi control block
+ * @cmd: scsi command from the mid-layer
+ * @channel: actual channel on the controller
+ * @target: actual id on the controller.
+>>>>>>> upstream/android-13
  *
  * prepare a command for the scsi physical devices.
  */
@@ -977,7 +1087,11 @@ mega_prepare_passthru(adapter_t *adapter, scb_t *scb, struct scsi_cmnd *cmd,
 	memcpy(pthru->cdb, cmd->cmnd, cmd->cmd_len);
 
 	/* Not sure about the direction */
+<<<<<<< HEAD
 	scb->dma_direction = PCI_DMA_BIDIRECTIONAL;
+=======
+	scb->dma_direction = DMA_BIDIRECTIONAL;
+>>>>>>> upstream/android-13
 
 	/* Special Code for Handling READ_CAPA/ INQ using bounce buffers */
 	switch (cmd->cmnd[0]) {
@@ -993,7 +1107,11 @@ mega_prepare_passthru(adapter_t *adapter, scb_t *scb, struct scsi_cmnd *cmd,
 
 			adapter->flag |= (1L << cmd->device->channel);
 		}
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		pthru->numsgelements = mega_build_sglist(adapter, scb,
 				&pthru->dataxferaddr, &pthru->dataxferlen);
@@ -1005,11 +1123,19 @@ mega_prepare_passthru(adapter_t *adapter, scb_t *scb, struct scsi_cmnd *cmd,
 
 /**
  * mega_prepare_extpassthru()
+<<<<<<< HEAD
  * @adapter - pointer to our soft state
  * @scb - our scsi control block
  * @cmd - scsi command from the mid-layer
  * @channel - actual channel on the controller
  * @target - actual id on the controller.
+=======
+ * @adapter: pointer to our soft state
+ * @scb: our scsi control block
+ * @cmd: scsi command from the mid-layer
+ * @channel: actual channel on the controller
+ * @target: actual id on the controller.
+>>>>>>> upstream/android-13
  *
  * prepare a command for the scsi physical devices. This rountine prepares
  * commands for devices which can take extended CDBs (>10 bytes)
@@ -1041,7 +1167,11 @@ mega_prepare_extpassthru(adapter_t *adapter, scb_t *scb,
 	memcpy(epthru->cdb, cmd->cmnd, cmd->cmd_len);
 
 	/* Not sure about the direction */
+<<<<<<< HEAD
 	scb->dma_direction = PCI_DMA_BIDIRECTIONAL;
+=======
+	scb->dma_direction = DMA_BIDIRECTIONAL;
+>>>>>>> upstream/android-13
 
 	switch(cmd->cmnd[0]) {
 	case INQUIRY:
@@ -1056,7 +1186,11 @@ mega_prepare_extpassthru(adapter_t *adapter, scb_t *scb,
 
 			adapter->flag |= (1L << cmd->device->channel);
 		}
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		epthru->numsgelements = mega_build_sglist(adapter, scb,
 				&epthru->dataxferaddr, &epthru->dataxferlen);
@@ -1090,8 +1224,13 @@ __mega_runpendq(adapter_t *adapter)
 
 /**
  * issue_scb()
+<<<<<<< HEAD
  * @adapter - pointer to our soft state
  * @scb - scsi control block
+=======
+ * @adapter: pointer to our soft state
+ * @scb: scsi control block
+>>>>>>> upstream/android-13
  *
  * Post a command to the card if the mailbox is available, otherwise return
  * busy. We also take the scb from the pending list if the mailbox is
@@ -1171,8 +1310,13 @@ mega_busywait_mbox (adapter_t *adapter)
 
 /**
  * issue_scb_block()
+<<<<<<< HEAD
  * @adapter - pointer to our soft state
  * @raw_mbox - the mailbox
+=======
+ * @adapter: pointer to our soft state
+ * @raw_mbox: the mailbox
+>>>>>>> upstream/android-13
  *
  * Issue a scb in synchronous and non-interrupt mode
  */
@@ -1252,8 +1396,13 @@ bug_blocked_mailbox:
 
 /**
  * megaraid_isr_iomapped()
+<<<<<<< HEAD
  * @irq - irq
  * @devp - pointer to our soft state
+=======
+ * @irq: irq
+ * @devp: pointer to our soft state
+>>>>>>> upstream/android-13
  *
  * Interrupt service routine for io-mapped controllers.
  * Find out if our device is interrupting. If yes, acknowledge the interrupt
@@ -1328,8 +1477,13 @@ megaraid_isr_iomapped(int irq, void *devp)
 
 /**
  * megaraid_isr_memmapped()
+<<<<<<< HEAD
  * @irq - irq
  * @devp - pointer to our soft state
+=======
+ * @irq: irq
+ * @devp: pointer to our soft state
+>>>>>>> upstream/android-13
  *
  * Interrupt service routine for memory-mapped controllers.
  * Find out if our device is interrupting. If yes, acknowledge the interrupt
@@ -1406,10 +1560,17 @@ megaraid_isr_memmapped(int irq, void *devp)
 }
 /**
  * mega_cmd_done()
+<<<<<<< HEAD
  * @adapter - pointer to our soft state
  * @completed - array of ids of completed commands
  * @nstatus - number of completed commands
  * @status - status of the last command completed
+=======
+ * @adapter: pointer to our soft state
+ * @completed: array of ids of completed commands
+ * @nstatus: number of completed commands
+ * @status: status of the last command completed
+>>>>>>> upstream/android-13
  *
  * Complete the commands and call the scsi mid-layer callback hooks.
  */
@@ -1584,9 +1745,13 @@ mega_cmd_done(adapter_t *adapter, u8 completed[], int nstatus, int status)
 				memcpy(cmd->sense_buffer, pthru->reqsensearea,
 						14);
 
+<<<<<<< HEAD
 				cmd->result = (DRIVER_SENSE << 24) |
 					(DID_OK << 16) |
 					(CHECK_CONDITION << 1);
+=======
+				cmd->result = SAM_STAT_CHECK_CONDITION;
+>>>>>>> upstream/android-13
 			}
 			else {
 				if (mbox->m_out.cmd == MEGA_MBOXCMD_EXTPTHRU) {
@@ -1594,6 +1759,7 @@ mega_cmd_done(adapter_t *adapter, u8 completed[], int nstatus, int status)
 					memcpy(cmd->sense_buffer,
 						epthru->reqsensearea, 14);
 
+<<<<<<< HEAD
 					cmd->result = (DRIVER_SENSE << 24) |
 						(DID_OK << 16) |
 						(CHECK_CONDITION << 1);
@@ -1602,6 +1768,12 @@ mega_cmd_done(adapter_t *adapter, u8 completed[], int nstatus, int status)
 					cmd->sense_buffer[2] = ABORTED_COMMAND;
 					cmd->result |= (CHECK_CONDITION << 1);
 				}
+=======
+					cmd->result = SAM_STAT_CHECK_CONDITION;
+				} else
+					scsi_build_sense(cmd, 0,
+							 ABORTED_COMMAND, 0, 0);
+>>>>>>> upstream/android-13
 			}
 			break;
 
@@ -1618,7 +1790,11 @@ mega_cmd_done(adapter_t *adapter, u8 completed[], int nstatus, int status)
 			 */
 			if( cmd->cmnd[0] == TEST_UNIT_READY ) {
 				cmd->result |= (DID_ERROR << 16) |
+<<<<<<< HEAD
 					(RESERVATION_CONFLICT << 1);
+=======
+					SAM_STAT_RESERVATION_CONFLICT;
+>>>>>>> upstream/android-13
 			}
 			else
 			/*
@@ -1630,7 +1806,11 @@ mega_cmd_done(adapter_t *adapter, u8 completed[], int nstatus, int status)
 					 cmd->cmnd[0] == RELEASE) ) {
 
 				cmd->result |= (DID_ERROR << 16) |
+<<<<<<< HEAD
 					(RESERVATION_CONFLICT << 1);
+=======
+					SAM_STAT_RESERVATION_CONFLICT;
+>>>>>>> upstream/android-13
 			}
 			else
 #endif
@@ -1819,25 +1999,43 @@ mega_free_sgl(adapter_t *adapter)
 		scb = &adapter->scb_list[i];
 
 		if( scb->sgl64 ) {
+<<<<<<< HEAD
 			pci_free_consistent(adapter->dev,
 				sizeof(mega_sgl64) * adapter->sglen,
 				scb->sgl64,
 				scb->sgl_dma_addr);
+=======
+			dma_free_coherent(&adapter->dev->dev,
+					  sizeof(mega_sgl64) * adapter->sglen,
+					  scb->sgl64, scb->sgl_dma_addr);
+>>>>>>> upstream/android-13
 
 			scb->sgl64 = NULL;
 		}
 
 		if( scb->pthru ) {
+<<<<<<< HEAD
 			pci_free_consistent(adapter->dev, sizeof(mega_passthru),
 				scb->pthru, scb->pthru_dma_addr);
+=======
+			dma_free_coherent(&adapter->dev->dev,
+					  sizeof(mega_passthru), scb->pthru,
+					  scb->pthru_dma_addr);
+>>>>>>> upstream/android-13
 
 			scb->pthru = NULL;
 		}
 
 		if( scb->epthru ) {
+<<<<<<< HEAD
 			pci_free_consistent(adapter->dev,
 				sizeof(mega_ext_passthru),
 				scb->epthru, scb->epthru_dma_addr);
+=======
+			dma_free_coherent(&adapter->dev->dev,
+					  sizeof(mega_ext_passthru),
+					  scb->epthru, scb->epthru_dma_addr);
+>>>>>>> upstream/android-13
 
 			scb->epthru = NULL;
 		}
@@ -1926,9 +2124,15 @@ megaraid_reset(struct scsi_cmnd *cmd)
 
 /**
  * megaraid_abort_and_reset()
+<<<<<<< HEAD
  * @adapter - megaraid soft state
  * @cmd - scsi command to be aborted or reset
  * @aor - abort or reset flag
+=======
+ * @adapter: megaraid soft state
+ * @cmd: scsi command to be aborted or reset
+ * @aor: abort or reset flag
+>>>>>>> upstream/android-13
  *
  * Try to locate the scsi command in the pending queue. If found and is not
  * issued to the controller, abort/reset it. Otherwise return failure
@@ -2010,7 +2214,11 @@ make_local_pdev(adapter_t *adapter, struct pci_dev **pdev)
 
 	memcpy(*pdev, adapter->dev, sizeof(struct pci_dev));
 
+<<<<<<< HEAD
 	if( pci_set_dma_mask(*pdev, DMA_BIT_MASK(32)) != 0 ) {
+=======
+	if (dma_set_mask(&(*pdev)->dev, DMA_BIT_MASK(32)) != 0) {
+>>>>>>> upstream/android-13
 		kfree(*pdev);
 		return -1;
 	}
@@ -2026,22 +2234,37 @@ free_local_pdev(struct pci_dev *pdev)
 
 /**
  * mega_allocate_inquiry()
+<<<<<<< HEAD
  * @dma_handle - handle returned for dma address
  * @pdev - handle to pci device
+=======
+ * @dma_handle: handle returned for dma address
+ * @pdev: handle to pci device
+>>>>>>> upstream/android-13
  *
  * allocates memory for inquiry structure
  */
 static inline void *
 mega_allocate_inquiry(dma_addr_t *dma_handle, struct pci_dev *pdev)
 {
+<<<<<<< HEAD
 	return pci_alloc_consistent(pdev, sizeof(mega_inquiry3), dma_handle);
+=======
+	return dma_alloc_coherent(&pdev->dev, sizeof(mega_inquiry3),
+				  dma_handle, GFP_KERNEL);
+>>>>>>> upstream/android-13
 }
 
 
 static inline void
 mega_free_inquiry(void *inquiry, dma_addr_t dma_handle, struct pci_dev *pdev)
 {
+<<<<<<< HEAD
 	pci_free_consistent(pdev, sizeof(mega_inquiry3), inquiry, dma_handle);
+=======
+	dma_free_coherent(&pdev->dev, sizeof(mega_inquiry3), inquiry,
+			  dma_handle);
+>>>>>>> upstream/android-13
 }
 
 
@@ -2050,8 +2273,13 @@ mega_free_inquiry(void *inquiry, dma_addr_t dma_handle, struct pci_dev *pdev)
 
 /**
  * proc_show_config()
+<<<<<<< HEAD
  * @m - Synthetic file construction data
  * @v - File iterator
+=======
+ * @m: Synthetic file construction data
+ * @v: File iterator
+>>>>>>> upstream/android-13
  *
  * Display configuration information about the controller.
  */
@@ -2114,8 +2342,13 @@ proc_show_config(struct seq_file *m, void *v)
 
 /**
  * proc_show_stat()
+<<<<<<< HEAD
  * @m - Synthetic file construction data
  * @v - File iterator
+=======
+ * @m: Synthetic file construction data
+ * @v: File iterator
+>>>>>>> upstream/android-13
  *
  * Display statistical information about the I/O activity.
  */
@@ -2148,8 +2381,13 @@ proc_show_stat(struct seq_file *m, void *v)
 
 /**
  * proc_show_mbox()
+<<<<<<< HEAD
  * @m - Synthetic file construction data
  * @v - File iterator
+=======
+ * @m: Synthetic file construction data
+ * @v: File iterator
+>>>>>>> upstream/android-13
  *
  * Display mailbox information for the last command issued. This information
  * is good for debugging.
@@ -2176,8 +2414,13 @@ proc_show_mbox(struct seq_file *m, void *v)
 
 /**
  * proc_show_rebuild_rate()
+<<<<<<< HEAD
  * @m - Synthetic file construction data
  * @v - File iterator
+=======
+ * @m: Synthetic file construction data
+ * @v: File iterator
+>>>>>>> upstream/android-13
  *
  * Display current rebuild rate
  */
@@ -2219,8 +2462,13 @@ free_pdev:
 
 /**
  * proc_show_battery()
+<<<<<<< HEAD
  * @m - Synthetic file construction data
  * @v - File iterator
+=======
+ * @m: Synthetic file construction data
+ * @v: File iterator
+>>>>>>> upstream/android-13
  *
  * Display information about the battery module on the controller.
  */
@@ -2322,9 +2570,15 @@ mega_print_inquiry(struct seq_file *m, char *scsi_inq)
 
 /**
  * proc_show_pdrv()
+<<<<<<< HEAD
  * @m - Synthetic file construction data
  * @page - buffer to write the data in
  * @adapter - pointer to our soft state
+=======
+ * @m: Synthetic file construction data
+ * @adapter: pointer to our soft state
+ * @channel: channel
+>>>>>>> upstream/android-13
  *
  * Display information about the physical drives.
  */
@@ -2355,7 +2609,12 @@ proc_show_pdrv(struct seq_file *m, adapter_t *adapter, int channel)
 	}
 
 
+<<<<<<< HEAD
 	scsi_inq = pci_alloc_consistent(pdev, 256, &scsi_inq_dma_handle);
+=======
+	scsi_inq = dma_alloc_coherent(&pdev->dev, 256, &scsi_inq_dma_handle,
+				      GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if( scsi_inq == NULL ) {
 		seq_puts(m, "memory not available for scsi inq.\n");
 		goto free_inquiry;
@@ -2428,7 +2687,11 @@ proc_show_pdrv(struct seq_file *m, adapter_t *adapter, int channel)
 	}
 
 free_pci:
+<<<<<<< HEAD
 	pci_free_consistent(pdev, 256, scsi_inq, scsi_inq_dma_handle);
+=======
+	dma_free_coherent(&pdev->dev, 256, scsi_inq, scsi_inq_dma_handle);
+>>>>>>> upstream/android-13
 free_inquiry:
 	mega_free_inquiry(inquiry, dma_handle, pdev);
 free_pdev:
@@ -2438,8 +2701,13 @@ free_pdev:
 
 /**
  * proc_show_pdrv_ch0()
+<<<<<<< HEAD
  * @m - Synthetic file construction data
  * @v - File iterator
+=======
+ * @m: Synthetic file construction data
+ * @v: File iterator
+>>>>>>> upstream/android-13
  *
  * Display information about the physical drives on physical channel 0.
  */
@@ -2452,8 +2720,13 @@ proc_show_pdrv_ch0(struct seq_file *m, void *v)
 
 /**
  * proc_show_pdrv_ch1()
+<<<<<<< HEAD
  * @m - Synthetic file construction data
  * @v - File iterator
+=======
+ * @m: Synthetic file construction data
+ * @v: File iterator
+>>>>>>> upstream/android-13
  *
  * Display information about the physical drives on physical channel 1.
  */
@@ -2466,8 +2739,13 @@ proc_show_pdrv_ch1(struct seq_file *m, void *v)
 
 /**
  * proc_show_pdrv_ch2()
+<<<<<<< HEAD
  * @m - Synthetic file construction data
  * @v - File iterator
+=======
+ * @m: Synthetic file construction data
+ * @v: File iterator
+>>>>>>> upstream/android-13
  *
  * Display information about the physical drives on physical channel 2.
  */
@@ -2480,8 +2758,13 @@ proc_show_pdrv_ch2(struct seq_file *m, void *v)
 
 /**
  * proc_show_pdrv_ch3()
+<<<<<<< HEAD
  * @m - Synthetic file construction data
  * @v - File iterator
+=======
+ * @m: Synthetic file construction data
+ * @v: File iterator
+>>>>>>> upstream/android-13
  *
  * Display information about the physical drives on physical channel 3.
  */
@@ -2494,10 +2777,17 @@ proc_show_pdrv_ch3(struct seq_file *m, void *v)
 
 /**
  * proc_show_rdrv()
+<<<<<<< HEAD
  * @m - Synthetic file construction data
  * @adapter - pointer to our soft state
  * @start - starting logical drive to display
  * @end - ending logical drive to display
+=======
+ * @m: Synthetic file construction data
+ * @adapter: pointer to our soft state
+ * @start: starting logical drive to display
+ * @end: ending logical drive to display
+>>>>>>> upstream/android-13
  *
  * We do not print the inquiry information since its already available through
  * /proc/scsi/scsi interface
@@ -2548,8 +2838,13 @@ proc_show_rdrv(struct seq_file *m, adapter_t *adapter, int start, int end )
 			raid_inq.logdrv_info.num_ldrv;
 	}
 
+<<<<<<< HEAD
 	disk_array = pci_alloc_consistent(pdev, array_sz,
 			&disk_array_dma_handle);
+=======
+	disk_array = dma_alloc_coherent(&pdev->dev, array_sz,
+					&disk_array_dma_handle, GFP_KERNEL);
+>>>>>>> upstream/android-13
 
 	if( disk_array == NULL ) {
 		seq_puts(m, "memory not available.\n");
@@ -2668,8 +2963,13 @@ proc_show_rdrv(struct seq_file *m, adapter_t *adapter, int start, int end )
 	}
 
 free_pci:
+<<<<<<< HEAD
 	pci_free_consistent(pdev, array_sz, disk_array,
 			disk_array_dma_handle);
+=======
+	dma_free_coherent(&pdev->dev, array_sz, disk_array,
+			  disk_array_dma_handle);
+>>>>>>> upstream/android-13
 free_inquiry:
 	mega_free_inquiry(inquiry, dma_handle, pdev);
 free_pdev:
@@ -2679,8 +2979,13 @@ free_pdev:
 
 /**
  * proc_show_rdrv_10()
+<<<<<<< HEAD
  * @m - Synthetic file construction data
  * @v - File iterator
+=======
+ * @m: Synthetic file construction data
+ * @v: File iterator
+>>>>>>> upstream/android-13
  *
  * Display real time information about the logical drives 0 through 9.
  */
@@ -2693,8 +2998,13 @@ proc_show_rdrv_10(struct seq_file *m, void *v)
 
 /**
  * proc_show_rdrv_20()
+<<<<<<< HEAD
  * @m - Synthetic file construction data
  * @v - File iterator
+=======
+ * @m: Synthetic file construction data
+ * @v: File iterator
+>>>>>>> upstream/android-13
  *
  * Display real time information about the logical drives 0 through 9.
  */
@@ -2707,8 +3017,13 @@ proc_show_rdrv_20(struct seq_file *m, void *v)
 
 /**
  * proc_show_rdrv_30()
+<<<<<<< HEAD
  * @m - Synthetic file construction data
  * @v - File iterator
+=======
+ * @m: Synthetic file construction data
+ * @v: File iterator
+>>>>>>> upstream/android-13
  *
  * Display real time information about the logical drives 0 through 9.
  */
@@ -2721,8 +3036,13 @@ proc_show_rdrv_30(struct seq_file *m, void *v)
 
 /**
  * proc_show_rdrv_40()
+<<<<<<< HEAD
  * @m - Synthetic file construction data
  * @v - File iterator
+=======
+ * @m: Synthetic file construction data
+ * @v: File iterator
+>>>>>>> upstream/android-13
  *
  * Display real time information about the logical drives 0 through 9.
  */
@@ -2734,8 +3054,13 @@ proc_show_rdrv_40(struct seq_file *m, void *v)
 
 /**
  * mega_create_proc_entry()
+<<<<<<< HEAD
  * @index - index in soft state array
  * @parent - parent node for this /proc entry
+=======
+ * @index: index in soft state array
+ * @parent: parent node for this /proc entry
+>>>>>>> upstream/android-13
  *
  * Creates /proc entries for our controllers.
  */
@@ -2790,7 +3115,11 @@ static inline void mega_create_proc_entry(int index, struct proc_dir_entry *pare
 #endif
 
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * megaraid_biosparam()
  *
  * Return the disk geometry for a particular disk
@@ -2800,11 +3129,17 @@ megaraid_biosparam(struct scsi_device *sdev, struct block_device *bdev,
 		    sector_t capacity, int geom[])
 {
 	adapter_t	*adapter;
+<<<<<<< HEAD
 	unsigned char	*bh;
 	int	heads;
 	int	sectors;
 	int	cylinders;
 	int	rval;
+=======
+	int	heads;
+	int	sectors;
+	int	cylinders;
+>>>>>>> upstream/android-13
 
 	/* Get pointer to host config structure */
 	adapter = (adapter_t *)sdev->host->hostdata;
@@ -2831,6 +3166,7 @@ megaraid_biosparam(struct scsi_device *sdev, struct block_device *bdev,
 			geom[2] = cylinders;
 	}
 	else {
+<<<<<<< HEAD
 		bh = scsi_bios_ptable(bdev);
 
 		if( bh ) {
@@ -2840,6 +3176,10 @@ megaraid_biosparam(struct scsi_device *sdev, struct block_device *bdev,
 			if( rval != -1 )
 				return rval;
 		}
+=======
+		if (scsi_partsize(bdev, capacity, geom))
+			return 0;
+>>>>>>> upstream/android-13
 
 		dev_info(&adapter->dev->dev,
 			 "invalid partition on this disk on channel %d\n",
@@ -2868,7 +3208,11 @@ megaraid_biosparam(struct scsi_device *sdev, struct block_device *bdev,
 
 /**
  * mega_init_scb()
+<<<<<<< HEAD
  * @adapter - pointer to our soft state
+=======
+ * @adapter: pointer to our soft state
+>>>>>>> upstream/android-13
  *
  * Allocate memory for the various pointers in the scb structures:
  * scatter-gather list pointer, passthru and extended passthru structure
@@ -2896,9 +3240,15 @@ mega_init_scb(adapter_t *adapter)
 
 		scb->idx = i;
 
+<<<<<<< HEAD
 		scb->sgl64 = pci_alloc_consistent(adapter->dev,
 				sizeof(mega_sgl64) * adapter->sglen,
 				&scb->sgl_dma_addr);
+=======
+		scb->sgl64 = dma_alloc_coherent(&adapter->dev->dev,
+						sizeof(mega_sgl64) * adapter->sglen,
+						&scb->sgl_dma_addr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 
 		scb->sgl = (mega_sglist *)scb->sgl64;
 
@@ -2908,9 +3258,15 @@ mega_init_scb(adapter_t *adapter)
 			return -1;
 		}
 
+<<<<<<< HEAD
 		scb->pthru = pci_alloc_consistent(adapter->dev,
 				sizeof(mega_passthru),
 				&scb->pthru_dma_addr);
+=======
+		scb->pthru = dma_alloc_coherent(&adapter->dev->dev,
+						sizeof(mega_passthru),
+						&scb->pthru_dma_addr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 
 		if( !scb->pthru ) {
 			dev_warn(&adapter->dev->dev, "RAID: Can't allocate passthru\n");
@@ -2918,9 +3274,15 @@ mega_init_scb(adapter_t *adapter)
 			return -1;
 		}
 
+<<<<<<< HEAD
 		scb->epthru = pci_alloc_consistent(adapter->dev,
 				sizeof(mega_ext_passthru),
 				&scb->epthru_dma_addr);
+=======
+		scb->epthru = dma_alloc_coherent(&adapter->dev->dev,
+						 sizeof(mega_ext_passthru),
+						 &scb->epthru_dma_addr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 
 		if( !scb->epthru ) {
 			dev_warn(&adapter->dev->dev,
@@ -2948,8 +3310,13 @@ mega_init_scb(adapter_t *adapter)
 
 /**
  * megadev_open()
+<<<<<<< HEAD
  * @inode - unused
  * @filep - unused
+=======
+ * @inode: unused
+ * @filep: unused
+>>>>>>> upstream/android-13
  *
  * Routines for the character/ioctl interface to the driver. Find out if this
  * is a valid open. 
@@ -2968,10 +3335,16 @@ megadev_open (struct inode *inode, struct file *filep)
 
 /**
  * megadev_ioctl()
+<<<<<<< HEAD
  * @inode - Our device inode
  * @filep - unused
  * @cmd - ioctl command
  * @arg - user buffer
+=======
+ * @filep: Our device file
+ * @cmd: ioctl command
+ * @arg: user buffer
+>>>>>>> upstream/android-13
  *
  * ioctl entry point for our private ioctl interface. We move the data in from
  * the user space, prepare the command (if necessary, convert the old MIMD
@@ -2991,6 +3364,7 @@ megadev_ioctl(struct file *filep, unsigned int cmd, unsigned long arg)
 	void		*data = NULL;	/* data to be transferred */
 	dma_addr_t	data_dma_hndl;	/* dma handle for data xfer area */
 	megacmd_t	mc;
+<<<<<<< HEAD
 	megastat_t	__user *ustats;
 	int		num_ldrv;
 	u32		uxferaddr = 0;
@@ -2999,6 +3373,15 @@ megadev_ioctl(struct file *filep, unsigned int cmd, unsigned long arg)
 	ustats = NULL; /* avoid compilation warnings */
 	num_ldrv = 0;
 
+=======
+#if MEGA_HAVE_STATS
+	megastat_t	__user *ustats = NULL;
+	int		num_ldrv = 0;
+#endif
+	u32		uxferaddr = 0;
+	struct pci_dev	*pdev;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Make sure only USCSICMD are issued through this interface.
 	 * MIMD application would still fire different command.
@@ -3162,9 +3545,15 @@ megadev_ioctl(struct file *filep, unsigned int cmd, unsigned long arg)
 		if( uioc.uioc_rmbox[0] == MEGA_MBOXCMD_PASSTHRU ) {
 			/* Passthru commands */
 
+<<<<<<< HEAD
 			pthru = pci_alloc_consistent(pdev,
 					sizeof(mega_passthru),
 					&pthru_dma_hndl);
+=======
+			pthru = dma_alloc_coherent(&pdev->dev,
+						   sizeof(mega_passthru),
+						   &pthru_dma_hndl, GFP_KERNEL);
+>>>>>>> upstream/android-13
 
 			if( pthru == NULL ) {
 				free_local_pdev(pdev);
@@ -3182,9 +3571,15 @@ megadev_ioctl(struct file *filep, unsigned int cmd, unsigned long arg)
 			if( copy_from_user(pthru, upthru,
 						sizeof(mega_passthru)) ) {
 
+<<<<<<< HEAD
 				pci_free_consistent(pdev,
 						sizeof(mega_passthru), pthru,
 						pthru_dma_hndl);
+=======
+				dma_free_coherent(&pdev->dev,
+						  sizeof(mega_passthru),
+						  pthru, pthru_dma_hndl);
+>>>>>>> upstream/android-13
 
 				free_local_pdev(pdev);
 
@@ -3195,6 +3590,7 @@ megadev_ioctl(struct file *filep, unsigned int cmd, unsigned long arg)
 			 * Is there a data transfer
 			 */
 			if( pthru->dataxferlen ) {
+<<<<<<< HEAD
 				data = pci_alloc_consistent(pdev,
 						pthru->dataxferlen,
 						&data_dma_hndl);
@@ -3204,6 +3600,18 @@ megadev_ioctl(struct file *filep, unsigned int cmd, unsigned long arg)
 							sizeof(mega_passthru),
 							pthru,
 							pthru_dma_hndl);
+=======
+				data = dma_alloc_coherent(&pdev->dev,
+							  pthru->dataxferlen,
+							  &data_dma_hndl,
+							  GFP_KERNEL);
+
+				if( data == NULL ) {
+					dma_free_coherent(&pdev->dev,
+							  sizeof(mega_passthru),
+							  pthru,
+							  pthru_dma_hndl);
+>>>>>>> upstream/android-13
 
 					free_local_pdev(pdev);
 
@@ -3268,6 +3676,7 @@ megadev_ioctl(struct file *filep, unsigned int cmd, unsigned long arg)
 
 freemem_and_return:
 			if( pthru->dataxferlen ) {
+<<<<<<< HEAD
 				pci_free_consistent(pdev,
 						pthru->dataxferlen, data,
 						data_dma_hndl);
@@ -3275,6 +3684,15 @@ freemem_and_return:
 
 			pci_free_consistent(pdev, sizeof(mega_passthru),
 					pthru, pthru_dma_hndl);
+=======
+				dma_free_coherent(&pdev->dev,
+						  pthru->dataxferlen, data,
+						  data_dma_hndl);
+			}
+
+			dma_free_coherent(&pdev->dev, sizeof(mega_passthru),
+					  pthru, pthru_dma_hndl);
+>>>>>>> upstream/android-13
 
 			free_local_pdev(pdev);
 
@@ -3287,8 +3705,15 @@ freemem_and_return:
 			 * Is there a data transfer
 			 */
 			if( uioc.xferlen ) {
+<<<<<<< HEAD
 				data = pci_alloc_consistent(pdev,
 						uioc.xferlen, &data_dma_hndl);
+=======
+				data = dma_alloc_coherent(&pdev->dev,
+							  uioc.xferlen,
+							  &data_dma_hndl,
+							  GFP_KERNEL);
+>>>>>>> upstream/android-13
 
 				if( data == NULL ) {
 					free_local_pdev(pdev);
@@ -3308,9 +3733,15 @@ freemem_and_return:
 				if( copy_from_user(data, (char __user *)(unsigned long) uxferaddr,
 							uioc.xferlen) ) {
 
+<<<<<<< HEAD
 					pci_free_consistent(pdev,
 							uioc.xferlen,
 							data, data_dma_hndl);
+=======
+					dma_free_coherent(&pdev->dev,
+							  uioc.xferlen, data,
+							  data_dma_hndl);
+>>>>>>> upstream/android-13
 
 					free_local_pdev(pdev);
 
@@ -3331,9 +3762,15 @@ freemem_and_return:
 
 			if( rval ) {
 				if( uioc.xferlen ) {
+<<<<<<< HEAD
 					pci_free_consistent(pdev,
 							uioc.xferlen, data,
 							data_dma_hndl);
+=======
+					dma_free_coherent(&pdev->dev,
+							  uioc.xferlen, data,
+							  data_dma_hndl);
+>>>>>>> upstream/android-13
 				}
 
 				free_local_pdev(pdev);
@@ -3353,9 +3790,14 @@ freemem_and_return:
 			}
 
 			if( uioc.xferlen ) {
+<<<<<<< HEAD
 				pci_free_consistent(pdev,
 						uioc.xferlen, data,
 						data_dma_hndl);
+=======
+				dma_free_coherent(&pdev->dev, uioc.xferlen,
+						  data, data_dma_hndl);
+>>>>>>> upstream/android-13
 			}
 
 			free_local_pdev(pdev);
@@ -3384,8 +3826,13 @@ megadev_unlocked_ioctl(struct file *filep, unsigned int cmd, unsigned long arg)
 
 /**
  * mega_m_to_n()
+<<<<<<< HEAD
  * @arg - user address
  * @uioc - new ioctl structure
+=======
+ * @arg: user address
+ * @uioc: new ioctl structure
+>>>>>>> upstream/android-13
  *
  * A thin layer to convert older mimd interface ioctl structure to NIT ioctl
  * structure
@@ -3512,8 +3959,13 @@ mega_m_to_n(void __user *arg, nitioctl_t *uioc)
 
 /*
  * mega_n_to_m()
+<<<<<<< HEAD
  * @arg - user address
  * @mc - mailbox command
+=======
+ * @arg: user address
+ * @mc: mailbox command
+>>>>>>> upstream/android-13
  *
  * Updates the status information to the application, depending on application
  * conforms to older mimd ioctl interface or newer NIT ioctl interface
@@ -3579,7 +4031,11 @@ mega_n_to_m(void __user *arg, megacmd_t *mc)
 
 /**
  * mega_is_bios_enabled()
+<<<<<<< HEAD
  * @adapter - pointer to our soft state
+=======
+ * @adapter: pointer to our soft state
+>>>>>>> upstream/android-13
  *
  * issue command to find out if the BIOS is enabled for this controller
  */
@@ -3588,7 +4044,10 @@ mega_is_bios_enabled(adapter_t *adapter)
 {
 	unsigned char	raw_mbox[sizeof(struct mbox_out)];
 	mbox_t	*mbox;
+<<<<<<< HEAD
 	int	ret;
+=======
+>>>>>>> upstream/android-13
 
 	mbox = (mbox_t *)raw_mbox;
 
@@ -3601,8 +4060,12 @@ mega_is_bios_enabled(adapter_t *adapter)
 	raw_mbox[0] = IS_BIOS_ENABLED;
 	raw_mbox[2] = GET_BIOS;
 
+<<<<<<< HEAD
 
 	ret = issue_scb_block(adapter, raw_mbox);
+=======
+	issue_scb_block(adapter, raw_mbox);
+>>>>>>> upstream/android-13
 
 	return *(char *)adapter->mega_buffer;
 }
@@ -3610,7 +4073,11 @@ mega_is_bios_enabled(adapter_t *adapter)
 
 /**
  * mega_enum_raid_scsi()
+<<<<<<< HEAD
  * @adapter - pointer to our soft state
+=======
+ * @adapter: pointer to our soft state
+>>>>>>> upstream/android-13
  *
  * Find out what channels are RAID/SCSI. This information is used to
  * differentiate the virtual channels and physical channels and to support
@@ -3665,7 +4132,11 @@ mega_enum_raid_scsi(adapter_t *adapter)
 
 /**
  * mega_get_boot_drv()
+<<<<<<< HEAD
  * @adapter - pointer to our soft state
+=======
+ * @adapter: pointer to our soft state
+>>>>>>> upstream/android-13
  *
  * Find out which device is the boot device. Note, any logical drive or any
  * phyical device (e.g., a CDROM) can be designated as a boot device.
@@ -3732,7 +4203,11 @@ mega_get_boot_drv(adapter_t *adapter)
 
 /**
  * mega_support_random_del()
+<<<<<<< HEAD
  * @adapter - pointer to our soft state
+=======
+ * @adapter: pointer to our soft state
+>>>>>>> upstream/android-13
  *
  * Find out if this controller supports random deletion and addition of
  * logical drives
@@ -3762,7 +4237,11 @@ mega_support_random_del(adapter_t *adapter)
 
 /**
  * mega_support_ext_cdb()
+<<<<<<< HEAD
  * @adapter - pointer to our soft state
+=======
+ * @adapter: pointer to our soft state
+>>>>>>> upstream/android-13
  *
  * Find out if this firmware support cdblen > 10
  */
@@ -3790,8 +4269,13 @@ mega_support_ext_cdb(adapter_t *adapter)
 
 /**
  * mega_del_logdrv()
+<<<<<<< HEAD
  * @adapter - pointer to our soft state
  * @logdrv - logical drive to be deleted
+=======
+ * @adapter: pointer to our soft state
+ * @logdrv: logical drive to be deleted
+>>>>>>> upstream/android-13
  *
  * Delete the specified logical drive. It is the responsibility of the user
  * app to let the OS know about this operation.
@@ -3876,7 +4360,11 @@ mega_do_del_logdrv(adapter_t *adapter, int logdrv)
 
 /**
  * mega_get_max_sgl()
+<<<<<<< HEAD
  * @adapter - pointer to our soft state
+=======
+ * @adapter: pointer to our soft state
+>>>>>>> upstream/android-13
  *
  * Find out the maximum number of scatter-gather elements supported by this
  * version of the firmware
@@ -3922,7 +4410,11 @@ mega_get_max_sgl(adapter_t *adapter)
 
 /**
  * mega_support_cluster()
+<<<<<<< HEAD
  * @adapter - pointer to our soft state
+=======
+ * @adapter: pointer to our soft state
+>>>>>>> upstream/android-13
  *
  * Find out if this firmware support cluster calls.
  */
@@ -3964,8 +4456,13 @@ mega_support_cluster(adapter_t *adapter)
 #ifdef CONFIG_PROC_FS
 /**
  * mega_adapinq()
+<<<<<<< HEAD
  * @adapter - pointer to our soft state
  * @dma_handle - DMA address of the buffer
+=======
+ * @adapter: pointer to our soft state
+ * @dma_handle: DMA address of the buffer
+>>>>>>> upstream/android-13
  *
  * Issue internal commands while interrupts are available.
  * We only issue direct mailbox commands from within the driver. ioctl()
@@ -3997,11 +4494,20 @@ mega_adapinq(adapter_t *adapter, dma_addr_t dma_handle)
 }
 
 
+<<<<<<< HEAD
 /** mega_internal_dev_inquiry()
  * @adapter - pointer to our soft state
  * @ch - channel for this device
  * @tgt - ID of this device
  * @buf_dma_handle - DMA address of the buffer
+=======
+/**
+ * mega_internal_dev_inquiry()
+ * @adapter: pointer to our soft state
+ * @ch: channel for this device
+ * @tgt: ID of this device
+ * @buf_dma_handle: DMA address of the buffer
+>>>>>>> upstream/android-13
  *
  * Issue the scsi inquiry for the specified device.
  */
@@ -4022,8 +4528,13 @@ mega_internal_dev_inquiry(adapter_t *adapter, u8 ch, u8 tgt,
 	 */
 	if( make_local_pdev(adapter, &pdev) != 0 ) return -1;
 
+<<<<<<< HEAD
 	pthru = pci_alloc_consistent(pdev, sizeof(mega_passthru),
 			&pthru_dma_handle);
+=======
+	pthru = dma_alloc_coherent(&pdev->dev, sizeof(mega_passthru),
+				   &pthru_dma_handle, GFP_KERNEL);
+>>>>>>> upstream/android-13
 
 	if( pthru == NULL ) {
 		free_local_pdev(pdev);
@@ -4059,8 +4570,13 @@ mega_internal_dev_inquiry(adapter_t *adapter, u8 ch, u8 tgt,
 
 	rval = mega_internal_command(adapter, &mc, pthru);
 
+<<<<<<< HEAD
 	pci_free_consistent(pdev, sizeof(mega_passthru), pthru,
 			pthru_dma_handle);
+=======
+	dma_free_coherent(&pdev->dev, sizeof(mega_passthru), pthru,
+			  pthru_dma_handle);
+>>>>>>> upstream/android-13
 
 	free_local_pdev(pdev);
 
@@ -4070,9 +4586,15 @@ mega_internal_dev_inquiry(adapter_t *adapter, u8 ch, u8 tgt,
 
 /**
  * mega_internal_command()
+<<<<<<< HEAD
  * @adapter - pointer to our soft state
  * @mc - the mailbox command
  * @pthru - Passthru structure for DCDB commands
+=======
+ * @adapter: pointer to our soft state
+ * @mc: the mailbox command
+ * @pthru: Passthru structure for DCDB commands
+>>>>>>> upstream/android-13
  *
  * Issue the internal commands in interrupt mode.
  * The last argument is the address of the passthru structure if the command
@@ -4148,7 +4670,10 @@ static struct scsi_host_template megaraid_template = {
 	.this_id			= DEFAULT_INITIATOR_ID,
 	.sg_tablesize			= MAX_SGLIST,
 	.cmd_per_lun			= DEF_CMD_PER_LUN,
+<<<<<<< HEAD
 	.use_clustering			= ENABLE_CLUSTERING,
+=======
+>>>>>>> upstream/android-13
 	.eh_abort_handler		= megaraid_abort,
 	.eh_device_reset_handler	= megaraid_reset,
 	.eh_bus_reset_handler		= megaraid_reset,
@@ -4286,8 +4811,15 @@ megaraid_probe_one(struct pci_dev *pdev, const struct pci_device_id *id)
 	/*
 	 * Allocate buffer to issue internal commands.
 	 */
+<<<<<<< HEAD
 	adapter->mega_buffer = pci_alloc_consistent(adapter->dev,
 		MEGA_BUFFER_SIZE, &adapter->buf_dma_handle);
+=======
+	adapter->mega_buffer = dma_alloc_coherent(&adapter->dev->dev,
+						  MEGA_BUFFER_SIZE,
+						  &adapter->buf_dma_handle,
+						  GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!adapter->mega_buffer) {
 		dev_warn(&pdev->dev, "out of RAM\n");
 		goto out_host_put;
@@ -4446,10 +4978,17 @@ megaraid_probe_one(struct pci_dev *pdev, const struct pci_device_id *id)
 
 	/* Set the Mode of addressing to 64 bit if we can */
 	if ((adapter->flag & BOARD_64BIT) && (sizeof(dma_addr_t) == 8)) {
+<<<<<<< HEAD
 		pci_set_dma_mask(pdev, DMA_BIT_MASK(64));
 		adapter->has_64bit_addr = 1;
 	} else  {
 		pci_set_dma_mask(pdev, DMA_BIT_MASK(32));
+=======
+		dma_set_mask(&pdev->dev, DMA_BIT_MASK(64));
+		adapter->has_64bit_addr = 1;
+	} else  {
+		dma_set_mask(&pdev->dev, DMA_BIT_MASK(32));
+>>>>>>> upstream/android-13
 		adapter->has_64bit_addr = 0;
 	}
 		
@@ -4488,15 +5027,25 @@ megaraid_probe_one(struct pci_dev *pdev, const struct pci_device_id *id)
 	return 0;
 
  out_free_mbox:
+<<<<<<< HEAD
 	pci_free_consistent(adapter->dev, sizeof(mbox64_t),
 			adapter->una_mbox64, adapter->una_mbox64_dma);
+=======
+	dma_free_coherent(&adapter->dev->dev, sizeof(mbox64_t),
+			  adapter->una_mbox64, adapter->una_mbox64_dma);
+>>>>>>> upstream/android-13
  out_free_irq:
 	free_irq(adapter->host->irq, adapter);
  out_free_scb_list:
 	kfree(adapter->scb_list);
  out_free_cmd_buffer:
+<<<<<<< HEAD
 	pci_free_consistent(adapter->dev, MEGA_BUFFER_SIZE,
 			adapter->mega_buffer, adapter->buf_dma_handle);
+=======
+	dma_free_coherent(&adapter->dev->dev, MEGA_BUFFER_SIZE,
+			  adapter->mega_buffer, adapter->buf_dma_handle);
+>>>>>>> upstream/android-13
  out_host_put:
 	scsi_host_put(host);
  out_iounmap:
@@ -4570,11 +5119,19 @@ megaraid_remove_one(struct pci_dev *pdev)
 	sprintf(buf, "hba%d", adapter->host->host_no);
 	remove_proc_subtree(buf, mega_proc_dir_entry);
 
+<<<<<<< HEAD
 	pci_free_consistent(adapter->dev, MEGA_BUFFER_SIZE,
 			adapter->mega_buffer, adapter->buf_dma_handle);
 	kfree(adapter->scb_list);
 	pci_free_consistent(adapter->dev, sizeof(mbox64_t),
 			adapter->una_mbox64, adapter->una_mbox64_dma);
+=======
+	dma_free_coherent(&adapter->dev->dev, MEGA_BUFFER_SIZE,
+			  adapter->mega_buffer, adapter->buf_dma_handle);
+	kfree(adapter->scb_list);
+	dma_free_coherent(&adapter->dev->dev, sizeof(mbox64_t),
+			  adapter->una_mbox64, adapter->una_mbox64_dma);
+>>>>>>> upstream/android-13
 
 	scsi_host_put(host);
 	pci_disable_device(pdev);

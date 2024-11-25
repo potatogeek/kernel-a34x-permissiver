@@ -45,12 +45,21 @@
  *     OTHER DEALINGS IN THE SOFTWARE.
  */
 
+<<<<<<< HEAD
 #include "skeleton.dtsi"
+=======
+>>>>>>> upstream/android-13
 #include "armv7-m.dtsi"
 #include <dt-bindings/clock/stm32fx-clock.h>
 #include <dt-bindings/mfd/stm32f4-rcc.h>
 
 / {
+<<<<<<< HEAD
+=======
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+>>>>>>> upstream/android-13
 	clocks {
 		clk_hse: clk-hse {
 			#clock-cells = <0>;
@@ -58,7 +67,11 @@
 			clock-frequency = <0>;
 		};
 
+<<<<<<< HEAD
 		clk-lse {
+=======
+		clk_lse: clk-lse {
+>>>>>>> upstream/android-13
 			#clock-cells = <0>;
 			compatible = "fixed-clock";
 			clock-frequency = <32768>;
@@ -78,6 +91,22 @@
 	};
 
 	soc {
+<<<<<<< HEAD
+=======
+		romem: efuse@1fff7800 {
+			compatible = "st,stm32f4-otp";
+			reg = <0x1fff7800 0x400>;
+			#address-cells = <1>;
+			#size-cells = <1>;
+			ts_cal1: calib@22c {
+				reg = <0x22c 0x2>;
+			};
+			ts_cal2: calib@22e {
+				reg = <0x22e 0x2>;
+			};
+		};
+
+>>>>>>> upstream/android-13
 		timer2: timer@40000000 {
 			compatible = "st,stm32-timer";
 			reg = <0x40000000 0x400>;
@@ -97,6 +126,10 @@
 
 			pwm {
 				compatible = "st,stm32-pwm";
+<<<<<<< HEAD
+=======
+				#pwm-cells = <3>;
+>>>>>>> upstream/android-13
 				status = "disabled";
 			};
 
@@ -126,6 +159,10 @@
 
 			pwm {
 				compatible = "st,stm32-pwm";
+<<<<<<< HEAD
+=======
+				#pwm-cells = <3>;
+>>>>>>> upstream/android-13
 				status = "disabled";
 			};
 
@@ -155,6 +192,10 @@
 
 			pwm {
 				compatible = "st,stm32-pwm";
+<<<<<<< HEAD
+=======
+				#pwm-cells = <3>;
+>>>>>>> upstream/android-13
 				status = "disabled";
 			};
 
@@ -183,6 +224,10 @@
 
 			pwm {
 				compatible = "st,stm32-pwm";
+<<<<<<< HEAD
+=======
+				#pwm-cells = <3>;
+>>>>>>> upstream/android-13
 				status = "disabled";
 			};
 
@@ -252,6 +297,10 @@
 
 			pwm {
 				compatible = "st,stm32-pwm";
+<<<<<<< HEAD
+=======
+				#pwm-cells = <3>;
+>>>>>>> upstream/android-13
 				status = "disabled";
 			};
 
@@ -263,8 +312,11 @@
 		};
 
 		timers13: timers@40001c00 {
+<<<<<<< HEAD
 			#address-cells = <1>;
 			#size-cells = <0>;
+=======
+>>>>>>> upstream/android-13
 			compatible = "st,stm32-timers";
 			reg = <0x40001C00 0x400>;
 			clocks = <&rcc 0 STM32F4_APB1_CLOCK(TIM13)>;
@@ -273,13 +325,20 @@
 
 			pwm {
 				compatible = "st,stm32-pwm";
+<<<<<<< HEAD
+=======
+				#pwm-cells = <3>;
+>>>>>>> upstream/android-13
 				status = "disabled";
 			};
 		};
 
 		timers14: timers@40002000 {
+<<<<<<< HEAD
 			#address-cells = <1>;
 			#size-cells = <0>;
+=======
+>>>>>>> upstream/android-13
 			compatible = "st,stm32-timers";
 			reg = <0x40002000 0x400>;
 			clocks = <&rcc 0 STM32F4_APB1_CLOCK(TIM14)>;
@@ -288,6 +347,10 @@
 
 			pwm {
 				compatible = "st,stm32-pwm";
+<<<<<<< HEAD
+=======
+				#pwm-cells = <3>;
+>>>>>>> upstream/android-13
 				status = "disabled";
 			};
 		};
@@ -296,12 +359,18 @@
 			compatible = "st,stm32-rtc";
 			reg = <0x40002800 0x400>;
 			clocks = <&rcc 1 CLK_RTC>;
+<<<<<<< HEAD
 			clock-names = "ck_rtc";
+=======
+>>>>>>> upstream/android-13
 			assigned-clocks = <&rcc 1 CLK_RTC>;
 			assigned-clock-parents = <&rcc 1 CLK_LSE>;
 			interrupt-parent = <&exti>;
 			interrupts = <17 1>;
+<<<<<<< HEAD
 			interrupt-names = "alarm";
+=======
+>>>>>>> upstream/android-13
 			st,syscfg = <&pwrcfg 0x00 0x100>;
 			status = "disabled";
 		};
@@ -314,6 +383,29 @@
 			status = "disabled";
 		};
 
+<<<<<<< HEAD
+=======
+		spi2: spi@40003800 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "st,stm32f4-spi";
+			reg = <0x40003800 0x400>;
+			interrupts = <36>;
+			clocks = <&rcc 0 STM32F4_APB1_CLOCK(SPI2)>;
+			status = "disabled";
+		};
+
+		spi3: spi@40003c00 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "st,stm32f4-spi";
+			reg = <0x40003c00 0x400>;
+			interrupts = <51>;
+			clocks = <&rcc 0 STM32F4_APB1_CLOCK(SPI3)>;
+			status = "disabled";
+		};
+
+>>>>>>> upstream/android-13
 		usart2: serial@40004400 {
 			compatible = "st,stm32-uart";
 			reg = <0x40004400 0x400>;
@@ -361,6 +453,21 @@
 			status = "disabled";
 		};
 
+<<<<<<< HEAD
+=======
+		i2c3: i2c@40005c00 {
+			compatible = "st,stm32f4-i2c";
+			reg = <0x40005c00 0x400>;
+			interrupts = <72>,
+				     <73>;
+			resets = <&rcc STM32F4_APB1_RESET(I2C3)>;
+			clocks = <&rcc 0 STM32F4_APB1_CLOCK(I2C3)>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
+>>>>>>> upstream/android-13
 		dac: dac@40007400 {
 			compatible = "st,stm32f4-dac-core";
 			reg = <0x40007400 0x400>;
@@ -373,14 +480,22 @@
 
 			dac1: dac@1 {
 				compatible = "st,stm32-dac";
+<<<<<<< HEAD
 				#io-channels-cells = <1>;
+=======
+				#io-channel-cells = <1>;
+>>>>>>> upstream/android-13
 				reg = <1>;
 				status = "disabled";
 			};
 
 			dac2: dac@2 {
 				compatible = "st,stm32-dac";
+<<<<<<< HEAD
 				#io-channels-cells = <1>;
+=======
+				#io-channel-cells = <1>;
+>>>>>>> upstream/android-13
 				reg = <2>;
 				status = "disabled";
 			};
@@ -413,6 +528,10 @@
 
 			pwm {
 				compatible = "st,stm32-pwm";
+<<<<<<< HEAD
+=======
+				#pwm-cells = <3>;
+>>>>>>> upstream/android-13
 				status = "disabled";
 			};
 
@@ -434,6 +553,10 @@
 
 			pwm {
 				compatible = "st,stm32-pwm";
+<<<<<<< HEAD
+=======
+				#pwm-cells = <3>;
+>>>>>>> upstream/android-13
 				status = "disabled";
 			};
 
@@ -512,7 +635,11 @@
 			};
 		};
 
+<<<<<<< HEAD
 		sdio: sdio@40012c00 {
+=======
+		sdio: mmc@40012c00 {
+>>>>>>> upstream/android-13
 			compatible = "arm,pl180", "arm,primecell";
 			arm,primecell-periphid = <0x00880180>;
 			reg = <0x40012c00 0x400>;
@@ -523,8 +650,33 @@
 			status = "disabled";
 		};
 
+<<<<<<< HEAD
 		syscfg: system-config@40013800 {
 			compatible = "syscon";
+=======
+		spi1: spi@40013000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "st,stm32f4-spi";
+			reg = <0x40013000 0x400>;
+			interrupts = <35>;
+			clocks = <&rcc 0 STM32F4_APB2_CLOCK(SPI1)>;
+			status = "disabled";
+		};
+
+		spi4: spi@40013400 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "st,stm32f4-spi";
+			reg = <0x40013400 0x400>;
+			interrupts = <84>;
+			clocks = <&rcc 0 STM32F4_APB2_CLOCK(SPI4)>;
+			status = "disabled";
+		};
+
+		syscfg: syscon@40013800 {
+			compatible = "st,stm32-syscfg", "syscon";
+>>>>>>> upstream/android-13
 			reg = <0x40013800 0x400>;
 		};
 
@@ -547,6 +699,10 @@
 
 			pwm {
 				compatible = "st,stm32-pwm";
+<<<<<<< HEAD
+=======
+				#pwm-cells = <3>;
+>>>>>>> upstream/android-13
 				status = "disabled";
 			};
 
@@ -558,8 +714,11 @@
 		};
 
 		timers10: timers@40014400 {
+<<<<<<< HEAD
 			#address-cells = <1>;
 			#size-cells = <0>;
+=======
+>>>>>>> upstream/android-13
 			compatible = "st,stm32-timers";
 			reg = <0x40014400 0x400>;
 			clocks = <&rcc 0 STM32F4_APB2_CLOCK(TIM10)>;
@@ -568,13 +727,20 @@
 
 			pwm {
 				compatible = "st,stm32-pwm";
+<<<<<<< HEAD
+=======
+				#pwm-cells = <3>;
+>>>>>>> upstream/android-13
 				status = "disabled";
 			};
 		};
 
 		timers11: timers@40014800 {
+<<<<<<< HEAD
 			#address-cells = <1>;
 			#size-cells = <0>;
+=======
+>>>>>>> upstream/android-13
 			compatible = "st,stm32-timers";
 			reg = <0x40014800 0x400>;
 			clocks = <&rcc 0 STM32F4_APB2_CLOCK(TIM11)>;
@@ -583,12 +749,44 @@
 
 			pwm {
 				compatible = "st,stm32-pwm";
+<<<<<<< HEAD
+=======
+				#pwm-cells = <3>;
+>>>>>>> upstream/android-13
 				status = "disabled";
 			};
 		};
 
+<<<<<<< HEAD
 		pwrcfg: power-config@40007000 {
 			compatible = "syscon";
+=======
+		spi5: spi@40015000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "st,stm32f4-spi";
+			reg = <0x40015000 0x400>;
+			interrupts = <85>;
+			clocks = <&rcc 0 STM32F4_APB2_CLOCK(SPI5)>;
+			dmas = <&dma2 3 2 0x400 0x0>,
+				<&dma2 4 2 0x400 0x0>;
+			dma-names = "rx", "tx";
+			status = "disabled";
+		};
+
+		spi6: spi@40015400 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "st,stm32f4-spi";
+			reg = <0x40015400 0x400>;
+			interrupts = <86>;
+			clocks = <&rcc 0 STM32F4_APB2_CLOCK(SPI6)>;
+			status = "disabled";
+		};
+
+		pwrcfg: power-config@40007000 {
+			compatible = "st,stm32-power-config", "syscon";
+>>>>>>> upstream/android-13
 			reg = <0x40007000 0x400>;
 		};
 
@@ -609,7 +807,11 @@
 			status = "disabled";
 		};
 
+<<<<<<< HEAD
 		rcc: rcc@40023810 {
+=======
+		rcc: rcc@40023800 {
+>>>>>>> upstream/android-13
 			#reset-cells = <1>;
 			#clock-cells = <2>;
 			compatible = "st,stm32f42xx-rcc", "st,stm32-rcc";
@@ -702,7 +904,10 @@
 		rng: rng@50060800 {
 			compatible = "st,stm32-rng";
 			reg = <0x50060800 0x400>;
+<<<<<<< HEAD
 			interrupts = <80>;
+=======
+>>>>>>> upstream/android-13
 			clocks = <&rcc 0 STM32F4_AHB2_CLOCK(RNG)>;
 
 		};

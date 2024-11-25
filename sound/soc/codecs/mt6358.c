@@ -9,6 +9,7 @@
 #include <linux/module.h>
 #include <linux/of_device.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
 #ifdef CONFIG_DEBUG_FS
 #include <linux/debugfs.h>
 #endif
@@ -37,6 +38,15 @@
 #ifdef CONFIG_MTK_PMIC_WRAP
 #include <linux/soc/mediatek/pmic_wrap.h>
 #endif
+=======
+#include <linux/kthread.h>
+#include <linux/sched.h>
+#include <linux/mfd/mt6397/core.h>
+#include <linux/regulator/consumer.h>
+
+#include <sound/soc.h>
+#include <sound/tlv.h>
+>>>>>>> upstream/android-13
 
 #include "mt6358.h"
 
@@ -78,7 +88,11 @@ enum {
 	SUPPLY_SEQ_CLK_BUF,
 	SUPPLY_SEQ_AUD_GLB,
 	SUPPLY_SEQ_CLKSQ,
+<<<<<<< HEAD
 	SUPPLY_SEQ_ADC_SUPPLY,
+=======
+	SUPPLY_SEQ_VOW_AUD_LPW,
+>>>>>>> upstream/android-13
 	SUPPLY_SEQ_AUD_VOW,
 	SUPPLY_SEQ_VOW_CLK,
 	SUPPLY_SEQ_VOW_LDO,
@@ -88,7 +102,11 @@ enum {
 	SUPPLY_SEQ_AUD_TOP_LAST,
 	SUPPLY_SEQ_AFE,
 	/* capture */
+<<<<<<< HEAD
 	SUPPLY_SEQ_MIC_BIAS,
+=======
+	SUPPLY_SEQ_ADC_SUPPLY,
+>>>>>>> upstream/android-13
 };
 
 enum {
@@ -97,6 +115,7 @@ enum {
 	NUM_CH,
 };
 
+<<<<<<< HEAD
 /* Auxadc average resolution */
 enum {
 	AUXADC_AVG_1 = 0,
@@ -145,6 +164,9 @@ struct dc_trim_data {
 	struct ana_offset spk_4_pole_ana_offset;
 #endif
 };
+=======
+#define REG_STRIDE 2
+>>>>>>> upstream/android-13
 
 struct mt6358_priv {
 	struct device *dev;
@@ -155,6 +177,7 @@ struct mt6358_priv {
 
 	int ana_gain[AUDIO_ANALOG_VOLUME_TYPE_MAX];
 	unsigned int mux_select[MUX_NUM];
+<<<<<<< HEAD
 	int dmic_one_wire_mode;
 
 	int dev_counter[DEVICE_NUM];
@@ -582,6 +605,20 @@ int mt6358_set_codec_ops(struct snd_soc_component *cmpnt,
 	return 0;
 }
 
+=======
+
+	int dev_counter[DEVICE_NUM];
+
+	int mtkaif_protocol;
+
+	struct regulator *avdd_reg;
+
+	int wov_enabled;
+
+	unsigned int dmic_one_wire_mode;
+};
+
+>>>>>>> upstream/android-13
 int mt6358_set_mtkaif_protocol(struct snd_soc_component *cmpnt,
 			       int mtkaif_protocol)
 {
@@ -590,6 +627,10 @@ int mt6358_set_mtkaif_protocol(struct snd_soc_component *cmpnt,
 	priv->mtkaif_protocol = mtkaif_protocol;
 	return 0;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(mt6358_set_mtkaif_protocol);
+>>>>>>> upstream/android-13
 
 static void playback_gpio_set(struct mt6358_priv *priv)
 {
@@ -600,9 +641,12 @@ static void playback_gpio_set(struct mt6358_priv *priv)
 			   0xffff, 0x0249);
 	regmap_update_bits(priv->regmap, MT6358_GPIO_MODE2,
 			   0xffff, 0x0249);
+<<<<<<< HEAD
 	/* reset GPIO SMT mode */
 	regmap_update_bits(priv->regmap, MT6358_SMT_CON1,
 			   0x0ff0, 0x0ff0);
+=======
+>>>>>>> upstream/android-13
 }
 
 static void playback_gpio_reset(struct mt6358_priv *priv)
@@ -618,9 +662,12 @@ static void playback_gpio_reset(struct mt6358_priv *priv)
 			   0x01f8, 0x0000);
 	regmap_update_bits(priv->regmap, MT6358_GPIO_DIR0,
 			   0xf << 8, 0x0);
+<<<<<<< HEAD
 	/* reset GPIO SMT mode */
 	regmap_update_bits(priv->regmap, MT6358_SMT_CON1,
 			   0x0ff0, 0x0000);
+=======
+>>>>>>> upstream/android-13
 }
 
 static void capture_gpio_set(struct mt6358_priv *priv)
@@ -762,6 +809,10 @@ int mt6358_mtkaif_calibration_enable(struct snd_soc_component *cmpnt)
 			   1 << RG_AUD_PAD_TOP_DAT_MISO_LOOPBACK_SFT);
 	return 0;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(mt6358_mtkaif_calibration_enable);
+>>>>>>> upstream/android-13
 
 int mt6358_mtkaif_calibration_disable(struct snd_soc_component *cmpnt)
 {
@@ -785,6 +836,10 @@ int mt6358_mtkaif_calibration_disable(struct snd_soc_component *cmpnt)
 	capture_gpio_reset(priv);
 	return 0;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(mt6358_mtkaif_calibration_disable);
+>>>>>>> upstream/android-13
 
 int mt6358_set_mtkaif_calibration_phase(struct snd_soc_component *cmpnt,
 					int phase_1, int phase_2)
@@ -799,6 +854,7 @@ int mt6358_set_mtkaif_calibration_phase(struct snd_soc_component *cmpnt,
 			   phase_2 << RG_AUD_PAD_TOP_PHASE_MODE2_SFT);
 	return 0;
 }
+<<<<<<< HEAD
 
 static int get_auxadc_audio(void)
 {
@@ -817,6 +873,9 @@ static int get_accdet_auxadc(void)
 	return 1;
 #endif
 }
+=======
+EXPORT_SYMBOL_GPL(mt6358_set_mtkaif_calibration_phase);
+>>>>>>> upstream/android-13
 
 /* dl pga gain */
 enum {
@@ -826,10 +885,15 @@ enum {
 	DL_GAIN_N_10DB = 18,
 	DL_GAIN_N_40DB = 0x1f,
 };
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 #define DL_GAIN_N_10DB_REG (DL_GAIN_N_10DB << 7 | DL_GAIN_N_10DB)
 #define DL_GAIN_N_40DB_REG (DL_GAIN_N_40DB << 7 | DL_GAIN_N_40DB)
 #define DL_GAIN_REG_MASK 0x0f9f
 
+<<<<<<< HEAD
 /* reg idx for -40dB*/
 #define PGA_MINUS_40_DB_REG_VAL 0x1f
 #define HP_PGA_MINUS_40_DB_REG_VAL 0x3f
@@ -882,11 +946,20 @@ static void zcd_enable(struct mt6358_priv *priv, bool enable, int device)
 		regmap_update_bits(priv->regmap, MT6358_ZCD_CON0,
 				   0xffff, 0x0000);
 	}
+=======
+static void hp_zcd_disable(struct mt6358_priv *priv)
+{
+	regmap_write(priv->regmap, MT6358_ZCD_CON0, 0x0000);
+>>>>>>> upstream/android-13
 }
 
 static void hp_main_output_ramp(struct mt6358_priv *priv, bool up)
 {
+<<<<<<< HEAD
 	int i = 0, stage = 0;
+=======
+	int i, stage;
+>>>>>>> upstream/android-13
 	int target = 7;
 
 	/* Enable/Reduce HPL/R main output stage step by step */
@@ -896,20 +969,32 @@ static void hp_main_output_ramp(struct mt6358_priv *priv, bool up)
 				   0x7 << 8, stage << 8);
 		regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON1,
 				   0x7 << 11, stage << 11);
+<<<<<<< HEAD
 		udelay(600);
+=======
+		usleep_range(100, 150);
+>>>>>>> upstream/android-13
 	}
 }
 
 static void hp_aux_feedback_loop_gain_ramp(struct mt6358_priv *priv, bool up)
 {
+<<<<<<< HEAD
 	int i = 0, stage = 0;
+=======
+	int i, stage;
+>>>>>>> upstream/android-13
 
 	/* Reduce HP aux feedback loop gain step by step */
 	for (i = 0; i <= 0xf; i++) {
 		stage = up ? i : 0xf - i;
 		regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON9,
 				   0xf << 12, stage << 12);
+<<<<<<< HEAD
 		udelay(600);
+=======
+		usleep_range(100, 150);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -921,6 +1006,7 @@ static void hp_pull_down(struct mt6358_priv *priv, bool enable)
 		for (i = 0x0; i <= 0x6; i++) {
 			regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON4,
 					   0x7, i);
+<<<<<<< HEAD
 			udelay(600);
 		}
 	} else {
@@ -928,6 +1014,15 @@ static void hp_pull_down(struct mt6358_priv *priv, bool enable)
 			regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON4,
 					   0x7, i);
 			udelay(600);
+=======
+			usleep_range(600, 700);
+		}
+	} else {
+		for (i = 0x6; i >= 0x1; i--) {
+			regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON4,
+					   0x7, i);
+			usleep_range(600, 700);
+>>>>>>> upstream/android-13
 		}
 	}
 }
@@ -938,16 +1033,25 @@ static bool is_valid_hp_pga_idx(int reg_idx)
 	       reg_idx == DL_GAIN_N_40DB;
 }
 
+<<<<<<< HEAD
 static void headset_volume_ramp(struct mt6358_priv *priv,
 				int from, int to)
 {
 	int offset = 0, count = 1, reg_idx;
+=======
+static void headset_volume_ramp(struct mt6358_priv *priv, int from, int to)
+{
+	int offset = 0, count = 0, reg_idx;
+>>>>>>> upstream/android-13
 
 	if (!is_valid_hp_pga_idx(from) || !is_valid_hp_pga_idx(to))
 		dev_warn(priv->dev, "%s(), volume index is not valid, from %d, to %d\n",
 			 __func__, from, to);
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	dev_info(priv->dev, "%s(), from %d, to %d\n",
 		 __func__, from, to);
 
@@ -956,7 +1060,11 @@ static void headset_volume_ramp(struct mt6358_priv *priv,
 	else
 		offset = from - to;
 
+<<<<<<< HEAD
 	while (offset > 0) {
+=======
+	while (offset >= 0) {
+>>>>>>> upstream/android-13
 		if (to > from)
 			reg_idx = from + count;
 		else
@@ -974,6 +1082,7 @@ static void headset_volume_ramp(struct mt6358_priv *priv,
 	}
 }
 
+<<<<<<< HEAD
 static int dl_pga_get(struct snd_kcontrol *kcontrol,
 		      struct snd_ctl_elem_value *ucontrol)
 {
@@ -989,10 +1098,97 @@ static int dl_pga_get(struct snd_kcontrol *kcontrol,
 
 	if (ucontrol->value.integer.value[0] == reg_minus_40db)
 		ucontrol->value.integer.value[0] = array_size - 1;
+=======
+static int mt6358_put_volsw(struct snd_kcontrol *kcontrol,
+			    struct snd_ctl_elem_value *ucontrol)
+{
+	struct snd_soc_component *component =
+			snd_soc_kcontrol_component(kcontrol);
+	struct mt6358_priv *priv = snd_soc_component_get_drvdata(component);
+	struct soc_mixer_control *mc =
+			(struct soc_mixer_control *)kcontrol->private_value;
+	unsigned int reg;
+	int ret;
+
+	ret = snd_soc_put_volsw(kcontrol, ucontrol);
+	if (ret < 0)
+		return ret;
+
+	switch (mc->reg) {
+	case MT6358_ZCD_CON2:
+		regmap_read(priv->regmap, MT6358_ZCD_CON2, &reg);
+		priv->ana_gain[AUDIO_ANALOG_VOLUME_HPOUTL] =
+			(reg >> RG_AUDHPLGAIN_SFT) & RG_AUDHPLGAIN_MASK;
+		priv->ana_gain[AUDIO_ANALOG_VOLUME_HPOUTR] =
+			(reg >> RG_AUDHPRGAIN_SFT) & RG_AUDHPRGAIN_MASK;
+		break;
+	case MT6358_ZCD_CON1:
+		regmap_read(priv->regmap, MT6358_ZCD_CON1, &reg);
+		priv->ana_gain[AUDIO_ANALOG_VOLUME_LINEOUTL] =
+			(reg >> RG_AUDLOLGAIN_SFT) & RG_AUDLOLGAIN_MASK;
+		priv->ana_gain[AUDIO_ANALOG_VOLUME_LINEOUTR] =
+			(reg >> RG_AUDLORGAIN_SFT) & RG_AUDLORGAIN_MASK;
+		break;
+	case MT6358_ZCD_CON3:
+		regmap_read(priv->regmap, MT6358_ZCD_CON3, &reg);
+		priv->ana_gain[AUDIO_ANALOG_VOLUME_HSOUTL] =
+			(reg >> RG_AUDHSGAIN_SFT) & RG_AUDHSGAIN_MASK;
+		priv->ana_gain[AUDIO_ANALOG_VOLUME_HSOUTR] =
+			(reg >> RG_AUDHSGAIN_SFT) & RG_AUDHSGAIN_MASK;
+		break;
+	case MT6358_AUDENC_ANA_CON0:
+	case MT6358_AUDENC_ANA_CON1:
+		regmap_read(priv->regmap, MT6358_AUDENC_ANA_CON0, &reg);
+		priv->ana_gain[AUDIO_ANALOG_VOLUME_MICAMP1] =
+			(reg >> RG_AUDPREAMPLGAIN_SFT) & RG_AUDPREAMPLGAIN_MASK;
+		regmap_read(priv->regmap, MT6358_AUDENC_ANA_CON1, &reg);
+		priv->ana_gain[AUDIO_ANALOG_VOLUME_MICAMP2] =
+			(reg >> RG_AUDPREAMPRGAIN_SFT) & RG_AUDPREAMPRGAIN_MASK;
+		break;
+	}
+
+	return ret;
+}
+
+static void mt6358_restore_pga(struct mt6358_priv *priv);
+
+static int mt6358_enable_wov_phase2(struct mt6358_priv *priv)
+{
+	/* analog */
+	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON13,
+			   0xffff, 0x0000);
+	regmap_update_bits(priv->regmap, MT6358_DCXO_CW14, 0xffff, 0xa2b5);
+	regmap_update_bits(priv->regmap, MT6358_AUDENC_ANA_CON1,
+			   0xffff, 0x0800);
+	mt6358_restore_pga(priv);
+
+	regmap_update_bits(priv->regmap, MT6358_DCXO_CW13, 0xffff, 0x9929);
+	regmap_update_bits(priv->regmap, MT6358_AUDENC_ANA_CON9,
+			   0xffff, 0x0025);
+	regmap_update_bits(priv->regmap, MT6358_AUDENC_ANA_CON8,
+			   0xffff, 0x0005);
+
+	/* digital */
+	regmap_update_bits(priv->regmap, MT6358_AUD_TOP_CKPDN_CON0,
+			   0xffff, 0x0000);
+	regmap_update_bits(priv->regmap, MT6358_GPIO_MODE3, 0xffff, 0x0120);
+	regmap_update_bits(priv->regmap, MT6358_AFE_VOW_CFG0, 0xffff, 0xffff);
+	regmap_update_bits(priv->regmap, MT6358_AFE_VOW_CFG1, 0xffff, 0x0200);
+	regmap_update_bits(priv->regmap, MT6358_AFE_VOW_CFG2, 0xffff, 0x2424);
+	regmap_update_bits(priv->regmap, MT6358_AFE_VOW_CFG3, 0xffff, 0xdbac);
+	regmap_update_bits(priv->regmap, MT6358_AFE_VOW_CFG4, 0xffff, 0x029e);
+	regmap_update_bits(priv->regmap, MT6358_AFE_VOW_CFG5, 0xffff, 0x0000);
+	regmap_update_bits(priv->regmap, MT6358_AFE_VOW_POSDIV_CFG0,
+			   0xffff, 0x0000);
+	regmap_update_bits(priv->regmap, MT6358_AFE_VOW_HPF_CFG0,
+			   0xffff, 0x0451);
+	regmap_update_bits(priv->regmap, MT6358_AFE_VOW_TOP, 0xffff, 0x68d1);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int dl_pga_set(struct snd_kcontrol *kcontrol,
 		      struct snd_ctl_elem_value *ucontrol)
 {
@@ -1150,11 +1346,103 @@ enum {
 	LOL_MUX_MASK = 0x3,
 };
 
+=======
+static int mt6358_disable_wov_phase2(struct mt6358_priv *priv)
+{
+	/* digital */
+	regmap_update_bits(priv->regmap, MT6358_AFE_VOW_TOP, 0xffff, 0xc000);
+	regmap_update_bits(priv->regmap, MT6358_AFE_VOW_HPF_CFG0,
+			   0xffff, 0x0450);
+	regmap_update_bits(priv->regmap, MT6358_AFE_VOW_POSDIV_CFG0,
+			   0xffff, 0x0c00);
+	regmap_update_bits(priv->regmap, MT6358_AFE_VOW_CFG5, 0xffff, 0x0100);
+	regmap_update_bits(priv->regmap, MT6358_AFE_VOW_CFG4, 0xffff, 0x006c);
+	regmap_update_bits(priv->regmap, MT6358_AFE_VOW_CFG3, 0xffff, 0xa879);
+	regmap_update_bits(priv->regmap, MT6358_AFE_VOW_CFG2, 0xffff, 0x2323);
+	regmap_update_bits(priv->regmap, MT6358_AFE_VOW_CFG1, 0xffff, 0x0400);
+	regmap_update_bits(priv->regmap, MT6358_AFE_VOW_CFG0, 0xffff, 0x0000);
+	regmap_update_bits(priv->regmap, MT6358_GPIO_MODE3, 0xffff, 0x02d8);
+	regmap_update_bits(priv->regmap, MT6358_AUD_TOP_CKPDN_CON0,
+			   0xffff, 0x0000);
+
+	/* analog */
+	regmap_update_bits(priv->regmap, MT6358_AUDENC_ANA_CON8,
+			   0xffff, 0x0004);
+	regmap_update_bits(priv->regmap, MT6358_AUDENC_ANA_CON9,
+			   0xffff, 0x0000);
+	regmap_update_bits(priv->regmap, MT6358_DCXO_CW13, 0xffff, 0x9829);
+	regmap_update_bits(priv->regmap, MT6358_AUDENC_ANA_CON1,
+			   0xffff, 0x0000);
+	mt6358_restore_pga(priv);
+	regmap_update_bits(priv->regmap, MT6358_DCXO_CW14, 0xffff, 0xa2b5);
+	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON13,
+			   0xffff, 0x0010);
+
+	return 0;
+}
+
+static int mt6358_get_wov(struct snd_kcontrol *kcontrol,
+			  struct snd_ctl_elem_value *ucontrol)
+{
+	struct snd_soc_component *c = snd_soc_kcontrol_component(kcontrol);
+	struct mt6358_priv *priv = snd_soc_component_get_drvdata(c);
+
+	ucontrol->value.integer.value[0] = priv->wov_enabled;
+	return 0;
+}
+
+static int mt6358_put_wov(struct snd_kcontrol *kcontrol,
+			  struct snd_ctl_elem_value *ucontrol)
+{
+	struct snd_soc_component *c = snd_soc_kcontrol_component(kcontrol);
+	struct mt6358_priv *priv = snd_soc_component_get_drvdata(c);
+	int enabled = ucontrol->value.integer.value[0];
+
+	if (priv->wov_enabled != enabled) {
+		if (enabled)
+			mt6358_enable_wov_phase2(priv);
+		else
+			mt6358_disable_wov_phase2(priv);
+
+		priv->wov_enabled = enabled;
+	}
+
+	return 0;
+}
+
+static const DECLARE_TLV_DB_SCALE(playback_tlv, -1000, 100, 0);
+static const DECLARE_TLV_DB_SCALE(pga_tlv, 0, 600, 0);
+
+static const struct snd_kcontrol_new mt6358_snd_controls[] = {
+	/* dl pga gain */
+	SOC_DOUBLE_EXT_TLV("Headphone Volume",
+			   MT6358_ZCD_CON2, 0, 7, 0x12, 1,
+			   snd_soc_get_volsw, mt6358_put_volsw, playback_tlv),
+	SOC_DOUBLE_EXT_TLV("Lineout Volume",
+			   MT6358_ZCD_CON1, 0, 7, 0x12, 1,
+			   snd_soc_get_volsw, mt6358_put_volsw, playback_tlv),
+	SOC_SINGLE_EXT_TLV("Handset Volume",
+			   MT6358_ZCD_CON3, 0, 0x12, 1,
+			   snd_soc_get_volsw, mt6358_put_volsw, playback_tlv),
+	/* ul pga gain */
+	SOC_DOUBLE_R_EXT_TLV("PGA Volume",
+			     MT6358_AUDENC_ANA_CON0, MT6358_AUDENC_ANA_CON1,
+			     8, 4, 0,
+			     snd_soc_get_volsw, mt6358_put_volsw, pga_tlv),
+
+	SOC_SINGLE_BOOL_EXT("Wake-on-Voice Phase2 Switch", 0,
+			    mt6358_get_wov, mt6358_put_wov),
+};
+
+/* MUX */
+/* LOL MUX */
+>>>>>>> upstream/android-13
 static const char * const lo_in_mux_map[] = {
 	"Open", "Mute", "Playback", "Test Mode"
 };
 
 static int lo_in_mux_map_value[] = {
+<<<<<<< HEAD
 	LOL_MUX_OPEN,
 	LOL_MUX_MUTE,
 	LOL_MUX_PLAYBACK,
@@ -1165,6 +1453,15 @@ static SOC_VALUE_ENUM_SINGLE_DECL(lo_in_mux_map_enum,
 				  SND_SOC_NOPM,
 				  0,
 				  LOL_MUX_MASK,
+=======
+	0x0, 0x1, 0x2, 0x3,
+};
+
+static SOC_VALUE_ENUM_SINGLE_DECL(lo_in_mux_map_enum,
+				  MT6358_AUDDEC_ANA_CON7,
+				  RG_AUDLOLMUXINPUTSEL_VAUDP15_SFT,
+				  RG_AUDLOLMUXINPUTSEL_VAUDP15_MASK,
+>>>>>>> upstream/android-13
 				  lo_in_mux_map,
 				  lo_in_mux_map_value);
 
@@ -1178,7 +1475,10 @@ enum {
 	HP_MUX_HP,
 	HP_MUX_TEST_MODE,
 	HP_MUX_HP_IMPEDANCE,
+<<<<<<< HEAD
 	HP_MUX_HP_DUALSPK,
+=======
+>>>>>>> upstream/android-13
 	HP_MUX_MASK = 0x7,
 };
 
@@ -1188,7 +1488,11 @@ static const char * const hp_in_mux_map[] = {
 	"Audio Playback",
 	"Test Mode",
 	"HP Impedance",
+<<<<<<< HEAD
 	"Loud DualSPK Playback",
+=======
+	"undefined1",
+>>>>>>> upstream/android-13
 	"undefined2",
 	"undefined3",
 };
@@ -1199,7 +1503,11 @@ static int hp_in_mux_map_value[] = {
 	HP_MUX_HP,
 	HP_MUX_TEST_MODE,
 	HP_MUX_HP_IMPEDANCE,
+<<<<<<< HEAD
 	HP_MUX_HP_DUALSPK,
+=======
+	HP_MUX_OPEN,
+>>>>>>> upstream/android-13
 	HP_MUX_OPEN,
 	HP_MUX_OPEN,
 };
@@ -1292,6 +1600,7 @@ enum {
 	MIC_TYPE_MUX_DCC,
 	MIC_TYPE_MUX_DCC_ECM_DIFF,
 	MIC_TYPE_MUX_DCC_ECM_SINGLE,
+<<<<<<< HEAD
 	MIC_TYPE_MUX_MASK = 0xf,
 };
 
@@ -1301,6 +1610,14 @@ enum {
 
 
 #define IS_AMIC_BASE(x) (x == MIC_TYPE_MUX_ACC || IS_DCC_BASE(x))
+=======
+	MIC_TYPE_MUX_MASK = 0x7,
+};
+
+#define IS_DCC_BASE(type) ((type) == MIC_TYPE_MUX_DCC || \
+			(type) == MIC_TYPE_MUX_DCC_ECM_DIFF || \
+			(type) == MIC_TYPE_MUX_DCC_ECM_SINGLE)
+>>>>>>> upstream/android-13
 
 static const char * const mic_type_mux_map[] = {
 	"Idle",
@@ -1494,8 +1811,13 @@ static int mt_aif_in_event(struct snd_soc_dapm_widget *w,
 
 		/* sdm audio fifo clock power on */
 		regmap_write(priv->regmap, MT6358_AFUNC_AUD_CON2, 0x0006);
+<<<<<<< HEAD
 		/* scrambler clock on enable, invert left channel */
 		regmap_write(priv->regmap, MT6358_AFUNC_AUD_CON0, 0xCFA1);
+=======
+		/* scrambler clock on enable */
+		regmap_write(priv->regmap, MT6358_AFUNC_AUD_CON0, 0xCBA1);
+>>>>>>> upstream/android-13
 		/* sdm power on */
 		regmap_write(priv->regmap, MT6358_AFUNC_AUD_CON2, 0x0003);
 		/* sdm fifo enable */
@@ -1504,7 +1826,11 @@ static int mt_aif_in_event(struct snd_soc_dapm_widget *w,
 	case SND_SOC_DAPM_POST_PMD:
 		/* DL scrambler disabling sequence */
 		regmap_write(priv->regmap, MT6358_AFUNC_AUD_CON2, 0x0000);
+<<<<<<< HEAD
 		regmap_write(priv->regmap, MT6358_AFUNC_AUD_CON0, 0xCFA0);
+=======
+		regmap_write(priv->regmap, MT6358_AFUNC_AUD_CON0, 0xcba0);
+>>>>>>> upstream/android-13
 
 		playback_gpio_reset(priv);
 		break;
@@ -1515,6 +1841,7 @@ static int mt_aif_in_event(struct snd_soc_dapm_widget *w,
 	return 0;
 }
 
+<<<<<<< HEAD
 #define MIC_VINP_4POLE_THRES_MV 283
 #define VINP_NORMALIZED_TO_MV 1700
 
@@ -1599,16 +1926,30 @@ static int mtk_hp_enable(struct mt6358_priv *priv)
 		/* Pull-down HPL/R to AVSS28_AUD */
 		hp_pull_down(priv, true);
 	}
+=======
+static int mtk_hp_enable(struct mt6358_priv *priv)
+{
+	/* Pull-down HPL/R to AVSS28_AUD */
+	hp_pull_down(priv, true);
+>>>>>>> upstream/android-13
 	/* release HP CMFB gate rstb */
 	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON4,
 			   0x1 << 6, 0x1 << 6);
 
+<<<<<<< HEAD
 	/* Disable headphone short-circuit protection */
 	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON0, 0x3000);
 	/* Reduce ESD resistance of AU_REFN */
 	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON2, 0xc000);
 	/* Set HPR/HPL gain as minimum (~ -10dB) */
 	regmap_write(priv->regmap, MT6358_ZCD_CON2, DL_GAIN_N_10DB_REG);
+=======
+	/* Reduce ESD resistance of AU_REFN */
+	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON2, 0x4000);
+
+	/* Set HPR/HPL gain as minimum (~ -40dB) */
+	regmap_write(priv->regmap, MT6358_ZCD_CON2, DL_GAIN_N_40DB_REG);
+>>>>>>> upstream/android-13
 
 	/* Turn on DA_600K_NCP_VA18 */
 	regmap_write(priv->regmap, MT6358_AUDNCP_CLKDIV_CON1, 0x0001);
@@ -1616,8 +1957,13 @@ static int mtk_hp_enable(struct mt6358_priv *priv)
 	regmap_write(priv->regmap, MT6358_AUDNCP_CLKDIV_CON2, 0x002c);
 	/* Toggle RG_DIVCKS_CHG */
 	regmap_write(priv->regmap, MT6358_AUDNCP_CLKDIV_CON0, 0x0001);
+<<<<<<< HEAD
 	/* Set NCP soft start mode as default mode: 150us */
 	regmap_write(priv->regmap, MT6358_AUDNCP_CLKDIV_CON4, 0x0002);
+=======
+	/* Set NCP soft start mode as default mode: 100us */
+	regmap_write(priv->regmap, MT6358_AUDNCP_CLKDIV_CON4, 0x0003);
+>>>>>>> upstream/android-13
 	/* Enable NCP */
 	regmap_write(priv->regmap, MT6358_AUDNCP_CLKDIV_CON3, 0x0000);
 	usleep_range(250, 270);
@@ -1629,20 +1975,36 @@ static int mtk_hp_enable(struct mt6358_priv *priv)
 	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON15, 0x0001);
 	usleep_range(100, 120);
 
+<<<<<<< HEAD
 	/* Enable AUD_ZCD */
 	zcd_enable(priv, true, DEVICE_HP);
+=======
+	/* Disable AUD_ZCD */
+	hp_zcd_disable(priv);
+
+	/* Disable headphone short-circuit protection */
+	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON0, 0x3000);
+>>>>>>> upstream/android-13
 
 	/* Enable IBIST */
 	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON12, 0x0055);
 
 	/* Set HP DR bias current optimization, 010: 6uA */
+<<<<<<< HEAD
 	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON11,
 			   0xff80, 0x4900);
+=======
+	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON11, 0x4900);
+>>>>>>> upstream/android-13
 	/* Set HP & ZCD bias current optimization */
 	/* 01: ZCD: 4uA, HP/HS/LO: 5uA */
 	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON12, 0x0055);
 	/* Set HPP/N STB enhance circuits */
+<<<<<<< HEAD
 	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON2, 0xc033);
+=======
+	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON2, 0x4033);
+>>>>>>> upstream/android-13
 
 	/* Enable HP aux output stage */
 	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON1, 0x000c);
@@ -1655,8 +2017,12 @@ static int mtk_hp_enable(struct mt6358_priv *priv)
 	/* Enable HP driver core circuits */
 	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON0, 0x30f0);
 	/* Short HP main output to HP aux output stage */
+<<<<<<< HEAD
 	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON1,
 			   0x00ff, 0x00fc);
+=======
+	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON1, 0x00fc);
+>>>>>>> upstream/android-13
 
 	/* Enable HP main CMFB loop */
 	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON9, 0x0e00);
@@ -1691,6 +2057,7 @@ static int mtk_hp_enable(struct mt6358_priv *priv)
 	/* Enable AUD_CLK */
 	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON13, 0x1, 0x1);
 	/* Enable Audio DAC  */
+<<<<<<< HEAD
 	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON0, 0xf, 0xf);
 	/* Enable low-noise mode of DAC */
 	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON9, 0x1, 0x1);
@@ -1710,6 +2077,17 @@ static int mtk_hp_enable(struct mt6358_priv *priv)
 	/* Apply digital DC compensation value to DAC */
 	apply_dc_compensation(priv, true);
 #endif
+=======
+	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON0, 0x30ff);
+	/* Enable low-noise mode of DAC */
+	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON9, 0xf201);
+	usleep_range(100, 120);
+
+	/* Switch HPL MUX to audio DAC */
+	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON0, 0x32ff);
+	/* Switch HPR MUX to audio DAC */
+	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON0, 0x3aff);
+>>>>>>> upstream/android-13
 
 	/* Disable Pull-down HPL/R to AVSS28_AUD */
 	hp_pull_down(priv, false);
@@ -1719,6 +2097,7 @@ static int mtk_hp_enable(struct mt6358_priv *priv)
 
 static int mtk_hp_disable(struct mt6358_priv *priv)
 {
+<<<<<<< HEAD
 	dev_info(priv->dev, "+%s()\n", __func__);
 
 	/* Pull-down HPL/R to AVSS28_AUD */
@@ -1728,6 +2107,11 @@ static int mtk_hp_disable(struct mt6358_priv *priv)
 	apply_dc_compensation(priv, false);
 #endif
 
+=======
+	/* Pull-down HPL/R to AVSS28_AUD */
+	hp_pull_down(priv, true);
+
+>>>>>>> upstream/android-13
 	/* HPR/HPL mux to open */
 	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON0,
 			   0x0f00, 0x0000);
@@ -1751,7 +2135,11 @@ static int mtk_hp_disable(struct mt6358_priv *priv)
 	/* decrease HPL/R gain to normal gain step by step */
 	headset_volume_ramp(priv,
 			    priv->ana_gain[AUDIO_ANALOG_VOLUME_HPOUTL],
+<<<<<<< HEAD
 			    DL_GAIN_N_10DB);
+=======
+			    DL_GAIN_N_40DB);
+>>>>>>> upstream/android-13
 
 	/* Enable HP aux feedback loop */
 	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON1, 0x3fff);
@@ -1766,6 +2154,7 @@ static int mtk_hp_disable(struct mt6358_priv *priv)
 	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON1, 0x3, 0x0);
 
 	/* Enable HP aux CMFB loop */
+<<<<<<< HEAD
 	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON9,
 			0x0f00, 0x0e00);
 	/* Disable HP main CMFB loop */
@@ -1777,25 +2166,54 @@ static int mtk_hp_disable(struct mt6358_priv *priv)
 	/* Disable HP driver core circuits */
 	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON0,
 			   0x3 << 4, 0x0);
+=======
+	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON9, 0x0e00);
+
+	/* Disable HP main CMFB loop */
+	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON9, 0x0c00);
+
+	/* Unshort HP main output to HP aux output stage */
+	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON1,
+			   0x3 << 6, 0x0);
+
+	/* Disable HP driver core circuits */
+	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON0,
+			   0x3 << 4, 0x0);
+
+>>>>>>> upstream/android-13
 	/* Disable HP driver bias circuits */
 	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON0,
 			   0x3 << 6, 0x0);
 
 	/* Disable HP aux CMFB loop */
 	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON9, 0x0000);
+<<<<<<< HEAD
 	/* Disable HP aux feedback loop */
 	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON1,
 			   0x3 << 4, 0x0);
 	/* Disable HP aux output stage */
 	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON1, 0x0000);
+=======
+
+	/* Disable HP aux feedback loop */
+	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON1,
+			   0x3 << 4, 0x0);
+
+	/* Disable HP aux output stage */
+	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON1,
+			   0x3 << 2, 0x0);
+>>>>>>> upstream/android-13
 
 	/* Disable IBIST */
 	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON12,
 			   0x1 << 8, 0x1 << 8);
 
+<<<<<<< HEAD
 	/* Disable AUD_ZCD */
 	zcd_enable(priv, false, DEVICE_HP);
 
+=======
+>>>>>>> upstream/android-13
 	/* Disable NV regulator (-1.2V) */
 	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON15, 0x1, 0x0);
 	/* Disable cap-less LDOs (1.5V) */
@@ -1805,6 +2223,7 @@ static int mtk_hp_disable(struct mt6358_priv *priv)
 	regmap_update_bits(priv->regmap, MT6358_AUDNCP_CLKDIV_CON3,
 			   0x1, 0x1);
 
+<<<<<<< HEAD
 	/* Set HPL/HPR gain to mute */
 	regmap_write(priv->regmap, MT6358_ZCD_CON2, DL_GAIN_N_10DB_REG);
 
@@ -1813,6 +2232,8 @@ static int mtk_hp_disable(struct mt6358_priv *priv)
 		regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON2,
 				   0xff, 0x0);
 	}
+=======
+>>>>>>> upstream/android-13
 	/* Increase ESD resistance of AU_REFN */
 	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON2,
 			   0x1 << 14, 0x0);
@@ -1820,6 +2241,7 @@ static int mtk_hp_disable(struct mt6358_priv *priv)
 	/* Set HP CMFB gate rstb */
 	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON4,
 			   0x1 << 6, 0x0);
+<<<<<<< HEAD
 	if (!pull_down_stay_enable) {
 		/* disable Pull-down HPL/R to AVSS28_AUD */
 		hp_pull_down(priv, false);
@@ -2445,34 +2867,57 @@ static int mtk_hp_dual_spk_disable(struct mt6358_priv *priv)
 	/* Set HP CMFB gate rstb */
 	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON4,
 			0x1 << 6, 0x0);
+=======
+>>>>>>> upstream/android-13
 	/* disable Pull-down HPL/R to AVSS28_AUD */
 	hp_pull_down(priv, false);
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int mtk_hp_impedance_enable(struct mt6358_priv *priv)
 {
 	dev_info(priv->dev, "%s()\n", __func__);
 
+=======
+static int mtk_hp_spk_enable(struct mt6358_priv *priv)
+{
+	/* Pull-down HPL/R to AVSS28_AUD */
+	hp_pull_down(priv, true);
+>>>>>>> upstream/android-13
 	/* release HP CMFB gate rstb */
 	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON4,
 			   0x1 << 6, 0x1 << 6);
 
+<<<<<<< HEAD
 	/* Disable headphone short-circuit protection */
 	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON0, 0x3000);
 
 	/* Reduce ESD resistance of AU_REFN */
 	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON2, 0x4000);
 
+=======
+	/* Reduce ESD resistance of AU_REFN */
+	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON2, 0x4000);
+
+	/* Set HPR/HPL gain to -10dB */
+	regmap_write(priv->regmap, MT6358_ZCD_CON2, DL_GAIN_N_10DB_REG);
+
+>>>>>>> upstream/android-13
 	/* Turn on DA_600K_NCP_VA18 */
 	regmap_write(priv->regmap, MT6358_AUDNCP_CLKDIV_CON1, 0x0001);
 	/* Set NCP clock as 604kHz // 26MHz/43 = 604KHz */
 	regmap_write(priv->regmap, MT6358_AUDNCP_CLKDIV_CON2, 0x002c);
 	/* Toggle RG_DIVCKS_CHG */
 	regmap_write(priv->regmap, MT6358_AUDNCP_CLKDIV_CON0, 0x0001);
+<<<<<<< HEAD
 	/* Set NCP soft start mode as default mode: 150us */
 	regmap_write(priv->regmap, MT6358_AUDNCP_CLKDIV_CON4, 0x0002);
+=======
+	/* Set NCP soft start mode as default mode: 100us */
+	regmap_write(priv->regmap, MT6358_AUDNCP_CLKDIV_CON4, 0x0003);
+>>>>>>> upstream/android-13
 	/* Enable NCP */
 	regmap_write(priv->regmap, MT6358_AUDNCP_CLKDIV_CON3, 0x0000);
 	usleep_range(250, 270);
@@ -2484,6 +2929,7 @@ static int mtk_hp_impedance_enable(struct mt6358_priv *priv)
 	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON15, 0x0001);
 	usleep_range(100, 120);
 
+<<<<<<< HEAD
 	/* Enable AUD_ZCD */
 	zcd_enable(priv, true, DEVICE_HP);
 
@@ -2511,10 +2957,83 @@ static int mtk_hp_impedance_enable(struct mt6358_priv *priv)
 	/* Enable TRIMBUF circuit, select HPR as TRIMBUF input */
 	/* Set TRIMBUF gain as 18dB */
 	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON8, 0x1972);
+=======
+	/* Disable AUD_ZCD */
+	hp_zcd_disable(priv);
+
+	/* Disable headphone short-circuit protection */
+	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON0, 0x3000);
+
+	/* Enable IBIST */
+	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON12, 0x0055);
+
+	/* Set HP DR bias current optimization, 010: 6uA */
+	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON11, 0x4900);
+	/* Set HP & ZCD bias current optimization */
+	/* 01: ZCD: 4uA, HP/HS/LO: 5uA */
+	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON12, 0x0055);
+	/* Set HPP/N STB enhance circuits */
+	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON2, 0x4033);
+
+	/* Disable Pull-down HPL/R to AVSS28_AUD */
+	hp_pull_down(priv, false);
+
+	/* Enable HP driver bias circuits */
+	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON0, 0x30c0);
+	/* Enable HP driver core circuits */
+	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON0, 0x30f0);
+	/* Enable HP main CMFB loop */
+	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON9, 0x0200);
+
+	/* Select CMFB resistor bulk to AC mode */
+	/* Selec HS/LO cap size (6.5pF default) */
+	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON10, 0x0000);
+
+	/* Enable HP main output stage */
+	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON1, 0x0003);
+	/* Enable HPR/L main output stage step by step */
+	hp_main_output_ramp(priv, true);
+
+	/* Set LO gain as minimum (~ -40dB) */
+	regmap_write(priv->regmap, MT6358_ZCD_CON1, DL_GAIN_N_40DB_REG);
+	/* apply volume setting */
+	headset_volume_ramp(priv,
+			    DL_GAIN_N_10DB,
+			    priv->ana_gain[AUDIO_ANALOG_VOLUME_HPOUTL]);
+
+	/* Set LO STB enhance circuits */
+	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON7, 0x0110);
+	/* Enable LO driver bias circuits */
+	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON7, 0x0112);
+	/* Enable LO driver core circuits */
+	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON7, 0x0113);
+
+	/* Set LOL gain to normal gain step by step */
+	regmap_update_bits(priv->regmap, MT6358_ZCD_CON1,
+			   RG_AUDLOLGAIN_MASK_SFT,
+			   priv->ana_gain[AUDIO_ANALOG_VOLUME_LINEOUTL] <<
+			   RG_AUDLOLGAIN_SFT);
+	regmap_update_bits(priv->regmap, MT6358_ZCD_CON1,
+			   RG_AUDLORGAIN_MASK_SFT,
+			   priv->ana_gain[AUDIO_ANALOG_VOLUME_LINEOUTR] <<
+			   RG_AUDLORGAIN_SFT);
+
+	/* Enable AUD_CLK */
+	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON13, 0x1, 0x1);
+	/* Enable Audio DAC  */
+	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON0, 0x30f9);
+	/* Enable low-noise mode of DAC */
+	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON9, 0x0201);
+	/* Switch LOL MUX to audio DAC */
+	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON7, 0x011b);
+	/* Switch HPL/R MUX to Line-out */
+	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON0, 0x35f9);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int mtk_hp_impedance_disable(struct mt6358_priv *priv)
 {
 	dev_info(priv->dev, "%s()\n", __func__);
@@ -2526,6 +3045,16 @@ static int mtk_hp_impedance_disable(struct mt6358_priv *priv)
 	/* Disable Trim buffer VA28 reference */
 	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON9,
 			   0x00ff, 0x0000);
+=======
+static int mtk_hp_spk_disable(struct mt6358_priv *priv)
+{
+	/* HPR/HPL mux to open */
+	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON0,
+			   0x0f00, 0x0000);
+	/* LOL mux to open */
+	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON7,
+			   0x3 << 2, 0x0000);
+>>>>>>> upstream/android-13
 
 	/* Disable Audio DAC */
 	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON0,
@@ -2534,33 +3063,80 @@ static int mtk_hp_impedance_disable(struct mt6358_priv *priv)
 	/* Disable AUD_CLK */
 	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON13, 0x1, 0x0);
 
+<<<<<<< HEAD
 	if (pull_down_stay_enable) {
 		/* Pull-down HPL/R to AVSS28_AUD */
 		hp_pull_down(priv, true);
 	}
+=======
+	/* decrease HPL/R gain to normal gain step by step */
+	headset_volume_ramp(priv,
+			    priv->ana_gain[AUDIO_ANALOG_VOLUME_HPOUTL],
+			    DL_GAIN_N_40DB);
+
+	/* decrease LOL gain to minimum gain step by step */
+	regmap_update_bits(priv->regmap, MT6358_ZCD_CON1,
+			   DL_GAIN_REG_MASK, DL_GAIN_N_40DB_REG);
+
+	/* decrease HPR/L main output stage step by step */
+	hp_main_output_ramp(priv, false);
+>>>>>>> upstream/android-13
 
 	/* Disable HP main output stage */
 	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON1, 0x3, 0x0);
 
+<<<<<<< HEAD
 	/* Disable HP driver core circuits */
 	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON0,
 			   0x3 << 4, 0x0);
+=======
+	/* Short HP main output to HP aux output stage */
+	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON1, 0x3fc3);
+	/* Enable HP aux output stage */
+	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON1, 0x3fcf);
+
+	/* Enable HP aux feedback loop */
+	regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON1, 0x3fff);
+
+	/* Reduce HP aux feedback loop gain */
+	hp_aux_feedback_loop_gain_ramp(priv, false);
+
+	/* Disable HP driver core circuits */
+	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON0,
+			   0x3 << 4, 0x0);
+	/* Disable LO driver core circuits */
+	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON7,
+			   0x1, 0x0);
+>>>>>>> upstream/android-13
 
 	/* Disable HP driver bias circuits */
 	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON0,
 			   0x3 << 6, 0x0);
+<<<<<<< HEAD
 
 	/* Disable HP aux CMFB loop */
 	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON9,
 			   0xff << 8, 0x0);
+=======
+	/* Disable LO driver bias circuits */
+	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON7,
+			   0x1 << 1, 0x0);
+
+	/* Disable HP aux CMFB loop */
+	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON9,
+			   0xff << 8, 0x0000);
+>>>>>>> upstream/android-13
 
 	/* Disable IBIST */
 	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON12,
 			   0x1 << 8, 0x1 << 8);
+<<<<<<< HEAD
 
 	/* Disable AUD_ZCD */
 	zcd_enable(priv, false, DEVICE_HP);
 
+=======
+>>>>>>> upstream/android-13
 	/* Disable NV regulator (-1.2V) */
 	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON15, 0x1, 0x0);
 	/* Disable cap-less LDOs (1.5V) */
@@ -2568,6 +3144,7 @@ static int mtk_hp_impedance_disable(struct mt6358_priv *priv)
 	/* Disable NCP */
 	regmap_update_bits(priv->regmap, MT6358_AUDNCP_CLKDIV_CON3, 0x1, 0x1);
 
+<<<<<<< HEAD
 	/* Set HPL/HPR gain to mute */
 	regmap_write(priv->regmap, MT6358_ZCD_CON2, DL_GAIN_N_10DB_REG);
 
@@ -2587,6 +3164,13 @@ static int mtk_hp_impedance_disable(struct mt6358_priv *priv)
 	/* Set HP CMFB gate rstb */
 	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON4,
 			   0x1 << 6, 0x0);
+=======
+	/* Set HP CMFB gate rstb */
+	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON4,
+			   0x1 << 6, 0x0);
+	/* disable Pull-down HPL/R to AVSS28_AUD */
+	hp_pull_down(priv, false);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -2622,10 +3206,13 @@ static int mt_hp_event(struct snd_soc_dapm_widget *w,
 			mtk_hp_enable(priv);
 		else if (mux == HP_MUX_HPSPK)
 			mtk_hp_spk_enable(priv);
+<<<<<<< HEAD
 		else if (mux == HP_MUX_HP_DUALSPK)
 			mtk_hp_dual_spk_enable(priv);
 		else if (mux == HP_MUX_HP_IMPEDANCE)
 			mtk_hp_impedance_enable(priv);
+=======
+>>>>>>> upstream/android-13
 		break;
 	case SND_SOC_DAPM_PRE_PMD:
 		priv->dev_counter[device]--;
@@ -2643,10 +3230,13 @@ static int mt_hp_event(struct snd_soc_dapm_widget *w,
 			mtk_hp_disable(priv);
 		else if (priv->mux_select[MUX_HP_L] == HP_MUX_HPSPK)
 			mtk_hp_spk_disable(priv);
+<<<<<<< HEAD
 		else if (priv->mux_select[MUX_HP_L] == HP_MUX_HP_DUALSPK)
 			mtk_hp_dual_spk_disable(priv);
 		else if (priv->mux_select[MUX_HP_L] == HP_MUX_HP_IMPEDANCE)
 			mtk_hp_impedance_disable(priv);
+=======
+>>>>>>> upstream/android-13
 
 		priv->mux_select[MUX_HP_L] = mux;
 		break;
@@ -2657,6 +3247,7 @@ static int mt_hp_event(struct snd_soc_dapm_widget *w,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int mt_lo_event(struct snd_soc_dapm_widget *w,
 			struct snd_kcontrol *kcontrol,
 			int event)
@@ -2804,6 +3395,8 @@ static int mt_lo_event(struct snd_soc_dapm_widget *w,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int mt_rcv_event(struct snd_soc_dapm_widget *w,
 			struct snd_kcontrol *kcontrol,
 			int event)
@@ -2840,8 +3433,13 @@ static int mt_rcv_event(struct snd_soc_dapm_widget *w,
 		regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON15, 0x0001);
 		usleep_range(100, 120);
 
+<<<<<<< HEAD
 		/* Enable AUD_ZCD */
 		zcd_enable(priv, true, DEVICE_RCV);
+=======
+		/* Disable AUD_ZCD */
+		hp_zcd_disable(priv);
+>>>>>>> upstream/android-13
 
 		/* Disable handset short-circuit protection */
 		regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON6, 0x0010);
@@ -2849,8 +3447,12 @@ static int mt_rcv_event(struct snd_soc_dapm_widget *w,
 		/* Enable IBIST */
 		regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON12, 0x0055);
 		/* Set HP DR bias current optimization, 010: 6uA */
+<<<<<<< HEAD
 		regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON11,
 				   0xff80, 0x4900);
+=======
+		regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON11, 0x4900);
+>>>>>>> upstream/android-13
 		/* Set HP & ZCD bias current optimization */
 		/* 01: ZCD: 4uA, HP/HS/LO: 5uA */
 		regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON12, 0x0055);
@@ -2868,14 +3470,18 @@ static int mt_rcv_event(struct snd_soc_dapm_widget *w,
 		/* Enable HS driver core circuits */
 		regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON6, 0x0093);
 
+<<<<<<< HEAD
 		/* Set HS gain to normal gain step by step */
 		regmap_write(priv->regmap, MT6358_ZCD_CON3,
 			     priv->ana_gain[AUDIO_ANALOG_VOLUME_HSOUTL]);
 
+=======
+>>>>>>> upstream/android-13
 		/* Enable AUD_CLK */
 		regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON13,
 				   0x1, 0x1);
 
+<<<<<<< HEAD
 		/* Enable Audio DAC L */
 		regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON0,
 				RG_AUDDACLPWRUP_VAUDP15_MASK_SFT |
@@ -2885,16 +3491,33 @@ static int mt_rcv_event(struct snd_soc_dapm_widget *w,
 		regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON9, 0x0001);
 		/* Switch HS MUX to audio DAC L */
 		regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON6, 0x009B);
+=======
+		/* Enable Audio DAC  */
+		regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON0, 0x0009);
+		/* Enable low-noise mode of DAC */
+		regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON9, 0x0001);
+		/* Switch HS MUX to audio DAC */
+		regmap_write(priv->regmap, MT6358_AUDDEC_ANA_CON6, 0x009b);
+>>>>>>> upstream/android-13
 		break;
 	case SND_SOC_DAPM_PRE_PMD:
 		/* HS mux to open */
 		regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON6,
+<<<<<<< HEAD
 				    RG_AUDHSMUXINPUTSEL_VAUDP15_MASK_SFT,
 				    RCV_MUX_OPEN);
 		/* Disable Audio DAC L */
 		regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON0,
 				RG_AUDDACLPWRUP_VAUDP15_MASK_SFT |
 				RG_AUD_DAC_PWL_UP_VA28_MASK_SFT, 0x0000);
+=======
+				   RG_AUDHSMUXINPUTSEL_VAUDP15_MASK_SFT,
+				   RCV_MUX_OPEN);
+
+		/* Disable Audio DAC */
+		regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON0,
+				   0x000f, 0x0000);
+>>>>>>> upstream/android-13
 
 		/* Disable AUD_CLK */
 		regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON13,
@@ -2923,9 +3546,12 @@ static int mt_rcv_event(struct snd_soc_dapm_widget *w,
 		regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON12,
 				   0x1 << 8, 0x1 << 8);
 
+<<<<<<< HEAD
 		/* Disable AUD_ZCD */
 		zcd_enable(priv, false, DEVICE_RCV);
 
+=======
+>>>>>>> upstream/android-13
 		/* Disable NV regulator (-1.2V) */
 		regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON15,
 				   0x1, 0x0);
@@ -2973,16 +3599,23 @@ static int mt_adc_supply_event(struct snd_soc_dapm_widget *w,
 {
 	struct snd_soc_component *cmpnt = snd_soc_dapm_to_component(w->dapm);
 	struct mt6358_priv *priv = snd_soc_component_get_drvdata(cmpnt);
+<<<<<<< HEAD
 	unsigned int mic_type = priv->mux_select[MUX_MIC_TYPE];
 
 	dev_dbg(priv->dev, "%s(), event 0x%x, vow_enable: %d\n",
 		__func__, event, priv->vow_enable);
+=======
+
+	dev_dbg(priv->dev, "%s(), event 0x%x\n",
+		__func__, event);
+>>>>>>> upstream/android-13
 
 	switch (event) {
 	case SND_SOC_DAPM_PRE_PMU:
 		/* Enable audio ADC CLKGEN  */
 		regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON13,
 				   0x1 << 5, 0x1 << 5);
+<<<<<<< HEAD
 		if (IS_AMIC_BASE(mic_type) && priv->vow_enable) {
 			/* ADC CLK from CLKGEN (3.25MHz) */
 			dev_info(priv->dev, "%s(), vow mode\n", __func__);
@@ -2993,6 +3626,11 @@ static int mt_adc_supply_event(struct snd_soc_dapm_widget *w,
 			regmap_write(priv->regmap, MT6358_AUDENC_ANA_CON3,
 				     0x0000);
 		}
+=======
+		/* ADC CLK from CLKGEN (13MHz) */
+		regmap_write(priv->regmap, MT6358_AUDENC_ANA_CON3,
+			     0x0000);
+>>>>>>> upstream/android-13
 		/* Enable  LCLDO_ENC 1P8V */
 		regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON14,
 				   0x2500, 0x0100);
@@ -3021,6 +3659,7 @@ static int mt_adc_supply_event(struct snd_soc_dapm_widget *w,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int mt_vow_ldo_event(struct snd_soc_dapm_widget *w,
 			    struct snd_kcontrol *kcontrol,
 			    int event)
@@ -3166,11 +3805,14 @@ static void mt6358_vow_cfg_disable(struct mt6358_priv *priv)
 			   0x20c0, 0x0000);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int mt6358_amic_enable(struct mt6358_priv *priv)
 {
 	unsigned int mic_type = priv->mux_select[MUX_MIC_TYPE];
 	unsigned int mux_pga_l = priv->mux_select[MUX_PGA_L];
 	unsigned int mux_pga_r = priv->mux_select[MUX_PGA_R];
+<<<<<<< HEAD
 	int mic_gain_l = priv->ana_gain[AUDIO_ANALOG_VOLUME_MICAMP1];
 	int mic_gain_r = priv->ana_gain[AUDIO_ANALOG_VOLUME_MICAMP2];
 	unsigned int reg_value = 0, rc_1 = 0, rc_2 = 0;
@@ -3178,6 +3820,11 @@ static int mt6358_amic_enable(struct mt6358_priv *priv)
 	dev_info(priv->dev, "%s(), mux, mic %u, pga l %u, pga r %u, mic_gain l %d, r %d\n",
 		 __func__, mic_type, mux_pga_l, mux_pga_r,
 		 mic_gain_l, mic_gain_r);
+=======
+
+	dev_info(priv->dev, "%s(), mux, mic %u, pga l %u, pga r %u\n",
+		 __func__, mic_type, mux_pga_l, mux_pga_r);
+>>>>>>> upstream/android-13
 
 	if (IS_DCC_BASE(mic_type)) {
 		/* DCC 50k CLK (from 26M) */
@@ -3221,6 +3868,7 @@ static int mt6358_amic_enable(struct mt6358_priv *priv)
 				     MT6358_AUDENC_ANA_CON10, 0x0061);
 	}
 
+<<<<<<< HEAD
 	/* set mic pga gain */
 	regmap_update_bits(priv->regmap, MT6358_AUDENC_ANA_CON0,
 			   RG_AUDPREAMPLGAIN_MASK_SFT,
@@ -3241,6 +3889,20 @@ static int mt6358_amic_enable(struct mt6358_priv *priv)
 				   0xf8fd, 0x0000);
 		regmap_update_bits(priv->regmap, MT6358_AUDENC_ANA_CON1,
 				   0xf8fd, 0x0000);
+=======
+	if (IS_DCC_BASE(mic_type)) {
+		/* Audio L/R preamplifier DCC precharge */
+		regmap_update_bits(priv->regmap, MT6358_AUDENC_ANA_CON0,
+				   0xf8ff, 0x0004);
+		regmap_update_bits(priv->regmap, MT6358_AUDENC_ANA_CON1,
+				   0xf8ff, 0x0004);
+	} else {
+		/* reset reg */
+		regmap_update_bits(priv->regmap, MT6358_AUDENC_ANA_CON0,
+				   0xf8ff, 0x0000);
+		regmap_update_bits(priv->regmap, MT6358_AUDENC_ANA_CON1,
+				   0xf8ff, 0x0000);
+>>>>>>> upstream/android-13
 	}
 
 	if (mux_pga_l != PGA_MUX_NONE) {
@@ -3254,12 +3916,25 @@ static int mt6358_amic_enable(struct mt6358_priv *priv)
 				   RG_AUDPREAMPLON_MASK_SFT,
 				   0x1 << RG_AUDPREAMPLON_SFT);
 
+<<<<<<< HEAD
+=======
+		if (IS_DCC_BASE(mic_type)) {
+			/* L preamplifier DCCEN */
+			regmap_update_bits(priv->regmap, MT6358_AUDENC_ANA_CON0,
+					   RG_AUDPREAMPLDCCEN_MASK_SFT,
+					   0x1 << RG_AUDPREAMPLDCCEN_SFT);
+		}
+
+>>>>>>> upstream/android-13
 		/* L ADC input sel : L PGA. Enable audio L ADC */
 		regmap_update_bits(priv->regmap, MT6358_AUDENC_ANA_CON0,
 				   RG_AUDADCLINPUTSEL_MASK_SFT,
 				   ADC_MUX_PREAMPLIFIER <<
 				   RG_AUDADCLINPUTSEL_SFT);
+<<<<<<< HEAD
 		usleep_range(1000, 1050);
+=======
+>>>>>>> upstream/android-13
 		regmap_update_bits(priv->regmap, MT6358_AUDENC_ANA_CON0,
 				   RG_AUDADCLPWRUP_MASK_SFT,
 				   0x1 << RG_AUDADCLPWRUP_SFT);
@@ -3276,12 +3951,25 @@ static int mt6358_amic_enable(struct mt6358_priv *priv)
 				   RG_AUDPREAMPRON_MASK_SFT,
 				   0x1 << RG_AUDPREAMPRON_SFT);
 
+<<<<<<< HEAD
+=======
+		if (IS_DCC_BASE(mic_type)) {
+			/* R preamplifier DCCEN */
+			regmap_update_bits(priv->regmap, MT6358_AUDENC_ANA_CON1,
+					   RG_AUDPREAMPRDCCEN_MASK_SFT,
+					   0x1 << RG_AUDPREAMPRDCCEN_SFT);
+		}
+
+>>>>>>> upstream/android-13
 		/* R ADC input sel : R PGA. Enable audio R ADC */
 		regmap_update_bits(priv->regmap, MT6358_AUDENC_ANA_CON1,
 				   RG_AUDADCRINPUTSEL_MASK_SFT,
 				   ADC_MUX_PREAMPLIFIER <<
 				   RG_AUDADCRINPUTSEL_SFT);
+<<<<<<< HEAD
 		usleep_range(1000, 1050);
+=======
+>>>>>>> upstream/android-13
 		regmap_update_bits(priv->regmap, MT6358_AUDENC_ANA_CON1,
 				   RG_AUDADCRPWRUP_MASK_SFT,
 				   0x1 << RG_AUDADCRPWRUP_SFT);
@@ -3301,6 +3989,7 @@ static int mt6358_amic_enable(struct mt6358_priv *priv)
 				   0x1 << 12, 0x0);
 	}
 
+<<<<<<< HEAD
 	usleep_range(500, 520);
 	regmap_read(priv->regmap, MT6358_AUDENC_ANA_CON12, &reg_value);
 	rc_1 = reg_value & 0x1f;
@@ -3329,6 +4018,8 @@ static int mt6358_amic_enable(struct mt6358_priv *priv)
 	regmap_read(priv->regmap, MT6358_AUDENC_ANA_CON12, &reg_value);
 	dev_dbg(priv->dev, "%s(), final: MT6358_AUDENC_CON12 = 0x%x\n",
 		__func__, reg_value);
+=======
+>>>>>>> upstream/android-13
 	/* here to set digital part */
 	mt6358_mtkaif_tx_enable(priv);
 
@@ -3346,12 +4037,18 @@ static void mt6358_amic_disable(struct mt6358_priv *priv)
 	unsigned int mic_type = priv->mux_select[MUX_MIC_TYPE];
 	unsigned int mux_pga_l = priv->mux_select[MUX_PGA_L];
 	unsigned int mux_pga_r = priv->mux_select[MUX_PGA_R];
+<<<<<<< HEAD
 	int mic_gain_l = priv->ana_gain[AUDIO_ANALOG_VOLUME_MICAMP1];
 	int mic_gain_r = priv->ana_gain[AUDIO_ANALOG_VOLUME_MICAMP2];
 
 	dev_info(priv->dev, "%s(), mux, mic %u, pga l %u, pga r %u, mic_gain l %d, r %d\n",
 		 __func__, mic_type, mux_pga_l, mux_pga_r,
 		 mic_gain_l, mic_gain_r);
+=======
+
+	dev_info(priv->dev, "%s(), mux, mic %u, pga l %u, pga r %u\n",
+		 __func__, mic_type, mux_pga_l, mux_pga_r);
+>>>>>>> upstream/android-13
 
 	/* UL turn off */
 	regmap_update_bits(priv->regmap, MT6358_AFE_UL_SRC_CON0_L,
@@ -3363,9 +4060,18 @@ static void mt6358_amic_disable(struct mt6358_priv *priv)
 	/* L ADC input sel : off, disable L ADC */
 	regmap_update_bits(priv->regmap, MT6358_AUDENC_ANA_CON0,
 			   0xf000, 0x0000);
+<<<<<<< HEAD
 	/* L preamplifier input sel : off, L PGA 0 dB gain */
 	regmap_update_bits(priv->regmap, MT6358_AUDENC_ANA_CON0,
 			   0x0ff9, 0x0000);
+=======
+	/* L preamplifier DCCEN */
+	regmap_update_bits(priv->regmap, MT6358_AUDENC_ANA_CON0,
+			   0x1 << 1, 0x0);
+	/* L preamplifier input sel : off, L PGA 0 dB gain */
+	regmap_update_bits(priv->regmap, MT6358_AUDENC_ANA_CON0,
+			   0xfffb, 0x0000);
+>>>>>>> upstream/android-13
 
 	/* disable L preamplifier DCC precharge */
 	regmap_update_bits(priv->regmap, MT6358_AUDENC_ANA_CON0,
@@ -3374,9 +4080,18 @@ static void mt6358_amic_disable(struct mt6358_priv *priv)
 	/* R ADC input sel : off, disable R ADC */
 	regmap_update_bits(priv->regmap, MT6358_AUDENC_ANA_CON1,
 			   0xf000, 0x0000);
+<<<<<<< HEAD
 	/* R preamplifier input sel : off, R PGA 0 dB gain */
 	regmap_update_bits(priv->regmap, MT6358_AUDENC_ANA_CON1,
 			   0x0ff9, 0x0000);
+=======
+	/* R preamplifier DCCEN */
+	regmap_update_bits(priv->regmap, MT6358_AUDENC_ANA_CON1,
+			   0x1 << 1, 0x0);
+	/* R preamplifier input sel : off, R PGA 0 dB gain */
+	regmap_update_bits(priv->regmap, MT6358_AUDENC_ANA_CON1,
+			   0x0ffb, 0x0000);
+>>>>>>> upstream/android-13
 
 	/* disable R preamplifier DCC precharge */
 	regmap_update_bits(priv->regmap, MT6358_AUDENC_ANA_CON1,
@@ -3421,10 +4136,24 @@ static int mt6358_dmic_enable(struct mt6358_priv *priv)
 	mt6358_mtkaif_tx_enable(priv);
 
 	/* UL dmic setting */
+<<<<<<< HEAD
 	regmap_write(priv->regmap, MT6358_AFE_UL_SRC_CON0_H, 0x0080);
 
 	/* UL turn on */
 	regmap_write(priv->regmap, MT6358_AFE_UL_SRC_CON0_L, 0x0003);
+=======
+	if (priv->dmic_one_wire_mode)
+		regmap_write(priv->regmap, MT6358_AFE_UL_SRC_CON0_H, 0x0400);
+	else
+		regmap_write(priv->regmap, MT6358_AFE_UL_SRC_CON0_H, 0x0080);
+
+	/* UL turn on */
+	regmap_write(priv->regmap, MT6358_AFE_UL_SRC_CON0_L, 0x0003);
+
+	/* Prevent pop noise form dmic hw */
+	msleep(100);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -3454,6 +4183,7 @@ static void mt6358_dmic_disable(struct mt6358_priv *priv)
 	regmap_write(priv->regmap, MT6358_AUDENC_ANA_CON9, 0x0000);
 }
 
+<<<<<<< HEAD
 static int mt6358_vow_amic_enable(struct mt6358_priv *priv)
 {
 	unsigned int mic_type = priv->mux_select[MUX_MIC_TYPE];
@@ -3702,6 +4432,21 @@ static int mt_mic_bias_event(struct snd_soc_dapm_widget *w,
 	}
 
 	return 0;
+=======
+static void mt6358_restore_pga(struct mt6358_priv *priv)
+{
+	unsigned int gain_l, gain_r;
+
+	gain_l = priv->ana_gain[AUDIO_ANALOG_VOLUME_MICAMP1];
+	gain_r = priv->ana_gain[AUDIO_ANALOG_VOLUME_MICAMP2];
+
+	regmap_update_bits(priv->regmap, MT6358_AUDENC_ANA_CON0,
+			   RG_AUDPREAMPLGAIN_MASK_SFT,
+			   gain_l << RG_AUDPREAMPLGAIN_SFT);
+	regmap_update_bits(priv->regmap, MT6358_AUDENC_ANA_CON1,
+			   RG_AUDPREAMPRGAIN_MASK_SFT,
+			   gain_r << RG_AUDPREAMPRGAIN_SFT);
+>>>>>>> upstream/android-13
 }
 
 static int mt_mic_type_event(struct snd_soc_dapm_widget *w,
@@ -3712,7 +4457,12 @@ static int mt_mic_type_event(struct snd_soc_dapm_widget *w,
 	struct mt6358_priv *priv = snd_soc_component_get_drvdata(cmpnt);
 	unsigned int mux = dapm_kcontrol_get_value(w->kcontrols[0]);
 
+<<<<<<< HEAD
 	dev_dbg(priv->dev, "%s(), event 0x%x, mux %u\n", __func__, event, mux);
+=======
+	dev_dbg(priv->dev, "%s(), event 0x%x, mux %u\n",
+		__func__, event, mux);
+>>>>>>> upstream/android-13
 
 	switch (event) {
 	case SND_SOC_DAPM_WILL_PMU:
@@ -3727,6 +4477,10 @@ static int mt_mic_type_event(struct snd_soc_dapm_widget *w,
 			mt6358_amic_enable(priv);
 			break;
 		}
+<<<<<<< HEAD
+=======
+		mt6358_restore_pga(priv);
+>>>>>>> upstream/android-13
 
 		break;
 	case SND_SOC_DAPM_POST_PMD:
@@ -3830,6 +4584,7 @@ static int mt_delay_250_event(struct snd_soc_dapm_widget *w,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int mt_dc_trim_event(struct snd_soc_dapm_widget *w,
 			      struct snd_kcontrol *kcontrol,
 			      int event)
@@ -3870,6 +4625,8 @@ static int mt_amic_connect(struct snd_soc_dapm_widget *source,
 	       true : false;
 }
 
+=======
+>>>>>>> upstream/android-13
 /* DAPM Widgets */
 static const struct snd_soc_dapm_widget mt6358_dapm_widgets[] = {
 	/* Global Supply*/
@@ -3898,6 +4655,7 @@ static const struct snd_soc_dapm_widget mt6358_dapm_widgets[] = {
 	SND_SOC_DAPM_SUPPLY_S("AUDIF_CK", SUPPLY_SEQ_TOP_CK,
 			      MT6358_AUD_TOP_CKPDN_CON0,
 			      RG_AUDIF_CK_PDN_SFT, 1, NULL, 0),
+<<<<<<< HEAD
 	SND_SOC_DAPM_SUPPLY_S("MIC_BIAS", SUPPLY_SEQ_MIC_BIAS,
 			      SND_SOC_NOPM, 0, 0,
 			      mt_mic_bias_event,
@@ -3914,6 +4672,8 @@ static const struct snd_soc_dapm_widget mt6358_dapm_widgets[] = {
 			      SND_SOC_NOPM, 0, 0,
 			      mt_vow_ldo_event,
 			      SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMD),
+=======
+>>>>>>> upstream/android-13
 
 	/* Digital Clock */
 	SND_SOC_DAPM_SUPPLY_S("AUDIO_TOP_AFE_CTL", SUPPLY_SEQ_AUD_TOP_LAST,
@@ -3967,11 +4727,15 @@ static const struct snd_soc_dapm_widget mt6358_dapm_widgets[] = {
 	SND_SOC_DAPM_DAC("DACR", NULL, SND_SOC_NOPM, 0, 0),
 
 	/* LOL */
+<<<<<<< HEAD
 	SND_SOC_DAPM_MUX_E("LOL Mux", SND_SOC_NOPM, 0, 0,
 			   &lo_in_mux_control,
 			   mt_lo_event,
 			   SND_SOC_DAPM_PRE_PMU |
 			   SND_SOC_DAPM_PRE_PMD),
+=======
+	SND_SOC_DAPM_MUX("LOL Mux", SND_SOC_NOPM, 0, 0, &lo_in_mux_control),
+>>>>>>> upstream/android-13
 
 	SND_SOC_DAPM_SUPPLY("LO Stability Enh", MT6358_AUDDEC_ANA_CON7,
 			    RG_LOOUTPUTSTBENH_VAUDP15_SFT, 0, NULL, 0),
@@ -4017,7 +4781,10 @@ static const struct snd_soc_dapm_widget mt6358_dapm_widgets[] = {
 			    SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMD),
 	SND_SOC_DAPM_SUPPLY("SGEN DL SRC", MT6358_AFE_DL_SRC2_CON0_L,
 			    DL_2_SRC_ON_TMP_CTL_PRE_SFT, 0, NULL, 0),
+<<<<<<< HEAD
 			/* tricky, same reg/bit as "AIF_RX", reconsider */
+=======
+>>>>>>> upstream/android-13
 
 	SND_SOC_DAPM_INPUT("SGEN DL"),
 
@@ -4070,6 +4837,7 @@ static const struct snd_soc_dapm_widget mt6358_dapm_widgets[] = {
 	SND_SOC_DAPM_INPUT("AIN0"),
 	SND_SOC_DAPM_INPUT("AIN1"),
 	SND_SOC_DAPM_INPUT("AIN2"),
+<<<<<<< HEAD
 
 	SND_SOC_DAPM_INPUT("AIN0_DMIC"),
 	SND_SOC_DAPM_INPUT("AIN3_DMIC"),
@@ -4087,6 +4855,8 @@ static const struct snd_soc_dapm_widget mt6358_dapm_widgets[] = {
 			       SND_SOC_DAPM_WILL_PMU |
 			       SND_SOC_DAPM_PRE_PMU |
 			       SND_SOC_DAPM_POST_PMD),
+=======
+>>>>>>> upstream/android-13
 };
 
 static const struct snd_soc_dapm_route mt6358_dapm_routes[] = {
@@ -4095,13 +4865,21 @@ static const struct snd_soc_dapm_route mt6358_dapm_routes[] = {
 	{"AIF1TX", NULL, "CLK_BUF"},
 	{"AIF1TX", NULL, "AUDGLB"},
 	{"AIF1TX", NULL, "CLKSQ Audio"},
+<<<<<<< HEAD
 	{"AIF1TX", NULL, "AUD_CK"},
 	{"AIF1TX", NULL, "AUDIF_CK"},
+=======
+
+	{"AIF1TX", NULL, "AUD_CK"},
+	{"AIF1TX", NULL, "AUDIF_CK"},
+
+>>>>>>> upstream/android-13
 	{"AIF1TX", NULL, "AUDIO_TOP_AFE_CTL"},
 	{"AIF1TX", NULL, "AUDIO_TOP_ADC_CTL"},
 	{"AIF1TX", NULL, "AUDIO_TOP_PWR_CLK"},
 	{"AIF1TX", NULL, "AUDIO_TOP_PDN_RESERVED"},
 	{"AIF1TX", NULL, "AUDIO_TOP_I2S_DL"},
+<<<<<<< HEAD
 	{"AIF1TX", NULL, "AFE_ON"},
 
 	{"AIF Out Mux", NULL, "Mic Type Mux"},
@@ -4109,6 +4887,23 @@ static const struct snd_soc_dapm_route mt6358_dapm_routes[] = {
 	{"AIF Out Mux", NULL, "AIN2_DMIC"},
 	{"AIF Out Mux", NULL, "ADC L"},
 	{"AIF Out Mux", NULL, "ADC R"},
+=======
+
+	{"AIF1TX", NULL, "AFE_ON"},
+
+	{"AIF Out Mux", NULL, "Mic Type Mux"},
+
+	{"Mic Type Mux", "ACC", "ADC L"},
+	{"Mic Type Mux", "ACC", "ADC R"},
+	{"Mic Type Mux", "DCC", "ADC L"},
+	{"Mic Type Mux", "DCC", "ADC R"},
+	{"Mic Type Mux", "DCC_ECM_DIFF", "ADC L"},
+	{"Mic Type Mux", "DCC_ECM_DIFF", "ADC R"},
+	{"Mic Type Mux", "DCC_ECM_SINGLE", "ADC L"},
+	{"Mic Type Mux", "DCC_ECM_SINGLE", "ADC R"},
+	{"Mic Type Mux", "DMIC", "AIN0"},
+	{"Mic Type Mux", "DMIC", "AIN2"},
+>>>>>>> upstream/android-13
 
 	{"ADC L", NULL, "ADC L Mux"},
 	{"ADC L", NULL, "ADC Supply"},
@@ -4116,6 +4911,10 @@ static const struct snd_soc_dapm_route mt6358_dapm_routes[] = {
 	{"ADC R", NULL, "ADC Supply"},
 
 	{"ADC L Mux", "Left Preamplifier", "PGA L"},
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	{"ADC R Mux", "Right Preamplifier", "PGA R"},
 
 	{"PGA L", NULL, "PGA L Mux"},
@@ -4133,6 +4932,10 @@ static const struct snd_soc_dapm_route mt6358_dapm_routes[] = {
 	{"DL Power Supply", NULL, "CLK_BUF"},
 	{"DL Power Supply", NULL, "AUDGLB"},
 	{"DL Power Supply", NULL, "CLKSQ Audio"},
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	{"DL Power Supply", NULL, "AUDNCP_CK"},
 	{"DL Power Supply", NULL, "ZCD13M_CK"},
 	{"DL Power Supply", NULL, "AUD_CK"},
@@ -4142,14 +4945,23 @@ static const struct snd_soc_dapm_route mt6358_dapm_routes[] = {
 	{"DL Digital Clock", NULL, "AUDIO_TOP_AFE_CTL"},
 	{"DL Digital Clock", NULL, "AUDIO_TOP_DAC_CTL"},
 	{"DL Digital Clock", NULL, "AUDIO_TOP_PWR_CLK"},
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	{"DL Digital Clock", NULL, "AFE_ON"},
 
 	{"AIF_RX", NULL, "DL Digital Clock"},
 
 	/* DL Path */
 	{"DAC In Mux", "Normal Path", "AIF_RX"},
+<<<<<<< HEAD
 	{"DAC In Mux", "Sgen", "SGEN DL"},
 
+=======
+
+	{"DAC In Mux", "Sgen", "SGEN DL"},
+>>>>>>> upstream/android-13
 	{"SGEN DL", NULL, "SGEN DL SRC"},
 	{"SGEN DL", NULL, "SGEN MUTE"},
 	{"SGEN DL", NULL, "SGEN DL Enable"},
@@ -4163,7 +4975,11 @@ static const struct snd_soc_dapm_route mt6358_dapm_routes[] = {
 	{"DACR", NULL, "DL Power Supply"},
 
 	/* Lineout Path */
+<<<<<<< HEAD
 	{"LOL Mux", "Playback", "DACR"},
+=======
+	{"LOL Mux", "Playback", "DACL"},
+>>>>>>> upstream/android-13
 
 	{"LOL Buffer", NULL, "LOL Mux"},
 	{"LOL Buffer", NULL, "LO Stability Enh"},
@@ -4177,8 +4993,11 @@ static const struct snd_soc_dapm_route mt6358_dapm_routes[] = {
 	{"HPR Mux", "HP Impedance", "DACR"},
 	{"HPL Mux", "LoudSPK Playback", "DACL"},
 	{"HPR Mux", "LoudSPK Playback", "DACR"},
+<<<<<<< HEAD
 	{"HPL Mux", "Loud DualSPK Playback", "DACL"},
 	{"HPR Mux", "Loud DualSPK Playback", "DACR"},
+=======
+>>>>>>> upstream/android-13
 
 	{"Headphone L", NULL, "HPL Mux"},
 	{"Headphone R", NULL, "HPR Mux"},
@@ -4189,6 +5008,7 @@ static const struct snd_soc_dapm_route mt6358_dapm_routes[] = {
 	/* Receiver Path */
 	{"RCV Mux", "Voice Playback", "DACL"},
 	{"Receiver", NULL, "RCV Mux"},
+<<<<<<< HEAD
 
 	/* VOW */
 	{"VOW TX", NULL, "Mic Type Mux"},
@@ -4207,6 +5027,8 @@ static const struct snd_soc_dapm_route mt6358_dapm_routes[] = {
 	{"AIN2", NULL, "MIC_BIAS", mt_amic_connect},
 	{"AIN0_DMIC", NULL, "MIC_BIAS", mt_dmic_connect},
 	{"AIN2_DMIC", NULL, "MIC_BIAS", mt_dmic_connect},
+=======
+>>>>>>> upstream/android-13
 };
 
 static int mt6358_codec_dai_hw_params(struct snd_pcm_substream *substream,
@@ -4217,7 +5039,10 @@ static int mt6358_codec_dai_hw_params(struct snd_pcm_substream *substream,
 	struct mt6358_priv *priv = snd_soc_component_get_drvdata(cmpnt);
 	unsigned int rate = params_rate(params);
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	dev_info(priv->dev, "%s(), substream->stream %d, rate %d, number %d\n",
 		 __func__,
 		 substream->stream,
@@ -4267,6 +5092,7 @@ static struct snd_soc_dai_driver mt6358_dai_driver[] = {
 		},
 		.ops = &mt6358_codec_dai_ops,
 	},
+<<<<<<< HEAD
 	{
 		.name = "mt6358-snd-codec-vow",
 		.capture = {
@@ -7128,6 +7954,12 @@ static int mt6358_codec_init_reg(struct mt6358_priv *priv)
 			   RG_CLKSQ_IN_SEL_TEST_MASK_SFT,
 			   0x0);
 
+=======
+};
+
+static void mt6358_codec_init_reg(struct mt6358_priv *priv)
+{
+>>>>>>> upstream/android-13
 	/* Disable HeadphoneL/HeadphoneR short circuit protection */
 	regmap_update_bits(priv->regmap, MT6358_AUDDEC_ANA_CON0,
 			   RG_AUDHPLSCDISABLE_VAUDP15_MASK_SFT,
@@ -7144,10 +7976,16 @@ static int mt6358_codec_init_reg(struct mt6358_priv *priv)
 			   RG_AUDLOLSCDISABLE_VAUDP15_MASK_SFT,
 			   0x1 << RG_AUDLOLSCDISABLE_VAUDP15_SFT);
 
+<<<<<<< HEAD
 	/* Set HP_EINT trigger level to 2.0v */
 	regmap_update_bits(priv->regmap, MT6358_AUDENC_ANA_CON11,
 			   RG_EINTCOMPVTH_MASK_SFT,
 			   0x1 << RG_EINTCOMPVTH_SFT);
+=======
+	/* accdet s/w enable */
+	regmap_update_bits(priv->regmap, MT6358_ACCDET_CON13,
+			   0xFFFF, 0x700E);
+>>>>>>> upstream/android-13
 
 	/* gpio miso driving set to 4mA */
 	regmap_write(priv->regmap, MT6358_DRV_CON3, 0x8888);
@@ -7155,6 +7993,7 @@ static int mt6358_codec_init_reg(struct mt6358_priv *priv)
 	/* set gpio */
 	playback_gpio_reset(priv);
 	capture_gpio_reset(priv);
+<<<<<<< HEAD
 
 	/* mic type setting */
 	mic_type_default_init(priv);
@@ -7234,11 +8073,14 @@ static int get_hp_current_calibrate_val(struct mt6358_priv *priv)
 
 	dev_dbg(priv->dev, "%s(), efuse: %d\n", __func__, value);
 	return value;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int mt6358_codec_probe(struct snd_soc_component *cmpnt)
 {
 	struct mt6358_priv *priv = snd_soc_component_get_drvdata(cmpnt);
+<<<<<<< HEAD
 
 	snd_soc_component_init_regmap(cmpnt, priv->regmap);
 
@@ -7266,19 +8108,44 @@ static int mt6358_codec_probe(struct snd_soc_component *cmpnt)
 	priv->ana_gain[AUDIO_ANALOG_VOLUME_MICAMP2] = 3;
 
 	priv->hp_current_calibrate_val = get_hp_current_calibrate_val(priv);
+=======
+	int ret;
+
+	snd_soc_component_init_regmap(cmpnt, priv->regmap);
+
+	mt6358_codec_init_reg(priv);
+
+	priv->avdd_reg = devm_regulator_get(priv->dev, "Avdd");
+	if (IS_ERR(priv->avdd_reg)) {
+		dev_err(priv->dev, "%s() have no Avdd supply", __func__);
+		return PTR_ERR(priv->avdd_reg);
+	}
+
+	ret = regulator_enable(priv->avdd_reg);
+	if (ret)
+		return  ret;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct snd_soc_component_driver mt6358_soc_component_driver = {
 	.name = CODEC_MT6358_NAME,
 	.probe = mt6358_codec_probe,
+=======
+static const struct snd_soc_component_driver mt6358_soc_component_driver = {
+	.probe = mt6358_codec_probe,
+	.controls = mt6358_snd_controls,
+	.num_controls = ARRAY_SIZE(mt6358_snd_controls),
+>>>>>>> upstream/android-13
 	.dapm_widgets = mt6358_dapm_widgets,
 	.num_dapm_widgets = ARRAY_SIZE(mt6358_dapm_widgets),
 	.dapm_routes = mt6358_dapm_routes,
 	.num_dapm_routes = ARRAY_SIZE(mt6358_dapm_routes),
 };
 
+<<<<<<< HEAD
 #ifdef CONFIG_DEBUG_FS
 static void debug_write_reg(struct file *file, void *arg)
 {
@@ -8155,6 +9022,8 @@ static const struct regmap_config mt6358_regmap = {
 };
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static void mt6358_parse_dt(struct mt6358_priv *priv)
 {
 	int ret;
@@ -8163,6 +9032,7 @@ static void mt6358_parse_dt(struct mt6358_priv *priv)
 	ret = of_property_read_u32(dev->of_node, "mediatek,dmic-mode",
 				   &priv->dmic_one_wire_mode);
 	if (ret) {
+<<<<<<< HEAD
 		dev_info(dev, "%s() failed to read dmic-mode, default 2 wire\n",
 			 __func__);
 		priv->dmic_one_wire_mode = 0;
@@ -8184,26 +9054,41 @@ static void mt6358_parse_dt(struct mt6358_priv *priv)
 			 __func__);
 		priv->vow_dmic_lp = 0;
 	}
+=======
+		dev_warn(priv->dev, "%s() failed to read dmic-mode\n",
+			 __func__);
+		priv->dmic_one_wire_mode = 0;
+	}
+>>>>>>> upstream/android-13
 }
 
 static int mt6358_platform_driver_probe(struct platform_device *pdev)
 {
 	struct mt6358_priv *priv;
+<<<<<<< HEAD
 #ifdef CONFIG_MTK_PMIC_WRAP
 	struct device_node *pwrap_node = NULL;
 #endif
 	int ret;
+=======
+	struct mt6397_chip *mt6397 = dev_get_drvdata(pdev->dev.parent);
+>>>>>>> upstream/android-13
 
 	priv = devm_kzalloc(&pdev->dev,
 			    sizeof(struct mt6358_priv),
 			    GFP_KERNEL);
+<<<<<<< HEAD
 	if (priv == NULL)
+=======
+	if (!priv)
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 
 	dev_set_drvdata(&pdev->dev, priv);
 
 	priv->dev = &pdev->dev;
 
+<<<<<<< HEAD
 #ifndef CONFIG_MTK_PMIC_WRAP
 	priv->regmap = devm_regmap_init(&pdev->dev, NULL, NULL, &mt6358_regmap);
 #else
@@ -8249,17 +9134,28 @@ static int mt6358_platform_driver_probe(struct platform_device *pdev)
 					    S_IFREG | 0444, NULL,
 					    priv, &mt6358_debugfs_ops);
 #endif
+=======
+	priv->regmap = mt6397->regmap;
+	if (IS_ERR(priv->regmap))
+		return PTR_ERR(priv->regmap);
+
+>>>>>>> upstream/android-13
 	mt6358_parse_dt(priv);
 
 	dev_info(priv->dev, "%s(), dev name %s\n",
 		 __func__, dev_name(&pdev->dev));
 
+<<<<<<< HEAD
 	return snd_soc_register_component(&pdev->dev,
+=======
+	return devm_snd_soc_register_component(&pdev->dev,
+>>>>>>> upstream/android-13
 				      &mt6358_soc_component_driver,
 				      mt6358_dai_driver,
 				      ARRAY_SIZE(mt6358_dai_driver));
 }
 
+<<<<<<< HEAD
 static int mt6358_platform_driver_remove(struct platform_device *pdev)
 {
 #ifdef CONFIG_DEBUG_FS
@@ -8276,6 +9172,10 @@ static int mt6358_platform_driver_remove(struct platform_device *pdev)
 static const struct of_device_id mt6358_of_match[] = {
 	{.compatible = "mediatek,mt6358-sound",},
 	{.compatible = "mediatek,mt6366-sound",},
+=======
+static const struct of_device_id mt6358_of_match[] = {
+	{.compatible = "mediatek,mt6358-sound",},
+>>>>>>> upstream/android-13
 	{}
 };
 MODULE_DEVICE_TABLE(of, mt6358_of_match);
@@ -8286,7 +9186,10 @@ static struct platform_driver mt6358_platform_driver = {
 		.of_match_table = mt6358_of_match,
 	},
 	.probe = mt6358_platform_driver_probe,
+<<<<<<< HEAD
 	.remove = mt6358_platform_driver_remove,
+=======
+>>>>>>> upstream/android-13
 };
 
 module_platform_driver(mt6358_platform_driver)

@@ -182,7 +182,11 @@ int __init berlin2_avpll_vco_register(void __iomem *base,
 			       u8 vco_flags, unsigned long flags)
 {
 	struct berlin2_avpll_vco *vco;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 
 	vco = kzalloc(sizeof(*vco), GFP_KERNEL);
 	if (!vco)
@@ -358,7 +362,11 @@ int __init berlin2_avpll_channel_register(void __iomem *base,
 			   u8 ch_flags, unsigned long flags)
 {
 	struct berlin2_avpll_channel *ch;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 
 	ch = kzalloc(sizeof(*ch), GFP_KERNEL);
 	if (!ch)

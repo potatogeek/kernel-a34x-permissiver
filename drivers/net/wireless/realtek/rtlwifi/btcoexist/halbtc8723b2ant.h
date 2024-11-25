@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2012  Realtek Corporation.
@@ -22,6 +23,11 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/* Copyright(c) 2012  Realtek Corporation.*/
+
+>>>>>>> upstream/android-13
 #ifndef _HAL8723B_2_ANT
 #define _HAL8723B_2_ANT
 

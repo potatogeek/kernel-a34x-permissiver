@@ -16,6 +16,7 @@
 #include "trace.h"
 #include "trace_output.h"
 
+<<<<<<< HEAD
 static bool kill_ftrace_graph;
 
 /**
@@ -43,6 +44,8 @@ void ftrace_graph_stop(void)
 	kill_ftrace_graph = true;
 }
 
+=======
+>>>>>>> upstream/android-13
 /* When set, irq functions will be ignored */
 static int ftrace_graph_skip_irqs;
 
@@ -87,8 +90,17 @@ static struct tracer_opt trace_opts[] = {
 	{ TRACER_OPT(funcgraph-tail, TRACE_GRAPH_PRINT_TAIL) },
 	/* Include sleep time (scheduled out) between entry and return */
 	{ TRACER_OPT(sleep-time, TRACE_GRAPH_SLEEP_TIME) },
+<<<<<<< HEAD
 	/* Include time within nested functions */
 	{ TRACER_OPT(graph-time, TRACE_GRAPH_GRAPH_TIME) },
+=======
+
+#ifdef CONFIG_FUNCTION_PROFILER
+	/* Include time within nested functions */
+	{ TRACER_OPT(graph-time, TRACE_GRAPH_GRAPH_TIME) },
+#endif
+
+>>>>>>> upstream/android-13
 	{ } /* Empty entry */
 };
 
@@ -117,6 +129,7 @@ static void
 print_graph_duration(struct trace_array *tr, unsigned long long duration,
 		     struct trace_seq *s, u32 flags);
 
+<<<<<<< HEAD
 /* Add a function return address to the trace stack on thread info.*/
 static int
 ftrace_push_return_trace(unsigned long ret, unsigned long func,
@@ -381,6 +394,19 @@ int __trace_graph_entry(struct trace_array *tr,
 
 	event = trace_buffer_lock_reserve(buffer, TRACE_GRAPH_ENT,
 					  sizeof(*entry), flags, pc);
+=======
+int __trace_graph_entry(struct trace_array *tr,
+				struct ftrace_graph_ent *trace,
+				unsigned int trace_ctx)
+{
+	struct trace_event_call *call = &event_funcgraph_entry;
+	struct ring_buffer_event *event;
+	struct trace_buffer *buffer = tr->array_buffer.buffer;
+	struct ftrace_graph_ent_entry *entry;
+
+	event = trace_buffer_lock_reserve(buffer, TRACE_GRAPH_ENT,
+					  sizeof(*entry), trace_ctx);
+>>>>>>> upstream/android-13
 	if (!event)
 		return 0;
 	entry	= ring_buffer_event_data(event);
@@ -404,10 +430,36 @@ int trace_graph_entry(struct ftrace_graph_ent *trace)
 	struct trace_array *tr = graph_array;
 	struct trace_array_cpu *data;
 	unsigned long flags;
+<<<<<<< HEAD
 	long disabled;
 	int ret;
 	int cpu;
 	int pc;
+=======
+	unsigned int trace_ctx;
+	long disabled;
+	int ret;
+	int cpu;
+
+	if (trace_recursion_test(TRACE_GRAPH_NOTRACE_BIT))
+		return 0;
+
+	/*
+	 * Do not trace a function if it's filtered by set_graph_notrace.
+	 * Make the index of ret stack negative to indicate that it should
+	 * ignore further functions.  But it needs its own ret stack entry
+	 * to recover the original index in order to continue tracing after
+	 * returning from the function.
+	 */
+	if (ftrace_graph_notrace_addr(trace->func)) {
+		trace_recursion_set(TRACE_GRAPH_NOTRACE_BIT);
+		/*
+		 * Need to return 1 to have the return called
+		 * that will clear the NOTRACE bit.
+		 */
+		return 1;
+	}
+>>>>>>> upstream/android-13
 
 	if (!ftrace_trace_task(tr))
 		return 0;
@@ -419,6 +471,7 @@ int trace_graph_entry(struct ftrace_graph_ent *trace)
 		return 0;
 
 	/*
+<<<<<<< HEAD
 	 * Do not trace a function if it's filtered by set_graph_notrace.
 	 * Make the index of ret stack negative to indicate that it should
 	 * ignore further functions.  But it needs its own ret stack entry
@@ -429,6 +482,8 @@ int trace_graph_entry(struct ftrace_graph_ent *trace)
 		return 1;
 
 	/*
+=======
+>>>>>>> upstream/android-13
 	 * Stop here if tracing_threshold is set. We only write function return
 	 * events to the ring buffer.
 	 */
@@ -437,11 +492,19 @@ int trace_graph_entry(struct ftrace_graph_ent *trace)
 
 	local_irq_save(flags);
 	cpu = raw_smp_processor_id();
+<<<<<<< HEAD
 	data = per_cpu_ptr(tr->trace_buffer.data, cpu);
 	disabled = atomic_inc_return(&data->disabled);
 	if (likely(disabled == 1)) {
 		pc = preempt_count();
 		ret = __trace_graph_entry(tr, trace, flags, pc);
+=======
+	data = per_cpu_ptr(tr->array_buffer.data, cpu);
+	disabled = atomic_inc_return(&data->disabled);
+	if (likely(disabled == 1)) {
+		trace_ctx = tracing_gen_ctx_flags(flags);
+		ret = __trace_graph_entry(tr, trace, trace_ctx);
+>>>>>>> upstream/android-13
 	} else {
 		ret = 0;
 	}
@@ -454,7 +517,11 @@ int trace_graph_entry(struct ftrace_graph_ent *trace)
 
 static void
 __trace_graph_function(struct trace_array *tr,
+<<<<<<< HEAD
 		unsigned long ip, unsigned long flags, int pc)
+=======
+		unsigned long ip, unsigned int trace_ctx)
+>>>>>>> upstream/android-13
 {
 	u64 time = trace_clock_local();
 	struct ftrace_graph_ent ent = {
@@ -468,20 +535,32 @@ __trace_graph_function(struct trace_array *tr,
 		.rettime  = time,
 	};
 
+<<<<<<< HEAD
 	__trace_graph_entry(tr, &ent, flags, pc);
 	__trace_graph_return(tr, &ret, flags, pc);
+=======
+	__trace_graph_entry(tr, &ent, trace_ctx);
+	__trace_graph_return(tr, &ret, trace_ctx);
+>>>>>>> upstream/android-13
 }
 
 void
 trace_graph_function(struct trace_array *tr,
 		unsigned long ip, unsigned long parent_ip,
+<<<<<<< HEAD
 		unsigned long flags, int pc)
 {
 	__trace_graph_function(tr, ip, flags, pc);
+=======
+		unsigned int trace_ctx)
+{
+	__trace_graph_function(tr, ip, trace_ctx);
+>>>>>>> upstream/android-13
 }
 
 void __trace_graph_return(struct trace_array *tr,
 				struct ftrace_graph_ret *trace,
+<<<<<<< HEAD
 				unsigned long flags,
 				int pc)
 {
@@ -492,6 +571,17 @@ void __trace_graph_return(struct trace_array *tr,
 
 	event = trace_buffer_lock_reserve(buffer, TRACE_GRAPH_RET,
 					  sizeof(*entry), flags, pc);
+=======
+				unsigned int trace_ctx)
+{
+	struct trace_event_call *call = &event_funcgraph_exit;
+	struct ring_buffer_event *event;
+	struct trace_buffer *buffer = tr->array_buffer.buffer;
+	struct ftrace_graph_ret_entry *entry;
+
+	event = trace_buffer_lock_reserve(buffer, TRACE_GRAPH_RET,
+					  sizeof(*entry), trace_ctx);
+>>>>>>> upstream/android-13
 	if (!event)
 		return;
 	entry	= ring_buffer_event_data(event);
@@ -505,6 +595,7 @@ void trace_graph_return(struct ftrace_graph_ret *trace)
 	struct trace_array *tr = graph_array;
 	struct trace_array_cpu *data;
 	unsigned long flags;
+<<<<<<< HEAD
 	long disabled;
 	int cpu;
 	int pc;
@@ -518,6 +609,26 @@ void trace_graph_return(struct ftrace_graph_ret *trace)
 	if (likely(disabled == 1)) {
 		pc = preempt_count();
 		__trace_graph_return(tr, trace, flags, pc);
+=======
+	unsigned int trace_ctx;
+	long disabled;
+	int cpu;
+
+	ftrace_graph_addr_finish(trace);
+
+	if (trace_recursion_test(TRACE_GRAPH_NOTRACE_BIT)) {
+		trace_recursion_clear(TRACE_GRAPH_NOTRACE_BIT);
+		return;
+	}
+
+	local_irq_save(flags);
+	cpu = raw_smp_processor_id();
+	data = per_cpu_ptr(tr->array_buffer.data, cpu);
+	disabled = atomic_inc_return(&data->disabled);
+	if (likely(disabled == 1)) {
+		trace_ctx = tracing_gen_ctx_flags(flags);
+		__trace_graph_return(tr, trace, trace_ctx);
+>>>>>>> upstream/android-13
 	}
 	atomic_dec(&data->disabled);
 	local_irq_restore(flags);
@@ -536,6 +647,14 @@ static void trace_graph_thresh_return(struct ftrace_graph_ret *trace)
 {
 	ftrace_graph_addr_finish(trace);
 
+<<<<<<< HEAD
+=======
+	if (trace_recursion_test(TRACE_GRAPH_NOTRACE_BIT)) {
+		trace_recursion_clear(TRACE_GRAPH_NOTRACE_BIT);
+		return;
+	}
+
+>>>>>>> upstream/android-13
 	if (tracing_thresh &&
 	    (trace->rettime - trace->calltime < tracing_thresh))
 		return;
@@ -543,17 +662,36 @@ static void trace_graph_thresh_return(struct ftrace_graph_ret *trace)
 		trace_graph_return(trace);
 }
 
+<<<<<<< HEAD
+=======
+static struct fgraph_ops funcgraph_thresh_ops = {
+	.entryfunc = &trace_graph_entry,
+	.retfunc = &trace_graph_thresh_return,
+};
+
+static struct fgraph_ops funcgraph_ops = {
+	.entryfunc = &trace_graph_entry,
+	.retfunc = &trace_graph_return,
+};
+
+>>>>>>> upstream/android-13
 static int graph_trace_init(struct trace_array *tr)
 {
 	int ret;
 
 	set_graph_array(tr);
 	if (tracing_thresh)
+<<<<<<< HEAD
 		ret = register_ftrace_graph(&trace_graph_thresh_return,
 					    &trace_graph_entry);
 	else
 		ret = register_ftrace_graph(&trace_graph_return,
 					    &trace_graph_entry);
+=======
+		ret = register_ftrace_graph(&funcgraph_thresh_ops);
+	else
+		ret = register_ftrace_graph(&funcgraph_ops);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 	tracing_start_cmdline_record();
@@ -564,7 +702,14 @@ static int graph_trace_init(struct trace_array *tr)
 static void graph_trace_reset(struct trace_array *tr)
 {
 	tracing_stop_cmdline_record();
+<<<<<<< HEAD
 	unregister_ftrace_graph();
+=======
+	if (tracing_thresh)
+		unregister_ftrace_graph(&funcgraph_thresh_ops);
+	else
+		unregister_ftrace_graph(&funcgraph_ops);
+>>>>>>> upstream/android-13
 }
 
 static int graph_trace_update_thresh(struct trace_array *tr)
@@ -622,6 +767,10 @@ static void print_graph_lat_fmt(struct trace_seq *s, struct trace_entry *entry)
 {
 	trace_seq_putc(s, ' ');
 	trace_print_lat_fmt(s, entry);
+<<<<<<< HEAD
+=======
+	trace_seq_puts(s, " | ");
+>>>>>>> upstream/android-13
 }
 
 /* If the pid changed since the last trace, output this event */
@@ -688,9 +837,15 @@ get_return_for_leaf(struct trace_iterator *iter,
 			 * We need to consume the current entry to see
 			 * the next one.
 			 */
+<<<<<<< HEAD
 			ring_buffer_consume(iter->trace_buffer->buffer, iter->cpu,
 					    NULL, NULL);
 			event = ring_buffer_peek(iter->trace_buffer->buffer, iter->cpu,
+=======
+			ring_buffer_consume(iter->array_buffer->buffer, iter->cpu,
+					    NULL, NULL);
+			event = ring_buffer_peek(iter->array_buffer->buffer, iter->cpu,
+>>>>>>> upstream/android-13
 						 NULL, NULL);
 		}
 
@@ -726,7 +881,11 @@ get_return_for_leaf(struct trace_iterator *iter,
 
 	/* this is a leaf, now advance the iterator */
 	if (ring_iter)
+<<<<<<< HEAD
 		ring_buffer_read(ring_iter, NULL);
+=======
+		ring_buffer_iter_advance(ring_iter);
+>>>>>>> upstream/android-13
 
 	return next;
 }
@@ -743,6 +902,20 @@ static void print_graph_abs_time(u64 t, struct trace_seq *s)
 }
 
 static void
+<<<<<<< HEAD
+=======
+print_graph_rel_time(struct trace_iterator *iter, struct trace_seq *s)
+{
+	unsigned long long usecs;
+
+	usecs = iter->ts - iter->array_buffer->time_start;
+	do_div(usecs, NSEC_PER_USEC);
+
+	trace_seq_printf(s, "%9llu us |  ", usecs);
+}
+
+static void
+>>>>>>> upstream/android-13
 print_graph_irq(struct trace_iterator *iter, unsigned long addr,
 		enum trace_type type, int cpu, pid_t pid, u32 flags)
 {
@@ -759,6 +932,13 @@ print_graph_irq(struct trace_iterator *iter, unsigned long addr,
 		if (flags & TRACE_GRAPH_PRINT_ABS_TIME)
 			print_graph_abs_time(iter->ts, s);
 
+<<<<<<< HEAD
+=======
+		/* Relative time */
+		if (flags & TRACE_GRAPH_PRINT_REL_TIME)
+			print_graph_rel_time(iter, s);
+
+>>>>>>> upstream/android-13
 		/* Cpu */
 		if (flags & TRACE_GRAPH_PRINT_CPU)
 			print_graph_cpu(s, cpu);
@@ -874,10 +1054,13 @@ print_graph_entry_leaf(struct trace_iterator *iter,
 
 		cpu_data = per_cpu_ptr(data->cpu_data, cpu);
 
+<<<<<<< HEAD
 		/* If a graph tracer ignored set_graph_notrace */
 		if (call->depth < -1)
 			call->depth += FTRACE_NOTRACE_DEPTH;
 
+=======
+>>>>>>> upstream/android-13
 		/*
 		 * Comments display at + 1 to depth. Since
 		 * this is a leaf function, keep the comments
@@ -920,10 +1103,13 @@ print_graph_entry_nested(struct trace_iterator *iter,
 		struct fgraph_cpu_data *cpu_data;
 		int cpu = iter->cpu;
 
+<<<<<<< HEAD
 		/* If a graph tracer ignored set_graph_notrace */
 		if (call->depth < -1)
 			call->depth += FTRACE_NOTRACE_DEPTH;
 
+=======
+>>>>>>> upstream/android-13
 		cpu_data = per_cpu_ptr(data->cpu_data, cpu);
 		cpu_data->depth = call->depth;
 
@@ -975,6 +1161,13 @@ print_graph_prologue(struct trace_iterator *iter, struct trace_seq *s,
 	if (flags & TRACE_GRAPH_PRINT_ABS_TIME)
 		print_graph_abs_time(iter->ts, s);
 
+<<<<<<< HEAD
+=======
+	/* Relative time */
+	if (flags & TRACE_GRAPH_PRINT_REL_TIME)
+		print_graph_rel_time(iter, s);
+
+>>>>>>> upstream/android-13
 	/* Cpu */
 	if (flags & TRACE_GRAPH_PRINT_CPU)
 		print_graph_cpu(s, cpu);
@@ -999,7 +1192,11 @@ print_graph_prologue(struct trace_iterator *iter, struct trace_seq *s,
  *  - we are inside irq code
  *  - we just entered irq code
  *
+<<<<<<< HEAD
  * retunns 0 if
+=======
+ * returns 0 if
+>>>>>>> upstream/android-13
  *  - funcgraph-interrupts option is set
  *  - we are not inside irq code
  */
@@ -1190,7 +1387,11 @@ print_graph_return(struct ftrace_graph_ret *trace, struct trace_seq *s,
 
 	/* Overrun */
 	if (flags & TRACE_GRAPH_PRINT_OVERRUN)
+<<<<<<< HEAD
 		trace_seq_printf(s, " (Overruns: %lu)\n",
+=======
+		trace_seq_printf(s, " (Overruns: %u)\n",
+>>>>>>> upstream/android-13
 				 trace->overrun);
 
 	print_graph_irq(iter, trace->func, TRACE_GRAPH_RET,
@@ -1351,6 +1552,11 @@ static void print_lat_header(struct seq_file *s, u32 flags)
 
 	if (flags & TRACE_GRAPH_PRINT_ABS_TIME)
 		size += 16;
+<<<<<<< HEAD
+=======
+	if (flags & TRACE_GRAPH_PRINT_REL_TIME)
+		size += 16;
+>>>>>>> upstream/android-13
 	if (flags & TRACE_GRAPH_PRINT_CPU)
 		size += 4;
 	if (flags & TRACE_GRAPH_PRINT_PROC)
@@ -1375,12 +1581,21 @@ static void __print_graph_headers_flags(struct trace_array *tr,
 	seq_putc(s, '#');
 	if (flags & TRACE_GRAPH_PRINT_ABS_TIME)
 		seq_puts(s, "     TIME       ");
+<<<<<<< HEAD
+=======
+	if (flags & TRACE_GRAPH_PRINT_REL_TIME)
+		seq_puts(s, "   REL TIME     ");
+>>>>>>> upstream/android-13
 	if (flags & TRACE_GRAPH_PRINT_CPU)
 		seq_puts(s, " CPU");
 	if (flags & TRACE_GRAPH_PRINT_PROC)
 		seq_puts(s, "  TASK/PID       ");
 	if (lat)
+<<<<<<< HEAD
 		seq_puts(s, "||||");
+=======
+		seq_puts(s, "||||   ");
+>>>>>>> upstream/android-13
 	if (flags & TRACE_GRAPH_PRINT_DURATION)
 		seq_puts(s, "  DURATION   ");
 	seq_puts(s, "               FUNCTION CALLS\n");
@@ -1389,12 +1604,21 @@ static void __print_graph_headers_flags(struct trace_array *tr,
 	seq_putc(s, '#');
 	if (flags & TRACE_GRAPH_PRINT_ABS_TIME)
 		seq_puts(s, "      |         ");
+<<<<<<< HEAD
+=======
+	if (flags & TRACE_GRAPH_PRINT_REL_TIME)
+		seq_puts(s, "      |         ");
+>>>>>>> upstream/android-13
 	if (flags & TRACE_GRAPH_PRINT_CPU)
 		seq_puts(s, " |  ");
 	if (flags & TRACE_GRAPH_PRINT_PROC)
 		seq_puts(s, "   |    |        ");
 	if (lat)
+<<<<<<< HEAD
 		seq_puts(s, "||||");
+=======
+		seq_puts(s, "||||   ");
+>>>>>>> upstream/android-13
 	if (flags & TRACE_GRAPH_PRINT_DURATION)
 		seq_puts(s, "   |   |      ");
 	seq_puts(s, "               |   |   |   |\n");
@@ -1563,6 +1787,7 @@ static const struct file_operations graph_depth_fops = {
 
 static __init int init_graph_tracefs(void)
 {
+<<<<<<< HEAD
 	struct dentry *d_tracer;
 
 	d_tracer = tracing_init_dentry();
@@ -1570,6 +1795,15 @@ static __init int init_graph_tracefs(void)
 		return 0;
 
 	trace_create_file("max_graph_depth", 0644, d_tracer,
+=======
+	int ret;
+
+	ret = tracing_init_dentry();
+	if (ret)
+		return 0;
+
+	trace_create_file("max_graph_depth", 0644, NULL,
+>>>>>>> upstream/android-13
 			  NULL, &graph_depth_fops);
 
 	return 0;

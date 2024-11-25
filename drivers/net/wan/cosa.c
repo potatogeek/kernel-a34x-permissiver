@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* $Id: cosa.c,v 1.31 2000/03/08 17:47:16 kas Exp $ */
 
 /*
@@ -21,11 +22,25 @@
 
 /*
  * The driver for the SRP and COSA synchronous serial cards.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/* $Id: cosa.c,v 1.31 2000/03/08 17:47:16 kas Exp $ */
+
+/*  Copyright (C) 1995-1997  Jan "Yenya" Kasprzak <kas@fi.muni.cz>
+ *  Generic HDLC port Copyright (C) 2008 Krzysztof Halasa <khc@pm.waw.pl>
+ */
+
+/* The driver for the SRP and COSA synchronous serial cards.
+>>>>>>> upstream/android-13
  *
  * HARDWARE INFO
  *
  * Both cards are developed at the Institute of Computer Science,
+<<<<<<< HEAD
  * Masaryk University (http://www.ics.muni.cz/). The hardware is
+=======
+ * Masaryk University (https://www.ics.muni.cz/). The hardware is
+>>>>>>> upstream/android-13
  * developed by Jiri Novotny <novotny@ics.muni.cz>. More information
  * and the photo of both cards is available at
  * http://www.pavoucek.cz/cosa.html. The card documentation, firmwares
@@ -48,7 +63,11 @@
  *
  * SOFTWARE INFO
  *
+<<<<<<< HEAD
  * The homepage of the Linux driver is at http://www.fi.muni.cz/~kas/cosa/.
+=======
+ * The homepage of the Linux driver is at https://www.fi.muni.cz/~kas/cosa/.
+>>>>>>> upstream/android-13
  * The CVS tree of Linux driver can be viewed there, as well as the
  * firmware binaries and user-space utilities for downloading the firmware
  * into the card and setting up the card.
@@ -103,7 +122,11 @@
 #define COSA_MAX_ID_STRING	128
 
 /* Maximum length of the channel name */
+<<<<<<< HEAD
 #define COSA_MAX_NAME		(sizeof("cosaXXXcXXX")+1)
+=======
+#define COSA_MAX_NAME		(sizeof("cosaXXXcXXX") + 1)
+>>>>>>> upstream/android-13
 
 /* Per-channel data structure */
 
@@ -137,9 +160,15 @@ struct channel_data {
 };
 
 /* cosa->firmware_status bits */
+<<<<<<< HEAD
 #define COSA_FW_RESET		(1<<0)	/* Is the ROM monitor active? */
 #define COSA_FW_DOWNLOAD	(1<<1)	/* Is the microcode downloaded? */
 #define COSA_FW_START		(1<<2)	/* Is the microcode running? */
+=======
+#define COSA_FW_RESET		BIT(0)	/* Is the ROM monitor active? */
+#define COSA_FW_DOWNLOAD	BIT(1)	/* Is the microcode downloaded? */
+#define COSA_FW_START		BIT(2)	/* Is the microcode running? */
+>>>>>>> upstream/android-13
 
 struct cosa_data {
 	int num;			/* Card number */
@@ -165,6 +194,7 @@ struct cosa_data {
 	char *type;				/* card type */
 };
 
+<<<<<<< HEAD
 /*
  * Define this if you want all the possible ports to be autoprobed.
  * It is here but it probably is not a good idea to use this.
@@ -173,20 +203,38 @@ struct cosa_data {
 
 /*
  * Character device major number. 117 was allocated for us.
+=======
+/* Define this if you want all the possible ports to be autoprobed.
+ * It is here but it probably is not a good idea to use this.
+ */
+/* #define COSA_ISA_AUTOPROBE	1*/
+
+/* Character device major number. 117 was allocated for us.
+>>>>>>> upstream/android-13
  * The value of 0 means to allocate a first free one.
  */
 static DEFINE_MUTEX(cosa_chardev_mutex);
 static int cosa_major = 117;
 
+<<<<<<< HEAD
 /*
  * Encoding of the minor numbers:
+=======
+/* Encoding of the minor numbers:
+>>>>>>> upstream/android-13
  * The lowest CARD_MINOR_BITS bits means the channel on the single card,
  * the highest bits means the card number.
  */
 #define CARD_MINOR_BITS	4	/* How many bits in minor number are reserved
+<<<<<<< HEAD
 				 * for the single card */
 /*
  * The following depends on CARD_MINOR_BITS. Unfortunately, the "MODULE_STRING"
+=======
+				 * for the single card
+				 */
+/* The following depends on CARD_MINOR_BITS. Unfortunately, the "MODULE_STRING"
+>>>>>>> upstream/android-13
  * macro doesn't like anything other than the raw number as an argument :-(
  */
 #define MAX_CARDS	16
@@ -197,8 +245,12 @@ static int cosa_major = 117;
 #define DRIVER_TXMAP_SHIFT	2
 #define DRIVER_TXMAP_MASK	0x0c	/* FIXME: 0xfc for 8-channel version */
 
+<<<<<<< HEAD
 /*
  * for cosa->rxtx - indicates whether either transmit or receive is
+=======
+/* for cosa->rxtx - indicates whether either transmit or receive is
+>>>>>>> upstream/android-13
  * in progress. These values are mean number of the bit.
  */
 #define TXBIT 0
@@ -211,13 +263,18 @@ static int cosa_major = 117;
 #undef DEBUG_IRQS //1	/* Print the message when the IRQ is received */
 #undef DEBUG_IO   //1	/* Dump the I/O traffic */
 
+<<<<<<< HEAD
 #define TX_TIMEOUT	(5*HZ)
+=======
+#define TX_TIMEOUT	(5 * HZ)
+>>>>>>> upstream/android-13
 
 /* Maybe the following should be allocated dynamically */
 static struct cosa_data cosa_cards[MAX_CARDS];
 static int nr_cards;
 
 #ifdef COSA_ISA_AUTOPROBE
+<<<<<<< HEAD
 static int io[MAX_CARDS+1]  = { 0x220, 0x228, 0x210, 0x218, 0, };
 /* NOTE: DMA is not autoprobed!!! */
 static int dma[MAX_CARDS+1] = { 1, 7, 1, 7, 1, 7, 1, 7, 0, };
@@ -227,6 +284,17 @@ static int dma[MAX_CARDS+1];
 #endif
 /* IRQ can be safely autoprobed */
 static int irq[MAX_CARDS+1] = { -1, -1, -1, -1, -1, -1, 0, };
+=======
+static int io[MAX_CARDS + 1]  = {0x220, 0x228, 0x210, 0x218, 0,};
+/* NOTE: DMA is not autoprobed!!! */
+static int dma[MAX_CARDS + 1] = {1, 7, 1, 7, 1, 7, 1, 7, 0,};
+#else
+static int io[MAX_CARDS + 1];
+static int dma[MAX_CARDS + 1];
+#endif
+/* IRQ can be safely autoprobed */
+static int irq[MAX_CARDS + 1] = {-1, -1, -1, -1, -1, -1, 0,};
+>>>>>>> upstream/android-13
 
 /* for class stuff*/
 static struct class *cosa_class;
@@ -257,6 +325,7 @@ MODULE_LICENSE("GPL");
 #define cosa_inw  inw
 #endif
 
+<<<<<<< HEAD
 #define is_8bit(cosa)		(!(cosa->datareg & 0x08))
 
 #define cosa_getstatus(cosa)	(cosa_inb(cosa->statusreg))
@@ -265,6 +334,16 @@ MODULE_LICENSE("GPL");
 #define cosa_getdata8(cosa)	(cosa_inb(cosa->datareg))
 #define cosa_putdata16(cosa, dt)	(cosa_outw(dt, cosa->datareg))
 #define cosa_putdata8(cosa, dt)	(cosa_outb(dt, cosa->datareg))
+=======
+#define is_8bit(cosa)		(!((cosa)->datareg & 0x08))
+
+#define cosa_getstatus(cosa)	(cosa_inb((cosa)->statusreg))
+#define cosa_putstatus(cosa, stat)	(cosa_outb(stat, (cosa)->statusreg))
+#define cosa_getdata16(cosa)	(cosa_inw((cosa)->datareg))
+#define cosa_getdata8(cosa)	(cosa_inb((cosa)->datareg))
+#define cosa_putdata16(cosa, dt)	(cosa_outw(dt, (cosa)->datareg))
+#define cosa_putdata8(cosa, dt)	(cosa_outb(dt, (cosa)->datareg))
+>>>>>>> upstream/android-13
 
 /* Initialization stuff */
 static int cosa_probe(int ioaddr, int irq, int dma);
@@ -281,26 +360,43 @@ static int cosa_net_attach(struct net_device *dev, unsigned short encoding,
 			   unsigned short parity);
 static int cosa_net_open(struct net_device *d);
 static int cosa_net_close(struct net_device *d);
+<<<<<<< HEAD
 static void cosa_net_timeout(struct net_device *d);
+=======
+static void cosa_net_timeout(struct net_device *d, unsigned int txqueue);
+>>>>>>> upstream/android-13
 static netdev_tx_t cosa_net_tx(struct sk_buff *skb, struct net_device *d);
 static char *cosa_net_setup_rx(struct channel_data *channel, int size);
 static int cosa_net_rx_done(struct channel_data *channel);
 static int cosa_net_tx_done(struct channel_data *channel, int size);
+<<<<<<< HEAD
 static int cosa_net_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd);
+=======
+>>>>>>> upstream/android-13
 
 /* Character device */
 static char *chrdev_setup_rx(struct channel_data *channel, int size);
 static int chrdev_rx_done(struct channel_data *channel);
 static int chrdev_tx_done(struct channel_data *channel, int size);
 static ssize_t cosa_read(struct file *file,
+<<<<<<< HEAD
 	char __user *buf, size_t count, loff_t *ppos);
 static ssize_t cosa_write(struct file *file,
 	const char __user *buf, size_t count, loff_t *ppos);
+=======
+			 char __user *buf, size_t count, loff_t *ppos);
+static ssize_t cosa_write(struct file *file,
+			  const char __user *buf, size_t count, loff_t *ppos);
+>>>>>>> upstream/android-13
 static unsigned int cosa_poll(struct file *file, poll_table *poll);
 static int cosa_open(struct inode *inode, struct file *file);
 static int cosa_release(struct inode *inode, struct file *file);
 static long cosa_chardev_ioctl(struct file *file, unsigned int cmd,
+<<<<<<< HEAD
 				unsigned long arg);
+=======
+			       unsigned long arg);
+>>>>>>> upstream/android-13
 #ifdef COSA_FASYNC_WORKING
 static int cosa_fasync(struct inode *inode, struct file *file, int on);
 #endif
@@ -350,7 +446,11 @@ static void debug_status_in(struct cosa_data *cosa, int status);
 static void debug_status_out(struct cosa_data *cosa, int status);
 #endif
 
+<<<<<<< HEAD
 static inline struct channel_data* dev_to_chan(struct net_device *dev)
+=======
+static inline struct channel_data *dev_to_chan(struct net_device *dev)
+>>>>>>> upstream/android-13
 {
 	return (struct channel_data *)dev_to_hdlc(dev)->priv;
 }
@@ -368,15 +468,26 @@ static int __init cosa_init(void)
 			goto out;
 		}
 	} else {
+<<<<<<< HEAD
 		if (!(cosa_major=register_chrdev(0, "cosa", &cosa_fops))) {
+=======
+		cosa_major = register_chrdev(0, "cosa", &cosa_fops);
+		if (!cosa_major) {
+>>>>>>> upstream/android-13
 			pr_warn("unable to register chardev\n");
 			err = -EIO;
 			goto out;
 		}
 	}
+<<<<<<< HEAD
 	for (i=0; i<MAX_CARDS; i++)
 		cosa_cards[i].num = -1;
 	for (i=0; io[i] != 0 && i < MAX_CARDS; i++)
+=======
+	for (i = 0; i < MAX_CARDS; i++)
+		cosa_cards[i].num = -1;
+	for (i = 0; io[i] != 0 && i < MAX_CARDS; i++)
+>>>>>>> upstream/android-13
 		cosa_probe(io[i], irq[i], dma[i]);
 	if (!nr_cards) {
 		pr_warn("no devices found\n");
@@ -433,13 +544,21 @@ static const struct net_device_ops cosa_ops = {
 	.ndo_open       = cosa_net_open,
 	.ndo_stop       = cosa_net_close,
 	.ndo_start_xmit = hdlc_start_xmit,
+<<<<<<< HEAD
 	.ndo_do_ioctl   = cosa_net_ioctl,
+=======
+	.ndo_siocwandev = hdlc_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_tx_timeout = cosa_net_timeout,
 };
 
 static int cosa_probe(int base, int irq, int dma)
 {
+<<<<<<< HEAD
 	struct cosa_data *cosa = cosa_cards+nr_cards;
+=======
+	struct cosa_data *cosa = cosa_cards + nr_cards;
+>>>>>>> upstream/android-13
 	int i, err = 0;
 
 	memset(cosa, 0, sizeof(struct cosa_data));
@@ -451,7 +570,12 @@ static int cosa_probe(int base, int irq, int dma)
 		return -1;
 	}
 	/* I/O address should be between 0x100 and 0x3ff and should be
+<<<<<<< HEAD
 	 * multiple of 8. */
+=======
+	 * multiple of 8.
+	 */
+>>>>>>> upstream/android-13
 	if (base < 0x100 || base > 0x3ff || base & 0x7) {
 		pr_info("invalid I/O address 0x%x\n", base);
 		return -1;
@@ -461,8 +585,14 @@ static int cosa_probe(int base, int irq, int dma)
 		pr_info("invalid DMA %d\n", dma);
 		return -1;
 	}
+<<<<<<< HEAD
 	/* and finally, on 16-bit COSA DMA should be 4-7 and 
 	 * I/O base should not be multiple of 0x10 */
+=======
+	/* and finally, on 16-bit COSA DMA should be 4-7 and
+	 * I/O base should not be multiple of 0x10
+	 */
+>>>>>>> upstream/android-13
 	if (((base & 0x8) && dma < 4) || (!(base & 0x8) && dma > 3)) {
 		pr_info("8/16 bit base and DMA mismatch (base=0x%x, dma=%d)\n",
 			base, dma);
@@ -471,12 +601,21 @@ static int cosa_probe(int base, int irq, int dma)
 
 	cosa->dma = dma;
 	cosa->datareg = base;
+<<<<<<< HEAD
 	cosa->statusreg = is_8bit(cosa)?base+1:base+2;
 	spin_lock_init(&cosa->lock);
 
 	if (!request_region(base, is_8bit(cosa)?2:4,"cosa"))
 		return -1;
 	
+=======
+	cosa->statusreg = is_8bit(cosa) ? base + 1 : base + 2;
+	spin_lock_init(&cosa->lock);
+
+	if (!request_region(base, is_8bit(cosa) ? 2 : 4, "cosa"))
+		return -1;
+
+>>>>>>> upstream/android-13
 	if (cosa_reset_and_read_id(cosa, cosa->id_string) < 0) {
 		printk(KERN_DEBUG "probe at 0x%x failed.\n", base);
 		err = -1;
@@ -484,11 +623,19 @@ static int cosa_probe(int base, int irq, int dma)
 	}
 
 	/* Test the validity of identification string */
+<<<<<<< HEAD
 	if (!strncmp(cosa->id_string, "SRP", 3))
 		cosa->type = "srp";
 	else if (!strncmp(cosa->id_string, "COSA", 4))
 		cosa->type = is_8bit(cosa)? "cosa8": "cosa16";
 	else {
+=======
+	if (!strncmp(cosa->id_string, "SRP", 3)) {
+		cosa->type = "srp";
+	} else if (!strncmp(cosa->id_string, "COSA", 4)) {
+		cosa->type = is_8bit(cosa) ? "cosa8" : "cosa16";
+	} else {
+>>>>>>> upstream/android-13
 /* Print a warning only if we are not autoprobing */
 #ifndef COSA_ISA_AUTOPROBE
 		pr_info("valid signature not found at 0x%x\n", base);
@@ -496,9 +643,15 @@ static int cosa_probe(int base, int irq, int dma)
 		err = -1;
 		goto err_out;
 	}
+<<<<<<< HEAD
 	/* Update the name of the region now we know the type of card */ 
 	release_region(base, is_8bit(cosa)?2:4);
 	if (!request_region(base, is_8bit(cosa)?2:4, cosa->type)) {
+=======
+	/* Update the name of the region now we know the type of card */
+	release_region(base, is_8bit(cosa) ? 2 : 4);
+	if (!request_region(base, is_8bit(cosa) ? 2 : 4, cosa->type)) {
+>>>>>>> upstream/android-13
 		printk(KERN_DEBUG "changing name at 0x%x failed.\n", base);
 		return -1;
 	}
@@ -508,8 +661,12 @@ static int cosa_probe(int base, int irq, int dma)
 		unsigned long irqs;
 /*		pr_info("IRQ autoprobe\n"); */
 		irqs = probe_irq_on();
+<<<<<<< HEAD
 		/* 
 		 * Enable interrupt on tx buffer empty (it sure is) 
+=======
+		/* Enable interrupt on tx buffer empty (it sure is)
+>>>>>>> upstream/android-13
 		 * really sure ?
 		 * FIXME: When this code is not used as module, we should
 		 * probably call udelay() instead of the interruptible sleep.
@@ -549,8 +706,13 @@ static int cosa_probe(int base, int irq, int dma)
 		err = -1;
 		goto err_out1;
 	}
+<<<<<<< HEAD
 	
 	cosa->bouncebuf = kmalloc(COSA_MTU, GFP_KERNEL|GFP_DMA);
+=======
+
+	cosa->bouncebuf = kmalloc(COSA_MTU, GFP_KERNEL | GFP_DMA);
+>>>>>>> upstream/android-13
 	if (!cosa->bouncebuf) {
 		err = -ENOMEM;
 		goto err_out2;
@@ -576,7 +738,12 @@ static int cosa_probe(int base, int irq, int dma)
 		sema_init(&chan->wsem, 1);
 
 		/* Register the network interface */
+<<<<<<< HEAD
 		if (!(chan->netdev = alloc_hdlcdev(chan))) {
+=======
+		chan->netdev = alloc_hdlcdev(chan);
+		if (!chan->netdev) {
+>>>>>>> upstream/android-13
 			pr_warn("%s: alloc_hdlcdev failed\n", chan->name);
 			err = -ENOMEM;
 			goto err_hdlcdev;
@@ -616,12 +783,19 @@ err_out2:
 err_out1:
 	free_irq(cosa->irq, cosa);
 err_out:
+<<<<<<< HEAD
 	release_region(cosa->datareg,is_8bit(cosa)?2:4);
+=======
+	release_region(cosa->datareg, is_8bit(cosa) ? 2 : 4);
+>>>>>>> upstream/android-13
 	pr_notice("cosa%d: allocating resources failed\n", cosa->num);
 	return err;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 /*---------- network device ---------- */
 
 static int cosa_net_attach(struct net_device *dev, unsigned short encoding,
@@ -672,7 +846,11 @@ static int cosa_net_open(struct net_device *dev)
 }
 
 static netdev_tx_t cosa_net_tx(struct sk_buff *skb,
+<<<<<<< HEAD
 				     struct net_device *dev)
+=======
+			       struct net_device *dev)
+>>>>>>> upstream/android-13
 {
 	struct channel_data *chan = dev_to_chan(dev);
 
@@ -683,7 +861,11 @@ static netdev_tx_t cosa_net_tx(struct sk_buff *skb,
 	return NETDEV_TX_OK;
 }
 
+<<<<<<< HEAD
 static void cosa_net_timeout(struct net_device *dev)
+=======
+static void cosa_net_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct channel_data *chan = dev_to_chan(dev);
 
@@ -727,13 +909,21 @@ static int cosa_net_close(struct net_device *dev)
 
 static char *cosa_net_setup_rx(struct channel_data *chan, int size)
 {
+<<<<<<< HEAD
 	/*
 	 * We can safely fall back to non-dma-able memory, because we have
+=======
+	/* We can safely fall back to non-dma-able memory, because we have
+>>>>>>> upstream/android-13
 	 * the cosa->bouncebuf pre-allocated.
 	 */
 	kfree_skb(chan->rx_skb);
 	chan->rx_skb = dev_alloc_skb(size);
+<<<<<<< HEAD
 	if (chan->rx_skb == NULL) {
+=======
+	if (!chan->rx_skb) {
+>>>>>>> upstream/android-13
 		pr_notice("%s: Memory squeeze, dropping packet\n", chan->name);
 		chan->netdev->stats.rx_dropped++;
 		return NULL;
@@ -769,7 +959,11 @@ static int cosa_net_tx_done(struct channel_data *chan, int size)
 		chan->netdev->stats.tx_aborted_errors++;
 		return 1;
 	}
+<<<<<<< HEAD
 	dev_kfree_skb_irq(chan->tx_skb);
+=======
+	dev_consume_skb_irq(chan->tx_skb);
+>>>>>>> upstream/android-13
 	chan->tx_skb = NULL;
 	chan->netdev->stats.tx_packets++;
 	chan->netdev->stats.tx_bytes += size;
@@ -780,7 +974,11 @@ static int cosa_net_tx_done(struct channel_data *chan, int size)
 /*---------- Character device ---------- */
 
 static ssize_t cosa_read(struct file *file,
+<<<<<<< HEAD
 	char __user *buf, size_t count, loff_t *ppos)
+=======
+			 char __user *buf, size_t count, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	DECLARE_WAITQUEUE(wait, current);
 	unsigned long flags;
@@ -795,9 +993,15 @@ static ssize_t cosa_read(struct file *file,
 	}
 	if (mutex_lock_interruptible(&chan->rlock))
 		return -ERESTARTSYS;
+<<<<<<< HEAD
 	
 	chan->rxdata = kmalloc(COSA_MTU, GFP_DMA|GFP_KERNEL);
 	if (chan->rxdata == NULL) {
+=======
+
+	chan->rxdata = kmalloc(COSA_MTU, GFP_DMA | GFP_KERNEL);
+	if (!chan->rxdata) {
+>>>>>>> upstream/android-13
 		mutex_unlock(&chan->rlock);
 		return -ENOMEM;
 	}
@@ -853,9 +1057,14 @@ static int chrdev_rx_done(struct channel_data *chan)
 	return 1;
 }
 
+<<<<<<< HEAD
 
 static ssize_t cosa_write(struct file *file,
 	const char __user *buf, size_t count, loff_t *ppos)
+=======
+static ssize_t cosa_write(struct file *file,
+			  const char __user *buf, size_t count, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	DECLARE_WAITQUEUE(wait, current);
 	struct channel_data *chan = file->private_data;
@@ -873,10 +1082,17 @@ static ssize_t cosa_write(struct file *file,
 
 	if (count > COSA_MTU)
 		count = COSA_MTU;
+<<<<<<< HEAD
 	
 	/* Allocate the buffer */
 	kbuf = kmalloc(count, GFP_KERNEL|GFP_DMA);
 	if (kbuf == NULL) {
+=======
+
+	/* Allocate the buffer */
+	kbuf = kmalloc(count, GFP_KERNEL | GFP_DMA);
+	if (!kbuf) {
+>>>>>>> upstream/android-13
 		up(&chan->wsem);
 		return -ENOMEM;
 	}
@@ -885,7 +1101,11 @@ static ssize_t cosa_write(struct file *file,
 		kfree(kbuf);
 		return -EFAULT;
 	}
+<<<<<<< HEAD
 	chan->tx_status=0;
+=======
+	chan->tx_status = 0;
+>>>>>>> upstream/android-13
 	cosa_start_tx(chan, kbuf, count);
 
 	spin_lock_irqsave(&cosa->lock, flags);
@@ -940,6 +1160,7 @@ static int cosa_open(struct inode *inode, struct file *file)
 	int ret = 0;
 
 	mutex_lock(&cosa_chardev_mutex);
+<<<<<<< HEAD
 	if ((n=iminor(file_inode(file))>>CARD_MINOR_BITS)
 		>= nr_cards) {
 		ret = -ENODEV;
@@ -949,11 +1170,26 @@ static int cosa_open(struct inode *inode, struct file *file)
 
 	if ((n=iminor(file_inode(file))
 		& ((1<<CARD_MINOR_BITS)-1)) >= cosa->nchannels) {
+=======
+	n = iminor(file_inode(file)) >> CARD_MINOR_BITS;
+	if (n >= nr_cards) {
+		ret = -ENODEV;
+		goto out;
+	}
+	cosa = cosa_cards + n;
+
+	n = iminor(file_inode(file)) & ((1 << CARD_MINOR_BITS) - 1);
+	if (n >= cosa->nchannels) {
+>>>>>>> upstream/android-13
 		ret = -ENODEV;
 		goto out;
 	}
 	chan = cosa->chan + n;
+<<<<<<< HEAD
 	
+=======
+
+>>>>>>> upstream/android-13
 	file->private_data = chan;
 
 	spin_lock_irqsave(&cosa->lock, flags);
@@ -995,26 +1231,44 @@ static struct fasync_struct *fasync[256] = { NULL, };
 /* To be done ... */
 static int cosa_fasync(struct inode *inode, struct file *file, int on)
 {
+<<<<<<< HEAD
         int port = iminor(inode);
+=======
+	int port = iminor(inode);
+>>>>>>> upstream/android-13
 
 	return fasync_helper(inode, file, on, &fasync[port]);
 }
 #endif
 
+<<<<<<< HEAD
 
 /* ---------- Ioctls ---------- */
 
 /*
  * Ioctl subroutines can safely be made inline, because they are called
+=======
+/* ---------- Ioctls ---------- */
+
+/* Ioctl subroutines can safely be made inline, because they are called
+>>>>>>> upstream/android-13
  * only from cosa_ioctl().
  */
 static inline int cosa_reset(struct cosa_data *cosa)
 {
 	char idstring[COSA_MAX_ID_STRING];
+<<<<<<< HEAD
 	if (cosa->usage > 1)
 		pr_info("cosa%d: WARNING: reset requested with cosa->usage > 1 (%d). Odd things may happen.\n",
 			cosa->num, cosa->usage);
 	cosa->firmware_status &= ~(COSA_FW_RESET|COSA_FW_START);
+=======
+
+	if (cosa->usage > 1)
+		pr_info("cosa%d: WARNING: reset requested with cosa->usage > 1 (%d). Odd things may happen.\n",
+			cosa->num, cosa->usage);
+	cosa->firmware_status &= ~(COSA_FW_RESET | COSA_FW_START);
+>>>>>>> upstream/android-13
 	if (cosa_reset_and_read_id(cosa, idstring) < 0) {
 		pr_notice("cosa%d: reset failed\n", cosa->num);
 		return -EIO;
@@ -1038,7 +1292,11 @@ static inline int cosa_download(struct cosa_data *cosa, void __user *arg)
 			  cosa->name, cosa->firmware_status);
 		return -EPERM;
 	}
+<<<<<<< HEAD
 	
+=======
+
+>>>>>>> upstream/android-13
 	if (copy_from_user(&d, arg, sizeof(d)))
 		return -EFAULT;
 
@@ -1047,9 +1305,14 @@ static inline int cosa_download(struct cosa_data *cosa, void __user *arg)
 	if (d.len < 0 || d.len > COSA_MAX_FIRMWARE_SIZE)
 		return -EINVAL;
 
+<<<<<<< HEAD
 
 	/* If something fails, force the user to reset the card */
 	cosa->firmware_status &= ~(COSA_FW_RESET|COSA_FW_DOWNLOAD);
+=======
+	/* If something fails, force the user to reset the card */
+	cosa->firmware_status &= ~(COSA_FW_RESET | COSA_FW_DOWNLOAD);
+>>>>>>> upstream/android-13
 
 	i = download(cosa, d.code, d.len, d.addr);
 	if (i < 0) {
@@ -1059,7 +1322,11 @@ static inline int cosa_download(struct cosa_data *cosa, void __user *arg)
 	}
 	pr_info("cosa%d: downloading microcode - 0x%04x bytes at 0x%04x\n",
 		cosa->num, d.len, d.addr);
+<<<<<<< HEAD
 	cosa->firmware_status |= COSA_FW_RESET|COSA_FW_DOWNLOAD;
+=======
+	cosa->firmware_status |= COSA_FW_RESET | COSA_FW_DOWNLOAD;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1104,14 +1371,24 @@ static inline int cosa_start(struct cosa_data *cosa, int address)
 		pr_info("cosa%d: WARNING: start microcode requested with cosa->usage > 1 (%d). Odd things may happen.\n",
 			cosa->num, cosa->usage);
 
+<<<<<<< HEAD
 	if ((cosa->firmware_status & (COSA_FW_RESET|COSA_FW_DOWNLOAD))
 		!= (COSA_FW_RESET|COSA_FW_DOWNLOAD)) {
+=======
+	if ((cosa->firmware_status & (COSA_FW_RESET | COSA_FW_DOWNLOAD))
+		!= (COSA_FW_RESET | COSA_FW_DOWNLOAD)) {
+>>>>>>> upstream/android-13
 		pr_notice("%s: download the microcode and/or reset the card first (status %d)\n",
 			  cosa->name, cosa->firmware_status);
 		return -EPERM;
 	}
 	cosa->firmware_status &= ~COSA_FW_RESET;
+<<<<<<< HEAD
 	if ((i=startmicrocode(cosa, address)) < 0) {
+=======
+	i = startmicrocode(cosa, address);
+	if (i < 0) {
+>>>>>>> upstream/android-13
 		pr_notice("cosa%d: start microcode at 0x%04x failed: %d\n",
 			  cosa->num, address, i);
 		return -EIO;
@@ -1121,11 +1398,20 @@ static inline int cosa_start(struct cosa_data *cosa, int address)
 	cosa->firmware_status |= COSA_FW_START;
 	return 0;
 }
+<<<<<<< HEAD
 		
 /* Buffer of size at least COSA_MAX_ID_STRING is expected */
 static inline int cosa_getidstr(struct cosa_data *cosa, char __user *string)
 {
 	int l = strlen(cosa->id_string)+1;
+=======
+
+/* Buffer of size at least COSA_MAX_ID_STRING is expected */
+static inline int cosa_getidstr(struct cosa_data *cosa, char __user *string)
+{
+	int l = strlen(cosa->id_string) + 1;
+
+>>>>>>> upstream/android-13
 	if (copy_to_user(string, cosa->id_string, l))
 		return -EFAULT;
 	return l;
@@ -1134,16 +1420,29 @@ static inline int cosa_getidstr(struct cosa_data *cosa, char __user *string)
 /* Buffer of size at least COSA_MAX_ID_STRING is expected */
 static inline int cosa_gettype(struct cosa_data *cosa, char __user *string)
 {
+<<<<<<< HEAD
 	int l = strlen(cosa->type)+1;
+=======
+	int l = strlen(cosa->type) + 1;
+
+>>>>>>> upstream/android-13
 	if (copy_to_user(string, cosa->type, l))
 		return -EFAULT;
 	return l;
 }
 
 static int cosa_ioctl_common(struct cosa_data *cosa,
+<<<<<<< HEAD
 	struct channel_data *channel, unsigned int cmd, unsigned long arg)
 {
 	void __user *argp = (void __user *)arg;
+=======
+			     struct channel_data *channel, unsigned int cmd,
+			     unsigned long arg)
+{
+	void __user *argp = (void __user *)arg;
+
+>>>>>>> upstream/android-13
 	switch (cmd) {
 	case COSAIORSET:	/* Reset the device */
 		if (!capable(CAP_NET_ADMIN))
@@ -1156,7 +1455,11 @@ static int cosa_ioctl_common(struct cosa_data *cosa,
 	case COSAIODOWNLD:	/* Download the firmware */
 		if (!capable(CAP_SYS_RAWIO))
 			return -EACCES;
+<<<<<<< HEAD
 		
+=======
+
+>>>>>>> upstream/android-13
 		return cosa_download(cosa, argp);
 	case COSAIORMEM:
 		if (!capable(CAP_SYS_RAWIO))
@@ -1185,6 +1488,7 @@ static int cosa_ioctl_common(struct cosa_data *cosa,
 	return -ENOIOCTLCMD;
 }
 
+<<<<<<< HEAD
 static int cosa_net_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 {
 	int rv;
@@ -1198,6 +1502,10 @@ static int cosa_net_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 
 static long cosa_chardev_ioctl(struct file *file, unsigned int cmd,
 							unsigned long arg)
+=======
+static long cosa_chardev_ioctl(struct file *file, unsigned int cmd,
+			       unsigned long arg)
+>>>>>>> upstream/android-13
 {
 	struct channel_data *channel = file->private_data;
 	struct cosa_data *cosa;
@@ -1210,11 +1518,17 @@ static long cosa_chardev_ioctl(struct file *file, unsigned int cmd,
 	return ret;
 }
 
+<<<<<<< HEAD
 
 /*---------- HW layer interface ---------- */
 
 /*
  * The higher layer can bind itself to the HW layer by setting the callbacks
+=======
+/*---------- HW layer interface ---------- */
+
+/* The higher layer can bind itself to the HW layer by setting the callbacks
+>>>>>>> upstream/android-13
  * in the channel_data structure and by using these routines.
  */
 static void cosa_enable_rx(struct channel_data *chan)
@@ -1233,8 +1547,12 @@ static void cosa_disable_rx(struct channel_data *chan)
 		put_driver_status(cosa);
 }
 
+<<<<<<< HEAD
 /*
  * FIXME: This routine probably should check for cosa_start_tx() called when
+=======
+/* FIXME: This routine probably should check for cosa_start_tx() called when
+>>>>>>> upstream/android-13
  * the previous transmit is still unfinished. In this case the non-zero
  * return value should indicate to the caller that the queuing(sp?) up
  * the transmit has failed.
@@ -1248,7 +1566,11 @@ static int cosa_start_tx(struct channel_data *chan, char *buf, int len)
 
 	pr_info("cosa%dc%d: starting tx(0x%x)",
 		chan->cosa->num, chan->num, len);
+<<<<<<< HEAD
 	for (i=0; i<len; i++)
+=======
+	for (i = 0; i < len; i++)
+>>>>>>> upstream/android-13
 		pr_cont(" %02x", buf[i]&0xff);
 	pr_cont("\n");
 #endif
@@ -1275,10 +1597,17 @@ static void put_driver_status(struct cosa_data *cosa)
 
 	status = (cosa->rxbitmap ? DRIVER_RX_READY : 0)
 		| (cosa->txbitmap ? DRIVER_TX_READY : 0)
+<<<<<<< HEAD
 		| (cosa->txbitmap? ~(cosa->txbitmap<<DRIVER_TXMAP_SHIFT)
 			&DRIVER_TXMAP_MASK : 0);
 	if (!cosa->rxtx) {
 		if (cosa->rxbitmap|cosa->txbitmap) {
+=======
+		| (cosa->txbitmap ? ~(cosa->txbitmap << DRIVER_TXMAP_SHIFT)
+			& DRIVER_TXMAP_MASK : 0);
+	if (!cosa->rxtx) {
+		if (cosa->rxbitmap | cosa->txbitmap) {
+>>>>>>> upstream/android-13
 			if (!cosa->enabled) {
 				cosa_putstatus(cosa, SR_RX_INT_ENA);
 #ifdef DEBUG_IO
@@ -1307,10 +1636,17 @@ static void put_driver_status_nolock(struct cosa_data *cosa)
 
 	status = (cosa->rxbitmap ? DRIVER_RX_READY : 0)
 		| (cosa->txbitmap ? DRIVER_TX_READY : 0)
+<<<<<<< HEAD
 		| (cosa->txbitmap? ~(cosa->txbitmap<<DRIVER_TXMAP_SHIFT)
 			&DRIVER_TXMAP_MASK : 0);
 
 	if (cosa->rxbitmap|cosa->txbitmap) {
+=======
+		| (cosa->txbitmap ? ~(cosa->txbitmap << DRIVER_TXMAP_SHIFT)
+			& DRIVER_TXMAP_MASK : 0);
+
+	if (cosa->rxbitmap | cosa->txbitmap) {
+>>>>>>> upstream/android-13
 		cosa_putstatus(cosa, SR_RX_INT_ENA);
 #ifdef DEBUG_IO
 		debug_status_out(cosa, SR_RX_INT_ENA);
@@ -1329,8 +1665,12 @@ static void put_driver_status_nolock(struct cosa_data *cosa)
 #endif
 }
 
+<<<<<<< HEAD
 /*
  * The "kickme" function: When the DMA times out, this is called to
+=======
+/* The "kickme" function: When the DMA times out, this is called to
+>>>>>>> upstream/android-13
  * clean up the driver status.
  * FIXME: Preliminary support, the interface is probably wrong.
  */
@@ -1357,7 +1697,11 @@ static void cosa_kick(struct cosa_data *cosa)
 	udelay(100);
 	cosa_putstatus(cosa, 0);
 	udelay(100);
+<<<<<<< HEAD
 	(void) cosa_getdata8(cosa);
+=======
+	(void)cosa_getdata8(cosa);
+>>>>>>> upstream/android-13
 	udelay(100);
 	cosa_putdata8(cosa, 0);
 	udelay(100);
@@ -1365,8 +1709,12 @@ static void cosa_kick(struct cosa_data *cosa)
 	spin_unlock_irqrestore(&cosa->lock, flags);
 }
 
+<<<<<<< HEAD
 /*
  * Check if the whole buffer is DMA-able. It means it is below the 16M of
+=======
+/* Check if the whole buffer is DMA-able. It means it is below the 16M of
+>>>>>>> upstream/android-13
  * physical memory and doesn't span the 64k boundary. For now it seems
  * SKB's never do this, but we'll check this anyway.
  */
@@ -1374,9 +1722,16 @@ static int cosa_dma_able(struct channel_data *chan, char *buf, int len)
 {
 	static int count;
 	unsigned long b = (unsigned long)buf;
+<<<<<<< HEAD
 	if (b+len >= MAX_DMA_ADDRESS)
 		return 0;
 	if ((b^ (b+len)) & 0x10000) {
+=======
+
+	if (b + len >= MAX_DMA_ADDRESS)
+		return 0;
+	if ((b ^ (b + len)) & 0x10000) {
+>>>>>>> upstream/android-13
 		if (count++ < 5)
 			pr_info("%s: packet spanning a 64k boundary\n",
 				chan->name);
@@ -1385,11 +1740,17 @@ static int cosa_dma_able(struct channel_data *chan, char *buf, int len)
 	return 1;
 }
 
+<<<<<<< HEAD
 
 /* ---------- The SRP/COSA ROM monitor functions ---------- */
 
 /*
  * Downloading SRP microcode: say "w" to SRP monitor, it answers by "w=",
+=======
+/* ---------- The SRP/COSA ROM monitor functions ---------- */
+
+/* Downloading SRP microcode: say "w" to SRP monitor, it answers by "w=",
+>>>>>>> upstream/android-13
  * drivers need to say 4-digit hex number meaning start address of the microcode
  * separated by a single space. Monitor replies by saying " =". Now driver
  * has to write 4-digit hex number meaning the last byte address ended
@@ -1400,6 +1761,7 @@ static int download(struct cosa_data *cosa, const char __user *microcode, int le
 {
 	int i;
 
+<<<<<<< HEAD
 	if (put_wait_data(cosa, 'w') == -1) return -1;
 	if ((i=get_wait_data(cosa)) != 'w') { printk("dnld: 0x%04x\n",i); return -2;}
 	if (get_wait_data(cosa) != '=') return -3;
@@ -1412,6 +1774,29 @@ static int download(struct cosa_data *cosa, const char __user *microcode, int le
 	if (puthexnumber(cosa, address+length-1) < 0) return -13;
 	if (put_wait_data(cosa, ' ') == -1) return -18;
 	if (get_wait_data(cosa) != ' ') return -19;
+=======
+	if (put_wait_data(cosa, 'w') == -1)
+		return -1;
+	if ((i=get_wait_data(cosa)) != 'w') { printk("dnld: 0x%04x\n",i); return -2;}
+	if (get_wait_data(cosa) != '=')
+		return -3;
+
+	if (puthexnumber(cosa, address) < 0)
+		return -4;
+	if (put_wait_data(cosa, ' ') == -1)
+		return -10;
+	if (get_wait_data(cosa) != ' ')
+		return -11;
+	if (get_wait_data(cosa) != '=')
+		return -12;
+
+	if (puthexnumber(cosa, address + length - 1) < 0)
+		return -13;
+	if (put_wait_data(cosa, ' ') == -1)
+		return -18;
+	if (get_wait_data(cosa) != ' ')
+		return -19;
+>>>>>>> upstream/android-13
 
 	while (length--) {
 		char c;
@@ -1426,23 +1811,37 @@ static int download(struct cosa_data *cosa, const char __user *microcode, int le
 		microcode++;
 	}
 
+<<<<<<< HEAD
 	if (get_wait_data(cosa) != '\r') return -21;
 	if (get_wait_data(cosa) != '\n') return -22;
 	if (get_wait_data(cosa) != '.') return -23;
+=======
+	if (get_wait_data(cosa) != '\r')
+		return -21;
+	if (get_wait_data(cosa) != '\n')
+		return -22;
+	if (get_wait_data(cosa) != '.')
+		return -23;
+>>>>>>> upstream/android-13
 #if 0
 	printk(KERN_DEBUG "cosa%d: download completed.\n", cosa->num);
 #endif
 	return 0;
 }
 
+<<<<<<< HEAD
 
 /*
  * Starting microcode is done via the "g" command of the SRP monitor.
+=======
+/* Starting microcode is done via the "g" command of the SRP monitor.
+>>>>>>> upstream/android-13
  * The chat should be the following: "g" "g=" "<addr><CR>"
  * "<CR><CR><LF><CR><LF>".
  */
 static int startmicrocode(struct cosa_data *cosa, int address)
 {
+<<<<<<< HEAD
 	if (put_wait_data(cosa, 'g') == -1) return -1;
 	if (get_wait_data(cosa) != 'g') return -2;
 	if (get_wait_data(cosa) != '=') return -3;
@@ -1455,14 +1854,42 @@ static int startmicrocode(struct cosa_data *cosa, int address)
 	if (get_wait_data(cosa) != '\n') return -8;
 	if (get_wait_data(cosa) != '\r') return -9;
 	if (get_wait_data(cosa) != '\n') return -10;
+=======
+	if (put_wait_data(cosa, 'g') == -1)
+		return -1;
+	if (get_wait_data(cosa) != 'g')
+		return -2;
+	if (get_wait_data(cosa) != '=')
+		return -3;
+
+	if (puthexnumber(cosa, address) < 0)
+		return -4;
+	if (put_wait_data(cosa, '\r') == -1)
+		return -5;
+
+	if (get_wait_data(cosa) != '\r')
+		return -6;
+	if (get_wait_data(cosa) != '\r')
+		return -7;
+	if (get_wait_data(cosa) != '\n')
+		return -8;
+	if (get_wait_data(cosa) != '\r')
+		return -9;
+	if (get_wait_data(cosa) != '\n')
+		return -10;
+>>>>>>> upstream/android-13
 #if 0
 	printk(KERN_DEBUG "cosa%d: microcode started\n", cosa->num);
 #endif
 	return 0;
 }
 
+<<<<<<< HEAD
 /*
  * Reading memory is done via the "r" command of the SRP monitor.
+=======
+/* Reading memory is done via the "r" command of the SRP monitor.
+>>>>>>> upstream/android-13
  * The chat is the following "r" "r=" "<addr> " " =" "<last_byte> " " "
  * Then driver can read the data and the conversation is finished
  * by SRP monitor sending "<CR><LF>." (dot at the end).
@@ -1472,6 +1899,7 @@ static int startmicrocode(struct cosa_data *cosa, int address)
  */
 static int readmem(struct cosa_data *cosa, char __user *microcode, int length, int address)
 {
+<<<<<<< HEAD
 	if (put_wait_data(cosa, 'r') == -1) return -1;
 	if ((get_wait_data(cosa)) != 'r') return -2;
 	if ((get_wait_data(cosa)) != '=') return -3;
@@ -1484,15 +1912,49 @@ static int readmem(struct cosa_data *cosa, char __user *microcode, int length, i
 	if (puthexnumber(cosa, address+length-1) < 0) return -8;
 	if (put_wait_data(cosa, ' ') == -1) return -9;
 	if (get_wait_data(cosa) != ' ') return -10;
+=======
+	if (put_wait_data(cosa, 'r') == -1)
+		return -1;
+	if ((get_wait_data(cosa)) != 'r')
+		return -2;
+	if ((get_wait_data(cosa)) != '=')
+		return -3;
+
+	if (puthexnumber(cosa, address) < 0)
+		return -4;
+	if (put_wait_data(cosa, ' ') == -1)
+		return -5;
+	if (get_wait_data(cosa) != ' ')
+		return -6;
+	if (get_wait_data(cosa) != '=')
+		return -7;
+
+	if (puthexnumber(cosa, address + length - 1) < 0)
+		return -8;
+	if (put_wait_data(cosa, ' ') == -1)
+		return -9;
+	if (get_wait_data(cosa) != ' ')
+		return -10;
+>>>>>>> upstream/android-13
 
 	while (length--) {
 		char c;
 		int i;
+<<<<<<< HEAD
 		if ((i=get_wait_data(cosa)) == -1) {
 			pr_info("0x%04x bytes remaining\n", length);
 			return -11;
 		}
 		c=i;
+=======
+
+		i = get_wait_data(cosa);
+		if (i == -1) {
+			pr_info("0x%04x bytes remaining\n", length);
+			return -11;
+		}
+		c = i;
+>>>>>>> upstream/android-13
 #if 1
 		if (put_user(c, microcode))
 			return -23; /* ??? */
@@ -1502,22 +1964,39 @@ static int readmem(struct cosa_data *cosa, char __user *microcode, int length, i
 		microcode++;
 	}
 
+<<<<<<< HEAD
 	if (get_wait_data(cosa) != '\r') return -21;
 	if (get_wait_data(cosa) != '\n') return -22;
 	if (get_wait_data(cosa) != '.') return -23;
+=======
+	if (get_wait_data(cosa) != '\r')
+		return -21;
+	if (get_wait_data(cosa) != '\n')
+		return -22;
+	if (get_wait_data(cosa) != '.')
+		return -23;
+>>>>>>> upstream/android-13
 #if 0
 	printk(KERN_DEBUG "cosa%d: readmem completed.\n", cosa->num);
 #endif
 	return 0;
 }
 
+<<<<<<< HEAD
 /*
  * This function resets the device and reads the initial prompt
+=======
+/* This function resets the device and reads the initial prompt
+>>>>>>> upstream/android-13
  * of the device's ROM monitor.
  */
 static int cosa_reset_and_read_id(struct cosa_data *cosa, char *idstring)
 {
+<<<<<<< HEAD
 	int i=0, id=0, prev=0, curr=0;
+=======
+	int i = 0, id = 0, prev = 0, curr = 0;
+>>>>>>> upstream/android-13
 
 	/* Reset the card ... */
 	cosa_putstatus(cosa, 0);
@@ -1527,18 +2006,30 @@ static int cosa_reset_and_read_id(struct cosa_data *cosa, char *idstring)
 	/* Disable all IRQs from the card */
 	cosa_putstatus(cosa, 0);
 
+<<<<<<< HEAD
 	/*
 	 * Try to read the ID string. The card then prints out the
+=======
+	/* Try to read the ID string. The card then prints out the
+>>>>>>> upstream/android-13
 	 * identification string ended by the "\n\x2e".
 	 *
 	 * The following loop is indexed through i (instead of id)
 	 * to avoid looping forever when for any reason
 	 * the port returns '\r', '\n' or '\x2e' permanently.
 	 */
+<<<<<<< HEAD
 	for (i=0; i<COSA_MAX_ID_STRING-1; i++, prev=curr) {
 		if ((curr = get_wait_data(cosa)) == -1) {
 			return -1;
 		}
+=======
+	for (i = 0; i < COSA_MAX_ID_STRING - 1; i++, prev = curr) {
+		curr = get_wait_data(cosa);
+		if (curr == -1)
+			return -1;
+
+>>>>>>> upstream/android-13
 		curr &= 0xff;
 		if (curr != '\r' && curr != '\n' && curr != 0x2e)
 			idstring[id++] = curr;
@@ -1550,11 +2041,17 @@ static int cosa_reset_and_read_id(struct cosa_data *cosa, char *idstring)
 	return id;
 }
 
+<<<<<<< HEAD
 
 /* ---------- Auxiliary routines for COSA/SRP monitor ---------- */
 
 /*
  * This routine gets the data byte from the card waiting for the SR_RX_RDY
+=======
+/* ---------- Auxiliary routines for COSA/SRP monitor ---------- */
+
+/* This routine gets the data byte from the card waiting for the SR_RX_RDY
+>>>>>>> upstream/android-13
  * bit to be set in a loop. It should be used in the exceptional cases
  * only (for example when resetting the card or downloading the firmware.
  */
@@ -1566,10 +2063,18 @@ static int get_wait_data(struct cosa_data *cosa)
 		/* read data and return them */
 		if (cosa_getstatus(cosa) & SR_RX_RDY) {
 			short r;
+<<<<<<< HEAD
 			r = cosa_getdata8(cosa);
 #if 0
 			pr_info("get_wait_data returning after %d retries\n",
 				999-retries);
+=======
+
+			r = cosa_getdata8(cosa);
+#if 0
+			pr_info("get_wait_data returning after %d retries\n",
+				999 - retries);
+>>>>>>> upstream/android-13
 #endif
 			return r;
 		}
@@ -1581,20 +2086,32 @@ static int get_wait_data(struct cosa_data *cosa)
 	return -1;
 }
 
+<<<<<<< HEAD
 /*
  * This routine puts the data byte to the card waiting for the SR_TX_RDY
+=======
+/* This routine puts the data byte to the card waiting for the SR_TX_RDY
+>>>>>>> upstream/android-13
  * bit to be set in a loop. It should be used in the exceptional cases
  * only (for example when resetting the card or downloading the firmware).
  */
 static int put_wait_data(struct cosa_data *cosa, int data)
 {
 	int retries = 1000;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	while (--retries) {
 		/* read data and return them */
 		if (cosa_getstatus(cosa) & SR_TX_RDY) {
 			cosa_putdata8(cosa, data);
 #if 0
+<<<<<<< HEAD
 			pr_info("Putdata: %d retries\n", 999-retries);
+=======
+			pr_info("Putdata: %d retries\n", 999 - retries);
+>>>>>>> upstream/android-13
 #endif
 			return 0;
 		}
@@ -1607,9 +2124,14 @@ static int put_wait_data(struct cosa_data *cosa, int data)
 		cosa->num, cosa_getstatus(cosa));
 	return -1;
 }
+<<<<<<< HEAD
 	
 /* 
  * The following routine puts the hexadecimal number into the SRP monitor
+=======
+
+/* The following routine puts the hexadecimal number into the SRP monitor
+>>>>>>> upstream/android-13
  * and verifies the proper echo of the sent bytes. Returns 0 on success,
  * negative number on failure (-1,-3,-5,-7) means that put_wait_data() failed,
  * (-2,-4,-6,-8) means that reading echo failed.
@@ -1621,26 +2143,44 @@ static int puthexnumber(struct cosa_data *cosa, int number)
 
 	/* Well, I should probably replace this by something faster. */
 	sprintf(temp, "%04X", number);
+<<<<<<< HEAD
 	for (i=0; i<4; i++) {
 		if (put_wait_data(cosa, temp[i]) == -1) {
 			pr_notice("cosa%d: puthexnumber failed to write byte %d\n",
 				  cosa->num, i);
 			return -1-2*i;
+=======
+	for (i = 0; i < 4; i++) {
+		if (put_wait_data(cosa, temp[i]) == -1) {
+			pr_notice("cosa%d: puthexnumber failed to write byte %d\n",
+				  cosa->num, i);
+			return -1 - 2 * i;
+>>>>>>> upstream/android-13
 		}
 		if (get_wait_data(cosa) != temp[i]) {
 			pr_notice("cosa%d: puthexhumber failed to read echo of byte %d\n",
 				  cosa->num, i);
+<<<<<<< HEAD
 			return -2-2*i;
+=======
+			return -2 - 2 * i;
+>>>>>>> upstream/android-13
 		}
 	}
 	return 0;
 }
 
+<<<<<<< HEAD
 
 /* ---------- Interrupt routines ---------- */
 
 /*
  * There are three types of interrupt:
+=======
+/* ---------- Interrupt routines ---------- */
+
+/* There are three types of interrupt:
+>>>>>>> upstream/android-13
  * At the beginning of transmit - this handled is in tx_interrupt(),
  * at the beginning of receive - it is in rx_interrupt() and
  * at the end of transmit/receive - it is the eot_interrupt() function.
@@ -1648,14 +2188,22 @@ static int puthexnumber(struct cosa_data *cosa, int number)
  * COSA status byte. I have moved the rx/tx/eot interrupt handling into
  * separate functions to make it more readable. These functions are inline,
  * so there should be no overhead of function call.
+<<<<<<< HEAD
  * 
+=======
+ *
+>>>>>>> upstream/android-13
  * In the COSA bus-master mode, we need to tell the card the address of a
  * buffer. Unfortunately, COSA may be too slow for us, so we must busy-wait.
  * It's time to use the bottom half :-(
  */
 
+<<<<<<< HEAD
 /*
  * Transmit interrupt routine - called when COSA is willing to obtain
+=======
+/* Transmit interrupt routine - called when COSA is willing to obtain
+>>>>>>> upstream/android-13
  * data from the OS. The most tricky part of the routine is selection
  * of channel we (OS) want to send packet for. For SRP we should probably
  * use the round-robin approach. The newer COSA firmwares have a simple
@@ -1680,7 +2228,12 @@ static inline void tx_interrupt(struct cosa_data *cosa, int status)
 	set_bit(TXBIT, &cosa->rxtx);
 	if (!test_bit(IRQBIT, &cosa->rxtx)) {
 		/* flow control, see the comment above */
+<<<<<<< HEAD
 		int i=0;
+=======
+		int i = 0;
+
+>>>>>>> upstream/android-13
 		if (!cosa->txbitmap) {
 			pr_warn("%s: No channel wants data in TX IRQ. Expect DMA timeout.\n",
 				cosa->name);
@@ -1694,9 +2247,16 @@ static inline void tx_interrupt(struct cosa_data *cosa, int status)
 			i++;
 			if (cosa->txchan >= cosa->nchannels)
 				cosa->txchan = 0;
+<<<<<<< HEAD
 			if (!(cosa->txbitmap & (1<<cosa->txchan)))
 				continue;
 			if (~status & (1 << (cosa->txchan+DRIVER_TXMAP_SHIFT)))
+=======
+			if (!(cosa->txbitmap & (1 << cosa->txchan)))
+				continue;
+			if (~status &
+			    (1 << (cosa->txchan + DRIVER_TXMAP_SHIFT)))
+>>>>>>> upstream/android-13
 				break;
 			/* in second pass, accept first ready-to-TX channel */
 			if (i > cosa->nchannels) {
@@ -1711,12 +2271,22 @@ static inline void tx_interrupt(struct cosa_data *cosa, int status)
 		}
 
 		cosa->txsize = cosa->chan[cosa->txchan].txsize;
+<<<<<<< HEAD
 		if (cosa_dma_able(cosa->chan+cosa->txchan,
 			cosa->chan[cosa->txchan].txbuf, cosa->txsize)) {
 			cosa->txbuf = cosa->chan[cosa->txchan].txbuf;
 		} else {
 			memcpy(cosa->bouncebuf, cosa->chan[cosa->txchan].txbuf,
 				cosa->txsize);
+=======
+		if (cosa_dma_able(cosa->chan + cosa->txchan,
+				  cosa->chan[cosa->txchan].txbuf,
+				  cosa->txsize)) {
+			cosa->txbuf = cosa->chan[cosa->txchan].txbuf;
+		} else {
+			memcpy(cosa->bouncebuf, cosa->chan[cosa->txchan].txbuf,
+			       cosa->txsize);
+>>>>>>> upstream/android-13
 			cosa->txbuf = cosa->bouncebuf;
 		}
 	}
@@ -1724,12 +2294,21 @@ static inline void tx_interrupt(struct cosa_data *cosa, int status)
 	if (is_8bit(cosa)) {
 		if (!test_bit(IRQBIT, &cosa->rxtx)) {
 			cosa_putstatus(cosa, SR_TX_INT_ENA);
+<<<<<<< HEAD
 			cosa_putdata8(cosa, ((cosa->txchan << 5) & 0xe0)|
 				((cosa->txsize >> 8) & 0x1f));
 #ifdef DEBUG_IO
 			debug_status_out(cosa, SR_TX_INT_ENA);
 			debug_data_out(cosa, ((cosa->txchan << 5) & 0xe0)|
                                 ((cosa->txsize >> 8) & 0x1f));
+=======
+			cosa_putdata8(cosa, ((cosa->txchan << 5) & 0xe0) |
+				((cosa->txsize >> 8) & 0x1f));
+#ifdef DEBUG_IO
+			debug_status_out(cosa, SR_TX_INT_ENA);
+			debug_data_out(cosa, ((cosa->txchan << 5) & 0xe0) |
+				       ((cosa->txsize >> 8) & 0x1f));
+>>>>>>> upstream/android-13
 			debug_data_in(cosa, cosa_getdata8(cosa));
 #else
 			cosa_getdata8(cosa);
@@ -1740,20 +2319,36 @@ static inline void tx_interrupt(struct cosa_data *cosa, int status)
 		} else {
 			clear_bit(IRQBIT, &cosa->rxtx);
 			cosa_putstatus(cosa, 0);
+<<<<<<< HEAD
 			cosa_putdata8(cosa, cosa->txsize&0xff);
 #ifdef DEBUG_IO
 			debug_status_out(cosa, 0);
 			debug_data_out(cosa, cosa->txsize&0xff);
+=======
+			cosa_putdata8(cosa, cosa->txsize & 0xff);
+#ifdef DEBUG_IO
+			debug_status_out(cosa, 0);
+			debug_data_out(cosa, cosa->txsize & 0xff);
+>>>>>>> upstream/android-13
 #endif
 		}
 	} else {
 		cosa_putstatus(cosa, SR_TX_INT_ENA);
+<<<<<<< HEAD
 		cosa_putdata16(cosa, ((cosa->txchan<<13) & 0xe000)
 			| (cosa->txsize & 0x1fff));
 #ifdef DEBUG_IO
 		debug_status_out(cosa, SR_TX_INT_ENA);
 		debug_data_out(cosa, ((cosa->txchan<<13) & 0xe000)
                         | (cosa->txsize & 0x1fff));
+=======
+		cosa_putdata16(cosa, ((cosa->txchan << 13) & 0xe000)
+			| (cosa->txsize & 0x1fff));
+#ifdef DEBUG_IO
+		debug_status_out(cosa, SR_TX_INT_ENA);
+		debug_data_out(cosa, ((cosa->txchan << 13) & 0xe000) |
+			       (cosa->txsize & 0x1fff));
+>>>>>>> upstream/android-13
 		debug_data_in(cosa, cosa_getdata8(cosa));
 		debug_status_out(cosa, 0);
 #else
@@ -1764,6 +2359,7 @@ static inline void tx_interrupt(struct cosa_data *cosa, int status)
 
 	if (cosa->busmaster) {
 		unsigned long addr = virt_to_bus(cosa->txbuf);
+<<<<<<< HEAD
 		int count=0;
 		pr_info("busmaster IRQ\n");
 		while (!(cosa_getstatus(cosa)&SR_TX_RDY)) {
@@ -1783,6 +2379,30 @@ static inline void tx_interrupt(struct cosa_data *cosa, int status)
 		}
 		pr_info("ready after %d loops\n", count);
 		cosa_putdata16(cosa, addr &0xffff);
+=======
+		int count = 0;
+
+		pr_info("busmaster IRQ\n");
+		while (!(cosa_getstatus(cosa) & SR_TX_RDY)) {
+			count++;
+			udelay(10);
+			if (count > 1000)
+				break;
+		}
+		pr_info("status %x\n", cosa_getstatus(cosa));
+		pr_info("ready after %d loops\n", count);
+		cosa_putdata16(cosa, (addr >> 16) & 0xffff);
+
+		count = 0;
+		while (!(cosa_getstatus(cosa) & SR_TX_RDY)) {
+			count++;
+			if (count > 1000)
+				break;
+			udelay(10);
+		}
+		pr_info("ready after %d loops\n", count);
+		cosa_putdata16(cosa, addr & 0xffff);
+>>>>>>> upstream/android-13
 		flags1 = claim_dma_lock();
 		set_dma_mode(cosa->dma, DMA_MODE_CASCADE);
 		enable_dma(cosa->dma);
@@ -1798,9 +2418,15 @@ static inline void tx_interrupt(struct cosa_data *cosa, int status)
 		enable_dma(cosa->dma);
 		release_dma_lock(flags1);
 	}
+<<<<<<< HEAD
 	cosa_putstatus(cosa, SR_TX_DMA_ENA|SR_USR_INT_ENA);
 #ifdef DEBUG_IO
 	debug_status_out(cosa, SR_TX_DMA_ENA|SR_USR_INT_ENA);
+=======
+	cosa_putstatus(cosa, SR_TX_DMA_ENA | SR_USR_INT_ENA);
+#ifdef DEBUG_IO
+	debug_status_out(cosa, SR_TX_DMA_ENA | SR_USR_INT_ENA);
+>>>>>>> upstream/android-13
 #endif
 	spin_unlock_irqrestore(&cosa->lock, flags);
 }
@@ -1819,7 +2445,11 @@ static inline void rx_interrupt(struct cosa_data *cosa, int status)
 		if (!test_bit(IRQBIT, &cosa->rxtx)) {
 			set_bit(IRQBIT, &cosa->rxtx);
 			put_driver_status_nolock(cosa);
+<<<<<<< HEAD
 			cosa->rxsize = cosa_getdata8(cosa) <<8;
+=======
+			cosa->rxsize = cosa_getdata8(cosa) << 8;
+>>>>>>> upstream/android-13
 #ifdef DEBUG_IO
 			debug_data_in(cosa, cosa->rxsize >> 8);
 #endif
@@ -1872,6 +2502,7 @@ reject:		/* Reject the packet */
 	disable_dma(cosa->dma);
 	clear_dma_ff(cosa->dma);
 	set_dma_mode(cosa->dma, DMA_MODE_READ);
+<<<<<<< HEAD
 	if (cosa_dma_able(cosa->rxchan, cosa->rxbuf, cosa->rxsize & 0x1fff)) {
 		set_dma_addr(cosa->dma, virt_to_bus(cosa->rxbuf));
 	} else {
@@ -1886,6 +2517,22 @@ reject:		/* Reject the packet */
 		cosa_putdata8(cosa, DRIVER_RX_READY);
 #ifdef DEBUG_IO
 	debug_status_out(cosa, SR_RX_DMA_ENA|SR_USR_INT_ENA);
+=======
+	if (cosa_dma_able(cosa->rxchan, cosa->rxbuf, cosa->rxsize & 0x1fff))
+		set_dma_addr(cosa->dma, virt_to_bus(cosa->rxbuf));
+	else
+		set_dma_addr(cosa->dma, virt_to_bus(cosa->bouncebuf));
+
+	set_dma_count(cosa->dma, (cosa->rxsize & 0x1fff));
+	enable_dma(cosa->dma);
+	release_dma_lock(flags);
+	spin_lock_irqsave(&cosa->lock, flags);
+	cosa_putstatus(cosa, SR_RX_DMA_ENA | SR_USR_INT_ENA);
+	if (!is_8bit(cosa) && (status & SR_TX_RDY))
+		cosa_putdata8(cosa, DRIVER_RX_READY);
+#ifdef DEBUG_IO
+	debug_status_out(cosa, SR_RX_DMA_ENA | SR_USR_INT_ENA);
+>>>>>>> upstream/android-13
 	if (!is_8bit(cosa) && (status & SR_TX_RDY))
 		debug_data_cmd(cosa, DRIVER_RX_READY);
 #endif
@@ -1895,13 +2542,22 @@ reject:		/* Reject the packet */
 static inline void eot_interrupt(struct cosa_data *cosa, int status)
 {
 	unsigned long flags, flags1;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&cosa->lock, flags);
 	flags1 = claim_dma_lock();
 	disable_dma(cosa->dma);
 	clear_dma_ff(cosa->dma);
 	release_dma_lock(flags1);
 	if (test_bit(TXBIT, &cosa->rxtx)) {
+<<<<<<< HEAD
 		struct channel_data *chan = cosa->chan+cosa->txchan;
+=======
+		struct channel_data *chan = cosa->chan + cosa->txchan;
+
+>>>>>>> upstream/android-13
 		if (chan->tx_done)
 			if (chan->tx_done(chan, cosa->txsize))
 				clear_bit(chan->num, &cosa->txbitmap);
@@ -1909,9 +2565,16 @@ static inline void eot_interrupt(struct cosa_data *cosa, int status)
 #ifdef DEBUG_DATA
 	{
 		int i;
+<<<<<<< HEAD
 		pr_info("cosa%dc%d: done rx(0x%x)",
 			cosa->num, cosa->rxchan->num, cosa->rxsize);
 		for (i=0; i<cosa->rxsize; i++)
+=======
+
+		pr_info("cosa%dc%d: done rx(0x%x)",
+			cosa->num, cosa->rxchan->num, cosa->rxsize);
+		for (i = 0; i < cosa->rxsize; i++)
+>>>>>>> upstream/android-13
 			pr_cont(" %02x", cosa->rxbuf[i]&0xff);
 		pr_cont("\n");
 	}
@@ -1927,8 +2590,12 @@ static inline void eot_interrupt(struct cosa_data *cosa, int status)
 	} else {
 		pr_notice("cosa%d: unexpected EOT interrupt\n", cosa->num);
 	}
+<<<<<<< HEAD
 	/*
 	 * Clear the RXBIT, TXBIT and IRQBIT (the latest should be
+=======
+	/* Clear the RXBIT, TXBIT and IRQBIT (the latest should be
+>>>>>>> upstream/android-13
 	 * cleared anyway). We should do it as soon as possible
 	 * so that we can tell the COSA we are done and to give it a time
 	 * for recovery.
@@ -1981,10 +2648,15 @@ again:
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 
 /* ---------- I/O debugging routines ---------- */
 /*
  * These routines can be used to monitor COSA/SRP I/O and to printk()
+=======
+/* ---------- I/O debugging routines ---------- */
+/* These routines can be used to monitor COSA/SRP I/O and to printk()
+>>>>>>> upstream/android-13
  * the data being transferred on the data and status I/O port in a
  * readable way.
  */
@@ -1993,6 +2665,10 @@ again:
 static void debug_status_in(struct cosa_data *cosa, int status)
 {
 	char *s;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	switch (status & SR_CMD_FROM_SRP_MASK) {
 	case SR_UP_REQUEST:
 		s = "RX_REQ";

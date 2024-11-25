@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * IBM/AMCC PPC4xx SoC setup code
  *
@@ -6,11 +10,14 @@
  * L2 cache routines cloned from arch/ppc/syslib/ibm440gx_common.c which is:
  *   Eugene Surovegin <eugene.surovegin@zultys.com> or <ebs@ebshome.net>
  *   Copyright (c) 2003 - 2006 Zultys Technologies
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/stddef.h>
@@ -200,7 +207,11 @@ void ppc4xx_reset_system(char *cmd)
 	u32 reset_type = DBCR0_RST_SYSTEM;
 	const u32 *prop;
 
+<<<<<<< HEAD
 	np = of_find_node_by_type(NULL, "cpu");
+=======
+	np = of_get_cpu_node(0, NULL);
+>>>>>>> upstream/android-13
 	if (np) {
 		prop = of_get_property(np, "reset-type", NULL);
 

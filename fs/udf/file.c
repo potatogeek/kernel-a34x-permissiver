@@ -50,7 +50,11 @@ static void __udf_adinicb_readpage(struct page *page)
 	 * So just sample it once and use the same value everywhere.
 	 */
 	kaddr = kmap_atomic(page);
+<<<<<<< HEAD
 	memcpy(kaddr, iinfo->i_ext.i_data + iinfo->i_lenEAttr, isize);
+=======
+	memcpy(kaddr, iinfo->i_data + iinfo->i_lenEAttr, isize);
+>>>>>>> upstream/android-13
 	memset(kaddr + isize, 0, PAGE_SIZE - isize);
 	flush_dcache_page(page);
 	SetPageUptodate(page);
@@ -76,8 +80,12 @@ static int udf_adinicb_writepage(struct page *page,
 	BUG_ON(!PageLocked(page));
 
 	kaddr = kmap_atomic(page);
+<<<<<<< HEAD
 	memcpy(iinfo->i_ext.i_data + iinfo->i_lenEAttr, kaddr,
 		i_size_read(inode));
+=======
+	memcpy(iinfo->i_data + iinfo->i_lenEAttr, kaddr, i_size_read(inode));
+>>>>>>> upstream/android-13
 	SetPageUptodate(page);
 	kunmap_atomic(kaddr);
 	mark_inode_dirty(inode);
@@ -126,6 +134,10 @@ static int udf_adinicb_write_end(struct file *file, struct address_space *mappin
 }
 
 const struct address_space_operations udf_adinicb_aops = {
+<<<<<<< HEAD
+=======
+	.set_page_dirty	= __set_page_dirty_buffers,
+>>>>>>> upstream/android-13
 	.readpage	= udf_adinicb_readpage,
 	.writepage	= udf_adinicb_writepage,
 	.write_begin	= udf_adinicb_write_begin,
@@ -184,7 +196,11 @@ long udf_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 	long old_block, new_block;
 	int result;
 
+<<<<<<< HEAD
 	if (inode_permission(inode, MAY_READ) != 0) {
+=======
+	if (file_permission(filp, MAY_READ) != 0) {
+>>>>>>> upstream/android-13
 		udf_debug("no permission to access inode %lu\n", inode->i_ino);
 		return -EPERM;
 	}
@@ -215,7 +231,11 @@ long udf_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 		return put_user(UDF_I(inode)->i_lenEAttr, (int __user *)arg);
 	case UDF_GETEABLOCK:
 		return copy_to_user((char __user *)arg,
+<<<<<<< HEAD
 				    UDF_I(inode)->i_ext.i_data,
+=======
+				    UDF_I(inode)->i_data,
+>>>>>>> upstream/android-13
 				    UDF_I(inode)->i_lenEAttr) ? -EFAULT : 0;
 	default:
 		return -ENOIOCTLCMD;
@@ -254,13 +274,22 @@ const struct file_operations udf_file_operations = {
 	.llseek			= generic_file_llseek,
 };
 
+<<<<<<< HEAD
 static int udf_setattr(struct dentry *dentry, struct iattr *attr)
+=======
+static int udf_setattr(struct user_namespace *mnt_userns, struct dentry *dentry,
+		       struct iattr *attr)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode = d_inode(dentry);
 	struct super_block *sb = inode->i_sb;
 	int error;
 
+<<<<<<< HEAD
 	error = setattr_prepare(dentry, attr);
+=======
+	error = setattr_prepare(&init_user_ns, dentry, attr);
+>>>>>>> upstream/android-13
 	if (error)
 		return error;
 
@@ -280,7 +309,14 @@ static int udf_setattr(struct dentry *dentry, struct iattr *attr)
 			return error;
 	}
 
+<<<<<<< HEAD
 	setattr_copy(inode, attr);
+=======
+	if (attr->ia_valid & ATTR_MODE)
+		udf_update_extra_perms(inode, attr->ia_mode);
+
+	setattr_copy(&init_user_ns, inode, attr);
+>>>>>>> upstream/android-13
 	mark_inode_dirty(inode);
 	return 0;
 }

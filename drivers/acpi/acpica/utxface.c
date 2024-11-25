@@ -3,7 +3,11 @@
  *
  * Module Name: utxface - External interfaces, miscellaneous utility functions
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 

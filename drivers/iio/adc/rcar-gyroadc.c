@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * Renesas R-Car GyroADC driver
  *
  * Copyright 2016 Marek Vasut <marek.vasut@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -171,6 +178,7 @@ static const struct iio_chan_spec rcar_gyroadc_iio_channels_3[] = {
 static int rcar_gyroadc_set_power(struct rcar_gyroadc *priv, bool on)
 {
 	struct device *dev = priv->dev;
+<<<<<<< HEAD
 	int ret;
 
 	if (on) {
@@ -183,6 +191,15 @@ static int rcar_gyroadc_set_power(struct rcar_gyroadc *priv, bool on)
 	}
 
 	return ret;
+=======
+
+	if (on) {
+		return pm_runtime_resume_and_get(dev);
+	} else {
+		pm_runtime_mark_last_busy(dev);
+		return pm_runtime_put_autosuspend(dev);
+	}
+>>>>>>> upstream/android-13
 }
 
 static int rcar_gyroadc_read_raw(struct iio_dev *indio_dev,
@@ -343,8 +360,13 @@ static int rcar_gyroadc_parse_subdevs(struct iio_dev *indio_dev)
 	for_each_child_of_node(np, child) {
 		of_id = of_match_node(rcar_gyroadc_child_match, child);
 		if (!of_id) {
+<<<<<<< HEAD
 			dev_err(dev, "Ignoring unsupported ADC \"%s\".",
 				child->name);
+=======
+			dev_err(dev, "Ignoring unsupported ADC \"%pOFn\".",
+				child);
+>>>>>>> upstream/android-13
 			continue;
 		}
 
@@ -366,7 +388,11 @@ static int rcar_gyroadc_parse_subdevs(struct iio_dev *indio_dev)
 			num_channels = ARRAY_SIZE(rcar_gyroadc_iio_channels_3);
 			break;
 		default:
+<<<<<<< HEAD
 			return -EINVAL;
+=======
+			goto err_e_inval;
+>>>>>>> upstream/android-13
 		}
 
 		/*
@@ -381,17 +407,29 @@ static int rcar_gyroadc_parse_subdevs(struct iio_dev *indio_dev)
 			ret = of_property_read_u32(child, "reg", &reg);
 			if (ret) {
 				dev_err(dev,
+<<<<<<< HEAD
 					"Failed to get child reg property of ADC \"%s\".\n",
 					child->name);
 				return ret;
+=======
+					"Failed to get child reg property of ADC \"%pOFn\".\n",
+					child);
+				goto err_of_node_put;
+>>>>>>> upstream/android-13
 			}
 
 			/* Channel number is too high. */
 			if (reg >= num_channels) {
 				dev_err(dev,
+<<<<<<< HEAD
 					"Only %i channels supported with %s, but reg = <%i>.\n",
 					num_channels, child->name, reg);
 				return -EINVAL;
+=======
+					"Only %i channels supported with %pOFn, but reg = <%i>.\n",
+					num_channels, child, reg);
+				goto err_e_inval;
+>>>>>>> upstream/android-13
 			}
 		}
 
@@ -400,7 +438,11 @@ static int rcar_gyroadc_parse_subdevs(struct iio_dev *indio_dev)
 			dev_err(dev,
 				"Channel %i uses different ADC mode than the rest.\n",
 				reg);
+<<<<<<< HEAD
 			return -EINVAL;
+=======
+			goto err_e_inval;
+>>>>>>> upstream/android-13
 		}
 
 		/* Channel is valid, grab the regulator. */
@@ -410,7 +452,12 @@ static int rcar_gyroadc_parse_subdevs(struct iio_dev *indio_dev)
 		if (IS_ERR(vref)) {
 			dev_dbg(dev, "Channel %i 'vref' supply not connected.\n",
 				reg);
+<<<<<<< HEAD
 			return PTR_ERR(vref);
+=======
+			ret = PTR_ERR(vref);
+			goto err_of_node_put;
+>>>>>>> upstream/android-13
 		}
 
 		priv->vref[reg] = vref;
@@ -434,8 +481,15 @@ static int rcar_gyroadc_parse_subdevs(struct iio_dev *indio_dev)
 		 * attached to the GyroADC at a time, so if we found it,
 		 * we can stop parsing here.
 		 */
+<<<<<<< HEAD
 		if (childmode == RCAR_GYROADC_MODE_SELECT_1_MB88101A)
 			break;
+=======
+		if (childmode == RCAR_GYROADC_MODE_SELECT_1_MB88101A) {
+			of_node_put(child);
+			break;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	if (first) {
@@ -444,6 +498,15 @@ static int rcar_gyroadc_parse_subdevs(struct iio_dev *indio_dev)
 	}
 
 	return 0;
+<<<<<<< HEAD
+=======
+
+err_e_inval:
+	ret = -EINVAL;
+err_of_node_put:
+	of_node_put(child);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void rcar_gyroadc_deinit_supplies(struct iio_dev *indio_dev)
@@ -490,6 +553,7 @@ static int rcar_gyroadc_probe(struct platform_device *pdev)
 	struct device *dev = &pdev->dev;
 	struct rcar_gyroadc *priv;
 	struct iio_dev *indio_dev;
+<<<<<<< HEAD
 	struct resource *mem;
 	int ret;
 
@@ -498,22 +562,39 @@ static int rcar_gyroadc_probe(struct platform_device *pdev)
 		dev_err(dev, "Failed to allocate IIO device.\n");
 		return -ENOMEM;
 	}
+=======
+	int ret;
+
+	indio_dev = devm_iio_device_alloc(dev, sizeof(*priv));
+	if (!indio_dev)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	priv = iio_priv(indio_dev);
 	priv->dev = dev;
 
+<<<<<<< HEAD
 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	priv->regs = devm_ioremap_resource(dev, mem);
+=======
+	priv->regs = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(priv->regs))
 		return PTR_ERR(priv->regs);
 
 	priv->clk = devm_clk_get(dev, "fck");
+<<<<<<< HEAD
 	if (IS_ERR(priv->clk)) {
 		ret = PTR_ERR(priv->clk);
 		if (ret != -EPROBE_DEFER)
 			dev_err(dev, "Failed to get IF clock (ret=%i)\n", ret);
 		return ret;
 	}
+=======
+	if (IS_ERR(priv->clk))
+		return dev_err_probe(dev, PTR_ERR(priv->clk),
+				     "Failed to get IF clock\n");
+>>>>>>> upstream/android-13
 
 	ret = rcar_gyroadc_parse_subdevs(indio_dev);
 	if (ret)
@@ -529,8 +610,11 @@ static int rcar_gyroadc_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, indio_dev);
 
 	indio_dev->name = DRIVER_NAME;
+<<<<<<< HEAD
 	indio_dev->dev.parent = dev;
 	indio_dev->dev.of_node = pdev->dev.of_node;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->info = &rcar_gyroadc_iio_info;
 	indio_dev->modes = INDIO_DIRECT_MODE;
 
@@ -544,7 +628,14 @@ static int rcar_gyroadc_probe(struct platform_device *pdev)
 	pm_runtime_use_autosuspend(dev);
 	pm_runtime_enable(dev);
 
+<<<<<<< HEAD
 	pm_runtime_get_sync(dev);
+=======
+	ret = pm_runtime_resume_and_get(dev);
+	if (ret)
+		goto err_power_up;
+
+>>>>>>> upstream/android-13
 	rcar_gyroadc_hw_init(priv);
 	rcar_gyroadc_hw_start(priv);
 
@@ -561,6 +652,10 @@ static int rcar_gyroadc_probe(struct platform_device *pdev)
 err_iio_device_register:
 	rcar_gyroadc_hw_stop(priv);
 	pm_runtime_put_sync(dev);
+<<<<<<< HEAD
+=======
+err_power_up:
+>>>>>>> upstream/android-13
 	pm_runtime_disable(dev);
 	pm_runtime_set_suspended(dev);
 	clk_disable_unprepare(priv->clk);

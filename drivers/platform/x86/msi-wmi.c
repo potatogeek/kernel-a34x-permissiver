@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * MSI WMI hotkeys
  *
  * Copyright (C) 2009 Novell <trenn@suse.de>
  *
  * Most stuff taken over from hp-wmi
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -109,6 +116,11 @@ static int msi_wmi_query_block(int instance, int *ret)
 	struct acpi_buffer output = { ACPI_ALLOCATE_BUFFER, NULL };
 
 	status = wmi_query_block(MSIWMI_BIOS_GUID, instance, &output);
+<<<<<<< HEAD
+=======
+	if (ACPI_FAILURE(status))
+		return -EIO;
+>>>>>>> upstream/android-13
 
 	obj = output.pointer;
 

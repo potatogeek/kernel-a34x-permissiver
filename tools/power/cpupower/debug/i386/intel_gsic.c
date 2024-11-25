@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  (C) 2003  Bruno Ducrot
  *  (C) 2004  Dominik Brodowski <linux@dominikbrodowski.de>
  *
+<<<<<<< HEAD
  *  Licensed under the terms of the GNU GPL License version 2.
  *
+=======
+>>>>>>> upstream/android-13
  * Based on code found in
  * linux/include/asm-i386/ist.h and linux/arch/i386/kernel/setup.c
  * and originally developed by Andy Grover <andrew.grover@intel.com>
@@ -72,7 +79,11 @@ int main (void)
 		printf("\tsmi_cmd=0x?? smi_port=0x?? smi_sig=1\n");
 		printf("\nUnfortunately, you have to know what exactly are "
 		       "smi_cmd and smi_port, and this\nis system "
+<<<<<<< HEAD
 		       "dependant.\n");
+=======
+		       "dependent.\n");
+>>>>>>> upstream/android-13
 	}
 	return 1;
 }

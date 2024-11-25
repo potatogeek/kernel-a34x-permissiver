@@ -3,7 +3,11 @@
  *
  * Module Name: exdump - Interpreter debug output routines
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -94,7 +98,11 @@ static struct acpi_exdump_info acpi_ex_dump_method[9] = {
 	 "Parameter Count"},
 	{ACPI_EXD_UINT8, ACPI_EXD_OFFSET(method.sync_level), "Sync Level"},
 	{ACPI_EXD_POINTER, ACPI_EXD_OFFSET(method.mutex), "Mutex"},
+<<<<<<< HEAD
 	{ACPI_EXD_UINT8, ACPI_EXD_OFFSET(method.owner_id), "Owner Id"},
+=======
+	{ACPI_EXD_UINT16, ACPI_EXD_OFFSET(method.owner_id), "Owner Id"},
+>>>>>>> upstream/android-13
 	{ACPI_EXD_UINT8, ACPI_EXD_OFFSET(method.thread_count), "Thread Count"},
 	{ACPI_EXD_UINT32, ACPI_EXD_OFFSET(method.aml_length), "Aml Length"},
 	{ACPI_EXD_POINTER, ACPI_EXD_OFFSET(method.aml_start), "Aml Start"}
@@ -269,8 +277,13 @@ static struct acpi_exdump_info acpi_ex_dump_field_common[7] = {
 
 static struct acpi_exdump_info acpi_ex_dump_node[7] = {
 	{ACPI_EXD_INIT, ACPI_EXD_TABLE_SIZE(acpi_ex_dump_node), NULL},
+<<<<<<< HEAD
 	{ACPI_EXD_UINT8, ACPI_EXD_NSOFFSET(flags), "Flags"},
 	{ACPI_EXD_UINT8, ACPI_EXD_NSOFFSET(owner_id), "Owner Id"},
+=======
+	{ACPI_EXD_UINT16, ACPI_EXD_NSOFFSET(flags), "Flags"},
+	{ACPI_EXD_UINT16, ACPI_EXD_NSOFFSET(owner_id), "Owner Id"},
+>>>>>>> upstream/android-13
 	{ACPI_EXD_LIST, ACPI_EXD_NSOFFSET(object), "Object List"},
 	{ACPI_EXD_NODE, ACPI_EXD_NSOFFSET(parent), "Parent"},
 	{ACPI_EXD_NODE, ACPI_EXD_NSOFFSET(child), "Child"},

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  ALSA sequencer Memory Manager
  *  Copyright (c) 1998 by Frank van de Pol <fvdpol@coil.demon.nl>
@@ -17,6 +18,12 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ *  ALSA sequencer Memory Manager
+ *  Copyright (c) 1998 by Frank van de Pol <fvdpol@coil.demon.nl>
+>>>>>>> upstream/android-13
  */
 #ifndef __SND_SEQ_MEMORYMGR_H
 #define __SND_SEQ_MEMORYMGR_H

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * X-Gene SLIMpro I2C Driver
  *
@@ -5,6 +9,7 @@
  * Author: Feng Kan <fkan@apm.com>
  * Author: Hieu Le <hnle@apm.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of
@@ -21,6 +26,10 @@
  * This driver provides support for X-Gene SLIMpro I2C device access
  * using the APM X-Gene SLIMpro mailbox driver.
  *
+=======
+ * This driver provides support for X-Gene SLIMpro I2C device access
+ * using the APM X-Gene SLIMpro mailbox driver.
+>>>>>>> upstream/android-13
  */
 #include <acpi/pcc.h>
 #include <linux/acpi.h>
@@ -32,7 +41,10 @@
 #include <linux/module.h>
 #include <linux/of.h>
 #include <linux/platform_device.h>
+<<<<<<< HEAD
 #include <linux/version.h>
+=======
+>>>>>>> upstream/android-13
 
 #define MAILBOX_OP_TIMEOUT		1000	/* Operation time out in ms */
 #define MAILBOX_I2C_INDEX		0

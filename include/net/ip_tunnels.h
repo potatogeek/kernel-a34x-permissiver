@@ -33,8 +33,13 @@
 /* Used to memset ipv4 address padding. */
 #define IP_TUNNEL_KEY_IPV4_PAD	offsetofend(struct ip_tunnel_key, u.ipv4.dst)
 #define IP_TUNNEL_KEY_IPV4_PAD_LEN				\
+<<<<<<< HEAD
 	(FIELD_SIZEOF(struct ip_tunnel_key, u) -		\
 	 FIELD_SIZEOF(struct ip_tunnel_key, u.ipv4))
+=======
+	(sizeof_field(struct ip_tunnel_key, u) -		\
+	 sizeof_field(struct ip_tunnel_key, u.ipv4))
+>>>>>>> upstream/android-13
 
 struct ip_tunnel_key {
 	__be64			tun_id;
@@ -63,7 +68,11 @@ struct ip_tunnel_key {
 
 /* Maximum tunnel options length. */
 #define IP_TUNNEL_OPTS_MAX					\
+<<<<<<< HEAD
 	GENMASK((FIELD_SIZEOF(struct ip_tunnel_info,		\
+=======
+	GENMASK((sizeof_field(struct ip_tunnel_info,		\
+>>>>>>> upstream/android-13
 			      options_len) * BITS_PER_BYTE) - 1, 0)
 
 struct ip_tunnel_info {
@@ -113,7 +122,11 @@ struct ip_tunnel {
 
 	/* These four fields used only by GRE */
 	u32		i_seqno;	/* The last seen seqno	*/
+<<<<<<< HEAD
 	u32		o_seqno;	/* The last output seqno */
+=======
+	atomic_t	o_seqno;	/* The last output seqno */
+>>>>>>> upstream/android-13
 	int		tun_hlen;	/* Precalculated header length */
 
 	/* These four fields used only by ERSPAN */
@@ -144,6 +157,7 @@ struct ip_tunnel {
 	bool			ignore_df;
 };
 
+<<<<<<< HEAD
 #define TUNNEL_CSUM		__cpu_to_be16(0x01)
 #define TUNNEL_ROUTING		__cpu_to_be16(0x02)
 #define TUNNEL_KEY		__cpu_to_be16(0x04)
@@ -163,6 +177,8 @@ struct ip_tunnel {
 #define TUNNEL_OPTIONS_PRESENT \
 		(TUNNEL_GENEVE_OPT | TUNNEL_VXLAN_OPT | TUNNEL_ERSPAN_OPT)
 
+=======
+>>>>>>> upstream/android-13
 struct tnl_ptk_info {
 	__be16 flags;
 	__be16 proto;
@@ -260,7 +276,11 @@ static inline void ip_tunnel_init_flow(struct flowi4 *fl4,
 				       int proto,
 				       __be32 daddr, __be32 saddr,
 				       __be32 key, __u8 tos, int oif,
+<<<<<<< HEAD
 				       __u32 mark)
+=======
+				       __u32 mark, __u32 tun_inner_hash)
+>>>>>>> upstream/android-13
 {
 	memset(fl4, 0, sizeof(*fl4));
 	fl4->flowi4_oif = oif;
@@ -270,6 +290,10 @@ static inline void ip_tunnel_init_flow(struct flowi4 *fl4,
 	fl4->flowi4_proto = proto;
 	fl4->fl4_gre_key = key;
 	fl4->flowi4_mark = mark;
+<<<<<<< HEAD
+=======
+	fl4->flowi4_multipath_hash = tun_inner_hash;
+>>>>>>> upstream/android-13
 }
 
 int ip_tunnel_init(struct net_device *dev);
@@ -286,6 +310,7 @@ void ip_tunnel_delete_nets(struct list_head *list_net, unsigned int id,
 void ip_tunnel_xmit(struct sk_buff *skb, struct net_device *dev,
 		    const struct iphdr *tnl_params, const u8 protocol);
 void ip_md_tunnel_xmit(struct sk_buff *skb, struct net_device *dev,
+<<<<<<< HEAD
 		       const u8 proto);
 int ip_tunnel_ioctl(struct net_device *dev, struct ip_tunnel_parm *p, int cmd);
 int __ip_tunnel_change_mtu(struct net_device *dev, int new_mtu, bool strict);
@@ -293,6 +318,15 @@ int ip_tunnel_change_mtu(struct net_device *dev, int new_mtu);
 
 void ip_tunnel_get_stats64(struct net_device *dev,
 			   struct rtnl_link_stats64 *tot);
+=======
+		       const u8 proto, int tunnel_hlen);
+int ip_tunnel_ctl(struct net_device *dev, struct ip_tunnel_parm *p, int cmd);
+int ip_tunnel_siocdevprivate(struct net_device *dev, struct ifreq *ifr,
+			     void __user *data, int cmd);
+int __ip_tunnel_change_mtu(struct net_device *dev, int new_mtu, bool strict);
+int ip_tunnel_change_mtu(struct net_device *dev, int new_mtu);
+
+>>>>>>> upstream/android-13
 struct ip_tunnel *ip_tunnel_lookup(struct ip_tunnel_net *itn,
 				   int link, __be16 flags,
 				   __be32 remote, __be32 local,
@@ -307,12 +341,20 @@ int ip_tunnel_newlink(struct net_device *dev, struct nlattr *tb[],
 		      struct ip_tunnel_parm *p, __u32 fwmark);
 void ip_tunnel_setup(struct net_device *dev, unsigned int net_id);
 
+<<<<<<< HEAD
+=======
+extern const struct header_ops ip_tunnel_header_ops;
+>>>>>>> upstream/android-13
 __be16 ip_tunnel_parse_protocol(const struct sk_buff *skb);
 
 struct ip_tunnel_encap_ops {
 	size_t (*encap_hlen)(struct ip_tunnel_encap *e);
 	int (*build_header)(struct sk_buff *skb, struct ip_tunnel_encap *e,
 			    u8 *protocol, struct flowi4 *fl4);
+<<<<<<< HEAD
+=======
+	int (*err_handler)(struct sk_buff *skb, u32 info);
+>>>>>>> upstream/android-13
 };
 
 #define MAX_IPTUN_ENCAP_OPS 8
@@ -435,6 +477,11 @@ void iptunnel_xmit(struct sock *sk, struct rtable *rt, struct sk_buff *skb,
 		   u8 tos, u8 ttl, __be16 df, bool xnet);
 struct metadata_dst *iptunnel_metadata_reply(struct metadata_dst *md,
 					     gfp_t flags);
+<<<<<<< HEAD
+=======
+int skb_tunnel_check_pmtu(struct sk_buff *skb, struct dst_entry *encap_dst,
+			  int headroom, bool reply);
+>>>>>>> upstream/android-13
 
 int iptunnel_handle_offloads(struct sk_buff *skb, int gso_type_mask);
 

@@ -18,6 +18,15 @@
 #include "camss-video.h"
 #include "camss.h"
 
+<<<<<<< HEAD
+=======
+#define CAMSS_FRAME_MIN_WIDTH		1
+#define CAMSS_FRAME_MAX_WIDTH		8191
+#define CAMSS_FRAME_MIN_HEIGHT		1
+#define CAMSS_FRAME_MAX_HEIGHT_RDI	8191
+#define CAMSS_FRAME_MAX_HEIGHT_PIX	4096
+
+>>>>>>> upstream/android-13
 struct fract {
 	u8 numerator;
 	u8 denominator;
@@ -127,6 +136,58 @@ static const struct camss_format_info formats_rdi_8x96[] = {
 	  { { 1, 1 } }, { { 1, 1 } }, { 16 } },
 };
 
+<<<<<<< HEAD
+=======
+static const struct camss_format_info formats_rdi_845[] = {
+	{ MEDIA_BUS_FMT_UYVY8_2X8, V4L2_PIX_FMT_UYVY, 1,
+	  { { 1, 1 } }, { { 1, 1 } }, { 16 } },
+	{ MEDIA_BUS_FMT_VYUY8_2X8, V4L2_PIX_FMT_VYUY, 1,
+	  { { 1, 1 } }, { { 1, 1 } }, { 16 } },
+	{ MEDIA_BUS_FMT_YUYV8_2X8, V4L2_PIX_FMT_YUYV, 1,
+	  { { 1, 1 } }, { { 1, 1 } }, { 16 } },
+	{ MEDIA_BUS_FMT_YVYU8_2X8, V4L2_PIX_FMT_YVYU, 1,
+	  { { 1, 1 } }, { { 1, 1 } }, { 16 } },
+	{ MEDIA_BUS_FMT_SBGGR8_1X8, V4L2_PIX_FMT_SBGGR8, 1,
+	  { { 1, 1 } }, { { 1, 1 } }, { 8 } },
+	{ MEDIA_BUS_FMT_SGBRG8_1X8, V4L2_PIX_FMT_SGBRG8, 1,
+	  { { 1, 1 } }, { { 1, 1 } }, { 8 } },
+	{ MEDIA_BUS_FMT_SGRBG8_1X8, V4L2_PIX_FMT_SGRBG8, 1,
+	  { { 1, 1 } }, { { 1, 1 } }, { 8 } },
+	{ MEDIA_BUS_FMT_SRGGB8_1X8, V4L2_PIX_FMT_SRGGB8, 1,
+	  { { 1, 1 } }, { { 1, 1 } }, { 8 } },
+	{ MEDIA_BUS_FMT_SBGGR10_1X10, V4L2_PIX_FMT_SBGGR10P, 1,
+	  { { 1, 1 } }, { { 1, 1 } }, { 10 } },
+	{ MEDIA_BUS_FMT_SGBRG10_1X10, V4L2_PIX_FMT_SGBRG10P, 1,
+	  { { 1, 1 } }, { { 1, 1 } }, { 10 } },
+	{ MEDIA_BUS_FMT_SGRBG10_1X10, V4L2_PIX_FMT_SGRBG10P, 1,
+	  { { 1, 1 } }, { { 1, 1 } }, { 10 } },
+	{ MEDIA_BUS_FMT_SRGGB10_1X10, V4L2_PIX_FMT_SRGGB10P, 1,
+	  { { 1, 1 } }, { { 1, 1 } }, { 10 } },
+	{ MEDIA_BUS_FMT_SBGGR10_2X8_PADHI_LE, V4L2_PIX_FMT_SBGGR10, 1,
+	  { { 1, 1 } }, { { 1, 1 } }, { 16 } },
+	{ MEDIA_BUS_FMT_SBGGR12_1X12, V4L2_PIX_FMT_SBGGR12P, 1,
+	  { { 1, 1 } }, { { 1, 1 } }, { 12 } },
+	{ MEDIA_BUS_FMT_SGBRG12_1X12, V4L2_PIX_FMT_SGBRG12P, 1,
+	  { { 1, 1 } }, { { 1, 1 } }, { 12 } },
+	{ MEDIA_BUS_FMT_SGRBG12_1X12, V4L2_PIX_FMT_SGRBG12P, 1,
+	  { { 1, 1 } }, { { 1, 1 } }, { 12 } },
+	{ MEDIA_BUS_FMT_SRGGB12_1X12, V4L2_PIX_FMT_SRGGB12P, 1,
+	  { { 1, 1 } }, { { 1, 1 } }, { 12 } },
+	{ MEDIA_BUS_FMT_SBGGR14_1X14, V4L2_PIX_FMT_SBGGR14P, 1,
+	  { { 1, 1 } }, { { 1, 1 } }, { 14 } },
+	{ MEDIA_BUS_FMT_SGBRG14_1X14, V4L2_PIX_FMT_SGBRG14P, 1,
+	  { { 1, 1 } }, { { 1, 1 } }, { 14 } },
+	{ MEDIA_BUS_FMT_SGRBG14_1X14, V4L2_PIX_FMT_SGRBG14P, 1,
+	  { { 1, 1 } }, { { 1, 1 } }, { 14 } },
+	{ MEDIA_BUS_FMT_SRGGB14_1X14, V4L2_PIX_FMT_SRGGB14P, 1,
+	  { { 1, 1 } }, { { 1, 1 } }, { 14 } },
+	{ MEDIA_BUS_FMT_Y10_1X10, V4L2_PIX_FMT_Y10P, 1,
+	  { { 1, 1 } }, { { 1, 1 } }, { 10 } },
+	{ MEDIA_BUS_FMT_Y10_2X8_PADHI_LE, V4L2_PIX_FMT_Y10, 1,
+	  { { 1, 1 } }, { { 1, 1 } }, { 16 } },
+};
+
+>>>>>>> upstream/android-13
 static const struct camss_format_info formats_pix_8x16[] = {
 	{ MEDIA_BUS_FMT_YUYV8_1_5X8, V4L2_PIX_FMT_NV12, 1,
 	  { { 1, 1 } }, { { 2, 3 } }, { 8 } },
@@ -521,8 +582,13 @@ static int video_querycap(struct file *file, void *fh,
 {
 	struct camss_video *video = video_drvdata(file);
 
+<<<<<<< HEAD
 	strlcpy(cap->driver, "qcom-camss", sizeof(cap->driver));
 	strlcpy(cap->card, "Qualcomm Camera Subsystem", sizeof(cap->card));
+=======
+	strscpy(cap->driver, "qcom-camss", sizeof(cap->driver));
+	strscpy(cap->card, "Qualcomm Camera Subsystem", sizeof(cap->card));
+>>>>>>> upstream/android-13
 	snprintf(cap->bus_info, sizeof(cap->bus_info), "platform:%s",
 		 dev_name(video->camss->dev));
 
@@ -533,6 +599,10 @@ static int video_enum_fmt(struct file *file, void *fh, struct v4l2_fmtdesc *f)
 {
 	struct camss_video *video = video_drvdata(file);
 	int i, j, k;
+<<<<<<< HEAD
+=======
+	u32 mcode = f->mbus_code;
+>>>>>>> upstream/android-13
 
 	if (f->type != video->type)
 		return -EINVAL;
@@ -540,10 +610,33 @@ static int video_enum_fmt(struct file *file, void *fh, struct v4l2_fmtdesc *f)
 	if (f->index >= video->nformats)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	/* find index "i" of "k"th unique pixelformat in formats array */
 	k = -1;
 	for (i = 0; i < video->nformats; i++) {
 		for (j = 0; j < i; j++) {
+=======
+	/*
+	 * Find index "i" of "k"th unique pixelformat in formats array.
+	 *
+	 * If f->mbus_code passed to video_enum_fmt() is not zero, a device
+	 * with V4L2_CAP_IO_MC capability restricts enumeration to only the
+	 * pixel formats that can be produced from that media bus code.
+	 * This is implemented by skipping video->formats[] entries with
+	 * code != f->mbus_code (if f->mbus_code is not zero).
+	 * If the f->mbus_code passed to video_enum_fmt() is not supported,
+	 * -EINVAL is returned.
+	 * If f->mbus_code is zero, all the pixel formats are enumerated.
+	 */
+	k = -1;
+	for (i = 0; i < video->nformats; i++) {
+		if (mcode != 0 && video->formats[i].code != mcode)
+			continue;
+
+		for (j = 0; j < i; j++) {
+			if (mcode != 0 && video->formats[j].code != mcode)
+				continue;
+>>>>>>> upstream/android-13
 			if (video->formats[i].pixelformat ==
 					video->formats[j].pixelformat)
 				break;
@@ -556,7 +649,16 @@ static int video_enum_fmt(struct file *file, void *fh, struct v4l2_fmtdesc *f)
 			break;
 	}
 
+<<<<<<< HEAD
 	if (k < f->index)
+=======
+	if (k == -1 || k < f->index)
+		/*
+		 * All the unique pixel formats matching the arguments
+		 * have been enumerated (k >= 0 and f->index > 0), or
+		 * no pixel formats match the non-zero f->mbus_code (k == -1).
+		 */
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	f->pixelformat = video->formats[i].pixelformat;
@@ -564,6 +666,39 @@ static int video_enum_fmt(struct file *file, void *fh, struct v4l2_fmtdesc *f)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int video_enum_framesizes(struct file *file, void *fh,
+				 struct v4l2_frmsizeenum *fsize)
+{
+	struct camss_video *video = video_drvdata(file);
+	int i;
+
+	if (fsize->index)
+		return -EINVAL;
+
+	/* Only accept pixel format present in the formats[] table */
+	for (i = 0; i < video->nformats; i++) {
+		if (video->formats[i].pixelformat == fsize->pixel_format)
+			break;
+	}
+
+	if (i == video->nformats)
+		return -EINVAL;
+
+	fsize->type = V4L2_FRMSIZE_TYPE_CONTINUOUS;
+	fsize->stepwise.min_width = CAMSS_FRAME_MIN_WIDTH;
+	fsize->stepwise.max_width = CAMSS_FRAME_MAX_WIDTH;
+	fsize->stepwise.min_height = CAMSS_FRAME_MIN_HEIGHT;
+	fsize->stepwise.max_height = (video->line_based) ?
+		CAMSS_FRAME_MAX_HEIGHT_PIX : CAMSS_FRAME_MAX_HEIGHT_RDI;
+	fsize->stepwise.step_width = 1;
+	fsize->stepwise.step_height = 1;
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int video_g_fmt(struct file *file, void *fh, struct v4l2_format *f)
 {
 	struct camss_video *video = video_drvdata(file);
@@ -593,7 +728,11 @@ static int __video_try_fmt(struct camss_video *video, struct v4l2_format *f)
 						  1, 65528);
 			sizeimage[i] = clamp_t(u32, p->sizeimage,
 					       bytesperline[i],
+<<<<<<< HEAD
 					       bytesperline[i] * 4096);
+=======
+					       bytesperline[i] * CAMSS_FRAME_MAX_HEIGHT_PIX);
+>>>>>>> upstream/android-13
 		}
 
 	for (j = 0; j < video->nformats; j++)
@@ -610,8 +749,13 @@ static int __video_try_fmt(struct camss_video *video, struct v4l2_format *f)
 	memset(pix_mp, 0, sizeof(*pix_mp));
 
 	pix_mp->pixelformat = fi->pixelformat;
+<<<<<<< HEAD
 	pix_mp->width = clamp_t(u32, width, 1, 8191);
 	pix_mp->height = clamp_t(u32, height, 1, 8191);
+=======
+	pix_mp->width = clamp_t(u32, width, 1, CAMSS_FRAME_MAX_WIDTH);
+	pix_mp->height = clamp_t(u32, height, 1, CAMSS_FRAME_MAX_HEIGHT_RDI);
+>>>>>>> upstream/android-13
 	pix_mp->num_planes = fi->planes;
 	for (i = 0; i < pix_mp->num_planes; i++) {
 		bpl = pix_mp->width / fi->hsub[i].numerator *
@@ -637,7 +781,11 @@ static int __video_try_fmt(struct camss_video *video, struct v4l2_format *f)
 						  1, 65528);
 			p->sizeimage = clamp_t(u32, p->sizeimage,
 					       p->bytesperline,
+<<<<<<< HEAD
 					       p->bytesperline * 4096);
+=======
+					       p->bytesperline * CAMSS_FRAME_MAX_HEIGHT_PIX);
+>>>>>>> upstream/android-13
 			lines = p->sizeimage / p->bytesperline;
 
 			if (p->bytesperline < bytesperline[i])
@@ -683,7 +831,11 @@ static int video_enum_input(struct file *file, void *fh,
 	if (input->index > 0)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	strlcpy(input->name, "camera", sizeof(input->name));
+=======
+	strscpy(input->name, "camera", sizeof(input->name));
+>>>>>>> upstream/android-13
 	input->type = V4L2_INPUT_TYPE_CAMERA;
 
 	return 0;
@@ -703,7 +855,12 @@ static int video_s_input(struct file *file, void *fh, unsigned int input)
 
 static const struct v4l2_ioctl_ops msm_vid_ioctl_ops = {
 	.vidioc_querycap		= video_querycap,
+<<<<<<< HEAD
 	.vidioc_enum_fmt_vid_cap_mplane	= video_enum_fmt,
+=======
+	.vidioc_enum_fmt_vid_cap	= video_enum_fmt,
+	.vidioc_enum_framesizes		= video_enum_framesizes,
+>>>>>>> upstream/android-13
 	.vidioc_g_fmt_vid_cap_mplane	= video_g_fmt,
 	.vidioc_s_fmt_vid_cap_mplane	= video_s_fmt,
 	.vidioc_try_fmt_vid_cap_mplane	= video_try_fmt,
@@ -745,7 +902,11 @@ static int video_open(struct file *file)
 
 	file->private_data = vfh;
 
+<<<<<<< HEAD
 	ret = v4l2_pipeline_pm_use(&vdev->entity, 1);
+=======
+	ret = v4l2_pipeline_pm_get(&vdev->entity);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(video->camss->dev, "Failed to power up pipeline: %d\n",
 			ret);
@@ -771,7 +932,11 @@ static int video_release(struct file *file)
 
 	vb2_fop_release(file);
 
+<<<<<<< HEAD
 	v4l2_pipeline_pm_use(&vdev->entity, 0);
+=======
+	v4l2_pipeline_pm_put(&vdev->entity);
+>>>>>>> upstream/android-13
 
 	file->private_data = NULL;
 
@@ -879,7 +1044,11 @@ int msm_video_register(struct camss_video *video, struct v4l2_device *v4l2_dev,
 	if (ret < 0) {
 		dev_err(v4l2_dev->dev, "Failed to init video entity: %d\n",
 			ret);
+<<<<<<< HEAD
 		goto error_media_init;
+=======
+		goto error_vb2_init;
+>>>>>>> upstream/android-13
 	}
 
 	mutex_init(&video->lock);
@@ -892,7 +1061,12 @@ int msm_video_register(struct camss_video *video, struct v4l2_device *v4l2_dev,
 			video->formats = formats_rdi_8x16;
 			video->nformats = ARRAY_SIZE(formats_rdi_8x16);
 		}
+<<<<<<< HEAD
 	} else if (video->camss->version == CAMSS_8x96) {
+=======
+	} else if (video->camss->version == CAMSS_8x96 ||
+		   video->camss->version == CAMSS_660) {
+>>>>>>> upstream/android-13
 		if (is_pix) {
 			video->formats = formats_pix_8x96;
 			video->nformats = ARRAY_SIZE(formats_pix_8x96);
@@ -900,6 +1074,12 @@ int msm_video_register(struct camss_video *video, struct v4l2_device *v4l2_dev,
 			video->formats = formats_rdi_8x96;
 			video->nformats = ARRAY_SIZE(formats_rdi_8x96);
 		}
+<<<<<<< HEAD
+=======
+	}  else if (video->camss->version == CAMSS_845) {
+		video->formats = formats_rdi_845;
+		video->nformats = ARRAY_SIZE(formats_rdi_845);
+>>>>>>> upstream/android-13
 	} else {
 		ret = -EINVAL;
 		goto error_video_register;
@@ -912,17 +1092,28 @@ int msm_video_register(struct camss_video *video, struct v4l2_device *v4l2_dev,
 	}
 
 	vdev->fops = &msm_vid_fops;
+<<<<<<< HEAD
 	vdev->device_caps = V4L2_CAP_VIDEO_CAPTURE_MPLANE | V4L2_CAP_STREAMING |
 							V4L2_CAP_READWRITE;
+=======
+	vdev->device_caps = V4L2_CAP_VIDEO_CAPTURE_MPLANE | V4L2_CAP_STREAMING
+			  | V4L2_CAP_READWRITE | V4L2_CAP_IO_MC;
+>>>>>>> upstream/android-13
 	vdev->ioctl_ops = &msm_vid_ioctl_ops;
 	vdev->release = msm_video_release;
 	vdev->v4l2_dev = v4l2_dev;
 	vdev->vfl_dir = VFL_DIR_RX;
 	vdev->queue = &video->vb2_q;
 	vdev->lock = &video->lock;
+<<<<<<< HEAD
 	strlcpy(vdev->name, name, sizeof(vdev->name));
 
 	ret = video_register_device(vdev, VFL_TYPE_GRABBER, -1);
+=======
+	strscpy(vdev->name, name, sizeof(vdev->name));
+
+	ret = video_register_device(vdev, VFL_TYPE_VIDEO, -1);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(v4l2_dev->dev, "Failed to register video device: %d\n",
 			ret);
@@ -937,14 +1128,18 @@ int msm_video_register(struct camss_video *video, struct v4l2_device *v4l2_dev,
 error_video_register:
 	media_entity_cleanup(&vdev->entity);
 	mutex_destroy(&video->lock);
+<<<<<<< HEAD
 error_media_init:
 	vb2_queue_release(&video->vb2_q);
+=======
+>>>>>>> upstream/android-13
 error_vb2_init:
 	mutex_destroy(&video->q_lock);
 
 	return ret;
 }
 
+<<<<<<< HEAD
 void msm_video_stop_streaming(struct camss_video *video)
 {
 	if (vb2_is_streaming(&video->vb2_q))
@@ -955,5 +1150,11 @@ void msm_video_unregister(struct camss_video *video)
 {
 	atomic_inc(&video->camss->ref_count);
 	video_unregister_device(&video->vdev);
+=======
+void msm_video_unregister(struct camss_video *video)
+{
+	atomic_inc(&video->camss->ref_count);
+	vb2_video_unregister_device(&video->vdev);
+>>>>>>> upstream/android-13
 	atomic_dec(&video->camss->ref_count);
 }

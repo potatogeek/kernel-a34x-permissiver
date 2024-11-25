@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * arch/arm/kernel/kprobes.c
  *
@@ -8,6 +12,7 @@
  *
  * Nicolas Pitre <nico@marvell.com>
  * Copyright (C) 2007 Marvell Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -17,6 +22,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -288,7 +295,11 @@ void __kprobes kprobe_handler(struct pt_regs *regs)
 				/* A nested probe was hit in FIQ, it is a BUG */
 				pr_warn("Unrecoverable kprobe detected.\n");
 				dump_kprobe(p);
+<<<<<<< HEAD
 				/* fall through */
+=======
+				fallthrough;
+>>>>>>> upstream/android-13
 			default:
 				/* impossible cases */
 				BUG();
@@ -356,6 +367,7 @@ int __kprobes kprobe_fault_handler(struct pt_regs *regs, unsigned int fsr)
 			reset_current_kprobe();
 		}
 		break;
+<<<<<<< HEAD
 
 	case KPROBE_HIT_ACTIVE:
 	case KPROBE_HIT_SSDONE:
@@ -379,6 +391,8 @@ int __kprobes kprobe_fault_handler(struct pt_regs *regs, unsigned int fsr)
 
 	default:
 		break;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -421,6 +435,7 @@ void __naked __kprobes kretprobe_trampoline(void)
 /* Called from kretprobe_trampoline */
 static __used __kprobes void *trampoline_handler(struct pt_regs *regs)
 {
+<<<<<<< HEAD
 	struct kretprobe_instance *ri = NULL;
 	struct hlist_head *head, empty_rp;
 	struct hlist_node *tmp;
@@ -496,12 +511,20 @@ static __used __kprobes void *trampoline_handler(struct pt_regs *regs)
 	}
 
 	return (void *)orig_ret_address;
+=======
+	return (void *)kretprobe_trampoline_handler(regs, &kretprobe_trampoline,
+						    (void *)regs->ARM_fp);
+>>>>>>> upstream/android-13
 }
 
 void __kprobes arch_prepare_kretprobe(struct kretprobe_instance *ri,
 				      struct pt_regs *regs)
 {
 	ri->ret_addr = (kprobe_opcode_t *)regs->ARM_lr;
+<<<<<<< HEAD
+=======
+	ri->fp = (void *)regs->ARM_fp;
+>>>>>>> upstream/android-13
 
 	/* Replace the return addr with trampoline addr. */
 	regs->ARM_lr = (unsigned long)&kretprobe_trampoline;
@@ -542,7 +565,11 @@ static struct undef_hook kprobes_arm_break_hook = {
 
 #endif /* !CONFIG_THUMB2_KERNEL */
 
+<<<<<<< HEAD
 int __init arch_init_kprobes()
+=======
+int __init arch_init_kprobes(void)
+>>>>>>> upstream/android-13
 {
 	arm_probes_decode_init();
 #ifdef CONFIG_THUMB2_KERNEL

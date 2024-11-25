@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  drivers/mmc/host/via-sdmmc.c - VIA SD/MMC Card Reader driver
  *  Copyright (c) 2008, VIA Technologies Inc. All Rights Reserved.
@@ -6,6 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or (at
  * your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  drivers/mmc/host/via-sdmmc.c - VIA SD/MMC Card Reader driver
+ *  Copyright (c) 2008, VIA Technologies Inc. All Rights Reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/pci.h>
@@ -495,7 +502,11 @@ static void via_sdc_preparedata(struct via_crdr_mmc_host *host,
 
 	count = dma_map_sg(mmc_dev(host->mmc), data->sg, data->sg_len,
 		((data->flags & MMC_DATA_READ) ?
+<<<<<<< HEAD
 		PCI_DMA_FROMDEVICE : PCI_DMA_TODEVICE));
+=======
+		DMA_FROM_DEVICE : DMA_TO_DEVICE));
+>>>>>>> upstream/android-13
 	BUG_ON(count != 1);
 
 	via_set_ddma(host, sg_dma_address(data->sg), sg_dma_len(data->sg),
@@ -642,7 +653,11 @@ static void via_sdc_finish_data(struct via_crdr_mmc_host *host)
 
 	dma_unmap_sg(mmc_dev(host->mmc), data->sg, data->sg_len,
 		((data->flags & MMC_DATA_READ) ?
+<<<<<<< HEAD
 		PCI_DMA_FROMDEVICE : PCI_DMA_TODEVICE));
+=======
+		DMA_FROM_DEVICE : DMA_TO_DEVICE));
+>>>>>>> upstream/android-13
 
 	if (data->stop)
 		via_sdc_send_command(host, data->stop);
@@ -691,7 +706,10 @@ static void via_sdc_request(struct mmc_host *mmc, struct mmc_request *mrq)
 		via_sdc_send_command(host, mrq->cmd);
 	}
 
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&host->lock, flags);
 }
 
@@ -716,7 +734,10 @@ static void via_sdc_set_power(struct via_crdr_mmc_host *host,
 		gatt &= ~VIA_CRDR_PCICLKGATT_PAD_PWRON;
 	writeb(gatt, host->pcictrl_mmiobase + VIA_CRDR_PCICLKGATT);
 
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&host->lock, flags);
 
 	via_pwron_sleep(host);
@@ -775,7 +796,10 @@ static void via_sdc_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 	if (readb(addrbase + VIA_CRDR_PCISDCCLK) != clock)
 		writeb(clock, addrbase + VIA_CRDR_PCISDCCLK);
 
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&host->lock, flags);
 
 	if (ios->power_mode != MMC_POWER_OFF)
@@ -835,7 +859,10 @@ static void via_reset_pcictrl(struct via_crdr_mmc_host *host)
 	via_restore_pcictrlreg(host);
 	via_restore_sdcreg(host);
 
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&host->lock, flags);
 }
 
@@ -865,6 +892,12 @@ static void via_sdc_data_isr(struct via_crdr_mmc_host *host, u16 intmask)
 {
 	BUG_ON(intmask == 0);
 
+<<<<<<< HEAD
+=======
+	if (!host->data)
+		return;
+
+>>>>>>> upstream/android-13
 	if (intmask & VIA_CRDR_SDSTS_DT)
 		host->data->error = -ETIMEDOUT;
 	else if (intmask & (VIA_CRDR_SDSTS_RC | VIA_CRDR_SDSTS_WC))
@@ -930,7 +963,10 @@ static irqreturn_t via_sdc_isr(int irq, void *dev_id)
 
 	result = IRQ_HANDLED;
 
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 out:
 	spin_unlock(&sdhost->lock);
 
@@ -965,6 +1001,7 @@ static void via_sdc_timeout(struct timer_list *t)
 		}
 	}
 
+<<<<<<< HEAD
 	mmiowb();
 	spin_unlock_irqrestore(&sdhost->lock, flags);
 }
@@ -977,6 +1014,17 @@ static void via_sdc_tasklet_finish(unsigned long param)
 
 	host = (struct via_crdr_mmc_host *)param;
 
+=======
+	spin_unlock_irqrestore(&sdhost->lock, flags);
+}
+
+static void via_sdc_tasklet_finish(struct tasklet_struct *t)
+{
+	struct via_crdr_mmc_host *host = from_tasklet(host, t, finish_tasklet);
+	unsigned long flags;
+	struct mmc_request *mrq;
+
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&host->lock, flags);
 
 	del_timer(&host->timer);
@@ -1017,7 +1065,10 @@ static void via_sdc_card_detect(struct work_struct *work)
 			tasklet_schedule(&host->finish_tasklet);
 		}
 
+<<<<<<< HEAD
 		mmiowb();
+=======
+>>>>>>> upstream/android-13
 		spin_unlock_irqrestore(&host->lock, flags);
 
 		via_reset_pcictrl(host);
@@ -1025,7 +1076,10 @@ static void via_sdc_card_detect(struct work_struct *work)
 		spin_lock_irqsave(&host->lock, flags);
 	}
 
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&host->lock, flags);
 
 	via_print_pcictrl(host);
@@ -1062,8 +1116,12 @@ static void via_init_mmc_host(struct via_crdr_mmc_host *host)
 
 	INIT_WORK(&host->carddet_work, via_sdc_card_detect);
 
+<<<<<<< HEAD
 	tasklet_init(&host->finish_tasklet, via_sdc_tasklet_finish,
 		     (unsigned long)host);
+=======
+	tasklet_setup(&host->finish_tasklet, via_sdc_tasklet_finish);
+>>>>>>> upstream/android-13
 
 	addrbase = host->sdhc_mmiobase;
 	writel(0x0, addrbase + VIA_CRDR_SDINTMASK);
@@ -1123,7 +1181,11 @@ static int via_sd_probe(struct pci_dev *pcidev,
 
 	len = pci_resource_len(pcidev, 0);
 	base = pci_resource_start(pcidev, 0);
+<<<<<<< HEAD
 	sdhost->mmiobase = ioremap_nocache(base, len);
+=======
+	sdhost->mmiobase = ioremap(base, len);
+>>>>>>> upstream/android-13
 	if (!sdhost->mmiobase) {
 		ret = -ENOMEM;
 		goto free_mmc_host;
@@ -1193,7 +1255,10 @@ static void via_sd_remove(struct pci_dev *pcidev)
 
 	/* Disable generating further interrupts */
 	writeb(0x0, sdhost->pcictrl_mmiobase + VIA_CRDR_PCIINTCTRL);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 
 	if (sdhost->mrq) {
 		pr_err("%s: Controller removed during "
@@ -1202,7 +1267,10 @@ static void via_sd_remove(struct pci_dev *pcidev)
 		/* make sure all DMA is stopped */
 		writel(VIA_CRDR_DMACTRL_SFTRST,
 			sdhost->ddma_mmiobase + VIA_CRDR_DMACTRL);
+<<<<<<< HEAD
 		mmiowb();
+=======
+>>>>>>> upstream/android-13
 		sdhost->mrq->cmd->error = -ENOMEDIUM;
 		if (sdhost->mrq->stop)
 			sdhost->mrq->stop->error = -ENOMEDIUM;
@@ -1234,9 +1302,13 @@ static void via_sd_remove(struct pci_dev *pcidev)
 		pci_name(pcidev), (int)pcidev->vendor, (int)pcidev->device);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 
 static void via_init_sdc_pm(struct via_crdr_mmc_host *host)
+=======
+static void __maybe_unused via_init_sdc_pm(struct via_crdr_mmc_host *host)
+>>>>>>> upstream/android-13
 {
 	struct sdhcreg *pm_sdhcreg;
 	void __iomem *addrbase;
@@ -1270,26 +1342,39 @@ static void via_init_sdc_pm(struct via_crdr_mmc_host *host)
 	via_print_sdchc(host);
 }
 
+<<<<<<< HEAD
 static int via_sd_suspend(struct pci_dev *pcidev, pm_message_t state)
+=======
+static int __maybe_unused via_sd_suspend(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct via_crdr_mmc_host *host;
 	unsigned long flags;
 
+<<<<<<< HEAD
 	host = pci_get_drvdata(pcidev);
+=======
+	host = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&host->lock, flags);
 	via_save_pcictrlreg(host);
 	via_save_sdcreg(host);
 	spin_unlock_irqrestore(&host->lock, flags);
 
+<<<<<<< HEAD
 	pci_save_state(pcidev);
 	pci_enable_wake(pcidev, pci_choose_state(pcidev, state), 0);
 	pci_disable_device(pcidev);
 	pci_set_power_state(pcidev, pci_choose_state(pcidev, state));
+=======
+	device_wakeup_enable(dev);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int via_sd_resume(struct pci_dev *pcidev)
 {
 	struct via_crdr_mmc_host *sdhost;
@@ -1297,6 +1382,14 @@ static int via_sd_resume(struct pci_dev *pcidev)
 	u8 gatt;
 
 	sdhost = pci_get_drvdata(pcidev);
+=======
+static int __maybe_unused via_sd_resume(struct device *dev)
+{
+	struct via_crdr_mmc_host *sdhost;
+	u8 gatt;
+
+	sdhost = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 
 	gatt = VIA_CRDR_PCICLKGATT_PAD_PWRON;
 	if (sdhost->power == MMC_VDD_165_195)
@@ -1311,6 +1404,7 @@ static int via_sd_resume(struct pci_dev *pcidev)
 
 	msleep(100);
 
+<<<<<<< HEAD
 	pci_set_power_state(pcidev, PCI_D0);
 	pci_restore_state(pcidev);
 	ret = pci_enable_device(pcidev);
@@ -1329,14 +1423,27 @@ static int via_sd_resume(struct pci_dev *pcidev)
 #define via_sd_resume NULL
 
 #endif /* CONFIG_PM */
+=======
+	via_restore_pcictrlreg(sdhost);
+	via_init_sdc_pm(sdhost);
+
+	return 0;
+}
+
+static SIMPLE_DEV_PM_OPS(via_sd_pm_ops, via_sd_suspend, via_sd_resume);
+>>>>>>> upstream/android-13
 
 static struct pci_driver via_sd_driver = {
 	.name = DRV_NAME,
 	.id_table = via_ids,
 	.probe = via_sd_probe,
 	.remove = via_sd_remove,
+<<<<<<< HEAD
 	.suspend = via_sd_suspend,
 	.resume = via_sd_resume,
+=======
+	.driver.pm = &via_sd_pm_ops,
+>>>>>>> upstream/android-13
 };
 
 module_pci_driver(via_sd_driver);

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * DPLL + CORE_CLK composite clock functions
  *
@@ -11,10 +15,13 @@
  * Based on earlier work by Tuukka Tikkanen, Tony Lindgren,
  * Gordon McNutt and RidgeRun, Inc.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * XXX The DPLL and CORE clocks should be split into two separate clock
  * types.
  */

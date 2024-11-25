@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C)2006 USAGI/WIDE Project
  *
@@ -14,10 +15,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C)2006 USAGI/WIDE Project
+ *
+>>>>>>> upstream/android-13
  * Author:
  * 	Kazunori Miyazawa <miyazawa@linux-ipv6.org>
  */
 
+<<<<<<< HEAD
+=======
+#include <crypto/internal/cipher.h>
+>>>>>>> upstream/android-13
 #include <crypto/internal/hash.h>
 #include <linux/err.h>
 #include <linux/kernel.h>
@@ -57,15 +68,27 @@ struct xcbc_desc_ctx {
 	u8 ctx[];
 };
 
+<<<<<<< HEAD
+=======
+#define XCBC_BLOCKSIZE	16
+
+>>>>>>> upstream/android-13
 static int crypto_xcbc_digest_setkey(struct crypto_shash *parent,
 				     const u8 *inkey, unsigned int keylen)
 {
 	unsigned long alignmask = crypto_shash_alignmask(parent);
 	struct xcbc_tfm_ctx *ctx = crypto_shash_ctx(parent);
+<<<<<<< HEAD
 	int bs = crypto_shash_blocksize(parent);
 	u8 *consts = PTR_ALIGN(&ctx->ctx[0], alignmask + 1);
 	int err = 0;
 	u8 key1[bs];
+=======
+	u8 *consts = PTR_ALIGN(&ctx->ctx[0], alignmask + 1);
+	int err = 0;
+	u8 key1[XCBC_BLOCKSIZE];
+	int bs = sizeof(key1);
+>>>>>>> upstream/android-13
 
 	if ((err = crypto_cipher_setkey(ctx->child, inkey, keylen)))
 		return err;
@@ -177,7 +200,11 @@ static int xcbc_init_tfm(struct crypto_tfm *tfm)
 {
 	struct crypto_cipher *cipher;
 	struct crypto_instance *inst = (void *)tfm->__crt_alg;
+<<<<<<< HEAD
 	struct crypto_spawn *spawn = crypto_instance_ctx(inst);
+=======
+	struct crypto_cipher_spawn *spawn = crypto_instance_ctx(inst);
+>>>>>>> upstream/android-13
 	struct xcbc_tfm_ctx *ctx = crypto_tfm_ctx(tfm);
 
 	cipher = crypto_spawn_cipher(spawn);
@@ -198,6 +225,7 @@ static void xcbc_exit_tfm(struct crypto_tfm *tfm)
 static int xcbc_create(struct crypto_template *tmpl, struct rtattr **tb)
 {
 	struct shash_instance *inst;
+<<<<<<< HEAD
 	struct crypto_alg *alg;
 	unsigned long alignmask;
 	int err;
@@ -228,6 +256,36 @@ static int xcbc_create(struct crypto_template *tmpl, struct rtattr **tb)
 				CRYPTO_ALG_TYPE_MASK);
 	if (err)
 		goto out_free_inst;
+=======
+	struct crypto_cipher_spawn *spawn;
+	struct crypto_alg *alg;
+	unsigned long alignmask;
+	u32 mask;
+	int err;
+
+	err = crypto_check_attr_type(tb, CRYPTO_ALG_TYPE_SHASH, &mask);
+	if (err)
+		return err;
+
+	inst = kzalloc(sizeof(*inst) + sizeof(*spawn), GFP_KERNEL);
+	if (!inst)
+		return -ENOMEM;
+	spawn = shash_instance_ctx(inst);
+
+	err = crypto_grab_cipher(spawn, shash_crypto_instance(inst),
+				 crypto_attr_alg_name(tb[1]), 0, mask);
+	if (err)
+		goto err_free_inst;
+	alg = crypto_spawn_cipher_alg(spawn);
+
+	err = -EINVAL;
+	if (alg->cra_blocksize != XCBC_BLOCKSIZE)
+		goto err_free_inst;
+
+	err = crypto_inst_setname(shash_crypto_instance(inst), tmpl->name, alg);
+	if (err)
+		goto err_free_inst;
+>>>>>>> upstream/android-13
 
 	alignmask = alg->cra_alignmask | 3;
 	inst->alg.base.cra_alignmask = alignmask;
@@ -252,6 +310,7 @@ static int xcbc_create(struct crypto_template *tmpl, struct rtattr **tb)
 	inst->alg.final = crypto_xcbc_digest_final;
 	inst->alg.setkey = crypto_xcbc_digest_setkey;
 
+<<<<<<< HEAD
 	err = shash_register_instance(tmpl, inst);
 	if (err) {
 out_free_inst:
@@ -260,13 +319,25 @@ out_free_inst:
 
 out_put_alg:
 	crypto_mod_put(alg);
+=======
+	inst->free = shash_free_singlespawn_instance;
+
+	err = shash_register_instance(tmpl, inst);
+	if (err) {
+err_free_inst:
+		shash_free_singlespawn_instance(inst);
+	}
+>>>>>>> upstream/android-13
 	return err;
 }
 
 static struct crypto_template crypto_xcbc_tmpl = {
 	.name = "xcbc",
 	.create = xcbc_create,
+<<<<<<< HEAD
 	.free = shash_free_instance,
+=======
+>>>>>>> upstream/android-13
 	.module = THIS_MODULE,
 };
 
@@ -280,9 +351,17 @@ static void __exit crypto_xcbc_module_exit(void)
 	crypto_unregister_template(&crypto_xcbc_tmpl);
 }
 
+<<<<<<< HEAD
 module_init(crypto_xcbc_module_init);
+=======
+subsys_initcall(crypto_xcbc_module_init);
+>>>>>>> upstream/android-13
 module_exit(crypto_xcbc_module_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("XCBC keyed hash algorithm");
 MODULE_ALIAS_CRYPTO("xcbc");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(CRYPTO_INTERNAL);
+>>>>>>> upstream/android-13

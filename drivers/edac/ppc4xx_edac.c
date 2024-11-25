@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2008 Nuovation System Designs, LLC
  *   Grant Erickson <gerickson@nuovations.com>
@@ -7,6 +8,12 @@
  * published by the Free Software Foundation; version 2 of the
  * License.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2008 Nuovation System Designs, LLC
+ *   Grant Erickson <gerickson@nuovations.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/edac.h>
@@ -1063,7 +1070,11 @@ static int ppc4xx_edac_mc_init(struct mem_ctl_info *mci,
 	/* Initialize strings */
 
 	mci->mod_name		= PPC4XX_EDAC_MODULE_NAME;
+<<<<<<< HEAD
 	mci->ctl_name		= ppc4xx_edac_match->compatible,
+=======
+	mci->ctl_name		= ppc4xx_edac_match->compatible;
+>>>>>>> upstream/android-13
 	mci->dev_name		= np->full_name;
 
 	/* Initialize callbacks */

@@ -7,6 +7,10 @@ obj-y += cpuidle.o driver.o governor.o sysfs.o governors/
 obj-$(CONFIG_ARCH_NEEDS_CPU_IDLE_COUPLED) += coupled.o
 obj-$(CONFIG_DT_IDLE_STATES)		  += dt_idle_states.o
 obj-$(CONFIG_ARCH_HAS_CPU_RELAX)	  += poll_state.o
+<<<<<<< HEAD
+=======
+obj-$(CONFIG_HALTPOLL_CPUIDLE)		  += cpuidle-haltpoll.o
+>>>>>>> upstream/android-13
 
 ##################################################################################
 # ARM SoC drivers
@@ -20,9 +24,16 @@ obj-$(CONFIG_ARM_U8500_CPUIDLE)         += cpuidle-ux500.o
 obj-$(CONFIG_ARM_AT91_CPUIDLE)          += cpuidle-at91.o
 obj-$(CONFIG_ARM_EXYNOS_CPUIDLE)        += cpuidle-exynos.o
 obj-$(CONFIG_ARM_CPUIDLE)		+= cpuidle-arm.o
+<<<<<<< HEAD
 obj-$(CONFIG_ARM_MTK_81XX_CPUIDLE)      += cpuidle-mt81xx_v2.o
 obj-$(CONFIG_ARM_MTK_CPUIDLE)           += cpuidle-mtk_acao.o
 obj-$(CONFIG_ARM_MTK_NEW_ARCH_CPUIDLE) += cpuidle-mediatek.o
+=======
+obj-$(CONFIG_ARM_PSCI_CPUIDLE)		+= cpuidle-psci.o
+obj-$(CONFIG_ARM_PSCI_CPUIDLE_DOMAIN)	+= cpuidle-psci-domain.o
+obj-$(CONFIG_ARM_TEGRA_CPUIDLE)		+= cpuidle-tegra.o
+obj-$(CONFIG_ARM_QCOM_SPM_CPUIDLE)	+= cpuidle-qcom-spm.o
+>>>>>>> upstream/android-13
 
 ###############################################################################
 # MIPS drivers

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
+>>>>>>> upstream/android-13
 /*
  * Broadcom BCM470X / BCM5301X ARM platform code.
  * DTS for BCM47081 SoC.
  *
  * Copyright © 2014 Rafał Miłecki <zajec5@gmail.com>
+<<<<<<< HEAD
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -15,6 +20,8 @@
  * LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE
  * OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
  * PERFORMANCE OF THIS SOFTWARE.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "bcm5301x.dtsi"

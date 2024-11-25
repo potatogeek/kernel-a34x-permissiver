@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * GPIO driver for EXAR XRA1403 16-bit GPIO expander
  *
  * Copyright (c) 2017, General Electric Company
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -14,6 +19,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
@@ -94,7 +101,14 @@ static int xra1403_get_direction(struct gpio_chip *chip, unsigned int offset)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	return !!(val & BIT(offset % 8));
+=======
+	if (val & BIT(offset % 8))
+		return GPIO_LINE_DIRECTION_IN;
+
+	return GPIO_LINE_DIRECTION_OUT;
+>>>>>>> upstream/android-13
 }
 
 static int xra1403_get(struct gpio_chip *chip, unsigned int offset)
@@ -129,6 +143,10 @@ static void xra1403_dbg_show(struct seq_file *s, struct gpio_chip *chip)
 	struct xra1403 *xra = gpiochip_get_data(chip);
 	int value[XRA_LAST];
 	int i;
+<<<<<<< HEAD
+=======
+	const char *label;
+>>>>>>> upstream/android-13
 	unsigned int gcr;
 	unsigned int gsr;
 
@@ -144,12 +162,16 @@ static void xra1403_dbg_show(struct seq_file *s, struct gpio_chip *chip)
 
 	gcr = value[XRA_GCR + 1] << 8 | value[XRA_GCR];
 	gsr = value[XRA_GSR + 1] << 8 | value[XRA_GSR];
+<<<<<<< HEAD
 	for (i = 0; i < chip->ngpio; i++) {
 		const char *label = gpiochip_is_requested(chip, i);
 
 		if (!label)
 			continue;
 
+=======
+	for_each_requested_gpio(chip, i, label) {
+>>>>>>> upstream/android-13
 		seq_printf(s, " gpio-%-3d (%-12s) %s %s\n",
 			   chip->base + i, label,
 			   (gcr & BIT(i)) ? "in" : "out",
@@ -198,6 +220,7 @@ static int xra1403_probe(struct spi_device *spi)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	ret = devm_gpiochip_add_data(&spi->dev, &xra->chip, xra);
 	if (ret < 0) {
 		dev_err(&spi->dev, "Unable to register gpiochip\n");
@@ -207,6 +230,9 @@ static int xra1403_probe(struct spi_device *spi)
 	spi_set_drvdata(spi, xra);
 
 	return 0;
+=======
+	return devm_gpiochip_add_data(&spi->dev, &xra->chip, xra);
+>>>>>>> upstream/android-13
 }
 
 static const struct spi_device_id xra1403_ids[] = {

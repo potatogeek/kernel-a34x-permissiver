@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 ARM Ltd.
  *
@@ -12,11 +13,19 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2012 ARM Ltd.
+>>>>>>> upstream/android-13
  */
 #ifndef __ASM_SIGNAL32_H
 #define __ASM_SIGNAL32_H
 
+<<<<<<< HEAD
 #ifdef __KERNEL__
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_COMPAT
 #include <linux/compat.h>
 
@@ -90,5 +99,8 @@ static inline void compat_setup_restart_syscall(struct pt_regs *regs)
 {
 }
 #endif /* CONFIG_COMPAT */
+<<<<<<< HEAD
 #endif /* __KERNEL__ */
+=======
+>>>>>>> upstream/android-13
 #endif /* __ASM_SIGNAL32_H */

@@ -3,7 +3,11 @@
  *
  * Copyright (C) 2010 Samsung Electronics
  *
+<<<<<<< HEAD
  * Author: Andrzej Pietrasiewicz <andrzej.p@samsung.com>
+=======
+ * Author: Andrzej Pietrasiewicz <andrzejtp2010@gmail.com>
+>>>>>>> upstream/android-13
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

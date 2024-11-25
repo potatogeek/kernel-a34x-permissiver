@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014 Marek Vasut <marex@denx.de>
  *
@@ -7,6 +8,11 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2014 Marek Vasut <marex@denx.de>
+>>>>>>> upstream/android-13
  */
 
 #include "imx53.dtsi"
@@ -52,7 +58,11 @@
 	clock-frequency = <400000>;
 	status = "okay";
 
+<<<<<<< HEAD
 	stmpe610@41 {
+=======
+	touchscreen@41 {
+>>>>>>> upstream/android-13
 		compatible = "st,stmpe610";
 		reg = <0x41>;
 		id = <0>;

@@ -8,6 +8,7 @@
 #include <asm/irq.h>
 #include <asm/fiq.h>
 
+<<<<<<< HEAD
 static void iomd_ack_irq_a(struct irq_data *d)
 {
 	unsigned int val, mask;
@@ -112,6 +113,66 @@ static struct irq_chip iomd_fiq_chip = {
 	.irq_ack	= iomd_mask_irq_fiq,
 	.irq_mask	= iomd_mask_irq_fiq,
 	.irq_unmask	= iomd_unmask_irq_fiq,
+=======
+// These are offsets from the stat register for each IRQ bank
+#define STAT	0x00
+#define REQ	0x04
+#define CLR	0x04
+#define MASK	0x08
+
+static void __iomem *iomd_get_base(struct irq_data *d)
+{
+	void *cd = irq_data_get_irq_chip_data(d);
+
+	return (void __iomem *)(unsigned long)cd;
+}
+
+static void iomd_set_base_mask(unsigned int irq, void __iomem *base, u32 mask)
+{
+	struct irq_data *d = irq_get_irq_data(irq);
+
+	d->mask = mask;
+	irq_set_chip_data(irq, (void *)(unsigned long)base);
+}
+
+static void iomd_irq_mask_ack(struct irq_data *d)
+{
+	void __iomem *base = iomd_get_base(d);
+	unsigned int val, mask = d->mask;
+
+	val = readb(base + MASK);
+	writeb(val & ~mask, base + MASK);
+	writeb(mask, base + CLR);
+}
+
+static void iomd_irq_mask(struct irq_data *d)
+{
+	void __iomem *base = iomd_get_base(d);
+	unsigned int val, mask = d->mask;
+
+	val = readb(base + MASK);
+	writeb(val & ~mask, base + MASK);
+}
+
+static void iomd_irq_unmask(struct irq_data *d)
+{
+	void __iomem *base = iomd_get_base(d);
+	unsigned int val, mask = d->mask;
+
+	val = readb(base + MASK);
+	writeb(val | mask, base + MASK);
+}
+
+static struct irq_chip iomd_chip_clr = {
+	.irq_mask_ack	= iomd_irq_mask_ack,
+	.irq_mask	= iomd_irq_mask,
+	.irq_unmask	= iomd_irq_unmask,
+};
+
+static struct irq_chip iomd_chip_noclr = {
+	.irq_mask	= iomd_irq_mask,
+	.irq_unmask	= iomd_irq_unmask,
+>>>>>>> upstream/android-13
 };
 
 extern unsigned char rpc_default_fiq_start, rpc_default_fiq_end;
@@ -141,6 +202,7 @@ void __init rpc_init_irq(void)
 
 		switch (irq) {
 		case 0 ... 7:
+<<<<<<< HEAD
 			irq_set_chip_and_handler(irq, &iomd_a_chip,
 						 handle_level_irq);
 			irq_modify_status(irq, clr, set);
@@ -161,10 +223,43 @@ void __init rpc_init_irq(void)
 		case 64 ... 71:
 			irq_set_chip(irq, &iomd_fiq_chip);
 			irq_modify_status(irq, clr, set);
+=======
+			irq_set_chip_and_handler(irq, &iomd_chip_clr,
+						 handle_level_irq);
+			irq_modify_status(irq, clr, set);
+			iomd_set_base_mask(irq, IOMD_BASE + IOMD_IRQSTATA,
+					   BIT(irq));
+			break;
+
+		case 8 ... 15:
+			irq_set_chip_and_handler(irq, &iomd_chip_noclr,
+						 handle_level_irq);
+			irq_modify_status(irq, clr, set);
+			iomd_set_base_mask(irq, IOMD_BASE + IOMD_IRQSTATB,
+					   BIT(irq - 8));
+			break;
+
+		case 16 ... 21:
+			irq_set_chip_and_handler(irq, &iomd_chip_noclr,
+						 handle_level_irq);
+			irq_modify_status(irq, clr, set);
+			iomd_set_base_mask(irq, IOMD_BASE + IOMD_DMASTAT,
+					   BIT(irq - 16));
+			break;
+
+		case 64 ... 71:
+			irq_set_chip(irq, &iomd_chip_noclr);
+			irq_modify_status(irq, clr, set);
+			iomd_set_base_mask(irq, IOMD_BASE + IOMD_FIQSTAT,
+					   BIT(irq - 64));
+>>>>>>> upstream/android-13
 			break;
 		}
 	}
 
 	init_FIQ(FIQ_START);
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13

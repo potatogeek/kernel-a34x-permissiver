@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 display-timing bindings
 =======================
 
@@ -121,3 +122,6 @@ Example:
 		vback-porch = <0 36 50>;
 		vsync-len = <0 5 6>;
 	};
+=======
+See display-timings.yaml in this directory.
+>>>>>>> upstream/android-13

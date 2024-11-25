@@ -1,10 +1,18 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 // Copyright (C) 2008-2009 Red Hat, Inc.  All rights reserved.
 // Copyright (C) 2005-2017 Andes Technology Corporation
 
 #ifndef _ASM_NDS32_SYSCALL_H
 #define _ASM_NDS32_SYSCALL_H	1
 
+<<<<<<< HEAD
+=======
+#include <uapi/linux/audit.h>
+>>>>>>> upstream/android-13
 #include <linux/err.h>
 struct task_struct;
 struct pt_regs;
@@ -25,7 +33,12 @@ struct pt_regs;
  *
  * It's only valid to call this when @task is known to be blocked.
  */
+<<<<<<< HEAD
 int syscall_get_nr(struct task_struct *task, struct pt_regs *regs)
+=======
+static inline int
+syscall_get_nr(struct task_struct *task, struct pt_regs *regs)
+>>>>>>> upstream/android-13
 {
 	return regs->syscallno;
 }
@@ -46,7 +59,12 @@ int syscall_get_nr(struct task_struct *task, struct pt_regs *regs)
  * system call instruction.  This may not be the same as what the
  * register state looked like at system call entry tracing.
  */
+<<<<<<< HEAD
 void syscall_rollback(struct task_struct *task, struct pt_regs *regs)
+=======
+static inline void
+syscall_rollback(struct task_struct *task, struct pt_regs *regs)
+>>>>>>> upstream/android-13
 {
 	regs->uregs[0] = regs->orig_r0;
 }
@@ -61,7 +79,12 @@ void syscall_rollback(struct task_struct *task, struct pt_regs *regs)
  * It's only valid to call this when @task is stopped for tracing on exit
  * from a system call, due to %TIF_SYSCALL_TRACE or %TIF_SYSCALL_AUDIT.
  */
+<<<<<<< HEAD
 long syscall_get_error(struct task_struct *task, struct pt_regs *regs)
+=======
+static inline long
+syscall_get_error(struct task_struct *task, struct pt_regs *regs)
+>>>>>>> upstream/android-13
 {
 	unsigned long error = regs->uregs[0];
 	return IS_ERR_VALUE(error) ? error : 0;
@@ -78,7 +101,12 @@ long syscall_get_error(struct task_struct *task, struct pt_regs *regs)
  * It's only valid to call this when @task is stopped for tracing on exit
  * from a system call, due to %TIF_SYSCALL_TRACE or %TIF_SYSCALL_AUDIT.
  */
+<<<<<<< HEAD
 long syscall_get_return_value(struct task_struct *task, struct pt_regs *regs)
+=======
+static inline long
+syscall_get_return_value(struct task_struct *task, struct pt_regs *regs)
+>>>>>>> upstream/android-13
 {
 	return regs->uregs[0];
 }
@@ -98,8 +126,14 @@ long syscall_get_return_value(struct task_struct *task, struct pt_regs *regs)
  * It's only valid to call this when @task is stopped for tracing on exit
  * from a system call, due to %TIF_SYSCALL_TRACE or %TIF_SYSCALL_AUDIT.
  */
+<<<<<<< HEAD
 void syscall_set_return_value(struct task_struct *task, struct pt_regs *regs,
 			      int error, long val)
+=======
+static inline void
+syscall_set_return_value(struct task_struct *task, struct pt_regs *regs,
+			 int error, long val)
+>>>>>>> upstream/android-13
 {
 	regs->uregs[0] = (long)error ? error : val;
 }
@@ -108,6 +142,7 @@ void syscall_set_return_value(struct task_struct *task, struct pt_regs *regs,
  * syscall_get_arguments - extract system call parameter values
  * @task:	task of interest, must be blocked
  * @regs:	task_pt_regs() of @task
+<<<<<<< HEAD
  * @i:		argument index [0,5]
  * @n:		number of arguments; n+i must be [1,6].
  * @args:	array filled with argument values
@@ -144,12 +179,31 @@ void syscall_get_arguments(struct task_struct *task, struct pt_regs *regs,
 	}
 
 	memcpy(args, &regs->uregs[0] + i, n * sizeof(args[0]));
+=======
+ * @args:	array filled with argument values
+ *
+ * Fetches 6 arguments to the system call (from 0 through 5). The first
+ * argument is stored in @args[0], and so on.
+ *
+ * It's only valid to call this when @task is stopped for tracing on
+ * entry to a system call, due to %TIF_SYSCALL_TRACE or %TIF_SYSCALL_AUDIT.
+ */
+#define SYSCALL_MAX_ARGS 6
+static inline void
+syscall_get_arguments(struct task_struct *task, struct pt_regs *regs,
+		      unsigned long *args)
+{
+	args[0] = regs->orig_r0;
+	args++;
+	memcpy(args, &regs->uregs[0] + 1, 5 * sizeof(args[0]));
+>>>>>>> upstream/android-13
 }
 
 /**
  * syscall_set_arguments - change system call parameter value
  * @task:	task of interest, must be in system call entry tracing
  * @regs:	task_pt_regs() of @task
+<<<<<<< HEAD
  * @i:		argument index [0,5]
  * @n:		number of arguments; n+i must be [1,6].
  * @args:	array of argument values to store
@@ -185,4 +239,31 @@ void syscall_set_arguments(struct task_struct *task, struct pt_regs *regs,
 
 	memcpy(&regs->uregs[0] + i, args, n * sizeof(args[0]));
 }
+=======
+ * @args:	array of argument values to store
+ *
+ * Changes 6 arguments to the system call. The first argument gets value
+ * @args[0], and so on.
+ *
+ * It's only valid to call this when @task is stopped for tracing on
+ * entry to a system call, due to %TIF_SYSCALL_TRACE or %TIF_SYSCALL_AUDIT.
+ */
+static inline void
+syscall_set_arguments(struct task_struct *task, struct pt_regs *regs,
+		      const unsigned long *args)
+{
+	regs->orig_r0 = args[0];
+	args++;
+
+	memcpy(&regs->uregs[0] + 1, args, 5 * sizeof(args[0]));
+}
+
+static inline int
+syscall_get_arch(struct task_struct *task)
+{
+	return IS_ENABLED(CONFIG_CPU_BIG_ENDIAN)
+		? AUDIT_ARCH_NDS32BE : AUDIT_ARCH_NDS32;
+}
+
+>>>>>>> upstream/android-13
 #endif /* _ASM_NDS32_SYSCALL_H */

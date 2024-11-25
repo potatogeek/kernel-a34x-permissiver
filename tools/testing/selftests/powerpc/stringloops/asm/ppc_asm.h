@@ -1,6 +1,10 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 #ifndef _PPC_ASM_H
+<<<<<<< HEAD
 #define __PPC_ASM_H
+=======
+#define _PPC_ASM_H
+>>>>>>> upstream/android-13
 #include <ppc-asm.h>
 
 #ifndef r1

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * tegra30_ahub.h - Definitions for Tegra30 AHUB driver
  *
  * Copyright (c) 2011,2012, NVIDIA CORPORATION.  All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -14,6 +19,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __TEGRA30_AHUB_H__
@@ -502,7 +509,11 @@ void tegra124_ahub_set_cif(struct regmap *regmap, unsigned int reg,
 			   struct tegra30_ahub_cif_conf *conf);
 
 struct tegra30_ahub_soc_data {
+<<<<<<< HEAD
 	u32 mod_list_mask;
+=======
+	unsigned int num_resets;
+>>>>>>> upstream/android-13
 	void (*set_audio_cif)(struct regmap *regmap,
 			      unsigned int reg,
 			      struct tegra30_ahub_cif_conf *conf);
@@ -522,8 +533,15 @@ struct tegra30_ahub_soc_data {
 struct tegra30_ahub {
 	const struct tegra30_ahub_soc_data *soc_data;
 	struct device *dev;
+<<<<<<< HEAD
 	struct clk *clk_d_audio;
 	struct clk *clk_apbif;
+=======
+	struct reset_control_bulk_data resets[21];
+	unsigned int nresets;
+	struct clk_bulk_data clocks[2];
+	unsigned int nclocks;
+>>>>>>> upstream/android-13
 	resource_size_t apbif_addr;
 	struct regmap *regmap_apbif;
 	struct regmap *regmap_ahub;

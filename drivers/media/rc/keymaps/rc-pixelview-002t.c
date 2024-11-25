@@ -16,6 +16,7 @@ static struct rc_map_table pixelview_002t[] = {
 	{ 0x866b13, KEY_MUTE },
 	{ 0x866b12, KEY_POWER2 },	/* power */
 
+<<<<<<< HEAD
 	{ 0x866b01, KEY_1 },
 	{ 0x866b02, KEY_2 },
 	{ 0x866b03, KEY_3 },
@@ -26,6 +27,18 @@ static struct rc_map_table pixelview_002t[] = {
 	{ 0x866b08, KEY_8 },
 	{ 0x866b09, KEY_9 },
 	{ 0x866b00, KEY_0 },
+=======
+	{ 0x866b01, KEY_NUMERIC_1 },
+	{ 0x866b02, KEY_NUMERIC_2 },
+	{ 0x866b03, KEY_NUMERIC_3 },
+	{ 0x866b04, KEY_NUMERIC_4 },
+	{ 0x866b05, KEY_NUMERIC_5 },
+	{ 0x866b06, KEY_NUMERIC_6 },
+	{ 0x866b07, KEY_NUMERIC_7 },
+	{ 0x866b08, KEY_NUMERIC_8 },
+	{ 0x866b09, KEY_NUMERIC_9 },
+	{ 0x866b00, KEY_NUMERIC_0 },
+>>>>>>> upstream/android-13
 
 	{ 0x866b0d, KEY_CHANNELUP },
 	{ 0x866b19, KEY_CHANNELDOWN },
@@ -51,7 +64,11 @@ static struct rc_map_list pixelview_map = {
 	.map = {
 		.scan     = pixelview_002t,
 		.size     = ARRAY_SIZE(pixelview_002t),
+<<<<<<< HEAD
 		.rc_proto = RC_PROTO_NEC,
+=======
+		.rc_proto = RC_PROTO_NECX,
+>>>>>>> upstream/android-13
 		.name     = RC_MAP_PIXELVIEW_002T,
 	}
 };

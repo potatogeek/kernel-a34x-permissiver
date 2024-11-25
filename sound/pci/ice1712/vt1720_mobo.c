@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *   ALSA driver for VT1720/VT1724 (Envy24PT/Envy24HT)
  *
  *   Lowlevel functions for VT1720-based motherboards
  *
  *	Copyright (c) 2004 Takashi Iwai <tiwai@suse.de>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -19,6 +24,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */      
 
 #include <linux/delay.h>
@@ -53,7 +60,11 @@ static int k8x800_add_controls(struct snd_ice1712 *ice)
 
 /* EEPROM image */
 
+<<<<<<< HEAD
 static unsigned char k8x800_eeprom[] = {
+=======
+static const unsigned char k8x800_eeprom[] = {
+>>>>>>> upstream/android-13
 	[ICE_EEP2_SYSCONF]     = 0x01,	/* clock 256, 1ADC, 2DACs */
 	[ICE_EEP2_ACLINK]      = 0x02,	/* ACLINK, packed */
 	[ICE_EEP2_I2S]         = 0x00,	/* - */
@@ -69,7 +80,11 @@ static unsigned char k8x800_eeprom[] = {
 	[ICE_EEP2_GPIO_STATE2] = 0x00,	/* - */
 };
 
+<<<<<<< HEAD
 static unsigned char sn25p_eeprom[] = {
+=======
+static const unsigned char sn25p_eeprom[] = {
+>>>>>>> upstream/android-13
 	[ICE_EEP2_SYSCONF]     = 0x01,	/* clock 256, 1ADC, 2DACs */
 	[ICE_EEP2_ACLINK]      = 0x02,	/* ACLINK, packed */
 	[ICE_EEP2_I2S]         = 0x00,	/* - */

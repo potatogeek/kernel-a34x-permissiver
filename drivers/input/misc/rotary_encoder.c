@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * rotary_encoder.c
  *
@@ -8,10 +12,13 @@
  *
  * A generic driver for rotary encoders connected to GPIO lines.
  * See file:Documentation/input/devices/rotary-encoder.rst for more information
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -240,8 +247,15 @@ static int rotary_encoder_probe(struct platform_device *pdev)
 
 	encoder->gpios = devm_gpiod_get_array(dev, NULL, GPIOD_IN);
 	if (IS_ERR(encoder->gpios)) {
+<<<<<<< HEAD
 		dev_err(dev, "unable to get gpios\n");
 		return PTR_ERR(encoder->gpios);
+=======
+		err = PTR_ERR(encoder->gpios);
+		if (err != -EPROBE_DEFER)
+			dev_err(dev, "unable to get gpios: %d\n", err);
+		return err;
+>>>>>>> upstream/android-13
 	}
 	if (encoder->gpios->ndescs < 2) {
 		dev_err(dev, "not enough gpios found\n");

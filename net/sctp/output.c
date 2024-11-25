@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* SCTP kernel implementation
  * (C) Copyright IBM Corp. 2001, 2004
  * Copyright (c) 1999-2000 Cisco, Inc.
@@ -7,6 +11,7 @@
  *
  * These functions handle output processing.
  *
+<<<<<<< HEAD
  * This SCTP implementation is free software;
  * you can redistribute it and/or modify it under the terms of
  * the GNU General Public License as published by
@@ -23,6 +28,8 @@
  * along with GNU CC; see the file COPYING.  If not, see
  * <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  * Please send any bug reports or fixes you make to the
  * email address(es):
  *    lksctp developers <linux-sctp@vger.kernel.org>
@@ -118,8 +125,14 @@ void sctp_packet_config(struct sctp_packet *packet, __u32 vtag,
 		sctp_transport_route(tp, NULL, sp);
 		if (asoc->param_flags & SPP_PMTUD_ENABLE)
 			sctp_assoc_sync_pmtu(asoc);
+<<<<<<< HEAD
 	} else if (!sctp_transport_pmtu_check(tp)) {
 		if (asoc->param_flags & SPP_PMTUD_ENABLE)
+=======
+	} else if (!sctp_transport_pl_enabled(tp) &&
+		   asoc->param_flags & SPP_PMTUD_ENABLE) {
+		if (!sctp_transport_pmtu_check(tp))
+>>>>>>> upstream/android-13
 			sctp_assoc_sync_pmtu(asoc);
 	}
 
@@ -226,6 +239,33 @@ enum sctp_xmit sctp_packet_transmit_chunk(struct sctp_packet *packet,
 	return retval;
 }
 
+<<<<<<< HEAD
+=======
+/* Try to bundle a pad chunk into a packet with a heartbeat chunk for PLPMTUTD probe */
+static enum sctp_xmit sctp_packet_bundle_pad(struct sctp_packet *pkt, struct sctp_chunk *chunk)
+{
+	struct sctp_transport *t = pkt->transport;
+	struct sctp_chunk *pad;
+	int overhead = 0;
+
+	if (!chunk->pmtu_probe)
+		return SCTP_XMIT_OK;
+
+	/* calculate the Padding Data size for the pad chunk */
+	overhead += sizeof(struct sctphdr) + sizeof(struct sctp_chunkhdr);
+	overhead += sizeof(struct sctp_sender_hb_info) + sizeof(struct sctp_pad_chunk);
+	pad = sctp_make_pad(t->asoc, t->pl.probe_size - overhead);
+	if (!pad)
+		return SCTP_XMIT_DELAY;
+
+	list_add_tail(&pad->list, &pkt->chunk_list);
+	pkt->size += SCTP_PAD4(ntohs(pad->chunk_hdr->length));
+	chunk->transport = t;
+
+	return SCTP_XMIT_OK;
+}
+
+>>>>>>> upstream/android-13
 /* Try to bundle an auth chunk into the packet. */
 static enum sctp_xmit sctp_packet_bundle_auth(struct sctp_packet *pkt,
 					      struct sctp_chunk *chunk)
@@ -297,6 +337,12 @@ static enum sctp_xmit sctp_packet_bundle_sack(struct sctp_packet *pkt,
 					sctp_chunk_free(sack);
 					goto out;
 				}
+<<<<<<< HEAD
+=======
+				SCTP_INC_STATS(asoc->base.net,
+					       SCTP_MIB_OUTCTRLCHUNKS);
+				asoc->stats.octrlchunks++;
+>>>>>>> upstream/android-13
 				asoc->peer.sack_needed = 0;
 				if (del_timer(timer))
 					sctp_association_put(asoc);
@@ -394,6 +440,13 @@ enum sctp_xmit sctp_packet_append_chunk(struct sctp_packet *packet,
 		goto finish;
 
 	retval = __sctp_packet_append_chunk(packet, chunk);
+<<<<<<< HEAD
+=======
+	if (retval != SCTP_XMIT_OK)
+		goto finish;
+
+	retval = sctp_packet_bundle_pad(packet, chunk);
+>>>>>>> upstream/android-13
 
 finish:
 	return retval;
@@ -520,20 +573,28 @@ merge:
 					sizeof(struct inet6_skb_parm)));
 		skb_shinfo(head)->gso_segs = pkt_count;
 		skb_shinfo(head)->gso_size = GSO_BY_FRAGS;
+<<<<<<< HEAD
 		rcu_read_lock();
 		if (skb_dst(head) != tp->dst) {
 			dst_hold(tp->dst);
 			sk_setup_caps(sk, tp->dst);
 		}
 		rcu_read_unlock();
+=======
+>>>>>>> upstream/android-13
 		goto chksum;
 	}
 
 	if (sctp_checksum_disable)
 		return 1;
 
+<<<<<<< HEAD
 	if (!(skb_dst(head)->dev->features & NETIF_F_SCTP_CRC) ||
 	    dst_xfrm(skb_dst(head)) || packet->ipfragok) {
+=======
+	if (!(tp->dst->dev->features & NETIF_F_SCTP_CRC) ||
+	    dst_xfrm(tp->dst) || packet->ipfragok || tp->encap_port) {
+>>>>>>> upstream/android-13
 		struct sctphdr *sh =
 			(struct sctphdr *)skb_transport_header(head);
 
@@ -560,7 +621,10 @@ int sctp_packet_transmit(struct sctp_packet *packet, gfp_t gfp)
 	struct sctp_association *asoc = tp->asoc;
 	struct sctp_chunk *chunk, *tmp;
 	int pkt_count, gso = 0;
+<<<<<<< HEAD
 	struct dst_entry *dst;
+=======
+>>>>>>> upstream/android-13
 	struct sk_buff *head;
 	struct sctphdr *sh;
 	struct sock *sk;
@@ -571,6 +635,7 @@ int sctp_packet_transmit(struct sctp_packet *packet, gfp_t gfp)
 	chunk = list_entry(packet->chunk_list.next, struct sctp_chunk, list);
 	sk = chunk->skb->sk;
 
+<<<<<<< HEAD
 	/* check gso */
 	if (packet->size > tp->pathmtu && !packet->ipfragok) {
 		if (!sk_can_gso(sk)) {
@@ -578,6 +643,18 @@ int sctp_packet_transmit(struct sctp_packet *packet, gfp_t gfp)
 			goto out;
 		}
 		gso = 1;
+=======
+	if (packet->size > tp->pathmtu && !packet->ipfragok && !chunk->pmtu_probe) {
+		if (tp->pl.state == SCTP_PL_ERROR) { /* do IP fragmentation if in Error state */
+			packet->ipfragok = 1;
+		} else {
+			if (!sk_can_gso(sk)) { /* check gso */
+				pr_err_once("Trying to GSO but underlying device doesn't support it.");
+				goto out;
+			}
+			gso = 1;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	/* alloc head skb */
@@ -597,13 +674,20 @@ int sctp_packet_transmit(struct sctp_packet *packet, gfp_t gfp)
 	sh->checksum = 0;
 
 	/* drop packet if no dst */
+<<<<<<< HEAD
 	dst = dst_clone(tp->dst);
 	if (!dst) {
+=======
+	if (!tp->dst) {
+>>>>>>> upstream/android-13
 		IP_INC_STATS(sock_net(sk), IPSTATS_MIB_OUTNOROUTES);
 		kfree_skb(head);
 		goto out;
 	}
+<<<<<<< HEAD
 	skb_dst_set(head, dst);
+=======
+>>>>>>> upstream/android-13
 
 	/* pack up chunks */
 	pkt_count = sctp_packet_pack(packet, head, gso, gfp);

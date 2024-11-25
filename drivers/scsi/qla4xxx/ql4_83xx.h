@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 /*
  * QLogic iSCSI HBA Driver
  * Copyright (c)  2003-2013 QLogic Corporation
  *
  * See LICENSE.qla4xxx for copyright and licensing details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * QLogic iSCSI HBA Driver
+ * Copyright (c)  2003-2013 QLogic Corporation
+>>>>>>> upstream/android-13
  */
 
 #ifndef __QL483XX_H
@@ -87,6 +94,7 @@
 #define QLA83XX_FW_API			0x356C
 #define QLA83XX_DRV_OP_MODE		0x3570
 
+<<<<<<< HEAD
 static const uint32_t qla4_83xx_reg_tbl[] = {
 	QLA83XX_PEG_HALT_STATUS1,
 	QLA83XX_PEG_HALT_STATUS2,
@@ -104,6 +112,8 @@ static const uint32_t qla4_83xx_reg_tbl[] = {
 	QLA83XX_ASIC_TEMP,
 };
 
+=======
+>>>>>>> upstream/android-13
 #define QLA83XX_CRB_WIN_BASE		0x3800
 #define QLA83XX_CRB_WIN_FUNC(f)		(QLA83XX_CRB_WIN_BASE+((f)*4))
 #define QLA83XX_SEM_LOCK_BASE		0x3840

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* QLogic qed NIC Driver
  * Copyright (c) 2015-2017  QLogic Corporation
  *
@@ -28,6 +29,12 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause) */
+/* QLogic qed NIC Driver
+ * Copyright (c) 2015-2017  QLogic Corporation
+ * Copyright (c) 2019-2020 Marvell International Ltd.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _QED_SRIOV_H
@@ -88,6 +95,10 @@ struct qed_public_vf_info {
 	bool is_trusted_request;
 	u8 rx_accept_mode;
 	u8 tx_accept_mode;
+<<<<<<< HEAD
+=======
+	bool accept_any_vlan;
+>>>>>>> upstream/android-13
 };
 
 struct qed_iov_vf_init_params {
@@ -272,6 +283,11 @@ enum qed_iov_wq_flag {
 	QED_IOV_WQ_VF_FORCE_LINK_QUERY_FLAG,
 };
 
+<<<<<<< HEAD
+=======
+extern const struct qed_iov_hv_ops qed_iov_ops_pass;
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_QED_SRIOV
 /**
  * @brief Check if given VF ID @vfid is valid
@@ -305,7 +321,11 @@ void qed_iov_bulletin_set_udp_ports(struct qed_hwfn *p_hwfn,
 
 /**
  * @brief Read sriov related information and allocated resources
+<<<<<<< HEAD
  *  reads from configuraiton space, shmem, etc.
+=======
+ *  reads from configuration space, shmem, etc.
+>>>>>>> upstream/android-13
  *
  * @param p_hwfn
  *

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *
  * device driver for philips saa7134 based TV cards
  * i2c interface support
  *
  * (c) 2001,02 Gerd Knorr <kraxel@bytesex.org> [SuSE Labs]
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -14,6 +19,8 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "saa7134.h"
@@ -441,7 +448,11 @@ int saa7134_i2c_register(struct saa7134_dev *dev)
 {
 	dev->i2c_adap = saa7134_adap_template;
 	dev->i2c_adap.dev.parent = &dev->pci->dev;
+<<<<<<< HEAD
 	strcpy(dev->i2c_adap.name,dev->name);
+=======
+	strscpy(dev->i2c_adap.name, dev->name, sizeof(dev->i2c_adap.name));
+>>>>>>> upstream/android-13
 	dev->i2c_adap.algo_data = dev;
 	i2c_set_adapdata(&dev->i2c_adap, &dev->v4l2_dev);
 	i2c_add_adapter(&dev->i2c_adap);

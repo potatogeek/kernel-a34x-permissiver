@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * device_id.h -- PCMCIA driver matching helpers
  *
@@ -5,6 +6,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * device_id.h -- PCMCIA driver matching helpers
+ *
+>>>>>>> upstream/android-13
  * (C) 2003 - 2004	David Woodhouse
  * (C) 2003 - 2004	Dominik Brodowski
  */

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * vdso_restorer.c - tests vDSO-based signal restore
  * Copyright (c) 2015 Andrew Lutomirski
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms and conditions of the GNU General Public License,
  * version 2, as published by the Free Software Foundation.
@@ -11,6 +16,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * This makes sure that sa_restorer == NULL keeps working on 32-bit
  * configurations.  Modern glibc doesn't use it under any circumstances,
  * so it's easy to overlook breakage.
@@ -23,6 +30,10 @@
 
 #include <err.h>
 #include <stdio.h>
+<<<<<<< HEAD
+=======
+#include <dlfcn.h>
+>>>>>>> upstream/android-13
 #include <string.h>
 #include <signal.h>
 #include <unistd.h>
@@ -54,11 +65,29 @@ int main()
 	int nerrs = 0;
 	struct real_sigaction sa;
 
+<<<<<<< HEAD
+=======
+	void *vdso = dlopen("linux-vdso.so.1",
+			    RTLD_LAZY | RTLD_LOCAL | RTLD_NOLOAD);
+	if (!vdso)
+		vdso = dlopen("linux-gate.so.1",
+			      RTLD_LAZY | RTLD_LOCAL | RTLD_NOLOAD);
+	if (!vdso) {
+		printf("[SKIP]\tFailed to find vDSO.  Tests are not expected to work.\n");
+		return 0;
+	}
+
+>>>>>>> upstream/android-13
 	memset(&sa, 0, sizeof(sa));
 	sa.handler = handler_with_siginfo;
 	sa.flags = SA_SIGINFO;
 	sa.restorer = NULL;	/* request kernel-provided restorer */
 
+<<<<<<< HEAD
+=======
+	printf("[RUN]\tRaise a signal, SA_SIGINFO, sa.restorer == NULL\n");
+
+>>>>>>> upstream/android-13
 	if (syscall(SYS_rt_sigaction, SIGUSR1, &sa, NULL, 8) != 0)
 		err(1, "raw rt_sigaction syscall");
 
@@ -71,6 +100,11 @@ int main()
 		nerrs++;
 	}
 
+<<<<<<< HEAD
+=======
+	printf("[RUN]\tRaise a signal, !SA_SIGINFO, sa.restorer == NULL\n");
+
+>>>>>>> upstream/android-13
 	sa.flags = 0;
 	sa.handler = handler_without_siginfo;
 	if (syscall(SYS_sigaction, SIGUSR1, &sa, 0) != 0)

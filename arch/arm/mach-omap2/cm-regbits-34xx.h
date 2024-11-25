@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 #ifndef __ARCH_ARM_MACH_OMAP2_CM_REGBITS_34XX_H
 #define __ARCH_ARM_MACH_OMAP2_CM_REGBITS_34XX_H
 
@@ -8,10 +12,13 @@
  * Copyright (C) 2007-2008 Nokia Corporation
  *
  * Written by Paul Walmsley
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define OMAP3430_CM_FCLKEN_IVA2_EN_IVA2_MASK		(1 << 0)

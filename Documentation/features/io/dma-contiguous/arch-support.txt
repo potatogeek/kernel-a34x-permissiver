@@ -10,12 +10,20 @@
     |         arc: | TODO |
     |         arm: |  ok  |
     |       arm64: |  ok  |
+<<<<<<< HEAD
     |         c6x: | TODO |
+=======
+    |        csky: |  ok  |
+>>>>>>> upstream/android-13
     |       h8300: | TODO |
     |     hexagon: | TODO |
     |        ia64: | TODO |
     |        m68k: | TODO |
+<<<<<<< HEAD
     |  microblaze: | TODO |
+=======
+    |  microblaze: |  ok  |
+>>>>>>> upstream/android-13
     |        mips: |  ok  |
     |       nds32: | TODO |
     |       nios2: | TODO |
@@ -27,7 +35,10 @@
     |          sh: | TODO |
     |       sparc: | TODO |
     |          um: | TODO |
+<<<<<<< HEAD
     |   unicore32: | TODO |
+=======
+>>>>>>> upstream/android-13
     |         x86: |  ok  |
     |      xtensa: |  ok  |
     -----------------------

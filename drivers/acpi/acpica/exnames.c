@@ -3,7 +3,11 @@
  *
  * Module Name: exnames - interpreter/scanner name load/execute
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -53,10 +57,17 @@ static char *acpi_ex_allocate_name_string(u32 prefix_count, u32 num_name_segs)
 
 		/* Special case for root */
 
+<<<<<<< HEAD
 		size_needed = 1 + (ACPI_NAME_SIZE * num_name_segs) + 2 + 1;
 	} else {
 		size_needed =
 		    prefix_count + (ACPI_NAME_SIZE * num_name_segs) + 2 + 1;
+=======
+		size_needed = 1 + (ACPI_NAMESEG_SIZE * num_name_segs) + 2 + 1;
+	} else {
+		size_needed =
+		    prefix_count + (ACPI_NAMESEG_SIZE * num_name_segs) + 2 + 1;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -141,7 +152,11 @@ static acpi_status acpi_ex_name_segment(u8 ** in_aml_address, char *name_string)
 	}
 
 	for (index = 0;
+<<<<<<< HEAD
 	     (index < ACPI_NAME_SIZE)
+=======
+	     (index < ACPI_NAMESEG_SIZE)
+>>>>>>> upstream/android-13
 	     && (acpi_ut_valid_name_char(*aml_address, 0)); index++) {
 		char_buf[index] = *aml_address++;
 	}

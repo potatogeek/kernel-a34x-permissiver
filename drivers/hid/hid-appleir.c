@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * HID driver for the apple ir device
  *
@@ -12,6 +16,7 @@
  * Copyright (C) 2010, 2012 Bastien Nocera <hadess@hadess.net>
  * Copyright (C) 2013 Benjamin Tissoires <benjamin.tissoires@gmail.com>
  * Copyright (C) 2013 Red Hat Inc. All Rights Reserved
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -21,6 +26,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -291,11 +298,17 @@ static int appleir_probe(struct hid_device *hid, const struct hid_device_id *id)
 	int ret;
 	struct appleir *appleir;
 
+<<<<<<< HEAD
 	appleir = kzalloc(sizeof(struct appleir), GFP_KERNEL);
 	if (!appleir) {
 		ret = -ENOMEM;
 		goto allocfail;
 	}
+=======
+	appleir = devm_kzalloc(&hid->dev, sizeof(struct appleir), GFP_KERNEL);
+	if (!appleir)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	appleir->hid = hid;
 
@@ -321,8 +334,12 @@ static int appleir_probe(struct hid_device *hid, const struct hid_device_id *id)
 
 	return 0;
 fail:
+<<<<<<< HEAD
 	kfree(appleir);
 allocfail:
+=======
+	devm_kfree(&hid->dev, appleir);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -331,7 +348,10 @@ static void appleir_remove(struct hid_device *hid)
 	struct appleir *appleir = hid_get_drvdata(hid);
 	hid_hw_stop(hid);
 	del_timer_sync(&appleir->key_up_timer);
+<<<<<<< HEAD
 	kfree(appleir);
+=======
+>>>>>>> upstream/android-13
 }
 
 static const struct hid_device_id appleir_devices[] = {

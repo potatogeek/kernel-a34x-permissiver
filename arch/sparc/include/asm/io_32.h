@@ -11,6 +11,16 @@
 #define memcpy_fromio(d,s,sz) _memcpy_fromio(d,s,sz)
 #define memcpy_toio(d,s,sz)   _memcpy_toio(d,s,sz)
 
+<<<<<<< HEAD
+=======
+/*
+ * Bus number may be embedded in the higher bits of the physical address.
+ * This is why we have no bus number argument to ioremap().
+ */
+void __iomem *ioremap(phys_addr_t offset, size_t size);
+void iounmap(volatile void __iomem *addr);
+
+>>>>>>> upstream/android-13
 #include <asm-generic/io.h>
 
 static inline void _memset_io(volatile void __iomem *dst,
@@ -121,6 +131,7 @@ static inline void sbus_memcpy_toio(volatile void __iomem *dst,
 	}
 }
 
+<<<<<<< HEAD
 #ifdef __KERNEL__
 
 /*
@@ -128,6 +139,8 @@ static inline void sbus_memcpy_toio(volatile void __iomem *dst,
  * This is why we have no bus number argument to ioremap().
  */
 void iounmap(volatile void __iomem *addr);
+=======
+>>>>>>> upstream/android-13
 /* Create a virtual mapping cookie for an IO port range */
 void __iomem *ioport_map(unsigned long port, unsigned int nr);
 void ioport_unmap(void __iomem *);
@@ -147,8 +160,11 @@ static inline int sbus_can_burst64(void)
 struct device;
 void sbus_set_sbus64(struct device *, int);
 
+<<<<<<< HEAD
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #define __ARCH_HAS_NO_PAGE_ZERO_MAPPED		1
 
 

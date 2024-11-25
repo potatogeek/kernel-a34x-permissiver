@@ -165,7 +165,11 @@ static int uhid_write(int fd, const struct uhid_event *ev)
 		fprintf(stderr, "Cannot write to uhid: %m\n");
 		return -errno;
 	} else if (ret != sizeof(*ev)) {
+<<<<<<< HEAD
 		fprintf(stderr, "Wrong size written to uhid: %ld != %lu\n",
+=======
+		fprintf(stderr, "Wrong size written to uhid: %zd != %zu\n",
+>>>>>>> upstream/android-13
 			ret, sizeof(ev));
 		return -EFAULT;
 	} else {
@@ -236,7 +240,11 @@ static int event(int fd)
 		fprintf(stderr, "Cannot read uhid-cdev: %m\n");
 		return -errno;
 	} else if (ret != sizeof(ev)) {
+<<<<<<< HEAD
 		fprintf(stderr, "Invalid size read from uhid-dev: %ld != %lu\n",
+=======
+		fprintf(stderr, "Invalid size read from uhid-dev: %zd != %zu\n",
+>>>>>>> upstream/android-13
 			ret, sizeof(ev));
 		return -EFAULT;
 	}

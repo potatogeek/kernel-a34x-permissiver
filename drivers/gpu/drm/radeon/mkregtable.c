@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+// SPDX-License-Identifier: MIT
+>>>>>>> upstream/android-13
 /* utility to create the register check tables
  * this includes inlined list.h safe for userspace.
  *

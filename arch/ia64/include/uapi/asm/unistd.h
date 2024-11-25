@@ -11,6 +11,7 @@
 
 #include <asm/break.h>
 
+<<<<<<< HEAD
 #define __BREAK_SYSCALL			__IA64_BREAK_SYSCALL
 
 #define __NR_ni_syscall			1024
@@ -340,5 +341,14 @@
 #define __NR_copy_file_range		1347
 #define __NR_preadv2			1348
 #define __NR_pwritev2			1349
+=======
+#define __BREAK_SYSCALL	__IA64_BREAK_SYSCALL
+
+#define __NR_Linux      1024
+
+#define __NR_umount __NR_umount2
+
+#include <asm/unistd_64.h>
+>>>>>>> upstream/android-13
 
 #endif /* _UAPI_ASM_IA64_UNISTD_H */

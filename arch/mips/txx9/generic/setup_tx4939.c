@@ -22,7 +22,10 @@
 #include <linux/mtd/physmap.h>
 #include <linux/platform_device.h>
 #include <linux/platform_data/txx9/ndfmc.h>
+<<<<<<< HEAD
 #include <asm/bootinfo.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/reboot.h>
 #include <asm/traps.h>
 #include <asm/txx9irq.h>
@@ -94,6 +97,7 @@ static struct resource tx4939_sdram_resource[4];
 static struct resource tx4939_sram_resource;
 #define TX4939_SRAM_SIZE 0x800
 
+<<<<<<< HEAD
 void __init tx4939_add_memory_regions(void)
 {
 	int i;
@@ -110,6 +114,8 @@ void __init tx4939_add_memory_regions(void)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 void __init tx4939_setup(void)
 {
 	int i;

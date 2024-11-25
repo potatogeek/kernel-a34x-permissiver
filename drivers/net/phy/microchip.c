@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015 Microchip Technology
  *
@@ -13,6 +14,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (C) 2015 Microchip Technology
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -56,16 +62,43 @@ static int lan88xx_phy_config_intr(struct phy_device *phydev)
 			       LAN88XX_INT_MASK_LINK_CHANGE_);
 	} else {
 		rc = phy_write(phydev, LAN88XX_INT_MASK, 0);
+<<<<<<< HEAD
+=======
+		if (rc)
+			return rc;
+
+		/* Ack interrupts after they have been disabled */
+		rc = phy_read(phydev, LAN88XX_INT_STS);
+>>>>>>> upstream/android-13
 	}
 
 	return rc < 0 ? rc : 0;
 }
 
+<<<<<<< HEAD
 static int lan88xx_phy_ack_interrupt(struct phy_device *phydev)
 {
 	int rc = phy_read(phydev, LAN88XX_INT_STS);
 
 	return rc < 0 ? rc : 0;
+=======
+static irqreturn_t lan88xx_handle_interrupt(struct phy_device *phydev)
+{
+	int irq_status;
+
+	irq_status = phy_read(phydev, LAN88XX_INT_STS);
+	if (irq_status < 0) {
+		phy_error(phydev);
+		return IRQ_NONE;
+	}
+
+	if (!(irq_status & LAN88XX_INT_STS_LINK_CHANGE_))
+		return IRQ_NONE;
+
+	phy_trigger_machine(phydev);
+
+	return IRQ_HANDLED;
+>>>>>>> upstream/android-13
 }
 
 static int lan88xx_suspend(struct phy_device *phydev)
@@ -88,7 +121,11 @@ static int lan88xx_TR_reg_set(struct phy_device *phydev, u16 regaddr,
 	/* Save current page */
 	save_page = phy_save_page(phydev);
 	if (save_page < 0) {
+<<<<<<< HEAD
 		pr_warn("Failed to get current page\n");
+=======
+		phydev_warn(phydev, "Failed to get current page\n");
+>>>>>>> upstream/android-13
 		goto err;
 	}
 
@@ -98,14 +135,22 @@ static int lan88xx_TR_reg_set(struct phy_device *phydev, u16 regaddr,
 	ret = __phy_write(phydev, LAN88XX_EXT_PAGE_TR_LOW_DATA,
 			  (data & 0xFFFF));
 	if (ret < 0) {
+<<<<<<< HEAD
 		pr_warn("Failed to write TR low data\n");
+=======
+		phydev_warn(phydev, "Failed to write TR low data\n");
+>>>>>>> upstream/android-13
 		goto err;
 	}
 
 	ret = __phy_write(phydev, LAN88XX_EXT_PAGE_TR_HIGH_DATA,
 			  (data & 0x00FF0000) >> 16);
 	if (ret < 0) {
+<<<<<<< HEAD
 		pr_warn("Failed to write TR high data\n");
+=======
+		phydev_warn(phydev, "Failed to write TR high data\n");
+>>>>>>> upstream/android-13
 		goto err;
 	}
 
@@ -115,14 +160,23 @@ static int lan88xx_TR_reg_set(struct phy_device *phydev, u16 regaddr,
 
 	ret = __phy_write(phydev, LAN88XX_EXT_PAGE_TR_CR, buf);
 	if (ret < 0) {
+<<<<<<< HEAD
 		pr_warn("Failed to write data in reg\n");
+=======
+		phydev_warn(phydev, "Failed to write data in reg\n");
+>>>>>>> upstream/android-13
 		goto err;
 	}
 
 	usleep_range(1000, 2000);/* Wait for Data to be written */
 	val = __phy_read(phydev, LAN88XX_EXT_PAGE_TR_CR);
 	if (!(val & 0x8000))
+<<<<<<< HEAD
 		pr_warn("TR Register[0x%X] configuration failed\n", regaddr);
+=======
+		phydev_warn(phydev, "TR Register[0x%X] configuration failed\n",
+			    regaddr);
+>>>>>>> upstream/android-13
 err:
 	return phy_restore_page(phydev, save_page, ret);
 }
@@ -137,7 +191,11 @@ static void lan88xx_config_TR_regs(struct phy_device *phydev)
 	 */
 	err = lan88xx_TR_reg_set(phydev, 0x0F82, 0x12B00A);
 	if (err < 0)
+<<<<<<< HEAD
 		pr_warn("Failed to Set Register[0x0F82]\n");
+=======
+		phydev_warn(phydev, "Failed to Set Register[0x0F82]\n");
+>>>>>>> upstream/android-13
 
 	/* Get access to Channel b'10, Node b'1101, Register 0x06.
 	 * Write 24-bit value 0xD2C46F to register. Setting SSTrKf1000Slv,
@@ -145,7 +203,11 @@ static void lan88xx_config_TR_regs(struct phy_device *phydev)
 	 */
 	err = lan88xx_TR_reg_set(phydev, 0x168C, 0xD2C46F);
 	if (err < 0)
+<<<<<<< HEAD
 		pr_warn("Failed to Set Register[0x168C]\n");
+=======
+		phydev_warn(phydev, "Failed to Set Register[0x168C]\n");
+>>>>>>> upstream/android-13
 
 	/* Get access to Channel b'10, Node b'1111, Register 0x11.
 	 * Write 24-bit value 0x620 to register. Setting rem_upd_done_thresh
@@ -153,7 +215,11 @@ static void lan88xx_config_TR_regs(struct phy_device *phydev)
 	 */
 	err = lan88xx_TR_reg_set(phydev, 0x17A2, 0x620);
 	if (err < 0)
+<<<<<<< HEAD
 		pr_warn("Failed to Set Register[0x17A2]\n");
+=======
+		phydev_warn(phydev, "Failed to Set Register[0x17A2]\n");
+>>>>>>> upstream/android-13
 
 	/* Get access to Channel b'10, Node b'1101, Register 0x10.
 	 * Write 24-bit value 0xEEFFDD to register. Setting
@@ -162,7 +228,11 @@ static void lan88xx_config_TR_regs(struct phy_device *phydev)
 	 */
 	err = lan88xx_TR_reg_set(phydev, 0x16A0, 0xEEFFDD);
 	if (err < 0)
+<<<<<<< HEAD
 		pr_warn("Failed to Set Register[0x16A0]\n");
+=======
+		phydev_warn(phydev, "Failed to Set Register[0x16A0]\n");
+>>>>>>> upstream/android-13
 
 	/* Get access to Channel b'10, Node b'1101, Register 0x13.
 	 * Write 24-bit value 0x071448 to register. Setting
@@ -170,7 +240,11 @@ static void lan88xx_config_TR_regs(struct phy_device *phydev)
 	 */
 	err = lan88xx_TR_reg_set(phydev, 0x16A6, 0x071448);
 	if (err < 0)
+<<<<<<< HEAD
 		pr_warn("Failed to Set Register[0x16A6]\n");
+=======
+		phydev_warn(phydev, "Failed to Set Register[0x16A6]\n");
+>>>>>>> upstream/android-13
 
 	/* Get access to Channel b'10, Node b'1101, Register 0x12.
 	 * Write 24-bit value 0x13132F to register. Setting
@@ -178,7 +252,11 @@ static void lan88xx_config_TR_regs(struct phy_device *phydev)
 	 */
 	err = lan88xx_TR_reg_set(phydev, 0x16A4, 0x13132F);
 	if (err < 0)
+<<<<<<< HEAD
 		pr_warn("Failed to Set Register[0x16A4]\n");
+=======
+		phydev_warn(phydev, "Failed to Set Register[0x16A4]\n");
+>>>>>>> upstream/android-13
 
 	/* Get access to Channel b'10, Node b'1101, Register 0x14.
 	 * Write 24-bit value 0x0 to register. Setting eee_3level_delay,
@@ -186,7 +264,11 @@ static void lan88xx_config_TR_regs(struct phy_device *phydev)
 	 */
 	err = lan88xx_TR_reg_set(phydev, 0x16A8, 0x0);
 	if (err < 0)
+<<<<<<< HEAD
 		pr_warn("Failed to Set Register[0x16A8]\n");
+=======
+		phydev_warn(phydev, "Failed to Set Register[0x16A8]\n");
+>>>>>>> upstream/android-13
 
 	/* Get access to Channel b'01, Node b'1111, Register 0x34.
 	 * Write 24-bit value 0x91B06C to register. Setting
@@ -195,7 +277,11 @@ static void lan88xx_config_TR_regs(struct phy_device *phydev)
 	 */
 	err = lan88xx_TR_reg_set(phydev, 0x0FE8, 0x91B06C);
 	if (err < 0)
+<<<<<<< HEAD
 		pr_warn("Failed to Set Register[0x0FE8]\n");
+=======
+		phydev_warn(phydev, "Failed to Set Register[0x0FE8]\n");
+>>>>>>> upstream/android-13
 
 	/* Get access to Channel b'01, Node b'1111, Register 0x3E.
 	 * Write 24-bit value 0xC0A028 to register. Setting
@@ -204,7 +290,11 @@ static void lan88xx_config_TR_regs(struct phy_device *phydev)
 	 */
 	err = lan88xx_TR_reg_set(phydev, 0x0FFC, 0xC0A028);
 	if (err < 0)
+<<<<<<< HEAD
 		pr_warn("Failed to Set Register[0x0FFC]\n");
+=======
+		phydev_warn(phydev, "Failed to Set Register[0x0FFC]\n");
+>>>>>>> upstream/android-13
 
 	/* Get access to Channel b'01, Node b'1111, Register 0x35.
 	 * Write 24-bit value 0x041600 to register. Setting
@@ -213,14 +303,22 @@ static void lan88xx_config_TR_regs(struct phy_device *phydev)
 	 */
 	err = lan88xx_TR_reg_set(phydev, 0x0FEA, 0x041600);
 	if (err < 0)
+<<<<<<< HEAD
 		pr_warn("Failed to Set Register[0x0FEA]\n");
+=======
+		phydev_warn(phydev, "Failed to Set Register[0x0FEA]\n");
+>>>>>>> upstream/android-13
 
 	/* Get access to Channel b'10, Node b'1101, Register 0x03.
 	 * Write 24-bit value 0x000004 to register. Setting TrFreeze bits.
 	 */
 	err = lan88xx_TR_reg_set(phydev, 0x1686, 0x000004);
 	if (err < 0)
+<<<<<<< HEAD
 		pr_warn("Failed to Set Register[0x1686]\n");
+=======
+		phydev_warn(phydev, "Failed to Set Register[0x1686]\n");
+>>>>>>> upstream/android-13
 }
 
 static int lan88xx_probe(struct phy_device *phydev)
@@ -316,7 +414,10 @@ static int lan88xx_config_init(struct phy_device *phydev)
 {
 	int val;
 
+<<<<<<< HEAD
 	genphy_config_init(phydev);
+=======
+>>>>>>> upstream/android-13
 	/*Zerodetect delay enable */
 	val = phy_read_mmd(phydev, MDIO_MMD_PCS,
 			   PHY_ARDENNES_MMD_DEV_3_PHY_CFG);
@@ -344,8 +445,12 @@ static struct phy_driver microchip_phy_driver[] = {
 	.phy_id_mask	= 0xfffffff0,
 	.name		= "Microchip LAN88xx",
 
+<<<<<<< HEAD
 	.features	= PHY_GBIT_FEATURES,
 	.flags		= PHY_HAS_INTERRUPT,
+=======
+	/* PHY_GBIT_FEATURES */
+>>>>>>> upstream/android-13
 
 	.probe		= lan88xx_probe,
 	.remove		= lan88xx_remove,
@@ -353,8 +458,13 @@ static struct phy_driver microchip_phy_driver[] = {
 	.config_init	= lan88xx_config_init,
 	.config_aneg	= lan88xx_config_aneg,
 
+<<<<<<< HEAD
 	.ack_interrupt	= lan88xx_phy_ack_interrupt,
 	.config_intr	= lan88xx_phy_config_intr,
+=======
+	.config_intr	= lan88xx_phy_config_intr,
+	.handle_interrupt = lan88xx_handle_interrupt,
+>>>>>>> upstream/android-13
 
 	.suspend	= lan88xx_suspend,
 	.resume		= genphy_resume,

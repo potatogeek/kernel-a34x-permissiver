@@ -3,6 +3,10 @@
  * Freescale data path resource container (DPRC) driver
  *
  * Copyright (C) 2014-2016 Freescale Semiconductor, Inc.
+<<<<<<< HEAD
+=======
+ * Copyright 2019-2020 NXP
+>>>>>>> upstream/android-13
  * Author: German Rivera <German.Rivera@freescale.com>
  *
  */
@@ -27,7 +31,20 @@ static bool fsl_mc_device_match(struct fsl_mc_device *mc_dev,
 {
 	return mc_dev->obj_desc.id == obj_desc->id &&
 	       strcmp(mc_dev->obj_desc.type, obj_desc->type) == 0;
+<<<<<<< HEAD
 
+=======
+}
+
+static bool fsl_mc_obj_desc_is_allocatable(struct fsl_mc_obj_desc *obj)
+{
+	if (strcmp(obj->type, "dpmcp") == 0 ||
+	    strcmp(obj->type, "dpcon") == 0 ||
+	    strcmp(obj->type, "dpbp") == 0)
+		return true;
+	else
+		return false;
+>>>>>>> upstream/android-13
 }
 
 static int __fsl_mc_device_remove_if_not_in_mc(struct device *dev, void *data)
@@ -71,9 +88,15 @@ static int __fsl_mc_device_remove(struct device *dev, void *data)
  * the MC by removing devices that represent MC objects that have
  * been dynamically removed in the physical DPRC.
  */
+<<<<<<< HEAD
 static void dprc_remove_devices(struct fsl_mc_device *mc_bus_dev,
 				struct fsl_mc_obj_desc *obj_desc_array,
 				int num_child_objects_in_mc)
+=======
+void dprc_remove_devices(struct fsl_mc_device *mc_bus_dev,
+			 struct fsl_mc_obj_desc *obj_desc_array,
+			 int num_child_objects_in_mc)
+>>>>>>> upstream/android-13
 {
 	if (num_child_objects_in_mc != 0) {
 		/*
@@ -95,6 +118,10 @@ static void dprc_remove_devices(struct fsl_mc_device *mc_bus_dev,
 				      __fsl_mc_device_remove);
 	}
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(dprc_remove_devices);
+>>>>>>> upstream/android-13
 
 static int __fsl_mc_device_match(struct device *dev, void *data)
 {
@@ -104,10 +131,15 @@ static int __fsl_mc_device_match(struct device *dev, void *data)
 	return fsl_mc_device_match(mc_dev, obj_desc);
 }
 
+<<<<<<< HEAD
 static struct fsl_mc_device *fsl_mc_device_lookup(struct fsl_mc_obj_desc
 								*obj_desc,
 						  struct fsl_mc_device
 								*mc_bus_dev)
+=======
+struct fsl_mc_device *fsl_mc_device_lookup(struct fsl_mc_obj_desc *obj_desc,
+					   struct fsl_mc_device *mc_bus_dev)
+>>>>>>> upstream/android-13
 {
 	struct device *dev;
 
@@ -152,6 +184,30 @@ static void check_plugged_state_change(struct fsl_mc_device *mc_dev,
 	}
 }
 
+<<<<<<< HEAD
+=======
+static void fsl_mc_obj_device_add(struct fsl_mc_device *mc_bus_dev,
+				  struct fsl_mc_obj_desc *obj_desc)
+{
+	int error;
+	struct fsl_mc_device *child_dev;
+
+	/*
+	 * Check if device is already known to Linux:
+	 */
+	child_dev = fsl_mc_device_lookup(obj_desc, mc_bus_dev);
+	if (child_dev) {
+		check_plugged_state_change(child_dev, obj_desc);
+		put_device(&child_dev->dev);
+	} else {
+		error = fsl_mc_device_add(obj_desc, NULL, &mc_bus_dev->dev,
+					  &child_dev);
+		if (error < 0)
+			return;
+	}
+}
+
+>>>>>>> upstream/android-13
 /**
  * dprc_add_new_devices - Adds devices to the logical bus for a DPRC
  *
@@ -168,6 +224,7 @@ static void dprc_add_new_devices(struct fsl_mc_device *mc_bus_dev,
 				 struct fsl_mc_obj_desc *obj_desc_array,
 				 int num_child_objects_in_mc)
 {
+<<<<<<< HEAD
 	int error;
 	int i;
 
@@ -192,6 +249,25 @@ static void dprc_add_new_devices(struct fsl_mc_device *mc_bus_dev,
 					  &child_dev);
 		if (error < 0)
 			continue;
+=======
+	int i;
+
+	/* probe the allocable objects first */
+	for (i = 0; i < num_child_objects_in_mc; i++) {
+		struct fsl_mc_obj_desc *obj_desc = &obj_desc_array[i];
+
+		if (strlen(obj_desc->type) > 0 &&
+		    fsl_mc_obj_desc_is_allocatable(obj_desc))
+			fsl_mc_obj_device_add(mc_bus_dev, obj_desc);
+	}
+
+	for (i = 0; i < num_child_objects_in_mc; i++) {
+		struct fsl_mc_obj_desc *obj_desc = &obj_desc_array[i];
+
+		if (strlen(obj_desc->type) > 0 &&
+		    !fsl_mc_obj_desc_is_allocatable(obj_desc))
+			fsl_mc_obj_device_add(mc_bus_dev, obj_desc);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -199,8 +275,13 @@ static void dprc_add_new_devices(struct fsl_mc_device *mc_bus_dev,
  * dprc_scan_objects - Discover objects in a DPRC
  *
  * @mc_bus_dev: pointer to the fsl-mc device that represents a DPRC object
+<<<<<<< HEAD
  * @total_irq_count: If argument is provided the function populates the
  * total number of IRQs created by objects in the DPRC.
+=======
+ * @alloc_interrupts: if true the function allocates the interrupt pool,
+ * otherwise the interrupt allocation is delayed
+>>>>>>> upstream/android-13
  *
  * Detects objects added and removed from a DPRC and synchronizes the
  * state of the Linux bus driver, MC by adding and removing
@@ -214,8 +295,13 @@ static void dprc_add_new_devices(struct fsl_mc_device *mc_bus_dev,
  * populated before they can get allocation requests from probe callbacks
  * of the device drivers for the non-allocatable devices.
  */
+<<<<<<< HEAD
 static int dprc_scan_objects(struct fsl_mc_device *mc_bus_dev,
 			     unsigned int *total_irq_count)
+=======
+int dprc_scan_objects(struct fsl_mc_device *mc_bus_dev,
+		      bool alloc_interrupts)
+>>>>>>> upstream/android-13
 {
 	int num_child_objects;
 	int dprc_get_obj_failures;
@@ -296,13 +382,18 @@ static int dprc_scan_objects(struct fsl_mc_device *mc_bus_dev,
 	 * Allocate IRQ's before binding the scanned devices with their
 	 * respective drivers.
 	 */
+<<<<<<< HEAD
 	if (dev_get_msi_domain(&mc_bus_dev->dev) && !mc_bus->irq_resources) {
+=======
+	if (dev_get_msi_domain(&mc_bus_dev->dev)) {
+>>>>>>> upstream/android-13
 		if (irq_count > FSL_MC_IRQ_POOL_MAX_TOTAL_IRQS) {
 			dev_warn(&mc_bus_dev->dev,
 				 "IRQs needed (%u) exceed IRQs preallocated (%u)\n",
 				 irq_count, FSL_MC_IRQ_POOL_MAX_TOTAL_IRQS);
 		}
 
+<<<<<<< HEAD
 		error = fsl_mc_populate_irq_pool(mc_bus,
 				FSL_MC_IRQ_POOL_MAX_TOTAL_IRQS);
 		if (error < 0)
@@ -312,6 +403,16 @@ static int dprc_scan_objects(struct fsl_mc_device *mc_bus_dev,
 	if (total_irq_count)
 		*total_irq_count = irq_count;
 
+=======
+		if (alloc_interrupts && !mc_bus->irq_resources) {
+			error = fsl_mc_populate_irq_pool(mc_bus_dev,
+					 FSL_MC_IRQ_POOL_MAX_TOTAL_IRQS);
+			if (error < 0)
+				return error;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	dprc_remove_devices(mc_bus_dev, child_obj_desc_array,
 			    num_child_objects);
 
@@ -328,14 +429,26 @@ static int dprc_scan_objects(struct fsl_mc_device *mc_bus_dev,
  * dprc_scan_container - Scans a physical DPRC and synchronizes Linux bus state
  *
  * @mc_bus_dev: pointer to the fsl-mc device that represents a DPRC object
+<<<<<<< HEAD
  *
+=======
+ * @alloc_interrupts: if true the function allocates the interrupt pool,
+ *                    otherwise the interrupt allocation is delayed
+>>>>>>> upstream/android-13
  * Scans the physical DPRC and synchronizes the state of the Linux
  * bus driver with the actual state of the MC by adding and removing
  * devices as appropriate.
  */
+<<<<<<< HEAD
 static int dprc_scan_container(struct fsl_mc_device *mc_bus_dev)
 {
 	int error;
+=======
+int dprc_scan_container(struct fsl_mc_device *mc_bus_dev,
+			bool alloc_interrupts)
+{
+	int error = 0;
+>>>>>>> upstream/android-13
 	struct fsl_mc_bus *mc_bus = to_fsl_mc_bus(mc_bus_dev);
 
 	fsl_mc_init_all_resource_pools(mc_bus_dev);
@@ -344,6 +457,7 @@ static int dprc_scan_container(struct fsl_mc_device *mc_bus_dev)
 	 * Discover objects in the DPRC:
 	 */
 	mutex_lock(&mc_bus->scan_mutex);
+<<<<<<< HEAD
 	error = dprc_scan_objects(mc_bus_dev, NULL);
 	mutex_unlock(&mc_bus->scan_mutex);
 	if (error < 0) {
@@ -353,11 +467,23 @@ static int dprc_scan_container(struct fsl_mc_device *mc_bus_dev)
 
 	return 0;
 }
+=======
+	error = dprc_scan_objects(mc_bus_dev, alloc_interrupts);
+	mutex_unlock(&mc_bus->scan_mutex);
+
+	return error;
+}
+EXPORT_SYMBOL_GPL(dprc_scan_container);
+>>>>>>> upstream/android-13
 
 /**
  * dprc_irq0_handler - Regular ISR for DPRC interrupt 0
  *
+<<<<<<< HEAD
  * @irq: IRQ number of the interrupt being handled
+=======
+ * @irq_num: IRQ number of the interrupt being handled
+>>>>>>> upstream/android-13
  * @arg: Pointer to device structure
  */
 static irqreturn_t dprc_irq0_handler(int irq_num, void *arg)
@@ -368,7 +494,11 @@ static irqreturn_t dprc_irq0_handler(int irq_num, void *arg)
 /**
  * dprc_irq0_handler_thread - Handler thread function for DPRC interrupt 0
  *
+<<<<<<< HEAD
  * @irq: IRQ number of the interrupt being handled
+=======
+ * @irq_num: IRQ number of the interrupt being handled
+>>>>>>> upstream/android-13
  * @arg: Pointer to device structure
  */
 static irqreturn_t dprc_irq0_handler_thread(int irq_num, void *arg)
@@ -413,9 +543,14 @@ static irqreturn_t dprc_irq0_handler_thread(int irq_num, void *arg)
 		      DPRC_IRQ_EVENT_CONTAINER_DESTROYED |
 		      DPRC_IRQ_EVENT_OBJ_DESTROYED |
 		      DPRC_IRQ_EVENT_OBJ_CREATED)) {
+<<<<<<< HEAD
 		unsigned int irq_count;
 
 		error = dprc_scan_objects(mc_dev, &irq_count);
+=======
+
+		error = dprc_scan_objects(mc_dev, true);
+>>>>>>> upstream/android-13
 		if (error < 0) {
 			/*
 			 * If the error is -ENXIO, we ignore it, as it indicates
@@ -430,12 +565,15 @@ static irqreturn_t dprc_irq0_handler_thread(int irq_num, void *arg)
 
 			goto out;
 		}
+<<<<<<< HEAD
 
 		if (irq_count > FSL_MC_IRQ_POOL_MAX_TOTAL_IRQS) {
 			dev_warn(dev,
 				 "IRQs needed (%u) exceed IRQs preallocated (%u)\n",
 				 irq_count, FSL_MC_IRQ_POOL_MAX_TOTAL_IRQS);
 		}
+=======
+>>>>>>> upstream/android-13
 	}
 
 out:
@@ -446,8 +584,14 @@ out:
 /*
  * Disable and clear interrupt for a given DPRC object
  */
+<<<<<<< HEAD
 static int disable_dprc_irq(struct fsl_mc_device *mc_dev)
 {
+=======
+int disable_dprc_irq(struct fsl_mc_device *mc_dev)
+{
+	struct fsl_mc_bus *mc_bus = to_fsl_mc_bus(mc_dev);
+>>>>>>> upstream/android-13
 	int error;
 	struct fsl_mc_io *mc_io = mc_dev->mc_io;
 
@@ -484,9 +628,24 @@ static int disable_dprc_irq(struct fsl_mc_device *mc_dev)
 		return error;
 	}
 
+<<<<<<< HEAD
 	return 0;
 }
 
+=======
+	mc_bus->irq_enabled = 0;
+
+	return 0;
+}
+
+int get_dprc_irq_state(struct fsl_mc_device *mc_dev)
+{
+	struct fsl_mc_bus *mc_bus = to_fsl_mc_bus(mc_dev);
+
+	return mc_bus->irq_enabled;
+}
+
+>>>>>>> upstream/android-13
 static int register_dprc_irq_handler(struct fsl_mc_device *mc_dev)
 {
 	int error;
@@ -513,8 +672,14 @@ static int register_dprc_irq_handler(struct fsl_mc_device *mc_dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int enable_dprc_irq(struct fsl_mc_device *mc_dev)
 {
+=======
+int enable_dprc_irq(struct fsl_mc_device *mc_dev)
+{
+	struct fsl_mc_bus *mc_bus = to_fsl_mc_bus(mc_dev);
+>>>>>>> upstream/android-13
 	int error;
 
 	/*
@@ -542,6 +707,11 @@ static int enable_dprc_irq(struct fsl_mc_device *mc_dev)
 		return error;
 	}
 
+<<<<<<< HEAD
+=======
+	mc_bus->irq_enabled = 1;
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -576,11 +746,16 @@ error_free_irqs:
 }
 
 /**
+<<<<<<< HEAD
  * dprc_probe - callback invoked when a DPRC is being bound to this driver
+=======
+ * dprc_setup - opens and creates a mc_io for DPRC
+>>>>>>> upstream/android-13
  *
  * @mc_dev: Pointer to fsl-mc device representing a DPRC
  *
  * It opens the physical DPRC in the MC.
+<<<<<<< HEAD
  * It scans the DPRC to discover the MC objects contained in it.
  * It creates the interrupt pool for the MC bus associated with the DPRC.
  * It configures the interrupts for the DPRC device itself.
@@ -594,6 +769,22 @@ static int dprc_probe(struct fsl_mc_device *mc_dev)
 	bool mc_io_created = false;
 	bool msi_domain_set = false;
 	u16 major_ver, minor_ver;
+=======
+ * It configures the DPRC portal used to communicate with MC
+ */
+
+int dprc_setup(struct fsl_mc_device *mc_dev)
+{
+	struct device *parent_dev = mc_dev->dev.parent;
+	struct fsl_mc_bus *mc_bus = to_fsl_mc_bus(mc_dev);
+	struct irq_domain *mc_msi_domain;
+	bool mc_io_created = false;
+	bool msi_domain_set = false;
+	bool uapi_created = false;
+	u16 major_ver, minor_ver;
+	size_t region_size;
+	int error;
+>>>>>>> upstream/android-13
 
 	if (!is_fsl_mc_bus_dprc(mc_dev))
 		return -EINVAL;
@@ -623,6 +814,7 @@ static int dprc_probe(struct fsl_mc_device *mc_dev)
 			return error;
 
 		mc_io_created = true;
+<<<<<<< HEAD
 
 		/*
 		 * Inherit parent MSI domain:
@@ -648,6 +840,22 @@ static int dprc_probe(struct fsl_mc_device *mc_dev)
 			dev_set_msi_domain(&mc_dev->dev, mc_msi_domain);
 			msi_domain_set = true;
 		}
+=======
+	} else {
+		error = fsl_mc_uapi_create_device_file(mc_bus);
+		if (error < 0)
+			return -EPROBE_DEFER;
+		uapi_created = true;
+	}
+
+	mc_msi_domain = fsl_mc_find_msi_domain(&mc_dev->dev);
+	if (!mc_msi_domain) {
+		dev_warn(&mc_dev->dev,
+			 "WARNING: MC bus without interrupt support\n");
+	} else {
+		dev_set_msi_domain(&mc_dev->dev, mc_msi_domain);
+		msi_domain_set = true;
+>>>>>>> upstream/android-13
 	}
 
 	error = dprc_open(mc_dev->mc_io, 0, mc_dev->obj_desc.id,
@@ -674,9 +882,13 @@ static int dprc_probe(struct fsl_mc_device *mc_dev)
 		goto error_cleanup_open;
 	}
 
+<<<<<<< HEAD
 	if (major_ver < DPRC_MIN_VER_MAJOR ||
 	    (major_ver == DPRC_MIN_VER_MAJOR &&
 	     minor_ver < DPRC_MIN_VER_MINOR)) {
+=======
+	if (major_ver < DPRC_MIN_VER_MAJOR) {
+>>>>>>> upstream/android-13
 		dev_err(&mc_dev->dev,
 			"ERROR: DPRC version %d.%d not supported\n",
 			major_ver, minor_ver);
@@ -684,6 +896,7 @@ static int dprc_probe(struct fsl_mc_device *mc_dev)
 		goto error_cleanup_open;
 	}
 
+<<<<<<< HEAD
 	mutex_init(&mc_bus->scan_mutex);
 
 	/*
@@ -701,6 +914,8 @@ static int dprc_probe(struct fsl_mc_device *mc_dev)
 		goto error_cleanup_open;
 
 	dev_info(&mc_dev->dev, "DPRC device bound to driver");
+=======
+>>>>>>> upstream/android-13
 	return 0;
 
 error_cleanup_open:
@@ -715,6 +930,55 @@ error_cleanup_msi_domain:
 		mc_dev->mc_io = NULL;
 	}
 
+<<<<<<< HEAD
+=======
+	if (uapi_created)
+		fsl_mc_uapi_remove_device_file(mc_bus);
+
+	return error;
+}
+EXPORT_SYMBOL_GPL(dprc_setup);
+
+/**
+ * dprc_probe - callback invoked when a DPRC is being bound to this driver
+ *
+ * @mc_dev: Pointer to fsl-mc device representing a DPRC
+ *
+ * It opens the physical DPRC in the MC.
+ * It scans the DPRC to discover the MC objects contained in it.
+ * It creates the interrupt pool for the MC bus associated with the DPRC.
+ * It configures the interrupts for the DPRC device itself.
+ */
+static int dprc_probe(struct fsl_mc_device *mc_dev)
+{
+	int error;
+
+	error = dprc_setup(mc_dev);
+	if (error < 0)
+		return error;
+
+	/*
+	 * Discover MC objects in DPRC object:
+	 */
+	error = dprc_scan_container(mc_dev, true);
+	if (error < 0)
+		goto dprc_cleanup;
+
+	/*
+	 * Configure interrupt for the DPRC object associated with this MC bus:
+	 */
+	error = dprc_setup_irq(mc_dev);
+	if (error < 0)
+		goto scan_cleanup;
+
+	dev_info(&mc_dev->dev, "DPRC device bound to driver");
+	return 0;
+
+scan_cleanup:
+	device_for_each_child(&mc_dev->dev, NULL, __fsl_mc_device_remove);
+dprc_cleanup:
+	dprc_cleanup(mc_dev);
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -733,6 +997,59 @@ static void dprc_teardown_irq(struct fsl_mc_device *mc_dev)
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * dprc_cleanup - function that cleanups a DPRC
+ *
+ * @mc_dev: Pointer to fsl-mc device representing the DPRC
+ *
+ * It closes the DPRC device in the MC.
+ * It destroys the interrupt pool associated with this MC bus.
+ */
+
+int dprc_cleanup(struct fsl_mc_device *mc_dev)
+{
+	struct fsl_mc_bus *mc_bus = to_fsl_mc_bus(mc_dev);
+	int error;
+
+	/* this function should be called only for DPRCs, it
+	 * is an error to call it for regular objects
+	 */
+	if (!is_fsl_mc_bus_dprc(mc_dev))
+		return -EINVAL;
+
+	if (dev_get_msi_domain(&mc_dev->dev)) {
+		fsl_mc_cleanup_irq_pool(mc_dev);
+		dev_set_msi_domain(&mc_dev->dev, NULL);
+	}
+
+	fsl_mc_cleanup_all_resource_pools(mc_dev);
+
+	/* if this step fails we cannot go further with cleanup as there is no way of
+	 * communicating with the firmware
+	 */
+	if (!mc_dev->mc_io) {
+		dev_err(&mc_dev->dev, "mc_io is NULL, tear down cannot be performed in firmware\n");
+		return -EINVAL;
+	}
+
+	error = dprc_close(mc_dev->mc_io, 0, mc_dev->mc_handle);
+	if (error < 0)
+		dev_err(&mc_dev->dev, "dprc_close() failed: %d\n", error);
+
+	if (!fsl_mc_is_root_dprc(&mc_dev->dev)) {
+		fsl_destroy_mc_io(mc_dev->mc_io);
+		mc_dev->mc_io = NULL;
+	} else {
+		fsl_mc_uapi_remove_device_file(mc_bus);
+	}
+
+	return 0;
+}
+EXPORT_SYMBOL_GPL(dprc_cleanup);
+
+/**
+>>>>>>> upstream/android-13
  * dprc_remove - callback invoked when a DPRC is being unbound from this driver
  *
  * @mc_dev: Pointer to fsl-mc device representing the DPRC
@@ -744,13 +1061,19 @@ static void dprc_teardown_irq(struct fsl_mc_device *mc_dev)
  */
 static int dprc_remove(struct fsl_mc_device *mc_dev)
 {
+<<<<<<< HEAD
 	int error;
+=======
+>>>>>>> upstream/android-13
 	struct fsl_mc_bus *mc_bus = to_fsl_mc_bus(mc_dev);
 
 	if (!is_fsl_mc_bus_dprc(mc_dev))
 		return -EINVAL;
+<<<<<<< HEAD
 	if (!mc_dev->mc_io)
 		return -EINVAL;
+=======
+>>>>>>> upstream/android-13
 
 	if (!mc_bus->irq_resources)
 		return -EINVAL;
@@ -760,6 +1083,7 @@ static int dprc_remove(struct fsl_mc_device *mc_dev)
 
 	device_for_each_child(&mc_dev->dev, NULL, __fsl_mc_device_remove);
 
+<<<<<<< HEAD
 	if (dev_get_msi_domain(&mc_dev->dev)) {
 		fsl_mc_cleanup_irq_pool(mc_bus);
 		dev_set_msi_domain(&mc_dev->dev, NULL);
@@ -775,6 +1099,9 @@ static int dprc_remove(struct fsl_mc_device *mc_dev)
 		fsl_destroy_mc_io(mc_dev->mc_io);
 		mc_dev->mc_io = NULL;
 	}
+=======
+	dprc_cleanup(mc_dev);
+>>>>>>> upstream/android-13
 
 	dev_info(&mc_dev->dev, "DPRC device unbound from driver");
 	return 0;

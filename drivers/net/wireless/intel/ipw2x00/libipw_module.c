@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*******************************************************************************
 
   Copyright(c) 2004-2005 Intel Corporation. All rights reserved.
@@ -8,6 +12,7 @@
   <j@w1.fi>
   Copyright (c) 2002-2003, Jouni Malinen <j@w1.fi>
 
+<<<<<<< HEAD
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2 of the GNU General Public License as
   published by the Free Software Foundation.
@@ -23,6 +28,8 @@
 
   The full GNU General Public License is included in this distribution in the
   file called LICENSE.
+=======
+>>>>>>> upstream/android-13
 
   Contact Information:
   Intel Linux Wireless <ilw@linux.intel.com>
@@ -254,6 +261,7 @@ static ssize_t debug_level_proc_write(struct file *file,
 	return strnlen(buf, len);
 }
 
+<<<<<<< HEAD
 static const struct file_operations debug_level_proc_fops = {
 	.owner		= THIS_MODULE,
 	.open		= debug_level_proc_open,
@@ -261,6 +269,14 @@ static const struct file_operations debug_level_proc_fops = {
 	.llseek		= seq_lseek,
 	.release	= single_release,
 	.write		= debug_level_proc_write,
+=======
+static const struct proc_ops debug_level_proc_ops = {
+	.proc_open	= debug_level_proc_open,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_release	= single_release,
+	.proc_write	= debug_level_proc_write,
+>>>>>>> upstream/android-13
 };
 #endif				/* CONFIG_LIBIPW_DEBUG */
 
@@ -277,7 +293,11 @@ static int __init libipw_init(void)
 		return -EIO;
 	}
 	e = proc_create("debug_level", 0644, libipw_proc,
+<<<<<<< HEAD
 			&debug_level_proc_fops);
+=======
+			&debug_level_proc_ops);
+>>>>>>> upstream/android-13
 	if (!e) {
 		remove_proc_entry(DRV_PROCNAME, init_net.proc_net);
 		libipw_proc = NULL;

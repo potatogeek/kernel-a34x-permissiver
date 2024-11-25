@@ -1,5 +1,9 @@
 This document explains only the device tree data binding. For general
+<<<<<<< HEAD
 information about PHY subsystem refer to Documentation/phy.txt
+=======
+information about PHY subsystem refer to Documentation/driver-api/phy/phy.rst
+>>>>>>> upstream/android-13
 
 PHY device node
 ===============

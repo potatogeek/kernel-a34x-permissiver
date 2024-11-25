@@ -41,11 +41,16 @@
 #include <linux/semaphore.h>
 #include <linux/slab.h>
 #include <linux/vmalloc.h>
+<<<<<<< HEAD
 #include <linux/radix-tree.h>
+=======
+#include <linux/xarray.h>
+>>>>>>> upstream/android-13
 #include <linux/workqueue.h>
 #include <linux/mempool.h>
 #include <linux/interrupt.h>
 #include <linux/idr.h>
+<<<<<<< HEAD
 
 #include <linux/mlx5/device.h>
 #include <linux/mlx5/doorbell.h>
@@ -56,6 +61,23 @@
 enum {
 	MLX5_BOARD_ID_LEN = 64,
 	MLX5_MAX_NAME_LEN = 16,
+=======
+#include <linux/notifier.h>
+#include <linux/refcount.h>
+#include <linux/auxiliary_bus.h>
+
+#include <linux/mlx5/device.h>
+#include <linux/mlx5/doorbell.h>
+#include <linux/mlx5/eq.h>
+#include <linux/timecounter.h>
+#include <linux/ptp_clock_kernel.h>
+#include <net/devlink.h>
+
+#define MLX5_ADEV_NAME "mlx5_core"
+
+enum {
+	MLX5_BOARD_ID_LEN = 64,
+>>>>>>> upstream/android-13
 };
 
 enum {
@@ -85,6 +107,7 @@ enum {
 };
 
 enum {
+<<<<<<< HEAD
 	MLX5_EQ_VEC_PAGES	 = 0,
 	MLX5_EQ_VEC_CMD		 = 1,
 	MLX5_EQ_VEC_ASYNC	 = 2,
@@ -105,6 +128,17 @@ enum {
 	MLX5_ATOMIC_MODE_64B		= 6 << 16,
 	MLX5_ATOMIC_MODE_128B		= 7 << 16,
 	MLX5_ATOMIC_MODE_256B		= 8 << 16,
+=======
+	MLX5_ATOMIC_MODE_OFFSET = 16,
+	MLX5_ATOMIC_MODE_IB_COMP = 1,
+	MLX5_ATOMIC_MODE_CX = 2,
+	MLX5_ATOMIC_MODE_8B = 3,
+	MLX5_ATOMIC_MODE_16B = 4,
+	MLX5_ATOMIC_MODE_32B = 5,
+	MLX5_ATOMIC_MODE_64B = 6,
+	MLX5_ATOMIC_MODE_128B = 7,
+	MLX5_ATOMIC_MODE_256B = 8,
+>>>>>>> upstream/android-13
 };
 
 enum {
@@ -118,6 +152,10 @@ enum {
 	MLX5_REG_FPGA_CAP	 = 0x4022,
 	MLX5_REG_FPGA_CTRL	 = 0x4023,
 	MLX5_REG_FPGA_ACCESS_REG = 0x4024,
+<<<<<<< HEAD
+=======
+	MLX5_REG_CORE_DUMP	 = 0x402e,
+>>>>>>> upstream/android-13
 	MLX5_REG_PCAP		 = 0x5001,
 	MLX5_REG_PMTU		 = 0x5003,
 	MLX5_REG_PTYS		 = 0x5004,
@@ -132,24 +170,50 @@ enum {
 	MLX5_REG_PELC		 = 0x500e,
 	MLX5_REG_PVLC		 = 0x500f,
 	MLX5_REG_PCMR		 = 0x5041,
+<<<<<<< HEAD
 	MLX5_REG_PMLP		 = 0x5002,
+=======
+	MLX5_REG_PDDR		 = 0x5031,
+	MLX5_REG_PMLP		 = 0x5002,
+	MLX5_REG_PPLM		 = 0x5023,
+>>>>>>> upstream/android-13
 	MLX5_REG_PCAM		 = 0x507f,
 	MLX5_REG_NODE_DESC	 = 0x6001,
 	MLX5_REG_HOST_ENDIANNESS = 0x7004,
 	MLX5_REG_MCIA		 = 0x9014,
+<<<<<<< HEAD
+=======
+	MLX5_REG_MFRL		 = 0x9028,
+>>>>>>> upstream/android-13
 	MLX5_REG_MLCR		 = 0x902b,
 	MLX5_REG_MTRC_CAP	 = 0x9040,
 	MLX5_REG_MTRC_CONF	 = 0x9041,
 	MLX5_REG_MTRC_STDB	 = 0x9042,
 	MLX5_REG_MTRC_CTRL	 = 0x9043,
+<<<<<<< HEAD
 	MLX5_REG_MPCNT		 = 0x9051,
 	MLX5_REG_MTPPS		 = 0x9053,
 	MLX5_REG_MTPPSE		 = 0x9054,
 	MLX5_REG_MPEGC		 = 0x9056,
+=======
+	MLX5_REG_MPEIN		 = 0x9050,
+	MLX5_REG_MPCNT		 = 0x9051,
+	MLX5_REG_MTPPS		 = 0x9053,
+	MLX5_REG_MTPPSE		 = 0x9054,
+	MLX5_REG_MTUTC		 = 0x9055,
+	MLX5_REG_MPEGC		 = 0x9056,
+	MLX5_REG_MCQS		 = 0x9060,
+>>>>>>> upstream/android-13
 	MLX5_REG_MCQI		 = 0x9061,
 	MLX5_REG_MCC		 = 0x9062,
 	MLX5_REG_MCDA		 = 0x9063,
 	MLX5_REG_MCAM		 = 0x907f,
+<<<<<<< HEAD
+=======
+	MLX5_REG_MIRC		 = 0x9162,
+	MLX5_REG_SBCAM		 = 0xB01F,
+	MLX5_REG_RESOURCE_DUMP   = 0xC000,
+>>>>>>> upstream/android-13
 };
 
 enum mlx5_qpts_trust_state {
@@ -162,6 +226,7 @@ enum mlx5_dcbx_oper_mode {
 	MLX5E_DCBX_PARAM_VER_OPER_AUTO  = 0x3,
 };
 
+<<<<<<< HEAD
 enum mlx5_dct_atomic_mode {
 	MLX5_ATOMIC_MODE_DCT_CX         = 2,
 };
@@ -169,6 +234,13 @@ enum mlx5_dct_atomic_mode {
 enum {
 	MLX5_ATOMIC_OPS_CMP_SWAP	= 1 << 0,
 	MLX5_ATOMIC_OPS_FETCH_ADD	= 1 << 1,
+=======
+enum {
+	MLX5_ATOMIC_OPS_CMP_SWAP	= 1 << 0,
+	MLX5_ATOMIC_OPS_FETCH_ADD	= 1 << 1,
+	MLX5_ATOMIC_OPS_EXTENDED_CMP_SWAP = 1 << 2,
+	MLX5_ATOMIC_OPS_EXTENDED_FETCH_ADD = 1 << 3,
+>>>>>>> upstream/android-13
 };
 
 enum mlx5_page_fault_resume_flags {
@@ -191,8 +263,18 @@ enum port_state_policy {
 	MLX5_POLICY_INVALID	= 0xffffffff
 };
 
+<<<<<<< HEAD
 struct mlx5_field_desc {
 	struct dentry	       *dent;
+=======
+enum mlx5_coredev_type {
+	MLX5_COREDEV_PF,
+	MLX5_COREDEV_VF,
+	MLX5_COREDEV_SF,
+};
+
+struct mlx5_field_desc {
+>>>>>>> upstream/android-13
 	int			i;
 };
 
@@ -201,6 +283,7 @@ struct mlx5_rsc_debug {
 	void		       *object;
 	enum dbg_rsc_type	type;
 	struct dentry	       *root;
+<<<<<<< HEAD
 	struct mlx5_field_desc	fields[0];
 };
 
@@ -215,6 +298,14 @@ enum mlx5_dev_event {
 	MLX5_DEV_EVENT_CLIENT_REREG,
 	MLX5_DEV_EVENT_PPS,
 	MLX5_DEV_EVENT_DELAY_DROP_TIMEOUT,
+=======
+	struct mlx5_field_desc	fields[];
+};
+
+enum mlx5_dev_event {
+	MLX5_DEV_EVENT_SYS_ERROR = 128, /* 0 - 127 are FW events */
+	MLX5_DEV_EVENT_PORT_AFFINITY = 129,
+>>>>>>> upstream/android-13
 };
 
 enum mlx5_port_status {
@@ -222,6 +313,7 @@ enum mlx5_port_status {
 	MLX5_PORT_DOWN      = 2,
 };
 
+<<<<<<< HEAD
 enum mlx5_eq_type {
 	MLX5_EQ_TYPE_COMP,
 	MLX5_EQ_TYPE_ASYNC,
@@ -245,6 +337,12 @@ struct mlx5_bfreg_info {
 	u32			num_static_sys_pages;
 	u32			total_num_bfregs;
 	u32			num_dyn_bfregs;
+=======
+enum mlx5_cmdif_state {
+	MLX5_CMDIF_STATE_UNINITIALIZED,
+	MLX5_CMDIF_STATE_UP,
+	MLX5_CMDIF_STATE_DOWN,
+>>>>>>> upstream/android-13
 };
 
 struct mlx5_cmd_first {
@@ -261,11 +359,14 @@ struct mlx5_cmd_msg {
 
 struct mlx5_cmd_debug {
 	struct dentry	       *dbg_root;
+<<<<<<< HEAD
 	struct dentry	       *dbg_in;
 	struct dentry	       *dbg_out;
 	struct dentry	       *dbg_outlen;
 	struct dentry	       *dbg_status;
 	struct dentry	       *dbg_run;
+=======
+>>>>>>> upstream/android-13
 	void		       *in_msg;
 	void		       *out_msg;
 	u8			status;
@@ -290,13 +391,22 @@ struct mlx5_cmd_stats {
 	u64		sum;
 	u64		n;
 	struct dentry  *root;
+<<<<<<< HEAD
 	struct dentry  *avg;
 	struct dentry  *count;
+=======
+>>>>>>> upstream/android-13
 	/* protect command average calculations */
 	spinlock_t	lock;
 };
 
 struct mlx5_cmd {
+<<<<<<< HEAD
+=======
+	struct mlx5_nb    nb;
+
+	enum mlx5_cmdif_state	state;
+>>>>>>> upstream/android-13
 	void	       *cmd_alloc_buf;
 	dma_addr_t	alloc_dma;
 	int		alloc_size;
@@ -323,11 +433,16 @@ struct mlx5_cmd {
 	struct semaphore sem;
 	struct semaphore pages_sem;
 	int	mode;
+<<<<<<< HEAD
+=======
+	u16     allowed_opcode;
+>>>>>>> upstream/android-13
 	struct mlx5_cmd_work_ent *ent_arr[MLX5_MAX_COMMANDS];
 	struct dma_pool *pool;
 	struct mlx5_cmd_debug dbg;
 	struct cmd_msg_cache cache[MLX5_NUM_COMMAND_CACHES];
 	int checksum_disabled;
+<<<<<<< HEAD
 	struct mlx5_cmd_stats stats[MLX5_CMD_OP_MAX];
 };
 
@@ -336,6 +451,9 @@ struct mlx5_port_caps {
 	int	pkey_table_len;
 	u8	ext_port_cap;
 	bool	has_smi;
+=======
+	struct mlx5_cmd_stats *stats;
+>>>>>>> upstream/android-13
 };
 
 struct mlx5_cmd_mailbox {
@@ -357,7 +475,11 @@ struct mlx5_frag_buf {
 };
 
 struct mlx5_frag_buf_ctrl {
+<<<<<<< HEAD
 	struct mlx5_frag_buf	frag_buf;
+=======
+	struct mlx5_buf_list   *frags;
+>>>>>>> upstream/android-13
 	u32			sz_m1;
 	u16			frag_sz_m1;
 	u16			strides_offset;
@@ -366,6 +488,7 @@ struct mlx5_frag_buf_ctrl {
 	u8			log_frag_strides;
 };
 
+<<<<<<< HEAD
 struct mlx5_eq_tasklet {
 	struct list_head list;
 	struct list_head process_list;
@@ -411,6 +534,8 @@ struct mlx5_eq {
 	};
 };
 
+=======
+>>>>>>> upstream/android-13
 struct mlx5_core_psv {
 	u32	psv_idx;
 	struct psv_layout {
@@ -435,6 +560,10 @@ struct mlx5_core_sig_ctx {
 enum {
 	MLX5_MKEY_MR = 1,
 	MLX5_MKEY_MW,
+<<<<<<< HEAD
+=======
+	MLX5_MKEY_INDIRECT_DEVX,
+>>>>>>> upstream/android-13
 };
 
 struct mlx5_core_mkey {
@@ -443,6 +572,11 @@ struct mlx5_core_mkey {
 	u32			key;
 	u32			pd;
 	u32			type;
+<<<<<<< HEAD
+=======
+	struct wait_queue_head wait;
+	refcount_t usecount;
+>>>>>>> upstream/android-13
 };
 
 #define MLX5_24BIT_MASK		((1 << 24) - 1)
@@ -459,6 +593,7 @@ enum mlx5_res_type {
 
 struct mlx5_core_rsc_common {
 	enum mlx5_res_type	res;
+<<<<<<< HEAD
 	atomic_t		refcount;
 	struct completion	free;
 };
@@ -492,6 +627,12 @@ struct mlx5_eq_table {
 	spinlock_t		lock;
 };
 
+=======
+	refcount_t		refcount;
+	struct completion	free;
+};
+
+>>>>>>> upstream/android-13
 struct mlx5_uars_page {
 	void __iomem	       *map;
 	bool			wc;
@@ -531,22 +672,41 @@ struct mlx5_core_health {
 	struct timer_list		timer;
 	u32				prev;
 	int				miss_counter;
+<<<<<<< HEAD
 	bool				sick;
+=======
+	u8				synd;
+	u32				fatal_error;
+	u32				crdump_size;
+>>>>>>> upstream/android-13
 	/* wq spinlock to synchronize draining */
 	spinlock_t			wq_lock;
 	struct workqueue_struct	       *wq;
 	unsigned long			flags;
+<<<<<<< HEAD
 	struct work_struct		work;
 	struct delayed_work		recover_work;
 };
 
 struct mlx5_qp_table {
+=======
+	struct work_struct		fatal_report_work;
+	struct work_struct		report_work;
+	struct devlink_health_reporter *fw_reporter;
+	struct devlink_health_reporter *fw_fatal_reporter;
+};
+
+struct mlx5_qp_table {
+	struct notifier_block   nb;
+
+>>>>>>> upstream/android-13
 	/* protect radix tree
 	 */
 	spinlock_t		lock;
 	struct radix_tree_root	tree;
 };
 
+<<<<<<< HEAD
 struct mlx5_srq_table {
 	/* protect radix tree
 	 */
@@ -561,16 +721,27 @@ struct mlx5_mkey_table {
 	struct radix_tree_root	tree;
 };
 
+=======
+>>>>>>> upstream/android-13
 struct mlx5_vf_context {
 	int	enabled;
 	u64	port_guid;
 	u64	node_guid;
+<<<<<<< HEAD
+=======
+	/* Valid bits are used to validate administrative guid only.
+	 * Enabled after ndo_set_vf_guid
+	 */
+	u8	port_guid_valid:1;
+	u8	node_guid_valid:1;
+>>>>>>> upstream/android-13
 	enum port_state_policy	policy;
 };
 
 struct mlx5_core_sriov {
 	struct mlx5_vf_context	*vfs_ctx;
 	int			num_vfs;
+<<<<<<< HEAD
 	int			enabled_vfs;
 };
 
@@ -584,17 +755,58 @@ struct mlx5_fc_stats {
 	struct list_head addlist;
 	/* protect addlist add/splice operations */
 	spinlock_t addlist_lock;
+=======
+	u16			max_vfs;
+};
+
+struct mlx5_fc_pool {
+	struct mlx5_core_dev *dev;
+	struct mutex pool_lock; /* protects pool lists */
+	struct list_head fully_used;
+	struct list_head partially_used;
+	struct list_head unused;
+	int available_fcs;
+	int used_fcs;
+	int threshold;
+};
+
+struct mlx5_fc_stats {
+	spinlock_t counters_idr_lock; /* protects counters_idr */
+	struct idr counters_idr;
+	struct list_head counters;
+	struct llist_head addlist;
+	struct llist_head dellist;
+>>>>>>> upstream/android-13
 
 	struct workqueue_struct *wq;
 	struct delayed_work work;
 	unsigned long next_query;
 	unsigned long sampling_interval; /* jiffies */
+<<<<<<< HEAD
 };
 
 struct mlx5_mpfs;
 struct mlx5_eswitch;
 struct mlx5_lag;
 struct mlx5_pagefault;
+=======
+	u32 *bulk_query_out;
+	struct mlx5_fc_pool fc_pool;
+};
+
+struct mlx5_events;
+struct mlx5_mpfs;
+struct mlx5_eswitch;
+struct mlx5_lag;
+struct mlx5_devcom;
+struct mlx5_fw_reset;
+struct mlx5_eq_table;
+struct mlx5_irq_table;
+struct mlx5_vhca_state_notifier;
+struct mlx5_sf_dev_table;
+struct mlx5_sf_hw_table;
+struct mlx5_sf_table;
+>>>>>>> upstream/android-13
 
 struct mlx5_rate_limit {
 	u32			rate;
@@ -603,9 +815,17 @@ struct mlx5_rate_limit {
 };
 
 struct mlx5_rl_entry {
+<<<<<<< HEAD
 	struct mlx5_rate_limit	rl;
 	u16                     index;
 	u16                     refcount;
+=======
+	u8 rl_raw[MLX5_ST_SZ_BYTES(set_pp_rate_limit_context)];
+	u64 refcount;
+	u16 index;
+	u16 uid;
+	u8 dedicated : 1;
+>>>>>>> upstream/android-13
 };
 
 struct mlx5_rl_table {
@@ -615,6 +835,7 @@ struct mlx5_rl_table {
 	u32                     max_rate;
 	u32                     min_rate;
 	struct mlx5_rl_entry   *rl_entry;
+<<<<<<< HEAD
 };
 
 enum port_module_event_status_type {
@@ -650,10 +871,47 @@ struct mlx5_priv {
 	/* pages stuff */
 	struct workqueue_struct *pg_wq;
 	struct rb_root		page_root;
+=======
+	u64 refcount;
+};
+
+struct mlx5_core_roce {
+	struct mlx5_flow_table *ft;
+	struct mlx5_flow_group *fg;
+	struct mlx5_flow_handle *allow_rule;
+};
+
+enum {
+	MLX5_PRIV_FLAGS_DISABLE_IB_ADEV = 1 << 0,
+	MLX5_PRIV_FLAGS_DISABLE_ALL_ADEV = 1 << 1,
+	/* Set during device detach to block any further devices
+	 * creation/deletion on drivers rescan. Unset during device attach.
+	 */
+	MLX5_PRIV_FLAGS_DETACH = 1 << 2,
+};
+
+struct mlx5_adev {
+	struct auxiliary_device adev;
+	struct mlx5_core_dev *mdev;
+	int idx;
+};
+
+struct mlx5_ft_pool;
+struct mlx5_priv {
+	/* IRQ table valid only for real pci devices PF or VF */
+	struct mlx5_irq_table   *irq_table;
+	struct mlx5_eq_table	*eq_table;
+
+	/* pages stuff */
+	struct mlx5_nb          pg_nb;
+	struct workqueue_struct *pg_wq;
+	struct xarray           page_root_xa;
+>>>>>>> upstream/android-13
 	int			fw_pages;
 	atomic_t		reg_pages;
 	struct list_head	free_list;
 	int			vfs_pages;
+<<<<<<< HEAD
 
 	struct mlx5_core_health health;
 
@@ -661,18 +919,31 @@ struct mlx5_priv {
 
 	/* start: qp staff */
 	struct mlx5_qp_table	qp_table;
+=======
+	int			host_pf_pages;
+
+	struct mlx5_core_health health;
+	struct list_head	traps;
+
+	/* start: qp staff */
+>>>>>>> upstream/android-13
 	struct dentry	       *qp_debugfs;
 	struct dentry	       *eq_debugfs;
 	struct dentry	       *cq_debugfs;
 	struct dentry	       *cmdif_debugfs;
 	/* end: qp staff */
 
+<<<<<<< HEAD
 	/* start: mkey staff */
 	struct mlx5_mkey_table	mkey_table;
 	/* end: mkey staff */
 
 	/* start: alloc staff */
 	/* protect buffer alocation according to numa node */
+=======
+	/* start: alloc staff */
+	/* protect buffer allocation according to numa node */
+>>>>>>> upstream/android-13
 	struct mutex            alloc_mutex;
 	int                     numa_node;
 
@@ -681,6 +952,7 @@ struct mlx5_priv {
 	/* end: alloc staff */
 	struct dentry	       *dbg_root;
 
+<<<<<<< HEAD
 	/* protect mkey key part */
 	spinlock_t		mkey_lock;
 	u8			mkey_key;
@@ -691,12 +963,20 @@ struct mlx5_priv {
 
 	struct list_head	waiting_events_list;
 	bool			is_accum_events;
+=======
+	struct list_head        ctx_list;
+	spinlock_t              ctx_lock;
+	struct mlx5_adev       **adev;
+	int			adev_idx;
+	struct mlx5_events      *events;
+>>>>>>> upstream/android-13
 
 	struct mlx5_flow_steering *steering;
 	struct mlx5_mpfs        *mpfs;
 	struct mlx5_eswitch     *eswitch;
 	struct mlx5_core_sriov	sriov;
 	struct mlx5_lag		*lag;
+<<<<<<< HEAD
 	unsigned long		pci_dev_data;
 	struct mlx5_fc_stats		fc_stats;
 	struct mlx5_rl_table            rl_table;
@@ -716,6 +996,31 @@ struct mlx5_priv {
 
 enum mlx5_device_state {
 	MLX5_DEVICE_STATE_UP,
+=======
+	u32			flags;
+	struct mlx5_devcom	*devcom;
+	struct mlx5_fw_reset	*fw_reset;
+	struct mlx5_core_roce	roce;
+	struct mlx5_fc_stats		fc_stats;
+	struct mlx5_rl_table            rl_table;
+	struct mlx5_ft_pool		*ft_pool;
+
+	struct mlx5_bfreg_data		bfregs;
+	struct mlx5_uars_page	       *uar;
+#ifdef CONFIG_MLX5_SF
+	struct mlx5_vhca_state_notifier *vhca_state_notifier;
+	struct mlx5_sf_dev_table *sf_dev_table;
+	struct mlx5_core_dev *parent_mdev;
+#endif
+#ifdef CONFIG_MLX5_SF_MANAGER
+	struct mlx5_sf_hw_table *sf_hw_table;
+	struct mlx5_sf_table *sf_table;
+#endif
+};
+
+enum mlx5_device_state {
+	MLX5_DEVICE_STATE_UP = 1,
+>>>>>>> upstream/android-13
 	MLX5_DEVICE_STATE_INTERNAL_ERROR,
 };
 
@@ -734,6 +1039,7 @@ enum mlx5_pagefault_type_flags {
 	MLX5_PFAULT_RDMA      = 1 << 2,
 };
 
+<<<<<<< HEAD
 /* Contains the details of a pagefault. */
 struct mlx5_pagefault {
 	u32			bytes_committed;
@@ -772,6 +1078,8 @@ struct mlx5_pagefault {
 	struct work_struct	work;
 };
 
+=======
+>>>>>>> upstream/android-13
 struct mlx5_td {
 	/* protects tirs list changes while tirs refresh */
 	struct mutex     list_lock;
@@ -780,10 +1088,26 @@ struct mlx5_td {
 };
 
 struct mlx5e_resources {
+<<<<<<< HEAD
 	u32                        pdn;
 	struct mlx5_td             td;
 	struct mlx5_core_mkey      mkey;
 	struct mlx5_sq_bfreg       bfreg;
+=======
+	struct mlx5e_hw_objs {
+		u32                        pdn;
+		struct mlx5_td             td;
+		struct mlx5_core_mkey      mkey;
+		struct mlx5_sq_bfreg       bfreg;
+	} hw_objs;
+	struct devlink_port dl_port;
+	struct net_device *uplink_netdev;
+};
+
+enum mlx5_sw_icm_type {
+	MLX5_SW_ICM_TYPE_STEERING,
+	MLX5_SW_ICM_TYPE_HEADER_MODIFY,
+>>>>>>> upstream/android-13
 };
 
 #define MLX5_MAX_RESERVED_GIDS 8
@@ -802,6 +1126,7 @@ struct mlx5_pps {
 	u8                         enabled;
 };
 
+<<<<<<< HEAD
 struct mlx5_clock {
 	rwlock_t                   lock;
 	struct cyclecounter        cycles;
@@ -820,6 +1145,64 @@ struct mlx5_fw_tracer;
 struct mlx5_vxlan;
 
 struct mlx5_core_dev {
+=======
+struct mlx5_timer {
+	struct cyclecounter        cycles;
+	struct timecounter         tc;
+	u32                        nominal_c_mult;
+	unsigned long              overflow_period;
+	struct delayed_work        overflow_work;
+};
+
+struct mlx5_clock {
+	struct mlx5_nb             pps_nb;
+	seqlock_t                  lock;
+	struct hwtstamp_config     hwtstamp_config;
+	struct ptp_clock          *ptp;
+	struct ptp_clock_info      ptp_info;
+	struct mlx5_pps            pps_info;
+	struct mlx5_timer          timer;
+};
+
+struct mlx5_dm;
+struct mlx5_fw_tracer;
+struct mlx5_vxlan;
+struct mlx5_geneve;
+struct mlx5_hv_vhca;
+
+#define MLX5_LOG_SW_ICM_BLOCK_SIZE(dev) (MLX5_CAP_DEV_MEM(dev, log_sw_icm_alloc_granularity))
+#define MLX5_SW_ICM_BLOCK_SIZE(dev) (1 << MLX5_LOG_SW_ICM_BLOCK_SIZE(dev))
+
+enum {
+	MLX5_PROF_MASK_QP_SIZE		= (u64)1 << 0,
+	MLX5_PROF_MASK_MR_CACHE		= (u64)1 << 1,
+};
+
+enum {
+	MR_CACHE_LAST_STD_ENTRY = 20,
+	MLX5_IMR_MTT_CACHE_ENTRY,
+	MLX5_IMR_KSM_CACHE_ENTRY,
+	MAX_MR_CACHE_ENTRIES
+};
+
+struct mlx5_profile {
+	u64	mask;
+	u8	log_max_qp;
+	struct {
+		int	size;
+		int	limit;
+	} mr_cache[MAX_MR_CACHE_ENTRIES];
+};
+
+struct mlx5_hca_cap {
+	u32 cur[MLX5_UN_SZ_DW(hca_cap_union)];
+	u32 max[MLX5_UN_SZ_DW(hca_cap_union)];
+};
+
+struct mlx5_core_dev {
+	struct device *device;
+	enum mlx5_coredev_type coredev_type;
+>>>>>>> upstream/android-13
 	struct pci_dev	       *pdev;
 	/* sync pci state */
 	struct mutex		pci_status_mutex;
@@ -827,6 +1210,7 @@ struct mlx5_core_dev {
 	u8			rev_id;
 	char			board_id[MLX5_BOARD_ID_LEN];
 	struct mlx5_cmd		cmd;
+<<<<<<< HEAD
 	struct mlx5_port_caps	port_caps[MLX5_MAX_PORTS];
 	struct {
 		u32 hca_cur[MLX5_CAP_NUM][MLX5_UN_SZ_DW(hca_cap_union)];
@@ -838,10 +1222,25 @@ struct mlx5_core_dev {
 	} caps;
 	phys_addr_t		iseg_base;
 	struct mlx5_init_seg __iomem *iseg;
+=======
+	struct {
+		struct mlx5_hca_cap *hca[MLX5_CAP_NUM];
+		u32 pcam[MLX5_ST_SZ_DW(pcam_reg)];
+		u32 mcam[MLX5_MCAM_REGS_NUM][MLX5_ST_SZ_DW(mcam_reg)];
+		u32 fpga[MLX5_ST_SZ_DW(fpga_cap)];
+		u32 qcam[MLX5_ST_SZ_DW(qcam_reg)];
+		u8  embedded_cpu;
+	} caps;
+	u64			sys_image_guid;
+	phys_addr_t		iseg_base;
+	struct mlx5_init_seg __iomem *iseg;
+	phys_addr_t             bar_addr;
+>>>>>>> upstream/android-13
 	enum mlx5_device_state	state;
 	/* sync interface state */
 	struct mutex		intf_state_mutex;
 	unsigned long		intf_state;
+<<<<<<< HEAD
 	void			(*event) (struct mlx5_core_dev *dev,
 					  enum mlx5_dev_event event,
 					  unsigned long param);
@@ -851,6 +1250,15 @@ struct mlx5_core_dev {
 	u32			issi;
 	struct mlx5e_resources  mlx5e_res;
 	struct mlx5_vxlan       *vxlan;
+=======
+	struct mlx5_priv	priv;
+	struct mlx5_profile	profile;
+	u32			issi;
+	struct mlx5e_resources  mlx5e_res;
+	struct mlx5_dm          *dm;
+	struct mlx5_vxlan       *vxlan;
+	struct mlx5_geneve      *geneve;
+>>>>>>> upstream/android-13
 	struct {
 		struct mlx5_rsvd_gids	reserved_gids;
 		u32			roce_en;
@@ -858,6 +1266,7 @@ struct mlx5_core_dev {
 #ifdef CONFIG_MLX5_FPGA
 	struct mlx5_fpga_device *fpga;
 #endif
+<<<<<<< HEAD
 #ifdef CONFIG_RFS_ACCEL
 	struct cpu_rmap         *rmap;
 #endif
@@ -865,6 +1274,17 @@ struct mlx5_core_dev {
 	struct mlx5_ib_clock_info  *clock_info;
 	struct page             *clock_info_page;
 	struct mlx5_fw_tracer   *tracer;
+=======
+#ifdef CONFIG_MLX5_ACCEL
+	const struct mlx5_accel_ipsec_ops *ipsec_ops;
+#endif
+	struct mlx5_clock        clock;
+	struct mlx5_ib_clock_info  *clock_info;
+	struct mlx5_fw_tracer   *tracer;
+	struct mlx5_rsc_dump    *rsc_dump;
+	u32                      vsc_addr;
+	struct mlx5_hv_vhca	*hv_vhca;
+>>>>>>> upstream/android-13
 };
 
 struct mlx5_db {
@@ -915,6 +1335,11 @@ struct mlx5_cmd_work_ent {
 	u64			ts2;
 	u16			op;
 	bool			polling;
+<<<<<<< HEAD
+=======
+	/* Track the max comp handlers */
+	refcount_t              refcnt;
+>>>>>>> upstream/android-13
 };
 
 struct mlx5_pas {
@@ -940,8 +1365,13 @@ struct mlx5_hca_vport_context {
 	u64			node_guid;
 	u32			cap_mask1;
 	u32			cap_mask1_perm;
+<<<<<<< HEAD
 	u32			cap_mask2;
 	u32			cap_mask2_perm;
+=======
+	u16			cap_mask2;
+	u16			cap_mask2_perm;
+>>>>>>> upstream/android-13
 	u16			lid;
 	u8			init_type_reply; /* bitmask: see ib spec 14.2.5.6 InitTypeReply */
 	u8			lmc;
@@ -984,20 +1414,37 @@ static inline u16 fw_rev_sub(struct mlx5_core_dev *dev)
 	return ioread32be(&dev->iseg->cmdif_rev_fw_sub) & 0xffff;
 }
 
+<<<<<<< HEAD
 static inline u16 cmdif_rev(struct mlx5_core_dev *dev)
 {
 	return ioread32be(&dev->iseg->cmdif_rev_fw_sub) >> 16;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline u32 mlx5_base_mkey(const u32 key)
 {
 	return key & 0xffffff00u;
 }
 
+<<<<<<< HEAD
 static inline void mlx5_fill_fbc_offset(u8 log_stride, u8 log_sz,
 					u16 strides_offset,
 					struct mlx5_frag_buf_ctrl *fbc)
 {
+=======
+static inline u32 wq_get_byte_sz(u8 log_sz, u8 log_stride)
+{
+	return ((u32)1 << log_sz) << log_stride;
+}
+
+static inline void mlx5_init_fbc_offset(struct mlx5_buf_list *frags,
+					u8 log_stride, u8 log_sz,
+					u16 strides_offset,
+					struct mlx5_frag_buf_ctrl *fbc)
+{
+	fbc->frags      = frags;
+>>>>>>> upstream/android-13
 	fbc->log_stride = log_stride;
 	fbc->log_sz     = log_sz;
 	fbc->sz_m1	= (1 << fbc->log_sz) - 1;
@@ -1006,6 +1453,7 @@ static inline void mlx5_fill_fbc_offset(u8 log_stride, u8 log_sz,
 	fbc->strides_offset = strides_offset;
 }
 
+<<<<<<< HEAD
 static inline void mlx5_fill_fbc(u8 log_stride, u8 log_sz,
 				 struct mlx5_frag_buf_ctrl *fbc)
 {
@@ -1018,6 +1466,13 @@ static inline void mlx5_core_init_cq_frag_buf(struct mlx5_frag_buf_ctrl *fbc,
 	mlx5_fill_fbc(6 + MLX5_GET(cqc, cqc, cqe_sz),
 		      MLX5_GET(cqc, cqc, log_cq_size),
 		      fbc);
+=======
+static inline void mlx5_init_fbc(struct mlx5_buf_list *frags,
+				 u8 log_stride, u8 log_sz,
+				 struct mlx5_frag_buf_ctrl *fbc)
+{
+	mlx5_init_fbc_offset(frags, log_stride, log_sz, 0, fbc);
+>>>>>>> upstream/android-13
 }
 
 static inline void *mlx5_frag_buf_get_wqe(struct mlx5_frag_buf_ctrl *fbc,
@@ -1028,8 +1483,12 @@ static inline void *mlx5_frag_buf_get_wqe(struct mlx5_frag_buf_ctrl *fbc,
 	ix  += fbc->strides_offset;
 	frag = ix >> fbc->log_frag_strides;
 
+<<<<<<< HEAD
 	return fbc->frag_buf.frags[frag].buf +
 		((fbc->frag_sz_m1 & ix) << fbc->log_stride);
+=======
+	return fbc->frags[frag].buf + ((fbc->frag_sz_m1 & ix) << fbc->log_stride);
+>>>>>>> upstream/android-13
 }
 
 static inline u32
@@ -1040,6 +1499,7 @@ mlx5_frag_buf_get_idx_last_contig_stride(struct mlx5_frag_buf_ctrl *fbc, u32 ix)
 	return min_t(u32, last_frag_stride_idx - fbc->strides_offset, fbc->sz_m1);
 }
 
+<<<<<<< HEAD
 int mlx5_cmd_init(struct mlx5_core_dev *dev);
 void mlx5_cmd_cleanup(struct mlx5_core_dev *dev);
 void mlx5_cmd_use_events(struct mlx5_core_dev *dev);
@@ -1053,19 +1513,77 @@ int mlx5_cmd_exec_cb(struct mlx5_core_dev *dev, void *in, int in_size,
 int mlx5_cmd_exec_polling(struct mlx5_core_dev *dev, void *in, int in_size,
 			  void *out, int out_size);
 void mlx5_cmd_mbox_status(void *out, u8 *status, u32 *syndrome);
+=======
+enum {
+	CMD_ALLOWED_OPCODE_ALL,
+};
+
+void mlx5_cmd_use_events(struct mlx5_core_dev *dev);
+void mlx5_cmd_use_polling(struct mlx5_core_dev *dev);
+void mlx5_cmd_allowed_opcode(struct mlx5_core_dev *dev, u16 opcode);
+
+struct mlx5_async_ctx {
+	struct mlx5_core_dev *dev;
+	atomic_t num_inflight;
+	struct wait_queue_head wait;
+};
+
+struct mlx5_async_work;
+
+typedef void (*mlx5_async_cbk_t)(int status, struct mlx5_async_work *context);
+
+struct mlx5_async_work {
+	struct mlx5_async_ctx *ctx;
+	mlx5_async_cbk_t user_callback;
+};
+
+void mlx5_cmd_init_async_ctx(struct mlx5_core_dev *dev,
+			     struct mlx5_async_ctx *ctx);
+void mlx5_cmd_cleanup_async_ctx(struct mlx5_async_ctx *ctx);
+int mlx5_cmd_exec_cb(struct mlx5_async_ctx *ctx, void *in, int in_size,
+		     void *out, int out_size, mlx5_async_cbk_t callback,
+		     struct mlx5_async_work *work);
+
+int mlx5_cmd_exec(struct mlx5_core_dev *dev, void *in, int in_size, void *out,
+		  int out_size);
+
+#define mlx5_cmd_exec_inout(dev, ifc_cmd, in, out)                             \
+	({                                                                     \
+		mlx5_cmd_exec(dev, in, MLX5_ST_SZ_BYTES(ifc_cmd##_in), out,    \
+			      MLX5_ST_SZ_BYTES(ifc_cmd##_out));                \
+	})
+
+#define mlx5_cmd_exec_in(dev, ifc_cmd, in)                                     \
+	({                                                                     \
+		u32 _out[MLX5_ST_SZ_DW(ifc_cmd##_out)] = {};                   \
+		mlx5_cmd_exec_inout(dev, ifc_cmd, in, _out);                   \
+	})
+
+int mlx5_cmd_exec_polling(struct mlx5_core_dev *dev, void *in, int in_size,
+			  void *out, int out_size);
+void mlx5_cmd_mbox_status(void *out, u8 *status, u32 *syndrome);
+bool mlx5_cmd_is_down(struct mlx5_core_dev *dev);
+>>>>>>> upstream/android-13
 
 int mlx5_core_get_caps(struct mlx5_core_dev *dev, enum mlx5_cap_type cap_type);
 int mlx5_cmd_alloc_uar(struct mlx5_core_dev *dev, u32 *uarn);
 int mlx5_cmd_free_uar(struct mlx5_core_dev *dev, u32 uarn);
+<<<<<<< HEAD
+=======
+void mlx5_health_flush(struct mlx5_core_dev *dev);
+>>>>>>> upstream/android-13
 void mlx5_health_cleanup(struct mlx5_core_dev *dev);
 int mlx5_health_init(struct mlx5_core_dev *dev);
 void mlx5_start_health_poll(struct mlx5_core_dev *dev);
 void mlx5_stop_health_poll(struct mlx5_core_dev *dev, bool disable_health);
 void mlx5_drain_health_wq(struct mlx5_core_dev *dev);
 void mlx5_trigger_health_work(struct mlx5_core_dev *dev);
+<<<<<<< HEAD
 void mlx5_drain_health_recovery(struct mlx5_core_dev *dev);
 int mlx5_buf_alloc_node(struct mlx5_core_dev *dev, int size,
 			struct mlx5_frag_buf *buf, int node);
+=======
+>>>>>>> upstream/android-13
 int mlx5_buf_alloc(struct mlx5_core_dev *dev,
 		   int size, struct mlx5_frag_buf *buf);
 void mlx5_buf_free(struct mlx5_core_dev *dev, struct mlx5_frag_buf *buf);
@@ -1076,6 +1594,7 @@ struct mlx5_cmd_mailbox *mlx5_alloc_cmd_mailbox_chain(struct mlx5_core_dev *dev,
 						      gfp_t flags, int npages);
 void mlx5_free_cmd_mailbox_chain(struct mlx5_core_dev *dev,
 				 struct mlx5_cmd_mailbox *head);
+<<<<<<< HEAD
 int mlx5_core_create_srq(struct mlx5_core_dev *dev, struct mlx5_core_srq *srq,
 			 struct mlx5_srq_attr *in);
 int mlx5_core_destroy_srq(struct mlx5_core_dev *dev, struct mlx5_core_srq *srq);
@@ -1090,6 +1609,8 @@ int mlx5_core_create_mkey_cb(struct mlx5_core_dev *dev,
 			     u32 *in, int inlen,
 			     u32 *out, int outlen,
 			     mlx5_cmd_cbk_t callback, void *context);
+=======
+>>>>>>> upstream/android-13
 int mlx5_core_create_mkey(struct mlx5_core_dev *dev,
 			  struct mlx5_core_mkey *mkey,
 			  u32 *in, int inlen);
@@ -1099,6 +1620,7 @@ int mlx5_core_query_mkey(struct mlx5_core_dev *dev, struct mlx5_core_mkey *mkey,
 			 u32 *out, int outlen);
 int mlx5_core_alloc_pd(struct mlx5_core_dev *dev, u32 *pdn);
 int mlx5_core_dealloc_pd(struct mlx5_core_dev *dev, u32 pdn);
+<<<<<<< HEAD
 int mlx5_core_mad_ifc(struct mlx5_core_dev *dev, const void *inb, void *outb,
 		      u16 opmod, u8 port);
 void mlx5_pagealloc_init(struct mlx5_core_dev *dev);
@@ -1107,12 +1629,21 @@ int mlx5_pagealloc_start(struct mlx5_core_dev *dev);
 void mlx5_pagealloc_stop(struct mlx5_core_dev *dev);
 void mlx5_core_req_pages_handler(struct mlx5_core_dev *dev, u16 func_id,
 				 s32 npages);
+=======
+int mlx5_pagealloc_init(struct mlx5_core_dev *dev);
+void mlx5_pagealloc_cleanup(struct mlx5_core_dev *dev);
+void mlx5_pagealloc_start(struct mlx5_core_dev *dev);
+void mlx5_pagealloc_stop(struct mlx5_core_dev *dev);
+void mlx5_core_req_pages_handler(struct mlx5_core_dev *dev, u16 func_id,
+				 s32 npages, bool ec_function);
+>>>>>>> upstream/android-13
 int mlx5_satisfy_startup_pages(struct mlx5_core_dev *dev, int boot);
 int mlx5_reclaim_startup_pages(struct mlx5_core_dev *dev);
 void mlx5_register_debugfs(void);
 void mlx5_unregister_debugfs(void);
 
 void mlx5_fill_page_array(struct mlx5_frag_buf *buf, __be64 *pas);
+<<<<<<< HEAD
 void mlx5_fill_page_frag_array(struct mlx5_frag_buf *frag_buf, __be64 *pas);
 void mlx5_rsc_event(struct mlx5_core_dev *dev, u32 rsn, int event_type);
 void mlx5_srq_event(struct mlx5_core_dev *dev, u32 srqn, int event_type);
@@ -1123,6 +1654,15 @@ int mlx5_core_attach_mcg(struct mlx5_core_dev *dev, union ib_gid *mgid, u32 qpn)
 int mlx5_core_detach_mcg(struct mlx5_core_dev *dev, union ib_gid *mgid, u32 qpn);
 
 int mlx5_qp_debugfs_init(struct mlx5_core_dev *dev);
+=======
+void mlx5_fill_page_frag_array_perm(struct mlx5_frag_buf *buf, __be64 *pas, u8 perm);
+void mlx5_fill_page_frag_array(struct mlx5_frag_buf *frag_buf, __be64 *pas);
+int mlx5_vector2eqn(struct mlx5_core_dev *dev, int vector, int *eqn);
+int mlx5_core_attach_mcg(struct mlx5_core_dev *dev, union ib_gid *mgid, u32 qpn);
+int mlx5_core_detach_mcg(struct mlx5_core_dev *dev, union ib_gid *mgid, u32 qpn);
+
+void mlx5_qp_debugfs_init(struct mlx5_core_dev *dev);
+>>>>>>> upstream/android-13
 void mlx5_qp_debugfs_cleanup(struct mlx5_core_dev *dev);
 int mlx5_core_access_reg(struct mlx5_core_dev *dev, void *data_in,
 			 int size_in, void *data_out, int size_out,
@@ -1134,7 +1674,11 @@ int mlx5_db_alloc_node(struct mlx5_core_dev *dev, struct mlx5_db *db,
 void mlx5_db_free(struct mlx5_core_dev *dev, struct mlx5_db *db);
 
 const char *mlx5_command_str(int command);
+<<<<<<< HEAD
 int mlx5_cmdif_debugfs_init(struct mlx5_core_dev *dev);
+=======
+void mlx5_cmdif_debugfs_init(struct mlx5_core_dev *dev);
+>>>>>>> upstream/android-13
 void mlx5_cmdif_debugfs_cleanup(struct mlx5_core_dev *dev);
 int mlx5_core_create_psv(struct mlx5_core_dev *dev, u32 pdn,
 			 int npsvs, u32 *sig_index);
@@ -1144,10 +1688,13 @@ int mlx5_query_odp_caps(struct mlx5_core_dev *dev,
 			struct mlx5_odp_caps *odp_caps);
 int mlx5_core_query_ib_ppcnt(struct mlx5_core_dev *dev,
 			     u8 port_num, void *out, size_t sz);
+<<<<<<< HEAD
 #ifdef CONFIG_INFINIBAND_ON_DEMAND_PAGING
 int mlx5_core_page_fault_resume(struct mlx5_core_dev *dev, u32 token,
 				u32 wq_num, u8 type, int error);
 #endif
+=======
+>>>>>>> upstream/android-13
 
 int mlx5_init_rl_table(struct mlx5_core_dev *dev);
 void mlx5_cleanup_rl_table(struct mlx5_core_dev *dev);
@@ -1155,22 +1702,37 @@ int mlx5_rl_add_rate(struct mlx5_core_dev *dev, u16 *index,
 		     struct mlx5_rate_limit *rl);
 void mlx5_rl_remove_rate(struct mlx5_core_dev *dev, struct mlx5_rate_limit *rl);
 bool mlx5_rl_is_in_range(struct mlx5_core_dev *dev, u32 rate);
+<<<<<<< HEAD
+=======
+int mlx5_rl_add_rate_raw(struct mlx5_core_dev *dev, void *rl_in, u16 uid,
+			 bool dedicated_entry, u16 *index);
+void mlx5_rl_remove_rate_raw(struct mlx5_core_dev *dev, u16 index);
+>>>>>>> upstream/android-13
 bool mlx5_rl_are_equal(struct mlx5_rate_limit *rl_0,
 		       struct mlx5_rate_limit *rl_1);
 int mlx5_alloc_bfreg(struct mlx5_core_dev *mdev, struct mlx5_sq_bfreg *bfreg,
 		     bool map_wc, bool fast_path);
 void mlx5_free_bfreg(struct mlx5_core_dev *mdev, struct mlx5_sq_bfreg *bfreg);
 
+<<<<<<< HEAD
+=======
+unsigned int mlx5_comp_vectors_count(struct mlx5_core_dev *dev);
+struct cpumask *
+mlx5_comp_irq_get_affinity_mask(struct mlx5_core_dev *dev, int vector);
+>>>>>>> upstream/android-13
 unsigned int mlx5_core_reserved_gids_count(struct mlx5_core_dev *dev);
 int mlx5_core_roce_gid_set(struct mlx5_core_dev *dev, unsigned int index,
 			   u8 roce_version, u8 roce_l3_type, const u8 *gid,
 			   const u8 *mac, bool vlan, u16 vlan_id, u8 port_num);
 
+<<<<<<< HEAD
 static inline int fw_initializing(struct mlx5_core_dev *dev)
 {
 	return ioread32be(&dev->iseg->initializing) >> 31;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline u32 mlx5_mkey_to_idx(u32 mkey)
 {
 	return mkey >> 8;
@@ -1186,6 +1748,7 @@ static inline u8 mlx5_mkey_variant(u32 mkey)
 	return mkey & 0xff;
 }
 
+<<<<<<< HEAD
 enum {
 	MLX5_PROF_MASK_QP_SIZE		= (u64)1 << 0,
 	MLX5_PROF_MASK_MR_CACHE		= (u64)1 << 1,
@@ -1221,16 +1784,50 @@ struct mlx5_interface {
 void *mlx5_get_protocol_dev(struct mlx5_core_dev *mdev, int protocol);
 int mlx5_register_interface(struct mlx5_interface *intf);
 void mlx5_unregister_interface(struct mlx5_interface *intf);
+=======
+/* Async-atomic event notifier used by mlx5 core to forward FW
+ * evetns received from event queue to mlx5 consumers.
+ * Optimise event queue dipatching.
+ */
+int mlx5_notifier_register(struct mlx5_core_dev *dev, struct notifier_block *nb);
+int mlx5_notifier_unregister(struct mlx5_core_dev *dev, struct notifier_block *nb);
+
+/* Async-atomic event notifier used for forwarding
+ * evetns from the event queue into the to mlx5 events dispatcher,
+ * eswitch, clock and others.
+ */
+int mlx5_eq_notifier_register(struct mlx5_core_dev *dev, struct mlx5_nb *nb);
+int mlx5_eq_notifier_unregister(struct mlx5_core_dev *dev, struct mlx5_nb *nb);
+
+/* Blocking event notifier used to forward SW events, used for slow path */
+int mlx5_blocking_notifier_register(struct mlx5_core_dev *dev, struct notifier_block *nb);
+int mlx5_blocking_notifier_unregister(struct mlx5_core_dev *dev, struct notifier_block *nb);
+int mlx5_blocking_notifier_call_chain(struct mlx5_core_dev *dev, unsigned int event,
+				      void *data);
+
+>>>>>>> upstream/android-13
 int mlx5_core_query_vendor_id(struct mlx5_core_dev *mdev, u32 *vendor_id);
 
 int mlx5_cmd_create_vport_lag(struct mlx5_core_dev *dev);
 int mlx5_cmd_destroy_vport_lag(struct mlx5_core_dev *dev);
+<<<<<<< HEAD
 bool mlx5_lag_is_active(struct mlx5_core_dev *dev);
 struct net_device *mlx5_lag_get_roce_netdev(struct mlx5_core_dev *dev);
+=======
+bool mlx5_lag_is_roce(struct mlx5_core_dev *dev);
+bool mlx5_lag_is_sriov(struct mlx5_core_dev *dev);
+bool mlx5_lag_is_active(struct mlx5_core_dev *dev);
+bool mlx5_lag_is_master(struct mlx5_core_dev *dev);
+bool mlx5_lag_is_shared_fdb(struct mlx5_core_dev *dev);
+struct net_device *mlx5_lag_get_roce_netdev(struct mlx5_core_dev *dev);
+u8 mlx5_lag_get_slave_port(struct mlx5_core_dev *dev,
+			   struct net_device *slave);
+>>>>>>> upstream/android-13
 int mlx5_lag_query_cong_counters(struct mlx5_core_dev *dev,
 				 u64 *values,
 				 int num_counters,
 				 size_t *offsets);
+<<<<<<< HEAD
 struct mlx5_uars_page *mlx5_get_uars_page(struct mlx5_core_dev *mdev);
 void mlx5_put_uars_page(struct mlx5_core_dev *mdev, struct mlx5_uars_page *up);
 
@@ -1244,11 +1841,24 @@ struct net_device *mlx5_rdma_netdev_alloc(struct mlx5_core_dev *mdev,
 	return ERR_PTR(-EOPNOTSUPP);
 }
 #else
+=======
+struct mlx5_core_dev *mlx5_lag_get_peer_mdev(struct mlx5_core_dev *dev);
+struct mlx5_uars_page *mlx5_get_uars_page(struct mlx5_core_dev *mdev);
+void mlx5_put_uars_page(struct mlx5_core_dev *mdev, struct mlx5_uars_page *up);
+int mlx5_dm_sw_icm_alloc(struct mlx5_core_dev *dev, enum mlx5_sw_icm_type type,
+			 u64 length, u32 log_alignment, u16 uid,
+			 phys_addr_t *addr, u32 *obj_id);
+int mlx5_dm_sw_icm_dealloc(struct mlx5_core_dev *dev, enum mlx5_sw_icm_type type,
+			   u64 length, u16 uid, phys_addr_t addr, u32 obj_id);
+
+#ifdef CONFIG_MLX5_CORE_IPOIB
+>>>>>>> upstream/android-13
 struct net_device *mlx5_rdma_netdev_alloc(struct mlx5_core_dev *mdev,
 					  struct ib_device *ibdev,
 					  const char *name,
 					  void (*setup)(struct net_device *));
 #endif /* CONFIG_MLX5_CORE_IPOIB */
+<<<<<<< HEAD
 
 struct mlx5_profile {
 	u64	mask;
@@ -1258,11 +1868,17 @@ struct mlx5_profile {
 		int	limit;
 	} mr_cache[MAX_MR_CACHE_ENTRIES];
 };
+=======
+int mlx5_rdma_rn_get_params(struct mlx5_core_dev *mdev,
+			    struct ib_device *device,
+			    struct rdma_netdev_alloc_params *params);
+>>>>>>> upstream/android-13
 
 enum {
 	MLX5_PCI_DEV_IS_VF		= 1 << 0,
 };
 
+<<<<<<< HEAD
 static inline int mlx5_core_is_pf(struct mlx5_core_dev *dev)
 {
 	return !(dev->priv.pci_dev_data & MLX5_PCI_DEV_IS_VF);
@@ -1273,6 +1889,38 @@ static inline int mlx5_core_is_pf(struct mlx5_core_dev *dev)
 	(MLX5_CAP_GEN(mdev, vport_group_manager) && \
 	 (MLX5_CAP_GEN(mdev, port_type) == MLX5_CAP_PORT_TYPE_ETH) && \
 	 mlx5_core_is_pf(mdev))
+=======
+static inline bool mlx5_core_is_pf(const struct mlx5_core_dev *dev)
+{
+	return dev->coredev_type == MLX5_COREDEV_PF;
+}
+
+static inline bool mlx5_core_is_vf(const struct mlx5_core_dev *dev)
+{
+	return dev->coredev_type == MLX5_COREDEV_VF;
+}
+
+static inline bool mlx5_core_is_ecpf(const struct mlx5_core_dev *dev)
+{
+	return dev->caps.embedded_cpu;
+}
+
+static inline bool
+mlx5_core_is_ecpf_esw_manager(const struct mlx5_core_dev *dev)
+{
+	return dev->caps.embedded_cpu && MLX5_CAP_GEN(dev, eswitch_manager);
+}
+
+static inline bool mlx5_ecpf_vport_exists(const struct mlx5_core_dev *dev)
+{
+	return mlx5_core_is_pf(dev) && MLX5_CAP_ESW(dev, ecpf_vport_exists);
+}
+
+static inline u16 mlx5_core_max_vfs(const struct mlx5_core_dev *dev)
+{
+	return dev->priv.sriov.max_vfs;
+}
+>>>>>>> upstream/android-13
 
 static inline int mlx5_get_gid_table_len(u16 param)
 {
@@ -1318,10 +1966,22 @@ enum {
 	MLX5_TRIGGERED_CMD_COMP = (u64)1 << 32,
 };
 
+<<<<<<< HEAD
 static inline const struct cpumask *
 mlx5_get_vector_affinity_hint(struct mlx5_core_dev *dev, int vector)
 {
 	return dev->priv.irq_info[vector + MLX5_EQ_VEC_COMP_BASE].mask;
+=======
+static inline bool mlx5_is_roce_init_enabled(struct mlx5_core_dev *dev)
+{
+	struct devlink *devlink = priv_to_devlink(dev);
+	union devlink_param_value val;
+
+	devlink_param_driverinit_value_get(devlink,
+					   DEVLINK_PARAM_GENERIC_ID_ENABLE_ROCE,
+					   &val);
+	return val.vbool;
+>>>>>>> upstream/android-13
 }
 
 #endif /* MLX5_DRIVER_H */

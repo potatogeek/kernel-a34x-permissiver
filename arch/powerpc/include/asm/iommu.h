@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2001 Mike Corrigan & Dave Engebretsen, IBM Corporation
  * Rewrite, cleanup:
  * Copyright (C) 2004 Olof Johansson <olof@lixom.net>, IBM Corporation
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_IOMMU_H
@@ -25,7 +32,11 @@
 #include <linux/compiler.h>
 #include <linux/spinlock.h>
 #include <linux/device.h>
+<<<<<<< HEAD
 #include <linux/dma-mapping.h>
+=======
+#include <linux/dma-map-ops.h>
+>>>>>>> upstream/android-13
 #include <linux/bitops.h>
 #include <asm/machdep.h>
 #include <asm/types.h>
@@ -35,11 +46,19 @@
 #define IOMMU_PAGE_SHIFT_4K      12
 #define IOMMU_PAGE_SIZE_4K       (ASM_CONST(1) << IOMMU_PAGE_SHIFT_4K)
 #define IOMMU_PAGE_MASK_4K       (~((1 << IOMMU_PAGE_SHIFT_4K) - 1))
+<<<<<<< HEAD
 #define IOMMU_PAGE_ALIGN_4K(addr) _ALIGN_UP(addr, IOMMU_PAGE_SIZE_4K)
 
 #define IOMMU_PAGE_SIZE(tblptr) (ASM_CONST(1) << (tblptr)->it_page_shift)
 #define IOMMU_PAGE_MASK(tblptr) (~((1 << (tblptr)->it_page_shift) - 1))
 #define IOMMU_PAGE_ALIGN(addr, tblptr) _ALIGN_UP(addr, IOMMU_PAGE_SIZE(tblptr))
+=======
+#define IOMMU_PAGE_ALIGN_4K(addr) ALIGN(addr, IOMMU_PAGE_SIZE_4K)
+
+#define IOMMU_PAGE_SIZE(tblptr) (ASM_CONST(1) << (tblptr)->it_page_shift)
+#define IOMMU_PAGE_MASK(tblptr) (~((1 << (tblptr)->it_page_shift) - 1))
+#define IOMMU_PAGE_ALIGN(addr, tblptr) ALIGN(addr, IOMMU_PAGE_SIZE(tblptr))
+>>>>>>> upstream/android-13
 
 /* Boot time flags */
 extern int iommu_is_off;
@@ -61,6 +80,7 @@ struct iommu_table_ops {
 	 * returns old TCE and DMA direction mask.
 	 * @tce is a physical address.
 	 */
+<<<<<<< HEAD
 	int (*exchange)(struct iommu_table *tbl,
 			long index,
 			unsigned long *hpa,
@@ -70,6 +90,18 @@ struct iommu_table_ops {
 			long index,
 			unsigned long *hpa,
 			enum dma_data_direction *direction);
+=======
+	int (*xchg_no_kill)(struct iommu_table *tbl,
+			long index,
+			unsigned long *hpa,
+			enum dma_data_direction *direction,
+			bool realmode);
+
+	void (*tce_kill)(struct iommu_table *tbl,
+			unsigned long index,
+			unsigned long pages,
+			bool realmode);
+>>>>>>> upstream/android-13
 
 	__be64 *(*useraddrptr)(struct iommu_table *tbl, long index, bool alloc);
 #endif
@@ -124,9 +156,17 @@ struct iommu_table {
 	struct iommu_table_ops *it_ops;
 	struct kref    it_kref;
 	int it_nid;
+<<<<<<< HEAD
 };
 
 #define IOMMU_TABLE_USERSPACE_ENTRY_RM(tbl, entry) \
+=======
+	unsigned long it_reserved_start; /* Start of not-DMA-able (MMIO) area */
+	unsigned long it_reserved_end;
+};
+
+#define IOMMU_TABLE_USERSPACE_ENTRY_RO(tbl, entry) \
+>>>>>>> upstream/android-13
 		((tbl)->it_ops->useraddrptr((tbl), (entry), false))
 #define IOMMU_TABLE_USERSPACE_ENTRY(tbl, entry) \
 		((tbl)->it_ops->useraddrptr((tbl), (entry), true))
@@ -143,8 +183,11 @@ struct scatterlist;
 
 #ifdef CONFIG_PPC64
 
+<<<<<<< HEAD
 #define IOMMU_MAPPING_ERROR		(~(dma_addr_t)0x0)
 
+=======
+>>>>>>> upstream/android-13
 static inline void set_iommu_table_base(struct device *dev,
 					struct iommu_table *base)
 {
@@ -164,8 +207,15 @@ extern int iommu_tce_table_put(struct iommu_table *tbl);
 /* Initializes an iommu_table based in values set in the passed-in
  * structure
  */
+<<<<<<< HEAD
 extern struct iommu_table *iommu_init_table(struct iommu_table * tbl,
 					    int nid);
+=======
+extern struct iommu_table *iommu_init_table(struct iommu_table *tbl,
+		int nid, unsigned long res_start, unsigned long res_end);
+bool iommu_table_in_use(struct iommu_table *tbl);
+
+>>>>>>> upstream/android-13
 #define IOMMU_TABLE_GROUP_MAX_TABLES	2
 
 struct iommu_table_group;
@@ -215,11 +265,26 @@ struct iommu_table_group {
 
 extern void iommu_register_group(struct iommu_table_group *table_group,
 				 int pci_domain_number, unsigned long pe_num);
+<<<<<<< HEAD
 extern int iommu_add_device(struct device *dev);
 extern void iommu_del_device(struct device *dev);
 extern int __init tce_iommu_bus_notifier_init(void);
 extern long iommu_tce_xchg(struct iommu_table *tbl, unsigned long entry,
 		unsigned long *hpa, enum dma_data_direction *direction);
+=======
+extern int iommu_add_device(struct iommu_table_group *table_group,
+		struct device *dev);
+extern void iommu_del_device(struct device *dev);
+extern long iommu_tce_xchg(struct mm_struct *mm, struct iommu_table *tbl,
+		unsigned long entry, unsigned long *hpa,
+		enum dma_data_direction *direction);
+extern long iommu_tce_xchg_no_kill(struct mm_struct *mm,
+		struct iommu_table *tbl,
+		unsigned long entry, unsigned long *hpa,
+		enum dma_data_direction *direction);
+extern void iommu_tce_kill(struct iommu_table *tbl,
+		unsigned long entry, unsigned long pages);
+>>>>>>> upstream/android-13
 #else
 static inline void iommu_register_group(struct iommu_table_group *table_group,
 					int pci_domain_number,
@@ -227,7 +292,12 @@ static inline void iommu_register_group(struct iommu_table_group *table_group,
 {
 }
 
+<<<<<<< HEAD
 static inline int iommu_add_device(struct device *dev)
+=======
+static inline int iommu_add_device(struct iommu_table_group *table_group,
+		struct device *dev)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
@@ -235,6 +305,7 @@ static inline int iommu_add_device(struct device *dev)
 static inline void iommu_del_device(struct device *dev)
 {
 }
+<<<<<<< HEAD
 
 static inline int __init tce_iommu_bus_notifier_init(void)
 {
@@ -244,6 +315,11 @@ static inline int __init tce_iommu_bus_notifier_init(void)
 
 int dma_iommu_mapping_error(struct device *dev, dma_addr_t dma_addr);
 
+=======
+#endif /* !CONFIG_IOMMU_API */
+
+u64 dma_iommu_get_required_mask(struct device *dev);
+>>>>>>> upstream/android-13
 #else
 
 static inline void *get_iommu_table_base(struct device *dev)
@@ -325,5 +401,16 @@ extern void iommu_release_ownership(struct iommu_table *tbl);
 extern enum dma_data_direction iommu_tce_direction(unsigned long tce);
 extern unsigned long iommu_direction_to_tce_perm(enum dma_data_direction dir);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PPC_CELL_NATIVE
+extern bool iommu_fixed_is_weak;
+#else
+#define iommu_fixed_is_weak false
+#endif
+
+extern const struct dma_map_ops dma_iommu_ops;
+
+>>>>>>> upstream/android-13
 #endif /* __KERNEL__ */
 #endif /* _ASM_IOMMU_H */

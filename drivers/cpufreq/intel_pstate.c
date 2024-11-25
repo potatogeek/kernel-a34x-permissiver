@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * intel_pstate.c: Native P state management for Intel processors
  *
  * (C) Copyright 2012 Intel Corporation
  * Author: Dirk Brandewie <dirk.j.brandewie@intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; version 2
  * of the License.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -28,6 +35,10 @@
 #include <linux/fs.h>
 #include <linux/acpi.h>
 #include <linux/vmalloc.h>
+<<<<<<< HEAD
+=======
+#include <linux/pm_qos.h>
+>>>>>>> upstream/android-13
 #include <trace/events/power.h>
 
 #include <asm/div64.h>
@@ -39,6 +50,10 @@
 #define INTEL_PSTATE_SAMPLING_INTERVAL	(10 * NSEC_PER_MSEC)
 
 #define INTEL_CPUFREQ_TRANSITION_LATENCY	20000
+<<<<<<< HEAD
+=======
+#define INTEL_CPUFREQ_TRANSITION_DELAY_HWP	5000
+>>>>>>> upstream/android-13
 #define INTEL_CPUFREQ_TRANSITION_DELAY		500
 
 #ifdef CONFIG_ACPI
@@ -50,6 +65,11 @@
 #define int_tofp(X) ((int64_t)(X) << FRAC_BITS)
 #define fp_toint(X) ((X) >> FRAC_BITS)
 
+<<<<<<< HEAD
+=======
+#define ONE_EIGHTH_FP ((int64_t)1 << (FRAC_BITS - 3))
+
+>>>>>>> upstream/android-13
 #define EXT_BITS 6
 #define EXT_FRAC_BITS (EXT_BITS + FRAC_BITS)
 #define fp_ext_toint(X) ((X) >> EXT_FRAC_BITS)
@@ -76,11 +96,14 @@ static inline int ceiling_fp(int32_t x)
 	return ret;
 }
 
+<<<<<<< HEAD
 static inline int32_t percent_fp(int percent)
 {
 	return div_fp(percent, 100);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline u64 mul_ext_fp(u64 x, u64 y)
 {
 	return (x * y) >> EXT_FRAC_BITS;
@@ -91,11 +114,14 @@ static inline u64 div_ext_fp(u64 x, u64 y)
 	return div64_u64(x << EXT_FRAC_BITS, y);
 }
 
+<<<<<<< HEAD
 static inline int32_t percent_ext_fp(int percent)
 {
 	return div_ext_fp(percent, 100);
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * struct sample -	Store performance sample
  * @core_avg_perf:	Ratio of APERF/MPERF which is the actual average
@@ -131,9 +157,16 @@ struct sample {
  * @max_pstate_physical:This is physical Max P state for a processor
  *			This can be higher than the max_pstate which can
  *			be limited by platform thermal design power limits
+<<<<<<< HEAD
  * @scaling:		Scaling factor to  convert frequency to cpufreq
  *			frequency units
  * @turbo_pstate:	Max Turbo P state possible for this platform
+=======
+ * @perf_ctl_scaling:	PERF_CTL P-state to frequency scaling factor
+ * @scaling:		Scaling factor between performance and frequency
+ * @turbo_pstate:	Max Turbo P state possible for this platform
+ * @min_freq:		@min_pstate frequency in cpufreq units
+>>>>>>> upstream/android-13
  * @max_freq:		@max_pstate frequency in cpufreq units
  * @turbo_freq:		@turbo_pstate frequency in cpufreq units
  *
@@ -144,8 +177,15 @@ struct pstate_data {
 	int	min_pstate;
 	int	max_pstate;
 	int	max_pstate_physical;
+<<<<<<< HEAD
 	int	scaling;
 	int	turbo_pstate;
+=======
+	int	perf_ctl_scaling;
+	int	scaling;
+	int	turbo_pstate;
+	unsigned int min_freq;
+>>>>>>> upstream/android-13
 	unsigned int max_freq;
 	unsigned int turbo_freq;
 };
@@ -173,10 +213,18 @@ struct vid_data {
 /**
  * struct global_params - Global parameters, mostly tunable via sysfs.
  * @no_turbo:		Whether or not to use turbo P-states.
+<<<<<<< HEAD
  * @turbo_disabled:	Whethet or not turbo P-states are available at all,
  *			based on the MSR_IA32_MISC_ENABLE value and whether or
  *			not the maximum reported turbo P-state is different from
  *			the maximum reported non-turbo one.
+=======
+ * @turbo_disabled:	Whether or not turbo P-states are available at all,
+ *			based on the MSR_IA32_MISC_ENABLE value and whether or
+ *			not the maximum reported turbo P-state is different from
+ *			the maximum reported non-turbo one.
+ * @turbo_disabled_mf:	The @turbo_disabled value reflected by cpuinfo.max_freq.
+>>>>>>> upstream/android-13
  * @min_perf_pct:	Minimum capacity limit in percent of the maximum turbo
  *			P-state capacity.
  * @max_perf_pct:	Maximum capacity limit in percent of the maximum turbo
@@ -185,6 +233,10 @@ struct vid_data {
 struct global_params {
 	bool no_turbo;
 	bool turbo_disabled;
+<<<<<<< HEAD
+=======
+	bool turbo_disabled_mf;
+>>>>>>> upstream/android-13
 	int max_perf_pct;
 	int min_perf_pct;
 };
@@ -200,9 +252,13 @@ struct global_params {
  * @pstate:		Stores P state limits for this CPU
  * @vid:		Stores VID limits for this CPU
  * @last_sample_time:	Last Sample time
+<<<<<<< HEAD
  * @aperf_mperf_shift:	Number of clock cycles after aperf, merf is incremented
  *			This shift is a multiplier to mperf delta to
  *			calculate CPU busy.
+=======
+ * @aperf_mperf_shift:	APERF vs MPERF counting frequency difference
+>>>>>>> upstream/android-13
  * @prev_aperf:		Last APERF value read from APERF MSR
  * @prev_mperf:		Last MPERF value read from MPERF MSR
  * @prev_tsc:		Last timestamp counter (TSC) value
@@ -219,13 +275,21 @@ struct global_params {
  * @epp_policy:		Last saved policy used to set EPP/EPB
  * @epp_default:	Power on default HWP energy performance
  *			preference/bias
+<<<<<<< HEAD
  * @epp_saved:		Saved EPP/EPB during system suspend or CPU offline
  *			operation
+=======
+ * @epp_cached		Cached HWP energy-performance preference value
+>>>>>>> upstream/android-13
  * @hwp_req_cached:	Cached value of the last HWP Request MSR
  * @hwp_cap_cached:	Cached value of the last HWP Capabilities MSR
  * @last_io_update:	Last time when IO wake flag was set
  * @sched_flags:	Store scheduler flags for possible cross CPU update
  * @hwp_boost_min:	Last HWP boosted min performance
+<<<<<<< HEAD
+=======
+ * @suspended:		Whether or not the driver has been suspended.
+>>>>>>> upstream/android-13
  *
  * This structure stores per CPU instance data for all CPUs.
  */
@@ -257,12 +321,20 @@ struct cpudata {
 	s16 epp_powersave;
 	s16 epp_policy;
 	s16 epp_default;
+<<<<<<< HEAD
 	s16 epp_saved;
+=======
+	s16 epp_cached;
+>>>>>>> upstream/android-13
 	u64 hwp_req_cached;
 	u64 hwp_cap_cached;
 	u64 last_io_update;
 	unsigned int sched_flags;
 	u32 hwp_boost_min;
+<<<<<<< HEAD
+=======
+	bool suspended;
+>>>>>>> upstream/android-13
 };
 
 static struct cpudata **all_cpu_data;
@@ -274,6 +346,11 @@ static struct cpudata **all_cpu_data;
  * @get_min:		Callback to get minimum P state
  * @get_turbo:		Callback to get turbo P state
  * @get_scaling:	Callback to get frequency scaling factor
+<<<<<<< HEAD
+=======
+ * @get_cpu_scaling:	Get frequency scaling factor for a given cpu
+ * @get_aperf_mperf_shift: Callback to get the APERF vs MPERF frequency difference
+>>>>>>> upstream/android-13
  * @get_val:		Callback to convert P state to actual MSR write value
  * @get_vid:		Callback to get VID data for Atom platforms
  *
@@ -286,6 +363,10 @@ struct pstate_funcs {
 	int (*get_min)(void);
 	int (*get_turbo)(void);
 	int (*get_scaling)(void);
+<<<<<<< HEAD
+=======
+	int (*get_cpu_scaling)(int cpu);
+>>>>>>> upstream/android-13
 	int (*get_aperf_mperf_shift)(void);
 	u64 (*get_val)(struct cpudata*, int pstate);
 	void (*get_vid)(struct cpudata *);
@@ -338,6 +419,11 @@ static void intel_pstste_sched_itmt_work_fn(struct work_struct *work)
 
 static DECLARE_WORK(sched_itmt_work, intel_pstste_sched_itmt_work_fn);
 
+<<<<<<< HEAD
+=======
+#define CPPC_MAX_PERF	U8_MAX
+
+>>>>>>> upstream/android-13
 static void intel_pstate_set_itmt_prio(int cpu)
 {
 	struct cppc_perf_caps cppc_perf;
@@ -349,6 +435,17 @@ static void intel_pstate_set_itmt_prio(int cpu)
 		return;
 
 	/*
+<<<<<<< HEAD
+=======
+	 * On some systems with overclocking enabled, CPPC.highest_perf is hardcoded to 0xff.
+	 * In this case we can't use CPPC.highest_perf to enable ITMT.
+	 * In this case we can look at MSR_HWP_CAPABILITIES bits [8:0] to decide.
+	 */
+	if (cppc_perf.highest_perf == CPPC_MAX_PERF)
+		cppc_perf.highest_perf = HWP_HIGHEST_PERF(READ_ONCE(all_cpu_data[cpu]->hwp_cap_cached));
+
+	/*
+>>>>>>> upstream/android-13
 	 * The priorities can be set regardless of whether or not
 	 * sched_set_itmt_support(true) has been called and it is valid to
 	 * update them at any time after it has been called.
@@ -373,11 +470,44 @@ static void intel_pstate_set_itmt_prio(int cpu)
 		}
 	}
 }
+<<<<<<< HEAD
 #else
 static void intel_pstate_set_itmt_prio(int cpu)
 {
 }
 #endif
+=======
+
+static int intel_pstate_get_cppc_guaranteed(int cpu)
+{
+	struct cppc_perf_caps cppc_perf;
+	int ret;
+
+	ret = cppc_get_perf_caps(cpu, &cppc_perf);
+	if (ret)
+		return ret;
+
+	if (cppc_perf.guaranteed_perf)
+		return cppc_perf.guaranteed_perf;
+
+	return cppc_perf.nominal_perf;
+}
+
+static u32 intel_pstate_cppc_nominal(int cpu)
+{
+	u64 nominal_perf;
+
+	if (cppc_get_nominal_perf(cpu, &nominal_perf))
+		return 0;
+
+	return nominal_perf;
+}
+#else /* CONFIG_ACPI_CPPC_LIB */
+static inline void intel_pstate_set_itmt_prio(int cpu)
+{
+}
+#endif /* CONFIG_ACPI_CPPC_LIB */
+>>>>>>> upstream/android-13
 
 static void intel_pstate_init_acpi_perf_limits(struct cpufreq_policy *policy)
 {
@@ -459,7 +589,11 @@ static void intel_pstate_exit_perf_limits(struct cpufreq_policy *policy)
 
 	acpi_processor_unregister_performance(policy->cpu);
 }
+<<<<<<< HEAD
 #else
+=======
+#else /* CONFIG_ACPI */
+>>>>>>> upstream/android-13
 static inline void intel_pstate_init_acpi_perf_limits(struct cpufreq_policy *policy)
 {
 }
@@ -472,7 +606,77 @@ static inline bool intel_pstate_acpi_pm_profile_server(void)
 {
 	return false;
 }
+<<<<<<< HEAD
 #endif
+=======
+#endif /* CONFIG_ACPI */
+
+#ifndef CONFIG_ACPI_CPPC_LIB
+static inline int intel_pstate_get_cppc_guaranteed(int cpu)
+{
+	return -ENOTSUPP;
+}
+#endif /* CONFIG_ACPI_CPPC_LIB */
+
+/**
+ * intel_pstate_hybrid_hwp_adjust - Calibrate HWP performance levels.
+ * @cpu: Target CPU.
+ *
+ * On hybrid processors, HWP may expose more performance levels than there are
+ * P-states accessible through the PERF_CTL interface.  If that happens, the
+ * scaling factor between HWP performance levels and CPU frequency will be less
+ * than the scaling factor between P-state values and CPU frequency.
+ *
+ * In that case, adjust the CPU parameters used in computations accordingly.
+ */
+static void intel_pstate_hybrid_hwp_adjust(struct cpudata *cpu)
+{
+	int perf_ctl_max_phys = cpu->pstate.max_pstate_physical;
+	int perf_ctl_scaling = cpu->pstate.perf_ctl_scaling;
+	int perf_ctl_turbo = pstate_funcs.get_turbo();
+	int turbo_freq = perf_ctl_turbo * perf_ctl_scaling;
+	int scaling = cpu->pstate.scaling;
+
+	pr_debug("CPU%d: perf_ctl_max_phys = %d\n", cpu->cpu, perf_ctl_max_phys);
+	pr_debug("CPU%d: perf_ctl_max = %d\n", cpu->cpu, pstate_funcs.get_max());
+	pr_debug("CPU%d: perf_ctl_turbo = %d\n", cpu->cpu, perf_ctl_turbo);
+	pr_debug("CPU%d: perf_ctl_scaling = %d\n", cpu->cpu, perf_ctl_scaling);
+	pr_debug("CPU%d: HWP_CAP guaranteed = %d\n", cpu->cpu, cpu->pstate.max_pstate);
+	pr_debug("CPU%d: HWP_CAP highest = %d\n", cpu->cpu, cpu->pstate.turbo_pstate);
+	pr_debug("CPU%d: HWP-to-frequency scaling factor: %d\n", cpu->cpu, scaling);
+
+	/*
+	 * If the product of the HWP performance scaling factor and the HWP_CAP
+	 * highest performance is greater than the maximum turbo frequency
+	 * corresponding to the pstate_funcs.get_turbo() return value, the
+	 * scaling factor is too high, so recompute it to make the HWP_CAP
+	 * highest performance correspond to the maximum turbo frequency.
+	 */
+	cpu->pstate.turbo_freq = cpu->pstate.turbo_pstate * scaling;
+	if (turbo_freq < cpu->pstate.turbo_freq) {
+		cpu->pstate.turbo_freq = turbo_freq;
+		scaling = DIV_ROUND_UP(turbo_freq, cpu->pstate.turbo_pstate);
+		cpu->pstate.scaling = scaling;
+
+		pr_debug("CPU%d: refined HWP-to-frequency scaling factor: %d\n",
+			 cpu->cpu, scaling);
+	}
+
+	cpu->pstate.max_freq = rounddown(cpu->pstate.max_pstate * scaling,
+					 perf_ctl_scaling);
+
+	cpu->pstate.max_pstate_physical =
+			DIV_ROUND_UP(perf_ctl_max_phys * perf_ctl_scaling,
+				     scaling);
+
+	cpu->pstate.min_freq = cpu->pstate.min_pstate * perf_ctl_scaling;
+	/*
+	 * Cast the min P-state value retrieved via pstate_funcs.get_min() to
+	 * the effective range of HWP performance levels.
+	 */
+	cpu->pstate.min_pstate = DIV_ROUND_UP(cpu->pstate.min_freq, scaling);
+}
+>>>>>>> upstream/android-13
 
 static inline void update_turbo_state(void)
 {
@@ -500,7 +704,11 @@ static s16 intel_pstate_get_epb(struct cpudata *cpu_data)
 	u64 epb;
 	int ret;
 
+<<<<<<< HEAD
 	if (!static_cpu_has(X86_FEATURE_EPB))
+=======
+	if (!boot_cpu_has(X86_FEATURE_EPB))
+>>>>>>> upstream/android-13
 		return -ENXIO;
 
 	ret = rdmsrl_on_cpu(cpu_data->cpu, MSR_IA32_ENERGY_PERF_BIAS, &epb);
@@ -514,7 +722,11 @@ static s16 intel_pstate_get_epp(struct cpudata *cpu_data, u64 hwp_req_data)
 {
 	s16 epp;
 
+<<<<<<< HEAD
 	if (static_cpu_has(X86_FEATURE_HWP_EPP)) {
+=======
+	if (boot_cpu_has(X86_FEATURE_HWP_EPP)) {
+>>>>>>> upstream/android-13
 		/*
 		 * When hwp_req_data is 0, means that caller didn't read
 		 * MSR_HWP_REQUEST, so need to read and get EPP.
@@ -539,7 +751,11 @@ static int intel_pstate_set_epb(int cpu, s16 pref)
 	u64 epb;
 	int ret;
 
+<<<<<<< HEAD
 	if (!static_cpu_has(X86_FEATURE_EPB))
+=======
+	if (!boot_cpu_has(X86_FEATURE_EPB))
+>>>>>>> upstream/android-13
 		return -ENXIO;
 
 	ret = rdmsrl_on_cpu(cpu, MSR_IA32_ENERGY_PERF_BIAS, &epb);
@@ -578,15 +794,24 @@ static const unsigned int epp_values[] = {
 	HWP_EPP_POWERSAVE
 };
 
+<<<<<<< HEAD
 static int intel_pstate_get_energy_pref_index(struct cpudata *cpu_data)
+=======
+static int intel_pstate_get_energy_pref_index(struct cpudata *cpu_data, int *raw_epp)
+>>>>>>> upstream/android-13
 {
 	s16 epp;
 	int index = -EINVAL;
 
+<<<<<<< HEAD
+=======
+	*raw_epp = 0;
+>>>>>>> upstream/android-13
 	epp = intel_pstate_get_epp(cpu_data, 0);
 	if (epp < 0)
 		return epp;
 
+<<<<<<< HEAD
 	if (static_cpu_has(X86_FEATURE_HWP_EPP)) {
 		if (epp == HWP_EPP_PERFORMANCE)
 			return 1;
@@ -597,6 +822,20 @@ static int intel_pstate_get_energy_pref_index(struct cpudata *cpu_data)
 		else
 			return 4;
 	} else if (static_cpu_has(X86_FEATURE_EPB)) {
+=======
+	if (boot_cpu_has(X86_FEATURE_HWP_EPP)) {
+		if (epp == HWP_EPP_PERFORMANCE)
+			return 1;
+		if (epp == HWP_EPP_BALANCE_PERFORMANCE)
+			return 2;
+		if (epp == HWP_EPP_BALANCE_POWERSAVE)
+			return 3;
+		if (epp == HWP_EPP_POWERSAVE)
+			return 4;
+		*raw_epp = epp;
+		return 0;
+	} else if (boot_cpu_has(X86_FEATURE_EPB)) {
+>>>>>>> upstream/android-13
 		/*
 		 * Range:
 		 *	0x00-0x03	:	Performance
@@ -613,8 +852,40 @@ static int intel_pstate_get_energy_pref_index(struct cpudata *cpu_data)
 	return index;
 }
 
+<<<<<<< HEAD
 static int intel_pstate_set_energy_pref_index(struct cpudata *cpu_data,
 					      int pref_index)
+=======
+static int intel_pstate_set_epp(struct cpudata *cpu, u32 epp)
+{
+	int ret;
+
+	/*
+	 * Use the cached HWP Request MSR value, because in the active mode the
+	 * register itself may be updated by intel_pstate_hwp_boost_up() or
+	 * intel_pstate_hwp_boost_down() at any time.
+	 */
+	u64 value = READ_ONCE(cpu->hwp_req_cached);
+
+	value &= ~GENMASK_ULL(31, 24);
+	value |= (u64)epp << 24;
+	/*
+	 * The only other updater of hwp_req_cached in the active mode,
+	 * intel_pstate_hwp_set(), is called under the same lock as this
+	 * function, so it cannot run in parallel with the update below.
+	 */
+	WRITE_ONCE(cpu->hwp_req_cached, value);
+	ret = wrmsrl_on_cpu(cpu->cpu, MSR_HWP_REQUEST, value);
+	if (!ret)
+		cpu->epp_cached = epp;
+
+	return ret;
+}
+
+static int intel_pstate_set_energy_pref_index(struct cpudata *cpu_data,
+					      int pref_index, bool use_raw,
+					      u32 raw_epp)
+>>>>>>> upstream/android-13
 {
 	int epp = -EINVAL;
 	int ret;
@@ -622,6 +893,7 @@ static int intel_pstate_set_energy_pref_index(struct cpudata *cpu_data,
 	if (!pref_index)
 		epp = cpu_data->epp_default;
 
+<<<<<<< HEAD
 	mutex_lock(&intel_pstate_limits_lock);
 
 	if (static_cpu_has(X86_FEATURE_HWP_EPP)) {
@@ -638,13 +910,33 @@ static int intel_pstate_set_energy_pref_index(struct cpudata *cpu_data,
 
 		value |= (u64)epp << 24;
 		ret = wrmsrl_on_cpu(cpu_data->cpu, MSR_HWP_REQUEST, value);
+=======
+	if (boot_cpu_has(X86_FEATURE_HWP_EPP)) {
+		if (use_raw)
+			epp = raw_epp;
+		else if (epp == -EINVAL)
+			epp = epp_values[pref_index - 1];
+
+		/*
+		 * To avoid confusion, refuse to set EPP to any values different
+		 * from 0 (performance) if the current policy is "performance",
+		 * because those values would be overridden.
+		 */
+		if (epp > 0 && cpu_data->policy == CPUFREQ_POLICY_PERFORMANCE)
+			return -EBUSY;
+
+		ret = intel_pstate_set_epp(cpu_data, epp);
+>>>>>>> upstream/android-13
 	} else {
 		if (epp == -EINVAL)
 			epp = (pref_index - 1) << 2;
 		ret = intel_pstate_set_epb(cpu_data->cpu, epp);
 	}
+<<<<<<< HEAD
 return_pref:
 	mutex_unlock(&intel_pstate_limits_lock);
+=======
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -665,29 +957,96 @@ static ssize_t show_energy_performance_available_preferences(
 
 cpufreq_freq_attr_ro(energy_performance_available_preferences);
 
+<<<<<<< HEAD
 static ssize_t store_energy_performance_preference(
 		struct cpufreq_policy *policy, const char *buf, size_t count)
 {
 	struct cpudata *cpu_data = all_cpu_data[policy->cpu];
 	char str_preference[21];
 	int ret;
+=======
+static struct cpufreq_driver intel_pstate;
+
+static ssize_t store_energy_performance_preference(
+		struct cpufreq_policy *policy, const char *buf, size_t count)
+{
+	struct cpudata *cpu = all_cpu_data[policy->cpu];
+	char str_preference[21];
+	bool raw = false;
+	ssize_t ret;
+	u32 epp = 0;
+>>>>>>> upstream/android-13
 
 	ret = sscanf(buf, "%20s", str_preference);
 	if (ret != 1)
 		return -EINVAL;
 
 	ret = match_string(energy_perf_strings, -1, str_preference);
+<<<<<<< HEAD
 	if (ret < 0)
 		return ret;
 
 	intel_pstate_set_energy_pref_index(cpu_data, ret);
 	return count;
+=======
+	if (ret < 0) {
+		if (!boot_cpu_has(X86_FEATURE_HWP_EPP))
+			return ret;
+
+		ret = kstrtouint(buf, 10, &epp);
+		if (ret)
+			return ret;
+
+		if (epp > 255)
+			return -EINVAL;
+
+		raw = true;
+	}
+
+	/*
+	 * This function runs with the policy R/W semaphore held, which
+	 * guarantees that the driver pointer will not change while it is
+	 * running.
+	 */
+	if (!intel_pstate_driver)
+		return -EAGAIN;
+
+	mutex_lock(&intel_pstate_limits_lock);
+
+	if (intel_pstate_driver == &intel_pstate) {
+		ret = intel_pstate_set_energy_pref_index(cpu, ret, raw, epp);
+	} else {
+		/*
+		 * In the passive mode the governor needs to be stopped on the
+		 * target CPU before the EPP update and restarted after it,
+		 * which is super-heavy-weight, so make sure it is worth doing
+		 * upfront.
+		 */
+		if (!raw)
+			epp = ret ? epp_values[ret - 1] : cpu->epp_default;
+
+		if (cpu->epp_cached != epp) {
+			int err;
+
+			cpufreq_stop_governor(policy);
+			ret = intel_pstate_set_epp(cpu, epp);
+			err = cpufreq_start_governor(policy);
+			if (!ret)
+				ret = err;
+		}
+	}
+
+	mutex_unlock(&intel_pstate_limits_lock);
+
+	return ret ?: count;
+>>>>>>> upstream/android-13
 }
 
 static ssize_t show_energy_performance_preference(
 				struct cpufreq_policy *policy, char *buf)
 {
 	struct cpudata *cpu_data = all_cpu_data[policy->cpu];
+<<<<<<< HEAD
 	int preference;
 
 	preference = intel_pstate_get_energy_pref_index(cpu_data);
@@ -695,10 +1054,23 @@ static ssize_t show_energy_performance_preference(
 		return preference;
 
 	return  sprintf(buf, "%s\n", energy_perf_strings[preference]);
+=======
+	int preference, raw_epp;
+
+	preference = intel_pstate_get_energy_pref_index(cpu_data, &raw_epp);
+	if (preference < 0)
+		return preference;
+
+	if (raw_epp)
+		return  sprintf(buf, "%d\n", raw_epp);
+	else
+		return  sprintf(buf, "%s\n", energy_perf_strings[preference]);
+>>>>>>> upstream/android-13
 }
 
 cpufreq_freq_attr_rw(energy_performance_preference);
 
+<<<<<<< HEAD
 static struct freq_attr *hwp_cpufreq_attrs[] = {
 	&energy_performance_preference,
 	&energy_performance_available_preferences,
@@ -718,6 +1090,63 @@ static void intel_pstate_get_hwp_max(unsigned int cpu, int *phy_max,
 		*current_max = HWP_HIGHEST_PERF(cap);
 
 	*phy_max = HWP_HIGHEST_PERF(cap);
+=======
+static ssize_t show_base_frequency(struct cpufreq_policy *policy, char *buf)
+{
+	struct cpudata *cpu = all_cpu_data[policy->cpu];
+	int ratio, freq;
+
+	ratio = intel_pstate_get_cppc_guaranteed(policy->cpu);
+	if (ratio <= 0) {
+		u64 cap;
+
+		rdmsrl_on_cpu(policy->cpu, MSR_HWP_CAPABILITIES, &cap);
+		ratio = HWP_GUARANTEED_PERF(cap);
+	}
+
+	freq = ratio * cpu->pstate.scaling;
+	if (cpu->pstate.scaling != cpu->pstate.perf_ctl_scaling)
+		freq = rounddown(freq, cpu->pstate.perf_ctl_scaling);
+
+	return sprintf(buf, "%d\n", freq);
+}
+
+cpufreq_freq_attr_ro(base_frequency);
+
+static struct freq_attr *hwp_cpufreq_attrs[] = {
+	&energy_performance_preference,
+	&energy_performance_available_preferences,
+	&base_frequency,
+	NULL,
+};
+
+static void __intel_pstate_get_hwp_cap(struct cpudata *cpu)
+{
+	u64 cap;
+
+	rdmsrl_on_cpu(cpu->cpu, MSR_HWP_CAPABILITIES, &cap);
+	WRITE_ONCE(cpu->hwp_cap_cached, cap);
+	cpu->pstate.max_pstate = HWP_GUARANTEED_PERF(cap);
+	cpu->pstate.turbo_pstate = HWP_HIGHEST_PERF(cap);
+}
+
+static void intel_pstate_get_hwp_cap(struct cpudata *cpu)
+{
+	int scaling = cpu->pstate.scaling;
+
+	__intel_pstate_get_hwp_cap(cpu);
+
+	cpu->pstate.max_freq = cpu->pstate.max_pstate * scaling;
+	cpu->pstate.turbo_freq = cpu->pstate.turbo_pstate * scaling;
+	if (scaling != cpu->pstate.perf_ctl_scaling) {
+		int perf_ctl_scaling = cpu->pstate.perf_ctl_scaling;
+
+		cpu->pstate.max_freq = rounddown(cpu->pstate.max_freq,
+						 perf_ctl_scaling);
+		cpu->pstate.turbo_freq = rounddown(cpu->pstate.turbo_freq,
+						   perf_ctl_scaling);
+	}
+>>>>>>> upstream/android-13
 }
 
 static void intel_pstate_hwp_set(unsigned int cpu)
@@ -746,12 +1175,15 @@ static void intel_pstate_hwp_set(unsigned int cpu)
 
 	cpu_data->epp_policy = cpu_data->policy;
 
+<<<<<<< HEAD
 	if (cpu_data->epp_saved >= 0) {
 		epp = cpu_data->epp_saved;
 		cpu_data->epp_saved = -EINVAL;
 		goto update_epp;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (cpu_data->policy == CPUFREQ_POLICY_PERFORMANCE) {
 		epp = intel_pstate_get_epp(cpu_data, value);
 		cpu_data->epp_powersave = epp;
@@ -778,8 +1210,12 @@ static void intel_pstate_hwp_set(unsigned int cpu)
 
 		epp = cpu_data->epp_powersave;
 	}
+<<<<<<< HEAD
 update_epp:
 	if (static_cpu_has(X86_FEATURE_HWP_EPP)) {
+=======
+	if (boot_cpu_has(X86_FEATURE_HWP_EPP)) {
+>>>>>>> upstream/android-13
 		value &= ~GENMASK_ULL(31, 24);
 		value |= (u64)epp << 24;
 	} else {
@@ -790,6 +1226,7 @@ skip_epp:
 	wrmsrl_on_cpu(cpu, MSR_HWP_REQUEST, value);
 }
 
+<<<<<<< HEAD
 static int intel_pstate_hwp_save_state(struct cpufreq_policy *policy)
 {
 	struct cpudata *cpu_data = all_cpu_data[policy->cpu];
@@ -800,10 +1237,76 @@ static int intel_pstate_hwp_save_state(struct cpufreq_policy *policy)
 	cpu_data->epp_saved = intel_pstate_get_epp(cpu_data, 0);
 
 	return 0;
+=======
+static void intel_pstate_hwp_offline(struct cpudata *cpu)
+{
+	u64 value = READ_ONCE(cpu->hwp_req_cached);
+	int min_perf;
+
+	if (boot_cpu_has(X86_FEATURE_HWP_EPP)) {
+		/*
+		 * In case the EPP has been set to "performance" by the
+		 * active mode "performance" scaling algorithm, replace that
+		 * temporary value with the cached EPP one.
+		 */
+		value &= ~GENMASK_ULL(31, 24);
+		value |= HWP_ENERGY_PERF_PREFERENCE(cpu->epp_cached);
+		/*
+		 * However, make sure that EPP will be set to "performance" when
+		 * the CPU is brought back online again and the "performance"
+		 * scaling algorithm is still in effect.
+		 */
+		cpu->epp_policy = CPUFREQ_POLICY_UNKNOWN;
+	}
+
+	/*
+	 * Clear the desired perf field in the cached HWP request value to
+	 * prevent nonzero desired values from being leaked into the active
+	 * mode.
+	 */
+	value &= ~HWP_DESIRED_PERF(~0L);
+	WRITE_ONCE(cpu->hwp_req_cached, value);
+
+	value &= ~GENMASK_ULL(31, 0);
+	min_perf = HWP_LOWEST_PERF(READ_ONCE(cpu->hwp_cap_cached));
+
+	/* Set hwp_max = hwp_min */
+	value |= HWP_MAX_PERF(min_perf);
+	value |= HWP_MIN_PERF(min_perf);
+
+	/* Set EPP to min */
+	if (boot_cpu_has(X86_FEATURE_HWP_EPP))
+		value |= HWP_ENERGY_PERF_PREFERENCE(HWP_EPP_POWERSAVE);
+
+	wrmsrl_on_cpu(cpu->cpu, MSR_HWP_REQUEST, value);
+}
+
+#define POWER_CTL_EE_ENABLE	1
+#define POWER_CTL_EE_DISABLE	2
+
+static int power_ctl_ee_state;
+
+static void set_power_ctl_ee_state(bool input)
+{
+	u64 power_ctl;
+
+	mutex_lock(&intel_pstate_driver_lock);
+	rdmsrl(MSR_IA32_POWER_CTL, power_ctl);
+	if (input) {
+		power_ctl &= ~BIT(MSR_IA32_POWER_CTL_BIT_EE);
+		power_ctl_ee_state = POWER_CTL_EE_ENABLE;
+	} else {
+		power_ctl |= BIT(MSR_IA32_POWER_CTL_BIT_EE);
+		power_ctl_ee_state = POWER_CTL_EE_DISABLE;
+	}
+	wrmsrl(MSR_IA32_POWER_CTL, power_ctl);
+	mutex_unlock(&intel_pstate_driver_lock);
+>>>>>>> upstream/android-13
 }
 
 static void intel_pstate_hwp_enable(struct cpudata *cpudata);
 
+<<<<<<< HEAD
 static int intel_pstate_resume(struct cpufreq_policy *policy)
 {
 	if (!hwp_active)
@@ -818,6 +1321,47 @@ static int intel_pstate_resume(struct cpufreq_policy *policy)
 	intel_pstate_hwp_set(policy->cpu);
 
 	mutex_unlock(&intel_pstate_limits_lock);
+=======
+static void intel_pstate_hwp_reenable(struct cpudata *cpu)
+{
+	intel_pstate_hwp_enable(cpu);
+	wrmsrl_on_cpu(cpu->cpu, MSR_HWP_REQUEST, READ_ONCE(cpu->hwp_req_cached));
+}
+
+static int intel_pstate_suspend(struct cpufreq_policy *policy)
+{
+	struct cpudata *cpu = all_cpu_data[policy->cpu];
+
+	pr_debug("CPU %d suspending\n", cpu->cpu);
+
+	cpu->suspended = true;
+
+	return 0;
+}
+
+static int intel_pstate_resume(struct cpufreq_policy *policy)
+{
+	struct cpudata *cpu = all_cpu_data[policy->cpu];
+
+	pr_debug("CPU %d resuming\n", cpu->cpu);
+
+	/* Only restore if the system default is changed */
+	if (power_ctl_ee_state == POWER_CTL_EE_ENABLE)
+		set_power_ctl_ee_state(true);
+	else if (power_ctl_ee_state == POWER_CTL_EE_DISABLE)
+		set_power_ctl_ee_state(false);
+
+	if (cpu->suspended && hwp_active) {
+		mutex_lock(&intel_pstate_limits_lock);
+
+		/* Re-enable HWP, because "online" has not done that. */
+		intel_pstate_hwp_reenable(cpu);
+
+		mutex_unlock(&intel_pstate_limits_lock);
+	}
+
+	cpu->suspended = false;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -830,6 +1374,47 @@ static void intel_pstate_update_policies(void)
 		cpufreq_update_policy(cpu);
 }
 
+<<<<<<< HEAD
+=======
+static void intel_pstate_update_max_freq(unsigned int cpu)
+{
+	struct cpufreq_policy *policy = cpufreq_cpu_acquire(cpu);
+	struct cpudata *cpudata;
+
+	if (!policy)
+		return;
+
+	cpudata = all_cpu_data[cpu];
+	policy->cpuinfo.max_freq = global.turbo_disabled_mf ?
+			cpudata->pstate.max_freq : cpudata->pstate.turbo_freq;
+
+	refresh_frequency_limits(policy);
+
+	cpufreq_cpu_release(policy);
+}
+
+static void intel_pstate_update_limits(unsigned int cpu)
+{
+	mutex_lock(&intel_pstate_driver_lock);
+
+	update_turbo_state();
+	/*
+	 * If turbo has been turned on or off globally, policy limits for
+	 * all CPUs need to be updated to reflect that.
+	 */
+	if (global.turbo_disabled_mf != global.turbo_disabled) {
+		global.turbo_disabled_mf = global.turbo_disabled;
+		arch_set_max_freq_ratio(global.turbo_disabled);
+		for_each_possible_cpu(cpu)
+			intel_pstate_update_max_freq(cpu);
+	} else {
+		cpufreq_update_policy(cpu);
+	}
+
+	mutex_unlock(&intel_pstate_driver_lock);
+}
+
+>>>>>>> upstream/android-13
 /************************** sysfs begin ************************/
 #define show_one(file_name, object)					\
 	static ssize_t show_##file_name					\
@@ -983,6 +1568,46 @@ static ssize_t store_no_turbo(struct kobject *a, struct kobj_attribute *b,
 	return count;
 }
 
+<<<<<<< HEAD
+=======
+static void update_qos_request(enum freq_qos_req_type type)
+{
+	struct freq_qos_request *req;
+	struct cpufreq_policy *policy;
+	int i;
+
+	for_each_possible_cpu(i) {
+		struct cpudata *cpu = all_cpu_data[i];
+		unsigned int freq, perf_pct;
+
+		policy = cpufreq_cpu_get(i);
+		if (!policy)
+			continue;
+
+		req = policy->driver_data;
+		cpufreq_cpu_put(policy);
+
+		if (!req)
+			continue;
+
+		if (hwp_active)
+			intel_pstate_get_hwp_cap(cpu);
+
+		if (type == FREQ_QOS_MIN) {
+			perf_pct = global.min_perf_pct;
+		} else {
+			req++;
+			perf_pct = global.max_perf_pct;
+		}
+
+		freq = DIV_ROUND_UP(cpu->pstate.turbo_freq * perf_pct, 100);
+
+		if (freq_qos_update_request(req, freq) < 0)
+			pr_warn("Failed to update freq constraint: CPU%d\n", i);
+	}
+}
+
+>>>>>>> upstream/android-13
 static ssize_t store_max_perf_pct(struct kobject *a, struct kobj_attribute *b,
 				  const char *buf, size_t count)
 {
@@ -1006,7 +1631,14 @@ static ssize_t store_max_perf_pct(struct kobject *a, struct kobj_attribute *b,
 
 	mutex_unlock(&intel_pstate_limits_lock);
 
+<<<<<<< HEAD
 	intel_pstate_update_policies();
+=======
+	if (intel_pstate_driver == &intel_pstate)
+		intel_pstate_update_policies();
+	else
+		update_qos_request(FREQ_QOS_MAX);
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&intel_pstate_driver_lock);
 
@@ -1037,7 +1669,14 @@ static ssize_t store_min_perf_pct(struct kobject *a, struct kobj_attribute *b,
 
 	mutex_unlock(&intel_pstate_limits_lock);
 
+<<<<<<< HEAD
 	intel_pstate_update_policies();
+=======
+	if (intel_pstate_driver == &intel_pstate)
+		intel_pstate_update_policies();
+	else
+		update_qos_request(FREQ_QOS_MIN);
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&intel_pstate_driver_lock);
 
@@ -1069,6 +1708,35 @@ static ssize_t store_hwp_dynamic_boost(struct kobject *a,
 	return count;
 }
 
+<<<<<<< HEAD
+=======
+static ssize_t show_energy_efficiency(struct kobject *kobj, struct kobj_attribute *attr,
+				      char *buf)
+{
+	u64 power_ctl;
+	int enable;
+
+	rdmsrl(MSR_IA32_POWER_CTL, power_ctl);
+	enable = !!(power_ctl & BIT(MSR_IA32_POWER_CTL_BIT_EE));
+	return sprintf(buf, "%d\n", !enable);
+}
+
+static ssize_t store_energy_efficiency(struct kobject *a, struct kobj_attribute *b,
+				       const char *buf, size_t count)
+{
+	bool input;
+	int ret;
+
+	ret = kstrtobool(buf, &input);
+	if (ret)
+		return ret;
+
+	set_power_ctl_ee_state(input);
+
+	return count;
+}
+
+>>>>>>> upstream/android-13
 show_one(max_perf_pct, max_perf_pct);
 show_one(min_perf_pct, min_perf_pct);
 
@@ -1079,12 +1747,19 @@ define_one_global_rw(min_perf_pct);
 define_one_global_ro(turbo_pct);
 define_one_global_ro(num_pstates);
 define_one_global_rw(hwp_dynamic_boost);
+<<<<<<< HEAD
+=======
+define_one_global_rw(energy_efficiency);
+>>>>>>> upstream/android-13
 
 static struct attribute *intel_pstate_attributes[] = {
 	&status.attr,
 	&no_turbo.attr,
+<<<<<<< HEAD
 	&turbo_pct.attr,
 	&num_pstates.attr,
+=======
+>>>>>>> upstream/android-13
 	NULL
 };
 
@@ -1092,9 +1767,18 @@ static const struct attribute_group intel_pstate_attr_group = {
 	.attrs = intel_pstate_attributes,
 };
 
+<<<<<<< HEAD
 static void __init intel_pstate_sysfs_expose_params(void)
 {
 	struct kobject *intel_pstate_kobject;
+=======
+static const struct x86_cpu_id intel_pstate_cpu_ee_disable_ids[];
+
+static struct kobject *intel_pstate_kobject;
+
+static void __init intel_pstate_sysfs_expose_params(void)
+{
+>>>>>>> upstream/android-13
 	int rc;
 
 	intel_pstate_kobject = kobject_create_and_add("intel_pstate",
@@ -1106,6 +1790,17 @@ static void __init intel_pstate_sysfs_expose_params(void)
 	if (WARN_ON(rc))
 		return;
 
+<<<<<<< HEAD
+=======
+	if (!boot_cpu_has(X86_FEATURE_HYBRID_CPU)) {
+		rc = sysfs_create_file(intel_pstate_kobject, &turbo_pct.attr);
+		WARN_ON(rc);
+
+		rc = sysfs_create_file(intel_pstate_kobject, &num_pstates.attr);
+		WARN_ON(rc);
+	}
+
+>>>>>>> upstream/android-13
 	/*
 	 * If per cpu limits are enforced there are no global limits, so
 	 * return without creating max/min_perf_pct attributes
@@ -1119,26 +1814,85 @@ static void __init intel_pstate_sysfs_expose_params(void)
 	rc = sysfs_create_file(intel_pstate_kobject, &min_perf_pct.attr);
 	WARN_ON(rc);
 
+<<<<<<< HEAD
 	if (hwp_active) {
 		rc = sysfs_create_file(intel_pstate_kobject,
 				       &hwp_dynamic_boost.attr);
 		WARN_ON(rc);
 	}
 }
+=======
+	if (x86_match_cpu(intel_pstate_cpu_ee_disable_ids)) {
+		rc = sysfs_create_file(intel_pstate_kobject, &energy_efficiency.attr);
+		WARN_ON(rc);
+	}
+}
+
+static void __init intel_pstate_sysfs_remove(void)
+{
+	if (!intel_pstate_kobject)
+		return;
+
+	sysfs_remove_group(intel_pstate_kobject, &intel_pstate_attr_group);
+
+	if (!boot_cpu_has(X86_FEATURE_HYBRID_CPU)) {
+		sysfs_remove_file(intel_pstate_kobject, &num_pstates.attr);
+		sysfs_remove_file(intel_pstate_kobject, &turbo_pct.attr);
+	}
+
+	if (!per_cpu_limits) {
+		sysfs_remove_file(intel_pstate_kobject, &max_perf_pct.attr);
+		sysfs_remove_file(intel_pstate_kobject, &min_perf_pct.attr);
+
+		if (x86_match_cpu(intel_pstate_cpu_ee_disable_ids))
+			sysfs_remove_file(intel_pstate_kobject, &energy_efficiency.attr);
+	}
+
+	kobject_put(intel_pstate_kobject);
+}
+
+static void intel_pstate_sysfs_expose_hwp_dynamic_boost(void)
+{
+	int rc;
+
+	if (!hwp_active)
+		return;
+
+	rc = sysfs_create_file(intel_pstate_kobject, &hwp_dynamic_boost.attr);
+	WARN_ON_ONCE(rc);
+}
+
+static void intel_pstate_sysfs_hide_hwp_dynamic_boost(void)
+{
+	if (!hwp_active)
+		return;
+
+	sysfs_remove_file(intel_pstate_kobject, &hwp_dynamic_boost.attr);
+}
+
+>>>>>>> upstream/android-13
 /************************** sysfs end ************************/
 
 static void intel_pstate_hwp_enable(struct cpudata *cpudata)
 {
 	/* First disable HWP notification interrupt as we don't process them */
+<<<<<<< HEAD
 	if (static_cpu_has(X86_FEATURE_HWP_NOTIFY))
 		wrmsrl_on_cpu(cpudata->cpu, MSR_HWP_INTERRUPT, 0x00);
 
 	wrmsrl_on_cpu(cpudata->cpu, MSR_PM_ENABLE, 0x1);
 	cpudata->epp_policy = 0;
+=======
+	if (boot_cpu_has(X86_FEATURE_HWP_NOTIFY))
+		wrmsrl_on_cpu(cpudata->cpu, MSR_HWP_INTERRUPT, 0x00);
+
+	wrmsrl_on_cpu(cpudata->cpu, MSR_PM_ENABLE, 0x1);
+>>>>>>> upstream/android-13
 	if (cpudata->epp_default == -EINVAL)
 		cpudata->epp_default = intel_pstate_get_epp(cpudata, 0);
 }
 
+<<<<<<< HEAD
 #define MSR_IA32_POWER_CTL_BIT_EE	19
 
 /* Disable energy efficiency optimization */
@@ -1158,6 +1912,8 @@ static void intel_pstate_disable_ee(int cpu)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 static int atom_get_min_pstate(void)
 {
 	u64 value;
@@ -1383,12 +2139,47 @@ static int knl_get_turbo_pstate(void)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int intel_pstate_get_base_pstate(struct cpudata *cpu)
 {
 	return global.no_turbo || global.turbo_disabled ?
 			cpu->pstate.max_pstate : cpu->pstate.turbo_pstate;
 }
 
+=======
+#ifdef CONFIG_ACPI_CPPC_LIB
+static u32 hybrid_ref_perf;
+
+static int hybrid_get_cpu_scaling(int cpu)
+{
+	return DIV_ROUND_UP(core_get_scaling() * hybrid_ref_perf,
+			    intel_pstate_cppc_nominal(cpu));
+}
+
+static void intel_pstate_cppc_set_cpu_scaling(void)
+{
+	u32 min_nominal_perf = U32_MAX;
+	int cpu;
+
+	for_each_present_cpu(cpu) {
+		u32 nominal_perf = intel_pstate_cppc_nominal(cpu);
+
+		if (nominal_perf && nominal_perf < min_nominal_perf)
+			min_nominal_perf = nominal_perf;
+	}
+
+	if (min_nominal_perf < U32_MAX) {
+		hybrid_ref_perf = min_nominal_perf;
+		pstate_funcs.get_cpu_scaling = hybrid_get_cpu_scaling;
+	}
+}
+#else
+static inline void intel_pstate_cppc_set_cpu_scaling(void)
+{
+}
+#endif /* CONFIG_ACPI_CPPC_LIB */
+
+>>>>>>> upstream/android-13
 static void intel_pstate_set_pstate(struct cpudata *cpu, int pstate)
 {
 	trace_cpu_frequency(pstate * cpu->pstate.scaling, cpu->cpu);
@@ -1409,16 +2200,23 @@ static void intel_pstate_set_min_pstate(struct cpudata *cpu)
 
 static void intel_pstate_max_within_limits(struct cpudata *cpu)
 {
+<<<<<<< HEAD
 	int pstate;
 
 	update_turbo_state();
 	pstate = intel_pstate_get_base_pstate(cpu);
 	pstate = max(cpu->pstate.min_pstate, cpu->max_perf_ratio);
+=======
+	int pstate = max(cpu->pstate.min_pstate, cpu->max_perf_ratio);
+
+	update_turbo_state();
+>>>>>>> upstream/android-13
 	intel_pstate_set_pstate(cpu, pstate);
 }
 
 static void intel_pstate_get_cpu_pstates(struct cpudata *cpu)
 {
+<<<<<<< HEAD
 	cpu->pstate.min_pstate = pstate_funcs.get_min();
 	cpu->pstate.max_pstate_physical = pstate_funcs.get_max_physical();
 	cpu->pstate.turbo_pstate = pstate_funcs.get_turbo();
@@ -1436,6 +2234,36 @@ static void intel_pstate_get_cpu_pstates(struct cpudata *cpu)
 		cpu->pstate.max_pstate = pstate_funcs.get_max();
 	}
 	cpu->pstate.max_freq = cpu->pstate.max_pstate * cpu->pstate.scaling;
+=======
+	int perf_ctl_max_phys = pstate_funcs.get_max_physical();
+	int perf_ctl_scaling = pstate_funcs.get_scaling();
+
+	cpu->pstate.min_pstate = pstate_funcs.get_min();
+	cpu->pstate.max_pstate_physical = perf_ctl_max_phys;
+	cpu->pstate.perf_ctl_scaling = perf_ctl_scaling;
+
+	if (hwp_active && !hwp_mode_bdw) {
+		__intel_pstate_get_hwp_cap(cpu);
+
+		if (pstate_funcs.get_cpu_scaling) {
+			cpu->pstate.scaling = pstate_funcs.get_cpu_scaling(cpu->cpu);
+			if (cpu->pstate.scaling != perf_ctl_scaling)
+				intel_pstate_hybrid_hwp_adjust(cpu);
+		} else {
+			cpu->pstate.scaling = perf_ctl_scaling;
+		}
+	} else {
+		cpu->pstate.scaling = perf_ctl_scaling;
+		cpu->pstate.max_pstate = pstate_funcs.get_max();
+		cpu->pstate.turbo_pstate = pstate_funcs.get_turbo();
+	}
+
+	if (cpu->pstate.scaling == perf_ctl_scaling) {
+		cpu->pstate.min_freq = cpu->pstate.min_pstate * perf_ctl_scaling;
+		cpu->pstate.max_freq = cpu->pstate.max_pstate * perf_ctl_scaling;
+		cpu->pstate.turbo_freq = cpu->pstate.turbo_pstate * perf_ctl_scaling;
+	}
+>>>>>>> upstream/android-13
 
 	if (pstate_funcs.get_aperf_mperf_shift)
 		cpu->aperf_mperf_shift = pstate_funcs.get_aperf_mperf_shift();
@@ -1457,6 +2285,10 @@ static int hwp_boost_hold_time_ns = 3 * NSEC_PER_MSEC;
 static inline void intel_pstate_hwp_boost_up(struct cpudata *cpu)
 {
 	u64 hwp_req = READ_ONCE(cpu->hwp_req_cached);
+<<<<<<< HEAD
+=======
+	u64 hwp_cap = READ_ONCE(cpu->hwp_cap_cached);
+>>>>>>> upstream/android-13
 	u32 max_limit = (hwp_req & 0xff00) >> 8;
 	u32 min_limit = (hwp_req & 0xff);
 	u32 boost_level1;
@@ -1483,6 +2315,7 @@ static inline void intel_pstate_hwp_boost_up(struct cpudata *cpu)
 		cpu->hwp_boost_min = min_limit;
 
 	/* level at half way mark between min and guranteed */
+<<<<<<< HEAD
 	boost_level1 = (HWP_GUARANTEED_PERF(cpu->hwp_cap_cached) + min_limit) >> 1;
 
 	if (cpu->hwp_boost_min < boost_level1)
@@ -1491,6 +2324,16 @@ static inline void intel_pstate_hwp_boost_up(struct cpudata *cpu)
 		cpu->hwp_boost_min = HWP_GUARANTEED_PERF(cpu->hwp_cap_cached);
 	else if (cpu->hwp_boost_min == HWP_GUARANTEED_PERF(cpu->hwp_cap_cached) &&
 		 max_limit != HWP_GUARANTEED_PERF(cpu->hwp_cap_cached))
+=======
+	boost_level1 = (HWP_GUARANTEED_PERF(hwp_cap) + min_limit) >> 1;
+
+	if (cpu->hwp_boost_min < boost_level1)
+		cpu->hwp_boost_min = boost_level1;
+	else if (cpu->hwp_boost_min < HWP_GUARANTEED_PERF(hwp_cap))
+		cpu->hwp_boost_min = HWP_GUARANTEED_PERF(hwp_cap);
+	else if (cpu->hwp_boost_min == HWP_GUARANTEED_PERF(hwp_cap) &&
+		 max_limit != HWP_GUARANTEED_PERF(hwp_cap))
+>>>>>>> upstream/android-13
 		cpu->hwp_boost_min = max_limit;
 	else
 		return;
@@ -1619,17 +2462,26 @@ static inline int32_t get_avg_pstate(struct cpudata *cpu)
 static inline int32_t get_target_pstate(struct cpudata *cpu)
 {
 	struct sample *sample = &cpu->sample;
+<<<<<<< HEAD
 	int32_t busy_frac, boost;
+=======
+	int32_t busy_frac;
+>>>>>>> upstream/android-13
 	int target, avg_pstate;
 
 	busy_frac = div_fp(sample->mperf << cpu->aperf_mperf_shift,
 			   sample->tsc);
 
+<<<<<<< HEAD
 	boost = cpu->iowait_boost;
 	cpu->iowait_boost >>= 1;
 
 	if (busy_frac < boost)
 		busy_frac = boost;
+=======
+	if (busy_frac < cpu->iowait_boost)
+		busy_frac = cpu->iowait_boost;
+>>>>>>> upstream/android-13
 
 	sample->busy_scaled = busy_frac * 100;
 
@@ -1656,11 +2508,17 @@ static inline int32_t get_target_pstate(struct cpudata *cpu)
 
 static int intel_pstate_prepare_request(struct cpudata *cpu, int pstate)
 {
+<<<<<<< HEAD
 	int max_pstate = intel_pstate_get_base_pstate(cpu);
 	int min_pstate;
 
 	min_pstate = max(cpu->pstate.min_pstate, cpu->min_perf_ratio);
 	max_pstate = max(min_pstate, cpu->max_perf_ratio);
+=======
+	int min_pstate = max(cpu->pstate.min_pstate, cpu->min_perf_ratio);
+	int max_pstate = max(min_pstate, cpu->max_perf_ratio);
+
+>>>>>>> upstream/android-13
 	return clamp_t(int, pstate, min_pstate, max_pstate);
 }
 
@@ -1708,6 +2566,7 @@ static void intel_pstate_update_util(struct update_util_data *data, u64 time,
 	if (smp_processor_id() != cpu->cpu)
 		return;
 
+<<<<<<< HEAD
 	if (flags & SCHED_CPUFREQ_IOWAIT) {
 		cpu->iowait_boost = int_tofp(1);
 		cpu->last_update = time;
@@ -1724,13 +2583,36 @@ static void intel_pstate_update_util(struct update_util_data *data, u64 time,
 		delta_ns = time - cpu->last_update;
 		if (delta_ns > TICK_NSEC)
 			cpu->iowait_boost = 0;
+=======
+	delta_ns = time - cpu->last_update;
+	if (flags & SCHED_CPUFREQ_IOWAIT) {
+		/* Start over if the CPU may have been idle. */
+		if (delta_ns > TICK_NSEC) {
+			cpu->iowait_boost = ONE_EIGHTH_FP;
+		} else if (cpu->iowait_boost >= ONE_EIGHTH_FP) {
+			cpu->iowait_boost <<= 1;
+			if (cpu->iowait_boost > int_tofp(1))
+				cpu->iowait_boost = int_tofp(1);
+		} else {
+			cpu->iowait_boost = ONE_EIGHTH_FP;
+		}
+	} else if (cpu->iowait_boost) {
+		/* Clear iowait_boost if the CPU may have been idle. */
+		if (delta_ns > TICK_NSEC)
+			cpu->iowait_boost = 0;
+		else
+			cpu->iowait_boost >>= 1;
+>>>>>>> upstream/android-13
 	}
 	cpu->last_update = time;
 	delta_ns = time - cpu->sample.time;
 	if ((s64)delta_ns < INTEL_PSTATE_SAMPLING_INTERVAL)
 		return;
 
+<<<<<<< HEAD
 set_pstate:
+=======
+>>>>>>> upstream/android-13
 	if (intel_pstate_sample(cpu, time))
 		intel_pstate_adjust_pstate(cpu);
 }
@@ -1774,6 +2656,7 @@ static const struct pstate_funcs knl_funcs = {
 	.get_val = core_get_val,
 };
 
+<<<<<<< HEAD
 #define ICPU(model, policy) \
 	{ X86_VENDOR_INTEL, 6, model, X86_FEATURE_APERFMPERF,\
 			(unsigned long)&policy }
@@ -1800,25 +2683,71 @@ static const struct x86_cpu_id intel_pstate_cpu_ids[] = {
 	ICPU(INTEL_FAM6_ATOM_GOLDMONT,		core_funcs),
 	ICPU(INTEL_FAM6_ATOM_GOLDMONT_PLUS,     core_funcs),
 	ICPU(INTEL_FAM6_SKYLAKE_X,		core_funcs),
+=======
+#define X86_MATCH(model, policy)					 \
+	X86_MATCH_VENDOR_FAM_MODEL_FEATURE(INTEL, 6, INTEL_FAM6_##model, \
+					   X86_FEATURE_APERFMPERF, &policy)
+
+static const struct x86_cpu_id intel_pstate_cpu_ids[] = {
+	X86_MATCH(SANDYBRIDGE,		core_funcs),
+	X86_MATCH(SANDYBRIDGE_X,	core_funcs),
+	X86_MATCH(ATOM_SILVERMONT,	silvermont_funcs),
+	X86_MATCH(IVYBRIDGE,		core_funcs),
+	X86_MATCH(HASWELL,		core_funcs),
+	X86_MATCH(BROADWELL,		core_funcs),
+	X86_MATCH(IVYBRIDGE_X,		core_funcs),
+	X86_MATCH(HASWELL_X,		core_funcs),
+	X86_MATCH(HASWELL_L,		core_funcs),
+	X86_MATCH(HASWELL_G,		core_funcs),
+	X86_MATCH(BROADWELL_G,		core_funcs),
+	X86_MATCH(ATOM_AIRMONT,		airmont_funcs),
+	X86_MATCH(SKYLAKE_L,		core_funcs),
+	X86_MATCH(BROADWELL_X,		core_funcs),
+	X86_MATCH(SKYLAKE,		core_funcs),
+	X86_MATCH(BROADWELL_D,		core_funcs),
+	X86_MATCH(XEON_PHI_KNL,		knl_funcs),
+	X86_MATCH(XEON_PHI_KNM,		knl_funcs),
+	X86_MATCH(ATOM_GOLDMONT,	core_funcs),
+	X86_MATCH(ATOM_GOLDMONT_PLUS,	core_funcs),
+	X86_MATCH(SKYLAKE_X,		core_funcs),
+	X86_MATCH(COMETLAKE,		core_funcs),
+	X86_MATCH(ICELAKE_X,		core_funcs),
+>>>>>>> upstream/android-13
 	{}
 };
 MODULE_DEVICE_TABLE(x86cpu, intel_pstate_cpu_ids);
 
 static const struct x86_cpu_id intel_pstate_cpu_oob_ids[] __initconst = {
+<<<<<<< HEAD
 	ICPU(INTEL_FAM6_BROADWELL_XEON_D, core_funcs),
 	ICPU(INTEL_FAM6_BROADWELL_X, core_funcs),
 	ICPU(INTEL_FAM6_SKYLAKE_X, core_funcs),
+=======
+	X86_MATCH(BROADWELL_D,		core_funcs),
+	X86_MATCH(BROADWELL_X,		core_funcs),
+	X86_MATCH(SKYLAKE_X,		core_funcs),
+	X86_MATCH(ICELAKE_X,		core_funcs),
+>>>>>>> upstream/android-13
 	{}
 };
 
 static const struct x86_cpu_id intel_pstate_cpu_ee_disable_ids[] = {
+<<<<<<< HEAD
 	ICPU(INTEL_FAM6_KABYLAKE_DESKTOP, core_funcs),
+=======
+	X86_MATCH(KABYLAKE,		core_funcs),
+>>>>>>> upstream/android-13
 	{}
 };
 
 static const struct x86_cpu_id intel_pstate_hwp_boost_ids[] = {
+<<<<<<< HEAD
 	ICPU(INTEL_FAM6_SKYLAKE_X, core_funcs),
 	ICPU(INTEL_FAM6_SKYLAKE_DESKTOP, core_funcs),
+=======
+	X86_MATCH(SKYLAKE_X,		core_funcs),
+	X86_MATCH(SKYLAKE,		core_funcs),
+>>>>>>> upstream/android-13
 	{}
 };
 
@@ -1835,6 +2764,7 @@ static int intel_pstate_init_cpu(unsigned int cpunum)
 
 		all_cpu_data[cpunum] = cpu;
 
+<<<<<<< HEAD
 		cpu->epp_default = -EINVAL;
 		cpu->epp_powersave = -EINVAL;
 		cpu->epp_saved = -EINVAL;
@@ -1857,6 +2787,32 @@ static int intel_pstate_init_cpu(unsigned int cpunum)
 		if (id && intel_pstate_acpi_pm_profile_server())
 			hwp_boost = true;
 	}
+=======
+		cpu->cpu = cpunum;
+
+		cpu->epp_default = -EINVAL;
+
+		if (hwp_active) {
+			const struct x86_cpu_id *id;
+
+			intel_pstate_hwp_enable(cpu);
+
+			id = x86_match_cpu(intel_pstate_hwp_boost_ids);
+			if (id && intel_pstate_acpi_pm_profile_server())
+				hwp_boost = true;
+		}
+	} else if (hwp_active) {
+		/*
+		 * Re-enable HWP in case this happens after a resume from ACPI
+		 * S3 if the CPU was offline during the whole system/resume
+		 * cycle.
+		 */
+		intel_pstate_hwp_reenable(cpu);
+	}
+
+	cpu->epp_powersave = -EINVAL;
+	cpu->epp_policy = 0;
+>>>>>>> upstream/android-13
 
 	intel_pstate_get_cpu_pstates(cpu);
 
@@ -1893,7 +2849,11 @@ static void intel_pstate_clear_update_util_hook(unsigned int cpu)
 
 	cpufreq_remove_update_util_hook(cpu);
 	cpu_data->update_util_set = false;
+<<<<<<< HEAD
 	synchronize_sched();
+=======
+	synchronize_rcu();
+>>>>>>> upstream/android-13
 }
 
 static int intel_pstate_get_max_freq(struct cpudata *cpu)
@@ -1902,6 +2862,7 @@ static int intel_pstate_get_max_freq(struct cpudata *cpu)
 			cpu->pstate.max_freq : cpu->pstate.turbo_freq;
 }
 
+<<<<<<< HEAD
 static void intel_pstate_update_perf_limits(struct cpufreq_policy *policy,
 					    struct cpudata *cpu)
 {
@@ -1926,19 +2887,60 @@ static void intel_pstate_update_perf_limits(struct cpufreq_policy *policy,
 		min_policy_perf = max_policy_perf;
 	} else {
 		min_policy_perf = max_state * policy->min / max_freq;
+=======
+static void intel_pstate_update_perf_limits(struct cpudata *cpu,
+					    unsigned int policy_min,
+					    unsigned int policy_max)
+{
+	int perf_ctl_scaling = cpu->pstate.perf_ctl_scaling;
+	int32_t max_policy_perf, min_policy_perf;
+
+	max_policy_perf = policy_max / perf_ctl_scaling;
+	if (policy_max == policy_min) {
+		min_policy_perf = max_policy_perf;
+	} else {
+		min_policy_perf = policy_min / perf_ctl_scaling;
+>>>>>>> upstream/android-13
 		min_policy_perf = clamp_t(int32_t, min_policy_perf,
 					  0, max_policy_perf);
 	}
 
+<<<<<<< HEAD
 	pr_debug("cpu:%d max_state %d min_policy_perf:%d max_policy_perf:%d\n",
 		 policy->cpu, max_state,
 		 min_policy_perf, max_policy_perf);
+=======
+	/*
+	 * HWP needs some special consideration, because HWP_REQUEST uses
+	 * abstract values to represent performance rather than pure ratios.
+	 */
+	if (hwp_active) {
+		intel_pstate_get_hwp_cap(cpu);
+
+		if (cpu->pstate.scaling != perf_ctl_scaling) {
+			int scaling = cpu->pstate.scaling;
+			int freq;
+
+			freq = max_policy_perf * perf_ctl_scaling;
+			max_policy_perf = DIV_ROUND_UP(freq, scaling);
+			freq = min_policy_perf * perf_ctl_scaling;
+			min_policy_perf = DIV_ROUND_UP(freq, scaling);
+		}
+	}
+
+	pr_debug("cpu:%d min_policy_perf:%d max_policy_perf:%d\n",
+		 cpu->cpu, min_policy_perf, max_policy_perf);
+>>>>>>> upstream/android-13
 
 	/* Normalize user input to [min_perf, max_perf] */
 	if (per_cpu_limits) {
 		cpu->min_perf_ratio = min_policy_perf;
 		cpu->max_perf_ratio = max_policy_perf;
 	} else {
+<<<<<<< HEAD
+=======
+		int turbo_max = cpu->pstate.turbo_pstate;
+>>>>>>> upstream/android-13
 		int32_t global_min, global_max;
 
 		/* Global limits are in percent of the maximum turbo P-state. */
@@ -1946,7 +2948,11 @@ static void intel_pstate_update_perf_limits(struct cpufreq_policy *policy,
 		global_min = DIV_ROUND_UP(turbo_max * global.min_perf_pct, 100);
 		global_min = clamp_t(int32_t, global_min, 0, global_max);
 
+<<<<<<< HEAD
 		pr_debug("cpu:%d global_min:%d global_max:%d\n", policy->cpu,
+=======
+		pr_debug("cpu:%d global_min:%d global_max:%d\n", cpu->cpu,
+>>>>>>> upstream/android-13
 			 global_min, global_max);
 
 		cpu->min_perf_ratio = max(min_policy_perf, global_min);
@@ -1959,7 +2965,11 @@ static void intel_pstate_update_perf_limits(struct cpufreq_policy *policy,
 					  cpu->max_perf_ratio);
 
 	}
+<<<<<<< HEAD
 	pr_debug("cpu:%d max_perf_ratio:%d min_perf_ratio:%d\n", policy->cpu,
+=======
+	pr_debug("cpu:%d max_perf_ratio:%d min_perf_ratio:%d\n", cpu->cpu,
+>>>>>>> upstream/android-13
 		 cpu->max_perf_ratio,
 		 cpu->min_perf_ratio);
 }
@@ -1979,7 +2989,11 @@ static int intel_pstate_set_policy(struct cpufreq_policy *policy)
 
 	mutex_lock(&intel_pstate_limits_lock);
 
+<<<<<<< HEAD
 	intel_pstate_update_perf_limits(policy, cpu);
+=======
+	intel_pstate_update_perf_limits(cpu, policy->min, policy->max);
+>>>>>>> upstream/android-13
 
 	if (cpu->policy == CPUFREQ_POLICY_PERFORMANCE) {
 		/*
@@ -2008,8 +3022,13 @@ static int intel_pstate_set_policy(struct cpufreq_policy *policy)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void intel_pstate_adjust_policy_max(struct cpufreq_policy *policy,
 					 struct cpudata *cpu)
+=======
+static void intel_pstate_adjust_policy_max(struct cpudata *cpu,
+					   struct cpufreq_policy_data *policy)
+>>>>>>> upstream/android-13
 {
 	if (!hwp_active &&
 	    cpu->pstate.max_pstate_physical > cpu->pstate.max_pstate &&
@@ -2020,6 +3039,7 @@ static void intel_pstate_adjust_policy_max(struct cpufreq_policy *policy,
 	}
 }
 
+<<<<<<< HEAD
 static int intel_pstate_verify_policy(struct cpufreq_policy *policy)
 {
 	struct cpudata *cpu = all_cpu_data[policy->cpu];
@@ -2033,10 +3053,34 @@ static int intel_pstate_verify_policy(struct cpufreq_policy *policy)
 		return -EINVAL;
 
 	intel_pstate_adjust_policy_max(policy, cpu);
+=======
+static void intel_pstate_verify_cpu_policy(struct cpudata *cpu,
+					   struct cpufreq_policy_data *policy)
+{
+	int max_freq;
+
+	update_turbo_state();
+	if (hwp_active) {
+		intel_pstate_get_hwp_cap(cpu);
+		max_freq = global.no_turbo || global.turbo_disabled ?
+				cpu->pstate.max_freq : cpu->pstate.turbo_freq;
+	} else {
+		max_freq = intel_pstate_get_max_freq(cpu);
+	}
+	cpufreq_verify_within_limits(policy, policy->cpuinfo.min_freq, max_freq);
+
+	intel_pstate_adjust_policy_max(cpu, policy);
+}
+
+static int intel_pstate_verify_policy(struct cpufreq_policy_data *policy)
+{
+	intel_pstate_verify_cpu_policy(all_cpu_data[policy->cpu], policy);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static void intel_cpufreq_stop_cpu(struct cpufreq_policy *policy)
 {
 	intel_pstate_set_min_pstate(all_cpu_data[policy->cpu]);
@@ -2051,11 +3095,67 @@ static void intel_pstate_stop_cpu(struct cpufreq_policy *policy)
 		intel_pstate_hwp_save_state(policy);
 	else
 		intel_cpufreq_stop_cpu(policy);
+=======
+static int intel_cpufreq_cpu_offline(struct cpufreq_policy *policy)
+{
+	struct cpudata *cpu = all_cpu_data[policy->cpu];
+
+	pr_debug("CPU %d going offline\n", cpu->cpu);
+
+	if (cpu->suspended)
+		return 0;
+
+	/*
+	 * If the CPU is an SMT thread and it goes offline with the performance
+	 * settings different from the minimum, it will prevent its sibling
+	 * from getting to lower performance levels, so force the minimum
+	 * performance on CPU offline to prevent that from happening.
+	 */
+	if (hwp_active)
+		intel_pstate_hwp_offline(cpu);
+	else
+		intel_pstate_set_min_pstate(cpu);
+
+	intel_pstate_exit_perf_limits(policy);
+
+	return 0;
+}
+
+static int intel_pstate_cpu_online(struct cpufreq_policy *policy)
+{
+	struct cpudata *cpu = all_cpu_data[policy->cpu];
+
+	pr_debug("CPU %d going online\n", cpu->cpu);
+
+	intel_pstate_init_acpi_perf_limits(policy);
+
+	if (hwp_active) {
+		/*
+		 * Re-enable HWP and clear the "suspended" flag to let "resume"
+		 * know that it need not do that.
+		 */
+		intel_pstate_hwp_reenable(cpu);
+		cpu->suspended = false;
+	}
+
+	return 0;
+}
+
+static int intel_pstate_cpu_offline(struct cpufreq_policy *policy)
+{
+	intel_pstate_clear_update_util_hook(policy->cpu);
+
+	return intel_cpufreq_cpu_offline(policy);
+>>>>>>> upstream/android-13
 }
 
 static int intel_pstate_cpu_exit(struct cpufreq_policy *policy)
 {
+<<<<<<< HEAD
 	intel_pstate_exit_perf_limits(policy);
+=======
+	pr_debug("CPU %d exiting\n", policy->cpu);
+>>>>>>> upstream/android-13
 
 	policy->fast_switch_possible = false;
 
@@ -2076,6 +3176,7 @@ static int __intel_pstate_cpu_init(struct cpufreq_policy *policy)
 	cpu->max_perf_ratio = 0xFF;
 	cpu->min_perf_ratio = 0;
 
+<<<<<<< HEAD
 	policy->min = cpu->pstate.min_pstate * cpu->pstate.scaling;
 	policy->max = cpu->pstate.turbo_pstate * cpu->pstate.scaling;
 
@@ -2094,6 +3195,17 @@ static int __intel_pstate_cpu_init(struct cpufreq_policy *policy)
 		if (max_freq < policy->cpuinfo.max_freq)
 			policy->cpuinfo.max_freq = max_freq;
 	}
+=======
+	/* cpuinfo and default policy values */
+	policy->cpuinfo.min_freq = cpu->pstate.min_freq;
+	update_turbo_state();
+	global.turbo_disabled_mf = global.turbo_disabled;
+	policy->cpuinfo.max_freq = global.turbo_disabled ?
+			cpu->pstate.max_freq : cpu->pstate.turbo_freq;
+
+	policy->min = policy->cpuinfo.min_freq;
+	policy->max = policy->cpuinfo.max_freq;
+>>>>>>> upstream/android-13
 
 	intel_pstate_init_acpi_perf_limits(policy);
 
@@ -2109,10 +3221,24 @@ static int intel_pstate_cpu_init(struct cpufreq_policy *policy)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	if (IS_ENABLED(CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE))
 		policy->policy = CPUFREQ_POLICY_PERFORMANCE;
 	else
 		policy->policy = CPUFREQ_POLICY_POWERSAVE;
+=======
+	/*
+	 * Set the policy to powersave to provide a valid fallback value in case
+	 * the default cpufreq governor is neither powersave nor performance.
+	 */
+	policy->policy = CPUFREQ_POLICY_POWERSAVE;
+
+	if (hwp_active) {
+		struct cpudata *cpu = all_cpu_data[policy->cpu];
+
+		cpu->epp_cached = intel_pstate_get_epp(cpu, 0);
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -2121,6 +3247,7 @@ static struct cpufreq_driver intel_pstate = {
 	.flags		= CPUFREQ_CONST_LOOPS,
 	.verify		= intel_pstate_verify_policy,
 	.setpolicy	= intel_pstate_set_policy,
+<<<<<<< HEAD
 	.suspend	= intel_pstate_hwp_save_state,
 	.resume		= intel_pstate_resume,
 	.init		= intel_pstate_cpu_init,
@@ -2140,6 +3267,24 @@ static int intel_cpufreq_verify_policy(struct cpufreq_policy *policy)
 	intel_pstate_adjust_policy_max(policy, cpu);
 
 	intel_pstate_update_perf_limits(policy, cpu);
+=======
+	.suspend	= intel_pstate_suspend,
+	.resume		= intel_pstate_resume,
+	.init		= intel_pstate_cpu_init,
+	.exit		= intel_pstate_cpu_exit,
+	.offline	= intel_pstate_cpu_offline,
+	.online		= intel_pstate_cpu_online,
+	.update_limits	= intel_pstate_update_limits,
+	.name		= "intel_pstate",
+};
+
+static int intel_cpufreq_verify_policy(struct cpufreq_policy_data *policy)
+{
+	struct cpudata *cpu = all_cpu_data[policy->cpu];
+
+	intel_pstate_verify_cpu_policy(cpu, policy);
+	intel_pstate_update_perf_limits(cpu, policy->min, policy->max);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -2152,7 +3297,11 @@ static int intel_cpufreq_verify_policy(struct cpufreq_policy *policy)
  * driver call was via the normal or fast switch path. Various graphs
  * output from the intel_pstate_tracer.py utility that include core_busy
  * (or performance or core_avg_perf) have a fixed y-axis from 0 to 100%,
+<<<<<<< HEAD
  * so we use 10 to indicate the the normal path through the driver, and
+=======
+ * so we use 10 to indicate the normal path through the driver, and
+>>>>>>> upstream/android-13
  * 90 to indicate the fast switch path through the driver.
  * The scaled_busy field is not used, and is set to 0.
  */
@@ -2182,13 +3331,80 @@ static void intel_cpufreq_trace(struct cpudata *cpu, unsigned int trace_type, in
 		fp_toint(cpu->iowait_boost * 100));
 }
 
+<<<<<<< HEAD
+=======
+static void intel_cpufreq_hwp_update(struct cpudata *cpu, u32 min, u32 max,
+				     u32 desired, bool fast_switch)
+{
+	u64 prev = READ_ONCE(cpu->hwp_req_cached), value = prev;
+
+	value &= ~HWP_MIN_PERF(~0L);
+	value |= HWP_MIN_PERF(min);
+
+	value &= ~HWP_MAX_PERF(~0L);
+	value |= HWP_MAX_PERF(max);
+
+	value &= ~HWP_DESIRED_PERF(~0L);
+	value |= HWP_DESIRED_PERF(desired);
+
+	if (value == prev)
+		return;
+
+	WRITE_ONCE(cpu->hwp_req_cached, value);
+	if (fast_switch)
+		wrmsrl(MSR_HWP_REQUEST, value);
+	else
+		wrmsrl_on_cpu(cpu->cpu, MSR_HWP_REQUEST, value);
+}
+
+static void intel_cpufreq_perf_ctl_update(struct cpudata *cpu,
+					  u32 target_pstate, bool fast_switch)
+{
+	if (fast_switch)
+		wrmsrl(MSR_IA32_PERF_CTL,
+		       pstate_funcs.get_val(cpu, target_pstate));
+	else
+		wrmsrl_on_cpu(cpu->cpu, MSR_IA32_PERF_CTL,
+			      pstate_funcs.get_val(cpu, target_pstate));
+}
+
+static int intel_cpufreq_update_pstate(struct cpufreq_policy *policy,
+				       int target_pstate, bool fast_switch)
+{
+	struct cpudata *cpu = all_cpu_data[policy->cpu];
+	int old_pstate = cpu->pstate.current_pstate;
+
+	target_pstate = intel_pstate_prepare_request(cpu, target_pstate);
+	if (hwp_active) {
+		int max_pstate = policy->strict_target ?
+					target_pstate : cpu->max_perf_ratio;
+
+		intel_cpufreq_hwp_update(cpu, target_pstate, max_pstate, 0,
+					 fast_switch);
+	} else if (target_pstate != old_pstate) {
+		intel_cpufreq_perf_ctl_update(cpu, target_pstate, fast_switch);
+	}
+
+	cpu->pstate.current_pstate = target_pstate;
+
+	intel_cpufreq_trace(cpu, fast_switch ? INTEL_PSTATE_TRACE_FAST_SWITCH :
+			    INTEL_PSTATE_TRACE_TARGET, old_pstate);
+
+	return target_pstate;
+}
+
+>>>>>>> upstream/android-13
 static int intel_cpufreq_target(struct cpufreq_policy *policy,
 				unsigned int target_freq,
 				unsigned int relation)
 {
 	struct cpudata *cpu = all_cpu_data[policy->cpu];
 	struct cpufreq_freqs freqs;
+<<<<<<< HEAD
 	int target_pstate, old_pstate;
+=======
+	int target_pstate;
+>>>>>>> upstream/android-13
 
 	update_turbo_state();
 
@@ -2196,6 +3412,10 @@ static int intel_cpufreq_target(struct cpufreq_policy *policy,
 	freqs.new = target_freq;
 
 	cpufreq_freq_transition_begin(policy, &freqs);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	switch (relation) {
 	case CPUFREQ_RELATION_L:
 		target_pstate = DIV_ROUND_UP(freqs.new, cpu->pstate.scaling);
@@ -2207,6 +3427,7 @@ static int intel_cpufreq_target(struct cpufreq_policy *policy,
 		target_pstate = DIV_ROUND_CLOSEST(freqs.new, cpu->pstate.scaling);
 		break;
 	}
+<<<<<<< HEAD
 	target_pstate = intel_pstate_prepare_request(cpu, target_pstate);
 	old_pstate = cpu->pstate.current_pstate;
 	if (target_pstate != cpu->pstate.current_pstate) {
@@ -2216,6 +3437,13 @@ static int intel_cpufreq_target(struct cpufreq_policy *policy,
 	}
 	freqs.new = target_pstate * cpu->pstate.scaling;
 	intel_cpufreq_trace(cpu, INTEL_PSTATE_TRACE_TARGET, old_pstate);
+=======
+
+	target_pstate = intel_cpufreq_update_pstate(policy, target_pstate, false);
+
+	freqs.new = target_pstate * cpu->pstate.scaling;
+
+>>>>>>> upstream/android-13
 	cpufreq_freq_transition_end(policy, &freqs, false);
 
 	return 0;
@@ -2225,11 +3453,16 @@ static unsigned int intel_cpufreq_fast_switch(struct cpufreq_policy *policy,
 					      unsigned int target_freq)
 {
 	struct cpudata *cpu = all_cpu_data[policy->cpu];
+<<<<<<< HEAD
 	int target_pstate, old_pstate;
+=======
+	int target_pstate;
+>>>>>>> upstream/android-13
 
 	update_turbo_state();
 
 	target_pstate = DIV_ROUND_UP(target_freq, cpu->pstate.scaling);
+<<<<<<< HEAD
 	target_pstate = intel_pstate_prepare_request(cpu, target_pstate);
 	old_pstate = cpu->pstate.current_pstate;
 	intel_pstate_update_pstate(cpu, target_pstate);
@@ -2241,14 +3474,168 @@ static int intel_cpufreq_cpu_init(struct cpufreq_policy *policy)
 {
 	int ret = __intel_pstate_cpu_init(policy);
 
+=======
+
+	target_pstate = intel_cpufreq_update_pstate(policy, target_pstate, true);
+
+	return target_pstate * cpu->pstate.scaling;
+}
+
+static void intel_cpufreq_adjust_perf(unsigned int cpunum,
+				      unsigned long min_perf,
+				      unsigned long target_perf,
+				      unsigned long capacity)
+{
+	struct cpudata *cpu = all_cpu_data[cpunum];
+	u64 hwp_cap = READ_ONCE(cpu->hwp_cap_cached);
+	int old_pstate = cpu->pstate.current_pstate;
+	int cap_pstate, min_pstate, max_pstate, target_pstate;
+
+	update_turbo_state();
+	cap_pstate = global.turbo_disabled ? HWP_GUARANTEED_PERF(hwp_cap) :
+					     HWP_HIGHEST_PERF(hwp_cap);
+
+	/* Optimization: Avoid unnecessary divisions. */
+
+	target_pstate = cap_pstate;
+	if (target_perf < capacity)
+		target_pstate = DIV_ROUND_UP(cap_pstate * target_perf, capacity);
+
+	min_pstate = cap_pstate;
+	if (min_perf < capacity)
+		min_pstate = DIV_ROUND_UP(cap_pstate * min_perf, capacity);
+
+	if (min_pstate < cpu->pstate.min_pstate)
+		min_pstate = cpu->pstate.min_pstate;
+
+	if (min_pstate < cpu->min_perf_ratio)
+		min_pstate = cpu->min_perf_ratio;
+
+	max_pstate = min(cap_pstate, cpu->max_perf_ratio);
+	if (max_pstate < min_pstate)
+		max_pstate = min_pstate;
+
+	target_pstate = clamp_t(int, target_pstate, min_pstate, max_pstate);
+
+	intel_cpufreq_hwp_update(cpu, min_pstate, max_pstate, target_pstate, true);
+
+	cpu->pstate.current_pstate = target_pstate;
+	intel_cpufreq_trace(cpu, INTEL_PSTATE_TRACE_FAST_SWITCH, old_pstate);
+}
+
+static int intel_cpufreq_cpu_init(struct cpufreq_policy *policy)
+{
+	struct freq_qos_request *req;
+	struct cpudata *cpu;
+	struct device *dev;
+	int ret, freq;
+
+	dev = get_cpu_device(policy->cpu);
+	if (!dev)
+		return -ENODEV;
+
+	ret = __intel_pstate_cpu_init(policy);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
 	policy->cpuinfo.transition_latency = INTEL_CPUFREQ_TRANSITION_LATENCY;
+<<<<<<< HEAD
 	policy->transition_delay_us = INTEL_CPUFREQ_TRANSITION_DELAY;
 	/* This reflects the intel_pstate_get_cpu_pstates() setting. */
 	policy->cur = policy->cpuinfo.min_freq;
 
+=======
+	/* This reflects the intel_pstate_get_cpu_pstates() setting. */
+	policy->cur = policy->cpuinfo.min_freq;
+
+	req = kcalloc(2, sizeof(*req), GFP_KERNEL);
+	if (!req) {
+		ret = -ENOMEM;
+		goto pstate_exit;
+	}
+
+	cpu = all_cpu_data[policy->cpu];
+
+	if (hwp_active) {
+		u64 value;
+
+		policy->transition_delay_us = INTEL_CPUFREQ_TRANSITION_DELAY_HWP;
+
+		intel_pstate_get_hwp_cap(cpu);
+
+		rdmsrl_on_cpu(cpu->cpu, MSR_HWP_REQUEST, &value);
+		WRITE_ONCE(cpu->hwp_req_cached, value);
+
+		cpu->epp_cached = intel_pstate_get_epp(cpu, value);
+	} else {
+		policy->transition_delay_us = INTEL_CPUFREQ_TRANSITION_DELAY;
+	}
+
+	freq = DIV_ROUND_UP(cpu->pstate.turbo_freq * global.min_perf_pct, 100);
+
+	ret = freq_qos_add_request(&policy->constraints, req, FREQ_QOS_MIN,
+				   freq);
+	if (ret < 0) {
+		dev_err(dev, "Failed to add min-freq constraint (%d)\n", ret);
+		goto free_req;
+	}
+
+	freq = DIV_ROUND_UP(cpu->pstate.turbo_freq * global.max_perf_pct, 100);
+
+	ret = freq_qos_add_request(&policy->constraints, req + 1, FREQ_QOS_MAX,
+				   freq);
+	if (ret < 0) {
+		dev_err(dev, "Failed to add max-freq constraint (%d)\n", ret);
+		goto remove_min_req;
+	}
+
+	policy->driver_data = req;
+
+	return 0;
+
+remove_min_req:
+	freq_qos_remove_request(req);
+free_req:
+	kfree(req);
+pstate_exit:
+	intel_pstate_exit_perf_limits(policy);
+
+	return ret;
+}
+
+static int intel_cpufreq_cpu_exit(struct cpufreq_policy *policy)
+{
+	struct freq_qos_request *req;
+
+	req = policy->driver_data;
+
+	freq_qos_remove_request(req + 1);
+	freq_qos_remove_request(req);
+	kfree(req);
+
+	return intel_pstate_cpu_exit(policy);
+}
+
+static int intel_cpufreq_suspend(struct cpufreq_policy *policy)
+{
+	intel_pstate_suspend(policy);
+
+	if (hwp_active) {
+		struct cpudata *cpu = all_cpu_data[policy->cpu];
+		u64 value = READ_ONCE(cpu->hwp_req_cached);
+
+		/*
+		 * Clear the desired perf field in MSR_HWP_REQUEST in case
+		 * intel_cpufreq_adjust_perf() is in use and the last value
+		 * written by it may not be suitable.
+		 */
+		value &= ~HWP_DESIRED_PERF(~0L);
+		wrmsrl_on_cpu(cpu->cpu, MSR_HWP_REQUEST, value);
+		WRITE_ONCE(cpu->hwp_req_cached, value);
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -2258,18 +3645,35 @@ static struct cpufreq_driver intel_cpufreq = {
 	.target		= intel_cpufreq_target,
 	.fast_switch	= intel_cpufreq_fast_switch,
 	.init		= intel_cpufreq_cpu_init,
+<<<<<<< HEAD
 	.exit		= intel_pstate_cpu_exit,
 	.stop_cpu	= intel_cpufreq_stop_cpu,
 	.name		= "intel_cpufreq",
 };
 
 static struct cpufreq_driver *default_driver = &intel_pstate;
+=======
+	.exit		= intel_cpufreq_cpu_exit,
+	.offline	= intel_cpufreq_cpu_offline,
+	.online		= intel_pstate_cpu_online,
+	.suspend	= intel_cpufreq_suspend,
+	.resume		= intel_pstate_resume,
+	.update_limits	= intel_pstate_update_limits,
+	.name		= "intel_cpufreq",
+};
+
+static struct cpufreq_driver *default_driver;
+>>>>>>> upstream/android-13
 
 static void intel_pstate_driver_cleanup(void)
 {
 	unsigned int cpu;
 
+<<<<<<< HEAD
 	get_online_cpus();
+=======
+	cpus_read_lock();
+>>>>>>> upstream/android-13
 	for_each_online_cpu(cpu) {
 		if (all_cpu_data[cpu]) {
 			if (intel_pstate_driver == &intel_pstate)
@@ -2279,7 +3683,12 @@ static void intel_pstate_driver_cleanup(void)
 			all_cpu_data[cpu] = NULL;
 		}
 	}
+<<<<<<< HEAD
 	put_online_cpus();
+=======
+	cpus_read_unlock();
+
+>>>>>>> upstream/android-13
 	intel_pstate_driver = NULL;
 }
 
@@ -2287,6 +3696,12 @@ static int intel_pstate_register_driver(struct cpufreq_driver *driver)
 {
 	int ret;
 
+<<<<<<< HEAD
+=======
+	if (driver == &intel_pstate)
+		intel_pstate_sysfs_expose_hwp_dynamic_boost();
+
+>>>>>>> upstream/android-13
 	memset(&global, 0, sizeof(global));
 	global.max_perf_pct = 100;
 
@@ -2302,6 +3717,7 @@ static int intel_pstate_register_driver(struct cpufreq_driver *driver)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int intel_pstate_unregister_driver(void)
 {
 	if (hwp_active)
@@ -2313,6 +3729,8 @@ static int intel_pstate_unregister_driver(void)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static ssize_t intel_pstate_show_status(char *buf)
 {
 	if (!intel_pstate_driver)
@@ -2324,8 +3742,11 @@ static ssize_t intel_pstate_show_status(char *buf)
 
 static int intel_pstate_update_status(const char *buf, size_t size)
 {
+<<<<<<< HEAD
 	int ret;
 
+=======
+>>>>>>> upstream/android-13
 	if (size == 3 && !strncmp(buf, "off", size)) {
 		if (!intel_pstate_driver)
 			return -EINVAL;
@@ -2333,7 +3754,13 @@ static int intel_pstate_update_status(const char *buf, size_t size)
 		if (hwp_active)
 			return -EBUSY;
 
+<<<<<<< HEAD
 		return intel_pstate_unregister_driver();
+=======
+		cpufreq_unregister_driver(intel_pstate_driver);
+		intel_pstate_driver_cleanup();
+		return 0;
+>>>>>>> upstream/android-13
 	}
 
 	if (size == 6 && !strncmp(buf, "active", size)) {
@@ -2341,9 +3768,13 @@ static int intel_pstate_update_status(const char *buf, size_t size)
 			if (intel_pstate_driver == &intel_pstate)
 				return 0;
 
+<<<<<<< HEAD
 			ret = intel_pstate_unregister_driver();
 			if (ret)
 				return ret;
+=======
+			cpufreq_unregister_driver(intel_pstate_driver);
+>>>>>>> upstream/android-13
 		}
 
 		return intel_pstate_register_driver(&intel_pstate);
@@ -2354,9 +3785,14 @@ static int intel_pstate_update_status(const char *buf, size_t size)
 			if (intel_pstate_driver == &intel_cpufreq)
 				return 0;
 
+<<<<<<< HEAD
 			ret = intel_pstate_unregister_driver();
 			if (ret)
 				return ret;
+=======
+			cpufreq_unregister_driver(intel_pstate_driver);
+			intel_pstate_sysfs_hide_hwp_dynamic_boost();
+>>>>>>> upstream/android-13
 		}
 
 		return intel_pstate_register_driver(&intel_cpufreq);
@@ -2420,6 +3856,10 @@ static bool __init intel_pstate_no_acpi_pss(void)
 		kfree(pss);
 	}
 
+<<<<<<< HEAD
+=======
+	pr_debug("ACPI _PSS not found\n");
+>>>>>>> upstream/android-13
 	return true;
 }
 
@@ -2430,9 +3870,20 @@ static bool __init intel_pstate_no_acpi_pcch(void)
 
 	status = acpi_get_handle(NULL, "\\_SB", &handle);
 	if (ACPI_FAILURE(status))
+<<<<<<< HEAD
 		return true;
 
 	return !acpi_has_method(handle, "PCCH");
+=======
+		goto not_found;
+
+	if (acpi_has_method(handle, "PCCH"))
+		return false;
+
+not_found:
+	pr_debug("ACPI PCCH not found\n");
+	return true;
+>>>>>>> upstream/android-13
 }
 
 static bool __init intel_pstate_has_acpi_ppc(void)
@@ -2447,6 +3898,10 @@ static bool __init intel_pstate_has_acpi_ppc(void)
 		if (acpi_has_method(pr->handle, "_PPC"))
 			return true;
 	}
+<<<<<<< HEAD
+=======
+	pr_debug("ACPI _PPC not found\n");
+>>>>>>> upstream/android-13
 	return false;
 }
 
@@ -2457,6 +3912,7 @@ enum {
 
 /* Hardware vendor-specific info that has its own power management modes */
 static struct acpi_platform_list plat_info[] __initdata = {
+<<<<<<< HEAD
 	{"HP    ", "ProLiant", 0, ACPI_SIG_FADT, all_versions, 0, PSS},
 	{"ORACLE", "X4-2    ", 0, ACPI_SIG_FADT, all_versions, 0, PPC},
 	{"ORACLE", "X4-2L   ", 0, ACPI_SIG_FADT, all_versions, 0, PPC},
@@ -2475,6 +3931,28 @@ static struct acpi_platform_list plat_info[] __initdata = {
 	{ } /* End */
 };
 
+=======
+	{"HP    ", "ProLiant", 0, ACPI_SIG_FADT, all_versions, NULL, PSS},
+	{"ORACLE", "X4-2    ", 0, ACPI_SIG_FADT, all_versions, NULL, PPC},
+	{"ORACLE", "X4-2L   ", 0, ACPI_SIG_FADT, all_versions, NULL, PPC},
+	{"ORACLE", "X4-2B   ", 0, ACPI_SIG_FADT, all_versions, NULL, PPC},
+	{"ORACLE", "X3-2    ", 0, ACPI_SIG_FADT, all_versions, NULL, PPC},
+	{"ORACLE", "X3-2L   ", 0, ACPI_SIG_FADT, all_versions, NULL, PPC},
+	{"ORACLE", "X3-2B   ", 0, ACPI_SIG_FADT, all_versions, NULL, PPC},
+	{"ORACLE", "X4470M2 ", 0, ACPI_SIG_FADT, all_versions, NULL, PPC},
+	{"ORACLE", "X4270M3 ", 0, ACPI_SIG_FADT, all_versions, NULL, PPC},
+	{"ORACLE", "X4270M2 ", 0, ACPI_SIG_FADT, all_versions, NULL, PPC},
+	{"ORACLE", "X4170M2 ", 0, ACPI_SIG_FADT, all_versions, NULL, PPC},
+	{"ORACLE", "X4170 M3", 0, ACPI_SIG_FADT, all_versions, NULL, PPC},
+	{"ORACLE", "X4275 M3", 0, ACPI_SIG_FADT, all_versions, NULL, PPC},
+	{"ORACLE", "X6-2    ", 0, ACPI_SIG_FADT, all_versions, NULL, PPC},
+	{"ORACLE", "Sudbury ", 0, ACPI_SIG_FADT, all_versions, NULL, PPC},
+	{ } /* End */
+};
+
+#define BITMASK_OOB	(BIT(8) | BIT(18))
+
+>>>>>>> upstream/android-13
 static bool __init intel_pstate_platform_pwr_mgmt_exists(void)
 {
 	const struct x86_cpu_id *id;
@@ -2484,8 +3962,16 @@ static bool __init intel_pstate_platform_pwr_mgmt_exists(void)
 	id = x86_match_cpu(intel_pstate_cpu_oob_ids);
 	if (id) {
 		rdmsrl(MSR_MISC_PWR_MGMT, misc_pwr);
+<<<<<<< HEAD
 		if ( misc_pwr & (1 << 8))
 			return true;
+=======
+		if (misc_pwr & BITMASK_OOB) {
+			pr_debug("Bit 8 or 18 in the MISC_PWR_MGMT MSR set\n");
+			pr_debug("P states are controlled in Out of Band mode by the firmware/hardware\n");
+			return true;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	idx = acpi_match_platform_list(plat_info);
@@ -2522,6 +4008,7 @@ static inline void intel_pstate_request_control_from_smm(void) {}
 
 #define INTEL_PSTATE_HWP_BROADWELL	0x01
 
+<<<<<<< HEAD
 #define ICPU_HWP(model, hwp_mode) \
 	{ X86_VENDOR_INTEL, 6, model, X86_FEATURE_HWP, hwp_mode }
 
@@ -2532,16 +4019,42 @@ static const struct x86_cpu_id hwp_support_ids[] __initconst = {
 	{}
 };
 
+=======
+#define X86_MATCH_HWP(model, hwp_mode)					\
+	X86_MATCH_VENDOR_FAM_MODEL_FEATURE(INTEL, 6, INTEL_FAM6_##model, \
+					   X86_FEATURE_HWP, hwp_mode)
+
+static const struct x86_cpu_id hwp_support_ids[] __initconst = {
+	X86_MATCH_HWP(BROADWELL_X,	INTEL_PSTATE_HWP_BROADWELL),
+	X86_MATCH_HWP(BROADWELL_D,	INTEL_PSTATE_HWP_BROADWELL),
+	X86_MATCH_HWP(ANY,		0),
+	{}
+};
+
+static bool intel_pstate_hwp_is_enabled(void)
+{
+	u64 value;
+
+	rdmsrl(MSR_PM_ENABLE, value);
+	return !!(value & 0x1);
+}
+
+>>>>>>> upstream/android-13
 static int __init intel_pstate_init(void)
 {
 	const struct x86_cpu_id *id;
 	int rc;
 
+<<<<<<< HEAD
 	if (no_load)
+=======
+	if (boot_cpu_data.x86_vendor != X86_VENDOR_INTEL)
+>>>>>>> upstream/android-13
 		return -ENODEV;
 
 	id = x86_match_cpu(hwp_support_ids);
 	if (id) {
+<<<<<<< HEAD
 		copy_cpu_funcs(&core_funcs);
 		if (!no_hwp) {
 			hwp_active++;
@@ -2559,14 +4072,75 @@ static int __init intel_pstate_init(void)
 
 	if (intel_pstate_msrs_not_valid())
 		return -ENODEV;
+=======
+		bool hwp_forced = intel_pstate_hwp_is_enabled();
+
+		if (hwp_forced)
+			pr_info("HWP enabled by BIOS\n");
+		else if (no_load)
+			return -ENODEV;
+
+		copy_cpu_funcs(&core_funcs);
+		/*
+		 * Avoid enabling HWP for processors without EPP support,
+		 * because that means incomplete HWP implementation which is a
+		 * corner case and supporting it is generally problematic.
+		 *
+		 * If HWP is enabled already, though, there is no choice but to
+		 * deal with it.
+		 */
+		if ((!no_hwp && boot_cpu_has(X86_FEATURE_HWP_EPP)) || hwp_forced) {
+			hwp_active++;
+			hwp_mode_bdw = id->driver_data;
+			intel_pstate.attr = hwp_cpufreq_attrs;
+			intel_cpufreq.attr = hwp_cpufreq_attrs;
+			intel_cpufreq.flags |= CPUFREQ_NEED_UPDATE_LIMITS;
+			intel_cpufreq.adjust_perf = intel_cpufreq_adjust_perf;
+			if (!default_driver)
+				default_driver = &intel_pstate;
+
+			if (boot_cpu_has(X86_FEATURE_HYBRID_CPU))
+				intel_pstate_cppc_set_cpu_scaling();
+
+			goto hwp_cpu_matched;
+		}
+		pr_info("HWP not enabled\n");
+	} else {
+		if (no_load)
+			return -ENODEV;
+
+		id = x86_match_cpu(intel_pstate_cpu_ids);
+		if (!id) {
+			pr_info("CPU model not supported\n");
+			return -ENODEV;
+		}
+
+		copy_cpu_funcs((struct pstate_funcs *)id->driver_data);
+	}
+
+	if (intel_pstate_msrs_not_valid()) {
+		pr_info("Invalid MSRs\n");
+		return -ENODEV;
+	}
+	/* Without HWP start in the passive mode. */
+	if (!default_driver)
+		default_driver = &intel_cpufreq;
+>>>>>>> upstream/android-13
 
 hwp_cpu_matched:
 	/*
 	 * The Intel pstate driver will be ignored if the platform
 	 * firmware has its own power management modes.
 	 */
+<<<<<<< HEAD
 	if (intel_pstate_platform_pwr_mgmt_exists())
 		return -ENODEV;
+=======
+	if (intel_pstate_platform_pwr_mgmt_exists()) {
+		pr_info("P-states controlled by the platform\n");
+		return -ENODEV;
+	}
+>>>>>>> upstream/android-13
 
 	if (!hwp_active && hwp_only)
 		return -ENOTSUPP;
@@ -2584,11 +4158,32 @@ hwp_cpu_matched:
 	mutex_lock(&intel_pstate_driver_lock);
 	rc = intel_pstate_register_driver(default_driver);
 	mutex_unlock(&intel_pstate_driver_lock);
+<<<<<<< HEAD
 	if (rc)
 		return rc;
 
 	if (hwp_active)
 		pr_info("HWP enabled\n");
+=======
+	if (rc) {
+		intel_pstate_sysfs_remove();
+		return rc;
+	}
+
+	if (hwp_active) {
+		const struct x86_cpu_id *id;
+
+		id = x86_match_cpu(intel_pstate_cpu_ee_disable_ids);
+		if (id) {
+			set_power_ctl_ee_state(false);
+			pr_info("Disabling energy efficiency optimization\n");
+		}
+
+		pr_info("HWP enabled\n");
+	} else if (boot_cpu_has(X86_FEATURE_HYBRID_CPU)) {
+		pr_warn("Problematic setup: Hybrid processor with disabled HWP\n");
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -2599,6 +4194,7 @@ static int __init intel_pstate_setup(char *str)
 	if (!str)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (!strcmp(str, "disable")) {
 		no_load = 1;
 	} else if (!strcmp(str, "passive")) {
@@ -2610,6 +4206,18 @@ static int __init intel_pstate_setup(char *str)
 		pr_info("HWP disabled\n");
 		no_hwp = 1;
 	}
+=======
+	if (!strcmp(str, "disable"))
+		no_load = 1;
+	else if (!strcmp(str, "active"))
+		default_driver = &intel_pstate;
+	else if (!strcmp(str, "passive"))
+		default_driver = &intel_cpufreq;
+
+	if (!strcmp(str, "no_hwp"))
+		no_hwp = 1;
+
+>>>>>>> upstream/android-13
 	if (!strcmp(str, "force"))
 		force_load = 1;
 	if (!strcmp(str, "hwp_only"))

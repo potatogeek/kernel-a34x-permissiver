@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_ARC_IO_H
@@ -37,10 +43,13 @@ static inline void ioport_unmap(void __iomem *addr)
 
 extern void iounmap(const void __iomem *addr);
 
+<<<<<<< HEAD
 #define ioremap_nocache(phy, sz)	ioremap(phy, sz)
 #define ioremap_wc(phy, sz)		ioremap(phy, sz)
 #define ioremap_wt(phy, sz)		ioremap(phy, sz)
 
+=======
+>>>>>>> upstream/android-13
 /*
  * io{read,write}{16,32}be() macros
  */

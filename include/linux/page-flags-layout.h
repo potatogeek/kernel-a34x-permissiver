@@ -21,6 +21,7 @@
 #elif MAX_NR_ZONES <= 8
 #define ZONES_SHIFT 3
 #else
+<<<<<<< HEAD
 #error ZONES_SHIFT -- too many zones configured adjust calculation
 #endif
 
@@ -31,6 +32,19 @@
 #define SECTIONS_SHIFT	(MAX_PHYSMEM_BITS - SECTION_SIZE_BITS)
 
 #endif /* CONFIG_SPARSEMEM */
+=======
+#error ZONES_SHIFT "Too many zones configured"
+#endif
+
+#define ZONES_WIDTH		ZONES_SHIFT
+
+#ifdef CONFIG_SPARSEMEM
+#include <asm/sparsemem.h>
+#define SECTIONS_SHIFT	(MAX_PHYSMEM_BITS - SECTION_SIZE_BITS)
+#else
+#define SECTIONS_SHIFT	0
+#endif
+>>>>>>> upstream/android-13
 
 #ifndef BUILD_VDSO32_64
 /*
@@ -54,6 +68,7 @@
 #define SECTIONS_WIDTH		0
 #endif
 
+<<<<<<< HEAD
 #define ZONES_WIDTH		ZONES_SHIFT
 
 #if SECTIONS_WIDTH+ZONES_WIDTH+NODES_SHIFT <= BITS_PER_LONG - NR_PAGEFLAGS
@@ -65,6 +80,31 @@
 #define NODES_WIDTH		0
 #endif
 
+=======
+#if ZONES_WIDTH + LRU_GEN_WIDTH + LRU_REFS_WIDTH + SECTIONS_WIDTH + NODES_SHIFT \
+	<= BITS_PER_LONG - NR_PAGEFLAGS
+#define NODES_WIDTH		NODES_SHIFT
+#elif defined(CONFIG_SPARSEMEM_VMEMMAP)
+#error "Vmemmap: No space for nodes field in page flags"
+#else
+#define NODES_WIDTH		0
+#endif
+
+/*
+ * Note that this #define MUST have a value so that it can be tested with
+ * the IS_ENABLED() macro.
+ */
+#if NODES_SHIFT != 0 && NODES_WIDTH == 0
+#define NODE_NOT_IN_PAGE_FLAGS	1
+#endif
+
+#if defined(CONFIG_KASAN_SW_TAGS) || defined(CONFIG_KASAN_HW_TAGS)
+#define KASAN_TAG_WIDTH 8
+#else
+#define KASAN_TAG_WIDTH 0
+#endif
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_NUMA_BALANCING
 #define LAST__PID_SHIFT 8
 #define LAST__PID_MASK  ((1 << LAST__PID_SHIFT)-1)
@@ -77,6 +117,7 @@
 #define LAST_CPUPID_SHIFT 0
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_KASAN_SW_TAGS
 #define KASAN_TAG_WIDTH 8
 #else
@@ -85,11 +126,16 @@
 
 #if SECTIONS_WIDTH+ZONES_WIDTH+NODES_SHIFT+LAST_CPUPID_SHIFT+KASAN_TAG_WIDTH \
 	<= BITS_PER_LONG - NR_PAGEFLAGS
+=======
+#if ZONES_WIDTH + LRU_GEN_WIDTH + LRU_REFS_WIDTH + SECTIONS_WIDTH + NODES_WIDTH + \
+	KASAN_TAG_WIDTH + LAST_CPUPID_SHIFT <= BITS_PER_LONG - NR_PAGEFLAGS
+>>>>>>> upstream/android-13
 #define LAST_CPUPID_WIDTH LAST_CPUPID_SHIFT
 #else
 #define LAST_CPUPID_WIDTH 0
 #endif
 
+<<<<<<< HEAD
 #if SECTIONS_WIDTH+NODES_WIDTH+ZONES_WIDTH+LAST_CPUPID_WIDTH+KASAN_TAG_WIDTH \
 	> BITS_PER_LONG - NR_PAGEFLAGS
 #error "Not enough bits in page flags"
@@ -107,5 +153,16 @@
 #define LAST_CPUPID_NOT_IN_PAGE_FLAGS
 #endif
 
+=======
+#if LAST_CPUPID_SHIFT != 0 && LAST_CPUPID_WIDTH == 0
+#define LAST_CPUPID_NOT_IN_PAGE_FLAGS
+#endif
+
+#if ZONES_WIDTH + LRU_GEN_WIDTH + LRU_REFS_WIDTH + SECTIONS_WIDTH + NODES_WIDTH + \
+	KASAN_TAG_WIDTH + LAST_CPUPID_WIDTH > BITS_PER_LONG - NR_PAGEFLAGS
+#error "Not enough bits in page flags"
+#endif
+
+>>>>>>> upstream/android-13
 #endif
 #endif /* _LINUX_PAGE_FLAGS_LAYOUT */

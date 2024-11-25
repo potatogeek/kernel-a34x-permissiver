@@ -11,9 +11,15 @@
 #include <linux/init.h>
 #include <linux/smp.h>
 #include <linux/threads.h>
+<<<<<<< HEAD
 
 #include <asm/spitfire.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+
+#include <asm/spitfire.h>
+>>>>>>> upstream/android-13
 #include <asm/oplib.h>
 #include <asm/setup.h>
 #include <asm/page.h>

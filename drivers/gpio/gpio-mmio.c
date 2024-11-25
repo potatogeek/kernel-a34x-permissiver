@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * Generic driver for memory-mapped GPIO controllers.
  *
  * Copyright 2008 MontaVista Software, Inc.
  * Copyright 2008,2010 Anton Vorontsov <cbouatmailru@gmail.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * ....``.```~~~~````.`.`.`.`.```````'',,,.........`````......`.......
  * ...``                                                         ```````..
  * ..The simplest form of a GPIO controller that the driver supports is``
@@ -138,6 +145,7 @@ static int bgpio_get_set(struct gpio_chip *gc, unsigned int gpio)
 	unsigned long pinmask = bgpio_line2mask(gc, gpio);
 	bool dir = !!(gc->bgpio_dir & pinmask);
 
+<<<<<<< HEAD
 	/*
 	 * If the direction is OUT we read the value from the SET
 	 * register, and if the direction is IN we read the value
@@ -149,6 +157,8 @@ static int bgpio_get_set(struct gpio_chip *gc, unsigned int gpio)
 	if (gc->bgpio_dir_inverted)
 		dir = !dir;
 
+=======
+>>>>>>> upstream/android-13
 	if (dir)
 		return !!(gc->read_reg(gc->reg_set) & pinmask);
 	else
@@ -168,6 +178,7 @@ static int bgpio_get_set_multiple(struct gpio_chip *gc, unsigned long *mask,
 	/* Make sure we first clear any bits that are zero when we read the register */
 	*bits &= ~*mask;
 
+<<<<<<< HEAD
 	/* Exploit the fact that we know which directions are set */
 	if (gc->bgpio_dir_inverted) {
 		set_mask = *mask & ~gc->bgpio_dir;
@@ -176,6 +187,10 @@ static int bgpio_get_set_multiple(struct gpio_chip *gc, unsigned long *mask,
 		set_mask = *mask & gc->bgpio_dir;
 		get_mask = *mask & ~gc->bgpio_dir;
 	}
+=======
+	set_mask = *mask & gc->bgpio_dir;
+	get_mask = *mask & ~gc->bgpio_dir;
+>>>>>>> upstream/android-13
 
 	if (set_mask)
 		*bits |= gc->read_reg(gc->reg_set) & set_mask;
@@ -216,8 +231,12 @@ static int bgpio_get_multiple_be(struct gpio_chip *gc, unsigned long *mask,
 	*bits &= ~*mask;
 
 	/* Create a mirrored mask */
+<<<<<<< HEAD
 	bit = -1;
 	while ((bit = find_next_bit(mask, gc->ngpio, bit + 1)) < gc->ngpio)
+=======
+	for_each_set_bit(bit, mask, gc->ngpio)
+>>>>>>> upstream/android-13
 		readmask |= bgpio_line2mask(gc, bit);
 
 	/* Read the register */
@@ -227,8 +246,12 @@ static int bgpio_get_multiple_be(struct gpio_chip *gc, unsigned long *mask,
 	 * Mirror the result into the "bits" result, this will give line 0
 	 * in bit 0 ... line 31 in bit 31 for a 32bit register.
 	 */
+<<<<<<< HEAD
 	bit = -1;
 	while ((bit = find_next_bit(&val, gc->ngpio, bit + 1)) < gc->ngpio)
+=======
+	for_each_set_bit(bit, &val, gc->ngpio)
+>>>>>>> upstream/android-13
 		*bits |= bgpio_line2mask(gc, bit);
 
 	return 0;
@@ -293,6 +316,7 @@ static void bgpio_multiple_get_masks(struct gpio_chip *gc,
 	*set_mask = 0;
 	*clear_mask = 0;
 
+<<<<<<< HEAD
 	for (i = 0; i < gc->bgpio_bits; i++) {
 		if (*mask == 0)
 			break;
@@ -302,6 +326,13 @@ static void bgpio_multiple_get_masks(struct gpio_chip *gc,
 			else
 				*clear_mask |= bgpio_line2mask(gc, i);
 		}
+=======
+	for_each_set_bit(i, mask, gc->bgpio_bits) {
+		if (test_bit(i, bits))
+			*set_mask |= bgpio_line2mask(gc, i);
+		else
+			*clear_mask |= bgpio_line2mask(gc, i);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -376,11 +407,20 @@ static int bgpio_dir_in(struct gpio_chip *gc, unsigned int gpio)
 
 	spin_lock_irqsave(&gc->bgpio_lock, flags);
 
+<<<<<<< HEAD
 	if (gc->bgpio_dir_inverted)
 		gc->bgpio_dir |= bgpio_line2mask(gc, gpio);
 	else
 		gc->bgpio_dir &= ~bgpio_line2mask(gc, gpio);
 	gc->write_reg(gc->reg_dir, gc->bgpio_dir);
+=======
+	gc->bgpio_dir &= ~bgpio_line2mask(gc, gpio);
+
+	if (gc->reg_dir_in)
+		gc->write_reg(gc->reg_dir_in, ~gc->bgpio_dir);
+	if (gc->reg_dir_out)
+		gc->write_reg(gc->reg_dir_out, gc->bgpio_dir);
+>>>>>>> upstream/android-13
 
 	spin_unlock_irqrestore(&gc->bgpio_lock, flags);
 
@@ -389,6 +429,7 @@ static int bgpio_dir_in(struct gpio_chip *gc, unsigned int gpio)
 
 static int bgpio_get_dir(struct gpio_chip *gc, unsigned int gpio)
 {
+<<<<<<< HEAD
 	/* Return 0 if output, 1 of input */
 	if (gc->bgpio_dir_inverted)
 		return !!(gc->read_reg(gc->reg_dir) & bgpio_line2mask(gc, gpio));
@@ -412,6 +453,57 @@ static int bgpio_dir_out(struct gpio_chip *gc, unsigned int gpio, int val)
 
 	spin_unlock_irqrestore(&gc->bgpio_lock, flags);
 
+=======
+	/* Return 0 if output, 1 if input */
+	if (gc->bgpio_dir_unreadable) {
+		if (gc->bgpio_dir & bgpio_line2mask(gc, gpio))
+			return GPIO_LINE_DIRECTION_OUT;
+		return GPIO_LINE_DIRECTION_IN;
+	}
+
+	if (gc->reg_dir_out) {
+		if (gc->read_reg(gc->reg_dir_out) & bgpio_line2mask(gc, gpio))
+			return GPIO_LINE_DIRECTION_OUT;
+		return GPIO_LINE_DIRECTION_IN;
+	}
+
+	if (gc->reg_dir_in)
+		if (!(gc->read_reg(gc->reg_dir_in) & bgpio_line2mask(gc, gpio)))
+			return GPIO_LINE_DIRECTION_OUT;
+
+	return GPIO_LINE_DIRECTION_IN;
+}
+
+static void bgpio_dir_out(struct gpio_chip *gc, unsigned int gpio, int val)
+{
+	unsigned long flags;
+
+	spin_lock_irqsave(&gc->bgpio_lock, flags);
+
+	gc->bgpio_dir |= bgpio_line2mask(gc, gpio);
+
+	if (gc->reg_dir_in)
+		gc->write_reg(gc->reg_dir_in, ~gc->bgpio_dir);
+	if (gc->reg_dir_out)
+		gc->write_reg(gc->reg_dir_out, gc->bgpio_dir);
+
+	spin_unlock_irqrestore(&gc->bgpio_lock, flags);
+}
+
+static int bgpio_dir_out_dir_first(struct gpio_chip *gc, unsigned int gpio,
+				   int val)
+{
+	bgpio_dir_out(gc, gpio, val);
+	gc->set(gc, gpio, val);
+	return 0;
+}
+
+static int bgpio_dir_out_val_first(struct gpio_chip *gc, unsigned int gpio,
+				   int val)
+{
+	gc->set(gc, gpio, val);
+	bgpio_dir_out(gc, gpio, val);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -541,6 +633,7 @@ static int bgpio_setup_direction(struct gpio_chip *gc,
 				 void __iomem *dirin,
 				 unsigned long flags)
 {
+<<<<<<< HEAD
 	if (dirout && dirin) {
 		return -EINVAL;
 	} else if (dirout) {
@@ -554,6 +647,17 @@ static int bgpio_setup_direction(struct gpio_chip *gc,
 		gc->direction_input = bgpio_dir_in;
 		gc->get_direction = bgpio_get_dir;
 		gc->bgpio_dir_inverted = true;
+=======
+	if (dirout || dirin) {
+		gc->reg_dir_out = dirout;
+		gc->reg_dir_in = dirin;
+		if (flags & BGPIOF_NO_SET_ON_INPUT)
+			gc->direction_output = bgpio_dir_out_dir_first;
+		else
+			gc->direction_output = bgpio_dir_out_val_first;
+		gc->direction_input = bgpio_dir_in;
+		gc->get_direction = bgpio_get_dir;
+>>>>>>> upstream/android-13
 	} else {
 		if (flags & BGPIOF_NO_OUTPUT)
 			gc->direction_output = bgpio_dir_out_err;
@@ -592,11 +696,19 @@ static int bgpio_request(struct gpio_chip *chip, unsigned gpio_pin)
  * @dirout: MMIO address for the register to set the line as OUTPUT. It is assumed
  *	that setting a line to 1 in this register will turn that line into an
  *	output line. Conversely, setting the line to 0 will turn that line into
+<<<<<<< HEAD
  *	an input. Either this or @dirin can be defined, but never both.
  * @dirin: MMIO address for the register to set this line as INPUT. It is assumed
  *	that setting a line to 1 in this register will turn that line into an
  *	input line. Conversely, setting the line to 0 will turn that line into
  *	an output. Either this or @dirout can be defined, but never both.
+=======
+ *	an input.
+ * @dirin: MMIO address for the register to set this line as INPUT. It is assumed
+ *	that setting a line to 1 in this register will turn that line into an
+ *	input line. Conversely, setting the line to 0 will turn that line into
+ *	an output.
+>>>>>>> upstream/android-13
  * @flags: Different flags that will affect the behaviour of the device, such as
  *	endianness etc.
  */
@@ -638,8 +750,33 @@ int bgpio_init(struct gpio_chip *gc, struct device *dev,
 	if (gc->set == bgpio_set_set &&
 			!(flags & BGPIOF_UNREADABLE_REG_SET))
 		gc->bgpio_data = gc->read_reg(gc->reg_set);
+<<<<<<< HEAD
 	if (gc->reg_dir && !(flags & BGPIOF_UNREADABLE_REG_DIR))
 		gc->bgpio_dir = gc->read_reg(gc->reg_dir);
+=======
+
+	if (flags & BGPIOF_UNREADABLE_REG_DIR)
+		gc->bgpio_dir_unreadable = true;
+
+	/*
+	 * Inspect hardware to find initial direction setting.
+	 */
+	if ((gc->reg_dir_out || gc->reg_dir_in) &&
+	    !(flags & BGPIOF_UNREADABLE_REG_DIR)) {
+		if (gc->reg_dir_out)
+			gc->bgpio_dir = gc->read_reg(gc->reg_dir_out);
+		else if (gc->reg_dir_in)
+			gc->bgpio_dir = ~gc->read_reg(gc->reg_dir_in);
+		/*
+		 * If we have two direction registers, synchronise
+		 * input setting to output setting, the library
+		 * can not handle a line being input and output at
+		 * the same time.
+		 */
+		if (gc->reg_dir_out && gc->reg_dir_in)
+			gc->write_reg(gc->reg_dir_in, ~gc->bgpio_dir);
+	}
+>>>>>>> upstream/android-13
 
 	return ret;
 }

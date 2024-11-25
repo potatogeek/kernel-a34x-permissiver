@@ -11,6 +11,7 @@
 
 #include <linux/types.h>
 
+<<<<<<< HEAD
 typedef unsigned long	cpuid_t;
 typedef unsigned long	cnodemask_t;
 typedef signed short	nasid_t;	/* node id in numa-as-id space */
@@ -22,4 +23,17 @@ typedef unsigned char	clusterid_t;	/* Clusterid of the cell */
 
 typedef dev_t		vertex_hdl_t;	/* hardware graph vertex handle */
 
+=======
+#ifndef __ASSEMBLY__
+
+typedef unsigned long	cpuid_t;
+typedef signed short	nasid_t;	/* node id in numa-as-id space */
+typedef signed char	partid_t;	/* partition ID type */
+typedef signed short	moduleid_t;	/* user-visible module number type */
+
+typedef dev_t		vertex_hdl_t;	/* hardware graph vertex handle */
+
+#endif
+
+>>>>>>> upstream/android-13
 #endif /* _ASM_SN_TYPES_H */

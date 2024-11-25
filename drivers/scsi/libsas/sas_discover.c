@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Serial Attached SCSI (SAS) Discover process
  *
  * Copyright (C) 2005 Adaptec, Inc.  All rights reserved.
  * Copyright (C) 2005 Luben Tuikov <luben_tuikov@adaptec.com>
+<<<<<<< HEAD
  *
  * This file is licensed under GPLv2.
  *
@@ -20,6 +25,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/scatterlist.h>
@@ -32,7 +39,11 @@
 #include <scsi/scsi_transport.h>
 #include <scsi/scsi_transport_sas.h>
 #include <scsi/sas_ata.h>
+<<<<<<< HEAD
 #include "../scsi_sas_internal.h"
+=======
+#include "scsi_sas_internal.h"
+>>>>>>> upstream/android-13
 
 /* ---------- Basic task processing for discovery purposes ---------- */
 
@@ -91,7 +102,11 @@ static int sas_get_port_device(struct asd_sas_port *port)
 		struct dev_to_host_fis *fis =
 			(struct dev_to_host_fis *) dev->frame_rcvd;
 		if (fis->interrupt_reason == 1 && fis->lbal == 1 &&
+<<<<<<< HEAD
 		    fis->byte_count_low==0x69 && fis->byte_count_high == 0x96
+=======
+		    fis->byte_count_low == 0x69 && fis->byte_count_high == 0x96
+>>>>>>> upstream/android-13
 		    && (fis->device & ~0x10) == 0)
 			dev->dev_type = SAS_SATA_PM;
 		else
@@ -124,7 +139,11 @@ static int sas_get_port_device(struct asd_sas_port *port)
 			rphy = NULL;
 			break;
 		}
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SAS_END_DEVICE:
 		rphy = sas_end_device_alloc(port->port);
 		break;
@@ -137,7 +156,11 @@ static int sas_get_port_device(struct asd_sas_port *port)
 					  SAS_FANOUT_EXPANDER_DEVICE);
 		break;
 	default:
+<<<<<<< HEAD
 		printk("ERROR: Unidentified device type %d\n", dev->dev_type);
+=======
+		pr_warn("ERROR: Unidentified device type %d\n", dev->dev_type);
+>>>>>>> upstream/android-13
 		rphy = NULL;
 		break;
 	}
@@ -195,6 +218,7 @@ int sas_notify_lldd_dev_found(struct domain_device *dev)
 
 	res = i->dft->lldd_dev_found(dev);
 	if (res) {
+<<<<<<< HEAD
 		printk("sas: driver on pcidev %s cannot handle "
 		       "device %llx, error:%d\n",
 		       dev_name(sas_ha->dev),
@@ -203,6 +227,16 @@ int sas_notify_lldd_dev_found(struct domain_device *dev)
 	set_bit(SAS_DEV_FOUND, &dev->state);
 	kref_get(&dev->kref);
 	return res;
+=======
+		pr_warn("driver on host %s cannot handle device %016llx, error:%d\n",
+			dev_name(sas_ha->dev),
+			SAS_ADDR(dev->sas_addr), res);
+		return res;
+	}
+	set_bit(SAS_DEV_FOUND, &dev->state);
+	kref_get(&dev->kref);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 
@@ -269,7 +303,11 @@ static void sas_suspend_devices(struct work_struct *work)
 	 * phy_list is not being mutated
 	 */
 	list_for_each_entry(phy, &port->phy_list, port_phy_el) {
+<<<<<<< HEAD
 		if (si->dft->lldd_port_formed)
+=======
+		if (si->dft->lldd_port_deformed)
+>>>>>>> upstream/android-13
 			si->dft->lldd_port_deformed(phy);
 		phy->suspended = 1;
 		port->suspended = 1;
@@ -294,6 +332,7 @@ static void sas_resume_devices(struct work_struct *work)
  */
 int sas_discover_end_dev(struct domain_device *dev)
 {
+<<<<<<< HEAD
 	int res;
 
 	res = sas_notify_lldd_dev_found(dev);
@@ -301,6 +340,9 @@ int sas_discover_end_dev(struct domain_device *dev)
 		return res;
 
 	return 0;
+=======
+	return sas_notify_lldd_dev_found(dev);
+>>>>>>> upstream/android-13
 }
 
 /* ---------- Device registration and unregistration ---------- */
@@ -319,7 +361,11 @@ void sas_free_device(struct kref *kref)
 	dev->phy = NULL;
 
 	/* remove the phys and ports, everything else should be gone */
+<<<<<<< HEAD
 	if (dev->dev_type == SAS_EDGE_EXPANDER_DEVICE || dev->dev_type == SAS_FANOUT_EXPANDER_DEVICE)
+=======
+	if (dev_is_expander(dev->dev_type))
+>>>>>>> upstream/android-13
 		kfree(dev->ex_dev.ex_phy);
 
 	if (dev_is_sata(dev) && dev->sata_dev.ap) {
@@ -465,8 +511,13 @@ static void sas_discover_domain(struct work_struct *work)
 		return;
 	dev = port->port_dev;
 
+<<<<<<< HEAD
 	SAS_DPRINTK("DOING DISCOVERY on port %d, pid:%d\n", port->id,
 		    task_pid_nr(current));
+=======
+	pr_debug("DOING DISCOVERY on port %d, pid:%d\n", port->id,
+		 task_pid_nr(current));
+>>>>>>> upstream/android-13
 
 	switch (dev->dev_type) {
 	case SAS_END_DEVICE:
@@ -482,12 +533,22 @@ static void sas_discover_domain(struct work_struct *work)
 		error = sas_discover_sata(dev);
 		break;
 #else
+<<<<<<< HEAD
 		SAS_DPRINTK("ATA device seen but CONFIG_SCSI_SAS_ATA=N so cannot attach\n");
 		/* Fall through */
 #endif
 	default:
 		error = -ENXIO;
 		SAS_DPRINTK("unhandled device %d\n", dev->dev_type);
+=======
+		pr_notice("ATA device seen but CONFIG_SCSI_SAS_ATA=N so cannot attach\n");
+		fallthrough;
+#endif
+		/* Fall through - only for the #else condition above. */
+	default:
+		error = -ENXIO;
+		pr_err("unhandled device %d\n", dev->dev_type);
+>>>>>>> upstream/android-13
 		break;
 	}
 
@@ -504,8 +565,13 @@ static void sas_discover_domain(struct work_struct *work)
 
 	sas_probe_devices(port);
 
+<<<<<<< HEAD
 	SAS_DPRINTK("DONE DISCOVERY on port %d, pid:%d, result:%d\n", port->id,
 		    task_pid_nr(current), error);
+=======
+	pr_debug("DONE DISCOVERY on port %d, pid:%d, result:%d\n", port->id,
+		 task_pid_nr(current), error);
+>>>>>>> upstream/android-13
 }
 
 static void sas_revalidate_domain(struct work_struct *work)
@@ -519,13 +585,19 @@ static void sas_revalidate_domain(struct work_struct *work)
 	/* prevent revalidation from finding sata links in recovery */
 	mutex_lock(&ha->disco_mutex);
 	if (test_bit(SAS_HA_ATA_EH_ACTIVE, &ha->state)) {
+<<<<<<< HEAD
 		SAS_DPRINTK("REVALIDATION DEFERRED on port %d, pid:%d\n",
 			    port->id, task_pid_nr(current));
+=======
+		pr_debug("REVALIDATION DEFERRED on port %d, pid:%d\n",
+			 port->id, task_pid_nr(current));
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
 	clear_bit(DISCE_REVALIDATE_DOMAIN, &port->disc.pending);
 
+<<<<<<< HEAD
 	SAS_DPRINTK("REVALIDATING DOMAIN on port %d, pid:%d\n", port->id,
 		    task_pid_nr(current));
 
@@ -535,6 +607,16 @@ static void sas_revalidate_domain(struct work_struct *work)
 
 	SAS_DPRINTK("done REVALIDATING DOMAIN on port %d, pid:%d, res 0x%x\n",
 		    port->id, task_pid_nr(current), res);
+=======
+	pr_debug("REVALIDATING DOMAIN on port %d, pid:%d\n", port->id,
+		 task_pid_nr(current));
+
+	if (ddev && dev_is_expander(ddev->dev_type))
+		res = sas_ex_revalidate_domain(ddev);
+
+	pr_debug("done REVALIDATING DOMAIN on port %d, pid:%d, res 0x%x\n",
+		 port->id, task_pid_nr(current), res);
+>>>>>>> upstream/android-13
  out:
 	mutex_unlock(&ha->disco_mutex);
 

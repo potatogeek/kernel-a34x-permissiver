@@ -120,6 +120,7 @@ static inline int au1300_gpio_getinitlvl(unsigned int gpio)
 	return (v >> gpio) & 1;
 }
 
+<<<<<<< HEAD
 /**********************************************************************/
 
 /* Linux gpio framework integration.
@@ -257,4 +258,6 @@ static inline int gpio_export_link(struct device *dev, const char *name,
 
 #endif	/* CONFIG GPIOLIB */
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _GPIO_AU1300_H_ */

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2003 Evgeniy Polyakov <zbr@ioremap.net>
  *
@@ -10,6 +11,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2003 Evgeniy Polyakov <zbr@ioremap.net>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>

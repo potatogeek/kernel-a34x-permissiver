@@ -7,7 +7,12 @@
 #include <uapi/linux/tcp.h>
 #include <uapi/linux/filter.h>
 #include <uapi/linux/pkt_cls.h>
+<<<<<<< HEAD
 #include "bpf_helpers.h"
+=======
+#include <bpf/bpf_helpers.h>
+#include "bpf_legacy.h"
+>>>>>>> upstream/android-13
 
 /* compiler workaround */
 #define _htonl __builtin_bswap32

@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/lib/io-readsw-armv3.S
  *
  *  Copyright (C) 1995-2000 Russell King
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/linkage.h>
 #include <asm/assembler.h>
@@ -68,7 +75,11 @@ ENTRY(__raw_readsw)
 		bpl	.Linsw_8_lp
 
 		tst	r2, #7
+<<<<<<< HEAD
 		ldmeqfd	sp!, {r4, r5, r6, pc}
+=======
+		ldmfdeq	sp!, {r4, r5, r6, pc}
+>>>>>>> upstream/android-13
 
 .Lno_insw_8:	tst	r2, #4
 		beq	.Lno_insw_4
@@ -97,9 +108,15 @@ ENTRY(__raw_readsw)
 
 .Lno_insw_2:	tst	r2, #1
 		ldrne	r3, [r0]
+<<<<<<< HEAD
 		strneb	r3, [r1], #1
 		movne	r3, r3, lsr #8
 		strneb	r3, [r1]
+=======
+		strbne	r3, [r1], #1
+		movne	r3, r3, lsr #8
+		strbne	r3, [r1]
+>>>>>>> upstream/android-13
 
 		ldmfd	sp!, {r4, r5, r6, pc}
 

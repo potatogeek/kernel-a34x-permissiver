@@ -53,6 +53,7 @@ static inline void ioport_unmap(void __iomem *addr)
 #define outw_p(x, addr)	outw((x), (addr))
 #define outl_p(x, addr)	outl((x), (addr))
 
+<<<<<<< HEAD
 #define insb(a, b, c)	BUG()
 #define insw(a, b, c)	BUG()
 #define insl(a, b, c)	BUG()
@@ -60,5 +61,36 @@ static inline void ioport_unmap(void __iomem *addr)
 #define outsb(a, b, c)	BUG()
 #define outsw(a, b, c)	BUG()
 #define outsl(a, b, c)	BUG()
+=======
+static inline void insb(unsigned long port, void *dst, unsigned long count)
+{
+	BUG();
+}
+
+static inline void insw(unsigned long port, void *dst, unsigned long count)
+{
+	BUG();
+}
+
+static inline void insl(unsigned long port, void *dst, unsigned long count)
+{
+	BUG();
+}
+
+static inline void outsb(unsigned long port, const void *src, unsigned long count)
+{
+	BUG();
+}
+
+static inline void outsw(unsigned long port, const void *src, unsigned long count)
+{
+	BUG();
+}
+
+static inline void outsl(unsigned long port, const void *src, unsigned long count)
+{
+	BUG();
+}
+>>>>>>> upstream/android-13
 
 #endif /* __ASM_SH_IO_NOIOPORT_H */

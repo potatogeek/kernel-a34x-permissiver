@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) Paul Mackerras 1997.
  *
@@ -6,6 +7,12 @@
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (C) Paul Mackerras 1997.
+ *
+>>>>>>> upstream/android-13
  * NOTE: this code runs in 32 bit mode and is packaged as ELF32.
  */
 

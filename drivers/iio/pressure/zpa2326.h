@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Murata ZPA2326 pressure and temperature sensor IIO driver
  *
  * Copyright (c) 2016 Parrot S.A.
  *
  * Author: Gregor Boirie <gregor.boirie@parrot.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
@@ -13,6 +18,8 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ZPA2326_H

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ispccp2.c
  *
@@ -8,10 +12,13 @@
  *
  * Contacts: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
  *	     Sakari Ailus <sakari.ailus@iki.fi>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -621,11 +628,21 @@ static const unsigned int ccp2_fmts[] = {
  * return format structure or NULL on error
  */
 static struct v4l2_mbus_framefmt *
+<<<<<<< HEAD
 __ccp2_get_format(struct isp_ccp2_device *ccp2, struct v4l2_subdev_pad_config *cfg,
 		     unsigned int pad, enum v4l2_subdev_format_whence which)
 {
 	if (which == V4L2_SUBDEV_FORMAT_TRY)
 		return v4l2_subdev_get_try_format(&ccp2->subdev, cfg, pad);
+=======
+__ccp2_get_format(struct isp_ccp2_device *ccp2,
+		  struct v4l2_subdev_state *sd_state,
+		  unsigned int pad, enum v4l2_subdev_format_whence which)
+{
+	if (which == V4L2_SUBDEV_FORMAT_TRY)
+		return v4l2_subdev_get_try_format(&ccp2->subdev, sd_state,
+						  pad);
+>>>>>>> upstream/android-13
 	else
 		return &ccp2->formats[pad];
 }
@@ -639,7 +656,12 @@ __ccp2_get_format(struct isp_ccp2_device *ccp2, struct v4l2_subdev_pad_config *c
  * @which : wanted subdev format
  */
 static void ccp2_try_format(struct isp_ccp2_device *ccp2,
+<<<<<<< HEAD
 			       struct v4l2_subdev_pad_config *cfg, unsigned int pad,
+=======
+			       struct v4l2_subdev_state *sd_state,
+			       unsigned int pad,
+>>>>>>> upstream/android-13
 			       struct v4l2_mbus_framefmt *fmt,
 			       enum v4l2_subdev_format_whence which)
 {
@@ -673,7 +695,12 @@ static void ccp2_try_format(struct isp_ccp2_device *ccp2,
 		 * When CCP2 write to memory feature will be added this
 		 * should be changed properly.
 		 */
+<<<<<<< HEAD
 		format = __ccp2_get_format(ccp2, cfg, CCP2_PAD_SINK, which);
+=======
+		format = __ccp2_get_format(ccp2, sd_state, CCP2_PAD_SINK,
+					   which);
+>>>>>>> upstream/android-13
 		memcpy(fmt, format, sizeof(*fmt));
 		fmt->code = MEDIA_BUS_FMT_SGRBG10_1X10;
 		break;
@@ -691,7 +718,11 @@ static void ccp2_try_format(struct isp_ccp2_device *ccp2,
  * return -EINVAL or zero on success
  */
 static int ccp2_enum_mbus_code(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 				  struct v4l2_subdev_pad_config *cfg,
+=======
+				  struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 				  struct v4l2_subdev_mbus_code_enum *code)
 {
 	struct isp_ccp2_device *ccp2 = v4l2_get_subdevdata(sd);
@@ -706,8 +737,13 @@ static int ccp2_enum_mbus_code(struct v4l2_subdev *sd,
 		if (code->index != 0)
 			return -EINVAL;
 
+<<<<<<< HEAD
 		format = __ccp2_get_format(ccp2, cfg, CCP2_PAD_SINK,
 					      code->which);
+=======
+		format = __ccp2_get_format(ccp2, sd_state, CCP2_PAD_SINK,
+					   code->which);
+>>>>>>> upstream/android-13
 		code->code = format->code;
 	}
 
@@ -715,7 +751,11 @@ static int ccp2_enum_mbus_code(struct v4l2_subdev *sd,
 }
 
 static int ccp2_enum_frame_size(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 				   struct v4l2_subdev_pad_config *cfg,
+=======
+				   struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 				   struct v4l2_subdev_frame_size_enum *fse)
 {
 	struct isp_ccp2_device *ccp2 = v4l2_get_subdevdata(sd);
@@ -727,7 +767,11 @@ static int ccp2_enum_frame_size(struct v4l2_subdev *sd,
 	format.code = fse->code;
 	format.width = 1;
 	format.height = 1;
+<<<<<<< HEAD
 	ccp2_try_format(ccp2, cfg, fse->pad, &format, fse->which);
+=======
+	ccp2_try_format(ccp2, sd_state, fse->pad, &format, fse->which);
+>>>>>>> upstream/android-13
 	fse->min_width = format.width;
 	fse->min_height = format.height;
 
@@ -737,7 +781,11 @@ static int ccp2_enum_frame_size(struct v4l2_subdev *sd,
 	format.code = fse->code;
 	format.width = -1;
 	format.height = -1;
+<<<<<<< HEAD
 	ccp2_try_format(ccp2, cfg, fse->pad, &format, fse->which);
+=======
+	ccp2_try_format(ccp2, sd_state, fse->pad, &format, fse->which);
+>>>>>>> upstream/android-13
 	fse->max_width = format.width;
 	fse->max_height = format.height;
 
@@ -751,13 +799,23 @@ static int ccp2_enum_frame_size(struct v4l2_subdev *sd,
  * @fmt   : pointer to v4l2 subdev format structure
  * return -EINVAL or zero on success
  */
+<<<<<<< HEAD
 static int ccp2_get_format(struct v4l2_subdev *sd, struct v4l2_subdev_pad_config *cfg,
 			      struct v4l2_subdev_format *fmt)
+=======
+static int ccp2_get_format(struct v4l2_subdev *sd,
+			   struct v4l2_subdev_state *sd_state,
+			   struct v4l2_subdev_format *fmt)
+>>>>>>> upstream/android-13
 {
 	struct isp_ccp2_device *ccp2 = v4l2_get_subdevdata(sd);
 	struct v4l2_mbus_framefmt *format;
 
+<<<<<<< HEAD
 	format = __ccp2_get_format(ccp2, cfg, fmt->pad, fmt->which);
+=======
+	format = __ccp2_get_format(ccp2, sd_state, fmt->pad, fmt->which);
+>>>>>>> upstream/android-13
 	if (format == NULL)
 		return -EINVAL;
 
@@ -772,25 +830,47 @@ static int ccp2_get_format(struct v4l2_subdev *sd, struct v4l2_subdev_pad_config
  * @fmt   : pointer to v4l2 subdev format structure
  * returns zero
  */
+<<<<<<< HEAD
 static int ccp2_set_format(struct v4l2_subdev *sd, struct v4l2_subdev_pad_config *cfg,
 			      struct v4l2_subdev_format *fmt)
+=======
+static int ccp2_set_format(struct v4l2_subdev *sd,
+			   struct v4l2_subdev_state *sd_state,
+			   struct v4l2_subdev_format *fmt)
+>>>>>>> upstream/android-13
 {
 	struct isp_ccp2_device *ccp2 = v4l2_get_subdevdata(sd);
 	struct v4l2_mbus_framefmt *format;
 
+<<<<<<< HEAD
 	format = __ccp2_get_format(ccp2, cfg, fmt->pad, fmt->which);
 	if (format == NULL)
 		return -EINVAL;
 
 	ccp2_try_format(ccp2, cfg, fmt->pad, &fmt->format, fmt->which);
+=======
+	format = __ccp2_get_format(ccp2, sd_state, fmt->pad, fmt->which);
+	if (format == NULL)
+		return -EINVAL;
+
+	ccp2_try_format(ccp2, sd_state, fmt->pad, &fmt->format, fmt->which);
+>>>>>>> upstream/android-13
 	*format = fmt->format;
 
 	/* Propagate the format from sink to source */
 	if (fmt->pad == CCP2_PAD_SINK) {
+<<<<<<< HEAD
 		format = __ccp2_get_format(ccp2, cfg, CCP2_PAD_SOURCE,
 					   fmt->which);
 		*format = fmt->format;
 		ccp2_try_format(ccp2, cfg, CCP2_PAD_SOURCE, format, fmt->which);
+=======
+		format = __ccp2_get_format(ccp2, sd_state, CCP2_PAD_SOURCE,
+					   fmt->which);
+		*format = fmt->format;
+		ccp2_try_format(ccp2, sd_state, CCP2_PAD_SOURCE, format,
+				fmt->which);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -815,7 +895,11 @@ static int ccp2_init_formats(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
 	format.format.code = MEDIA_BUS_FMT_SGRBG10_1X10;
 	format.format.width = 4096;
 	format.format.height = 4096;
+<<<<<<< HEAD
 	ccp2_set_format(sd, fh ? fh->pad : NULL, &format);
+=======
+	ccp2_set_format(sd, fh ? fh->state : NULL, &format);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1071,7 +1155,11 @@ static int ccp2_init_entities(struct isp_ccp2_device *ccp2)
 
 	v4l2_subdev_init(sd, &ccp2_sd_ops);
 	sd->internal_ops = &ccp2_sd_internal_ops;
+<<<<<<< HEAD
 	strlcpy(sd->name, "OMAP3 ISP CCP2", sizeof(sd->name));
+=======
+	strscpy(sd->name, "OMAP3 ISP CCP2", sizeof(sd->name));
+>>>>>>> upstream/android-13
 	sd->grp_id = 1 << 16;   /* group ID for isp subdevs */
 	v4l2_set_subdevdata(sd, ccp2);
 	sd->flags |= V4L2_SUBDEV_FL_HAS_DEVNODE;

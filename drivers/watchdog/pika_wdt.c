@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * PIKA FPGA based Watchdog Timer
  *
@@ -118,7 +122,11 @@ static int pikawdt_open(struct inode *inode, struct file *file)
 
 	pikawdt_start();
 
+<<<<<<< HEAD
 	return nonseekable_open(inode, file);
+=======
+	return stream_open(inode, file);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -213,6 +221,10 @@ static const struct file_operations pikawdt_fops = {
 	.release	= pikawdt_release,
 	.write		= pikawdt_write,
 	.unlocked_ioctl	= pikawdt_ioctl,
+<<<<<<< HEAD
+=======
+	.compat_ioctl	= compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 };
 
 static struct miscdevice pikawdt_miscdev = {
@@ -225,7 +237,11 @@ static int __init pikawdt_init(void)
 {
 	struct device_node *np;
 	void __iomem *fpga;
+<<<<<<< HEAD
 	static u32 post1;
+=======
+	u32 post1;
+>>>>>>> upstream/android-13
 	int ret;
 
 	np = of_find_compatible_node(NULL, NULL, "pika,fpga");

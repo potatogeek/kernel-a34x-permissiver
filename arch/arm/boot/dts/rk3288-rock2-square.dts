@@ -41,13 +41,21 @@
 	gpio-leds {
 		compatible = "gpio-leds";
 
+<<<<<<< HEAD
 		heartbeat {
+=======
+		heartbeat_led: led-0 {
+>>>>>>> upstream/android-13
 			gpios = <&gpio7 RK_PB7 GPIO_ACTIVE_LOW>;
 			label = "rock2:green:state1";
 			linux,default-trigger = "heartbeat";
 		};
 
+<<<<<<< HEAD
 		mmc {
+=======
+		mmc_led: led-1 {
+>>>>>>> upstream/android-13
 			gpios = <&gpio0 RK_PB3 GPIO_ACTIVE_LOW>;
 			label = "rock2:blue:state2";
 			linux,default-trigger = "mmc0";
@@ -133,7 +141,10 @@
 	bus-width = <4>;
 	cap-sd-highspeed;
 	cap-sdio-irq;
+<<<<<<< HEAD
 	disable-wp;
+=======
+>>>>>>> upstream/android-13
 	mmc-pwrseq = <&sdio_pwrseq>;
 	non-removable;
 	pinctrl-names = "default";
@@ -157,7 +168,11 @@
 };
 
 &gmac {
+<<<<<<< HEAD
 	status = "ok";
+=======
+	status = "okay";
+>>>>>>> upstream/android-13
 };
 
 &hdmi {
@@ -205,53 +220,89 @@
 &pinctrl {
 	ir {
 		ir_int: ir-int {
+<<<<<<< HEAD
 			rockchip,pins = <8 1 RK_FUNC_GPIO &pcfg_pull_up>;
+=======
+			rockchip,pins = <8 RK_PA1 RK_FUNC_GPIO &pcfg_pull_up>;
+>>>>>>> upstream/android-13
 		};
 	};
 
 	keys {
 		pwr_key: pwr-key {
+<<<<<<< HEAD
 			rockchip,pins = <0 5 RK_FUNC_GPIO &pcfg_pull_up>;
+=======
+			rockchip,pins = <0 RK_PA5 RK_FUNC_GPIO &pcfg_pull_up>;
+>>>>>>> upstream/android-13
 		};
 	};
 
 	pmic {
 		pmic_int: pmic-int {
+<<<<<<< HEAD
 			rockchip,pins = <0 4 RK_FUNC_GPIO &pcfg_pull_up>;
+=======
+			rockchip,pins = <0 RK_PA4 RK_FUNC_GPIO &pcfg_pull_up>;
+>>>>>>> upstream/android-13
 		};
 	};
 
 	headphone {
 		hp_det: hp-det {
+<<<<<<< HEAD
 			rockchip,pins = <7 7 RK_FUNC_GPIO &pcfg_pull_none>;
 		};
 
 		phone_ctl: phone-ctl {
 			rockchip,pins = <8 0 RK_FUNC_GPIO &pcfg_pull_up>;
+=======
+			rockchip,pins = <7 RK_PA7 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
+
+		phone_ctl: phone-ctl {
+			rockchip,pins = <8 RK_PA0 RK_FUNC_GPIO &pcfg_pull_up>;
+>>>>>>> upstream/android-13
 		};
 	};
 
 	usb {
 		host_vbus_drv: host-vbus-drv {
+<<<<<<< HEAD
 			rockchip,pins = <0 14 RK_FUNC_GPIO &pcfg_pull_none>;
+=======
+			rockchip,pins = <0 RK_PB6 RK_FUNC_GPIO &pcfg_pull_none>;
+>>>>>>> upstream/android-13
 		};
 	};
 
 	sata {
 		sata_pwr_en: sata-pwr-en {
+<<<<<<< HEAD
 			rockchip,pins = <0 13 RK_FUNC_GPIO &pcfg_pull_none>;
+=======
+			rockchip,pins = <0 RK_PB5 RK_FUNC_GPIO &pcfg_pull_none>;
+>>>>>>> upstream/android-13
 		};
 	};
 
 	sdmmc {
 		sdmmc_pwr: sdmmc-pwr {
+<<<<<<< HEAD
 			rockchip,pins = <7 11 RK_FUNC_GPIO &pcfg_pull_none>;
+=======
+			rockchip,pins = <7 RK_PB3 RK_FUNC_GPIO &pcfg_pull_none>;
+>>>>>>> upstream/android-13
 		};
 	};
 
 	sdio {
 		wifi_enable: wifi-enable {
+<<<<<<< HEAD
 			rockchip,pins = <4 28 RK_FUNC_GPIO &pcfg_pull_none>;
+=======
+			rockchip,pins = <4 RK_PD4 RK_FUNC_GPIO &pcfg_pull_none>;
+>>>>>>> upstream/android-13
 		};
 	};
 };

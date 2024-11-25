@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 menuconfig NVMEM
 	bool "NVMEM Support"
 	help
@@ -6,9 +10,12 @@ menuconfig NVMEM
 	  This framework is designed to provide a generic interface to NVMEM
 	  from both the Linux Kernel and the userspace.
 
+<<<<<<< HEAD
 	  This driver can also be built as a module. If so, the module
 	  will be called nvmem_core.
 
+=======
+>>>>>>> upstream/android-13
 	  If unsure, say no.
 
 if NVMEM
@@ -35,8 +42,13 @@ config NVMEM_IMX_IIM
 	  will be called nvmem-imx-iim.
 
 config NVMEM_IMX_OCOTP
+<<<<<<< HEAD
 	tristate "i.MX6 On-Chip OTP Controller support"
 	depends on SOC_IMX6 || COMPILE_TEST
+=======
+	tristate "i.MX 6/7/8 On-Chip OTP Controller support"
+	depends on ARCH_MXC || COMPILE_TEST
+>>>>>>> upstream/android-13
 	depends on HAS_IOMEM
 	help
 	  This is a driver for the On-Chip OTP Controller (OCOTP) available on
@@ -46,6 +58,29 @@ config NVMEM_IMX_OCOTP
 	  This driver can also be built as a module. If so, the module
 	  will be called nvmem-imx-ocotp.
 
+<<<<<<< HEAD
+=======
+config NVMEM_IMX_OCOTP_SCU
+	tristate "i.MX8 SCU On-Chip OTP Controller support"
+	depends on IMX_SCU
+	depends on HAVE_ARM_SMCCC
+	help
+	  This is a driver for the SCU On-Chip OTP Controller (OCOTP)
+	  available on i.MX8 SoCs.
+
+config JZ4780_EFUSE
+	tristate "JZ4780 EFUSE Memory Support"
+	depends on MACH_INGENIC || COMPILE_TEST
+	depends on HAS_IOMEM
+	depends on OF
+	select REGMAP_MMIO
+	help
+	  Say Y here to include support for JZ4780 efuse memory found on
+	  all JZ4780 SoC based devices.
+	  To compile this driver as a module, choose M here: the module
+	  will be called nvmem_jz4780_efuse.
+
+>>>>>>> upstream/android-13
 config NVMEM_LPC18XX_EEPROM
 	tristate "NXP LPC18XX EEPROM Memory Support"
 	depends on ARCH_LPC18XX || COMPILE_TEST
@@ -89,6 +124,7 @@ config MTK_EFUSE
 	  This driver can also be built as a module. If so, the module
 	  will be called efuse-mtk.
 
+<<<<<<< HEAD
 config MTK_DEVINFO
 	tristate "Mediatek SoCs device information support"
 	depends on ARCH_MEDIATEK || COMPILE_TEST
@@ -109,6 +145,19 @@ config MT6359_EFUSE
 
 	  This driver can also be built as a module. If so, the module
 	  will be called nvmem-mt6359-efuse.
+=======
+config NVMEM_NINTENDO_OTP
+	tristate "Nintendo Wii and Wii U OTP Support"
+	depends on WII || COMPILE_TEST
+	help
+	  This is a driver exposing the OTP of a Nintendo Wii or Wii U console.
+
+	  This memory contains common and per-console keys, signatures and
+	  related data required to access peripherals.
+
+	  This driver can also be built as a module. If so, the module
+	  will be called nvmem-nintendo-otp.
+>>>>>>> upstream/android-13
 
 config QCOM_QFPROM
 	tristate "QCOM QFPROM Support"
@@ -121,6 +170,17 @@ config QCOM_QFPROM
 	  This driver can also be built as a module. If so, the module
 	  will be called nvmem_qfprom.
 
+<<<<<<< HEAD
+=======
+config NVMEM_SPMI_SDAM
+	tristate "SPMI SDAM Support"
+	depends on SPMI
+	help
+	  This driver supports the Shared Direct Access Memory Module on
+	  Qualcomm Technologies, Inc. PMICs. It provides the clients
+	  an interface to read/write to the SDAM module's shared memory.
+
+>>>>>>> upstream/android-13
 config ROCKCHIP_EFUSE
 	tristate "Rockchip eFuse Support"
 	depends on ARCH_ROCKCHIP || COMPILE_TEST
@@ -132,6 +192,20 @@ config ROCKCHIP_EFUSE
 	  This driver can also be built as a module. If so, the module
 	  will be called nvmem_rockchip_efuse.
 
+<<<<<<< HEAD
+=======
+config ROCKCHIP_OTP
+	tristate "Rockchip OTP controller support"
+	depends on ARCH_ROCKCHIP || COMPILE_TEST
+	depends on HAS_IOMEM
+	help
+	  This is a simple drive to dump specified values of Rockchip SoC
+	  from otp, such as cpu-leakage.
+
+	  This driver can also be built as a module. If so, the module
+	  will be called nvmem_rockchip_otp.
+
+>>>>>>> upstream/android-13
 config NVMEM_BCM_OCOTP
 	tristate "Broadcom On-Chip OTP Controller support"
 	depends on ARCH_BCM_IPROC || COMPILE_TEST
@@ -144,6 +218,19 @@ config NVMEM_BCM_OCOTP
 	  This driver can also be built as a module. If so, the module
 	  will be called nvmem-bcm-ocotp.
 
+<<<<<<< HEAD
+=======
+config NVMEM_STM32_ROMEM
+	tristate "STMicroelectronics STM32 factory-programmed memory support"
+	depends on ARCH_STM32 || COMPILE_TEST
+	help
+	  Say y here to enable read-only access for STMicroelectronics STM32
+	  factory-programmed memory area.
+
+	  This driver can also be built as a module. If so, the module
+	  will be called nvmem-stm32-romem.
+
+>>>>>>> upstream/android-13
 config NVMEM_SUNXI_SID
 	tristate "Allwinner SoCs SID support"
 	depends on ARCH_SUNXI
@@ -198,7 +285,11 @@ config MESON_MX_EFUSE
 
 config NVMEM_SNVS_LPGPR
 	tristate "Support for Low Power General Purpose Register"
+<<<<<<< HEAD
 	depends on SOC_IMX6 || SOC_IMX7D || COMPILE_TEST
+=======
+	depends on ARCH_MXC || COMPILE_TEST
+>>>>>>> upstream/android-13
 	help
 	  This is a driver for Low Power General Purpose Register (LPGPR) available on
 	  i.MX6 and i.MX7 SoCs in Secure Non-Volatile Storage (SNVS) of this chip.
@@ -223,4 +314,46 @@ config SC27XX_EFUSE
 	  This driver can also be built as a module. If so, the module
 	  will be called nvmem-sc27xx-efuse.
 
+<<<<<<< HEAD
+=======
+config NVMEM_ZYNQMP
+	bool "Xilinx ZYNQMP SoC nvmem firmware support"
+	depends on ARCH_ZYNQMP
+	help
+	  This is a driver to access hardware related data like
+	  soc revision, IDCODE... etc by using the firmware
+	  interface.
+
+	  If sure, say yes. If unsure, say no.
+
+config SPRD_EFUSE
+	tristate "Spreadtrum SoC eFuse Support"
+	depends on ARCH_SPRD || COMPILE_TEST
+	depends on HAS_IOMEM
+	help
+	  This is a simple driver to dump specified values of Spreadtrum
+	  SoCs from eFuse.
+
+	  This driver can also be built as a module. If so, the module
+	  will be called nvmem-sprd-efuse.
+
+config NVMEM_RMEM
+	tristate "Reserved Memory Based Driver Support"
+	depends on HAS_IOMEM
+	help
+	  This driver maps reserved memory into an nvmem device. It might be
+	  useful to expose information left by firmware in memory.
+
+	  This driver can also be built as a module. If so, the module
+	  will be called nvmem-rmem.
+
+config NVMEM_BRCM_NVRAM
+	tristate "Broadcom's NVRAM support"
+	depends on ARCH_BCM_5301X || COMPILE_TEST
+	depends on HAS_IOMEM
+	help
+	  This driver provides support for Broadcom's NVRAM that can be accessed
+	  using I/O mapping.
+
+>>>>>>> upstream/android-13
 endif

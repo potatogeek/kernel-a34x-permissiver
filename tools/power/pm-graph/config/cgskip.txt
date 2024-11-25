@@ -27,6 +27,10 @@ ktime_get
 # console calls
 printk
 dev_printk
+<<<<<<< HEAD
+=======
+__dev_printk
+>>>>>>> upstream/android-13
 console_unlock
 
 # memory handling

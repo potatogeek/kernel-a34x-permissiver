@@ -202,6 +202,7 @@ static inline void watchdog_update_hrtimer_threshold(u64 period) { }
 #endif
 
 struct ctl_table;
+<<<<<<< HEAD
 extern int proc_watchdog(struct ctl_table *, int ,
 			 void __user *, size_t *, loff_t *);
 extern int proc_nmi_watchdog(struct ctl_table *, int ,
@@ -212,6 +213,13 @@ extern int proc_watchdog_thresh(struct ctl_table *, int ,
 				void __user *, size_t *, loff_t *);
 extern int proc_watchdog_cpumask(struct ctl_table *, int,
 				 void __user *, size_t *, loff_t *);
+=======
+int proc_watchdog(struct ctl_table *, int, void *, size_t *, loff_t *);
+int proc_nmi_watchdog(struct ctl_table *, int , void *, size_t *, loff_t *);
+int proc_soft_watchdog(struct ctl_table *, int , void *, size_t *, loff_t *);
+int proc_watchdog_thresh(struct ctl_table *, int , void *, size_t *, loff_t *);
+int proc_watchdog_cpumask(struct ctl_table *, int, void *, size_t *, loff_t *);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_HAVE_ACPI_APEI_NMI
 #include <asm/nmi.h>

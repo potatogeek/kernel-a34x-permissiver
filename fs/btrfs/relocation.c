@@ -9,6 +9,10 @@
 #include <linux/blkdev.h>
 #include <linux/rbtree.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
+=======
+#include <linux/error-injection.h>
+>>>>>>> upstream/android-13
 #include "ctree.h"
 #include "disk-io.h"
 #include "transaction.h"
@@ -17,6 +21,7 @@
 #include "btrfs_inode.h"
 #include "async-thread.h"
 #include "free-space-cache.h"
+<<<<<<< HEAD
 #include "inode-map.h"
 #include "qgroup.h"
 #include "print-tree.h"
@@ -109,12 +114,77 @@ struct backref_cache {
 	int nr_edges;
 };
 
+=======
+#include "qgroup.h"
+#include "print-tree.h"
+#include "delalloc-space.h"
+#include "block-group.h"
+#include "backref.h"
+#include "misc.h"
+#include "subpage.h"
+
+/*
+ * Relocation overview
+ *
+ * [What does relocation do]
+ *
+ * The objective of relocation is to relocate all extents of the target block
+ * group to other block groups.
+ * This is utilized by resize (shrink only), profile converting, compacting
+ * space, or balance routine to spread chunks over devices.
+ *
+ * 		Before		|		After
+ * ------------------------------------------------------------------
+ *  BG A: 10 data extents	| BG A: deleted
+ *  BG B:  2 data extents	| BG B: 10 data extents (2 old + 8 relocated)
+ *  BG C:  1 extents		| BG C:  3 data extents (1 old + 2 relocated)
+ *
+ * [How does relocation work]
+ *
+ * 1.   Mark the target block group read-only
+ *      New extents won't be allocated from the target block group.
+ *
+ * 2.1  Record each extent in the target block group
+ *      To build a proper map of extents to be relocated.
+ *
+ * 2.2  Build data reloc tree and reloc trees
+ *      Data reloc tree will contain an inode, recording all newly relocated
+ *      data extents.
+ *      There will be only one data reloc tree for one data block group.
+ *
+ *      Reloc tree will be a special snapshot of its source tree, containing
+ *      relocated tree blocks.
+ *      Each tree referring to a tree block in target block group will get its
+ *      reloc tree built.
+ *
+ * 2.3  Swap source tree with its corresponding reloc tree
+ *      Each involved tree only refers to new extents after swap.
+ *
+ * 3.   Cleanup reloc trees and data reloc tree.
+ *      As old extents in the target block group are still referenced by reloc
+ *      trees, we need to clean them up before really freeing the target block
+ *      group.
+ *
+ * The main complexity is in steps 2.2 and 2.3.
+ *
+ * The entry point of relocation is relocate_block_group() function.
+ */
+
+#define RELOCATION_RESERVED_NODES	256
+>>>>>>> upstream/android-13
 /*
  * map address of tree root to tree
  */
 struct mapping_node {
+<<<<<<< HEAD
 	struct rb_node rb_node;
 	u64 bytenr;
+=======
+	struct {
+		struct rb_node rb_node;
+		u64 bytenr;
+	}; /* Use rb_simle_node for search/insert */
+>>>>>>> upstream/android-13
 	void *data;
 };
 
@@ -127,8 +197,16 @@ struct mapping_tree {
  * present a tree block to process
  */
 struct tree_block {
+<<<<<<< HEAD
 	struct rb_node rb_node;
 	u64 bytenr;
+=======
+	struct {
+		struct rb_node rb_node;
+		u64 bytenr;
+	}; /* Use rb_simple_node for search/insert */
+	u64 owner;
+>>>>>>> upstream/android-13
 	struct btrfs_key key;
 	unsigned int level:8;
 	unsigned int key_ready:1;
@@ -145,7 +223,11 @@ struct file_extent_cluster {
 
 struct reloc_control {
 	/* block group to relocate */
+<<<<<<< HEAD
 	struct btrfs_block_group_cache *block_group;
+=======
+	struct btrfs_block_group *block_group;
+>>>>>>> upstream/android-13
 	/* extent tree */
 	struct btrfs_root *extent_root;
 	/* inode for moving data */
@@ -153,7 +235,11 @@ struct reloc_control {
 
 	struct btrfs_block_rsv *block_rsv;
 
+<<<<<<< HEAD
 	struct backref_cache backref_cache;
+=======
+	struct btrfs_backref_cache backref_cache;
+>>>>>>> upstream/android-13
 
 	struct file_extent_cluster cluster;
 	/* tree blocks have been processed */
@@ -162,6 +248,11 @@ struct reloc_control {
 	struct mapping_tree reloc_root_tree;
 	/* list of reloc trees */
 	struct list_head reloc_roots;
+<<<<<<< HEAD
+=======
+	/* list of subvolume trees that get relocated */
+	struct list_head dirty_subvol_roots;
+>>>>>>> upstream/android-13
 	/* size of metadata reservation for merging reloc trees */
 	u64 merging_rsv_size;
 	/* size of relocated tree nodes */
@@ -182,10 +273,28 @@ struct reloc_control {
 #define MOVE_DATA_EXTENTS	0
 #define UPDATE_DATA_PTRS	1
 
+<<<<<<< HEAD
 static void remove_backref_node(struct backref_cache *cache,
 				struct backref_node *node);
 static void __mark_block_processed(struct reloc_control *rc,
 				   struct backref_node *node);
+=======
+static void mark_block_processed(struct reloc_control *rc,
+				 struct btrfs_backref_node *node)
+{
+	u32 blocksize;
+
+	if (node->level == 0 ||
+	    in_range(node->bytenr, rc->block_group->start,
+		     rc->block_group->length)) {
+		blocksize = rc->extent_root->fs_info->nodesize;
+		set_extent_bits(&rc->processed_blocks, node->bytenr,
+				node->bytenr + blocksize - 1, EXTENT_DIRTY);
+	}
+	node->processed = 1;
+}
+
+>>>>>>> upstream/android-13
 
 static void mapping_tree_init(struct mapping_tree *tree)
 {
@@ -193,6 +302,7 @@ static void mapping_tree_init(struct mapping_tree *tree)
 	spin_lock_init(&tree->lock);
 }
 
+<<<<<<< HEAD
 static void backref_cache_init(struct backref_cache *cache)
 {
 	int i;
@@ -338,11 +448,25 @@ static struct backref_node *walk_up_backref(struct backref_node *node,
 					    int *index)
 {
 	struct backref_edge *edge;
+=======
+/*
+ * walk up backref nodes until reach node presents tree root
+ */
+static struct btrfs_backref_node *walk_up_backref(
+		struct btrfs_backref_node *node,
+		struct btrfs_backref_edge *edges[], int *index)
+{
+	struct btrfs_backref_edge *edge;
+>>>>>>> upstream/android-13
 	int idx = *index;
 
 	while (!list_empty(&node->upper)) {
 		edge = list_entry(node->upper.next,
+<<<<<<< HEAD
 				  struct backref_edge, list[LOWER]);
+=======
+				  struct btrfs_backref_edge, list[LOWER]);
+>>>>>>> upstream/android-13
 		edges[idx++] = edge;
 		node = edge->node[UPPER];
 	}
@@ -354,11 +478,19 @@ static struct backref_node *walk_up_backref(struct backref_node *node,
 /*
  * walk down backref nodes to find start of next reference path
  */
+<<<<<<< HEAD
 static struct backref_node *walk_down_backref(struct backref_edge *edges[],
 					      int *index)
 {
 	struct backref_edge *edge;
 	struct backref_node *lower;
+=======
+static struct btrfs_backref_node *walk_down_backref(
+		struct btrfs_backref_edge *edges[], int *index)
+{
+	struct btrfs_backref_edge *edge;
+	struct btrfs_backref_node *lower;
+>>>>>>> upstream/android-13
 	int idx = *index;
 
 	while (idx > 0) {
@@ -369,7 +501,11 @@ static struct backref_node *walk_down_backref(struct backref_edge *edges[],
 			continue;
 		}
 		edge = list_entry(edge->list[LOWER].next,
+<<<<<<< HEAD
 				  struct backref_edge, list[LOWER]);
+=======
+				  struct btrfs_backref_edge, list[LOWER]);
+>>>>>>> upstream/android-13
 		edges[idx - 1] = edge;
 		*index = idx;
 		return edge->node[UPPER];
@@ -378,6 +514,7 @@ static struct backref_node *walk_down_backref(struct backref_edge *edges[],
 	return NULL;
 }
 
+<<<<<<< HEAD
 static void unlock_node_buffer(struct backref_node *node)
 {
 	if (node->locked) {
@@ -451,22 +588,38 @@ static void remove_backref_node(struct backref_cache *cache,
 
 static void update_backref_node(struct backref_cache *cache,
 				struct backref_node *node, u64 bytenr)
+=======
+static void update_backref_node(struct btrfs_backref_cache *cache,
+				struct btrfs_backref_node *node, u64 bytenr)
+>>>>>>> upstream/android-13
 {
 	struct rb_node *rb_node;
 	rb_erase(&node->rb_node, &cache->rb_root);
 	node->bytenr = bytenr;
+<<<<<<< HEAD
 	rb_node = tree_insert(&cache->rb_root, node->bytenr, &node->rb_node);
 	if (rb_node)
 		backref_tree_panic(rb_node, -EEXIST, bytenr);
+=======
+	rb_node = rb_simple_insert(&cache->rb_root, node->bytenr, &node->rb_node);
+	if (rb_node)
+		btrfs_backref_panic(cache->fs_info, bytenr, -EEXIST);
+>>>>>>> upstream/android-13
 }
 
 /*
  * update backref cache after a transaction commit
  */
 static int update_backref_cache(struct btrfs_trans_handle *trans,
+<<<<<<< HEAD
 				struct backref_cache *cache)
 {
 	struct backref_node *node;
+=======
+				struct btrfs_backref_cache *cache)
+{
+	struct btrfs_backref_node *node;
+>>>>>>> upstream/android-13
 	int level = 0;
 
 	if (cache->last_trans == 0) {
@@ -484,13 +637,22 @@ static int update_backref_cache(struct btrfs_trans_handle *trans,
 	 */
 	while (!list_empty(&cache->detached)) {
 		node = list_entry(cache->detached.next,
+<<<<<<< HEAD
 				  struct backref_node, list);
 		remove_backref_node(cache, node);
+=======
+				  struct btrfs_backref_node, list);
+		btrfs_backref_cleanup_node(cache, node);
+>>>>>>> upstream/android-13
 	}
 
 	while (!list_empty(&cache->changed)) {
 		node = list_entry(cache->changed.next,
+<<<<<<< HEAD
 				  struct backref_node, list);
+=======
+				  struct btrfs_backref_node, list);
+>>>>>>> upstream/android-13
 		list_del_init(&node->list);
 		BUG_ON(node->pending);
 		update_backref_node(cache, node, node->new_bytenr);
@@ -513,6 +675,7 @@ static int update_backref_cache(struct btrfs_trans_handle *trans,
 	return 1;
 }
 
+<<<<<<< HEAD
 
 static int should_ignore_root(struct btrfs_root *root)
 {
@@ -521,6 +684,49 @@ static int should_ignore_root(struct btrfs_root *root)
 	if (!test_bit(BTRFS_ROOT_REF_COWS, &root->state))
 		return 0;
 
+=======
+static bool reloc_root_is_dead(struct btrfs_root *root)
+{
+	/*
+	 * Pair with set_bit/clear_bit in clean_dirty_subvols and
+	 * btrfs_update_reloc_root. We need to see the updated bit before
+	 * trying to access reloc_root
+	 */
+	smp_rmb();
+	if (test_bit(BTRFS_ROOT_DEAD_RELOC_TREE, &root->state))
+		return true;
+	return false;
+}
+
+/*
+ * Check if this subvolume tree has valid reloc tree.
+ *
+ * Reloc tree after swap is considered dead, thus not considered as valid.
+ * This is enough for most callers, as they don't distinguish dead reloc root
+ * from no reloc root.  But btrfs_should_ignore_reloc_root() below is a
+ * special case.
+ */
+static bool have_reloc_root(struct btrfs_root *root)
+{
+	if (reloc_root_is_dead(root))
+		return false;
+	if (!root->reloc_root)
+		return false;
+	return true;
+}
+
+int btrfs_should_ignore_reloc_root(struct btrfs_root *root)
+{
+	struct btrfs_root *reloc_root;
+
+	if (!test_bit(BTRFS_ROOT_SHAREABLE, &root->state))
+		return 0;
+
+	/* This root has been merged with its reloc tree, we can ignore it */
+	if (reloc_root_is_dead(root))
+		return 1;
+
+>>>>>>> upstream/android-13
 	reloc_root = root->reloc_root;
 	if (!reloc_root)
 		return 0;
@@ -536,23 +742,40 @@ static int should_ignore_root(struct btrfs_root *root)
 	 */
 	return 1;
 }
+<<<<<<< HEAD
 /*
  * find reloc tree by address of tree root
  */
 static struct btrfs_root *find_reloc_root(struct reloc_control *rc,
 					  u64 bytenr)
 {
+=======
+
+/*
+ * find reloc tree by address of tree root
+ */
+struct btrfs_root *find_reloc_root(struct btrfs_fs_info *fs_info, u64 bytenr)
+{
+	struct reloc_control *rc = fs_info->reloc_ctl;
+>>>>>>> upstream/android-13
 	struct rb_node *rb_node;
 	struct mapping_node *node;
 	struct btrfs_root *root = NULL;
 
+<<<<<<< HEAD
 	spin_lock(&rc->reloc_root_tree.lock);
 	rb_node = tree_search(&rc->reloc_root_tree.rb_root, bytenr);
+=======
+	ASSERT(rc);
+	spin_lock(&rc->reloc_root_tree.lock);
+	rb_node = rb_simple_search(&rc->reloc_root_tree.rb_root, bytenr);
+>>>>>>> upstream/android-13
 	if (rb_node) {
 		node = rb_entry(rb_node, struct mapping_node, rb_node);
 		root = (struct btrfs_root *)node->data;
 	}
 	spin_unlock(&rc->reloc_root_tree.lock);
+<<<<<<< HEAD
 	return root;
 }
 
@@ -679,11 +902,129 @@ struct backref_node *build_backref_tree(struct reloc_control *rc,
 	path2->reada = READA_FORWARD;
 
 	node = alloc_backref_node(cache);
+=======
+	return btrfs_grab_root(root);
+}
+
+/*
+ * For useless nodes, do two major clean ups:
+ *
+ * - Cleanup the children edges and nodes
+ *   If child node is also orphan (no parent) during cleanup, then the child
+ *   node will also be cleaned up.
+ *
+ * - Freeing up leaves (level 0), keeps nodes detached
+ *   For nodes, the node is still cached as "detached"
+ *
+ * Return false if @node is not in the @useless_nodes list.
+ * Return true if @node is in the @useless_nodes list.
+ */
+static bool handle_useless_nodes(struct reloc_control *rc,
+				 struct btrfs_backref_node *node)
+{
+	struct btrfs_backref_cache *cache = &rc->backref_cache;
+	struct list_head *useless_node = &cache->useless_node;
+	bool ret = false;
+
+	while (!list_empty(useless_node)) {
+		struct btrfs_backref_node *cur;
+
+		cur = list_first_entry(useless_node, struct btrfs_backref_node,
+				 list);
+		list_del_init(&cur->list);
+
+		/* Only tree root nodes can be added to @useless_nodes */
+		ASSERT(list_empty(&cur->upper));
+
+		if (cur == node)
+			ret = true;
+
+		/* The node is the lowest node */
+		if (cur->lowest) {
+			list_del_init(&cur->lower);
+			cur->lowest = 0;
+		}
+
+		/* Cleanup the lower edges */
+		while (!list_empty(&cur->lower)) {
+			struct btrfs_backref_edge *edge;
+			struct btrfs_backref_node *lower;
+
+			edge = list_entry(cur->lower.next,
+					struct btrfs_backref_edge, list[UPPER]);
+			list_del(&edge->list[UPPER]);
+			list_del(&edge->list[LOWER]);
+			lower = edge->node[LOWER];
+			btrfs_backref_free_edge(cache, edge);
+
+			/* Child node is also orphan, queue for cleanup */
+			if (list_empty(&lower->upper))
+				list_add(&lower->list, useless_node);
+		}
+		/* Mark this block processed for relocation */
+		mark_block_processed(rc, cur);
+
+		/*
+		 * Backref nodes for tree leaves are deleted from the cache.
+		 * Backref nodes for upper level tree blocks are left in the
+		 * cache to avoid unnecessary backref lookup.
+		 */
+		if (cur->level > 0) {
+			list_add(&cur->list, &cache->detached);
+			cur->detached = 1;
+		} else {
+			rb_erase(&cur->rb_node, &cache->rb_root);
+			btrfs_backref_free_node(cache, cur);
+		}
+	}
+	return ret;
+}
+
+/*
+ * Build backref tree for a given tree block. Root of the backref tree
+ * corresponds the tree block, leaves of the backref tree correspond roots of
+ * b-trees that reference the tree block.
+ *
+ * The basic idea of this function is check backrefs of a given block to find
+ * upper level blocks that reference the block, and then check backrefs of
+ * these upper level blocks recursively. The recursion stops when tree root is
+ * reached or backrefs for the block is cached.
+ *
+ * NOTE: if we find that backrefs for a block are cached, we know backrefs for
+ * all upper level blocks that directly/indirectly reference the block are also
+ * cached.
+ */
+static noinline_for_stack struct btrfs_backref_node *build_backref_tree(
+			struct reloc_control *rc, struct btrfs_key *node_key,
+			int level, u64 bytenr)
+{
+	struct btrfs_backref_iter *iter;
+	struct btrfs_backref_cache *cache = &rc->backref_cache;
+	/* For searching parent of TREE_BLOCK_REF */
+	struct btrfs_path *path;
+	struct btrfs_backref_node *cur;
+	struct btrfs_backref_node *node = NULL;
+	struct btrfs_backref_edge *edge;
+	int ret;
+	int err = 0;
+
+	iter = btrfs_backref_iter_alloc(rc->extent_root->fs_info, GFP_NOFS);
+	if (!iter)
+		return ERR_PTR(-ENOMEM);
+	path = btrfs_alloc_path();
+	if (!path) {
+		err = -ENOMEM;
+		goto out;
+	}
+
+	node = btrfs_backref_alloc_node(cache, bytenr, level);
+>>>>>>> upstream/android-13
 	if (!node) {
 		err = -ENOMEM;
 		goto out;
 	}
 
+<<<<<<< HEAD
 	node->bytenr = bytenr;
 	node->level = level;
 	node->lowest = 1;
@@ -872,10 +1213,20 @@ again:
 		path2->lowest_level = level;
 		ret = btrfs_search_slot(NULL, root, node_key, path2, 0, 0);
 		path2->lowest_level = 0;
+=======
+	node->lowest = 1;
+	cur = node;
+
+	/* Breadth-first search to build backref cache */
+	do {
+		ret = btrfs_backref_add_tree_node(cache, path, iter, node_key,
+						  cur);
+>>>>>>> upstream/android-13
 		if (ret < 0) {
 			err = ret;
 			goto out;
 		}
+<<<<<<< HEAD
 		if (ret > 0 && path2->slots[level] > 0)
 			path2->slots[level]--;
 
@@ -1145,6 +1496,39 @@ out:
 		return ERR_PTR(err);
 	}
 	ASSERT(!node || !node->detached);
+=======
+		edge = list_first_entry_or_null(&cache->pending_edge,
+				struct btrfs_backref_edge, list[UPPER]);
+		/*
+		 * The pending list isn't empty, take the first block to
+		 * process
+		 */
+		if (edge) {
+			list_del_init(&edge->list[UPPER]);
+			cur = edge->node[UPPER];
+		}
+	} while (edge);
+
+	/* Finish the upper linkage of newly added edges/nodes */
+	ret = btrfs_backref_finish_upper_links(cache, node);
+	if (ret < 0) {
+		err = ret;
+		goto out;
+	}
+
+	if (handle_useless_nodes(rc, node))
+		node = NULL;
+out:
+	btrfs_backref_iter_free(iter);
+	btrfs_free_path(path);
+	if (err) {
+		btrfs_backref_error_cleanup(cache, node);
+		return ERR_PTR(err);
+	}
+	ASSERT(!node || !node->detached);
+	ASSERT(list_empty(&cache->useless_node) &&
+	       list_empty(&cache->pending_edge));
+>>>>>>> upstream/android-13
 	return node;
 }
 
@@ -1159,19 +1543,33 @@ static int clone_backref_node(struct btrfs_trans_handle *trans,
 			      struct btrfs_root *dest)
 {
 	struct btrfs_root *reloc_root = src->reloc_root;
+<<<<<<< HEAD
 	struct backref_cache *cache = &rc->backref_cache;
 	struct backref_node *node = NULL;
 	struct backref_node *new_node;
 	struct backref_edge *edge;
 	struct backref_edge *new_edge;
+=======
+	struct btrfs_backref_cache *cache = &rc->backref_cache;
+	struct btrfs_backref_node *node = NULL;
+	struct btrfs_backref_node *new_node;
+	struct btrfs_backref_edge *edge;
+	struct btrfs_backref_edge *new_edge;
+>>>>>>> upstream/android-13
 	struct rb_node *rb_node;
 
 	if (cache->last_trans > 0)
 		update_backref_cache(trans, cache);
 
+<<<<<<< HEAD
 	rb_node = tree_search(&cache->rb_root, src->commit_root->start);
 	if (rb_node) {
 		node = rb_entry(rb_node, struct backref_node, rb_node);
+=======
+	rb_node = rb_simple_search(&cache->rb_root, src->commit_root->start);
+	if (rb_node) {
+		node = rb_entry(rb_node, struct btrfs_backref_node, rb_node);
+>>>>>>> upstream/android-13
 		if (node->detached)
 			node = NULL;
 		else
@@ -1179,10 +1577,17 @@ static int clone_backref_node(struct btrfs_trans_handle *trans,
 	}
 
 	if (!node) {
+<<<<<<< HEAD
 		rb_node = tree_search(&cache->rb_root,
 				      reloc_root->commit_root->start);
 		if (rb_node) {
 			node = rb_entry(rb_node, struct backref_node,
+=======
+		rb_node = rb_simple_search(&cache->rb_root,
+					   reloc_root->commit_root->start);
+		if (rb_node) {
+			node = rb_entry(rb_node, struct btrfs_backref_node,
+>>>>>>> upstream/android-13
 					rb_node);
 			BUG_ON(node->detached);
 		}
@@ -1191,6 +1596,7 @@ static int clone_backref_node(struct btrfs_trans_handle *trans,
 	if (!node)
 		return 0;
 
+<<<<<<< HEAD
 	new_node = alloc_backref_node(cache);
 	if (!new_node)
 		return -ENOMEM;
@@ -1211,15 +1617,42 @@ static int clone_backref_node(struct btrfs_trans_handle *trans,
 			new_edge->node[LOWER] = edge->node[LOWER];
 			list_add_tail(&new_edge->list[UPPER],
 				      &new_node->lower);
+=======
+	new_node = btrfs_backref_alloc_node(cache, dest->node->start,
+					    node->level);
+	if (!new_node)
+		return -ENOMEM;
+
+	new_node->lowest = node->lowest;
+	new_node->checked = 1;
+	new_node->root = btrfs_grab_root(dest);
+	ASSERT(new_node->root);
+
+	if (!node->lowest) {
+		list_for_each_entry(edge, &node->lower, list[UPPER]) {
+			new_edge = btrfs_backref_alloc_edge(cache);
+			if (!new_edge)
+				goto fail;
+
+			btrfs_backref_link_edge(new_edge, edge->node[LOWER],
+						new_node, LINK_UPPER);
+>>>>>>> upstream/android-13
 		}
 	} else {
 		list_add_tail(&new_node->lower, &cache->leaves);
 	}
 
+<<<<<<< HEAD
 	rb_node = tree_insert(&cache->rb_root, new_node->bytenr,
 			      &new_node->rb_node);
 	if (rb_node)
 		backref_tree_panic(rb_node, -EEXIST, new_node->bytenr);
+=======
+	rb_node = rb_simple_insert(&cache->rb_root, new_node->bytenr,
+				   &new_node->rb_node);
+	if (rb_node)
+		btrfs_backref_panic(trans->fs_info, new_node->bytenr, -EEXIST);
+>>>>>>> upstream/android-13
 
 	if (!new_node->lowest) {
 		list_for_each_entry(new_edge, &new_node->lower, list[UPPER]) {
@@ -1231,11 +1664,19 @@ static int clone_backref_node(struct btrfs_trans_handle *trans,
 fail:
 	while (!list_empty(&new_node->lower)) {
 		new_edge = list_entry(new_node->lower.next,
+<<<<<<< HEAD
 				      struct backref_edge, list[UPPER]);
 		list_del(&new_edge->list[UPPER]);
 		free_backref_edge(cache, new_edge);
 	}
 	free_backref_node(cache, new_node);
+=======
+				      struct btrfs_backref_edge, list[UPPER]);
+		list_del(&new_edge->list[UPPER]);
+		btrfs_backref_free_edge(cache, new_edge);
+	}
+	btrfs_backref_free_node(cache, new_node);
+>>>>>>> upstream/android-13
 	return -ENOMEM;
 }
 
@@ -1257,6 +1698,7 @@ static int __must_check __add_reloc_root(struct btrfs_root *root)
 	node->data = root;
 
 	spin_lock(&rc->reloc_root_tree.lock);
+<<<<<<< HEAD
 	rb_node = tree_insert(&rc->reloc_root_tree.rb_root,
 			      node->bytenr, &node->rb_node);
 	spin_unlock(&rc->reloc_root_tree.lock);
@@ -1264,6 +1706,16 @@ static int __must_check __add_reloc_root(struct btrfs_root *root)
 		btrfs_panic(fs_info, -EEXIST,
 			    "Duplicate root found for start=%llu while inserting into relocation tree",
 			    node->bytenr);
+=======
+	rb_node = rb_simple_insert(&rc->reloc_root_tree.rb_root,
+				   node->bytenr, &node->rb_node);
+	spin_unlock(&rc->reloc_root_tree.lock);
+	if (rb_node) {
+		btrfs_err(fs_info,
+			    "Duplicate root found for start=%llu while inserting into relocation tree",
+			    node->bytenr);
+		return -EEXIST;
+>>>>>>> upstream/android-13
 	}
 
 	list_add_tail(&root->root_list, &rc->reloc_roots);
@@ -1280,11 +1732,20 @@ static void __del_reloc_root(struct btrfs_root *root)
 	struct rb_node *rb_node;
 	struct mapping_node *node = NULL;
 	struct reloc_control *rc = fs_info->reloc_ctl;
+<<<<<<< HEAD
 
 	if (rc && root->node) {
 		spin_lock(&rc->reloc_root_tree.lock);
 		rb_node = tree_search(&rc->reloc_root_tree.rb_root,
 				      root->commit_root->start);
+=======
+	bool put_ref = false;
+
+	if (rc && root->node) {
+		spin_lock(&rc->reloc_root_tree.lock);
+		rb_node = rb_simple_search(&rc->reloc_root_tree.rb_root,
+					   root->commit_root->start);
+>>>>>>> upstream/android-13
 		if (rb_node) {
 			node = rb_entry(rb_node, struct mapping_node, rb_node);
 			rb_erase(&node->rb_node, &rc->reloc_root_tree.rb_root);
@@ -1294,9 +1755,28 @@ static void __del_reloc_root(struct btrfs_root *root)
 		ASSERT(!node || (struct btrfs_root *)node->data == root);
 	}
 
+<<<<<<< HEAD
 	spin_lock(&fs_info->trans_lock);
 	list_del_init(&root->root_list);
 	spin_unlock(&fs_info->trans_lock);
+=======
+	/*
+	 * We only put the reloc root here if it's on the list.  There's a lot
+	 * of places where the pattern is to splice the rc->reloc_roots, process
+	 * the reloc roots, and then add the reloc root back onto
+	 * rc->reloc_roots.  If we call __del_reloc_root while it's off of the
+	 * list we don't want the reference being dropped, because the guy
+	 * messing with the list is in charge of the reference.
+	 */
+	spin_lock(&fs_info->trans_lock);
+	if (!list_empty(&root->root_list)) {
+		put_ref = true;
+		list_del_init(&root->root_list);
+	}
+	spin_unlock(&fs_info->trans_lock);
+	if (put_ref)
+		btrfs_put_root(root);
+>>>>>>> upstream/android-13
 	kfree(node);
 }
 
@@ -1312,8 +1792,13 @@ static int __update_reloc_root(struct btrfs_root *root)
 	struct reloc_control *rc = fs_info->reloc_ctl;
 
 	spin_lock(&rc->reloc_root_tree.lock);
+<<<<<<< HEAD
 	rb_node = tree_search(&rc->reloc_root_tree.rb_root,
 			      root->commit_root->start);
+=======
+	rb_node = rb_simple_search(&rc->reloc_root_tree.rb_root,
+				   root->commit_root->start);
+>>>>>>> upstream/android-13
 	if (rb_node) {
 		node = rb_entry(rb_node, struct mapping_node, rb_node);
 		rb_erase(&node->rb_node, &rc->reloc_root_tree.rb_root);
@@ -1326,11 +1811,19 @@ static int __update_reloc_root(struct btrfs_root *root)
 
 	spin_lock(&rc->reloc_root_tree.lock);
 	node->bytenr = root->node->start;
+<<<<<<< HEAD
 	rb_node = tree_insert(&rc->reloc_root_tree.rb_root,
 			      node->bytenr, &node->rb_node);
 	spin_unlock(&rc->reloc_root_tree.lock);
 	if (rb_node)
 		backref_tree_panic(rb_node, -EEXIST, node->bytenr);
+=======
+	rb_node = rb_simple_insert(&rc->reloc_root_tree.rb_root,
+				   node->bytenr, &node->rb_node);
+	spin_unlock(&rc->reloc_root_tree.lock);
+	if (rb_node)
+		btrfs_backref_panic(fs_info, node->bytenr, -EEXIST);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1342,10 +1835,19 @@ static struct btrfs_root *create_reloc_root(struct btrfs_trans_handle *trans,
 	struct extent_buffer *eb;
 	struct btrfs_root_item *root_item;
 	struct btrfs_key root_key;
+<<<<<<< HEAD
 	int ret;
 
 	root_item = kmalloc(sizeof(*root_item), GFP_NOFS);
 	BUG_ON(!root_item);
+=======
+	int ret = 0;
+	bool must_abort = false;
+
+	root_item = kmalloc(sizeof(*root_item), GFP_NOFS);
+	if (!root_item)
+		return ERR_PTR(-ENOMEM);
+>>>>>>> upstream/android-13
 
 	root_key.objectid = BTRFS_TREE_RELOC_OBJECTID;
 	root_key.type = BTRFS_ROOT_ITEM_KEY;
@@ -1357,7 +1859,13 @@ static struct btrfs_root *create_reloc_root(struct btrfs_trans_handle *trans,
 		/* called by btrfs_init_reloc_root */
 		ret = btrfs_copy_root(trans, root, root->commit_root, &eb,
 				      BTRFS_TREE_RELOC_OBJECTID);
+<<<<<<< HEAD
 		BUG_ON(ret);
+=======
+		if (ret)
+			goto fail;
+
+>>>>>>> upstream/android-13
 		/*
 		 * Set the last_snapshot field to the generation of the commit
 		 * root - like this ctree.c:btrfs_block_can_be_shared() behaves
@@ -1378,9 +1886,22 @@ static struct btrfs_root *create_reloc_root(struct btrfs_trans_handle *trans,
 		 */
 		ret = btrfs_copy_root(trans, root, root->node, &eb,
 				      BTRFS_TREE_RELOC_OBJECTID);
+<<<<<<< HEAD
 		BUG_ON(ret);
 	}
 
+=======
+		if (ret)
+			goto fail;
+	}
+
+	/*
+	 * We have changed references at this point, we must abort the
+	 * transaction if anything fails.
+	 */
+	must_abort = true;
+
+>>>>>>> upstream/android-13
 	memcpy(root_item, &root->root_item, sizeof(*root_item));
 	btrfs_set_root_bytenr(root_item, eb->start);
 	btrfs_set_root_level(root_item, btrfs_header_level(eb));
@@ -1390,7 +1911,11 @@ static struct btrfs_root *create_reloc_root(struct btrfs_trans_handle *trans,
 		btrfs_set_root_refs(root_item, 0);
 		memset(&root_item->drop_progress, 0,
 		       sizeof(struct btrfs_disk_key));
+<<<<<<< HEAD
 		root_item->drop_level = 0;
+=======
+		btrfs_set_root_drop_level(root_item, 0);
+>>>>>>> upstream/android-13
 	}
 
 	btrfs_tree_unlock(eb);
@@ -1398,6 +1923,7 @@ static struct btrfs_root *create_reloc_root(struct btrfs_trans_handle *trans,
 
 	ret = btrfs_insert_root(trans, fs_info->tree_root,
 				&root_key, root_item);
+<<<<<<< HEAD
 	BUG_ON(ret);
 	kfree(root_item);
 
@@ -1405,11 +1931,38 @@ static struct btrfs_root *create_reloc_root(struct btrfs_trans_handle *trans,
 	BUG_ON(IS_ERR(reloc_root));
 	reloc_root->last_trans = trans->transid;
 	return reloc_root;
+=======
+	if (ret)
+		goto fail;
+
+	kfree(root_item);
+
+	reloc_root = btrfs_read_tree_root(fs_info->tree_root, &root_key);
+	if (IS_ERR(reloc_root)) {
+		ret = PTR_ERR(reloc_root);
+		goto abort;
+	}
+	set_bit(BTRFS_ROOT_SHAREABLE, &reloc_root->state);
+	reloc_root->last_trans = trans->transid;
+	return reloc_root;
+fail:
+	kfree(root_item);
+abort:
+	if (must_abort)
+		btrfs_abort_transaction(trans, ret);
+	return ERR_PTR(ret);
+>>>>>>> upstream/android-13
 }
 
 /*
  * create reloc tree for a given fs tree. reloc tree is just a
  * snapshot of the fs tree with special root objectid.
+<<<<<<< HEAD
+=======
+ *
+ * The reloc_root comes out of here with two references, one for
+ * root->reloc_root, and another for being on the rc->reloc_roots list.
+>>>>>>> upstream/android-13
  */
 int btrfs_init_reloc_root(struct btrfs_trans_handle *trans,
 			  struct btrfs_root *root)
@@ -1421,13 +1974,42 @@ int btrfs_init_reloc_root(struct btrfs_trans_handle *trans,
 	int clear_rsv = 0;
 	int ret;
 
+<<<<<<< HEAD
+=======
+	if (!rc)
+		return 0;
+
+	/*
+	 * The subvolume has reloc tree but the swap is finished, no need to
+	 * create/update the dead reloc tree
+	 */
+	if (reloc_root_is_dead(root))
+		return 0;
+
+	/*
+	 * This is subtle but important.  We do not do
+	 * record_root_in_transaction for reloc roots, instead we record their
+	 * corresponding fs root, and then here we update the last trans for the
+	 * reloc root.  This means that we have to do this for the entire life
+	 * of the reloc root, regardless of which stage of the relocation we are
+	 * in.
+	 */
+>>>>>>> upstream/android-13
 	if (root->reloc_root) {
 		reloc_root = root->reloc_root;
 		reloc_root->last_trans = trans->transid;
 		return 0;
 	}
 
+<<<<<<< HEAD
 	if (!rc || !rc->create_reloc_tree ||
+=======
+	/*
+	 * We are merging reloc roots, we do not need new reloc trees.  Also
+	 * reloc trees never need their own reloc tree.
+	 */
+	if (!rc->create_reloc_tree ||
+>>>>>>> upstream/android-13
 	    root->root_key.objectid == BTRFS_TREE_RELOC_OBJECTID)
 		return 0;
 
@@ -1439,10 +2021,24 @@ int btrfs_init_reloc_root(struct btrfs_trans_handle *trans,
 	reloc_root = create_reloc_root(trans, root, root->root_key.objectid);
 	if (clear_rsv)
 		trans->block_rsv = rsv;
+<<<<<<< HEAD
 
 	ret = __add_reloc_root(reloc_root);
 	BUG_ON(ret < 0);
 	root->reloc_root = reloc_root;
+=======
+	if (IS_ERR(reloc_root))
+		return PTR_ERR(reloc_root);
+
+	ret = __add_reloc_root(reloc_root);
+	ASSERT(ret != -EEXIST);
+	if (ret) {
+		/* Pairs with create_reloc_root */
+		btrfs_put_root(reloc_root);
+		return ret;
+	}
+	root->reloc_root = btrfs_grab_root(reloc_root);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1457,15 +2053,39 @@ int btrfs_update_reloc_root(struct btrfs_trans_handle *trans,
 	struct btrfs_root_item *root_item;
 	int ret;
 
+<<<<<<< HEAD
 	if (!root->reloc_root)
 		goto out;
+=======
+	if (!have_reloc_root(root))
+		return 0;
+>>>>>>> upstream/android-13
 
 	reloc_root = root->reloc_root;
 	root_item = &reloc_root->root_item;
 
+<<<<<<< HEAD
 	if (fs_info->reloc_ctl->merge_reloc_tree &&
 	    btrfs_root_refs(root_item) == 0) {
 		root->reloc_root = NULL;
+=======
+	/*
+	 * We are probably ok here, but __del_reloc_root() will drop its ref of
+	 * the root.  We have the ref for root->reloc_root, but just in case
+	 * hold it while we update the reloc root.
+	 */
+	btrfs_grab_root(reloc_root);
+
+	/* root->reloc_root will stay until current relocation finished */
+	if (fs_info->reloc_ctl->merge_reloc_tree &&
+	    btrfs_root_refs(root_item) == 0) {
+		set_bit(BTRFS_ROOT_DEAD_RELOC_TREE, &root->state);
+		/*
+		 * Mark the tree as dead before we change reloc_root so
+		 * have_reloc_root will not touch it from now on.
+		 */
+		smp_wmb();
+>>>>>>> upstream/android-13
 		__del_reloc_root(reloc_root);
 	}
 
@@ -1478,10 +2098,15 @@ int btrfs_update_reloc_root(struct btrfs_trans_handle *trans,
 
 	ret = btrfs_update_root(trans, fs_info->tree_root,
 				&reloc_root->root_key, root_item);
+<<<<<<< HEAD
 	BUG_ON(ret);
 
 out:
 	return 0;
+=======
+	btrfs_put_root(reloc_root);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1538,6 +2163,7 @@ again:
 	return NULL;
 }
 
+<<<<<<< HEAD
 static int in_block_group(u64 bytenr,
 			  struct btrfs_block_group_cache *block_group)
 {
@@ -1547,6 +2173,8 @@ static int in_block_group(u64 bytenr,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * get new location of data
  */
@@ -1630,6 +2258,11 @@ int replace_file_extents(struct btrfs_trans_handle *trans,
 
 	nritems = btrfs_header_nritems(leaf);
 	for (i = 0; i < nritems; i++) {
+<<<<<<< HEAD
+=======
+		struct btrfs_ref ref = { 0 };
+
+>>>>>>> upstream/android-13
 		cond_resched();
 		btrfs_item_key_to_cpu(leaf, &key, i);
 		if (key.type != BTRFS_EXTENT_DATA_KEY)
@@ -1642,7 +2275,12 @@ int replace_file_extents(struct btrfs_trans_handle *trans,
 		num_bytes = btrfs_file_extent_disk_num_bytes(leaf, fi);
 		if (bytenr == 0)
 			continue;
+<<<<<<< HEAD
 		if (!in_block_group(bytenr, rc->block_group))
+=======
+		if (!in_range(bytenr, rc->block_group->start,
+			      rc->block_group->length))
+>>>>>>> upstream/android-13
 			continue;
 
 		/*
@@ -1690,18 +2328,36 @@ int replace_file_extents(struct btrfs_trans_handle *trans,
 		dirty = 1;
 
 		key.offset -= btrfs_file_extent_offset(leaf, fi);
+<<<<<<< HEAD
 		ret = btrfs_inc_extent_ref(trans, root, new_bytenr,
 					   num_bytes, parent,
 					   btrfs_header_owner(leaf),
 					   key.objectid, key.offset);
+=======
+		btrfs_init_generic_ref(&ref, BTRFS_ADD_DELAYED_REF, new_bytenr,
+				       num_bytes, parent);
+		ref.real_root = root->root_key.objectid;
+		btrfs_init_data_ref(&ref, btrfs_header_owner(leaf),
+				    key.objectid, key.offset);
+		ret = btrfs_inc_extent_ref(trans, &ref);
+>>>>>>> upstream/android-13
 		if (ret) {
 			btrfs_abort_transaction(trans, ret);
 			break;
 		}
 
+<<<<<<< HEAD
 		ret = btrfs_free_extent(trans, root, bytenr, num_bytes,
 					parent, btrfs_header_owner(leaf),
 					key.objectid, key.offset);
+=======
+		btrfs_init_generic_ref(&ref, BTRFS_DROP_DELAYED_REF, bytenr,
+				       num_bytes, parent);
+		ref.real_root = root->root_key.objectid;
+		btrfs_init_data_ref(&ref, btrfs_header_owner(leaf),
+				    key.objectid, key.offset);
+		ret = btrfs_free_extent(trans, &ref);
+>>>>>>> upstream/android-13
 		if (ret) {
 			btrfs_abort_transaction(trans, ret);
 			break;
@@ -1735,7 +2391,11 @@ int memcmp_node_keys(struct extent_buffer *eb, int slot,
  * errors, a negative error number is returned.
  */
 static noinline_for_stack
+<<<<<<< HEAD
 int replace_path(struct btrfs_trans_handle *trans,
+=======
+int replace_path(struct btrfs_trans_handle *trans, struct reloc_control *rc,
+>>>>>>> upstream/android-13
 		 struct btrfs_root *dest, struct btrfs_root *src,
 		 struct btrfs_path *path, struct btrfs_key *next_key,
 		 int lowest_level, int max_level)
@@ -1743,6 +2403,10 @@ int replace_path(struct btrfs_trans_handle *trans,
 	struct btrfs_fs_info *fs_info = dest->fs_info;
 	struct extent_buffer *eb;
 	struct extent_buffer *parent;
+<<<<<<< HEAD
+=======
+	struct btrfs_ref ref = { 0 };
+>>>>>>> upstream/android-13
 	struct btrfs_key key;
 	u64 old_bytenr;
 	u64 new_bytenr;
@@ -1764,7 +2428,10 @@ again:
 	btrfs_node_key_to_cpu(path->nodes[lowest_level], &key, slot);
 
 	eb = btrfs_lock_root_node(dest);
+<<<<<<< HEAD
 	btrfs_set_lock_blocking(eb);
+=======
+>>>>>>> upstream/android-13
 	level = btrfs_header_level(eb);
 
 	if (level < lowest_level) {
@@ -1774,10 +2441,21 @@ again:
 	}
 
 	if (cow) {
+<<<<<<< HEAD
 		ret = btrfs_cow_block(trans, dest, eb, NULL, 0, &eb);
 		BUG_ON(ret);
 	}
 	btrfs_set_lock_blocking(eb);
+=======
+		ret = btrfs_cow_block(trans, dest, eb, NULL, 0, &eb,
+				      BTRFS_NESTING_COW);
+		if (ret) {
+			btrfs_tree_unlock(eb);
+			free_extent_buffer(eb);
+			return ret;
+		}
+	}
+>>>>>>> upstream/android-13
 
 	if (next_key) {
 		next_key->objectid = (u64)-1;
@@ -1787,12 +2465,21 @@ again:
 
 	parent = eb;
 	while (1) {
+<<<<<<< HEAD
 		struct btrfs_key first_key;
 
 		level = btrfs_header_level(parent);
 		ASSERT(level >= lowest_level);
 
 		ret = btrfs_bin_search(parent, &key, level, &slot);
+=======
+		level = btrfs_header_level(parent);
+		ASSERT(level >= lowest_level);
+
+		ret = btrfs_bin_search(parent, &key, &slot);
+		if (ret < 0)
+			break;
+>>>>>>> upstream/android-13
 		if (ret && slot > 0)
 			slot--;
 
@@ -1802,7 +2489,10 @@ again:
 		old_bytenr = btrfs_node_blockptr(parent, slot);
 		blocksize = fs_info->nodesize;
 		old_ptr_gen = btrfs_node_ptr_generation(parent, slot);
+<<<<<<< HEAD
 		btrfs_node_key_to_cpu(parent, &first_key, slot);
+=======
+>>>>>>> upstream/android-13
 
 		if (level <= max_level) {
 			eb = path->nodes[level];
@@ -1827,6 +2517,7 @@ again:
 				break;
 			}
 
+<<<<<<< HEAD
 			eb = read_tree_block(fs_info, old_bytenr, old_ptr_gen,
 					     level - 1, &first_key);
 			if (IS_ERR(eb)) {
@@ -1836,14 +2527,31 @@ again:
 				ret = -EIO;
 				free_extent_buffer(eb);
 				break;
+=======
+			eb = btrfs_read_node_slot(parent, slot);
+			if (IS_ERR(eb)) {
+				ret = PTR_ERR(eb);
+				break;
+>>>>>>> upstream/android-13
 			}
 			btrfs_tree_lock(eb);
 			if (cow) {
 				ret = btrfs_cow_block(trans, dest, eb, parent,
+<<<<<<< HEAD
 						      slot, &eb);
 				BUG_ON(ret);
 			}
 			btrfs_set_lock_blocking(eb);
+=======
+						      slot, &eb,
+						      BTRFS_NESTING_COW);
+				if (ret) {
+					btrfs_tree_unlock(eb);
+					free_extent_buffer(eb);
+					break;
+				}
+			}
+>>>>>>> upstream/android-13
 
 			btrfs_tree_unlock(parent);
 			free_extent_buffer(parent);
@@ -1866,7 +2574,15 @@ again:
 		path->lowest_level = level;
 		ret = btrfs_search_slot(trans, src, &key, path, 0, 1);
 		path->lowest_level = 0;
+<<<<<<< HEAD
 		BUG_ON(ret);
+=======
+		if (ret) {
+			if (ret > 0)
+				ret = -ENOENT;
+			break;
+		}
+>>>>>>> upstream/android-13
 
 		/*
 		 * Info qgroup to trace both subtrees.
@@ -1876,6 +2592,7 @@ again:
 		 *    If not traced, we will leak data numbers
 		 * 2) Fs subtree
 		 *    If not traced, we will double count old data
+<<<<<<< HEAD
 		 *    and tree block numbers, if current trans doesn't free
 		 *    data reloc tree inode.
 		 */
@@ -1890,6 +2607,20 @@ again:
 		if (ret < 0)
 			break;
 
+=======
+		 *
+		 * We don't scan the subtree right now, but only record
+		 * the swapped tree blocks.
+		 * The real subtree rescan is delayed until we have new
+		 * CoW on the subtree root node before transaction commit.
+		 */
+		ret = btrfs_qgroup_add_swapped_blocks(trans, dest,
+				rc->block_group, parent, slot,
+				path->nodes[level], path->slots[level],
+				last_snapshot);
+		if (ret < 0)
+			break;
+>>>>>>> upstream/android-13
 		/*
 		 * swap blocks in fs tree and reloc tree.
 		 */
@@ -1903,6 +2634,7 @@ again:
 					      path->slots[level], old_ptr_gen);
 		btrfs_mark_buffer_dirty(path->nodes[level]);
 
+<<<<<<< HEAD
 		ret = btrfs_inc_extent_ref(trans, src, old_bytenr,
 					blocksize, path->nodes[level]->start,
 					src->root_key.objectid, level - 1, 0);
@@ -1921,6 +2653,46 @@ again:
 					0, dest->root_key.objectid, level - 1,
 					0);
 		BUG_ON(ret);
+=======
+		btrfs_init_generic_ref(&ref, BTRFS_ADD_DELAYED_REF, old_bytenr,
+				       blocksize, path->nodes[level]->start);
+		ref.skip_qgroup = true;
+		btrfs_init_tree_ref(&ref, level - 1, src->root_key.objectid);
+		ret = btrfs_inc_extent_ref(trans, &ref);
+		if (ret) {
+			btrfs_abort_transaction(trans, ret);
+			break;
+		}
+		btrfs_init_generic_ref(&ref, BTRFS_ADD_DELAYED_REF, new_bytenr,
+				       blocksize, 0);
+		ref.skip_qgroup = true;
+		btrfs_init_tree_ref(&ref, level - 1, dest->root_key.objectid);
+		ret = btrfs_inc_extent_ref(trans, &ref);
+		if (ret) {
+			btrfs_abort_transaction(trans, ret);
+			break;
+		}
+
+		btrfs_init_generic_ref(&ref, BTRFS_DROP_DELAYED_REF, new_bytenr,
+				       blocksize, path->nodes[level]->start);
+		btrfs_init_tree_ref(&ref, level - 1, src->root_key.objectid);
+		ref.skip_qgroup = true;
+		ret = btrfs_free_extent(trans, &ref);
+		if (ret) {
+			btrfs_abort_transaction(trans, ret);
+			break;
+		}
+
+		btrfs_init_generic_ref(&ref, BTRFS_DROP_DELAYED_REF, old_bytenr,
+				       blocksize, 0);
+		btrfs_init_tree_ref(&ref, level - 1, dest->root_key.objectid);
+		ref.skip_qgroup = true;
+		ret = btrfs_free_extent(trans, &ref);
+		if (ret) {
+			btrfs_abort_transaction(trans, ret);
+			break;
+		}
+>>>>>>> upstream/android-13
 
 		btrfs_unlock_up_safe(path, 0);
 
@@ -1976,10 +2748,15 @@ static noinline_for_stack
 int walk_down_reloc_tree(struct btrfs_root *root, struct btrfs_path *path,
 			 int *level)
 {
+<<<<<<< HEAD
 	struct btrfs_fs_info *fs_info = root->fs_info;
 	struct extent_buffer *eb = NULL;
 	int i;
 	u64 bytenr;
+=======
+	struct extent_buffer *eb = NULL;
+	int i;
+>>>>>>> upstream/android-13
 	u64 ptr_gen = 0;
 	u64 last_snapshot;
 	u32 nritems;
@@ -1987,8 +2764,11 @@ int walk_down_reloc_tree(struct btrfs_root *root, struct btrfs_path *path,
 	last_snapshot = btrfs_root_last_snapshot(&root->root_item);
 
 	for (i = *level; i > 0; i--) {
+<<<<<<< HEAD
 		struct btrfs_key first_key;
 
+=======
+>>>>>>> upstream/android-13
 		eb = path->nodes[i];
 		nritems = btrfs_header_nritems(eb);
 		while (path->slots[i] < nritems) {
@@ -2008,6 +2788,7 @@ int walk_down_reloc_tree(struct btrfs_root *root, struct btrfs_path *path,
 			return 0;
 		}
 
+<<<<<<< HEAD
 		bytenr = btrfs_node_blockptr(eb, path->slots[i]);
 		btrfs_node_key_to_cpu(eb, &first_key, path->slots[i]);
 		eb = read_tree_block(fs_info, bytenr, ptr_gen, i - 1,
@@ -2018,6 +2799,11 @@ int walk_down_reloc_tree(struct btrfs_root *root, struct btrfs_path *path,
 			free_extent_buffer(eb);
 			return -EIO;
 		}
+=======
+		eb = btrfs_read_node_slot(eb, path->slots[i]);
+		if (IS_ERR(eb))
+			return PTR_ERR(eb);
+>>>>>>> upstream/android-13
 		BUG_ON(btrfs_header_level(eb) != i - 1);
 		path->nodes[i - 1] = eb;
 		path->slots[i - 1] = 0;
@@ -2117,6 +2903,89 @@ static int find_next_key(struct btrfs_path *path, int level,
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * Insert current subvolume into reloc_control::dirty_subvol_roots
+ */
+static int insert_dirty_subvol(struct btrfs_trans_handle *trans,
+			       struct reloc_control *rc,
+			       struct btrfs_root *root)
+{
+	struct btrfs_root *reloc_root = root->reloc_root;
+	struct btrfs_root_item *reloc_root_item;
+	int ret;
+
+	/* @root must be a subvolume tree root with a valid reloc tree */
+	ASSERT(root->root_key.objectid != BTRFS_TREE_RELOC_OBJECTID);
+	ASSERT(reloc_root);
+
+	reloc_root_item = &reloc_root->root_item;
+	memset(&reloc_root_item->drop_progress, 0,
+		sizeof(reloc_root_item->drop_progress));
+	btrfs_set_root_drop_level(reloc_root_item, 0);
+	btrfs_set_root_refs(reloc_root_item, 0);
+	ret = btrfs_update_reloc_root(trans, root);
+	if (ret)
+		return ret;
+
+	if (list_empty(&root->reloc_dirty_list)) {
+		btrfs_grab_root(root);
+		list_add_tail(&root->reloc_dirty_list, &rc->dirty_subvol_roots);
+	}
+
+	return 0;
+}
+
+static int clean_dirty_subvols(struct reloc_control *rc)
+{
+	struct btrfs_root *root;
+	struct btrfs_root *next;
+	int ret = 0;
+	int ret2;
+
+	list_for_each_entry_safe(root, next, &rc->dirty_subvol_roots,
+				 reloc_dirty_list) {
+		if (root->root_key.objectid != BTRFS_TREE_RELOC_OBJECTID) {
+			/* Merged subvolume, cleanup its reloc root */
+			struct btrfs_root *reloc_root = root->reloc_root;
+
+			list_del_init(&root->reloc_dirty_list);
+			root->reloc_root = NULL;
+			/*
+			 * Need barrier to ensure clear_bit() only happens after
+			 * root->reloc_root = NULL. Pairs with have_reloc_root.
+			 */
+			smp_wmb();
+			clear_bit(BTRFS_ROOT_DEAD_RELOC_TREE, &root->state);
+			if (reloc_root) {
+				/*
+				 * btrfs_drop_snapshot drops our ref we hold for
+				 * ->reloc_root.  If it fails however we must
+				 * drop the ref ourselves.
+				 */
+				ret2 = btrfs_drop_snapshot(reloc_root, 0, 1);
+				if (ret2 < 0) {
+					btrfs_put_root(reloc_root);
+					if (!ret)
+						ret = ret2;
+				}
+			}
+			btrfs_put_root(root);
+		} else {
+			/* Orphan reloc tree, just clean it up */
+			ret2 = btrfs_drop_snapshot(root, 0, 1);
+			if (ret2 < 0) {
+				btrfs_put_root(root);
+				if (!ret)
+					ret = ret2;
+			}
+		}
+	}
+	return ret;
+}
+
+/*
+>>>>>>> upstream/android-13
  * merge the relocated tree blocks in reloc tree with corresponding
  * fs tree.
  */
@@ -2124,7 +2993,10 @@ static noinline_for_stack int merge_reloc_root(struct reloc_control *rc,
 					       struct btrfs_root *root)
 {
 	struct btrfs_fs_info *fs_info = rc->extent_root->fs_info;
+<<<<<<< HEAD
 	LIST_HEAD(inode_list);
+=======
+>>>>>>> upstream/android-13
 	struct btrfs_key key;
 	struct btrfs_key next_key;
 	struct btrfs_trans_handle *trans = NULL;
@@ -2132,11 +3004,19 @@ static noinline_for_stack int merge_reloc_root(struct reloc_control *rc,
 	struct btrfs_root_item *root_item;
 	struct btrfs_path *path;
 	struct extent_buffer *leaf;
+<<<<<<< HEAD
 	int level;
 	int max_level;
 	int replaced = 0;
 	int ret;
 	int err = 0;
+=======
+	int reserve_level;
+	int level;
+	int max_level;
+	int replaced = 0;
+	int ret = 0;
+>>>>>>> upstream/android-13
 	u32 min_reserved;
 
 	path = btrfs_alloc_path();
@@ -2149,13 +3029,21 @@ static noinline_for_stack int merge_reloc_root(struct reloc_control *rc,
 
 	if (btrfs_disk_key_objectid(&root_item->drop_progress) == 0) {
 		level = btrfs_root_level(root_item);
+<<<<<<< HEAD
 		extent_buffer_get(reloc_root->node);
+=======
+		atomic_inc(&reloc_root->node->refs);
+>>>>>>> upstream/android-13
 		path->nodes[level] = reloc_root->node;
 		path->slots[level] = 0;
 	} else {
 		btrfs_disk_key_to_cpu(&key, &root_item->drop_progress);
 
+<<<<<<< HEAD
 		level = root_item->drop_level;
+=======
+		level = btrfs_root_drop_level(root_item);
+>>>>>>> upstream/android-13
 		BUG_ON(level == 0);
 		path->lowest_level = level;
 		ret = btrfs_search_slot(NULL, reloc_root, &key, path, 0, 0);
@@ -2172,11 +3060,25 @@ static noinline_for_stack int merge_reloc_root(struct reloc_control *rc,
 		btrfs_unlock_up_safe(path, 0);
 	}
 
+<<<<<<< HEAD
 	min_reserved = fs_info->nodesize * (BTRFS_MAX_LEVEL - 1) * 2;
+=======
+	/*
+	 * In merge_reloc_root(), we modify the upper level pointer to swap the
+	 * tree blocks between reloc tree and subvolume tree.  Thus for tree
+	 * block COW, we COW at most from level 1 to root level for each tree.
+	 *
+	 * Thus the needed metadata size is at most root_level * nodesize,
+	 * and * 2 since we have two trees to COW.
+	 */
+	reserve_level = max_t(int, 1, btrfs_root_level(root_item));
+	min_reserved = fs_info->nodesize * reserve_level * 2;
+>>>>>>> upstream/android-13
 	memset(&next_key, 0, sizeof(next_key));
 
 	while (1) {
 		ret = btrfs_block_rsv_refill(root, rc->block_rsv, min_reserved,
+<<<<<<< HEAD
 					     BTRFS_RESERVE_FLUSH_ALL);
 		if (ret) {
 			err = ret;
@@ -2188,16 +3090,44 @@ static noinline_for_stack int merge_reloc_root(struct reloc_control *rc,
 			trans = NULL;
 			goto out;
 		}
+=======
+					     BTRFS_RESERVE_FLUSH_LIMIT);
+		if (ret)
+			goto out;
+		trans = btrfs_start_transaction(root, 0);
+		if (IS_ERR(trans)) {
+			ret = PTR_ERR(trans);
+			trans = NULL;
+			goto out;
+		}
+
+		/*
+		 * At this point we no longer have a reloc_control, so we can't
+		 * depend on btrfs_init_reloc_root to update our last_trans.
+		 *
+		 * But that's ok, we started the trans handle on our
+		 * corresponding fs_root, which means it's been added to the
+		 * dirty list.  At commit time we'll still call
+		 * btrfs_update_reloc_root() and update our root item
+		 * appropriately.
+		 */
+		reloc_root->last_trans = trans->transid;
+>>>>>>> upstream/android-13
 		trans->block_rsv = rc->block_rsv;
 
 		replaced = 0;
 		max_level = level;
 
 		ret = walk_down_reloc_tree(reloc_root, path, &level);
+<<<<<<< HEAD
 		if (ret < 0) {
 			err = ret;
 			goto out;
 		}
+=======
+		if (ret < 0)
+			goto out;
+>>>>>>> upstream/android-13
 		if (ret > 0)
 			break;
 
@@ -2205,6 +3135,7 @@ static noinline_for_stack int merge_reloc_root(struct reloc_control *rc,
 		    btrfs_comp_cpu_keys(&next_key, &key) >= 0) {
 			ret = 0;
 		} else {
+<<<<<<< HEAD
 			ret = replace_path(trans, root, reloc_root, path,
 					   &next_key, level, max_level);
 		}
@@ -2213,6 +3144,13 @@ static noinline_for_stack int merge_reloc_root(struct reloc_control *rc,
 			goto out;
 		}
 
+=======
+			ret = replace_path(trans, rc, root, reloc_root, path,
+					   &next_key, level, max_level);
+		}
+		if (ret < 0)
+			goto out;
+>>>>>>> upstream/android-13
 		if (ret > 0) {
 			level = ret;
 			btrfs_node_key_to_cpu(path->nodes[level], &key,
@@ -2231,7 +3169,11 @@ static noinline_for_stack int merge_reloc_root(struct reloc_control *rc,
 		 */
 		btrfs_node_key(path->nodes[level], &root_item->drop_progress,
 			       path->slots[level]);
+<<<<<<< HEAD
 		root_item->drop_level = level;
+=======
+		btrfs_set_root_drop_level(root_item, level);
+>>>>>>> upstream/android-13
 
 		btrfs_end_transaction_throttle(trans);
 		trans = NULL;
@@ -2247,6 +3189,7 @@ static noinline_for_stack int merge_reloc_root(struct reloc_control *rc,
 	 * relocated and the block is tree root.
 	 */
 	leaf = btrfs_lock_root_node(root);
+<<<<<<< HEAD
 	ret = btrfs_cow_block(trans, root, leaf, NULL, 0, &leaf);
 	btrfs_tree_unlock(leaf);
 	free_extent_buffer(leaf);
@@ -2261,6 +3204,19 @@ out:
 		root_item->drop_level = 0;
 		btrfs_set_root_refs(root_item, 0);
 		btrfs_update_reloc_root(trans, root);
+=======
+	ret = btrfs_cow_block(trans, root, leaf, NULL, 0, &leaf,
+			      BTRFS_NESTING_COW);
+	btrfs_tree_unlock(leaf);
+	free_extent_buffer(leaf);
+out:
+	btrfs_free_path(path);
+
+	if (ret == 0) {
+		ret = insert_dirty_subvol(trans, rc, root);
+		if (ret)
+			btrfs_abort_transaction(trans, ret);
+>>>>>>> upstream/android-13
 	}
 
 	if (trans)
@@ -2271,7 +3227,11 @@ out:
 	if (replaced && rc->stage == UPDATE_DATA_PTRS)
 		invalidate_extent_cache(root, &key, &next_key);
 
+<<<<<<< HEAD
 	return err;
+=======
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static noinline_for_stack
@@ -2303,7 +3263,11 @@ again:
 	if (IS_ERR(trans)) {
 		if (!err)
 			btrfs_block_rsv_release(fs_info, rc->block_rsv,
+<<<<<<< HEAD
 						num_bytes);
+=======
+						num_bytes, NULL);
+>>>>>>> upstream/android-13
 		return PTR_ERR(trans);
 	}
 
@@ -2311,7 +3275,11 @@ again:
 		if (num_bytes != rc->merging_rsv_size) {
 			btrfs_end_transaction(trans);
 			btrfs_block_rsv_release(fs_info, rc->block_rsv,
+<<<<<<< HEAD
 						num_bytes);
+=======
+						num_bytes, NULL);
+>>>>>>> upstream/android-13
 			goto again;
 		}
 	}
@@ -2323,9 +3291,26 @@ again:
 					struct btrfs_root, root_list);
 		list_del_init(&reloc_root->root_list);
 
+<<<<<<< HEAD
 		root = read_fs_root(fs_info, reloc_root->root_key.offset);
 		BUG_ON(IS_ERR(root));
 		BUG_ON(root->reloc_root != reloc_root);
+=======
+		root = btrfs_get_fs_root(fs_info, reloc_root->root_key.offset,
+				false);
+		if (IS_ERR(root)) {
+			/*
+			 * Even if we have an error we need this reloc root
+			 * back on our list so we can clean up properly.
+			 */
+			list_add(&reloc_root->root_list, &reloc_roots);
+			btrfs_abort_transaction(trans, (int)PTR_ERR(root));
+			if (!err)
+				err = PTR_ERR(root);
+			break;
+		}
+		ASSERT(root->reloc_root == reloc_root);
+>>>>>>> upstream/android-13
 
 		/*
 		 * set reference count to 1, so btrfs_recover_relocation
@@ -2333,15 +3318,37 @@ again:
 		 */
 		if (!err)
 			btrfs_set_root_refs(&reloc_root->root_item, 1);
+<<<<<<< HEAD
 		btrfs_update_reloc_root(trans, root);
 
 		list_add(&reloc_root->root_list, &reloc_roots);
+=======
+		ret = btrfs_update_reloc_root(trans, root);
+
+		/*
+		 * Even if we have an error we need this reloc root back on our
+		 * list so we can clean up properly.
+		 */
+		list_add(&reloc_root->root_list, &reloc_roots);
+		btrfs_put_root(root);
+
+		if (ret) {
+			btrfs_abort_transaction(trans, ret);
+			if (!err)
+				err = ret;
+			break;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	list_splice(&reloc_roots, &rc->reloc_roots);
 
 	if (!err)
+<<<<<<< HEAD
 		btrfs_commit_transaction(trans);
+=======
+		err = btrfs_commit_transaction(trans);
+>>>>>>> upstream/android-13
 	else
 		btrfs_end_transaction(trans);
 	return err;
@@ -2350,6 +3357,7 @@ again:
 static noinline_for_stack
 void free_reloc_roots(struct list_head *list)
 {
+<<<<<<< HEAD
 	struct btrfs_root *reloc_root;
 
 	while (!list_empty(list)) {
@@ -2361,6 +3369,12 @@ void free_reloc_roots(struct list_head *list)
 		reloc_root->node = NULL;
 		reloc_root->commit_root = NULL;
 	}
+=======
+	struct btrfs_root *reloc_root, *tmp;
+
+	list_for_each_entry_safe(reloc_root, tmp, list, root_list)
+		__del_reloc_root(reloc_root);
+>>>>>>> upstream/android-13
 }
 
 static noinline_for_stack
@@ -2390,6 +3404,7 @@ again:
 		reloc_root = list_entry(reloc_roots.next,
 					struct btrfs_root, root_list);
 
+<<<<<<< HEAD
 		if (btrfs_root_refs(&reloc_root->root_item) > 0) {
 			root = read_fs_root(fs_info,
 					    reloc_root->root_key.offset);
@@ -2397,6 +3412,36 @@ again:
 			BUG_ON(root->reloc_root != reloc_root);
 
 			ret = merge_reloc_root(rc, root);
+=======
+		root = btrfs_get_fs_root(fs_info, reloc_root->root_key.offset,
+					 false);
+		if (btrfs_root_refs(&reloc_root->root_item) > 0) {
+			if (IS_ERR(root)) {
+				/*
+				 * For recovery we read the fs roots on mount,
+				 * and if we didn't find the root then we marked
+				 * the reloc root as a garbage root.  For normal
+				 * relocation obviously the root should exist in
+				 * memory.  However there's no reason we can't
+				 * handle the error properly here just in case.
+				 */
+				ASSERT(0);
+				ret = PTR_ERR(root);
+				goto out;
+			}
+			if (root->reloc_root != reloc_root) {
+				/*
+				 * This is actually impossible without something
+				 * going really wrong (like weird race condition
+				 * or cosmic rays).
+				 */
+				ASSERT(0);
+				ret = -EINVAL;
+				goto out;
+			}
+			ret = merge_reloc_root(rc, root);
+			btrfs_put_root(root);
+>>>>>>> upstream/android-13
 			if (ret) {
 				if (list_empty(&reloc_root->root_list))
 					list_add_tail(&reloc_root->root_list,
@@ -2404,6 +3449,7 @@ again:
 				goto out;
 			}
 		} else {
+<<<<<<< HEAD
 			list_del_init(&reloc_root->root_list);
 		}
 
@@ -2413,6 +3459,22 @@ again:
 				list_add_tail(&reloc_root->root_list,
 					      &reloc_roots);
 			goto out;
+=======
+			if (!IS_ERR(root)) {
+				if (root->reloc_root == reloc_root) {
+					root->reloc_root = NULL;
+					btrfs_put_root(reloc_root);
+				}
+				clear_bit(BTRFS_ROOT_DEAD_RELOC_TREE,
+					  &root->state);
+				btrfs_put_root(root);
+			}
+
+			list_del_init(&reloc_root->root_list);
+			/* Don't forget to queue this reloc root for cleanup */
+			list_add_tail(&reloc_root->reloc_dirty_list,
+				      &rc->dirty_subvol_roots);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -2423,15 +3485,23 @@ again:
 out:
 	if (ret) {
 		btrfs_handle_fs_error(fs_info, ret, NULL);
+<<<<<<< HEAD
 		if (!list_empty(&reloc_roots))
 			free_reloc_roots(&reloc_roots);
+=======
+		free_reloc_roots(&reloc_roots);
+>>>>>>> upstream/android-13
 
 		/* new reloc root may be added */
 		mutex_lock(&fs_info->reloc_mutex);
 		list_splice_init(&rc->reloc_roots, &reloc_roots);
 		mutex_unlock(&fs_info->reloc_mutex);
+<<<<<<< HEAD
 		if (!list_empty(&reloc_roots))
 			free_reloc_roots(&reloc_roots);
+=======
+		free_reloc_roots(&reloc_roots);
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -2467,32 +3537,76 @@ static int record_reloc_root_in_trans(struct btrfs_trans_handle *trans,
 {
 	struct btrfs_fs_info *fs_info = reloc_root->fs_info;
 	struct btrfs_root *root;
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (reloc_root->last_trans == trans->transid)
 		return 0;
 
+<<<<<<< HEAD
 	root = read_fs_root(fs_info, reloc_root->root_key.offset);
 	BUG_ON(IS_ERR(root));
 	BUG_ON(root->reloc_root != reloc_root);
 
 	return btrfs_record_root_in_trans(trans, root);
+=======
+	root = btrfs_get_fs_root(fs_info, reloc_root->root_key.offset, false);
+
+	/*
+	 * This should succeed, since we can't have a reloc root without having
+	 * already looked up the actual root and created the reloc root for this
+	 * root.
+	 *
+	 * However if there's some sort of corruption where we have a ref to a
+	 * reloc root without a corresponding root this could return ENOENT.
+	 */
+	if (IS_ERR(root)) {
+		ASSERT(0);
+		return PTR_ERR(root);
+	}
+	if (root->reloc_root != reloc_root) {
+		ASSERT(0);
+		btrfs_err(fs_info,
+			  "root %llu has two reloc roots associated with it",
+			  reloc_root->root_key.offset);
+		btrfs_put_root(root);
+		return -EUCLEAN;
+	}
+	ret = btrfs_record_root_in_trans(trans, root);
+	btrfs_put_root(root);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static noinline_for_stack
 struct btrfs_root *select_reloc_root(struct btrfs_trans_handle *trans,
 				     struct reloc_control *rc,
+<<<<<<< HEAD
 				     struct backref_node *node,
 				     struct backref_edge *edges[])
 {
 	struct backref_node *next;
 	struct btrfs_root *root;
 	int index = 0;
+=======
+				     struct btrfs_backref_node *node,
+				     struct btrfs_backref_edge *edges[])
+{
+	struct btrfs_backref_node *next;
+	struct btrfs_root *root;
+	int index = 0;
+	int ret;
+>>>>>>> upstream/android-13
 
 	next = node;
 	while (1) {
 		cond_resched();
 		next = walk_up_backref(next, edges, &index);
 		root = next->root;
+<<<<<<< HEAD
 		BUG_ON(!root);
 		BUG_ON(!test_bit(BTRFS_ROOT_REF_COWS, &root->state));
 
@@ -2512,6 +3626,79 @@ struct btrfs_root *select_reloc_root(struct btrfs_trans_handle *trans,
 			list_add_tail(&next->list,
 				      &rc->backref_cache.changed);
 			__mark_block_processed(rc, next);
+=======
+
+		/*
+		 * If there is no root, then our references for this block are
+		 * incomplete, as we should be able to walk all the way up to a
+		 * block that is owned by a root.
+		 *
+		 * This path is only for SHAREABLE roots, so if we come upon a
+		 * non-SHAREABLE root then we have backrefs that resolve
+		 * improperly.
+		 *
+		 * Both of these cases indicate file system corruption, or a bug
+		 * in the backref walking code.
+		 */
+		if (!root) {
+			ASSERT(0);
+			btrfs_err(trans->fs_info,
+		"bytenr %llu doesn't have a backref path ending in a root",
+				  node->bytenr);
+			return ERR_PTR(-EUCLEAN);
+		}
+		if (!test_bit(BTRFS_ROOT_SHAREABLE, &root->state)) {
+			ASSERT(0);
+			btrfs_err(trans->fs_info,
+	"bytenr %llu has multiple refs with one ending in a non-shareable root",
+				  node->bytenr);
+			return ERR_PTR(-EUCLEAN);
+		}
+
+		if (root->root_key.objectid == BTRFS_TREE_RELOC_OBJECTID) {
+			ret = record_reloc_root_in_trans(trans, root);
+			if (ret)
+				return ERR_PTR(ret);
+			break;
+		}
+
+		ret = btrfs_record_root_in_trans(trans, root);
+		if (ret)
+			return ERR_PTR(ret);
+		root = root->reloc_root;
+
+		/*
+		 * We could have raced with another thread which failed, so
+		 * root->reloc_root may not be set, return ENOENT in this case.
+		 */
+		if (!root)
+			return ERR_PTR(-ENOENT);
+
+		if (next->new_bytenr != root->node->start) {
+			/*
+			 * We just created the reloc root, so we shouldn't have
+			 * ->new_bytenr set and this shouldn't be in the changed
+			 *  list.  If it is then we have multiple roots pointing
+			 *  at the same bytenr which indicates corruption, or
+			 *  we've made a mistake in the backref walking code.
+			 */
+			ASSERT(next->new_bytenr == 0);
+			ASSERT(list_empty(&next->list));
+			if (next->new_bytenr || !list_empty(&next->list)) {
+				btrfs_err(trans->fs_info,
+	"bytenr %llu possibly has multiple roots pointing at the same bytenr %llu",
+					  node->bytenr, next->bytenr);
+				return ERR_PTR(-EUCLEAN);
+			}
+
+			next->new_bytenr = root->node->start;
+			btrfs_put_root(next->root);
+			next->root = btrfs_grab_root(root);
+			ASSERT(next->root);
+			list_add_tail(&next->list,
+				      &rc->backref_cache.changed);
+			mark_block_processed(rc, next);
+>>>>>>> upstream/android-13
 			break;
 		}
 
@@ -2521,8 +3708,19 @@ struct btrfs_root *select_reloc_root(struct btrfs_trans_handle *trans,
 		if (!next || next->level <= node->level)
 			break;
 	}
+<<<<<<< HEAD
 	if (!root)
 		return NULL;
+=======
+	if (!root) {
+		/*
+		 * This can happen if there's fs corruption or if there's a bug
+		 * in the backref lookup code.
+		 */
+		ASSERT(0);
+		return ERR_PTR(-ENOENT);
+	}
+>>>>>>> upstream/android-13
 
 	next = node;
 	/* setup backref node path for btrfs_reloc_cow_block */
@@ -2536,6 +3734,7 @@ struct btrfs_root *select_reloc_root(struct btrfs_trans_handle *trans,
 }
 
 /*
+<<<<<<< HEAD
  * select a tree root for relocation. return NULL if the block
  * is reference counted. we should use do_relocation() in this
  * case. return a tree root pointer if the block isn't reference
@@ -2548,6 +3747,23 @@ struct btrfs_root *select_one_root(struct backref_node *node)
 	struct btrfs_root *root;
 	struct btrfs_root *fs_root = NULL;
 	struct backref_edge *edges[BTRFS_MAX_LEVEL - 1];
+=======
+ * Select a tree root for relocation.
+ *
+ * Return NULL if the block is not shareable. We should use do_relocation() in
+ * this case.
+ *
+ * Return a tree root pointer if the block is shareable.
+ * Return -ENOENT if the block is root of reloc tree.
+ */
+static noinline_for_stack
+struct btrfs_root *select_one_root(struct btrfs_backref_node *node)
+{
+	struct btrfs_backref_node *next;
+	struct btrfs_root *root;
+	struct btrfs_root *fs_root = NULL;
+	struct btrfs_backref_edge *edges[BTRFS_MAX_LEVEL - 1];
+>>>>>>> upstream/android-13
 	int index = 0;
 
 	next = node;
@@ -2555,10 +3771,23 @@ struct btrfs_root *select_one_root(struct backref_node *node)
 		cond_resched();
 		next = walk_up_backref(next, edges, &index);
 		root = next->root;
+<<<<<<< HEAD
 		BUG_ON(!root);
 
 		/* no other choice for non-references counted tree */
 		if (!test_bit(BTRFS_ROOT_REF_COWS, &root->state))
+=======
+
+		/*
+		 * This can occur if we have incomplete extent refs leading all
+		 * the way up a particular path, in this case return -EUCLEAN.
+		 */
+		if (!root)
+			return ERR_PTR(-EUCLEAN);
+
+		/* No other choice for non-shareable tree */
+		if (!test_bit(BTRFS_ROOT_SHAREABLE, &root->state))
+>>>>>>> upstream/android-13
 			return root;
 
 		if (root->root_key.objectid != BTRFS_TREE_RELOC_OBJECTID)
@@ -2579,12 +3808,21 @@ struct btrfs_root *select_one_root(struct backref_node *node)
 
 static noinline_for_stack
 u64 calcu_metadata_size(struct reloc_control *rc,
+<<<<<<< HEAD
 			struct backref_node *node, int reserve)
 {
 	struct btrfs_fs_info *fs_info = rc->extent_root->fs_info;
 	struct backref_node *next = node;
 	struct backref_edge *edge;
 	struct backref_edge *edges[BTRFS_MAX_LEVEL - 1];
+=======
+			struct btrfs_backref_node *node, int reserve)
+{
+	struct btrfs_fs_info *fs_info = rc->extent_root->fs_info;
+	struct btrfs_backref_node *next = node;
+	struct btrfs_backref_edge *edge;
+	struct btrfs_backref_edge *edges[BTRFS_MAX_LEVEL - 1];
+>>>>>>> upstream/android-13
 	u64 num_bytes = 0;
 	int index = 0;
 
@@ -2602,7 +3840,11 @@ u64 calcu_metadata_size(struct reloc_control *rc,
 				break;
 
 			edge = list_entry(next->upper.next,
+<<<<<<< HEAD
 					  struct backref_edge, list[LOWER]);
+=======
+					struct btrfs_backref_edge, list[LOWER]);
+>>>>>>> upstream/android-13
 			edges[index++] = edge;
 			next = edge->node[UPPER];
 		}
@@ -2613,7 +3855,11 @@ u64 calcu_metadata_size(struct reloc_control *rc,
 
 static int reserve_metadata_space(struct btrfs_trans_handle *trans,
 				  struct reloc_control *rc,
+<<<<<<< HEAD
 				  struct backref_node *node)
+=======
+				  struct btrfs_backref_node *node)
+>>>>>>> upstream/android-13
 {
 	struct btrfs_root *root = rc->extent_root;
 	struct btrfs_fs_info *fs_info = root->fs_info;
@@ -2641,7 +3887,11 @@ static int reserve_metadata_space(struct btrfs_trans_handle *trans,
 		 * only one thread can access block_rsv at this point,
 		 * so we don't need hold lock to protect block_rsv.
 		 * we expand more reservation size here to allow enough
+<<<<<<< HEAD
 		 * space for relocation and we will return eailer in
+=======
+		 * space for relocation and we will return earlier in
+>>>>>>> upstream/android-13
 		 * enospc case.
 		 */
 		rc->block_rsv->size = tmp + fs_info->nodesize *
@@ -2661,6 +3911,7 @@ static int reserve_metadata_space(struct btrfs_trans_handle *trans,
  */
 static int do_relocation(struct btrfs_trans_handle *trans,
 			 struct reloc_control *rc,
+<<<<<<< HEAD
 			 struct backref_node *node,
 			 struct btrfs_key *key,
 			 struct btrfs_path *path, int lowest)
@@ -2669,47 +3920,93 @@ static int do_relocation(struct btrfs_trans_handle *trans,
 	struct backref_node *upper;
 	struct backref_edge *edge;
 	struct backref_edge *edges[BTRFS_MAX_LEVEL - 1];
+=======
+			 struct btrfs_backref_node *node,
+			 struct btrfs_key *key,
+			 struct btrfs_path *path, int lowest)
+{
+	struct btrfs_backref_node *upper;
+	struct btrfs_backref_edge *edge;
+	struct btrfs_backref_edge *edges[BTRFS_MAX_LEVEL - 1];
+>>>>>>> upstream/android-13
 	struct btrfs_root *root;
 	struct extent_buffer *eb;
 	u32 blocksize;
 	u64 bytenr;
+<<<<<<< HEAD
 	u64 generation;
 	int slot;
 	int ret;
 	int err = 0;
 
 	BUG_ON(lowest && node->eb);
+=======
+	int slot;
+	int ret = 0;
+
+	/*
+	 * If we are lowest then this is the first time we're processing this
+	 * block, and thus shouldn't have an eb associated with it yet.
+	 */
+	ASSERT(!lowest || !node->eb);
+>>>>>>> upstream/android-13
 
 	path->lowest_level = node->level + 1;
 	rc->backref_cache.path[node->level] = node;
 	list_for_each_entry(edge, &node->upper, list[LOWER]) {
+<<<<<<< HEAD
 		struct btrfs_key first_key;
+=======
+		struct btrfs_ref ref = { 0 };
+>>>>>>> upstream/android-13
 
 		cond_resched();
 
 		upper = edge->node[UPPER];
 		root = select_reloc_root(trans, rc, upper, edges);
+<<<<<<< HEAD
 		BUG_ON(!root);
 
 		if (upper->eb && !upper->locked) {
 			if (!lowest) {
 				ret = btrfs_bin_search(upper->eb, key,
 						       upper->level, &slot);
+=======
+		if (IS_ERR(root)) {
+			ret = PTR_ERR(root);
+			goto next;
+		}
+
+		if (upper->eb && !upper->locked) {
+			if (!lowest) {
+				ret = btrfs_bin_search(upper->eb, key, &slot);
+				if (ret < 0)
+					goto next;
+>>>>>>> upstream/android-13
 				BUG_ON(ret);
 				bytenr = btrfs_node_blockptr(upper->eb, slot);
 				if (node->eb->start == bytenr)
 					goto next;
 			}
+<<<<<<< HEAD
 			drop_node_buffer(upper);
+=======
+			btrfs_backref_drop_node_buffer(upper);
+>>>>>>> upstream/android-13
 		}
 
 		if (!upper->eb) {
 			ret = btrfs_search_slot(trans, root, key, path, 0, 1);
 			if (ret) {
+<<<<<<< HEAD
 				if (ret < 0)
 					err = ret;
 				else
 					err = -ENOENT;
+=======
+				if (ret > 0)
+					ret = -ENOENT;
+>>>>>>> upstream/android-13
 
 				btrfs_release_path(path);
 				break;
@@ -2728,8 +4025,14 @@ static int do_relocation(struct btrfs_trans_handle *trans,
 			slot = path->slots[upper->level];
 			btrfs_release_path(path);
 		} else {
+<<<<<<< HEAD
 			ret = btrfs_bin_search(upper->eb, key, upper->level,
 					       &slot);
+=======
+			ret = btrfs_bin_search(upper->eb, key, &slot);
+			if (ret < 0)
+				goto next;
+>>>>>>> upstream/android-13
 			BUG_ON(ret);
 		}
 
@@ -2740,7 +4043,11 @@ static int do_relocation(struct btrfs_trans_handle *trans,
 		"lowest leaf/node mismatch: bytenr %llu node->bytenr %llu slot %d upper %llu",
 					  bytenr, node->bytenr, slot,
 					  upper->eb->start);
+<<<<<<< HEAD
 				err = -EIO;
+=======
+				ret = -EIO;
+>>>>>>> upstream/android-13
 				goto next;
 			}
 		} else {
@@ -2749,6 +4056,7 @@ static int do_relocation(struct btrfs_trans_handle *trans,
 		}
 
 		blocksize = root->fs_info->nodesize;
+<<<<<<< HEAD
 		generation = btrfs_node_ptr_generation(upper->eb, slot);
 		btrfs_node_key_to_cpu(upper->eb, &first_key, slot);
 		eb = read_tree_block(fs_info, bytenr, generation,
@@ -2774,6 +4082,27 @@ static int do_relocation(struct btrfs_trans_handle *trans,
 				goto next;
 			}
 			BUG_ON(node->eb != eb);
+=======
+		eb = btrfs_read_node_slot(upper->eb, slot);
+		if (IS_ERR(eb)) {
+			ret = PTR_ERR(eb);
+			goto next;
+		}
+		btrfs_tree_lock(eb);
+
+		if (!node->eb) {
+			ret = btrfs_cow_block(trans, root, eb, upper->eb,
+					      slot, &eb, BTRFS_NESTING_COW);
+			btrfs_tree_unlock(eb);
+			free_extent_buffer(eb);
+			if (ret < 0)
+				goto next;
+			/*
+			 * We've just COWed this block, it should have updated
+			 * the correct backref node entry.
+			 */
+			ASSERT(node->eb == eb);
+>>>>>>> upstream/android-13
 		} else {
 			btrfs_set_node_blockptr(upper->eb, slot,
 						node->eb->start);
@@ -2781,6 +4110,7 @@ static int do_relocation(struct btrfs_trans_handle *trans,
 						      trans->transid);
 			btrfs_mark_buffer_dirty(upper->eb);
 
+<<<<<<< HEAD
 			ret = btrfs_inc_extent_ref(trans, root,
 						node->eb->start, blocksize,
 						upper->eb->start,
@@ -2802,18 +4132,58 @@ next:
 
 	if (!err && node->pending) {
 		drop_node_buffer(node);
+=======
+			btrfs_init_generic_ref(&ref, BTRFS_ADD_DELAYED_REF,
+					       node->eb->start, blocksize,
+					       upper->eb->start);
+			ref.real_root = root->root_key.objectid;
+			btrfs_init_tree_ref(&ref, node->level,
+					    btrfs_header_owner(upper->eb));
+			ret = btrfs_inc_extent_ref(trans, &ref);
+			if (!ret)
+				ret = btrfs_drop_subtree(trans, root, eb,
+							 upper->eb);
+			if (ret)
+				btrfs_abort_transaction(trans, ret);
+		}
+next:
+		if (!upper->pending)
+			btrfs_backref_drop_node_buffer(upper);
+		else
+			btrfs_backref_unlock_node_buffer(upper);
+		if (ret)
+			break;
+	}
+
+	if (!ret && node->pending) {
+		btrfs_backref_drop_node_buffer(node);
+>>>>>>> upstream/android-13
 		list_move_tail(&node->list, &rc->backref_cache.changed);
 		node->pending = 0;
 	}
 
 	path->lowest_level = 0;
+<<<<<<< HEAD
 	BUG_ON(err == -ENOSPC);
 	return err;
+=======
+
+	/*
+	 * We should have allocated all of our space in the block rsv and thus
+	 * shouldn't ENOSPC.
+	 */
+	ASSERT(ret != -ENOSPC);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int link_to_upper(struct btrfs_trans_handle *trans,
 			 struct reloc_control *rc,
+<<<<<<< HEAD
 			 struct backref_node *node,
+=======
+			 struct btrfs_backref_node *node,
+>>>>>>> upstream/android-13
 			 struct btrfs_path *path)
 {
 	struct btrfs_key key;
@@ -2827,15 +4197,24 @@ static int finish_pending_nodes(struct btrfs_trans_handle *trans,
 				struct btrfs_path *path, int err)
 {
 	LIST_HEAD(list);
+<<<<<<< HEAD
 	struct backref_cache *cache = &rc->backref_cache;
 	struct backref_node *node;
+=======
+	struct btrfs_backref_cache *cache = &rc->backref_cache;
+	struct btrfs_backref_node *node;
+>>>>>>> upstream/android-13
 	int level;
 	int ret;
 
 	for (level = 0; level < BTRFS_MAX_LEVEL; level++) {
 		while (!list_empty(&cache->pending[level])) {
 			node = list_entry(cache->pending[level].next,
+<<<<<<< HEAD
 					  struct backref_node, list);
+=======
+					  struct btrfs_backref_node, list);
+>>>>>>> upstream/android-13
 			list_move_tail(&node->list, &list);
 			BUG_ON(!node->pending);
 
@@ -2850,6 +4229,7 @@ static int finish_pending_nodes(struct btrfs_trans_handle *trans,
 	return err;
 }
 
+<<<<<<< HEAD
 static void mark_block_processed(struct reloc_control *rc,
 				 u64 bytenr, u32 blocksize)
 {
@@ -2869,16 +4249,26 @@ static void __mark_block_processed(struct reloc_control *rc,
 	node->processed = 1;
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * mark a block and all blocks directly/indirectly reference the block
  * as processed.
  */
 static void update_processed_blocks(struct reloc_control *rc,
+<<<<<<< HEAD
 				    struct backref_node *node)
 {
 	struct backref_node *next = node;
 	struct backref_edge *edge;
 	struct backref_edge *edges[BTRFS_MAX_LEVEL - 1];
+=======
+				    struct btrfs_backref_node *node)
+{
+	struct btrfs_backref_node *next = node;
+	struct btrfs_backref_edge *edge;
+	struct btrfs_backref_edge *edges[BTRFS_MAX_LEVEL - 1];
+>>>>>>> upstream/android-13
 	int index = 0;
 
 	while (next) {
@@ -2887,13 +4277,21 @@ static void update_processed_blocks(struct reloc_control *rc,
 			if (next->processed)
 				break;
 
+<<<<<<< HEAD
 			__mark_block_processed(rc, next);
+=======
+			mark_block_processed(rc, next);
+>>>>>>> upstream/android-13
 
 			if (list_empty(&next->upper))
 				break;
 
 			edge = list_entry(next->upper.next,
+<<<<<<< HEAD
 					  struct backref_edge, list[LOWER]);
+=======
+					struct btrfs_backref_edge, list[LOWER]);
+>>>>>>> upstream/android-13
 			edges[index++] = edge;
 			next = edge->node[UPPER];
 		}
@@ -2916,16 +4314,24 @@ static int get_tree_block_key(struct btrfs_fs_info *fs_info,
 {
 	struct extent_buffer *eb;
 
+<<<<<<< HEAD
 	BUG_ON(block->key_ready);
 	eb = read_tree_block(fs_info, block->bytenr, block->key.offset,
 			     block->level, NULL);
+=======
+	eb = read_tree_block(fs_info, block->bytenr, block->owner,
+			     block->key.offset, block->level, NULL);
+>>>>>>> upstream/android-13
 	if (IS_ERR(eb)) {
 		return PTR_ERR(eb);
 	} else if (!extent_buffer_uptodate(eb)) {
 		free_extent_buffer(eb);
 		return -EIO;
 	}
+<<<<<<< HEAD
 	WARN_ON(btrfs_header_level(eb) != block->level);
+=======
+>>>>>>> upstream/android-13
 	if (block->level == 0)
 		btrfs_item_key_to_cpu(eb, &block->key, 0);
 	else
@@ -2940,7 +4346,11 @@ static int get_tree_block_key(struct btrfs_fs_info *fs_info,
  */
 static int relocate_tree_block(struct btrfs_trans_handle *trans,
 				struct reloc_control *rc,
+<<<<<<< HEAD
 				struct backref_node *node,
+=======
+				struct btrfs_backref_node *node,
+>>>>>>> upstream/android-13
 				struct btrfs_key *key,
 				struct btrfs_path *path)
 {
@@ -2950,6 +4360,7 @@ static int relocate_tree_block(struct btrfs_trans_handle *trans,
 	if (!node)
 		return 0;
 
+<<<<<<< HEAD
 	BUG_ON(node->processed);
 	root = select_one_root(node);
 	if (root == ERR_PTR(-ENOENT)) {
@@ -2971,6 +4382,70 @@ static int relocate_tree_block(struct btrfs_trans_handle *trans,
 			root = root->reloc_root;
 			node->new_bytenr = root->node->start;
 			node->root = root;
+=======
+	/*
+	 * If we fail here we want to drop our backref_node because we are going
+	 * to start over and regenerate the tree for it.
+	 */
+	ret = reserve_metadata_space(trans, rc, node);
+	if (ret)
+		goto out;
+
+	BUG_ON(node->processed);
+	root = select_one_root(node);
+	if (IS_ERR(root)) {
+		ret = PTR_ERR(root);
+
+		/* See explanation in select_one_root for the -EUCLEAN case. */
+		ASSERT(ret == -ENOENT);
+		if (ret == -ENOENT) {
+			ret = 0;
+			update_processed_blocks(rc, node);
+		}
+		goto out;
+	}
+
+	if (root) {
+		if (test_bit(BTRFS_ROOT_SHAREABLE, &root->state)) {
+			/*
+			 * This block was the root block of a root, and this is
+			 * the first time we're processing the block and thus it
+			 * should not have had the ->new_bytenr modified and
+			 * should have not been included on the changed list.
+			 *
+			 * However in the case of corruption we could have
+			 * multiple refs pointing to the same block improperly,
+			 * and thus we would trip over these checks.  ASSERT()
+			 * for the developer case, because it could indicate a
+			 * bug in the backref code, however error out for a
+			 * normal user in the case of corruption.
+			 */
+			ASSERT(node->new_bytenr == 0);
+			ASSERT(list_empty(&node->list));
+			if (node->new_bytenr || !list_empty(&node->list)) {
+				btrfs_err(root->fs_info,
+				  "bytenr %llu has improper references to it",
+					  node->bytenr);
+				ret = -EUCLEAN;
+				goto out;
+			}
+			ret = btrfs_record_root_in_trans(trans, root);
+			if (ret)
+				goto out;
+			/*
+			 * Another thread could have failed, need to check if we
+			 * have reloc_root actually set.
+			 */
+			if (!root->reloc_root) {
+				ret = -ENOENT;
+				goto out;
+			}
+			root = root->reloc_root;
+			node->new_bytenr = root->node->start;
+			btrfs_put_root(node->root);
+			node->root = btrfs_grab_root(root);
+			ASSERT(node->root);
+>>>>>>> upstream/android-13
 			list_add_tail(&node->list, &rc->backref_cache.changed);
 		} else {
 			path->lowest_level = node->level;
@@ -2986,7 +4461,11 @@ static int relocate_tree_block(struct btrfs_trans_handle *trans,
 	}
 out:
 	if (ret || node->level == 0 || node->cowonly)
+<<<<<<< HEAD
 		remove_backref_node(&rc->backref_cache, node);
+=======
+		btrfs_backref_cleanup_node(&rc->backref_cache, node);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -2998,10 +4477,17 @@ int relocate_tree_blocks(struct btrfs_trans_handle *trans,
 			 struct reloc_control *rc, struct rb_root *blocks)
 {
 	struct btrfs_fs_info *fs_info = rc->extent_root->fs_info;
+<<<<<<< HEAD
 	struct backref_node *node;
 	struct btrfs_path *path;
 	struct tree_block *block;
 	struct rb_node *rb_node;
+=======
+	struct btrfs_backref_node *node;
+	struct btrfs_path *path;
+	struct tree_block *block;
+	struct tree_block *next;
+>>>>>>> upstream/android-13
 	int ret;
 	int err = 0;
 
@@ -3011,6 +4497,7 @@ int relocate_tree_blocks(struct btrfs_trans_handle *trans,
 		goto out_free_blocks;
 	}
 
+<<<<<<< HEAD
 	rb_node = rb_first(blocks);
 	while (rb_node) {
 		block = rb_entry(rb_node, struct tree_block, rb_node);
@@ -3022,11 +4509,24 @@ int relocate_tree_blocks(struct btrfs_trans_handle *trans,
 	rb_node = rb_first(blocks);
 	while (rb_node) {
 		block = rb_entry(rb_node, struct tree_block, rb_node);
+=======
+	/* Kick in readahead for tree blocks with missing keys */
+	rbtree_postorder_for_each_entry_safe(block, next, blocks, rb_node) {
+		if (!block->key_ready)
+			btrfs_readahead_tree_block(fs_info, block->bytenr,
+						   block->owner, 0,
+						   block->level);
+	}
+
+	/* Get first keys */
+	rbtree_postorder_for_each_entry_safe(block, next, blocks, rb_node) {
+>>>>>>> upstream/android-13
 		if (!block->key_ready) {
 			err = get_tree_block_key(fs_info, block);
 			if (err)
 				goto out_free_path;
 		}
+<<<<<<< HEAD
 		rb_node = rb_next(rb_node);
 	}
 
@@ -3034,6 +4534,12 @@ int relocate_tree_blocks(struct btrfs_trans_handle *trans,
 	while (rb_node) {
 		block = rb_entry(rb_node, struct tree_block, rb_node);
 
+=======
+	}
+
+	/* Do tree relocation */
+	rbtree_postorder_for_each_entry_safe(block, next, blocks, rb_node) {
+>>>>>>> upstream/android-13
 		node = build_backref_tree(rc, &block->key,
 					  block->level, block->bytenr);
 		if (IS_ERR(node)) {
@@ -3044,11 +4550,17 @@ int relocate_tree_blocks(struct btrfs_trans_handle *trans,
 		ret = relocate_tree_block(trans, rc, node, &block->key,
 					  path);
 		if (ret < 0) {
+<<<<<<< HEAD
 			if (ret != -EAGAIN || rb_node == rb_first(blocks))
 				err = ret;
 			goto out;
 		}
 		rb_node = rb_next(rb_node);
+=======
+			err = ret;
+			break;
+		}
+>>>>>>> upstream/android-13
 	}
 out:
 	err = finish_pending_nodes(trans, rc, path, err);
@@ -3060,13 +4572,20 @@ out_free_blocks:
 	return err;
 }
 
+<<<<<<< HEAD
 static noinline_for_stack
 int prealloc_file_extent_cluster(struct inode *inode,
 				 struct file_extent_cluster *cluster)
+=======
+static noinline_for_stack int prealloc_file_extent_cluster(
+				struct btrfs_inode *inode,
+				struct file_extent_cluster *cluster)
+>>>>>>> upstream/android-13
 {
 	u64 alloc_hint = 0;
 	u64 start;
 	u64 end;
+<<<<<<< HEAD
 	u64 offset = BTRFS_I(inode)->index_cnt;
 	u64 num_bytes;
 	int nr = 0;
@@ -3086,12 +4605,91 @@ int prealloc_file_extent_cluster(struct inode *inode,
 
 	cur_offset = prealloc_start;
 	while (nr < cluster->nr) {
+=======
+	u64 offset = inode->index_cnt;
+	u64 num_bytes;
+	int nr;
+	int ret = 0;
+	u64 i_size = i_size_read(&inode->vfs_inode);
+	u64 prealloc_start = cluster->start - offset;
+	u64 prealloc_end = cluster->end - offset;
+	u64 cur_offset = prealloc_start;
+
+	/*
+	 * For subpage case, previous i_size may not be aligned to PAGE_SIZE.
+	 * This means the range [i_size, PAGE_END + 1) is filled with zeros by
+	 * btrfs_do_readpage() call of previously relocated file cluster.
+	 *
+	 * If the current cluster starts in the above range, btrfs_do_readpage()
+	 * will skip the read, and relocate_one_page() will later writeback
+	 * the padding zeros as new data, causing data corruption.
+	 *
+	 * Here we have to manually invalidate the range (i_size, PAGE_END + 1).
+	 */
+	if (!IS_ALIGNED(i_size, PAGE_SIZE)) {
+		struct address_space *mapping = inode->vfs_inode.i_mapping;
+		struct btrfs_fs_info *fs_info = inode->root->fs_info;
+		const u32 sectorsize = fs_info->sectorsize;
+		struct page *page;
+
+		ASSERT(sectorsize < PAGE_SIZE);
+		ASSERT(IS_ALIGNED(i_size, sectorsize));
+
+		/*
+		 * Subpage can't handle page with DIRTY but without UPTODATE
+		 * bit as it can lead to the following deadlock:
+		 *
+		 * btrfs_readpage()
+		 * | Page already *locked*
+		 * |- btrfs_lock_and_flush_ordered_range()
+		 *    |- btrfs_start_ordered_extent()
+		 *       |- extent_write_cache_pages()
+		 *          |- lock_page()
+		 *             We try to lock the page we already hold.
+		 *
+		 * Here we just writeback the whole data reloc inode, so that
+		 * we will be ensured to have no dirty range in the page, and
+		 * are safe to clear the uptodate bits.
+		 *
+		 * This shouldn't cause too much overhead, as we need to write
+		 * the data back anyway.
+		 */
+		ret = filemap_write_and_wait(mapping);
+		if (ret < 0)
+			return ret;
+
+		clear_extent_bits(&inode->io_tree, i_size,
+				  round_up(i_size, PAGE_SIZE) - 1,
+				  EXTENT_UPTODATE);
+		page = find_lock_page(mapping, i_size >> PAGE_SHIFT);
+		/*
+		 * If page is freed we don't need to do anything then, as we
+		 * will re-read the whole page anyway.
+		 */
+		if (page) {
+			btrfs_subpage_clear_uptodate(fs_info, page, i_size,
+					round_up(i_size, PAGE_SIZE) - i_size);
+			unlock_page(page);
+			put_page(page);
+		}
+	}
+
+	BUG_ON(cluster->start != cluster->boundary[0]);
+	ret = btrfs_alloc_data_chunk_ondemand(inode,
+					      prealloc_end + 1 - prealloc_start);
+	if (ret)
+		return ret;
+
+	btrfs_inode_lock(&inode->vfs_inode, 0);
+	for (nr = 0; nr < cluster->nr; nr++) {
+>>>>>>> upstream/android-13
 		start = cluster->boundary[nr] - offset;
 		if (nr + 1 < cluster->nr)
 			end = cluster->boundary[nr + 1] - 1 - offset;
 		else
 			end = cluster->end - offset;
 
+<<<<<<< HEAD
 		lock_extent(&BTRFS_I(inode)->io_tree, start, end);
 		num_bytes = end + 1 - start;
 		if (cur_offset < start)
@@ -3112,6 +4710,23 @@ int prealloc_file_extent_cluster(struct inode *inode,
 out:
 	inode_unlock(inode);
 	extent_changeset_free(data_reserved);
+=======
+		lock_extent(&inode->io_tree, start, end);
+		num_bytes = end + 1 - start;
+		ret = btrfs_prealloc_file_range(&inode->vfs_inode, 0, start,
+						num_bytes, num_bytes,
+						end + 1, &alloc_hint);
+		cur_offset = end + 1;
+		unlock_extent(&inode->io_tree, start, end);
+		if (ret)
+			break;
+	}
+	btrfs_inode_unlock(&inode->vfs_inode, 0);
+
+	if (cur_offset < prealloc_end)
+		btrfs_free_reserved_data_space_noquota(inode->root->fs_info,
+					       prealloc_end + 1 - cur_offset);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -3119,7 +4734,10 @@ static noinline_for_stack
 int setup_extent_mapping(struct inode *inode, u64 start, u64 end,
 			 u64 block_start)
 {
+<<<<<<< HEAD
 	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
+=======
+>>>>>>> upstream/android-13
 	struct extent_map_tree *em_tree = &BTRFS_I(inode)->extent_tree;
 	struct extent_map *em;
 	int ret = 0;
@@ -3132,7 +4750,10 @@ int setup_extent_mapping(struct inode *inode, u64 start, u64 end,
 	em->len = end + 1 - start;
 	em->block_len = em->len;
 	em->block_start = block_start;
+<<<<<<< HEAD
 	em->bdev = fs_info->fs_devices->latest_bdev;
+=======
+>>>>>>> upstream/android-13
 	set_bit(EXTENT_FLAG_PINNED, &em->flags);
 
 	lock_extent(&BTRFS_I(inode)->io_tree, start, end);
@@ -3150,6 +4771,7 @@ int setup_extent_mapping(struct inode *inode, u64 start, u64 end,
 	return ret;
 }
 
+<<<<<<< HEAD
 static int relocate_file_extent_cluster(struct inode *inode,
 					struct file_extent_cluster *cluster)
 {
@@ -3163,6 +4785,161 @@ static int relocate_file_extent_cluster(struct inode *inode,
 	struct file_ra_state *ra;
 	gfp_t mask = btrfs_alloc_write_mask(inode->i_mapping);
 	int nr = 0;
+=======
+/*
+ * Allow error injection to test balance/relocation cancellation
+ */
+noinline int btrfs_should_cancel_balance(struct btrfs_fs_info *fs_info)
+{
+	return atomic_read(&fs_info->balance_cancel_req) ||
+		atomic_read(&fs_info->reloc_cancel_req) ||
+		fatal_signal_pending(current);
+}
+ALLOW_ERROR_INJECTION(btrfs_should_cancel_balance, TRUE);
+
+static u64 get_cluster_boundary_end(struct file_extent_cluster *cluster,
+				    int cluster_nr)
+{
+	/* Last extent, use cluster end directly */
+	if (cluster_nr >= cluster->nr - 1)
+		return cluster->end;
+
+	/* Use next boundary start*/
+	return cluster->boundary[cluster_nr + 1] - 1;
+}
+
+static int relocate_one_page(struct inode *inode, struct file_ra_state *ra,
+			     struct file_extent_cluster *cluster,
+			     int *cluster_nr, unsigned long page_index)
+{
+	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
+	u64 offset = BTRFS_I(inode)->index_cnt;
+	const unsigned long last_index = (cluster->end - offset) >> PAGE_SHIFT;
+	gfp_t mask = btrfs_alloc_write_mask(inode->i_mapping);
+	struct page *page;
+	u64 page_start;
+	u64 page_end;
+	u64 cur;
+	int ret;
+
+	ASSERT(page_index <= last_index);
+	page = find_lock_page(inode->i_mapping, page_index);
+	if (!page) {
+		page_cache_sync_readahead(inode->i_mapping, ra, NULL,
+				page_index, last_index + 1 - page_index);
+		page = find_or_create_page(inode->i_mapping, page_index, mask);
+		if (!page)
+			return -ENOMEM;
+	}
+	ret = set_page_extent_mapped(page);
+	if (ret < 0)
+		goto release_page;
+
+	if (PageReadahead(page))
+		page_cache_async_readahead(inode->i_mapping, ra, NULL, page,
+				   page_index, last_index + 1 - page_index);
+
+	if (!PageUptodate(page)) {
+		btrfs_readpage(NULL, page);
+		lock_page(page);
+		if (!PageUptodate(page)) {
+			ret = -EIO;
+			goto release_page;
+		}
+	}
+
+	page_start = page_offset(page);
+	page_end = page_start + PAGE_SIZE - 1;
+
+	/*
+	 * Start from the cluster, as for subpage case, the cluster can start
+	 * inside the page.
+	 */
+	cur = max(page_start, cluster->boundary[*cluster_nr] - offset);
+	while (cur <= page_end) {
+		u64 extent_start = cluster->boundary[*cluster_nr] - offset;
+		u64 extent_end = get_cluster_boundary_end(cluster,
+						*cluster_nr) - offset;
+		u64 clamped_start = max(page_start, extent_start);
+		u64 clamped_end = min(page_end, extent_end);
+		u32 clamped_len = clamped_end + 1 - clamped_start;
+
+		/* Reserve metadata for this range */
+		ret = btrfs_delalloc_reserve_metadata(BTRFS_I(inode),
+						      clamped_len);
+		if (ret)
+			goto release_page;
+
+		/* Mark the range delalloc and dirty for later writeback */
+		lock_extent(&BTRFS_I(inode)->io_tree, clamped_start, clamped_end);
+		ret = btrfs_set_extent_delalloc(BTRFS_I(inode), clamped_start,
+						clamped_end, 0, NULL);
+		if (ret) {
+			clear_extent_bits(&BTRFS_I(inode)->io_tree,
+					clamped_start, clamped_end,
+					EXTENT_LOCKED | EXTENT_BOUNDARY);
+			btrfs_delalloc_release_metadata(BTRFS_I(inode),
+							clamped_len, true);
+			btrfs_delalloc_release_extents(BTRFS_I(inode),
+						       clamped_len);
+			goto release_page;
+		}
+		btrfs_page_set_dirty(fs_info, page, clamped_start, clamped_len);
+
+		/*
+		 * Set the boundary if it's inside the page.
+		 * Data relocation requires the destination extents to have the
+		 * same size as the source.
+		 * EXTENT_BOUNDARY bit prevents current extent from being merged
+		 * with previous extent.
+		 */
+		if (in_range(cluster->boundary[*cluster_nr] - offset,
+			     page_start, PAGE_SIZE)) {
+			u64 boundary_start = cluster->boundary[*cluster_nr] -
+						offset;
+			u64 boundary_end = boundary_start +
+					   fs_info->sectorsize - 1;
+
+			set_extent_bits(&BTRFS_I(inode)->io_tree,
+					boundary_start, boundary_end,
+					EXTENT_BOUNDARY);
+		}
+		unlock_extent(&BTRFS_I(inode)->io_tree, clamped_start, clamped_end);
+		btrfs_delalloc_release_extents(BTRFS_I(inode), clamped_len);
+		cur += clamped_len;
+
+		/* Crossed extent end, go to next extent */
+		if (cur >= extent_end) {
+			(*cluster_nr)++;
+			/* Just finished the last extent of the cluster, exit. */
+			if (*cluster_nr >= cluster->nr)
+				break;
+		}
+	}
+	unlock_page(page);
+	put_page(page);
+
+	balance_dirty_pages_ratelimited(inode->i_mapping);
+	btrfs_throttle(fs_info);
+	if (btrfs_should_cancel_balance(fs_info))
+		ret = -ECANCELED;
+	return ret;
+
+release_page:
+	unlock_page(page);
+	put_page(page);
+	return ret;
+}
+
+static int relocate_file_extent_cluster(struct inode *inode,
+					struct file_extent_cluster *cluster)
+{
+	u64 offset = BTRFS_I(inode)->index_cnt;
+	unsigned long index;
+	unsigned long last_index;
+	struct file_ra_state *ra;
+	int cluster_nr = 0;
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 	if (!cluster->nr)
@@ -3172,7 +4949,11 @@ static int relocate_file_extent_cluster(struct inode *inode,
 	if (!ra)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	ret = prealloc_file_extent_cluster(inode, cluster);
+=======
+	ret = prealloc_file_extent_cluster(BTRFS_I(inode), cluster);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto out;
 
@@ -3183,6 +4964,7 @@ static int relocate_file_extent_cluster(struct inode *inode,
 	if (ret)
 		goto out;
 
+<<<<<<< HEAD
 	index = (cluster->start - offset) >> PAGE_SHIFT;
 	last_index = (cluster->end - offset) >> PAGE_SHIFT;
 	while (index <= last_index) {
@@ -3273,6 +5055,14 @@ static int relocate_file_extent_cluster(struct inode *inode,
 		btrfs_throttle(fs_info);
 	}
 	WARN_ON(nr != cluster->nr);
+=======
+	last_index = (cluster->end - offset) >> PAGE_SHIFT;
+	for (index = (cluster->start - offset) >> PAGE_SHIFT;
+	     index <= last_index && !ret; index++)
+		ret = relocate_one_page(inode, ra, cluster, &cluster_nr, index);
+	if (ret == 0)
+		WARN_ON(cluster_nr != cluster->nr);
+>>>>>>> upstream/android-13
 out:
 	kfree(ra);
 	return ret;
@@ -3325,12 +5115,17 @@ static int add_tree_block(struct reloc_control *rc,
 	u32 item_size;
 	int level = -1;
 	u64 generation;
+<<<<<<< HEAD
+=======
+	u64 owner = 0;
+>>>>>>> upstream/android-13
 
 	eb =  path->nodes[0];
 	item_size = btrfs_item_size_nr(eb, path->slots[0]);
 
 	if (extent_key->type == BTRFS_METADATA_ITEM_KEY ||
 	    item_size >= sizeof(*ei) + sizeof(*bi)) {
+<<<<<<< HEAD
 		ei = btrfs_item_ptr(eb, path->slots[0],
 				struct btrfs_extent_item);
 		if (extent_key->type == BTRFS_EXTENT_ITEM_KEY) {
@@ -3340,6 +5135,53 @@ static int add_tree_block(struct reloc_control *rc,
 			level = (int)extent_key->offset;
 		}
 		generation = btrfs_extent_generation(eb, ei);
+=======
+		unsigned long ptr = 0, end;
+
+		ei = btrfs_item_ptr(eb, path->slots[0],
+				struct btrfs_extent_item);
+		end = (unsigned long)ei + item_size;
+		if (extent_key->type == BTRFS_EXTENT_ITEM_KEY) {
+			bi = (struct btrfs_tree_block_info *)(ei + 1);
+			level = btrfs_tree_block_level(eb, bi);
+			ptr = (unsigned long)(bi + 1);
+		} else {
+			level = (int)extent_key->offset;
+			ptr = (unsigned long)(ei + 1);
+		}
+		generation = btrfs_extent_generation(eb, ei);
+
+		/*
+		 * We're reading random blocks without knowing their owner ahead
+		 * of time.  This is ok most of the time, as all reloc roots and
+		 * fs roots have the same lock type.  However normal trees do
+		 * not, and the only way to know ahead of time is to read the
+		 * inline ref offset.  We know it's an fs root if
+		 *
+		 * 1. There's more than one ref.
+		 * 2. There's a SHARED_DATA_REF_KEY set.
+		 * 3. FULL_BACKREF is set on the flags.
+		 *
+		 * Otherwise it's safe to assume that the ref offset == the
+		 * owner of this block, so we can use that when calling
+		 * read_tree_block.
+		 */
+		if (btrfs_extent_refs(eb, ei) == 1 &&
+		    !(btrfs_extent_flags(eb, ei) &
+		      BTRFS_BLOCK_FLAG_FULL_BACKREF) &&
+		    ptr < end) {
+			struct btrfs_extent_inline_ref *iref;
+			int type;
+
+			iref = (struct btrfs_extent_inline_ref *)ptr;
+			type = btrfs_get_extent_inline_ref_type(eb, iref,
+							BTRFS_REF_TYPE_BLOCK);
+			if (type == BTRFS_REF_TYPE_INVALID)
+				return -EINVAL;
+			if (type == BTRFS_TREE_BLOCK_REF_KEY)
+				owner = btrfs_extent_inline_ref_offset(eb, iref);
+		}
+>>>>>>> upstream/android-13
 	} else if (unlikely(item_size == sizeof(struct btrfs_extent_item_v0))) {
 		btrfs_print_v0_err(eb->fs_info);
 		btrfs_handle_fs_error(eb->fs_info, -EINVAL, NULL);
@@ -3361,10 +5203,19 @@ static int add_tree_block(struct reloc_control *rc,
 	block->key.offset = generation;
 	block->level = level;
 	block->key_ready = 0;
+<<<<<<< HEAD
 
 	rb_node = tree_insert(blocks, block->bytenr, &block->rb_node);
 	if (rb_node)
 		backref_tree_panic(rb_node, -EEXIST, block->bytenr);
+=======
+	block->owner = owner;
+
+	rb_node = rb_simple_insert(blocks, block->bytenr, &block->rb_node);
+	if (rb_node)
+		btrfs_backref_panic(rc->extent_root->fs_info, block->bytenr,
+				    -EEXIST);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -3385,7 +5236,11 @@ static int __add_tree_block(struct reloc_control *rc,
 	if (tree_block_processed(bytenr, rc))
 		return 0;
 
+<<<<<<< HEAD
 	if (tree_search(blocks, bytenr))
+=======
+	if (rb_simple_search(blocks, bytenr))
+>>>>>>> upstream/android-13
 		return 0;
 
 	path = btrfs_alloc_path();
@@ -3442,6 +5297,7 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 /*
  * helper to check if the block use full backrefs for pointers in it
  */
@@ -3473,6 +5329,13 @@ static int delete_block_group_cache(struct btrfs_fs_info *fs_info,
 				    u64 ino)
 {
 	struct btrfs_key key;
+=======
+static int delete_block_group_cache(struct btrfs_fs_info *fs_info,
+				    struct btrfs_block_group *block_group,
+				    struct inode *inode,
+				    u64 ino)
+{
+>>>>>>> upstream/android-13
 	struct btrfs_root *root = fs_info->tree_root;
 	struct btrfs_trans_handle *trans;
 	int ret = 0;
@@ -3480,11 +5343,15 @@ static int delete_block_group_cache(struct btrfs_fs_info *fs_info,
 	if (inode)
 		goto truncate;
 
+<<<<<<< HEAD
 	key.objectid = ino;
 	key.type = BTRFS_INODE_ITEM_KEY;
 	key.offset = 0;
 
 	inode = btrfs_iget(fs_info->sb, &key, root, NULL);
+=======
+	inode = btrfs_iget(fs_info->sb, ino, root);
+>>>>>>> upstream/android-13
 	if (IS_ERR(inode))
 		return -ENOENT;
 
@@ -3510,6 +5377,7 @@ out:
 }
 
 /*
+<<<<<<< HEAD
  * helper to add tree blocks for backref of type BTRFS_EXTENT_DATA_REF_KEY
  * this function scans fs tree to find blocks reference the data extent
  */
@@ -3676,6 +5544,47 @@ next:
 out:
 	btrfs_free_path(path);
 	return err;
+=======
+ * Locate the free space cache EXTENT_DATA in root tree leaf and delete the
+ * cache inode, to avoid free space cache data extent blocking data relocation.
+ */
+static int delete_v1_space_cache(struct extent_buffer *leaf,
+				 struct btrfs_block_group *block_group,
+				 u64 data_bytenr)
+{
+	u64 space_cache_ino;
+	struct btrfs_file_extent_item *ei;
+	struct btrfs_key key;
+	bool found = false;
+	int i;
+	int ret;
+
+	if (btrfs_header_owner(leaf) != BTRFS_ROOT_TREE_OBJECTID)
+		return 0;
+
+	for (i = 0; i < btrfs_header_nritems(leaf); i++) {
+		u8 type;
+
+		btrfs_item_key_to_cpu(leaf, &key, i);
+		if (key.type != BTRFS_EXTENT_DATA_KEY)
+			continue;
+		ei = btrfs_item_ptr(leaf, i, struct btrfs_file_extent_item);
+		type = btrfs_file_extent_type(leaf, ei);
+
+		if ((type == BTRFS_FILE_EXTENT_REG ||
+		     type == BTRFS_FILE_EXTENT_PREALLOC) &&
+		    btrfs_file_extent_disk_bytenr(leaf, ei) == data_bytenr) {
+			found = true;
+			space_cache_ino = key.objectid;
+			break;
+		}
+	}
+	if (!found)
+		return -ENOENT;
+	ret = delete_block_group_cache(leaf->fs_info, block_group, NULL,
+					space_cache_ino);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -3687,6 +5596,7 @@ int add_data_references(struct reloc_control *rc,
 			struct btrfs_path *path,
 			struct rb_root *blocks)
 {
+<<<<<<< HEAD
 	struct btrfs_key key;
 	struct extent_buffer *eb;
 	struct btrfs_extent_data_ref *dref;
@@ -3772,6 +5682,43 @@ out:
 	if (err)
 		free_block_list(blocks);
 	return err;
+=======
+	struct btrfs_fs_info *fs_info = rc->extent_root->fs_info;
+	struct ulist *leaves = NULL;
+	struct ulist_iterator leaf_uiter;
+	struct ulist_node *ref_node = NULL;
+	const u32 blocksize = fs_info->nodesize;
+	int ret = 0;
+
+	btrfs_release_path(path);
+	ret = btrfs_find_all_leafs(NULL, fs_info, extent_key->objectid,
+				   0, &leaves, NULL, true);
+	if (ret < 0)
+		return ret;
+
+	ULIST_ITER_INIT(&leaf_uiter);
+	while ((ref_node = ulist_next(leaves, &leaf_uiter))) {
+		struct extent_buffer *eb;
+
+		eb = read_tree_block(fs_info, ref_node->val, 0, 0, 0, NULL);
+		if (IS_ERR(eb)) {
+			ret = PTR_ERR(eb);
+			break;
+		}
+		ret = delete_v1_space_cache(eb, rc->block_group,
+					    extent_key->objectid);
+		free_extent_buffer(eb);
+		if (ret < 0)
+			break;
+		ret = __add_tree_block(rc, ref_node->val, blocksize, blocks);
+		if (ret < 0)
+			break;
+	}
+	if (ret < 0)
+		free_block_list(blocks);
+	ulist_free(leaves);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -3787,7 +5734,11 @@ int find_next_extent(struct reloc_control *rc, struct btrfs_path *path,
 	u64 start, end, last;
 	int ret;
 
+<<<<<<< HEAD
 	last = rc->block_group->key.objectid + rc->block_group->key.offset;
+=======
+	last = rc->block_group->start + rc->block_group->length;
+>>>>>>> upstream/android-13
 	while (1) {
 		cond_resched();
 		if (rc->search_start >= last) {
@@ -3878,6 +5829,7 @@ static void unset_reloc_control(struct reloc_control *rc)
 	mutex_unlock(&fs_info->reloc_mutex);
 }
 
+<<<<<<< HEAD
 static int check_extent_flags(u64 flags)
 {
 	if ((flags & BTRFS_EXTENT_FLAG_DATA) &&
@@ -3892,6 +5844,8 @@ static int check_extent_flags(u64 flags)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static noinline_for_stack
 int prepare_to_relocate(struct reloc_control *rc)
 {
@@ -3904,7 +5858,11 @@ int prepare_to_relocate(struct reloc_control *rc)
 		return -ENOMEM;
 
 	memset(&rc->cluster, 0, sizeof(rc->cluster));
+<<<<<<< HEAD
 	rc->search_start = rc->block_group->key.objectid;
+=======
+	rc->search_start = rc->block_group->start;
+>>>>>>> upstream/android-13
 	rc->extents_found = 0;
 	rc->nodes_relocated = 0;
 	rc->merging_rsv_size = 0;
@@ -3930,8 +5888,12 @@ int prepare_to_relocate(struct reloc_control *rc)
 		 */
 		return PTR_ERR(trans);
 	}
+<<<<<<< HEAD
 	btrfs_commit_transaction(trans);
 	return 0;
+=======
+	return btrfs_commit_transaction(trans);
+>>>>>>> upstream/android-13
 }
 
 static noinline_for_stack int relocate_block_group(struct reloc_control *rc)
@@ -3943,7 +5905,10 @@ static noinline_for_stack int relocate_block_group(struct reloc_control *rc)
 	struct btrfs_path *path;
 	struct btrfs_extent_item *ei;
 	u64 flags;
+<<<<<<< HEAD
 	u32 item_size;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 	int err = 0;
 	int progress = 0;
@@ -3992,6 +5957,7 @@ restart:
 
 		ei = btrfs_item_ptr(path->nodes[0], path->slots[0],
 				    struct btrfs_extent_item);
+<<<<<<< HEAD
 		item_size = btrfs_item_size_nr(path->nodes[0], path->slots[0]);
 		if (item_size >= sizeof(*ei)) {
 			flags = btrfs_extent_flags(path->nodes[0], ei);
@@ -4005,6 +5971,9 @@ restart:
 		} else {
 			BUG();
 		}
+=======
+		flags = btrfs_extent_flags(path->nodes[0], ei);
+>>>>>>> upstream/android-13
 
 		if (flags & BTRFS_EXTENT_FLAG_TREE_BLOCK) {
 			ret = add_tree_block(rc, &key, path, &blocks);
@@ -4023,12 +5992,15 @@ restart:
 		if (!RB_EMPTY_ROOT(&blocks)) {
 			ret = relocate_tree_blocks(trans, rc, &blocks);
 			if (ret < 0) {
+<<<<<<< HEAD
 				/*
 				 * if we fail to relocate tree blocks, force to update
 				 * backref cache when committing transaction.
 				 */
 				rc->backref_cache.last_trans = trans->transid - 1;
 
+=======
+>>>>>>> upstream/android-13
 				if (ret != -EAGAIN) {
 					err = ret;
 					break;
@@ -4052,6 +6024,13 @@ restart:
 				break;
 			}
 		}
+<<<<<<< HEAD
+=======
+		if (btrfs_should_cancel_balance(fs_info)) {
+			err = -ECANCELED;
+			break;
+		}
+>>>>>>> upstream/android-13
 	}
 	if (trans && progress && err == -ENOSPC) {
 		ret = btrfs_force_chunk_alloc(trans, rc->block_group->flags);
@@ -4080,16 +6059,34 @@ restart:
 	rc->create_reloc_tree = 0;
 	set_reloc_control(rc);
 
+<<<<<<< HEAD
 	backref_cache_cleanup(&rc->backref_cache);
 	btrfs_block_rsv_release(fs_info, rc->block_rsv, (u64)-1);
 
+=======
+	btrfs_backref_release_cache(&rc->backref_cache);
+	btrfs_block_rsv_release(fs_info, rc->block_rsv, (u64)-1, NULL);
+
+	/*
+	 * Even in the case when the relocation is cancelled, we should all go
+	 * through prepare_to_merge() and merge_reloc_roots().
+	 *
+	 * For error (including cancelled balance), prepare_to_merge() will
+	 * mark all reloc trees orphan, then queue them for cleanup in
+	 * merge_reloc_roots()
+	 */
+>>>>>>> upstream/android-13
 	err = prepare_to_merge(rc, err);
 
 	merge_reloc_roots(rc);
 
 	rc->merge_reloc_tree = 0;
 	unset_reloc_control(rc);
+<<<<<<< HEAD
 	btrfs_block_rsv_release(fs_info, rc->block_rsv, (u64)-1);
+=======
+	btrfs_block_rsv_release(fs_info, rc->block_rsv, (u64)-1, NULL);
+>>>>>>> upstream/android-13
 
 	/* get rid of pinned extents */
 	trans = btrfs_join_transaction(rc->extent_root);
@@ -4097,8 +6094,18 @@ restart:
 		err = PTR_ERR(trans);
 		goto out_free;
 	}
+<<<<<<< HEAD
 	btrfs_commit_transaction(trans);
 out_free:
+=======
+	ret = btrfs_commit_transaction(trans);
+	if (ret && !err)
+		err = ret;
+out_free:
+	ret = clean_dirty_subvols(rc);
+	if (ret < 0 && !err)
+		err = ret;
+>>>>>>> upstream/android-13
 	btrfs_free_block_rsv(fs_info, rc->block_rsv);
 	btrfs_free_path(path);
 	return err;
@@ -4134,17 +6141,54 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static void delete_orphan_inode(struct btrfs_trans_handle *trans,
+				struct btrfs_root *root, u64 objectid)
+{
+	struct btrfs_path *path;
+	struct btrfs_key key;
+	int ret = 0;
+
+	path = btrfs_alloc_path();
+	if (!path) {
+		ret = -ENOMEM;
+		goto out;
+	}
+
+	key.objectid = objectid;
+	key.type = BTRFS_INODE_ITEM_KEY;
+	key.offset = 0;
+	ret = btrfs_search_slot(trans, root, &key, path, -1, 1);
+	if (ret) {
+		if (ret > 0)
+			ret = -ENOENT;
+		goto out;
+	}
+	ret = btrfs_del_item(trans, root, path);
+out:
+	if (ret)
+		btrfs_abort_transaction(trans, ret);
+	btrfs_free_path(path);
+}
+
+>>>>>>> upstream/android-13
 /*
  * helper to create inode for data relocation.
  * the inode is in data relocation tree and its link count is 0
  */
 static noinline_for_stack
 struct inode *create_reloc_inode(struct btrfs_fs_info *fs_info,
+<<<<<<< HEAD
 				 struct btrfs_block_group_cache *group)
+=======
+				 struct btrfs_block_group *group)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode = NULL;
 	struct btrfs_trans_handle *trans;
 	struct btrfs_root *root;
+<<<<<<< HEAD
 	struct btrfs_key key;
 	u64 objectid;
 	int err = 0;
@@ -4158,10 +6202,24 @@ struct inode *create_reloc_inode(struct btrfs_fs_info *fs_info,
 		return ERR_CAST(trans);
 
 	err = btrfs_find_free_objectid(root, &objectid);
+=======
+	u64 objectid;
+	int err = 0;
+
+	root = btrfs_grab_root(fs_info->data_reloc_root);
+	trans = btrfs_start_transaction(root, 6);
+	if (IS_ERR(trans)) {
+		btrfs_put_root(root);
+		return ERR_CAST(trans);
+	}
+
+	err = btrfs_get_free_objectid(root, &objectid);
+>>>>>>> upstream/android-13
 	if (err)
 		goto out;
 
 	err = __insert_orphan_inode(trans, root, objectid);
+<<<<<<< HEAD
 	BUG_ON(err);
 
 	key.objectid = objectid;
@@ -4173,6 +6231,23 @@ struct inode *create_reloc_inode(struct btrfs_fs_info *fs_info,
 
 	err = btrfs_orphan_add(trans, BTRFS_I(inode));
 out:
+=======
+	if (err)
+		goto out;
+
+	inode = btrfs_iget(fs_info->sb, objectid, root);
+	if (IS_ERR(inode)) {
+		delete_orphan_inode(trans, root, objectid);
+		err = PTR_ERR(inode);
+		inode = NULL;
+		goto out;
+	}
+	BTRFS_I(inode)->index_cnt = group->start;
+
+	err = btrfs_orphan_add(trans, BTRFS_I(inode));
+out:
+	btrfs_put_root(root);
+>>>>>>> upstream/android-13
 	btrfs_end_transaction(trans);
 	btrfs_btree_balance_dirty(fs_info);
 	if (err) {
@@ -4183,7 +6258,52 @@ out:
 	return inode;
 }
 
+<<<<<<< HEAD
 static struct reloc_control *alloc_reloc_control(void)
+=======
+/*
+ * Mark start of chunk relocation that is cancellable. Check if the cancellation
+ * has been requested meanwhile and don't start in that case.
+ *
+ * Return:
+ *   0             success
+ *   -EINPROGRESS  operation is already in progress, that's probably a bug
+ *   -ECANCELED    cancellation request was set before the operation started
+ */
+static int reloc_chunk_start(struct btrfs_fs_info *fs_info)
+{
+	if (test_and_set_bit(BTRFS_FS_RELOC_RUNNING, &fs_info->flags)) {
+		/* This should not happen */
+		btrfs_err(fs_info, "reloc already running, cannot start");
+		return -EINPROGRESS;
+	}
+
+	if (atomic_read(&fs_info->reloc_cancel_req) > 0) {
+		btrfs_info(fs_info, "chunk relocation canceled on start");
+		/*
+		 * On cancel, clear all requests but let the caller mark
+		 * the end after cleanup operations.
+		 */
+		atomic_set(&fs_info->reloc_cancel_req, 0);
+		return -ECANCELED;
+	}
+	return 0;
+}
+
+/*
+ * Mark end of chunk relocation that is cancellable and wake any waiters.
+ */
+static void reloc_chunk_end(struct btrfs_fs_info *fs_info)
+{
+	/* Requested after start, clear bit first so any waiters can continue */
+	if (atomic_read(&fs_info->reloc_cancel_req) > 0)
+		btrfs_info(fs_info, "chunk relocation canceled during operation");
+	clear_and_wake_up_bit(BTRFS_FS_RELOC_RUNNING, &fs_info->flags);
+	atomic_set(&fs_info->reloc_cancel_req, 0);
+}
+
+static struct reloc_control *alloc_reloc_control(struct btrfs_fs_info *fs_info)
+>>>>>>> upstream/android-13
 {
 	struct reloc_control *rc;
 
@@ -4192,16 +6312,40 @@ static struct reloc_control *alloc_reloc_control(void)
 		return NULL;
 
 	INIT_LIST_HEAD(&rc->reloc_roots);
+<<<<<<< HEAD
 	backref_cache_init(&rc->backref_cache);
 	mapping_tree_init(&rc->reloc_root_tree);
 	extent_io_tree_init(&rc->processed_blocks, NULL);
 	return rc;
 }
 
+=======
+	INIT_LIST_HEAD(&rc->dirty_subvol_roots);
+	btrfs_backref_init_cache(fs_info, &rc->backref_cache, 1);
+	mapping_tree_init(&rc->reloc_root_tree);
+	extent_io_tree_init(fs_info, &rc->processed_blocks,
+			    IO_TREE_RELOC_BLOCKS, NULL);
+	return rc;
+}
+
+static void free_reloc_control(struct reloc_control *rc)
+{
+	struct mapping_node *node, *tmp;
+
+	free_reloc_roots(&rc->reloc_roots);
+	rbtree_postorder_for_each_entry_safe(node, tmp,
+			&rc->reloc_root_tree.rb_root, rb_node)
+		kfree(node);
+
+	kfree(rc);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Print the block group being relocated
  */
 static void describe_relocation(struct btrfs_fs_info *fs_info,
+<<<<<<< HEAD
 				struct btrfs_block_group_cache *block_group)
 {
 	char buf[128];		/* prefixed by a '|' that'll be dropped */
@@ -4235,6 +6379,26 @@ static void describe_relocation(struct btrfs_fs_info *fs_info,
 	btrfs_info(fs_info,
 		   "relocating block group %llu flags %s",
 		   block_group->key.objectid, buf + 1);
+=======
+				struct btrfs_block_group *block_group)
+{
+	char buf[128] = {'\0'};
+
+	btrfs_describe_block_groups(block_group->flags, buf, sizeof(buf));
+
+	btrfs_info(fs_info,
+		   "relocating block group %llu flags %s",
+		   block_group->start, buf);
+}
+
+static const char *stage_to_string(int stage)
+{
+	if (stage == MOVE_DATA_EXTENTS)
+		return "move data extents";
+	if (stage == UPDATE_DATA_PTRS)
+		return "update data pointers";
+	return "unknown";
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -4242,6 +6406,10 @@ static void describe_relocation(struct btrfs_fs_info *fs_info,
  */
 int btrfs_relocate_block_group(struct btrfs_fs_info *fs_info, u64 group_start)
 {
+<<<<<<< HEAD
+=======
+	struct btrfs_block_group *bg;
+>>>>>>> upstream/android-13
 	struct btrfs_root *extent_root = fs_info->extent_root;
 	struct reloc_control *rc;
 	struct inode *inode;
@@ -4250,6 +6418,7 @@ int btrfs_relocate_block_group(struct btrfs_fs_info *fs_info, u64 group_start)
 	int rw = 0;
 	int err = 0;
 
+<<<<<<< HEAD
 	rc = alloc_reloc_control();
 	if (!rc)
 		return -ENOMEM;
@@ -4260,6 +6429,46 @@ int btrfs_relocate_block_group(struct btrfs_fs_info *fs_info, u64 group_start)
 	BUG_ON(!rc->block_group);
 
 	ret = btrfs_inc_block_group_ro(rc->block_group);
+=======
+	/*
+	 * This only gets set if we had a half-deleted snapshot on mount.  We
+	 * cannot allow relocation to start while we're still trying to clean up
+	 * these pending deletions.
+	 */
+	ret = wait_on_bit(&fs_info->flags, BTRFS_FS_UNFINISHED_DROPS, TASK_INTERRUPTIBLE);
+	if (ret)
+		return ret;
+
+	/* We may have been woken up by close_ctree, so bail if we're closing. */
+	if (btrfs_fs_closing(fs_info))
+		return -EINTR;
+
+	bg = btrfs_lookup_block_group(fs_info, group_start);
+	if (!bg)
+		return -ENOENT;
+
+	if (btrfs_pinned_by_swapfile(fs_info, bg)) {
+		btrfs_put_block_group(bg);
+		return -ETXTBSY;
+	}
+
+	rc = alloc_reloc_control(fs_info);
+	if (!rc) {
+		btrfs_put_block_group(bg);
+		return -ENOMEM;
+	}
+
+	ret = reloc_chunk_start(fs_info);
+	if (ret < 0) {
+		err = ret;
+		goto out_put_bg;
+	}
+
+	rc->extent_root = extent_root;
+	rc->block_group = bg;
+
+	ret = btrfs_inc_block_group_ro(rc->block_group, true);
+>>>>>>> upstream/android-13
 	if (ret) {
 		err = ret;
 		goto out;
@@ -4272,7 +6481,11 @@ int btrfs_relocate_block_group(struct btrfs_fs_info *fs_info, u64 group_start)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	inode = lookup_free_space_inode(fs_info, rc->block_group, path);
+=======
+	inode = lookup_free_space_inode(rc->block_group, path);
+>>>>>>> upstream/android-13
 	btrfs_free_path(path);
 
 	if (!IS_ERR(inode))
@@ -4297,16 +6510,29 @@ int btrfs_relocate_block_group(struct btrfs_fs_info *fs_info, u64 group_start)
 	btrfs_wait_block_group_reservations(rc->block_group);
 	btrfs_wait_nocow_writers(rc->block_group);
 	btrfs_wait_ordered_roots(fs_info, U64_MAX,
+<<<<<<< HEAD
 				 rc->block_group->key.objectid,
 				 rc->block_group->key.offset);
 
 	while (1) {
+=======
+				 rc->block_group->start,
+				 rc->block_group->length);
+
+	while (1) {
+		int finishes_stage;
+
+>>>>>>> upstream/android-13
 		mutex_lock(&fs_info->cleaner_mutex);
 		ret = relocate_block_group(rc);
 		mutex_unlock(&fs_info->cleaner_mutex);
 		if (ret < 0)
 			err = ret;
 
+<<<<<<< HEAD
+=======
+		finishes_stage = rc->stage;
+>>>>>>> upstream/android-13
 		/*
 		 * We may have gotten ENOSPC after we already dirtied some
 		 * extents.  If writeout happens while we're relocating a
@@ -4332,19 +6558,35 @@ int btrfs_relocate_block_group(struct btrfs_fs_info *fs_info, u64 group_start)
 		if (rc->extents_found == 0)
 			break;
 
+<<<<<<< HEAD
 		btrfs_info(fs_info, "found %llu extents", rc->extents_found);
 
+=======
+		btrfs_info(fs_info, "found %llu extents, stage: %s",
+			   rc->extents_found, stage_to_string(finishes_stage));
+>>>>>>> upstream/android-13
 	}
 
 	WARN_ON(rc->block_group->pinned > 0);
 	WARN_ON(rc->block_group->reserved > 0);
+<<<<<<< HEAD
 	WARN_ON(btrfs_block_group_used(&rc->block_group->item) > 0);
+=======
+	WARN_ON(rc->block_group->used > 0);
+>>>>>>> upstream/android-13
 out:
 	if (err && rw)
 		btrfs_dec_block_group_ro(rc->block_group);
 	iput(rc->data_inode);
+<<<<<<< HEAD
 	btrfs_put_block_group(rc->block_group);
 	kfree(rc);
+=======
+out_put_bg:
+	btrfs_put_block_group(bg);
+	reloc_chunk_end(fs_info);
+	free_reloc_control(rc);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -4360,7 +6602,11 @@ static noinline_for_stack int mark_garbage_root(struct btrfs_root *root)
 
 	memset(&root->root_item.drop_progress, 0,
 		sizeof(root->root_item.drop_progress));
+<<<<<<< HEAD
 	root->root_item.drop_level = 0;
+=======
+	btrfs_set_root_drop_level(&root->root_item, 0);
+>>>>>>> upstream/android-13
 	btrfs_set_root_refs(&root->root_item, 0);
 	ret = btrfs_update_root(trans, fs_info->tree_root,
 				&root->root_key, &root->root_item);
@@ -4420,17 +6666,30 @@ int btrfs_recover_relocation(struct btrfs_root *root)
 		    key.type != BTRFS_ROOT_ITEM_KEY)
 			break;
 
+<<<<<<< HEAD
 		reloc_root = btrfs_read_fs_root(root, &key);
+=======
+		reloc_root = btrfs_read_tree_root(root, &key);
+>>>>>>> upstream/android-13
 		if (IS_ERR(reloc_root)) {
 			err = PTR_ERR(reloc_root);
 			goto out;
 		}
 
+<<<<<<< HEAD
 		list_add(&reloc_root->root_list, &reloc_roots);
 
 		if (btrfs_root_refs(&reloc_root->root_item) > 0) {
 			fs_root = read_fs_root(fs_info,
 					       reloc_root->root_key.offset);
+=======
+		set_bit(BTRFS_ROOT_SHAREABLE, &reloc_root->state);
+		list_add(&reloc_root->root_list, &reloc_roots);
+
+		if (btrfs_root_refs(&reloc_root->root_item) > 0) {
+			fs_root = btrfs_get_fs_root(fs_info,
+					reloc_root->root_key.offset, false);
+>>>>>>> upstream/android-13
 			if (IS_ERR(fs_root)) {
 				ret = PTR_ERR(fs_root);
 				if (ret != -ENOENT) {
@@ -4442,6 +6701,11 @@ int btrfs_recover_relocation(struct btrfs_root *root)
 					err = ret;
 					goto out;
 				}
+<<<<<<< HEAD
+=======
+			} else {
+				btrfs_put_root(fs_root);
+>>>>>>> upstream/android-13
 			}
 		}
 
@@ -4455,21 +6719,39 @@ int btrfs_recover_relocation(struct btrfs_root *root)
 	if (list_empty(&reloc_roots))
 		goto out;
 
+<<<<<<< HEAD
 	rc = alloc_reloc_control();
+=======
+	rc = alloc_reloc_control(fs_info);
+>>>>>>> upstream/android-13
 	if (!rc) {
 		err = -ENOMEM;
 		goto out;
 	}
 
+<<<<<<< HEAD
+=======
+	ret = reloc_chunk_start(fs_info);
+	if (ret < 0) {
+		err = ret;
+		goto out_end;
+	}
+
+>>>>>>> upstream/android-13
 	rc->extent_root = fs_info->extent_root;
 
 	set_reloc_control(rc);
 
 	trans = btrfs_join_transaction(rc->extent_root);
 	if (IS_ERR(trans)) {
+<<<<<<< HEAD
 		unset_reloc_control(rc);
 		err = PTR_ERR(trans);
 		goto out_free;
+=======
+		err = PTR_ERR(trans);
+		goto out_unset;
+>>>>>>> upstream/android-13
 	}
 
 	rc->merge_reloc_tree = 1;
@@ -4485,6 +6767,7 @@ int btrfs_recover_relocation(struct btrfs_root *root)
 			continue;
 		}
 
+<<<<<<< HEAD
 		fs_root = read_fs_root(fs_info, reloc_root->root_key.offset);
 		if (IS_ERR(fs_root)) {
 			err = PTR_ERR(fs_root);
@@ -4495,11 +6778,36 @@ int btrfs_recover_relocation(struct btrfs_root *root)
 		err = __add_reloc_root(reloc_root);
 		BUG_ON(err < 0); /* -ENOMEM or logic error */
 		fs_root->reloc_root = reloc_root;
+=======
+		fs_root = btrfs_get_fs_root(fs_info, reloc_root->root_key.offset,
+					    false);
+		if (IS_ERR(fs_root)) {
+			err = PTR_ERR(fs_root);
+			list_add_tail(&reloc_root->root_list, &reloc_roots);
+			btrfs_end_transaction(trans);
+			goto out_unset;
+		}
+
+		err = __add_reloc_root(reloc_root);
+		ASSERT(err != -EEXIST);
+		if (err) {
+			list_add_tail(&reloc_root->root_list, &reloc_roots);
+			btrfs_put_root(fs_root);
+			btrfs_end_transaction(trans);
+			goto out_unset;
+		}
+		fs_root->reloc_root = btrfs_grab_root(reloc_root);
+		btrfs_put_root(fs_root);
+>>>>>>> upstream/android-13
 	}
 
 	err = btrfs_commit_transaction(trans);
 	if (err)
+<<<<<<< HEAD
 		goto out_free;
+=======
+		goto out_unset;
+>>>>>>> upstream/android-13
 
 	merge_reloc_roots(rc);
 
@@ -4508,6 +6816,7 @@ int btrfs_recover_relocation(struct btrfs_root *root)
 	trans = btrfs_join_transaction(rc->extent_root);
 	if (IS_ERR(trans)) {
 		err = PTR_ERR(trans);
+<<<<<<< HEAD
 		goto out_free;
 	}
 	err = btrfs_commit_transaction(trans);
@@ -4516,16 +6825,39 @@ out_free:
 out:
 	if (!list_empty(&reloc_roots))
 		free_reloc_roots(&reloc_roots);
+=======
+		goto out_clean;
+	}
+	err = btrfs_commit_transaction(trans);
+out_clean:
+	ret = clean_dirty_subvols(rc);
+	if (ret < 0 && !err)
+		err = ret;
+out_unset:
+	unset_reloc_control(rc);
+out_end:
+	reloc_chunk_end(fs_info);
+	free_reloc_control(rc);
+out:
+	free_reloc_roots(&reloc_roots);
+>>>>>>> upstream/android-13
 
 	btrfs_free_path(path);
 
 	if (err == 0) {
 		/* cleanup orphan inode in data relocation tree */
+<<<<<<< HEAD
 		fs_root = read_fs_root(fs_info, BTRFS_DATA_RELOC_TREE_OBJECTID);
 		if (IS_ERR(fs_root))
 			err = PTR_ERR(fs_root);
 		else
 			err = btrfs_orphan_cleanup(fs_root);
+=======
+		fs_root = btrfs_grab_root(fs_info->data_reloc_root);
+		ASSERT(fs_root);
+		err = btrfs_orphan_cleanup(fs_root);
+		btrfs_put_root(fs_root);
+>>>>>>> upstream/android-13
 	}
 	return err;
 }
@@ -4536,9 +6868,15 @@ out:
  * cloning checksum properly handles the nodatasum extents.
  * it also saves CPU time to re-calculate the checksum.
  */
+<<<<<<< HEAD
 int btrfs_reloc_clone_csums(struct inode *inode, u64 file_pos, u64 len)
 {
 	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
+=======
+int btrfs_reloc_clone_csums(struct btrfs_inode *inode, u64 file_pos, u64 len)
+{
+	struct btrfs_fs_info *fs_info = inode->root->fs_info;
+>>>>>>> upstream/android-13
 	struct btrfs_ordered_sum *sums;
 	struct btrfs_ordered_extent *ordered;
 	int ret;
@@ -4547,9 +6885,15 @@ int btrfs_reloc_clone_csums(struct inode *inode, u64 file_pos, u64 len)
 	LIST_HEAD(list);
 
 	ordered = btrfs_lookup_ordered_extent(inode, file_pos);
+<<<<<<< HEAD
 	BUG_ON(ordered->file_offset != file_pos || ordered->len != len);
 
 	disk_bytenr = file_pos + BTRFS_I(inode)->index_cnt;
+=======
+	BUG_ON(ordered->file_offset != file_pos || ordered->num_bytes != len);
+
+	disk_bytenr = file_pos + inode->index_cnt;
+>>>>>>> upstream/android-13
 	ret = btrfs_lookup_csums_range(fs_info->csum_root, disk_bytenr,
 				       disk_bytenr + len - 1, &list, 0);
 	if (ret)
@@ -4571,10 +6915,17 @@ int btrfs_reloc_clone_csums(struct inode *inode, u64 file_pos, u64 len)
 		 * disk_len vs real len like with real inodes since it's all
 		 * disk length.
 		 */
+<<<<<<< HEAD
 		new_bytenr = ordered->start + (sums->bytenr - disk_bytenr);
 		sums->bytenr = new_bytenr;
 
 		btrfs_add_ordered_sum(inode, ordered, sums);
+=======
+		new_bytenr = ordered->disk_bytenr + sums->bytenr - disk_bytenr;
+		sums->bytenr = new_bytenr;
+
+		btrfs_add_ordered_sum(ordered, sums);
+>>>>>>> upstream/android-13
 	}
 out:
 	btrfs_put_ordered_extent(ordered);
@@ -4587,7 +6938,11 @@ int btrfs_reloc_cow_block(struct btrfs_trans_handle *trans,
 {
 	struct btrfs_fs_info *fs_info = root->fs_info;
 	struct reloc_control *rc;
+<<<<<<< HEAD
 	struct backref_node *node;
+=======
+	struct btrfs_backref_node *node;
+>>>>>>> upstream/android-13
 	int first_cow = 0;
 	int level;
 	int ret = 0;
@@ -4596,8 +6951,12 @@ int btrfs_reloc_cow_block(struct btrfs_trans_handle *trans,
 	if (!rc)
 		return 0;
 
+<<<<<<< HEAD
 	BUG_ON(rc->stage == UPDATE_DATA_PTRS &&
 	       root->root_key.objectid == BTRFS_DATA_RELOC_TREE_OBJECTID);
+=======
+	BUG_ON(rc->stage == UPDATE_DATA_PTRS && btrfs_is_data_reloc_root(root));
+>>>>>>> upstream/android-13
 
 	level = btrfs_header_level(buf);
 	if (btrfs_header_generation(buf) <=
@@ -4612,8 +6971,13 @@ int btrfs_reloc_cow_block(struct btrfs_trans_handle *trans,
 		BUG_ON(node->bytenr != buf->start &&
 		       node->new_bytenr != buf->start);
 
+<<<<<<< HEAD
 		drop_node_buffer(node);
 		extent_buffer_get(cow);
+=======
+		btrfs_backref_drop_node_buffer(node);
+		atomic_inc(&cow->refs);
+>>>>>>> upstream/android-13
 		node->eb = cow;
 		node->new_bytenr = cow->start;
 
@@ -4624,7 +6988,11 @@ int btrfs_reloc_cow_block(struct btrfs_trans_handle *trans,
 		}
 
 		if (first_cow)
+<<<<<<< HEAD
 			__mark_block_processed(rc, node);
+=======
+			mark_block_processed(rc, node);
+>>>>>>> upstream/android-13
 
 		if (first_cow && level > 0)
 			rc->nodes_relocated += buf->len;
@@ -4642,6 +7010,7 @@ int btrfs_reloc_cow_block(struct btrfs_trans_handle *trans,
 void btrfs_reloc_pre_snapshot(struct btrfs_pending_snapshot *pending,
 			      u64 *bytes_to_reserve)
 {
+<<<<<<< HEAD
 	struct btrfs_root *root;
 	struct reloc_control *rc;
 
@@ -4650,6 +7019,14 @@ void btrfs_reloc_pre_snapshot(struct btrfs_pending_snapshot *pending,
 		return;
 
 	rc = root->fs_info->reloc_ctl;
+=======
+	struct btrfs_root *root = pending->root;
+	struct reloc_control *rc = root->fs_info->reloc_ctl;
+
+	if (!rc || !have_reloc_root(root))
+		return;
+
+>>>>>>> upstream/android-13
 	if (!rc->merge_reloc_tree)
 		return;
 
@@ -4671,6 +7048,13 @@ void btrfs_reloc_pre_snapshot(struct btrfs_pending_snapshot *pending,
 /*
  * called after snapshot is created. migrate block reservation
  * and create reloc root for the newly created snapshot
+<<<<<<< HEAD
+=======
+ *
+ * This is similar to btrfs_init_reloc_root(), we come out of here with two
+ * references held on the reloc_root, one for root->reloc_root and one for
+ * rc->reloc_roots.
+>>>>>>> upstream/android-13
  */
 int btrfs_reloc_post_snapshot(struct btrfs_trans_handle *trans,
 			       struct btrfs_pending_snapshot *pending)
@@ -4678,10 +7062,17 @@ int btrfs_reloc_post_snapshot(struct btrfs_trans_handle *trans,
 	struct btrfs_root *root = pending->root;
 	struct btrfs_root *reloc_root;
 	struct btrfs_root *new_root;
+<<<<<<< HEAD
 	struct reloc_control *rc;
 	int ret;
 
 	if (!root->reloc_root)
+=======
+	struct reloc_control *rc = root->fs_info->reloc_ctl;
+	int ret;
+
+	if (!rc || !have_reloc_root(root))
+>>>>>>> upstream/android-13
 		return 0;
 
 	rc = root->fs_info->reloc_ctl;
@@ -4690,7 +7081,11 @@ int btrfs_reloc_post_snapshot(struct btrfs_trans_handle *trans,
 	if (rc->merge_reloc_tree) {
 		ret = btrfs_block_rsv_migrate(&pending->block_rsv,
 					      rc->block_rsv,
+<<<<<<< HEAD
 					      rc->nodes_relocated, 1);
+=======
+					      rc->nodes_relocated, true);
+>>>>>>> upstream/android-13
 		if (ret)
 			return ret;
 	}
@@ -4702,8 +7097,18 @@ int btrfs_reloc_post_snapshot(struct btrfs_trans_handle *trans,
 		return PTR_ERR(reloc_root);
 
 	ret = __add_reloc_root(reloc_root);
+<<<<<<< HEAD
 	BUG_ON(ret < 0);
 	new_root->reloc_root = reloc_root;
+=======
+	ASSERT(ret != -EEXIST);
+	if (ret) {
+		/* Pairs with create_reloc_root */
+		btrfs_put_root(reloc_root);
+		return ret;
+	}
+	new_root->reloc_root = btrfs_grab_root(reloc_root);
+>>>>>>> upstream/android-13
 
 	if (rc->create_reloc_tree)
 		ret = clone_backref_node(trans, rc, root, reloc_root);

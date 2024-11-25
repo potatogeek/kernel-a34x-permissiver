@@ -53,6 +53,10 @@
 #include <linux/moduleparam.h>
 #include <linux/sched.h>
 #include <linux/fs.h>
+<<<<<<< HEAD
+=======
+#include <linux/pagemap.h>
+>>>>>>> upstream/android-13
 #include <linux/file.h>
 #include <linux/stat.h>
 #include <linux/errno.h>
@@ -70,20 +74,77 @@
 #include <linux/writeback.h>
 #include <linux/completion.h>
 #include <linux/highmem.h>
+<<<<<<< HEAD
 #include <linux/kthread.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/splice.h>
 #include <linux/sysfs.h>
 #include <linux/miscdevice.h>
 #include <linux/falloc.h>
 #include <linux/uio.h>
 #include <linux/ioprio.h>
+<<<<<<< HEAD
+=======
+#include <linux/blk-cgroup.h>
+#include <linux/sched/mm.h>
+#include <linux/statfs.h>
+>>>>>>> upstream/android-13
 
 #include "loop.h"
 
 #include <linux/uaccess.h>
 
+<<<<<<< HEAD
 static DEFINE_IDR(loop_index_idr);
 static DEFINE_MUTEX(loop_ctl_mutex);
+=======
+#define LOOP_IDLE_WORKER_TIMEOUT (60 * HZ)
+
+static DEFINE_IDR(loop_index_idr);
+static DEFINE_MUTEX(loop_ctl_mutex);
+static DEFINE_MUTEX(loop_validate_mutex);
+
+/**
+ * loop_global_lock_killable() - take locks for safe loop_validate_file() test
+ *
+ * @lo: struct loop_device
+ * @global: true if @lo is about to bind another "struct loop_device", false otherwise
+ *
+ * Returns 0 on success, -EINTR otherwise.
+ *
+ * Since loop_validate_file() traverses on other "struct loop_device" if
+ * is_loop_device() is true, we need a global lock for serializing concurrent
+ * loop_configure()/loop_change_fd()/__loop_clr_fd() calls.
+ */
+static int loop_global_lock_killable(struct loop_device *lo, bool global)
+{
+	int err;
+
+	if (global) {
+		err = mutex_lock_killable(&loop_validate_mutex);
+		if (err)
+			return err;
+	}
+	err = mutex_lock_killable(&lo->lo_mutex);
+	if (err && global)
+		mutex_unlock(&loop_validate_mutex);
+	return err;
+}
+
+/**
+ * loop_global_unlock() - release locks taken by loop_global_lock_killable()
+ *
+ * @lo: struct loop_device
+ * @global: true if @lo was about to bind another "struct loop_device", false otherwise
+ */
+static void loop_global_unlock(struct loop_device *lo, bool global)
+{
+	mutex_unlock(&lo->lo_mutex);
+	if (global)
+		mutex_unlock(&loop_validate_mutex);
+}
+>>>>>>> upstream/android-13
 
 static int max_part = 7;
 static int part_shift;
@@ -228,6 +289,7 @@ static void __loop_update_dio(struct loop_device *lo, bool dio)
 }
 
 /**
+<<<<<<< HEAD
  * loop_validate_block_size() - validates the passed in block size
  * @bsize: size to validate
  */
@@ -241,6 +303,8 @@ loop_validate_block_size(unsigned short bsize)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * loop_set_size() - sets device size and notifies userspace
  * @lo: struct loop_device to set the size for
  * @size: new size of the loop device
@@ -250,12 +314,17 @@ loop_validate_block_size(unsigned short bsize)
  */
 static void loop_set_size(struct loop_device *lo, loff_t size)
 {
+<<<<<<< HEAD
 	struct block_device *bdev = lo->lo_device;
 
 	set_capacity(lo->lo_disk, size);
 	bd_set_size(bdev, size << SECTOR_SHIFT);
 	/* let user-space know about the new size */
 	kobject_uevent(&disk_to_dev(bdev->bd_disk)->kobj, KOBJ_CHANGE);
+=======
+	if (!set_capacity_and_notify(lo->lo_disk, size))
+		kobject_uevent(&disk_to_dev(lo->lo_disk)->kobj, KOBJ_CHANGE);
+>>>>>>> upstream/android-13
 }
 
 static inline int
@@ -281,7 +350,11 @@ static int lo_write_bvec(struct file *file, struct bio_vec *bvec, loff_t *ppos)
 	struct iov_iter i;
 	ssize_t bw;
 
+<<<<<<< HEAD
 	iov_iter_bvec(&i, ITER_BVEC | WRITE, bvec, 1, bvec->bv_len);
+=======
+	iov_iter_bvec(&i, WRITE, bvec, 1, bvec->bv_len);
+>>>>>>> upstream/android-13
 
 	file_start_write(file);
 	bw = vfs_iter_write(file, &i, ppos, 0);
@@ -359,7 +432,11 @@ static int lo_read_simple(struct loop_device *lo, struct request *rq,
 	ssize_t len;
 
 	rq_for_each_segment(bvec, rq, iter) {
+<<<<<<< HEAD
 		iov_iter_bvec(&i, ITER_BVEC, &bvec, 1, bvec.bv_len);
+=======
+		iov_iter_bvec(&i, READ, &bvec, 1, bvec.bv_len);
+>>>>>>> upstream/android-13
 		len = vfs_iter_read(lo->lo_backing_file, &i, &pos, 0);
 		if (len < 0)
 			return len;
@@ -400,7 +477,11 @@ static int lo_read_transfer(struct loop_device *lo, struct request *rq,
 		b.bv_offset = 0;
 		b.bv_len = bvec.bv_len;
 
+<<<<<<< HEAD
 		iov_iter_bvec(&i, ITER_BVEC, &b, 1, b.bv_len);
+=======
+		iov_iter_bvec(&i, READ, &b, 1, b.bv_len);
+>>>>>>> upstream/android-13
 		len = vfs_iter_read(lo->lo_backing_file, &i, &pos, 0);
 		if (len < 0) {
 			ret = len;
@@ -474,7 +555,11 @@ static void lo_complete_rq(struct request *rq)
 	if (!cmd->use_aio || cmd->ret < 0 || cmd->ret == blk_rq_bytes(rq) ||
 	    req_op(rq) != REQ_OP_READ) {
 		if (cmd->ret < 0)
+<<<<<<< HEAD
 			ret = BLK_STS_IOERR;
+=======
+			ret = errno_to_blk_status(cmd->ret);
+>>>>>>> upstream/android-13
 		goto end_io;
 	}
 
@@ -509,15 +594,23 @@ static void lo_rw_aio_do_completion(struct loop_cmd *cmd)
 		return;
 	kfree(cmd->bvec);
 	cmd->bvec = NULL;
+<<<<<<< HEAD
 	blk_mq_complete_request(rq);
+=======
+	if (likely(!blk_should_fake_timeout(rq->q)))
+		blk_mq_complete_request(rq);
+>>>>>>> upstream/android-13
 }
 
 static void lo_rw_aio_complete(struct kiocb *iocb, long ret, long ret2)
 {
 	struct loop_cmd *cmd = container_of(iocb, struct loop_cmd, iocb);
 
+<<<<<<< HEAD
 	if (cmd->css)
 		css_put(cmd->css);
+=======
+>>>>>>> upstream/android-13
 	cmd->ret = ret;
 	lo_rw_aio_do_completion(cmd);
 }
@@ -526,10 +619,15 @@ static int lo_rw_aio(struct loop_device *lo, struct loop_cmd *cmd,
 		     loff_t pos, bool rw)
 {
 	struct iov_iter iter;
+<<<<<<< HEAD
+=======
+	struct req_iterator rq_iter;
+>>>>>>> upstream/android-13
 	struct bio_vec *bvec;
 	struct request *rq = blk_mq_rq_from_pdu(cmd);
 	struct bio *bio = rq->bio;
 	struct file *file = lo->lo_backing_file;
+<<<<<<< HEAD
 	unsigned int offset;
 	int segments = 0;
 	int ret;
@@ -541,6 +639,19 @@ static int lo_rw_aio(struct loop_device *lo, struct loop_cmd *cmd,
 		__rq_for_each_bio(bio, rq)
 			segments += bio_segments(bio);
 		bvec = kmalloc_array(segments, sizeof(struct bio_vec),
+=======
+	struct bio_vec tmp;
+	unsigned int offset;
+	int nr_bvec = 0;
+	int ret;
+
+	rq_for_each_bvec(tmp, rq, rq_iter)
+		nr_bvec++;
+
+	if (rq->bio != rq->biotail) {
+
+		bvec = kmalloc_array(nr_bvec, sizeof(struct bio_vec),
+>>>>>>> upstream/android-13
 				     GFP_NOIO);
 		if (!bvec)
 			return -EIO;
@@ -549,10 +660,17 @@ static int lo_rw_aio(struct loop_device *lo, struct loop_cmd *cmd,
 		/*
 		 * The bios of the request may be started from the middle of
 		 * the 'bvec' because of bio splitting, so we can't directly
+<<<<<<< HEAD
 		 * copy bio->bi_iov_vec to new bvec. The rq_for_each_segment
 		 * API will take care of all details for us.
 		 */
 		rq_for_each_segment(tmp, rq, iter) {
+=======
+		 * copy bio->bi_iov_vec to new bvec. The rq_for_each_bvec
+		 * API will take care of all details for us.
+		 */
+		rq_for_each_bvec(tmp, rq, rq_iter) {
+>>>>>>> upstream/android-13
 			*bvec = tmp;
 			bvec++;
 		}
@@ -566,12 +684,19 @@ static int lo_rw_aio(struct loop_device *lo, struct loop_cmd *cmd,
 		 */
 		offset = bio->bi_iter.bi_bvec_done;
 		bvec = __bvec_iter_bvec(bio->bi_io_vec, bio->bi_iter);
+<<<<<<< HEAD
 		segments = bio_segments(bio);
 	}
 	atomic_set(&cmd->ref, 2);
 
 	iov_iter_bvec(&iter, ITER_BVEC | rw, bvec,
 		      segments, blk_rq_bytes(rq));
+=======
+	}
+	atomic_set(&cmd->ref, 2);
+
+	iov_iter_bvec(&iter, rw, bvec, nr_bvec, blk_rq_bytes(rq));
+>>>>>>> upstream/android-13
 	iter.iov_offset = offset;
 
 	cmd->iocb.ki_pos = pos;
@@ -579,8 +704,11 @@ static int lo_rw_aio(struct loop_device *lo, struct loop_cmd *cmd,
 	cmd->iocb.ki_complete = lo_rw_aio_complete;
 	cmd->iocb.ki_flags = IOCB_DIRECT;
 	cmd->iocb.ki_ioprio = IOPRIO_PRIO_VALUE(IOPRIO_CLASS_NONE, 0);
+<<<<<<< HEAD
 	if (cmd->css)
 		kthread_associate_blkcg(cmd->css);
+=======
+>>>>>>> upstream/android-13
 
 	if (rw == WRITE)
 		ret = call_write_iter(file, &cmd->iocb, &iter);
@@ -588,7 +716,10 @@ static int lo_rw_aio(struct loop_device *lo, struct loop_cmd *cmd,
 		ret = call_read_iter(file, &cmd->iocb, &iter);
 
 	lo_rw_aio_do_completion(cmd);
+<<<<<<< HEAD
 	kthread_associate_blkcg(NULL);
+=======
+>>>>>>> upstream/android-13
 
 	if (ret != -EIOCBQUEUED)
 		cmd->iocb.ki_complete(&cmd->iocb, ret, 0);
@@ -640,12 +771,16 @@ static int do_req_filebacked(struct loop_device *lo, struct request *rq)
 	default:
 		WARN_ON_ONCE(1);
 		return -EIO;
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 	}
 }
 
 static inline void loop_update_dio(struct loop_device *lo)
 {
+<<<<<<< HEAD
 	__loop_update_dio(lo, io_is_direct(lo->lo_backing_file) |
 			lo->use_dio);
 }
@@ -656,6 +791,19 @@ static void loop_reread_partitions(struct loop_device *lo,
 	int rc;
 
 	rc = blkdev_reread_part(bdev);
+=======
+	__loop_update_dio(lo, (lo->lo_backing_file->f_flags & O_DIRECT) |
+				lo->use_dio);
+}
+
+static void loop_reread_partitions(struct loop_device *lo)
+{
+	int rc;
+
+	mutex_lock(&lo->lo_disk->open_mutex);
+	rc = bdev_disk_changed(lo->lo_disk, false);
+	mutex_unlock(&lo->lo_disk->open_mutex);
+>>>>>>> upstream/android-13
 	if (rc)
 		pr_warn("%s: partition scan of loop%d (%s) failed (rc=%d)\n",
 			__func__, lo->lo_number, lo->lo_file_name, rc);
@@ -665,7 +813,11 @@ static inline int is_loop_device(struct file *file)
 {
 	struct inode *i = file->f_mapping->host;
 
+<<<<<<< HEAD
 	return i && S_ISBLK(i->i_mode) && MAJOR(i->i_rdev) == LOOP_MAJOR;
+=======
+	return i && S_ISBLK(i->i_mode) && imajor(i) == LOOP_MAJOR;
+>>>>>>> upstream/android-13
 }
 
 static int loop_validate_file(struct file *file, struct block_device *bdev)
@@ -677,6 +829,7 @@ static int loop_validate_file(struct file *file, struct block_device *bdev)
 	while (is_loop_device(f)) {
 		struct loop_device *l;
 
+<<<<<<< HEAD
 		if (f->f_mapping->host->i_bdev == bdev)
 			return -EBADF;
 
@@ -684,6 +837,17 @@ static int loop_validate_file(struct file *file, struct block_device *bdev)
 		if (l->lo_state != Lo_bound) {
 			return -EINVAL;
 		}
+=======
+		lockdep_assert_held(&loop_validate_mutex);
+		if (f->f_mapping->host->i_rdev == bdev->bd_dev)
+			return -EBADF;
+
+		l = I_BDEV(f->f_mapping->host)->bd_disk->private_data;
+		if (l->lo_state != Lo_bound)
+			return -EINVAL;
+		/* Order wrt setting lo->lo_backing_file in loop_configure(). */
+		rmb();
+>>>>>>> upstream/android-13
 		f = l->lo_backing_file;
 	}
 	if (!S_ISREG(inode->i_mode) && !S_ISBLK(inode->i_mode))
@@ -702,6 +866,7 @@ static int loop_validate_file(struct file *file, struct block_device *bdev)
 static int loop_change_fd(struct loop_device *lo, struct block_device *bdev,
 			  unsigned int arg)
 {
+<<<<<<< HEAD
 	struct file	*file = NULL, *old_file;
 	int		error;
 	bool		partscan;
@@ -709,6 +874,20 @@ static int loop_change_fd(struct loop_device *lo, struct block_device *bdev,
 	error = mutex_lock_killable(&loop_ctl_mutex);
 	if (error)
 		return error;
+=======
+	struct file *file = fget(arg);
+	struct file *old_file;
+	int error;
+	bool partscan;
+	bool is_loop;
+
+	if (!file)
+		return -EBADF;
+	is_loop = is_loop_device(file);
+	error = loop_global_lock_killable(lo, is_loop);
+	if (error)
+		goto out_putf;
+>>>>>>> upstream/android-13
 	error = -ENXIO;
 	if (lo->lo_state != Lo_bound)
 		goto out_err;
@@ -718,11 +897,14 @@ static int loop_change_fd(struct loop_device *lo, struct block_device *bdev,
 	if (!(lo->lo_flags & LO_FLAGS_READ_ONLY))
 		goto out_err;
 
+<<<<<<< HEAD
 	error = -EBADF;
 	file = fget(arg);
 	if (!file)
 		goto out_err;
 
+=======
+>>>>>>> upstream/android-13
 	error = loop_validate_file(file, bdev);
 	if (error)
 		goto out_err;
@@ -736,6 +918,10 @@ static int loop_change_fd(struct loop_device *lo, struct block_device *bdev,
 		goto out_err;
 
 	/* and ... switch */
+<<<<<<< HEAD
+=======
+	disk_force_media_change(lo->lo_disk, DISK_EVENT_MEDIA_CHANGE);
+>>>>>>> upstream/android-13
 	blk_mq_freeze_queue(lo->lo_queue);
 	mapping_set_gfp_mask(old_file->f_mapping, lo->old_gfp_mask);
 	lo->lo_backing_file = file;
@@ -745,14 +931,31 @@ static int loop_change_fd(struct loop_device *lo, struct block_device *bdev,
 	loop_update_dio(lo);
 	blk_mq_unfreeze_queue(lo->lo_queue);
 	partscan = lo->lo_flags & LO_FLAGS_PARTSCAN;
+<<<<<<< HEAD
 	mutex_unlock(&loop_ctl_mutex);
 	/*
 	 * We must drop file reference outside of loop_ctl_mutex as dropping
 	 * the file ref can take bd_mutex which creates circular locking
+=======
+	loop_global_unlock(lo, is_loop);
+
+	/*
+	 * Flush loop_validate_file() before fput(), for l->lo_backing_file
+	 * might be pointing at old_file which might be the last reference.
+	 */
+	if (!is_loop) {
+		mutex_lock(&loop_validate_mutex);
+		mutex_unlock(&loop_validate_mutex);
+	}
+	/*
+	 * We must drop file reference outside of lo_mutex as dropping
+	 * the file ref can take open_mutex which creates circular locking
+>>>>>>> upstream/android-13
 	 * dependency.
 	 */
 	fput(old_file);
 	if (partscan)
+<<<<<<< HEAD
 		loop_reread_partitions(lo, bdev);
 	return 0;
 
@@ -760,6 +963,15 @@ out_err:
 	mutex_unlock(&loop_ctl_mutex);
 	if (file)
 		fput(file);
+=======
+		loop_reread_partitions(lo);
+	return 0;
+
+out_err:
+	loop_global_unlock(lo, is_loop);
+out_putf:
+	fput(file);
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -808,33 +1020,53 @@ static ssize_t loop_attr_backing_file_show(struct loop_device *lo, char *buf)
 
 static ssize_t loop_attr_offset_show(struct loop_device *lo, char *buf)
 {
+<<<<<<< HEAD
 	return sprintf(buf, "%llu\n", (unsigned long long)lo->lo_offset);
+=======
+	return sysfs_emit(buf, "%llu\n", (unsigned long long)lo->lo_offset);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t loop_attr_sizelimit_show(struct loop_device *lo, char *buf)
 {
+<<<<<<< HEAD
 	return sprintf(buf, "%llu\n", (unsigned long long)lo->lo_sizelimit);
+=======
+	return sysfs_emit(buf, "%llu\n", (unsigned long long)lo->lo_sizelimit);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t loop_attr_autoclear_show(struct loop_device *lo, char *buf)
 {
 	int autoclear = (lo->lo_flags & LO_FLAGS_AUTOCLEAR);
 
+<<<<<<< HEAD
 	return sprintf(buf, "%s\n", autoclear ? "1" : "0");
+=======
+	return sysfs_emit(buf, "%s\n", autoclear ? "1" : "0");
+>>>>>>> upstream/android-13
 }
 
 static ssize_t loop_attr_partscan_show(struct loop_device *lo, char *buf)
 {
 	int partscan = (lo->lo_flags & LO_FLAGS_PARTSCAN);
 
+<<<<<<< HEAD
 	return sprintf(buf, "%s\n", partscan ? "1" : "0");
+=======
+	return sysfs_emit(buf, "%s\n", partscan ? "1" : "0");
+>>>>>>> upstream/android-13
 }
 
 static ssize_t loop_attr_dio_show(struct loop_device *lo, char *buf)
 {
 	int dio = (lo->lo_flags & LO_FLAGS_DIRECT_IO);
 
+<<<<<<< HEAD
 	return sprintf(buf, "%s\n", dio ? "1" : "0");
+=======
+	return sysfs_emit(buf, "%s\n", dio ? "1" : "0");
+>>>>>>> upstream/android-13
 }
 
 LOOP_ATTR_RO(backing_file);
@@ -887,9 +1119,13 @@ static void loop_config_discard(struct loop_device *lo)
 	 * file-backed loop devices: discarded regions read back as zero.
 	 */
 	if (S_ISBLK(inode->i_mode) && !lo->lo_encrypt_key_size) {
+<<<<<<< HEAD
 		struct request_queue *backingq;
 
 		backingq = bdev_get_queue(inode->i_bdev);
+=======
+		struct request_queue *backingq = bdev_get_queue(I_BDEV(inode));
+>>>>>>> upstream/android-13
 
 		max_discard_sectors = backingq->limits.max_write_zeroes_sectors;
 		granularity = backingq->limits.discard_granularity ?:
@@ -906,8 +1142,18 @@ static void loop_config_discard(struct loop_device *lo)
 		granularity = 0;
 
 	} else {
+<<<<<<< HEAD
 		max_discard_sectors = UINT_MAX >> 9;
 		granularity = inode->i_sb->s_blocksize;
+=======
+		struct kstatfs sbuf;
+
+		max_discard_sectors = UINT_MAX >> 9;
+		if (!vfs_statfs(&file->f_path, &sbuf))
+			granularity = sbuf.f_bsize;
+		else
+			max_discard_sectors = 0;
+>>>>>>> upstream/android-13
 	}
 
 	if (max_discard_sectors) {
@@ -924,6 +1170,7 @@ static void loop_config_discard(struct loop_device *lo)
 	q->limits.discard_alignment = 0;
 }
 
+<<<<<<< HEAD
 static void loop_unprepare_queue(struct loop_device *lo)
 {
 	kthread_flush_worker(&lo->worker);
@@ -945,6 +1192,120 @@ static int loop_prepare_queue(struct loop_device *lo)
 		return -ENOMEM;
 	set_user_nice(lo->worker_task, MIN_NICE);
 	return 0;
+=======
+struct loop_worker {
+	struct rb_node rb_node;
+	struct work_struct work;
+	struct list_head cmd_list;
+	struct list_head idle_list;
+	struct loop_device *lo;
+	struct cgroup_subsys_state *blkcg_css;
+	unsigned long last_ran_at;
+};
+
+static void loop_workfn(struct work_struct *work);
+static void loop_rootcg_workfn(struct work_struct *work);
+static void loop_free_idle_workers(struct timer_list *timer);
+
+#ifdef CONFIG_BLK_CGROUP
+static inline int queue_on_root_worker(struct cgroup_subsys_state *css)
+{
+	return !css || css == blkcg_root_css;
+}
+#else
+static inline int queue_on_root_worker(struct cgroup_subsys_state *css)
+{
+	return !css;
+}
+#endif
+
+static void loop_queue_work(struct loop_device *lo, struct loop_cmd *cmd)
+{
+	struct rb_node **node = &(lo->worker_tree.rb_node), *parent = NULL;
+	struct loop_worker *cur_worker, *worker = NULL;
+	struct work_struct *work;
+	struct list_head *cmd_list;
+
+	spin_lock_irq(&lo->lo_work_lock);
+
+	if (queue_on_root_worker(cmd->blkcg_css))
+		goto queue_work;
+
+	node = &lo->worker_tree.rb_node;
+
+	while (*node) {
+		parent = *node;
+		cur_worker = container_of(*node, struct loop_worker, rb_node);
+		if (cur_worker->blkcg_css == cmd->blkcg_css) {
+			worker = cur_worker;
+			break;
+		} else if ((long)cur_worker->blkcg_css < (long)cmd->blkcg_css) {
+			node = &(*node)->rb_left;
+		} else {
+			node = &(*node)->rb_right;
+		}
+	}
+	if (worker)
+		goto queue_work;
+
+	worker = kzalloc(sizeof(struct loop_worker), GFP_NOWAIT | __GFP_NOWARN);
+	/*
+	 * In the event we cannot allocate a worker, just queue on the
+	 * rootcg worker and issue the I/O as the rootcg
+	 */
+	if (!worker) {
+		cmd->blkcg_css = NULL;
+		if (cmd->memcg_css)
+			css_put(cmd->memcg_css);
+		cmd->memcg_css = NULL;
+		goto queue_work;
+	}
+
+	worker->blkcg_css = cmd->blkcg_css;
+	css_get(worker->blkcg_css);
+	INIT_WORK(&worker->work, loop_workfn);
+	INIT_LIST_HEAD(&worker->cmd_list);
+	INIT_LIST_HEAD(&worker->idle_list);
+	worker->lo = lo;
+	rb_link_node(&worker->rb_node, parent, node);
+	rb_insert_color(&worker->rb_node, &lo->worker_tree);
+queue_work:
+	if (worker) {
+		/*
+		 * We need to remove from the idle list here while
+		 * holding the lock so that the idle timer doesn't
+		 * free the worker
+		 */
+		if (!list_empty(&worker->idle_list))
+			list_del_init(&worker->idle_list);
+		work = &worker->work;
+		cmd_list = &worker->cmd_list;
+	} else {
+		work = &lo->rootcg_work;
+		cmd_list = &lo->rootcg_cmd_list;
+	}
+	list_add_tail(&cmd->list_entry, cmd_list);
+	queue_work(lo->workqueue, work);
+	spin_unlock_irq(&lo->lo_work_lock);
+}
+
+static void loop_update_rotational(struct loop_device *lo)
+{
+	struct file *file = lo->lo_backing_file;
+	struct inode *file_inode = file->f_mapping->host;
+	struct block_device *file_bdev = file_inode->i_sb->s_bdev;
+	struct request_queue *q = lo->lo_queue;
+	bool nonrot = true;
+
+	/* not all filesystems (e.g. tmpfs) have a sb->s_bdev */
+	if (file_bdev)
+		nonrot = blk_queue_nonrot(bdev_get_queue(file_bdev));
+
+	if (nonrot)
+		blk_queue_flag_set(QUEUE_FLAG_NONROT, q);
+	else
+		blk_queue_flag_clear(QUEUE_FLAG_NONROT, q);
+>>>>>>> upstream/android-13
 }
 
 static int
@@ -1052,6 +1413,7 @@ static int loop_configure(struct loop_device *lo, fmode_t mode,
 			  struct block_device *bdev,
 			  const struct loop_config *config)
 {
+<<<<<<< HEAD
 	struct file	*file;
 	struct inode	*inode;
 	struct address_space *mapping;
@@ -1059,10 +1421,25 @@ static int loop_configure(struct loop_device *lo, fmode_t mode,
 	loff_t		size;
 	bool		partscan;
 	unsigned short  bsize;
+=======
+	struct file *file = fget(config->fd);
+	struct inode *inode;
+	struct address_space *mapping;
+	int error;
+	loff_t size;
+	bool partscan;
+	unsigned short bsize;
+	bool is_loop;
+
+	if (!file)
+		return -EBADF;
+	is_loop = is_loop_device(file);
+>>>>>>> upstream/android-13
 
 	/* This is safe, since we have a reference from open(). */
 	__module_get(THIS_MODULE);
 
+<<<<<<< HEAD
 	error = -EBADF;
 	file = fget(config->fd);
 	if (!file)
@@ -1071,6 +1448,21 @@ static int loop_configure(struct loop_device *lo, fmode_t mode,
 	error = mutex_lock_killable(&loop_ctl_mutex);
 	if (error)
 		goto out_putf;
+=======
+	/*
+	 * If we don't hold exclusive handle for the device, upgrade to it
+	 * here to avoid changing device under exclusive owner.
+	 */
+	if (!(mode & FMODE_EXCL)) {
+		error = bd_prepare_to_claim(bdev, loop_configure);
+		if (error)
+			goto out_putf;
+	}
+
+	error = loop_global_lock_killable(lo, is_loop);
+	if (error)
+		goto out_bdev;
+>>>>>>> upstream/android-13
 
 	error = -EBUSY;
 	if (lo->lo_state != Lo_unbound)
@@ -1083,15 +1475,22 @@ static int loop_configure(struct loop_device *lo, fmode_t mode,
 	mapping = file->f_mapping;
 	inode = mapping->host;
 
+<<<<<<< HEAD
 	size = get_loop_size(lo, file);
 
+=======
+>>>>>>> upstream/android-13
 	if ((config->info.lo_flags & ~LOOP_CONFIGURE_SETTABLE_FLAGS) != 0) {
 		error = -EINVAL;
 		goto out_unlock;
 	}
 
 	if (config->block_size) {
+<<<<<<< HEAD
 		error = loop_validate_block_size(config->block_size);
+=======
+		error = blk_validate_block_size(config->block_size);
+>>>>>>> upstream/android-13
 		if (error)
 			goto out_unlock;
 	}
@@ -1104,6 +1503,7 @@ static int loop_configure(struct loop_device *lo, fmode_t mode,
 	    !file->f_op->write_iter)
 		lo->lo_flags |= LO_FLAGS_READ_ONLY;
 
+<<<<<<< HEAD
 	error = loop_prepare_queue(lo);
 	if (error)
 		goto out_unlock;
@@ -1112,6 +1512,26 @@ static int loop_configure(struct loop_device *lo, fmode_t mode,
 
 	set_device_ro(bdev, (lo->lo_flags & LO_FLAGS_READ_ONLY) != 0);
 
+=======
+	lo->workqueue = alloc_workqueue("loop%d",
+					WQ_UNBOUND | WQ_FREEZABLE,
+					0,
+					lo->lo_number);
+	if (!lo->workqueue) {
+		error = -ENOMEM;
+		goto out_unlock;
+	}
+
+	disk_force_media_change(lo->lo_disk, DISK_EVENT_MEDIA_CHANGE);
+	set_disk_ro(lo->lo_disk, (lo->lo_flags & LO_FLAGS_READ_ONLY) != 0);
+
+	INIT_WORK(&lo->rootcg_work, loop_rootcg_workfn);
+	INIT_LIST_HEAD(&lo->rootcg_cmd_list);
+	INIT_LIST_HEAD(&lo->idle_worker_list);
+	lo->worker_tree = RB_ROOT;
+	timer_setup(&lo->timer, loop_free_idle_workers,
+		TIMER_DEFERRABLE);
+>>>>>>> upstream/android-13
 	lo->use_dio = lo->lo_flags & LO_FLAGS_DIRECT_IO;
 	lo->lo_device = bdev;
 	lo->lo_backing_file = file;
@@ -1123,7 +1543,11 @@ static int loop_configure(struct loop_device *lo, fmode_t mode,
 
 	if (config->block_size)
 		bsize = config->block_size;
+<<<<<<< HEAD
 	else if (io_is_direct(lo->lo_backing_file) && inode->i_sb->s_bdev)
+=======
+	else if ((lo->lo_backing_file->f_flags & O_DIRECT) && inode->i_sb->s_bdev)
+>>>>>>> upstream/android-13
 		/* In case of direct I/O, match underlying block size */
 		bsize = bdev_logical_block_size(inode->i_sb->s_bdev);
 	else
@@ -1133,17 +1557,31 @@ static int loop_configure(struct loop_device *lo, fmode_t mode,
 	blk_queue_physical_block_size(lo->lo_queue, bsize);
 	blk_queue_io_min(lo->lo_queue, bsize);
 
+<<<<<<< HEAD
 	loop_update_dio(lo);
 	loop_sysfs_init(lo);
 	loop_set_size(lo, size);
 
 	set_blocksize(bdev, S_ISBLK(inode->i_mode) ?
 		      block_size(inode->i_bdev) : PAGE_SIZE);
+=======
+	loop_config_discard(lo);
+	loop_update_rotational(lo);
+	loop_update_dio(lo);
+	loop_sysfs_init(lo);
+
+	size = get_loop_size(lo, file);
+	loop_set_size(lo, size);
+
+	/* Order wrt reading lo_state in loop_validate_file(). */
+	wmb();
+>>>>>>> upstream/android-13
 
 	lo->lo_state = Lo_bound;
 	if (part_shift)
 		lo->lo_flags |= LO_FLAGS_PARTSCAN;
 	partscan = lo->lo_flags & LO_FLAGS_PARTSCAN;
+<<<<<<< HEAD
 
 	/* Grab the block_device to prevent its destruction after we
 	 * put /dev/loopXX inode. Later in __loop_clr_fd() we bdput(bdev).
@@ -1159,6 +1597,25 @@ out_unlock:
 out_putf:
 	fput(file);
 out:
+=======
+	if (partscan)
+		lo->lo_disk->flags &= ~GENHD_FL_NO_PART_SCAN;
+
+	loop_global_unlock(lo, is_loop);
+	if (partscan)
+		loop_reread_partitions(lo);
+	if (!(mode & FMODE_EXCL))
+		bd_abort_claiming(bdev, loop_configure);
+	return 0;
+
+out_unlock:
+	loop_global_unlock(lo, is_loop);
+out_bdev:
+	if (!(mode & FMODE_EXCL))
+		bd_abort_claiming(bdev, loop_configure);
+out_putf:
+	fput(file);
+>>>>>>> upstream/android-13
 	/* This is safe: open() is still holding a reference. */
 	module_put(THIS_MODULE);
 	return error;
@@ -1172,8 +1629,26 @@ static int __loop_clr_fd(struct loop_device *lo, bool release)
 	int err = 0;
 	bool partscan = false;
 	int lo_number;
+<<<<<<< HEAD
 
 	mutex_lock(&loop_ctl_mutex);
+=======
+	struct loop_worker *pos, *worker;
+
+	/*
+	 * Flush loop_configure() and loop_change_fd(). It is acceptable for
+	 * loop_validate_file() to succeed, for actual clear operation has not
+	 * started yet.
+	 */
+	mutex_lock(&loop_validate_mutex);
+	mutex_unlock(&loop_validate_mutex);
+	/*
+	 * loop_validate_file() now fails because l->lo_state != Lo_bound
+	 * became visible.
+	 */
+
+	mutex_lock(&lo->lo_mutex);
+>>>>>>> upstream/android-13
 	if (WARN_ON_ONCE(lo->lo_state != Lo_rundown)) {
 		err = -ENXIO;
 		goto out_unlock;
@@ -1185,9 +1660,30 @@ static int __loop_clr_fd(struct loop_device *lo, bool release)
 		goto out_unlock;
 	}
 
+<<<<<<< HEAD
 	/* freeze request queue during the transition */
 	blk_mq_freeze_queue(lo->lo_queue);
 
+=======
+	if (test_bit(QUEUE_FLAG_WC, &lo->lo_queue->queue_flags))
+		blk_queue_write_cache(lo->lo_queue, false, false);
+
+	/* freeze request queue during the transition */
+	blk_mq_freeze_queue(lo->lo_queue);
+
+	destroy_workqueue(lo->workqueue);
+	spin_lock_irq(&lo->lo_work_lock);
+	list_for_each_entry_safe(worker, pos, &lo->idle_worker_list,
+				idle_list) {
+		list_del(&worker->idle_list);
+		rb_erase(&worker->rb_node, &lo->worker_tree);
+		css_put(worker->blkcg_css);
+		kfree(worker);
+	}
+	spin_unlock_irq(&lo->lo_work_lock);
+	del_timer_sync(&lo->timer);
+
+>>>>>>> upstream/android-13
 	spin_lock_irq(&lo->lo_lock);
 	lo->lo_backing_file = NULL;
 	spin_unlock_irq(&lo->lo_lock);
@@ -1207,14 +1703,20 @@ static int __loop_clr_fd(struct loop_device *lo, bool release)
 	blk_queue_physical_block_size(lo->lo_queue, 512);
 	blk_queue_io_min(lo->lo_queue, 512);
 	if (bdev) {
+<<<<<<< HEAD
 		bdput(bdev);
+=======
+>>>>>>> upstream/android-13
 		invalidate_bdev(bdev);
 		bdev->bd_inode->i_mapping->wb_err = 0;
 	}
 	set_capacity(lo->lo_disk, 0);
 	loop_sysfs_exit(lo);
 	if (bdev) {
+<<<<<<< HEAD
 		bd_set_size(bdev, 0);
+=======
+>>>>>>> upstream/android-13
 		/* let user-space know about this change */
 		kobject_uevent(&disk_to_dev(bdev->bd_disk)->kobj, KOBJ_CHANGE);
 	}
@@ -1225,22 +1727,39 @@ static int __loop_clr_fd(struct loop_device *lo, bool release)
 
 	partscan = lo->lo_flags & LO_FLAGS_PARTSCAN && bdev;
 	lo_number = lo->lo_number;
+<<<<<<< HEAD
 	loop_unprepare_queue(lo);
 out_unlock:
 	mutex_unlock(&loop_ctl_mutex);
 	if (partscan) {
 		/*
 		 * bd_mutex has been held already in release path, so don't
+=======
+	disk_force_media_change(lo->lo_disk, DISK_EVENT_MEDIA_CHANGE);
+out_unlock:
+	mutex_unlock(&lo->lo_mutex);
+	if (partscan) {
+		/*
+		 * open_mutex has been held already in release path, so don't
+>>>>>>> upstream/android-13
 		 * acquire it if this function is called in such case.
 		 *
 		 * If the reread partition isn't from release path, lo_refcnt
 		 * must be at least one and it can only become zero when the
 		 * current holder is released.
 		 */
+<<<<<<< HEAD
 		if (release)
 			err = __blkdev_reread_part(bdev);
 		else
 			err = blkdev_reread_part(bdev);
+=======
+		if (!release)
+			mutex_lock(&lo->lo_disk->open_mutex);
+		err = bdev_disk_changed(lo->lo_disk, false);
+		if (!release)
+			mutex_unlock(&lo->lo_disk->open_mutex);
+>>>>>>> upstream/android-13
 		if (err)
 			pr_warn("%s: partition scan of loop%d failed (rc=%d)\n",
 				__func__, lo_number, err);
@@ -1257,11 +1776,16 @@ out_unlock:
 	 * protects us from all the other places trying to change the 'lo'
 	 * device.
 	 */
+<<<<<<< HEAD
 	mutex_lock(&loop_ctl_mutex);
+=======
+	mutex_lock(&lo->lo_mutex);
+>>>>>>> upstream/android-13
 	lo->lo_flags = 0;
 	if (!part_shift)
 		lo->lo_disk->flags |= GENHD_FL_NO_PART_SCAN;
 	lo->lo_state = Lo_unbound;
+<<<<<<< HEAD
 	mutex_unlock(&loop_ctl_mutex);
 
 	/*
@@ -1269,6 +1793,14 @@ out_unlock:
 	 * Calling fput holding loop_ctl_mutex triggers a circular
 	 * lock dependency possibility warning as fput can take
 	 * bd_mutex which is usually taken before loop_ctl_mutex.
+=======
+	mutex_unlock(&lo->lo_mutex);
+
+	/*
+	 * Need not hold lo_mutex to fput backing file. Calling fput holding
+	 * lo_mutex triggers a circular lock dependency possibility warning as
+	 * fput can take open_mutex which is usually taken before lo_mutex.
+>>>>>>> upstream/android-13
 	 */
 	if (filp)
 		fput(filp);
@@ -1279,11 +1811,19 @@ static int loop_clr_fd(struct loop_device *lo)
 {
 	int err;
 
+<<<<<<< HEAD
 	err = mutex_lock_killable(&loop_ctl_mutex);
 	if (err)
 		return err;
 	if (lo->lo_state != Lo_bound) {
 		mutex_unlock(&loop_ctl_mutex);
+=======
+	err = mutex_lock_killable(&lo->lo_mutex);
+	if (err)
+		return err;
+	if (lo->lo_state != Lo_bound) {
+		mutex_unlock(&lo->lo_mutex);
+>>>>>>> upstream/android-13
 		return -ENXIO;
 	}
 	/*
@@ -1298,11 +1838,19 @@ static int loop_clr_fd(struct loop_device *lo)
 	 */
 	if (atomic_read(&lo->lo_refcnt) > 1) {
 		lo->lo_flags |= LO_FLAGS_AUTOCLEAR;
+<<<<<<< HEAD
 		mutex_unlock(&loop_ctl_mutex);
 		return 0;
 	}
 	lo->lo_state = Lo_rundown;
 	mutex_unlock(&loop_ctl_mutex);
+=======
+		mutex_unlock(&lo->lo_mutex);
+		return 0;
+	}
+	lo->lo_state = Lo_rundown;
+	mutex_unlock(&lo->lo_mutex);
+>>>>>>> upstream/android-13
 
 	return __loop_clr_fd(lo, false);
 }
@@ -1311,13 +1859,20 @@ static int
 loop_set_status(struct loop_device *lo, const struct loop_info64 *info)
 {
 	int err;
+<<<<<<< HEAD
 	struct block_device *bdev;
+=======
+>>>>>>> upstream/android-13
 	kuid_t uid = current_uid();
 	int prev_lo_flags;
 	bool partscan = false;
 	bool size_changed = false;
 
+<<<<<<< HEAD
 	err = mutex_lock_killable(&loop_ctl_mutex);
+=======
+	err = mutex_lock_killable(&lo->lo_mutex);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 	if (lo->lo_encrypt_key_size &&
@@ -1342,7 +1897,11 @@ loop_set_status(struct loop_device *lo, const struct loop_info64 *info)
 	blk_mq_freeze_queue(lo->lo_queue);
 
 	if (size_changed && lo->lo_device->bd_inode->i_mapping->nrpages) {
+<<<<<<< HEAD
 		/* If any pages were dirtied after kill_bdev(), try again */
+=======
+		/* If any pages were dirtied after invalidate_bdev(), try again */
+>>>>>>> upstream/android-13
 		err = -EAGAIN;
 		pr_warn("%s: loop%d (%s) has still dirty pages (nrpages=%lu)\n",
 			__func__, lo->lo_number, lo->lo_file_name,
@@ -1380,6 +1939,7 @@ out_unfreeze:
 	if (!err && (lo->lo_flags & LO_FLAGS_PARTSCAN) &&
 	     !(prev_lo_flags & LO_FLAGS_PARTSCAN)) {
 		lo->lo_disk->flags &= ~GENHD_FL_NO_PART_SCAN;
+<<<<<<< HEAD
 		bdev = lo->lo_device;
 		partscan = true;
 	}
@@ -1387,6 +1947,14 @@ out_unlock:
 	mutex_unlock(&loop_ctl_mutex);
 	if (partscan)
 		loop_reread_partitions(lo, bdev);
+=======
+		partscan = true;
+	}
+out_unlock:
+	mutex_unlock(&lo->lo_mutex);
+	if (partscan)
+		loop_reread_partitions(lo);
+>>>>>>> upstream/android-13
 
 	return err;
 }
@@ -1398,11 +1966,19 @@ loop_get_status(struct loop_device *lo, struct loop_info64 *info)
 	struct kstat stat;
 	int ret;
 
+<<<<<<< HEAD
 	ret = mutex_lock_killable(&loop_ctl_mutex);
 	if (ret)
 		return ret;
 	if (lo->lo_state != Lo_bound) {
 		mutex_unlock(&loop_ctl_mutex);
+=======
+	ret = mutex_lock_killable(&lo->lo_mutex);
+	if (ret)
+		return ret;
+	if (lo->lo_state != Lo_bound) {
+		mutex_unlock(&lo->lo_mutex);
+>>>>>>> upstream/android-13
 		return -ENXIO;
 	}
 
@@ -1421,10 +1997,17 @@ loop_get_status(struct loop_device *lo, struct loop_info64 *info)
 		       lo->lo_encrypt_key_size);
 	}
 
+<<<<<<< HEAD
 	/* Drop loop_ctl_mutex while we call into the filesystem. */
 	path = lo->lo_backing_file->f_path;
 	path_get(&path);
 	mutex_unlock(&loop_ctl_mutex);
+=======
+	/* Drop lo_mutex while we call into the filesystem. */
+	path = lo->lo_backing_file->f_path;
+	path_get(&path);
+	mutex_unlock(&lo->lo_mutex);
+>>>>>>> upstream/android-13
 	ret = vfs_getattr(&path, &stat, STATX_INO, AT_STATX_SYNC_AS_STAT);
 	if (!ret) {
 		info->lo_device = huge_encode_dev(stat.dev);
@@ -1574,7 +2157,11 @@ static int loop_set_block_size(struct loop_device *lo, unsigned long arg)
 	if (lo->lo_state != Lo_bound)
 		return -ENXIO;
 
+<<<<<<< HEAD
 	err = loop_validate_block_size(arg);
+=======
+	err = blk_validate_block_size(arg);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
@@ -1610,7 +2197,11 @@ static int lo_simple_ioctl(struct loop_device *lo, unsigned int cmd,
 {
 	int err;
 
+<<<<<<< HEAD
 	err = mutex_lock_killable(&loop_ctl_mutex);
+=======
+	err = mutex_lock_killable(&lo->lo_mutex);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 	switch (cmd) {
@@ -1626,7 +2217,11 @@ static int lo_simple_ioctl(struct loop_device *lo, unsigned int cmd,
 	default:
 		err = lo->ioctl ? lo->ioctl(lo, cmd, arg) : -EINVAL;
 	}
+<<<<<<< HEAD
 	mutex_unlock(&loop_ctl_mutex);
+=======
+	mutex_unlock(&lo->lo_mutex);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -1684,7 +2279,11 @@ static int lo_ioctl(struct block_device *bdev, fmode_t mode,
 	case LOOP_SET_BLOCK_SIZE:
 		if (!(mode & FMODE_WRITE) && !capable(CAP_SYS_ADMIN))
 			return -EPERM;
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		err = lo_simple_ioctl(lo, cmd, arg);
 		break;
@@ -1832,7 +2431,11 @@ static int lo_compat_ioctl(struct block_device *bdev, fmode_t mode,
 	case LOOP_SET_STATUS64:
 	case LOOP_CONFIGURE:
 		arg = (unsigned long) compat_ptr(arg);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case LOOP_SET_FD:
 	case LOOP_CHANGE_FD:
 	case LOOP_SET_BLOCK_SIZE:
@@ -1849,6 +2452,7 @@ static int lo_compat_ioctl(struct block_device *bdev, fmode_t mode,
 
 static int lo_open(struct block_device *bdev, fmode_t mode)
 {
+<<<<<<< HEAD
 	struct loop_device *lo;
 	int err;
 
@@ -1864,15 +2468,34 @@ static int lo_open(struct block_device *bdev, fmode_t mode)
 	atomic_inc(&lo->lo_refcnt);
 out:
 	mutex_unlock(&loop_ctl_mutex);
+=======
+	struct loop_device *lo = bdev->bd_disk->private_data;
+	int err;
+
+	err = mutex_lock_killable(&lo->lo_mutex);
+	if (err)
+		return err;
+	if (lo->lo_state == Lo_deleting)
+		err = -ENXIO;
+	else
+		atomic_inc(&lo->lo_refcnt);
+	mutex_unlock(&lo->lo_mutex);
+>>>>>>> upstream/android-13
 	return err;
 }
 
 static void lo_release(struct gendisk *disk, fmode_t mode)
 {
+<<<<<<< HEAD
 	struct loop_device *lo;
 
 	mutex_lock(&loop_ctl_mutex);
 	lo = disk->private_data;
+=======
+	struct loop_device *lo = disk->private_data;
+
+	mutex_lock(&lo->lo_mutex);
+>>>>>>> upstream/android-13
 	if (atomic_dec_return(&lo->lo_refcnt))
 		goto out_unlock;
 
@@ -1880,7 +2503,11 @@ static void lo_release(struct gendisk *disk, fmode_t mode)
 		if (lo->lo_state != Lo_bound)
 			goto out_unlock;
 		lo->lo_state = Lo_rundown;
+<<<<<<< HEAD
 		mutex_unlock(&loop_ctl_mutex);
+=======
+		mutex_unlock(&lo->lo_mutex);
+>>>>>>> upstream/android-13
 		/*
 		 * In autoclear mode, stop the loop thread
 		 * and remove configuration after last close.
@@ -1897,7 +2524,11 @@ static void lo_release(struct gendisk *disk, fmode_t mode)
 	}
 
 out_unlock:
+<<<<<<< HEAD
 	mutex_unlock(&loop_ctl_mutex);
+=======
+	mutex_unlock(&lo->lo_mutex);
+>>>>>>> upstream/android-13
 }
 
 static const struct block_device_operations lo_fops = {
@@ -1931,6 +2562,7 @@ int loop_register_transfer(struct loop_func_table *funcs)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int unregister_transfer_cb(int id, void *ptr, void *data)
 {
 	struct loop_device *lo = ptr;
@@ -1943,6 +2575,8 @@ static int unregister_transfer_cb(int id, void *ptr, void *data)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 int loop_unregister_transfer(int number)
 {
 	unsigned int n = number;
@@ -1950,9 +2584,26 @@ int loop_unregister_transfer(int number)
 
 	if (n == 0 || n >= MAX_LO_CRYPT || (xfer = xfer_funcs[n]) == NULL)
 		return -EINVAL;
+<<<<<<< HEAD
 
 	xfer_funcs[n] = NULL;
 	idr_for_each(&loop_index_idr, &unregister_transfer_cb, xfer);
+=======
+	/*
+	 * This function is called from only cleanup_cryptoloop().
+	 * Given that each loop device that has a transfer enabled holds a
+	 * reference to the module implementing it we should never get here
+	 * with a transfer that is set (unless forced module unloading is
+	 * requested). Thus, check module's refcount and warn if this is
+	 * not a clean unloading.
+	 */
+#ifdef CONFIG_MODULE_UNLOAD
+	if (xfer->owner && module_refcount(xfer->owner) != -1)
+		pr_err("Danger! Unregistering an in use transfer function.\n");
+#endif
+
+	xfer_funcs[n] = NULL;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1983,6 +2634,7 @@ static blk_status_t loop_queue_rq(struct blk_mq_hw_ctx *hctx,
 	}
 
 	/* always use the first bio's css */
+<<<<<<< HEAD
 #ifdef CONFIG_BLK_CGROUP
 	if (cmd->use_aio && rq->bio && rq->bio->bi_css) {
 		cmd->css = rq->bio->bi_css;
@@ -1991,6 +2643,21 @@ static blk_status_t loop_queue_rq(struct blk_mq_hw_ctx *hctx,
 #endif
 		cmd->css = NULL;
 	kthread_queue_work(&lo->worker, &cmd->work);
+=======
+	cmd->blkcg_css = NULL;
+	cmd->memcg_css = NULL;
+#ifdef CONFIG_BLK_CGROUP
+	if (rq->bio && rq->bio->bi_blkg) {
+		cmd->blkcg_css = &bio_blkcg(rq->bio)->css;
+#ifdef CONFIG_MEMCG
+		cmd->memcg_css =
+			cgroup_get_e_css(cmd->blkcg_css->cgroup,
+					&memory_cgrp_subsys);
+#endif
+	}
+#endif
+	loop_queue_work(lo, cmd);
+>>>>>>> upstream/android-13
 
 	return BLK_STS_OK;
 }
@@ -2001,12 +2668,17 @@ static void loop_handle_cmd(struct loop_cmd *cmd)
 	const bool write = op_is_write(req_op(rq));
 	struct loop_device *lo = rq->q->queuedata;
 	int ret = 0;
+<<<<<<< HEAD
+=======
+	struct mem_cgroup *old_memcg = NULL;
+>>>>>>> upstream/android-13
 
 	if (write && (lo->lo_flags & LO_FLAGS_READ_ONLY)) {
 		ret = -EIO;
 		goto failed;
 	}
 
+<<<<<<< HEAD
 	ret = do_req_filebacked(lo, rq);
  failed:
 	/* complete non-aio request */
@@ -2031,15 +2703,123 @@ static int loop_init_request(struct blk_mq_tag_set *set, struct request *rq,
 
 	kthread_init_work(&cmd->work, loop_queue_work);
 	return 0;
+=======
+	if (cmd->blkcg_css)
+		kthread_associate_blkcg(cmd->blkcg_css);
+	if (cmd->memcg_css)
+		old_memcg = set_active_memcg(
+			mem_cgroup_from_css(cmd->memcg_css));
+
+	ret = do_req_filebacked(lo, rq);
+
+	if (cmd->blkcg_css)
+		kthread_associate_blkcg(NULL);
+
+	if (cmd->memcg_css) {
+		set_active_memcg(old_memcg);
+		css_put(cmd->memcg_css);
+	}
+ failed:
+	/* complete non-aio request */
+	if (!cmd->use_aio || ret) {
+		if (ret == -EOPNOTSUPP)
+			cmd->ret = ret;
+		else
+			cmd->ret = ret ? -EIO : 0;
+		if (likely(!blk_should_fake_timeout(rq->q)))
+			blk_mq_complete_request(rq);
+	}
+}
+
+static void loop_set_timer(struct loop_device *lo)
+{
+	timer_reduce(&lo->timer, jiffies + LOOP_IDLE_WORKER_TIMEOUT);
+}
+
+static void loop_process_work(struct loop_worker *worker,
+			struct list_head *cmd_list, struct loop_device *lo)
+{
+	int orig_flags = current->flags;
+	struct loop_cmd *cmd;
+
+	current->flags |= PF_LOCAL_THROTTLE | PF_MEMALLOC_NOIO;
+	spin_lock_irq(&lo->lo_work_lock);
+	while (!list_empty(cmd_list)) {
+		cmd = container_of(
+			cmd_list->next, struct loop_cmd, list_entry);
+		list_del(cmd_list->next);
+		spin_unlock_irq(&lo->lo_work_lock);
+
+		loop_handle_cmd(cmd);
+		cond_resched();
+
+		spin_lock_irq(&lo->lo_work_lock);
+	}
+
+	/*
+	 * We only add to the idle list if there are no pending cmds
+	 * *and* the worker will not run again which ensures that it
+	 * is safe to free any worker on the idle list
+	 */
+	if (worker && !work_pending(&worker->work)) {
+		worker->last_ran_at = jiffies;
+		list_add_tail(&worker->idle_list, &lo->idle_worker_list);
+		loop_set_timer(lo);
+	}
+	spin_unlock_irq(&lo->lo_work_lock);
+	current->flags = orig_flags;
+}
+
+static void loop_workfn(struct work_struct *work)
+{
+	struct loop_worker *worker =
+		container_of(work, struct loop_worker, work);
+	loop_process_work(worker, &worker->cmd_list, worker->lo);
+}
+
+static void loop_rootcg_workfn(struct work_struct *work)
+{
+	struct loop_device *lo =
+		container_of(work, struct loop_device, rootcg_work);
+	loop_process_work(NULL, &lo->rootcg_cmd_list, lo);
+}
+
+static void loop_free_idle_workers(struct timer_list *timer)
+{
+	struct loop_device *lo = container_of(timer, struct loop_device, timer);
+	struct loop_worker *pos, *worker;
+
+	spin_lock_irq(&lo->lo_work_lock);
+	list_for_each_entry_safe(worker, pos, &lo->idle_worker_list,
+				idle_list) {
+		if (time_is_after_jiffies(worker->last_ran_at +
+						LOOP_IDLE_WORKER_TIMEOUT))
+			break;
+		list_del(&worker->idle_list);
+		rb_erase(&worker->rb_node, &lo->worker_tree);
+		css_put(worker->blkcg_css);
+		kfree(worker);
+	}
+	if (!list_empty(&lo->idle_worker_list))
+		loop_set_timer(lo);
+	spin_unlock_irq(&lo->lo_work_lock);
+>>>>>>> upstream/android-13
 }
 
 static const struct blk_mq_ops loop_mq_ops = {
 	.queue_rq       = loop_queue_rq,
+<<<<<<< HEAD
 	.init_request	= loop_init_request,
 	.complete	= lo_complete_rq,
 };
 
 static int loop_add(struct loop_device **l, int i)
+=======
+	.complete	= lo_complete_rq,
+};
+
+static int loop_add(int i)
+>>>>>>> upstream/android-13
 {
 	struct loop_device *lo;
 	struct gendisk *disk;
@@ -2049,9 +2829,18 @@ static int loop_add(struct loop_device **l, int i)
 	lo = kzalloc(sizeof(*lo), GFP_KERNEL);
 	if (!lo)
 		goto out;
+<<<<<<< HEAD
 
 	lo->lo_state = Lo_unbound;
 
+=======
+	lo->lo_state = Lo_unbound;
+
+	err = mutex_lock_killable(&loop_ctl_mutex);
+	if (err)
+		goto out_free_dev;
+
+>>>>>>> upstream/android-13
 	/* allocate id, if @id >= 0, we're requesting that specific id */
 	if (i >= 0) {
 		err = idr_alloc(&loop_index_idr, lo, i, i + 1, GFP_KERNEL);
@@ -2060,6 +2849,10 @@ static int loop_add(struct loop_device **l, int i)
 	} else {
 		err = idr_alloc(&loop_index_idr, lo, 0, 0, GFP_KERNEL);
 	}
+<<<<<<< HEAD
+=======
+	mutex_unlock(&loop_ctl_mutex);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		goto out_free_dev;
 	i = err;
@@ -2070,7 +2863,11 @@ static int loop_add(struct loop_device **l, int i)
 	lo->tag_set.queue_depth = 128;
 	lo->tag_set.numa_node = NUMA_NO_NODE;
 	lo->tag_set.cmd_size = sizeof(struct loop_cmd);
+<<<<<<< HEAD
 	lo->tag_set.flags = BLK_MQ_F_SHOULD_MERGE | BLK_MQ_F_SG_MERGE |
+=======
+	lo->tag_set.flags = BLK_MQ_F_SHOULD_MERGE | BLK_MQ_F_STACKING |
+>>>>>>> upstream/android-13
 		BLK_MQ_F_NO_SCHED_BY_DEFAULT;
 	lo->tag_set.driver_data = lo;
 
@@ -2078,12 +2875,21 @@ static int loop_add(struct loop_device **l, int i)
 	if (err)
 		goto out_free_idr;
 
+<<<<<<< HEAD
 	lo->lo_queue = blk_mq_init_queue(&lo->tag_set);
 	if (IS_ERR_OR_NULL(lo->lo_queue)) {
 		err = PTR_ERR(lo->lo_queue);
 		goto out_cleanup_tags;
 	}
 	lo->lo_queue->queuedata = lo;
+=======
+	disk = lo->lo_disk = blk_mq_alloc_disk(&lo->tag_set, lo);
+	if (IS_ERR(disk)) {
+		err = PTR_ERR(disk);
+		goto out_cleanup_tags;
+	}
+	lo->lo_queue = lo->lo_disk->queue;
+>>>>>>> upstream/android-13
 
 	blk_queue_max_hw_sectors(lo->lo_queue, BLK_DEF_MAX_SECTORS);
 
@@ -2095,11 +2901,14 @@ static int loop_add(struct loop_device **l, int i)
 	 */
 	blk_queue_flag_set(QUEUE_FLAG_NOMERGES, lo->lo_queue);
 
+<<<<<<< HEAD
 	err = -ENOMEM;
 	disk = lo->lo_disk = alloc_disk(1 << part_shift);
 	if (!disk)
 		goto out_free_queue;
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Disable partition scanning by default. The in-kernel partition
 	 * scanning can be requested individually per-device during its
@@ -2122,6 +2931,7 @@ static int loop_add(struct loop_device **l, int i)
 		disk->flags |= GENHD_FL_NO_PART_SCAN;
 	disk->flags |= GENHD_FL_EXT_DEVT;
 	atomic_set(&lo->lo_refcnt, 0);
+<<<<<<< HEAD
 	lo->lo_number		= i;
 	spin_lock_init(&lo->lo_lock);
 	disk->major		= LOOP_MAJOR;
@@ -2140,6 +2950,35 @@ out_cleanup_tags:
 	blk_mq_free_tag_set(&lo->tag_set);
 out_free_idr:
 	idr_remove(&loop_index_idr, i);
+=======
+	mutex_init(&lo->lo_mutex);
+	lo->lo_number		= i;
+	spin_lock_init(&lo->lo_lock);
+	spin_lock_init(&lo->lo_work_lock);
+	disk->major		= LOOP_MAJOR;
+	disk->first_minor	= i << part_shift;
+	disk->minors		= 1 << part_shift;
+	disk->fops		= &lo_fops;
+	disk->private_data	= lo;
+	disk->queue		= lo->lo_queue;
+	disk->events		= DISK_EVENT_MEDIA_CHANGE;
+	disk->event_flags	= DISK_EVENT_FLAG_UEVENT;
+	sprintf(disk->disk_name, "loop%d", i);
+	/* Make this loop device reachable from pathname. */
+	add_disk(disk);
+	/* Show this loop device. */
+	mutex_lock(&loop_ctl_mutex);
+	lo->idr_visible = true;
+	mutex_unlock(&loop_ctl_mutex);
+	return i;
+
+out_cleanup_tags:
+	blk_mq_free_tag_set(&lo->tag_set);
+out_free_idr:
+	mutex_lock(&loop_ctl_mutex);
+	idr_remove(&loop_index_idr, i);
+	mutex_unlock(&loop_ctl_mutex);
+>>>>>>> upstream/android-13
 out_free_dev:
 	kfree(lo);
 out:
@@ -2148,6 +2987,7 @@ out:
 
 static void loop_remove(struct loop_device *lo)
 {
+<<<<<<< HEAD
 	del_gendisk(lo->lo_disk);
 	blk_cleanup_queue(lo->lo_queue);
 	blk_mq_free_tag_set(&lo->tag_set);
@@ -2211,11 +3051,101 @@ static struct kobject *loop_probe(dev_t dev, int *part, void *data)
 
 	*part = 0;
 	return kobj;
+=======
+	/* Make this loop device unreachable from pathname. */
+	del_gendisk(lo->lo_disk);
+	blk_cleanup_disk(lo->lo_disk);
+	blk_mq_free_tag_set(&lo->tag_set);
+	mutex_lock(&loop_ctl_mutex);
+	idr_remove(&loop_index_idr, lo->lo_number);
+	mutex_unlock(&loop_ctl_mutex);
+	/* There is no route which can find this loop device. */
+	mutex_destroy(&lo->lo_mutex);
+	kfree(lo);
+}
+
+static void loop_probe(dev_t dev)
+{
+	int idx = MINOR(dev) >> part_shift;
+
+	if (max_loop && idx >= max_loop)
+		return;
+	loop_add(idx);
+}
+
+static int loop_control_remove(int idx)
+{
+	struct loop_device *lo;
+	int ret;
+
+	if (idx < 0) {
+		pr_warn_once("deleting an unspecified loop device is not supported.\n");
+		return -EINVAL;
+	}
+		
+	/* Hide this loop device for serialization. */
+	ret = mutex_lock_killable(&loop_ctl_mutex);
+	if (ret)
+		return ret;
+	lo = idr_find(&loop_index_idr, idx);
+	if (!lo || !lo->idr_visible)
+		ret = -ENODEV;
+	else
+		lo->idr_visible = false;
+	mutex_unlock(&loop_ctl_mutex);
+	if (ret)
+		return ret;
+
+	/* Check whether this loop device can be removed. */
+	ret = mutex_lock_killable(&lo->lo_mutex);
+	if (ret)
+		goto mark_visible;
+	if (lo->lo_state != Lo_unbound ||
+	    atomic_read(&lo->lo_refcnt) > 0) {
+		mutex_unlock(&lo->lo_mutex);
+		ret = -EBUSY;
+		goto mark_visible;
+	}
+	/* Mark this loop device no longer open()-able. */
+	lo->lo_state = Lo_deleting;
+	mutex_unlock(&lo->lo_mutex);
+
+	loop_remove(lo);
+	return 0;
+
+mark_visible:
+	/* Show this loop device again. */
+	mutex_lock(&loop_ctl_mutex);
+	lo->idr_visible = true;
+	mutex_unlock(&loop_ctl_mutex);
+	return ret;
+}
+
+static int loop_control_get_free(int idx)
+{
+	struct loop_device *lo;
+	int id, ret;
+
+	ret = mutex_lock_killable(&loop_ctl_mutex);
+	if (ret)
+		return ret;
+	idr_for_each_entry(&loop_index_idr, lo, id) {
+		/* Hitting a race results in creating a new loop device which is harmless. */
+		if (lo->idr_visible && data_race(lo->lo_state) == Lo_unbound)
+			goto found;
+	}
+	mutex_unlock(&loop_ctl_mutex);
+	return loop_add(-1);
+found:
+	mutex_unlock(&loop_ctl_mutex);
+	return id;
+>>>>>>> upstream/android-13
 }
 
 static long loop_control_ioctl(struct file *file, unsigned int cmd,
 			       unsigned long parm)
 {
+<<<<<<< HEAD
 	struct loop_device *lo;
 	int ret;
 
@@ -2258,6 +3188,18 @@ static long loop_control_ioctl(struct file *file, unsigned int cmd,
 	mutex_unlock(&loop_ctl_mutex);
 
 	return ret;
+=======
+	switch (cmd) {
+	case LOOP_CTL_ADD:
+		return loop_add(parm);
+	case LOOP_CTL_REMOVE:
+		return loop_control_remove(parm);
+	case LOOP_CTL_GET_FREE:
+		return loop_control_get_free(parm);
+	default:
+		return -ENOSYS;
+	}
+>>>>>>> upstream/android-13
 }
 
 static const struct file_operations loop_ctl_fops = {
@@ -2280,8 +3222,11 @@ MODULE_ALIAS("devname:loop-control");
 static int __init loop_init(void)
 {
 	int i, nr;
+<<<<<<< HEAD
 	unsigned long range;
 	struct loop_device *lo;
+=======
+>>>>>>> upstream/android-13
 	int err;
 
 	part_shift = 0;
@@ -2317,6 +3262,7 @@ static int __init loop_init(void)
 	 * /dev/loop-control interface, or be instantiated by accessing
 	 * a 'dead' device node.
 	 */
+<<<<<<< HEAD
 	if (max_loop) {
 		nr = max_loop;
 		range = max_loop << part_shift;
@@ -2324,17 +3270,28 @@ static int __init loop_init(void)
 		nr = CONFIG_BLK_DEV_LOOP_MIN_COUNT;
 		range = 1UL << MINORBITS;
 	}
+=======
+	if (max_loop)
+		nr = max_loop;
+	else
+		nr = CONFIG_BLK_DEV_LOOP_MIN_COUNT;
+>>>>>>> upstream/android-13
 
 	err = misc_register(&loop_misc);
 	if (err < 0)
 		goto err_out;
 
 
+<<<<<<< HEAD
 	if (register_blkdev(LOOP_MAJOR, "loop")) {
+=======
+	if (__register_blkdev(LOOP_MAJOR, "loop", loop_probe)) {
+>>>>>>> upstream/android-13
 		err = -EIO;
 		goto misc_out;
 	}
 
+<<<<<<< HEAD
 	blk_register_region(MKDEV(LOOP_MAJOR, 0), range,
 				  THIS_MODULE, loop_probe, NULL, NULL);
 
@@ -2343,6 +3300,11 @@ static int __init loop_init(void)
 	for (i = 0; i < nr; i++)
 		loop_add(&lo, i);
 	mutex_unlock(&loop_ctl_mutex);
+=======
+	/* pre-create number of devices given by config or max_loop */
+	for (i = 0; i < nr; i++)
+		loop_add(i);
+>>>>>>> upstream/android-13
 
 	printk(KERN_INFO "loop: module loaded\n");
 	return 0;
@@ -2353,6 +3315,7 @@ err_out:
 	return err;
 }
 
+<<<<<<< HEAD
 static int loop_exit_cb(int id, void *ptr, void *data)
 {
 	struct loop_device *lo = ptr;
@@ -2378,6 +3341,26 @@ static void __exit loop_exit(void)
 	misc_deregister(&loop_misc);
 
 	mutex_unlock(&loop_ctl_mutex);
+=======
+static void __exit loop_exit(void)
+{
+	struct loop_device *lo;
+	int id;
+
+	unregister_blkdev(LOOP_MAJOR, "loop");
+	misc_deregister(&loop_misc);
+
+	/*
+	 * There is no need to use loop_ctl_mutex here, for nobody else can
+	 * access loop_index_idr when this module is unloading (unless forced
+	 * module unloading is requested). If this is not a clean unloading,
+	 * we have no means to avoid kernel crash.
+	 */
+	idr_for_each_entry(&loop_index_idr, lo, id)
+		loop_remove(lo);
+
+	idr_destroy(&loop_index_idr);
+>>>>>>> upstream/android-13
 }
 
 module_init(loop_init);

@@ -12,6 +12,7 @@
 #define _XTENSA_SPINLOCK_H
 
 #include <asm/barrier.h>
+<<<<<<< HEAD
 #include <asm/processor.h>
 
 /*
@@ -195,5 +196,11 @@ static inline void arch_read_unlock(arch_rwlock_t *rw)
 			: "a" (&rw->lock)
 			: "memory");
 }
+=======
+#include <asm/qspinlock.h>
+#include <asm/qrwlock.h>
+
+#define smp_mb__after_spinlock()	smp_mb()
+>>>>>>> upstream/android-13
 
 #endif	/* _XTENSA_SPINLOCK_H */

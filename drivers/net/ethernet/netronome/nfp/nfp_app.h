@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2017 Netronome Systems, Inc.
  *
@@ -30,6 +31,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+=======
+/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause) */
+/* Copyright (C) 2017-2018 Netronome Systems, Inc. */
+>>>>>>> upstream/android-13
 
 #ifndef _NFP_APP_H
 #define _NFP_APP_H 1
@@ -40,13 +45,21 @@
 
 #include "nfp_net_repr.h"
 
+<<<<<<< HEAD
+=======
+#define NFP_APP_CTRL_MTU_MAX	U32_MAX
+
+>>>>>>> upstream/android-13
 struct bpf_prog;
 struct net_device;
 struct netdev_bpf;
 struct netlink_ext_ack;
 struct pci_dev;
 struct sk_buff;
+<<<<<<< HEAD
 struct sk_buff;
+=======
+>>>>>>> upstream/android-13
 struct nfp_app;
 struct nfp_cpp;
 struct nfp_pf;
@@ -97,6 +110,10 @@ extern const struct nfp_app_type app_abm;
  * @port_get_stats_strings:	get strings for extra statistics
  * @start:	start application logic
  * @stop:	stop application logic
+<<<<<<< HEAD
+=======
+ * @netdev_event:	Netdevice notifier event
+>>>>>>> upstream/android-13
  * @ctrl_msg_rx:    control message handler
  * @ctrl_msg_rx_raw:	handler for control messages from data queues
  * @setup_tc:	setup TC ndo
@@ -106,7 +123,11 @@ extern const struct nfp_app_type app_abm;
  * @eswitch_mode_set:    set SR-IOV eswitch mode (under pf->lock)
  * @sriov_enable: app-specific sriov initialisation
  * @sriov_disable: app-specific sriov clean-up
+<<<<<<< HEAD
  * @repr_get:	get representor netdev
+=======
+ * @dev_get:	get representor or internal port representing netdev
+>>>>>>> upstream/android-13
  */
 struct nfp_app_type {
 	enum nfp_app_id id;
@@ -150,6 +171,12 @@ struct nfp_app_type {
 	int (*start)(struct nfp_app *app);
 	void (*stop)(struct nfp_app *app);
 
+<<<<<<< HEAD
+=======
+	int (*netdev_event)(struct nfp_app *app, struct net_device *netdev,
+			    unsigned long event, void *ptr);
+
+>>>>>>> upstream/android-13
 	void (*ctrl_msg_rx)(struct nfp_app *app, struct sk_buff *skb);
 	void (*ctrl_msg_rx_raw)(struct nfp_app *app, const void *data,
 				unsigned int len);
@@ -167,7 +194,12 @@ struct nfp_app_type {
 
 	enum devlink_eswitch_mode (*eswitch_mode_get)(struct nfp_app *app);
 	int (*eswitch_mode_set)(struct nfp_app *app, u16 mode);
+<<<<<<< HEAD
 	struct net_device *(*repr_get)(struct nfp_app *app, u32 id);
+=======
+	struct net_device *(*dev_get)(struct nfp_app *app, u32 id,
+				      bool *redir_egress);
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -178,6 +210,11 @@ struct nfp_app_type {
  * @ctrl:	pointer to ctrl vNIC struct
  * @reprs:	array of pointers to representors
  * @type:	pointer to const application ops and info
+<<<<<<< HEAD
+=======
+ * @ctrl_mtu:	MTU to set on the control vNIC (set in .init())
+ * @netdev_nb:	Netdevice notifier block
+>>>>>>> upstream/android-13
  * @priv:	app-specific priv data
  */
 struct nfp_app {
@@ -189,9 +226,20 @@ struct nfp_app {
 	struct nfp_reprs __rcu *reprs[NFP_REPR_TYPE_MAX + 1];
 
 	const struct nfp_app_type *type;
+<<<<<<< HEAD
 	void *priv;
 };
 
+=======
+	unsigned int ctrl_mtu;
+
+	struct notifier_block netdev_nb;
+
+	void *priv;
+};
+
+void nfp_check_rhashtable_empty(void *ptr, void *arg);
+>>>>>>> upstream/android-13
 bool __nfp_ctrl_tx(struct nfp_net *nn, struct sk_buff *skb);
 bool nfp_ctrl_tx(struct nfp_net *nn, struct sk_buff *skb);
 
@@ -289,6 +337,7 @@ nfp_app_repr_change_mtu(struct nfp_app *app, struct net_device *netdev,
 	return app->type->repr_change_mtu(app, netdev, new_mtu);
 }
 
+<<<<<<< HEAD
 static inline int nfp_app_start(struct nfp_app *app, struct nfp_net *ctrl)
 {
 	app->ctrl = ctrl;
@@ -304,6 +353,8 @@ static inline void nfp_app_stop(struct nfp_app *app)
 	app->type->stop(app);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline const char *nfp_app_name(struct nfp_app *app)
 {
 	if (!app)
@@ -429,12 +480,23 @@ static inline void nfp_app_sriov_disable(struct nfp_app *app)
 		app->type->sriov_disable(app);
 }
 
+<<<<<<< HEAD
 static inline struct net_device *nfp_app_repr_get(struct nfp_app *app, u32 id)
 {
 	if (unlikely(!app || !app->type->repr_get))
 		return NULL;
 
 	return app->type->repr_get(app, id);
+=======
+static inline
+struct net_device *nfp_app_dev_get(struct nfp_app *app, u32 id,
+				   bool *redir_egress)
+{
+	if (unlikely(!app || !app->type->dev_get))
+		return NULL;
+
+	return app->type->dev_get(app, id, redir_egress);
+>>>>>>> upstream/android-13
 }
 
 struct nfp_app *nfp_app_from_netdev(struct net_device *netdev);
@@ -455,6 +517,11 @@ nfp_app_ctrl_msg_alloc(struct nfp_app *app, unsigned int size, gfp_t priority);
 
 struct nfp_app *nfp_app_alloc(struct nfp_pf *pf, enum nfp_app_id id);
 void nfp_app_free(struct nfp_app *app);
+<<<<<<< HEAD
+=======
+int nfp_app_start(struct nfp_app *app, struct nfp_net *ctrl);
+void nfp_app_stop(struct nfp_app *app);
+>>>>>>> upstream/android-13
 
 /* Callbacks shared between apps */
 
@@ -463,4 +530,9 @@ int nfp_app_nic_vnic_alloc(struct nfp_app *app, struct nfp_net *nn,
 int nfp_app_nic_vnic_init_phy_port(struct nfp_pf *pf, struct nfp_app *app,
 				   struct nfp_net *nn, unsigned int id);
 
+<<<<<<< HEAD
+=======
+struct devlink_port *nfp_devlink_get_devlink_port(struct net_device *netdev);
+
+>>>>>>> upstream/android-13
 #endif

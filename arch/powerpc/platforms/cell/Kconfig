@@ -1,7 +1,10 @@
 # SPDX-License-Identifier: GPL-2.0
 config PPC_CELL
 	bool
+<<<<<<< HEAD
 	default n
+=======
+>>>>>>> upstream/android-13
 
 config PPC_CELL_COMMON
 	bool
@@ -22,14 +25,21 @@ config PPC_CELL_NATIVE
 	select IBM_EMAC_RGMII if IBM_EMAC
 	select IBM_EMAC_ZMII if IBM_EMAC #test only
 	select IBM_EMAC_TAH if IBM_EMAC  #test only
+<<<<<<< HEAD
 	default n
+=======
+>>>>>>> upstream/android-13
 
 config PPC_IBM_CELL_BLADE
 	bool "IBM Cell Blade"
 	depends on PPC64 && PPC_BOOK3S && CPU_BIG_ENDIAN
 	select PPC_CELL_NATIVE
 	select PPC_OF_PLATFORM_PCI
+<<<<<<< HEAD
 	select PCI
+=======
+	select FORCE_PCI
+>>>>>>> upstream/android-13
 	select MMIO_NVRAM
 	select PPC_UDBG_16550
 	select UDBG_RTAS_CONSOLE
@@ -37,6 +47,10 @@ config PPC_IBM_CELL_BLADE
 config AXON_MSI
 	bool
 	depends on PPC_IBM_CELL_BLADE && PCI_MSI
+<<<<<<< HEAD
+=======
+	select IRQ_DOMAIN_NOMAP
+>>>>>>> upstream/android-13
 	default y
 
 menu "Cell Broadband Engine options"
@@ -55,7 +69,10 @@ config SPU_FS
 
 config SPU_BASE
 	bool
+<<<<<<< HEAD
 	default n
+=======
+>>>>>>> upstream/android-13
 	select PPC_COPRO_BASE
 
 config CBE_RAS
@@ -103,8 +120,11 @@ config CBE_CPUFREQ_SPU_GOVERNOR
 	  the minimal possible frequency.
 
 endmenu
+<<<<<<< HEAD
 
 config OPROFILE_CELL
 	def_bool y
 	depends on PPC_CELL_NATIVE && (OPROFILE = m || OPROFILE = y) && SPU_BASE
 
+=======
+>>>>>>> upstream/android-13

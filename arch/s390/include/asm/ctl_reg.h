@@ -8,6 +8,7 @@
 #ifndef __ASM_CTL_REG_H
 #define __ASM_CTL_REG_H
 
+<<<<<<< HEAD
 #include <linux/const.h>
 
 #define CR0_CLOCK_COMPARATOR_SIGN	_BITUL(63 - 10)
@@ -29,6 +30,28 @@
 #define CR14_DEGRADATION_SUBMASK	_BITUL(63 - 37)
 #define CR14_EXTERNAL_DAMAGE_SUBMASK	_BITUL(63 - 38)
 #define CR14_WARNING_SUBMASK		_BITUL(63 - 39)
+=======
+#include <linux/bits.h>
+
+#define CR0_CLOCK_COMPARATOR_SIGN	BIT(63 - 10)
+#define CR0_LOW_ADDRESS_PROTECTION	BIT(63 - 35)
+#define CR0_EMERGENCY_SIGNAL_SUBMASK	BIT(63 - 49)
+#define CR0_EXTERNAL_CALL_SUBMASK	BIT(63 - 50)
+#define CR0_CLOCK_COMPARATOR_SUBMASK	BIT(63 - 52)
+#define CR0_CPU_TIMER_SUBMASK		BIT(63 - 53)
+#define CR0_SERVICE_SIGNAL_SUBMASK	BIT(63 - 54)
+#define CR0_UNUSED_56			BIT(63 - 56)
+#define CR0_INTERRUPT_KEY_SUBMASK	BIT(63 - 57)
+#define CR0_MEASUREMENT_ALERT_SUBMASK	BIT(63 - 58)
+
+#define CR14_UNUSED_32			BIT(63 - 32)
+#define CR14_UNUSED_33			BIT(63 - 33)
+#define CR14_CHANNEL_REPORT_SUBMASK	BIT(63 - 35)
+#define CR14_RECOVERY_SUBMASK		BIT(63 - 36)
+#define CR14_DEGRADATION_SUBMASK	BIT(63 - 37)
+#define CR14_EXTERNAL_DAMAGE_SUBMASK	BIT(63 - 38)
+#define CR14_WARNING_SUBMASK		BIT(63 - 39)
+>>>>>>> upstream/android-13
 
 #ifndef __ASSEMBLY__
 
@@ -55,7 +78,11 @@
 		: "i" (low), "i" (high));				\
 } while (0)
 
+<<<<<<< HEAD
 static inline void __ctl_set_bit(unsigned int cr, unsigned int bit)
+=======
+static __always_inline void __ctl_set_bit(unsigned int cr, unsigned int bit)
+>>>>>>> upstream/android-13
 {
 	unsigned long reg;
 
@@ -64,7 +91,11 @@ static inline void __ctl_set_bit(unsigned int cr, unsigned int bit)
 	__ctl_load(reg, cr, cr);
 }
 
+<<<<<<< HEAD
 static inline void __ctl_clear_bit(unsigned int cr, unsigned int bit)
+=======
+static __always_inline void __ctl_clear_bit(unsigned int cr, unsigned int bit)
+>>>>>>> upstream/android-13
 {
 	unsigned long reg;
 
@@ -112,6 +143,7 @@ union ctlreg2 {
 	};
 };
 
+<<<<<<< HEAD
 #ifdef CONFIG_SMP
 # define ctl_set_bit(cr, bit) smp_ctl_set_bit(cr, bit)
 # define ctl_clear_bit(cr, bit) smp_ctl_clear_bit(cr, bit)
@@ -119,6 +151,27 @@ union ctlreg2 {
 # define ctl_set_bit(cr, bit) __ctl_set_bit(cr, bit)
 # define ctl_clear_bit(cr, bit) __ctl_clear_bit(cr, bit)
 #endif
+=======
+union ctlreg5 {
+	unsigned long val;
+	struct {
+		unsigned long	    : 33;
+		unsigned long pasteo: 25;
+		unsigned long	    : 6;
+	};
+};
+
+union ctlreg15 {
+	unsigned long val;
+	struct {
+		unsigned long lsea  : 61;
+		unsigned long	    : 3;
+	};
+};
+
+#define ctl_set_bit(cr, bit) smp_ctl_set_bit(cr, bit)
+#define ctl_clear_bit(cr, bit) smp_ctl_clear_bit(cr, bit)
+>>>>>>> upstream/android-13
 
 #endif /* __ASSEMBLY__ */
 #endif /* __ASM_CTL_REG_H */

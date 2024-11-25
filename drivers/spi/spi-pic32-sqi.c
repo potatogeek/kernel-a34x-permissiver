@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * PIC32 Quad SPI controller driver.
  *
  * Purna Chandra Mandal <purna.mandal@microchip.com>
  * Copyright (c) 2016, Microchip Technology Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can distribute it and/or modify it
  * under the terms of the GNU General Public License (Version 2) as
@@ -12,6 +17,8 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -466,9 +473,15 @@ static int ring_desc_ring_alloc(struct pic32_sqi *sqi)
 	int i;
 
 	/* allocate coherent DMAable memory for hardware buffer descriptors. */
+<<<<<<< HEAD
 	sqi->bd = dma_zalloc_coherent(&sqi->master->dev,
 				      sizeof(*bd) * PESQI_BD_COUNT,
 				      &sqi->bd_dma, GFP_DMA32);
+=======
+	sqi->bd = dma_alloc_coherent(&sqi->master->dev,
+				     sizeof(*bd) * PESQI_BD_COUNT,
+				     &sqi->bd_dma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!sqi->bd) {
 		dev_err(&sqi->master->dev, "failed allocating dma buffer\n");
 		return -ENOMEM;
@@ -578,7 +591,10 @@ static int pic32_sqi_probe(struct platform_device *pdev)
 {
 	struct spi_master *master;
 	struct pic32_sqi *sqi;
+<<<<<<< HEAD
 	struct resource *reg;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	master = spi_alloc_master(&pdev->dev, sizeof(*sqi));
@@ -588,8 +604,12 @@ static int pic32_sqi_probe(struct platform_device *pdev)
 	sqi = spi_master_get_devdata(master);
 	sqi->master = master;
 
+<<<<<<< HEAD
 	reg = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	sqi->regs = devm_ioremap_resource(&pdev->dev, reg);
+=======
+	sqi->regs = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(sqi->regs)) {
 		ret = PTR_ERR(sqi->regs);
 		goto err_free_master;
@@ -598,7 +618,10 @@ static int pic32_sqi_probe(struct platform_device *pdev)
 	/* irq */
 	sqi->irq = platform_get_irq(pdev, 0);
 	if (sqi->irq < 0) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "no irq found\n");
+=======
+>>>>>>> upstream/android-13
 		ret = sqi->irq;
 		goto err_free_master;
 	}
@@ -656,7 +679,11 @@ static int pic32_sqi_probe(struct platform_device *pdev)
 	master->max_speed_hz	= clk_get_rate(sqi->base_clk);
 	master->dma_alignment	= 32;
 	master->max_dma_len	= PESQI_BD_BUF_LEN_MAX;
+<<<<<<< HEAD
 	master->dev.of_node	= of_node_get(pdev->dev.of_node);
+=======
+	master->dev.of_node	= pdev->dev.of_node;
+>>>>>>> upstream/android-13
 	master->mode_bits	= SPI_MODE_3 | SPI_MODE_0 | SPI_TX_DUAL |
 				  SPI_RX_DUAL | SPI_TX_QUAD | SPI_RX_QUAD;
 	master->flags		= SPI_MASTER_HALF_DUPLEX;

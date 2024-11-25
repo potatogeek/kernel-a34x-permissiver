@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Device probing and sysfs code.
  *
  * Copyright (C) 2005-2006  Kristian Hoegsberg <krh@bitplanet.net>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bug.h>
@@ -200,12 +207,20 @@ static int fw_unit_probe(struct device *dev)
 	return driver->probe(fw_unit(dev), unit_match(dev, dev->driver));
 }
 
+<<<<<<< HEAD
 static int fw_unit_remove(struct device *dev)
+=======
+static void fw_unit_remove(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct fw_driver *driver =
 			container_of(dev->driver, struct fw_driver, driver);
 
+<<<<<<< HEAD
 	return driver->remove(fw_unit(dev)), 0;
+=======
+	driver->remove(fw_unit(dev));
+>>>>>>> upstream/android-13
 }
 
 static int get_modalias(struct fw_unit *unit, char *buffer, size_t buffer_size)
@@ -970,7 +985,11 @@ static void set_broadcast_channel(struct fw_device *device, int generation)
 				device->bc_implemented = BC_IMPLEMENTED;
 				break;
 			}
+<<<<<<< HEAD
 			/* else fall through to case address error */
+=======
+			fallthrough;	/* to case address error */
+>>>>>>> upstream/android-13
 		case RCODE_ADDRESS_ERROR:
 			device->bc_implemented = BC_UNIMPLEMENTED;
 		}

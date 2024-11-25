@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: ISC
+>>>>>>> upstream/android-13
 #
 # Makefile fragment for Broadcom 802.11n Networking Device Driver Utilities
 #
 # Copyright (c) 2011 Broadcom Corporation
 #
+<<<<<<< HEAD
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
 # copyright notice and this permission notice appear in all copies.
@@ -18,6 +23,9 @@
 ccflags-y :=				\
 	-Idrivers/net/wireless/broadcom/brcm80211/brcmutil \
 	-Idrivers/net/wireless/broadcom/brcm80211/include
+=======
+ccflags-y := -I $(srctree)/$(src)/../include
+>>>>>>> upstream/android-13
 
 obj-$(CONFIG_BRCMUTIL)	+= brcmutil.o
 brcmutil-objs	= utils.o d11.o

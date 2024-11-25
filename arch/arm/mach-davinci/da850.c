@@ -1,7 +1,11 @@
 /*
  * TI DA850/OMAP-L138 chip specific setup
  *
+<<<<<<< HEAD
  * Copyright (C) 2009 Texas Instruments Incorporated - http://www.ti.com/
+=======
+ * Copyright (C) 2009 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  *
  * Derived from: arch/arm/mach-davinci/da830.c
  * Original Copyrights follow:
@@ -18,9 +22,18 @@
 #include <linux/cpufreq.h>
 #include <linux/gpio.h>
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <linux/mfd/da8xx-cfgchip.h>
 #include <linux/platform_data/clk-da8xx-cfgchip.h>
 #include <linux/platform_data/clk-davinci-pll.h>
+=======
+#include <linux/io.h>
+#include <linux/irqchip/irq-davinci-cp-intc.h>
+#include <linux/mfd/da8xx-cfgchip.h>
+#include <linux/platform_data/clk-da8xx-cfgchip.h>
+#include <linux/platform_data/clk-davinci-pll.h>
+#include <linux/platform_data/davinci-cpufreq.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_data/gpio-davinci.h>
 #include <linux/platform_device.h>
 #include <linux/regmap.h>
@@ -29,6 +42,7 @@
 #include <asm/mach/map.h>
 
 #include <mach/common.h>
+<<<<<<< HEAD
 #include <mach/cpufreq.h>
 #include <mach/cputype.h>
 #include <mach/da8xx.h>
@@ -36,6 +50,15 @@
 #include <mach/pm.h>
 #include <mach/time.h>
 
+=======
+#include <mach/cputype.h>
+#include <mach/da8xx.h>
+#include <mach/pm.h>
+
+#include <clocksource/timer-davinci.h>
+
+#include "irqs.h"
+>>>>>>> upstream/android-13
 #include "mux.h"
 
 #define DA850_PLL1_BASE		0x01e1a000
@@ -298,6 +321,7 @@ const short da850_vpif_display_pins[] __initconst = {
 	-1
 };
 
+<<<<<<< HEAD
 /* FIQ are pri 0-1; otherwise 2-7, with 7 lowest priority */
 static u8 da850_default_priorities[DA850_N_CP_INTC_IRQ] = {
 	[IRQ_DA8XX_COMMTX]		= 7,
@@ -403,6 +427,8 @@ static u8 da850_default_priorities[DA850_N_CP_INTC_IRQ] = {
 	[IRQ_DA8XX_ARMCLKSTOPREQ]	= 7,
 };
 
+=======
+>>>>>>> upstream/android-13
 static struct map_desc da850_io_desc[] = {
 	{
 		.virtual	= IO_VIRT,
@@ -436,6 +462,7 @@ static struct davinci_id da850_ids[] = {
 	},
 };
 
+<<<<<<< HEAD
 static struct davinci_timer_instance da850_timer_instance[4] = {
 	{
 		.base		= DA8XX_TIMER64P0_BASE,
@@ -468,6 +495,18 @@ static struct davinci_timer_info da850_timer_info = {
 	.timers		= da850_timer_instance,
 	.clockevent_id	= T0_BOT,
 	.clocksource_id	= T0_TOP,
+=======
+/*
+ * Bottom half of timer 0 is used for clock_event, top half for
+ * clocksource.
+ */
+static const struct davinci_timer_cfg da850_timer_cfg = {
+	.reg = DEFINE_RES_IO(DA8XX_TIMER64P0_BASE, SZ_4K),
+	.irq = {
+		DEFINE_RES_IRQ(DAVINCI_INTC_IRQ(IRQ_DA8XX_TINT12_0)),
+		DEFINE_RES_IRQ(DAVINCI_INTC_IRQ(IRQ_DA8XX_TINT34_0)),
+	},
+>>>>>>> upstream/android-13
 };
 
 #ifdef CONFIG_CPU_FREQ
@@ -658,8 +697,13 @@ static struct platform_device da850_vpif_dev = {
 
 static struct resource da850_vpif_display_resource[] = {
 	{
+<<<<<<< HEAD
 		.start = IRQ_DA850_VPIFINT,
 		.end   = IRQ_DA850_VPIFINT,
+=======
+		.start = DAVINCI_INTC_IRQ(IRQ_DA850_VPIFINT),
+		.end   = DAVINCI_INTC_IRQ(IRQ_DA850_VPIFINT),
+>>>>>>> upstream/android-13
 		.flags = IORESOURCE_IRQ,
 	},
 };
@@ -677,6 +721,7 @@ static struct platform_device da850_vpif_display_dev = {
 
 static struct resource da850_vpif_capture_resource[] = {
 	{
+<<<<<<< HEAD
 		.start = IRQ_DA850_VPIFINT,
 		.end   = IRQ_DA850_VPIFINT,
 		.flags = IORESOURCE_IRQ,
@@ -684,6 +729,15 @@ static struct resource da850_vpif_capture_resource[] = {
 	{
 		.start = IRQ_DA850_VPIFINT,
 		.end   = IRQ_DA850_VPIFINT,
+=======
+		.start = DAVINCI_INTC_IRQ(IRQ_DA850_VPIFINT),
+		.end   = DAVINCI_INTC_IRQ(IRQ_DA850_VPIFINT),
+		.flags = IORESOURCE_IRQ,
+	},
+	{
+		.start = DAVINCI_INTC_IRQ(IRQ_DA850_VPIFINT),
+		.end   = DAVINCI_INTC_IRQ(IRQ_DA850_VPIFINT),
+>>>>>>> upstream/android-13
 		.flags = IORESOURCE_IRQ,
 	},
 };
@@ -719,7 +773,13 @@ int __init da850_register_vpif_capture(struct vpif_capture_config
 }
 
 static struct davinci_gpio_platform_data da850_gpio_platform_data = {
+<<<<<<< HEAD
 	.ngpio = 144,
+=======
+	.no_auto_base	= true,
+	.base		= 0,
+	.ngpio		= 144,
+>>>>>>> upstream/android-13
 };
 
 int __init da850_register_gpio(void)
@@ -736,11 +796,14 @@ static const struct davinci_soc_info davinci_soc_info_da850 = {
 	.pinmux_base		= DA8XX_SYSCFG0_BASE + 0x120,
 	.pinmux_pins		= da850_pins,
 	.pinmux_pins_num	= ARRAY_SIZE(da850_pins),
+<<<<<<< HEAD
 	.intc_base		= DA8XX_CP_INTC_BASE,
 	.intc_type		= DAVINCI_INTC_TYPE_CP_INTC,
 	.intc_irq_prios		= da850_default_priorities,
 	.intc_irq_num		= DA850_N_CP_INTC_IRQ,
 	.timer_info		= &da850_timer_info,
+=======
+>>>>>>> upstream/android-13
 	.emac_pdata		= &da8xx_emac_pdata,
 	.sram_dma		= DA8XX_SHARED_RAM_BASE,
 	.sram_len		= SZ_128K,
@@ -758,11 +821,32 @@ void __init da850_init(void)
 	WARN(!da8xx_syscfg1_base, "Unable to map syscfg1 module");
 }
 
+<<<<<<< HEAD
+=======
+static const struct davinci_cp_intc_config da850_cp_intc_config = {
+	.reg = {
+		.start		= DA8XX_CP_INTC_BASE,
+		.end		= DA8XX_CP_INTC_BASE + SZ_8K - 1,
+		.flags		= IORESOURCE_MEM,
+	},
+	.num_irqs		= DA850_N_CP_INTC_IRQ,
+};
+
+void __init da850_init_irq(void)
+{
+	davinci_cp_intc_init(&da850_cp_intc_config);
+}
+
+>>>>>>> upstream/android-13
 void __init da850_init_time(void)
 {
 	void __iomem *pll0;
 	struct regmap *cfgchip;
 	struct clk *clk;
+<<<<<<< HEAD
+=======
+	int rv;
+>>>>>>> upstream/android-13
 
 	clk_register_fixed_rate(NULL, "ref_clk", NULL, 0, DA850_REF_FREQ);
 
@@ -772,8 +856,18 @@ void __init da850_init_time(void)
 	da850_pll0_init(NULL, pll0, cfgchip);
 
 	clk = clk_get(NULL, "timer0");
+<<<<<<< HEAD
 
 	davinci_timer_init(clk);
+=======
+	if (WARN_ON(IS_ERR(clk))) {
+		pr_err("Unable to get the timer clock\n");
+		return;
+	}
+
+	rv = davinci_timer_register(clk, &da850_timer_cfg);
+	WARN(rv, "Unable to register the timer: %d\n", rv);
+>>>>>>> upstream/android-13
 }
 
 static struct resource da850_pll1_resources[] = {

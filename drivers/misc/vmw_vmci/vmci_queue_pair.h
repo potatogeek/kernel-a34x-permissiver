@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * VMware VMCI Driver
  *
  * Copyright (C) 2012 VMware, Inc. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -11,6 +16,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _VMCI_QUEUE_PAIR_H_
@@ -28,8 +35,13 @@ typedef int (*vmci_event_release_cb) (void *client_data);
 struct ppn_set {
 	u64 num_produce_pages;
 	u64 num_consume_pages;
+<<<<<<< HEAD
 	u32 *produce_ppns;
 	u32 *consume_ppns;
+=======
+	u64 *produce_ppns;
+	u64 *consume_ppns;
+>>>>>>> upstream/android-13
 	bool initialized;
 };
 
@@ -112,7 +124,11 @@ struct vmci_qp_dtch_info {
 struct vmci_qp_page_store {
 	/* Reference to pages backing the queue pair. */
 	u64 pages;
+<<<<<<< HEAD
 	/* Length of pageList/virtual addres range (in pages). */
+=======
+	/* Length of pageList/virtual address range (in pages). */
+>>>>>>> upstream/android-13
 	u32 len;
 };
 

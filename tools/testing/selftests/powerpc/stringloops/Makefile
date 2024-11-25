@@ -8,7 +8,11 @@ build_32bit = $(shell if ($(CC) $(CFLAGS) -m32 -o /dev/null memcmp.c >/dev/null 
 
 TEST_GEN_PROGS := memcmp_64 strlen
 
+<<<<<<< HEAD
 $(OUTPUT)/memcmp_64: memcmp.c
+=======
+$(OUTPUT)/memcmp_64: memcmp.c ../utils.c
+>>>>>>> upstream/android-13
 $(OUTPUT)/memcmp_64: CFLAGS += -m64 -maltivec
 
 ifeq ($(build_32bit),1)

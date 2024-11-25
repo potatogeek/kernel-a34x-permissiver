@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*******************************************************************************
  * Filename: target_core_xcopy.c
  *
@@ -9,6 +13,7 @@
  * Author:
  * Nicholas A. Bellinger <nab@daterainc.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -19,6 +24,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  ******************************************************************************/
 
 #include <linux/slab.h>
@@ -42,6 +49,7 @@ static struct workqueue_struct *xcopy_wq = NULL;
 
 static sense_reason_t target_parse_xcopy_cmd(struct xcopy_op *xop);
 
+<<<<<<< HEAD
 static int target_xcopy_gen_naa_ieee(struct se_device *dev, unsigned char *buf)
 {
 	int off = 0;
@@ -55,6 +63,8 @@ static int target_xcopy_gen_naa_ieee(struct se_device *dev, unsigned char *buf)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * target_xcopy_locate_se_dev_e4_iter - compare XCOPY NAA device identifiers
  *
@@ -74,7 +84,11 @@ static int target_xcopy_locate_se_dev_e4_iter(struct se_device *se_dev,
 	}
 
 	memset(&tmp_dev_wwn[0], 0, XCOPY_NAA_IEEE_REGEX_LEN);
+<<<<<<< HEAD
 	target_xcopy_gen_naa_ieee(se_dev, &tmp_dev_wwn[0]);
+=======
+	spc_gen_naa_6h_vendor_specific(se_dev, &tmp_dev_wwn[0]);
+>>>>>>> upstream/android-13
 
 	rc = memcmp(&tmp_dev_wwn[0], dev_wwn, XCOPY_NAA_IEEE_REGEX_LEN);
 	if (rc != 0) {
@@ -166,7 +180,11 @@ static int target_xcopy_parse_tiddesc_e4(struct se_cmd *se_cmd, struct xcopy_op 
 	 * Assigned designator
 	 */
 	desig_len = desc[7];
+<<<<<<< HEAD
 	if (desig_len != 16) {
+=======
+	if (desig_len != XCOPY_NAA_IEEE_REGEX_LEN) {
+>>>>>>> upstream/android-13
 		pr_err("XCOPY 0xe4: invalid desig_len: %d\n", (int)desig_len);
 		return -EINVAL;
 	}
@@ -250,7 +268,11 @@ static int target_xcopy_parse_target_descriptors(struct se_cmd *se_cmd,
 	 * se_device the XCOPY was received upon..
 	 */
 	memset(&xop->local_dev_wwn[0], 0, XCOPY_NAA_IEEE_REGEX_LEN);
+<<<<<<< HEAD
 	target_xcopy_gen_naa_ieee(local_dev, &xop->local_dev_wwn[0]);
+=======
+	spc_gen_naa_6h_vendor_specific(local_dev, &xop->local_dev_wwn[0]);
+>>>>>>> upstream/android-13
 
 	while (start < tdll) {
 		/*
@@ -351,11 +373,14 @@ static int target_xcopy_parse_segdesc_02(struct se_cmd *se_cmd, struct xcopy_op 
 		xop->nolb, (unsigned long long)xop->src_lba,
 		(unsigned long long)xop->dst_lba);
 
+<<<<<<< HEAD
 	if (dc != 0) {
 		xop->dbl = get_unaligned_be24(&desc[29]);
 
 		pr_debug("XCOPY seg desc 0x02: DC=1 w/ dbl: %u\n", xop->dbl);
 	}
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -416,9 +441,13 @@ out:
  */
 
 struct xcopy_pt_cmd {
+<<<<<<< HEAD
 	bool remote_port;
 	struct se_cmd se_cmd;
 	struct xcopy_op *xcopy_op;
+=======
+	struct se_cmd se_cmd;
+>>>>>>> upstream/android-13
 	struct completion xpt_passthrough_sem;
 	unsigned char sense_buffer[TRANSPORT_SENSE_BUFFER];
 };
@@ -427,11 +456,14 @@ struct se_portal_group xcopy_pt_tpg;
 static struct se_session xcopy_pt_sess;
 static struct se_node_acl xcopy_pt_nacl;
 
+<<<<<<< HEAD
 static char *xcopy_pt_get_fabric_name(void)
 {
         return "xcopy-pt";
 }
 
+=======
+>>>>>>> upstream/android-13
 static int xcopy_pt_get_cmd_state(struct se_cmd *se_cmd)
 {
         return 0;
@@ -452,7 +484,12 @@ static void xcopy_pt_release_cmd(struct se_cmd *se_cmd)
 	struct xcopy_pt_cmd *xpt_cmd = container_of(se_cmd,
 				struct xcopy_pt_cmd, se_cmd);
 
+<<<<<<< HEAD
 	kfree(xpt_cmd);
+=======
+	/* xpt_cmd is on the stack, nothing to free here */
+	pr_debug("xpt_cmd done: %p\n", xpt_cmd);
+>>>>>>> upstream/android-13
 }
 
 static int xcopy_pt_check_stop_free(struct se_cmd *se_cmd)
@@ -469,11 +506,14 @@ static int xcopy_pt_write_pending(struct se_cmd *se_cmd)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int xcopy_pt_write_pending_status(struct se_cmd *se_cmd)
 {
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int xcopy_pt_queue_data_in(struct se_cmd *se_cmd)
 {
 	return 0;
@@ -485,12 +525,19 @@ static int xcopy_pt_queue_status(struct se_cmd *se_cmd)
 }
 
 static const struct target_core_fabric_ops xcopy_pt_tfo = {
+<<<<<<< HEAD
 	.get_fabric_name	= xcopy_pt_get_fabric_name,
+=======
+	.fabric_name		= "xcopy-pt",
+>>>>>>> upstream/android-13
 	.get_cmd_state		= xcopy_pt_get_cmd_state,
 	.release_cmd		= xcopy_pt_release_cmd,
 	.check_stop_free	= xcopy_pt_check_stop_free,
 	.write_pending		= xcopy_pt_write_pending,
+<<<<<<< HEAD
 	.write_pending_status	= xcopy_pt_write_pending_status,
+=======
+>>>>>>> upstream/android-13
 	.queue_data_in		= xcopy_pt_queue_data_in,
 	.queue_status		= xcopy_pt_queue_status,
 };
@@ -510,7 +557,10 @@ int target_xcopy_setup_pt(void)
 	}
 
 	memset(&xcopy_pt_tpg, 0, sizeof(struct se_portal_group));
+<<<<<<< HEAD
 	INIT_LIST_HEAD(&xcopy_pt_tpg.se_tpg_node);
+=======
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&xcopy_pt_tpg.acl_node_list);
 	INIT_LIST_HEAD(&xcopy_pt_tpg.tpg_sess_list);
 
@@ -522,7 +572,11 @@ int target_xcopy_setup_pt(void)
 	memset(&xcopy_pt_sess, 0, sizeof(struct se_session));
 	ret = transport_init_session(&xcopy_pt_sess);
 	if (ret < 0)
+<<<<<<< HEAD
 		return ret;
+=======
+		goto destroy_wq;
+>>>>>>> upstream/android-13
 
 	xcopy_pt_nacl.se_tpg = &xcopy_pt_tpg;
 	xcopy_pt_nacl.nacl_sess = &xcopy_pt_sess;
@@ -531,10 +585,19 @@ int target_xcopy_setup_pt(void)
 	xcopy_pt_sess.se_node_acl = &xcopy_pt_nacl;
 
 	return 0;
+<<<<<<< HEAD
+=======
+
+destroy_wq:
+	destroy_workqueue(xcopy_wq);
+	xcopy_wq = NULL;
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 void target_xcopy_release_pt(void)
 {
+<<<<<<< HEAD
 	if (xcopy_wq)
 		destroy_workqueue(xcopy_wq);
 }
@@ -605,21 +668,50 @@ static void target_xcopy_init_pt_lun(struct se_device *se_dev,
 	pt_cmd->se_cmd_flags |= SCF_SE_LUN_CMD;
 }
 
+=======
+	if (xcopy_wq) {
+		destroy_workqueue(xcopy_wq);
+		transport_uninit_session(&xcopy_pt_sess);
+	}
+}
+
+/*
+ * target_xcopy_setup_pt_cmd - set up a pass-through command
+ * @xpt_cmd:	 Data structure to initialize.
+ * @xop:	 Describes the XCOPY operation received from an initiator.
+ * @se_dev:	 Backend device to associate with @xpt_cmd if
+ *		 @remote_port == true.
+ * @cdb:	 SCSI CDB to be copied into @xpt_cmd.
+ * @remote_port: If false, use the LUN through which the XCOPY command has
+ *		 been received. If true, use @se_dev->xcopy_lun.
+ *
+ * Set up a SCSI command (READ or WRITE) that will be used to execute an
+ * XCOPY command.
+ */
+>>>>>>> upstream/android-13
 static int target_xcopy_setup_pt_cmd(
 	struct xcopy_pt_cmd *xpt_cmd,
 	struct xcopy_op *xop,
 	struct se_device *se_dev,
 	unsigned char *cdb,
+<<<<<<< HEAD
 	bool remote_port,
 	bool alloc_mem)
 {
 	struct se_cmd *cmd = &xpt_cmd->se_cmd;
 	sense_reason_t sense_rc;
 	int ret = 0, rc;
+=======
+	bool remote_port)
+{
+	struct se_cmd *cmd = &xpt_cmd->se_cmd;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Setup LUN+port to honor reservations based upon xop->op_origin for
 	 * X-COPY PUSH or X-COPY PULL based upon where the CDB was received.
 	 */
+<<<<<<< HEAD
 	target_xcopy_init_pt_lun(se_dev, cmd, remote_port);
 
 	xpt_cmd->xcopy_op = xop;
@@ -666,6 +758,32 @@ static int target_xcopy_setup_pt_cmd(
 
 out:
 	return ret;
+=======
+	if (remote_port) {
+		cmd->se_lun = &se_dev->xcopy_lun;
+		cmd->se_dev = se_dev;
+	} else {
+		cmd->se_lun = xop->xop_se_cmd->se_lun;
+		cmd->se_dev = xop->xop_se_cmd->se_dev;
+	}
+	cmd->se_cmd_flags |= SCF_SE_LUN_CMD;
+
+	if (target_cmd_init_cdb(cmd, cdb, GFP_KERNEL))
+		return -EINVAL;
+
+	cmd->tag = 0;
+	if (target_cmd_parse_cdb(cmd))
+		return -EINVAL;
+
+	if (transport_generic_map_mem_to_cmd(cmd, xop->xop_data_sg,
+					xop->xop_data_nents, NULL, 0))
+		return -EINVAL;
+
+	pr_debug("Setup PASSTHROUGH_NOALLOC t_data_sg: %p t_data_nents:"
+		 " %u\n", cmd->t_data_sg, cmd->t_data_nents);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int target_xcopy_issue_pt_cmd(struct xcopy_pt_cmd *xpt_cmd)
@@ -695,13 +813,19 @@ static int target_xcopy_read_source(
 	sector_t src_lba,
 	u32 src_sectors)
 {
+<<<<<<< HEAD
 	struct xcopy_pt_cmd *xpt_cmd;
 	struct se_cmd *se_cmd;
+=======
+	struct xcopy_pt_cmd xpt_cmd;
+	struct se_cmd *se_cmd = &xpt_cmd.se_cmd;
+>>>>>>> upstream/android-13
 	u32 length = (src_sectors * src_dev->dev_attrib.block_size);
 	int rc;
 	unsigned char cdb[16];
 	bool remote_port = (xop->op_origin == XCOL_DEST_RECV_OP);
 
+<<<<<<< HEAD
 	xpt_cmd = kzalloc(sizeof(struct xcopy_pt_cmd), GFP_KERNEL);
 	if (!xpt_cmd) {
 		pr_err("Unable to allocate xcopy_pt_cmd\n");
@@ -709,6 +833,10 @@ static int target_xcopy_read_source(
 	}
 	init_completion(&xpt_cmd->xpt_passthrough_sem);
 	se_cmd = &xpt_cmd->se_cmd;
+=======
+	memset(&xpt_cmd, 0, sizeof(xpt_cmd));
+	init_completion(&xpt_cmd.xpt_passthrough_sem);
+>>>>>>> upstream/android-13
 
 	memset(&cdb[0], 0, 16);
 	cdb[0] = READ_16;
@@ -717,6 +845,7 @@ static int target_xcopy_read_source(
 	pr_debug("XCOPY: Built READ_16: LBA: %llu Sectors: %u Length: %u\n",
 		(unsigned long long)src_lba, src_sectors, length);
 
+<<<<<<< HEAD
 	transport_init_se_cmd(se_cmd, &xcopy_pt_tfo, &xcopy_pt_sess, length,
 			      DMA_FROM_DEVICE, 0, &xpt_cmd->sense_buffer[0]);
 	xop->src_pt_cmd = xpt_cmd;
@@ -748,6 +877,27 @@ static int target_xcopy_read_source(
 	se_cmd->t_data_nents = 0;
 
 	return 0;
+=======
+	__target_init_cmd(se_cmd, &xcopy_pt_tfo, &xcopy_pt_sess, length,
+			  DMA_FROM_DEVICE, 0, &xpt_cmd.sense_buffer[0], 0);
+
+	rc = target_xcopy_setup_pt_cmd(&xpt_cmd, xop, src_dev, &cdb[0],
+				remote_port);
+	if (rc < 0) {
+		ec_cmd->scsi_status = se_cmd->scsi_status;
+		goto out;
+	}
+
+	pr_debug("XCOPY-READ: Saved xop->xop_data_sg: %p, num: %u for READ"
+		" memory\n", xop->xop_data_sg, xop->xop_data_nents);
+
+	rc = target_xcopy_issue_pt_cmd(&xpt_cmd);
+	if (rc < 0)
+		ec_cmd->scsi_status = se_cmd->scsi_status;
+out:
+	transport_generic_free_cmd(se_cmd, 0);
+	return rc;
+>>>>>>> upstream/android-13
 }
 
 static int target_xcopy_write_destination(
@@ -757,13 +907,19 @@ static int target_xcopy_write_destination(
 	sector_t dst_lba,
 	u32 dst_sectors)
 {
+<<<<<<< HEAD
 	struct xcopy_pt_cmd *xpt_cmd;
 	struct se_cmd *se_cmd;
+=======
+	struct xcopy_pt_cmd xpt_cmd;
+	struct se_cmd *se_cmd = &xpt_cmd.se_cmd;
+>>>>>>> upstream/android-13
 	u32 length = (dst_sectors * dst_dev->dev_attrib.block_size);
 	int rc;
 	unsigned char cdb[16];
 	bool remote_port = (xop->op_origin == XCOL_SOURCE_RECV_OP);
 
+<<<<<<< HEAD
 	xpt_cmd = kzalloc(sizeof(struct xcopy_pt_cmd), GFP_KERNEL);
 	if (!xpt_cmd) {
 		pr_err("Unable to allocate xcopy_pt_cmd\n");
@@ -771,6 +927,10 @@ static int target_xcopy_write_destination(
 	}
 	init_completion(&xpt_cmd->xpt_passthrough_sem);
 	se_cmd = &xpt_cmd->se_cmd;
+=======
+	memset(&xpt_cmd, 0, sizeof(xpt_cmd));
+	init_completion(&xpt_cmd.xpt_passthrough_sem);
+>>>>>>> upstream/android-13
 
 	memset(&cdb[0], 0, 16);
 	cdb[0] = WRITE_16;
@@ -779,6 +939,7 @@ static int target_xcopy_write_destination(
 	pr_debug("XCOPY: Built WRITE_16: LBA: %llu Sectors: %u Length: %u\n",
 		(unsigned long long)dst_lba, dst_sectors, length);
 
+<<<<<<< HEAD
 	transport_init_se_cmd(se_cmd, &xcopy_pt_tfo, &xcopy_pt_sess, length,
 			      DMA_TO_DEVICE, 0, &xpt_cmd->sense_buffer[0]);
 	xop->dst_pt_cmd = xpt_cmd;
@@ -810,6 +971,24 @@ static int target_xcopy_write_destination(
 	}
 
 	return 0;
+=======
+	__target_init_cmd(se_cmd, &xcopy_pt_tfo, &xcopy_pt_sess, length,
+			  DMA_TO_DEVICE, 0, &xpt_cmd.sense_buffer[0], 0);
+
+	rc = target_xcopy_setup_pt_cmd(&xpt_cmd, xop, dst_dev, &cdb[0],
+				remote_port);
+	if (rc < 0) {
+		ec_cmd->scsi_status = se_cmd->scsi_status;
+		goto out;
+	}
+
+	rc = target_xcopy_issue_pt_cmd(&xpt_cmd);
+	if (rc < 0)
+		ec_cmd->scsi_status = se_cmd->scsi_status;
+out:
+	transport_generic_free_cmd(se_cmd, 0);
+	return rc;
+>>>>>>> upstream/android-13
 }
 
 static void target_xcopy_do_work(struct work_struct *work)
@@ -820,6 +999,7 @@ static void target_xcopy_do_work(struct work_struct *work)
 	sector_t src_lba, dst_lba, end_lba;
 	unsigned int max_sectors;
 	int rc = 0;
+<<<<<<< HEAD
 	unsigned short nolb, cur_nolb, max_nolb, copied_nolb = 0;
 
 	if (target_parse_xcopy_cmd(xop) != TCM_NO_SENSE)
@@ -827,6 +1007,19 @@ static void target_xcopy_do_work(struct work_struct *work)
 
 	if (WARN_ON_ONCE(!xop->src_dev) || WARN_ON_ONCE(!xop->dst_dev))
 		goto err_free;
+=======
+	unsigned short nolb, max_nolb, copied_nolb = 0;
+	sense_reason_t sense_rc;
+
+	sense_rc = target_parse_xcopy_cmd(xop);
+	if (sense_rc != TCM_NO_SENSE)
+		goto err_free;
+
+	if (WARN_ON_ONCE(!xop->src_dev) || WARN_ON_ONCE(!xop->dst_dev)) {
+		sense_rc = TCM_INVALID_PARAMETER_LIST;
+		goto err_free;
+	}
+>>>>>>> upstream/android-13
 
 	src_dev = xop->src_dev;
 	dst_dev = xop->dst_dev;
@@ -850,7 +1043,27 @@ static void target_xcopy_do_work(struct work_struct *work)
 			(unsigned long long)src_lba, (unsigned long long)dst_lba);
 
 	while (src_lba < end_lba) {
+<<<<<<< HEAD
 		cur_nolb = min(nolb, max_nolb);
+=======
+		unsigned short cur_nolb = min(nolb, max_nolb);
+		u32 cur_bytes = cur_nolb * src_dev->dev_attrib.block_size;
+
+		if (cur_bytes != xop->xop_data_bytes) {
+			/*
+			 * (Re)allocate a buffer large enough to hold the XCOPY
+			 * I/O size, which can be reused each read / write loop.
+			 */
+			target_free_sgl(xop->xop_data_sg, xop->xop_data_nents);
+			rc = target_alloc_sgl(&xop->xop_data_sg,
+					      &xop->xop_data_nents,
+					      cur_bytes,
+					      false, false);
+			if (rc < 0)
+				goto out;
+			xop->xop_data_bytes = cur_bytes;
+		}
+>>>>>>> upstream/android-13
 
 		pr_debug("target_xcopy_do_work: Calling read src_dev: %p src_lba: %llu,"
 			" cur_nolb: %hu\n", src_dev, (unsigned long long)src_lba, cur_nolb);
@@ -868,10 +1081,15 @@ static void target_xcopy_do_work(struct work_struct *work)
 
 		rc = target_xcopy_write_destination(ec_cmd, xop, dst_dev,
 						dst_lba, cur_nolb);
+<<<<<<< HEAD
 		if (rc < 0) {
 			transport_generic_free_cmd(&xop->src_pt_cmd->se_cmd, 0);
 			goto out;
 		}
+=======
+		if (rc < 0)
+			goto out;
+>>>>>>> upstream/android-13
 
 		dst_lba += cur_nolb;
 		pr_debug("target_xcopy_do_work: Incremented WRITE dst_lba to %llu\n",
@@ -879,6 +1097,7 @@ static void target_xcopy_do_work(struct work_struct *work)
 
 		copied_nolb += cur_nolb;
 		nolb -= cur_nolb;
+<<<<<<< HEAD
 
 		transport_generic_free_cmd(&xop->src_pt_cmd->se_cmd, 0);
 		xop->dst_pt_cmd->se_cmd.se_cmd_flags &= ~SCF_PASSTHROUGH_SG_TO_MEM_NOALLOC;
@@ -887,6 +1106,12 @@ static void target_xcopy_do_work(struct work_struct *work)
 	}
 
 	xcopy_pt_undepend_remotedev(xop);
+=======
+	}
+
+	xcopy_pt_undepend_remotedev(xop);
+	target_free_sgl(xop->xop_data_sg, xop->xop_data_nents);
+>>>>>>> upstream/android-13
 	kfree(xop);
 
 	pr_debug("target_xcopy_do_work: Final src_lba: %llu, dst_lba: %llu\n",
@@ -899,6 +1124,7 @@ static void target_xcopy_do_work(struct work_struct *work)
 	return;
 
 out:
+<<<<<<< HEAD
 	xcopy_pt_undepend_remotedev(xop);
 
 err_free:
@@ -912,6 +1138,22 @@ err_free:
 		ec_cmd->scsi_status = SAM_STAT_CHECK_CONDITION;
 	}
 	target_complete_cmd(ec_cmd, ec_cmd->scsi_status);
+=======
+	/*
+	 * The XCOPY command was aborted after some data was transferred.
+	 * Terminate command with CHECK CONDITION status, with the sense key
+	 * set to COPY ABORTED.
+	 */
+	sense_rc = TCM_COPY_TARGET_DEVICE_NOT_REACHABLE;
+	xcopy_pt_undepend_remotedev(xop);
+	target_free_sgl(xop->xop_data_sg, xop->xop_data_nents);
+
+err_free:
+	kfree(xop);
+	pr_warn_ratelimited("target_xcopy_do_work: rc: %d, sense: %u, XCOPY operation failed\n",
+			   rc, sense_rc);
+	target_complete_cmd_with_sense(ec_cmd, SAM_STAT_CHECK_CONDITION, sense_rc);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1134,7 +1376,11 @@ static sense_reason_t target_rcr_operating_parameters(struct se_cmd *se_cmd)
 	put_unaligned_be32(42, &p[0]);
 
 	transport_kunmap_data_sg(se_cmd);
+<<<<<<< HEAD
 	target_complete_cmd(se_cmd, GOOD);
+=======
+	target_complete_cmd(se_cmd, SAM_STAT_GOOD);
+>>>>>>> upstream/android-13
 
 	return TCM_NO_SENSE;
 }

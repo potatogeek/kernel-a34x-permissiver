@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * rtc-fm3130.c - RTC driver for Ramtron FM3130 I2C chip.
  *
  *  Copyright (C) 2008 Sergey Lapin
  *  Based on ds1307 driver by James Chapman and David Brownell
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -107,8 +114,12 @@ static int fm3130_get_time(struct device *dev, struct rtc_time *t)
 	fm3130_rtc_mode(dev, FM3130_MODE_READ);
 
 	/* read the RTC date and time registers all at once */
+<<<<<<< HEAD
 	tmp = i2c_transfer(to_i2c_adapter(fm3130->client->dev.parent),
 			fm3130->msg, 2);
+=======
+	tmp = i2c_transfer(fm3130->client->adapter, fm3130->msg, 2);
+>>>>>>> upstream/android-13
 	if (tmp != 2) {
 		dev_err(dev, "%s error %d\n", "read", tmp);
 		return -EIO;
@@ -200,8 +211,12 @@ static int fm3130_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
 	}
 
 	/* read the RTC alarm registers all at once */
+<<<<<<< HEAD
 	tmp = i2c_transfer(to_i2c_adapter(fm3130->client->dev.parent),
 			&fm3130->msg[2], 2);
+=======
+	tmp = i2c_transfer(fm3130->client->adapter, &fm3130->msg[2], 2);
+>>>>>>> upstream/android-13
 	if (tmp != 2) {
 		dev_err(dev, "%s error %d\n", "read", tmp);
 		return -EIO;
@@ -351,7 +366,11 @@ static int fm3130_probe(struct i2c_client *client,
 	struct fm3130		*fm3130;
 	int			err = -ENODEV;
 	int			tmp;
+<<<<<<< HEAD
 	struct i2c_adapter	*adapter = to_i2c_adapter(client->dev.parent);
+=======
+	struct i2c_adapter	*adapter = client->adapter;
+>>>>>>> upstream/android-13
 
 	if (!i2c_check_functionality(adapter,
 			I2C_FUNC_I2C | I2C_FUNC_SMBUS_WRITE_BYTE_DATA))

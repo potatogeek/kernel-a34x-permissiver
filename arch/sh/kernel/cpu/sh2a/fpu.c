@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Save/restore floating point context for signal handlers.
  *
  * Copyright (C) 1999, 2000  Kaz Kojima & Niibe Yutaka
  *
+<<<<<<< HEAD
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * FIXME! These routines can be optimized in big endian case.
  */
 #include <linux/sched/signal.h>
@@ -571,5 +578,9 @@ BUILD_TRAP_HANDLER(fpu_error)
 		return;
 	}
 
+<<<<<<< HEAD
 	force_sig(SIGFPE, tsk);
+=======
+	force_sig(SIGFPE);
+>>>>>>> upstream/android-13
 }

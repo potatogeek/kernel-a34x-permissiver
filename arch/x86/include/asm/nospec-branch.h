@@ -4,11 +4,20 @@
 #define _ASM_X86_NOSPEC_BRANCH_H_
 
 #include <linux/static_key.h>
+<<<<<<< HEAD
 
 #include <asm/alternative.h>
 #include <asm/alternative-asm.h>
 #include <asm/cpufeatures.h>
 #include <asm/msr-index.h>
+=======
+#include <linux/objtool.h>
+
+#include <asm/alternative.h>
+#include <asm/cpufeatures.h>
+#include <asm/msr-index.h>
+#include <asm/unwind_hints.h>
+>>>>>>> upstream/android-13
 
 /*
  * Fill the CPU return stack buffer.
@@ -28,35 +37,63 @@
  */
 
 #define RSB_CLEAR_LOOPS		32	/* To forcibly overwrite all entries */
+<<<<<<< HEAD
 #define RSB_FILL_LOOPS		16	/* To avoid underflow */
 
 /*
  * Google experimented with loop-unrolling and this turned out to be
  * the optimal version — two calls, each with their own speculation
+=======
+
+/*
+ * Google experimented with loop-unrolling and this turned out to be
+ * the optimal version - two calls, each with their own speculation
+>>>>>>> upstream/android-13
  * trap should their return address end up getting used, in a loop.
  */
 #define __FILL_RETURN_BUFFER(reg, nr, sp)	\
 	mov	$(nr/2), reg;			\
 771:						\
+<<<<<<< HEAD
 	call	772f;				\
 773:	/* speculation trap */			\
+=======
+	ANNOTATE_INTRA_FUNCTION_CALL;		\
+	call	772f;				\
+773:	/* speculation trap */			\
+	UNWIND_HINT_EMPTY;			\
+>>>>>>> upstream/android-13
 	pause;					\
 	lfence;					\
 	jmp	773b;				\
 772:						\
+<<<<<<< HEAD
 	call	774f;				\
 775:	/* speculation trap */			\
+=======
+	ANNOTATE_INTRA_FUNCTION_CALL;		\
+	call	774f;				\
+775:	/* speculation trap */			\
+	UNWIND_HINT_EMPTY;			\
+>>>>>>> upstream/android-13
 	pause;					\
 	lfence;					\
 	jmp	775b;				\
 774:						\
+<<<<<<< HEAD
 	dec	reg;				\
 	jnz	771b;				\
 	add	$(BITS_PER_LONG/8) * nr, sp;
+=======
+	add	$(BITS_PER_LONG/8) * 2, sp;	\
+	dec	reg;				\
+	jnz	771b;
+>>>>>>> upstream/android-13
 
 #ifdef __ASSEMBLY__
 
 /*
+<<<<<<< HEAD
  * This should be used immediately before a retpoline alternative.  It tells
  * objtool where the retpolines are so that it can make sense of the control
  * flow by just reading the original instruction(s) and ignoring the
@@ -70,6 +107,8 @@
 .endm
 
 /*
+=======
+>>>>>>> upstream/android-13
  * This should be used immediately before an indirect jump/call. It tells
  * objtool the subsequent indirect jump/call is vouched safe for retpoline
  * builds.
@@ -82,6 +121,7 @@
 .endm
 
 /*
+<<<<<<< HEAD
  * These are the bare retpoline primitives for indirect jmp and call.
  * Do not use these directly; they only exist to make the ALTERNATIVE
  * invocation below less ugly.
@@ -110,29 +150,47 @@
 .endm
 
 /*
+=======
+>>>>>>> upstream/android-13
  * JMP_NOSPEC and CALL_NOSPEC macros can be used instead of a simple
  * indirect jmp/call which may be susceptible to the Spectre variant 2
  * attack.
  */
 .macro JMP_NOSPEC reg:req
 #ifdef CONFIG_RETPOLINE
+<<<<<<< HEAD
 	ANNOTATE_NOSPEC_ALTERNATIVE
 	ALTERNATIVE_2 __stringify(ANNOTATE_RETPOLINE_SAFE; jmp *\reg),	\
 		__stringify(RETPOLINE_JMP \reg), X86_FEATURE_RETPOLINE,	\
 		__stringify(lfence; ANNOTATE_RETPOLINE_SAFE; jmp *\reg), X86_FEATURE_RETPOLINE_AMD
 #else
 	jmp	*\reg
+=======
+	ALTERNATIVE_2 __stringify(ANNOTATE_RETPOLINE_SAFE; jmp *%\reg), \
+		      __stringify(jmp __x86_indirect_thunk_\reg), X86_FEATURE_RETPOLINE, \
+		      __stringify(lfence; ANNOTATE_RETPOLINE_SAFE; jmp *%\reg), X86_FEATURE_RETPOLINE_LFENCE
+#else
+	jmp	*%\reg
+>>>>>>> upstream/android-13
 #endif
 .endm
 
 .macro CALL_NOSPEC reg:req
 #ifdef CONFIG_RETPOLINE
+<<<<<<< HEAD
 	ANNOTATE_NOSPEC_ALTERNATIVE
 	ALTERNATIVE_2 __stringify(ANNOTATE_RETPOLINE_SAFE; call *\reg),	\
 		__stringify(RETPOLINE_CALL \reg), X86_FEATURE_RETPOLINE,\
 		__stringify(lfence; ANNOTATE_RETPOLINE_SAFE; call *\reg), X86_FEATURE_RETPOLINE_AMD
 #else
 	call	*\reg
+=======
+	ALTERNATIVE_2 __stringify(ANNOTATE_RETPOLINE_SAFE; call *%\reg), \
+		      __stringify(call __x86_indirect_thunk_\reg), X86_FEATURE_RETPOLINE, \
+		      __stringify(lfence; ANNOTATE_RETPOLINE_SAFE; call *%\reg), X86_FEATURE_RETPOLINE_LFENCE
+#else
+	call	*%\reg
+>>>>>>> upstream/android-13
 #endif
 .endm
 
@@ -142,22 +200,30 @@
   */
 .macro FILL_RETURN_BUFFER reg:req nr:req ftr:req
 #ifdef CONFIG_RETPOLINE
+<<<<<<< HEAD
 	ANNOTATE_NOSPEC_ALTERNATIVE
 	ALTERNATIVE "jmp .Lskip_rsb_\@",				\
 		__stringify(__FILL_RETURN_BUFFER(\reg,\nr,%_ASM_SP))	\
 		\ftr
+=======
+	ALTERNATIVE "jmp .Lskip_rsb_\@", "", \ftr
+	__FILL_RETURN_BUFFER(\reg,\nr,%_ASM_SP)
+>>>>>>> upstream/android-13
 .Lskip_rsb_\@:
 #endif
 .endm
 
 #else /* __ASSEMBLY__ */
 
+<<<<<<< HEAD
 #define ANNOTATE_NOSPEC_ALTERNATIVE				\
 	"999:\n\t"						\
 	".pushsection .discard.nospec\n\t"			\
 	".long 999b - .\n\t"					\
 	".popsection\n\t"
 
+=======
+>>>>>>> upstream/android-13
 #define ANNOTATE_RETPOLINE_SAFE					\
 	"999:\n\t"						\
 	".pushsection .discard.retpoline_safe\n\t"		\
@@ -172,7 +238,10 @@
  * which is ensured when CONFIG_RETPOLINE is defined.
  */
 # define CALL_NOSPEC						\
+<<<<<<< HEAD
 	ANNOTATE_NOSPEC_ALTERNATIVE				\
+=======
+>>>>>>> upstream/android-13
 	ALTERNATIVE_2(						\
 	ANNOTATE_RETPOLINE_SAFE					\
 	"call *%[thunk_target]\n",				\
@@ -181,7 +250,12 @@
 	"lfence;\n"						\
 	ANNOTATE_RETPOLINE_SAFE					\
 	"call *%[thunk_target]\n",				\
+<<<<<<< HEAD
 	X86_FEATURE_RETPOLINE_AMD)
+=======
+	X86_FEATURE_RETPOLINE_LFENCE)
+
+>>>>>>> upstream/android-13
 # define THUNK_TARGET(addr) [thunk_target] "r" (addr)
 
 #else /* CONFIG_X86_32 */
@@ -191,7 +265,10 @@
  * here, anyway.
  */
 # define CALL_NOSPEC						\
+<<<<<<< HEAD
 	ANNOTATE_NOSPEC_ALTERNATIVE				\
+=======
+>>>>>>> upstream/android-13
 	ALTERNATIVE_2(						\
 	ANNOTATE_RETPOLINE_SAFE					\
 	"call *%[thunk_target]\n",				\
@@ -211,7 +288,11 @@
 	"lfence;\n"						\
 	ANNOTATE_RETPOLINE_SAFE					\
 	"call *%[thunk_target]\n",				\
+<<<<<<< HEAD
 	X86_FEATURE_RETPOLINE_AMD)
+=======
+	X86_FEATURE_RETPOLINE_LFENCE)
+>>>>>>> upstream/android-13
 
 # define THUNK_TARGET(addr) [thunk_target] "rm" (addr)
 #endif
@@ -223,9 +304,17 @@
 /* The Spectre V2 mitigation variants */
 enum spectre_v2_mitigation {
 	SPECTRE_V2_NONE,
+<<<<<<< HEAD
 	SPECTRE_V2_RETPOLINE_GENERIC,
 	SPECTRE_V2_RETPOLINE_AMD,
 	SPECTRE_V2_IBRS_ENHANCED,
+=======
+	SPECTRE_V2_RETPOLINE,
+	SPECTRE_V2_LFENCE,
+	SPECTRE_V2_EIBRS,
+	SPECTRE_V2_EIBRS_RETPOLINE,
+	SPECTRE_V2_EIBRS_LFENCE,
+>>>>>>> upstream/android-13
 };
 
 /* The indirect branch speculation control variants */
@@ -248,6 +337,7 @@ enum ssb_mitigation {
 extern char __indirect_thunk_start[];
 extern char __indirect_thunk_end[];
 
+<<<<<<< HEAD
 /*
  * On VMEXIT we must ensure that no RSB predictions learned in the guest
  * can be followed in the host, by overwriting the RSB completely. Both
@@ -269,6 +359,8 @@ static inline void vmexit_fill_RSB(void)
 #endif
 }
 
+=======
+>>>>>>> upstream/android-13
 static __always_inline
 void alternative_msr_write(unsigned int msr, u64 val, unsigned int feature)
 {
@@ -321,6 +413,11 @@ DECLARE_STATIC_KEY_FALSE(switch_mm_always_ibpb);
 DECLARE_STATIC_KEY_FALSE(mds_user_clear);
 DECLARE_STATIC_KEY_FALSE(mds_idle_clear);
 
+<<<<<<< HEAD
+=======
+DECLARE_STATIC_KEY_FALSE(switch_mm_cond_l1d_flush);
+
+>>>>>>> upstream/android-13
 #include <asm/segment.h>
 
 /**
@@ -382,19 +479,32 @@ static inline void mds_idle_clear_cpu_buffers(void)
  *    lfence
  *    jmp spec_trap
  *  do_rop:
+<<<<<<< HEAD
  *    mov %rax,(%rsp) for x86_64
+=======
+ *    mov %rcx,(%rsp) for x86_64
+>>>>>>> upstream/android-13
  *    mov %edx,(%esp) for x86_32
  *    retq
  *
  * Without retpolines configured:
  *
+<<<<<<< HEAD
  *    jmp *%rax for x86_64
+=======
+ *    jmp *%rcx for x86_64
+>>>>>>> upstream/android-13
  *    jmp *%edx for x86_32
  */
 #ifdef CONFIG_RETPOLINE
 # ifdef CONFIG_X86_64
+<<<<<<< HEAD
 #  define RETPOLINE_RAX_BPF_JIT_SIZE	17
 #  define RETPOLINE_RAX_BPF_JIT()				\
+=======
+#  define RETPOLINE_RCX_BPF_JIT_SIZE	17
+#  define RETPOLINE_RCX_BPF_JIT()				\
+>>>>>>> upstream/android-13
 do {								\
 	EMIT1_off32(0xE8, 7);	 /* callq do_rop */		\
 	/* spec_trap: */					\
@@ -402,7 +512,11 @@ do {								\
 	EMIT3(0x0F, 0xAE, 0xE8); /* lfence */			\
 	EMIT2(0xEB, 0xF9);       /* jmp spec_trap */		\
 	/* do_rop: */						\
+<<<<<<< HEAD
 	EMIT4(0x48, 0x89, 0x04, 0x24); /* mov %rax,(%rsp) */	\
+=======
+	EMIT4(0x48, 0x89, 0x0C, 0x24); /* mov %rcx,(%rsp) */	\
+>>>>>>> upstream/android-13
 	EMIT1(0xC3);             /* retq */			\
 } while (0)
 # else /* !CONFIG_X86_64 */
@@ -420,9 +534,15 @@ do {								\
 # endif
 #else /* !CONFIG_RETPOLINE */
 # ifdef CONFIG_X86_64
+<<<<<<< HEAD
 #  define RETPOLINE_RAX_BPF_JIT_SIZE	2
 #  define RETPOLINE_RAX_BPF_JIT()				\
 	EMIT2(0xFF, 0xE0);       /* jmp *%rax */
+=======
+#  define RETPOLINE_RCX_BPF_JIT_SIZE	2
+#  define RETPOLINE_RCX_BPF_JIT()				\
+	EMIT2(0xFF, 0xE1);       /* jmp *%rcx */
+>>>>>>> upstream/android-13
 # else /* !CONFIG_X86_64 */
 #  define RETPOLINE_EDX_BPF_JIT()				\
 	EMIT2(0xFF, 0xE2)        /* jmp *%edx */

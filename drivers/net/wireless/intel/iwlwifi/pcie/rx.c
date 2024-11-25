@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2003 - 2014 Intel Corporation. All rights reserved.
@@ -28,6 +29,14 @@
  * Intel Corporation, 5200 N.E. Elam Young Parkway, Hillsboro, OR 97124-6497
  *
  *****************************************************************************/
+=======
+// SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
+/*
+ * Copyright (C) 2003-2014, 2018-2021 Intel Corporation
+ * Copyright (C) 2013-2015 Intel Mobile Communications GmbH
+ * Copyright (C) 2016-2017 Intel Deutschland GmbH
+ */
+>>>>>>> upstream/android-13
 #include <linux/sched.h>
 #include <linux/wait.h>
 #include <linux/gfp.h>
@@ -167,12 +176,21 @@ static inline __le32 iwl_pcie_dma_addr2rbd_ptr(dma_addr_t dma_addr)
  */
 int iwl_pcie_rx_stop(struct iwl_trans *trans)
 {
+<<<<<<< HEAD
 	if (trans->cfg->device_family >= IWL_DEVICE_FAMILY_22560) {
 		/* TODO: remove this for 22560 once fw does it */
 		iwl_write_prph(trans, RFH_RXF_DMA_CFG_GEN3, 0);
 		return iwl_poll_prph_bit(trans, RFH_GEN_STATUS_GEN3,
 					 RXF_DMA_IDLE, RXF_DMA_IDLE, 1000);
 	} else if (trans->cfg->mq_rx_supported) {
+=======
+	if (trans->trans_cfg->device_family >= IWL_DEVICE_FAMILY_AX210) {
+		/* TODO: remove this once fw does it */
+		iwl_write_umac_prph(trans, RFH_RXF_DMA_CFG_GEN3, 0);
+		return iwl_poll_umac_prph_bit(trans, RFH_GEN_STATUS_GEN3,
+					      RXF_DMA_IDLE, RXF_DMA_IDLE, 1000);
+	} else if (trans->trans_cfg->mq_rx_supported) {
+>>>>>>> upstream/android-13
 		iwl_write_prph(trans, RFH_RXF_DMA_CFG, 0);
 		return iwl_poll_prph_bit(trans, RFH_GEN_STATUS,
 					   RXF_DMA_IDLE, RXF_DMA_IDLE, 1000);
@@ -199,7 +217,11 @@ static void iwl_pcie_rxq_inc_wr_ptr(struct iwl_trans *trans,
 	 * 1. shadow registers aren't enabled
 	 * 2. there is a chance that the NIC is asleep
 	 */
+<<<<<<< HEAD
 	if (!trans->cfg->base_params->shadow_reg_enable &&
+=======
+	if (!trans->trans_cfg->base_params->shadow_reg_enable &&
+>>>>>>> upstream/android-13
 	    test_bit(STATUS_TPOWER_PMI, &trans->status)) {
 		reg = iwl_read32(trans, CSR_UCODE_DRV_GP1);
 
@@ -207,18 +229,26 @@ static void iwl_pcie_rxq_inc_wr_ptr(struct iwl_trans *trans,
 			IWL_DEBUG_INFO(trans, "Rx queue requesting wakeup, GP1 = 0x%x\n",
 				       reg);
 			iwl_set_bit(trans, CSR_GP_CNTRL,
+<<<<<<< HEAD
 				    BIT(trans->cfg->csr->flag_mac_access_req));
+=======
+				    CSR_GP_CNTRL_REG_FLAG_MAC_ACCESS_REQ);
+>>>>>>> upstream/android-13
 			rxq->need_update = true;
 			return;
 		}
 	}
 
 	rxq->write_actual = round_down(rxq->write, 8);
+<<<<<<< HEAD
 	if (trans->cfg->device_family >= IWL_DEVICE_FAMILY_22560)
 		iwl_write32(trans, HBUS_TARG_WRPTR,
 			    (rxq->write_actual |
 			     ((FIRST_RX_QUEUE + rxq->id) << 16)));
 	else if (trans->cfg->mq_rx_supported)
+=======
+	if (trans->trans_cfg->mq_rx_supported)
+>>>>>>> upstream/android-13
 		iwl_write32(trans, RFH_Q_FRBDCB_WIDX_TRG(rxq->id),
 			    rxq->write_actual);
 	else
@@ -235,10 +265,17 @@ static void iwl_pcie_rxq_check_wrptr(struct iwl_trans *trans)
 
 		if (!rxq->need_update)
 			continue;
+<<<<<<< HEAD
 		spin_lock(&rxq->lock);
 		iwl_pcie_rxq_inc_wr_ptr(trans, rxq);
 		rxq->need_update = false;
 		spin_unlock(&rxq->lock);
+=======
+		spin_lock_bh(&rxq->lock);
+		iwl_pcie_rxq_inc_wr_ptr(trans, rxq);
+		rxq->need_update = false;
+		spin_unlock_bh(&rxq->lock);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -246,12 +283,20 @@ static void iwl_pcie_restock_bd(struct iwl_trans *trans,
 				struct iwl_rxq *rxq,
 				struct iwl_rx_mem_buffer *rxb)
 {
+<<<<<<< HEAD
 	if (trans->cfg->device_family >= IWL_DEVICE_FAMILY_22560) {
 		struct iwl_rx_transfer_desc *bd = rxq->bd;
 
 		bd[rxq->write].type_n_size =
 			cpu_to_le32((IWL_RX_TD_TYPE & IWL_RX_TD_TYPE_MSK) |
 			((IWL_RX_TD_SIZE_2K >> 8) & IWL_RX_TD_SIZE_MSK));
+=======
+	if (trans->trans_cfg->device_family >= IWL_DEVICE_FAMILY_AX210) {
+		struct iwl_rx_transfer_desc *bd = rxq->bd;
+
+		BUILD_BUG_ON(sizeof(*bd) != 2 * sizeof(u64));
+
+>>>>>>> upstream/android-13
 		bd[rxq->write].addr = cpu_to_le64(rxb->page_dma);
 		bd[rxq->write].rbid = cpu_to_le16(rxb->vid);
 	} else {
@@ -259,6 +304,12 @@ static void iwl_pcie_restock_bd(struct iwl_trans *trans,
 
 		bd[rxq->write] = cpu_to_le64(rxb->page_dma | rxb->vid);
 	}
+<<<<<<< HEAD
+=======
+
+	IWL_DEBUG_RX(trans, "Assigned virtual RB ID %u to queue %d index %d\n",
+		     (u32)rxb->vid, rxq->id, rxq->write);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -267,6 +318,10 @@ static void iwl_pcie_restock_bd(struct iwl_trans *trans,
 static void iwl_pcie_rxmq_restock(struct iwl_trans *trans,
 				  struct iwl_rxq *rxq)
 {
+<<<<<<< HEAD
+=======
+	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
+>>>>>>> upstream/android-13
 	struct iwl_rx_mem_buffer *rxb;
 
 	/*
@@ -280,13 +335,18 @@ static void iwl_pcie_rxmq_restock(struct iwl_trans *trans,
 	if (!test_bit(STATUS_DEVICE_ENABLED, &trans->status))
 		return;
 
+<<<<<<< HEAD
 	spin_lock(&rxq->lock);
+=======
+	spin_lock_bh(&rxq->lock);
+>>>>>>> upstream/android-13
 	while (rxq->free_count) {
 		/* Get next free Rx buffer, remove from free list */
 		rxb = list_first_entry(&rxq->rx_free, struct iwl_rx_mem_buffer,
 				       list);
 		list_del(&rxb->list);
 		rxb->invalid = false;
+<<<<<<< HEAD
 		/* 12 first bits are expected to be empty */
 		WARN_ON(rxb->page_dma & DMA_BIT_MASK(12));
 		/* Point to Rx buffer via next RBD in circular buffer */
@@ -295,15 +355,31 @@ static void iwl_pcie_rxmq_restock(struct iwl_trans *trans,
 		rxq->free_count--;
 	}
 	spin_unlock(&rxq->lock);
+=======
+		/* some low bits are expected to be unset (depending on hw) */
+		WARN_ON(rxb->page_dma & trans_pcie->supported_dma_mask);
+		/* Point to Rx buffer via next RBD in circular buffer */
+		iwl_pcie_restock_bd(trans, rxq, rxb);
+		rxq->write = (rxq->write + 1) & (rxq->queue_size - 1);
+		rxq->free_count--;
+	}
+	spin_unlock_bh(&rxq->lock);
+>>>>>>> upstream/android-13
 
 	/*
 	 * If we've added more space for the firmware to place data, tell it.
 	 * Increment device's write pointer in multiples of 8.
 	 */
 	if (rxq->write_actual != (rxq->write & ~0x7)) {
+<<<<<<< HEAD
 		spin_lock(&rxq->lock);
 		iwl_pcie_rxq_inc_wr_ptr(trans, rxq);
 		spin_unlock(&rxq->lock);
+=======
+		spin_lock_bh(&rxq->lock);
+		iwl_pcie_rxq_inc_wr_ptr(trans, rxq);
+		spin_unlock_bh(&rxq->lock);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -326,7 +402,11 @@ static void iwl_pcie_rxsq_restock(struct iwl_trans *trans,
 	if (!test_bit(STATUS_DEVICE_ENABLED, &trans->status))
 		return;
 
+<<<<<<< HEAD
 	spin_lock(&rxq->lock);
+=======
+	spin_lock_bh(&rxq->lock);
+>>>>>>> upstream/android-13
 	while ((iwl_rxq_space(rxq) > 0) && (rxq->free_count)) {
 		__le32 *bd = (__le32 *)rxq->bd;
 		/* The overwritten rxb must be a used one */
@@ -345,14 +425,24 @@ static void iwl_pcie_rxsq_restock(struct iwl_trans *trans,
 		rxq->write = (rxq->write + 1) & RX_QUEUE_MASK;
 		rxq->free_count--;
 	}
+<<<<<<< HEAD
 	spin_unlock(&rxq->lock);
+=======
+	spin_unlock_bh(&rxq->lock);
+>>>>>>> upstream/android-13
 
 	/* If we've added more space for the firmware to place data, tell it.
 	 * Increment device's write pointer in multiples of 8. */
 	if (rxq->write_actual != (rxq->write & ~0x7)) {
+<<<<<<< HEAD
 		spin_lock(&rxq->lock);
 		iwl_pcie_rxq_inc_wr_ptr(trans, rxq);
 		spin_unlock(&rxq->lock);
+=======
+		spin_lock_bh(&rxq->lock);
+		iwl_pcie_rxq_inc_wr_ptr(trans, rxq);
+		spin_unlock_bh(&rxq->lock);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -370,7 +460,11 @@ static void iwl_pcie_rxsq_restock(struct iwl_trans *trans,
 static
 void iwl_pcie_rxq_restock(struct iwl_trans *trans, struct iwl_rxq *rxq)
 {
+<<<<<<< HEAD
 	if (trans->cfg->mq_rx_supported)
+=======
+	if (trans->trans_cfg->mq_rx_supported)
+>>>>>>> upstream/android-13
 		iwl_pcie_rxmq_restock(trans, rxq);
 	else
 		iwl_pcie_rxsq_restock(trans, rxq);
@@ -381,15 +475,43 @@ void iwl_pcie_rxq_restock(struct iwl_trans *trans, struct iwl_rxq *rxq)
  *
  */
 static struct page *iwl_pcie_rx_alloc_page(struct iwl_trans *trans,
+<<<<<<< HEAD
 					   gfp_t priority)
 {
 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
+=======
+					   u32 *offset, gfp_t priority)
+{
+	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
+	unsigned int rbsize = iwl_trans_get_rb_size(trans_pcie->rx_buf_size);
+	unsigned int allocsize = PAGE_SIZE << trans_pcie->rx_page_order;
+>>>>>>> upstream/android-13
 	struct page *page;
 	gfp_t gfp_mask = priority;
 
 	if (trans_pcie->rx_page_order > 0)
 		gfp_mask |= __GFP_COMP;
 
+<<<<<<< HEAD
+=======
+	if (trans_pcie->alloc_page) {
+		spin_lock_bh(&trans_pcie->alloc_page_lock);
+		/* recheck */
+		if (trans_pcie->alloc_page) {
+			*offset = trans_pcie->alloc_page_used;
+			page = trans_pcie->alloc_page;
+			trans_pcie->alloc_page_used += rbsize;
+			if (trans_pcie->alloc_page_used >= allocsize)
+				trans_pcie->alloc_page = NULL;
+			else
+				get_page(page);
+			spin_unlock_bh(&trans_pcie->alloc_page_lock);
+			return page;
+		}
+		spin_unlock_bh(&trans_pcie->alloc_page_lock);
+	}
+
+>>>>>>> upstream/android-13
 	/* Alloc a new receive buffer */
 	page = alloc_pages(gfp_mask, trans_pcie->rx_page_order);
 	if (!page) {
@@ -399,12 +521,31 @@ static struct page *iwl_pcie_rx_alloc_page(struct iwl_trans *trans,
 		/*
 		 * Issue an error if we don't have enough pre-allocated
 		  * buffers.
+<<<<<<< HEAD
 `		 */
+=======
+		 */
+>>>>>>> upstream/android-13
 		if (!(gfp_mask & __GFP_NOWARN) && net_ratelimit())
 			IWL_CRIT(trans,
 				 "Failed to alloc_pages\n");
 		return NULL;
 	}
+<<<<<<< HEAD
+=======
+
+	if (2 * rbsize <= allocsize) {
+		spin_lock_bh(&trans_pcie->alloc_page_lock);
+		if (!trans_pcie->alloc_page) {
+			get_page(page);
+			trans_pcie->alloc_page = page;
+			trans_pcie->alloc_page_used = rbsize;
+		}
+		spin_unlock_bh(&trans_pcie->alloc_page_lock);
+	}
+
+	*offset = 0;
+>>>>>>> upstream/android-13
 	return page;
 }
 
@@ -425,6 +566,7 @@ void iwl_pcie_rxq_alloc_rbs(struct iwl_trans *trans, gfp_t priority,
 	struct page *page;
 
 	while (1) {
+<<<<<<< HEAD
 		spin_lock(&rxq->lock);
 		if (list_empty(&rxq->rx_used)) {
 			spin_unlock(&rxq->lock);
@@ -441,12 +583,32 @@ void iwl_pcie_rxq_alloc_rbs(struct iwl_trans *trans, gfp_t priority,
 
 		if (list_empty(&rxq->rx_used)) {
 			spin_unlock(&rxq->lock);
+=======
+		unsigned int offset;
+
+		spin_lock_bh(&rxq->lock);
+		if (list_empty(&rxq->rx_used)) {
+			spin_unlock_bh(&rxq->lock);
+			return;
+		}
+		spin_unlock_bh(&rxq->lock);
+
+		page = iwl_pcie_rx_alloc_page(trans, &offset, priority);
+		if (!page)
+			return;
+
+		spin_lock_bh(&rxq->lock);
+
+		if (list_empty(&rxq->rx_used)) {
+			spin_unlock_bh(&rxq->lock);
+>>>>>>> upstream/android-13
 			__free_pages(page, trans_pcie->rx_page_order);
 			return;
 		}
 		rxb = list_first_entry(&rxq->rx_used, struct iwl_rx_mem_buffer,
 				       list);
 		list_del(&rxb->list);
+<<<<<<< HEAD
 		spin_unlock(&rxq->lock);
 
 		BUG_ON(rxb->page);
@@ -461,16 +623,41 @@ void iwl_pcie_rxq_alloc_rbs(struct iwl_trans *trans, gfp_t priority,
 			spin_lock(&rxq->lock);
 			list_add(&rxb->list, &rxq->rx_used);
 			spin_unlock(&rxq->lock);
+=======
+		spin_unlock_bh(&rxq->lock);
+
+		BUG_ON(rxb->page);
+		rxb->page = page;
+		rxb->offset = offset;
+		/* Get physical address of the RB */
+		rxb->page_dma =
+			dma_map_page(trans->dev, page, rxb->offset,
+				     trans_pcie->rx_buf_bytes,
+				     DMA_FROM_DEVICE);
+		if (dma_mapping_error(trans->dev, rxb->page_dma)) {
+			rxb->page = NULL;
+			spin_lock_bh(&rxq->lock);
+			list_add(&rxb->list, &rxq->rx_used);
+			spin_unlock_bh(&rxq->lock);
+>>>>>>> upstream/android-13
 			__free_pages(page, trans_pcie->rx_page_order);
 			return;
 		}
 
+<<<<<<< HEAD
 		spin_lock(&rxq->lock);
+=======
+		spin_lock_bh(&rxq->lock);
+>>>>>>> upstream/android-13
 
 		list_add_tail(&rxb->list, &rxq->rx_free);
 		rxq->free_count++;
 
+<<<<<<< HEAD
 		spin_unlock(&rxq->lock);
+=======
+		spin_unlock_bh(&rxq->lock);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -479,12 +666,23 @@ void iwl_pcie_free_rbs_pool(struct iwl_trans *trans)
 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
 	int i;
 
+<<<<<<< HEAD
 	for (i = 0; i < RX_POOL_SIZE; i++) {
 		if (!trans_pcie->rx_pool[i].page)
 			continue;
 		dma_unmap_page(trans->dev, trans_pcie->rx_pool[i].page_dma,
 			       PAGE_SIZE << trans_pcie->rx_page_order,
 			       DMA_FROM_DEVICE);
+=======
+	if (!trans_pcie->rx_pool)
+		return;
+
+	for (i = 0; i < RX_POOL_SIZE(trans_pcie->num_rx_bufs); i++) {
+		if (!trans_pcie->rx_pool[i].page)
+			continue;
+		dma_unmap_page(trans->dev, trans_pcie->rx_pool[i].page_dma,
+			       trans_pcie->rx_buf_bytes, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 		__free_pages(trans_pcie->rx_pool[i].page,
 			     trans_pcie->rx_page_order);
 		trans_pcie->rx_pool[i].page = NULL;
@@ -504,6 +702,7 @@ static void iwl_pcie_rx_allocator(struct iwl_trans *trans)
 	struct list_head local_empty;
 	int pending = atomic_read(&rba->req_pending);
 
+<<<<<<< HEAD
 	IWL_DEBUG_RX(trans, "Pending allocation requests = %d\n", pending);
 
 	/* If we were scheduled - there is at least one request */
@@ -511,6 +710,15 @@ static void iwl_pcie_rx_allocator(struct iwl_trans *trans)
 	/* swap out the rba->rbd_empty to a local list */
 	list_replace_init(&rba->rbd_empty, &local_empty);
 	spin_unlock(&rba->lock);
+=======
+	IWL_DEBUG_TPT(trans, "Pending allocation requests = %d\n", pending);
+
+	/* If we were scheduled - there is at least one request */
+	spin_lock_bh(&rba->lock);
+	/* swap out the rba->rbd_empty to a local list */
+	list_replace_init(&rba->rbd_empty, &local_empty);
+	spin_unlock_bh(&rba->lock);
+>>>>>>> upstream/android-13
 
 	while (pending) {
 		int i;
@@ -537,15 +745,27 @@ static void iwl_pcie_rx_allocator(struct iwl_trans *trans)
 			BUG_ON(rxb->page);
 
 			/* Alloc a new receive buffer */
+<<<<<<< HEAD
 			page = iwl_pcie_rx_alloc_page(trans, gfp_mask);
+=======
+			page = iwl_pcie_rx_alloc_page(trans, &rxb->offset,
+						      gfp_mask);
+>>>>>>> upstream/android-13
 			if (!page)
 				continue;
 			rxb->page = page;
 
 			/* Get physical address of the RB */
+<<<<<<< HEAD
 			rxb->page_dma = dma_map_page(trans->dev, page, 0,
 					PAGE_SIZE << trans_pcie->rx_page_order,
 					DMA_FROM_DEVICE);
+=======
+			rxb->page_dma = dma_map_page(trans->dev, page,
+						     rxb->offset,
+						     trans_pcie->rx_buf_bytes,
+						     DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 			if (dma_mapping_error(trans->dev, rxb->page_dma)) {
 				rxb->page = NULL;
 				__free_pages(page, trans_pcie->rx_page_order);
@@ -562,28 +782,51 @@ static void iwl_pcie_rx_allocator(struct iwl_trans *trans)
 
 		if (!pending) {
 			pending = atomic_read(&rba->req_pending);
+<<<<<<< HEAD
 			IWL_DEBUG_RX(trans,
 				     "Got more pending allocation requests = %d\n",
 				     pending);
 		}
 
 		spin_lock(&rba->lock);
+=======
+			if (pending)
+				IWL_DEBUG_TPT(trans,
+					      "Got more pending allocation requests = %d\n",
+					      pending);
+		}
+
+		spin_lock_bh(&rba->lock);
+>>>>>>> upstream/android-13
 		/* add the allocated rbds to the allocator allocated list */
 		list_splice_tail(&local_allocated, &rba->rbd_allocated);
 		/* get more empty RBDs for current pending requests */
 		list_splice_tail_init(&rba->rbd_empty, &local_empty);
+<<<<<<< HEAD
 		spin_unlock(&rba->lock);
+=======
+		spin_unlock_bh(&rba->lock);
+>>>>>>> upstream/android-13
 
 		atomic_inc(&rba->req_ready);
 
 	}
 
+<<<<<<< HEAD
 	spin_lock(&rba->lock);
 	/* return unused rbds to the allocator empty list */
 	list_splice_tail(&local_empty, &rba->rbd_empty);
 	spin_unlock(&rba->lock);
 
 	IWL_DEBUG_RX(trans, "%s, exit.\n", __func__);
+=======
+	spin_lock_bh(&rba->lock);
+	/* return unused rbds to the allocator empty list */
+	list_splice_tail(&local_empty, &rba->rbd_empty);
+	spin_unlock_bh(&rba->lock);
+
+	IWL_DEBUG_TPT(trans, "%s, exit.\n", __func__);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -646,16 +889,25 @@ static int iwl_pcie_free_bd_size(struct iwl_trans *trans, bool use_rx_td)
 	if (use_rx_td)
 		return sizeof(*rx_td);
 	else
+<<<<<<< HEAD
 		return trans->cfg->mq_rx_supported ? sizeof(__le64) :
+=======
+		return trans->trans_cfg->mq_rx_supported ? sizeof(__le64) :
+>>>>>>> upstream/android-13
 			sizeof(__le32);
 }
 
 static void iwl_pcie_free_rxq_dma(struct iwl_trans *trans,
 				  struct iwl_rxq *rxq)
 {
+<<<<<<< HEAD
 	struct device *dev = trans->dev;
 	bool use_rx_td = (trans->cfg->device_family >=
 			  IWL_DEVICE_FAMILY_22560);
+=======
+	bool use_rx_td = (trans->trans_cfg->device_family >=
+			  IWL_DEVICE_FAMILY_AX210);
+>>>>>>> upstream/android-13
 	int free_size = iwl_pcie_free_bd_size(trans, use_rx_td);
 
 	if (rxq->bd)
@@ -665,11 +917,14 @@ static void iwl_pcie_free_rxq_dma(struct iwl_trans *trans,
 	rxq->bd_dma = 0;
 	rxq->bd = NULL;
 
+<<<<<<< HEAD
 	if (rxq->rb_stts)
 		dma_free_coherent(trans->dev,
 				  use_rx_td ? sizeof(__le16) :
 				  sizeof(struct iwl_rb_status),
 				  rxq->rb_stts, rxq->rb_stts_dma);
+=======
+>>>>>>> upstream/android-13
 	rxq->rb_stts_dma = 0;
 	rxq->rb_stts = NULL;
 
@@ -680,6 +935,7 @@ static void iwl_pcie_free_rxq_dma(struct iwl_trans *trans,
 				  rxq->used_bd, rxq->used_bd_dma);
 	rxq->used_bd_dma = 0;
 	rxq->used_bd = NULL;
+<<<<<<< HEAD
 
 	if (trans->cfg->device_family < IWL_DEVICE_FAMILY_22560)
 		return;
@@ -695,6 +951,8 @@ static void iwl_pcie_free_rxq_dma(struct iwl_trans *trans,
 				  rxq->cr_tail, rxq->cr_tail_dma);
 	rxq->cr_tail_dma = 0;
 	rxq->cr_tail = NULL;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int iwl_pcie_alloc_rxq_dma(struct iwl_trans *trans,
@@ -704,12 +962,23 @@ static int iwl_pcie_alloc_rxq_dma(struct iwl_trans *trans,
 	struct device *dev = trans->dev;
 	int i;
 	int free_size;
+<<<<<<< HEAD
 	bool use_rx_td = (trans->cfg->device_family >=
 			  IWL_DEVICE_FAMILY_22560);
 
 	spin_lock_init(&rxq->lock);
 	if (trans->cfg->mq_rx_supported)
 		rxq->queue_size = MQ_RX_TABLE_SIZE;
+=======
+	bool use_rx_td = (trans->trans_cfg->device_family >=
+			  IWL_DEVICE_FAMILY_AX210);
+	size_t rb_stts_size = use_rx_td ? sizeof(__le16) :
+			      sizeof(struct iwl_rb_status);
+
+	spin_lock_init(&rxq->lock);
+	if (trans->trans_cfg->mq_rx_supported)
+		rxq->queue_size = trans->cfg->num_rbds;
+>>>>>>> upstream/android-13
 	else
 		rxq->queue_size = RX_QUEUE_SIZE;
 
@@ -719,6 +988,7 @@ static int iwl_pcie_alloc_rxq_dma(struct iwl_trans *trans,
 	 * Allocate the circular buffer of Read Buffer Descriptors
 	 * (RBDs)
 	 */
+<<<<<<< HEAD
 	rxq->bd = dma_zalloc_coherent(dev,
 				      free_size * rxq->queue_size,
 				      &rxq->bd_dma, GFP_KERNEL);
@@ -733,10 +1003,23 @@ static int iwl_pcie_alloc_rxq_dma(struct iwl_trans *trans,
 						   rxq->queue_size,
 						   &rxq->used_bd_dma,
 						   GFP_KERNEL);
+=======
+	rxq->bd = dma_alloc_coherent(dev, free_size * rxq->queue_size,
+				     &rxq->bd_dma, GFP_KERNEL);
+	if (!rxq->bd)
+		goto err;
+
+	if (trans->trans_cfg->mq_rx_supported) {
+		rxq->used_bd = dma_alloc_coherent(dev,
+						  (use_rx_td ? sizeof(*rxq->cd) : sizeof(__le32)) * rxq->queue_size,
+						  &rxq->used_bd_dma,
+						  GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (!rxq->used_bd)
 			goto err;
 	}
 
+<<<<<<< HEAD
 	/* Allocate the driver's pointer to receive buffer status */
 	rxq->rb_stts = dma_zalloc_coherent(dev, use_rx_td ?
 					   sizeof(__le16) :
@@ -767,6 +1050,11 @@ static int iwl_pcie_alloc_rxq_dma(struct iwl_trans *trans,
 	 * TODO: remove this when stop supporting Z0
 	 */
 	*rxq->cr_tail = cpu_to_le16(500);
+=======
+	rxq->rb_stts = trans_pcie->base_rb_stts + rxq->id * rb_stts_size;
+	rxq->rb_stts_dma =
+		trans_pcie->base_rb_stts_dma + rxq->id * rb_stts_size;
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -776,7 +1064,10 @@ err:
 
 		iwl_pcie_free_rxq_dma(trans, rxq);
 	}
+<<<<<<< HEAD
 	kfree(trans_pcie->rxq);
+=======
+>>>>>>> upstream/android-13
 
 	return -ENOMEM;
 }
@@ -786,12 +1077,19 @@ static int iwl_pcie_rx_alloc(struct iwl_trans *trans)
 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
 	struct iwl_rb_allocator *rba = &trans_pcie->rba;
 	int i, ret;
+<<<<<<< HEAD
+=======
+	size_t rb_stts_size = trans->trans_cfg->device_family >=
+				IWL_DEVICE_FAMILY_AX210 ?
+			      sizeof(__le16) : sizeof(struct iwl_rb_status);
+>>>>>>> upstream/android-13
 
 	if (WARN_ON(trans_pcie->rxq))
 		return -EINVAL;
 
 	trans_pcie->rxq = kcalloc(trans->num_rx_queues, sizeof(struct iwl_rxq),
 				  GFP_KERNEL);
+<<<<<<< HEAD
 	if (!trans_pcie->rxq)
 		return -EINVAL;
 
@@ -805,13 +1103,74 @@ static int iwl_pcie_rx_alloc(struct iwl_trans *trans)
 			return ret;
 	}
 	return 0;
+=======
+	trans_pcie->rx_pool = kcalloc(RX_POOL_SIZE(trans_pcie->num_rx_bufs),
+				      sizeof(trans_pcie->rx_pool[0]),
+				      GFP_KERNEL);
+	trans_pcie->global_table =
+		kcalloc(RX_POOL_SIZE(trans_pcie->num_rx_bufs),
+			sizeof(trans_pcie->global_table[0]),
+			GFP_KERNEL);
+	if (!trans_pcie->rxq || !trans_pcie->rx_pool ||
+	    !trans_pcie->global_table) {
+		ret = -ENOMEM;
+		goto err;
+	}
+
+	spin_lock_init(&rba->lock);
+
+	/*
+	 * Allocate the driver's pointer to receive buffer status.
+	 * Allocate for all queues continuously (HW requirement).
+	 */
+	trans_pcie->base_rb_stts =
+			dma_alloc_coherent(trans->dev,
+					   rb_stts_size * trans->num_rx_queues,
+					   &trans_pcie->base_rb_stts_dma,
+					   GFP_KERNEL);
+	if (!trans_pcie->base_rb_stts) {
+		ret = -ENOMEM;
+		goto err;
+	}
+
+	for (i = 0; i < trans->num_rx_queues; i++) {
+		struct iwl_rxq *rxq = &trans_pcie->rxq[i];
+
+		rxq->id = i;
+		ret = iwl_pcie_alloc_rxq_dma(trans, rxq);
+		if (ret)
+			goto err;
+	}
+	return 0;
+
+err:
+	if (trans_pcie->base_rb_stts) {
+		dma_free_coherent(trans->dev,
+				  rb_stts_size * trans->num_rx_queues,
+				  trans_pcie->base_rb_stts,
+				  trans_pcie->base_rb_stts_dma);
+		trans_pcie->base_rb_stts = NULL;
+		trans_pcie->base_rb_stts_dma = 0;
+	}
+	kfree(trans_pcie->rx_pool);
+	trans_pcie->rx_pool = NULL;
+	kfree(trans_pcie->global_table);
+	trans_pcie->global_table = NULL;
+	kfree(trans_pcie->rxq);
+	trans_pcie->rxq = NULL;
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void iwl_pcie_rx_hw_init(struct iwl_trans *trans, struct iwl_rxq *rxq)
 {
 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
 	u32 rb_size;
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 	const u32 rfdnlog = RX_QUEUE_SIZE_LOG; /* 256 RBDs */
 
 	switch (trans_pcie->rx_buf_size) {
@@ -829,7 +1188,11 @@ static void iwl_pcie_rx_hw_init(struct iwl_trans *trans, struct iwl_rxq *rxq)
 		rb_size = FH_RCSR_RX_CONFIG_REG_VAL_RB_SIZE_4K;
 	}
 
+<<<<<<< HEAD
 	if (!iwl_trans_grab_nic_access(trans, &flags))
+=======
+	if (!iwl_trans_grab_nic_access(trans))
+>>>>>>> upstream/android-13
 		return;
 
 	/* Stop Rx DMA */
@@ -866,7 +1229,11 @@ static void iwl_pcie_rx_hw_init(struct iwl_trans *trans, struct iwl_rxq *rxq)
 		    (RX_RB_TIMEOUT << FH_RCSR_RX_CONFIG_REG_IRQ_RBTH_POS) |
 		    (rfdnlog << FH_RCSR_RX_CONFIG_RBDCB_SIZE_POS));
 
+<<<<<<< HEAD
 	iwl_trans_release_nic_access(trans, &flags);
+=======
+	iwl_trans_release_nic_access(trans);
+>>>>>>> upstream/android-13
 
 	/* Set interrupt coalescing timer to default (2048 usecs) */
 	iwl_write8(trans, CSR_INT_COALESCING, IWL_HOST_INT_TIMEOUT_DEF);
@@ -876,6 +1243,7 @@ static void iwl_pcie_rx_hw_init(struct iwl_trans *trans, struct iwl_rxq *rxq)
 		iwl_set_bit(trans, CSR_INT_COALESCING, IWL_HOST_INT_OPER_MODE);
 }
 
+<<<<<<< HEAD
 void iwl_pcie_enable_rx_wake(struct iwl_trans *trans, bool enable)
 {
 	if (trans->cfg->device_family != IWL_DEVICE_FAMILY_9000)
@@ -900,11 +1268,16 @@ void iwl_pcie_enable_rx_wake(struct iwl_trans *trans, bool enable)
 		    CSR_MAC_SHADOW_REG_CTL2_RX_WAKE);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void iwl_pcie_rx_mq_hw_init(struct iwl_trans *trans)
 {
 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
 	u32 rb_size, enabled = 0;
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 	int i;
 
 	switch (trans_pcie->rx_buf_size) {
@@ -925,7 +1298,11 @@ static void iwl_pcie_rx_mq_hw_init(struct iwl_trans *trans)
 		rb_size = RFH_RXF_DMA_RB_SIZE_4K;
 	}
 
+<<<<<<< HEAD
 	if (!iwl_trans_grab_nic_access(trans, &flags))
+=======
+	if (!iwl_trans_grab_nic_access(trans))
+>>>>>>> upstream/android-13
 		return;
 
 	/* Stop Rx DMA */
@@ -977,18 +1354,29 @@ static void iwl_pcie_rx_mq_hw_init(struct iwl_trans *trans)
 			       RFH_GEN_CFG_VAL(DEFAULT_RXQ_NUM, 0) |
 			       RFH_GEN_CFG_SERVICE_DMA_SNOOP |
 			       RFH_GEN_CFG_VAL(RB_CHUNK_SIZE,
+<<<<<<< HEAD
 					       trans->cfg->integrated ?
+=======
+					       trans->trans_cfg->integrated ?
+>>>>>>> upstream/android-13
 					       RFH_GEN_CFG_RB_CHUNK_SIZE_64 :
 					       RFH_GEN_CFG_RB_CHUNK_SIZE_128));
 	/* Enable the relevant rx queues */
 	iwl_write_prph_no_grab(trans, RFH_RXF_RXQ_ACTIVE, enabled);
 
+<<<<<<< HEAD
 	iwl_trans_release_nic_access(trans, &flags);
 
 	/* Set interrupt coalescing timer to default (2048 usecs) */
 	iwl_write8(trans, CSR_INT_COALESCING, IWL_HOST_INT_TIMEOUT_DEF);
 
 	iwl_pcie_enable_rx_wake(trans, true);
+=======
+	iwl_trans_release_nic_access(trans);
+
+	/* Set interrupt coalescing timer to default (2048 usecs) */
+	iwl_write8(trans, CSR_INT_COALESCING, IWL_HOST_INT_TIMEOUT_DEF);
+>>>>>>> upstream/android-13
 }
 
 void iwl_pcie_rx_init_rxb_lists(struct iwl_rxq *rxq)
@@ -1001,10 +1389,72 @@ void iwl_pcie_rx_init_rxb_lists(struct iwl_rxq *rxq)
 	rxq->used_count = 0;
 }
 
+<<<<<<< HEAD
 int iwl_pcie_dummy_napi_poll(struct napi_struct *napi, int budget)
 {
 	WARN_ON(1);
 	return 0;
+=======
+static int iwl_pcie_rx_handle(struct iwl_trans *trans, int queue, int budget);
+
+static int iwl_pcie_napi_poll(struct napi_struct *napi, int budget)
+{
+	struct iwl_rxq *rxq = container_of(napi, struct iwl_rxq, napi);
+	struct iwl_trans_pcie *trans_pcie;
+	struct iwl_trans *trans;
+	int ret;
+
+	trans_pcie = container_of(napi->dev, struct iwl_trans_pcie, napi_dev);
+	trans = trans_pcie->trans;
+
+	ret = iwl_pcie_rx_handle(trans, rxq->id, budget);
+
+	IWL_DEBUG_ISR(trans, "[%d] handled %d, budget %d\n",
+		      rxq->id, ret, budget);
+
+	if (ret < budget) {
+		spin_lock(&trans_pcie->irq_lock);
+		if (test_bit(STATUS_INT_ENABLED, &trans->status))
+			_iwl_enable_interrupts(trans);
+		spin_unlock(&trans_pcie->irq_lock);
+
+		napi_complete_done(&rxq->napi, ret);
+	}
+
+	return ret;
+}
+
+static int iwl_pcie_napi_poll_msix(struct napi_struct *napi, int budget)
+{
+	struct iwl_rxq *rxq = container_of(napi, struct iwl_rxq, napi);
+	struct iwl_trans_pcie *trans_pcie;
+	struct iwl_trans *trans;
+	int ret;
+
+	trans_pcie = container_of(napi->dev, struct iwl_trans_pcie, napi_dev);
+	trans = trans_pcie->trans;
+
+	ret = iwl_pcie_rx_handle(trans, rxq->id, budget);
+	IWL_DEBUG_ISR(trans, "[%d] handled %d, budget %d\n", rxq->id, ret,
+		      budget);
+
+	if (ret < budget) {
+		int irq_line = rxq->id;
+
+		/* FIRST_RSS is shared with line 0 */
+		if (trans_pcie->shared_vec_mask & IWL_SHARED_IRQ_FIRST_RSS &&
+		    rxq->id == 1)
+			irq_line = 0;
+
+		spin_lock(&trans_pcie->irq_lock);
+		iwl_pcie_clear_irq(trans, irq_line);
+		spin_unlock(&trans_pcie->irq_lock);
+
+		napi_complete_done(&rxq->napi, ret);
+	}
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int _iwl_pcie_rx_init(struct iwl_trans *trans)
@@ -1023,14 +1473,24 @@ static int _iwl_pcie_rx_init(struct iwl_trans *trans)
 
 	cancel_work_sync(&rba->rx_alloc);
 
+<<<<<<< HEAD
 	spin_lock(&rba->lock);
+=======
+	spin_lock_bh(&rba->lock);
+>>>>>>> upstream/android-13
 	atomic_set(&rba->req_pending, 0);
 	atomic_set(&rba->req_ready, 0);
 	INIT_LIST_HEAD(&rba->rbd_allocated);
 	INIT_LIST_HEAD(&rba->rbd_empty);
+<<<<<<< HEAD
 	spin_unlock(&rba->lock);
 
 	/* free all first - we might be reconfigured for a different size */
+=======
+	spin_unlock_bh(&rba->lock);
+
+	/* free all first - we overwrite everything here */
+>>>>>>> upstream/android-13
 	iwl_pcie_free_rbs_pool(trans);
 
 	for (i = 0; i < RX_QUEUE_SIZE; i++)
@@ -1039,9 +1499,13 @@ static int _iwl_pcie_rx_init(struct iwl_trans *trans)
 	for (i = 0; i < trans->num_rx_queues; i++) {
 		struct iwl_rxq *rxq = &trans_pcie->rxq[i];
 
+<<<<<<< HEAD
 		rxq->id = i;
 
 		spin_lock(&rxq->lock);
+=======
+		spin_lock_bh(&rxq->lock);
+>>>>>>> upstream/android-13
 		/*
 		 * Set read write pointer to reflect that we have processed
 		 * and used all buffers, but have not restocked the Rx queue
@@ -1051,11 +1515,17 @@ static int _iwl_pcie_rx_init(struct iwl_trans *trans)
 		rxq->write = 0;
 		rxq->write_actual = 0;
 		memset(rxq->rb_stts, 0,
+<<<<<<< HEAD
 		       (trans->cfg->device_family >= IWL_DEVICE_FAMILY_22560) ?
+=======
+		       (trans->trans_cfg->device_family >=
+			IWL_DEVICE_FAMILY_AX210) ?
+>>>>>>> upstream/android-13
 		       sizeof(__le16) : sizeof(struct iwl_rb_status));
 
 		iwl_pcie_rx_init_rxb_lists(rxq);
 
+<<<<<<< HEAD
 		if (!rxq->napi.poll)
 			netif_napi_add(&trans_pcie->napi_dev, &rxq->napi,
 				       iwl_pcie_dummy_napi_poll, 64);
@@ -1071,6 +1541,30 @@ static int _iwl_pcie_rx_init(struct iwl_trans *trans)
 	num_alloc = queue_size + allocator_pool_size;
 	BUILD_BUG_ON(ARRAY_SIZE(trans_pcie->global_table) !=
 		     ARRAY_SIZE(trans_pcie->rx_pool));
+=======
+		spin_unlock_bh(&rxq->lock);
+
+		if (!rxq->napi.poll) {
+			int (*poll)(struct napi_struct *, int) = iwl_pcie_napi_poll;
+
+			if (trans_pcie->msix_enabled)
+				poll = iwl_pcie_napi_poll_msix;
+
+			netif_napi_add(&trans_pcie->napi_dev, &rxq->napi,
+				       poll, NAPI_POLL_WEIGHT);
+			napi_enable(&rxq->napi);
+		}
+
+	}
+
+	/* move the pool to the default queue and allocator ownerships */
+	queue_size = trans->trans_cfg->mq_rx_supported ?
+			trans_pcie->num_rx_bufs - 1 : RX_QUEUE_SIZE;
+	allocator_pool_size = trans->num_rx_queues *
+		(RX_CLAIM_REQ_ALLOC - RX_POST_REQ_ALLOC);
+	num_alloc = queue_size + allocator_pool_size;
+
+>>>>>>> upstream/android-13
 	for (i = 0; i < num_alloc; i++) {
 		struct iwl_rx_mem_buffer *rxb = &trans_pcie->rx_pool[i];
 
@@ -1096,22 +1590,38 @@ int iwl_pcie_rx_init(struct iwl_trans *trans)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	if (trans->cfg->mq_rx_supported)
+=======
+	if (trans->trans_cfg->mq_rx_supported)
+>>>>>>> upstream/android-13
 		iwl_pcie_rx_mq_hw_init(trans);
 	else
 		iwl_pcie_rx_hw_init(trans, trans_pcie->rxq);
 
 	iwl_pcie_rxq_restock(trans, trans_pcie->rxq);
 
+<<<<<<< HEAD
 	spin_lock(&trans_pcie->rxq->lock);
 	iwl_pcie_rxq_inc_wr_ptr(trans, trans_pcie->rxq);
 	spin_unlock(&trans_pcie->rxq->lock);
+=======
+	spin_lock_bh(&trans_pcie->rxq->lock);
+	iwl_pcie_rxq_inc_wr_ptr(trans, trans_pcie->rxq);
+	spin_unlock_bh(&trans_pcie->rxq->lock);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 int iwl_pcie_gen2_rx_init(struct iwl_trans *trans)
 {
+<<<<<<< HEAD
+=======
+	/* Set interrupt coalescing timer to default (2048 usecs) */
+	iwl_write8(trans, CSR_INT_COALESCING, IWL_HOST_INT_TIMEOUT_DEF);
+
+>>>>>>> upstream/android-13
 	/*
 	 * We don't configure the RFH.
 	 * Restock will be done at alive, after firmware configured the RFH.
@@ -1124,6 +1634,12 @@ void iwl_pcie_rx_free(struct iwl_trans *trans)
 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
 	struct iwl_rb_allocator *rba = &trans_pcie->rba;
 	int i;
+<<<<<<< HEAD
+=======
+	size_t rb_stts_size = trans->trans_cfg->device_family >=
+				IWL_DEVICE_FAMILY_AX210 ?
+			      sizeof(__le16) : sizeof(struct iwl_rb_status);
+>>>>>>> upstream/android-13
 
 	/*
 	 * if rxq is NULL, it means that nothing has been allocated,
@@ -1138,15 +1654,41 @@ void iwl_pcie_rx_free(struct iwl_trans *trans)
 
 	iwl_pcie_free_rbs_pool(trans);
 
+<<<<<<< HEAD
+=======
+	if (trans_pcie->base_rb_stts) {
+		dma_free_coherent(trans->dev,
+				  rb_stts_size * trans->num_rx_queues,
+				  trans_pcie->base_rb_stts,
+				  trans_pcie->base_rb_stts_dma);
+		trans_pcie->base_rb_stts = NULL;
+		trans_pcie->base_rb_stts_dma = 0;
+	}
+
+>>>>>>> upstream/android-13
 	for (i = 0; i < trans->num_rx_queues; i++) {
 		struct iwl_rxq *rxq = &trans_pcie->rxq[i];
 
 		iwl_pcie_free_rxq_dma(trans, rxq);
 
+<<<<<<< HEAD
 		if (rxq->napi.poll)
 			netif_napi_del(&rxq->napi);
 	}
 	kfree(trans_pcie->rxq);
+=======
+		if (rxq->napi.poll) {
+			napi_disable(&rxq->napi);
+			netif_napi_del(&rxq->napi);
+		}
+	}
+	kfree(trans_pcie->rx_pool);
+	kfree(trans_pcie->global_table);
+	kfree(trans_pcie->rxq);
+
+	if (trans_pcie->alloc_page)
+		__free_pages(trans_pcie->alloc_page, trans_pcie->rx_page_order);
+>>>>>>> upstream/android-13
 }
 
 static void iwl_pcie_rx_move_to_allocator(struct iwl_rxq *rxq,
@@ -1202,9 +1744,15 @@ static void iwl_pcie_rx_handle_rb(struct iwl_trans *trans,
 				int i)
 {
 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
+<<<<<<< HEAD
 	struct iwl_txq *txq = trans_pcie->txq[trans_pcie->cmd_queue];
 	bool page_stolen = false;
 	int max_len = PAGE_SIZE << trans_pcie->rx_page_order;
+=======
+	struct iwl_txq *txq = trans->txqs.txq[trans->txqs.cmd.q_id];
+	bool page_stolen = false;
+	int max_len = trans_pcie->rx_buf_bytes;
+>>>>>>> upstream/android-13
 	u32 offset = 0;
 
 	if (WARN_ON(!rxb))
@@ -1214,20 +1762,30 @@ static void iwl_pcie_rx_handle_rb(struct iwl_trans *trans,
 
 	while (offset + sizeof(u32) + sizeof(struct iwl_cmd_header) < max_len) {
 		struct iwl_rx_packet *pkt;
+<<<<<<< HEAD
 		u16 sequence;
 		bool reclaim;
 		int index, cmd_index, len;
 		struct iwl_rx_cmd_buffer rxcb = {
 			._offset = offset,
+=======
+		bool reclaim;
+		int len;
+		struct iwl_rx_cmd_buffer rxcb = {
+			._offset = rxb->offset + offset,
+>>>>>>> upstream/android-13
 			._rx_page_order = trans_pcie->rx_page_order,
 			._page = rxb->page,
 			._page_stolen = false,
 			.truesize = max_len,
 		};
 
+<<<<<<< HEAD
 		if (trans->cfg->device_family >= IWL_DEVICE_FAMILY_22560)
 			rxcb.status = rxq->cd[i].status;
 
+=======
+>>>>>>> upstream/android-13
 		pkt = rxb_addr(&rxcb);
 
 		if (pkt->len_n_flags == cpu_to_le32(FH_RSCSR_FRAME_INVALID)) {
@@ -1256,6 +1814,16 @@ static void iwl_pcie_rx_handle_rb(struct iwl_trans *trans,
 
 		len = iwl_rx_packet_len(pkt);
 		len += sizeof(u32); /* account for status word */
+<<<<<<< HEAD
+=======
+
+		offset += ALIGN(len, FH_RSCSR_FRAME_ALIGN);
+
+		/* check that what the device tells us made sense */
+		if (offset > max_len)
+			break;
+
+>>>>>>> upstream/android-13
 		trace_iwlwifi_dev_rx(trans->dev, trans, pkt, len);
 		trace_iwlwifi_dev_rx_data(trans->dev, trans, pkt, len);
 
@@ -1278,28 +1846,45 @@ static void iwl_pcie_rx_handle_rb(struct iwl_trans *trans,
 			}
 		}
 
+<<<<<<< HEAD
 		sequence = le16_to_cpu(pkt->hdr.sequence);
 		index = SEQ_TO_INDEX(sequence);
 		cmd_index = iwl_pcie_get_cmd_index(txq, index);
 
 		if (rxq->id == 0)
+=======
+		if (rxq->id == trans_pcie->def_rx_queue)
+>>>>>>> upstream/android-13
 			iwl_op_mode_rx(trans->op_mode, &rxq->napi,
 				       &rxcb);
 		else
 			iwl_op_mode_rx_rss(trans->op_mode, &rxq->napi,
 					   &rxcb, rxq->id);
 
+<<<<<<< HEAD
 		if (reclaim) {
 			kzfree(txq->entries[cmd_index].free_buf);
 			txq->entries[cmd_index].free_buf = NULL;
 		}
 
+=======
+>>>>>>> upstream/android-13
 		/*
 		 * After here, we should always check rxcb._page_stolen,
 		 * if it is true then one of the handlers took the page.
 		 */
 
 		if (reclaim) {
+<<<<<<< HEAD
+=======
+			u16 sequence = le16_to_cpu(pkt->hdr.sequence);
+			int index = SEQ_TO_INDEX(sequence);
+			int cmd_index = iwl_txq_get_cmd_index(txq, index);
+
+			kfree_sensitive(txq->entries[cmd_index].free_buf);
+			txq->entries[cmd_index].free_buf = NULL;
+
+>>>>>>> upstream/android-13
 			/* Invoke any callbacks, transfer the buffer to caller,
 			 * and fire off the (possibly) blocking
 			 * iwl_trans_send_cmd()
@@ -1311,9 +1896,14 @@ static void iwl_pcie_rx_handle_rb(struct iwl_trans *trans,
 		}
 
 		page_stolen |= rxcb._page_stolen;
+<<<<<<< HEAD
 		if (trans->cfg->device_family >= IWL_DEVICE_FAMILY_22560)
 			break;
 		offset += ALIGN(len, FH_RSCSR_FRAME_ALIGN);
+=======
+		if (trans->trans_cfg->device_family >= IWL_DEVICE_FAMILY_AX210)
+			break;
+>>>>>>> upstream/android-13
 	}
 
 	/* page was stolen from us -- free our reference */
@@ -1327,8 +1917,13 @@ static void iwl_pcie_rx_handle_rb(struct iwl_trans *trans,
 	 * rx_free list for reuse later. */
 	if (rxb->page != NULL) {
 		rxb->page_dma =
+<<<<<<< HEAD
 			dma_map_page(trans->dev, rxb->page, 0,
 				     PAGE_SIZE << trans_pcie->rx_page_order,
+=======
+			dma_map_page(trans->dev, rxb->page, rxb->offset,
+				     trans_pcie->rx_buf_bytes,
+>>>>>>> upstream/android-13
 				     DMA_FROM_DEVICE);
 		if (dma_mapping_error(trans->dev, rxb->page_dma)) {
 			/*
@@ -1348,18 +1943,30 @@ static void iwl_pcie_rx_handle_rb(struct iwl_trans *trans,
 }
 
 static struct iwl_rx_mem_buffer *iwl_pcie_get_rxb(struct iwl_trans *trans,
+<<<<<<< HEAD
 						  struct iwl_rxq *rxq, int i)
+=======
+						  struct iwl_rxq *rxq, int i,
+						  bool *join)
+>>>>>>> upstream/android-13
 {
 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
 	struct iwl_rx_mem_buffer *rxb;
 	u16 vid;
 
+<<<<<<< HEAD
 	if (!trans->cfg->mq_rx_supported) {
+=======
+	BUILD_BUG_ON(sizeof(struct iwl_rx_completion_desc) != 32);
+
+	if (!trans->trans_cfg->mq_rx_supported) {
+>>>>>>> upstream/android-13
 		rxb = rxq->queue[i];
 		rxq->queue[i] = NULL;
 		return rxb;
 	}
 
+<<<<<<< HEAD
 	/* used_bd is a 32/16 bit but only 12 are used to retrieve the vid */
 	if (trans->cfg->device_family >= IWL_DEVICE_FAMILY_22560)
 		vid = le16_to_cpu(rxq->cd[i].rbid) & 0x0FFF;
@@ -1367,14 +1974,28 @@ static struct iwl_rx_mem_buffer *iwl_pcie_get_rxb(struct iwl_trans *trans,
 		vid = le32_to_cpu(rxq->bd_32[i]) & 0x0FFF;
 
 	if (!vid || vid > ARRAY_SIZE(trans_pcie->global_table))
+=======
+	if (trans->trans_cfg->device_family >= IWL_DEVICE_FAMILY_AX210) {
+		vid = le16_to_cpu(rxq->cd[i].rbid);
+		*join = rxq->cd[i].flags & IWL_RX_CD_FLAGS_FRAGMENTED;
+	} else {
+		vid = le32_to_cpu(rxq->bd_32[i]) & 0x0FFF; /* 12-bit VID */
+	}
+
+	if (!vid || vid > RX_POOL_SIZE(trans_pcie->num_rx_bufs))
+>>>>>>> upstream/android-13
 		goto out_err;
 
 	rxb = trans_pcie->global_table[vid - 1];
 	if (rxb->invalid)
 		goto out_err;
 
+<<<<<<< HEAD
 	if (trans->cfg->device_family >= IWL_DEVICE_FAMILY_22560)
 		rxb->size = le32_to_cpu(rxq->cd[i].size) & IWL_RX_CD_SIZE;
+=======
+	IWL_DEBUG_RX(trans, "Got virtual RB ID %u\n", (u32)rxb->vid);
+>>>>>>> upstream/android-13
 
 	rxb->invalid = true;
 
@@ -1389,6 +2010,7 @@ out_err:
 /*
  * iwl_pcie_rx_handle - Main entry function for receiving responses from fw
  */
+<<<<<<< HEAD
 static void iwl_pcie_rx_handle(struct iwl_trans *trans, int queue)
 {
 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
@@ -1398,6 +2020,17 @@ static void iwl_pcie_rx_handle(struct iwl_trans *trans, int queue)
 
 	if (WARN_ON_ONCE(!trans_pcie->rxq || !trans_pcie->rxq[queue].bd))
 		return;
+=======
+static int iwl_pcie_rx_handle(struct iwl_trans *trans, int queue, int budget)
+{
+	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
+	struct iwl_rxq *rxq;
+	u32 r, i, count = 0, handled = 0;
+	bool emergency = false;
+
+	if (WARN_ON_ONCE(!trans_pcie->rxq || !trans_pcie->rxq[queue].bd))
+		return budget;
+>>>>>>> upstream/android-13
 
 	rxq = &trans_pcie->rxq[queue];
 
@@ -1415,18 +2048,27 @@ restart:
 	if (i == r)
 		IWL_DEBUG_RX(trans, "Q %d: HW = SW = %d\n", rxq->id, r);
 
+<<<<<<< HEAD
 	while (i != r) {
+=======
+	while (i != r && ++handled < budget) {
+>>>>>>> upstream/android-13
 		struct iwl_rb_allocator *rba = &trans_pcie->rba;
 		struct iwl_rx_mem_buffer *rxb;
 		/* number of RBDs still waiting for page allocation */
 		u32 rb_pending_alloc =
 			atomic_read(&trans_pcie->rba.req_pending) *
 			RX_CLAIM_REQ_ALLOC;
+<<<<<<< HEAD
+=======
+		bool join = false;
+>>>>>>> upstream/android-13
 
 		if (unlikely(rb_pending_alloc >= rxq->queue_size / 2 &&
 			     !emergency)) {
 			iwl_pcie_rx_move_to_allocator(rxq, rba);
 			emergency = true;
+<<<<<<< HEAD
 		}
 
 		rxb = iwl_pcie_get_rxb(trans, rxq, i);
@@ -1435,6 +2077,38 @@ restart:
 
 		IWL_DEBUG_RX(trans, "Q %d: HW = %d, SW = %d\n", rxq->id, r, i);
 		iwl_pcie_rx_handle_rb(trans, rxq, rxb, emergency, i);
+=======
+			IWL_DEBUG_TPT(trans,
+				      "RX path is in emergency. Pending allocations %d\n",
+				      rb_pending_alloc);
+		}
+
+		IWL_DEBUG_RX(trans, "Q %d: HW = %d, SW = %d\n", rxq->id, r, i);
+
+		rxb = iwl_pcie_get_rxb(trans, rxq, i, &join);
+		if (!rxb)
+			goto out;
+
+		if (unlikely(join || rxq->next_rb_is_fragment)) {
+			rxq->next_rb_is_fragment = join;
+			/*
+			 * We can only get a multi-RB in the following cases:
+			 *  - firmware issue, sending a too big notification
+			 *  - sniffer mode with a large A-MSDU
+			 *  - large MTU frames (>2k)
+			 * since the multi-RB functionality is limited to newer
+			 * hardware that cannot put multiple entries into a
+			 * single RB.
+			 *
+			 * Right now, the higher layers aren't set up to deal
+			 * with that, so discard all of these.
+			 */
+			list_add_tail(&rxb->list, &rxq->rx_free);
+			rxq->free_count++;
+		} else {
+			iwl_pcie_rx_handle_rb(trans, rxq, rxb, emergency, i);
+		}
+>>>>>>> upstream/android-13
 
 		i = (i + 1) & (rxq->queue_size - 1);
 
@@ -1455,8 +2129,17 @@ restart:
 			count++;
 			if (count == 8) {
 				count = 0;
+<<<<<<< HEAD
 				if (rb_pending_alloc < rxq->queue_size / 3)
 					emergency = false;
+=======
+				if (rb_pending_alloc < rxq->queue_size / 3) {
+					IWL_DEBUG_TPT(trans,
+						      "RX path exited emergency. Pending allocations %d\n",
+						      rb_pending_alloc);
+					emergency = false;
+				}
+>>>>>>> upstream/android-13
 
 				rxq->read = i;
 				spin_unlock(&rxq->lock);
@@ -1469,9 +2152,12 @@ restart:
 out:
 	/* Backtrack one entry */
 	rxq->read = i;
+<<<<<<< HEAD
 	/* update cr tail with the rxq read pointer */
 	if (trans->cfg->device_family >= IWL_DEVICE_FAMILY_22560)
 		*rxq->cr_tail = cpu_to_le16(r);
+=======
+>>>>>>> upstream/android-13
 	spin_unlock(&rxq->lock);
 
 	/*
@@ -1489,10 +2175,16 @@ out:
 	if (unlikely(emergency && count))
 		iwl_pcie_rxq_alloc_rbs(trans, GFP_ATOMIC, rxq);
 
+<<<<<<< HEAD
 	if (rxq->napi.poll)
 		napi_gro_flush(&rxq->napi, false);
 
 	iwl_pcie_rxq_restock(trans, rxq);
+=======
+	iwl_pcie_rxq_restock(trans, rxq);
+
+	return handled;
+>>>>>>> upstream/android-13
 }
 
 static struct iwl_trans_pcie *iwl_pcie_get_trans_pcie(struct msix_entry *entry)
@@ -1512,12 +2204,17 @@ irqreturn_t iwl_pcie_irq_rx_msix_handler(int irq, void *dev_id)
 	struct msix_entry *entry = dev_id;
 	struct iwl_trans_pcie *trans_pcie = iwl_pcie_get_trans_pcie(entry);
 	struct iwl_trans *trans = trans_pcie->trans;
+<<<<<<< HEAD
+=======
+	struct iwl_rxq *rxq = &trans_pcie->rxq[entry->entry];
+>>>>>>> upstream/android-13
 
 	trace_iwlwifi_dev_irq_msix(trans->dev, entry, false, 0, 0);
 
 	if (WARN_ON(entry->entry >= trans->num_rx_queues))
 		return IRQ_NONE;
 
+<<<<<<< HEAD
 	lock_map_acquire(&trans->sync_cmd_lockdep_map);
 
 	local_bh_disable();
@@ -1526,6 +2223,23 @@ irqreturn_t iwl_pcie_irq_rx_msix_handler(int irq, void *dev_id)
 
 	iwl_pcie_clear_irq(trans, entry);
 
+=======
+	if (WARN_ONCE(!rxq,
+		      "[%d] Got MSI-X interrupt before we have Rx queues",
+		      entry->entry))
+		return IRQ_NONE;
+
+	lock_map_acquire(&trans->sync_cmd_lockdep_map);
+	IWL_DEBUG_ISR(trans, "[%d] Got interrupt\n", entry->entry);
+
+	local_bh_disable();
+	if (napi_schedule_prep(&rxq->napi))
+		__napi_schedule(&rxq->napi);
+	else
+		iwl_pcie_clear_irq(trans, entry->entry);
+	local_bh_enable();
+
+>>>>>>> upstream/android-13
 	lock_map_release(&trans->sync_cmd_lockdep_map);
 
 	return IRQ_HANDLED;
@@ -1536,7 +2250,10 @@ irqreturn_t iwl_pcie_irq_rx_msix_handler(int irq, void *dev_id)
  */
 static void iwl_pcie_irq_handle_error(struct iwl_trans *trans)
 {
+<<<<<<< HEAD
 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
+=======
+>>>>>>> upstream/android-13
 	int i;
 
 	/* W/A for WiFi/WiMAX coex and WiMAX own the RF */
@@ -1548,6 +2265,7 @@ static void iwl_pcie_irq_handle_error(struct iwl_trans *trans)
 			    APMG_PS_CTRL_VAL_RESET_REQ))) {
 		clear_bit(STATUS_SYNC_HCMD_ACTIVE, &trans->status);
 		iwl_op_mode_wimax_active(trans->op_mode);
+<<<<<<< HEAD
 		wake_up(&trans_pcie->wait_command_queue);
 		return;
 	}
@@ -1556,14 +2274,31 @@ static void iwl_pcie_irq_handle_error(struct iwl_trans *trans)
 		if (!trans_pcie->txq[i])
 			continue;
 		del_timer(&trans_pcie->txq[i]->stuck_timer);
+=======
+		wake_up(&trans->wait_command_queue);
+		return;
+	}
+
+	for (i = 0; i < trans->trans_cfg->base_params->num_of_queues; i++) {
+		if (!trans->txqs.txq[i])
+			continue;
+		del_timer(&trans->txqs.txq[i]->stuck_timer);
+>>>>>>> upstream/android-13
 	}
 
 	/* The STATUS_FW_ERROR bit is set in this function. This must happen
 	 * before we wake up the command caller, to ensure a proper cleanup. */
+<<<<<<< HEAD
 	iwl_trans_fw_error(trans);
 
 	clear_bit(STATUS_SYNC_HCMD_ACTIVE, &trans->status);
 	wake_up(&trans_pcie->wait_command_queue);
+=======
+	iwl_trans_fw_error(trans, false);
+
+	clear_bit(STATUS_SYNC_HCMD_ACTIVE, &trans->status);
+	wake_up(&trans->wait_command_queue);
+>>>>>>> upstream/android-13
 }
 
 static u32 iwl_pcie_int_cause_non_ict(struct iwl_trans *trans)
@@ -1678,7 +2413,11 @@ void iwl_pcie_handle_rfkill_irq(struct iwl_trans *trans)
 				       &trans->status))
 			IWL_DEBUG_RF_KILL(trans,
 					  "Rfkill while SYNC HCMD in flight\n");
+<<<<<<< HEAD
 		wake_up(&trans_pcie->wait_command_queue);
+=======
+		wake_up(&trans->wait_command_queue);
+>>>>>>> upstream/android-13
 	} else {
 		clear_bit(STATUS_RFKILL_HW, &trans->status);
 		if (trans_pcie->opmode_down)
@@ -1693,10 +2432,18 @@ irqreturn_t iwl_pcie_irq_handler(int irq, void *dev_id)
 	struct isr_statistics *isr_stats = &trans_pcie->isr_stats;
 	u32 inta = 0;
 	u32 handled = 0;
+<<<<<<< HEAD
 
 	lock_map_acquire(&trans->sync_cmd_lockdep_map);
 
 	spin_lock(&trans_pcie->irq_lock);
+=======
+	bool polling = false;
+
+	lock_map_acquire(&trans->sync_cmd_lockdep_map);
+
+	spin_lock_bh(&trans_pcie->irq_lock);
+>>>>>>> upstream/android-13
 
 	/* dram interrupt table not set yet,
 	 * use legacy interrupt.
@@ -1733,7 +2480,11 @@ irqreturn_t iwl_pcie_irq_handler(int irq, void *dev_id)
 		 */
 		if (test_bit(STATUS_INT_ENABLED, &trans->status))
 			_iwl_enable_interrupts(trans);
+<<<<<<< HEAD
 		spin_unlock(&trans_pcie->irq_lock);
+=======
+		spin_unlock_bh(&trans_pcie->irq_lock);
+>>>>>>> upstream/android-13
 		lock_map_release(&trans->sync_cmd_lockdep_map);
 		return IRQ_NONE;
 	}
@@ -1744,7 +2495,11 @@ irqreturn_t iwl_pcie_irq_handler(int irq, void *dev_id)
 		 * already raised an interrupt.
 		 */
 		IWL_WARN(trans, "HARDWARE GONE?? INTA == 0x%08x\n", inta);
+<<<<<<< HEAD
 		spin_unlock(&trans_pcie->irq_lock);
+=======
+		spin_unlock_bh(&trans_pcie->irq_lock);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
@@ -1765,7 +2520,11 @@ irqreturn_t iwl_pcie_irq_handler(int irq, void *dev_id)
 		IWL_DEBUG_ISR(trans, "inta 0x%08x, enabled 0x%08x\n",
 			      inta, iwl_read32(trans, CSR_INT_MASK));
 
+<<<<<<< HEAD
 	spin_unlock(&trans_pcie->irq_lock);
+=======
+	spin_unlock_bh(&trans_pcie->irq_lock);
+>>>>>>> upstream/android-13
 
 	/* Now service all interrupt bits discovered above. */
 	if (inta & CSR_INT_BIT_HW_ERR) {
@@ -1793,7 +2552,11 @@ irqreturn_t iwl_pcie_irq_handler(int irq, void *dev_id)
 	if (inta & CSR_INT_BIT_ALIVE) {
 		IWL_DEBUG_ISR(trans, "Alive interrupt\n");
 		isr_stats->alive++;
+<<<<<<< HEAD
 		if (trans->cfg->gen2) {
+=======
+		if (trans->trans_cfg->gen2) {
+>>>>>>> upstream/android-13
 			/*
 			 * We can restock, since firmware configured
 			 * the RFH
@@ -1885,7 +2648,14 @@ irqreturn_t iwl_pcie_irq_handler(int irq, void *dev_id)
 		isr_stats->rx++;
 
 		local_bh_disable();
+<<<<<<< HEAD
 		iwl_pcie_rx_handle(trans, 0);
+=======
+		if (napi_schedule_prep(&trans_pcie->rxq[0].napi)) {
+			polling = true;
+			__napi_schedule(&trans_pcie->rxq[0].napi);
+		}
+>>>>>>> upstream/android-13
 		local_bh_enable();
 	}
 
@@ -1910,6 +2680,7 @@ irqreturn_t iwl_pcie_irq_handler(int irq, void *dev_id)
 			 inta & ~trans_pcie->inta_mask);
 	}
 
+<<<<<<< HEAD
 	spin_lock(&trans_pcie->irq_lock);
 	/* only Re-enable all interrupt if disabled by irq */
 	if (test_bit(STATUS_INT_ENABLED, &trans->status))
@@ -1924,6 +2695,24 @@ irqreturn_t iwl_pcie_irq_handler(int irq, void *dev_id)
 	else if (handled & (CSR_INT_BIT_ALIVE | CSR_INT_BIT_FH_RX))
 		iwl_enable_fw_load_int_ctx_info(trans);
 	spin_unlock(&trans_pcie->irq_lock);
+=======
+	if (!polling) {
+		spin_lock_bh(&trans_pcie->irq_lock);
+		/* only Re-enable all interrupt if disabled by irq */
+		if (test_bit(STATUS_INT_ENABLED, &trans->status))
+			_iwl_enable_interrupts(trans);
+		/* we are loading the firmware, enable FH_TX interrupt only */
+		else if (handled & CSR_INT_BIT_FH_TX)
+			iwl_enable_fw_load_int(trans);
+		/* Re-enable RF_KILL if it occurred */
+		else if (handled & CSR_INT_BIT_RF_KILL)
+			iwl_enable_rfkill_int(trans);
+		/* Re-enable the ALIVE / Rx interrupt if it occurred */
+		else if (handled & (CSR_INT_BIT_ALIVE | CSR_INT_BIT_FH_RX))
+			iwl_enable_fw_load_int_ctx_info(trans);
+		spin_unlock_bh(&trans_pcie->irq_lock);
+	}
+>>>>>>> upstream/android-13
 
 out:
 	lock_map_release(&trans->sync_cmd_lockdep_map);
@@ -1960,9 +2749,14 @@ int iwl_pcie_alloc_ict(struct iwl_trans *trans)
 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
 
 	trans_pcie->ict_tbl =
+<<<<<<< HEAD
 		dma_zalloc_coherent(trans->dev, ICT_SIZE,
 				   &trans_pcie->ict_tbl_dma,
 				   GFP_KERNEL);
+=======
+		dma_alloc_coherent(trans->dev, ICT_SIZE,
+				   &trans_pcie->ict_tbl_dma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!trans_pcie->ict_tbl)
 		return -ENOMEM;
 
@@ -1986,7 +2780,11 @@ void iwl_pcie_reset_ict(struct iwl_trans *trans)
 	if (!trans_pcie->ict_tbl)
 		return;
 
+<<<<<<< HEAD
 	spin_lock(&trans_pcie->irq_lock);
+=======
+	spin_lock_bh(&trans_pcie->irq_lock);
+>>>>>>> upstream/android-13
 	_iwl_disable_interrupts(trans);
 
 	memset(trans_pcie->ict_tbl, 0, ICT_SIZE);
@@ -2004,7 +2802,11 @@ void iwl_pcie_reset_ict(struct iwl_trans *trans)
 	trans_pcie->ict_index = 0;
 	iwl_write32(trans, CSR_INT, trans_pcie->inta_mask);
 	_iwl_enable_interrupts(trans);
+<<<<<<< HEAD
 	spin_unlock(&trans_pcie->irq_lock);
+=======
+	spin_unlock_bh(&trans_pcie->irq_lock);
+>>>>>>> upstream/android-13
 }
 
 /* Device is going down disable ict interrupt usage */
@@ -2012,9 +2814,15 @@ void iwl_pcie_disable_ict(struct iwl_trans *trans)
 {
 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
 
+<<<<<<< HEAD
 	spin_lock(&trans_pcie->irq_lock);
 	trans_pcie->use_ict = false;
 	spin_unlock(&trans_pcie->irq_lock);
+=======
+	spin_lock_bh(&trans_pcie->irq_lock);
+	trans_pcie->use_ict = false;
+	spin_unlock_bh(&trans_pcie->irq_lock);
+>>>>>>> upstream/android-13
 }
 
 irqreturn_t iwl_pcie_isr(int irq, void *data)
@@ -2045,19 +2853,41 @@ irqreturn_t iwl_pcie_irq_msix_handler(int irq, void *dev_id)
 	struct iwl_trans_pcie *trans_pcie = iwl_pcie_get_trans_pcie(entry);
 	struct iwl_trans *trans = trans_pcie->trans;
 	struct isr_statistics *isr_stats = &trans_pcie->isr_stats;
+<<<<<<< HEAD
 	u32 inta_fh, inta_hw;
 
 	lock_map_acquire(&trans->sync_cmd_lockdep_map);
 
 	spin_lock(&trans_pcie->irq_lock);
+=======
+	u32 inta_fh_msk = ~MSIX_FH_INT_CAUSES_DATA_QUEUE;
+	u32 inta_fh, inta_hw;
+	bool polling = false;
+
+	if (trans_pcie->shared_vec_mask & IWL_SHARED_IRQ_NON_RX)
+		inta_fh_msk |= MSIX_FH_INT_CAUSES_Q0;
+
+	if (trans_pcie->shared_vec_mask & IWL_SHARED_IRQ_FIRST_RSS)
+		inta_fh_msk |= MSIX_FH_INT_CAUSES_Q1;
+
+	lock_map_acquire(&trans->sync_cmd_lockdep_map);
+
+	spin_lock_bh(&trans_pcie->irq_lock);
+>>>>>>> upstream/android-13
 	inta_fh = iwl_read32(trans, CSR_MSIX_FH_INT_CAUSES_AD);
 	inta_hw = iwl_read32(trans, CSR_MSIX_HW_INT_CAUSES_AD);
 	/*
 	 * Clear causes registers to avoid being handling the same cause.
 	 */
+<<<<<<< HEAD
 	iwl_write32(trans, CSR_MSIX_FH_INT_CAUSES_AD, inta_fh);
 	iwl_write32(trans, CSR_MSIX_HW_INT_CAUSES_AD, inta_hw);
 	spin_unlock(&trans_pcie->irq_lock);
+=======
+	iwl_write32(trans, CSR_MSIX_FH_INT_CAUSES_AD, inta_fh & inta_fh_msk);
+	iwl_write32(trans, CSR_MSIX_HW_INT_CAUSES_AD, inta_hw);
+	spin_unlock_bh(&trans_pcie->irq_lock);
+>>>>>>> upstream/android-13
 
 	trace_iwlwifi_dev_irq_msix(trans->dev, entry, true, inta_fh, inta_hw);
 
@@ -2069,8 +2899,13 @@ irqreturn_t iwl_pcie_irq_msix_handler(int irq, void *dev_id)
 
 	if (iwl_have_debug_level(IWL_DL_ISR)) {
 		IWL_DEBUG_ISR(trans,
+<<<<<<< HEAD
 			      "ISR inta_fh 0x%08x, enabled (sw) 0x%08x (hw) 0x%08x\n",
 			      inta_fh, trans_pcie->fh_mask,
+=======
+			      "ISR[%d] inta_fh 0x%08x, enabled (sw) 0x%08x (hw) 0x%08x\n",
+			      entry->entry, inta_fh, trans_pcie->fh_mask,
+>>>>>>> upstream/android-13
 			      iwl_read32(trans, CSR_MSIX_FH_INT_MASK_AD));
 		if (inta_fh & ~trans_pcie->fh_mask)
 			IWL_DEBUG_ISR(trans,
@@ -2083,14 +2918,28 @@ irqreturn_t iwl_pcie_irq_msix_handler(int irq, void *dev_id)
 	if ((trans_pcie->shared_vec_mask & IWL_SHARED_IRQ_NON_RX) &&
 	    inta_fh & MSIX_FH_INT_CAUSES_Q0) {
 		local_bh_disable();
+<<<<<<< HEAD
 		iwl_pcie_rx_handle(trans, 0);
+=======
+		if (napi_schedule_prep(&trans_pcie->rxq[0].napi)) {
+			polling = true;
+			__napi_schedule(&trans_pcie->rxq[0].napi);
+		}
+>>>>>>> upstream/android-13
 		local_bh_enable();
 	}
 
 	if ((trans_pcie->shared_vec_mask & IWL_SHARED_IRQ_FIRST_RSS) &&
 	    inta_fh & MSIX_FH_INT_CAUSES_Q1) {
 		local_bh_disable();
+<<<<<<< HEAD
 		iwl_pcie_rx_handle(trans, 1);
+=======
+		if (napi_schedule_prep(&trans_pcie->rxq[1].napi)) {
+			polling = true;
+			__napi_schedule(&trans_pcie->rxq[1].napi);
+		}
+>>>>>>> upstream/android-13
 		local_bh_enable();
 	}
 
@@ -2108,20 +2957,39 @@ irqreturn_t iwl_pcie_irq_msix_handler(int irq, void *dev_id)
 
 	/* Error detected by uCode */
 	if ((inta_fh & MSIX_FH_INT_CAUSES_FH_ERR) ||
+<<<<<<< HEAD
 	    (inta_hw & MSIX_HW_INT_CAUSES_REG_SW_ERR) ||
 	    (inta_hw & MSIX_HW_INT_CAUSES_REG_SW_ERR_V2)) {
+=======
+	    (inta_hw & MSIX_HW_INT_CAUSES_REG_SW_ERR)) {
+>>>>>>> upstream/android-13
 		IWL_ERR(trans,
 			"Microcode SW error detected. Restarting 0x%X.\n",
 			inta_fh);
 		isr_stats->sw++;
+<<<<<<< HEAD
 		iwl_pcie_irq_handle_error(trans);
+=======
+		/* during FW reset flow report errors from there */
+		if (trans_pcie->fw_reset_state == FW_RESET_REQUESTED) {
+			trans_pcie->fw_reset_state = FW_RESET_ERROR;
+			wake_up(&trans_pcie->fw_reset_waitq);
+		} else {
+			iwl_pcie_irq_handle_error(trans);
+		}
+>>>>>>> upstream/android-13
 	}
 
 	/* After checking FH register check HW register */
 	if (iwl_have_debug_level(IWL_DL_ISR)) {
 		IWL_DEBUG_ISR(trans,
+<<<<<<< HEAD
 			      "ISR inta_hw 0x%08x, enabled (sw) 0x%08x (hw) 0x%08x\n",
 			      inta_hw, trans_pcie->hw_mask,
+=======
+			      "ISR[%d] inta_hw 0x%08x, enabled (sw) 0x%08x (hw) 0x%08x\n",
+			      entry->entry, inta_hw, trans_pcie->hw_mask,
+>>>>>>> upstream/android-13
 			      iwl_read32(trans, CSR_MSIX_HW_INT_MASK_AD));
 		if (inta_hw & ~trans_pcie->hw_mask)
 			IWL_DEBUG_ISR(trans,
@@ -2135,12 +3003,17 @@ irqreturn_t iwl_pcie_irq_msix_handler(int irq, void *dev_id)
 	if (inta_hw & MSIX_HW_INT_CAUSES_REG_ALIVE) {
 		IWL_DEBUG_ISR(trans, "Alive interrupt\n");
 		isr_stats->alive++;
+<<<<<<< HEAD
 		if (trans->cfg->gen2) {
+=======
+		if (trans->trans_cfg->gen2) {
+>>>>>>> upstream/android-13
 			/* We can restock, since firmware configured the RFH */
 			iwl_pcie_rxmq_restock(trans, trans_pcie->rxq);
 		}
 	}
 
+<<<<<<< HEAD
 	if (trans->cfg->device_family >= IWL_DEVICE_FAMILY_22560 &&
 	    inta_hw & MSIX_HW_INT_CAUSES_REG_IPC) {
 		/* Reflect IML transfer status */
@@ -2158,6 +3031,31 @@ irqreturn_t iwl_pcie_irq_msix_handler(int irq, void *dev_id)
 		iwl_pcie_txq_check_wrptrs(trans);
 
 		isr_stats->wakeup++;
+=======
+	/*
+	 * In some rare cases when the HW is in a bad state, we may
+	 * get this interrupt too early, when prph_info is still NULL.
+	 * So make sure that it's not NULL to prevent crashing.
+	 */
+	if (inta_hw & MSIX_HW_INT_CAUSES_REG_WAKEUP && trans_pcie->prph_info) {
+		u32 sleep_notif =
+			le32_to_cpu(trans_pcie->prph_info->sleep_notif);
+		if (sleep_notif == IWL_D3_SLEEP_STATUS_SUSPEND ||
+		    sleep_notif == IWL_D3_SLEEP_STATUS_RESUME) {
+			IWL_DEBUG_ISR(trans,
+				      "Sx interrupt: sleep notification = 0x%x\n",
+				      sleep_notif);
+			trans_pcie->sx_complete = true;
+			wake_up(&trans_pcie->sx_waitq);
+		} else {
+			/* uCode wakes up after power-down sleep */
+			IWL_DEBUG_ISR(trans, "Wakeup interrupt\n");
+			iwl_pcie_rxq_check_wrptr(trans);
+			iwl_pcie_txq_check_wrptrs(trans);
+
+			isr_stats->wakeup++;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	/* Chip got too hot and stopped itself */
@@ -2175,10 +3073,25 @@ irqreturn_t iwl_pcie_irq_msix_handler(int irq, void *dev_id)
 			"Hardware error detected. Restarting.\n");
 
 		isr_stats->hw++;
+<<<<<<< HEAD
 		iwl_pcie_irq_handle_error(trans);
 	}
 
 	iwl_pcie_clear_irq(trans, entry);
+=======
+		trans->dbg.hw_error = true;
+		iwl_pcie_irq_handle_error(trans);
+	}
+
+	if (inta_hw & MSIX_HW_INT_CAUSES_REG_RESET_DONE) {
+		IWL_DEBUG_ISR(trans, "Reset flow completed\n");
+		trans_pcie->fw_reset_state = FW_RESET_OK;
+		wake_up(&trans_pcie->fw_reset_waitq);
+	}
+
+	if (!polling)
+		iwl_pcie_clear_irq(trans, entry->entry);
+>>>>>>> upstream/android-13
 
 	lock_map_release(&trans->sync_cmd_lockdep_map);
 

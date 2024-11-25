@@ -151,7 +151,11 @@ static int is_intel_ider(struct pci_dev *dev)
 }
 
 /**
+<<<<<<< HEAD
  *	ata_generic_init		-	attach generic IDE
+=======
+ *	ata_generic_init_one		-	attach generic IDE
+>>>>>>> upstream/android-13
  *	@dev: PCI device found
  *	@id: match entry
  *

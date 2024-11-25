@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * GPIO driver for AMD
  *
@@ -5,6 +9,7 @@
  * Authors: Ken Xue <Ken.Xue@amd.com>
  *      Wu, Jeff <Jeff.Wu@amd.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
  * version 2, as published by the Free Software Foundation.
@@ -12,6 +17,10 @@
  * Contact Information: Nehal Shah <Nehal-bakulchandra.Shah@amd.com>
  *			Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
  *
+=======
+ * Contact Information: Nehal Shah <Nehal-bakulchandra.Shah@amd.com>
+ *			Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -24,7 +33,11 @@
 #include <linux/errno.h>
 #include <linux/log2.h>
 #include <linux/io.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/driver.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/platform_device.h>
 #include <linux/mutex.h>
@@ -50,7 +63,14 @@ static int amd_gpio_get_direction(struct gpio_chip *gc, unsigned offset)
 	pin_reg = readl(gpio_dev->base + offset * 4);
 	raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
 
+<<<<<<< HEAD
 	return !(pin_reg & BIT(OUTPUT_ENABLE_OFF));
+=======
+	if (pin_reg & BIT(OUTPUT_ENABLE_OFF))
+		return GPIO_LINE_DIRECTION_OUT;
+
+	return GPIO_LINE_DIRECTION_IN;
+>>>>>>> upstream/android-13
 }
 
 static int amd_gpio_direction_input(struct gpio_chip *gc, unsigned offset)
@@ -198,10 +218,22 @@ static int amd_gpio_set_config(struct gpio_chip *gc, unsigned offset,
 static void amd_gpio_dbg_show(struct seq_file *s, struct gpio_chip *gc)
 {
 	u32 pin_reg;
+<<<<<<< HEAD
+=======
+	u32 db_cntrl;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	unsigned int bank, i, pin_num;
 	struct amd_gpio *gpio_dev = gpiochip_get_data(gc);
 
+<<<<<<< HEAD
+=======
+	bool tmr_out_unit;
+	unsigned int time;
+	unsigned int unit;
+	bool tmr_large;
+
+>>>>>>> upstream/android-13
 	char *level_trig;
 	char *active_level;
 	char *interrupt_enable;
@@ -215,6 +247,11 @@ static void amd_gpio_dbg_show(struct seq_file *s, struct gpio_chip *gc)
 	char *pull_down_enable;
 	char *output_value;
 	char *output_enable;
+<<<<<<< HEAD
+=======
+	char debounce_value[40];
+	char *debounce_enable;
+>>>>>>> upstream/android-13
 
 	for (bank = 0; bank < gpio_dev->hwbank_num; bank++) {
 		seq_printf(s, "GPIO bank%d\t", bank);
@@ -328,13 +365,53 @@ static void amd_gpio_dbg_show(struct seq_file *s, struct gpio_chip *gc)
 					pin_sts = "input is low|";
 			}
 
+<<<<<<< HEAD
 			seq_printf(s, "%s %s %s %s %s %s\n"
 				" %s %s %s %s %s %s %s 0x%x\n",
+=======
+			db_cntrl = (DB_CNTRl_MASK << DB_CNTRL_OFF) & pin_reg;
+			if (db_cntrl) {
+				tmr_out_unit = pin_reg & BIT(DB_TMR_OUT_UNIT_OFF);
+				tmr_large = pin_reg & BIT(DB_TMR_LARGE_OFF);
+				time = pin_reg & DB_TMR_OUT_MASK;
+				if (tmr_large) {
+					if (tmr_out_unit)
+						unit = 62500;
+					else
+						unit = 15625;
+				} else {
+					if (tmr_out_unit)
+						unit = 244;
+					else
+						unit = 61;
+				}
+				if ((DB_TYPE_REMOVE_GLITCH << DB_CNTRL_OFF) == db_cntrl)
+					debounce_enable = "debouncing filter (high and low) enabled|";
+				else if ((DB_TYPE_PRESERVE_LOW_GLITCH << DB_CNTRL_OFF) == db_cntrl)
+					debounce_enable = "debouncing filter (low) enabled|";
+				else
+					debounce_enable = "debouncing filter (high) enabled|";
+
+				snprintf(debounce_value, sizeof(debounce_value),
+					 "debouncing timeout is %u (us)|", time * unit);
+			} else {
+				debounce_enable = "debouncing filter disabled|";
+				snprintf(debounce_value, sizeof(debounce_value), " ");
+			}
+
+			seq_printf(s, "%s %s %s %s %s %s\n"
+				" %s %s %s %s %s %s %s %s %s 0x%x\n",
+>>>>>>> upstream/android-13
 				level_trig, active_level, interrupt_enable,
 				interrupt_mask, wake_cntrl0, wake_cntrl1,
 				wake_cntrl2, pin_sts, pull_up_sel,
 				pull_up_enable, pull_down_enable,
+<<<<<<< HEAD
 				output_value, output_enable, pin_reg);
+=======
+				output_value, output_enable,
+				debounce_enable, debounce_value, pin_reg);
+>>>>>>> upstream/android-13
 		}
 	}
 }
@@ -400,6 +477,41 @@ static void amd_gpio_irq_unmask(struct irq_data *d)
 	raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
 }
 
+<<<<<<< HEAD
+=======
+static int amd_gpio_irq_set_wake(struct irq_data *d, unsigned int on)
+{
+	u32 pin_reg;
+	unsigned long flags;
+	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
+	struct amd_gpio *gpio_dev = gpiochip_get_data(gc);
+	u32 wake_mask = BIT(WAKE_CNTRL_OFF_S0I3) | BIT(WAKE_CNTRL_OFF_S3);
+	int err;
+
+	raw_spin_lock_irqsave(&gpio_dev->lock, flags);
+	pin_reg = readl(gpio_dev->base + (d->hwirq)*4);
+
+	if (on)
+		pin_reg |= wake_mask;
+	else
+		pin_reg &= ~wake_mask;
+
+	writel(pin_reg, gpio_dev->base + (d->hwirq)*4);
+	raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
+
+	if (on)
+		err = enable_irq_wake(gpio_dev->irq);
+	else
+		err = disable_irq_wake(gpio_dev->irq);
+
+	if (err)
+		dev_err(&gpio_dev->pdev->dev, "failed to %s wake-up interrupt\n",
+			on ? "enable" : "disable");
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static void amd_gpio_irq_eoi(struct irq_data *d)
 {
 	u32 reg;
@@ -418,13 +530,18 @@ static int amd_gpio_irq_set_type(struct irq_data *d, unsigned int type)
 {
 	int ret = 0;
 	u32 pin_reg, pin_reg_irq_en, mask;
+<<<<<<< HEAD
 	unsigned long flags, irq_flags;
+=======
+	unsigned long flags;
+>>>>>>> upstream/android-13
 	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
 	struct amd_gpio *gpio_dev = gpiochip_get_data(gc);
 
 	raw_spin_lock_irqsave(&gpio_dev->lock, flags);
 	pin_reg = readl(gpio_dev->base + (d->hwirq)*4);
 
+<<<<<<< HEAD
 	/* Ignore the settings coming from the client and
 	 * read the values from the ACPI tables
 	 * while setting the trigger type
@@ -434,6 +551,8 @@ static int amd_gpio_irq_set_type(struct irq_data *d, unsigned int type)
 	if (irq_flags != IRQ_TYPE_NONE)
 		type = irq_flags;
 
+=======
+>>>>>>> upstream/android-13
 	switch (type & IRQ_TYPE_SENSE_MASK) {
 	case IRQ_TYPE_EDGE_RISING:
 		pin_reg &= ~BIT(LEVEL_TRIG_OFF);
@@ -482,7 +601,11 @@ static int amd_gpio_irq_set_type(struct irq_data *d, unsigned int type)
 	/*
 	 * If WAKE_INT_MASTER_REG.MaskStsEn is set, a software write to the
 	 * debounce registers of any GPIO will block wake/interrupt status
+<<<<<<< HEAD
 	 * generation for *all* GPIOs for a lenght of time that depends on
+=======
+	 * generation for *all* GPIOs for a length of time that depends on
+>>>>>>> upstream/android-13
 	 * WAKE_INT_MASTER_REG.MaskStsLength[11:0].  During this period the
 	 * INTERRUPT_ENABLE bit will read as 0.
 	 *
@@ -523,13 +646,27 @@ static struct irq_chip amd_gpio_irqchip = {
 	.irq_disable  = amd_gpio_irq_disable,
 	.irq_mask     = amd_gpio_irq_mask,
 	.irq_unmask   = amd_gpio_irq_unmask,
+<<<<<<< HEAD
 	.irq_eoi      = amd_gpio_irq_eoi,
 	.irq_set_type = amd_gpio_irq_set_type,
 	.flags        = IRQCHIP_SKIP_SET_WAKE,
+=======
+	.irq_set_wake = amd_gpio_irq_set_wake,
+	.irq_eoi      = amd_gpio_irq_eoi,
+	.irq_set_type = amd_gpio_irq_set_type,
+	/*
+	 * We need to set IRQCHIP_ENABLE_WAKEUP_ON_SUSPEND so that a wake event
+	 * also generates an IRQ. We need the IRQ so the irq_handler can clear
+	 * the wake event. Otherwise the wake event will never clear and
+	 * prevent the system from suspending.
+	 */
+	.flags        = IRQCHIP_ENABLE_WAKEUP_ON_SUSPEND,
+>>>>>>> upstream/android-13
 };
 
 #define PIN_IRQ_PENDING	(BIT(INTERRUPT_STS_OFF) | BIT(WAKE_STS_OFF))
 
+<<<<<<< HEAD
 static irqreturn_t amd_gpio_irq_handler(int irq, void *dev_id)
 {
 	struct amd_gpio *gpio_dev = dev_id;
@@ -538,6 +675,16 @@ static irqreturn_t amd_gpio_irq_handler(int irq, void *dev_id)
 	unsigned int i, irqnr;
 	unsigned long flags;
 	u32 __iomem *regs;
+=======
+static bool do_amd_gpio_irq_handler(int irq, void *dev_id)
+{
+	struct amd_gpio *gpio_dev = dev_id;
+	struct gpio_chip *gc = &gpio_dev->gc;
+	unsigned int i, irqnr;
+	unsigned long flags;
+	u32 __iomem *regs;
+	bool ret = false;
+>>>>>>> upstream/android-13
 	u32  regval;
 	u64 status, mask;
 
@@ -559,17 +706,36 @@ static irqreturn_t amd_gpio_irq_handler(int irq, void *dev_id)
 		/* Each status bit covers four pins */
 		for (i = 0; i < 4; i++) {
 			regval = readl(regs + i);
+<<<<<<< HEAD
 			if (!(regval & PIN_IRQ_PENDING) ||
 			    !(regval & BIT(INTERRUPT_MASK_OFF)))
 				continue;
 			irq = irq_find_mapping(gc->irq.domain, irqnr + i);
 			if (irq != 0)
 				generic_handle_irq(irq);
+=======
+			/* caused wake on resume context for shared IRQ */
+			if (irq < 0 && (regval & BIT(WAKE_STS_OFF))) {
+				dev_dbg(&gpio_dev->pdev->dev,
+					"Waking due to GPIO %d: 0x%x",
+					irqnr + i, regval);
+				return true;
+			}
+
+			if (!(regval & PIN_IRQ_PENDING) ||
+			    !(regval & BIT(INTERRUPT_MASK_OFF)))
+				continue;
+			generic_handle_domain_irq(gc->irq.domain, irqnr + i);
+>>>>>>> upstream/android-13
 
 			/* Clear interrupt.
 			 * We must read the pin register again, in case the
 			 * value was changed while executing
+<<<<<<< HEAD
 			 * generic_handle_irq() above.
+=======
+			 * generic_handle_domain_irq() above.
+>>>>>>> upstream/android-13
 			 * If we didn't find a mapping for the interrupt,
 			 * disable it in order to avoid a system hang caused
 			 * by an interrupt storm.
@@ -584,9 +750,18 @@ static irqreturn_t amd_gpio_irq_handler(int irq, void *dev_id)
 			}
 			writel(regval, regs + i);
 			raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
+<<<<<<< HEAD
 			ret = IRQ_HANDLED;
 		}
 	}
+=======
+			ret = true;
+		}
+	}
+	/* did not cause wake on resume context for shared IRQ */
+	if (irq < 0)
+		return false;
+>>>>>>> upstream/android-13
 
 	/* Signal EOI to the GPIO unit */
 	raw_spin_lock_irqsave(&gpio_dev->lock, flags);
@@ -598,6 +773,19 @@ static irqreturn_t amd_gpio_irq_handler(int irq, void *dev_id)
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static irqreturn_t amd_gpio_irq_handler(int irq, void *dev_id)
+{
+	return IRQ_RETVAL(do_amd_gpio_irq_handler(irq, dev_id));
+}
+
+static bool __maybe_unused amd_gpio_check_wake(void *dev_id)
+{
+	return do_amd_gpio_irq_handler(-1, dev_id);
+}
+
+>>>>>>> upstream/android-13
 static int amd_get_groups_count(struct pinctrl_dev *pctldev)
 {
 	struct amd_gpio *gpio_dev = pinctrl_dev_get_drvdata(pctldev);
@@ -774,6 +962,37 @@ static const struct pinconf_ops amd_pinconf_ops = {
 	.pin_config_group_set = amd_pinconf_group_set,
 };
 
+<<<<<<< HEAD
+=======
+static void amd_gpio_irq_init(struct amd_gpio *gpio_dev)
+{
+	struct pinctrl_desc *desc = gpio_dev->pctrl->desc;
+	unsigned long flags;
+	u32 pin_reg, mask;
+	int i;
+
+	mask = BIT(WAKE_CNTRL_OFF_S0I3) | BIT(WAKE_CNTRL_OFF_S3) |
+		BIT(INTERRUPT_MASK_OFF) | BIT(INTERRUPT_ENABLE_OFF) |
+		BIT(WAKE_CNTRL_OFF_S4);
+
+	for (i = 0; i < desc->npins; i++) {
+		int pin = desc->pins[i].number;
+		const struct pin_desc *pd = pin_desc_get(gpio_dev->pctrl, pin);
+
+		if (!pd)
+			continue;
+
+		raw_spin_lock_irqsave(&gpio_dev->lock, flags);
+
+		pin_reg = readl(gpio_dev->base + i * 4);
+		pin_reg &= ~mask;
+		writel(pin_reg, gpio_dev->base + i * 4);
+
+		raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
+	}
+}
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM_SLEEP
 static bool amd_gpio_should_save(struct amd_gpio *gpio_dev, unsigned int pin)
 {
@@ -795,8 +1014,12 @@ static bool amd_gpio_should_save(struct amd_gpio *gpio_dev, unsigned int pin)
 
 static int amd_gpio_suspend(struct device *dev)
 {
+<<<<<<< HEAD
 	struct platform_device *pdev = to_platform_device(dev);
 	struct amd_gpio *gpio_dev = platform_get_drvdata(pdev);
+=======
+	struct amd_gpio *gpio_dev = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	struct pinctrl_desc *desc = gpio_dev->pctrl->desc;
 	int i;
 
@@ -814,8 +1037,12 @@ static int amd_gpio_suspend(struct device *dev)
 
 static int amd_gpio_resume(struct device *dev)
 {
+<<<<<<< HEAD
 	struct platform_device *pdev = to_platform_device(dev);
 	struct amd_gpio *gpio_dev = platform_get_drvdata(pdev);
+=======
+	struct amd_gpio *gpio_dev = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	struct pinctrl_desc *desc = gpio_dev->pctrl->desc;
 	int i;
 
@@ -848,9 +1075,15 @@ static struct pinctrl_desc amd_pinctrl_desc = {
 static int amd_gpio_probe(struct platform_device *pdev)
 {
 	int ret = 0;
+<<<<<<< HEAD
 	int irq_base;
 	struct resource *res;
 	struct amd_gpio *gpio_dev;
+=======
+	struct resource *res;
+	struct amd_gpio *gpio_dev;
+	struct gpio_irq_chip *girq;
+>>>>>>> upstream/android-13
 
 	gpio_dev = devm_kzalloc(&pdev->dev,
 				sizeof(struct amd_gpio), GFP_KERNEL);
@@ -865,16 +1098,26 @@ static int amd_gpio_probe(struct platform_device *pdev)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	gpio_dev->base = devm_ioremap_nocache(&pdev->dev, res->start,
+=======
+	gpio_dev->base = devm_ioremap(&pdev->dev, res->start,
+>>>>>>> upstream/android-13
 						resource_size(res));
 	if (!gpio_dev->base)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	irq_base = platform_get_irq(pdev, 0);
 	if (irq_base < 0) {
 		dev_err(&pdev->dev, "Failed to get gpio IRQ: %d\n", irq_base);
 		return irq_base;
 	}
+=======
+	gpio_dev->irq = platform_get_irq(pdev, 0);
+	if (gpio_dev->irq < 0)
+		return gpio_dev->irq;
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PM_SLEEP
 	gpio_dev->saved_regs = devm_kcalloc(&pdev->dev, amd_pinctrl_desc.npins,
@@ -914,6 +1157,21 @@ static int amd_gpio_probe(struct platform_device *pdev)
 		return PTR_ERR(gpio_dev->pctrl);
 	}
 
+<<<<<<< HEAD
+=======
+	/* Disable and mask interrupts */
+	amd_gpio_irq_init(gpio_dev);
+
+	girq = &gpio_dev->gc.irq;
+	girq->chip = &amd_gpio_irqchip;
+	/* This will let us handle the parent IRQ in the driver */
+	girq->parent_handler = NULL;
+	girq->num_parents = 0;
+	girq->parents = NULL;
+	girq->default_type = IRQ_TYPE_NONE;
+	girq->handler = handle_simple_irq;
+
+>>>>>>> upstream/android-13
 	ret = gpiochip_add_data(&gpio_dev->gc, gpio_dev);
 	if (ret)
 		return ret;
@@ -925,6 +1183,7 @@ static int amd_gpio_probe(struct platform_device *pdev)
 		goto out2;
 	}
 
+<<<<<<< HEAD
 	ret = gpiochip_irqchip_add(&gpio_dev->gc,
 				&amd_gpio_irqchip,
 				0,
@@ -938,10 +1197,18 @@ static int amd_gpio_probe(struct platform_device *pdev)
 
 	ret = devm_request_irq(&pdev->dev, irq_base, amd_gpio_irq_handler, 0,
 			       KBUILD_MODNAME, gpio_dev);
+=======
+	ret = devm_request_irq(&pdev->dev, gpio_dev->irq, amd_gpio_irq_handler,
+			       IRQF_SHARED, KBUILD_MODNAME, gpio_dev);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto out2;
 
 	platform_set_drvdata(pdev, gpio_dev);
+<<<<<<< HEAD
+=======
+	acpi_register_wakeup_handler(gpio_dev->irq, amd_gpio_check_wake, gpio_dev);
+>>>>>>> upstream/android-13
 
 	dev_dbg(&pdev->dev, "amd gpio driver loaded\n");
 	return ret;
@@ -959,16 +1226,32 @@ static int amd_gpio_remove(struct platform_device *pdev)
 	gpio_dev = platform_get_drvdata(pdev);
 
 	gpiochip_remove(&gpio_dev->gc);
+<<<<<<< HEAD
+=======
+	acpi_unregister_wakeup_handler(amd_gpio_check_wake, gpio_dev);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct acpi_device_id amd_gpio_acpi_match[] = {
 	{ "AMD0030", 0 },
 	{ "AMDI0030", 0},
 	{ },
 };
 MODULE_DEVICE_TABLE(acpi, amd_gpio_acpi_match);
+=======
+#ifdef CONFIG_ACPI
+static const struct acpi_device_id amd_gpio_acpi_match[] = {
+	{ "AMD0030", 0 },
+	{ "AMDI0030", 0},
+	{ "AMDI0031", 0},
+	{ },
+};
+MODULE_DEVICE_TABLE(acpi, amd_gpio_acpi_match);
+#endif
+>>>>>>> upstream/android-13
 
 static struct platform_driver amd_gpio_driver = {
 	.driver		= {

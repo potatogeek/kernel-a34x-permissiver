@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: (GPL-2.0 OR BSD-3-Clause)
 /*
  * Greybus Firmware Management User Header
@@ -50,6 +51,14 @@
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+=======
+/* SPDX-License-Identifier: (GPL-2.0 OR BSD-3-Clause) */
+/*
+ * Greybus Firmware Management User Header
+ *
+ * Copyright(c) 2016 Google Inc. All rights reserved.
+ * Copyright(c) 2016 Linaro Ltd. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __GREYBUS_FIRMWARE_USER_H

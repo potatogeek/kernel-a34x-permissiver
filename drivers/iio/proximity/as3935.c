@@ -7,6 +7,10 @@
  */
 
 #include <linux/module.h>
+<<<<<<< HEAD
+=======
+#include <linux/mod_devicetable.h>
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/interrupt.h>
 #include <linux/delay.h>
@@ -14,7 +18,10 @@
 #include <linux/mutex.h>
 #include <linux/err.h>
 #include <linux/irq.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/spi/spi.h>
 #include <linux/iio/iio.h>
 #include <linux/iio/sysfs.h>
@@ -22,8 +29,11 @@
 #include <linux/iio/trigger_consumer.h>
 #include <linux/iio/buffer.h>
 #include <linux/iio/triggered_buffer.h>
+<<<<<<< HEAD
 #include <linux/of_gpio.h>
 
+=======
+>>>>>>> upstream/android-13
 
 #define AS3935_AFE_GAIN		0x00
 #define AS3935_AFE_MASK		0x3F
@@ -61,7 +71,15 @@ struct as3935_state {
 	unsigned long noise_tripped;
 	u32 tune_cap;
 	u32 nflwdth_reg;
+<<<<<<< HEAD
 	u8 buffer[16]; /* 8-bit data + 56-bit padding + 64-bit timestamp */
+=======
+	/* Ensure timestamp is naturally aligned */
+	struct {
+		u8 chan;
+		s64 timestamp __aligned(8);
+	} scan;
+>>>>>>> upstream/android-13
 	u8 buf[2] ____cacheline_aligned;
 };
 
@@ -227,8 +245,13 @@ static irqreturn_t as3935_trigger_handler(int irq, void *private)
 	if (ret)
 		goto err_read;
 
+<<<<<<< HEAD
 	st->buffer[0] = val & AS3935_DATA_MASK;
 	iio_push_to_buffers_with_timestamp(indio_dev, &st->buffer,
+=======
+	st->scan.chan = val & AS3935_DATA_MASK;
+	iio_push_to_buffers_with_timestamp(indio_dev, &st->scan,
+>>>>>>> upstream/android-13
 					   iio_get_time_ns(indio_dev));
 err_read:
 	iio_trigger_notify_done(indio_dev->trig);
@@ -345,21 +368,46 @@ static SIMPLE_DEV_PM_OPS(as3935_pm_ops, as3935_suspend, as3935_resume);
 #define AS3935_PM_OPS NULL
 #endif
 
+<<<<<<< HEAD
 static int as3935_probe(struct spi_device *spi)
 {
 	struct iio_dev *indio_dev;
 	struct iio_trigger *trig;
 	struct as3935_state *st;
 	struct device_node *np = spi->dev.of_node;
+=======
+static void as3935_stop_work(void *data)
+{
+	struct iio_dev *indio_dev = data;
+	struct as3935_state *st = iio_priv(indio_dev);
+
+	cancel_delayed_work_sync(&st->work);
+}
+
+static int as3935_probe(struct spi_device *spi)
+{
+	struct device *dev = &spi->dev;
+	struct iio_dev *indio_dev;
+	struct iio_trigger *trig;
+	struct as3935_state *st;
+>>>>>>> upstream/android-13
 	int ret;
 
 	/* Be sure lightning event interrupt is specified */
 	if (!spi->irq) {
+<<<<<<< HEAD
 		dev_err(&spi->dev, "unable to get event interrupt\n");
 		return -EINVAL;
 	}
 
 	indio_dev = devm_iio_device_alloc(&spi->dev, sizeof(*st));
+=======
+		dev_err(dev, "unable to get event interrupt\n");
+		return -EINVAL;
+	}
+
+	indio_dev = devm_iio_device_alloc(dev, sizeof(*st));
+>>>>>>> upstream/android-13
 	if (!indio_dev)
 		return -ENOMEM;
 
@@ -368,6 +416,7 @@ static int as3935_probe(struct spi_device *spi)
 
 	spi_set_drvdata(spi, indio_dev);
 	mutex_init(&st->lock);
+<<<<<<< HEAD
 	INIT_DELAYED_WORK(&st->work, as3935_event_work);
 
 	ret = of_property_read_u32(np,
@@ -376,40 +425,69 @@ static int as3935_probe(struct spi_device *spi)
 		st->tune_cap = 0;
 		dev_warn(&spi->dev,
 			"no tuning-capacitor-pf set, defaulting to %d",
+=======
+
+	ret = device_property_read_u32(dev,
+			"ams,tuning-capacitor-pf", &st->tune_cap);
+	if (ret) {
+		st->tune_cap = 0;
+		dev_warn(dev, "no tuning-capacitor-pf set, defaulting to %d",
+>>>>>>> upstream/android-13
 			st->tune_cap);
 	}
 
 	if (st->tune_cap > MAX_PF_CAP) {
+<<<<<<< HEAD
 		dev_err(&spi->dev,
 			"wrong tuning-capacitor-pf setting of %d\n",
+=======
+		dev_err(dev, "wrong tuning-capacitor-pf setting of %d\n",
+>>>>>>> upstream/android-13
 			st->tune_cap);
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	ret = of_property_read_u32(np,
 			"ams,nflwdth", &st->nflwdth_reg);
 	if (!ret && st->nflwdth_reg > AS3935_NFLWDTH_MASK) {
 		dev_err(&spi->dev,
 			"invalid nflwdth setting of %d\n",
+=======
+	ret = device_property_read_u32(dev,
+			"ams,nflwdth", &st->nflwdth_reg);
+	if (!ret && st->nflwdth_reg > AS3935_NFLWDTH_MASK) {
+		dev_err(dev, "invalid nflwdth setting of %d\n",
+>>>>>>> upstream/android-13
 			st->nflwdth_reg);
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &spi->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->name = spi_get_device_id(spi)->name;
 	indio_dev->channels = as3935_channels;
 	indio_dev->num_channels = ARRAY_SIZE(as3935_channels);
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->info = &as3935_info;
 
+<<<<<<< HEAD
 	trig = devm_iio_trigger_alloc(&spi->dev, "%s-dev%d",
 				      indio_dev->name, indio_dev->id);
+=======
+	trig = devm_iio_trigger_alloc(dev, "%s-dev%d",
+				      indio_dev->name,
+				      iio_device_id(indio_dev));
+>>>>>>> upstream/android-13
 
 	if (!trig)
 		return -ENOMEM;
 
 	st->trig = trig;
 	st->noise_tripped = jiffies - HZ;
+<<<<<<< HEAD
 	trig->dev.parent = indio_dev->dev.parent;
 	iio_trigger_set_drvdata(trig, indio_dev);
 	trig->ops = &iio_interrupt_trigger_ops;
@@ -426,10 +504,29 @@ static int as3935_probe(struct spi_device *spi)
 	if (ret) {
 		dev_err(&spi->dev, "cannot setup iio trigger\n");
 		goto unregister_trigger;
+=======
+	iio_trigger_set_drvdata(trig, indio_dev);
+	trig->ops = &iio_interrupt_trigger_ops;
+
+	ret = devm_iio_trigger_register(dev, trig);
+	if (ret) {
+		dev_err(dev, "failed to register trigger\n");
+		return ret;
+	}
+
+	ret = devm_iio_triggered_buffer_setup(dev, indio_dev,
+					      iio_pollfunc_store_time,
+					      as3935_trigger_handler, NULL);
+
+	if (ret) {
+		dev_err(dev, "cannot setup iio trigger\n");
+		return ret;
+>>>>>>> upstream/android-13
 	}
 
 	calibrate_as3935(st);
 
+<<<<<<< HEAD
 	ret = devm_request_irq(&spi->dev, spi->irq,
 				&as3935_interrupt_handler,
 				IRQF_TRIGGER_RISING,
@@ -467,6 +564,30 @@ static int as3935_remove(struct spi_device *spi)
 	iio_trigger_unregister(st->trig);
 
 	return 0;
+=======
+	INIT_DELAYED_WORK(&st->work, as3935_event_work);
+	ret = devm_add_action(dev, as3935_stop_work, indio_dev);
+	if (ret)
+		return ret;
+
+	ret = devm_request_irq(dev, spi->irq,
+				&as3935_interrupt_handler,
+				IRQF_TRIGGER_RISING,
+				dev_name(dev),
+				indio_dev);
+
+	if (ret) {
+		dev_err(dev, "unable to request irq\n");
+		return ret;
+	}
+
+	ret = devm_iio_device_register(dev, indio_dev);
+	if (ret < 0) {
+		dev_err(dev, "unable to register device\n");
+		return ret;
+	}
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static const struct of_device_id as3935_of_match[] = {
@@ -484,11 +605,18 @@ MODULE_DEVICE_TABLE(spi, as3935_id);
 static struct spi_driver as3935_driver = {
 	.driver = {
 		.name	= "as3935",
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(as3935_of_match),
 		.pm	= AS3935_PM_OPS,
 	},
 	.probe		= as3935_probe,
 	.remove		= as3935_remove,
+=======
+		.of_match_table = as3935_of_match,
+		.pm	= AS3935_PM_OPS,
+	},
+	.probe		= as3935_probe,
+>>>>>>> upstream/android-13
 	.id_table	= as3935_id,
 };
 module_spi_driver(as3935_driver);

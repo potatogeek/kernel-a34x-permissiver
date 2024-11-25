@@ -6,7 +6,10 @@
 # Copyright (C) 2008 Wind River Systems, Inc.
 #   written by Ralf Baechle <ralf@linux-mips.org>
 #
+<<<<<<< HEAD
 obj-y				+= malta-display.o
+=======
+>>>>>>> upstream/android-13
 obj-y				+= malta-dt.o
 obj-y				+= malta-dtshim.o
 obj-y				+= malta-init.o

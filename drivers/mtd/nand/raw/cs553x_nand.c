@@ -1,19 +1,29 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * (C) 2005, 2006 Red Hat Inc.
  *
  * Author: David Woodhouse <dwmw2@infradead.org>
  *	   Tom Sylla <tom.sylla@amd.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  *  Overview:
  *   This is a device driver for the NAND flash controller found on
  *   the AMD CS5535/CS5536 companion chipsets for the Geode processor.
  *   mtd-id for command line partitioning is cs553x_nand_cs[0-3]
  *   where 0-3 reflects the chip select for NAND.
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -22,12 +32,21 @@
 #include <linux/module.h>
 #include <linux/delay.h>
 #include <linux/mtd/mtd.h>
+<<<<<<< HEAD
 #include <linux/mtd/rawnand.h>
 #include <linux/mtd/nand_ecc.h>
 #include <linux/mtd/partitions.h>
 
 #include <asm/msr.h>
 #include <asm/io.h>
+=======
+#include <linux/mtd/nand-ecc-sw-hamming.h>
+#include <linux/mtd/rawnand.h>
+#include <linux/mtd/partitions.h>
+#include <linux/iopoll.h>
+
+#include <asm/msr.h>
+>>>>>>> upstream/android-13
 
 #define NR_CS553X_CONTROLLERS	4
 
@@ -93,6 +112,7 @@
 #define CS_NAND_ECC_CLRECC	(1<<1)
 #define CS_NAND_ECC_ENECC	(1<<0)
 
+<<<<<<< HEAD
 static void cs553x_read_buf(struct mtd_info *mtd, u_char *buf, int len)
 {
 	struct nand_chip *this = mtd_to_nand(mtd);
@@ -172,6 +192,153 @@ static int cs_calculate_ecc(struct mtd_info *mtd, const u_char *dat, u_char *ecc
 	void __iomem *mmio_base = this->IO_ADDR_R;
 
 	ecc = readl(mmio_base + MM_NAND_STS);
+=======
+struct cs553x_nand_controller {
+	struct nand_controller base;
+	struct nand_chip chip;
+	void __iomem *mmio;
+};
+
+static struct cs553x_nand_controller *
+to_cs553x(struct nand_controller *controller)
+{
+	return container_of(controller, struct cs553x_nand_controller, base);
+}
+
+static int cs553x_write_ctrl_byte(struct cs553x_nand_controller *cs553x,
+				  u32 ctl, u8 data)
+{
+	u8 status;
+	int ret;
+
+	writeb(ctl, cs553x->mmio + MM_NAND_CTL);
+	writeb(data, cs553x->mmio + MM_NAND_IO);
+	ret = readb_poll_timeout_atomic(cs553x->mmio + MM_NAND_STS, status,
+					!(status & CS_NAND_CTLR_BUSY), 1,
+					100000);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
+static void cs553x_data_in(struct cs553x_nand_controller *cs553x, void *buf,
+			   unsigned int len)
+{
+	writeb(0, cs553x->mmio + MM_NAND_CTL);
+	while (unlikely(len > 0x800)) {
+		memcpy_fromio(buf, cs553x->mmio, 0x800);
+		buf += 0x800;
+		len -= 0x800;
+	}
+	memcpy_fromio(buf, cs553x->mmio, len);
+}
+
+static void cs553x_data_out(struct cs553x_nand_controller *cs553x,
+			    const void *buf, unsigned int len)
+{
+	writeb(0, cs553x->mmio + MM_NAND_CTL);
+	while (unlikely(len > 0x800)) {
+		memcpy_toio(cs553x->mmio, buf, 0x800);
+		buf += 0x800;
+		len -= 0x800;
+	}
+	memcpy_toio(cs553x->mmio, buf, len);
+}
+
+static int cs553x_wait_ready(struct cs553x_nand_controller *cs553x,
+			     unsigned int timeout_ms)
+{
+	u8 mask = CS_NAND_CTLR_BUSY | CS_NAND_STS_FLASH_RDY;
+	u8 status;
+
+	return readb_poll_timeout(cs553x->mmio + MM_NAND_STS, status,
+				  (status & mask) == CS_NAND_STS_FLASH_RDY, 100,
+				  timeout_ms * 1000);
+}
+
+static int cs553x_exec_instr(struct cs553x_nand_controller *cs553x,
+			     const struct nand_op_instr *instr)
+{
+	unsigned int i;
+	int ret = 0;
+
+	switch (instr->type) {
+	case NAND_OP_CMD_INSTR:
+		ret = cs553x_write_ctrl_byte(cs553x, CS_NAND_CTL_CLE,
+					     instr->ctx.cmd.opcode);
+		break;
+
+	case NAND_OP_ADDR_INSTR:
+		for (i = 0; i < instr->ctx.addr.naddrs; i++) {
+			ret = cs553x_write_ctrl_byte(cs553x, CS_NAND_CTL_ALE,
+						     instr->ctx.addr.addrs[i]);
+			if (ret)
+				break;
+		}
+		break;
+
+	case NAND_OP_DATA_IN_INSTR:
+		cs553x_data_in(cs553x, instr->ctx.data.buf.in,
+			       instr->ctx.data.len);
+		break;
+
+	case NAND_OP_DATA_OUT_INSTR:
+		cs553x_data_out(cs553x, instr->ctx.data.buf.out,
+				instr->ctx.data.len);
+		break;
+
+	case NAND_OP_WAITRDY_INSTR:
+		ret = cs553x_wait_ready(cs553x, instr->ctx.waitrdy.timeout_ms);
+		break;
+	}
+
+	if (instr->delay_ns)
+		ndelay(instr->delay_ns);
+
+	return ret;
+}
+
+static int cs553x_exec_op(struct nand_chip *this,
+			  const struct nand_operation *op,
+			  bool check_only)
+{
+	struct cs553x_nand_controller *cs553x = to_cs553x(this->controller);
+	unsigned int i;
+	int ret;
+
+	if (check_only)
+		return true;
+
+	/* De-assert the CE pin */
+	writeb(0, cs553x->mmio + MM_NAND_CTL);
+	for (i = 0; i < op->ninstrs; i++) {
+		ret = cs553x_exec_instr(cs553x, &op->instrs[i]);
+		if (ret)
+			break;
+	}
+
+	/* Re-assert the CE pin. */
+	writeb(CS_NAND_CTL_CE, cs553x->mmio + MM_NAND_CTL);
+
+	return ret;
+}
+
+static void cs_enable_hwecc(struct nand_chip *this, int mode)
+{
+	struct cs553x_nand_controller *cs553x = to_cs553x(this->controller);
+
+	writeb(0x07, cs553x->mmio + MM_NAND_ECC_CTL);
+}
+
+static int cs_calculate_ecc(struct nand_chip *this, const u_char *dat,
+			    u_char *ecc_code)
+{
+	struct cs553x_nand_controller *cs553x = to_cs553x(this->controller);
+	uint32_t ecc;
+
+	ecc = readl(cs553x->mmio + MM_NAND_STS);
+>>>>>>> upstream/android-13
 
 	ecc_code[1] = ecc >> 8;
 	ecc_code[0] = ecc >> 16;
@@ -179,10 +346,47 @@ static int cs_calculate_ecc(struct mtd_info *mtd, const u_char *dat, u_char *ecc
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct mtd_info *cs553x_mtd[4];
 
 static int __init cs553x_init_one(int cs, int mmio, unsigned long adr)
 {
+=======
+static int cs553x_ecc_correct(struct nand_chip *chip,
+			      unsigned char *buf,
+			      unsigned char *read_ecc,
+			      unsigned char *calc_ecc)
+{
+	return ecc_sw_hamming_correct(buf, read_ecc, calc_ecc,
+				      chip->ecc.size, false);
+}
+
+static struct cs553x_nand_controller *controllers[4];
+
+static int cs553x_attach_chip(struct nand_chip *chip)
+{
+	if (chip->ecc.engine_type != NAND_ECC_ENGINE_TYPE_ON_HOST)
+		return 0;
+
+	chip->ecc.size = 256;
+	chip->ecc.bytes = 3;
+	chip->ecc.hwctl  = cs_enable_hwecc;
+	chip->ecc.calculate = cs_calculate_ecc;
+	chip->ecc.correct  = cs553x_ecc_correct;
+	chip->ecc.strength = 1;
+
+	return 0;
+}
+
+static const struct nand_controller_ops cs553x_nand_controller_ops = {
+	.exec_op = cs553x_exec_op,
+	.attach_chip = cs553x_attach_chip,
+};
+
+static int __init cs553x_init_one(int cs, int mmio, unsigned long adr)
+{
+	struct cs553x_nand_controller *controller;
+>>>>>>> upstream/android-13
 	int err = 0;
 	struct nand_chip *this;
 	struct mtd_info *new_mtd;
@@ -196,25 +400,43 @@ static int __init cs553x_init_one(int cs, int mmio, unsigned long adr)
 	}
 
 	/* Allocate memory for MTD device structure and private data */
+<<<<<<< HEAD
 	this = kzalloc(sizeof(struct nand_chip), GFP_KERNEL);
 	if (!this) {
+=======
+	controller = kzalloc(sizeof(*controller), GFP_KERNEL);
+	if (!controller) {
+>>>>>>> upstream/android-13
 		err = -ENOMEM;
 		goto out;
 	}
 
+<<<<<<< HEAD
+=======
+	this = &controller->chip;
+	nand_controller_init(&controller->base);
+	controller->base.ops = &cs553x_nand_controller_ops;
+	this->controller = &controller->base;
+>>>>>>> upstream/android-13
 	new_mtd = nand_to_mtd(this);
 
 	/* Link the private data with the MTD structure */
 	new_mtd->owner = THIS_MODULE;
 
 	/* map physical address */
+<<<<<<< HEAD
 	this->IO_ADDR_R = this->IO_ADDR_W = ioremap(adr, 4096);
 	if (!this->IO_ADDR_R) {
+=======
+	controller->mmio = ioremap(adr, 4096);
+	if (!controller->mmio) {
+>>>>>>> upstream/android-13
 		pr_warn("ioremap cs553x NAND @0x%08lx failed\n", adr);
 		err = -EIO;
 		goto out_mtd;
 	}
 
+<<<<<<< HEAD
 	this->cmd_ctrl = cs553x_hwcontrol;
 	this->dev_ready = cs553x_device_ready;
 	this->read_byte = cs553x_read_byte;
@@ -231,6 +453,8 @@ static int __init cs553x_init_one(int cs, int mmio, unsigned long adr)
 	this->ecc.correct  = nand_correct_data;
 	this->ecc.strength = 1;
 
+=======
+>>>>>>> upstream/android-13
 	/* Enable the following for a flash based bad block table */
 	this->bbt_options = NAND_BBT_USE_FLASH;
 
@@ -245,15 +469,25 @@ static int __init cs553x_init_one(int cs, int mmio, unsigned long adr)
 	if (err)
 		goto out_free;
 
+<<<<<<< HEAD
 	cs553x_mtd[cs] = new_mtd;
+=======
+	controllers[cs] = controller;
+>>>>>>> upstream/android-13
 	goto out;
 
 out_free:
 	kfree(new_mtd->name);
 out_ior:
+<<<<<<< HEAD
 	iounmap(this->IO_ADDR_R);
 out_mtd:
 	kfree(this);
+=======
+	iounmap(controller->mmio);
+out_mtd:
+	kfree(controller);
+>>>>>>> upstream/android-13
 out:
 	return err;
 }
@@ -308,9 +542,16 @@ static int __init cs553x_init(void)
 	/* Register all devices together here. This means we can easily hack it to
 	   do mtdconcat etc. if we want to. */
 	for (i = 0; i < NR_CS553X_CONTROLLERS; i++) {
+<<<<<<< HEAD
 		if (cs553x_mtd[i]) {
 			/* If any devices registered, return success. Else the last error. */
 			mtd_device_register(cs553x_mtd[i], NULL, 0);
+=======
+		if (controllers[i]) {
+			/* If any devices registered, return success. Else the last error. */
+			mtd_device_register(nand_to_mtd(&controllers[i]->chip),
+					    NULL, 0);
+>>>>>>> upstream/android-13
 			err = 0;
 		}
 	}
@@ -325,13 +566,21 @@ static void __exit cs553x_cleanup(void)
 	int i;
 
 	for (i = 0; i < NR_CS553X_CONTROLLERS; i++) {
+<<<<<<< HEAD
 		struct mtd_info *mtd = cs553x_mtd[i];
 		struct nand_chip *this;
 		void __iomem *mmio_base;
+=======
+		struct cs553x_nand_controller *controller = controllers[i];
+		struct nand_chip *this = &controller->chip;
+		struct mtd_info *mtd = nand_to_mtd(this);
+		int ret;
+>>>>>>> upstream/android-13
 
 		if (!mtd)
 			continue;
 
+<<<<<<< HEAD
 		this = mtd_to_nand(mtd);
 		mmio_base = this->IO_ADDR_R;
 
@@ -345,6 +594,20 @@ static void __exit cs553x_cleanup(void)
 
 		/* Free the MTD device structure */
 		kfree(this);
+=======
+		/* Release resources, unregister device */
+		ret = mtd_device_unregister(mtd);
+		WARN_ON(ret);
+		nand_cleanup(this);
+		kfree(mtd->name);
+		controllers[i] = NULL;
+
+		/* unmap physical address */
+		iounmap(controller->mmio);
+
+		/* Free the MTD device structure */
+		kfree(controller);
+>>>>>>> upstream/android-13
 	}
 }
 

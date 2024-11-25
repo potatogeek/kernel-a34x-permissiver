@@ -455,8 +455,19 @@ static int vhci_hub_control(struct usb_hcd *hcd, u16 typeReq, u16 wValue,
 			vhci_hcd->port_status[rhport] &= ~(1 << USB_PORT_FEAT_RESET);
 			vhci_hcd->re_timeout = 0;
 
+<<<<<<< HEAD
 			if (vhci_hcd->vdev[rhport].ud.status ==
 			    VDEV_ST_NOTASSIGNED) {
+=======
+			/*
+			 * A few drivers do usb reset during probe when
+			 * the device could be in VDEV_ST_USED state
+			 */
+			if (vhci_hcd->vdev[rhport].ud.status ==
+				VDEV_ST_NOTASSIGNED ||
+			    vhci_hcd->vdev[rhport].ud.status ==
+				VDEV_ST_USED) {
+>>>>>>> upstream/android-13
 				usbip_dbg_vhci_rh(
 					" enable rhport %d (status %u)\n",
 					rhport,
@@ -510,6 +521,10 @@ static int vhci_hub_control(struct usb_hcd *hcd, u16 typeReq, u16 wValue,
 		case USB_PORT_FEAT_U1_TIMEOUT:
 			usbip_dbg_vhci_rh(
 				" SetPortFeature: USB_PORT_FEAT_U1_TIMEOUT\n");
+<<<<<<< HEAD
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case USB_PORT_FEAT_U2_TIMEOUT:
 			usbip_dbg_vhci_rh(
 				" SetPortFeature: USB_PORT_FEAT_U2_TIMEOUT\n");
@@ -562,7 +577,11 @@ static int vhci_hub_control(struct usb_hcd *hcd, u16 typeReq, u16 wValue,
 				       "supported for USB 2.0 roothub\n");
 				goto error;
 			}
+<<<<<<< HEAD
 			/* FALLS THROUGH */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case USB_PORT_FEAT_RESET:
 			usbip_dbg_vhci_rh(
 				" SetPortFeature: USB_PORT_FEAT_RESET\n");
@@ -585,8 +604,12 @@ static int vhci_hub_control(struct usb_hcd *hcd, u16 typeReq, u16 wValue,
 
 			/* 50msec reset signaling */
 			vhci_hcd->re_timeout = jiffies + msecs_to_jiffies(50);
+<<<<<<< HEAD
 
 			/* FALLS THROUGH */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		default:
 			usbip_dbg_vhci_rh(" SetPortFeature: default %d\n",
 					  wValue);
@@ -658,6 +681,7 @@ error:
 static void vhci_tx_urb(struct urb *urb, struct vhci_device *vdev)
 {
 	struct vhci_priv *priv;
+<<<<<<< HEAD
 	struct vhci_hcd *vhci_hcd;
 	unsigned long flags;
 
@@ -667,6 +691,11 @@ static void vhci_tx_urb(struct urb *urb, struct vhci_device *vdev)
 	}
 	vhci_hcd = vdev_to_vhci_hcd(vdev);
 
+=======
+	struct vhci_hcd *vhci_hcd = vdev_to_vhci_hcd(vdev);
+	unsigned long flags;
+
+>>>>>>> upstream/android-13
 	priv = kzalloc(sizeof(struct vhci_priv), GFP_ATOMIC);
 	if (!priv) {
 		usbip_event_add(&vdev->ud, VDEV_EVENT_ERROR_MALLOC);
@@ -807,8 +836,19 @@ no_need_xmit:
 	usb_hcd_unlink_urb_from_ep(hcd, urb);
 no_need_unlink:
 	spin_unlock_irqrestore(&vhci->lock, flags);
+<<<<<<< HEAD
 	if (!ret)
 		usb_hcd_giveback_urb(hcd, urb, urb->status);
+=======
+	if (!ret) {
+		/* usb_hcd_giveback_urb() should be called with
+		 * irqs disabled
+		 */
+		local_irq_disable();
+		usb_hcd_giveback_urb(hcd, urb, urb->status);
+		local_irq_enable();
+	}
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -945,7 +985,12 @@ static int vhci_urb_dequeue(struct usb_hcd *hcd, struct urb *urb, int status)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void vhci_device_unlink_cleanup(struct vhci_device *vdev)
+=======
+static void vhci_cleanup_unlink_list(struct vhci_device *vdev,
+		struct list_head *unlink_list)
+>>>>>>> upstream/android-13
 {
 	struct vhci_hcd *vhci_hcd = vdev_to_vhci_hcd(vdev);
 	struct usb_hcd *hcd = vhci_hcd_to_hcd(vhci_hcd);
@@ -956,6 +1001,7 @@ static void vhci_device_unlink_cleanup(struct vhci_device *vdev)
 	spin_lock_irqsave(&vhci->lock, flags);
 	spin_lock(&vdev->priv_lock);
 
+<<<<<<< HEAD
 	list_for_each_entry_safe(unlink, tmp, &vdev->unlink_tx, list) {
 		pr_info("unlink cleanup tx %lu\n", unlink->unlink_seqnum);
 		list_del(&unlink->list);
@@ -975,6 +1021,13 @@ static void vhci_device_unlink_cleanup(struct vhci_device *vdev)
 		if (!urb) {
 			pr_info("the urb (seqnum %lu) was already given back\n",
 				unlink->unlink_seqnum);
+=======
+	list_for_each_entry_safe(unlink, tmp, unlink_list, list) {
+		struct urb *urb;
+
+		urb = pickup_urb_and_free_priv(vdev, unlink->unlink_seqnum);
+		if (!urb) {
+>>>>>>> upstream/android-13
 			list_del(&unlink->list);
 			kfree(unlink);
 			continue;
@@ -1001,6 +1054,18 @@ static void vhci_device_unlink_cleanup(struct vhci_device *vdev)
 	spin_unlock_irqrestore(&vhci->lock, flags);
 }
 
+<<<<<<< HEAD
+=======
+static void vhci_device_unlink_cleanup(struct vhci_device *vdev)
+{
+	/* give back URB of unsent unlink request */
+	vhci_cleanup_unlink_list(vdev, &vdev->unlink_tx);
+
+	/* give back URB of unanswered unlink request */
+	vhci_cleanup_unlink_list(vdev, &vdev->unlink_rx);
+}
+
+>>>>>>> upstream/android-13
 /*
  * The important thing is that only one context begins cleanup.
  * This is why error handling and cleanup become simple.
@@ -1205,12 +1270,20 @@ static int vhci_start(struct usb_hcd *hcd)
 	if (id == 0 && usb_hcd_is_primary_hcd(hcd)) {
 		err = vhci_init_attr_group();
 		if (err) {
+<<<<<<< HEAD
 			pr_err("init attr group\n");
+=======
+			dev_err(hcd_dev(hcd), "init attr group failed, err = %d\n", err);
+>>>>>>> upstream/android-13
 			return err;
 		}
 		err = sysfs_create_group(&hcd_dev(hcd)->kobj, &vhci_attr_group);
 		if (err) {
+<<<<<<< HEAD
 			pr_err("create sysfs files\n");
+=======
+			dev_err(hcd_dev(hcd), "create sysfs files failed, err = %d\n", err);
+>>>>>>> upstream/android-13
 			vhci_finish_attr_group();
 			return err;
 		}

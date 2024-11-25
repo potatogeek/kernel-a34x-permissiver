@@ -64,10 +64,15 @@ static int pm860x_onkey_probe(struct platform_device *pdev)
 	int irq, ret;
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(&pdev->dev, "No IRQ resource!\n");
 		return -EINVAL;
 	}
+=======
+	if (irq < 0)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	info = devm_kzalloc(&pdev->dev, sizeof(struct pm860x_onkey_info),
 			    GFP_KERNEL);

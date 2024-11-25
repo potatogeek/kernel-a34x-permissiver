@@ -148,7 +148,11 @@ int kgdb_arch_handle_exception(int e_vector, int signo, int err_code,
 			linux_regs->tpc = addr;
 			linux_regs->tnpc = addr + 4;
 		}
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case 'D':
 	case 'k':
@@ -195,7 +199,11 @@ void kgdb_arch_set_pc(struct pt_regs *regs, unsigned long ip)
 	regs->tnpc = regs->tpc + 4;
 }
 
+<<<<<<< HEAD
 struct kgdb_arch arch_kgdb_ops = {
+=======
+const struct kgdb_arch arch_kgdb_ops = {
+>>>>>>> upstream/android-13
 	/* Breakpoint instruction: ta 0x72 */
 	.gdb_bpt_instr		= { 0x91, 0xd0, 0x20, 0x72 },
 };

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * tui.c ncurses text user interface for TMON program
  *
  * Copyright (C) 2013 Intel Corporation. All rights reserved.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version
  * 2 or later as published by the Free Software Foundation.
@@ -14,6 +19,9 @@
  *
  * Author: Jacob Pan <jacob.jun.pan@linux.intel.com>
  *
+=======
+ * Author: Jacob Pan <jacob.jun.pan@linux.intel.com>
+>>>>>>> upstream/android-13
  */
 
 #include <unistd.h>

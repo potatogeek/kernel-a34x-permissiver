@@ -43,10 +43,15 @@ static int lbs_ethtool_get_eeprom(struct net_device *dev,
 	int ret;
 
 	if (eeprom->offset + eeprom->len > LBS_EEPROM_LEN ||
+<<<<<<< HEAD
 	    eeprom->len > LBS_EEPROM_READ_LEN) {
 		ret = -EINVAL;
 		goto out;
 	}
+=======
+	    eeprom->len > LBS_EEPROM_READ_LEN)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	cmd.hdr.size = cpu_to_le16(sizeof(struct cmd_ds_802_11_eeprom_access) -
 		LBS_EEPROM_READ_LEN + eeprom->len);
@@ -57,8 +62,12 @@ static int lbs_ethtool_get_eeprom(struct net_device *dev,
 	if (!ret)
 		memcpy(bytes, cmd.value, eeprom->len);
 
+<<<<<<< HEAD
 out:
         return ret;
+=======
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void lbs_ethtool_get_wol(struct net_device *dev,

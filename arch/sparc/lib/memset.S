@@ -19,7 +19,11 @@
 98: 	x,y;					\
 	.section .fixup,ALLOC,EXECINSTR;	\
 	.align	4;				\
+<<<<<<< HEAD
 99:	ba 30f;					\
+=======
+99:	retl;					\
+>>>>>>> upstream/android-13
 	 a, b, %o0;				\
 	.section __ex_table,ALLOC;		\
 	.align	4;				\
@@ -27,16 +31,35 @@
 	.text;					\
 	.align	4
 
+<<<<<<< HEAD
 #define EXT(start,end,handler) 			\
 	.section __ex_table,ALLOC;		\
 	.align	4;				\
 	.word	start, 0, end, handler;		\
 	.text;					\
 	.align	4
+=======
+#define STORE(source, base, offset, n)		\
+98: 	std source, [base + offset + n];	\
+	.section .fixup,ALLOC,EXECINSTR;	\
+	.align	4;				\
+99:	ba 30f;					\
+	 sub %o3, n - offset, %o3;		\
+	.section __ex_table,ALLOC;		\
+	.align	4;				\
+	.word	98b, 99b;			\
+	.text;					\
+	.align	4;
+
+#define STORE_LAST(source, base, offset, n)	\
+	EX(std source, [base - offset - n],	\
+	   add %o1, offset + n);
+>>>>>>> upstream/android-13
 
 /* Please don't change these macros, unless you change the logic
  * in the .fixup section below as well.
  * Store 64 bytes at (BASE + OFFSET) using value SOURCE. */
+<<<<<<< HEAD
 #define ZERO_BIG_BLOCK(base, offset, source)    \
 	std	source, [base + offset + 0x00]; \
 	std	source, [base + offset + 0x08]; \
@@ -56,6 +79,27 @@
 	std	source, [base - offset - 0x10]; \
 	std	source, [base - offset - 0x08]; \
 	std	source, [base - offset - 0x00];
+=======
+#define ZERO_BIG_BLOCK(base, offset, source)	\
+	STORE(source, base, offset, 0x00);	\
+	STORE(source, base, offset, 0x08);	\
+	STORE(source, base, offset, 0x10);	\
+	STORE(source, base, offset, 0x18);	\
+	STORE(source, base, offset, 0x20);	\
+	STORE(source, base, offset, 0x28);	\
+	STORE(source, base, offset, 0x30);	\
+	STORE(source, base, offset, 0x38);
+
+#define ZERO_LAST_BLOCKS(base, offset, source)	\
+	STORE_LAST(source, base, offset, 0x38);	\
+	STORE_LAST(source, base, offset, 0x30); \
+	STORE_LAST(source, base, offset, 0x28);	\
+	STORE_LAST(source, base, offset, 0x20);	\
+	STORE_LAST(source, base, offset, 0x18);	\
+	STORE_LAST(source, base, offset, 0x10);	\
+	STORE_LAST(source, base, offset, 0x08);	\
+	STORE_LAST(source, base, offset, 0x00);
+>>>>>>> upstream/android-13
 
 	.text
 	.align 4
@@ -68,8 +112,11 @@ __bzero_begin:
 	.globl	memset
 	EXPORT_SYMBOL(__bzero)
 	EXPORT_SYMBOL(memset)
+<<<<<<< HEAD
 	.globl	__memset_start, __memset_end
 __memset_start:
+=======
+>>>>>>> upstream/android-13
 memset:
 	mov	%o0, %g1
 	mov	1, %g4
@@ -122,8 +169,11 @@ __bzero:
 	ZERO_BIG_BLOCK(%o0, 0x00, %g2)
 	subcc	%o3, 128, %o3
 	ZERO_BIG_BLOCK(%o0, 0x40, %g2)
+<<<<<<< HEAD
 11:
 	EXT(10b, 11b, 20f)
+=======
+>>>>>>> upstream/android-13
 	bne	10b
 	 add	%o0, 128, %o0
 
@@ -138,11 +188,17 @@ __bzero:
 	jmp	%o4
 	 add	%o0, %o2, %o0
 
+<<<<<<< HEAD
 12:
 	ZERO_LAST_BLOCKS(%o0, 0x48, %g2)
 	ZERO_LAST_BLOCKS(%o0, 0x08, %g2)
 13:
 	EXT(12b, 13b, 21f)
+=======
+	ZERO_LAST_BLOCKS(%o0, 0x48, %g2)
+	ZERO_LAST_BLOCKS(%o0, 0x08, %g2)
+13:
+>>>>>>> upstream/android-13
 	be	8f
 	 andcc	%o1, 4, %g0
 
@@ -182,6 +238,7 @@ __bzero:
 5:
 	retl
 	 clr	%o0
+<<<<<<< HEAD
 __memset_end:
 
 	.section .fixup,#alloc,#execinstr
@@ -213,6 +270,15 @@ __memset_end:
 	 mov	%i4, %o2
 	ret
 	 restore
+=======
+
+	.section .fixup,#alloc,#execinstr
+	.align	4
+30:
+	and	%o1, 0x7f, %o1
+	retl
+	 add	%o3, %o1, %o0
+>>>>>>> upstream/android-13
 
 	.globl __bzero_end
 __bzero_end:

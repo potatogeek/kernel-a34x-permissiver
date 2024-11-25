@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * AD7280A Lithium Ion Battery Monitoring System
  *
  * Copyright 2011 Analog Devices Inc.
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef IIO_ADC_AD7280_H_

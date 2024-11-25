@@ -10,8 +10,13 @@
 #ifndef __ASM_SUN3X_FLOPPY_H
 #define __ASM_SUN3X_FLOPPY_H
 
+<<<<<<< HEAD
 #include <asm/page.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+#include <asm/page.h>
+>>>>>>> upstream/android-13
 #include <asm/irq.h>
 #include <asm/sun3x.h>
 
@@ -106,7 +111,11 @@ static void sun3x_82072_fd_outb(unsigned char value, int port)
 	case 4: /* FD_STATUS */
 		*(sun3x_fdc.status_r) = value;
 		break;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 	return;
 }
 

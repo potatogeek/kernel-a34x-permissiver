@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * rt5668.c  --  RT5668B ALSA SoC audio component driver
  *
  * Copyright 2018 Realtek Semiconductor Corp.
  * Author: Bard Liao <bardliao@realtek.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -850,7 +857,11 @@ static int rt5668_button_detect(struct snd_soc_component *component)
 {
 	int btn_type, val;
 
+<<<<<<< HEAD
 	val = snd_soc_component_read32(component, RT5668_4BTN_IL_CMD_1);
+=======
+	val = snd_soc_component_read(component, RT5668_4BTN_IL_CMD_1);
+>>>>>>> upstream/android-13
 	btn_type = val & 0xfff0;
 	snd_soc_component_write(component, RT5668_4BTN_IL_CMD_1, val);
 	pr_debug("%s btn_type=%x\n", __func__, btn_type);
@@ -910,11 +921,19 @@ static int rt5668_headset_detect(struct snd_soc_component *component,
 			RT5668_TRIG_JD_MASK, RT5668_TRIG_JD_HIGH);
 
 		count = 0;
+<<<<<<< HEAD
 		val = snd_soc_component_read32(component, RT5668_CBJ_CTRL_2)
 			& RT5668_JACK_TYPE_MASK;
 		while (val == 0 && count < 50) {
 			usleep_range(10000, 15000);
 			val = snd_soc_component_read32(component,
+=======
+		val = snd_soc_component_read(component, RT5668_CBJ_CTRL_2)
+			& RT5668_JACK_TYPE_MASK;
+		while (val == 0 && count < 50) {
+			usleep_range(10000, 15000);
+			val = snd_soc_component_read(component,
+>>>>>>> upstream/android-13
 				RT5668_CBJ_CTRL_2) & RT5668_JACK_TYPE_MASK;
 			count++;
 		}
@@ -958,7 +977,11 @@ static void rt5668_jd_check_handler(struct work_struct *work)
 	struct rt5668_priv *rt5668 = container_of(work, struct rt5668_priv,
 		jd_check_work.work);
 
+<<<<<<< HEAD
 	if (snd_soc_component_read32(rt5668->component, RT5668_AJD1_CTRL)
+=======
+	if (snd_soc_component_read(rt5668->component, RT5668_AJD1_CTRL)
+>>>>>>> upstream/android-13
 		& RT5668_JDH_RS_MASK) {
 		/* jack out */
 		rt5668->jack_type = rt5668_headset_detect(rt5668->component, 0);
@@ -1025,6 +1048,7 @@ static void rt5668_jack_detect_handler(struct work_struct *work)
 		container_of(work, struct rt5668_priv, jack_detect_work.work);
 	int val, btn_type;
 
+<<<<<<< HEAD
 	while (!rt5668->component)
 		usleep_range(10000, 15000);
 
@@ -1034,6 +1058,19 @@ static void rt5668_jack_detect_handler(struct work_struct *work)
 	mutex_lock(&rt5668->calibrate_mutex);
 
 	val = snd_soc_component_read32(rt5668->component, RT5668_AJD1_CTRL)
+=======
+	if (!rt5668->component || !rt5668->component->card ||
+	    !rt5668->component->card->instantiated) {
+		/* card not yet ready, try later */
+		mod_delayed_work(system_power_efficient_wq,
+				 &rt5668->jack_detect_work, msecs_to_jiffies(15));
+		return;
+	}
+
+	mutex_lock(&rt5668->calibrate_mutex);
+
+	val = snd_soc_component_read(rt5668->component, RT5668_AJD1_CTRL)
+>>>>>>> upstream/android-13
 		& RT5668_JDH_RS_MASK;
 	if (!val) {
 		/* jack in */
@@ -1174,7 +1211,11 @@ static int set_dmic_clk(struct snd_soc_dapm_widget *w,
 	struct snd_soc_component *component =
 		snd_soc_dapm_to_component(w->dapm);
 	struct rt5668_priv *rt5668 = snd_soc_component_get_drvdata(component);
+<<<<<<< HEAD
 	int idx = -EINVAL;
+=======
+	int idx;
+>>>>>>> upstream/android-13
 	static const int div[] = {2, 4, 6, 8, 12, 16, 24, 32, 48, 64, 96, 128};
 
 	idx = rt5668_div_sel(rt5668, 1500000, div, ARRAY_SIZE(div));
@@ -1191,10 +1232,17 @@ static int set_filter_clk(struct snd_soc_dapm_widget *w,
 	struct snd_soc_component *component =
 		snd_soc_dapm_to_component(w->dapm);
 	struct rt5668_priv *rt5668 = snd_soc_component_get_drvdata(component);
+<<<<<<< HEAD
 	int ref, val, reg, idx = -EINVAL;
 	static const int div[] = {1, 2, 3, 4, 6, 8, 12, 16, 24, 32, 48};
 
 	val = snd_soc_component_read32(component, RT5668_GPIO_CTRL_1) &
+=======
+	int ref, val, reg, idx;
+	static const int div[] = {1, 2, 3, 4, 6, 8, 12, 16, 24, 32, 48};
+
+	val = snd_soc_component_read(component, RT5668_GPIO_CTRL_1) &
+>>>>>>> upstream/android-13
 		RT5668_GP4_PIN_MASK;
 	if (w->shift == RT5668_PWR_ADC_S1F_BIT &&
 		val == RT5668_GP4_PIN_ADCDAT2)
@@ -1222,7 +1270,11 @@ static int is_sys_clk_from_pll1(struct snd_soc_dapm_widget *w,
 	struct snd_soc_component *component =
 		snd_soc_dapm_to_component(w->dapm);
 
+<<<<<<< HEAD
 	val = snd_soc_component_read32(component, RT5668_GLB_CLK);
+=======
+	val = snd_soc_component_read(component, RT5668_GLB_CLK);
+>>>>>>> upstream/android-13
 	val &= RT5668_SCLK_SRC_MASK;
 	if (val == RT5668_SCLK_SRC_PLL1)
 		return 1;
@@ -1250,7 +1302,11 @@ static int is_using_asrc(struct snd_soc_dapm_widget *w,
 		return 0;
 	}
 
+<<<<<<< HEAD
 	val = (snd_soc_component_read32(component, reg) >> shift) & 0xf;
+=======
+	val = (snd_soc_component_read(component, reg) >> shift) & 0xf;
+>>>>>>> upstream/android-13
 	switch (val) {
 	case RT5668_CLK_SEL_I2S1_ASRC:
 	case RT5668_CLK_SEL_I2S2_ASRC:
@@ -2185,8 +2241,13 @@ static int rt5668_set_component_pll(struct snd_soc_component *component,
 	snd_soc_component_write(component, RT5668_PLL_CTRL_1,
 		pll_code.n_code << RT5668_PLL_N_SFT | pll_code.k_code);
 	snd_soc_component_write(component, RT5668_PLL_CTRL_2,
+<<<<<<< HEAD
 		(pll_code.m_bp ? 0 : pll_code.m_code) << RT5668_PLL_M_SFT |
 		pll_code.m_bp << RT5668_PLL_M_BP_SFT);
+=======
+		((pll_code.m_bp ? 0 : pll_code.m_code) << RT5668_PLL_M_SFT) |
+		(pll_code.m_bp << RT5668_PLL_M_BP_SFT));
+>>>>>>> upstream/android-13
 
 	rt5668->pll_in = freq_in;
 	rt5668->pll_out = freq_out;
@@ -2375,7 +2436,12 @@ static const struct regmap_config rt5668_regmap = {
 	.cache_type = REGCACHE_RBTREE,
 	.reg_defaults = rt5668_reg,
 	.num_reg_defaults = ARRAY_SIZE(rt5668_reg),
+<<<<<<< HEAD
 	.use_single_rw = true,
+=======
+	.use_single_read = true,
+	.use_single_write = true,
+>>>>>>> upstream/android-13
 };
 
 static const struct i2c_device_id rt5668_i2c_id[] = {
@@ -2587,6 +2653,7 @@ static int rt5668_i2c_probe(struct i2c_client *i2c,
 
 	}
 
+<<<<<<< HEAD
 	return snd_soc_register_component(&i2c->dev, &soc_component_dev_rt5668,
 			rt5668_dai, ARRAY_SIZE(rt5668_dai));
 }
@@ -2598,6 +2665,12 @@ static int rt5668_i2c_remove(struct i2c_client *i2c)
 	return 0;
 }
 
+=======
+	return devm_snd_soc_register_component(&i2c->dev, &soc_component_dev_rt5668,
+			rt5668_dai, ARRAY_SIZE(rt5668_dai));
+}
+
+>>>>>>> upstream/android-13
 static void rt5668_i2c_shutdown(struct i2c_client *client)
 {
 	struct rt5668_priv *rt5668 = i2c_get_clientdata(client);
@@ -2628,7 +2701,10 @@ static struct i2c_driver rt5668_i2c_driver = {
 		.acpi_match_table = ACPI_PTR(rt5668_acpi_match),
 	},
 	.probe = rt5668_i2c_probe,
+<<<<<<< HEAD
 	.remove = rt5668_i2c_remove,
+=======
+>>>>>>> upstream/android-13
 	.shutdown = rt5668_i2c_shutdown,
 	.id_table = rt5668_i2c_id,
 };

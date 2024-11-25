@@ -1,6 +1,7 @@
 #include <dt-bindings/power/raspberrypi-power.h>
 
 / {
+<<<<<<< HEAD
 	memory {
 		device_type = "memory";
 		reg = <0 0x10000000>;
@@ -10,6 +11,12 @@
 		compatible = "gpio-leds";
 
 		act {
+=======
+	leds {
+		compatible = "gpio-leds";
+
+		led-act {
+>>>>>>> upstream/android-13
 			label = "ACT";
 			default-state = "keep";
 			linux,default-trigger = "heartbeat";
@@ -18,10 +25,19 @@
 
 	soc {
 		firmware: firmware {
+<<<<<<< HEAD
 			compatible = "raspberrypi,bcm2835-firmware", "simple-bus";
 			#address-cells = <0>;
 			#size-cells = <0>;
 			mboxes = <&mailbox>;
+=======
+			compatible = "raspberrypi,bcm2835-firmware", "simple-mfd";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			mboxes = <&mailbox>;
+			dma-ranges;
+>>>>>>> upstream/android-13
 		};
 
 		power: power {
@@ -30,7 +46,11 @@
 			#power-domain-cells = <1>;
 		};
 
+<<<<<<< HEAD
 		mailbox@7e00b840 {
+=======
+		vchiq: mailbox@7e00b840 {
+>>>>>>> upstream/android-13
 			compatible = "brcm,bcm2835-vchiq";
 			reg = <0x7e00b840 0x3c>;
 			interrupts = <0 2>;
@@ -66,6 +86,7 @@
 	clock-frequency = <100000>;
 };
 
+<<<<<<< HEAD
 &i2c2 {
 	status = "okay";
 };
@@ -83,10 +104,13 @@
 	bus-width = <4>;
 };
 
+=======
+>>>>>>> upstream/android-13
 &usb {
 	power-domains = <&power RPI_POWER_DOMAIN_USB>;
 };
 
+<<<<<<< HEAD
 &v3d {
 	power-domains = <&power RPI_POWER_DOMAIN_V3D>;
 };
@@ -96,6 +120,8 @@
 	status = "okay";
 };
 
+=======
+>>>>>>> upstream/android-13
 &vec {
 	power-domains = <&power RPI_POWER_DOMAIN_VEC>;
 	status = "okay";

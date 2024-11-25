@@ -25,11 +25,25 @@
 /*
  * Authors: Dave Airlie <airlied@redhat.com>
  */
+<<<<<<< HEAD
 #include <linux/module.h>
 #include <linux/console.h>
 
 #include <drm/drmP.h>
 #include <drm/drm_crtc_helper.h>
+=======
+
+#include <linux/console.h>
+#include <linux/module.h>
+#include <linux/pci.h>
+
+#include <drm/drm_aperture.h>
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_crtc_helper.h>
+#include <drm/drm_drv.h>
+#include <drm/drm_gem_vram_helper.h>
+#include <drm/drm_probe_helper.h>
+>>>>>>> upstream/android-13
 
 #include "ast_drv.h"
 
@@ -38,9 +52,39 @@ int ast_modeset = -1;
 MODULE_PARM_DESC(modeset, "Disable/Enable modesetting");
 module_param_named(modeset, ast_modeset, int, 0400);
 
+<<<<<<< HEAD
 #define PCI_VENDOR_ASPEED 0x1a03
 
 static struct drm_driver driver;
+=======
+/*
+ * DRM driver
+ */
+
+DEFINE_DRM_GEM_FOPS(ast_fops);
+
+static const struct drm_driver ast_driver = {
+	.driver_features = DRIVER_ATOMIC |
+			   DRIVER_GEM |
+			   DRIVER_MODESET,
+
+	.fops = &ast_fops,
+	.name = DRIVER_NAME,
+	.desc = DRIVER_DESC,
+	.date = DRIVER_DATE,
+	.major = DRIVER_MAJOR,
+	.minor = DRIVER_MINOR,
+	.patchlevel = DRIVER_PATCHLEVEL,
+
+	DRM_GEM_VRAM_DRIVER
+};
+
+/*
+ * PCI driver
+ */
+
+#define PCI_VENDOR_ASPEED 0x1a03
+>>>>>>> upstream/android-13
 
 #define AST_VGA_DEVICE(id, info) {		\
 	.class = PCI_BASE_CLASS_DISPLAY << 16,	\
@@ -51,6 +95,7 @@ static struct drm_driver driver;
 	.subdevice = PCI_ANY_ID,		\
 	.driver_data = (unsigned long) info }
 
+<<<<<<< HEAD
 static const struct pci_device_id pciidlist[] = {
 	AST_VGA_DEVICE(PCI_CHIP_AST2000, NULL),
 	AST_VGA_DEVICE(PCI_CHIP_AST2100, NULL),
@@ -77,10 +122,33 @@ static void ast_kick_out_firmware_fb(struct pci_dev *pdev)
 #endif
 	drm_fb_helper_remove_conflicting_framebuffers(ap, "astdrmfb", primary);
 	kfree(ap);
+=======
+static const struct pci_device_id ast_pciidlist[] = {
+	AST_VGA_DEVICE(PCI_CHIP_AST2000, NULL),
+	AST_VGA_DEVICE(PCI_CHIP_AST2100, NULL),
+	{0, 0, 0},
+};
+
+MODULE_DEVICE_TABLE(pci, ast_pciidlist);
+
+static int ast_remove_conflicting_framebuffers(struct pci_dev *pdev)
+{
+	bool primary = false;
+	resource_size_t base, size;
+
+	base = pci_resource_start(pdev, 0);
+	size = pci_resource_len(pdev, 0);
+#ifdef CONFIG_X86
+	primary = pdev->resource[PCI_ROM_RESOURCE].flags & IORESOURCE_ROM_SHADOW;
+#endif
+
+	return drm_aperture_remove_conflicting_framebuffers(base, size, primary, &ast_driver);
+>>>>>>> upstream/android-13
 }
 
 static int ast_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 {
+<<<<<<< HEAD
 	ast_kick_out_firmware_fb(pdev);
 
 	return drm_get_pci_dev(pdev, ent, &driver);
@@ -105,11 +173,56 @@ static int ast_drm_freeze(struct drm_device *dev)
 	console_lock();
 	ast_fbdev_set_suspend(dev, 1);
 	console_unlock();
+=======
+	struct ast_private *ast;
+	struct drm_device *dev;
+	int ret;
+
+	ret = ast_remove_conflicting_framebuffers(pdev);
+	if (ret)
+		return ret;
+
+	ret = pcim_enable_device(pdev);
+	if (ret)
+		return ret;
+
+	ast = ast_device_create(&ast_driver, pdev, ent->driver_data);
+	if (IS_ERR(ast))
+		return PTR_ERR(ast);
+	dev = &ast->base;
+
+	ret = drm_dev_register(dev, ent->driver_data);
+	if (ret)
+		return ret;
+
+	drm_fbdev_generic_setup(dev, 32);
+
+	return 0;
+}
+
+static void ast_pci_remove(struct pci_dev *pdev)
+{
+	struct drm_device *dev = pci_get_drvdata(pdev);
+
+	drm_dev_unregister(dev);
+	drm_atomic_helper_shutdown(dev);
+}
+
+static int ast_drm_freeze(struct drm_device *dev)
+{
+	int error;
+
+	error = drm_mode_config_helper_suspend(dev);
+	if (error)
+		return error;
+	pci_save_state(to_pci_dev(dev->dev));
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int ast_drm_thaw(struct drm_device *dev)
 {
+<<<<<<< HEAD
 	int error = 0;
 
 	ast_post_gpu(dev);
@@ -121,20 +234,32 @@ static int ast_drm_thaw(struct drm_device *dev)
 	ast_fbdev_set_suspend(dev, 0);
 	console_unlock();
 	return error;
+=======
+	ast_post_gpu(dev);
+
+	return drm_mode_config_helper_resume(dev);
+>>>>>>> upstream/android-13
 }
 
 static int ast_drm_resume(struct drm_device *dev)
 {
 	int ret;
 
+<<<<<<< HEAD
 	if (pci_enable_device(dev->pdev))
+=======
+	if (pci_enable_device(to_pci_dev(dev->dev)))
+>>>>>>> upstream/android-13
 		return -EIO;
 
 	ret = ast_drm_thaw(dev);
 	if (ret)
 		return ret;
+<<<<<<< HEAD
 
 	drm_kms_helper_poll_enable(dev);
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -152,6 +277,10 @@ static int ast_pm_suspend(struct device *dev)
 	pci_set_power_state(pdev, PCI_D3hot);
 	return 0;
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 static int ast_pm_resume(struct device *dev)
 {
 	struct pci_dev *pdev = to_pci_dev(dev);
@@ -163,11 +292,15 @@ static int ast_pm_freeze(struct device *dev)
 {
 	struct pci_dev *pdev = to_pci_dev(dev);
 	struct drm_device *ddev = pci_get_drvdata(pdev);
+<<<<<<< HEAD
 
 	if (!ddev || !ddev->dev_private)
 		return -ENODEV;
 	return ast_drm_freeze(ddev);
 
+=======
+	return ast_drm_freeze(ddev);
+>>>>>>> upstream/android-13
 }
 
 static int ast_pm_thaw(struct device *dev)
@@ -196,12 +329,17 @@ static const struct dev_pm_ops ast_pm_ops = {
 
 static struct pci_driver ast_pci_driver = {
 	.name = DRIVER_NAME,
+<<<<<<< HEAD
 	.id_table = pciidlist,
+=======
+	.id_table = ast_pciidlist,
+>>>>>>> upstream/android-13
 	.probe = ast_pci_probe,
 	.remove = ast_pci_remove,
 	.driver.pm = &ast_pm_ops,
 };
 
+<<<<<<< HEAD
 static const struct file_operations ast_fops = {
 	.owner = THIS_MODULE,
 	.open = drm_open,
@@ -233,6 +371,8 @@ static struct drm_driver driver = {
 
 };
 
+=======
+>>>>>>> upstream/android-13
 static int __init ast_init(void)
 {
 	if (vgacon_text_force() && ast_modeset == -1)
@@ -253,4 +393,7 @@ module_exit(ast_exit);
 MODULE_AUTHOR(DRIVER_AUTHOR);
 MODULE_DESCRIPTION(DRIVER_DESC);
 MODULE_LICENSE("GPL and additional rights");
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13

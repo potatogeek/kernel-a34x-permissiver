@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver for TWL4030/6030 Pulse Width Modulator used as LED driver
  *
@@ -6,6 +10,7 @@
  *
  * This driver is a complete rewrite of the former pwm-twl6030.c authorded by:
  * Hemanth V <hemanthv@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
@@ -18,6 +23,8 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -287,7 +294,10 @@ static const struct pwm_ops twl6030_pwmled_ops = {
 static int twl_pwmled_probe(struct platform_device *pdev)
 {
 	struct twl_pwmled_chip *twl;
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 
 	twl = devm_kzalloc(&pdev->dev, sizeof(*twl), GFP_KERNEL);
 	if (!twl)
@@ -302,6 +312,7 @@ static int twl_pwmled_probe(struct platform_device *pdev)
 	}
 
 	twl->chip.dev = &pdev->dev;
+<<<<<<< HEAD
 	twl->chip.base = -1;
 
 	mutex_init(&twl->mutex);
@@ -320,6 +331,12 @@ static int twl_pwmled_remove(struct platform_device *pdev)
 	struct twl_pwmled_chip *twl = platform_get_drvdata(pdev);
 
 	return pwmchip_remove(&twl->chip);
+=======
+
+	mutex_init(&twl->mutex);
+
+	return devm_pwmchip_add(&pdev->dev, &twl->chip);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_OF
@@ -337,7 +354,10 @@ static struct platform_driver twl_pwmled_driver = {
 		.of_match_table = of_match_ptr(twl_pwmled_of_match),
 	},
 	.probe = twl_pwmled_probe,
+<<<<<<< HEAD
 	.remove = twl_pwmled_remove,
+=======
+>>>>>>> upstream/android-13
 };
 module_platform_driver(twl_pwmled_driver);
 

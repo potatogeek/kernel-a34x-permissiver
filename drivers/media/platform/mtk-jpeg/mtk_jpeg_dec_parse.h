@@ -1,6 +1,14 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (c) 2019 MediaTek Inc.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2016 MediaTek Inc.
+ * Author: Ming Hsiu Tsai <minghsiu.tsai@mediatek.com>
+ *         Rick Chang <rick.chang@mediatek.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef _MTK_JPEG_PARSE_H

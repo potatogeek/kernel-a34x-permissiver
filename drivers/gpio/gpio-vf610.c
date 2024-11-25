@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * Freescale vf610 GPIO support through PORT and GPIO
  *
  * Copyright (c) 2014 Toradex AG.
  *
  * Author: Stefan Agner <stefan@agner.ch>.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,6 +23,13 @@
 #include <linux/bitops.h>
 #include <linux/err.h>
 #include <linux/gpio.h>
+=======
+ */
+#include <linux/bitops.h>
+#include <linux/clk.h>
+#include <linux/err.h>
+#include <linux/gpio/driver.h>
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/interrupt.h>
 #include <linux/io.h>
@@ -42,6 +54,11 @@ struct vf610_gpio_port {
 	void __iomem *gpio_base;
 	const struct fsl_gpio_soc_data *sdata;
 	u8 irqc[VF610_GPIO_PER_PORT];
+<<<<<<< HEAD
+=======
+	struct clk *clk_port;
+	struct clk *clk_gpio;
+>>>>>>> upstream/android-13
 	int irq;
 };
 
@@ -91,6 +108,7 @@ static int vf610_gpio_get(struct gpio_chip *gc, unsigned int gpio)
 {
 	struct vf610_gpio_port *port = gpiochip_get_data(gc);
 	unsigned long mask = BIT(gpio);
+<<<<<<< HEAD
 	void __iomem *addr;
 
 	if (port->sdata && port->sdata->have_paddr) {
@@ -102,17 +120,34 @@ static int vf610_gpio_get(struct gpio_chip *gc, unsigned int gpio)
 		return !!(vf610_gpio_readl(port->gpio_base + GPIO_PDIR)
 					   & BIT(gpio));
 	}
+=======
+	unsigned long offset = GPIO_PDIR;
+
+	if (port->sdata && port->sdata->have_paddr) {
+		mask &= vf610_gpio_readl(port->gpio_base + GPIO_PDDR);
+		if (mask)
+			offset = GPIO_PDOR;
+	}
+
+	return !!(vf610_gpio_readl(port->gpio_base + offset) & BIT(gpio));
+>>>>>>> upstream/android-13
 }
 
 static void vf610_gpio_set(struct gpio_chip *gc, unsigned int gpio, int val)
 {
 	struct vf610_gpio_port *port = gpiochip_get_data(gc);
 	unsigned long mask = BIT(gpio);
+<<<<<<< HEAD
 
 	if (val)
 		vf610_gpio_writel(mask, port->gpio_base + GPIO_PSOR);
 	else
 		vf610_gpio_writel(mask, port->gpio_base + GPIO_PCOR);
+=======
+	unsigned long offset = val ? GPIO_PSOR : GPIO_PCOR;
+
+	vf610_gpio_writel(mask, port->gpio_base + offset);
+>>>>>>> upstream/android-13
 }
 
 static int vf610_gpio_direction_input(struct gpio_chip *chip, unsigned gpio)
@@ -159,7 +194,11 @@ static void vf610_gpio_irq_handler(struct irq_desc *desc)
 	for_each_set_bit(pin, &irq_isfr, VF610_GPIO_PER_PORT) {
 		vf610_gpio_writel(BIT(pin), port->base + PORT_ISFR);
 
+<<<<<<< HEAD
 		generic_handle_irq(irq_find_mapping(port->gc.irq.domain, pin));
+=======
+		generic_handle_domain_irq(port->gc.irq.domain, pin);
+>>>>>>> upstream/android-13
 	}
 
 	chained_irq_exit(chip, desc);
@@ -242,22 +281,40 @@ static int vf610_gpio_irq_set_wake(struct irq_data *d, u32 enable)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void vf610_gpio_disable_clk(void *data)
+{
+	clk_disable_unprepare(data);
+}
+
+>>>>>>> upstream/android-13
 static int vf610_gpio_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct device_node *np = dev->of_node;
 	struct vf610_gpio_port *port;
+<<<<<<< HEAD
 	struct resource *iores;
 	struct gpio_chip *gc;
+=======
+	struct gpio_chip *gc;
+	struct gpio_irq_chip *girq;
+>>>>>>> upstream/android-13
 	struct irq_chip *ic;
 	int i;
 	int ret;
 
+<<<<<<< HEAD
 	port = devm_kzalloc(&pdev->dev, sizeof(*port), GFP_KERNEL);
+=======
+	port = devm_kzalloc(dev, sizeof(*port), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!port)
 		return -ENOMEM;
 
 	port->sdata = of_device_get_match_data(dev);
+<<<<<<< HEAD
 	iores = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	port->base = devm_ioremap_resource(dev, iores);
 	if (IS_ERR(port->base))
@@ -265,6 +322,13 @@ static int vf610_gpio_probe(struct platform_device *pdev)
 
 	iores = platform_get_resource(pdev, IORESOURCE_MEM, 1);
 	port->gpio_base = devm_ioremap_resource(dev, iores);
+=======
+	port->base = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(port->base))
+		return PTR_ERR(port->base);
+
+	port->gpio_base = devm_platform_ioremap_resource(pdev, 1);
+>>>>>>> upstream/android-13
 	if (IS_ERR(port->gpio_base))
 		return PTR_ERR(port->gpio_base);
 
@@ -272,6 +336,41 @@ static int vf610_gpio_probe(struct platform_device *pdev)
 	if (port->irq < 0)
 		return port->irq;
 
+<<<<<<< HEAD
+=======
+	port->clk_port = devm_clk_get(dev, "port");
+	ret = PTR_ERR_OR_ZERO(port->clk_port);
+	if (!ret) {
+		ret = clk_prepare_enable(port->clk_port);
+		if (ret)
+			return ret;
+		ret = devm_add_action_or_reset(dev, vf610_gpio_disable_clk,
+					       port->clk_port);
+		if (ret)
+			return ret;
+	} else if (ret == -EPROBE_DEFER) {
+		/*
+		 * Percolate deferrals, for anything else,
+		 * just live without the clocking.
+		 */
+		return ret;
+	}
+
+	port->clk_gpio = devm_clk_get(dev, "gpio");
+	ret = PTR_ERR_OR_ZERO(port->clk_gpio);
+	if (!ret) {
+		ret = clk_prepare_enable(port->clk_gpio);
+		if (ret)
+			return ret;
+		ret = devm_add_action_or_reset(dev, vf610_gpio_disable_clk,
+					       port->clk_gpio);
+		if (ret)
+			return ret;
+	} else if (ret == -EPROBE_DEFER) {
+		return ret;
+	}
+
+>>>>>>> upstream/android-13
 	gc = &port->gc;
 	gc->of_node = np;
 	gc->parent = dev;
@@ -294,10 +393,13 @@ static int vf610_gpio_probe(struct platform_device *pdev)
 	ic->irq_set_type = vf610_gpio_irq_set_type;
 	ic->irq_set_wake = vf610_gpio_irq_set_wake;
 
+<<<<<<< HEAD
 	ret = gpiochip_add_data(gc, port);
 	if (ret < 0)
 		return ret;
 
+=======
+>>>>>>> upstream/android-13
 	/* Mask all GPIO interrupts */
 	for (i = 0; i < gc->ngpio; i++)
 		vf610_gpio_writel(0, port->base + PORT_PCR(i));
@@ -305,6 +407,7 @@ static int vf610_gpio_probe(struct platform_device *pdev)
 	/* Clear the interrupt status register for all GPIO's */
 	vf610_gpio_writel(~0, port->base + PORT_ISFR);
 
+<<<<<<< HEAD
 	ret = gpiochip_irqchip_add(gc, ic, 0, handle_edge_irq, IRQ_TYPE_NONE);
 	if (ret) {
 		dev_err(dev, "failed to add irqchip\n");
@@ -315,6 +418,22 @@ static int vf610_gpio_probe(struct platform_device *pdev)
 				     vf610_gpio_irq_handler);
 
 	return 0;
+=======
+	girq = &gc->irq;
+	girq->chip = ic;
+	girq->parent_handler = vf610_gpio_irq_handler;
+	girq->num_parents = 1;
+	girq->parents = devm_kcalloc(&pdev->dev, 1,
+				     sizeof(*girq->parents),
+				     GFP_KERNEL);
+	if (!girq->parents)
+		return -ENOMEM;
+	girq->parents[0] = port->irq;
+	girq->default_type = IRQ_TYPE_NONE;
+	girq->handler = handle_edge_irq;
+
+	return devm_gpiochip_add_data(dev, gc, port);
+>>>>>>> upstream/android-13
 }
 
 static struct platform_driver vf610_gpio_driver = {

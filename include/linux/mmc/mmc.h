@@ -99,6 +99,15 @@ static inline bool mmc_op_multi(u32 opcode)
 	       opcode == MMC_READ_MULTIPLE_BLOCK;
 }
 
+<<<<<<< HEAD
+=======
+static inline bool mmc_op_tuning(u32 opcode)
+{
+	return opcode == MMC_SEND_TUNING_BLOCK ||
+			opcode == MMC_SEND_TUNING_BLOCK_HS200;
+}
+
+>>>>>>> upstream/android-13
 /*
  * MMC_SWITCH argument format:
  *
@@ -161,6 +170,19 @@ static inline bool mmc_op_multi(u32 opcode)
 #define R1_STATE_PRG	7
 #define R1_STATE_DIS	8
 
+<<<<<<< HEAD
+=======
+static inline bool mmc_ready_for_data(u32 status)
+{
+	/*
+	 * Some cards mishandle the status bits, so make sure to check both the
+	 * busy indication and the card state.
+	 */
+	return status & R1_READY_FOR_DATA &&
+	       R1_CURRENT_STATE(status) == R1_STATE_TRAN;
+}
+
+>>>>>>> upstream/android-13
 /*
  * MMC/SD in SPI mode reports R1 status always, and R2 for SEND_STATUS
  * R1 is the low order byte; R2 is the next highest byte, when present.
@@ -315,6 +337,10 @@ static inline bool mmc_op_multi(u32 opcode)
  */
 
 #define EXT_CSD_WR_REL_PARAM_EN		(1<<2)
+<<<<<<< HEAD
+=======
+#define EXT_CSD_WR_REL_PARAM_EN_RPMB_REL_WR	(1<<4)
+>>>>>>> upstream/android-13
 
 #define EXT_CSD_BOOT_WP_B_PWR_WP_DIS	(0x40)
 #define EXT_CSD_BOOT_WP_B_PERM_WP_DIS	(0x10)
@@ -438,4 +464,16 @@ static inline bool mmc_op_multi(u32 opcode)
 
 #define mmc_driver_type_mask(n)		(1 << (n))
 
+<<<<<<< HEAD
+=======
+struct mmc_card;
+
+extern int mmc_select_bus_width(struct mmc_card *card);
+extern int mmc_select_hs(struct mmc_card *card);
+extern int mmc_select_hs_ddr(struct mmc_card *card);
+extern int mmc_select_hs400(struct mmc_card *card);
+extern int mmc_hs200_tuning(struct mmc_card *card);
+extern int mmc_select_timing(struct mmc_card *card);
+
+>>>>>>> upstream/android-13
 #endif /* LINUX_MMC_MMC_H */

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/mm/proc-feroceon.S: MMU functions for Feroceon
  *
  *  Heavily based on proc-arm926.S
  *  Maintainer: Assaf Hoffman <hoffman@marvell.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,14 +22,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <asm/assembler.h>
 #include <asm/hwcap.h>
 #include <asm/pgtable-hwdef.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+#include <asm/assembler.h>
+#include <asm/hwcap.h>
+#include <asm/pgtable-hwdef.h>
+>>>>>>> upstream/android-13
 #include <asm/page.h>
 #include <asm/ptrace.h>
 #include "proc-macros.S"
@@ -584,7 +598,11 @@ feroceon_crval:
 
 	.align
 
+<<<<<<< HEAD
 	.section ".proc.info.init", #alloc
+=======
+	.section ".proc.info.init", "a"
+>>>>>>> upstream/android-13
 
 .macro feroceon_proc_info name:req, cpu_val:req, cpu_mask:req, cpu_name:req, cache:req
 	.type	__\name\()_proc_info,#object

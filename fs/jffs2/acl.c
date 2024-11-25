@@ -173,12 +173,22 @@ static void *jffs2_acl_to_medium(const struct posix_acl *acl, size_t *size)
 	return ERR_PTR(-EINVAL);
 }
 
+<<<<<<< HEAD
 struct posix_acl *jffs2_get_acl(struct inode *inode, int type)
+=======
+struct posix_acl *jffs2_get_acl(struct inode *inode, int type, bool rcu)
+>>>>>>> upstream/android-13
 {
 	struct posix_acl *acl;
 	char *value = NULL;
 	int rc, xprefix;
 
+<<<<<<< HEAD
+=======
+	if (rcu)
+		return ERR_PTR(-ECHILD);
+
+>>>>>>> upstream/android-13
 	switch (type) {
 	case ACL_TYPE_ACCESS:
 		xprefix = JFFS2_XPREFIX_ACL_ACCESS;
@@ -226,7 +236,12 @@ static int __jffs2_set_acl(struct inode *inode, int xprefix, struct posix_acl *a
 	return rc;
 }
 
+<<<<<<< HEAD
 int jffs2_set_acl(struct inode *inode, struct posix_acl *acl, int type)
+=======
+int jffs2_set_acl(struct user_namespace *mnt_userns, struct inode *inode,
+		  struct posix_acl *acl, int type)
+>>>>>>> upstream/android-13
 {
 	int rc, xprefix;
 
@@ -236,7 +251,12 @@ int jffs2_set_acl(struct inode *inode, struct posix_acl *acl, int type)
 		if (acl) {
 			umode_t mode;
 
+<<<<<<< HEAD
 			rc = posix_acl_update_mode(inode, &mode, &acl);
+=======
+			rc = posix_acl_update_mode(&init_user_ns, inode, &mode,
+						   &acl);
+>>>>>>> upstream/android-13
 			if (rc)
 				return rc;
 			if (inode->i_mode != mode) {

@@ -3,8 +3,11 @@
  * Copyright (c) 1996, 2003 VIA Networking Technologies, Inc.
  * All rights reserved.
  *
+<<<<<<< HEAD
  * File: rf.c
  *
+=======
+>>>>>>> upstream/android-13
  * Purpose: rf function code
  *
  * Author: Jerry Chen
@@ -163,7 +166,11 @@ static const unsigned long dwAL7230InitTable[CB_AL7230_INIT_SEQ] = {
 	0x841FF200 + (BY_AL7230_REG_LEN << 3) + IFREGCTL_REGW, /* Need modify for 11a: 451FE2 */
 	0x3FDFA300 + (BY_AL7230_REG_LEN << 3) + IFREGCTL_REGW, /* Need modify for 11a: 5FDFA3 */
 	0x7FD78400 + (BY_AL7230_REG_LEN << 3) + IFREGCTL_REGW, /* 11b/g    // Need modify for 11a */
+<<<<<<< HEAD
 	/* RoberYu:20050113, Rev0.47 Regsiter Setting Guide */
+=======
+	/* RoberYu:20050113, Rev0.47 Register Setting Guide */
+>>>>>>> upstream/android-13
 	0x802B5500 + (BY_AL7230_REG_LEN << 3) + IFREGCTL_REGW, /* Need modify for 11a: 8D1B55 */
 	0x56AF3600 + (BY_AL7230_REG_LEN << 3) + IFREGCTL_REGW,
 	0xCE020700 + (BY_AL7230_REG_LEN << 3) + IFREGCTL_REGW, /* Need modify for 11a: 860207 */
@@ -171,7 +178,11 @@ static const unsigned long dwAL7230InitTable[CB_AL7230_INIT_SEQ] = {
 	0x221BB900 + (BY_AL7230_REG_LEN << 3) + IFREGCTL_REGW,
 	0xE0000A00 + (BY_AL7230_REG_LEN << 3) + IFREGCTL_REGW, /* Need modify for 11a: E0600A */
 	0x08031B00 + (BY_AL7230_REG_LEN << 3) + IFREGCTL_REGW, /* init 0x080B1B00 => 0x080F1B00 for 3 wire control TxGain(D10) */
+<<<<<<< HEAD
 	/* RoberYu:20050113, Rev0.47 Regsiter Setting Guide */
+=======
+	/* RoberYu:20050113, Rev0.47 Register Setting Guide */
+>>>>>>> upstream/android-13
 	0x000A3C00 + (BY_AL7230_REG_LEN << 3) + IFREGCTL_REGW, /* Need modify for 11a: 00143C */
 	0xFFFFFD00 + (BY_AL7230_REG_LEN << 3) + IFREGCTL_REGW,
 	0x00000E00 + (BY_AL7230_REG_LEN << 3) + IFREGCTL_REGW,
@@ -419,7 +430,11 @@ static bool s_bAL7230Init(struct vnt_private *priv)
 
 	MACvWordRegBitsOn(iobase, MAC_REG_SOFTPWRCTL, (SOFTPWRCTL_SWPECTI  |
 							 SOFTPWRCTL_TXPEINV));
+<<<<<<< HEAD
 	BBvPowerSaveModeOFF(priv); /* RobertYu:20050106, have DC value for Calibration */
+=======
+	bb_power_save_mode_off(priv); /* RobertYu:20050106, have DC value for Calibration */
+>>>>>>> upstream/android-13
 
 	for (ii = 0; ii < CB_AL7230_INIT_SEQ; ii++)
 		ret &= IFRFbWriteEmbedded(priv, dwAL7230InitTable[ii]);
@@ -436,14 +451,22 @@ static bool s_bAL7230Init(struct vnt_private *priv)
 	ret &= IFRFbWriteEmbedded(priv, (0x3ABA8F00 + (BY_AL7230_REG_LEN << 3) + IFREGCTL_REGW));
 	MACvTimer0MicroSDelay(priv, 30);/* 30us */
 	/* TXDCOC:disable, RCK:disable */
+<<<<<<< HEAD
 	ret &= IFRFbWriteEmbedded(priv, dwAL7230InitTable[CB_AL7230_INIT_SEQ-1]);
+=======
+	ret &= IFRFbWriteEmbedded(priv, dwAL7230InitTable[CB_AL7230_INIT_SEQ - 1]);
+>>>>>>> upstream/android-13
 
 	MACvWordRegBitsOn(iobase, MAC_REG_SOFTPWRCTL, (SOFTPWRCTL_SWPE3    |
 							 SOFTPWRCTL_SWPE2    |
 							 SOFTPWRCTL_SWPECTI  |
 							 SOFTPWRCTL_TXPEINV));
 
+<<<<<<< HEAD
 	BBvPowerSaveModeON(priv); /* RobertYu:20050106 */
+=======
+	bb_power_save_mode_on(priv); /* RobertYu:20050106 */
+>>>>>>> upstream/android-13
 
 	/* PE1: TX_ON, PE2: RX_ON, PE3: PLLON */
 	/* 3-wire control for power saving mode */
@@ -558,7 +581,12 @@ static bool RFbAL2230Init(struct vnt_private *priv)
 	MACvTimer0MicroSDelay(priv, 30);/* 30us */
 	ret &= IFRFbWriteEmbedded(priv, (0x00780f00 + (BY_AL2230_REG_LEN << 3) + IFREGCTL_REGW));
 	MACvTimer0MicroSDelay(priv, 30);/* 30us */
+<<<<<<< HEAD
 	ret &= IFRFbWriteEmbedded(priv, dwAL2230InitTable[CB_AL2230_INIT_SEQ-1]);
+=======
+	ret &= IFRFbWriteEmbedded(priv,
+				  dwAL2230InitTable[CB_AL2230_INIT_SEQ - 1]);
+>>>>>>> upstream/android-13
 
 	MACvWordRegBitsOn(iobase, MAC_REG_SOFTPWRCTL, (SOFTPWRCTL_SWPE3    |
 							 SOFTPWRCTL_SWPE2    |
@@ -702,9 +730,15 @@ bool RFvWriteWakeProgSyn(struct vnt_private *priv, unsigned char byRFType,
 		for (ii = 0; ii < CB_AL2230_INIT_SEQ; ii++)
 			MACvSetMISCFifo(priv, (unsigned short)(MISCFIFO_SYNDATA_IDX + ii), dwAL2230InitTable[ii]);
 
+<<<<<<< HEAD
 		MACvSetMISCFifo(priv, (unsigned short)(MISCFIFO_SYNDATA_IDX + ii), dwAL2230ChannelTable0[uChannel-1]);
 		ii++;
 		MACvSetMISCFifo(priv, (unsigned short)(MISCFIFO_SYNDATA_IDX + ii), dwAL2230ChannelTable1[uChannel-1]);
+=======
+		MACvSetMISCFifo(priv, (unsigned short)(MISCFIFO_SYNDATA_IDX + ii), dwAL2230ChannelTable0[uChannel - 1]);
+		ii++;
+		MACvSetMISCFifo(priv, (unsigned short)(MISCFIFO_SYNDATA_IDX + ii), dwAL2230ChannelTable1[uChannel - 1]);
+>>>>>>> upstream/android-13
 		break;
 
 		/* Need to check, PLLON need to be low for channel setting */
@@ -723,11 +757,19 @@ bool RFvWriteWakeProgSyn(struct vnt_private *priv, unsigned char byRFType,
 				MACvSetMISCFifo(priv, (unsigned short)(MISCFIFO_SYNDATA_IDX + ii), dwAL7230InitTableAMode[ii]);
 		}
 
+<<<<<<< HEAD
 		MACvSetMISCFifo(priv, (unsigned short)(MISCFIFO_SYNDATA_IDX + ii), dwAL7230ChannelTable0[uChannel-1]);
 		ii++;
 		MACvSetMISCFifo(priv, (unsigned short)(MISCFIFO_SYNDATA_IDX + ii), dwAL7230ChannelTable1[uChannel-1]);
 		ii++;
 		MACvSetMISCFifo(priv, (unsigned short)(MISCFIFO_SYNDATA_IDX + ii), dwAL7230ChannelTable2[uChannel-1]);
+=======
+		MACvSetMISCFifo(priv, (unsigned short)(MISCFIFO_SYNDATA_IDX + ii), dwAL7230ChannelTable0[uChannel - 1]);
+		ii++;
+		MACvSetMISCFifo(priv, (unsigned short)(MISCFIFO_SYNDATA_IDX + ii), dwAL7230ChannelTable1[uChannel - 1]);
+		ii++;
+		MACvSetMISCFifo(priv, (unsigned short)(MISCFIFO_SYNDATA_IDX + ii), dwAL7230ChannelTable2[uChannel - 1]);
+>>>>>>> upstream/android-13
 		break;
 
 	case RF_NOTHING:
@@ -755,6 +797,7 @@ bool RFvWriteWakeProgSyn(struct vnt_private *priv, unsigned char byRFType,
  * Return Value: true if succeeded; false if failed.
  *
  */
+<<<<<<< HEAD
 bool RFbSetPower(
 	struct vnt_private *priv,
 	unsigned int rate,
@@ -762,6 +805,11 @@ bool RFbSetPower(
 )
 {
 	bool ret = true;
+=======
+bool RFbSetPower(struct vnt_private *priv, unsigned int rate, u16 uCH)
+{
+	bool ret;
+>>>>>>> upstream/android-13
 	unsigned char byPwr = 0;
 	unsigned char byDec = 0;
 
@@ -792,7 +840,11 @@ bool RFbSetPower(
 			byDec = byPwr + 10;
 
 		if (byDec >= priv->byMaxPwrLevel)
+<<<<<<< HEAD
 			byDec = priv->byMaxPwrLevel-1;
+=======
+			byDec = priv->byMaxPwrLevel - 1;
+>>>>>>> upstream/android-13
 
 		byPwr = byDec;
 		break;
@@ -828,11 +880,16 @@ bool RFbSetPower(
  *
  */
 
+<<<<<<< HEAD
 bool RFbRawSetPower(
 	struct vnt_private *priv,
 	unsigned char byPwr,
 	unsigned int rate
 )
+=======
+bool RFbRawSetPower(struct vnt_private *priv, unsigned char byPwr,
+		    unsigned int rate)
+>>>>>>> upstream/android-13
 {
 	bool ret = true;
 	unsigned long dwMax7230Pwr = 0;
@@ -894,11 +951,15 @@ bool RFbRawSetPower(
  *
  */
 void
+<<<<<<< HEAD
 RFvRSSITodBm(
 	struct vnt_private *priv,
 	unsigned char byCurrRSSI,
 	long *pldBm
 	)
+=======
+RFvRSSITodBm(struct vnt_private *priv, unsigned char byCurrRSSI, long *pldBm)
+>>>>>>> upstream/android-13
 {
 	unsigned char byIdx = (((byCurrRSSI & 0xC0) >> 6) & 0x03);
 	long b = (byCurrRSSI & 0x3F);

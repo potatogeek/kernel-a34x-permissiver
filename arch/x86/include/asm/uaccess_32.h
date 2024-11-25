@@ -23,6 +23,7 @@ raw_copy_to_user(void __user *to, const void *from, unsigned long n)
 static __always_inline unsigned long
 raw_copy_from_user(void *to, const void __user *from, unsigned long n)
 {
+<<<<<<< HEAD
 	if (__builtin_constant_p(n)) {
 		unsigned long ret;
 
@@ -50,6 +51,8 @@ raw_copy_from_user(void *to, const void __user *from, unsigned long n)
 			return ret;
 		}
 	}
+=======
+>>>>>>> upstream/android-13
 	return __copy_user_ll(to, (__force const void *)from, n);
 }
 

@@ -598,7 +598,13 @@ struct shared_info {
 	 * their gettimeofday() syscall on this wallclock-base value.
 	 */
 	struct pvclock_wall_clock wc;
+<<<<<<< HEAD
 
+=======
+#ifndef CONFIG_X86_32
+	uint32_t wc_sec_hi;
+#endif
+>>>>>>> upstream/android-13
 	struct arch_shared_info arch;
 
 };

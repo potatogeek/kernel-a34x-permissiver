@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 /*
  *  (C) 2010,2011      Thomas Renninger <trenn@suse.de>, Novell Inc.
  *
  *  Licensed under the terms of the GNU GPL License version 2.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *  (C) 2010,2011      Thomas Renninger <trenn@suse.de>, Novell Inc.
+ *
+>>>>>>> upstream/android-13
  *  PCI initialization based on example code from:
  *  Andreas Herrmann <andreas.herrmann3@amd.com>
  */
@@ -118,7 +125,11 @@ static int amd_fam14h_get_pci_info(struct cstate *state,
 		break;
 	default:
 		return -1;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -329,7 +340,11 @@ struct cpuidle_monitor amd_fam14h_monitor = {
 	.stop			= amd_fam14h_stop,
 	.do_register		= amd_fam14h_register,
 	.unregister		= amd_fam14h_unregister,
+<<<<<<< HEAD
 	.needs_root		= 1,
+=======
+	.flags.needs_root	= 1,
+>>>>>>> upstream/android-13
 	.overflow_s		= OVERFLOW_MS / 1000,
 };
 #endif /* #if defined(__i386__) || defined(__x86_64__) */

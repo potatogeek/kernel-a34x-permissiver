@@ -3,6 +3,10 @@
 # Makefile for the Atheros network device drivers.
 #
 
+<<<<<<< HEAD
+=======
+obj-$(CONFIG_AG71XX) += ag71xx.o
+>>>>>>> upstream/android-13
 obj-$(CONFIG_ATL1) += atlx/
 obj-$(CONFIG_ATL2) += atlx/
 obj-$(CONFIG_ATL1E) += atl1e/

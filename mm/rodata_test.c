@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * rodata_test.c: functional test for mark_rodata_ro function
  *
  * (C) Copyright 2008 Intel Corporation
  * Author: Arjan van de Ven <arjan@linux.intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -11,6 +16,12 @@
  */
 #define pr_fmt(fmt) "rodata_test: " fmt
 
+=======
+ */
+#define pr_fmt(fmt) "rodata_test: " fmt
+
+#include <linux/rodata_test.h>
+>>>>>>> upstream/android-13
 #include <linux/uaccess.h>
 #include <asm/sections.h>
 
@@ -29,7 +40,11 @@ void rodata_test(void)
 	}
 
 	/* test 2: write to the variable; this should fault */
+<<<<<<< HEAD
 	if (!probe_kernel_write((void *)&rodata_test_data,
+=======
+	if (!copy_to_kernel_nofault((void *)&rodata_test_data,
+>>>>>>> upstream/android-13
 				(void *)&zero, sizeof(zero))) {
 		pr_err("test data was not read only\n");
 		return;

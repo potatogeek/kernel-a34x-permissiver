@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* QLogic qed NIC Driver
  * Copyright (c) 2015-2017  QLogic Corporation
  *
@@ -28,6 +29,12 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause) */
+/* QLogic qed NIC Driver
+ * Copyright (c) 2015-2017  QLogic Corporation
+ * Copyright (c) 2019-2020 Marvell International Ltd.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _QED_INIT_OPS_H
@@ -81,6 +88,7 @@ int qed_init_alloc(struct qed_hwfn *p_hwfn);
 void qed_init_free(struct qed_hwfn *p_hwfn);
 
 /**
+<<<<<<< HEAD
  * @brief qed_init_clear_rt_data - Clears the runtime init array.
  *
  *
@@ -89,6 +97,8 @@ void qed_init_free(struct qed_hwfn *p_hwfn);
 void qed_init_clear_rt_data(struct qed_hwfn *p_hwfn);
 
 /**
+=======
+>>>>>>> upstream/android-13
  * @brief qed_init_store_rt_reg - Store a configuration value in the RT array.
  *
  *

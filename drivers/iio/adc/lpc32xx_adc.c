@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  *  lpc32xx_adc.c - Support for ADC in LPC32XX
  *
  *  3-channel, 10-bit ADC
  *
  *  Copyright (C) 2011, 2012 Roland Stigge <stigge@antcom.de>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -34,6 +39,20 @@
 
 #include <linux/iio/iio.h>
 #include <linux/iio/sysfs.h>
+=======
+ */
+
+#include <linux/clk.h>
+#include <linux/completion.h>
+#include <linux/err.h>
+#include <linux/iio/iio.h>
+#include <linux/interrupt.h>
+#include <linux/io.h>
+#include <linux/module.h>
+#include <linux/mod_devicetable.h>
+#include <linux/platform_device.h>
+#include <linux/regulator/consumer.h>
+>>>>>>> upstream/android-13
 
 /*
  * LPC32XX registers definitions
@@ -65,6 +84,10 @@ struct lpc32xx_adc_state {
 	void __iomem *adc_base;
 	struct clk *clk;
 	struct completion completion;
+<<<<<<< HEAD
+=======
+	struct regulator *vref;
+>>>>>>> upstream/android-13
 
 	u32 value;
 };
@@ -77,7 +100,13 @@ static int lpc32xx_read_raw(struct iio_dev *indio_dev,
 {
 	struct lpc32xx_adc_state *st = iio_priv(indio_dev);
 	int ret;
+<<<<<<< HEAD
 	if (mask == IIO_CHAN_INFO_RAW) {
+=======
+
+	switch (mask) {
+	case IIO_CHAN_INFO_RAW:
+>>>>>>> upstream/android-13
 		mutex_lock(&indio_dev->mlock);
 		ret = clk_prepare_enable(st->clk);
 		if (ret) {
@@ -97,22 +126,50 @@ static int lpc32xx_read_raw(struct iio_dev *indio_dev,
 		mutex_unlock(&indio_dev->mlock);
 
 		return IIO_VAL_INT;
+<<<<<<< HEAD
 	}
 
 	return -EINVAL;
+=======
+
+	case IIO_CHAN_INFO_SCALE:
+		*val = regulator_get_voltage(st->vref) / 1000;
+		*val2 =  10;
+
+		return IIO_VAL_FRACTIONAL_LOG2;
+	default:
+		return -EINVAL;
+	}
+>>>>>>> upstream/android-13
 }
 
 static const struct iio_info lpc32xx_adc_iio_info = {
 	.read_raw = &lpc32xx_read_raw,
 };
 
+<<<<<<< HEAD
 #define LPC32XX_ADC_CHANNEL(_index) {			\
+=======
+#define LPC32XX_ADC_CHANNEL_BASE(_index)		\
+>>>>>>> upstream/android-13
 	.type = IIO_VOLTAGE,				\
 	.indexed = 1,					\
 	.channel = _index,				\
 	.info_mask_separate = BIT(IIO_CHAN_INFO_RAW),	\
 	.address = LPC32XXAD_IN * _index,		\
+<<<<<<< HEAD
 	.scan_index = _index,				\
+=======
+	.scan_index = _index,
+
+#define LPC32XX_ADC_CHANNEL(_index) {		\
+	LPC32XX_ADC_CHANNEL_BASE(_index)	\
+}
+
+#define LPC32XX_ADC_SCALE_CHANNEL(_index) {			\
+	LPC32XX_ADC_CHANNEL_BASE(_index)			\
+	.info_mask_shared_by_type = BIT(IIO_CHAN_INFO_SCALE)	\
+>>>>>>> upstream/android-13
 }
 
 static const struct iio_chan_spec lpc32xx_adc_iio_channels[] = {
@@ -121,6 +178,15 @@ static const struct iio_chan_spec lpc32xx_adc_iio_channels[] = {
 	LPC32XX_ADC_CHANNEL(2),
 };
 
+<<<<<<< HEAD
+=======
+static const struct iio_chan_spec lpc32xx_adc_iio_scale_channels[] = {
+	LPC32XX_ADC_SCALE_CHANNEL(0),
+	LPC32XX_ADC_SCALE_CHANNEL(1),
+	LPC32XX_ADC_SCALE_CHANNEL(2),
+};
+
+>>>>>>> upstream/android-13
 static irqreturn_t lpc32xx_adc_isr(int irq, void *dev_id)
 {
 	struct lpc32xx_adc_state *st = dev_id;
@@ -167,10 +233,15 @@ static int lpc32xx_adc_probe(struct platform_device *pdev)
 	}
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq <= 0) {
 		dev_err(&pdev->dev, "failed getting interrupt resource\n");
 		return -ENXIO;
 	}
+=======
+	if (irq <= 0)
+		return -ENXIO;
+>>>>>>> upstream/android-13
 
 	retval = devm_request_irq(&pdev->dev, irq, lpc32xx_adc_isr, 0,
 				  LPC32XXAD_NAME, st);
@@ -179,15 +250,32 @@ static int lpc32xx_adc_probe(struct platform_device *pdev)
 		return retval;
 	}
 
+<<<<<<< HEAD
+=======
+	st->vref = devm_regulator_get(&pdev->dev, "vref");
+	if (IS_ERR(st->vref)) {
+		iodev->channels = lpc32xx_adc_iio_channels;
+		dev_info(&pdev->dev,
+			 "Missing vref regulator: No scaling available\n");
+	} else {
+		iodev->channels = lpc32xx_adc_iio_scale_channels;
+	}
+
+>>>>>>> upstream/android-13
 	platform_set_drvdata(pdev, iodev);
 
 	init_completion(&st->completion);
 
 	iodev->name = LPC32XXAD_NAME;
+<<<<<<< HEAD
 	iodev->dev.parent = &pdev->dev;
 	iodev->info = &lpc32xx_adc_iio_info;
 	iodev->modes = INDIO_DIRECT_MODE;
 	iodev->channels = lpc32xx_adc_iio_channels;
+=======
+	iodev->info = &lpc32xx_adc_iio_info;
+	iodev->modes = INDIO_DIRECT_MODE;
+>>>>>>> upstream/android-13
 	iodev->num_channels = ARRAY_SIZE(lpc32xx_adc_iio_channels);
 
 	retval = devm_iio_device_register(&pdev->dev, iodev);
@@ -199,19 +287,29 @@ static int lpc32xx_adc_probe(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF
+=======
+>>>>>>> upstream/android-13
 static const struct of_device_id lpc32xx_adc_match[] = {
 	{ .compatible = "nxp,lpc3220-adc" },
 	{},
 };
 MODULE_DEVICE_TABLE(of, lpc32xx_adc_match);
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static struct platform_driver lpc32xx_adc_driver = {
 	.probe		= lpc32xx_adc_probe,
 	.driver		= {
 		.name	= LPC32XXAD_NAME,
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(lpc32xx_adc_match),
+=======
+		.of_match_table = lpc32xx_adc_match,
+>>>>>>> upstream/android-13
 	},
 };
 

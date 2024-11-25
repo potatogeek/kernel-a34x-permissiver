@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  The NFC Controller Interface is the communication protocol between an
  *  NFC Controller (NFCC) and a Device Host (DH).
@@ -9,6 +13,7 @@
  *  Acknowledgements:
  *  This file is based on hci_event.c, which was written
  *  by Maxim Krasnyansky.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2
@@ -22,6 +27,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": %s: " fmt, __func__
@@ -37,6 +44,7 @@
 
 /* Handle NCI Response packets */
 
+<<<<<<< HEAD
 static void nci_core_reset_rsp_packet(struct nci_dev *ndev, struct sk_buff *skb)
 {
 	struct nci_core_reset_rsp *rsp = (void *) skb->data;
@@ -56,20 +64,56 @@ static void nci_core_init_rsp_packet(struct nci_dev *ndev, struct sk_buff *skb)
 {
 	struct nci_core_init_rsp_1 *rsp_1 = (void *) skb->data;
 	struct nci_core_init_rsp_2 *rsp_2;
+=======
+static void nci_core_reset_rsp_packet(struct nci_dev *ndev,
+				      const struct sk_buff *skb)
+{
+	const struct nci_core_reset_rsp *rsp = (void *)skb->data;
+
+	pr_debug("status 0x%x\n", rsp->status);
+
+	/* Handle NCI 1.x ver */
+	if (skb->len != 1) {
+		if (rsp->status == NCI_STATUS_OK) {
+			ndev->nci_ver = rsp->nci_ver;
+			pr_debug("nci_ver 0x%x, config_status 0x%x\n",
+				 rsp->nci_ver, rsp->config_status);
+		}
+
+		nci_req_complete(ndev, rsp->status);
+	}
+}
+
+static u8 nci_core_init_rsp_packet_v1(struct nci_dev *ndev,
+				      const struct sk_buff *skb)
+{
+	const struct nci_core_init_rsp_1 *rsp_1 = (void *)skb->data;
+	const struct nci_core_init_rsp_2 *rsp_2;
+>>>>>>> upstream/android-13
 
 	pr_debug("status 0x%x\n", rsp_1->status);
 
 	if (rsp_1->status != NCI_STATUS_OK)
+<<<<<<< HEAD
 		goto exit;
+=======
+		return rsp_1->status;
+>>>>>>> upstream/android-13
 
 	ndev->nfcc_features = __le32_to_cpu(rsp_1->nfcc_features);
 	ndev->num_supported_rf_interfaces = rsp_1->num_supported_rf_interfaces;
 
+<<<<<<< HEAD
 	if (ndev->num_supported_rf_interfaces >
 	    NCI_MAX_SUPPORTED_RF_INTERFACES) {
 		ndev->num_supported_rf_interfaces =
 			NCI_MAX_SUPPORTED_RF_INTERFACES;
 	}
+=======
+	ndev->num_supported_rf_interfaces =
+		min((int)ndev->num_supported_rf_interfaces,
+		    NCI_MAX_SUPPORTED_RF_INTERFACES);
+>>>>>>> upstream/android-13
 
 	memcpy(ndev->supported_rf_interfaces,
 	       rsp_1->supported_rf_interfaces,
@@ -89,6 +133,62 @@ static void nci_core_init_rsp_packet(struct nci_dev *ndev, struct sk_buff *skb)
 	ndev->manufact_specific_info =
 		__le32_to_cpu(rsp_2->manufact_specific_info);
 
+<<<<<<< HEAD
+=======
+	return NCI_STATUS_OK;
+}
+
+static u8 nci_core_init_rsp_packet_v2(struct nci_dev *ndev,
+				      const struct sk_buff *skb)
+{
+	const struct nci_core_init_rsp_nci_ver2 *rsp = (void *)skb->data;
+	const u8 *supported_rf_interface = rsp->supported_rf_interfaces;
+	u8 rf_interface_idx = 0;
+	u8 rf_extension_cnt = 0;
+
+	pr_debug("status %x\n", rsp->status);
+
+	if (rsp->status != NCI_STATUS_OK)
+		return rsp->status;
+
+	ndev->nfcc_features = __le32_to_cpu(rsp->nfcc_features);
+	ndev->num_supported_rf_interfaces = rsp->num_supported_rf_interfaces;
+
+	ndev->num_supported_rf_interfaces =
+		min((int)ndev->num_supported_rf_interfaces,
+		    NCI_MAX_SUPPORTED_RF_INTERFACES);
+
+	while (rf_interface_idx < ndev->num_supported_rf_interfaces) {
+		ndev->supported_rf_interfaces[rf_interface_idx++] = *supported_rf_interface++;
+
+		/* skip rf extension parameters */
+		rf_extension_cnt = *supported_rf_interface++;
+		supported_rf_interface += rf_extension_cnt;
+	}
+
+	ndev->max_logical_connections = rsp->max_logical_connections;
+	ndev->max_routing_table_size =
+			__le16_to_cpu(rsp->max_routing_table_size);
+	ndev->max_ctrl_pkt_payload_len =
+			rsp->max_ctrl_pkt_payload_len;
+	ndev->max_size_for_large_params = NCI_MAX_LARGE_PARAMS_NCI_v2;
+
+	return NCI_STATUS_OK;
+}
+
+static void nci_core_init_rsp_packet(struct nci_dev *ndev, const struct sk_buff *skb)
+{
+	u8 status = 0;
+
+	if (!(ndev->nci_ver & NCI_VER_2_MASK))
+		status = nci_core_init_rsp_packet_v1(ndev, skb);
+	else
+		status = nci_core_init_rsp_packet_v2(ndev, skb);
+
+	if (status != NCI_STATUS_OK)
+		goto exit;
+
+>>>>>>> upstream/android-13
 	pr_debug("nfcc_features 0x%x\n",
 		 ndev->nfcc_features);
 	pr_debug("num_supported_rf_interfaces %d\n",
@@ -115,6 +215,7 @@ static void nci_core_init_rsp_packet(struct nci_dev *ndev, struct sk_buff *skb)
 		 ndev->manufact_specific_info);
 
 exit:
+<<<<<<< HEAD
 	nci_req_complete(ndev, rsp_1->status);
 }
 
@@ -122,6 +223,15 @@ static void nci_core_set_config_rsp_packet(struct nci_dev *ndev,
 					   struct sk_buff *skb)
 {
 	struct nci_core_set_config_rsp *rsp = (void *) skb->data;
+=======
+	nci_req_complete(ndev, status);
+}
+
+static void nci_core_set_config_rsp_packet(struct nci_dev *ndev,
+					   const struct sk_buff *skb)
+{
+	const struct nci_core_set_config_rsp *rsp = (void *)skb->data;
+>>>>>>> upstream/android-13
 
 	pr_debug("status 0x%x\n", rsp->status);
 
@@ -129,7 +239,11 @@ static void nci_core_set_config_rsp_packet(struct nci_dev *ndev,
 }
 
 static void nci_rf_disc_map_rsp_packet(struct nci_dev *ndev,
+<<<<<<< HEAD
 				       struct sk_buff *skb)
+=======
+				       const struct sk_buff *skb)
+>>>>>>> upstream/android-13
 {
 	__u8 status = skb->data[0];
 
@@ -138,9 +252,16 @@ static void nci_rf_disc_map_rsp_packet(struct nci_dev *ndev,
 	nci_req_complete(ndev, status);
 }
 
+<<<<<<< HEAD
 static void nci_rf_disc_rsp_packet(struct nci_dev *ndev, struct sk_buff *skb)
 {
 	struct nci_conn_info    *conn_info;
+=======
+static void nci_rf_disc_rsp_packet(struct nci_dev *ndev,
+				   const struct sk_buff *skb)
+{
+	struct nci_conn_info *conn_info;
+>>>>>>> upstream/android-13
 	__u8 status = skb->data[0];
 
 	pr_debug("status 0x%x\n", status);
@@ -169,7 +290,11 @@ exit:
 }
 
 static void nci_rf_disc_select_rsp_packet(struct nci_dev *ndev,
+<<<<<<< HEAD
 					  struct sk_buff *skb)
+=======
+					  const struct sk_buff *skb)
+>>>>>>> upstream/android-13
 {
 	__u8 status = skb->data[0];
 
@@ -181,7 +306,11 @@ static void nci_rf_disc_select_rsp_packet(struct nci_dev *ndev,
 }
 
 static void nci_rf_deactivate_rsp_packet(struct nci_dev *ndev,
+<<<<<<< HEAD
 					 struct sk_buff *skb)
+=======
+					 const struct sk_buff *skb)
+>>>>>>> upstream/android-13
 {
 	__u8 status = skb->data[0];
 
@@ -197,9 +326,15 @@ static void nci_rf_deactivate_rsp_packet(struct nci_dev *ndev,
 }
 
 static void nci_nfcee_discover_rsp_packet(struct nci_dev *ndev,
+<<<<<<< HEAD
 					  struct sk_buff *skb)
 {
 	struct nci_nfcee_discover_rsp *discover_rsp;
+=======
+					  const struct sk_buff *skb)
+{
+	const struct nci_nfcee_discover_rsp *discover_rsp;
+>>>>>>> upstream/android-13
 
 	if (skb->len != 2) {
 		nci_req_complete(ndev, NCI_STATUS_NFCEE_PROTOCOL_ERROR);
@@ -214,7 +349,11 @@ static void nci_nfcee_discover_rsp_packet(struct nci_dev *ndev,
 }
 
 static void nci_nfcee_mode_set_rsp_packet(struct nci_dev *ndev,
+<<<<<<< HEAD
 					  struct sk_buff *skb)
+=======
+					  const struct sk_buff *skb)
+>>>>>>> upstream/android-13
 {
 	__u8 status = skb->data[0];
 
@@ -223,11 +362,19 @@ static void nci_nfcee_mode_set_rsp_packet(struct nci_dev *ndev,
 }
 
 static void nci_core_conn_create_rsp_packet(struct nci_dev *ndev,
+<<<<<<< HEAD
 					    struct sk_buff *skb)
 {
 	__u8 status = skb->data[0];
 	struct nci_conn_info *conn_info = NULL;
 	struct nci_core_conn_create_rsp *rsp;
+=======
+					    const struct sk_buff *skb)
+{
+	__u8 status = skb->data[0];
+	struct nci_conn_info *conn_info = NULL;
+	const struct nci_core_conn_create_rsp *rsp;
+>>>>>>> upstream/android-13
 
 	pr_debug("status 0x%x\n", status);
 
@@ -278,7 +425,11 @@ exit:
 }
 
 static void nci_core_conn_close_rsp_packet(struct nci_dev *ndev,
+<<<<<<< HEAD
 					   struct sk_buff *skb)
+=======
+					   const struct sk_buff *skb)
+>>>>>>> upstream/android-13
 {
 	struct nci_conn_info *conn_info;
 	__u8 status = skb->data[0];
@@ -289,6 +440,11 @@ static void nci_core_conn_close_rsp_packet(struct nci_dev *ndev,
 							 ndev->cur_conn_id);
 		if (conn_info) {
 			list_del(&conn_info->list);
+<<<<<<< HEAD
+=======
+			if (conn_info == ndev->rf_conn_info)
+				ndev->rf_conn_info = NULL;
+>>>>>>> upstream/android-13
 			devm_kfree(&ndev->nfc_dev->dev, conn_info);
 		}
 	}

@@ -177,7 +177,11 @@ static int build_merkle_tree(struct file *filp,
 	 * (level 0) and ascending to the root node (level 'num_levels - 1').
 	 * Then at the end (level 'num_levels'), calculate the root hash.
 	 */
+<<<<<<< HEAD
 	blocks = (inode->i_size + params->block_size - 1) >>
+=======
+	blocks = ((u64)inode->i_size + params->block_size - 1) >>
+>>>>>>> upstream/android-13
 		 params->log_blocksize;
 	for (level = 0; level <= params->num_levels; level++) {
 		err = build_merkle_tree_level(filp, level, blocks, params,
@@ -356,7 +360,11 @@ int fsverity_ioctl_enable(struct file *filp, const void __user *uarg)
 	if (arg.block_size != PAGE_SIZE)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (arg.salt_size > FIELD_SIZEOF(struct fsverity_descriptor, salt))
+=======
+	if (arg.salt_size > sizeof_field(struct fsverity_descriptor, salt))
+>>>>>>> upstream/android-13
 		return -EMSGSIZE;
 
 	if (arg.sig_size > FS_VERITY_MAX_SIGNATURE_SIZE)
@@ -369,7 +377,11 @@ int fsverity_ioctl_enable(struct file *filp, const void __user *uarg)
 	 * has verity enabled, and to stabilize the data being hashed.
 	 */
 
+<<<<<<< HEAD
 	err = inode_permission(inode, MAY_WRITE);
+=======
+	err = file_permission(filp, MAY_WRITE);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 

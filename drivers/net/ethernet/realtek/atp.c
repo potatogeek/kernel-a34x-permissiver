@@ -204,7 +204,11 @@ static void net_rx(struct net_device *dev);
 static void read_block(long ioaddr, int length, unsigned char *buffer, int data_mode);
 static int net_close(struct net_device *dev);
 static void set_rx_mode(struct net_device *dev);
+<<<<<<< HEAD
 static void tx_timeout(struct net_device *dev);
+=======
+static void tx_timeout(struct net_device *dev, unsigned int txqueue);
+>>>>>>> upstream/android-13
 
 
 /* A list of all installed ATP devices, for removing the driver module. */
@@ -454,14 +458,22 @@ static void hardware_init(struct net_device *dev)
 {
 	struct net_local *lp = netdev_priv(dev);
 	long ioaddr = dev->base_addr;
+<<<<<<< HEAD
     int i;
+=======
+	int i;
+>>>>>>> upstream/android-13
 
 	/* Turn off the printer multiplexer on the 8012. */
 	for (i = 0; i < 8; i++)
 		outb(mux_8012[i], ioaddr + PAR_DATA);
 	write_reg_high(ioaddr, CMR1, CMR1h_RESET);
 
+<<<<<<< HEAD
     for (i = 0; i < 6; i++)
+=======
+	for (i = 0; i < 6; i++)
+>>>>>>> upstream/android-13
 		write_reg_byte(ioaddr, PAR0 + i, dev->dev_addr[i]);
 
 	write_reg_high(ioaddr, CMR2, lp->addr_mode);
@@ -471,18 +483,31 @@ static void hardware_init(struct net_device *dev)
 			   (read_nibble(ioaddr, CMR2_h) >> 3) & 0x0f);
 	}
 
+<<<<<<< HEAD
     write_reg(ioaddr, CMR2, CMR2_IRQOUT);
     write_reg_high(ioaddr, CMR1, CMR1h_RxENABLE | CMR1h_TxENABLE);
+=======
+	write_reg(ioaddr, CMR2, CMR2_IRQOUT);
+	write_reg_high(ioaddr, CMR1, CMR1h_RxENABLE | CMR1h_TxENABLE);
+>>>>>>> upstream/android-13
 
 	/* Enable the interrupt line from the serial port. */
 	outb(Ctrl_SelData + Ctrl_IRQEN, ioaddr + PAR_CONTROL);
 
 	/* Unmask the interesting interrupts. */
+<<<<<<< HEAD
     write_reg(ioaddr, IMR, ISR_RxOK | ISR_TxErr | ISR_TxOK);
     write_reg_high(ioaddr, IMR, ISRh_RxErr);
 
 	lp->tx_unit_busy = 0;
     lp->pac_cnt_in_tx_buf = 0;
+=======
+	write_reg(ioaddr, IMR, ISR_RxOK | ISR_TxErr | ISR_TxOK);
+	write_reg_high(ioaddr, IMR, ISRh_RxErr);
+
+	lp->tx_unit_busy = 0;
+	lp->pac_cnt_in_tx_buf = 0;
+>>>>>>> upstream/android-13
 	lp->saved_tx_size = 0;
 }
 
@@ -497,8 +522,13 @@ static void write_packet(long ioaddr, int length, unsigned char *packet, int pad
 {
     if (length & 1)
     {
+<<<<<<< HEAD
     	length++;
     	pad_len++;
+=======
+	length++;
+	pad_len++;
+>>>>>>> upstream/android-13
     }
 
     outb(EOC+MAR, ioaddr + PAR_DATA);
@@ -533,7 +563,11 @@ static void write_packet(long ioaddr, int length, unsigned char *packet, int pad
     outb(Ctrl_HNibWrite | Ctrl_SelData | Ctrl_IRQEN, ioaddr + PAR_CONTROL);
 }
 
+<<<<<<< HEAD
 static void tx_timeout(struct net_device *dev)
+=======
+static void tx_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	long ioaddr = dev->base_addr;
 
@@ -610,10 +644,19 @@ static irqreturn_t atp_interrupt(int irq, void *dev_instance)
 	write_reg(ioaddr, CMR2, CMR2_NULL);
 	write_reg(ioaddr, IMR, 0);
 
+<<<<<<< HEAD
 	if (net_debug > 5) printk(KERN_DEBUG "%s: In interrupt ", dev->name);
     while (--boguscount > 0) {
 		int status = read_nibble(ioaddr, ISR);
 		if (net_debug > 5) printk("loop status %02x..", status);
+=======
+	if (net_debug > 5)
+		printk(KERN_DEBUG "%s: In interrupt ", dev->name);
+	while (--boguscount > 0) {
+		int status = read_nibble(ioaddr, ISR);
+		if (net_debug > 5)
+			printk("loop status %02x..", status);
+>>>>>>> upstream/android-13
 
 		if (status & (ISR_RxOK<<3)) {
 			handled = 1;
@@ -640,7 +683,12 @@ static irqreturn_t atp_interrupt(int irq, void *dev_instance)
 			} while (--boguscount > 0);
 		} else if (status & ((ISR_TxErr + ISR_TxOK)<<3)) {
 			handled = 1;
+<<<<<<< HEAD
 			if (net_debug > 6)  printk("handling Tx done..");
+=======
+			if (net_debug > 6)
+				printk("handling Tx done..");
+>>>>>>> upstream/android-13
 			/* Clear the Tx interrupt.  We should check for too many failures
 			   and reinitialize the adapter. */
 			write_reg(ioaddr, ISR, ISR_TxErr + ISR_TxOK);
@@ -680,7 +728,11 @@ static irqreturn_t atp_interrupt(int irq, void *dev_instance)
 			break;
 		} else
 			break;
+<<<<<<< HEAD
     }
+=======
+	}
+>>>>>>> upstream/android-13
 
 	/* This following code fixes a rare (and very difficult to track down)
 	   problem where the adapter forgets its ethernet address. */
@@ -694,7 +746,11 @@ static irqreturn_t atp_interrupt(int irq, void *dev_instance)
 	}
 
 	/* Tell the adapter that it can go back to using the output line as IRQ. */
+<<<<<<< HEAD
     write_reg(ioaddr, CMR2, CMR2_IRQOUT);
+=======
+	write_reg(ioaddr, CMR2, CMR2_IRQOUT);
+>>>>>>> upstream/android-13
 	/* Enable the physical interrupt line, which is sure to be low until.. */
 	outb(Ctrl_SelData + Ctrl_IRQEN, ioaddr + PAR_CONTROL);
 	/* .. we enable the interrupt sources. */

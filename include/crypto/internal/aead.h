@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * AEAD: Authenticated Encryption with Associated Data
  * 
  * Copyright (c) 2007-2015 Herbert Xu <herbert@gondor.apana.org.au>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option) 
  * any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _CRYPTO_INTERNAL_AEAD_H
@@ -86,6 +93,7 @@ static inline struct aead_request *aead_request_cast(
 	return container_of(req, struct aead_request, base);
 }
 
+<<<<<<< HEAD
 static inline void crypto_set_aead_spawn(
 	struct crypto_aead_spawn *spawn, struct crypto_instance *inst)
 {
@@ -94,6 +102,11 @@ static inline void crypto_set_aead_spawn(
 
 int crypto_grab_aead(struct crypto_aead_spawn *spawn, const char *name,
 		     u32 type, u32 mask);
+=======
+int crypto_grab_aead(struct crypto_aead_spawn *spawn,
+		     struct crypto_instance *inst,
+		     const char *name, u32 type, u32 mask);
+>>>>>>> upstream/android-13
 
 static inline void crypto_drop_aead(struct crypto_aead_spawn *spawn)
 {
@@ -118,6 +131,7 @@ static inline void crypto_aead_set_reqsize(struct crypto_aead *aead,
 	aead->reqsize = reqsize;
 }
 
+<<<<<<< HEAD
 static inline unsigned int crypto_aead_alg_maxauthsize(struct aead_alg *alg)
 {
 	return alg->maxauthsize;
@@ -128,6 +142,8 @@ static inline unsigned int crypto_aead_maxauthsize(struct crypto_aead *aead)
 	return crypto_aead_alg_maxauthsize(crypto_aead_alg(aead));
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void aead_init_queue(struct aead_queue *queue,
 				   unsigned int max_qlen)
 {

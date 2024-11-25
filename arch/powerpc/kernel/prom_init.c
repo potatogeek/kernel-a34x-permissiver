@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Procedures for interfacing to Open Firmware.
  *
@@ -6,11 +10,14 @@
  * 
  *  Adapted for 64bit PowerPC by Dave Engebretsen and Peter Bergner.
  *    {engebret|bergner}@us.ibm.com 
+<<<<<<< HEAD
  *
  *      This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #undef DEBUG_PROM
@@ -18,7 +25,11 @@
 /* we cannot use FORTIFY as it brings in new symbols */
 #define __NO_FORTIFY
 
+<<<<<<< HEAD
 #include <stdarg.h>
+=======
+#include <linux/stdarg.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/string.h>
 #include <linux/init.h>
@@ -30,24 +41,47 @@
 #include <linux/delay.h>
 #include <linux/initrd.h>
 #include <linux/bitops.h>
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+#include <linux/printk.h>
+>>>>>>> upstream/android-13
 #include <asm/prom.h>
 #include <asm/rtas.h>
 #include <asm/page.h>
 #include <asm/processor.h>
+<<<<<<< HEAD
+=======
+#include <asm/interrupt.h>
+>>>>>>> upstream/android-13
 #include <asm/irq.h>
 #include <asm/io.h>
 #include <asm/smp.h>
 #include <asm/mmu.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/iommu.h>
 #include <asm/btext.h>
 #include <asm/sections.h>
 #include <asm/machdep.h>
+<<<<<<< HEAD
 #include <asm/opal.h>
 #include <asm/asm-prototypes.h>
 
 #include <linux/linux_logo.h>
 
+=======
+#include <asm/asm-prototypes.h>
+#include <asm/ultravisor-api.h>
+
+#include <linux/linux_logo.h>
+
+/* All of prom_init bss lives here */
+#define __prombss __section(".bss.prominit")
+
+>>>>>>> upstream/android-13
 /*
  * Eventually bump that one up
  */
@@ -87,7 +121,11 @@
 #define OF_WORKAROUNDS	0
 #else
 #define OF_WORKAROUNDS	of_workarounds
+<<<<<<< HEAD
 int of_workarounds;
+=======
+static int of_workarounds __prombss;
+>>>>>>> upstream/android-13
 #endif
 
 #define OF_WA_CLAIM	1	/* do phys/virt claim separately, then map */
@@ -96,7 +134,11 @@ int of_workarounds;
 #define PROM_BUG() do {						\
         prom_printf("kernel BUG at %s line 0x%x!\n",		\
 		    __FILE__, __LINE__);			\
+<<<<<<< HEAD
         __asm__ __volatile__(".long " BUG_ILLEGAL_INSTR);	\
+=======
+	__builtin_trap();					\
+>>>>>>> upstream/android-13
 } while (0)
 
 #ifdef DEBUG_PROM
@@ -148,6 +190,7 @@ extern void copy_and_flush(unsigned long dest, unsigned long src,
 			   unsigned long size, unsigned long offset);
 
 /* prom structure */
+<<<<<<< HEAD
 static struct prom_t __initdata prom;
 
 static unsigned long prom_entry __initdata;
@@ -171,6 +214,37 @@ static unsigned long __initdata prom_tce_alloc_end;
 #endif
 
 static bool prom_radix_disable __initdata = !IS_ENABLED(CONFIG_PPC_RADIX_MMU_DEFAULT);
+=======
+static struct prom_t __prombss prom;
+
+static unsigned long __prombss prom_entry;
+
+static char __prombss of_stdout_device[256];
+static char __prombss prom_scratch[256];
+
+static unsigned long __prombss dt_header_start;
+static unsigned long __prombss dt_struct_start, dt_struct_end;
+static unsigned long __prombss dt_string_start, dt_string_end;
+
+static unsigned long __prombss prom_initrd_start, prom_initrd_end;
+
+#ifdef CONFIG_PPC64
+static int __prombss prom_iommu_force_on;
+static int __prombss prom_iommu_off;
+static unsigned long __prombss prom_tce_alloc_start;
+static unsigned long __prombss prom_tce_alloc_end;
+#endif
+
+#ifdef CONFIG_PPC_PSERIES
+static bool __prombss prom_radix_disable;
+static bool __prombss prom_radix_gtse_disable;
+static bool __prombss prom_xive_disable;
+#endif
+
+#ifdef CONFIG_PPC_SVM
+static bool __prombss prom_svm_enable;
+#endif
+>>>>>>> upstream/android-13
 
 struct platform_support {
 	bool hash_mmu;
@@ -188,6 +262,7 @@ struct platform_support {
 #define PLATFORM_LPAR		0x0001
 #define PLATFORM_POWERMAC	0x0400
 #define PLATFORM_GENERIC	0x0500
+<<<<<<< HEAD
 #define PLATFORM_OPAL		0x0600
 
 static int __initdata of_platform;
@@ -208,6 +283,27 @@ static int __initdata mem_reserve_cnt;
 static cell_t __initdata regbuf[1024];
 
 static bool rtas_has_query_cpu_stopped;
+=======
+
+static int __prombss of_platform;
+
+static char __prombss prom_cmd_line[COMMAND_LINE_SIZE];
+
+static unsigned long __prombss prom_memory_limit;
+
+static unsigned long __prombss alloc_top;
+static unsigned long __prombss alloc_top_high;
+static unsigned long __prombss alloc_bottom;
+static unsigned long __prombss rmo_top;
+static unsigned long __prombss ram_top;
+
+static struct mem_map_entry __prombss mem_reserve_map[MEM_RESERVE_MAP_SIZE];
+static int __prombss mem_reserve_cnt;
+
+static cell_t __prombss regbuf[1024];
+
+static bool  __prombss rtas_has_query_cpu_stopped;
+>>>>>>> upstream/android-13
 
 
 /*
@@ -221,6 +317,165 @@ static bool rtas_has_query_cpu_stopped;
 #define PHANDLE_VALID(p)	((p) != 0 && (p) != PROM_ERROR)
 #define IHANDLE_VALID(i)	((i) != 0 && (i) != PROM_ERROR)
 
+<<<<<<< HEAD
+=======
+/* Copied from lib/string.c and lib/kstrtox.c */
+
+static int __init prom_strcmp(const char *cs, const char *ct)
+{
+	unsigned char c1, c2;
+
+	while (1) {
+		c1 = *cs++;
+		c2 = *ct++;
+		if (c1 != c2)
+			return c1 < c2 ? -1 : 1;
+		if (!c1)
+			break;
+	}
+	return 0;
+}
+
+static ssize_t __init prom_strscpy_pad(char *dest, const char *src, size_t n)
+{
+	ssize_t rc;
+	size_t i;
+
+	if (n == 0 || n > INT_MAX)
+		return -E2BIG;
+
+	// Copy up to n bytes
+	for (i = 0; i < n && src[i] != '\0'; i++)
+		dest[i] = src[i];
+
+	rc = i;
+
+	// If we copied all n then we have run out of space for the nul
+	if (rc == n) {
+		// Rewind by one character to ensure nul termination
+		i--;
+		rc = -E2BIG;
+	}
+
+	for (; i < n; i++)
+		dest[i] = '\0';
+
+	return rc;
+}
+
+static int __init prom_strncmp(const char *cs, const char *ct, size_t count)
+{
+	unsigned char c1, c2;
+
+	while (count) {
+		c1 = *cs++;
+		c2 = *ct++;
+		if (c1 != c2)
+			return c1 < c2 ? -1 : 1;
+		if (!c1)
+			break;
+		count--;
+	}
+	return 0;
+}
+
+static size_t __init prom_strlen(const char *s)
+{
+	const char *sc;
+
+	for (sc = s; *sc != '\0'; ++sc)
+		/* nothing */;
+	return sc - s;
+}
+
+static int __init prom_memcmp(const void *cs, const void *ct, size_t count)
+{
+	const unsigned char *su1, *su2;
+	int res = 0;
+
+	for (su1 = cs, su2 = ct; 0 < count; ++su1, ++su2, count--)
+		if ((res = *su1 - *su2) != 0)
+			break;
+	return res;
+}
+
+static char __init *prom_strstr(const char *s1, const char *s2)
+{
+	size_t l1, l2;
+
+	l2 = prom_strlen(s2);
+	if (!l2)
+		return (char *)s1;
+	l1 = prom_strlen(s1);
+	while (l1 >= l2) {
+		l1--;
+		if (!prom_memcmp(s1, s2, l2))
+			return (char *)s1;
+		s1++;
+	}
+	return NULL;
+}
+
+static size_t __init prom_strlcat(char *dest, const char *src, size_t count)
+{
+	size_t dsize = prom_strlen(dest);
+	size_t len = prom_strlen(src);
+	size_t res = dsize + len;
+
+	/* This would be a bug */
+	if (dsize >= count)
+		return count;
+
+	dest += dsize;
+	count -= dsize;
+	if (len >= count)
+		len = count-1;
+	memcpy(dest, src, len);
+	dest[len] = 0;
+	return res;
+
+}
+
+#ifdef CONFIG_PPC_PSERIES
+static int __init prom_strtobool(const char *s, bool *res)
+{
+	if (!s)
+		return -EINVAL;
+
+	switch (s[0]) {
+	case 'y':
+	case 'Y':
+	case '1':
+		*res = true;
+		return 0;
+	case 'n':
+	case 'N':
+	case '0':
+		*res = false;
+		return 0;
+	case 'o':
+	case 'O':
+		switch (s[1]) {
+		case 'n':
+		case 'N':
+			*res = true;
+			return 0;
+		case 'f':
+		case 'F':
+			*res = false;
+			return 0;
+		default:
+			break;
+		}
+		break;
+	default:
+		break;
+	}
+
+	return -EINVAL;
+}
+#endif
+>>>>>>> upstream/android-13
 
 /* This is the one and *ONLY* place where we actually call open
  * firmware.
@@ -498,14 +753,23 @@ static int __init prom_next_node(phandle *nodep)
 	}
 }
 
+<<<<<<< HEAD
 static inline int prom_getprop(phandle node, const char *pname,
 			       void *value, size_t valuelen)
+=======
+static inline int __init prom_getprop(phandle node, const char *pname,
+				      void *value, size_t valuelen)
+>>>>>>> upstream/android-13
 {
 	return call_prom("getprop", 4, 1, node, ADDR(pname),
 			 (u32)(unsigned long) value, (u32) valuelen);
 }
 
+<<<<<<< HEAD
 static inline int prom_getproplen(phandle node, const char *pname)
+=======
+static inline int __init prom_getproplen(phandle node, const char *pname)
+>>>>>>> upstream/android-13
 {
 	return call_prom("getproplen", 2, 1, node, ADDR(pname));
 }
@@ -522,8 +786,13 @@ static void add_string(char **str, const char *q)
 
 static char *tohex(unsigned int x)
 {
+<<<<<<< HEAD
 	static char digits[] = "0123456789abcdef";
 	static char result[9];
+=======
+	static const char digits[] __initconst = "0123456789abcdef";
+	static char result[9] __prombss;
+>>>>>>> upstream/android-13
 	int i;
 
 	result[8] = 0;
@@ -552,13 +821,18 @@ static int __init prom_setprop(phandle node, const char *nodename,
 	add_string(&p, tohex((u32)(unsigned long) value));
 	add_string(&p, tohex(valuelen));
 	add_string(&p, tohex(ADDR(pname)));
+<<<<<<< HEAD
 	add_string(&p, tohex(strlen(pname)));
+=======
+	add_string(&p, tohex(prom_strlen(pname)));
+>>>>>>> upstream/android-13
 	add_string(&p, "property");
 	*p = 0;
 	return call_prom("interpret", 1, 1, (u32)(unsigned long) cmd);
 }
 
 /* We can't use the standard versions because of relocation headaches. */
+<<<<<<< HEAD
 #define isxdigit(c)	(('0' <= (c) && (c) <= '9') \
 			 || ('a' <= (c) && (c) <= 'f') \
 			 || ('A' <= (c) && (c) <= 'F'))
@@ -566,6 +840,14 @@ static int __init prom_setprop(phandle node, const char *nodename,
 #define isdigit(c)	('0' <= (c) && (c) <= '9')
 #define islower(c)	('a' <= (c) && (c) <= 'z')
 #define toupper(c)	(islower(c) ? ((c) - 'a' + 'A') : (c))
+=======
+#define prom_isxdigit(c) \
+	(('0' <= (c) && (c) <= '9') || ('a' <= (c) && (c) <= 'f') || ('A' <= (c) && (c) <= 'F'))
+
+#define prom_isdigit(c)	('0' <= (c) && (c) <= '9')
+#define prom_islower(c)	('a' <= (c) && (c) <= 'z')
+#define prom_toupper(c)	(prom_islower(c) ? ((c) - 'a' + 'A') : (c))
+>>>>>>> upstream/android-13
 
 static unsigned long prom_strtoul(const char *cp, const char **endp)
 {
@@ -574,14 +856,23 @@ static unsigned long prom_strtoul(const char *cp, const char **endp)
 	if (*cp == '0') {
 		base = 8;
 		cp++;
+<<<<<<< HEAD
 		if (toupper(*cp) == 'X') {
+=======
+		if (prom_toupper(*cp) == 'X') {
+>>>>>>> upstream/android-13
 			cp++;
 			base = 16;
 		}
 	}
 
+<<<<<<< HEAD
 	while (isxdigit(*cp) &&
 	       (value = isdigit(*cp) ? *cp - '0' : toupper(*cp) - 'A' + 10) < base) {
+=======
+	while (prom_isxdigit(*cp) &&
+	       (value = prom_isdigit(*cp) ? *cp - '0' : prom_toupper(*cp) - 'A' + 10) < base) {
+>>>>>>> upstream/android-13
 		result = result * base + value;
 		cp++;
 	}
@@ -628,6 +919,7 @@ static void __init early_cmdline_parse(void)
 	const char *opt;
 
 	char *p;
+<<<<<<< HEAD
 	int l __maybe_unused = 0;
 
 	prom_cmd_line[0] = 0;
@@ -643,11 +935,30 @@ static void __init early_cmdline_parse(void)
 
 #ifdef CONFIG_PPC64
 	opt = strstr(prom_cmd_line, "iommu=");
+=======
+	int l = 0;
+
+	prom_cmd_line[0] = 0;
+	p = prom_cmd_line;
+
+	if (!IS_ENABLED(CONFIG_CMDLINE_FORCE) && (long)prom.chosen > 0)
+		l = prom_getprop(prom.chosen, "bootargs", p, COMMAND_LINE_SIZE-1);
+
+	if (IS_ENABLED(CONFIG_CMDLINE_EXTEND) || l <= 0 || p[0] == '\0')
+		prom_strlcat(prom_cmd_line, " " CONFIG_CMDLINE,
+			     sizeof(prom_cmd_line));
+
+	prom_printf("command line: %s\n", prom_cmd_line);
+
+#ifdef CONFIG_PPC64
+	opt = prom_strstr(prom_cmd_line, "iommu=");
+>>>>>>> upstream/android-13
 	if (opt) {
 		prom_printf("iommu opt is: %s\n", opt);
 		opt += 6;
 		while (*opt && *opt == ' ')
 			opt++;
+<<<<<<< HEAD
 		if (!strncmp(opt, "off", 3))
 			prom_iommu_off = 1;
 		else if (!strncmp(opt, "force", 5))
@@ -655,6 +966,15 @@ static void __init early_cmdline_parse(void)
 	}
 #endif
 	opt = strstr(prom_cmd_line, "mem=");
+=======
+		if (!prom_strncmp(opt, "off", 3))
+			prom_iommu_off = 1;
+		else if (!prom_strncmp(opt, "force", 5))
+			prom_iommu_force_on = 1;
+	}
+#endif
+	opt = prom_strstr(prom_cmd_line, "mem=");
+>>>>>>> upstream/android-13
 	if (opt) {
 		opt += 4;
 		prom_memory_limit = prom_memparse(opt, (const char **)&opt);
@@ -664,13 +984,23 @@ static void __init early_cmdline_parse(void)
 #endif
 	}
 
+<<<<<<< HEAD
 	opt = strstr(prom_cmd_line, "disable_radix");
+=======
+#ifdef CONFIG_PPC_PSERIES
+	prom_radix_disable = !IS_ENABLED(CONFIG_PPC_RADIX_MMU_DEFAULT);
+	opt = prom_strstr(prom_cmd_line, "disable_radix");
+>>>>>>> upstream/android-13
 	if (opt) {
 		opt += 13;
 		if (*opt && *opt == '=') {
 			bool val;
 
+<<<<<<< HEAD
 			if (kstrtobool(++opt, &val))
+=======
+			if (prom_strtobool(++opt, &val))
+>>>>>>> upstream/android-13
 				prom_radix_disable = false;
 			else
 				prom_radix_disable = val;
@@ -679,9 +1009,39 @@ static void __init early_cmdline_parse(void)
 	}
 	if (prom_radix_disable)
 		prom_debug("Radix disabled from cmdline\n");
+<<<<<<< HEAD
 }
 
 #if defined(CONFIG_PPC_PSERIES) || defined(CONFIG_PPC_POWERNV)
+=======
+
+	opt = prom_strstr(prom_cmd_line, "radix_hcall_invalidate=on");
+	if (opt) {
+		prom_radix_gtse_disable = true;
+		prom_debug("Radix GTSE disabled from cmdline\n");
+	}
+
+	opt = prom_strstr(prom_cmd_line, "xive=off");
+	if (opt) {
+		prom_xive_disable = true;
+		prom_debug("XIVE disabled from cmdline\n");
+	}
+#endif /* CONFIG_PPC_PSERIES */
+
+#ifdef CONFIG_PPC_SVM
+	opt = prom_strstr(prom_cmd_line, "svm=");
+	if (opt) {
+		bool val;
+
+		opt += sizeof("svm=") - 1;
+		if (!prom_strtobool(opt, &val))
+			prom_svm_enable = val;
+	}
+#endif /* CONFIG_PPC_SVM */
+}
+
+#ifdef CONFIG_PPC_PSERIES
+>>>>>>> upstream/android-13
 /*
  * The architecture vector has an array of PVR mask/value pairs,
  * followed by # option vectors - 1, followed by the option vectors.
@@ -758,8 +1118,17 @@ struct option_vector6 {
 	u8 os_name;
 } __packed;
 
+<<<<<<< HEAD
 struct ibm_arch_vec {
 	struct { u32 mask, val; } pvrs[12];
+=======
+struct option_vector7 {
+	u8 os_id[256];
+} __packed;
+
+struct ibm_arch_vec {
+	struct { u32 mask, val; } pvrs[14];
+>>>>>>> upstream/android-13
 
 	u8 num_vectors;
 
@@ -780,9 +1149,18 @@ struct ibm_arch_vec {
 
 	u8 vec6_len;
 	struct option_vector6 vec6;
+<<<<<<< HEAD
 } __packed;
 
 struct ibm_arch_vec __cacheline_aligned ibm_architecture_vec = {
+=======
+
+	u8 vec7_len;
+	struct option_vector7 vec7;
+} __packed;
+
+static const struct ibm_arch_vec ibm_architecture_vec_template __initconst = {
+>>>>>>> upstream/android-13
 	.pvrs = {
 		{
 			.mask = cpu_to_be32(0xfffe0000), /* POWER5/POWER5+ */
@@ -813,6 +1191,17 @@ struct ibm_arch_vec __cacheline_aligned ibm_architecture_vec = {
 			.val  = cpu_to_be32(0x004e0000),
 		},
 		{
+<<<<<<< HEAD
+=======
+			.mask = cpu_to_be32(0xffff0000), /* POWER10 */
+			.val  = cpu_to_be32(0x00800000),
+		},
+		{
+			.mask = cpu_to_be32(0xffffffff), /* all 3.1-compliant */
+			.val  = cpu_to_be32(0x0f000006),
+		},
+		{
+>>>>>>> upstream/android-13
 			.mask = cpu_to_be32(0xffffffff), /* all 3.00-compliant */
 			.val  = cpu_to_be32(0x0f000005),
 		},
@@ -841,7 +1230,11 @@ struct ibm_arch_vec __cacheline_aligned ibm_architecture_vec = {
 		.byte1 = 0,
 		.arch_versions = OV1_PPC_2_00 | OV1_PPC_2_01 | OV1_PPC_2_02 | OV1_PPC_2_03 |
 				 OV1_PPC_2_04 | OV1_PPC_2_05 | OV1_PPC_2_06 | OV1_PPC_2_07,
+<<<<<<< HEAD
 		.arch_versions3 = OV1_PPC_3_00,
+=======
+		.arch_versions3 = OV1_PPC_3_00 | OV1_PPC_3_1,
+>>>>>>> upstream/android-13
 	},
 
 	.vec2_len = VECTOR_LENGTH(sizeof(struct option_vector2)),
@@ -893,7 +1286,12 @@ struct ibm_arch_vec __cacheline_aligned ibm_architecture_vec = {
 #else
 		0,
 #endif
+<<<<<<< HEAD
 		.associativity = OV5_FEAT(OV5_TYPE1_AFFINITY) | OV5_FEAT(OV5_PRRN),
+=======
+		.associativity = OV5_FEAT(OV5_FORM1_AFFINITY) | OV5_FEAT(OV5_PRRN) |
+		OV5_FEAT(OV5_FORM2_AFFINITY),
+>>>>>>> upstream/android-13
 		.bin_opts = OV5_FEAT(OV5_RESIZE_HPT) | OV5_FEAT(OV5_HP_EVT),
 		.micro_checkpoint = 0,
 		.reserved0 = 0,
@@ -918,11 +1316,24 @@ struct ibm_arch_vec __cacheline_aligned ibm_architecture_vec = {
 		.secondary_pteg = 0,
 		.os_name = OV6_LINUX,
 	},
+<<<<<<< HEAD
 };
 
 /* Old method - ELF header with PT_NOTE sections only works on BE */
 #ifdef __BIG_ENDIAN__
 static struct fake_elf {
+=======
+
+	/* option vector 7: OS Identification */
+	.vec7_len = VECTOR_LENGTH(sizeof(struct option_vector7)),
+};
+
+static struct ibm_arch_vec __prombss ibm_architecture_vec  ____cacheline_aligned;
+
+/* Old method - ELF header with PT_NOTE sections only works on BE */
+#ifdef __BIG_ENDIAN__
+static const struct fake_elf {
+>>>>>>> upstream/android-13
 	Elf32_Ehdr	elfhdr;
 	Elf32_Phdr	phdr[2];
 	struct chrpnote {
@@ -955,7 +1366,11 @@ static struct fake_elf {
 			u32	ignore_me;
 		} rpadesc;
 	} rpanote;
+<<<<<<< HEAD
 } fake_elf = {
+=======
+} fake_elf __initconst = {
+>>>>>>> upstream/android-13
 	.elfhdr = {
 		.e_ident = { 0x7f, 'E', 'L', 'F',
 			     ELFCLASS32, ELFDATA2MSB, EV_CURRENT },
@@ -1020,7 +1435,11 @@ static int __init prom_count_smt_threads(void)
 		type[0] = 0;
 		prom_getprop(node, "device_type", type, sizeof(type));
 
+<<<<<<< HEAD
 		if (strcmp(type, "cpu"))
+=======
+		if (prom_strcmp(type, "cpu"))
+>>>>>>> upstream/android-13
 			continue;
 		/*
 		 * There is an entry for each smt thread, each entry being
@@ -1084,10 +1503,24 @@ static void __init prom_parse_xive_model(u8 val,
 	switch (val) {
 	case OV5_FEAT(OV5_XIVE_EITHER): /* Either Available */
 		prom_debug("XIVE - either mode supported\n");
+<<<<<<< HEAD
 		support->xive = true;
 		break;
 	case OV5_FEAT(OV5_XIVE_EXPLOIT): /* Only Exploitation mode */
 		prom_debug("XIVE - exploitation mode supported\n");
+=======
+		support->xive = !prom_xive_disable;
+		break;
+	case OV5_FEAT(OV5_XIVE_EXPLOIT): /* Only Exploitation mode */
+		prom_debug("XIVE - exploitation mode supported\n");
+		if (prom_xive_disable) {
+			/*
+			 * If we __have__ to do XIVE, we're better off ignoring
+			 * the command line rather than not booting.
+			 */
+			prom_printf("WARNING: Ignoring cmdline option xive=off\n");
+		}
+>>>>>>> upstream/android-13
 		support->xive = true;
 		break;
 	case OV5_FEAT(OV5_XIVE_LEGACY): /* Only Legacy mode */
@@ -1107,10 +1540,15 @@ static void __init prom_parse_platform_support(u8 index, u8 val,
 		prom_parse_mmu_model(val & OV5_FEAT(OV5_MMU_SUPPORT), support);
 		break;
 	case OV5_INDX(OV5_RADIX_GTSE): /* Radix Extensions */
+<<<<<<< HEAD
 		if (val & OV5_FEAT(OV5_RADIX_GTSE)) {
 			prom_debug("Radix - GTSE supported\n");
 			support->radix_gtse = true;
 		}
+=======
+		if (val & OV5_FEAT(OV5_RADIX_GTSE))
+			support->radix_gtse = !prom_radix_gtse_disable;
+>>>>>>> upstream/android-13
 		break;
 	case OV5_INDX(OV5_XIVE_SUPPORT): /* Interrupt mode */
 		prom_parse_xive_model(val & OV5_FEAT(OV5_XIVE_SUPPORT),
@@ -1129,6 +1567,7 @@ static void __init prom_check_platform_support(void)
 	};
 	int prop_len = prom_getproplen(prom.chosen,
 				       "ibm,arch-vec-5-platform-support");
+<<<<<<< HEAD
 	if (prop_len > 1) {
 		int i;
 		u8 vec[prop_len];
@@ -1151,6 +1590,44 @@ static void __init prom_check_platform_support(void)
 		prom_debug("Asking for radix with GTSE\n");
 		ibm_architecture_vec.vec5.mmu = OV5_FEAT(OV5_MMU_RADIX);
 		ibm_architecture_vec.vec5.radix_ext = OV5_FEAT(OV5_RADIX_GTSE);
+=======
+
+	/*
+	 * First copy the architecture vec template
+	 *
+	 * use memcpy() instead of *vec = *vec_template so that GCC replaces it
+	 * by __memcpy() when KASAN is active
+	 */
+	memcpy(&ibm_architecture_vec, &ibm_architecture_vec_template,
+	       sizeof(ibm_architecture_vec));
+
+	prom_strscpy_pad(ibm_architecture_vec.vec7.os_id, linux_banner, 256);
+
+	if (prop_len > 1) {
+		int i;
+		u8 vec[8];
+		prom_debug("Found ibm,arch-vec-5-platform-support, len: %d\n",
+			   prop_len);
+		if (prop_len > sizeof(vec))
+			prom_printf("WARNING: ibm,arch-vec-5-platform-support longer than expected (len: %d)\n",
+				    prop_len);
+		prom_getprop(prom.chosen, "ibm,arch-vec-5-platform-support", &vec, sizeof(vec));
+		for (i = 0; i < prop_len; i += 2) {
+			prom_debug("%d: index = 0x%x val = 0x%x\n", i / 2, vec[i], vec[i + 1]);
+			prom_parse_platform_support(vec[i], vec[i + 1], &supported);
+		}
+	}
+
+	if (supported.radix_mmu && IS_ENABLED(CONFIG_PPC_RADIX_MMU)) {
+		/* Radix preferred - Check if GTSE is also supported */
+		prom_debug("Asking for radix\n");
+		ibm_architecture_vec.vec5.mmu = OV5_FEAT(OV5_MMU_RADIX);
+		if (supported.radix_gtse)
+			ibm_architecture_vec.vec5.radix_ext =
+					OV5_FEAT(OV5_RADIX_GTSE);
+		else
+			prom_debug("Radix GTSE isn't supported\n");
+>>>>>>> upstream/android-13
 	} else if (supported.hash_mmu) {
 		/* Default to hash mmu (if we can) */
 		prom_debug("Asking for hash\n");
@@ -1225,7 +1702,11 @@ static void __init prom_send_capabilities(void)
 	}
 #endif /* __BIG_ENDIAN__ */
 }
+<<<<<<< HEAD
 #endif /* #if defined(CONFIG_PPC_PSERIES) || defined(CONFIG_PPC_POWERNV) */
+=======
+#endif /* CONFIG_PPC_PSERIES */
+>>>>>>> upstream/android-13
 
 /*
  * Memory allocation strategy... our layout is normally:
@@ -1266,18 +1747,30 @@ static unsigned long __init alloc_up(unsigned long size, unsigned long align)
 	unsigned long addr = 0;
 
 	if (align)
+<<<<<<< HEAD
 		base = _ALIGN_UP(base, align);
+=======
+		base = ALIGN(base, align);
+>>>>>>> upstream/android-13
 	prom_debug("%s(%lx, %lx)\n", __func__, size, align);
 	if (ram_top == 0)
 		prom_panic("alloc_up() called with mem not initialized\n");
 
 	if (align)
+<<<<<<< HEAD
 		base = _ALIGN_UP(alloc_bottom, align);
+=======
+		base = ALIGN(alloc_bottom, align);
+>>>>>>> upstream/android-13
 	else
 		base = alloc_bottom;
 
 	for(; (base + size) <= alloc_top; 
+<<<<<<< HEAD
 	    base = _ALIGN_UP(base + 0x100000, align)) {
+=======
+	    base = ALIGN(base + 0x100000, align)) {
+>>>>>>> upstream/android-13
 		prom_debug("    trying: 0x%lx\n\r", base);
 		addr = (unsigned long)prom_claim(base, size, 0);
 		if (addr != PROM_ERROR && addr != 0)
@@ -1317,7 +1810,11 @@ static unsigned long __init alloc_down(unsigned long size, unsigned long align,
 
 	if (highmem) {
 		/* Carve out storage for the TCE table. */
+<<<<<<< HEAD
 		addr = _ALIGN_DOWN(alloc_top_high - size, align);
+=======
+		addr = ALIGN_DOWN(alloc_top_high - size, align);
+>>>>>>> upstream/android-13
 		if (addr <= alloc_bottom)
 			return 0;
 		/* Will we bump into the RMO ? If yes, check out that we
@@ -1335,9 +1832,15 @@ static unsigned long __init alloc_down(unsigned long size, unsigned long align,
 		goto bail;
 	}
 
+<<<<<<< HEAD
 	base = _ALIGN_DOWN(alloc_top - size, align);
 	for (; base > alloc_bottom;
 	     base = _ALIGN_DOWN(base - 0x100000, align))  {
+=======
+	base = ALIGN_DOWN(alloc_top - size, align);
+	for (; base > alloc_bottom;
+	     base = ALIGN_DOWN(base - 0x100000, align))  {
+>>>>>>> upstream/android-13
 		prom_debug("    trying: 0x%lx\n\r", base);
 		addr = (unsigned long)prom_claim(base, size, 0);
 		if (addr != PROM_ERROR && addr != 0)
@@ -1403,8 +1906,13 @@ static void __init reserve_mem(u64 base, u64 size)
 	 * have our terminator with "size" set to 0 since we are
 	 * dumb and just copy this entire array to the boot params
 	 */
+<<<<<<< HEAD
 	base = _ALIGN_DOWN(base, PAGE_SIZE);
 	top = _ALIGN_UP(top, PAGE_SIZE);
+=======
+	base = ALIGN_DOWN(base, PAGE_SIZE);
+	top = ALIGN(top, PAGE_SIZE);
+>>>>>>> upstream/android-13
 	size = top - base;
 
 	if (cnt >= (MEM_RESERVE_MAP_SIZE - 1))
@@ -1421,9 +1929,12 @@ static void __init reserve_mem(u64 base, u64 size)
 static void __init prom_init_mem(void)
 {
 	phandle node;
+<<<<<<< HEAD
 #ifdef DEBUG_PROM
 	char *path;
 #endif
+=======
+>>>>>>> upstream/android-13
 	char type[64];
 	unsigned int plen;
 	cell_t *p, *endp;
@@ -1445,9 +1956,12 @@ static void __init prom_init_mem(void)
 	prom_debug("root_size_cells: %x\n", rsc);
 
 	prom_debug("scanning memory:\n");
+<<<<<<< HEAD
 #ifdef DEBUG_PROM
 	path = prom_scratch;
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	for (node = 0; prom_next_node(&node); ) {
 		type[0] = 0;
@@ -1460,7 +1974,11 @@ static void __init prom_init_mem(void)
 			 */
 			prom_getprop(node, "name", type, sizeof(type));
 		}
+<<<<<<< HEAD
 		if (strcmp(type, "memory"))
+=======
+		if (prom_strcmp(type, "memory"))
+>>>>>>> upstream/android-13
 			continue;
 
 		plen = prom_getprop(node, "reg", regbuf, sizeof(regbuf));
@@ -1472,9 +1990,16 @@ static void __init prom_init_mem(void)
 		endp = p + (plen / sizeof(cell_t));
 
 #ifdef DEBUG_PROM
+<<<<<<< HEAD
 		memset(path, 0, PROM_SCRATCH_SIZE);
 		call_prom("package-to-path", 3, 1, node, path, PROM_SCRATCH_SIZE-1);
 		prom_debug("  node %s :\n", path);
+=======
+		memset(prom_scratch, 0, sizeof(prom_scratch));
+		call_prom("package-to-path", 3, 1, node, prom_scratch,
+			  sizeof(prom_scratch) - 1);
+		prom_debug("  node %s :\n", prom_scratch);
+>>>>>>> upstream/android-13
 #endif /* DEBUG_PROM */
 
 		while ((endp - p) >= (rac + rsc)) {
@@ -1562,6 +2087,7 @@ static void __init prom_close_stdin(void)
 	}
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PPC_POWERNV
 
 #ifdef CONFIG_PPC_EARLY_DEBUG_OPAL
@@ -1643,6 +2169,49 @@ static void __init prom_instantiate_opal(void)
 }
 
 #endif /* CONFIG_PPC_POWERNV */
+=======
+#ifdef CONFIG_PPC_SVM
+static int prom_rtas_hcall(uint64_t args)
+{
+	register uint64_t arg1 asm("r3") = H_RTAS;
+	register uint64_t arg2 asm("r4") = args;
+
+	asm volatile("sc 1\n" : "=r" (arg1) :
+			"r" (arg1),
+			"r" (arg2) :);
+	srr_regs_clobbered();
+
+	return arg1;
+}
+
+static struct rtas_args __prombss os_term_args;
+
+static void __init prom_rtas_os_term(char *str)
+{
+	phandle rtas_node;
+	__be32 val;
+	u32 token;
+
+	prom_debug("%s: start...\n", __func__);
+	rtas_node = call_prom("finddevice", 1, 1, ADDR("/rtas"));
+	prom_debug("rtas_node: %x\n", rtas_node);
+	if (!PHANDLE_VALID(rtas_node))
+		return;
+
+	val = 0;
+	prom_getprop(rtas_node, "ibm,os-term", &val, sizeof(val));
+	token = be32_to_cpu(val);
+	prom_debug("ibm,os-term: %x\n", token);
+	if (token == 0)
+		prom_panic("Could not get token for ibm,os-term\n");
+	os_term_args.token = cpu_to_be32(token);
+	os_term_args.nargs = cpu_to_be32(1);
+	os_term_args.nret = cpu_to_be32(1);
+	os_term_args.args[0] = cpu_to_be32(__pa(str));
+	prom_rtas_hcall((uint64_t)&os_term_args);
+}
+#endif /* CONFIG_PPC_SVM */
+>>>>>>> upstream/android-13
 
 /*
  * Allocate room for and instantiate RTAS
@@ -1823,11 +2392,16 @@ static void __init prom_initialize_tce_table(void)
 		prom_getprop(node, "device_type", type, sizeof(type));
 		prom_getprop(node, "model", model, sizeof(model));
 
+<<<<<<< HEAD
 		if ((type[0] == 0) || (strstr(type, "pci") == NULL))
+=======
+		if ((type[0] == 0) || (prom_strstr(type, "pci") == NULL))
+>>>>>>> upstream/android-13
 			continue;
 
 		/* Keep the old logic intact to avoid regression. */
 		if (compatible[0] != 0) {
+<<<<<<< HEAD
 			if ((strstr(compatible, "python") == NULL) &&
 			    (strstr(compatible, "Speedwagon") == NULL) &&
 			    (strstr(compatible, "Winnipeg") == NULL))
@@ -1836,6 +2410,16 @@ static void __init prom_initialize_tce_table(void)
 			if ((strstr(model, "ython") == NULL) &&
 			    (strstr(model, "peedwagon") == NULL) &&
 			    (strstr(model, "innipeg") == NULL))
+=======
+			if ((prom_strstr(compatible, "python") == NULL) &&
+			    (prom_strstr(compatible, "Speedwagon") == NULL) &&
+			    (prom_strstr(compatible, "Winnipeg") == NULL))
+				continue;
+		} else if (model[0] != 0) {
+			if ((prom_strstr(model, "ython") == NULL) &&
+			    (prom_strstr(model, "peedwagon") == NULL) &&
+			    (prom_strstr(model, "innipeg") == NULL))
+>>>>>>> upstream/android-13
 				continue;
 		}
 
@@ -1863,10 +2447,17 @@ static void __init prom_initialize_tce_table(void)
 			local_alloc_bottom = base;
 
 		/* It seems OF doesn't null-terminate the path :-( */
+<<<<<<< HEAD
 		memset(path, 0, PROM_SCRATCH_SIZE);
 		/* Call OF to setup the TCE hardware */
 		if (call_prom("package-to-path", 3, 1, node,
 			      path, PROM_SCRATCH_SIZE-1) == PROM_ERROR) {
+=======
+		memset(path, 0, sizeof(prom_scratch));
+		/* Call OF to setup the TCE hardware */
+		if (call_prom("package-to-path", 3, 1, node,
+			      path, sizeof(prom_scratch) - 1) == PROM_ERROR) {
+>>>>>>> upstream/android-13
 			prom_printf("package-to-path failed\n");
 		}
 
@@ -1984,12 +2575,20 @@ static void __init prom_hold_cpus(void)
 
 		type[0] = 0;
 		prom_getprop(node, "device_type", type, sizeof(type));
+<<<<<<< HEAD
 		if (strcmp(type, "cpu") != 0)
+=======
+		if (prom_strcmp(type, "cpu") != 0)
+>>>>>>> upstream/android-13
 			continue;
 
 		/* Skip non-configured cpus. */
 		if (prom_getprop(node, "status", type, sizeof(type)) > 0)
+<<<<<<< HEAD
 			if (strcmp(type, "okay") != 0)
+=======
+			if (prom_strcmp(type, "okay") != 0)
+>>>>>>> upstream/android-13
 				continue;
 
 		reg = cpu_to_be32(-1); /* make sparse happy */
@@ -2065,9 +2664,15 @@ static void __init prom_find_mmu(void)
 		return;
 	version[sizeof(version) - 1] = 0;
 	/* XXX might need to add other versions here */
+<<<<<<< HEAD
 	if (strcmp(version, "Open Firmware, 1.0.5") == 0)
 		of_workarounds = OF_WA_CLAIM;
 	else if (strncmp(version, "FirmWorks,3.", 12) == 0) {
+=======
+	if (prom_strcmp(version, "Open Firmware, 1.0.5") == 0)
+		of_workarounds = OF_WA_CLAIM;
+	else if (prom_strncmp(version, "FirmWorks,3.", 12) == 0) {
+>>>>>>> upstream/android-13
 		of_workarounds = OF_WA_CLAIM | OF_WA_LONGTRAIL;
 		call_prom("interpret", 1, 1, "dev /memory 0 to allow-reclaim");
 	} else
@@ -2100,7 +2705,11 @@ static void __init prom_init_stdout(void)
 	call_prom("instance-to-path", 3, 1, prom.stdout, path, 255);
 	prom_printf("OF stdout device is: %s\n", of_stdout_device);
 	prom_setprop(prom.chosen, "/chosen", "linux,stdout-path",
+<<<<<<< HEAD
 		     path, strlen(path) + 1);
+=======
+		     path, prom_strlen(path) + 1);
+>>>>>>> upstream/android-13
 
 	/* instance-to-package fails on PA-Semi */
 	stdout_node = call_prom("instance-to-package", 1, 1, prom.stdout);
@@ -2110,7 +2719,11 @@ static void __init prom_init_stdout(void)
 		/* If it's a display, note it */
 		memset(type, 0, sizeof(type));
 		prom_getprop(stdout_node, "device_type", type, sizeof(type));
+<<<<<<< HEAD
 		if (strcmp(type, "display") == 0)
+=======
+		if (prom_strcmp(type, "display") == 0)
+>>>>>>> upstream/android-13
 			prom_setprop(stdout_node, path, "linux,boot-display", NULL, 0);
 	}
 }
@@ -2131,29 +2744,45 @@ static int __init prom_find_machine_type(void)
 		compat[len] = 0;
 		while (i < len) {
 			char *p = &compat[i];
+<<<<<<< HEAD
 			int sl = strlen(p);
 			if (sl == 0)
 				break;
 			if (strstr(p, "Power Macintosh") ||
 			    strstr(p, "MacRISC"))
+=======
+			int sl = prom_strlen(p);
+			if (sl == 0)
+				break;
+			if (prom_strstr(p, "Power Macintosh") ||
+			    prom_strstr(p, "MacRISC"))
+>>>>>>> upstream/android-13
 				return PLATFORM_POWERMAC;
 #ifdef CONFIG_PPC64
 			/* We must make sure we don't detect the IBM Cell
 			 * blades as pSeries due to some firmware issues,
 			 * so we do it here.
 			 */
+<<<<<<< HEAD
 			if (strstr(p, "IBM,CBEA") ||
 			    strstr(p, "IBM,CPBW-1.0"))
+=======
+			if (prom_strstr(p, "IBM,CBEA") ||
+			    prom_strstr(p, "IBM,CPBW-1.0"))
+>>>>>>> upstream/android-13
 				return PLATFORM_GENERIC;
 #endif /* CONFIG_PPC64 */
 			i += sl + 1;
 		}
 	}
 #ifdef CONFIG_PPC64
+<<<<<<< HEAD
 	/* Try to detect OPAL */
 	if (PHANDLE_VALID(call_prom("finddevice", 1, 1, ADDR("/ibm,opal"))))
 		return PLATFORM_OPAL;
 
+=======
+>>>>>>> upstream/android-13
 	/* Try to figure out if it's an IBM pSeries or any other
 	 * PAPR compliant platform. We assume it is if :
 	 *  - /device_type is "chrp" (please, do NOT use that for future
@@ -2164,7 +2793,11 @@ static int __init prom_find_machine_type(void)
 			   compat, sizeof(compat)-1);
 	if (len <= 0)
 		return PLATFORM_GENERIC;
+<<<<<<< HEAD
 	if (strcmp(compat, "chrp"))
+=======
+	if (prom_strcmp(compat, "chrp"))
+>>>>>>> upstream/android-13
 		return PLATFORM_GENERIC;
 
 	/* Default to pSeries. We need to know if we are running LPAR */
@@ -2202,7 +2835,11 @@ static void __init prom_check_displays(void)
 	ihandle ih;
 	int i;
 
+<<<<<<< HEAD
 	static unsigned char default_colors[] = {
+=======
+	static const unsigned char default_colors[] __initconst = {
+>>>>>>> upstream/android-13
 		0x00, 0x00, 0x00,
 		0x00, 0x00, 0xaa,
 		0x00, 0xaa, 0x00,
@@ -2226,19 +2863,31 @@ static void __init prom_check_displays(void)
 	for (node = 0; prom_next_node(&node); ) {
 		memset(type, 0, sizeof(type));
 		prom_getprop(node, "device_type", type, sizeof(type));
+<<<<<<< HEAD
 		if (strcmp(type, "display") != 0)
+=======
+		if (prom_strcmp(type, "display") != 0)
+>>>>>>> upstream/android-13
 			continue;
 
 		/* It seems OF doesn't null-terminate the path :-( */
 		path = prom_scratch;
+<<<<<<< HEAD
 		memset(path, 0, PROM_SCRATCH_SIZE);
+=======
+		memset(path, 0, sizeof(prom_scratch));
+>>>>>>> upstream/android-13
 
 		/*
 		 * leave some room at the end of the path for appending extra
 		 * arguments
 		 */
 		if (call_prom("package-to-path", 3, 1, node, path,
+<<<<<<< HEAD
 			      PROM_SCRATCH_SIZE-10) == PROM_ERROR)
+=======
+			      sizeof(prom_scratch) - 10) == PROM_ERROR)
+>>>>>>> upstream/android-13
 			continue;
 		prom_printf("found display   : %s, opening... ", path);
 		
@@ -2274,6 +2923,7 @@ static void __init prom_check_displays(void)
 			u32 width, height, pitch, addr;
 
 			prom_printf("Setting btext !\n");
+<<<<<<< HEAD
 			prom_getprop(node, "width", &width, 4);
 			prom_getprop(node, "height", &height, 4);
 			prom_getprop(node, "linebytes", &pitch, 4);
@@ -2281,6 +2931,25 @@ static void __init prom_check_displays(void)
 			prom_printf("W=%d H=%d LB=%d addr=0x%x\n",
 				    width, height, pitch, addr);
 			btext_setup_display(width, height, 8, pitch, addr);
+=======
+
+			if (prom_getprop(node, "width", &width, 4) == PROM_ERROR)
+				return;
+
+			if (prom_getprop(node, "height", &height, 4) == PROM_ERROR)
+				return;
+
+			if (prom_getprop(node, "linebytes", &pitch, 4) == PROM_ERROR)
+				return;
+
+			if (prom_getprop(node, "address", &addr, 4) == PROM_ERROR)
+				return;
+
+			prom_printf("W=%d H=%d LB=%d addr=0x%x\n",
+				    width, height, pitch, addr);
+			btext_setup_display(width, height, 8, pitch, addr);
+			btext_prepare_BAT();
+>>>>>>> upstream/android-13
 		}
 #endif /* CONFIG_PPC_EARLY_DEBUG_BOOTX */
 	}
@@ -2293,7 +2962,11 @@ static void __init *make_room(unsigned long *mem_start, unsigned long *mem_end,
 {
 	void *ret;
 
+<<<<<<< HEAD
 	*mem_start = _ALIGN(*mem_start, align);
+=======
+	*mem_start = ALIGN(*mem_start, align);
+>>>>>>> upstream/android-13
 	while ((*mem_start + needed) > *mem_end) {
 		unsigned long room, chunk;
 
@@ -2330,9 +3003,15 @@ static unsigned long __init dt_find_string(char *str)
 	s = os = (char *)dt_string_start;
 	s += 4;
 	while (s <  (char *)dt_string_end) {
+<<<<<<< HEAD
 		if (strcmp(s, str) == 0)
 			return s - os;
 		s += strlen(s) + 1;
+=======
+		if (prom_strcmp(s, str) == 0)
+			return s - os;
+		s += prom_strlen(s) + 1;
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
@@ -2365,7 +3044,11 @@ static void __init scan_dt_build_strings(phandle node,
 		}
 
  		/* skip "name" */
+<<<<<<< HEAD
  		if (strcmp(namep, "name") == 0) {
+=======
+		if (prom_strcmp(namep, "name") == 0) {
+>>>>>>> upstream/android-13
  			*mem_start = (unsigned long)namep;
  			prev_name = "name";
  			continue;
@@ -2377,7 +3060,11 @@ static void __init scan_dt_build_strings(phandle node,
 			namep = sstart + soff;
 		} else {
 			/* Trim off some if we can */
+<<<<<<< HEAD
 			*mem_start = (unsigned long)namep + strlen(namep) + 1;
+=======
+			*mem_start = (unsigned long)namep + prom_strlen(namep) + 1;
+>>>>>>> upstream/android-13
 			dt_string_end = *mem_start;
 		}
 		prev_name = namep;
@@ -2398,7 +3085,11 @@ static void __init scan_dt_build_struct(phandle node, unsigned long *mem_start,
 	char *namep, *prev_name, *sstart, *p, *ep, *lp, *path;
 	unsigned long soff;
 	unsigned char *valp;
+<<<<<<< HEAD
 	static char pname[MAX_PROPERTY_NAME];
+=======
+	static char pname[MAX_PROPERTY_NAME] __prombss;
+>>>>>>> upstream/android-13
 	int l, room, has_phandle = 0;
 
 	dt_push_token(OF_DT_BEGIN_NODE, mem_start, mem_end);
@@ -2429,13 +3120,22 @@ static void __init scan_dt_build_struct(phandle node, unsigned long *mem_start,
 				*lp++ = *p;
 		}
 		*lp = 0;
+<<<<<<< HEAD
 		*mem_start = _ALIGN((unsigned long)lp + 1, 4);
+=======
+		*mem_start = ALIGN((unsigned long)lp + 1, 4);
+>>>>>>> upstream/android-13
 	}
 
 	/* get it again for debugging */
 	path = prom_scratch;
+<<<<<<< HEAD
 	memset(path, 0, PROM_SCRATCH_SIZE);
 	call_prom("package-to-path", 3, 1, node, path, PROM_SCRATCH_SIZE-1);
+=======
+	memset(path, 0, sizeof(prom_scratch));
+	call_prom("package-to-path", 3, 1, node, path, sizeof(prom_scratch) - 1);
+>>>>>>> upstream/android-13
 
 	/* get and store all properties */
 	prev_name = "";
@@ -2446,7 +3146,11 @@ static void __init scan_dt_build_struct(phandle node, unsigned long *mem_start,
 			break;
 
  		/* skip "name" */
+<<<<<<< HEAD
  		if (strcmp(pname, "name") == 0) {
+=======
+		if (prom_strcmp(pname, "name") == 0) {
+>>>>>>> upstream/android-13
  			prev_name = "name";
  			continue;
  		}
@@ -2475,6 +3179,7 @@ static void __init scan_dt_build_struct(phandle node, unsigned long *mem_start,
 		/* push property content */
 		valp = make_room(mem_start, mem_end, l, 4);
 		call_prom("getprop", 4, 1, node, pname, valp, l);
+<<<<<<< HEAD
 		*mem_start = _ALIGN(*mem_start, 4);
 
 		if (!strcmp(pname, "phandle"))
@@ -2489,6 +3194,19 @@ static void __init scan_dt_build_struct(phandle node, unsigned long *mem_start,
 		if (soff == 0)
 			prom_printf("WARNING: Can't find string index for"
 				    " <linux-phandle> node %s\n", path);
+=======
+		*mem_start = ALIGN(*mem_start, 4);
+
+		if (!prom_strcmp(pname, "phandle"))
+			has_phandle = 1;
+	}
+
+	/* Add a "phandle" property if none already exist */
+	if (!has_phandle) {
+		soff = dt_find_string("phandle");
+		if (soff == 0)
+			prom_printf("WARNING: Can't find string index for <phandle> node %s\n", path);
+>>>>>>> upstream/android-13
 		else {
 			dt_push_token(OF_DT_PROP, mem_start, mem_end);
 			dt_push_token(4, mem_start, mem_end);
@@ -2537,7 +3255,11 @@ static void __init flatten_device_tree(void)
 		prom_panic ("couldn't get device tree root\n");
 
 	/* Build header and make room for mem rsv map */ 
+<<<<<<< HEAD
 	mem_start = _ALIGN(mem_start, 4);
+=======
+	mem_start = ALIGN(mem_start, 4);
+>>>>>>> upstream/android-13
 	hdr = make_room(&mem_start, &mem_end,
 			sizeof(struct boot_param_header), 4);
 	dt_header_start = (unsigned long)hdr;
@@ -2548,10 +3270,17 @@ static void __init flatten_device_tree(void)
 	dt_string_start = mem_start;
 	mem_start += 4; /* hole */
 
+<<<<<<< HEAD
 	/* Add "linux,phandle" in there, we'll need it */
 	namep = make_room(&mem_start, &mem_end, 16, 1);
 	strcpy(namep, "linux,phandle");
 	mem_start = (unsigned long)namep + strlen(namep) + 1;
+=======
+	/* Add "phandle" in there, we'll need it */
+	namep = make_room(&mem_start, &mem_end, 16, 1);
+	prom_strscpy_pad(namep, "phandle", sizeof("phandle"));
+	mem_start = (unsigned long)namep + prom_strlen(namep) + 1;
+>>>>>>> upstream/android-13
 
 	/* Build string array */
 	prom_printf("Building dt strings...\n"); 
@@ -2805,7 +3534,11 @@ static void __init fixup_device_tree_efika_add_phy(void)
 
 	/* Check if the phy-handle property exists - bail if it does */
 	rv = prom_getprop(node, "phy-handle", prop, sizeof(prop));
+<<<<<<< HEAD
 	if (!rv)
+=======
+	if (rv <= 0)
+>>>>>>> upstream/android-13
 		return;
 
 	/*
@@ -2831,7 +3564,11 @@ static void __init fixup_device_tree_efika_add_phy(void)
 				" 0x3 encode-int encode+"
 				" s\" interrupts\" property"
 			" finish-device");
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 
 	/* Check for a PHY device node - if missing then create one and
 	 * give it's phandle to the ethernet node */
@@ -2873,7 +3610,11 @@ static void __init fixup_device_tree_efika(void)
 	rv = prom_getprop(node, "model", prop, sizeof(prop));
 	if (rv == PROM_ERROR)
 		return;
+<<<<<<< HEAD
 	if (strcmp(prop, "EFIKA5K2"))
+=======
+	if (prom_strcmp(prop, "EFIKA5K2"))
+>>>>>>> upstream/android-13
 		return;
 
 	prom_printf("Applying EFIKA device tree fixups\n");
@@ -2881,13 +3622,21 @@ static void __init fixup_device_tree_efika(void)
 	/* Claiming to be 'chrp' is death */
 	node = call_prom("finddevice", 1, 1, ADDR("/"));
 	rv = prom_getprop(node, "device_type", prop, sizeof(prop));
+<<<<<<< HEAD
 	if (rv != PROM_ERROR && (strcmp(prop, "chrp") == 0))
+=======
+	if (rv != PROM_ERROR && (prom_strcmp(prop, "chrp") == 0))
+>>>>>>> upstream/android-13
 		prom_setprop(node, "/", "device_type", "efika", sizeof("efika"));
 
 	/* CODEGEN,description is exposed in /proc/cpuinfo so
 	   fix that too */
 	rv = prom_getprop(node, "CODEGEN,description", prop, sizeof(prop));
+<<<<<<< HEAD
 	if (rv != PROM_ERROR && (strstr(prop, "CHRP")))
+=======
+	if (rv != PROM_ERROR && (prom_strstr(prop, "CHRP")))
+>>>>>>> upstream/android-13
 		prom_setprop(node, "/", "CODEGEN,description",
 			     "Efika 5200B PowerPC System",
 			     sizeof("Efika 5200B PowerPC System"));
@@ -3058,6 +3807,7 @@ static void __init prom_check_initrd(unsigned long r3, unsigned long r4)
 #endif /* CONFIG_BLK_DEV_INITRD */
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PPC64
 #ifdef CONFIG_RELOCATABLE
 static void reloc_toc(void)
@@ -3105,6 +3855,58 @@ static void unreloc_toc(void)
 }
 #endif
 #endif
+=======
+#ifdef CONFIG_PPC_SVM
+/*
+ * Perform the Enter Secure Mode ultracall.
+ */
+static int enter_secure_mode(unsigned long kbase, unsigned long fdt)
+{
+	register unsigned long r3 asm("r3") = UV_ESM;
+	register unsigned long r4 asm("r4") = kbase;
+	register unsigned long r5 asm("r5") = fdt;
+
+	asm volatile("sc 2" : "+r"(r3) : "r"(r4), "r"(r5));
+
+	return r3;
+}
+
+/*
+ * Call the Ultravisor to transfer us to secure memory if we have an ESM blob.
+ */
+static void __init setup_secure_guest(unsigned long kbase, unsigned long fdt)
+{
+	int ret;
+
+	if (!prom_svm_enable)
+		return;
+
+	/* Switch to secure mode. */
+	prom_printf("Switching to secure mode.\n");
+
+	/*
+	 * The ultravisor will do an integrity check of the kernel image but we
+	 * relocated it so the check will fail. Restore the original image by
+	 * relocating it back to the kernel virtual base address.
+	 */
+	relocate(KERNELBASE);
+
+	ret = enter_secure_mode(kbase, fdt);
+
+	/* Relocate the kernel again. */
+	relocate(kbase);
+
+	if (ret != U_SUCCESS) {
+		prom_printf("Returned %d from switching to secure mode.\n", ret);
+		prom_rtas_os_term("Switch to secure mode failed.\n");
+	}
+}
+#else
+static void __init setup_secure_guest(unsigned long kbase, unsigned long fdt)
+{
+}
+#endif /* CONFIG_PPC_SVM */
+>>>>>>> upstream/android-13
 
 /*
  * We enter here early on, when the Open Firmware prom is still
@@ -3121,8 +3923,11 @@ unsigned long __init prom_init(unsigned long r3, unsigned long r4,
 #ifdef CONFIG_PPC32
 	unsigned long offset = reloc_offset();
 	reloc_got2(offset);
+<<<<<<< HEAD
 #else
 	reloc_toc();
+=======
+>>>>>>> upstream/android-13
 #endif
 
 	/*
@@ -3172,7 +3977,11 @@ unsigned long __init prom_init(unsigned long r3, unsigned long r4,
 	 */
 	early_cmdline_parse();
 
+<<<<<<< HEAD
 #if defined(CONFIG_PPC_PSERIES) || defined(CONFIG_PPC_POWERNV)
+=======
+#ifdef CONFIG_PPC_PSERIES
+>>>>>>> upstream/android-13
 	/*
 	 * On pSeries, inform the firmware about our capabilities
 	 */
@@ -3216,6 +4025,7 @@ unsigned long __init prom_init(unsigned long r3, unsigned long r4,
 	 * On non-powermacs, try to instantiate RTAS. PowerMacs don't
 	 * have a usable RTAS implementation.
 	 */
+<<<<<<< HEAD
 	if (of_platform != PLATFORM_POWERMAC &&
 	    of_platform != PLATFORM_OPAL)
 		prom_instantiate_rtas();
@@ -3225,6 +4035,11 @@ unsigned long __init prom_init(unsigned long r3, unsigned long r4,
 		prom_instantiate_opal();
 #endif /* CONFIG_PPC_POWERNV */
 
+=======
+	if (of_platform != PLATFORM_POWERMAC)
+		prom_instantiate_rtas();
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PPC64
 	/* instantiate sml */
 	prom_instantiate_sml();
@@ -3237,8 +4052,12 @@ unsigned long __init prom_init(unsigned long r3, unsigned long r4,
 	 *
 	 * (This must be done after instanciating RTAS)
 	 */
+<<<<<<< HEAD
 	if (of_platform != PLATFORM_POWERMAC &&
 	    of_platform != PLATFORM_OPAL)
+=======
+	if (of_platform != PLATFORM_POWERMAC)
+>>>>>>> upstream/android-13
 		prom_hold_cpus();
 
 	/*
@@ -3282,11 +4101,17 @@ unsigned long __init prom_init(unsigned long r3, unsigned long r4,
 	/*
 	 * in case stdin is USB and still active on IBM machines...
 	 * Unfortunately quiesce crashes on some powermacs if we have
+<<<<<<< HEAD
 	 * closed stdin already (in particular the powerbook 101). It
 	 * appears that the OPAL version of OFW doesn't like it either.
 	 */
 	if (of_platform != PLATFORM_POWERMAC &&
 	    of_platform != PLATFORM_OPAL)
+=======
+	 * closed stdin already (in particular the powerbook 101).
+	 */
+	if (of_platform != PLATFORM_POWERMAC)
+>>>>>>> upstream/android-13
 		prom_close_stdin();
 
 	/*
@@ -3303,6 +4128,7 @@ unsigned long __init prom_init(unsigned long r3, unsigned long r4,
 	 */
 	hdr = dt_header_start;
 
+<<<<<<< HEAD
 	/* Don't print anything after quiesce under OPAL, it crashes OFW */
 	if (of_platform != PLATFORM_OPAL) {
 		prom_printf("Booting Linux via __start() @ 0x%lx ...\n", kbase);
@@ -3322,6 +4148,19 @@ unsigned long __init prom_init(unsigned long r3, unsigned long r4,
 #else
 	__start(hdr, kbase, 0, 0, 0, 0, 0);
 #endif
+=======
+	prom_printf("Booting Linux via __start() @ 0x%lx ...\n", kbase);
+	prom_debug("->dt_header_start=0x%lx\n", hdr);
+
+#ifdef CONFIG_PPC32
+	reloc_got2(-offset);
+#endif
+
+	/* Move to secure memory if we're supposed to be secure guests. */
+	setup_secure_guest(kbase, hdr);
+
+	__start(hdr, kbase, 0, 0, 0, 0, 0);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

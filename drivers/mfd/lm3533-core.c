@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * lm3533-core.c -- LM3533 Core
  *
  * Copyright (C) 2011-2012 Texas Instruments
  *
  * Author: Johan Hovold <jhovold@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under  the terms of the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -362,7 +369,11 @@ static struct attribute *lm3533_attributes[] = {
 static umode_t lm3533_attr_is_visible(struct kobject *kobj,
 					     struct attribute *attr, int n)
 {
+<<<<<<< HEAD
 	struct device *dev = container_of(kobj, struct device, kobj);
+=======
+	struct device *dev = kobj_to_dev(kobj);
+>>>>>>> upstream/android-13
 	struct lm3533 *lm3533 = dev_get_drvdata(dev);
 	struct device_attribute *dattr = to_dev_attr(attr);
 	struct lm3533_device_attribute *lattr = to_lm3533_dev_attr(dattr);

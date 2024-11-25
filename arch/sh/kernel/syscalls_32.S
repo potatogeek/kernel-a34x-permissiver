@@ -1,19 +1,28 @@
+<<<<<<< HEAD
 /*
+=======
+/* SPDX-License-Identifier: GPL-2.0
+ *
+>>>>>>> upstream/android-13
  * arch/sh/kernel/syscalls.S
  *
  * System call table for SuperH
  *
  *  Copyright (C) 1999, 2000, 2002  Niibe Yutaka
  *  Copyright (C) 2003  Paul Mundt
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/sys.h>
 #include <linux/linkage.h>
 
+<<<<<<< HEAD
 	.data
 ENTRY(sys_call_table)
 	.long sys_restart_syscall	/* 0  -  old "setup()" system call*/
@@ -400,3 +409,10 @@ ENTRY(sys_call_table)
 	.long sys_copy_file_range	/* 380 */
 	.long sys_preadv2
 	.long sys_pwritev2
+=======
+#define __SYSCALL(nr, entry)	.long entry
+	.data
+ENTRY(sys_call_table)
+#include <asm/syscall_table.h>
+#undef __SYSCALL
+>>>>>>> upstream/android-13

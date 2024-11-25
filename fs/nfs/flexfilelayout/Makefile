@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # Makefile for the pNFS Flexfile Layout Driver kernel module
 #

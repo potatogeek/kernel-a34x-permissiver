@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/drivers/mmc/host/mxcmmc.c - Freescale i.MX MMCI driver
  *
@@ -10,11 +14,14 @@
  *  Copyright (C) 2006 Pavel Pisa, PiKRON <ppisa@pikron.com>
  *
  *  derived from pxamci.c by Russell King
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -31,14 +38,20 @@
 #include <linux/delay.h>
 #include <linux/clk.h>
 #include <linux/io.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/regulator/consumer.h>
 #include <linux/dmaengine.h>
 #include <linux/types.h>
 #include <linux/of.h>
 #include <linux/of_device.h>
 #include <linux/of_dma.h>
+<<<<<<< HEAD
 #include <linux/of_gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/mmc/slot-gpio.h>
 
 #include <asm/dma.h>
@@ -163,6 +176,7 @@ struct mxcmci_host {
 	enum mxcmci_type	devtype;
 };
 
+<<<<<<< HEAD
 static const struct platform_device_id mxcmci_devtype[] = {
 	{
 		.name = "imx21-mmc",
@@ -189,6 +203,18 @@ static const struct of_device_id mxcmci_of_match[] = {
 	}, {
 		.compatible = "fsl,mpc5121-sdhc",
 		.data = &mxcmci_devtype[MPC512X_MMC],
+=======
+static const struct of_device_id mxcmci_of_match[] = {
+	{
+		.compatible = "fsl,imx21-mmc",
+		.data = (void *) IMX21_MMC,
+	}, {
+		.compatible = "fsl,imx31-mmc",
+		.data = (void *) IMX31_MMC,
+	}, {
+		.compatible = "fsl,mpc5121-sdhc",
+		.data = (void *) MPC512X_MMC,
+>>>>>>> upstream/android-13
 	}, {
 		/* sentinel */
 	}
@@ -720,7 +746,10 @@ static void mxcmci_cmd_done(struct mxcmci_host *host, unsigned int stat)
 static irqreturn_t mxcmci_irq(int irq, void *devid)
 {
 	struct mxcmci_host *host = devid;
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 	bool sdio_irq;
 	u32 stat;
 
@@ -732,9 +761,15 @@ static irqreturn_t mxcmci_irq(int irq, void *devid)
 
 	dev_dbg(mmc_dev(host->mmc), "%s: 0x%08x\n", __func__, stat);
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&host->lock, flags);
 	sdio_irq = (stat & STATUS_SDIO_INT_ACTIVE) && host->use_sdio;
 	spin_unlock_irqrestore(&host->lock, flags);
+=======
+	spin_lock(&host->lock);
+	sdio_irq = (stat & STATUS_SDIO_INT_ACTIVE) && host->use_sdio;
+	spin_unlock(&host->lock);
+>>>>>>> upstream/android-13
 
 	if (mxcmci_use_dma(host) && (stat & (STATUS_WRITE_OP_DONE)))
 		mxcmci_writel(host, STATUS_WRITE_OP_DONE, MMC_REG_STATUS);
@@ -1008,11 +1043,15 @@ static int mxcmci_probe(struct platform_device *pdev)
 	int ret = 0, irq;
 	bool dat3_card_detect = false;
 	dma_cap_mask_t mask;
+<<<<<<< HEAD
 	const struct of_device_id *of_id;
+=======
+>>>>>>> upstream/android-13
 	struct imxmmc_platform_data *pdata = pdev->dev.platform_data;
 
 	pr_info("i.MX/MPC512x SDHC driver\n");
 
+<<<<<<< HEAD
 	of_id = of_match_device(mxcmci_of_match, &pdev->dev);
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
@@ -1021,6 +1060,12 @@ static int mxcmci_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev, "failed to get IRQ: %d\n", irq);
 		return irq;
 	}
+=======
+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+	irq = platform_get_irq(pdev, 0);
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 
 	mmc = mmc_alloc_host(sizeof(*host), &pdev->dev);
 	if (!mmc)
@@ -1053,12 +1098,16 @@ static int mxcmci_probe(struct platform_device *pdev)
 	mmc->max_req_size = mmc->max_blk_size * mmc->max_blk_count;
 	mmc->max_seg_size = mmc->max_req_size;
 
+<<<<<<< HEAD
 	if (of_id) {
 		const struct platform_device_id *id_entry = of_id->data;
 		host->devtype = id_entry->driver_data;
 	} else {
 		host->devtype = pdev->id_entry->driver_data;
 	}
+=======
+	host->devtype = (enum mxcmci_type)of_device_get_match_data(&pdev->dev);
+>>>>>>> upstream/android-13
 
 	/* adjust max_segs after devtype detection */
 	if (!is_mpc512x_mmc(host))
@@ -1130,7 +1179,20 @@ static int mxcmci_probe(struct platform_device *pdev)
 	mxcmci_writel(host, host->default_irq_mask, MMC_REG_INT_CNTR);
 
 	if (!host->pdata) {
+<<<<<<< HEAD
 		host->dma = dma_request_slave_channel(&pdev->dev, "rx-tx");
+=======
+		host->dma = dma_request_chan(&pdev->dev, "rx-tx");
+		if (IS_ERR(host->dma)) {
+			if (PTR_ERR(host->dma) == -EPROBE_DEFER) {
+				ret = -EPROBE_DEFER;
+				goto out_clk_put;
+			}
+
+			/* Ignore errors to fall back to PIO mode */
+			host->dma = NULL;
+		}
+>>>>>>> upstream/android-13
 	} else {
 		res = platform_get_resource(pdev, IORESOURCE_DMA, 0);
 		if (res) {
@@ -1241,9 +1303,15 @@ static SIMPLE_DEV_PM_OPS(mxcmci_pm_ops, mxcmci_suspend, mxcmci_resume);
 static struct platform_driver mxcmci_driver = {
 	.probe		= mxcmci_probe,
 	.remove		= mxcmci_remove,
+<<<<<<< HEAD
 	.id_table	= mxcmci_devtype,
 	.driver		= {
 		.name		= DRIVER_NAME,
+=======
+	.driver		= {
+		.name		= DRIVER_NAME,
+		.probe_type	= PROBE_PREFER_ASYNCHRONOUS,
+>>>>>>> upstream/android-13
 		.pm	= &mxcmci_pm_ops,
 		.of_match_table	= mxcmci_of_match,
 	}

@@ -35,6 +35,7 @@ ENTRY(ll_get_coherency_base)
 
 	/*
 	 * MMU is disabled, use the physical address of the coherency
+<<<<<<< HEAD
 	 * base address. However, if the coherency fabric isn't mapped
 	 * (i.e its virtual address is zero), it means coherency is
 	 * not enabled, so we return 0.
@@ -42,6 +43,10 @@ ENTRY(ll_get_coherency_base)
 	ldr	r1, =coherency_base
 	cmp	r1, #0
 	beq	2f
+=======
+	 * base address, (or 0x0 if the coherency fabric is not mapped)
+	 */
+>>>>>>> upstream/android-13
 	adr	r1, 3f
 	ldr	r3, [r1]
 	ldr	r1, [r1, r3]
@@ -66,7 +71,11 @@ ENDPROC(ll_get_coherency_base)
  * fabric registers
  */
 ENTRY(ll_get_coherency_cpumask)
+<<<<<<< HEAD
 	mrc	15, 0, r3, cr0, cr0, 5
+=======
+	mrc	p15, 0, r3, cr0, cr0, 5
+>>>>>>> upstream/android-13
 	and	r3, r3, #15
 	mov	r2, #(1 << 24)
 	lsl	r3, r2, r3

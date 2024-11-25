@@ -28,8 +28,14 @@
 #include <linux/random.h>
 #include <linux/export.h>
 #include <linux/context_tracking.h>
+<<<<<<< HEAD
 
 #include <linux/uaccess.h>
+=======
+#include <linux/timex.h>
+#include <linux/uaccess.h>
+
+>>>>>>> upstream/android-13
 #include <asm/utrap.h>
 #include <asm/unistd.h>
 
@@ -335,10 +341,17 @@ SYSCALL_DEFINE6(sparc_ipc, unsigned int, call, int, first, unsigned long, second
 {
 	long err;
 
+<<<<<<< HEAD
+=======
+	if (!IS_ENABLED(CONFIG_SYSVIPC))
+		return -ENOSYS;
+
+>>>>>>> upstream/android-13
 	/* No need for backward compatibility. We can start fresh... */
 	if (call <= SEMTIMEDOP) {
 		switch (call) {
 		case SEMOP:
+<<<<<<< HEAD
 			err = sys_semtimedop(first, ptr,
 					     (unsigned int)second, NULL);
 			goto out;
@@ -354,6 +367,23 @@ SYSCALL_DEFINE6(sparc_ipc, unsigned int, call, int, first, unsigned long, second
 			err = sys_semctl(first, second,
 					 (int)third | IPC_64,
 					 (unsigned long) ptr);
+=======
+			err = ksys_semtimedop(first, ptr,
+					      (unsigned int)second, NULL);
+			goto out;
+		case SEMTIMEDOP:
+			err = ksys_semtimedop(first, ptr, (unsigned int)second,
+				(const struct __kernel_timespec __user *)
+					      (unsigned long) fifth);
+			goto out;
+		case SEMGET:
+			err = ksys_semget(first, (int)second, (int)third);
+			goto out;
+		case SEMCTL: {
+			err = ksys_old_semctl(first, second,
+					      (int)third | IPC_64,
+					      (unsigned long) ptr);
+>>>>>>> upstream/android-13
 			goto out;
 		}
 		default:
@@ -364,6 +394,7 @@ SYSCALL_DEFINE6(sparc_ipc, unsigned int, call, int, first, unsigned long, second
 	if (call <= MSGCTL) {
 		switch (call) {
 		case MSGSND:
+<<<<<<< HEAD
 			err = sys_msgsnd(first, ptr, (size_t)second,
 					 (int)third);
 			goto out;
@@ -376,6 +407,20 @@ SYSCALL_DEFINE6(sparc_ipc, unsigned int, call, int, first, unsigned long, second
 			goto out;
 		case MSGCTL:
 			err = sys_msgctl(first, (int)second | IPC_64, ptr);
+=======
+			err = ksys_msgsnd(first, ptr, (size_t)second,
+					 (int)third);
+			goto out;
+		case MSGRCV:
+			err = ksys_msgrcv(first, ptr, (size_t)second, fifth,
+					 (int)third);
+			goto out;
+		case MSGGET:
+			err = ksys_msgget((key_t)first, (int)second);
+			goto out;
+		case MSGCTL:
+			err = ksys_old_msgctl(first, (int)second | IPC_64, ptr);
+>>>>>>> upstream/android-13
 			goto out;
 		default:
 			err = -ENOSYS;
@@ -395,6 +440,7 @@ SYSCALL_DEFINE6(sparc_ipc, unsigned int, call, int, first, unsigned long, second
 			goto out;
 		}
 		case SHMDT:
+<<<<<<< HEAD
 			err = sys_shmdt(ptr);
 			goto out;
 		case SHMGET:
@@ -402,6 +448,15 @@ SYSCALL_DEFINE6(sparc_ipc, unsigned int, call, int, first, unsigned long, second
 			goto out;
 		case SHMCTL:
 			err = sys_shmctl(first, (int)second | IPC_64, ptr);
+=======
+			err = ksys_shmdt(ptr);
+			goto out;
+		case SHMGET:
+			err = ksys_shmget(first, (size_t)second, (int)third);
+			goto out;
+		case SHMCTL:
+			err = ksys_old_shmctl(first, (int)second | IPC_64, ptr);
+>>>>>>> upstream/android-13
 			goto out;
 		default:
 			err = -ENOSYS;
@@ -510,7 +565,11 @@ asmlinkage void sparc_breakpoint(struct pt_regs *regs)
 #ifdef DEBUG_SPARC_BREAKPOINT
         printk ("TRAP: Entering kernel PC=%lx, nPC=%lx\n", regs->tpc, regs->tnpc);
 #endif
+<<<<<<< HEAD
 	force_sig_fault(SIGTRAP, TRAP_BRKPT, (void __user *)regs->tpc, 0, current);
+=======
+	force_sig_fault(SIGTRAP, TRAP_BRKPT, (void __user *)regs->tpc);
+>>>>>>> upstream/android-13
 #ifdef DEBUG_SPARC_BREAKPOINT
 	printk ("TRAP: Returning to space: PC=%lx nPC=%lx\n", regs->tpc, regs->tnpc);
 #endif
@@ -544,6 +603,66 @@ out_unlock:
 	return err;
 }
 
+<<<<<<< HEAD
+=======
+SYSCALL_DEFINE1(sparc_adjtimex, struct __kernel_timex __user *, txc_p)
+{
+	struct __kernel_timex txc;
+	struct __kernel_old_timeval *tv = (void *)&txc.time;
+	int ret;
+
+	/* Copy the user data space into the kernel copy
+	 * structure. But bear in mind that the structures
+	 * may change
+	 */
+	if (copy_from_user(&txc, txc_p, sizeof(txc)))
+		return -EFAULT;
+
+	/*
+	 * override for sparc64 specific timeval type: tv_usec
+	 * is 32 bit wide instead of 64-bit in __kernel_timex
+	 */
+	txc.time.tv_usec = tv->tv_usec;
+	ret = do_adjtimex(&txc);
+	tv->tv_usec = txc.time.tv_usec;
+
+	return copy_to_user(txc_p, &txc, sizeof(txc)) ? -EFAULT : ret;
+}
+
+SYSCALL_DEFINE2(sparc_clock_adjtime, const clockid_t, which_clock,
+		struct __kernel_timex __user *, txc_p)
+{
+	struct __kernel_timex txc;
+	struct __kernel_old_timeval *tv = (void *)&txc.time;
+	int ret;
+
+	if (!IS_ENABLED(CONFIG_POSIX_TIMERS)) {
+		pr_err_once("process %d (%s) attempted a POSIX timer syscall "
+		    "while CONFIG_POSIX_TIMERS is not set\n",
+		    current->pid, current->comm);
+
+		return -ENOSYS;
+	}
+
+	/* Copy the user data space into the kernel copy
+	 * structure. But bear in mind that the structures
+	 * may change
+	 */
+	if (copy_from_user(&txc, txc_p, sizeof(txc)))
+		return -EFAULT;
+
+	/*
+	 * override for sparc64 specific timeval type: tv_usec
+	 * is 32 bit wide instead of 64-bit in __kernel_timex
+	 */
+	txc.time.tv_usec = tv->tv_usec;
+	ret = do_clock_adjtime(which_clock, &txc);
+	tv->tv_usec = txc.time.tv_usec;
+
+	return copy_to_user(txc_p, &txc, sizeof(txc)) ? -EFAULT : ret;
+}
+
+>>>>>>> upstream/android-13
 SYSCALL_DEFINE5(utrap_install, utrap_entry_t, type,
 		utrap_handler_t, new_p, utrap_handler_t, new_d,
 		utrap_handler_t __user *, old_p,

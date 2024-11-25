@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 
     btcx-risc.c
@@ -6,6 +10,7 @@
 
     (c) 2000-03 Gerd Knorr <kraxel@bytesex.org> [SuSE Labs]
 
+<<<<<<< HEAD
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -19,6 +24,8 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
 
 */
 
@@ -29,8 +36,13 @@
 #include <linux/pci.h>
 #include <linux/interrupt.h>
 #include <linux/videodev2.h>
+<<<<<<< HEAD
 #include <asm/page.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+#include <asm/page.h>
+>>>>>>> upstream/android-13
 
 #include "btcx-risc.h"
 
@@ -60,7 +72,11 @@ void btcx_riscmem_free(struct pci_dev *pci,
 	dprintk("btcx: riscmem free [%d] dma=%lx\n",
 		memcnt, (unsigned long)risc->dma);
 
+<<<<<<< HEAD
 	pci_free_consistent(pci, risc->size, risc->cpu, risc->dma);
+=======
+	dma_free_coherent(&pci->dev, risc->size, risc->cpu, risc->dma);
+>>>>>>> upstream/android-13
 	memset(risc,0,sizeof(*risc));
 }
 
@@ -74,7 +90,11 @@ int btcx_riscmem_alloc(struct pci_dev *pci,
 	if (NULL != risc->cpu && risc->size < size)
 		btcx_riscmem_free(pci,risc);
 	if (NULL == risc->cpu) {
+<<<<<<< HEAD
 		cpu = pci_alloc_consistent(pci, size, &dma);
+=======
+		cpu = dma_alloc_coherent(&pci->dev, size, &dma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (NULL == cpu)
 			return -ENOMEM;
 		risc->cpu  = cpu;
@@ -85,7 +105,10 @@ int btcx_riscmem_alloc(struct pci_dev *pci,
 		dprintk("btcx: riscmem alloc [%d] dma=%lx cpu=%p size=%d\n",
 			memcnt, (unsigned long)dma, cpu, size);
 	}
+<<<<<<< HEAD
 	memset(risc->cpu,0,risc->size);
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 

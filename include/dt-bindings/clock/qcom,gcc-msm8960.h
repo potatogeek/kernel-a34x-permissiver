@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2013, The Linux Foundation. All rights reserved.
  *
@@ -9,6 +10,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2013, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _DT_BINDINGS_CLK_MSM_GCC_8960_H
@@ -319,5 +325,10 @@
 #define CE3_SRC					303
 #define CE3_CORE_CLK				304
 #define CE3_H_CLK				305
+<<<<<<< HEAD
+=======
+#define PLL16					306
+#define PLL17					307
+>>>>>>> upstream/android-13
 
 #endif

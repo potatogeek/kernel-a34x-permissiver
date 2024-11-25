@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
+=======
+/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2015-2018, Intel Corporation.
  */

@@ -25,9 +25,15 @@
  *		Use per cpu MCA/INIT stacks for all data.
  */
 #include <linux/threads.h>
+<<<<<<< HEAD
 
 #include <asm/asmmacro.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+
+#include <asm/asmmacro.h>
+>>>>>>> upstream/android-13
 #include <asm/processor.h>
 #include <asm/mca_asm.h>
 #include <asm/mca.h>

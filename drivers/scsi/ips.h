@@ -96,6 +96,7 @@
       #define __iomem
    #endif
 
+<<<<<<< HEAD
    #define pci_dma_hi32(a)         ((a >> 16) >> 16)
    #define pci_dma_lo32(a)         (a & 0xffffffff)
 
@@ -105,6 +106,8 @@
       #define IPS_ENABLE_DMA64        (0)
    #endif
 
+=======
+>>>>>>> upstream/android-13
    /*
     * Adapter address map equates
     */
@@ -1220,6 +1223,7 @@ typedef struct {
       IPS_COMPAT_TAMPA, \
       IPS_COMPAT_KEYWEST \
    }
+<<<<<<< HEAD
 
 
 /*
@@ -1240,3 +1244,5 @@ typedef struct {
  * tab-width: 8
  * End:
  */
+=======
+>>>>>>> upstream/android-13

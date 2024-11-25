@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0+
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+>>>>>>> upstream/android-13
 /************************************************************************
  *
  *	io_edgeport.h	Edgeport Linux Interface definitions
@@ -10,7 +14,10 @@
 #if !defined(_IO_EDGEPORT_H_)
 #define	_IO_EDGEPORT_H_
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 #define MAX_RS232_PORTS		8	/* Max # of RS-232 ports per device */
 
 /* typedefs that the insideout headers need */
@@ -21,6 +28,7 @@
 	#define HIGH8(a)	((unsigned char)((a & 0xff00) >> 8))
 #endif
 
+<<<<<<< HEAD
 #ifndef __KERNEL__
 #define __KERNEL__
 #endif
@@ -72,6 +80,10 @@ struct procWrite {
 	} u;
 };
 
+=======
+#include "io_usbvend.h"
+
+>>>>>>> upstream/android-13
 /*
  *	Product information read from the Edgeport
  */
@@ -108,6 +120,7 @@ struct edgeport_product_info {
 	struct edge_compatibility_bits Epic;
 };
 
+<<<<<<< HEAD
 /*
  *	Edgeport Stringblock String locations
  */
@@ -126,4 +139,6 @@ struct string_block {
 
 
 
+=======
+>>>>>>> upstream/android-13
 #endif

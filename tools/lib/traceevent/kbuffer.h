@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 Red Hat Inc, Steven Rostedt <srostedt@redhat.com>
  *
@@ -17,6 +18,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=======
+/* SPDX-License-Identifier: LGPL-2.1 */
+/*
+ * Copyright (C) 2012 Red Hat Inc, Steven Rostedt <srostedt@redhat.com>
+ *
+>>>>>>> upstream/android-13
  */
 #ifndef _KBUFFER_H
 #define _KBUFFER_H
@@ -49,6 +56,11 @@ int kbuffer_load_subbuffer(struct kbuffer *kbuf, void *subbuffer);
 void *kbuffer_read_event(struct kbuffer *kbuf, unsigned long long *ts);
 void *kbuffer_next_event(struct kbuffer *kbuf, unsigned long long *ts);
 unsigned long long kbuffer_timestamp(struct kbuffer *kbuf);
+<<<<<<< HEAD
+=======
+unsigned long long kbuffer_subbuf_timestamp(struct kbuffer *kbuf, void *subbuf);
+unsigned int kbuffer_ptr_delta(struct kbuffer *kbuf, void *ptr);
+>>>>>>> upstream/android-13
 
 void *kbuffer_translate_data(int swap, void *data, unsigned int *size);
 
@@ -65,4 +77,20 @@ int kbuffer_subbuffer_size(struct kbuffer *kbuf);
 void kbuffer_set_old_format(struct kbuffer *kbuf);
 int kbuffer_start_of_data(struct kbuffer *kbuf);
 
+<<<<<<< HEAD
+=======
+/* Debugging */
+
+struct kbuffer_raw_info {
+	int			type;
+	int			length;
+	unsigned long long	delta;
+	void			*next;
+};
+
+/* Read raw data */
+struct kbuffer_raw_info *kbuffer_raw_get(struct kbuffer *kbuf, void *subbuf,
+					 struct kbuffer_raw_info *info);
+
+>>>>>>> upstream/android-13
 #endif /* _K_BUFFER_H */

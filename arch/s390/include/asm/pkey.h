@@ -2,7 +2,11 @@
 /*
  * Kernelspace interface to the pkey device driver
  *
+<<<<<<< HEAD
  * Copyright IBM Corp. 2016
+=======
+ * Copyright IBM Corp. 2016,2019
+>>>>>>> upstream/android-13
  *
  * Author: Harald Freudenberger <freude@de.ibm.com>
  *
@@ -16,6 +20,7 @@
 #include <uapi/asm/pkey.h>
 
 /*
+<<<<<<< HEAD
  * Generate (AES) random secure key.
  * @param cardnr may be -1 (use default card)
  * @param domain may be -1 (use default domain)
@@ -108,5 +113,15 @@ int pkey_skey2pkey(const struct pkey_seckey *seckey,
 int pkey_verifykey(const struct pkey_seckey *seckey,
 		   u16 *pcardnr, u16 *pdomain,
 		   u16 *pkeysize, u32 *pattributes);
+=======
+ * In-kernel API: Transform an key blob (of any type) into a protected key.
+ * @param key pointer to a buffer containing the key blob
+ * @param keylen size of the key blob in bytes
+ * @param protkey pointer to buffer receiving the protected key
+ * @return 0 on success, negative errno value on failure
+ */
+int pkey_keyblob2pkey(const u8 *key, u32 keylen,
+		      struct pkey_protkey *protkey);
+>>>>>>> upstream/android-13
 
 #endif /* _KAPI_PKEY_H */

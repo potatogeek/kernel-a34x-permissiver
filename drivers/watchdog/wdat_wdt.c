@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ACPI Hardware Watchdog (WDAT) driver.
  *
  * Copyright (C) 2016, Intel Corporation
  * Author: Mika Westerberg <mika.westerberg@linux.intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/acpi.h>
@@ -37,9 +44,15 @@ struct wdat_instruction {
  * @period: How long is one watchdog period in ms
  * @stopped_in_sleep: Is this watchdog stopped by the firmware in S1-S5
  * @stopped: Was the watchdog stopped by the driver in suspend
+<<<<<<< HEAD
  * @actions: An array of instruction lists indexed by an action number from
  *           the WDAT table. There can be %NULL entries for not implemented
  *           actions.
+=======
+ * @instructions: An array of instruction lists indexed by an action number from
+ *                the WDAT table. There can be %NULL entries for not implemented
+ *                actions.
+>>>>>>> upstream/android-13
  */
 struct wdat_wdt {
 	struct platform_device *pdev;
@@ -57,6 +70,16 @@ module_param(nowayout, bool, 0);
 MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
 		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
 
+<<<<<<< HEAD
+=======
+#define WDAT_DEFAULT_TIMEOUT	30
+
+static int timeout = WDAT_DEFAULT_TIMEOUT;
+module_param(timeout, int, 0);
+MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds (default="
+		 __MODULE_STRING(WDAT_DEFAULT_TIMEOUT) ")");
+
+>>>>>>> upstream/android-13
 static int wdat_wdt_read(struct wdat_wdt *wdat,
 	 const struct wdat_instruction *instr, u32 *value)
 {
@@ -204,8 +227,13 @@ static int wdat_wdt_enable_reboot(struct wdat_wdt *wdat)
 	/*
 	 * WDAT specification says that the watchdog is required to reboot
 	 * the system when it fires. However, it also states that it is
+<<<<<<< HEAD
 	 * recommeded to make it configurable through hardware register. We
 	 * enable reboot now if it is configrable, just in case.
+=======
+	 * recommended to make it configurable through hardware register. We
+	 * enable reboot now if it is configurable, just in case.
+>>>>>>> upstream/android-13
 	 */
 	ret = wdat_wdt_run_action(wdat, ACPI_WDAT_SET_REBOOT, 0, NULL);
 	if (ret && ret != -EOPNOTSUPP) {
@@ -287,7 +315,11 @@ static unsigned int wdat_wdt_get_timeleft(struct watchdog_device *wdd)
 	struct wdat_wdt *wdat = to_wdat_wdt(wdd);
 	u32 periods = 0;
 
+<<<<<<< HEAD
 	wdat_wdt_run_action(wdat, ACPI_WDAT_GET_COUNTDOWN, 0, &periods);
+=======
+	wdat_wdt_run_action(wdat, ACPI_WDAT_GET_CURRENT_COUNTDOWN, 0, &periods);
+>>>>>>> upstream/android-13
 	return periods * wdat->period / 1000;
 }
 
@@ -308,6 +340,10 @@ static const struct watchdog_ops wdat_wdt_ops = {
 
 static int wdat_wdt_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
+=======
+	struct device *dev = &pdev->dev;
+>>>>>>> upstream/android-13
 	const struct acpi_wdat_entry *entries;
 	const struct acpi_table_wdat *tbl;
 	struct wdat_wdt *wdat;
@@ -321,11 +357,19 @@ static int wdat_wdt_probe(struct platform_device *pdev)
 	if (ACPI_FAILURE(status))
 		return -ENODEV;
 
+<<<<<<< HEAD
 	wdat = devm_kzalloc(&pdev->dev, sizeof(*wdat), GFP_KERNEL);
 	if (!wdat)
 		return -ENOMEM;
 
 	regs = devm_kcalloc(&pdev->dev, pdev->num_resources, sizeof(*regs),
+=======
+	wdat = devm_kzalloc(dev, sizeof(*wdat), GFP_KERNEL);
+	if (!wdat)
+		return -ENOMEM;
+
+	regs = devm_kcalloc(dev, pdev->num_resources, sizeof(*regs),
+>>>>>>> upstream/android-13
 			    GFP_KERNEL);
 	if (!regs)
 		return -ENOMEM;
@@ -350,6 +394,7 @@ static int wdat_wdt_probe(struct platform_device *pdev)
 
 		res = &pdev->resource[i];
 		if (resource_type(res) == IORESOURCE_MEM) {
+<<<<<<< HEAD
 			reg = devm_ioremap_resource(&pdev->dev, res);
 			if (IS_ERR(reg))
 				return PTR_ERR(reg);
@@ -359,6 +404,17 @@ static int wdat_wdt_probe(struct platform_device *pdev)
 				return -ENOMEM;
 		} else {
 			dev_err(&pdev->dev, "Unsupported resource\n");
+=======
+			reg = devm_ioremap_resource(dev, res);
+			if (IS_ERR(reg))
+				return PTR_ERR(reg);
+		} else if (resource_type(res) == IORESOURCE_IO) {
+			reg = devm_ioport_map(dev, res->start, 1);
+			if (!reg)
+				return -ENOMEM;
+		} else {
+			dev_err(dev, "Unsupported resource\n");
+>>>>>>> upstream/android-13
 			return -EINVAL;
 		}
 
@@ -376,12 +432,20 @@ static int wdat_wdt_probe(struct platform_device *pdev)
 
 		action = entries[i].action;
 		if (action >= MAX_WDAT_ACTIONS) {
+<<<<<<< HEAD
 			dev_dbg(&pdev->dev, "Skipping unknown action: %u\n",
 				action);
 			continue;
 		}
 
 		instr = devm_kzalloc(&pdev->dev, sizeof(*instr), GFP_KERNEL);
+=======
+			dev_dbg(dev, "Skipping unknown action: %u\n", action);
+			continue;
+		}
+
+		instr = devm_kzalloc(dev, sizeof(*instr), GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (!instr)
 			return -ENOMEM;
 
@@ -398,7 +462,11 @@ static int wdat_wdt_probe(struct platform_device *pdev)
 		} else if (gas->space_id == ACPI_ADR_SPACE_SYSTEM_IO) {
 			r.flags = IORESOURCE_IO;
 		} else {
+<<<<<<< HEAD
 			dev_dbg(&pdev->dev, "Unsupported address space: %d\n",
+=======
+			dev_dbg(dev, "Unsupported address space: %d\n",
+>>>>>>> upstream/android-13
 				gas->space_id);
 			continue;
 		}
@@ -413,14 +481,24 @@ static int wdat_wdt_probe(struct platform_device *pdev)
 		}
 
 		if (!instr->reg) {
+<<<<<<< HEAD
 			dev_err(&pdev->dev, "I/O resource not found\n");
+=======
+			dev_err(dev, "I/O resource not found\n");
+>>>>>>> upstream/android-13
 			return -EINVAL;
 		}
 
 		instructions = wdat->instructions[action];
 		if (!instructions) {
+<<<<<<< HEAD
 			instructions = devm_kzalloc(&pdev->dev,
 					sizeof(*instructions), GFP_KERNEL);
+=======
+			instructions = devm_kzalloc(dev,
+						    sizeof(*instructions),
+						    GFP_KERNEL);
+>>>>>>> upstream/android-13
 			if (!instructions)
 				return -ENOMEM;
 
@@ -440,8 +518,29 @@ static int wdat_wdt_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, wdat);
 
+<<<<<<< HEAD
 	watchdog_set_nowayout(&wdat->wdd, nowayout);
 	return devm_watchdog_register_device(&pdev->dev, &wdat->wdd);
+=======
+	/*
+	 * Set initial timeout so that userspace has time to configure the
+	 * watchdog properly after it has opened the device. In some cases
+	 * the BIOS default is too short and causes immediate reboot.
+	 */
+	if (timeout * 1000 < wdat->wdd.min_hw_heartbeat_ms ||
+	    timeout * 1000 > wdat->wdd.max_hw_heartbeat_ms) {
+		dev_warn(dev, "Invalid timeout %d given, using %d\n",
+			 timeout, WDAT_DEFAULT_TIMEOUT);
+		timeout = WDAT_DEFAULT_TIMEOUT;
+	}
+
+	ret = wdat_wdt_set_timeout(&wdat->wdd, timeout);
+	if (ret)
+		return ret;
+
+	watchdog_set_nowayout(&wdat->wdd, nowayout);
+	return devm_watchdog_register_device(dev, &wdat->wdd);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_PM_SLEEP
@@ -454,7 +553,11 @@ static int wdat_wdt_suspend_noirq(struct device *dev)
 		return 0;
 
 	/*
+<<<<<<< HEAD
 	 * We need to stop the watchdog if firmare is not doing it or if we
+=======
+	 * We need to stop the watchdog if firmware is not doing it or if we
+>>>>>>> upstream/android-13
 	 * are going suspend to idle (where firmware is not involved). If
 	 * firmware is stopping the watchdog we kick it here one more time
 	 * to give it some time.

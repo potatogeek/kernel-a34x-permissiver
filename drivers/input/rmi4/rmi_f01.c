@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2011-2016 Synaptics Incorporated
  * Copyright (c) 2011 Unixphere
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2011-2016 Synaptics Incorporated
+ * Copyright (c) 2011 Unixphere
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -106,6 +113,7 @@ struct f01_basic_properties {
 #define RMI_F01_CTRL0_CONFIGURED_BIT	BIT(7)
 
 /**
+<<<<<<< HEAD
  * @ctrl0 - see the bit definitions above.
  * @doze_interval - controls the interval between checks for finger presence
  * when the touch sensor is in doze mode, in units of 10ms.
@@ -113,6 +121,17 @@ struct f01_basic_properties {
  * sensor will decide to wake up from that low power state.
  * @doze_holdoff - controls how long the touch sensor waits after the last
  * finger lifts before entering the doze state, in units of 100ms.
+=======
+ * struct f01_device_control - controls basic sensor functions
+ *
+ * @ctrl0: see the bit definitions above.
+ * @doze_interval: controls the interval between checks for finger presence
+ *	when the touch sensor is in doze mode, in units of 10ms.
+ * @wakeup_threshold: controls the capacitance threshold at which the touch
+ *	sensor will decide to wake up from that low power state.
+ * @doze_holdoff: controls how long the touch sensor waits after the last
+ *	finger lifts before entering the doze state, in units of 100ms.
+>>>>>>> upstream/android-13
  */
 struct f01_device_control {
 	u8 ctrl0;

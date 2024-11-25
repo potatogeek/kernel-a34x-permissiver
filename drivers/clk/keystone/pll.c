@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * PLL clock driver for Keystone devices
  *
  * Copyright (C) 2013 Texas Instruments Inc.
  *	Murali Karicheri <m-karicheri2@ti.com>
  *	Santosh Shilimkar <santosh.shilimkar@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/clk-provider.h>
 #include <linux/err.h>
@@ -126,7 +133,11 @@ static struct clk *clk_register_pll(struct device *dev,
 			const char *parent_name,
 			struct clk_pll_data *pll_data)
 {
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	struct clk_pll *pll;
 	struct clk *clk;
 
@@ -219,7 +230,11 @@ static void __init _of_pll_clk_init(struct device_node *node, bool pllctrl)
 	}
 
 out:
+<<<<<<< HEAD
 	pr_err("%s: error initializing pll %s\n", __func__, node->name);
+=======
+	pr_err("%s: error initializing pll %pOFn\n", __func__, node);
+>>>>>>> upstream/android-13
 	kfree(pll_data);
 }
 
@@ -338,3 +353,11 @@ static void __init of_pll_mux_clk_init(struct device_node *node)
 		pr_err("%s: error registering mux %s\n", __func__, clk_name);
 }
 CLK_OF_DECLARE(pll_mux_clock, "ti,keystone,pll-mux-clock", of_pll_mux_clk_init);
+<<<<<<< HEAD
+=======
+
+MODULE_LICENSE("GPL");
+MODULE_DESCRIPTION("PLL clock driver for Keystone devices");
+MODULE_AUTHOR("Murali Karicheri <m-karicheri2@ti.com>");
+MODULE_AUTHOR("Santosh Shilimkar <santosh.shilimkar@ti.com>");
+>>>>>>> upstream/android-13

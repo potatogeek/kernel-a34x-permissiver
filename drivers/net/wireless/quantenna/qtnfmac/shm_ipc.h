@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015-2016 Quantenna Communications, Inc.
  * All rights reserved.
@@ -13,6 +14,10 @@
  * GNU General Public License for more details.
  *
  */
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+/* Copyright (c) 2015-2016 Quantenna Communications. All rights reserved. */
+>>>>>>> upstream/android-13
 
 #ifndef _QTN_FMAC_SHM_IPC_H_
 #define _QTN_FMAC_SHM_IPC_H_
@@ -32,7 +37,11 @@ struct qtnf_shm_ipc_int {
 };
 
 struct qtnf_shm_ipc_rx_callback {
+<<<<<<< HEAD
 	void (*fn)(void *arg, const u8 *buf, size_t len);
+=======
+	void (*fn)(void *arg, const u8 __iomem *buf, size_t len);
+>>>>>>> upstream/android-13
 	void *arg;
 };
 
@@ -51,8 +60,11 @@ struct qtnf_shm_ipc {
 
 	u8 waiting_for_ack;
 
+<<<<<<< HEAD
 	u8 rx_data[QTN_IPC_MAX_DATA_SZ] __aligned(sizeof(u32));
 
+=======
+>>>>>>> upstream/android-13
 	struct qtnf_shm_ipc_int interrupt;
 	struct qtnf_shm_ipc_rx_callback rx_callback;
 

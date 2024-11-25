@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -59,6 +60,12 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+/*
+ * Copyright (C) 2005-2014 Intel Corporation
+ */
+>>>>>>> upstream/android-13
 #ifndef __iwl_calib_h__
 #define __iwl_calib_h__
 

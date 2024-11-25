@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * linux/drivers/video/w100fb.h
  *
@@ -10,11 +14,14 @@
  * Modified to work with 2.6 by Richard Purdie <rpurdie@rpsys.net>
  *
  * w32xx support by Ian Molton
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #if !defined (_W100FB_H)

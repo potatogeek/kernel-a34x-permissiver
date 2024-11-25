@@ -10,6 +10,11 @@
  * for more details.
  */
 
+<<<<<<< HEAD
+=======
+struct gpio_desc;
+
+>>>>>>> upstream/android-13
 #define LCCR0           0x0000          /* LCD Control Reg. 0 */
 #define LCSR            0x0004          /* LCD Status Reg. */
 #define DBAR1           0x0010          /* LCD DMA Base Address Reg. channel 1 */
@@ -33,6 +38,10 @@ struct sa1100fb_info {
 	struct device		*dev;
 	const struct sa1100fb_rgb *rgb[NR_RGB];
 	void __iomem		*base;
+<<<<<<< HEAD
+=======
+	struct gpio_desc	*shannon_lcden;
+>>>>>>> upstream/android-13
 
 	/*
 	 * These are the addresses we mapped
@@ -64,7 +73,10 @@ struct sa1100fb_info {
 
 #ifdef CONFIG_CPU_FREQ
 	struct notifier_block	freq_transition;
+<<<<<<< HEAD
 	struct notifier_block	freq_policy;
+=======
+>>>>>>> upstream/android-13
 #endif
 
 	const struct sa1100fb_mach_info *inf;

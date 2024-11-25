@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015, Linaro Limited
  * Copyright (c) 2016, EPAM Systems
@@ -11,6 +12,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2015, Linaro Limited
+ * Copyright (c) 2016, EPAM Systems
+>>>>>>> upstream/android-13
  */
 
 #ifndef SHM_POOL_H

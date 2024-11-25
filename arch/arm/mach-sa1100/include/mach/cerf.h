@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * arch/arm/mach-sa1100/include/mach/cerf.h
  *
@@ -5,6 +6,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * arch/arm/mach-sa1100/include/mach/cerf.h
+ *
+>>>>>>> upstream/android-13
  * Apr-2003 : Removed some old PDA crud [FB]
  */
 #ifndef _INCLUDE_CERF_H_

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0 OR MIT
+>>>>>>> upstream/android-13
 /******************************************************************************
  * grant_table.c
  * x86 specific part
@@ -8,6 +12,7 @@
  * Copyright (c) 2004-2005, K A Fraser
  * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
  *                    VA Linux Systems Japan. Split out x86 specific part.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2
@@ -32,6 +37,8 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/sched.h>
@@ -44,11 +51,18 @@
 #include <xen/grant_table.h>
 #include <xen/xen.h>
 
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 
 static struct gnttab_vm_area {
 	struct vm_struct *area;
 	pte_t **ptes;
+<<<<<<< HEAD
+=======
+	int idx;
+>>>>>>> upstream/android-13
 } gnttab_shared_vm_area, gnttab_status_vm_area;
 
 int arch_gnttab_map_shared(unsigned long *frames, unsigned long nr_gframes,
@@ -114,11 +128,23 @@ void arch_gnttab_unmap(void *shared, unsigned long nr_gframes)
 	}
 }
 
+<<<<<<< HEAD
+=======
+static int gnttab_apply(pte_t *pte, unsigned long addr, void *data)
+{
+	struct gnttab_vm_area *area = data;
+
+	area->ptes[area->idx++] = pte;
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int arch_gnttab_valloc(struct gnttab_vm_area *area, unsigned nr_frames)
 {
 	area->ptes = kmalloc_array(nr_frames, sizeof(*area->ptes), GFP_KERNEL);
 	if (area->ptes == NULL)
 		return -ENOMEM;
+<<<<<<< HEAD
 
 	area->area = alloc_vm_area(PAGE_SIZE * nr_frames, area->ptes);
 	if (area->area == NULL) {
@@ -127,6 +153,20 @@ static int arch_gnttab_valloc(struct gnttab_vm_area *area, unsigned nr_frames)
 	}
 
 	return 0;
+=======
+	area->area = get_vm_area(PAGE_SIZE * nr_frames, VM_IOREMAP);
+	if (!area->area)
+		goto out_free_ptes;
+	if (apply_to_page_range(&init_mm, (unsigned long)area->area->addr,
+			PAGE_SIZE * nr_frames, gnttab_apply, area))
+		goto out_free_vm_area;
+	return 0;
+out_free_vm_area:
+	free_vm_area(area->area);
+out_free_ptes:
+	kfree(area->ptes);
+	return -ENOMEM;
+>>>>>>> upstream/android-13
 }
 
 static void arch_gnttab_vfree(struct gnttab_vm_area *area)

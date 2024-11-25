@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * arch/sh/mm/cache.c
  *
  * Copyright (C) 1999, 2000, 2002  Niibe Yutaka
  * Copyright (C) 2002 - 2010  Paul Mundt
+<<<<<<< HEAD
  *
  * Released under the terms of the GNU GPL v2.0.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/mm.h>
 #include <linux/init.h>
@@ -356,12 +363,15 @@ void __init cpu_cache_init(void)
 		}
 	}
 
+<<<<<<< HEAD
 	if (boot_cpu_data.family == CPU_FAMILY_SH5) {
 		extern void __weak sh5_cache_init(void);
 
 		sh5_cache_init();
 	}
 
+=======
+>>>>>>> upstream/android-13
 skip:
 	emit_cache_params();
 }

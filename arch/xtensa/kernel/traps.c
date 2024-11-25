@@ -34,12 +34,19 @@
 #include <linux/delay.h>
 #include <linux/hardirq.h>
 #include <linux/ratelimit.h>
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 #include <asm/stacktrace.h>
 #include <asm/ptrace.h>
 #include <asm/timex.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/processor.h>
 #include <asm/traps.h>
 #include <asm/hw_breakpoint.h>
@@ -51,7 +58,11 @@
 extern void kernel_exception(void);
 extern void user_exception(void);
 
+<<<<<<< HEAD
 extern void fast_syscall_kernel(void);
+=======
+extern void fast_illegal_instruction_user(void);
+>>>>>>> upstream/android-13
 extern void fast_syscall_user(void);
 extern void fast_alloca(void);
 extern void fast_unaligned(void);
@@ -88,8 +99,15 @@ typedef struct {
 
 static dispatch_init_table_t __initdata dispatch_init_table[] = {
 
+<<<<<<< HEAD
 { EXCCAUSE_ILLEGAL_INSTRUCTION,	0,	   do_illegal_instruction},
 { EXCCAUSE_SYSTEM_CALL,		KRNL,	   fast_syscall_kernel },
+=======
+#ifdef CONFIG_USER_ABI_CALL0_PROBE
+{ EXCCAUSE_ILLEGAL_INSTRUCTION,	USER,	   fast_illegal_instruction_user },
+#endif
+{ EXCCAUSE_ILLEGAL_INSTRUCTION,	0,	   do_illegal_instruction},
+>>>>>>> upstream/android-13
 { EXCCAUSE_SYSTEM_CALL,		USER,	   fast_syscall_user },
 { EXCCAUSE_SYSTEM_CALL,		0,	   system_call },
 /* EXCCAUSE_INSTRUCTION_FETCH unhandled */
@@ -186,7 +204,11 @@ void do_unhandled(struct pt_regs *regs, unsigned long exccause)
 			    "\tEXCCAUSE is %ld\n",
 			    current->comm, task_pid_nr(current), regs->pc,
 			    exccause);
+<<<<<<< HEAD
 	force_sig(SIGILL, current);
+=======
+	force_sig(SIGILL);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -215,8 +237,13 @@ extern void do_IRQ(int, struct pt_regs *);
 
 static inline void check_valid_nmi(void)
 {
+<<<<<<< HEAD
 	unsigned intread = get_sr(interrupt);
 	unsigned intenable = get_sr(intenable);
+=======
+	unsigned intread = xtensa_get_sr(interrupt);
+	unsigned intenable = xtensa_get_sr(intenable);
+>>>>>>> upstream/android-13
 
 	BUG_ON(intread & intenable &
 	       ~(XTENSA_INTLEVEL_ANDBELOW_MASK(PROFILING_INTLEVEL) ^
@@ -266,6 +293,10 @@ void do_interrupt(struct pt_regs *regs)
 		XCHAL_INTLEVEL7_MASK,
 	};
 	struct pt_regs *old_regs;
+<<<<<<< HEAD
+=======
+	unsigned unhandled = ~0u;
+>>>>>>> upstream/android-13
 
 	trace_hardirqs_off();
 
@@ -273,14 +304,26 @@ void do_interrupt(struct pt_regs *regs)
 	irq_enter();
 
 	for (;;) {
+<<<<<<< HEAD
 		unsigned intread = get_sr(interrupt);
 		unsigned intenable = get_sr(intenable);
+=======
+		unsigned intread = xtensa_get_sr(interrupt);
+		unsigned intenable = xtensa_get_sr(intenable);
+>>>>>>> upstream/android-13
 		unsigned int_at_level = intread & intenable;
 		unsigned level;
 
 		for (level = LOCKLEVEL; level > 0; --level) {
 			if (int_at_level & int_level_mask[level]) {
 				int_at_level &= int_level_mask[level];
+<<<<<<< HEAD
+=======
+				if (int_at_level & unhandled)
+					int_at_level &= unhandled;
+				else
+					unhandled |= int_level_mask[level];
+>>>>>>> upstream/android-13
 				break;
 			}
 		}
@@ -288,6 +331,11 @@ void do_interrupt(struct pt_regs *regs)
 		if (level == 0)
 			break;
 
+<<<<<<< HEAD
+=======
+		/* clear lowest pending irq in the unhandled mask */
+		unhandled ^= (int_at_level & -int_at_level);
+>>>>>>> upstream/android-13
 		do_IRQ(__ffs(int_at_level), regs);
 	}
 
@@ -308,7 +356,11 @@ do_illegal_instruction(struct pt_regs *regs)
 
 	pr_info_ratelimited("Illegal Instruction in '%s' (pid = %d, pc = %#010lx)\n",
 			    current->comm, task_pid_nr(current), regs->pc);
+<<<<<<< HEAD
 	force_sig(SIGILL, current);
+=======
+	force_sig(SIGILL);
+>>>>>>> upstream/android-13
 }
 
 
@@ -332,7 +384,11 @@ do_unaligned_user (struct pt_regs *regs)
 			    "(pid = %d, pc = %#010lx)\n",
 			    regs->excvaddr, current->comm,
 			    task_pid_nr(current), regs->pc);
+<<<<<<< HEAD
 	force_sig_fault(SIGBUS, BUS_ADRALN, (void *) regs->excvaddr, current);
+=======
+	force_sig_fault(SIGBUS, BUS_ADRALN, (void *) regs->excvaddr);
+>>>>>>> upstream/android-13
 }
 #endif
 
@@ -356,7 +412,11 @@ do_debug(struct pt_regs *regs)
 
 	/* If in user mode, send SIGTRAP signal to current process */
 
+<<<<<<< HEAD
 	force_sig(SIGTRAP, current);
+=======
+	force_sig(SIGTRAP);
+>>>>>>> upstream/android-13
 }
 
 
@@ -422,16 +482,25 @@ void __init trap_init(void)
 	/* Setup specific handlers. */
 
 	for(i = 0; dispatch_init_table[i].cause >= 0; i++) {
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 		int fast = dispatch_init_table[i].fast;
 		int cause = dispatch_init_table[i].cause;
 		void *handler = dispatch_init_table[i].handler;
 
 		if (fast == 0)
 			set_handler(default_handler, cause, handler);
+<<<<<<< HEAD
 		if (fast && fast & USER)
 			set_handler(fast_user_handler, cause, handler);
 		if (fast && fast & KRNL)
+=======
+		if ((fast & USER) != 0)
+			set_handler(fast_user_handler, cause, handler);
+		if ((fast & KRNL) != 0)
+>>>>>>> upstream/android-13
 			set_handler(fast_kernel_handler, cause, handler);
 	}
 
@@ -478,16 +547,30 @@ void show_regs(struct pt_regs * regs)
 
 static int show_trace_cb(struct stackframe *frame, void *data)
 {
+<<<<<<< HEAD
 	if (kernel_text_address(frame->pc))
 		pr_cont(" [<%08lx>] %pB\n", frame->pc, (void *)frame->pc);
 	return 0;
 }
 
 void show_trace(struct task_struct *task, unsigned long *sp)
+=======
+	const char *loglvl = data;
+
+	if (kernel_text_address(frame->pc))
+		printk("%s [<%08lx>] %pB\n",
+			loglvl, frame->pc, (void *)frame->pc);
+	return 0;
+}
+
+static void show_trace(struct task_struct *task, unsigned long *sp,
+		       const char *loglvl)
+>>>>>>> upstream/android-13
 {
 	if (!sp)
 		sp = stack_pointer(task);
 
+<<<<<<< HEAD
 	pr_info("Call Trace:\n");
 	walk_stackframe(sp, show_trace_cb, NULL);
 #ifndef CONFIG_KALLSYMS
@@ -516,6 +599,31 @@ void show_stack(struct task_struct *task, unsigned long *sp)
 			pr_cont("\n");
 	}
 	show_trace(task, stack);
+=======
+	printk("%sCall Trace:\n", loglvl);
+	walk_stackframe(sp, show_trace_cb, (void *)loglvl);
+}
+
+#define STACK_DUMP_ENTRY_SIZE 4
+#define STACK_DUMP_LINE_SIZE 32
+static size_t kstack_depth_to_print = CONFIG_PRINT_STACK_DEPTH;
+
+void show_stack(struct task_struct *task, unsigned long *sp, const char *loglvl)
+{
+	size_t len;
+
+	if (!sp)
+		sp = stack_pointer(task);
+
+	len = min((-(size_t)sp) & (THREAD_SIZE - STACK_DUMP_ENTRY_SIZE),
+		  kstack_depth_to_print * STACK_DUMP_ENTRY_SIZE);
+
+	printk("%sStack:\n", loglvl);
+	print_hex_dump(loglvl, " ", DUMP_PREFIX_NONE,
+		       STACK_DUMP_LINE_SIZE, STACK_DUMP_ENTRY_SIZE,
+		       sp, len, false);
+	show_trace(task, sp, loglvl);
+>>>>>>> upstream/android-13
 }
 
 DEFINE_SPINLOCK(die_lock);
@@ -523,15 +631,29 @@ DEFINE_SPINLOCK(die_lock);
 void die(const char * str, struct pt_regs * regs, long err)
 {
 	static int die_counter;
+<<<<<<< HEAD
+=======
+	const char *pr = "";
+
+	if (IS_ENABLED(CONFIG_PREEMPTION))
+		pr = IS_ENABLED(CONFIG_PREEMPT_RT) ? " PREEMPT_RT" : " PREEMPT";
+>>>>>>> upstream/android-13
 
 	console_verbose();
 	spin_lock_irq(&die_lock);
 
+<<<<<<< HEAD
 	pr_info("%s: sig: %ld [#%d]%s\n", str, err, ++die_counter,
 		IS_ENABLED(CONFIG_PREEMPT) ? " PREEMPT" : "");
 	show_regs(regs);
 	if (!user_mode(regs))
 		show_stack(NULL, (unsigned long*)regs->areg[1]);
+=======
+	pr_info("%s: sig: %ld [#%d]%s\n", str, err, ++die_counter, pr);
+	show_regs(regs);
+	if (!user_mode(regs))
+		show_stack(NULL, (unsigned long *)regs->areg[1], KERN_INFO);
+>>>>>>> upstream/android-13
 
 	add_taint(TAINT_DIE, LOCKDEP_NOW_UNRELIABLE);
 	spin_unlock_irq(&die_lock);

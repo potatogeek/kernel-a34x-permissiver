@@ -1,8 +1,13 @@
 /*
  * Copyright (C) 2003 Jana Saout <jana@saout.de>
  * Copyright (C) 2004 Clemens Fruhwirth <clemens@endorphin.org>
+<<<<<<< HEAD
  * Copyright (C) 2006-2017 Red Hat, Inc. All rights reserved.
  * Copyright (C) 2013-2017 Milan Broz <gmazyland@gmail.com>
+=======
+ * Copyright (C) 2006-2020 Red Hat, Inc. All rights reserved.
+ * Copyright (C) 2013-2020 Milan Broz <gmazyland@gmail.com>
+>>>>>>> upstream/android-13
  *
  * This file is released under the GPL.
  */
@@ -34,18 +39,28 @@
 #include <crypto/aead.h>
 #include <crypto/authenc.h>
 #include <linux/rtnetlink.h> /* for struct rtattr and RTA macros only */
+<<<<<<< HEAD
 #include <keys/user-type.h>
+=======
+#include <linux/key-type.h>
+#include <keys/user-type.h>
+#include <keys/encrypted-type.h>
+#include <keys/trusted-type.h>
+>>>>>>> upstream/android-13
 
 #include <linux/device-mapper.h>
 
 #define DM_MSG_PREFIX "crypt"
 
+<<<<<<< HEAD
 /* MTK PATCH */
 #if defined(CONFIG_MTK_HW_FDE)
 #include <linux/arm-smccc.h>
 #include <linux/soc/mediatek/mtk_sip_svc.h>
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /*
  * context holding the current state of a multi-part conversion
  */
@@ -73,6 +88,10 @@ struct dm_crypt_io {
 	u8 *integrity_metadata;
 	bool integrity_metadata_from_pool;
 	struct work_struct work;
+<<<<<<< HEAD
+=======
+	struct tasklet_struct tasklet;
+>>>>>>> upstream/android-13
 
 	struct convert_context ctx;
 
@@ -104,11 +123,14 @@ struct crypt_iv_operations {
 		    struct dm_crypt_request *dmreq);
 };
 
+<<<<<<< HEAD
 struct iv_essiv_private {
 	struct crypto_shash *hash_tfm;
 	u8 *salt;
 };
 
+=======
+>>>>>>> upstream/android-13
 struct iv_benbi_private {
 	int shift;
 };
@@ -126,16 +148,35 @@ struct iv_tcw_private {
 	u8 *whitening;
 };
 
+<<<<<<< HEAD
+=======
+#define ELEPHANT_MAX_KEY_SIZE 32
+struct iv_elephant_private {
+	struct crypto_skcipher *tfm;
+};
+
+>>>>>>> upstream/android-13
 /*
  * Crypt: maps a linear range of a block device
  * and encrypts / decrypts at the same time.
  */
 enum flags { DM_CRYPT_SUSPENDED, DM_CRYPT_KEY_VALID,
+<<<<<<< HEAD
 	     DM_CRYPT_SAME_CPU, DM_CRYPT_NO_OFFLOAD };
 
 enum cipher_flags {
 	CRYPT_MODE_INTEGRITY_AEAD,	/* Use authenticated mode for cihper */
 	CRYPT_IV_LARGE_SECTORS,		/* Calculate IV from sector_size, not 512B sectors */
+=======
+	     DM_CRYPT_SAME_CPU, DM_CRYPT_NO_OFFLOAD,
+	     DM_CRYPT_NO_READ_WORKQUEUE, DM_CRYPT_NO_WRITE_WORKQUEUE,
+	     DM_CRYPT_WRITE_INLINE };
+
+enum cipher_flags {
+	CRYPT_MODE_INTEGRITY_AEAD,	/* Use authenticated mode for cipher */
+	CRYPT_IV_LARGE_SECTORS,		/* Calculate IV from sector_size, not 512B sectors */
+	CRYPT_ENCRYPT_PREPROCESS,	/* Must preprocess data for encryption (elephant) */
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -154,6 +195,7 @@ struct crypt_config {
 	struct task_struct *write_thread;
 	struct rb_root write_tree;
 
+<<<<<<< HEAD
 	char *cipher;
 	char *cipher_string;
 	char *cipher_auth;
@@ -170,14 +212,29 @@ struct crypt_config {
 		struct iv_benbi_private benbi;
 		struct iv_lmk_private lmk;
 		struct iv_tcw_private tcw;
+=======
+	char *cipher_string;
+	char *cipher_auth;
+	char *key_string;
+
+	const struct crypt_iv_operations *iv_gen_ops;
+	union {
+		struct iv_benbi_private benbi;
+		struct iv_lmk_private lmk;
+		struct iv_tcw_private tcw;
+		struct iv_elephant_private elephant;
+>>>>>>> upstream/android-13
 	} iv_gen_private;
 	u64 iv_offset;
 	unsigned int iv_size;
 	unsigned short int sector_size;
 	unsigned char sector_shift;
 
+<<<<<<< HEAD
 	/* ESSIV: struct crypto_cipher *essiv_tfm */
 	void *iv_private;
+=======
+>>>>>>> upstream/android-13
 	union {
 		struct crypto_skcipher **tfms;
 		struct crypto_aead **tfms_aead;
@@ -225,7 +282,11 @@ struct crypt_config {
 	struct mutex bio_alloc_lock;
 
 	u8 *authenc_key; /* space for keys in authenc() format (if used) */
+<<<<<<< HEAD
 	u8 key[0];
+=======
+	u8 key[];
+>>>>>>> upstream/android-13
 };
 
 #define MIN_IOS		64
@@ -236,18 +297,26 @@ static DEFINE_SPINLOCK(dm_crypt_clients_lock);
 static unsigned dm_crypt_clients_n = 0;
 static volatile unsigned long dm_crypt_pages_per_client;
 #define DM_CRYPT_MEMORY_PERCENT			2
+<<<<<<< HEAD
 #define DM_CRYPT_MIN_PAGES_PER_CLIENT		(BIO_MAX_PAGES * 16)
+=======
+#define DM_CRYPT_MIN_PAGES_PER_CLIENT		(BIO_MAX_VECS * 16)
+>>>>>>> upstream/android-13
 
 static void clone_init(struct dm_crypt_io *, struct bio *);
 static void kcryptd_queue_crypt(struct dm_crypt_io *io);
 static struct scatterlist *crypt_get_sg_data(struct crypt_config *cc,
 					     struct scatterlist *sg);
 
+<<<<<<< HEAD
 /* MTK PATCH */
 #if defined(CONFIG_MTK_HW_FDE)
 /* use to check if the key has been changed */
 static unsigned int key_idx;
 #endif
+=======
+static bool crypt_integrity_aead(struct crypt_config *cc);
+>>>>>>> upstream/android-13
 
 /*
  * Use this to access cipher attributes that are independent of the key.
@@ -308,8 +377,19 @@ static struct crypto_aead *any_tfm_aead(struct crypt_config *cc)
  *       Note that this encryption scheme is vulnerable to watermarking attacks
  *       and should be used for old compatible containers access only.
  *
+<<<<<<< HEAD
  * plumb: unimplemented, see:
  * http://article.gmane.org/gmane.linux.kernel.device-mapper.dm-crypt/454
+=======
+ * eboiv: Encrypted byte-offset IV (used in Bitlocker in CBC mode)
+ *        The IV is encrypted little-endian byte-offset (with the same key
+ *        and cipher as the volume).
+ *
+ * elephant: The extended version of eboiv with additional Elephant diffuser
+ *           used with Bitlocker CBC mode.
+ *           This mode was used in older Windows systems
+ *           https://download.microsoft.com/download/0/2/3/0238acaf-d3bf-4a6d-b3d6-0a0be4bbb36e/bitlockercipher200608.pdf
+>>>>>>> upstream/android-13
  */
 
 static int crypt_iv_plain_gen(struct crypt_config *cc, u8 *iv,
@@ -340,6 +420,7 @@ static int crypt_iv_plain64be_gen(struct crypt_config *cc, u8 *iv,
 	return 0;
 }
 
+<<<<<<< HEAD
 /* Initialise ESSIV - compute salt but no local memory allocations */
 static int crypt_iv_essiv_init(struct crypt_config *cc)
 {
@@ -492,6 +573,17 @@ static int crypt_iv_essiv_gen(struct crypt_config *cc, u8 *iv,
 	memset(iv, 0, cc->iv_size);
 	*(__le64 *)iv = cpu_to_le64(dmreq->iv_sector);
 	crypto_cipher_encrypt_one(essiv_tfm, iv, iv);
+=======
+static int crypt_iv_essiv_gen(struct crypt_config *cc, u8 *iv,
+			      struct dm_crypt_request *dmreq)
+{
+	/*
+	 * ESSIV encryption of the IV is now handled by the crypto API,
+	 * so just pass the plain sector number here.
+	 */
+	memset(iv, 0, cc->iv_size);
+	*(__le64 *)iv = cpu_to_le64(dmreq->iv_sector);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -502,7 +594,11 @@ static int crypt_iv_benbi_ctr(struct crypt_config *cc, struct dm_target *ti,
 	unsigned bs;
 	int log;
 
+<<<<<<< HEAD
 	if (test_bit(CRYPT_MODE_INTEGRITY_AEAD, &cc->cipher_flags))
+=======
+	if (crypt_integrity_aead(cc))
+>>>>>>> upstream/android-13
 		bs = crypto_aead_blocksize(any_tfm_aead(cc));
 	else
 		bs = crypto_skcipher_blocksize(any_tfm(cc));
@@ -559,7 +655,11 @@ static void crypt_iv_lmk_dtr(struct crypt_config *cc)
 		crypto_free_shash(lmk->hash_tfm);
 	lmk->hash_tfm = NULL;
 
+<<<<<<< HEAD
 	kzfree(lmk->seed);
+=======
+	kfree_sensitive(lmk->seed);
+>>>>>>> upstream/android-13
 	lmk->seed = NULL;
 }
 
@@ -573,7 +673,12 @@ static int crypt_iv_lmk_ctr(struct crypt_config *cc, struct dm_target *ti,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	lmk->hash_tfm = crypto_alloc_shash("md5", 0, 0);
+=======
+	lmk->hash_tfm = crypto_alloc_shash("md5", 0,
+					   CRYPTO_ALG_ALLOCATES_MEMORY);
+>>>>>>> upstream/android-13
 	if (IS_ERR(lmk->hash_tfm)) {
 		ti->error = "Error initializing LMK hash";
 		return PTR_ERR(lmk->hash_tfm);
@@ -629,7 +734,10 @@ static int crypt_iv_lmk_one(struct crypt_config *cc, u8 *iv,
 	int i, r;
 
 	desc->tfm = lmk->hash_tfm;
+<<<<<<< HEAD
 	desc->flags = 0;
+=======
+>>>>>>> upstream/android-13
 
 	r = crypto_shash_init(desc);
 	if (r)
@@ -711,9 +819,15 @@ static void crypt_iv_tcw_dtr(struct crypt_config *cc)
 {
 	struct iv_tcw_private *tcw = &cc->iv_gen_private.tcw;
 
+<<<<<<< HEAD
 	kzfree(tcw->iv_seed);
 	tcw->iv_seed = NULL;
 	kzfree(tcw->whitening);
+=======
+	kfree_sensitive(tcw->iv_seed);
+	tcw->iv_seed = NULL;
+	kfree_sensitive(tcw->whitening);
+>>>>>>> upstream/android-13
 	tcw->whitening = NULL;
 
 	if (tcw->crc32_tfm && !IS_ERR(tcw->crc32_tfm))
@@ -736,7 +850,12 @@ static int crypt_iv_tcw_ctr(struct crypt_config *cc, struct dm_target *ti,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	tcw->crc32_tfm = crypto_alloc_shash("crc32", 0, 0);
+=======
+	tcw->crc32_tfm = crypto_alloc_shash("crc32", 0,
+					    CRYPTO_ALG_ALLOCATES_MEMORY);
+>>>>>>> upstream/android-13
 	if (IS_ERR(tcw->crc32_tfm)) {
 		ti->error = "Error initializing CRC32 in TCW";
 		return PTR_ERR(tcw->crc32_tfm);
@@ -791,7 +910,10 @@ static int crypt_iv_tcw_whitening(struct crypt_config *cc,
 
 	/* calculate crc32 for every 32bit part and xor it */
 	desc->tfm = tcw->crc32_tfm;
+<<<<<<< HEAD
 	desc->flags = 0;
+=======
+>>>>>>> upstream/android-13
 	for (i = 0; i < 4; i++) {
 		r = crypto_shash_init(desc);
 		if (r)
@@ -867,6 +989,337 @@ static int crypt_iv_random_gen(struct crypt_config *cc, u8 *iv,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int crypt_iv_eboiv_ctr(struct crypt_config *cc, struct dm_target *ti,
+			    const char *opts)
+{
+	if (crypt_integrity_aead(cc)) {
+		ti->error = "AEAD transforms not supported for EBOIV";
+		return -EINVAL;
+	}
+
+	if (crypto_skcipher_blocksize(any_tfm(cc)) != cc->iv_size) {
+		ti->error = "Block size of EBOIV cipher does "
+			    "not match IV size of block cipher";
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+static int crypt_iv_eboiv_gen(struct crypt_config *cc, u8 *iv,
+			    struct dm_crypt_request *dmreq)
+{
+	u8 buf[MAX_CIPHER_BLOCKSIZE] __aligned(__alignof__(__le64));
+	struct skcipher_request *req;
+	struct scatterlist src, dst;
+	DECLARE_CRYPTO_WAIT(wait);
+	int err;
+
+	req = skcipher_request_alloc(any_tfm(cc), GFP_NOIO);
+	if (!req)
+		return -ENOMEM;
+
+	memset(buf, 0, cc->iv_size);
+	*(__le64 *)buf = cpu_to_le64(dmreq->iv_sector * cc->sector_size);
+
+	sg_init_one(&src, page_address(ZERO_PAGE(0)), cc->iv_size);
+	sg_init_one(&dst, iv, cc->iv_size);
+	skcipher_request_set_crypt(req, &src, &dst, cc->iv_size, buf);
+	skcipher_request_set_callback(req, 0, crypto_req_done, &wait);
+	err = crypto_wait_req(crypto_skcipher_encrypt(req), &wait);
+	skcipher_request_free(req);
+
+	return err;
+}
+
+static void crypt_iv_elephant_dtr(struct crypt_config *cc)
+{
+	struct iv_elephant_private *elephant = &cc->iv_gen_private.elephant;
+
+	crypto_free_skcipher(elephant->tfm);
+	elephant->tfm = NULL;
+}
+
+static int crypt_iv_elephant_ctr(struct crypt_config *cc, struct dm_target *ti,
+			    const char *opts)
+{
+	struct iv_elephant_private *elephant = &cc->iv_gen_private.elephant;
+	int r;
+
+	elephant->tfm = crypto_alloc_skcipher("ecb(aes)", 0,
+					      CRYPTO_ALG_ALLOCATES_MEMORY);
+	if (IS_ERR(elephant->tfm)) {
+		r = PTR_ERR(elephant->tfm);
+		elephant->tfm = NULL;
+		return r;
+	}
+
+	r = crypt_iv_eboiv_ctr(cc, ti, NULL);
+	if (r)
+		crypt_iv_elephant_dtr(cc);
+	return r;
+}
+
+static void diffuser_disk_to_cpu(u32 *d, size_t n)
+{
+#ifndef __LITTLE_ENDIAN
+	int i;
+
+	for (i = 0; i < n; i++)
+		d[i] = le32_to_cpu((__le32)d[i]);
+#endif
+}
+
+static void diffuser_cpu_to_disk(__le32 *d, size_t n)
+{
+#ifndef __LITTLE_ENDIAN
+	int i;
+
+	for (i = 0; i < n; i++)
+		d[i] = cpu_to_le32((u32)d[i]);
+#endif
+}
+
+static void diffuser_a_decrypt(u32 *d, size_t n)
+{
+	int i, i1, i2, i3;
+
+	for (i = 0; i < 5; i++) {
+		i1 = 0;
+		i2 = n - 2;
+		i3 = n - 5;
+
+		while (i1 < (n - 1)) {
+			d[i1] += d[i2] ^ (d[i3] << 9 | d[i3] >> 23);
+			i1++; i2++; i3++;
+
+			if (i3 >= n)
+				i3 -= n;
+
+			d[i1] += d[i2] ^ d[i3];
+			i1++; i2++; i3++;
+
+			if (i2 >= n)
+				i2 -= n;
+
+			d[i1] += d[i2] ^ (d[i3] << 13 | d[i3] >> 19);
+			i1++; i2++; i3++;
+
+			d[i1] += d[i2] ^ d[i3];
+			i1++; i2++; i3++;
+		}
+	}
+}
+
+static void diffuser_a_encrypt(u32 *d, size_t n)
+{
+	int i, i1, i2, i3;
+
+	for (i = 0; i < 5; i++) {
+		i1 = n - 1;
+		i2 = n - 2 - 1;
+		i3 = n - 5 - 1;
+
+		while (i1 > 0) {
+			d[i1] -= d[i2] ^ d[i3];
+			i1--; i2--; i3--;
+
+			d[i1] -= d[i2] ^ (d[i3] << 13 | d[i3] >> 19);
+			i1--; i2--; i3--;
+
+			if (i2 < 0)
+				i2 += n;
+
+			d[i1] -= d[i2] ^ d[i3];
+			i1--; i2--; i3--;
+
+			if (i3 < 0)
+				i3 += n;
+
+			d[i1] -= d[i2] ^ (d[i3] << 9 | d[i3] >> 23);
+			i1--; i2--; i3--;
+		}
+	}
+}
+
+static void diffuser_b_decrypt(u32 *d, size_t n)
+{
+	int i, i1, i2, i3;
+
+	for (i = 0; i < 3; i++) {
+		i1 = 0;
+		i2 = 2;
+		i3 = 5;
+
+		while (i1 < (n - 1)) {
+			d[i1] += d[i2] ^ d[i3];
+			i1++; i2++; i3++;
+
+			d[i1] += d[i2] ^ (d[i3] << 10 | d[i3] >> 22);
+			i1++; i2++; i3++;
+
+			if (i2 >= n)
+				i2 -= n;
+
+			d[i1] += d[i2] ^ d[i3];
+			i1++; i2++; i3++;
+
+			if (i3 >= n)
+				i3 -= n;
+
+			d[i1] += d[i2] ^ (d[i3] << 25 | d[i3] >> 7);
+			i1++; i2++; i3++;
+		}
+	}
+}
+
+static void diffuser_b_encrypt(u32 *d, size_t n)
+{
+	int i, i1, i2, i3;
+
+	for (i = 0; i < 3; i++) {
+		i1 = n - 1;
+		i2 = 2 - 1;
+		i3 = 5 - 1;
+
+		while (i1 > 0) {
+			d[i1] -= d[i2] ^ (d[i3] << 25 | d[i3] >> 7);
+			i1--; i2--; i3--;
+
+			if (i3 < 0)
+				i3 += n;
+
+			d[i1] -= d[i2] ^ d[i3];
+			i1--; i2--; i3--;
+
+			if (i2 < 0)
+				i2 += n;
+
+			d[i1] -= d[i2] ^ (d[i3] << 10 | d[i3] >> 22);
+			i1--; i2--; i3--;
+
+			d[i1] -= d[i2] ^ d[i3];
+			i1--; i2--; i3--;
+		}
+	}
+}
+
+static int crypt_iv_elephant(struct crypt_config *cc, struct dm_crypt_request *dmreq)
+{
+	struct iv_elephant_private *elephant = &cc->iv_gen_private.elephant;
+	u8 *es, *ks, *data, *data2, *data_offset;
+	struct skcipher_request *req;
+	struct scatterlist *sg, *sg2, src, dst;
+	DECLARE_CRYPTO_WAIT(wait);
+	int i, r;
+
+	req = skcipher_request_alloc(elephant->tfm, GFP_NOIO);
+	es = kzalloc(16, GFP_NOIO); /* Key for AES */
+	ks = kzalloc(32, GFP_NOIO); /* Elephant sector key */
+
+	if (!req || !es || !ks) {
+		r = -ENOMEM;
+		goto out;
+	}
+
+	*(__le64 *)es = cpu_to_le64(dmreq->iv_sector * cc->sector_size);
+
+	/* E(Ks, e(s)) */
+	sg_init_one(&src, es, 16);
+	sg_init_one(&dst, ks, 16);
+	skcipher_request_set_crypt(req, &src, &dst, 16, NULL);
+	skcipher_request_set_callback(req, 0, crypto_req_done, &wait);
+	r = crypto_wait_req(crypto_skcipher_encrypt(req), &wait);
+	if (r)
+		goto out;
+
+	/* E(Ks, e'(s)) */
+	es[15] = 0x80;
+	sg_init_one(&dst, &ks[16], 16);
+	r = crypto_wait_req(crypto_skcipher_encrypt(req), &wait);
+	if (r)
+		goto out;
+
+	sg = crypt_get_sg_data(cc, dmreq->sg_out);
+	data = kmap_atomic(sg_page(sg));
+	data_offset = data + sg->offset;
+
+	/* Cannot modify original bio, copy to sg_out and apply Elephant to it */
+	if (bio_data_dir(dmreq->ctx->bio_in) == WRITE) {
+		sg2 = crypt_get_sg_data(cc, dmreq->sg_in);
+		data2 = kmap_atomic(sg_page(sg2));
+		memcpy(data_offset, data2 + sg2->offset, cc->sector_size);
+		kunmap_atomic(data2);
+	}
+
+	if (bio_data_dir(dmreq->ctx->bio_in) != WRITE) {
+		diffuser_disk_to_cpu((u32*)data_offset, cc->sector_size / sizeof(u32));
+		diffuser_b_decrypt((u32*)data_offset, cc->sector_size / sizeof(u32));
+		diffuser_a_decrypt((u32*)data_offset, cc->sector_size / sizeof(u32));
+		diffuser_cpu_to_disk((__le32*)data_offset, cc->sector_size / sizeof(u32));
+	}
+
+	for (i = 0; i < (cc->sector_size / 32); i++)
+		crypto_xor(data_offset + i * 32, ks, 32);
+
+	if (bio_data_dir(dmreq->ctx->bio_in) == WRITE) {
+		diffuser_disk_to_cpu((u32*)data_offset, cc->sector_size / sizeof(u32));
+		diffuser_a_encrypt((u32*)data_offset, cc->sector_size / sizeof(u32));
+		diffuser_b_encrypt((u32*)data_offset, cc->sector_size / sizeof(u32));
+		diffuser_cpu_to_disk((__le32*)data_offset, cc->sector_size / sizeof(u32));
+	}
+
+	kunmap_atomic(data);
+out:
+	kfree_sensitive(ks);
+	kfree_sensitive(es);
+	skcipher_request_free(req);
+	return r;
+}
+
+static int crypt_iv_elephant_gen(struct crypt_config *cc, u8 *iv,
+			    struct dm_crypt_request *dmreq)
+{
+	int r;
+
+	if (bio_data_dir(dmreq->ctx->bio_in) == WRITE) {
+		r = crypt_iv_elephant(cc, dmreq);
+		if (r)
+			return r;
+	}
+
+	return crypt_iv_eboiv_gen(cc, iv, dmreq);
+}
+
+static int crypt_iv_elephant_post(struct crypt_config *cc, u8 *iv,
+				  struct dm_crypt_request *dmreq)
+{
+	if (bio_data_dir(dmreq->ctx->bio_in) != WRITE)
+		return crypt_iv_elephant(cc, dmreq);
+
+	return 0;
+}
+
+static int crypt_iv_elephant_init(struct crypt_config *cc)
+{
+	struct iv_elephant_private *elephant = &cc->iv_gen_private.elephant;
+	int key_offset = cc->key_size - cc->key_extra_size;
+
+	return crypto_skcipher_setkey(elephant->tfm, &cc->key[key_offset], cc->key_extra_size);
+}
+
+static int crypt_iv_elephant_wipe(struct crypt_config *cc)
+{
+	struct iv_elephant_private *elephant = &cc->iv_gen_private.elephant;
+	u8 key[ELEPHANT_MAX_KEY_SIZE];
+
+	memset(key, 0, cc->key_extra_size);
+	return crypto_skcipher_setkey(elephant->tfm, key, cc->key_extra_size);
+}
+
+>>>>>>> upstream/android-13
 static const struct crypt_iv_operations crypt_iv_plain_ops = {
 	.generator = crypt_iv_plain_gen
 };
@@ -880,10 +1333,13 @@ static const struct crypt_iv_operations crypt_iv_plain64be_ops = {
 };
 
 static const struct crypt_iv_operations crypt_iv_essiv_ops = {
+<<<<<<< HEAD
 	.ctr       = crypt_iv_essiv_ctr,
 	.dtr       = crypt_iv_essiv_dtr,
 	.init      = crypt_iv_essiv_init,
 	.wipe      = crypt_iv_essiv_wipe,
+=======
+>>>>>>> upstream/android-13
 	.generator = crypt_iv_essiv_gen
 };
 
@@ -915,10 +1371,31 @@ static const struct crypt_iv_operations crypt_iv_tcw_ops = {
 	.post	   = crypt_iv_tcw_post
 };
 
+<<<<<<< HEAD
 static struct crypt_iv_operations crypt_iv_random_ops = {
 	.generator = crypt_iv_random_gen
 };
 
+=======
+static const struct crypt_iv_operations crypt_iv_random_ops = {
+	.generator = crypt_iv_random_gen
+};
+
+static const struct crypt_iv_operations crypt_iv_eboiv_ops = {
+	.ctr	   = crypt_iv_eboiv_ctr,
+	.generator = crypt_iv_eboiv_gen
+};
+
+static const struct crypt_iv_operations crypt_iv_elephant_ops = {
+	.ctr	   = crypt_iv_elephant_ctr,
+	.dtr	   = crypt_iv_elephant_dtr,
+	.init	   = crypt_iv_elephant_init,
+	.wipe	   = crypt_iv_elephant_wipe,
+	.generator = crypt_iv_elephant_gen,
+	.post	   = crypt_iv_elephant_post
+};
+
+>>>>>>> upstream/android-13
 /*
  * Integrity extensions
  */
@@ -1058,11 +1535,19 @@ static u8 *org_iv_of_dmreq(struct crypt_config *cc,
 	return iv_of_dmreq(cc, dmreq) + cc->iv_size;
 }
 
+<<<<<<< HEAD
 static uint64_t *org_sector_of_dmreq(struct crypt_config *cc,
 		       struct dm_crypt_request *dmreq)
 {
 	u8 *ptr = iv_of_dmreq(cc, dmreq) + cc->iv_size + cc->iv_size;
 	return (uint64_t*) ptr;
+=======
+static __le64 *org_sector_of_dmreq(struct crypt_config *cc,
+		       struct dm_crypt_request *dmreq)
+{
+	u8 *ptr = iv_of_dmreq(cc, dmreq) + cc->iv_size + cc->iv_size;
+	return (__le64 *) ptr;
+>>>>>>> upstream/android-13
 }
 
 static unsigned int *org_tag_of_dmreq(struct crypt_config *cc,
@@ -1098,7 +1583,11 @@ static int crypt_convert_block_aead(struct crypt_config *cc,
 	struct bio_vec bv_out = bio_iter_iovec(ctx->bio_out, ctx->iter_out);
 	struct dm_crypt_request *dmreq;
 	u8 *iv, *org_iv, *tag_iv, *tag;
+<<<<<<< HEAD
 	uint64_t *sector;
+=======
+	__le64 *sector;
+>>>>>>> upstream/android-13
 	int r = 0;
 
 	BUG_ON(cc->integrity_iv_size && cc->integrity_iv_size != cc->iv_size);
@@ -1170,9 +1659,17 @@ static int crypt_convert_block_aead(struct crypt_config *cc,
 		r = crypto_aead_decrypt(req);
 	}
 
+<<<<<<< HEAD
 	if (r == -EBADMSG)
 		DMERR_LIMIT("INTEGRITY AEAD ERROR, sector %llu",
 			    (unsigned long long)le64_to_cpu(*sector));
+=======
+	if (r == -EBADMSG) {
+		char b[BDEVNAME_SIZE];
+		DMERR_LIMIT("%s: INTEGRITY AEAD ERROR, sector %llu", bio_devname(ctx->bio_in, b),
+			    (unsigned long long)le64_to_cpu(*sector));
+	}
+>>>>>>> upstream/android-13
 
 	if (!r && cc->iv_gen_ops && cc->iv_gen_ops->post)
 		r = cc->iv_gen_ops->post(cc, org_iv, dmreq);
@@ -1193,7 +1690,11 @@ static int crypt_convert_block_skcipher(struct crypt_config *cc,
 	struct scatterlist *sg_in, *sg_out;
 	struct dm_crypt_request *dmreq;
 	u8 *iv, *org_iv, *tag_iv;
+<<<<<<< HEAD
 	uint64_t *sector;
+=======
+	__le64 *sector;
+>>>>>>> upstream/android-13
 	int r = 0;
 
 	/* Reject unexpected unaligned bio. */
@@ -1233,6 +1734,12 @@ static int crypt_convert_block_skcipher(struct crypt_config *cc,
 			r = cc->iv_gen_ops->generator(cc, org_iv, dmreq);
 			if (r < 0)
 				return r;
+<<<<<<< HEAD
+=======
+			/* Data can be already preprocessed in generator */
+			if (test_bit(CRYPT_ENCRYPT_PREPROCESS, &cc->cipher_flags))
+				sg_in = sg_out;
+>>>>>>> upstream/android-13
 			/* Store generated IV in integrity metadata */
 			if (cc->integrity_iv_size)
 				memcpy(tag_iv, org_iv, cc->integrity_iv_size);
@@ -1260,13 +1767,25 @@ static int crypt_convert_block_skcipher(struct crypt_config *cc,
 static void kcryptd_async_done(struct crypto_async_request *async_req,
 			       int error);
 
+<<<<<<< HEAD
 static void crypt_alloc_req_skcipher(struct crypt_config *cc,
+=======
+static int crypt_alloc_req_skcipher(struct crypt_config *cc,
+>>>>>>> upstream/android-13
 				     struct convert_context *ctx)
 {
 	unsigned key_index = ctx->cc_sector & (cc->tfms_count - 1);
 
+<<<<<<< HEAD
 	if (!ctx->r.req)
 		ctx->r.req = mempool_alloc(&cc->req_pool, GFP_NOIO);
+=======
+	if (!ctx->r.req) {
+		ctx->r.req = mempool_alloc(&cc->req_pool, in_interrupt() ? GFP_ATOMIC : GFP_NOIO);
+		if (!ctx->r.req)
+			return -ENOMEM;
+	}
+>>>>>>> upstream/android-13
 
 	skcipher_request_set_tfm(ctx->r.req, cc->cipher_tfm.tfms[key_index]);
 
@@ -1277,6 +1796,7 @@ static void crypt_alloc_req_skcipher(struct crypt_config *cc,
 	skcipher_request_set_callback(ctx->r.req,
 	    CRYPTO_TFM_REQ_MAY_BACKLOG,
 	    kcryptd_async_done, dmreq_of_req(cc, ctx->r.req));
+<<<<<<< HEAD
 }
 
 static void crypt_alloc_req_aead(struct crypt_config *cc,
@@ -1284,6 +1804,20 @@ static void crypt_alloc_req_aead(struct crypt_config *cc,
 {
 	if (!ctx->r.req_aead)
 		ctx->r.req_aead = mempool_alloc(&cc->req_pool, GFP_NOIO);
+=======
+
+	return 0;
+}
+
+static int crypt_alloc_req_aead(struct crypt_config *cc,
+				 struct convert_context *ctx)
+{
+	if (!ctx->r.req_aead) {
+		ctx->r.req_aead = mempool_alloc(&cc->req_pool, in_interrupt() ? GFP_ATOMIC : GFP_NOIO);
+		if (!ctx->r.req_aead)
+			return -ENOMEM;
+	}
+>>>>>>> upstream/android-13
 
 	aead_request_set_tfm(ctx->r.req_aead, cc->cipher_tfm.tfms_aead[0]);
 
@@ -1294,6 +1828,7 @@ static void crypt_alloc_req_aead(struct crypt_config *cc,
 	aead_request_set_callback(ctx->r.req_aead,
 	    CRYPTO_TFM_REQ_MAY_BACKLOG,
 	    kcryptd_async_done, dmreq_of_req(cc, ctx->r.req_aead));
+<<<<<<< HEAD
 }
 
 static void crypt_alloc_req(struct crypt_config *cc,
@@ -1303,6 +1838,19 @@ static void crypt_alloc_req(struct crypt_config *cc,
 		crypt_alloc_req_aead(cc, ctx);
 	else
 		crypt_alloc_req_skcipher(cc, ctx);
+=======
+
+	return 0;
+}
+
+static int crypt_alloc_req(struct crypt_config *cc,
+			    struct convert_context *ctx)
+{
+	if (crypt_integrity_aead(cc))
+		return crypt_alloc_req_aead(cc, ctx);
+	else
+		return crypt_alloc_req_skcipher(cc, ctx);
+>>>>>>> upstream/android-13
 }
 
 static void crypt_free_req_skcipher(struct crypt_config *cc,
@@ -1335,17 +1883,40 @@ static void crypt_free_req(struct crypt_config *cc, void *req, struct bio *base_
  * Encrypt / decrypt data from one bio to another one (can be the same one)
  */
 static blk_status_t crypt_convert(struct crypt_config *cc,
+<<<<<<< HEAD
 			 struct convert_context *ctx)
+=======
+			 struct convert_context *ctx, bool atomic, bool reset_pending)
+>>>>>>> upstream/android-13
 {
 	unsigned int tag_offset = 0;
 	unsigned int sector_step = cc->sector_size >> SECTOR_SHIFT;
 	int r;
 
+<<<<<<< HEAD
 	atomic_set(&ctx->cc_pending, 1);
 
 	while (ctx->iter_in.bi_size && ctx->iter_out.bi_size) {
 
 		crypt_alloc_req(cc, ctx);
+=======
+	/*
+	 * if reset_pending is set we are dealing with the bio for the first time,
+	 * else we're continuing to work on the previous bio, so don't mess with
+	 * the cc_pending counter
+	 */
+	if (reset_pending)
+		atomic_set(&ctx->cc_pending, 1);
+
+	while (ctx->iter_in.bi_size && ctx->iter_out.bi_size) {
+
+		r = crypt_alloc_req(cc, ctx);
+		if (r) {
+			complete(&ctx->restart);
+			return BLK_STS_DEV_RESOURCE;
+		}
+
+>>>>>>> upstream/android-13
 		atomic_inc(&ctx->cc_pending);
 
 		if (crypt_integrity_aead(cc))
@@ -1359,9 +1930,33 @@ static blk_status_t crypt_convert(struct crypt_config *cc,
 		 * but the driver request queue is full, let's wait.
 		 */
 		case -EBUSY:
+<<<<<<< HEAD
 			wait_for_completion(&ctx->restart);
 			reinit_completion(&ctx->restart);
 			/* fall through */
+=======
+			if (in_interrupt()) {
+				if (try_wait_for_completion(&ctx->restart)) {
+					/*
+					 * we don't have to block to wait for completion,
+					 * so proceed
+					 */
+				} else {
+					/*
+					 * we can't wait for completion without blocking
+					 * exit and continue processing in a workqueue
+					 */
+					ctx->r.req = NULL;
+					ctx->cc_sector += sector_step;
+					tag_offset++;
+					return BLK_STS_DEV_RESOURCE;
+				}
+			} else {
+				wait_for_completion(&ctx->restart);
+			}
+			reinit_completion(&ctx->restart);
+			fallthrough;
+>>>>>>> upstream/android-13
 		/*
 		 * The request is queued and processed asynchronously,
 		 * completion function kcryptd_async_done() will be called.
@@ -1378,7 +1973,12 @@ static blk_status_t crypt_convert(struct crypt_config *cc,
 			atomic_dec(&ctx->cc_pending);
 			ctx->cc_sector += sector_step;
 			tag_offset++;
+<<<<<<< HEAD
 			cond_resched();
+=======
+			if (!atomic)
+				cond_resched();
+>>>>>>> upstream/android-13
 			continue;
 		/*
 		 * There was a data integrity error.
@@ -1469,10 +2069,17 @@ out:
 
 static void crypt_free_buffer_pages(struct crypt_config *cc, struct bio *clone)
 {
+<<<<<<< HEAD
 	unsigned int i;
 	struct bio_vec *bv;
 
 	bio_for_each_segment_all(bv, clone, i) {
+=======
+	struct bio_vec *bv;
+	struct bvec_iter_all iter_all;
+
+	bio_for_each_segment_all(bv, clone, iter_all) {
+>>>>>>> upstream/android-13
 		BUG_ON(!bv->bv_page);
 		mempool_free(bv->bv_page, &cc->page_pool);
 	}
@@ -1496,6 +2103,15 @@ static void crypt_inc_pending(struct dm_crypt_io *io)
 	atomic_inc(&io->io_pending);
 }
 
+<<<<<<< HEAD
+=======
+static void kcryptd_io_bio_endio(struct work_struct *work)
+{
+	struct dm_crypt_io *io = container_of(work, struct dm_crypt_io, work);
+	bio_endio(io->base_bio);
+}
+
+>>>>>>> upstream/android-13
 /*
  * One of the bios was finished. Check for completion of
  * the whole request and correctly clean up the buffer.
@@ -1518,7 +2134,27 @@ static void crypt_dec_pending(struct dm_crypt_io *io)
 		kfree(io->integrity_metadata);
 
 	base_bio->bi_status = error;
+<<<<<<< HEAD
 	bio_endio(base_bio);
+=======
+
+	/*
+	 * If we are running this function from our tasklet,
+	 * we can't call bio_endio() here, because it will call
+	 * clone_endio() from dm.c, which in turn will
+	 * free the current struct dm_crypt_io structure with
+	 * our tasklet. In this case we need to delay bio_endio()
+	 * execution to after the tasklet is done and dequeued.
+	 */
+	if (tasklet_trylock(&io->tasklet)) {
+		tasklet_unlock(&io->tasklet);
+		bio_endio(base_bio);
+		return;
+	}
+
+	INIT_WORK(&io->work, kcryptd_io_bio_endio);
+	queue_work(cc->io_queue, &io->work);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1601,7 +2237,11 @@ static int kcryptd_io_read(struct dm_crypt_io *io, gfp_t gfp)
 		return 1;
 	}
 
+<<<<<<< HEAD
 	generic_make_request(clone);
+=======
+	submit_bio_noacct(clone);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1615,6 +2255,7 @@ static void kcryptd_io_read_work(struct work_struct *work)
 	crypt_dec_pending(io);
 }
 
+<<<<<<< HEAD
 /* MTK PATCH */
 #if defined(CONFIG_MTK_HW_FDE)
 
@@ -1672,6 +2313,8 @@ static int crypt_is_hw_fde(const char *path)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static void kcryptd_queue_read(struct dm_crypt_io *io)
 {
 	struct crypt_config *cc = io->cc;
@@ -1684,7 +2327,11 @@ static void kcryptd_io_write(struct dm_crypt_io *io)
 {
 	struct bio *clone = io->ctx.bio_out;
 
+<<<<<<< HEAD
 	generic_make_request(clone);
+=======
+	submit_bio_noacct(clone);
+>>>>>>> upstream/android-13
 }
 
 #define crypt_io_from_node(node) rb_entry((node), struct dm_crypt_io, rb_node)
@@ -1761,8 +2408,14 @@ static void kcryptd_crypt_write_io_submit(struct dm_crypt_io *io, int async)
 
 	clone->bi_iter.bi_sector = cc->start + io->sector;
 
+<<<<<<< HEAD
 	if (likely(!async) && test_bit(DM_CRYPT_NO_OFFLOAD, &cc->flags)) {
 		generic_make_request(clone);
+=======
+	if ((likely(!async) && test_bit(DM_CRYPT_NO_OFFLOAD, &cc->flags)) ||
+	    test_bit(DM_CRYPT_NO_WRITE_WORKQUEUE, &cc->flags)) {
+		submit_bio_noacct(clone);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -1784,9 +2437,69 @@ static void kcryptd_crypt_write_io_submit(struct dm_crypt_io *io, int async)
 	spin_unlock_irqrestore(&cc->write_thread_lock, flags);
 }
 
+<<<<<<< HEAD
 static void kcryptd_crypt_write_convert(struct dm_crypt_io *io)
 {
 	struct crypt_config *cc = io->cc;
+=======
+static bool kcryptd_crypt_write_inline(struct crypt_config *cc,
+				       struct convert_context *ctx)
+
+{
+	if (!test_bit(DM_CRYPT_WRITE_INLINE, &cc->flags))
+		return false;
+
+	/*
+	 * Note: zone append writes (REQ_OP_ZONE_APPEND) do not have ordering
+	 * constraints so they do not need to be issued inline by
+	 * kcryptd_crypt_write_convert().
+	 */
+	switch (bio_op(ctx->bio_in)) {
+	case REQ_OP_WRITE:
+	case REQ_OP_WRITE_SAME:
+	case REQ_OP_WRITE_ZEROES:
+		return true;
+	default:
+		return false;
+	}
+}
+
+static void kcryptd_crypt_write_continue(struct work_struct *work)
+{
+	struct dm_crypt_io *io = container_of(work, struct dm_crypt_io, work);
+	struct crypt_config *cc = io->cc;
+	struct convert_context *ctx = &io->ctx;
+	int crypt_finished;
+	sector_t sector = io->sector;
+	blk_status_t r;
+
+	wait_for_completion(&ctx->restart);
+	reinit_completion(&ctx->restart);
+
+	r = crypt_convert(cc, &io->ctx, true, false);
+	if (r)
+		io->error = r;
+	crypt_finished = atomic_dec_and_test(&ctx->cc_pending);
+	if (!crypt_finished && kcryptd_crypt_write_inline(cc, ctx)) {
+		/* Wait for completion signaled by kcryptd_async_done() */
+		wait_for_completion(&ctx->restart);
+		crypt_finished = 1;
+	}
+
+	/* Encryption was already finished, submit io now */
+	if (crypt_finished) {
+		kcryptd_crypt_write_io_submit(io, 0);
+		io->sector = sector;
+	}
+
+	crypt_dec_pending(io);
+}
+
+static void kcryptd_crypt_write_convert(struct dm_crypt_io *io)
+{
+	struct crypt_config *cc = io->cc;
+	struct convert_context *ctx = &io->ctx;
+>>>>>>> upstream/android-13
 	struct bio *clone;
 	int crypt_finished;
 	sector_t sector = io->sector;
@@ -1796,7 +2509,11 @@ static void kcryptd_crypt_write_convert(struct dm_crypt_io *io)
 	 * Prevent io from disappearing until this function completes.
 	 */
 	crypt_inc_pending(io);
+<<<<<<< HEAD
 	crypt_convert_init(cc, &io->ctx, NULL, io->base_bio, sector);
+=======
+	crypt_convert_init(cc, ctx, NULL, io->base_bio, sector);
+>>>>>>> upstream/android-13
 
 	clone = crypt_alloc_buffer(io, io->base_bio->bi_iter.bi_size);
 	if (unlikely(!clone)) {
@@ -1810,10 +2527,33 @@ static void kcryptd_crypt_write_convert(struct dm_crypt_io *io)
 	sector += bio_sectors(clone);
 
 	crypt_inc_pending(io);
+<<<<<<< HEAD
 	r = crypt_convert(cc, &io->ctx);
 	if (r)
 		io->error = r;
 	crypt_finished = atomic_dec_and_test(&io->ctx.cc_pending);
+=======
+	r = crypt_convert(cc, ctx,
+			  test_bit(DM_CRYPT_NO_WRITE_WORKQUEUE, &cc->flags), true);
+	/*
+	 * Crypto API backlogged the request, because its queue was full
+	 * and we're in softirq context, so continue from a workqueue
+	 * (TODO: is it actually possible to be in softirq in the write path?)
+	 */
+	if (r == BLK_STS_DEV_RESOURCE) {
+		INIT_WORK(&io->work, kcryptd_crypt_write_continue);
+		queue_work(cc->crypt_queue, &io->work);
+		return;
+	}
+	if (r)
+		io->error = r;
+	crypt_finished = atomic_dec_and_test(&ctx->cc_pending);
+	if (!crypt_finished && kcryptd_crypt_write_inline(cc, ctx)) {
+		/* Wait for completion signaled by kcryptd_async_done() */
+		wait_for_completion(&ctx->restart);
+		crypt_finished = 1;
+	}
+>>>>>>> upstream/android-13
 
 	/* Encryption was already finished, submit io now */
 	if (crypt_finished) {
@@ -1830,6 +2570,28 @@ static void kcryptd_crypt_read_done(struct dm_crypt_io *io)
 	crypt_dec_pending(io);
 }
 
+<<<<<<< HEAD
+=======
+static void kcryptd_crypt_read_continue(struct work_struct *work)
+{
+	struct dm_crypt_io *io = container_of(work, struct dm_crypt_io, work);
+	struct crypt_config *cc = io->cc;
+	blk_status_t r;
+
+	wait_for_completion(&io->ctx.restart);
+	reinit_completion(&io->ctx.restart);
+
+	r = crypt_convert(cc, &io->ctx, true, false);
+	if (r)
+		io->error = r;
+
+	if (atomic_dec_and_test(&io->ctx.cc_pending))
+		kcryptd_crypt_read_done(io);
+
+	crypt_dec_pending(io);
+}
+
+>>>>>>> upstream/android-13
 static void kcryptd_crypt_read_convert(struct dm_crypt_io *io)
 {
 	struct crypt_config *cc = io->cc;
@@ -1840,7 +2602,21 @@ static void kcryptd_crypt_read_convert(struct dm_crypt_io *io)
 	crypt_convert_init(cc, &io->ctx, io->base_bio, io->base_bio,
 			   io->sector);
 
+<<<<<<< HEAD
 	r = crypt_convert(cc, &io->ctx);
+=======
+	r = crypt_convert(cc, &io->ctx,
+			  test_bit(DM_CRYPT_NO_READ_WORKQUEUE, &cc->flags), true);
+	/*
+	 * Crypto API backlogged the request, because its queue was full
+	 * and we're in softirq context, so continue from a workqueue
+	 */
+	if (r == BLK_STS_DEV_RESOURCE) {
+		INIT_WORK(&io->work, kcryptd_crypt_read_continue);
+		queue_work(cc->crypt_queue, &io->work);
+		return;
+	}
+>>>>>>> upstream/android-13
 	if (r)
 		io->error = r;
 
@@ -1872,7 +2648,12 @@ static void kcryptd_async_done(struct crypto_async_request *async_req,
 		error = cc->iv_gen_ops->post(cc, org_iv_of_dmreq(cc, dmreq), dmreq);
 
 	if (error == -EBADMSG) {
+<<<<<<< HEAD
 		DMERR_LIMIT("INTEGRITY AEAD ERROR, sector %llu",
+=======
+		char b[BDEVNAME_SIZE];
+		DMERR_LIMIT("%s: INTEGRITY AEAD ERROR, sector %llu", bio_devname(ctx->bio_in, b),
+>>>>>>> upstream/android-13
 			    (unsigned long long)le64_to_cpu(*org_sector_of_dmreq(cc, dmreq)));
 		io->error = BLK_STS_PROTECTION;
 	} else if (error < 0)
@@ -1883,10 +2664,28 @@ static void kcryptd_async_done(struct crypto_async_request *async_req,
 	if (!atomic_dec_and_test(&ctx->cc_pending))
 		return;
 
+<<<<<<< HEAD
 	if (bio_data_dir(io->base_bio) == READ)
 		kcryptd_crypt_read_done(io);
 	else
 		kcryptd_crypt_write_io_submit(io, 1);
+=======
+	/*
+	 * The request is fully completed: for inline writes, let
+	 * kcryptd_crypt_write_convert() do the IO submission.
+	 */
+	if (bio_data_dir(io->base_bio) == READ) {
+		kcryptd_crypt_read_done(io);
+		return;
+	}
+
+	if (kcryptd_crypt_write_inline(cc, ctx)) {
+		complete(&ctx->restart);
+		return;
+	}
+
+	kcryptd_crypt_write_io_submit(io, 1);
+>>>>>>> upstream/android-13
 }
 
 static void kcryptd_crypt(struct work_struct *work)
@@ -1899,10 +2698,38 @@ static void kcryptd_crypt(struct work_struct *work)
 		kcryptd_crypt_write_convert(io);
 }
 
+<<<<<<< HEAD
+=======
+static void kcryptd_crypt_tasklet(unsigned long work)
+{
+	kcryptd_crypt((struct work_struct *)work);
+}
+
+>>>>>>> upstream/android-13
 static void kcryptd_queue_crypt(struct dm_crypt_io *io)
 {
 	struct crypt_config *cc = io->cc;
 
+<<<<<<< HEAD
+=======
+	if ((bio_data_dir(io->base_bio) == READ && test_bit(DM_CRYPT_NO_READ_WORKQUEUE, &cc->flags)) ||
+	    (bio_data_dir(io->base_bio) == WRITE && test_bit(DM_CRYPT_NO_WRITE_WORKQUEUE, &cc->flags))) {
+		/*
+		 * in_hardirq(): Crypto API's skcipher_walk_first() refuses to work in hard IRQ context.
+		 * irqs_disabled(): the kernel may run some IO completion from the idle thread, but
+		 * it is being executed with irqs disabled.
+		 */
+		if (in_hardirq() || irqs_disabled()) {
+			tasklet_init(&io->tasklet, kcryptd_crypt_tasklet, (unsigned long)&io->work);
+			tasklet_schedule(&io->tasklet);
+			return;
+		}
+
+		kcryptd_crypt(&io->work);
+		return;
+	}
+
+>>>>>>> upstream/android-13
 	INIT_WORK(&io->work, kcryptd_crypt);
 	queue_work(cc->crypt_queue, &io->work);
 }
@@ -1958,7 +2785,12 @@ static int crypt_alloc_tfms_skcipher(struct crypt_config *cc, char *ciphermode)
 		return -ENOMEM;
 
 	for (i = 0; i < cc->tfms_count; i++) {
+<<<<<<< HEAD
 		cc->cipher_tfm.tfms[i] = crypto_alloc_skcipher(ciphermode, 0, 0);
+=======
+		cc->cipher_tfm.tfms[i] = crypto_alloc_skcipher(ciphermode, 0,
+						CRYPTO_ALG_ALLOCATES_MEMORY);
+>>>>>>> upstream/android-13
 		if (IS_ERR(cc->cipher_tfm.tfms[i])) {
 			err = PTR_ERR(cc->cipher_tfm.tfms[i]);
 			crypt_free_tfms(cc);
@@ -1971,7 +2803,11 @@ static int crypt_alloc_tfms_skcipher(struct crypt_config *cc, char *ciphermode)
 	 * algorithm implementation is used.  Help people debug performance
 	 * problems by logging the ->cra_driver_name.
 	 */
+<<<<<<< HEAD
 	DMINFO("%s using implementation \"%s\"", ciphermode,
+=======
+	DMDEBUG_LIMIT("%s using implementation \"%s\"", ciphermode,
+>>>>>>> upstream/android-13
 	       crypto_skcipher_alg(any_tfm(cc))->base.cra_driver_name);
 	return 0;
 }
@@ -1984,14 +2820,23 @@ static int crypt_alloc_tfms_aead(struct crypt_config *cc, char *ciphermode)
 	if (!cc->cipher_tfm.tfms)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	cc->cipher_tfm.tfms_aead[0] = crypto_alloc_aead(ciphermode, 0, 0);
+=======
+	cc->cipher_tfm.tfms_aead[0] = crypto_alloc_aead(ciphermode, 0,
+						CRYPTO_ALG_ALLOCATES_MEMORY);
+>>>>>>> upstream/android-13
 	if (IS_ERR(cc->cipher_tfm.tfms_aead[0])) {
 		err = PTR_ERR(cc->cipher_tfm.tfms_aead[0]);
 		crypt_free_tfms(cc);
 		return err;
 	}
 
+<<<<<<< HEAD
 	DMINFO("%s using implementation \"%s\"", ciphermode,
+=======
+	DMDEBUG_LIMIT("%s using implementation \"%s\"", ciphermode,
+>>>>>>> upstream/android-13
 	       crypto_aead_alg(any_tfm_aead(cc))->base.cra_driver_name);
 	return 0;
 }
@@ -2041,6 +2886,7 @@ static int crypt_setkey(struct crypt_config *cc)
 	unsigned subkey_size;
 	int err = 0, i, r;
 
+<<<<<<< HEAD
 /* MTK PATCH */
 #if defined(CONFIG_MTK_HW_FDE)
 	struct arm_smccc_res res;
@@ -2058,6 +2904,8 @@ static int crypt_setkey(struct crypt_config *cc)
 #endif
 	{
 
+=======
+>>>>>>> upstream/android-13
 	/* Ignore extra keys (which are used for IV etc) */
 	subkey_size = crypt_subkey_size(cc);
 
@@ -2088,7 +2936,11 @@ static int crypt_setkey(struct crypt_config *cc)
 
 	if (crypt_integrity_hmac(cc))
 		memzero_explicit(cc->authenc_key, crypt_authenckey_size(cc));
+<<<<<<< HEAD
 	}
+=======
+
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -2102,12 +2954,69 @@ static bool contains_whitespace(const char *str)
 	return false;
 }
 
+<<<<<<< HEAD
+=======
+static int set_key_user(struct crypt_config *cc, struct key *key)
+{
+	const struct user_key_payload *ukp;
+
+	ukp = user_key_payload_locked(key);
+	if (!ukp)
+		return -EKEYREVOKED;
+
+	if (cc->key_size != ukp->datalen)
+		return -EINVAL;
+
+	memcpy(cc->key, ukp->data, cc->key_size);
+
+	return 0;
+}
+
+static int set_key_encrypted(struct crypt_config *cc, struct key *key)
+{
+	const struct encrypted_key_payload *ekp;
+
+	ekp = key->payload.data[0];
+	if (!ekp)
+		return -EKEYREVOKED;
+
+	if (cc->key_size != ekp->decrypted_datalen)
+		return -EINVAL;
+
+	memcpy(cc->key, ekp->decrypted_data, cc->key_size);
+
+	return 0;
+}
+
+static int set_key_trusted(struct crypt_config *cc, struct key *key)
+{
+	const struct trusted_key_payload *tkp;
+
+	tkp = key->payload.data[0];
+	if (!tkp)
+		return -EKEYREVOKED;
+
+	if (cc->key_size != tkp->key_len)
+		return -EINVAL;
+
+	memcpy(cc->key, tkp->key, cc->key_size);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int crypt_set_keyring_key(struct crypt_config *cc, const char *key_string)
 {
 	char *new_key_string, *key_desc;
 	int ret;
+<<<<<<< HEAD
 	struct key *key;
 	const struct user_key_payload *ukp;
+=======
+	struct key_type *type;
+	struct key *key;
+	int (*set_key)(struct crypt_config *cc, struct key *key);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Reject key_string with whitespace. dm core currently lacks code for
@@ -2123,23 +3032,50 @@ static int crypt_set_keyring_key(struct crypt_config *cc, const char *key_string
 	if (!key_desc || key_desc == key_string || !strlen(key_desc + 1))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (strncmp(key_string, "logon:", key_desc - key_string + 1) &&
 	    strncmp(key_string, "user:", key_desc - key_string + 1))
 		return -EINVAL;
+=======
+	if (!strncmp(key_string, "logon:", key_desc - key_string + 1)) {
+		type = &key_type_logon;
+		set_key = set_key_user;
+	} else if (!strncmp(key_string, "user:", key_desc - key_string + 1)) {
+		type = &key_type_user;
+		set_key = set_key_user;
+	} else if (IS_ENABLED(CONFIG_ENCRYPTED_KEYS) &&
+		   !strncmp(key_string, "encrypted:", key_desc - key_string + 1)) {
+		type = &key_type_encrypted;
+		set_key = set_key_encrypted;
+	} else if (IS_ENABLED(CONFIG_TRUSTED_KEYS) &&
+	           !strncmp(key_string, "trusted:", key_desc - key_string + 1)) {
+		type = &key_type_trusted;
+		set_key = set_key_trusted;
+	} else {
+		return -EINVAL;
+	}
+>>>>>>> upstream/android-13
 
 	new_key_string = kstrdup(key_string, GFP_KERNEL);
 	if (!new_key_string)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	key = request_key(key_string[0] == 'l' ? &key_type_logon : &key_type_user,
 			  key_desc + 1, NULL);
 	if (IS_ERR(key)) {
 		kzfree(new_key_string);
+=======
+	key = request_key(type, key_desc + 1, NULL);
+	if (IS_ERR(key)) {
+		kfree_sensitive(new_key_string);
+>>>>>>> upstream/android-13
 		return PTR_ERR(key);
 	}
 
 	down_read(&key->sem);
 
+<<<<<<< HEAD
 	ukp = user_key_payload_locked(key);
 	if (!ukp) {
 		up_read(&key->sem);
@@ -2157,6 +3093,16 @@ static int crypt_set_keyring_key(struct crypt_config *cc, const char *key_string
 
 	memcpy(cc->key, ukp->data, cc->key_size);
 
+=======
+	ret = set_key(cc, key);
+	if (ret < 0) {
+		up_read(&key->sem);
+		key_put(key);
+		kfree_sensitive(new_key_string);
+		return ret;
+	}
+
+>>>>>>> upstream/android-13
 	up_read(&key->sem);
 	key_put(key);
 
@@ -2167,10 +3113,17 @@ static int crypt_set_keyring_key(struct crypt_config *cc, const char *key_string
 
 	if (!ret) {
 		set_bit(DM_CRYPT_KEY_VALID, &cc->flags);
+<<<<<<< HEAD
 		kzfree(cc->key_string);
 		cc->key_string = new_key_string;
 	} else
 		kzfree(new_key_string);
+=======
+		kfree_sensitive(cc->key_string);
+		cc->key_string = new_key_string;
+	} else
+		kfree_sensitive(new_key_string);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -2207,10 +3160,17 @@ static int crypt_set_keyring_key(struct crypt_config *cc, const char *key_string
 
 static int get_key_size(char **key_string)
 {
+<<<<<<< HEAD
 	return (*key_string[0] == ':') ? -EINVAL : strlen(*key_string) >> 1;
 }
 
 #endif
+=======
+	return (*key_string[0] == ':') ? -EINVAL : (int)(strlen(*key_string) >> 1);
+}
+
+#endif /* CONFIG_KEYS */
+>>>>>>> upstream/android-13
 
 static int crypt_set_key(struct crypt_config *cc, char *key)
 {
@@ -2231,7 +3191,11 @@ static int crypt_set_key(struct crypt_config *cc, char *key)
 	clear_bit(DM_CRYPT_KEY_VALID, &cc->flags);
 
 	/* wipe references to any kernel keyring key */
+<<<<<<< HEAD
 	kzfree(cc->key_string);
+=======
+	kfree_sensitive(cc->key_string);
+>>>>>>> upstream/android-13
 	cc->key_string = NULL;
 
 	/* Decode key from its hex representation. */
@@ -2255,7 +3219,19 @@ static int crypt_wipe_key(struct crypt_config *cc)
 
 	clear_bit(DM_CRYPT_KEY_VALID, &cc->flags);
 	get_random_bytes(&cc->key, cc->key_size);
+<<<<<<< HEAD
 	kzfree(cc->key_string);
+=======
+
+	/* Wipe IV private keys */
+	if (cc->iv_gen_ops && cc->iv_gen_ops->wipe) {
+		r = cc->iv_gen_ops->wipe(cc);
+		if (r)
+			return r;
+	}
+
+	kfree_sensitive(cc->key_string);
+>>>>>>> upstream/android-13
 	cc->key_string = NULL;
 	r = crypt_setkey(cc);
 	memset(&cc->key, 0, cc->key_size * sizeof(u8));
@@ -2265,7 +3241,11 @@ static int crypt_wipe_key(struct crypt_config *cc)
 
 static void crypt_calculate_pages_per_client(void)
 {
+<<<<<<< HEAD
 	unsigned long pages = (totalram_pages - totalhigh_pages) * DM_CRYPT_MEMORY_PERCENT / 100;
+=======
+	unsigned long pages = (totalram_pages() - totalhigh_pages()) * DM_CRYPT_MEMORY_PERCENT / 100;
+>>>>>>> upstream/android-13
 
 	if (!dm_crypt_clients_n)
 		return;
@@ -2281,7 +3261,16 @@ static void *crypt_page_alloc(gfp_t gfp_mask, void *pool_data)
 	struct crypt_config *cc = pool_data;
 	struct page *page;
 
+<<<<<<< HEAD
 	if (unlikely(percpu_counter_compare(&cc->n_allocated_pages, dm_crypt_pages_per_client) >= 0) &&
+=======
+	/*
+	 * Note, percpu_counter_read_positive() may over (and under) estimate
+	 * the current usage by at most (batch - 1) * num_online_cpus() pages,
+	 * but avoids potential spinlock contention of an exact result.
+	 */
+	if (unlikely(percpu_counter_read_positive(&cc->n_allocated_pages) >= dm_crypt_pages_per_client) &&
+>>>>>>> upstream/android-13
 	    likely(gfp_mask & __GFP_NORETRY))
 		return NULL;
 
@@ -2309,11 +3298,14 @@ static void crypt_dtr(struct dm_target *ti)
 	if (!cc)
 		return;
 
+<<<<<<< HEAD
 /* MTK PATCH */
 #if defined(CONFIG_MTK_HW_FDE)
 	if (cc->hw_fde == 0)
 #endif
 	{
+=======
+>>>>>>> upstream/android-13
 	if (cc->write_thread)
 		kthread_stop(cc->write_thread);
 
@@ -2321,17 +3313,23 @@ static void crypt_dtr(struct dm_target *ti)
 		destroy_workqueue(cc->io_queue);
 	if (cc->crypt_queue)
 		destroy_workqueue(cc->crypt_queue);
+<<<<<<< HEAD
 	}
+=======
+>>>>>>> upstream/android-13
 
 	crypt_free_tfms(cc);
 
 	bioset_exit(&cc->bs);
 
+<<<<<<< HEAD
 /* MTK PATCH */
 #if defined(CONFIG_MTK_HW_FDE)
 	if (cc->hw_fde == 0)
 #endif
 	{
+=======
+>>>>>>> upstream/android-13
 	mempool_exit(&cc->page_pool);
 	mempool_exit(&cc->req_pool);
 	mempool_exit(&cc->tag_pool);
@@ -2341,6 +3339,7 @@ static void crypt_dtr(struct dm_target *ti)
 
 	if (cc->iv_gen_ops && cc->iv_gen_ops->dtr)
 		cc->iv_gen_ops->dtr(cc);
+<<<<<<< HEAD
 	}
 	if (cc->dev)
 		dm_put_device(ti, cc->dev);
@@ -2358,15 +3357,34 @@ static void crypt_dtr(struct dm_target *ti)
 	if (cc->hw_fde == 0)
 #endif
 	{
+=======
+
+	if (cc->dev)
+		dm_put_device(ti, cc->dev);
+
+	kfree_sensitive(cc->cipher_string);
+	kfree_sensitive(cc->key_string);
+	kfree_sensitive(cc->cipher_auth);
+	kfree_sensitive(cc->authenc_key);
+
+	mutex_destroy(&cc->bio_alloc_lock);
+
+	/* Must zero key material before freeing */
+	kfree_sensitive(cc);
+
+>>>>>>> upstream/android-13
 	spin_lock(&dm_crypt_clients_lock);
 	WARN_ON(!dm_crypt_clients_n);
 	dm_crypt_clients_n--;
 	crypt_calculate_pages_per_client();
 	spin_unlock(&dm_crypt_clients_lock);
+<<<<<<< HEAD
 	}
 
 	/* Must zero key material before freeing */
 	kzfree(cc);
+=======
+>>>>>>> upstream/android-13
 }
 
 static int crypt_ctr_ivmode(struct dm_target *ti, const char *ivmode)
@@ -2402,7 +3420,20 @@ static int crypt_ctr_ivmode(struct dm_target *ti, const char *ivmode)
 		cc->iv_gen_ops = &crypt_iv_benbi_ops;
 	else if (strcmp(ivmode, "null") == 0)
 		cc->iv_gen_ops = &crypt_iv_null_ops;
+<<<<<<< HEAD
 	else if (strcmp(ivmode, "lmk") == 0) {
+=======
+	else if (strcmp(ivmode, "eboiv") == 0)
+		cc->iv_gen_ops = &crypt_iv_eboiv_ops;
+	else if (strcmp(ivmode, "elephant") == 0) {
+		cc->iv_gen_ops = &crypt_iv_elephant_ops;
+		cc->key_parts = 2;
+		cc->key_extra_size = cc->key_size / 2;
+		if (cc->key_extra_size > ELEPHANT_MAX_KEY_SIZE)
+			return -EINVAL;
+		set_bit(CRYPT_ENCRYPT_PREPROCESS, &cc->cipher_flags);
+	} else if (strcmp(ivmode, "lmk") == 0) {
+>>>>>>> upstream/android-13
 		cc->iv_gen_ops = &crypt_iv_lmk_ops;
 		/*
 		 * Version 2 and 3 is recognised according
@@ -2431,6 +3462,7 @@ static int crypt_ctr_ivmode(struct dm_target *ti, const char *ivmode)
 }
 
 /*
+<<<<<<< HEAD
  * Workaround to parse cipher algorithm from crypto API spec.
  * The cc->cipher is currently used only in ESSIV.
  * This should be probably done by crypto-api calls (once available...)
@@ -2477,6 +3509,8 @@ static int crypt_ctr_blkdev_cipher(struct crypt_config *cc)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Workaround to parse HMAC algorithm from AEAD crypto API spec.
  * The HMAC is needed to calculate tag size (HMAC digest size).
  * This should be probably done by crypto-api calls (once available...)
@@ -2499,7 +3533,11 @@ static int crypt_ctr_auth_cipher(struct crypt_config *cc, char *cipher_api)
 		return -ENOMEM;
 	strncpy(mac_alg, start, end - start);
 
+<<<<<<< HEAD
 	mac = crypto_alloc_ahash(mac_alg, 0, 0);
+=======
+	mac = crypto_alloc_ahash(mac_alg, 0, CRYPTO_ALG_ALLOCATES_MEMORY);
+>>>>>>> upstream/android-13
 	kfree(mac_alg);
 
 	if (IS_ERR(mac))
@@ -2519,7 +3557,11 @@ static int crypt_ctr_cipher_new(struct dm_target *ti, char *cipher_in, char *key
 				char **ivmode, char **ivopts)
 {
 	struct crypt_config *cc = ti->private;
+<<<<<<< HEAD
 	char *tmp, *cipher_api;
+=======
+	char *tmp, *cipher_api, buf[CRYPTO_MAX_ALG_NAME];
+>>>>>>> upstream/android-13
 	int ret = -EINVAL;
 
 	cc->tfms_count = 1;
@@ -2545,9 +3587,38 @@ static int crypt_ctr_cipher_new(struct dm_target *ti, char *cipher_in, char *key
 	/* The rest is crypto API spec */
 	cipher_api = tmp;
 
+<<<<<<< HEAD
 	if (*ivmode && !strcmp(*ivmode, "lmk"))
 		cc->tfms_count = 64;
 
+=======
+	/* Alloc AEAD, can be used only in new format. */
+	if (crypt_integrity_aead(cc)) {
+		ret = crypt_ctr_auth_cipher(cc, cipher_api);
+		if (ret < 0) {
+			ti->error = "Invalid AEAD cipher spec";
+			return -ENOMEM;
+		}
+	}
+
+	if (*ivmode && !strcmp(*ivmode, "lmk"))
+		cc->tfms_count = 64;
+
+	if (*ivmode && !strcmp(*ivmode, "essiv")) {
+		if (!*ivopts) {
+			ti->error = "Digest algorithm missing for ESSIV mode";
+			return -EINVAL;
+		}
+		ret = snprintf(buf, CRYPTO_MAX_ALG_NAME, "essiv(%s,%s)",
+			       cipher_api, *ivopts);
+		if (ret < 0 || ret >= CRYPTO_MAX_ALG_NAME) {
+			ti->error = "Cannot allocate cipher string";
+			return -ENOMEM;
+		}
+		cipher_api = buf;
+	}
+
+>>>>>>> upstream/android-13
 	cc->key_parts = cc->tfms_count;
 
 	/* Allocate cipher */
@@ -2557,6 +3628,7 @@ static int crypt_ctr_cipher_new(struct dm_target *ti, char *cipher_in, char *key
 		return ret;
 	}
 
+<<<<<<< HEAD
 	/* Alloc AEAD, can be used only in new format. */
 	if (crypt_integrity_aead(cc)) {
 		ret = crypt_ctr_auth_cipher(cc, cipher_api);
@@ -2574,6 +3646,13 @@ static int crypt_ctr_cipher_new(struct dm_target *ti, char *cipher_in, char *key
 		return -ENOMEM;
 	}
 
+=======
+	if (crypt_integrity_aead(cc))
+		cc->iv_size = crypto_aead_ivsize(any_tfm_aead(cc));
+	else
+		cc->iv_size = crypto_skcipher_ivsize(any_tfm(cc));
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -2608,10 +3687,13 @@ static int crypt_ctr_cipher_old(struct dm_target *ti, char *cipher_in, char *key
 	}
 	cc->key_parts = cc->tfms_count;
 
+<<<<<<< HEAD
 	cc->cipher = kstrdup(cipher, GFP_KERNEL);
 	if (!cc->cipher)
 		goto bad_mem;
 
+=======
+>>>>>>> upstream/android-13
 	chainmode = strsep(&tmp, "-");
 	*ivmode = strsep(&tmp, ":");
 	*ivopts = tmp;
@@ -2634,9 +3716,25 @@ static int crypt_ctr_cipher_old(struct dm_target *ti, char *cipher_in, char *key
 	if (!cipher_api)
 		goto bad_mem;
 
+<<<<<<< HEAD
 	ret = snprintf(cipher_api, CRYPTO_MAX_ALG_NAME,
 		       "%s(%s)", chainmode, cipher);
 	if (ret < 0) {
+=======
+	if (*ivmode && !strcmp(*ivmode, "essiv")) {
+		if (!*ivopts) {
+			ti->error = "Digest algorithm missing for ESSIV mode";
+			kfree(cipher_api);
+			return -EINVAL;
+		}
+		ret = snprintf(cipher_api, CRYPTO_MAX_ALG_NAME,
+			       "essiv(%s(%s),%s)", chainmode, cipher, *ivopts);
+	} else {
+		ret = snprintf(cipher_api, CRYPTO_MAX_ALG_NAME,
+			       "%s(%s)", chainmode, cipher);
+	}
+	if (ret < 0 || ret >= CRYPTO_MAX_ALG_NAME) {
+>>>>>>> upstream/android-13
 		kfree(cipher_api);
 		goto bad_mem;
 	}
@@ -2717,7 +3815,11 @@ static int crypt_ctr_optional(struct dm_target *ti, unsigned int argc, char **ar
 	struct crypt_config *cc = ti->private;
 	struct dm_arg_set as;
 	static const struct dm_arg _args[] = {
+<<<<<<< HEAD
 		{0, 6, "Invalid number of feature args"},
+=======
+		{0, 8, "Invalid number of feature args"},
+>>>>>>> upstream/android-13
 	};
 	unsigned int opt_params, val;
 	const char *opt_string, *sval;
@@ -2747,6 +3849,13 @@ static int crypt_ctr_optional(struct dm_target *ti, unsigned int argc, char **ar
 
 		else if (!strcasecmp(opt_string, "submit_from_crypt_cpus"))
 			set_bit(DM_CRYPT_NO_OFFLOAD, &cc->flags);
+<<<<<<< HEAD
+=======
+		else if (!strcasecmp(opt_string, "no_read_workqueue"))
+			set_bit(DM_CRYPT_NO_READ_WORKQUEUE, &cc->flags);
+		else if (!strcasecmp(opt_string, "no_write_workqueue"))
+			set_bit(DM_CRYPT_NO_WRITE_WORKQUEUE, &cc->flags);
+>>>>>>> upstream/android-13
 		else if (sscanf(opt_string, "integrity:%u:", &val) == 1) {
 			if (val == 0 || val > MAX_TAG_SIZE) {
 				ti->error = "Invalid integrity arguments";
@@ -2787,6 +3896,23 @@ static int crypt_ctr_optional(struct dm_target *ti, unsigned int argc, char **ar
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_BLK_DEV_ZONED
+static int crypt_report_zones(struct dm_target *ti,
+		struct dm_report_zones_args *args, unsigned int nr_zones)
+{
+	struct crypt_config *cc = ti->private;
+
+	return dm_report_zones(cc->dev->bdev, cc->start,
+			cc->start + dm_target_offset(ti, args->next_sector),
+			args, nr_zones);
+}
+#else
+#define crypt_report_zones NULL
+#endif
+
+>>>>>>> upstream/android-13
 /*
  * Construct an encryption mapping:
  * <cipher> [<key>|:<key_size>:<user|logon>:<key_description>] <iv_offset> <dev_path> <start>
@@ -2794,6 +3920,10 @@ static int crypt_ctr_optional(struct dm_target *ti, unsigned int argc, char **ar
 static int crypt_ctr(struct dm_target *ti, unsigned int argc, char **argv)
 {
 	struct crypt_config *cc;
+<<<<<<< HEAD
+=======
+	const char *devname = dm_table_device_name(ti->table);
+>>>>>>> upstream/android-13
 	int key_size;
 	unsigned int align_mask;
 	unsigned long long tmpll;
@@ -2812,7 +3942,11 @@ static int crypt_ctr(struct dm_target *ti, unsigned int argc, char **argv)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	cc = kzalloc(sizeof(*cc) + key_size * sizeof(u8), GFP_KERNEL);
+=======
+	cc = kzalloc(struct_size(cc, key, key_size), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!cc) {
 		ti->error = "Cannot allocate encryption context";
 		return -ENOMEM;
@@ -2822,6 +3956,7 @@ static int crypt_ctr(struct dm_target *ti, unsigned int argc, char **argv)
 	cc->sector_shift = 0;
 
 	ti->private = cc;
+<<<<<<< HEAD
 /* MTK PATCH */
 #if defined(CONFIG_MTK_HW_FDE)
 	cc->hw_fde = (crypt_is_hw_fde(argv[3]) == 1)?1:0;
@@ -2845,6 +3980,8 @@ static int crypt_ctr(struct dm_target *ti, unsigned int argc, char **argv)
 	} else
 #endif
 	{
+=======
+>>>>>>> upstream/android-13
 
 	spin_lock(&dm_crypt_clients_lock);
 	dm_crypt_clients_n++;
@@ -2902,11 +4039,15 @@ static int crypt_ctr(struct dm_target *ti, unsigned int argc, char **argv)
 		ti->error = "Cannot allocate crypt request mempool";
 		goto bad;
 	}
+<<<<<<< HEAD
 	}
+=======
+>>>>>>> upstream/android-13
 
 	cc->per_bio_data_size = ti->per_io_data_size =
 		ALIGN(sizeof(struct dm_crypt_io) + cc->dmreq_start + additional_req_size,
 		      ARCH_KMALLOC_MINALIGN);
+<<<<<<< HEAD
 /* MTK PATCH */
 #if defined(CONFIG_MTK_HW_FDE)
 	if (cc->hw_fde == 0)
@@ -2914,24 +4055,34 @@ static int crypt_ctr(struct dm_target *ti, unsigned int argc, char **argv)
 	{
 
 	ret = mempool_init(&cc->page_pool, BIO_MAX_PAGES, crypt_page_alloc, crypt_page_free, cc);
+=======
+
+	ret = mempool_init(&cc->page_pool, BIO_MAX_VECS, crypt_page_alloc, crypt_page_free, cc);
+>>>>>>> upstream/android-13
 	if (ret) {
 		ti->error = "Cannot allocate page mempool";
 		goto bad;
 	}
 
+<<<<<<< HEAD
 	}
+=======
+>>>>>>> upstream/android-13
 	ret = bioset_init(&cc->bs, MIN_IOS, 0, BIOSET_NEED_BVECS);
 	if (ret) {
 		ti->error = "Cannot allocate crypt bioset";
 		goto bad;
 	}
 
+<<<<<<< HEAD
 /* MTK PATCH */
 #if defined(CONFIG_MTK_HW_FDE)
 	if (cc->hw_fde == 0)
 #endif
 	{
 
+=======
+>>>>>>> upstream/android-13
 	mutex_init(&cc->bio_alloc_lock);
 
 	ret = -EINVAL;
@@ -2942,7 +4093,10 @@ static int crypt_ctr(struct dm_target *ti, unsigned int argc, char **argv)
 	}
 	cc->iv_offset = tmpll;
 
+<<<<<<< HEAD
 	}
+=======
+>>>>>>> upstream/android-13
 	ret = dm_get_device(ti, argv[3], dm_table_get_mode(ti->table), &cc->dev);
 	if (ret) {
 		ti->error = "Device lookup failed";
@@ -2956,6 +4110,33 @@ static int crypt_ctr(struct dm_target *ti, unsigned int argc, char **argv)
 	}
 	cc->start = tmpll;
 
+<<<<<<< HEAD
+=======
+	if (bdev_is_zoned(cc->dev->bdev)) {
+		/*
+		 * For zoned block devices, we need to preserve the issuer write
+		 * ordering. To do so, disable write workqueues and force inline
+		 * encryption completion.
+		 */
+		set_bit(DM_CRYPT_NO_WRITE_WORKQUEUE, &cc->flags);
+		set_bit(DM_CRYPT_WRITE_INLINE, &cc->flags);
+
+		/*
+		 * All zone append writes to a zone of a zoned block device will
+		 * have the same BIO sector, the start of the zone. When the
+		 * cypher IV mode uses sector values, all data targeting a
+		 * zone will be encrypted using the first sector numbers of the
+		 * zone. This will not result in write errors but will
+		 * cause most reads to fail as reads will use the sector values
+		 * for the actual data locations, resulting in IV mismatch.
+		 * To avoid this problem, ask DM core to emulate zone append
+		 * operations with regular writes.
+		 */
+		DMDEBUG("Zone append operations will be emulated");
+		ti->emulate_zone_append = true;
+	}
+
+>>>>>>> upstream/android-13
 	if (crypt_integrity_aead(cc) || cc->integrity_iv_size) {
 		ret = crypt_integrity_ctr(cc, ti);
 		if (ret)
@@ -2976,23 +4157,36 @@ static int crypt_ctr(struct dm_target *ti, unsigned int argc, char **argv)
 	}
 
 	ret = -ENOMEM;
+<<<<<<< HEAD
 /* MTK PATCH */
 #if defined(CONFIG_MTK_HW_FDE)
 	if (cc->hw_fde == 0)
 #endif
 	{
 	cc->io_queue = alloc_workqueue("kcryptd_io", WQ_HIGHPRI | WQ_CPU_INTENSIVE | WQ_MEM_RECLAIM, 1);
+=======
+	cc->io_queue = alloc_workqueue("kcryptd_io/%s", WQ_MEM_RECLAIM, 1, devname);
+>>>>>>> upstream/android-13
 	if (!cc->io_queue) {
 		ti->error = "Couldn't create kcryptd io queue";
 		goto bad;
 	}
 
 	if (test_bit(DM_CRYPT_SAME_CPU, &cc->flags))
+<<<<<<< HEAD
 		cc->crypt_queue = alloc_workqueue("kcryptd", WQ_HIGHPRI | WQ_CPU_INTENSIVE | WQ_MEM_RECLAIM, 1);
 	else
 		cc->crypt_queue = alloc_workqueue("kcryptd",
 						  WQ_HIGHPRI | WQ_CPU_INTENSIVE | WQ_MEM_RECLAIM | WQ_UNBOUND,
 						  num_online_cpus());
+=======
+		cc->crypt_queue = alloc_workqueue("kcryptd/%s", WQ_CPU_INTENSIVE | WQ_MEM_RECLAIM,
+						  1, devname);
+	else
+		cc->crypt_queue = alloc_workqueue("kcryptd/%s",
+						  WQ_CPU_INTENSIVE | WQ_MEM_RECLAIM | WQ_UNBOUND,
+						  num_online_cpus(), devname);
+>>>>>>> upstream/android-13
 	if (!cc->crypt_queue) {
 		ti->error = "Couldn't create kcryptd queue";
 		goto bad;
@@ -3001,7 +4195,11 @@ static int crypt_ctr(struct dm_target *ti, unsigned int argc, char **argv)
 	spin_lock_init(&cc->write_thread_lock);
 	cc->write_tree = RB_ROOT;
 
+<<<<<<< HEAD
 	cc->write_thread = kthread_create(dmcrypt_write, cc, "dmcrypt_write");
+=======
+	cc->write_thread = kthread_create(dmcrypt_write, cc, "dmcrypt_write/%s", devname);
+>>>>>>> upstream/android-13
 	if (IS_ERR(cc->write_thread)) {
 		ret = PTR_ERR(cc->write_thread);
 		cc->write_thread = NULL;
@@ -3010,8 +4208,13 @@ static int crypt_ctr(struct dm_target *ti, unsigned int argc, char **argv)
 	}
 	wake_up_process(cc->write_thread);
 
+<<<<<<< HEAD
 	}
 	ti->num_flush_bios = 1;
+=======
+	ti->num_flush_bios = 1;
+	ti->limit_swap_bios = true;
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -3039,6 +4242,7 @@ static int crypt_map(struct dm_target *ti, struct bio *bio)
 		return DM_MAPIO_REMAPPED;
 	}
 
+<<<<<<< HEAD
 /* MTK PATCH */
 #if defined(CONFIG_MTK_HW_FDE)
 	if (cc->hw_fde == 1) {
@@ -3059,6 +4263,14 @@ static int crypt_map(struct dm_target *ti, struct bio *bio)
 	if (unlikely(bio->bi_iter.bi_size > (BIO_MAX_PAGES << PAGE_SHIFT)) &&
 	    (bio_data_dir(bio) == WRITE || cc->on_disk_tag_size))
 		dm_accept_partial_bio(bio, ((BIO_MAX_PAGES << PAGE_SHIFT) >> SECTOR_SHIFT));
+=======
+	/*
+	 * Check if bio is too large, split as needed.
+	 */
+	if (unlikely(bio->bi_iter.bi_size > (BIO_MAX_VECS << PAGE_SHIFT)) &&
+	    (bio_data_dir(bio) == WRITE || cc->on_disk_tag_size))
+		dm_accept_partial_bio(bio, ((BIO_MAX_VECS << PAGE_SHIFT) >> SECTOR_SHIFT));
+>>>>>>> upstream/android-13
 
 	/*
 	 * Ensure that bio is a multiple of internal sector encryption size
@@ -3097,7 +4309,10 @@ static int crypt_map(struct dm_target *ti, struct bio *bio)
 	} else
 		kcryptd_queue_crypt(io);
 
+<<<<<<< HEAD
 	}
+=======
+>>>>>>> upstream/android-13
 	return DM_MAPIO_SUBMITTED;
 }
 
@@ -3131,6 +4346,11 @@ static void crypt_status(struct dm_target *ti, status_type_t type,
 		num_feature_args += !!ti->num_discard_bios;
 		num_feature_args += test_bit(DM_CRYPT_SAME_CPU, &cc->flags);
 		num_feature_args += test_bit(DM_CRYPT_NO_OFFLOAD, &cc->flags);
+<<<<<<< HEAD
+=======
+		num_feature_args += test_bit(DM_CRYPT_NO_READ_WORKQUEUE, &cc->flags);
+		num_feature_args += test_bit(DM_CRYPT_NO_WRITE_WORKQUEUE, &cc->flags);
+>>>>>>> upstream/android-13
 		num_feature_args += cc->sector_size != (1 << SECTOR_SHIFT);
 		num_feature_args += test_bit(CRYPT_IV_LARGE_SECTORS, &cc->cipher_flags);
 		if (cc->on_disk_tag_size)
@@ -3143,6 +4363,13 @@ static void crypt_status(struct dm_target *ti, status_type_t type,
 				DMEMIT(" same_cpu_crypt");
 			if (test_bit(DM_CRYPT_NO_OFFLOAD, &cc->flags))
 				DMEMIT(" submit_from_crypt_cpus");
+<<<<<<< HEAD
+=======
+			if (test_bit(DM_CRYPT_NO_READ_WORKQUEUE, &cc->flags))
+				DMEMIT(" no_read_workqueue");
+			if (test_bit(DM_CRYPT_NO_WRITE_WORKQUEUE, &cc->flags))
+				DMEMIT(" no_write_workqueue");
+>>>>>>> upstream/android-13
 			if (cc->on_disk_tag_size)
 				DMEMIT(" integrity:%u:%s", cc->on_disk_tag_size, cc->cipher_auth);
 			if (cc->sector_size != (1 << SECTOR_SHIFT))
@@ -3150,7 +4377,38 @@ static void crypt_status(struct dm_target *ti, status_type_t type,
 			if (test_bit(CRYPT_IV_LARGE_SECTORS, &cc->cipher_flags))
 				DMEMIT(" iv_large_sectors");
 		}
+<<<<<<< HEAD
 
+=======
+		break;
+
+	case STATUSTYPE_IMA:
+		DMEMIT_TARGET_NAME_VERSION(ti->type);
+		DMEMIT(",allow_discards=%c", ti->num_discard_bios ? 'y' : 'n');
+		DMEMIT(",same_cpu_crypt=%c", test_bit(DM_CRYPT_SAME_CPU, &cc->flags) ? 'y' : 'n');
+		DMEMIT(",submit_from_crypt_cpus=%c", test_bit(DM_CRYPT_NO_OFFLOAD, &cc->flags) ?
+		       'y' : 'n');
+		DMEMIT(",no_read_workqueue=%c", test_bit(DM_CRYPT_NO_READ_WORKQUEUE, &cc->flags) ?
+		       'y' : 'n');
+		DMEMIT(",no_write_workqueue=%c", test_bit(DM_CRYPT_NO_WRITE_WORKQUEUE, &cc->flags) ?
+		       'y' : 'n');
+		DMEMIT(",iv_large_sectors=%c", test_bit(CRYPT_IV_LARGE_SECTORS, &cc->cipher_flags) ?
+		       'y' : 'n');
+
+		if (cc->on_disk_tag_size)
+			DMEMIT(",integrity_tag_size=%u,cipher_auth=%s",
+			       cc->on_disk_tag_size, cc->cipher_auth);
+		if (cc->sector_size != (1 << SECTOR_SHIFT))
+			DMEMIT(",sector_size=%d", cc->sector_size);
+		if (cc->cipher_string)
+			DMEMIT(",cipher_string=%s", cc->cipher_string);
+
+		DMEMIT(",key_size=%u", cc->key_size);
+		DMEMIT(",key_parts=%u", cc->key_parts);
+		DMEMIT(",key_extra_size=%u", cc->key_extra_size);
+		DMEMIT(",key_mac_size=%u", cc->key_mac_size);
+		DMEMIT(";");
+>>>>>>> upstream/android-13
 		break;
 	}
 }
@@ -3217,6 +4475,7 @@ static int crypt_message(struct dm_target *ti, unsigned argc, char **argv,
 				memset(cc->key, 0, cc->key_size * sizeof(u8));
 			return ret;
 		}
+<<<<<<< HEAD
 		if (argc == 2 && !strcasecmp(argv[1], "wipe")) {
 			if (cc->iv_gen_ops && cc->iv_gen_ops->wipe) {
 				ret = cc->iv_gen_ops->wipe(cc);
@@ -3225,6 +4484,10 @@ static int crypt_message(struct dm_target *ti, unsigned argc, char **argv,
 			}
 			return crypt_wipe_key(cc);
 		}
+=======
+		if (argc == 2 && !strcasecmp(argv[1], "wipe"))
+			return crypt_wipe_key(cc);
+>>>>>>> upstream/android-13
 	}
 
 error:
@@ -3261,10 +4524,19 @@ static void crypt_io_hints(struct dm_target *ti, struct queue_limits *limits)
 
 static struct target_type crypt_target = {
 	.name   = "crypt",
+<<<<<<< HEAD
 	.version = {1, 18, 1},
 	.module = THIS_MODULE,
 	.ctr    = crypt_ctr,
 	.dtr    = crypt_dtr,
+=======
+	.version = {1, 23, 0},
+	.module = THIS_MODULE,
+	.ctr    = crypt_ctr,
+	.dtr    = crypt_dtr,
+	.features = DM_TARGET_ZONED_HM,
+	.report_zones = crypt_report_zones,
+>>>>>>> upstream/android-13
 	.map    = crypt_map,
 	.status = crypt_status,
 	.postsuspend = crypt_postsuspend,

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*******************************************************************************
  * Filename:  target_core_alua.c
  *
@@ -7,6 +11,7 @@
  *
  * Nicholas A. Bellinger <nab@kernel.org>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -21,6 +26,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
+=======
+>>>>>>> upstream/android-13
  ******************************************************************************/
 
 #include <linux/slab.h>
@@ -136,7 +143,11 @@ target_emulate_report_referrals(struct se_cmd *cmd)
 
 	transport_kunmap_data_sg(cmd);
 
+<<<<<<< HEAD
 	target_complete_cmd(cmd, GOOD);
+=======
+	target_complete_cmd(cmd, SAM_STAT_GOOD);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -268,7 +279,11 @@ target_emulate_report_target_port_groups(struct se_cmd *cmd)
 	}
 	transport_kunmap_data_sg(cmd);
 
+<<<<<<< HEAD
 	target_complete_cmd(cmd, GOOD);
+=======
+	target_complete_cmd_with_length(cmd, SAM_STAT_GOOD, rd_len + 4);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -437,6 +452,7 @@ target_emulate_set_target_port_groups(struct se_cmd *cmd)
 out:
 	transport_kunmap_data_sg(cmd);
 	if (!rc)
+<<<<<<< HEAD
 		target_complete_cmd(cmd, GOOD);
 	return rc;
 }
@@ -457,6 +473,12 @@ static inline void set_ascq(struct se_cmd *cmd, u8 alua_ascq)
 	cmd->scsi_ascq = alua_ascq;
 }
 
+=======
+		target_complete_cmd(cmd, SAM_STAT_GOOD);
+	return rc;
+}
+
+>>>>>>> upstream/android-13
 static inline void core_alua_state_nonoptimized(
 	struct se_cmd *cmd,
 	unsigned char *cdb,
@@ -471,9 +493,15 @@ static inline void core_alua_state_nonoptimized(
 	cmd->alua_nonop_delay = nonop_delay_msecs;
 }
 
+<<<<<<< HEAD
 static inline int core_alua_state_lba_dependent(
 	struct se_cmd *cmd,
 	struct t10_alua_tg_pt_gp *tg_pt_gp)
+=======
+static inline sense_reason_t core_alua_state_lba_dependent(
+	struct se_cmd *cmd,
+	u16 tg_pt_gp_id)
+>>>>>>> upstream/android-13
 {
 	struct se_device *dev = cmd->se_dev;
 	u64 segment_size, segment_mult, sectors, lba;
@@ -519,6 +547,7 @@ static inline int core_alua_state_lba_dependent(
 		}
 		if (!cur_map) {
 			spin_unlock(&dev->t10_alua.lba_map_lock);
+<<<<<<< HEAD
 			set_ascq(cmd, ASCQ_04H_ALUA_TG_PT_UNAVAILABLE);
 			return 1;
 		}
@@ -526,16 +555,30 @@ static inline int core_alua_state_lba_dependent(
 				    lba_map_mem_list) {
 			if (map_mem->lba_map_mem_alua_pg_id !=
 			    tg_pt_gp->tg_pt_gp_id)
+=======
+			return TCM_ALUA_TG_PT_UNAVAILABLE;
+		}
+		list_for_each_entry(map_mem, &cur_map->lba_map_mem_list,
+				    lba_map_mem_list) {
+			if (map_mem->lba_map_mem_alua_pg_id != tg_pt_gp_id)
+>>>>>>> upstream/android-13
 				continue;
 			switch(map_mem->lba_map_mem_alua_state) {
 			case ALUA_ACCESS_STATE_STANDBY:
 				spin_unlock(&dev->t10_alua.lba_map_lock);
+<<<<<<< HEAD
 				set_ascq(cmd, ASCQ_04H_ALUA_TG_PT_STANDBY);
 				return 1;
 			case ALUA_ACCESS_STATE_UNAVAILABLE:
 				spin_unlock(&dev->t10_alua.lba_map_lock);
 				set_ascq(cmd, ASCQ_04H_ALUA_TG_PT_UNAVAILABLE);
 				return 1;
+=======
+				return TCM_ALUA_TG_PT_STANDBY;
+			case ALUA_ACCESS_STATE_UNAVAILABLE:
+				spin_unlock(&dev->t10_alua.lba_map_lock);
+				return TCM_ALUA_TG_PT_UNAVAILABLE;
+>>>>>>> upstream/android-13
 			default:
 				break;
 			}
@@ -545,7 +588,11 @@ static inline int core_alua_state_lba_dependent(
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline int core_alua_state_standby(
+=======
+static inline sense_reason_t core_alua_state_standby(
+>>>>>>> upstream/android-13
 	struct se_cmd *cmd,
 	unsigned char *cdb)
 {
@@ -569,24 +616,36 @@ static inline int core_alua_state_standby(
 		case SAI_READ_CAPACITY_16:
 			return 0;
 		default:
+<<<<<<< HEAD
 			set_ascq(cmd, ASCQ_04H_ALUA_TG_PT_STANDBY);
 			return 1;
+=======
+			return TCM_ALUA_TG_PT_STANDBY;
+>>>>>>> upstream/android-13
 		}
 	case MAINTENANCE_IN:
 		switch (cdb[1] & 0x1f) {
 		case MI_REPORT_TARGET_PGS:
 			return 0;
 		default:
+<<<<<<< HEAD
 			set_ascq(cmd, ASCQ_04H_ALUA_TG_PT_STANDBY);
 			return 1;
+=======
+			return TCM_ALUA_TG_PT_STANDBY;
+>>>>>>> upstream/android-13
 		}
 	case MAINTENANCE_OUT:
 		switch (cdb[1]) {
 		case MO_SET_TARGET_PGS:
 			return 0;
 		default:
+<<<<<<< HEAD
 			set_ascq(cmd, ASCQ_04H_ALUA_TG_PT_STANDBY);
 			return 1;
+=======
+			return TCM_ALUA_TG_PT_STANDBY;
+>>>>>>> upstream/android-13
 		}
 	case REQUEST_SENSE:
 	case PERSISTENT_RESERVE_IN:
@@ -595,14 +654,22 @@ static inline int core_alua_state_standby(
 	case WRITE_BUFFER:
 		return 0;
 	default:
+<<<<<<< HEAD
 		set_ascq(cmd, ASCQ_04H_ALUA_TG_PT_STANDBY);
 		return 1;
+=======
+		return TCM_ALUA_TG_PT_STANDBY;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline int core_alua_state_unavailable(
+=======
+static inline sense_reason_t core_alua_state_unavailable(
+>>>>>>> upstream/android-13
 	struct se_cmd *cmd,
 	unsigned char *cdb)
 {
@@ -619,30 +686,46 @@ static inline int core_alua_state_unavailable(
 		case MI_REPORT_TARGET_PGS:
 			return 0;
 		default:
+<<<<<<< HEAD
 			set_ascq(cmd, ASCQ_04H_ALUA_TG_PT_UNAVAILABLE);
 			return 1;
+=======
+			return TCM_ALUA_TG_PT_UNAVAILABLE;
+>>>>>>> upstream/android-13
 		}
 	case MAINTENANCE_OUT:
 		switch (cdb[1]) {
 		case MO_SET_TARGET_PGS:
 			return 0;
 		default:
+<<<<<<< HEAD
 			set_ascq(cmd, ASCQ_04H_ALUA_TG_PT_UNAVAILABLE);
 			return 1;
+=======
+			return TCM_ALUA_TG_PT_UNAVAILABLE;
+>>>>>>> upstream/android-13
 		}
 	case REQUEST_SENSE:
 	case READ_BUFFER:
 	case WRITE_BUFFER:
 		return 0;
 	default:
+<<<<<<< HEAD
 		set_ascq(cmd, ASCQ_04H_ALUA_TG_PT_UNAVAILABLE);
 		return 1;
+=======
+		return TCM_ALUA_TG_PT_UNAVAILABLE;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline int core_alua_state_transition(
+=======
+static inline sense_reason_t core_alua_state_transition(
+>>>>>>> upstream/android-13
 	struct se_cmd *cmd,
 	unsigned char *cdb)
 {
@@ -659,16 +742,24 @@ static inline int core_alua_state_transition(
 		case MI_REPORT_TARGET_PGS:
 			return 0;
 		default:
+<<<<<<< HEAD
 			set_ascq(cmd, ASCQ_04H_ALUA_STATE_TRANSITION);
 			return 1;
+=======
+			return TCM_ALUA_STATE_TRANSITION;
+>>>>>>> upstream/android-13
 		}
 	case REQUEST_SENSE:
 	case READ_BUFFER:
 	case WRITE_BUFFER:
 		return 0;
 	default:
+<<<<<<< HEAD
 		set_ascq(cmd, ASCQ_04H_ALUA_STATE_TRANSITION);
 		return 1;
+=======
+		return TCM_ALUA_STATE_TRANSITION;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -687,10 +778,19 @@ target_alua_state_check(struct se_cmd *cmd)
 	struct se_lun *lun = cmd->se_lun;
 	struct t10_alua_tg_pt_gp *tg_pt_gp;
 	int out_alua_state, nonop_delay_msecs;
+<<<<<<< HEAD
 
 	if (dev->se_hba->hba_flags & HBA_FLAGS_INTERNAL_USE)
 		return 0;
 	if (dev->transport->transport_flags & TRANSPORT_FLAG_PASSTHROUGH_ALUA)
+=======
+	u16 tg_pt_gp_id;
+	sense_reason_t rc = TCM_NO_SENSE;
+
+	if (dev->se_hba->hba_flags & HBA_FLAGS_INTERNAL_USE)
+		return 0;
+	if (dev->transport_flags & TRANSPORT_FLAG_PASSTHROUGH_ALUA)
+>>>>>>> upstream/android-13
 		return 0;
 
 	/*
@@ -700,8 +800,12 @@ target_alua_state_check(struct se_cmd *cmd)
 	if (atomic_read(&lun->lun_tg_pt_secondary_offline)) {
 		pr_debug("ALUA: Got secondary offline status for local"
 				" target port\n");
+<<<<<<< HEAD
 		set_ascq(cmd, ASCQ_04H_ALUA_OFFLINE);
 		return TCM_CHECK_CONDITION_NOT_READY;
+=======
+		return TCM_ALUA_OFFLINE;
+>>>>>>> upstream/android-13
 	}
 
 	if (!lun->lun_tg_pt_gp)
@@ -711,8 +815,13 @@ target_alua_state_check(struct se_cmd *cmd)
 	tg_pt_gp = lun->lun_tg_pt_gp;
 	out_alua_state = tg_pt_gp->tg_pt_gp_alua_access_state;
 	nonop_delay_msecs = tg_pt_gp->tg_pt_gp_nonop_delay_msecs;
+<<<<<<< HEAD
 
 	// XXX: keeps using tg_pt_gp witout reference after unlock
+=======
+	tg_pt_gp_id = tg_pt_gp->tg_pt_gp_id;
+
+>>>>>>> upstream/android-13
 	spin_unlock(&lun->lun_tg_pt_gp_lock);
 	/*
 	 * Process ALUA_ACCESS_STATE_ACTIVE_OPTIMIZED in a separate conditional
@@ -728,6 +837,7 @@ target_alua_state_check(struct se_cmd *cmd)
 		core_alua_state_nonoptimized(cmd, cdb, nonop_delay_msecs);
 		break;
 	case ALUA_ACCESS_STATE_STANDBY:
+<<<<<<< HEAD
 		if (core_alua_state_standby(cmd, cdb))
 			return TCM_CHECK_CONDITION_NOT_READY;
 		break;
@@ -742,6 +852,18 @@ target_alua_state_check(struct se_cmd *cmd)
 	case ALUA_ACCESS_STATE_LBA_DEPENDENT:
 		if (core_alua_state_lba_dependent(cmd, tg_pt_gp))
 			return TCM_CHECK_CONDITION_NOT_READY;
+=======
+		rc = core_alua_state_standby(cmd, cdb);
+		break;
+	case ALUA_ACCESS_STATE_UNAVAILABLE:
+		rc = core_alua_state_unavailable(cmd, cdb);
+		break;
+	case ALUA_ACCESS_STATE_TRANSITION:
+		rc = core_alua_state_transition(cmd, cdb);
+		break;
+	case ALUA_ACCESS_STATE_LBA_DEPENDENT:
+		rc = core_alua_state_lba_dependent(cmd, tg_pt_gp_id);
+>>>>>>> upstream/android-13
 		break;
 	/*
 	 * OFFLINE is a secondary ALUA target port group access state, that is
@@ -751,10 +873,23 @@ target_alua_state_check(struct se_cmd *cmd)
 	default:
 		pr_err("Unknown ALUA access state: 0x%02x\n",
 				out_alua_state);
+<<<<<<< HEAD
 		return TCM_INVALID_CDB_FIELD;
 	}
 
 	return 0;
+=======
+		rc = TCM_INVALID_CDB_FIELD;
+	}
+
+	if (rc && rc != TCM_INVALID_CDB_FIELD) {
+		pr_debug("[%s]: ALUA TG Port not available, "
+			"SenseKey: NOT_READY, ASC/rc: 0x04/%d\n",
+			cmd->se_tfo->fabric_name, rc);
+	}
+
+	return rc;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -873,8 +1008,11 @@ int core_alua_check_nonop_delay(
 {
 	if (!(cmd->se_cmd_flags & SCF_ALUA_NON_OPTIMIZED))
 		return 0;
+<<<<<<< HEAD
 	if (in_interrupt())
 		return 0;
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * The ALUA Active/NonOptimized access state delay can be disabled
 	 * in via configfs with a value of zero
@@ -910,9 +1048,12 @@ static int core_alua_write_tpg_metadata(
 	return (ret < 0) ? -EIO : 0;
 }
 
+<<<<<<< HEAD
 /*
  * Called with tg_pt_gp->tg_pt_gp_transition_mutex held
  */
+=======
+>>>>>>> upstream/android-13
 static int core_alua_update_tpg_primary_metadata(
 	struct t10_alua_tg_pt_gp *tg_pt_gp)
 {
@@ -921,6 +1062,11 @@ static int core_alua_update_tpg_primary_metadata(
 	char *path;
 	int len, rc;
 
+<<<<<<< HEAD
+=======
+	lockdep_assert_held(&tg_pt_gp->tg_pt_gp_transition_mutex);
+
+>>>>>>> upstream/android-13
 	md_buf = kzalloc(ALUA_MD_BUF_LEN, GFP_KERNEL);
 	if (!md_buf) {
 		pr_err("Unable to allocate buf for ALUA metadata\n");
@@ -1104,7 +1250,11 @@ int core_alua_do_port_transition(
 	struct t10_alua_tg_pt_gp *tg_pt_gp;
 	int primary, valid_states, rc = 0;
 
+<<<<<<< HEAD
 	if (l_dev->transport->transport_flags & TRANSPORT_FLAG_PASSTHROUGH_ALUA)
+=======
+	if (l_dev->transport_flags & TRANSPORT_FLAG_PASSTHROUGH_ALUA)
+>>>>>>> upstream/android-13
 		return -ENODEV;
 
 	valid_states = l_tg_pt_gp->tg_pt_gp_alua_supported_states;
@@ -1229,13 +1379,21 @@ static int core_alua_update_tpg_secondary_metadata(struct se_lun *lun)
 
 	if (se_tpg->se_tpg_tfo->tpg_get_tag != NULL) {
 		path = kasprintf(GFP_KERNEL, "%s/alua/%s/%s+%hu/lun_%llu",
+<<<<<<< HEAD
 				db_root, se_tpg->se_tpg_tfo->get_fabric_name(),
+=======
+				db_root, se_tpg->se_tpg_tfo->fabric_name,
+>>>>>>> upstream/android-13
 				se_tpg->se_tpg_tfo->tpg_get_wwn(se_tpg),
 				se_tpg->se_tpg_tfo->tpg_get_tag(se_tpg),
 				lun->unpacked_lun);
 	} else {
 		path = kasprintf(GFP_KERNEL, "%s/alua/%s/%s/lun_%llu",
+<<<<<<< HEAD
 				db_root, se_tpg->se_tpg_tfo->get_fabric_name(),
+=======
+				db_root, se_tpg->se_tpg_tfo->fabric_name,
+>>>>>>> upstream/android-13
 				se_tpg->se_tpg_tfo->tpg_get_wwn(se_tpg),
 				lun->unpacked_lun);
 	}
@@ -1716,7 +1874,10 @@ int core_alua_set_tg_pt_gp_id(
 		pr_err("Maximum ALUA alua_tg_pt_gps_count:"
 			" 0x0000ffff reached\n");
 		spin_unlock(&dev->t10_alua.tg_pt_gps_lock);
+<<<<<<< HEAD
 		kmem_cache_free(t10_alua_tg_pt_gp_cache, tg_pt_gp);
+=======
+>>>>>>> upstream/android-13
 		return -ENOSPC;
 	}
 again:
@@ -1761,8 +1922,15 @@ void core_alua_free_tg_pt_gp(
 	 * can be made while we are releasing struct t10_alua_tg_pt_gp.
 	 */
 	spin_lock(&dev->t10_alua.tg_pt_gps_lock);
+<<<<<<< HEAD
 	list_del(&tg_pt_gp->tg_pt_gp_list);
 	dev->t10_alua.alua_tg_pt_gps_counter--;
+=======
+	if (tg_pt_gp->tg_pt_gp_valid_id) {
+		list_del(&tg_pt_gp->tg_pt_gp_list);
+		dev->t10_alua.alua_tg_pt_gps_count--;
+	}
+>>>>>>> upstream/android-13
 	spin_unlock(&dev->t10_alua.tg_pt_gps_lock);
 
 	/*
@@ -1932,7 +2100,11 @@ ssize_t core_alua_store_tg_pt_gp_info(
 	unsigned char buf[TG_PT_GROUP_NAME_BUF];
 	int move = 0;
 
+<<<<<<< HEAD
 	if (dev->transport->transport_flags & TRANSPORT_FLAG_PASSTHROUGH_ALUA ||
+=======
+	if (dev->transport_flags & TRANSPORT_FLAG_PASSTHROUGH_ALUA ||
+>>>>>>> upstream/android-13
 	    (dev->se_hba->hba_flags & HBA_FLAGS_INTERNAL_USE))
 		return -ENODEV;
 
@@ -2189,7 +2361,11 @@ ssize_t core_alua_store_offline_bit(
 	unsigned long tmp;
 	int ret;
 
+<<<<<<< HEAD
 	if (dev->transport->transport_flags & TRANSPORT_FLAG_PASSTHROUGH_ALUA ||
+=======
+	if (dev->transport_flags & TRANSPORT_FLAG_PASSTHROUGH_ALUA ||
+>>>>>>> upstream/android-13
 	    (dev->se_hba->hba_flags & HBA_FLAGS_INTERNAL_USE))
 		return -ENODEV;
 
@@ -2275,7 +2451,11 @@ ssize_t core_alua_store_secondary_write_metadata(
 
 int core_setup_alua(struct se_device *dev)
 {
+<<<<<<< HEAD
 	if (!(dev->transport->transport_flags &
+=======
+	if (!(dev->transport_flags &
+>>>>>>> upstream/android-13
 	     TRANSPORT_FLAG_PASSTHROUGH_ALUA) &&
 	    !(dev->se_hba->hba_flags & HBA_FLAGS_INTERNAL_USE)) {
 		struct t10_alua_lu_gp_member *lu_gp_mem;

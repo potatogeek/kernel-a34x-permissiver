@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * tmp007.c - Support for TI TMP007 IR thermopile sensor with integrated math engine
  *
  * Copyright (c) 2017 Manivannan Sadhasivam <manivannanece23@gmail.com>
  *
+<<<<<<< HEAD
  * This file is subject to the terms and conditions of version 2 of
  * the GNU General Public License.  See the file COPYING in the main
  * directory of this archive for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * Driver for the Texas Instruments I2C 16-bit IR thermopile sensor
  *
  * (7-bit I2C slave address (0x40 - 0x47), changeable via ADR pins)
@@ -15,7 +22,10 @@
  * 1. This driver assumes that the sensor has been calibrated beforehand
  * 2. Limit threshold events are enabled at the start
  * 3. Operating mode: INT
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -24,7 +34,11 @@
 #include <linux/module.h>
 #include <linux/pm.h>
 #include <linux/bitops.h>
+<<<<<<< HEAD
 #include <linux/of.h>
+=======
+#include <linux/mod_devicetable.h>
+>>>>>>> upstream/android-13
 #include <linux/irq.h>
 #include <linux/interrupt.h>
 
@@ -443,6 +457,16 @@ static bool tmp007_identify(struct i2c_client *client)
 	return (manf_id == TMP007_MANUFACTURER_MAGIC && dev_id == TMP007_DEVICE_MAGIC);
 }
 
+<<<<<<< HEAD
+=======
+static void tmp007_powerdown_action_cb(void *priv)
+{
+	struct tmp007_data *data = priv;
+
+	tmp007_powerdown(data);
+}
+
+>>>>>>> upstream/android-13
 static int tmp007_probe(struct i2c_client *client,
 			const struct i2c_device_id *tmp007_id)
 {
@@ -467,7 +491,10 @@ static int tmp007_probe(struct i2c_client *client,
 	data->client = client;
 	mutex_init(&data->lock);
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &client->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->name = "tmp007";
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->info = &tmp007_info;
@@ -494,6 +521,13 @@ static int tmp007_probe(struct i2c_client *client,
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
+=======
+	ret = devm_add_action_or_reset(&client->dev, tmp007_powerdown_action_cb, data);
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Only the following flags can activate ALERT pin. Data conversion/validity flags
 	 * flags can still be polled for getting temperature data
@@ -507,7 +541,11 @@ static int tmp007_probe(struct i2c_client *client,
 
 	ret = i2c_smbus_read_word_swapped(data->client, TMP007_STATUS_MASK);
 	if (ret < 0)
+<<<<<<< HEAD
 		goto error_powerdown;
+=======
+		return ret;
+>>>>>>> upstream/android-13
 
 	data->status_mask = ret;
 	data->status_mask |= (TMP007_STATUS_OHF | TMP007_STATUS_OLF
@@ -515,7 +553,11 @@ static int tmp007_probe(struct i2c_client *client,
 
 	ret = i2c_smbus_write_word_swapped(data->client, TMP007_STATUS_MASK, data->status_mask);
 	if (ret < 0)
+<<<<<<< HEAD
 		goto error_powerdown;
+=======
+		return ret;
+>>>>>>> upstream/android-13
 
 	if (client->irq) {
 		ret = devm_request_threaded_irq(&client->dev, client->irq,
@@ -524,6 +566,7 @@ static int tmp007_probe(struct i2c_client *client,
 				tmp007_id->name, indio_dev);
 		if (ret) {
 			dev_err(&client->dev, "irq request error %d\n", -ret);
+<<<<<<< HEAD
 			goto error_powerdown;
 		}
 	}
@@ -545,6 +588,13 @@ static int tmp007_remove(struct i2c_client *client)
 	tmp007_powerdown(data);
 
 	return 0;
+=======
+			return ret;
+		}
+	}
+
+	return devm_iio_device_register(&client->dev, indio_dev);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_PM_SLEEP
@@ -583,11 +633,18 @@ MODULE_DEVICE_TABLE(i2c, tmp007_id);
 static struct i2c_driver tmp007_driver = {
 	.driver = {
 		.name	= "tmp007",
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(tmp007_of_match),
 		.pm	= &tmp007_pm_ops,
 	},
 	.probe		= tmp007_probe,
 	.remove		= tmp007_remove,
+=======
+		.of_match_table = tmp007_of_match,
+		.pm	= &tmp007_pm_ops,
+	},
+	.probe		= tmp007_probe,
+>>>>>>> upstream/android-13
 	.id_table	= tmp007_id,
 };
 module_i2c_driver(tmp007_driver);

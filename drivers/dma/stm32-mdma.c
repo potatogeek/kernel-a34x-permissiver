@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *
  * Copyright (C) STMicroelectronics SA 2017
  * Author(s): M'boumba Cedric Madianga <cedric.madianga@gmail.com>
  *            Pierre-Yves Mordret <pierre-yves.mordret@st.com>
  *
+<<<<<<< HEAD
  * License terms: GPL V2.0.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,6 +24,11 @@
  *
  * Inspired by stm32-dma.c and dma-jz4780.c
  *
+=======
+ * Driver for STM32 MDMA controller
+ *
+ * Inspired by stm32-dma.c and dma-jz4780.c
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -37,6 +47,10 @@
 #include <linux/of_device.h>
 #include <linux/of_dma.h>
 #include <linux/platform_device.h>
+<<<<<<< HEAD
+=======
+#include <linux/pm_runtime.h>
+>>>>>>> upstream/android-13
 #include <linux/reset.h>
 #include <linux/slab.h>
 
@@ -194,7 +208,11 @@
 #define STM32_MDMA_CTBR(x)		(0x68 + 0x40 * (x))
 #define STM32_MDMA_CTBR_DBUS		BIT(17)
 #define STM32_MDMA_CTBR_SBUS		BIT(16)
+<<<<<<< HEAD
 #define STM32_MDMA_CTBR_TSEL_MASK	GENMASK(7, 0)
+=======
+#define STM32_MDMA_CTBR_TSEL_MASK	GENMASK(5, 0)
+>>>>>>> upstream/android-13
 #define STM32_MDMA_CTBR_TSEL(n)		STM32_MDMA_SET(n, \
 						      STM32_MDMA_CTBR_TSEL_MASK)
 
@@ -209,7 +227,11 @@
 #define STM32_MDMA_MAX_CHANNELS		63
 #define STM32_MDMA_MAX_REQUESTS		256
 #define STM32_MDMA_MAX_BURST		128
+<<<<<<< HEAD
 #define STM32_MDMA_VERY_HIGH_PRIORITY	0x11
+=======
+#define STM32_MDMA_VERY_HIGH_PRIORITY	0x3
+>>>>>>> upstream/android-13
 
 enum stm32_mdma_trigger_mode {
 	STM32_MDMA_BUFFER,
@@ -283,7 +305,10 @@ struct stm32_mdma_device {
 	void __iomem *base;
 	struct clk *clk;
 	int irq;
+<<<<<<< HEAD
 	struct reset_control *rst;
+=======
+>>>>>>> upstream/android-13
 	u32 nr_channels;
 	u32 nr_requests;
 	u32 nr_ahb_addr_masks;
@@ -350,7 +375,11 @@ static struct stm32_mdma_desc *stm32_mdma_alloc_desc(
 	struct stm32_mdma_desc *desc;
 	int i;
 
+<<<<<<< HEAD
 	desc = kzalloc(offsetof(typeof(*desc), node[count]), GFP_NOWAIT);
+=======
+	desc = kzalloc(struct_size(desc, node, count), GFP_NOWAIT);
+>>>>>>> upstream/android-13
 	if (!desc)
 		return NULL;
 
@@ -1357,7 +1386,11 @@ static irqreturn_t stm32_mdma_irq_handler(int irq, void *devid)
 {
 	struct stm32_mdma_device *dmadev = devid;
 	struct stm32_mdma_chan *chan = devid;
+<<<<<<< HEAD
 	u32 reg, id, ien, status, flag;
+=======
+	u32 reg, id, ccr, ien, status;
+>>>>>>> upstream/android-13
 
 	/* Find out which channel generates the interrupt */
 	status = readl_relaxed(dmadev->base + STM32_MDMA_GISR0);
@@ -1379,12 +1412,18 @@ static irqreturn_t stm32_mdma_irq_handler(int irq, void *devid)
 
 	chan = &dmadev->chan[id];
 	if (!chan) {
+<<<<<<< HEAD
 		dev_dbg(mdma2dev(dmadev), "MDMA channel not initialized\n");
 		goto exit;
+=======
+		dev_warn(mdma2dev(dmadev), "MDMA channel not initialized\n");
+		return IRQ_NONE;
+>>>>>>> upstream/android-13
 	}
 
 	/* Handle interrupt for the channel */
 	spin_lock(&chan->vchan.lock);
+<<<<<<< HEAD
 	status = stm32_mdma_read(dmadev, STM32_MDMA_CISR(chan->id));
 	ien = stm32_mdma_read(dmadev, STM32_MDMA_CCR(chan->id));
 	ien &= STM32_MDMA_CCR_IRQ_MASK;
@@ -1420,12 +1459,52 @@ static irqreturn_t stm32_mdma_irq_handler(int irq, void *devid)
 
 	case STM32_MDMA_CISR_BTIF:
 		stm32_mdma_set_bits(dmadev, reg, STM32_MDMA_CIFCR_CBTIF);
+=======
+	status = stm32_mdma_read(dmadev, STM32_MDMA_CISR(id));
+	/* Mask Channel ReQuest Active bit which can be set in case of MEM2MEM */
+	status &= ~STM32_MDMA_CISR_CRQA;
+	ccr = stm32_mdma_read(dmadev, STM32_MDMA_CCR(id));
+	ien = (ccr & STM32_MDMA_CCR_IRQ_MASK) >> 1;
+
+	if (!(status & ien)) {
+		spin_unlock(&chan->vchan.lock);
+		dev_warn(chan2dev(chan),
+			 "spurious it (status=0x%04x, ien=0x%04x)\n",
+			 status, ien);
+		return IRQ_NONE;
+	}
+
+	reg = STM32_MDMA_CIFCR(id);
+
+	if (status & STM32_MDMA_CISR_TEIF) {
+		dev_err(chan2dev(chan), "Transfer Err: stat=0x%08x\n",
+			readl_relaxed(dmadev->base + STM32_MDMA_CESR(id)));
+		stm32_mdma_set_bits(dmadev, reg, STM32_MDMA_CIFCR_CTEIF);
+		status &= ~STM32_MDMA_CISR_TEIF;
+	}
+
+	if (status & STM32_MDMA_CISR_CTCIF) {
+		stm32_mdma_set_bits(dmadev, reg, STM32_MDMA_CIFCR_CCTCIF);
+		status &= ~STM32_MDMA_CISR_CTCIF;
+		stm32_mdma_xfer_end(chan);
+	}
+
+	if (status & STM32_MDMA_CISR_BRTIF) {
+		stm32_mdma_set_bits(dmadev, reg, STM32_MDMA_CIFCR_CBRTIF);
+		status &= ~STM32_MDMA_CISR_BRTIF;
+	}
+
+	if (status & STM32_MDMA_CISR_BTIF) {
+		stm32_mdma_set_bits(dmadev, reg, STM32_MDMA_CIFCR_CBTIF);
+		status &= ~STM32_MDMA_CISR_BTIF;
+>>>>>>> upstream/android-13
 		chan->curr_hwdesc++;
 		if (chan->desc && chan->desc->cyclic) {
 			if (chan->curr_hwdesc == chan->desc->count)
 				chan->curr_hwdesc = 0;
 			vchan_cyclic_callback(&chan->desc->vdesc);
 		}
+<<<<<<< HEAD
 		break;
 
 	case STM32_MDMA_CISR_TCIF:
@@ -1435,11 +1514,28 @@ static irqreturn_t stm32_mdma_irq_handler(int irq, void *devid)
 	default:
 		dev_err(chan2dev(chan), "it %d unhandled (status=0x%04x)\n",
 			1 << flag, status);
+=======
+	}
+
+	if (status & STM32_MDMA_CISR_TCIF) {
+		stm32_mdma_set_bits(dmadev, reg, STM32_MDMA_CIFCR_CLTCIF);
+		status &= ~STM32_MDMA_CISR_TCIF;
+	}
+
+	if (status) {
+		stm32_mdma_set_bits(dmadev, reg, status);
+		dev_err(chan2dev(chan), "DMA error: status=0x%08x\n", status);
+		if (!(ccr & STM32_MDMA_CCR_EN))
+			dev_err(chan2dev(chan), "chan disabled by HW\n");
+>>>>>>> upstream/android-13
 	}
 
 	spin_unlock(&chan->vchan.lock);
 
+<<<<<<< HEAD
 exit:
+=======
+>>>>>>> upstream/android-13
 	return IRQ_HANDLED;
 }
 
@@ -1459,6 +1555,7 @@ static int stm32_mdma_alloc_chan_resources(struct dma_chan *c)
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	ret = clk_prepare_enable(dmadev->clk);
 	if (ret < 0) {
 		dev_err(chan2dev(chan), "clk_prepare_enable failed: %d\n", ret);
@@ -1468,6 +1565,15 @@ static int stm32_mdma_alloc_chan_resources(struct dma_chan *c)
 	ret = stm32_mdma_disable_chan(chan);
 	if (ret < 0)
 		clk_disable_unprepare(dmadev->clk);
+=======
+	ret = pm_runtime_resume_and_get(dmadev->ddev.dev);
+	if (ret < 0)
+		return ret;
+
+	ret = stm32_mdma_disable_chan(chan);
+	if (ret < 0)
+		pm_runtime_put(dmadev->ddev.dev);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -1487,7 +1593,11 @@ static void stm32_mdma_free_chan_resources(struct dma_chan *c)
 		spin_unlock_irqrestore(&chan->vchan.lock, flags);
 	}
 
+<<<<<<< HEAD
 	clk_disable_unprepare(dmadev->clk);
+=======
+	pm_runtime_put(dmadev->ddev.dev);
+>>>>>>> upstream/android-13
 	vchan_free_chan_resources(to_virt_chan(c));
 	dmam_pool_destroy(chan->desc_pool);
 	chan->desc_pool = NULL;
@@ -1547,6 +1657,10 @@ static int stm32_mdma_probe(struct platform_device *pdev)
 	struct dma_device *dd;
 	struct device_node *of_node;
 	struct resource *res;
+<<<<<<< HEAD
+=======
+	struct reset_control *rst;
+>>>>>>> upstream/android-13
 	u32 nr_channels, nr_requests;
 	int i, count, ret;
 
@@ -1570,8 +1684,12 @@ static int stm32_mdma_probe(struct platform_device *pdev)
 			 nr_requests);
 	}
 
+<<<<<<< HEAD
 	count = device_property_read_u32_array(&pdev->dev, "st,ahb-addr-masks",
 					       NULL, 0);
+=======
+	count = device_property_count_u32(&pdev->dev, "st,ahb-addr-masks");
+>>>>>>> upstream/android-13
 	if (count < 0)
 		count = 0;
 
@@ -1593,6 +1711,7 @@ static int stm32_mdma_probe(struct platform_device *pdev)
 		return PTR_ERR(dmadev->base);
 
 	dmadev->clk = devm_clk_get(&pdev->dev, NULL);
+<<<<<<< HEAD
 	if (IS_ERR(dmadev->clk)) {
 		ret = PTR_ERR(dmadev->clk);
 		if (ret == -EPROBE_DEFER)
@@ -1605,6 +1724,27 @@ static int stm32_mdma_probe(struct platform_device *pdev)
 		reset_control_assert(dmadev->rst);
 		udelay(2);
 		reset_control_deassert(dmadev->rst);
+=======
+	if (IS_ERR(dmadev->clk))
+		return dev_err_probe(&pdev->dev, PTR_ERR(dmadev->clk),
+				     "Missing clock controller\n");
+
+	ret = clk_prepare_enable(dmadev->clk);
+	if (ret < 0) {
+		dev_err(&pdev->dev, "clk_prep_enable error: %d\n", ret);
+		return ret;
+	}
+
+	rst = devm_reset_control_get(&pdev->dev, NULL);
+	if (IS_ERR(rst)) {
+		ret = PTR_ERR(rst);
+		if (ret == -EPROBE_DEFER)
+			goto err_clk;
+	} else {
+		reset_control_assert(rst);
+		udelay(2);
+		reset_control_deassert(rst);
+>>>>>>> upstream/android-13
 	}
 
 	dd = &dmadev->ddev;
@@ -1624,6 +1764,11 @@ static int stm32_mdma_probe(struct platform_device *pdev)
 	dd->device_resume = stm32_mdma_resume;
 	dd->device_terminate_all = stm32_mdma_terminate_all;
 	dd->device_synchronize = stm32_mdma_synchronize;
+<<<<<<< HEAD
+=======
+	dd->descriptor_reuse = true;
+
+>>>>>>> upstream/android-13
 	dd->src_addr_widths = BIT(DMA_SLAVE_BUSWIDTH_1_BYTE) |
 		BIT(DMA_SLAVE_BUSWIDTH_2_BYTES) |
 		BIT(DMA_SLAVE_BUSWIDTH_4_BYTES) |
@@ -1648,45 +1793,145 @@ static int stm32_mdma_probe(struct platform_device *pdev)
 
 	dmadev->irq = platform_get_irq(pdev, 0);
 	if (dmadev->irq < 0) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "failed to get IRQ\n");
 		return dmadev->irq;
+=======
+		ret = dmadev->irq;
+		goto err_clk;
+>>>>>>> upstream/android-13
 	}
 
 	ret = devm_request_irq(&pdev->dev, dmadev->irq, stm32_mdma_irq_handler,
 			       0, dev_name(&pdev->dev), dmadev);
 	if (ret) {
 		dev_err(&pdev->dev, "failed to request IRQ\n");
+<<<<<<< HEAD
 		return ret;
 	}
 
 	ret = dma_async_device_register(dd);
 	if (ret)
 		return ret;
+=======
+		goto err_clk;
+	}
+
+	ret = dmaenginem_async_device_register(dd);
+	if (ret)
+		goto err_clk;
+>>>>>>> upstream/android-13
 
 	ret = of_dma_controller_register(of_node, stm32_mdma_of_xlate, dmadev);
 	if (ret < 0) {
 		dev_err(&pdev->dev,
 			"STM32 MDMA DMA OF registration failed %d\n", ret);
+<<<<<<< HEAD
 		goto err_unregister;
 	}
 
 	platform_set_drvdata(pdev, dmadev);
+=======
+		goto err_clk;
+	}
+
+	platform_set_drvdata(pdev, dmadev);
+	pm_runtime_set_active(&pdev->dev);
+	pm_runtime_enable(&pdev->dev);
+	pm_runtime_get_noresume(&pdev->dev);
+	pm_runtime_put(&pdev->dev);
+>>>>>>> upstream/android-13
 
 	dev_info(&pdev->dev, "STM32 MDMA driver registered\n");
 
 	return 0;
 
+<<<<<<< HEAD
 err_unregister:
 	dma_async_device_unregister(dd);
+=======
+err_clk:
+	clk_disable_unprepare(dmadev->clk);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PM
+static int stm32_mdma_runtime_suspend(struct device *dev)
+{
+	struct stm32_mdma_device *dmadev = dev_get_drvdata(dev);
+
+	clk_disable_unprepare(dmadev->clk);
+
+	return 0;
+}
+
+static int stm32_mdma_runtime_resume(struct device *dev)
+{
+	struct stm32_mdma_device *dmadev = dev_get_drvdata(dev);
+	int ret;
+
+	ret = clk_prepare_enable(dmadev->clk);
+	if (ret) {
+		dev_err(dev, "failed to prepare_enable clock\n");
+		return ret;
+	}
+
+	return 0;
+}
+#endif
+
+#ifdef CONFIG_PM_SLEEP
+static int stm32_mdma_pm_suspend(struct device *dev)
+{
+	struct stm32_mdma_device *dmadev = dev_get_drvdata(dev);
+	u32 ccr, id;
+	int ret;
+
+	ret = pm_runtime_resume_and_get(dev);
+	if (ret < 0)
+		return ret;
+
+	for (id = 0; id < dmadev->nr_channels; id++) {
+		ccr = stm32_mdma_read(dmadev, STM32_MDMA_CCR(id));
+		if (ccr & STM32_MDMA_CCR_EN) {
+			dev_warn(dev, "Suspend is prevented by Chan %i\n", id);
+			return -EBUSY;
+		}
+	}
+
+	pm_runtime_put_sync(dev);
+
+	pm_runtime_force_suspend(dev);
+
+	return 0;
+}
+
+static int stm32_mdma_pm_resume(struct device *dev)
+{
+	return pm_runtime_force_resume(dev);
+}
+#endif
+
+static const struct dev_pm_ops stm32_mdma_pm_ops = {
+	SET_SYSTEM_SLEEP_PM_OPS(stm32_mdma_pm_suspend, stm32_mdma_pm_resume)
+	SET_RUNTIME_PM_OPS(stm32_mdma_runtime_suspend,
+			   stm32_mdma_runtime_resume, NULL)
+};
+
+>>>>>>> upstream/android-13
 static struct platform_driver stm32_mdma_driver = {
 	.probe = stm32_mdma_probe,
 	.driver = {
 		.name = "stm32-mdma",
 		.of_match_table = stm32_mdma_of_match,
+<<<<<<< HEAD
+=======
+		.pm = &stm32_mdma_pm_ops,
+>>>>>>> upstream/android-13
 	},
 };
 

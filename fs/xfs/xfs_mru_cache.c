@@ -294,7 +294,11 @@ int
 xfs_mru_cache_init(void)
 {
 	xfs_mru_reap_wq = alloc_workqueue("xfs_mru_cache",
+<<<<<<< HEAD
 				WQ_MEM_RECLAIM|WQ_FREEZABLE, 1);
+=======
+			XFS_WQFLAGS(WQ_MEM_RECLAIM | WQ_FREEZABLE), 1);
+>>>>>>> upstream/android-13
 	if (!xfs_mru_reap_wq)
 		return -ENOMEM;
 	return 0;
@@ -333,12 +337,20 @@ xfs_mru_cache_create(
 	if (!(grp_time = msecs_to_jiffies(lifetime_ms) / grp_count))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (!(mru = kmem_zalloc(sizeof(*mru), KM_SLEEP)))
+=======
+	if (!(mru = kmem_zalloc(sizeof(*mru), 0)))
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 
 	/* An extra list is needed to avoid reaping up to a grp_time early. */
 	mru->grp_count = grp_count + 1;
+<<<<<<< HEAD
 	mru->lists = kmem_zalloc(mru->grp_count * sizeof(*mru->lists), KM_SLEEP);
+=======
+	mru->lists = kmem_zalloc(mru->grp_count * sizeof(*mru->lists), 0);
+>>>>>>> upstream/android-13
 
 	if (!mru->lists) {
 		err = -ENOMEM;

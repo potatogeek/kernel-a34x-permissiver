@@ -17,7 +17,11 @@
 #include "rc-core-priv.h"
 
 #define SANYO_NBITS		(13+13+8+8)
+<<<<<<< HEAD
 #define SANYO_UNIT		562500  /* ns */
+=======
+#define SANYO_UNIT		563  /* us */
+>>>>>>> upstream/android-13
 #define SANYO_HEADER_PULSE	(16  * SANYO_UNIT)
 #define SANYO_HEADER_SPACE	(8   * SANYO_UNIT)
 #define SANYO_BIT_PULSE		(1   * SANYO_UNIT)
@@ -59,7 +63,11 @@ static int ir_sanyo_decode(struct rc_dev *dev, struct ir_raw_event ev)
 	}
 
 	dev_dbg(&dev->dev, "SANYO decode started at state %d (%uus %s)\n",
+<<<<<<< HEAD
 		data->state, TO_US(ev.duration), TO_STR(ev.pulse));
+=======
+		data->state, ev.duration, TO_STR(ev.pulse));
+>>>>>>> upstream/android-13
 
 	switch (data->state) {
 
@@ -158,7 +166,11 @@ static int ir_sanyo_decode(struct rc_dev *dev, struct ir_raw_event ev)
 	}
 
 	dev_dbg(&dev->dev, "SANYO decode failed at count %d state %d (%uus %s)\n",
+<<<<<<< HEAD
 		data->count, data->state, TO_US(ev.duration), TO_STR(ev.pulse));
+=======
+		data->count, data->state, ev.duration, TO_STR(ev.pulse));
+>>>>>>> upstream/android-13
 	data->state = STATE_INACTIVE;
 	return -EINVAL;
 }

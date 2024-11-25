@@ -12,3 +12,12 @@ pstore-$(CONFIG_PSTORE_PMSG)	+= pmsg.o
 
 ramoops-objs += ram.o ram_core.o
 obj-$(CONFIG_PSTORE_RAM)	+= ramoops.o
+<<<<<<< HEAD
+=======
+
+pstore_zone-objs += zone.o
+obj-$(CONFIG_PSTORE_ZONE)	+= pstore_zone.o
+
+pstore_blk-objs += blk.o
+obj-$(CONFIG_PSTORE_BLK)	+= pstore_blk.o
+>>>>>>> upstream/android-13

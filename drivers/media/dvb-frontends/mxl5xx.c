@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Driver for the MaxLinear MxL5xx family of tuners/demods
  *
@@ -17,7 +21,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -27,7 +34,10 @@
 #include <linux/delay.h>
 #include <linux/firmware.h>
 #include <linux/i2c.h>
+<<<<<<< HEAD
 #include <linux/version.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/mutex.h>
 #include <linux/vmalloc.h>
 #include <asm/div64.h>
@@ -739,6 +749,10 @@ static int get_frontend(struct dvb_frontend *fe,
 		default:
 			break;
 		}
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SYS_DVBS:
 		switch ((enum MXL_HYDRA_MODULATION_E)
 			reg_data[DMD_MODULATION_SCHEME_ADDR]) {
@@ -780,7 +794,11 @@ static int set_input(struct dvb_frontend *fe, int input)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct dvb_frontend_ops mxl_ops = {
+=======
+static const struct dvb_frontend_ops mxl_ops = {
+>>>>>>> upstream/android-13
 	.delsys = { SYS_DVBS, SYS_DVBS2, SYS_DSS },
 	.info = {
 		.name			= "MaxLinear MxL5xx DVB-S/S2 tuner-demodulator",
@@ -1893,4 +1911,8 @@ EXPORT_SYMBOL_GPL(mxl5xx_attach);
 
 MODULE_DESCRIPTION("MaxLinear MxL5xx DVB-S/S2 tuner-demodulator driver");
 MODULE_AUTHOR("Ralph and Marcus Metzler, Metzler Brothers Systementwicklung GbR");
+<<<<<<< HEAD
 MODULE_LICENSE("GPL");
+=======
+MODULE_LICENSE("GPL v2");
+>>>>>>> upstream/android-13

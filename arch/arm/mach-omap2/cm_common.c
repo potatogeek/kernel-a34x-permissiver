@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * OMAP2+ common Clock Management (CM) IP block functions
  *
  * Copyright (C) 2012 Texas Instruments, Inc.
  * Paul Walmsley
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * XXX This code should eventually be moved to a CM driver.
  */
 
@@ -41,6 +48,7 @@ struct omap_domain_base cm2_base;
 #define CM_SINGLE_INSTANCE	0x2
 
 /**
+<<<<<<< HEAD
  * omap2_set_globals_cm - set the CM/CM2 base addresses (for early use)
  * @cm: CM base virtual address
  * @cm2: CM2 base virtual address (if present on the booted SoC)
@@ -54,6 +62,8 @@ void __init omap2_set_globals_cm(void __iomem *cm, void __iomem *cm2)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * cm_split_idlest_reg - split CM_IDLEST reg addr into its components
  * @idlest_reg: CM_IDLEST* virtual address
  * @prcm_inst: pointer to an s16 to return the PRCM instance offset

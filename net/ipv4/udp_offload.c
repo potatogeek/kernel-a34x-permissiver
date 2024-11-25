@@ -1,20 +1,31 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	IPV4 GSO/GRO offload support
  *	Linux INET implementation
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *	UDPv4 GSO support
  */
 
 #include <linux/skbuff.h>
 #include <net/udp.h>
 #include <net/protocol.h>
+<<<<<<< HEAD
 
 #define UDP_GRO_DISABLED 5
+=======
+#include <net/inet_common.h>
+>>>>>>> upstream/android-13
 
 static struct sk_buff *__skb_udp_tunnel_segment(struct sk_buff *skb,
 	netdev_features_t features,
@@ -54,6 +65,10 @@ static struct sk_buff *__skb_udp_tunnel_segment(struct sk_buff *skb,
 	__skb_pull(skb, tnl_hlen);
 	skb_reset_mac_header(skb);
 	skb_set_network_header(skb, skb_inner_network_offset(skb));
+<<<<<<< HEAD
+=======
+	skb_set_transport_header(skb, skb_inner_transport_offset(skb));
+>>>>>>> upstream/android-13
 	skb->mac_len = skb_inner_network_offset(skb);
 	skb->protocol = new_protocol;
 
@@ -72,6 +87,11 @@ static struct sk_buff *__skb_udp_tunnel_segment(struct sk_buff *skb,
 				      (NETIF_F_HW_CSUM | NETIF_F_IP_CSUM))));
 
 	features &= skb->dev->hw_enc_features;
+<<<<<<< HEAD
+=======
+	if (need_csum)
+		features &= ~NETIF_F_SCTP_CRC;
+>>>>>>> upstream/android-13
 
 	/* The only checksum offload we care about from here on out is the
 	 * outer one so strip the existing checksum feature flags and
@@ -154,8 +174,13 @@ struct sk_buff *skb_udp_tunnel_segment(struct sk_buff *skb,
 				       netdev_features_t features,
 				       bool is_ipv6)
 {
+<<<<<<< HEAD
 	__be16 protocol = skb->protocol;
 	const struct net_offload **offloads;
+=======
+	const struct net_offload __rcu **offloads;
+	__be16 protocol = skb->protocol;
+>>>>>>> upstream/android-13
 	const struct net_offload *ops;
 	struct sk_buff *segs = ERR_PTR(-EINVAL);
 	struct sk_buff *(*gso_inner_segment)(struct sk_buff *skb,
@@ -189,8 +214,86 @@ out_unlock:
 }
 EXPORT_SYMBOL(skb_udp_tunnel_segment);
 
+<<<<<<< HEAD
 struct sk_buff *__udp_gso_segment(struct sk_buff *gso_skb,
 				  netdev_features_t features)
+=======
+static void __udpv4_gso_segment_csum(struct sk_buff *seg,
+				     __be32 *oldip, __be32 *newip,
+				     __be16 *oldport, __be16 *newport)
+{
+	struct udphdr *uh;
+	struct iphdr *iph;
+
+	if (*oldip == *newip && *oldport == *newport)
+		return;
+
+	uh = udp_hdr(seg);
+	iph = ip_hdr(seg);
+
+	if (uh->check) {
+		inet_proto_csum_replace4(&uh->check, seg, *oldip, *newip,
+					 true);
+		inet_proto_csum_replace2(&uh->check, seg, *oldport, *newport,
+					 false);
+		if (!uh->check)
+			uh->check = CSUM_MANGLED_0;
+	}
+	*oldport = *newport;
+
+	csum_replace4(&iph->check, *oldip, *newip);
+	*oldip = *newip;
+}
+
+static struct sk_buff *__udpv4_gso_segment_list_csum(struct sk_buff *segs)
+{
+	struct sk_buff *seg;
+	struct udphdr *uh, *uh2;
+	struct iphdr *iph, *iph2;
+
+	seg = segs;
+	uh = udp_hdr(seg);
+	iph = ip_hdr(seg);
+
+	if ((udp_hdr(seg)->dest == udp_hdr(seg->next)->dest) &&
+	    (udp_hdr(seg)->source == udp_hdr(seg->next)->source) &&
+	    (ip_hdr(seg)->daddr == ip_hdr(seg->next)->daddr) &&
+	    (ip_hdr(seg)->saddr == ip_hdr(seg->next)->saddr))
+		return segs;
+
+	while ((seg = seg->next)) {
+		uh2 = udp_hdr(seg);
+		iph2 = ip_hdr(seg);
+
+		__udpv4_gso_segment_csum(seg,
+					 &iph2->saddr, &iph->saddr,
+					 &uh2->source, &uh->source);
+		__udpv4_gso_segment_csum(seg,
+					 &iph2->daddr, &iph->daddr,
+					 &uh2->dest, &uh->dest);
+	}
+
+	return segs;
+}
+
+static struct sk_buff *__udp_gso_segment_list(struct sk_buff *skb,
+					      netdev_features_t features,
+					      bool is_ipv6)
+{
+	unsigned int mss = skb_shinfo(skb)->gso_size;
+
+	skb = skb_segment_list(skb, features, skb_mac_header_len(skb));
+	if (IS_ERR(skb))
+		return skb;
+
+	udp_hdr(skb)->len = htons(sizeof(struct udphdr) + mss);
+
+	return is_ipv6 ? skb : __udpv4_gso_segment_list_csum(skb);
+}
+
+struct sk_buff *__udp_gso_segment(struct sk_buff *gso_skb,
+				  netdev_features_t features, bool is_ipv6)
+>>>>>>> upstream/android-13
 {
 	struct sock *sk = gso_skb->sk;
 	unsigned int sum_truesize = 0;
@@ -201,6 +304,12 @@ struct sk_buff *__udp_gso_segment(struct sk_buff *gso_skb,
 	__sum16 check;
 	__be16 newlen;
 
+<<<<<<< HEAD
+=======
+	if (skb_shinfo(gso_skb)->gso_type & SKB_GSO_FRAGLIST)
+		return __udp_gso_segment_list(gso_skb, features, is_ipv6);
+
+>>>>>>> upstream/android-13
 	mss = skb_shinfo(gso_skb)->gso_size;
 	if (gso_skb->len <= sizeof(*uh) + mss)
 		return ERR_PTR(-EINVAL);
@@ -213,7 +322,11 @@ struct sk_buff *__udp_gso_segment(struct sk_buff *gso_skb,
 		gso_skb->destructor = NULL;
 
 	segs = skb_segment(gso_skb, features);
+<<<<<<< HEAD
 	if (unlikely(IS_ERR_OR_NULL(segs))) {
+=======
+	if (IS_ERR_OR_NULL(segs)) {
+>>>>>>> upstream/android-13
 		if (copy_dtor)
 			gso_skb->destructor = sock_wfree;
 		return segs;
@@ -313,7 +426,11 @@ static struct sk_buff *udp4_ufo_fragment(struct sk_buff *skb,
 		goto out;
 
 	if (skb_shinfo(skb)->gso_type & SKB_GSO_UDP_L4)
+<<<<<<< HEAD
 		return __udp_gso_segment(skb, features);
+=======
+		return __udp_gso_segment(skb, features, false);
+>>>>>>> upstream/android-13
 
 	mss = skb_shinfo(skb)->gso_size;
 	if (unlikely(skb->len <= mss))
@@ -354,11 +471,19 @@ out:
 static struct sk_buff *udp_gro_receive_segment(struct list_head *head,
 					       struct sk_buff *skb)
 {
+<<<<<<< HEAD
 	struct udphdr *uh = udp_hdr(skb);
+=======
+	struct udphdr *uh = udp_gro_udphdr(skb);
+>>>>>>> upstream/android-13
 	struct sk_buff *pp = NULL;
 	struct udphdr *uh2;
 	struct sk_buff *p;
 	unsigned int ulen;
+<<<<<<< HEAD
+=======
+	int ret = 0;
+>>>>>>> upstream/android-13
 
 	/* requires non zero csum, for symmetry with GSO */
 	if (!uh->check) {
@@ -374,7 +499,10 @@ static struct sk_buff *udp_gro_receive_segment(struct list_head *head,
 	}
 	/* pull encapsulating udp header */
 	skb_gro_pull(skb, sizeof(struct udphdr));
+<<<<<<< HEAD
 	skb_gro_postpull_rcsum(skb, uh, sizeof(struct udphdr));
+=======
+>>>>>>> upstream/android-13
 
 	list_for_each_entry(p, head, list) {
 		if (!NAPI_GRO_CB(p)->same_flow)
@@ -388,14 +516,48 @@ static struct sk_buff *udp_gro_receive_segment(struct list_head *head,
 			continue;
 		}
 
+<<<<<<< HEAD
+=======
+		if (NAPI_GRO_CB(skb)->is_flist != NAPI_GRO_CB(p)->is_flist) {
+			NAPI_GRO_CB(skb)->flush = 1;
+			return p;
+		}
+
+>>>>>>> upstream/android-13
 		/* Terminate the flow on len mismatch or if it grow "too much".
 		 * Under small packet flood GRO count could elsewhere grow a lot
 		 * leading to excessive truesize values.
 		 * On len mismatch merge the first packet shorter than gso_size,
 		 * otherwise complete the GRO packet.
 		 */
+<<<<<<< HEAD
 		if (ulen > ntohs(uh2->len) || skb_gro_receive(p, skb) ||
 		    ulen != ntohs(uh2->len) ||
+=======
+		if (ulen > ntohs(uh2->len)) {
+			pp = p;
+		} else {
+			if (NAPI_GRO_CB(skb)->is_flist) {
+				if (!pskb_may_pull(skb, skb_gro_offset(skb))) {
+					NAPI_GRO_CB(skb)->flush = 1;
+					return NULL;
+				}
+				if ((skb->ip_summed != p->ip_summed) ||
+				    (skb->csum_level != p->csum_level)) {
+					NAPI_GRO_CB(skb)->flush = 1;
+					return NULL;
+				}
+				ret = skb_gro_receive_list(p, skb);
+			} else {
+				skb_gro_postpull_rcsum(skb, uh,
+						       sizeof(struct udphdr));
+
+				ret = skb_gro_receive(p, skb);
+			}
+		}
+
+		if (ret || ulen != ntohs(uh2->len) ||
+>>>>>>> upstream/android-13
 		    NAPI_GRO_CB(p)->count >= UDP_GRO_CNT_MAX)
 			pp = p;
 
@@ -414,6 +576,7 @@ struct sk_buff *udp_gro_receive(struct list_head *head, struct sk_buff *skb,
 	struct udphdr *uh2;
 	unsigned int off = skb_gro_offset(skb);
 	int flush = 1;
+<<<<<<< HEAD
 	struct sock *sk_gro;
 
 	if (unlikely(!uh))
@@ -430,13 +593,35 @@ struct sk_buff *udp_gro_receive(struct list_head *head, struct sk_buff *skb,
 	if (!sk || !udp_sk(sk)->gro_receive) {
 		pp = call_gro_receive(udp_gro_receive_segment, head, skb);
 		return pp;
+=======
+
+	/* we can do L4 aggregation only if the packet can't land in a tunnel
+	 * otherwise we could corrupt the inner stream
+	 */
+	NAPI_GRO_CB(skb)->is_flist = 0;
+	if (!sk || !udp_sk(sk)->gro_receive) {
+		if (skb->dev->features & NETIF_F_GRO_FRAGLIST)
+			NAPI_GRO_CB(skb)->is_flist = sk ? !udp_sk(sk)->gro_enabled : 1;
+
+		if ((!sk && (skb->dev->features & NETIF_F_GRO_UDP_FWD)) ||
+		    (sk && udp_sk(sk)->gro_enabled) || NAPI_GRO_CB(skb)->is_flist)
+			return call_gro_receive(udp_gro_receive_segment, head, skb);
+
+		/* no GRO, be sure flush the current packet */
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	if (NAPI_GRO_CB(skb)->encap_mark ||
 	    (uh->check && skb->ip_summed != CHECKSUM_PARTIAL &&
 	     NAPI_GRO_CB(skb)->csum_cnt == 0 &&
+<<<<<<< HEAD
 		 !NAPI_GRO_CB(skb)->csum_valid))
  		 goto out;
+=======
+	     !NAPI_GRO_CB(skb)->csum_valid))
+		goto out;
+>>>>>>> upstream/android-13
 
 	/* mark that this skb passed once through the tunnel gro layer */
 	NAPI_GRO_CB(skb)->encap_mark = 1;
@@ -469,12 +654,31 @@ out:
 }
 EXPORT_SYMBOL(udp_gro_receive);
 
+<<<<<<< HEAD
 static struct sk_buff *udp4_gro_receive(struct list_head *head,
 					struct sk_buff *skb)
 {
 	struct udphdr *uh = udp_gro_udphdr(skb);
 	struct sk_buff *pp;
 	struct sock *sk;
+=======
+static struct sock *udp4_gro_lookup_skb(struct sk_buff *skb, __be16 sport,
+					__be16 dport)
+{
+	const struct iphdr *iph = skb_gro_network_header(skb);
+
+	return __udp4_lib_lookup(dev_net(skb->dev), iph->saddr, sport,
+				 iph->daddr, dport, inet_iif(skb),
+				 inet_sdif(skb), &udp_table, NULL);
+}
+
+INDIRECT_CALLABLE_SCOPE
+struct sk_buff *udp4_gro_receive(struct list_head *head, struct sk_buff *skb)
+{
+	struct udphdr *uh = udp_gro_udphdr(skb);
+	struct sock *sk = NULL;
+	struct sk_buff *pp;
+>>>>>>> upstream/android-13
 
 	if (unlikely(!uh))
 		goto flush;
@@ -487,12 +691,23 @@ static struct sk_buff *udp4_gro_receive(struct list_head *head,
 						 inet_gro_compute_pseudo))
 		goto flush;
 	else if (uh->check)
+<<<<<<< HEAD
 		skb_gro_checksum_try_convert(skb, IPPROTO_UDP, uh->check,
+=======
+		skb_gro_checksum_try_convert(skb, IPPROTO_UDP,
+>>>>>>> upstream/android-13
 					     inet_gro_compute_pseudo);
 skip:
 	NAPI_GRO_CB(skb)->is_ipv6 = 0;
 	rcu_read_lock();
+<<<<<<< HEAD
 	sk = static_branch_unlikely(&udp_encap_needed_key) ? udp4_lib_lookup_skb(skb, uh->source, uh->dest) : NULL;
+=======
+
+	if (static_branch_unlikely(&udp_encap_needed_key))
+		sk = udp4_gro_lookup_skb(skb, uh->source, uh->dest);
+
+>>>>>>> upstream/android-13
 	pp = udp_gro_receive(head, skb, uh, sk);
 	rcu_read_unlock();
 	return pp;
@@ -512,6 +727,13 @@ static int udp_gro_complete_segment(struct sk_buff *skb)
 
 	skb_shinfo(skb)->gso_segs = NAPI_GRO_CB(skb)->count;
 	skb_shinfo(skb)->gso_type |= SKB_GSO_UDP_L4;
+<<<<<<< HEAD
+=======
+
+	if (skb->encapsulation)
+		skb->inner_transport_header = skb->transport_header;
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -520,17 +742,35 @@ int udp_gro_complete(struct sk_buff *skb, int nhoff,
 {
 	__be16 newlen = htons(skb->len - nhoff);
 	struct udphdr *uh = (struct udphdr *)(skb->data + nhoff);
+<<<<<<< HEAD
 	int err = -ENOSYS;
 	struct sock *sk;
+=======
+	struct sock *sk;
+	int err;
+>>>>>>> upstream/android-13
 
 	uh->len = newlen;
 
 	rcu_read_lock();
+<<<<<<< HEAD
 	sk = (*lookup)(skb, uh->source, uh->dest);
+=======
+	sk = INDIRECT_CALL_INET(lookup, udp6_lib_lookup_skb,
+				udp4_lib_lookup_skb, skb, uh->source, uh->dest);
+>>>>>>> upstream/android-13
 	if (sk && udp_sk(sk)->gro_complete) {
 		skb_shinfo(skb)->gso_type = uh->check ? SKB_GSO_UDP_TUNNEL_CSUM
 					: SKB_GSO_UDP_TUNNEL;
 
+<<<<<<< HEAD
+=======
+		/* clear the encap mark, so that inner frag_list gro_complete
+		 * can take place
+		 */
+		NAPI_GRO_CB(skb)->encap_mark = 0;
+
+>>>>>>> upstream/android-13
 		/* Set encapsulation before calling into inner gro_complete()
 		 * functions to make them set up the inner offsets.
 		 */
@@ -549,11 +789,36 @@ int udp_gro_complete(struct sk_buff *skb, int nhoff,
 }
 EXPORT_SYMBOL(udp_gro_complete);
 
+<<<<<<< HEAD
 static int udp4_gro_complete(struct sk_buff *skb, int nhoff)
+=======
+INDIRECT_CALLABLE_SCOPE int udp4_gro_complete(struct sk_buff *skb, int nhoff)
+>>>>>>> upstream/android-13
 {
 	const struct iphdr *iph = ip_hdr(skb);
 	struct udphdr *uh = (struct udphdr *)(skb->data + nhoff);
 
+<<<<<<< HEAD
+=======
+	/* do fraglist only if there is no outer UDP encap (or we already processed it) */
+	if (NAPI_GRO_CB(skb)->is_flist && !NAPI_GRO_CB(skb)->encap_mark) {
+		uh->len = htons(skb->len - nhoff);
+
+		skb_shinfo(skb)->gso_type |= (SKB_GSO_FRAGLIST|SKB_GSO_UDP_L4);
+		skb_shinfo(skb)->gso_segs = NAPI_GRO_CB(skb)->count;
+
+		if (skb->ip_summed == CHECKSUM_UNNECESSARY) {
+			if (skb->csum_level < SKB_MAX_CSUM_LEVEL)
+				skb->csum_level++;
+		} else {
+			skb->ip_summed = CHECKSUM_UNNECESSARY;
+			skb->csum_level = 0;
+		}
+
+		return 0;
+	}
+
+>>>>>>> upstream/android-13
 	if (uh->check)
 		uh->check = ~udp_v4_check(skb->len - nhoff, iph->saddr,
 					  iph->daddr, 0);

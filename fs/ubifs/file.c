@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * This file is part of UBIFS.
  *
  * Copyright (C) 2006-2008 Nokia Corporation.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
@@ -16,6 +21,8 @@
  * this program; if not, write to the Free Software Foundation, Inc., 51
  * Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  * Authors: Artem Bityutskiy (Битюцкий Артём)
  *          Adrian Hunter
  */
@@ -79,7 +86,11 @@ static int read_block(struct inode *inode, void *addr, unsigned int block,
 
 	dlen = le32_to_cpu(dn->ch.len) - UBIFS_DATA_NODE_SZ;
 
+<<<<<<< HEAD
 	if (ubifs_crypt_is_encrypted(inode)) {
+=======
+	if (IS_ENCRYPTED(inode)) {
+>>>>>>> upstream/android-13
 		err = ubifs_decrypt(inode, dn, &dlen, block);
 		if (err)
 			goto dump;
@@ -104,7 +115,11 @@ static int read_block(struct inode *inode, void *addr, unsigned int block,
 dump:
 	ubifs_err(c, "bad data node (block %u, inode %lu)",
 		  block, inode->i_ino);
+<<<<<<< HEAD
 	ubifs_dump_node(c, dn);
+=======
+	ubifs_dump_node(c, dn, UBIFS_MAX_DATA_NODE_SZ);
+>>>>>>> upstream/android-13
 	return -EINVAL;
 }
 
@@ -217,7 +232,11 @@ static void release_new_page_budget(struct ubifs_info *c)
  * @c: UBIFS file-system description object
  *
  * This is a helper function which releases budget corresponding to the budget
+<<<<<<< HEAD
  * of changing one one page of data which already exists on the flash media.
+=======
+ * of changing one page of data which already exists on the flash media.
+>>>>>>> upstream/android-13
  */
 static void release_existing_page_budget(struct ubifs_info *c)
 {
@@ -234,7 +253,11 @@ static int write_begin_slow(struct address_space *mapping,
 	struct ubifs_info *c = inode->i_sb->s_fs_info;
 	pgoff_t index = pos >> PAGE_SHIFT;
 	struct ubifs_budget_req req = { .new_page = 1 };
+<<<<<<< HEAD
 	int uninitialized_var(err), appending = !!(pos + len > inode->i_size);
+=======
+	int err, appending = !!(pos + len > inode->i_size);
+>>>>>>> upstream/android-13
 	struct page *page;
 
 	dbg_gen("ino %lu, pos %llu, len %u, i_size %lld",
@@ -438,7 +461,11 @@ static int ubifs_write_begin(struct file *file, struct address_space *mapping,
 	struct ubifs_info *c = inode->i_sb->s_fs_info;
 	struct ubifs_inode *ui = ubifs_inode(inode);
 	pgoff_t index = pos >> PAGE_SHIFT;
+<<<<<<< HEAD
 	int uninitialized_var(err), appending = !!(pos + len > inode->i_size);
+=======
+	int err, appending = !!(pos + len > inode->i_size);
+>>>>>>> upstream/android-13
 	int skipped_read = 0;
 	struct page *page;
 
@@ -582,7 +609,11 @@ static int ubifs_write_end(struct file *file, struct address_space *mapping,
 	}
 
 	if (!PagePrivate(page)) {
+<<<<<<< HEAD
 		SetPagePrivate(page);
+=======
+		attach_page_private(page, (void *)1);
+>>>>>>> upstream/android-13
 		atomic_long_inc(&c->dirty_pg_cnt);
 		__set_page_dirty_nobuffers(page);
 	}
@@ -659,7 +690,11 @@ static int populate_page(struct ubifs_info *c, struct page *page,
 			dlen = le32_to_cpu(dn->ch.len) - UBIFS_DATA_NODE_SZ;
 			out_len = UBIFS_BLOCK_SIZE;
 
+<<<<<<< HEAD
 			if (ubifs_crypt_is_encrypted(inode)) {
+=======
+			if (IS_ENCRYPTED(inode)) {
+>>>>>>> upstream/android-13
 				err = ubifs_decrypt(inode, dn, &dlen, page_block);
 				if (err)
 					goto out_err;
@@ -959,7 +994,11 @@ static int do_writepage(struct page *page, int len)
 		release_existing_page_budget(c);
 
 	atomic_long_dec(&c->dirty_pg_cnt);
+<<<<<<< HEAD
 	ClearPagePrivate(page);
+=======
+	detach_page_private(page);
+>>>>>>> upstream/android-13
 	ClearPageChecked(page);
 
 	kunmap(page);
@@ -1093,6 +1132,7 @@ static void do_attr_changes(struct inode *inode, const struct iattr *attr)
 	if (attr->ia_valid & ATTR_GID)
 		inode->i_gid = attr->ia_gid;
 	if (attr->ia_valid & ATTR_ATIME)
+<<<<<<< HEAD
 		inode->i_atime = timespec64_trunc(attr->ia_atime,
 						  inode->i_sb->s_time_gran);
 	if (attr->ia_valid & ATTR_MTIME)
@@ -1101,6 +1141,13 @@ static void do_attr_changes(struct inode *inode, const struct iattr *attr)
 	if (attr->ia_valid & ATTR_CTIME)
 		inode->i_ctime = timespec64_trunc(attr->ia_ctime,
 						  inode->i_sb->s_time_gran);
+=======
+		inode->i_atime = attr->ia_atime;
+	if (attr->ia_valid & ATTR_MTIME)
+		inode->i_mtime = attr->ia_mtime;
+	if (attr->ia_valid & ATTR_CTIME)
+		inode->i_ctime = attr->ia_ctime;
+>>>>>>> upstream/android-13
 	if (attr->ia_valid & ATTR_MODE) {
 		umode_t mode = attr->ia_mode;
 
@@ -1272,7 +1319,12 @@ static int do_setattr(struct ubifs_info *c, struct inode *inode,
 	return err;
 }
 
+<<<<<<< HEAD
 int ubifs_setattr(struct dentry *dentry, struct iattr *attr)
+=======
+int ubifs_setattr(struct user_namespace *mnt_userns, struct dentry *dentry,
+		  struct iattr *attr)
+>>>>>>> upstream/android-13
 {
 	int err;
 	struct inode *inode = d_inode(dentry);
@@ -1280,7 +1332,11 @@ int ubifs_setattr(struct dentry *dentry, struct iattr *attr)
 
 	dbg_gen("ino %lu, mode %#x, ia_valid %#x",
 		inode->i_ino, inode->i_mode, attr->ia_valid);
+<<<<<<< HEAD
 	err = setattr_prepare(dentry, attr);
+=======
+	err = setattr_prepare(&init_user_ns, dentry, attr);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
@@ -1318,7 +1374,11 @@ static void ubifs_invalidatepage(struct page *page, unsigned int offset,
 		release_existing_page_budget(c);
 
 	atomic_long_dec(&c->dirty_pg_cnt);
+<<<<<<< HEAD
 	ClearPagePrivate(page);
+=======
+	detach_page_private(page);
+>>>>>>> upstream/android-13
 	ClearPageChecked(page);
 }
 
@@ -1377,7 +1437,10 @@ static inline int mctime_update_needed(const struct inode *inode,
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_UBIFS_ATIME_SUPPORT
+=======
+>>>>>>> upstream/android-13
 /**
  * ubifs_update_time - update time of inode.
  * @inode: inode to update
@@ -1393,6 +1456,12 @@ int ubifs_update_time(struct inode *inode, struct timespec64 *time,
 			.dirtied_ino_d = ALIGN(ui->data_len, 8) };
 	int err, release;
 
+<<<<<<< HEAD
+=======
+	if (!IS_ENABLED(CONFIG_UBIFS_ATIME_SUPPORT))
+		return generic_update_time(inode, time, flags);
+
+>>>>>>> upstream/android-13
 	err = ubifs_budget_space(c, &req);
 	if (err)
 		return err;
@@ -1412,7 +1481,10 @@ int ubifs_update_time(struct inode *inode, struct timespec64 *time,
 		ubifs_release_budget(c, &req);
 	return 0;
 }
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 /**
  * update_mctime - update mtime and ctime of an inode.
@@ -1479,13 +1551,22 @@ static int ubifs_migrate_page(struct address_space *mapping,
 {
 	int rc;
 
+<<<<<<< HEAD
 	rc = migrate_page_move_mapping(mapping, newpage, page, NULL, mode, 0);
+=======
+	rc = migrate_page_move_mapping(mapping, newpage, page, 0);
+>>>>>>> upstream/android-13
 	if (rc != MIGRATEPAGE_SUCCESS)
 		return rc;
 
 	if (PagePrivate(page)) {
+<<<<<<< HEAD
 		ClearPagePrivate(page);
 		SetPagePrivate(newpage);
+=======
+		detach_page_private(page);
+		attach_page_private(newpage, (void *)1);
+>>>>>>> upstream/android-13
 	}
 
 	if (mode != MIGRATE_SYNC_NO_COPY)
@@ -1509,7 +1590,11 @@ static int ubifs_releasepage(struct page *page, gfp_t unused_gfp_flags)
 		return 0;
 	ubifs_assert(c, PagePrivate(page));
 	ubifs_assert(c, 0);
+<<<<<<< HEAD
 	ClearPagePrivate(page);
+=======
+	detach_page_private(page);
+>>>>>>> upstream/android-13
 	ClearPageChecked(page);
 	return 1;
 }
@@ -1580,7 +1665,11 @@ static vm_fault_t ubifs_vm_page_mkwrite(struct vm_fault *vmf)
 	else {
 		if (!PageChecked(page))
 			ubifs_convert_page_budget(c);
+<<<<<<< HEAD
 		SetPagePrivate(page);
+=======
+		attach_page_private(page, (void *)1);
+>>>>>>> upstream/android-13
 		atomic_long_inc(&c->dirty_pg_cnt);
 		__set_page_dirty_nobuffers(page);
 	}
@@ -1611,6 +1700,10 @@ static const struct vm_operations_struct ubifs_file_vm_ops = {
 	.fault        = filemap_fault,
 	.map_pages = filemap_map_pages,
 	.page_mkwrite = ubifs_vm_page_mkwrite,
+<<<<<<< HEAD
+=======
+	.speculative = true,
+>>>>>>> upstream/android-13
 };
 
 static int ubifs_file_mmap(struct file *file, struct vm_area_struct *vma)
@@ -1621,9 +1714,16 @@ static int ubifs_file_mmap(struct file *file, struct vm_area_struct *vma)
 	if (err)
 		return err;
 	vma->vm_ops = &ubifs_file_vm_ops;
+<<<<<<< HEAD
 #ifdef CONFIG_UBIFS_ATIME_SUPPORT
 	file_accessed(file);
 #endif
+=======
+
+	if (IS_ENABLED(CONFIG_UBIFS_ATIME_SUPPORT))
+		file_accessed(file);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1642,6 +1742,20 @@ static const char *ubifs_get_link(struct dentry *dentry,
 	return fscrypt_get_symlink(inode, ui->data, ui->data_len, done);
 }
 
+<<<<<<< HEAD
+=======
+static int ubifs_symlink_getattr(struct user_namespace *mnt_userns,
+				 const struct path *path, struct kstat *stat,
+				 u32 request_mask, unsigned int query_flags)
+{
+	ubifs_getattr(mnt_userns, path, stat, request_mask, query_flags);
+
+	if (IS_ENCRYPTED(d_inode(path->dentry)))
+		return fscrypt_symlink_getattr(path, stat);
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 const struct address_space_operations ubifs_file_address_operations = {
 	.readpage       = ubifs_readpage,
 	.writepage      = ubifs_writepage,
@@ -1658,17 +1772,25 @@ const struct address_space_operations ubifs_file_address_operations = {
 const struct inode_operations ubifs_file_inode_operations = {
 	.setattr     = ubifs_setattr,
 	.getattr     = ubifs_getattr,
+<<<<<<< HEAD
 #ifdef CONFIG_UBIFS_FS_XATTR
 	.listxattr   = ubifs_listxattr,
 #endif
 #ifdef CONFIG_UBIFS_ATIME_SUPPORT
 	.update_time = ubifs_update_time,
 #endif
+=======
+	.listxattr   = ubifs_listxattr,
+	.update_time = ubifs_update_time,
+	.fileattr_get = ubifs_fileattr_get,
+	.fileattr_set = ubifs_fileattr_set,
+>>>>>>> upstream/android-13
 };
 
 const struct inode_operations ubifs_symlink_inode_operations = {
 	.get_link    = ubifs_get_link,
 	.setattr     = ubifs_setattr,
+<<<<<<< HEAD
 	.getattr     = ubifs_getattr,
 #ifdef CONFIG_UBIFS_FS_XATTR
 	.listxattr   = ubifs_listxattr,
@@ -1676,6 +1798,11 @@ const struct inode_operations ubifs_symlink_inode_operations = {
 #ifdef CONFIG_UBIFS_ATIME_SUPPORT
 	.update_time = ubifs_update_time,
 #endif
+=======
+	.getattr     = ubifs_symlink_getattr,
+	.listxattr   = ubifs_listxattr,
+	.update_time = ubifs_update_time,
+>>>>>>> upstream/android-13
 };
 
 const struct file_operations ubifs_file_operations = {

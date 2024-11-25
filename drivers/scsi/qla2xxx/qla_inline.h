@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 /*
  * QLogic Fibre Channel HBA Driver
  * Copyright (c)  2003-2014 QLogic Corporation
  *
  * See LICENSE.qla2xxx for copyright and licensing details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * QLogic Fibre Channel HBA Driver
+ * Copyright (c)  2003-2014 QLogic Corporation
+>>>>>>> upstream/android-13
  */
 
 #include "qla_target.h"
@@ -11,7 +18,11 @@
  * Continuation Type 1 IOCBs to allocate.
  *
  * @vha: HA context
+<<<<<<< HEAD
  * @dsds: number of data segment decriptors needed
+=======
+ * @dsds: number of data segment descriptors needed
+>>>>>>> upstream/android-13
  *
  * Returns the number of IOCB entries needed to store @dsds.
  */
@@ -40,16 +51,27 @@ qla24xx_calc_iocbs(scsi_qla_host_t *vha, uint16_t dsds)
  *      register value.
  */
 static __inline__ uint16_t
+<<<<<<< HEAD
 qla2x00_debounce_register(volatile uint16_t __iomem *addr)
+=======
+qla2x00_debounce_register(volatile __le16 __iomem *addr)
+>>>>>>> upstream/android-13
 {
 	volatile uint16_t first;
 	volatile uint16_t second;
 
 	do {
+<<<<<<< HEAD
 		first = RD_REG_WORD(addr);
 		barrier();
 		cpu_relax();
 		second = RD_REG_WORD(addr);
+=======
+		first = rd_reg_word(addr);
+		barrier();
+		cpu_relax();
+		second = rd_reg_word(addr);
+>>>>>>> upstream/android-13
 	} while (first != second);
 
 	return (first);
@@ -91,6 +113,7 @@ host_to_adap(uint8_t *src, uint8_t *dst, uint32_t bsize)
 }
 
 static inline void
+<<<<<<< HEAD
 qla2x00_set_reserved_loop_ids(struct qla_hw_data *ha)
 {
 	int i;
@@ -128,6 +151,8 @@ qla2x00_clear_loop_id(fc_port_t *fcport) {
 }
 
 static inline void
+=======
+>>>>>>> upstream/android-13
 qla2x00_clean_dsd_pool(struct qla_hw_data *ha, struct crc_context *ctx)
 {
 	struct dsd_dma *dsd, *tdsd;
@@ -143,6 +168,7 @@ qla2x00_clean_dsd_pool(struct qla_hw_data *ha, struct crc_context *ctx)
 }
 
 static inline void
+<<<<<<< HEAD
 qla2x00_set_fcport_state(fc_port_t *fcport, int state)
 {
 	int old_state;
@@ -158,6 +184,28 @@ qla2x00_set_fcport_state(fc_port_t *fcport, int state)
 		    port_state_str[old_state], port_state_str[state],
 		    fcport->d_id.b.domain, fcport->d_id.b.area,
 		    fcport->d_id.b.al_pa);
+=======
+qla2x00_set_fcport_disc_state(fc_port_t *fcport, int state)
+{
+	int old_val;
+	uint8_t shiftbits, mask;
+
+	/* This will have to change when the max no. of states > 16 */
+	shiftbits = 4;
+	mask = (1 << shiftbits) - 1;
+
+	fcport->disc_state = state;
+	while (1) {
+		old_val = atomic_read(&fcport->shadow_disc_state);
+		if (old_val == atomic_cmpxchg(&fcport->shadow_disc_state,
+		    old_val, (old_val << shiftbits) | state)) {
+			ql_dbg(ql_dbg_disc, fcport->vha, 0x2134,
+			    "FCPort %8phC disc_state transition: %s to %s - portid=%06x.\n",
+			    fcport->port_name, port_dstate_str[old_val & mask],
+			    port_dstate_str[state], fcport->d_id.b24);
+			return;
+		}
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -208,8 +256,28 @@ qla2x00_chip_is_down(scsi_qla_host_t *vha)
 	return (qla2x00_reset_active(vha) || !vha->hw->flags.fw_started);
 }
 
+<<<<<<< HEAD
 static inline srb_t *
 qla2xxx_get_qpair_sp(struct qla_qpair *qpair, fc_port_t *fcport, gfp_t flag)
+=======
+static void qla2xxx_init_sp(srb_t *sp, scsi_qla_host_t *vha,
+			    struct qla_qpair *qpair, fc_port_t *fcport)
+{
+	memset(sp, 0, sizeof(*sp));
+	sp->fcport = fcport;
+	sp->iocbs = 1;
+	sp->vha = vha;
+	sp->qpair = qpair;
+	sp->cmd_type = TYPE_SRB;
+	/* ref : INIT - normal flow */
+	kref_init(&sp->cmd_kref);
+	INIT_LIST_HEAD(&sp->elem);
+}
+
+static inline srb_t *
+qla2xxx_get_qpair_sp(scsi_qla_host_t *vha, struct qla_qpair *qpair,
+    fc_port_t *fcport, gfp_t flag)
+>>>>>>> upstream/android-13
 {
 	srb_t *sp = NULL;
 	uint8_t bail;
@@ -219,6 +287,7 @@ qla2xxx_get_qpair_sp(struct qla_qpair *qpair, fc_port_t *fcport, gfp_t flag)
 		return NULL;
 
 	sp = mempool_alloc(qpair->srb_mempool, flag);
+<<<<<<< HEAD
 	if (!sp)
 		goto done;
 
@@ -230,13 +299,30 @@ qla2xxx_get_qpair_sp(struct qla_qpair *qpair, fc_port_t *fcport, gfp_t flag)
 
 done:
 	if (!sp)
+=======
+	if (sp)
+		qla2xxx_init_sp(sp, vha, qpair, fcport);
+	else
+>>>>>>> upstream/android-13
 		QLA_QPAIR_MARK_NOT_BUSY(qpair);
 	return sp;
 }
 
+<<<<<<< HEAD
 static inline void
 qla2xxx_rel_qpair_sp(struct qla_qpair *qpair, srb_t *sp)
 {
+=======
+void qla2xxx_rel_done_warning(srb_t *sp, int res);
+void qla2xxx_rel_free_warning(srb_t *sp);
+
+static inline void
+qla2xxx_rel_qpair_sp(struct qla_qpair *qpair, srb_t *sp)
+{
+	sp->qpair = NULL;
+	sp->done = qla2xxx_rel_done_warning;
+	sp->free = qla2xxx_rel_free_warning;
+>>>>>>> upstream/android-13
 	mempool_free(sp, qpair->srb_mempool);
 	QLA_QPAIR_MARK_NOT_BUSY(qpair);
 }
@@ -246,11 +332,16 @@ qla2x00_get_sp(scsi_qla_host_t *vha, fc_port_t *fcport, gfp_t flag)
 {
 	srb_t *sp = NULL;
 	uint8_t bail;
+<<<<<<< HEAD
+=======
+	struct qla_qpair *qpair;
+>>>>>>> upstream/android-13
 
 	QLA_VHA_MARK_BUSY(vha, bail);
 	if (unlikely(bail))
 		return NULL;
 
+<<<<<<< HEAD
 	sp = mempool_alloc(vha->hw->srb_mempool, flag);
 	if (!sp)
 		goto done;
@@ -259,6 +350,13 @@ qla2x00_get_sp(scsi_qla_host_t *vha, fc_port_t *fcport, gfp_t flag)
 	sp->fcport = fcport;
 	sp->cmd_type = TYPE_SRB;
 	sp->iocbs = 1;
+=======
+	qpair = vha->hw->base_qpair;
+	sp = qla2xxx_get_qpair_sp(vha, qpair, fcport, flag);
+	if (!sp)
+		goto done;
+
+>>>>>>> upstream/android-13
 	sp->vha = vha;
 done:
 	if (!sp)
@@ -270,6 +368,7 @@ static inline void
 qla2x00_rel_sp(srb_t *sp)
 {
 	QLA_VHA_MARK_NOT_BUSY(sp->vha);
+<<<<<<< HEAD
 	mempool_free(sp, sp->vha->hw->srb_mempool);
 }
 
@@ -283,6 +382,9 @@ qla2x00_init_timer(srb_t *sp, unsigned long tmo)
 	if (IS_QLAFX00(sp->vha->hw) && (sp->type == SRB_FXIOCB_DCMD))
 		init_completion(&sp->u.iocb_cmd.u.fxiocb.fxiocb_comp);
 	add_timer(&sp->u.iocb_cmd.timer);
+=======
+	qla2xxx_rel_qpair_sp(sp->qpair, sp);
+>>>>>>> upstream/android-13
 }
 
 static inline int
@@ -306,17 +408,56 @@ qla2x00_handle_mbx_completion(struct qla_hw_data *ha, int status)
 }
 
 static inline void
+<<<<<<< HEAD
 qla2x00_set_retry_delay_timestamp(fc_port_t *fcport, uint16_t retry_delay)
 {
 	if (retry_delay)
 		fcport->retry_delay_timestamp = jiffies +
 		    (retry_delay * HZ / 10);
+=======
+qla2x00_set_retry_delay_timestamp(fc_port_t *fcport, uint16_t sts_qual)
+{
+	u8 scope;
+	u16 qual;
+#define SQ_SCOPE_MASK		0xc000 /* SAM-6 rev5 5.3.2 */
+#define SQ_SCOPE_SHIFT		14
+#define SQ_QUAL_MASK		0x3fff
+
+#define SQ_MAX_WAIT_SEC		60 /* Max I/O hold off time in seconds. */
+#define SQ_MAX_WAIT_TIME	(SQ_MAX_WAIT_SEC * 10) /* in 100ms. */
+
+	if (!sts_qual) /* Common case. */
+		return;
+
+	scope = (sts_qual & SQ_SCOPE_MASK) >> SQ_SCOPE_SHIFT;
+	/* Handle only scope 1 or 2, which is for I-T nexus. */
+	if (scope != 1 && scope != 2)
+		return;
+
+	/* Skip processing, if retry delay timer is already in effect. */
+	if (fcport->retry_delay_timestamp &&
+	    time_before(jiffies, fcport->retry_delay_timestamp))
+		return;
+
+	qual = sts_qual & SQ_QUAL_MASK;
+	if (qual < 1 || qual > 0x3fef)
+		return;
+	qual = min(qual, (u16)SQ_MAX_WAIT_TIME);
+
+	/* qual is expressed in 100ms increments. */
+	fcport->retry_delay_timestamp = jiffies + (qual * HZ / 10);
+
+	ql_log(ql_log_warn, fcport->vha, 0x5101,
+	       "%8phC: I/O throttling requested (status qualifier = %04xh), holding off I/Os for %ums.\n",
+	       fcport->port_name, sts_qual, qual * 100);
+>>>>>>> upstream/android-13
 }
 
 static inline bool
 qla_is_exch_offld_enabled(struct scsi_qla_host *vha)
 {
 	if (qla_ini_mode_enabled(vha) &&
+<<<<<<< HEAD
 	    (ql2xiniexchg > FW_DEF_EXCHANGES_CNT))
 		return true;
 	else if (qla_tgt_mode_enabled(vha) &&
@@ -324,6 +465,15 @@ qla_is_exch_offld_enabled(struct scsi_qla_host *vha)
 		return true;
 	else if (qla_dual_mode_enabled(vha) &&
 	    ((ql2xiniexchg + ql2xexchoffld) > FW_DEF_EXCHANGES_CNT))
+=======
+	    (vha->ql2xiniexchg > FW_DEF_EXCHANGES_CNT))
+		return true;
+	else if (qla_tgt_mode_enabled(vha) &&
+	    (vha->ql2xexchoffld > FW_DEF_EXCHANGES_CNT))
+		return true;
+	else if (qla_dual_mode_enabled(vha) &&
+	    ((vha->ql2xiniexchg + vha->ql2xexchoffld) > FW_DEF_EXCHANGES_CNT))
+>>>>>>> upstream/android-13
 		return true;
 	else
 		return false;
@@ -369,5 +519,138 @@ qla_83xx_start_iocbs(struct qla_qpair *qpair)
 	} else
 		req->ring_ptr++;
 
+<<<<<<< HEAD
 	WRT_REG_DWORD(req->req_q_in, req->ring_index);
+=======
+	wrt_reg_dword(req->req_q_in, req->ring_index);
+}
+
+static inline int
+qla2xxx_get_fc4_priority(struct scsi_qla_host *vha)
+{
+	uint32_t data;
+
+	data =
+	    ((uint8_t *)vha->hw->nvram)[NVRAM_DUAL_FCP_NVME_FLAG_OFFSET];
+
+
+	return (data >> 6) & BIT_0 ? FC4_PRIORITY_FCP : FC4_PRIORITY_NVME;
+}
+
+enum {
+	RESOURCE_NONE,
+	RESOURCE_INI,
+};
+
+static inline int
+qla_get_iocbs(struct qla_qpair *qp, struct iocb_resource *iores)
+{
+	u16 iocbs_used, i;
+	struct qla_hw_data *ha = qp->vha->hw;
+
+	if (!ql2xenforce_iocb_limit) {
+		iores->res_type = RESOURCE_NONE;
+		return 0;
+	}
+
+	if ((iores->iocb_cnt + qp->fwres.iocbs_used) < qp->fwres.iocbs_qp_limit) {
+		qp->fwres.iocbs_used += iores->iocb_cnt;
+		return 0;
+	} else {
+		/* no need to acquire qpair lock. It's just rough calculation */
+		iocbs_used = ha->base_qpair->fwres.iocbs_used;
+		for (i = 0; i < ha->max_qpairs; i++) {
+			if (ha->queue_pair_map[i])
+				iocbs_used += ha->queue_pair_map[i]->fwres.iocbs_used;
+		}
+
+		if ((iores->iocb_cnt + iocbs_used) < qp->fwres.iocbs_limit) {
+			qp->fwres.iocbs_used += iores->iocb_cnt;
+			return 0;
+		} else {
+			iores->res_type = RESOURCE_NONE;
+			return -ENOSPC;
+		}
+	}
+}
+
+static inline void
+qla_put_iocbs(struct qla_qpair *qp, struct iocb_resource *iores)
+{
+	switch (iores->res_type) {
+	case RESOURCE_NONE:
+		break;
+	default:
+		if (qp->fwres.iocbs_used >= iores->iocb_cnt) {
+			qp->fwres.iocbs_used -= iores->iocb_cnt;
+		} else {
+			// should not happen
+			qp->fwres.iocbs_used = 0;
+		}
+		break;
+	}
+	iores->res_type = RESOURCE_NONE;
+}
+
+#define ISP_REG_DISCONNECT 0xffffffffU
+/**************************************************************************
+ * qla2x00_isp_reg_stat
+ *
+ * Description:
+ *        Read the host status register of ISP before aborting the command.
+ *
+ * Input:
+ *       ha = pointer to host adapter structure.
+ *
+ *
+ * Returns:
+ *       Either true or false.
+ *
+ * Note: Return true if there is register disconnect.
+ **************************************************************************/
+static inline
+uint32_t qla2x00_isp_reg_stat(struct qla_hw_data *ha)
+{
+	struct device_reg_24xx __iomem *reg = &ha->iobase->isp24;
+	struct device_reg_82xx __iomem *reg82 = &ha->iobase->isp82;
+
+	if (IS_P3P_TYPE(ha))
+		return ((rd_reg_dword(&reg82->host_int)) == ISP_REG_DISCONNECT);
+	else
+		return ((rd_reg_dword(&reg->host_status)) ==
+			ISP_REG_DISCONNECT);
+}
+
+static inline
+bool qla_pci_disconnected(struct scsi_qla_host *vha,
+			  struct device_reg_24xx __iomem *reg)
+{
+	uint32_t stat;
+	bool ret = false;
+
+	stat = rd_reg_dword(&reg->host_status);
+	if (stat == 0xffffffff) {
+		ql_log(ql_log_info, vha, 0x8041,
+		       "detected PCI disconnect.\n");
+		qla_schedule_eeh_work(vha);
+		ret = true;
+	}
+	return ret;
+}
+
+static inline bool
+fcport_is_smaller(fc_port_t *fcport)
+{
+	if (wwn_to_u64(fcport->port_name) <
+		wwn_to_u64(fcport->vha->port_name))
+		return true;
+	else
+		return false;
+}
+
+static inline bool
+fcport_is_bigger(fc_port_t *fcport)
+{
+	return !fcport_is_smaller(fcport);
+>>>>>>> upstream/android-13
 }

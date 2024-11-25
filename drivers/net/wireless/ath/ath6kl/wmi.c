@@ -776,10 +776,15 @@ int ath6kl_wmi_set_roam_lrssi_cmd(struct wmi *wmi, u8 lrssi)
 	cmd->info.params.roam_rssi_floor = DEF_LRSSI_ROAM_FLOOR;
 	cmd->roam_ctrl = WMI_SET_LRSSI_SCAN_PARAMS;
 
+<<<<<<< HEAD
 	ath6kl_wmi_cmd_send(wmi, 0, skb, WMI_SET_ROAM_CTRL_CMDID,
 			    NO_SYNC_WMIFLAG);
 
 	return 0;
+=======
+	return ath6kl_wmi_cmd_send(wmi, 0, skb, WMI_SET_ROAM_CTRL_CMDID,
+			    NO_SYNC_WMIFLAG);
+>>>>>>> upstream/android-13
 }
 
 int ath6kl_wmi_force_roam_cmd(struct wmi *wmi, const u8 *bssid)
@@ -1203,8 +1208,12 @@ static int ath6kl_wmi_pstream_timeout_event_rx(struct wmi *wmi, u8 *datap,
 static int ath6kl_wmi_bitrate_reply_rx(struct wmi *wmi, u8 *datap, int len)
 {
 	struct wmi_bit_rate_reply *reply;
+<<<<<<< HEAD
 	s32 rate;
 	u32 sgi, index;
+=======
+	u32 index;
+>>>>>>> upstream/android-13
 
 	if (len < sizeof(struct wmi_bit_rate_reply))
 		return -EINVAL;
@@ -1213,6 +1222,7 @@ static int ath6kl_wmi_bitrate_reply_rx(struct wmi *wmi, u8 *datap, int len)
 
 	ath6kl_dbg(ATH6KL_DBG_WMI, "rateindex %d\n", reply->rate_index);
 
+<<<<<<< HEAD
 	if (reply->rate_index == (s8) RATE_AUTO) {
 		rate = RATE_AUTO;
 	} else {
@@ -1222,6 +1232,12 @@ static int ath6kl_wmi_bitrate_reply_rx(struct wmi *wmi, u8 *datap, int len)
 
 		sgi = (reply->rate_index & 0x80) ? 1 : 0;
 		rate = wmi_rate_tbl[index][sgi];
+=======
+	if (reply->rate_index != (s8) RATE_AUTO) {
+		index = reply->rate_index & 0x7f;
+		if (WARN_ON_ONCE(index > (RATE_MCS_7_40 + 1)))
+			return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 
 	ath6kl_wakeup_event(wmi->parent_dev);
@@ -1301,8 +1317,12 @@ static int ath6kl_wmi_neighbor_report_event_rx(struct wmi *wmi, u8 *datap,
 	if (len < sizeof(*ev))
 		return -EINVAL;
 	ev = (struct wmi_neighbor_report_event *) datap;
+<<<<<<< HEAD
 	if (sizeof(*ev) + ev->num_neighbors * sizeof(struct wmi_neighbor_info)
 	    > len) {
+=======
+	if (struct_size(ev, neighbor, ev->num_neighbors) > len) {
+>>>>>>> upstream/android-13
 		ath6kl_dbg(ATH6KL_DBG_WMI,
 			   "truncated neighbor event (num=%d len=%d)\n",
 			   ev->num_neighbors, len);
@@ -1830,8 +1850,13 @@ int ath6kl_wmi_cmd_send(struct wmi *wmi, u8 if_idx, struct sk_buff *skb,
 
 	/* Only for OPT_TX_CMD, use BE endpoint. */
 	if (cmd_id == WMI_OPT_TX_FRAME_CMDID) {
+<<<<<<< HEAD
 		ret = ath6kl_wmi_data_hdr_add(wmi, skb, OPT_MSGTYPE,
 					      false, false, 0, NULL, if_idx);
+=======
+		ret = ath6kl_wmi_data_hdr_add(wmi, skb, OPT_MSGTYPE, false,
+				WMI_DATA_HDR_DATA_TYPE_802_3, 0, NULL, if_idx);
+>>>>>>> upstream/android-13
 		if (ret) {
 			dev_kfree_skb(skb);
 			return ret;
@@ -1857,9 +1882,15 @@ int ath6kl_wmi_connect_cmd(struct wmi *wmi, u8 if_idx,
 			   enum network_type nw_type,
 			   enum dot11_auth_mode dot11_auth_mode,
 			   enum auth_mode auth_mode,
+<<<<<<< HEAD
 			   enum crypto_type pairwise_crypto,
 			   u8 pairwise_crypto_len,
 			   enum crypto_type group_crypto,
+=======
+			   enum ath6kl_crypto_type pairwise_crypto,
+			   u8 pairwise_crypto_len,
+			   enum ath6kl_crypto_type group_crypto,
+>>>>>>> upstream/android-13
 			   u8 group_crypto_len, int ssid_len, u8 *ssid,
 			   u8 *bssid, u16 channel, u32 ctrl_flags,
 			   u8 nw_subtype)
@@ -2309,7 +2340,11 @@ int ath6kl_wmi_disctimeout_cmd(struct wmi *wmi, u8 if_idx, u8 timeout)
 }
 
 int ath6kl_wmi_addkey_cmd(struct wmi *wmi, u8 if_idx, u8 key_index,
+<<<<<<< HEAD
 			  enum crypto_type key_type,
+=======
+			  enum ath6kl_crypto_type key_type,
+>>>>>>> upstream/android-13
 			  u8 key_usage, u8 key_len,
 			  u8 *key_rsc, unsigned int key_rsc_len,
 			  u8 *key_material,
@@ -2513,8 +2548,15 @@ static int ath6kl_wmi_sync_point(struct wmi *wmi, u8 if_idx)
 		goto free_data_skb;
 
 	for (index = 0; index < num_pri_streams; index++) {
+<<<<<<< HEAD
 		if (WARN_ON(!data_sync_bufs[index].skb))
 			goto free_data_skb;
+=======
+		if (WARN_ON(!data_sync_bufs[index].skb)) {
+			ret = -ENOMEM;
+			goto free_data_skb;
+		}
+>>>>>>> upstream/android-13
 
 		ep_id = ath6kl_ac2_endpoint_id(wmi->parent_dev,
 					       data_sync_bufs[index].
@@ -3658,7 +3700,11 @@ static int ath6kl_wmi_send_action_cmd(struct wmi *wmi, u8 if_idx, u32 id,
 	if (wait)
 		return -EINVAL; /* Offload for wait not supported */
 
+<<<<<<< HEAD
 	buf = kmalloc(data_len, GFP_KERNEL);
+=======
+	buf = kmemdup(data, data_len, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!buf)
 		return -ENOMEM;
 
@@ -3669,7 +3715,10 @@ static int ath6kl_wmi_send_action_cmd(struct wmi *wmi, u8 if_idx, u32 id,
 	}
 
 	kfree(wmi->last_mgmt_tx_frame);
+<<<<<<< HEAD
 	memcpy(buf, data, data_len);
+=======
+>>>>>>> upstream/android-13
 	wmi->last_mgmt_tx_frame = buf;
 	wmi->last_mgmt_tx_frame_len = data_len;
 
@@ -3697,7 +3746,11 @@ static int __ath6kl_wmi_send_mgmt_cmd(struct wmi *wmi, u8 if_idx, u32 id,
 	if (wait)
 		return -EINVAL; /* Offload for wait not supported */
 
+<<<<<<< HEAD
 	buf = kmalloc(data_len, GFP_KERNEL);
+=======
+	buf = kmemdup(data, data_len, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!buf)
 		return -ENOMEM;
 
@@ -3708,7 +3761,10 @@ static int __ath6kl_wmi_send_mgmt_cmd(struct wmi *wmi, u8 if_idx, u32 id,
 	}
 
 	kfree(wmi->last_mgmt_tx_frame);
+<<<<<<< HEAD
 	memcpy(buf, data, data_len);
+=======
+>>>>>>> upstream/android-13
 	wmi->last_mgmt_tx_frame = buf;
 	wmi->last_mgmt_tx_frame_len = data_len;
 

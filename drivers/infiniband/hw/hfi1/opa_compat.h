@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #ifndef _LINUX_H
 #define _LINUX_H
 /*
@@ -47,6 +48,15 @@
  *
  */
 
+=======
+/* SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause */
+/*
+ * Copyright(c) 2015, 2016 Intel Corporation.
+ */
+
+#ifndef _LINUX_H
+#define _LINUX_H
+>>>>>>> upstream/android-13
 /*
  * This header file is for OPA-specific definitions which are
  * required by the HFI driver, and which aren't yet in the Linux

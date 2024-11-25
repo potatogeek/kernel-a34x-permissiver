@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Symmetric key ciphers.
  * 
  * Copyright (c) 2007-2015 Herbert Xu <herbert@gondor.apana.org.au>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option) 
  * any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _CRYPTO_SKCIPHER_H
@@ -23,7 +30,11 @@
  *	@iv: Initialisation Vector
  *	@src: Source SG list
  *	@dst: Destination SG list
+<<<<<<< HEAD
  *	@base: Underlying async request request
+=======
+ *	@base: Underlying async request
+>>>>>>> upstream/android-13
  *	@__ctx: Start of private context data
  */
 struct skcipher_request {
@@ -39,6 +50,7 @@ struct skcipher_request {
 	void *__ctx[] CRYPTO_MINALIGN_ATTR;
 };
 
+<<<<<<< HEAD
 /**
  *	struct skcipher_givcrypt_request - Crypto request with IV generation
  *	@seq: Sequence number for IV generation
@@ -61,6 +73,10 @@ struct crypto_skcipher {
 	unsigned int ivsize;
 	unsigned int reqsize;
 	unsigned int keysize;
+=======
+struct crypto_skcipher {
+	unsigned int reqsize;
+>>>>>>> upstream/android-13
 
 	struct crypto_tfm base;
 };
@@ -156,11 +172,14 @@ struct skcipher_alg {
 			    ] CRYPTO_MINALIGN_ATTR; \
 	struct skcipher_request *name = (void *)__##name##_desc
 
+<<<<<<< HEAD
 #define SKCIPHER_REQUEST_ON_STACK(name, tfm) \
 	char __##name##_desc[sizeof(struct skcipher_request) + \
 		crypto_skcipher_reqsize(tfm)] CRYPTO_MINALIGN_ATTR; \
 	struct skcipher_request *name = (void *)__##name##_desc
 
+=======
+>>>>>>> upstream/android-13
 /**
  * DOC: Symmetric Key Cipher API
  *
@@ -243,6 +262,7 @@ static inline void crypto_free_sync_skcipher(struct crypto_sync_skcipher *tfm)
  * crypto_has_skcipher() - Search for the availability of an skcipher.
  * @alg_name: is the cra_name / name or cra_driver_name / driver name of the
  *	      skcipher
+<<<<<<< HEAD
  * @type: specifies the type of the cipher
  * @mask: specifies the mask for the cipher
  *
@@ -260,13 +280,19 @@ static inline int crypto_has_skcipher(const char *alg_name, u32 type,
  * crypto_has_skcipher2() - Search for the availability of an skcipher.
  * @alg_name: is the cra_name / name or cra_driver_name / driver name of the
  *	      skcipher
+=======
+>>>>>>> upstream/android-13
  * @type: specifies the type of the skcipher
  * @mask: specifies the mask for the skcipher
  *
  * Return: true when the skcipher is known to the kernel crypto API; false
  *	   otherwise
  */
+<<<<<<< HEAD
 int crypto_has_skcipher2(const char *alg_name, u32 type, u32 mask);
+=======
+int crypto_has_skcipher(const char *alg_name, u32 type, u32 mask);
+>>>>>>> upstream/android-13
 
 static inline const char *crypto_skcipher_driver_name(
 	struct crypto_skcipher *tfm)
@@ -283,6 +309,7 @@ static inline struct skcipher_alg *crypto_skcipher_alg(
 
 static inline unsigned int crypto_skcipher_alg_ivsize(struct skcipher_alg *alg)
 {
+<<<<<<< HEAD
 	if ((alg->base.cra_flags & CRYPTO_ALG_TYPE_MASK) ==
 	    CRYPTO_ALG_TYPE_BLKCIPHER)
 		return alg->base.cra_blkcipher.ivsize;
@@ -290,6 +317,8 @@ static inline unsigned int crypto_skcipher_alg_ivsize(struct skcipher_alg *alg)
 	if (alg->base.cra_ablkcipher.encrypt)
 		return alg->base.cra_ablkcipher.ivsize;
 
+=======
+>>>>>>> upstream/android-13
 	return alg->ivsize;
 }
 
@@ -304,7 +333,11 @@ static inline unsigned int crypto_skcipher_alg_ivsize(struct skcipher_alg *alg)
  */
 static inline unsigned int crypto_skcipher_ivsize(struct crypto_skcipher *tfm)
 {
+<<<<<<< HEAD
 	return tfm->ivsize;
+=======
+	return crypto_skcipher_alg(tfm)->ivsize;
+>>>>>>> upstream/android-13
 }
 
 static inline unsigned int crypto_sync_skcipher_ivsize(
@@ -313,6 +346,7 @@ static inline unsigned int crypto_sync_skcipher_ivsize(
 	return crypto_skcipher_ivsize(&tfm->base);
 }
 
+<<<<<<< HEAD
 static inline unsigned int crypto_skcipher_alg_chunksize(
 	struct skcipher_alg *alg)
 {
@@ -339,6 +373,30 @@ static inline unsigned int crypto_skcipher_alg_walksize(
 	return alg->walksize;
 }
 
+=======
+/**
+ * crypto_skcipher_blocksize() - obtain block size of cipher
+ * @tfm: cipher handle
+ *
+ * The block size for the skcipher referenced with the cipher handle is
+ * returned. The caller may use that information to allocate appropriate
+ * memory for the data returned by the encryption or decryption operation
+ *
+ * Return: block size of cipher
+ */
+static inline unsigned int crypto_skcipher_blocksize(
+	struct crypto_skcipher *tfm)
+{
+	return crypto_tfm_alg_blocksize(crypto_skcipher_tfm(tfm));
+}
+
+static inline unsigned int crypto_skcipher_alg_chunksize(
+	struct skcipher_alg *alg)
+{
+	return alg->chunksize;
+}
+
+>>>>>>> upstream/android-13
 /**
  * crypto_skcipher_chunksize() - obtain chunk size
  * @tfm: cipher handle
@@ -356,6 +414,7 @@ static inline unsigned int crypto_skcipher_chunksize(
 	return crypto_skcipher_alg_chunksize(crypto_skcipher_alg(tfm));
 }
 
+<<<<<<< HEAD
 /**
  * crypto_skcipher_walksize() - obtain walk size
  * @tfm: cipher handle
@@ -389,6 +448,8 @@ static inline unsigned int crypto_skcipher_blocksize(
 	return crypto_tfm_alg_blocksize(crypto_skcipher_tfm(tfm));
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline unsigned int crypto_sync_skcipher_blocksize(
 	struct crypto_sync_skcipher *tfm)
 {
@@ -452,11 +513,16 @@ static inline void crypto_sync_skcipher_clear_flags(
  *
  * Return: 0 if the setting of the key was successful; < 0 if an error occurred
  */
+<<<<<<< HEAD
 static inline int crypto_skcipher_setkey(struct crypto_skcipher *tfm,
 					 const u8 *key, unsigned int keylen)
 {
 	return tfm->setkey(tfm, key, keylen);
 }
+=======
+int crypto_skcipher_setkey(struct crypto_skcipher *tfm,
+			   const u8 *key, unsigned int keylen);
+>>>>>>> upstream/android-13
 
 static inline int crypto_sync_skcipher_setkey(struct crypto_sync_skcipher *tfm,
 					 const u8 *key, unsigned int keylen)
@@ -464,10 +530,23 @@ static inline int crypto_sync_skcipher_setkey(struct crypto_sync_skcipher *tfm,
 	return crypto_skcipher_setkey(&tfm->base, key, keylen);
 }
 
+<<<<<<< HEAD
 static inline unsigned int crypto_skcipher_default_keysize(
 	struct crypto_skcipher *tfm)
 {
 	return tfm->keysize;
+=======
+static inline unsigned int crypto_skcipher_min_keysize(
+	struct crypto_skcipher *tfm)
+{
+	return crypto_skcipher_alg(tfm)->min_keysize;
+}
+
+static inline unsigned int crypto_skcipher_max_keysize(
+	struct crypto_skcipher *tfm)
+{
+	return crypto_skcipher_alg(tfm)->max_keysize;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -504,6 +583,7 @@ static inline struct crypto_sync_skcipher *crypto_sync_skcipher_reqtfm(
  *
  * Return: 0 if the cipher operation was successful; < 0 if an error occurred
  */
+<<<<<<< HEAD
 static inline int crypto_skcipher_encrypt(struct skcipher_request *req)
 {
 	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
@@ -513,6 +593,9 @@ static inline int crypto_skcipher_encrypt(struct skcipher_request *req)
 
 	return tfm->encrypt(req);
 }
+=======
+int crypto_skcipher_encrypt(struct skcipher_request *req);
+>>>>>>> upstream/android-13
 
 /**
  * crypto_skcipher_decrypt() - decrypt ciphertext
@@ -525,6 +608,7 @@ static inline int crypto_skcipher_encrypt(struct skcipher_request *req)
  *
  * Return: 0 if the cipher operation was successful; < 0 if an error occurred
  */
+<<<<<<< HEAD
 static inline int crypto_skcipher_decrypt(struct skcipher_request *req)
 {
 	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
@@ -534,6 +618,9 @@ static inline int crypto_skcipher_decrypt(struct skcipher_request *req)
 
 	return tfm->decrypt(req);
 }
+=======
+int crypto_skcipher_decrypt(struct skcipher_request *req);
+>>>>>>> upstream/android-13
 
 /**
  * DOC: Symmetric Key Cipher Request Handle
@@ -614,7 +701,11 @@ static inline struct skcipher_request *skcipher_request_alloc(
  */
 static inline void skcipher_request_free(struct skcipher_request *req)
 {
+<<<<<<< HEAD
 	kzfree(req);
+=======
+	kfree_sensitive(req);
+>>>>>>> upstream/android-13
 }
 
 static inline void skcipher_request_zero(struct skcipher_request *req)

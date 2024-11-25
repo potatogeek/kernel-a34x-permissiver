@@ -3,7 +3,11 @@
  *
  * Module Name: psargs - Parse AML opcode arguments
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -150,21 +154,33 @@ char *acpi_ps_get_next_namestring(struct acpi_parse_state *parser_state)
 
 		/* Two name segments */
 
+<<<<<<< HEAD
 		end += 1 + (2 * ACPI_NAME_SIZE);
+=======
+		end += 1 + (2 * ACPI_NAMESEG_SIZE);
+>>>>>>> upstream/android-13
 		break;
 
 	case AML_MULTI_NAME_PREFIX:
 
 		/* Multiple name segments, 4 chars each, count in next byte */
 
+<<<<<<< HEAD
 		end += 2 + (*(end + 1) * ACPI_NAME_SIZE);
+=======
+		end += 2 + (*(end + 1) * ACPI_NAMESEG_SIZE);
+>>>>>>> upstream/android-13
 		break;
 
 	default:
 
 		/* Single name segment */
 
+<<<<<<< HEAD
 		end += ACPI_NAME_SIZE;
+=======
+		end += ACPI_NAMESEG_SIZE;
+>>>>>>> upstream/android-13
 		break;
 	}
 
@@ -522,7 +538,11 @@ static union acpi_parse_object *acpi_ps_get_next_field(struct acpi_parse_state
 
 		ACPI_MOVE_32_TO_32(&name, parser_state->aml);
 		acpi_ps_set_name(field, name);
+<<<<<<< HEAD
 		parser_state->aml += ACPI_NAME_SIZE;
+=======
+		parser_state->aml += ACPI_NAMESEG_SIZE;
+>>>>>>> upstream/android-13
 
 		ASL_CV_CAPTURE_COMMENTS_ONLY(parser_state);
 

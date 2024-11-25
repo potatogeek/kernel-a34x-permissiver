@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * MSDI IP block reset
  *
  * Copyright (C) 2012 Texas Instruments, Inc.
  * Paul Walmsley
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
@@ -18,6 +23,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  * XXX What about pad muxing?
  */
 

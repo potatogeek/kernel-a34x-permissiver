@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # The ARCH_INLINE foo is necessary because select ignores "depends on"
 #
@@ -100,7 +104,11 @@ config UNINLINE_SPIN_UNLOCK
 # unlock and unlock_irq functions are inlined when:
 #   - DEBUG_SPINLOCK=n and ARCH_INLINE_*LOCK=y
 #  or
+<<<<<<< HEAD
 #   - DEBUG_SPINLOCK=n and PREEMPT=n
+=======
+#   - DEBUG_SPINLOCK=n and PREEMPTION=n
+>>>>>>> upstream/android-13
 #
 # unlock_bh and unlock_irqrestore functions are inlined when:
 #   - DEBUG_SPINLOCK=n and ARCH_INLINE_*LOCK=y
@@ -138,7 +146,11 @@ config INLINE_SPIN_UNLOCK_BH
 
 config INLINE_SPIN_UNLOCK_IRQ
 	def_bool y
+<<<<<<< HEAD
 	depends on !PREEMPT || ARCH_INLINE_SPIN_UNLOCK_IRQ
+=======
+	depends on !PREEMPTION || ARCH_INLINE_SPIN_UNLOCK_IRQ
+>>>>>>> upstream/android-13
 
 config INLINE_SPIN_UNLOCK_IRQRESTORE
 	def_bool y
@@ -167,7 +179,11 @@ config INLINE_READ_LOCK_IRQSAVE
 
 config INLINE_READ_UNLOCK
 	def_bool y
+<<<<<<< HEAD
 	depends on !PREEMPT || ARCH_INLINE_READ_UNLOCK
+=======
+	depends on !PREEMPTION || ARCH_INLINE_READ_UNLOCK
+>>>>>>> upstream/android-13
 
 config INLINE_READ_UNLOCK_BH
 	def_bool y
@@ -175,7 +191,11 @@ config INLINE_READ_UNLOCK_BH
 
 config INLINE_READ_UNLOCK_IRQ
 	def_bool y
+<<<<<<< HEAD
 	depends on !PREEMPT || ARCH_INLINE_READ_UNLOCK_IRQ
+=======
+	depends on !PREEMPTION || ARCH_INLINE_READ_UNLOCK_IRQ
+>>>>>>> upstream/android-13
 
 config INLINE_READ_UNLOCK_IRQRESTORE
 	def_bool y
@@ -204,7 +224,11 @@ config INLINE_WRITE_LOCK_IRQSAVE
 
 config INLINE_WRITE_UNLOCK
 	def_bool y
+<<<<<<< HEAD
 	depends on !PREEMPT || ARCH_INLINE_WRITE_UNLOCK
+=======
+	depends on !PREEMPTION || ARCH_INLINE_WRITE_UNLOCK
+>>>>>>> upstream/android-13
 
 config INLINE_WRITE_UNLOCK_BH
 	def_bool y
@@ -212,7 +236,11 @@ config INLINE_WRITE_UNLOCK_BH
 
 config INLINE_WRITE_UNLOCK_IRQ
 	def_bool y
+<<<<<<< HEAD
 	depends on !PREEMPT || ARCH_INLINE_WRITE_UNLOCK_IRQ
+=======
+	depends on !PREEMPTION || ARCH_INLINE_WRITE_UNLOCK_IRQ
+>>>>>>> upstream/android-13
 
 config INLINE_WRITE_UNLOCK_IRQRESTORE
 	def_bool y
@@ -229,7 +257,11 @@ config MUTEX_SPIN_ON_OWNER
 
 config RWSEM_SPIN_ON_OWNER
        def_bool y
+<<<<<<< HEAD
        depends on SMP && RWSEM_XCHGADD_ALGORITHM && ARCH_SUPPORTS_ATOMIC_RMW
+=======
+       depends on SMP && ARCH_SUPPORTS_ATOMIC_RMW
+>>>>>>> upstream/android-13
 
 config LOCK_SPIN_ON_OWNER
        def_bool y
@@ -242,9 +274,25 @@ config QUEUED_SPINLOCKS
 	def_bool y if ARCH_USE_QUEUED_SPINLOCKS
 	depends on SMP
 
+<<<<<<< HEAD
+=======
+config BPF_ARCH_SPINLOCK
+	bool
+
+>>>>>>> upstream/android-13
 config ARCH_USE_QUEUED_RWLOCKS
 	bool
 
 config QUEUED_RWLOCKS
 	def_bool y if ARCH_USE_QUEUED_RWLOCKS
+<<<<<<< HEAD
+=======
+	depends on SMP && !PREEMPT_RT
+
+config ARCH_HAS_MMIOWB
+	bool
+
+config MMIOWB
+	def_bool y if ARCH_HAS_MMIOWB
+>>>>>>> upstream/android-13
 	depends on SMP

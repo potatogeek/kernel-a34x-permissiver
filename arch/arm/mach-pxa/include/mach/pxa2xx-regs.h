@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  arch/arm/mach-pxa/include/mach/pxa2xx-regs.h
  *
@@ -5,10 +9,13 @@
  *
  *  Author:	Nicolas Pitre
  *  Copyright:	MontaVista Software Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __PXA2XX_REGS_H

@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * EISA bus support functions for sysfs.
  *
  * (C) 2002, 2003 Marc Zyngier <maz@wild-wind.fr.eu.org>
+<<<<<<< HEAD
  *
  * This code is released under the GPL version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -156,34 +163,57 @@ void eisa_driver_unregister(struct eisa_driver *edrv)
 }
 EXPORT_SYMBOL(eisa_driver_unregister);
 
+<<<<<<< HEAD
 static ssize_t eisa_show_sig(struct device *dev, struct device_attribute *attr,
 			     char *buf)
+=======
+static ssize_t signature_show(struct device *dev,
+			      struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct eisa_device *edev = to_eisa_device(dev);
 	return sprintf(buf, "%s\n", edev->id.sig);
 }
+<<<<<<< HEAD
 
 static DEVICE_ATTR(signature, S_IRUGO, eisa_show_sig, NULL);
 
 static ssize_t eisa_show_state(struct device *dev,
 			       struct device_attribute *attr,
 			       char *buf)
+=======
+static DEVICE_ATTR_RO(signature);
+
+static ssize_t enabled_show(struct device *dev,
+			    struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct eisa_device *edev = to_eisa_device(dev);
 	return sprintf(buf, "%d\n", edev->state & EISA_CONFIG_ENABLED);
 }
+<<<<<<< HEAD
 
 static DEVICE_ATTR(enabled, S_IRUGO, eisa_show_state, NULL);
 
 static ssize_t eisa_show_modalias(struct device *dev,
 				  struct device_attribute *attr,
 				  char *buf)
+=======
+static DEVICE_ATTR_RO(enabled);
+
+static ssize_t modalias_show(struct device *dev,
+			     struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct eisa_device *edev = to_eisa_device(dev);
 	return sprintf(buf, EISA_DEVICE_MODALIAS_FMT "\n", edev->id.sig);
 }
+<<<<<<< HEAD
 
 static DEVICE_ATTR(modalias, S_IRUGO, eisa_show_modalias, NULL);
+=======
+static DEVICE_ATTR_RO(modalias);
+>>>>>>> upstream/android-13
 
 static int __init eisa_init_device(struct eisa_root_device *root,
 				   struct eisa_device *edev,

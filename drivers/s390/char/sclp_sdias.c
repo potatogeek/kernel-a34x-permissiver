@@ -29,7 +29,11 @@ static struct sclp_register sclp_sdias_register = {
 	.send_mask = EVTYP_SDIAS_MASK,
 };
 
+<<<<<<< HEAD
 static struct sdias_sccb sccb __attribute__((aligned(4096)));
+=======
+static struct sdias_sccb *sclp_sdias_sccb;
+>>>>>>> upstream/android-13
 static struct sdias_evbuf sdias_evbuf;
 
 static DECLARE_COMPLETION(evbuf_accepted);
@@ -58,6 +62,10 @@ static void sdias_callback(struct sclp_req *request, void *data)
 
 static int sdias_sclp_send(struct sclp_req *req)
 {
+<<<<<<< HEAD
+=======
+	struct sdias_sccb *sccb = sclp_sdias_sccb;
+>>>>>>> upstream/android-13
 	int retries;
 	int rc;
 
@@ -78,16 +86,26 @@ static int sdias_sclp_send(struct sclp_req *req)
 			continue;
 		}
 		/* if not accepted, retry */
+<<<<<<< HEAD
 		if (!(sccb.evbuf.hdr.flags & 0x80)) {
 			TRACE("sclp request failed: flags=%x\n",
 			      sccb.evbuf.hdr.flags);
+=======
+		if (!(sccb->evbuf.hdr.flags & 0x80)) {
+			TRACE("sclp request failed: flags=%x\n",
+			      sccb->evbuf.hdr.flags);
+>>>>>>> upstream/android-13
 			continue;
 		}
 		/*
 		 * for the sync interface the response is in the initial sccb
 		 */
 		if (!sclp_sdias_register.receiver_fn) {
+<<<<<<< HEAD
 			memcpy(&sdias_evbuf, &sccb.evbuf, sizeof(sdias_evbuf));
+=======
+			memcpy(&sdias_evbuf, &sccb->evbuf, sizeof(sdias_evbuf));
+>>>>>>> upstream/android-13
 			TRACE("sync request done\n");
 			return 0;
 		}
@@ -104,11 +122,16 @@ static int sdias_sclp_send(struct sclp_req *req)
  */
 int sclp_sdias_blk_count(void)
 {
+<<<<<<< HEAD
+=======
+	struct sdias_sccb *sccb = sclp_sdias_sccb;
+>>>>>>> upstream/android-13
 	struct sclp_req request;
 	int rc;
 
 	mutex_lock(&sdias_mutex);
 
+<<<<<<< HEAD
 	memset(&sccb, 0, sizeof(sccb));
 	memset(&request, 0, sizeof(request));
 
@@ -121,6 +144,20 @@ int sclp_sdias_blk_count(void)
 	sccb.evbuf.dbs = 1;
 
 	request.sccb = &sccb;
+=======
+	memset(sccb, 0, sizeof(*sccb));
+	memset(&request, 0, sizeof(request));
+
+	sccb->hdr.length = sizeof(*sccb);
+	sccb->evbuf.hdr.length = sizeof(struct sdias_evbuf);
+	sccb->evbuf.hdr.type = EVTYP_SDIAS;
+	sccb->evbuf.event_qual = SDIAS_EQ_SIZE;
+	sccb->evbuf.data_id = SDIAS_DI_FCP_DUMP;
+	sccb->evbuf.event_id = 4712;
+	sccb->evbuf.dbs = 1;
+
+	request.sccb = sccb;
+>>>>>>> upstream/android-13
 	request.command = SCLP_CMDW_WRITE_EVENT_DATA;
 	request.status = SCLP_REQ_FILLED;
 	request.callback = sdias_callback;
@@ -130,8 +167,13 @@ int sclp_sdias_blk_count(void)
 		pr_err("sclp_send failed for get_nr_blocks\n");
 		goto out;
 	}
+<<<<<<< HEAD
 	if (sccb.hdr.response_code != 0x0020) {
 		TRACE("send failed: %x\n", sccb.hdr.response_code);
+=======
+	if (sccb->hdr.response_code != 0x0020) {
+		TRACE("send failed: %x\n", sccb->hdr.response_code);
+>>>>>>> upstream/android-13
 		rc = -EIO;
 		goto out;
 	}
@@ -163,11 +205,16 @@ out:
  */
 int sclp_sdias_copy(void *dest, int start_blk, int nr_blks)
 {
+<<<<<<< HEAD
+=======
+	struct sdias_sccb *sccb = sclp_sdias_sccb;
+>>>>>>> upstream/android-13
 	struct sclp_req request;
 	int rc;
 
 	mutex_lock(&sdias_mutex);
 
+<<<<<<< HEAD
 	memset(&sccb, 0, sizeof(sccb));
 	memset(&request, 0, sizeof(request));
 
@@ -187,6 +234,27 @@ int sclp_sdias_copy(void *dest, int start_blk, int nr_blks)
 	sccb.evbuf.dbs = 1;
 
 	request.sccb	 = &sccb;
+=======
+	memset(sccb, 0, sizeof(*sccb));
+	memset(&request, 0, sizeof(request));
+
+	sccb->hdr.length = sizeof(*sccb);
+	sccb->evbuf.hdr.length = sizeof(struct sdias_evbuf);
+	sccb->evbuf.hdr.type = EVTYP_SDIAS;
+	sccb->evbuf.hdr.flags = 0;
+	sccb->evbuf.event_qual = SDIAS_EQ_STORE_DATA;
+	sccb->evbuf.data_id = SDIAS_DI_FCP_DUMP;
+	sccb->evbuf.event_id = 4712;
+	sccb->evbuf.asa_size = SDIAS_ASA_SIZE_64;
+	sccb->evbuf.event_status = 0;
+	sccb->evbuf.blk_cnt = nr_blks;
+	sccb->evbuf.asa = (unsigned long)dest;
+	sccb->evbuf.fbn = start_blk;
+	sccb->evbuf.lbn = 0;
+	sccb->evbuf.dbs = 1;
+
+	request.sccb	 = sccb;
+>>>>>>> upstream/android-13
 	request.command  = SCLP_CMDW_WRITE_EVENT_DATA;
 	request.status	 = SCLP_REQ_FILLED;
 	request.callback = sdias_callback;
@@ -196,8 +264,13 @@ int sclp_sdias_copy(void *dest, int start_blk, int nr_blks)
 		pr_err("sclp_send failed: %x\n", rc);
 		goto out;
 	}
+<<<<<<< HEAD
 	if (sccb.hdr.response_code != 0x0020) {
 		TRACE("copy failed: %x\n", sccb.hdr.response_code);
+=======
+	if (sccb->hdr.response_code != 0x0020) {
+		TRACE("copy failed: %x\n", sccb->hdr.response_code);
+>>>>>>> upstream/android-13
 		rc = -EIO;
 		goto out;
 	}
@@ -211,7 +284,11 @@ int sclp_sdias_copy(void *dest, int start_blk, int nr_blks)
 		break;
 	case SDIAS_EVSTATE_NO_DATA:
 		TRACE("no data\n");
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		pr_err("Error from SCLP while copying hsa. Event status = %x\n",
 		       sdias_evbuf.event_status);
@@ -254,8 +331,15 @@ static int __init sclp_sdias_init_async(void)
 
 int __init sclp_sdias_init(void)
 {
+<<<<<<< HEAD
 	if (ipl_info.type != IPL_TYPE_FCP_DUMP)
 		return 0;
+=======
+	if (!is_ipl_type_dump())
+		return 0;
+	sclp_sdias_sccb = (void *) __get_free_page(GFP_KERNEL | GFP_DMA);
+	BUG_ON(!sclp_sdias_sccb);
+>>>>>>> upstream/android-13
 	sdias_dbf = debug_register("dump_sdias", 4, 1, 4 * sizeof(long));
 	debug_register_view(sdias_dbf, &debug_sprintf_view);
 	debug_set_level(sdias_dbf, 6);
@@ -264,14 +348,21 @@ int __init sclp_sdias_init(void)
 	if (sclp_sdias_init_async() == 0)
 		goto out;
 	TRACE("init failed\n");
+<<<<<<< HEAD
+=======
+	free_page((unsigned long) sclp_sdias_sccb);
+>>>>>>> upstream/android-13
 	return -ENODEV;
 out:
 	TRACE("init done\n");
 	return 0;
 }
+<<<<<<< HEAD
 
 void __exit sclp_sdias_exit(void)
 {
 	debug_unregister(sdias_dbf);
 	sclp_unregister(&sclp_sdias_register);
 }
+=======
+>>>>>>> upstream/android-13

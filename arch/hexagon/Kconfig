@@ -4,8 +4,15 @@ comment "Linux Kernel Configuration for Hexagon"
 
 config HEXAGON
 	def_bool y
+<<<<<<< HEAD
 	select ARCH_NO_PREEMPT
 	select HAVE_OPROFILE
+=======
+	select ARCH_32BIT_OFF_T
+	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
+	select ARCH_NO_PREEMPT
+	select DMA_GLOBAL_POOL
+>>>>>>> upstream/android-13
 	# Other pending projects/to-do items.
 	# select HAVE_REGS_AND_STACK_ACCESS_API
 	# select HAVE_HW_BREAKPOINT if PERF_EVENTS
@@ -25,17 +32,31 @@ config HEXAGON
 	select GENERIC_IOMAP
 	select GENERIC_SMP_IDLE_THREAD
 	select STACKTRACE_SUPPORT
+<<<<<<< HEAD
 	select GENERIC_CLOCKEVENTS
 	select GENERIC_CLOCKEVENTS_BROADCAST
 	select MODULES_USE_ELF_RELA
 	select GENERIC_CPU_DEVICES
 	---help---
+=======
+	select GENERIC_CLOCKEVENTS_BROADCAST
+	select MODULES_USE_ELF_RELA
+	select GENERIC_CPU_DEVICES
+	select SET_FS
+	select ARCH_WANT_LD_ORPHAN_WARN
+	select TRACE_IRQFLAGS_SUPPORT
+	help
+>>>>>>> upstream/android-13
 	  Qualcomm Hexagon is a processor architecture designed for high
 	  performance and low power across a wide variety of applications.
 
 config HEXAGON_PHYS_OFFSET
 	def_bool y
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  Platforms that don't load the kernel at zero set this.
 
 config FRAME_POINTER
@@ -44,18 +65,24 @@ config FRAME_POINTER
 config LOCKDEP_SUPPORT
 	def_bool y
 
+<<<<<<< HEAD
 config PCI
 	def_bool n
 
+=======
+>>>>>>> upstream/android-13
 config EARLY_PRINTK
 	def_bool y
 
 config MMU
 	def_bool y
 
+<<<<<<< HEAD
 config TRACE_IRQFLAGS_SUPPORT
 	def_bool y
 
+=======
+>>>>>>> upstream/android-13
 config GENERIC_CSUM
 	def_bool y
 
@@ -65,12 +92,15 @@ config GENERIC_CSUM
 config GENERIC_IRQ_PROBE
 	def_bool y
 
+<<<<<<< HEAD
 config RWSEM_GENERIC_SPINLOCK
 	def_bool n
 
 config RWSEM_XCHGADD_ALGORITHM
 	def_bool y
 
+=======
+>>>>>>> upstream/android-13
 config GENERIC_HWEIGHT
 	def_bool y
 
@@ -90,7 +120,11 @@ choice
 
 config HEXAGON_COMET
 	bool "Comet Board"
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  Support for the Comet platform.
 
 endchoice
@@ -111,7 +145,11 @@ config CMDLINE
 
 config SMP
 	bool "Multi-Processing support"
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  Enables SMP support in the kernel.  If unsure, say "Y"
 
 config NR_CPUS
@@ -119,7 +157,11 @@ config NR_CPUS
 	range 2 6 if SMP
 	default "1" if !SMP
 	default "6" if SMP
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  This allows you to specify the maximum number of CPUs which this
 	  kernel will support.  The maximum supported value is 6 and the
 	  minimum value which makes sense is 2.
@@ -130,7 +172,11 @@ config NR_CPUS
 choice
 	prompt "Kernel page size"
 	default PAGE_SIZE_4KB
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  Changes the default page size; use with caution.
 
 config PAGE_SIZE_4KB

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * DVB USB framework
  *
  * Copyright (C) 2004-6 Patrick Boettcher <patrick.boettcher@posteo.de>
  * Copyright (C) 2012 Antti Palosaari <crope@iki.fi>
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  *    You should have received a copy of the GNU General Public License along
  *    with this program; if not, write to the Free Software Foundation, Inc.,
  *    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "dvb_usb_common.h"
@@ -37,6 +44,7 @@ static int dvb_usb_v2_generic_io(struct dvb_usb_device *d,
 	ret = usb_bulk_msg(d->udev, usb_sndbulkpipe(d->udev,
 			d->props->generic_bulk_ctrl_endpoint), wbuf, wlen,
 			&actual_length, 2000);
+<<<<<<< HEAD
 	if (ret < 0)
 		dev_err(&d->udev->dev, "%s: usb_bulk_msg() failed=%d\n",
 				KBUILD_MODNAME, ret);
@@ -45,6 +53,21 @@ static int dvb_usb_v2_generic_io(struct dvb_usb_device *d,
 
 	/* an answer is expected, and no error before */
 	if (!ret && rbuf && rlen) {
+=======
+	if (ret) {
+		dev_err(&d->udev->dev, "%s: usb_bulk_msg() failed=%d\n",
+				KBUILD_MODNAME, ret);
+		return ret;
+	}
+	if (actual_length != wlen) {
+		dev_err(&d->udev->dev, "%s: usb_bulk_msg() write length=%d, actual=%d\n",
+			KBUILD_MODNAME, wlen, actual_length);
+		return -EIO;
+	}
+
+	/* an answer is expected */
+	if (rbuf && rlen) {
+>>>>>>> upstream/android-13
 		if (d->props->generic_bulk_ctrl_delay)
 			usleep_range(d->props->generic_bulk_ctrl_delay,
 					d->props->generic_bulk_ctrl_delay

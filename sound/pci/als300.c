@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  als300.c - driver for Avance Logic ALS300/ALS300+ soundcards.
  *  Copyright (C) 2005 by Ash Willis <ashwillis@programmer.net>
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
@@ -16,6 +21,8 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  *  TODO
  *  4 channel playback for ALS300+
  *  gameport
@@ -99,7 +106,10 @@ enum {DEVICE_ALS300, DEVICE_ALS300_PLUS};
 MODULE_AUTHOR("Ash Willis <ashwillis@programmer.net>");
 MODULE_DESCRIPTION("Avance Logic ALS300");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{{Avance Logic,ALS300},{Avance Logic,ALS300+}}");
+=======
+>>>>>>> upstream/android-13
 
 static int index[SNDRV_CARDS] = SNDRV_DEFAULT_IDX;
 static char *id[SNDRV_CARDS] = SNDRV_DEFAULT_STR;
@@ -177,6 +187,7 @@ static void snd_als300_set_irq_flag(struct snd_als300 *chip, int cmd)
 	snd_als300_gcr_write(chip->port, MISC_CONTROL, tmp);
 }
 
+<<<<<<< HEAD
 static int snd_als300_free(struct snd_als300 *chip)
 {
 	snd_als300_set_irq_flag(chip, IRQ_DISABLE);
@@ -192,6 +203,13 @@ static int snd_als300_dev_free(struct snd_device *device)
 {
 	struct snd_als300 *chip = device->device_data;
 	return snd_als300_free(chip);
+=======
+static void snd_als300_free(struct snd_card *card)
+{
+	struct snd_als300 *chip = card->private_data;
+
+	snd_als300_set_irq_flag(chip, IRQ_DISABLE);
+>>>>>>> upstream/android-13
 }
 
 static irqreturn_t snd_als300_interrupt(int irq, void *dev_id)
@@ -262,11 +280,14 @@ static irqreturn_t snd_als300plus_interrupt(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static void snd_als300_remove(struct pci_dev *pci)
 {
 	snd_card_free(pci_get_drvdata(pci));
 }
 
+=======
+>>>>>>> upstream/android-13
 static unsigned short snd_als300_ac97_read(struct snd_ac97 *ac97,
 							unsigned short reg)
 {
@@ -307,12 +328,21 @@ static int snd_als300_ac97(struct snd_als300 *chip)
 	struct snd_ac97_bus *bus;
 	struct snd_ac97_template ac97;
 	int err;
+<<<<<<< HEAD
 	static struct snd_ac97_bus_ops ops = {
+=======
+	static const struct snd_ac97_bus_ops ops = {
+>>>>>>> upstream/android-13
 		.write = snd_als300_ac97_write,
 		.read = snd_als300_ac97_read,
 	};
 
+<<<<<<< HEAD
 	if ((err = snd_ac97_bus(chip->card, 0, &ops, NULL, &bus)) < 0)
+=======
+	err = snd_ac97_bus(chip->card, 0, &ops, NULL, &bus);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 
 	memset(&ac97, 0, sizeof(ac97));
@@ -391,7 +421,10 @@ static int snd_als300_playback_close(struct snd_pcm_substream *substream)
 	data = substream->runtime->private_data;
 	kfree(data);
 	chip->playback_substream = NULL;
+<<<<<<< HEAD
 	snd_pcm_lib_free_pages(substream);
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -420,6 +453,7 @@ static int snd_als300_capture_close(struct snd_pcm_substream *substream)
 	data = substream->runtime->private_data;
 	kfree(data);
 	chip->capture_substream = NULL;
+<<<<<<< HEAD
 	snd_pcm_lib_free_pages(substream);
 	return 0;
 }
@@ -436,6 +470,11 @@ static int snd_als300_pcm_hw_free(struct snd_pcm_substream *substream)
 	return snd_pcm_lib_free_pages(substream);
 }
 
+=======
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int snd_als300_playback_prepare(struct snd_pcm_substream *substream)
 {
 	u32 tmp;
@@ -566,9 +605,12 @@ static snd_pcm_uframes_t snd_als300_pointer(struct snd_pcm_substream *substream)
 static const struct snd_pcm_ops snd_als300_playback_ops = {
 	.open =		snd_als300_playback_open,
 	.close =	snd_als300_playback_close,
+<<<<<<< HEAD
 	.ioctl =	snd_pcm_lib_ioctl,
 	.hw_params =	snd_als300_pcm_hw_params,
 	.hw_free =	snd_als300_pcm_hw_free,
+=======
+>>>>>>> upstream/android-13
 	.prepare =	snd_als300_playback_prepare,
 	.trigger =	snd_als300_trigger,
 	.pointer =	snd_als300_pointer,
@@ -577,9 +619,12 @@ static const struct snd_pcm_ops snd_als300_playback_ops = {
 static const struct snd_pcm_ops snd_als300_capture_ops = {
 	.open =		snd_als300_capture_open,
 	.close =	snd_als300_capture_close,
+<<<<<<< HEAD
 	.ioctl =	snd_pcm_lib_ioctl,
 	.hw_params =	snd_als300_pcm_hw_params,
 	.hw_free =	snd_als300_pcm_hw_free,
+=======
+>>>>>>> upstream/android-13
 	.prepare =	snd_als300_capture_prepare,
 	.trigger =	snd_als300_trigger,
 	.pointer =	snd_als300_pointer,
@@ -604,8 +649,13 @@ static int snd_als300_new_pcm(struct snd_als300 *chip)
 				&snd_als300_capture_ops);
 
 	/* pre-allocation of buffers */
+<<<<<<< HEAD
 	snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_DEV,
 	snd_dma_pci_data(chip->pci), 64*1024, 64*1024);
+=======
+	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_DEV, &chip->pci->dev,
+				       64*1024, 64*1024);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -643,6 +693,7 @@ static void snd_als300_init(struct snd_als300 *chip)
 }
 
 static int snd_als300_create(struct snd_card *card,
+<<<<<<< HEAD
 			     struct pci_dev *pci, int chip_type,
 			     struct snd_als300 **rchip)
 {
@@ -662,27 +713,51 @@ static int snd_als300_create(struct snd_card *card,
 		dma_set_coherent_mask(&pci->dev, DMA_BIT_MASK(28)) < 0) {
 		dev_err(card->dev, "error setting 28bit DMA mask\n");
 		pci_disable_device(pci);
+=======
+			     struct pci_dev *pci, int chip_type)
+{
+	struct snd_als300 *chip = card->private_data;
+	void *irq_handler;
+	int err;
+
+	err = pcim_enable_device(pci);
+	if (err < 0)
+		return err;
+
+	if (dma_set_mask_and_coherent(&pci->dev, DMA_BIT_MASK(28))) {
+		dev_err(card->dev, "error setting 28bit DMA mask\n");
+>>>>>>> upstream/android-13
 		return -ENXIO;
 	}
 	pci_set_master(pci);
 
+<<<<<<< HEAD
 	chip = kzalloc(sizeof(*chip), GFP_KERNEL);
 	if (chip == NULL) {
 		pci_disable_device(pci);
 		return -ENOMEM;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	chip->card = card;
 	chip->pci = pci;
 	chip->irq = -1;
 	chip->chip_type = chip_type;
 	spin_lock_init(&chip->reg_lock);
 
+<<<<<<< HEAD
 	if ((err = pci_request_regions(pci, "ALS300")) < 0) {
 		kfree(chip);
 		pci_disable_device(pci);
 		return err;
 	}
+=======
+	err = pci_request_regions(pci, "ALS300");
+	if (err < 0)
+		return err;
+
+>>>>>>> upstream/android-13
 	chip->port = pci_resource_start(pci, 0);
 
 	if (chip->chip_type == DEVICE_ALS300_PLUS)
@@ -690,6 +765,7 @@ static int snd_als300_create(struct snd_card *card,
 	else
 		irq_handler = snd_als300_interrupt;
 
+<<<<<<< HEAD
 	if (request_irq(pci->irq, irq_handler, IRQF_SHARED,
 			KBUILD_MODNAME, chip)) {
 		dev_err(card->dev, "unable to grab IRQ %d\n", pci->irq);
@@ -698,12 +774,23 @@ static int snd_als300_create(struct snd_card *card,
 	}
 	chip->irq = pci->irq;
 
+=======
+	if (devm_request_irq(&pci->dev, pci->irq, irq_handler, IRQF_SHARED,
+			     KBUILD_MODNAME, chip)) {
+		dev_err(card->dev, "unable to grab IRQ %d\n", pci->irq);
+		return -EBUSY;
+	}
+	chip->irq = pci->irq;
+	card->sync_irq = chip->irq;
+	card->private_free = snd_als300_free;
+>>>>>>> upstream/android-13
 
 	snd_als300_init(chip);
 
 	err = snd_als300_ac97(chip);
 	if (err < 0) {
 		dev_err(card->dev, "Could not create ac97\n");
+<<<<<<< HEAD
 		snd_als300_free(chip);
 		return err;
 	}
@@ -721,6 +808,17 @@ static int snd_als300_create(struct snd_card *card,
 	}
 
 	*rchip = chip;
+=======
+		return err;
+	}
+
+	err = snd_als300_new_pcm(chip);
+	if (err < 0) {
+		dev_err(card->dev, "Could not create PCM\n");
+		return err;
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -731,7 +829,10 @@ static int snd_als300_suspend(struct device *dev)
 	struct snd_als300 *chip = card->private_data;
 
 	snd_power_change_state(card, SNDRV_CTL_POWER_D3hot);
+<<<<<<< HEAD
 	snd_pcm_suspend_all(chip->pcm);
+=======
+>>>>>>> upstream/android-13
 	snd_ac97_suspend(chip->ac97);
 	return 0;
 }
@@ -769,6 +870,7 @@ static int snd_als300_probe(struct pci_dev *pci,
 		return -ENOENT;
 	}
 
+<<<<<<< HEAD
 	err = snd_card_new(&pci->dev, index[dev], id[dev], THIS_MODULE,
 			   0, &card);
 
@@ -782,6 +884,19 @@ static int snd_als300_probe(struct pci_dev *pci,
 		return err;
 	}
 	card->private_data = chip;
+=======
+	err = snd_devm_card_new(&pci->dev, index[dev], id[dev], THIS_MODULE,
+				sizeof(*chip), &card);
+	if (err < 0)
+		return err;
+	chip = card->private_data;
+
+	chip_type = pci_id->driver_data;
+
+	err = snd_als300_create(card, pci, chip_type);
+	if (err < 0)
+		goto error;
+>>>>>>> upstream/android-13
 
 	strcpy(card->driver, "ALS300");
 	if (chip->chip_type == DEVICE_ALS300_PLUS)
@@ -794,6 +909,7 @@ static int snd_als300_probe(struct pci_dev *pci,
 	sprintf(card->longname, "%s at 0x%lx irq %i",
 				card->shortname, chip->port, chip->irq);
 
+<<<<<<< HEAD
 	if ((err = snd_card_register(card)) < 0) {
 		snd_card_free(card);
 		return err;
@@ -801,13 +917,29 @@ static int snd_als300_probe(struct pci_dev *pci,
 	pci_set_drvdata(pci, card);
 	dev++;
 	return 0;
+=======
+	err = snd_card_register(card);
+	if (err < 0)
+		goto error;
+
+	pci_set_drvdata(pci, card);
+	dev++;
+	return 0;
+
+ error:
+	snd_card_free(card);
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static struct pci_driver als300_driver = {
 	.name = KBUILD_MODNAME,
 	.id_table = snd_als300_ids,
 	.probe = snd_als300_probe,
+<<<<<<< HEAD
 	.remove = snd_als300_remove,
+=======
+>>>>>>> upstream/android-13
 	.driver = {
 		.pm = SND_ALS300_PM_OPS,
 	},

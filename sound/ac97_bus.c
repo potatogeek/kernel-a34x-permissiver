@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Linux driver model AC97 bus interface
  *
  * Author:	Nicolas Pitre
  * Created:	Jan 14, 2005
  * Copyright:	(C) MontaVista Software Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -59,7 +66,11 @@ static bool snd_ac97_check_id(struct snd_ac97 *ac97, unsigned int id,
 int snd_ac97_reset(struct snd_ac97 *ac97, bool try_warm, unsigned int id,
 	unsigned int id_mask)
 {
+<<<<<<< HEAD
 	struct snd_ac97_bus_ops *ops = ac97->bus->ops;
+=======
+	const struct snd_ac97_bus_ops *ops = ac97->bus->ops;
+>>>>>>> upstream/android-13
 
 	if (try_warm && ops->warm_reset) {
 		ops->warm_reset(ac97);

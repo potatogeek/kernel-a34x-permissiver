@@ -1,6 +1,10 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
+<<<<<<< HEAD
  * Common values for GHASH algorithms
+=======
+ * Common values for the GHASH hash function
+>>>>>>> upstream/android-13
  */
 
 #ifndef __CRYPTO_GHASH_H__

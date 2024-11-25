@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /**
  * Userspace PCI Endpoint Test Module
  *
  * Copyright (C) 2017 Texas Instruments
  * Author: Kishon Vijay Abraham I <kishon@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 of
@@ -15,6 +20,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <errno.h>
@@ -41,14 +48,26 @@ struct pci_test {
 	int		irqtype;
 	bool		set_irqtype;
 	bool		get_irqtype;
+<<<<<<< HEAD
+=======
+	bool		clear_irq;
+>>>>>>> upstream/android-13
 	bool		read;
 	bool		write;
 	bool		copy;
 	unsigned long	size;
+<<<<<<< HEAD
+=======
+	bool		use_dma;
+>>>>>>> upstream/android-13
 };
 
 static int run_test(struct pci_test *test)
 {
+<<<<<<< HEAD
+=======
+	struct pci_endpoint_test_xfer_param param = {};
+>>>>>>> upstream/android-13
 	int ret = -EINVAL;
 	int fd;
 
@@ -85,6 +104,18 @@ static int run_test(struct pci_test *test)
 			fprintf(stdout, "%s\n", irq[ret]);
 	}
 
+<<<<<<< HEAD
+=======
+	if (test->clear_irq) {
+		ret = ioctl(fd, PCITEST_CLEAR_IRQ);
+		fprintf(stdout, "CLEAR IRQ:\t\t");
+		if (ret < 0)
+			fprintf(stdout, "FAILED\n");
+		else
+			fprintf(stdout, "%s\n", result[ret]);
+	}
+
+>>>>>>> upstream/android-13
 	if (test->legacyirq) {
 		ret = ioctl(fd, PCITEST_LEGACY_IRQ, 0);
 		fprintf(stdout, "LEGACY IRQ:\t");
@@ -113,7 +144,14 @@ static int run_test(struct pci_test *test)
 	}
 
 	if (test->write) {
+<<<<<<< HEAD
 		ret = ioctl(fd, PCITEST_WRITE, test->size);
+=======
+		param.size = test->size;
+		if (test->use_dma)
+			param.flags = PCITEST_FLAGS_USE_DMA;
+		ret = ioctl(fd, PCITEST_WRITE, &param);
+>>>>>>> upstream/android-13
 		fprintf(stdout, "WRITE (%7ld bytes):\t\t", test->size);
 		if (ret < 0)
 			fprintf(stdout, "TEST FAILED\n");
@@ -122,7 +160,14 @@ static int run_test(struct pci_test *test)
 	}
 
 	if (test->read) {
+<<<<<<< HEAD
 		ret = ioctl(fd, PCITEST_READ, test->size);
+=======
+		param.size = test->size;
+		if (test->use_dma)
+			param.flags = PCITEST_FLAGS_USE_DMA;
+		ret = ioctl(fd, PCITEST_READ, &param);
+>>>>>>> upstream/android-13
 		fprintf(stdout, "READ (%7ld bytes):\t\t", test->size);
 		if (ret < 0)
 			fprintf(stdout, "TEST FAILED\n");
@@ -131,7 +176,14 @@ static int run_test(struct pci_test *test)
 	}
 
 	if (test->copy) {
+<<<<<<< HEAD
 		ret = ioctl(fd, PCITEST_COPY, test->size);
+=======
+		param.size = test->size;
+		if (test->use_dma)
+			param.flags = PCITEST_FLAGS_USE_DMA;
+		ret = ioctl(fd, PCITEST_COPY, &param);
+>>>>>>> upstream/android-13
 		fprintf(stdout, "COPY (%7ld bytes):\t\t", test->size);
 		if (ret < 0)
 			fprintf(stdout, "TEST FAILED\n");
@@ -140,6 +192,11 @@ static int run_test(struct pci_test *test)
 	}
 
 	fflush(stdout);
+<<<<<<< HEAD
+=======
+	close(fd);
+	return (ret < 0) ? ret : 1 - ret; /* return 0 if test succeeded */
+>>>>>>> upstream/android-13
 }
 
 int main(int argc, char **argv)
@@ -162,7 +219,11 @@ int main(int argc, char **argv)
 	/* set default endpoint device */
 	test->device = "/dev/pci-endpoint-test.0";
 
+<<<<<<< HEAD
 	while ((c = getopt(argc, argv, "D:b:m:x:i:Ilrwcs:")) != EOF)
+=======
+	while ((c = getopt(argc, argv, "D:b:m:x:i:deIlhrwcs:")) != EOF)
+>>>>>>> upstream/android-13
 	switch (c) {
 	case 'D':
 		test->device = optarg;
@@ -203,10 +264,22 @@ int main(int argc, char **argv)
 	case 'c':
 		test->copy = true;
 		continue;
+<<<<<<< HEAD
 	case 's':
 		test->size = strtoul(optarg, NULL, 0);
 		continue;
 	case '?':
+=======
+	case 'e':
+		test->clear_irq = true;
+		continue;
+	case 's':
+		test->size = strtoul(optarg, NULL, 0);
+		continue;
+	case 'd':
+		test->use_dma = true;
+		continue;
+>>>>>>> upstream/android-13
 	case 'h':
 	default:
 usage:
@@ -218,16 +291,31 @@ usage:
 			"\t-m <msi num>		MSI test (msi number between 1..32)\n"
 			"\t-x <msix num>	\tMSI-X test (msix number between 1..2048)\n"
 			"\t-i <irq type>	\tSet IRQ type (0 - Legacy, 1 - MSI, 2 - MSI-X)\n"
+<<<<<<< HEAD
 			"\t-I			Get current IRQ type configured\n"
+=======
+			"\t-e			Clear IRQ\n"
+			"\t-I			Get current IRQ type configured\n"
+			"\t-d			Use DMA\n"
+>>>>>>> upstream/android-13
 			"\t-l			Legacy IRQ test\n"
 			"\t-r			Read buffer test\n"
 			"\t-w			Write buffer test\n"
 			"\t-c			Copy buffer test\n"
+<<<<<<< HEAD
 			"\t-s <size>		Size of buffer {default: 100KB}\n",
+=======
+			"\t-s <size>		Size of buffer {default: 100KB}\n"
+			"\t-h			Print this help message\n",
+>>>>>>> upstream/android-13
 			argv[0]);
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	run_test(test);
 	return 0;
+=======
+	return run_test(test);
+>>>>>>> upstream/android-13
 }

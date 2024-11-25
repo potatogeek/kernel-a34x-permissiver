@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Driver for generic ESS AudioDrive ESx688 soundcards
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
@@ -17,6 +18,12 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Driver for generic ESS AudioDrive ESx688 soundcards
+ *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -41,11 +48,14 @@
 MODULE_DESCRIPTION(CRD_NAME);
 MODULE_AUTHOR("Jaroslav Kysela <perex@perex.cz>");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{{ESS,ES688 PnP AudioDrive,pnp:ESS0100},"
 	        "{ESS,ES1688 PnP AudioDrive,pnp:ESS0102},"
 	        "{ESS,ES688 AudioDrive,pnp:ESS6881},"
 	        "{ESS,ES1688 AudioDrive,pnp:ESS1681}}");
 
+=======
+>>>>>>> upstream/android-13
 MODULE_ALIAS("snd_es968");
 
 static int index[SNDRV_CARDS] = SNDRV_DEFAULT_IDX;	/* Index 0-MAX */
@@ -99,9 +109,15 @@ static int snd_es1688_legacy_create(struct snd_card *card,
 				    struct device *dev, unsigned int n)
 {
 	struct snd_es1688 *chip = card->private_data;
+<<<<<<< HEAD
 	static long possible_ports[] = {0x220, 0x240, 0x260};
 	static int possible_irqs[] = {5, 9, 10, 7, -1};
 	static int possible_dmas[] = {1, 3, 0, -1};
+=======
+	static const long possible_ports[] = {0x220, 0x240, 0x260};
+	static const int possible_irqs[] = {5, 9, 10, 7, -1};
+	static const int possible_dmas[] = {1, 3, 0, -1};
+>>>>>>> upstream/android-13
 
 	int i, error;
 
@@ -148,8 +164,13 @@ static int snd_es1688_probe(struct snd_card *card, unsigned int n)
 	if (error < 0)
 		return error;
 
+<<<<<<< HEAD
 	strlcpy(card->driver, "ES1688", sizeof(card->driver));
 	strlcpy(card->shortname, chip->pcm->name, sizeof(card->shortname));
+=======
+	strscpy(card->driver, "ES1688", sizeof(card->driver));
+	strscpy(card->shortname, chip->pcm->name, sizeof(card->shortname));
+>>>>>>> upstream/android-13
 	snprintf(card->longname, sizeof(card->longname),
 		"%s at 0x%lx, irq %i, dma %i", chip->pcm->name, chip->port,
 		 chip->irq, chip->dma8);
@@ -186,22 +207,36 @@ static int snd_es1688_isa_probe(struct device *dev, unsigned int n)
 	struct snd_card *card;
 	int error;
 
+<<<<<<< HEAD
 	error = snd_card_new(dev, index[n], id[n], THIS_MODULE,
 			     sizeof(struct snd_es1688), &card);
+=======
+	error = snd_devm_card_new(dev, index[n], id[n], THIS_MODULE,
+				  sizeof(struct snd_es1688), &card);
+>>>>>>> upstream/android-13
 	if (error < 0)
 		return error;
 
 	error = snd_es1688_legacy_create(card, dev, n);
 	if (error < 0)
+<<<<<<< HEAD
 		goto out;
 
 	error = snd_es1688_probe(card, n);
 	if (error < 0)
 		goto out;
+=======
+		return error;
+
+	error = snd_es1688_probe(card, n);
+	if (error < 0)
+		return error;
+>>>>>>> upstream/android-13
 
 	dev_set_drvdata(dev, card);
 
 	return 0;
+<<<<<<< HEAD
 out:
 	snd_card_free(card);
 	return error;
@@ -211,12 +246,17 @@ static int snd_es1688_isa_remove(struct device *dev, unsigned int n)
 {
 	snd_card_free(dev_get_drvdata(dev));
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static struct isa_driver snd_es1688_driver = {
 	.match		= snd_es1688_match,
 	.probe		= snd_es1688_isa_probe,
+<<<<<<< HEAD
 	.remove		= snd_es1688_isa_remove,
+=======
+>>>>>>> upstream/android-13
 #if 0	/* FIXME */
 	.suspend	= snd_es1688_suspend,
 	.resume		= snd_es1688_resume,
@@ -270,13 +310,20 @@ static int snd_es968_pnp_detect(struct pnp_card_link *pcard,
 	if (dev == SNDRV_CARDS)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	error = snd_card_new(&pcard->card->dev,
 			     index[dev], id[dev], THIS_MODULE,
 			     sizeof(struct snd_es1688), &card);
+=======
+	error = snd_devm_card_new(&pcard->card->dev,
+				  index[dev], id[dev], THIS_MODULE,
+				  sizeof(struct snd_es1688), &card);
+>>>>>>> upstream/android-13
 	if (error < 0)
 		return error;
 
 	error = snd_card_es968_pnp(card, dev, pcard, pid);
+<<<<<<< HEAD
 	if (error < 0) {
 		snd_card_free(card);
 		return error;
@@ -286,6 +333,13 @@ static int snd_es968_pnp_detect(struct pnp_card_link *pcard,
 		snd_card_free(card);
 		return error;
 	}
+=======
+	if (error < 0)
+		return error;
+	error = snd_es1688_probe(card, dev);
+	if (error < 0)
+		return error;
+>>>>>>> upstream/android-13
 	pnp_set_card_drvdata(pcard, card);
 	snd_es968_pnp_is_probed = 1;
 	return 0;
@@ -293,8 +347,11 @@ static int snd_es968_pnp_detect(struct pnp_card_link *pcard,
 
 static void snd_es968_pnp_remove(struct pnp_card_link *pcard)
 {
+<<<<<<< HEAD
 	snd_card_free(pnp_get_card_drvdata(pcard));
 	pnp_set_card_drvdata(pcard, NULL);
+=======
+>>>>>>> upstream/android-13
 	snd_es968_pnp_is_probed = 0;
 }
 
@@ -303,10 +360,15 @@ static int snd_es968_pnp_suspend(struct pnp_card_link *pcard,
 				 pm_message_t state)
 {
 	struct snd_card *card = pnp_get_card_drvdata(pcard);
+<<<<<<< HEAD
 	struct snd_es1688 *chip = card->private_data;
 
 	snd_power_change_state(card, SNDRV_CTL_POWER_D3hot);
 	snd_pcm_suspend_all(chip->pcm);
+=======
+
+	snd_power_change_state(card, SNDRV_CTL_POWER_D3hot);
+>>>>>>> upstream/android-13
 	return 0;
 }
 

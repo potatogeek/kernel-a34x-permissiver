@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * An RTC driver for Allwinner A10/A20
  *
  * Copyright (c) 2013, Carlo Caione <carlo.caione@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -435,7 +442,10 @@ MODULE_DEVICE_TABLE(of, sunxi_rtc_dt_ids);
 static int sunxi_rtc_probe(struct platform_device *pdev)
 {
 	struct sunxi_rtc_dev *chip;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	chip = devm_kzalloc(&pdev->dev, sizeof(*chip), GFP_KERNEL);
@@ -449,16 +459,25 @@ static int sunxi_rtc_probe(struct platform_device *pdev)
 	if (IS_ERR(chip->rtc))
 		return PTR_ERR(chip->rtc);
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	chip->base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	chip->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(chip->base))
 		return PTR_ERR(chip->base);
 
 	chip->irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (chip->irq < 0) {
 		dev_err(&pdev->dev, "No IRQ resource\n");
 		return chip->irq;
 	}
+=======
+	if (chip->irq < 0)
+		return chip->irq;
+>>>>>>> upstream/android-13
 	ret = devm_request_irq(&pdev->dev, chip->irq, sunxi_rtc_alarmirq,
 			0, dev_name(&pdev->dev), chip);
 	if (ret) {
@@ -487,6 +506,7 @@ static int sunxi_rtc_probe(struct platform_device *pdev)
 
 	chip->rtc->ops = &sunxi_rtc_ops;
 
+<<<<<<< HEAD
 	ret = rtc_register_device(chip->rtc);
 	if (ret) {
 		dev_err(&pdev->dev, "unable to register device\n");
@@ -496,6 +516,9 @@ static int sunxi_rtc_probe(struct platform_device *pdev)
 	dev_info(&pdev->dev, "RTC enabled\n");
 
 	return 0;
+=======
+	return devm_rtc_register_device(chip->rtc);
+>>>>>>> upstream/android-13
 }
 
 static struct platform_driver sunxi_rtc_driver = {

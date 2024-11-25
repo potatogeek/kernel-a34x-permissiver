@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014-2015 Hisilicon Limited.
  *
@@ -5,6 +6,11 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2014-2015 Hisilicon Limited.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/etherdevice.h>
@@ -21,7 +27,10 @@
 #define HNS_PHY_CSC_REG		16	/* Copper Specific Control Register */
 #define HNS_PHY_CSS_REG		17	/* Copper Specific Status Register */
 #define HNS_LED_FC_REG		16	/* LED Function Control Reg. */
+<<<<<<< HEAD
 #define HNS_LED_PC_REG		17	/* LED Polarity Control Reg. */
+=======
+>>>>>>> upstream/android-13
 
 #define HNS_LED_FORCE_ON	9
 #define HNS_LED_FORCE_OFF	8
@@ -197,7 +206,11 @@ static int hns_nic_get_link_ksettings(struct net_device *net_dev,
 }
 
 /**
+<<<<<<< HEAD
  *hns_nic_set_link_settings - implement ethtool set link ksettings
+=======
+ *hns_nic_set_link_ksettings - implement ethtool set link ksettings
+>>>>>>> upstream/android-13
  *@net_dev: net_device
  *@cmd: ethtool_link_ksettings
  *retuen 0 - success , negative --fail
@@ -309,7 +322,11 @@ static int __lb_setup(struct net_device *ndev,
 		break;
 	case MAC_LOOP_PHY_NONE:
 		ret = hns_nic_config_phy_loopback(phy_dev, 0x0);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case MAC_LOOP_NONE:
 		if (!ret && h->dev->ops->set_loopback) {
 			if (priv->ae_handle->phy_if != PHY_INTERFACE_MODE_XGMII)
@@ -470,9 +487,15 @@ static int __lb_clean_rings(struct hns_nic_priv *priv,
 }
 
 /**
+<<<<<<< HEAD
  * nic_run_loopback_test -  run loopback test
  * @nic_dev: net device
  * @loopback_type: loopback type
+=======
+ * __lb_run_test -  run loopback test
+ * @ndev: net device
+ * @loop_mode: loopback mode
+>>>>>>> upstream/android-13
  */
 static int __lb_run_test(struct net_device *ndev,
 			 enum hnae_loop loop_mode)
@@ -484,7 +507,11 @@ static int __lb_run_test(struct net_device *ndev,
 #define NIC_LB_TEST_NO_MEM_ERR 1
 #define NIC_LB_TEST_TX_CNT_ERR 2
 #define NIC_LB_TEST_RX_CNT_ERR 3
+<<<<<<< HEAD
 #define NIC_LB_TEST_RX_PKG_ERR 4
+=======
+
+>>>>>>> upstream/android-13
 	struct hns_nic_priv *priv = netdev_priv(ndev);
 	struct hnae_handle *h = priv->ae_handle;
 	int i, j, lc, good_cnt, ret_val = 0;
@@ -580,7 +607,11 @@ static int __lb_down(struct net_device *ndev, enum hnae_loop loop)
 
 /**
  * hns_nic_self_test - self test
+<<<<<<< HEAD
  * @dev: net device
+=======
+ * @ndev: net device
+>>>>>>> upstream/android-13
  * @eth_test: test cmd
  * @data: test result
  */
@@ -632,7 +663,11 @@ static void hns_nic_self_test(struct net_device *ndev,
 		clear_bit(NIC_STATE_TESTING, &priv->state);
 
 		if (if_running)
+<<<<<<< HEAD
 			(void)dev_open(ndev);
+=======
+			(void)dev_open(ndev, NULL);
+>>>>>>> upstream/android-13
 	}
 	/* Online tests aren't run; pass by default */
 
@@ -641,7 +676,11 @@ static void hns_nic_self_test(struct net_device *ndev,
 
 /**
  * hns_nic_get_drvinfo - get net driver info
+<<<<<<< HEAD
  * @dev: net device
+=======
+ * @net_dev: net device
+>>>>>>> upstream/android-13
  * @drvinfo: driver info
  */
 static void hns_nic_get_drvinfo(struct net_device *net_dev,
@@ -666,7 +705,11 @@ static void hns_nic_get_drvinfo(struct net_device *net_dev,
 
 /**
  * hns_get_ringparam - get ring parameter
+<<<<<<< HEAD
  * @dev: net device
+=======
+ * @net_dev: net device
+>>>>>>> upstream/android-13
  * @param: ethtool parameter
  */
 static void hns_get_ringparam(struct net_device *net_dev,
@@ -691,7 +734,11 @@ static void hns_get_ringparam(struct net_device *net_dev,
 
 /**
  * hns_get_pauseparam - get pause parameter
+<<<<<<< HEAD
  * @dev: net device
+=======
+ * @net_dev: net device
+>>>>>>> upstream/android-13
  * @param: pause parameter
  */
 static void hns_get_pauseparam(struct net_device *net_dev,
@@ -709,7 +756,11 @@ static void hns_get_pauseparam(struct net_device *net_dev,
 
 /**
  * hns_set_pauseparam - set pause parameter
+<<<<<<< HEAD
  * @dev: net device
+=======
+ * @net_dev: net device
+>>>>>>> upstream/android-13
  * @param: pause parameter
  *
  * Return 0 on success, negative on failure
@@ -733,13 +784,26 @@ static int hns_set_pauseparam(struct net_device *net_dev,
 
 /**
  * hns_get_coalesce - get coalesce info.
+<<<<<<< HEAD
  * @dev: net device
  * @ec: coalesce info.
+=======
+ * @net_dev: net device
+ * @ec: coalesce info.
+ * @kernel_coal: ethtool CQE mode setting structure
+ * @extack: extack for reporting error messages
+>>>>>>> upstream/android-13
  *
  * Return 0 on success, negative on failure.
  */
 static int hns_get_coalesce(struct net_device *net_dev,
+<<<<<<< HEAD
 			    struct ethtool_coalesce *ec)
+=======
+			    struct ethtool_coalesce *ec,
+			    struct kernel_ethtool_coalesce *kernel_coal,
+			    struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct hns_nic_priv *priv = netdev_priv(net_dev);
 	struct hnae_ae_ops *ops;
@@ -777,13 +841,26 @@ static int hns_get_coalesce(struct net_device *net_dev,
 
 /**
  * hns_set_coalesce - set coalesce info.
+<<<<<<< HEAD
  * @dev: net device
  * @ec: coalesce info.
+=======
+ * @net_dev: net device
+ * @ec: coalesce info.
+ * @kernel_coal: ethtool CQE mode setting structure
+ * @extack: extack for reporting error messages
+>>>>>>> upstream/android-13
  *
  * Return 0 on success, negative on failure.
  */
 static int hns_set_coalesce(struct net_device *net_dev,
+<<<<<<< HEAD
 			    struct ethtool_coalesce *ec)
+=======
+			    struct ethtool_coalesce *ec,
+			    struct kernel_ethtool_coalesce *kernel_coal,
+			    struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct hns_nic_priv *priv = netdev_priv(net_dev);
 	struct hnae_ae_ops *ops;
@@ -816,7 +893,11 @@ static int hns_set_coalesce(struct net_device *net_dev,
 
 /**
  * hns_get_channels - get channel info.
+<<<<<<< HEAD
  * @dev: net device
+=======
+ * @net_dev: net device
+>>>>>>> upstream/android-13
  * @ch: channel info.
  */
 static void
@@ -832,8 +913,13 @@ hns_get_channels(struct net_device *net_dev, struct ethtool_channels *ch)
 }
 
 /**
+<<<<<<< HEAD
  * get_ethtool_stats - get detail statistics.
  * @dev: net device
+=======
+ * hns_get_ethtool_stats - get detail statistics.
+ * @netdev: net device
+>>>>>>> upstream/android-13
  * @stats: statistics info.
  * @data: statistics data.
  */
@@ -890,16 +976,26 @@ static void hns_get_ethtool_stats(struct net_device *netdev,
 }
 
 /**
+<<<<<<< HEAD
  * get_strings: Return a set of strings that describe the requested objects
  * @dev: net device
  * @stats: string set ID.
+=======
+ * hns_get_strings: Return a set of strings that describe the requested objects
+ * @netdev: net device
+ * @stringset: string set ID.
+>>>>>>> upstream/android-13
  * @data: objects data.
  */
 static void hns_get_strings(struct net_device *netdev, u32 stringset, u8 *data)
 {
 	struct hns_nic_priv *priv = netdev_priv(netdev);
 	struct hnae_handle *h = priv->ae_handle;
+<<<<<<< HEAD
 	char *buff = (char *)data;
+=======
+	u8 *buff = data;
+>>>>>>> upstream/android-13
 
 	if (!h->dev->ops->get_strings) {
 		netdev_err(netdev, "h->dev->ops->get_strings is null!\n");
@@ -907,6 +1003,7 @@ static void hns_get_strings(struct net_device *netdev, u32 stringset, u8 *data)
 	}
 
 	if (stringset == ETH_SS_TEST) {
+<<<<<<< HEAD
 		if (priv->ae_handle->phy_if != PHY_INTERFACE_MODE_XGMII) {
 			memcpy(buff, hns_nic_test_strs[MAC_INTERNALLOOP_MAC],
 			       ETH_GSTRING_LEN);
@@ -975,12 +1072,58 @@ static void hns_get_strings(struct net_device *netdev, u32 stringset, u8 *data)
 		buff = buff + ETH_GSTRING_LEN;
 
 		h->dev->ops->get_strings(h, stringset, (u8 *)buff);
+=======
+		if (priv->ae_handle->phy_if != PHY_INTERFACE_MODE_XGMII)
+			ethtool_sprintf(&buff,
+					hns_nic_test_strs[MAC_INTERNALLOOP_MAC]);
+		ethtool_sprintf(&buff,
+				hns_nic_test_strs[MAC_INTERNALLOOP_SERDES]);
+		if ((netdev->phydev) && (!netdev->phydev->is_c45))
+			ethtool_sprintf(&buff,
+					hns_nic_test_strs[MAC_INTERNALLOOP_PHY]);
+
+	} else {
+		ethtool_sprintf(&buff, "rx_packets");
+		ethtool_sprintf(&buff, "tx_packets");
+		ethtool_sprintf(&buff, "rx_bytes");
+		ethtool_sprintf(&buff, "tx_bytes");
+		ethtool_sprintf(&buff, "rx_errors");
+		ethtool_sprintf(&buff, "tx_errors");
+		ethtool_sprintf(&buff, "rx_dropped");
+		ethtool_sprintf(&buff, "tx_dropped");
+		ethtool_sprintf(&buff, "multicast");
+		ethtool_sprintf(&buff, "collisions");
+		ethtool_sprintf(&buff, "rx_over_errors");
+		ethtool_sprintf(&buff, "rx_crc_errors");
+		ethtool_sprintf(&buff, "rx_frame_errors");
+		ethtool_sprintf(&buff, "rx_fifo_errors");
+		ethtool_sprintf(&buff, "rx_missed_errors");
+		ethtool_sprintf(&buff, "tx_aborted_errors");
+		ethtool_sprintf(&buff, "tx_carrier_errors");
+		ethtool_sprintf(&buff, "tx_fifo_errors");
+		ethtool_sprintf(&buff, "tx_heartbeat_errors");
+		ethtool_sprintf(&buff, "rx_length_errors");
+		ethtool_sprintf(&buff, "tx_window_errors");
+		ethtool_sprintf(&buff, "rx_compressed");
+		ethtool_sprintf(&buff, "tx_compressed");
+		ethtool_sprintf(&buff, "netdev_rx_dropped");
+		ethtool_sprintf(&buff, "netdev_tx_dropped");
+
+		ethtool_sprintf(&buff, "netdev_tx_timeout");
+
+		h->dev->ops->get_strings(h, stringset, buff);
+>>>>>>> upstream/android-13
 	}
 }
 
 /**
+<<<<<<< HEAD
  * nic_get_sset_count - get string set count witch returned by nic_get_strings.
  * @dev: net device
+=======
+ * hns_get_sset_count - get string set count returned by nic_get_strings
+ * @netdev: net device
+>>>>>>> upstream/android-13
  * @stringset: string set index, 0: self test string; 1: statistics string.
  *
  * Return string set count.
@@ -1014,7 +1157,11 @@ static int hns_get_sset_count(struct net_device *netdev, int stringset)
 
 /**
  * hns_phy_led_set - set phy LED status.
+<<<<<<< HEAD
  * @dev: net device
+=======
+ * @netdev: net device
+>>>>>>> upstream/android-13
  * @value: LED state.
  *
  * Return 0 on success, negative on failure.
@@ -1035,8 +1182,13 @@ static int hns_phy_led_set(struct net_device *netdev, int value)
 }
 
 /**
+<<<<<<< HEAD
  * nic_set_phys_id - set phy identify LED.
  * @dev: net device
+=======
+ * hns_set_phys_id - set phy identify LED.
+ * @netdev: net device
+>>>>>>> upstream/android-13
  * @state: LED state.
  *
  * Return 0 on success, negative on failure.
@@ -1112,9 +1264,15 @@ hns_set_phys_id(struct net_device *netdev, enum ethtool_phys_id_state state)
 
 /**
  * hns_get_regs - get net device register
+<<<<<<< HEAD
  * @dev: net device
  * @cmd: ethtool cmd
  * @date: register data
+=======
+ * @net_dev: net device
+ * @cmd: ethtool cmd
+ * @data: register data
+>>>>>>> upstream/android-13
  */
 static void hns_get_regs(struct net_device *net_dev, struct ethtool_regs *cmd,
 			 void *data)
@@ -1133,8 +1291,13 @@ static void hns_get_regs(struct net_device *net_dev, struct ethtool_regs *cmd,
 }
 
 /**
+<<<<<<< HEAD
  * nic_get_regs_len - get total register len.
  * @dev: net device
+=======
+ * hns_get_regs_len - get total register len.
+ * @net_dev: net device
+>>>>>>> upstream/android-13
  *
  * Return total register len.
  */
@@ -1159,7 +1322,11 @@ static int hns_get_regs_len(struct net_device *net_dev)
 
 /**
  * hns_nic_nway_reset - nway reset
+<<<<<<< HEAD
  * @dev: net device
+=======
+ * @netdev: net device
+>>>>>>> upstream/android-13
  *
  * Return 0 on success, negative on failure
  */
@@ -1272,6 +1439,14 @@ static int hns_get_rxnfc(struct net_device *netdev,
 }
 
 static const struct ethtool_ops hns_ethtool_ops = {
+<<<<<<< HEAD
+=======
+	.supported_coalesce_params = ETHTOOL_COALESCE_USECS |
+				     ETHTOOL_COALESCE_MAX_FRAMES |
+				     ETHTOOL_COALESCE_USE_ADAPTIVE |
+				     ETHTOOL_COALESCE_USECS_LOW_HIGH |
+				     ETHTOOL_COALESCE_MAX_FRAMES_LOW_HIGH,
+>>>>>>> upstream/android-13
 	.get_drvinfo = hns_nic_get_drvinfo,
 	.get_link  = hns_nic_get_link,
 	.get_ringparam = hns_get_ringparam,

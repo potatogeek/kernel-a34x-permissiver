@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * wm8505.dtsi - Device tree file for Wondermedia WM8505 SoC
  *
  * Copyright (C) 2012 Tony Prisk <linux@prisktech.co.nz>
+<<<<<<< HEAD
  *
  * Licensed under GPLv2 or later
  */
@@ -9,6 +14,13 @@
 /include/ "skeleton.dtsi"
 
 / {
+=======
+ */
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+>>>>>>> upstream/android-13
 	compatible = "wm,wm8505";
 
 	cpus {
@@ -21,6 +33,14 @@
 		};
 	};
 
+<<<<<<< HEAD
+=======
+	memory {
+		device_type = "memory";
+		reg = <0x0 0x0>;
+	};
+
+>>>>>>> upstream/android-13
  	aliases {
 		serial0 = &uart0;
 		serial1 = &uart1;

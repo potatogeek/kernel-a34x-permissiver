@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /* (C) 1999-2003 Nemosoft Unv.
    (C) 2004-2006 Luc Saillard (luc@saillard.org)
 
@@ -7,6 +11,7 @@
    The decompression routines have been implemented by reverse-engineering the
    Nemosoft binary pwcx module. Caveat emptor.
 
+<<<<<<< HEAD
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
@@ -20,6 +25,8 @@
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
 */
 
 #ifndef PWC_H
@@ -55,6 +62,7 @@
 
 
 /* Trace certain actions in the driver */
+<<<<<<< HEAD
 #define PWC_DEBUG_LEVEL_MODULE	(1<<0)
 #define PWC_DEBUG_LEVEL_PROBE	(1<<1)
 #define PWC_DEBUG_LEVEL_OPEN	(1<<2)
@@ -64,6 +72,17 @@
 #define PWC_DEBUG_LEVEL_SIZE	(1<<6)
 #define PWC_DEBUG_LEVEL_IOCTL	(1<<7)
 #define PWC_DEBUG_LEVEL_TRACE	(1<<8)
+=======
+#define PWC_DEBUG_LEVEL_MODULE	BIT(0)
+#define PWC_DEBUG_LEVEL_PROBE	BIT(1)
+#define PWC_DEBUG_LEVEL_OPEN	BIT(2)
+#define PWC_DEBUG_LEVEL_READ	BIT(3)
+#define PWC_DEBUG_LEVEL_MEMORY	BIT(4)
+#define PWC_DEBUG_LEVEL_FLOW	BIT(5)
+#define PWC_DEBUG_LEVEL_SIZE	BIT(6)
+#define PWC_DEBUG_LEVEL_IOCTL	BIT(7)
+#define PWC_DEBUG_LEVEL_TRACE	BIT(8)
+>>>>>>> upstream/android-13
 
 #define PWC_DEBUG_MODULE(fmt, args...) PWC_DEBUG(MODULE, fmt, ##args)
 #define PWC_DEBUG_PROBE(fmt, args...) PWC_DEBUG(PROBE, fmt, ##args)
@@ -205,7 +224,11 @@ struct pwc_raw_frame {
 				   decompressor) */
 	__u8   cmd[4];		/* the four byte of the command (in case of
 				   nala, only the first 3 bytes is filled) */
+<<<<<<< HEAD
 	__u8   rawframe[0];	/* frame_size = H / 4 * vbandlength */
+=======
+	__u8   rawframe[];	/* frame_size = H / 4 * vbandlength */
+>>>>>>> upstream/android-13
 } __packed;
 
 /* intermediate buffers with raw data from the USB cam */

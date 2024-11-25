@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* Request key authorisation token key definition.
  *
  * Copyright (C) 2005 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
@@ -12,6 +17,11 @@
  */
 
 #include <linux/module.h>
+=======
+ * See Documentation/security/keys/request-key.rst
+ */
+
+>>>>>>> upstream/android-13
 #include <linux/sched.h>
 #include <linux/err.h>
 #include <linux/seq_file.h>
@@ -59,7 +69,11 @@ static void request_key_auth_free_preparse(struct key_preparsed_payload *prep)
 static int request_key_auth_instantiate(struct key *key,
 					struct key_preparsed_payload *prep)
 {
+<<<<<<< HEAD
 	key->payload.data[0] = (struct request_key_auth *)prep->data;
+=======
+	rcu_assign_keypointer(key, (struct request_key_auth *)prep->data);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -69,7 +83,11 @@ static int request_key_auth_instantiate(struct key *key,
 static void request_key_auth_describe(const struct key *key,
 				      struct seq_file *m)
 {
+<<<<<<< HEAD
 	struct request_key_auth *rka = get_request_key_auth(key);
+=======
+	struct request_key_auth *rka = dereference_key_rcu(key);
+>>>>>>> upstream/android-13
 
 	if (!rka)
 		return;
@@ -87,7 +105,11 @@ static void request_key_auth_describe(const struct key *key,
 static long request_key_auth_read(const struct key *key,
 				  char *buffer, size_t buflen)
 {
+<<<<<<< HEAD
 	struct request_key_auth *rka = get_request_key_auth(key);
+=======
+	struct request_key_auth *rka = dereference_key_locked(key);
+>>>>>>> upstream/android-13
 	size_t datalen;
 	long ret;
 
@@ -108,6 +130,7 @@ static long request_key_auth_read(const struct key *key,
 	return ret;
 }
 
+<<<<<<< HEAD
 /*
  * Handle revocation of an authorisation token key.
  *
@@ -125,6 +148,8 @@ static void request_key_auth_revoke(struct key *key)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 static void free_request_key_auth(struct request_key_auth *rka)
 {
 	if (!rka)
@@ -138,15 +163,53 @@ static void free_request_key_auth(struct request_key_auth *rka)
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * Dispose of the request_key_auth record under RCU conditions
+ */
+static void request_key_auth_rcu_disposal(struct rcu_head *rcu)
+{
+	struct request_key_auth *rka =
+		container_of(rcu, struct request_key_auth, rcu);
+
+	free_request_key_auth(rka);
+}
+
+/*
+ * Handle revocation of an authorisation token key.
+ *
+ * Called with the key sem write-locked.
+ */
+static void request_key_auth_revoke(struct key *key)
+{
+	struct request_key_auth *rka = dereference_key_locked(key);
+
+	kenter("{%d}", key->serial);
+	rcu_assign_keypointer(key, NULL);
+	call_rcu(&rka->rcu, request_key_auth_rcu_disposal);
+}
+
+/*
+>>>>>>> upstream/android-13
  * Destroy an instantiation authorisation token key.
  */
 static void request_key_auth_destroy(struct key *key)
 {
+<<<<<<< HEAD
 	struct request_key_auth *rka = get_request_key_auth(key);
 
 	kenter("{%d}", key->serial);
 
 	free_request_key_auth(rka);
+=======
+	struct request_key_auth *rka = rcu_access_pointer(key->payload.rcu_data0);
+
+	kenter("{%d}", key->serial);
+	if (rka) {
+		rcu_assign_keypointer(key, NULL);
+		call_rcu(&rka->rcu, request_key_auth_rcu_disposal);
+	}
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -158,7 +221,11 @@ struct key *request_key_auth_new(struct key *target, const char *op,
 				 struct key *dest_keyring)
 {
 	struct request_key_auth *rka, *irka;
+<<<<<<< HEAD
 	const struct cred *cred = current->cred;
+=======
+	const struct cred *cred = current_cred();
+>>>>>>> upstream/android-13
 	struct key *authkey = NULL;
 	char desc[20];
 	int ret = -ENOMEM;
@@ -210,7 +277,11 @@ struct key *request_key_auth_new(struct key *target, const char *op,
 
 	authkey = key_alloc(&key_type_request_key_auth, desc,
 			    cred->fsuid, cred->fsgid, cred,
+<<<<<<< HEAD
 			    KEY_POS_VIEW | KEY_POS_READ | KEY_POS_SEARCH |
+=======
+			    KEY_POS_VIEW | KEY_POS_READ | KEY_POS_SEARCH | KEY_POS_LINK |
+>>>>>>> upstream/android-13
 			    KEY_USR_VIEW, KEY_ALLOC_NOT_IN_QUOTA, NULL);
 	if (IS_ERR(authkey)) {
 		ret = PTR_ERR(authkey);
@@ -248,14 +319,25 @@ struct key *key_get_instantiation_authkey(key_serial_t target_id)
 		.match_data.cmp		= key_default_cmp,
 		.match_data.raw_data	= description,
 		.match_data.lookup_type	= KEYRING_SEARCH_LOOKUP_DIRECT,
+<<<<<<< HEAD
 		.flags			= KEYRING_SEARCH_DO_STATE_CHECK,
+=======
+		.flags			= (KEYRING_SEARCH_DO_STATE_CHECK |
+					   KEYRING_SEARCH_RECURSE),
+>>>>>>> upstream/android-13
 	};
 	struct key *authkey;
 	key_ref_t authkey_ref;
 
 	ctx.index_key.desc_len = sprintf(description, "%x", target_id);
 
+<<<<<<< HEAD
 	authkey_ref = search_process_keyrings(&ctx);
+=======
+	rcu_read_lock();
+	authkey_ref = search_process_keyrings_rcu(&ctx);
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 
 	if (IS_ERR(authkey_ref)) {
 		authkey = ERR_CAST(authkey_ref);

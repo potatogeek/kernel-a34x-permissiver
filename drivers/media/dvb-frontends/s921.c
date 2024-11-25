@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *   Sharp VA3A5JZ921 One Seg Broadcast Module driver
  *   This device is labeled as just S. 921 at the top of the frontend can
@@ -11,6 +15,7 @@
  *	the old s921 driver.
  *
  *   FIXME: Need to port to DVB v5.2 API
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU General Public License as
@@ -20,6 +25,8 @@
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *   General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>

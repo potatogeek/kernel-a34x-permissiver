@@ -3,7 +3,11 @@
  *
  * Module Name: dbhistry - debugger HISTORY command
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -27,7 +31,10 @@ static HISTORY_INFO acpi_gbl_history_buffer[HISTORY_SIZE];
 static u16 acpi_gbl_lo_history = 0;
 static u16 acpi_gbl_num_history = 0;
 static u16 acpi_gbl_next_history_index = 0;
+<<<<<<< HEAD
 u32 acpi_gbl_next_cmd_num = 1;
+=======
+>>>>>>> upstream/android-13
 
 /*******************************************************************************
  *
@@ -121,7 +128,11 @@ void acpi_db_display_history(void)
 
 	for (i = 0; i < acpi_gbl_num_history; i++) {
 		if (acpi_gbl_history_buffer[history_index].command) {
+<<<<<<< HEAD
 			acpi_os_printf("%3ld %s\n",
+=======
+			acpi_os_printf("%3u %s\n",
+>>>>>>> upstream/android-13
 				       acpi_gbl_history_buffer[history_index].
 				       cmd_num,
 				       acpi_gbl_history_buffer[history_index].

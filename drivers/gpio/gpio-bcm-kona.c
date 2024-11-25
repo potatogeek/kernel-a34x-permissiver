@@ -19,7 +19,10 @@
 #include <linux/io.h>
 #include <linux/gpio/driver.h>
 #include <linux/of_device.h>
+<<<<<<< HEAD
 #include <linux/of_irq.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/irqdomain.h>
 #include <linux/irqchip/chained_irq.h>
@@ -127,7 +130,11 @@ static int bcm_kona_gpio_get_dir(struct gpio_chip *chip, unsigned gpio)
 	u32 val;
 
 	val = readl(reg_base + GPIO_CONTROL(gpio)) & GPIO_GPCTR0_IOTR_MASK;
+<<<<<<< HEAD
 	return !!val;
+=======
+	return val ? GPIO_LINE_DIRECTION_IN : GPIO_LINE_DIRECTION_OUT;
+>>>>>>> upstream/android-13
 }
 
 static void bcm_kona_gpio_set(struct gpio_chip *chip, unsigned gpio, int value)
@@ -144,7 +151,11 @@ static void bcm_kona_gpio_set(struct gpio_chip *chip, unsigned gpio, int value)
 	raw_spin_lock_irqsave(&kona_gpio->lock, flags);
 
 	/* this function only applies to output pin */
+<<<<<<< HEAD
 	if (bcm_kona_gpio_get_dir(chip, gpio) == 1)
+=======
+	if (bcm_kona_gpio_get_dir(chip, gpio) == GPIO_LINE_DIRECTION_IN)
+>>>>>>> upstream/android-13
 		goto out;
 
 	reg_offset = value ? GPIO_OUT_SET(bank_id) : GPIO_OUT_CLEAR(bank_id);
@@ -170,7 +181,11 @@ static int bcm_kona_gpio_get(struct gpio_chip *chip, unsigned gpio)
 	reg_base = kona_gpio->reg_base;
 	raw_spin_lock_irqsave(&kona_gpio->lock, flags);
 
+<<<<<<< HEAD
 	if (bcm_kona_gpio_get_dir(chip, gpio) == 1)
+=======
+	if (bcm_kona_gpio_get_dir(chip, gpio) == GPIO_LINE_DIRECTION_IN)
+>>>>>>> upstream/android-13
 		reg_offset = GPIO_IN_STATUS(bank_id);
 	else
 		reg_offset = GPIO_OUT_STATUS(bank_id);
@@ -373,6 +388,10 @@ static void bcm_kona_gpio_irq_mask(struct irq_data *d)
 	val = readl(reg_base + GPIO_INT_MASK(bank_id));
 	val |= BIT(bit);
 	writel(val, reg_base + GPIO_INT_MASK(bank_id));
+<<<<<<< HEAD
+=======
+	gpiochip_disable_irq(&kona_gpio->gpio_chip, gpio);
+>>>>>>> upstream/android-13
 
 	raw_spin_unlock_irqrestore(&kona_gpio->lock, flags);
 }
@@ -394,6 +413,10 @@ static void bcm_kona_gpio_irq_unmask(struct irq_data *d)
 	val = readl(reg_base + GPIO_INT_MSKCLR(bank_id));
 	val |= BIT(bit);
 	writel(val, reg_base + GPIO_INT_MSKCLR(bank_id));
+<<<<<<< HEAD
+=======
+	gpiochip_enable_irq(&kona_gpio->gpio_chip, gpio);
+>>>>>>> upstream/android-13
 
 	raw_spin_unlock_irqrestore(&kona_gpio->lock, flags);
 }
@@ -465,9 +488,12 @@ static void bcm_kona_gpio_irq_handler(struct irq_desc *desc)
 		    (~(readl(reg_base + GPIO_INT_MASK(bank_id)))))) {
 		for_each_set_bit(bit, &sta, 32) {
 			int hwirq = GPIO_PER_BANK * bank_id + bit;
+<<<<<<< HEAD
 			int child_irq =
 				irq_find_mapping(bank->kona_gpio->irq_domain,
 						 hwirq);
+=======
+>>>>>>> upstream/android-13
 			/*
 			 * Clear interrupt before handler is called so we don't
 			 * miss any interrupt occurred during executing them.
@@ -475,7 +501,12 @@ static void bcm_kona_gpio_irq_handler(struct irq_desc *desc)
 			writel(readl(reg_base + GPIO_INT_STATUS(bank_id)) |
 			       BIT(bit), reg_base + GPIO_INT_STATUS(bank_id));
 			/* Invoke interrupt handler */
+<<<<<<< HEAD
 			generic_handle_irq(child_irq);
+=======
+			generic_handle_domain_irq(bank->kona_gpio->irq_domain,
+						  hwirq);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -485,6 +516,7 @@ static void bcm_kona_gpio_irq_handler(struct irq_desc *desc)
 static int bcm_kona_gpio_irq_reqres(struct irq_data *d)
 {
 	struct bcm_kona_gpio *kona_gpio = irq_data_get_irq_chip_data(d);
+<<<<<<< HEAD
 	int ret;
 
 	ret = gpiochip_lock_as_irq(&kona_gpio->gpio_chip, d->hwirq);
@@ -495,13 +527,21 @@ static int bcm_kona_gpio_irq_reqres(struct irq_data *d)
 		return ret;
 	}
 	return 0;
+=======
+
+	return gpiochip_reqres_irq(&kona_gpio->gpio_chip, d->hwirq);
+>>>>>>> upstream/android-13
 }
 
 static void bcm_kona_gpio_irq_relres(struct irq_data *d)
 {
 	struct bcm_kona_gpio *kona_gpio = irq_data_get_irq_chip_data(d);
 
+<<<<<<< HEAD
 	gpiochip_unlock_as_irq(&kona_gpio->gpio_chip, d->hwirq);
+=======
+	gpiochip_relres_irq(&kona_gpio->gpio_chip, d->hwirq);
+>>>>>>> upstream/android-13
 }
 
 static struct irq_chip bcm_gpio_irq_chip = {
@@ -574,7 +614,10 @@ static int bcm_kona_gpio_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	const struct of_device_id *match;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	struct bcm_kona_gpio_bank *bank;
 	struct bcm_kona_gpio *kona_gpio;
 	struct gpio_chip *chip;
@@ -593,11 +636,23 @@ static int bcm_kona_gpio_probe(struct platform_device *pdev)
 
 	kona_gpio->gpio_chip = template_chip;
 	chip = &kona_gpio->gpio_chip;
+<<<<<<< HEAD
 	kona_gpio->num_bank = of_irq_count(dev->of_node);
 	if (kona_gpio->num_bank == 0) {
 		dev_err(dev, "Couldn't determine # GPIO banks\n");
 		return -ENOENT;
 	}
+=======
+	ret = platform_irq_count(pdev);
+	if (!ret) {
+		dev_err(dev, "Couldn't determine # GPIO banks\n");
+		return -ENOENT;
+	} else if (ret < 0) {
+		return dev_err_probe(dev, ret, "Couldn't determine GPIO banks\n");
+	}
+	kona_gpio->num_bank = ret;
+
+>>>>>>> upstream/android-13
 	if (kona_gpio->num_bank > GPIO_MAX_BANK_NUM) {
 		dev_err(dev, "Too many GPIO banks configured (max=%d)\n",
 			GPIO_MAX_BANK_NUM);
@@ -624,10 +679,16 @@ static int bcm_kona_gpio_probe(struct platform_device *pdev)
 		return -ENXIO;
 	}
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	kona_gpio->reg_base = devm_ioremap_resource(dev, res);
 	if (IS_ERR(kona_gpio->reg_base)) {
 		ret = -ENXIO;
+=======
+	kona_gpio->reg_base = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(kona_gpio->reg_base)) {
+		ret = PTR_ERR(kona_gpio->reg_base);
+>>>>>>> upstream/android-13
 		goto err_irq_domain;
 	}
 

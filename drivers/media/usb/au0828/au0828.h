@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  Driver for the Auvitek AU0828 USB bridge
  *
  *  Copyright (c) 2008 Steven Toth <stoth@linuxtv.org>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -31,6 +38,10 @@
 #include <media/v4l2-ctrls.h>
 #include <media/v4l2-fh.h>
 #include <media/media-device.h>
+<<<<<<< HEAD
+=======
+#include <media/media-dev-allocator.h>
+>>>>>>> upstream/android-13
 
 /* DVB */
 #include <media/demux.h>
@@ -52,7 +63,11 @@
 
 #define AU0828_INTERLACED_DEFAULT       1
 
+<<<<<<< HEAD
 /* Defination for AU0828 USB transfer */
+=======
+/* Definition for AU0828 USB transfer */
+>>>>>>> upstream/android-13
 #define AU0828_MAX_ISO_BUFS    12  /* maybe resize this value in the future */
 #define AU0828_ISO_PACKETS_PER_URB      128
 
@@ -283,9 +298,18 @@ struct au0828_dev {
 	struct media_entity_notify entity_notify;
 	struct media_entity *tuner;
 	struct media_link *active_link;
+<<<<<<< HEAD
 	struct media_entity *active_link_owner;
 	struct media_entity *active_source;
 	struct media_entity *active_sink;
+=======
+	struct media_entity *active_source;
+	struct media_entity *active_sink;
+	struct media_entity *active_link_owner;
+	struct media_entity *active_link_user;
+	struct media_pipeline *active_link_user_pipe;
+	bool active_link_shared;
+>>>>>>> upstream/android-13
 #endif
 };
 

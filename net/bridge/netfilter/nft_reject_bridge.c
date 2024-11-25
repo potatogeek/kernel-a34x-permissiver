@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014 Pablo Neira Ayuso <pablo@netfilter.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2014 Pablo Neira Ayuso <pablo@netfilter.org>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -42,6 +48,7 @@ static void nft_reject_br_push_etherhdr(struct sk_buff *oldskb,
 	}
 }
 
+<<<<<<< HEAD
 static int nft_bridge_iphdr_validate(struct sk_buff *skb)
 {
 	struct iphdr *iph;
@@ -66,6 +73,8 @@ static int nft_bridge_iphdr_validate(struct sk_buff *skb)
 	return 1;
 }
 
+=======
+>>>>>>> upstream/android-13
 /* We cannot use oldskb->dev, it can be either bridge device (NF_BRIDGE INPUT)
  * or the bridge port (NF_BRIDGE PREROUTING).
  */
@@ -75,6 +84,7 @@ static void nft_reject_br_send_v4_tcp_reset(struct net *net,
 					    int hook)
 {
 	struct sk_buff *nskb;
+<<<<<<< HEAD
 	struct iphdr *niph;
 	const struct tcphdr *oth;
 	struct tcphdr _oth;
@@ -98,6 +108,13 @@ static void nft_reject_br_send_v4_tcp_reset(struct net *net,
 	niph->tot_len = htons(nskb->len);
 	ip_send_check(niph);
 
+=======
+
+	nskb = nf_reject_skb_v4_tcp_reset(net, oldskb, NULL, hook);
+	if (!nskb)
+		return;
+
+>>>>>>> upstream/android-13
 	nft_reject_br_push_etherhdr(oldskb, nskb);
 
 	br_forward(br_port_get_rcu(dev), nskb, false, true);
@@ -109,6 +126,7 @@ static void nft_reject_br_send_v4_unreach(struct net *net,
 					  int hook, u8 code)
 {
 	struct sk_buff *nskb;
+<<<<<<< HEAD
 	struct iphdr *niph;
 	struct icmphdr *icmph;
 	unsigned int len;
@@ -163,11 +181,19 @@ static void nft_reject_br_send_v4_unreach(struct net *net,
 	niph->tot_len	= htons(nskb->len);
 	ip_send_check(niph);
 
+=======
+
+	nskb = nf_reject_skb_v4_unreach(net, oldskb, NULL, hook, code);
+	if (!nskb)
+		return;
+
+>>>>>>> upstream/android-13
 	nft_reject_br_push_etherhdr(oldskb, nskb);
 
 	br_forward(br_port_get_rcu(dev), nskb, false, true);
 }
 
+<<<<<<< HEAD
 static int nft_bridge_ip6hdr_validate(struct sk_buff *skb)
 {
 	struct ipv6hdr *hdr;
@@ -187,12 +213,15 @@ static int nft_bridge_ip6hdr_validate(struct sk_buff *skb)
 	return 1;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void nft_reject_br_send_v6_tcp_reset(struct net *net,
 					    struct sk_buff *oldskb,
 					    const struct net_device *dev,
 					    int hook)
 {
 	struct sk_buff *nskb;
+<<<<<<< HEAD
 	const struct tcphdr *oth;
 	struct tcphdr _oth;
 	unsigned int otcplen;
@@ -216,11 +245,19 @@ static void nft_reject_br_send_v6_tcp_reset(struct net *net,
 	nf_reject_ip6_tcphdr_put(nskb, oldskb, oth, otcplen);
 	nip6h->payload_len = htons(nskb->len - sizeof(struct ipv6hdr));
 
+=======
+
+	nskb = nf_reject_skb_v6_tcp_reset(net, oldskb, NULL, hook);
+	if (!nskb)
+		return;
+
+>>>>>>> upstream/android-13
 	nft_reject_br_push_etherhdr(oldskb, nskb);
 
 	br_forward(br_port_get_rcu(dev), nskb, false, true);
 }
 
+<<<<<<< HEAD
 static bool reject6_br_csum_ok(struct sk_buff *skb, int hook)
 {
 	const struct ipv6hdr *ip6h = ipv6_hdr(skb);
@@ -242,6 +279,8 @@ static bool reject6_br_csum_ok(struct sk_buff *skb, int hook)
 
 	return nf_ip6_checksum(skb, hook, thoff, proto) == 0;
 }
+=======
+>>>>>>> upstream/android-13
 
 static void nft_reject_br_send_v6_unreach(struct net *net,
 					  struct sk_buff *oldskb,
@@ -249,6 +288,7 @@ static void nft_reject_br_send_v6_unreach(struct net *net,
 					  int hook, u8 code)
 {
 	struct sk_buff *nskb;
+<<<<<<< HEAD
 	struct ipv6hdr *nip6h;
 	struct icmp6hdr *icmp6h;
 	unsigned int len;
@@ -292,6 +332,13 @@ static void nft_reject_br_send_v6_unreach(struct net *net,
 					     nskb->len - sizeof(struct ipv6hdr),
 					     0));
 
+=======
+
+	nskb = nf_reject_skb_v6_unreach(net, oldskb, NULL, hook, code);
+	if (!nskb)
+		return;
+
+>>>>>>> upstream/android-13
 	nft_reject_br_push_etherhdr(oldskb, nskb);
 
 	br_forward(br_port_get_rcu(dev), nskb, false, true);
@@ -367,6 +414,7 @@ static int nft_reject_bridge_validate(const struct nft_ctx *ctx,
 						    (1 << NF_BR_LOCAL_IN));
 }
 
+<<<<<<< HEAD
 static int nft_reject_bridge_init(const struct nft_ctx *ctx,
 				  const struct nft_expr *expr,
 				  const struct nlattr * const tb[])
@@ -423,13 +471,20 @@ nla_put_failure:
 	return -1;
 }
 
+=======
+>>>>>>> upstream/android-13
 static struct nft_expr_type nft_reject_bridge_type;
 static const struct nft_expr_ops nft_reject_bridge_ops = {
 	.type		= &nft_reject_bridge_type,
 	.size		= NFT_EXPR_SIZE(sizeof(struct nft_reject)),
 	.eval		= nft_reject_bridge_eval,
+<<<<<<< HEAD
 	.init		= nft_reject_bridge_init,
 	.dump		= nft_reject_bridge_dump,
+=======
+	.init		= nft_reject_init,
+	.dump		= nft_reject_dump,
+>>>>>>> upstream/android-13
 	.validate	= nft_reject_bridge_validate,
 };
 
@@ -458,3 +513,7 @@ module_exit(nft_reject_bridge_module_exit);
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Pablo Neira Ayuso <pablo@netfilter.org>");
 MODULE_ALIAS_NFT_AF_EXPR(AF_BRIDGE, "reject");
+<<<<<<< HEAD
+=======
+MODULE_DESCRIPTION("Reject packets from bridge via nftables");
+>>>>>>> upstream/android-13

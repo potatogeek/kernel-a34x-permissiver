@@ -4,13 +4,24 @@
  * allow autoloading of the IPMI drive based on SMBIOS entries.
  */
 
+<<<<<<< HEAD
+=======
+#define pr_fmt(fmt) "%s" fmt, "ipmi:dmi: "
+#define dev_fmt pr_fmt
+
+>>>>>>> upstream/android-13
 #include <linux/ipmi.h>
 #include <linux/init.h>
 #include <linux/dmi.h>
 #include <linux/platform_device.h>
 #include <linux/property.h>
+<<<<<<< HEAD
 #include "ipmi_si_sm.h"
 #include "ipmi_dmi.h"
+=======
+#include "ipmi_dmi.h"
+#include "ipmi_plat_data.h"
+>>>>>>> upstream/android-13
 
 #define IPMI_DMI_TYPE_KCS	0x01
 #define IPMI_DMI_TYPE_SMIC	0x02
@@ -19,7 +30,11 @@
 
 struct ipmi_dmi_info {
 	enum si_type si_type;
+<<<<<<< HEAD
 	u32 flags;
+=======
+	unsigned int space; /* addr space for si, intf# for ssif */
+>>>>>>> upstream/android-13
 	unsigned long addr;
 	u8 slave_addr;
 	struct ipmi_dmi_info *next;
@@ -30,12 +45,17 @@ static struct ipmi_dmi_info *ipmi_dmi_infos;
 static int ipmi_dmi_nr __initdata;
 
 static void __init dmi_add_platform_ipmi(unsigned long base_addr,
+<<<<<<< HEAD
 					 u32 flags,
+=======
+					 unsigned int space,
+>>>>>>> upstream/android-13
 					 u8 slave_addr,
 					 int irq,
 					 int offset,
 					 int type)
 {
+<<<<<<< HEAD
 	struct platform_device *pdev;
 	struct resource r[4];
 	unsigned int num_r = 1, size;
@@ -87,12 +107,56 @@ static void __init dmi_add_platform_ipmi(unsigned long base_addr,
 	} else {
 		info->si_type = si_type;
 		info->flags = flags;
+=======
+	const char *name;
+	struct ipmi_dmi_info *info;
+	struct ipmi_plat_data p;
+
+	memset(&p, 0, sizeof(p));
+
+	name = "dmi-ipmi-si";
+	p.iftype = IPMI_PLAT_IF_SI;
+	switch (type) {
+	case IPMI_DMI_TYPE_SSIF:
+		name = "dmi-ipmi-ssif";
+		p.iftype = IPMI_PLAT_IF_SSIF;
+		p.type = SI_TYPE_INVALID;
+		break;
+	case IPMI_DMI_TYPE_BT:
+		p.type = SI_BT;
+		break;
+	case IPMI_DMI_TYPE_KCS:
+		p.type = SI_KCS;
+		break;
+	case IPMI_DMI_TYPE_SMIC:
+		p.type = SI_SMIC;
+		break;
+	default:
+		pr_err("Invalid IPMI type: %d\n", type);
+		return;
+	}
+
+	p.addr = base_addr;
+	p.space = space;
+	p.regspacing = offset;
+	p.irq = irq;
+	p.slave_addr = slave_addr;
+	p.addr_source = SI_SMBIOS;
+
+	info = kmalloc(sizeof(*info), GFP_KERNEL);
+	if (!info) {
+		pr_warn("Could not allocate dmi info\n");
+	} else {
+		info->si_type = p.type;
+		info->space = space;
+>>>>>>> upstream/android-13
 		info->addr = base_addr;
 		info->slave_addr = slave_addr;
 		info->next = ipmi_dmi_infos;
 		ipmi_dmi_infos = info;
 	}
 
+<<<<<<< HEAD
 	pdev = platform_device_alloc(name, ipmi_dmi_nr);
 	if (!pdev) {
 		pr_err("ipmi:dmi: Error allocation IPMI platform device\n");
@@ -165,6 +229,10 @@ add_properties:
 
 err:
 	platform_device_put(pdev);
+=======
+	if (ipmi_platform_add(name, ipmi_dmi_nr, &p))
+		ipmi_dmi_nr++;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -174,14 +242,22 @@ err:
  * This function allows an ACPI-specified IPMI device to look up the
  * slave address from the DMI table.
  */
+<<<<<<< HEAD
 int ipmi_dmi_get_slave_addr(enum si_type si_type, u32 flags,
+=======
+int ipmi_dmi_get_slave_addr(enum si_type si_type, unsigned int space,
+>>>>>>> upstream/android-13
 			    unsigned long base_addr)
 {
 	struct ipmi_dmi_info *info = ipmi_dmi_infos;
 
 	while (info) {
 		if (info->si_type == si_type &&
+<<<<<<< HEAD
 		    info->flags == flags &&
+=======
+		    info->space == space &&
+>>>>>>> upstream/android-13
 		    info->addr == base_addr)
 			return info->slave_addr;
 		info = info->next;
@@ -202,6 +278,7 @@ EXPORT_SYMBOL(ipmi_dmi_get_slave_addr);
 
 static void __init dmi_decode_ipmi(const struct dmi_header *dm)
 {
+<<<<<<< HEAD
 	const u8	*data = (const u8 *) dm;
 	u32             flags = IORESOURCE_IO;
 	unsigned long	base_addr;
@@ -209,6 +286,15 @@ static void __init dmi_decode_ipmi(const struct dmi_header *dm)
 	u8              slave_addr;
 	int             irq = 0, offset;
 	int             type;
+=======
+	const u8 *data = (const u8 *) dm;
+	int space = IPMI_IO_ADDR_SPACE;
+	unsigned long base_addr;
+	u8 len = dm->length;
+	u8 slave_addr;
+	int irq = 0, offset = 0;
+	int type;
+>>>>>>> upstream/android-13
 
 	if (len < DMI_IPMI_MIN_LENGTH)
 		return;
@@ -223,8 +309,12 @@ static void __init dmi_decode_ipmi(const struct dmi_header *dm)
 	}
 	if (len >= DMI_IPMI_VER2_LENGTH) {
 		if (type == IPMI_DMI_TYPE_SSIF) {
+<<<<<<< HEAD
 			offset = 0;
 			flags = 0;
+=======
+			space = 0; /* Match I2C interface 0. */
+>>>>>>> upstream/android-13
 			base_addr = data[DMI_IPMI_ADDR] >> 1;
 			if (base_addr == 0) {
 				/*
@@ -241,7 +331,11 @@ static void __init dmi_decode_ipmi(const struct dmi_header *dm)
 				base_addr &= DMI_IPMI_IO_MASK;
 			} else {
 				/* Memory */
+<<<<<<< HEAD
 				flags = IORESOURCE_MEM;
+=======
+				space = IPMI_MEM_ADDR_SPACE;
+>>>>>>> upstream/android-13
 			}
 
 			/*
@@ -267,7 +361,11 @@ static void __init dmi_decode_ipmi(const struct dmi_header *dm)
 				offset = 16;
 				break;
 			default:
+<<<<<<< HEAD
 				pr_err("ipmi:dmi: Invalid offset: 0\n");
+=======
+				pr_err("Invalid offset: 0\n");
+>>>>>>> upstream/android-13
 				return;
 			}
 		}
@@ -285,7 +383,11 @@ static void __init dmi_decode_ipmi(const struct dmi_header *dm)
 		offset = 1;
 	}
 
+<<<<<<< HEAD
 	dmi_add_platform_ipmi(base_addr, flags, slave_addr, irq,
+=======
+	dmi_add_platform_ipmi(base_addr, space, slave_addr, irq,
+>>>>>>> upstream/android-13
 			      offset, type);
 }
 

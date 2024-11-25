@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * DT idle states parsing code.
  *
  * Copyright (C) 2014 ARM Ltd.
  * Author: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "DT idle-states: " fmt
@@ -22,6 +29,7 @@
 #include "dt_idle_states.h"
 
 static int init_state_node(struct cpuidle_state *idle_state,
+<<<<<<< HEAD
 			   const struct of_device_id *matches,
 			   struct device_node *state_node)
 {
@@ -32,6 +40,14 @@ static int init_state_node(struct cpuidle_state *idle_state,
 	match_id = of_match_node(matches, state_node);
 	if (!match_id)
 		return -ENODEV;
+=======
+			   const struct of_device_id *match_id,
+			   struct device_node *state_node)
+{
+	int err;
+	const char *desc;
+
+>>>>>>> upstream/android-13
 	/*
 	 * CPUidle drivers are expected to initialize the const void *data
 	 * pointer of the passed in struct of_device_id array to the idle
@@ -118,8 +134,12 @@ static bool idle_state_valid(struct device_node *state_node, unsigned int idx,
 	for (cpu = cpumask_next(cpumask_first(cpumask), cpumask);
 	     cpu < nr_cpu_ids; cpu = cpumask_next(cpu, cpumask)) {
 		cpu_node = of_cpu_device_node_get(cpu);
+<<<<<<< HEAD
 		curr_state_node = of_parse_phandle(cpu_node, "cpu-idle-states",
 						   idx);
+=======
+		curr_state_node = of_get_cpu_state_node(cpu_node, idx);
+>>>>>>> upstream/android-13
 		if (state_node != curr_state_node)
 			valid = false;
 
@@ -160,6 +180,10 @@ int dt_init_idle_driver(struct cpuidle_driver *drv,
 {
 	struct cpuidle_state *idle_state;
 	struct device_node *state_node, *cpu_node;
+<<<<<<< HEAD
+=======
+	const struct of_device_id *match_id;
+>>>>>>> upstream/android-13
 	int i, err = 0;
 	const cpumask_t *cpumask;
 	unsigned int state_idx = start_idx;
@@ -176,10 +200,23 @@ int dt_init_idle_driver(struct cpuidle_driver *drv,
 	cpu_node = of_cpu_device_node_get(cpumask_first(cpumask));
 
 	for (i = 0; ; i++) {
+<<<<<<< HEAD
 		state_node = of_parse_phandle(cpu_node, "cpu-idle-states", i);
 		if (!state_node)
 			break;
 
+=======
+		state_node = of_get_cpu_state_node(cpu_node, i);
+		if (!state_node)
+			break;
+
+		match_id = of_match_node(matches, state_node);
+		if (!match_id) {
+			err = -ENODEV;
+			break;
+		}
+
+>>>>>>> upstream/android-13
 		if (!of_device_is_available(state_node)) {
 			of_node_put(state_node);
 			continue;
@@ -198,7 +235,11 @@ int dt_init_idle_driver(struct cpuidle_driver *drv,
 		}
 
 		idle_state = &drv->states[state_idx++];
+<<<<<<< HEAD
 		err = init_state_node(idle_state, matches, state_node);
+=======
+		err = init_state_node(idle_state, match_id, state_node);
+>>>>>>> upstream/android-13
 		if (err) {
 			pr_err("Parsing idle state node %pOF failed with err %d\n",
 			       state_node, err);

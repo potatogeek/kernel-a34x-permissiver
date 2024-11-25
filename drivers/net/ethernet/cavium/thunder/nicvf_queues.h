@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015 Cavium, Inc.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License
  * as published by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2015 Cavium, Inc.
+>>>>>>> upstream/android-13
  */
 
 #ifndef NICVF_QUEUES_H
@@ -103,8 +109,13 @@
  * RED accepts pkt if unused CQE < 2304 & >= 2560
  * DROPs pkts if unused CQE < 2304
  */
+<<<<<<< HEAD
 #define RQ_PASS_CQ_LVL         192ULL
 #define RQ_DROP_CQ_LVL         184ULL
+=======
+#define RQ_PASS_CQ_LVL         224ULL
+#define RQ_DROP_CQ_LVL         216ULL
+>>>>>>> upstream/android-13
 
 /* RED and Backpressure levels of RBDR for pkt reception
  * For RBDR, level is a measure of fullness i.e 0x0 means empty
@@ -351,7 +362,11 @@ void nicvf_xdp_sq_doorbell(struct nicvf *nic, struct snd_queue *sq, int sq_num);
 
 struct sk_buff *nicvf_get_rcv_skb(struct nicvf *nic,
 				  struct cqe_rx_t *cqe_rx, bool xdp);
+<<<<<<< HEAD
 void nicvf_rbdr_task(unsigned long data);
+=======
+void nicvf_rbdr_task(struct tasklet_struct *t);
+>>>>>>> upstream/android-13
 void nicvf_rbdr_work(struct work_struct *work);
 
 void nicvf_enable_intr(struct nicvf *nic, int int_type, int q_idx);

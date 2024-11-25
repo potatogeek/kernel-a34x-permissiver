@@ -23,7 +23,12 @@ bool __should_failslab(struct kmem_cache *s, gfp_t gfpflags)
 	if (gfpflags & __GFP_NOFAIL)
 		return false;
 
+<<<<<<< HEAD
 	if (failslab.ignore_gfp_reclaim && (gfpflags & __GFP_RECLAIM))
+=======
+	if (failslab.ignore_gfp_reclaim &&
+			(gfpflags & __GFP_DIRECT_RECLAIM))
+>>>>>>> upstream/android-13
 		return false;
 
 	if (failslab.cache_filter && !(s->flags & SLAB_FAILSLAB))
@@ -48,6 +53,7 @@ static int __init failslab_debugfs_init(void)
 	if (IS_ERR(dir))
 		return PTR_ERR(dir);
 
+<<<<<<< HEAD
 	if (!debugfs_create_bool("ignore-gfp-wait", mode, dir,
 				&failslab.ignore_gfp_reclaim))
 		goto fail;
@@ -60,6 +66,14 @@ fail:
 	debugfs_remove_recursive(dir);
 
 	return -ENOMEM;
+=======
+	debugfs_create_bool("ignore-gfp-wait", mode, dir,
+			    &failslab.ignore_gfp_reclaim);
+	debugfs_create_bool("cache-filter", mode, dir,
+			    &failslab.cache_filter);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 late_initcall(failslab_debugfs_init);

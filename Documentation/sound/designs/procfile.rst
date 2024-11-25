@@ -91,7 +91,11 @@ PCM Proc Files
 
 ``card*/pcm*/xrun_debug``
 	This file appears when ``CONFIG_SND_DEBUG=y`` and
+<<<<<<< HEAD
 	``CONFIG_PCM_XRUN_DEBUG=y``.
+=======
+	``CONFIG_SND_PCM_XRUN_DEBUG=y``.
+>>>>>>> upstream/android-13
 	This shows the status of xrun (= buffer overrun/xrun) and
 	invalid PCM position debug/check of ALSA PCM middle layer.
 	It takes an integer value, can be changed by writing to this

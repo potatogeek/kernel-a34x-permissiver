@@ -1,8 +1,17 @@
+<<<<<<< HEAD
 config FS_ENET
        tristate "Freescale Ethernet Driver"
        depends on NET_VENDOR_FREESCALE && (CPM1 || CPM2 || PPC_MPC512x)
        select MII
        select PHYLIB
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+config FS_ENET
+	tristate "Freescale Ethernet Driver"
+	depends on NET_VENDOR_FREESCALE && (CPM1 || CPM2 || PPC_MPC512x)
+	select MII
+	select PHYLIB
+>>>>>>> upstream/android-13
 
 config FS_ENET_MPC5121_FEC
 	def_bool y if (FS_ENET && PPC_MPC512x)

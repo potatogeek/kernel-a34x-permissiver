@@ -2152,6 +2152,10 @@ const struct font_desc font_mini_4x6 = {
 	.name	= "MINI4x6",
 	.width	= 4,
 	.height	= 6,
+<<<<<<< HEAD
+=======
+	.charcount = 256,
+>>>>>>> upstream/android-13
 	.data	= fontdata_mini_4x6.data,
 	.pref	= 3,
 };

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014 Jiri Pirko <jiri@resnulli.us>
  *
@@ -5,6 +6,11 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (c) 2014 Jiri Pirko <jiri@resnulli.us>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __NET_TC_VLAN_H
@@ -15,9 +21,18 @@
 
 struct tcf_vlan_params {
 	int               tcfv_action;
+<<<<<<< HEAD
 	u16               tcfv_push_vid;
 	__be16            tcfv_push_proto;
 	u8                tcfv_push_prio;
+=======
+	unsigned char     tcfv_push_dst[ETH_ALEN];
+	unsigned char     tcfv_push_src[ETH_ALEN];
+	u16               tcfv_push_vid;
+	__be16            tcfv_push_proto;
+	u8                tcfv_push_prio;
+	bool              tcfv_push_prio_exists;
+>>>>>>> upstream/android-13
 	struct rcu_head   rcu;
 };
 
@@ -30,7 +45,11 @@ struct tcf_vlan {
 static inline bool is_tcf_vlan(const struct tc_action *a)
 {
 #ifdef CONFIG_NET_CLS_ACT
+<<<<<<< HEAD
 	if (a->ops && a->ops->type == TCA_ACT_VLAN)
+=======
+	if (a->ops && a->ops->id == TCA_ID_VLAN)
+>>>>>>> upstream/android-13
 		return true;
 #endif
 	return false;

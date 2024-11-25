@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2008-2014, The Linux foundation. All rights reserved.
  *
@@ -9,6 +10,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or fITNESS fOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2008-2014, The Linux foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -281,6 +287,12 @@ static void spi_qup_read(struct spi_qup *controller, u32 *opflags)
 		writel_relaxed(QUP_OP_IN_SERVICE_FLAG,
 			       controller->base + QUP_OPERATIONAL);
 
+<<<<<<< HEAD
+=======
+		if (!remainder)
+			goto exit;
+
+>>>>>>> upstream/android-13
 		if (is_block_mode) {
 			num_words = (remainder > words_per_block) ?
 					words_per_block : remainder;
@@ -310,11 +322,21 @@ static void spi_qup_read(struct spi_qup *controller, u32 *opflags)
 	 * to refresh opflags value because MAX_INPUT_DONE_FLAG may now be
 	 * present and this is used to determine if transaction is complete
 	 */
+<<<<<<< HEAD
 	*opflags = readl_relaxed(controller->base + QUP_OPERATIONAL);
 	if (is_block_mode && *opflags & QUP_OP_MAX_INPUT_DONE_FLAG)
 		writel_relaxed(QUP_OP_IN_SERVICE_FLAG,
 			       controller->base + QUP_OPERATIONAL);
 
+=======
+exit:
+	if (!remainder) {
+		*opflags = readl_relaxed(controller->base + QUP_OPERATIONAL);
+		if (is_block_mode && *opflags & QUP_OP_MAX_INPUT_DONE_FLAG)
+			writel_relaxed(QUP_OP_IN_SERVICE_FLAG,
+				       controller->base + QUP_OPERATIONAL);
+	}
+>>>>>>> upstream/android-13
 }
 
 static void spi_qup_write_to_fifo(struct spi_qup *controller, u32 num_words)
@@ -362,6 +384,13 @@ static void spi_qup_write(struct spi_qup *controller)
 		writel_relaxed(QUP_OP_OUT_SERVICE_FLAG,
 			       controller->base + QUP_OPERATIONAL);
 
+<<<<<<< HEAD
+=======
+		/* make sure the interrupt is valid */
+		if (!remainder)
+			return;
+
+>>>>>>> upstream/android-13
 		if (is_block_mode) {
 			num_words = (remainder > words_per_block) ?
 				words_per_block : remainder;
@@ -575,10 +604,30 @@ static int spi_qup_do_pio(struct spi_device *spi, struct spi_transfer *xfer,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static bool spi_qup_data_pending(struct spi_qup *controller)
+{
+	unsigned int remainder_tx, remainder_rx;
+
+	remainder_tx = DIV_ROUND_UP(spi_qup_len(controller) -
+				    controller->tx_bytes, controller->w_size);
+
+	remainder_rx = DIV_ROUND_UP(spi_qup_len(controller) -
+				    controller->rx_bytes, controller->w_size);
+
+	return remainder_tx || remainder_rx;
+}
+
+>>>>>>> upstream/android-13
 static irqreturn_t spi_qup_qup_irq(int irq, void *dev_id)
 {
 	struct spi_qup *controller = dev_id;
 	u32 opflags, qup_err, spi_err;
+<<<<<<< HEAD
+=======
+	unsigned long flags;
+>>>>>>> upstream/android-13
 	int error = 0;
 
 	qup_err = readl_relaxed(controller->base + QUP_ERROR_FLAGS);
@@ -610,6 +659,14 @@ static irqreturn_t spi_qup_qup_irq(int irq, void *dev_id)
 		error = -EIO;
 	}
 
+<<<<<<< HEAD
+=======
+	spin_lock_irqsave(&controller->lock, flags);
+	if (!controller->error)
+		controller->error = error;
+	spin_unlock_irqrestore(&controller->lock, flags);
+
+>>>>>>> upstream/android-13
 	if (spi_qup_is_dma_xfer(controller->mode)) {
 		writel_relaxed(opflags, controller->base + QUP_OPERATIONAL);
 	} else {
@@ -618,11 +675,30 @@ static irqreturn_t spi_qup_qup_irq(int irq, void *dev_id)
 
 		if (opflags & QUP_OP_OUT_SERVICE_FLAG)
 			spi_qup_write(controller);
+<<<<<<< HEAD
 	}
 
 	if ((opflags & QUP_OP_MAX_INPUT_DONE_FLAG) || error)
 		complete(&controller->done);
 
+=======
+
+		if (!spi_qup_data_pending(controller))
+			complete(&controller->done);
+	}
+
+	if (error)
+		complete(&controller->done);
+
+	if (opflags & QUP_OP_MAX_INPUT_DONE_FLAG) {
+		if (!spi_qup_is_dma_xfer(controller->mode)) {
+			if (spi_qup_data_pending(controller))
+				return IRQ_HANDLED;
+		}
+		complete(&controller->done);
+	}
+
+>>>>>>> upstream/android-13
 	return IRQ_HANDLED;
 }
 
@@ -817,7 +893,11 @@ static int spi_qup_transfer_one(struct spi_master *master,
 {
 	struct spi_qup *controller = spi_master_get_devdata(master);
 	unsigned long timeout, flags;
+<<<<<<< HEAD
 	int ret = -EIO;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	ret = spi_qup_io_prep(spi, xfer);
 	if (ret)
@@ -842,10 +922,13 @@ static int spi_qup_transfer_one(struct spi_master *master,
 	else
 		ret = spi_qup_do_pio(spi, xfer, timeout);
 
+<<<<<<< HEAD
 	if (ret)
 		goto exit;
 
 exit:
+=======
+>>>>>>> upstream/android-13
 	spi_qup_set_state(controller, QUP_STATE_RESET);
 	spin_lock_irqsave(&controller->lock, flags);
 	if (!ret)
@@ -905,11 +988,19 @@ static int spi_qup_init_dma(struct spi_master *master, resource_size_t base)
 	int ret;
 
 	/* allocate dma resources, if available */
+<<<<<<< HEAD
 	master->dma_rx = dma_request_slave_channel_reason(dev, "rx");
 	if (IS_ERR(master->dma_rx))
 		return PTR_ERR(master->dma_rx);
 
 	master->dma_tx = dma_request_slave_channel_reason(dev, "tx");
+=======
+	master->dma_rx = dma_request_chan(dev, "rx");
+	if (IS_ERR(master->dma_rx))
+		return PTR_ERR(master->dma_rx);
+
+	master->dma_tx = dma_request_chan(dev, "tx");
+>>>>>>> upstream/android-13
 	if (IS_ERR(master->dma_tx)) {
 		ret = PTR_ERR(master->dma_tx);
 		goto err_tx;
@@ -1236,7 +1327,11 @@ static int spi_qup_remove(struct platform_device *pdev)
 	struct spi_qup *controller = spi_master_get_devdata(master);
 	int ret;
 
+<<<<<<< HEAD
 	ret = pm_runtime_get_sync(&pdev->dev);
+=======
+	ret = pm_runtime_resume_and_get(&pdev->dev);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 

@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * ac97.c  --  ALSA Soc AC97 codec support
  *
  * Copyright 2005 Wolfson Microelectronics PLC.
  * Author: Liam Girdwood <lrg@slimlogic.co.uk>
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute  it and/or modify it
  *  under  the terms of  the GNU General  Public License as published by the
  *  Free Software Foundation;  either version 2 of the  License, or (at your
  *  option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * Generic AC97 support.
  */
 

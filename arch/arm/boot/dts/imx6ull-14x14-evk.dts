@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016 Freescale Semiconductor, Inc.
  *
@@ -38,6 +39,11 @@
  *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *     OTHER DEALINGS IN THE SOFTWARE.
  */
+=======
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+//
+// Copyright (C) 2016 Freescale Semiconductor, Inc.
+>>>>>>> upstream/android-13
 
 /dts-v1/;
 
@@ -45,7 +51,11 @@
 #include "imx6ul-14x14-evk.dtsi"
 
 / {
+<<<<<<< HEAD
 	model = "Freescale i.MX6 UlltraLite 14x14 EVK Board";
+=======
+	model = "Freescale i.MX6 UltraLiteLite 14x14 EVK Board";
+>>>>>>> upstream/android-13
 	compatible = "fsl,imx6ull-14x14-evk", "fsl,imx6ull";
 };
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2017 Stefan Wahren <stefan.wahren@i2se.com>
  *
@@ -7,6 +8,11 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (C) 2017 Stefan Wahren <stefan.wahren@i2se.com>
+>>>>>>> upstream/android-13
  */
 
 /dts-v1/;
@@ -18,21 +24,36 @@
 	compatible = "raspberrypi,model-zero-w", "brcm,bcm2835";
 	model = "Raspberry Pi Zero W";
 
+<<<<<<< HEAD
+=======
+	memory@0 {
+		device_type = "memory";
+		reg = <0 0x20000000>;
+	};
+
+>>>>>>> upstream/android-13
 	chosen {
 		/* 8250 auxiliary UART instead of pl011 */
 		stdout-path = "serial1:115200n8";
 	};
 
 	leds {
+<<<<<<< HEAD
 		act {
+=======
+		led-act {
+>>>>>>> upstream/android-13
 			gpios = <&gpio 47 GPIO_ACTIVE_LOW>;
 		};
 	};
 
 	wifi_pwrseq: wifi-pwrseq {
 		compatible = "mmc-pwrseq-simple";
+<<<<<<< HEAD
 		pinctrl-names = "default";
 		pinctrl-0 = <&wl_on>;
+=======
+>>>>>>> upstream/android-13
 		reset-gpios = <&gpio 41 GPIO_ACTIVE_LOW>;
 	};
 };
@@ -46,8 +67,13 @@
 	 * "FOO" = GPIO line named "FOO" on the schematic
 	 * "FOO_N" = GPIO line named "FOO" on schematic, active low
 	 */
+<<<<<<< HEAD
 	gpio-line-names = "GPIO0",
 			  "GPIO1",
+=======
+	gpio-line-names = "ID_SDA",
+			  "ID_SCL",
+>>>>>>> upstream/android-13
 			  "SDA1",
 			  "SCL1",
 			  "GPIO_GCLK",
@@ -104,15 +130,23 @@
 			  "SD_DATA3_R";
 
 	pinctrl-0 = <&gpioout &alt0>;
+<<<<<<< HEAD
 
 	wl_on: wl-on {
 		brcm,pins = <41>;
 		brcm,function = <BCM2835_FSEL_GPIO_OUT>;
 	};
+=======
+>>>>>>> upstream/android-13
 };
 
 &hdmi {
 	hpd-gpios = <&gpio 46 GPIO_ACTIVE_LOW>;
+<<<<<<< HEAD
+=======
+	power-domains = <&power RPI_POWER_DOMAIN_HDMI>;
+	status = "okay";
+>>>>>>> upstream/android-13
 };
 
 &sdhci {
@@ -120,6 +154,10 @@
 	#size-cells = <0>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&emmc_gpio34 &gpclk2_gpio43>;
+<<<<<<< HEAD
+=======
+	bus-width = <4>;
+>>>>>>> upstream/android-13
 	mmc-pwrseq = <&wifi_pwrseq>;
 	non-removable;
 	status = "okay";
@@ -130,6 +168,16 @@
 	};
 };
 
+<<<<<<< HEAD
+=======
+&sdhost {
+	pinctrl-names = "default";
+	pinctrl-0 = <&sdhost_gpio48>;
+	bus-width = <4>;
+	status = "okay";
+};
+
+>>>>>>> upstream/android-13
 &uart0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&uart0_gpio32 &uart0_ctsrts_gpio30>;

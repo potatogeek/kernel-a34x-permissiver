@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright 2013 Red Hat, Inc.
  * Author: Daniel Borkmann <dborkman@redhat.com>
@@ -19,6 +23,7 @@
  *   - TPACKET_V1: RX_RING, TX_RING
  *   - TPACKET_V2: RX_RING, TX_RING
  *   - TPACKET_V3: RX_RING
+<<<<<<< HEAD
  *
  * License (GPLv2):
  *
@@ -34,6 +39,8 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <stdio.h>

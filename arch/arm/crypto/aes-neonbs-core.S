@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Bit sliced AES using NEON instructions
  *
  * Copyright (C) 2017 Linaro Ltd.
  * Author: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -80,11 +87,14 @@
 	vldr		\out\()h, \sym + 8
 	.endm
 
+<<<<<<< HEAD
 	.macro		__adr, reg, lbl
 	adr		\reg, \lbl
 THUMB(	orr		\reg, \reg, #1		)
 	.endm
 
+=======
+>>>>>>> upstream/android-13
 	.macro		in_bs_ch, b0, b1, b2, b3, b4, b5, b6, b7
 	veor		\b2, \b2, \b1
 	veor		\b5, \b5, \b6
@@ -632,11 +642,19 @@ ENDPROC(aesbs_decrypt8)
 	push		{r4-r6, lr}
 	ldr		r5, [sp, #16]		// number of blocks
 
+<<<<<<< HEAD
 99:	__adr		ip, 0f
 	and		lr, r5, #7
 	cmp		r5, #8
 	sub		ip, ip, lr, lsl #2
 	bxlt		ip			// computed goto if blocks < 8
+=======
+99:	adr		ip, 0f
+	and		lr, r5, #7
+	cmp		r5, #8
+	sub		ip, ip, lr, lsl #2
+	movlt		pc, ip			// computed goto if blocks < 8
+>>>>>>> upstream/android-13
 
 	vld1.8		{q0}, [r1]!
 	vld1.8		{q1}, [r1]!
@@ -651,11 +669,19 @@ ENDPROC(aesbs_decrypt8)
 	mov		rounds, r3
 	bl		\do8
 
+<<<<<<< HEAD
 	__adr		ip, 1f
 	and		lr, r5, #7
 	cmp		r5, #8
 	sub		ip, ip, lr, lsl #2
 	bxlt		ip			// computed goto if blocks < 8
+=======
+	adr		ip, 1f
+	and		lr, r5, #7
+	cmp		r5, #8
+	sub		ip, ip, lr, lsl #2
+	movlt		pc, ip			// computed goto if blocks < 8
+>>>>>>> upstream/android-13
 
 	vst1.8		{\o0}, [r0]!
 	vst1.8		{\o1}, [r0]!
@@ -692,12 +718,20 @@ ENTRY(aesbs_cbc_decrypt)
 	push		{r4-r6, lr}
 	ldm		ip, {r5-r6}		// load args 4-5
 
+<<<<<<< HEAD
 99:	__adr		ip, 0f
+=======
+99:	adr		ip, 0f
+>>>>>>> upstream/android-13
 	and		lr, r5, #7
 	cmp		r5, #8
 	sub		ip, ip, lr, lsl #2
 	mov		lr, r1
+<<<<<<< HEAD
 	bxlt		ip			// computed goto if blocks < 8
+=======
+	movlt		pc, ip			// computed goto if blocks < 8
+>>>>>>> upstream/android-13
 
 	vld1.8		{q0}, [lr]!
 	vld1.8		{q1}, [lr]!
@@ -721,11 +755,19 @@ ENTRY(aesbs_cbc_decrypt)
 	vmov		q14, q8
 	vmov		q15, q8
 
+<<<<<<< HEAD
 	__adr		ip, 1f
 	and		lr, r5, #7
 	cmp		r5, #8
 	sub		ip, ip, lr, lsl #2
 	bxlt		ip			// computed goto if blocks < 8
+=======
+	adr		ip, 1f
+	and		lr, r5, #7
+	cmp		r5, #8
+	sub		ip, ip, lr, lsl #2
+	movlt		pc, ip			// computed goto if blocks < 8
+>>>>>>> upstream/android-13
 
 	vld1.8		{q9}, [r1]!
 	vld1.8		{q10}, [r1]!
@@ -736,9 +778,15 @@ ENTRY(aesbs_cbc_decrypt)
 	vld1.8		{q15}, [r1]!
 	W(nop)
 
+<<<<<<< HEAD
 1:	__adr		ip, 2f
 	sub		ip, ip, lr, lsl #3
 	bxlt		ip			// computed goto if blocks < 8
+=======
+1:	adr		ip, 2f
+	sub		ip, ip, lr, lsl #3
+	movlt		pc, ip			// computed goto if blocks < 8
+>>>>>>> upstream/android-13
 
 	veor		q0, q0, q8
 	vst1.8		{q0}, [r0]!
@@ -807,13 +855,21 @@ ENTRY(aesbs_ctr_encrypt)
 	vmov		q6, q0
 	vmov		q7, q0
 
+<<<<<<< HEAD
 	__adr		ip, 0f
+=======
+	adr		ip, 0f
+>>>>>>> upstream/android-13
 	sub		lr, r5, #1
 	and		lr, lr, #7
 	cmp		r5, #8
 	sub		ip, ip, lr, lsl #5
 	sub		ip, ip, lr, lsl #2
+<<<<<<< HEAD
 	bxlt		ip			// computed goto if blocks < 8
+=======
+	movlt		pc, ip			// computed goto if blocks < 8
+>>>>>>> upstream/android-13
 
 	next_ctr	q1
 	next_ctr	q2
@@ -827,13 +883,21 @@ ENTRY(aesbs_ctr_encrypt)
 	mov		rounds, r3
 	bl		aesbs_encrypt8
 
+<<<<<<< HEAD
 	__adr		ip, 1f
+=======
+	adr		ip, 1f
+>>>>>>> upstream/android-13
 	and		lr, r5, #7
 	cmp		r5, #8
 	movgt		r4, #0
 	ldrle		r4, [sp, #40]		// load final in the last round
 	sub		ip, ip, lr, lsl #2
+<<<<<<< HEAD
 	bxlt		ip			// computed goto if blocks < 8
+=======
+	movlt		pc, ip			// computed goto if blocks < 8
+>>>>>>> upstream/android-13
 
 	vld1.8		{q8}, [r1]!
 	vld1.8		{q9}, [r1]!
@@ -846,10 +910,17 @@ ENTRY(aesbs_ctr_encrypt)
 1:	bne		2f
 	vld1.8		{q15}, [r1]!
 
+<<<<<<< HEAD
 2:	__adr		ip, 3f
 	cmp		r5, #8
 	sub		ip, ip, lr, lsl #3
 	bxlt		ip			// computed goto if blocks < 8
+=======
+2:	adr		ip, 3f
+	cmp		r5, #8
+	sub		ip, ip, lr, lsl #3
+	movlt		pc, ip			// computed goto if blocks < 8
+>>>>>>> upstream/android-13
 
 	veor		q0, q0, q8
 	vst1.8		{q0}, [r0]!
@@ -890,6 +961,7 @@ ENDPROC(aesbs_ctr_encrypt)
 	veor		\out, \out, \tmp
 	.endm
 
+<<<<<<< HEAD
 	.align		4
 .Lxts_mul_x:
 	.quad		1, 0x87
@@ -906,11 +978,31 @@ __xts_prepare8:
 	vmov		q12, q14
 
 	__adr		ip, 0f
+=======
+	/*
+	 * aesbs_xts_encrypt(u8 out[], u8 const in[], u8 const rk[], int rounds,
+	 *		     int blocks, u8 iv[], int reorder_last_tweak)
+	 * aesbs_xts_decrypt(u8 out[], u8 const in[], u8 const rk[], int rounds,
+	 *		     int blocks, u8 iv[], int reorder_last_tweak)
+	 */
+__xts_prepare8:
+	vld1.8		{q14}, [r7]		// load iv
+	vmov.i32	d30, #0x87		// compose tweak mask vector
+	vmovl.u32	q15, d30
+	vshr.u64	d30, d31, #7
+	vmov		q12, q14
+
+	adr		ip, 0f
+>>>>>>> upstream/android-13
 	and		r4, r6, #7
 	cmp		r6, #8
 	sub		ip, ip, r4, lsl #5
 	mov		r4, sp
+<<<<<<< HEAD
 	bxlt		ip			// computed goto if blocks < 8
+=======
+	movlt		pc, ip			// computed goto if blocks < 8
+>>>>>>> upstream/android-13
 
 	vld1.8		{q0}, [r1]!
 	next_tweak	q12, q14, q15, q13
@@ -949,17 +1041,35 @@ __xts_prepare8:
 
 	vld1.8		{q7}, [r1]!
 	next_tweak	q14, q12, q15, q13
+<<<<<<< HEAD
 	veor		q7, q7, q12
 	vst1.8		{q12}, [r4, :128]
 
 0:	vst1.8		{q14}, [r7]		// store next iv
 	bx		lr
+=======
+THUMB(	itt		le		)
+	W(cmple)	r8, #0
+	ble		1f
+0:	veor		q7, q7, q12
+	vst1.8		{q12}, [r4, :128]
+
+	vst1.8		{q14}, [r7]		// store next iv
+	bx		lr
+
+1:	vswp		q12, q14
+	b		0b
+>>>>>>> upstream/android-13
 ENDPROC(__xts_prepare8)
 
 	.macro		__xts_crypt, do8, o0, o1, o2, o3, o4, o5, o6, o7
 	push		{r4-r8, lr}
 	mov		r5, sp			// preserve sp
 	ldrd		r6, r7, [sp, #24]	// get blocks and iv args
+<<<<<<< HEAD
+=======
+	rsb		r8, ip, #1
+>>>>>>> upstream/android-13
 	sub		ip, sp, #128		// make room for 8x tweak
 	bic		ip, ip, #0xf		// align sp to 16 bytes
 	mov		sp, ip
@@ -970,12 +1080,20 @@ ENDPROC(__xts_prepare8)
 	mov		rounds, r3
 	bl		\do8
 
+<<<<<<< HEAD
 	__adr		ip, 0f
+=======
+	adr		ip, 0f
+>>>>>>> upstream/android-13
 	and		lr, r6, #7
 	cmp		r6, #8
 	sub		ip, ip, lr, lsl #2
 	mov		r4, sp
+<<<<<<< HEAD
 	bxlt		ip			// computed goto if blocks < 8
+=======
+	movlt		pc, ip			// computed goto if blocks < 8
+>>>>>>> upstream/android-13
 
 	vld1.8		{q8}, [r4, :128]!
 	vld1.8		{q9}, [r4, :128]!
@@ -986,9 +1104,15 @@ ENDPROC(__xts_prepare8)
 	vld1.8		{q14}, [r4, :128]!
 	vld1.8		{q15}, [r4, :128]
 
+<<<<<<< HEAD
 0:	__adr		ip, 1f
 	sub		ip, ip, lr, lsl #3
 	bxlt		ip			// computed goto if blocks < 8
+=======
+0:	adr		ip, 1f
+	sub		ip, ip, lr, lsl #3
+	movlt		pc, ip			// computed goto if blocks < 8
+>>>>>>> upstream/android-13
 
 	veor		\o0, \o0, q8
 	vst1.8		{\o0}, [r0]!
@@ -1015,9 +1139,17 @@ ENDPROC(__xts_prepare8)
 	.endm
 
 ENTRY(aesbs_xts_encrypt)
+<<<<<<< HEAD
+=======
+	mov		ip, #0			// never reorder final tweak
+>>>>>>> upstream/android-13
 	__xts_crypt	aesbs_encrypt8, q0, q1, q4, q6, q3, q7, q2, q5
 ENDPROC(aesbs_xts_encrypt)
 
 ENTRY(aesbs_xts_decrypt)
+<<<<<<< HEAD
+=======
+	ldr		ip, [sp, #8]		// reorder final tweak?
+>>>>>>> upstream/android-13
 	__xts_crypt	aesbs_decrypt8, q0, q1, q6, q4, q2, q7, q3, q5
 ENDPROC(aesbs_xts_decrypt)

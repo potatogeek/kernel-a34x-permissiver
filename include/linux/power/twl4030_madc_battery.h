@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Dumb driver for LiIon batteries using TWL4030 madc.
  *
  * Copyright 2013 Golden Delicious Computers
  * Nikolaus Schaller <hns@goldelico.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU General Public License as published by the
@@ -13,6 +18,8 @@
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __TWL4030_MADC_BATTERY_H

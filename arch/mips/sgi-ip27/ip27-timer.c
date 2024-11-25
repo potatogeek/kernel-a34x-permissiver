@@ -1,7 +1,12 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
+<<<<<<< HEAD
  * Copytight (C) 1999, 2000, 05, 06 Ralf Baechle (ralf@linux-mips.org)
  * Copytight (C) 1999, 2000 Silicon Graphics, Inc.
+=======
+ * Copyright (C) 1999, 2000, 05, 06 Ralf Baechle (ralf@linux-mips.org)
+ * Copyright (C) 1999, 2000 Silicon Graphics, Inc.
+>>>>>>> upstream/android-13
  */
 #include <linux/bcd.h>
 #include <linux/clockchips.h>
@@ -19,6 +24,7 @@
 #include <linux/platform_device.h>
 
 #include <asm/time.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
 #include <asm/sgialib.h>
 #include <asm/sn/ioc3.h>
@@ -51,6 +57,15 @@ static struct irq_chip rt_irq_type = {
 	.irq_mask	= disable_rt_irq,
 	.irq_unmask	= enable_rt_irq,
 };
+=======
+#include <asm/sgialib.h>
+#include <asm/sn/klconfig.h>
+#include <asm/sn/arch.h>
+#include <asm/sn/addrs.h>
+#include <asm/sn/agent.h>
+
+#include "ip27-common.h"
+>>>>>>> upstream/android-13
 
 static int rt_next_event(unsigned long delta, struct clock_event_device *evt)
 {
@@ -65,8 +80,11 @@ static int rt_next_event(unsigned long delta, struct clock_event_device *evt)
 	return LOCAL_HUB_L(PI_RT_COUNT) >= cnt ? -ETIME : 0;
 }
 
+<<<<<<< HEAD
 unsigned int rt_timer_irq;
 
+=======
+>>>>>>> upstream/android-13
 static DEFINE_PER_CPU(struct clock_event_device, hub_rt_clockevent);
 static DEFINE_PER_CPU(char [11], hub_rt_name);
 
@@ -87,6 +105,10 @@ static irqreturn_t hub_rt_counter_handler(int irq, void *dev_id)
 
 struct irqaction hub_rt_irqaction = {
 	.handler	= hub_rt_counter_handler,
+<<<<<<< HEAD
+=======
+	.percpu_dev_id	= &hub_rt_clockevent,
+>>>>>>> upstream/android-13
 	.flags		= IRQF_PERCPU | IRQF_TIMER,
 	.name		= "hub-rt",
 };
@@ -107,7 +129,10 @@ void hub_rt_clock_event_init(void)
 	unsigned int cpu = smp_processor_id();
 	struct clock_event_device *cd = &per_cpu(hub_rt_clockevent, cpu);
 	unsigned char *name = per_cpu(hub_rt_name, cpu);
+<<<<<<< HEAD
 	int irq = rt_timer_irq;
+=======
+>>>>>>> upstream/android-13
 
 	sprintf(name, "hub-rt %d", cpu);
 	cd->name		= name;
@@ -118,14 +143,24 @@ void hub_rt_clock_event_init(void)
 	cd->min_delta_ns	= clockevent_delta2ns(0x300, cd);
 	cd->min_delta_ticks	= 0x300;
 	cd->rating		= 200;
+<<<<<<< HEAD
 	cd->irq			= irq;
 	cd->cpumask		= cpumask_of(cpu);
 	cd->set_next_event	= rt_next_event;
 	clockevents_register_device(cd);
+=======
+	cd->irq			= IP27_RT_TIMER_IRQ;
+	cd->cpumask		= cpumask_of(cpu);
+	cd->set_next_event	= rt_next_event;
+	clockevents_register_device(cd);
+
+	enable_percpu_irq(IP27_RT_TIMER_IRQ, IRQ_TYPE_NONE);
+>>>>>>> upstream/android-13
 }
 
 static void __init hub_rt_clock_event_global_init(void)
 {
+<<<<<<< HEAD
 	int irq;
 
 	do {
@@ -141,6 +176,11 @@ static void __init hub_rt_clock_event_global_init(void)
 
 	irq_set_chip_and_handler(irq, &rt_irq_type, handle_percpu_irq);
 	setup_irq(irq, &hub_rt_irqaction);
+=======
+	irq_set_handler(IP27_RT_TIMER_IRQ, handle_percpu_devid_irq);
+	irq_set_percpu_devid(IP27_RT_TIMER_IRQ);
+	setup_percpu_irq(IP27_RT_TIMER_IRQ, &hub_rt_irqaction);
+>>>>>>> upstream/android-13
 }
 
 static u64 hub_rt_read(struct clocksource *cs)
@@ -177,6 +217,7 @@ void __init plat_time_init(void)
 	hub_rt_clock_event_init();
 }
 
+<<<<<<< HEAD
 void cpu_time_init(void)
 {
 	lboard_t *board;
@@ -199,6 +240,9 @@ void cpu_time_init(void)
 }
 
 void hub_rtc_init(cnodeid_t cnode)
+=======
+void hub_rtc_init(nasid_t nasid)
+>>>>>>> upstream/android-13
 {
 
 	/*
@@ -206,7 +250,11 @@ void hub_rtc_init(cnodeid_t cnode)
 	 * If this is not the current node then it is a cpuless
 	 * node and timeouts will not happen there.
 	 */
+<<<<<<< HEAD
 	if (get_compact_nodeid() == cnode) {
+=======
+	if (get_nasid() == nasid) {
+>>>>>>> upstream/android-13
 		LOCAL_HUB_S(PI_RT_EN_A, 1);
 		LOCAL_HUB_S(PI_RT_EN_B, 1);
 		LOCAL_HUB_S(PI_PROF_EN_A, 0);
@@ -216,6 +264,7 @@ void hub_rtc_init(cnodeid_t cnode)
 		LOCAL_HUB_S(PI_RT_PEND_B, 0);
 	}
 }
+<<<<<<< HEAD
 
 static int __init sgi_ip27_rtc_devinit(void)
 {
@@ -236,3 +285,5 @@ static int __init sgi_ip27_rtc_devinit(void)
  * are resolved
  */
 late_initcall(sgi_ip27_rtc_devinit);
+=======
+>>>>>>> upstream/android-13

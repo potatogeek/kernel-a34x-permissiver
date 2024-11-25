@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2010  Realtek Corporation.
@@ -22,6 +23,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/* Copyright(c) 2009-2010  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #ifndef	__RTL8821AE_DM_H__
 #define __RTL8821AE_DM_H__
@@ -92,11 +97,19 @@
 #define	DM_REG_CCK_CCA_CNT_11N			0xA60
 #define	DM_REG_BB_PWR_SAV4_11N			0xA74
 /*PAGE B */
+<<<<<<< HEAD
 #define	DM_REG_LNA_SWITCH_11N			0xB2C
 #define	DM_REG_PATH_SWITCH_11N			0xB30
 #define	DM_REG_RSSI_CTRL_11N			0xB38
 #define	DM_REG_CONFIG_ANTA_11N			0xB68
 #define	DM_REG_RSSI_BT_11N				0xB9C
+=======
+#define	DM_REG_LNA_SWITCH_11N			0XB2C
+#define	DM_REG_PATH_SWITCH_11N			0XB30
+#define	DM_REG_RSSI_CTRL_11N			0XB38
+#define	DM_REG_CONFIG_ANTA_11N			0XB68
+#define	DM_REG_RSSI_BT_11N				0XB9C
+>>>>>>> upstream/android-13
 /*PAGE C */
 #define	DM_REG_OFDM_FA_HOLDC_11N		0xC00
 #define	DM_REG_RX_PATH_11N				0xC04

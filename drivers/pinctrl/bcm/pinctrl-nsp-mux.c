@@ -571,23 +571,35 @@ static int nsp_pinmux_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, pinctrl);
 	spin_lock_init(&pinctrl->lock);
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	pinctrl->base0 = devm_ioremap_resource(&pdev->dev, res);
+=======
+	pinctrl->base0 = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(pinctrl->base0))
 		return PTR_ERR(pinctrl->base0);
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
 	if (!res)
 		return -EINVAL;
+<<<<<<< HEAD
 	pinctrl->base1 = devm_ioremap_nocache(&pdev->dev, res->start,
+=======
+	pinctrl->base1 = devm_ioremap(&pdev->dev, res->start,
+>>>>>>> upstream/android-13
 					      resource_size(res));
 	if (!pinctrl->base1) {
 		dev_err(&pdev->dev, "unable to map I/O space\n");
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 2);
 	pinctrl->base2 = devm_ioremap_resource(&pdev->dev, res);
+=======
+	pinctrl->base2 = devm_platform_ioremap_resource(pdev, 2);
+>>>>>>> upstream/android-13
 	if (IS_ERR(pinctrl->base2))
 		return PTR_ERR(pinctrl->base2);
 

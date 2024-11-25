@@ -14,7 +14,10 @@
 #include <asm/alternative-asm.h>
 #include <asm/processor.h>
 #include <asm/cache.h>
+<<<<<<< HEAD
 #include <asm/ctl_reg.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/dwarf.h>
 #include <asm/errno.h>
 #include <asm/ptrace.h>
@@ -51,6 +54,7 @@ STACK_SHIFT = PAGE_SHIFT + THREAD_SIZE_ORDER
 STACK_SIZE  = 1 << STACK_SHIFT
 STACK_INIT = STACK_SIZE - STACK_FRAME_OVERHEAD - __PT_SIZE
 
+<<<<<<< HEAD
 _TIF_WORK	= (_TIF_SIGPENDING | _TIF_NOTIFY_RESUME | _TIF_NEED_RESCHED | \
 		   _TIF_UPROBE | _TIF_GUARDED_STORAGE | _TIF_PATCH_PENDING)
 _TIF_TRACE	= (_TIF_SYSCALL_TRACE | _TIF_SYSCALL_AUDIT | _TIF_SECCOMP | \
@@ -88,11 +92,19 @@ _LPP_OFFSET	= __LC_LPP
 	.macro	CHECK_STACK stacksize,savearea
 #ifdef CONFIG_CHECK_STACK
 	tml	%r15,\stacksize - CONFIG_STACK_GUARD
+=======
+_LPP_OFFSET	= __LC_LPP
+
+	.macro	CHECK_STACK savearea
+#ifdef CONFIG_CHECK_STACK
+	tml	%r15,STACK_SIZE - CONFIG_STACK_GUARD
+>>>>>>> upstream/android-13
 	lghi	%r14,\savearea
 	jz	stack_overflow
 #endif
 	.endm
 
+<<<<<<< HEAD
 	.macro	SWITCH_ASYNC savearea,timer
 	tmhh	%r8,0x0001		# interrupting from user ?
 	jnz	1f
@@ -141,6 +153,33 @@ _LPP_OFFSET	= __LC_LPP
 #else
 	.insn	s,0xb2050000,\savearea		# store clock
 #endif
+=======
+	.macro	CHECK_VMAP_STACK savearea,oklabel
+#ifdef CONFIG_VMAP_STACK
+	lgr	%r14,%r15
+	nill	%r14,0x10000 - STACK_SIZE
+	oill	%r14,STACK_INIT
+	clg	%r14,__LC_KERNEL_STACK
+	je	\oklabel
+	clg	%r14,__LC_ASYNC_STACK
+	je	\oklabel
+	clg	%r14,__LC_MCCK_STACK
+	je	\oklabel
+	clg	%r14,__LC_NODAT_STACK
+	je	\oklabel
+	clg	%r14,__LC_RESTART_STACK
+	je	\oklabel
+	lghi	%r14,\savearea
+	j	stack_overflow
+#else
+	j	\oklabel
+#endif
+	.endm
+
+	.macro STCK savearea
+	ALTERNATIVE ".insn	s,0xb2050000,\savearea", \
+		    ".insn	s,0xb27c0000,\savearea", 25
+>>>>>>> upstream/android-13
 	.endm
 
 	/*
@@ -184,18 +223,77 @@ _LPP_OFFSET	= __LC_LPP
 		    "jnz .+8; .long 0xb2e8d000", 82
 	.endm
 
+<<<<<<< HEAD
 	GEN_BR_THUNK %r9
 	GEN_BR_THUNK %r14
 	GEN_BR_THUNK %r14,%r11
+=======
+	/*
+	 * The CHKSTG macro jumps to the provided label in case the
+	 * machine check interruption code reports one of unrecoverable
+	 * storage errors:
+	 * - Storage error uncorrected
+	 * - Storage key error uncorrected
+	 * - Storage degradation with Failing-storage-address validity
+	 */
+	.macro CHKSTG errlabel
+	TSTMSK	__LC_MCCK_CODE,(MCCK_CODE_STG_ERROR|MCCK_CODE_STG_KEY_ERROR)
+	jnz	\errlabel
+	TSTMSK	__LC_MCCK_CODE,MCCK_CODE_STG_DEGRAD
+	jz	.Loklabel\@
+	TSTMSK	__LC_MCCK_CODE,MCCK_CODE_STG_FAIL_ADDR
+	jnz	\errlabel
+.Loklabel\@:
+	.endm
+
+#if IS_ENABLED(CONFIG_KVM)
+	/*
+	 * The OUTSIDE macro jumps to the provided label in case the value
+	 * in the provided register is outside of the provided range. The
+	 * macro is useful for checking whether a PSW stored in a register
+	 * pair points inside or outside of a block of instructions.
+	 * @reg: register to check
+	 * @start: start of the range
+	 * @end: end of the range
+	 * @outside_label: jump here if @reg is outside of [@start..@end)
+	 */
+	.macro OUTSIDE reg,start,end,outside_label
+	lgr	%r14,\reg
+	larl	%r13,\start
+	slgr	%r14,%r13
+	lghi	%r13,\end - \start
+	clgr	%r14,%r13
+	jhe	\outside_label
+	.endm
+
+	.macro SIEEXIT
+	lg	%r9,__SF_SIE_CONTROL(%r15)	# get control block pointer
+	ni	__SIE_PROG0C+3(%r9),0xfe	# no longer in SIE
+	lctlg	%c1,%c1,__LC_KERNEL_ASCE	# load primary asce
+	larl	%r9,sie_exit			# skip forward to sie_exit
+	.endm
+#endif
+
+	GEN_BR_THUNK %r14
+	GEN_BR_THUNK %r14,%r13
+>>>>>>> upstream/android-13
 
 	.section .kprobes.text, "ax"
 .Ldummy:
 	/*
+<<<<<<< HEAD
 	 * This nop exists only in order to avoid that __switch_to starts at
 	 * the beginning of the kprobes text section. In that case we would
 	 * have several symbols at the same address. E.g. objdump would take
 	 * an arbitrary symbol name when disassembling this code.
 	 * With the added nop in between the __switch_to symbol is unique
+=======
+	 * This nop exists only in order to avoid that __bpon starts at
+	 * the beginning of the kprobes text section. In that case we would
+	 * have several symbols at the same address. E.g. objdump would take
+	 * an arbitrary symbol name when disassembling this code.
+	 * With the added nop in between the __bpon symbol is unique
+>>>>>>> upstream/android-13
 	 * again.
 	 */
 	nop	0
@@ -204,6 +302,10 @@ ENTRY(__bpon)
 	.globl __bpon
 	BPON
 	BR_EX	%r14
+<<<<<<< HEAD
+=======
+ENDPROC(__bpon)
+>>>>>>> upstream/android-13
 
 /*
  * Scheduler resume function, called by switch_to
@@ -216,10 +318,17 @@ ENTRY(__switch_to)
 	stmg	%r6,%r15,__SF_GPRS(%r15)	# store gprs of prev task
 	lghi	%r4,__TASK_stack
 	lghi	%r1,__TASK_thread
+<<<<<<< HEAD
 	lg	%r5,0(%r4,%r3)			# start of kernel stack of next
 	stg	%r15,__THREAD_ksp(%r1,%r2)	# store kernel stack of prev
 	lgr	%r15,%r5
 	aghi	%r15,STACK_INIT			# end of kernel stack of next
+=======
+	llill	%r5,STACK_INIT
+	stg	%r15,__THREAD_ksp(%r1,%r2)	# store kernel stack of prev
+	lg	%r15,0(%r4,%r3)			# start of kernel stack of next
+	agr	%r15,%r5			# end of kernel stack of next
+>>>>>>> upstream/android-13
 	stg	%r3,__LC_CURRENT		# store task struct of next
 	stg	%r15,__LC_KERNEL_STACK		# store end of kernel stack
 	lg	%r15,__THREAD_ksp(%r1,%r3)	# load kernel stack of next
@@ -228,8 +337,12 @@ ENTRY(__switch_to)
 	lmg	%r6,%r15,__SF_GPRS(%r15)	# load gprs of next task
 	ALTERNATIVE "", ".insn s,0xb2800000,_LPP_OFFSET", 40
 	BR_EX	%r14
+<<<<<<< HEAD
 
 .L__critical_start:
+=======
+ENDPROC(__switch_to)
+>>>>>>> upstream/android-13
 
 #if IS_ENABLED(CONFIG_KVM)
 /*
@@ -244,10 +357,13 @@ ENTRY(sie64a)
 	stg	%r3,__SF_SIE_SAVEAREA(%r15)	# save guest register save area
 	xc	__SF_SIE_REASON(8,%r15),__SF_SIE_REASON(%r15) # reason code = 0
 	mvc	__SF_SIE_FLAGS(8,%r15),__TI_flags(%r12) # copy thread flags
+<<<<<<< HEAD
 	TSTMSK	__LC_CPU_FLAGS,_CIF_FPU		# load guest fp/vx registers ?
 	jno	.Lsie_load_guest_gprs
 	brasl	%r14,load_fpu_regs		# load guest fp/vx regs
 .Lsie_load_guest_gprs:
+=======
+>>>>>>> upstream/android-13
 	lmg	%r0,%r13,0(%r3)			# load guest gprs 0-13
 	lg	%r14,__LC_GMAP			# get gmap pointer
 	ltgr	%r14,%r14
@@ -263,19 +379,29 @@ ENTRY(sie64a)
 	BPEXIT	__SF_SIE_FLAGS(%r15),(_TIF_ISOLATE_BP|_TIF_ISOLATE_BP_GUEST)
 .Lsie_entry:
 	sie	0(%r14)
+<<<<<<< HEAD
 .Lsie_exit:
+=======
+>>>>>>> upstream/android-13
 	BPOFF
 	BPENTER	__SF_SIE_FLAGS(%r15),(_TIF_ISOLATE_BP|_TIF_ISOLATE_BP_GUEST)
 .Lsie_skip:
 	ni	__SIE_PROG0C+3(%r14),0xfe	# no longer in SIE
+<<<<<<< HEAD
 	lctlg	%c1,%c1,__LC_USER_ASCE		# load primary asce
+=======
+	lctlg	%c1,%c1,__LC_KERNEL_ASCE	# load primary asce
+>>>>>>> upstream/android-13
 .Lsie_done:
 # some program checks are suppressing. C code (e.g. do_protection_exception)
 # will rewind the PSW by the ILC, which is often 4 bytes in case of SIE. There
 # are some corner cases (e.g. runtime instrumentation) where ILC is unpredictable.
 # Other instructions between sie64a and .Lsie_done should not cause program
 # interrupts. So lets use 3 nops as a landing pad for all possible rewinds.
+<<<<<<< HEAD
 # See also .Lcleanup_sie
+=======
+>>>>>>> upstream/android-13
 .Lrewind_pad6:
 	nopr	7
 .Lrewind_pad4:
@@ -288,7 +414,10 @@ sie_exit:
 	stmg	%r0,%r13,0(%r14)		# save guest gprs 0-13
 	xgr	%r0,%r0				# clear guest registers to
 	xgr	%r1,%r1				# prevent speculative use
+<<<<<<< HEAD
 	xgr	%r2,%r2
+=======
+>>>>>>> upstream/android-13
 	xgr	%r3,%r3
 	xgr	%r4,%r4
 	xgr	%r5,%r5
@@ -304,12 +433,17 @@ sie_exit:
 	EX_TABLE(.Lrewind_pad4,.Lsie_fault)
 	EX_TABLE(.Lrewind_pad2,.Lsie_fault)
 	EX_TABLE(sie_exit,.Lsie_fault)
+<<<<<<< HEAD
+=======
+ENDPROC(sie64a)
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(sie64a)
 EXPORT_SYMBOL(sie_exit)
 #endif
 
 /*
  * SVC interrupt handler routine. System calls are synchronous events and
+<<<<<<< HEAD
  * are executed with interrupts enabled.
  */
 
@@ -550,11 +684,51 @@ ENTRY(system_call)
 	lgr	%r2,%r11		# pass pointer to pt_regs
 	larl	%r14,.Lsysc_return
 	jg	do_syscall_trace_exit
+=======
+ * are entered with interrupts disabled.
+ */
+
+ENTRY(system_call)
+	stpt	__LC_SYS_ENTER_TIMER
+	stmg	%r8,%r15,__LC_SAVE_AREA_SYNC
+	BPOFF
+	lghi	%r14,0
+.Lsysc_per:
+	lctlg	%c1,%c1,__LC_KERNEL_ASCE
+	lg	%r12,__LC_CURRENT
+	lg	%r15,__LC_KERNEL_STACK
+	xc	__SF_BACKCHAIN(8,%r15),__SF_BACKCHAIN(%r15)
+	stmg	%r0,%r7,STACK_FRAME_OVERHEAD+__PT_R0(%r15)
+	BPENTER __TI_flags(%r12),_TIF_ISOLATE_BP
+	# clear user controlled register to prevent speculative use
+	xgr	%r0,%r0
+	xgr	%r1,%r1
+	xgr	%r4,%r4
+	xgr	%r5,%r5
+	xgr	%r6,%r6
+	xgr	%r7,%r7
+	xgr	%r8,%r8
+	xgr	%r9,%r9
+	xgr	%r10,%r10
+	xgr	%r11,%r11
+	la	%r2,STACK_FRAME_OVERHEAD(%r15)	# pointer to pt_regs
+	mvc	__PT_R8(64,%r2),__LC_SAVE_AREA_SYNC
+	lgr	%r3,%r14
+	brasl	%r14,__do_syscall
+	lctlg	%c1,%c1,__LC_USER_ASCE
+	mvc	__LC_RETURN_PSW(16),STACK_FRAME_OVERHEAD+__PT_PSW(%r15)
+	BPEXIT __TI_flags(%r12),_TIF_ISOLATE_BP
+	lmg	%r0,%r15,STACK_FRAME_OVERHEAD+__PT_R0(%r15)
+	stpt	__LC_EXIT_TIMER
+	b	__LC_RETURN_LPSWE
+ENDPROC(system_call)
+>>>>>>> upstream/android-13
 
 #
 # a new process exits the kernel with ret_from_fork
 #
 ENTRY(ret_from_fork)
+<<<<<<< HEAD
 	la	%r11,STACK_FRAME_OVERHEAD(%r15)
 	lg	%r12,__LC_CURRENT
 	brasl	%r14,schedule_tail
@@ -568,12 +742,24 @@ ENTRY(kernel_thread_starter)
 	la	%r2,0(%r10)
 	BASR_EX	%r14,%r9
 	j	.Lsysc_tracenogo
+=======
+	lgr	%r3,%r11
+	brasl	%r14,__ret_from_fork
+	lctlg	%c1,%c1,__LC_USER_ASCE
+	mvc	__LC_RETURN_PSW(16),STACK_FRAME_OVERHEAD+__PT_PSW(%r15)
+	BPEXIT __TI_flags(%r12),_TIF_ISOLATE_BP
+	lmg	%r0,%r15,STACK_FRAME_OVERHEAD+__PT_R0(%r15)
+	stpt	__LC_EXIT_TIMER
+	b	__LC_RETURN_LPSWE
+ENDPROC(ret_from_fork)
+>>>>>>> upstream/android-13
 
 /*
  * Program check handler routine
  */
 
 ENTRY(pgm_check_handler)
+<<<<<<< HEAD
 	stpt	__LC_SYNC_ENTER_TIMER
 	BPOFF
 	stmg	%r8,%r15,__LC_SAVE_AREA_SYNC
@@ -620,11 +806,51 @@ ENTRY(pgm_check_handler)
 	xgr	%r0,%r0
 	xgr	%r1,%r1
 	xgr	%r2,%r2
+=======
+	stpt	__LC_SYS_ENTER_TIMER
+	BPOFF
+	stmg	%r8,%r15,__LC_SAVE_AREA_SYNC
+	lg	%r12,__LC_CURRENT
+	lghi	%r10,0
+	lmg	%r8,%r9,__LC_PGM_OLD_PSW
+	tmhh	%r8,0x0001		# coming from user space?
+	jno	.Lpgm_skip_asce
+	lctlg	%c1,%c1,__LC_KERNEL_ASCE
+	j	3f			# -> fault in user space
+.Lpgm_skip_asce:
+#if IS_ENABLED(CONFIG_KVM)
+	# cleanup critical section for program checks in sie64a
+	OUTSIDE	%r9,.Lsie_gmap,.Lsie_done,1f
+	SIEEXIT
+	lghi	%r10,_PIF_GUEST_FAULT
+#endif
+1:	tmhh	%r8,0x4000		# PER bit set in old PSW ?
+	jnz	2f			# -> enabled, can't be a double fault
+	tm	__LC_PGM_ILC+3,0x80	# check for per exception
+	jnz	.Lpgm_svcper		# -> single stepped svc
+2:	CHECK_STACK __LC_SAVE_AREA_SYNC
+	aghi	%r15,-(STACK_FRAME_OVERHEAD + __PT_SIZE)
+	# CHECK_VMAP_STACK branches to stack_overflow or 4f
+	CHECK_VMAP_STACK __LC_SAVE_AREA_SYNC,4f
+3:	BPENTER __TI_flags(%r12),_TIF_ISOLATE_BP
+	lg	%r15,__LC_KERNEL_STACK
+4:	la	%r11,STACK_FRAME_OVERHEAD(%r15)
+	stg	%r10,__PT_FLAGS(%r11)
+	xc	__SF_BACKCHAIN(8,%r15),__SF_BACKCHAIN(%r15)
+	stmg	%r0,%r7,__PT_R0(%r11)
+	mvc	__PT_R8(64,%r11),__LC_SAVE_AREA_SYNC
+	stmg	%r8,%r9,__PT_PSW(%r11)
+
+	# clear user controlled registers to prevent speculative use
+	xgr	%r0,%r0
+	xgr	%r1,%r1
+>>>>>>> upstream/android-13
 	xgr	%r3,%r3
 	xgr	%r4,%r4
 	xgr	%r5,%r5
 	xgr	%r6,%r6
 	xgr	%r7,%r7
+<<<<<<< HEAD
 	mvc	__PT_R8(64,%r11),__LC_SAVE_AREA_SYNC
 	stmg	%r8,%r9,__PT_PSW(%r11)
 	mvc	__PT_INT_CODE(4,%r11),__LC_PGM_ILC
@@ -666,12 +892,26 @@ ENTRY(pgm_check_handler)
 	lgr	%r2,%r11		# pass pointer to pt_regs
 	brasl	%r14,do_per_trap
 	j	.Lpgm_return
+=======
+	lgr	%r2,%r11
+	brasl	%r14,__do_pgm_check
+	tmhh	%r8,0x0001		# returning to user space?
+	jno	.Lpgm_exit_kernel
+	lctlg	%c1,%c1,__LC_USER_ASCE
+	BPEXIT __TI_flags(%r12),_TIF_ISOLATE_BP
+	stpt	__LC_EXIT_TIMER
+.Lpgm_exit_kernel:
+	mvc	__LC_RETURN_PSW(16),STACK_FRAME_OVERHEAD+__PT_PSW(%r15)
+	lmg	%r0,%r15,STACK_FRAME_OVERHEAD+__PT_R0(%r15)
+	b	__LC_RETURN_LPSWE
+>>>>>>> upstream/android-13
 
 #
 # single stepped system call
 #
 .Lpgm_svcper:
 	mvc	__LC_RETURN_PSW(8),__LC_SVC_NEW_PSW
+<<<<<<< HEAD
 	lghi	%r13,__TASK_thread
 	larl	%r14,.Lsysc_per
 	stg	%r14,__LC_RETURN_PSW+8
@@ -690,17 +930,55 @@ ENTRY(io_int_handler)
 	larl	%r13,cleanup_critical
 	lmg	%r8,%r9,__LC_IO_OLD_PSW
 	SWITCH_ASYNC __LC_SAVE_AREA_ASYNC,__LC_ASYNC_ENTER_TIMER
+=======
+	larl	%r14,.Lsysc_per
+	stg	%r14,__LC_RETURN_PSW+8
+	lghi	%r14,1
+	lpswe	__LC_RETURN_PSW		# branch to .Lsysc_per
+ENDPROC(pgm_check_handler)
+
+/*
+ * Interrupt handler macro used for external and IO interrupts.
+ */
+.macro INT_HANDLER name,lc_old_psw,handler
+ENTRY(\name)
+	STCK	__LC_INT_CLOCK
+	stpt	__LC_SYS_ENTER_TIMER
+	BPOFF
+	stmg	%r8,%r15,__LC_SAVE_AREA_ASYNC
+	lg	%r12,__LC_CURRENT
+	lmg	%r8,%r9,\lc_old_psw
+	tmhh	%r8,0x0001			# interrupting from user ?
+	jnz	1f
+#if IS_ENABLED(CONFIG_KVM)
+	OUTSIDE	%r9,.Lsie_gmap,.Lsie_done,0f
+	BPENTER	__SF_SIE_FLAGS(%r15),(_TIF_ISOLATE_BP|_TIF_ISOLATE_BP_GUEST)
+	SIEEXIT
+#endif
+0:	CHECK_STACK __LC_SAVE_AREA_ASYNC
+	aghi	%r15,-(STACK_FRAME_OVERHEAD + __PT_SIZE)
+	j	2f
+1:	BPENTER __TI_flags(%r12),_TIF_ISOLATE_BP
+	lctlg	%c1,%c1,__LC_KERNEL_ASCE
+	lg	%r15,__LC_KERNEL_STACK
+2:	xc	__SF_BACKCHAIN(8,%r15),__SF_BACKCHAIN(%r15)
+	la	%r11,STACK_FRAME_OVERHEAD(%r15)
+>>>>>>> upstream/android-13
 	stmg	%r0,%r7,__PT_R0(%r11)
 	# clear user controlled registers to prevent speculative use
 	xgr	%r0,%r0
 	xgr	%r1,%r1
+<<<<<<< HEAD
 	xgr	%r2,%r2
+=======
+>>>>>>> upstream/android-13
 	xgr	%r3,%r3
 	xgr	%r4,%r4
 	xgr	%r5,%r5
 	xgr	%r6,%r6
 	xgr	%r7,%r7
 	xgr	%r10,%r10
+<<<<<<< HEAD
 	mvc	__PT_R8(64,%r11),__LC_SAVE_AREA_ASYNC
 	stmg	%r8,%r9,__PT_PSW(%r11)
 	mvc	__PT_INT_CODE(12,%r11),__LC_SUBCHANNEL_ID
@@ -947,24 +1225,61 @@ ENTRY(ext_int_handler)
 
 /*
  * Load idle PSW. The second "half" of this function is in .Lcleanup_idle.
+=======
+	xc	__PT_FLAGS(8,%r11),__PT_FLAGS(%r11)
+	mvc	__PT_R8(64,%r11),__LC_SAVE_AREA_ASYNC
+	stmg	%r8,%r9,__PT_PSW(%r11)
+	tm	%r8,0x0001		# coming from user space?
+	jno	1f
+	lctlg	%c1,%c1,__LC_KERNEL_ASCE
+1:	lgr	%r2,%r11		# pass pointer to pt_regs
+	brasl	%r14,\handler
+	mvc	__LC_RETURN_PSW(16),__PT_PSW(%r11)
+	tmhh	%r8,0x0001		# returning to user ?
+	jno	2f
+	lctlg	%c1,%c1,__LC_USER_ASCE
+	BPEXIT	__TI_flags(%r12),_TIF_ISOLATE_BP
+	stpt	__LC_EXIT_TIMER
+2:	lmg	%r0,%r15,__PT_R0(%r11)
+	b	__LC_RETURN_LPSWE
+ENDPROC(\name)
+.endm
+
+INT_HANDLER ext_int_handler,__LC_EXT_OLD_PSW,do_ext_irq
+INT_HANDLER io_int_handler,__LC_IO_OLD_PSW,do_io_irq
+
+/*
+ * Load idle PSW.
+>>>>>>> upstream/android-13
  */
 ENTRY(psw_idle)
 	stg	%r14,(__SF_GPRS+8*8)(%r15)
 	stg	%r3,__SF_EMPTY(%r15)
+<<<<<<< HEAD
 	larl	%r1,.Lpsw_idle_lpsw+4
 	stg	%r1,__SF_EMPTY+8(%r15)
 #ifdef CONFIG_SMP
+=======
+	larl	%r1,psw_idle_exit
+	stg	%r1,__SF_EMPTY+8(%r15)
+>>>>>>> upstream/android-13
 	larl	%r1,smp_cpu_mtid
 	llgf	%r1,0(%r1)
 	ltgr	%r1,%r1
 	jz	.Lpsw_idle_stcctm
+<<<<<<< HEAD
 	.insn	rsy,0xeb0000000017,%r1,5,__SF_EMPTY+16(%r15)
 .Lpsw_idle_stcctm:
 #endif
+=======
+	.insn	rsy,0xeb0000000017,%r1,5,__MT_CYCLES_ENTER(%r2)
+.Lpsw_idle_stcctm:
+>>>>>>> upstream/android-13
 	oi	__LC_CPU_FLAGS+7,_CIF_ENABLED_WAIT
 	BPON
 	STCK	__CLOCK_IDLE_ENTER(%r2)
 	stpt	__TIMER_IDLE_ENTER(%r2)
+<<<<<<< HEAD
 .Lpsw_idle_lpsw:
 	lpswe	__SF_EMPTY(%r15)
 	BR_EX	%r14
@@ -1059,6 +1374,13 @@ load_fpu_regs:
 .Lload_fpu_regs_end:
 
 .L__critical_end:
+=======
+	lpswe	__SF_EMPTY(%r15)
+.globl psw_idle_exit
+psw_idle_exit:
+	BR_EX	%r14
+ENDPROC(psw_idle)
+>>>>>>> upstream/android-13
 
 /*
  * Machine check handler routines
@@ -1068,11 +1390,16 @@ ENTRY(mcck_int_handler)
 	BPOFF
 	la	%r1,4095		# validate r1
 	spt	__LC_CPU_TIMER_SAVE_AREA-4095(%r1)	# validate cpu timer
+<<<<<<< HEAD
 	sckc	__LC_CLOCK_COMPARATOR			# validate comparator
 	lam	%a0,%a15,__LC_AREGS_SAVE_AREA-4095(%r1) # validate acrs
 	lmg	%r0,%r15,__LC_GPREGS_SAVE_AREA-4095(%r1)# validate gprs
 	lg	%r12,__LC_CURRENT
 	larl	%r13,cleanup_critical
+=======
+	lmg	%r0,%r15,__LC_GPREGS_SAVE_AREA-4095(%r1)# validate gprs
+	lg	%r12,__LC_CURRENT
+>>>>>>> upstream/android-13
 	lmg	%r8,%r9,__LC_MCK_OLD_PSW
 	TSTMSK	__LC_MCCK_CODE,MCCK_CODE_SYSTEM_DAMAGE
 	jo	.Lmcck_panic		# yes -> rest of mcck code invalid
@@ -1081,6 +1408,7 @@ ENTRY(mcck_int_handler)
 	la	%r14,4095
 	lctlg	%c0,%c15,__LC_CREGS_SAVE_AREA-4095(%r14) # validate ctl regs
 	ptlb
+<<<<<<< HEAD
 	lg	%r11,__LC_MCESAD-4095(%r14) # extended machine check save area
 	nill	%r11,0xfc00		# MCESA_ORIGIN_MASK
 	TSTMSK	__LC_CREGS_SAVE_AREA+16-4095(%r14),CR2_GUARDED_STORAGE
@@ -1124,6 +1452,14 @@ ENTRY(mcck_int_handler)
 	jl	0f
 	la	%r14,__LC_ASYNC_ENTER_TIMER
 0:	clc	0(8,%r14),__LC_EXIT_TIMER
+=======
+	lghi	%r14,__LC_CPU_TIMER_SAVE_AREA
+	mvc	__LC_MCCK_ENTER_TIMER(8),0(%r14)
+	TSTMSK	__LC_MCCK_CODE,MCCK_CODE_CPU_TIMER_VALID
+	jo	3f
+	la	%r14,__LC_SYS_ENTER_TIMER
+	clc	0(8,%r14),__LC_EXIT_TIMER
+>>>>>>> upstream/android-13
 	jl	1f
 	la	%r14,__LC_EXIT_TIMER
 1:	clc	0(8,%r14),__LC_LAST_UPDATE_TIMER
@@ -1134,17 +1470,50 @@ ENTRY(mcck_int_handler)
 3:	TSTMSK	__LC_MCCK_CODE,MCCK_CODE_PSW_MWP_VALID
 	jno	.Lmcck_panic
 	tmhh	%r8,0x0001		# interrupting from user ?
+<<<<<<< HEAD
 	jnz	4f
 	TSTMSK	__LC_MCCK_CODE,MCCK_CODE_PSW_IA_VALID
 	jno	.Lmcck_panic
 4:	SWITCH_ASYNC __LC_GPREGS_SAVE_AREA+64,__LC_MCCK_ENTER_TIMER
 .Lmcck_skip:
+=======
+	jnz	6f
+	TSTMSK	__LC_MCCK_CODE,MCCK_CODE_PSW_IA_VALID
+	jno	.Lmcck_panic
+#if IS_ENABLED(CONFIG_KVM)
+	OUTSIDE	%r9,.Lsie_gmap,.Lsie_done,6f
+	OUTSIDE	%r9,.Lsie_entry,.Lsie_skip,4f
+	oi	__LC_CPU_FLAGS+7, _CIF_MCCK_GUEST
+	j	5f
+4:	CHKSTG	.Lmcck_panic
+5:	larl	%r14,.Lstosm_tmp
+	stosm	0(%r14),0x04		# turn dat on, keep irqs off
+	BPENTER	__SF_SIE_FLAGS(%r15),(_TIF_ISOLATE_BP|_TIF_ISOLATE_BP_GUEST)
+	SIEEXIT
+	j	.Lmcck_stack
+#endif
+6:	CHKSTG	.Lmcck_panic
+	larl	%r14,.Lstosm_tmp
+	stosm	0(%r14),0x04		# turn dat on, keep irqs off
+	tmhh	%r8,0x0001		# interrupting from user ?
+	jz	.Lmcck_stack
+	BPENTER __TI_flags(%r12),_TIF_ISOLATE_BP
+.Lmcck_stack:
+	lg	%r15,__LC_MCCK_STACK
+	la	%r11,STACK_FRAME_OVERHEAD(%r15)
+	stctg	%c1,%c1,__PT_CR1(%r11)
+	lctlg	%c1,%c1,__LC_KERNEL_ASCE
+	xc	__SF_BACKCHAIN(8,%r15),__SF_BACKCHAIN(%r15)
+>>>>>>> upstream/android-13
 	lghi	%r14,__LC_GPREGS_SAVE_AREA+64
 	stmg	%r0,%r7,__PT_R0(%r11)
 	# clear user controlled registers to prevent speculative use
 	xgr	%r0,%r0
 	xgr	%r1,%r1
+<<<<<<< HEAD
 	xgr	%r2,%r2
+=======
+>>>>>>> upstream/android-13
 	xgr	%r3,%r3
 	xgr	%r4,%r4
 	xgr	%r5,%r5
@@ -1157,13 +1526,19 @@ ENTRY(mcck_int_handler)
 	xc	__SF_BACKCHAIN(8,%r15),__SF_BACKCHAIN(%r15)
 	lgr	%r2,%r11		# pass pointer to pt_regs
 	brasl	%r14,s390_do_machine_check
+<<<<<<< HEAD
 	tm	__PT_PSW+1(%r11),0x01	# returning to user ?
 	jno	.Lmcck_return
+=======
+	cghi	%r2,0
+	je	.Lmcck_return
+>>>>>>> upstream/android-13
 	lg	%r1,__LC_KERNEL_STACK	# switch to kernel stack
 	mvc	STACK_FRAME_OVERHEAD(__PT_SIZE,%r1),0(%r11)
 	xc	__SF_BACKCHAIN(8,%r1),__SF_BACKCHAIN(%r1)
 	la	%r11,STACK_FRAME_OVERHEAD(%r1)
 	lgr	%r15,%r1
+<<<<<<< HEAD
 	ssm	__LC_PGM_NEW_PSW	# turn dat on, keep irqs off
 	TSTMSK	__LC_CPU_FLAGS,_CIF_MCCK_PENDING
 	jno	.Lmcck_return
@@ -1172,12 +1547,18 @@ ENTRY(mcck_int_handler)
 	TRACE_IRQS_ON
 .Lmcck_return:
 	lg	%r14,__LC_VDSO_PER_CPU
+=======
+	brasl	%r14,s390_handle_mcck
+.Lmcck_return:
+	lctlg	%c1,%c1,__PT_CR1(%r11)
+>>>>>>> upstream/android-13
 	lmg	%r0,%r10,__PT_R0(%r11)
 	mvc	__LC_RETURN_MCCK_PSW(16),__PT_PSW(%r11) # move return PSW
 	tm	__LC_RETURN_MCCK_PSW+1,0x01 # returning to user ?
 	jno	0f
 	BPEXIT	__TI_flags(%r12),_TIF_ISOLATE_BP
 	stpt	__LC_EXIT_TIMER
+<<<<<<< HEAD
 	mvc	__VDSO_ECTG_BASE(16,%r14),__LC_EXIT_TIMER
 0:	lmg	%r11,%r15,__PT_R11(%r11)
 	lpswe	__LC_RETURN_MCCK_PSW
@@ -1204,6 +1585,59 @@ ENTRY(restart_int_handler)
 	lg	%r1,__LC_RESTART_FN		# load fn, parm & source cpu
 	lg	%r2,__LC_RESTART_DATA
 	lg	%r3,__LC_RESTART_SOURCE
+=======
+0:	lmg	%r11,%r15,__PT_R11(%r11)
+	b	__LC_RETURN_MCCK_LPSWE
+
+.Lmcck_panic:
+	/*
+	 * Iterate over all possible CPU addresses in the range 0..0xffff
+	 * and stop each CPU using signal processor. Use compare and swap
+	 * to allow just one CPU-stopper and prevent concurrent CPUs from
+	 * stopping each other while leaving the others running.
+	 */
+	lhi	%r5,0
+	lhi	%r6,1
+	larl	%r7,.Lstop_lock
+	cs	%r5,%r6,0(%r7)		# single CPU-stopper only
+	jnz	4f
+	larl	%r7,.Lthis_cpu
+	stap	0(%r7)			# this CPU address
+	lh	%r4,0(%r7)
+	nilh	%r4,0
+	lhi	%r0,1
+	sll	%r0,16			# CPU counter
+	lhi	%r3,0			# next CPU address
+0:	cr	%r3,%r4
+	je	2f
+1:	sigp	%r1,%r3,SIGP_STOP	# stop next CPU
+	brc	SIGP_CC_BUSY,1b
+2:	ahi	%r3,1
+	brct	%r0,0b
+3:	sigp	%r1,%r4,SIGP_STOP	# stop this CPU
+	brc	SIGP_CC_BUSY,3b
+4:	j	4b
+ENDPROC(mcck_int_handler)
+
+ENTRY(restart_int_handler)
+	ALTERNATIVE "", ".insn s,0xb2800000,_LPP_OFFSET", 40
+	stg	%r15,__LC_SAVE_AREA_RESTART
+	TSTMSK	__LC_RESTART_FLAGS,RESTART_FLAG_CTLREGS,4
+	jz	0f
+	la	%r15,4095
+	lctlg	%c0,%c15,__LC_CREGS_SAVE_AREA-4095(%r15)
+0:	larl	%r15,.Lstosm_tmp
+	stosm	0(%r15),0x04			# turn dat on, keep irqs off
+	lg	%r15,__LC_RESTART_STACK
+	xc	STACK_FRAME_OVERHEAD(__PT_SIZE,%r15),STACK_FRAME_OVERHEAD(%r15)
+	stmg	%r0,%r14,STACK_FRAME_OVERHEAD+__PT_R0(%r15)
+	mvc	STACK_FRAME_OVERHEAD+__PT_R15(8,%r15),__LC_SAVE_AREA_RESTART
+	mvc	STACK_FRAME_OVERHEAD+__PT_PSW(16,%r15),__LC_RST_OLD_PSW
+	xc	0(STACK_FRAME_OVERHEAD,%r15),0(%r15)
+	lg	%r1,__LC_RESTART_FN		# load fn, parm & source cpu
+	lg	%r2,__LC_RESTART_DATA
+	lgf	%r3,__LC_RESTART_SOURCE
+>>>>>>> upstream/android-13
 	ltgr	%r3,%r3				# test source cpu address
 	jm	1f				# negative -> skip source stop
 0:	sigp	%r4,%r3,SIGP_SENSE		# sigp sense to source cpu
@@ -1214,17 +1648,30 @@ ENTRY(restart_int_handler)
 2:	sigp	%r4,%r3,SIGP_STOP		# sigp stop to current cpu
 	brc	2,2b
 3:	j	3b
+<<<<<<< HEAD
 
 	.section .kprobes.text, "ax"
 
 #ifdef CONFIG_CHECK_STACK
+=======
+ENDPROC(restart_int_handler)
+
+	.section .kprobes.text, "ax"
+
+#if defined(CONFIG_CHECK_STACK) || defined(CONFIG_VMAP_STACK)
+>>>>>>> upstream/android-13
 /*
  * The synchronous or the asynchronous stack overflowed. We are dead.
  * No need to properly save the registers, we are going to panic anyway.
  * Setup a pt_regs so that show_trace can provide a good call trace.
  */
+<<<<<<< HEAD
 stack_overflow:
 	lg	%r15,__LC_PANIC_STACK	# change to panic stack
+=======
+ENTRY(stack_overflow)
+	lg	%r15,__LC_NODAT_STACK	# change to panic stack
+>>>>>>> upstream/android-13
 	la	%r11,STACK_FRAME_OVERHEAD(%r15)
 	stmg	%r0,%r7,__PT_R0(%r11)
 	stmg	%r8,%r9,__PT_PSW(%r11)
@@ -1233,6 +1680,7 @@ stack_overflow:
 	xc	__SF_BACKCHAIN(8,%r15),__SF_BACKCHAIN(%r15)
 	lgr	%r2,%r11		# pass pointer to pt_regs
 	jg	kernel_stack_overflow
+<<<<<<< HEAD
 #endif
 
 cleanup_critical:
@@ -1495,6 +1943,18 @@ cleanup_critical:
 #endif
 	.section .rodata, "a"
 #define SYSCALL(esame,emu)	.long esame
+=======
+ENDPROC(stack_overflow)
+#endif
+
+	.section .data, "aw"
+		.align	4
+.Lstop_lock:	.long	0
+.Lthis_cpu:	.short	0
+.Lstosm_tmp:	.byte	0
+	.section .rodata, "a"
+#define SYSCALL(esame,emu)	.quad __s390x_ ## esame
+>>>>>>> upstream/android-13
 	.globl	sys_call_table
 sys_call_table:
 #include "asm/syscall_table.h"
@@ -1502,7 +1962,11 @@ sys_call_table:
 
 #ifdef CONFIG_COMPAT
 
+<<<<<<< HEAD
 #define SYSCALL(esame,emu)	.long emu
+=======
+#define SYSCALL(esame,emu)	.quad __s390_ ## emu
+>>>>>>> upstream/android-13
 	.globl	sys_call_table_emu
 sys_call_table_emu:
 #include "asm/syscall_table.h"

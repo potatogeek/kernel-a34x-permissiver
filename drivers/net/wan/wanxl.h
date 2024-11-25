@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * wanXL serial card driver for Linux
  * definitions common to host driver and card firmware
  *
  * Copyright (C) 2003 Krzysztof Halasa <khc@pm.waw.pl>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License
  * as published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define RESET_WHILE_LOADING 0

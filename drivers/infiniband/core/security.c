@@ -39,22 +39,39 @@
 #include "core_priv.h"
 #include "mad_priv.h"
 
+<<<<<<< HEAD
+=======
+static LIST_HEAD(mad_agent_list);
+/* Lock to protect mad_agent_list */
+static DEFINE_SPINLOCK(mad_agent_list_lock);
+
+>>>>>>> upstream/android-13
 static struct pkey_index_qp_list *get_pkey_idx_qp_list(struct ib_port_pkey *pp)
 {
 	struct pkey_index_qp_list *pkey = NULL;
 	struct pkey_index_qp_list *tmp_pkey;
 	struct ib_device *dev = pp->sec->dev;
 
+<<<<<<< HEAD
 	spin_lock(&dev->port_pkey_list[pp->port_num].list_lock);
 	list_for_each_entry(tmp_pkey,
 			    &dev->port_pkey_list[pp->port_num].pkey_list,
 			    pkey_index_list) {
+=======
+	spin_lock(&dev->port_data[pp->port_num].pkey_list_lock);
+	list_for_each_entry (tmp_pkey, &dev->port_data[pp->port_num].pkey_list,
+			     pkey_index_list) {
+>>>>>>> upstream/android-13
 		if (tmp_pkey->pkey_index == pp->pkey_index) {
 			pkey = tmp_pkey;
 			break;
 		}
 	}
+<<<<<<< HEAD
 	spin_unlock(&dev->port_pkey_list[pp->port_num].list_lock);
+=======
+	spin_unlock(&dev->port_data[pp->port_num].pkey_list_lock);
+>>>>>>> upstream/android-13
 	return pkey;
 }
 
@@ -69,7 +86,11 @@ static int get_pkey_and_subnet_prefix(struct ib_port_pkey *pp,
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	ret = ib_get_cached_subnet_prefix(dev, pp->port_num, subnet_prefix);
+=======
+	ib_get_cached_subnet_prefix(dev, pp->port_num, subnet_prefix);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -190,7 +211,11 @@ static void qp_to_error(struct ib_qp_security *sec)
 
 static inline void check_pkey_qps(struct pkey_index_qp_list *pkey,
 				  struct ib_device *device,
+<<<<<<< HEAD
 				  u8 port_num,
+=======
+				  u32 port_num,
+>>>>>>> upstream/android-13
 				  u64 subnet_prefix)
 {
 	struct ib_port_pkey *pp, *tmp_pp;
@@ -242,7 +267,11 @@ static int port_pkey_list_insert(struct ib_port_pkey *pp)
 	struct pkey_index_qp_list *tmp_pkey;
 	struct pkey_index_qp_list *pkey;
 	struct ib_device *dev;
+<<<<<<< HEAD
 	u8 port_num = pp->port_num;
+=======
+	u32 port_num = pp->port_num;
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 	if (pp->state != IB_PORT_PKEY_VALID)
@@ -259,12 +288,20 @@ static int port_pkey_list_insert(struct ib_port_pkey *pp)
 		if (!pkey)
 			return -ENOMEM;
 
+<<<<<<< HEAD
 		spin_lock(&dev->port_pkey_list[port_num].list_lock);
+=======
+		spin_lock(&dev->port_data[port_num].pkey_list_lock);
+>>>>>>> upstream/android-13
 		/* Check for the PKey again.  A racing process may
 		 * have created it.
 		 */
 		list_for_each_entry(tmp_pkey,
+<<<<<<< HEAD
 				    &dev->port_pkey_list[port_num].pkey_list,
+=======
+				    &dev->port_data[port_num].pkey_list,
+>>>>>>> upstream/android-13
 				    pkey_index_list) {
 			if (tmp_pkey->pkey_index == pp->pkey_index) {
 				kfree(pkey);
@@ -279,9 +316,15 @@ static int port_pkey_list_insert(struct ib_port_pkey *pp)
 			spin_lock_init(&pkey->qp_list_lock);
 			INIT_LIST_HEAD(&pkey->qp_list);
 			list_add(&pkey->pkey_index_list,
+<<<<<<< HEAD
 				 &dev->port_pkey_list[port_num].pkey_list);
 		}
 		spin_unlock(&dev->port_pkey_list[port_num].list_lock);
+=======
+				 &dev->port_data[port_num].pkey_list);
+		}
+		spin_unlock(&dev->port_data[port_num].pkey_list_lock);
+>>>>>>> upstream/android-13
 	}
 
 	spin_lock(&pkey->qp_list_lock);
@@ -411,12 +454,24 @@ void ib_close_shared_qp_security(struct ib_qp_security *sec)
 
 int ib_create_qp_security(struct ib_qp *qp, struct ib_device *dev)
 {
+<<<<<<< HEAD
 	u8 i = rdma_start_port(dev);
 	bool is_ib = false;
 	int ret;
 
 	while (i <= rdma_end_port(dev) && !is_ib)
 		is_ib = rdma_protocol_ib(dev, i++);
+=======
+	unsigned int i;
+	bool is_ib = false;
+	int ret;
+
+	rdma_for_each_port (dev, i) {
+		is_ib = rdma_protocol_ib(dev, i);
+		if (is_ib)
+			break;
+	}
+>>>>>>> upstream/android-13
 
 	/* If this isn't an IB device don't create the security context */
 	if (!is_ib)
@@ -532,14 +587,23 @@ void ib_destroy_qp_security_end(struct ib_qp_security *sec)
 }
 
 void ib_security_cache_change(struct ib_device *device,
+<<<<<<< HEAD
 			      u8 port_num,
+=======
+			      u32 port_num,
+>>>>>>> upstream/android-13
 			      u64 subnet_prefix)
 {
 	struct pkey_index_qp_list *pkey;
 
+<<<<<<< HEAD
 	list_for_each_entry(pkey,
 			    &device->port_pkey_list[port_num].pkey_list,
 			    pkey_index_list) {
+=======
+	list_for_each_entry (pkey, &device->port_data[port_num].pkey_list,
+			     pkey_index_list) {
+>>>>>>> upstream/android-13
 		check_pkey_qps(pkey,
 			       device,
 			       port_num,
@@ -547,6 +611,7 @@ void ib_security_cache_change(struct ib_device *device,
 	}
 }
 
+<<<<<<< HEAD
 void ib_security_destroy_port_pkey_list(struct ib_device *device)
 {
 	struct pkey_index_qp_list *pkey, *tmp_pkey;
@@ -557,11 +622,25 @@ void ib_security_destroy_port_pkey_list(struct ib_device *device)
 		list_for_each_entry_safe(pkey,
 					 tmp_pkey,
 					 &device->port_pkey_list[i].pkey_list,
+=======
+void ib_security_release_port_pkey_list(struct ib_device *device)
+{
+	struct pkey_index_qp_list *pkey, *tmp_pkey;
+	unsigned int i;
+
+	rdma_for_each_port (device, i) {
+		list_for_each_entry_safe(pkey,
+					 tmp_pkey,
+					 &device->port_data[i].pkey_list,
+>>>>>>> upstream/android-13
 					 pkey_index_list) {
 			list_del(&pkey->pkey_index_list);
 			kfree(pkey);
 		}
+<<<<<<< HEAD
 		spin_unlock(&device->port_pkey_list[i].list_lock);
+=======
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -583,7 +662,11 @@ int ib_security_modify_qp(struct ib_qp *qp,
 	WARN_ONCE((qp_attr_mask & IB_QP_PORT &&
 		   rdma_protocol_ib(real_qp->device, qp_attr->port_num) &&
 		   !real_qp->qp_sec),
+<<<<<<< HEAD
 		   "%s: QP security is not initialized for IB QP: %d\n",
+=======
+		   "%s: QP security is not initialized for IB QP: %u\n",
+>>>>>>> upstream/android-13
 		   __func__, real_qp->qp_num);
 
 	/* The port/pkey settings are maintained only for the real QP. Open
@@ -619,10 +702,17 @@ int ib_security_modify_qp(struct ib_qp *qp,
 	}
 
 	if (!ret)
+<<<<<<< HEAD
 		ret = real_qp->device->modify_qp(real_qp,
 						 qp_attr,
 						 qp_attr_mask,
 						 udata);
+=======
+		ret = real_qp->device->ops.modify_qp(real_qp,
+						     qp_attr,
+						     qp_attr_mask,
+						     udata);
+>>>>>>> upstream/android-13
 
 	if (new_pps) {
 		/* Clean up the lists and free the appropriate
@@ -646,7 +736,11 @@ int ib_security_modify_qp(struct ib_qp *qp,
 }
 
 static int ib_security_pkey_access(struct ib_device *dev,
+<<<<<<< HEAD
 				   u8 port_num,
+=======
+				   u32 port_num,
+>>>>>>> upstream/android-13
 				   u16 pkey_index,
 				   void *sec)
 {
@@ -661,14 +755,19 @@ static int ib_security_pkey_access(struct ib_device *dev,
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	ret = ib_get_cached_subnet_prefix(dev, port_num, &subnet_prefix);
 
 	if (ret)
 		return ret;
+=======
+	ib_get_cached_subnet_prefix(dev, port_num, &subnet_prefix);
+>>>>>>> upstream/android-13
 
 	return security_ib_pkey_access(sec, subnet_prefix, pkey);
 }
 
+<<<<<<< HEAD
 static int ib_mad_agent_security_change(struct notifier_block *nb,
 					unsigned long event,
 					void *data)
@@ -683,6 +782,20 @@ static int ib_mad_agent_security_change(struct notifier_block *nb,
 							     ag->port_num);
 
 	return NOTIFY_OK;
+=======
+void ib_mad_agent_security_change(void)
+{
+	struct ib_mad_agent *ag;
+
+	spin_lock(&mad_agent_list_lock);
+	list_for_each_entry(ag,
+			    &mad_agent_list,
+			    mad_agent_sec_list)
+		WRITE_ONCE(ag->smp_allowed,
+			   !security_ib_endport_manage_subnet(ag->security,
+				dev_name(&ag->device->dev), ag->port_num));
+	spin_unlock(&mad_agent_list_lock);
+>>>>>>> upstream/android-13
 }
 
 int ib_mad_agent_security_setup(struct ib_mad_agent *agent,
@@ -693,6 +806,11 @@ int ib_mad_agent_security_setup(struct ib_mad_agent *agent,
 	if (!rdma_protocol_ib(agent->device, agent->port_num))
 		return 0;
 
+<<<<<<< HEAD
+=======
+	INIT_LIST_HEAD(&agent->mad_agent_sec_list);
+
+>>>>>>> upstream/android-13
 	ret = security_ib_alloc_security(&agent->security);
 	if (ret)
 		return ret;
@@ -700,12 +818,19 @@ int ib_mad_agent_security_setup(struct ib_mad_agent *agent,
 	if (qp_type != IB_QPT_SMI)
 		return 0;
 
+<<<<<<< HEAD
 	ret = security_ib_endport_manage_subnet(agent->security,
 						agent->device->name,
+=======
+	spin_lock(&mad_agent_list_lock);
+	ret = security_ib_endport_manage_subnet(agent->security,
+						dev_name(&agent->device->dev),
+>>>>>>> upstream/android-13
 						agent->port_num);
 	if (ret)
 		goto free_security;
 
+<<<<<<< HEAD
 	agent->lsm_nb.notifier_call = ib_mad_agent_security_change;
 	ret = register_lsm_notifier(&agent->lsm_nb);
 	if (ret)
@@ -716,6 +841,15 @@ int ib_mad_agent_security_setup(struct ib_mad_agent *agent,
 	return 0;
 
 free_security:
+=======
+	WRITE_ONCE(agent->smp_allowed, true);
+	list_add(&agent->mad_agent_sec_list, &mad_agent_list);
+	spin_unlock(&mad_agent_list_lock);
+	return 0;
+
+free_security:
+	spin_unlock(&mad_agent_list_lock);
+>>>>>>> upstream/android-13
 	security_ib_free_security(agent->security);
 	return ret;
 }
@@ -725,8 +859,16 @@ void ib_mad_agent_security_cleanup(struct ib_mad_agent *agent)
 	if (!rdma_protocol_ib(agent->device, agent->port_num))
 		return;
 
+<<<<<<< HEAD
 	if (agent->lsm_nb_reg)
 		unregister_lsm_notifier(&agent->lsm_nb);
+=======
+	if (agent->qp->qp_type == IB_QPT_SMI) {
+		spin_lock(&mad_agent_list_lock);
+		list_del(&agent->mad_agent_sec_list);
+		spin_unlock(&mad_agent_list_lock);
+	}
+>>>>>>> upstream/android-13
 
 	security_ib_free_security(agent->security);
 }
@@ -737,7 +879,11 @@ int ib_mad_enforce_security(struct ib_mad_agent_private *map, u16 pkey_index)
 		return 0;
 
 	if (map->agent.qp->qp_type == IB_QPT_SMI) {
+<<<<<<< HEAD
 		if (!map->agent.smp_allowed)
+=======
+		if (!READ_ONCE(map->agent.smp_allowed))
+>>>>>>> upstream/android-13
 			return -EACCES;
 		return 0;
 	}

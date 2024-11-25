@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2014 IBM Corp.
  *
@@ -5,6 +6,11 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2014 IBM Corp.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/pci_regs.h>
@@ -1718,7 +1724,10 @@ int cxl_slot_is_switched(struct pci_dev *dev)
 {
 	struct device_node *np;
 	int depth = 0;
+<<<<<<< HEAD
 	const __be32 *prop;
+=======
+>>>>>>> upstream/android-13
 
 	if (!(np = pci_device_to_OF_node(dev))) {
 		pr_err("cxl: np = NULL\n");
@@ -1727,8 +1736,12 @@ int cxl_slot_is_switched(struct pci_dev *dev)
 	of_node_get(np);
 	while (np) {
 		np = of_get_next_parent(np);
+<<<<<<< HEAD
 		prop = of_get_property(np, "device_type", NULL);
 		if (!prop || strcmp((char *)prop, "pciex"))
+=======
+		if (!of_node_is_type(np, "pciex"))
+>>>>>>> upstream/android-13
 			break;
 		depth++;
 	}

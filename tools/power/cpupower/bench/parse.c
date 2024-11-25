@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*  cpufreq-bench CPUFreq microbenchmark
  *
  *  Copyright (C) 2008 Christian Kornacker <ckornacker@suse.de>
@@ -15,6 +16,12 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*  cpufreq-bench CPUFreq microbenchmark
+ *
+ *  Copyright (C) 2008 Christian Kornacker <ckornacker@suse.de>
+>>>>>>> upstream/android-13
  */
 
 #include <stdio.h>
@@ -145,7 +152,11 @@ struct config *prepare_default_config()
 	config->cpu = 0;
 	config->prio = SCHED_HIGH;
 	config->verbose = 0;
+<<<<<<< HEAD
 	strncpy(config->governor, "ondemand", 8);
+=======
+	strncpy(config->governor, "ondemand", sizeof(config->governor));
+>>>>>>> upstream/android-13
 
 	config->output = stdout;
 

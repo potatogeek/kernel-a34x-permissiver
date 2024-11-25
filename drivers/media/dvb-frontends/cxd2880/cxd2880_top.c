@@ -685,7 +685,11 @@ static int cxd2880_set_ber_per_period_t(struct dvb_frontend *fe)
 	int ret;
 	struct cxd2880_priv *priv;
 	struct cxd2880_dvbt_tpsinfo info;
+<<<<<<< HEAD
 	enum cxd2880_dtv_bandwidth bw = CXD2880_DTV_BW_1_7_MHZ;
+=======
+	enum cxd2880_dtv_bandwidth bw;
+>>>>>>> upstream/android-13
 	u32 pre_ber_rate = 0;
 	u32 post_ber_rate = 0;
 	u32 ucblock_rate = 0;

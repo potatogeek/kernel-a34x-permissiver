@@ -243,7 +243,11 @@ static int port_detect(struct device *dev, void *dev_drv)
 }
 
 /**
+<<<<<<< HEAD
  *	parport_register_driver - register a parallel port device driver
+=======
+ *	__parport_register_driver - register a parallel port device driver
+>>>>>>> upstream/android-13
  *	@drv: structure describing the driver
  *	@owner: owner module of drv
  *	@mod_name: module name string
@@ -278,6 +282,7 @@ static int port_detect(struct device *dev, void *dev_drv)
 int __parport_register_driver(struct parport_driver *drv, struct module *owner,
 			      const char *mod_name)
 {
+<<<<<<< HEAD
 	if (list_empty(&portlist))
 		get_lowlevel_driver();
 
@@ -319,6 +324,34 @@ int __parport_register_driver(struct parport_driver *drv, struct module *owner,
 		list_add(&drv->list, &drivers);
 		mutex_unlock(&registration_lock);
 	}
+=======
+	/* using device model */
+	int ret;
+
+	/* initialize common driver fields */
+	drv->driver.name = drv->name;
+	drv->driver.bus = &parport_bus_type;
+	drv->driver.owner = owner;
+	drv->driver.mod_name = mod_name;
+	ret = driver_register(&drv->driver);
+	if (ret)
+		return ret;
+
+	/*
+	 * check if bus has any parallel port registered, if
+	 * none is found then load the lowlevel driver.
+	 */
+	ret = bus_for_each_dev(&parport_bus_type, NULL, NULL,
+			       port_detect);
+	if (!ret)
+		get_lowlevel_driver();
+
+	mutex_lock(&registration_lock);
+	if (drv->match_port)
+		bus_for_each_dev(&parport_bus_type, NULL, drv,
+				 port_check);
+	mutex_unlock(&registration_lock);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -353,6 +386,7 @@ static int port_detach(struct device *dev, void *_drv)
 
 void parport_unregister_driver(struct parport_driver *drv)
 {
+<<<<<<< HEAD
 	struct parport *port;
 
 	mutex_lock(&registration_lock);
@@ -364,6 +398,11 @@ void parport_unregister_driver(struct parport_driver *drv)
 		list_for_each_entry(port, &portlist, list)
 			drv->detach(port);
 	}
+=======
+	mutex_lock(&registration_lock);
+	bus_for_each_dev(&parport_bus_type, NULL, drv, port_detach);
+	driver_unregister(&drv->driver);
+>>>>>>> upstream/android-13
 	mutex_unlock(&registration_lock);
 }
 EXPORT_SYMBOL(parport_unregister_driver);
@@ -555,8 +594,13 @@ void parport_announce_port(struct parport *port)
 #endif
 
 	if (!port->dev)
+<<<<<<< HEAD
 		printk(KERN_WARNING "%s: fix this legacy no-device port driver!\n",
 		       port->name);
+=======
+		pr_warn("%s: fix this legacy no-device port driver!\n",
+			port->name);
+>>>>>>> upstream/android-13
 
 	parport_proc_register(port);
 	mutex_lock(&registration_lock);
@@ -642,6 +686,7 @@ void parport_remove_port(struct parport *port)
 }
 EXPORT_SYMBOL(parport_remove_port);
 
+<<<<<<< HEAD
 /**
  *	parport_register_device - register a device on a parallel port
  *	@port: port to which the device is attached
@@ -651,11 +696,28 @@ EXPORT_SYMBOL(parport_remove_port);
  *	@irq_func: interrupt handler
  *	@flags: registration flags
  *	@handle: data for callback functions
+=======
+static void free_pardevice(struct device *dev)
+{
+	struct pardevice *par_dev = to_pardevice(dev);
+
+	kfree(par_dev->name);
+	kfree(par_dev);
+}
+
+/**
+ *	parport_register_dev_model - register a device on a parallel port
+ *	@port: port to which the device is attached
+ *	@name: a name to refer to the device
+ *	@par_dev_cb: struct containing callbacks
+ *	@id: device number to be given to the device
+>>>>>>> upstream/android-13
  *
  *	This function, called by parallel port device drivers,
  *	declares that a device is connected to a port, and tells the
  *	system all it needs to know.
  *
+<<<<<<< HEAD
  *	The @name is allocated by the caller and must not be
  *	deallocated until the caller calls @parport_unregister_device
  *	for that device.
@@ -676,13 +738,35 @@ EXPORT_SYMBOL(parport_remove_port);
  *	does not support preemption, @pf can be %NULL.
  *
  *	The wake-up ("kick") callback function, @kf, is called when
+=======
+ *	The struct pardev_cb contains pointer to callbacks. preemption
+ *	callback function, @preempt, is called when this device driver
+ *	has claimed access to the port but another device driver wants
+ *	to use it.  It is given, @private, as its parameter, and should
+ *	return zero if it is willing for the system to release the port
+ *	to another driver on its behalf. If it wants to keep control of
+ *	the port it should return non-zero, and no action will be taken.
+ *	It is good manners for the driver to try to release the port at
+ *	the earliest opportunity after its preemption callback rejects a
+ *	preemption attempt. Note that if a preemption callback is happy
+ *	for preemption to go ahead, there is no need to release the
+ *	port; it is done automatically. This function may not block, as
+ *	it may be called from interrupt context. If the device driver
+ *	does not support preemption, @preempt can be %NULL.
+ *
+ *	The wake-up ("kick") callback function, @wakeup, is called when
+>>>>>>> upstream/android-13
  *	the port is available to be claimed for exclusive access; that
  *	is, parport_claim() is guaranteed to succeed when called from
  *	inside the wake-up callback function.  If the driver wants to
  *	claim the port it should do so; otherwise, it need not take
  *	any action.  This function may not block, as it may be called
  *	from interrupt context.  If the device driver does not want to
+<<<<<<< HEAD
  *	be explicitly invited to claim the port in this way, @kf can
+=======
+ *	be explicitly invited to claim the port in this way, @wakeup can
+>>>>>>> upstream/android-13
  *	be %NULL.
  *
  *	The interrupt handler, @irq_func, is called when an interrupt
@@ -712,6 +796,7 @@ EXPORT_SYMBOL(parport_remove_port);
  **/
 
 struct pardevice *
+<<<<<<< HEAD
 parport_register_device(struct parport *port, const char *name,
 			int (*pf)(void *), void (*kf)(void *),
 			void (*irq_func)(void *),
@@ -844,6 +929,8 @@ static void free_pardevice(struct device *dev)
 }
 
 struct pardevice *
+=======
+>>>>>>> upstream/android-13
 parport_register_dev_model(struct parport *port, const char *name,
 			   const struct pardev_cb *par_dev_cb, int id)
 {
@@ -997,7 +1084,11 @@ void parport_unregister_device(struct pardevice *dev)
 
 #ifdef PARPORT_PARANOID
 	if (!dev) {
+<<<<<<< HEAD
 		printk(KERN_ERR "parport_unregister_device: passed NULL\n");
+=======
+		pr_err("%s: passed NULL\n", __func__);
+>>>>>>> upstream/android-13
 		return;
 	}
 #endif
@@ -1047,10 +1138,14 @@ void parport_unregister_device(struct pardevice *dev)
 	spin_unlock_irq(&port->waitlist_lock);
 
 	kfree(dev->state);
+<<<<<<< HEAD
 	if (dev->devmodel)
 		device_unregister(&dev->dev);
 	else
 		kfree(dev);
+=======
+	device_unregister(&dev->dev);
+>>>>>>> upstream/android-13
 
 	module_put(port->ops->owner);
 	parport_put_port(port);
@@ -1138,8 +1233,12 @@ int parport_claim(struct pardevice *dev)
 	unsigned long flags;
 
 	if (port->cad == dev) {
+<<<<<<< HEAD
 		printk(KERN_INFO "%s: %s already owner\n",
 		       dev->port->name,dev->name);
+=======
+		pr_info("%s: %s already owner\n", dev->port->name, dev->name);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
@@ -1159,9 +1258,14 @@ int parport_claim(struct pardevice *dev)
 			 * I think we'll actually deadlock rather than
 			 * get here, but just in case..
 			 */
+<<<<<<< HEAD
 			printk(KERN_WARNING
 			       "%s: %s released port when preempted!\n",
 			       port->name, oldcad->name);
+=======
+			pr_warn("%s: %s released port when preempted!\n",
+				port->name, oldcad->name);
+>>>>>>> upstream/android-13
 			if (port->cad)
 				goto blocked;
 		}
@@ -1261,7 +1365,12 @@ int parport_claim_or_block(struct pardevice *dev)
 	r = parport_claim(dev);
 	if (r == -EAGAIN) {
 #ifdef PARPORT_DEBUG_SHARING
+<<<<<<< HEAD
 		printk(KERN_DEBUG "%s: parport_claim() returned -EAGAIN\n", dev->name);
+=======
+		printk(KERN_DEBUG "%s: parport_claim() returned -EAGAIN\n",
+		       dev->name);
+>>>>>>> upstream/android-13
 #endif
 		/*
 		 * FIXME!!! Use the proper locking for dev->waiting,
@@ -1294,7 +1403,11 @@ int parport_claim_or_block(struct pardevice *dev)
 		if (dev->port->physport->cad != dev)
 			printk(KERN_DEBUG "%s: exiting parport_claim_or_block but %s owns port!\n",
 			       dev->name, dev->port->physport->cad ?
+<<<<<<< HEAD
 			       dev->port->physport->cad->name:"nobody");
+=======
+			       dev->port->physport->cad->name : "nobody");
+>>>>>>> upstream/android-13
 #endif
 	}
 	dev->waiting = 0;
@@ -1321,8 +1434,13 @@ void parport_release(struct pardevice *dev)
 	write_lock_irqsave(&port->cad_lock, flags);
 	if (port->cad != dev) {
 		write_unlock_irqrestore(&port->cad_lock, flags);
+<<<<<<< HEAD
 		printk(KERN_WARNING "%s: %s tried to release parport when not owner\n",
 		       port->name, dev->name);
+=======
+		pr_warn("%s: %s tried to release parport when not owner\n",
+			port->name, dev->name);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -1362,7 +1480,12 @@ void parport_release(struct pardevice *dev)
 			if (dev->port->cad) /* racy but no matter */
 				return;
 		} else {
+<<<<<<< HEAD
 			printk(KERN_ERR "%s: don't know how to wake %s\n", port->name, pd->name);
+=======
+			pr_err("%s: don't know how to wake %s\n",
+			       port->name, pd->name);
+>>>>>>> upstream/android-13
 		}
 	}
 

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 	Copyright (C) 2004 - 2009 Ivo van Doorn <IvDoorn@gmail.com>
 	<http://rt2x00.serialmonkey.com>
 
+<<<<<<< HEAD
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation; either version 2 of the License, or
@@ -14,6 +19,8 @@
 
 	You should have received a copy of the GNU General Public License
 	along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -176,6 +183,18 @@ int rt2x00mac_start(struct ieee80211_hw *hw)
 	if (!test_bit(DEVICE_STATE_PRESENT, &rt2x00dev->flags))
 		return 0;
 
+<<<<<<< HEAD
+=======
+	if (test_bit(DEVICE_STATE_STARTED, &rt2x00dev->flags)) {
+		/*
+		 * This is special case for ieee80211_restart_hw(), otherwise
+		 * mac80211 never call start() two times in row without stop();
+		 */
+		set_bit(DEVICE_STATE_RESET, &rt2x00dev->flags);
+		rt2x00dev->ops->lib->pre_reset_hw(rt2x00dev);
+		rt2x00lib_stop(rt2x00dev);
+	}
+>>>>>>> upstream/android-13
 	return rt2x00lib_start(rt2x00dev);
 }
 EXPORT_SYMBOL_GPL(rt2x00mac_start);
@@ -191,6 +210,20 @@ void rt2x00mac_stop(struct ieee80211_hw *hw)
 }
 EXPORT_SYMBOL_GPL(rt2x00mac_stop);
 
+<<<<<<< HEAD
+=======
+void
+rt2x00mac_reconfig_complete(struct ieee80211_hw *hw,
+			    enum ieee80211_reconfig_type reconfig_type)
+{
+	struct rt2x00_dev *rt2x00dev = hw->priv;
+
+	if (reconfig_type == IEEE80211_RECONFIG_TYPE_RESTART)
+		clear_bit(DEVICE_STATE_RESET, &rt2x00dev->flags);
+}
+EXPORT_SYMBOL_GPL(rt2x00mac_reconfig_complete);
+
+>>>>>>> upstream/android-13
 int rt2x00mac_add_interface(struct ieee80211_hw *hw,
 			    struct ieee80211_vif *vif)
 {
@@ -399,8 +432,12 @@ static void rt2x00mac_set_tim_iter(void *data, u8 *mac,
 
 	if (vif->type != NL80211_IFTYPE_AP &&
 	    vif->type != NL80211_IFTYPE_ADHOC &&
+<<<<<<< HEAD
 	    vif->type != NL80211_IFTYPE_MESH_POINT &&
 	    vif->type != NL80211_IFTYPE_WDS)
+=======
+	    vif->type != NL80211_IFTYPE_MESH_POINT)
+>>>>>>> upstream/android-13
 		return;
 
 	set_bit(DELAYED_UPDATE_BEACON, &intf->delayed_flags);
@@ -459,7 +496,12 @@ int rt2x00mac_set_key(struct ieee80211_hw *hw, enum set_key_cmd cmd,
 	if (!test_bit(DEVICE_STATE_PRESENT, &rt2x00dev->flags))
 		return 0;
 
+<<<<<<< HEAD
 	if (!rt2x00_has_cap_hw_crypto(rt2x00dev))
+=======
+	/* The hardware can't do MFP */
+	if (!rt2x00_has_cap_hw_crypto(rt2x00dev) || (sta && sta->mfp))
+>>>>>>> upstream/android-13
 		return -EOPNOTSUPP;
 
 	/*
@@ -710,8 +752,17 @@ void rt2x00mac_flush(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 	if (!test_bit(DEVICE_STATE_PRESENT, &rt2x00dev->flags))
 		return;
 
+<<<<<<< HEAD
 	tx_queue_for_each(rt2x00dev, queue)
 		rt2x00queue_flush_queue(queue, drop);
+=======
+	set_bit(DEVICE_STATE_FLUSHING, &rt2x00dev->flags);
+
+	tx_queue_for_each(rt2x00dev, queue)
+		rt2x00queue_flush_queue(queue, drop);
+
+	clear_bit(DEVICE_STATE_FLUSHING, &rt2x00dev->flags);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(rt2x00mac_flush);
 

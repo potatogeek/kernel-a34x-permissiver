@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Copyright (C) 2012-2019, Samsung Electronics Co., Ltd.
+=======
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd All Rights Reserved
+>>>>>>> upstream/android-13
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -28,6 +32,15 @@ TZDEV_DEBUG_PARAM_DECLARE(tzdev_teec, 0);
 TZDEV_DEBUG_PARAM_DECLARE(tzdev_kthread, 0);
 TZDEV_DEBUG_PARAM_DECLARE(tzdev_iwsock, 0);
 TZDEV_DEBUG_PARAM_DECLARE(tzdev_uiwsock, 0);
+<<<<<<< HEAD
+=======
+TZDEV_DEBUG_PARAM_DECLARE(tzdev_cred, 0);
+TZDEV_DEBUG_PARAM_DECLARE(tzdev_smc_channel, 0);
+TZDEV_DEBUG_PARAM_DECLARE(tzdev_iw_mem, 0);
+TZDEV_DEBUG_PARAM_DECLARE(tzdev_iw_events, 0);
+TZDEV_DEBUG_PARAM_DECLARE(tzdev_iw_shmem, 0);
+TZDEV_DEBUG_PARAM_DECLARE(tzdev_uiwshmem, 0);
+>>>>>>> upstream/android-13
 
 #if defined(CONFIG_TZLOG)
 TZDEV_DEBUG_PARAM_DECLARE(tzdev_iwlog, 0);
@@ -47,6 +60,7 @@ TZDEV_DEBUG_PARAM_DECLARE(tzdev_scma, 0);
 #if defined(CONFIG_TZDEV_DEPLOY_TZAR)
 TZDEV_DEBUG_PARAM_DECLARE(tzdev_deploy_tzar, 0);
 #endif
+<<<<<<< HEAD
 TZDEV_DEBUG_PARAM_DECLARE(tzdev_mem, 0);
 #if defined(CONFIG_TZPROFILER)
 TZDEV_DEBUG_PARAM_DECLARE(tzdev_profiler, 0);
@@ -54,6 +68,11 @@ TZDEV_DEBUG_PARAM_DECLARE(tzdev_profiler, 0);
 #if defined(CONFIG_TZ_NWFS)
 TZDEV_DEBUG_PARAM_DECLARE(tzdev_nwfs, 0);
 #endif
+=======
+#if defined(CONFIG_TZPROFILER)
+TZDEV_DEBUG_PARAM_DECLARE(tzdev_profiler, 0);
+#endif
+>>>>>>> upstream/android-13
 #if defined(CONFIG_TZ_PMF)
 TZDEV_DEBUG_PARAM_DECLARE(tzdev_pmf, 0);
 #endif

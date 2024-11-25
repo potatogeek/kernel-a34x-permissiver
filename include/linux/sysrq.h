@@ -30,10 +30,17 @@
 #define SYSRQ_ENABLE_RTNICE	0x0100
 
 struct sysrq_key_op {
+<<<<<<< HEAD
 	void (*handler)(int);
 	char *help_msg;
 	char *action_msg;
 	int enable_mask;
+=======
+	void (* const handler)(int);
+	const char * const help_msg;
+	const char * const action_msg;
+	const int enable_mask;
+>>>>>>> upstream/android-13
 };
 
 #ifdef CONFIG_MAGIC_SYSRQ
@@ -45,11 +52,20 @@ struct sysrq_key_op {
 
 void handle_sysrq(int key);
 void __handle_sysrq(int key, bool check_mask);
+<<<<<<< HEAD
 int register_sysrq_key(int key, struct sysrq_key_op *op);
 int unregister_sysrq_key(int key, struct sysrq_key_op *op);
 struct sysrq_key_op *__sysrq_get_key_op(int key);
 
 int sysrq_toggle_support(int enable_mask);
+=======
+int register_sysrq_key(int key, const struct sysrq_key_op *op);
+int unregister_sysrq_key(int key, const struct sysrq_key_op *op);
+extern const struct sysrq_key_op *__sysrq_reboot_op;
+
+int sysrq_toggle_support(int enable_mask);
+int sysrq_mask(void);
+>>>>>>> upstream/android-13
 
 #else
 
@@ -61,16 +77,33 @@ static inline void __handle_sysrq(int key, bool check_mask)
 {
 }
 
+<<<<<<< HEAD
 static inline int register_sysrq_key(int key, struct sysrq_key_op *op)
+=======
+static inline int register_sysrq_key(int key, const struct sysrq_key_op *op)
+>>>>>>> upstream/android-13
 {
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 static inline int unregister_sysrq_key(int key, struct sysrq_key_op *op)
+=======
+static inline int unregister_sysrq_key(int key, const struct sysrq_key_op *op)
+>>>>>>> upstream/android-13
 {
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
+=======
+static inline int sysrq_mask(void)
+{
+	/* Magic SysRq disabled mask */
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 #endif
 
 #endif /* _LINUX_SYSRQ_H */

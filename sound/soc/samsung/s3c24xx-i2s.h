@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+>>>>>>> upstream/android-13
 /*
  * s3c24xx-i2s.c  --  ALSA Soc Audio Layer
  *
@@ -5,11 +9,14 @@
  * Author: Graeme Gregory
  *         graeme.gregory@wolfsonmicro.com or linux@wolfsonmicro.com
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute  it and/or modify it
  *  under  the terms of  the GNU General  Public License as published by the
  *  Free Software Foundation;  either version 2 of the  License, or (at your
  *  option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *  Revision history
  *    10th Nov 2006   Initial version.
  */

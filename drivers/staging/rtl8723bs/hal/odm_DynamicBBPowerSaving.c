@@ -9,8 +9,13 @@
 
 void odm_DynamicBBPowerSavingInit(void *pDM_VOID)
 {
+<<<<<<< HEAD
 	PDM_ODM_T pDM_Odm = (PDM_ODM_T)pDM_VOID;
 	pPS_T pDM_PSTable = &pDM_Odm->DM_PSTable;
+=======
+	struct dm_odm_t *pDM_Odm = (struct dm_odm_t *)pDM_VOID;
+	struct ps_t *pDM_PSTable = &pDM_Odm->DM_PSTable;
+>>>>>>> upstream/android-13
 
 	pDM_PSTable->PreCCAState = CCA_MAX;
 	pDM_PSTable->CurCCAState = CCA_MAX;
@@ -22,8 +27,13 @@ void odm_DynamicBBPowerSavingInit(void *pDM_VOID)
 
 void ODM_RF_Saving(void *pDM_VOID, u8 bForceInNormal)
 {
+<<<<<<< HEAD
 	PDM_ODM_T pDM_Odm = (PDM_ODM_T)pDM_VOID;
 	pPS_T pDM_PSTable = &pDM_Odm->DM_PSTable;
+=======
+	struct dm_odm_t *pDM_Odm = (struct dm_odm_t *)pDM_VOID;
+	struct ps_t *pDM_PSTable = &pDM_Odm->DM_PSTable;
+>>>>>>> upstream/android-13
 	u8 Rssi_Up_bound = 30;
 	u8 Rssi_Low_bound = 25;
 

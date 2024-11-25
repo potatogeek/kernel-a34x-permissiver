@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Marvell Armada CP110 pinctrl driver based on mvebu pinctrl core
  *
  * Copyright (C) 2017 Marvell
  *
  * Hanna Hawa <hannah@marvell.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -36,6 +43,10 @@ enum {
 	V_ARMADA_7K = BIT(0),
 	V_ARMADA_8K_CPM = BIT(1),
 	V_ARMADA_8K_CPS = BIT(2),
+<<<<<<< HEAD
+=======
+	V_CP115_STANDALONE = BIT(3),
+>>>>>>> upstream/android-13
 	V_ARMADA_7K_8K_CPM = (V_ARMADA_7K | V_ARMADA_8K_CPM),
 	V_ARMADA_7K_8K_CPS = (V_ARMADA_7K | V_ARMADA_8K_CPS),
 };
@@ -522,13 +533,21 @@ static struct mvebu_mpp_mode armada_cp110_mpp_modes[] = {
 		 MPP_FUNCTION(4,	"synce1",	"clk"),
 		 MPP_FUNCTION(8,	"led",		"data"),
 		 MPP_FUNCTION(10,	"sdio",		"hw_rst"),
+<<<<<<< HEAD
 		 MPP_FUNCTION(11,	"sdio",		"wr_protect")),
+=======
+		 MPP_FUNCTION(11,	"sdio_wp",	"wr_protect")),
+>>>>>>> upstream/android-13
 	MPP_MODE(55,
 		 MPP_FUNCTION(0,	"gpio",		NULL),
 		 MPP_FUNCTION(1,	"ge1",		"rxctl_rxdv"),
 		 MPP_FUNCTION(3,	"ptp",		"pulse"),
 		 MPP_FUNCTION(10,	"sdio",		"led"),
+<<<<<<< HEAD
 		 MPP_FUNCTION(11,	"sdio",		"card_detect")),
+=======
+		 MPP_FUNCTION(11,	"sdio_cd",	"card_detect")),
+>>>>>>> upstream/android-13
 	MPP_MODE(56,
 		 MPP_FUNCTION(0,	"gpio",		NULL),
 		 MPP_FUNCTION(4,	"tdm",		"drx"),
@@ -601,7 +620,12 @@ static struct mvebu_mpp_mode armada_cp110_mpp_modes[] = {
 		 MPP_FUNCTION(7,	"uart0",	"rxd"),
 		 MPP_FUNCTION(8,	"uart2",	"rxd"),
 		 MPP_FUNCTION(9,	"sata0",	"present_act"),
+<<<<<<< HEAD
 		 MPP_FUNCTION(10,	"ge",		"mdc")),
+=======
+		 MPP_FUNCTION(10,	"ge",		"mdc"),
+		 MPP_FUNCTION(14,	"sdio",		"ds")),
+>>>>>>> upstream/android-13
 };
 
 static const struct of_device_id armada_cp110_pinctrl_of_match[] = {
@@ -617,6 +641,13 @@ static const struct of_device_id armada_cp110_pinctrl_of_match[] = {
 		.compatible	= "marvell,armada-8k-cps-pinctrl",
 		.data		= (void *) V_ARMADA_8K_CPS,
 	},
+<<<<<<< HEAD
+=======
+	{
+		.compatible	= "marvell,cp115-standalone-pinctrl",
+		.data		= (void *) V_CP115_STANDALONE,
+	},
+>>>>>>> upstream/android-13
 	{ },
 };
 
@@ -658,6 +689,7 @@ static int armada_cp110_pinctrl_probe(struct platform_device *pdev)
 
 		switch (i) {
 		case 0 ... 31:
+<<<<<<< HEAD
 			mvebu_pinctrl_assign_variant(m, V_ARMADA_7K_8K_CPS);
 			break;
 		case 32 ... 38:
@@ -668,6 +700,22 @@ static int armada_cp110_pinctrl_probe(struct platform_device *pdev)
 			break;
 		case 44 ... 62:
 			mvebu_pinctrl_assign_variant(m, V_ARMADA_7K_8K_CPM);
+=======
+			mvebu_pinctrl_assign_variant(m, (V_ARMADA_7K_8K_CPS |
+							 V_CP115_STANDALONE));
+			break;
+		case 32 ... 38:
+			mvebu_pinctrl_assign_variant(m, (V_ARMADA_7K_8K_CPM |
+							 V_CP115_STANDALONE));
+			break;
+		case 39 ... 43:
+			mvebu_pinctrl_assign_variant(m, (V_ARMADA_8K_CPM |
+							 V_CP115_STANDALONE));
+			break;
+		case 44 ... 62:
+			mvebu_pinctrl_assign_variant(m, (V_ARMADA_7K_8K_CPM |
+							 V_CP115_STANDALONE));
+>>>>>>> upstream/android-13
 			break;
 		}
 	}

@@ -1,10 +1,20 @@
+<<<<<<< HEAD
 config MICROBLAZE
 	def_bool y
 	select ARCH_NO_SWAP
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+config MICROBLAZE
+	def_bool y
+	select ARCH_32BIT_OFF_T
+	select ARCH_NO_SWAP
+	select ARCH_HAS_DMA_PREP_COHERENT
+>>>>>>> upstream/android-13
 	select ARCH_HAS_GCOV_PROFILE_ALL
 	select ARCH_HAS_SYNC_DMA_FOR_CPU
 	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
 	select ARCH_MIGHT_HAVE_PC_PARPORT
+<<<<<<< HEAD
 	select ARCH_NO_COHERENT_DMA_MMAP if !MMU
 	select ARCH_WANT_IPC_PARSE_VERSION
 	select BUILDTIME_EXTABLE_SORT
@@ -15,6 +25,15 @@ config MICROBLAZE
 	select DMA_NONCOHERENT_MMAP
 	select GENERIC_ATOMIC64
 	select GENERIC_CLOCKEVENTS
+=======
+	select ARCH_WANT_IPC_PARSE_VERSION
+	select BUILDTIME_TABLE_SORT
+	select TIMER_OF
+	select CLONE_BACKWARDS3
+	select COMMON_CLK
+	select DMA_DIRECT_REMAP
+	select GENERIC_ATOMIC64
+>>>>>>> upstream/android-13
 	select GENERIC_CPU_DEVICES
 	select GENERIC_IDLE_POLL_SETUP
 	select GENERIC_IRQ_PROBE
@@ -23,23 +42,45 @@ config MICROBLAZE
 	select GENERIC_SCHED_CLOCK
 	select HAVE_ARCH_HASH
 	select HAVE_ARCH_KGDB
+<<<<<<< HEAD
 	select HAVE_DEBUG_KMEMLEAK
+=======
+	select HAVE_ARCH_SECCOMP
+	select HAVE_DEBUG_KMEMLEAK
+	select HAVE_DMA_CONTIGUOUS
+>>>>>>> upstream/android-13
 	select HAVE_DYNAMIC_FTRACE
 	select HAVE_FTRACE_MCOUNT_RECORD
 	select HAVE_FUNCTION_GRAPH_TRACER
 	select HAVE_FUNCTION_TRACER
+<<<<<<< HEAD
 	select NO_BOOTMEM
 	select HAVE_MEMBLOCK
 	select HAVE_MEMBLOCK_NODE_MAP
 	select HAVE_OPROFILE
+=======
+	select HAVE_PCI
+>>>>>>> upstream/android-13
 	select IRQ_DOMAIN
 	select XILINX_INTC
 	select MODULES_USE_ELF_RELA
 	select OF
 	select OF_EARLY_FLATTREE
+<<<<<<< HEAD
 	select TRACING_SUPPORT
 	select VIRT_TO_BUS
 	select CPU_NO_EFFICIENT_FFS
+=======
+	select PCI_DOMAINS_GENERIC if PCI
+	select PCI_SYSCALL if PCI
+	select VIRT_TO_BUS
+	select CPU_NO_EFFICIENT_FFS
+	select MMU_GATHER_NO_RANGE
+	select SPARSE_IRQ
+	select SET_FS
+	select ZONE_DMA
+	select TRACE_IRQFLAGS_SUPPORT
+>>>>>>> upstream/android-13
 
 # Endianness selection
 choice
@@ -57,6 +98,7 @@ config CPU_LITTLE_ENDIAN
 
 endchoice
 
+<<<<<<< HEAD
 config RWSEM_GENERIC_SPINLOCK
 	def_bool y
 
@@ -66,6 +108,8 @@ config ZONE_DMA
 config RWSEM_XCHGADD_ALGORITHM
 	bool
 
+=======
+>>>>>>> upstream/android-13
 config ARCH_HAS_ILOG2_U32
 	def_bool n
 
@@ -94,8 +138,12 @@ menu "Processor type and features"
 source "kernel/Kconfig.hz"
 
 config MMU
+<<<<<<< HEAD
 	bool "MMU support"
 	default n
+=======
+	def_bool y
+>>>>>>> upstream/android-13
 
 comment "Boot options"
 
@@ -120,6 +168,7 @@ config CMDLINE_FORCE
 	  Set this to have arguments from the default kernel command string
 	  override those passed by the boot loader.
 
+<<<<<<< HEAD
 config SECCOMP
 	bool "Enable seccomp to safely compute untrusted bytecode"
 	depends on PROC_FS
@@ -137,6 +186,8 @@ config SECCOMP
 
 	  If unsure, say Y. Only embedded should say N here.
 
+=======
+>>>>>>> upstream/android-13
 endmenu
 
 menu "Kernel features"
@@ -158,6 +209,7 @@ config ADVANCED_OPTIONS
 comment "Default settings for advanced configuration options are used"
 	depends on !ADVANCED_OPTIONS
 
+<<<<<<< HEAD
 config XILINX_UNCACHED_SHADOW
 	bool "Are you using uncached shadow for RAM ?"
 	depends on ADVANCED_OPTIONS && !MMU
@@ -170,6 +222,11 @@ config XILINX_UNCACHED_SHADOW
 config HIGHMEM
 	bool "High memory support"
 	depends on MMU
+=======
+config HIGHMEM
+	bool "High memory support"
+	select KMAP_LOCAL
+>>>>>>> upstream/android-13
 	help
 	  The address space of Microblaze processors is only 4 Gigabytes large
 	  and it has to accommodate user address space, kernel address
@@ -182,7 +239,11 @@ config HIGHMEM
 
 config LOWMEM_SIZE_BOOL
 	bool "Set maximum low memory"
+<<<<<<< HEAD
 	depends on ADVANCED_OPTIONS && MMU
+=======
+	depends on ADVANCED_OPTIONS
+>>>>>>> upstream/android-13
 	help
 	  This option allows you to set the maximum amount of memory which
 	  will be used as "low memory", that is, memory which the kernel can
@@ -220,12 +281,20 @@ config KERNEL_START_BOOL
 
 config KERNEL_START
 	hex "Virtual address of kernel base" if KERNEL_START_BOOL
+<<<<<<< HEAD
 	default "0xc0000000" if MMU
 	default KERNEL_BASE_ADDR if !MMU
 
 config TASK_SIZE_BOOL
 	bool "Set custom user task size"
 	depends on ADVANCED_OPTIONS && MMU
+=======
+	default "0xc0000000"
+
+config TASK_SIZE_BOOL
+	bool "Set custom user task size"
+	depends on ADVANCED_OPTIONS
+>>>>>>> upstream/android-13
 	help
 	  This option allows you to set the amount of virtual address space
 	  allocated to user tasks.  This can be useful in optimizing the
@@ -237,6 +306,7 @@ config TASK_SIZE
 	hex "Size of user task space" if TASK_SIZE_BOOL
 	default "0x80000000"
 
+<<<<<<< HEAD
 choice
 	prompt "Page size"
 	default MICROBLAZE_4K_PAGES
@@ -264,10 +334,13 @@ config MICROBLAZE_64K_PAGES
 
 endchoice
 
+=======
+>>>>>>> upstream/android-13
 endmenu
 
 menu "Bus Options"
 
+<<<<<<< HEAD
 config PCI
 	bool "PCI support"
 
@@ -280,10 +353,15 @@ config PCI_DOMAINS_GENERIC
 config PCI_SYSCALL
 	def_bool PCI
 
+=======
+>>>>>>> upstream/android-13
 config PCI_XILINX
 	bool "Xilinx PCI host bridge support"
 	depends on PCI
 
+<<<<<<< HEAD
 source "drivers/pci/Kconfig"
 
+=======
+>>>>>>> upstream/android-13
 endmenu

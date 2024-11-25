@@ -1,8 +1,21 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 #include "debug.h"
 #include "util.h"
 #include <linux/kernel.h>
 #include <errno.h>
+=======
+#include "cache.h"
+#include "debug.h"
+#include "strbuf.h"
+#include <linux/kernel.h>
+#include <linux/string.h>
+#include <linux/zalloc.h>
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+>>>>>>> upstream/android-13
 
 /*
  * Used as the default ->buf value, so that people can always assume

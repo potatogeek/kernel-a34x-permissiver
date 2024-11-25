@@ -293,7 +293,10 @@ struct pdic_data {
 struct pdic_fwupdate_data {
 	struct pdic_misc_data *misc_data;
 	struct pdic_data *ic_data;
+<<<<<<< HEAD
 	atomic_t opened;
+=======
+>>>>>>> upstream/android-13
 };
 
 struct pdic_misc_core {

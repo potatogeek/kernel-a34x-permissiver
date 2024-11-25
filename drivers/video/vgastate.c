@@ -455,7 +455,11 @@ int save_vga(struct vgastate *state)
 	return 0;
 }
 
+<<<<<<< HEAD
 int restore_vga (struct vgastate *state)
+=======
+int restore_vga(struct vgastate *state)
+>>>>>>> upstream/android-13
 {
 	if (state->vidstate == NULL)
 		return 1;

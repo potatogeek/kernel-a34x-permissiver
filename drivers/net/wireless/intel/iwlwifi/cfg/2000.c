@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2008 - 2014 Intel Corporation. All rights reserved.
@@ -18,6 +19,13 @@
  *
  * The full GNU General Public License is included in this distribution in the
  * file called LICENSE.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/******************************************************************************
+ *
+ * Copyright(c) 2008 - 2014 Intel Corporation. All rights reserved.
+ * Copyright(c) 2018 - 2020 Intel Corporation
+>>>>>>> upstream/android-13
  *
  * Contact Information:
  *  Intel Linux Wireless <linuxwifi@intel.com>
@@ -61,7 +69,11 @@
 #define IWL135_MODULE_FIRMWARE(api) IWL135_FW_PRE __stringify(api) ".ucode"
 
 static const struct iwl_base_params iwl2000_base_params = {
+<<<<<<< HEAD
 	.eeprom_size = OTP_LOW_IMAGE_SIZE,
+=======
+	.eeprom_size = OTP_LOW_IMAGE_SIZE_2K,
+>>>>>>> upstream/android-13
 	.num_of_queues = IWLAGN_NUM_QUEUES,
 	.max_tfd_queue_size = 256,
 	.max_ll_items = OTP_MAX_LL_ITEMS_2x00,
@@ -75,7 +87,11 @@ static const struct iwl_base_params iwl2000_base_params = {
 
 
 static const struct iwl_base_params iwl2030_base_params = {
+<<<<<<< HEAD
 	.eeprom_size = OTP_LOW_IMAGE_SIZE,
+=======
+	.eeprom_size = OTP_LOW_IMAGE_SIZE_2K,
+>>>>>>> upstream/android-13
 	.num_of_queues = IWLAGN_NUM_QUEUES,
 	.max_tfd_queue_size = 256,
 	.max_ll_items = OTP_MAX_LL_ITEMS_2x00,
@@ -110,16 +126,26 @@ static const struct iwl_eeprom_params iwl20x0_eeprom_params = {
 	.fw_name_pre = IWL2000_FW_PRE,				\
 	.ucode_api_max = IWL2000_UCODE_API_MAX,			\
 	.ucode_api_min = IWL2000_UCODE_API_MIN,			\
+<<<<<<< HEAD
 	.device_family = IWL_DEVICE_FAMILY_2000,		\
+=======
+	.trans.device_family = IWL_DEVICE_FAMILY_2000,		\
+>>>>>>> upstream/android-13
 	.max_inst_size = IWL60_RTC_INST_SIZE,			\
 	.max_data_size = IWL60_RTC_DATA_SIZE,			\
 	.nvm_ver = EEPROM_2000_EEPROM_VERSION,			\
 	.nvm_calib_ver = EEPROM_2000_TX_POWER_VERSION,		\
+<<<<<<< HEAD
 	.base_params = &iwl2000_base_params,			\
 	.eeprom_params = &iwl20x0_eeprom_params,		\
 	.led_mode = IWL_LED_RF_STATE,				\
 	.max_ht_ampdu_exponent = IEEE80211_HT_MAX_AMPDU_64K,	\
 	.csr = &iwl_csr_v1
+=======
+	.trans.base_params = &iwl2000_base_params,		\
+	.eeprom_params = &iwl20x0_eeprom_params,		\
+	.led_mode = IWL_LED_RF_STATE
+>>>>>>> upstream/android-13
 
 
 const struct iwl_cfg iwl2000_2bgn_cfg = {
@@ -138,16 +164,26 @@ const struct iwl_cfg iwl2000_2bgn_d_cfg = {
 	.fw_name_pre = IWL2030_FW_PRE,				\
 	.ucode_api_max = IWL2030_UCODE_API_MAX,			\
 	.ucode_api_min = IWL2030_UCODE_API_MIN,			\
+<<<<<<< HEAD
 	.device_family = IWL_DEVICE_FAMILY_2030,		\
+=======
+	.trans.device_family = IWL_DEVICE_FAMILY_2030,		\
+>>>>>>> upstream/android-13
 	.max_inst_size = IWL60_RTC_INST_SIZE,			\
 	.max_data_size = IWL60_RTC_DATA_SIZE,			\
 	.nvm_ver = EEPROM_2000_EEPROM_VERSION,		\
 	.nvm_calib_ver = EEPROM_2000_TX_POWER_VERSION,	\
+<<<<<<< HEAD
 	.base_params = &iwl2030_base_params,			\
 	.eeprom_params = &iwl20x0_eeprom_params,		\
 	.led_mode = IWL_LED_RF_STATE,				\
 	.max_ht_ampdu_exponent = IEEE80211_HT_MAX_AMPDU_64K,	\
 	.csr = &iwl_csr_v1
+=======
+	.trans.base_params = &iwl2030_base_params,		\
+	.eeprom_params = &iwl20x0_eeprom_params,		\
+	.led_mode = IWL_LED_RF_STATE
+>>>>>>> upstream/android-13
 
 const struct iwl_cfg iwl2030_2bgn_cfg = {
 	.name = "Intel(R) Centrino(R) Wireless-N 2230 BGN",
@@ -159,17 +195,28 @@ const struct iwl_cfg iwl2030_2bgn_cfg = {
 	.fw_name_pre = IWL105_FW_PRE,				\
 	.ucode_api_max = IWL105_UCODE_API_MAX,			\
 	.ucode_api_min = IWL105_UCODE_API_MIN,			\
+<<<<<<< HEAD
 	.device_family = IWL_DEVICE_FAMILY_105,			\
+=======
+	.trans.device_family = IWL_DEVICE_FAMILY_105,		\
+>>>>>>> upstream/android-13
 	.max_inst_size = IWL60_RTC_INST_SIZE,			\
 	.max_data_size = IWL60_RTC_DATA_SIZE,			\
 	.nvm_ver = EEPROM_2000_EEPROM_VERSION,		\
 	.nvm_calib_ver = EEPROM_2000_TX_POWER_VERSION,	\
+<<<<<<< HEAD
 	.base_params = &iwl2000_base_params,			\
 	.eeprom_params = &iwl20x0_eeprom_params,		\
 	.led_mode = IWL_LED_RF_STATE,				\
 	.rx_with_siso_diversity = true,				\
 	.max_ht_ampdu_exponent = IEEE80211_HT_MAX_AMPDU_64K,	\
 	.csr = &iwl_csr_v1
+=======
+	.trans.base_params = &iwl2000_base_params,		\
+	.eeprom_params = &iwl20x0_eeprom_params,		\
+	.led_mode = IWL_LED_RF_STATE,				\
+	.rx_with_siso_diversity = true
+>>>>>>> upstream/android-13
 
 const struct iwl_cfg iwl105_bgn_cfg = {
 	.name = "Intel(R) Centrino(R) Wireless-N 105 BGN",
@@ -187,17 +234,28 @@ const struct iwl_cfg iwl105_bgn_d_cfg = {
 	.fw_name_pre = IWL135_FW_PRE,				\
 	.ucode_api_max = IWL135_UCODE_API_MAX,			\
 	.ucode_api_min = IWL135_UCODE_API_MIN,			\
+<<<<<<< HEAD
 	.device_family = IWL_DEVICE_FAMILY_135,			\
+=======
+	.trans.device_family = IWL_DEVICE_FAMILY_135,		\
+>>>>>>> upstream/android-13
 	.max_inst_size = IWL60_RTC_INST_SIZE,			\
 	.max_data_size = IWL60_RTC_DATA_SIZE,			\
 	.nvm_ver = EEPROM_2000_EEPROM_VERSION,		\
 	.nvm_calib_ver = EEPROM_2000_TX_POWER_VERSION,	\
+<<<<<<< HEAD
 	.base_params = &iwl2030_base_params,			\
 	.eeprom_params = &iwl20x0_eeprom_params,		\
 	.led_mode = IWL_LED_RF_STATE,				\
 	.rx_with_siso_diversity = true,				\
 	.max_ht_ampdu_exponent = IEEE80211_HT_MAX_AMPDU_64K,	\
 	.csr = &iwl_csr_v1
+=======
+	.trans.base_params = &iwl2030_base_params,		\
+	.eeprom_params = &iwl20x0_eeprom_params,		\
+	.led_mode = IWL_LED_RF_STATE,				\
+	.rx_with_siso_diversity = true
+>>>>>>> upstream/android-13
 
 const struct iwl_cfg iwl135_bgn_cfg = {
 	.name = "Intel(R) Centrino(R) Wireless-N 135 BGN",

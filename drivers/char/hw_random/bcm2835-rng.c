@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**
  * Copyright (c) 2010-2012 Broadcom. All rights reserved.
  * Copyright (c) 2013 Lubomir Rintel
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License ("GPL")
  * version 2, as published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (c) 2010-2012 Broadcom. All rights reserved.
+ * Copyright (c) 2013 Lubomir Rintel
+>>>>>>> upstream/android-13
  */
 
 #include <linux/hw_random.h>
@@ -16,6 +23,10 @@
 #include <linux/platform_device.h>
 #include <linux/printk.h>
 #include <linux/clk.h>
+<<<<<<< HEAD
+=======
+#include <linux/reset.h>
+>>>>>>> upstream/android-13
 
 #define RNG_CTRL	0x0
 #define RNG_STATUS	0x4
@@ -35,6 +46,10 @@ struct bcm2835_rng_priv {
 	void __iomem *base;
 	bool mask_interrupts;
 	struct clk *clk;
+<<<<<<< HEAD
+=======
+	struct reset_control *reset;
+>>>>>>> upstream/android-13
 };
 
 static inline struct bcm2835_rng_priv *to_rng_priv(struct hwrng *rng)
@@ -91,11 +106,21 @@ static int bcm2835_rng_init(struct hwrng *rng)
 	int ret = 0;
 	u32 val;
 
+<<<<<<< HEAD
 	if (!IS_ERR(priv->clk)) {
 		ret = clk_prepare_enable(priv->clk);
 		if (ret)
 			return ret;
 	}
+=======
+	ret = clk_prepare_enable(priv->clk);
+	if (ret)
+		return ret;
+
+	ret = reset_control_reset(priv->reset);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	if (priv->mask_interrupts) {
 		/* mask the interrupt */
@@ -118,8 +143,12 @@ static void bcm2835_rng_cleanup(struct hwrng *rng)
 	/* disable rng hardware */
 	rng_writel(priv, 0, RNG_CTRL);
 
+<<<<<<< HEAD
 	if (!IS_ERR(priv->clk))
 		clk_disable_unprepare(priv->clk);
+=======
+	clk_disable_unprepare(priv->clk);
+>>>>>>> upstream/android-13
 }
 
 struct bcm2835_rng_of_data {
@@ -142,10 +171,15 @@ static int bcm2835_rng_probe(struct platform_device *pdev)
 {
 	const struct bcm2835_rng_of_data *of_data;
 	struct device *dev = &pdev->dev;
+<<<<<<< HEAD
 	struct device_node *np = dev->of_node;
 	const struct of_device_id *rng_id;
 	struct bcm2835_rng_priv *priv;
 	struct resource *r;
+=======
+	const struct of_device_id *rng_id;
+	struct bcm2835_rng_priv *priv;
+>>>>>>> upstream/android-13
 	int err;
 
 	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
@@ -154,17 +188,32 @@ static int bcm2835_rng_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, priv);
 
+<<<<<<< HEAD
 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 
 	/* map peripheral */
 	priv->base = devm_ioremap_resource(dev, r);
+=======
+	/* map peripheral */
+	priv->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(priv->base))
 		return PTR_ERR(priv->base);
 
 	/* Clock is optional on most platforms */
+<<<<<<< HEAD
 	priv->clk = devm_clk_get(dev, NULL);
 	if (IS_ERR(priv->clk) && PTR_ERR(priv->clk) == -EPROBE_DEFER)
 		return -EPROBE_DEFER;
+=======
+	priv->clk = devm_clk_get_optional(dev, NULL);
+	if (IS_ERR(priv->clk))
+		return PTR_ERR(priv->clk);
+
+	priv->reset = devm_reset_control_get_optional_exclusive(dev, NULL);
+	if (IS_ERR(priv->reset))
+		return PTR_ERR(priv->reset);
+>>>>>>> upstream/android-13
 
 	priv->rng.name = pdev->name;
 	priv->rng.init = bcm2835_rng_init;
@@ -172,7 +221,11 @@ static int bcm2835_rng_probe(struct platform_device *pdev)
 	priv->rng.cleanup = bcm2835_rng_cleanup;
 
 	if (dev_of_node(dev)) {
+<<<<<<< HEAD
 		rng_id = of_match_node(bcm2835_rng_of_match, np);
+=======
+		rng_id = of_match_node(bcm2835_rng_of_match, dev->of_node);
+>>>>>>> upstream/android-13
 		if (!rng_id)
 			return -EINVAL;
 
@@ -194,7 +247,11 @@ static int bcm2835_rng_probe(struct platform_device *pdev)
 
 MODULE_DEVICE_TABLE(of, bcm2835_rng_of_match);
 
+<<<<<<< HEAD
 static struct platform_device_id bcm2835_rng_devtype[] = {
+=======
+static const struct platform_device_id bcm2835_rng_devtype[] = {
+>>>>>>> upstream/android-13
 	{ .name = "bcm2835-rng" },
 	{ .name = "bcm63xx-rng" },
 	{ /* sentinel */ }

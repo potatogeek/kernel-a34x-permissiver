@@ -157,4 +157,9 @@ int fman_port_get_tstamp(struct fman_port *port, const void *data, u64 *tstamp);
 
 struct fman_port *fman_port_bind(struct device *dev);
 
+<<<<<<< HEAD
+=======
+struct device *fman_port_get_device(struct fman_port *port);
+
+>>>>>>> upstream/android-13
 #endif /* __FMAN_PORT_H */

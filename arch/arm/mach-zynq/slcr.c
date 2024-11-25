@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Xilinx SLCR driver
  *
  * Copyright (c) 2011-2013 Xilinx Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -12,6 +17,8 @@
  * License along with this program; if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA
  * 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/io.h>
@@ -233,7 +240,11 @@ int __init zynq_early_slcr_init(void)
 
 	register_restart_handler(&zynq_slcr_restart_nb);
 
+<<<<<<< HEAD
 	pr_info("%s mapped to %p\n", np->name, zynq_slcr_base);
+=======
+	pr_info("%pOFn mapped to %p\n", np, zynq_slcr_base);
+>>>>>>> upstream/android-13
 
 	of_node_put(np);
 

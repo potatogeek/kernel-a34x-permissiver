@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef _ASM_POWERPC_EXCEPTION_H
 #define _ASM_POWERPC_EXCEPTION_H
 /*
@@ -18,11 +22,14 @@
  *
  *  This file contains the low-level support and setup for the
  *  PowerPC-64 platform, including trap and interrupt dispatch.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version
  *  2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 /*
  * The following macros define the code that appears as
@@ -34,10 +41,19 @@
  * exception handlers (including pSeries LPAR) and iSeries LPAR
  * implementations as possible.
  */
+<<<<<<< HEAD
 #include <asm/head-64.h>
 #include <asm/feature-fixups.h>
 
 /* PACA save area offsets (exgen, exmc, etc) */
+=======
+#include <asm/feature-fixups.h>
+
+/* PACA save area size in u64 units (exgen, exmc, etc) */
+#define EX_SIZE		10
+
+/* PACA save area offsets */
+>>>>>>> upstream/android-13
 #define EX_R9		0
 #define EX_R10		8
 #define EX_R11		16
@@ -48,18 +64,23 @@
 #define EX_CCR		52
 #define EX_CFAR		56
 #define EX_PPR		64
+<<<<<<< HEAD
 #if defined(CONFIG_RELOCATABLE)
 #define EX_CTR		72
 #define EX_SIZE		10	/* size in u64 units */
 #else
 #define EX_SIZE		9	/* size in u64 units */
 #endif
+=======
+#define EX_CTR		72
+>>>>>>> upstream/android-13
 
 /*
  * maximum recursive depth of MCE exceptions
  */
 #define MAX_MCE_DEPTH	4
 
+<<<<<<< HEAD
 /*
  * EX_LR is only used in EXSLB and where it does not overlap with EX_DAR
  * EX_CCR similarly with DSISR, but being 4 byte registers there is a hole
@@ -74,6 +95,9 @@
  * with EX_DAR.
  */
 #define EX_R3		EX_DAR
+=======
+#ifdef __ASSEMBLY__
+>>>>>>> upstream/android-13
 
 #define STF_ENTRY_BARRIER_SLOT						\
 	STF_ENTRY_BARRIER_FIXUP_SECTION;				\
@@ -96,6 +120,15 @@
 	nop;								\
 	nop;
 
+<<<<<<< HEAD
+=======
+#define SCV_ENTRY_FLUSH_SLOT						\
+	SCV_ENTRY_FLUSH_FIXUP_SECTION;					\
+	nop;								\
+	nop;								\
+	nop;
+
+>>>>>>> upstream/android-13
 /*
  * r10 must be free to use, r13 must be paca
  */
@@ -104,10 +137,31 @@
 	ENTRY_FLUSH_SLOT
 
 /*
+<<<<<<< HEAD
+=======
+ * r10, ctr must be free to use, r13 must be paca
+ */
+#define SCV_INTERRUPT_TO_KERNEL						\
+	STF_ENTRY_BARRIER_SLOT;						\
+	SCV_ENTRY_FLUSH_SLOT
+
+/*
+>>>>>>> upstream/android-13
  * Macros for annotating the expected destination of (h)rfid
  *
  * The nop instructions allow us to insert one or more instructions to flush the
  * L1-D cache when returning to userspace or a guest.
+<<<<<<< HEAD
+=======
+ *
+ * powerpc relies on return from interrupt/syscall being context synchronising
+ * (which hrfid, rfid, and rfscv are) to support ARCH_HAS_MEMBARRIER_SYNC_CORE
+ * without additional synchronisation instructions.
+ *
+ * soft-masked interrupt replay does not include a context-synchronising rfid,
+ * but those always return to kernel, the sync is only required when returning
+ * to user.
+>>>>>>> upstream/android-13
  */
 #define RFI_FLUSH_SLOT							\
 	RFI_FLUSH_FIXUP_SECTION;					\
@@ -163,6 +217,7 @@
 	hrfid;								\
 	b	hrfi_flush_fallback
 
+<<<<<<< HEAD
 #ifdef CONFIG_RELOCATABLE
 #define __EXCEPTION_PROLOG_2_RELON(label, h)				\
 	mfspr	r11,SPRN_##h##SRR0;	/* save SRR0 */			\
@@ -745,5 +800,17 @@ END_FTR_SECTION_IFSET(CPU_FTR_CAN_NAP)
 #else
 #define FINISH_NAP
 #endif
+=======
+#define RFSCV_TO_USER							\
+	STF_EXIT_BARRIER_SLOT;						\
+	RFI_FLUSH_SLOT;							\
+	RFSCV;								\
+	b	rfscv_flush_fallback
+
+#else /* __ASSEMBLY__ */
+/* Prototype for function defined in exceptions-64s.S */
+void do_uaccess_flush(void);
+#endif /* __ASSEMBLY__ */
+>>>>>>> upstream/android-13
 
 #endif	/* _ASM_POWERPC_EXCEPTION_H */

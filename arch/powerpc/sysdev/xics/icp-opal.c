@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2016 IBM Corporation.
  *
@@ -5,12 +6,21 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2016 IBM Corporation.
+>>>>>>> upstream/android-13
  */
 #include <linux/types.h>
 #include <linux/kernel.h>
 #include <linux/irq.h>
 #include <linux/smp.h>
 #include <linux/interrupt.h>
+<<<<<<< HEAD
+=======
+#include <linux/irqdomain.h>
+>>>>>>> upstream/android-13
 #include <linux/cpu.h>
 #include <linux/of.h>
 

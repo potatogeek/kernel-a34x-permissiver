@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB */
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2004 Mellanox Technologies Ltd.  All rights reserved.
  * Copyright (c) 2004 Infinicon Corporation.  All rights reserved.
  * Copyright (c) 2004 Intel Corporation.  All rights reserved.
  * Copyright (c) 2004 Topspin Corporation.  All rights reserved.
  * Copyright (c) 2004 Voltaire Corporation.  All rights reserved.
+<<<<<<< HEAD
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -35,6 +40,11 @@
  */
 
 #if !defined(IB_SMI_H)
+=======
+ */
+
+#ifndef IB_SMI_H
+>>>>>>> upstream/android-13
 #define IB_SMI_H
 
 #include <rdma/ib_mad.h>
@@ -61,7 +71,11 @@ struct ib_smp {
 	u8	data[IB_SMP_DATA_SIZE];
 	u8	initial_path[IB_SMP_MAX_PATH_HOPS];
 	u8	return_path[IB_SMP_MAX_PATH_HOPS];
+<<<<<<< HEAD
 } __attribute__ ((packed));
+=======
+} __packed;
+>>>>>>> upstream/android-13
 
 #define IB_SMP_DIRECTION			cpu_to_be16(0x8000)
 

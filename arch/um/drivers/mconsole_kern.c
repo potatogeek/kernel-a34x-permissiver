@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2001 Lennert Buytenhek (buytenh@gnu.org)
  * Copyright (C) 2001 - 2008 Jeff Dike (jdike@{addtoit,linux.intel}.com)
  * Licensed under the GPL
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2001 Lennert Buytenhek (buytenh@gnu.org)
+ * Copyright (C) 2001 - 2008 Jeff Dike (jdike@{addtoit,linux.intel}.com)
+>>>>>>> upstream/android-13
  */
 
 #include <linux/console.h>
@@ -12,6 +19,10 @@
 #include <linux/mm.h>
 #include <linux/module.h>
 #include <linux/notifier.h>
+<<<<<<< HEAD
+=======
+#include <linux/panic_notifier.h>
+>>>>>>> upstream/android-13
 #include <linux/reboot.h>
 #include <linux/sched/debug.h>
 #include <linux/proc_fs.h>
@@ -36,6 +47,11 @@
 #include "mconsole_kern.h"
 #include <os.h>
 
+<<<<<<< HEAD
+=======
+static struct vfsmount *proc_mnt = NULL;
+
+>>>>>>> upstream/android-13
 static int do_unlink_socket(struct notifier_block *notifier,
 			    unsigned long what, void *data)
 {
@@ -96,7 +112,10 @@ static irqreturn_t mconsole_interrupt(int irq, void *dev_id)
 	}
 	if (!list_empty(&mc_requests))
 		schedule_work(&mconsole_work);
+<<<<<<< HEAD
 	reactivate_fd(fd, MCONSOLE_IRQ);
+=======
+>>>>>>> upstream/android-13
 	return IRQ_HANDLED;
 }
 
@@ -124,7 +143,11 @@ void mconsole_log(struct mc_request *req)
 
 void mconsole_proc(struct mc_request *req)
 {
+<<<<<<< HEAD
 	struct vfsmount *mnt = task_active_pid_ns(current)->proc_mnt;
+=======
+	struct vfsmount *mnt = proc_mnt;
+>>>>>>> upstream/android-13
 	char *buf;
 	int len;
 	struct file *file;
@@ -135,7 +158,15 @@ void mconsole_proc(struct mc_request *req)
 	ptr += strlen("proc");
 	ptr = skip_spaces(ptr);
 
+<<<<<<< HEAD
 	file = file_open_root(mnt->mnt_root, mnt, ptr, O_RDONLY, 0);
+=======
+	if (!mnt) {
+		mconsole_reply(req, "Proc not available", 1, 0);
+		goto out;
+	}
+	file = file_open_root_mnt(mnt, ptr, O_RDONLY, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(file)) {
 		mconsole_reply(req, "Failed to open file", 1, 0);
 		printk(KERN_ERR "open /proc/%s: %ld\n", ptr, PTR_ERR(file));
@@ -218,7 +249,11 @@ void mconsole_go(struct mc_request *req)
 
 void mconsole_stop(struct mc_request *req)
 {
+<<<<<<< HEAD
 	deactivate_fd(req->originating_fd, MCONSOLE_IRQ);
+=======
+	block_signals();
+>>>>>>> upstream/android-13
 	os_set_fd_block(req->originating_fd, 1);
 	mconsole_reply(req, "stopped", 0, 0);
 	for (;;) {
@@ -240,8 +275,13 @@ void mconsole_stop(struct mc_request *req)
 		(*req->cmd->handler)(req);
 	}
 	os_set_fd_block(req->originating_fd, 0);
+<<<<<<< HEAD
 	reactivate_fd(req->originating_fd, MCONSOLE_IRQ);
 	mconsole_reply(req, "", 0, 0);
+=======
+	mconsole_reply(req, "", 0, 0);
+	unblock_signals();
+>>>>>>> upstream/android-13
 }
 
 static DEFINE_SPINLOCK(mc_devices_lock);
@@ -644,7 +684,11 @@ static void stack_proc(void *arg)
 {
 	struct task_struct *task = arg;
 
+<<<<<<< HEAD
 	show_stack(task, NULL);
+=======
+	show_stack(task, NULL, KERN_INFO);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -685,6 +729,27 @@ void mconsole_stack(struct mc_request *req)
 	with_console(req, stack_proc, to);
 }
 
+<<<<<<< HEAD
+=======
+static int __init mount_proc(void)
+{
+	struct file_system_type *proc_fs_type;
+	struct vfsmount *mnt;
+
+	proc_fs_type = get_fs_type("proc");
+	if (!proc_fs_type)
+		return -ENODEV;
+
+	mnt = kern_mount(proc_fs_type);
+	put_filesystem(proc_fs_type);
+	if (IS_ERR(mnt))
+		return PTR_ERR(mnt);
+
+	proc_mnt = mnt;
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /*
  * Changed by mconsole_setup, which is __setup, and called before SMP is
  * active.
@@ -698,6 +763,11 @@ static int __init mconsole_init(void)
 	int err;
 	char file[UNIX_PATH_MAX];
 
+<<<<<<< HEAD
+=======
+	mount_proc();
+
+>>>>>>> upstream/android-13
 	if (umid_file_name("mconsole", file, sizeof(file)))
 		return -1;
 	snprintf(mconsole_socket_name, sizeof(file), "%s", file);
@@ -714,7 +784,11 @@ static int __init mconsole_init(void)
 
 	err = um_request_irq(MCONSOLE_IRQ, sock, IRQ_READ, mconsole_interrupt,
 			     IRQF_SHARED, "mconsole", (void *)sock);
+<<<<<<< HEAD
 	if (err) {
+=======
+	if (err < 0) {
+>>>>>>> upstream/android-13
 		printk(KERN_ERR "Failed to get IRQ for management console\n");
 		goto out;
 	}
@@ -754,10 +828,16 @@ static ssize_t mconsole_proc_write(struct file *file,
 	return count;
 }
 
+<<<<<<< HEAD
 static const struct file_operations mconsole_proc_fops = {
 	.owner		= THIS_MODULE,
 	.write		= mconsole_proc_write,
 	.llseek		= noop_llseek,
+=======
+static const struct proc_ops mconsole_proc_ops = {
+	.proc_write	= mconsole_proc_write,
+	.proc_lseek	= noop_llseek,
+>>>>>>> upstream/android-13
 };
 
 static int create_proc_mconsole(void)
@@ -767,7 +847,11 @@ static int create_proc_mconsole(void)
 	if (notify_socket == NULL)
 		return 0;
 
+<<<<<<< HEAD
 	ent = proc_create("mconsole", 0200, NULL, &mconsole_proc_fops);
+=======
+	ent = proc_create("mconsole", 0200, NULL, &mconsole_proc_ops);
+>>>>>>> upstream/android-13
 	if (ent == NULL) {
 		printk(KERN_INFO "create_proc_mconsole : proc_create failed\n");
 		return 0;

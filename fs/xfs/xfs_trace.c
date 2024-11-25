@@ -6,6 +6,10 @@
 #include "xfs.h"
 #include "xfs_fs.h"
 #include "xfs_shared.h"
+<<<<<<< HEAD
+=======
+#include "xfs_bit.h"
+>>>>>>> upstream/android-13
 #include "xfs_format.h"
 #include "xfs_log_format.h"
 #include "xfs_trans_resv.h"
@@ -15,17 +19,24 @@
 #include "xfs_inode.h"
 #include "xfs_btree.h"
 #include "xfs_da_btree.h"
+<<<<<<< HEAD
 #include "xfs_ialloc.h"
 #include "xfs_itable.h"
 #include "xfs_alloc.h"
 #include "xfs_bmap.h"
 #include "xfs_attr.h"
 #include "xfs_attr_leaf.h"
+=======
+#include "xfs_alloc.h"
+#include "xfs_bmap.h"
+#include "xfs_attr.h"
+>>>>>>> upstream/android-13
 #include "xfs_trans.h"
 #include "xfs_log.h"
 #include "xfs_log_priv.h"
 #include "xfs_buf_item.h"
 #include "xfs_quota.h"
+<<<<<<< HEAD
 #include "xfs_iomap.h"
 #include "xfs_aops.h"
 #include "xfs_dquot_item.h"
@@ -35,6 +46,18 @@
 #include "xfs_bmap_btree.h"
 #include "xfs_filestream.h"
 #include "xfs_fsmap.h"
+=======
+#include "xfs_dquot_item.h"
+#include "xfs_dquot.h"
+#include "xfs_log_recover.h"
+#include "xfs_filestream.h"
+#include "xfs_fsmap.h"
+#include "xfs_btree_staging.h"
+#include "xfs_icache.h"
+#include "xfs_ag.h"
+#include "xfs_ag_resv.h"
+#include "xfs_error.h"
+>>>>>>> upstream/android-13
 
 /*
  * We include this last to have the helpers above available for the trace

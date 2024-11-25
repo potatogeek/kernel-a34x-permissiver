@@ -4,7 +4,11 @@
  * Copyright 2006 Michael Buesch <m@bues.ch>
  * Copyright 2005 (c) MontaVista Software, Inc.
  *
+<<<<<<< HEAD
  * Please read Documentation/hw_random.txt for details on use.
+=======
+ * Please read Documentation/admin-guide/hw_random.rst for details on use.
+>>>>>>> upstream/android-13
  *
  * This software may be used and distributed according to the terms
  * of the GNU General Public License, incorporated herein by reference.
@@ -44,10 +48,17 @@ static unsigned short default_quality; /* = 0; default to "off" */
 
 module_param(current_quality, ushort, 0644);
 MODULE_PARM_DESC(current_quality,
+<<<<<<< HEAD
 		 "current hwrng entropy estimation per mill");
 module_param(default_quality, ushort, 0644);
 MODULE_PARM_DESC(default_quality,
 		 "default entropy content of hwrng per mill");
+=======
+		 "current hwrng entropy estimation per 1024 bits of input");
+module_param(default_quality, ushort, 0644);
+MODULE_PARM_DESC(default_quality,
+		 "default entropy content of hwrng per 1024 bits of input");
+>>>>>>> upstream/android-13
 
 static void drop_current_rng(void);
 static int hwrng_init(struct hwrng *rng);
@@ -111,6 +122,17 @@ static void drop_current_rng(void)
 }
 
 /* Returns ERR_PTR(), NULL or refcounted hwrng */
+<<<<<<< HEAD
+=======
+static struct hwrng *get_current_rng_nolock(void)
+{
+	if (current_rng)
+		kref_get(&current_rng->ref);
+
+	return current_rng;
+}
+
+>>>>>>> upstream/android-13
 static struct hwrng *get_current_rng(void)
 {
 	struct hwrng *rng;
@@ -118,9 +140,13 @@ static struct hwrng *get_current_rng(void)
 	if (mutex_lock_interruptible(&rng_mutex))
 		return ERR_PTR(-ERESTARTSYS);
 
+<<<<<<< HEAD
 	rng = current_rng;
 	if (rng)
 		kref_get(&rng->ref);
+=======
+	rng = get_current_rng_nolock();
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&rng_mutex);
 	return rng;
@@ -155,8 +181,11 @@ static int hwrng_init(struct hwrng *rng)
 	reinit_completion(&rng->cleanup_done);
 
 skip_init:
+<<<<<<< HEAD
 	add_early_randomness(rng);
 
+=======
+>>>>>>> upstream/android-13
 	current_quality = rng->quality ? : default_quality;
 	if (current_quality > 1024)
 		current_quality = 1024;
@@ -315,17 +344,30 @@ static int enable_best_rng(void)
 	return ret;
 }
 
+<<<<<<< HEAD
 static ssize_t hwrng_attr_current_store(struct device *dev,
 					struct device_attribute *attr,
 					const char *buf, size_t len)
 {
 	int err = -ENODEV;
 	struct hwrng *rng;
+=======
+static ssize_t rng_current_store(struct device *dev,
+				 struct device_attribute *attr,
+				 const char *buf, size_t len)
+{
+	int err;
+	struct hwrng *rng, *old_rng, *new_rng;
+>>>>>>> upstream/android-13
 
 	err = mutex_lock_interruptible(&rng_mutex);
 	if (err)
 		return -ERESTARTSYS;
 
+<<<<<<< HEAD
+=======
+	old_rng = current_rng;
+>>>>>>> upstream/android-13
 	if (sysfs_streq(buf, "")) {
 		err = enable_best_rng();
 	} else {
@@ -337,6 +379,7 @@ static ssize_t hwrng_attr_current_store(struct device *dev,
 			}
 		}
 	}
+<<<<<<< HEAD
 
 	mutex_unlock(&rng_mutex);
 
@@ -346,6 +389,23 @@ static ssize_t hwrng_attr_current_store(struct device *dev,
 static ssize_t hwrng_attr_current_show(struct device *dev,
 				       struct device_attribute *attr,
 				       char *buf)
+=======
+	new_rng = get_current_rng_nolock();
+	mutex_unlock(&rng_mutex);
+
+	if (new_rng) {
+		if (new_rng != old_rng)
+			add_early_randomness(new_rng);
+		put_rng(new_rng);
+	}
+
+	return err ? : len;
+}
+
+static ssize_t rng_current_show(struct device *dev,
+				struct device_attribute *attr,
+				char *buf)
+>>>>>>> upstream/android-13
 {
 	ssize_t ret;
 	struct hwrng *rng;
@@ -360,9 +420,15 @@ static ssize_t hwrng_attr_current_show(struct device *dev,
 	return ret;
 }
 
+<<<<<<< HEAD
 static ssize_t hwrng_attr_available_show(struct device *dev,
 					 struct device_attribute *attr,
 					 char *buf)
+=======
+static ssize_t rng_available_show(struct device *dev,
+				  struct device_attribute *attr,
+				  char *buf)
+>>>>>>> upstream/android-13
 {
 	int err;
 	struct hwrng *rng;
@@ -381,6 +447,7 @@ static ssize_t hwrng_attr_available_show(struct device *dev,
 	return strlen(buf);
 }
 
+<<<<<<< HEAD
 static ssize_t hwrng_attr_selected_show(struct device *dev,
 					struct device_attribute *attr,
 					char *buf)
@@ -397,6 +464,18 @@ static DEVICE_ATTR(rng_available, S_IRUGO,
 static DEVICE_ATTR(rng_selected, S_IRUGO,
 		   hwrng_attr_selected_show,
 		   NULL);
+=======
+static ssize_t rng_selected_show(struct device *dev,
+				 struct device_attribute *attr,
+				 char *buf)
+{
+	return sysfs_emit(buf, "%d\n", cur_rng_set_by_user);
+}
+
+static DEVICE_ATTR_RW(rng_current);
+static DEVICE_ATTR_RO(rng_available);
+static DEVICE_ATTR_RO(rng_selected);
+>>>>>>> upstream/android-13
 
 static struct attribute *rng_dev_attrs[] = {
 	&dev_attr_rng_current.attr,
@@ -457,13 +536,23 @@ static void start_khwrngd(void)
 int hwrng_register(struct hwrng *rng)
 {
 	int err = -EINVAL;
+<<<<<<< HEAD
 	struct hwrng *old_rng, *tmp;
 	struct list_head *rng_list_ptr;
+=======
+	struct hwrng *tmp;
+	struct list_head *rng_list_ptr;
+	bool is_new_current = false;
+>>>>>>> upstream/android-13
 
 	if (!rng->name || (!rng->data_read && !rng->read))
 		goto out;
 
 	mutex_lock(&rng_mutex);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	/* Must not register two RNGs with the same name. */
 	err = -EEXIST;
 	list_for_each_entry(tmp, &rng_list, list) {
@@ -482,10 +571,15 @@ int hwrng_register(struct hwrng *rng)
 	}
 	list_add_tail(&rng->list, rng_list_ptr);
 
+<<<<<<< HEAD
 	old_rng = current_rng;
 	err = 0;
 	if (!old_rng ||
 	    (!cur_rng_set_by_user && rng->quality > old_rng->quality)) {
+=======
+	if (!current_rng ||
+	    (!cur_rng_set_by_user && rng->quality > current_rng->quality)) {
+>>>>>>> upstream/android-13
 		/*
 		 * Set new rng as current as the new rng source
 		 * provides better entropy quality and was not
@@ -494,19 +588,41 @@ int hwrng_register(struct hwrng *rng)
 		err = set_current_rng(rng);
 		if (err)
 			goto out_unlock;
+<<<<<<< HEAD
 	}
 
 	if (old_rng && !rng->init) {
+=======
+		/* to use current_rng in add_early_randomness() we need
+		 * to take a ref
+		 */
+		is_new_current = true;
+		kref_get(&rng->ref);
+	}
+	mutex_unlock(&rng_mutex);
+	if (is_new_current || !rng->init) {
+>>>>>>> upstream/android-13
 		/*
 		 * Use a new device's input to add some randomness to
 		 * the system.  If this rng device isn't going to be
 		 * used right away, its init function hasn't been
+<<<<<<< HEAD
 		 * called yet; so only use the randomness from devices
 		 * that don't need an init callback.
 		 */
 		add_early_randomness(rng);
 	}
 
+=======
+		 * called yet by set_current_rng(); so only use the
+		 * randomness from devices that don't need an init callback
+		 */
+		add_early_randomness(rng);
+	}
+	if (is_new_current)
+		put_rng(rng);
+	return 0;
+>>>>>>> upstream/android-13
 out_unlock:
 	mutex_unlock(&rng_mutex);
 out:
@@ -516,10 +632,18 @@ EXPORT_SYMBOL_GPL(hwrng_register);
 
 void hwrng_unregister(struct hwrng *rng)
 {
+<<<<<<< HEAD
+=======
+	struct hwrng *old_rng, *new_rng;
+>>>>>>> upstream/android-13
 	int err;
 
 	mutex_lock(&rng_mutex);
 
+<<<<<<< HEAD
+=======
+	old_rng = current_rng;
+>>>>>>> upstream/android-13
 	list_del(&rng->list);
 	if (current_rng == rng) {
 		err = enable_best_rng();
@@ -529,6 +653,10 @@ void hwrng_unregister(struct hwrng *rng)
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	new_rng = get_current_rng_nolock();
+>>>>>>> upstream/android-13
 	if (list_empty(&rng_list)) {
 		mutex_unlock(&rng_mutex);
 		if (hwrng_fill)
@@ -536,6 +664,15 @@ void hwrng_unregister(struct hwrng *rng)
 	} else
 		mutex_unlock(&rng_mutex);
 
+<<<<<<< HEAD
+=======
+	if (new_rng) {
+		if (old_rng != new_rng)
+			add_early_randomness(new_rng);
+		put_rng(new_rng);
+	}
+
+>>>>>>> upstream/android-13
 	wait_for_completion(&rng->cleanup_done);
 }
 EXPORT_SYMBOL_GPL(hwrng_unregister);
@@ -584,7 +721,11 @@ EXPORT_SYMBOL_GPL(devm_hwrng_unregister);
 
 static int __init hwrng_modinit(void)
 {
+<<<<<<< HEAD
 	int ret = -ENOMEM;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	/* kmalloc makes this safe for virt_to_page() in virtio_rng.c */
 	rng_buffer = kmalloc(rng_buffer_size(), GFP_KERNEL);

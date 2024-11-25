@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/drivers/mmc/core/mmc.c
  *
  *  Copyright (C) 2003-2004 Russell King, All Rights Reserved.
  *  Copyright (C) 2005-2007 Pierre Ossman, All Rights Reserved.
  *  MMCv4 support Copyright (C) 2006 Philip Langdale, All Rights Reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -19,6 +26,10 @@
 #include <linux/mmc/host.h>
 #include <linux/mmc/card.h>
 #include <linux/mmc/mmc.h>
+<<<<<<< HEAD
+=======
+#include <trace/hooks/mmc.h>
+>>>>>>> upstream/android-13
 
 #include "core.h"
 #include "card.h"
@@ -31,6 +42,10 @@
 
 #define DEFAULT_CMD6_TIMEOUT_MS	500
 #define MIN_CACHE_EN_TIMEOUT_MS 1600
+<<<<<<< HEAD
+=======
+#define CACHE_FLUSH_TIMEOUT_MS 30000 /* 30s */
+>>>>>>> upstream/android-13
 
 static const unsigned int tran_exp[] = {
 	10000,		100000,		1000000,	10000000,
@@ -130,6 +145,7 @@ static void mmc_set_erase_size(struct mmc_card *card)
 	mmc_init_erase(card);
 }
 
+<<<<<<< HEAD
 
 static void mmc_set_wp_grp_size(struct mmc_card *card)
 {
@@ -141,6 +157,8 @@ static void mmc_set_wp_grp_size(struct mmc_card *card)
 			(card->csd.wp_grp_size + 1);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Given a 128-bit response, decode to our card CSD structure.
  */
@@ -191,7 +209,10 @@ static int mmc_decode_csd(struct mmc_card *card)
 		b = UNSTUFF_BITS(resp, 37, 5);
 		csd->erase_size = (a + 1) * (b + 1);
 		csd->erase_size <<= csd->write_blkbits - 9;
+<<<<<<< HEAD
 		csd->wp_grp_size = UNSTUFF_BITS(resp, 32, 5);
+=======
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -432,6 +453,11 @@ static int mmc_decode_ext_csd(struct mmc_card *card, u8 *ext_csd)
 		ext_csd[EXT_CSD_ERASE_TIMEOUT_MULT];
 	card->ext_csd.raw_hc_erase_grp_size =
 		ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE];
+<<<<<<< HEAD
+=======
+	card->ext_csd.raw_boot_mult =
+		ext_csd[EXT_CSD_BOOT_MULT];
+>>>>>>> upstream/android-13
 	if (card->ext_csd.rev >= 3) {
 		u8 sa_shift = ext_csd[EXT_CSD_S_A_TIMEOUT];
 		card->ext_csd.part_config = ext_csd[EXT_CSD_PART_CONFIG];
@@ -640,9 +666,14 @@ static int mmc_decode_ext_csd(struct mmc_card *card, u8 *ext_csd)
 
 	/* eMMC v5 or later */
 	if (card->ext_csd.rev >= 7) {
+<<<<<<< HEAD
 		for (idx = 0 ; idx < MMC_FIRMWARE_LEN ; idx++)
 			card->ext_csd.fwrev[idx] =
 				ext_csd[EXT_CSD_FIRMWARE_VERSION + MMC_FIRMWARE_LEN - 1 - idx];
+=======
+		memcpy(card->ext_csd.fwrev, &ext_csd[EXT_CSD_FIRMWARE_VERSION],
+		       MMC_FIRMWARE_LEN);
+>>>>>>> upstream/android-13
 		card->ext_csd.ffu_capable =
 			(ext_csd[EXT_CSD_SUPPORTED_MODE] & 0x1) &&
 			!(ext_csd[EXT_CSD_FW_CONFIG] & 0x1);
@@ -670,6 +701,12 @@ static int mmc_decode_ext_csd(struct mmc_card *card, u8 *ext_csd)
 				 mmc_hostname(card->host),
 				 card->ext_csd.cmdq_depth);
 		}
+<<<<<<< HEAD
+=======
+		card->ext_csd.enhanced_rpmb_supported =
+					(card->ext_csd.rel_param &
+					 EXT_CSD_WR_REL_PARAM_EN_RPMB_REL_WR);
+>>>>>>> upstream/android-13
 	}
 out:
 	return err;
@@ -718,6 +755,7 @@ static int mmc_compare_ext_csds(struct mmc_card *card, unsigned bus_width)
 	u8 *bw_ext_csd;
 	int err;
 
+<<<<<<< HEAD
 #if defined(CONFIG_MTK_EMMC_CQ_SUPPORT)
 	/* add for emmc reset when error happen */
 	/* return directly because compare fail seldom happens when reinit
@@ -727,6 +765,8 @@ static int mmc_compare_ext_csds(struct mmc_card *card, unsigned bus_width)
 		return 0;
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	if (bus_width == MMC_BUS_WIDTH_1)
 		return 0;
 
@@ -802,7 +842,10 @@ MMC_DEV_ATTR(csd, "%08x%08x%08x%08x\n", card->raw_csd[0], card->raw_csd[1],
 MMC_DEV_ATTR(date, "%02d/%04d\n", card->cid.month, card->cid.year);
 MMC_DEV_ATTR(erase_size, "%u\n", card->erase_size << 9);
 MMC_DEV_ATTR(preferred_erase_size, "%u\n", card->pref_erase << 9);
+<<<<<<< HEAD
 MMC_DEV_ATTR(wp_grp_size, "%u\n", card->wp_grp_size << 9);
+=======
+>>>>>>> upstream/android-13
 MMC_DEV_ATTR(ffu_capable, "%d\n", card->ext_csd.ffu_capable);
 MMC_DEV_ATTR(hwrev, "0x%x\n", card->cid.hwrev);
 MMC_DEV_ATTR(manfid, "0x%06x\n", card->cid.manfid);
@@ -819,6 +862,11 @@ MMC_DEV_ATTR(enhanced_area_offset, "%llu\n",
 		card->ext_csd.enhanced_area_offset);
 MMC_DEV_ATTR(enhanced_area_size, "%u\n", card->ext_csd.enhanced_area_size);
 MMC_DEV_ATTR(raw_rpmb_size_mult, "%#x\n", card->ext_csd.raw_rpmb_size_mult);
+<<<<<<< HEAD
+=======
+MMC_DEV_ATTR(enhanced_rpmb_supported, "%#x\n",
+	card->ext_csd.enhanced_rpmb_supported);
+>>>>>>> upstream/android-13
 MMC_DEV_ATTR(rel_sectors, "%#x\n", card->ext_csd.rel_sectors);
 MMC_DEV_ATTR(ocr, "0x%08x\n", card->ocr);
 MMC_DEV_ATTR(rca, "0x%04x\n", card->rca);
@@ -862,7 +910,10 @@ static struct attribute *mmc_std_attrs[] = {
 	&dev_attr_date.attr,
 	&dev_attr_erase_size.attr,
 	&dev_attr_preferred_erase_size.attr,
+<<<<<<< HEAD
 	&dev_attr_wp_grp_size.attr,
+=======
+>>>>>>> upstream/android-13
 	&dev_attr_fwrev.attr,
 	&dev_attr_ffu_capable.attr,
 	&dev_attr_hwrev.attr,
@@ -877,6 +928,10 @@ static struct attribute *mmc_std_attrs[] = {
 	&dev_attr_enhanced_area_offset.attr,
 	&dev_attr_enhanced_area_size.attr,
 	&dev_attr_raw_rpmb_size_mult.attr,
+<<<<<<< HEAD
+=======
+	&dev_attr_enhanced_rpmb_supported.attr,
+>>>>>>> upstream/android-13
 	&dev_attr_rel_sectors.attr,
 	&dev_attr_ocr.attr,
 	&dev_attr_rca.attr,
@@ -993,7 +1048,11 @@ static int mmc_select_powerclass(struct mmc_card *card)
 /*
  * Set the bus speed for the selected speed mode.
  */
+<<<<<<< HEAD
 static void mmc_set_bus_speed(struct mmc_card *card)
+=======
+void mmc_set_bus_speed(struct mmc_card *card)
+>>>>>>> upstream/android-13
 {
 	unsigned int max_dtr = (unsigned int)-1;
 
@@ -1013,7 +1072,11 @@ static void mmc_set_bus_speed(struct mmc_card *card)
  * If the bus width is changed successfully, return the selected width value.
  * Zero is returned instead of error value if the wide width is not supported.
  */
+<<<<<<< HEAD
 static int mmc_select_bus_width(struct mmc_card *card)
+=======
+int mmc_select_bus_width(struct mmc_card *card)
+>>>>>>> upstream/android-13
 {
 	static unsigned ext_csd_bits[] = {
 		EXT_CSD_BUS_WIDTH_8,
@@ -1078,29 +1141,49 @@ static int mmc_select_bus_width(struct mmc_card *card)
 
 	return err;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(mmc_select_bus_width);
+>>>>>>> upstream/android-13
 
 /*
  * Switch to the high-speed mode
  */
+<<<<<<< HEAD
 static int mmc_select_hs(struct mmc_card *card)
+=======
+int mmc_select_hs(struct mmc_card *card)
+>>>>>>> upstream/android-13
 {
 	int err;
 
 	err = __mmc_switch(card, EXT_CSD_CMD_SET_NORMAL,
 			   EXT_CSD_HS_TIMING, EXT_CSD_TIMING_HS,
 			   card->ext_csd.generic_cmd6_time, MMC_TIMING_MMC_HS,
+<<<<<<< HEAD
 			   true, true, true);
+=======
+			   true, true, MMC_CMD_RETRIES);
+>>>>>>> upstream/android-13
 	if (err)
 		pr_warn("%s: switch to high-speed failed, err:%d\n",
 			mmc_hostname(card->host), err);
 
 	return err;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(mmc_select_hs);
+>>>>>>> upstream/android-13
 
 /*
  * Activate wide bus and DDR if supported.
  */
+<<<<<<< HEAD
 static int mmc_select_hs_ddr(struct mmc_card *card)
+=======
+int mmc_select_hs_ddr(struct mmc_card *card)
+>>>>>>> upstream/android-13
 {
 	struct mmc_host *host = card->host;
 	u32 bus_width, ext_csd_bits;
@@ -1121,7 +1204,11 @@ static int mmc_select_hs_ddr(struct mmc_card *card)
 			   ext_csd_bits,
 			   card->ext_csd.generic_cmd6_time,
 			   MMC_TIMING_MMC_DDR52,
+<<<<<<< HEAD
 			   true, true, true);
+=======
+			   true, true, MMC_CMD_RETRIES);
+>>>>>>> upstream/android-13
 	if (err) {
 		pr_err("%s: switch to bus width %d ddr failed\n",
 			mmc_hostname(host), 1 << bus_width);
@@ -1169,8 +1256,14 @@ static int mmc_select_hs_ddr(struct mmc_card *card)
 
 	return err;
 }
+<<<<<<< HEAD
 
 static int mmc_select_hs400(struct mmc_card *card)
+=======
+EXPORT_SYMBOL_GPL(mmc_select_hs_ddr);
+
+int mmc_select_hs400(struct mmc_card *card)
+>>>>>>> upstream/android-13
 {
 	struct mmc_host *host = card->host;
 	unsigned int max_dtr;
@@ -1189,28 +1282,51 @@ static int mmc_select_hs400(struct mmc_card *card)
 	err = __mmc_switch(card, EXT_CSD_CMD_SET_NORMAL,
 			   EXT_CSD_HS_TIMING, val,
 			   card->ext_csd.generic_cmd6_time, 0,
+<<<<<<< HEAD
 			   true, false, true);
+=======
+			   false, true, MMC_CMD_RETRIES);
+>>>>>>> upstream/android-13
 	if (err) {
 		pr_err("%s: switch to high-speed from hs200 failed, err:%d\n",
 			mmc_hostname(host), err);
 		return err;
 	}
 
+<<<<<<< HEAD
 	/* Set host controller to HS timing */
 	mmc_set_timing(card->host, MMC_TIMING_MMC_HS);
 
+=======
+>>>>>>> upstream/android-13
 	/* Prepare host to downgrade to HS timing */
 	if (host->ops->hs400_downgrade)
 		host->ops->hs400_downgrade(host);
 
+<<<<<<< HEAD
+=======
+	/* Set host controller to HS timing */
+	mmc_set_timing(host, MMC_TIMING_MMC_HS);
+
+>>>>>>> upstream/android-13
 	/* Reduce frequency to HS frequency */
 	max_dtr = card->ext_csd.hs_max_dtr;
 	mmc_set_clock(host, max_dtr);
 
+<<<<<<< HEAD
 	err = mmc_switch_status(card);
 	if (err)
 		goto out_err;
 
+=======
+	err = mmc_switch_status(card, true);
+	if (err)
+		goto out_err;
+
+	if (host->ops->hs400_prepare_ddr)
+		host->ops->hs400_prepare_ddr(host);
+
+>>>>>>> upstream/android-13
 	/* Switch card to DDR */
 	err = mmc_switch(card, EXT_CSD_CMD_SET_NORMAL,
 			 EXT_CSD_BUS_WIDTH,
@@ -1228,7 +1344,11 @@ static int mmc_select_hs400(struct mmc_card *card)
 	err = __mmc_switch(card, EXT_CSD_CMD_SET_NORMAL,
 			   EXT_CSD_HS_TIMING, val,
 			   card->ext_csd.generic_cmd6_time, 0,
+<<<<<<< HEAD
 			   true, false, true);
+=======
+			   false, true, MMC_CMD_RETRIES);
+>>>>>>> upstream/android-13
 	if (err) {
 		pr_err("%s: switch to hs400 failed, err:%d\n",
 			 mmc_hostname(host), err);
@@ -1250,7 +1370,11 @@ static int mmc_select_hs400(struct mmc_card *card)
 	if (host->ops->hs400_complete)
 		host->ops->hs400_complete(host);
 
+<<<<<<< HEAD
 	err = mmc_switch_status(card);
+=======
+	err = mmc_switch_status(card, true);
+>>>>>>> upstream/android-13
 	if (err)
 		goto out_err;
 
@@ -1261,6 +1385,10 @@ out_err:
 	       __func__, err);
 	return err;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(mmc_select_hs400);
+>>>>>>> upstream/android-13
 
 int mmc_hs200_to_hs400(struct mmc_card *card)
 {
@@ -1274,7 +1402,10 @@ int mmc_hs400_to_hs200(struct mmc_card *card)
 	int err;
 	u8 val;
 
+<<<<<<< HEAD
 	dev_info(host->parent,"%s\n", __func__);
+=======
+>>>>>>> upstream/android-13
 	/* Reduce frequency to HS */
 	max_dtr = card->ext_csd.hs_max_dtr;
 	mmc_set_clock(host, max_dtr);
@@ -1283,6 +1414,7 @@ int mmc_hs400_to_hs200(struct mmc_card *card)
 	val = EXT_CSD_TIMING_HS;
 	err = __mmc_switch(card, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_HS_TIMING,
 			   val, card->ext_csd.generic_cmd6_time, 0,
+<<<<<<< HEAD
 			   true, false, true);
 	if (err)
 		goto out_err;
@@ -1290,22 +1422,42 @@ int mmc_hs400_to_hs200(struct mmc_card *card)
 	mmc_set_timing(host, MMC_TIMING_MMC_DDR52);
 
 	err = mmc_switch_status(card);
+=======
+			   false, true, MMC_CMD_RETRIES);
+	if (err)
+		goto out_err;
+
+	if (host->ops->hs400_downgrade)
+		host->ops->hs400_downgrade(host);
+
+	mmc_set_timing(host, MMC_TIMING_MMC_DDR52);
+
+	err = mmc_switch_status(card, true);
+>>>>>>> upstream/android-13
 	if (err)
 		goto out_err;
 
 	/* Switch HS DDR to HS */
 	err = __mmc_switch(card, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_BUS_WIDTH,
 			   EXT_CSD_BUS_WIDTH_8, card->ext_csd.generic_cmd6_time,
+<<<<<<< HEAD
 			   0, true, false, true);
+=======
+			   0, false, true, MMC_CMD_RETRIES);
+>>>>>>> upstream/android-13
 	if (err)
 		goto out_err;
 
 	mmc_set_timing(host, MMC_TIMING_MMC_HS);
 
+<<<<<<< HEAD
 	if (host->ops->hs400_downgrade)
 		host->ops->hs400_downgrade(host);
 
 	err = mmc_switch_status(card);
+=======
+	err = mmc_switch_status(card, true);
+>>>>>>> upstream/android-13
 	if (err)
 		goto out_err;
 
@@ -1314,7 +1466,11 @@ int mmc_hs400_to_hs200(struct mmc_card *card)
 	      card->drive_strength << EXT_CSD_DRV_STR_SHIFT;
 	err = __mmc_switch(card, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_HS_TIMING,
 			   val, card->ext_csd.generic_cmd6_time, 0,
+<<<<<<< HEAD
 			   true, false, true);
+=======
+			   false, true, MMC_CMD_RETRIES);
+>>>>>>> upstream/android-13
 	if (err)
 		goto out_err;
 
@@ -1325,7 +1481,11 @@ int mmc_hs400_to_hs200(struct mmc_card *card)
 	 * failed. If there really is a problem, we would expect tuning will
 	 * fail and the result ends up the same.
 	 */
+<<<<<<< HEAD
 	err = __mmc_switch_status(card, false);
+=======
+	err = mmc_switch_status(card, false);
+>>>>>>> upstream/android-13
 	if (err)
 		goto out_err;
 
@@ -1398,13 +1558,18 @@ static int mmc_select_hs400es(struct mmc_card *card)
 	err = __mmc_switch(card, EXT_CSD_CMD_SET_NORMAL,
 			   EXT_CSD_HS_TIMING, EXT_CSD_TIMING_HS,
 			   card->ext_csd.generic_cmd6_time, 0,
+<<<<<<< HEAD
 			   true, false, true);
+=======
+			   false, true, MMC_CMD_RETRIES);
+>>>>>>> upstream/android-13
 	if (err) {
 		pr_err("%s: switch to hs for hs400es failed, err:%d\n",
 			mmc_hostname(host), err);
 		goto out_err;
 	}
 
+<<<<<<< HEAD
 	mmc_set_timing(host, MMC_TIMING_MMC_HS);
 	err = mmc_switch_status(card);
 	if (err)
@@ -1412,6 +1577,19 @@ static int mmc_select_hs400es(struct mmc_card *card)
 
 	mmc_set_clock(host, card->ext_csd.hs_max_dtr);
 
+=======
+	/*
+	 * Bump to HS timing and frequency. Some cards don't handle
+	 * SEND_STATUS reliably at the initial frequency.
+	 */
+	mmc_set_timing(host, MMC_TIMING_MMC_HS);
+	mmc_set_bus_speed(card);
+
+	err = mmc_switch_status(card, true);
+	if (err)
+		goto out_err;
+
+>>>>>>> upstream/android-13
 	/* Switch card to DDR with strobe bit */
 	val = EXT_CSD_DDR_BUS_WIDTH_8 | EXT_CSD_BUS_WIDTH_STROBE;
 	err = mmc_switch(card, EXT_CSD_CMD_SET_NORMAL,
@@ -1432,7 +1610,11 @@ static int mmc_select_hs400es(struct mmc_card *card)
 	err = __mmc_switch(card, EXT_CSD_CMD_SET_NORMAL,
 			   EXT_CSD_HS_TIMING, val,
 			   card->ext_csd.generic_cmd6_time, 0,
+<<<<<<< HEAD
 			   true, false, true);
+=======
+			   false, true, MMC_CMD_RETRIES);
+>>>>>>> upstream/android-13
 	if (err) {
 		pr_err("%s: switch to hs400es failed, err:%d\n",
 			mmc_hostname(host), err);
@@ -1447,7 +1629,11 @@ static int mmc_select_hs400es(struct mmc_card *card)
 	if (host->ops->hs400_enhanced_strobe)
 		host->ops->hs400_enhanced_strobe(host, &host->ios);
 
+<<<<<<< HEAD
 	err = mmc_switch_status(card);
+=======
+	err = mmc_switch_status(card, true);
+>>>>>>> upstream/android-13
 	if (err)
 		goto out_err;
 
@@ -1469,7 +1655,11 @@ out_err:
 static int mmc_select_hs200(struct mmc_card *card)
 {
 	struct mmc_host *host = card->host;
+<<<<<<< HEAD
 	unsigned int old_timing, old_signal_voltage;
+=======
+	unsigned int old_timing, old_signal_voltage, old_clock;
+>>>>>>> upstream/android-13
 	int err = -EINVAL;
 	u8 val;
 
@@ -1497,25 +1687,53 @@ static int mmc_select_hs200(struct mmc_card *card)
 		err = __mmc_switch(card, EXT_CSD_CMD_SET_NORMAL,
 				   EXT_CSD_HS_TIMING, val,
 				   card->ext_csd.generic_cmd6_time, 0,
+<<<<<<< HEAD
 				   true, false, true);
 		if (err)
 			goto err;
 		old_timing = host->ios.timing;
 		mmc_set_timing(host, MMC_TIMING_MMC_HS200);
+=======
+				   false, true, MMC_CMD_RETRIES);
+		if (err)
+			goto err;
+
+		/*
+		 * Bump to HS timing and frequency. Some cards don't handle
+		 * SEND_STATUS reliably at the initial frequency.
+		 * NB: We can't move to full (HS200) speeds until after we've
+		 * successfully switched over.
+		 */
+		old_timing = host->ios.timing;
+		old_clock = host->ios.clock;
+		mmc_set_timing(host, MMC_TIMING_MMC_HS200);
+		mmc_set_clock(card->host, card->ext_csd.hs_max_dtr);
+>>>>>>> upstream/android-13
 
 		/*
 		 * For HS200, CRC errors are not a reliable way to know the
 		 * switch failed. If there really is a problem, we would expect
 		 * tuning will fail and the result ends up the same.
 		 */
+<<<<<<< HEAD
 		err = __mmc_switch_status(card, false);
+=======
+		err = mmc_switch_status(card, false);
+>>>>>>> upstream/android-13
 
 		/*
 		 * mmc_select_timing() assumes timing has not changed if
 		 * it is a switch error.
 		 */
+<<<<<<< HEAD
 		if (err == -EBADMSG)
 			mmc_set_timing(host, old_timing);
+=======
+		if (err == -EBADMSG) {
+			mmc_set_clock(host, old_clock);
+			mmc_set_timing(host, old_timing);
+		}
+>>>>>>> upstream/android-13
 	}
 err:
 	if (err) {
@@ -1532,7 +1750,11 @@ err:
 /*
  * Activate High Speed, HS200 or HS400ES mode if supported.
  */
+<<<<<<< HEAD
 static int mmc_select_timing(struct mmc_card *card)
+=======
+int mmc_select_timing(struct mmc_card *card)
+>>>>>>> upstream/android-13
 {
 	int err = 0;
 
@@ -1557,12 +1779,20 @@ bus_speed:
 	mmc_set_bus_speed(card);
 	return 0;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(mmc_select_timing);
+>>>>>>> upstream/android-13
 
 /*
  * Execute tuning sequence to seek the proper bus operating
  * conditions for HS200 and HS400, which sends CMD21 to the device.
  */
+<<<<<<< HEAD
 static int mmc_hs200_tuning(struct mmc_card *card)
+=======
+int mmc_hs200_tuning(struct mmc_card *card)
+>>>>>>> upstream/android-13
 {
 	struct mmc_host *host = card->host;
 
@@ -1577,6 +1807,10 @@ static int mmc_hs200_tuning(struct mmc_card *card)
 
 	return mmc_execute_tuning(card);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(mmc_hs200_tuning);
+>>>>>>> upstream/android-13
 
 /*
  * Handle the detection and initialisation of a card.
@@ -1629,7 +1863,14 @@ static int mmc_init_card(struct mmc_host *host, u32 ocr,
 		goto err;
 
 	if (oldcard) {
+<<<<<<< HEAD
 		if (memcmp(cid, oldcard->raw_cid, sizeof(cid)) != 0) {
+=======
+		trace_android_vh_mmc_ffu_update_cid(host, oldcard, cid);
+		if (memcmp(cid, oldcard->raw_cid, sizeof(cid)) != 0) {
+			pr_debug("%s: Perhaps the card was replaced\n",
+				mmc_hostname(host));
+>>>>>>> upstream/android-13
 			err = -ENOENT;
 			goto err;
 		}
@@ -1729,7 +1970,10 @@ static int mmc_init_card(struct mmc_host *host, u32 ocr,
 			goto free_card;
 
 		if (err) {
+<<<<<<< HEAD
 			err = 0;
+=======
+>>>>>>> upstream/android-13
 			/*
 			 * Just disable enhanced area off & sz
 			 * will try to enable ERASE_GROUP_DEF
@@ -1747,7 +1991,11 @@ static int mmc_init_card(struct mmc_host *host, u32 ocr,
 			mmc_set_erase_size(card);
 		}
 	}
+<<<<<<< HEAD
 	mmc_set_wp_grp_size(card);
+=======
+
+>>>>>>> upstream/android-13
 	/*
 	 * Ensure eMMC user default partition is enabled
 	 */
@@ -1760,6 +2008,12 @@ static int mmc_init_card(struct mmc_host *host, u32 ocr,
 			goto free_card;
 	}
 
+<<<<<<< HEAD
+=======
+	trace_android_vh_mmc_update_partition_status(card);
+	trace_android_rvh_mmc_partition_status(card);
+
+>>>>>>> upstream/android-13
 	/*
 	 * Enable power_off_notification byte in the ext_csd register
 	 */
@@ -1779,6 +2033,17 @@ static int mmc_init_card(struct mmc_host *host, u32 ocr,
 			card->ext_csd.power_off_notification = EXT_CSD_POWER_ON;
 	}
 
+<<<<<<< HEAD
+=======
+	/* set erase_arg */
+	if (mmc_can_discard(card))
+		card->erase_arg = MMC_DISCARD_ARG;
+	else if (mmc_can_trim(card))
+		card->erase_arg = MMC_TRIM_ARG;
+	else
+		card->erase_arg = MMC_ERASE_ARG;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Select timing interface
 	 */
@@ -1787,6 +2052,7 @@ static int mmc_init_card(struct mmc_host *host, u32 ocr,
 		goto free_card;
 
 	if (mmc_card_hs200(card)) {
+<<<<<<< HEAD
 		err = mmc_hs200_tuning(card);
 		if (err)
 			goto free_card;
@@ -1794,6 +2060,19 @@ static int mmc_init_card(struct mmc_host *host, u32 ocr,
 		err = mmc_select_hs400(card);
 		if (err)
 			goto free_card;
+=======
+		host->doing_init_tune = 1;
+
+		err = mmc_hs200_tuning(card);
+		if (!err)
+			err = mmc_select_hs400(card);
+
+		host->doing_init_tune = 0;
+
+		if (err)
+			goto free_card;
+
+>>>>>>> upstream/android-13
 	} else if (!mmc_card_hs400es(card)) {
 		/* Select the desired bus width optionally */
 		err = mmc_select_bus_width(card);
@@ -1822,7 +2101,10 @@ static int mmc_init_card(struct mmc_host *host, u32 ocr,
 			pr_warn("%s: Enabling HPI failed\n",
 				mmc_hostname(card->host));
 			card->ext_csd.hpi_en = 0;
+<<<<<<< HEAD
 			err = 0;
+=======
+>>>>>>> upstream/android-13
 		} else {
 			card->ext_csd.hpi_en = 1;
 		}
@@ -1851,7 +2133,10 @@ static int mmc_init_card(struct mmc_host *host, u32 ocr,
 			pr_warn("%s: Cache is supported, but failed to turn on (%d)\n",
 				mmc_hostname(card->host), err);
 			card->ext_csd.cache_ctrl = 0;
+<<<<<<< HEAD
 			err = 0;
+=======
+>>>>>>> upstream/android-13
 		} else {
 			card->ext_csd.cache_ctrl = 1;
 		}
@@ -1871,6 +2156,7 @@ static int mmc_init_card(struct mmc_host *host, u32 ocr,
 				mmc_hostname(card->host));
 			card->ext_csd.cmdq_support = false;
 			card->ext_csd.cmdq_depth = 0;
+<<<<<<< HEAD
 			err = 0;
 		}
 	}
@@ -1905,6 +2191,10 @@ static int mmc_init_card(struct mmc_host *host, u32 ocr,
 	}
 #endif
 
+=======
+		}
+	}
+>>>>>>> upstream/android-13
 	/*
 	 * In some cases (e.g. RPMB or mmc_test), the Command Queue must be
 	 * disabled for a time, so a flag is needed to indicate to re-enable the
@@ -1912,6 +2202,25 @@ static int mmc_init_card(struct mmc_host *host, u32 ocr,
 	 */
 	card->reenable_cmdq = card->ext_csd.cmdq_en;
 
+<<<<<<< HEAD
+=======
+	if (host->cqe_ops && !host->cqe_enabled) {
+		err = host->cqe_ops->cqe_enable(host, card);
+		if (!err) {
+			host->cqe_enabled = true;
+
+			if (card->ext_csd.cmdq_en) {
+				pr_info("%s: Command Queue Engine enabled\n",
+					mmc_hostname(host));
+			} else {
+				host->hsq_enabled = true;
+				pr_info("%s: Host Software Queue enabled\n",
+					mmc_hostname(host));
+			}
+		}
+	}
+
+>>>>>>> upstream/android-13
 	if (host->caps2 & MMC_CAP2_AVOID_3_3V &&
 	    host->ios.signal_voltage == MMC_SIGNAL_VOLTAGE_330) {
 		pr_err("%s: Host failed to negotiate down from 3.3V\n",
@@ -1934,7 +2243,19 @@ err:
 
 static int mmc_can_sleep(struct mmc_card *card)
 {
+<<<<<<< HEAD
 	return (card && card->ext_csd.rev >= 3);
+=======
+	return card->ext_csd.rev >= 3;
+}
+
+static int mmc_sleep_busy_cb(void *cb_data, bool *busy)
+{
+	struct mmc_host *host = cb_data;
+
+	*busy = host->ops->card_busy(host);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int mmc_sleep(struct mmc_host *host)
@@ -1942,6 +2263,10 @@ static int mmc_sleep(struct mmc_host *host)
 	struct mmc_command cmd = {};
 	struct mmc_card *card = host->card;
 	unsigned int timeout_ms = DIV_ROUND_UP(card->ext_csd.sa_timeout, 10000);
+<<<<<<< HEAD
+=======
+	bool use_r1b_resp;
+>>>>>>> upstream/android-13
 	int err;
 
 	/* Re-tuning can't be done once the card is deselected */
@@ -1954,6 +2279,7 @@ static int mmc_sleep(struct mmc_host *host)
 	cmd.opcode = MMC_SLEEP_AWAKE;
 	cmd.arg = card->rca << 16;
 	cmd.arg |= 1 << 15;
+<<<<<<< HEAD
 
 	/*
 	 * If the max_busy_timeout of the host is specified, validate it against
@@ -1970,12 +2296,16 @@ static int mmc_sleep(struct mmc_host *host)
 		cmd.flags = MMC_RSP_R1B | MMC_CMD_AC;
 		cmd.busy_timeout = timeout_ms;
 	}
+=======
+	use_r1b_resp = mmc_prepare_busy_cmd(host, &cmd, timeout_ms);
+>>>>>>> upstream/android-13
 
 	err = mmc_wait_for_cmd(host, &cmd, 0);
 	if (err)
 		goto out_release;
 
 	/*
+<<<<<<< HEAD
 	 * If the host does not wait while the card signals busy, then we will
 	 * will have to wait the sleep/awake timeout.  Note, we cannot use the
 	 * SEND_STATUS command to poll the status because that command (and most
@@ -1983,6 +2313,22 @@ static int mmc_sleep(struct mmc_host *host)
 	 */
 	if (!cmd.busy_timeout || !(host->caps & MMC_CAP_WAIT_WHILE_BUSY))
 		mmc_delay(timeout_ms);
+=======
+	 * If the host does not wait while the card signals busy, then we can
+	 * try to poll, but only if the host supports HW polling, as the
+	 * SEND_STATUS cmd is not allowed. If we can't poll, then we simply need
+	 * to wait the sleep/awake timeout.
+	 */
+	if (host->caps & MMC_CAP_WAIT_WHILE_BUSY && use_r1b_resp)
+		goto out_release;
+
+	if (!host->ops->card_busy) {
+		mmc_delay(timeout_ms);
+		goto out_release;
+	}
+
+	err = __mmc_poll_for_busy(card, timeout_ms, &mmc_sleep_busy_cb, host);
+>>>>>>> upstream/android-13
 
 out_release:
 	mmc_retune_release(host);
@@ -2007,7 +2353,11 @@ static int mmc_poweroff_notify(struct mmc_card *card, unsigned int notify_type)
 
 	err = __mmc_switch(card, EXT_CSD_CMD_SET_NORMAL,
 			EXT_CSD_POWER_OFF_NOTIFICATION,
+<<<<<<< HEAD
 			notify_type, timeout, 0, true, false, false);
+=======
+			notify_type, timeout, 0, false, false, MMC_CMD_RETRIES);
+>>>>>>> upstream/android-13
 	if (err)
 		pr_err("%s: Power Off Notification timed out, %u\n",
 		       mmc_hostname(card->host), timeout);
@@ -2067,6 +2417,28 @@ static bool _mmc_cache_enabled(struct mmc_host *host)
 	       host->card->ext_csd.cache_ctrl & 1;
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * Flush the internal cache of the eMMC to non-volatile storage.
+ */
+static int _mmc_flush_cache(struct mmc_host *host)
+{
+	int err = 0;
+
+	if (_mmc_cache_enabled(host)) {
+		err = mmc_switch(host->card, EXT_CSD_CMD_SET_NORMAL,
+				 EXT_CSD_FLUSH_CACHE, 1,
+				 CACHE_FLUSH_TIMEOUT_MS);
+		if (err)
+			pr_err("%s: cache flush error %d\n",
+			       mmc_hostname(host), err);
+	}
+
+	return err;
+}
+
+>>>>>>> upstream/android-13
 static int _mmc_suspend(struct mmc_host *host, bool is_suspend)
 {
 	int err = 0;
@@ -2078,6 +2450,7 @@ static int _mmc_suspend(struct mmc_host *host, bool is_suspend)
 	if (mmc_card_suspended(host->card))
 		goto out;
 
+<<<<<<< HEAD
 	if (mmc_card_doing_bkops(host->card)) {
 		err = mmc_stop_bkops(host->card);
 		if (err)
@@ -2085,10 +2458,14 @@ static int _mmc_suspend(struct mmc_host *host, bool is_suspend)
 	}
 
 	err = mmc_flush_cache(host->card);
+=======
+	err = _mmc_flush_cache(host);
+>>>>>>> upstream/android-13
 	if (err)
 		goto out;
 
 	if (mmc_can_poweroff_notify(host->card) &&
+<<<<<<< HEAD
 		((host->caps2 & MMC_CAP2_FULL_PWR_CYCLE) || !is_suspend)) {
 		err = mmc_poweroff_notify(host->card, notify_type);
 		/* Add a delay before power off */
@@ -2097,6 +2474,15 @@ static int _mmc_suspend(struct mmc_host *host, bool is_suspend)
 	} else if (mmc_can_sleep(host->card))
 		err = mmc_sleep(host);
 	else if (!mmc_host_is_spi(host))
+=======
+	    ((host->caps2 & MMC_CAP2_FULL_PWR_CYCLE) || !is_suspend ||
+	     (host->caps2 & MMC_CAP2_FULL_PWR_CYCLE_IN_SUSPEND)))
+		err = mmc_poweroff_notify(host->card, notify_type);
+	else if (mmc_can_sleep(host->card)) {
+		trace_android_rvh_mmc_cache_card_properties(host);
+		err = mmc_sleep(host);
+	} else if (!mmc_host_is_spi(host))
+>>>>>>> upstream/android-13
 		err = mmc_deselect_cards(host);
 
 	if (!err) {
@@ -2131,6 +2517,10 @@ static int mmc_suspend(struct mmc_host *host)
 static int _mmc_resume(struct mmc_host *host)
 {
 	int err = 0;
+<<<<<<< HEAD
+=======
+	bool partial_init = false;
+>>>>>>> upstream/android-13
 
 	mmc_claim_host(host);
 
@@ -2138,7 +2528,13 @@ static int _mmc_resume(struct mmc_host *host)
 		goto out;
 
 	mmc_power_up(host, host->card->ocr);
+<<<<<<< HEAD
 	err = mmc_init_card(host, host->card->ocr, host->card);
+=======
+	trace_android_rvh_partial_init(host, &partial_init);
+	if (!partial_init)
+		err = mmc_init_card(host, host->card->ocr, host->card);
+>>>>>>> upstream/android-13
 	mmc_card_clr_suspended(host->card);
 
 out:
@@ -2227,7 +2623,11 @@ static int _mmc_hw_reset(struct mmc_host *host)
 	 * In the case of recovery, we can't expect flushing the cache to work
 	 * always, but we have a go and ignore errors.
 	 */
+<<<<<<< HEAD
 	mmc_flush_cache(host->card);
+=======
+	_mmc_flush_cache(host);
+>>>>>>> upstream/android-13
 
 	if ((host->caps & MMC_CAP_HW_RESET) && host->ops->hw_reset &&
 	     mmc_can_reset(card)) {
@@ -2255,6 +2655,10 @@ static const struct mmc_bus_ops mmc_ops = {
 	.shutdown = mmc_shutdown,
 	.hw_reset = _mmc_hw_reset,
 	.cache_enabled = _mmc_cache_enabled,
+<<<<<<< HEAD
+=======
+	.flush_cache = _mmc_flush_cache,
+>>>>>>> upstream/android-13
 };
 
 /*

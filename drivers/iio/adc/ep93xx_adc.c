@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver for ADC module on the Cirrus Logic EP93xx series of SoCs
  *
  * Copyright (C) 2015 Alexander Sverdlin
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * The driver uses polling to get the conversion status. According to EP93xx
  * datasheets, reading ADCResult register starts the conversion, but user is also
  * responsible for ensuring that delay between adjacent conversion triggers is
@@ -168,12 +175,18 @@ static int ep93xx_adc_probe(struct platform_device *pdev)
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	priv->base = devm_ioremap_resource(&pdev->dev, res);
+<<<<<<< HEAD
 	if (IS_ERR(priv->base)) {
 		dev_err(&pdev->dev, "Cannot map memory resource\n");
 		return PTR_ERR(priv->base);
 	}
 
 	iiodev->dev.parent = &pdev->dev;
+=======
+	if (IS_ERR(priv->base))
+		return PTR_ERR(priv->base);
+
+>>>>>>> upstream/android-13
 	iiodev->name = dev_name(&pdev->dev);
 	iiodev->modes = INDIO_DIRECT_MODE;
 	iiodev->info = &ep93xx_adc_info;
@@ -211,7 +224,11 @@ static int ep93xx_adc_probe(struct platform_device *pdev)
 		 */
 	}
 
+<<<<<<< HEAD
 	ret = clk_enable(priv->clk);
+=======
+	ret = clk_prepare_enable(priv->clk);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(&pdev->dev, "Cannot enable clock\n");
 		return ret;
@@ -219,7 +236,11 @@ static int ep93xx_adc_probe(struct platform_device *pdev)
 
 	ret = iio_device_register(iiodev);
 	if (ret)
+<<<<<<< HEAD
 		clk_disable(priv->clk);
+=======
+		clk_disable_unprepare(priv->clk);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -230,7 +251,11 @@ static int ep93xx_adc_remove(struct platform_device *pdev)
 	struct ep93xx_adc_priv *priv = iio_priv(iiodev);
 
 	iio_device_unregister(iiodev);
+<<<<<<< HEAD
 	clk_disable(priv->clk);
+=======
+	clk_disable_unprepare(priv->clk);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

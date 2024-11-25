@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  linux/kernel/time/timekeeping.c
  *
@@ -8,6 +9,13 @@
  *
  */
 
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ *  Kernel timekeeping code and accessor functions. Based on code from
+ *  timer.c, moved in commit 8524070b7982.
+ */
+>>>>>>> upstream/android-13
 #include <linux/timekeeper_internal.h>
 #include <linux/module.h>
 #include <linux/interrupt.h>
@@ -26,6 +34,11 @@
 #include <linux/stop_machine.h>
 #include <linux/pvclock_gtod.h>
 #include <linux/compiler.h>
+<<<<<<< HEAD
+=======
+#include <linux/audit.h>
+#include <trace/hooks/timekeeping.h>
+>>>>>>> upstream/android-13
 
 #include "tick-internal.h"
 #include "ntp_internal.h"
@@ -43,11 +56,17 @@ enum timekeeping_adv_mode {
 	TK_ADV_FREQ
 };
 
+<<<<<<< HEAD
+=======
+DEFINE_RAW_SPINLOCK(timekeeper_lock);
+
+>>>>>>> upstream/android-13
 /*
  * The most important data for readout fits into a single 64 byte
  * cache line.
  */
 static struct {
+<<<<<<< HEAD
 	seqcount_t		seq;
 	struct timekeeper	timekeeper;
 } tk_core ____cacheline_aligned = {
@@ -57,6 +76,19 @@ static struct {
 static DEFINE_RAW_SPINLOCK(timekeeper_lock);
 static struct timekeeper shadow_timekeeper;
 
+=======
+	seqcount_raw_spinlock_t	seq;
+	struct timekeeper	timekeeper;
+} tk_core ____cacheline_aligned = {
+	.seq = SEQCNT_RAW_SPINLOCK_ZERO(tk_core.seq, &timekeeper_lock),
+};
+
+static struct timekeeper shadow_timekeeper;
+
+/* flag for if timekeeping is suspended */
+int __read_mostly timekeeping_suspended;
+
+>>>>>>> upstream/android-13
 /**
  * struct tk_fast - NMI safe timekeeper
  * @seq:	Sequence counter for protecting updates. The lowest bit
@@ -67,7 +99,11 @@ static struct timekeeper shadow_timekeeper;
  * See @update_fast_timekeeper() below.
  */
 struct tk_fast {
+<<<<<<< HEAD
 	seqcount_t		seq;
+=======
+	seqcount_latch_t	seq;
+>>>>>>> upstream/android-13
 	struct tk_read_base	base[2];
 };
 
@@ -76,13 +112,20 @@ static u64 cycles_at_suspend;
 
 static u64 dummy_clock_read(struct clocksource *cs)
 {
+<<<<<<< HEAD
 	return cycles_at_suspend;
+=======
+	if (timekeeping_suspended)
+		return cycles_at_suspend;
+	return local_clock();
+>>>>>>> upstream/android-13
 }
 
 static struct clocksource dummy_clock = {
 	.read = dummy_clock_read,
 };
 
+<<<<<<< HEAD
 static struct tk_fast tk_fast_mono ____cacheline_aligned = {
 	.base[0] = { .clock = &dummy_clock, },
 	.base[1] = { .clock = &dummy_clock, },
@@ -96,6 +139,35 @@ static struct tk_fast tk_fast_raw  ____cacheline_aligned = {
 /* flag for if timekeeping is suspended */
 int __read_mostly timekeeping_suspended;
 
+=======
+/*
+ * Boot time initialization which allows local_clock() to be utilized
+ * during early boot when clocksources are not available. local_clock()
+ * returns nanoseconds already so no conversion is required, hence mult=1
+ * and shift=0. When the first proper clocksource is installed then
+ * the fast time keepers are updated with the correct values.
+ */
+#define FAST_TK_INIT						\
+	{							\
+		.clock		= &dummy_clock,			\
+		.mask		= CLOCKSOURCE_MASK(64),		\
+		.mult		= 1,				\
+		.shift		= 0,				\
+	}
+
+static struct tk_fast tk_fast_mono ____cacheline_aligned = {
+	.seq     = SEQCNT_LATCH_ZERO(tk_fast_mono.seq),
+	.base[0] = FAST_TK_INIT,
+	.base[1] = FAST_TK_INIT,
+};
+
+static struct tk_fast tk_fast_raw  ____cacheline_aligned = {
+	.seq     = SEQCNT_LATCH_ZERO(tk_fast_raw.seq),
+	.base[0] = FAST_TK_INIT,
+	.base[1] = FAST_TK_INIT,
+};
+
+>>>>>>> upstream/android-13
 static inline void tk_normalize_xtime(struct timekeeper *tk)
 {
 	while (tk->tkr_mono.xtime_nsec >= ((u64)NSEC_PER_SEC << tk->tkr_mono.shift)) {
@@ -161,7 +233,11 @@ static inline void tk_update_sleep_time(struct timekeeper *tk, ktime_t delta)
  * tk_clock_read - atomic clocksource read() helper
  *
  * This helper is necessary to use in the read paths because, while the
+<<<<<<< HEAD
  * seqlock ensures we don't return a bad value while structures are updated,
+=======
+ * seqcount ensures we don't return a bad value while structures are updated,
+>>>>>>> upstream/android-13
  * it doesn't protect from potential crashes. There is the possibility that
  * the tkr's clocksource may change between the read reference, and the
  * clock reference passed to the read function.  This can cause crashes if
@@ -226,10 +302,17 @@ static inline u64 timekeeping_get_delta(const struct tk_read_base *tkr)
 	unsigned int seq;
 
 	/*
+<<<<<<< HEAD
 	 * Since we're called holding a seqlock, the data may shift
 	 * under us while we're doing the calculation. This can cause
 	 * false positives, since we'd note a problem but throw the
 	 * results away. So nest another seqlock here to atomically
+=======
+	 * Since we're called holding a seqcount, the data may shift
+	 * under us while we're doing the calculation. This can cause
+	 * false positives, since we'd note a problem but throw the
+	 * results away. So nest another seqcount here to atomically
+>>>>>>> upstream/android-13
 	 * grab the points we are checking with.
 	 */
 	do {
@@ -353,6 +436,7 @@ static void tk_setup_internals(struct timekeeper *tk, struct clocksource *clock)
 
 /* Timekeeper helper functions. */
 
+<<<<<<< HEAD
 #ifdef CONFIG_ARCH_USES_GETTIMEOFFSET
 static u32 default_arch_gettimeoffset(void) { return 0; }
 u32 (*arch_gettimeoffset)(void) = default_arch_gettimeoffset;
@@ -360,6 +444,8 @@ u32 (*arch_gettimeoffset)(void) = default_arch_gettimeoffset;
 static inline u32 arch_gettimeoffset(void) { return 0; }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static inline u64 timekeeping_delta_to_ns(const struct tk_read_base *tkr, u64 delta)
 {
 	u64 nsec;
@@ -367,8 +453,12 @@ static inline u64 timekeeping_delta_to_ns(const struct tk_read_base *tkr, u64 de
 	nsec = delta * tkr->mult + tkr->xtime_nsec;
 	nsec >>= tkr->shift;
 
+<<<<<<< HEAD
 	/* If arch requires, add in get_arch_timeoffset() */
 	return nsec + arch_gettimeoffset();
+=======
+	return nsec;
+>>>>>>> upstream/android-13
 }
 
 static inline u64 timekeeping_get_ns(const struct tk_read_base *tkr)
@@ -391,6 +481,10 @@ static inline u64 timekeeping_cycles_to_ns(const struct tk_read_base *tkr, u64 c
 /**
  * update_fast_timekeeper - Update the fast and NMI safe monotonic timekeeper.
  * @tkr: Timekeeping readout base from which we take the update
+<<<<<<< HEAD
+=======
+ * @tkf: Pointer to NMI safe timekeeper
+>>>>>>> upstream/android-13
  *
  * We want to use this from any context including NMI and tracing /
  * instrumenting the timekeeping code itself.
@@ -420,6 +514,30 @@ static void update_fast_timekeeper(const struct tk_read_base *tkr,
 	memcpy(base + 1, base, sizeof(*base));
 }
 
+<<<<<<< HEAD
+=======
+static __always_inline u64 __ktime_get_fast_ns(struct tk_fast *tkf)
+{
+	struct tk_read_base *tkr;
+	unsigned int seq;
+	u64 now;
+
+	do {
+		seq = raw_read_seqcount_latch(&tkf->seq);
+		tkr = tkf->base + (seq & 0x01);
+		now = ktime_to_ns(tkr->base);
+
+		now += timekeeping_delta_to_ns(tkr,
+				clocksource_delta(
+					tk_clock_read(tkr),
+					tkr->cycle_last,
+					tkr->mask));
+	} while (read_seqcount_latch_retry(&tkf->seq, seq));
+
+	return now;
+}
+
+>>>>>>> upstream/android-13
 /**
  * ktime_get_mono_fast_ns - Fast NMI safe access to clock monotonic
  *
@@ -446,12 +564,17 @@ static void update_fast_timekeeper(const struct tk_read_base *tkr,
  *
  * So reader 6 will observe time going backwards versus reader 5.
  *
+<<<<<<< HEAD
  * While other CPUs are likely to be able observe that, the only way
+=======
+ * While other CPUs are likely to be able to observe that, the only way
+>>>>>>> upstream/android-13
  * for a CPU local observation is when an NMI hits in the middle of
  * the update. Timestamps taken from that NMI context might be ahead
  * of the following timestamps. Callers need to be aware of that and
  * deal with it.
  */
+<<<<<<< HEAD
 static __always_inline u64 __ktime_get_fast_ns(struct tk_fast *tkf)
 {
 	struct tk_read_base *tkr;
@@ -474,12 +597,25 @@ static __always_inline u64 __ktime_get_fast_ns(struct tk_fast *tkf)
 }
 
 u64 ktime_get_mono_fast_ns(void)
+=======
+u64 notrace ktime_get_mono_fast_ns(void)
+>>>>>>> upstream/android-13
 {
 	return __ktime_get_fast_ns(&tk_fast_mono);
 }
 EXPORT_SYMBOL_GPL(ktime_get_mono_fast_ns);
 
+<<<<<<< HEAD
 u64 ktime_get_raw_fast_ns(void)
+=======
+/**
+ * ktime_get_raw_fast_ns - Fast NMI safe access to clock monotonic raw
+ *
+ * Contrary to ktime_get_mono_fast_ns() this is always correct because the
+ * conversion factor is not affected by NTP/PTP correction.
+ */
+u64 notrace ktime_get_raw_fast_ns(void)
+>>>>>>> upstream/android-13
 {
 	return __ktime_get_fast_ns(&tk_fast_raw);
 }
@@ -490,7 +626,11 @@ EXPORT_SYMBOL_GPL(ktime_get_raw_fast_ns);
  *
  * To keep it NMI safe since we're accessing from tracing, we're not using a
  * separate timekeeper with updates to monotonic clock and boot offset
+<<<<<<< HEAD
  * protected with seqlocks. This has the following minor side effects:
+=======
+ * protected with seqcounts. This has the following minor side effects:
+>>>>>>> upstream/android-13
  *
  * (1) Its possible that a timestamp be taken after the boot offset is updated
  * but before the timekeeper is updated. If this happens, the new boot offset
@@ -505,6 +645,12 @@ EXPORT_SYMBOL_GPL(ktime_get_raw_fast_ns);
  * (2) On 32-bit systems, the 64-bit boot offset (tk->offs_boot) may be
  * partially updated.  Since the tk->offs_boot update is a rare event, this
  * should be a rare occurrence which postprocessing should be able to handle.
+<<<<<<< HEAD
+=======
+ *
+ * The caveats vs. timestamp ordering as documented for ktime_get_fast_ns()
+ * apply as well.
+>>>>>>> upstream/android-13
  */
 u64 notrace ktime_get_boot_fast_ns(void)
 {
@@ -514,6 +660,7 @@ u64 notrace ktime_get_boot_fast_ns(void)
 }
 EXPORT_SYMBOL_GPL(ktime_get_boot_fast_ns);
 
+<<<<<<< HEAD
 
 /*
  * See comment for __ktime_get_fast_ns() vs. timestamp ordering
@@ -523,10 +670,18 @@ static __always_inline u64 __ktime_get_real_fast_ns(struct tk_fast *tkf)
 	struct tk_read_base *tkr;
 	unsigned int seq;
 	u64 now;
+=======
+static __always_inline u64 __ktime_get_real_fast(struct tk_fast *tkf, u64 *mono)
+{
+	struct tk_read_base *tkr;
+	u64 basem, baser, delta;
+	unsigned int seq;
+>>>>>>> upstream/android-13
 
 	do {
 		seq = raw_read_seqcount_latch(&tkf->seq);
 		tkr = tkf->base + (seq & 0x01);
+<<<<<<< HEAD
 		now = ktime_to_ns(tkr->base_real);
 
 		now += timekeeping_delta_to_ns(tkr,
@@ -537,18 +692,97 @@ static __always_inline u64 __ktime_get_real_fast_ns(struct tk_fast *tkf)
 	} while (read_seqcount_retry(&tkf->seq, seq));
 
 	return now;
+=======
+		basem = ktime_to_ns(tkr->base);
+		baser = ktime_to_ns(tkr->base_real);
+
+		delta = timekeeping_delta_to_ns(tkr,
+				clocksource_delta(tk_clock_read(tkr),
+				tkr->cycle_last, tkr->mask));
+	} while (read_seqcount_latch_retry(&tkf->seq, seq));
+
+	if (mono)
+		*mono = basem + delta;
+	return baser + delta;
+>>>>>>> upstream/android-13
 }
 
 /**
  * ktime_get_real_fast_ns: - NMI safe and fast access to clock realtime.
+<<<<<<< HEAD
  */
 u64 ktime_get_real_fast_ns(void)
 {
 	return __ktime_get_real_fast_ns(&tk_fast_mono);
+=======
+ *
+ * See ktime_get_fast_ns() for documentation of the time stamp ordering.
+ */
+u64 ktime_get_real_fast_ns(void)
+{
+	return __ktime_get_real_fast(&tk_fast_mono, NULL);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(ktime_get_real_fast_ns);
 
 /**
+<<<<<<< HEAD
+=======
+ * ktime_get_fast_timestamps: - NMI safe timestamps
+ * @snapshot:	Pointer to timestamp storage
+ *
+ * Stores clock monotonic, boottime and realtime timestamps.
+ *
+ * Boot time is a racy access on 32bit systems if the sleep time injection
+ * happens late during resume and not in timekeeping_resume(). That could
+ * be avoided by expanding struct tk_read_base with boot offset for 32bit
+ * and adding more overhead to the update. As this is a hard to observe
+ * once per resume event which can be filtered with reasonable effort using
+ * the accurate mono/real timestamps, it's probably not worth the trouble.
+ *
+ * Aside of that it might be possible on 32 and 64 bit to observe the
+ * following when the sleep time injection happens late:
+ *
+ * CPU 0				CPU 1
+ * timekeeping_resume()
+ * ktime_get_fast_timestamps()
+ *	mono, real = __ktime_get_real_fast()
+ *					inject_sleep_time()
+ *					   update boot offset
+ *	boot = mono + bootoffset;
+ *
+ * That means that boot time already has the sleep time adjustment, but
+ * real time does not. On the next readout both are in sync again.
+ *
+ * Preventing this for 64bit is not really feasible without destroying the
+ * careful cache layout of the timekeeper because the sequence count and
+ * struct tk_read_base would then need two cache lines instead of one.
+ *
+ * Access to the time keeper clock source is disabled across the innermost
+ * steps of suspend/resume. The accessors still work, but the timestamps
+ * are frozen until time keeping is resumed which happens very early.
+ *
+ * For regular suspend/resume there is no observable difference vs. sched
+ * clock, but it might affect some of the nasty low level debug printks.
+ *
+ * OTOH, access to sched clock is not guaranteed across suspend/resume on
+ * all systems either so it depends on the hardware in use.
+ *
+ * If that turns out to be a real problem then this could be mitigated by
+ * using sched clock in a similar way as during early boot. But it's not as
+ * trivial as on early boot because it needs some careful protection
+ * against the clock monotonic timestamp jumping backwards on resume.
+ */
+void ktime_get_fast_timestamps(struct ktime_timestamps *snapshot)
+{
+	struct timekeeper *tk = &tk_core.timekeeper;
+
+	snapshot->real = __ktime_get_real_fast(&tk_fast_mono, &snapshot->mono);
+	snapshot->boot = snapshot->mono + ktime_to_ns(data_race(tk->offs_boot));
+}
+
+/**
+>>>>>>> upstream/android-13
  * halt_fast_timekeeper - Prevent fast timekeeper from accessing clocksource.
  * @tk: Timekeeper to snapshot.
  *
@@ -584,6 +818,10 @@ static void update_pvclock_gtod(struct timekeeper *tk, bool was_set)
 
 /**
  * pvclock_gtod_register_notifier - register a pvclock timedata update listener
+<<<<<<< HEAD
+=======
+ * @nb: Pointer to the notifier block to register
+>>>>>>> upstream/android-13
  */
 int pvclock_gtod_register_notifier(struct notifier_block *nb)
 {
@@ -603,6 +841,10 @@ EXPORT_SYMBOL_GPL(pvclock_gtod_register_notifier);
 /**
  * pvclock_gtod_unregister_notifier - unregister a pvclock
  * timedata update listener
+<<<<<<< HEAD
+=======
+ * @nb: Pointer to the notifier block to unregister
+>>>>>>> upstream/android-13
  */
 int pvclock_gtod_unregister_notifier(struct notifier_block *nb)
 {
@@ -693,6 +935,10 @@ static void timekeeping_update(struct timekeeper *tk, unsigned int action)
 
 /**
  * timekeeping_forward_now - update clock to the current time
+<<<<<<< HEAD
+=======
+ * @tk:		Pointer to the timekeeper to update
+>>>>>>> upstream/android-13
  *
  * Forward the current clock to update its state since the last call to
  * update_wall_time(). This is useful before significant clock changes,
@@ -708,6 +954,7 @@ static void timekeeping_forward_now(struct timekeeper *tk)
 	tk->tkr_raw.cycle_last  = cycle_now;
 
 	tk->tkr_mono.xtime_nsec += delta * tk->tkr_mono.mult;
+<<<<<<< HEAD
 
 	/* If arch requires, add in get_arch_timeoffset() */
 	tk->tkr_mono.xtime_nsec += (u64)arch_gettimeoffset() << tk->tkr_mono.shift;
@@ -718,6 +965,10 @@ static void timekeeping_forward_now(struct timekeeper *tk)
 	/* If arch requires, add in get_arch_timeoffset() */
 	tk->tkr_raw.xtime_nsec += (u64)arch_gettimeoffset() << tk->tkr_raw.shift;
 
+=======
+	tk->tkr_raw.xtime_nsec += delta * tk->tkr_raw.mult;
+
+>>>>>>> upstream/android-13
 	tk_normalize_xtime(tk);
 }
 
@@ -730,7 +981,11 @@ static void timekeeping_forward_now(struct timekeeper *tk)
 void ktime_get_real_ts64(struct timespec64 *ts)
 {
 	struct timekeeper *tk = &tk_core.timekeeper;
+<<<<<<< HEAD
 	unsigned long seq;
+=======
+	unsigned int seq;
+>>>>>>> upstream/android-13
 	u64 nsecs;
 
 	WARN_ON(timekeeping_suspended);
@@ -833,14 +1088,22 @@ ktime_t ktime_get_coarse_with_offset(enum tk_offsets offs)
 EXPORT_SYMBOL_GPL(ktime_get_coarse_with_offset);
 
 /**
+<<<<<<< HEAD
  * ktime_mono_to_any() - convert mononotic time to any other time
+=======
+ * ktime_mono_to_any() - convert monotonic time to any other time
+>>>>>>> upstream/android-13
  * @tmono:	time to convert.
  * @offs:	which offset to use
  */
 ktime_t ktime_mono_to_any(ktime_t tmono, enum tk_offsets offs)
 {
 	ktime_t *offset = offsets[offs];
+<<<<<<< HEAD
 	unsigned long seq;
+=======
+	unsigned int seq;
+>>>>>>> upstream/android-13
 	ktime_t tconv;
 
 	do {
@@ -925,8 +1188,12 @@ EXPORT_SYMBOL_GPL(ktime_get_seconds);
 /**
  * ktime_get_real_seconds - Get the seconds portion of CLOCK_REALTIME
  *
+<<<<<<< HEAD
  * Returns the wall clock seconds since 1970. This replaces the
  * get_seconds() interface which is not y2038 safe on 32bit systems.
+=======
+ * Returns the wall clock seconds since 1970.
+>>>>>>> upstream/android-13
  *
  * For 64bit systems the fast access to tk->xtime_sec is preserved. On
  * 32bit systems the access must be protected with the sequence
@@ -957,7 +1224,11 @@ EXPORT_SYMBOL_GPL(ktime_get_real_seconds);
  * but without the sequence counter protect. This internal function
  * is called just when timekeeping lock is already held.
  */
+<<<<<<< HEAD
 time64_t __ktime_get_real_seconds(void)
+=======
+noinstr time64_t __ktime_get_real_seconds(void)
+>>>>>>> upstream/android-13
 {
 	struct timekeeper *tk = &tk_core.timekeeper;
 
@@ -971,7 +1242,11 @@ time64_t __ktime_get_real_seconds(void)
 void ktime_get_snapshot(struct system_time_snapshot *systime_snapshot)
 {
 	struct timekeeper *tk = &tk_core.timekeeper;
+<<<<<<< HEAD
 	unsigned long seq;
+=======
+	unsigned int seq;
+>>>>>>> upstream/android-13
 	ktime_t base_raw;
 	ktime_t base_real;
 	u64 nsec_raw;
@@ -983,6 +1258,10 @@ void ktime_get_snapshot(struct system_time_snapshot *systime_snapshot)
 	do {
 		seq = read_seqcount_begin(&tk_core.seq);
 		now = tk_clock_read(&tk->tkr_mono);
+<<<<<<< HEAD
+=======
+		systime_snapshot->cs_id = tk->tkr_mono.clock->id;
+>>>>>>> upstream/android-13
 		systime_snapshot->cs_was_changed_seq = tk->cs_was_changed_seq;
 		systime_snapshot->clock_was_set_seq = tk->clock_was_set_seq;
 		base_real = ktime_add(tk->tkr_mono.base,
@@ -1132,7 +1411,11 @@ int get_device_system_crosststamp(int (*get_time_fn)
 	ktime_t base_real, base_raw;
 	u64 nsec_real, nsec_raw;
 	u8 cs_was_changed_seq;
+<<<<<<< HEAD
 	unsigned long seq;
+=======
+	unsigned int seq;
+>>>>>>> upstream/android-13
 	bool do_interp;
 	int ret;
 
@@ -1240,8 +1523,12 @@ int do_settimeofday64(const struct timespec64 *ts)
 	timekeeping_forward_now(tk);
 
 	xt = tk_xtime(tk);
+<<<<<<< HEAD
 	ts_delta.tv_sec = ts->tv_sec - xt.tv_sec;
 	ts_delta.tv_nsec = ts->tv_nsec - xt.tv_nsec;
+=======
+	ts_delta = timespec64_sub(*ts, xt);
+>>>>>>> upstream/android-13
 
 	if (timespec64_compare(&tk->wall_to_monotonic, &ts_delta) > 0) {
 		ret = -EINVAL;
@@ -1257,8 +1544,18 @@ out:
 	write_seqcount_end(&tk_core.seq);
 	raw_spin_unlock_irqrestore(&timekeeper_lock, flags);
 
+<<<<<<< HEAD
 	/* signal hrtimers about time change */
 	clock_was_set();
+=======
+	trace_android_rvh_tk_based_time_sync(tk);
+
+	/* Signal hrtimers about time change */
+	clock_was_set(CLOCK_SET_WALL);
+
+	if (!ret)
+		audit_tk_injoffset(ts_delta);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -1266,7 +1563,11 @@ EXPORT_SYMBOL(do_settimeofday64);
 
 /**
  * timekeeping_inject_offset - Adds or subtracts from the current time.
+<<<<<<< HEAD
  * @tv:		pointer to the timespec variable containing the offset
+=======
+ * @ts:		Pointer to the timespec variable containing the offset
+>>>>>>> upstream/android-13
  *
  * Adds or subtracts an offset value from the current time.
  */
@@ -1302,8 +1603,13 @@ error: /* even if we error out, we forwarded the time, so call update */
 	write_seqcount_end(&tk_core.seq);
 	raw_spin_unlock_irqrestore(&timekeeper_lock, flags);
 
+<<<<<<< HEAD
 	/* signal hrtimers about time change */
 	clock_was_set();
+=======
+	/* Signal hrtimers about time change */
+	clock_was_set(CLOCK_SET_WALL);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -1342,9 +1648,14 @@ void timekeeping_warp_clock(void)
 	}
 }
 
+<<<<<<< HEAD
 /**
  * __timekeeping_set_tai_offset - Sets the TAI offset from UTC and monotonic
  *
+=======
+/*
+ * __timekeeping_set_tai_offset - Sets the TAI offset from UTC and monotonic
+>>>>>>> upstream/android-13
  */
 static void __timekeeping_set_tai_offset(struct timekeeper *tk, s32 tai_offset)
 {
@@ -1352,7 +1663,11 @@ static void __timekeeping_set_tai_offset(struct timekeeper *tk, s32 tai_offset)
 	tk->offs_tai = ktime_add(tk->offs_real, ktime_set(tai_offset, 0));
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * change_clocksource - Swaps clocksources if a new one is available
  *
  * Accumulates current time interval and initializes new clocksource
@@ -1360,6 +1675,7 @@ static void __timekeeping_set_tai_offset(struct timekeeper *tk, s32 tai_offset)
 static int change_clocksource(void *data)
 {
 	struct timekeeper *tk = &tk_core.timekeeper;
+<<<<<<< HEAD
 	struct clocksource *new, *old;
 	unsigned long flags;
 
@@ -1369,11 +1685,20 @@ static int change_clocksource(void *data)
 	write_seqcount_begin(&tk_core.seq);
 
 	timekeeping_forward_now(tk);
+=======
+	struct clocksource *new, *old = NULL;
+	unsigned long flags;
+	bool change = false;
+
+	new = (struct clocksource *) data;
+
+>>>>>>> upstream/android-13
 	/*
 	 * If the cs is in module, get a module reference. Succeeds
 	 * for built-in code (owner == NULL) as well.
 	 */
 	if (try_module_get(new->owner)) {
+<<<<<<< HEAD
 		if (!new->enable || new->enable(new) == 0) {
 			old = tk->tkr_mono.clock;
 			tk_setup_internals(tk, new);
@@ -1384,11 +1709,39 @@ static int change_clocksource(void *data)
 			module_put(new->owner);
 		}
 	}
+=======
+		if (!new->enable || new->enable(new) == 0)
+			change = true;
+		else
+			module_put(new->owner);
+	}
+
+	raw_spin_lock_irqsave(&timekeeper_lock, flags);
+	write_seqcount_begin(&tk_core.seq);
+
+	timekeeping_forward_now(tk);
+
+	if (change) {
+		old = tk->tkr_mono.clock;
+		tk_setup_internals(tk, new);
+	}
+
+>>>>>>> upstream/android-13
 	timekeeping_update(tk, TK_CLEAR_NTP | TK_MIRROR | TK_CLOCK_WAS_SET);
 
 	write_seqcount_end(&tk_core.seq);
 	raw_spin_unlock_irqrestore(&timekeeper_lock, flags);
 
+<<<<<<< HEAD
+=======
+	if (old) {
+		if (old->disable)
+			old->disable(old);
+
+		module_put(old->owner);
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1419,7 +1772,11 @@ int timekeeping_notify(struct clocksource *clock)
 void ktime_get_raw_ts64(struct timespec64 *ts)
 {
 	struct timekeeper *tk = &tk_core.timekeeper;
+<<<<<<< HEAD
 	unsigned long seq;
+=======
+	unsigned int seq;
+>>>>>>> upstream/android-13
 	u64 nsecs;
 
 	do {
@@ -1441,7 +1798,11 @@ EXPORT_SYMBOL(ktime_get_raw_ts64);
 int timekeeping_valid_for_hres(void)
 {
 	struct timekeeper *tk = &tk_core.timekeeper;
+<<<<<<< HEAD
 	unsigned long seq;
+=======
+	unsigned int seq;
+>>>>>>> upstream/android-13
 	int ret;
 
 	do {
@@ -1460,7 +1821,11 @@ int timekeeping_valid_for_hres(void)
 u64 timekeeping_max_deferment(void)
 {
 	struct timekeeper *tk = &tk_core.timekeeper;
+<<<<<<< HEAD
 	unsigned long seq;
+=======
+	unsigned int seq;
+>>>>>>> upstream/android-13
 	u64 ret;
 
 	do {
@@ -1474,7 +1839,12 @@ u64 timekeeping_max_deferment(void)
 }
 
 /**
+<<<<<<< HEAD
  * read_persistent_clock -  Return time from the persistent clock.
+=======
+ * read_persistent_clock64 -  Return time from the persistent clock.
+ * @ts: Pointer to the storage for the readout value
+>>>>>>> upstream/android-13
  *
  * Weak dummy function for arches that do not yet support it.
  * Reads the time from the battery backed persistent clock.
@@ -1482,12 +1852,17 @@ u64 timekeeping_max_deferment(void)
  *
  *  XXX - Do be sure to remove it once all arches implement it.
  */
+<<<<<<< HEAD
 void __weak read_persistent_clock(struct timespec *ts)
+=======
+void __weak read_persistent_clock64(struct timespec64 *ts)
+>>>>>>> upstream/android-13
 {
 	ts->tv_sec = 0;
 	ts->tv_nsec = 0;
 }
 
+<<<<<<< HEAD
 void __weak read_persistent_clock64(struct timespec64 *ts64)
 {
 	struct timespec ts;
@@ -1496,13 +1871,21 @@ void __weak read_persistent_clock64(struct timespec64 *ts64)
 	*ts64 = timespec_to_timespec64(ts);
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * read_persistent_wall_and_boot_offset - Read persistent clock, and also offset
  *                                        from the boot.
  *
  * Weak dummy function for arches that do not yet support it.
+<<<<<<< HEAD
  * wall_time	- current time as returned by persistent clock
  * boot_offset	- offset that is defined as wall_time - boot_time
+=======
+ * @wall_time:	- current time as returned by persistent clock
+ * @boot_offset: - offset that is defined as wall_time - boot_time
+ *
+>>>>>>> upstream/android-13
  * The default function calculates offset based on the current value of
  * local_clock(). This way architectures that support sched_clock() but don't
  * support dedicated boot time clock will provide the best estimate of the
@@ -1587,7 +1970,12 @@ static struct timespec64 timekeeping_suspend_time;
 
 /**
  * __timekeeping_inject_sleeptime - Internal function to add sleep interval
+<<<<<<< HEAD
  * @delta: pointer to a timespec delta value
+=======
+ * @tk:		Pointer to the timekeeper to be updated
+ * @delta:	Pointer to the delta value in timespec64 format
+>>>>>>> upstream/android-13
  *
  * Takes a timespec offset measuring a suspend interval and properly
  * adds the sleep offset to the timekeeping variables.
@@ -1595,10 +1983,13 @@ static struct timespec64 timekeeping_suspend_time;
 static void __timekeeping_inject_sleeptime(struct timekeeper *tk,
 					   const struct timespec64 *delta)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_SEC_PM
 	struct timespec64 sleep_duration;
 #endif /* CONFIG_SEC_PM  */
 
+=======
+>>>>>>> upstream/android-13
 	if (!timespec64_valid_strict(delta)) {
 		printk_deferred(KERN_WARNING
 				"__timekeeping_inject_sleeptime: Invalid "
@@ -1608,6 +1999,7 @@ static void __timekeeping_inject_sleeptime(struct timekeeper *tk,
 	tk_xtime_add(tk, delta);
 	tk_set_wall_to_mono(tk, timespec64_sub(tk->wall_to_monotonic, *delta));
 	tk_update_sleep_time(tk, timespec64_to_ktime(*delta));
+<<<<<<< HEAD
 #ifdef CONFIG_SEC_PM
     sleep_duration = *delta;
     if (timespec64_to_ns(&sleep_duration) > 0)
@@ -1616,6 +2008,9 @@ static void __timekeeping_inject_sleeptime(struct timekeeper *tk,
 #else
     tk_debug_account_sleep_time(delta);
 #endif /* CONFIG_SEC_PM  */
+=======
+	tk_debug_account_sleep_time(delta);
+>>>>>>> upstream/android-13
 }
 
 #if defined(CONFIG_PM_SLEEP) && defined(CONFIG_RTC_HCTOSYS_DEVICE)
@@ -1684,8 +2079,13 @@ void timekeeping_inject_sleeptime64(const struct timespec64 *delta)
 	write_seqcount_end(&tk_core.seq);
 	raw_spin_unlock_irqrestore(&timekeeper_lock, flags);
 
+<<<<<<< HEAD
 	/* signal hrtimers about time change */
 	clock_was_set();
+=======
+	/* Signal hrtimers about time change */
+	clock_was_set(CLOCK_SET_WALL | CLOCK_SET_BOOT);
+>>>>>>> upstream/android-13
 }
 #endif
 
@@ -1701,9 +2101,12 @@ void timekeeping_resume(void)
 	u64 cycle_now, nsec;
 	bool inject_sleeptime = false;
 
+<<<<<<< HEAD
 	if (!timekeeping_suspended)
 		return;
 
+=======
+>>>>>>> upstream/android-13
 	read_persistent_clock64(&ts_new);
 
 	clockevents_resume();
@@ -1751,8 +2154,15 @@ void timekeeping_resume(void)
 
 	touch_softlockup_watchdog();
 
+<<<<<<< HEAD
 	tick_resume();
 	hrtimers_resume();
+=======
+	/* Resume the clockevent device(s) and hrtimers */
+	tick_resume();
+	/* Notify timerfd as resume is equivalent to clock_was_set() */
+	timerfd_resume();
+>>>>>>> upstream/android-13
 }
 
 int timekeeping_suspend(void)
@@ -1900,7 +2310,11 @@ static __always_inline void timekeeping_apply_adjustment(struct timekeeper *tk,
 	 *	xtime_nsec_1 = offset + xtime_nsec_2
 	 * Which gives us:
 	 *	xtime_nsec_2 = xtime_nsec_1 - offset
+<<<<<<< HEAD
 	 * Which simplfies to:
+=======
+	 * Which simplifies to:
+>>>>>>> upstream/android-13
 	 *	xtime_nsec -= offset
 	 */
 	if ((mult_adj > 0) && (tk->tkr_mono.mult + mult_adj < mult_adj)) {
@@ -1972,13 +2386,20 @@ static void timekeeping_adjust(struct timekeeper *tk, s64 offset)
 	}
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * accumulate_nsecs_to_secs - Accumulates nsecs into secs
  *
  * Helper function that accumulates the nsecs greater than a second
  * from the xtime_nsec field to the xtime_secs field.
  * It also calls into the NTP code to handle leapsecond processing.
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 static inline unsigned int accumulate_nsecs_to_secs(struct timekeeper *tk)
 {
@@ -2020,11 +2441,19 @@ static inline unsigned int accumulate_nsecs_to_secs(struct timekeeper *tk)
 	return clock_set;
 }
 
+<<<<<<< HEAD
 /**
  * logarithmic_accumulation - shifted accumulation of cycles
  *
  * This functions accumulates a shifted interval of cycles into
  * into a shifted interval nanoseconds. Allows for O(log) accumulation
+=======
+/*
+ * logarithmic_accumulation - shifted accumulation of cycles
+ *
+ * This functions accumulates a shifted interval of cycles into
+ * a shifted interval nanoseconds. Allows for O(log) accumulation
+>>>>>>> upstream/android-13
  * loop.
  *
  * Returns the unconsumed cycles.
@@ -2067,7 +2496,11 @@ static u64 logarithmic_accumulation(struct timekeeper *tk, u64 offset,
  * timekeeping_advance - Updates the timekeeper to the current time and
  * current NTP tick length
  */
+<<<<<<< HEAD
 static void timekeeping_advance(enum timekeeping_adv_mode mode)
+=======
+static bool timekeeping_advance(enum timekeeping_adv_mode mode)
+>>>>>>> upstream/android-13
 {
 	struct timekeeper *real_tk = &tk_core.timekeeper;
 	struct timekeeper *tk = &shadow_timekeeper;
@@ -2082,19 +2515,25 @@ static void timekeeping_advance(enum timekeeping_adv_mode mode)
 	if (unlikely(timekeeping_suspended))
 		goto out;
 
+<<<<<<< HEAD
 #ifdef CONFIG_ARCH_USES_GETTIMEOFFSET
 	offset = real_tk->cycle_interval;
 
 	if (mode != TK_ADV_TICK)
 		goto out;
 #else
+=======
+>>>>>>> upstream/android-13
 	offset = clocksource_delta(tk_clock_read(&tk->tkr_mono),
 				   tk->tkr_mono.cycle_last, tk->tkr_mono.mask);
 
 	/* Check if there's really nothing to do */
 	if (offset < real_tk->cycle_interval && mode == TK_ADV_TICK)
 		goto out;
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	/* Do some additional sanity checking */
 	timekeeping_check_update(tk, offset);
@@ -2145,9 +2584,14 @@ static void timekeeping_advance(enum timekeeping_adv_mode mode)
 	write_seqcount_end(&tk_core.seq);
 out:
 	raw_spin_unlock_irqrestore(&timekeeper_lock, flags);
+<<<<<<< HEAD
 	if (clock_set)
 		/* Have to call _delayed version, since in irq context*/
 		clock_was_set_delayed();
+=======
+
+	return !!clock_set;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -2156,7 +2600,12 @@ out:
  */
 void update_wall_time(void)
 {
+<<<<<<< HEAD
 	timekeeping_advance(TK_ADV_TICK);
+=======
+	if (timekeeping_advance(TK_ADV_TICK))
+		clock_was_set_delayed();
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -2182,7 +2631,11 @@ EXPORT_SYMBOL_GPL(getboottime64);
 void ktime_get_coarse_real_ts64(struct timespec64 *ts)
 {
 	struct timekeeper *tk = &tk_core.timekeeper;
+<<<<<<< HEAD
 	unsigned long seq;
+=======
+	unsigned int seq;
+>>>>>>> upstream/android-13
 
 	do {
 		seq = read_seqcount_begin(&tk_core.seq);
@@ -2196,7 +2649,11 @@ void ktime_get_coarse_ts64(struct timespec64 *ts)
 {
 	struct timekeeper *tk = &tk_core.timekeeper;
 	struct timespec64 now, mono;
+<<<<<<< HEAD
 	unsigned long seq;
+=======
+	unsigned int seq;
+>>>>>>> upstream/android-13
 
 	do {
 		seq = read_seqcount_begin(&tk_core.seq);
@@ -2216,7 +2673,11 @@ EXPORT_SYMBOL(ktime_get_coarse_ts64);
 void do_timer(unsigned long ticks)
 {
 	jiffies_64 += ticks;
+<<<<<<< HEAD
 	calc_global_load(ticks);
+=======
+	calc_global_load();
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -2263,10 +2724,17 @@ ktime_t ktime_get_update_offsets_now(unsigned int *cwsseq, ktime_t *offs_real,
 	return base;
 }
 
+<<<<<<< HEAD
 /**
  * timekeeping_validate_timex - Ensures the timex is ok for use in do_adjtimex
  */
 static int timekeeping_validate_timex(const struct timex *txc)
+=======
+/*
+ * timekeeping_validate_timex - Ensures the timex is ok for use in do_adjtimex
+ */
+static int timekeeping_validate_timex(const struct __kernel_timex *txc)
+>>>>>>> upstream/android-13
 {
 	if (txc->modes & ADJ_ADJTIME) {
 		/* singleshot must not be used with any other mode bits */
@@ -2296,7 +2764,11 @@ static int timekeeping_validate_timex(const struct timex *txc)
 
 		/*
 		 * Validate if a timespec/timeval used to inject a time
+<<<<<<< HEAD
 		 * offset is valid.  Offsets can be postive or negative, so
+=======
+		 * offset is valid.  Offsets can be positive or negative, so
+>>>>>>> upstream/android-13
 		 * we don't check tv_sec. The value of the timeval/timespec
 		 * is the sum of its fields,but *NOTE*:
 		 * The field tv_usec/tv_nsec must always be non-negative and
@@ -2332,11 +2804,21 @@ static int timekeeping_validate_timex(const struct timex *txc)
 /**
  * do_adjtimex() - Accessor function to NTP __do_adjtimex function
  */
+<<<<<<< HEAD
 int do_adjtimex(struct timex *txc)
 {
 	struct timekeeper *tk = &tk_core.timekeeper;
 	unsigned long flags;
 	struct timespec64 ts;
+=======
+int do_adjtimex(struct __kernel_timex *txc)
+{
+	struct timekeeper *tk = &tk_core.timekeeper;
+	struct audit_ntp_data ad;
+	bool clock_set = false;
+	struct timespec64 ts;
+	unsigned long flags;
+>>>>>>> upstream/android-13
 	s32 orig_tai, tai;
 	int ret;
 
@@ -2354,31 +2836,59 @@ int do_adjtimex(struct timex *txc)
 		ret = timekeeping_inject_offset(&delta);
 		if (ret)
 			return ret;
+<<<<<<< HEAD
 	}
 
+=======
+
+		audit_tk_injoffset(delta);
+	}
+
+	audit_ntp_init(&ad);
+
+>>>>>>> upstream/android-13
 	ktime_get_real_ts64(&ts);
 
 	raw_spin_lock_irqsave(&timekeeper_lock, flags);
 	write_seqcount_begin(&tk_core.seq);
 
 	orig_tai = tai = tk->tai_offset;
+<<<<<<< HEAD
 	ret = __do_adjtimex(txc, &ts, &tai);
+=======
+	ret = __do_adjtimex(txc, &ts, &tai, &ad);
+>>>>>>> upstream/android-13
 
 	if (tai != orig_tai) {
 		__timekeeping_set_tai_offset(tk, tai);
 		timekeeping_update(tk, TK_MIRROR | TK_CLOCK_WAS_SET);
+<<<<<<< HEAD
+=======
+		clock_set = true;
+>>>>>>> upstream/android-13
 	}
 	tk_update_leap_state(tk);
 
 	write_seqcount_end(&tk_core.seq);
 	raw_spin_unlock_irqrestore(&timekeeper_lock, flags);
 
+<<<<<<< HEAD
 	/* Update the multiplier immediately if frequency was set directly */
 	if (txc->modes & (ADJ_FREQUENCY | ADJ_TICK))
 		timekeeping_advance(TK_ADV_FREQ);
 
 	if (tai != orig_tai)
 		clock_was_set();
+=======
+	audit_ntp_log(&ad);
+
+	/* Update the multiplier immediately if frequency was set directly */
+	if (txc->modes & (ADJ_FREQUENCY | ADJ_TICK))
+		clock_set |= timekeeping_advance(TK_ADV_FREQ);
+
+	if (clock_set)
+		clock_was_set(CLOCK_REALTIME);
+>>>>>>> upstream/android-13
 
 	ntp_notify_cmos_timer();
 
@@ -2403,6 +2913,7 @@ void hardpps(const struct timespec64 *phase_ts, const struct timespec64 *raw_ts)
 }
 EXPORT_SYMBOL(hardpps);
 #endif /* CONFIG_NTP_PPS */
+<<<<<<< HEAD
 
 /**
  * xtime_update() - advances the timekeeping infrastructure
@@ -2417,3 +2928,5 @@ void xtime_update(unsigned long ticks)
 	write_sequnlock(&jiffies_lock);
 	update_wall_time();
 }
+=======
+>>>>>>> upstream/android-13

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2012 Intel, Inc.
  * Copyright (C) 2013 Intel, Inc.
@@ -46,7 +50,10 @@
  * exchange is properly mapped during a transfer.
  */
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/mod_devicetable.h>
 #include <linux/interrupt.h>
@@ -59,10 +66,18 @@
 #include <linux/bitops.h>
 #include <linux/slab.h>
 #include <linux/io.h>
+<<<<<<< HEAD
 #include <linux/goldfish.h>
 #include <linux/dma-mapping.h>
 #include <linux/mm.h>
 #include <linux/acpi.h>
+=======
+#include <linux/dma-mapping.h>
+#include <linux/mm.h>
+#include <linux/acpi.h>
+#include <linux/bug.h>
+#include "goldfish_pipe_qemu.h"
+>>>>>>> upstream/android-13
 
 /*
  * Update this when something changes in the driver's behavior so the host
@@ -73,6 +88,7 @@ enum {
 	PIPE_CURRENT_DEVICE_VERSION = 2
 };
 
+<<<<<<< HEAD
 /*
  * IMPORTANT: The following constants must match the ones used and defined
  * in external/qemu/hw/goldfish_pipe.c in the Android source tree.
@@ -138,6 +154,8 @@ enum PipeCmdCode {
 	PIPE_CMD_WAKE_ON_DONE_IO,
 };
 
+=======
+>>>>>>> upstream/android-13
 enum {
 	MAX_BUFFERS_PER_COMMAND = 336,
 	MAX_SIGNALLED_PIPES = 64,
@@ -145,6 +163,7 @@ enum {
 };
 
 struct goldfish_pipe_dev;
+<<<<<<< HEAD
 struct goldfish_pipe;
 struct goldfish_pipe_command;
 
@@ -153,6 +172,14 @@ struct goldfish_pipe_command {
 	s32 cmd;		/* PipeCmdCode, guest -> host */
 	s32 id;			/* pipe id, guest -> host */
 	s32 status;		/* command execution status, host -> guest */
+=======
+
+/* A per-pipe command structure, shared with the host */
+struct goldfish_pipe_command {
+	s32 cmd;	/* PipeCmdCode, guest -> host */
+	s32 id;		/* pipe id, guest -> host */
+	s32 status;	/* command execution status, host -> guest */
+>>>>>>> upstream/android-13
 	s32 reserved;	/* to pad to 64-bit boundary */
 	union {
 		/* Parameters for PIPE_CMD_{READ,WRITE} */
@@ -184,19 +211,32 @@ struct open_command_param {
 /* Device-level set of buffers shared with the host */
 struct goldfish_pipe_dev_buffers {
 	struct open_command_param open_command_params;
+<<<<<<< HEAD
 	struct signalled_pipe_buffer signalled_pipe_buffers[
 		MAX_SIGNALLED_PIPES];
+=======
+	struct signalled_pipe_buffer
+		signalled_pipe_buffers[MAX_SIGNALLED_PIPES];
+>>>>>>> upstream/android-13
 };
 
 /* This data type models a given pipe instance */
 struct goldfish_pipe {
 	/* pipe ID - index into goldfish_pipe_dev::pipes array */
 	u32 id;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	/* The wake flags pipe is waiting for
 	 * Note: not protected with any lock, uses atomic operations
 	 *  and barriers to make it thread-safe.
 	 */
 	unsigned long flags;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	/* wake flags host have signalled,
 	 *  - protected by goldfish_pipe_dev::lock
 	 */
@@ -220,8 +260,17 @@ struct goldfish_pipe {
 
 	/* A wake queue for sleeping until host signals an event */
 	wait_queue_head_t wake_queue;
+<<<<<<< HEAD
 	/* Pointer to the parent goldfish_pipe_dev instance */
 	struct goldfish_pipe_dev *dev;
+=======
+
+	/* Pointer to the parent goldfish_pipe_dev instance */
+	struct goldfish_pipe_dev *dev;
+
+	/* A buffer of pages, too large to fit into a stack frame */
+	struct page *pages[MAX_BUFFERS_PER_COMMAND];
+>>>>>>> upstream/android-13
 };
 
 /* The global driver data. Holds a reference to the i/o page used to
@@ -229,6 +278,12 @@ struct goldfish_pipe {
  * waiting to be awoken.
  */
 struct goldfish_pipe_dev {
+<<<<<<< HEAD
+=======
+	/* A magic number to check if this is an instance of this struct */
+	void *magic;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Global device spinlock. Protects the following members:
 	 *  - pipes, pipes_capacity
@@ -261,15 +316,30 @@ struct goldfish_pipe_dev {
 	/* Head of a doubly linked list of signalled pipes */
 	struct goldfish_pipe *first_signalled_pipe;
 
+<<<<<<< HEAD
+=======
+	/* ptr to platform device's device struct */
+	struct device *pdev_dev;
+
+>>>>>>> upstream/android-13
 	/* Some device-specific data */
 	int irq;
 	int version;
 	unsigned char __iomem *base;
+<<<<<<< HEAD
 };
 
 static struct goldfish_pipe_dev pipe_dev[1] = {};
 
 static int goldfish_cmd_locked(struct goldfish_pipe *pipe, enum PipeCmdCode cmd)
+=======
+
+	struct miscdevice miscdev;
+};
+
+static int goldfish_pipe_cmd_locked(struct goldfish_pipe *pipe,
+				    enum PipeCmdCode cmd)
+>>>>>>> upstream/android-13
 {
 	pipe->command_buffer->cmd = cmd;
 	/* failure by default */
@@ -278,13 +348,21 @@ static int goldfish_cmd_locked(struct goldfish_pipe *pipe, enum PipeCmdCode cmd)
 	return pipe->command_buffer->status;
 }
 
+<<<<<<< HEAD
 static int goldfish_cmd(struct goldfish_pipe *pipe, enum PipeCmdCode cmd)
+=======
+static int goldfish_pipe_cmd(struct goldfish_pipe *pipe, enum PipeCmdCode cmd)
+>>>>>>> upstream/android-13
 {
 	int status;
 
 	if (mutex_lock_interruptible(&pipe->lock))
 		return PIPE_ERROR_IO;
+<<<<<<< HEAD
 	status = goldfish_cmd_locked(pipe, cmd);
+=======
+	status = goldfish_pipe_cmd_locked(pipe, cmd);
+>>>>>>> upstream/android-13
 	mutex_unlock(&pipe->lock);
 	return status;
 }
@@ -307,10 +385,19 @@ static int goldfish_pipe_error_convert(int status)
 	}
 }
 
+<<<<<<< HEAD
 static int pin_user_pages(unsigned long first_page, unsigned long last_page,
 	unsigned int last_page_size, int is_write,
 	struct page *pages[MAX_BUFFERS_PER_COMMAND],
 	unsigned int *iter_last_page_size)
+=======
+static int goldfish_pin_pages(unsigned long first_page,
+			      unsigned long last_page,
+			      unsigned int last_page_size,
+			      int is_write,
+			      struct page *pages[MAX_BUFFERS_PER_COMMAND],
+			      unsigned int *iter_last_page_size)
+>>>>>>> upstream/android-13
 {
 	int ret;
 	int requested_pages = ((last_page - first_page) >> PAGE_SHIFT) + 1;
@@ -322,12 +409,19 @@ static int pin_user_pages(unsigned long first_page, unsigned long last_page,
 		*iter_last_page_size = last_page_size;
 	}
 
+<<<<<<< HEAD
 	ret = get_user_pages_fast(
 			first_page, requested_pages, !is_write, pages);
+=======
+	ret = pin_user_pages_fast(first_page, requested_pages,
+				  !is_write ? FOLL_WRITE : 0,
+				  pages);
+>>>>>>> upstream/android-13
 	if (ret <= 0)
 		return -EFAULT;
 	if (ret < requested_pages)
 		*iter_last_page_size = PAGE_SIZE;
+<<<<<<< HEAD
 	return ret;
 
 }
@@ -351,6 +445,22 @@ static void populate_rw_params(
 	unsigned long first_page, unsigned long last_page,
 	unsigned int iter_last_page_size, int is_write,
 	struct goldfish_pipe_command *command)
+=======
+
+	return ret;
+}
+
+/* Populate the call parameters, merging adjacent pages together */
+static void populate_rw_params(struct page **pages,
+			       int pages_count,
+			       unsigned long address,
+			       unsigned long address_end,
+			       unsigned long first_page,
+			       unsigned long last_page,
+			       unsigned int iter_last_page_size,
+			       int is_write,
+			       struct goldfish_pipe_command *command)
+>>>>>>> upstream/android-13
 {
 	/*
 	 * Process the first page separately - it's the only page that
@@ -382,6 +492,7 @@ static void populate_rw_params(
 }
 
 static int transfer_max_buffers(struct goldfish_pipe *pipe,
+<<<<<<< HEAD
 	unsigned long address, unsigned long address_end, int is_write,
 	unsigned long last_page, unsigned int last_page_size,
 	s32 *consumed_size, int *status)
@@ -395,30 +506,68 @@ static int transfer_max_buffers(struct goldfish_pipe *pipe,
 
 	if (pages_count < 0)
 		return pages_count;
+=======
+				unsigned long address,
+				unsigned long address_end,
+				int is_write,
+				unsigned long last_page,
+				unsigned int last_page_size,
+				s32 *consumed_size,
+				int *status)
+{
+	unsigned long first_page = address & PAGE_MASK;
+	unsigned int iter_last_page_size;
+	int pages_count;
+>>>>>>> upstream/android-13
 
 	/* Serialize access to the pipe command buffers */
 	if (mutex_lock_interruptible(&pipe->lock))
 		return -ERESTARTSYS;
 
+<<<<<<< HEAD
 	populate_rw_params(pages, pages_count, address, address_end,
 		first_page, last_page, iter_last_page_size, is_write,
 		pipe->command_buffer);
 
 	/* Transfer the data */
 	*status = goldfish_cmd_locked(pipe,
+=======
+	pages_count = goldfish_pin_pages(first_page, last_page,
+					 last_page_size, is_write,
+					 pipe->pages, &iter_last_page_size);
+	if (pages_count < 0) {
+		mutex_unlock(&pipe->lock);
+		return pages_count;
+	}
+
+	populate_rw_params(pipe->pages, pages_count, address, address_end,
+			   first_page, last_page, iter_last_page_size, is_write,
+			   pipe->command_buffer);
+
+	/* Transfer the data */
+	*status = goldfish_pipe_cmd_locked(pipe,
+>>>>>>> upstream/android-13
 				is_write ? PIPE_CMD_WRITE : PIPE_CMD_READ);
 
 	*consumed_size = pipe->command_buffer->rw_params.consumed_size;
 
+<<<<<<< HEAD
 	release_user_pages(pages, pages_count, is_write, *consumed_size);
 
 	mutex_unlock(&pipe->lock);
 
+=======
+	unpin_user_pages_dirty_lock(pipe->pages, pages_count,
+				    !is_write && *consumed_size > 0);
+
+	mutex_unlock(&pipe->lock);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int wait_for_host_signal(struct goldfish_pipe *pipe, int is_write)
 {
+<<<<<<< HEAD
 	u32 wakeBit = is_write ? BIT_WAKE_ON_WRITE : BIT_WAKE_ON_READ;
 
 	set_bit(wakeBit, &pipe->flags);
@@ -431,6 +580,19 @@ static int wait_for_host_signal(struct goldfish_pipe *pipe, int is_write)
 		if (wait_event_interruptible(
 				pipe->wake_queue,
 				!test_bit(wakeBit, &pipe->flags)))
+=======
+	u32 wake_bit = is_write ? BIT_WAKE_ON_WRITE : BIT_WAKE_ON_READ;
+
+	set_bit(wake_bit, &pipe->flags);
+
+	/* Tell the emulator we're going to wait for a wake event */
+	goldfish_pipe_cmd(pipe,
+		is_write ? PIPE_CMD_WAKE_ON_WRITE : PIPE_CMD_WAKE_ON_READ);
+
+	while (test_bit(wake_bit, &pipe->flags)) {
+		if (wait_event_interruptible(pipe->wake_queue,
+					     !test_bit(wake_bit, &pipe->flags)))
+>>>>>>> upstream/android-13
 			return -ERESTARTSYS;
 
 		if (test_bit(BIT_CLOSED_ON_HOST, &pipe->flags))
@@ -441,7 +603,13 @@ static int wait_for_host_signal(struct goldfish_pipe *pipe, int is_write)
 }
 
 static ssize_t goldfish_pipe_read_write(struct file *filp,
+<<<<<<< HEAD
 	char __user *buffer, size_t bufflen, int is_write)
+=======
+					char __user *buffer,
+					size_t bufflen,
+					int is_write)
+>>>>>>> upstream/android-13
 {
 	struct goldfish_pipe *pipe = filp->private_data;
 	int count = 0, ret = -EINVAL;
@@ -455,8 +623,12 @@ static ssize_t goldfish_pipe_read_write(struct file *filp,
 	if (unlikely(bufflen == 0))
 		return 0;
 	/* Check the buffer range for access */
+<<<<<<< HEAD
 	if (unlikely(!access_ok(is_write ? VERIFY_WRITE : VERIFY_READ,
 			buffer, bufflen)))
+=======
+	if (unlikely(!access_ok(buffer, bufflen)))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	address = (unsigned long)buffer;
@@ -469,8 +641,13 @@ static ssize_t goldfish_pipe_read_write(struct file *filp,
 		int status;
 
 		ret = transfer_max_buffers(pipe, address, address_end, is_write,
+<<<<<<< HEAD
 				last_page, last_page_size, &consumed_size,
 				&status);
+=======
+					   last_page, last_page_size,
+					   &consumed_size, &status);
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			break;
 
@@ -496,7 +673,12 @@ static ssize_t goldfish_pipe_read_write(struct file *filp,
 			 * err.
 			 */
 			if (status != PIPE_ERROR_AGAIN)
+<<<<<<< HEAD
 				pr_info_ratelimited("goldfish_pipe: backend error %d on %s\n",
+=======
+				dev_err_ratelimited(pipe->dev->pdev_dev,
+					"backend error %d on %s\n",
+>>>>>>> upstream/android-13
 					status, is_write ? "write" : "read");
 			break;
 		}
@@ -522,6 +704,7 @@ static ssize_t goldfish_pipe_read_write(struct file *filp,
 }
 
 static ssize_t goldfish_pipe_read(struct file *filp, char __user *buffer,
+<<<<<<< HEAD
 				size_t bufflen, loff_t *ppos)
 {
 	return goldfish_pipe_read_write(filp, buffer, bufflen,
@@ -535,6 +718,23 @@ static ssize_t goldfish_pipe_write(struct file *filp,
 	return goldfish_pipe_read_write(filp,
 			/* cast away the const */(char __user *)buffer, bufflen,
 			/* is_write */ 1);
+=======
+				  size_t bufflen, loff_t *ppos)
+{
+	return goldfish_pipe_read_write(filp, buffer, bufflen,
+					/* is_write */ 0);
+}
+
+static ssize_t goldfish_pipe_write(struct file *filp,
+				   const char __user *buffer, size_t bufflen,
+				   loff_t *ppos)
+{
+	/* cast away the const */
+	char __user *no_const_buffer = (char __user *)buffer;
+
+	return goldfish_pipe_read_write(filp, no_const_buffer, bufflen,
+					/* is_write */ 1);
+>>>>>>> upstream/android-13
 }
 
 static __poll_t goldfish_pipe_poll(struct file *filp, poll_table *wait)
@@ -545,7 +745,11 @@ static __poll_t goldfish_pipe_poll(struct file *filp, poll_table *wait)
 
 	poll_wait(filp, &pipe->wake_queue, wait);
 
+<<<<<<< HEAD
 	status = goldfish_cmd(pipe, PIPE_CMD_POLL);
+=======
+	status = goldfish_pipe_cmd(pipe, PIPE_CMD_POLL);
+>>>>>>> upstream/android-13
 	if (status < 0)
 		return -ERESTARTSYS;
 
@@ -562,7 +766,11 @@ static __poll_t goldfish_pipe_poll(struct file *filp, poll_table *wait)
 }
 
 static void signalled_pipes_add_locked(struct goldfish_pipe_dev *dev,
+<<<<<<< HEAD
 	u32 id, u32 flags)
+=======
+				       u32 id, u32 flags)
+>>>>>>> upstream/android-13
 {
 	struct goldfish_pipe *pipe;
 
@@ -574,8 +782,13 @@ static void signalled_pipes_add_locked(struct goldfish_pipe_dev *dev,
 		return;
 	pipe->signalled_flags |= flags;
 
+<<<<<<< HEAD
 	if (pipe->prev_signalled || pipe->next_signalled
 		|| dev->first_signalled_pipe == pipe)
+=======
+	if (pipe->prev_signalled || pipe->next_signalled ||
+		dev->first_signalled_pipe == pipe)
+>>>>>>> upstream/android-13
 		return;	/* already in the list */
 	pipe->next_signalled = dev->first_signalled_pipe;
 	if (dev->first_signalled_pipe)
@@ -584,7 +797,12 @@ static void signalled_pipes_add_locked(struct goldfish_pipe_dev *dev,
 }
 
 static void signalled_pipes_remove_locked(struct goldfish_pipe_dev *dev,
+<<<<<<< HEAD
 	struct goldfish_pipe *pipe) {
+=======
+					  struct goldfish_pipe *pipe)
+{
+>>>>>>> upstream/android-13
 	if (pipe->prev_signalled)
 		pipe->prev_signalled->next_signalled = pipe->next_signalled;
 	if (pipe->next_signalled)
@@ -623,10 +841,17 @@ static struct goldfish_pipe *signalled_pipes_pop_front(
 	return pipe;
 }
 
+<<<<<<< HEAD
 static void goldfish_interrupt_task(unsigned long unused)
 {
 	struct goldfish_pipe_dev *dev = pipe_dev;
 	/* Iterate over the signalled pipes and wake them one by one */
+=======
+static irqreturn_t goldfish_interrupt_task(int irq, void *dev_addr)
+{
+	/* Iterate over the signalled pipes and wake them one by one */
+	struct goldfish_pipe_dev *dev = dev_addr;
+>>>>>>> upstream/android-13
 	struct goldfish_pipe *pipe;
 	int wakes;
 
@@ -645,11 +870,22 @@ static void goldfish_interrupt_task(unsigned long unused)
 		 */
 		wake_up_interruptible(&pipe->wake_queue);
 	}
+<<<<<<< HEAD
 }
 static DECLARE_TASKLET(goldfish_interrupt_tasklet, goldfish_interrupt_task, 0);
 
 /*
  * The general idea of the interrupt handling:
+=======
+	return IRQ_HANDLED;
+}
+
+static void goldfish_pipe_device_deinit(struct platform_device *pdev,
+					struct goldfish_pipe_dev *dev);
+
+/*
+ * The general idea of the (threaded) interrupt handling:
+>>>>>>> upstream/android-13
  *
  *  1. device raises an interrupt if there's at least one signalled pipe
  *  2. IRQ handler reads the signalled pipes and their count from the device
@@ -658,8 +894,13 @@ static DECLARE_TASKLET(goldfish_interrupt_tasklet, goldfish_interrupt_task, 0);
  *      otherwise it leaves it raised, so IRQ handler will be called
  *      again for the next chunk
  *  4. IRQ handler adds all returned pipes to the device's signalled pipes list
+<<<<<<< HEAD
  *  5. IRQ handler launches a tasklet to process the signalled pipes from the
  *      list in a separate context
+=======
+ *  5. IRQ handler defers processing the signalled pipes from the list in a
+ *      separate context
+>>>>>>> upstream/android-13
  */
 static irqreturn_t goldfish_pipe_interrupt(int irq, void *dev_id)
 {
@@ -668,7 +909,11 @@ static irqreturn_t goldfish_pipe_interrupt(int irq, void *dev_id)
 	unsigned long flags;
 	struct goldfish_pipe_dev *dev = dev_id;
 
+<<<<<<< HEAD
 	if (dev != pipe_dev)
+=======
+	if (dev->magic != &goldfish_pipe_device_deinit)
+>>>>>>> upstream/android-13
 		return IRQ_NONE;
 
 	/* Request the signalled pipes from the device */
@@ -689,8 +934,12 @@ static irqreturn_t goldfish_pipe_interrupt(int irq, void *dev_id)
 
 	spin_unlock_irqrestore(&dev->lock, flags);
 
+<<<<<<< HEAD
 	tasklet_schedule(&goldfish_interrupt_tasklet);
 	return IRQ_HANDLED;
+=======
+	return IRQ_WAKE_THREAD;
+>>>>>>> upstream/android-13
 }
 
 static int get_free_pipe_id_locked(struct goldfish_pipe_dev *dev)
@@ -702,7 +951,14 @@ static int get_free_pipe_id_locked(struct goldfish_pipe_dev *dev)
 			return id;
 
 	{
+<<<<<<< HEAD
 		/* Reallocate the array */
+=======
+		/* Reallocate the array.
+		 * Since get_free_pipe_id_locked runs with interrupts disabled,
+		 * we don't want to make calls that could lead to sleep.
+		 */
+>>>>>>> upstream/android-13
 		u32 new_capacity = 2 * dev->pipes_capacity;
 		struct goldfish_pipe **pipes =
 			kcalloc(new_capacity, sizeof(*pipes), GFP_ATOMIC);
@@ -717,6 +973,17 @@ static int get_free_pipe_id_locked(struct goldfish_pipe_dev *dev)
 	return id;
 }
 
+<<<<<<< HEAD
+=======
+/* A helper function to get the instance of goldfish_pipe_dev from file */
+static struct goldfish_pipe_dev *to_goldfish_pipe_dev(struct file *file)
+{
+	struct miscdevice *miscdev = file->private_data;
+
+	return container_of(miscdev, struct goldfish_pipe_dev, miscdev);
+}
+
+>>>>>>> upstream/android-13
 /**
  *	goldfish_pipe_open - open a channel to the AVD
  *	@inode: inode of device
@@ -730,14 +997,23 @@ static int get_free_pipe_id_locked(struct goldfish_pipe_dev *dev)
  */
 static int goldfish_pipe_open(struct inode *inode, struct file *file)
 {
+<<<<<<< HEAD
 	struct goldfish_pipe_dev *dev = pipe_dev;
+=======
+	struct goldfish_pipe_dev *dev = to_goldfish_pipe_dev(file);
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	int id;
 	int status;
 
 	/* Allocate new pipe kernel object */
 	struct goldfish_pipe *pipe = kzalloc(sizeof(*pipe), GFP_KERNEL);
+<<<<<<< HEAD
 	if (pipe == NULL)
+=======
+
+	if (!pipe)
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 
 	pipe->dev = dev;
@@ -748,6 +1024,10 @@ static int goldfish_pipe_open(struct inode *inode, struct file *file)
 	 * Command buffer needs to be allocated on its own page to make sure
 	 * it is physically contiguous in host's address space.
 	 */
+<<<<<<< HEAD
+=======
+	BUILD_BUG_ON(sizeof(struct goldfish_pipe_command) > PAGE_SIZE);
+>>>>>>> upstream/android-13
 	pipe->command_buffer =
 		(struct goldfish_pipe_command *)__get_free_page(GFP_KERNEL);
 	if (!pipe->command_buffer) {
@@ -772,7 +1052,11 @@ static int goldfish_pipe_open(struct inode *inode, struct file *file)
 			MAX_BUFFERS_PER_COMMAND;
 	dev->buffers->open_command_params.command_buffer_ptr =
 			(u64)(unsigned long)__pa(pipe->command_buffer);
+<<<<<<< HEAD
 	status = goldfish_cmd_locked(pipe, PIPE_CMD_OPEN);
+=======
+	status = goldfish_pipe_cmd_locked(pipe, PIPE_CMD_OPEN);
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&dev->lock, flags);
 	if (status < 0)
 		goto err_cmd;
@@ -798,7 +1082,11 @@ static int goldfish_pipe_release(struct inode *inode, struct file *filp)
 	struct goldfish_pipe_dev *dev = pipe->dev;
 
 	/* The guest is closing the channel, so tell the emulator right now */
+<<<<<<< HEAD
 	(void)goldfish_cmd(pipe, PIPE_CMD_CLOSE);
+=======
+	goldfish_pipe_cmd(pipe, PIPE_CMD_CLOSE);
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&dev->lock, flags);
 	dev->pipes[pipe->id] = NULL;
@@ -820,6 +1108,7 @@ static const struct file_operations goldfish_pipe_fops = {
 	.release = goldfish_pipe_release,
 };
 
+<<<<<<< HEAD
 static struct miscdevice goldfish_pipe_dev = {
 	.minor = MISC_DYNAMIC_MINOR,
 	.name = "goldfish_pipe",
@@ -833,23 +1122,68 @@ static int goldfish_pipe_device_init(struct platform_device *pdev)
 	int err = devm_request_irq(&pdev->dev, dev->irq,
 				goldfish_pipe_interrupt,
 				IRQF_SHARED, "goldfish_pipe", dev);
+=======
+static void init_miscdevice(struct miscdevice *miscdev)
+{
+	memset(miscdev, 0, sizeof(*miscdev));
+
+	miscdev->minor = MISC_DYNAMIC_MINOR;
+	miscdev->name = "goldfish_pipe";
+	miscdev->fops = &goldfish_pipe_fops;
+}
+
+static void write_pa_addr(void *addr, void __iomem *portl, void __iomem *porth)
+{
+	const unsigned long paddr = __pa(addr);
+
+	writel(upper_32_bits(paddr), porth);
+	writel(lower_32_bits(paddr), portl);
+}
+
+static int goldfish_pipe_device_init(struct platform_device *pdev,
+				     struct goldfish_pipe_dev *dev)
+{
+	int err;
+
+	err = devm_request_threaded_irq(&pdev->dev, dev->irq,
+					goldfish_pipe_interrupt,
+					goldfish_interrupt_task,
+					IRQF_SHARED, "goldfish_pipe", dev);
+>>>>>>> upstream/android-13
 	if (err) {
 		dev_err(&pdev->dev, "unable to allocate IRQ for v2\n");
 		return err;
 	}
 
+<<<<<<< HEAD
 	err = misc_register(&goldfish_pipe_dev);
+=======
+	init_miscdevice(&dev->miscdev);
+	err = misc_register(&dev->miscdev);
+>>>>>>> upstream/android-13
 	if (err) {
 		dev_err(&pdev->dev, "unable to register v2 device\n");
 		return err;
 	}
 
+<<<<<<< HEAD
 	dev->first_signalled_pipe = NULL;
 	dev->pipes_capacity = INITIAL_PIPES_CAPACITY;
 	dev->pipes = kcalloc(dev->pipes_capacity, sizeof(*dev->pipes),
 					GFP_KERNEL);
 	if (!dev->pipes)
 		return -ENOMEM;
+=======
+	dev->pdev_dev = &pdev->dev;
+	dev->first_signalled_pipe = NULL;
+	dev->pipes_capacity = INITIAL_PIPES_CAPACITY;
+	dev->pipes = kcalloc(dev->pipes_capacity, sizeof(*dev->pipes),
+			     GFP_KERNEL);
+	if (!dev->pipes) {
+		misc_deregister(&dev->miscdev);
+		return -ENOMEM;
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * We're going to pass two buffers, open_command_params and
@@ -857,6 +1191,7 @@ static int goldfish_pipe_device_init(struct platform_device *pdev)
 	 * needs to be contained in a single physical page. The easiest choice
 	 * is to just allocate a page and place the buffers in it.
 	 */
+<<<<<<< HEAD
 	if (WARN_ON(sizeof(*dev->buffers) > PAGE_SIZE))
 		return -ENOMEM;
 
@@ -892,12 +1227,44 @@ static void goldfish_pipe_device_deinit(struct platform_device *pdev)
 	struct goldfish_pipe_dev *dev = pipe_dev;
 
 	misc_deregister(&goldfish_pipe_dev);
+=======
+	BUILD_BUG_ON(sizeof(struct goldfish_pipe_dev_buffers) > PAGE_SIZE);
+	dev->buffers = (struct goldfish_pipe_dev_buffers *)
+		__get_free_page(GFP_KERNEL);
+	if (!dev->buffers) {
+		kfree(dev->pipes);
+		misc_deregister(&dev->miscdev);
+		return -ENOMEM;
+	}
+
+	/* Send the buffer addresses to the host */
+	write_pa_addr(&dev->buffers->signalled_pipe_buffers,
+		      dev->base + PIPE_REG_SIGNAL_BUFFER,
+		      dev->base + PIPE_REG_SIGNAL_BUFFER_HIGH);
+
+	writel(MAX_SIGNALLED_PIPES,
+	       dev->base + PIPE_REG_SIGNAL_BUFFER_COUNT);
+
+	write_pa_addr(&dev->buffers->open_command_params,
+		      dev->base + PIPE_REG_OPEN_BUFFER,
+		      dev->base + PIPE_REG_OPEN_BUFFER_HIGH);
+
+	platform_set_drvdata(pdev, dev);
+	return 0;
+}
+
+static void goldfish_pipe_device_deinit(struct platform_device *pdev,
+					struct goldfish_pipe_dev *dev)
+{
+	misc_deregister(&dev->miscdev);
+>>>>>>> upstream/android-13
 	kfree(dev->pipes);
 	free_page((unsigned long)dev->buffers);
 }
 
 static int goldfish_pipe_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	int err;
 	struct resource *r;
 	struct goldfish_pipe_dev *dev = pipe_dev;
@@ -912,20 +1279,44 @@ static int goldfish_pipe_probe(struct platform_device *pdev)
 
 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	if (r == NULL || resource_size(r) < PAGE_SIZE) {
+=======
+	struct resource *r;
+	struct goldfish_pipe_dev *dev;
+
+	dev = devm_kzalloc(&pdev->dev, sizeof(*dev), GFP_KERNEL);
+	if (!dev)
+		return -ENOMEM;
+
+	dev->magic = &goldfish_pipe_device_deinit;
+	spin_lock_init(&dev->lock);
+
+	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+	if (!r || resource_size(r) < PAGE_SIZE) {
+>>>>>>> upstream/android-13
 		dev_err(&pdev->dev, "can't allocate i/o page\n");
 		return -EINVAL;
 	}
 	dev->base = devm_ioremap(&pdev->dev, r->start, PAGE_SIZE);
+<<<<<<< HEAD
 	if (dev->base == NULL) {
+=======
+	if (!dev->base) {
+>>>>>>> upstream/android-13
 		dev_err(&pdev->dev, "ioremap failed\n");
 		return -EINVAL;
 	}
 
 	r = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+<<<<<<< HEAD
 	if (r == NULL) {
 		err = -EINVAL;
 		goto error;
 	}
+=======
+	if (!r)
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	dev->irq = r->start;
 
 	/*
@@ -935,11 +1326,16 @@ static int goldfish_pipe_probe(struct platform_device *pdev)
 	 *  reading device version back: this allows the host implementation to
 	 *  detect the old driver (if there was no version write before read).
 	 */
+<<<<<<< HEAD
 	writel((u32)PIPE_DRIVER_VERSION, dev->base + PIPE_REG_VERSION);
+=======
+	writel(PIPE_DRIVER_VERSION, dev->base + PIPE_REG_VERSION);
+>>>>>>> upstream/android-13
 	dev->version = readl(dev->base + PIPE_REG_VERSION);
 	if (WARN_ON(dev->version < PIPE_CURRENT_DEVICE_VERSION))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	err = goldfish_pipe_device_init(pdev);
 	if (!err)
 		return 0;
@@ -947,13 +1343,22 @@ static int goldfish_pipe_probe(struct platform_device *pdev)
 error:
 	dev->base = NULL;
 	return err;
+=======
+	return goldfish_pipe_device_init(pdev, dev);
+>>>>>>> upstream/android-13
 }
 
 static int goldfish_pipe_remove(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct goldfish_pipe_dev *dev = pipe_dev;
 	goldfish_pipe_device_deinit(pdev);
 	dev->base = NULL;
+=======
+	struct goldfish_pipe_dev *dev = platform_get_drvdata(pdev);
+
+	goldfish_pipe_device_deinit(pdev, dev);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -981,4 +1386,8 @@ static struct platform_driver goldfish_pipe_driver = {
 
 module_platform_driver(goldfish_pipe_driver);
 MODULE_AUTHOR("David Turner <digit@google.com>");
+<<<<<<< HEAD
 MODULE_LICENSE("GPL");
+=======
+MODULE_LICENSE("GPL v2");
+>>>>>>> upstream/android-13

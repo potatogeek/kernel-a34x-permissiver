@@ -1,8 +1,15 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) ST-Ericsson SA 2010
  *
  * Author: Mattias Wallin <mattias.wallin@stericsson.com> for ST-Ericsson.
+<<<<<<< HEAD
  * License Terms: GNU General Public License v2
+=======
+>>>>>>> upstream/android-13
  */
 /*
  * AB8500 register access
@@ -84,7 +91,10 @@
 
 #include <linux/mfd/abx500.h>
 #include <linux/mfd/abx500/ab8500.h>
+<<<<<<< HEAD
 #include <linux/mfd/abx500/ab8500-gpadc.h>
+=======
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_DEBUG_FS
 #include <linux/string.h>
@@ -103,11 +113,14 @@ static int num_irqs;
 static struct device_attribute **dev_attr;
 static char **event_name;
 
+<<<<<<< HEAD
 static u8 avg_sample = SAMPLE_16;
 static u8 trig_edge = RISING_EDGE;
 static u8 conv_type = ADC_SW;
 static u8 trig_timer;
 
+=======
+>>>>>>> upstream/android-13
 /**
  * struct ab8500_reg_range
  * @first: the first address of the range
@@ -152,7 +165,10 @@ static struct hwreg_cfg hwreg_cfg = {
 };
 
 #define AB8500_NAME_STRING "ab8500"
+<<<<<<< HEAD
 #define AB8500_ADC_NAME_STRING "gpadc"
+=======
+>>>>>>> upstream/android-13
 #define AB8500_NUM_BANKS AB8500_DEBUG_FIELD_LAST
 
 #define AB8500_REV_REG 0x80
@@ -1520,6 +1536,7 @@ static int ab8500_interrupts_show(struct seq_file *s, void *p)
 {
 	int line;
 
+<<<<<<< HEAD
 	seq_puts(s, "name: number:  number of: wake:\n");
 
 	for (line = 0; line < num_interrupt_lines; line++) {
@@ -1540,6 +1557,16 @@ static int ab8500_interrupts_show(struct seq_file *s, void *p)
 				seq_printf(s, ", %s", action->name);
 		}
 		seq_putc(s, '\n');
+=======
+	seq_puts(s, "name: number: irq: number of: wake:\n");
+
+	for (line = 0; line < num_interrupt_lines; line++) {
+		seq_printf(s, "%3i:  %4i %6i %4i\n",
+			   line,
+			   line + irq_first,
+			   num_interrupts[line],
+			   num_wake_interrupts[line]);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -1646,6 +1673,7 @@ report_write_failure:
 
 DEFINE_SHOW_ATTRIBUTE(ab8500_modem);
 
+<<<<<<< HEAD
 static int ab8500_gpadc_bat_ctrl_show(struct seq_file *s, void *p)
 {
 	int bat_ctrl_raw;
@@ -2273,6 +2301,8 @@ static const struct file_operations ab8500_gpadc_conv_type_fops = {
 	.owner = THIS_MODULE,
 };
 
+=======
+>>>>>>> upstream/android-13
 /*
  * return length of an ASCII numerical value, 0 is string is not a
  * numerical value.
@@ -2435,7 +2465,11 @@ static ssize_t ab8500_hwreg_write(struct file *file,
 	int buf_size, ret;
 
 	/* Get userspace string and assure termination */
+<<<<<<< HEAD
 	buf_size = min(count, (sizeof(buf)-1));
+=======
+	buf_size = min((int)count, (int)(sizeof(buf)-1));
+>>>>>>> upstream/android-13
 	if (copy_from_user(buf, user_buf, buf_size))
 		return -EFAULT;
 	buf[buf_size] = 0;
@@ -2587,7 +2621,11 @@ static ssize_t ab8500_unsubscribe_write(struct file *file,
 }
 
 /*
+<<<<<<< HEAD
  * - several deubgfs nodes fops
+=======
+ * - several debugfs nodes fops
+>>>>>>> upstream/android-13
  */
 
 static const struct file_operations ab8500_bank_fops = {
@@ -2644,12 +2682,18 @@ static const struct file_operations ab8500_hwreg_fops = {
 	.owner = THIS_MODULE,
 };
 
+<<<<<<< HEAD
 static struct dentry *ab8500_dir;
 static struct dentry *ab8500_gpadc_dir;
 
 static int ab8500_debug_probe(struct platform_device *plf)
 {
 	struct dentry *file;
+=======
+static int ab8500_debug_probe(struct platform_device *plf)
+{
+	struct dentry *ab8500_dir;
+>>>>>>> upstream/android-13
 	struct ab8500 *ab8500;
 	struct resource *res;
 
@@ -2682,6 +2726,7 @@ static int ab8500_debug_probe(struct platform_device *plf)
 	irq_ab8500 = res->start;
 
 	irq_first = platform_get_irq_byname(plf, "IRQ_FIRST");
+<<<<<<< HEAD
 	if (irq_first < 0) {
 		dev_err(&plf->dev, "First irq not found, err %d\n", irq_first);
 		return irq_first;
@@ -2735,6 +2780,29 @@ static int ab8500_debug_probe(struct platform_device *plf)
 				   &plf->dev, &ab8500_subscribe_fops);
 	if (!file)
 		goto err;
+=======
+	if (irq_first < 0)
+		return irq_first;
+
+	irq_last = platform_get_irq_byname(plf, "IRQ_LAST");
+	if (irq_last < 0)
+		return irq_last;
+
+	ab8500_dir = debugfs_create_dir(AB8500_NAME_STRING, NULL);
+
+	debugfs_create_file("all-bank-registers", S_IRUGO, ab8500_dir,
+			    &plf->dev, &ab8500_bank_registers_fops);
+	debugfs_create_file("all-banks", S_IRUGO, ab8500_dir,
+			    &plf->dev, &ab8500_all_banks_fops);
+	debugfs_create_file("register-bank", (S_IRUGO | S_IWUSR | S_IWGRP),
+			    ab8500_dir, &plf->dev, &ab8500_bank_fops);
+	debugfs_create_file("register-address", (S_IRUGO | S_IWUSR | S_IWGRP),
+			    ab8500_dir, &plf->dev, &ab8500_address_fops);
+	debugfs_create_file("register-value", (S_IRUGO | S_IWUSR | S_IWGRP),
+			    ab8500_dir, &plf->dev, &ab8500_val_fops);
+	debugfs_create_file("irq-subscribe", (S_IRUGO | S_IWUSR | S_IWGRP),
+			    ab8500_dir, &plf->dev, &ab8500_subscribe_fops);
+>>>>>>> upstream/android-13
 
 	if (is_ab8500(ab8500)) {
 		debug_ranges = ab8500_debug_ranges;
@@ -2750,6 +2818,7 @@ static int ab8500_debug_probe(struct platform_device *plf)
 		num_interrupt_lines = AB8540_NR_IRQS;
 	}
 
+<<<<<<< HEAD
 	file = debugfs_create_file("interrupts", (S_IRUGO), ab8500_dir,
 				   &plf->dev, &ab8500_interrupts_fops);
 	if (!file)
@@ -2938,6 +3007,18 @@ err:
 	dev_err(&plf->dev, "failed to create debugfs entries.\n");
 
 	return -ENOMEM;
+=======
+	debugfs_create_file("interrupts", (S_IRUGO), ab8500_dir, &plf->dev,
+			    &ab8500_interrupts_fops);
+	debugfs_create_file("irq-unsubscribe", (S_IRUGO | S_IWUSR | S_IWGRP),
+			    ab8500_dir, &plf->dev, &ab8500_unsubscribe_fops);
+	debugfs_create_file("hwreg", (S_IRUGO | S_IWUSR | S_IWGRP), ab8500_dir,
+			    &plf->dev, &ab8500_hwreg_fops);
+	debugfs_create_file("all-modem-registers", (S_IRUGO | S_IWUSR | S_IWGRP),
+			    ab8500_dir, &plf->dev, &ab8500_modem_fops);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static struct platform_driver ab8500_debug_driver = {

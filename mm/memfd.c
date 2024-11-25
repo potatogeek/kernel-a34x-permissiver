@@ -21,13 +21,18 @@
 #include <uapi/linux/memfd.h>
 
 /*
+<<<<<<< HEAD
  * We need a tag: a new tag would expand every radix_tree_node by 8 bytes,
+=======
+ * We need a tag: a new tag would expand every xa_node by 8 bytes,
+>>>>>>> upstream/android-13
  * so reuse a tag which we firmly believe is never set or cleared on tmpfs
  * or hugetlbfs because they are memory only filesystems.
  */
 #define MEMFD_TAG_PINNED        PAGECACHE_TAG_TOWRITE
 #define LAST_SCAN               4       /* about 150ms max */
 
+<<<<<<< HEAD
 static void memfd_tag_pins(struct address_space *mapping)
 {
 	struct radix_tree_iter iter;
@@ -61,6 +66,40 @@ static void memfd_tag_pins(struct address_space *mapping)
 		xa_lock_irq(&mapping->i_pages);
 	}
 	xa_unlock_irq(&mapping->i_pages);
+=======
+static void memfd_tag_pins(struct xa_state *xas)
+{
+	struct page *page;
+	int latency = 0;
+	int cache_count;
+
+	lru_add_drain();
+
+	xas_lock_irq(xas);
+	xas_for_each(xas, page, ULONG_MAX) {
+		cache_count = 1;
+		if (!xa_is_value(page) &&
+		    PageTransHuge(page) && !PageHuge(page))
+			cache_count = HPAGE_PMD_NR;
+
+		if (!xa_is_value(page) &&
+		    page_count(page) - total_mapcount(page) != cache_count)
+			xas_set_mark(xas, MEMFD_TAG_PINNED);
+		if (cache_count != 1)
+			xas_set(xas, page->index + cache_count);
+
+		latency += cache_count;
+		if (latency < XA_CHECK_SCHED)
+			continue;
+		latency = 0;
+
+		xas_pause(xas);
+		xas_unlock_irq(xas);
+		cond_resched();
+		xas_lock_irq(xas);
+	}
+	xas_unlock_irq(xas);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -74,6 +113,7 @@ static void memfd_tag_pins(struct address_space *mapping)
  */
 static int memfd_wait_for_pins(struct address_space *mapping)
 {
+<<<<<<< HEAD
 	struct radix_tree_iter iter;
 	void __rcu **slot;
 	pgoff_t start;
@@ -85,6 +125,20 @@ static int memfd_wait_for_pins(struct address_space *mapping)
 	error = 0;
 	for (scan = 0; scan <= LAST_SCAN; scan++) {
 		if (!radix_tree_tagged(&mapping->i_pages, MEMFD_TAG_PINNED))
+=======
+	XA_STATE(xas, &mapping->i_pages, 0);
+	struct page *page;
+	int error, scan;
+
+	memfd_tag_pins(&xas);
+
+	error = 0;
+	for (scan = 0; scan <= LAST_SCAN; scan++) {
+		int latency = 0;
+		int cache_count;
+
+		if (!xas_marked(&xas, MEMFD_TAG_PINNED))
+>>>>>>> upstream/android-13
 			break;
 
 		if (!scan)
@@ -92,6 +146,7 @@ static int memfd_wait_for_pins(struct address_space *mapping)
 		else if (schedule_timeout_killable((HZ << scan) / 200))
 			scan = LAST_SCAN;
 
+<<<<<<< HEAD
 		start = 0;
 		rcu_read_lock();
 		radix_tree_for_each_tagged(slot, &mapping->i_pages, &iter,
@@ -112,11 +167,26 @@ static int memfd_wait_for_pins(struct address_space *mapping)
 				if (scan < LAST_SCAN)
 					goto continue_resched;
 
+=======
+		xas_set(&xas, 0);
+		xas_lock_irq(&xas);
+		xas_for_each_marked(&xas, page, ULONG_MAX, MEMFD_TAG_PINNED) {
+			bool clear = true;
+
+			cache_count = 1;
+			if (!xa_is_value(page) &&
+			    PageTransHuge(page) && !PageHuge(page))
+				cache_count = HPAGE_PMD_NR;
+
+			if (!xa_is_value(page) && cache_count !=
+			    page_count(page) - total_mapcount(page)) {
+>>>>>>> upstream/android-13
 				/*
 				 * On the last scan, we clean up all those tags
 				 * we inserted; but make a note that we still
 				 * found pages pinned.
 				 */
+<<<<<<< HEAD
 				error = -EBUSY;
 			}
 
@@ -131,6 +201,27 @@ continue_resched:
 			}
 		}
 		rcu_read_unlock();
+=======
+				if (scan == LAST_SCAN)
+					error = -EBUSY;
+				else
+					clear = false;
+			}
+			if (clear)
+				xas_clear_mark(&xas, MEMFD_TAG_PINNED);
+
+			latency += cache_count;
+			if (latency < XA_CHECK_SCHED)
+				continue;
+			latency = 0;
+
+			xas_pause(&xas);
+			xas_unlock_irq(&xas);
+			cond_resched();
+			xas_lock_irq(&xas);
+		}
+		xas_unlock_irq(&xas);
+>>>>>>> upstream/android-13
 	}
 
 	return error;
@@ -316,9 +407,15 @@ SYSCALL_DEFINE2(memfd_create,
 	}
 
 	if (flags & MFD_HUGETLB) {
+<<<<<<< HEAD
 		struct user_struct *user = NULL;
 
 		file = hugetlb_file_setup(name, 0, VM_NORESERVE, &user,
+=======
+		struct ucounts *ucounts = NULL;
+
+		file = hugetlb_file_setup(name, 0, VM_NORESERVE, &ucounts,
+>>>>>>> upstream/android-13
 					HUGETLB_ANONHUGE_INODE,
 					(flags >> MFD_HUGE_SHIFT) &
 					MFD_HUGE_MASK);

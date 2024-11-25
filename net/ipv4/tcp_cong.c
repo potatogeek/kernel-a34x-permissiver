@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Pluggable TCP congestion control support and newReno
  * congestion control.
@@ -20,7 +24,11 @@ static DEFINE_SPINLOCK(tcp_cong_list_lock);
 static LIST_HEAD(tcp_cong_list);
 
 /* Simple linear search, don't expect many entries! */
+<<<<<<< HEAD
 static struct tcp_congestion_ops *tcp_ca_find(const char *name)
+=======
+struct tcp_congestion_ops *tcp_ca_find(const char *name)
+>>>>>>> upstream/android-13
 {
 	struct tcp_congestion_ops *e;
 
@@ -161,7 +169,11 @@ void tcp_assign_congestion_control(struct sock *sk)
 
 	rcu_read_lock();
 	ca = rcu_dereference(net->ipv4.tcp_congestion_control);
+<<<<<<< HEAD
 	if (unlikely(!try_module_get(ca->owner)))
+=======
+	if (unlikely(!bpf_try_module_get(ca, ca->owner)))
+>>>>>>> upstream/android-13
 		ca = &tcp_reno;
 	icsk->icsk_ca_ops = ca;
 	rcu_read_unlock();
@@ -175,7 +187,11 @@ void tcp_assign_congestion_control(struct sock *sk)
 
 void tcp_init_congestion_control(struct sock *sk)
 {
+<<<<<<< HEAD
 	const struct inet_connection_sock *icsk = inet_csk(sk);
+=======
+	struct inet_connection_sock *icsk = inet_csk(sk);
+>>>>>>> upstream/android-13
 
 	tcp_sk(sk)->prior_ssthresh = 0;
 	if (icsk->icsk_ca_ops->init)
@@ -184,6 +200,10 @@ void tcp_init_congestion_control(struct sock *sk)
 		INET_ECN_xmit(sk);
 	else
 		INET_ECN_dontxmit(sk);
+<<<<<<< HEAD
+=======
+	icsk->icsk_ca_initialized = 1;
+>>>>>>> upstream/android-13
 }
 
 static void tcp_reinit_congestion_control(struct sock *sk,
@@ -212,7 +232,11 @@ void tcp_cleanup_congestion_control(struct sock *sk)
 
 	if (icsk->icsk_ca_ops->release)
 		icsk->icsk_ca_ops->release(sk);
+<<<<<<< HEAD
 	module_put(icsk->icsk_ca_ops->owner);
+=======
+	bpf_module_put(icsk->icsk_ca_ops, icsk->icsk_ca_ops->owner);
+>>>>>>> upstream/android-13
 }
 
 /* Used by sysctl to change default congestion control */
@@ -226,7 +250,11 @@ int tcp_set_default_congestion_control(struct net *net, const char *name)
 	ca = tcp_ca_find_autoload(net, name);
 	if (!ca) {
 		ret = -ENOENT;
+<<<<<<< HEAD
 	} else if (!try_module_get(ca->owner)) {
+=======
+	} else if (!bpf_try_module_get(ca, ca->owner)) {
+>>>>>>> upstream/android-13
 		ret = -EBUSY;
 	} else if (!net_eq(net, &init_net) &&
 			!(ca->flags & TCP_CONG_NON_RESTRICTED)) {
@@ -235,7 +263,11 @@ int tcp_set_default_congestion_control(struct net *net, const char *name)
 	} else {
 		prev = xchg(&net->ipv4.tcp_congestion_control, ca);
 		if (prev)
+<<<<<<< HEAD
 			module_put(prev->owner);
+=======
+			bpf_module_put(prev, prev->owner);
+>>>>>>> upstream/android-13
 
 		ca->flags |= TCP_CONG_NON_RESTRICTED;
 		ret = 0;
@@ -264,6 +296,12 @@ void tcp_get_available_congestion_control(char *buf, size_t maxlen)
 		offs += snprintf(buf + offs, maxlen - offs,
 				 "%s%s",
 				 offs == 0 ? "" : " ", ca->name);
+<<<<<<< HEAD
+=======
+
+		if (WARN_ON_ONCE(offs >= maxlen))
+			break;
+>>>>>>> upstream/android-13
 	}
 	rcu_read_unlock();
 }
@@ -293,6 +331,12 @@ void tcp_get_allowed_congestion_control(char *buf, size_t maxlen)
 		offs += snprintf(buf + offs, maxlen - offs,
 				 "%s%s",
 				 offs == 0 ? "" : " ", ca->name);
+<<<<<<< HEAD
+=======
+
+		if (WARN_ON_ONCE(offs >= maxlen))
+			break;
+>>>>>>> upstream/android-13
 	}
 	rcu_read_unlock();
 }
@@ -342,7 +386,11 @@ out:
  * already initialized.
  */
 int tcp_set_congestion_control(struct sock *sk, const char *name, bool load,
+<<<<<<< HEAD
 			       bool reinit, bool cap_net_admin)
+=======
+			       bool cap_net_admin)
+>>>>>>> upstream/android-13
 {
 	struct inet_connection_sock *icsk = inet_csk(sk);
 	const struct tcp_congestion_ops *ca;
@@ -363,6 +411,7 @@ int tcp_set_congestion_control(struct sock *sk, const char *name, bool load,
 		goto out;
 	}
 
+<<<<<<< HEAD
 	if (!ca) {
 		err = -ENOENT;
 	} else if (!load) {
@@ -385,6 +434,16 @@ int tcp_set_congestion_control(struct sock *sk, const char *name, bool load,
 	} else {
 		tcp_reinit_congestion_control(sk, ca);
 	}
+=======
+	if (!ca)
+		err = -ENOENT;
+	else if (!((ca->flags & TCP_CONG_NON_RESTRICTED) || cap_net_admin))
+		err = -EPERM;
+	else if (!bpf_try_module_get(ca, ca->owner))
+		err = -EBUSY;
+	else
+		tcp_reinit_congestion_control(sk, ca);
+>>>>>>> upstream/android-13
  out:
 	rcu_read_unlock();
 	return err;

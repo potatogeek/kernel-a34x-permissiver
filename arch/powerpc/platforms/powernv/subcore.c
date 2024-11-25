@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2013, Michael (Ellerman|Neuling), IBM Corporation.
  *
@@ -5,6 +6,11 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2013, Michael (Ellerman|Neuling), IBM Corporation.
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt)	"powernv: " fmt
@@ -173,6 +179,19 @@ static void update_hid_in_slw(u64 hid0)
 	}
 }
 
+<<<<<<< HEAD
+=======
+static inline void update_power8_hid0(unsigned long hid0)
+{
+	/*
+	 *  The HID0 update on Power8 should at the very least be
+	 *  preceded by a SYNC instruction followed by an ISYNC
+	 *  instruction
+	 */
+	asm volatile("sync; mtspr %0,%1; isync":: "i"(SPRN_HID0), "r"(hid0));
+}
+
+>>>>>>> upstream/android-13
 static void unsplit_core(void)
 {
 	u64 hid0, mask;
@@ -183,7 +202,11 @@ static void unsplit_core(void)
 	cpu = smp_processor_id();
 	if (cpu_thread_in_core(cpu) != 0) {
 		while (mfspr(SPRN_HID0) & mask)
+<<<<<<< HEAD
 			power7_idle_insn(PNV_THREAD_NAP);
+=======
+			power7_idle_type(PNV_THREAD_NAP);
+>>>>>>> upstream/android-13
 
 		per_cpu(split_state, cpu).step = SYNC_STEP_UNSPLIT;
 		return;

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * DCCP connection tracking protocol helper
  *
  * Copyright (c) 2005, 2006, 2008 Patrick McHardy <kaber@trash.net>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/init.h>
@@ -384,6 +391,7 @@ dccp_state_table[CT_DCCP_ROLE_MAX + 1][DCCP_PKT_SYNCACK + 1][CT_DCCP_MAX + 1] = 
 	},
 };
 
+<<<<<<< HEAD
 static inline struct nf_dccp_net *dccp_pernet(struct net *net)
 {
 	return &net->ct.nf_ct_proto.dccp;
@@ -405,10 +413,30 @@ static bool dccp_new(struct nf_conn *ct, const struct sk_buff *skb,
 	switch (state) {
 	default:
 		dn = dccp_pernet(net);
+=======
+static noinline bool
+dccp_new(struct nf_conn *ct, const struct sk_buff *skb,
+	 const struct dccp_hdr *dh,
+	 const struct nf_hook_state *hook_state)
+{
+	struct net *net = nf_ct_net(ct);
+	struct nf_dccp_net *dn;
+	const char *msg;
+	u_int8_t state;
+
+	state = dccp_state_table[CT_DCCP_ROLE_CLIENT][dh->dccph_type][CT_DCCP_NONE];
+	switch (state) {
+	default:
+		dn = nf_dccp_pernet(net);
+>>>>>>> upstream/android-13
 		if (dn->dccp_loose == 0) {
 			msg = "not picking up existing connection ";
 			goto out_invalid;
 		}
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	case CT_DCCP_REQUEST:
 		break;
 	case CT_DCCP_INVALID:
@@ -425,7 +453,11 @@ static bool dccp_new(struct nf_conn *ct, const struct sk_buff *skb,
 	return true;
 
 out_invalid:
+<<<<<<< HEAD
 	nf_ct_l4proto_log_invalid(skb, ct, "%s", msg);
+=======
+	nf_ct_l4proto_log_invalid(skb, ct, hook_state, "%s", msg);
+>>>>>>> upstream/android-13
 	return false;
 }
 
@@ -438,8 +470,56 @@ static u64 dccp_ack_seq(const struct dccp_hdr *dh)
 		     ntohl(dhack->dccph_ack_nr_low);
 }
 
+<<<<<<< HEAD
 static int dccp_packet(struct nf_conn *ct, const struct sk_buff *skb,
 		       unsigned int dataoff, enum ip_conntrack_info ctinfo)
+=======
+static bool dccp_error(const struct dccp_hdr *dh,
+		       struct sk_buff *skb, unsigned int dataoff,
+		       const struct nf_hook_state *state)
+{
+	unsigned int dccp_len = skb->len - dataoff;
+	unsigned int cscov;
+	const char *msg;
+
+	if (dh->dccph_doff * 4 < sizeof(struct dccp_hdr) ||
+	    dh->dccph_doff * 4 > dccp_len) {
+		msg = "nf_ct_dccp: truncated/malformed packet ";
+		goto out_invalid;
+	}
+
+	cscov = dccp_len;
+	if (dh->dccph_cscov) {
+		cscov = (dh->dccph_cscov - 1) * 4;
+		if (cscov > dccp_len) {
+			msg = "nf_ct_dccp: bad checksum coverage ";
+			goto out_invalid;
+		}
+	}
+
+	if (state->hook == NF_INET_PRE_ROUTING &&
+	    state->net->ct.sysctl_checksum &&
+	    nf_checksum_partial(skb, state->hook, dataoff, cscov,
+				IPPROTO_DCCP, state->pf)) {
+		msg = "nf_ct_dccp: bad checksum ";
+		goto out_invalid;
+	}
+
+	if (dh->dccph_type >= DCCP_PKT_INVALID) {
+		msg = "nf_ct_dccp: reserved packet type ";
+		goto out_invalid;
+	}
+	return false;
+out_invalid:
+	nf_l4proto_log_invalid(skb, state, IPPROTO_DCCP, "%s", msg);
+	return true;
+}
+
+int nf_conntrack_dccp_packet(struct nf_conn *ct, struct sk_buff *skb,
+			     unsigned int dataoff,
+			     enum ip_conntrack_info ctinfo,
+			     const struct nf_hook_state *state)
+>>>>>>> upstream/android-13
 {
 	enum ip_conntrack_dir dir = CTINFO2DIR(ctinfo);
 	struct dccp_hdr _dh, *dh;
@@ -448,8 +528,20 @@ static int dccp_packet(struct nf_conn *ct, const struct sk_buff *skb,
 	unsigned int *timeouts;
 
 	dh = skb_header_pointer(skb, dataoff, sizeof(_dh), &_dh);
+<<<<<<< HEAD
 	BUG_ON(dh == NULL);
 	type = dh->dccph_type;
+=======
+	if (!dh)
+		return NF_DROP;
+
+	if (dccp_error(dh, skb, dataoff, state))
+		return -NF_ACCEPT;
+
+	type = dh->dccph_type;
+	if (!nf_ct_is_confirmed(ct) && !dccp_new(ct, skb, dh, state))
+		return -NF_ACCEPT;
+>>>>>>> upstream/android-13
 
 	if (type == DCCP_PKT_RESET &&
 	    !test_bit(IPS_SEEN_REPLY_BIT, &ct->status)) {
@@ -503,11 +595,19 @@ static int dccp_packet(struct nf_conn *ct, const struct sk_buff *skb,
 		ct->proto.dccp.last_pkt = type;
 
 		spin_unlock_bh(&ct->lock);
+<<<<<<< HEAD
 		nf_ct_l4proto_log_invalid(skb, ct, "%s", "invalid packet");
 		return NF_ACCEPT;
 	case CT_DCCP_INVALID:
 		spin_unlock_bh(&ct->lock);
 		nf_ct_l4proto_log_invalid(skb, ct, "%s", "invalid state transition");
+=======
+		nf_ct_l4proto_log_invalid(skb, ct, state, "%s", "invalid packet");
+		return NF_ACCEPT;
+	case CT_DCCP_INVALID:
+		spin_unlock_bh(&ct->lock);
+		nf_ct_l4proto_log_invalid(skb, ct, state, "%s", "invalid state transition");
+>>>>>>> upstream/android-13
 		return -NF_ACCEPT;
 	}
 
@@ -521,12 +621,17 @@ static int dccp_packet(struct nf_conn *ct, const struct sk_buff *skb,
 
 	timeouts = nf_ct_timeout_lookup(ct);
 	if (!timeouts)
+<<<<<<< HEAD
 		timeouts = dccp_pernet(nf_ct_net(ct))->dccp_timeout;
+=======
+		timeouts = nf_dccp_pernet(nf_ct_net(ct))->dccp_timeout;
+>>>>>>> upstream/android-13
 	nf_ct_refresh_acct(ct, ctinfo, skb, timeouts[new_state]);
 
 	return NF_ACCEPT;
 }
 
+<<<<<<< HEAD
 static int dccp_error(struct net *net, struct nf_conn *tmpl,
 		      struct sk_buff *skb, unsigned int dataoff,
 		      u_int8_t pf, unsigned int hooknum)
@@ -576,6 +681,8 @@ out_invalid:
 	return -NF_ACCEPT;
 }
 
+=======
+>>>>>>> upstream/android-13
 static bool dccp_can_early_drop(const struct nf_conn *ct)
 {
 	switch (ct->proto.dccp.state) {
@@ -599,23 +706,47 @@ static void dccp_print_conntrack(struct seq_file *s, struct nf_conn *ct)
 
 #if IS_ENABLED(CONFIG_NF_CT_NETLINK)
 static int dccp_to_nlattr(struct sk_buff *skb, struct nlattr *nla,
+<<<<<<< HEAD
 			  struct nf_conn *ct)
+=======
+			  struct nf_conn *ct, bool destroy)
+>>>>>>> upstream/android-13
 {
 	struct nlattr *nest_parms;
 
 	spin_lock_bh(&ct->lock);
+<<<<<<< HEAD
 	nest_parms = nla_nest_start(skb, CTA_PROTOINFO_DCCP | NLA_F_NESTED);
 	if (!nest_parms)
 		goto nla_put_failure;
 	if (nla_put_u8(skb, CTA_PROTOINFO_DCCP_STATE, ct->proto.dccp.state) ||
 	    nla_put_u8(skb, CTA_PROTOINFO_DCCP_ROLE,
+=======
+	nest_parms = nla_nest_start(skb, CTA_PROTOINFO_DCCP);
+	if (!nest_parms)
+		goto nla_put_failure;
+	if (nla_put_u8(skb, CTA_PROTOINFO_DCCP_STATE, ct->proto.dccp.state))
+		goto nla_put_failure;
+
+	if (destroy)
+		goto skip_state;
+
+	if (nla_put_u8(skb, CTA_PROTOINFO_DCCP_ROLE,
+>>>>>>> upstream/android-13
 		       ct->proto.dccp.role[IP_CT_DIR_ORIGINAL]) ||
 	    nla_put_be64(skb, CTA_PROTOINFO_DCCP_HANDSHAKE_SEQ,
 			 cpu_to_be64(ct->proto.dccp.handshake_seq),
 			 CTA_PROTOINFO_DCCP_PAD))
 		goto nla_put_failure;
+<<<<<<< HEAD
 	nla_nest_end(skb, nest_parms);
 	spin_unlock_bh(&ct->lock);
+=======
+skip_state:
+	nla_nest_end(skb, nest_parms);
+	spin_unlock_bh(&ct->lock);
+
+>>>>>>> upstream/android-13
 	return 0;
 
 nla_put_failure:
@@ -645,8 +776,13 @@ static int nlattr_to_dccp(struct nlattr *cda[], struct nf_conn *ct)
 	if (!attr)
 		return 0;
 
+<<<<<<< HEAD
 	err = nla_parse_nested(tb, CTA_PROTOINFO_DCCP_MAX, attr,
 			       dccp_nla_policy, NULL);
+=======
+	err = nla_parse_nested_deprecated(tb, CTA_PROTOINFO_DCCP_MAX, attr,
+					  dccp_nla_policy, NULL);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -683,7 +819,11 @@ static int nlattr_to_dccp(struct nlattr *cda[], struct nf_conn *ct)
 static int dccp_timeout_nlattr_to_obj(struct nlattr *tb[],
 				      struct net *net, void *data)
 {
+<<<<<<< HEAD
 	struct nf_dccp_net *dn = dccp_pernet(net);
+=======
+	struct nf_dccp_net *dn = nf_dccp_pernet(net);
+>>>>>>> upstream/android-13
 	unsigned int *timeouts = data;
 	int i;
 
@@ -733,6 +873,7 @@ dccp_timeout_nla_policy[CTA_TIMEOUT_DCCP_MAX+1] = {
 };
 #endif /* CONFIG_NF_CONNTRACK_TIMEOUT */
 
+<<<<<<< HEAD
 #ifdef CONFIG_SYSCTL
 /* template, data assigned later */
 static struct ctl_table dccp_sysctl_table[] = {
@@ -853,6 +994,30 @@ const struct nf_conntrack_l4proto nf_conntrack_l4proto_dccp4 = {
 	.new			= dccp_new,
 	.packet			= dccp_packet,
 	.error			= dccp_error,
+=======
+void nf_conntrack_dccp_init_net(struct net *net)
+{
+	struct nf_dccp_net *dn = nf_dccp_pernet(net);
+
+	/* default values */
+	dn->dccp_loose = 1;
+	dn->dccp_timeout[CT_DCCP_REQUEST]	= 2 * DCCP_MSL;
+	dn->dccp_timeout[CT_DCCP_RESPOND]	= 4 * DCCP_MSL;
+	dn->dccp_timeout[CT_DCCP_PARTOPEN]	= 4 * DCCP_MSL;
+	dn->dccp_timeout[CT_DCCP_OPEN]		= 12 * 3600 * HZ;
+	dn->dccp_timeout[CT_DCCP_CLOSEREQ]	= 64 * HZ;
+	dn->dccp_timeout[CT_DCCP_CLOSING]	= 64 * HZ;
+	dn->dccp_timeout[CT_DCCP_TIMEWAIT]	= 2 * DCCP_MSL;
+
+	/* timeouts[0] is unused, make it same as SYN_SENT so
+	 * ->timeouts[0] contains 'new' timeout, like udp or icmp.
+	 */
+	dn->dccp_timeout[CT_DCCP_NONE] = dn->dccp_timeout[CT_DCCP_REQUEST];
+}
+
+const struct nf_conntrack_l4proto nf_conntrack_l4proto_dccp = {
+	.l4proto		= IPPROTO_DCCP,
+>>>>>>> upstream/android-13
 	.can_early_drop		= dccp_can_early_drop,
 #ifdef CONFIG_NF_CONNTRACK_PROCFS
 	.print_conntrack	= dccp_print_conntrack,
@@ -875,6 +1040,7 @@ const struct nf_conntrack_l4proto nf_conntrack_l4proto_dccp4 = {
 		.nla_policy	= dccp_timeout_nla_policy,
 	},
 #endif /* CONFIG_NF_CONNTRACK_TIMEOUT */
+<<<<<<< HEAD
 	.init_net		= dccp_init_net,
 	.get_net_proto		= dccp_get_net_proto,
 };
@@ -912,3 +1078,6 @@ const struct nf_conntrack_l4proto nf_conntrack_l4proto_dccp6 = {
 	.get_net_proto		= dccp_get_net_proto,
 };
 EXPORT_SYMBOL_GPL(nf_conntrack_l4proto_dccp6);
+=======
+};
+>>>>>>> upstream/android-13

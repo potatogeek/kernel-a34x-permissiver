@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *
  *
@@ -12,6 +13,12 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ *
+ *  Copyright (C) 2007 Michael Krufky <mkrufky@linuxtv.org>
+>>>>>>> upstream/android-13
  */
 
 #ifndef _PVRUSB2_FX2_CMD_H_
@@ -38,6 +45,13 @@
 
 #define FX2CMD_FWPOST1          0x52u
 
+<<<<<<< HEAD
+=======
+/* These 2 only exist on Model 160xxx */
+#define FX2CMD_HCW_DEMOD_RESET_PIN 0xd4u
+#define FX2CMD_HCW_MAKO_SLEEP_PIN  0xd5u
+
+>>>>>>> upstream/android-13
 #define FX2CMD_POWER_OFF        0xdcu
 #define FX2CMD_POWER_ON         0xdeu
 

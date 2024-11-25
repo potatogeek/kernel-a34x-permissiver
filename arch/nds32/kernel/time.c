@@ -2,7 +2,11 @@
 // Copyright (C) 2005-2017 Andes Technology Corporation
 
 #include <linux/clocksource.h>
+<<<<<<< HEAD
 #include <linux/clk-provider.h>
+=======
+#include <linux/of_clk.h>
+>>>>>>> upstream/android-13
 
 void __init time_init(void)
 {

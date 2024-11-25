@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * SN Platform GRU Driver
  *
  *            DRIVER TABLE MANAGER + GRU CONTEXT LOAD/UNLOAD
  *
  *  Copyright (c) 2008 Silicon Graphics, Inc.  All Rights Reserved.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -295,7 +302,11 @@ static void gru_unload_mm_tracker(struct gru_state *gru,
  */
 void gts_drop(struct gru_thread_state *gts)
 {
+<<<<<<< HEAD
 	if (gts && atomic_dec_return(&gts->ts_refcnt) == 0) {
+=======
+	if (gts && refcount_dec_and_test(&gts->ts_refcnt)) {
+>>>>>>> upstream/android-13
 		if (gts->ts_gms)
 			gru_drop_mmu_notifier(gts->ts_gms);
 		kfree(gts);
@@ -336,7 +347,11 @@ struct gru_thread_state *gru_alloc_gts(struct vm_area_struct *vma,
 
 	STAT(gts_alloc);
 	memset(gts, 0, sizeof(struct gru_thread_state)); /* zero out header */
+<<<<<<< HEAD
 	atomic_set(&gts->ts_refcnt, 1);
+=======
+	refcount_set(&gts->ts_refcnt, 1);
+>>>>>>> upstream/android-13
 	mutex_init(&gts->ts_ctxlock);
 	gts->ts_cbr_au_count = cbr_au_count;
 	gts->ts_dsr_au_count = dsr_au_count;
@@ -901,7 +916,11 @@ again:
 		gts->ts_gru = gru;
 		gts->ts_blade = gru->gs_blade_id;
 		gts->ts_ctxnum = gru_assign_context_number(gru);
+<<<<<<< HEAD
 		atomic_inc(&gts->ts_refcnt);
+=======
+		refcount_inc(&gts->ts_refcnt);
+>>>>>>> upstream/android-13
 		gru->gs_gts[gts->ts_ctxnum] = gts;
 		spin_unlock(&gru->gs_lock);
 

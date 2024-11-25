@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * IPVS:        Source Hashing scheduling module
  *
  * Authors:     Wensong Zhang <wensong@gnuchina.org>
  *
+<<<<<<< HEAD
  *              This program is free software; you can redistribute it and/or
  *              modify it under the terms of the GNU General Public License
  *              as published by the Free Software Foundation; either version
@@ -10,6 +15,9 @@
  *
  * Changes:
  *
+=======
+ * Changes:
+>>>>>>> upstream/android-13
  */
 
 /*

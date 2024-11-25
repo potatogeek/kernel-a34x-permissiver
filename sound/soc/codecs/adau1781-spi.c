@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver for ADAU1381/ADAU1781 CODEC
  *
  * Copyright 2014 Analog Devices Inc.
  *  Author: Lars-Peter Clausen <lars@metafoo.de>
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/mod_devicetable.h>

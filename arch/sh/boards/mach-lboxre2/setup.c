@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * linux/arch/sh/boards/lbox/setup.c
  *
  * Copyright (C) 2007 Nobuhiro Iwamatsu
  *
  * NTT COMWARE L-BOX RE2 Support
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>

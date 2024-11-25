@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
 /*
  * Copyright (C) 2018 Netronome Systems, Inc.
@@ -33,14 +34,26 @@
  */
 
 #include <linux/bitfield.h>
+=======
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+/* Copyright (C) 2018 Netronome Systems, Inc. */
+
+#include <linux/bitfield.h>
+#include <linux/bitmap.h>
+>>>>>>> upstream/android-13
 #include <linux/etherdevice.h>
 #include <linux/lockdep.h>
 #include <linux/netdevice.h>
 #include <linux/rcupdate.h>
+<<<<<<< HEAD
 #include <linux/slab.h>
 #include <net/pkt_cls.h>
 #include <net/pkt_sched.h>
 #include <net/red.h>
+=======
+#include <linux/rtnetlink.h>
+#include <linux/slab.h>
+>>>>>>> upstream/android-13
 
 #include "../nfpcore/nfp.h"
 #include "../nfpcore/nfp_cpp.h"
@@ -59,6 +72,7 @@ static u32 nfp_abm_portid(enum nfp_repr_type rtype, unsigned int id)
 }
 
 static int
+<<<<<<< HEAD
 __nfp_abm_reset_root(struct net_device *netdev, struct nfp_abm_link *alink,
 		     u32 handle, unsigned int qs, u32 init_val)
 {
@@ -322,6 +336,8 @@ nfp_abm_setup_tc_mq(struct net_device *netdev, struct nfp_abm_link *alink,
 }
 
 static int
+=======
+>>>>>>> upstream/android-13
 nfp_abm_setup_tc(struct nfp_app *app, struct net_device *netdev,
 		 enum tc_setup_type type, void *type_data)
 {
@@ -333,16 +349,33 @@ nfp_abm_setup_tc(struct nfp_app *app, struct net_device *netdev,
 		return -EOPNOTSUPP;
 
 	switch (type) {
+<<<<<<< HEAD
+=======
+	case TC_SETUP_ROOT_QDISC:
+		return nfp_abm_setup_root(netdev, repr->app_priv, type_data);
+>>>>>>> upstream/android-13
 	case TC_SETUP_QDISC_MQ:
 		return nfp_abm_setup_tc_mq(netdev, repr->app_priv, type_data);
 	case TC_SETUP_QDISC_RED:
 		return nfp_abm_setup_tc_red(netdev, repr->app_priv, type_data);
+<<<<<<< HEAD
+=======
+	case TC_SETUP_QDISC_GRED:
+		return nfp_abm_setup_tc_gred(netdev, repr->app_priv, type_data);
+	case TC_SETUP_BLOCK:
+		return nfp_abm_setup_cls_block(netdev, repr, type_data);
+>>>>>>> upstream/android-13
 	default:
 		return -EOPNOTSUPP;
 	}
 }
 
+<<<<<<< HEAD
 static struct net_device *nfp_abm_repr_get(struct nfp_app *app, u32 port_id)
+=======
+static struct net_device *
+nfp_abm_repr_get(struct nfp_app *app, u32 port_id, bool *redir_egress)
+>>>>>>> upstream/android-13
 {
 	enum nfp_repr_type rtype;
 	struct nfp_reprs *reprs;
@@ -415,7 +448,13 @@ nfp_abm_spawn_repr(struct nfp_app *app, struct nfp_abm_link *alink,
 
 	reprs = nfp_reprs_get_locked(app, rtype);
 	WARN(nfp_repr_get_locked(app, reprs, alink->id), "duplicate repr");
+<<<<<<< HEAD
 	rcu_assign_pointer(reprs->reprs[alink->id], netdev);
+=======
+	rtnl_lock();
+	rcu_assign_pointer(reprs->reprs[alink->id], netdev);
+	rtnl_unlock();
+>>>>>>> upstream/android-13
 
 	nfp_info(app->cpp, "%s Port %d Representor(%s) created\n",
 		 ptype == NFP_PORT_PF_PORT ? "PCIe" : "Phys",
@@ -441,7 +480,13 @@ nfp_abm_kill_repr(struct nfp_app *app, struct nfp_abm_link *alink,
 	netdev = nfp_repr_get_locked(app, reprs, alink->id);
 	if (!netdev)
 		return;
+<<<<<<< HEAD
 	rcu_assign_pointer(reprs->reprs[alink->id], NULL);
+=======
+	rtnl_lock();
+	rcu_assign_pointer(reprs->reprs[alink->id], NULL);
+	rtnl_unlock();
+>>>>>>> upstream/android-13
 	synchronize_rcu();
 	/* Cast to make sure nfp_repr_clean_and_free() takes a nfp_repr */
 	nfp_repr_clean_and_free((struct nfp_repr *)netdev_priv(netdev));
@@ -492,6 +537,12 @@ static int nfp_abm_eswitch_set_switchdev(struct nfp_abm *abm)
 	struct nfp_net *nn;
 	int err;
 
+<<<<<<< HEAD
+=======
+	if (!abm->red_support)
+		return -EOPNOTSUPP;
+
+>>>>>>> upstream/android-13
 	err = nfp_abm_ctrl_qm_enable(abm);
 	if (err)
 		return err;
@@ -540,8 +591,14 @@ nfp_abm_vnic_set_mac(struct nfp_pf *pf, struct nfp_abm *abm, struct nfp_net *nn,
 {
 	struct nfp_eth_table_port *eth_port = &pf->eth_tbl->ports[id];
 	u8 mac_addr[ETH_ALEN];
+<<<<<<< HEAD
 	const char *mac_str;
 	char name[32];
+=======
+	struct nfp_nsp *nsp;
+	char hwinfo[32];
+	int err;
+>>>>>>> upstream/android-13
 
 	if (id > pf->eth_tbl->count) {
 		nfp_warn(pf->cpp, "No entry for persistent MAC address\n");
@@ -549,6 +606,7 @@ nfp_abm_vnic_set_mac(struct nfp_pf *pf, struct nfp_abm *abm, struct nfp_net *nn,
 		return;
 	}
 
+<<<<<<< HEAD
 	snprintf(name, sizeof(name), "eth%u.mac.pf%u",
 		 eth_port->eth_index, abm->pf_id);
 
@@ -556,15 +614,48 @@ nfp_abm_vnic_set_mac(struct nfp_pf *pf, struct nfp_abm *abm, struct nfp_net *nn,
 	if (!mac_str) {
 		nfp_warn(pf->cpp, "Can't lookup persistent MAC address (%s)\n",
 			 name);
+=======
+	snprintf(hwinfo, sizeof(hwinfo), "eth%u.mac.pf%u",
+		 eth_port->eth_index, abm->pf_id);
+
+	nsp = nfp_nsp_open(pf->cpp);
+	if (IS_ERR(nsp)) {
+		nfp_warn(pf->cpp, "Failed to access the NSP for persistent MAC address: %ld\n",
+			 PTR_ERR(nsp));
+>>>>>>> upstream/android-13
 		eth_hw_addr_random(nn->dp.netdev);
 		return;
 	}
 
+<<<<<<< HEAD
 	if (sscanf(mac_str, "%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx",
 		   &mac_addr[0], &mac_addr[1], &mac_addr[2],
 		   &mac_addr[3], &mac_addr[4], &mac_addr[5]) != 6) {
 		nfp_warn(pf->cpp, "Can't parse persistent MAC address (%s)\n",
 			 mac_str);
+=======
+	if (!nfp_nsp_has_hwinfo_lookup(nsp)) {
+		nfp_warn(pf->cpp, "NSP doesn't support PF MAC generation\n");
+		eth_hw_addr_random(nn->dp.netdev);
+		nfp_nsp_close(nsp);
+		return;
+	}
+
+	err = nfp_nsp_hwinfo_lookup(nsp, hwinfo, sizeof(hwinfo));
+	nfp_nsp_close(nsp);
+	if (err) {
+		nfp_warn(pf->cpp, "Reading persistent MAC address failed: %d\n",
+			 err);
+		eth_hw_addr_random(nn->dp.netdev);
+		return;
+	}
+
+	if (sscanf(hwinfo, "%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx",
+		   &mac_addr[0], &mac_addr[1], &mac_addr[2],
+		   &mac_addr[3], &mac_addr[4], &mac_addr[5]) != 6) {
+		nfp_warn(pf->cpp, "Can't parse persistent MAC address (%s)\n",
+			 hwinfo);
+>>>>>>> upstream/android-13
 		eth_hw_addr_random(nn->dp.netdev);
 		return;
 	}
@@ -588,11 +679,24 @@ nfp_abm_vnic_alloc(struct nfp_app *app, struct nfp_net *nn, unsigned int id)
 	alink->abm = abm;
 	alink->vnic = nn;
 	alink->id = id;
+<<<<<<< HEAD
 	alink->parent = TC_H_ROOT;
 	alink->total_queues = alink->vnic->max_rx_rings;
 	alink->qdiscs = kvcalloc(alink->total_queues, sizeof(*alink->qdiscs),
 				 GFP_KERNEL);
 	if (!alink->qdiscs) {
+=======
+	alink->total_queues = alink->vnic->max_rx_rings;
+
+	INIT_LIST_HEAD(&alink->dscp_map);
+
+	err = nfp_abm_ctrl_read_params(alink);
+	if (err)
+		goto err_free_alink;
+
+	alink->prio_map = kzalloc(abm->prio_map_len, GFP_KERNEL);
+	if (!alink->prio_map) {
+>>>>>>> upstream/android-13
 		err = -ENOMEM;
 		goto err_free_alink;
 	}
@@ -602,17 +706,30 @@ nfp_abm_vnic_alloc(struct nfp_app *app, struct nfp_net *nn, unsigned int id)
 	 */
 	err = nfp_eth_set_configured(app->cpp, eth_port->index, true);
 	if (err < 0)
+<<<<<<< HEAD
 		goto err_free_qdiscs;
+=======
+		goto err_free_priomap;
+>>>>>>> upstream/android-13
 
 	netif_keep_dst(nn->dp.netdev);
 
 	nfp_abm_vnic_set_mac(app->pf, abm, nn, id);
+<<<<<<< HEAD
 	nfp_abm_ctrl_read_params(alink);
 
 	return 0;
 
 err_free_qdiscs:
 	kvfree(alink->qdiscs);
+=======
+	INIT_RADIX_TREE(&alink->qdiscs, GFP_KERNEL);
+
+	return 0;
+
+err_free_priomap:
+	kfree(alink->prio_map);
+>>>>>>> upstream/android-13
 err_free_alink:
 	kfree(alink);
 	return err;
@@ -623,10 +740,27 @@ static void nfp_abm_vnic_free(struct nfp_app *app, struct nfp_net *nn)
 	struct nfp_abm_link *alink = nn->app_priv;
 
 	nfp_abm_kill_reprs(alink->abm, alink);
+<<<<<<< HEAD
 	kvfree(alink->qdiscs);
 	kfree(alink);
 }
 
+=======
+	WARN(!radix_tree_empty(&alink->qdiscs), "left over qdiscs\n");
+	kfree(alink->prio_map);
+	kfree(alink);
+}
+
+static int nfp_abm_vnic_init(struct nfp_app *app, struct nfp_net *nn)
+{
+	struct nfp_abm_link *alink = nn->app_priv;
+
+	if (nfp_abm_has_prio(alink->abm))
+		return nfp_abm_ctrl_prio_map_update(alink, alink->prio_map);
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static u64 *
 nfp_abm_port_get_stats(struct nfp_app *app, struct nfp_port *port, u64 *data)
 {
@@ -668,12 +802,35 @@ nfp_abm_port_get_stats_strings(struct nfp_app *app, struct nfp_port *port,
 		return data;
 	alink = repr->app_priv;
 	for (i = 0; i < alink->vnic->dp.num_r_vecs; i++) {
+<<<<<<< HEAD
 		data = nfp_pr_et(data, "q%u_no_wait", i);
 		data = nfp_pr_et(data, "q%u_delayed", i);
+=======
+		ethtool_sprintf(&data, "q%u_no_wait", i);
+		ethtool_sprintf(&data, "q%u_delayed", i);
+>>>>>>> upstream/android-13
 	}
 	return data;
 }
 
+<<<<<<< HEAD
+=======
+static int nfp_abm_fw_init_reset(struct nfp_abm *abm)
+{
+	unsigned int i;
+
+	if (!abm->red_support)
+		return 0;
+
+	for (i = 0; i < abm->num_bands * NFP_NET_MAX_RX_RINGS; i++) {
+		__nfp_abm_ctrl_set_q_lvl(abm, i, NFP_ABM_LVL_INFINITY);
+		__nfp_abm_ctrl_set_q_act(abm, i, NFP_ABM_ACT_DROP);
+	}
+
+	return nfp_abm_ctrl_qm_disable(abm);
+}
+
+>>>>>>> upstream/android-13
 static int nfp_abm_init(struct nfp_app *app)
 {
 	struct nfp_pf *pf = app->pf;
@@ -705,6 +862,7 @@ static int nfp_abm_init(struct nfp_app *app)
 	if (err)
 		goto err_free_abm;
 
+<<<<<<< HEAD
 	/* We start in legacy mode, make sure advanced queuing is disabled */
 	err = nfp_abm_ctrl_qm_disable(abm);
 	if (err)
@@ -714,6 +872,33 @@ static int nfp_abm_init(struct nfp_app *app)
 	reprs = nfp_reprs_alloc(pf->max_data_vnics);
 	if (!reprs)
 		goto err_free_abm;
+=======
+	err = -ENOMEM;
+	abm->num_thresholds = array_size(abm->num_bands, NFP_NET_MAX_RX_RINGS);
+	abm->threshold_undef = bitmap_zalloc(abm->num_thresholds, GFP_KERNEL);
+	if (!abm->threshold_undef)
+		goto err_free_abm;
+
+	abm->thresholds = kvcalloc(abm->num_thresholds,
+				   sizeof(*abm->thresholds), GFP_KERNEL);
+	if (!abm->thresholds)
+		goto err_free_thresh_umap;
+
+	abm->actions = kvcalloc(abm->num_thresholds, sizeof(*abm->actions),
+				GFP_KERNEL);
+	if (!abm->actions)
+		goto err_free_thresh;
+
+	/* We start in legacy mode, make sure advanced queuing is disabled */
+	err = nfp_abm_fw_init_reset(abm);
+	if (err)
+		goto err_free_act;
+
+	err = -ENOMEM;
+	reprs = nfp_reprs_alloc(pf->max_data_vnics);
+	if (!reprs)
+		goto err_free_act;
+>>>>>>> upstream/android-13
 	RCU_INIT_POINTER(app->reprs[NFP_REPR_TYPE_PHYS_PORT], reprs);
 
 	reprs = nfp_reprs_alloc(pf->max_data_vnics);
@@ -725,6 +910,15 @@ static int nfp_abm_init(struct nfp_app *app)
 
 err_free_phys:
 	nfp_reprs_clean_and_free_by_type(app, NFP_REPR_TYPE_PHYS_PORT);
+<<<<<<< HEAD
+=======
+err_free_act:
+	kvfree(abm->actions);
+err_free_thresh:
+	kvfree(abm->thresholds);
+err_free_thresh_umap:
+	bitmap_free(abm->threshold_undef);
+>>>>>>> upstream/android-13
 err_free_abm:
 	kfree(abm);
 	app->priv = NULL;
@@ -738,6 +932,12 @@ static void nfp_abm_clean(struct nfp_app *app)
 	nfp_abm_eswitch_clean_up(abm);
 	nfp_reprs_clean_and_free_by_type(app, NFP_REPR_TYPE_PF);
 	nfp_reprs_clean_and_free_by_type(app, NFP_REPR_TYPE_PHYS_PORT);
+<<<<<<< HEAD
+=======
+	bitmap_free(abm->threshold_undef);
+	kvfree(abm->actions);
+	kvfree(abm->thresholds);
+>>>>>>> upstream/android-13
 	kfree(abm);
 	app->priv = NULL;
 }
@@ -751,6 +951,10 @@ const struct nfp_app_type app_abm = {
 
 	.vnic_alloc	= nfp_abm_vnic_alloc,
 	.vnic_free	= nfp_abm_vnic_free,
+<<<<<<< HEAD
+=======
+	.vnic_init	= nfp_abm_vnic_init,
+>>>>>>> upstream/android-13
 
 	.port_get_stats		= nfp_abm_port_get_stats,
 	.port_get_stats_count	= nfp_abm_port_get_stats_count,
@@ -761,5 +965,9 @@ const struct nfp_app_type app_abm = {
 	.eswitch_mode_get	= nfp_abm_eswitch_mode_get,
 	.eswitch_mode_set	= nfp_abm_eswitch_mode_set,
 
+<<<<<<< HEAD
 	.repr_get	= nfp_abm_repr_get,
+=======
+	.dev_get	= nfp_abm_repr_get,
+>>>>>>> upstream/android-13
 };

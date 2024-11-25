@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  sst_dsp.c - Intel SST Driver for audio engine
  *
@@ -8,6 +12,7 @@
  *		KP Jeeja <jeeja.kp@intel.com>
  *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; version 2 of the License.
@@ -17,6 +22,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
  *  This file contains all dsp controlling functions like firmware download,
@@ -37,7 +44,10 @@
 #include <asm/platform_sst_audio.h>
 #include "../sst-mfld-platform.h"
 #include "sst.h"
+<<<<<<< HEAD
 #include "../../common/sst-dsp.h"
+=======
+>>>>>>> upstream/android-13
 
 void memcpy32_toio(void __iomem *dst, const void *src, int count)
 {
@@ -57,6 +67,10 @@ void memcpy32_fromio(void *dst, const void __iomem *src, int count)
 
 /**
  * intel_sst_reset_dsp_mrfld - Resetting SST DSP
+<<<<<<< HEAD
+=======
+ * @sst_drv_ctx: intel_sst_drv context pointer
+>>>>>>> upstream/android-13
  *
  * This resets DSP in case of MRFLD platfroms
  */
@@ -84,7 +98,12 @@ int intel_sst_reset_dsp_mrfld(struct intel_sst_drv *sst_drv_ctx)
 }
 
 /**
+<<<<<<< HEAD
  * sst_start_merrifield - Start the SST DSP processor
+=======
+ * sst_start_mrfld - Start the SST DSP processor
+ * @sst_drv_ctx: intel_sst_drv context pointer
+>>>>>>> upstream/android-13
  *
  * This starts the DSP in MERRIFIELD platfroms
  */
@@ -269,7 +288,11 @@ static void sst_do_memcpy(struct list_head *memcpy_list)
 	struct sst_memcpy_list *listnode;
 
 	list_for_each_entry(listnode, memcpy_list, memcpylist) {
+<<<<<<< HEAD
 		if (listnode->is_io == true)
+=======
+		if (listnode->is_io)
+>>>>>>> upstream/android-13
 			memcpy32_toio((void __iomem *)listnode->dstn,
 					listnode->src, listnode->size);
 		else
@@ -282,12 +305,19 @@ void sst_memcpy_free_resources(struct intel_sst_drv *sst_drv_ctx)
 	struct sst_memcpy_list *listnode, *tmplistnode;
 
 	/* Free the list */
+<<<<<<< HEAD
 	if (!list_empty(&sst_drv_ctx->memcpy_list)) {
 		list_for_each_entry_safe(listnode, tmplistnode,
 				&sst_drv_ctx->memcpy_list, memcpylist) {
 			list_del(&listnode->memcpylist);
 			kfree(listnode);
 		}
+=======
+	list_for_each_entry_safe(listnode, tmplistnode,
+				 &sst_drv_ctx->memcpy_list, memcpylist) {
+		list_del(&listnode->memcpylist);
+		kfree(listnode);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -395,6 +425,11 @@ void sst_post_download_mrfld(struct intel_sst_drv *ctx)
 
 /**
  * sst_load_fw - function to load FW into DSP
+<<<<<<< HEAD
+=======
+ * @sst_drv_ctx: intel_sst_drv context pointer
+ *
+>>>>>>> upstream/android-13
  * Transfers the FW to DSP using dma/memcpy
  */
 int sst_load_fw(struct intel_sst_drv *sst_drv_ctx)
@@ -404,8 +439,12 @@ int sst_load_fw(struct intel_sst_drv *sst_drv_ctx)
 
 	dev_dbg(sst_drv_ctx->dev, "sst_load_fw\n");
 
+<<<<<<< HEAD
 	if (sst_drv_ctx->sst_state !=  SST_RESET ||
 			sst_drv_ctx->sst_state == SST_SHUTDOWN)
+=======
+	if (sst_drv_ctx->sst_state !=  SST_RESET)
+>>>>>>> upstream/android-13
 		return -EAGAIN;
 
 	if (!sst_drv_ctx->fw_in_mem) {
@@ -420,7 +459,11 @@ int sst_load_fw(struct intel_sst_drv *sst_drv_ctx)
 		return -ENOMEM;
 
 	/* Prevent C-states beyond C6 */
+<<<<<<< HEAD
 	pm_qos_update_request(sst_drv_ctx->qos, 0);
+=======
+	cpu_latency_qos_update_request(sst_drv_ctx->qos, 0);
+>>>>>>> upstream/android-13
 
 	sst_drv_ctx->sst_state = SST_FW_LOADING;
 
@@ -450,7 +493,11 @@ int sst_load_fw(struct intel_sst_drv *sst_drv_ctx)
 
 restore:
 	/* Re-enable Deeper C-states beyond C6 */
+<<<<<<< HEAD
 	pm_qos_update_request(sst_drv_ctx->qos, PM_QOS_DEFAULT_VALUE);
+=======
+	cpu_latency_qos_update_request(sst_drv_ctx->qos, PM_QOS_DEFAULT_VALUE);
+>>>>>>> upstream/android-13
 	sst_free_block(sst_drv_ctx, block);
 	dev_dbg(sst_drv_ctx->dev, "fw load successful!!!\n");
 

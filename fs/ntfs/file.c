@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * file.c - NTFS kernel file operations.  Part of the Linux-NTFS project.
  *
  * Copyright (c) 2001-2015 Anton Altaparmakov and Tuxera Inc.
+<<<<<<< HEAD
  *
  * This program/include file is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
@@ -17,6 +22,8 @@
  * along with this program (in the main directory of the Linux-NTFS
  * distribution in the file COPYING); if not, write to the Free Software
  * Foundation,Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/backing-dev.h>
@@ -337,7 +344,11 @@ static ssize_t ntfs_prepare_file_for_write(struct kiocb *iocb,
 	unsigned long flags;
 	struct file *file = iocb->ki_filp;
 	struct inode *vi = file_inode(file);
+<<<<<<< HEAD
 	ntfs_inode *base_ni, *ni = NTFS_I(vi);
+=======
+	ntfs_inode *ni = NTFS_I(vi);
+>>>>>>> upstream/android-13
 	ntfs_volume *vol = ni->vol;
 
 	ntfs_debug("Entering for i_ino 0x%lx, attribute type 0x%x, pos "
@@ -379,9 +390,12 @@ static ssize_t ntfs_prepare_file_for_write(struct kiocb *iocb,
 		err = -EOPNOTSUPP;
 		goto out;
 	}
+<<<<<<< HEAD
 	base_ni = ni;
 	if (NInoAttr(ni))
 		base_ni = ni->ext.base_ntfs_ino;
+=======
+>>>>>>> upstream/android-13
 	err = file_remove_privs(file);
 	if (unlikely(err))
 		goto out;
@@ -1701,20 +1715,30 @@ static size_t ntfs_copy_from_user_iter(struct page **pages, unsigned nr_pages,
 {
 	struct page **last_page = pages + nr_pages;
 	size_t total = 0;
+<<<<<<< HEAD
 	struct iov_iter data = *i;
+=======
+>>>>>>> upstream/android-13
 	unsigned len, copied;
 
 	do {
 		len = PAGE_SIZE - ofs;
 		if (len > bytes)
 			len = bytes;
+<<<<<<< HEAD
 		copied = iov_iter_copy_from_user_atomic(*pages, &data, ofs,
 				len);
+=======
+		copied = copy_page_from_iter_atomic(*pages, ofs, len, i);
+>>>>>>> upstream/android-13
 		total += copied;
 		bytes -= copied;
 		if (!bytes)
 			break;
+<<<<<<< HEAD
 		iov_iter_advance(&data, copied);
+=======
+>>>>>>> upstream/android-13
 		if (copied < len)
 			goto err;
 		ofs = 0;
@@ -1849,7 +1873,11 @@ again:
 		 * pages being swapped out between us bringing them into memory
 		 * and doing the actual copying.
 		 */
+<<<<<<< HEAD
 		if (unlikely(iov_iter_fault_in_readable(i, bytes))) {
+=======
+		if (unlikely(fault_in_iov_iter_readable(i, bytes))) {
+>>>>>>> upstream/android-13
 			status = -EFAULT;
 			break;
 		}
@@ -1883,13 +1911,17 @@ again:
 		if (likely(copied == bytes)) {
 			status = ntfs_commit_pages_after_write(pages, do_pages,
 					pos, bytes);
+<<<<<<< HEAD
 			if (!status)
 				status = bytes;
+=======
+>>>>>>> upstream/android-13
 		}
 		do {
 			unlock_page(pages[--do_pages]);
 			put_page(pages[do_pages]);
 		} while (do_pages);
+<<<<<<< HEAD
 		if (unlikely(status < 0))
 			break;
 		copied = status;
@@ -1911,6 +1943,21 @@ again:
 			goto again;
 		}
 		iov_iter_advance(i, copied);
+=======
+		if (unlikely(status < 0)) {
+			iov_iter_revert(i, copied);
+			break;
+		}
+		cond_resched();
+		if (unlikely(copied < bytes)) {
+			iov_iter_revert(i, copied);
+			if (copied)
+				bytes = copied;
+			else if (bytes > PAGE_SIZE - ofs)
+				bytes = PAGE_SIZE - ofs;
+			goto again;
+		}
+>>>>>>> upstream/android-13
 		pos += copied;
 		written += copied;
 		balance_dirty_pages_ratelimited(mapping);

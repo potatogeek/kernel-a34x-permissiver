@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+>>>>>>> upstream/android-13
 /*
  * TI Common Platform Time Sync
  *
  * Copyright (C) 2012 Richard Cochran <richardcochran@gmail.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _TI_CPTS_H_
 #define _TI_CPTS_H_
@@ -36,7 +43,11 @@
 struct cpsw_cpts {
 	u32 idver;                /* Identification and version */
 	u32 control;              /* Time sync control */
+<<<<<<< HEAD
 	u32 res1;
+=======
+	u32 rftclk_sel;		  /* Reference Clock Select Register */
+>>>>>>> upstream/android-13
 	u32 ts_push;              /* Time stamp event push */
 	u32 ts_load_val;          /* Time stamp load value */
 	u32 ts_load_en;           /* Time stamp load enable */
@@ -106,6 +117,10 @@ struct cpts_event {
 	unsigned long tmo;
 	u32 high;
 	u32 low;
+<<<<<<< HEAD
+=======
+	u64 timestamp;
+>>>>>>> upstream/android-13
 };
 
 struct cpts {
@@ -115,7 +130,11 @@ struct cpts {
 	int rx_enable;
 	struct ptp_clock_info info;
 	struct ptp_clock *clock;
+<<<<<<< HEAD
 	spinlock_t lock; /* protects time registers */
+=======
+	spinlock_t lock; /* protects fifo/events */
+>>>>>>> upstream/android-13
 	u32 cc_mult; /* for the nominal frequency */
 	struct cyclecounter cc;
 	struct timecounter tc;
@@ -126,6 +145,15 @@ struct cpts {
 	struct cpts_event pool_data[CPTS_MAX_EVENTS];
 	unsigned long ov_check_period;
 	struct sk_buff_head txq;
+<<<<<<< HEAD
+=======
+	u64 cur_timestamp;
+	u32 mult_new;
+	struct mutex ptp_clk_mutex; /* sync PTP interface and worker */
+	bool irq_poll;
+	struct completion	ts_push_complete;
+	u32 hw_ts_enable;
+>>>>>>> upstream/android-13
 };
 
 void cpts_rx_timestamp(struct cpts *cpts, struct sk_buff *skb);
@@ -133,6 +161,7 @@ void cpts_tx_timestamp(struct cpts *cpts, struct sk_buff *skb);
 int cpts_register(struct cpts *cpts);
 void cpts_unregister(struct cpts *cpts);
 struct cpts *cpts_create(struct device *dev, void __iomem *regs,
+<<<<<<< HEAD
 			 struct device_node *node);
 void cpts_release(struct cpts *cpts);
 
@@ -155,6 +184,11 @@ static inline bool cpts_is_tx_enabled(struct cpts *cpts)
 {
 	return !!cpts->tx_enable;
 }
+=======
+			 struct device_node *node, u32 n_ext_ts);
+void cpts_release(struct cpts *cpts);
+void cpts_misc_interrupt(struct cpts *cpts);
+>>>>>>> upstream/android-13
 
 static inline bool cpts_can_timestamp(struct cpts *cpts, struct sk_buff *skb)
 {
@@ -166,6 +200,14 @@ static inline bool cpts_can_timestamp(struct cpts *cpts, struct sk_buff *skb)
 	return true;
 }
 
+<<<<<<< HEAD
+=======
+static inline void cpts_set_irqpoll(struct cpts *cpts, bool en)
+{
+	cpts->irq_poll = en;
+}
+
+>>>>>>> upstream/android-13
 #else
 struct cpts;
 
@@ -178,7 +220,11 @@ static inline void cpts_tx_timestamp(struct cpts *cpts, struct sk_buff *skb)
 
 static inline
 struct cpts *cpts_create(struct device *dev, void __iomem *regs,
+<<<<<<< HEAD
 			 struct device_node *node)
+=======
+			 struct device_node *node, u32 n_ext_ts)
+>>>>>>> upstream/android-13
 {
 	return NULL;
 }
@@ -197,6 +243,7 @@ static inline void cpts_unregister(struct cpts *cpts)
 {
 }
 
+<<<<<<< HEAD
 static inline void cpts_rx_enable(struct cpts *cpts, int enable)
 {
 }
@@ -215,10 +262,23 @@ static inline bool cpts_is_tx_enabled(struct cpts *cpts)
 	return false;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline bool cpts_can_timestamp(struct cpts *cpts, struct sk_buff *skb)
 {
 	return false;
 }
+<<<<<<< HEAD
+=======
+
+static inline void cpts_misc_interrupt(struct cpts *cpts)
+{
+}
+
+static inline void cpts_set_irqpoll(struct cpts *cpts, bool en)
+{
+}
+>>>>>>> upstream/android-13
 #endif
 
 

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Machine interface for the pinctrl subsystem.
  *
@@ -6,8 +10,11 @@
  * Based on bits of regulator core, gpio core and clk core
  *
  * Author: Linus Walleij <linus.walleij@linaro.org>
+<<<<<<< HEAD
  *
  * License terms: GNU General Public License (GPL) version 2
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __LINUX_PINCTRL_MACHINE_H
 #define __LINUX_PINCTRL_MACHINE_H
@@ -154,6 +161,10 @@ struct pinctrl_map {
 
 extern int pinctrl_register_mappings(const struct pinctrl_map *map,
 				unsigned num_maps);
+<<<<<<< HEAD
+=======
+extern void pinctrl_unregister_mappings(const struct pinctrl_map *map);
+>>>>>>> upstream/android-13
 extern void pinctrl_provide_dummies(void);
 #else
 
@@ -163,6 +174,13 @@ static inline int pinctrl_register_mappings(const struct pinctrl_map *map,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static inline void pinctrl_unregister_mappings(const struct pinctrl_map *map)
+{
+}
+
+>>>>>>> upstream/android-13
 static inline void pinctrl_provide_dummies(void)
 {
 }

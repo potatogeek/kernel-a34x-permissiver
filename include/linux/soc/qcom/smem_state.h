@@ -14,6 +14,10 @@ struct qcom_smem_state_ops {
 #ifdef CONFIG_QCOM_SMEM_STATE
 
 struct qcom_smem_state *qcom_smem_state_get(struct device *dev, const char *con_id, unsigned *bit);
+<<<<<<< HEAD
+=======
+struct qcom_smem_state *devm_qcom_smem_state_get(struct device *dev, const char *con_id, unsigned *bit);
+>>>>>>> upstream/android-13
 void qcom_smem_state_put(struct qcom_smem_state *);
 
 int qcom_smem_state_update_bits(struct qcom_smem_state *state, u32 mask, u32 value);
@@ -29,6 +33,16 @@ static inline struct qcom_smem_state *qcom_smem_state_get(struct device *dev,
 	return ERR_PTR(-EINVAL);
 }
 
+<<<<<<< HEAD
+=======
+static inline struct qcom_smem_state *devm_qcom_smem_state_get(struct device *dev,
+							       const char *con_id,
+							       unsigned *bit)
+{
+	return ERR_PTR(-EINVAL);
+}
+
+>>>>>>> upstream/android-13
 static inline void qcom_smem_state_put(struct qcom_smem_state *state)
 {
 }

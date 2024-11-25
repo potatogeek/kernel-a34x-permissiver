@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 
 /*
  * Linux device driver for ADMtek ADM8211 (IEEE 802.11b MAC/BBP)
@@ -8,11 +12,14 @@
  * and used with permission.
  *
  * Much thanks to Infineon-ADMtek for their support of this driver.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation. See README and COPYING for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/interrupt.h>
@@ -32,7 +39,10 @@
 MODULE_AUTHOR("Michael Wu <flamingice@sourmilk.net>");
 MODULE_AUTHOR("Jouni Malinen <j@w1.fi>");
 MODULE_DESCRIPTION("Driver for IEEE 802.11b wireless cards based on ADMtek ADM8211");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("ADM8211");
+=======
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");
 
 static unsigned int tx_ring_size __read_mostly = 16;
@@ -328,8 +338,13 @@ static void adm8211_interrupt_tci(struct ieee80211_hw *dev)
 
 		/* TODO: check TDES0_STATUS_TUF and TDES0_STATUS_TRO */
 
+<<<<<<< HEAD
 		pci_unmap_single(priv->pdev, info->mapping,
 				 info->skb->len, PCI_DMA_TODEVICE);
+=======
+		dma_unmap_single(&priv->pdev->dev, info->mapping,
+				 info->skb->len, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 
 		ieee80211_tx_info_clear_status(txi);
 
@@ -386,6 +401,7 @@ static void adm8211_interrupt_rci(struct ieee80211_hw *dev)
 		} else if (pktlen < RX_COPY_BREAK) {
 			skb = dev_alloc_skb(pktlen);
 			if (skb) {
+<<<<<<< HEAD
 				pci_dma_sync_single_for_cpu(
 					priv->pdev,
 					priv->rx_buffers[entry].mapping,
@@ -397,12 +413,26 @@ static void adm8211_interrupt_rci(struct ieee80211_hw *dev)
 					priv->pdev,
 					priv->rx_buffers[entry].mapping,
 					RX_PKT_SIZE, PCI_DMA_FROMDEVICE);
+=======
+				dma_sync_single_for_cpu(&priv->pdev->dev,
+							priv->rx_buffers[entry].mapping,
+							pktlen,
+							DMA_FROM_DEVICE);
+				skb_put_data(skb,
+					     skb_tail_pointer(priv->rx_buffers[entry].skb),
+					     pktlen);
+				dma_sync_single_for_device(&priv->pdev->dev,
+							   priv->rx_buffers[entry].mapping,
+							   RX_PKT_SIZE,
+							   DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 			}
 		} else {
 			newskb = dev_alloc_skb(RX_PKT_SIZE);
 			if (newskb) {
 				skb = priv->rx_buffers[entry].skb;
 				skb_put(skb, pktlen);
+<<<<<<< HEAD
 				pci_unmap_single(
 					priv->pdev,
 					priv->rx_buffers[entry].mapping,
@@ -415,6 +445,19 @@ static void adm8211_interrupt_rci(struct ieee80211_hw *dev)
 						       PCI_DMA_FROMDEVICE);
 				if (pci_dma_mapping_error(priv->pdev,
 					   priv->rx_buffers[entry].mapping)) {
+=======
+				dma_unmap_single(&priv->pdev->dev,
+						 priv->rx_buffers[entry].mapping,
+						 RX_PKT_SIZE, DMA_FROM_DEVICE);
+				priv->rx_buffers[entry].skb = newskb;
+				priv->rx_buffers[entry].mapping =
+					dma_map_single(&priv->pdev->dev,
+						       skb_tail_pointer(newskb),
+						       RX_PKT_SIZE,
+						       DMA_FROM_DEVICE);
+				if (dma_mapping_error(&priv->pdev->dev,
+						      priv->rx_buffers[entry].mapping)) {
+>>>>>>> upstream/android-13
 					priv->rx_buffers[entry].skb = NULL;
 					dev_kfree_skb(newskb);
 					skb = NULL;
@@ -1453,11 +1496,19 @@ static int adm8211_init_rings(struct ieee80211_hw *dev)
 		rx_info->skb = dev_alloc_skb(RX_PKT_SIZE);
 		if (rx_info->skb == NULL)
 			break;
+<<<<<<< HEAD
 		rx_info->mapping = pci_map_single(priv->pdev,
 						  skb_tail_pointer(rx_info->skb),
 						  RX_PKT_SIZE,
 						  PCI_DMA_FROMDEVICE);
 		if (pci_dma_mapping_error(priv->pdev, rx_info->mapping)) {
+=======
+		rx_info->mapping = dma_map_single(&priv->pdev->dev,
+						  skb_tail_pointer(rx_info->skb),
+						  RX_PKT_SIZE,
+						  DMA_FROM_DEVICE);
+		if (dma_mapping_error(&priv->pdev->dev, rx_info->mapping)) {
+>>>>>>> upstream/android-13
 			dev_kfree_skb(rx_info->skb);
 			rx_info->skb = NULL;
 			break;
@@ -1494,10 +1545,16 @@ static void adm8211_free_rings(struct ieee80211_hw *dev)
 		if (!priv->rx_buffers[i].skb)
 			continue;
 
+<<<<<<< HEAD
 		pci_unmap_single(
 			priv->pdev,
 			priv->rx_buffers[i].mapping,
 			RX_PKT_SIZE, PCI_DMA_FROMDEVICE);
+=======
+		dma_unmap_single(&priv->pdev->dev,
+				 priv->rx_buffers[i].mapping, RX_PKT_SIZE,
+				 DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 
 		dev_kfree_skb(priv->rx_buffers[i].skb);
 	}
@@ -1506,10 +1563,16 @@ static void adm8211_free_rings(struct ieee80211_hw *dev)
 		if (!priv->tx_buffers[i].skb)
 			continue;
 
+<<<<<<< HEAD
 		pci_unmap_single(priv->pdev,
 				 priv->tx_buffers[i].mapping,
 				 priv->tx_buffers[i].skb->len,
 				 PCI_DMA_TODEVICE);
+=======
+		dma_unmap_single(&priv->pdev->dev,
+				 priv->tx_buffers[i].mapping,
+				 priv->tx_buffers[i].skb->len, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 
 		dev_kfree_skb(priv->tx_buffers[i].skb);
 	}
@@ -1636,9 +1699,15 @@ static int adm8211_tx_raw(struct ieee80211_hw *dev, struct sk_buff *skb,
 	unsigned int entry;
 	u32 flag;
 
+<<<<<<< HEAD
 	mapping = pci_map_single(priv->pdev, skb->data, skb->len,
 				 PCI_DMA_TODEVICE);
 	if (pci_dma_mapping_error(priv->pdev, mapping))
+=======
+	mapping = dma_map_single(&priv->pdev->dev, skb->data, skb->len,
+				 DMA_TO_DEVICE);
+	if (dma_mapping_error(&priv->pdev->dev, mapping))
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 
 	spin_lock_irqsave(&priv->lock, flags);
@@ -1749,8 +1818,13 @@ static int adm8211_alloc_rings(struct ieee80211_hw *dev)
 	/* Allocate TX/RX descriptors */
 	ring_size = sizeof(struct adm8211_desc) * priv->rx_ring_size +
 		    sizeof(struct adm8211_desc) * priv->tx_ring_size;
+<<<<<<< HEAD
 	priv->rx_ring = pci_alloc_consistent(priv->pdev, ring_size,
 					     &priv->rx_ring_dma);
+=======
+	priv->rx_ring = dma_alloc_coherent(&priv->pdev->dev, ring_size,
+					   &priv->rx_ring_dma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 
 	if (!priv->rx_ring) {
 		kfree(priv->rx_buffers);
@@ -1785,8 +1859,13 @@ static int adm8211_probe(struct pci_dev *pdev,
 {
 	struct ieee80211_hw *dev;
 	struct adm8211_priv *priv;
+<<<<<<< HEAD
 	unsigned long mem_addr, mem_len;
 	unsigned int io_addr, io_len;
+=======
+	unsigned long mem_len;
+	unsigned int io_len;
+>>>>>>> upstream/android-13
 	int err;
 	u32 reg;
 	u8 perm_addr[ETH_ALEN];
@@ -1798,13 +1877,21 @@ static int adm8211_probe(struct pci_dev *pdev,
 		return err;
 	}
 
+<<<<<<< HEAD
 	io_addr = pci_resource_start(pdev, 0);
 	io_len = pci_resource_len(pdev, 0);
 	mem_addr = pci_resource_start(pdev, 1);
+=======
+	io_len = pci_resource_len(pdev, 0);
+>>>>>>> upstream/android-13
 	mem_len = pci_resource_len(pdev, 1);
 	if (io_len < 256 || mem_len < 1024) {
 		printk(KERN_ERR "%s (adm8211): Too short PCI resources\n",
 		       pci_name(pdev));
+<<<<<<< HEAD
+=======
+		err = -ENOMEM;
+>>>>>>> upstream/android-13
 		goto err_disable_pdev;
 	}
 
@@ -1814,6 +1901,10 @@ static int adm8211_probe(struct pci_dev *pdev,
 	if (reg != ADM8211_SIG1 && reg != ADM8211_SIG2) {
 		printk(KERN_ERR "%s (adm8211): Invalid signature (0x%x)\n",
 		       pci_name(pdev), reg);
+<<<<<<< HEAD
+=======
+		err = -EINVAL;
+>>>>>>> upstream/android-13
 		goto err_disable_pdev;
 	}
 
@@ -1824,8 +1915,13 @@ static int adm8211_probe(struct pci_dev *pdev,
 		return err; /* someone else grabbed it? don't disable it */
 	}
 
+<<<<<<< HEAD
 	if (pci_set_dma_mask(pdev, DMA_BIT_MASK(32)) ||
 	    pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(32))) {
+=======
+	err = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32));
+	if (err) {
+>>>>>>> upstream/android-13
 		printk(KERN_ERR "%s (adm8211): No suitable DMA available\n",
 		       pci_name(pdev));
 		goto err_free_reg;
@@ -1935,10 +2031,17 @@ static int adm8211_probe(struct pci_dev *pdev,
 	kfree(priv->eeprom);
 
  err_free_desc:
+<<<<<<< HEAD
 	pci_free_consistent(pdev,
 			    sizeof(struct adm8211_desc) * priv->rx_ring_size +
 			    sizeof(struct adm8211_desc) * priv->tx_ring_size,
 			    priv->rx_ring, priv->rx_ring_dma);
+=======
+	dma_free_coherent(&pdev->dev,
+			  sizeof(struct adm8211_desc) * priv->rx_ring_size +
+			  sizeof(struct adm8211_desc) * priv->tx_ring_size,
+			  priv->rx_ring, priv->rx_ring_dma);
+>>>>>>> upstream/android-13
 	kfree(priv->rx_buffers);
 
  err_iounmap:
@@ -1968,10 +2071,17 @@ static void adm8211_remove(struct pci_dev *pdev)
 
 	priv = dev->priv;
 
+<<<<<<< HEAD
 	pci_free_consistent(pdev,
 			    sizeof(struct adm8211_desc) * priv->rx_ring_size +
 			    sizeof(struct adm8211_desc) * priv->tx_ring_size,
 			    priv->rx_ring, priv->rx_ring_dma);
+=======
+	dma_free_coherent(&pdev->dev,
+			  sizeof(struct adm8211_desc) * priv->rx_ring_size +
+			  sizeof(struct adm8211_desc) * priv->tx_ring_size,
+			  priv->rx_ring, priv->rx_ring_dma);
+>>>>>>> upstream/android-13
 
 	kfree(priv->rx_buffers);
 	kfree(priv->eeprom);
@@ -1982,6 +2092,7 @@ static void adm8211_remove(struct pci_dev *pdev)
 }
 
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 static int adm8211_suspend(struct pci_dev *pdev, pm_message_t state)
 {
@@ -2001,16 +2112,29 @@ static int adm8211_resume(struct pci_dev *pdev)
 
 MODULE_DEVICE_TABLE(pci, adm8211_pci_id_table);
 
+=======
+#define adm8211_suspend NULL
+#define adm8211_resume NULL
+
+MODULE_DEVICE_TABLE(pci, adm8211_pci_id_table);
+
+static SIMPLE_DEV_PM_OPS(adm8211_pm_ops, adm8211_suspend, adm8211_resume);
+
+>>>>>>> upstream/android-13
 /* TODO: implement enable_wake */
 static struct pci_driver adm8211_driver = {
 	.name		= "adm8211",
 	.id_table	= adm8211_pci_id_table,
 	.probe		= adm8211_probe,
 	.remove		= adm8211_remove,
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 	.suspend	= adm8211_suspend,
 	.resume		= adm8211_resume,
 #endif /* CONFIG_PM */
+=======
+	.driver.pm	= &adm8211_pm_ops,
+>>>>>>> upstream/android-13
 };
 
 module_pci_driver(adm8211_driver);

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * fs/fs-writeback.c
  *
@@ -35,10 +39,13 @@
  */
 #define MIN_WRITEBACK_PAGES	(4096UL >> (PAGE_SHIFT - 10))
 
+<<<<<<< HEAD
 struct wb_completion {
 	atomic_t		cnt;
 };
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Passed into wb_writeback(), essentially a subset of writeback_control
  */
@@ -59,6 +66,7 @@ struct wb_writeback_work {
 };
 
 /*
+<<<<<<< HEAD
  * If one wants to wait for one or more wb_writeback_works, each work's
  * ->done should be set to a wb_completion defined using the following
  * macro.  Once all work items are issued with wb_queue_work(), the caller
@@ -72,6 +80,8 @@ struct wb_writeback_work {
 
 
 /*
+=======
+>>>>>>> upstream/android-13
  * If an inode is constantly having its pages dirtied, but then the
  * updates stop dirtytime_expire_interval seconds in the past, it's
  * possible for the worst case time between when an inode has its
@@ -147,6 +157,7 @@ static bool inode_io_list_move_locked(struct inode *inode,
 	return false;
 }
 
+<<<<<<< HEAD
 /**
  * inode_io_list_del_locked - remove an inode from its bdi_writeback IO list
  * @inode: inode to be removed
@@ -172,6 +183,14 @@ static void wb_wakeup(struct bdi_writeback *wb)
 	if (test_bit(WB_registered, &wb->state))
 		mod_delayed_work(bdi_wq, &wb->dwork, 0);
 	spin_unlock_bh(&wb->work_lock);
+=======
+static void wb_wakeup(struct bdi_writeback *wb)
+{
+	spin_lock_irq(&wb->work_lock);
+	if (test_bit(WB_registered, &wb->state))
+		mod_delayed_work(bdi_wq, &wb->dwork, 0);
+	spin_unlock_irq(&wb->work_lock);
+>>>>>>> upstream/android-13
 }
 
 static void finish_writeback_work(struct bdi_writeback *wb,
@@ -181,8 +200,18 @@ static void finish_writeback_work(struct bdi_writeback *wb,
 
 	if (work->auto_free)
 		kfree(work);
+<<<<<<< HEAD
 	if (done && atomic_dec_and_test(&done->cnt))
 		wake_up_all(&wb->bdi->wb_waitq);
+=======
+	if (done) {
+		wait_queue_head_t *waitq = done->waitq;
+
+		/* @done can't be accessed after the following dec */
+		if (atomic_dec_and_test(&done->cnt))
+			wake_up_all(waitq);
+	}
+>>>>>>> upstream/android-13
 }
 
 static void wb_queue_work(struct bdi_writeback *wb,
@@ -193,7 +222,11 @@ static void wb_queue_work(struct bdi_writeback *wb,
 	if (work->done)
 		atomic_inc(&work->done->cnt);
 
+<<<<<<< HEAD
 	spin_lock_bh(&wb->work_lock);
+=======
+	spin_lock_irq(&wb->work_lock);
+>>>>>>> upstream/android-13
 
 	if (test_bit(WB_registered, &wb->state)) {
 		list_add_tail(&work->list, &wb->work_list);
@@ -201,11 +234,16 @@ static void wb_queue_work(struct bdi_writeback *wb,
 	} else
 		finish_writeback_work(wb, work);
 
+<<<<<<< HEAD
 	spin_unlock_bh(&wb->work_lock);
+=======
+	spin_unlock_irq(&wb->work_lock);
+>>>>>>> upstream/android-13
 }
 
 /**
  * wb_wait_for_completion - wait for completion of bdi_writeback_works
+<<<<<<< HEAD
  * @bdi: bdi work items were issued to
  * @done: target wb_completion
  *
@@ -220,14 +258,53 @@ static void wb_wait_for_completion(struct backing_dev_info *bdi,
 {
 	atomic_dec(&done->cnt);		/* put down the initial count */
 	wait_event(bdi->wb_waitq, !atomic_read(&done->cnt));
+=======
+ * @done: target wb_completion
+ *
+ * Wait for one or more work items issued to @bdi with their ->done field
+ * set to @done, which should have been initialized with
+ * DEFINE_WB_COMPLETION().  This function returns after all such work items
+ * are completed.  Work items which are waited upon aren't freed
+ * automatically on completion.
+ */
+void wb_wait_for_completion(struct wb_completion *done)
+{
+	atomic_dec(&done->cnt);		/* put down the initial count */
+	wait_event(*done->waitq, !atomic_read(&done->cnt));
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_CGROUP_WRITEBACK
 
+<<<<<<< HEAD
 /* parameters for foreign inode detection, see wb_detach_inode() */
 #define WB_FRN_TIME_SHIFT	13	/* 1s = 2^13, upto 8 secs w/ 16bit */
 #define WB_FRN_TIME_AVG_SHIFT	3	/* avg = avg * 7/8 + new * 1/8 */
 #define WB_FRN_TIME_CUT_DIV	2	/* ignore rounds < avg / 2 */
+=======
+/*
+ * Parameters for foreign inode detection, see wbc_detach_inode() to see
+ * how they're used.
+ *
+ * These paramters are inherently heuristical as the detection target
+ * itself is fuzzy.  All we want to do is detaching an inode from the
+ * current owner if it's being written to by some other cgroups too much.
+ *
+ * The current cgroup writeback is built on the assumption that multiple
+ * cgroups writing to the same inode concurrently is very rare and a mode
+ * of operation which isn't well supported.  As such, the goal is not
+ * taking too long when a different cgroup takes over an inode while
+ * avoiding too aggressive flip-flops from occasional foreign writes.
+ *
+ * We record, very roughly, 2s worth of IO time history and if more than
+ * half of that is foreign, trigger the switch.  The recording is quantized
+ * to 16 slots.  To avoid tiny writes from swinging the decision too much,
+ * writes smaller than 1/8 of avg size are ignored.
+ */
+#define WB_FRN_TIME_SHIFT	13	/* 1s = 2^13, upto 8 secs w/ 16bit */
+#define WB_FRN_TIME_AVG_SHIFT	3	/* avg = avg * 7/8 + new * 1/8 */
+#define WB_FRN_TIME_CUT_DIV	8	/* ignore rounds < avg / 8 */
+>>>>>>> upstream/android-13
 #define WB_FRN_TIME_PERIOD	(2 * (1 << WB_FRN_TIME_SHIFT))	/* 2s */
 
 #define WB_FRN_HIST_SLOTS	16	/* inode->i_wb_frn_history is 16bit */
@@ -237,6 +314,17 @@ static void wb_wait_for_completion(struct backing_dev_info *bdi,
 					/* if foreign slots >= 8, switch */
 #define WB_FRN_HIST_MAX_SLOTS	(WB_FRN_HIST_THR_SLOTS / 2 + 1)
 					/* one round can affect upto 5 slots */
+<<<<<<< HEAD
+=======
+#define WB_FRN_MAX_IN_FLIGHT	1024	/* don't queue too many concurrently */
+
+/*
+ * Maximum inodes per isw.  A specific value has been chosen to make
+ * struct inode_switch_wbs_context fit into 1024 bytes kmalloc.
+ */
+#define WB_MAX_INODES_PER_ISW  ((1024UL - sizeof(struct inode_switch_wbs_context)) \
+                                / sizeof(struct inode *))
+>>>>>>> upstream/android-13
 
 static atomic_t isw_nr_in_flight = ATOMIC_INIT(0);
 static struct workqueue_struct *isw_wq;
@@ -273,6 +361,31 @@ void __inode_attach_wb(struct inode *inode, struct page *page)
 EXPORT_SYMBOL_GPL(__inode_attach_wb);
 
 /**
+<<<<<<< HEAD
+=======
+ * inode_cgwb_move_to_attached - put the inode onto wb->b_attached list
+ * @inode: inode of interest with i_lock held
+ * @wb: target bdi_writeback
+ *
+ * Remove the inode from wb's io lists and if necessarily put onto b_attached
+ * list.  Only inodes attached to cgwb's are kept on this list.
+ */
+static void inode_cgwb_move_to_attached(struct inode *inode,
+					struct bdi_writeback *wb)
+{
+	assert_spin_locked(&wb->list_lock);
+	assert_spin_locked(&inode->i_lock);
+
+	inode->i_state &= ~I_SYNC_QUEUED;
+	if (wb != &wb->bdi->wb)
+		list_move(&inode->i_io_list, &wb->b_attached);
+	else
+		list_del_init(&inode->i_io_list);
+	wb_io_lists_depopulated(wb);
+}
+
+/**
+>>>>>>> upstream/android-13
  * locked_inode_to_wb_and_lock_list - determine a locked inode's wb and lock it
  * @inode: inode of interest with i_lock held
  *
@@ -326,11 +439,26 @@ static struct bdi_writeback *inode_to_wb_and_lock_list(struct inode *inode)
 }
 
 struct inode_switch_wbs_context {
+<<<<<<< HEAD
 	struct inode		*inode;
 	struct bdi_writeback	*new_wb;
 
 	struct rcu_head		rcu_head;
 	struct work_struct	work;
+=======
+	struct rcu_work		work;
+
+	/*
+	 * Multiple inodes can be switched at once.  The switching procedure
+	 * consists of two parts, separated by a RCU grace period.  To make
+	 * sure that the second part is executed for each inode gone through
+	 * the first part, all inode pointers are placed into a NULL-terminated
+	 * array embedded into struct inode_switch_wbs_context.  Otherwise
+	 * an inode could be left in a non-consistent state.
+	 */
+	struct bdi_writeback	*new_wb;
+	struct inode		*inodes[];
+>>>>>>> upstream/android-13
 };
 
 static void bdi_down_write_wb_switch_rwsem(struct backing_dev_info *bdi)
@@ -343,6 +471,7 @@ static void bdi_up_write_wb_switch_rwsem(struct backing_dev_info *bdi)
 	up_write(&bdi->wb_switch_rwsem);
 }
 
+<<<<<<< HEAD
 static void inode_switch_wbs_work_fn(struct work_struct *work)
 {
 	struct inode_switch_wbs_context *isw =
@@ -355,6 +484,109 @@ static void inode_switch_wbs_work_fn(struct work_struct *work)
 	struct radix_tree_iter iter;
 	bool switched = false;
 	void **slot;
+=======
+static bool inode_do_switch_wbs(struct inode *inode,
+				struct bdi_writeback *old_wb,
+				struct bdi_writeback *new_wb)
+{
+	struct address_space *mapping = inode->i_mapping;
+	XA_STATE(xas, &mapping->i_pages, 0);
+	struct page *page;
+	bool switched = false;
+
+	spin_lock(&inode->i_lock);
+	xa_lock_irq(&mapping->i_pages);
+
+	/*
+	 * Once I_FREEING or I_WILL_FREE are visible under i_lock, the eviction
+	 * path owns the inode and we shouldn't modify ->i_io_list.
+	 */
+	if (unlikely(inode->i_state & (I_FREEING | I_WILL_FREE)))
+		goto skip_switch;
+
+	trace_inode_switch_wbs(inode, old_wb, new_wb);
+
+	/*
+	 * Count and transfer stats.  Note that PAGECACHE_TAG_DIRTY points
+	 * to possibly dirty pages while PAGECACHE_TAG_WRITEBACK points to
+	 * pages actually under writeback.
+	 */
+	xas_for_each_marked(&xas, page, ULONG_MAX, PAGECACHE_TAG_DIRTY) {
+		if (PageDirty(page)) {
+			dec_wb_stat(old_wb, WB_RECLAIMABLE);
+			inc_wb_stat(new_wb, WB_RECLAIMABLE);
+		}
+	}
+
+	xas_set(&xas, 0);
+	xas_for_each_marked(&xas, page, ULONG_MAX, PAGECACHE_TAG_WRITEBACK) {
+		WARN_ON_ONCE(!PageWriteback(page));
+		dec_wb_stat(old_wb, WB_WRITEBACK);
+		inc_wb_stat(new_wb, WB_WRITEBACK);
+	}
+
+	if (mapping_tagged(mapping, PAGECACHE_TAG_WRITEBACK)) {
+		atomic_dec(&old_wb->writeback_inodes);
+		atomic_inc(&new_wb->writeback_inodes);
+	}
+
+	wb_get(new_wb);
+
+	/*
+	 * Transfer to @new_wb's IO list if necessary.  If the @inode is dirty,
+	 * the specific list @inode was on is ignored and the @inode is put on
+	 * ->b_dirty which is always correct including from ->b_dirty_time.
+	 * The transfer preserves @inode->dirtied_when ordering.  If the @inode
+	 * was clean, it means it was on the b_attached list, so move it onto
+	 * the b_attached list of @new_wb.
+	 */
+	if (!list_empty(&inode->i_io_list)) {
+		inode->i_wb = new_wb;
+
+		if (inode->i_state & I_DIRTY_ALL) {
+			struct inode *pos;
+
+			list_for_each_entry(pos, &new_wb->b_dirty, i_io_list)
+				if (time_after_eq(inode->dirtied_when,
+						  pos->dirtied_when))
+					break;
+			inode_io_list_move_locked(inode, new_wb,
+						  pos->i_io_list.prev);
+		} else {
+			inode_cgwb_move_to_attached(inode, new_wb);
+		}
+	} else {
+		inode->i_wb = new_wb;
+	}
+
+	/* ->i_wb_frn updates may race wbc_detach_inode() but doesn't matter */
+	inode->i_wb_frn_winner = 0;
+	inode->i_wb_frn_avg_time = 0;
+	inode->i_wb_frn_history = 0;
+	switched = true;
+skip_switch:
+	/*
+	 * Paired with load_acquire in unlocked_inode_to_wb_begin() and
+	 * ensures that the new wb is visible if they see !I_WB_SWITCH.
+	 */
+	smp_store_release(&inode->i_state, inode->i_state & ~I_WB_SWITCH);
+
+	xa_unlock_irq(&mapping->i_pages);
+	spin_unlock(&inode->i_lock);
+
+	return switched;
+}
+
+static void inode_switch_wbs_work_fn(struct work_struct *work)
+{
+	struct inode_switch_wbs_context *isw =
+		container_of(to_rcu_work(work), struct inode_switch_wbs_context, work);
+	struct backing_dev_info *bdi = inode_to_bdi(isw->inodes[0]);
+	struct bdi_writeback *old_wb = isw->inodes[0]->i_wb;
+	struct bdi_writeback *new_wb = isw->new_wb;
+	unsigned long nr_switched = 0;
+	struct inode **inodep;
+>>>>>>> upstream/android-13
 
 	/*
 	 * If @inode switches cgwb membership while sync_inodes_sb() is
@@ -379,6 +611,7 @@ static void inode_switch_wbs_work_fn(struct work_struct *work)
 		spin_lock(&new_wb->list_lock);
 		spin_lock_nested(&old_wb->list_lock, SINGLE_DEPTH_NESTING);
 	}
+<<<<<<< HEAD
 	spin_lock(&inode->i_lock);
 	xa_lock_irq(&mapping->i_pages);
 
@@ -451,11 +684,21 @@ skip_switch:
 
 	xa_unlock_irq(&mapping->i_pages);
 	spin_unlock(&inode->i_lock);
+=======
+
+	for (inodep = isw->inodes; *inodep; inodep++) {
+		WARN_ON_ONCE((*inodep)->i_wb != old_wb);
+		if (inode_do_switch_wbs(*inodep, old_wb, new_wb))
+			nr_switched++;
+	}
+
+>>>>>>> upstream/android-13
 	spin_unlock(&new_wb->list_lock);
 	spin_unlock(&old_wb->list_lock);
 
 	up_read(&bdi->wb_switch_rwsem);
 
+<<<<<<< HEAD
 	if (switched) {
 		wb_wakeup(new_wb);
 		wb_put(old_wb);
@@ -476,6 +719,47 @@ static void inode_switch_wbs_rcu_fn(struct rcu_head *rcu_head)
 	/* needs to grab bh-unsafe locks, bounce to work item */
 	INIT_WORK(&isw->work, inode_switch_wbs_work_fn);
 	queue_work(isw_wq, &isw->work);
+=======
+	if (nr_switched) {
+		wb_wakeup(new_wb);
+		wb_put_many(old_wb, nr_switched);
+	}
+
+	for (inodep = isw->inodes; *inodep; inodep++)
+		iput(*inodep);
+	wb_put(new_wb);
+	kfree(isw);
+	atomic_dec(&isw_nr_in_flight);
+}
+
+static bool inode_prepare_wbs_switch(struct inode *inode,
+				     struct bdi_writeback *new_wb)
+{
+	/*
+	 * Paired with smp_mb() in cgroup_writeback_umount().
+	 * isw_nr_in_flight must be increased before checking SB_ACTIVE and
+	 * grabbing an inode, otherwise isw_nr_in_flight can be observed as 0
+	 * in cgroup_writeback_umount() and the isw_wq will be not flushed.
+	 */
+	smp_mb();
+
+	if (IS_DAX(inode))
+		return false;
+
+	/* while holding I_WB_SWITCH, no one else can update the association */
+	spin_lock(&inode->i_lock);
+	if (!(inode->i_sb->s_flags & SB_ACTIVE) ||
+	    inode->i_state & (I_WB_SWITCH | I_FREEING | I_WILL_FREE) ||
+	    inode_to_wb(inode) == new_wb) {
+		spin_unlock(&inode->i_lock);
+		return false;
+	}
+	inode->i_state |= I_WB_SWITCH;
+	__iget(inode);
+	spin_unlock(&inode->i_lock);
+
+	return true;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -496,6 +780,7 @@ static void inode_switch_wbs(struct inode *inode, int new_wb_id)
 	if (inode->i_state & I_WB_SWITCH)
 		return;
 
+<<<<<<< HEAD
 	/*
 	 * Avoid starting new switches while sync_inodes_sb() is in
 	 * progress.  Otherwise, if the down_write protected issue path
@@ -508,10 +793,22 @@ static void inode_switch_wbs(struct inode *inode, int new_wb_id)
 	isw = kzalloc(sizeof(*isw), GFP_ATOMIC);
 	if (!isw)
 		goto out_unlock;
+=======
+	/* avoid queueing a new switch if too many are already in flight */
+	if (atomic_read(&isw_nr_in_flight) > WB_FRN_MAX_IN_FLIGHT)
+		return;
+
+	isw = kzalloc(sizeof(*isw) + 2 * sizeof(struct inode *), GFP_ATOMIC);
+	if (!isw)
+		return;
+
+	atomic_inc(&isw_nr_in_flight);
+>>>>>>> upstream/android-13
 
 	/* find and pin the new wb */
 	rcu_read_lock();
 	memcg_css = css_from_id(new_wb_id, &memory_cgrp_subsys);
+<<<<<<< HEAD
 	if (memcg_css)
 		isw->new_wb = wb_get_create(bdi, memcg_css, GFP_ATOMIC);
 	rcu_read_unlock();
@@ -531,6 +828,23 @@ static void inode_switch_wbs(struct inode *inode, int new_wb_id)
 	spin_unlock(&inode->i_lock);
 
 	isw->inode = inode;
+=======
+	if (memcg_css && !css_tryget(memcg_css))
+		memcg_css = NULL;
+	rcu_read_unlock();
+	if (!memcg_css)
+		goto out_free;
+
+	isw->new_wb = wb_get_create(bdi, memcg_css, GFP_ATOMIC);
+	css_put(memcg_css);
+	if (!isw->new_wb)
+		goto out_free;
+
+	if (!inode_prepare_wbs_switch(inode, isw->new_wb))
+		goto out_free;
+
+	isw->inodes[0] = inode;
+>>>>>>> upstream/android-13
 
 	/*
 	 * In addition to synchronizing among switchers, I_WB_SWITCH tells
@@ -538,6 +852,7 @@ static void inode_switch_wbs(struct inode *inode, int new_wb_id)
 	 * lock so that stat transfer can synchronize against them.
 	 * Let's continue after I_WB_SWITCH is guaranteed to be visible.
 	 */
+<<<<<<< HEAD
 	call_rcu(&isw->rcu_head, inode_switch_wbs_rcu_fn);
 
 	atomic_inc(&isw_nr_in_flight);
@@ -550,6 +865,84 @@ out_free:
 	kfree(isw);
 out_unlock:
 	up_read(&bdi->wb_switch_rwsem);
+=======
+	INIT_RCU_WORK(&isw->work, inode_switch_wbs_work_fn);
+	queue_rcu_work(isw_wq, &isw->work);
+	return;
+
+out_free:
+	atomic_dec(&isw_nr_in_flight);
+	if (isw->new_wb)
+		wb_put(isw->new_wb);
+	kfree(isw);
+}
+
+/**
+ * cleanup_offline_cgwb - detach associated inodes
+ * @wb: target wb
+ *
+ * Switch all inodes attached to @wb to a nearest living ancestor's wb in order
+ * to eventually release the dying @wb.  Returns %true if not all inodes were
+ * switched and the function has to be restarted.
+ */
+bool cleanup_offline_cgwb(struct bdi_writeback *wb)
+{
+	struct cgroup_subsys_state *memcg_css;
+	struct inode_switch_wbs_context *isw;
+	struct inode *inode;
+	int nr;
+	bool restart = false;
+
+	isw = kzalloc(sizeof(*isw) + WB_MAX_INODES_PER_ISW *
+		      sizeof(struct inode *), GFP_KERNEL);
+	if (!isw)
+		return restart;
+
+	atomic_inc(&isw_nr_in_flight);
+
+	for (memcg_css = wb->memcg_css->parent; memcg_css;
+	     memcg_css = memcg_css->parent) {
+		isw->new_wb = wb_get_create(wb->bdi, memcg_css, GFP_KERNEL);
+		if (isw->new_wb)
+			break;
+	}
+	if (unlikely(!isw->new_wb))
+		isw->new_wb = &wb->bdi->wb; /* wb_get() is noop for bdi's wb */
+
+	nr = 0;
+	spin_lock(&wb->list_lock);
+	list_for_each_entry(inode, &wb->b_attached, i_io_list) {
+		if (!inode_prepare_wbs_switch(inode, isw->new_wb))
+			continue;
+
+		isw->inodes[nr++] = inode;
+
+		if (nr >= WB_MAX_INODES_PER_ISW - 1) {
+			restart = true;
+			break;
+		}
+	}
+	spin_unlock(&wb->list_lock);
+
+	/* no attached inodes? bail out */
+	if (nr == 0) {
+		atomic_dec(&isw_nr_in_flight);
+		wb_put(isw->new_wb);
+		kfree(isw);
+		return restart;
+	}
+
+	/*
+	 * In addition to synchronizing among switchers, I_WB_SWITCH tells
+	 * the RCU protected stat update paths to grab the i_page
+	 * lock so that stat transfer can synchronize against them.
+	 * Let's continue after I_WB_SWITCH is guaranteed to be visible.
+	 */
+	INIT_RCU_WORK(&isw->work, inode_switch_wbs_work_fn);
+	queue_rcu_work(isw_wq, &isw->work);
+
+	return restart;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -593,6 +986,10 @@ void wbc_attach_and_unlock_inode(struct writeback_control *wbc,
 	if (unlikely(wb_dying(wbc->wb) && !css_is_dying(wbc->wb->memcg_css)))
 		inode_switch_wbs(inode, wbc->wb_id);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(wbc_attach_and_unlock_inode);
+>>>>>>> upstream/android-13
 
 /**
  * wbc_detach_inode - disassociate wbc from inode and perform foreign detection
@@ -690,6 +1087,12 @@ void wbc_detach_inode(struct writeback_control *wbc)
 		if (wbc->wb_id != max_id)
 			history |= (1U << slots) - 1;
 
+<<<<<<< HEAD
+=======
+		if (history)
+			trace_inode_foreign_history(inode, wbc, history);
+
+>>>>>>> upstream/android-13
 		/*
 		 * Switch if the current wb isn't the consistent winner.
 		 * If there are multiple closely competing dirtiers, the
@@ -712,9 +1115,16 @@ void wbc_detach_inode(struct writeback_control *wbc)
 	wb_put(wbc->wb);
 	wbc->wb = NULL;
 }
+<<<<<<< HEAD
 
 /**
  * wbc_account_io - account IO issued during writeback
+=======
+EXPORT_SYMBOL_GPL(wbc_detach_inode);
+
+/**
+ * wbc_account_cgroup_owner - account writeback to update inode cgroup ownership
+>>>>>>> upstream/android-13
  * @wbc: writeback_control of the writeback in progress
  * @page: page being written out
  * @bytes: number of bytes being written out
@@ -723,8 +1133,13 @@ void wbc_detach_inode(struct writeback_control *wbc)
  * controlled by @wbc.  Keep the book for foreign inode detection.  See
  * wbc_detach_inode().
  */
+<<<<<<< HEAD
 void wbc_account_io(struct writeback_control *wbc, struct page *page,
 		    size_t bytes)
+=======
+void wbc_account_cgroup_owner(struct writeback_control *wbc, struct page *page,
+			      size_t bytes)
+>>>>>>> upstream/android-13
 {
 	struct cgroup_subsys_state *css;
 	int id;
@@ -735,7 +1150,11 @@ void wbc_account_io(struct writeback_control *wbc, struct page *page,
 	 * behind a slow cgroup.  Ultimately, we want pageout() to kick off
 	 * regular writeback instead of writing things out itself.
 	 */
+<<<<<<< HEAD
 	if (!wbc->wb)
+=======
+	if (!wbc->wb || wbc->no_cgroup_owner)
+>>>>>>> upstream/android-13
 		return;
 
 	css = mem_cgroup_css_from_page(page);
@@ -761,7 +1180,11 @@ void wbc_account_io(struct writeback_control *wbc, struct page *page,
 	else
 		wbc->wb_tcand_bytes -= min(bytes, wbc->wb_tcand_bytes);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(wbc_account_io);
+=======
+EXPORT_SYMBOL_GPL(wbc_account_cgroup_owner);
+>>>>>>> upstream/android-13
 
 /**
  * inode_congested - test whether an inode is congested
@@ -851,7 +1274,11 @@ static void bdi_split_work_to_wbs(struct backing_dev_info *bdi,
 restart:
 	rcu_read_lock();
 	list_for_each_entry_continue_rcu(wb, &bdi->wb_list, bdi_node) {
+<<<<<<< HEAD
 		DEFINE_WB_COMPLETION_ONSTACK(fallback_work_done);
+=======
+		DEFINE_WB_COMPLETION(fallback_work_done, bdi);
+>>>>>>> upstream/android-13
 		struct wb_writeback_work fallback_work;
 		struct wb_writeback_work *work;
 		long nr_pages;
@@ -898,7 +1325,11 @@ restart:
 		last_wb = wb;
 
 		rcu_read_unlock();
+<<<<<<< HEAD
 		wb_wait_for_completion(bdi, &fallback_work_done);
+=======
+		wb_wait_for_completion(&fallback_work_done);
+>>>>>>> upstream/android-13
 		goto restart;
 	}
 	rcu_read_unlock();
@@ -908,6 +1339,90 @@ restart:
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * cgroup_writeback_by_id - initiate cgroup writeback from bdi and memcg IDs
+ * @bdi_id: target bdi id
+ * @memcg_id: target memcg css id
+ * @reason: reason why some writeback work initiated
+ * @done: target wb_completion
+ *
+ * Initiate flush of the bdi_writeback identified by @bdi_id and @memcg_id
+ * with the specified parameters.
+ */
+int cgroup_writeback_by_id(u64 bdi_id, int memcg_id,
+			   enum wb_reason reason, struct wb_completion *done)
+{
+	struct backing_dev_info *bdi;
+	struct cgroup_subsys_state *memcg_css;
+	struct bdi_writeback *wb;
+	struct wb_writeback_work *work;
+	unsigned long dirty;
+	int ret;
+
+	/* lookup bdi and memcg */
+	bdi = bdi_get_by_id(bdi_id);
+	if (!bdi)
+		return -ENOENT;
+
+	rcu_read_lock();
+	memcg_css = css_from_id(memcg_id, &memory_cgrp_subsys);
+	if (memcg_css && !css_tryget(memcg_css))
+		memcg_css = NULL;
+	rcu_read_unlock();
+	if (!memcg_css) {
+		ret = -ENOENT;
+		goto out_bdi_put;
+	}
+
+	/*
+	 * And find the associated wb.  If the wb isn't there already
+	 * there's nothing to flush, don't create one.
+	 */
+	wb = wb_get_lookup(bdi, memcg_css);
+	if (!wb) {
+		ret = -ENOENT;
+		goto out_css_put;
+	}
+
+	/*
+	 * The caller is attempting to write out most of
+	 * the currently dirty pages.  Let's take the current dirty page
+	 * count and inflate it by 25% which should be large enough to
+	 * flush out most dirty pages while avoiding getting livelocked by
+	 * concurrent dirtiers.
+	 *
+	 * BTW the memcg stats are flushed periodically and this is best-effort
+	 * estimation, so some potential error is ok.
+	 */
+	dirty = memcg_page_state(mem_cgroup_from_css(memcg_css), NR_FILE_DIRTY);
+	dirty = dirty * 10 / 8;
+
+	/* issue the writeback work */
+	work = kzalloc(sizeof(*work), GFP_NOWAIT | __GFP_NOWARN);
+	if (work) {
+		work->nr_pages = dirty;
+		work->sync_mode = WB_SYNC_NONE;
+		work->range_cyclic = 1;
+		work->reason = reason;
+		work->done = done;
+		work->auto_free = 1;
+		wb_queue_work(wb, work);
+		ret = 0;
+	} else {
+		ret = -ENOMEM;
+	}
+
+	wb_put(wb);
+out_css_put:
+	css_put(memcg_css);
+out_bdi_put:
+	bdi_put(bdi);
+	return ret;
+}
+
+/**
+>>>>>>> upstream/android-13
  * cgroup_writeback_umount - flush inode wb switches for umount
  *
  * This function is called when a super_block is about to be destroyed and
@@ -919,6 +1434,15 @@ restart:
  */
 void cgroup_writeback_umount(void)
 {
+<<<<<<< HEAD
+=======
+	/*
+	 * SB_ACTIVE should be reliably cleared before checking
+	 * isw_nr_in_flight, see generic_shutdown_super().
+	 */
+	smp_mb();
+
+>>>>>>> upstream/android-13
 	if (atomic_read(&isw_nr_in_flight)) {
 		/*
 		 * Use rcu_barrier() to wait for all pending callbacks to
@@ -943,6 +1467,20 @@ fs_initcall(cgroup_writeback_init);
 static void bdi_down_write_wb_switch_rwsem(struct backing_dev_info *bdi) { }
 static void bdi_up_write_wb_switch_rwsem(struct backing_dev_info *bdi) { }
 
+<<<<<<< HEAD
+=======
+static void inode_cgwb_move_to_attached(struct inode *inode,
+					struct bdi_writeback *wb)
+{
+	assert_spin_locked(&wb->list_lock);
+	assert_spin_locked(&inode->i_lock);
+
+	inode->i_state &= ~I_SYNC_QUEUED;
+	list_del_init(&inode->i_io_list);
+	wb_io_lists_depopulated(wb);
+}
+
+>>>>>>> upstream/android-13
 static struct bdi_writeback *
 locked_inode_to_wb_and_lock_list(struct inode *inode)
 	__releases(&inode->i_lock)
@@ -990,7 +1528,10 @@ static void bdi_split_work_to_wbs(struct backing_dev_info *bdi,
 static unsigned long get_nr_dirty_pages(void)
 {
 	return global_node_page_state(NR_FILE_DIRTY) +
+<<<<<<< HEAD
 		global_node_page_state(NR_UNSTABLE_NFS) +
+=======
+>>>>>>> upstream/android-13
 		get_nr_dirty_inodes();
 }
 
@@ -1044,10 +1585,22 @@ void inode_io_list_del(struct inode *inode)
 
 	wb = inode_to_wb_and_lock_list(inode);
 	spin_lock(&inode->i_lock);
+<<<<<<< HEAD
 	inode_io_list_del_locked(inode, wb);
 	spin_unlock(&inode->i_lock);
 	spin_unlock(&wb->list_lock);
 }
+=======
+
+	inode->i_state &= ~I_SYNC_QUEUED;
+	list_del_init(&inode->i_io_list);
+	wb_io_lists_depopulated(wb);
+
+	spin_unlock(&inode->i_lock);
+	spin_unlock(&wb->list_lock);
+}
+EXPORT_SYMBOL(inode_io_list_del);
+>>>>>>> upstream/android-13
 
 /*
  * mark an inode as under writeback on the sb
@@ -1356,14 +1909,30 @@ static void requeue_inode(struct inode *inode, struct bdi_writeback *wb,
 		inode->i_state &= ~I_SYNC_QUEUED;
 	} else {
 		/* The inode is clean. Remove from writeback lists. */
+<<<<<<< HEAD
 		inode_io_list_del_locked(inode, wb);
+=======
+		inode_cgwb_move_to_attached(inode, wb);
+>>>>>>> upstream/android-13
 	}
 }
 
 /*
+<<<<<<< HEAD
  * Write out an inode and its dirty pages. Do not update the writeback list
  * linkage. That is left to the caller. The caller is also responsible for
  * setting I_SYNC flag and calling inode_sync_complete() to clear it.
+=======
+ * Write out an inode and its dirty pages (or some of its dirty pages, depending
+ * on @wbc->nr_to_write), and clear the relevant dirty flags from i_state.
+ *
+ * This doesn't remove the inode from the writeback list it is on, except
+ * potentially to move it from b_dirty_time to b_dirty due to timestamp
+ * expiration.  The caller is otherwise responsible for writeback list handling.
+ *
+ * The caller is also responsible for setting the I_SYNC flag beforehand and
+ * calling inode_sync_complete() to clear it afterwards.
+>>>>>>> upstream/android-13
  */
 static int
 __writeback_single_inode(struct inode *inode, struct writeback_control *wbc)
@@ -1372,8 +1941,11 @@ __writeback_single_inode(struct inode *inode, struct writeback_control *wbc)
 	long nr_to_write = wbc->nr_to_write;
 	unsigned dirty;
 	int ret;
+<<<<<<< HEAD
 	/* @fs.sec -- 62cf6bdd87a5c084b05e3bb9a11045a339d42a6b -- */
 	bool newly_dirty = false;
+=======
+>>>>>>> upstream/android-13
 
 	WARN_ON(!(inode->i_state & I_SYNC));
 
@@ -1400,7 +1972,11 @@ __writeback_single_inode(struct inode *inode, struct writeback_control *wbc)
 	 * change I_DIRTY_TIME into I_DIRTY_SYNC.
 	 */
 	if ((inode->i_state & I_DIRTY_TIME) &&
+<<<<<<< HEAD
 	    (wbc->sync_mode == WB_SYNC_ALL || wbc->for_sync ||
+=======
+	    (wbc->sync_mode == WB_SYNC_ALL ||
+>>>>>>> upstream/android-13
 	     time_after(jiffies, inode->dirtied_time_when +
 			dirtytime_expire_interval * HZ))) {
 		trace_writeback_lazytime(inode);
@@ -1408,9 +1984,16 @@ __writeback_single_inode(struct inode *inode, struct writeback_control *wbc)
 	}
 
 	/*
+<<<<<<< HEAD
 	 * Some filesystems may redirty the inode during the writeback
 	 * due to delalloc, clear dirty metadata flags right before
 	 * write_inode()
+=======
+	 * Get and clear the dirty flags from i_state.  This needs to be done
+	 * after calling writepages because some filesystems may redirty the
+	 * inode during writepages due to delalloc.  It also needs to be done
+	 * after handling timestamp expiration, as that may dirty the inode too.
+>>>>>>> upstream/android-13
 	 */
 	spin_lock(&inode->i_lock);
 	dirty = inode->i_state & I_DIRTY;
@@ -1430,12 +2013,19 @@ __writeback_single_inode(struct inode *inode, struct writeback_control *wbc)
 	smp_mb();
 
 	if (mapping_tagged(mapping, PAGECACHE_TAG_DIRTY))
+<<<<<<< HEAD
 		newly_dirty = true;
 
 	spin_unlock(&inode->i_lock);
 
 	if (newly_dirty)
 		__mark_inode_dirty(inode, I_DIRTY_PAGES);
+=======
+		inode->i_state |= I_DIRTY_PAGES;
+
+	spin_unlock(&inode->i_lock);
+
+>>>>>>> upstream/android-13
 	/* Don't write the inode if only I_DIRTY_PAGES was set */
 	if (dirty & ~I_DIRTY_PAGES) {
 		int err = write_inode(inode, wbc);
@@ -1447,12 +2037,22 @@ __writeback_single_inode(struct inode *inode, struct writeback_control *wbc)
 }
 
 /*
+<<<<<<< HEAD
  * Write out an inode's dirty pages. Either the caller has an active reference
  * on the inode or the inode has I_WILL_FREE set.
  *
  * This function is designed to be called for writing back one inode which
  * we go e.g. from filesystem. Flusher thread uses __writeback_single_inode()
  * and does more profound writeback list handling in writeback_sb_inodes().
+=======
+ * Write out an inode's dirty data and metadata on-demand, i.e. separately from
+ * the regular batched writeback done by the flusher threads in
+ * writeback_sb_inodes().  @wbc controls various aspects of the write, such as
+ * whether it is a data-integrity sync (%WB_SYNC_ALL) or not (%WB_SYNC_NONE).
+ *
+ * To prevent the inode from going away, either the caller must have a reference
+ * to the inode, or the inode must have I_WILL_FREE or I_FREEING set.
+>>>>>>> upstream/android-13
  */
 static int writeback_single_inode(struct inode *inode,
 				  struct writeback_control *wbc)
@@ -1467,6 +2067,7 @@ static int writeback_single_inode(struct inode *inode,
 		WARN_ON(inode->i_state & I_WILL_FREE);
 
 	if (inode->i_state & I_SYNC) {
+<<<<<<< HEAD
 		if (wbc->sync_mode != WB_SYNC_ALL)
 			goto out;
 		/*
@@ -1474,16 +2075,34 @@ static int writeback_single_inode(struct inode *inode,
 		 * inode reference or inode has I_WILL_FREE set, it cannot go
 		 * away under us.
 		 */
+=======
+		/*
+		 * Writeback is already running on the inode.  For WB_SYNC_NONE,
+		 * that's enough and we can just return.  For WB_SYNC_ALL, we
+		 * must wait for the existing writeback to complete, then do
+		 * writeback again if there's anything left.
+		 */
+		if (wbc->sync_mode != WB_SYNC_ALL)
+			goto out;
+>>>>>>> upstream/android-13
 		__inode_wait_for_writeback(inode);
 	}
 	WARN_ON(inode->i_state & I_SYNC);
 	/*
+<<<<<<< HEAD
 	 * Skip inode if it is clean and we have no outstanding writeback in
 	 * WB_SYNC_ALL mode. We don't want to mess with writeback lists in this
 	 * function since flusher thread may be doing for example sync in
 	 * parallel and if we move the inode, it could get skipped. So here we
 	 * make sure inode is on some writeback list and leave it there unless
 	 * we have completely cleaned the inode.
+=======
+	 * If the inode is already fully clean, then there's nothing to do.
+	 *
+	 * For data-integrity syncs we also need to check whether any pages are
+	 * still under writeback, e.g. due to prior WB_SYNC_NONE writeback.  If
+	 * there are any such pages, we'll need to wait for them.
+>>>>>>> upstream/android-13
 	 */
 	if (!(inode->i_state & I_DIRTY_ALL) &&
 	    (wbc->sync_mode != WB_SYNC_ALL ||
@@ -1499,11 +2118,24 @@ static int writeback_single_inode(struct inode *inode,
 	wb = inode_to_wb_and_lock_list(inode);
 	spin_lock(&inode->i_lock);
 	/*
+<<<<<<< HEAD
 	 * If inode is clean, remove it from writeback lists. Otherwise don't
 	 * touch it. See comment above for explanation.
 	 */
 	if (!(inode->i_state & I_DIRTY_ALL))
 		inode_io_list_del_locked(inode, wb);
+=======
+	 * If the inode is now fully clean, then it can be safely removed from
+	 * its writeback list (if any).  Otherwise the flusher threads are
+	 * responsible for the writeback lists.
+	 */
+	if (!(inode->i_state & I_DIRTY_ALL))
+		inode_cgwb_move_to_attached(inode, wb);
+	else if (!(inode->i_state & I_SYNC_QUEUED) &&
+		 (inode->i_state & I_DIRTY))
+		redirty_tail_locked(inode, wb);
+
+>>>>>>> upstream/android-13
 	spin_unlock(&wb->list_lock);
 	inode_sync_complete(inode);
 out:
@@ -1767,7 +2399,10 @@ static long writeback_inodes_wb(struct bdi_writeback *wb, long nr_pages,
 static long wb_writeback(struct bdi_writeback *wb,
 			 struct wb_writeback_work *work)
 {
+<<<<<<< HEAD
 	unsigned long wb_start = jiffies;
+=======
+>>>>>>> upstream/android-13
 	long nr_pages = work->nr_pages;
 	unsigned long dirtied_before = jiffies;
 	struct inode *inode;
@@ -1821,8 +2456,11 @@ static long wb_writeback(struct bdi_writeback *wb,
 			progress = __writeback_inodes_wb(wb, work);
 		trace_writeback_written(wb, work);
 
+<<<<<<< HEAD
 		wb_update_bandwidth(wb, wb_start);
 
+=======
+>>>>>>> upstream/android-13
 		/*
 		 * Did we write something? Try for more
 		 *
@@ -1864,13 +2502,21 @@ static struct wb_writeback_work *get_next_work_item(struct bdi_writeback *wb)
 {
 	struct wb_writeback_work *work = NULL;
 
+<<<<<<< HEAD
 	spin_lock_bh(&wb->work_lock);
+=======
+	spin_lock_irq(&wb->work_lock);
+>>>>>>> upstream/android-13
 	if (!list_empty(&wb->work_list)) {
 		work = list_entry(wb->work_list.next,
 				  struct wb_writeback_work, list);
 		list_del_init(&work->list);
 	}
+<<<<<<< HEAD
 	spin_unlock_bh(&wb->work_lock);
+=======
+	spin_unlock_irq(&wb->work_lock);
+>>>>>>> upstream/android-13
 	return work;
 }
 
@@ -2109,7 +2755,11 @@ static int __init start_dirtytime_writeback(void)
 __initcall(start_dirtytime_writeback);
 
 int dirtytime_interval_handler(struct ctl_table *table, int write,
+<<<<<<< HEAD
 			       void __user *buffer, size_t *lenp, loff_t *ppos)
+=======
+			       void *buffer, size_t *lenp, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	int ret;
 
@@ -2119,6 +2769,7 @@ int dirtytime_interval_handler(struct ctl_table *table, int write,
 	return ret;
 }
 
+<<<<<<< HEAD
 static noinline void block_dump___mark_inode_dirty(struct inode *inode)
 {
 	if (inode->i_ino || strcmp(inode->i_sb->s_id, "bdev")) {
@@ -2159,6 +2810,27 @@ static noinline void block_dump___mark_inode_dirty(struct inode *inode)
  *
  * In short, make sure you hash any inodes _before_ you start marking
  * them dirty.
+=======
+/**
+ * __mark_inode_dirty -	internal function to mark an inode dirty
+ *
+ * @inode: inode to mark
+ * @flags: what kind of dirty, e.g. I_DIRTY_SYNC.  This can be a combination of
+ *	   multiple I_DIRTY_* flags, except that I_DIRTY_TIME can't be combined
+ *	   with I_DIRTY_PAGES.
+ *
+ * Mark an inode as dirty.  We notify the filesystem, then update the inode's
+ * dirty flags.  Then, if needed we add the inode to the appropriate dirty list.
+ *
+ * Most callers should use mark_inode_dirty() or mark_inode_dirty_sync()
+ * instead of calling this directly.
+ *
+ * CAREFUL!  We only add the inode to the dirty list if it is hashed or if it
+ * refers to a blockdev.  Unhashed inodes will never be added to the dirty list
+ * even if they are later hashed, as they will have been marked dirty already.
+ *
+ * In short, ensure you hash any inodes _before_ you start marking them dirty.
+>>>>>>> upstream/android-13
  *
  * Note that for blockdevs, inode->dirtied_when represents the dirtying time of
  * the block-special inode (/dev/hda1) itself.  And the ->dirtied_when field of
@@ -2170,6 +2842,7 @@ static noinline void block_dump___mark_inode_dirty(struct inode *inode)
 void __mark_inode_dirty(struct inode *inode, int flags)
 {
 	struct super_block *sb = inode->i_sb;
+<<<<<<< HEAD
 	int dirtytime;
 
 	trace_writeback_mark_inode_dirty(inode, flags);
@@ -2189,6 +2862,36 @@ void __mark_inode_dirty(struct inode *inode, int flags)
 	if (flags & I_DIRTY_INODE)
 		flags &= ~I_DIRTY_TIME;
 	dirtytime = flags & I_DIRTY_TIME;
+=======
+	int dirtytime = 0;
+
+	trace_writeback_mark_inode_dirty(inode, flags);
+
+	if (flags & I_DIRTY_INODE) {
+		/*
+		 * Notify the filesystem about the inode being dirtied, so that
+		 * (if needed) it can update on-disk fields and journal the
+		 * inode.  This is only needed when the inode itself is being
+		 * dirtied now.  I.e. it's only needed for I_DIRTY_INODE, not
+		 * for just I_DIRTY_PAGES or I_DIRTY_TIME.
+		 */
+		trace_writeback_dirty_inode_start(inode, flags);
+		if (sb->s_op->dirty_inode)
+			sb->s_op->dirty_inode(inode, flags & I_DIRTY_INODE);
+		trace_writeback_dirty_inode(inode, flags);
+
+		/* I_DIRTY_INODE supersedes I_DIRTY_TIME. */
+		flags &= ~I_DIRTY_TIME;
+	} else {
+		/*
+		 * Else it's either I_DIRTY_PAGES, I_DIRTY_TIME, or nothing.
+		 * (We don't support setting both I_DIRTY_PAGES and I_DIRTY_TIME
+		 * in one call to __mark_inode_dirty().)
+		 */
+		dirtytime = flags & I_DIRTY_TIME;
+		WARN_ON_ONCE(dirtytime && flags != I_DIRTY_TIME);
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * Paired with smp_mb() in __writeback_single_inode() for the
@@ -2200,9 +2903,12 @@ void __mark_inode_dirty(struct inode *inode, int flags)
 	    (dirtytime && (inode->i_state & I_DIRTY_INODE)))
 		return;
 
+<<<<<<< HEAD
 	if (unlikely(block_dump))
 		block_dump___mark_inode_dirty(inode);
 
+=======
+>>>>>>> upstream/android-13
 	spin_lock(&inode->i_lock);
 	if (dirtytime && (inode->i_state & I_DIRTY_INODE))
 		goto out_unlock_inode;
@@ -2211,6 +2917,10 @@ void __mark_inode_dirty(struct inode *inode, int flags)
 
 		inode_attach_wb(inode, NULL);
 
+<<<<<<< HEAD
+=======
+		/* I_DIRTY_INODE supersedes I_DIRTY_TIME. */
+>>>>>>> upstream/android-13
 		if (flags & I_DIRTY_INODE)
 			inode->i_state &= ~I_DIRTY_TIME;
 		inode->i_state |= flags;
@@ -2246,10 +2956,13 @@ void __mark_inode_dirty(struct inode *inode, int flags)
 
 			wb = locked_inode_to_wb_and_lock_list(inode);
 
+<<<<<<< HEAD
 			WARN(bdi_cap_writeback_dirty(wb->bdi) &&
 			     !test_bit(WB_registered, &wb->state),
 			     "bdi-%s not registered\n", wb->bdi->name);
 
+=======
+>>>>>>> upstream/android-13
 			inode->dirtied_when = jiffies;
 			if (dirtytime)
 				inode->dirtied_time_when = jiffies;
@@ -2271,7 +2984,12 @@ void __mark_inode_dirty(struct inode *inode, int flags)
 			 * to make sure background write-back happens
 			 * later.
 			 */
+<<<<<<< HEAD
 			if (bdi_cap_writeback_dirty(wb->bdi) && wakeup_bdi)
+=======
+			if (wakeup_bdi &&
+			    (wb->bdi->capabilities & BDI_CAP_WRITEBACK))
+>>>>>>> upstream/android-13
 				wb_wakeup_delayed(wb);
 			return;
 		}
@@ -2279,7 +2997,11 @@ void __mark_inode_dirty(struct inode *inode, int flags)
 out_unlock_inode:
 	spin_unlock(&inode->i_lock);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(__mark_inode_dirty);
+=======
+EXPORT_SYMBOL_NS(__mark_inode_dirty, ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 
 /*
  * The @s_sync_lock is used to serialise concurrent sync operations
@@ -2378,7 +3100,12 @@ static void wait_sb_inodes(struct super_block *sb)
 static void __writeback_inodes_sb_nr(struct super_block *sb, unsigned long nr,
 				     enum wb_reason reason, bool skip_if_busy)
 {
+<<<<<<< HEAD
 	DEFINE_WB_COMPLETION_ONSTACK(done);
+=======
+	struct backing_dev_info *bdi = sb->s_bdi;
+	DEFINE_WB_COMPLETION(done, bdi);
+>>>>>>> upstream/android-13
 	struct wb_writeback_work work = {
 		.sb			= sb,
 		.sync_mode		= WB_SYNC_NONE,
@@ -2387,14 +3114,21 @@ static void __writeback_inodes_sb_nr(struct super_block *sb, unsigned long nr,
 		.nr_pages		= nr,
 		.reason			= reason,
 	};
+<<<<<<< HEAD
 	struct backing_dev_info *bdi = sb->s_bdi;
+=======
+>>>>>>> upstream/android-13
 
 	if (!bdi_has_dirty_io(bdi) || bdi == &noop_backing_dev_info)
 		return;
 	WARN_ON(!rwsem_is_locked(&sb->s_umount));
 
 	bdi_split_work_to_wbs(sb->s_bdi, &work, skip_if_busy);
+<<<<<<< HEAD
 	wb_wait_for_completion(bdi, &done);
+=======
+	wb_wait_for_completion(&done);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -2445,7 +3179,11 @@ void try_to_writeback_inodes_sb(struct super_block *sb, enum wb_reason reason)
 	__writeback_inodes_sb_nr(sb, get_nr_dirty_pages(), reason, true);
 	up_read(&sb->s_umount);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(try_to_writeback_inodes_sb);
+=======
+EXPORT_SYMBOL_NS(try_to_writeback_inodes_sb, ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 
 /**
  * sync_inodes_sb	-	sync sb inode pages
@@ -2456,7 +3194,12 @@ EXPORT_SYMBOL(try_to_writeback_inodes_sb);
  */
 void sync_inodes_sb(struct super_block *sb)
 {
+<<<<<<< HEAD
 	DEFINE_WB_COMPLETION_ONSTACK(done);
+=======
+	struct backing_dev_info *bdi = sb->s_bdi;
+	DEFINE_WB_COMPLETION(done, bdi);
+>>>>>>> upstream/android-13
 	struct wb_writeback_work work = {
 		.sb		= sb,
 		.sync_mode	= WB_SYNC_ALL,
@@ -2466,7 +3209,10 @@ void sync_inodes_sb(struct super_block *sb)
 		.reason		= WB_REASON_SYNC,
 		.for_sync	= 1,
 	};
+<<<<<<< HEAD
 	struct backing_dev_info *bdi = sb->s_bdi;
+=======
+>>>>>>> upstream/android-13
 
 	/*
 	 * Can't skip on !bdi_has_dirty() because we should wait for !dirty
@@ -2480,7 +3226,11 @@ void sync_inodes_sb(struct super_block *sb)
 	/* protect against inode wb switch, see inode_switch_wbs_work_fn() */
 	bdi_down_write_wb_switch_rwsem(bdi);
 	bdi_split_work_to_wbs(bdi, &work, false);
+<<<<<<< HEAD
 	wb_wait_for_completion(bdi, &done);
+=======
+	wb_wait_for_completion(&done);
+>>>>>>> upstream/android-13
 	bdi_up_write_wb_switch_rwsem(bdi);
 
 	wait_sb_inodes(sb);
@@ -2506,12 +3256,17 @@ int write_inode_now(struct inode *inode, int sync)
 		.range_end = LLONG_MAX,
 	};
 
+<<<<<<< HEAD
 	if (!mapping_cap_writeback_dirty(inode->i_mapping))
+=======
+	if (!mapping_can_writeback(inode->i_mapping))
+>>>>>>> upstream/android-13
 		wbc.nr_to_write = 0;
 
 	might_sleep();
 	return writeback_single_inode(inode, &wbc);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(write_inode_now);
 
 /**
@@ -2530,6 +3285,9 @@ int sync_inode(struct inode *inode, struct writeback_control *wbc)
 	return writeback_single_inode(inode, wbc);
 }
 EXPORT_SYMBOL(sync_inode);
+=======
+EXPORT_SYMBOL_NS(write_inode_now, ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 
 /**
  * sync_inode_metadata - write an inode to disk
@@ -2547,6 +3305,12 @@ int sync_inode_metadata(struct inode *inode, int wait)
 		.nr_to_write = 0, /* metadata-only */
 	};
 
+<<<<<<< HEAD
 	return sync_inode(inode, &wbc);
 }
 EXPORT_SYMBOL(sync_inode_metadata);
+=======
+	return writeback_single_inode(inode, &wbc);
+}
+EXPORT_SYMBOL_NS(sync_inode_metadata, ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13

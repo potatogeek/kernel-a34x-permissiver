@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * wm8350.c  --  Voltage and current regulation for the Wolfson WM8350 PMIC
  *
@@ -11,6 +12,16 @@
  *  Free Software Foundation;  either version 2 of the  License, or (at your
  *  option) any later version.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0+
+//
+// wm8350.c  --  Voltage and current regulation for the Wolfson WM8350 PMIC
+//
+// Copyright 2007, 2008 Wolfson Microelectronics PLC.
+//
+// Author: Liam Girdwood
+//         linux@wolfsonmicro.com
+>>>>>>> upstream/android-13
 
 #include <linux/module.h>
 #include <linux/moduleparam.h>
@@ -28,7 +39,11 @@
 #define WM8350_DCDC_MAX_VSEL 0x66
 
 /* Microamps */
+<<<<<<< HEAD
 static const int isink_cur[] = {
+=======
+static const unsigned int isink_cur[] = {
+>>>>>>> upstream/android-13
 	4,
 	5,
 	6,
@@ -95,6 +110,7 @@ static const int isink_cur[] = {
 	223191
 };
 
+<<<<<<< HEAD
 static int get_isink_val(int min_uA, int max_uA, u16 *setting)
 {
 	int i;
@@ -162,6 +178,8 @@ static int wm8350_isink_get_current(struct regulator_dev *rdev)
 	return isink_cur[val];
 }
 
+=======
+>>>>>>> upstream/android-13
 /* turn on ISINK followed by DCDC */
 static int wm8350_isink_enable(struct regulator_dev *rdev)
 {
@@ -542,7 +560,11 @@ static int wm8350_dcdc_set_suspend_mode(struct regulator_dev *rdev,
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct regulator_linear_range wm8350_ldo_ranges[] = {
+=======
+static const struct linear_range wm8350_ldo_ranges[] = {
+>>>>>>> upstream/android-13
 	REGULATOR_LINEAR_RANGE(900000, 0, 15, 50000),
 	REGULATOR_LINEAR_RANGE(1800000, 16, 31, 100000),
 };
@@ -982,8 +1004,13 @@ static const struct regulator_ops wm8350_ldo_ops = {
 };
 
 static const struct regulator_ops wm8350_isink_ops = {
+<<<<<<< HEAD
 	.set_current_limit = wm8350_isink_set_current,
 	.get_current_limit = wm8350_isink_get_current,
+=======
+	.set_current_limit = regulator_set_current_limit_regmap,
+	.get_current_limit = regulator_get_current_limit_regmap,
+>>>>>>> upstream/android-13
 	.enable = wm8350_isink_enable,
 	.disable = wm8350_isink_disable,
 	.is_enabled = wm8350_isink_is_enabled,
@@ -1138,6 +1165,13 @@ static const struct regulator_desc wm8350_reg[NUM_WM8350_REGULATORS] = {
 		.irq = WM8350_IRQ_CS1,
 		.type = REGULATOR_CURRENT,
 		.owner = THIS_MODULE,
+<<<<<<< HEAD
+=======
+		.curr_table = isink_cur,
+		.n_current_limits = ARRAY_SIZE(isink_cur),
+		.csel_reg = WM8350_CURRENT_SINK_DRIVER_A,
+		.csel_mask = WM8350_CS1_ISEL_MASK,
+>>>>>>> upstream/android-13
 	 },
 	{
 		.name = "ISINKB",
@@ -1146,6 +1180,13 @@ static const struct regulator_desc wm8350_reg[NUM_WM8350_REGULATORS] = {
 		.irq = WM8350_IRQ_CS2,
 		.type = REGULATOR_CURRENT,
 		.owner = THIS_MODULE,
+<<<<<<< HEAD
+=======
+		.curr_table = isink_cur,
+		.n_current_limits = ARRAY_SIZE(isink_cur),
+		.csel_reg = WM8350_CURRENT_SINK_DRIVER_B,
+		.csel_mask = WM8350_CS2_ISEL_MASK,
+>>>>>>> upstream/android-13
 	 },
 };
 
@@ -1153,7 +1194,10 @@ static irqreturn_t pmic_uv_handler(int irq, void *data)
 {
 	struct regulator_dev *rdev = (struct regulator_dev *)data;
 
+<<<<<<< HEAD
 	mutex_lock(&rdev->mutex);
+=======
+>>>>>>> upstream/android-13
 	if (irq == WM8350_IRQ_CS1 || irq == WM8350_IRQ_CS2)
 		regulator_notifier_call_chain(rdev,
 					      REGULATOR_EVENT_REGULATION_OUT,
@@ -1162,7 +1206,10 @@ static irqreturn_t pmic_uv_handler(int irq, void *data)
 		regulator_notifier_call_chain(rdev,
 					      REGULATOR_EVENT_UNDER_VOLTAGE,
 					      NULL);
+<<<<<<< HEAD
 	mutex_unlock(&rdev->mutex);
+=======
+>>>>>>> upstream/android-13
 
 	return IRQ_HANDLED;
 }
@@ -1280,11 +1327,19 @@ EXPORT_SYMBOL_GPL(wm8350_register_regulator);
 /**
  * wm8350_register_led - Register a WM8350 LED output
  *
+<<<<<<< HEAD
  * @param wm8350 The WM8350 device to configure.
  * @param lednum LED device index to create.
  * @param dcdc The DCDC to use for the LED.
  * @param isink The ISINK to use for the LED.
  * @param pdata Configuration for the LED.
+=======
+ * @wm8350: The WM8350 device to configure.
+ * @lednum: LED device index to create.
+ * @dcdc: The DCDC to use for the LED.
+ * @isink: The ISINK to use for the LED.
+ * @pdata: Configuration for the LED.
+>>>>>>> upstream/android-13
  *
  * The WM8350 supports the use of an ISINK together with a DCDC to
  * provide a power-efficient LED driver.  This function registers the

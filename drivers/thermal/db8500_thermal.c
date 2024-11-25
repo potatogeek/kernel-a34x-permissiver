@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * db8500_thermal.c - DB8500 Thermal Management Implementation
  *
  * Copyright (C) 2012 ST-Ericsson
+<<<<<<< HEAD
  * Copyright (C) 2012 Linaro Ltd.
  *
  * Author: Hongbo Zhang <hongbo.zhang@linaro.com>
@@ -15,6 +20,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+ * Copyright (C) 2012-2019 Linaro Ltd.
+ *
+ * Authors: Hongbo Zhang, Linus Walleij
+>>>>>>> upstream/android-13
  */
 
 #include <linux/cpu_cooling.h>
@@ -22,7 +32,10 @@
 #include <linux/mfd/dbx500-prcmu.h>
 #include <linux/module.h>
 #include <linux/of.h>
+<<<<<<< HEAD
 #include <linux/platform_data/db8500_thermal.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/slab.h>
 #include <linux/thermal.h>
@@ -30,6 +43,7 @@
 #define PRCMU_DEFAULT_MEASURE_TIME	0xFFF
 #define PRCMU_DEFAULT_LOW_TEMP		0
 
+<<<<<<< HEAD
 struct db8500_thermal_zone {
 	struct thermal_zone_device *therm_dev;
 	struct mutex th_lock;
@@ -110,28 +124,85 @@ static int db8500_cdev_unbind(struct thermal_zone_device *thermal,
 static int db8500_sys_get_temp(struct thermal_zone_device *thermal, int *temp)
 {
 	struct db8500_thermal_zone *pzone = thermal->devdata;
+=======
+/**
+ * db8500_thermal_points - the interpolation points that trigger
+ * interrupts
+ */
+static const unsigned long db8500_thermal_points[] = {
+	15000,
+	20000,
+	25000,
+	30000,
+	35000,
+	40000,
+	45000,
+	50000,
+	55000,
+	60000,
+	65000,
+	70000,
+	75000,
+	80000,
+	/*
+	 * This is where things start to get really bad for the
+	 * SoC and the thermal zones should be set up to trigger
+	 * critical temperature at 85000 mC so we don't get above
+	 * this point.
+	 */
+	85000,
+	90000,
+	95000,
+	100000,
+};
+
+struct db8500_thermal_zone {
+	struct thermal_zone_device *tz;
+	enum thermal_trend trend;
+	unsigned long interpolated_temp;
+	unsigned int cur_index;
+};
+
+/* Callback to get current temperature */
+static int db8500_thermal_get_temp(void *data, int *temp)
+{
+	struct db8500_thermal_zone *th = data;
+>>>>>>> upstream/android-13
 
 	/*
 	 * TODO: There is no PRCMU interface to get temperature data currently,
 	 * so a pseudo temperature is returned , it works for thermal framework
 	 * and this will be fixed when the PRCMU interface is available.
 	 */
+<<<<<<< HEAD
 	*temp = pzone->cur_temp_pseudo;
+=======
+	*temp = th->interpolated_temp;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 /* Callback to get temperature changing trend */
+<<<<<<< HEAD
 static int db8500_sys_get_trend(struct thermal_zone_device *thermal,
 		int trip, enum thermal_trend *trend)
 {
 	struct db8500_thermal_zone *pzone = thermal->devdata;
 
 	*trend = pzone->trend;
+=======
+static int db8500_thermal_get_trend(void *data, int trip, enum thermal_trend *trend)
+{
+	struct db8500_thermal_zone *th = data;
+
+	*trend = th->trend;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 /* Callback to get thermal zone mode */
 static int db8500_sys_get_mode(struct thermal_zone_device *thermal,
 		enum thermal_device_mode *mode)
@@ -232,22 +303,54 @@ static void db8500_thermal_update_config(struct db8500_thermal_zone *pzone,
 	pzone->cur_temp_pseudo = (next_low + next_high)/2;
 	pzone->trend = trend;
 
+=======
+static struct thermal_zone_of_device_ops thdev_ops = {
+	.get_temp = db8500_thermal_get_temp,
+	.get_trend = db8500_thermal_get_trend,
+};
+
+static void db8500_thermal_update_config(struct db8500_thermal_zone *th,
+					 unsigned int idx,
+					 enum thermal_trend trend,
+					 unsigned long next_low,
+					 unsigned long next_high)
+{
+	prcmu_stop_temp_sense();
+
+	th->cur_index = idx;
+	th->interpolated_temp = (next_low + next_high)/2;
+	th->trend = trend;
+
+	/*
+	 * The PRCMU accept absolute temperatures in celsius so divide
+	 * down the millicelsius with 1000
+	 */
+>>>>>>> upstream/android-13
 	prcmu_config_hotmon((u8)(next_low/1000), (u8)(next_high/1000));
 	prcmu_start_temp_sense(PRCMU_DEFAULT_MEASURE_TIME);
 }
 
 static irqreturn_t prcmu_low_irq_handler(int irq, void *irq_data)
 {
+<<<<<<< HEAD
 	struct db8500_thermal_zone *pzone = irq_data;
 	struct db8500_thsens_platform_data *ptrips = pzone->trip_tab;
 	unsigned int idx = pzone->cur_index;
 	unsigned long next_low, next_high;
 
 	if (unlikely(idx == 0))
+=======
+	struct db8500_thermal_zone *th = irq_data;
+	unsigned int idx = th->cur_index;
+	unsigned long next_low, next_high;
+
+	if (idx == 0)
+>>>>>>> upstream/android-13
 		/* Meaningless for thermal management, ignoring it */
 		return IRQ_HANDLED;
 
 	if (idx == 1) {
+<<<<<<< HEAD
 		next_high = ptrips->trip_points[0].temp;
 		next_low = PRCMU_DEFAULT_LOW_TEMP;
 	} else {
@@ -263,12 +366,29 @@ static irqreturn_t prcmu_low_irq_handler(int irq, void *irq_data)
 		"PRCMU set max %ld, min %ld\n", next_high, next_low);
 
 	schedule_work(&pzone->therm_work);
+=======
+		next_high = db8500_thermal_points[0];
+		next_low = PRCMU_DEFAULT_LOW_TEMP;
+	} else {
+		next_high = db8500_thermal_points[idx - 1];
+		next_low = db8500_thermal_points[idx - 2];
+	}
+	idx -= 1;
+
+	db8500_thermal_update_config(th, idx, THERMAL_TREND_DROPPING,
+				     next_low, next_high);
+	dev_dbg(&th->tz->device,
+		"PRCMU set max %ld, min %ld\n", next_high, next_low);
+
+	thermal_zone_device_update(th->tz, THERMAL_EVENT_UNSPECIFIED);
+>>>>>>> upstream/android-13
 
 	return IRQ_HANDLED;
 }
 
 static irqreturn_t prcmu_high_irq_handler(int irq, void *irq_data)
 {
+<<<<<<< HEAD
 	struct db8500_thermal_zone *pzone = irq_data;
 	struct db8500_thsens_platform_data *ptrips = pzone->trip_tab;
 	unsigned int idx = pzone->cur_index;
@@ -288,10 +408,33 @@ static irqreturn_t prcmu_high_irq_handler(int irq, void *irq_data)
 		pzone->cur_temp_pseudo = ptrips->trip_points[idx].temp + 1;
 
 	schedule_work(&pzone->therm_work);
+=======
+	struct db8500_thermal_zone *th = irq_data;
+	unsigned int idx = th->cur_index;
+	unsigned long next_low, next_high;
+	int num_points = ARRAY_SIZE(db8500_thermal_points);
+
+	if (idx < num_points - 1) {
+		next_high = db8500_thermal_points[idx+1];
+		next_low = db8500_thermal_points[idx];
+		idx += 1;
+
+		db8500_thermal_update_config(th, idx, THERMAL_TREND_RAISING,
+					     next_low, next_high);
+
+		dev_dbg(&th->tz->device,
+			"PRCMU set max %ld, min %ld\n", next_high, next_low);
+	} else if (idx == num_points - 1)
+		/* So we roof out 1 degree over the max point */
+		th->interpolated_temp = db8500_thermal_points[idx] + 1;
+
+	thermal_zone_device_update(th->tz, THERMAL_EVENT_UNSPECIFIED);
+>>>>>>> upstream/android-13
 
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static void db8500_thermal_work(struct work_struct *work)
 {
 	enum thermal_device_mode cur_mode;
@@ -428,10 +571,35 @@ static int db8500_thermal_probe(struct platform_device *pdev)
 	if (ret < 0) {
 		dev_err(&pdev->dev, "Failed to allocate temp low irq.\n");
 		goto out_unlock;
+=======
+static int db8500_thermal_probe(struct platform_device *pdev)
+{
+	struct db8500_thermal_zone *th = NULL;
+	struct device *dev = &pdev->dev;
+	int low_irq, high_irq, ret = 0;
+
+	th = devm_kzalloc(dev, sizeof(*th), GFP_KERNEL);
+	if (!th)
+		return -ENOMEM;
+
+	low_irq = platform_get_irq_byname(pdev, "IRQ_HOTMON_LOW");
+	if (low_irq < 0) {
+		dev_err(dev, "Get IRQ_HOTMON_LOW failed\n");
+		return low_irq;
+	}
+
+	ret = devm_request_threaded_irq(dev, low_irq, NULL,
+		prcmu_low_irq_handler, IRQF_NO_SUSPEND | IRQF_ONESHOT,
+		"dbx500_temp_low", th);
+	if (ret < 0) {
+		dev_err(dev, "failed to allocate temp low irq\n");
+		return ret;
+>>>>>>> upstream/android-13
 	}
 
 	high_irq = platform_get_irq_byname(pdev, "IRQ_HOTMON_HIGH");
 	if (high_irq < 0) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "Get IRQ_HOTMON_HIGH failed.\n");
 		ret = high_irq;
 		goto out_unlock;
@@ -477,6 +645,34 @@ static int db8500_thermal_remove(struct platform_device *pdev)
 	thermal_zone_device_unregister(pzone->therm_dev);
 	cancel_work_sync(&pzone->therm_work);
 	mutex_destroy(&pzone->th_lock);
+=======
+		dev_err(dev, "Get IRQ_HOTMON_HIGH failed\n");
+		return high_irq;
+	}
+
+	ret = devm_request_threaded_irq(dev, high_irq, NULL,
+		prcmu_high_irq_handler, IRQF_NO_SUSPEND | IRQF_ONESHOT,
+		"dbx500_temp_high", th);
+	if (ret < 0) {
+		dev_err(dev, "failed to allocate temp high irq\n");
+		return ret;
+	}
+
+	/* register of thermal sensor and get info from DT */
+	th->tz = devm_thermal_zone_of_sensor_register(dev, 0, th, &thdev_ops);
+	if (IS_ERR(th->tz)) {
+		dev_err(dev, "register thermal zone sensor failed\n");
+		return PTR_ERR(th->tz);
+	}
+	dev_info(dev, "thermal zone sensor registered\n");
+
+	/* Start measuring at the lowest point */
+	db8500_thermal_update_config(th, 0, THERMAL_TREND_STABLE,
+				     PRCMU_DEFAULT_LOW_TEMP,
+				     db8500_thermal_points[0]);
+
+	platform_set_drvdata(pdev, th);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -484,9 +680,12 @@ static int db8500_thermal_remove(struct platform_device *pdev)
 static int db8500_thermal_suspend(struct platform_device *pdev,
 		pm_message_t state)
 {
+<<<<<<< HEAD
 	struct db8500_thermal_zone *pzone = platform_get_drvdata(pdev);
 
 	flush_work(&pzone->therm_work);
+=======
+>>>>>>> upstream/android-13
 	prcmu_stop_temp_sense();
 
 	return 0;
@@ -494,6 +693,7 @@ static int db8500_thermal_suspend(struct platform_device *pdev,
 
 static int db8500_thermal_resume(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct db8500_thermal_zone *pzone = platform_get_drvdata(pdev);
 	struct db8500_thsens_platform_data *ptrips = pzone->trip_tab;
 	unsigned long dft_low, dft_high;
@@ -503,17 +703,31 @@ static int db8500_thermal_resume(struct platform_device *pdev)
 
 	db8500_thermal_update_config(pzone, 0, THERMAL_TREND_STABLE,
 		dft_low, dft_high);
+=======
+	struct db8500_thermal_zone *th = platform_get_drvdata(pdev);
+
+	/* Resume and start measuring at the lowest point */
+	db8500_thermal_update_config(th, 0, THERMAL_TREND_STABLE,
+				     PRCMU_DEFAULT_LOW_TEMP,
+				     db8500_thermal_points[0]);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF
+=======
+>>>>>>> upstream/android-13
 static const struct of_device_id db8500_thermal_match[] = {
 	{ .compatible = "stericsson,db8500-thermal" },
 	{},
 };
 MODULE_DEVICE_TABLE(of, db8500_thermal_match);
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static struct platform_driver db8500_thermal_driver = {
 	.driver = {
@@ -523,7 +737,10 @@ static struct platform_driver db8500_thermal_driver = {
 	.probe = db8500_thermal_probe,
 	.suspend = db8500_thermal_suspend,
 	.resume = db8500_thermal_resume,
+<<<<<<< HEAD
 	.remove = db8500_thermal_remove,
+=======
+>>>>>>> upstream/android-13
 };
 
 module_platform_driver(db8500_thermal_driver);

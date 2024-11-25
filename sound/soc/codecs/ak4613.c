@@ -451,6 +451,7 @@ static int ak4613_set_bias_level(struct snd_soc_component *component,
 	switch (level) {
 	case SND_SOC_BIAS_ON:
 		mgmt1 |= RSTN;
+<<<<<<< HEAD
 		/* fall through */
 	case SND_SOC_BIAS_PREPARE:
 		mgmt1 |= PMADC | PMDAC;
@@ -458,6 +459,15 @@ static int ak4613_set_bias_level(struct snd_soc_component *component,
 	case SND_SOC_BIAS_STANDBY:
 		mgmt1 |= PMVR;
 		/* fall through */
+=======
+		fallthrough;
+	case SND_SOC_BIAS_PREPARE:
+		mgmt1 |= PMADC | PMDAC;
+		fallthrough;
+	case SND_SOC_BIAS_STANDBY:
+		mgmt1 |= PMVR;
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SND_SOC_BIAS_OFF:
 	default:
 		break;
@@ -490,8 +500,13 @@ static void ak4613_dummy_write(struct work_struct *work)
 	 */
 	udelay(5000000 / priv->rate);
 
+<<<<<<< HEAD
 	snd_soc_component_read(component, PW_MGMT1, &mgmt1);
 	snd_soc_component_read(component, PW_MGMT3, &mgmt3);
+=======
+	mgmt1 = snd_soc_component_read(component, PW_MGMT1);
+	mgmt3 = snd_soc_component_read(component, PW_MGMT3);
+>>>>>>> upstream/android-13
 
 	snd_soc_component_write(component, PW_MGMT1, mgmt1);
 	snd_soc_component_write(component, PW_MGMT3, mgmt3);
@@ -539,6 +554,18 @@ static int ak4613_dai_trigger(struct snd_pcm_substream *substream, int cmd,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * Select below from Sound Card, not Auto
+ *	SND_SOC_DAIFMT_CBC_CFC
+ *	SND_SOC_DAIFMT_CBP_CFP
+ */
+static u64 ak4613_dai_formats =
+	SND_SOC_POSSIBLE_DAIFMT_I2S	|
+	SND_SOC_POSSIBLE_DAIFMT_LEFT_J;
+
+>>>>>>> upstream/android-13
 static const struct snd_soc_dai_ops ak4613_dai_ops = {
 	.startup	= ak4613_dai_startup,
 	.shutdown	= ak4613_dai_shutdown,
@@ -546,6 +573,11 @@ static const struct snd_soc_dai_ops ak4613_dai_ops = {
 	.set_fmt	= ak4613_dai_set_fmt,
 	.trigger	= ak4613_dai_trigger,
 	.hw_params	= ak4613_dai_hw_params,
+<<<<<<< HEAD
+=======
+	.auto_selectable_formats	= &ak4613_dai_formats,
+	.num_auto_selectable_formats	= 1,
+>>>>>>> upstream/android-13
 };
 
 #define AK4613_PCM_RATE		(SNDRV_PCM_RATE_32000  |\
@@ -575,7 +607,11 @@ static struct snd_soc_dai_driver ak4613_dai = {
 		.formats	= AK4613_PCM_FMTBIT,
 	},
 	.ops = &ak4613_dai_ops,
+<<<<<<< HEAD
 	.symmetric_rates = 1,
+=======
+	.symmetric_rate = 1,
+>>>>>>> upstream/android-13
 };
 
 static int ak4613_suspend(struct snd_soc_component *component)

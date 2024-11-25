@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * (C) Copyright 2007
  * Texas Instruments
@@ -6,6 +10,7 @@
  * (C) Copyright 2004
  * Texas Instruments, <www.ti.com>
  * Richard Woodruff <r-woodruff2@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,6 +26,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/linkage.h>
 
@@ -86,7 +93,11 @@ ENTRY(enable_omap3630_toggle_l2_on_restore)
 	stmfd	sp!, {lr}	@ save registers on stack
 	/* Setup so that we will disable and enable l2 */
 	mov	r1, #0x1
+<<<<<<< HEAD
 	adrl	r3, l2dis_3630_offset	@ may be too distant for plain adr
+=======
+	adr	r3, l2dis_3630_offset
+>>>>>>> upstream/android-13
 	ldr	r2, [r3]		@ value for offset
 	str	r1, [r2, r3]		@ write to l2dis_3630
 	ldmfd	sp!, {pc}	@ restore regs and return
@@ -97,6 +108,11 @@ ENDPROC(enable_omap3630_toggle_l2_on_restore)
  *
  * r0 = physical address of the parameters
  */
+<<<<<<< HEAD
+=======
+	.arch armv7-a
+	.arch_extension sec
+>>>>>>> upstream/android-13
 ENTRY(save_secure_ram_context)
 	stmfd	sp!, {r4 - r11, lr}	@ save registers on stack
 	mov	r3, r0			@ physical address of parameters

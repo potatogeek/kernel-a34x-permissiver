@@ -5,6 +5,37 @@
  * Written by:
  *	Marek Szyprowski <m.szyprowski@samsung.com>
  *	Michal Nazarewicz <mina86@mina86.com>
+<<<<<<< HEAD
+=======
+ *
+ * Contiguous Memory Allocator
+ *
+ *   The Contiguous Memory Allocator (CMA) makes it possible to
+ *   allocate big contiguous chunks of memory after the system has
+ *   booted.
+ *
+ * Why is it needed?
+ *
+ *   Various devices on embedded systems have no scatter-getter and/or
+ *   IO map support and require contiguous blocks of memory to
+ *   operate.  They include devices such as cameras, hardware video
+ *   coders, etc.
+ *
+ *   Such devices often require big memory buffers (a full HD frame
+ *   is, for instance, more than 2 mega pixels large, i.e. more than 6
+ *   MB of memory), which makes mechanisms such as kmalloc() or
+ *   alloc_page() ineffective.
+ *
+ *   At the same time, a solution where a big memory region is
+ *   reserved for a device is suboptimal since often more memory is
+ *   reserved then strictly required and, moreover, the memory is
+ *   inaccessible to page system even if device drivers don't use it.
+ *
+ *   CMA tries to solve this issue by operating on memory regions
+ *   where only movable pages can be allocated from.  This way, kernel
+ *   can use the memory for pagecache and when device driver requests
+ *   it, allocated pages can be migrated.
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "cma: " fmt
@@ -16,12 +47,19 @@
 #endif
 
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/dma-contiguous.h>
+=======
+>>>>>>> upstream/android-13
 
 #include <linux/memblock.h>
 #include <linux/err.h>
 #include <linux/sizes.h>
+<<<<<<< HEAD
 #include <linux/dma-contiguous.h>
+=======
+#include <linux/dma-map-ops.h>
+>>>>>>> upstream/android-13
 #include <linux/cma.h>
 
 #ifdef CONFIG_CMA_SIZE_MBYTES
@@ -31,7 +69,11 @@
 #endif
 
 struct cma *dma_contiguous_default_area;
+<<<<<<< HEAD
 EXPORT_SYMBOL(dma_contiguous_default_area);
+=======
+EXPORT_SYMBOL_GPL(dma_contiguous_default_area);
+>>>>>>> upstream/android-13
 
 /*
  * Default global CMA area size can be defined in kernel's .config.
@@ -43,10 +85,18 @@ EXPORT_SYMBOL(dma_contiguous_default_area);
  * Users, who want to set the size of global CMA area for their system
  * should use cma= kernel parameter.
  */
+<<<<<<< HEAD
 static const phys_addr_t size_bytes = (phys_addr_t)CMA_SIZE_MBYTES * SZ_1M;
 static phys_addr_t size_cmdline = -1;
 static phys_addr_t base_cmdline;
 static phys_addr_t limit_cmdline;
+=======
+static const phys_addr_t size_bytes __initconst =
+	(phys_addr_t)CMA_SIZE_MBYTES * SZ_1M;
+static phys_addr_t  size_cmdline __initdata = -1;
+static phys_addr_t base_cmdline __initdata;
+static phys_addr_t limit_cmdline __initdata;
+>>>>>>> upstream/android-13
 
 static int __init early_cma(char *p)
 {
@@ -69,10 +119,27 @@ static int __init early_cma(char *p)
 }
 early_param("cma", early_cma);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_DMA_PERNUMA_CMA
+
+static struct cma *dma_contiguous_pernuma_area[MAX_NUMNODES];
+static phys_addr_t pernuma_size_bytes __initdata;
+
+static int __init early_cma_pernuma(char *p)
+{
+	pernuma_size_bytes = memparse(p, &p);
+	return 0;
+}
+early_param("cma_pernuma", early_cma_pernuma);
+#endif
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_CMA_SIZE_PERCENTAGE
 
 static phys_addr_t __init __maybe_unused cma_early_percent_memory(void)
 {
+<<<<<<< HEAD
 	struct memblock_region *reg;
 	unsigned long total_pages = 0;
 
@@ -83,6 +150,9 @@ static phys_addr_t __init __maybe_unused cma_early_percent_memory(void)
 	for_each_memblock(memory, reg)
 		total_pages += memblock_region_memory_end_pfn(reg) -
 			       memblock_region_memory_base_pfn(reg);
+=======
+	unsigned long total_pages = PHYS_PFN(memblock_phys_mem_size());
+>>>>>>> upstream/android-13
 
 	return (total_pages * CONFIG_CMA_SIZE_PERCENTAGE / 100) << PAGE_SHIFT;
 }
@@ -96,6 +166,37 @@ static inline __maybe_unused phys_addr_t cma_early_percent_memory(void)
 
 #endif
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_DMA_PERNUMA_CMA
+void __init dma_pernuma_cma_reserve(void)
+{
+	int nid;
+
+	if (!pernuma_size_bytes)
+		return;
+
+	for_each_online_node(nid) {
+		int ret;
+		char name[CMA_MAX_NAME];
+		struct cma **cma = &dma_contiguous_pernuma_area[nid];
+
+		snprintf(name, sizeof(name), "pernuma%d", nid);
+		ret = cma_declare_contiguous_nid(0, pernuma_size_bytes, 0, 0,
+						 0, false, name, cma, nid);
+		if (ret) {
+			pr_warn("%s: reservation failed: err %d, node %d", __func__,
+				ret, nid);
+			continue;
+		}
+
+		pr_debug("%s: reserved %llu MiB on node %d\n", __func__,
+			(unsigned long long)pernuma_size_bytes / SZ_1M, nid);
+	}
+}
+#endif
+
+>>>>>>> upstream/android-13
 /**
  * dma_contiguous_reserve() - reserve area(s) for contiguous memory handling
  * @limit: End address of the reserved memory (optional, 0 for any).
@@ -140,6 +241,7 @@ void __init dma_contiguous_reserve(phys_addr_t limit)
 					    selected_limit,
 					    &dma_contiguous_default_area,
 					    fixed);
+<<<<<<< HEAD
 		if (dma_contiguous_default_area) {
 			record_memsize_reserved("default_CMA",
 				cma_get_base(dma_contiguous_default_area),
@@ -149,6 +251,16 @@ void __init dma_contiguous_reserve(phys_addr_t limit)
 	}
 }
 
+=======
+	}
+}
+
+void __weak
+dma_contiguous_early_fixup(phys_addr_t base, unsigned long size)
+{
+}
+
+>>>>>>> upstream/android-13
 /**
  * dma_contiguous_reserve_area() - reserve custom contiguous area
  * @size: Size of the reserved area (in bytes),
@@ -172,16 +284,32 @@ int __init dma_contiguous_reserve_area(phys_addr_t size, phys_addr_t base,
 {
 	int ret;
 
+<<<<<<< HEAD
 	ret = cma_declare_contiguous(base, size, limit, 0, 0, fixed,
 					"reserved", res_cma);
 	if (ret)
 		return ret;
+=======
+	memblock_memsize_disable_tracking();
+	ret = cma_declare_contiguous(base, size, limit, 0, 0, fixed,
+					"reserved", res_cma);
+	if (ret)
+		goto out;
+>>>>>>> upstream/android-13
 
 	/* Architecture specific contiguous memory fixup. */
 	dma_contiguous_early_fixup(cma_get_base(*res_cma),
 				cma_get_size(*res_cma));
 
+<<<<<<< HEAD
 	return 0;
+=======
+	memblock_memsize_record("dma_cma", cma_get_base(*res_cma),
+				cma_get_size(*res_cma), false, true);
+out:
+	memblock_memsize_enable_tracking();
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -221,6 +349,99 @@ bool dma_release_from_contiguous(struct device *dev, struct page *pages,
 	return cma_release(dev_get_cma_area(dev), pages, count);
 }
 
+<<<<<<< HEAD
+=======
+static struct page *cma_alloc_aligned(struct cma *cma, size_t size, gfp_t gfp)
+{
+	unsigned int align = min(get_order(size), CONFIG_CMA_ALIGNMENT);
+
+	return cma_alloc(cma, size >> PAGE_SHIFT, align, gfp & __GFP_NOWARN);
+}
+
+/**
+ * dma_alloc_contiguous() - allocate contiguous pages
+ * @dev:   Pointer to device for which the allocation is performed.
+ * @size:  Requested allocation size.
+ * @gfp:   Allocation flags.
+ *
+ * tries to use device specific contiguous memory area if available, or it
+ * tries to use per-numa cma, if the allocation fails, it will fallback to
+ * try default global one.
+ *
+ * Note that it bypass one-page size of allocations from the per-numa and
+ * global area as the addresses within one page are always contiguous, so
+ * there is no need to waste CMA pages for that kind; it also helps reduce
+ * fragmentations.
+ */
+struct page *dma_alloc_contiguous(struct device *dev, size_t size, gfp_t gfp)
+{
+#ifdef CONFIG_DMA_PERNUMA_CMA
+	int nid = dev_to_node(dev);
+#endif
+
+	/* CMA can be used only in the context which permits sleeping */
+	if (!gfpflags_allow_blocking(gfp))
+		return NULL;
+	if (dev->cma_area)
+		return cma_alloc_aligned(dev->cma_area, size, gfp);
+	if (size <= PAGE_SIZE)
+		return NULL;
+
+#ifdef CONFIG_DMA_PERNUMA_CMA
+	if (nid != NUMA_NO_NODE && !(gfp & (GFP_DMA | GFP_DMA32))) {
+		struct cma *cma = dma_contiguous_pernuma_area[nid];
+		struct page *page;
+
+		if (cma) {
+			page = cma_alloc_aligned(cma, size, gfp);
+			if (page)
+				return page;
+		}
+	}
+#endif
+	if (!dma_contiguous_default_area)
+		return NULL;
+
+	return cma_alloc_aligned(dma_contiguous_default_area, size, gfp);
+}
+
+/**
+ * dma_free_contiguous() - release allocated pages
+ * @dev:   Pointer to device for which the pages were allocated.
+ * @page:  Pointer to the allocated pages.
+ * @size:  Size of allocated pages.
+ *
+ * This function releases memory allocated by dma_alloc_contiguous(). As the
+ * cma_release returns false when provided pages do not belong to contiguous
+ * area and true otherwise, this function then does a fallback __free_pages()
+ * upon a false-return.
+ */
+void dma_free_contiguous(struct device *dev, struct page *page, size_t size)
+{
+	unsigned int count = PAGE_ALIGN(size) >> PAGE_SHIFT;
+
+	/* if dev has its own cma, free page from there */
+	if (dev->cma_area) {
+		if (cma_release(dev->cma_area, page, count))
+			return;
+	} else {
+		/*
+		 * otherwise, page is from either per-numa cma or default cma
+		 */
+#ifdef CONFIG_DMA_PERNUMA_CMA
+		if (cma_release(dma_contiguous_pernuma_area[page_to_nid(page)],
+					page, count))
+			return;
+#endif
+		if (cma_release(dma_contiguous_default_area, page, count))
+			return;
+	}
+
+	/* not in any cma, free from buddy */
+	__free_pages(page, get_order(size));
+}
+
+>>>>>>> upstream/android-13
 /*
  * Support for reserved memory regions defined in device tree
  */
@@ -234,14 +455,22 @@ bool dma_release_from_contiguous(struct device *dev, struct page *pages,
 
 static int rmem_cma_device_init(struct reserved_mem *rmem, struct device *dev)
 {
+<<<<<<< HEAD
 	dev_set_cma_area(dev, rmem->priv);
+=======
+	dev->cma_area = rmem->priv;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static void rmem_cma_device_release(struct reserved_mem *rmem,
 				    struct device *dev)
 {
+<<<<<<< HEAD
 	dev_set_cma_area(dev, NULL);
+=======
+	dev->cma_area = NULL;
+>>>>>>> upstream/android-13
 }
 
 static const struct reserved_mem_ops rmem_cma_ops = {
@@ -254,9 +483,22 @@ static int __init rmem_cma_setup(struct reserved_mem *rmem)
 	phys_addr_t align = PAGE_SIZE << max(MAX_ORDER - 1, pageblock_order);
 	phys_addr_t mask = align - 1;
 	unsigned long node = rmem->fdt_node;
+<<<<<<< HEAD
 	struct cma *cma;
 	int err;
 
+=======
+	bool default_cma = of_get_flat_dt_prop(node, "linux,cma-default", NULL);
+	struct cma *cma;
+	int err;
+
+	if (size_cmdline != -1 && default_cma) {
+		pr_info("Reserved memory: bypass %s node, using cmdline CMA params instead\n",
+			rmem->name);
+		return -EBUSY;
+	}
+
+>>>>>>> upstream/android-13
 	if (!of_get_flat_dt_prop(node, "reusable", NULL) ||
 	    of_get_flat_dt_prop(node, "no-map", NULL))
 		return -EINVAL;
@@ -274,12 +516,20 @@ static int __init rmem_cma_setup(struct reserved_mem *rmem)
 	/* Architecture specific contiguous memory fixup. */
 	dma_contiguous_early_fixup(rmem->base, rmem->size);
 
+<<<<<<< HEAD
 	if (of_get_flat_dt_prop(node, "linux,cma-default", NULL))
 		dma_contiguous_set_default(cma);
 
 	rmem->ops = &rmem_cma_ops;
 	rmem->priv = cma;
 	rmem->reusable = true;
+=======
+	if (default_cma)
+		dma_contiguous_default_area = cma;
+
+	rmem->ops = &rmem_cma_ops;
+	rmem->priv = cma;
+>>>>>>> upstream/android-13
 
 	pr_info("Reserved memory: created CMA memory pool at %pa, size %ld MiB\n",
 		&rmem->base, (unsigned long)rmem->size / SZ_1M);

@@ -12,7 +12,10 @@
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/delay.h>
 
 #include "fbtft.h"
@@ -24,9 +27,12 @@
 
 static int init_display(struct fbtft_par *par)
 {
+<<<<<<< HEAD
 	if (par->gpio.cs != -1)
 		gpio_set_value(par->gpio.cs, 0);  /* Activate chip */
 
+=======
+>>>>>>> upstream/android-13
 	par->fbtftops.reset(par);
 
 	/* Initialization sequence from Lib_UTFT */

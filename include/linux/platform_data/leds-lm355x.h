@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 Texas Instruments
  *
  * License Terms: GNU General Public License v2
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2012 Texas Instruments
+ *
+>>>>>>> upstream/android-13
  * Simple driver for Texas Instruments LM355x LED driver chip
  *
  * Author: G.Shark Jeong <gshark.jeong@gmail.com>

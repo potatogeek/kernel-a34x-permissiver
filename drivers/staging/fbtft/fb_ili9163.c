@@ -11,7 +11,10 @@
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/delay.h>
 #include <video/mipi_display.h>
 
@@ -77,9 +80,12 @@ static int init_display(struct fbtft_par *par)
 {
 	par->fbtftops.reset(par);
 
+<<<<<<< HEAD
 	if (par->gpio.cs != -1)
 		gpio_set_value(par->gpio.cs, 0);  /* Activate chip */
 
+=======
+>>>>>>> upstream/android-13
 	write_reg(par, MIPI_DCS_SOFT_RESET); /* software reset */
 	mdelay(500);
 	write_reg(par, MIPI_DCS_EXIT_SLEEP_MODE); /* exit sleep */
@@ -195,7 +201,11 @@ static int set_var(struct fbtft_par *par)
 #define CURVE(num, idx)  curves[(num) * par->gamma.num_values + (idx)]
 static int gamma_adj(struct fbtft_par *par, u32 *curves)
 {
+<<<<<<< HEAD
 	unsigned long mask[] = {
+=======
+	static const unsigned long mask[] = {
+>>>>>>> upstream/android-13
 		0x3F, 0x3F, 0x3F, 0x3F, 0x3F,
 		0x1f, 0x3f, 0x0f, 0x0f, 0x7f, 0x1f,
 		0x3F, 0x3F, 0x3F, 0x3F, 0x3F};

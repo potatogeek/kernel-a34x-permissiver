@@ -13,6 +13,11 @@
 #include <linux/cpu.h>
 #include <linux/cpumask.h>
 #include <linux/io.h>
+<<<<<<< HEAD
+=======
+#include <linux/of_address.h>
+#include <linux/of.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/slab.h>
 #include <linux/smp.h>
@@ -337,9 +342,29 @@ static phys_addr_t mips_cdmm_cur_base(void)
  * Picking a suitable physical address at which to map the CDMM region is
  * platform specific, so this weak function can be overridden by platform
  * code to pick a suitable value if none is configured by the bootloader.
+<<<<<<< HEAD
  */
 phys_addr_t __weak mips_cdmm_phys_base(void)
 {
+=======
+ * By default this method tries to find a CDMM-specific node in the system
+ * dtb. Note that this won't work for early serial console.
+ */
+phys_addr_t __weak mips_cdmm_phys_base(void)
+{
+	struct device_node *np;
+	struct resource res;
+	int err;
+
+	np = of_find_compatible_node(NULL, NULL, "mti,mips-cdmm");
+	if (np) {
+		err = of_address_to_resource(np, 0, &res);
+		of_node_put(np);
+		if (!err)
+			return res.start;
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 

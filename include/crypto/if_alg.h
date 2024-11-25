@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * if_alg: User-space algorithm interface
  *
  * Copyright (c) 2010 Herbert Xu <herbert@gondor.apana.org.au>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _CRYPTO_IF_ALG_H
@@ -51,6 +58,10 @@ struct af_alg_type {
 	void *(*bind)(const char *name, u32 type, u32 mask);
 	void (*release)(void *private);
 	int (*setkey)(void *private, const u8 *key, unsigned int keylen);
+<<<<<<< HEAD
+=======
+	int (*setentropy)(void *private, sockptr_t entropy, unsigned int len);
+>>>>>>> upstream/android-13
 	int (*accept)(void *private, struct sock *sk);
 	int (*accept_nokey)(void *private, struct sock *sk);
 	int (*setauthsize)(void *private, unsigned int authsize);
@@ -71,7 +82,11 @@ struct af_alg_sgl {
 struct af_alg_tsgl {
 	struct list_head list;
 	unsigned int cur;		/* Last processed SG entry */
+<<<<<<< HEAD
 	struct scatterlist sg[0];	/* Array of SGs forming the SGL */
+=======
+	struct scatterlist sg[];	/* Array of SGs forming the SGL */
+>>>>>>> upstream/android-13
 };
 
 #define MAX_SGL_ENTS ((4096 - sizeof(struct af_alg_tsgl)) / \
@@ -140,6 +155,10 @@ struct af_alg_async_req {
  *			SG?
  * @enc:		Cryptographic operation to be performed when
  *			recvmsg is invoked.
+<<<<<<< HEAD
+=======
+ * @init:		True if metadata has been sent.
+>>>>>>> upstream/android-13
  * @len:		Length of memory allocated for this data structure.
  */
 struct af_alg_ctx {
@@ -156,6 +175,10 @@ struct af_alg_ctx {
 	bool more;
 	bool merge;
 	bool enc;
+<<<<<<< HEAD
+=======
+	bool init;
+>>>>>>> upstream/android-13
 
 	unsigned int len;
 };
@@ -169,9 +192,12 @@ int af_alg_accept(struct sock *sk, struct socket *newsock, bool kern);
 
 int af_alg_make_sg(struct af_alg_sgl *sgl, struct iov_iter *iter, int len);
 void af_alg_free_sg(struct af_alg_sgl *sgl);
+<<<<<<< HEAD
 void af_alg_link_sg(struct af_alg_sgl *sgl_prev, struct af_alg_sgl *sgl_new);
 
 int af_alg_cmsg_send(struct msghdr *msg, struct af_alg_control *con);
+=======
+>>>>>>> upstream/android-13
 
 static inline struct alg_sock *alg_sk(struct sock *sk)
 {
@@ -230,6 +256,7 @@ static inline bool af_alg_readable(struct sock *sk)
 	return PAGE_SIZE <= af_alg_rcvbuf(sk);
 }
 
+<<<<<<< HEAD
 int af_alg_alloc_tsgl(struct sock *sk);
 unsigned int af_alg_count_tsgl(struct sock *sk, size_t bytes, size_t offset);
 void af_alg_pull_tsgl(struct sock *sk, size_t used, struct scatterlist *dst,
@@ -239,6 +266,13 @@ int af_alg_wait_for_wmem(struct sock *sk, unsigned int flags);
 void af_alg_wmem_wakeup(struct sock *sk);
 int af_alg_wait_for_data(struct sock *sk, unsigned flags);
 void af_alg_data_wakeup(struct sock *sk);
+=======
+unsigned int af_alg_count_tsgl(struct sock *sk, size_t bytes, size_t offset);
+void af_alg_pull_tsgl(struct sock *sk, size_t used, struct scatterlist *dst,
+		      size_t dst_offset);
+void af_alg_wmem_wakeup(struct sock *sk);
+int af_alg_wait_for_data(struct sock *sk, unsigned flags, unsigned min);
+>>>>>>> upstream/android-13
 int af_alg_sendmsg(struct socket *sock, struct msghdr *msg, size_t size,
 		   unsigned int ivsize);
 ssize_t af_alg_sendpage(struct socket *sock, struct page *page,

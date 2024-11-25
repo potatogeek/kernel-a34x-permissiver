@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /****************************************************************************
  *
  *  Filename: cpia2_usb.c
@@ -10,6 +14,7 @@
  *     The infrastructure of this driver is based on the cpia usb driver by
  *     Jochen Scharrlach and Johannes Erdfeldt.
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
@@ -20,6 +25,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  *  Stripped of 2.4 stuff ready for main kernel submit by
  *		Alan Cox <alan@lxorguk.ukuu.org.uk>
  ****************************************************************************/
@@ -324,7 +331,11 @@ static void cpia2_usb_complete(struct urb *urb)
 				continue;
 			}
 			DBG("Start of frame pattern found\n");
+<<<<<<< HEAD
 			v4l2_get_timestamp(&cam->workbuff->timestamp);
+=======
+			cam->workbuff->ts = ktime_get_ns();
+>>>>>>> upstream/android-13
 			cam->workbuff->seq = cam->frame_count++;
 			cam->workbuff->data[0] = 0xFF;
 			cam->workbuff->data[1] = 0xD8;
@@ -559,7 +570,11 @@ static int write_packet(struct usb_device *udev,
 			       0,	/* index */
 			       buf,	/* buffer */
 			       size,
+<<<<<<< HEAD
 			       HZ);
+=======
+			       1000);
+>>>>>>> upstream/android-13
 
 	kfree(buf);
 	return ret;
@@ -591,7 +606,11 @@ static int read_packet(struct usb_device *udev,
 			       0,	/* index */
 			       buf,	/* buffer */
 			       size,
+<<<<<<< HEAD
 			       HZ);
+=======
+			       1000);
+>>>>>>> upstream/android-13
 
 	if (ret >= 0)
 		memcpy(registers, buf, size);
@@ -853,15 +872,23 @@ static int cpia2_usb_probe(struct usb_interface *intf,
 	ret = set_alternate(cam, USBIF_CMDONLY);
 	if (ret < 0) {
 		ERR("%s: usb_set_interface error (ret = %d)\n", __func__, ret);
+<<<<<<< HEAD
 		kfree(cam);
 		return ret;
+=======
+		goto alt_err;
+>>>>>>> upstream/android-13
 	}
 
 
 	if((ret = cpia2_init_camera(cam)) < 0) {
 		ERR("%s: failed to initialize cpia2 camera (ret = %d)\n", __func__, ret);
+<<<<<<< HEAD
 		kfree(cam);
 		return ret;
+=======
+		goto alt_err;
+>>>>>>> upstream/android-13
 	}
 	LOG("  CPiA Version: %d.%02d (%d.%d)\n",
 	       cam->params.version.firmware_revision_hi,
@@ -881,11 +908,22 @@ static int cpia2_usb_probe(struct usb_interface *intf,
 	ret = cpia2_register_camera(cam);
 	if (ret < 0) {
 		ERR("%s: Failed to register cpia2 camera (ret = %d)\n", __func__, ret);
+<<<<<<< HEAD
 		kfree(cam);
 		return ret;
 	}
 
 	return 0;
+=======
+		goto alt_err;
+	}
+
+	return 0;
+
+alt_err:
+	cpia2_deinit_camera_struct(cam, intf);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /******************************************************************************

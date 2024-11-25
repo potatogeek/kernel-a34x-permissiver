@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * VTI CMA3000_D0x Accelerometer driver
  *
  * Copyright (C) 2010 Texas Instruments
  * Author: Hemanth V <hemanthv@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
@@ -15,6 +20,8 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _INPUT_CMA3000_H

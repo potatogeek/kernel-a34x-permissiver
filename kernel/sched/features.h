@@ -27,7 +27,11 @@ SCHED_FEAT(NEXT_BUDDY, false)
 SCHED_FEAT(LAST_BUDDY, true)
 
 /*
+<<<<<<< HEAD
  * Consider buddies to be cache hot, decreases the likelyness of a
+=======
+ * Consider buddies to be cache hot, decreases the likeliness of a
+>>>>>>> upstream/android-13
  * cache buddy being migrated away, increases cache locality.
  */
 SCHED_FEAT(CACHE_HOT_BUDDY, true)
@@ -38,8 +42,13 @@ SCHED_FEAT(CACHE_HOT_BUDDY, true)
 SCHED_FEAT(WAKEUP_PREEMPTION, true)
 
 SCHED_FEAT(HRTICK, false)
+<<<<<<< HEAD
 SCHED_FEAT(DOUBLE_TICK, false)
 SCHED_FEAT(LB_BIAS, true)
+=======
+SCHED_FEAT(HRTICK_DL, false)
+SCHED_FEAT(DOUBLE_TICK, false)
+>>>>>>> upstream/android-13
 
 /*
  * Decrement CPU capacity based on time not spent running tasks
@@ -55,7 +64,10 @@ SCHED_FEAT(TTWU_QUEUE, true)
 /*
  * When doing wakeups, attempt to limit superfluous scans of the LLC domain.
  */
+<<<<<<< HEAD
 SCHED_FEAT(SIS_AVG_CPU, false)
+=======
+>>>>>>> upstream/android-13
 SCHED_FEAT(SIS_PROP, true)
 
 /*
@@ -92,6 +104,7 @@ SCHED_FEAT(WA_BIAS, true)
 SCHED_FEAT(UTIL_EST, true)
 SCHED_FEAT(UTIL_EST_FASTUP, true)
 
+<<<<<<< HEAD
 /*
  * Utilization clamping lazy update.
  */
@@ -131,3 +144,9 @@ SCHED_FEAT(SUGOV_RT_MAX_FREQ, false)
  * RT class.
  */
 SCHED_FEAT(SCHEDTUNE_BOOST_HOLD_ALL, false)
+=======
+SCHED_FEAT(LATENCY_WARN, false)
+
+SCHED_FEAT(ALT_PERIOD, true)
+SCHED_FEAT(BASE_SLICE, true)
+>>>>>>> upstream/android-13

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 ####
 # kbuild: Generic definitions
 
@@ -15,7 +19,11 @@ pound := \#
 dot-target = $(dir $@).$(notdir $@)
 
 ###
+<<<<<<< HEAD
 # The temporary file to save gcc -MD generated dependencies must not
+=======
+# The temporary file to save gcc -MMD generated dependencies must not
+>>>>>>> upstream/android-13
 # contain a comma
 depfile = $(subst $(comma),_,$(dot-target).d)
 
@@ -24,14 +32,26 @@ depfile = $(subst $(comma),_,$(dot-target).d)
 basetarget = $(basename $(notdir $@))
 
 ###
+<<<<<<< HEAD
 # filename of first prerequisite with directory and extension stripped
 baseprereq = $(basename $(notdir $<))
+=======
+# real prerequisites without phony targets
+real-prereqs = $(filter-out $(PHONY), $^)
+>>>>>>> upstream/android-13
 
 ###
 # Escape single quote for use in echo statements
 escsq = $(subst $(squote),'\$(squote)',$1)
 
 ###
+<<<<<<< HEAD
+=======
+# Quote a string to pass it to C files. foo => '"foo"'
+stringify = $(squote)$(quote)$1$(quote)$(squote)
+
+###
+>>>>>>> upstream/android-13
 # Easy method for doing a status message
        kecho := :
  quiet_kecho := echo
@@ -41,16 +61,25 @@ kecho := $($(quiet)kecho)
 ###
 # filechk is used to check if the content of a generated file is updated.
 # Sample usage:
+<<<<<<< HEAD
 # define filechk_sample
 #	echo $KERNELRELEASE
 # endef
 # version.h : Makefile
 #	$(call filechk,sample)
+=======
+#
+# filechk_sample = echo $(KERNELRELEASE)
+# version.h: FORCE
+#	$(call filechk,sample)
+#
+>>>>>>> upstream/android-13
 # The rule defined shall write to stdout the content of the new file.
 # The existing file will be compared with the new one.
 # - If no file exist it is created
 # - If the content differ the new file is used
 # - If they are equal no change, and no timestamp update
+<<<<<<< HEAD
 # - stdin is piped in from the first prerequisite ($<) so one has
 #   to specify a valid file as first prerequisite (often the kbuild file)
 define filechk
@@ -178,6 +207,20 @@ ld-ifversion = $(shell [ $(ld-version) $(1) $(2) ] && echo $(3) || echo $(4))
 
 ######
 
+=======
+define filechk
+	$(check-FORCE)
+	$(Q)set -e;						\
+	mkdir -p $(dir $@);					\
+	trap "rm -f $(dot-target).tmp" EXIT;			\
+	{ $(filechk_$(1)); } > $(dot-target).tmp;		\
+	if [ ! -r $@ ] || ! cmp -s $@ $(dot-target).tmp; then	\
+		$(kecho) '  UPD     $@';			\
+		mv -f $(dot-target).tmp $@;			\
+	fi
+endef
+
+>>>>>>> upstream/android-13
 ###
 # Shorthand for $(Q)$(MAKE) -f scripts/Makefile.build obj=
 # Usage:
@@ -185,6 +228,7 @@ ld-ifversion = $(shell [ $(ld-version) $(1) $(2) ] && echo $(3) || echo $(4))
 build := -f $(srctree)/scripts/Makefile.build obj
 
 ###
+<<<<<<< HEAD
 # Shorthand for $(Q)$(MAKE) -f scripts/Makefile.modbuiltin obj=
 # Usage:
 # $(Q)$(MAKE) $(modbuiltin)=dir
@@ -195,6 +239,12 @@ modbuiltin := -f $(srctree)/scripts/Makefile.modbuiltin obj
 # Usage:
 # $(Q)$(MAKE) $(dtbinst)=dir
 dtbinst := -f $(if $(KBUILD_SRC),$(srctree)/)scripts/Makefile.dtbinst obj
+=======
+# Shorthand for $(Q)$(MAKE) -f scripts/Makefile.dtbinst obj=
+# Usage:
+# $(Q)$(MAKE) $(dtbinst)=dir
+dtbinst := -f $(srctree)/scripts/Makefile.dtbinst obj
+>>>>>>> upstream/android-13
 
 ###
 # Shorthand for $(Q)$(MAKE) -f scripts/Makefile.clean obj=
@@ -202,6 +252,7 @@ dtbinst := -f $(if $(KBUILD_SRC),$(srctree)/)scripts/Makefile.dtbinst obj
 # $(Q)$(MAKE) $(clean)=dir
 clean := -f $(srctree)/scripts/Makefile.clean obj
 
+<<<<<<< HEAD
 ###
 # Shorthand for $(Q)$(MAKE) -f scripts/Makefile.headersinst obj=
 # Usage:
@@ -216,16 +267,28 @@ $(if $(filter-out -I/% -I./% -I../%,$(1)),$(patsubst -I%,-I$(srctree)/%,$(1)),$(
 # Find all -I options and call addtree
 flags = $(foreach o,$($(1)),$(if $(filter -I%,$(o)),$(call addtree,$(o)),$(o)))
 
+=======
+>>>>>>> upstream/android-13
 # echo command.
 # Short version is used, if $(quiet) equals `quiet_', otherwise full one.
 echo-cmd = $(if $($(quiet)cmd_$(1)),\
 	echo '  $(call escsq,$($(quiet)cmd_$(1)))$(echo-why)';)
 
+<<<<<<< HEAD
 # printing commands
 cmd = @$(echo-cmd) $(cmd_$(1))
 
 # Add $(obj)/ for paths that are not absolute
 objectify = $(foreach o,$(1),$(if $(filter /%,$(o)),$(o),$(obj)/$(o)))
+=======
+# sink stdout for 'make -s'
+       redirect :=
+ quiet_redirect :=
+silent_redirect := exec >/dev/null;
+
+# printing commands
+cmd = @set -e; $(echo-cmd) $($(quiet)redirect) $(cmd_$(1))
+>>>>>>> upstream/android-13
 
 ###
 # if_changed      - execute command if any prerequisite is newer than
@@ -233,6 +296,7 @@ objectify = $(foreach o,$(1),$(if $(filter /%,$(o)),$(o),$(obj)/$(o)))
 # if_changed_dep  - as if_changed, but uses fixdep to reveal dependencies
 #                   including used config symbols
 # if_changed_rule - as if_changed but execute rule instead
+<<<<<<< HEAD
 # See Documentation/kbuild/makefiles.txt for more info
 
 ifneq ($(KBUILD_NOCMDDEP),1)
@@ -242,6 +306,17 @@ arg-check = $(filter-out $(subst $(space),$(space_escape),$(strip $(cmd_$@))), \
                          $(subst $(space),$(space_escape),$(strip $(cmd_$1))))
 else
 arg-check = $(if $(strip $(cmd_$@)),,1)
+=======
+# See Documentation/kbuild/makefiles.rst for more info
+
+ifneq ($(KBUILD_NOCMDDEP),1)
+# Check if both commands are the same including their order. Result is empty
+# string if equal. User may override this check using make KBUILD_NOCMDDEP=1
+cmd-check = $(filter-out $(subst $(space),$(space_escape),$(strip $(cmd_$@))), \
+                         $(subst $(space),$(space_escape),$(strip $(cmd_$1))))
+else
+cmd-check = $(if $(strip $(cmd_$@)),,1)
+>>>>>>> upstream/android-13
 endif
 
 # Replace >$< with >$$< to preserve $ when reloading the .cmd file
@@ -252,6 +327,7 @@ endif
 # (needed for the shell)
 make-cmd = $(call escsq,$(subst $(pound),$$(pound),$(subst $$,$$$$,$(cmd_$(1)))))
 
+<<<<<<< HEAD
 # Find any prerequisites that is newer than target or that does not exist.
 # PHONY targets skipped in both cases.
 any-prereq = $(filter-out $(PHONY),$?) $(filter-out $(PHONY) $(wildcard $^),$^)
@@ -301,13 +377,44 @@ cmd_and_fixdep =                                                             \
 	mv -f $(dot-target).tmp $(dot-target).cmd;
 
 endif
+=======
+# Find any prerequisites that are newer than target or that do not exist.
+# (This is not true for now; $? should contain any non-existent prerequisites,
+# but it does not work as expected when .SECONDARY is present. This seems a bug
+# of GNU Make.)
+# PHONY targets skipped in both cases.
+newer-prereqs = $(filter-out $(PHONY),$?)
+
+# It is a typical mistake to forget the FORCE prerequisite. Check it here so
+# no more breakage will slip in.
+check-FORCE = $(if $(filter FORCE, $^),,$(warning FORCE prerequisite is missing))
+
+if-changed-cond = $(newer-prereqs)$(cmd-check)$(check-FORCE)
+
+# Execute command if command has changed or prerequisite(s) are updated.
+if_changed = $(if $(if-changed-cond),                                        \
+	$(cmd);                                                              \
+	printf '%s\n' 'cmd_$@ := $(make-cmd)' > $(dot-target).cmd, @:)
+
+# Execute the command and also postprocess generated .d dependencies file.
+if_changed_dep = $(if $(if-changed-cond),$(cmd_and_fixdep),@:)
+
+cmd_and_fixdep =                                                             \
+	$(cmd);                                                              \
+	scripts/basic/fixdep $(depfile) $@ '$(make-cmd)' > $(dot-target).cmd;\
+	rm -f $(depfile)
+>>>>>>> upstream/android-13
 
 # Usage: $(call if_changed_rule,foo)
 # Will check if $(cmd_foo) or any of the prerequisites changed,
 # and if so will execute $(rule_foo).
+<<<<<<< HEAD
 if_changed_rule = $(if $(strip $(any-prereq) $(arg-check) ),                 \
 	@set -e;                                                             \
 	$(rule_$(1)), @:)
+=======
+if_changed_rule = $(if $(if-changed-cond),$(rule_$(1)),@:)
+>>>>>>> upstream/android-13
 
 ###
 # why - tell why a target got built
@@ -332,8 +439,13 @@ ifeq ($(KBUILD_VERBOSE),2)
 why =                                                                        \
     $(if $(filter $@, $(PHONY)),- due to target is PHONY,                    \
         $(if $(wildcard $@),                                                 \
+<<<<<<< HEAD
             $(if $(strip $(any-prereq)),- due to: $(any-prereq),             \
                 $(if $(arg-check),                                           \
+=======
+            $(if $(newer-prereqs),- due to: $(newer-prereqs),                \
+                $(if $(cmd-check),                                           \
+>>>>>>> upstream/android-13
                     $(if $(cmd_$@),- due to command line change,             \
                         $(if $(filter $@, $(targets)),                       \
                             - due to missing .cmd file,                      \
@@ -400,3 +512,9 @@ endef
 
 # delete partially updated (i.e. corrupted) files on error
 .DELETE_ON_ERROR:
+<<<<<<< HEAD
+=======
+
+# do not delete intermediate files automatically
+.SECONDARY:
+>>>>>>> upstream/android-13

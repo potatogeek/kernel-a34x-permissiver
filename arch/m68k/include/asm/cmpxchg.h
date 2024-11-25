@@ -76,11 +76,19 @@ static inline unsigned long __xchg(unsigned long x, volatile void * ptr, int siz
 }
 #endif
 
+<<<<<<< HEAD
 #define xchg(ptr,x) ((__typeof__(*(ptr)))__xchg((unsigned long)(x),(ptr),sizeof(*(ptr))))
 
 #include <asm-generic/cmpxchg-local.h>
 
 #define cmpxchg64_local(ptr, o, n) __cmpxchg64_local_generic((ptr), (o), (n))
+=======
+#define arch_xchg(ptr,x) ({(__typeof__(*(ptr)))__xchg((unsigned long)(x),(ptr),sizeof(*(ptr)));})
+
+#include <asm-generic/cmpxchg-local.h>
+
+#define arch_cmpxchg64_local(ptr, o, n) __generic_cmpxchg64_local((ptr), (o), (n))
+>>>>>>> upstream/android-13
 
 extern unsigned long __invalid_cmpxchg_size(volatile void *,
 					    unsigned long, unsigned long, int);
@@ -118,6 +126,7 @@ static inline unsigned long __cmpxchg(volatile void *p, unsigned long old,
 	return old;
 }
 
+<<<<<<< HEAD
 #define cmpxchg(ptr, o, n)						    \
 	((__typeof__(*(ptr)))__cmpxchg((ptr), (unsigned long)(o),	    \
 			(unsigned long)(n), sizeof(*(ptr))))
@@ -137,6 +146,19 @@ static inline unsigned long __cmpxchg(volatile void *p, unsigned long old,
 	((__typeof__(*(ptr)))__cmpxchg_local_generic((ptr), (unsigned long)(o),\
 			(unsigned long)(n), sizeof(*(ptr))))
 
+=======
+#define arch_cmpxchg(ptr, o, n)						    \
+	({(__typeof__(*(ptr)))__cmpxchg((ptr), (unsigned long)(o),	    \
+			(unsigned long)(n), sizeof(*(ptr)));})
+#define arch_cmpxchg_local(ptr, o, n)					    \
+	({(__typeof__(*(ptr)))__cmpxchg((ptr), (unsigned long)(o),	    \
+			(unsigned long)(n), sizeof(*(ptr)));})
+
+#define arch_cmpxchg64(ptr, o, n)	arch_cmpxchg64_local((ptr), (o), (n))
+
+#else
+
+>>>>>>> upstream/android-13
 #include <asm-generic/cmpxchg.h>
 
 #endif

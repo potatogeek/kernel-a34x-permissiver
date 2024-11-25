@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2012 ST-Ericsson AB
  *
@@ -11,56 +12,103 @@
 
 #include <dt-bindings/interrupt-controller/irq.h>
 #include "ste-dbx5x0.dtsi"
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2012 ST-Ericsson AB
+ */
+
+#include <dt-bindings/interrupt-controller/irq.h>
+#include <dt-bindings/leds/common.h>
+>>>>>>> upstream/android-13
 #include "ste-href-family-pinctrl.dtsi"
 
 / {
 	memory {
+<<<<<<< HEAD
+=======
+		device_type = "memory";
+>>>>>>> upstream/android-13
 		reg = <0x00000000 0x20000000>;
 	};
 
 	soc {
 		uart@80120000 {
 			pinctrl-names = "default", "sleep";
+<<<<<<< HEAD
 			pinctrl-0 = <&uart0_default_mode>;
 			pinctrl-1 = <&uart0_sleep_mode>;
+=======
+			pinctrl-0 = <&u0_a_1_default>;
+			pinctrl-1 = <&u0_a_1_sleep>;
+>>>>>>> upstream/android-13
 			status = "okay";
 		};
 
 		/* This UART is unused and thus left disabled */
 		uart@80121000 {
 			pinctrl-names = "default", "sleep";
+<<<<<<< HEAD
 			pinctrl-0 = <&uart1_default_mode>;
 			pinctrl-1 = <&uart1_sleep_mode>;
+=======
+			pinctrl-0 = <&u1rxtx_a_1_default>;
+			pinctrl-1 = <&u1rxtx_a_1_sleep>;
+>>>>>>> upstream/android-13
 		};
 
 		uart@80007000 {
 			pinctrl-names = "default", "sleep";
+<<<<<<< HEAD
 			pinctrl-0 = <&uart2_default_mode>;
 			pinctrl-1 = <&uart2_sleep_mode>;
+=======
+			pinctrl-0 = <&u2rxtx_c_1_default>;
+			pinctrl-1 = <&u2rxtx_c_1_sleep>;
+>>>>>>> upstream/android-13
 			status = "okay";
 		};
 
 		i2c@80004000 {
 			pinctrl-names = "default","sleep";
+<<<<<<< HEAD
 			pinctrl-0 = <&i2c0_default_mode>;
 			pinctrl-1 = <&i2c0_sleep_mode>;
+=======
+			pinctrl-0 = <&i2c0_a_1_default>;
+			pinctrl-1 = <&i2c0_a_1_sleep>;
+			status = "okay";
+>>>>>>> upstream/android-13
 		};
 
 		i2c@80122000 {
 			pinctrl-names = "default","sleep";
+<<<<<<< HEAD
 			pinctrl-0 = <&i2c1_default_mode>;
 			pinctrl-1 = <&i2c1_sleep_mode>;
+=======
+			pinctrl-0 = <&i2c1_b_2_default>;
+			pinctrl-1 = <&i2c1_b_2_sleep>;
+			status = "okay";
+>>>>>>> upstream/android-13
 		};
 
 		i2c@80128000 {
 			pinctrl-names = "default","sleep";
+<<<<<<< HEAD
 			pinctrl-0 = <&i2c2_default_mode>;
 			pinctrl-1 = <&i2c2_sleep_mode>;
+=======
+			pinctrl-0 = <&i2c2_b_2_default>;
+			pinctrl-1 = <&i2c2_b_2_sleep>;
+			status = "okay";
+>>>>>>> upstream/android-13
 			lp5521@33 {
 				compatible = "national,lp5521";
 				reg = <0x33>;
 				label = "lp5521_pri";
 				clock-mode = /bits/ 8 <2>;
+<<<<<<< HEAD
 				chan0 {
 					led-cur = /bits/ 8 <0x2f>;
 					max-cur = /bits/ 8 <0x5f>;
@@ -73,6 +121,28 @@
 				chan2 {
 					led-cur = /bits/ 8 <0x2f>;
 					max-cur = /bits/ 8 <0x5f>;
+=======
+				#address-cells = <1>;
+				#size-cells = <0>;
+				chan@0 {
+					reg = <0>;
+					led-cur = /bits/ 8 <0x2f>;
+					max-cur = /bits/ 8 <0x5f>;
+					color = <LED_COLOR_ID_BLUE>;
+					linux,default-trigger = "heartbeat";
+				};
+				chan@1 {
+					reg = <1>;
+					led-cur = /bits/ 8 <0x2f>;
+					max-cur = /bits/ 8 <0x5f>;
+					color = <LED_COLOR_ID_BLUE>;
+				};
+				chan@2 {
+					reg = <2>;
+					led-cur = /bits/ 8 <0x2f>;
+					max-cur = /bits/ 8 <0x5f>;
+					color = <LED_COLOR_ID_BLUE>;
+>>>>>>> upstream/android-13
 				};
 			};
 			lp5521@34 {
@@ -80,6 +150,7 @@
 				reg = <0x34>;
 				label = "lp5521_sec";
 				clock-mode = /bits/ 8 <2>;
+<<<<<<< HEAD
 				chan0 {
 					led-cur = /bits/ 8 <0x2f>;
 					max-cur = /bits/ 8 <0x5f>;
@@ -91,6 +162,27 @@
 				chan2 {
 					led-cur = /bits/ 8 <0x2f>;
 					max-cur = /bits/ 8 <0x5f>;
+=======
+				#address-cells = <1>;
+				#size-cells = <0>;
+				chan@0 {
+					reg = <0>;
+					led-cur = /bits/ 8 <0x2f>;
+					max-cur = /bits/ 8 <0x5f>;
+					color = <LED_COLOR_ID_BLUE>;
+				};
+				chan@1 {
+					reg = <1>;
+					led-cur = /bits/ 8 <0x2f>;
+					max-cur = /bits/ 8 <0x5f>;
+					color = <LED_COLOR_ID_BLUE>;
+				};
+				chan@2 {
+					reg = <2>;
+					led-cur = /bits/ 8 <0x2f>;
+					max-cur = /bits/ 8 <0x5f>;
+					color = <LED_COLOR_ID_BLUE>;
+>>>>>>> upstream/android-13
 				};
 			};
 			bh1780@29 {
@@ -101,6 +193,7 @@
 
 		i2c@80110000 {
 			pinctrl-names = "default","sleep";
+<<<<<<< HEAD
 			pinctrl-0 = <&i2c3_default_mode>;
 			pinctrl-1 = <&i2c3_sleep_mode>;
 		};
@@ -122,6 +215,15 @@
 
 		// External Micro SD slot
 		sdi0_per1@80126000 {
+=======
+			pinctrl-0 = <&i2c3_c_2_default>;
+			pinctrl-1 = <&i2c3_c_2_sleep>;
+			status = "okay";
+		};
+
+		// External Micro SD slot
+		mmc@80126000 {
+>>>>>>> upstream/android-13
 			arm,primecell-periphid = <0x10480180>;
 			max-frequency = <100000000>;
 			bus-width = <4>;
@@ -137,70 +239,122 @@
 			vmmc-supply = <&ab8500_ldo_aux3_reg>;
 			vqmmc-supply = <&vmmci>;
 			pinctrl-names = "default", "sleep";
+<<<<<<< HEAD
 			pinctrl-0 = <&sdi0_default_mode>;
 			pinctrl-1 = <&sdi0_sleep_mode>;
+=======
+			pinctrl-0 = <&mc0_a_1_default &sdi0_default_mode>;
+			pinctrl-1 = <&mc0_a_1_sleep>;
+>>>>>>> upstream/android-13
 
 			status = "okay";
 		};
 
 		// WLAN SDIO channel
+<<<<<<< HEAD
 		sdi1_per2@80118000 {
+=======
+		mmc@80118000 {
+>>>>>>> upstream/android-13
 			arm,primecell-periphid = <0x10480180>;
 			max-frequency = <100000000>;
 			bus-width = <4>;
 			non-removable;
 			pinctrl-names = "default", "sleep";
+<<<<<<< HEAD
 			pinctrl-0 = <&sdi1_default_mode>;
 			pinctrl-1 = <&sdi1_sleep_mode>;
+=======
+			pinctrl-0 = <&mc1_a_1_default>;
+			pinctrl-1 = <&mc1_a_1_sleep>;
+>>>>>>> upstream/android-13
 
 			status = "okay";
 		};
 
 		// PoP:ed eMMC
+<<<<<<< HEAD
 		sdi2_per3@80005000 {
+=======
+		mmc@80005000 {
+>>>>>>> upstream/android-13
 			arm,primecell-periphid = <0x10480180>;
 			max-frequency = <100000000>;
 			bus-width = <8>;
 			cap-mmc-highspeed;
 			non-removable;
+<<<<<<< HEAD
 			vmmc-supply = <&db8500_vsmps2_reg>;
 			pinctrl-names = "default", "sleep";
 			pinctrl-0 = <&sdi2_default_mode>;
 			pinctrl-1 = <&sdi2_sleep_mode>;
+=======
+			no-sdio;
+			no-sd;
+			vmmc-supply = <&db8500_vsmps2_reg>;
+			pinctrl-names = "default", "sleep";
+			pinctrl-0 = <&mc2_a_1_default>;
+			pinctrl-1 = <&mc2_a_1_sleep>;
+>>>>>>> upstream/android-13
 
 			status = "okay";
 		};
 
 		// On-board eMMC
+<<<<<<< HEAD
 		sdi4_per2@80114000 {
+=======
+		mmc@80114000 {
+>>>>>>> upstream/android-13
 			arm,primecell-periphid = <0x10480180>;
 		        max-frequency = <100000000>;
 			bus-width = <8>;
 			cap-mmc-highspeed;
 			non-removable;
+<<<<<<< HEAD
 			vmmc-supply = <&ab8500_ldo_aux2_reg>;
 			pinctrl-names = "default", "sleep";
 			pinctrl-0 = <&sdi4_default_mode>;
 			pinctrl-1 = <&sdi4_sleep_mode>;
+=======
+			no-sdio;
+			no-sd;
+			vmmc-supply = <&ab8500_ldo_aux2_reg>;
+			pinctrl-names = "default", "sleep";
+			pinctrl-0 = <&mc4_a_1_default>;
+			pinctrl-1 = <&mc4_a_1_sleep>;
+>>>>>>> upstream/android-13
 
 			status = "okay";
 		};
 
 		msp0: msp@80123000 {
 			pinctrl-names = "default";
+<<<<<<< HEAD
 			pinctrl-0 = <&msp0_default_mode>;
+=======
+			pinctrl-0 = <&msp0txrxtfstck_a_1_default>;
+>>>>>>> upstream/android-13
 			status = "okay";
 		};
 
 		msp1: msp@80124000 {
 			pinctrl-names = "default";
+<<<<<<< HEAD
 			pinctrl-0 = <&msp1_default_mode>;
+=======
+			pinctrl-0 = <&msp1txrx_a_1_default>;
+>>>>>>> upstream/android-13
 			status = "okay";
 		};
 
 		msp2: msp@80117000 {
 			pinctrl-names = "default";
+<<<<<<< HEAD
 			pinctrl-0 = <&msp2_default_mode>;
+=======
+			pinctrl-0 = <&msp2_a_1_default>;
+>>>>>>> upstream/android-13
 		};
 
 		msp3: msp@80125000 {
@@ -209,13 +363,22 @@
 
 		prcmu@80157000 {
 			ab8500 {
+<<<<<<< HEAD
 				ab8500-gpio {
+=======
+				ab8500-gpiocontroller {
+>>>>>>> upstream/android-13
 				};
 
 				ab8500_usb {
 					pinctrl-names = "default", "sleep";
+<<<<<<< HEAD
 					pinctrl-0 = <&musb_default_mode>;
 					pinctrl-1 = <&musb_sleep_mode>;
+=======
+					pinctrl-0 = <&usb_a_1_default>;
+					pinctrl-1 = <&usb_a_1_sleep>;
+>>>>>>> upstream/android-13
 				};
 
 				ab8500-regulators {
@@ -239,10 +402,13 @@
 						regulator-name = "V-TVOUT";
 					};
 
+<<<<<<< HEAD
 					ab8500_ldo_usb_reg: ab8500_ldo_usb {
 						regulator-name = "dummy";
 					};
 
+=======
+>>>>>>> upstream/android-13
 					ab8500_ldo_audio_reg: ab8500_ldo_audio {
 						regulator-name = "V-AUD";
 					};
@@ -266,6 +432,17 @@
 			};
 		};
 
+<<<<<<< HEAD
+=======
+		pinctrl {
+			sdi0 {
+				sdi0_default_mode: sdi0_default {
+					/* Some boards set additional settings here */
+				};
+			};
+		};
+
+>>>>>>> upstream/android-13
 		mcde@a0350000 {
 			pinctrl-names = "default", "sleep";
 			pinctrl-0 = <&lcd_default_mode>;

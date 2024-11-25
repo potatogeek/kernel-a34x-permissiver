@@ -7,11 +7,16 @@ config PPC_POWERNV
 	select PPC_ICP_NATIVE
 	select PPC_XIVE_NATIVE
 	select PPC_P7_NAP
+<<<<<<< HEAD
 	select PCI
+=======
+	select FORCE_PCI
+>>>>>>> upstream/android-13
 	select PCI_MSI
 	select EPAPR_BOOT
 	select PPC_INDIRECT_PIO
 	select PPC_UDBG_16550
+<<<<<<< HEAD
 	select PPC_SCOM
 	select ARCH_RANDOM
 	select CPU_FREQ
@@ -20,6 +25,10 @@ config PPC_POWERNV
 	select CPU_FREQ_GOV_USERSPACE
 	select CPU_FREQ_GOV_ONDEMAND
 	select CPU_FREQ_GOV_CONSERVATIVE
+=======
+	select ARCH_RANDOM
+	select CPU_FREQ
+>>>>>>> upstream/android-13
 	select PPC_DOORBELL
 	select MMU_NOTIFIER
 	select FORCE_SMP
@@ -33,6 +42,7 @@ config OPAL_PRD
 	  recovery diagnostics on OpenPower machines
 
 config PPC_MEMTRACE
+<<<<<<< HEAD
 	bool "Enable removal of RAM from kernel mappings for tracing"
 	depends on PPC_POWERNV && MEMORY_HOTREMOVE
 	default n
@@ -53,3 +63,14 @@ config PPC_VAS
 	  VAS adapters are found in POWER9 based systems.
 
 	  If unsure, say N.
+=======
+	bool "Enable runtime allocation of RAM for tracing"
+	depends on PPC_POWERNV && MEMORY_HOTPLUG && CONTIG_ALLOC
+	help
+	  Enabling this option allows for runtime allocation of memory (RAM)
+	  for hardware tracing.
+
+config SCOM_DEBUGFS
+	bool "Expose SCOM controllers via debugfs"
+	depends on DEBUG_FS
+>>>>>>> upstream/android-13

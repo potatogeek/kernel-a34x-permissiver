@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * DaVinci Voice Codec Core Interface for TI platforms
  *
  * Copyright (C) 2010 Texas Instruments, Inc
  *
  * Author: Miguel Aguilar <miguel.aguilar@ridgerun.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -32,7 +39,10 @@
 #include <sound/pcm.h>
 
 #include <linux/mfd/davinci_voicecodec.h>
+<<<<<<< HEAD
 #include <mach/hardware.h>
+=======
+>>>>>>> upstream/android-13
 
 static const struct regmap_config davinci_vc_regmap = {
 	.reg_bits = 32,
@@ -44,6 +54,10 @@ static int __init davinci_vc_probe(struct platform_device *pdev)
 	struct davinci_vc *davinci_vc;
 	struct resource *res;
 	struct mfd_cell *cell = NULL;
+<<<<<<< HEAD
+=======
+	dma_addr_t fifo_base;
+>>>>>>> upstream/android-13
 	int ret;
 
 	davinci_vc = devm_kzalloc(&pdev->dev,
@@ -61,6 +75,10 @@ static int __init davinci_vc_probe(struct platform_device *pdev)
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 
+<<<<<<< HEAD
+=======
+	fifo_base = (dma_addr_t)res->start;
+>>>>>>> upstream/android-13
 	davinci_vc->base = devm_ioremap_resource(&pdev->dev, res);
 	if (IS_ERR(davinci_vc->base)) {
 		ret = PTR_ERR(davinci_vc->base);
@@ -83,8 +101,12 @@ static int __init davinci_vc_probe(struct platform_device *pdev)
 	}
 
 	davinci_vc->davinci_vcif.dma_tx_channel = res->start;
+<<<<<<< HEAD
 	davinci_vc->davinci_vcif.dma_tx_addr =
 		(dma_addr_t)(io_v2p(davinci_vc->base) + DAVINCI_VC_WFIFO);
+=======
+	davinci_vc->davinci_vcif.dma_tx_addr = fifo_base + DAVINCI_VC_WFIFO;
+>>>>>>> upstream/android-13
 
 	res = platform_get_resource(pdev, IORESOURCE_DMA, 1);
 	if (!res) {
@@ -94,8 +116,12 @@ static int __init davinci_vc_probe(struct platform_device *pdev)
 	}
 
 	davinci_vc->davinci_vcif.dma_rx_channel = res->start;
+<<<<<<< HEAD
 	davinci_vc->davinci_vcif.dma_rx_addr =
 		(dma_addr_t)(io_v2p(davinci_vc->base) + DAVINCI_VC_RFIFO);
+=======
+	davinci_vc->davinci_vcif.dma_rx_addr = fifo_base + DAVINCI_VC_RFIFO;
+>>>>>>> upstream/android-13
 
 	davinci_vc->dev = &pdev->dev;
 	davinci_vc->pdev = pdev;

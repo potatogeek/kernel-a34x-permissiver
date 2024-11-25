@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * si1145.c - Support for Silabs SI1132 and SI1141/2/3/5/6/7 combined ambient
  * light, UV index and proximity sensors
@@ -5,10 +9,13 @@
  * Copyright 2014-16 Peter Meerwald-Stadler <pmeerw@pmeerw.net>
  * Copyright 2016 Crestez Dan Leonard <leonard.crestez@intel.com>
  *
+<<<<<<< HEAD
  * This file is subject to the terms and conditions of version 2 of
  * the GNU General Public License.  See the file COPYING in the main
  * directory of this archive for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * SI1132 (7-bit I2C slave address 0x60)
  * SI1141/2/3 (7-bit I2C slave address 0x5a)
  * SI1145/6/6 (7-bit I2C slave address 0x60)
@@ -20,7 +27,10 @@
 #include <linux/slab.h>
 #include <linux/delay.h>
 #include <linux/irq.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+>>>>>>> upstream/android-13
 
 #include <linux/iio/iio.h>
 #include <linux/iio/sysfs.h>
@@ -194,7 +204,11 @@ struct si1145_data {
 	u8 buffer[24] __aligned(8);
 };
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * __si1145_command_reset() - Send CMD_NOP and wait for response 0
  *
  * Does not modify data->rsp_seq
@@ -224,11 +238,18 @@ static int __si1145_command_reset(struct si1145_data *data)
 			return -ETIMEDOUT;
 		}
 		msleep(SI1145_COMMAND_MINSLEEP_MS);
+<<<<<<< HEAD
 		continue;
 	}
 }
 
 /**
+=======
+	}
+}
+
+/*
+>>>>>>> upstream/android-13
  * si1145_command() - Execute a command and poll the response register
  *
  * All conversion overflows are reported as -EOVERFLOW
@@ -275,7 +296,11 @@ static int si1145_command(struct si1145_data *data, u8 cmd)
 		if ((ret & ~SI1145_RSP_COUNTER_MASK) == 0) {
 			if (ret == data->rsp_seq) {
 				if (time_after(jiffies, stop_jiffies)) {
+<<<<<<< HEAD
 					dev_warn(dev, "timeout on command %#02hhx\n",
+=======
+					dev_warn(dev, "timeout on command 0x%02x\n",
+>>>>>>> upstream/android-13
 						 cmd);
 					ret = -ETIMEDOUT;
 					break;
@@ -295,12 +320,20 @@ static int si1145_command(struct si1145_data *data, u8 cmd)
 			ret = -EIO;
 		} else {
 			if (ret == SI1145_RSP_INVALID_SETTING) {
+<<<<<<< HEAD
 				dev_warn(dev, "INVALID_SETTING error on command %#02hhx\n",
+=======
+				dev_warn(dev, "INVALID_SETTING error on command 0x%02x\n",
+>>>>>>> upstream/android-13
 					 cmd);
 				ret = -EINVAL;
 			} else {
 				/* All overflows are treated identically */
+<<<<<<< HEAD
 				dev_dbg(dev, "overflow, ret=%d, cmd=%#02hhx\n",
+=======
+				dev_dbg(dev, "overflow, ret=%d, cmd=0x%02x\n",
+>>>>>>> upstream/android-13
 					ret, cmd);
 				ret = -EOVERFLOW;
 			}
@@ -1049,7 +1082,11 @@ static int si1145_initialize(struct si1145_data *data)
 						SI1145_LED_CURRENT_45mA);
 		if (ret < 0)
 			return ret;
+<<<<<<< HEAD
 		/* fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 2:
 		ret = i2c_smbus_write_byte_data(client,
 						SI1145_REG_PS_LED21,
@@ -1178,12 +1215,19 @@ static bool si1145_validate_scan_mask(struct iio_dev *indio_dev,
 
 static const struct iio_buffer_setup_ops si1145_buffer_setup_ops = {
 	.preenable = si1145_buffer_preenable,
+<<<<<<< HEAD
 	.postenable = iio_triggered_buffer_postenable,
 	.predisable = iio_triggered_buffer_predisable,
 	.validate_scan_mask = si1145_validate_scan_mask,
 };
 
 /**
+=======
+	.validate_scan_mask = si1145_validate_scan_mask,
+};
+
+/*
+>>>>>>> upstream/android-13
  * si1145_trigger_set_state() - Set trigger state
  *
  * When not using triggers interrupts are disabled and measurement rate is
@@ -1249,11 +1293,18 @@ static int si1145_probe_trigger(struct iio_dev *indio_dev)
 	int ret;
 
 	trig = devm_iio_trigger_alloc(&client->dev,
+<<<<<<< HEAD
 			"%s-dev%d", indio_dev->name, indio_dev->id);
 	if (!trig)
 		return -ENOMEM;
 
 	trig->dev.parent = &client->dev;
+=======
+			"%s-dev%d", indio_dev->name, iio_device_id(indio_dev));
+	if (!trig)
+		return -ENOMEM;
+
+>>>>>>> upstream/android-13
 	trig->ops = &si1145_trigger_ops;
 	iio_trigger_set_drvdata(trig, indio_dev);
 
@@ -1267,7 +1318,11 @@ static int si1145_probe_trigger(struct iio_dev *indio_dev)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	ret = iio_trigger_register(trig);
+=======
+	ret = devm_iio_trigger_register(&client->dev, trig);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -1277,6 +1332,7 @@ static int si1145_probe_trigger(struct iio_dev *indio_dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void si1145_remove_trigger(struct iio_dev *indio_dev)
 {
 	struct si1145_data *data = iio_priv(indio_dev);
@@ -1287,6 +1343,8 @@ static void si1145_remove_trigger(struct iio_dev *indio_dev)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 static int si1145_probe(struct i2c_client *client,
 			const struct i2c_device_id *id)
 {
@@ -1316,15 +1374,25 @@ static int si1145_probe(struct i2c_client *client,
 						SI1145_REG_SEQ_ID);
 	if (ret < 0)
 		return ret;
+<<<<<<< HEAD
 	dev_info(&client->dev, "device ID part %#02hhx rev %#02hhx seq %#02hhx\n",
 			part_id, rev_id, seq_id);
 	if (part_id != data->part_info->part) {
 		dev_err(&client->dev, "part ID mismatch got %#02hhx, expected %#02x\n",
+=======
+	dev_info(&client->dev, "device ID part 0x%02x rev 0x%02x seq 0x%02x\n",
+			part_id, rev_id, seq_id);
+	if (part_id != data->part_info->part) {
+		dev_err(&client->dev, "part ID mismatch got 0x%02x, expected 0x%02x\n",
+>>>>>>> upstream/android-13
 				part_id, data->part_info->part);
 		return -ENODEV;
 	}
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &client->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->name = id->name;
 	indio_dev->channels = data->part_info->channels;
 	indio_dev->num_channels = data->part_info->num_channels;
@@ -1338,7 +1406,12 @@ static int si1145_probe(struct i2c_client *client,
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	ret = iio_triggered_buffer_setup(indio_dev, NULL,
+=======
+	ret = devm_iio_triggered_buffer_setup(&client->dev,
+		indio_dev, NULL,
+>>>>>>> upstream/android-13
 		si1145_trigger_handler, &si1145_buffer_setup_ops);
 	if (ret < 0)
 		return ret;
@@ -1346,11 +1419,16 @@ static int si1145_probe(struct i2c_client *client,
 	if (client->irq) {
 		ret = si1145_probe_trigger(indio_dev);
 		if (ret < 0)
+<<<<<<< HEAD
 			goto error_free_buffer;
+=======
+			return ret;
+>>>>>>> upstream/android-13
 	} else {
 		dev_info(&client->dev, "no irq, using polling\n");
 	}
 
+<<<<<<< HEAD
 	ret = iio_device_register(indio_dev);
 	if (ret < 0)
 		goto error_free_trigger;
@@ -1363,6 +1441,9 @@ error_free_buffer:
 	iio_triggered_buffer_cleanup(indio_dev);
 
 	return ret;
+=======
+	return devm_iio_device_register(&client->dev, indio_dev);
+>>>>>>> upstream/android-13
 }
 
 static const struct i2c_device_id si1145_ids[] = {
@@ -1377,6 +1458,7 @@ static const struct i2c_device_id si1145_ids[] = {
 };
 MODULE_DEVICE_TABLE(i2c, si1145_ids);
 
+<<<<<<< HEAD
 static int si1145_remove(struct i2c_client *client)
 {
 	struct iio_dev *indio_dev = i2c_get_clientdata(client);
@@ -1388,12 +1470,17 @@ static int si1145_remove(struct i2c_client *client)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static struct i2c_driver si1145_driver = {
 	.driver = {
 		.name   = "si1145",
 	},
 	.probe  = si1145_probe,
+<<<<<<< HEAD
 	.remove = si1145_remove,
+=======
+>>>>>>> upstream/android-13
 	.id_table = si1145_ids,
 };
 

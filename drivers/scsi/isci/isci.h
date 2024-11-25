@@ -500,19 +500,31 @@ struct sci_timer {
 static inline
 void sci_init_timer(struct sci_timer *tmr, void (*fn)(struct timer_list *t))
 {
+<<<<<<< HEAD
 	tmr->cancel = 0;
+=======
+	tmr->cancel = false;
+>>>>>>> upstream/android-13
 	timer_setup(&tmr->timer, fn, 0);
 }
 
 static inline void sci_mod_timer(struct sci_timer *tmr, unsigned long msec)
 {
+<<<<<<< HEAD
 	tmr->cancel = 0;
+=======
+	tmr->cancel = false;
+>>>>>>> upstream/android-13
 	mod_timer(&tmr->timer, jiffies + msecs_to_jiffies(msec));
 }
 
 static inline void sci_del_timer(struct sci_timer *tmr)
 {
+<<<<<<< HEAD
 	tmr->cancel = 1;
+=======
+	tmr->cancel = true;
+>>>>>>> upstream/android-13
 	del_timer(&tmr->timer);
 }
 

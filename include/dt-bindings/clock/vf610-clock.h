@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2013 Freescale Semiconductor, Inc.
  *
@@ -5,6 +6,11 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright 2013 Freescale Semiconductor, Inc.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __DT_BINDINGS_CLOCK_VF610_H
@@ -199,6 +205,12 @@
 #define VF610_CLK_WKPU			186
 #define VF610_CLK_TCON0			187
 #define VF610_CLK_TCON1			188
+<<<<<<< HEAD
 #define VF610_CLK_END			189
+=======
+#define VF610_CLK_CAAM			189
+#define VF610_CLK_CRC			190
+#define VF610_CLK_END			191
+>>>>>>> upstream/android-13
 
 #endif /* __DT_BINDINGS_CLOCK_VF610_H */

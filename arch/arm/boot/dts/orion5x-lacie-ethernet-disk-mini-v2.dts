@@ -25,6 +25,10 @@
 	compatible = "lacie,ethernet-disk-mini-v2", "marvell,orion5x-88f5182", "marvell,orion5x";
 
 	memory {
+<<<<<<< HEAD
+=======
+		device_type = "memory";
+>>>>>>> upstream/android-13
 		reg = <0x00000000 0x4000000>; /* 64 MB */
 	};
 

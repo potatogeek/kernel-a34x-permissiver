@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * CAN driver for PEAK System USB adapters
  * Derived from the PCAN project file driver/src/pcan_usb_core.c
@@ -6,6 +10,7 @@
  * Copyright (C) 2010-2012 Stephane Grosjean <s.grosjean@peak-system.com>
  *
  * Many thanks to Klaus Hitschler <klaus.hitschler@gmx.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published
@@ -15,6 +20,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef PCAN_USB_CORE_H
 #define PCAN_USB_CORE_H
@@ -39,7 +46,11 @@
 /* usb adapters maximum channels per usb interface */
 #define PCAN_USB_MAX_CHANNEL		2
 
+<<<<<<< HEAD
 /* maximum length of the usb commands sent to/received from  the devices */
+=======
+/* maximum length of the usb commands sent to/received from the devices */
+>>>>>>> upstream/android-13
 #define PCAN_USB_MAX_CMD_LEN		32
 
 struct peak_usb_device;
@@ -54,6 +65,11 @@ struct peak_usb_adapter {
 	const struct can_bittiming_const * const data_bittiming_const;
 	unsigned int ctrl_count;
 
+<<<<<<< HEAD
+=======
+	const struct ethtool_ops *ethtool_ops;
+
+>>>>>>> upstream/android-13
 	int (*intf_probe)(struct usb_interface *intf);
 
 	int (*dev_init)(struct peak_usb_device *dev);
@@ -79,7 +95,10 @@ struct peak_usb_adapter {
 	u8 ep_msg_in;
 	u8 ep_msg_out[PCAN_USB_MAX_CHANNEL];
 	u8 ts_used_bits;
+<<<<<<< HEAD
 	u32 ts_period;
+=======
+>>>>>>> upstream/android-13
 	u8 us_per_ts_shift;
 	u32 us_per_ts_scale;
 
@@ -120,8 +139,11 @@ struct peak_usb_device {
 	unsigned int ctrl_idx;
 	u32 state;
 
+<<<<<<< HEAD
 	struct sk_buff *echo_skb[PCAN_USB_MAX_TX_URBS];
 
+=======
+>>>>>>> upstream/android-13
 	struct usb_device *udev;
 	struct net_device *netdev;
 
@@ -138,8 +160,11 @@ struct peak_usb_device {
 	u8 ep_msg_in;
 	u8 ep_msg_out;
 
+<<<<<<< HEAD
 	u16 bus_load;
 
+=======
+>>>>>>> upstream/android-13
 	struct peak_usb_device *prev_siblings;
 	struct peak_usb_device *next_siblings;
 };

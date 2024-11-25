@@ -26,7 +26,11 @@ static struct ath_dfs_pool_stats dfs_pool_stats = { 0 };
 
 #define ATH9K_DFS_STAT(s, p) \
 	len += scnprintf(buf + len, size - len, "%28s : %10u\n", s, \
+<<<<<<< HEAD
 			 sc->debug.stats.dfs_stats.p);
+=======
+			 sc->debug.stats.dfs_stats.p)
+>>>>>>> upstream/android-13
 #define ATH9K_DFS_POOL_STAT(s, p) \
 	len += scnprintf(buf + len, size - len, "%28s : %10u\n", s, \
 			 dfs_pool_stats.p);

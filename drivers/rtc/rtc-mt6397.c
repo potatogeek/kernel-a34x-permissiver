@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
 * Copyright (c) 2014-2015 MediaTek Inc.
 * Author: Tianping.Fang <tianping.fang@mediatek.com>
@@ -405,10 +406,48 @@ static int mtk_rtc_write_trigger(struct mt6397_rtc *rtc)
 		}
 		cpu_relax();
 	}
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+* Copyright (c) 2014-2015 MediaTek Inc.
+* Author: Tianping.Fang <tianping.fang@mediatek.com>
+*/
+
+#include <linux/err.h>
+#include <linux/interrupt.h>
+#include <linux/mfd/mt6397/core.h>
+#include <linux/module.h>
+#include <linux/mutex.h>
+#include <linux/of_device.h>
+#include <linux/platform_device.h>
+#include <linux/regmap.h>
+#include <linux/rtc.h>
+#include <linux/mfd/mt6397/rtc.h>
+#include <linux/mod_devicetable.h>
+
+static int mtk_rtc_write_trigger(struct mt6397_rtc *rtc)
+{
+	int ret;
+	u32 data;
+
+	ret = regmap_write(rtc->regmap, rtc->addr_base + rtc->data->wrtgr, 1);
+	if (ret < 0)
+		return ret;
+
+	ret = regmap_read_poll_timeout(rtc->regmap,
+					rtc->addr_base + RTC_BBPU, data,
+					!(data & RTC_BBPU_CBUSY),
+					MTK_RTC_POLL_DELAY_US,
+					MTK_RTC_POLL_TIMEOUT);
+	if (ret < 0)
+		dev_err(rtc->rtc_dev->dev.parent,
+			"failed to write WRTGR: %d\n", ret);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
+<<<<<<< HEAD
 static int rtc_nvram_read(void *priv, unsigned int offset, void *val,
 							size_t bytes)
 {
@@ -861,6 +900,27 @@ out:
 		dev_notice(rtc->dev, "%s time is up\n",
 					pwron_alm ? "power-on" : "alarm");
 
+=======
+static irqreturn_t mtk_rtc_irq_handler_thread(int irq, void *data)
+{
+	struct mt6397_rtc *rtc = data;
+	u32 irqsta, irqen;
+	int ret;
+
+	ret = regmap_read(rtc->regmap, rtc->addr_base + RTC_IRQ_STA, &irqsta);
+	if ((ret >= 0) && (irqsta & RTC_IRQ_STA_AL)) {
+		rtc_update_irq(rtc->rtc_dev, 1, RTC_IRQF | RTC_AF);
+		irqen = irqsta & ~RTC_IRQ_EN_AL;
+		mutex_lock(&rtc->lock);
+		if (regmap_write(rtc->regmap, rtc->addr_base + RTC_IRQ_EN,
+				 irqen) == 0)
+			mtk_rtc_write_trigger(rtc);
+		mutex_unlock(&rtc->lock);
+
+		return IRQ_HANDLED;
+	}
+
+>>>>>>> upstream/android-13
 	return IRQ_NONE;
 }
 
@@ -868,7 +928,11 @@ static int __mtk_rtc_read_time(struct mt6397_rtc *rtc,
 			       struct rtc_time *tm, int *sec)
 {
 	int ret;
+<<<<<<< HEAD
 	u16 data[RTC_OFFSET_COUNT] = { 0 };
+=======
+	u16 data[RTC_OFFSET_COUNT];
+>>>>>>> upstream/android-13
 
 	mutex_lock(&rtc->lock);
 	ret = regmap_bulk_read(rtc->regmap, rtc->addr_base + RTC_TC_SEC,
@@ -876,6 +940,7 @@ static int __mtk_rtc_read_time(struct mt6397_rtc *rtc,
 	if (ret < 0)
 		goto exit;
 
+<<<<<<< HEAD
 	tm->tm_sec = data[RTC_OFFSET_SEC] & RTC_TC_SEC_MASK;
 	tm->tm_min = data[RTC_OFFSET_MIN] & RTC_TC_MIN_MASK;
 	tm->tm_hour = data[RTC_OFFSET_HOUR] & RTC_TC_HOU_MASK;
@@ -885,11 +950,22 @@ static int __mtk_rtc_read_time(struct mt6397_rtc *rtc,
 
 	ret = regmap_read(rtc->regmap, rtc->addr_base + RTC_TC_SEC, sec);
 	*sec &= RTC_TC_SEC_MASK;
+=======
+	tm->tm_sec = data[RTC_OFFSET_SEC];
+	tm->tm_min = data[RTC_OFFSET_MIN];
+	tm->tm_hour = data[RTC_OFFSET_HOUR];
+	tm->tm_mday = data[RTC_OFFSET_DOM];
+	tm->tm_mon = data[RTC_OFFSET_MTH] & RTC_TC_MTH_MASK;
+	tm->tm_year = data[RTC_OFFSET_YEAR];
+
+	ret = regmap_read(rtc->regmap, rtc->addr_base + RTC_TC_SEC, sec);
+>>>>>>> upstream/android-13
 exit:
 	mutex_unlock(&rtc->lock);
 	return ret;
 }
 
+<<<<<<< HEAD
 static void mtk_rtc_set_pwron_time(struct mt6397_rtc *rtc, struct rtc_time *tm)
 {
 	u32 data[RTC_OFFSET_COUNT];
@@ -960,21 +1036,29 @@ exit:
 	dev_err(rtc->dev, "%s error\n", __func__);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int mtk_rtc_read_time(struct device *dev, struct rtc_time *tm)
 {
 	time64_t time;
 	struct mt6397_rtc *rtc = dev_get_drvdata(dev);
 	int days, sec, ret;
+<<<<<<< HEAD
 	unsigned long long timeout = sched_clock() + 500000000;
+=======
+>>>>>>> upstream/android-13
 
 	do {
 		ret = __mtk_rtc_read_time(rtc, tm, &sec);
 		if (ret < 0)
 			goto exit;
+<<<<<<< HEAD
 		if (sched_clock() > timeout) {
 			pr_notice("%s, time out\n", __func__);
 			break;
 		}
+=======
+>>>>>>> upstream/android-13
 	} while (sec < tm->tm_sec);
 
 	/* HW register use 7 bits to store year data, minus
@@ -993,6 +1077,7 @@ static int mtk_rtc_read_time(struct device *dev, struct rtc_time *tm)
 	days = div_s64(time, 86400);
 	tm->tm_wday = (days + 4) % 7;
 
+<<<<<<< HEAD
 	if (rtc_show_time) {
 		dev_notice(rtc->dev,
 		"read tc time = %04d/%02d/%02d (%d) %02d:%02d:%02d\n",
@@ -1001,6 +1086,8 @@ static int mtk_rtc_read_time(struct device *dev, struct rtc_time *tm)
 		tm->tm_min, tm->tm_sec);
 	}
 
+=======
+>>>>>>> upstream/android-13
 exit:
 	return ret;
 }
@@ -1011,6 +1098,7 @@ static int mtk_rtc_set_time(struct device *dev, struct rtc_time *tm)
 	int ret;
 	u16 data[RTC_OFFSET_COUNT];
 
+<<<<<<< HEAD
 	if (tm->tm_year > 195) {
 		dev_err(rtc->dev, "%s: invalid year %04d > 2095\n",
 					__func__, tm->tm_year + RTC_BASE_YEAR);
@@ -1021,6 +1109,8 @@ static int mtk_rtc_set_time(struct device *dev, struct rtc_time *tm)
 		  tm->tm_year + RTC_BASE_YEAR, tm->tm_mon + 1, tm->tm_mday,
 		  tm->tm_hour, tm->tm_min, tm->tm_sec);
 
+=======
+>>>>>>> upstream/android-13
 	tm->tm_year -= RTC_MIN_YEAR_OFFSET;
 	tm->tm_mon++;
 
@@ -1049,9 +1139,15 @@ static int mtk_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
 {
 	struct rtc_time *tm = &alm->time;
 	struct mt6397_rtc *rtc = dev_get_drvdata(dev);
+<<<<<<< HEAD
 	u32 irqen = 0, pdn2 = 0;
 	int ret;
 	u16 data[RTC_OFFSET_COUNT] = { 0 };
+=======
+	u32 irqen, pdn2;
+	int ret;
+	u16 data[RTC_OFFSET_COUNT];
+>>>>>>> upstream/android-13
 
 	mutex_lock(&rtc->lock);
 	ret = regmap_read(rtc->regmap, rtc->addr_base + RTC_IRQ_EN, &irqen);
@@ -1080,11 +1176,14 @@ static int mtk_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
 	tm->tm_year += RTC_MIN_YEAR_OFFSET;
 	tm->tm_mon--;
 
+<<<<<<< HEAD
 	dev_notice(rtc->dev,
 		"read al time = %04d/%02d/%02d %02d:%02d:%02d (%d)\n",
 		tm->tm_year + RTC_BASE_YEAR, tm->tm_mon + 1, tm->tm_mday,
 		tm->tm_hour, tm->tm_min, tm->tm_sec, alm->enabled);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 err_exit:
 	mutex_unlock(&rtc->lock);
@@ -1096,6 +1195,7 @@ static int mtk_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
 	struct rtc_time *tm = &alm->time;
 	struct mt6397_rtc *rtc = dev_get_drvdata(dev);
 	int ret;
+<<<<<<< HEAD
 	u32 irqsta;
 	ktime_t target;
 
@@ -1114,10 +1214,14 @@ static int mtk_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
 		/* Power on system 1 minute earlier */
 		alarm1m15s = 1;
 	}
+=======
+	u16 data[RTC_OFFSET_COUNT];
+>>>>>>> upstream/android-13
 
 	tm->tm_year -= RTC_MIN_YEAR_OFFSET;
 	tm->tm_mon++;
 
+<<<<<<< HEAD
 	dev_notice(rtc->dev,
 		"set al time = %04d/%02d/%02d %02d:%02d:%02d (%d)\n",
 		tm->tm_year + RTC_MIN_YEAR, tm->tm_mon, tm->tm_mday,
@@ -1160,6 +1264,41 @@ static int mtk_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
 
 	if (alm->enabled) {
 		ret = mtk_rtc_restore_alarm(rtc, tm);
+=======
+	mutex_lock(&rtc->lock);
+	ret = regmap_bulk_read(rtc->regmap, rtc->addr_base + RTC_AL_SEC,
+			       data, RTC_OFFSET_COUNT);
+	if (ret < 0)
+		goto exit;
+
+	data[RTC_OFFSET_SEC] = ((data[RTC_OFFSET_SEC] & ~(RTC_AL_SEC_MASK)) |
+				(tm->tm_sec & RTC_AL_SEC_MASK));
+	data[RTC_OFFSET_MIN] = ((data[RTC_OFFSET_MIN] & ~(RTC_AL_MIN_MASK)) |
+				(tm->tm_min & RTC_AL_MIN_MASK));
+	data[RTC_OFFSET_HOUR] = ((data[RTC_OFFSET_HOUR] & ~(RTC_AL_HOU_MASK)) |
+				(tm->tm_hour & RTC_AL_HOU_MASK));
+	data[RTC_OFFSET_DOM] = ((data[RTC_OFFSET_DOM] & ~(RTC_AL_DOM_MASK)) |
+				(tm->tm_mday & RTC_AL_DOM_MASK));
+	data[RTC_OFFSET_MTH] = ((data[RTC_OFFSET_MTH] & ~(RTC_AL_MTH_MASK)) |
+				(tm->tm_mon & RTC_AL_MTH_MASK));
+	data[RTC_OFFSET_YEAR] = ((data[RTC_OFFSET_YEAR] & ~(RTC_AL_YEA_MASK)) |
+				(tm->tm_year & RTC_AL_YEA_MASK));
+
+	if (alm->enabled) {
+		ret = regmap_bulk_write(rtc->regmap,
+					rtc->addr_base + RTC_AL_SEC,
+					data, RTC_OFFSET_COUNT);
+		if (ret < 0)
+			goto exit;
+		ret = regmap_write(rtc->regmap, rtc->addr_base + RTC_AL_MASK,
+				   RTC_AL_MASK_DOW);
+		if (ret < 0)
+			goto exit;
+		ret = regmap_update_bits(rtc->regmap,
+					 rtc->addr_base + RTC_IRQ_EN,
+					 RTC_IRQ_EN_ONESHOT_AL,
+					 RTC_IRQ_EN_ONESHOT_AL);
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			goto exit;
 	} else {
@@ -1180,6 +1319,7 @@ exit:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int mtk_set_power_on(struct device *dev, struct rtc_wkalrm *alm)
 {
 	int err = 0;
@@ -1228,12 +1368,16 @@ static int mtk_rtc_ioctl(struct device *dev, unsigned int cmd, unsigned long arg
 
 static const struct rtc_class_ops mtk_rtc_ops = {
 	.ioctl      = mtk_rtc_ioctl,
+=======
+static const struct rtc_class_ops mtk_rtc_ops = {
+>>>>>>> upstream/android-13
 	.read_time  = mtk_rtc_read_time,
 	.set_time   = mtk_rtc_set_time,
 	.read_alarm = mtk_rtc_read_alarm,
 	.set_alarm  = mtk_rtc_set_alarm,
 };
 
+<<<<<<< HEAD
 #ifdef CONFIG_SEC_PM
 static int poff_status;
 
@@ -1624,17 +1768,23 @@ static void mtk_rtc_set_lp_irq(struct mt6397_rtc *rtc)
 	mutex_unlock(&rtc->lock);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int mtk_rtc_probe(struct platform_device *pdev)
 {
 	struct resource *res;
 	struct mt6397_chip *mt6397_chip = dev_get_drvdata(pdev->dev.parent);
 	struct mt6397_rtc *rtc;
+<<<<<<< HEAD
 	const struct of_device_id *of_id;
 	int ret;
 	struct device_node *boot_node = NULL;
 	struct tag_bootmode *tag = NULL;
 	struct dentry *mtk_rtc_dir;
 	struct dentry *mtk_rtc_file;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	rtc = devm_kzalloc(&pdev->dev, sizeof(struct mt6397_rtc), GFP_KERNEL);
 	if (!rtc)
@@ -1643,23 +1793,31 @@ static int mtk_rtc_probe(struct platform_device *pdev)
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	rtc->addr_base = res->start;
 
+<<<<<<< HEAD
 	of_id = of_match_device(mt6397_rtc_of_match, &pdev->dev);
 	if (!of_id) {
 		dev_err(&pdev->dev, "Failed to probe of_node\n");
 		return -EINVAL;
 	}
 	rtc->dev_comp = of_id->data;
+=======
+	rtc->data = of_device_get_match_data(&pdev->dev);
+>>>>>>> upstream/android-13
 
 	rtc->irq = platform_get_irq(pdev, 0);
 	if (rtc->irq < 0)
 		return rtc->irq;
 
 	rtc->regmap = mt6397_chip->regmap;
+<<<<<<< HEAD
 	rtc->dev = &pdev->dev;
+=======
+>>>>>>> upstream/android-13
 	mutex_init(&rtc->lock);
 
 	platform_set_drvdata(pdev, rtc);
 
+<<<<<<< HEAD
 	rtc->rtc_dev = devm_rtc_allocate_device(rtc->dev);
 	if (IS_ERR(rtc->rtc_dev))
 		return PTR_ERR(rtc->rtc_dev);
@@ -1709,6 +1867,17 @@ static int mtk_rtc_probe(struct platform_device *pdev)
 				   mtk_rtc_irq_handler_thread,
 				   IRQF_ONESHOT | IRQF_TRIGGER_HIGH,
 				   "mt6397-rtc", rtc);
+=======
+	rtc->rtc_dev = devm_rtc_allocate_device(&pdev->dev);
+	if (IS_ERR(rtc->rtc_dev))
+		return PTR_ERR(rtc->rtc_dev);
+
+	ret = devm_request_threaded_irq(&pdev->dev, rtc->irq, NULL,
+					mtk_rtc_irq_handler_thread,
+					IRQF_ONESHOT | IRQF_TRIGGER_HIGH,
+					"mt6397-rtc", rtc);
+
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(&pdev->dev, "Failed to request alarm IRQ: %d: %d\n",
 			rtc->irq, ret);
@@ -1719,6 +1888,7 @@ static int mtk_rtc_probe(struct platform_device *pdev)
 
 	rtc->rtc_dev->ops = &mtk_rtc_ops;
 
+<<<<<<< HEAD
 	ret = rtc_register_device(rtc->rtc_dev);
 	if (ret) {
 		dev_err(&pdev->dev, "register rtc device failed\n");
@@ -1767,6 +1937,9 @@ static int mtk_rtc_remove(struct platform_device *pdev)
 	free_irq(rtc->irq, rtc);
 
 	return 0;
+=======
+	return devm_rtc_register_device(rtc->rtc_dev);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_PM_SLEEP
@@ -1794,6 +1967,25 @@ static int mt6397_rtc_resume(struct device *dev)
 static SIMPLE_DEV_PM_OPS(mt6397_pm_ops, mt6397_rtc_suspend,
 			mt6397_rtc_resume);
 
+<<<<<<< HEAD
+=======
+static const struct mtk_rtc_data mt6358_rtc_data = {
+	.wrtgr = RTC_WRTGR_MT6358,
+};
+
+static const struct mtk_rtc_data mt6397_rtc_data = {
+	.wrtgr = RTC_WRTGR_MT6397,
+};
+
+static const struct of_device_id mt6397_rtc_of_match[] = {
+	{ .compatible = "mediatek,mt6323-rtc", .data = &mt6397_rtc_data },
+	{ .compatible = "mediatek,mt6358-rtc", .data = &mt6358_rtc_data },
+	{ .compatible = "mediatek,mt6397-rtc", .data = &mt6397_rtc_data },
+	{ }
+};
+MODULE_DEVICE_TABLE(of, mt6397_rtc_of_match);
+
+>>>>>>> upstream/android-13
 static struct platform_driver mtk_rtc_driver = {
 	.driver = {
 		.name = "mt6397-rtc",
@@ -1801,8 +1993,11 @@ static struct platform_driver mtk_rtc_driver = {
 		.pm = &mt6397_pm_ops,
 	},
 	.probe	= mtk_rtc_probe,
+<<<<<<< HEAD
 	.remove = mtk_rtc_remove,
 	.shutdown = mtk_rtc_shutdown,
+=======
+>>>>>>> upstream/android-13
 };
 
 module_platform_driver(mtk_rtc_driver);

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * \file drm_scatter.c
  * IOCTLs to manage scatter/gather memory
  *
@@ -31,13 +35,25 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+<<<<<<< HEAD
 #include <linux/vmalloc.h>
 #include <linux/slab.h>
 #include <drm/drmP.h>
+=======
+#include <linux/mm.h>
+#include <linux/slab.h>
+#include <linux/vmalloc.h>
+
+#include <drm/drm.h>
+#include <drm/drm_drv.h>
+#include <drm/drm_print.h>
+
+>>>>>>> upstream/android-13
 #include "drm_legacy.h"
 
 #define DEBUG_SCATTER 0
 
+<<<<<<< HEAD
 static inline void *drm_vmalloc_dma(unsigned long size)
 {
 #if defined(__powerpc__) && defined(CONFIG_NOT_COHERENT_CACHE)
@@ -47,6 +63,8 @@ static inline void *drm_vmalloc_dma(unsigned long size)
 #endif
 }
 
+=======
+>>>>>>> upstream/android-13
 static void drm_sg_cleanup(struct drm_sg_mem * entry)
 {
 	struct page *page;
@@ -89,9 +107,18 @@ int drm_legacy_sg_alloc(struct drm_device *dev, void *data,
 	DRM_DEBUG("\n");
 
 	if (!drm_core_check_feature(dev, DRIVER_LEGACY))
+<<<<<<< HEAD
 		return -EINVAL;
 
 	if (!drm_core_check_feature(dev, DRIVER_SG))
+=======
+		return -EOPNOTSUPP;
+
+	if (!drm_core_check_feature(dev, DRIVER_SG))
+		return -EOPNOTSUPP;
+
+	if (request->size > SIZE_MAX - PAGE_SIZE)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	if (dev->sg)
@@ -118,7 +145,11 @@ int drm_legacy_sg_alloc(struct drm_device *dev, void *data,
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	entry->virtual = drm_vmalloc_dma(pages << PAGE_SHIFT);
+=======
+	entry->virtual = vmalloc_32(pages << PAGE_SHIFT);
+>>>>>>> upstream/android-13
 	if (!entry->virtual) {
 		kfree(entry->busaddr);
 		kfree(entry->pagelist);
@@ -202,10 +233,17 @@ int drm_legacy_sg_free(struct drm_device *dev, void *data,
 	struct drm_sg_mem *entry;
 
 	if (!drm_core_check_feature(dev, DRIVER_LEGACY))
+<<<<<<< HEAD
 		return -EINVAL;
 
 	if (!drm_core_check_feature(dev, DRIVER_SG))
 		return -EINVAL;
+=======
+		return -EOPNOTSUPP;
+
+	if (!drm_core_check_feature(dev, DRIVER_SG))
+		return -EOPNOTSUPP;
+>>>>>>> upstream/android-13
 
 	entry = dev->sg;
 	dev->sg = NULL;

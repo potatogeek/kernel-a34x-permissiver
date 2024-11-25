@@ -1,7 +1,14 @@
 // SPDX-License-Identifier: GPL-2.0
 #include <linux/mount.h>
+<<<<<<< HEAD
 #include <linux/file.h>
 #include <linux/fs.h>
+=======
+#include <linux/pseudo_fs.h>
+#include <linux/file.h>
+#include <linux/fs.h>
+#include <linux/proc_fs.h>
+>>>>>>> upstream/android-13
 #include <linux/proc_ns.h>
 #include <linux/magic.h>
 #include <linux/ktime.h>
@@ -10,6 +17,11 @@
 #include <linux/nsfs.h>
 #include <linux/uaccess.h>
 
+<<<<<<< HEAD
+=======
+#include "internal.h"
+
+>>>>>>> upstream/android-13
 static struct vfsmount *nsfs_mnt;
 
 static long ns_ioctl(struct file *filp, unsigned int ioctl,
@@ -51,7 +63,11 @@ static void nsfs_evict(struct inode *inode)
 	ns->ops->put(ns);
 }
 
+<<<<<<< HEAD
 static void *__ns_get_path(struct path *path, struct ns_common *ns)
+=======
+static int __ns_get_path(struct path *path, struct ns_common *ns)
+>>>>>>> upstream/android-13
 {
 	struct vfsmount *mnt = nsfs_mnt;
 	struct dentry *dentry;
@@ -70,13 +86,21 @@ static void *__ns_get_path(struct path *path, struct ns_common *ns)
 got_it:
 	path->mnt = mntget(mnt);
 	path->dentry = dentry;
+<<<<<<< HEAD
 	return NULL;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 slow:
 	rcu_read_unlock();
 	inode = new_inode_pseudo(mnt->mnt_sb);
 	if (!inode) {
 		ns->ops->put(ns);
+<<<<<<< HEAD
 		return ERR_PTR(-ENOMEM);
+=======
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 	}
 	inode->i_ino = ns->inum;
 	inode->i_mtime = inode->i_atime = inode->i_ctime = current_time(inode);
@@ -88,7 +112,11 @@ slow:
 	dentry = d_alloc_anon(mnt->mnt_sb);
 	if (!dentry) {
 		iput(inode);
+<<<<<<< HEAD
 		return ERR_PTR(-ENOMEM);
+=======
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 	}
 	d_instantiate(dentry, inode);
 	dentry->d_fsdata = (void *)ns->ops;
@@ -97,11 +125,16 @@ slow:
 		d_delete(dentry);	/* make sure ->d_prune() does nothing */
 		dput(dentry);
 		cpu_relax();
+<<<<<<< HEAD
 		return ERR_PTR(-EAGAIN);
+=======
+		return -EAGAIN;
+>>>>>>> upstream/android-13
 	}
 	goto got_it;
 }
 
+<<<<<<< HEAD
 void *ns_get_path_cb(struct path *path, ns_get_path_helper_t *ns_get_cb,
 		     void *private_data)
 {
@@ -116,6 +149,20 @@ again:
 	ret = __ns_get_path(path, ns);
 	if (IS_ERR(ret) && PTR_ERR(ret) == -EAGAIN)
 		goto again;
+=======
+int ns_get_path_cb(struct path *path, ns_get_path_helper_t *ns_get_cb,
+		     void *private_data)
+{
+	int ret;
+
+	do {
+		struct ns_common *ns = ns_get_cb(private_data);
+		if (!ns)
+			return -ENOENT;
+		ret = __ns_get_path(path, ns);
+	} while (ret == -EAGAIN);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -131,7 +178,11 @@ static struct ns_common *ns_get_path_task(void *private_data)
 	return args->ns_ops->get(args->task);
 }
 
+<<<<<<< HEAD
 void *ns_get_path(struct path *path, struct task_struct *task,
+=======
+int ns_get_path(struct path *path, struct task_struct *task,
+>>>>>>> upstream/android-13
 		  const struct proc_ns_operations *ns_ops)
 {
 	struct ns_get_path_task_args args = {
@@ -147,14 +198,22 @@ int open_related_ns(struct ns_common *ns,
 {
 	struct path path = {};
 	struct file *f;
+<<<<<<< HEAD
 	void *err;
+=======
+	int err;
+>>>>>>> upstream/android-13
 	int fd;
 
 	fd = get_unused_fd_flags(O_CLOEXEC);
 	if (fd < 0)
 		return fd;
 
+<<<<<<< HEAD
 	while (1) {
+=======
+	do {
+>>>>>>> upstream/android-13
 		struct ns_common *relative;
 
 		relative = get_ns(ns);
@@ -164,6 +223,7 @@ int open_related_ns(struct ns_common *ns,
 		}
 
 		err = __ns_get_path(&path, relative);
+<<<<<<< HEAD
 		if (IS_ERR(err) && PTR_ERR(err) == -EAGAIN)
 			continue;
 		break;
@@ -171,6 +231,13 @@ int open_related_ns(struct ns_common *ns,
 	if (IS_ERR(err)) {
 		put_unused_fd(fd);
 		return PTR_ERR(err);
+=======
+	} while (err == -EAGAIN);
+
+	if (err) {
+		put_unused_fd(fd);
+		return err;
+>>>>>>> upstream/android-13
 	}
 
 	f = dentry_open(&path, O_RDONLY, current_cred());
@@ -229,6 +296,14 @@ int ns_get_name(char *buf, size_t size, struct task_struct *task,
 	return res;
 }
 
+<<<<<<< HEAD
+=======
+bool proc_ns_file(const struct file *file)
+{
+	return file->f_op == &ns_file_operations;
+}
+
+>>>>>>> upstream/android-13
 struct file *proc_ns_fget(int fd)
 {
 	struct file *file;
@@ -247,6 +322,23 @@ out_invalid:
 	return ERR_PTR(-EINVAL);
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * ns_match() - Returns true if current namespace matches dev/ino provided.
+ * @ns_common: current ns
+ * @dev: dev_t from nsfs that will be matched against current nsfs
+ * @ino: ino_t from nsfs that will be matched against current nsfs
+ *
+ * Return: true if dev and ino matches the current nsfs.
+ */
+bool ns_match(const struct ns_common *ns, dev_t dev, ino_t ino)
+{
+	return (ns->inum == ino) && (nsfs_mnt->mnt_sb->s_dev == dev);
+}
+
+
+>>>>>>> upstream/android-13
 static int nsfs_show_path(struct seq_file *seq, struct dentry *dentry)
 {
 	struct inode *inode = d_inode(dentry);
@@ -261,6 +353,7 @@ static const struct super_operations nsfs_ops = {
 	.evict_inode = nsfs_evict,
 	.show_path = nsfs_show_path,
 };
+<<<<<<< HEAD
 static struct dentry *nsfs_mount(struct file_system_type *fs_type,
 			int flags, const char *dev_name, void *data)
 {
@@ -270,6 +363,22 @@ static struct dentry *nsfs_mount(struct file_system_type *fs_type,
 static struct file_system_type nsfs = {
 	.name = "nsfs",
 	.mount = nsfs_mount,
+=======
+
+static int nsfs_init_fs_context(struct fs_context *fc)
+{
+	struct pseudo_fs_context *ctx = init_pseudo(fc, NSFS_MAGIC);
+	if (!ctx)
+		return -ENOMEM;
+	ctx->ops = &nsfs_ops;
+	ctx->dops = &ns_dentry_operations;
+	return 0;
+}
+
+static struct file_system_type nsfs = {
+	.name = "nsfs",
+	.init_fs_context = nsfs_init_fs_context,
+>>>>>>> upstream/android-13
 	.kill_sb = kill_anon_super,
 };
 

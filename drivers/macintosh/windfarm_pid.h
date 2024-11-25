@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Windfarm PowerMac thermal control. Generic PID helpers
  *
  * (c) Copyright 2005 Benjamin Herrenschmidt, IBM Corp.
  *                    <benh@kernel.crashing.org>
  *
+<<<<<<< HEAD
  * Released under the term of the GNU GPL v2.
  *
+=======
+>>>>>>> upstream/android-13
  * This is a pair of generic PID helpers that can be used by
  * control loops. One is the basic PID implementation, the
  * other one is more specifically tailored to the loops used

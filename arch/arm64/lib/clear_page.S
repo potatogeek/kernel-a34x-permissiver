@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 ARM Ltd.
  *
@@ -12,6 +13,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2012 ARM Ltd.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
@@ -25,8 +31,14 @@
  * Parameters:
  *	x0 - dest
  */
+<<<<<<< HEAD
 ENTRY(clear_page)
 	mrs	x1, dczid_el0
+=======
+SYM_FUNC_START_PI(clear_page)
+	mrs	x1, dczid_el0
+	tbnz	x1, #4, 2f	/* Branch if DC ZVA is prohibited */
+>>>>>>> upstream/android-13
 	and	w1, w1, #0xf
 	mov	x2, #4
 	lsl	x1, x2, x1
@@ -36,4 +48,18 @@ ENTRY(clear_page)
 	tst	x0, #(PAGE_SIZE - 1)
 	b.ne	1b
 	ret
+<<<<<<< HEAD
 ENDPROC(clear_page)
+=======
+
+2:	stnp	xzr, xzr, [x0]
+	stnp	xzr, xzr, [x0, #16]
+	stnp	xzr, xzr, [x0, #32]
+	stnp	xzr, xzr, [x0, #48]
+	add	x0, x0, #64
+	tst	x0, #(PAGE_SIZE - 1)
+	b.ne	2b
+	ret
+SYM_FUNC_END_PI(clear_page)
+EXPORT_SYMBOL(clear_page)
+>>>>>>> upstream/android-13

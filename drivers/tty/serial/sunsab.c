@@ -35,15 +35,22 @@
 #include <linux/init.h>
 #include <linux/of_device.h>
 
+<<<<<<< HEAD
 #include <asm/io.h>
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <asm/irq.h>
 #include <asm/prom.h>
 #include <asm/setup.h>
 
+<<<<<<< HEAD
 #if defined(CONFIG_SERIAL_SUNSAB_CONSOLE) && defined(CONFIG_MAGIC_SYSRQ)
 #define SUPPORT_SYSRQ
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/serial_core.h>
 #include <linux/sunserialcore.h>
 
@@ -890,7 +897,11 @@ static int sunsab_console_setup(struct console *con, char *options)
 	 * though...
 	 */
 	if (up->port.type != PORT_SUNSAB)
+<<<<<<< HEAD
 		return -1;
+=======
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	printk("Console: ttyS%d (SAB82532)\n",
 	       (sunsab_reg.minor - 64) + con->index);
@@ -985,6 +996,10 @@ static int sunsab_init_one(struct uart_sunsab_port *up,
 
 	up->port.fifosize = SAB82532_XMIT_FIFO_SIZE;
 	up->port.iotype = UPIO_MEM;
+<<<<<<< HEAD
+=======
+	up->port.has_sysrq = IS_ENABLED(CONFIG_SERIAL_SUNSAB_CONSOLE);
+>>>>>>> upstream/android-13
 
 	writeb(SAB82532_IPC_IC_ACT_LOW, &up->regs->w.ipc);
 

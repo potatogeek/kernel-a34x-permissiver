@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * vxcan.c - Virtual CAN Tunnel for cross namespace communication
  *
@@ -6,6 +10,7 @@
  * for network interface pairs in a common and established way.
  *
  * Copyright (c) 2017 Oliver Hartkopp <socketcan@hartkopp.net>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the version 2 of the GNU General Public License
@@ -18,6 +23,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -29,6 +36,10 @@
 #include <linux/can/dev.h>
 #include <linux/can/skb.h>
 #include <linux/can/vxcan.h>
+<<<<<<< HEAD
+=======
+#include <linux/can/can-ml.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <net/rtnetlink.h>
 
@@ -151,14 +162,28 @@ static const struct net_device_ops vxcan_netdev_ops = {
 
 static void vxcan_setup(struct net_device *dev)
 {
+<<<<<<< HEAD
+=======
+	struct can_ml_priv *can_ml;
+
+>>>>>>> upstream/android-13
 	dev->type		= ARPHRD_CAN;
 	dev->mtu		= CANFD_MTU;
 	dev->hard_header_len	= 0;
 	dev->addr_len		= 0;
 	dev->tx_queue_len	= 0;
+<<<<<<< HEAD
 	dev->flags		= (IFF_NOARP|IFF_ECHO);
 	dev->netdev_ops		= &vxcan_netdev_ops;
 	dev->needs_free_netdev	= true;
+=======
+	dev->flags		= IFF_NOARP;
+	dev->netdev_ops		= &vxcan_netdev_ops;
+	dev->needs_free_netdev	= true;
+
+	can_ml = netdev_priv(dev) + ALIGN(sizeof(struct vxcan_priv), NETDEV_ALIGN);
+	can_set_ml_priv(dev, can_ml);
+>>>>>>> upstream/android-13
 }
 
 /* forward declaration for rtnl_create_link() */
@@ -197,7 +222,11 @@ static int vxcan_newlink(struct net *net, struct net_device *dev,
 	}
 
 	if (ifmp && tbp[IFLA_IFNAME]) {
+<<<<<<< HEAD
 		nla_strlcpy(ifname, tbp[IFLA_IFNAME], IFNAMSIZ);
+=======
+		nla_strscpy(ifname, tbp[IFLA_IFNAME], IFNAMSIZ);
+>>>>>>> upstream/android-13
 		name_assign_type = NET_NAME_USER;
 	} else {
 		snprintf(ifname, IFNAMSIZ, DRV_NAME "%%d");
@@ -209,7 +238,11 @@ static int vxcan_newlink(struct net *net, struct net_device *dev,
 		return PTR_ERR(peer_net);
 
 	peer = rtnl_create_link(peer_net, ifname, name_assign_type,
+<<<<<<< HEAD
 				&vxcan_link_ops, tbp);
+=======
+				&vxcan_link_ops, tbp, extack);
+>>>>>>> upstream/android-13
 	if (IS_ERR(peer)) {
 		put_net(peer_net);
 		return PTR_ERR(peer);
@@ -234,7 +267,11 @@ static int vxcan_newlink(struct net *net, struct net_device *dev,
 
 	/* register first device */
 	if (tb[IFLA_IFNAME])
+<<<<<<< HEAD
 		nla_strlcpy(dev->name, tb[IFLA_IFNAME], IFNAMSIZ);
+=======
+		nla_strscpy(dev->name, tb[IFLA_IFNAME], IFNAMSIZ);
+>>>>>>> upstream/android-13
 	else
 		snprintf(dev->name, IFNAMSIZ, DRV_NAME "%%d");
 
@@ -294,7 +331,11 @@ static struct net *vxcan_get_link_net(const struct net_device *dev)
 
 static struct rtnl_link_ops vxcan_link_ops = {
 	.kind		= DRV_NAME,
+<<<<<<< HEAD
 	.priv_size	= sizeof(struct vxcan_priv),
+=======
+	.priv_size	= ALIGN(sizeof(struct vxcan_priv), NETDEV_ALIGN) + sizeof(struct can_ml_priv),
+>>>>>>> upstream/android-13
 	.setup		= vxcan_setup,
 	.newlink	= vxcan_newlink,
 	.dellink	= vxcan_dellink,

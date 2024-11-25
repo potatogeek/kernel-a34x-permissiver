@@ -21,15 +21,25 @@
 #define MIPS_EXC_NMI                5
 #define MIPS_EXC_MCHK               6
 #define MIPS_EXC_INT_TIMER          7
+<<<<<<< HEAD
 #define MIPS_EXC_INT_IO             8
 #define MIPS_EXC_EXECUTE            9
 #define MIPS_EXC_INT_IPI_1          10
 #define MIPS_EXC_INT_IPI_2          11
 #define MIPS_EXC_MAX                12
+=======
+#define MIPS_EXC_INT_IO_1           8
+#define MIPS_EXC_INT_IO_2           9
+#define MIPS_EXC_EXECUTE            10
+#define MIPS_EXC_INT_IPI_1          11
+#define MIPS_EXC_INT_IPI_2          12
+#define MIPS_EXC_MAX                13
+>>>>>>> upstream/android-13
 /* XXXSL More to follow */
 
 #define C_TI        (_ULCAST_(1) << 30)
 
+<<<<<<< HEAD
 #ifdef CONFIG_KVM_MIPS_VZ
 #define KVM_MIPS_IRQ_DELIVER_ALL_AT_ONCE (1)
 #define KVM_MIPS_IRQ_CLEAR_ALL_AT_ONCE   (1)
@@ -52,4 +62,11 @@ int kvm_mips_irq_deliver_cb(struct kvm_vcpu *vcpu, unsigned int priority,
 			    u32 cause);
 int kvm_mips_irq_clear_cb(struct kvm_vcpu *vcpu, unsigned int priority,
 			  u32 cause);
+=======
+extern u32 *kvm_priority_to_irq;
+u32 kvm_irq_to_priority(u32 irq);
+
+int kvm_mips_pending_timer(struct kvm_vcpu *vcpu);
+
+>>>>>>> upstream/android-13
 void kvm_mips_deliver_interrupts(struct kvm_vcpu *vcpu, u32 cause);

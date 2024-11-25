@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef __SOUND_HWDEP_H
 #define __SOUND_HWDEP_H
 
 /*
  *  Hardware dependent layer 
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
+<<<<<<< HEAD
  *
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -20,10 +25,16 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <sound/asound.h>
 #include <linux/poll.h>
+<<<<<<< HEAD
+=======
+#include <linux/android_kabi.h>
+>>>>>>> upstream/android-13
 
 struct snd_hwdep;
 
@@ -49,6 +60,11 @@ struct snd_hwdep_ops {
 			  struct snd_hwdep_dsp_status *status);
 	int (*dsp_load)(struct snd_hwdep *hw,
 			struct snd_hwdep_dsp_image *image);
+<<<<<<< HEAD
+=======
+
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 
 struct snd_hwdep {
@@ -74,6 +90,11 @@ struct snd_hwdep {
 	int used;			/* reference counter */
 	unsigned int dsp_loaded;	/* bit fields of loaded dsp indices */
 	unsigned int exclusive:1;	/* exclusive access mode */
+<<<<<<< HEAD
+=======
+
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 
 extern int snd_hwdep_new(struct snd_card *card, char *id, int device,

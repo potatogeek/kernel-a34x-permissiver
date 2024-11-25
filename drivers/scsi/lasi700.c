@@ -1,10 +1,15 @@
+<<<<<<< HEAD
 /* -*- mode: c; c-basic-offset: 8 -*- */
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 
 /* PARISC LASI driver for the 53c700 chip
  *
  * Copyright (C) 2001 by James.Bottomley@HansenPartnership.com
 **-----------------------------------------------------------------------------
 **  
+<<<<<<< HEAD
 **  This program is free software; you can redistribute it and/or modify
 **  it under the terms of the GNU General Public License as published by
 **  the Free Software Foundation; either version 2 of the License, or
@@ -18,6 +23,8 @@
 **  You should have received a copy of the GNU General Public License
 **  along with this program; if not, write to the Free Software
 **  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
 **
 **-----------------------------------------------------------------------------
  */
@@ -43,7 +50,10 @@
 #include <linux/slab.h>
 
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/irq.h>
 #include <asm/hardware.h>
 #include <asm/parisc-device.h>
@@ -110,7 +120,11 @@ lasi700_probe(struct parisc_device *dev)
 
 	hostdata->dev = &dev->dev;
 	dma_set_mask(&dev->dev, DMA_BIT_MASK(32));
+<<<<<<< HEAD
 	hostdata->base = ioremap_nocache(base, 0x100);
+=======
+	hostdata->base = ioremap(base, 0x100);
+>>>>>>> upstream/android-13
 	hostdata->differential = 0;
 
 	if (dev->id.sversion == LASI_700_SVERSION) {
@@ -148,7 +162,11 @@ lasi700_probe(struct parisc_device *dev)
 	return -ENODEV;
 }
 
+<<<<<<< HEAD
 static int __exit
+=======
+static void __exit
+>>>>>>> upstream/android-13
 lasi700_driver_remove(struct parisc_device *dev)
 {
 	struct Scsi_Host *host = dev_get_drvdata(&dev->dev);
@@ -160,8 +178,11 @@ lasi700_driver_remove(struct parisc_device *dev)
 	free_irq(host->irq, host);
 	iounmap(hostdata->base);
 	kfree(hostdata);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static struct parisc_driver lasi700_driver __refdata = {

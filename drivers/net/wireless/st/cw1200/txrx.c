@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Datapath implementation for ST-Ericsson CW1200 mac80211 drivers
  *
  * Copyright (c) 2010, ST-Ericsson
  * Author: Dmitry Tarnyagin <dmitry.tarnyagin@lockless.no>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <net/mac80211.h>
@@ -624,9 +631,15 @@ cw1200_tx_h_bt(struct cw1200_common *priv,
 			priority = WSM_EPTA_PRIORITY_ACTION;
 		else if (ieee80211_is_mgmt(t->hdr->frame_control))
 			priority = WSM_EPTA_PRIORITY_MGT;
+<<<<<<< HEAD
 		else if ((wsm->queue_id == WSM_QUEUE_VOICE))
 			priority = WSM_EPTA_PRIORITY_VOICE;
 		else if ((wsm->queue_id == WSM_QUEUE_VIDEO))
+=======
+		else if (wsm->queue_id == WSM_QUEUE_VOICE)
+			priority = WSM_EPTA_PRIORITY_VOICE;
+		else if (wsm->queue_id == WSM_QUEUE_VIDEO)
+>>>>>>> upstream/android-13
 			priority = WSM_EPTA_PRIORITY_VIDEO;
 		else
 			priority = WSM_EPTA_PRIORITY_DATA;
@@ -653,7 +666,11 @@ cw1200_tx_h_rate_policy(struct cw1200_common *priv,
 	wsm->flags |= t->txpriv.rate_id << 4;
 
 	t->rate = cw1200_get_tx_rate(priv,
+<<<<<<< HEAD
 		&t->tx_info->control.rates[0]),
+=======
+		&t->tx_info->control.rates[0]);
+>>>>>>> upstream/android-13
 	wsm->max_tx_rate = t->rate->hw_value;
 	if (t->rate->flags & IEEE80211_TX_RC_MCS) {
 		if (cw1200_ht_greenfield(&priv->ht_info))
@@ -718,7 +735,11 @@ void cw1200_tx(struct ieee80211_hw *dev,
 	};
 	struct ieee80211_sta *sta;
 	struct wsm_tx *wsm;
+<<<<<<< HEAD
 	bool tid_update = 0;
+=======
+	bool tid_update = false;
+>>>>>>> upstream/android-13
 	u8 flags = 0;
 	int ret;
 

@@ -34,10 +34,13 @@
 
 /* only for userspace compatibility */
 #ifndef __KERNEL__
+<<<<<<< HEAD
 /* Generic cache responses from hook functions.
    <= 0x2000 is used for protocol-flags. */
 #define NFC_UNKNOWN 0x4000
 #define NFC_ALTERED 0x8000
+=======
+>>>>>>> upstream/android-13
 
 /* NF_VERDICT_BITS should be 8 now, but userspace might break if this changes */
 #define NF_VERDICT_BITS 16
@@ -49,7 +52,12 @@ enum nf_inet_hooks {
 	NF_INET_FORWARD,
 	NF_INET_LOCAL_OUT,
 	NF_INET_POST_ROUTING,
+<<<<<<< HEAD
 	NF_INET_NUMHOOKS
+=======
+	NF_INET_NUMHOOKS,
+	NF_INET_INGRESS = NF_INET_NUMHOOKS,
+>>>>>>> upstream/android-13
 };
 
 enum nf_dev_hooks {

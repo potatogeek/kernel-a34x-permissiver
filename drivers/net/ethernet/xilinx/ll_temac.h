@@ -334,6 +334,12 @@ struct temac_local {
 
 	/* Connection to PHY device */
 	struct device_node *phy_node;
+<<<<<<< HEAD
+=======
+	/* For non-device-tree devices */
+	char phy_name[MII_BUS_ID_SIZE + 3];
+	phy_interface_t phy_interface;
+>>>>>>> upstream/android-13
 
 	/* MDIO bus data */
 	struct mii_bus *mii_bus;	/* MII bus reference */
@@ -344,8 +350,15 @@ struct temac_local {
 #ifdef CONFIG_PPC_DCR
 	dcr_host_t sdma_dcrs;
 #endif
+<<<<<<< HEAD
 	u32 (*dma_in)(struct temac_local *, int);
 	void (*dma_out)(struct temac_local *, int, u32);
+=======
+	u32 (*temac_ior)(struct temac_local *lp, int offset);
+	void (*temac_iow)(struct temac_local *lp, int offset, u32 value);
+	u32 (*dma_in)(struct temac_local *lp, int reg);
+	void (*dma_out)(struct temac_local *lp, int reg, u32 value);
+>>>>>>> upstream/android-13
 
 	int tx_irq;
 	int rx_irq;
@@ -353,7 +366,14 @@ struct temac_local {
 
 	struct sk_buff **rx_skb;
 	spinlock_t rx_lock;
+<<<<<<< HEAD
 	struct mutex indirect_mutex;
+=======
+	/* For synchronization of indirect register access.  Must be
+	 * shared mutex between interfaces in same TEMAC block.
+	 */
+	spinlock_t *indirect_lock;
+>>>>>>> upstream/android-13
 	u32 options;			/* Current options word */
 	int last_link;
 	unsigned int temac_features;
@@ -361,6 +381,7 @@ struct temac_local {
 	/* Buffer descriptors */
 	struct cdmac_bd *tx_bd_v;
 	dma_addr_t tx_bd_p;
+<<<<<<< HEAD
 	struct cdmac_bd *rx_bd_v;
 	dma_addr_t rx_bd_p;
 	int tx_bd_ci;
@@ -379,6 +400,39 @@ void temac_indirect_out32(struct temac_local *lp, int reg, u32 value);
 
 /* xilinx_temac_mdio.c */
 int temac_mdio_setup(struct temac_local *lp, struct device_node *np);
+=======
+	u32 tx_bd_num;
+	struct cdmac_bd *rx_bd_v;
+	dma_addr_t rx_bd_p;
+	u32 rx_bd_num;
+	int tx_bd_ci;
+	int tx_bd_tail;
+	int rx_bd_ci;
+	int rx_bd_tail;
+
+	/* DMA channel control setup */
+	u8 coalesce_count_tx;
+	u8 coalesce_delay_tx;
+	u8 coalesce_count_rx;
+	u8 coalesce_delay_rx;
+
+	struct delayed_work restart_work;
+};
+
+/* Wrappers for temac_ior()/temac_iow() function pointers above */
+#define temac_ior(lp, o) ((lp)->temac_ior(lp, o))
+#define temac_iow(lp, o, v) ((lp)->temac_iow(lp, o, v))
+
+/* xilinx_temac.c */
+int temac_indirect_busywait(struct temac_local *lp);
+u32 temac_indirect_in32(struct temac_local *lp, int reg);
+u32 temac_indirect_in32_locked(struct temac_local *lp, int reg);
+void temac_indirect_out32(struct temac_local *lp, int reg, u32 value);
+void temac_indirect_out32_locked(struct temac_local *lp, int reg, u32 value);
+
+/* xilinx_temac_mdio.c */
+int temac_mdio_setup(struct temac_local *lp, struct platform_device *pdev);
+>>>>>>> upstream/android-13
 void temac_mdio_teardown(struct temac_local *lp);
 
 #endif /* XILINX_LL_TEMAC_H */

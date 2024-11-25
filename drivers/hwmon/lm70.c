@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * lm70.c
  *
@@ -8,6 +12,7 @@
  * interface. The complete datasheet is available at National's website
  * here:
  * http://www.national.com/pf/LM/LM70.html
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +27,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -35,10 +42,17 @@
 #include <linux/hwmon.h>
 #include <linux/mutex.h>
 #include <linux/mod_devicetable.h>
+<<<<<<< HEAD
 #include <linux/spi/spi.h>
 #include <linux/slab.h>
 #include <linux/of_device.h>
 
+=======
+#include <linux/of.h>
+#include <linux/property.h>
+#include <linux/spi/spi.h>
+#include <linux/slab.h>
+>>>>>>> upstream/android-13
 
 #define DRVNAME		"lm70"
 
@@ -163,11 +177,15 @@ MODULE_DEVICE_TABLE(of, lm70_of_ids);
 
 static int lm70_probe(struct spi_device *spi)
 {
+<<<<<<< HEAD
 	const struct of_device_id *match;
+=======
+>>>>>>> upstream/android-13
 	struct device *hwmon_dev;
 	struct lm70 *p_lm70;
 	int chip;
 
+<<<<<<< HEAD
 	match = of_match_device(lm70_of_ids, &spi->dev);
 	if (match)
 		chip = (int)(uintptr_t)match->data;
@@ -176,6 +194,16 @@ static int lm70_probe(struct spi_device *spi)
 
 	/* signaling is SPI_MODE_0 */
 	if (spi->mode & (SPI_CPOL | SPI_CPHA))
+=======
+	if (dev_fwnode(&spi->dev))
+		chip = (int)(uintptr_t)device_get_match_data(&spi->dev);
+	else
+		chip = spi_get_device_id(spi)->driver_data;
+
+
+	/* signaling is SPI_MODE_0 */
+	if ((spi->mode & SPI_MODE_X_MASK) != SPI_MODE_0)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	/* NOTE:  we assume 8-bit words, and convert to 16 bits manually */

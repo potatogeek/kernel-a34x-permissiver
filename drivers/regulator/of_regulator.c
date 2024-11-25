@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * OF helpers for regulator framework
  *
  * Copyright (C) 2011 Texas Instruments, Inc.
  * Rajendra Nayak <rnayak@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -20,11 +27,76 @@
 #include "internal.h"
 
 static const char *const regulator_states[PM_SUSPEND_MAX + 1] = {
+<<<<<<< HEAD
+=======
+	[PM_SUSPEND_STANDBY]	= "regulator-state-standby",
+>>>>>>> upstream/android-13
 	[PM_SUSPEND_MEM]	= "regulator-state-mem",
 	[PM_SUSPEND_MAX]	= "regulator-state-disk",
 };
 
+<<<<<<< HEAD
 static void of_get_regulation_constraints(struct device_node *np,
+=======
+static void fill_limit(int *limit, int val)
+{
+	if (val)
+		if (val == 1)
+			*limit = REGULATOR_NOTIF_LIMIT_ENABLE;
+		else
+			*limit = val;
+	else
+		*limit = REGULATOR_NOTIF_LIMIT_DISABLE;
+}
+
+static void of_get_regulator_prot_limits(struct device_node *np,
+				struct regulation_constraints *constraints)
+{
+	u32 pval;
+	int i;
+	static const char *const props[] = {
+		"regulator-oc-%s-microamp",
+		"regulator-ov-%s-microvolt",
+		"regulator-temp-%s-kelvin",
+		"regulator-uv-%s-microvolt",
+	};
+	struct notification_limit *limits[] = {
+		&constraints->over_curr_limits,
+		&constraints->over_voltage_limits,
+		&constraints->temp_limits,
+		&constraints->under_voltage_limits,
+	};
+	bool set[4] = {0};
+
+	/* Protection limits: */
+	for (i = 0; i < ARRAY_SIZE(props); i++) {
+		char prop[255];
+		bool found;
+		int j;
+		static const char *const lvl[] = {
+			"protection", "error", "warn"
+		};
+		int *l[] = {
+			&limits[i]->prot, &limits[i]->err, &limits[i]->warn,
+		};
+
+		for (j = 0; j < ARRAY_SIZE(lvl); j++) {
+			snprintf(prop, 255, props[i], lvl[j]);
+			found = !of_property_read_u32(np, prop, &pval);
+			if (found)
+				fill_limit(l[j], pval);
+			set[i] |= found;
+		}
+	}
+	constraints->over_current_detection = set[0];
+	constraints->over_voltage_detection = set[1];
+	constraints->over_temp_detection = set[2];
+	constraints->under_voltage_detection = set[3];
+}
+
+static int of_get_regulation_constraints(struct device *dev,
+					struct device_node *np,
+>>>>>>> upstream/android-13
 					struct regulator_init_data **init_data,
 					const struct regulator_desc *desc)
 {
@@ -33,8 +105,18 @@ static void of_get_regulation_constraints(struct device_node *np,
 	struct device_node *suspend_np;
 	unsigned int mode;
 	int ret, i, len;
+<<<<<<< HEAD
 	u32 pval;
 
+=======
+	int n_phandles;
+	u32 pval;
+
+	n_phandles = of_count_phandle_with_args(np, "regulator-coupled-with",
+						NULL);
+	n_phandles = max(n_phandles, 0);
+
+>>>>>>> upstream/android-13
 	constraints->name = of_get_property(np, "regulator-name", NULL);
 
 	if (!of_property_read_u32(np, "regulator-min-microvolt", &pval))
@@ -95,8 +177,13 @@ static void of_get_regulation_constraints(struct device_node *np,
 	if (!ret)
 		constraints->settling_time_up = pval;
 	if (constraints->settling_time_up && constraints->settling_time) {
+<<<<<<< HEAD
 		pr_warn("%s: ambiguous configuration for settling time, ignoring 'regulator-settling-time-up-us'\n",
 			np->name);
+=======
+		pr_warn("%pOFn: ambiguous configuration for settling time, ignoring 'regulator-settling-time-up-us'\n",
+			np);
+>>>>>>> upstream/android-13
 		constraints->settling_time_up = 0;
 	}
 
@@ -105,8 +192,13 @@ static void of_get_regulation_constraints(struct device_node *np,
 	if (!ret)
 		constraints->settling_time_down = pval;
 	if (constraints->settling_time_down && constraints->settling_time) {
+<<<<<<< HEAD
 		pr_warn("%s: ambiguous configuration for settling time, ignoring 'regulator-settling-time-down-us'\n",
 			np->name);
+=======
+		pr_warn("%pOFn: ambiguous configuration for settling time, ignoring 'regulator-settling-time-down-us'\n",
+			np);
+>>>>>>> upstream/android-13
 		constraints->settling_time_down = 0;
 	}
 
@@ -127,12 +219,21 @@ static void of_get_regulation_constraints(struct device_node *np,
 		if (desc && desc->of_map_mode) {
 			mode = desc->of_map_mode(pval);
 			if (mode == REGULATOR_MODE_INVALID)
+<<<<<<< HEAD
 				pr_err("%s: invalid mode %u\n", np->name, pval);
 			else
 				constraints->initial_mode = mode;
 		} else {
 			pr_warn("%s: mapping for mode %d not defined\n",
 				np->name, pval);
+=======
+				pr_err("%pOFn: invalid mode %u\n", np, pval);
+			else
+				constraints->initial_mode = mode;
+		} else {
+			pr_warn("%pOFn: mapping for mode %d not defined\n",
+				np, pval);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -144,14 +245,24 @@ static void of_get_regulation_constraints(struct device_node *np,
 				ret = of_property_read_u32_index(np,
 					"regulator-allowed-modes", i, &pval);
 				if (ret) {
+<<<<<<< HEAD
 					pr_err("%s: couldn't read allowed modes index %d, ret=%d\n",
 						np->name, i, ret);
+=======
+					pr_err("%pOFn: couldn't read allowed modes index %d, ret=%d\n",
+						np, i, ret);
+>>>>>>> upstream/android-13
 					break;
 				}
 				mode = desc->of_map_mode(pval);
 				if (mode == REGULATOR_MODE_INVALID)
+<<<<<<< HEAD
 					pr_err("%s: invalid regulator-allowed-modes element %u\n",
 						np->name, pval);
+=======
+					pr_err("%pOFn: invalid regulator-allowed-modes element %u\n",
+						np, pval);
+>>>>>>> upstream/android-13
 				else
 					constraints->valid_modes_mask |= mode;
 			}
@@ -159,20 +270,47 @@ static void of_get_regulation_constraints(struct device_node *np,
 				constraints->valid_ops_mask
 					|= REGULATOR_CHANGE_MODE;
 		} else {
+<<<<<<< HEAD
 			pr_warn("%s: mode mapping not defined\n", np->name);
+=======
+			pr_warn("%pOFn: mode mapping not defined\n", np);
+>>>>>>> upstream/android-13
 		}
 	}
 
 	if (!of_property_read_u32(np, "regulator-system-load", &pval))
 		constraints->system_load = pval;
 
+<<<<<<< HEAD
 	if (!of_property_read_u32(np, "regulator-coupled-max-spread",
 				  &pval))
 		constraints->max_spread = pval;
+=======
+	if (n_phandles) {
+		constraints->max_spread = devm_kzalloc(dev,
+				sizeof(*constraints->max_spread) * n_phandles,
+				GFP_KERNEL);
+
+		if (!constraints->max_spread)
+			return -ENOMEM;
+
+		of_property_read_u32_array(np, "regulator-coupled-max-spread",
+					   constraints->max_spread, n_phandles);
+	}
+
+	if (!of_property_read_u32(np, "regulator-max-step-microvolt",
+				  &pval))
+		constraints->max_uV_step = pval;
+>>>>>>> upstream/android-13
 
 	constraints->over_current_protection = of_property_read_bool(np,
 					"regulator-over-current-protection");
 
+<<<<<<< HEAD
+=======
+	of_get_regulator_prot_limits(np, constraints);
+
+>>>>>>> upstream/android-13
 	for (i = 0; i < ARRAY_SIZE(regulator_states); i++) {
 		switch (i) {
 		case PM_SUSPEND_MEM:
@@ -181,9 +319,17 @@ static void of_get_regulation_constraints(struct device_node *np,
 		case PM_SUSPEND_MAX:
 			suspend_state = &constraints->state_disk;
 			break;
+<<<<<<< HEAD
 		case PM_SUSPEND_ON:
 		case PM_SUSPEND_TO_IDLE:
 		case PM_SUSPEND_STANDBY:
+=======
+		case PM_SUSPEND_STANDBY:
+			suspend_state = &constraints->state_standby;
+			break;
+		case PM_SUSPEND_ON:
+		case PM_SUSPEND_TO_IDLE:
+>>>>>>> upstream/android-13
 		default:
 			continue;
 		}
@@ -197,6 +343,7 @@ static void of_get_regulation_constraints(struct device_node *np,
 			if (desc && desc->of_map_mode) {
 				mode = desc->of_map_mode(pval);
 				if (mode == REGULATOR_MODE_INVALID)
+<<<<<<< HEAD
 					pr_err("%s: invalid mode %u\n",
 					       np->name, pval);
 				else
@@ -204,6 +351,15 @@ static void of_get_regulation_constraints(struct device_node *np,
 			} else {
 				pr_warn("%s: mapping for mode %d not defined\n",
 					np->name, pval);
+=======
+					pr_err("%pOFn: invalid mode %u\n",
+					       np, pval);
+				else
+					suspend_state->mode = mode;
+			} else {
+				pr_warn("%pOFn: mapping for mode %d not defined\n",
+					np, pval);
+>>>>>>> upstream/android-13
 			}
 		}
 
@@ -239,6 +395,11 @@ static void of_get_regulation_constraints(struct device_node *np,
 		suspend_state = NULL;
 		suspend_np = NULL;
 	}
+<<<<<<< HEAD
+=======
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -248,7 +409,11 @@ static void of_get_regulation_constraints(struct device_node *np,
  * @desc: regulator description
  *
  * Populates regulator_init_data structure by extracting data from device
+<<<<<<< HEAD
  * tree node, returns a pointer to the populated struture or NULL if memory
+=======
+ * tree node, returns a pointer to the populated structure or NULL if memory
+>>>>>>> upstream/android-13
  * alloc fails.
  */
 struct regulator_init_data *of_get_regulator_init_data(struct device *dev,
@@ -264,7 +429,13 @@ struct regulator_init_data *of_get_regulator_init_data(struct device *dev,
 	if (!init_data)
 		return NULL; /* Out of memory? */
 
+<<<<<<< HEAD
 	of_get_regulation_constraints(node, &init_data, desc);
+=======
+	if (of_get_regulation_constraints(dev, node, &init_data, desc))
+		return NULL;
+
+>>>>>>> upstream/android-13
 	return init_data;
 }
 EXPORT_SYMBOL_GPL(of_get_regulator_init_data);
@@ -349,8 +520,13 @@ int of_regulator_match(struct device *dev, struct device_node *node,
 							   match->desc);
 			if (!match->init_data) {
 				dev_err(dev,
+<<<<<<< HEAD
 					"failed to parse DT for regulator %s\n",
 					child->name);
+=======
+					"failed to parse DT for regulator %pOFn\n",
+					child);
+>>>>>>> upstream/android-13
 				of_node_put(child);
 				return -EINVAL;
 			}
@@ -364,6 +540,7 @@ int of_regulator_match(struct device *dev, struct device_node *node,
 }
 EXPORT_SYMBOL_GPL(of_regulator_match);
 
+<<<<<<< HEAD
 struct regulator_init_data *regulator_of_get_init_data(struct device *dev,
 					    const struct regulator_desc *desc,
 					    struct regulator_config *config,
@@ -371,17 +548,37 @@ struct regulator_init_data *regulator_of_get_init_data(struct device *dev,
 {
 	struct device_node *search, *child;
 	struct regulator_init_data *init_data = NULL;
+=======
+static struct
+device_node *regulator_of_get_init_node(struct device *dev,
+					const struct regulator_desc *desc)
+{
+	struct device_node *search, *child;
+>>>>>>> upstream/android-13
 	const char *name;
 
 	if (!dev->of_node || !desc->of_match)
 		return NULL;
 
+<<<<<<< HEAD
 	if (desc->regulators_node)
 		search = of_get_child_by_name(dev->of_node,
 					      desc->regulators_node);
 	else
 		search = of_node_get(dev->of_node);
 
+=======
+	if (desc->regulators_node) {
+		search = of_get_child_by_name(dev->of_node,
+					      desc->regulators_node);
+	} else {
+		search = of_node_get(dev->of_node);
+
+		if (!strcmp(desc->of_match, search->name))
+			return search;
+	}
+
+>>>>>>> upstream/android-13
 	if (!search) {
 		dev_dbg(dev, "Failed to find regulator container node '%s'\n",
 			desc->regulators_node);
@@ -390,6 +587,7 @@ struct regulator_init_data *regulator_of_get_init_data(struct device *dev,
 
 	for_each_available_child_of_node(search, child) {
 		name = of_get_property(child, "regulator-compatible", NULL);
+<<<<<<< HEAD
 		if (!name)
 			name = child->name;
 
@@ -417,23 +615,92 @@ struct regulator_init_data *regulator_of_get_init_data(struct device *dev,
 		of_node_get(child);
 		*node = child;
 		break;
+=======
+		if (!name) {
+			if (!desc->of_match_full_name)
+				name = child->name;
+			else
+				name = child->full_name;
+		}
+
+		if (!strcmp(desc->of_match, name)) {
+			of_node_put(search);
+			/*
+			 * 'of_node_get(child)' is already performed by the
+			 * for_each loop.
+			 */
+			return child;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	of_node_put(search);
 
+<<<<<<< HEAD
 	return init_data;
 }
 
 static int of_node_match(struct device *dev, const void *data)
 {
 	return dev->of_node == data;
+=======
+	return NULL;
+}
+
+struct regulator_init_data *regulator_of_get_init_data(struct device *dev,
+					    const struct regulator_desc *desc,
+					    struct regulator_config *config,
+					    struct device_node **node)
+{
+	struct device_node *child;
+	struct regulator_init_data *init_data = NULL;
+
+	child = regulator_of_get_init_node(dev, desc);
+	if (!child)
+		return NULL;
+
+	init_data = of_get_regulator_init_data(dev, child, desc);
+	if (!init_data) {
+		dev_err(dev, "failed to parse DT for regulator %pOFn\n", child);
+		goto error;
+	}
+
+	if (desc->of_parse_cb) {
+		int ret;
+
+		ret = desc->of_parse_cb(child, desc, config);
+		if (ret) {
+			if (ret == -EPROBE_DEFER) {
+				of_node_put(child);
+				return ERR_PTR(-EPROBE_DEFER);
+			}
+			dev_err(dev,
+				"driver callback failed to parse DT for regulator %pOFn\n",
+				child);
+			goto error;
+		}
+	}
+
+	*node = child;
+
+	return init_data;
+
+error:
+	of_node_put(child);
+
+	return NULL;
+>>>>>>> upstream/android-13
 }
 
 struct regulator_dev *of_find_regulator_by_node(struct device_node *np)
 {
 	struct device *dev;
 
+<<<<<<< HEAD
 	dev = class_find_device(&regulator_class, NULL, np, of_node_match);
+=======
+	dev = class_find_device_by_of_node(&regulator_class, np);
+>>>>>>> upstream/android-13
 
 	return dev ? dev_to_rdev(dev) : NULL;
 }
@@ -455,7 +722,12 @@ int of_get_n_coupled(struct regulator_dev *rdev)
 
 /* Looks for "to_find" device_node in src's "regulator-coupled-with" property */
 static bool of_coupling_find_node(struct device_node *src,
+<<<<<<< HEAD
 				  struct device_node *to_find)
+=======
+				  struct device_node *to_find,
+				  int *index)
+>>>>>>> upstream/android-13
 {
 	int n_phandles, i;
 	bool found = false;
@@ -477,8 +749,15 @@ static bool of_coupling_find_node(struct device_node *src,
 
 		of_node_put(tmp);
 
+<<<<<<< HEAD
 		if (found)
 			break;
+=======
+		if (found) {
+			*index = i;
+			break;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	return found;
@@ -487,7 +766,11 @@ static bool of_coupling_find_node(struct device_node *src,
 /**
  * of_check_coupling_data - Parse rdev's coupling properties and check data
  *			    consistency
+<<<<<<< HEAD
  * @rdev - pointer to regulator_dev whose data is checked
+=======
+ * @rdev: pointer to regulator_dev whose data is checked
+>>>>>>> upstream/android-13
  *
  * Function checks if all the following conditions are met:
  * - rdev's max_spread is greater than 0
@@ -499,6 +782,7 @@ static bool of_coupling_find_node(struct device_node *src,
  */
 bool of_check_coupling_data(struct regulator_dev *rdev)
 {
+<<<<<<< HEAD
 	int max_spread = rdev->constraints->max_spread;
 	struct device_node *node = rdev->dev.of_node;
 	int n_phandles = of_get_n_coupled(rdev);
@@ -515,6 +799,25 @@ bool of_check_coupling_data(struct regulator_dev *rdev)
 	for (i = 0; i < n_phandles; i++) {
 		int c_max_spread, c_n_phandles;
 
+=======
+	struct device_node *node = rdev->dev.of_node;
+	int n_phandles = of_get_n_coupled(rdev);
+	struct device_node *c_node;
+	int index;
+	int i;
+	bool ret = true;
+
+	/* iterate over rdev's phandles */
+	for (i = 0; i < n_phandles; i++) {
+		int max_spread = rdev->constraints->max_spread[i];
+		int c_max_spread, c_n_phandles;
+
+		if (max_spread <= 0) {
+			dev_err(&rdev->dev, "max_spread value invalid\n");
+			return false;
+		}
+
+>>>>>>> upstream/android-13
 		c_node = of_parse_phandle(node,
 					  "regulator-coupled-with", i);
 
@@ -526,13 +829,28 @@ bool of_check_coupling_data(struct regulator_dev *rdev)
 							  NULL);
 
 		if (c_n_phandles != n_phandles) {
+<<<<<<< HEAD
 			dev_err(&rdev->dev, "number of couped reg phandles mismatch\n");
+=======
+			dev_err(&rdev->dev, "number of coupled reg phandles mismatch\n");
+>>>>>>> upstream/android-13
 			ret = false;
 			goto clean;
 		}
 
+<<<<<<< HEAD
 		if (of_property_read_u32(c_node, "regulator-coupled-max-spread",
 					 &c_max_spread)) {
+=======
+		if (!of_coupling_find_node(c_node, node, &index)) {
+			dev_err(&rdev->dev, "missing 2-way linking for coupled regulators\n");
+			ret = false;
+			goto clean;
+		}
+
+		if (of_property_read_u32_index(c_node, "regulator-coupled-max-spread",
+					       index, &c_max_spread)) {
+>>>>>>> upstream/android-13
 			ret = false;
 			goto clean;
 		}
@@ -544,11 +862,14 @@ bool of_check_coupling_data(struct regulator_dev *rdev)
 			goto clean;
 		}
 
+<<<<<<< HEAD
 		if (!of_coupling_find_node(c_node, node)) {
 			dev_err(&rdev->dev, "missing 2-way linking for coupled regulators\n");
 			ret = false;
 		}
 
+=======
+>>>>>>> upstream/android-13
 clean:
 		of_node_put(c_node);
 		if (!ret)

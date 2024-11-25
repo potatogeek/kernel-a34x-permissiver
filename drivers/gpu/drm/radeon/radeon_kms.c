@@ -25,6 +25,7 @@
  *          Alex Deucher
  *          Jerome Glisse
  */
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/drm_fb_helper.h>
 #include "radeon.h"
@@ -34,6 +35,24 @@
 #include <linux/vga_switcheroo.h>
 #include <linux/slab.h>
 #include <linux/pm_runtime.h>
+=======
+
+#include <linux/pci.h>
+#include <linux/pm_runtime.h>
+#include <linux/slab.h>
+#include <linux/uaccess.h>
+#include <linux/vga_switcheroo.h>
+
+#include <drm/drm_fb_helper.h>
+#include <drm/drm_file.h>
+#include <drm/drm_ioctl.h>
+#include <drm/radeon_drm.h>
+
+#include "radeon.h"
+#include "radeon_asic.h"
+#include "radeon_drv.h"
+#include "radeon_kms.h"
+>>>>>>> upstream/android-13
 
 #if defined(CONFIG_VGA_SWITCHEROO)
 bool radeon_has_atpx(void);
@@ -68,10 +87,22 @@ void radeon_driver_unload_kms(struct drm_device *dev)
 	}
 
 	radeon_acpi_fini(rdev);
+<<<<<<< HEAD
 	
 	radeon_modeset_fini(rdev);
 	radeon_device_fini(rdev);
 
+=======
+
+	radeon_modeset_fini(rdev);
+	radeon_device_fini(rdev);
+
+	if (rdev->agp)
+		arch_phys_wc_del(rdev->agp->agp_mtrr);
+	kfree(rdev->agp);
+	rdev->agp = NULL;
+
+>>>>>>> upstream/android-13
 done_free:
 	kfree(rdev);
 	dev->dev_private = NULL;
@@ -92,6 +123,10 @@ done_free:
  */
 int radeon_driver_load_kms(struct drm_device *dev, unsigned long flags)
 {
+<<<<<<< HEAD
+=======
+	struct pci_dev *pdev = to_pci_dev(dev->dev);
+>>>>>>> upstream/android-13
 	struct radeon_device *rdev;
 	int r, acpi_status;
 
@@ -101,10 +136,30 @@ int radeon_driver_load_kms(struct drm_device *dev, unsigned long flags)
 	}
 	dev->dev_private = (void *)rdev;
 
+<<<<<<< HEAD
 	/* update BUS flag */
 	if (pci_find_capability(dev->pdev, PCI_CAP_ID_AGP)) {
 		flags |= RADEON_IS_AGP;
 	} else if (pci_is_pcie(dev->pdev)) {
+=======
+#ifdef __alpha__
+	rdev->hose = pdev->sysdata;
+#endif
+
+	if (pci_find_capability(pdev, PCI_CAP_ID_AGP))
+		rdev->agp = radeon_agp_head_init(dev);
+	if (rdev->agp) {
+		rdev->agp->agp_mtrr = arch_phys_wc_add(
+			rdev->agp->agp_info.aper_base,
+			rdev->agp->agp_info.aper_size *
+			1024 * 1024);
+	}
+
+	/* update BUS flag */
+	if (pci_find_capability(pdev, PCI_CAP_ID_AGP)) {
+		flags |= RADEON_IS_AGP;
+	} else if (pci_is_pcie(pdev)) {
+>>>>>>> upstream/android-13
 		flags |= RADEON_IS_PCIE;
 	} else {
 		flags |= RADEON_IS_PCI;
@@ -113,7 +168,11 @@ int radeon_driver_load_kms(struct drm_device *dev, unsigned long flags)
 	if ((radeon_runtime_pm != 0) &&
 	    radeon_has_atpx() &&
 	    ((flags & RADEON_IS_IGP) == 0) &&
+<<<<<<< HEAD
 	    !pci_is_thunderbolt_attached(dev->pdev))
+=======
+	    !pci_is_thunderbolt_attached(pdev))
+>>>>>>> upstream/android-13
 		flags |= RADEON_IS_PX;
 
 	/* radeon_device_init should report only fatal error
@@ -122,9 +181,15 @@ int radeon_driver_load_kms(struct drm_device *dev, unsigned long flags)
 	 * properly initialize the GPU MC controller and permit
 	 * VRAM allocation
 	 */
+<<<<<<< HEAD
 	r = radeon_device_init(rdev, dev, dev->pdev, flags);
 	if (r) {
 		dev_err(&dev->pdev->dev, "Fatal error during GPU init\n");
+=======
+	r = radeon_device_init(rdev, dev, pdev, flags);
+	if (r) {
+		dev_err(dev->dev, "Fatal error during GPU init\n");
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
@@ -134,7 +199,11 @@ int radeon_driver_load_kms(struct drm_device *dev, unsigned long flags)
 	 */
 	r = radeon_modeset_init(rdev);
 	if (r)
+<<<<<<< HEAD
 		dev_err(&dev->pdev->dev, "Fatal error during modeset init\n");
+=======
+		dev_err(dev->dev, "Fatal error during modeset init\n");
+>>>>>>> upstream/android-13
 
 	/* Call ACPI methods: require modeset init
 	 * but failure is not fatal
@@ -142,12 +211,20 @@ int radeon_driver_load_kms(struct drm_device *dev, unsigned long flags)
 	if (!r) {
 		acpi_status = radeon_acpi_init(rdev);
 		if (acpi_status)
+<<<<<<< HEAD
 		dev_dbg(&dev->pdev->dev,
 				"Error during ACPI methods call\n");
 	}
 
 	if (radeon_is_px(dev)) {
 		dev_pm_set_driver_flags(dev->dev, DPM_FLAG_NEVER_SKIP);
+=======
+		dev_dbg(dev->dev, "Error during ACPI methods call\n");
+	}
+
+	if (radeon_is_px(dev)) {
+		dev_pm_set_driver_flags(dev->dev, DPM_FLAG_NO_DIRECT_COMPLETE);
+>>>>>>> upstream/android-13
 		pm_runtime_use_autosuspend(dev->dev);
 		pm_runtime_set_autosuspend_delay(dev->dev, 5000);
 		pm_runtime_set_active(dev->dev);
@@ -201,7 +278,11 @@ static void radeon_set_filp_rights(struct drm_device *dev,
 /**
  * radeon_info_ioctl - answer a device specific request.
  *
+<<<<<<< HEAD
  * @rdev: radeon device pointer
+=======
+ * @dev: drm device pointer
+>>>>>>> upstream/android-13
  * @data: request object
  * @filp: drm filp
  *
@@ -210,7 +291,11 @@ static void radeon_set_filp_rights(struct drm_device *dev,
  * etc. (all asics).
  * Returns 0 on success, -EINVAL on failure.
  */
+<<<<<<< HEAD
 static int radeon_info_ioctl(struct drm_device *dev, void *data, struct drm_file *filp)
+=======
+int radeon_info_ioctl(struct drm_device *dev, void *data, struct drm_file *filp)
+>>>>>>> upstream/android-13
 {
 	struct radeon_device *rdev = dev->dev_private;
 	struct drm_radeon_info *info = data;
@@ -226,7 +311,11 @@ static int radeon_info_ioctl(struct drm_device *dev, void *data, struct drm_file
 
 	switch (info->request) {
 	case RADEON_INFO_DEVICE_ID:
+<<<<<<< HEAD
 		*value = dev->pdev->device;
+=======
+		*value = to_pci_dev(dev->dev)->device;
+>>>>>>> upstream/android-13
 		break;
 	case RADEON_INFO_NUM_GB_PIPES:
 		*value = rdev->num_gb_pipes;
@@ -623,6 +712,11 @@ void radeon_driver_lastclose_kms(struct drm_device *dev)
 int radeon_driver_open_kms(struct drm_device *dev, struct drm_file *file_priv)
 {
 	struct radeon_device *rdev = dev->dev_private;
+<<<<<<< HEAD
+=======
+	struct radeon_fpriv *fpriv;
+	struct radeon_vm *vm;
+>>>>>>> upstream/android-13
 	int r;
 
 	file_priv->driver_priv = NULL;
@@ -635,18 +729,26 @@ int radeon_driver_open_kms(struct drm_device *dev, struct drm_file *file_priv)
 
 	/* new gpu have virtual address space support */
 	if (rdev->family >= CHIP_CAYMAN) {
+<<<<<<< HEAD
 		struct radeon_fpriv *fpriv;
 		struct radeon_vm *vm;
+=======
+>>>>>>> upstream/android-13
 
 		fpriv = kzalloc(sizeof(*fpriv), GFP_KERNEL);
 		if (unlikely(!fpriv)) {
 			r = -ENOMEM;
+<<<<<<< HEAD
 			goto out_suspend;
+=======
+			goto err_suspend;
+>>>>>>> upstream/android-13
 		}
 
 		if (rdev->accel_working) {
 			vm = &fpriv->vm;
 			r = radeon_vm_init(rdev, vm);
+<<<<<<< HEAD
 			if (r) {
 				kfree(fpriv);
 				goto out_suspend;
@@ -658,25 +760,59 @@ int radeon_driver_open_kms(struct drm_device *dev, struct drm_file *file_priv)
 				kfree(fpriv);
 				goto out_suspend;
 			}
+=======
+			if (r)
+				goto err_fpriv;
+
+			r = radeon_bo_reserve(rdev->ring_tmp_bo.bo, false);
+			if (r)
+				goto err_vm_fini;
+>>>>>>> upstream/android-13
 
 			/* map the ib pool buffer read only into
 			 * virtual address space */
 			vm->ib_bo_va = radeon_vm_bo_add(rdev, vm,
 							rdev->ring_tmp_bo.bo);
+<<<<<<< HEAD
+=======
+			if (!vm->ib_bo_va) {
+				r = -ENOMEM;
+				goto err_vm_fini;
+			}
+
+>>>>>>> upstream/android-13
 			r = radeon_vm_bo_set_addr(rdev, vm->ib_bo_va,
 						  RADEON_VA_IB_OFFSET,
 						  RADEON_VM_PAGE_READABLE |
 						  RADEON_VM_PAGE_SNOOPED);
+<<<<<<< HEAD
 			if (r) {
 				radeon_vm_fini(rdev, vm);
 				kfree(fpriv);
 				goto out_suspend;
 			}
+=======
+			if (r)
+				goto err_vm_fini;
+>>>>>>> upstream/android-13
 		}
 		file_priv->driver_priv = fpriv;
 	}
 
+<<<<<<< HEAD
 out_suspend:
+=======
+	pm_runtime_mark_last_busy(dev->dev);
+	pm_runtime_put_autosuspend(dev->dev);
+	return 0;
+
+err_vm_fini:
+	radeon_vm_fini(rdev, vm);
+err_fpriv:
+	kfree(fpriv);
+
+err_suspend:
+>>>>>>> upstream/android-13
 	pm_runtime_mark_last_busy(dev->dev);
 	pm_runtime_put_autosuspend(dev->dev);
 	return r;
@@ -737,14 +873,25 @@ void radeon_driver_postclose_kms(struct drm_device *dev,
 /**
  * radeon_get_vblank_counter_kms - get frame count
  *
+<<<<<<< HEAD
  * @dev: drm dev pointer
  * @pipe: crtc to get the frame count from
+=======
+ * @crtc: crtc to get the frame count from
+>>>>>>> upstream/android-13
  *
  * Gets the frame count on the requested crtc (all asics).
  * Returns frame count on success, -EINVAL on failure.
  */
+<<<<<<< HEAD
 u32 radeon_get_vblank_counter_kms(struct drm_device *dev, unsigned int pipe)
 {
+=======
+u32 radeon_get_vblank_counter_kms(struct drm_crtc *crtc)
+{
+	struct drm_device *dev = crtc->dev;
+	unsigned int pipe = crtc->index;
+>>>>>>> upstream/android-13
 	int vpos, hpos, stat;
 	u32 count;
 	struct radeon_device *rdev = dev->dev_private;
@@ -806,25 +953,44 @@ u32 radeon_get_vblank_counter_kms(struct drm_device *dev, unsigned int pipe)
 /**
  * radeon_enable_vblank_kms - enable vblank interrupt
  *
+<<<<<<< HEAD
  * @dev: drm dev pointer
+=======
+>>>>>>> upstream/android-13
  * @crtc: crtc to enable vblank interrupt for
  *
  * Enable the interrupt on the requested crtc (all asics).
  * Returns 0 on success, -EINVAL on failure.
  */
+<<<<<<< HEAD
 int radeon_enable_vblank_kms(struct drm_device *dev, int crtc)
 {
+=======
+int radeon_enable_vblank_kms(struct drm_crtc *crtc)
+{
+	struct drm_device *dev = crtc->dev;
+	unsigned int pipe = crtc->index;
+>>>>>>> upstream/android-13
 	struct radeon_device *rdev = dev->dev_private;
 	unsigned long irqflags;
 	int r;
 
+<<<<<<< HEAD
 	if (crtc < 0 || crtc >= rdev->num_crtc) {
 		DRM_ERROR("Invalid crtc %d\n", crtc);
+=======
+	if (pipe >= rdev->num_crtc) {
+		DRM_ERROR("Invalid crtc %d\n", pipe);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	spin_lock_irqsave(&rdev->irq.lock, irqflags);
+<<<<<<< HEAD
 	rdev->irq.crtc_vblank_int[crtc] = true;
+=======
+	rdev->irq.crtc_vblank_int[pipe] = true;
+>>>>>>> upstream/android-13
 	r = radeon_irq_set(rdev);
 	spin_unlock_irqrestore(&rdev->irq.lock, irqflags);
 	return r;
@@ -833,11 +999,15 @@ int radeon_enable_vblank_kms(struct drm_device *dev, int crtc)
 /**
  * radeon_disable_vblank_kms - disable vblank interrupt
  *
+<<<<<<< HEAD
  * @dev: drm dev pointer
+=======
+>>>>>>> upstream/android-13
  * @crtc: crtc to disable vblank interrupt for
  *
  * Disable the interrupt on the requested crtc (all asics).
  */
+<<<<<<< HEAD
 void radeon_disable_vblank_kms(struct drm_device *dev, int crtc)
 {
 	struct radeon_device *rdev = dev->dev_private;
@@ -845,10 +1015,22 @@ void radeon_disable_vblank_kms(struct drm_device *dev, int crtc)
 
 	if (crtc < 0 || crtc >= rdev->num_crtc) {
 		DRM_ERROR("Invalid crtc %d\n", crtc);
+=======
+void radeon_disable_vblank_kms(struct drm_crtc *crtc)
+{
+	struct drm_device *dev = crtc->dev;
+	unsigned int pipe = crtc->index;
+	struct radeon_device *rdev = dev->dev_private;
+	unsigned long irqflags;
+
+	if (pipe >= rdev->num_crtc) {
+		DRM_ERROR("Invalid crtc %d\n", pipe);
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	spin_lock_irqsave(&rdev->irq.lock, irqflags);
+<<<<<<< HEAD
 	rdev->irq.crtc_vblank_int[crtc] = false;
 	radeon_irq_set(rdev);
 	spin_unlock_irqrestore(&rdev->irq.lock, irqflags);
@@ -900,3 +1082,9 @@ const struct drm_ioctl_desc radeon_ioctls_kms[] = {
 	DRM_IOCTL_DEF_DRV(RADEON_GEM_USERPTR, radeon_gem_userptr_ioctl, DRM_AUTH|DRM_RENDER_ALLOW),
 };
 int radeon_max_kms_ioctl = ARRAY_SIZE(radeon_ioctls_kms);
+=======
+	rdev->irq.crtc_vblank_int[pipe] = false;
+	radeon_irq_set(rdev);
+	spin_unlock_irqrestore(&rdev->irq.lock, irqflags);
+}
+>>>>>>> upstream/android-13

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2015-2018 Intel Corporation.
  *
@@ -43,6 +44,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause
+/*
+ * Copyright(c) 2015-2020 Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/spinlock.h>
@@ -54,6 +60,10 @@
 #include <linux/module.h>
 #include <linux/prefetch.h>
 #include <rdma/ib_verbs.h>
+<<<<<<< HEAD
+=======
+#include <linux/etherdevice.h>
+>>>>>>> upstream/android-13
 
 #include "hfi.h"
 #include "trace.h"
@@ -63,6 +73,12 @@
 #include "vnic.h"
 #include "fault.h"
 
+<<<<<<< HEAD
+=======
+#include "ipoib.h"
+#include "netdev.h"
+
+>>>>>>> upstream/android-13
 #undef pr_fmt
 #define pr_fmt(fmt) DRIVER_NAME ": " fmt
 
@@ -72,8 +88,11 @@
  */
 const char ib_hfi1_version[] = HFI1_DRIVER_VERSION "\n";
 
+<<<<<<< HEAD
 DEFINE_SPINLOCK(hfi1_devs_lock);
 LIST_HEAD(hfi1_dev_list);
+=======
+>>>>>>> upstream/android-13
 DEFINE_MUTEX(hfi1_mutex);	/* general driver use */
 
 unsigned int hfi1_max_mtu = HFI1_DEFAULT_MAX_MTU;
@@ -175,11 +194,19 @@ int hfi1_count_active_units(void)
 {
 	struct hfi1_devdata *dd;
 	struct hfi1_pportdata *ppd;
+<<<<<<< HEAD
 	unsigned long flags;
 	int pidx, nunits_active = 0;
 
 	spin_lock_irqsave(&hfi1_devs_lock, flags);
 	list_for_each_entry(dd, &hfi1_dev_list, list) {
+=======
+	unsigned long index, flags;
+	int pidx, nunits_active = 0;
+
+	xa_lock_irqsave(&hfi1_dev_table, flags);
+	xa_for_each(&hfi1_dev_table, index, dd) {
+>>>>>>> upstream/android-13
 		if (!(dd->flags & HFI1_PRESENT) || !dd->kregbase1)
 			continue;
 		for (pidx = 0; pidx < dd->num_pports; ++pidx) {
@@ -190,7 +217,11 @@ int hfi1_count_active_units(void)
 			}
 		}
 	}
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&hfi1_devs_lock, flags);
+=======
+	xa_unlock_irqrestore(&hfi1_dev_table, flags);
+>>>>>>> upstream/android-13
 	return nunits_active;
 }
 
@@ -264,7 +295,11 @@ static void rcv_hdrerr(struct hfi1_ctxtdata *rcd, struct hfi1_pportdata *ppd,
 	    hfi1_dbg_fault_suppress_err(verbs_dev))
 		return;
 
+<<<<<<< HEAD
 	if (packet->rhf & (RHF_VCRC_ERR | RHF_ICRC_ERR))
+=======
+	if (packet->rhf & RHF_ICRC_ERR)
+>>>>>>> upstream/android-13
 		return;
 
 	if (packet->etype == RHF_RCV_TYPE_BYPASS) {
@@ -413,14 +448,23 @@ drop:
 static inline void init_packet(struct hfi1_ctxtdata *rcd,
 			       struct hfi1_packet *packet)
 {
+<<<<<<< HEAD
 	packet->rsize = rcd->rcvhdrqentsize; /* words */
 	packet->maxcnt = rcd->rcvhdrq_cnt * packet->rsize; /* words */
+=======
+	packet->rsize = get_hdrqentsize(rcd); /* words */
+	packet->maxcnt = get_hdrq_cnt(rcd) * packet->rsize; /* words */
+>>>>>>> upstream/android-13
 	packet->rcd = rcd;
 	packet->updegr = 0;
 	packet->etail = -1;
 	packet->rhf_addr = get_rhf_addr(rcd);
 	packet->rhf = rhf_to_cpu(packet->rhf_addr);
+<<<<<<< HEAD
 	packet->rhqoff = rcd->head;
+=======
+	packet->rhqoff = hfi1_rcd_head(rcd);
+>>>>>>> upstream/android-13
 	packet->numpkt = 0;
 }
 
@@ -516,7 +560,13 @@ bool hfi1_process_ecn_slowpath(struct rvt_qp *qp, struct hfi1_packet *pkt,
 	 */
 	do_cnp = prescan ||
 		(opcode >= IB_OPCODE_RC_RDMA_READ_RESPONSE_FIRST &&
+<<<<<<< HEAD
 		 opcode <= IB_OPCODE_RC_ATOMIC_ACKNOWLEDGE);
+=======
+		 opcode <= IB_OPCODE_RC_ATOMIC_ACKNOWLEDGE) ||
+		opcode == TID_OP(READ_RESP) ||
+		opcode == TID_OP(ACK);
+>>>>>>> upstream/android-13
 
 	/* Call appropriate CNP handler */
 	if (!ignore_fecn && do_cnp && fecn)
@@ -551,22 +601,37 @@ static inline void init_ps_mdata(struct ps_mdata *mdata,
 	mdata->maxcnt = packet->maxcnt;
 	mdata->ps_head = packet->rhqoff;
 
+<<<<<<< HEAD
 	if (HFI1_CAP_KGET_MASK(rcd->flags, DMA_RTAIL)) {
 		mdata->ps_tail = get_rcvhdrtail(rcd);
 		if (rcd->ctxt == HFI1_CTRL_CTXT)
 			mdata->ps_seq = rcd->seq_cnt;
+=======
+	if (get_dma_rtail_setting(rcd)) {
+		mdata->ps_tail = get_rcvhdrtail(rcd);
+		if (rcd->ctxt == HFI1_CTRL_CTXT)
+			mdata->ps_seq = hfi1_seq_cnt(rcd);
+>>>>>>> upstream/android-13
 		else
 			mdata->ps_seq = 0; /* not used with DMA_RTAIL */
 	} else {
 		mdata->ps_tail = 0; /* used only with DMA_RTAIL*/
+<<<<<<< HEAD
 		mdata->ps_seq = rcd->seq_cnt;
+=======
+		mdata->ps_seq = hfi1_seq_cnt(rcd);
+>>>>>>> upstream/android-13
 	}
 }
 
 static inline int ps_done(struct ps_mdata *mdata, u64 rhf,
 			  struct hfi1_ctxtdata *rcd)
 {
+<<<<<<< HEAD
 	if (HFI1_CAP_KGET_MASK(rcd->flags, DMA_RTAIL))
+=======
+	if (get_dma_rtail_setting(rcd))
+>>>>>>> upstream/android-13
 		return mdata->ps_head == mdata->ps_tail;
 	return mdata->ps_seq != rhf_rcv_seq(rhf);
 }
@@ -592,11 +657,17 @@ static inline void update_ps_mdata(struct ps_mdata *mdata,
 		mdata->ps_head = 0;
 
 	/* Control context must do seq counting */
+<<<<<<< HEAD
 	if (!HFI1_CAP_KGET_MASK(rcd->flags, DMA_RTAIL) ||
 	    (rcd->ctxt == HFI1_CTRL_CTXT)) {
 		if (++mdata->ps_seq > 13)
 			mdata->ps_seq = 1;
 	}
+=======
+	if (!get_dma_rtail_setting(rcd) ||
+	    rcd->ctxt == HFI1_CTRL_CTXT)
+		mdata->ps_seq = hfi1_seq_incr_wrap(mdata->ps_seq);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -750,6 +821,42 @@ static noinline int skip_rcv_packet(struct hfi1_packet *packet, int thread)
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static void process_rcv_packet_napi(struct hfi1_packet *packet)
+{
+	packet->etype = rhf_rcv_type(packet->rhf);
+
+	/* total length */
+	packet->tlen = rhf_pkt_len(packet->rhf); /* in bytes */
+	/* retrieve eager buffer details */
+	packet->etail = rhf_egr_index(packet->rhf);
+	packet->ebuf = get_egrbuf(packet->rcd, packet->rhf,
+				  &packet->updegr);
+	/*
+	 * Prefetch the contents of the eager buffer.  It is
+	 * OK to send a negative length to prefetch_range().
+	 * The +2 is the size of the RHF.
+	 */
+	prefetch_range(packet->ebuf,
+		       packet->tlen - ((packet->rcd->rcvhdrqentsize -
+				       (rhf_hdrq_offset(packet->rhf)
+					+ 2)) * 4));
+
+	packet->rcd->rhf_rcv_function_map[packet->etype](packet);
+	packet->numpkt++;
+
+	/* Set up for the next packet */
+	packet->rhqoff += packet->rsize;
+	if (packet->rhqoff >= packet->maxcnt)
+		packet->rhqoff = 0;
+
+	packet->rhf_addr = (__le32 *)packet->rcd->rcvhdrq + packet->rhqoff +
+				      packet->rcd->rhf_offset;
+	packet->rhf = rhf_to_cpu(packet->rhf_addr);
+}
+
+>>>>>>> upstream/android-13
 static inline int process_rcv_packet(struct hfi1_packet *packet, int thread)
 {
 	int ret;
@@ -770,7 +877,11 @@ static inline int process_rcv_packet(struct hfi1_packet *packet, int thread)
 		 * The +2 is the size of the RHF.
 		 */
 		prefetch_range(packet->ebuf,
+<<<<<<< HEAD
 			       packet->tlen - ((packet->rcd->rcvhdrqentsize -
+=======
+			       packet->tlen - ((get_hdrqentsize(packet->rcd) -
+>>>>>>> upstream/android-13
 					       (rhf_hdrq_offset(packet->rhf)
 						+ 2)) * 4));
 	}
@@ -824,22 +935,66 @@ static inline void finish_packet(struct hfi1_packet *packet)
 	 * The only thing we need to do is a final update and call for an
 	 * interrupt
 	 */
+<<<<<<< HEAD
 	update_usrhead(packet->rcd, packet->rcd->head, packet->updegr,
+=======
+	update_usrhead(packet->rcd, hfi1_rcd_head(packet->rcd), packet->updegr,
+>>>>>>> upstream/android-13
 		       packet->etail, rcv_intr_dynamic, packet->numpkt);
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * handle_receive_interrupt_napi_fp - receive a packet
+ * @rcd: the context
+ * @budget: polling budget
+ *
+ * Called from interrupt handler for receive interrupt.
+ * This is the fast path interrupt handler
+ * when executing napi soft irq environment.
+ */
+int handle_receive_interrupt_napi_fp(struct hfi1_ctxtdata *rcd, int budget)
+{
+	struct hfi1_packet packet;
+
+	init_packet(rcd, &packet);
+	if (last_rcv_seq(rcd, rhf_rcv_seq(packet.rhf)))
+		goto bail;
+
+	while (packet.numpkt < budget) {
+		process_rcv_packet_napi(&packet);
+		if (hfi1_seq_incr(rcd, rhf_rcv_seq(packet.rhf)))
+			break;
+
+		process_rcv_update(0, &packet);
+	}
+	hfi1_set_rcd_head(rcd, packet.rhqoff);
+bail:
+	finish_packet(&packet);
+	return packet.numpkt;
+}
+
+/*
+>>>>>>> upstream/android-13
  * Handle receive interrupts when using the no dma rtail option.
  */
 int handle_receive_interrupt_nodma_rtail(struct hfi1_ctxtdata *rcd, int thread)
 {
+<<<<<<< HEAD
 	u32 seq;
+=======
+>>>>>>> upstream/android-13
 	int last = RCV_PKT_OK;
 	struct hfi1_packet packet;
 
 	init_packet(rcd, &packet);
+<<<<<<< HEAD
 	seq = rhf_rcv_seq(packet.rhf);
 	if (seq != rcd->seq_cnt) {
+=======
+	if (last_rcv_seq(rcd, rhf_rcv_seq(packet.rhf))) {
+>>>>>>> upstream/android-13
 		last = RCV_PKT_DONE;
 		goto bail;
 	}
@@ -848,15 +1003,23 @@ int handle_receive_interrupt_nodma_rtail(struct hfi1_ctxtdata *rcd, int thread)
 
 	while (last == RCV_PKT_OK) {
 		last = process_rcv_packet(&packet, thread);
+<<<<<<< HEAD
 		seq = rhf_rcv_seq(packet.rhf);
 		if (++rcd->seq_cnt > 13)
 			rcd->seq_cnt = 1;
 		if (seq != rcd->seq_cnt)
+=======
+		if (hfi1_seq_incr(rcd, rhf_rcv_seq(packet.rhf)))
+>>>>>>> upstream/android-13
 			last = RCV_PKT_DONE;
 		process_rcv_update(last, &packet);
 	}
 	process_rcv_qp_work(&packet);
+<<<<<<< HEAD
 	rcd->head = packet.rhqoff;
+=======
+	hfi1_set_rcd_head(rcd, packet.rhqoff);
+>>>>>>> upstream/android-13
 bail:
 	finish_packet(&packet);
 	return last;
@@ -885,15 +1048,24 @@ int handle_receive_interrupt_dma_rtail(struct hfi1_ctxtdata *rcd, int thread)
 		process_rcv_update(last, &packet);
 	}
 	process_rcv_qp_work(&packet);
+<<<<<<< HEAD
 	rcd->head = packet.rhqoff;
+=======
+	hfi1_set_rcd_head(rcd, packet.rhqoff);
+>>>>>>> upstream/android-13
 bail:
 	finish_packet(&packet);
 	return last;
 }
 
+<<<<<<< HEAD
 static inline void set_nodma_rtail(struct hfi1_devdata *dd, u16 ctxt)
 {
 	struct hfi1_ctxtdata *rcd;
+=======
+static void set_all_fastpath(struct hfi1_devdata *dd, struct hfi1_ctxtdata *rcd)
+{
+>>>>>>> upstream/android-13
 	u16 i;
 
 	/*
@@ -901,6 +1073,7 @@ static inline void set_nodma_rtail(struct hfi1_devdata *dd, u16 ctxt)
 	 * interrupt handler only for that context. Otherwise, switch
 	 * interrupt handler for all statically allocated kernel contexts.
 	 */
+<<<<<<< HEAD
 	if (ctxt >= dd->first_dyn_alloc_ctxt) {
 		rcd = hfi1_rcd_get_by_index_safe(dd, ctxt);
 		if (rcd) {
@@ -945,6 +1118,19 @@ static inline void set_dma_rtail(struct hfi1_devdata *dd, u16 ctxt)
 		if (rcd)
 			rcd->do_interrupt =
 				&handle_receive_interrupt_dma_rtail;
+=======
+	if (rcd->ctxt >= dd->first_dyn_alloc_ctxt && !rcd->is_vnic) {
+		hfi1_rcd_get(rcd);
+		hfi1_set_fast(rcd);
+		hfi1_rcd_put(rcd);
+		return;
+	}
+
+	for (i = HFI1_CTRL_CTXT + 1; i < dd->num_rcv_contexts; i++) {
+		rcd = hfi1_rcd_get_by_index(dd, i);
+		if (rcd && (i < dd->first_dyn_alloc_ctxt || rcd->is_vnic))
+			hfi1_set_fast(rcd);
+>>>>>>> upstream/android-13
 		hfi1_rcd_put(rcd);
 	}
 }
@@ -960,17 +1146,26 @@ void set_all_slowpath(struct hfi1_devdata *dd)
 		if (!rcd)
 			continue;
 		if (i < dd->first_dyn_alloc_ctxt || rcd->is_vnic)
+<<<<<<< HEAD
 			rcd->do_interrupt = &handle_receive_interrupt;
+=======
+			rcd->do_interrupt = rcd->slow_handler;
+>>>>>>> upstream/android-13
 
 		hfi1_rcd_put(rcd);
 	}
 }
 
+<<<<<<< HEAD
 static inline int set_armed_to_active(struct hfi1_ctxtdata *rcd,
 				      struct hfi1_packet *packet,
 				      struct hfi1_devdata *dd)
 {
 	struct work_struct *lsaw = &rcd->ppd->linkstate_active_work;
+=======
+static bool __set_armed_to_active(struct hfi1_packet *packet)
+{
+>>>>>>> upstream/android-13
 	u8 etype = rhf_rcv_type(packet->rhf);
 	u8 sc = SC15_PACKET;
 
@@ -985,6 +1180,7 @@ static inline int set_armed_to_active(struct hfi1_ctxtdata *rcd,
 		sc = hfi1_16B_get_sc(hdr);
 	}
 	if (sc != SC15_PACKET) {
+<<<<<<< HEAD
 		int hwstate = driver_lstate(rcd->ppd);
 
 		if (hwstate != IB_PORT_ACTIVE) {
@@ -998,6 +1194,36 @@ static inline int set_armed_to_active(struct hfi1_ctxtdata *rcd,
 		return 1;
 	}
 	return 0;
+=======
+		int hwstate = driver_lstate(packet->rcd->ppd);
+		struct work_struct *lsaw =
+				&packet->rcd->ppd->linkstate_active_work;
+
+		if (hwstate != IB_PORT_ACTIVE) {
+			dd_dev_info(packet->rcd->dd,
+				    "Unexpected link state %s\n",
+				    opa_lstate_name(hwstate));
+			return false;
+		}
+
+		queue_work(packet->rcd->ppd->link_wq, lsaw);
+		return true;
+	}
+	return false;
+}
+
+/**
+ * set_armed_to_active  - the fast path for armed to active
+ * @packet: the packet structure
+ *
+ * Return true if packet processing needs to bail.
+ */
+static bool set_armed_to_active(struct hfi1_packet *packet)
+{
+	if (likely(packet->rcd->ppd->host_link_state != HLS_UP_ARMED))
+		return false;
+	return __set_armed_to_active(packet);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1015,15 +1241,25 @@ int handle_receive_interrupt(struct hfi1_ctxtdata *rcd, int thread)
 	struct hfi1_packet packet;
 	int skip_pkt = 0;
 
+<<<<<<< HEAD
+=======
+	if (!rcd->rcvhdrq)
+		return RCV_PKT_OK;
+>>>>>>> upstream/android-13
 	/* Control context will always use the slow path interrupt handler */
 	needset = (rcd->ctxt == HFI1_CTRL_CTXT) ? 0 : 1;
 
 	init_packet(rcd, &packet);
 
+<<<<<<< HEAD
 	if (!HFI1_CAP_KGET_MASK(rcd->flags, DMA_RTAIL)) {
 		u32 seq = rhf_rcv_seq(packet.rhf);
 
 		if (seq != rcd->seq_cnt) {
+=======
+	if (!get_dma_rtail_setting(rcd)) {
+		if (last_rcv_seq(rcd, rhf_rcv_seq(packet.rhf))) {
+>>>>>>> upstream/android-13
 			last = RCV_PKT_DONE;
 			goto bail;
 		}
@@ -1040,22 +1276,32 @@ int handle_receive_interrupt(struct hfi1_ctxtdata *rcd, int thread)
 		 * Control context can potentially receive an invalid
 		 * rhf. Drop such packets.
 		 */
+<<<<<<< HEAD
 		if (rcd->ctxt == HFI1_CTRL_CTXT) {
 			u32 seq = rhf_rcv_seq(packet.rhf);
 
 			if (seq != rcd->seq_cnt)
 				skip_pkt = 1;
 		}
+=======
+		if (rcd->ctxt == HFI1_CTRL_CTXT)
+			if (last_rcv_seq(rcd, rhf_rcv_seq(packet.rhf)))
+				skip_pkt = 1;
+>>>>>>> upstream/android-13
 	}
 
 	prescan_rxq(rcd, &packet);
 
 	while (last == RCV_PKT_OK) {
+<<<<<<< HEAD
 		if (unlikely(dd->do_drop &&
 			     atomic_xchg(&dd->drop_packet, DROP_PACKET_OFF) ==
 			     DROP_PACKET_ON)) {
 			dd->do_drop = 0;
 
+=======
+		if (hfi1_need_drop(dd)) {
+>>>>>>> upstream/android-13
 			/* On to the next packet */
 			packet.rhqoff += packet.rsize;
 			packet.rhf_addr = (__le32 *)rcd->rcvhdrq +
@@ -1067,14 +1313,19 @@ int handle_receive_interrupt(struct hfi1_ctxtdata *rcd, int thread)
 			last = skip_rcv_packet(&packet, thread);
 			skip_pkt = 0;
 		} else {
+<<<<<<< HEAD
 			/* Auto activate link on non-SC15 packet receive */
 			if (unlikely(rcd->ppd->host_link_state ==
 				     HLS_UP_ARMED) &&
 			    set_armed_to_active(rcd, &packet, dd))
+=======
+			if (set_armed_to_active(&packet))
+>>>>>>> upstream/android-13
 				goto bail;
 			last = process_rcv_packet(&packet, thread);
 		}
 
+<<<<<<< HEAD
 		if (!HFI1_CAP_KGET_MASK(rcd->flags, DMA_RTAIL)) {
 			u32 seq = rhf_rcv_seq(packet.rhf);
 
@@ -1087,6 +1338,11 @@ int handle_receive_interrupt(struct hfi1_ctxtdata *rcd, int thread)
 				set_nodma_rtail(dd, rcd->ctxt);
 				needset = 0;
 			}
+=======
+		if (!get_dma_rtail_setting(rcd)) {
+			if (hfi1_seq_incr(rcd, rhf_rcv_seq(packet.rhf)))
+				last = RCV_PKT_DONE;
+>>>>>>> upstream/android-13
 		} else {
 			if (packet.rhqoff == hdrqtail)
 				last = RCV_PKT_DONE;
@@ -1095,6 +1351,7 @@ int handle_receive_interrupt(struct hfi1_ctxtdata *rcd, int thread)
 			 * rhf. Drop such packets.
 			 */
 			if (rcd->ctxt == HFI1_CTRL_CTXT) {
+<<<<<<< HEAD
 				u32 seq = rhf_rcv_seq(packet.rhf);
 
 				if (++rcd->seq_cnt > 13)
@@ -1111,11 +1368,30 @@ int handle_receive_interrupt(struct hfi1_ctxtdata *rcd, int thread)
 			}
 		}
 
+=======
+				bool lseq;
+
+				lseq = hfi1_seq_incr(rcd,
+						     rhf_rcv_seq(packet.rhf));
+				if (!last && lseq)
+					skip_pkt = 1;
+			}
+		}
+
+		if (needset) {
+			needset = false;
+			set_all_fastpath(dd, rcd);
+		}
+>>>>>>> upstream/android-13
 		process_rcv_update(last, &packet);
 	}
 
 	process_rcv_qp_work(&packet);
+<<<<<<< HEAD
 	rcd->head = packet.rhqoff;
+=======
+	hfi1_set_rcd_head(rcd, packet.rhqoff);
+>>>>>>> upstream/android-13
 
 bail:
 	/*
@@ -1127,6 +1403,66 @@ bail:
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * handle_receive_interrupt_napi_sp - receive a packet
+ * @rcd: the context
+ * @budget: polling budget
+ *
+ * Called from interrupt handler for errors or receive interrupt.
+ * This is the slow path interrupt handler
+ * when executing napi soft irq environment.
+ */
+int handle_receive_interrupt_napi_sp(struct hfi1_ctxtdata *rcd, int budget)
+{
+	struct hfi1_devdata *dd = rcd->dd;
+	int last = RCV_PKT_OK;
+	bool needset = true;
+	struct hfi1_packet packet;
+
+	init_packet(rcd, &packet);
+	if (last_rcv_seq(rcd, rhf_rcv_seq(packet.rhf)))
+		goto bail;
+
+	while (last != RCV_PKT_DONE && packet.numpkt < budget) {
+		if (hfi1_need_drop(dd)) {
+			/* On to the next packet */
+			packet.rhqoff += packet.rsize;
+			packet.rhf_addr = (__le32 *)rcd->rcvhdrq +
+					  packet.rhqoff +
+					  rcd->rhf_offset;
+			packet.rhf = rhf_to_cpu(packet.rhf_addr);
+
+		} else {
+			if (set_armed_to_active(&packet))
+				goto bail;
+			process_rcv_packet_napi(&packet);
+		}
+
+		if (hfi1_seq_incr(rcd, rhf_rcv_seq(packet.rhf)))
+			last = RCV_PKT_DONE;
+
+		if (needset) {
+			needset = false;
+			set_all_fastpath(dd, rcd);
+		}
+
+		process_rcv_update(last, &packet);
+	}
+
+	hfi1_set_rcd_head(rcd, packet.rhqoff);
+
+bail:
+	/*
+	 * Always write head at end, and setup rcv interrupt, even
+	 * if no packets were processed.
+	 */
+	finish_packet(&packet);
+	return packet.numpkt;
+}
+
+/*
+>>>>>>> upstream/android-13
  * We may discover in the interrupt that the hardware link state has
  * changed from ARMED to ACTIVE (due to the arrival of a non-SC15 packet),
  * and we need to update the driver's notion of the link state.  We cannot
@@ -1427,7 +1763,11 @@ static int hfi1_bypass_ingress_pkt_check(struct hfi1_packet *packet)
 	if ((!(hfi1_is_16B_mcast(packet->dlid))) &&
 	    (packet->dlid !=
 		opa_get_lid(be32_to_cpu(OPA_LID_PERMISSIVE), 16B))) {
+<<<<<<< HEAD
 		if (packet->dlid != ppd->lid)
+=======
+		if ((packet->dlid & ~((1 << ppd->lmc) - 1)) != ppd->lid)
+>>>>>>> upstream/android-13
 			return -EINVAL;
 	}
 
@@ -1576,11 +1916,16 @@ drop:
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 void handle_eflags(struct hfi1_packet *packet)
+=======
+static void show_eflags_errs(struct hfi1_packet *packet)
+>>>>>>> upstream/android-13
 {
 	struct hfi1_ctxtdata *rcd = packet->rcd;
 	u32 rte = rhf_rcv_type_err(packet->rhf);
 
+<<<<<<< HEAD
 	rcv_hdrerr(rcd, rcd->ppd, packet);
 	if (rhf_err_flags(packet->rhf))
 		dd_dev_err(rcd->dd,
@@ -1595,12 +1940,109 @@ void handle_eflags(struct hfi1_packet *packet)
 			   packet->rhf & RHF_VCRC_ERR ? "vcrc " : "",
 			   packet->rhf & RHF_ICRC_ERR ? "icrc " : "",
 			   rte);
+=======
+	dd_dev_err(rcd->dd,
+		   "receive context %d: rhf 0x%016llx, errs [ %s%s%s%s%s%s%s] rte 0x%x\n",
+		   rcd->ctxt, packet->rhf,
+		   packet->rhf & RHF_K_HDR_LEN_ERR ? "k_hdr_len " : "",
+		   packet->rhf & RHF_DC_UNC_ERR ? "dc_unc " : "",
+		   packet->rhf & RHF_DC_ERR ? "dc " : "",
+		   packet->rhf & RHF_TID_ERR ? "tid " : "",
+		   packet->rhf & RHF_LEN_ERR ? "len " : "",
+		   packet->rhf & RHF_ECC_ERR ? "ecc " : "",
+		   packet->rhf & RHF_ICRC_ERR ? "icrc " : "",
+		   rte);
+}
+
+void handle_eflags(struct hfi1_packet *packet)
+{
+	struct hfi1_ctxtdata *rcd = packet->rcd;
+
+	rcv_hdrerr(rcd, rcd->ppd, packet);
+	if (rhf_err_flags(packet->rhf))
+		show_eflags_errs(packet);
+}
+
+static void hfi1_ipoib_ib_rcv(struct hfi1_packet *packet)
+{
+	struct hfi1_ibport *ibp;
+	struct net_device *netdev;
+	struct hfi1_ctxtdata *rcd = packet->rcd;
+	struct napi_struct *napi = rcd->napi;
+	struct sk_buff *skb;
+	struct hfi1_netdev_rxq *rxq = container_of(napi,
+			struct hfi1_netdev_rxq, napi);
+	u32 extra_bytes;
+	u32 tlen, qpnum;
+	bool do_work, do_cnp;
+
+	trace_hfi1_rcvhdr(packet);
+
+	hfi1_setup_ib_header(packet);
+
+	packet->ohdr = &((struct ib_header *)packet->hdr)->u.oth;
+	packet->grh = NULL;
+
+	if (unlikely(rhf_err_flags(packet->rhf))) {
+		handle_eflags(packet);
+		return;
+	}
+
+	qpnum = ib_bth_get_qpn(packet->ohdr);
+	netdev = hfi1_netdev_get_data(rcd->dd, qpnum);
+	if (!netdev)
+		goto drop_no_nd;
+
+	trace_input_ibhdr(rcd->dd, packet, !!(rhf_dc_info(packet->rhf)));
+	trace_ctxt_rsm_hist(rcd->ctxt);
+
+	/* handle congestion notifications */
+	do_work = hfi1_may_ecn(packet);
+	if (unlikely(do_work)) {
+		do_cnp = (packet->opcode != IB_OPCODE_CNP);
+		(void)hfi1_process_ecn_slowpath(hfi1_ipoib_priv(netdev)->qp,
+						 packet, do_cnp);
+	}
+
+	/*
+	 * We have split point after last byte of DETH
+	 * lets strip padding and CRC and ICRC.
+	 * tlen is whole packet len so we need to
+	 * subtract header size as well.
+	 */
+	tlen = packet->tlen;
+	extra_bytes = ib_bth_get_pad(packet->ohdr) + (SIZE_OF_CRC << 2) +
+			packet->hlen;
+	if (unlikely(tlen < extra_bytes))
+		goto drop;
+
+	tlen -= extra_bytes;
+
+	skb = hfi1_ipoib_prepare_skb(rxq, tlen, packet->ebuf);
+	if (unlikely(!skb))
+		goto drop;
+
+	dev_sw_netstats_rx_add(netdev, skb->len);
+
+	skb->dev = netdev;
+	skb->pkt_type = PACKET_HOST;
+	netif_receive_skb(skb);
+
+	return;
+
+drop:
+	++netdev->stats.rx_dropped;
+drop_no_nd:
+	ibp = rcd_to_iport(packet->rcd);
+	++ibp->rvp.n_pkt_drops;
+>>>>>>> upstream/android-13
 }
 
 /*
  * The following functions are called by the interrupt handler. They are type
  * specific handlers for each packet type.
  */
+<<<<<<< HEAD
 static int process_receive_ib(struct hfi1_packet *packet)
 {
 	if (hfi1_setup_9B_packet(packet))
@@ -1608,11 +2050,21 @@ static int process_receive_ib(struct hfi1_packet *packet)
 
 	if (unlikely(hfi1_dbg_should_fault_rx(packet)))
 		return RHF_RCV_CONTINUE;
+=======
+static void process_receive_ib(struct hfi1_packet *packet)
+{
+	if (hfi1_setup_9B_packet(packet))
+		return;
+
+	if (unlikely(hfi1_dbg_should_fault_rx(packet)))
+		return;
+>>>>>>> upstream/android-13
 
 	trace_hfi1_rcvhdr(packet);
 
 	if (unlikely(rhf_err_flags(packet->rhf))) {
 		handle_eflags(packet);
+<<<<<<< HEAD
 		return RHF_RCV_CONTINUE;
 	}
 
@@ -1644,12 +2096,30 @@ static int process_receive_bypass(struct hfi1_packet *packet)
 
 	if (hfi1_setup_bypass_packet(packet))
 		return RHF_RCV_CONTINUE;
+=======
+		return;
+	}
+
+	hfi1_ib_rcv(packet);
+}
+
+static void process_receive_bypass(struct hfi1_packet *packet)
+{
+	struct hfi1_devdata *dd = packet->rcd->dd;
+
+	if (hfi1_setup_bypass_packet(packet))
+		return;
+>>>>>>> upstream/android-13
 
 	trace_hfi1_rcvhdr(packet);
 
 	if (unlikely(rhf_err_flags(packet->rhf))) {
 		handle_eflags(packet);
+<<<<<<< HEAD
 		return RHF_RCV_CONTINUE;
+=======
+		return;
+>>>>>>> upstream/android-13
 	}
 
 	if (hfi1_16B_get_l2(packet->hdr) == 0x2) {
@@ -1672,17 +2142,27 @@ static int process_receive_bypass(struct hfi1_packet *packet)
 				(OPA_EI_STATUS_SMASK | BAD_L2_ERR);
 		}
 	}
+<<<<<<< HEAD
 	return RHF_RCV_CONTINUE;
 }
 
 static int process_receive_error(struct hfi1_packet *packet)
+=======
+}
+
+static void process_receive_error(struct hfi1_packet *packet)
+>>>>>>> upstream/android-13
 {
 	/* KHdrHCRCErr -- KDETH packet with a bad HCRC */
 	if (unlikely(
 		 hfi1_dbg_fault_suppress_err(&packet->rcd->dd->verbs_dev) &&
 		 (rhf_rcv_type_err(packet->rhf) == RHF_RCV_TYPE_ERROR ||
 		  packet->rhf & RHF_DC_ERR)))
+<<<<<<< HEAD
 		return RHF_RCV_CONTINUE;
+=======
+		return;
+>>>>>>> upstream/android-13
 
 	hfi1_setup_ib_header(packet);
 	handle_eflags(packet);
@@ -1690,6 +2170,7 @@ static int process_receive_error(struct hfi1_packet *packet)
 	if (unlikely(rhf_err_flags(packet->rhf)))
 		dd_dev_err(packet->rcd->dd,
 			   "Unhandled error packet received. Dropping.\n");
+<<<<<<< HEAD
 
 	return RHF_RCV_CONTINUE;
 }
@@ -1728,10 +2209,57 @@ static int process_receive_invalid(struct hfi1_packet *packet)
 	return RHF_RCV_CONTINUE;
 }
 
+=======
+}
+
+static void kdeth_process_expected(struct hfi1_packet *packet)
+{
+	hfi1_setup_9B_packet(packet);
+	if (unlikely(hfi1_dbg_should_fault_rx(packet)))
+		return;
+
+	if (unlikely(rhf_err_flags(packet->rhf))) {
+		struct hfi1_ctxtdata *rcd = packet->rcd;
+
+		if (hfi1_handle_kdeth_eflags(rcd, rcd->ppd, packet))
+			return;
+	}
+
+	hfi1_kdeth_expected_rcv(packet);
+}
+
+static void kdeth_process_eager(struct hfi1_packet *packet)
+{
+	hfi1_setup_9B_packet(packet);
+	if (unlikely(hfi1_dbg_should_fault_rx(packet)))
+		return;
+
+	trace_hfi1_rcvhdr(packet);
+	if (unlikely(rhf_err_flags(packet->rhf))) {
+		struct hfi1_ctxtdata *rcd = packet->rcd;
+
+		show_eflags_errs(packet);
+		if (hfi1_handle_kdeth_eflags(rcd, rcd->ppd, packet))
+			return;
+	}
+
+	hfi1_kdeth_eager_rcv(packet);
+}
+
+static void process_receive_invalid(struct hfi1_packet *packet)
+{
+	dd_dev_err(packet->rcd->dd, "Invalid packet type %d. Dropping\n",
+		   rhf_rcv_type(packet->rhf));
+}
+
+#define HFI1_RCVHDR_DUMP_MAX	5
+
+>>>>>>> upstream/android-13
 void seqfile_dump_rcd(struct seq_file *s, struct hfi1_ctxtdata *rcd)
 {
 	struct hfi1_packet packet;
 	struct ps_mdata mdata;
+<<<<<<< HEAD
 
 	seq_printf(s, "Rcd %u: RcvHdr cnt %u entsize %u %s head %llu tail %llu\n",
 		   rcd->ctxt, rcd->rcvhdrq_cnt, rcd->rcvhdrqentsize,
@@ -1740,11 +2268,29 @@ void seqfile_dump_rcd(struct seq_file *s, struct hfi1_ctxtdata *rcd)
 		   read_uctxt_csr(rcd->dd, rcd->ctxt, RCV_HDR_HEAD) &
 		   RCV_HDR_HEAD_HEAD_MASK,
 		   read_uctxt_csr(rcd->dd, rcd->ctxt, RCV_HDR_TAIL));
+=======
+	int i;
+
+	seq_printf(s, "Rcd %u: RcvHdr cnt %u entsize %u %s ctrl 0x%08llx status 0x%08llx, head %llu tail %llu  sw head %u\n",
+		   rcd->ctxt, get_hdrq_cnt(rcd), get_hdrqentsize(rcd),
+		   get_dma_rtail_setting(rcd) ?
+		   "dma_rtail" : "nodma_rtail",
+		   read_kctxt_csr(rcd->dd, rcd->ctxt, RCV_CTXT_CTRL),
+		   read_kctxt_csr(rcd->dd, rcd->ctxt, RCV_CTXT_STATUS),
+		   read_uctxt_csr(rcd->dd, rcd->ctxt, RCV_HDR_HEAD) &
+		   RCV_HDR_HEAD_HEAD_MASK,
+		   read_uctxt_csr(rcd->dd, rcd->ctxt, RCV_HDR_TAIL),
+		   rcd->head);
+>>>>>>> upstream/android-13
 
 	init_packet(rcd, &packet);
 	init_ps_mdata(&mdata, &packet);
 
+<<<<<<< HEAD
 	while (1) {
+=======
+	for (i = 0; i < HFI1_RCVHDR_DUMP_MAX; i++) {
+>>>>>>> upstream/android-13
 		__le32 *rhf_addr = (__le32 *)rcd->rcvhdrq + mdata.ps_head +
 					 rcd->rhf_offset;
 		struct ib_header *hdr;
@@ -1796,3 +2342,17 @@ const rhf_rcv_function_ptr normal_rhf_rcv_functions[] = {
 	[RHF_RCV_TYPE_INVALID6] = process_receive_invalid,
 	[RHF_RCV_TYPE_INVALID7] = process_receive_invalid,
 };
+<<<<<<< HEAD
+=======
+
+const rhf_rcv_function_ptr netdev_rhf_rcv_functions[] = {
+	[RHF_RCV_TYPE_EXPECTED] = process_receive_invalid,
+	[RHF_RCV_TYPE_EAGER] = process_receive_invalid,
+	[RHF_RCV_TYPE_IB] = hfi1_ipoib_ib_rcv,
+	[RHF_RCV_TYPE_ERROR] = process_receive_error,
+	[RHF_RCV_TYPE_BYPASS] = hfi1_vnic_bypass_rcv,
+	[RHF_RCV_TYPE_INVALID5] = process_receive_invalid,
+	[RHF_RCV_TYPE_INVALID6] = process_receive_invalid,
+	[RHF_RCV_TYPE_INVALID7] = process_receive_invalid,
+};
+>>>>>>> upstream/android-13

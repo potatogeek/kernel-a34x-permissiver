@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Renesas Technology Sales RTS7751R2D Support.
  *
  * Copyright (C) 2002 - 2006 Atom Create Engineering Co., Ltd.
  * Copyright (C) 2004 - 2007 Paul Mundt
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/init.h>
 #include <linux/platform_device.h>

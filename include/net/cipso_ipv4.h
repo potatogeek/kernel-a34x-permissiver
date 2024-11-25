@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * CIPSO - Commercial IP Security Option
  *
@@ -9,11 +13,15 @@
  * de-facto standard for labeled networking.
  *
  * Author: Paul Moore <paul@paul-moore.com>
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
  * (c) Copyright Hewlett-Packard Development Company, L.P., 2006
+<<<<<<< HEAD
  *
  * This program is free software;  you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +36,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program;  if not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _CIPSO_IPV4_H
@@ -164,6 +174,7 @@ static inline int cipso_v4_doi_walk(u32 *skip_cnt,
 {
 	return 0;
 }
+<<<<<<< HEAD
 
 static inline int cipso_v4_doi_domhsh_add(struct cipso_v4_doi *doi_def,
 					  const char *domain)
@@ -176,6 +187,8 @@ static inline int cipso_v4_doi_domhsh_remove(struct cipso_v4_doi *doi_def,
 {
 	return 0;
 }
+=======
+>>>>>>> upstream/android-13
 #endif /* CONFIG_NETLABEL */
 
 /*

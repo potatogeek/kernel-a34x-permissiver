@@ -1,6 +1,10 @@
+<<<<<<< HEAD
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 2 as published
 # by the Free Software Foundation.#
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 # Makefile for the Ralink common stuff
 #
 # Copyright (C) 2009-2011 Gabor Juhos <juhosg@openwrt.org>

@@ -17,6 +17,7 @@
 # Mike Shaver, Helge Deller and Martin K. Petersen
 #
 
+<<<<<<< HEAD
 KBUILD_IMAGE := vmlinuz
 
 KBUILD_DEFCONFIG := default_defconfig
@@ -25,10 +26,22 @@ NM		= sh $(srctree)/arch/parisc/nm
 CHECKFLAGS	+= -D__hppa__=1
 LIBGCC		= $(shell $(CC) $(KBUILD_CFLAGS) -print-libgcc-file-name)
 export LIBGCC
+=======
+ifdef CONFIG_PARISC_SELF_EXTRACT
+boot := arch/parisc/boot
+KBUILD_IMAGE := $(boot)/bzImage
+else
+KBUILD_IMAGE := vmlinuz
+endif
+
+NM		= sh $(srctree)/arch/parisc/nm
+CHECKFLAGS	+= -D__hppa__=1
+>>>>>>> upstream/android-13
 
 ifdef CONFIG_64BIT
 UTS_MACHINE	:= parisc64
 CHECKFLAGS	+= -D__LP64__=1
+<<<<<<< HEAD
 CC_ARCHES	= hppa64
 LD_BFD		:= elf64-hppa-linux
 else # 32-bit
@@ -39,6 +52,25 @@ endif
 export LD_BFD
 
 ifneq ($(SUBARCH),$(UTS_MACHINE))
+=======
+LD_BFD		:= elf64-hppa-linux
+else # 32-bit
+LD_BFD		:= elf32-hppa-linux
+endif
+
+# select defconfig based on actual architecture
+ifeq ($(ARCH),parisc64)
+	KBUILD_DEFCONFIG := generic-64bit_defconfig
+	CC_ARCHES := hppa64
+else
+	KBUILD_DEFCONFIG := generic-32bit_defconfig
+	CC_ARCHES := hppa hppa2.0 hppa1.1
+endif
+
+export LD_BFD
+
+ifdef cross_compiling
+>>>>>>> upstream/android-13
 	ifeq ($(CROSS_COMPILE),)
 		CC_SUFFIXES = linux linux-gnu unknown-linux-gnu
 		CROSS_COMPILE := $(call cc-cross-prefix, \
@@ -47,6 +79,26 @@ ifneq ($(SUBARCH),$(UTS_MACHINE))
 	endif
 endif
 
+<<<<<<< HEAD
+=======
+ifdef CONFIG_DYNAMIC_FTRACE
+ifdef CONFIG_64BIT
+NOP_COUNT := 8
+else
+NOP_COUNT := 5
+endif
+
+export CC_USING_RECORD_MCOUNT:=1
+export CC_USING_PATCHABLE_FUNCTION_ENTRY:=1
+
+KBUILD_AFLAGS += -DCC_USING_PATCHABLE_FUNCTION_ENTRY=1
+KBUILD_CFLAGS += -DCC_USING_PATCHABLE_FUNCTION_ENTRY=1 \
+		 -DFTRACE_PATCHABLE_FUNCTION_SIZE=$(NOP_COUNT)
+
+CC_FLAGS_FTRACE := -fpatchable-function-entry=$(NOP_COUNT),$(shell echo $$(($(NOP_COUNT)-1)))
+endif
+
+>>>>>>> upstream/android-13
 OBJCOPY_FLAGS =-O binary -R .note -R .comment -S
 
 cflags-y	:= -pipe
@@ -88,6 +140,7 @@ cflags-$(CONFIG_PA8X00)		+= -march=2.0 -mschedule=8000
 head-y			:= arch/parisc/kernel/head.o 
 
 KBUILD_CFLAGS	+= $(cflags-y)
+<<<<<<< HEAD
 
 kernel-y			:= mm/ kernel/ math-emu/
 
@@ -96,14 +149,26 @@ libs-y	+= arch/parisc/lib/ $(LIBGCC)
 
 drivers-$(CONFIG_OPROFILE)		+= arch/parisc/oprofile/
 
+=======
+LIBGCC		:= $(shell $(CC) -print-libgcc-file-name)
+export LIBGCC
+
+libs-y	+= arch/parisc/lib/ $(LIBGCC)
+
+>>>>>>> upstream/android-13
 boot	:= arch/parisc/boot
 
 PALO := $(shell if (which palo 2>&1); then : ; \
 	elif [ -x /sbin/palo ]; then echo /sbin/palo; \
 	fi)
 
+<<<<<<< HEAD
 PALOCONF := $(shell if [ -f $(src)/palo.conf ]; then echo $(src)/palo.conf; \
 	else echo $(obj)/palo.conf; \
+=======
+PALOCONF := $(shell if [ -f $(srctree)/palo.conf ]; then echo $(srctree)/palo.conf; \
+	else echo $(objtree)/palo.conf; \
+>>>>>>> upstream/android-13
 	fi)
 
 palo lifimage: vmlinuz
@@ -113,8 +178,13 @@ palo lifimage: vmlinuz
 		false; \
 	fi
 	@if test ! -f "$(PALOCONF)"; then \
+<<<<<<< HEAD
 		cp $(src)/arch/parisc/defpalo.conf $(obj)/palo.conf; \
 		echo 'A generic palo config file ($(obj)/palo.conf) has been created for you.'; \
+=======
+		cp $(srctree)/arch/parisc/defpalo.conf $(objtree)/palo.conf; \
+		echo 'A generic palo config file ($(objree)/palo.conf) has been created for you.'; \
+>>>>>>> upstream/android-13
 		echo 'You should check it and re-run "make palo".'; \
 		echo 'WARNING: the "lifimage" file is now placed in this directory by default!'; \
 		false; \
@@ -140,6 +210,7 @@ vmlinuz: bzImage
 	$(OBJCOPY) $(boot)/bzImage $@
 else
 vmlinuz: vmlinux
+<<<<<<< HEAD
 	@gzip -cf -9 $< > $@
 endif
 
@@ -148,6 +219,16 @@ install:
 			$(KERNELRELEASE) vmlinux System.map "$(INSTALL_PATH)"
 zinstall:
 	$(CONFIG_SHELL) $(src)/arch/parisc/install.sh \
+=======
+	@$(KGZIP) -cf -9 $< > $@
+endif
+
+install:
+	$(CONFIG_SHELL) $(srctree)/arch/parisc/install.sh \
+			$(KERNELRELEASE) vmlinux System.map "$(INSTALL_PATH)"
+zinstall:
+	$(CONFIG_SHELL) $(srctree)/arch/parisc/install.sh \
+>>>>>>> upstream/android-13
 			$(KERNELRELEASE) vmlinuz System.map "$(INSTALL_PATH)"
 
 CLEAN_FILES	+= lifimage
@@ -164,6 +245,7 @@ define archhelp
 	@echo  '  zinstall	- Install compressed vmlinuz kernel'
 endef
 
+<<<<<<< HEAD
 # we require gcc 3.3 or above to compile the kernel
 archprepare: checkbin
 checkbin:
@@ -172,3 +254,10 @@ checkbin:
 		echo "the kernel." ; \
 		false ; \
 	fi
+=======
+archclean:
+	$(Q)$(MAKE) $(clean)=$(boot)
+
+archheaders:
+	$(Q)$(MAKE) $(build)=arch/parisc/kernel/syscalls all
+>>>>>>> upstream/android-13

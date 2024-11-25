@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Ptrace test for TAR, PPR, DSCR registers
  *
  * Copyright (C) 2015 Anshuman Khandual, IBM Corporation.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include "ptrace.h"
 #include "ptrace-tar.h"
@@ -82,6 +89,12 @@ int ptrace_tar(void)
 	pid_t pid;
 	int ret, status;
 
+<<<<<<< HEAD
+=======
+	// TAR was added in v2.07
+	SKIP_IF(!have_hwcap2(PPC_FEATURE2_ARCH_2_07));
+
+>>>>>>> upstream/android-13
 	shm_id = shmget(IPC_PRIVATE, sizeof(int) * 3, 0777|IPC_CREAT);
 	pid = fork();
 	if (pid < 0) {

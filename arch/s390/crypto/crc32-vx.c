@@ -111,10 +111,15 @@ static int crc32_vx_setkey(struct crypto_shash *tfm, const u8 *newkey,
 {
 	struct crc_ctx *mctx = crypto_shash_ctx(tfm);
 
+<<<<<<< HEAD
 	if (newkeylen != sizeof(mctx->key)) {
 		crypto_shash_set_flags(tfm, CRYPTO_TFM_RES_BAD_KEY_LEN);
 		return -EINVAL;
 	}
+=======
+	if (newkeylen != sizeof(mctx->key))
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	mctx->key = le32_to_cpu(*(__le32 *)newkey);
 	return 0;
 }
@@ -124,10 +129,15 @@ static int crc32be_vx_setkey(struct crypto_shash *tfm, const u8 *newkey,
 {
 	struct crc_ctx *mctx = crypto_shash_ctx(tfm);
 
+<<<<<<< HEAD
 	if (newkeylen != sizeof(mctx->key)) {
 		crypto_shash_set_flags(tfm, CRYPTO_TFM_RES_BAD_KEY_LEN);
 		return -EINVAL;
 	}
+=======
+	if (newkeylen != sizeof(mctx->key))
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	mctx->key = be32_to_cpu(*(__be32 *)newkey);
 	return 0;
 }

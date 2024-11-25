@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * c 2001 PPC 64 Team, IBM Corp
  *
@@ -5,18 +6,35 @@
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * c 2001 PPC 64 Team, IBM Corp
+>>>>>>> upstream/android-13
  */
 
 #include <linux/smp.h>
 #include <linux/export.h>
 #include <linux/memblock.h>
 #include <linux/sched/task.h>
+<<<<<<< HEAD
+=======
+#include <linux/numa.h>
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 #include <asm/lppaca.h>
 #include <asm/paca.h>
 #include <asm/sections.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
 #include <asm/kexec.h>
+=======
+#include <asm/kexec.h>
+#include <asm/svm.h>
+#include <asm/ultravisor.h>
+#include <asm/rtas.h>
+>>>>>>> upstream/android-13
 
 #include "setup.h"
 
@@ -27,7 +45,11 @@
 static void *__init alloc_paca_data(unsigned long size, unsigned long align,
 				unsigned long limit, int cpu)
 {
+<<<<<<< HEAD
 	unsigned long pa;
+=======
+	void *ptr;
+>>>>>>> upstream/android-13
 	int nid;
 
 	/*
@@ -36,27 +58,89 @@ static void *__init alloc_paca_data(unsigned long size, unsigned long align,
 	 * which will put its paca in the right place.
 	 */
 	if (cpu == boot_cpuid) {
+<<<<<<< HEAD
 		nid = -1;
+=======
+		nid = NUMA_NO_NODE;
+>>>>>>> upstream/android-13
 		memblock_set_bottom_up(true);
 	} else {
 		nid = early_cpu_to_node(cpu);
 	}
 
+<<<<<<< HEAD
 	pa = memblock_alloc_base_nid(size, align, limit, nid, MEMBLOCK_NONE);
 	if (!pa) {
 		pa = memblock_alloc_base(size, align, limit);
 		if (!pa)
 			panic("cannot allocate paca data");
 	}
+=======
+	ptr = memblock_alloc_try_nid(size, align, MEMBLOCK_LOW_LIMIT,
+				     limit, nid);
+	if (!ptr)
+		panic("cannot allocate paca data");
+>>>>>>> upstream/android-13
 
 	if (cpu == boot_cpuid)
 		memblock_set_bottom_up(false);
 
+<<<<<<< HEAD
 	return __va(pa);
+=======
+	return ptr;
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_PPC_PSERIES
 
+<<<<<<< HEAD
+=======
+#define LPPACA_SIZE 0x400
+
+static void *__init alloc_shared_lppaca(unsigned long size, unsigned long limit,
+					int cpu)
+{
+	size_t shared_lppaca_total_size = PAGE_ALIGN(nr_cpu_ids * LPPACA_SIZE);
+	static unsigned long shared_lppaca_size;
+	static void *shared_lppaca;
+	void *ptr;
+
+	if (!shared_lppaca) {
+		memblock_set_bottom_up(true);
+
+		/*
+		 * See Documentation/powerpc/ultravisor.rst for more details.
+		 *
+		 * UV/HV data sharing is in PAGE_SIZE granularity. In order to
+		 * minimize the number of pages shared, align the allocation to
+		 * PAGE_SIZE.
+		 */
+		shared_lppaca =
+			memblock_alloc_try_nid(shared_lppaca_total_size,
+					       PAGE_SIZE, MEMBLOCK_LOW_LIMIT,
+					       limit, NUMA_NO_NODE);
+		if (!shared_lppaca)
+			panic("cannot allocate shared data");
+
+		memblock_set_bottom_up(false);
+		uv_share_page(PHYS_PFN(__pa(shared_lppaca)),
+			      shared_lppaca_total_size >> PAGE_SHIFT);
+	}
+
+	ptr = shared_lppaca + shared_lppaca_size;
+	shared_lppaca_size += size;
+
+	/*
+	 * This is very early in boot, so no harm done if the kernel crashes at
+	 * this point.
+	 */
+	BUG_ON(shared_lppaca_size > shared_lppaca_total_size);
+
+	return ptr;
+}
+
+>>>>>>> upstream/android-13
 /*
  * See asm/lppaca.h for more detail.
  *
@@ -70,7 +154,11 @@ static inline void init_lppaca(struct lppaca *lppaca)
 
 	*lppaca = (struct lppaca) {
 		.desc = cpu_to_be32(0xd397d781),	/* "LpPa" */
+<<<<<<< HEAD
 		.size = cpu_to_be16(0x400),
+=======
+		.size = cpu_to_be16(LPPACA_SIZE),
+>>>>>>> upstream/android-13
 		.fpregs_in_use = 1,
 		.slb_count = cpu_to_be16(64),
 		.vmxregs_in_use = 0,
@@ -80,19 +168,36 @@ static inline void init_lppaca(struct lppaca *lppaca)
 static struct lppaca * __init new_lppaca(int cpu, unsigned long limit)
 {
 	struct lppaca *lp;
+<<<<<<< HEAD
 	size_t size = 0x400;
 
 	BUILD_BUG_ON(size < sizeof(struct lppaca));
+=======
+
+	BUILD_BUG_ON(sizeof(struct lppaca) > LPPACA_SIZE);
+>>>>>>> upstream/android-13
 
 	if (early_cpu_has_feature(CPU_FTR_HVMODE))
 		return NULL;
 
+<<<<<<< HEAD
 	lp = alloc_paca_data(size, 0x400, limit, cpu);
+=======
+	if (is_secure_guest())
+		lp = alloc_shared_lppaca(LPPACA_SIZE, limit, cpu);
+	else
+		lp = alloc_paca_data(LPPACA_SIZE, 0x400, limit, cpu);
+
+>>>>>>> upstream/android-13
 	init_lppaca(lp);
 
 	return lp;
 }
+<<<<<<< HEAD
 #endif /* CONFIG_PPC_BOOK3S */
+=======
+#endif /* CONFIG_PPC_PSERIES */
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PPC_BOOK3S_64
 
@@ -118,7 +223,10 @@ static struct slb_shadow * __init new_slb_shadow(int cpu, unsigned long limit)
 	}
 
 	s = alloc_paca_data(sizeof(*s), L1_CACHE_BYTES, limit, cpu);
+<<<<<<< HEAD
 	memset(s, 0, sizeof(*s));
+=======
+>>>>>>> upstream/android-13
 
 	s->persistent = cpu_to_be32(SLB_NUM_BOLTED);
 	s->buffer_length = cpu_to_be32(sizeof(*s));
@@ -128,6 +236,33 @@ static struct slb_shadow * __init new_slb_shadow(int cpu, unsigned long limit)
 
 #endif /* CONFIG_PPC_BOOK3S_64 */
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PPC_PSERIES
+/**
+ * new_rtas_args() - Allocates rtas args
+ * @cpu:	CPU number
+ * @limit:	Memory limit for this allocation
+ *
+ * Allocates a struct rtas_args and return it's pointer,
+ * if not in Hypervisor mode
+ *
+ * Return:	Pointer to allocated rtas_args
+ *		NULL if CPU in Hypervisor Mode
+ */
+static struct rtas_args * __init new_rtas_args(int cpu, unsigned long limit)
+{
+	limit = min_t(unsigned long, limit, RTAS_INSTANTIATE_MAX);
+
+	if (early_cpu_has_feature(CPU_FTR_HVMODE))
+		return NULL;
+
+	return alloc_paca_data(sizeof(struct rtas_args), L1_CACHE_BYTES,
+			       limit, cpu);
+}
+#endif /* CONFIG_PPC_PSERIES */
+
+>>>>>>> upstream/android-13
 /* The Paca is an array with one entry per processor.  Each contains an
  * lppaca, which contains the information shared between the
  * hypervisor and Linux.
@@ -166,6 +301,13 @@ void __init initialise_paca(struct paca_struct *new_paca, int cpu)
 	/* For now -- if we have threads this will be adjusted later */
 	new_paca->tcd_ptr = &new_paca->tcd;
 #endif
+<<<<<<< HEAD
+=======
+
+#ifdef CONFIG_PPC_PSERIES
+	new_paca->rtas_args_reentrant = NULL;
+#endif
+>>>>>>> upstream/android-13
 }
 
 /* Put the paca pointer into r13 and SPRG_PACA */
@@ -178,11 +320,23 @@ void setup_paca(struct paca_struct *new_paca)
 	/* On Book3E, initialize the TLB miss exception frames */
 	mtspr(SPRN_SPRG_TLB_EXFRAME, local_paca->extlb);
 #else
+<<<<<<< HEAD
 	/* In HV mode, we setup both HPACA and PACA to avoid problems
 	 * if we do a GET_PACA() before the feature fixups have been
 	 * applied
 	 */
 	if (early_cpu_has_feature(CPU_FTR_HVMODE))
+=======
+	/*
+	 * In HV mode, we setup both HPACA and PACA to avoid problems
+	 * if we do a GET_PACA() before the feature fixups have been
+	 * applied.
+	 *
+	 * Normally you should test against CPU_FTR_HVMODE, but CPU features
+	 * are not yet set up when we first reach here.
+	 */
+	if (mfmsr() & MSR_HV)
+>>>>>>> upstream/android-13
 		mtspr(SPRN_SPRG_HPACA, local_paca);
 #endif
 	mtspr(SPRN_SPRG_PACA, local_paca);
@@ -198,7 +352,15 @@ void __init allocate_paca_ptrs(void)
 	paca_nr_cpu_ids = nr_cpu_ids;
 
 	paca_ptrs_size = sizeof(struct paca_struct *) * nr_cpu_ids;
+<<<<<<< HEAD
 	paca_ptrs = __va(memblock_alloc(paca_ptrs_size, 0));
+=======
+	paca_ptrs = memblock_alloc_raw(paca_ptrs_size, SMP_CACHE_BYTES);
+	if (!paca_ptrs)
+		panic("Failed to allocate %d bytes for paca pointers\n",
+		      paca_ptrs_size);
+
+>>>>>>> upstream/android-13
 	memset(paca_ptrs, 0x88, paca_ptrs_size);
 }
 
@@ -222,7 +384,10 @@ void __init allocate_paca(int cpu)
 	paca = alloc_paca_data(sizeof(struct paca_struct), L1_CACHE_BYTES,
 				limit, cpu);
 	paca_ptrs[cpu] = paca;
+<<<<<<< HEAD
 	memset(paca, 0, sizeof(struct paca_struct));
+=======
+>>>>>>> upstream/android-13
 
 	initialise_paca(paca, cpu);
 #ifdef CONFIG_PPC_PSERIES
@@ -231,6 +396,12 @@ void __init allocate_paca(int cpu)
 #ifdef CONFIG_PPC_BOOK3S_64
 	paca->slb_shadow_ptr = new_slb_shadow(cpu, limit);
 #endif
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PPC_PSERIES
+	paca->rtas_args_reentrant = new_rtas_args(cpu, limit);
+#endif
+>>>>>>> upstream/android-13
 	paca_struct_size += sizeof(struct paca_struct);
 }
 
@@ -264,6 +435,7 @@ void copy_mm_to_paca(struct mm_struct *mm)
 #ifdef CONFIG_PPC_BOOK3S
 	mm_context_t *context = &mm->context;
 
+<<<<<<< HEAD
 	get_paca()->mm_ctx_id = context->id;
 #ifdef CONFIG_PPC_MM_SLICES
 	VM_BUG_ON(!mm->context.slb_addr_limit);
@@ -272,6 +444,14 @@ void copy_mm_to_paca(struct mm_struct *mm)
 	       &context->low_slices_psize, sizeof(context->low_slices_psize));
 	memcpy(&get_paca()->mm_ctx_high_slices_psize,
 	       &context->high_slices_psize, TASK_SLICE_ARRAY_SZ(mm));
+=======
+#ifdef CONFIG_PPC_MM_SLICES
+	VM_BUG_ON(!mm_ctx_slb_addr_limit(context));
+	memcpy(&get_paca()->mm_ctx_low_slices_psize, mm_ctx_low_slices(context),
+	       LOW_SLICE_ARRAY_SZ);
+	memcpy(&get_paca()->mm_ctx_high_slices_psize, mm_ctx_high_slices(context),
+	       TASK_SLICE_ARRAY_SZ(context));
+>>>>>>> upstream/android-13
 #else /* CONFIG_PPC_MM_SLICES */
 	get_paca()->mm_ctx_user_psize = context->user_psize;
 	get_paca()->mm_ctx_sllp = context->sllp;

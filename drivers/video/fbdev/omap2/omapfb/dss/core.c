@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/drivers/video/omap2/dss/core.c
  *
@@ -6,6 +10,7 @@
  *
  * Some code and ideas taken from drivers/video/omap/ driver
  * by Imre Deak.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
@@ -18,6 +23,8 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define DSS_SUBSYS_NAME "CORE"
@@ -99,13 +106,18 @@ int dss_set_min_bus_tput(struct device *dev, unsigned long tput)
 }
 
 #if defined(CONFIG_FB_OMAP2_DSS_DEBUGFS)
+<<<<<<< HEAD
 static int dss_debug_show(struct seq_file *s, void *unused)
+=======
+static int dss_show(struct seq_file *s, void *unused)
+>>>>>>> upstream/android-13
 {
 	void (*func)(struct seq_file *) = s->private;
 	func(s);
 	return 0;
 }
 
+<<<<<<< HEAD
 static int dss_debug_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, dss_debug_show, inode->i_private);
@@ -133,6 +145,18 @@ static int dss_initialize_debugfs(void)
 			&dss_debug_dump_clocks, &dss_debug_fops);
 
 	return 0;
+=======
+DEFINE_SHOW_ATTRIBUTE(dss);
+
+static struct dentry *dss_debugfs_dir;
+
+static void dss_initialize_debugfs(void)
+{
+	dss_debugfs_dir = debugfs_create_dir("omapdss", NULL);
+
+	debugfs_create_file("clk", S_IRUGO, dss_debugfs_dir,
+			&dss_debug_dump_clocks, &dss_fops);
+>>>>>>> upstream/android-13
 }
 
 static void dss_uninitialize_debugfs(void)
@@ -140,6 +164,7 @@ static void dss_uninitialize_debugfs(void)
 	debugfs_remove_recursive(dss_debugfs_dir);
 }
 
+<<<<<<< HEAD
 int dss_debugfs_create_file(const char *name, void (*write)(struct seq_file *))
 {
 	struct dentry *d;
@@ -153,13 +178,27 @@ int dss_debugfs_create_file(const char *name, void (*write)(struct seq_file *))
 static inline int dss_initialize_debugfs(void)
 {
 	return 0;
+=======
+void dss_debugfs_create_file(const char *name, void (*write)(struct seq_file *))
+{
+	debugfs_create_file(name, S_IRUGO, dss_debugfs_dir, write, &dss_fops);
+}
+#else /* CONFIG_FB_OMAP2_DSS_DEBUGFS */
+static inline void dss_initialize_debugfs(void)
+{
+>>>>>>> upstream/android-13
 }
 static inline void dss_uninitialize_debugfs(void)
 {
 }
+<<<<<<< HEAD
 int dss_debugfs_create_file(const char *name, void (*write)(struct seq_file *))
 {
 	return 0;
+=======
+void dss_debugfs_create_file(const char *name, void (*write)(struct seq_file *))
+{
+>>>>>>> upstream/android-13
 }
 #endif /* CONFIG_FB_OMAP2_DSS_DEBUGFS */
 
@@ -192,15 +231,22 @@ static struct notifier_block omap_dss_pm_notif_block = {
 
 static int __init omap_dss_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	int r;
 
+=======
+>>>>>>> upstream/android-13
 	core.pdev = pdev;
 
 	dss_features_init(omapdss_get_version());
 
+<<<<<<< HEAD
 	r = dss_initialize_debugfs();
 	if (r)
 		goto err_debugfs;
+=======
+	dss_initialize_debugfs();
+>>>>>>> upstream/android-13
 
 	if (def_disp_name)
 		core.default_display_name = def_disp_name;
@@ -208,10 +254,13 @@ static int __init omap_dss_probe(struct platform_device *pdev)
 	register_pm_notifier(&omap_dss_pm_notif_block);
 
 	return 0;
+<<<<<<< HEAD
 
 err_debugfs:
 
 	return r;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int omap_dss_remove(struct platform_device *pdev)
@@ -250,9 +299,12 @@ static int (*dss_output_drv_reg_funcs[])(void) __initdata = {
 #ifdef CONFIG_FB_OMAP2_DSS_SDI
 	sdi_init_platform_driver,
 #endif
+<<<<<<< HEAD
 #ifdef CONFIG_FB_OMAP2_DSS_RFBI
 	rfbi_init_platform_driver,
 #endif
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_FB_OMAP2_DSS_VENC
 	venc_init_platform_driver,
 #endif
@@ -274,9 +326,12 @@ static void (*dss_output_drv_unreg_funcs[])(void) = {
 #ifdef CONFIG_FB_OMAP2_DSS_VENC
 	venc_uninit_platform_driver,
 #endif
+<<<<<<< HEAD
 #ifdef CONFIG_FB_OMAP2_DSS_RFBI
 	rfbi_uninit_platform_driver,
 #endif
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_FB_OMAP2_DSS_SDI
 	sdi_uninit_platform_driver,
 #endif

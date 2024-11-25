@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2007 Ben Dooks
  * Copyright (c) 2008 Simtec Electronics
@@ -6,10 +10,13 @@
  * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * PWM driver for Samsung SoCs
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
@@ -29,6 +36,13 @@
 /* For struct samsung_timer_variant and samsung_pwm_lock. */
 #include <clocksource/samsung_pwm.h>
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_CPU_IDLE
+#include <soc/samsung/exynos-cpupm.h>
+#endif
+
+>>>>>>> upstream/android-13
 #define REG_TCFG0			0x00
 #define REG_TCFG1			0x04
 #define REG_TCON			0x08
@@ -50,6 +64,7 @@
  * In addition, the location of autoreload bit for channel 4 (TCON channel 5)
  * in its set of bits is 2 as opposed to 3 for other channels.
  */
+<<<<<<< HEAD
 #define TCON_START(chan)		BIT(4 * (chan) + 0)
 #define TCON_MANUALUPDATE(chan)		BIT(4 * (chan) + 1)
 #define TCON_INVERT(chan)		BIT(4 * (chan) + 2)
@@ -58,6 +73,23 @@
 #define TCON_AUTORELOAD(chan)		\
 	((chan < 5) ? _TCON_AUTORELOAD(chan) : _TCON_AUTORELOAD4(chan))
 
+=======
+#define PWM_BIT(nr)			(1U << (nr))
+#define TCON_START(chan)		PWM_BIT(4 * (chan) + 0)
+#define TCON_MANUALUPDATE(chan)		PWM_BIT(4 * (chan) + 1)
+#define TCON_INVERT(chan)		PWM_BIT(4 * (chan) + 2)
+#define _TCON_AUTORELOAD(chan)		PWM_BIT(4 * (chan) + 3)
+#define _TCON_AUTORELOAD4(chan)		PWM_BIT(4 * (chan) + 2)
+#define TCON_AUTORELOAD(chan)		\
+	((chan < 5) ? _TCON_AUTORELOAD(chan) : _TCON_AUTORELOAD4(chan))
+
+enum duty_cycle {
+	DUTY_CYCLE_ZERO,
+	DUTY_CYCLE_PULSE,
+	DUTY_CYCLE_FULL,
+};
+
+>>>>>>> upstream/android-13
 /**
  * struct samsung_pwm_channel - private data of PWM channel
  * @period_ns:	current period in nanoseconds programmed to the hardware
@@ -65,9 +97,28 @@
  * @tin_ns:	time of one timer tick in nanoseconds with current timer rate
  */
 struct samsung_pwm_channel {
+<<<<<<< HEAD
 	u32 period_ns;
 	u32 duty_ns;
 	u32 tin_ns;
+=======
+	struct clk		*clk_div;
+	struct clk		*clk_tin;
+
+	u32 			period_ns;
+	u32 			duty_ns;
+	u32 			tin_ns;
+	unsigned char	running;
+	enum duty_cycle	duty_cycle;
+};
+
+struct samsung_pwm_save_regs {
+	unsigned int tcfg0;
+	unsigned int tcfg1;
+	unsigned int tcon;
+	unsigned int *tcntb;
+	unsigned int *tcmpb;
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -77,7 +128,12 @@ struct samsung_pwm_channel {
  * @inverter_mask:	inverter status for all channels - one bit per channel
  * @disabled_mask:	disabled status for all channels - one bit per channel
  * @base:		base address of mapped PWM registers
+<<<<<<< HEAD
  * @base_clk:		base clock used to drive the timers
+=======
+ * @pwm_pclk:		peri clock used to set the pwm registers.
+ * @pwm_sclk:		base clock used to drive the timers
+>>>>>>> upstream/android-13
  * @tclk0:		external clock 0 (can be ERR_PTR if not present)
  * @tclk1:		external clock 1 (can be ERR_PTR if not present)
  */
@@ -88,9 +144,19 @@ struct samsung_pwm_chip {
 	u8 disabled_mask;
 
 	void __iomem *base;
+<<<<<<< HEAD
 	struct clk *base_clk;
 	struct clk *tclk0;
 	struct clk *tclk1;
+=======
+	struct clk *pwm_pclk;
+	struct clk *tclk0;
+	struct clk *tclk1;
+	struct clk *pwm_sclk;
+	int enable_cnt;
+	unsigned int idle_ip_index;
+	struct samsung_pwm_save_regs save_regs;
+>>>>>>> upstream/android-13
 };
 
 #ifndef CONFIG_CLKSRC_SAMSUNG_PWM
@@ -108,6 +174,45 @@ struct samsung_pwm_chip {
 static DEFINE_SPINLOCK(samsung_pwm_lock);
 #endif
 
+<<<<<<< HEAD
+=======
+static void pwm_samsung_update_ip_idle_status(struct samsung_pwm_chip *chip, int idle)
+{
+#ifdef CONFIG_CPU_IDLE
+	exynos_update_ip_idle_status(chip->idle_ip_index, idle);
+#endif
+}
+
+static int pwm_samsung_clk_enable(struct samsung_pwm_chip *chip)
+{
+	int ret;
+
+	pwm_samsung_update_ip_idle_status(chip, 0);
+
+	ret = clk_enable(chip->pwm_pclk);
+	if (ret)
+		goto pwm_pclk_err;
+
+	ret = clk_enable(chip->pwm_sclk);
+	if (ret)
+		goto pwm_sclk_err;
+
+	return 0;
+pwm_sclk_err:
+	clk_disable(chip->pwm_pclk);
+pwm_pclk_err:
+	pwm_samsung_update_ip_idle_status(chip, 1);
+	return ret;
+}
+
+static void pwm_samsung_clk_disable(struct samsung_pwm_chip *chip)
+{
+	clk_disable(chip->pwm_sclk);
+	clk_disable(chip->pwm_pclk);
+	pwm_samsung_update_ip_idle_status(chip, 1);
+}
+
+>>>>>>> upstream/android-13
 static inline
 struct samsung_pwm_chip *to_samsung_pwm_chip(struct pwm_chip *chip)
 {
@@ -158,7 +263,11 @@ static unsigned long pwm_samsung_get_tin_rate(struct samsung_pwm_chip *chip,
 	unsigned long rate;
 	u32 reg;
 
+<<<<<<< HEAD
 	rate = clk_get_rate(chip->base_clk);
+=======
+	rate = clk_get_rate(chip->pwm_sclk);
+>>>>>>> upstream/android-13
 
 	reg = readl(chip->base + REG_TCFG0);
 	if (chan >= 2)
@@ -214,10 +323,42 @@ static unsigned long pwm_samsung_calc_tin(struct samsung_pwm_chip *chip,
 	return rate >> div;
 }
 
+<<<<<<< HEAD
+=======
+static void pwm_samsung_init(struct samsung_pwm_chip *chip,
+					struct pwm_device *pwm)
+{
+	unsigned int tcon_chan = to_tcon_channel(pwm->hwpwm);
+	u32 tcon;
+
+	__raw_writel(0, chip->base + REG_TCMPB(pwm->hwpwm));
+	__raw_writel(0, chip->base + REG_TCNTB(pwm->hwpwm));
+
+	tcon = __raw_readl(chip->base + REG_TCON);
+	tcon |= TCON_INVERT(tcon_chan) | TCON_MANUALUPDATE(tcon_chan);
+	tcon &= ~(TCON_AUTORELOAD(tcon_chan) | TCON_START(tcon_chan));
+	__raw_writel(tcon, chip->base + REG_TCON);
+
+	tcon &= ~TCON_MANUALUPDATE(tcon_chan);
+	__raw_writel(tcon, chip->base + REG_TCON);
+
+	/* pwm state update */
+	pwm->state.period = 0;
+	pwm->state.duty_cycle = 0;
+	pwm->state.polarity = PWM_POLARITY_INVERSED;
+	pwm->state.enabled = false;
+
+}
+
+>>>>>>> upstream/android-13
 static int pwm_samsung_request(struct pwm_chip *chip, struct pwm_device *pwm)
 {
 	struct samsung_pwm_chip *our_chip = to_samsung_pwm_chip(chip);
 	struct samsung_pwm_channel *our_chan;
+<<<<<<< HEAD
+=======
+	unsigned long flags;
+>>>>>>> upstream/android-13
 
 	if (!(our_chip->variant.output_mask & BIT(pwm->hwpwm))) {
 		dev_warn(chip->dev,
@@ -226,29 +367,76 @@ static int pwm_samsung_request(struct pwm_chip *chip, struct pwm_device *pwm)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	our_chan = devm_kzalloc(chip->dev, sizeof(*our_chan), GFP_KERNEL);
+=======
+	our_chan = kzalloc(sizeof(*our_chan), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!our_chan)
 		return -ENOMEM;
 
 	pwm_set_chip_data(pwm, our_chan);
 
+<<<<<<< HEAD
+=======
+	pwm_samsung_clk_enable(our_chip);
+	spin_lock_irqsave(&samsung_pwm_lock, flags);
+	pwm_samsung_init(our_chip, pwm);
+	spin_unlock_irqrestore(&samsung_pwm_lock, flags);
+	pwm_samsung_clk_disable(our_chip);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static void pwm_samsung_free(struct pwm_chip *chip, struct pwm_device *pwm)
 {
+<<<<<<< HEAD
 	devm_kfree(chip->dev, pwm_get_chip_data(pwm));
+=======
+	kfree(pwm_get_chip_data(pwm));
+}
+
+static void pwm_samsung_manual_update(struct samsung_pwm_chip *chip,
+				      struct pwm_device *pwm)
+{
+	unsigned int tcon_chan = to_tcon_channel(pwm->hwpwm);
+	struct samsung_pwm_channel *channel = pwm_get_chip_data(pwm);
+	u32 tcon;
+
+	tcon = readl(chip->base + REG_TCON);
+	tcon |= TCON_MANUALUPDATE(tcon_chan);
+	writel(tcon, chip->base + REG_TCON);
+
+	tcon &= ~TCON_MANUALUPDATE(tcon_chan);
+	if (channel->duty_cycle == DUTY_CYCLE_ZERO)
+		tcon &= ~TCON_AUTORELOAD(tcon_chan);
+	else
+		tcon |= TCON_AUTORELOAD(tcon_chan);
+
+	chip->disabled_mask &= ~BIT(pwm->hwpwm);
+
+	if (!(tcon & TCON_START(tcon_chan)))
+		tcon |= TCON_START(tcon_chan);
+
+	writel(tcon, chip->base + REG_TCON);
+>>>>>>> upstream/android-13
 }
 
 static int pwm_samsung_enable(struct pwm_chip *chip, struct pwm_device *pwm)
 {
 	struct samsung_pwm_chip *our_chip = to_samsung_pwm_chip(chip);
 	unsigned int tcon_chan = to_tcon_channel(pwm->hwpwm);
+<<<<<<< HEAD
+=======
+	struct samsung_pwm_channel *channel = pwm_get_chip_data(pwm);
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	u32 tcon;
 
 	spin_lock_irqsave(&samsung_pwm_lock, flags);
 
+<<<<<<< HEAD
 	tcon = readl(our_chip->base + REG_TCON);
 
 	tcon &= ~TCON_START(tcon_chan);
@@ -261,6 +449,22 @@ static int pwm_samsung_enable(struct pwm_chip *chip, struct pwm_device *pwm)
 
 	our_chip->disabled_mask &= ~BIT(pwm->hwpwm);
 
+=======
+	if (!our_chip->enable_cnt)
+		pwm_samsung_clk_enable(our_chip);
+
+	tcon = readl(our_chip->base + REG_TCON);
+	if (!(tcon & TCON_START(tcon_chan)))
+		pwm_samsung_manual_update(our_chip, pwm);
+	else if (!(tcon & TCON_AUTORELOAD(tcon_chan)) &&
+			channel->duty_cycle != DUTY_CYCLE_ZERO)
+		pwm_samsung_manual_update(our_chip, pwm);
+
+	our_chip->disabled_mask |= BIT(pwm->hwpwm);
+
+	channel->running = 1;
+	our_chip->enable_cnt++;
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&samsung_pwm_lock, flags);
 
 	return 0;
@@ -270,6 +474,10 @@ static void pwm_samsung_disable(struct pwm_chip *chip, struct pwm_device *pwm)
 {
 	struct samsung_pwm_chip *our_chip = to_samsung_pwm_chip(chip);
 	unsigned int tcon_chan = to_tcon_channel(pwm->hwpwm);
+<<<<<<< HEAD
+=======
+	struct samsung_pwm_channel *channel = pwm_get_chip_data(pwm);
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	u32 tcon;
 
@@ -279,6 +487,7 @@ static void pwm_samsung_disable(struct pwm_chip *chip, struct pwm_device *pwm)
 	tcon &= ~TCON_AUTORELOAD(tcon_chan);
 	writel(tcon, our_chip->base + REG_TCON);
 
+<<<<<<< HEAD
 	our_chip->disabled_mask |= BIT(pwm->hwpwm);
 
 	spin_unlock_irqrestore(&samsung_pwm_lock, flags);
@@ -299,6 +508,12 @@ static void pwm_samsung_manual_update(struct samsung_pwm_chip *chip,
 
 	tcon &= ~TCON_MANUALUPDATE(tcon_chan);
 	writel(tcon, chip->base + REG_TCON);
+=======
+	channel->running = 0;
+	our_chip->enable_cnt--;
+	if (!our_chip->enable_cnt)
+		pwm_samsung_clk_disable(our_chip);
+>>>>>>> upstream/android-13
 
 	spin_unlock_irqrestore(&samsung_pwm_lock, flags);
 }
@@ -307,8 +522,17 @@ static int __pwm_samsung_config(struct pwm_chip *chip, struct pwm_device *pwm,
 				int duty_ns, int period_ns, bool force_period)
 {
 	struct samsung_pwm_chip *our_chip = to_samsung_pwm_chip(chip);
+<<<<<<< HEAD
 	struct samsung_pwm_channel *chan = pwm_get_chip_data(pwm);
 	u32 tin_ns = chan->tin_ns, tcnt, tcmp, oldtcmp;
+=======
+	unsigned int tcon_chan = to_tcon_channel(pwm->hwpwm);
+	struct samsung_pwm_channel *chan = pwm_get_chip_data(pwm);
+	u32 tin_ns = chan->tin_ns, tcnt, tcmp, tcon;
+	enum duty_cycle duty_cycle;
+	unsigned long flags;
+	unsigned int ret = 0;
+>>>>>>> upstream/android-13
 
 	/*
 	 * We currently avoid using 64bit arithmetic by using the
@@ -318,34 +542,67 @@ static int __pwm_samsung_config(struct pwm_chip *chip, struct pwm_device *pwm,
 	if (period_ns > NSEC_PER_SEC)
 		return -ERANGE;
 
+<<<<<<< HEAD
 	tcnt = readl(our_chip->base + REG_TCNTB(pwm->hwpwm));
 	oldtcmp = readl(our_chip->base + REG_TCMPB(pwm->hwpwm));
 
 	/* We need tick count for calculation, not last tick. */
 	++tcnt;
+=======
+	if (duty_ns > period_ns)
+		return -EINVAL;
+
+	if (period_ns == chan->period_ns && duty_ns == chan->duty_ns)
+		return 0;
+
+	pwm_samsung_clk_enable(our_chip);
+
+	dev_dbg(our_chip->chip.dev, "pwm_pclk at %lu\n",
+			clk_get_rate(our_chip->pwm_pclk));
+	dev_dbg(our_chip->chip.dev, "pwm_sclk at %lu\n",
+			clk_get_rate(our_chip->pwm_sclk));
+>>>>>>> upstream/android-13
 
 	/* Check to see if we are changing the clock rate of the PWM. */
 	if (chan->period_ns != period_ns || force_period) {
 		unsigned long tin_rate;
 		u32 period;
 
+<<<<<<< HEAD
 		period = NSEC_PER_SEC / period_ns;
+=======
+		period = (unsigned int)(NSEC_PER_SEC / period_ns);
+>>>>>>> upstream/android-13
 
 		dev_dbg(our_chip->chip.dev, "duty_ns=%d, period_ns=%d (%u)\n",
 						duty_ns, period_ns, period);
 
 		tin_rate = pwm_samsung_calc_tin(our_chip, pwm->hwpwm, period);
 
+<<<<<<< HEAD
 		dev_dbg(our_chip->chip.dev, "tin_rate=%lu\n", tin_rate);
 
 		tin_ns = NSEC_PER_SEC / tin_rate;
 		tcnt = period_ns / tin_ns;
 	}
 
+=======
+		if(!tin_rate)
+			return -EINVAL;
+
+		tin_ns = (unsigned int)(NSEC_PER_SEC / tin_rate);
+	}
+
+	/* Note that counters count down. */
+	tcnt = DIV_ROUND_CLOSEST(period_ns, tin_ns);
+	tcmp = DIV_ROUND_CLOSEST(duty_ns, tin_ns);
+
+>>>>>>> upstream/android-13
 	/* Period is too short. */
 	if (tcnt <= 1)
 		return -ERANGE;
 
+<<<<<<< HEAD
 	/* Note that counters count down. */
 	tcmp = duty_ns / tin_ns;
 
@@ -355,6 +612,24 @@ static int __pwm_samsung_config(struct pwm_chip *chip, struct pwm_device *pwm,
 
 	tcmp = tcnt - tcmp;
 
+=======
+	if (tcmp == 0)
+		duty_cycle = DUTY_CYCLE_ZERO;
+	else if (tcmp == tcnt)
+		duty_cycle = DUTY_CYCLE_FULL;
+	else
+		duty_cycle = DUTY_CYCLE_PULSE;
+
+	tcmp = tcnt - tcmp;
+	/* the pwm hw only checks the compare register after a decrement,
+	   so the pin never toggles if tcmp = tcnt */
+	if (tcmp == tcnt)
+		tcmp--;
+
+	/* PWM counts 1 hidden tick at the end of each period on S3C64XX and
+	 * EXYNOS series, so tcmp and tcnt should be subtracted 1.
+	 */
+>>>>>>> upstream/android-13
 	/* Decrement to get tick numbers, instead of tick counts. */
 	--tcnt;
 	/* -1UL will give 100% duty. */
@@ -364,6 +639,11 @@ static int __pwm_samsung_config(struct pwm_chip *chip, struct pwm_device *pwm,
 				"tin_ns=%u, tcmp=%u/%u\n", tin_ns, tcmp, tcnt);
 
 	/* Update PWM registers. */
+<<<<<<< HEAD
+=======
+	spin_lock_irqsave(&samsung_pwm_lock, flags);
+
+>>>>>>> upstream/android-13
 	writel(tcnt, our_chip->base + REG_TCNTB(pwm->hwpwm));
 	writel(tcmp, our_chip->base + REG_TCMPB(pwm->hwpwm));
 
@@ -372,16 +652,39 @@ static int __pwm_samsung_config(struct pwm_chip *chip, struct pwm_device *pwm,
 	 * update to prevent the signal staying high if the PWM is disabled
 	 * shortly afer this update (before it autoreloaded the new values).
 	 */
+<<<<<<< HEAD
 	if (oldtcmp == (u32) -1) {
 		dev_dbg(our_chip->chip.dev, "Forcing manual update");
 		pwm_samsung_manual_update(our_chip, pwm);
+=======
+	tcon = __raw_readl(our_chip->base + REG_TCON);
+	if (chan->running == 1 && tcon & TCON_START(tcon_chan) &&
+	    chan->duty_cycle != duty_cycle) {
+		if (duty_cycle == DUTY_CYCLE_ZERO) {
+			dev_dbg(our_chip->chip.dev, "Forcing manual update");
+			pwm_samsung_manual_update(our_chip, pwm);
+		} else {
+			tcon |= TCON_AUTORELOAD(tcon_chan);
+			__raw_writel(tcon, our_chip->base + REG_TCON);
+		}
+>>>>>>> upstream/android-13
 	}
 
 	chan->period_ns = period_ns;
 	chan->tin_ns = tin_ns;
 	chan->duty_ns = duty_ns;
+<<<<<<< HEAD
 
 	return 0;
+=======
+	chan->duty_cycle = duty_cycle;
+
+	spin_unlock_irqrestore(&samsung_pwm_lock, flags);
+
+	pwm_samsung_clk_disable(our_chip);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int pwm_samsung_config(struct pwm_chip *chip, struct pwm_device *pwm,
@@ -397,6 +700,12 @@ static void pwm_samsung_set_invert(struct samsung_pwm_chip *chip,
 	unsigned long flags;
 	u32 tcon;
 
+<<<<<<< HEAD
+=======
+	if (!chip->enable_cnt)
+		pwm_samsung_clk_enable(chip);
+
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&samsung_pwm_lock, flags);
 
 	tcon = readl(chip->base + REG_TCON);
@@ -412,6 +721,12 @@ static void pwm_samsung_set_invert(struct samsung_pwm_chip *chip,
 	writel(tcon, chip->base + REG_TCON);
 
 	spin_unlock_irqrestore(&samsung_pwm_lock, flags);
+<<<<<<< HEAD
+=======
+
+	if (!chip->enable_cnt)
+		pwm_samsung_clk_disable(chip);
+>>>>>>> upstream/android-13
 }
 
 static int pwm_samsung_set_polarity(struct pwm_chip *chip,
@@ -427,6 +742,36 @@ static int pwm_samsung_set_polarity(struct pwm_chip *chip,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int pwm_samsung_capture(struct pwm_chip *chip, struct pwm_device *pwm,
+		       struct pwm_capture *result, unsigned long timeout)
+{
+	struct samsung_pwm_chip *our_chip = to_samsung_pwm_chip(chip);
+	struct samsung_pwm_channel *chan = pwm_get_chip_data(pwm);
+	unsigned long freq;
+	u32 tcon, tcnt, tcmp, polarity, enabled;
+	u32 tcon_chan = to_tcon_channel(pwm->hwpwm);
+
+	result->period = chan->period_ns;
+	result->duty_cycle = chan->duty_ns;
+
+	tcon = readl(our_chip->base + REG_TCON);
+	polarity = tcon & TCON_INVERT(tcon_chan);
+	enabled = (tcon & TCON_START(tcon_chan)) && (tcon & TCON_AUTORELOAD(tcon_chan));
+
+	tcnt = readl(our_chip->base + REG_TCNTB(pwm->hwpwm));
+	tcmp = readl(our_chip->base + REG_TCMPB(pwm->hwpwm));
+	freq = clk_get_rate(our_chip->pwm_sclk) / tcnt;
+	dev_info(our_chip->chip.dev, "output freq = %luHz, tcnt = %u, tcmp = %u\n",
+			freq, tcnt, tcmp);
+	dev_info(our_chip->chip.dev, "pwm %sabled, polarity: %s",
+			(enabled ? "en":"dis"), (polarity ? "inverse" : "normal"));
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static const struct pwm_ops pwm_samsung_ops = {
 	.request	= pwm_samsung_request,
 	.free		= pwm_samsung_free,
@@ -434,6 +779,10 @@ static const struct pwm_ops pwm_samsung_ops = {
 	.disable	= pwm_samsung_disable,
 	.config		= pwm_samsung_config,
 	.set_polarity	= pwm_samsung_set_polarity,
+<<<<<<< HEAD
+=======
+	.capture	= pwm_samsung_capture,
+>>>>>>> upstream/android-13
 	.owner		= THIS_MODULE,
 };
 
@@ -446,7 +795,11 @@ static const struct samsung_pwm_variant s3c24xx_variant = {
 };
 
 static const struct samsung_pwm_variant s3c64xx_variant = {
+<<<<<<< HEAD
 	.bits		= 32,
+=======
+	.bits		= 16,
+>>>>>>> upstream/android-13
 	.div_base	= 0,
 	.has_tint_cstat	= true,
 	.tclk_mask	= BIT(7) | BIT(6) | BIT(5),
@@ -514,7 +867,11 @@ static int pwm_samsung_probe(struct platform_device *pdev)
 	struct device *dev = &pdev->dev;
 	struct samsung_pwm_chip *chip;
 	struct resource *res;
+<<<<<<< HEAD
 	unsigned int chan;
+=======
+	unsigned int chan, reg_tcfg0;
+>>>>>>> upstream/android-13
 	int ret;
 
 	chip = devm_kzalloc(&pdev->dev, sizeof(*chip), GFP_KERNEL);
@@ -526,7 +883,13 @@ static int pwm_samsung_probe(struct platform_device *pdev)
 	chip->chip.base = -1;
 	chip->chip.npwm = SAMSUNG_PWM_NUM;
 	chip->inverter_mask = BIT(SAMSUNG_PWM_NUM) - 1;
+<<<<<<< HEAD
 
+=======
+#ifdef CONFIG_CPU_IDLE
+	chip->idle_ip_index = exynos_get_idle_ip_index(dev_name(&pdev->dev), 1);
+#endif
+>>>>>>> upstream/android-13
 	if (IS_ENABLED(CONFIG_OF) && pdev->dev.of_node) {
 		ret = pwm_samsung_parse_dt(chip);
 		if (ret)
@@ -549,6 +912,7 @@ static int pwm_samsung_probe(struct platform_device *pdev)
 	if (IS_ERR(chip->base))
 		return PTR_ERR(chip->base);
 
+<<<<<<< HEAD
 	chip->base_clk = devm_clk_get(&pdev->dev, "timers");
 	if (IS_ERR(chip->base_clk)) {
 		dev_err(dev, "failed to get timer base clk\n");
@@ -561,6 +925,48 @@ static int pwm_samsung_probe(struct platform_device *pdev)
 		return ret;
 	}
 
+=======
+	chip->pwm_pclk = devm_clk_get(&pdev->dev, "pwm_pclk");
+	if (IS_ERR(chip->pwm_pclk)) {
+		dev_err(dev, "failed to get timer pwm_pclk\n");
+		return PTR_ERR(chip->pwm_pclk);
+	}
+
+	chip->pwm_sclk = devm_clk_get(&pdev->dev, "pwm_sclk");
+	if (IS_ERR(chip->pwm_sclk)) {
+		dev_err(dev, "failed to get timer pwm_sclk\n");
+		return PTR_ERR(chip->pwm_sclk);
+	}
+
+	pwm_samsung_update_ip_idle_status(chip, 0);
+
+	/* pwm clock enable */
+	ret = clk_prepare_enable(chip->pwm_pclk);
+	if (ret)
+		goto base_clk_err;
+
+	ret = clk_prepare_enable(chip->pwm_sclk);
+	if (ret)
+		goto sclk_err;
+
+	/* Initialize Prescaler */
+	reg_tcfg0 = readl(chip->base + REG_TCFG0);
+	reg_tcfg0 &= ~(TCFG0_PRESCALER_MASK |
+			(TCFG0_PRESCALER_MASK << TCFG0_PRESCALER1_SHIFT));
+	writel(reg_tcfg0, chip->base + REG_TCFG0);
+
+	/* Initialize Divider MUX */
+	writel(0, chip->base + REG_TCFG1);
+
+	/* Initialize save regs */
+	chip->save_regs.tcntb =
+			devm_kzalloc(&pdev->dev,
+			SAMSUNG_PWM_NUM * sizeof(*chip->save_regs.tcntb), GFP_KERNEL);
+	chip->save_regs.tcmpb =
+			devm_kzalloc(&pdev->dev,
+			SAMSUNG_PWM_NUM * sizeof(*chip->save_regs.tcmpb), GFP_KERNEL);
+
+>>>>>>> upstream/android-13
 	for (chan = 0; chan < SAMSUNG_PWM_NUM; ++chan)
 		if (chip->variant.output_mask & BIT(chan))
 			pwm_samsung_set_invert(chip, chan, true);
@@ -574,6 +980,7 @@ static int pwm_samsung_probe(struct platform_device *pdev)
 	ret = pwmchip_add(&chip->chip);
 	if (ret < 0) {
 		dev_err(dev, "failed to register PWM chip\n");
+<<<<<<< HEAD
 		clk_disable_unprepare(chip->base_clk);
 		return ret;
 	}
@@ -584,11 +991,35 @@ static int pwm_samsung_probe(struct platform_device *pdev)
 		!IS_ERR(chip->tclk1) ? clk_get_rate(chip->tclk1) : 0);
 
 	return 0;
+=======
+		goto chip_add_err;
+	}
+
+	dev_dbg(dev, "pwm_pclk at %lu, pwm_sclk at %lu tclk0 at %lu, tclk1 at %lu\n",
+		clk_get_rate(chip->pwm_pclk),
+		clk_get_rate(chip->pwm_sclk),
+		!IS_ERR(chip->tclk0) ? clk_get_rate(chip->tclk0) : 0,
+		!IS_ERR(chip->tclk1) ? clk_get_rate(chip->tclk1) : 0);
+
+	pwm_samsung_clk_disable(chip);
+
+	return 0;
+
+chip_add_err:
+	clk_disable_unprepare(chip->pwm_sclk);
+sclk_err:
+	clk_disable_unprepare(chip->pwm_pclk);
+base_clk_err:
+	pwm_samsung_update_ip_idle_status(chip, 1);
+	return ret;
+
+>>>>>>> upstream/android-13
 }
 
 static int pwm_samsung_remove(struct platform_device *pdev)
 {
 	struct samsung_pwm_chip *chip = platform_get_drvdata(pdev);
+<<<<<<< HEAD
 	int ret;
 
 	ret = pwmchip_remove(&chip->chip);
@@ -596,11 +1027,19 @@ static int pwm_samsung_remove(struct platform_device *pdev)
 		return ret;
 
 	clk_disable_unprepare(chip->base_clk);
+=======
+
+	pwmchip_remove(&chip->chip);
+
+	clk_unprepare(chip->pwm_sclk);
+	clk_unprepare(chip->pwm_pclk);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 #ifdef CONFIG_PM_SLEEP
+<<<<<<< HEAD
 static int pwm_samsung_resume(struct device *dev)
 {
 	struct samsung_pwm_chip *our_chip = dev_get_drvdata(dev);
@@ -610,10 +1049,75 @@ static int pwm_samsung_resume(struct device *dev)
 	for (i = 0; i < SAMSUNG_PWM_NUM; i++) {
 		struct pwm_device *pwm = &chip->pwms[i];
 		struct samsung_pwm_channel *chan = pwm_get_chip_data(pwm);
+=======
+static void pwm_samsung_save_regs(struct samsung_pwm_chip *chip)
+{
+	int i;
+
+	if (!chip) {
+		pr_err("Failed to get pwm chip!\n");
+		return;
+	}
+
+	chip->save_regs.tcfg0 = readl(chip->base + REG_TCFG0);
+	chip->save_regs.tcfg1 = readl(chip->base + REG_TCFG1);
+	chip->save_regs.tcon = readl(chip->base + REG_TCON);
+
+	for (i = 0; i< SAMSUNG_PWM_NUM; i++) {
+		if (!pwm_get_chip_data(&chip->chip.pwms[i]))
+			continue;
+
+		chip->save_regs.tcntb[i] = readl(chip->base + REG_TCNTB(i));
+		chip->save_regs.tcmpb[i] = readl(chip->base + REG_TCMPB(i));
+	}
+
+	pr_info("%s: PWM chip data save done.\n", __func__);
+	return;
+}
+
+static void pwm_samsung_restore_regs(struct samsung_pwm_chip *chip)
+{
+	int i;
+
+	if (!chip) {
+		pr_err("Failed to get pwm chip!\n");
+		return;
+	}
+
+	writel(chip->save_regs.tcfg0, chip->base + REG_TCFG0);
+	writel(chip->save_regs.tcfg1, chip->base + REG_TCFG1);
+	writel(chip->save_regs.tcon, chip->base + REG_TCON);
+
+	for (i = 0; i< SAMSUNG_PWM_NUM; i++) {
+		if (!pwm_get_chip_data(&chip->chip.pwms[i]))
+			continue;
+
+		writel(chip->save_regs.tcntb[i], chip->base + REG_TCNTB(i));
+		writel(chip->save_regs.tcmpb[i], chip->base + REG_TCMPB(i));
+	}
+	pr_info("%s: PWM chip data resume done.\n", __func__);
+	return;
+}
+
+static int pwm_samsung_suspend(struct device *dev)
+{
+	struct samsung_pwm_chip *chip = dev_get_drvdata(dev);
+	u32 tcon;
+	unsigned int i;
+
+	if (!chip->enable_cnt)
+		pwm_samsung_clk_enable(chip);
+
+	for (i = 0; i < SAMSUNG_PWM_NUM; ++i) {
+		struct pwm_device *pwm = &chip->chip.pwms[i];
+		struct samsung_pwm_channel *chan = pwm_get_chip_data(pwm);
+		unsigned int tcon_chan = to_tcon_channel(pwm->hwpwm);
+>>>>>>> upstream/android-13
 
 		if (!chan)
 			continue;
 
+<<<<<<< HEAD
 		if (our_chip->variant.output_mask & BIT(i))
 			pwm_samsung_set_invert(our_chip, i,
 					our_chip->inverter_mask & BIT(i));
@@ -630,12 +1134,53 @@ static int pwm_samsung_resume(struct device *dev)
 		else
 			pwm_samsung_enable(chip, pwm);
 	}
+=======
+		if (chan->running == 0) {
+			tcon = __raw_readl(chip->base + REG_TCON);
+			if (chan->duty_cycle == DUTY_CYCLE_ZERO) {
+				tcon |= TCON_MANUALUPDATE(tcon_chan);
+			} else if (chan->duty_cycle == DUTY_CYCLE_FULL) {
+				tcon &= TCON_INVERT(tcon_chan);
+				tcon |= TCON_MANUALUPDATE(tcon_chan);
+			}
+			tcon &= ~TCON_START(tcon_chan);
+			__raw_writel(tcon, chip->base + REG_TCON);
+		}
+
+		chan->period_ns = -1;
+		chan->duty_ns = -1;
+	}
+	/* Save pwm register setting */
+	pwm_samsung_save_regs(chip);
+
+	pwm_samsung_clk_disable(chip);
+
+	return 0;
+}
+
+static int pwm_samsung_resume(struct device *dev)
+{
+	struct samsung_pwm_chip *chip = dev_get_drvdata(dev);
+
+	pwm_samsung_clk_enable(chip);
+
+	/* Restore pwm register setting */
+	pwm_samsung_restore_regs(chip);
+
+	if (!chip->enable_cnt)
+		pwm_samsung_clk_disable(chip);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 #endif
 
+<<<<<<< HEAD
 static SIMPLE_DEV_PM_OPS(pwm_samsung_pm_ops, NULL, pwm_samsung_resume);
+=======
+static SIMPLE_DEV_PM_OPS(pwm_samsung_pm_ops, pwm_samsung_suspend,
+			 pwm_samsung_resume);
+>>>>>>> upstream/android-13
 
 static struct platform_driver pwm_samsung_driver = {
 	.driver		= {

@@ -296,7 +296,10 @@ static inline void bnx2x_dcb_config_qm(struct bnx2x *bp, enum cos_mode mode,
  *    possible, the driver should only write the valid vnics into the internal
  *    ram according to the appropriate port mode.
  */
+<<<<<<< HEAD
 #define BITS_TO_BYTES(x) ((x)/8)
+=======
+>>>>>>> upstream/android-13
 
 /* CMNG constants, as derived from system spec calculations */
 
@@ -449,7 +452,11 @@ static inline void bnx2x_init_fw_wrr(const struct cmng_init_input *input_data,
 				ccd[cos] =
 				    (u32)input_data->cos_min_rate[cos] * 100 *
 				    (T_FAIR_COEF / (8 * 100 * cosWeightSum));
+<<<<<<< HEAD
 				 if (ccd[cos] < pdata->fair_vars.fair_threshold
+=======
+				if (ccd[cos] < pdata->fair_vars.fair_threshold
+>>>>>>> upstream/android-13
 						+ MIN_ABOVE_THRESH) {
 					ccd[cos] =
 					    pdata->fair_vars.fair_threshold +

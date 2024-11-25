@@ -6,6 +6,10 @@
 #include <asm/percpu.h>
 #include <asm/asm-offsets.h>
 #include <asm/processor-flags.h>
+<<<<<<< HEAD
+=======
+#include <asm/ptrace-abi.h>
+>>>>>>> upstream/android-13
 
 /*
 
@@ -62,6 +66,7 @@ For 32-bit we have the following conventions - kernel is built with
  * for assembly code:
  */
 
+<<<<<<< HEAD
 /* The layout forms the "struct pt_regs" on the stack: */
 /*
  * C ABI says these regs are callee-preserved. They aren't saved on kernel entry
@@ -98,6 +103,9 @@ For 32-bit we have the following conventions - kernel is built with
 #define SIZEOF_PTREGS	21*8
 
 .macro PUSH_AND_CLEAR_REGS rdx=%rdx rax=%rax save_ret=0
+=======
+.macro PUSH_REGS rdx=%rdx rax=%rax save_ret=0
+>>>>>>> upstream/android-13
 	.if \save_ret
 	pushq	%rsi		/* pt_regs->si */
 	movq	8(%rsp), %rsi	/* temporarily store the return address in %rsi */
@@ -124,7 +132,13 @@ For 32-bit we have the following conventions - kernel is built with
 	.if \save_ret
 	pushq	%rsi		/* return address on top of stack */
 	.endif
+<<<<<<< HEAD
 
+=======
+.endm
+
+.macro CLEAR_REGS
+>>>>>>> upstream/android-13
 	/*
 	 * Sanitize registers of values that a speculation attack might
 	 * otherwise want to exploit. The lower registers are likely clobbered
@@ -146,6 +160,14 @@ For 32-bit we have the following conventions - kernel is built with
 
 .endm
 
+<<<<<<< HEAD
+=======
+.macro PUSH_AND_CLEAR_REGS rdx=%rdx rax=%rax save_ret=0
+	PUSH_REGS rdx=\rdx, rax=\rax, save_ret=\save_ret
+	CLEAR_REGS
+.endm
+
+>>>>>>> upstream/android-13
 .macro POP_REGS pop_rdi=1 skip_r11rcx=0
 	popq %r15
 	popq %r14
@@ -333,6 +355,7 @@ For 32-bit we have the following conventions - kernel is built with
 	ALTERNATIVE "", "lfence", X86_FEATURE_FENCE_SWAPGS_KERNEL
 .endm
 
+<<<<<<< HEAD
 #endif /* CONFIG_X86_64 */
 
 /*
@@ -348,3 +371,64 @@ For 32-bit we have the following conventions - kernel is built with
 .Lafter_call_\@:
 #endif
 .endm
+=======
+.macro STACKLEAK_ERASE_NOCLOBBER
+#ifdef CONFIG_GCC_PLUGIN_STACKLEAK
+	PUSH_AND_CLEAR_REGS
+	call stackleak_erase
+	POP_REGS
+#endif
+.endm
+
+.macro SAVE_AND_SET_GSBASE scratch_reg:req save_reg:req
+	rdgsbase \save_reg
+	GET_PERCPU_BASE \scratch_reg
+	wrgsbase \scratch_reg
+.endm
+
+#else /* CONFIG_X86_64 */
+# undef		UNWIND_HINT_IRET_REGS
+# define	UNWIND_HINT_IRET_REGS
+#endif /* !CONFIG_X86_64 */
+
+.macro STACKLEAK_ERASE
+#ifdef CONFIG_GCC_PLUGIN_STACKLEAK
+	call stackleak_erase
+#endif
+.endm
+
+#ifdef CONFIG_SMP
+
+/*
+ * CPU/node NR is loaded from the limit (size) field of a special segment
+ * descriptor entry in GDT.
+ */
+.macro LOAD_CPU_AND_NODE_SEG_LIMIT reg:req
+	movq	$__CPUNODE_SEG, \reg
+	lsl	\reg, \reg
+.endm
+
+/*
+ * Fetch the per-CPU GSBASE value for this processor and put it in @reg.
+ * We normally use %gs for accessing per-CPU data, but we are setting up
+ * %gs here and obviously can not use %gs itself to access per-CPU data.
+ *
+ * Do not use RDPID, because KVM loads guest's TSC_AUX on vm-entry and
+ * may not restore the host's value until the CPU returns to userspace.
+ * Thus the kernel would consume a guest's TSC_AUX if an NMI arrives
+ * while running KVM's run loop.
+ */
+.macro GET_PERCPU_BASE reg:req
+	LOAD_CPU_AND_NODE_SEG_LIMIT \reg
+	andq	$VDSO_CPUNODE_MASK, \reg
+	movq	__per_cpu_offset(, \reg, 8), \reg
+.endm
+
+#else
+
+.macro GET_PERCPU_BASE reg:req
+	movq	pcpu_unit_offsets(%rip), \reg
+.endm
+
+#endif /* CONFIG_SMP */
+>>>>>>> upstream/android-13

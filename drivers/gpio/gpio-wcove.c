@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Intel Whiskey Cove PMIC GPIO Driver
  *
  * This driver is written based on gpio-crystalcove.c
  *
  * Copyright (C) 2016 Intel Corporation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version
@@ -20,15 +25,30 @@
 #include <linux/interrupt.h>
 #include <linux/gpio/driver.h>
 #include <linux/mfd/intel_soc_pmic.h>
+=======
+ */
+
+#include <linux/bitops.h>
+#include <linux/gpio/driver.h>
+#include <linux/interrupt.h>
+#include <linux/mfd/intel_soc_pmic.h>
+#include <linux/module.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/regmap.h>
 #include <linux/seq_file.h>
 
 /*
  * Whiskey Cove PMIC has 13 physical GPIO pins divided into 3 banks:
+<<<<<<< HEAD
  * Bank 0: Pin 0 - 6
  * Bank 1: Pin 7 - 10
  * Bank 2: Pin 11 -12
+=======
+ * Bank 0: Pin  0 - 6
+ * Bank 1: Pin  7 - 10
+ * Bank 2: Pin 11 - 12
+>>>>>>> upstream/android-13
  * Each pin has one output control register and one input control register.
  */
 #define BANK0_NR_PINS		7
@@ -75,12 +95,22 @@
 #define CTLO_RVAL_50KDOWN	(2 << 1)
 #define CTLO_RVAL_50KUP		(3 << 1)
 
+<<<<<<< HEAD
 #define CTLO_INPUT_SET	(CTLO_DRV_CMOS | CTLO_DRV_REN | CTLO_RVAL_2KUP)
 #define CTLO_OUTPUT_SET	(CTLO_DIR_OUT | CTLO_INPUT_SET)
+=======
+#define CTLO_INPUT_SET		(CTLO_DRV_CMOS | CTLO_DRV_REN | CTLO_RVAL_2KUP)
+#define CTLO_OUTPUT_SET		(CTLO_DIR_OUT | CTLO_INPUT_SET)
+>>>>>>> upstream/android-13
 
 enum ctrl_register {
 	CTRL_IN,
 	CTRL_OUT,
+<<<<<<< HEAD
+=======
+	IRQ_STATUS,
+	IRQ_MASK,
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -105,21 +135,45 @@ struct wcove_gpio {
 	bool set_irq_mask;
 };
 
+<<<<<<< HEAD
 static inline unsigned int to_reg(int gpio, enum ctrl_register reg_type)
 {
 	unsigned int reg;
+=======
+static inline int to_reg(int gpio, enum ctrl_register type)
+{
+	unsigned int reg = type == CTRL_IN ? GPIO_IN_CTRL_BASE : GPIO_OUT_CTRL_BASE;
+>>>>>>> upstream/android-13
 
 	if (gpio >= WCOVE_GPIO_NUM)
 		return -EOPNOTSUPP;
 
+<<<<<<< HEAD
 	if (reg_type == CTRL_IN)
 		reg = GPIO_IN_CTRL_BASE + gpio;
 	else
 		reg = GPIO_OUT_CTRL_BASE + gpio;
+=======
+	return reg + gpio;
+}
+
+static inline int to_ireg(int gpio, enum ctrl_register type, unsigned int *mask)
+{
+	unsigned int reg = type == IRQ_STATUS ? IRQ_STATUS_BASE : IRQ_MASK_BASE;
+
+	if (gpio < GROUP0_NR_IRQS) {
+		reg += 0;
+		*mask = BIT(gpio);
+	} else {
+		reg += 1;
+		*mask = BIT(gpio - GROUP0_NR_IRQS);
+	}
+>>>>>>> upstream/android-13
 
 	return reg;
 }
 
+<<<<<<< HEAD
 static void wcove_update_irq_mask(struct wcove_gpio *wg, int gpio)
 {
 	unsigned int reg, mask;
@@ -145,6 +199,22 @@ static void wcove_update_irq_ctrl(struct wcove_gpio *wg, int gpio)
 	if (reg < 0)
 		return;
 
+=======
+static void wcove_update_irq_mask(struct wcove_gpio *wg, irq_hw_number_t gpio)
+{
+	unsigned int mask, reg = to_ireg(gpio, IRQ_MASK, &mask);
+
+	if (wg->set_irq_mask)
+		regmap_set_bits(wg->regmap, reg, mask);
+	else
+		regmap_clear_bits(wg->regmap, reg, mask);
+}
+
+static void wcove_update_irq_ctrl(struct wcove_gpio *wg, irq_hw_number_t gpio)
+{
+	int reg = to_reg(gpio, CTRL_IN);
+
+>>>>>>> upstream/android-13
 	regmap_update_bits(wg->regmap, reg, CTLI_INTCNT_BE, wg->intcnt);
 }
 
@@ -178,13 +248,24 @@ static int wcove_gpio_get_direction(struct gpio_chip *chip, unsigned int gpio)
 	int ret, reg = to_reg(gpio, CTRL_OUT);
 
 	if (reg < 0)
+<<<<<<< HEAD
 		return 0;
+=======
+		return GPIO_LINE_DIRECTION_OUT;
+>>>>>>> upstream/android-13
 
 	ret = regmap_read(wg->regmap, reg, &val);
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	return !(val & CTLO_DIR_OUT);
+=======
+	if (val & CTLO_DIR_OUT)
+		return GPIO_LINE_DIRECTION_OUT;
+
+	return GPIO_LINE_DIRECTION_IN;
+>>>>>>> upstream/android-13
 }
 
 static int wcove_gpio_get(struct gpio_chip *chip, unsigned int gpio)
@@ -203,8 +284,12 @@ static int wcove_gpio_get(struct gpio_chip *chip, unsigned int gpio)
 	return val & 0x1;
 }
 
+<<<<<<< HEAD
 static void wcove_gpio_set(struct gpio_chip *chip,
 				 unsigned int gpio, int value)
+=======
+static void wcove_gpio_set(struct gpio_chip *chip, unsigned int gpio, int value)
+>>>>>>> upstream/android-13
 {
 	struct wcove_gpio *wg = gpiochip_get_data(chip);
 	int reg = to_reg(gpio, CTRL_OUT);
@@ -213,9 +298,15 @@ static void wcove_gpio_set(struct gpio_chip *chip,
 		return;
 
 	if (value)
+<<<<<<< HEAD
 		regmap_update_bits(wg->regmap, reg, 1, 1);
 	else
 		regmap_update_bits(wg->regmap, reg, 1, 0);
+=======
+		regmap_set_bits(wg->regmap, reg, 1);
+	else
+		regmap_clear_bits(wg->regmap, reg, 1);
+>>>>>>> upstream/android-13
 }
 
 static int wcove_gpio_set_config(struct gpio_chip *chip, unsigned int gpio,
@@ -245,8 +336,14 @@ static int wcove_irq_type(struct irq_data *data, unsigned int type)
 {
 	struct gpio_chip *chip = irq_data_get_irq_chip_data(data);
 	struct wcove_gpio *wg = gpiochip_get_data(chip);
+<<<<<<< HEAD
 
 	if (data->hwirq >= WCOVE_GPIO_NUM)
+=======
+	irq_hw_number_t gpio = irqd_to_hwirq(data);
+
+	if (gpio >= WCOVE_GPIO_NUM)
+>>>>>>> upstream/android-13
 		return 0;
 
 	switch (type) {
@@ -283,7 +380,11 @@ static void wcove_bus_sync_unlock(struct irq_data *data)
 {
 	struct gpio_chip *chip = irq_data_get_irq_chip_data(data);
 	struct wcove_gpio *wg = gpiochip_get_data(chip);
+<<<<<<< HEAD
 	int gpio = data->hwirq;
+=======
+	irq_hw_number_t gpio = irqd_to_hwirq(data);
+>>>>>>> upstream/android-13
 
 	if (wg->update & UPDATE_IRQ_TYPE)
 		wcove_update_irq_ctrl(wg, gpio);
@@ -298,8 +399,14 @@ static void wcove_irq_unmask(struct irq_data *data)
 {
 	struct gpio_chip *chip = irq_data_get_irq_chip_data(data);
 	struct wcove_gpio *wg = gpiochip_get_data(chip);
+<<<<<<< HEAD
 
 	if (data->hwirq >= WCOVE_GPIO_NUM)
+=======
+	irq_hw_number_t gpio = irqd_to_hwirq(data);
+
+	if (gpio >= WCOVE_GPIO_NUM)
+>>>>>>> upstream/android-13
 		return;
 
 	wg->set_irq_mask = false;
@@ -310,8 +417,14 @@ static void wcove_irq_mask(struct irq_data *data)
 {
 	struct gpio_chip *chip = irq_data_get_irq_chip_data(data);
 	struct wcove_gpio *wg = gpiochip_get_data(chip);
+<<<<<<< HEAD
 
 	if (data->hwirq >= WCOVE_GPIO_NUM)
+=======
+	irq_hw_number_t gpio = irqd_to_hwirq(data);
+
+	if (gpio >= WCOVE_GPIO_NUM)
+>>>>>>> upstream/android-13
 		return;
 
 	wg->set_irq_mask = true;
@@ -330,7 +443,12 @@ static struct irq_chip wcove_irqchip = {
 static irqreturn_t wcove_gpio_irq_handler(int irq, void *data)
 {
 	struct wcove_gpio *wg = (struct wcove_gpio *)data;
+<<<<<<< HEAD
 	unsigned int pending, virq, gpio, mask, offset;
+=======
+	unsigned int virq, gpio;
+	unsigned long pending;
+>>>>>>> upstream/android-13
 	u8 p[2];
 
 	if (regmap_bulk_read(wg->regmap, IRQ_STATUS_BASE, p, 2)) {
@@ -345,6 +463,7 @@ static irqreturn_t wcove_gpio_irq_handler(int irq, void *data)
 	/* Iterate until no interrupt is pending */
 	while (pending) {
 		/* One iteration is for all pending bits */
+<<<<<<< HEAD
 		for_each_set_bit(gpio, (const unsigned long *)&pending,
 						 WCOVE_GPIO_NUM) {
 			offset = (gpio > GROUP0_NR_IRQS) ? 1 : 0;
@@ -354,6 +473,14 @@ static irqreturn_t wcove_gpio_irq_handler(int irq, void *data)
 			handle_nested_irq(virq);
 			regmap_update_bits(wg->regmap, IRQ_STATUS_BASE + offset,
 								mask, mask);
+=======
+		for_each_set_bit(gpio, &pending, WCOVE_GPIO_NUM) {
+			unsigned int mask, reg = to_ireg(gpio, IRQ_STATUS, &mask);
+
+			virq = irq_find_mapping(wg->chip.irq.domain, gpio);
+			handle_nested_irq(virq);
+			regmap_set_bits(wg->regmap, reg, mask);
+>>>>>>> upstream/android-13
 		}
 
 		/* Next iteration */
@@ -368,6 +495,7 @@ static irqreturn_t wcove_gpio_irq_handler(int irq, void *data)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static void wcove_gpio_dbg_show(struct seq_file *s,
 				      struct gpio_chip *chip)
 {
@@ -389,14 +517,42 @@ static void wcove_gpio_dbg_show(struct seq_file *s,
 		}
 
 		offset = gpio % 8;
+=======
+static void wcove_gpio_dbg_show(struct seq_file *s, struct gpio_chip *chip)
+{
+	unsigned int ctlo, ctli, irq_mask, irq_status;
+	struct wcove_gpio *wg = gpiochip_get_data(chip);
+	int gpio, mask, ret = 0;
+
+	for (gpio = 0; gpio < WCOVE_GPIO_NUM; gpio++) {
+		ret += regmap_read(wg->regmap, to_reg(gpio, CTRL_OUT), &ctlo);
+		ret += regmap_read(wg->regmap, to_reg(gpio, CTRL_IN), &ctli);
+		if (ret) {
+			dev_err(wg->dev, "Failed to read registers: CTRL out/in\n");
+			break;
+		}
+
+		ret += regmap_read(wg->regmap, to_ireg(gpio, IRQ_MASK, &mask), &irq_mask);
+		ret += regmap_read(wg->regmap, to_ireg(gpio, IRQ_STATUS, &mask), &irq_status);
+		if (ret) {
+			dev_err(wg->dev, "Failed to read registers: IRQ status/mask\n");
+			break;
+		}
+
+>>>>>>> upstream/android-13
 		seq_printf(s, " gpio-%-2d %s %s %s %s ctlo=%2x,%s %s\n",
 			   gpio, ctlo & CTLO_DIR_OUT ? "out" : "in ",
 			   ctli & 0x1 ? "hi" : "lo",
 			   ctli & CTLI_INTCNT_NE ? "fall" : "    ",
 			   ctli & CTLI_INTCNT_PE ? "rise" : "    ",
 			   ctlo,
+<<<<<<< HEAD
 			   irq_mask & BIT(offset) ? "mask  " : "unmask",
 			   irq_status & BIT(offset) ? "pending" : "       ");
+=======
+			   irq_mask & mask ? "mask  " : "unmask",
+			   irq_status & mask ? "pending" : "       ");
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -406,6 +562,10 @@ static int wcove_gpio_probe(struct platform_device *pdev)
 	struct wcove_gpio *wg;
 	int virq, ret, irq;
 	struct device *dev;
+<<<<<<< HEAD
+=======
+	struct gpio_irq_chip *girq;
+>>>>>>> upstream/android-13
 
 	/*
 	 * This gpio platform device is created by a mfd device (see
@@ -439,7 +599,11 @@ static int wcove_gpio_probe(struct platform_device *pdev)
 	wg->chip.get_direction = wcove_gpio_get_direction;
 	wg->chip.get = wcove_gpio_get;
 	wg->chip.set = wcove_gpio_set;
+<<<<<<< HEAD
 	wg->chip.set_config = wcove_gpio_set_config,
+=======
+	wg->chip.set_config = wcove_gpio_set_config;
+>>>>>>> upstream/android-13
 	wg->chip.base = -1;
 	wg->chip.ngpio = WCOVE_VGPIO_NUM;
 	wg->chip.can_sleep = true;
@@ -448,6 +612,7 @@ static int wcove_gpio_probe(struct platform_device *pdev)
 	wg->dev = dev;
 	wg->regmap = pmic->regmap;
 
+<<<<<<< HEAD
 	ret = devm_gpiochip_add_data(dev, &wg->chip, wg);
 	if (ret) {
 		dev_err(dev, "Failed to add gpiochip: %d\n", ret);
@@ -461,30 +626,62 @@ static int wcove_gpio_probe(struct platform_device *pdev)
 		return ret;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	virq = regmap_irq_get_virq(wg->regmap_irq_chip, irq);
 	if (virq < 0) {
 		dev_err(dev, "Failed to get virq by irq %d\n", irq);
 		return virq;
 	}
 
+<<<<<<< HEAD
 	ret = devm_request_threaded_irq(dev, virq, NULL,
 		wcove_gpio_irq_handler, IRQF_ONESHOT, pdev->name, wg);
+=======
+	girq = &wg->chip.irq;
+	girq->chip = &wcove_irqchip;
+	/* This will let us handle the parent IRQ in the driver */
+	girq->parent_handler = NULL;
+	girq->num_parents = 0;
+	girq->parents = NULL;
+	girq->default_type = IRQ_TYPE_NONE;
+	girq->handler = handle_simple_irq;
+	girq->threaded = true;
+
+	ret = devm_request_threaded_irq(dev, virq, NULL, wcove_gpio_irq_handler,
+					IRQF_ONESHOT, pdev->name, wg);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(dev, "Failed to request irq %d\n", virq);
 		return ret;
 	}
 
+<<<<<<< HEAD
 	gpiochip_set_nested_irqchip(&wg->chip, &wcove_irqchip, virq);
 
 	/* Enable GPIO0 interrupts */
 	ret = regmap_update_bits(wg->regmap, IRQ_MASK_BASE, GPIO_IRQ0_MASK,
 				 0x00);
+=======
+	ret = devm_gpiochip_add_data(dev, &wg->chip, wg);
+	if (ret) {
+		dev_err(dev, "Failed to add gpiochip: %d\n", ret);
+		return ret;
+	}
+
+	/* Enable GPIO0 interrupts */
+	ret = regmap_clear_bits(wg->regmap, IRQ_MASK_BASE + 0, GPIO_IRQ0_MASK);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
 	/* Enable GPIO1 interrupts */
+<<<<<<< HEAD
 	ret = regmap_update_bits(wg->regmap, IRQ_MASK_BASE + 1, GPIO_IRQ1_MASK,
 				 0x00);
+=======
+	ret = regmap_clear_bits(wg->regmap, IRQ_MASK_BASE + 1, GPIO_IRQ1_MASK);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 

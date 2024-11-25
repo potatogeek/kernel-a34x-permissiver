@@ -13,10 +13,16 @@
 #include <linux/mm.h>
 #include <linux/gfp.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
 #include <linux/elf.h>
 #include <asm/asm-offsets.h>
 #include <linux/memblock.h>
+=======
+#include <linux/memblock.h>
+#include <linux/elf.h>
+#include <asm/asm-offsets.h>
+>>>>>>> upstream/android-13
 #include <asm/os_info.h>
 #include <asm/elf.h>
 #include <asm/ipl.h>
@@ -61,7 +67,14 @@ struct save_area * __init save_area_alloc(bool is_boot_cpu)
 {
 	struct save_area *sa;
 
+<<<<<<< HEAD
 	sa = (void *) memblock_alloc(sizeof(*sa), 8);
+=======
+	sa = (void *) memblock_phys_alloc(sizeof(*sa), 8);
+	if (!sa)
+		panic("Failed to allocate save area\n");
+
+>>>>>>> upstream/android-13
 	if (is_boot_cpu)
 		list_add(&sa->list, &dump_save_areas);
 	else
@@ -138,20 +151,34 @@ int copy_oldmem_kernel(void *dst, void *src, size_t count)
 
 	while (count) {
 		from = __pa(src);
+<<<<<<< HEAD
 		if (!OLDMEM_BASE && from < sclp.hsa_size) {
 			/* Copy from zfcpdump HSA area */
+=======
+		if (!oldmem_data.start && from < sclp.hsa_size) {
+			/* Copy from zfcp/nvme dump HSA area */
+>>>>>>> upstream/android-13
 			len = min(count, sclp.hsa_size - from);
 			rc = memcpy_hsa_kernel(dst, from, len);
 			if (rc)
 				return rc;
 		} else {
 			/* Check for swapped kdump oldmem areas */
+<<<<<<< HEAD
 			if (OLDMEM_BASE && from - OLDMEM_BASE < OLDMEM_SIZE) {
 				from -= OLDMEM_BASE;
 				len = min(count, OLDMEM_SIZE - from);
 			} else if (OLDMEM_BASE && from < OLDMEM_SIZE) {
 				len = min(count, OLDMEM_SIZE - from);
 				from += OLDMEM_BASE;
+=======
+			if (oldmem_data.start && from - oldmem_data.start < oldmem_data.size) {
+				from -= oldmem_data.start;
+				len = min(count, oldmem_data.size - from);
+			} else if (oldmem_data.start && from < oldmem_data.size) {
+				len = min(count, oldmem_data.size - from);
+				from += oldmem_data.start;
+>>>>>>> upstream/android-13
 			} else {
 				len = count;
 			}
@@ -181,20 +208,34 @@ static int copy_oldmem_user(void __user *dst, void *src, size_t count)
 
 	while (count) {
 		from = __pa(src);
+<<<<<<< HEAD
 		if (!OLDMEM_BASE && from < sclp.hsa_size) {
 			/* Copy from zfcpdump HSA area */
+=======
+		if (!oldmem_data.start && from < sclp.hsa_size) {
+			/* Copy from zfcp/nvme dump HSA area */
+>>>>>>> upstream/android-13
 			len = min(count, sclp.hsa_size - from);
 			rc = memcpy_hsa_user(dst, from, len);
 			if (rc)
 				return rc;
 		} else {
 			/* Check for swapped kdump oldmem areas */
+<<<<<<< HEAD
 			if (OLDMEM_BASE && from - OLDMEM_BASE < OLDMEM_SIZE) {
 				from -= OLDMEM_BASE;
 				len = min(count, OLDMEM_SIZE - from);
 			} else if (OLDMEM_BASE && from < OLDMEM_SIZE) {
 				len = min(count, OLDMEM_SIZE - from);
 				from += OLDMEM_BASE;
+=======
+			if (oldmem_data.start && from - oldmem_data.start < oldmem_data.size) {
+				from -= oldmem_data.start;
+				len = min(count, oldmem_data.size - from);
+			} else if (oldmem_data.start && from < oldmem_data.size) {
+				len = min(count, oldmem_data.size - from);
+				from += oldmem_data.start;
+>>>>>>> upstream/android-13
 			} else {
 				len = count;
 			}
@@ -241,10 +282,17 @@ static int remap_oldmem_pfn_range_kdump(struct vm_area_struct *vma,
 	unsigned long size_old;
 	int rc;
 
+<<<<<<< HEAD
 	if (pfn < OLDMEM_SIZE >> PAGE_SHIFT) {
 		size_old = min(size, OLDMEM_SIZE - (pfn << PAGE_SHIFT));
 		rc = remap_pfn_range(vma, from,
 				     pfn + (OLDMEM_BASE >> PAGE_SHIFT),
+=======
+	if (pfn < oldmem_data.size >> PAGE_SHIFT) {
+		size_old = min(size, oldmem_data.size - (pfn << PAGE_SHIFT));
+		rc = remap_pfn_range(vma, from,
+				     pfn + (oldmem_data.start >> PAGE_SHIFT),
+>>>>>>> upstream/android-13
 				     size_old, prot);
 		if (rc || size == size_old)
 			return rc;
@@ -256,7 +304,11 @@ static int remap_oldmem_pfn_range_kdump(struct vm_area_struct *vma,
 }
 
 /*
+<<<<<<< HEAD
  * Remap "oldmem" for zfcpdump
+=======
+ * Remap "oldmem" for zfcp/nvme dump
+>>>>>>> upstream/android-13
  *
  * We only map available memory above HSA size. Memory below HSA size
  * is read on demand using the copy_oldmem_page() function.
@@ -281,12 +333,20 @@ static int remap_oldmem_pfn_range_zfcpdump(struct vm_area_struct *vma,
 }
 
 /*
+<<<<<<< HEAD
  * Remap "oldmem" for kdump or zfcpdump
+=======
+ * Remap "oldmem" for kdump or zfcp/nvme dump
+>>>>>>> upstream/android-13
  */
 int remap_oldmem_pfn_range(struct vm_area_struct *vma, unsigned long from,
 			   unsigned long pfn, unsigned long size, pgprot_t prot)
 {
+<<<<<<< HEAD
 	if (OLDMEM_BASE)
+=======
+	if (oldmem_data.start)
+>>>>>>> upstream/android-13
 		return remap_oldmem_pfn_range_kdump(vma, from, pfn, size, prot);
 	else
 		return remap_oldmem_pfn_range_zfcpdump(vma, from, pfn, size,
@@ -363,7 +423,11 @@ static void *fill_cpu_elf_notes(void *ptr, int cpu, struct save_area *sa)
 	memcpy(&nt_prstatus.pr_reg.gprs, sa->gprs, sizeof(sa->gprs));
 	memcpy(&nt_prstatus.pr_reg.psw, sa->psw, sizeof(sa->psw));
 	memcpy(&nt_prstatus.pr_reg.acrs, sa->acrs, sizeof(sa->acrs));
+<<<<<<< HEAD
 	nt_prstatus.pr_pid = cpu;
+=======
+	nt_prstatus.common.pr_pid = cpu;
+>>>>>>> upstream/android-13
 	/* Prepare fpregset (floating point) note */
 	memset(&nt_fpregset, 0, sizeof(nt_fpregset));
 	memcpy(&nt_fpregset.fpc, &sa->fpc, sizeof(sa->fpc));
@@ -547,8 +611,12 @@ static int get_mem_chunk_cnt(void)
 	int cnt = 0;
 	u64 idx;
 
+<<<<<<< HEAD
 	for_each_mem_range(idx, &memblock.physmem, &oldmem_type, NUMA_NO_NODE,
 			   MEMBLOCK_NONE, NULL, NULL, NULL)
+=======
+	for_each_physmem_range(idx, &oldmem_type, NULL, NULL)
+>>>>>>> upstream/android-13
 		cnt++;
 	return cnt;
 }
@@ -561,8 +629,12 @@ static void loads_init(Elf64_Phdr *phdr, u64 loads_offset)
 	phys_addr_t start, end;
 	u64 idx;
 
+<<<<<<< HEAD
 	for_each_mem_range(idx, &memblock.physmem, &oldmem_type, NUMA_NO_NODE,
 			   MEMBLOCK_NONE, &start, &end, NULL) {
+=======
+	for_each_physmem_range(idx, &oldmem_type, &start, &end) {
+>>>>>>> upstream/android-13
 		phdr->p_filesz = end - start;
 		phdr->p_type = PT_LOAD;
 		phdr->p_offset = start;
@@ -632,6 +704,7 @@ int elfcorehdr_alloc(unsigned long long *addr, unsigned long long *size)
 	u32 alloc_size;
 	u64 hdr_off;
 
+<<<<<<< HEAD
 	/* If we are not in kdump or zfcpdump mode return */
 	if (!OLDMEM_BASE && ipl_info.type != IPL_TYPE_FCP_DUMP)
 		return 0;
@@ -644,6 +717,20 @@ int elfcorehdr_alloc(unsigned long long *addr, unsigned long long *size)
 		oldmem_region.base = OLDMEM_BASE;
 		oldmem_region.size = OLDMEM_SIZE;
 		oldmem_type.total_size = OLDMEM_SIZE;
+=======
+	/* If we are not in kdump or zfcp/nvme dump mode return */
+	if (!oldmem_data.start && !is_ipl_type_dump())
+		return 0;
+	/* If we cannot get HSA size for zfcp/nvme dump return error */
+	if (is_ipl_type_dump() && !sclp.hsa_size)
+		return -ENODEV;
+
+	/* For kdump, exclude previous crashkernel memory */
+	if (oldmem_data.start) {
+		oldmem_region.base = oldmem_data.start;
+		oldmem_region.size = oldmem_data.size;
+		oldmem_type.total_size = oldmem_data.size;
+>>>>>>> upstream/android-13
 	}
 
 	mem_chunk_cnt = get_mem_chunk_cnt();

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* tmp421.c
  *
  * Copyright (C) 2009 Andre Prendel <andre.prendel@gmx.de>
  * Preliminary support by:
  * Melvin Rook, Raymond Ng
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -70,7 +77,11 @@ static const struct i2c_device_id tmp421_id[] = {
 };
 MODULE_DEVICE_TABLE(i2c, tmp421_id);
 
+<<<<<<< HEAD
 static const struct of_device_id tmp421_of_match[] = {
+=======
+static const struct of_device_id __maybe_unused tmp421_of_match[] = {
+>>>>>>> upstream/android-13
 	{
 		.compatible = "ti,tmp421",
 		.data = (void *)2
@@ -109,11 +120,16 @@ struct tmp421_data {
 	s16 temp[4];
 };
 
+<<<<<<< HEAD
 static int temp_from_s16(s16 reg)
+=======
+static int temp_from_raw(u16 reg, bool extended)
+>>>>>>> upstream/android-13
 {
 	/* Mask out status bits */
 	int temp = reg & ~0xf;
 
+<<<<<<< HEAD
 	return (temp * 1000 + 128) / 256;
 }
 
@@ -132,10 +148,25 @@ static struct tmp421_data *tmp421_update_device(struct device *dev)
 {
 	struct tmp421_data *data = dev_get_drvdata(dev);
 	struct i2c_client *client = data->client;
+=======
+	if (extended)
+		temp = temp - 64 * 256;
+	else
+		temp = (s16)temp;
+
+	return DIV_ROUND_CLOSEST(temp * 1000, 256);
+}
+
+static int tmp421_update_device(struct tmp421_data *data)
+{
+	struct i2c_client *client = data->client;
+	int ret = 0;
+>>>>>>> upstream/android-13
 	int i;
 
 	mutex_lock(&data->update_lock);
 
+<<<<<<< HEAD
 	if (time_after(jiffies, data->last_updated + 2 * HZ) || !data->valid) {
 		data->config = i2c_smbus_read_byte_data(client,
 			TMP421_CONFIG_REG_1);
@@ -145,19 +176,51 @@ static struct tmp421_data *tmp421_update_device(struct device *dev)
 				TMP421_TEMP_MSB[i]) << 8;
 			data->temp[i] |= i2c_smbus_read_byte_data(client,
 				TMP421_TEMP_LSB[i]);
+=======
+	if (time_after(jiffies, data->last_updated + (HZ / 2)) ||
+	    !data->valid) {
+		ret = i2c_smbus_read_byte_data(client, TMP421_CONFIG_REG_1);
+		if (ret < 0)
+			goto exit;
+		data->config = ret;
+
+		for (i = 0; i < data->channels; i++) {
+			ret = i2c_smbus_read_byte_data(client, TMP421_TEMP_MSB[i]);
+			if (ret < 0)
+				goto exit;
+			data->temp[i] = ret << 8;
+
+			ret = i2c_smbus_read_byte_data(client, TMP421_TEMP_LSB[i]);
+			if (ret < 0)
+				goto exit;
+			data->temp[i] |= ret;
+>>>>>>> upstream/android-13
 		}
 		data->last_updated = jiffies;
 		data->valid = 1;
 	}
 
+<<<<<<< HEAD
 	mutex_unlock(&data->update_lock);
 
 	return data;
+=======
+exit:
+	mutex_unlock(&data->update_lock);
+
+	if (ret < 0) {
+		data->valid = 0;
+		return ret;
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int tmp421_read(struct device *dev, enum hwmon_sensor_types type,
 		       u32 attr, int channel, long *val)
 {
+<<<<<<< HEAD
 	struct tmp421_data *tmp421 = tmp421_update_device(dev);
 
 	switch (attr) {
@@ -173,6 +236,26 @@ static int tmp421_read(struct device *dev, enum hwmon_sensor_types type,
 		 * register (low byte).
 		 */
 		*val = tmp421->temp[channel] & 0x01;
+=======
+	struct tmp421_data *tmp421 = dev_get_drvdata(dev);
+	int ret = 0;
+
+	ret = tmp421_update_device(tmp421);
+	if (ret)
+		return ret;
+
+	switch (attr) {
+	case hwmon_temp_input:
+		*val = temp_from_raw(tmp421->temp[channel],
+				     tmp421->config & TMP421_CONFIG_RANGE);
+		return 0;
+	case hwmon_temp_fault:
+		/*
+		 * Any of OPEN or /PVLD bits indicate a hardware mulfunction
+		 * and the conversion result may be incorrect
+		 */
+		*val = !!(tmp421->temp[channel] & 0x03);
+>>>>>>> upstream/android-13
 		return 0;
 	default:
 		return -EOPNOTSUPP;
@@ -185,11 +268,16 @@ static umode_t tmp421_is_visible(const void *data, enum hwmon_sensor_types type,
 {
 	switch (attr) {
 	case hwmon_temp_fault:
+<<<<<<< HEAD
 		if (channel == 0)
 			return 0;
 		return S_IRUGO;
 	case hwmon_temp_input:
 		return S_IRUGO;
+=======
+	case hwmon_temp_input:
+		return 0444;
+>>>>>>> upstream/android-13
 	default:
 		return 0;
 	}
@@ -226,8 +314,15 @@ static int tmp421_detect(struct i2c_client *client,
 {
 	enum chips kind;
 	struct i2c_adapter *adapter = client->adapter;
+<<<<<<< HEAD
 	const char * const names[] = { "TMP421", "TMP422", "TMP423",
 				       "TMP441", "TMP442" };
+=======
+	static const char * const names[] = {
+		"TMP421", "TMP422", "TMP423",
+		"TMP441", "TMP442"
+	};
+>>>>>>> upstream/android-13
 	int addr = client->addr;
 	u8 reg;
 
@@ -285,8 +380,12 @@ static const struct hwmon_ops tmp421_ops = {
 	.read = tmp421_read,
 };
 
+<<<<<<< HEAD
 static int tmp421_probe(struct i2c_client *client,
 			const struct i2c_device_id *id)
+=======
+static int tmp421_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &client->dev;
 	struct device *hwmon_dev;
@@ -302,7 +401,11 @@ static int tmp421_probe(struct i2c_client *client,
 		data->channels = (unsigned long)
 			of_device_get_match_data(&client->dev);
 	else
+<<<<<<< HEAD
 		data->channels = id->driver_data;
+=======
+		data->channels = i2c_match_id(tmp421_id, client)->driver_data;
+>>>>>>> upstream/android-13
 	data->client = client;
 
 	err = tmp421_init_client(client);
@@ -333,7 +436,11 @@ static struct i2c_driver tmp421_driver = {
 		.name	= "tmp421",
 		.of_match_table = of_match_ptr(tmp421_of_match),
 	},
+<<<<<<< HEAD
 	.probe = tmp421_probe,
+=======
+	.probe_new = tmp421_probe,
+>>>>>>> upstream/android-13
 	.id_table = tmp421_id,
 	.detect = tmp421_detect,
 	.address_list = normal_i2c,

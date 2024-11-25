@@ -183,6 +183,7 @@ static int fpuemustats_clear_show(struct seq_file *s, void *unused)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int fpuemustats_clear_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, fpuemustats_clear_show, inode->i_private);
@@ -194,11 +195,15 @@ static const struct file_operations fpuemustats_clear_fops = {
 	.llseek			= seq_lseek,
 	.release		= single_release,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(fpuemustats_clear);
+>>>>>>> upstream/android-13
 
 static int __init debugfs_fpuemu(void)
 {
 	struct dentry *fpuemu_debugfs_base_dir;
 	struct dentry *fpuemu_debugfs_inst_dir;
+<<<<<<< HEAD
 	struct dentry *d, *reset_file;
 
 	if (!mips_debugfs_dir)
@@ -214,17 +219,32 @@ static int __init debugfs_fpuemu(void)
 					 &fpuemustats_clear_fops);
 	if (!reset_file)
 		return -ENOMEM;
+=======
+	char name[32];
+
+	fpuemu_debugfs_base_dir = debugfs_create_dir("fpuemustats",
+						     mips_debugfs_dir);
+
+	debugfs_create_file("fpuemustats_clear", 0444, mips_debugfs_dir, NULL,
+			    &fpuemustats_clear_fops);
+>>>>>>> upstream/android-13
 
 #define FPU_EMU_STAT_OFFSET(m)						\
 	offsetof(struct mips_fpu_emulator_stats, m)
 
 #define FPU_STAT_CREATE(m)						\
 do {									\
+<<<<<<< HEAD
 	d = debugfs_create_file(#m, 0444, fpuemu_debugfs_base_dir,	\
 				(void *)FPU_EMU_STAT_OFFSET(m),		\
 				&fops_fpuemu_stat);			\
 	if (!d)								\
 		return -ENOMEM;						\
+=======
+	debugfs_create_file(#m, 0444, fpuemu_debugfs_base_dir,		\
+				(void *)FPU_EMU_STAT_OFFSET(m),		\
+				&fops_fpuemu_stat);			\
+>>>>>>> upstream/android-13
 } while (0)
 
 	FPU_STAT_CREATE(emulated);
@@ -243,6 +263,7 @@ do {									\
 
 	fpuemu_debugfs_inst_dir = debugfs_create_dir("instructions",
 						     fpuemu_debugfs_base_dir);
+<<<<<<< HEAD
 	if (!fpuemu_debugfs_inst_dir)
 		return -ENOMEM;
 
@@ -257,6 +278,16 @@ do {									\
 				&fops_fpuemu_stat);			\
 	if (!d)								\
 		return -ENOMEM;						\
+=======
+
+#define FPU_STAT_CREATE_EX(m)						\
+do {									\
+	adjust_instruction_counter_name(name, #m);			\
+									\
+	debugfs_create_file(name, 0444, fpuemu_debugfs_inst_dir,	\
+				(void *)FPU_EMU_STAT_OFFSET(m),		\
+				&fops_fpuemu_stat);			\
+>>>>>>> upstream/android-13
 } while (0)
 
 	FPU_STAT_CREATE_EX(abs_s);

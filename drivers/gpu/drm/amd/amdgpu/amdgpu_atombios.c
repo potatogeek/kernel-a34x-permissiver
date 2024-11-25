@@ -23,12 +23,20 @@
  * Authors: Dave Airlie
  *          Alex Deucher
  */
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+
+>>>>>>> upstream/android-13
 #include <drm/amdgpu_drm.h>
 #include "amdgpu.h"
 #include "amdgpu_atombios.h"
 #include "amdgpu_atomfirmware.h"
 #include "amdgpu_i2c.h"
+<<<<<<< HEAD
+=======
+#include "amdgpu_display.h"
+>>>>>>> upstream/android-13
 
 #include "atom.h"
 #include "atom-bits.h"
@@ -147,7 +155,11 @@ void amdgpu_atombios_i2c_init(struct amdgpu_device *adev)
 
 			if (i2c.valid) {
 				sprintf(stmp, "0x%x", i2c.i2c_id);
+<<<<<<< HEAD
 				adev->i2c_bus[i] = amdgpu_i2c_create(adev->ddev, &i2c, stmp);
+=======
+				adev->i2c_bus[i] = amdgpu_i2c_create(adev_to_drm(adev), &i2c, stmp);
+>>>>>>> upstream/android-13
 			}
 			gpio = (ATOM_GPIO_I2C_ASSIGMENT *)
 				((u8 *)gpio + sizeof(ATOM_GPIO_I2C_ASSIGMENT));
@@ -540,7 +552,11 @@ bool amdgpu_atombios_get_connector_info_from_object_table(struct amdgpu_device *
 		}
 	}
 
+<<<<<<< HEAD
 	amdgpu_link_encoder_connector(adev->ddev);
+=======
+	amdgpu_link_encoder_connector(adev_to_drm(adev));
+>>>>>>> upstream/android-13
 
 	return true;
 }
@@ -1231,6 +1247,7 @@ int amdgpu_atombios_get_leakage_vddc_based_on_leakage_idx(struct amdgpu_device *
 	return amdgpu_atombios_get_max_vddc(adev, VOLTAGE_TYPE_VDDC, leakage_idx, voltage);
 }
 
+<<<<<<< HEAD
 int amdgpu_atombios_get_leakage_id_from_vbios(struct amdgpu_device *adev,
 					      u16 *leakage_id)
 {
@@ -1382,6 +1399,8 @@ int amdgpu_atombios_get_voltage_evv(struct amdgpu_device *adev,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 union voltage_object_info {
 	struct _ATOM_VOLTAGE_OBJECT_INFO v1;
 	struct _ATOM_VOLTAGE_OBJECT_INFO_V2 v2;
@@ -1400,7 +1419,11 @@ static ATOM_VOLTAGE_OBJECT_V3 *amdgpu_atombios_lookup_voltage_object_v3(ATOM_VOL
 {
 	u32 size = le16_to_cpu(v3->sHeader.usStructureSize);
 	u32 offset = offsetof(ATOM_VOLTAGE_OBJECT_INFO_V3_1, asVoltageObj[0]);
+<<<<<<< HEAD
 	u8 *start = (u8*)v3;
+=======
+	u8 *start = (u8 *)v3;
+>>>>>>> upstream/android-13
 
 	while (offset < size) {
 		ATOM_VOLTAGE_OBJECT_V3 *vo = (ATOM_VOLTAGE_OBJECT_V3 *)(start + offset);
@@ -1785,9 +1808,15 @@ static int amdgpu_atombios_allocate_fb_scratch(struct amdgpu_device *adev)
 			(uint32_t)(ATOM_VRAM_BLOCK_SRIOV_MSG_SHARE_RESERVATION <<
 			ATOM_VRAM_OPERATION_FLAGS_SHIFT)) {
 			/* Firmware request VRAM reservation for SR-IOV */
+<<<<<<< HEAD
 			adev->fw_vram_usage.start_offset = (start_addr &
 				(~ATOM_VRAM_OPERATION_FLAGS_MASK)) << 10;
 			adev->fw_vram_usage.size = size << 10;
+=======
+			adev->mman.fw_vram_usage_start_offset = (start_addr &
+				(~ATOM_VRAM_OPERATION_FLAGS_MASK)) << 10;
+			adev->mman.fw_vram_usage_size = size << 10;
+>>>>>>> upstream/android-13
 			/* Use the default scratch size */
 			usage_bytes = 0;
 		} else {
@@ -1881,7 +1910,11 @@ static void cail_mc_write(struct card_info *info, uint32_t reg, uint32_t val)
  */
 static void cail_reg_write(struct card_info *info, uint32_t reg, uint32_t val)
 {
+<<<<<<< HEAD
 	struct amdgpu_device *adev = info->dev->dev_private;
+=======
+	struct amdgpu_device *adev = drm_to_adev(info->dev);
+>>>>>>> upstream/android-13
 
 	WREG32(reg, val);
 }
@@ -1897,13 +1930,18 @@ static void cail_reg_write(struct card_info *info, uint32_t reg, uint32_t val)
  */
 static uint32_t cail_reg_read(struct card_info *info, uint32_t reg)
 {
+<<<<<<< HEAD
 	struct amdgpu_device *adev = info->dev->dev_private;
+=======
+	struct amdgpu_device *adev = drm_to_adev(info->dev);
+>>>>>>> upstream/android-13
 	uint32_t r;
 
 	r = RREG32(reg);
 	return r;
 }
 
+<<<<<<< HEAD
 /**
  * cail_ioreg_write - write IO register
  *
@@ -1938,20 +1976,41 @@ static uint32_t cail_ioreg_read(struct card_info *info, uint32_t reg)
 	return r;
 }
 
+=======
+>>>>>>> upstream/android-13
 static ssize_t amdgpu_atombios_get_vbios_version(struct device *dev,
 						 struct device_attribute *attr,
 						 char *buf)
 {
 	struct drm_device *ddev = dev_get_drvdata(dev);
+<<<<<<< HEAD
 	struct amdgpu_device *adev = ddev->dev_private;
 	struct atom_context *ctx = adev->mode_info.atom_context;
 
 	return snprintf(buf, PAGE_SIZE, "%s\n", ctx->vbios_version);
+=======
+	struct amdgpu_device *adev = drm_to_adev(ddev);
+	struct atom_context *ctx = adev->mode_info.atom_context;
+
+	return sysfs_emit(buf, "%s\n", ctx->vbios_version);
+>>>>>>> upstream/android-13
 }
 
 static DEVICE_ATTR(vbios_version, 0444, amdgpu_atombios_get_vbios_version,
 		   NULL);
 
+<<<<<<< HEAD
+=======
+static struct attribute *amdgpu_vbios_version_attrs[] = {
+	&dev_attr_vbios_version.attr,
+	NULL
+};
+
+const struct attribute_group amdgpu_vbios_version_attr_group = {
+	.attrs = amdgpu_vbios_version_attrs
+};
+
+>>>>>>> upstream/android-13
 /**
  * amdgpu_atombios_fini - free the driver info and callbacks for atombios
  *
@@ -1971,7 +2030,10 @@ void amdgpu_atombios_fini(struct amdgpu_device *adev)
 	adev->mode_info.atom_context = NULL;
 	kfree(adev->mode_info.atom_card_info);
 	adev->mode_info.atom_card_info = NULL;
+<<<<<<< HEAD
 	device_remove_file(adev->dev, &dev_attr_vbios_version);
+=======
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1988,12 +2050,16 @@ int amdgpu_atombios_init(struct amdgpu_device *adev)
 {
 	struct card_info *atom_card_info =
 	    kzalloc(sizeof(struct card_info), GFP_KERNEL);
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 
 	if (!atom_card_info)
 		return -ENOMEM;
 
 	adev->mode_info.atom_card_info = atom_card_info;
+<<<<<<< HEAD
 	atom_card_info->dev = adev->ddev;
 	atom_card_info->reg_read = cail_reg_read;
 	atom_card_info->reg_write = cail_reg_write;
@@ -2006,6 +2072,11 @@ int amdgpu_atombios_init(struct amdgpu_device *adev)
 		atom_card_info->ioreg_read = cail_reg_read;
 		atom_card_info->ioreg_write = cail_reg_write;
 	}
+=======
+	atom_card_info->dev = adev_to_drm(adev);
+	atom_card_info->reg_read = cail_reg_read;
+	atom_card_info->reg_write = cail_reg_write;
+>>>>>>> upstream/android-13
 	atom_card_info->mc_read = cail_mc_read;
 	atom_card_info->mc_write = cail_mc_write;
 	atom_card_info->pll_read = cail_pll_read;
@@ -2021,11 +2092,18 @@ int amdgpu_atombios_init(struct amdgpu_device *adev)
 	if (adev->is_atom_fw) {
 		amdgpu_atomfirmware_scratch_regs_init(adev);
 		amdgpu_atomfirmware_allocate_fb_scratch(adev);
+<<<<<<< HEAD
+=======
+		/* cached firmware_flags for further usage */
+		adev->mode_info.firmware_flags =
+			amdgpu_atomfirmware_query_firmware_capability(adev);
+>>>>>>> upstream/android-13
 	} else {
 		amdgpu_atombios_scratch_regs_init(adev);
 		amdgpu_atombios_allocate_fb_scratch(adev);
 	}
 
+<<<<<<< HEAD
 	ret = device_create_file(adev->dev, &dev_attr_vbios_version);
 	if (ret) {
 		DRM_ERROR("Failed to create device file for VBIOS version\n");
@@ -2035,3 +2113,25 @@ int amdgpu_atombios_init(struct amdgpu_device *adev)
 	return 0;
 }
 
+=======
+	return 0;
+}
+
+int amdgpu_atombios_get_data_table(struct amdgpu_device *adev,
+				   uint32_t table,
+				   uint16_t *size,
+				   uint8_t *frev,
+				   uint8_t *crev,
+				   uint8_t **addr)
+{
+	uint16_t data_start;
+
+	if (!amdgpu_atom_parse_data_header(adev->mode_info.atom_context, table,
+					   size, frev, crev, &data_start))
+		return -EINVAL;
+
+	*addr = (uint8_t *)adev->mode_info.atom_context->bios + data_start;
+
+	return 0;
+}
+>>>>>>> upstream/android-13

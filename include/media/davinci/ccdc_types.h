@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2008-2009 Texas Instruments Inc
  *
@@ -11,6 +12,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (C) 2008-2009 Texas Instruments Inc
+ *
+>>>>>>> upstream/android-13
  **************************************************************************/
 #ifndef _CCDC_TYPES_H
 #define _CCDC_TYPES_H

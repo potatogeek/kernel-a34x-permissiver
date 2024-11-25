@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* ----------------------------------------------------------------------- *
  *
  *   Copyright 2014 Intel Corporation; author: H. Peter Anvin
  *
+<<<<<<< HEAD
  *   This program is free software; you can redistribute it and/or modify it
  *   under the terms and conditions of the GNU General Public License,
  *   version 2, as published by the Free Software Foundation.
@@ -11,6 +16,8 @@
  *   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  *   more details.
  *
+=======
+>>>>>>> upstream/android-13
  * ----------------------------------------------------------------------- */
 
 /*
@@ -37,7 +44,11 @@
 #include <linux/percpu.h>
 #include <linux/gfp.h>
 #include <linux/random.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 #include <asm/pgalloc.h>
 #include <asm/setup.h>
 #include <asm/espfix.h>

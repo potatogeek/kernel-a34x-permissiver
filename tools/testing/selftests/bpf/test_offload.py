@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 
 # Copyright (C) 2017 Netronome Systems, Inc.
+<<<<<<< HEAD
+=======
+# Copyright (c) 2019 Mellanox Technologies. All rights reserved
+>>>>>>> upstream/android-13
 #
 # This software is licensed under the GNU General License Version 2,
 # June 1991 as shown in the file COPYING in the top-level directory of this
@@ -15,14 +19,27 @@
 
 from datetime import datetime
 import argparse
+<<<<<<< HEAD
+=======
+import errno
+>>>>>>> upstream/android-13
 import json
 import os
 import pprint
 import random
+<<<<<<< HEAD
+=======
+import re
+import stat
+>>>>>>> upstream/android-13
 import string
 import struct
 import subprocess
 import time
+<<<<<<< HEAD
+=======
+import traceback
+>>>>>>> upstream/android-13
 
 logfile = None
 log_level = 1
@@ -78,7 +95,13 @@ def fail(cond, msg):
     if not cond:
         return
     print("FAIL: " + msg)
+<<<<<<< HEAD
     log("FAIL: " + msg, "", level=1)
+=======
+    tb = "".join(traceback.extract_stack().format())
+    print(tb)
+    log("FAIL: " + msg, tb, level=1)
+>>>>>>> upstream/android-13
     os.sys.exit(1)
 
 def start_test(msg):
@@ -177,9 +200,13 @@ def bpftool_prog_list(expected=None, ns=""):
 def bpftool_map_list(expected=None, ns=""):
     _, maps = bpftool("map show", JSON=True, ns=ns, fail=True)
     # Remove the base maps
+<<<<<<< HEAD
     for m in base_maps:
         if m in maps:
             maps.remove(m)
+=======
+    maps = [m for m in maps if m not in base_maps and m.get('name') not in base_map_names]
+>>>>>>> upstream/android-13
     if expected is not None:
         if len(maps) != expected:
             fail(True, "%d BPF maps loaded, expected %d" %
@@ -303,8 +330,22 @@ class DebugfsDir:
 
         _, out = cmd('ls ' + path)
         for f in out.split():
+<<<<<<< HEAD
             p = os.path.join(path, f)
             if os.path.isfile(p):
+=======
+            if f == "ports":
+                continue
+
+            p = os.path.join(path, f)
+            if not os.stat(p).st_mode & stat.S_IRUSR:
+                continue
+
+            if os.path.isfile(p):
+                # We need to init trap_flow_action_cookie before read it
+                if f == "trap_flow_action_cookie":
+                    cmd('echo deadbeef > %s/%s' % (path, f))
+>>>>>>> upstream/android-13
                 _, out = cmd('cat %s/%s' % (path, f))
                 dfs[f] = out.strip()
             elif os.path.isdir(p):
@@ -318,11 +359,104 @@ class DebugfsDir:
 
         return dfs
 
+<<<<<<< HEAD
+=======
+class NetdevSimDev:
+    """
+    Class for netdevsim bus device and its attributes.
+    """
+    @staticmethod
+    def ctrl_write(path, val):
+        fullpath = os.path.join("/sys/bus/netdevsim/", path)
+        try:
+            with open(fullpath, "w") as f:
+                f.write(val)
+        except OSError as e:
+            log("WRITE %s: %r" % (fullpath, val), -e.errno)
+            raise e
+        log("WRITE %s: %r" % (fullpath, val), 0)
+
+    def __init__(self, port_count=1):
+        addr = 0
+        while True:
+            try:
+                self.ctrl_write("new_device", "%u %u" % (addr, port_count))
+            except OSError as e:
+                if e.errno == errno.ENOSPC:
+                    addr += 1
+                    continue
+                raise e
+            break
+        self.addr = addr
+
+        # As probe of netdevsim device might happen from a workqueue,
+        # so wait here until all netdevs appear.
+        self.wait_for_netdevs(port_count)
+
+        ret, out = cmd("udevadm settle", fail=False)
+        if ret:
+            raise Exception("udevadm settle failed")
+        ifnames = self.get_ifnames()
+
+        devs.append(self)
+        self.dfs_dir = "/sys/kernel/debug/netdevsim/netdevsim%u/" % addr
+
+        self.nsims = []
+        for port_index in range(port_count):
+            self.nsims.append(NetdevSim(self, port_index, ifnames[port_index]))
+
+    def get_ifnames(self):
+        ifnames = []
+        listdir = os.listdir("/sys/bus/netdevsim/devices/netdevsim%u/net/" % self.addr)
+        for ifname in listdir:
+            ifnames.append(ifname)
+        ifnames.sort()
+        return ifnames
+
+    def wait_for_netdevs(self, port_count):
+        timeout = 5
+        timeout_start = time.time()
+
+        while True:
+            try:
+                ifnames = self.get_ifnames()
+            except FileNotFoundError as e:
+                ifnames = []
+            if len(ifnames) == port_count:
+                break
+            if time.time() < timeout_start + timeout:
+                continue
+            raise Exception("netdevices did not appear within timeout")
+
+    def dfs_num_bound_progs(self):
+        path = os.path.join(self.dfs_dir, "bpf_bound_progs")
+        _, progs = cmd('ls %s' % (path))
+        return len(progs.split())
+
+    def dfs_get_bound_progs(self, expected):
+        progs = DebugfsDir(os.path.join(self.dfs_dir, "bpf_bound_progs"))
+        if expected is not None:
+            if len(progs) != expected:
+                fail(True, "%d BPF programs bound, expected %d" %
+                     (len(progs), expected))
+        return progs
+
+    def remove(self):
+        self.ctrl_write("del_device", "%u" % (self.addr, ))
+        devs.remove(self)
+
+    def remove_nsim(self, nsim):
+        self.nsims.remove(nsim)
+        self.ctrl_write("devices/netdevsim%u/del_port" % (self.addr, ),
+                        "%u" % (nsim.port_index, ))
+
+>>>>>>> upstream/android-13
 class NetdevSim:
     """
     Class for netdevsim netdevice and its attributes.
     """
 
+<<<<<<< HEAD
     def __init__(self, link=None):
         self.link = link
 
@@ -334,10 +468,27 @@ class NetdevSim:
         self.dfs_dir = '/sys/kernel/debug/netdevsim/%s' % (self.dev['ifname'])
         self.sdev_dir = self.dfs_dir + '/sdev/'
         self.dfs_refresh()
+=======
+    def __init__(self, nsimdev, port_index, ifname):
+        # In case udev renamed the netdev to according to new schema,
+        # check if the name matches the port_index.
+        nsimnamere = re.compile("eni\d+np(\d+)")
+        match = nsimnamere.match(ifname)
+        if match and int(match.groups()[0]) != port_index + 1:
+            raise Exception("netdevice name mismatches the expected one")
+
+        self.nsimdev = nsimdev
+        self.port_index = port_index
+        self.ns = ""
+        self.dfs_dir = "%s/ports/%u/" % (nsimdev.dfs_dir, port_index)
+        self.dfs_refresh()
+        _, [self.dev] = ip("link show dev %s" % ifname)
+>>>>>>> upstream/android-13
 
     def __getitem__(self, key):
         return self.dev[key]
 
+<<<<<<< HEAD
     def _netdevsim_create(self):
         link = "" if self.link is None else "link " + self.link.dev['ifname']
         _, old  = ip("link show")
@@ -354,6 +505,10 @@ class NetdevSim:
     def remove(self):
         devs.remove(self)
         ip("link del dev %s" % (self.dev["ifname"]), ns=self.ns)
+=======
+    def remove(self):
+        self.nsimdev.remove_nsim(self)
+>>>>>>> upstream/android-13
 
     def dfs_refresh(self):
         self.dfs = DebugfsDir(self.dfs_dir)
@@ -364,6 +519,7 @@ class NetdevSim:
         _, data = cmd('cat %s' % (path))
         return data.strip()
 
+<<<<<<< HEAD
     def dfs_num_bound_progs(self):
         path = os.path.join(self.sdev_dir, "bpf_bound_progs")
         _, progs = cmd('ls %s' % (path))
@@ -380,6 +536,11 @@ class NetdevSim:
     def wait_for_flush(self, bound=0, total=0, n_retry=20):
         for i in range(n_retry):
             nbound = self.dfs_num_bound_progs()
+=======
+    def wait_for_flush(self, bound=0, total=0, n_retry=20):
+        for i in range(n_retry):
+            nbound = self.nsimdev.dfs_num_bound_progs()
+>>>>>>> upstream/android-13
             nprogs = len(bpftool_prog_list())
             if nbound == bound and nprogs == total:
                 return
@@ -589,6 +750,18 @@ def check_verifier_log(output, reference):
             return
     fail(True, "Missing or incorrect message from netdevsim in verifier log")
 
+<<<<<<< HEAD
+=======
+def check_multi_basic(two_xdps):
+    fail(two_xdps["mode"] != 4, "Bad mode reported with multiple programs")
+    fail("prog" in two_xdps, "Base program reported in multi program mode")
+    fail(len(two_xdps["attached"]) != 2,
+         "Wrong attached program count with two programs")
+    fail(two_xdps["attached"][0]["prog"]["id"] ==
+         two_xdps["attached"][1]["prog"]["id"],
+         "Offloaded and other programs have the same id")
+
+>>>>>>> upstream/android-13
 def test_spurios_extack(sim, obj, skip_hw, needle):
     res = sim.cls_bpf_add_filter(obj, prio=1, handle=1, skip_hw=skip_hw,
                                  include_stderr=True)
@@ -600,6 +773,69 @@ def test_spurios_extack(sim, obj, skip_hw, needle):
                             include_stderr=True)
     check_no_extack(res, needle)
 
+<<<<<<< HEAD
+=======
+def test_multi_prog(simdev, sim, obj, modename, modeid):
+    start_test("Test multi-attachment XDP - %s + offload..." %
+               (modename or "default", ))
+    sim.set_xdp(obj, "offload")
+    xdp = sim.ip_link_show(xdp=True)["xdp"]
+    offloaded = sim.dfs_read("bpf_offloaded_id")
+    fail("prog" not in xdp, "Base program not reported in single program mode")
+    fail(len(xdp["attached"]) != 1,
+         "Wrong attached program count with one program")
+
+    sim.set_xdp(obj, modename)
+    two_xdps = sim.ip_link_show(xdp=True)["xdp"]
+
+    fail(xdp["attached"][0] not in two_xdps["attached"],
+         "Offload program not reported after other activated")
+    check_multi_basic(two_xdps)
+
+    offloaded2 = sim.dfs_read("bpf_offloaded_id")
+    fail(offloaded != offloaded2,
+         "Offload ID changed after loading other program")
+
+    start_test("Test multi-attachment XDP - replace...")
+    ret, _, err = sim.set_xdp(obj, "offload", fail=False, include_stderr=True)
+    fail(ret == 0, "Replaced one of programs without -force")
+    check_extack(err, "XDP program already attached.", args)
+
+    start_test("Test multi-attachment XDP - remove without mode...")
+    ret, _, err = sim.unset_xdp("", force=True,
+                                fail=False, include_stderr=True)
+    fail(ret == 0, "Removed program without a mode flag")
+    check_extack(err, "More than one program loaded, unset mode is ambiguous.", args)
+
+    sim.unset_xdp("offload")
+    xdp = sim.ip_link_show(xdp=True)["xdp"]
+    offloaded = sim.dfs_read("bpf_offloaded_id")
+
+    fail(xdp["mode"] != modeid, "Bad mode reported after multiple programs")
+    fail("prog" not in xdp,
+         "Base program not reported after multi program mode")
+    fail(xdp["attached"][0] not in two_xdps["attached"],
+         "Offload program not reported after other activated")
+    fail(len(xdp["attached"]) != 1,
+         "Wrong attached program count with remaining programs")
+    fail(offloaded != "0", "Offload ID reported with only other program left")
+
+    start_test("Test multi-attachment XDP - reattach...")
+    sim.set_xdp(obj, "offload")
+    two_xdps = sim.ip_link_show(xdp=True)["xdp"]
+
+    fail(xdp["attached"][0] not in two_xdps["attached"],
+         "Other program not reported after offload activated")
+    check_multi_basic(two_xdps)
+
+    start_test("Test multi-attachment XDP - device remove...")
+    simdev.remove()
+
+    simdev = NetdevSimDev()
+    sim, = simdev.nsims
+    sim.set_ethtool_tc_offloads(True)
+    return [simdev, sim]
+>>>>>>> upstream/android-13
 
 # Parse command line
 parser = argparse.ArgumentParser()
@@ -620,6 +856,12 @@ ret, progs = bpftool("prog", fail=False)
 skip(ret != 0, "bpftool not installed")
 base_progs = progs
 _, base_maps = bpftool("map")
+<<<<<<< HEAD
+=======
+base_map_names = [
+    'pid_iter.rodata' # created on each bpftool invocation
+]
+>>>>>>> upstream/android-13
 
 # Check netdevsim
 ret, out = cmd("modprobe netdevsim", fail=False)
@@ -656,12 +898,23 @@ try:
     bytecode = bpf_bytecode("1,6 0 0 4294967295,")
 
     start_test("Test destruction of generic XDP...")
+<<<<<<< HEAD
     sim = NetdevSim()
     sim.set_xdp(obj, "generic")
     sim.remove()
     bpftool_prog_list_wait(expected=0)
 
     sim = NetdevSim()
+=======
+    simdev = NetdevSimDev()
+    sim, = simdev.nsims
+    sim.set_xdp(obj, "generic")
+    simdev.remove()
+    bpftool_prog_list_wait(expected=0)
+
+    simdev = NetdevSimDev()
+    sim, = simdev.nsims
+>>>>>>> upstream/android-13
     sim.tc_add_ingress()
 
     start_test("Test TC non-offloaded...")
@@ -671,7 +924,11 @@ try:
     start_test("Test TC non-offloaded isn't getting bound...")
     ret, _ = sim.cls_bpf_add_filter(obj, fail=False)
     fail(ret != 0, "Software TC filter did not load")
+<<<<<<< HEAD
     sim.dfs_get_bound_progs(expected=0)
+=======
+    simdev.dfs_get_bound_progs(expected=0)
+>>>>>>> upstream/android-13
 
     sim.tc_flush_filters()
 
@@ -688,7 +945,11 @@ try:
     start_test("Test TC offload by default...")
     ret, _ = sim.cls_bpf_add_filter(obj, fail=False)
     fail(ret != 0, "Software TC filter did not load")
+<<<<<<< HEAD
     sim.dfs_get_bound_progs(expected=0)
+=======
+    simdev.dfs_get_bound_progs(expected=0)
+>>>>>>> upstream/android-13
     ingress = sim.tc_show_ingress(expected=1)
     fltr = ingress[0]
     fail(not fltr["in_hw"], "Filter not offloaded by default")
@@ -698,7 +959,11 @@ try:
     start_test("Test TC cBPF bytcode tries offload by default...")
     ret, _ = sim.cls_bpf_add_filter(bytecode, fail=False)
     fail(ret != 0, "Software TC filter did not load")
+<<<<<<< HEAD
     sim.dfs_get_bound_progs(expected=0)
+=======
+    simdev.dfs_get_bound_progs(expected=0)
+>>>>>>> upstream/android-13
     ingress = sim.tc_show_ingress(expected=1)
     fltr = ingress[0]
     fail(not fltr["in_hw"], "Bytecode not offloaded by default")
@@ -759,14 +1024,31 @@ try:
 
     sim.tc_flush_filters()
 
+<<<<<<< HEAD
+=======
+    start_test("Test TC offloads failure...")
+    sim.dfs["dev/bpf_bind_verifier_accept"] = 0
+    ret, _, err = sim.cls_bpf_add_filter(obj, verbose=True, skip_sw=True,
+                                         fail=False, include_stderr=True)
+    fail(ret == 0, "TC filter did not reject with TC offloads enabled")
+    check_verifier_log(err, "[netdevsim] Hello from netdevsim!")
+    sim.dfs["dev/bpf_bind_verifier_accept"] = 1
+
+>>>>>>> upstream/android-13
     start_test("Test TC offloads work...")
     ret, _, err = sim.cls_bpf_add_filter(obj, verbose=True, skip_sw=True,
                                          fail=False, include_stderr=True)
     fail(ret != 0, "TC filter did not load with TC offloads enabled")
+<<<<<<< HEAD
     check_verifier_log(err, "[netdevsim] Hello from netdevsim!")
 
     start_test("Test TC offload basics...")
     dfs = sim.dfs_get_bound_progs(expected=1)
+=======
+
+    start_test("Test TC offload basics...")
+    dfs = simdev.dfs_get_bound_progs(expected=1)
+>>>>>>> upstream/android-13
     progs = bpftool_prog_list(expected=1)
     ingress = sim.tc_show_ingress(expected=1)
 
@@ -802,18 +1084,34 @@ try:
 
     start_test("Test destroying device gets rid of TC filters...")
     sim.cls_bpf_add_filter(obj, skip_sw=True)
+<<<<<<< HEAD
     sim.remove()
     bpftool_prog_list_wait(expected=0)
 
     sim = NetdevSim()
+=======
+    simdev.remove()
+    bpftool_prog_list_wait(expected=0)
+
+    simdev = NetdevSimDev()
+    sim, = simdev.nsims
+>>>>>>> upstream/android-13
     sim.set_ethtool_tc_offloads(True)
 
     start_test("Test destroying device gets rid of XDP...")
     sim.set_xdp(obj, "offload")
+<<<<<<< HEAD
     sim.remove()
     bpftool_prog_list_wait(expected=0)
 
     sim = NetdevSim()
+=======
+    simdev.remove()
+    bpftool_prog_list_wait(expected=0)
+
+    simdev = NetdevSimDev()
+    sim, = simdev.nsims
+>>>>>>> upstream/android-13
     sim.set_ethtool_tc_offloads(True)
 
     start_test("Test XDP prog reporting...")
@@ -843,6 +1141,7 @@ try:
     ret, _, err = sim.set_xdp(obj, "generic", force=True,
                               fail=False, include_stderr=True)
     fail(ret == 0, "Replaced XDP program with a program in different mode")
+<<<<<<< HEAD
     fail(err.count("File exists") != 1, "Replaced driver XDP with generic")
     ret, _, err = sim.set_xdp(obj, "", force=True,
                               fail=False, include_stderr=True)
@@ -854,6 +1153,11 @@ try:
                                 fail=False, include_stderr=True)
     fail(ret == 0, "Removed program with a bad mode")
     check_extack(err, "program loaded with different flags.", args)
+=======
+    check_extack(err,
+                 "Native and generic XDP can't be active at the same time.",
+                 args)
+>>>>>>> upstream/android-13
 
     start_test("Test MTU restrictions...")
     ret, _ = sim.set_mtu(9000, fail=False)
@@ -883,10 +1187,26 @@ try:
     offload = bpf_pinned("/sys/fs/bpf/offload")
     ret, _, err = sim.set_xdp(offload, "drv", fail=False, include_stderr=True)
     fail(ret == 0, "attached offloaded XDP program to drv")
+<<<<<<< HEAD
     check_extack(err, "using device-bound program without HW_MODE flag is not supported.", args)
     rm("/sys/fs/bpf/offload")
     sim.wait_for_flush()
 
+=======
+    check_extack(err, "Using device-bound program without HW_MODE flag is not supported.", args)
+    rm("/sys/fs/bpf/offload")
+    sim.wait_for_flush()
+
+    start_test("Test XDP load failure...")
+    sim.dfs["dev/bpf_bind_verifier_accept"] = 0
+    ret, _, err = bpftool_prog_load("sample_ret0.o", "/sys/fs/bpf/offload",
+                                 dev=sim['ifname'], fail=False, include_stderr=True)
+    fail(ret == 0, "verifier should fail on load")
+    check_verifier_log(err, "[netdevsim] Hello from netdevsim!")
+    sim.dfs["dev/bpf_bind_verifier_accept"] = 1
+    sim.wait_for_flush()
+
+>>>>>>> upstream/android-13
     start_test("Test XDP offload...")
     _, _, err = sim.set_xdp(obj, "offload", verbose=True, include_stderr=True)
     ipl = sim.ip_link_show(xdp=True)
@@ -894,10 +1214,16 @@ try:
     progs = bpftool_prog_list(expected=1)
     prog = progs[0]
     fail(link_xdp["id"] != prog["id"], "Loaded program has wrong ID")
+<<<<<<< HEAD
     check_verifier_log(err, "[netdevsim] Hello from netdevsim!")
 
     start_test("Test XDP offload is device bound...")
     dfs = sim.dfs_get_bound_progs(expected=1)
+=======
+
+    start_test("Test XDP offload is device bound...")
+    dfs = simdev.dfs_get_bound_progs(expected=1)
+>>>>>>> upstream/android-13
     dprog = dfs[0]
 
     fail(prog["id"] != link_xdp["id"], "Program IDs don't match")
@@ -916,7 +1242,12 @@ try:
     bpftool_prog_list_wait(expected=0)
 
     start_test("Test attempt to use a program for a wrong device...")
+<<<<<<< HEAD
     sim2 = NetdevSim()
+=======
+    simdev2 = NetdevSimDev()
+    sim2, = simdev2.nsims
+>>>>>>> upstream/android-13
     sim2.set_xdp(obj, "offload")
     pin_file, pinned = pin_prog("/sys/fs/bpf/tmp")
 
@@ -924,7 +1255,11 @@ try:
                               fail=False, include_stderr=True)
     fail(ret == 0, "Pinned program loaded for a different device accepted")
     check_extack_nsim(err, "program bound to different dev.", args)
+<<<<<<< HEAD
     sim2.remove()
+=======
+    simdev2.remove()
+>>>>>>> upstream/android-13
     ret, _, err = sim.set_xdp(pinned, "offload",
                               fail=False, include_stderr=True)
     fail(ret == 0, "Pinned program loaded for a removed device accepted")
@@ -932,6 +1267,7 @@ try:
     rm(pin_file)
     bpftool_prog_list_wait(expected=0)
 
+<<<<<<< HEAD
     start_test("Test multi-attachment XDP - attach...")
     sim.set_xdp(obj, "offload")
     xdp = sim.ip_link_show(xdp=True)["xdp"]
@@ -985,6 +1321,11 @@ try:
 
     sim = NetdevSim()
     sim.set_ethtool_tc_offloads(True)
+=======
+    simdev, sim = test_multi_prog(simdev, sim, obj, "", 1)
+    simdev, sim = test_multi_prog(simdev, sim, obj, "drv", 1)
+    simdev, sim = test_multi_prog(simdev, sim, obj, "generic", 2)
+>>>>>>> upstream/android-13
 
     start_test("Test mixing of TC and XDP...")
     sim.tc_add_ingress()
@@ -1031,15 +1372,25 @@ try:
 
     start_test("Test if netdev removal waits for translation...")
     delay_msec = 500
+<<<<<<< HEAD
     sim.dfs["bpf_bind_verifier_delay"] = delay_msec
+=======
+    sim.dfs["dev/bpf_bind_verifier_delay"] = delay_msec
+>>>>>>> upstream/android-13
     start = time.time()
     cmd_line = "tc filter add dev %s ingress bpf %s da skip_sw" % \
                (sim['ifname'], obj)
     tc_proc = cmd(cmd_line, background=True, fail=False)
     # Wait for the verifier to start
+<<<<<<< HEAD
     while sim.dfs_num_bound_progs() <= 2:
         pass
     sim.remove()
+=======
+    while simdev.dfs_num_bound_progs() <= 2:
+        pass
+    simdev.remove()
+>>>>>>> upstream/android-13
     end = time.time()
     ret, _ = cmd_result(tc_proc, fail=False)
     time_diff = end - start
@@ -1054,7 +1405,12 @@ try:
     clean_up()
     bpftool_prog_list_wait(expected=0)
 
+<<<<<<< HEAD
     sim = NetdevSim()
+=======
+    simdev = NetdevSimDev()
+    sim, = simdev.nsims
+>>>>>>> upstream/android-13
     map_obj = bpf_obj("sample_map_ret0.o")
     start_test("Test loading program with maps...")
     sim.set_xdp(map_obj, "offload", JSON=False) # map fixup msg breaks JSON
@@ -1076,7 +1432,11 @@ try:
 
     prog_file, _ = pin_prog("/sys/fs/bpf/tmp_prog")
     map_file, _ = pin_map("/sys/fs/bpf/tmp_map", idx=1, expected=2)
+<<<<<<< HEAD
     sim.remove()
+=======
+    simdev.remove()
+>>>>>>> upstream/android-13
 
     start_test("Test bpftool bound info reporting (removed dev)...")
     check_dev_info_removed(prog_file=prog_file, map_file=map_file)
@@ -1085,7 +1445,12 @@ try:
     clean_up()
     bpftool_prog_list_wait(expected=0)
 
+<<<<<<< HEAD
     sim = NetdevSim()
+=======
+    simdev = NetdevSimDev()
+    sim, = simdev.nsims
+>>>>>>> upstream/android-13
 
     start_test("Test map update (no flags)...")
     sim.set_xdp(map_obj, "offload", JSON=False) # map fixup msg breaks JSON
@@ -1166,6 +1531,7 @@ try:
     start_test("Test map remove...")
     sim.unset_xdp("offload")
     bpftool_map_list_wait(expected=0)
+<<<<<<< HEAD
     sim.remove()
 
     sim = NetdevSim()
@@ -1175,11 +1541,25 @@ try:
 
     start_test("Test map creation fail path...")
     sim = NetdevSim()
+=======
+    simdev.remove()
+
+    simdev = NetdevSimDev()
+    sim, = simdev.nsims
+    sim.set_xdp(map_obj, "offload", JSON=False) # map fixup msg breaks JSON
+    simdev.remove()
+    bpftool_map_list_wait(expected=0)
+
+    start_test("Test map creation fail path...")
+    simdev = NetdevSimDev()
+    sim, = simdev.nsims
+>>>>>>> upstream/android-13
     sim.dfs["bpf_map_accept"] = "N"
     ret, _ = sim.set_xdp(map_obj, "offload", JSON=False, fail=False)
     fail(ret == 0,
          "netdevsim didn't refuse to create a map with offload disabled")
 
+<<<<<<< HEAD
     sim.remove()
 
     start_test("Test multi-dev ASIC program reuse...")
@@ -1187,6 +1567,15 @@ try:
     simB1 = NetdevSim()
     simB2 = NetdevSim(link=simB1)
     simB3 = NetdevSim(link=simB1)
+=======
+    simdev.remove()
+
+    start_test("Test multi-dev ASIC program reuse...")
+    simdevA = NetdevSimDev()
+    simA, = simdevA.nsims
+    simdevB = NetdevSimDev(3)
+    simB1, simB2, simB3 = simdevB.nsims
+>>>>>>> upstream/android-13
     sims = (simA, simB1, simB2, simB3)
     simB = (simB1, simB2, simB3)
 
@@ -1198,13 +1587,21 @@ try:
     progB = bpf_pinned("/sys/fs/bpf/nsimB")
 
     simA.set_xdp(progA, "offload", JSON=False)
+<<<<<<< HEAD
     for d in simB:
+=======
+    for d in simdevB.nsims:
+>>>>>>> upstream/android-13
         d.set_xdp(progB, "offload", JSON=False)
 
     start_test("Test multi-dev ASIC cross-dev replace...")
     ret, _ = simA.set_xdp(progB, "offload", force=True, JSON=False, fail=False)
     fail(ret == 0, "cross-ASIC program allowed")
+<<<<<<< HEAD
     for d in simB:
+=======
+    for d in simdevB.nsims:
+>>>>>>> upstream/android-13
         ret, _ = d.set_xdp(progA, "offload", force=True, JSON=False, fail=False)
         fail(ret == 0, "cross-ASIC program allowed")
 
@@ -1216,7 +1613,11 @@ try:
                                fail=False, include_stderr=True)
     fail(ret == 0, "cross-ASIC program allowed")
     check_extack_nsim(err, "program bound to different dev.", args)
+<<<<<<< HEAD
     for d in simB:
+=======
+    for d in simdevB.nsims:
+>>>>>>> upstream/android-13
         ret, _, err = d.set_xdp(progA, "offload", force=True, JSON=False,
                                 fail=False, include_stderr=True)
         fail(ret == 0, "cross-ASIC program allowed")
@@ -1253,11 +1654,19 @@ try:
     start_test("Test multi-dev ASIC cross-dev destruction...")
     bpftool_prog_list_wait(expected=2)
 
+<<<<<<< HEAD
     simA.remove()
     bpftool_prog_list_wait(expected=1)
 
     ifnameB = bpftool("prog show %s" % (progB))[1]["dev"]["ifname"]
     fail(ifnameB != simB1['ifname'], "program not bound to originial device")
+=======
+    simdevA.remove()
+    bpftool_prog_list_wait(expected=1)
+
+    ifnameB = bpftool("prog show %s" % (progB))[1]["dev"]["ifname"]
+    fail(ifnameB != simB1['ifname'], "program not bound to original device")
+>>>>>>> upstream/android-13
     simB1.remove()
     bpftool_prog_list_wait(expected=1)
 
@@ -1271,6 +1680,10 @@ try:
     fail(ifnameB != simB3['ifname'], "program not bound to remaining device")
 
     simB3.remove()
+<<<<<<< HEAD
+=======
+    simdevB.remove()
+>>>>>>> upstream/android-13
     bpftool_prog_list_wait(expected=0)
 
     start_test("Test multi-dev ASIC cross-dev destruction - orphaned...")

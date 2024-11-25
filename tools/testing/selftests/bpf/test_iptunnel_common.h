@@ -1,8 +1,13 @@
+<<<<<<< HEAD
 /* Copyright (c) 2016 Facebook
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of version 2 of the GNU General Public
  * License as published by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/* Copyright (c) 2016 Facebook
+>>>>>>> upstream/android-13
  */
 #ifndef _TEST_IPTNL_COMMON_H
 #define _TEST_IPTNL_COMMON_H

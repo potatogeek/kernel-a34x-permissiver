@@ -242,9 +242,12 @@ struct ip_vs_sync_thread_data {
       |                    IPVS Sync Connection (1)                   |
 */
 
+<<<<<<< HEAD
 #define SYNC_MESG_HEADER_LEN	4
 #define MAX_CONNS_PER_SYNCBUFF	255 /* nr_conns in ip_vs_sync_mesg is 8 bit */
 
+=======
+>>>>>>> upstream/android-13
 /* Version 0 header */
 struct ip_vs_sync_mesg_v0 {
 	__u8                    nr_conns;
@@ -618,7 +621,11 @@ static void ip_vs_sync_conn_v0(struct netns_ipvs *ipvs, struct ip_vs_conn *cp,
 	cp = cp->control;
 	if (cp) {
 		if (cp->flags & IP_VS_CONN_F_TEMPLATE)
+<<<<<<< HEAD
 			pkts = atomic_add_return(1, &cp->in_pkts);
+=======
+			pkts = atomic_inc_return(&cp->in_pkts);
+>>>>>>> upstream/android-13
 		else
 			pkts = sysctl_sync_threshold(ipvs);
 		ip_vs_sync_conn(ipvs, cp, pkts);
@@ -779,7 +786,11 @@ control:
 	if (!cp)
 		return;
 	if (cp->flags & IP_VS_CONN_F_TEMPLATE)
+<<<<<<< HEAD
 		pkts = atomic_add_return(1, &cp->in_pkts);
+=======
+		pkts = atomic_inc_return(&cp->in_pkts);
+>>>>>>> upstream/android-13
 	else
 		pkts = sysctl_sync_threshold(ipvs);
 	goto sloop;
@@ -1239,7 +1250,11 @@ static void ip_vs_process_message(struct netns_ipvs *ipvs, __u8 *buffer,
 
 			p = msg_end;
 			if (p + sizeof(s->v4) > buffer+buflen) {
+<<<<<<< HEAD
 				IP_VS_ERR_RL("BACKUP, Dropping buffer, to small\n");
+=======
+				IP_VS_ERR_RL("BACKUP, Dropping buffer, too small\n");
+>>>>>>> upstream/android-13
 				return;
 			}
 			s = (union ip_vs_sync_conn *)p;
@@ -1620,7 +1635,11 @@ ip_vs_receive(struct socket *sock, char *buffer, const size_t buflen)
 	EnterFunction(7);
 
 	/* Receive a packet */
+<<<<<<< HEAD
 	iov_iter_kvec(&msg.msg_iter, READ | ITER_KVEC, &iov, 1, buflen);
+=======
+	iov_iter_kvec(&msg.msg_iter, READ, &iov, 1, buflen);
+>>>>>>> upstream/android-13
 	len = sock_recvmsg(sock, &msg, MSG_DONTWAIT);
 	if (len < 0)
 		return len;

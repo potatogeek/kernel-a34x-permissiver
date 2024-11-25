@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  IPv6 Syncookies implementation for the Linux kernel
  *
@@ -6,12 +10,15 @@
  *
  *  Based on IPv4 implementation by Andi Kleen
  *  linux/net/ipv4/syncookies.c
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/tcp.h>
@@ -175,7 +182,12 @@ struct sock *cookie_v6_check(struct sock *sk, struct sk_buff *skb)
 		goto out;
 
 	ret = NULL;
+<<<<<<< HEAD
 	req = inet_reqsk_alloc(&tcp6_request_sock_ops, sk, false);
+=======
+	req = cookie_tcp_reqsk_alloc(&tcp6_request_sock_ops,
+				     &tcp_request_sock_ipv6_ops, sk, skb);
+>>>>>>> upstream/android-13
 	if (!req)
 		goto out;
 
@@ -238,7 +250,11 @@ struct sock *cookie_v6_check(struct sock *sk, struct sk_buff *skb)
 		fl6.fl6_dport = ireq->ir_rmt_port;
 		fl6.fl6_sport = inet_sk(sk)->inet_sport;
 		fl6.flowi6_uid = sk->sk_uid;
+<<<<<<< HEAD
 		security_req_classify_flow(req, flowi6_to_flowi(&fl6));
+=======
+		security_req_classify_flow(req, flowi6_to_flowi_common(&fl6));
+>>>>>>> upstream/android-13
 
 		dst = ip6_dst_lookup_flow(sock_net(sk), sk, &fl6, final_p);
 		if (IS_ERR(dst))

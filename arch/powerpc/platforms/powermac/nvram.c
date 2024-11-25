@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 2002 Benjamin Herrenschmidt (benh@kernel.crashing.org)
  *
@@ -6,6 +7,12 @@
  *  as published by the Free Software Foundation; either version
  *  2 of the License, or (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Copyright (C) 2002 Benjamin Herrenschmidt (benh@kernel.crashing.org)
+ *
+>>>>>>> upstream/android-13
  *  Todo: - add support for the OF persistent properties
  */
 #include <linux/export.h>
@@ -18,7 +25,11 @@
 #include <linux/errno.h>
 #include <linux/adb.h>
 #include <linux/pmu.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/completion.h>
 #include <linux/spinlock.h>
 #include <asm/sections.h>
@@ -59,7 +70,11 @@ struct chrp_header {
   u8		cksum;
   u16		len;
   char          name[12];
+<<<<<<< HEAD
   u8		data[0];
+=======
+  u8		data[];
+>>>>>>> upstream/android-13
 };
 
 struct core99_header {
@@ -147,6 +162,14 @@ static ssize_t core99_nvram_size(void)
 static volatile unsigned char __iomem *nvram_addr;
 static int nvram_mult;
 
+<<<<<<< HEAD
+=======
+static ssize_t ppc32_nvram_size(void)
+{
+	return NVRAM_SIZE;
+}
+
+>>>>>>> upstream/android-13
 static unsigned char direct_nvram_read_byte(int addr)
 {
 	return in_8(&nvram_data[(addr & (NVRAM_SIZE - 1)) * nvram_mult]);
@@ -513,7 +536,14 @@ static int __init core99_nvram_setup(struct device_node *dp, unsigned long addr)
 		printk(KERN_ERR "nvram: no address\n");
 		return -EINVAL;
 	}
+<<<<<<< HEAD
 	nvram_image = memblock_virt_alloc(NVRAM_SIZE, 0);
+=======
+	nvram_image = memblock_alloc(NVRAM_SIZE, SMP_CACHE_BYTES);
+	if (!nvram_image)
+		panic("%s: Failed to allocate %u bytes\n", __func__,
+		      NVRAM_SIZE);
+>>>>>>> upstream/android-13
 	nvram_data = ioremap(addr, NVRAM_SIZE*2);
 	nvram_naddrs = 1; /* Make sure we get the correct case */
 
@@ -590,21 +620,37 @@ int __init pmac_nvram_init(void)
 		nvram_mult = 1;
 		ppc_md.nvram_read_val	= direct_nvram_read_byte;
 		ppc_md.nvram_write_val	= direct_nvram_write_byte;
+<<<<<<< HEAD
+=======
+		ppc_md.nvram_size	= ppc32_nvram_size;
+>>>>>>> upstream/android-13
 	} else if (nvram_naddrs == 1) {
 		nvram_data = ioremap(r1.start, s1);
 		nvram_mult = (s1 + NVRAM_SIZE - 1) / NVRAM_SIZE;
 		ppc_md.nvram_read_val	= direct_nvram_read_byte;
 		ppc_md.nvram_write_val	= direct_nvram_write_byte;
+<<<<<<< HEAD
+=======
+		ppc_md.nvram_size	= ppc32_nvram_size;
+>>>>>>> upstream/android-13
 	} else if (nvram_naddrs == 2) {
 		nvram_addr = ioremap(r1.start, s1);
 		nvram_data = ioremap(r2.start, s2);
 		ppc_md.nvram_read_val	= indirect_nvram_read_byte;
 		ppc_md.nvram_write_val	= indirect_nvram_write_byte;
+<<<<<<< HEAD
+=======
+		ppc_md.nvram_size	= ppc32_nvram_size;
+>>>>>>> upstream/android-13
 	} else if (nvram_naddrs == 0 && sys_ctrler == SYS_CTRLER_PMU) {
 #ifdef CONFIG_ADB_PMU
 		nvram_naddrs = -1;
 		ppc_md.nvram_read_val	= pmu_nvram_read_byte;
 		ppc_md.nvram_write_val	= pmu_nvram_write_byte;
+<<<<<<< HEAD
+=======
+		ppc_md.nvram_size	= ppc32_nvram_size;
+>>>>>>> upstream/android-13
 #endif /* CONFIG_ADB_PMU */
 	} else {
 		printk(KERN_ERR "Incompatible type of NVRAM\n");

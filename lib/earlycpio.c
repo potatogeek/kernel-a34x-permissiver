@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* ----------------------------------------------------------------------- *
  *
  *   Copyright 2012 Intel Corporation; author H. Peter Anvin
  *
+<<<<<<< HEAD
  *   This file is part of the Linux kernel, and is made available
  *   under the terms of the GNU General Public License version 2, as
  *   published by the Free Software Foundation.
@@ -11,6 +16,8 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *   General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * ----------------------------------------------------------------------- */
 
 /*
@@ -48,16 +55,26 @@ enum cpio_fields {
 };
 
 /**
+<<<<<<< HEAD
  * cpio_data find_cpio_data - Search for files in an uncompressed cpio
  * @path:       The directory to search for, including a slash at the end
  * @data:       Pointer to the the cpio archive or a header inside
+=======
+ * find_cpio_data - Search for files in an uncompressed cpio
+ * @path:       The directory to search for, including a slash at the end
+ * @data:       Pointer to the cpio archive or a header inside
+>>>>>>> upstream/android-13
  * @len:        Remaining length of the cpio based on data pointer
  * @nextoff:    When a matching file is found, this is the offset from the
  *              beginning of the cpio to the beginning of the next file, not the
  *              matching file itself. It can be used to iterate through the cpio
  *              to find all files inside of a directory path.
  *
+<<<<<<< HEAD
  * @return:     struct cpio_data containing the address, length and
+=======
+ * Return:      &struct cpio_data containing the address, length and
+>>>>>>> upstream/android-13
  *              filename (with the directory path cut off) of the found file.
  *              If you search for a filename and not for files in a directory,
  *              pass the absolute path of the filename in the cpio and make sure

@@ -1,8 +1,37 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
+=======
+#include <linux/of.h>
+#include <linux/of_address.h>
+>>>>>>> upstream/android-13
 #include <asm/mach/arch.h>
 
 #include "core.h"
 
+<<<<<<< HEAD
+=======
+#define SYS_FLAGSSET		0x030
+#define SYS_FLAGSCLR		0x034
+
+void vexpress_flags_set(u32 data)
+{
+	static void __iomem *base;
+
+	if (!base) {
+		struct device_node *node = of_find_compatible_node(NULL, NULL,
+				"arm,vexpress-sysreg");
+
+		base = of_iomap(node, 0);
+	}
+
+	if (WARN_ON(!base))
+		return;
+
+	writel(~0, base + SYS_FLAGSCLR);
+	writel(data, base + SYS_FLAGSSET);
+}
+
+>>>>>>> upstream/android-13
 static const char * const v2m_dt_match[] __initconst = {
 	"arm,vexpress",
 	NULL,

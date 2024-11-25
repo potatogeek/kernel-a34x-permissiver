@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * drivers/clk/clk-axm5516.c
  *
@@ -5,10 +9,13 @@
  * the Axxia device: PLL clock, a clock divider and a clock mux.
  *
  * Copyright (C) 2014 LSI Corporation
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/kernel.h>
@@ -311,7 +318,10 @@ static struct axxia_divclk clk_per_div = {
 			"clk_sm1_pll"
 		},
 		.num_parents = 1,
+<<<<<<< HEAD
 		.flags = CLK_IS_BASIC,
+=======
+>>>>>>> upstream/android-13
 		.ops = &axxia_divclk_ops,
 	},
 	.reg   = 0x1000c,
@@ -326,7 +336,10 @@ static struct axxia_divclk clk_mmc_div = {
 			"clk_sm1_pll"
 		},
 		.num_parents = 1,
+<<<<<<< HEAD
 		.flags = CLK_IS_BASIC,
+=======
+>>>>>>> upstream/android-13
 		.ops = &axxia_divclk_ops,
 	},
 	.reg   = 0x1000c,

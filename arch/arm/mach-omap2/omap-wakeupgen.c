@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * OMAP WakeupGen Source file
  *
@@ -10,10 +14,13 @@
  *
  * Copyright (C) 2011 Texas Instruments, Inc.
  *	Santosh Shilimkar <santosh.shilimkar@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -436,13 +443,21 @@ static int irq_notifier(struct notifier_block *self, unsigned long cmd,	void *v)
 {
 	switch (cmd) {
 	case CPU_CLUSTER_PM_ENTER:
+<<<<<<< HEAD
 		if (omap_type() == OMAP2_DEVICE_TYPE_GP)
+=======
+		if (omap_type() == OMAP2_DEVICE_TYPE_GP || soc_is_am43xx())
+>>>>>>> upstream/android-13
 			irq_save_context();
 		else
 			irq_save_secure_context();
 		break;
 	case CPU_CLUSTER_PM_EXIT:
+<<<<<<< HEAD
 		if (omap_type() == OMAP2_DEVICE_TYPE_GP)
+=======
+		if (omap_type() == OMAP2_DEVICE_TYPE_GP || soc_is_am43xx())
+>>>>>>> upstream/android-13
 			irq_restore_context();
 		break;
 	}

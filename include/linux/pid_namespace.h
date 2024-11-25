@@ -8,6 +8,7 @@
 #include <linux/workqueue.h>
 #include <linux/threads.h>
 #include <linux/nsproxy.h>
+<<<<<<< HEAD
 #include <linux/kref.h>
 #include <linux/ns_common.h>
 #include <linux/idr.h>
@@ -23,6 +24,17 @@ enum { /* definitions for pid_namespace's hide_pid field */
 
 struct pid_namespace {
 	struct kref kref;
+=======
+#include <linux/ns_common.h>
+#include <linux/idr.h>
+
+/* MAX_PID_NS_LEVEL is needed for limiting size of 'struct pid' */
+#define MAX_PID_NS_LEVEL 32
+
+struct fs_pin;
+
+struct pid_namespace {
+>>>>>>> upstream/android-13
 	struct idr idr;
 	struct rcu_head rcu;
 	unsigned int pid_allocated;
@@ -30,19 +42,25 @@ struct pid_namespace {
 	struct kmem_cache *pid_cachep;
 	unsigned int level;
 	struct pid_namespace *parent;
+<<<<<<< HEAD
 #ifdef CONFIG_PROC_FS
 	struct vfsmount *proc_mnt;
 	struct dentry *proc_self;
 	struct dentry *proc_thread_self;
 #endif
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_BSD_PROCESS_ACCT
 	struct fs_pin *bacct;
 #endif
 	struct user_namespace *user_ns;
 	struct ucounts *ucounts;
+<<<<<<< HEAD
 	struct work_struct proc_work;
 	kgid_t pid_gid;
 	int hide_pid;
+=======
+>>>>>>> upstream/android-13
 	int reboot;	/* group exit code if this pidns was rebooted */
 	struct ns_common ns;
 } __randomize_layout;
@@ -55,7 +73,11 @@ extern struct pid_namespace init_pid_ns;
 static inline struct pid_namespace *get_pid_ns(struct pid_namespace *ns)
 {
 	if (ns != &init_pid_ns)
+<<<<<<< HEAD
 		kref_get(&ns->kref);
+=======
+		refcount_inc(&ns->ns.count);
+>>>>>>> upstream/android-13
 	return ns;
 }
 

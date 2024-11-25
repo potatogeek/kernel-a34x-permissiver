@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *
  *			Linux MegaRAID device driver
  *
  * Copyright (c) 2003-2004  LSI Logic Corporation.
  *
+<<<<<<< HEAD
  *	   This program is free software; you can redistribute it and/or
  *	   modify it under the terms of the GNU General Public License
  *	   as published by the Free Software Foundation; either version
  *	   2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * FILE		: megaraid_mm.c
  * Version	: v2.20.2.7 (Jul 16 2006)
  *
@@ -45,10 +52,13 @@ static int mraid_mm_setup_dma_pools(mraid_mmadp_t *);
 static void mraid_mm_free_adp_resources(mraid_mmadp_t *);
 static void mraid_mm_teardown_dma_pools(mraid_mmadp_t *);
 
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 static long mraid_mm_compat_ioctl(struct file *, unsigned int, unsigned long);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 MODULE_AUTHOR("LSI Logic Corporation");
 MODULE_DESCRIPTION("LSI Logic Management Module");
 MODULE_LICENSE("GPL");
@@ -72,9 +82,13 @@ static wait_queue_head_t wait_q;
 static const struct file_operations lsi_fops = {
 	.open	= mraid_mm_open,
 	.unlocked_ioctl = mraid_mm_unlocked_ioctl,
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 	.compat_ioctl = mraid_mm_compat_ioctl,
 #endif
+=======
+	.compat_ioctl = compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 	.owner	= THIS_MODULE,
 	.llseek = noop_llseek,
 };
@@ -105,7 +119,10 @@ mraid_mm_open(struct inode *inode, struct file *filep)
 
 /**
  * mraid_mm_ioctl - module entry-point for ioctls
+<<<<<<< HEAD
  * @inode	: inode (ignored)
+=======
+>>>>>>> upstream/android-13
  * @filep	: file operations pointer (ignored)
  * @cmd		: ioctl command
  * @arg		: user ioctl packet
@@ -228,7 +245,10 @@ mraid_mm_unlocked_ioctl(struct file *filep, unsigned int cmd,
 {
 	int err;
 
+<<<<<<< HEAD
 	/* inconsistent: mraid_mm_compat_ioctl doesn't take the BKL */
+=======
+>>>>>>> upstream/android-13
 	mutex_lock(&mraid_mm_mutex);
 	err = mraid_mm_ioctl(filep, cmd, arg);
 	mutex_unlock(&mraid_mm_mutex);
@@ -250,7 +270,11 @@ mraid_mm_get_adapter(mimd_t __user *umimd, int *rval)
 	mimd_t		mimd;
 	uint32_t	adapno;
 	int		iterator;
+<<<<<<< HEAD
 
+=======
+	bool		is_found;
+>>>>>>> upstream/android-13
 
 	if (copy_from_user(&mimd, umimd, sizeof(mimd_t))) {
 		*rval = -EFAULT;
@@ -266,12 +290,25 @@ mraid_mm_get_adapter(mimd_t __user *umimd, int *rval)
 
 	adapter = NULL;
 	iterator = 0;
+<<<<<<< HEAD
 
 	list_for_each_entry(adapter, &adapters_list_g, list) {
 		if (iterator++ == adapno) break;
 	}
 
 	if (!adapter) {
+=======
+	is_found = false;
+
+	list_for_each_entry(adapter, &adapters_list_g, list) {
+		if (iterator++ == adapno) {
+			is_found = true;
+			break;
+		}
+	}
+
+	if (!is_found) {
+>>>>>>> upstream/android-13
 		*rval = -ENODEV;
 		return NULL;
 	}
@@ -502,7 +539,11 @@ mimd_to_kioc(mimd_t __user *umimd, mraid_mmadp_t *adp, uioc_t *kioc)
 }
 
 /**
+<<<<<<< HEAD
  * mraid_mm_attch_buf - Attach a free dma buffer for required size
+=======
+ * mraid_mm_attach_buf - Attach a free dma buffer for required size
+>>>>>>> upstream/android-13
  * @adp		: Adapter softstate
  * @kioc	: kioc that the buffer needs to be attached to
  * @xferlen	: required length for buffer
@@ -737,6 +778,10 @@ ioctl_done(uioc_t *kioc)
 	uint32_t	adapno;
 	int		iterator;
 	mraid_mmadp_t*	adapter;
+<<<<<<< HEAD
+=======
+	bool		is_found;
+>>>>>>> upstream/android-13
 
 	/*
 	 * When the kioc returns from driver, make sure it still doesn't
@@ -759,19 +804,36 @@ ioctl_done(uioc_t *kioc)
 		iterator	= 0;
 		adapter		= NULL;
 		adapno		= kioc->adapno;
+<<<<<<< HEAD
+=======
+		is_found	= false;
+>>>>>>> upstream/android-13
 
 		con_log(CL_ANN, ( KERN_WARNING "megaraid cmm: completed "
 					"ioctl that was timedout before\n"));
 
 		list_for_each_entry(adapter, &adapters_list_g, list) {
+<<<<<<< HEAD
 			if (iterator++ == adapno) break;
+=======
+			if (iterator++ == adapno) {
+				is_found = true;
+				break;
+			}
+>>>>>>> upstream/android-13
 		}
 
 		kioc->timedout = 0;
 
+<<<<<<< HEAD
 		if (adapter) {
 			mraid_mm_dealloc_kioc( adapter, kioc );
 		}
+=======
+		if (is_found)
+			mraid_mm_dealloc_kioc( adapter, kioc );
+
+>>>>>>> upstream/android-13
 	}
 	else {
 		wake_up(&wait_q);
@@ -1017,8 +1079,12 @@ memalloc_error:
 	kfree(adapter->kioc_list);
 	kfree(adapter->mbox_list);
 
+<<<<<<< HEAD
 	if (adapter->pthru_dma_pool)
 		dma_pool_destroy(adapter->pthru_dma_pool);
+=======
+	dma_pool_destroy(adapter->pthru_dma_pool);
+>>>>>>> upstream/android-13
 
 	kfree(adapter);
 
@@ -1233,6 +1299,7 @@ mraid_mm_init(void)
 }
 
 
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 /**
  * mraid_mm_compat_ioctl	- 32bit to 64bit ioctl conversion routine
@@ -1252,6 +1319,8 @@ mraid_mm_compat_ioctl(struct file *filep, unsigned int cmd,
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /**
  * mraid_mm_exit	- Module exit point
  */

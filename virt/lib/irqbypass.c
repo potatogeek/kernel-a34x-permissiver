@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * IRQ offload/bypass manager
  *
  * Copyright (C) 2015 Red Hat, Inc.
  * Copyright (c) 2015 Linaro Ltd.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Various virtualization hardware acceleration techniques allow bypassing or
  * offloading interrupts received from devices around the host kernel.  Posted
  * Interrupts on Intel VT-d systems can allow interrupts to be received
@@ -88,6 +95,10 @@ int irq_bypass_register_producer(struct irq_bypass_producer *producer)
 {
 	struct irq_bypass_producer *tmp;
 	struct irq_bypass_consumer *consumer;
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (!producer->token)
 		return -EINVAL;
@@ -101,20 +112,31 @@ int irq_bypass_register_producer(struct irq_bypass_producer *producer)
 
 	list_for_each_entry(tmp, &producers, node) {
 		if (tmp->token == producer->token) {
+<<<<<<< HEAD
 			mutex_unlock(&lock);
 			module_put(THIS_MODULE);
 			return -EBUSY;
+=======
+			ret = -EBUSY;
+			goto out_err;
+>>>>>>> upstream/android-13
 		}
 	}
 
 	list_for_each_entry(consumer, &consumers, node) {
 		if (consumer->token == producer->token) {
+<<<<<<< HEAD
 			int ret = __connect(producer, consumer);
 			if (ret) {
 				mutex_unlock(&lock);
 				module_put(THIS_MODULE);
 				return ret;
 			}
+=======
+			ret = __connect(producer, consumer);
+			if (ret)
+				goto out_err;
+>>>>>>> upstream/android-13
 			break;
 		}
 	}
@@ -124,6 +146,13 @@ int irq_bypass_register_producer(struct irq_bypass_producer *producer)
 	mutex_unlock(&lock);
 
 	return 0;
+<<<<<<< HEAD
+=======
+out_err:
+	mutex_unlock(&lock);
+	module_put(THIS_MODULE);
+	return ret;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(irq_bypass_register_producer);
 
@@ -182,6 +211,10 @@ int irq_bypass_register_consumer(struct irq_bypass_consumer *consumer)
 {
 	struct irq_bypass_consumer *tmp;
 	struct irq_bypass_producer *producer;
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (!consumer->token ||
 	    !consumer->add_producer || !consumer->del_producer)
@@ -196,20 +229,31 @@ int irq_bypass_register_consumer(struct irq_bypass_consumer *consumer)
 
 	list_for_each_entry(tmp, &consumers, node) {
 		if (tmp->token == consumer->token || tmp == consumer) {
+<<<<<<< HEAD
 			mutex_unlock(&lock);
 			module_put(THIS_MODULE);
 			return -EBUSY;
+=======
+			ret = -EBUSY;
+			goto out_err;
+>>>>>>> upstream/android-13
 		}
 	}
 
 	list_for_each_entry(producer, &producers, node) {
 		if (producer->token == consumer->token) {
+<<<<<<< HEAD
 			int ret = __connect(producer, consumer);
 			if (ret) {
 				mutex_unlock(&lock);
 				module_put(THIS_MODULE);
 				return ret;
 			}
+=======
+			ret = __connect(producer, consumer);
+			if (ret)
+				goto out_err;
+>>>>>>> upstream/android-13
 			break;
 		}
 	}
@@ -219,6 +263,13 @@ int irq_bypass_register_consumer(struct irq_bypass_consumer *consumer)
 	mutex_unlock(&lock);
 
 	return 0;
+<<<<<<< HEAD
+=======
+out_err:
+	mutex_unlock(&lock);
+	module_put(THIS_MODULE);
+	return ret;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(irq_bypass_register_consumer);
 

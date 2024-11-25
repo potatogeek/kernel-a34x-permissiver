@@ -23,6 +23,7 @@ struct xfs_icluster {
 					 * sparse chunks */
 };
 
+<<<<<<< HEAD
 /* Calculate and return the number of filesystem blocks per inode cluster */
 static inline int
 xfs_icluster_size_fsb(
@@ -33,6 +34,8 @@ xfs_icluster_size_fsb(
 	return mp->m_inode_cluster_size >> mp->m_sb.sb_blocklog;
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Make an inode pointer out of the buffer/offset.
  */
@@ -43,6 +46,7 @@ xfs_make_iptr(struct xfs_mount *mp, struct xfs_buf *b, int o)
 }
 
 /*
+<<<<<<< HEAD
  * Allocate an inode on disk.
  * Mode is used to tell whether the new inode will need space, and whether
  * it is a directory.
@@ -83,6 +87,16 @@ xfs_difree(
 	struct xfs_trans *tp,		/* transaction pointer */
 	xfs_ino_t	inode,		/* inode to be freed */
 	struct xfs_icluster *ifree);	/* cluster info if deleted */
+=======
+ * Allocate an inode on disk.  Mode is used to tell whether the new inode will
+ * need space, and whether it is a directory.
+ */
+int xfs_dialloc(struct xfs_trans **tpp, xfs_ino_t parent, umode_t mode,
+		xfs_ino_t *new_ino);
+
+int xfs_difree(struct xfs_trans *tp, struct xfs_perag *pag,
+		xfs_ino_t ino, struct xfs_icluster *ifree);
+>>>>>>> upstream/android-13
 
 /*
  * Return the location of the inode in imap, for mapping it into a buffer.
@@ -96,6 +110,7 @@ xfs_imap(
 	uint		flags);		/* flags for inode btree lookup */
 
 /*
+<<<<<<< HEAD
  * Compute and fill in value of m_in_maxlevels.
  */
 void
@@ -103,6 +118,8 @@ xfs_ialloc_compute_maxlevels(
 	struct xfs_mount *mp);		/* file system mount structure */
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Log specified fields for the ag hdr (inode section)
  */
 void
@@ -155,7 +172,12 @@ int xfs_read_agi(struct xfs_mount *mp, struct xfs_trans *tp,
 		xfs_agnumber_t agno, struct xfs_buf **bpp);
 
 union xfs_btree_rec;
+<<<<<<< HEAD
 void xfs_inobt_btrec_to_irec(struct xfs_mount *mp, union xfs_btree_rec *rec,
+=======
+void xfs_inobt_btrec_to_irec(struct xfs_mount *mp,
+		const union xfs_btree_rec *rec,
+>>>>>>> upstream/android-13
 		struct xfs_inobt_rec_incore *irec);
 int xfs_ialloc_has_inodes_at_extent(struct xfs_btree_cur *cur,
 		xfs_agblock_t bno, xfs_extlen_t len, bool *exists);
@@ -168,5 +190,13 @@ int xfs_inobt_insert_rec(struct xfs_btree_cur *cur, uint16_t holemask,
 		int *stat);
 
 int xfs_ialloc_cluster_alignment(struct xfs_mount *mp);
+<<<<<<< HEAD
+=======
+void xfs_ialloc_setup_geometry(struct xfs_mount *mp);
+xfs_ino_t xfs_ialloc_calc_rootino(struct xfs_mount *mp, int sunit);
+
+int xfs_ialloc_check_shrink(struct xfs_trans *tp, xfs_agnumber_t agno,
+		struct xfs_buf *agibp, xfs_agblock_t new_length);
+>>>>>>> upstream/android-13
 
 #endif	/* __XFS_IALLOC_H__ */

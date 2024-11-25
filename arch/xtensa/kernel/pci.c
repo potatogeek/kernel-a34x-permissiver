@@ -1,20 +1,30 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * arch/xtensa/kernel/pci.c
  *
  * PCI bios-type initialisation for PCI machines
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * Copyright (C) 2001-2005 Tensilica Inc.
  *
  * Based largely on work from Cort (ppc/kernel/pci.c)
  * IO functions copied from sparc.
  *
  * Chris Zankel <chris@zankel.net>
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -24,11 +34,16 @@
 #include <linux/init.h>
 #include <linux/sched.h>
 #include <linux/errno.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 
 #include <asm/pci-bridge.h>
 #include <asm/platform.h>
 
+<<<<<<< HEAD
 /* PCI Controller */
 
 
@@ -46,6 +61,8 @@ static struct pci_controller **pci_ctrl_tail = &pci_ctrl_head;
 
 static int pci_bus_count;
 
+=======
+>>>>>>> upstream/android-13
 /*
  * We need to avoid collisions with `mirrored' VGA ports
  * and other strange ISA hardware, so we always want the
@@ -80,6 +97,7 @@ pcibios_align_resource(void *data, const struct resource *res,
 	return start;
 }
 
+<<<<<<< HEAD
 static void __init pci_controller_apertures(struct pci_controller *pci_ctrl,
 					    struct list_head *resources)
 {
@@ -155,6 +173,8 @@ static int __init pcibios_init(void)
 
 subsys_initcall(pcibios_init);
 
+=======
+>>>>>>> upstream/android-13
 void pcibios_fixup_bus(struct pci_bus *bus)
 {
 	if (bus->parent) {
@@ -163,6 +183,7 @@ void pcibios_fixup_bus(struct pci_bus *bus)
 	}
 }
 
+<<<<<<< HEAD
 void pcibios_set_master(struct pci_dev *dev)
 {
 	/* No special bus mastering setup handling */
@@ -195,6 +216,8 @@ int pcibios_enable_device(struct pci_dev *dev, int mask)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Platform support for /proc/bus/pci/X/Y mmap()s.
  *  -- paulus.
@@ -205,7 +228,11 @@ int pci_iobar_pfn(struct pci_dev *pdev, int bar, struct vm_area_struct *vma)
 	struct pci_controller *pci_ctrl = (struct pci_controller*) pdev->sysdata;
 	resource_size_t ioaddr = pci_resource_start(pdev, bar);
 
+<<<<<<< HEAD
 	if (pci_ctrl == 0)
+=======
+	if (!pci_ctrl)
+>>>>>>> upstream/android-13
 		return -EINVAL;		/* should never happen */
 
 	/* Convert to an offset within this PCI controller */

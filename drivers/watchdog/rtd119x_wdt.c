@@ -9,7 +9,10 @@
 #include <linux/bitops.h>
 #include <linux/clk.h>
 #include <linux/io.h>
+<<<<<<< HEAD
 #include <linux/module.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/of.h>
 #include <linux/of_address.h>
 #include <linux/platform_device.h>
@@ -95,6 +98,7 @@ static const struct of_device_id rtd119x_wdt_dt_ids[] = {
 	 { }
 };
 
+<<<<<<< HEAD
 static int rtd119x_wdt_probe(struct platform_device *pdev)
 {
 	struct rtd119x_watchdog_device *data;
@@ -111,21 +115,56 @@ static int rtd119x_wdt_probe(struct platform_device *pdev)
 		return PTR_ERR(data->base);
 
 	data->clk = of_clk_get(pdev->dev.of_node, 0);
+=======
+static void rtd119x_clk_disable_unprepare(void *data)
+{
+	clk_disable_unprepare(data);
+}
+
+static int rtd119x_wdt_probe(struct platform_device *pdev)
+{
+	struct device *dev = &pdev->dev;
+	struct rtd119x_watchdog_device *data;
+	int ret;
+
+	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
+	if (!data)
+		return -ENOMEM;
+
+	data->base = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(data->base))
+		return PTR_ERR(data->base);
+
+	data->clk = devm_clk_get(dev, NULL);
+>>>>>>> upstream/android-13
 	if (IS_ERR(data->clk))
 		return PTR_ERR(data->clk);
 
 	ret = clk_prepare_enable(data->clk);
+<<<<<<< HEAD
 	if (ret) {
 		clk_put(data->clk);
 		return ret;
 	}
+=======
+	if (ret)
+		return ret;
+	ret = devm_add_action_or_reset(dev, rtd119x_clk_disable_unprepare,
+				       data->clk);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	data->wdt_dev.info = &rtd119x_wdt_info;
 	data->wdt_dev.ops = &rtd119x_wdt_ops;
 	data->wdt_dev.timeout = 120;
 	data->wdt_dev.max_timeout = 0xffffffff / clk_get_rate(data->clk);
 	data->wdt_dev.min_timeout = 1;
+<<<<<<< HEAD
 	data->wdt_dev.parent = &pdev->dev;
+=======
+	data->wdt_dev.parent = dev;
+>>>>>>> upstream/android-13
 
 	watchdog_stop_on_reboot(&data->wdt_dev);
 	watchdog_set_drvdata(&data->wdt_dev, data);
@@ -135,6 +174,7 @@ static int rtd119x_wdt_probe(struct platform_device *pdev)
 	rtd119x_wdt_set_timeout(&data->wdt_dev, data->wdt_dev.timeout);
 	rtd119x_wdt_stop(&data->wdt_dev);
 
+<<<<<<< HEAD
 	ret = watchdog_register_device(&data->wdt_dev);
 	if (ret) {
 		clk_disable_unprepare(data->clk);
@@ -155,11 +195,17 @@ static int rtd119x_wdt_remove(struct platform_device *pdev)
 	clk_put(data->clk);
 
 	return 0;
+=======
+	return devm_watchdog_register_device(dev, &data->wdt_dev);
+>>>>>>> upstream/android-13
 }
 
 static struct platform_driver rtd119x_wdt_driver = {
 	.probe = rtd119x_wdt_probe,
+<<<<<<< HEAD
 	.remove = rtd119x_wdt_remove,
+=======
+>>>>>>> upstream/android-13
 	.driver = {
 		.name = "rtd1295-watchdog",
 		.of_match_table	= rtd119x_wdt_dt_ids,

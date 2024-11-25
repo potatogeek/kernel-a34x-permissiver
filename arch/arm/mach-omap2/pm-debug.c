@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * OMAP Power Management debug routines
  *
@@ -13,10 +17,13 @@
  * Jouni Hogander
  *
  * Based on pm.c for omap2
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -37,8 +44,11 @@
 #include "prm2xxx_3xxx.h"
 #include "pm.h"
 
+<<<<<<< HEAD
 u32 enable_off_mode;
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_DEBUG_FS
 #include <linux/debugfs.h>
 #include <linux/seq_file.h>
@@ -173,8 +183,13 @@ static int pwrdm_suspend_set(void *data, u64 val)
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 DEFINE_SIMPLE_ATTRIBUTE(pwrdm_suspend_fops, pwrdm_suspend_get,
 			pwrdm_suspend_set, "%llu\n");
+=======
+DEFINE_DEBUGFS_ATTRIBUTE(pwrdm_suspend_fops, pwrdm_suspend_get,
+			  pwrdm_suspend_set, "%llu\n");
+>>>>>>> upstream/android-13
 
 static int __init pwrdms_setup(struct powerdomain *pwrdm, void *dir)
 {
@@ -193,9 +208,14 @@ static int __init pwrdms_setup(struct powerdomain *pwrdm, void *dir)
 		return 0;
 
 	d = debugfs_create_dir(pwrdm->name, (struct dentry *)dir);
+<<<<<<< HEAD
 	if (d)
 		(void) debugfs_create_file("suspend", S_IRUGO|S_IWUSR, d,
 			(void *)pwrdm, &pwrdm_suspend_fops);
+=======
+	debugfs_create_file("suspend", S_IRUGO|S_IWUSR, d, pwrdm,
+			    &pwrdm_suspend_fops);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -233,6 +253,7 @@ static int __init pm_dbg_init(void)
 		return 0;
 
 	d = debugfs_create_dir("pm_debug", NULL);
+<<<<<<< HEAD
 	if (!d)
 		return -EINVAL;
 
@@ -243,6 +264,16 @@ static int __init pm_dbg_init(void)
 
 	(void) debugfs_create_file("enable_off_mode", S_IRUGO | S_IWUSR, d,
 				   &enable_off_mode, &pm_dbg_option_fops);
+=======
+
+	debugfs_create_file("count", 0444, d, NULL, &pm_dbg_counters_fops);
+	debugfs_create_file("time", 0444, d, NULL, &pm_dbg_timers_fops);
+
+	pwrdm_for_each(pwrdms_setup, (void *)d);
+
+	debugfs_create_file("enable_off_mode", S_IRUGO | S_IWUSR, d,
+			    &enable_off_mode, &pm_dbg_option_fops);
+>>>>>>> upstream/android-13
 	pm_dbg_init_done = 1;
 
 	return 0;

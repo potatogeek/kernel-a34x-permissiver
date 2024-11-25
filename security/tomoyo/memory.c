@@ -19,9 +19,15 @@ void tomoyo_warn_oom(const char *function)
 	/* Reduce error messages. */
 	static pid_t tomoyo_last_pid;
 	const pid_t pid = current->pid;
+<<<<<<< HEAD
 	if (tomoyo_last_pid != pid) {
 		printk(KERN_WARNING "ERROR: Out of memory at %s.\n",
 		       function);
+=======
+
+	if (tomoyo_last_pid != pid) {
+		pr_warn("ERROR: Out of memory at %s.\n", function);
+>>>>>>> upstream/android-13
 		tomoyo_last_pid = pid;
 	}
 	if (!tomoyo_policy_loaded)
@@ -48,6 +54,10 @@ bool tomoyo_memory_ok(void *ptr)
 {
 	if (ptr) {
 		const size_t s = ksize(ptr);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		tomoyo_memory_used[TOMOYO_MEMORY_POLICY] += s;
 		if (!tomoyo_memory_quota[TOMOYO_MEMORY_POLICY] ||
 		    tomoyo_memory_used[TOMOYO_MEMORY_POLICY] <=
@@ -72,7 +82,12 @@ bool tomoyo_memory_ok(void *ptr)
  */
 void *tomoyo_commit_ok(void *data, const unsigned int size)
 {
+<<<<<<< HEAD
 	void *ptr = kzalloc(size, GFP_NOFS);
+=======
+	void *ptr = kzalloc(size, GFP_NOFS | __GFP_NOWARN);
+
+>>>>>>> upstream/android-13
 	if (tomoyo_memory_ok(ptr)) {
 		memmove(ptr, data, size);
 		memset(data, 0, size);
@@ -98,6 +113,10 @@ struct tomoyo_group *tomoyo_get_group(struct tomoyo_acl_param *param,
 	struct list_head *list;
 	const char *group_name = tomoyo_read_token(param);
 	bool found = false;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	if (!tomoyo_correct_word(group_name) || idx >= TOMOYO_MAX_GROUP)
 		return NULL;
 	e.group_name = tomoyo_get_name(group_name);
@@ -116,6 +135,10 @@ struct tomoyo_group *tomoyo_get_group(struct tomoyo_acl_param *param,
 	}
 	if (!found) {
 		struct tomoyo_group *entry = tomoyo_commit_ok(&e, sizeof(e));
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		if (entry) {
 			INIT_LIST_HEAD(&entry->member_list);
 			atomic_set(&entry->head.users, 1);
@@ -166,7 +189,11 @@ const struct tomoyo_path_info *tomoyo_get_name(const char *name)
 		atomic_inc(&ptr->head.users);
 		goto out;
 	}
+<<<<<<< HEAD
 	ptr = kzalloc(sizeof(*ptr) + len, GFP_NOFS);
+=======
+	ptr = kzalloc(sizeof(*ptr) + len, GFP_NOFS | __GFP_NOWARN);
+>>>>>>> upstream/android-13
 	if (tomoyo_memory_ok(ptr)) {
 		ptr->entry.name = ((char *) ptr) + sizeof(*ptr);
 		memmove((char *) ptr->entry.name, name, len);
@@ -191,6 +218,10 @@ struct tomoyo_policy_namespace tomoyo_kernel_namespace;
 void __init tomoyo_mm_init(void)
 {
 	int idx;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	for (idx = 0; idx < TOMOYO_MAX_HASH; idx++)
 		INIT_LIST_HEAD(&tomoyo_name_list[idx]);
 	tomoyo_kernel_namespace.name = "<kernel>";

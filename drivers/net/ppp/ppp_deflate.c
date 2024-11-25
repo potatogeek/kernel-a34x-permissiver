@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ppp_deflate.c - interface the zlib procedures for Deflate compression
  * and decompression (as used by gzip) to the PPP code.
  *
  * Copyright 1994-1998 Paul Mackerras.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  version 2 as published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -282,7 +289,10 @@ static void z_decomp_free(void *arg)
 	struct ppp_deflate_state *state = (struct ppp_deflate_state *) arg;
 
 	if (state) {
+<<<<<<< HEAD
 		zlib_inflateEnd(&state->strm);
+=======
+>>>>>>> upstream/android-13
 		vfree(state->strm.workspace);
 		kfree(state);
 	}

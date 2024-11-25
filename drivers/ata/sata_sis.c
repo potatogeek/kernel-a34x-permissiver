@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  sata_sis.c - Silicon Integrated Systems SATA
  *
@@ -7,6 +11,7 @@
  *
  *  Copyright 2004 Uwe Koziolek
  *
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -23,11 +28,16 @@
  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  *
+=======
+>>>>>>> upstream/android-13
  *  libata documentation is available via 'make {ps|pdf}docs',
  *  as Documentation/driver-api/libata.rst
  *
  *  Hardware documentation available under NDA.
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>

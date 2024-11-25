@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 #
 # DMA engine configuration for sh
 #
@@ -12,7 +16,11 @@ config RENESAS_DMA
 
 config SH_DMAE_BASE
 	bool "Renesas SuperH DMA Engine support"
+<<<<<<< HEAD
 	depends on SUPERH || ARCH_RENESAS || COMPILE_TEST
+=======
+	depends on SUPERH || COMPILE_TEST
+>>>>>>> upstream/android-13
 	depends on !SUPERH || SH_DMA
 	depends on !SH_DMA_API
 	default y
@@ -30,6 +38,7 @@ config SH_DMAE
 	help
 	  Enable support for the Renesas SuperH DMA controllers.
 
+<<<<<<< HEAD
 if SH_DMAE
 
 config SH_DMAE_R8A73A4
@@ -41,11 +50,19 @@ endif
 
 config RCAR_DMAC
 	tristate "Renesas R-Car Gen2 DMA Controller"
+=======
+config RCAR_DMAC
+	tristate "Renesas R-Car Gen{2,3} and RZ/G{1,2} DMA Controller"
+>>>>>>> upstream/android-13
 	depends on ARCH_RENESAS || COMPILE_TEST
 	select RENESAS_DMA
 	help
 	  This driver supports the general purpose DMA controller found in the
+<<<<<<< HEAD
 	  Renesas R-Car second generation SoCs.
+=======
+	  Renesas R-Car Gen{2,3} and RZ/G{1,2} SoCs.
+>>>>>>> upstream/android-13
 
 config RENESAS_USB_DMAC
 	tristate "Renesas USB-DMA Controller"
@@ -56,8 +73,19 @@ config RENESAS_USB_DMAC
 	  This driver supports the USB-DMA controller found in the Renesas
 	  SoCs.
 
+<<<<<<< HEAD
 config SUDMAC
 	tristate "Renesas SUDMAC support"
 	depends on SH_DMAE_BASE
 	help
 	  Enable support for the Renesas SUDMAC controllers.
+=======
+config RZ_DMAC
+	tristate "Renesas RZ/G2L DMA Controller"
+	depends on ARCH_R9A07G044 || COMPILE_TEST
+	select RENESAS_DMA
+	select DMA_VIRTUAL_CHANNELS
+	help
+	  This driver supports the general purpose DMA controller found in the
+	  Renesas RZ/G2L SoC variants.
+>>>>>>> upstream/android-13

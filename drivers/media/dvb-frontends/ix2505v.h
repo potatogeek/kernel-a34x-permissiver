@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**
  * Driver for Sharp IX2505V (marked B0017) DVB-S silicon tuner
  *
@@ -11,6 +12,13 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Driver for Sharp IX2505V (marked B0017) DVB-S silicon tuner
+ *
+ * Copyright (C) 2010 Malcolm Priestley
+>>>>>>> upstream/android-13
  */
 
 #ifndef DVB_IX2505V_H
@@ -39,7 +47,11 @@ struct ix2505v_config {
 
 #if IS_REACHABLE(CONFIG_DVB_IX2505V)
 /**
+<<<<<<< HEAD
  * Attach a ix2505v tuner to the supplied frontend structure.
+=======
+ * ix2505v_attach - Attach a ix2505v tuner to the supplied frontend structure.
+>>>>>>> upstream/android-13
  *
  * @fe: Frontend to attach to.
  * @config: pointer to &struct ix2505v_config

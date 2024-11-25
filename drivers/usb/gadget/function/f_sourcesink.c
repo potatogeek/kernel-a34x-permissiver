@@ -431,7 +431,12 @@ no_iso:
 	ss_iso_sink_desc.bEndpointAddress = fs_iso_sink_desc.bEndpointAddress;
 
 	ret = usb_assign_descriptors(f, fs_source_sink_descs,
+<<<<<<< HEAD
 			hs_source_sink_descs, ss_source_sink_descs, NULL);
+=======
+			hs_source_sink_descs, ss_source_sink_descs,
+			ss_source_sink_descs);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -559,6 +564,10 @@ static void source_sink_complete(struct usb_ep *ep, struct usb_request *req)
 #if 1
 		DBG(cdev, "%s complete --> %d, %d/%d\n", ep->name,
 				status, req->actual, req->length);
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 #endif
 	case -EREMOTEIO:		/* short read */
 		break;
@@ -582,6 +591,10 @@ static int source_sink_start_ep(struct f_sourcesink *ss, bool is_in,
 
 	if (is_iso) {
 		switch (speed) {
+<<<<<<< HEAD
+=======
+		case USB_SPEED_SUPER_PLUS:
+>>>>>>> upstream/android-13
 		case USB_SPEED_SUPER:
 			size = ss->isoc_maxpacket *
 					(ss->isoc_mult + 1) *

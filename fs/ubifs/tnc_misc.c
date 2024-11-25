@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * This file is part of UBIFS.
  *
  * Copyright (C) 2006-2008 Nokia Corporation.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
@@ -16,6 +21,8 @@
  * this program; if not, write to the Free Software Foundation, Inc., 51
  * Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  * Authors: Adrian Hunter
  *          Artem Bityutskiy (Битюцкий Артём)
  */
@@ -138,8 +145,13 @@ int ubifs_search_zbranch(const struct ubifs_info *c,
 			 const struct ubifs_znode *znode,
 			 const union ubifs_key *key, int *n)
 {
+<<<<<<< HEAD
 	int beg = 0, end = znode->child_cnt, uninitialized_var(mid);
 	int uninitialized_var(cmp);
+=======
+	int beg = 0, end = znode->child_cnt, mid;
+	int cmp;
+>>>>>>> upstream/android-13
 	const struct ubifs_zbranch *zbr = &znode->zbranch[0];
 
 	ubifs_assert(c, end > beg);
@@ -265,9 +277,13 @@ long ubifs_destroy_tnc_subtree(const struct ubifs_info *c,
 /**
  * read_znode - read an indexing node from flash and fill znode.
  * @c: UBIFS file-system description object
+<<<<<<< HEAD
  * @lnum: LEB of the indexing node to read
  * @offs: node offset
  * @len: node length
+=======
+ * @zzbr: the zbranch describing the node to read
+>>>>>>> upstream/android-13
  * @znode: znode to read to
  *
  * This function reads an indexing node from the flash media and fills znode
@@ -276,9 +292,18 @@ long ubifs_destroy_tnc_subtree(const struct ubifs_info *c,
  * is wrong with it, this function prints complaint messages and returns
  * %-EINVAL.
  */
+<<<<<<< HEAD
 static int read_znode(struct ubifs_info *c, int lnum, int offs, int len,
 		      struct ubifs_znode *znode)
 {
+=======
+static int read_znode(struct ubifs_info *c, struct ubifs_zbranch *zzbr,
+		      struct ubifs_znode *znode)
+{
+	int lnum = zzbr->lnum;
+	int offs = zzbr->offs;
+	int len = zzbr->len;
+>>>>>>> upstream/android-13
 	int i, err, type, cmp;
 	struct ubifs_idx_node *idx;
 
@@ -292,6 +317,16 @@ static int read_znode(struct ubifs_info *c, int lnum, int offs, int len,
 		return err;
 	}
 
+<<<<<<< HEAD
+=======
+	err = ubifs_node_check_hash(c, idx, zzbr->hash);
+	if (err) {
+		ubifs_bad_hash(c, idx, zzbr->hash, lnum, offs);
+		kfree(idx);
+		return err;
+	}
+
+>>>>>>> upstream/android-13
 	znode->child_cnt = le16_to_cpu(idx->child_cnt);
 	znode->level = le16_to_cpu(idx->level);
 
@@ -308,13 +343,21 @@ static int read_znode(struct ubifs_info *c, int lnum, int offs, int len,
 	}
 
 	for (i = 0; i < znode->child_cnt; i++) {
+<<<<<<< HEAD
 		const struct ubifs_branch *br = ubifs_idx_branch(c, idx, i);
+=======
+		struct ubifs_branch *br = ubifs_idx_branch(c, idx, i);
+>>>>>>> upstream/android-13
 		struct ubifs_zbranch *zbr = &znode->zbranch[i];
 
 		key_read(c, &br->key, &zbr->key);
 		zbr->lnum = le32_to_cpu(br->lnum);
 		zbr->offs = le32_to_cpu(br->offs);
 		zbr->len  = le32_to_cpu(br->len);
+<<<<<<< HEAD
+=======
+		ubifs_copy_hash(c, ubifs_branch_hash(c, br), zbr->hash);
+>>>>>>> upstream/android-13
 		zbr->znode = NULL;
 
 		/* Validate branch */
@@ -393,7 +436,11 @@ static int read_znode(struct ubifs_info *c, int lnum, int offs, int len,
 
 out_dump:
 	ubifs_err(c, "bad indexing node at LEB %d:%d, error %d", lnum, offs, err);
+<<<<<<< HEAD
 	ubifs_dump_node(c, idx);
+=======
+	ubifs_dump_node(c, idx, c->max_idx_node_sz);
+>>>>>>> upstream/android-13
 	kfree(idx);
 	return -EINVAL;
 }
@@ -425,7 +472,11 @@ struct ubifs_znode *ubifs_load_znode(struct ubifs_info *c,
 	if (!znode)
 		return ERR_PTR(-ENOMEM);
 
+<<<<<<< HEAD
 	err = read_znode(c, zbr->lnum, zbr->offs, zbr->len, znode);
+=======
+	err = read_znode(c, zbr, znode);
+>>>>>>> upstream/android-13
 	if (err)
 		goto out;
 
@@ -458,8 +509,12 @@ out:
  * @node: node is returned here
  *
  * This function reads a node defined by @zbr from the flash media. Returns
+<<<<<<< HEAD
  * zero in case of success or a negative negative error code in case of
  * failure.
+=======
+ * zero in case of success or a negative error code in case of failure.
+>>>>>>> upstream/android-13
  */
 int ubifs_tnc_read_node(struct ubifs_info *c, struct ubifs_zbranch *zbr,
 			void *node)
@@ -492,9 +547,22 @@ int ubifs_tnc_read_node(struct ubifs_info *c, struct ubifs_zbranch *zbr,
 			  zbr->lnum, zbr->offs);
 		dbg_tnck(key, "looked for key ");
 		dbg_tnck(&key1, "but found node's key ");
+<<<<<<< HEAD
 		ubifs_dump_node(c, node);
 		return -EINVAL;
 	}
 
+=======
+		ubifs_dump_node(c, node, zbr->len);
+		return -EINVAL;
+	}
+
+	err = ubifs_node_check_hash(c, node, zbr->hash);
+	if (err) {
+		ubifs_bad_hash(c, node, zbr->hash, zbr->lnum, zbr->offs);
+		return err;
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }

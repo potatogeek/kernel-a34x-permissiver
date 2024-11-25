@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Windfarm PowerMac thermal control. iMac G5 iSight
  *
@@ -6,6 +10,7 @@
  * Bits & pieces from windfarm_pm81.c by (c) Copyright 2005 Benjamin
  * Herrenschmidt, IBM Corp. <benh@kernel.crashing.org>
  *
+<<<<<<< HEAD
  * Released under the term of the GNU GPL v2.
  *
  *
@@ -14,6 +19,11 @@
  * ============
  *
  *
+=======
+ * PowerMac12,1
+ * ============
+ *
+>>>>>>> upstream/android-13
  * The algorithm used is the PID control algorithm, used the same way
  * the published Darwin code does, using the same values that are
  * present in the Darwin 8.10 snapshot property lists (note however
@@ -25,7 +35,10 @@
  * controls with a tiny difference. The control-ids of hard-drive-fan
  * and cpu-fan is swapped.
  *
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  * Target Correction :
  *
  * controls have a target correction calculated as :
@@ -63,7 +76,10 @@
  *   offset		: -15650652
  *   slope		:  1565065
  *
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  * Target rubber-banding :
  *
  * Some controls have a target correction which depends on another
@@ -76,7 +92,10 @@
  *
  * new_target = max (new_target, new_min >> 16)
  *
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  * # model_id : 2
  *   control	: cpu-fan
  *   ref	: optical-drive-fan
@@ -89,12 +108,18 @@
  *   offset	: -32768000
  *   slope	: 65536
  *
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  * In order to have the moste efficient correction with those
  * dependencies, we must trigger HD loop before OD loop before CPU
  * loop.
  *
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  * The various control loops found in Darwin config file are:
  *
  * HD Fan control loop.
@@ -191,12 +216,18 @@
  *   sensors        : cpu-temp, cpu-power
  *   PID params     : from SDB partition
  *
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  * CPU Slew control loop.
  *
  *   control        : cpufreq-clamp
  *   sensor         : cpu-temp
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #undef	DEBUG
@@ -444,7 +475,11 @@ struct pm121_sys_state {
 	struct wf_pid_state	pid;
 };
 
+<<<<<<< HEAD
 struct pm121_sys_state *pm121_sys_state[N_LOOPS] = {};
+=======
+static struct pm121_sys_state *pm121_sys_state[N_LOOPS] = {};
+>>>>>>> upstream/android-13
 
 /*
  * ****** CPU Fans Control Loop ******

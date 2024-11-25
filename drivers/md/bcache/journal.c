@@ -47,7 +47,11 @@ static int journal_read_bucket(struct cache *ca, struct list_head *list,
 
 	closure_init_stack(&cl);
 
+<<<<<<< HEAD
 	pr_debug("reading %u", bucket_index);
+=======
+	pr_debug("reading %u\n", bucket_index);
+>>>>>>> upstream/android-13
 
 	while (offset < ca->sb.bucket_size) {
 reread:		left = ca->sb.bucket_size - offset;
@@ -78,13 +82,21 @@ reread:		left = ca->sb.bucket_size - offset;
 			size_t blocks, bytes = set_bytes(j);
 
 			if (j->magic != jset_magic(&ca->sb)) {
+<<<<<<< HEAD
 				pr_debug("%u: bad magic", bucket_index);
+=======
+				pr_debug("%u: bad magic\n", bucket_index);
+>>>>>>> upstream/android-13
 				return ret;
 			}
 
 			if (bytes > left << 9 ||
 			    bytes > PAGE_SIZE << JSET_BITS) {
+<<<<<<< HEAD
 				pr_info("%u: too big, %zu bytes, offset %u",
+=======
+				pr_info("%u: too big, %zu bytes, offset %u\n",
+>>>>>>> upstream/android-13
 					bucket_index, bytes, offset);
 				return ret;
 			}
@@ -93,13 +105,36 @@ reread:		left = ca->sb.bucket_size - offset;
 				goto reread;
 
 			if (j->csum != csum_set(j)) {
+<<<<<<< HEAD
 				pr_info("%u: bad csum, %zu bytes, offset %u",
+=======
+				pr_info("%u: bad csum, %zu bytes, offset %u\n",
+>>>>>>> upstream/android-13
 					bucket_index, bytes, offset);
 				return ret;
 			}
 
+<<<<<<< HEAD
 			blocks = set_blocks(j, block_bytes(ca->set));
 
+=======
+			blocks = set_blocks(j, block_bytes(ca));
+
+			/*
+			 * Nodes in 'list' are in linear increasing order of
+			 * i->j.seq, the node on head has the smallest (oldest)
+			 * journal seq, the node on tail has the biggest
+			 * (latest) journal seq.
+			 */
+
+			/*
+			 * Check from the oldest jset for last_seq. If
+			 * i->j.seq < j->last_seq, it means the oldest jset
+			 * in list is expired and useless, remove it from
+			 * this list. Otherwise, j is a candidate jset for
+			 * further following checks.
+			 */
+>>>>>>> upstream/android-13
 			while (!list_empty(list)) {
 				i = list_first_entry(list,
 					struct journal_replay, list);
@@ -109,13 +144,31 @@ reread:		left = ca->sb.bucket_size - offset;
 				kfree(i);
 			}
 
+<<<<<<< HEAD
+=======
+			/* iterate list in reverse order (from latest jset) */
+>>>>>>> upstream/android-13
 			list_for_each_entry_reverse(i, list, list) {
 				if (j->seq == i->j.seq)
 					goto next_set;
 
+<<<<<<< HEAD
 				if (j->seq < i->j.last_seq)
 					goto next_set;
 
+=======
+				/*
+				 * if j->seq is less than any i->j.last_seq
+				 * in list, j is an expired and useless jset.
+				 */
+				if (j->seq < i->j.last_seq)
+					goto next_set;
+
+				/*
+				 * 'where' points to first jset in list which
+				 * is elder then j.
+				 */
+>>>>>>> upstream/android-13
 				if (j->seq > i->j.seq) {
 					where = &i->list;
 					goto add;
@@ -129,10 +182,19 @@ add:
 			if (!i)
 				return -ENOMEM;
 			memcpy(&i->j, j, bytes);
+<<<<<<< HEAD
 			list_add(&i->list, where);
 			ret = 1;
 
 			ja->seq[bucket_index] = j->seq;
+=======
+			/* Add to the location after 'where' points to */
+			list_add(&i->list, where);
+			ret = 1;
+
+			if (j->seq > ja->seq[bucket_index])
+				ja->seq[bucket_index] = j->seq;
+>>>>>>> upstream/android-13
 next_set:
 			offset	+= blocks * ca->sb.block_size;
 			len	-= blocks * ca->sb.block_size;
@@ -147,13 +209,18 @@ int bch_journal_read(struct cache_set *c, struct list_head *list)
 {
 #define read_bucket(b)							\
 	({								\
+<<<<<<< HEAD
 		int ret = journal_read_bucket(ca, list, b);		\
+=======
+		ret = journal_read_bucket(ca, list, b);			\
+>>>>>>> upstream/android-13
 		__set_bit(b, bitmap);					\
 		if (ret < 0)						\
 			return ret;					\
 		ret;							\
 	})
 
+<<<<<<< HEAD
 	struct cache *ca;
 	unsigned int iter;
 
@@ -262,6 +329,111 @@ bsearch:
 			}
 	}
 
+=======
+	struct cache *ca = c->cache;
+	int ret = 0;
+	struct journal_device *ja = &ca->journal;
+	DECLARE_BITMAP(bitmap, SB_JOURNAL_BUCKETS);
+	unsigned int i, l, r, m;
+	uint64_t seq;
+
+	bitmap_zero(bitmap, SB_JOURNAL_BUCKETS);
+	pr_debug("%u journal buckets\n", ca->sb.njournal_buckets);
+
+	/*
+	 * Read journal buckets ordered by golden ratio hash to quickly
+	 * find a sequence of buckets with valid journal entries
+	 */
+	for (i = 0; i < ca->sb.njournal_buckets; i++) {
+		/*
+		 * We must try the index l with ZERO first for
+		 * correctness due to the scenario that the journal
+		 * bucket is circular buffer which might have wrapped
+		 */
+		l = (i * 2654435769U) % ca->sb.njournal_buckets;
+
+		if (test_bit(l, bitmap))
+			break;
+
+		if (read_bucket(l))
+			goto bsearch;
+	}
+
+	/*
+	 * If that fails, check all the buckets we haven't checked
+	 * already
+	 */
+	pr_debug("falling back to linear search\n");
+
+	for_each_clear_bit(l, bitmap, ca->sb.njournal_buckets)
+		if (read_bucket(l))
+			goto bsearch;
+
+	/* no journal entries on this device? */
+	if (l == ca->sb.njournal_buckets)
+		goto out;
+bsearch:
+	BUG_ON(list_empty(list));
+
+	/* Binary search */
+	m = l;
+	r = find_next_bit(bitmap, ca->sb.njournal_buckets, l + 1);
+	pr_debug("starting binary search, l %u r %u\n", l, r);
+
+	while (l + 1 < r) {
+		seq = list_entry(list->prev, struct journal_replay,
+				 list)->j.seq;
+
+		m = (l + r) >> 1;
+		read_bucket(m);
+
+		if (seq != list_entry(list->prev, struct journal_replay,
+				      list)->j.seq)
+			l = m;
+		else
+			r = m;
+	}
+
+	/*
+	 * Read buckets in reverse order until we stop finding more
+	 * journal entries
+	 */
+	pr_debug("finishing up: m %u njournal_buckets %u\n",
+		 m, ca->sb.njournal_buckets);
+	l = m;
+
+	while (1) {
+		if (!l--)
+			l = ca->sb.njournal_buckets - 1;
+
+		if (l == m)
+			break;
+
+		if (test_bit(l, bitmap))
+			continue;
+
+		if (!read_bucket(l))
+			break;
+	}
+
+	seq = 0;
+
+	for (i = 0; i < ca->sb.njournal_buckets; i++)
+		if (ja->seq[i] > seq) {
+			seq = ja->seq[i];
+			/*
+			 * When journal_reclaim() goes to allocate for
+			 * the first time, it'll use the bucket after
+			 * ja->cur_idx
+			 */
+			ja->cur_idx = i;
+			ja->last_idx = ja->discard_idx = (i + 1) %
+				ca->sb.njournal_buckets;
+
+		}
+
+out:
+>>>>>>> upstream/android-13
 	if (!list_empty(list))
 		c->journal.seq = list_entry(list->prev,
 					    struct journal_replay,
@@ -317,6 +489,7 @@ void bch_journal_mark(struct cache_set *c, struct list_head *list)
 	}
 }
 
+<<<<<<< HEAD
 bool is_discard_enabled(struct cache_set *s)
 {
 	struct cache *ca;
@@ -325,6 +498,14 @@ bool is_discard_enabled(struct cache_set *s)
 	for_each_cache(ca, s, i)
 		if (ca->discard)
 			return true;
+=======
+static bool is_discard_enabled(struct cache_set *s)
+{
+	struct cache *ca = s->cache;
+
+	if (ca->discard)
+		return true;
+>>>>>>> upstream/android-13
 
 	return false;
 }
@@ -344,10 +525,17 @@ int bch_journal_replay(struct cache_set *s, struct list_head *list)
 
 		if (n != i->j.seq) {
 			if (n == start && is_discard_enabled(s))
+<<<<<<< HEAD
 				pr_info("bcache: journal entries %llu-%llu may be discarded! (replaying %llu-%llu)",
 					n, i->j.seq - 1, start, end);
 			else {
 				pr_err("bcache: journal entries %llu-%llu missing! (replaying %llu-%llu)",
+=======
+				pr_info("journal entries %llu-%llu may be discarded! (replaying %llu-%llu)\n",
+					n, i->j.seq - 1, start, end);
+			else {
+				pr_err("journal entries %llu-%llu missing! (replaying %llu-%llu)\n",
+>>>>>>> upstream/android-13
 					n, i->j.seq - 1, start, end);
 				ret = -EIO;
 				goto err;
@@ -377,7 +565,11 @@ int bch_journal_replay(struct cache_set *s, struct list_head *list)
 		entries++;
 	}
 
+<<<<<<< HEAD
 	pr_info("journal replay done, %i keys in %i entries, seq %llu",
+=======
+	pr_info("journal replay done, %i keys in %i entries, seq %llu\n",
+>>>>>>> upstream/android-13
 		keys, entries, end);
 err:
 	while (!list_empty(list)) {
@@ -393,6 +585,7 @@ err:
 
 static void btree_flush_write(struct cache_set *c)
 {
+<<<<<<< HEAD
 	/*
 	 * Try to find the btree node with that references the oldest journal
 	 * entry, best is our current candidate and is locked if non NULL:
@@ -422,19 +615,166 @@ retry:
 	mutex_unlock(&c->bucket_lock);
 
 	if (b) {
+=======
+	struct btree *b, *t, *btree_nodes[BTREE_FLUSH_NR];
+	unsigned int i, nr;
+	int ref_nr;
+	atomic_t *fifo_front_p, *now_fifo_front_p;
+	size_t mask;
+
+	if (c->journal.btree_flushing)
+		return;
+
+	spin_lock(&c->journal.flush_write_lock);
+	if (c->journal.btree_flushing) {
+		spin_unlock(&c->journal.flush_write_lock);
+		return;
+	}
+	c->journal.btree_flushing = true;
+	spin_unlock(&c->journal.flush_write_lock);
+
+	/* get the oldest journal entry and check its refcount */
+	spin_lock(&c->journal.lock);
+	fifo_front_p = &fifo_front(&c->journal.pin);
+	ref_nr = atomic_read(fifo_front_p);
+	if (ref_nr <= 0) {
+		/*
+		 * do nothing if no btree node references
+		 * the oldest journal entry
+		 */
+		spin_unlock(&c->journal.lock);
+		goto out;
+	}
+	spin_unlock(&c->journal.lock);
+
+	mask = c->journal.pin.mask;
+	nr = 0;
+	atomic_long_inc(&c->flush_write);
+	memset(btree_nodes, 0, sizeof(btree_nodes));
+
+	mutex_lock(&c->bucket_lock);
+	list_for_each_entry_safe_reverse(b, t, &c->btree_cache, list) {
+		/*
+		 * It is safe to get now_fifo_front_p without holding
+		 * c->journal.lock here, because we don't need to know
+		 * the exactly accurate value, just check whether the
+		 * front pointer of c->journal.pin is changed.
+		 */
+		now_fifo_front_p = &fifo_front(&c->journal.pin);
+		/*
+		 * If the oldest journal entry is reclaimed and front
+		 * pointer of c->journal.pin changes, it is unnecessary
+		 * to scan c->btree_cache anymore, just quit the loop and
+		 * flush out what we have already.
+		 */
+		if (now_fifo_front_p != fifo_front_p)
+			break;
+		/*
+		 * quit this loop if all matching btree nodes are
+		 * scanned and record in btree_nodes[] already.
+		 */
+		ref_nr = atomic_read(fifo_front_p);
+		if (nr >= ref_nr)
+			break;
+
+		if (btree_node_journal_flush(b))
+			pr_err("BUG: flush_write bit should not be set here!\n");
+
+		mutex_lock(&b->write_lock);
+
+		if (!btree_node_dirty(b)) {
+			mutex_unlock(&b->write_lock);
+			continue;
+		}
+
+		if (!btree_current_write(b)->journal) {
+			mutex_unlock(&b->write_lock);
+			continue;
+		}
+
+		/*
+		 * Only select the btree node which exactly references
+		 * the oldest journal entry.
+		 *
+		 * If the journal entry pointed by fifo_front_p is
+		 * reclaimed in parallel, don't worry:
+		 * - the list_for_each_xxx loop will quit when checking
+		 *   next now_fifo_front_p.
+		 * - If there are matched nodes recorded in btree_nodes[],
+		 *   they are clean now (this is why and how the oldest
+		 *   journal entry can be reclaimed). These selected nodes
+		 *   will be ignored and skipped in the following for-loop.
+		 */
+		if (((btree_current_write(b)->journal - fifo_front_p) &
+		     mask) != 0) {
+			mutex_unlock(&b->write_lock);
+			continue;
+		}
+
+		set_btree_node_journal_flush(b);
+
+		mutex_unlock(&b->write_lock);
+
+		btree_nodes[nr++] = b;
+		/*
+		 * To avoid holding c->bucket_lock too long time,
+		 * only scan for BTREE_FLUSH_NR matched btree nodes
+		 * at most. If there are more btree nodes reference
+		 * the oldest journal entry, try to flush them next
+		 * time when btree_flush_write() is called.
+		 */
+		if (nr == BTREE_FLUSH_NR)
+			break;
+	}
+	mutex_unlock(&c->bucket_lock);
+
+	for (i = 0; i < nr; i++) {
+		b = btree_nodes[i];
+		if (!b) {
+			pr_err("BUG: btree_nodes[%d] is NULL\n", i);
+			continue;
+		}
+
+		/* safe to check without holding b->write_lock */
+		if (!btree_node_journal_flush(b)) {
+			pr_err("BUG: bnode %p: journal_flush bit cleaned\n", b);
+			continue;
+		}
+
+>>>>>>> upstream/android-13
 		mutex_lock(&b->write_lock);
 		if (!btree_current_write(b)->journal) {
 			clear_bit(BTREE_NODE_journal_flush, &b->flags);
 			mutex_unlock(&b->write_lock);
+<<<<<<< HEAD
 			/* We raced */
 			atomic_long_inc(&c->retry_flush_write);
 			goto retry;
+=======
+			pr_debug("bnode %p: written by others\n", b);
+			continue;
+		}
+
+		if (!btree_node_dirty(b)) {
+			clear_bit(BTREE_NODE_journal_flush, &b->flags);
+			mutex_unlock(&b->write_lock);
+			pr_debug("bnode %p: dirty bit cleaned by others\n", b);
+			continue;
+>>>>>>> upstream/android-13
 		}
 
 		__bch_btree_node_write(b, NULL);
 		clear_bit(BTREE_NODE_journal_flush, &b->flags);
 		mutex_unlock(&b->write_lock);
 	}
+<<<<<<< HEAD
+=======
+
+out:
+	spin_lock(&c->journal.flush_write_lock);
+	c->journal.btree_flushing = false;
+	spin_unlock(&c->journal.flush_write_lock);
+>>>>>>> upstream/android-13
 }
 
 #define last_seq(j)	((j)->seq - fifo_used(&(j)->pin) + 1)
@@ -478,7 +818,11 @@ static void do_journal_discard(struct cache *ca)
 			ca->sb.njournal_buckets;
 
 		atomic_set(&ja->discard_in_flight, DISCARD_READY);
+<<<<<<< HEAD
 		/* fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case DISCARD_READY:
 		if (ja->discard_idx == ja->last_idx)
@@ -503,9 +847,16 @@ static void do_journal_discard(struct cache *ca)
 static void journal_reclaim(struct cache_set *c)
 {
 	struct bkey *k = &c->journal.key;
+<<<<<<< HEAD
 	struct cache *ca;
 	uint64_t last_seq;
 	unsigned int iter, n = 0;
+=======
+	struct cache *ca = c->cache;
+	uint64_t last_seq;
+	unsigned int next;
+	struct journal_device *ja = &ca->journal;
+>>>>>>> upstream/android-13
 	atomic_t p __maybe_unused;
 
 	atomic_long_inc(&c->reclaim);
@@ -517,6 +868,7 @@ static void journal_reclaim(struct cache_set *c)
 
 	/* Update last_idx */
 
+<<<<<<< HEAD
 	for_each_cache(ca, c, iter) {
 		struct journal_device *ja = &ca->journal;
 
@@ -528,10 +880,19 @@ static void journal_reclaim(struct cache_set *c)
 
 	for_each_cache(ca, c, iter)
 		do_journal_discard(ca);
+=======
+	while (ja->last_idx != ja->cur_idx &&
+	       ja->seq[ja->last_idx] < last_seq)
+		ja->last_idx = (ja->last_idx + 1) %
+			ca->sb.njournal_buckets;
+
+	do_journal_discard(ca);
+>>>>>>> upstream/android-13
 
 	if (c->journal.blocks_free)
 		goto out;
 
+<<<<<<< HEAD
 	/*
 	 * Allocate:
 	 * XXX: Sort by free journal space
@@ -556,6 +917,23 @@ static void journal_reclaim(struct cache_set *c)
 		SET_KEY_PTRS(k, n);
 		c->journal.blocks_free = c->sb.bucket_size >> c->block_bits;
 	}
+=======
+	next = (ja->cur_idx + 1) % ca->sb.njournal_buckets;
+	/* No space available on this device */
+	if (next == ja->discard_idx)
+		goto out;
+
+	ja->cur_idx = next;
+	k->ptr[0] = MAKE_PTR(0,
+			     bucket_to_sector(c, ca->sb.d[ja->cur_idx]),
+			     ca->sb.nr_this_dev);
+	atomic_long_inc(&c->reclaimed_journal_buckets);
+
+	bkey_init(k);
+	SET_KEY_PTRS(k, 1);
+	c->journal.blocks_free = ca->sb.bucket_size >> c->block_bits;
+
+>>>>>>> upstream/android-13
 out:
 	if (!journal_full(&c->journal))
 		__closure_wake_up(&c->journal.wait);
@@ -582,7 +960,11 @@ void bch_journal_next(struct journal *j)
 	j->cur->data->keys	= 0;
 
 	if (fifo_full(&j->pin))
+<<<<<<< HEAD
 		pr_debug("journal_pin full (%zu)", fifo_used(&j->pin));
+=======
+		pr_debug("journal_pin full (%zu)\n", fifo_used(&j->pin));
+>>>>>>> upstream/android-13
 }
 
 static void journal_write_endio(struct bio *bio)
@@ -619,11 +1001,19 @@ static void journal_write_unlocked(struct closure *cl)
 	__releases(c->journal.lock)
 {
 	struct cache_set *c = container_of(cl, struct cache_set, journal.io);
+<<<<<<< HEAD
 	struct cache *ca;
 	struct journal_write *w = c->journal.cur;
 	struct bkey *k = &c->journal.key;
 	unsigned int i, sectors = set_blocks(w->data, block_bytes(c)) *
 		c->sb.block_size;
+=======
+	struct cache *ca = c->cache;
+	struct journal_write *w = c->journal.cur;
+	struct bkey *k = &c->journal.key;
+	unsigned int i, sectors = set_blocks(w->data, block_bytes(ca)) *
+		ca->sb.block_size;
+>>>>>>> upstream/android-13
 
 	struct bio *bio;
 	struct bio_list list;
@@ -642,23 +1032,36 @@ static void journal_write_unlocked(struct closure *cl)
 		return;
 	}
 
+<<<<<<< HEAD
 	c->journal.blocks_free -= set_blocks(w->data, block_bytes(c));
+=======
+	c->journal.blocks_free -= set_blocks(w->data, block_bytes(ca));
+>>>>>>> upstream/android-13
 
 	w->data->btree_level = c->root->level;
 
 	bkey_copy(&w->data->btree_root, &c->root->key);
 	bkey_copy(&w->data->uuid_bucket, &c->uuid_bucket);
 
+<<<<<<< HEAD
 	for_each_cache(ca, c, i)
 		w->data->prio_bucket[ca->sb.nr_this_dev] = ca->prio_buckets[0];
 
 	w->data->magic		= jset_magic(&c->sb);
+=======
+	w->data->prio_bucket[ca->sb.nr_this_dev] = ca->prio_buckets[0];
+	w->data->magic		= jset_magic(&ca->sb);
+>>>>>>> upstream/android-13
 	w->data->version	= BCACHE_JSET_VERSION;
 	w->data->last_seq	= last_seq(&c->journal);
 	w->data->csum		= csum_set(w->data);
 
 	for (i = 0; i < KEY_PTRS(k); i++) {
+<<<<<<< HEAD
 		ca = PTR_CACHE(c, k, i);
+=======
+		ca = c->cache;
+>>>>>>> upstream/android-13
 		bio = &ca->journal.bio;
 
 		atomic_long_add(sectors, &ca->meta_sectors_written);
@@ -674,7 +1077,11 @@ static void journal_write_unlocked(struct closure *cl)
 				 REQ_SYNC|REQ_META|REQ_PREFLUSH|REQ_FUA);
 		bch_bio_map(bio, w->data);
 
+<<<<<<< HEAD
 		trace_bcache_journal_write(bio);
+=======
+		trace_bcache_journal_write(bio, w->data->keys);
+>>>>>>> upstream/android-13
 		bio_list_add(&list, bio);
 
 		SET_PTR_OFFSET(k, i, PTR_OFFSET(k, i) + sectors);
@@ -728,6 +1135,10 @@ static struct journal_write *journal_wait_for_write(struct cache_set *c,
 	size_t sectors;
 	struct closure cl;
 	bool wait = false;
+<<<<<<< HEAD
+=======
+	struct cache *ca = c->cache;
+>>>>>>> upstream/android-13
 
 	closure_init_stack(&cl);
 
@@ -737,10 +1148,17 @@ static struct journal_write *journal_wait_for_write(struct cache_set *c,
 		struct journal_write *w = c->journal.cur;
 
 		sectors = __set_blocks(w->data, w->data->keys + nkeys,
+<<<<<<< HEAD
 				       block_bytes(c)) * c->sb.block_size;
 
 		if (sectors <= min_t(size_t,
 				     c->journal.blocks_free * c->sb.block_size,
+=======
+				       block_bytes(ca)) * ca->sb.block_size;
+
+		if (sectors <= min_t(size_t,
+				     c->journal.blocks_free * ca->sb.block_size,
+>>>>>>> upstream/android-13
 				     PAGE_SECTORS << JSET_BITS))
 			return w;
 
@@ -805,7 +1223,11 @@ atomic_t *bch_journal(struct cache_set *c,
 	if (unlikely(test_bit(CACHE_SET_IO_DISABLE, &c->flags)))
 		return NULL;
 
+<<<<<<< HEAD
 	if (!CACHE_SYNC(&c->sb))
+=======
+	if (!CACHE_SYNC(&c->cache->sb))
+>>>>>>> upstream/android-13
 		return NULL;
 
 	w = journal_wait_for_write(c, bch_keylist_nkeys(keys));
@@ -821,8 +1243,13 @@ atomic_t *bch_journal(struct cache_set *c,
 		journal_try_write(c);
 	} else if (!w->dirty) {
 		w->dirty = true;
+<<<<<<< HEAD
 		schedule_delayed_work(&c->journal.work,
 				      msecs_to_jiffies(c->journal_delay_ms));
+=======
+		queue_delayed_work(bch_flush_wq, &c->journal.work,
+				   msecs_to_jiffies(c->journal_delay_ms));
+>>>>>>> upstream/android-13
 		spin_unlock(&c->journal.lock);
 	} else {
 		spin_unlock(&c->journal.lock);
@@ -856,6 +1283,10 @@ int bch_journal_alloc(struct cache_set *c)
 	struct journal *j = &c->journal;
 
 	spin_lock_init(&j->lock);
+<<<<<<< HEAD
+=======
+	spin_lock_init(&j->flush_write_lock);
+>>>>>>> upstream/android-13
 	INIT_DELAYED_WORK(&j->work, journal_write_work);
 
 	c->journal_delay_ms = 100;

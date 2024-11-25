@@ -28,16 +28,23 @@ r8723bs-y = \
 		hal/HalPwrSeqCmd.o \
 		hal/odm.o \
 		hal/odm_CfoTracking.o \
+<<<<<<< HEAD
 		hal/odm_debug.o \
+=======
+>>>>>>> upstream/android-13
 		hal/odm_DIG.o \
 		hal/odm_DynamicBBPowerSaving.o \
 		hal/odm_DynamicTxPower.o \
 		hal/odm_EdcaTurboCheck.o \
 		hal/odm_HWConfig.o \
 		hal/odm_NoiseMonitor.o \
+<<<<<<< HEAD
 		hal/odm_PathDiv.o \
 		hal/odm_RegConfig8723B.o \
 		hal/odm_RTL8723B.o \
+=======
+		hal/odm_RegConfig8723B.o \
+>>>>>>> upstream/android-13
 		hal/rtl8723b_cmd.o \
 		hal/rtl8723b_dm.o \
 		hal/rtl8723b_hal_init.o \
@@ -60,7 +67,10 @@ r8723bs-y = \
 		os_dep/osdep_service.o \
 		os_dep/os_intfs.o \
 		os_dep/recv_linux.o \
+<<<<<<< HEAD
 		os_dep/rtw_proc.o \
+=======
+>>>>>>> upstream/android-13
 		os_dep/sdio_intf.o \
 		os_dep/sdio_ops_linux.o \
 		os_dep/wifi_regd.o \

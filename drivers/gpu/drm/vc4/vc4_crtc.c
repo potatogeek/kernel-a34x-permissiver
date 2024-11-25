@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015 Broadcom
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2015 Broadcom
+>>>>>>> upstream/android-13
  */
 
 /**
@@ -32,6 +38,7 @@
  * ones that set the clock.
  */
 
+<<<<<<< HEAD
 #include <drm/drm_atomic.h>
 #include <drm/drm_atomic_helper.h>
 #include <drm/drm_crtc_helper.h>
@@ -55,10 +62,31 @@ to_vc4_crtc_state(struct drm_crtc_state *crtc_state)
 {
 	return (struct vc4_crtc_state *)crtc_state;
 }
+=======
+#include <linux/clk.h>
+#include <linux/component.h>
+#include <linux/of_device.h>
+#include <linux/pm_runtime.h>
+
+#include <drm/drm_atomic.h>
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_atomic_uapi.h>
+#include <drm/drm_fb_cma_helper.h>
+#include <drm/drm_print.h>
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_vblank.h>
+
+#include "vc4_drv.h"
+#include "vc4_hdmi.h"
+#include "vc4_regs.h"
+
+#define HVS_FIFO_LATENCY_PIX	6
+>>>>>>> upstream/android-13
 
 #define CRTC_WRITE(offset, val) writel(val, vc4_crtc->regs + (offset))
 #define CRTC_READ(offset) readl(vc4_crtc->regs + (offset))
 
+<<<<<<< HEAD
 #define CRTC_REG(reg) { reg, #reg }
 static const struct {
 	u32 reg;
@@ -128,6 +156,49 @@ bool vc4_crtc_get_scanoutpos(struct drm_device *dev, unsigned int crtc_id,
 	struct vc4_dev *vc4 = to_vc4_dev(dev);
 	struct drm_crtc *crtc = drm_crtc_from_index(dev, crtc_id);
 	struct vc4_crtc *vc4_crtc = to_vc4_crtc(crtc);
+=======
+static const struct debugfs_reg32 crtc_regs[] = {
+	VC4_REG32(PV_CONTROL),
+	VC4_REG32(PV_V_CONTROL),
+	VC4_REG32(PV_VSYNCD_EVEN),
+	VC4_REG32(PV_HORZA),
+	VC4_REG32(PV_HORZB),
+	VC4_REG32(PV_VERTA),
+	VC4_REG32(PV_VERTB),
+	VC4_REG32(PV_VERTA_EVEN),
+	VC4_REG32(PV_VERTB_EVEN),
+	VC4_REG32(PV_INTEN),
+	VC4_REG32(PV_INTSTAT),
+	VC4_REG32(PV_STAT),
+	VC4_REG32(PV_HACT_ACT),
+};
+
+static unsigned int
+vc4_crtc_get_cob_allocation(struct vc4_dev *vc4, unsigned int channel)
+{
+	u32 dispbase = HVS_READ(SCALER_DISPBASEX(channel));
+	/* Top/base are supposed to be 4-pixel aligned, but the
+	 * Raspberry Pi firmware fills the low bits (which are
+	 * presumably ignored).
+	 */
+	u32 top = VC4_GET_FIELD(dispbase, SCALER_DISPBASEX_TOP) & ~3;
+	u32 base = VC4_GET_FIELD(dispbase, SCALER_DISPBASEX_BASE) & ~3;
+
+	return top - base + 4;
+}
+
+static bool vc4_crtc_get_scanout_position(struct drm_crtc *crtc,
+					  bool in_vblank_irq,
+					  int *vpos, int *hpos,
+					  ktime_t *stime, ktime_t *etime,
+					  const struct drm_display_mode *mode)
+{
+	struct drm_device *dev = crtc->dev;
+	struct vc4_dev *vc4 = to_vc4_dev(dev);
+	struct vc4_crtc *vc4_crtc = to_vc4_crtc(crtc);
+	struct vc4_crtc_state *vc4_crtc_state = to_vc4_crtc_state(crtc->state);
+	unsigned int cob_size;
+>>>>>>> upstream/android-13
 	u32 val;
 	int fifo_lines;
 	int vblank_lines;
@@ -143,7 +214,11 @@ bool vc4_crtc_get_scanoutpos(struct drm_device *dev, unsigned int crtc_id,
 	 * Read vertical scanline which is currently composed for our
 	 * pixelvalve by the HVS, and also the scaler status.
 	 */
+<<<<<<< HEAD
 	val = HVS_READ(SCALER_DISPSTATX(vc4_crtc->channel));
+=======
+	val = HVS_READ(SCALER_DISPSTATX(vc4_crtc_state->assigned_channel));
+>>>>>>> upstream/android-13
 
 	/* Get optional system timestamp after query. */
 	if (etime)
@@ -163,8 +238,14 @@ bool vc4_crtc_get_scanoutpos(struct drm_device *dev, unsigned int crtc_id,
 			*hpos += mode->crtc_htotal / 2;
 	}
 
+<<<<<<< HEAD
 	/* This is the offset we need for translating hvs -> pv scanout pos. */
 	fifo_lines = vc4_crtc->cob_size / mode->crtc_hdisplay;
+=======
+	cob_size = vc4_crtc_get_cob_allocation(vc4, vc4_crtc_state->assigned_channel);
+	/* This is the offset we need for translating hvs -> pv scanout pos. */
+	fifo_lines = cob_size / mode->crtc_hdisplay;
+>>>>>>> upstream/android-13
 
 	if (fifo_lines > 0)
 		ret = true;
@@ -238,11 +319,16 @@ bool vc4_crtc_get_scanoutpos(struct drm_device *dev, unsigned int crtc_id,
 	return ret;
 }
 
+<<<<<<< HEAD
 static void vc4_crtc_destroy(struct drm_crtc *crtc)
+=======
+void vc4_crtc_destroy(struct drm_crtc *crtc)
+>>>>>>> upstream/android-13
 {
 	drm_crtc_cleanup(crtc);
 }
 
+<<<<<<< HEAD
 static void
 vc4_crtc_lut_load(struct drm_crtc *crtc)
 {
@@ -293,15 +379,81 @@ static u32 vc4_get_fifo_full_level(u32 format)
 	case PV_CONTROL_FORMAT_DSIV_16:
 	case PV_CONTROL_FORMAT_DSIC_16:
 		return fifo_len_bytes - 2 * hvs_latency_pix;
+=======
+static u32 vc4_get_fifo_full_level(struct vc4_crtc *vc4_crtc, u32 format)
+{
+	const struct vc4_crtc_data *crtc_data = vc4_crtc_to_vc4_crtc_data(vc4_crtc);
+	const struct vc4_pv_data *pv_data = vc4_crtc_to_vc4_pv_data(vc4_crtc);
+	struct vc4_dev *vc4 = to_vc4_dev(vc4_crtc->base.dev);
+	u32 fifo_len_bytes = pv_data->fifo_depth;
+
+	/*
+	 * Pixels are pulled from the HVS if the number of bytes is
+	 * lower than the FIFO full level.
+	 *
+	 * The latency of the pixel fetch mechanism is 6 pixels, so we
+	 * need to convert those 6 pixels in bytes, depending on the
+	 * format, and then subtract that from the length of the FIFO
+	 * to make sure we never end up in a situation where the FIFO
+	 * is full.
+	 */
+	switch (format) {
+	case PV_CONTROL_FORMAT_DSIV_16:
+	case PV_CONTROL_FORMAT_DSIC_16:
+		return fifo_len_bytes - 2 * HVS_FIFO_LATENCY_PIX;
+>>>>>>> upstream/android-13
 	case PV_CONTROL_FORMAT_DSIV_18:
 		return fifo_len_bytes - 14;
 	case PV_CONTROL_FORMAT_24:
 	case PV_CONTROL_FORMAT_DSIV_24:
 	default:
+<<<<<<< HEAD
 		return fifo_len_bytes - 3 * hvs_latency_pix;
 	}
 }
 
+=======
+		/*
+		 * For some reason, the pixelvalve4 doesn't work with
+		 * the usual formula and will only work with 32.
+		 */
+		if (crtc_data->hvs_output == 5)
+			return 32;
+
+		/*
+		 * It looks like in some situations, we will overflow
+		 * the PixelValve FIFO (with the bit 10 of PV stat being
+		 * set) and stall the HVS / PV, eventually resulting in
+		 * a page flip timeout.
+		 *
+		 * Displaying the video overlay during a playback with
+		 * Kodi on an RPi3 seems to be a great solution with a
+		 * failure rate around 50%.
+		 *
+		 * Removing 1 from the FIFO full level however
+		 * seems to completely remove that issue.
+		 */
+		if (!vc4->hvs->hvs5)
+			return fifo_len_bytes - 3 * HVS_FIFO_LATENCY_PIX - 1;
+
+		return fifo_len_bytes - 3 * HVS_FIFO_LATENCY_PIX;
+	}
+}
+
+static u32 vc4_crtc_get_fifo_full_level_bits(struct vc4_crtc *vc4_crtc,
+					     u32 format)
+{
+	u32 level = vc4_get_fifo_full_level(vc4_crtc, format);
+	u32 ret = 0;
+
+	ret |= VC4_SET_FIELD((level >> 6),
+			     PV5_CONTROL_FIFO_LEVEL_HIGH);
+
+	return ret | VC4_SET_FIELD(level & 0x3f,
+				   PV_CONTROL_FIFO_LEVEL);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Returns the encoder attached to the CRTC.
  *
@@ -309,14 +461,30 @@ static u32 vc4_get_fifo_full_level(u32 format)
  * allows drivers to push pixels to more than one encoder from the
  * same CRTC.
  */
+<<<<<<< HEAD
 static struct drm_encoder *vc4_get_crtc_encoder(struct drm_crtc *crtc)
+=======
+static struct drm_encoder *vc4_get_crtc_encoder(struct drm_crtc *crtc,
+						struct drm_atomic_state *state,
+						struct drm_connector_state *(*get_state)(struct drm_atomic_state *state,
+											 struct drm_connector *connector))
+>>>>>>> upstream/android-13
 {
 	struct drm_connector *connector;
 	struct drm_connector_list_iter conn_iter;
 
 	drm_connector_list_iter_begin(crtc->dev, &conn_iter);
 	drm_for_each_connector_iter(connector, &conn_iter) {
+<<<<<<< HEAD
 		if (connector->state->crtc == crtc) {
+=======
+		struct drm_connector_state *conn_state = get_state(state, connector);
+
+		if (!conn_state)
+			continue;
+
+		if (conn_state->crtc == crtc) {
+>>>>>>> upstream/android-13
 			drm_connector_list_iter_end(&conn_iter);
 			return connector->encoder;
 		}
@@ -326,6 +494,7 @@ static struct drm_encoder *vc4_get_crtc_encoder(struct drm_crtc *crtc)
 	return NULL;
 }
 
+<<<<<<< HEAD
 static void vc4_crtc_config_pv(struct drm_crtc *crtc)
 {
 	struct drm_encoder *encoder = vc4_get_crtc_encoder(crtc);
@@ -333,11 +502,34 @@ static void vc4_crtc_config_pv(struct drm_crtc *crtc)
 	struct vc4_crtc *vc4_crtc = to_vc4_crtc(crtc);
 	struct drm_crtc_state *state = crtc->state;
 	struct drm_display_mode *mode = &state->adjusted_mode;
+=======
+static void vc4_crtc_pixelvalve_reset(struct drm_crtc *crtc)
+{
+	struct vc4_crtc *vc4_crtc = to_vc4_crtc(crtc);
+
+	/* The PV needs to be disabled before it can be flushed */
+	CRTC_WRITE(PV_CONTROL, CRTC_READ(PV_CONTROL) & ~PV_CONTROL_EN);
+	CRTC_WRITE(PV_CONTROL, CRTC_READ(PV_CONTROL) | PV_CONTROL_FIFO_CLR);
+}
+
+static void vc4_crtc_config_pv(struct drm_crtc *crtc, struct drm_atomic_state *state)
+{
+	struct drm_device *dev = crtc->dev;
+	struct vc4_dev *vc4 = to_vc4_dev(dev);
+	struct drm_encoder *encoder = vc4_get_crtc_encoder(crtc, state,
+							   drm_atomic_get_new_connector_state);
+	struct vc4_encoder *vc4_encoder = to_vc4_encoder(encoder);
+	struct vc4_crtc *vc4_crtc = to_vc4_crtc(crtc);
+	const struct vc4_pv_data *pv_data = vc4_crtc_to_vc4_pv_data(vc4_crtc);
+	struct drm_crtc_state *crtc_state = crtc->state;
+	struct drm_display_mode *mode = &crtc_state->adjusted_mode;
+>>>>>>> upstream/android-13
 	bool interlace = mode->flags & DRM_MODE_FLAG_INTERLACE;
 	u32 pixel_rep = (mode->flags & DRM_MODE_FLAG_DBLCLK) ? 2 : 1;
 	bool is_dsi = (vc4_encoder->type == VC4_ENCODER_TYPE_DSI0 ||
 		       vc4_encoder->type == VC4_ENCODER_TYPE_DSI1);
 	u32 format = is_dsi ? PV_CONTROL_FORMAT_DSIV_24 : PV_CONTROL_FORMAT_24;
+<<<<<<< HEAD
 
 	/* Reset the PV fifo. */
 	CRTC_WRITE(PV_CONTROL, 0);
@@ -356,6 +548,31 @@ static void vc4_crtc_config_pv(struct drm_crtc *crtc)
 				  mode->hdisplay) * pixel_rep,
 				 PV_HORZB_HFP) |
 		   VC4_SET_FIELD(mode->hdisplay * pixel_rep, PV_HORZB_HACTIVE));
+=======
+	u8 ppc = pv_data->pixels_per_clock;
+	bool debug_dump_regs = false;
+
+	if (debug_dump_regs) {
+		struct drm_printer p = drm_info_printer(&vc4_crtc->pdev->dev);
+		dev_info(&vc4_crtc->pdev->dev, "CRTC %d regs before:\n",
+			 drm_crtc_index(crtc));
+		drm_print_regset32(&p, &vc4_crtc->regset);
+	}
+
+	vc4_crtc_pixelvalve_reset(crtc);
+
+	CRTC_WRITE(PV_HORZA,
+		   VC4_SET_FIELD((mode->htotal - mode->hsync_end) * pixel_rep / ppc,
+				 PV_HORZA_HBP) |
+		   VC4_SET_FIELD((mode->hsync_end - mode->hsync_start) * pixel_rep / ppc,
+				 PV_HORZA_HSYNC));
+
+	CRTC_WRITE(PV_HORZB,
+		   VC4_SET_FIELD((mode->hsync_start - mode->hdisplay) * pixel_rep / ppc,
+				 PV_HORZB_HFP) |
+		   VC4_SET_FIELD(mode->hdisplay * pixel_rep / ppc,
+				 PV_HORZB_HACTIVE));
+>>>>>>> upstream/android-13
 
 	CRTC_WRITE(PV_VERTA,
 		   VC4_SET_FIELD(mode->crtc_vtotal - mode->crtc_vsync_end,
@@ -399,17 +616,32 @@ static void vc4_crtc_config_pv(struct drm_crtc *crtc)
 			   (is_dsi ? PV_VCONTROL_DSI : 0));
 	}
 
+<<<<<<< HEAD
 	CRTC_WRITE(PV_HACT_ACT, mode->hdisplay * pixel_rep);
 
 	CRTC_WRITE(PV_CONTROL,
 		   VC4_SET_FIELD(format, PV_CONTROL_FORMAT) |
 		   VC4_SET_FIELD(vc4_get_fifo_full_level(format),
 				 PV_CONTROL_FIFO_LEVEL) |
+=======
+	if (is_dsi)
+		CRTC_WRITE(PV_HACT_ACT, mode->hdisplay * pixel_rep);
+
+	if (vc4->hvs->hvs5)
+		CRTC_WRITE(PV_MUX_CFG,
+			   VC4_SET_FIELD(PV_MUX_CFG_RGB_PIXEL_MUX_MODE_NO_SWAP,
+					 PV_MUX_CFG_RGB_PIXEL_MUX_MODE));
+
+	CRTC_WRITE(PV_CONTROL, PV_CONTROL_FIFO_CLR |
+		   vc4_crtc_get_fifo_full_level_bits(vc4_crtc, format) |
+		   VC4_SET_FIELD(format, PV_CONTROL_FORMAT) |
+>>>>>>> upstream/android-13
 		   VC4_SET_FIELD(pixel_rep - 1, PV_CONTROL_PIXEL_REP) |
 		   PV_CONTROL_CLR_AT_START |
 		   PV_CONTROL_TRIGGER_UNDERFLOW |
 		   PV_CONTROL_WAIT_HSTART |
 		   VC4_SET_FIELD(vc4_encoder->clock_select,
+<<<<<<< HEAD
 				 PV_CONTROL_CLK_SELECT) |
 		   PV_CONTROL_FIFO_CLR |
 		   PV_CONTROL_EN);
@@ -470,6 +702,15 @@ static void vc4_crtc_mode_set_nofb(struct drm_crtc *crtc)
 	if (debug_dump_regs) {
 		DRM_INFO("CRTC %d regs after:\n", drm_crtc_index(crtc));
 		vc4_crtc_dump_regs(vc4_crtc);
+=======
+				 PV_CONTROL_CLK_SELECT));
+
+	if (debug_dump_regs) {
+		struct drm_printer p = drm_info_printer(&vc4_crtc->pdev->dev);
+		dev_info(&vc4_crtc->pdev->dev, "CRTC %d regs after:\n",
+			 drm_crtc_index(crtc));
+		drm_print_regset32(&p, &vc4_crtc->regset);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -481,6 +722,7 @@ static void require_hvs_enabled(struct drm_device *dev)
 		     SCALER_DISPCTRL_ENABLE);
 }
 
+<<<<<<< HEAD
 static void vc4_crtc_atomic_disable(struct drm_crtc *crtc,
 				    struct drm_crtc_state *old_state)
 {
@@ -493,12 +735,24 @@ static void vc4_crtc_atomic_disable(struct drm_crtc *crtc,
 
 	/* Disable vblank irq handling before crtc is disabled. */
 	drm_crtc_vblank_off(crtc);
+=======
+static int vc4_crtc_disable(struct drm_crtc *crtc,
+			    struct drm_encoder *encoder,
+			    struct drm_atomic_state *state,
+			    unsigned int channel)
+{
+	struct vc4_encoder *vc4_encoder = to_vc4_encoder(encoder);
+	struct vc4_crtc *vc4_crtc = to_vc4_crtc(crtc);
+	struct drm_device *dev = crtc->dev;
+	int ret;
+>>>>>>> upstream/android-13
 
 	CRTC_WRITE(PV_V_CONTROL,
 		   CRTC_READ(PV_V_CONTROL) & ~PV_VCONTROL_VIDEN);
 	ret = wait_for(!(CRTC_READ(PV_V_CONTROL) & PV_VCONTROL_VIDEN), 1);
 	WARN_ONCE(ret, "Timeout waiting for !PV_VCONTROL_VIDEN\n");
 
+<<<<<<< HEAD
 	if (HVS_READ(SCALER_DISPCTRLX(chan)) &
 	    SCALER_DISPCTRLX_ENABLE) {
 		HVS_WRITE(SCALER_DISPCTRLX(chan),
@@ -521,6 +775,125 @@ static void vc4_crtc_atomic_disable(struct drm_crtc *crtc,
 	WARN_ON_ONCE((HVS_READ(SCALER_DISPSTATX(chan)) &
 		      (SCALER_DISPSTATX_FULL | SCALER_DISPSTATX_EMPTY)) !=
 		     SCALER_DISPSTATX_EMPTY);
+=======
+	/*
+	 * This delay is needed to avoid to get a pixel stuck in an
+	 * unflushable FIFO between the pixelvalve and the HDMI
+	 * controllers on the BCM2711.
+	 *
+	 * Timing is fairly sensitive here, so mdelay is the safest
+	 * approach.
+	 *
+	 * If it was to be reworked, the stuck pixel happens on a
+	 * BCM2711 when changing mode with a good probability, so a
+	 * script that changes mode on a regular basis should trigger
+	 * the bug after less than 10 attempts. It manifests itself with
+	 * every pixels being shifted by one to the right, and thus the
+	 * last pixel of a line actually being displayed as the first
+	 * pixel on the next line.
+	 */
+	mdelay(20);
+
+	if (vc4_encoder && vc4_encoder->post_crtc_disable)
+		vc4_encoder->post_crtc_disable(encoder, state);
+
+	vc4_crtc_pixelvalve_reset(crtc);
+	vc4_hvs_stop_channel(dev, channel);
+
+	if (vc4_encoder && vc4_encoder->post_crtc_powerdown)
+		vc4_encoder->post_crtc_powerdown(encoder, state);
+
+	return 0;
+}
+
+static struct drm_encoder *vc4_crtc_get_encoder_by_type(struct drm_crtc *crtc,
+							enum vc4_encoder_type type)
+{
+	struct drm_encoder *encoder;
+
+	drm_for_each_encoder(encoder, crtc->dev) {
+		struct vc4_encoder *vc4_encoder = to_vc4_encoder(encoder);
+
+		if (vc4_encoder->type == type)
+			return encoder;
+	}
+
+	return NULL;
+}
+
+int vc4_crtc_disable_at_boot(struct drm_crtc *crtc)
+{
+	struct drm_device *drm = crtc->dev;
+	struct vc4_crtc *vc4_crtc = to_vc4_crtc(crtc);
+	enum vc4_encoder_type encoder_type;
+	const struct vc4_pv_data *pv_data;
+	struct drm_encoder *encoder;
+	struct vc4_hdmi *vc4_hdmi;
+	unsigned encoder_sel;
+	int channel;
+	int ret;
+
+	if (!(of_device_is_compatible(vc4_crtc->pdev->dev.of_node,
+				      "brcm,bcm2711-pixelvalve2") ||
+	      of_device_is_compatible(vc4_crtc->pdev->dev.of_node,
+				      "brcm,bcm2711-pixelvalve4")))
+		return 0;
+
+	if (!(CRTC_READ(PV_CONTROL) & PV_CONTROL_EN))
+		return 0;
+
+	if (!(CRTC_READ(PV_V_CONTROL) & PV_VCONTROL_VIDEN))
+		return 0;
+
+	channel = vc4_hvs_get_fifo_from_output(drm, vc4_crtc->data->hvs_output);
+	if (channel < 0)
+		return 0;
+
+	encoder_sel = VC4_GET_FIELD(CRTC_READ(PV_CONTROL), PV_CONTROL_CLK_SELECT);
+	if (WARN_ON(encoder_sel != 0))
+		return 0;
+
+	pv_data = vc4_crtc_to_vc4_pv_data(vc4_crtc);
+	encoder_type = pv_data->encoder_types[encoder_sel];
+	encoder = vc4_crtc_get_encoder_by_type(crtc, encoder_type);
+	if (WARN_ON(!encoder))
+		return 0;
+
+	vc4_hdmi = encoder_to_vc4_hdmi(encoder);
+	ret = pm_runtime_resume_and_get(&vc4_hdmi->pdev->dev);
+	if (ret)
+		return ret;
+
+	ret = vc4_crtc_disable(crtc, encoder, NULL, channel);
+	if (ret)
+		return ret;
+
+	/*
+	 * post_crtc_powerdown will have called pm_runtime_put, so we
+	 * don't need it here otherwise we'll get the reference counting
+	 * wrong.
+	 */
+
+	return 0;
+}
+
+static void vc4_crtc_atomic_disable(struct drm_crtc *crtc,
+				    struct drm_atomic_state *state)
+{
+	struct drm_crtc_state *old_state = drm_atomic_get_old_crtc_state(state,
+									 crtc);
+	struct vc4_crtc_state *old_vc4_state = to_vc4_crtc_state(old_state);
+	struct drm_encoder *encoder = vc4_get_crtc_encoder(crtc, state,
+							   drm_atomic_get_old_connector_state);
+	struct drm_device *dev = crtc->dev;
+
+	require_hvs_enabled(dev);
+
+	/* Disable vblank irq handling before crtc is disabled. */
+	drm_crtc_vblank_off(crtc);
+
+	vc4_crtc_disable(crtc, encoder, state, old_vc4_state->assigned_channel);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Make sure we issue a vblank event after disabling the CRTC if
@@ -536,6 +909,7 @@ static void vc4_crtc_atomic_disable(struct drm_crtc *crtc,
 	}
 }
 
+<<<<<<< HEAD
 void vc4_crtc_txp_armed(struct drm_crtc_state *state)
 {
 	struct vc4_crtc_state *vc4_state = to_vc4_crtc_state(state);
@@ -582,6 +956,16 @@ static void vc4_crtc_atomic_enable(struct drm_crtc *crtc,
 	struct vc4_crtc *vc4_crtc = to_vc4_crtc(crtc);
 	struct vc4_crtc_state *vc4_state = to_vc4_crtc_state(crtc->state);
 	struct drm_display_mode *mode = &crtc->state->adjusted_mode;
+=======
+static void vc4_crtc_atomic_enable(struct drm_crtc *crtc,
+				   struct drm_atomic_state *state)
+{
+	struct drm_device *dev = crtc->dev;
+	struct vc4_crtc *vc4_crtc = to_vc4_crtc(crtc);
+	struct drm_encoder *encoder = vc4_get_crtc_encoder(crtc, state,
+							   drm_atomic_get_new_connector_state);
+	struct vc4_encoder *vc4_encoder = to_vc4_encoder(encoder);
+>>>>>>> upstream/android-13
 
 	require_hvs_enabled(dev);
 
@@ -589,6 +973,7 @@ static void vc4_crtc_atomic_enable(struct drm_crtc *crtc,
 	 * drm_crtc_get_vblank() fails in vc4_crtc_update_dlist().
 	 */
 	drm_crtc_vblank_on(crtc);
+<<<<<<< HEAD
 	vc4_crtc_update_dlist(crtc);
 
 	/* Turn on the scaler, which will wait for vstart to start
@@ -601,13 +986,35 @@ static void vc4_crtc_atomic_enable(struct drm_crtc *crtc,
 		  VC4_SET_FIELD(mode->vdisplay, SCALER_DISPCTRLX_HEIGHT) |
 		  SCALER_DISPCTRLX_ENABLE |
 		  (vc4_state->feed_txp ? SCALER_DISPCTRLX_ONESHOT : 0));
+=======
+
+	vc4_hvs_atomic_enable(crtc, state);
+
+	if (vc4_encoder->pre_crtc_configure)
+		vc4_encoder->pre_crtc_configure(encoder, state);
+
+	vc4_crtc_config_pv(crtc, state);
+
+	CRTC_WRITE(PV_CONTROL, CRTC_READ(PV_CONTROL) | PV_CONTROL_EN);
+
+	if (vc4_encoder->pre_crtc_enable)
+		vc4_encoder->pre_crtc_enable(encoder, state);
+>>>>>>> upstream/android-13
 
 	/* When feeding the transposer block the pixelvalve is unneeded and
 	 * should not be enabled.
 	 */
+<<<<<<< HEAD
 	if (!vc4_state->feed_txp)
 		CRTC_WRITE(PV_V_CONTROL,
 			   CRTC_READ(PV_V_CONTROL) | PV_VCONTROL_VIDEN);
+=======
+	CRTC_WRITE(PV_V_CONTROL,
+		   CRTC_READ(PV_V_CONTROL) | PV_VCONTROL_VIDEN);
+
+	if (vc4_encoder->post_crtc_enable)
+		vc4_encoder->post_crtc_enable(encoder, state);
+>>>>>>> upstream/android-13
 }
 
 static enum drm_mode_status vc4_crtc_mode_valid(struct drm_crtc *crtc,
@@ -623,6 +1030,7 @@ static enum drm_mode_status vc4_crtc_mode_valid(struct drm_crtc *crtc,
 	return MODE_OK;
 }
 
+<<<<<<< HEAD
 static int vc4_crtc_atomic_check(struct drm_crtc *crtc,
 				 struct drm_crtc_state *state)
 {
@@ -670,12 +1078,69 @@ static int vc4_crtc_atomic_check(struct drm_crtc *crtc,
 			vc4_state->feed_txp = false;
 		}
 
+=======
+void vc4_crtc_get_margins(struct drm_crtc_state *state,
+			  unsigned int *left, unsigned int *right,
+			  unsigned int *top, unsigned int *bottom)
+{
+	struct vc4_crtc_state *vc4_state = to_vc4_crtc_state(state);
+	struct drm_connector_state *conn_state;
+	struct drm_connector *conn;
+	int i;
+
+	*left = vc4_state->margins.left;
+	*right = vc4_state->margins.right;
+	*top = vc4_state->margins.top;
+	*bottom = vc4_state->margins.bottom;
+
+	/* We have to interate over all new connector states because
+	 * vc4_crtc_get_margins() might be called before
+	 * vc4_crtc_atomic_check() which means margins info in vc4_crtc_state
+	 * might be outdated.
+	 */
+	for_each_new_connector_in_state(state->state, conn, conn_state, i) {
+		if (conn_state->crtc != state->crtc)
+			continue;
+
+		*left = conn_state->tv.margins.left;
+		*right = conn_state->tv.margins.right;
+		*top = conn_state->tv.margins.top;
+		*bottom = conn_state->tv.margins.bottom;
+		break;
+	}
+}
+
+static int vc4_crtc_atomic_check(struct drm_crtc *crtc,
+				 struct drm_atomic_state *state)
+{
+	struct drm_crtc_state *crtc_state = drm_atomic_get_new_crtc_state(state,
+									  crtc);
+	struct vc4_crtc_state *vc4_state = to_vc4_crtc_state(crtc_state);
+	struct drm_connector *conn;
+	struct drm_connector_state *conn_state;
+	int ret, i;
+
+	ret = vc4_hvs_atomic_check(crtc, state);
+	if (ret)
+		return ret;
+
+	for_each_new_connector_in_state(state, conn, conn_state,
+					i) {
+		if (conn_state->crtc != crtc)
+			continue;
+
+		vc4_state->margins.left = conn_state->tv.margins.left;
+		vc4_state->margins.right = conn_state->tv.margins.right;
+		vc4_state->margins.top = conn_state->tv.margins.top;
+		vc4_state->margins.bottom = conn_state->tv.margins.bottom;
+>>>>>>> upstream/android-13
 		break;
 	}
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static void vc4_crtc_atomic_flush(struct drm_crtc *crtc,
 				  struct drm_crtc_state *old_state)
 {
@@ -759,6 +1224,8 @@ static void vc4_crtc_atomic_flush(struct drm_crtc *crtc,
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 static int vc4_enable_vblank(struct drm_crtc *crtc)
 {
 	struct vc4_crtc *vc4_crtc = to_vc4_crtc(crtc);
@@ -780,6 +1247,7 @@ static void vc4_crtc_handle_page_flip(struct vc4_crtc *vc4_crtc)
 	struct drm_crtc *crtc = &vc4_crtc->base;
 	struct drm_device *dev = crtc->dev;
 	struct vc4_dev *vc4 = to_vc4_dev(dev);
+<<<<<<< HEAD
 	struct vc4_crtc_state *vc4_state = to_vc4_crtc_state(crtc->state);
 	u32 chan = vc4_crtc->channel;
 	unsigned long flags;
@@ -792,6 +1260,29 @@ static void vc4_crtc_handle_page_flip(struct vc4_crtc *vc4_crtc)
 		vc4_crtc->event = NULL;
 		drm_crtc_vblank_put(crtc);
 	}
+=======
+	u32 chan = vc4_crtc->current_hvs_channel;
+	unsigned long flags;
+
+	spin_lock_irqsave(&dev->event_lock, flags);
+	spin_lock(&vc4_crtc->irq_lock);
+	if (vc4_crtc->event &&
+	    (vc4_crtc->current_dlist == HVS_READ(SCALER_DISPLACTX(chan)) ||
+	     vc4_crtc->feeds_txp)) {
+		drm_crtc_send_vblank_event(crtc, vc4_crtc->event);
+		vc4_crtc->event = NULL;
+		drm_crtc_vblank_put(crtc);
+
+		/* Wait for the page flip to unmask the underrun to ensure that
+		 * the display list was updated by the hardware. Before that
+		 * happens, the HVS will be using the previous display list with
+		 * the CRTC and encoder already reconfigured, leading to
+		 * underruns. This can be seen when reconfiguring the CRTC.
+		 */
+		vc4_hvs_unmask_underrun(dev, chan);
+	}
+	spin_unlock(&vc4_crtc->irq_lock);
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&dev->event_lock, flags);
 }
 
@@ -836,7 +1327,10 @@ vc4_async_page_flip_complete(struct vc4_seqno_cb *cb)
 		container_of(cb, struct vc4_async_flip_state, cb);
 	struct drm_crtc *crtc = flip_state->crtc;
 	struct drm_device *dev = crtc->dev;
+<<<<<<< HEAD
 	struct vc4_dev *vc4 = to_vc4_dev(dev);
+=======
+>>>>>>> upstream/android-13
 	struct drm_plane *plane = crtc->primary;
 
 	vc4_plane_async_set_fb(plane, flip_state->fb);
@@ -868,8 +1362,11 @@ vc4_async_page_flip_complete(struct vc4_seqno_cb *cb)
 	}
 
 	kfree(flip_state);
+<<<<<<< HEAD
 
 	up(&vc4->async_modeset);
+=======
+>>>>>>> upstream/android-13
 }
 
 /* Implements async (non-vblank-synced) page flips.
@@ -884,7 +1381,10 @@ static int vc4_async_page_flip(struct drm_crtc *crtc,
 			       uint32_t flags)
 {
 	struct drm_device *dev = crtc->dev;
+<<<<<<< HEAD
 	struct vc4_dev *vc4 = to_vc4_dev(dev);
+=======
+>>>>>>> upstream/android-13
 	struct drm_plane *plane = crtc->primary;
 	int ret = 0;
 	struct vc4_async_flip_state *flip_state;
@@ -913,6 +1413,7 @@ static int vc4_async_page_flip(struct drm_crtc *crtc,
 	flip_state->crtc = crtc;
 	flip_state->event = event;
 
+<<<<<<< HEAD
 	/* Make sure all other async modesetes have landed. */
 	ret = down_interruptible(&vc4->async_modeset);
 	if (ret) {
@@ -922,6 +1423,8 @@ static int vc4_async_page_flip(struct drm_crtc *crtc,
 		return ret;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/* Save the current FB before it's replaced by the new one in
 	 * drm_atomic_set_fb_for_plane(). We'll need the old FB in
 	 * vc4_async_page_flip_complete() to decrement the BO usecnt and keep
@@ -949,11 +1452,19 @@ static int vc4_async_page_flip(struct drm_crtc *crtc,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int vc4_page_flip(struct drm_crtc *crtc,
 			 struct drm_framebuffer *fb,
 			 struct drm_pending_vblank_event *event,
 			 uint32_t flags,
 			 struct drm_modeset_acquire_ctx *ctx)
+=======
+int vc4_page_flip(struct drm_crtc *crtc,
+		  struct drm_framebuffer *fb,
+		  struct drm_pending_vblank_event *event,
+		  uint32_t flags,
+		  struct drm_modeset_acquire_ctx *ctx)
+>>>>>>> upstream/android-13
 {
 	if (flags & DRM_MODE_PAGE_FLIP_ASYNC)
 		return vc4_async_page_flip(crtc, fb, event, flags);
@@ -961,7 +1472,11 @@ static int vc4_page_flip(struct drm_crtc *crtc,
 		return drm_atomic_helper_page_flip(crtc, fb, event, flags, ctx);
 }
 
+<<<<<<< HEAD
 static struct drm_crtc_state *vc4_crtc_duplicate_state(struct drm_crtc *crtc)
+=======
+struct drm_crtc_state *vc4_crtc_duplicate_state(struct drm_crtc *crtc)
+>>>>>>> upstream/android-13
 {
 	struct vc4_crtc_state *vc4_state, *old_vc4_state;
 
@@ -970,19 +1485,33 @@ static struct drm_crtc_state *vc4_crtc_duplicate_state(struct drm_crtc *crtc)
 		return NULL;
 
 	old_vc4_state = to_vc4_crtc_state(crtc->state);
+<<<<<<< HEAD
 	vc4_state->feed_txp = old_vc4_state->feed_txp;
+=======
+	vc4_state->margins = old_vc4_state->margins;
+	vc4_state->assigned_channel = old_vc4_state->assigned_channel;
+>>>>>>> upstream/android-13
 
 	__drm_atomic_helper_crtc_duplicate_state(crtc, &vc4_state->base);
 	return &vc4_state->base;
 }
 
+<<<<<<< HEAD
 static void vc4_crtc_destroy_state(struct drm_crtc *crtc,
 				   struct drm_crtc_state *state)
+=======
+void vc4_crtc_destroy_state(struct drm_crtc *crtc,
+			    struct drm_crtc_state *state)
+>>>>>>> upstream/android-13
 {
 	struct vc4_dev *vc4 = to_vc4_dev(crtc->dev);
 	struct vc4_crtc_state *vc4_state = to_vc4_crtc_state(state);
 
+<<<<<<< HEAD
 	if (vc4_state->mm.allocated) {
+=======
+	if (drm_mm_node_allocated(&vc4_state->mm)) {
+>>>>>>> upstream/android-13
 		unsigned long flags;
 
 		spin_lock_irqsave(&vc4->hvs->mm_lock, flags);
@@ -994,6 +1523,7 @@ static void vc4_crtc_destroy_state(struct drm_crtc *crtc,
 	drm_atomic_helper_crtc_destroy_state(crtc, state);
 }
 
+<<<<<<< HEAD
 static void
 vc4_crtc_reset(struct drm_crtc *crtc)
 {
@@ -1003,6 +1533,23 @@ vc4_crtc_reset(struct drm_crtc *crtc)
 	crtc->state = kzalloc(sizeof(struct vc4_crtc_state), GFP_KERNEL);
 	if (crtc->state)
 		crtc->state->crtc = crtc;
+=======
+void vc4_crtc_reset(struct drm_crtc *crtc)
+{
+	struct vc4_crtc_state *vc4_crtc_state;
+
+	if (crtc->state)
+		vc4_crtc_destroy_state(crtc, crtc->state);
+
+	vc4_crtc_state = kzalloc(sizeof(*vc4_crtc_state), GFP_KERNEL);
+	if (!vc4_crtc_state) {
+		crtc->state = NULL;
+		return;
+	}
+
+	vc4_crtc_state->assigned_channel = VC4_HVS_CHANNEL_DISABLED;
+	__drm_atomic_helper_crtc_reset(crtc, &vc4_crtc_state->base);
+>>>>>>> upstream/android-13
 }
 
 static const struct drm_crtc_funcs vc4_crtc_funcs = {
@@ -1015,6 +1562,7 @@ static const struct drm_crtc_funcs vc4_crtc_funcs = {
 	.reset = vc4_crtc_reset,
 	.atomic_duplicate_state = vc4_crtc_duplicate_state,
 	.atomic_destroy_state = vc4_crtc_destroy_state,
+<<<<<<< HEAD
 	.gamma_set = drm_atomic_helper_legacy_gamma_set,
 	.enable_vblank = vc4_enable_vblank,
 	.disable_vblank = vc4_disable_vblank,
@@ -1031,32 +1579,160 @@ static const struct drm_crtc_helper_funcs vc4_crtc_helper_funcs = {
 
 static const struct vc4_crtc_data pv0_data = {
 	.hvs_channel = 0,
+=======
+	.enable_vblank = vc4_enable_vblank,
+	.disable_vblank = vc4_disable_vblank,
+	.get_vblank_timestamp = drm_crtc_vblank_helper_get_vblank_timestamp,
+};
+
+static const struct drm_crtc_helper_funcs vc4_crtc_helper_funcs = {
+	.mode_valid = vc4_crtc_mode_valid,
+	.atomic_check = vc4_crtc_atomic_check,
+	.atomic_begin = vc4_hvs_atomic_begin,
+	.atomic_flush = vc4_hvs_atomic_flush,
+	.atomic_enable = vc4_crtc_atomic_enable,
+	.atomic_disable = vc4_crtc_atomic_disable,
+	.get_scanout_position = vc4_crtc_get_scanout_position,
+};
+
+static const struct vc4_pv_data bcm2835_pv0_data = {
+	.base = {
+		.hvs_available_channels = BIT(0),
+		.hvs_output = 0,
+	},
+	.debugfs_name = "crtc0_regs",
+	.fifo_depth = 64,
+	.pixels_per_clock = 1,
+>>>>>>> upstream/android-13
 	.encoder_types = {
 		[PV_CONTROL_CLK_SELECT_DSI] = VC4_ENCODER_TYPE_DSI0,
 		[PV_CONTROL_CLK_SELECT_DPI_SMI_HDMI] = VC4_ENCODER_TYPE_DPI,
 	},
 };
 
+<<<<<<< HEAD
 static const struct vc4_crtc_data pv1_data = {
 	.hvs_channel = 2,
+=======
+static const struct vc4_pv_data bcm2835_pv1_data = {
+	.base = {
+		.hvs_available_channels = BIT(2),
+		.hvs_output = 2,
+	},
+	.debugfs_name = "crtc1_regs",
+	.fifo_depth = 64,
+	.pixels_per_clock = 1,
+>>>>>>> upstream/android-13
 	.encoder_types = {
 		[PV_CONTROL_CLK_SELECT_DSI] = VC4_ENCODER_TYPE_DSI1,
 		[PV_CONTROL_CLK_SELECT_DPI_SMI_HDMI] = VC4_ENCODER_TYPE_SMI,
 	},
 };
 
+<<<<<<< HEAD
 static const struct vc4_crtc_data pv2_data = {
 	.hvs_channel = 1,
 	.encoder_types = {
 		[PV_CONTROL_CLK_SELECT_DPI_SMI_HDMI] = VC4_ENCODER_TYPE_HDMI,
+=======
+static const struct vc4_pv_data bcm2835_pv2_data = {
+	.base = {
+		.hvs_available_channels = BIT(1),
+		.hvs_output = 1,
+	},
+	.debugfs_name = "crtc2_regs",
+	.fifo_depth = 64,
+	.pixels_per_clock = 1,
+	.encoder_types = {
+		[PV_CONTROL_CLK_SELECT_DPI_SMI_HDMI] = VC4_ENCODER_TYPE_HDMI0,
+>>>>>>> upstream/android-13
 		[PV_CONTROL_CLK_SELECT_VEC] = VC4_ENCODER_TYPE_VEC,
 	},
 };
 
+<<<<<<< HEAD
 static const struct of_device_id vc4_crtc_dt_match[] = {
 	{ .compatible = "brcm,bcm2835-pixelvalve0", .data = &pv0_data },
 	{ .compatible = "brcm,bcm2835-pixelvalve1", .data = &pv1_data },
 	{ .compatible = "brcm,bcm2835-pixelvalve2", .data = &pv2_data },
+=======
+static const struct vc4_pv_data bcm2711_pv0_data = {
+	.base = {
+		.hvs_available_channels = BIT(0),
+		.hvs_output = 0,
+	},
+	.debugfs_name = "crtc0_regs",
+	.fifo_depth = 64,
+	.pixels_per_clock = 1,
+	.encoder_types = {
+		[0] = VC4_ENCODER_TYPE_DSI0,
+		[1] = VC4_ENCODER_TYPE_DPI,
+	},
+};
+
+static const struct vc4_pv_data bcm2711_pv1_data = {
+	.base = {
+		.hvs_available_channels = BIT(0) | BIT(1) | BIT(2),
+		.hvs_output = 3,
+	},
+	.debugfs_name = "crtc1_regs",
+	.fifo_depth = 64,
+	.pixels_per_clock = 1,
+	.encoder_types = {
+		[0] = VC4_ENCODER_TYPE_DSI1,
+		[1] = VC4_ENCODER_TYPE_SMI,
+	},
+};
+
+static const struct vc4_pv_data bcm2711_pv2_data = {
+	.base = {
+		.hvs_available_channels = BIT(0) | BIT(1) | BIT(2),
+		.hvs_output = 4,
+	},
+	.debugfs_name = "crtc2_regs",
+	.fifo_depth = 256,
+	.pixels_per_clock = 2,
+	.encoder_types = {
+		[0] = VC4_ENCODER_TYPE_HDMI0,
+	},
+};
+
+static const struct vc4_pv_data bcm2711_pv3_data = {
+	.base = {
+		.hvs_available_channels = BIT(1),
+		.hvs_output = 1,
+	},
+	.debugfs_name = "crtc3_regs",
+	.fifo_depth = 64,
+	.pixels_per_clock = 1,
+	.encoder_types = {
+		[PV_CONTROL_CLK_SELECT_VEC] = VC4_ENCODER_TYPE_VEC,
+	},
+};
+
+static const struct vc4_pv_data bcm2711_pv4_data = {
+	.base = {
+		.hvs_available_channels = BIT(0) | BIT(1) | BIT(2),
+		.hvs_output = 5,
+	},
+	.debugfs_name = "crtc4_regs",
+	.fifo_depth = 64,
+	.pixels_per_clock = 2,
+	.encoder_types = {
+		[0] = VC4_ENCODER_TYPE_HDMI1,
+	},
+};
+
+static const struct of_device_id vc4_crtc_dt_match[] = {
+	{ .compatible = "brcm,bcm2835-pixelvalve0", .data = &bcm2835_pv0_data },
+	{ .compatible = "brcm,bcm2835-pixelvalve1", .data = &bcm2835_pv1_data },
+	{ .compatible = "brcm,bcm2835-pixelvalve2", .data = &bcm2835_pv2_data },
+	{ .compatible = "brcm,bcm2711-pixelvalve0", .data = &bcm2711_pv0_data },
+	{ .compatible = "brcm,bcm2711-pixelvalve1", .data = &bcm2711_pv1_data },
+	{ .compatible = "brcm,bcm2711-pixelvalve2", .data = &bcm2711_pv2_data },
+	{ .compatible = "brcm,bcm2711-pixelvalve3", .data = &bcm2711_pv3_data },
+	{ .compatible = "brcm,bcm2711-pixelvalve4", .data = &bcm2711_pv4_data },
+>>>>>>> upstream/android-13
 	{}
 };
 
@@ -1064,14 +1740,20 @@ static void vc4_set_crtc_possible_masks(struct drm_device *drm,
 					struct drm_crtc *crtc)
 {
 	struct vc4_crtc *vc4_crtc = to_vc4_crtc(crtc);
+<<<<<<< HEAD
 	const struct vc4_crtc_data *crtc_data = vc4_crtc->data;
 	const enum vc4_encoder_type *encoder_types = crtc_data->encoder_types;
+=======
+	const struct vc4_pv_data *pv_data = vc4_crtc_to_vc4_pv_data(vc4_crtc);
+	const enum vc4_encoder_type *encoder_types = pv_data->encoder_types;
+>>>>>>> upstream/android-13
 	struct drm_encoder *encoder;
 
 	drm_for_each_encoder(encoder, drm) {
 		struct vc4_encoder *vc4_encoder;
 		int i;
 
+<<<<<<< HEAD
 		/* HVS FIFO2 can feed the TXP IP. */
 		if (crtc_data->hvs_channel == 2 &&
 		    encoder->encoder_type == DRM_MODE_ENCODER_VIRTUAL) {
@@ -1081,6 +1763,13 @@ static void vc4_set_crtc_possible_masks(struct drm_device *drm,
 
 		vc4_encoder = to_vc4_encoder(encoder);
 		for (i = 0; i < ARRAY_SIZE(crtc_data->encoder_types); i++) {
+=======
+		if (encoder->encoder_type == DRM_MODE_ENCODER_VIRTUAL)
+			continue;
+
+		vc4_encoder = to_vc4_encoder(encoder);
+		for (i = 0; i < ARRAY_SIZE(pv_data->encoder_types); i++) {
+>>>>>>> upstream/android-13
 			if (vc4_encoder->type == encoder_types[i]) {
 				vc4_encoder->clock_select = i;
 				encoder->possible_crtcs |= drm_crtc_mask(crtc);
@@ -1090,6 +1779,7 @@ static void vc4_set_crtc_possible_masks(struct drm_device *drm,
 	}
 }
 
+<<<<<<< HEAD
 static void
 vc4_crtc_get_cob_allocation(struct vc4_crtc *vc4_crtc)
 {
@@ -1129,6 +1819,16 @@ static int vc4_crtc_bind(struct device *dev, struct device *master, void *data)
 	vc4_crtc->regs = vc4_ioremap_regs(pdev, 0);
 	if (IS_ERR(vc4_crtc->regs))
 		return PTR_ERR(vc4_crtc->regs);
+=======
+int vc4_crtc_init(struct drm_device *drm, struct vc4_crtc *vc4_crtc,
+		  const struct drm_crtc_funcs *crtc_funcs,
+		  const struct drm_crtc_helper_funcs *crtc_helper_funcs)
+{
+	struct vc4_dev *vc4 = to_vc4_dev(drm);
+	struct drm_crtc *crtc = &vc4_crtc->base;
+	struct drm_plane *primary_plane;
+	unsigned int i;
+>>>>>>> upstream/android-13
 
 	/* For now, we create just the primary and the legacy cursor
 	 * planes.  We should be able to stack more planes on easily,
@@ -1138,6 +1838,7 @@ static int vc4_crtc_bind(struct device *dev, struct device *master, void *data)
 	 */
 	primary_plane = vc4_plane_init(drm, DRM_PLANE_TYPE_PRIMARY);
 	if (IS_ERR(primary_plane)) {
+<<<<<<< HEAD
 		dev_err(dev, "failed to construct primary plane\n");
 		ret = PTR_ERR(primary_plane);
 		goto err;
@@ -1195,14 +1896,91 @@ static int vc4_crtc_bind(struct device *dev, struct device *master, void *data)
 
 	vc4_set_crtc_possible_masks(drm, crtc);
 
+=======
+		dev_err(drm->dev, "failed to construct primary plane\n");
+		return PTR_ERR(primary_plane);
+	}
+
+	spin_lock_init(&vc4_crtc->irq_lock);
+	drm_crtc_init_with_planes(drm, crtc, primary_plane, NULL,
+				  crtc_funcs, NULL);
+	drm_crtc_helper_add(crtc, crtc_helper_funcs);
+
+	if (!vc4->hvs->hvs5) {
+		drm_mode_crtc_set_gamma_size(crtc, ARRAY_SIZE(vc4_crtc->lut_r));
+
+		drm_crtc_enable_color_mgmt(crtc, 0, false, crtc->gamma_size);
+
+		/* We support CTM, but only for one CRTC at a time. It's therefore
+		 * implemented as private driver state in vc4_kms, not here.
+		 */
+		drm_crtc_enable_color_mgmt(crtc, 0, true, crtc->gamma_size);
+	}
+
+>>>>>>> upstream/android-13
 	for (i = 0; i < crtc->gamma_size; i++) {
 		vc4_crtc->lut_r[i] = i;
 		vc4_crtc->lut_g[i] = i;
 		vc4_crtc->lut_b[i] = i;
 	}
 
+<<<<<<< HEAD
 	platform_set_drvdata(pdev, vc4_crtc);
 
+=======
+	return 0;
+}
+
+static int vc4_crtc_bind(struct device *dev, struct device *master, void *data)
+{
+	struct platform_device *pdev = to_platform_device(dev);
+	struct drm_device *drm = dev_get_drvdata(master);
+	const struct vc4_pv_data *pv_data;
+	struct vc4_crtc *vc4_crtc;
+	struct drm_crtc *crtc;
+	struct drm_plane *destroy_plane, *temp;
+	int ret;
+
+	vc4_crtc = devm_kzalloc(dev, sizeof(*vc4_crtc), GFP_KERNEL);
+	if (!vc4_crtc)
+		return -ENOMEM;
+	crtc = &vc4_crtc->base;
+
+	pv_data = of_device_get_match_data(dev);
+	if (!pv_data)
+		return -ENODEV;
+	vc4_crtc->data = &pv_data->base;
+	vc4_crtc->pdev = pdev;
+
+	vc4_crtc->regs = vc4_ioremap_regs(pdev, 0);
+	if (IS_ERR(vc4_crtc->regs))
+		return PTR_ERR(vc4_crtc->regs);
+
+	vc4_crtc->regset.base = vc4_crtc->regs;
+	vc4_crtc->regset.regs = crtc_regs;
+	vc4_crtc->regset.nregs = ARRAY_SIZE(crtc_regs);
+
+	ret = vc4_crtc_init(drm, vc4_crtc,
+			    &vc4_crtc_funcs, &vc4_crtc_helper_funcs);
+	if (ret)
+		return ret;
+	vc4_set_crtc_possible_masks(drm, crtc);
+
+	CRTC_WRITE(PV_INTEN, 0);
+	CRTC_WRITE(PV_INTSTAT, PV_INT_VFP_START);
+	ret = devm_request_irq(dev, platform_get_irq(pdev, 0),
+			       vc4_crtc_irq_handler,
+			       IRQF_SHARED,
+			       "vc4 crtc", vc4_crtc);
+	if (ret)
+		goto err_destroy_planes;
+
+	platform_set_drvdata(pdev, vc4_crtc);
+
+	vc4_debugfs_add_regset32(drm, pv_data->debugfs_name,
+				 &vc4_crtc->regset);
+
+>>>>>>> upstream/android-13
 	return 0;
 
 err_destroy_planes:
@@ -1211,7 +1989,11 @@ err_destroy_planes:
 		if (destroy_plane->possible_crtcs == drm_crtc_mask(crtc))
 		    destroy_plane->funcs->destroy(destroy_plane);
 	}
+<<<<<<< HEAD
 err:
+=======
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 

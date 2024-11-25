@@ -50,6 +50,27 @@ static inline void count_compact_events(enum vm_event_item item, long delta)
 #define pageblock_start_pfn(pfn)	block_start_pfn(pfn, pageblock_order)
 #define pageblock_end_pfn(pfn)		block_end_pfn(pfn, pageblock_order)
 
+<<<<<<< HEAD
+=======
+/*
+ * Fragmentation score check interval for proactive compaction purposes.
+ */
+static const unsigned int HPAGE_FRAG_CHECK_INTERVAL_MSEC = 500;
+
+/*
+ * Page order with-respect-to which proactive compaction
+ * calculates external fragmentation, which is used as
+ * the "fragmentation score" of a node/zone.
+ */
+#if defined CONFIG_TRANSPARENT_HUGEPAGE
+#define COMPACTION_HPAGE_ORDER	HPAGE_PMD_ORDER
+#elif defined CONFIG_HUGETLBFS
+#define COMPACTION_HPAGE_ORDER	HUGETLB_PAGE_ORDER
+#else
+#define COMPACTION_HPAGE_ORDER	(PMD_SHIFT - PAGE_SHIFT)
+#endif
+
+>>>>>>> upstream/android-13
 static unsigned long release_freepages(struct list_head *freelist)
 {
 	struct page *page, *next;
@@ -66,7 +87,11 @@ static unsigned long release_freepages(struct list_head *freelist)
 	return high_pfn;
 }
 
+<<<<<<< HEAD
 static void map_pages(struct list_head *list)
+=======
+static void split_map_pages(struct list_head *list)
+>>>>>>> upstream/android-13
 {
 	unsigned int i, order, nr_pages;
 	struct page *page, *next;
@@ -119,7 +144,10 @@ EXPORT_SYMBOL(__SetPageMovable);
 
 void __ClearPageMovable(struct page *page)
 {
+<<<<<<< HEAD
 	VM_BUG_ON_PAGE(!PageLocked(page), page);
+=======
+>>>>>>> upstream/android-13
 	VM_BUG_ON_PAGE(!PageMovable(page), page);
 	/*
 	 * Clear registered address_space val with keeping PAGE_MAPPING_MOVABLE
@@ -136,10 +164,17 @@ EXPORT_SYMBOL(__ClearPageMovable);
 
 /*
  * Compaction is deferred when compaction fails to result in a page
+<<<<<<< HEAD
  * allocation success. 1 << compact_defer_limit compactions are skipped up
  * to a limit of 1 << COMPACT_MAX_DEFER_SHIFT
  */
 void defer_compaction(struct zone *zone, int order)
+=======
+ * allocation success. 1 << compact_defer_shift, compactions are skipped up
+ * to a limit of 1 << COMPACT_MAX_DEFER_SHIFT
+ */
+static void defer_compaction(struct zone *zone, int order)
+>>>>>>> upstream/android-13
 {
 	zone->compact_considered = 0;
 	zone->compact_defer_shift++;
@@ -154,7 +189,11 @@ void defer_compaction(struct zone *zone, int order)
 }
 
 /* Returns true if compaction should be skipped this time */
+<<<<<<< HEAD
 bool compaction_deferred(struct zone *zone, int order)
+=======
+static bool compaction_deferred(struct zone *zone, int order)
+>>>>>>> upstream/android-13
 {
 	unsigned long defer_limit = 1UL << zone->compact_defer_shift;
 
@@ -162,11 +201,18 @@ bool compaction_deferred(struct zone *zone, int order)
 		return false;
 
 	/* Avoid possible overflow */
+<<<<<<< HEAD
 	if (++zone->compact_considered > defer_limit)
 		zone->compact_considered = defer_limit;
 
 	if (zone->compact_considered >= defer_limit)
 		return false;
+=======
+	if (++zone->compact_considered >= defer_limit) {
+		zone->compact_considered = defer_limit;
+		return false;
+	}
+>>>>>>> upstream/android-13
 
 	trace_mm_compaction_deferred(zone, order);
 
@@ -192,7 +238,11 @@ void compaction_defer_reset(struct zone *zone, int order,
 }
 
 /* Returns true if restarting compaction after many failures */
+<<<<<<< HEAD
 bool compaction_restarting(struct zone *zone, int order)
+=======
+static bool compaction_restarting(struct zone *zone, int order)
+>>>>>>> upstream/android-13
 {
 	if (order < zone->compact_order_failed)
 		return false;
@@ -220,7 +270,11 @@ static void reset_cached_positions(struct zone *zone)
 }
 
 /*
+<<<<<<< HEAD
  * Compound pages of >= pageblock_order should consistenly be skipped until
+=======
+ * Compound pages of >= pageblock_order should consistently be skipped until
+>>>>>>> upstream/android-13
  * released. It is always pointless to compact pages of such order (if they are
  * migratable), and the pageblocks they occupy cannot contain any free pages.
  */
@@ -237,6 +291,79 @@ static bool pageblock_skip_persistent(struct page *page)
 	return false;
 }
 
+<<<<<<< HEAD
+=======
+static bool
+__reset_isolation_pfn(struct zone *zone, unsigned long pfn, bool check_source,
+							bool check_target)
+{
+	struct page *page = pfn_to_online_page(pfn);
+	struct page *block_page;
+	struct page *end_page;
+	unsigned long block_pfn;
+
+	if (!page)
+		return false;
+	if (zone != page_zone(page))
+		return false;
+	if (pageblock_skip_persistent(page))
+		return false;
+
+	/*
+	 * If skip is already cleared do no further checking once the
+	 * restart points have been set.
+	 */
+	if (check_source && check_target && !get_pageblock_skip(page))
+		return true;
+
+	/*
+	 * If clearing skip for the target scanner, do not select a
+	 * non-movable pageblock as the starting point.
+	 */
+	if (!check_source && check_target &&
+	    get_pageblock_migratetype(page) != MIGRATE_MOVABLE)
+		return false;
+
+	/* Ensure the start of the pageblock or zone is online and valid */
+	block_pfn = pageblock_start_pfn(pfn);
+	block_pfn = max(block_pfn, zone->zone_start_pfn);
+	block_page = pfn_to_online_page(block_pfn);
+	if (block_page) {
+		page = block_page;
+		pfn = block_pfn;
+	}
+
+	/* Ensure the end of the pageblock or zone is online and valid */
+	block_pfn = pageblock_end_pfn(pfn) - 1;
+	block_pfn = min(block_pfn, zone_end_pfn(zone) - 1);
+	end_page = pfn_to_online_page(block_pfn);
+	if (!end_page)
+		return false;
+
+	/*
+	 * Only clear the hint if a sample indicates there is either a
+	 * free page or an LRU page in the block. One or other condition
+	 * is necessary for the block to be a migration source/target.
+	 */
+	do {
+		if (check_source && PageLRU(page)) {
+			clear_pageblock_skip(page);
+			return true;
+		}
+
+		if (check_target && PageBuddy(page)) {
+			clear_pageblock_skip(page);
+			return true;
+		}
+
+		page += (1 << PAGE_ALLOC_COSTLY_ORDER);
+		pfn += (1 << PAGE_ALLOC_COSTLY_ORDER);
+	} while (page <= end_page);
+
+	return false;
+}
+
+>>>>>>> upstream/android-13
 /*
  * This function is called to clear all cached information on pageblocks that
  * should be skipped for page isolation when the migrate and free page scanner
@@ -244,6 +371,7 @@ static bool pageblock_skip_persistent(struct page *page)
  */
 static void __reset_isolation_suitable(struct zone *zone)
 {
+<<<<<<< HEAD
 	unsigned long start_pfn = zone->zone_start_pfn;
 	unsigned long end_pfn = zone_end_pfn(zone);
 	unsigned long pfn;
@@ -268,6 +396,56 @@ static void __reset_isolation_suitable(struct zone *zone)
 	}
 
 	reset_cached_positions(zone);
+=======
+	unsigned long migrate_pfn = zone->zone_start_pfn;
+	unsigned long free_pfn = zone_end_pfn(zone) - 1;
+	unsigned long reset_migrate = free_pfn;
+	unsigned long reset_free = migrate_pfn;
+	bool source_set = false;
+	bool free_set = false;
+
+	if (!zone->compact_blockskip_flush)
+		return;
+
+	zone->compact_blockskip_flush = false;
+
+	/*
+	 * Walk the zone and update pageblock skip information. Source looks
+	 * for PageLRU while target looks for PageBuddy. When the scanner
+	 * is found, both PageBuddy and PageLRU are checked as the pageblock
+	 * is suitable as both source and target.
+	 */
+	for (; migrate_pfn < free_pfn; migrate_pfn += pageblock_nr_pages,
+					free_pfn -= pageblock_nr_pages) {
+		cond_resched();
+
+		/* Update the migrate PFN */
+		if (__reset_isolation_pfn(zone, migrate_pfn, true, source_set) &&
+		    migrate_pfn < reset_migrate) {
+			source_set = true;
+			reset_migrate = migrate_pfn;
+			zone->compact_init_migrate_pfn = reset_migrate;
+			zone->compact_cached_migrate_pfn[0] = reset_migrate;
+			zone->compact_cached_migrate_pfn[1] = reset_migrate;
+		}
+
+		/* Update the free PFN */
+		if (__reset_isolation_pfn(zone, free_pfn, free_set, true) &&
+		    free_pfn > reset_free) {
+			free_set = true;
+			reset_free = free_pfn;
+			zone->compact_init_free_pfn = reset_free;
+			zone->compact_cached_free_pfn = reset_free;
+		}
+	}
+
+	/* Leave no distance if no suitable block was reset */
+	if (reset_migrate >= reset_free) {
+		zone->compact_cached_migrate_pfn[0] = migrate_pfn;
+		zone->compact_cached_migrate_pfn[1] = migrate_pfn;
+		zone->compact_cached_free_pfn = free_pfn;
+	}
+>>>>>>> upstream/android-13
 }
 
 void reset_isolation_suitable(pg_data_t *pgdat)
@@ -286,15 +464,64 @@ void reset_isolation_suitable(pg_data_t *pgdat)
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * Sets the pageblock skip bit if it was clear. Note that this is a hint as
+ * locks are not required for read/writers. Returns true if it was already set.
+ */
+static bool test_and_set_skip(struct compact_control *cc, struct page *page,
+							unsigned long pfn)
+{
+	bool skip;
+
+	/* Do no update if skip hint is being ignored */
+	if (cc->ignore_skip_hint)
+		return false;
+
+	if (!IS_ALIGNED(pfn, pageblock_nr_pages))
+		return false;
+
+	skip = get_pageblock_skip(page);
+	if (!skip && !cc->no_set_skip_hint)
+		set_pageblock_skip(page);
+
+	return skip;
+}
+
+static void update_cached_migrate(struct compact_control *cc, unsigned long pfn)
+{
+	struct zone *zone = cc->zone;
+
+	pfn = pageblock_end_pfn(pfn);
+
+	/* Set for isolation rather than compaction */
+	if (cc->no_set_skip_hint)
+		return;
+
+	if (pfn > zone->compact_cached_migrate_pfn[0])
+		zone->compact_cached_migrate_pfn[0] = pfn;
+	if (cc->mode != MIGRATE_ASYNC &&
+	    pfn > zone->compact_cached_migrate_pfn[1])
+		zone->compact_cached_migrate_pfn[1] = pfn;
+}
+
+/*
+>>>>>>> upstream/android-13
  * If no pages were isolated then mark this pageblock to be skipped in the
  * future. The information is later cleared by __reset_isolation_suitable().
  */
 static void update_pageblock_skip(struct compact_control *cc,
+<<<<<<< HEAD
 			struct page *page, unsigned long nr_isolated,
 			bool migrate_scanner)
 {
 	struct zone *zone = cc->zone;
 	unsigned long pfn;
+=======
+			struct page *page, unsigned long pfn)
+{
+	struct zone *zone = cc->zone;
+>>>>>>> upstream/android-13
 
 	if (cc->no_set_skip_hint)
 		return;
@@ -302,6 +529,7 @@ static void update_pageblock_skip(struct compact_control *cc,
 	if (!page)
 		return;
 
+<<<<<<< HEAD
 	if (nr_isolated)
 		return;
 
@@ -320,6 +548,13 @@ static void update_pageblock_skip(struct compact_control *cc,
 		if (pfn < zone->compact_cached_free_pfn)
 			zone->compact_cached_free_pfn = pfn;
 	}
+=======
+	set_pageblock_skip(page);
+
+	/* Update where async and sync compaction should restart */
+	if (pfn < zone->compact_cached_free_pfn)
+		zone->compact_cached_free_pfn = pfn;
+>>>>>>> upstream/android-13
 }
 #else
 static inline bool isolation_suitable(struct compact_control *cc,
@@ -334,14 +569,31 @@ static inline bool pageblock_skip_persistent(struct page *page)
 }
 
 static inline void update_pageblock_skip(struct compact_control *cc,
+<<<<<<< HEAD
 			struct page *page, unsigned long nr_isolated,
 			bool migrate_scanner)
 {
 }
+=======
+			struct page *page, unsigned long pfn)
+{
+}
+
+static void update_cached_migrate(struct compact_control *cc, unsigned long pfn)
+{
+}
+
+static bool test_and_set_skip(struct compact_control *cc, struct page *page,
+							unsigned long pfn)
+{
+	return false;
+}
+>>>>>>> upstream/android-13
 #endif /* CONFIG_COMPACTION */
 
 /*
  * Compaction requires the taking of some coarse locks that are potentially
+<<<<<<< HEAD
  * very heavily contended. For async compaction, back out if the lock cannot
  * be taken immediately. For sync compaction, spin on the lock if needed.
  *
@@ -360,6 +612,28 @@ static bool compact_trylock_irqsave(spinlock_t *lock, unsigned long *flags,
 		spin_lock_irqsave(lock, *flags);
 	}
 
+=======
+ * very heavily contended. For async compaction, trylock and record if the
+ * lock is contended. The lock will still be acquired but compaction will
+ * abort when the current block is finished regardless of success rate.
+ * Sync compaction acquires the lock.
+ *
+ * Always returns true which makes it easier to track lock state in callers.
+ */
+static bool compact_lock_irqsave(spinlock_t *lock, unsigned long *flags,
+						struct compact_control *cc)
+	__acquires(lock)
+{
+	/* Track if the lock is contended in async mode */
+	if (cc->mode == MIGRATE_ASYNC && !cc->contended) {
+		if (spin_trylock_irqsave(lock, *flags))
+			return true;
+
+		cc->contended = true;
+	}
+
+	spin_lock_irqsave(lock, *flags);
+>>>>>>> upstream/android-13
 	return true;
 }
 
@@ -391,6 +665,7 @@ static bool compact_unlock_should_abort(spinlock_t *lock,
 		return true;
 	}
 
+<<<<<<< HEAD
 	if (need_resched()) {
 		if (cc->mode == MIGRATE_ASYNC) {
 			cc->contended = true;
@@ -422,6 +697,9 @@ static inline bool compact_should_abort(struct compact_control *cc)
 
 		cond_resched();
 	}
+=======
+	cond_resched();
+>>>>>>> upstream/android-13
 
 	return false;
 }
@@ -435,19 +713,38 @@ static unsigned long isolate_freepages_block(struct compact_control *cc,
 				unsigned long *start_pfn,
 				unsigned long end_pfn,
 				struct list_head *freelist,
+<<<<<<< HEAD
 				bool strict)
 {
 	int nr_scanned = 0, total_isolated = 0;
 	struct page *cursor, *valid_page = NULL;
+=======
+				unsigned int stride,
+				bool strict)
+{
+	int nr_scanned = 0, total_isolated = 0;
+	struct page *cursor;
+>>>>>>> upstream/android-13
 	unsigned long flags = 0;
 	bool locked = false;
 	unsigned long blockpfn = *start_pfn;
 	unsigned int order;
 
+<<<<<<< HEAD
 	cursor = pfn_to_page(blockpfn);
 
 	/* Isolate free pages. */
 	for (; blockpfn < end_pfn; blockpfn++, cursor++) {
+=======
+	/* Strict mode is for isolation, speed is secondary */
+	if (strict)
+		stride = 1;
+
+	cursor = pfn_to_page(blockpfn);
+
+	/* Isolate free pages. */
+	for (; blockpfn < end_pfn; blockpfn += stride, cursor += stride) {
+>>>>>>> upstream/android-13
 		int isolated;
 		struct page *page = cursor;
 
@@ -462,11 +759,14 @@ static unsigned long isolate_freepages_block(struct compact_control *cc,
 			break;
 
 		nr_scanned++;
+<<<<<<< HEAD
 		if (!pfn_valid_within(blockpfn))
 			goto isolate_fail;
 
 		if (!valid_page)
 			valid_page = page;
+=======
+>>>>>>> upstream/android-13
 
 		/*
 		 * For compound pages such as THP and hugetlbfs, we can save
@@ -495,6 +795,7 @@ static unsigned long isolate_freepages_block(struct compact_control *cc,
 		 * recheck as well.
 		 */
 		if (!locked) {
+<<<<<<< HEAD
 			/*
 			 * The zone lock must be held to isolate freepages.
 			 * Unfortunately this is a very coarse lock and can be
@@ -507,6 +808,10 @@ static unsigned long isolate_freepages_block(struct compact_control *cc,
 								&flags, cc);
 			if (!locked)
 				break;
+=======
+			locked = compact_lock_irqsave(&cc->zone->lock,
+								&flags, cc);
+>>>>>>> upstream/android-13
 
 			/* Recheck this is a buddy page under lock */
 			if (!PageBuddy(page))
@@ -514,7 +819,11 @@ static unsigned long isolate_freepages_block(struct compact_control *cc,
 		}
 
 		/* Found a free page, will break it into order-0 pages */
+<<<<<<< HEAD
 		order = page_order(page);
+=======
+		order = buddy_order(page);
+>>>>>>> upstream/android-13
 		isolated = __isolate_free_page(page, order);
 		if (!isolated)
 			break;
@@ -565,10 +874,13 @@ isolate_fail:
 	if (strict && blockpfn < end_pfn)
 		total_isolated = 0;
 
+<<<<<<< HEAD
 	/* Update the pageblock-skip if the whole pageblock was scanned */
 	if (blockpfn == end_pfn)
 		update_pageblock_skip(cc, valid_page, total_isolated, false);
 
+=======
+>>>>>>> upstream/android-13
 	cc->total_free_scanned += nr_scanned;
 	if (total_isolated)
 		count_compact_events(COMPACTISOLATED, total_isolated);
@@ -626,7 +938,11 @@ isolate_freepages_range(struct compact_control *cc,
 			break;
 
 		isolated = isolate_freepages_block(cc, &isolate_start_pfn,
+<<<<<<< HEAD
 						block_end_pfn, &freelist, true);
+=======
+					block_end_pfn, &freelist, 0, true);
+>>>>>>> upstream/android-13
 
 		/*
 		 * In strict mode, isolate_freepages_block() returns 0 if
@@ -644,7 +960,11 @@ isolate_freepages_range(struct compact_control *cc,
 	}
 
 	/* __isolate_free_page() does not map the pages */
+<<<<<<< HEAD
 	map_pages(&freelist);
+=======
+	split_map_pages(&freelist);
+>>>>>>> upstream/android-13
 
 	if (pfn < end_pfn) {
 		/* Loop terminated early, cleanup. */
@@ -656,6 +976,7 @@ isolate_freepages_range(struct compact_control *cc,
 	return pfn;
 }
 
+<<<<<<< HEAD
 /* Similar to reclaim, but different enough that they don't share logic */
 static bool too_many_isolated(struct zone *zone)
 {
@@ -667,6 +988,44 @@ static bool too_many_isolated(struct zone *zone)
 			node_page_state(zone->zone_pgdat, NR_ACTIVE_ANON);
 	isolated = node_page_state(zone->zone_pgdat, NR_ISOLATED_FILE) +
 			node_page_state(zone->zone_pgdat, NR_ISOLATED_ANON);
+=======
+#ifdef CONFIG_COMPACTION
+unsigned long isolate_and_split_free_page(struct page *page,
+						struct list_head *list)
+{
+	unsigned long isolated;
+	unsigned int order;
+
+	if (!PageBuddy(page))
+		return 0;
+
+	order = buddy_order(page);
+	isolated = __isolate_free_page(page, order);
+	if (!isolated)
+		return 0;
+
+	set_page_private(page, order);
+	list_add(&page->lru, list);
+
+	split_map_pages(list);
+
+	return isolated;
+}
+EXPORT_SYMBOL_GPL(isolate_and_split_free_page);
+#endif
+
+/* Similar to reclaim, but different enough that they don't share logic */
+static bool too_many_isolated(pg_data_t *pgdat)
+{
+	unsigned long active, inactive, isolated;
+
+	inactive = node_page_state(pgdat, NR_INACTIVE_FILE) +
+			node_page_state(pgdat, NR_INACTIVE_ANON);
+	active = node_page_state(pgdat, NR_ACTIVE_FILE) +
+			node_page_state(pgdat, NR_ACTIVE_ANON);
+	isolated = node_page_state(pgdat, NR_ISOLATED_FILE) +
+			node_page_state(pgdat, NR_ISOLATED_ANON);
+>>>>>>> upstream/android-13
 
 	return isolated > (inactive + active) / 2;
 }
@@ -681,6 +1040,7 @@ static bool too_many_isolated(struct zone *zone)
  *
  * Isolate all pages that can be migrated from the range specified by
  * [low_pfn, end_pfn). The range is expected to be within same pageblock.
+<<<<<<< HEAD
  * Returns zero if there is a fatal signal pending, otherwise PFN of the
  * first page that was not scanned (which may be both less, equal to or more
  * than end_pfn).
@@ -698,29 +1058,72 @@ isolate_migratepages_block(struct compact_control *cc, unsigned long low_pfn,
 	struct lruvec *lruvec;
 	unsigned long flags = 0;
 	bool locked = false;
+=======
+ * Returns errno, like -EAGAIN or -EINTR in case e.g signal pending or congestion,
+ * -ENOMEM in case we could not allocate a page, or 0.
+ * cc->migrate_pfn will contain the next pfn to scan.
+ *
+ * The pages are isolated on cc->migratepages list (not required to be empty),
+ * and cc->nr_migratepages is updated accordingly.
+ */
+static int
+isolate_migratepages_block(struct compact_control *cc, unsigned long low_pfn,
+			unsigned long end_pfn, isolate_mode_t isolate_mode)
+{
+	pg_data_t *pgdat = cc->zone->zone_pgdat;
+	unsigned long nr_scanned = 0, nr_isolated = 0;
+	struct lruvec *lruvec;
+	unsigned long flags = 0;
+	struct lruvec *locked = NULL;
+>>>>>>> upstream/android-13
 	struct page *page = NULL, *valid_page = NULL;
 	unsigned long start_pfn = low_pfn;
 	bool skip_on_failure = false;
 	unsigned long next_skip_pfn = 0;
+<<<<<<< HEAD
+=======
+	bool skip_updated = false;
+	int ret = 0;
+
+	cc->migrate_pfn = low_pfn;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Ensure that there are not too many pages isolated from the LRU
 	 * list by either parallel reclaimers or compaction. If there are,
 	 * delay for some time until fewer pages are isolated
 	 */
+<<<<<<< HEAD
 	while (unlikely(too_many_isolated(zone))) {
 		/* async migration should just abort */
 		if (cc->mode == MIGRATE_ASYNC)
 			return 0;
+=======
+	while (unlikely(too_many_isolated(pgdat))) {
+		/* stop isolation if there are still pages not migrated */
+		if (cc->nr_migratepages)
+			return -EAGAIN;
+
+		/* async migration should just abort */
+		if (cc->mode == MIGRATE_ASYNC)
+			return -EAGAIN;
+>>>>>>> upstream/android-13
 
 		congestion_wait(BLK_RW_ASYNC, HZ/10);
 
 		if (fatal_signal_pending(current))
+<<<<<<< HEAD
 			return 0;
 	}
 
 	if (compact_should_abort(cc))
 		return 0;
+=======
+			return -EINTR;
+	}
+
+	cond_resched();
+>>>>>>> upstream/android-13
 
 	if (cc->direct_compaction && (cc->mode == MIGRATE_ASYNC)) {
 		skip_on_failure = true;
@@ -754,6 +1157,7 @@ isolate_migratepages_block(struct compact_control *cc, unsigned long low_pfn,
 
 		/*
 		 * Periodically drop the lock (if held) regardless of its
+<<<<<<< HEAD
 		 * contention, to give chance to IRQs. Abort async compaction
 		 * if contended.
 		 */
@@ -764,12 +1168,82 @@ isolate_migratepages_block(struct compact_control *cc, unsigned long low_pfn,
 
 		if (!pfn_valid_within(low_pfn))
 			goto isolate_fail;
+=======
+		 * contention, to give chance to IRQs. Abort completely if
+		 * a fatal signal is pending.
+		 */
+		if (!(low_pfn % SWAP_CLUSTER_MAX)) {
+			if (locked) {
+				unlock_page_lruvec_irqrestore(locked, flags);
+				locked = NULL;
+			}
+
+			if (fatal_signal_pending(current)) {
+				cc->contended = true;
+				ret = -EINTR;
+
+				goto fatal_pending;
+			}
+
+			cond_resched();
+		}
+
+>>>>>>> upstream/android-13
 		nr_scanned++;
 
 		page = pfn_to_page(low_pfn);
 
+<<<<<<< HEAD
 		if (!valid_page)
 			valid_page = page;
+=======
+		/*
+		 * Check if the pageblock has already been marked skipped.
+		 * Only the aligned PFN is checked as the caller isolates
+		 * COMPACT_CLUSTER_MAX at a time so the second call must
+		 * not falsely conclude that the block should be skipped.
+		 */
+		if (!valid_page && IS_ALIGNED(low_pfn, pageblock_nr_pages)) {
+			if (!cc->ignore_skip_hint && get_pageblock_skip(page)) {
+				low_pfn = end_pfn;
+				page = NULL;
+				goto isolate_abort;
+			}
+			valid_page = page;
+		}
+
+		if (PageHuge(page) && cc->alloc_contig) {
+			ret = isolate_or_dissolve_huge_page(page, &cc->migratepages);
+
+			/*
+			 * Fail isolation in case isolate_or_dissolve_huge_page()
+			 * reports an error. In case of -ENOMEM, abort right away.
+			 */
+			if (ret < 0) {
+				 /* Do not report -EBUSY down the chain */
+				if (ret == -EBUSY)
+					ret = 0;
+				low_pfn += (1UL << compound_order(page)) - 1;
+				goto isolate_fail;
+			}
+
+			if (PageHuge(page)) {
+				/*
+				 * Hugepage was successfully isolated and placed
+				 * on the cc->migratepages list.
+				 */
+				low_pfn += compound_nr(page) - 1;
+				goto isolate_success_no_list;
+			}
+
+			/*
+			 * Ok, the hugepage was dissolved. Now these pages are
+			 * Buddy and cannot be re-allocated because they are
+			 * isolated. Fall-through as the check below handles
+			 * Buddy pages.
+			 */
+		}
+>>>>>>> upstream/android-13
 
 		/*
 		 * Skip if free. We read page order here without zone lock
@@ -778,7 +1252,11 @@ isolate_migratepages_block(struct compact_control *cc, unsigned long low_pfn,
 		 * potential isolation targets.
 		 */
 		if (PageBuddy(page)) {
+<<<<<<< HEAD
 			unsigned long freepage_order = page_order_unsafe(page);
+=======
+			unsigned long freepage_order = buddy_order_unsafe(page);
+>>>>>>> upstream/android-13
 
 			/*
 			 * Without lock, we cannot be sure that what we got is
@@ -792,12 +1270,22 @@ isolate_migratepages_block(struct compact_control *cc, unsigned long low_pfn,
 
 		/*
 		 * Regardless of being on LRU, compound pages such as THP and
+<<<<<<< HEAD
 		 * hugetlbfs are not to be compacted. We can potentially save
 		 * a lot of iterations if we skip them at once. The check is
 		 * racy, but we can consider only valid values and the only
 		 * danger is skipping too much.
 		 */
 		if (PageCompound(page)) {
+=======
+		 * hugetlbfs are not to be compacted unless we are attempting
+		 * an allocation much larger than the huge page size (eg CMA).
+		 * We can potentially save a lot of iterations if we skip them
+		 * at once. The check is racy, but we can consider only valid
+		 * values and the only danger is skipping too much.
+		 */
+		if (PageCompound(page) && !cc->alloc_contig) {
+>>>>>>> upstream/android-13
 			const unsigned int order = compound_order(page);
 
 			if (likely(order < MAX_ORDER))
@@ -818,9 +1306,14 @@ isolate_migratepages_block(struct compact_control *cc, unsigned long low_pfn,
 			if (unlikely(__PageMovable(page)) &&
 					!PageIsolated(page)) {
 				if (locked) {
+<<<<<<< HEAD
 					spin_unlock_irqrestore(zone_lru_lock(zone),
 									flags);
 					locked = false;
+=======
+					unlock_page_lruvec_irqrestore(locked, flags);
+					locked = NULL;
+>>>>>>> upstream/android-13
 				}
 
 				if (!isolate_movable_page(page, isolate_mode))
@@ -846,6 +1339,7 @@ isolate_migratepages_block(struct compact_control *cc, unsigned long low_pfn,
 		if (!(cc->gfp_mask & __GFP_FS) && page_mapping(page))
 			goto isolate_fail;
 
+<<<<<<< HEAD
 		/* If we already hold the lock, we can skip some rechecking */
 		if (!locked) {
 			locked = compact_trylock_irqsave(zone_lru_lock(zone),
@@ -856,12 +1350,48 @@ isolate_migratepages_block(struct compact_control *cc, unsigned long low_pfn,
 			/* Recheck PageLRU and PageCompound under lock */
 			if (!PageLRU(page))
 				goto isolate_fail;
+=======
+		/*
+		 * Be careful not to clear PageLRU until after we're
+		 * sure the page is not being freed elsewhere -- the
+		 * page release code relies on it.
+		 */
+		if (unlikely(!get_page_unless_zero(page)))
+			goto isolate_fail;
+
+		if (!__isolate_lru_page_prepare(page, isolate_mode))
+			goto isolate_fail_put;
+
+		/* Try isolate the page */
+		if (!TestClearPageLRU(page))
+			goto isolate_fail_put;
+
+		lruvec = mem_cgroup_page_lruvec(page);
+
+		/* If we already hold the lock, we can skip some rechecking */
+		if (lruvec != locked) {
+			if (locked)
+				unlock_page_lruvec_irqrestore(locked, flags);
+
+			compact_lock_irqsave(&lruvec->lru_lock, &flags, cc);
+			locked = lruvec;
+
+			lruvec_memcg_debug(lruvec, page);
+
+			/* Try get exclusive access under lock */
+			if (!skip_updated) {
+				skip_updated = true;
+				if (test_and_set_skip(cc, page, low_pfn))
+					goto isolate_abort;
+			}
+>>>>>>> upstream/android-13
 
 			/*
 			 * Page become compound since the non-locked check,
 			 * and it's on LRU. It can only be a THP so the order
 			 * is safe to read and it's 0 for tail pages.
 			 */
+<<<<<<< HEAD
 			if (unlikely(PageCompound(page))) {
 				low_pfn += (1UL << compound_order(page)) - 1;
 				goto isolate_fail;
@@ -897,13 +1427,60 @@ isolate_success:
 
 		/* Avoid isolating too much */
 		if (cc->nr_migratepages == COMPACT_CLUSTER_MAX) {
+=======
+			if (unlikely(PageCompound(page) && !cc->alloc_contig)) {
+				low_pfn += compound_nr(page) - 1;
+				SetPageLRU(page);
+				goto isolate_fail_put;
+			}
+		}
+
+		/* The whole page is taken off the LRU; skip the tail pages. */
+		if (PageCompound(page))
+			low_pfn += compound_nr(page) - 1;
+
+		/* Successfully isolated */
+		del_page_from_lru_list(page, lruvec);
+		mod_node_page_state(page_pgdat(page),
+				NR_ISOLATED_ANON + page_is_file_lru(page),
+				thp_nr_pages(page));
+
+isolate_success:
+		list_add(&page->lru, &cc->migratepages);
+isolate_success_no_list:
+		cc->nr_migratepages += compound_nr(page);
+		nr_isolated += compound_nr(page);
+
+		/*
+		 * Avoid isolating too much unless this block is being
+		 * rescanned (e.g. dirty/writeback pages, parallel allocation)
+		 * or a lock is contended. For contention, isolate quickly to
+		 * potentially remove one source of contention.
+		 */
+		if (cc->nr_migratepages >= COMPACT_CLUSTER_MAX &&
+		    !cc->rescan && !cc->contended) {
+>>>>>>> upstream/android-13
 			++low_pfn;
 			break;
 		}
 
 		continue;
+<<<<<<< HEAD
 isolate_fail:
 		if (!skip_on_failure)
+=======
+
+isolate_fail_put:
+		/* Avoid potential deadlock in freeing page under lru_lock */
+		if (locked) {
+			unlock_page_lruvec_irqrestore(locked, flags);
+			locked = NULL;
+		}
+		put_page(page);
+
+isolate_fail:
+		if (!skip_on_failure && ret != -ENOMEM)
+>>>>>>> upstream/android-13
 			continue;
 
 		/*
@@ -913,12 +1490,20 @@ isolate_fail:
 		 */
 		if (nr_isolated) {
 			if (locked) {
+<<<<<<< HEAD
 				spin_unlock_irqrestore(zone_lru_lock(zone), flags);
 				locked = false;
 			}
 			putback_movable_pages(&cc->migratepages);
 			cc->nr_migratepages = 0;
 			cc->last_migrated_pfn = 0;
+=======
+				unlock_page_lruvec_irqrestore(locked, flags);
+				locked = NULL;
+			}
+			putback_movable_pages(&cc->migratepages);
+			cc->nr_migratepages = 0;
+>>>>>>> upstream/android-13
 			nr_isolated = 0;
 		}
 
@@ -930,6 +1515,12 @@ isolate_fail:
 			 */
 			next_skip_pfn += 1UL << cc->order;
 		}
+<<<<<<< HEAD
+=======
+
+		if (ret == -ENOMEM)
+			break;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -939,6 +1530,7 @@ isolate_fail:
 	if (unlikely(low_pfn > end_pfn))
 		low_pfn = end_pfn;
 
+<<<<<<< HEAD
 	if (locked)
 		spin_unlock_irqrestore(zone_lru_lock(zone), flags);
 
@@ -948,15 +1540,50 @@ isolate_fail:
 	 */
 	if (low_pfn == end_pfn)
 		update_pageblock_skip(cc, valid_page, nr_isolated, true);
+=======
+	page = NULL;
+
+isolate_abort:
+	if (locked)
+		unlock_page_lruvec_irqrestore(locked, flags);
+	if (page) {
+		SetPageLRU(page);
+		put_page(page);
+	}
+
+	/*
+	 * Updated the cached scanner pfn once the pageblock has been scanned
+	 * Pages will either be migrated in which case there is no point
+	 * scanning in the near future or migration failed in which case the
+	 * failure reason may persist. The block is marked for skipping if
+	 * there were no pages isolated in the block or if the block is
+	 * rescanned twice in a row.
+	 */
+	if (low_pfn == end_pfn && (!nr_isolated || cc->rescan)) {
+		if (valid_page && !skip_updated)
+			set_pageblock_skip(valid_page);
+		update_cached_migrate(cc, low_pfn);
+	}
+>>>>>>> upstream/android-13
 
 	trace_mm_compaction_isolate_migratepages(start_pfn, low_pfn,
 						nr_scanned, nr_isolated);
 
+<<<<<<< HEAD
+=======
+fatal_pending:
+>>>>>>> upstream/android-13
 	cc->total_migrate_scanned += nr_scanned;
 	if (nr_isolated)
 		count_compact_events(COMPACTISOLATED, nr_isolated);
 
+<<<<<<< HEAD
 	return low_pfn;
+=======
+	cc->migrate_pfn = low_pfn;
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -965,15 +1592,26 @@ isolate_fail:
  * @start_pfn: The first PFN to start isolating.
  * @end_pfn:   The one-past-last PFN.
  *
+<<<<<<< HEAD
  * Returns zero if isolation fails fatally due to e.g. pending signal.
  * Otherwise, function returns one-past-the-last PFN of isolated page
  * (which may be greater than end_pfn if end fell in a middle of a THP page).
  */
 unsigned long
+=======
+ * Returns -EAGAIN when contented, -EINTR in case of a signal pending, -ENOMEM
+ * in case we could not allocate a page, or 0.
+ */
+int
+>>>>>>> upstream/android-13
 isolate_migratepages_range(struct compact_control *cc, unsigned long start_pfn,
 							unsigned long end_pfn)
 {
 	unsigned long pfn, block_start_pfn, block_end_pfn;
+<<<<<<< HEAD
+=======
+	int ret = 0;
+>>>>>>> upstream/android-13
 
 	/* Scan block by block. First and last block may be incomplete */
 	pfn = start_pfn;
@@ -992,6 +1630,7 @@ isolate_migratepages_range(struct compact_control *cc, unsigned long start_pfn,
 					block_end_pfn, cc->zone))
 			continue;
 
+<<<<<<< HEAD
 		pfn = isolate_migratepages_block(cc, pfn, block_end_pfn,
 							ISOLATE_UNEVICTABLE);
 
@@ -1003,6 +1642,19 @@ isolate_migratepages_range(struct compact_control *cc, unsigned long start_pfn,
 	}
 
 	return pfn;
+=======
+		ret = isolate_migratepages_block(cc, pfn, block_end_pfn,
+						 ISOLATE_UNEVICTABLE);
+
+		if (ret)
+			break;
+
+		if (cc->nr_migratepages >= COMPACT_CLUSTER_MAX)
+			break;
+	}
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 #endif /* CONFIG_COMPACTION || CONFIG_CMA */
@@ -1013,6 +1665,12 @@ static bool suitable_migration_source(struct compact_control *cc,
 {
 	int block_mt;
 
+<<<<<<< HEAD
+=======
+	if (pageblock_skip_persistent(page))
+		return false;
+
+>>>>>>> upstream/android-13
 	if ((cc->mode != MIGRATE_ASYNC) || !cc->direct_compaction)
 		return true;
 
@@ -1035,7 +1693,11 @@ static bool suitable_migration_target(struct compact_control *cc,
 		 * the only small danger is that we skip a potentially suitable
 		 * pageblock, so it's not worth to check order for valid range.
 		 */
+<<<<<<< HEAD
 		if (page_order_unsafe(page) >= pageblock_order)
+=======
+		if (buddy_order_unsafe(page) >= pageblock_order)
+>>>>>>> upstream/android-13
 			return false;
 	}
 
@@ -1050,6 +1712,17 @@ static bool suitable_migration_target(struct compact_control *cc,
 	return false;
 }
 
+<<<<<<< HEAD
+=======
+static inline unsigned int
+freelist_scan_limit(struct compact_control *cc)
+{
+	unsigned short shift = BITS_PER_LONG - 1;
+
+	return (COMPACT_CLUSTER_MAX >> min(shift, cc->fast_search_fail)) + 1;
+}
+
+>>>>>>> upstream/android-13
 /*
  * Test whether the free scanner has reached the same or lower pageblock than
  * the migration scanner, and compaction should thus terminate.
@@ -1061,6 +1734,258 @@ static inline bool compact_scanners_met(struct compact_control *cc)
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * Used when scanning for a suitable migration target which scans freelists
+ * in reverse. Reorders the list such as the unscanned pages are scanned
+ * first on the next iteration of the free scanner
+ */
+static void
+move_freelist_head(struct list_head *freelist, struct page *freepage)
+{
+	LIST_HEAD(sublist);
+
+	if (!list_is_last(freelist, &freepage->lru)) {
+		list_cut_before(&sublist, freelist, &freepage->lru);
+		list_splice_tail(&sublist, freelist);
+	}
+}
+
+/*
+ * Similar to move_freelist_head except used by the migration scanner
+ * when scanning forward. It's possible for these list operations to
+ * move against each other if they search the free list exactly in
+ * lockstep.
+ */
+static void
+move_freelist_tail(struct list_head *freelist, struct page *freepage)
+{
+	LIST_HEAD(sublist);
+
+	if (!list_is_first(freelist, &freepage->lru)) {
+		list_cut_position(&sublist, freelist, &freepage->lru);
+		list_splice_tail(&sublist, freelist);
+	}
+}
+
+static void
+fast_isolate_around(struct compact_control *cc, unsigned long pfn, unsigned long nr_isolated)
+{
+	unsigned long start_pfn, end_pfn;
+	struct page *page;
+
+	/* Do not search around if there are enough pages already */
+	if (cc->nr_freepages >= cc->nr_migratepages)
+		return;
+
+	/* Minimise scanning during async compaction */
+	if (cc->direct_compaction && cc->mode == MIGRATE_ASYNC)
+		return;
+
+	/* Pageblock boundaries */
+	start_pfn = max(pageblock_start_pfn(pfn), cc->zone->zone_start_pfn);
+	end_pfn = min(pageblock_end_pfn(pfn), zone_end_pfn(cc->zone));
+
+	page = pageblock_pfn_to_page(start_pfn, end_pfn, cc->zone);
+	if (!page)
+		return;
+
+	/* Scan before */
+	if (start_pfn != pfn) {
+		isolate_freepages_block(cc, &start_pfn, pfn, &cc->freepages, 1, false);
+		if (cc->nr_freepages >= cc->nr_migratepages)
+			return;
+	}
+
+	/* Scan after */
+	start_pfn = pfn + nr_isolated;
+	if (start_pfn < end_pfn)
+		isolate_freepages_block(cc, &start_pfn, end_pfn, &cc->freepages, 1, false);
+
+	/* Skip this pageblock in the future as it's full or nearly full */
+	if (cc->nr_freepages < cc->nr_migratepages)
+		set_pageblock_skip(page);
+}
+
+/* Search orders in round-robin fashion */
+static int next_search_order(struct compact_control *cc, int order)
+{
+	order--;
+	if (order < 0)
+		order = cc->order - 1;
+
+	/* Search wrapped around? */
+	if (order == cc->search_order) {
+		cc->search_order--;
+		if (cc->search_order < 0)
+			cc->search_order = cc->order - 1;
+		return -1;
+	}
+
+	return order;
+}
+
+static unsigned long
+fast_isolate_freepages(struct compact_control *cc)
+{
+	unsigned int limit = max(1U, freelist_scan_limit(cc) >> 1);
+	unsigned int nr_scanned = 0;
+	unsigned long low_pfn, min_pfn, highest = 0;
+	unsigned long nr_isolated = 0;
+	unsigned long distance;
+	struct page *page = NULL;
+	bool scan_start = false;
+	int order;
+
+	/* Full compaction passes in a negative order */
+	if (cc->order <= 0)
+		return cc->free_pfn;
+
+	/*
+	 * If starting the scan, use a deeper search and use the highest
+	 * PFN found if a suitable one is not found.
+	 */
+	if (cc->free_pfn >= cc->zone->compact_init_free_pfn) {
+		limit = pageblock_nr_pages >> 1;
+		scan_start = true;
+	}
+
+	/*
+	 * Preferred point is in the top quarter of the scan space but take
+	 * a pfn from the top half if the search is problematic.
+	 */
+	distance = (cc->free_pfn - cc->migrate_pfn);
+	low_pfn = pageblock_start_pfn(cc->free_pfn - (distance >> 2));
+	min_pfn = pageblock_start_pfn(cc->free_pfn - (distance >> 1));
+
+	if (WARN_ON_ONCE(min_pfn > low_pfn))
+		low_pfn = min_pfn;
+
+	/*
+	 * Search starts from the last successful isolation order or the next
+	 * order to search after a previous failure
+	 */
+	cc->search_order = min_t(unsigned int, cc->order - 1, cc->search_order);
+
+	for (order = cc->search_order;
+	     !page && order >= 0;
+	     order = next_search_order(cc, order)) {
+		struct free_area *area = &cc->zone->free_area[order];
+		struct list_head *freelist;
+		struct page *freepage;
+		unsigned long flags;
+		unsigned int order_scanned = 0;
+		unsigned long high_pfn = 0;
+
+		if (!area->nr_free)
+			continue;
+
+		spin_lock_irqsave(&cc->zone->lock, flags);
+		freelist = &area->free_list[MIGRATE_MOVABLE];
+		list_for_each_entry_reverse(freepage, freelist, lru) {
+			unsigned long pfn;
+
+			order_scanned++;
+			nr_scanned++;
+			pfn = page_to_pfn(freepage);
+
+			if (pfn >= highest)
+				highest = max(pageblock_start_pfn(pfn),
+					      cc->zone->zone_start_pfn);
+
+			if (pfn >= low_pfn) {
+				cc->fast_search_fail = 0;
+				cc->search_order = order;
+				page = freepage;
+				break;
+			}
+
+			if (pfn >= min_pfn && pfn > high_pfn) {
+				high_pfn = pfn;
+
+				/* Shorten the scan if a candidate is found */
+				limit >>= 1;
+			}
+
+			if (order_scanned >= limit)
+				break;
+		}
+
+		/* Use a minimum pfn if a preferred one was not found */
+		if (!page && high_pfn) {
+			page = pfn_to_page(high_pfn);
+
+			/* Update freepage for the list reorder below */
+			freepage = page;
+		}
+
+		/* Reorder to so a future search skips recent pages */
+		move_freelist_head(freelist, freepage);
+
+		/* Isolate the page if available */
+		if (page) {
+			if (__isolate_free_page(page, order)) {
+				set_page_private(page, order);
+				nr_isolated = 1 << order;
+				cc->nr_freepages += nr_isolated;
+				list_add_tail(&page->lru, &cc->freepages);
+				count_compact_events(COMPACTISOLATED, nr_isolated);
+			} else {
+				/* If isolation fails, abort the search */
+				order = cc->search_order + 1;
+				page = NULL;
+			}
+		}
+
+		spin_unlock_irqrestore(&cc->zone->lock, flags);
+
+		/*
+		 * Smaller scan on next order so the total scan is related
+		 * to freelist_scan_limit.
+		 */
+		if (order_scanned >= limit)
+			limit = max(1U, limit >> 1);
+	}
+
+	if (!page) {
+		cc->fast_search_fail++;
+		if (scan_start) {
+			/*
+			 * Use the highest PFN found above min. If one was
+			 * not found, be pessimistic for direct compaction
+			 * and use the min mark.
+			 */
+			if (highest) {
+				page = pfn_to_page(highest);
+				cc->free_pfn = highest;
+			} else {
+				if (cc->direct_compaction && pfn_valid(min_pfn)) {
+					page = pageblock_pfn_to_page(min_pfn,
+						min(pageblock_end_pfn(min_pfn),
+						    zone_end_pfn(cc->zone)),
+						cc->zone);
+					cc->free_pfn = min_pfn;
+				}
+			}
+		}
+	}
+
+	if (highest && highest >= cc->zone->compact_cached_free_pfn) {
+		highest -= pageblock_nr_pages;
+		cc->zone->compact_cached_free_pfn = highest;
+	}
+
+	cc->total_free_scanned += nr_scanned;
+	if (!page)
+		return cc->free_pfn;
+
+	low_pfn = page_to_pfn(page);
+	fast_isolate_around(cc, low_pfn, nr_isolated);
+	return low_pfn;
+}
+
+/*
+>>>>>>> upstream/android-13
  * Based on information in the current compact_control, find blocks
  * suitable for isolating free pages from and then isolate them.
  */
@@ -1073,6 +1998,15 @@ static void isolate_freepages(struct compact_control *cc)
 	unsigned long block_end_pfn;	/* end of current pageblock */
 	unsigned long low_pfn;	     /* lowest pfn scanner is able to scan */
 	struct list_head *freelist = &cc->freepages;
+<<<<<<< HEAD
+=======
+	unsigned int stride;
+
+	/* Try a small search of the free lists for a candidate */
+	isolate_start_pfn = fast_isolate_freepages(cc);
+	if (cc->nr_freepages)
+		goto splitmap;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Initialise the free scanner. The starting point is where we last
@@ -1081,15 +2015,27 @@ static void isolate_freepages(struct compact_control *cc)
 	 * this pfn aligned down to the pageblock boundary, because we do
 	 * block_start_pfn -= pageblock_nr_pages in the for loop.
 	 * For ending point, take care when isolating in last pageblock of a
+<<<<<<< HEAD
 	 * a zone which ends in the middle of a pageblock.
+=======
+	 * zone which ends in the middle of a pageblock.
+>>>>>>> upstream/android-13
 	 * The low boundary is the end of the pageblock the migration scanner
 	 * is using.
 	 */
 	isolate_start_pfn = cc->free_pfn;
+<<<<<<< HEAD
 	block_start_pfn = pageblock_start_pfn(cc->free_pfn);
 	block_end_pfn = min(block_start_pfn + pageblock_nr_pages,
 						zone_end_pfn(zone));
 	low_pfn = pageblock_end_pfn(cc->migrate_pfn);
+=======
+	block_start_pfn = pageblock_start_pfn(isolate_start_pfn);
+	block_end_pfn = min(block_start_pfn + pageblock_nr_pages,
+						zone_end_pfn(zone));
+	low_pfn = pageblock_end_pfn(cc->migrate_pfn);
+	stride = cc->mode == MIGRATE_ASYNC ? COMPACT_CLUSTER_MAX : 1;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Isolate free pages until enough are available to migrate the
@@ -1100,6 +2046,7 @@ static void isolate_freepages(struct compact_control *cc)
 				block_end_pfn = block_start_pfn,
 				block_start_pfn -= pageblock_nr_pages,
 				isolate_start_pfn = block_start_pfn) {
+<<<<<<< HEAD
 		/*
 		 * This can iterate a massively long zone without finding any
 		 * suitable migration targets, so periodically check if we need
@@ -1108,6 +2055,16 @@ static void isolate_freepages(struct compact_control *cc)
 		if (!(block_start_pfn % (SWAP_CLUSTER_MAX * pageblock_nr_pages))
 						&& compact_should_abort(cc))
 			break;
+=======
+		unsigned long nr_isolated;
+
+		/*
+		 * This can iterate a massively long zone without finding any
+		 * suitable migration targets, so periodically check resched.
+		 */
+		if (!(block_start_pfn % (SWAP_CLUSTER_MAX * pageblock_nr_pages)))
+			cond_resched();
+>>>>>>> upstream/android-13
 
 		page = pageblock_pfn_to_page(block_start_pfn, block_end_pfn,
 									zone);
@@ -1123,6 +2080,7 @@ static void isolate_freepages(struct compact_control *cc)
 			continue;
 
 		/* Found a block suitable for isolating free pages from. */
+<<<<<<< HEAD
 		isolate_freepages_block(cc, &isolate_start_pfn, block_end_pfn,
 					freelist, false);
 
@@ -1132,6 +2090,17 @@ static void isolate_freepages(struct compact_control *cc)
 		 */
 		if ((cc->nr_freepages >= cc->nr_migratepages)
 							|| cc->contended) {
+=======
+		nr_isolated = isolate_freepages_block(cc, &isolate_start_pfn,
+					block_end_pfn, freelist, stride, false);
+
+		/* Update the skip hint if the full pageblock was scanned */
+		if (isolate_start_pfn == block_end_pfn)
+			update_pageblock_skip(cc, page, block_start_pfn);
+
+		/* Are enough freepages isolated? */
+		if (cc->nr_freepages >= cc->nr_migratepages) {
+>>>>>>> upstream/android-13
 			if (isolate_start_pfn >= block_end_pfn) {
 				/*
 				 * Restart at previous pageblock if more
@@ -1148,10 +2117,21 @@ static void isolate_freepages(struct compact_control *cc)
 			 */
 			break;
 		}
+<<<<<<< HEAD
 	}
 
 	/* __isolate_free_page() does not map the pages */
 	map_pages(freelist);
+=======
+
+		/* Adjust stride depending on isolation */
+		if (nr_isolated) {
+			stride = 1;
+			continue;
+		}
+		stride = min_t(unsigned int, COMPACT_CLUSTER_MAX, stride << 1);
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * Record where the free scanner will restart next time. Either we
@@ -1160,6 +2140,13 @@ static void isolate_freepages(struct compact_control *cc)
 	 * and the loop terminated due to isolate_start_pfn < low_pfn
 	 */
 	cc->free_pfn = isolate_start_pfn;
+<<<<<<< HEAD
+=======
+
+splitmap:
+	/* __isolate_free_page() does not map the pages */
+	split_map_pages(freelist);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1172,6 +2159,7 @@ static struct page *compaction_alloc(struct page *migratepage,
 	struct compact_control *cc = (struct compact_control *)data;
 	struct page *freepage;
 
+<<<<<<< HEAD
 	/*
 	 * Isolate free pages if necessary, and if we are not aborting due to
 	 * contention.
@@ -1179,6 +2167,10 @@ static struct page *compaction_alloc(struct page *migratepage,
 	if (list_empty(&cc->freepages)) {
 		if (!cc->contended)
 			isolate_freepages(cc);
+=======
+	if (list_empty(&cc->freepages)) {
+		isolate_freepages(cc);
+>>>>>>> upstream/android-13
 
 		if (list_empty(&cc->freepages))
 			return NULL;
@@ -1215,15 +2207,165 @@ typedef enum {
  * Allow userspace to control policy on scanning the unevictable LRU for
  * compactable pages.
  */
+<<<<<<< HEAD
 int sysctl_compact_unevictable_allowed __read_mostly = 1;
+=======
+#ifdef CONFIG_PREEMPT_RT
+int sysctl_compact_unevictable_allowed __read_mostly = 0;
+#else
+int sysctl_compact_unevictable_allowed __read_mostly = 1;
+#endif
+
+static inline void
+update_fast_start_pfn(struct compact_control *cc, unsigned long pfn)
+{
+	if (cc->fast_start_pfn == ULONG_MAX)
+		return;
+
+	if (!cc->fast_start_pfn)
+		cc->fast_start_pfn = pfn;
+
+	cc->fast_start_pfn = min(cc->fast_start_pfn, pfn);
+}
+
+static inline unsigned long
+reinit_migrate_pfn(struct compact_control *cc)
+{
+	if (!cc->fast_start_pfn || cc->fast_start_pfn == ULONG_MAX)
+		return cc->migrate_pfn;
+
+	cc->migrate_pfn = cc->fast_start_pfn;
+	cc->fast_start_pfn = ULONG_MAX;
+
+	return cc->migrate_pfn;
+}
+
+/*
+ * Briefly search the free lists for a migration source that already has
+ * some free pages to reduce the number of pages that need migration
+ * before a pageblock is free.
+ */
+static unsigned long fast_find_migrateblock(struct compact_control *cc)
+{
+	unsigned int limit = freelist_scan_limit(cc);
+	unsigned int nr_scanned = 0;
+	unsigned long distance;
+	unsigned long pfn = cc->migrate_pfn;
+	unsigned long high_pfn;
+	int order;
+	bool found_block = false;
+
+	/* Skip hints are relied on to avoid repeats on the fast search */
+	if (cc->ignore_skip_hint)
+		return pfn;
+
+	/*
+	 * If the migrate_pfn is not at the start of a zone or the start
+	 * of a pageblock then assume this is a continuation of a previous
+	 * scan restarted due to COMPACT_CLUSTER_MAX.
+	 */
+	if (pfn != cc->zone->zone_start_pfn && pfn != pageblock_start_pfn(pfn))
+		return pfn;
+
+	/*
+	 * For smaller orders, just linearly scan as the number of pages
+	 * to migrate should be relatively small and does not necessarily
+	 * justify freeing up a large block for a small allocation.
+	 */
+	if (cc->order <= PAGE_ALLOC_COSTLY_ORDER)
+		return pfn;
+
+	/*
+	 * Only allow kcompactd and direct requests for movable pages to
+	 * quickly clear out a MOVABLE pageblock for allocation. This
+	 * reduces the risk that a large movable pageblock is freed for
+	 * an unmovable/reclaimable small allocation.
+	 */
+	if (cc->direct_compaction && cc->migratetype != MIGRATE_MOVABLE)
+		return pfn;
+
+	/*
+	 * When starting the migration scanner, pick any pageblock within the
+	 * first half of the search space. Otherwise try and pick a pageblock
+	 * within the first eighth to reduce the chances that a migration
+	 * target later becomes a source.
+	 */
+	distance = (cc->free_pfn - cc->migrate_pfn) >> 1;
+	if (cc->migrate_pfn != cc->zone->zone_start_pfn)
+		distance >>= 2;
+	high_pfn = pageblock_start_pfn(cc->migrate_pfn + distance);
+
+	for (order = cc->order - 1;
+	     order >= PAGE_ALLOC_COSTLY_ORDER && !found_block && nr_scanned < limit;
+	     order--) {
+		struct free_area *area = &cc->zone->free_area[order];
+		struct list_head *freelist;
+		unsigned long flags;
+		struct page *freepage;
+
+		if (!area->nr_free)
+			continue;
+
+		spin_lock_irqsave(&cc->zone->lock, flags);
+		freelist = &area->free_list[MIGRATE_MOVABLE];
+		list_for_each_entry(freepage, freelist, lru) {
+			unsigned long free_pfn;
+
+			if (nr_scanned++ >= limit) {
+				move_freelist_tail(freelist, freepage);
+				break;
+			}
+
+			free_pfn = page_to_pfn(freepage);
+			if (free_pfn < high_pfn) {
+				/*
+				 * Avoid if skipped recently. Ideally it would
+				 * move to the tail but even safe iteration of
+				 * the list assumes an entry is deleted, not
+				 * reordered.
+				 */
+				if (get_pageblock_skip(freepage))
+					continue;
+
+				/* Reorder to so a future search skips recent pages */
+				move_freelist_tail(freelist, freepage);
+
+				update_fast_start_pfn(cc, free_pfn);
+				pfn = pageblock_start_pfn(free_pfn);
+				cc->fast_search_fail = 0;
+				found_block = true;
+				set_pageblock_skip(freepage);
+				break;
+			}
+		}
+		spin_unlock_irqrestore(&cc->zone->lock, flags);
+	}
+
+	cc->total_migrate_scanned += nr_scanned;
+
+	/*
+	 * If fast scanning failed then use a cached entry for a page block
+	 * that had free pages as the basis for starting a linear scan.
+	 */
+	if (!found_block) {
+		cc->fast_search_fail++;
+		pfn = reinit_migrate_pfn(cc);
+	}
+	return pfn;
+}
+>>>>>>> upstream/android-13
 
 /*
  * Isolate all pages that can be migrated from the first suitable block,
  * starting at the block pointed to by the migrate scanner pfn within
  * compact_control.
  */
+<<<<<<< HEAD
 static isolate_migrate_t isolate_migratepages(struct zone *zone,
 					struct compact_control *cc)
+=======
+static isolate_migrate_t isolate_migratepages(struct compact_control *cc)
+>>>>>>> upstream/android-13
 {
 	unsigned long block_start_pfn;
 	unsigned long block_end_pfn;
@@ -1232,6 +2374,7 @@ static isolate_migrate_t isolate_migratepages(struct zone *zone,
 	const isolate_mode_t isolate_mode =
 		(sysctl_compact_unevictable_allowed ? ISOLATE_UNEVICTABLE : 0) |
 		(cc->mode != MIGRATE_SYNC ? ISOLATE_ASYNC_MIGRATE : 0);
+<<<<<<< HEAD
 
 	/*
 	 * Start at where we last stopped, or beginning of the zone as
@@ -1241,6 +2384,26 @@ static isolate_migrate_t isolate_migratepages(struct zone *zone,
 	block_start_pfn = pageblock_start_pfn(low_pfn);
 	if (block_start_pfn < zone->zone_start_pfn)
 		block_start_pfn = zone->zone_start_pfn;
+=======
+	bool fast_find_block;
+
+	/*
+	 * Start at where we last stopped, or beginning of the zone as
+	 * initialized by compact_zone(). The first failure will use
+	 * the lowest PFN as the starting point for linear scanning.
+	 */
+	low_pfn = fast_find_migrateblock(cc);
+	block_start_pfn = pageblock_start_pfn(low_pfn);
+	if (block_start_pfn < cc->zone->zone_start_pfn)
+		block_start_pfn = cc->zone->zone_start_pfn;
+
+	/*
+	 * fast_find_migrateblock marks a pageblock skipped so to avoid
+	 * the isolation_suitable check below, check whether the fast
+	 * search was successful.
+	 */
+	fast_find_block = low_pfn != cc->migrate_pfn && !cc->fast_search_fail;
+>>>>>>> upstream/android-13
 
 	/* Only scan within a pageblock boundary */
 	block_end_pfn = pageblock_end_pfn(low_pfn);
@@ -1250,13 +2413,19 @@ static isolate_migrate_t isolate_migratepages(struct zone *zone,
 	 * Do not cross the free scanner.
 	 */
 	for (; block_end_pfn <= cc->free_pfn;
+<<<<<<< HEAD
 			low_pfn = block_end_pfn,
+=======
+			fast_find_block = false,
+			cc->migrate_pfn = low_pfn = block_end_pfn,
+>>>>>>> upstream/android-13
 			block_start_pfn = block_end_pfn,
 			block_end_pfn += pageblock_nr_pages) {
 
 		/*
 		 * This can potentially iterate a massively long zone with
 		 * many pageblocks unsuitable, so periodically check if we
+<<<<<<< HEAD
 		 * need to schedule, or even abort async compaction.
 		 */
 		if (!(low_pfn % (SWAP_CLUSTER_MAX * pageblock_nr_pages))
@@ -1285,6 +2454,45 @@ static isolate_migrate_t isolate_migratepages(struct zone *zone,
 						block_end_pfn, isolate_mode);
 
 		if (!low_pfn || cc->contended)
+=======
+		 * need to schedule.
+		 */
+		if (!(low_pfn % (SWAP_CLUSTER_MAX * pageblock_nr_pages)))
+			cond_resched();
+
+		page = pageblock_pfn_to_page(block_start_pfn,
+						block_end_pfn, cc->zone);
+		if (!page)
+			continue;
+
+		/*
+		 * If isolation recently failed, do not retry. Only check the
+		 * pageblock once. COMPACT_CLUSTER_MAX causes a pageblock
+		 * to be visited multiple times. Assume skip was checked
+		 * before making it "skip" so other compaction instances do
+		 * not scan the same block.
+		 */
+		if (IS_ALIGNED(low_pfn, pageblock_nr_pages) &&
+		    !fast_find_block && !isolation_suitable(cc, page))
+			continue;
+
+		/*
+		 * For async compaction, also only scan in MOVABLE blocks
+		 * without huge pages. Async compaction is optimistic to see
+		 * if the minimum amount of work satisfies the allocation.
+		 * The cached PFN is updated as it's possible that all
+		 * remaining blocks between source and target are unsuitable
+		 * and the compaction scanners fail to meet.
+		 */
+		if (!suitable_migration_source(cc, page)) {
+			update_cached_migrate(cc, block_end_pfn);
+			continue;
+		}
+
+		/* Perform the isolation */
+		if (isolate_migratepages_block(cc, low_pfn, block_end_pfn,
+						isolate_mode))
+>>>>>>> upstream/android-13
 			return ISOLATE_ABORT;
 
 		/*
@@ -1295,9 +2503,12 @@ static isolate_migrate_t isolate_migratepages(struct zone *zone,
 		break;
 	}
 
+<<<<<<< HEAD
 	/* Record where migration scanner will be restarted. */
 	cc->migrate_pfn = low_pfn;
 
+=======
+>>>>>>> upstream/android-13
 	return cc->nr_migratepages ? ISOLATE_SUCCESS : ISOLATE_NONE;
 }
 
@@ -1310,6 +2521,7 @@ static inline bool is_via_compact_memory(int order)
 	return order == -1;
 }
 
+<<<<<<< HEAD
 static enum compact_result __compact_finished(struct zone *zone,
 						struct compact_control *cc)
 {
@@ -1318,11 +2530,100 @@ static enum compact_result __compact_finished(struct zone *zone,
 
 	if (cc->contended || fatal_signal_pending(current))
 		return COMPACT_CONTENDED;
+=======
+static bool kswapd_is_running(pg_data_t *pgdat)
+{
+	return pgdat->kswapd && task_is_running(pgdat->kswapd);
+}
+
+/*
+ * A zone's fragmentation score is the external fragmentation wrt to the
+ * COMPACTION_HPAGE_ORDER. It returns a value in the range [0, 100].
+ */
+static unsigned int fragmentation_score_zone(struct zone *zone)
+{
+	return extfrag_for_order(zone, COMPACTION_HPAGE_ORDER);
+}
+
+/*
+ * A weighted zone's fragmentation score is the external fragmentation
+ * wrt to the COMPACTION_HPAGE_ORDER scaled by the zone's size. It
+ * returns a value in the range [0, 100].
+ *
+ * The scaling factor ensures that proactive compaction focuses on larger
+ * zones like ZONE_NORMAL, rather than smaller, specialized zones like
+ * ZONE_DMA32. For smaller zones, the score value remains close to zero,
+ * and thus never exceeds the high threshold for proactive compaction.
+ */
+static unsigned int fragmentation_score_zone_weighted(struct zone *zone)
+{
+	unsigned long score;
+
+	score = zone->present_pages * fragmentation_score_zone(zone);
+	return div64_ul(score, zone->zone_pgdat->node_present_pages + 1);
+}
+
+/*
+ * The per-node proactive (background) compaction process is started by its
+ * corresponding kcompactd thread when the node's fragmentation score
+ * exceeds the high threshold. The compaction process remains active till
+ * the node's score falls below the low threshold, or one of the back-off
+ * conditions is met.
+ */
+static unsigned int fragmentation_score_node(pg_data_t *pgdat)
+{
+	unsigned int score = 0;
+	int zoneid;
+
+	for (zoneid = 0; zoneid < MAX_NR_ZONES; zoneid++) {
+		struct zone *zone;
+
+		zone = &pgdat->node_zones[zoneid];
+		score += fragmentation_score_zone_weighted(zone);
+	}
+
+	return score;
+}
+
+static unsigned int fragmentation_score_wmark(pg_data_t *pgdat, bool low)
+{
+	unsigned int wmark_low;
+
+	/*
+	 * Cap the low watermark to avoid excessive compaction
+	 * activity in case a user sets the proactiveness tunable
+	 * close to 100 (maximum).
+	 */
+	wmark_low = max(100U - sysctl_compaction_proactiveness, 5U);
+	return low ? wmark_low : min(wmark_low + 10, 100U);
+}
+
+static bool should_proactive_compact_node(pg_data_t *pgdat)
+{
+	int wmark_high;
+
+	if (!sysctl_compaction_proactiveness || kswapd_is_running(pgdat))
+		return false;
+
+	wmark_high = fragmentation_score_wmark(pgdat, false);
+	return fragmentation_score_node(pgdat) > wmark_high;
+}
+
+static enum compact_result __compact_finished(struct compact_control *cc)
+{
+	unsigned int order;
+	const int migratetype = cc->migratetype;
+	int ret;
+>>>>>>> upstream/android-13
 
 	/* Compaction run completes if the migrate and free scanner meet */
 	if (compact_scanners_met(cc)) {
 		/* Let the next compaction start anew. */
+<<<<<<< HEAD
 		reset_cached_positions(zone);
+=======
+		reset_cached_positions(cc->zone);
+>>>>>>> upstream/android-13
 
 		/*
 		 * Mark that the PG_migrate_skip information should be cleared
@@ -1331,7 +2632,11 @@ static enum compact_result __compact_finished(struct zone *zone,
 		 * based on an allocation request.
 		 */
 		if (cc->direct_compaction)
+<<<<<<< HEAD
 			zone->compact_blockskip_flush = true;
+=======
+			cc->zone->compact_blockskip_flush = true;
+>>>>>>> upstream/android-13
 
 		if (cc->whole_zone)
 			return COMPACT_COMPLETE;
@@ -1339,6 +2644,7 @@ static enum compact_result __compact_finished(struct zone *zone,
 			return COMPACT_PARTIAL_SKIPPED;
 	}
 
+<<<<<<< HEAD
 	if (is_via_compact_memory(cc->order))
 		return COMPACT_CONTINUE;
 
@@ -1360,12 +2666,57 @@ static enum compact_result __compact_finished(struct zone *zone,
 
 		/* Job done if page is free of the right migratetype */
 		if (!list_empty(&area->free_list[migratetype]))
+=======
+	if (cc->proactive_compaction) {
+		int score, wmark_low;
+		pg_data_t *pgdat;
+
+		pgdat = cc->zone->zone_pgdat;
+		if (kswapd_is_running(pgdat))
+			return COMPACT_PARTIAL_SKIPPED;
+
+		score = fragmentation_score_zone(cc->zone);
+		wmark_low = fragmentation_score_wmark(pgdat, true);
+
+		if (score > wmark_low)
+			ret = COMPACT_CONTINUE;
+		else
+			ret = COMPACT_SUCCESS;
+
+		goto out;
+	}
+
+	if (is_via_compact_memory(cc->order))
+		return COMPACT_CONTINUE;
+
+	/*
+	 * Always finish scanning a pageblock to reduce the possibility of
+	 * fallbacks in the future. This is particularly important when
+	 * migration source is unmovable/reclaimable but it's not worth
+	 * special casing.
+	 */
+	if (!IS_ALIGNED(cc->migrate_pfn, pageblock_nr_pages))
+		return COMPACT_CONTINUE;
+
+	/* Direct compactor: Is a suitable page free? */
+	ret = COMPACT_NO_SUITABLE_PAGE;
+	for (order = cc->order; order < MAX_ORDER; order++) {
+		struct free_area *area = &cc->zone->free_area[order];
+		bool can_steal;
+
+		/* Job done if page is free of the right migratetype */
+		if (!free_area_empty(area, migratetype))
+>>>>>>> upstream/android-13
 			return COMPACT_SUCCESS;
 
 #ifdef CONFIG_CMA
 		/* MIGRATE_MOVABLE can fallback on MIGRATE_CMA */
 		if (migratetype == MIGRATE_MOVABLE &&
+<<<<<<< HEAD
 			!list_empty(&area->free_list[MIGRATE_CMA]))
+=======
+			!free_area_empty(area, MIGRATE_CMA))
+>>>>>>> upstream/android-13
 			return COMPACT_SUCCESS;
 #endif
 		/*
@@ -1393,6 +2744,7 @@ static enum compact_result __compact_finished(struct zone *zone,
 				return COMPACT_SUCCESS;
 			}
 
+<<<<<<< HEAD
 			cc->finishing_block = true;
 			return COMPACT_CONTINUE;
 		}
@@ -1408,12 +2760,33 @@ static enum compact_result compact_finished(struct zone *zone,
 
 	ret = __compact_finished(zone, cc);
 	trace_mm_compaction_finished(zone, cc->order, ret);
+=======
+			ret = COMPACT_CONTINUE;
+			break;
+		}
+	}
+
+out:
+	if (cc->contended || fatal_signal_pending(current))
+		ret = COMPACT_CONTENDED;
+
+	return ret;
+}
+
+static enum compact_result compact_finished(struct compact_control *cc)
+{
+	int ret;
+
+	ret = __compact_finished(cc);
+	trace_mm_compaction_finished(cc->zone, cc->order, ret);
+>>>>>>> upstream/android-13
 	if (ret == COMPACT_NO_SUITABLE_PAGE)
 		ret = COMPACT_CONTINUE;
 
 	return ret;
 }
 
+<<<<<<< HEAD
 /*
  * compaction_suitable: Is this suitable to run compaction on this zone now?
  * Returns
@@ -1424,6 +2797,11 @@ static enum compact_result compact_finished(struct zone *zone,
 static enum compact_result __compaction_suitable(struct zone *zone, int order,
 					unsigned int alloc_flags,
 					int classzone_idx,
+=======
+static enum compact_result __compaction_suitable(struct zone *zone, int order,
+					unsigned int alloc_flags,
+					int highest_zoneidx,
+>>>>>>> upstream/android-13
 					unsigned long wmark_target)
 {
 	unsigned long watermark;
@@ -1431,12 +2809,20 @@ static enum compact_result __compaction_suitable(struct zone *zone, int order,
 	if (is_via_compact_memory(order))
 		return COMPACT_CONTINUE;
 
+<<<<<<< HEAD
 	watermark = zone->watermark[alloc_flags & ALLOC_WMARK_MASK];
+=======
+	watermark = wmark_pages(zone, alloc_flags & ALLOC_WMARK_MASK);
+>>>>>>> upstream/android-13
 	/*
 	 * If watermarks for high-order allocation are already met, there
 	 * should be no need for compaction at all.
 	 */
+<<<<<<< HEAD
 	if (zone_watermark_ok(zone, order, watermark, classzone_idx,
+=======
+	if (zone_watermark_ok(zone, order, watermark, highest_zoneidx,
+>>>>>>> upstream/android-13
 								alloc_flags))
 		return COMPACT_SUCCESS;
 
@@ -1446,9 +2832,15 @@ static enum compact_result __compaction_suitable(struct zone *zone, int order,
 	 * watermark and alloc_flags have to match, or be more pessimistic than
 	 * the check in __isolate_free_page(). We don't use the direct
 	 * compactor's alloc_flags, as they are not relevant for freepage
+<<<<<<< HEAD
 	 * isolation. We however do use the direct compactor's classzone_idx to
 	 * skip over zones where lowmem reserves would prevent allocation even
 	 * if compaction succeeds.
+=======
+	 * isolation. We however do use the direct compactor's highest_zoneidx
+	 * to skip over zones where lowmem reserves would prevent allocation
+	 * even if compaction succeeds.
+>>>>>>> upstream/android-13
 	 * For costly orders, we require low watermark instead of min for
 	 * compaction to proceed to increase its chances.
 	 * ALLOC_CMA is used, as pages in CMA pageblocks are considered
@@ -1457,21 +2849,42 @@ static enum compact_result __compaction_suitable(struct zone *zone, int order,
 	watermark = (order > PAGE_ALLOC_COSTLY_ORDER) ?
 				low_wmark_pages(zone) : min_wmark_pages(zone);
 	watermark += compact_gap(order);
+<<<<<<< HEAD
 	if (!__zone_watermark_ok(zone, 0, watermark, classzone_idx,
+=======
+	if (!__zone_watermark_ok(zone, 0, watermark, highest_zoneidx,
+>>>>>>> upstream/android-13
 						ALLOC_CMA, wmark_target))
 		return COMPACT_SKIPPED;
 
 	return COMPACT_CONTINUE;
 }
 
+<<<<<<< HEAD
 enum compact_result compaction_suitable(struct zone *zone, int order,
 					unsigned int alloc_flags,
 					int classzone_idx)
+=======
+/*
+ * compaction_suitable: Is this suitable to run compaction on this zone now?
+ * Returns
+ *   COMPACT_SKIPPED  - If there are too few free pages for compaction
+ *   COMPACT_SUCCESS  - If the allocation would succeed without compaction
+ *   COMPACT_CONTINUE - If compaction should run now
+ */
+enum compact_result compaction_suitable(struct zone *zone, int order,
+					unsigned int alloc_flags,
+					int highest_zoneidx)
+>>>>>>> upstream/android-13
 {
 	enum compact_result ret;
 	int fragindex;
 
+<<<<<<< HEAD
 	ret = __compaction_suitable(zone, order, alloc_flags, classzone_idx,
+=======
+	ret = __compaction_suitable(zone, order, alloc_flags, highest_zoneidx,
+>>>>>>> upstream/android-13
 				    zone_page_state(zone, NR_FREE_PAGES));
 	/*
 	 * fragmentation index determines if allocation failures are due to
@@ -1512,8 +2925,13 @@ bool compaction_zonelist_suitable(struct alloc_context *ac, int order,
 	 * Make sure at least one zone would pass __compaction_suitable if we continue
 	 * retrying the reclaim.
 	 */
+<<<<<<< HEAD
 	for_each_zone_zonelist_nodemask(zone, z, ac->zonelist, ac->high_zoneidx,
 					ac->nodemask) {
+=======
+	for_each_zone_zonelist_nodemask(zone, z, ac->zonelist,
+				ac->highest_zoneidx, ac->nodemask) {
+>>>>>>> upstream/android-13
 		unsigned long available;
 		enum compact_result compact_result;
 
@@ -1526,7 +2944,11 @@ bool compaction_zonelist_suitable(struct alloc_context *ac, int order,
 		available = zone_reclaimable_pages(zone) / order;
 		available += zone_page_state_snapshot(zone, NR_FREE_PAGES);
 		compact_result = __compaction_suitable(zone, order, alloc_flags,
+<<<<<<< HEAD
 				ac_classzone_idx(ac), available);
+=======
+				ac->highest_zoneidx, available);
+>>>>>>> upstream/android-13
 		if (compact_result != COMPACT_SKIPPED)
 			return true;
 	}
@@ -1534,12 +2956,24 @@ bool compaction_zonelist_suitable(struct alloc_context *ac, int order,
 	return false;
 }
 
+<<<<<<< HEAD
 static enum compact_result compact_zone(struct zone *zone, struct compact_control *cc)
 {
 	enum compact_result ret;
 	unsigned long start_pfn = zone->zone_start_pfn;
 	unsigned long end_pfn = zone_end_pfn(zone);
 	const bool sync = cc->mode != MIGRATE_ASYNC;
+=======
+static enum compact_result
+compact_zone(struct compact_control *cc, struct capture_control *capc)
+{
+	enum compact_result ret;
+	unsigned long start_pfn = cc->zone->zone_start_pfn;
+	unsigned long end_pfn = zone_end_pfn(cc->zone);
+	unsigned long last_migrated_pfn;
+	const bool sync = cc->mode != MIGRATE_ASYNC;
+	bool update_cached;
+>>>>>>> upstream/android-13
 
 	/*
 	 * These counters track activities during zone compaction.  Initialize
@@ -1552,9 +2986,15 @@ static enum compact_result compact_zone(struct zone *zone, struct compact_contro
 	INIT_LIST_HEAD(&cc->freepages);
 	INIT_LIST_HEAD(&cc->migratepages);
 
+<<<<<<< HEAD
 	cc->migratetype = gfpflags_to_migratetype(cc->gfp_mask);
 	ret = compaction_suitable(zone, cc->order, cc->alloc_flags,
 							cc->classzone_idx);
+=======
+	cc->migratetype = gfp_migratetype(cc->gfp_mask);
+	ret = compaction_suitable(cc->zone, cc->order, cc->alloc_flags,
+							cc->highest_zoneidx);
+>>>>>>> upstream/android-13
 	/* Compaction is likely to fail */
 	if (ret == COMPACT_SUCCESS || ret == COMPACT_SKIPPED)
 		return ret;
@@ -1566,8 +3006,13 @@ static enum compact_result compact_zone(struct zone *zone, struct compact_contro
 	 * Clear pageblock skip if there were failures recently and compaction
 	 * is about to be retried after being deferred.
 	 */
+<<<<<<< HEAD
 	if (compaction_restarting(zone, cc->order))
 		__reset_isolation_suitable(zone);
+=======
+	if (compaction_restarting(cc->zone, cc->order))
+		__reset_isolation_suitable(cc->zone);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Setup to move all movable pages to the end of the zone. Used cached
@@ -1575,10 +3020,15 @@ static enum compact_result compact_zone(struct zone *zone, struct compact_contro
 	 * want to compact the whole zone), but check that it is initialised
 	 * by ensuring the values are within zone boundaries.
 	 */
+<<<<<<< HEAD
+=======
+	cc->fast_start_pfn = 0;
+>>>>>>> upstream/android-13
 	if (cc->whole_zone) {
 		cc->migrate_pfn = start_pfn;
 		cc->free_pfn = pageblock_start_pfn(end_pfn - 1);
 	} else {
+<<<<<<< HEAD
 		cc->migrate_pfn = zone->compact_cached_migrate_pfn[sync];
 		cc->free_pfn = zone->compact_cached_free_pfn;
 		if (cc->free_pfn < start_pfn || cc->free_pfn >= end_pfn) {
@@ -1596,22 +3046,85 @@ static enum compact_result compact_zone(struct zone *zone, struct compact_contro
 	}
 
 	cc->last_migrated_pfn = 0;
+=======
+		cc->migrate_pfn = cc->zone->compact_cached_migrate_pfn[sync];
+		cc->free_pfn = cc->zone->compact_cached_free_pfn;
+		if (cc->free_pfn < start_pfn || cc->free_pfn >= end_pfn) {
+			cc->free_pfn = pageblock_start_pfn(end_pfn - 1);
+			cc->zone->compact_cached_free_pfn = cc->free_pfn;
+		}
+		if (cc->migrate_pfn < start_pfn || cc->migrate_pfn >= end_pfn) {
+			cc->migrate_pfn = start_pfn;
+			cc->zone->compact_cached_migrate_pfn[0] = cc->migrate_pfn;
+			cc->zone->compact_cached_migrate_pfn[1] = cc->migrate_pfn;
+		}
+
+		if (cc->migrate_pfn <= cc->zone->compact_init_migrate_pfn)
+			cc->whole_zone = true;
+	}
+
+	last_migrated_pfn = 0;
+
+	/*
+	 * Migrate has separate cached PFNs for ASYNC and SYNC* migration on
+	 * the basis that some migrations will fail in ASYNC mode. However,
+	 * if the cached PFNs match and pageblocks are skipped due to having
+	 * no isolation candidates, then the sync state does not matter.
+	 * Until a pageblock with isolation candidates is found, keep the
+	 * cached PFNs in sync to avoid revisiting the same blocks.
+	 */
+	update_cached = !sync &&
+		cc->zone->compact_cached_migrate_pfn[0] == cc->zone->compact_cached_migrate_pfn[1];
+>>>>>>> upstream/android-13
 
 	trace_mm_compaction_begin(start_pfn, cc->migrate_pfn,
 				cc->free_pfn, end_pfn, sync);
 
+<<<<<<< HEAD
 	migrate_prep_local();
 
 	while ((ret = compact_finished(zone, cc)) == COMPACT_CONTINUE) {
 		int err;
 
 		switch (isolate_migratepages(zone, cc)) {
+=======
+	/* lru_add_drain_all could be expensive with involving other CPUs */
+	lru_add_drain();
+
+	while ((ret = compact_finished(cc)) == COMPACT_CONTINUE) {
+		int err;
+		unsigned long iteration_start_pfn = cc->migrate_pfn;
+
+		/*
+		 * Avoid multiple rescans which can happen if a page cannot be
+		 * isolated (dirty/writeback in async mode) or if the migrated
+		 * pages are being allocated before the pageblock is cleared.
+		 * The first rescan will capture the entire pageblock for
+		 * migration. If it fails, it'll be marked skip and scanning
+		 * will proceed as normal.
+		 */
+		cc->rescan = false;
+		if (pageblock_start_pfn(last_migrated_pfn) ==
+		    pageblock_start_pfn(iteration_start_pfn)) {
+			cc->rescan = true;
+		}
+
+		switch (isolate_migratepages(cc)) {
+>>>>>>> upstream/android-13
 		case ISOLATE_ABORT:
 			ret = COMPACT_CONTENDED;
 			putback_movable_pages(&cc->migratepages);
 			cc->nr_migratepages = 0;
 			goto out;
 		case ISOLATE_NONE:
+<<<<<<< HEAD
+=======
+			if (update_cached) {
+				cc->zone->compact_cached_migrate_pfn[1] =
+					cc->zone->compact_cached_migrate_pfn[0];
+			}
+
+>>>>>>> upstream/android-13
 			/*
 			 * We haven't isolated and migrated anything, but
 			 * there might still be unflushed migrations from
@@ -1619,12 +3132,21 @@ static enum compact_result compact_zone(struct zone *zone, struct compact_contro
 			 */
 			goto check_drain;
 		case ISOLATE_SUCCESS:
+<<<<<<< HEAD
 			;
+=======
+			update_cached = false;
+			last_migrated_pfn = iteration_start_pfn;
+>>>>>>> upstream/android-13
 		}
 
 		err = migrate_pages(&cc->migratepages, compaction_alloc,
 				compaction_free, (unsigned long)cc, cc->mode,
+<<<<<<< HEAD
 				MR_COMPACTION);
+=======
+				MR_COMPACTION, NULL);
+>>>>>>> upstream/android-13
 
 		trace_mm_compaction_migratepages(cc->nr_migratepages, err,
 							&cc->migratepages);
@@ -1650,8 +3172,12 @@ static enum compact_result compact_zone(struct zone *zone, struct compact_contro
 				cc->migrate_pfn = block_end_pfn(
 						cc->migrate_pfn - 1, cc->order);
 				/* Draining pcplists is useless in this case */
+<<<<<<< HEAD
 				cc->last_migrated_pfn = 0;
 
+=======
+				last_migrated_pfn = 0;
+>>>>>>> upstream/android-13
 			}
 		}
 
@@ -1663,6 +3189,7 @@ check_drain:
 		 * compact_finished() can detect immediately if allocation
 		 * would succeed.
 		 */
+<<<<<<< HEAD
 		if (cc->order > 0 && cc->last_migrated_pfn) {
 			int cpu;
 			unsigned long current_block_start =
@@ -1678,6 +3205,24 @@ check_drain:
 			}
 		}
 
+=======
+		if (cc->order > 0 && last_migrated_pfn) {
+			unsigned long current_block_start =
+				block_start_pfn(cc->migrate_pfn, cc->order);
+
+			if (last_migrated_pfn < current_block_start) {
+				lru_add_drain_cpu_zone(cc->zone);
+				/* No more flushing until we migrate again */
+				last_migrated_pfn = 0;
+			}
+		}
+
+		/* Stop if a page has been captured */
+		if (capc && capc->page) {
+			ret = COMPACT_SUCCESS;
+			break;
+		}
+>>>>>>> upstream/android-13
 	}
 
 out:
@@ -1696,8 +3241,13 @@ out:
 		 * Only go back, not forward. The cached pfn might have been
 		 * already reset to zone end in compact_finished()
 		 */
+<<<<<<< HEAD
 		if (free_pfn > zone->compact_cached_free_pfn)
 			zone->compact_cached_free_pfn = free_pfn;
+=======
+		if (free_pfn > cc->zone->compact_cached_free_pfn)
+			cc->zone->compact_cached_free_pfn = free_pfn;
+>>>>>>> upstream/android-13
 	}
 
 	count_compact_events(COMPACTMIGRATE_SCANNED, cc->total_migrate_scanned);
@@ -1711,28 +3261,77 @@ out:
 
 static enum compact_result compact_zone_order(struct zone *zone, int order,
 		gfp_t gfp_mask, enum compact_priority prio,
+<<<<<<< HEAD
 		unsigned int alloc_flags, int classzone_idx)
+=======
+		unsigned int alloc_flags, int highest_zoneidx,
+		struct page **capture)
+>>>>>>> upstream/android-13
 {
 	enum compact_result ret;
 	struct compact_control cc = {
 		.order = order,
+<<<<<<< HEAD
+=======
+		.search_order = order,
+>>>>>>> upstream/android-13
 		.gfp_mask = gfp_mask,
 		.zone = zone,
 		.mode = (prio == COMPACT_PRIO_ASYNC) ?
 					MIGRATE_ASYNC :	MIGRATE_SYNC_LIGHT,
 		.alloc_flags = alloc_flags,
+<<<<<<< HEAD
 		.classzone_idx = classzone_idx,
+=======
+		.highest_zoneidx = highest_zoneidx,
+>>>>>>> upstream/android-13
 		.direct_compaction = true,
 		.whole_zone = (prio == MIN_COMPACT_PRIORITY),
 		.ignore_skip_hint = (prio == MIN_COMPACT_PRIORITY),
 		.ignore_block_suitable = (prio == MIN_COMPACT_PRIORITY)
 	};
+<<<<<<< HEAD
 
 	ret = compact_zone(zone, &cc);
+=======
+	struct capture_control capc = {
+		.cc = &cc,
+		.page = NULL,
+	};
+
+	/*
+	 * Make sure the structs are really initialized before we expose the
+	 * capture control, in case we are interrupted and the interrupt handler
+	 * frees a page.
+	 */
+	barrier();
+	WRITE_ONCE(current->capture_control, &capc);
+
+	ret = compact_zone(&cc, &capc);
+>>>>>>> upstream/android-13
 
 	VM_BUG_ON(!list_empty(&cc.freepages));
 	VM_BUG_ON(!list_empty(&cc.migratepages));
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Make sure we hide capture control first before we read the captured
+	 * page pointer, otherwise an interrupt could free and capture a page
+	 * and we would leak it.
+	 */
+	WRITE_ONCE(current->capture_control, NULL);
+	*capture = READ_ONCE(capc.page);
+	/*
+	 * Technically, it is also possible that compaction is skipped but
+	 * the page is still captured out of luck(IRQ came and freed the page).
+	 * Returning COMPACT_SUCCESS in such cases helps in properly accounting
+	 * the COMPACT[STALL|FAIL] when compaction is skipped.
+	 */
+	if (*capture)
+		ret = COMPACT_SUCCESS;
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -1745,12 +3344,20 @@ int sysctl_extfrag_threshold = 500;
  * @alloc_flags: The allocation flags of the current allocation
  * @ac: The context of current allocation
  * @prio: Determines how hard direct compaction should try to succeed
+<<<<<<< HEAD
+=======
+ * @capture: Pointer to free page created by compaction will be stored here
+>>>>>>> upstream/android-13
  *
  * This is the main entry point for direct page compaction.
  */
 enum compact_result try_to_compact_pages(gfp_t gfp_mask, unsigned int order,
 		unsigned int alloc_flags, const struct alloc_context *ac,
+<<<<<<< HEAD
 		enum compact_priority prio)
+=======
+		enum compact_priority prio, struct page **capture)
+>>>>>>> upstream/android-13
 {
 	int may_perform_io = gfp_mask & __GFP_IO;
 	struct zoneref *z;
@@ -1767,8 +3374,13 @@ enum compact_result try_to_compact_pages(gfp_t gfp_mask, unsigned int order,
 	trace_mm_compaction_try_to_compact_pages(order, gfp_mask, prio);
 
 	/* Compact each zone in the list */
+<<<<<<< HEAD
 	for_each_zone_zonelist_nodemask(zone, z, ac->zonelist, ac->high_zoneidx,
 								ac->nodemask) {
+=======
+	for_each_zone_zonelist_nodemask(zone, z, ac->zonelist,
+					ac->highest_zoneidx, ac->nodemask) {
+>>>>>>> upstream/android-13
 		enum compact_result status;
 
 		if (prio > MIN_COMPACT_PRIORITY
@@ -1778,7 +3390,11 @@ enum compact_result try_to_compact_pages(gfp_t gfp_mask, unsigned int order,
 		}
 
 		status = compact_zone_order(zone, order, gfp_mask, prio,
+<<<<<<< HEAD
 					alloc_flags, ac_classzone_idx(ac));
+=======
+				alloc_flags, ac->highest_zoneidx, capture);
+>>>>>>> upstream/android-13
 		rc = max(status, rc);
 
 		/* The allocation should succeed, stop compacting */
@@ -1816,6 +3432,44 @@ enum compact_result try_to_compact_pages(gfp_t gfp_mask, unsigned int order,
 	return rc;
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * Compact all zones within a node till each zone's fragmentation score
+ * reaches within proactive compaction thresholds (as determined by the
+ * proactiveness tunable).
+ *
+ * It is possible that the function returns before reaching score targets
+ * due to various back-off conditions, such as, contention on per-node or
+ * per-zone locks.
+ */
+static void proactive_compact_node(pg_data_t *pgdat)
+{
+	int zoneid;
+	struct zone *zone;
+	struct compact_control cc = {
+		.order = -1,
+		.mode = MIGRATE_SYNC_LIGHT,
+		.ignore_skip_hint = true,
+		.whole_zone = true,
+		.gfp_mask = GFP_KERNEL,
+		.proactive_compaction = true,
+	};
+
+	for (zoneid = 0; zoneid < MAX_NR_ZONES; zoneid++) {
+		zone = &pgdat->node_zones[zoneid];
+		if (!populated_zone(zone))
+			continue;
+
+		cc.zone = zone;
+
+		compact_zone(&cc, NULL);
+
+		VM_BUG_ON(!list_empty(&cc.freepages));
+		VM_BUG_ON(!list_empty(&cc.migratepages));
+	}
+}
+>>>>>>> upstream/android-13
 
 /* Compact all zones within a node */
 static void compact_node(int nid)
@@ -1840,7 +3494,11 @@ static void compact_node(int nid)
 
 		cc.zone = zone;
 
+<<<<<<< HEAD
 		compact_zone(zone, &cc);
+=======
+		compact_zone(&cc, NULL);
+>>>>>>> upstream/android-13
 
 		VM_BUG_ON(!list_empty(&cc.freepages));
 		VM_BUG_ON(!list_empty(&cc.migratepages));
@@ -1859,15 +3517,52 @@ static void compact_nodes(void)
 		compact_node(nid);
 }
 
+<<<<<<< HEAD
 /* The written value is actually unused, all memory is compacted */
 int sysctl_compact_memory;
+=======
+/*
+ * Tunable for proactive compaction. It determines how
+ * aggressively the kernel should compact memory in the
+ * background. It takes values in the range [0, 100].
+ */
+unsigned int __read_mostly sysctl_compaction_proactiveness = 20;
+
+int compaction_proactiveness_sysctl_handler(struct ctl_table *table, int write,
+		void *buffer, size_t *length, loff_t *ppos)
+{
+	int rc, nid;
+
+	rc = proc_dointvec_minmax(table, write, buffer, length, ppos);
+	if (rc)
+		return rc;
+
+	if (write && sysctl_compaction_proactiveness) {
+		for_each_online_node(nid) {
+			pg_data_t *pgdat = NODE_DATA(nid);
+
+			if (pgdat->proactive_compact_trigger)
+				continue;
+
+			pgdat->proactive_compact_trigger = true;
+			wake_up_interruptible(&pgdat->kcompactd_wait);
+		}
+	}
+
+	return 0;
+}
+>>>>>>> upstream/android-13
 
 /*
  * This is the entry point for compacting all nodes via
  * /proc/sys/vm/compact_memory
  */
 int sysctl_compaction_handler(struct ctl_table *table, int write,
+<<<<<<< HEAD
 			void __user *buffer, size_t *length, loff_t *ppos)
+=======
+			void *buffer, size_t *length, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	if (write)
 		compact_nodes();
@@ -1875,6 +3570,7 @@ int sysctl_compaction_handler(struct ctl_table *table, int write,
 	return 0;
 }
 
+<<<<<<< HEAD
 int sysctl_extfrag_handler(struct ctl_table *table, int write,
 			void __user *buffer, size_t *length, loff_t *ppos)
 {
@@ -1887,6 +3583,12 @@ int sysctl_extfrag_handler(struct ctl_table *table, int write,
 static ssize_t sysfs_compact_node(struct device *dev,
 			struct device_attribute *attr,
 			const char *buf, size_t count)
+=======
+#if defined(CONFIG_SYSFS) && defined(CONFIG_NUMA)
+static ssize_t compact_store(struct device *dev,
+			     struct device_attribute *attr,
+			     const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	int nid = dev->id;
 
@@ -1899,7 +3601,11 @@ static ssize_t sysfs_compact_node(struct device *dev,
 
 	return count;
 }
+<<<<<<< HEAD
 static DEVICE_ATTR(compact, 0200, NULL, sysfs_compact_node);
+=======
+static DEVICE_ATTR_WO(compact);
+>>>>>>> upstream/android-13
 
 int compaction_register_node(struct node *node)
 {
@@ -1914,23 +3620,38 @@ void compaction_unregister_node(struct node *node)
 
 static inline bool kcompactd_work_requested(pg_data_t *pgdat)
 {
+<<<<<<< HEAD
 	return pgdat->kcompactd_max_order > 0 || kthread_should_stop();
+=======
+	return pgdat->kcompactd_max_order > 0 || kthread_should_stop() ||
+		pgdat->proactive_compact_trigger;
+>>>>>>> upstream/android-13
 }
 
 static bool kcompactd_node_suitable(pg_data_t *pgdat)
 {
 	int zoneid;
 	struct zone *zone;
+<<<<<<< HEAD
 	enum zone_type classzone_idx = pgdat->kcompactd_classzone_idx;
 
 	for (zoneid = 0; zoneid <= classzone_idx; zoneid++) {
+=======
+	enum zone_type highest_zoneidx = pgdat->kcompactd_highest_zoneidx;
+
+	for (zoneid = 0; zoneid <= highest_zoneidx; zoneid++) {
+>>>>>>> upstream/android-13
 		zone = &pgdat->node_zones[zoneid];
 
 		if (!populated_zone(zone))
 			continue;
 
 		if (compaction_suitable(zone, pgdat->kcompactd_max_order, 0,
+<<<<<<< HEAD
 					classzone_idx) == COMPACT_CONTINUE)
+=======
+					highest_zoneidx) == COMPACT_CONTINUE)
+>>>>>>> upstream/android-13
 			return true;
 	}
 
@@ -1947,16 +3668,28 @@ static void kcompactd_do_work(pg_data_t *pgdat)
 	struct zone *zone;
 	struct compact_control cc = {
 		.order = pgdat->kcompactd_max_order,
+<<<<<<< HEAD
 		.classzone_idx = pgdat->kcompactd_classzone_idx,
+=======
+		.search_order = pgdat->kcompactd_max_order,
+		.highest_zoneidx = pgdat->kcompactd_highest_zoneidx,
+>>>>>>> upstream/android-13
 		.mode = MIGRATE_SYNC_LIGHT,
 		.ignore_skip_hint = false,
 		.gfp_mask = GFP_KERNEL,
 	};
 	trace_mm_compaction_kcompactd_wake(pgdat->node_id, cc.order,
+<<<<<<< HEAD
 							cc.classzone_idx);
 	count_compact_event(KCOMPACTD_WAKE);
 
 	for (zoneid = 0; zoneid <= cc.classzone_idx; zoneid++) {
+=======
+							cc.highest_zoneidx);
+	count_compact_event(KCOMPACTD_WAKE);
+
+	for (zoneid = 0; zoneid <= cc.highest_zoneidx; zoneid++) {
+>>>>>>> upstream/android-13
 		int status;
 
 		zone = &pgdat->node_zones[zoneid];
@@ -1974,7 +3707,11 @@ static void kcompactd_do_work(pg_data_t *pgdat)
 			return;
 
 		cc.zone = zone;
+<<<<<<< HEAD
 		status = compact_zone(zone, &cc);
+=======
+		status = compact_zone(&cc, NULL);
+>>>>>>> upstream/android-13
 
 		if (status == COMPACT_SUCCESS) {
 			compaction_defer_reset(zone, cc.order, false);
@@ -2005,6 +3742,7 @@ static void kcompactd_do_work(pg_data_t *pgdat)
 
 	/*
 	 * Regardless of success, we are done until woken up next. But remember
+<<<<<<< HEAD
 	 * the requested order/classzone_idx in case it was higher/tighter than
 	 * our current ones
 	 */
@@ -2015,6 +3753,18 @@ static void kcompactd_do_work(pg_data_t *pgdat)
 }
 
 void wakeup_kcompactd(pg_data_t *pgdat, int order, int classzone_idx)
+=======
+	 * the requested order/highest_zoneidx in case it was higher/tighter
+	 * than our current ones
+	 */
+	if (pgdat->kcompactd_max_order <= cc.order)
+		pgdat->kcompactd_max_order = 0;
+	if (pgdat->kcompactd_highest_zoneidx >= cc.highest_zoneidx)
+		pgdat->kcompactd_highest_zoneidx = pgdat->nr_zones - 1;
+}
+
+void wakeup_kcompactd(pg_data_t *pgdat, int order, int highest_zoneidx)
+>>>>>>> upstream/android-13
 {
 	if (!order)
 		return;
@@ -2022,8 +3772,13 @@ void wakeup_kcompactd(pg_data_t *pgdat, int order, int classzone_idx)
 	if (pgdat->kcompactd_max_order < order)
 		pgdat->kcompactd_max_order = order;
 
+<<<<<<< HEAD
 	if (pgdat->kcompactd_classzone_idx > classzone_idx)
 		pgdat->kcompactd_classzone_idx = classzone_idx;
+=======
+	if (pgdat->kcompactd_highest_zoneidx > highest_zoneidx)
+		pgdat->kcompactd_highest_zoneidx = highest_zoneidx;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Pairs with implicit barrier in wait_event_freezable()
@@ -2036,7 +3791,11 @@ void wakeup_kcompactd(pg_data_t *pgdat, int order, int classzone_idx)
 		return;
 
 	trace_mm_compaction_wakeup_kcompactd(pgdat->node_id, order,
+<<<<<<< HEAD
 							classzone_idx);
+=======
+							highest_zoneidx);
+>>>>>>> upstream/android-13
 	wake_up_interruptible(&pgdat->kcompactd_wait);
 }
 
@@ -2046,8 +3805,15 @@ void wakeup_kcompactd(pg_data_t *pgdat, int order, int classzone_idx)
  */
 static int kcompactd(void *p)
 {
+<<<<<<< HEAD
 	pg_data_t *pgdat = (pg_data_t*)p;
 	struct task_struct *tsk = current;
+=======
+	pg_data_t *pgdat = (pg_data_t *)p;
+	struct task_struct *tsk = current;
+	long default_timeout = msecs_to_jiffies(HPAGE_FRAG_CHECK_INTERVAL_MSEC);
+	long timeout = default_timeout;
+>>>>>>> upstream/android-13
 
 	const struct cpumask *cpumask = cpumask_of_node(pgdat->node_id);
 
@@ -2057,11 +3823,16 @@ static int kcompactd(void *p)
 	set_freezable();
 
 	pgdat->kcompactd_max_order = 0;
+<<<<<<< HEAD
 	pgdat->kcompactd_classzone_idx = pgdat->nr_zones - 1;
+=======
+	pgdat->kcompactd_highest_zoneidx = pgdat->nr_zones - 1;
+>>>>>>> upstream/android-13
 
 	while (!kthread_should_stop()) {
 		unsigned long pflags;
 
+<<<<<<< HEAD
 		trace_mm_compaction_kcompactd_sleep(pgdat->node_id);
 		wait_event_freezable(pgdat->kcompactd_wait,
 				kcompactd_work_requested(pgdat));
@@ -2069,6 +3840,54 @@ static int kcompactd(void *p)
 		psi_memstall_enter(&pflags);
 		kcompactd_do_work(pgdat);
 		psi_memstall_leave(&pflags);
+=======
+		/*
+		 * Avoid the unnecessary wakeup for proactive compaction
+		 * when it is disabled.
+		 */
+		if (!sysctl_compaction_proactiveness)
+			timeout = MAX_SCHEDULE_TIMEOUT;
+		trace_mm_compaction_kcompactd_sleep(pgdat->node_id);
+		if (wait_event_freezable_timeout(pgdat->kcompactd_wait,
+			kcompactd_work_requested(pgdat), timeout) &&
+			!pgdat->proactive_compact_trigger) {
+
+			psi_memstall_enter(&pflags);
+			kcompactd_do_work(pgdat);
+			psi_memstall_leave(&pflags);
+			/*
+			 * Reset the timeout value. The defer timeout from
+			 * proactive compaction is lost here but that is fine
+			 * as the condition of the zone changing substantionally
+			 * then carrying on with the previous defer interval is
+			 * not useful.
+			 */
+			timeout = default_timeout;
+			continue;
+		}
+
+		/*
+		 * Start the proactive work with default timeout. Based
+		 * on the fragmentation score, this timeout is updated.
+		 */
+		timeout = default_timeout;
+		if (should_proactive_compact_node(pgdat)) {
+			unsigned int prev_score, score;
+
+			prev_score = fragmentation_score_node(pgdat);
+			proactive_compact_node(pgdat);
+			score = fragmentation_score_node(pgdat);
+			/*
+			 * Defer proactive compaction if the fragmentation
+			 * score did not go down i.e. no progress made.
+			 */
+			if (unlikely(score >= prev_score))
+				timeout =
+				   default_timeout << COMPACT_MAX_DEFER_SHIFT;
+		}
+		if (unlikely(pgdat->proactive_compact_trigger))
+			pgdat->proactive_compact_trigger = false;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;

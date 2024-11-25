@@ -4,6 +4,11 @@
 
 #include <linux/types.h>
 
+<<<<<<< HEAD
+=======
+#ifndef __ASSEMBLY__
+
+>>>>>>> upstream/android-13
 struct subchannel_id {
 	__u32 cssid : 8;
 	__u32 : 4;
@@ -13,5 +18,9 @@ struct subchannel_id {
 	__u32 sch_no : 16;
 } __attribute__ ((packed, aligned(4)));
 
+<<<<<<< HEAD
+=======
+#endif /* __ASSEMBLY__ */
+>>>>>>> upstream/android-13
 
 #endif /* _UAPIASM_SCHID_H */

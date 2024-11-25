@@ -1,11 +1,17 @@
+<<<<<<< HEAD
 /*
  *   fs/cifs/cifssmb.c
+=======
+// SPDX-License-Identifier: LGPL-2.1
+/*
+>>>>>>> upstream/android-13
  *
  *   Copyright (C) International Business Machines  Corp., 2002,2010
  *   Author(s): Steve French (sfrench@us.ibm.com)
  *
  *   Contains the routines for constructing the SMB PDUs themselves
  *
+<<<<<<< HEAD
  *   This library is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU Lesser General Public License as published
  *   by the Free Software Foundation; either version 2.1 of the License, or
@@ -19,6 +25,8 @@
  *   You should have received a copy of the GNU Lesser General Public License
  *   along with this library; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
  /* SMB/CIFS PDU handling routines here - except for leftovers in connect.c   */
@@ -42,18 +50,30 @@
 #include "cifsproto.h"
 #include "cifs_unicode.h"
 #include "cifs_debug.h"
+<<<<<<< HEAD
 #include "fscache.h"
 #include "smbdirect.h"
+=======
+#include "smb2proto.h"
+#include "fscache.h"
+#include "smbdirect.h"
+#ifdef CONFIG_CIFS_DFS_UPCALL
+#include "dfs_cache.h"
+#endif
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_CIFS_POSIX
 static struct {
 	int index;
 	char *name;
 } protocols[] = {
+<<<<<<< HEAD
 #ifdef CONFIG_CIFS_WEAK_PW_HASH
 	{LANMAN_PROT, "\2LM1.2X002"},
 	{LANMAN2_PROT, "\2LANMAN2.1"},
 #endif /* weak password hashing for legacy clients */
+=======
+>>>>>>> upstream/android-13
 	{CIFS_PROT, "\2NT LM 0.12"},
 	{POSIX_PROT, "\2POSIX 2"},
 	{BAD_PROT, "\2"}
@@ -63,10 +83,13 @@ static struct {
 	int index;
 	char *name;
 } protocols[] = {
+<<<<<<< HEAD
 #ifdef CONFIG_CIFS_WEAK_PW_HASH
 	{LANMAN_PROT, "\2LM1.2X002"},
 	{LANMAN2_PROT, "\2LANMAN2.1"},
 #endif /* weak password hashing for legacy clients */
+=======
+>>>>>>> upstream/android-13
 	{CIFS_PROT, "\2NT LM 0.12"},
 	{BAD_PROT, "\2"}
 };
@@ -74,6 +97,7 @@ static struct {
 
 /* define the number of elements in the cifs dialect array */
 #ifdef CONFIG_CIFS_POSIX
+<<<<<<< HEAD
 #ifdef CONFIG_CIFS_WEAK_PW_HASH
 #define CIFS_NUM_PROT 4
 #else
@@ -85,6 +109,11 @@ static struct {
 #else
 #define CIFS_NUM_PROT 1
 #endif /* CONFIG_CIFS_WEAK_PW_HASH */
+=======
+#define CIFS_NUM_PROT 2
+#else /* not posix */
+#define CIFS_NUM_PROT 1
+>>>>>>> upstream/android-13
 #endif /* CIFS_POSIX */
 
 /*
@@ -109,6 +138,11 @@ cifs_mark_open_files_invalid(struct cifs_tcon *tcon)
 
 	mutex_lock(&tcon->crfid.fid_mutex);
 	tcon->crfid.is_valid = false;
+<<<<<<< HEAD
+=======
+	/* cached handle is not valid, so SMB2_CLOSE won't be sent below */
+	close_cached_dir_lease_locked(&tcon->crfid);
+>>>>>>> upstream/android-13
 	memset(tcon->crfid.fid, 0, sizeof(struct cifs_fid));
 	mutex_unlock(&tcon->crfid.fid_mutex);
 
@@ -126,6 +160,10 @@ cifs_reconnect_tcon(struct cifs_tcon *tcon, int smb_command)
 	struct cifs_ses *ses;
 	struct TCP_Server_Info *server;
 	struct nls_table *nls_codepage;
+<<<<<<< HEAD
+=======
+	int retries;
+>>>>>>> upstream/android-13
 
 	/*
 	 * SMBs NegProt, SessSetup, uLogoff do not have tcon yet so check for
@@ -152,17 +190,31 @@ cifs_reconnect_tcon(struct cifs_tcon *tcon, int smb_command)
 		}
 	}
 
+<<<<<<< HEAD
 	/*
 	 * Give demultiplex thread up to 10 seconds to reconnect, should be
 	 * greater than cifs socket timeout which is 7 seconds
+=======
+	retries = server->nr_targets;
+
+	/*
+	 * Give demultiplex thread up to 10 seconds to each target available for
+	 * reconnect -- should be greater than cifs socket timeout which is 7
+	 * seconds.
+>>>>>>> upstream/android-13
 	 */
 	while (server->tcpStatus == CifsNeedReconnect) {
 		rc = wait_event_interruptible_timeout(server->response_q,
 						      (server->tcpStatus != CifsNeedReconnect),
 						      10 * HZ);
 		if (rc < 0) {
+<<<<<<< HEAD
 			cifs_dbg(FYI, "%s: aborting reconnect due to a received"
 				 " signal by the process\n", __func__);
+=======
+			cifs_dbg(FYI, "%s: aborting reconnect due to a received signal by the process\n",
+				 __func__);
+>>>>>>> upstream/android-13
 			return -ERESTARTSYS;
 		}
 
@@ -170,6 +222,12 @@ cifs_reconnect_tcon(struct cifs_tcon *tcon, int smb_command)
 		if (server->tcpStatus != CifsNeedReconnect)
 			break;
 
+<<<<<<< HEAD
+=======
+		if (retries && --retries)
+			continue;
+
+>>>>>>> upstream/android-13
 		/*
 		 * on "soft" mounts we wait once. Hard mounts keep
 		 * retrying until process is killed or server comes
@@ -179,6 +237,10 @@ cifs_reconnect_tcon(struct cifs_tcon *tcon, int smb_command)
 			cifs_dbg(FYI, "gave up waiting on reconnect in smb_init\n");
 			return -EHOSTDOWN;
 		}
+<<<<<<< HEAD
+=======
+		retries = server->nr_targets;
+>>>>>>> upstream/android-13
 	}
 
 	if (!ses->need_reconnect && !tcon->need_reconnect)
@@ -214,19 +276,31 @@ cifs_reconnect_tcon(struct cifs_tcon *tcon, int smb_command)
 	}
 
 	cifs_mark_open_files_invalid(tcon);
+<<<<<<< HEAD
 	rc = CIFSTCon(0, ses, tcon->treeName, tcon, nls_codepage);
+=======
+	rc = cifs_tree_connect(0, tcon, nls_codepage);
+>>>>>>> upstream/android-13
 	mutex_unlock(&ses->session_mutex);
 	cifs_dbg(FYI, "reconnect tcon rc = %d\n", rc);
 
 	if (rc) {
+<<<<<<< HEAD
 		printk_once(KERN_WARNING "reconnect tcon failed rc = %d\n", rc);
+=======
+		pr_warn_once("reconnect tcon failed rc = %d\n", rc);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
 	atomic_inc(&tconInfoReconnectCount);
 
 	/* tell server Unix caps we support */
+<<<<<<< HEAD
 	if (ses->capabilities & CAP_UNIX)
+=======
+	if (cap_unix(ses))
+>>>>>>> upstream/android-13
 		reset_cifs_unix_caps(0, tcon, NULL, NULL);
 
 	/*
@@ -452,7 +526,11 @@ cifs_enable_signing(struct TCP_Server_Info *server, bool mnt_sign_required)
 	/* If server requires signing, does client allow it? */
 	if (srv_sign_required) {
 		if (!mnt_sign_enabled) {
+<<<<<<< HEAD
 			cifs_dbg(VFS, "Server requires signing, but it's disabled in SecurityFlags!");
+=======
+			cifs_dbg(VFS, "Server requires signing, but it's disabled in SecurityFlags!\n");
+>>>>>>> upstream/android-13
 			return -ENOTSUPP;
 		}
 		server->sign = true;
@@ -461,18 +539,27 @@ cifs_enable_signing(struct TCP_Server_Info *server, bool mnt_sign_required)
 	/* If client requires signing, does server allow it? */
 	if (mnt_sign_required) {
 		if (!srv_sign_enabled) {
+<<<<<<< HEAD
 			cifs_dbg(VFS, "Server does not support signing!");
+=======
+			cifs_dbg(VFS, "Server does not support signing!\n");
+>>>>>>> upstream/android-13
 			return -ENOTSUPP;
 		}
 		server->sign = true;
 	}
 
 	if (cifs_rdma_enabled(server) && server->sign)
+<<<<<<< HEAD
 		cifs_dbg(VFS, "Signing is enabled, and RDMA read/write will be disabled");
+=======
+		cifs_dbg(VFS, "Signing is enabled, and RDMA read/write will be disabled\n");
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_CIFS_WEAK_PW_HASH
 static int
 decode_lanman_negprot_rsp(struct TCP_Server_Info *server, NEGOTIATE_RSP *pSMBr)
@@ -554,6 +641,8 @@ decode_lanman_negprot_rsp(struct TCP_Server_Info *server, NEGOTIATE_RSP *pSMBr)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static bool
 should_set_ext_sec_flag(enum securityEnum sectype)
 {
@@ -565,7 +654,11 @@ should_set_ext_sec_flag(enum securityEnum sectype)
 		if (global_secflags &
 		    (CIFSSEC_MAY_KRB5 | CIFSSEC_MAY_NTLMSSP))
 			return true;
+<<<<<<< HEAD
 		/* Fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		return false;
 	}
@@ -596,7 +689,11 @@ CIFSSMBNegotiate(const unsigned int xid, struct cifs_ses *ses)
 	pSMB->hdr.Flags2 |= (SMBFLG2_UNICODE | SMBFLG2_ERR_STATUS);
 
 	if (should_set_ext_sec_flag(ses->sectype)) {
+<<<<<<< HEAD
 		cifs_dbg(FYI, "Requesting extended security.");
+=======
+		cifs_dbg(FYI, "Requesting extended security\n");
+>>>>>>> upstream/android-13
 		pSMB->hdr.Flags2 |= SMBFLG2_EXT_SEC;
 	}
 
@@ -622,16 +719,23 @@ CIFSSMBNegotiate(const unsigned int xid, struct cifs_ses *ses)
 	server->dialect = le16_to_cpu(pSMBr->DialectIndex);
 	cifs_dbg(FYI, "Dialect: %d\n", server->dialect);
 	/* Check wct = 1 error case */
+<<<<<<< HEAD
 	if ((pSMBr->hdr.WordCount < 13) || (server->dialect == BAD_PROT)) {
+=======
+	if ((pSMBr->hdr.WordCount <= 13) || (server->dialect == BAD_PROT)) {
+>>>>>>> upstream/android-13
 		/* core returns wct = 1, but we do not ask for core - otherwise
 		small wct just comes when dialect index is -1 indicating we
 		could not negotiate a common dialect */
 		rc = -EOPNOTSUPP;
 		goto neg_err_exit;
+<<<<<<< HEAD
 	} else if (pSMBr->hdr.WordCount == 13) {
 		server->negflavor = CIFS_NEGFLAVOR_LANMAN;
 		rc = decode_lanman_negprot_rsp(server, pSMBr);
 		goto signing_check;
+=======
+>>>>>>> upstream/android-13
 	} else if (pSMBr->hdr.WordCount != 17) {
 		/* unknown wct */
 		rc = -EOPNOTSUPP;
@@ -650,6 +754,11 @@ CIFSSMBNegotiate(const unsigned int xid, struct cifs_ses *ses)
 	set_credits(server, server->maxReq);
 	/* probably no need to store and check maxvcs */
 	server->maxBuf = le32_to_cpu(pSMBr->MaxBufferSize);
+<<<<<<< HEAD
+=======
+	/* set up max_read for readpages check */
+	server->max_read = server->maxBuf;
+>>>>>>> upstream/android-13
 	server->max_rw = le32_to_cpu(pSMBr->MaxRawSize);
 	cifs_dbg(NOISY, "Max buf = %d\n", ses->server->maxBuf);
 	server->capabilities = le32_to_cpu(pSMBr->Capabilities);
@@ -671,7 +780,10 @@ CIFSSMBNegotiate(const unsigned int xid, struct cifs_ses *ses)
 		server->capabilities &= ~CAP_EXTENDED_SECURITY;
 	}
 
+<<<<<<< HEAD
 signing_check:
+=======
+>>>>>>> upstream/android-13
 	if (!rc)
 		rc = cifs_enable_signing(server, ses->sign);
 neg_err_exit:
@@ -731,9 +843,16 @@ static void
 cifs_echo_callback(struct mid_q_entry *mid)
 {
 	struct TCP_Server_Info *server = mid->callback_data;
+<<<<<<< HEAD
 
 	DeleteMidQEntry(mid);
 	add_credits(server, 1, CIFS_ECHO_OP);
+=======
+	struct cifs_credits credits = { .value = 1, .instance = 0 };
+
+	DeleteMidQEntry(mid);
+	add_credits(server, &credits, CIFS_ECHO_OP);
+>>>>>>> upstream/android-13
 }
 
 int
@@ -768,7 +887,11 @@ CIFSSMBEcho(struct TCP_Server_Info *server)
 	iov[1].iov_base = (char *)smb + 4;
 
 	rc = cifs_call_async(server, &rqst, NULL, cifs_echo_callback, NULL,
+<<<<<<< HEAD
 			     server, CIFS_ASYNC_OP | CIFS_ECHO_OP);
+=======
+			     server, CIFS_NON_BLOCKING | CIFS_ECHO_OP, NULL);
+>>>>>>> upstream/android-13
 	if (rc)
 		cifs_dbg(FYI, "Echo request failed: %d\n", rc);
 
@@ -850,10 +973,15 @@ PsxDelete:
 				       PATH_MAX, nls_codepage, remap);
 		name_len++;	/* trailing null */
 		name_len *= 2;
+<<<<<<< HEAD
 	} else { /* BB add path length overrun check */
 		name_len = strnlen(fileName, PATH_MAX);
 		name_len++;	/* trailing null */
 		strncpy(pSMB->FileName, fileName, name_len);
+=======
+	} else {
+		name_len = copy_path_name(pSMB->FileName, fileName);
+>>>>>>> upstream/android-13
 	}
 
 	params = 6 + name_len;
@@ -868,8 +996,16 @@ PsxDelete:
 				InformationLevel) - 4;
 	offset = param_offset + params;
 
+<<<<<<< HEAD
 	/* Setup pointer to Request Data (inode type) */
 	pRqD = (struct unlink_psx_rq *)(((char *)&pSMB->hdr.Protocol) + offset);
+=======
+	/* Setup pointer to Request Data (inode type).
+	 * Note that SMB offsets are from the beginning of SMB which is 4 bytes
+	 * in, after RFC1001 field
+	 */
+	pRqD = (struct unlink_psx_rq *)((char *)(pSMB) + offset + 4);
+>>>>>>> upstream/android-13
 	pRqD->type = cpu_to_le16(type);
 	pSMB->ParameterOffset = cpu_to_le16(param_offset);
 	pSMB->DataOffset = cpu_to_le16(offset);
@@ -923,10 +1059,15 @@ DelFileRetry:
 					      remap);
 		name_len++;	/* trailing null */
 		name_len *= 2;
+<<<<<<< HEAD
 	} else {		/* BB improve check for buffer overruns BB */
 		name_len = strnlen(name, PATH_MAX);
 		name_len++;	/* trailing null */
 		strncpy(pSMB->fileName, name, name_len);
+=======
+	} else {
+		name_len = copy_path_name(pSMB->fileName, name);
+>>>>>>> upstream/android-13
 	}
 	pSMB->SearchAttributes =
 	    cpu_to_le16(ATTR_READONLY | ATTR_HIDDEN | ATTR_SYSTEM);
@@ -970,10 +1111,15 @@ RmDirRetry:
 					      remap);
 		name_len++;	/* trailing null */
 		name_len *= 2;
+<<<<<<< HEAD
 	} else {		/* BB improve check for buffer overruns BB */
 		name_len = strnlen(name, PATH_MAX);
 		name_len++;	/* trailing null */
 		strncpy(pSMB->DirName, name, name_len);
+=======
+	} else {
+		name_len = copy_path_name(pSMB->DirName, name);
+>>>>>>> upstream/android-13
 	}
 
 	pSMB->BufferFormat = 0x04;
@@ -992,7 +1138,12 @@ RmDirRetry:
 }
 
 int
+<<<<<<< HEAD
 CIFSSMBMkDir(const unsigned int xid, struct cifs_tcon *tcon, const char *name,
+=======
+CIFSSMBMkDir(const unsigned int xid, struct inode *inode, umode_t mode,
+	     struct cifs_tcon *tcon, const char *name,
+>>>>>>> upstream/android-13
 	     struct cifs_sb_info *cifs_sb)
 {
 	int rc = 0;
@@ -1015,10 +1166,15 @@ MkDirRetry:
 					      remap);
 		name_len++;	/* trailing null */
 		name_len *= 2;
+<<<<<<< HEAD
 	} else {		/* BB improve check for buffer overruns BB */
 		name_len = strnlen(name, PATH_MAX);
 		name_len++;	/* trailing null */
 		strncpy(pSMB->DirName, name, name_len);
+=======
+	} else {
+		name_len = copy_path_name(pSMB->DirName, name);
+>>>>>>> upstream/android-13
 	}
 
 	pSMB->BufferFormat = 0x04;
@@ -1065,10 +1221,15 @@ PsxCreat:
 				       PATH_MAX, nls_codepage, remap);
 		name_len++;	/* trailing null */
 		name_len *= 2;
+<<<<<<< HEAD
 	} else {	/* BB improve the check for buffer overruns BB */
 		name_len = strnlen(name, PATH_MAX);
 		name_len++;	/* trailing null */
 		strncpy(pSMB->FileName, name, name_len);
+=======
+	} else {
+		name_len = copy_path_name(pSMB->FileName, name);
+>>>>>>> upstream/android-13
 	}
 
 	params = 6 + name_len;
@@ -1083,7 +1244,12 @@ PsxCreat:
 	param_offset = offsetof(struct smb_com_transaction2_spi_req,
 				InformationLevel) - 4;
 	offset = param_offset + params;
+<<<<<<< HEAD
 	pdata = (OPEN_PSX_REQ *)(((char *)&pSMB->hdr.Protocol) + offset);
+=======
+	/* SMB offsets are from the beginning of SMB which is 4 bytes in, after RFC1001 field */
+	pdata = (OPEN_PSX_REQ *)((char *)(pSMB) + offset + 4);
+>>>>>>> upstream/android-13
 	pdata->Level = cpu_to_le16(SMB_QUERY_FILE_UNIX_BASIC);
 	pdata->Permissions = cpu_to_le64(mode);
 	pdata->PosixOpenFlags = cpu_to_le32(posix_flags);
@@ -1210,7 +1376,11 @@ SMBLegacyOpen(const unsigned int xid, struct cifs_tcon *tcon,
 	    int *pOplock, FILE_ALL_INFO *pfile_info,
 	    const struct nls_table *nls_codepage, int remap)
 {
+<<<<<<< HEAD
 	int rc = -EACCES;
+=======
+	int rc;
+>>>>>>> upstream/android-13
 	OPENX_REQ *pSMB = NULL;
 	OPENX_RSP *pSMBr = NULL;
 	int bytes_returned;
@@ -1232,11 +1402,17 @@ OldOpenRetry:
 				      fileName, PATH_MAX, nls_codepage, remap);
 		name_len++;     /* trailing null */
 		name_len *= 2;
+<<<<<<< HEAD
 	} else {                /* BB improve check for buffer overruns BB */
 		count = 0;      /* no pad */
 		name_len = strnlen(fileName, PATH_MAX);
 		name_len++;     /* trailing null */
 		strncpy(pSMB->fileName, fileName, name_len);
+=======
+	} else {
+		count = 0;      /* no pad */
+		name_len = copy_path_name(pSMB->fileName, fileName);
+>>>>>>> upstream/android-13
 	}
 	if (*pOplock & REQ_OPLOCK)
 		pSMB->OpenFlags = cpu_to_le16(REQ_OPLOCK);
@@ -1313,7 +1489,11 @@ int
 CIFS_open(const unsigned int xid, struct cifs_open_parms *oparms, int *oplock,
 	  FILE_ALL_INFO *buf)
 {
+<<<<<<< HEAD
 	int rc = -EACCES;
+=======
+	int rc;
+>>>>>>> upstream/android-13
 	OPEN_REQ *req = NULL;
 	OPEN_RSP *rsp = NULL;
 	int bytes_returned;
@@ -1350,11 +1530,16 @@ openRetry:
 		/* BB improve check for buffer overruns BB */
 		/* no pad */
 		count = 0;
+<<<<<<< HEAD
 		name_len = strnlen(path, PATH_MAX);
 		/* trailing null */
 		name_len++;
 		req->NameLength = cpu_to_le16(name_len);
 		strncpy(req->fileName, path, name_len);
+=======
+		name_len = copy_path_name(req->fileName, path);
+		req->NameLength = cpu_to_le16(name_len);
+>>>>>>> upstream/android-13
 	}
 
 	if (*oplock & REQ_OPLOCK)
@@ -1411,6 +1596,10 @@ openRetry:
 	*oplock = rsp->OplockLevel;
 	/* cifs fid stays in le */
 	oparms->fid->netfid = rsp->Fid;
+<<<<<<< HEAD
+=======
+	oparms->fid->access = desired_access;
+>>>>>>> upstream/android-13
 
 	/* Let caller know file was created so we can set the mode. */
 	/* Do we care about the CreateAction in any other cases? */
@@ -1445,9 +1634,15 @@ cifs_discard_remaining_data(struct TCP_Server_Info *server)
 	while (remaining > 0) {
 		int length;
 
+<<<<<<< HEAD
 		length = cifs_read_from_socket(server, server->bigbuf,
 				min_t(unsigned int, remaining,
 				    CIFSMaxBufSize + MAX_HEADER_SIZE(server)));
+=======
+		length = cifs_discard_from_socket(server,
+				min_t(size_t, remaining,
+				      CIFSMaxBufSize + MAX_HEADER_SIZE(server)));
+>>>>>>> upstream/android-13
 		if (length < 0)
 			return length;
 		server->total_read += length;
@@ -1509,12 +1704,19 @@ cifs_readv_receive(struct TCP_Server_Info *server, struct mid_q_entry *mid)
 	if (server->ops->is_session_expired &&
 	    server->ops->is_session_expired(buf)) {
 		cifs_reconnect(server);
+<<<<<<< HEAD
 		wake_up(&server->response_q);
+=======
+>>>>>>> upstream/android-13
 		return -1;
 	}
 
 	if (server->ops->is_status_pending &&
+<<<<<<< HEAD
 	    server->ops->is_status_pending(buf, server, 0)) {
+=======
+	    server->ops->is_status_pending(buf, server)) {
+>>>>>>> upstream/android-13
 		cifs_discard_remaining_data(server);
 		return -1;
 	}
@@ -1619,9 +1821,17 @@ cifs_readv_callback(struct mid_q_entry *mid)
 	struct smb_rqst rqst = { .rq_iov = rdata->iov,
 				 .rq_nvec = 2,
 				 .rq_pages = rdata->pages,
+<<<<<<< HEAD
 				 .rq_npages = rdata->nr_pages,
 				 .rq_pagesz = rdata->pagesz,
 				 .rq_tailsz = rdata->tailsz };
+=======
+				 .rq_offset = rdata->page_offset,
+				 .rq_npages = rdata->nr_pages,
+				 .rq_pagesz = rdata->pagesz,
+				 .rq_tailsz = rdata->tailsz };
+	struct cifs_credits credits = { .value = 1, .instance = 0 };
+>>>>>>> upstream/android-13
 
 	cifs_dbg(FYI, "%s: mid=%llu state=%d result=%d bytes=%u\n",
 		 __func__, mid->mid, mid->mid_state, rdata->result,
@@ -1659,7 +1869,11 @@ cifs_readv_callback(struct mid_q_entry *mid)
 
 	queue_work(cifsiod_wq, &rdata->work);
 	DeleteMidQEntry(mid);
+<<<<<<< HEAD
 	add_credits(server, 1, 0);
+=======
+	add_credits(server, &credits, 0);
+>>>>>>> upstream/android-13
 }
 
 /* cifs_async_readv - send an async write, and set up mid to handle result */
@@ -1718,7 +1932,11 @@ cifs_async_readv(struct cifs_readdata *rdata)
 
 	kref_get(&rdata->refcount);
 	rc = cifs_call_async(tcon->ses->server, &rqst, cifs_readv_receive,
+<<<<<<< HEAD
 			     cifs_readv_callback, NULL, rdata, 0);
+=======
+			     cifs_readv_callback, NULL, rdata, 0, NULL);
+>>>>>>> upstream/android-13
 
 	if (rc == 0)
 		cifs_stats_inc(&tcon->stats.cifs_stats.num_reads);
@@ -2032,10 +2250,20 @@ cifs_writev_requeue(struct cifs_writedata *wdata)
 		wdata2->tailsz = tailsz;
 		wdata2->bytes = cur_len;
 
+<<<<<<< HEAD
 		wdata2->cfile = find_writable_file(CIFS_I(inode), false);
 		if (!wdata2->cfile) {
 			cifs_dbg(VFS, "No writable handle to retry writepages\n");
 			rc = -EBADF;
+=======
+		rc = cifs_get_writable_file(CIFS_I(inode), FIND_WR_ANY,
+					    &wdata2->cfile);
+		if (!wdata2->cfile) {
+			cifs_dbg(VFS, "No writable handle to retry writepages rc=%d\n",
+				 rc);
+			if (!is_retryable_error(rc))
+				rc = -EBADF;
+>>>>>>> upstream/android-13
 		} else {
 			wdata2->pid = wdata2->cfile->pid;
 			rc = server->ops->async_writev(wdata2,
@@ -2099,6 +2327,10 @@ cifs_writev_complete(struct work_struct *work)
 		else if (wdata->result < 0)
 			SetPageError(page);
 		end_page_writeback(page);
+<<<<<<< HEAD
+=======
+		cifs_readpage_to_fscache(inode, page);
+>>>>>>> upstream/android-13
 		put_page(page);
 	}
 	if (wdata->result != -EAGAIN)
@@ -2144,6 +2376,10 @@ cifs_writev_callback(struct mid_q_entry *mid)
 	struct cifs_tcon *tcon = tlink_tcon(wdata->cfile->tlink);
 	unsigned int written;
 	WRITE_RSP *smb = (WRITE_RSP *)mid->resp_buf;
+<<<<<<< HEAD
+=======
+	struct cifs_credits credits = { .value = 1, .instance = 0 };
+>>>>>>> upstream/android-13
 
 	switch (mid->mid_state) {
 	case MID_RESPONSE_RECEIVED:
@@ -2179,7 +2415,11 @@ cifs_writev_callback(struct mid_q_entry *mid)
 
 	queue_work(cifsiod_wq, &wdata->work);
 	DeleteMidQEntry(mid);
+<<<<<<< HEAD
 	add_credits(tcon->ses->server, 1, 0);
+=======
+	add_credits(tcon->ses->server, &credits, 0);
+>>>>>>> upstream/android-13
 }
 
 /* cifs_async_writev - send an async write, and set up mid to handle result */
@@ -2232,6 +2472,10 @@ cifs_async_writev(struct cifs_writedata *wdata,
 	rqst.rq_iov = iov;
 	rqst.rq_nvec = 2;
 	rqst.rq_pages = wdata->pages;
+<<<<<<< HEAD
+=======
+	rqst.rq_offset = wdata->page_offset;
+>>>>>>> upstream/android-13
 	rqst.rq_npages = wdata->nr_pages;
 	rqst.rq_pagesz = wdata->pagesz;
 	rqst.rq_tailsz = wdata->tailsz;
@@ -2256,7 +2500,11 @@ cifs_async_writev(struct cifs_writedata *wdata,
 
 	kref_get(&wdata->refcount);
 	rc = cifs_call_async(tcon->ses->server, &rqst, NULL,
+<<<<<<< HEAD
 				cifs_writev_callback, NULL, wdata, 0);
+=======
+			     cifs_writev_callback, NULL, wdata, 0, NULL);
+>>>>>>> upstream/android-13
 
 	if (rc == 0)
 		cifs_stats_inc(&tcon->stats.cifs_stats.num_writes);
@@ -2272,7 +2520,11 @@ int
 CIFSSMBWrite2(const unsigned int xid, struct cifs_io_parms *io_parms,
 	      unsigned int *nbytes, struct kvec *iov, int n_vec)
 {
+<<<<<<< HEAD
 	int rc = -EACCES;
+=======
+	int rc;
+>>>>>>> upstream/android-13
 	WRITE_REQ *pSMB = NULL;
 	int wct;
 	int smb_hdr_len;
@@ -2409,8 +2661,13 @@ int cifs_lockv(const unsigned int xid, struct cifs_tcon *tcon,
 	iov[1].iov_len = (num_unlock + num_lock) * sizeof(LOCKING_ANDX_RANGE);
 
 	cifs_stats_inc(&tcon->stats.cifs_stats.num_locks);
+<<<<<<< HEAD
 	rc = SendReceive2(xid, tcon->ses, iov, 2, &resp_buf_type, CIFS_NO_RESP,
 			  &rsp_iov);
+=======
+	rc = SendReceive2(xid, tcon->ses, iov, 2, &resp_buf_type,
+			  CIFS_NO_RSP_BUF, &rsp_iov);
+>>>>>>> upstream/android-13
 	cifs_small_buf_release(pSMB);
 	if (rc)
 		cifs_dbg(FYI, "Send error in cifs_lockv = %d\n", rc);
@@ -2441,7 +2698,11 @@ CIFSSMBLock(const unsigned int xid, struct cifs_tcon *tcon,
 
 	if (lockType == LOCKING_ANDX_OPLOCK_RELEASE) {
 		/* no response expected */
+<<<<<<< HEAD
 		flags = CIFS_ASYNC_OP | CIFS_OBREAK_OP;
+=======
+		flags = CIFS_NO_SRV_RSP | CIFS_NON_BLOCKING | CIFS_OBREAK_OP;
+>>>>>>> upstream/android-13
 		pSMB->Timeout = 0;
 	} else if (waitFlag) {
 		flags = CIFS_BLOCKING_OP; /* blocking operation, no timeout */
@@ -2537,8 +2798,14 @@ CIFSSMBPosixLock(const unsigned int xid, struct cifs_tcon *tcon,
 	pSMB->TotalDataCount = pSMB->DataCount;
 	pSMB->TotalParameterCount = pSMB->ParameterCount;
 	pSMB->ParameterOffset = cpu_to_le16(param_offset);
+<<<<<<< HEAD
 	parm_data = (struct cifs_posix_lock *)
 			(((char *) &pSMB->hdr.Protocol) + offset);
+=======
+	/* SMB offsets are from the beginning of SMB which is 4 bytes in, after RFC1001 field */
+	parm_data = (struct cifs_posix_lock *)
+			(((char *)pSMB) + offset + 4);
+>>>>>>> upstream/android-13
 
 	parm_data->lock_type = cpu_to_le16(lock_type);
 	if (waitFlag) {
@@ -2713,6 +2980,7 @@ renameRetry:
 				       remap);
 		name_len2 += 1 /* trailing null */  + 1 /* Signature word */ ;
 		name_len2 *= 2;	/* convert to bytes */
+<<<<<<< HEAD
 	} else {	/* BB improve the check for buffer overruns BB */
 		name_len = strnlen(from_name, PATH_MAX);
 		name_len++;	/* trailing null */
@@ -2722,6 +2990,12 @@ renameRetry:
 		pSMB->OldFileName[name_len] = 0x04;  /* 2nd buffer format */
 		strncpy(&pSMB->OldFileName[name_len + 1], to_name, name_len2);
 		name_len2++;	/* trailing null */
+=======
+	} else {
+		name_len = copy_path_name(pSMB->OldFileName, from_name);
+		name_len2 = copy_path_name(pSMB->OldFileName+name_len+1, to_name);
+		pSMB->OldFileName[name_len] = 0x04;  /* 2nd buffer format */
+>>>>>>> upstream/android-13
 		name_len2++;	/* signature byte */
 	}
 
@@ -2772,7 +3046,12 @@ int CIFSSMBRenameOpenFile(const unsigned int xid, struct cifs_tcon *pTcon,
 	param_offset = offsetof(struct smb_com_transaction2_sfi_req, Fid) - 4;
 	offset = param_offset + params;
 
+<<<<<<< HEAD
 	data_offset = (char *) (&pSMB->hdr.Protocol) + offset;
+=======
+	/* SMB offsets are from the beginning of SMB which is 4 bytes in, after RFC1001 field */
+	data_offset = (char *)(pSMB) + offset + 4;
+>>>>>>> upstream/android-13
 	rename_info = (struct set_file_rename *) data_offset;
 	pSMB->MaxParameterCount = cpu_to_le16(2);
 	pSMB->MaxDataCount = cpu_to_le16(1000); /* BB find max SMB from sess */
@@ -2863,6 +3142,7 @@ copyRetry:
 				       toName, PATH_MAX, nls_codepage, remap);
 		name_len2 += 1 /* trailing null */  + 1 /* Signature word */ ;
 		name_len2 *= 2; /* convert to bytes */
+<<<<<<< HEAD
 	} else { 	/* BB improve the check for buffer overruns BB */
 		name_len = strnlen(fromName, PATH_MAX);
 		name_len++;     /* trailing null */
@@ -2872,6 +3152,12 @@ copyRetry:
 		pSMB->OldFileName[name_len] = 0x04;  /* 2nd buffer format */
 		strncpy(&pSMB->OldFileName[name_len + 1], toName, name_len2);
 		name_len2++;    /* trailing null */
+=======
+	} else {
+		name_len = copy_path_name(pSMB->OldFileName, fromName);
+		pSMB->OldFileName[name_len] = 0x04;  /* 2nd buffer format */
+		name_len2 = copy_path_name(pSMB->OldFileName+name_len+1, toName);
+>>>>>>> upstream/android-13
 		name_len2++;    /* signature byte */
 	}
 
@@ -2922,10 +3208,15 @@ createSymLinkRetry:
 		name_len++;	/* trailing null */
 		name_len *= 2;
 
+<<<<<<< HEAD
 	} else {	/* BB improve the check for buffer overruns BB */
 		name_len = strnlen(fromName, PATH_MAX);
 		name_len++;	/* trailing null */
 		strncpy(pSMB->FileName, fromName, name_len);
+=======
+	} else {
+		name_len = copy_path_name(pSMB->FileName, fromName);
+>>>>>>> upstream/android-13
 	}
 	params = 6 + name_len;
 	pSMB->MaxSetupCount = 0;
@@ -2937,7 +3228,12 @@ createSymLinkRetry:
 				InformationLevel) - 4;
 	offset = param_offset + params;
 
+<<<<<<< HEAD
 	data_offset = (char *) (&pSMB->hdr.Protocol) + offset;
+=======
+	/* SMB offsets are from the beginning of SMB which is 4 bytes in, after RFC1001 field */
+	data_offset = (char *)pSMB + offset + 4;
+>>>>>>> upstream/android-13
 	if (pSMB->hdr.Flags2 & SMBFLG2_UNICODE) {
 		name_len_target =
 		    cifsConvertToUTF16((__le16 *) data_offset, toName,
@@ -2945,10 +3241,15 @@ createSymLinkRetry:
 					PATH_MAX, nls_codepage, remap);
 		name_len_target++;	/* trailing null */
 		name_len_target *= 2;
+<<<<<<< HEAD
 	} else {	/* BB improve the check for buffer overruns BB */
 		name_len_target = strnlen(toName, PATH_MAX);
 		name_len_target++;	/* trailing null */
 		strncpy(data_offset, toName, name_len_target);
+=======
+	} else {
+		name_len_target = copy_path_name(data_offset, toName);
+>>>>>>> upstream/android-13
 	}
 
 	pSMB->MaxParameterCount = cpu_to_le16(2);
@@ -3010,10 +3311,15 @@ createHardLinkRetry:
 		name_len++;	/* trailing null */
 		name_len *= 2;
 
+<<<<<<< HEAD
 	} else {	/* BB improve the check for buffer overruns BB */
 		name_len = strnlen(toName, PATH_MAX);
 		name_len++;	/* trailing null */
 		strncpy(pSMB->FileName, toName, name_len);
+=======
+	} else {
+		name_len = copy_path_name(pSMB->FileName, toName);
+>>>>>>> upstream/android-13
 	}
 	params = 6 + name_len;
 	pSMB->MaxSetupCount = 0;
@@ -3025,17 +3331,27 @@ createHardLinkRetry:
 				InformationLevel) - 4;
 	offset = param_offset + params;
 
+<<<<<<< HEAD
 	data_offset = (char *) (&pSMB->hdr.Protocol) + offset;
+=======
+	/* SMB offsets are from the beginning of SMB which is 4 bytes in, after RFC1001 field */
+	data_offset = (char *)pSMB + offset + 4;
+>>>>>>> upstream/android-13
 	if (pSMB->hdr.Flags2 & SMBFLG2_UNICODE) {
 		name_len_target =
 		    cifsConvertToUTF16((__le16 *) data_offset, fromName,
 				       PATH_MAX, nls_codepage, remap);
 		name_len_target++;	/* trailing null */
 		name_len_target *= 2;
+<<<<<<< HEAD
 	} else {	/* BB improve the check for buffer overruns BB */
 		name_len_target = strnlen(fromName, PATH_MAX);
 		name_len_target++;	/* trailing null */
 		strncpy(data_offset, fromName, name_len_target);
+=======
+	} else {
+		name_len_target = copy_path_name(data_offset, fromName);
+>>>>>>> upstream/android-13
 	}
 
 	pSMB->MaxParameterCount = cpu_to_le16(2);
@@ -3114,6 +3430,7 @@ winCreateHardLinkRetry:
 				       remap);
 		name_len2 += 1 /* trailing null */  + 1 /* Signature word */ ;
 		name_len2 *= 2;	/* convert to bytes */
+<<<<<<< HEAD
 	} else {	/* BB improve the check for buffer overruns BB */
 		name_len = strnlen(from_name, PATH_MAX);
 		name_len++;	/* trailing null */
@@ -3123,6 +3440,12 @@ winCreateHardLinkRetry:
 		pSMB->OldFileName[name_len] = 0x04;	/* 2nd buffer format */
 		strncpy(&pSMB->OldFileName[name_len + 1], to_name, name_len2);
 		name_len2++;	/* trailing null */
+=======
+	} else {
+		name_len = copy_path_name(pSMB->OldFileName, from_name);
+		pSMB->OldFileName[name_len] = 0x04;	/* 2nd buffer format */
+		name_len2 = copy_path_name(pSMB->OldFileName+name_len+1, to_name);
+>>>>>>> upstream/android-13
 		name_len2++;	/* signature byte */
 	}
 
@@ -3172,10 +3495,15 @@ querySymLinkRetry:
 					   remap);
 		name_len++;	/* trailing null */
 		name_len *= 2;
+<<<<<<< HEAD
 	} else {	/* BB improve the check for buffer overruns BB */
 		name_len = strnlen(searchName, PATH_MAX);
 		name_len++;	/* trailing null */
 		strncpy(pSMB->FileName, searchName, name_len);
+=======
+	} else {
+		name_len = copy_path_name(pSMB->FileName, searchName);
+>>>>>>> upstream/android-13
 	}
 
 	params = 2 /* level */  + 4 /* rsrvd */  + name_len /* incl null */ ;
@@ -3501,11 +3829,17 @@ static int cifs_copy_posix_acl(char *trgt, char *src, const int buflen,
 	return size;
 }
 
+<<<<<<< HEAD
 static __u16 convert_ace_to_cifs_ace(struct cifs_posix_ace *cifs_ace,
 				     const struct posix_acl_xattr_entry *local_ace)
 {
 	__u16 rc = 0; /* 0 = ACL converted ok */
 
+=======
+static void convert_ace_to_cifs_ace(struct cifs_posix_ace *cifs_ace,
+				     const struct posix_acl_xattr_entry *local_ace)
+{
+>>>>>>> upstream/android-13
 	cifs_ace->cifs_e_perm = le16_to_cpu(local_ace->e_perm);
 	cifs_ace->cifs_e_tag =  le16_to_cpu(local_ace->e_tag);
 	/* BB is there a better way to handle the large uid? */
@@ -3518,7 +3852,10 @@ static __u16 convert_ace_to_cifs_ace(struct cifs_posix_ace *cifs_ace,
 	cifs_dbg(FYI, "perm %d tag %d id %d\n",
 		 ace->e_perm, ace->e_tag, ace->e_id);
 */
+<<<<<<< HEAD
 	return rc;
+=======
+>>>>>>> upstream/android-13
 }
 
 /* Convert ACL from local Linux POSIX xattr to CIFS POSIX ACL wire format */
@@ -3554,6 +3891,7 @@ static __u16 ACL_to_cifs_posix(char *parm_data, const char *pACL,
 		cifs_dbg(FYI, "unknown ACL type %d\n", acl_type);
 		return 0;
 	}
+<<<<<<< HEAD
 	for (i = 0; i < count; i++) {
 		rc = convert_ace_to_cifs_ace(&cifs_acl->ace_array[i], &ace[i]);
 		if (rc != 0) {
@@ -3561,6 +3899,10 @@ static __u16 ACL_to_cifs_posix(char *parm_data, const char *pACL,
 			break;
 		}
 	}
+=======
+	for (i = 0; i < count; i++)
+		convert_ace_to_cifs_ace(&cifs_acl->ace_array[i], &ace[i]);
+>>>>>>> upstream/android-13
 	if (rc == 0) {
 		rc = (__u16)(count * sizeof(struct cifs_posix_ace));
 		rc += sizeof(struct cifs_posix_acl);
@@ -3600,10 +3942,15 @@ queryAclRetry:
 		name_len *= 2;
 		pSMB->FileName[name_len] = 0;
 		pSMB->FileName[name_len+1] = 0;
+<<<<<<< HEAD
 	} else {	/* BB improve the check for buffer overruns BB */
 		name_len = strnlen(searchName, PATH_MAX);
 		name_len++;     /* trailing null */
 		strncpy(pSMB->FileName, searchName, name_len);
+=======
+	} else {
+		name_len = copy_path_name(pSMB->FileName, searchName);
+>>>>>>> upstream/android-13
 	}
 
 	params = 2 /* level */  + 4 /* rsrvd */  + name_len /* incl null */ ;
@@ -3685,10 +4032,15 @@ setAclRetry:
 					   PATH_MAX, nls_codepage, remap);
 		name_len++;     /* trailing null */
 		name_len *= 2;
+<<<<<<< HEAD
 	} else {	/* BB improve the check for buffer overruns BB */
 		name_len = strnlen(fileName, PATH_MAX);
 		name_len++;     /* trailing null */
 		strncpy(pSMB->FileName, fileName, name_len);
+=======
+	} else {
+		name_len = copy_path_name(pSMB->FileName, fileName);
+>>>>>>> upstream/android-13
 	}
 	params = 6 + name_len;
 	pSMB->MaxParameterCount = cpu_to_le16(2);
@@ -3802,7 +4154,11 @@ GetExtAttrRetry:
 			struct file_chattr_info *pfinfo;
 			/* BB Do we need a cast or hash here ? */
 			if (count != 16) {
+<<<<<<< HEAD
 				cifs_dbg(FYI, "Illegal size ret in GetExtAttr\n");
+=======
+				cifs_dbg(FYI, "Invalid size ret in GetExtAttr\n");
+>>>>>>> upstream/android-13
 				rc = -EIO;
 				goto GetExtAttrOut;
 			}
@@ -3821,7 +4177,10 @@ GetExtAttrOut:
 
 #endif /* CONFIG_POSIX */
 
+<<<<<<< HEAD
 #ifdef CONFIG_CIFS_ACL
+=======
+>>>>>>> upstream/android-13
 /*
  * Initialize NT TRANSACT SMB into small smb request buffer.  This assumes that
  * all NT TRANSACTS that we init here have total parm and data under about 400
@@ -4065,7 +4424,10 @@ setCifsAclRetry:
 	return (rc);
 }
 
+<<<<<<< HEAD
 #endif /* CONFIG_CIFS_ACL */
+=======
+>>>>>>> upstream/android-13
 
 /* Legacy Query Path Information call for lookup to old servers such
    as Win9x/WinME */
@@ -4095,9 +4457,13 @@ QInfRetry:
 		name_len++;     /* trailing null */
 		name_len *= 2;
 	} else {
+<<<<<<< HEAD
 		name_len = strnlen(search_name, PATH_MAX);
 		name_len++;     /* trailing null */
 		strncpy(pSMB->FileName, search_name, name_len);
+=======
+		name_len = copy_path_name(pSMB->FileName, search_name);
+>>>>>>> upstream/android-13
 	}
 	pSMB->BufferFormat = 0x04;
 	name_len++; /* account for buffer type byte */
@@ -4182,7 +4548,11 @@ QFileInfoRetry:
 	rc = SendReceive(xid, tcon->ses, (struct smb_hdr *) pSMB,
 			 (struct smb_hdr *) pSMBr, &bytes_returned, 0);
 	if (rc) {
+<<<<<<< HEAD
 		cifs_dbg(FYI, "Send error in QFileInfo = %d", rc);
+=======
+		cifs_dbg(FYI, "Send error in QFileInfo = %d\n", rc);
+>>>>>>> upstream/android-13
 	} else {		/* decode response */
 		rc = validate_t2((struct smb_t2_rsp *)pSMBr);
 
@@ -4232,10 +4602,15 @@ QPathInfoRetry:
 				       PATH_MAX, nls_codepage, remap);
 		name_len++;	/* trailing null */
 		name_len *= 2;
+<<<<<<< HEAD
 	} else {	/* BB improve the check for buffer overruns BB */
 		name_len = strnlen(search_name, PATH_MAX);
 		name_len++;	/* trailing null */
 		strncpy(pSMB->FileName, search_name, name_len);
+=======
+	} else {
+		name_len = copy_path_name(pSMB->FileName, search_name);
+>>>>>>> upstream/android-13
 	}
 
 	params = 2 /* level */ + 4 /* reserved */ + name_len /* includes NUL */;
@@ -4351,7 +4726,11 @@ UnixQFileInfoRetry:
 	rc = SendReceive(xid, tcon->ses, (struct smb_hdr *) pSMB,
 			 (struct smb_hdr *) pSMBr, &bytes_returned, 0);
 	if (rc) {
+<<<<<<< HEAD
 		cifs_dbg(FYI, "Send error in UnixQFileInfo = %d", rc);
+=======
+		cifs_dbg(FYI, "Send error in UnixQFileInfo = %d\n", rc);
+>>>>>>> upstream/android-13
 	} else {		/* decode response */
 		rc = validate_t2((struct smb_t2_rsp *)pSMBr);
 
@@ -4401,10 +4780,15 @@ UnixQPathInfoRetry:
 				       PATH_MAX, nls_codepage, remap);
 		name_len++;	/* trailing null */
 		name_len *= 2;
+<<<<<<< HEAD
 	} else {	/* BB improve the check for buffer overruns BB */
 		name_len = strnlen(searchName, PATH_MAX);
 		name_len++;	/* trailing null */
 		strncpy(pSMB->FileName, searchName, name_len);
+=======
+	} else {
+		name_len = copy_path_name(pSMB->FileName, searchName);
+>>>>>>> upstream/android-13
 	}
 
 	params = 2 /* level */ + 4 /* reserved */ + name_len /* includes NUL */;
@@ -4435,7 +4819,11 @@ UnixQPathInfoRetry:
 	rc = SendReceive(xid, tcon->ses, (struct smb_hdr *) pSMB,
 			 (struct smb_hdr *) pSMBr, &bytes_returned, 0);
 	if (rc) {
+<<<<<<< HEAD
 		cifs_dbg(FYI, "Send error in UnixQPathInfo = %d", rc);
+=======
+		cifs_dbg(FYI, "Send error in UnixQPathInfo = %d\n", rc);
+>>>>>>> upstream/android-13
 	} else {		/* decode response */
 		rc = validate_t2((struct smb_t2_rsp *)pSMBr);
 
@@ -4504,6 +4892,7 @@ findFirstRetry:
 			pSMB->FileName[name_len+1] = 0;
 			name_len += 2;
 		}
+<<<<<<< HEAD
 	} else {	/* BB add check for overrun of SMB buf BB */
 		name_len = strnlen(searchName, PATH_MAX);
 /* BB fix here and in unicode clause above ie
@@ -4515,6 +4904,18 @@ findFirstRetry:
 			pSMB->FileName[name_len+1] = '*';
 			pSMB->FileName[name_len+2] = 0;
 			name_len += 3;
+=======
+	} else {
+		name_len = copy_path_name(pSMB->FileName, searchName);
+		if (msearch) {
+			if (WARN_ON_ONCE(name_len > PATH_MAX-2))
+				name_len = PATH_MAX-2;
+			/* overwrite nul byte */
+			pSMB->FileName[name_len-1] = CIFS_DIR_SEP(cifs_sb);
+			pSMB->FileName[name_len] = '*';
+			pSMB->FileName[name_len+1] = 0;
+			name_len += 2;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -4577,7 +4978,11 @@ findFirstRetry:
 				psrch_inf->unicode = false;
 
 			psrch_inf->ntwrk_buf_start = (char *)pSMBr;
+<<<<<<< HEAD
 			psrch_inf->smallBuf = 0;
+=======
+			psrch_inf->smallBuf = false;
+>>>>>>> upstream/android-13
 			psrch_inf->srch_entries_start =
 				(char *) &pSMBr->hdr.Protocol +
 					le16_to_cpu(pSMBr->t2.DataOffset);
@@ -4711,7 +5116,11 @@ int CIFSFindNext(const unsigned int xid, struct cifs_tcon *tcon,
 				cifs_buf_release(psrch_inf->ntwrk_buf_start);
 			psrch_inf->srch_entries_start = response_data;
 			psrch_inf->ntwrk_buf_start = (char *)pSMB;
+<<<<<<< HEAD
 			psrch_inf->smallBuf = 0;
+=======
+			psrch_inf->smallBuf = false;
+>>>>>>> upstream/android-13
 			if (parms->EndofSearch)
 				psrch_inf->endOfSearch = true;
 			else
@@ -4809,10 +5218,15 @@ GetInodeNumberRetry:
 					   remap);
 		name_len++;     /* trailing null */
 		name_len *= 2;
+<<<<<<< HEAD
 	} else {	/* BB improve the check for buffer overruns BB */
 		name_len = strnlen(search_name, PATH_MAX);
 		name_len++;     /* trailing null */
 		strncpy(pSMB->FileName, search_name, name_len);
+=======
+	} else {
+		name_len = copy_path_name(pSMB->FileName, search_name);
+>>>>>>> upstream/android-13
 	}
 
 	params = 2 /* level */  + 4 /* rsrvd */  + name_len /* incl null */ ;
@@ -4858,7 +5272,11 @@ GetInodeNumberRetry:
 			struct file_internal_info *pfinfo;
 			/* BB Do we need a cast or hash here ? */
 			if (count < 8) {
+<<<<<<< HEAD
 				cifs_dbg(FYI, "Illegal size ret in QryIntrnlInf\n");
+=======
+				cifs_dbg(FYI, "Invalid size ret in QryIntrnlInf\n");
+>>>>>>> upstream/android-13
 				rc = -EIO;
 				goto GetInodeNumOut;
 			}
@@ -4919,9 +5337,13 @@ getDFSRetry:
 		name_len++;	/* trailing null */
 		name_len *= 2;
 	} else {	/* BB improve the check for buffer overruns BB */
+<<<<<<< HEAD
 		name_len = strnlen(search_name, PATH_MAX);
 		name_len++;	/* trailing null */
 		strncpy(pSMB->RequestFileName, search_name, name_len);
+=======
+		name_len = copy_path_name(pSMB->RequestFileName, search_name);
+>>>>>>> upstream/android-13
 	}
 
 	if (ses->server->sign)
@@ -5049,6 +5471,16 @@ oldQFSInfoRetry:
 				le16_to_cpu(response_data->BytesPerSector) *
 				le32_to_cpu(response_data->
 					SectorsPerAllocationUnit);
+<<<<<<< HEAD
+=======
+			/*
+			 * much prefer larger but if server doesn't report
+			 * a valid size than 4K is a reasonable minimum
+			 */
+			if (FSData->f_bsize < 512)
+				FSData->f_bsize = 4096;
+
+>>>>>>> upstream/android-13
 			FSData->f_blocks =
 			       le32_to_cpu(response_data->TotalAllocationUnits);
 			FSData->f_bfree = FSData->f_bavail =
@@ -5129,6 +5561,16 @@ QFSInfoRetry:
 			    le32_to_cpu(response_data->BytesPerSector) *
 			    le32_to_cpu(response_data->
 					SectorsPerAllocationUnit);
+<<<<<<< HEAD
+=======
+			/*
+			 * much prefer larger but if server doesn't report
+			 * a valid size than 4K is a reasonable minimum
+			 */
+			if (FSData->f_bsize < 512)
+				FSData->f_bsize = 4096;
+
+>>>>>>> upstream/android-13
 			FSData->f_blocks =
 			    le64_to_cpu(response_data->TotalAllocationUnits);
 			FSData->f_bfree = FSData->f_bavail =
@@ -5492,6 +5934,16 @@ QFSPosixRetry:
 				 data_offset);
 			FSData->f_bsize =
 					le32_to_cpu(response_data->BlockSize);
+<<<<<<< HEAD
+=======
+			/*
+			 * much prefer larger but if server doesn't report
+			 * a valid size than 4K is a reasonable minimum
+			 */
+			if (FSData->f_bsize < 512)
+				FSData->f_bsize = 4096;
+
+>>>>>>> upstream/android-13
 			FSData->f_blocks =
 					le64_to_cpu(response_data->TotalBlocks);
 			FSData->f_bfree =
@@ -5553,10 +6005,15 @@ SetEOFRetry:
 				       PATH_MAX, cifs_sb->local_nls, remap);
 		name_len++;	/* trailing null */
 		name_len *= 2;
+<<<<<<< HEAD
 	} else {	/* BB improve the check for buffer overruns BB */
 		name_len = strnlen(file_name, PATH_MAX);
 		name_len++;	/* trailing null */
 		strncpy(pSMB->FileName, file_name, name_len);
+=======
+	} else {
+		name_len = copy_path_name(pSMB->FileName, file_name);
+>>>>>>> upstream/android-13
 	}
 	params = 6 + name_len;
 	data_count = sizeof(struct file_end_of_file_info);
@@ -5657,9 +6114,15 @@ CIFSSMBSetFileSize(const unsigned int xid, struct cifs_tcon *tcon,
 	pSMB->TotalDataCount = pSMB->DataCount;
 	pSMB->TotalParameterCount = pSMB->ParameterCount;
 	pSMB->ParameterOffset = cpu_to_le16(param_offset);
+<<<<<<< HEAD
 	parm_data =
 		(struct file_end_of_file_info *) (((char *) &pSMB->hdr.Protocol)
 				+ offset);
+=======
+	/* SMB offsets are from the beginning of SMB which is 4 bytes in, after RFC1001 field */
+	parm_data =
+		(struct file_end_of_file_info *)(((char *)pSMB) + offset + 4);
+>>>>>>> upstream/android-13
 	pSMB->DataOffset = cpu_to_le16(offset);
 	parm_data->FileSize = cpu_to_le64(size);
 	pSMB->Fid = cfile->fid.netfid;
@@ -5792,7 +6255,12 @@ CIFSSMBSetFileDisposition(const unsigned int xid, struct cifs_tcon *tcon,
 	param_offset = offsetof(struct smb_com_transaction2_sfi_req, Fid) - 4;
 	offset = param_offset + params;
 
+<<<<<<< HEAD
 	data_offset = (char *) (&pSMB->hdr.Protocol) + offset;
+=======
+	/* SMB offsets are from the beginning of SMB which is 4 bytes in, after RFC1001 field */
+	data_offset = (char *)(pSMB) + offset + 4;
+>>>>>>> upstream/android-13
 
 	count = 1;
 	pSMB->MaxParameterCount = cpu_to_le16(2);
@@ -5822,10 +6290,49 @@ CIFSSMBSetFileDisposition(const unsigned int xid, struct cifs_tcon *tcon,
 	return rc;
 }
 
+<<<<<<< HEAD
 int
 CIFSSMBSetPathInfo(const unsigned int xid, struct cifs_tcon *tcon,
 		   const char *fileName, const FILE_BASIC_INFO *data,
 		   const struct nls_table *nls_codepage, int remap)
+=======
+static int
+CIFSSMBSetPathInfoFB(const unsigned int xid, struct cifs_tcon *tcon,
+		     const char *fileName, const FILE_BASIC_INFO *data,
+		     const struct nls_table *nls_codepage,
+		     struct cifs_sb_info *cifs_sb)
+{
+	int oplock = 0;
+	struct cifs_open_parms oparms;
+	struct cifs_fid fid;
+	int rc;
+
+	oparms.tcon = tcon;
+	oparms.cifs_sb = cifs_sb;
+	oparms.desired_access = GENERIC_WRITE;
+	oparms.create_options = cifs_create_options(cifs_sb, 0);
+	oparms.disposition = FILE_OPEN;
+	oparms.path = fileName;
+	oparms.fid = &fid;
+	oparms.reconnect = false;
+
+	rc = CIFS_open(xid, &oparms, &oplock, NULL);
+	if (rc)
+		goto out;
+
+	rc = CIFSSMBSetFileInfo(xid, tcon, data, fid.netfid, current->tgid);
+	CIFSSMBClose(xid, tcon, fid.netfid);
+out:
+
+	return rc;
+}
+
+int
+CIFSSMBSetPathInfo(const unsigned int xid, struct cifs_tcon *tcon,
+		   const char *fileName, const FILE_BASIC_INFO *data,
+		   const struct nls_table *nls_codepage,
+		     struct cifs_sb_info *cifs_sb)
+>>>>>>> upstream/android-13
 {
 	TRANSACTION2_SPI_REQ *pSMB = NULL;
 	TRANSACTION2_SPI_RSP *pSMBr = NULL;
@@ -5834,6 +6341,10 @@ CIFSSMBSetPathInfo(const unsigned int xid, struct cifs_tcon *tcon,
 	int bytes_returned = 0;
 	char *data_offset;
 	__u16 params, param_offset, offset, byte_count, count;
+<<<<<<< HEAD
+=======
+	int remap = cifs_remap(cifs_sb);
+>>>>>>> upstream/android-13
 
 	cifs_dbg(FYI, "In SetTimes\n");
 
@@ -5849,10 +6360,15 @@ SetTimesRetry:
 				       PATH_MAX, nls_codepage, remap);
 		name_len++;	/* trailing null */
 		name_len *= 2;
+<<<<<<< HEAD
 	} else {	/* BB improve the check for buffer overruns BB */
 		name_len = strnlen(fileName, PATH_MAX);
 		name_len++;	/* trailing null */
 		strncpy(pSMB->FileName, fileName, name_len);
+=======
+	} else {
+		name_len = copy_path_name(pSMB->FileName, fileName);
+>>>>>>> upstream/android-13
 	}
 
 	params = 6 + name_len;
@@ -5898,6 +6414,7 @@ SetTimesRetry:
 	if (rc == -EAGAIN)
 		goto SetTimesRetry;
 
+<<<<<<< HEAD
 	return rc;
 }
 
@@ -5952,6 +6469,14 @@ SetAttrLgcyRetry:
 	return rc;
 }
 #endif /* temporarily unneeded SetAttr legacy function */
+=======
+	if (rc == -EOPNOTSUPP)
+		return CIFSSMBSetPathInfoFB(xid, tcon, fileName, data,
+					    nls_codepage, cifs_sb);
+
+	return rc;
+}
+>>>>>>> upstream/android-13
 
 static void
 cifs_fill_unix_set_info(FILE_UNIX_BASIC_INFO *data_offset,
@@ -6093,10 +6618,15 @@ setPermsRetry:
 				       PATH_MAX, nls_codepage, remap);
 		name_len++;	/* trailing null */
 		name_len *= 2;
+<<<<<<< HEAD
 	} else {	/* BB improve the check for buffer overruns BB */
 		name_len = strnlen(file_name, PATH_MAX);
 		name_len++;	/* trailing null */
 		strncpy(pSMB->FileName, file_name, name_len);
+=======
+	} else {
+		name_len = copy_path_name(pSMB->FileName, file_name);
+>>>>>>> upstream/android-13
 	}
 
 	params = 6 + name_len;
@@ -6112,9 +6642,14 @@ setPermsRetry:
 	param_offset = offsetof(struct smb_com_transaction2_spi_req,
 				InformationLevel) - 4;
 	offset = param_offset + params;
+<<<<<<< HEAD
 	data_offset =
 	    (FILE_UNIX_BASIC_INFO *) ((char *) &pSMB->hdr.Protocol +
 				      offset);
+=======
+	/* SMB offsets are from the beginning of SMB which is 4 bytes in, after RFC1001 field */
+	data_offset = (FILE_UNIX_BASIC_INFO *)((char *) pSMB + offset + 4);
+>>>>>>> upstream/android-13
 	memset(data_offset, 0, count);
 	pSMB->DataOffset = cpu_to_le16(offset);
 	pSMB->ParameterOffset = cpu_to_le16(param_offset);
@@ -6188,10 +6723,15 @@ QAllEAsRetry:
 				       PATH_MAX, nls_codepage, remap);
 		list_len++;	/* trailing null */
 		list_len *= 2;
+<<<<<<< HEAD
 	} else {	/* BB improve the check for buffer overruns BB */
 		list_len = strnlen(searchName, PATH_MAX);
 		list_len++;	/* trailing null */
 		strncpy(pSMB->FileName, searchName, list_len);
+=======
+	} else {
+		list_len = copy_path_name(pSMB->FileName, searchName);
+>>>>>>> upstream/android-13
 	}
 
 	params = 2 /* level */ + 4 /* reserved */ + list_len /* includes NUL */;
@@ -6370,10 +6910,15 @@ SetEARetry:
 				       PATH_MAX, nls_codepage, remap);
 		name_len++;	/* trailing null */
 		name_len *= 2;
+<<<<<<< HEAD
 	} else {	/* BB improve the check for buffer overruns BB */
 		name_len = strnlen(fileName, PATH_MAX);
 		name_len++;	/* trailing null */
 		strncpy(pSMB->FileName, fileName, name_len);
+=======
+	} else {
+		name_len = copy_path_name(pSMB->FileName, fileName);
+>>>>>>> upstream/android-13
 	}
 
 	params = 6 + name_len;
@@ -6447,6 +6992,7 @@ SetEARetry:
 	return rc;
 }
 #endif
+<<<<<<< HEAD
 
 #ifdef CONFIG_CIFS_DNOTIFY_EXPERIMENTAL /* BB unused temporarily */
 /*
@@ -6537,3 +7083,5 @@ int CIFSSMBNotify(const unsigned int xid, struct cifs_tcon *tcon,
 	return rc;
 }
 #endif /* was needed for dnotify, and will be needed for inotify when VFS fix */
+=======
+>>>>>>> upstream/android-13

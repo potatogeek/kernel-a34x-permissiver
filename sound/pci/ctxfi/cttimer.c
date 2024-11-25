@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * PCM timer handling on ctxfi
  *
  * This source file is released under GPL v2 license (no other versions).
  * See the COPYING file included in the main directory of this source
  * distribution for the license terms and conditions.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * PCM timer handling on ctxfi
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>

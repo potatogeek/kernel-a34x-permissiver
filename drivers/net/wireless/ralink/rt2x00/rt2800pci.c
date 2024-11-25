@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 	Copyright (C) 2009 - 2010 Ivo van Doorn <IvDoorn@gmail.com>
 	Copyright (C) 2009 Alban Browaeys <prahal@yahoo.com>
@@ -9,6 +13,7 @@
 	Copyright (C) 2009 Bart Zolnierkiewicz <bzolnier@gmail.com>
 	<http://rt2x00.serialmonkey.com>
 
+<<<<<<< HEAD
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation; either version 2 of the License, or
@@ -21,6 +26,8 @@
 
 	You should have received a copy of the GNU General Public License
 	along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -322,6 +329,10 @@ static const struct ieee80211_ops rt2800pci_mac80211_ops = {
 	.get_survey		= rt2800_get_survey,
 	.get_ringparam		= rt2x00mac_get_ringparam,
 	.tx_frames_pending	= rt2x00mac_tx_frames_pending,
+<<<<<<< HEAD
+=======
+	.reconfig_complete	= rt2x00mac_reconfig_complete,
+>>>>>>> upstream/android-13
 };
 
 static const struct rt2800_ops rt2800pci_rt2800_ops = {
@@ -337,6 +348,10 @@ static const struct rt2800_ops rt2800pci_rt2800_ops = {
 	.drv_write_firmware	= rt2800pci_write_firmware,
 	.drv_init_registers	= rt2800mmio_init_registers,
 	.drv_get_txwi		= rt2800mmio_get_txwi,
+<<<<<<< HEAD
+=======
+	.drv_get_dma_done	= rt2800mmio_get_dma_done,
+>>>>>>> upstream/android-13
 };
 
 static const struct rt2x00lib_ops rt2800pci_rt2x00_ops = {
@@ -346,7 +361,11 @@ static const struct rt2x00lib_ops rt2800pci_rt2x00_ops = {
 	.tbtt_tasklet		= rt2800mmio_tbtt_tasklet,
 	.rxdone_tasklet		= rt2800mmio_rxdone_tasklet,
 	.autowake_tasklet	= rt2800mmio_autowake_tasklet,
+<<<<<<< HEAD
 	.probe_hw		= rt2800_probe_hw,
+=======
+	.probe_hw		= rt2800mmio_probe_hw,
+>>>>>>> upstream/android-13
 	.get_firmware_name	= rt2800pci_get_firmware_name,
 	.check_firmware		= rt2800_check_firmware,
 	.load_firmware		= rt2800_load_firmware,
@@ -361,10 +380,18 @@ static const struct rt2x00lib_ops rt2800pci_rt2x00_ops = {
 	.link_tuner		= rt2800_link_tuner,
 	.gain_calibration	= rt2800_gain_calibration,
 	.vco_calibration	= rt2800_vco_calibration,
+<<<<<<< HEAD
 	.start_queue		= rt2800mmio_start_queue,
 	.kick_queue		= rt2800mmio_kick_queue,
 	.stop_queue		= rt2800mmio_stop_queue,
 	.flush_queue		= rt2x00mmio_flush_queue,
+=======
+	.watchdog		= rt2800_watchdog,
+	.start_queue		= rt2800mmio_start_queue,
+	.kick_queue		= rt2800mmio_kick_queue,
+	.stop_queue		= rt2800mmio_stop_queue,
+	.flush_queue		= rt2800mmio_flush_queue,
+>>>>>>> upstream/android-13
 	.write_tx_desc		= rt2800mmio_write_tx_desc,
 	.write_tx_data		= rt2800_write_tx_data,
 	.write_beacon		= rt2800_write_beacon,
@@ -377,6 +404,10 @@ static const struct rt2x00lib_ops rt2800pci_rt2x00_ops = {
 	.config_erp		= rt2800_config_erp,
 	.config_ant		= rt2800_config_ant,
 	.config			= rt2800_config,
+<<<<<<< HEAD
+=======
+	.pre_reset_hw		= rt2800_pre_reset_hw,
+>>>>>>> upstream/android-13
 };
 
 static const struct rt2x00_ops rt2800pci_ops = {
@@ -446,7 +477,10 @@ static const struct pci_device_id rt2800pci_device_table[] = {
 MODULE_AUTHOR(DRV_PROJECT);
 MODULE_VERSION(DRV_VERSION);
 MODULE_DESCRIPTION("Ralink RT2800 PCI & PCMCIA Wireless LAN driver.");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("Ralink RT2860 PCI & PCMCIA chipset based cards");
+=======
+>>>>>>> upstream/android-13
 MODULE_FIRMWARE(FIRMWARE_RT2860);
 MODULE_DEVICE_TABLE(pci, rt2800pci_device_table);
 MODULE_LICENSE("GPL");
@@ -462,8 +496,12 @@ static struct pci_driver rt2800pci_driver = {
 	.id_table	= rt2800pci_device_table,
 	.probe		= rt2800pci_probe,
 	.remove		= rt2x00pci_remove,
+<<<<<<< HEAD
 	.suspend	= rt2x00pci_suspend,
 	.resume		= rt2x00pci_resume,
+=======
+	.driver.pm	= &rt2x00pci_pm_ops,
+>>>>>>> upstream/android-13
 };
 
 module_pci_driver(rt2800pci_driver);

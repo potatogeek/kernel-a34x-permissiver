@@ -143,7 +143,11 @@
 				compatible = "smsc,usb3503a";
 				reg = <0x8>;
 				connect-gpios = <&gpioext2 1 GPIO_ACTIVE_HIGH>;
+<<<<<<< HEAD
 				intn-gpios = <&gpioext2 0 GPIO_ACTIVE_LOW>;
+=======
+				intn-gpios = <&gpioext2 0 GPIO_ACTIVE_HIGH>;
+>>>>>>> upstream/android-13
 				initial-mode = <1>;
 			};
 		};

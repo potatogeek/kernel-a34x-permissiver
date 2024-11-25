@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * mm/readahead.c - address_space-level file readahead.
  *
@@ -21,6 +25,11 @@
 #include <linux/mm_inline.h>
 #include <linux/blk-cgroup.h>
 #include <linux/fadvise.h>
+<<<<<<< HEAD
+=======
+#include <linux/sched/mm.h>
+#include <trace/hooks/mm.h>
+>>>>>>> upstream/android-13
 
 #include "internal.h"
 
@@ -81,6 +90,11 @@ static void read_cache_pages_invalidate_pages(struct address_space *mapping,
  * @data: private data for the callback routine.
  *
  * Hides the details of the LRU cache etc from the filesystems.
+<<<<<<< HEAD
+=======
+ *
+ * Returns: %0 on success, error return by @filler otherwise
+>>>>>>> upstream/android-13
  */
 int read_cache_pages(struct address_space *mapping, struct list_head *pages,
 			int (*filler)(void *, struct page *), void *data)
@@ -110,6 +124,7 @@ int read_cache_pages(struct address_space *mapping, struct list_head *pages,
 
 EXPORT_SYMBOL(read_cache_pages);
 
+<<<<<<< HEAD
 static int read_pages(struct address_space *mapping, struct file *filp,
 		struct list_head *pages, unsigned int nr_pages, gfp_t gfp)
 {
@@ -189,17 +204,140 @@ unsigned int __do_page_cache_readahead(struct address_space *mapping,
 				read_pages(mapping, filp, &page_pool, nr_pages,
 						gfp_mask);
 			nr_pages = 0;
+=======
+gfp_t readahead_gfp_mask(struct address_space *x)
+{
+	gfp_t mask = mapping_gfp_mask(x) | __GFP_NORETRY | __GFP_NOWARN;
+
+	trace_android_rvh_set_readahead_gfp_mask(&mask);
+	return mask;
+}
+EXPORT_SYMBOL_GPL(readahead_gfp_mask);
+
+static void read_pages(struct readahead_control *rac, struct list_head *pages,
+		bool skip_page)
+{
+	const struct address_space_operations *aops = rac->mapping->a_ops;
+	struct page *page;
+	struct blk_plug plug;
+
+	if (!readahead_count(rac))
+		goto out;
+
+	blk_start_plug(&plug);
+
+	if (aops->readahead) {
+		aops->readahead(rac);
+		/* Clean up the remaining pages */
+		while ((page = readahead_page(rac))) {
+			unlock_page(page);
+			put_page(page);
+		}
+	} else if (aops->readpages) {
+		aops->readpages(rac->file, rac->mapping, pages,
+				readahead_count(rac));
+		/* Clean up the remaining pages */
+		put_pages_list(pages);
+		rac->_index += rac->_nr_pages;
+		rac->_nr_pages = 0;
+	} else {
+		while ((page = readahead_page(rac))) {
+			aops->readpage(rac->file, page);
+			put_page(page);
+		}
+	}
+
+	blk_finish_plug(&plug);
+
+	BUG_ON(!list_empty(pages));
+	BUG_ON(readahead_count(rac));
+
+out:
+	if (skip_page)
+		rac->_index++;
+}
+
+/**
+ * page_cache_ra_unbounded - Start unchecked readahead.
+ * @ractl: Readahead control.
+ * @nr_to_read: The number of pages to read.
+ * @lookahead_size: Where to start the next readahead.
+ *
+ * This function is for filesystems to call when they want to start
+ * readahead beyond a file's stated i_size.  This is almost certainly
+ * not the function you want to call.  Use page_cache_async_readahead()
+ * or page_cache_sync_readahead() instead.
+ *
+ * Context: File is referenced by caller.  Mutexes may be held by caller.
+ * May sleep, but will not reenter filesystem to reclaim memory.
+ */
+void page_cache_ra_unbounded(struct readahead_control *ractl,
+		unsigned long nr_to_read, unsigned long lookahead_size)
+{
+	struct address_space *mapping = ractl->mapping;
+	unsigned long index = readahead_index(ractl);
+	LIST_HEAD(page_pool);
+	gfp_t gfp_mask = readahead_gfp_mask(mapping);
+	unsigned long i;
+
+	/*
+	 * Partway through the readahead operation, we will have added
+	 * locked pages to the page cache, but will not yet have submitted
+	 * them for I/O.  Adding another page may need to allocate memory,
+	 * which can trigger memory reclaim.  Telling the VM we're in
+	 * the middle of a filesystem operation will cause it to not
+	 * touch file-backed pages, preventing a deadlock.  Most (all?)
+	 * filesystems already specify __GFP_NOFS in their mapping's
+	 * gfp_mask, but let's be explicit here.
+	 */
+	unsigned int nofs = memalloc_nofs_save();
+
+	filemap_invalidate_lock_shared(mapping);
+	/*
+	 * Preallocate as many pages as we will need.
+	 */
+	for (i = 0; i < nr_to_read; i++) {
+		struct page *page = xa_load(&mapping->i_pages, index + i);
+
+		if (page && !xa_is_value(page)) {
+			/*
+			 * Page already present?  Kick off the current batch
+			 * of contiguous pages before continuing with the
+			 * next batch.  This page may be the one we would
+			 * have intended to mark as Readahead, but we don't
+			 * have a stable reference to this page, and it's
+			 * not worth getting one just for that.
+			 */
+			read_pages(ractl, &page_pool, true);
+			i = ractl->_index + ractl->_nr_pages - index - 1;
+>>>>>>> upstream/android-13
 			continue;
 		}
 
 		page = __page_cache_alloc(gfp_mask);
 		if (!page)
 			break;
+<<<<<<< HEAD
 		page->index = page_offset;
 		list_add(&page->lru, &page_pool);
 		if (page_idx == nr_to_read - lookahead_size)
 			SetPageReadahead(page);
 		nr_pages++;
+=======
+		if (mapping->a_ops->readpages) {
+			page->index = index + i;
+			list_add(&page->lru, &page_pool);
+		} else if (add_to_page_cache_lru(page, mapping, index + i,
+					gfp_mask) < 0) {
+			put_page(page);
+			read_pages(ractl, &page_pool, true);
+			i = ractl->_index + ractl->_nr_pages - index - 1;
+			continue;
+		}
+		if (i == nr_to_read - lookahead_size)
+			SetPageReadahead(page);
+		ractl->_nr_pages++;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -207,17 +345,52 @@ unsigned int __do_page_cache_readahead(struct address_space *mapping,
 	 * uptodate then the caller will launch readpage again, and
 	 * will then handle the error.
 	 */
+<<<<<<< HEAD
 	if (nr_pages)
 		read_pages(mapping, filp, &page_pool, nr_pages, gfp_mask);
 	BUG_ON(!list_empty(&page_pool));
 out:
 	return nr_pages;
+=======
+	read_pages(ractl, &page_pool, false);
+	filemap_invalidate_unlock_shared(mapping);
+	memalloc_nofs_restore(nofs);
+}
+EXPORT_SYMBOL_GPL(page_cache_ra_unbounded);
+
+/*
+ * do_page_cache_ra() actually reads a chunk of disk.  It allocates
+ * the pages first, then submits them for I/O. This avoids the very bad
+ * behaviour which would occur if page allocations are causing VM writeback.
+ * We really don't want to intermingle reads and writes like that.
+ */
+void do_page_cache_ra(struct readahead_control *ractl,
+		unsigned long nr_to_read, unsigned long lookahead_size)
+{
+	struct inode *inode = ractl->mapping->host;
+	unsigned long index = readahead_index(ractl);
+	loff_t isize = i_size_read(inode);
+	pgoff_t end_index;	/* The last page we want to read */
+
+	if (isize == 0)
+		return;
+
+	end_index = (isize - 1) >> PAGE_SHIFT;
+	if (index > end_index)
+		return;
+	/* Don't read past the page containing the last byte of the file */
+	if (nr_to_read > end_index - index)
+		nr_to_read = end_index - index + 1;
+
+	page_cache_ra_unbounded(ractl, nr_to_read, lookahead_size);
+>>>>>>> upstream/android-13
 }
 
 /*
  * Chunk the readahead into 2 megabyte units, so that we don't pin too much
  * memory at once.
  */
+<<<<<<< HEAD
 int force_page_cache_readahead(struct address_space *mapping, struct file *filp,
 			       pgoff_t offset, unsigned long nr_to_read)
 {
@@ -227,24 +400,52 @@ int force_page_cache_readahead(struct address_space *mapping, struct file *filp,
 
 	if (unlikely(!mapping->a_ops->readpage && !mapping->a_ops->readpages))
 		return -EINVAL;
+=======
+void force_page_cache_ra(struct readahead_control *ractl,
+		unsigned long nr_to_read)
+{
+	struct address_space *mapping = ractl->mapping;
+	struct file_ra_state *ra = ractl->ra;
+	struct backing_dev_info *bdi = inode_to_bdi(mapping->host);
+	unsigned long max_pages, index;
+
+	if (unlikely(!mapping->a_ops->readpage && !mapping->a_ops->readpages &&
+			!mapping->a_ops->readahead))
+		return;
+>>>>>>> upstream/android-13
 
 	/*
 	 * If the request exceeds the readahead window, allow the read to
 	 * be up to the optimal hardware IO size
 	 */
+<<<<<<< HEAD
 	max_pages = max_t(unsigned long, bdi->io_pages, ra->ra_pages);
 	nr_to_read = min(nr_to_read, max_pages);
+=======
+	index = readahead_index(ractl);
+	max_pages = max_t(unsigned long, bdi->io_pages, ra->ra_pages);
+	nr_to_read = min_t(unsigned long, nr_to_read, max_pages);
+>>>>>>> upstream/android-13
 	while (nr_to_read) {
 		unsigned long this_chunk = (2 * 1024 * 1024) / PAGE_SIZE;
 
 		if (this_chunk > nr_to_read)
 			this_chunk = nr_to_read;
+<<<<<<< HEAD
 		__do_page_cache_readahead(mapping, filp, offset, this_chunk, 0);
 
 		offset += this_chunk;
 		nr_to_read -= this_chunk;
 	}
 	return 0;
+=======
+		ractl->_index = index;
+		do_page_cache_ra(ractl, this_chunk, 0);
+
+		index += this_chunk;
+		nr_to_read -= this_chunk;
+	}
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -272,6 +473,7 @@ static unsigned long get_init_ra_size(unsigned long size, unsigned long max)
  *  return it as the new window size.
  */
 static unsigned long get_next_ra_size(struct file_ra_state *ra,
+<<<<<<< HEAD
 						unsigned long max)
 {
 	unsigned long cur = ra->size;
@@ -283,6 +485,17 @@ static unsigned long get_next_ra_size(struct file_ra_state *ra,
 		newsize = 2 * cur;
 
 	return min(newsize, max);
+=======
+				      unsigned long max)
+{
+	unsigned long cur = ra->size;
+
+	if (cur < max / 16)
+		return 4 * cur;
+	if (cur <= max / 2)
+		return 2 * cur;
+	return max;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -325,21 +538,36 @@ static unsigned long get_next_ra_size(struct file_ra_state *ra,
  */
 
 /*
+<<<<<<< HEAD
  * Count contiguously cached pages from @offset-1 to @offset-@max,
+=======
+ * Count contiguously cached pages from @index-1 to @index-@max,
+>>>>>>> upstream/android-13
  * this count is a conservative estimation of
  * 	- length of the sequential read sequence, or
  * 	- thrashing threshold in memory tight systems
  */
 static pgoff_t count_history_pages(struct address_space *mapping,
+<<<<<<< HEAD
 				   pgoff_t offset, unsigned long max)
+=======
+				   pgoff_t index, unsigned long max)
+>>>>>>> upstream/android-13
 {
 	pgoff_t head;
 
 	rcu_read_lock();
+<<<<<<< HEAD
 	head = page_cache_prev_hole(mapping, offset - 1, max);
 	rcu_read_unlock();
 
 	return offset - 1 - head;
+=======
+	head = page_cache_prev_miss(mapping, index - 1, max);
+	rcu_read_unlock();
+
+	return index - 1 - head;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -347,13 +575,21 @@ static pgoff_t count_history_pages(struct address_space *mapping,
  */
 static int try_context_readahead(struct address_space *mapping,
 				 struct file_ra_state *ra,
+<<<<<<< HEAD
 				 pgoff_t offset,
+=======
+				 pgoff_t index,
+>>>>>>> upstream/android-13
 				 unsigned long req_size,
 				 unsigned long max)
 {
 	pgoff_t size;
 
+<<<<<<< HEAD
 	size = count_history_pages(mapping, offset, max);
+=======
+	size = count_history_pages(mapping, index, max);
+>>>>>>> upstream/android-13
 
 	/*
 	 * not enough history pages:
@@ -366,10 +602,17 @@ static int try_context_readahead(struct address_space *mapping,
 	 * starts from beginning of file:
 	 * it is a strong indication of long-run stream (or whole-file-read)
 	 */
+<<<<<<< HEAD
 	if (size >= offset)
 		size *= 2;
 
 	ra->start = offset;
+=======
+	if (size >= index)
+		size *= 2;
+
+	ra->start = index;
+>>>>>>> upstream/android-13
 	ra->size = min(size + req_size, max);
 	ra->async_size = 1;
 
@@ -379,6 +622,7 @@ static int try_context_readahead(struct address_space *mapping,
 /*
  * A minimal readahead algorithm for trivial sequential/random reads.
  */
+<<<<<<< HEAD
 static unsigned long
 ondemand_readahead(struct address_space *mapping,
 		   struct file_ra_state *ra, struct file *filp,
@@ -389,6 +633,17 @@ ondemand_readahead(struct address_space *mapping,
 	unsigned long max_pages = ra->ra_pages;
 	unsigned long add_pages;
 	pgoff_t prev_offset;
+=======
+static void ondemand_readahead(struct readahead_control *ractl,
+		bool hit_readahead_marker, unsigned long req_size)
+{
+	struct backing_dev_info *bdi = inode_to_bdi(ractl->mapping->host);
+	struct file_ra_state *ra = ractl->ra;
+	unsigned long max_pages = ra->ra_pages;
+	unsigned long add_pages;
+	unsigned long index = readahead_index(ractl);
+	pgoff_t prev_index;
+>>>>>>> upstream/android-13
 
 	/*
 	 * If the request exceeds the readahead window, allow the read to
@@ -400,6 +655,7 @@ ondemand_readahead(struct address_space *mapping,
 	/*
 	 * start of file
 	 */
+<<<<<<< HEAD
 	if (!offset)
 		goto initial_readahead;
 
@@ -409,6 +665,17 @@ ondemand_readahead(struct address_space *mapping,
 	 */
 	if ((offset == (ra->start + ra->size - ra->async_size) ||
 	     offset == (ra->start + ra->size))) {
+=======
+	if (!index)
+		goto initial_readahead;
+
+	/*
+	 * It's the expected callback index, assume sequential access.
+	 * Ramp up sizes, and push forward the readahead window.
+	 */
+	if ((index == (ra->start + ra->size - ra->async_size) ||
+	     index == (ra->start + ra->size))) {
+>>>>>>> upstream/android-13
 		ra->start += ra->size;
 		ra->size = get_next_ra_size(ra, max_pages);
 		ra->async_size = ra->size;
@@ -425,6 +692,7 @@ ondemand_readahead(struct address_space *mapping,
 		pgoff_t start;
 
 		rcu_read_lock();
+<<<<<<< HEAD
 		start = page_cache_next_hole(mapping, offset + 1, max_pages);
 		rcu_read_unlock();
 
@@ -433,6 +701,17 @@ ondemand_readahead(struct address_space *mapping,
 
 		ra->start = start;
 		ra->size = start - offset;	/* old async_size */
+=======
+		start = page_cache_next_miss(ractl->mapping, index + 1,
+				max_pages);
+		rcu_read_unlock();
+
+		if (!start || start - index > max_pages)
+			return;
+
+		ra->start = start;
+		ra->size = start - index;	/* old async_size */
+>>>>>>> upstream/android-13
 		ra->size += req_size;
 		ra->size = get_next_ra_size(ra, max_pages);
 		ra->async_size = ra->size;
@@ -447,28 +726,49 @@ ondemand_readahead(struct address_space *mapping,
 
 	/*
 	 * sequential cache miss
+<<<<<<< HEAD
 	 * trivial case: (offset - prev_offset) == 1
 	 * unaligned reads: (offset - prev_offset) == 0
 	 */
 	prev_offset = (unsigned long long)ra->prev_pos >> PAGE_SHIFT;
 	if (offset - prev_offset <= 1UL)
+=======
+	 * trivial case: (index - prev_index) == 1
+	 * unaligned reads: (index - prev_index) == 0
+	 */
+	prev_index = (unsigned long long)ra->prev_pos >> PAGE_SHIFT;
+	if (index - prev_index <= 1UL)
+>>>>>>> upstream/android-13
 		goto initial_readahead;
 
 	/*
 	 * Query the page cache and look for the traces(cached history pages)
 	 * that a sequential stream would leave behind.
 	 */
+<<<<<<< HEAD
 	if (try_context_readahead(mapping, ra, offset, req_size, max_pages))
+=======
+	if (try_context_readahead(ractl->mapping, ra, index, req_size,
+			max_pages))
+>>>>>>> upstream/android-13
 		goto readit;
 
 	/*
 	 * standalone, small random read
 	 * Read as is, and do not pollute the readahead state.
 	 */
+<<<<<<< HEAD
 	return __do_page_cache_readahead(mapping, filp, offset, req_size, 0);
 
 initial_readahead:
 	ra->start = offset;
+=======
+	do_page_cache_ra(ractl, req_size, 0);
+	return;
+
+initial_readahead:
+	ra->start = index;
+>>>>>>> upstream/android-13
 	ra->size = get_init_ra_size(req_size, max_pages);
 	ra->async_size = ra->size > req_size ? ra->size - req_size : ra->size;
 
@@ -479,7 +779,11 @@ readit:
 	 * the resulted next readahead window into the current one.
 	 * Take care of maximum IO pages as above.
 	 */
+<<<<<<< HEAD
 	if (offset == ra->start && ra->size == ra->async_size) {
+=======
+	if (index == ra->start && ra->size == ra->async_size) {
+>>>>>>> upstream/android-13
 		add_pages = get_next_ra_size(ra, max_pages);
 		if (ra->size + add_pages <= max_pages) {
 			ra->async_size = add_pages;
@@ -490,6 +794,7 @@ readit:
 		}
 	}
 
+<<<<<<< HEAD
 	return ra_submit(ra, mapping, filp);
 }
 
@@ -521,10 +826,40 @@ void page_cache_sync_readahead(struct address_space *mapping,
 	/* be dumb */
 	if (filp && (filp->f_mode & FMODE_RANDOM)) {
 		force_page_cache_readahead(mapping, filp, offset, req_size);
+=======
+	ractl->_index = ra->start;
+	do_page_cache_ra(ractl, ra->size, ra->async_size);
+}
+
+void page_cache_sync_ra(struct readahead_control *ractl,
+		unsigned long req_count)
+{
+	bool do_forced_ra = ractl->file && (ractl->file->f_mode & FMODE_RANDOM);
+
+	/*
+	 * Even if read-ahead is disabled, issue this request as read-ahead
+	 * as we'll need it to satisfy the requested range. The forced
+	 * read-ahead will do the right thing and limit the read to just the
+	 * requested range, which we'll set to 1 page for this case.
+	 */
+	if (!ractl->ra->ra_pages || blk_cgroup_congested()) {
+		if (!ractl->file)
+			return;
+		req_count = 1;
+		do_forced_ra = true;
+	}
+
+	trace_android_vh_page_cache_forced_ra(ractl, req_count, &do_forced_ra);
+
+	/* be dumb */
+	if (do_forced_ra) {
+		force_page_cache_ra(ractl, req_count);
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	/* do read-ahead */
+<<<<<<< HEAD
 	ondemand_readahead(mapping, ra, filp, false, offset, req_size);
 }
 EXPORT_SYMBOL_GPL(page_cache_sync_readahead);
@@ -552,6 +887,17 @@ page_cache_async_readahead(struct address_space *mapping,
 {
 	/* no read-ahead */
 	if (!ra->ra_pages)
+=======
+	ondemand_readahead(ractl, false, req_count);
+}
+EXPORT_SYMBOL_GPL(page_cache_sync_ra);
+
+void page_cache_async_ra(struct readahead_control *ractl,
+		struct page *page, unsigned long req_count)
+{
+	/* no read-ahead */
+	if (!ractl->ra->ra_pages)
+>>>>>>> upstream/android-13
 		return;
 
 	/*
@@ -565,16 +911,26 @@ page_cache_async_readahead(struct address_space *mapping,
 	/*
 	 * Defer asynchronous read-ahead on IO congestion.
 	 */
+<<<<<<< HEAD
 	if (inode_read_congested(mapping->host))
+=======
+	if (inode_read_congested(ractl->mapping->host))
+>>>>>>> upstream/android-13
 		return;
 
 	if (blk_cgroup_congested())
 		return;
 
 	/* do read-ahead */
+<<<<<<< HEAD
 	ondemand_readahead(mapping, ra, filp, true, offset, req_size);
 }
 EXPORT_SYMBOL_GPL(page_cache_async_readahead);
+=======
+	ondemand_readahead(ractl, true, req_count);
+}
+EXPORT_SYMBOL_GPL(page_cache_async_ra);
+>>>>>>> upstream/android-13
 
 ssize_t ksys_readahead(int fd, loff_t offset, size_t count)
 {
@@ -606,3 +962,81 @@ SYSCALL_DEFINE3(readahead, int, fd, loff_t, offset, size_t, count)
 {
 	return ksys_readahead(fd, offset, count);
 }
+<<<<<<< HEAD
+=======
+
+/**
+ * readahead_expand - Expand a readahead request
+ * @ractl: The request to be expanded
+ * @new_start: The revised start
+ * @new_len: The revised size of the request
+ *
+ * Attempt to expand a readahead request outwards from the current size to the
+ * specified size by inserting locked pages before and after the current window
+ * to increase the size to the new window.  This may involve the insertion of
+ * THPs, in which case the window may get expanded even beyond what was
+ * requested.
+ *
+ * The algorithm will stop if it encounters a conflicting page already in the
+ * pagecache and leave a smaller expansion than requested.
+ *
+ * The caller must check for this by examining the revised @ractl object for a
+ * different expansion than was requested.
+ */
+void readahead_expand(struct readahead_control *ractl,
+		      loff_t new_start, size_t new_len)
+{
+	struct address_space *mapping = ractl->mapping;
+	struct file_ra_state *ra = ractl->ra;
+	pgoff_t new_index, new_nr_pages;
+	gfp_t gfp_mask = readahead_gfp_mask(mapping);
+
+	new_index = new_start / PAGE_SIZE;
+
+	/* Expand the leading edge downwards */
+	while (ractl->_index > new_index) {
+		unsigned long index = ractl->_index - 1;
+		struct page *page = xa_load(&mapping->i_pages, index);
+
+		if (page && !xa_is_value(page))
+			return; /* Page apparently present */
+
+		page = __page_cache_alloc(gfp_mask);
+		if (!page)
+			return;
+		if (add_to_page_cache_lru(page, mapping, index, gfp_mask) < 0) {
+			put_page(page);
+			return;
+		}
+
+		ractl->_nr_pages++;
+		ractl->_index = page->index;
+	}
+
+	new_len += new_start - readahead_pos(ractl);
+	new_nr_pages = DIV_ROUND_UP(new_len, PAGE_SIZE);
+
+	/* Expand the trailing edge upwards */
+	while (ractl->_nr_pages < new_nr_pages) {
+		unsigned long index = ractl->_index + ractl->_nr_pages;
+		struct page *page = xa_load(&mapping->i_pages, index);
+
+		if (page && !xa_is_value(page))
+			return; /* Page apparently present */
+
+		page = __page_cache_alloc(gfp_mask);
+		if (!page)
+			return;
+		if (add_to_page_cache_lru(page, mapping, index, gfp_mask) < 0) {
+			put_page(page);
+			return;
+		}
+		ractl->_nr_pages++;
+		if (ra) {
+			ra->size++;
+			ra->async_size++;
+		}
+	}
+}
+EXPORT_SYMBOL(readahead_expand);
+>>>>>>> upstream/android-13

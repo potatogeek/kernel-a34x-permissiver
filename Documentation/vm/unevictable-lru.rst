@@ -33,7 +33,11 @@ reclaim in Linux.  The problems have been observed at customer sites on large
 memory x86_64 systems.
 
 To illustrate this with an example, a non-NUMA x86_64 platform with 128GB of
+<<<<<<< HEAD
 main memory will have over 32 million 4k pages in a single zone.  When a large
+=======
+main memory will have over 32 million 4k pages in a single node.  When a large
+>>>>>>> upstream/android-13
 fraction of these pages are not evictable for any reason [see below], vmscan
 will spend a lot of time scanning the LRU lists looking for the small fraction
 of pages that are evictable.  This can result in a situation where all CPUs are
@@ -55,7 +59,11 @@ unevictable, either by definition or by circumstance, in the future.
 The Unevictable Page List
 -------------------------
 
+<<<<<<< HEAD
 The Unevictable LRU infrastructure consists of an additional, per-zone, LRU list
+=======
+The Unevictable LRU infrastructure consists of an additional, per-node, LRU list
+>>>>>>> upstream/android-13
 called the "unevictable" list and an associated page flag, PG_unevictable, to
 indicate that the page is being managed on the unevictable list.
 
@@ -84,6 +92,7 @@ The unevictable list does not differentiate between file-backed and anonymous,
 swap-backed pages.  This differentiation is only important while the pages are,
 in fact, evictable.
 
+<<<<<<< HEAD
 The unevictable list benefits from the "arrayification" of the per-zone LRU
 lists and statistics originally proposed and posted by Christoph Lameter.
 
@@ -93,16 +102,29 @@ under the zone lru_lock.  This allows us to prevent the stranding of pages on
 the unevictable list when one task has the page isolated from the LRU and other
 tasks are changing the "evictability" state of the page.
 
+=======
+The unevictable list benefits from the "arrayification" of the per-node LRU
+lists and statistics originally proposed and posted by Christoph Lameter.
+
+>>>>>>> upstream/android-13
 
 Memory Control Group Interaction
 --------------------------------
 
 The unevictable LRU facility interacts with the memory control group [aka
+<<<<<<< HEAD
 memory controller; see Documentation/cgroup-v1/memory.txt] by extending the
 lru_list enum.
 
 The memory controller data structure automatically gets a per-zone unevictable
 list as a result of the "arrayification" of the per-zone LRU lists (one per
+=======
+memory controller; see Documentation/admin-guide/cgroup-v1/memory.rst] by extending the
+lru_list enum.
+
+The memory controller data structure automatically gets a per-node unevictable
+list as a result of the "arrayification" of the per-node LRU lists (one per
+>>>>>>> upstream/android-13
 lru_list enum element).  The memory controller tracks the movement of pages to
 and from the unevictable list.
 
@@ -143,7 +165,11 @@ using a number of wrapper functions:
 	Query the address space, and return true if it is completely
 	unevictable.
 
+<<<<<<< HEAD
 These are currently used in two places in the kernel:
+=======
+These are currently used in three places in the kernel:
+>>>>>>> upstream/android-13
 
  (1) By ramfs to mark the address spaces of its inodes when they are created,
      and this mark remains for the life of the inode.
@@ -154,6 +180,13 @@ These are currently used in two places in the kernel:
      swapped out; the application must touch the pages manually if it wants to
      ensure they're in memory.
 
+<<<<<<< HEAD
+=======
+ (3) By the i915 driver to mark pinned address space until it's unpinned. The
+     amount of unevictable memory marked by i915 driver is roughly the bounded
+     object size in debugfs/dri/0/i915_gem_objects.
+
+>>>>>>> upstream/android-13
 
 Detecting Unevictable Pages
 ---------------------------
@@ -192,7 +225,11 @@ for the sake of expediency, to leave a unevictable page on one of the regular
 active/inactive LRU lists for vmscan to deal with.  vmscan checks for such
 pages in all of the shrink_{active|inactive|page}_list() functions and will
 "cull" such pages that it encounters: that is, it diverts those pages to the
+<<<<<<< HEAD
 unevictable list for the zone being scanned.
+=======
+unevictable list for the node being scanned.
+>>>>>>> upstream/android-13
 
 There may be situations where a page is mapped into a VM_LOCKED VMA, but the
 page is not marked as PG_mlocked.  Such pages will make it all the way to
@@ -324,7 +361,11 @@ If the page was NOT already mlocked, mlock_vma_page() attempts to isolate the
 page from the LRU, as it is likely on the appropriate active or inactive list
 at that time.  If the isolate_lru_page() succeeds, mlock_vma_page() will put
 back the page - by calling putback_lru_page() - which will notice that the page
+<<<<<<< HEAD
 is now mlocked and divert the page to the zone's unevictable list.  If
+=======
+is now mlocked and divert the page to the node's unevictable list.  If
+>>>>>>> upstream/android-13
 mlock_vma_page() is unable to isolate the page from the LRU, vmscan will handle
 it later if and when it attempts to reclaim the page.
 
@@ -391,6 +432,7 @@ mlocked, munlock_vma_page() updates that zone statistics for the number of
 mlocked pages.  Note, however, that at this point we haven't checked whether
 the page is mapped by other VM_LOCKED VMAs.
 
+<<<<<<< HEAD
 We can't call try_to_munlock(), the function that walks the reverse map to
 check for other VM_LOCKED VMAs, without first isolating the page from the LRU.
 try_to_munlock() is a variant of try_to_unmap() and thus requires that the page
@@ -399,6 +441,16 @@ isolate_lru_page() could fail, in which case we couldn't try_to_munlock().  So,
 we go ahead and clear PG_mlocked up front, as this might be the only chance we
 have.  If we can successfully isolate the page, we go ahead and
 try_to_munlock(), which will restore the PG_mlocked flag and update the zone
+=======
+We can't call page_mlock(), the function that walks the reverse map to
+check for other VM_LOCKED VMAs, without first isolating the page from the LRU.
+page_mlock() is a variant of try_to_unmap() and thus requires that the page
+not be on an LRU list [more on these below].  However, the call to
+isolate_lru_page() could fail, in which case we can't call page_mlock().  So,
+we go ahead and clear PG_mlocked up front, as this might be the only chance we
+have.  If we can successfully isolate the page, we go ahead and call
+page_mlock(), which will restore the PG_mlocked flag and update the zone
+>>>>>>> upstream/android-13
 page statistics if it finds another VMA holding the page mlocked.  If we fail
 to isolate the page, we'll have left a potentially mlocked page on the LRU.
 This is fine, because we'll catch it later if and if vmscan tries to reclaim
@@ -435,7 +487,11 @@ Compacting MLOCKED Pages
 
 The unevictable LRU can be scanned for compactable regions and the default
 behavior is to do so.  /proc/sys/vm/compact_unevictable_allowed controls
+<<<<<<< HEAD
 this behavior (see Documentation/sysctl/vm.txt).  Once scanning of the
+=======
+this behavior (see Documentation/admin-guide/sysctl/vm.rst).  Once scanning of the
+>>>>>>> upstream/android-13
 unevictable LRU is enabled, the work of compaction is mostly handled by
 the page migration code and the same work flow as described in MIGRATING
 MLOCKED PAGES will apply.
@@ -547,6 +603,7 @@ munlock or munmap system calls, mm teardown (munlock_vma_pages_all), reclaim,
 holepunching, and truncation of file pages and their anonymous COWed pages.
 
 
+<<<<<<< HEAD
 try_to_munlock() Reverse Map Scan
 ---------------------------------
 
@@ -554,11 +611,17 @@ try_to_munlock() Reverse Map Scan
    [!] TODO/FIXME: a better name might be page_mlocked() - analogous to the
    page_referenced() reverse map walker.
 
+=======
+page_mlock() Reverse Map Scan
+---------------------------------
+
+>>>>>>> upstream/android-13
 When munlock_vma_page() [see section :ref:`munlock()/munlockall() System Call
 Handling <munlock_munlockall_handling>` above] tries to munlock a
 page, it needs to determine whether or not the page is mapped by any
 VM_LOCKED VMA without actually attempting to unmap all PTEs from the
 page.  For this purpose, the unevictable/mlock infrastructure
+<<<<<<< HEAD
 introduced a variant of try_to_unmap() called try_to_munlock().
 
 try_to_munlock() calls the same functions as try_to_unmap() for anonymous and
@@ -572,6 +635,18 @@ Note that try_to_munlock()'s reverse map walk must visit every VMA in a page's
 reverse map to determine that a page is NOT mapped into any VM_LOCKED VMA.
 However, the scan can terminate when it encounters a VM_LOCKED VMA.
 Although try_to_munlock() might be called a great many times when munlocking a
+=======
+introduced a variant of try_to_unmap() called page_mlock().
+
+page_mlock() walks the respective reverse maps looking for VM_LOCKED VMAs. When
+such a VMA is found the page is mlocked via mlock_vma_page(). This undoes the
+pre-clearing of the page's PG_mlocked done by munlock_vma_page.
+
+Note that page_mlock()'s reverse map walk must visit every VMA in a page's
+reverse map to determine that a page is NOT mapped into any VM_LOCKED VMA.
+However, the scan can terminate when it encounters a VM_LOCKED VMA.
+Although page_mlock() might be called a great many times when munlocking a
+>>>>>>> upstream/android-13
 large region or tearing down a large address space that has been mlocked via
 mlockall(), overall this is a fairly rare event.
 
@@ -599,12 +674,20 @@ Some examples of these unevictable pages on the LRU lists are:
      unevictable list in mlock_vma_page().
 
 shrink_inactive_list() also diverts any unevictable pages that it finds on the
+<<<<<<< HEAD
 inactive lists to the appropriate zone's unevictable list.
+=======
+inactive lists to the appropriate node's unevictable list.
+>>>>>>> upstream/android-13
 
 shrink_inactive_list() should only see SHM_LOCK'd pages that became SHM_LOCK'd
 after shrink_active_list() had moved them to the inactive list, or pages mapped
 into VM_LOCKED VMAs that munlock_vma_page() couldn't isolate from the LRU to
+<<<<<<< HEAD
 recheck via try_to_munlock().  shrink_inactive_list() won't notice the latter,
+=======
+recheck via page_mlock().  shrink_inactive_list() won't notice the latter,
+>>>>>>> upstream/android-13
 but will pass on to shrink_page_list().
 
 shrink_page_list() again culls obviously unevictable pages that it could

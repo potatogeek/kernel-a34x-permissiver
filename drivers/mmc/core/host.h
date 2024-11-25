@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  linux/drivers/mmc/core/host.h
  *
  *  Copyright (C) 2003 Russell King, All Rights Reserved.
  *  Copyright 2007 Pierre Ossman
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _MMC_CORE_HOST_H
 #define _MMC_CORE_HOST_H
@@ -24,6 +31,15 @@ int mmc_retune(struct mmc_host *host);
 void mmc_retune_pause(struct mmc_host *host);
 void mmc_retune_unpause(struct mmc_host *host);
 
+<<<<<<< HEAD
+=======
+static inline void mmc_retune_clear(struct mmc_host *host)
+{
+	host->retune_now = 0;
+	host->need_retune = 0;
+}
+
+>>>>>>> upstream/android-13
 static inline void mmc_retune_hold_now(struct mmc_host *host)
 {
 	host->retune_now = 0;
@@ -80,5 +96,14 @@ static inline bool mmc_card_hs400es(struct mmc_card *card)
 	return card->host->ios.enhanced_strobe;
 }
 
+<<<<<<< HEAD
+=======
+static inline bool mmc_card_sd_express(struct mmc_host *host)
+{
+	return host->ios.timing == MMC_TIMING_SD_EXP ||
+		host->ios.timing == MMC_TIMING_SD_EXP_1_2V;
+}
+
+>>>>>>> upstream/android-13
 #endif
 

@@ -9,6 +9,10 @@
  */
 
 #include <linux/async.h>
+<<<<<<< HEAD
+=======
+#include <linux/device/bus.h>
+>>>>>>> upstream/android-13
 #include <linux/device.h>
 #include <linux/module.h>
 #include <linux/errno.h>
@@ -187,18 +191,26 @@ static ssize_t unbind_store(struct device_driver *drv, const char *buf,
 
 	dev = bus_find_device_by_name(bus, NULL, buf);
 	if (dev && dev->driver == drv) {
+<<<<<<< HEAD
 		if (dev->parent && dev->bus->need_parent_lock)
 			device_lock(dev->parent);
 		device_release_driver(dev);
 		if (dev->parent && dev->bus->need_parent_lock)
 			device_unlock(dev->parent);
+=======
+		device_driver_detach(dev);
+>>>>>>> upstream/android-13
 		err = count;
 	}
 	put_device(dev);
 	bus_put(bus);
 	return err;
 }
+<<<<<<< HEAD
 static DRIVER_ATTR_IGNORE_LOCKDEP(unbind, S_IWUSR, NULL, unbind_store);
+=======
+static DRIVER_ATTR_IGNORE_LOCKDEP(unbind, 0200, NULL, unbind_store);
+>>>>>>> upstream/android-13
 
 /*
  * Manually attach a device to a driver.
@@ -213,6 +225,7 @@ static ssize_t bind_store(struct device_driver *drv, const char *buf,
 	int err = -ENODEV;
 
 	dev = bus_find_device_by_name(bus, NULL, buf);
+<<<<<<< HEAD
 	if (dev && dev->driver == NULL && driver_match_device(drv, dev)) {
 		if (dev->parent && bus->need_parent_lock)
 			device_lock(dev->parent);
@@ -228,12 +241,20 @@ static ssize_t bind_store(struct device_driver *drv, const char *buf,
 		} else if (err == 0) {
 			/* driver didn't accept device */
 			err = -ENODEV;
+=======
+	if (dev && driver_match_device(drv, dev)) {
+		err = device_driver_attach(drv, dev);
+		if (!err) {
+			/* success */
+			err = count;
+>>>>>>> upstream/android-13
 		}
 	}
 	put_device(dev);
 	bus_put(bus);
 	return err;
 }
+<<<<<<< HEAD
 static DRIVER_ATTR_IGNORE_LOCKDEP(bind, S_IWUSR, NULL, bind_store);
 
 static ssize_t show_drivers_autoprobe(struct bus_type *bus, char *buf)
@@ -242,6 +263,16 @@ static ssize_t show_drivers_autoprobe(struct bus_type *bus, char *buf)
 }
 
 static ssize_t store_drivers_autoprobe(struct bus_type *bus,
+=======
+static DRIVER_ATTR_IGNORE_LOCKDEP(bind, 0200, NULL, bind_store);
+
+static ssize_t drivers_autoprobe_show(struct bus_type *bus, char *buf)
+{
+	return sysfs_emit(buf, "%d\n", bus->p->drivers_autoprobe);
+}
+
+static ssize_t drivers_autoprobe_store(struct bus_type *bus,
+>>>>>>> upstream/android-13
 				       const char *buf, size_t count)
 {
 	if (buf[0] == '0')
@@ -251,7 +282,11 @@ static ssize_t store_drivers_autoprobe(struct bus_type *bus,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t store_drivers_probe(struct bus_type *bus,
+=======
+static ssize_t drivers_probe_store(struct bus_type *bus,
+>>>>>>> upstream/android-13
 				   const char *buf, size_t count)
 {
 	struct device *dev;
@@ -333,8 +368,13 @@ EXPORT_SYMBOL_GPL(bus_for_each_dev);
  * return to the caller and not iterate over any more devices.
  */
 struct device *bus_find_device(struct bus_type *bus,
+<<<<<<< HEAD
 			       struct device *start, void *data,
 			       int (*match)(struct device *dev, void *data))
+=======
+			       struct device *start, const void *data,
+			       int (*match)(struct device *dev, const void *data))
+>>>>>>> upstream/android-13
 {
 	struct klist_iter i;
 	struct device *dev;
@@ -352,6 +392,7 @@ struct device *bus_find_device(struct bus_type *bus,
 }
 EXPORT_SYMBOL_GPL(bus_find_device);
 
+<<<<<<< HEAD
 static int match_name(struct device *dev, void *data)
 {
 	const char *name = data;
@@ -376,6 +417,8 @@ struct device *bus_find_device_by_name(struct bus_type *bus,
 }
 EXPORT_SYMBOL_GPL(bus_find_device_by_name);
 
+=======
+>>>>>>> upstream/android-13
 /**
  * subsys_find_device_by_id - find a device with a specific enumeration number
  * @subsys: subsystem
@@ -586,9 +629,14 @@ static void remove_bind_files(struct device_driver *drv)
 	driver_remove_file(drv, &driver_attr_unbind);
 }
 
+<<<<<<< HEAD
 static BUS_ATTR(drivers_probe, S_IWUSR, NULL, store_drivers_probe);
 static BUS_ATTR(drivers_autoprobe, S_IWUSR | S_IRUGO,
 		show_drivers_autoprobe, store_drivers_autoprobe);
+=======
+static BUS_ATTR_WO(drivers_probe);
+static BUS_ATTR_RW(drivers_autoprobe);
+>>>>>>> upstream/android-13
 
 static int add_probe_files(struct bus_type *bus)
 {
@@ -621,6 +669,7 @@ static ssize_t uevent_store(struct device_driver *drv, const char *buf,
 }
 static DRIVER_ATTR_WO(uevent);
 
+<<<<<<< HEAD
 static void driver_attach_async(void *_drv, async_cookie_t cookie)
 {
 	struct device_driver *drv = _drv;
@@ -632,6 +681,8 @@ static void driver_attach_async(void *_drv, async_cookie_t cookie)
 		 drv->bus->name, drv->name, ret);
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * bus_add_driver - Add a driver to the bus.
  * @drv: driver.
@@ -664,6 +715,7 @@ int bus_add_driver(struct device_driver *drv)
 
 	klist_add_tail(&priv->knode_bus, &bus->p->klist_drivers);
 	if (drv->bus->p->drivers_autoprobe) {
+<<<<<<< HEAD
 		if (driver_allows_async_probing(drv)) {
 			pr_debug("bus: '%s': probing driver %s asynchronously\n",
 				drv->bus->name, drv->name);
@@ -673,6 +725,11 @@ int bus_add_driver(struct device_driver *drv)
 			if (error)
 				goto out_unregister;
 		}
+=======
+		error = driver_attach(drv);
+		if (error)
+			goto out_unregister;
+>>>>>>> upstream/android-13
 	}
 	module_add_driver(drv->owner, drv);
 
@@ -684,7 +741,11 @@ int bus_add_driver(struct device_driver *drv)
 	error = driver_add_groups(drv, bus->drv_groups);
 	if (error) {
 		/* How the hell do we get out of this pickle? Give up */
+<<<<<<< HEAD
 		printk(KERN_ERR "%s: driver_create_groups(%s) failed\n",
+=======
+		printk(KERN_ERR "%s: driver_add_groups(%s) failed\n",
+>>>>>>> upstream/android-13
 			__func__, drv->name);
 	}
 
@@ -774,6 +835,7 @@ EXPORT_SYMBOL_GPL(bus_rescan_devices);
  */
 int device_reprobe(struct device *dev)
 {
+<<<<<<< HEAD
 	if (dev->driver) {
 		if (dev->parent && dev->bus->need_parent_lock)
 			device_lock(dev->parent);
@@ -781,10 +843,15 @@ int device_reprobe(struct device *dev)
 		if (dev->parent && dev->bus->need_parent_lock)
 			device_unlock(dev->parent);
 	}
+=======
+	if (dev->driver)
+		device_driver_detach(dev);
+>>>>>>> upstream/android-13
 	return bus_rescan_devices_helper(dev, NULL);
 }
 EXPORT_SYMBOL_GPL(device_reprobe);
 
+<<<<<<< HEAD
 /**
  * find_bus - locate bus by name.
  * @name: name of bus.
@@ -802,6 +869,8 @@ struct bus_type *find_bus(char *name)
 }
 #endif  /*  0  */
 
+=======
+>>>>>>> upstream/android-13
 static int bus_add_groups(struct bus_type *bus,
 			  const struct attribute_group **groups)
 {
@@ -838,7 +907,18 @@ static ssize_t bus_uevent_store(struct bus_type *bus,
 	rc = kobject_synth_uevent(&bus->p->subsys.kobj, buf, count);
 	return rc ? rc : count;
 }
+<<<<<<< HEAD
 static BUS_ATTR(uevent, S_IWUSR, NULL, bus_uevent_store);
+=======
+/*
+ * "open code" the old BUS_ATTR() macro here.  We want to use BUS_ATTR_WO()
+ * here, but can not use it as earlier in the file we have
+ * DEVICE_ATTR_WO(uevent), which would cause a clash with the with the store
+ * function name.
+ */
+static struct bus_attribute bus_attr_uevent = __ATTR(uevent, 0200, NULL,
+						     bus_uevent_store);
+>>>>>>> upstream/android-13
 
 /**
  * bus_register - register a driver-core subsystem

@@ -31,22 +31,33 @@
 #include <linux/uaccess.h>
 #include <linux/vmalloc.h>
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_SEC_ABC)
 #include <linux/sti/abc_common.h>
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #include "aw882xx.h"
 #include "aw_log.h"
 #include "aw_dsp.h"
 
+<<<<<<< HEAD
 #define AW882XX_DRIVER_VERSION "v1.7.0.4_MTK"
+=======
+#define AW882XX_DRIVER_VERSION "v1.7.0.17"
+>>>>>>> upstream/android-13
 #define AW882XX_I2C_NAME "aw882xx_smartpa"
 
 #define AW_READ_CHIPID_RETRIES		5	/* 5 times */
 #define AW_READ_CHIPID_RETRY_DELAY	5	/* 5 ms */
 
 static unsigned int g_aw882xx_dev_cnt = 0;
+<<<<<<< HEAD
 static unsigned int g_print_dbg = 0;
+=======
+static unsigned int g_print_dbg = 1;
+>>>>>>> upstream/android-13
 static unsigned int g_algo_rx_en = false;
 static unsigned int g_algo_tx_en = false;
 static unsigned int g_algo_copp_en = false;
@@ -56,6 +67,10 @@ static unsigned int g_spin_value = 0;
 
 static DEFINE_MUTEX(g_aw882xx_lock);
 struct aw_container *g_awinic_cfg = NULL;
+<<<<<<< HEAD
+=======
+struct aw_container *g_awinic_skt_cfg = NULL;
+>>>>>>> upstream/android-13
 
 static const char *const aw882xx_switch[] = {"Disable", "Enable"};
 #ifdef AW_SPIN_ENABLE
@@ -63,6 +78,12 @@ static const char *const aw882xx_spin[] = {"spin_0", "spin_90",
 					"spin_180", "spin_270"};
 #endif
 
+<<<<<<< HEAD
+=======
+#ifdef AW_ABOX_PLATFORM
+extern int aw882xx_abox_recover_algo_packet(void);
+#endif
+>>>>>>> upstream/android-13
 /******************************************************
  *
  * aw882xx distinguish between codecs and components by version
@@ -104,9 +125,12 @@ void aw_i2c_err_report(struct aw882xx *aw882xx, int err_type)
 {
 	aw_dev_err(aw882xx->dev, "aw882xx i2c rw error, err_type = %d", err_type);
 	//custom add API to get err info
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_SEC_ABC)
 	sec_abc_send_event("MODULE=audio@ERROR=spk_amp");
 #endif
+=======
+>>>>>>> upstream/android-13
 }
 
 /******************************************************
@@ -336,6 +360,10 @@ static int aw882xx_hw_params(struct snd_pcm_substream *substream,
 			struct snd_pcm_hw_params *params,
 			struct snd_soc_dai *dai)
 {
+<<<<<<< HEAD
+=======
+	int ret = -1;
+>>>>>>> upstream/android-13
 	aw_snd_soc_codec_t *codec = aw_get_codec(dai);
 	struct aw882xx *aw882xx =
 		aw_componet_codec_ops.codec_get_drvdata(codec);
@@ -350,6 +378,15 @@ static int aw882xx_hw_params(struct snd_pcm_substream *substream,
 				params_rate(params), params_width(params));
 	}
 
+<<<<<<< HEAD
+=======
+	ret = aw_dsp_recover_algo_packet();
+	if (ret < 0) {
+			aw_dev_err(aw882xx->dev, "recovery_algo_packet failed");
+	}
+	aw_dev_info(aw882xx->dev, "recovery_algo_packet done");
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -396,7 +433,14 @@ static void aw882xx_start_pa(struct aw882xx *aw882xx)
 
 			ret = aw_device_start(aw882xx->aw_pa);
 			if (ret) {
+<<<<<<< HEAD
 				aw_dev_err(aw882xx->dev, "start failed, cnt:%d", i);
+=======
+				if (i < (AW_START_RETRIES - 1))
+					aw_dev_info(aw882xx->dev, "wait for I2S clock, cnt:%d", i);
+				else
+					aw_dev_err(aw882xx->dev, "start failed, cnt:%d", i);
+>>>>>>> upstream/android-13
 				continue;
 			} else {
 				if (aw882xx->dc_flag)
@@ -635,12 +679,83 @@ static int aw882xx_switch_set(struct snd_kcontrol *kcontrol,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int aw882xx_volume_info(struct snd_kcontrol *kcontrol,
+					struct snd_ctl_elem_info *uinfo)
+{
+	aw_snd_soc_codec_t *codec =
+		aw_componet_codec_ops.kcontrol_codec(kcontrol);
+	struct aw882xx *aw882xx =
+		aw_componet_codec_ops.codec_get_drvdata(codec);
+	struct aw_volume_desc *vol_desc = &aw882xx->aw_pa->volume_desc;
+
+	/* set kcontrol info */
+	uinfo->type = SNDRV_CTL_ELEM_TYPE_INTEGER;
+	uinfo->count = 1;
+	uinfo->value.integer.min = 0;
+	uinfo->value.integer.max = vol_desc->mute_volume;
+
+	return 0;
+}
+
+static int aw882xx_volume_get(struct snd_kcontrol *kcontrol,
+				struct snd_ctl_elem_value *ucontrol)
+{
+	aw_snd_soc_codec_t *codec =
+		aw_componet_codec_ops.kcontrol_codec(kcontrol);
+	struct aw882xx *aw882xx =
+		aw_componet_codec_ops.codec_get_drvdata(codec);
+	uint32_t value = 0;
+
+	aw882xx->aw_pa->ops.aw_get_volume(aw882xx->aw_pa, &value);
+
+	ucontrol->value.integer.value[0] = value;
+
+	aw_dev_info(aw882xx->dev, "ucontrol->value.integer.value[0]=%d",
+					value);
+
+	return 0;
+}
+
+static int aw882xx_volume_put(struct snd_kcontrol *kcontrol,
+				struct snd_ctl_elem_value *ucontrol)
+{
+	int value = 0;
+	aw_snd_soc_codec_t *codec =
+		aw_componet_codec_ops.kcontrol_codec(kcontrol);
+	struct aw882xx *aw882xx =
+		aw_componet_codec_ops.codec_get_drvdata(codec);
+	struct aw_volume_desc *vol_desc = &aw882xx->aw_pa->volume_desc;
+
+	value = ucontrol->value.integer.value[0];
+	if ((value > vol_desc->mute_volume) || (value < 0)) {
+		aw_dev_err(aw882xx->dev, "value over range\n");
+		return -EINVAL;
+	}
+
+	aw_dev_info(aw882xx->dev, "ucontrol->value.integer.value[0]=%d", value);
+	vol_desc->ctl_volume = value;
+	vol_desc->init_volume = value;
+	aw882xx->aw_pa->ctrl_en = AW_CTRL_ENABLE;
+
+	aw882xx->aw_pa->ops.aw_set_volume(aw882xx->aw_pa, vol_desc->ctl_volume);
+
+	return 0;
+}
+
+
+>>>>>>> upstream/android-13
 static int aw882xx_dynamic_create_controls(struct aw882xx *aw882xx)
 {
 	struct snd_kcontrol_new *aw882xx_dev_control = NULL;
 	char *kctl_name = NULL;
 
+<<<<<<< HEAD
 	aw882xx_dev_control = devm_kzalloc(aw882xx->codec->dev, sizeof(struct snd_kcontrol_new) * 2, GFP_KERNEL);
+=======
+	aw882xx_dev_control = devm_kzalloc(aw882xx->codec->dev, sizeof(struct snd_kcontrol_new) * 3, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (aw882xx_dev_control == NULL) {
 		aw_dev_err(aw882xx->codec->dev, "kcontrol malloc failed!");
 		return -ENOMEM;
@@ -670,8 +785,25 @@ static int aw882xx_dynamic_create_controls(struct aw882xx *aw882xx)
 	aw882xx_dev_control[1].get = aw882xx_switch_get;
 	aw882xx_dev_control[1].put = aw882xx_switch_set;
 
+<<<<<<< HEAD
 	aw_componet_codec_ops.add_codec_controls(aw882xx->codec,
 						aw882xx_dev_control, 2);
+=======
+	kctl_name = devm_kzalloc(aw882xx->codec->dev, AW_NAME_BUF_MAX, GFP_KERNEL);
+	if (!kctl_name)
+		return -ENOMEM;
+
+	snprintf(kctl_name, AW_NAME_BUF_MAX, "aw_dev_%d_volume", aw882xx->index);
+
+	aw882xx_dev_control[2].name = kctl_name;
+	aw882xx_dev_control[2].iface = SNDRV_CTL_ELEM_IFACE_MIXER;
+	aw882xx_dev_control[2].info = aw882xx_volume_info;
+	aw882xx_dev_control[2].get = aw882xx_volume_get;
+	aw882xx_dev_control[2].put = aw882xx_volume_put;
+
+	aw_componet_codec_ops.add_codec_controls(aw882xx->codec,
+						aw882xx_dev_control, 3);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1184,6 +1316,7 @@ static void aw882xx_add_codec_controls(struct aw882xx *aw882xx)
 	aw_componet_codec_ops.add_codec_controls(aw882xx->codec,
 				&aw882xx_controls[0], ARRAY_SIZE(aw882xx_controls));
 }
+<<<<<<< HEAD
 
 #ifdef AW_MTK_PLATFORM_WITH_DSP
 static int aw882xx_name_append_suffix(struct aw882xx *aw882xx, const char **name)
@@ -1200,6 +1333,9 @@ static int aw882xx_name_append_suffix(struct aw882xx *aw882xx, const char **name
 	aw_dev_info(aw882xx->dev, "name is %s", (*name));
 	return 0;
 }
+=======
+#if defined (AW_MTK_PLATFORM_WITH_DSP) || defined (AW_LSI_PLATFORM)
+>>>>>>> upstream/android-13
 
 static const struct snd_soc_dapm_widget aw882xx_dapm_widgets[] = {
 	/* playback */
@@ -1225,9 +1361,14 @@ static struct snd_soc_dapm_context *snd_soc_codec_get_dapm(struct snd_soc_codec 
 
 static void aw882xx_add_widgets(struct aw882xx *aw882xx)
 {
+<<<<<<< HEAD
 #ifdef AW_MTK_PLATFORM_WITH_DSP
 	int i = 0;
 	int ret;
+=======
+#if defined (AW_MTK_PLATFORM_WITH_DSP) || defined (AW_LSI_PLATFORM)
+	int j = 0;
+>>>>>>> upstream/android-13
 	struct snd_soc_dapm_widget *aw_widgets = NULL;
 	struct snd_soc_dapm_route *aw_route = NULL;
 #ifdef AW_KERNEL_VER_OVER_4_19_1
@@ -1248,6 +1389,7 @@ static void aw882xx_add_widgets(struct aw882xx *aw882xx)
 	memcpy(aw_widgets, aw882xx_dapm_widgets,
 			sizeof(struct snd_soc_dapm_widget) * ARRAY_SIZE(aw882xx_dapm_widgets));
 
+<<<<<<< HEAD
 	for (i = 0; i < ARRAY_SIZE(aw882xx_dapm_widgets); i++) {
 		if (aw_widgets[i].name) {
 			ret = aw882xx_name_append_suffix(aw882xx, &aw_widgets[i].name);
@@ -1268,6 +1410,25 @@ static void aw882xx_add_widgets(struct aw882xx *aw882xx)
 
 	snd_soc_dapm_new_controls(dapm, aw_widgets, ARRAY_SIZE(aw882xx_dapm_widgets));
 
+=======
+	snd_soc_dapm_new_controls(dapm, aw_widgets, ARRAY_SIZE(aw882xx_dapm_widgets));
+
+	/* Ignore suspend widget */
+	for (j = 0; j < ARRAY_SIZE(aw882xx_dapm_widgets); j++) {
+		if (aw_widgets[j].name) {
+			aw_dev_info(aw882xx->dev, "ignore suspend widget name with suffix %s",
+				(aw_widgets[j].name));
+			snd_soc_dapm_ignore_suspend(dapm, aw_widgets[j].name);
+		}
+
+		if (aw_widgets[j].sname) {
+			aw_dev_info(aw882xx->dev, "ignore suspend widget name with suffix %s",
+				(aw_widgets[j].sname));
+			snd_soc_dapm_ignore_suspend(dapm, aw_widgets[j].name);
+		}
+	}
+
+>>>>>>> upstream/android-13
 	/*add route*/
 	aw_route = devm_kzalloc(aw882xx->dev,
 				sizeof(struct snd_soc_dapm_route) * ARRAY_SIZE(aw882xx_audio_map),
@@ -1279,6 +1440,7 @@ static void aw882xx_add_widgets(struct aw882xx *aw882xx)
 	memcpy(aw_route, aw882xx_audio_map,
 		sizeof(struct snd_soc_dapm_route) * ARRAY_SIZE(aw882xx_audio_map));
 
+<<<<<<< HEAD
 	for (i = 0; i < ARRAY_SIZE(aw882xx_audio_map); i++) {
 		if (aw_route[i].sink) {
 			ret = aw882xx_name_append_suffix(aw882xx, &aw_route[i].sink);
@@ -1296,6 +1458,8 @@ static void aw882xx_add_widgets(struct aw882xx *aw882xx)
 			}
 		}
 	}
+=======
+>>>>>>> upstream/android-13
 	snd_soc_dapm_add_routes(dapm, aw_route, ARRAY_SIZE(aw882xx_audio_map));
 #endif
 }
@@ -1372,7 +1536,11 @@ static int aw882xx_dai_drv_append_suffix(struct aw882xx *aw882xx,
 				struct snd_soc_dai_driver *dai_drv,
 				int num_dai)
 {
+<<<<<<< HEAD
 	char buf[50];
+=======
+	char buf[50] = { 0 };
+>>>>>>> upstream/android-13
 	int i;
 	int i2cbus = aw882xx->i2c->adapter->nr;
 	int addr = aw882xx->i2c->addr;
@@ -1383,6 +1551,7 @@ static int aw882xx_dai_drv_append_suffix(struct aw882xx *aw882xx,
 				addr);
 			dai_drv[i].name = aw882xx_devm_kstrdup(aw882xx->dev, buf);
 
+<<<<<<< HEAD
 			snprintf(buf, 50, "%s-%x-%x",
 						dai_drv[i].playback.stream_name,
 						i2cbus, addr);
@@ -1392,6 +1561,8 @@ static int aw882xx_dai_drv_append_suffix(struct aw882xx *aw882xx,
 						dai_drv[i].capture.stream_name,
 						i2cbus, addr);
 			dai_drv[i].capture.stream_name = aw882xx_devm_kstrdup(aw882xx->dev, buf);
+=======
+>>>>>>> upstream/android-13
 			aw_dev_info(aw882xx->dev, "dai name [%s]", dai_drv[i].name);
 			aw_dev_info(aw882xx->dev, "pstream_name name [%s]", dai_drv[i].playback.stream_name);
 			aw_dev_info(aw882xx->dev, "cstream_name name [%s]", dai_drv[i].capture.stream_name);
@@ -2154,7 +2325,11 @@ static struct attribute_group aw882xx_attribute_group = {
 	.attrs = aw882xx_attributes,
 };
 
+<<<<<<< HEAD
 int aw882xx_i2c_probe(struct i2c_client *i2c,
+=======
+static int aw882xx_i2c_probe(struct i2c_client *i2c,
+>>>>>>> upstream/android-13
 				const struct i2c_device_id *id)
 {
 	struct aw882xx *aw882xx = NULL;
@@ -2242,7 +2417,11 @@ err_sysfs:
 	return ret;
 }
 
+<<<<<<< HEAD
 int aw882xx_i2c_remove(struct i2c_client *i2c)
+=======
+static int aw882xx_i2c_remove(struct i2c_client *i2c)
+>>>>>>> upstream/android-13
 {
 	struct aw882xx *aw882xx = i2c_get_clientdata(i2c);
 
@@ -2284,7 +2463,10 @@ int aw882xx_i2c_remove(struct i2c_client *i2c)
 
 }
 
+<<<<<<< HEAD
 #if 0
+=======
+>>>>>>> upstream/android-13
 static void aw882xx_i2c_shutdown(struct i2c_client *i2c)
 {
 	struct aw882xx *aw882xx = i2c_get_clientdata(i2c);
@@ -2340,7 +2522,11 @@ static void __exit aw882xx_i2c_exit(void)
 	i2c_del_driver(&aw882xx_i2c_driver);
 }
 module_exit(aw882xx_i2c_exit);
+<<<<<<< HEAD
 #endif
+=======
+
+>>>>>>> upstream/android-13
 
 MODULE_DESCRIPTION("ASoC AW882XX Smart PA Driver");
 MODULE_LICENSE("GPL v2");

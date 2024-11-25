@@ -25,12 +25,26 @@
 /*
  * Authors: Dave Airlie <airlied@redhat.com>
  */
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include "ast_drv.h"
 
 
 #include <drm/drm_fb_helper.h>
 #include <drm/drm_crtc_helper.h>
+=======
+
+#include <linux/pci.h>
+
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_crtc_helper.h>
+#include <drm/drm_drv.h>
+#include <drm/drm_gem.h>
+#include <drm/drm_gem_vram_helper.h>
+#include <drm/drm_managed.h>
+
+#include "ast_drv.h"
+>>>>>>> upstream/android-13
 
 void ast_set_index_reg_mask(struct ast_private *ast,
 			    uint32_t base, uint8_t index,
@@ -62,8 +76,14 @@ uint8_t ast_get_index_reg_mask(struct ast_private *ast,
 
 static void ast_detect_config_mode(struct drm_device *dev, u32 *scu_rev)
 {
+<<<<<<< HEAD
 	struct device_node *np = dev->pdev->dev.of_node;
 	struct ast_private *ast = dev->dev_private;
+=======
+	struct device_node *np = dev->dev->of_node;
+	struct ast_private *ast = to_ast_private(dev);
+	struct pci_dev *pdev = to_pci_dev(dev->dev);
+>>>>>>> upstream/android-13
 	uint32_t data, jregd0, jregd1;
 
 	/* Defaults */
@@ -75,12 +95,20 @@ static void ast_detect_config_mode(struct drm_device *dev, u32 *scu_rev)
 					scu_rev)) {
 		/* We do, disable P2A access */
 		ast->config_mode = ast_use_dt;
+<<<<<<< HEAD
 		DRM_INFO("Using device-tree for configuration\n");
+=======
+		drm_info(dev, "Using device-tree for configuration\n");
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	/* Not all families have a P2A bridge */
+<<<<<<< HEAD
 	if (dev->pdev->device != PCI_CHIP_AST2000)
+=======
+	if (pdev->device != PCI_CHIP_AST2000)
+>>>>>>> upstream/android-13
 		return;
 
 	/*
@@ -91,6 +119,7 @@ static void ast_detect_config_mode(struct drm_device *dev, u32 *scu_rev)
 	jregd0 = ast_get_index_reg_mask(ast, AST_IO_CRTC_PORT, 0xd0, 0xff);
 	jregd1 = ast_get_index_reg_mask(ast, AST_IO_CRTC_PORT, 0xd1, 0xff);
 	if (!(jregd0 & 0x80) || !(jregd1 & 0x10)) {
+<<<<<<< HEAD
 		/* Double check it's actually working */
 		data = ast_read32(ast, 0xf004);
 		if (data != 0xFFFFFFFF) {
@@ -98,6 +127,20 @@ static void ast_detect_config_mode(struct drm_device *dev, u32 *scu_rev)
 			ast->config_mode = ast_use_p2a;
 
 			DRM_INFO("Using P2A bridge for configuration\n");
+=======
+		/* Patch AST2500 */
+		if (((pdev->revision & 0xF0) == 0x40)
+			&& ((jregd0 & AST_VRAM_INIT_STATUS_MASK) == 0))
+			ast_patch_ahb_2500(ast);
+
+		/* Double check it's actually working */
+		data = ast_read32(ast, 0xf004);
+		if ((data != 0xFFFFFFFF) && (data != 0x00)) {
+			/* P2A works, grab silicon revision */
+			ast->config_mode = ast_use_p2a;
+
+			drm_info(dev, "Using P2A bridge for configuration\n");
+>>>>>>> upstream/android-13
 
 			/* Read SCU7c (silicon revision register) */
 			ast_write32(ast, 0xf004, 0x1e6e0000);
@@ -108,12 +151,21 @@ static void ast_detect_config_mode(struct drm_device *dev, u32 *scu_rev)
 	}
 
 	/* We have a P2A bridge but it's disabled */
+<<<<<<< HEAD
 	DRM_INFO("P2A bridge disabled, using default configuration\n");
+=======
+	drm_info(dev, "P2A bridge disabled, using default configuration\n");
+>>>>>>> upstream/android-13
 }
 
 static int ast_detect_chip(struct drm_device *dev, bool *need_post)
 {
+<<<<<<< HEAD
 	struct ast_private *ast = dev->dev_private;
+=======
+	struct ast_private *ast = to_ast_private(dev);
+	struct pci_dev *pdev = to_pci_dev(dev->dev);
+>>>>>>> upstream/android-13
 	uint32_t jreg, scu_rev;
 
 	/*
@@ -124,7 +176,11 @@ static int ast_detect_chip(struct drm_device *dev, bool *need_post)
 	 */
 	if (!ast_is_vga_enabled(dev)) {
 		ast_enable_vga(dev);
+<<<<<<< HEAD
 		DRM_INFO("VGA not enabled on entry, requesting chip POST\n");
+=======
+		drm_info(dev, "VGA not enabled on entry, requesting chip POST\n");
+>>>>>>> upstream/android-13
 		*need_post = true;
 	} else
 		*need_post = false;
@@ -138,6 +194,7 @@ static int ast_detect_chip(struct drm_device *dev, bool *need_post)
 	ast_detect_config_mode(dev, &scu_rev);
 
 	/* Identify chipset */
+<<<<<<< HEAD
 	if (dev->pdev->device == PCI_CHIP_AST1180) {
 		ast->chip = AST1100;
 		DRM_INFO("AST 1180 detected\n");
@@ -175,13 +232,53 @@ static int ast_detect_chip(struct drm_device *dev, bool *need_post)
 			ast->chip = AST2000;
 			DRM_INFO("AST 2000 detected\n");
 		}
+=======
+	if (pdev->revision >= 0x50) {
+		ast->chip = AST2600;
+		drm_info(dev, "AST 2600 detected\n");
+	} else if (pdev->revision >= 0x40) {
+		ast->chip = AST2500;
+		drm_info(dev, "AST 2500 detected\n");
+	} else if (pdev->revision >= 0x30) {
+		ast->chip = AST2400;
+		drm_info(dev, "AST 2400 detected\n");
+	} else if (pdev->revision >= 0x20) {
+		ast->chip = AST2300;
+		drm_info(dev, "AST 2300 detected\n");
+	} else if (pdev->revision >= 0x10) {
+		switch (scu_rev & 0x0300) {
+		case 0x0200:
+			ast->chip = AST1100;
+			drm_info(dev, "AST 1100 detected\n");
+			break;
+		case 0x0100:
+			ast->chip = AST2200;
+			drm_info(dev, "AST 2200 detected\n");
+			break;
+		case 0x0000:
+			ast->chip = AST2150;
+			drm_info(dev, "AST 2150 detected\n");
+			break;
+		default:
+			ast->chip = AST2100;
+			drm_info(dev, "AST 2100 detected\n");
+			break;
+		}
+		ast->vga2_clone = false;
+	} else {
+		ast->chip = AST2000;
+		drm_info(dev, "AST 2000 detected\n");
+>>>>>>> upstream/android-13
 	}
 
 	/* Check if we support wide screen */
 	switch (ast->chip) {
+<<<<<<< HEAD
 	case AST1180:
 		ast->support_wide_screen = true;
 		break;
+=======
+>>>>>>> upstream/android-13
 	case AST2000:
 		ast->support_wide_screen = false;
 		break;
@@ -235,6 +332,7 @@ static int ast_detect_chip(struct drm_device *dev, bool *need_post)
 			ast->tx_chip_type = AST_TX_SIL164;
 			break;
 		case 0x08:
+<<<<<<< HEAD
 			ast->dp501_fw_addr = kzalloc(32*1024, GFP_KERNEL);
 			if (ast->dp501_fw_addr) {
 				/* backup firmware */
@@ -244,6 +342,17 @@ static int ast_detect_chip(struct drm_device *dev, bool *need_post)
 				}
 			}
 			/* fallthrough */
+=======
+			ast->dp501_fw_addr = drmm_kzalloc(dev, 32*1024, GFP_KERNEL);
+			if (ast->dp501_fw_addr) {
+				/* backup firmware */
+				if (ast_backup_fw(dev, ast->dp501_fw_addr, 32*1024)) {
+					drmm_kfree(dev, ast->dp501_fw_addr);
+					ast->dp501_fw_addr = NULL;
+				}
+			}
+			fallthrough;
+>>>>>>> upstream/android-13
 		case 0x0c:
 			ast->tx_chip_type = AST_TX_DP501;
 		}
@@ -252,6 +361,7 @@ static int ast_detect_chip(struct drm_device *dev, bool *need_post)
 	/* Print stuff for diagnostic purposes */
 	switch(ast->tx_chip_type) {
 	case AST_TX_SIL164:
+<<<<<<< HEAD
 		DRM_INFO("Using Sil164 TMDS transmitter\n");
 		break;
 	case AST_TX_DP501:
@@ -259,14 +369,28 @@ static int ast_detect_chip(struct drm_device *dev, bool *need_post)
 		break;
 	default:
 		DRM_INFO("Analog VGA only\n");
+=======
+		drm_info(dev, "Using Sil164 TMDS transmitter\n");
+		break;
+	case AST_TX_DP501:
+		drm_info(dev, "Using DP501 DisplayPort transmitter\n");
+		break;
+	default:
+		drm_info(dev, "Analog VGA only\n");
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
 
 static int ast_get_dram_info(struct drm_device *dev)
 {
+<<<<<<< HEAD
 	struct device_node *np = dev->pdev->dev.of_node;
 	struct ast_private *ast = dev->dev_private;
+=======
+	struct device_node *np = dev->dev->of_node;
+	struct ast_private *ast = to_ast_private(dev);
+>>>>>>> upstream/android-13
 	uint32_t mcr_cfg, mcr_scu_mpll, mcr_scu_strap;
 	uint32_t denum, num, div, ref_pll, dsel;
 
@@ -383,6 +507,7 @@ static int ast_get_dram_info(struct drm_device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void ast_user_framebuffer_destroy(struct drm_framebuffer *fb)
 {
 	struct ast_framebuffer *ast_fb = to_ast_framebuffer(fb);
@@ -480,10 +605,30 @@ static u32 ast_get_vram_info(struct drm_device *dev)
 
 int ast_driver_load(struct drm_device *dev, unsigned long flags)
 {
+=======
+/*
+ * Run this function as part of the HW device cleanup; not
+ * when the DRM device gets released.
+ */
+static void ast_device_release(void *data)
+{
+	struct ast_private *ast = data;
+
+	/* enable standard VGA decode */
+	ast_set_index_reg(ast, AST_IO_CRTC_PORT, 0xa1, 0x04);
+}
+
+struct ast_private *ast_device_create(const struct drm_driver *drv,
+				      struct pci_dev *pdev,
+				      unsigned long flags)
+{
+	struct drm_device *dev;
+>>>>>>> upstream/android-13
 	struct ast_private *ast;
 	bool need_post;
 	int ret = 0;
 
+<<<<<<< HEAD
 	ast = kzalloc(sizeof(struct ast_private), GFP_KERNEL);
 	if (!ast)
 		return -ENOMEM;
@@ -496,28 +641,52 @@ int ast_driver_load(struct drm_device *dev, unsigned long flags)
 		ret = -EIO;
 		goto out_free;
 	}
+=======
+	ast = devm_drm_dev_alloc(&pdev->dev, drv, struct ast_private, base);
+	if (IS_ERR(ast))
+		return ast;
+	dev = &ast->base;
+
+	pci_set_drvdata(pdev, dev);
+
+	ast->regs = pcim_iomap(pdev, 1, 0);
+	if (!ast->regs)
+		return ERR_PTR(-EIO);
+>>>>>>> upstream/android-13
 
 	/*
 	 * If we don't have IO space at all, use MMIO now and
 	 * assume the chip has MMIO enabled by default (rev 0x20
 	 * and higher).
 	 */
+<<<<<<< HEAD
 	if (!(pci_resource_flags(dev->pdev, 2) & IORESOURCE_IO)) {
 		DRM_INFO("platform has no IO space, trying MMIO\n");
+=======
+	if (!(pci_resource_flags(pdev, 2) & IORESOURCE_IO)) {
+		drm_info(dev, "platform has no IO space, trying MMIO\n");
+>>>>>>> upstream/android-13
 		ast->ioregs = ast->regs + AST_IO_MM_OFFSET;
 	}
 
 	/* "map" IO regs if the above hasn't done so already */
 	if (!ast->ioregs) {
+<<<<<<< HEAD
 		ast->ioregs = pci_iomap(dev->pdev, 2, 0);
 		if (!ast->ioregs) {
 			ret = -EIO;
 			goto out_free;
 		}
+=======
+		ast->ioregs = pcim_iomap(pdev, 2, 0);
+		if (!ast->ioregs)
+			return ERR_PTR(-EIO);
+>>>>>>> upstream/android-13
 	}
 
 	ast_detect_chip(dev, &need_post);
 
+<<<<<<< HEAD
 	if (need_post)
 		ast_post_gpu(dev);
 
@@ -686,3 +855,37 @@ ast_dumb_mmap_offset(struct drm_file *file,
 
 }
 
+=======
+	ret = ast_get_dram_info(dev);
+	if (ret)
+		return ERR_PTR(ret);
+
+	drm_info(dev, "dram MCLK=%u Mhz type=%d bus_width=%d\n",
+		 ast->mclk, ast->dram_type, ast->dram_bus_width);
+
+	if (need_post)
+		ast_post_gpu(dev);
+
+	ret = ast_mm_init(ast);
+	if (ret)
+		return ERR_PTR(ret);
+
+	/* map reserved buffer */
+	ast->dp501_fw_buf = NULL;
+	if (dev->vram_mm->vram_size < pci_resource_len(pdev, 0)) {
+		ast->dp501_fw_buf = pci_iomap_range(pdev, 0, dev->vram_mm->vram_size, 0);
+		if (!ast->dp501_fw_buf)
+			drm_info(dev, "failed to map reserved buffer!\n");
+	}
+
+	ret = ast_mode_config_init(ast);
+	if (ret)
+		return ERR_PTR(ret);
+
+	ret = devm_add_action_or_reset(dev->dev, ast_device_release, ast);
+	if (ret)
+		return ERR_PTR(ret);
+
+	return ast;
+}
+>>>>>>> upstream/android-13

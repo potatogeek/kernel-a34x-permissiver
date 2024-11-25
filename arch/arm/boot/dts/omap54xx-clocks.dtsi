@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Device Tree Source for OMAP5 clock data
  *
  * Copyright (C) 2013 Texas Instruments, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 &cm_core_aon_clocks {
 	pad_clks_src_ck: pad_clks_src_ck {
@@ -1128,11 +1135,25 @@
 		#size-cells = <1>;
 		ranges = <0 0x1000 0x200>;
 
+<<<<<<< HEAD
 		l4per_clkctrl: clk@20 {
 			compatible = "ti,clkctrl";
 			reg = <0x20 0x15c>;
 			#clock-cells = <2>;
 		};
+=======
+		l4per_clkctrl: clock@20 {
+			compatible = "ti,clkctrl-l4per", "ti,clkctrl";
+			reg = <0x20 0x15c>;
+			#clock-cells = <2>;
+		};
+
+		l4sec_clkctrl: clock@1a0 {
+			compatible = "ti,clkctrl-l4sec", "ti,clkctrl";
+			reg = <0x1a0 0x3c>;
+			#clock-cells = <2>;
+		};
+>>>>>>> upstream/android-13
 	};
 
 	dss_cm: dss_cm@1400 {
@@ -1149,6 +1170,23 @@
 		};
 	};
 
+<<<<<<< HEAD
+=======
+	gpu_cm: gpu_cm@1500 {
+		compatible = "ti,omap4-cm";
+		reg = <0x1500 0x100>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges = <0 0x1500 0x100>;
+
+		gpu_clkctrl: clk@20 {
+			compatible = "ti,clkctrl";
+			reg = <0x20 0x4>;
+			#clock-cells = <2>;
+		};
+	};
+
+>>>>>>> upstream/android-13
 	l3init_cm: l3init_cm@1600 {
 		compatible = "ti,omap4-cm";
 		reg = <0x1600 0x100>;

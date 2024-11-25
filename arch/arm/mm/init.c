@@ -1,17 +1,27 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/mm/init.c
  *
  *  Copyright (C) 1995-2005 Russell King
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/errno.h>
 #include <linux/swap.h>
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/mman.h>
 #include <linux/sched/signal.h>
 #include <linux/sched/task.h>
@@ -22,9 +32,16 @@
 #include <linux/highmem.h>
 #include <linux/gfp.h>
 #include <linux/memblock.h>
+<<<<<<< HEAD
 #include <linux/dma-contiguous.h>
 #include <linux/sizes.h>
 #include <linux/stop_machine.h>
+=======
+#include <linux/dma-map-ops.h>
+#include <linux/sizes.h>
+#include <linux/stop_machine.h>
+#include <linux/swiotlb.h>
+>>>>>>> upstream/android-13
 
 #include <asm/cp15.h>
 #include <asm/mach-types.h>
@@ -33,6 +50,10 @@
 #include <asm/prom.h>
 #include <asm/sections.h>
 #include <asm/setup.h>
+<<<<<<< HEAD
+=======
+#include <asm/set_memory.h>
+>>>>>>> upstream/android-13
 #include <asm/system_info.h>
 #include <asm/tlb.h>
 #include <asm/fixmap.h>
@@ -51,6 +72,7 @@ unsigned long __init __clear_cr(unsigned long mask)
 }
 #endif
 
+<<<<<<< HEAD
 static phys_addr_t phys_initrd_start __initdata = 0;
 static unsigned long phys_initrd_size __initdata = 0;
 
@@ -71,6 +93,9 @@ static int __init early_initrd(char *p)
 }
 early_param("initrd", early_initrd);
 
+=======
+#ifdef CONFIG_BLK_DEV_INITRD
+>>>>>>> upstream/android-13
 static int __init parse_tag_initrd(const struct tag *tag)
 {
 	pr_warn("ATAG_INITRD is deprecated; "
@@ -90,6 +115,10 @@ static int __init parse_tag_initrd2(const struct tag *tag)
 }
 
 __tagtable(ATAG_INITRD2, parse_tag_initrd2);
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 static void __init find_limits(unsigned long *min, unsigned long *max_low,
 			       unsigned long *max_high)
@@ -112,6 +141,7 @@ EXPORT_SYMBOL(arm_dma_zone_size);
  */
 phys_addr_t arm_dma_limit;
 unsigned long arm_dma_pfn_limit;
+<<<<<<< HEAD
 
 static void __init arm_adjust_dma_zone(unsigned long *size, unsigned long *hole,
 	unsigned long dma_size)
@@ -124,6 +154,8 @@ static void __init arm_adjust_dma_zone(unsigned long *size, unsigned long *hole,
 	hole[ZONE_NORMAL] = hole[0];
 	hole[ZONE_DMA] = 0;
 }
+=======
+>>>>>>> upstream/android-13
 #endif
 
 void __init setup_dma_zone(const struct machine_desc *mdesc)
@@ -141,6 +173,7 @@ void __init setup_dma_zone(const struct machine_desc *mdesc)
 static void __init zone_sizes_init(unsigned long min, unsigned long max_low,
 	unsigned long max_high)
 {
+<<<<<<< HEAD
 	unsigned long zone_size[MAX_NR_ZONES], zhole_size[MAX_NR_ZONES];
 	struct memblock_region *reg;
 
@@ -191,21 +224,52 @@ static void __init zone_sizes_init(unsigned long min, unsigned long max_low,
 #endif
 
 	free_area_init_node(0, zone_size, min, zhole_size);
+=======
+	unsigned long max_zone_pfn[MAX_NR_ZONES] = { 0 };
+
+#ifdef CONFIG_ZONE_DMA
+	max_zone_pfn[ZONE_DMA] = min(arm_dma_pfn_limit, max_low);
+#endif
+	max_zone_pfn[ZONE_NORMAL] = max_low;
+#ifdef CONFIG_HIGHMEM
+	max_zone_pfn[ZONE_HIGHMEM] = max_high;
+#endif
+	free_area_init(max_zone_pfn);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_HAVE_ARCH_PFN_VALID
 int pfn_valid(unsigned long pfn)
 {
 	phys_addr_t addr = __pfn_to_phys(pfn);
+<<<<<<< HEAD
+=======
+	unsigned long pageblock_size = PAGE_SIZE * pageblock_nr_pages;
+>>>>>>> upstream/android-13
 
 	if (__phys_to_pfn(addr) != pfn)
 		return 0;
 
+<<<<<<< HEAD
 	return memblock_is_map_memory(__pfn_to_phys(pfn));
+=======
+	/*
+	 * If address less than pageblock_size bytes away from a present
+	 * memory chunk there still will be a memory map entry for it
+	 * because we round freed memory map to the pageblock boundaries.
+	 */
+	if (memblock_overlaps_region(&memblock.memory,
+				     ALIGN_DOWN(addr, pageblock_size),
+				     pageblock_size))
+		return 1;
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(pfn_valid);
 #endif
 
+<<<<<<< HEAD
 #ifndef CONFIG_SPARSEMEM
 static void __init arm_memory_present(void)
 {
@@ -221,6 +285,8 @@ static void __init arm_memory_present(void)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static bool arm_memblock_steal_permitted = true;
 
 phys_addr_t __init arm_memblock_steal(phys_addr_t size, phys_addr_t align)
@@ -229,7 +295,15 @@ phys_addr_t __init arm_memblock_steal(phys_addr_t size, phys_addr_t align)
 
 	BUG_ON(!arm_memblock_steal_permitted);
 
+<<<<<<< HEAD
 	phys = memblock_alloc_base(size, align, MEMBLOCK_ALLOC_ANYWHERE);
+=======
+	phys = memblock_phys_alloc(size, align);
+	if (!phys)
+		panic("Failed to steal %pa bytes at %pS\n",
+		      &size, (void *)_RET_IP_);
+
+>>>>>>> upstream/android-13
 	memblock_free(phys, size);
 	memblock_remove(phys, size);
 
@@ -241,6 +315,7 @@ static void __init arm_initrd_init(void)
 #ifdef CONFIG_BLK_DEV_INITRD
 	phys_addr_t start;
 	unsigned long size;
+<<<<<<< HEAD
 	phys_addr_t start_down, end_up;
 
 	/* FDT scan will populate initrd_start */
@@ -248,6 +323,8 @@ static void __init arm_initrd_init(void)
 		phys_initrd_start = __virt_to_phys(initrd_start);
 		phys_initrd_size = initrd_end - initrd_start;
 	}
+=======
+>>>>>>> upstream/android-13
 
 	initrd_start = initrd_end = 0;
 
@@ -277,16 +354,21 @@ static void __init arm_initrd_init(void)
 	}
 
 	memblock_reserve(start, size);
+<<<<<<< HEAD
 	start_down = phys_initrd_start & PAGE_MASK;
 	end_up = PAGE_ALIGN(phys_initrd_start + phys_initrd_size);
 	record_memsize_reserved("initrd", start_down, end_up - start_down,
 				false, false);
+=======
+
+>>>>>>> upstream/android-13
 	/* Now convert initrd to virtual addresses */
 	initrd_start = __phys_to_virt(phys_initrd_start);
 	initrd_end = initrd_start + phys_initrd_size;
 #endif
 }
 
+<<<<<<< HEAD
 void __init arm_memblock_init(const struct machine_desc *mdesc)
 {
 	/* Register the kernel text, kernel data and initrd with memblock. */
@@ -297,6 +379,29 @@ void __init arm_memblock_init(const struct machine_desc *mdesc)
 				__init_end - __init_begin, false, false);
 
 	set_memsize_kernel_type(MEMSIZE_KERNEL_OTHERS);
+=======
+#ifdef CONFIG_CPU_ICACHE_MISMATCH_WORKAROUND
+void check_cpu_icache_size(int cpuid)
+{
+	u32 size, ctr;
+
+	asm("mrc p15, 0, %0, c0, c0, 1" : "=r" (ctr));
+
+	size = 1 << ((ctr & 0xf) + 2);
+	if (cpuid != 0 && icache_size != size)
+		pr_info("CPU%u: detected I-Cache line size mismatch, workaround enabled\n",
+			cpuid);
+	if (icache_size > size)
+		icache_size = size;
+}
+#endif
+
+void __init arm_memblock_init(const struct machine_desc *mdesc)
+{
+	/* Register the kernel text, kernel data and initrd with memblock. */
+	memblock_reserve(__pa(KERNEL_START), KERNEL_END - KERNEL_START);
+
+>>>>>>> upstream/android-13
 	arm_initrd_init();
 
 	arm_mm_memblock_reserve();
@@ -305,13 +410,19 @@ void __init arm_memblock_init(const struct machine_desc *mdesc)
 	if (mdesc->reserve)
 		mdesc->reserve();
 
+<<<<<<< HEAD
 	early_init_fdt_reserve_self();
 	set_memsize_kernel_type(MEMSIZE_KERNEL_STOP);
+=======
+>>>>>>> upstream/android-13
 	early_init_fdt_scan_reserved_mem();
 
 	/* reserve memory for DMA contiguous allocations */
 	dma_contiguous_reserve(arm_dma_limit);
+<<<<<<< HEAD
 	set_memsize_kernel_type(MEMSIZE_KERNEL_OTHERS);
+=======
+>>>>>>> upstream/android-13
 
 	arm_memblock_steal_permitted = false;
 	memblock_dump_all();
@@ -319,6 +430,7 @@ void __init arm_memblock_init(const struct machine_desc *mdesc)
 
 void __init bootmem_init(void)
 {
+<<<<<<< HEAD
 	unsigned long min, max_low, max_high;
 
 	memblock_allow_resize();
@@ -337,10 +449,23 @@ void __init bootmem_init(void)
 
 	/*
 	 * sparse_init() needs the bootmem allocator up and running.
+=======
+	memblock_allow_resize();
+
+	find_limits(&min_low_pfn, &max_low_pfn, &max_pfn);
+
+	early_memtest((phys_addr_t)min_low_pfn << PAGE_SHIFT,
+		      (phys_addr_t)max_low_pfn << PAGE_SHIFT);
+
+	/*
+	 * sparse_init() tries to allocate memory from memblock, so must be
+	 * done after the fixed reservations
+>>>>>>> upstream/android-13
 	 */
 	sparse_init();
 
 	/*
+<<<<<<< HEAD
 	 * Now free the memory - free_area_init_node needs
 	 * the sparse mem_map arrays initialized by sparse_init()
 	 * for memmap_init_zone(), otherwise all PFNs are invalid.
@@ -355,6 +480,13 @@ void __init bootmem_init(void)
 	min_low_pfn = min;
 	max_low_pfn = max_low;
 	max_pfn = max_high;
+=======
+	 * Now free the memory - free_area_init needs
+	 * the sparse mem_map arrays initialized by sparse_init()
+	 * for memmap_init_zone(), otherwise all PFNs are invalid.
+	 */
+	zone_sizes_init(min_low_pfn, max_low_pfn, max_pfn);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -368,6 +500,7 @@ static inline void poison_init_mem(void *s, size_t count)
 		*p++ = 0xe7fddef0;
 }
 
+<<<<<<< HEAD
 static inline void __init
 free_memmap(unsigned long start_pfn, unsigned long end_pfn)
 {
@@ -458,28 +591,45 @@ static inline void free_area_high(unsigned long pfn, unsigned long end)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static void __init free_highpages(void)
 {
 #ifdef CONFIG_HIGHMEM
 	unsigned long max_low = max_low_pfn;
+<<<<<<< HEAD
 	struct memblock_region *mem, *res;
 
 	/* set highmem page free */
 	for_each_memblock(memory, mem) {
 		unsigned long start = memblock_region_memory_base_pfn(mem);
 		unsigned long end = memblock_region_memory_end_pfn(mem);
+=======
+	phys_addr_t range_start, range_end;
+	u64 i;
+
+	/* set highmem page free */
+	for_each_free_mem_range(i, NUMA_NO_NODE, MEMBLOCK_NONE,
+				&range_start, &range_end, NULL) {
+		unsigned long start = PFN_UP(range_start);
+		unsigned long end = PFN_DOWN(range_end);
+>>>>>>> upstream/android-13
 
 		/* Ignore complete lowmem entries */
 		if (end <= max_low)
 			continue;
 
+<<<<<<< HEAD
 		if (memblock_is_nomap(mem))
 			continue;
 
+=======
+>>>>>>> upstream/android-13
 		/* Truncate partial highmem entries */
 		if (start < max_low)
 			start = max_low;
 
+<<<<<<< HEAD
 		/* Find and exclude any reserved regions */
 		for_each_memblock(reserved, res) {
 			unsigned long res_start, res_end;
@@ -505,6 +655,10 @@ static void __init free_highpages(void)
 		/* And now free anything which remains */
 		if (start < end)
 			free_area_high(start, end);
+=======
+		for (; start < end; start++)
+			free_highmem_page(pfn_to_page(start));
+>>>>>>> upstream/android-13
 	}
 #endif
 }
@@ -516,17 +670,30 @@ static void __init free_highpages(void)
  */
 void __init mem_init(void)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_HAVE_TCM
 	/* These pointers are filled in on TCM detection */
 	extern u32 dtcm_end;
 	extern u32 itcm_end;
+=======
+#ifdef CONFIG_ARM_LPAE
+	if (swiotlb_force == SWIOTLB_FORCE ||
+	    max_pfn > arm_dma_pfn_limit)
+		swiotlb_init(1);
+	else
+		swiotlb_force = SWIOTLB_NO_FORCE;
+>>>>>>> upstream/android-13
 #endif
 
 	set_max_mapnr(pfn_to_page(max_pfn) - mem_map);
 
 	/* this will put all unused low memory onto the freelists */
+<<<<<<< HEAD
 	free_unused_memmap();
 	free_all_bootmem();
+=======
+	memblock_free_all();
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_SA1111
 	/* now that our DMA memory is actually so designated, we can free it */
@@ -535,6 +702,7 @@ void __init mem_init(void)
 
 	free_highpages();
 
+<<<<<<< HEAD
 	mem_init_print_info(NULL);
 
 #define MLK(b, t) b, t, ((t) - (b)) >> 10
@@ -586,6 +754,8 @@ void __init mem_init(void)
 #undef MLM
 #undef MLK_ROUNDUP
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Check boundaries twice: Some fundamental inconsistencies can
 	 * be detected at build time already.
@@ -668,7 +838,11 @@ static inline void section_update(unsigned long addr, pmdval_t mask,
 {
 	pmd_t *pmd;
 
+<<<<<<< HEAD
 	pmd = pmd_offset(pud_offset(pgd_offset(mm, addr), addr), addr);
+=======
+	pmd = pmd_offset(pud_offset(p4d_offset(pgd_offset(mm, addr), addr), addr), addr);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_ARM_LPAE
 	pmd[0] = __pmd((pmd_val(pmd[0]) & mask) | prot);
@@ -691,8 +865,13 @@ static inline bool arch_has_strict_perms(void)
 	return !!(get_cr() & CR_XP);
 }
 
+<<<<<<< HEAD
 void set_section_perms(struct section_perm *perms, int n, bool set,
 			struct mm_struct *mm)
+=======
+static void set_section_perms(struct section_perm *perms, int n, bool set,
+			      struct mm_struct *mm)
+>>>>>>> upstream/android-13
 {
 	size_t i;
 	unsigned long addr;
@@ -755,15 +934,21 @@ static int __mark_rodata_ro(void *unused)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int kernel_set_to_readonly __read_mostly;
 
 void mark_rodata_ro(void)
 {
 	kernel_set_to_readonly = 1;
+=======
+void mark_rodata_ro(void)
+{
+>>>>>>> upstream/android-13
 	stop_machine(__mark_rodata_ro, NULL, NULL);
 	debug_checkwx();
 }
 
+<<<<<<< HEAD
 void set_kernel_text_rw(void)
 {
 	if (!kernel_set_to_readonly)
@@ -782,6 +967,8 @@ void set_kernel_text_ro(void)
 				current->active_mm);
 }
 
+=======
+>>>>>>> upstream/android-13
 #else
 static inline void fix_kernmem_perms(void) { }
 #endif /* CONFIG_STRICT_KERNEL_RWX */
@@ -796,6 +983,7 @@ void free_initmem(void)
 }
 
 #ifdef CONFIG_BLK_DEV_INITRD
+<<<<<<< HEAD
 
 static int keep_initrd;
 
@@ -819,4 +1007,16 @@ static int __init keepinitrd_setup(char *__unused)
 }
 
 __setup("keepinitrd", keepinitrd_setup);
+=======
+void free_initrd_mem(unsigned long start, unsigned long end)
+{
+	if (start == initrd_start)
+		start = round_down(start, PAGE_SIZE);
+	if (end == initrd_end)
+		end = round_up(end, PAGE_SIZE);
+
+	poison_init_mem((void *)start, PAGE_ALIGN(end) - start);
+	free_reserved_area((void *)start, (void *)end, -1, "initrd");
+}
+>>>>>>> upstream/android-13
 #endif

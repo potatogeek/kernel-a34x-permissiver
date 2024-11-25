@@ -35,9 +35,15 @@
 #include <linux/platform_device.h>
 #include <linux/dma-mapping.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 
 #include <asm/io.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+
+#include <asm/io.h>
+>>>>>>> upstream/android-13
 #include <asm/dma.h>
 
 static char xtsonic_string[] = "xtsonic";
@@ -120,7 +126,11 @@ static const struct net_device_ops xtsonic_netdev_ops = {
 	.ndo_set_mac_address	= eth_mac_addr,
 };
 
+<<<<<<< HEAD
 static int __init sonic_probe1(struct net_device *dev)
+=======
+static int sonic_probe1(struct net_device *dev)
+>>>>>>> upstream/android-13
 {
 	unsigned int silicon_revision;
 	struct sonic_local *lp = netdev_priv(dev);
@@ -167,6 +177,7 @@ static int __init sonic_probe1(struct net_device *dev)
 		dev->dev_addr[i*2+1] = val >> 8;
 	}
 
+<<<<<<< HEAD
 	/* Initialize the device structure. */
 
 	lp->dma_bitmode = SONIC_BITMODE32;
@@ -208,6 +219,13 @@ static int __init sonic_probe1(struct net_device *dev)
 					 * SONIC_BUS_SCALE(lp->dma_bitmode));
 	lp->rra_laddr = lp->rda_laddr + (SIZEOF_SONIC_RD * SONIC_NUM_RDS
 					 * SONIC_BUS_SCALE(lp->dma_bitmode));
+=======
+	lp->dma_bitmode = SONIC_BITMODE32;
+
+	err = sonic_alloc_descriptors(dev);
+	if (err)
+		goto out;
+>>>>>>> upstream/android-13
 
 	dev->netdev_ops		= &xtsonic_netdev_ops;
 	dev->watchdog_timeo	= TX_TIMEOUT;
@@ -251,7 +269,10 @@ int xtsonic_probe(struct platform_device *pdev)
 	lp->device = &pdev->dev;
 	platform_set_drvdata(pdev, dev);
 	SET_NETDEV_DEV(dev, &pdev->dev);
+<<<<<<< HEAD
 	netdev_boot_setup_check(dev);
+=======
+>>>>>>> upstream/android-13
 
 	dev->base_addr = resmem->start;
 	dev->irq = resirq->start;

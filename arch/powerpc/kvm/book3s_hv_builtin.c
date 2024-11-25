@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright 2011 Paul Mackerras, IBM Corp. <paulus@au1.ibm.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2011 Paul Mackerras, IBM Corp. <paulus@au1.ibm.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/cpu.h>
@@ -20,6 +26,10 @@
 
 #include <asm/asm-prototypes.h>
 #include <asm/cputable.h>
+<<<<<<< HEAD
+=======
+#include <asm/interrupt.h>
+>>>>>>> upstream/android-13
 #include <asm/kvm_ppc.h>
 #include <asm/kvm_book3s.h>
 #include <asm/archrandom.h>
@@ -37,6 +47,7 @@
 #include "book3s_xive.h"
 
 /*
+<<<<<<< HEAD
  * The XIVE module will populate these when it loads
  */
 unsigned long (*__xive_vm_h_xirr)(struct kvm_vcpu *vcpu);
@@ -52,6 +63,8 @@ EXPORT_SYMBOL_GPL(__xive_vm_h_cppr);
 EXPORT_SYMBOL_GPL(__xive_vm_h_eoi);
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Hash page table alignment on newer cpus(CPU_FTR_ARCH_206)
  * should be power of 2.
  */
@@ -98,14 +111,19 @@ EXPORT_SYMBOL_GPL(kvm_free_hpt_cma);
 void __init kvm_cma_reserve(void)
 {
 	unsigned long align_size;
+<<<<<<< HEAD
 	struct memblock_region *reg;
 	phys_addr_t selected_size = 0;
+=======
+	phys_addr_t selected_size;
+>>>>>>> upstream/android-13
 
 	/*
 	 * We need CMA reservation only when we are in HV mode
 	 */
 	if (!cpu_has_feature(CPU_FTR_HVMODE))
 		return;
+<<<<<<< HEAD
 	/*
 	 * We cannot use memblock_phys_mem_size() here, because
 	 * memblock_analyze() has not been called yet.
@@ -117,6 +135,12 @@ void __init kvm_cma_reserve(void)
 	selected_size = (selected_size * kvm_cma_resv_ratio / 100) << PAGE_SHIFT;
 	if (selected_size) {
 		pr_debug("%s: reserving %ld MiB for global area\n", __func__,
+=======
+
+	selected_size = PAGE_ALIGN(memblock_phys_mem_size() * kvm_cma_resv_ratio / 100);
+	if (selected_size) {
+		pr_info("%s: reserving %ld MiB for global area\n", __func__,
+>>>>>>> upstream/android-13
 			 (unsigned long)selected_size / SZ_1M);
 		align_size = HPT_ALIGN_PAGES << PAGE_SHIFT;
 		cma_declare_contiguous(0, selected_size, 0, align_size,
@@ -162,23 +186,39 @@ long int kvmppc_rm_h_confer(struct kvm_vcpu *vcpu, int target,
  * exist in the system. We use a counter of VMs to track this.
  *
  * One of the operations we need to block is onlining of secondaries, so we
+<<<<<<< HEAD
  * protect hv_vm_count with get/put_online_cpus().
+=======
+ * protect hv_vm_count with cpus_read_lock/unlock().
+>>>>>>> upstream/android-13
  */
 static atomic_t hv_vm_count;
 
 void kvm_hv_vm_activated(void)
 {
+<<<<<<< HEAD
 	get_online_cpus();
 	atomic_inc(&hv_vm_count);
 	put_online_cpus();
+=======
+	cpus_read_lock();
+	atomic_inc(&hv_vm_count);
+	cpus_read_unlock();
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(kvm_hv_vm_activated);
 
 void kvm_hv_vm_deactivated(void)
 {
+<<<<<<< HEAD
 	get_online_cpus();
 	atomic_dec(&hv_vm_count);
 	put_online_cpus();
+=======
+	cpus_read_lock();
+	atomic_dec(&hv_vm_count);
+	cpus_read_unlock();
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(kvm_hv_vm_deactivated);
 
@@ -206,6 +246,7 @@ int kvmppc_hwrng_present(void)
 }
 EXPORT_SYMBOL_GPL(kvmppc_hwrng_present);
 
+<<<<<<< HEAD
 long kvmppc_h_random(struct kvm_vcpu *vcpu)
 {
 	int r;
@@ -216,6 +257,11 @@ long kvmppc_h_random(struct kvm_vcpu *vcpu)
 	else
 		r = powernv_get_random_real_mode(&vcpu->arch.regs.gpr[4]);
 	if (r)
+=======
+long kvmppc_rm_h_random(struct kvm_vcpu *vcpu)
+{
+	if (powernv_get_random_real_mode(&vcpu->arch.regs.gpr[4]))
+>>>>>>> upstream/android-13
 		return H_SUCCESS;
 
 	return H_HARDWARE;
@@ -248,7 +294,11 @@ void kvmhv_rm_send_ipi(int cpu)
 	}
 
 	/* We should never reach this */
+<<<<<<< HEAD
 	if (WARN_ON_ONCE(xive_enabled()))
+=======
+	if (WARN_ON_ONCE(xics_on_xive()))
+>>>>>>> upstream/android-13
 	    return;
 
 	/* Else poke the target with an IPI */
@@ -279,8 +329,12 @@ void kvmhv_commence_exit(int trap)
 	struct kvmppc_vcore *vc = local_paca->kvm_hstate.kvm_vcore;
 	int ptid = local_paca->kvm_hstate.ptid;
 	struct kvm_split_mode *sip = local_paca->kvm_hstate.kvm_split_mode;
+<<<<<<< HEAD
 	int me, ee, i, t;
 	int cpu0;
+=======
+	int me, ee, i;
+>>>>>>> upstream/android-13
 
 	/* Set our bit in the threads-exiting-guest map in the 0xff00
 	   bits of vcore->entry_exit_map */
@@ -322,6 +376,7 @@ void kvmhv_commence_exit(int trap)
 		if ((ee >> 8) == 0)
 			kvmhv_interrupt_vcore(vc, ee);
 	}
+<<<<<<< HEAD
 
 	/*
 	 * On POWER9 when running a HPT guest on a radix host (sip != NULL),
@@ -338,6 +393,8 @@ void kvmhv_commence_exit(int trap)
 			}
 		}
 	}
+=======
+>>>>>>> upstream/android-13
 }
 
 struct kvmppc_host_rm_ops *kvmppc_host_rm_ops_hv;
@@ -540,15 +597,19 @@ static long kvmppc_read_one_intr(bool *again)
 }
 
 #ifdef CONFIG_KVM_XICS
+<<<<<<< HEAD
 static inline bool is_rm(void)
 {
 	return !(mfmsr() & MSR_DR);
 }
 
+=======
+>>>>>>> upstream/android-13
 unsigned long kvmppc_rm_h_xirr(struct kvm_vcpu *vcpu)
 {
 	if (!kvmppc_xics_enabled(vcpu))
 		return H_TOO_HARD;
+<<<<<<< HEAD
 	if (xive_enabled()) {
 		if (is_rm())
 			return xive_rm_h_xirr(vcpu);
@@ -556,6 +617,11 @@ unsigned long kvmppc_rm_h_xirr(struct kvm_vcpu *vcpu)
 			return H_NOT_AVAILABLE;
 		return __xive_vm_h_xirr(vcpu);
 	} else
+=======
+	if (xics_on_xive())
+		return xive_rm_h_xirr(vcpu);
+	else
+>>>>>>> upstream/android-13
 		return xics_rm_h_xirr(vcpu);
 }
 
@@ -564,6 +630,7 @@ unsigned long kvmppc_rm_h_xirr_x(struct kvm_vcpu *vcpu)
 	if (!kvmppc_xics_enabled(vcpu))
 		return H_TOO_HARD;
 	vcpu->arch.regs.gpr[5] = get_tb();
+<<<<<<< HEAD
 	if (xive_enabled()) {
 		if (is_rm())
 			return xive_rm_h_xirr(vcpu);
@@ -571,6 +638,11 @@ unsigned long kvmppc_rm_h_xirr_x(struct kvm_vcpu *vcpu)
 			return H_NOT_AVAILABLE;
 		return __xive_vm_h_xirr(vcpu);
 	} else
+=======
+	if (xics_on_xive())
+		return xive_rm_h_xirr(vcpu);
+	else
+>>>>>>> upstream/android-13
 		return xics_rm_h_xirr(vcpu);
 }
 
@@ -578,6 +650,7 @@ unsigned long kvmppc_rm_h_ipoll(struct kvm_vcpu *vcpu, unsigned long server)
 {
 	if (!kvmppc_xics_enabled(vcpu))
 		return H_TOO_HARD;
+<<<<<<< HEAD
 	if (xive_enabled()) {
 		if (is_rm())
 			return xive_rm_h_ipoll(vcpu, server);
@@ -585,6 +658,11 @@ unsigned long kvmppc_rm_h_ipoll(struct kvm_vcpu *vcpu, unsigned long server)
 			return H_NOT_AVAILABLE;
 		return __xive_vm_h_ipoll(vcpu, server);
 	} else
+=======
+	if (xics_on_xive())
+		return xive_rm_h_ipoll(vcpu, server);
+	else
+>>>>>>> upstream/android-13
 		return H_TOO_HARD;
 }
 
@@ -593,6 +671,7 @@ int kvmppc_rm_h_ipi(struct kvm_vcpu *vcpu, unsigned long server,
 {
 	if (!kvmppc_xics_enabled(vcpu))
 		return H_TOO_HARD;
+<<<<<<< HEAD
 	if (xive_enabled()) {
 		if (is_rm())
 			return xive_rm_h_ipi(vcpu, server, mfrr);
@@ -600,6 +679,11 @@ int kvmppc_rm_h_ipi(struct kvm_vcpu *vcpu, unsigned long server,
 			return H_NOT_AVAILABLE;
 		return __xive_vm_h_ipi(vcpu, server, mfrr);
 	} else
+=======
+	if (xics_on_xive())
+		return xive_rm_h_ipi(vcpu, server, mfrr);
+	else
+>>>>>>> upstream/android-13
 		return xics_rm_h_ipi(vcpu, server, mfrr);
 }
 
@@ -607,6 +691,7 @@ int kvmppc_rm_h_cppr(struct kvm_vcpu *vcpu, unsigned long cppr)
 {
 	if (!kvmppc_xics_enabled(vcpu))
 		return H_TOO_HARD;
+<<<<<<< HEAD
 	if (xive_enabled()) {
 		if (is_rm())
 			return xive_rm_h_cppr(vcpu, cppr);
@@ -614,6 +699,11 @@ int kvmppc_rm_h_cppr(struct kvm_vcpu *vcpu, unsigned long cppr)
 			return H_NOT_AVAILABLE;
 		return __xive_vm_h_cppr(vcpu, cppr);
 	} else
+=======
+	if (xics_on_xive())
+		return xive_rm_h_cppr(vcpu, cppr);
+	else
+>>>>>>> upstream/android-13
 		return xics_rm_h_cppr(vcpu, cppr);
 }
 
@@ -621,6 +711,7 @@ int kvmppc_rm_h_eoi(struct kvm_vcpu *vcpu, unsigned long xirr)
 {
 	if (!kvmppc_xics_enabled(vcpu))
 		return H_TOO_HARD;
+<<<<<<< HEAD
 	if (xive_enabled()) {
 		if (is_rm())
 			return xive_rm_h_eoi(vcpu, xirr);
@@ -628,6 +719,11 @@ int kvmppc_rm_h_eoi(struct kvm_vcpu *vcpu, unsigned long xirr)
 			return H_NOT_AVAILABLE;
 		return __xive_vm_h_eoi(vcpu, xirr);
 	} else
+=======
+	if (xics_on_xive())
+		return xive_rm_h_eoi(vcpu, xirr);
+	else
+>>>>>>> upstream/android-13
 		return xics_rm_h_eoi(vcpu, xirr);
 }
 #endif /* CONFIG_KVM_XICS */
@@ -650,6 +746,7 @@ void kvmppc_bad_interrupt(struct pt_regs *regs)
 	panic("Bad KVM trap");
 }
 
+<<<<<<< HEAD
 /*
  * Functions used to switch LPCR HR and UPRT bits on all threads
  * when entering and exiting HPT guests on a radix host.
@@ -729,3 +826,172 @@ void kvmhv_p9_restore_lpcr(struct kvm_split_mode *sip)
 	smp_mb();
 	local_paca->kvm_hstate.kvm_split_mode = NULL;
 }
+=======
+static void kvmppc_end_cede(struct kvm_vcpu *vcpu)
+{
+	vcpu->arch.ceded = 0;
+	if (vcpu->arch.timer_running) {
+		hrtimer_try_to_cancel(&vcpu->arch.dec_timer);
+		vcpu->arch.timer_running = 0;
+	}
+}
+
+void kvmppc_set_msr_hv(struct kvm_vcpu *vcpu, u64 msr)
+{
+	/* Guest must always run with ME enabled, HV disabled. */
+	msr = (msr | MSR_ME) & ~MSR_HV;
+
+	/*
+	 * Check for illegal transactional state bit combination
+	 * and if we find it, force the TS field to a safe state.
+	 */
+	if ((msr & MSR_TS_MASK) == MSR_TS_MASK)
+		msr &= ~MSR_TS_MASK;
+	vcpu->arch.shregs.msr = msr;
+	kvmppc_end_cede(vcpu);
+}
+EXPORT_SYMBOL_GPL(kvmppc_set_msr_hv);
+
+static void inject_interrupt(struct kvm_vcpu *vcpu, int vec, u64 srr1_flags)
+{
+	unsigned long msr, pc, new_msr, new_pc;
+
+	msr = kvmppc_get_msr(vcpu);
+	pc = kvmppc_get_pc(vcpu);
+	new_msr = vcpu->arch.intr_msr;
+	new_pc = vec;
+
+	/* If transactional, change to suspend mode on IRQ delivery */
+	if (MSR_TM_TRANSACTIONAL(msr))
+		new_msr |= MSR_TS_S;
+	else
+		new_msr |= msr & MSR_TS_MASK;
+
+	/*
+	 * Perform MSR and PC adjustment for LPCR[AIL]=3 if it is set and
+	 * applicable. AIL=2 is not supported.
+	 *
+	 * AIL does not apply to SRESET, MCE, or HMI (which is never
+	 * delivered to the guest), and does not apply if IR=0 or DR=0.
+	 */
+	if (vec != BOOK3S_INTERRUPT_SYSTEM_RESET &&
+	    vec != BOOK3S_INTERRUPT_MACHINE_CHECK &&
+	    (vcpu->arch.vcore->lpcr & LPCR_AIL) == LPCR_AIL_3 &&
+	    (msr & (MSR_IR|MSR_DR)) == (MSR_IR|MSR_DR) ) {
+		new_msr |= MSR_IR | MSR_DR;
+		new_pc += 0xC000000000004000ULL;
+	}
+
+	kvmppc_set_srr0(vcpu, pc);
+	kvmppc_set_srr1(vcpu, (msr & SRR1_MSR_BITS) | srr1_flags);
+	kvmppc_set_pc(vcpu, new_pc);
+	vcpu->arch.shregs.msr = new_msr;
+}
+
+void kvmppc_inject_interrupt_hv(struct kvm_vcpu *vcpu, int vec, u64 srr1_flags)
+{
+	inject_interrupt(vcpu, vec, srr1_flags);
+	kvmppc_end_cede(vcpu);
+}
+EXPORT_SYMBOL_GPL(kvmppc_inject_interrupt_hv);
+
+/*
+ * Is there a PRIV_DOORBELL pending for the guest (on POWER9)?
+ * Can we inject a Decrementer or a External interrupt?
+ */
+void kvmppc_guest_entry_inject_int(struct kvm_vcpu *vcpu)
+{
+	int ext;
+	unsigned long lpcr;
+
+	/* Insert EXTERNAL bit into LPCR at the MER bit position */
+	ext = (vcpu->arch.pending_exceptions >> BOOK3S_IRQPRIO_EXTERNAL) & 1;
+	lpcr = mfspr(SPRN_LPCR);
+	lpcr |= ext << LPCR_MER_SH;
+	mtspr(SPRN_LPCR, lpcr);
+	isync();
+
+	if (vcpu->arch.shregs.msr & MSR_EE) {
+		if (ext) {
+			inject_interrupt(vcpu, BOOK3S_INTERRUPT_EXTERNAL, 0);
+		} else {
+			long int dec = mfspr(SPRN_DEC);
+			if (!(lpcr & LPCR_LD))
+				dec = (int) dec;
+			if (dec < 0)
+				inject_interrupt(vcpu,
+					BOOK3S_INTERRUPT_DECREMENTER, 0);
+		}
+	}
+
+	if (vcpu->arch.doorbell_request) {
+		mtspr(SPRN_DPDES, 1);
+		vcpu->arch.vcore->dpdes = 1;
+		smp_wmb();
+		vcpu->arch.doorbell_request = 0;
+	}
+}
+
+static void flush_guest_tlb(struct kvm *kvm)
+{
+	unsigned long rb, set;
+
+	rb = PPC_BIT(52);	/* IS = 2 */
+	if (kvm_is_radix(kvm)) {
+		/* R=1 PRS=1 RIC=2 */
+		asm volatile(PPC_TLBIEL(%0, %4, %3, %2, %1)
+			     : : "r" (rb), "i" (1), "i" (1), "i" (2),
+			       "r" (0) : "memory");
+		for (set = 1; set < kvm->arch.tlb_sets; ++set) {
+			rb += PPC_BIT(51);	/* increment set number */
+			/* R=1 PRS=1 RIC=0 */
+			asm volatile(PPC_TLBIEL(%0, %4, %3, %2, %1)
+				     : : "r" (rb), "i" (1), "i" (1), "i" (0),
+				       "r" (0) : "memory");
+		}
+		asm volatile("ptesync": : :"memory");
+		// POWER9 congruence-class TLBIEL leaves ERAT. Flush it now.
+		asm volatile(PPC_RADIX_INVALIDATE_ERAT_GUEST : : :"memory");
+	} else {
+		for (set = 0; set < kvm->arch.tlb_sets; ++set) {
+			/* R=0 PRS=0 RIC=0 */
+			asm volatile(PPC_TLBIEL(%0, %4, %3, %2, %1)
+				     : : "r" (rb), "i" (0), "i" (0), "i" (0),
+				       "r" (0) : "memory");
+			rb += PPC_BIT(51);	/* increment set number */
+		}
+		asm volatile("ptesync": : :"memory");
+		// POWER9 congruence-class TLBIEL leaves ERAT. Flush it now.
+		if (cpu_has_feature(CPU_FTR_ARCH_300))
+			asm volatile(PPC_ISA_3_0_INVALIDATE_ERAT : : :"memory");
+	}
+}
+
+void kvmppc_check_need_tlb_flush(struct kvm *kvm, int pcpu,
+				 struct kvm_nested_guest *nested)
+{
+	cpumask_t *need_tlb_flush;
+
+	/*
+	 * On POWER9, individual threads can come in here, but the
+	 * TLB is shared between the 4 threads in a core, hence
+	 * invalidating on one thread invalidates for all.
+	 * Thus we make all 4 threads use the same bit.
+	 */
+	if (cpu_has_feature(CPU_FTR_ARCH_300))
+		pcpu = cpu_first_tlb_thread_sibling(pcpu);
+
+	if (nested)
+		need_tlb_flush = &nested->need_tlb_flush;
+	else
+		need_tlb_flush = &kvm->arch.need_tlb_flush;
+
+	if (cpumask_test_cpu(pcpu, need_tlb_flush)) {
+		flush_guest_tlb(kvm);
+
+		/* Clear the bit after the TLB flush */
+		cpumask_clear_cpu(pcpu, need_tlb_flush);
+	}
+}
+EXPORT_SYMBOL_GPL(kvmppc_check_need_tlb_flush);
+>>>>>>> upstream/android-13

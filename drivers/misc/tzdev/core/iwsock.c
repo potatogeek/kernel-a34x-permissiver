@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Copyright (C) 2012-2019, Samsung Electronics Co., Ltd.
+=======
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd All Rights Reserved
+>>>>>>> upstream/android-13
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -136,6 +140,20 @@ static struct task_struct *notification_kthread;
 
 static unsigned int tz_iwsock_state = NOT_INITIALIZED;
 
+<<<<<<< HEAD
+=======
+static inline
+size_t tz_iwsock_buffer_size(size_t size)
+{
+	/*
+	 * TODO: consider tz_cmsghdr_fd, when/if we support it.
+	 * Also check core/socket.c (ditto TEEGRIS-2718).
+	 */
+	return (circ_buf_size_for_packet(sizeof(struct tz_cmsghdr_cred)) +
+			circ_buf_size_for_packet(size));
+}
+
+>>>>>>> upstream/android-13
 static void tz_iwsock_free_resources(struct sock_desc *sd)
 {
 	tz_iwio_free_iw_channel(sd->iwd_buf);
@@ -393,6 +411,10 @@ struct sock_desc *tz_iwsock_socket(unsigned int is_kern, unsigned int is_interru
 
 	return sd;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL(tz_iwsock_socket);
+>>>>>>> upstream/android-13
 
 static int tz_iwsock_copy_from(void *dst, void *src, int size, unsigned int is_kern)
 {
@@ -492,8 +514,12 @@ static int tz_iwsock_setsockopt_socket(struct sock_desc *sd,
 		if (!size)
 			return -EINVAL;
 
+<<<<<<< HEAD
 		sd->snd_buf_size = circ_buf_size_for_packet(size) +
 				circ_buf_size_for_packet(sizeof(struct tz_cmsghdr_cred));
+=======
+		sd->snd_buf_size = tz_iwsock_buffer_size(size);
+>>>>>>> upstream/android-13
 
 		return 0;
 
@@ -505,8 +531,12 @@ static int tz_iwsock_setsockopt_socket(struct sock_desc *sd,
 		if (!size)
 			return -EINVAL;
 
+<<<<<<< HEAD
 		sd->rcv_buf_size = circ_buf_size_for_packet(size) +
 				circ_buf_size_for_packet(sizeof(struct tz_cmsghdr_cred));
+=======
+		sd->rcv_buf_size = tz_iwsock_buffer_size(size);
+>>>>>>> upstream/android-13
 
 		return 0;
 
@@ -528,8 +558,12 @@ static int tz_iwsock_setsockopt_iwd(struct sock_desc *sd,
 			return -EFAULT;
 
 		if (size)
+<<<<<<< HEAD
 			sd->max_msg_size = circ_buf_size_for_packet(size) +
 					circ_buf_size_for_packet(sizeof(struct tz_cmsghdr_cred));
+=======
+			sd->max_msg_size = tz_iwsock_buffer_size(size);
+>>>>>>> upstream/android-13
 		else
 			sd->max_msg_size = 0;
 
@@ -643,6 +677,10 @@ sock_connect_failed:
 
 	return ret;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL(tz_iwsock_connect);
+>>>>>>> upstream/android-13
 
 static int tz_iwsock_is_connection_done(struct sock_desc *sd)
 {
@@ -831,6 +869,7 @@ struct sock_desc *tz_iwsock_accept(struct sock_desc *sd)
 		goto socket_allocation_failed;
 	}
 
+<<<<<<< HEAD
 	new_sd->snd_buf_size = circ_buf_size_for_packet(conn_req.snd_buf_size) +
 			circ_buf_size_for_packet(sizeof(struct tz_cmsghdr_cred));
 	new_sd->rcv_buf_size = circ_buf_size_for_packet(conn_req.rcv_buf_size) +
@@ -841,6 +880,14 @@ struct sock_desc *tz_iwsock_accept(struct sock_desc *sd)
 	if (conn_req.max_msg_size)
 		new_sd->max_msg_size = circ_buf_size_for_packet(conn_req.max_msg_size) +
 				circ_buf_size_for_packet(sizeof(struct tz_cmsghdr_cred));
+=======
+	new_sd->snd_buf_size = conn_req.snd_buf_size;
+	new_sd->rcv_buf_size = conn_req.rcv_buf_size;
+	new_sd->oob_buf_size = conn_req.oob_buf_size;
+
+	/* NB: this relies on the fact that DEFAULT_MAX_MSG_SIZE is 0. */
+	new_sd->max_msg_size = conn_req.max_msg_size;
+>>>>>>> upstream/android-13
 
 	ext_data.swd_id = conn_req.swd_id;
 
@@ -932,14 +979,58 @@ void tz_iwsock_release(struct sock_desc *sd)
 
 	return;
 }
+<<<<<<< HEAD
 
 static int __tz_iwsock_read(struct sock_desc *sd, struct circ_buf_desc *read_buf,
+=======
+EXPORT_SYMBOL(tz_iwsock_release);
+
+static ssize_t __tz_iwsock_read_cred_unlocked(struct circ_buf_desc *read_buf, struct tz_msghdr *msg, int mode)
+{
+	ssize_t ret;
+
+	if (msg->msg_control && (msg->msg_controllen >= sizeof(struct tz_cmsghdr_cred))) {
+		ret = circ_buf_read_packet_local(read_buf,
+				(char *)msg->msg_control,
+				sizeof(struct tz_cmsghdr_cred),
+				mode);
+
+		if (IS_ERR_VALUE(ret)) {
+			if (ret != -EAGAIN)
+				log_error(tzdev_iwsock, "Failed to read socket, error=%ld\n", ret);
+		} else if (ret != sizeof(struct tz_cmsghdr_cred)) {
+			log_error(tzdev_iwsock, "Failed to read socket, invalid packet size=%ld\n", ret);
+			return -EINVAL;
+		} else {
+			msg->msg_controllen = ret;
+		}
+	} else {
+		ret = circ_buf_drop_packet(read_buf);
+
+		if (IS_ERR_VALUE(ret)) {
+			if (ret != -EAGAIN)
+				log_error(tzdev_iwsock, "Failed to read socket, drop packet failed, error=%ld\n", ret);
+		}
+		if (msg->msg_control && (msg->msg_controllen < sizeof(struct tz_cmsghdr_cred)))
+			ret = -EMSGSIZE;
+		if (!IS_ERR_VALUE(ret))
+			msg->msg_controllen = 0;
+	}
+	return ret;
+}
+
+static ssize_t __tz_iwsock_read(struct sock_desc *sd, struct circ_buf_desc *read_buf,
+>>>>>>> upstream/android-13
 			struct tz_msghdr *msg, size_t len, int flags,
 			unsigned int *need_notify)
 {
 	int mode = (sd->is_kern) ? CIRC_BUF_MODE_KERNEL : CIRC_BUF_MODE_USER;
 	int swd_state;
+<<<<<<< HEAD
 	long ret;
+=======
+	ssize_t ret;
+>>>>>>> upstream/android-13
 	size_t nbytes;
 	int try_count = 0;
 
@@ -968,6 +1059,7 @@ static int __tz_iwsock_read(struct sock_desc *sd, struct circ_buf_desc *read_buf
 retry:
 	smp_rmb();
 
+<<<<<<< HEAD
 	if (msg->msg_control) {
 		ret = circ_buf_read_packet_local(read_buf,
 				(char *)msg->msg_control,
@@ -990,6 +1082,11 @@ retry:
 			goto recheck;
 		}
 	}
+=======
+	ret = __tz_iwsock_read_cred_unlocked(read_buf, msg, mode);
+	if (IS_ERR_VALUE(ret))
+		goto recheck;
+>>>>>>> upstream/android-13
 
 	ret = circ_buf_read_packet(read_buf, (char *)msg->msgbuf, len, mode);
 
@@ -1013,12 +1110,19 @@ recheck:
 unlock:
 	mutex_unlock(&sd->lock);
 
+<<<<<<< HEAD
+=======
+	if (!IS_ERR_VALUE(ret)) {
+		msg->msglen = ret;
+	}
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 ssize_t tz_iwsock_read_msg(struct sock_desc *sd,
 		struct tz_msghdr *msg, int flags)
 {
+<<<<<<< HEAD
 	int res = 0, ret = 0;
 	unsigned int need_notify = 0;
 
@@ -1030,6 +1134,22 @@ ssize_t tz_iwsock_read_msg(struct sock_desc *sd,
 		res = wait_event_interruptible_nested(sd->wq,
 				(ret = __tz_iwsock_read(sd, &sd->read_buf, msg,
 				msg->msglen, flags, &need_notify)) != -EAGAIN);
+=======
+	int res = 0;
+	ssize_t ret = 0;
+	unsigned int need_notify = 0;
+
+	might_sleep_if(!(flags & MSG_DONTWAIT));
+
+	if (sd->is_kern && !sd->is_interruptible)
+		wait_event_uninterruptible_freezable_nested(sd->wq,
+				(ret = __tz_iwsock_read(sd, &sd->read_buf, msg,
+				msg->msglen, flags, &need_notify)) != -EAGAIN || flags & MSG_DONTWAIT);
+	else
+		res = wait_event_interruptible_nested(sd->wq,
+				(ret = __tz_iwsock_read(sd, &sd->read_buf, msg,
+				msg->msglen, flags, &need_notify)) != -EAGAIN || flags & MSG_DONTWAIT);
+>>>>>>> upstream/android-13
 
 	if (res)
 		ret = res;
@@ -1049,6 +1169,10 @@ ssize_t tz_iwsock_read(struct sock_desc *sd, void *buf, size_t count, int flags)
 
 	return tz_iwsock_read_msg(sd, &msghdr, flags);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL(tz_iwsock_read);
+>>>>>>> upstream/android-13
 
 static int tz_iwsock_format_cred_scm(struct sock_desc *sd)
 {
@@ -1068,10 +1192,17 @@ static int tz_iwsock_format_cred_scm(struct sock_desc *sd)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int __tz_iwsock_write(struct sock_desc *sd, struct circ_buf_desc *write_buf,
 			void *scm_buf, size_t scm_len, void *data_buf, size_t data_len, int flags)
 {
 	long ret;
+=======
+static ssize_t __tz_iwsock_write(struct sock_desc *sd, struct circ_buf_desc *write_buf,
+			void *scm_buf, size_t scm_len, void *data_buf, size_t data_len, int flags)
+{
+	ssize_t ret;
+>>>>>>> upstream/android-13
 	int mode = (sd->is_kern) ? CIRC_BUF_MODE_KERNEL : CIRC_BUF_MODE_USER;
 
 	if (unlikely(tz_iwsock_state != READY)) {
@@ -1127,23 +1258,41 @@ unlock:
 ssize_t tz_iwsock_write(struct sock_desc *sd, void *buf, size_t count, int flags)
 {
 	struct circ_buf_desc *write_buf;
+<<<<<<< HEAD
 	int ret, res = 0;
+=======
+	int res = 0;
+	ssize_t ret;
+>>>>>>> upstream/android-13
 
 	write_buf = (flags & MSG_OOB) ? &sd->oob_buf : &sd->write_buf;
 
 	if ((ret = tz_iwsock_format_cred_scm(sd)))
 		return ret;
 
+<<<<<<< HEAD
+=======
+	might_sleep_if(!(flags & MSG_DONTWAIT));
+
+>>>>>>> upstream/android-13
 	if (sd->is_kern && !sd->is_interruptible)
 		wait_event_uninterruptible_freezable_nested(sd->wq,
 				(ret = __tz_iwsock_write(sd, write_buf, &sd->cred,
 				sizeof(struct tz_cmsghdr_cred),
+<<<<<<< HEAD
 				buf, count, flags)) != -EAGAIN);
+=======
+				buf, count, flags)) != -EAGAIN || flags & MSG_DONTWAIT);
+>>>>>>> upstream/android-13
 	else
 		res = wait_event_interruptible_nested(sd->wq,
 				(ret = __tz_iwsock_write(sd, write_buf, &sd->cred,
 				sizeof(struct tz_cmsghdr_cred),
+<<<<<<< HEAD
 				buf, count, flags)) != -EAGAIN);
+=======
+				buf, count, flags)) != -EAGAIN || flags & MSG_DONTWAIT);
+>>>>>>> upstream/android-13
 
 	if (res)
 		ret = res;
@@ -1153,6 +1302,10 @@ ssize_t tz_iwsock_write(struct sock_desc *sd, void *buf, size_t count, int flags
 
 	return ret;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL(tz_iwsock_write);
+>>>>>>> upstream/android-13
 
 void tz_iwsock_wake_up_all(void)
 {

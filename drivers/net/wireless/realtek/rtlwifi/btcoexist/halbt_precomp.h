@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
@@ -21,6 +22,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  ******************************************************************************/
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/* Copyright(c) 2007-2011  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #ifndef	__HALBT_PRECOMP_H__
 #define __HALBT_PRECOMP_H__
@@ -49,8 +54,11 @@
 #include "halbtc8821a2ant.h"
 #include "halbtc8821a1ant.h"
 
+<<<<<<< HEAD
 #define GetDefaultAdapter(padapter)	padapter
 
+=======
+>>>>>>> upstream/android-13
 #define BIT0	0x00000001
 #define BIT1	0x00000002
 #define BIT2	0x00000004

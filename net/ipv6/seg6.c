@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  SR-IPv6 implementation
  *
  *  Author:
  *  David Lebrun <david.lebrun@uclouvain.be>
+<<<<<<< HEAD
  *
  *
  *  This program is free software; you can redistribute it and/or
  *	  modify it under the terms of the GNU General Public License
  *	  as published by the Free Software Foundation; either version
  *	  2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/errno.h>
@@ -30,10 +37,18 @@
 #include <net/seg6_hmac.h>
 #endif
 
+<<<<<<< HEAD
 bool seg6_validate_srh(struct ipv6_sr_hdr *srh, int len)
 {
 	int trailing;
 	unsigned int tlv_offset;
+=======
+bool seg6_validate_srh(struct ipv6_sr_hdr *srh, int len, bool reduced)
+{
+	unsigned int tlv_offset;
+	int max_last_entry;
+	int trailing;
+>>>>>>> upstream/android-13
 
 	if (srh->type != IPV6_SRCRT_TYPE_4)
 		return false;
@@ -41,8 +56,22 @@ bool seg6_validate_srh(struct ipv6_sr_hdr *srh, int len)
 	if (((srh->hdrlen + 1) << 3) != len)
 		return false;
 
+<<<<<<< HEAD
 	if (srh->segments_left > srh->first_segment)
 		return false;
+=======
+	if (!reduced && srh->segments_left > srh->first_segment) {
+		return false;
+	} else {
+		max_last_entry = (srh->hdrlen / 2) - 1;
+
+		if (srh->first_segment > max_last_entry)
+			return false;
+
+		if (srh->segments_left > srh->first_segment + 1)
+			return false;
+	}
+>>>>>>> upstream/android-13
 
 	tlv_offset = sizeof(*srh) + ((srh->first_segment + 1) << 4);
 
@@ -70,6 +99,68 @@ bool seg6_validate_srh(struct ipv6_sr_hdr *srh, int len)
 	return true;
 }
 
+<<<<<<< HEAD
+=======
+struct ipv6_sr_hdr *seg6_get_srh(struct sk_buff *skb, int flags)
+{
+	struct ipv6_sr_hdr *srh;
+	int len, srhoff = 0;
+
+	if (ipv6_find_hdr(skb, &srhoff, IPPROTO_ROUTING, NULL, &flags) < 0)
+		return NULL;
+
+	if (!pskb_may_pull(skb, srhoff + sizeof(*srh)))
+		return NULL;
+
+	srh = (struct ipv6_sr_hdr *)(skb->data + srhoff);
+
+	len = (srh->hdrlen + 1) << 3;
+
+	if (!pskb_may_pull(skb, srhoff + len))
+		return NULL;
+
+	/* note that pskb_may_pull may change pointers in header;
+	 * for this reason it is necessary to reload them when needed.
+	 */
+	srh = (struct ipv6_sr_hdr *)(skb->data + srhoff);
+
+	if (!seg6_validate_srh(srh, len, true))
+		return NULL;
+
+	return srh;
+}
+
+/* Determine if an ICMP invoking packet contains a segment routing
+ * header.  If it does, extract the offset to the true destination
+ * address, which is in the first segment address.
+ */
+void seg6_icmp_srh(struct sk_buff *skb, struct inet6_skb_parm *opt)
+{
+	__u16 network_header = skb->network_header;
+	struct ipv6_sr_hdr *srh;
+
+	/* Update network header to point to the invoking packet
+	 * inside the ICMP packet, so we can use the seg6_get_srh()
+	 * helper.
+	 */
+	skb_reset_network_header(skb);
+
+	srh = seg6_get_srh(skb, 0);
+	if (!srh)
+		goto out;
+
+	if (srh->type != IPV6_SRCRT_TYPE_4)
+		goto out;
+
+	opt->flags |= IP6SKB_SEG6;
+	opt->srhoff = (unsigned char *)srh - skb->data;
+
+out:
+	/* Restore the network header back to the ICMP packet */
+	skb->network_header = network_header;
+}
+
+>>>>>>> upstream/android-13
 static struct genl_family seg6_genl_family;
 
 static const struct nla_policy seg6_genl_policy[SEG6_ATTR_MAX + 1] = {
@@ -117,9 +208,12 @@ static int seg6_genl_sethmac(struct sk_buff *skb, struct genl_info *info)
 	hinfo = seg6_hmac_info_lookup(net, hmackeyid);
 
 	if (!slen) {
+<<<<<<< HEAD
 		if (!hinfo)
 			err = -ENOENT;
 
+=======
+>>>>>>> upstream/android-13
 		err = seg6_hmac_info_del(net, hmackeyid);
 
 		goto out_unlock;
@@ -398,28 +492,50 @@ static struct pernet_operations ip6_segments_ops = {
 static const struct genl_ops seg6_genl_ops[] = {
 	{
 		.cmd	= SEG6_CMD_SETHMAC,
+<<<<<<< HEAD
 		.doit	= seg6_genl_sethmac,
 		.policy	= seg6_genl_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit	= seg6_genl_sethmac,
+>>>>>>> upstream/android-13
 		.flags	= GENL_ADMIN_PERM,
 	},
 	{
 		.cmd	= SEG6_CMD_DUMPHMAC,
+<<<<<<< HEAD
 		.start	= seg6_genl_dumphmac_start,
 		.dumpit	= seg6_genl_dumphmac,
 		.done	= seg6_genl_dumphmac_done,
 		.policy	= seg6_genl_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.start	= seg6_genl_dumphmac_start,
+		.dumpit	= seg6_genl_dumphmac,
+		.done	= seg6_genl_dumphmac_done,
+>>>>>>> upstream/android-13
 		.flags	= GENL_ADMIN_PERM,
 	},
 	{
 		.cmd	= SEG6_CMD_SET_TUNSRC,
+<<<<<<< HEAD
 		.doit	= seg6_genl_set_tunsrc,
 		.policy	= seg6_genl_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit	= seg6_genl_set_tunsrc,
+>>>>>>> upstream/android-13
 		.flags	= GENL_ADMIN_PERM,
 	},
 	{
 		.cmd	= SEG6_CMD_GET_TUNSRC,
+<<<<<<< HEAD
 		.doit	= seg6_genl_get_tunsrc,
 		.policy = seg6_genl_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit	= seg6_genl_get_tunsrc,
+>>>>>>> upstream/android-13
 		.flags	= GENL_ADMIN_PERM,
 	},
 };
@@ -429,6 +545,10 @@ static struct genl_family seg6_genl_family __ro_after_init = {
 	.name		= SEG6_GENL_NAME,
 	.version	= SEG6_GENL_VERSION,
 	.maxattr	= SEG6_ATTR_MAX,
+<<<<<<< HEAD
+=======
+	.policy = seg6_genl_policy,
+>>>>>>> upstream/android-13
 	.netnsok	= true,
 	.parallel_ops	= true,
 	.ops		= seg6_genl_ops,
@@ -438,7 +558,11 @@ static struct genl_family seg6_genl_family __ro_after_init = {
 
 int __init seg6_init(void)
 {
+<<<<<<< HEAD
 	int err = -ENOMEM;
+=======
+	int err;
+>>>>>>> upstream/android-13
 
 	err = genl_register_family(&seg6_genl_family);
 	if (err)

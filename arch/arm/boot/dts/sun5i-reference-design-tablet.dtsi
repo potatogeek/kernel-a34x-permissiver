@@ -54,7 +54,12 @@
 		pwms = <&pwm 0 50000 PWM_POLARITY_INVERTED>;
 		brightness-levels = <0 10 20 30 40 50 60 70 80 90 100>;
 		default-brightness-level = <8>;
+<<<<<<< HEAD
 		/* TODO: backlight uses axp gpio1 as enable pin */
+=======
+		enable-gpios = <&axp_gpio 1 GPIO_ACTIVE_HIGH>; /* AXP GPIO1 */
+		power-supply = <&reg_vcc3v0>;
+>>>>>>> upstream/android-13
 	};
 
 	chosen {
@@ -63,8 +68,11 @@
 };
 
 &codec {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&codec_pa_pin>;
+=======
+>>>>>>> upstream/android-13
 	allwinner,pa-gpios = <&pio 6 10 GPIO_ACTIVE_HIGH>; /* PG10 */
 	status = "okay";
 };
@@ -96,8 +104,11 @@
 		reg = <0x40>;
 		interrupt-parent = <&pio>;
 		interrupts = <6 11 IRQ_TYPE_EDGE_FALLING>; /* EINT11 (PG11) */
+<<<<<<< HEAD
 		pinctrl-names = "default";
 		pinctrl-0 = <&ts_power_pin>;
+=======
+>>>>>>> upstream/android-13
 		power-gpios = <&pio 1 3 GPIO_ACTIVE_HIGH>; /* PB3 */
 		/* Tablet dts must provide reg and compatible */
 		status = "disabled";
@@ -125,7 +136,11 @@
 
 &mmc0 {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&mmc0_pins_a>, <&mmc0_cd_pin>;
+=======
+	pinctrl-0 = <&mmc0_pins>;
+>>>>>>> upstream/android-13
 	vmmc-supply = <&reg_vcc3v0>;
 	bus-width = <4>;
 	cd-gpios = <&pio 6 0 GPIO_ACTIVE_LOW>; /* PG0 */
@@ -136,6 +151,7 @@
 	status = "okay";
 };
 
+<<<<<<< HEAD
 &pio {
 	codec_pa_pin: codec_pa_pin@0 {
 		pins = "PG10";
@@ -173,6 +189,8 @@
 	};
 };
 
+=======
+>>>>>>> upstream/android-13
 &reg_dcdc2 {
 	regulator-always-on;
 	regulator-min-microvolt = <1000000>;
@@ -211,7 +229,11 @@
 
 &uart1 {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&uart1_pins_b>;
+=======
+	pinctrl-0 = <&uart1_pg_pins>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
@@ -225,10 +247,15 @@
 };
 
 &usbphy {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&usb0_id_detect_pin>, <&usb0_vbus_detect_pin>;
 	usb0_id_det-gpio = <&pio 6 2 GPIO_ACTIVE_HIGH>; /* PG2 */
 	usb0_vbus_det-gpio = <&pio 6 1 GPIO_ACTIVE_HIGH>; /* PG1 */
+=======
+	usb0_id_det-gpios = <&pio 6 2 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; /* PG2 */
+	usb0_vbus_det-gpios = <&pio 6 1 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>; /* PG1 */
+>>>>>>> upstream/android-13
 	usb0_vbus_power-supply = <&usb_power_supply>;
 	usb0_vbus-supply = <&reg_usb0_vbus>;
 	usb1_vbus-supply = <&reg_ldo3>;

@@ -17,8 +17,11 @@
 #define flush_icache_range(start, end)		do { } while (0)
 #define flush_icache_page(vma, pg)		do { } while (0)
 
+<<<<<<< HEAD
 #define flush_icache_user_range(vma,pg,adr,len)	do { } while (0)
 
+=======
+>>>>>>> upstream/android-13
 #define copy_to_user_page(vma, page, vaddr, dst, src, len) \
 	do {							\
 		flush_cache_page(vma, vaddr, page_to_pfn(page));\

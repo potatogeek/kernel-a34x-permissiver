@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * data_breakpoint.c - Sample HW Breakpoint file to watch kernel data address
  *
@@ -15,6 +16,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * data_breakpoint.c - Sample HW Breakpoint file to watch kernel data address
+ *
+>>>>>>> upstream/android-13
  * usage: insmod data_breakpoint.ko ksym=<ksym_name>
  *
  * This file is a kernel module that places a breakpoint over ksym_name kernel

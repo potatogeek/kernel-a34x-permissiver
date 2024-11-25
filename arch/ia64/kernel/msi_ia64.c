@@ -43,7 +43,11 @@ static int ia64_set_msi_irq_affinity(struct irq_data *idata,
 }
 #endif /* CONFIG_SMP */
 
+<<<<<<< HEAD
 int ia64_setup_msi_irq(struct pci_dev *pdev, struct msi_desc *desc)
+=======
+int arch_setup_msi_irq(struct pci_dev *pdev, struct msi_desc *desc)
+>>>>>>> upstream/android-13
 {
 	struct msi_msg	msg;
 	unsigned long	dest_phys_id;
@@ -77,7 +81,11 @@ int ia64_setup_msi_irq(struct pci_dev *pdev, struct msi_desc *desc)
 	return 0;
 }
 
+<<<<<<< HEAD
 void ia64_teardown_msi_irq(unsigned int irq)
+=======
+void arch_teardown_msi_irq(unsigned int irq)
+>>>>>>> upstream/android-13
 {
 	destroy_irq(irq);
 }
@@ -111,6 +119,7 @@ static struct irq_chip ia64_msi_chip = {
 	.irq_retrigger		= ia64_msi_retrigger_irq,
 };
 
+<<<<<<< HEAD
 
 int arch_setup_msi_irq(struct pci_dev *pdev, struct msi_desc *desc)
 {
@@ -128,6 +137,8 @@ void arch_teardown_msi_irq(unsigned int irq)
 	return ia64_teardown_msi_irq(irq);
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_INTEL_IOMMU
 #ifdef CONFIG_SMP
 static int dmar_msi_set_affinity(struct irq_data *data,

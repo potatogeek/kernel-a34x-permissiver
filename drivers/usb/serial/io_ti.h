@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0+
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+>>>>>>> upstream/android-13
 /*****************************************************************************
  *
  *	Copyright (C) 1997-2002 Inside Out Networks, Inc.
@@ -133,6 +137,7 @@
 #define UMPD_OEDB2_ADDRESS		0xFF10
 
 struct out_endpoint_desc_block {
+<<<<<<< HEAD
 	__u8 Configuration;
 	__u8 XBufAddr;
 	__u8 XByteCount;
@@ -142,6 +147,17 @@ struct out_endpoint_desc_block {
 	__u8 YByteCount;
 	__u8 BufferSize;
 } __attribute__((packed));
+=======
+	u8 Configuration;
+	u8 XBufAddr;
+	u8 XByteCount;
+	u8 Unused1;
+	u8 Unused2;
+	u8 YBufAddr;
+	u8 YByteCount;
+	u8 BufferSize;
+};
+>>>>>>> upstream/android-13
 
 
 /*
@@ -150,6 +166,7 @@ struct out_endpoint_desc_block {
  */
 /* UART settings */
 struct ump_uart_config {
+<<<<<<< HEAD
 	__u16 wBaudRate;	/* Baud rate                        */
 	__u16 wFlags;		/* Bitmap mask of flags             */
 	__u8 bDataBits;		/* 5..8 - data bits per character   */
@@ -160,6 +177,18 @@ struct ump_uart_config {
 	__u8 bUartMode;		/* Will be updated when a user      */
 				/* interface is defined             */
 } __attribute__((packed));
+=======
+	u16 wBaudRate;		/* Baud rate                        */
+	u16 wFlags;		/* Bitmap mask of flags             */
+	u8 bDataBits;		/* 5..8 - data bits per character   */
+	u8 bParity;		/* Parity settings                  */
+	u8 bStopBits;		/* Stop bits settings               */
+	char cXon;		/* XON character                    */
+	char cXoff;		/* XOFF character                   */
+	u8 bUartMode;		/* Will be updated when a user      */
+				/* interface is defined             */
+};
+>>>>>>> upstream/android-13
 
 
 /*
@@ -168,9 +197,15 @@ struct ump_uart_config {
  */
 /* Interrupt packet structure */
 struct ump_interrupt {
+<<<<<<< HEAD
 	__u8 bICode;			/* Interrupt code (interrupt num)   */
 	__u8 bIInfo;			/* Interrupt information            */
 }  __attribute__((packed));
+=======
+	u8 bICode;			/* Interrupt code (interrupt num)   */
+	u8 bIInfo;			/* Interrupt information            */
+};
+>>>>>>> upstream/android-13
 
 
 #define TIUMP_GET_PORT_FROM_CODE(c)	(((c) >> 6) & 0x01)

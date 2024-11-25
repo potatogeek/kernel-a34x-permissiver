@@ -1,14 +1,22 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * pca9532.h - platform data structure for pca9532 led controller
  *
  * Copyright (C) 2008 Riku Voipio <riku.voipio@movial.fi>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
  *
  * Datasheet: http://www.nxp.com/acrobat/datasheets/PCA9532_3.pdf
  *
+=======
+ * Datasheet: http://www.nxp.com/acrobat/datasheets/PCA9532_3.pdf
+>>>>>>> upstream/android-13
  */
 
 #ifndef __LINUX_PCA9532_H

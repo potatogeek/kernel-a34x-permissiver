@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * include/video/gbe.h -- SGI GBE (Graphics Back End)
  *
  * Copyright (C) 1999 Silicon Graphics, Inc. (Jeffrey Newquist)
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License version 2 as published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __GBE_H__

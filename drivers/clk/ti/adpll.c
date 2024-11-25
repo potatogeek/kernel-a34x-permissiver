@@ -14,6 +14,10 @@
 #include <linux/clk-provider.h>
 #include <linux/delay.h>
 #include <linux/err.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/math64.h>
 #include <linux/module.h>
 #include <linux/of_device.h>
@@ -489,7 +493,11 @@ static const struct clk_ops ti_adpll_ops = {
 
 static int ti_adpll_init_dco(struct ti_adpll_data *d)
 {
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	struct clk *clock;
 	const char *postfix;
 	int width, err;
@@ -582,7 +590,11 @@ static int ti_adpll_init_clkout(struct ti_adpll_data *d,
 				struct clk *clk1)
 {
 	struct ti_adpll_clkout_data *co;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	struct clk_ops *ops;
 	const char *parent_names[2];
 	const char *child_name;
@@ -607,7 +619,11 @@ static int ti_adpll_init_clkout(struct ti_adpll_data *d,
 
 	init.name = child_name;
 	init.ops = ops;
+<<<<<<< HEAD
 	init.flags = CLK_IS_BASIC;
+=======
+	init.flags = 0;
+>>>>>>> upstream/android-13
 	co->hw.init = &init;
 	parent_names[0] = __clk_get_name(clk0);
 	parent_names[1] = __clk_get_name(clk1);
@@ -895,11 +911,16 @@ static int ti_adpll_probe(struct platform_device *pdev)
 	d->pa = res->start;
 
 	d->iobase = devm_ioremap_resource(dev, res);
+<<<<<<< HEAD
 	if (IS_ERR(d->iobase)) {
 		dev_err(dev, "could not get IO base: %li\n",
 			PTR_ERR(d->iobase));
 		return PTR_ERR(d->iobase);
 	}
+=======
+	if (IS_ERR(d->iobase))
+		return PTR_ERR(d->iobase);
+>>>>>>> upstream/android-13
 
 	err = ti_adpll_init_registers(d);
 	if (err)

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Support for the Tundra TSI148 VME-PCI Bridge Chip
  *
@@ -6,11 +10,14 @@
  *
  * Based on work by Tom Armistead and Ajit Prem
  * Copyright 2004 Motorola Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -510,7 +517,10 @@ static int tsi148_slave_set(struct vme_slave_resource *image, int enabled,
 	default:
 		dev_err(tsi148_bridge->parent, "Invalid address space\n");
 		return -EINVAL;
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	/* Convert 64-bit variables to 2x 32-bit variables */
@@ -774,7 +784,11 @@ static int tsi148_alloc_resource(struct vme_master_resource *image,
 		goto err_resource;
 	}
 
+<<<<<<< HEAD
 	image->kern_base = ioremap_nocache(
+=======
+	image->kern_base = ioremap(
+>>>>>>> upstream/android-13
 		image->bus_resource.start, size);
 	if (!image->kern_base) {
 		dev_err(tsi148_bridge->parent, "Failed to remap resource\n");
@@ -999,7 +1013,10 @@ static int tsi148_master_set(struct vme_master_resource *image, int enabled,
 		dev_err(tsi148_bridge->parent, "Invalid address space\n");
 		retval = -EINVAL;
 		goto err_aspace;
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	temp_ctl &= ~(3<<4);
@@ -1507,7 +1524,10 @@ static int tsi148_dma_set_vme_src_attributes(struct device *dev, __be32 *attr,
 	default:
 		dev_err(dev, "Invalid address space\n");
 		return -EINVAL;
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	if (cycle & VME_SUPER)
@@ -1607,7 +1627,10 @@ static int tsi148_dma_set_vme_dest_attributes(struct device *dev, __be32 *attr,
 	default:
 		dev_err(dev, "Invalid address space\n");
 		return -EINVAL;
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	if (cycle & VME_SUPER)
@@ -1705,7 +1728,10 @@ static int tsi148_dma_list_add(struct vme_dma_list *list,
 		dev_err(tsi148_bridge->parent, "Invalid source type\n");
 		retval = -EINVAL;
 		goto err_source;
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	/* Assume last link - this will be over-written by adding another */
@@ -1742,7 +1768,10 @@ static int tsi148_dma_list_add(struct vme_dma_list *list,
 		dev_err(tsi148_bridge->parent, "Invalid destination type\n");
 		retval = -EINVAL;
 		goto err_dest;
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	/* Fill out count */
@@ -1968,7 +1997,10 @@ static int tsi148_lm_set(struct vme_lm_resource *lm, unsigned long long lm_base,
 		mutex_unlock(&lm->mtx);
 		dev_err(tsi148_bridge->parent, "Invalid address space\n");
 		return -EINVAL;
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	if (cycle & VME_SUPER)
@@ -2166,7 +2198,11 @@ static void *tsi148_alloc_consistent(struct device *parent, size_t size,
 	/* Find pci_dev container of dev */
 	pdev = to_pci_dev(parent);
 
+<<<<<<< HEAD
 	return pci_alloc_consistent(pdev, size, dma);
+=======
+	return dma_alloc_coherent(&pdev->dev, size, dma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 }
 
 static void tsi148_free_consistent(struct device *parent, size_t size,
@@ -2177,7 +2213,11 @@ static void tsi148_free_consistent(struct device *parent, size_t size,
 	/* Find pci_dev container of dev */
 	pdev = to_pci_dev(parent);
 
+<<<<<<< HEAD
 	pci_free_consistent(pdev, size, vaddr, dma);
+=======
+	dma_free_coherent(&pdev->dev, size, vaddr, dma);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2203,8 +2243,14 @@ static int tsi148_crcsr_init(struct vme_bridge *tsi148_bridge,
 	bridge = tsi148_bridge->driver_priv;
 
 	/* Allocate mem for CR/CSR image */
+<<<<<<< HEAD
 	bridge->crcsr_kernel = pci_zalloc_consistent(pdev, VME_CRCSR_BUF_SIZE,
 						     &bridge->crcsr_bus);
+=======
+	bridge->crcsr_kernel = dma_alloc_coherent(&pdev->dev,
+						  VME_CRCSR_BUF_SIZE,
+						  &bridge->crcsr_bus, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!bridge->crcsr_kernel) {
 		dev_err(tsi148_bridge->parent, "Failed to allocate memory for "
 			"CR/CSR image\n");
@@ -2272,8 +2318,13 @@ static void tsi148_crcsr_exit(struct vme_bridge *tsi148_bridge,
 	iowrite32be(0, bridge->base + TSI148_LCSR_CROU);
 	iowrite32be(0, bridge->base + TSI148_LCSR_CROL);
 
+<<<<<<< HEAD
 	pci_free_consistent(pdev, VME_CRCSR_BUF_SIZE, bridge->crcsr_kernel,
 		bridge->crcsr_bus);
+=======
+	dma_free_coherent(&pdev->dev, VME_CRCSR_BUF_SIZE,
+			  bridge->crcsr_kernel, bridge->crcsr_bus);
+>>>>>>> upstream/android-13
 }
 
 static int tsi148_probe(struct pci_dev *pdev, const struct pci_device_id *id)
@@ -2321,7 +2372,11 @@ static int tsi148_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	}
 
 	/* map registers in BAR 0 */
+<<<<<<< HEAD
 	tsi148_device->base = ioremap_nocache(pci_resource_start(pdev, 0),
+=======
+	tsi148_device->base = ioremap(pci_resource_start(pdev, 0),
+>>>>>>> upstream/android-13
 		4096);
 	if (!tsi148_device->base) {
 		dev_err(&pdev->dev, "Unable to remap CRG region\n");

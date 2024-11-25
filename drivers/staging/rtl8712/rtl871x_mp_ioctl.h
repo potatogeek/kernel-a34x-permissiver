@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /******************************************************************************
  *
  * Copyright(c) 2007 - 2010 Realtek Corporation. All rights reserved.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -15,6 +20,8 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
  *
+=======
+>>>>>>> upstream/android-13
  * Modifications for inclusion into the Linux staging tree are
  * Copyright(c) 2010 Larry Finger. All rights reserved.
  *
@@ -60,7 +67,11 @@ struct eeprom_rw_param {
 struct EFUSE_ACCESS_STRUCT {
 	u16	start_addr;
 	u16	cnts;
+<<<<<<< HEAD
 	u8	data[0];
+=======
+	u8	data[];
+>>>>>>> upstream/android-13
 };
 
 struct burst_rw_reg {
@@ -83,8 +94,11 @@ struct DR_VARIABLE_STRUCT {
 	u32 variable;
 };
 
+<<<<<<< HEAD
 int mp_start_joinbss(struct _adapter *padapter, struct ndis_802_11_ssid *pssid);
 
+=======
+>>>>>>> upstream/android-13
 /* oid_rtl_seg_87_11_00 */
 uint oid_rt_pro_read_register_hdl(struct oid_par_priv *poid_par_priv);
 uint oid_rt_pro_write_register_hdl(struct oid_par_priv *poid_par_priv);
@@ -149,6 +163,7 @@ uint oid_rt_get_power_mode_hdl(
 				struct oid_par_priv *poid_par_priv);
 #ifdef _RTL871X_MP_IOCTL_C_ /* CAUTION!!! */
 /* This ifdef _MUST_ be left in!! */
+<<<<<<< HEAD
 static const struct oid_obj_priv oid_rtl_seg_81_80_00[] = {
 	/* 0x00	OID_RT_PRO_RESET_DUT */
 	{1, oid_null_function},
@@ -278,6 +293,10 @@ extern struct oid_obj_priv oid_rtl_seg_81_80_20[16];
 extern struct oid_obj_priv oid_rtl_seg_81_80_40[6];
 extern struct oid_obj_priv oid_rtl_seg_81_80_80[3];
 extern struct oid_obj_priv oid_rtl_seg_81_85[1];
+=======
+
+#else /* _RTL871X_MP_IOCTL_C_ */
+>>>>>>> upstream/android-13
 extern struct oid_obj_priv oid_rtl_seg_81_87[5];
 extern struct oid_obj_priv oid_rtl_seg_87_11_00[32];
 extern struct oid_obj_priv oid_rtl_seg_87_11_20[5];
@@ -338,7 +357,11 @@ struct mp_ioctl_handler {
 struct mp_ioctl_param {
 	unsigned int subcode;
 	unsigned int len;
+<<<<<<< HEAD
 	unsigned char data[0];
+=======
+	unsigned char data[];
+>>>>>>> upstream/android-13
 };
 
 #define GEN_MP_IOCTL_SUBCODE(code) _MP_IOCTL_ ## code ## _CMD_

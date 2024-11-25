@@ -1,6 +1,10 @@
 #
 # Feature name:          clockevents
+<<<<<<< HEAD
 #         Kconfig:       GENERIC_CLOCKEVENTS
+=======
+#         Kconfig:       !LEGACY_TIMER_TICK
+>>>>>>> upstream/android-13
 #         description:   arch support generic clock events
 #
     -----------------------
@@ -8,6 +12,7 @@
     -----------------------
     |       alpha: |  ok  |
     |         arc: |  ok  |
+<<<<<<< HEAD
     |         arm: |  ok  |
     |       arm64: |  ok  |
     |         c6x: |  ok  |
@@ -15,19 +20,35 @@
     |     hexagon: |  ok  |
     |        ia64: | TODO |
     |        m68k: |  ok  |
+=======
+    |         arm: | TODO |
+    |       arm64: |  ok  |
+    |        csky: |  ok  |
+    |       h8300: |  ok  |
+    |     hexagon: |  ok  |
+    |        ia64: | TODO |
+    |        m68k: | TODO |
+>>>>>>> upstream/android-13
     |  microblaze: |  ok  |
     |        mips: |  ok  |
     |       nds32: |  ok  |
     |       nios2: |  ok  |
     |    openrisc: |  ok  |
+<<<<<<< HEAD
     |      parisc: |  ok  |
+=======
+    |      parisc: | TODO |
+>>>>>>> upstream/android-13
     |     powerpc: |  ok  |
     |       riscv: |  ok  |
     |        s390: |  ok  |
     |          sh: |  ok  |
     |       sparc: |  ok  |
     |          um: |  ok  |
+<<<<<<< HEAD
     |   unicore32: |  ok  |
+=======
+>>>>>>> upstream/android-13
     |         x86: |  ok  |
     |      xtensa: |  ok  |
     -----------------------

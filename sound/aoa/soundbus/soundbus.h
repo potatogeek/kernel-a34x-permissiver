@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * soundbus generic definitions
  *
  * Copyright 2006 Johannes Berg <johannes@sipsolutions.net>
+<<<<<<< HEAD
  *
  * GPL v2, can be found in COPYING.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __SOUNDBUS_H
 #define __SOUNDBUS_H

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef SQUASHFS_FS
 #define SQUASHFS_FS
 /*
@@ -6,6 +10,7 @@
  * Copyright (c) 2002, 2003, 2004, 2005, 2006, 2007, 2008
  * Phillip Lougher <phillip@squashfs.org.uk>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2,
@@ -20,6 +25,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+=======
+>>>>>>> upstream/android-13
  * squashfs_fs.h
  */
 
@@ -276,7 +283,11 @@ struct squashfs_dir_index {
 	__le32			index;
 	__le32			start_block;
 	__le32			size;
+<<<<<<< HEAD
 	unsigned char		name[0];
+=======
+	unsigned char		name[];
+>>>>>>> upstream/android-13
 };
 
 struct squashfs_base_inode {
@@ -341,7 +352,11 @@ struct squashfs_symlink_inode {
 	__le32			inode_number;
 	__le32			nlink;
 	__le32			symlink_size;
+<<<<<<< HEAD
 	char			symlink[0];
+=======
+	char			symlink[];
+>>>>>>> upstream/android-13
 };
 
 struct squashfs_reg_inode {
@@ -355,7 +370,11 @@ struct squashfs_reg_inode {
 	__le32			fragment;
 	__le32			offset;
 	__le32			file_size;
+<<<<<<< HEAD
 	__le16			block_list[0];
+=======
+	__le16			block_list[];
+>>>>>>> upstream/android-13
 };
 
 struct squashfs_lreg_inode {
@@ -372,7 +391,11 @@ struct squashfs_lreg_inode {
 	__le32			fragment;
 	__le32			offset;
 	__le32			xattr;
+<<<<<<< HEAD
 	__le16			block_list[0];
+=======
+	__le16			block_list[];
+>>>>>>> upstream/android-13
 };
 
 struct squashfs_dir_inode {
@@ -403,7 +426,11 @@ struct squashfs_ldir_inode {
 	__le16			i_count;
 	__le16			offset;
 	__le32			xattr;
+<<<<<<< HEAD
 	struct squashfs_dir_index	index[0];
+=======
+	struct squashfs_dir_index	index[];
+>>>>>>> upstream/android-13
 };
 
 union squashfs_inode {
@@ -424,7 +451,11 @@ struct squashfs_dir_entry {
 	__le16			inode_number;
 	__le16			type;
 	__le16			size;
+<<<<<<< HEAD
 	char			name[0];
+=======
+	char			name[];
+>>>>>>> upstream/android-13
 };
 
 struct squashfs_dir_header {
@@ -442,12 +473,20 @@ struct squashfs_fragment_entry {
 struct squashfs_xattr_entry {
 	__le16			type;
 	__le16			size;
+<<<<<<< HEAD
 	char			data[0];
+=======
+	char			data[];
+>>>>>>> upstream/android-13
 };
 
 struct squashfs_xattr_val {
 	__le32			vsize;
+<<<<<<< HEAD
 	char			value[0];
+=======
+	char			value[];
+>>>>>>> upstream/android-13
 };
 
 struct squashfs_xattr_id {

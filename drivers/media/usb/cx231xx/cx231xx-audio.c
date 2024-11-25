@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Conexant Cx231xx audio extension
  *
  *  Copyright (C) 2008 <srinivasa.deevi at conexant dot com>
  *       Based on em28xx driver
+<<<<<<< HEAD
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -14,6 +19,8 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "cx231xx.h"
@@ -23,8 +30,11 @@
 #include <linux/spinlock.h>
 #include <linux/soundcard.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 #include <linux/vmalloc.h>
 #include <linux/proc_fs.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <sound/core.h>
 #include <sound/pcm.h>
@@ -383,6 +393,7 @@ static int cx231xx_init_audio_bulk(struct cx231xx *dev)
 	return errCode;
 }
 
+<<<<<<< HEAD
 static int snd_pcm_alloc_vmalloc_buffer(struct snd_pcm_substream *subs,
 					size_t size)
 {
@@ -405,6 +416,8 @@ static int snd_pcm_alloc_vmalloc_buffer(struct snd_pcm_substream *subs,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct snd_pcm_hardware snd_cx231xx_hw_capture = {
 	.info = SNDRV_PCM_INFO_BLOCK_TRANSFER	|
 	    SNDRV_PCM_INFO_MMAP			|
@@ -495,11 +508,14 @@ static int snd_cx231xx_pcm_close(struct snd_pcm_substream *substream)
 	}
 
 	dev->adev.users--;
+<<<<<<< HEAD
 	if (substream->runtime->dma_area) {
 		dev_dbg(dev->dev, "freeing\n");
 		vfree(substream->runtime->dma_area);
 		substream->runtime->dma_area = NULL;
 	}
+=======
+>>>>>>> upstream/android-13
 	mutex_unlock(&dev->lock);
 
 	if (dev->adev.users == 0 && dev->adev.shutdown == 1) {
@@ -515,6 +531,7 @@ static int snd_cx231xx_pcm_close(struct snd_pcm_substream *substream)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int snd_cx231xx_hw_capture_params(struct snd_pcm_substream *substream,
 					 struct snd_pcm_hw_params *hw_params)
 {
@@ -553,6 +570,8 @@ static int snd_cx231xx_hw_capture_free(struct snd_pcm_substream *substream)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int snd_cx231xx_prepare(struct snd_pcm_substream *substream)
 {
 	struct cx231xx *dev = snd_pcm_substream_chip(substream);
@@ -625,6 +644,7 @@ static snd_pcm_uframes_t snd_cx231xx_capture_pointer(struct snd_pcm_substream
 	return hwptr_done;
 }
 
+<<<<<<< HEAD
 static struct page *snd_pcm_get_vmalloc_page(struct snd_pcm_substream *subs,
 					     unsigned long offset)
 {
@@ -643,6 +663,14 @@ static const struct snd_pcm_ops snd_cx231xx_pcm_capture = {
 	.trigger = snd_cx231xx_capture_trigger,
 	.pointer = snd_cx231xx_capture_pointer,
 	.page = snd_pcm_get_vmalloc_page,
+=======
+static const struct snd_pcm_ops snd_cx231xx_pcm_capture = {
+	.open = snd_cx231xx_capture_open,
+	.close = snd_cx231xx_pcm_close,
+	.prepare = snd_cx231xx_prepare,
+	.trigger = snd_cx231xx_capture_trigger,
+	.pointer = snd_cx231xx_capture_pointer,
+>>>>>>> upstream/android-13
 };
 
 static int cx231xx_audio_init(struct cx231xx *dev)
@@ -677,12 +705,22 @@ static int cx231xx_audio_init(struct cx231xx *dev)
 
 	snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_CAPTURE,
 			&snd_cx231xx_pcm_capture);
+<<<<<<< HEAD
 	pcm->info_flags = 0;
 	pcm->private_data = dev;
 	strcpy(pcm->name, "Conexant cx231xx Capture");
 	strcpy(card->driver, "Cx231xx-Audio");
 	strcpy(card->shortname, "Cx231xx Audio");
 	strcpy(card->longname, "Conexant cx231xx Audio");
+=======
+	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_VMALLOC, NULL, 0, 0);
+	pcm->info_flags = 0;
+	pcm->private_data = dev;
+	strscpy(pcm->name, "Conexant cx231xx Capture", sizeof(pcm->name));
+	strscpy(card->driver, "Cx231xx-Audio", sizeof(card->driver));
+	strscpy(card->shortname, "Cx231xx Audio", sizeof(card->shortname));
+	strscpy(card->longname, "Conexant cx231xx Audio", sizeof(card->longname));
+>>>>>>> upstream/android-13
 
 	INIT_WORK(&dev->wq_trigger, audio_trigger);
 
@@ -758,7 +796,11 @@ static int cx231xx_audio_fini(struct cx231xx *dev)
 	}
 
 	if (dev->adev.sndcard) {
+<<<<<<< HEAD
 		snd_card_free(dev->adev.sndcard);
+=======
+		snd_card_free_when_closed(dev->adev.sndcard);
+>>>>>>> upstream/android-13
 		kfree(dev->adev.alt_max_pkt_size);
 		dev->adev.sndcard = NULL;
 	}

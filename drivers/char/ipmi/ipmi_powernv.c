@@ -19,7 +19,11 @@
 
 struct ipmi_smi_powernv {
 	u64			interface_id;
+<<<<<<< HEAD
 	ipmi_smi_t		intf;
+=======
+	struct ipmi_smi		*intf;
+>>>>>>> upstream/android-13
 	unsigned int		irq;
 
 	/**
@@ -33,7 +37,11 @@ struct ipmi_smi_powernv {
 	struct opal_ipmi_msg	*opal_msg;
 };
 
+<<<<<<< HEAD
 static int ipmi_powernv_start_processing(void *send_info, ipmi_smi_t intf)
+=======
+static int ipmi_powernv_start_processing(void *send_info, struct ipmi_smi *intf)
+>>>>>>> upstream/android-13
 {
 	struct ipmi_smi_powernv *smi = send_info;
 

@@ -27,6 +27,10 @@
  **************************************************************************/
 
 #include "vmwgfx_drv.h"
+<<<<<<< HEAD
+=======
+#include <linux/highmem.h>
+>>>>>>> upstream/android-13
 
 /*
  * Template that implements find_first_diff() for a generic
@@ -374,12 +378,20 @@ static int vmw_bo_cpu_blit_line(struct vmw_bo_blit_line_data *d,
 		copy_size = min_t(u32, copy_size, PAGE_SIZE - src_page_offset);
 
 		if (unmap_src) {
+<<<<<<< HEAD
 			ttm_kunmap_atomic_prot(d->src_addr, d->src_prot);
+=======
+			kunmap_atomic(d->src_addr);
+>>>>>>> upstream/android-13
 			d->src_addr = NULL;
 		}
 
 		if (unmap_dst) {
+<<<<<<< HEAD
 			ttm_kunmap_atomic_prot(d->dst_addr, d->dst_prot);
+=======
+			kunmap_atomic(d->dst_addr);
+>>>>>>> upstream/android-13
 			d->dst_addr = NULL;
 		}
 
@@ -388,8 +400,13 @@ static int vmw_bo_cpu_blit_line(struct vmw_bo_blit_line_data *d,
 				return -EINVAL;
 
 			d->dst_addr =
+<<<<<<< HEAD
 				ttm_kmap_atomic_prot(d->dst_pages[dst_page],
 						     d->dst_prot);
+=======
+				kmap_atomic_prot(d->dst_pages[dst_page],
+						 d->dst_prot);
+>>>>>>> upstream/android-13
 			if (!d->dst_addr)
 				return -ENOMEM;
 
@@ -401,8 +418,13 @@ static int vmw_bo_cpu_blit_line(struct vmw_bo_blit_line_data *d,
 				return -EINVAL;
 
 			d->src_addr =
+<<<<<<< HEAD
 				ttm_kmap_atomic_prot(d->src_pages[src_page],
 						     d->src_prot);
+=======
+				kmap_atomic_prot(d->src_pages[src_page],
+						 d->src_prot);
+>>>>>>> upstream/android-13
 			if (!d->src_addr)
 				return -ENOMEM;
 
@@ -420,7 +442,11 @@ static int vmw_bo_cpu_blit_line(struct vmw_bo_blit_line_data *d,
 }
 
 /**
+<<<<<<< HEAD
  * ttm_bo_cpu_blit - in-kernel cpu blit.
+=======
+ * vmw_bo_cpu_blit - in-kernel cpu blit.
+>>>>>>> upstream/android-13
  *
  * @dst: Destination buffer object.
  * @dst_offset: Destination offset of blit start in bytes.
@@ -430,6 +456,10 @@ static int vmw_bo_cpu_blit_line(struct vmw_bo_blit_line_data *d,
  * @src_stride: Source stride in bytes.
  * @w: Width of blit.
  * @h: Height of blit.
+<<<<<<< HEAD
+=======
+ * @diff: The struct vmw_diff_cpy used to track the modified bounding box.
+>>>>>>> upstream/android-13
  * return: Zero on success. Negative error value on failure. Will print out
  * kernel warnings on caller bugs.
  *
@@ -458,6 +488,7 @@ int vmw_bo_cpu_blit(struct ttm_buffer_object *dst,
 	int ret = 0;
 
 	/* Buffer objects need to be either pinned or reserved: */
+<<<<<<< HEAD
 	if (!(dst->mem.placement & TTM_PL_FLAG_NO_EVICT))
 		lockdep_assert_held(&dst->resv->lock.base);
 	if (!(src->mem.placement & TTM_PL_FLAG_NO_EVICT))
@@ -465,12 +496,26 @@ int vmw_bo_cpu_blit(struct ttm_buffer_object *dst,
 
 	if (dst->ttm->state == tt_unpopulated) {
 		ret = dst->ttm->bdev->driver->ttm_tt_populate(dst->ttm, &ctx);
+=======
+	if (!(dst->pin_count))
+		dma_resv_assert_held(dst->base.resv);
+	if (!(src->pin_count))
+		dma_resv_assert_held(src->base.resv);
+
+	if (!ttm_tt_is_populated(dst->ttm)) {
+		ret = dst->bdev->funcs->ttm_tt_populate(dst->bdev, dst->ttm, &ctx);
+>>>>>>> upstream/android-13
 		if (ret)
 			return ret;
 	}
 
+<<<<<<< HEAD
 	if (src->ttm->state == tt_unpopulated) {
 		ret = src->ttm->bdev->driver->ttm_tt_populate(src->ttm, &ctx);
+=======
+	if (!ttm_tt_is_populated(src->ttm)) {
+		ret = src->bdev->funcs->ttm_tt_populate(src->bdev, src->ttm, &ctx);
+>>>>>>> upstream/android-13
 		if (ret)
 			return ret;
 	}
@@ -481,10 +526,17 @@ int vmw_bo_cpu_blit(struct ttm_buffer_object *dst,
 	d.src_addr = NULL;
 	d.dst_pages = dst->ttm->pages;
 	d.src_pages = src->ttm->pages;
+<<<<<<< HEAD
 	d.dst_num_pages = dst->num_pages;
 	d.src_num_pages = src->num_pages;
 	d.dst_prot = ttm_io_prot(dst->mem.placement, PAGE_KERNEL);
 	d.src_prot = ttm_io_prot(src->mem.placement, PAGE_KERNEL);
+=======
+	d.dst_num_pages = dst->resource->num_pages;
+	d.src_num_pages = src->resource->num_pages;
+	d.dst_prot = ttm_io_prot(dst, dst->resource, PAGE_KERNEL);
+	d.src_prot = ttm_io_prot(src, src->resource, PAGE_KERNEL);
+>>>>>>> upstream/android-13
 	d.diff = diff;
 
 	for (j = 0; j < h; ++j) {
@@ -499,9 +551,15 @@ int vmw_bo_cpu_blit(struct ttm_buffer_object *dst,
 	}
 out:
 	if (d.src_addr)
+<<<<<<< HEAD
 		ttm_kunmap_atomic_prot(d.src_addr, d.src_prot);
 	if (d.dst_addr)
 		ttm_kunmap_atomic_prot(d.dst_addr, d.dst_prot);
+=======
+		kunmap_atomic(d.src_addr);
+	if (d.dst_addr)
+		kunmap_atomic(d.dst_addr);
+>>>>>>> upstream/android-13
 
 	return ret;
 }

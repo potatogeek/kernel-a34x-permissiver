@@ -31,7 +31,10 @@
 #include <asm/thread_info.h>
 #include <asm/errno.h>
 #include <asm/setup.h>
+<<<<<<< HEAD
 #include <asm/segment.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/asm-offsets.h>
 #include <asm/entry.h>
 
@@ -51,7 +54,10 @@ sw_usp:
 .globl system_call
 .globl resume
 .globl ret_from_exception
+<<<<<<< HEAD
 .globl ret_from_signal
+=======
+>>>>>>> upstream/android-13
 .globl sys_call_table
 .globl inthandler
 
@@ -98,8 +104,11 @@ ENTRY(system_call)
 	subql	#4,%sp			/* dummy return address */
 	SAVE_SWITCH_STACK
 	jbsr	syscall_trace_leave
+<<<<<<< HEAD
 
 ret_from_signal:
+=======
+>>>>>>> upstream/android-13
 	RESTORE_SWITCH_STACK
 	addql	#4,%sp
 
@@ -108,7 +117,11 @@ ret_from_exception:
 	btst	#5,%sp@(PT_OFF_SR)	/* check if returning to kernel */
 	jeq	Luser_return		/* if so, skip resched, signals */
 
+<<<<<<< HEAD
 #ifdef CONFIG_PREEMPT
+=======
+#ifdef CONFIG_PREEMPTION
+>>>>>>> upstream/android-13
 	movel	%sp,%d1			/* get thread_info pointer */
 	andl	#-THREAD_SIZE,%d1	/* at base of kernel stack */
 	movel	%d1,%a0

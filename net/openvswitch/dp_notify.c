@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2007-2012 Nicira, Inc.
  *
@@ -14,6 +15,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2007-2012 Nicira, Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/netdevice.h>
@@ -61,7 +67,11 @@ void ovs_dp_notify_wq(struct work_struct *work)
 				if (vport->ops->type == OVS_VPORT_TYPE_INTERNAL)
 					continue;
 
+<<<<<<< HEAD
 				if (!(vport->dev->priv_flags & IFF_OVS_DATAPATH))
+=======
+				if (!(netif_is_ovs_port(vport->dev)))
+>>>>>>> upstream/android-13
 					dp_detach_port_notify(vport);
 			}
 		}

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2013-2016 Intel Corporation. All rights reserved.
  *
@@ -9,6 +10,11 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright(c) 2013-2016 Intel Corporation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 #include <linux/device.h>
 #include <linux/sizes.h>
@@ -31,6 +37,7 @@ static void nd_dax_release(struct device *dev)
 	kfree(nd_dax);
 }
 
+<<<<<<< HEAD
 static struct device_type nd_dax_device_type = {
 	.name = "nd_dax",
 	.release = nd_dax_release,
@@ -42,6 +49,8 @@ bool is_nd_dax(struct device *dev)
 }
 EXPORT_SYMBOL(is_nd_dax);
 
+=======
+>>>>>>> upstream/android-13
 struct nd_dax *to_nd_dax(struct device *dev)
 {
 	struct nd_dax *nd_dax = container_of(dev, struct nd_dax, nd_pfn.dev);
@@ -51,6 +60,7 @@ struct nd_dax *to_nd_dax(struct device *dev)
 }
 EXPORT_SYMBOL(to_nd_dax);
 
+<<<<<<< HEAD
 static const struct attribute_group *nd_dax_attribute_groups[] = {
 	&nd_pfn_attribute_group,
 	&nd_device_attribute_group,
@@ -58,6 +68,20 @@ static const struct attribute_group *nd_dax_attribute_groups[] = {
 	NULL,
 };
 
+=======
+static const struct device_type nd_dax_device_type = {
+	.name = "nd_dax",
+	.release = nd_dax_release,
+	.groups = nd_pfn_attribute_groups,
+};
+
+bool is_nd_dax(struct device *dev)
+{
+	return dev ? dev->type == &nd_dax_device_type : false;
+}
+EXPORT_SYMBOL(is_nd_dax);
+
+>>>>>>> upstream/android-13
 static struct nd_dax *nd_dax_alloc(struct nd_region *nd_region)
 {
 	struct nd_pfn *nd_pfn;
@@ -77,7 +101,10 @@ static struct nd_dax *nd_dax_alloc(struct nd_region *nd_region)
 
 	dev = &nd_pfn->dev;
 	dev_set_name(dev, "dax%d.%d", nd_region->id, nd_pfn->id);
+<<<<<<< HEAD
 	dev->groups = nd_dax_attribute_groups;
+=======
+>>>>>>> upstream/android-13
 	dev->type = &nd_dax_device_type;
 	dev->parent = &nd_region->dev;
 

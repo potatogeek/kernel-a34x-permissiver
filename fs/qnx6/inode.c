@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * QNX6 file system, Linux implementation.
  *
@@ -29,14 +33,22 @@ static const struct super_operations qnx6_sops;
 
 static void qnx6_put_super(struct super_block *sb);
 static struct inode *qnx6_alloc_inode(struct super_block *sb);
+<<<<<<< HEAD
 static void qnx6_destroy_inode(struct inode *inode);
+=======
+static void qnx6_free_inode(struct inode *inode);
+>>>>>>> upstream/android-13
 static int qnx6_remount(struct super_block *sb, int *flags, char *data);
 static int qnx6_statfs(struct dentry *dentry, struct kstatfs *buf);
 static int qnx6_show_options(struct seq_file *seq, struct dentry *root);
 
 static const struct super_operations qnx6_sops = {
 	.alloc_inode	= qnx6_alloc_inode,
+<<<<<<< HEAD
 	.destroy_inode	= qnx6_destroy_inode,
+=======
+	.free_inode	= qnx6_free_inode,
+>>>>>>> upstream/android-13
 	.put_super	= qnx6_put_super,
 	.statfs		= qnx6_statfs,
 	.remount_fs	= qnx6_remount,
@@ -98,10 +110,16 @@ static int qnx6_readpage(struct file *file, struct page *page)
 	return mpage_readpage(page, qnx6_get_block);
 }
 
+<<<<<<< HEAD
 static int qnx6_readpages(struct file *file, struct address_space *mapping,
 		   struct list_head *pages, unsigned nr_pages)
 {
 	return mpage_readpages(mapping, pages, nr_pages, qnx6_get_block);
+=======
+static void qnx6_readahead(struct readahead_control *rac)
+{
+	mpage_readahead(rac, qnx6_get_block);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -166,8 +184,12 @@ static int qnx6_statfs(struct dentry *dentry, struct kstatfs *buf)
 	buf->f_ffree   = fs32_to_cpu(sbi, sbi->sb->sb_free_inodes);
 	buf->f_bavail  = buf->f_bfree;
 	buf->f_namelen = QNX6_LONG_NAME_MAX;
+<<<<<<< HEAD
 	buf->f_fsid.val[0] = (u32)id;
 	buf->f_fsid.val[1] = (u32)(id >> 32);
+=======
+	buf->f_fsid    = u64_to_fsid(id);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -428,6 +450,11 @@ mmi_success:
 	s->s_op = &qnx6_sops;
 	s->s_magic = QNX6_SUPER_MAGIC;
 	s->s_flags |= SB_RDONLY;        /* Yup, read-only yet */
+<<<<<<< HEAD
+=======
+	s->s_time_min = 0;
+	s->s_time_max = U32_MAX;
+>>>>>>> upstream/android-13
 
 	/* ease the later tree level calculations */
 	sbi = QNX6_SB(s);
@@ -496,7 +523,11 @@ static sector_t qnx6_bmap(struct address_space *mapping, sector_t block)
 }
 static const struct address_space_operations qnx6_aops = {
 	.readpage	= qnx6_readpage,
+<<<<<<< HEAD
 	.readpages	= qnx6_readpages,
+=======
+	.readahead	= qnx6_readahead,
+>>>>>>> upstream/android-13
 	.bmap		= qnx6_bmap
 };
 
@@ -602,6 +633,7 @@ static struct inode *qnx6_alloc_inode(struct super_block *sb)
 	return &ei->vfs_inode;
 }
 
+<<<<<<< HEAD
 static void qnx6_i_callback(struct rcu_head *head)
 {
 	struct inode *inode = container_of(head, struct inode, i_rcu);
@@ -613,6 +645,13 @@ static void qnx6_destroy_inode(struct inode *inode)
 	call_rcu(&inode->i_rcu, qnx6_i_callback);
 }
 
+=======
+static void qnx6_free_inode(struct inode *inode)
+{
+	kmem_cache_free(qnx6_inode_cachep, QNX6_I(inode));
+}
+
+>>>>>>> upstream/android-13
 static void init_once(void *foo)
 {
 	struct qnx6_inode_info *ei = (struct qnx6_inode_info *) foo;
@@ -684,3 +723,7 @@ static void __exit exit_qnx6_fs(void)
 module_init(init_qnx6_fs)
 module_exit(exit_qnx6_fs)
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
   This file is provided under a dual BSD/GPLv2 license.  When using or
   redistributing this file, you may do so under either license.
@@ -44,10 +45,15 @@
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+=======
+/* SPDX-License-Identifier: (BSD-3-Clause OR GPL-2.0-only) */
+/* Copyright(c) 2014 - 2020 Intel Corporation */
+>>>>>>> upstream/android-13
 #ifndef ADF_TRANSPORT_ACCESS_MACROS_H
 #define ADF_TRANSPORT_ACCESS_MACROS_H
 
 #include "adf_accel_devices.h"
+<<<<<<< HEAD
 #define ADF_BANK_INT_SRC_SEL_MASK_0 0x4444444CUL
 #define ADF_BANK_INT_SRC_SEL_MASK_X 0x44444444UL
 #define ADF_BANK_INT_FLAG_CLEAR_MASK 0xFFFF
@@ -65,6 +71,8 @@
 #define ADF_RING_CSR_INT_FLAG_AND_COL 0x184
 #define ADF_RING_CSR_INT_COL_CTL_ENABLE	0x80000000
 #define ADF_RING_BUNDLE_SIZE 0x1000
+=======
+>>>>>>> upstream/android-13
 #define ADF_RING_CONFIG_NEAR_FULL_WM 0x0A
 #define ADF_RING_CONFIG_NEAR_EMPTY_WM 0x05
 #define ADF_COALESCING_MIN_TIME 0x1FF
@@ -116,6 +124,7 @@
 	((watermark_nf << ADF_RING_CONFIG_NEAR_FULL_WM)	\
 	| (watermark_ne << ADF_RING_CONFIG_NEAR_EMPTY_WM) \
 	| size)
+<<<<<<< HEAD
 #define BUILD_RING_BASE_ADDR(addr, size) \
 	((addr >> 6) & (0xFFFFFFFFFFFFFFFFULL << size))
 #define READ_CSR_RING_HEAD(csr_base_addr, bank, ring) \
@@ -166,4 +175,6 @@ do { \
 #define WRITE_CSR_INT_FLAG_AND_COL(csr_base_addr, bank, value) \
 	ADF_CSR_WR(csr_base_addr, (ADF_RING_BUNDLE_SIZE * bank) + \
 			ADF_RING_CSR_INT_FLAG_AND_COL, value)
+=======
+>>>>>>> upstream/android-13
 #endif

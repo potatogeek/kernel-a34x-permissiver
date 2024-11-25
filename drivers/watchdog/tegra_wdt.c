@@ -181,15 +181,25 @@ static const struct watchdog_ops tegra_wdt_ops = {
 
 static int tegra_wdt_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct watchdog_device *wdd;
 	struct tegra_wdt *wdt;
 	struct resource *res;
+=======
+	struct device *dev = &pdev->dev;
+	struct watchdog_device *wdd;
+	struct tegra_wdt *wdt;
+>>>>>>> upstream/android-13
 	void __iomem *regs;
 	int ret;
 
 	/* This is the timer base. */
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	regs = devm_ioremap_resource(&pdev->dev, res);
+=======
+	regs = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(regs))
 		return PTR_ERR(regs);
 
@@ -197,7 +207,11 @@ static int tegra_wdt_probe(struct platform_device *pdev)
 	 * Allocate our watchdog driver data, which has the
 	 * struct watchdog_device nested within it.
 	 */
+<<<<<<< HEAD
 	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
+=======
+	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!wdt)
 		return -ENOMEM;
 
@@ -212,12 +226,17 @@ static int tegra_wdt_probe(struct platform_device *pdev)
 	wdd->ops = &tegra_wdt_ops;
 	wdd->min_timeout = MIN_WDT_TIMEOUT;
 	wdd->max_timeout = MAX_WDT_TIMEOUT;
+<<<<<<< HEAD
 	wdd->parent = &pdev->dev;
+=======
+	wdd->parent = dev;
+>>>>>>> upstream/android-13
 
 	watchdog_set_drvdata(wdd, wdt);
 
 	watchdog_set_nowayout(wdd, nowayout);
 
+<<<<<<< HEAD
 	ret = devm_watchdog_register_device(&pdev->dev, wdd);
 	if (ret) {
 		dev_err(&pdev->dev,
@@ -229,11 +248,22 @@ static int tegra_wdt_probe(struct platform_device *pdev)
 
 	dev_info(&pdev->dev,
 		 "initialized (heartbeat = %d sec, nowayout = %d)\n",
+=======
+	watchdog_stop_on_unregister(wdd);
+	ret = devm_watchdog_register_device(dev, wdd);
+	if (ret)
+		return ret;
+
+	platform_set_drvdata(pdev, wdt);
+
+	dev_info(dev, "initialized (heartbeat = %d sec, nowayout = %d)\n",
+>>>>>>> upstream/android-13
 		 heartbeat, nowayout);
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int tegra_wdt_remove(struct platform_device *pdev)
 {
 	struct tegra_wdt *wdt = platform_get_drvdata(pdev);
@@ -245,6 +275,8 @@ static int tegra_wdt_remove(struct platform_device *pdev)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM_SLEEP
 static int tegra_wdt_runtime_suspend(struct device *dev)
 {
@@ -280,7 +312,10 @@ static const struct dev_pm_ops tegra_wdt_pm_ops = {
 
 static struct platform_driver tegra_wdt_driver = {
 	.probe		= tegra_wdt_probe,
+<<<<<<< HEAD
 	.remove		= tegra_wdt_remove,
+=======
+>>>>>>> upstream/android-13
 	.driver		= {
 		.name	= "tegra-wdt",
 		.pm	= &tegra_wdt_pm_ops,

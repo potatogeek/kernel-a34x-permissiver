@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * FIPS 200 support.
  *
  * Copyright (c) 2008 Neil Horman <nhorman@tuxdriver.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/export.h>
@@ -16,10 +23,20 @@
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/sysctl.h>
+<<<<<<< HEAD
+=======
+#include <linux/notifier.h>
+>>>>>>> upstream/android-13
 
 int fips_enabled;
 EXPORT_SYMBOL_GPL(fips_enabled);
 
+<<<<<<< HEAD
+=======
+ATOMIC_NOTIFIER_HEAD(fips_fail_notif_chain);
+EXPORT_SYMBOL_GPL(fips_fail_notif_chain);
+
+>>>>>>> upstream/android-13
 /* Process kernel command-line parameter at boot time. fips=0 or fips=1 */
 static int fips_enable(char *str)
 {
@@ -63,6 +80,16 @@ static void crypto_proc_fips_exit(void)
 	unregister_sysctl_table(crypto_sysctls);
 }
 
+<<<<<<< HEAD
+=======
+void fips_fail_notify(void)
+{
+	if (fips_enabled)
+		atomic_notifier_call_chain(&fips_fail_notif_chain, 0, NULL);
+}
+EXPORT_SYMBOL_GPL(fips_fail_notify);
+
+>>>>>>> upstream/android-13
 static int __init fips_init(void)
 {
 	crypto_proc_fips_init();
@@ -74,5 +101,9 @@ static void __exit fips_exit(void)
 	crypto_proc_fips_exit();
 }
 
+<<<<<<< HEAD
 module_init(fips_init);
+=======
+subsys_initcall(fips_init);
+>>>>>>> upstream/android-13
 module_exit(fips_exit);

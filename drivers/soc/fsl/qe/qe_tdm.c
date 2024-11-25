@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2015 Freescale Semiconductor, Inc. All rights reserved.
  *
@@ -5,11 +9,14 @@
  *
  * Description:
  * QE TDM API Set - TDM specific routines implementations.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/io.h>
 #include <linux/kernel.h>
@@ -44,10 +51,13 @@ int ucc_of_parse_tdm(struct device_node *np, struct ucc_tdm *utdm,
 	const char *sprop;
 	int ret = 0;
 	u32 val;
+<<<<<<< HEAD
 	struct resource *res;
 	struct device_node *np2;
 	static int siram_init_flag;
 	struct platform_device *pdev;
+=======
+>>>>>>> upstream/android-13
 
 	sprop = of_get_property(np, "fsl,rx-sync-clock", NULL);
 	if (sprop) {
@@ -124,6 +134,7 @@ int ucc_of_parse_tdm(struct device_node *np, struct ucc_tdm *utdm,
 	utdm->siram_entry_id = val;
 
 	set_si_param(utdm, ut_info);
+<<<<<<< HEAD
 
 	np2 = of_find_compatible_node(NULL, NULL, "fsl,t1040-qe-si");
 	if (!np2)
@@ -175,6 +186,8 @@ int ucc_of_parse_tdm(struct device_node *np, struct ucc_tdm *utdm,
 
 err_miss_siram_property:
 	devm_iounmap(&pdev->dev, utdm->si_regs);
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 EXPORT_SYMBOL(ucc_of_parse_tdm);
@@ -228,10 +241,17 @@ void ucc_tdm_init(struct ucc_tdm *utdm, struct ucc_tdm_info *ut_info)
 				    &siram[siram_entry_id * 32 + 0x200 +  i]);
 	}
 
+<<<<<<< HEAD
 	setbits16(&siram[(siram_entry_id * 32) + (utdm->num_of_ts - 1)],
 		  SIR_LAST);
 	setbits16(&siram[(siram_entry_id * 32) + 0x200 + (utdm->num_of_ts - 1)],
 		  SIR_LAST);
+=======
+	qe_setbits_be16(&siram[(siram_entry_id * 32) + (utdm->num_of_ts - 1)],
+			SIR_LAST);
+	qe_setbits_be16(&siram[(siram_entry_id * 32) + 0x200 + (utdm->num_of_ts - 1)],
+			SIR_LAST);
+>>>>>>> upstream/android-13
 
 	/* Set SIxMR register */
 	sixmr = SIMR_SAD(siram_entry_id);

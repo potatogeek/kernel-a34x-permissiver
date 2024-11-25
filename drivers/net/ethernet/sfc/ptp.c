@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /****************************************************************************
  * Driver for Solarflare network controllers and boards
  * Copyright 2011-2013 Solarflare Communications Inc.
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation, incorporated herein by reference.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/****************************************************************************
+ * Driver for Solarflare network controllers and boards
+ * Copyright 2011-2013 Solarflare Communications Inc.
+>>>>>>> upstream/android-13
  */
 
 /* Theory of operation:
@@ -38,7 +45,10 @@
 #include <linux/time.h>
 #include <linux/ktime.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/net_tstamp.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/pps_kernel.h>
 #include <linux/ptp_clock_kernel.h>
 #include "net_driver.h"
@@ -47,7 +57,13 @@
 #include "mcdi_pcol.h"
 #include "io.h"
 #include "farch_regs.h"
+<<<<<<< HEAD
 #include "nic.h"
+=======
+#include "tx.h"
+#include "nic.h" /* indirectly includes ptp.h */
+#include "efx_channels.h"
+>>>>>>> upstream/android-13
 
 /* Maximum number of events expected to make up a PTP event */
 #define	MAX_EVENT_FRAGS			3
@@ -176,9 +192,17 @@ struct efx_ptp_match {
 
 /**
  * struct efx_ptp_event_rx - A PTP receive event (from MC)
+<<<<<<< HEAD
  * @seq0: First part of (PTP) UUID
  * @seq1: Second part of (PTP) UUID and sequence number
  * @hwtimestamp: Event timestamp
+=======
+ * @link: list of events
+ * @seq0: First part of (PTP) UUID
+ * @seq1: Second part of (PTP) UUID and sequence number
+ * @hwtimestamp: Event timestamp
+ * @expiry: Time which the packet arrived
+>>>>>>> upstream/android-13
  */
 struct efx_ptp_event_rx {
 	struct list_head link;
@@ -226,11 +250,19 @@ struct efx_ptp_timeset {
  *                  reset (disable, enable).
  * @rxfilter_event: Receive filter when operating
  * @rxfilter_general: Receive filter when operating
+<<<<<<< HEAD
+=======
+ * @rxfilter_installed: Receive filter installed
+>>>>>>> upstream/android-13
  * @config: Current timestamp configuration
  * @enabled: PTP operation enabled
  * @mode: Mode in which PTP operating (PTP version)
  * @ns_to_nic_time: Function to convert from scalar nanoseconds to NIC time
  * @nic_to_kernel_time: Function to convert from NIC to kernel time
+<<<<<<< HEAD
+=======
+ * @nic_time: contains time details
+>>>>>>> upstream/android-13
  * @nic_time.minor_max: Wrap point for NIC minor times
  * @nic_time.sync_event_diff_min: Minimum acceptable difference between time
  * in packet prefix and last MCDI time sync event i.e. how much earlier than
@@ -242,6 +274,10 @@ struct efx_ptp_timeset {
  * field in MCDI time sync event.
  * @min_synchronisation_ns: Minimum acceptable corrected sync window
  * @capabilities: Capabilities flags from the NIC
+<<<<<<< HEAD
+=======
+ * @ts_corrections: contains corrections details
+>>>>>>> upstream/android-13
  * @ts_corrections.ptp_tx: Required driver correction of PTP packet transmit
  *                         timestamps
  * @ts_corrections.ptp_rx: Required driver correction of PTP packet receive
@@ -329,7 +365,11 @@ struct efx_ptp_data {
 	struct work_struct pps_work;
 	struct workqueue_struct *pps_workwq;
 	bool nic_ts_enabled;
+<<<<<<< HEAD
 	_MCDI_DECLARE_BUF(txbuf, MC_CMD_PTP_IN_TRANSMIT_LENMAX);
+=======
+	efx_dword_t txbuf[MCDI_TX_BUF_LEN(MC_CMD_PTP_IN_TRANSMIT_LENMAX)];
+>>>>>>> upstream/android-13
 
 	unsigned int good_syncs;
 	unsigned int fast_syncs;
@@ -355,12 +395,16 @@ static int efx_phc_enable(struct ptp_clock_info *ptp,
 
 bool efx_ptp_use_mac_tx_timestamps(struct efx_nic *efx)
 {
+<<<<<<< HEAD
 	struct efx_ef10_nic_data *nic_data = efx->nic_data;
 
 	return ((efx_nic_rev(efx) >= EFX_REV_HUNT_A0) &&
 		(nic_data->datapath_caps2 &
 		 (1 << MC_CMD_GET_CAPABILITIES_V2_OUT_TX_MAC_TIMESTAMPING_LBN)
 		));
+=======
+	return efx_has_cap(efx, TX_MAC_TIMESTAMPING);
+>>>>>>> upstream/android-13
 }
 
 /* PTP 'extra' channel is still a traffic channel, but we only create TX queues
@@ -544,6 +588,15 @@ struct efx_channel *efx_ptp_channel(struct efx_nic *efx)
 	return efx->ptp_data ? efx->ptp_data->channel : NULL;
 }
 
+<<<<<<< HEAD
+=======
+void efx_ptp_update_channel(struct efx_nic *efx, struct efx_channel *channel)
+{
+	if (efx->ptp_data)
+		efx->ptp_data->channel = channel;
+}
+
+>>>>>>> upstream/android-13
 static u32 last_sync_timestamp_major(struct efx_nic *efx)
 {
 	struct efx_channel *channel = efx_ptp_channel(efx);
@@ -651,7 +704,11 @@ static int efx_ptp_get_attributes(struct efx_nic *efx)
 	} else if (rc == -EINVAL) {
 		fmt = MC_CMD_PTP_OUT_GET_ATTRIBUTES_SECONDS_NANOSECONDS;
 	} else if (rc == -EPERM) {
+<<<<<<< HEAD
 		netif_info(efx, probe, efx->net_dev, "no PTP support\n");
+=======
+		pci_info(efx->pci_dev, "no PTP support\n");
+>>>>>>> upstream/android-13
 		return rc;
 	} else {
 		efx_mcdi_display_error(efx, MC_CMD_PTP, sizeof(inbuf),
@@ -827,7 +884,11 @@ static int efx_ptp_disable(struct efx_nic *efx)
 	 * should only have been called during probe.
 	 */
 	if (rc == -ENOSYS || rc == -EPERM)
+<<<<<<< HEAD
 		netif_info(efx, probe, efx->net_dev, "no PTP support\n");
+=======
+		pci_info(efx->pci_dev, "no PTP support\n");
+>>>>>>> upstream/android-13
 	else if (rc)
 		efx_mcdi_display_error(efx, MC_CMD_PTP,
 				       MC_CMD_PTP_IN_DISABLE_LEN,
@@ -1091,10 +1152,17 @@ static int efx_ptp_synchronize(struct efx_nic *efx, unsigned int num_readings)
 static void efx_ptp_xmit_skb_queue(struct efx_nic *efx, struct sk_buff *skb)
 {
 	struct efx_ptp_data *ptp_data = efx->ptp_data;
+<<<<<<< HEAD
 	struct efx_tx_queue *tx_queue;
 	u8 type = skb->ip_summed == CHECKSUM_PARTIAL ? EFX_TXQ_TYPE_OFFLOAD : 0;
 
 	tx_queue = &ptp_data->channel->tx_queue[type];
+=======
+	u8 type = efx_tx_csum_type_skb(skb);
+	struct efx_tx_queue *tx_queue;
+
+	tx_queue = efx_channel_get_tx_queue(ptp_data->channel, type);
+>>>>>>> upstream/android-13
 	if (tx_queue && tx_queue->timestamping) {
 		efx_enqueue_skb(tx_queue, skb);
 	} else {
@@ -1163,6 +1231,7 @@ static void efx_ptp_drop_time_expired_events(struct efx_nic *efx)
 
 	/* Drop time-expired events */
 	spin_lock_bh(&ptp->evt_lock);
+<<<<<<< HEAD
 	if (!list_empty(&ptp->evt_list)) {
 		list_for_each_safe(cursor, next, &ptp->evt_list) {
 			struct efx_ptp_event_rx *evt;
@@ -1174,6 +1243,17 @@ static void efx_ptp_drop_time_expired_events(struct efx_nic *efx)
 				netif_warn(efx, hw, efx->net_dev,
 					   "PTP rx event dropped\n");
 			}
+=======
+	list_for_each_safe(cursor, next, &ptp->evt_list) {
+		struct efx_ptp_event_rx *evt;
+
+		evt = list_entry(cursor, struct efx_ptp_event_rx,
+				 link);
+		if (time_after(jiffies, evt->expiry)) {
+			list_move(&evt->link, &ptp->evt_free_list);
+			netif_warn(efx, hw, efx->net_dev,
+				   "PTP rx event dropped\n");
+>>>>>>> upstream/android-13
 		}
 	}
 	spin_unlock_bh(&ptp->evt_lock);
@@ -1448,6 +1528,14 @@ int efx_ptp_probe(struct efx_nic *efx, struct efx_channel *channel)
 	int rc = 0;
 	unsigned int pos;
 
+<<<<<<< HEAD
+=======
+	if (efx->ptp_data) {
+		efx->ptp_data->channel = channel;
+		return 0;
+	}
+
+>>>>>>> upstream/android-13
 	ptp = kzalloc(sizeof(struct efx_ptp_data), GFP_KERNEL);
 	efx->ptp_data = ptp;
 	if (!efx->ptp_data)
@@ -2184,7 +2272,11 @@ static const struct efx_channel_type efx_ptp_channel_type = {
 	.pre_probe		= efx_ptp_probe_channel,
 	.post_remove		= efx_ptp_remove_channel,
 	.get_name		= efx_ptp_get_channel_name,
+<<<<<<< HEAD
 	/* no copy operation; there is no need to reallocate this channel */
+=======
+	.copy                   = efx_copy_channel,
+>>>>>>> upstream/android-13
 	.receive_skb		= efx_ptp_rx,
 	.want_txqs		= efx_ptp_want_txqs,
 	.keep_eventq		= false,

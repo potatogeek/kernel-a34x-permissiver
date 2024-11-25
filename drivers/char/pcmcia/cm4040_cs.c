@@ -221,7 +221,10 @@ static ssize_t cm4040_read(struct file *filp, char __user *buf,
 	unsigned long i;
 	size_t min_bytes_to_read;
 	int rc;
+<<<<<<< HEAD
 	unsigned char uc;
+=======
+>>>>>>> upstream/android-13
 
 	DEBUGP(2, dev, "-> cm4040_read(%s,%d)\n", current->comm, current->pid);
 
@@ -308,7 +311,11 @@ static ssize_t cm4040_read(struct file *filp, char __user *buf,
 			return -EIO;
 	}
 
+<<<<<<< HEAD
 	uc = xinb(iobase + REG_OFFSET_BULK_IN);
+=======
+	xinb(iobase + REG_OFFSET_BULK_IN);
+>>>>>>> upstream/android-13
 
 	DEBUGP(2, dev, "<- cm4040_read (successfully)\n");
 	return min_bytes_to_read;
@@ -505,7 +512,11 @@ static void cm4040_reader_release(struct pcmcia_device *link)
 
 	DEBUGP(3, dev, "-> cm4040_reader_release\n");
 	while (link->open) {
+<<<<<<< HEAD
 		DEBUGP(3, dev, KERN_INFO MODULE_NAME ": delaying release "
+=======
+		DEBUGP(3, dev, MODULE_NAME ": delaying release "
+>>>>>>> upstream/android-13
 		       "until process has terminated\n");
  		wait_event(dev->devq, (link->open == 0));
 	}

@@ -34,12 +34,20 @@ Required properties with SLIMbus Interface:
 	Definition: Interrupt names of WCD INTR1 and INTR2
 	Should be: "intr1", "intr2"
 
+<<<<<<< HEAD
 - reset-gpio:
+=======
+- reset-gpios:
+>>>>>>> upstream/android-13
 	Usage: required
 	Value type: <String Array>
 	Definition: Reset gpio line
 
+<<<<<<< HEAD
 - qcom,ifd:
+=======
+- slim-ifc-dev:
+>>>>>>> upstream/android-13
 	Usage: required
 	Value type: <phandle>
 	Definition: SLIM interface device
@@ -104,13 +112,22 @@ Required properties with SLIMbus Interface:
 	Value type: <u32>
 	Definition: Must be 1
 
+<<<<<<< HEAD
 codec@1{
+=======
+audio-codec@1{
+>>>>>>> upstream/android-13
 	compatible = "slim217,1a0";
 	reg  = <1 0>;
 	interrupts = <&msmgpio 54 IRQ_TYPE_LEVEL_HIGH>;
 	interrupt-names = "intr2"
+<<<<<<< HEAD
 	reset-gpio = <&msmgpio 64 0>;
 	qcom,ifd  = <&wc9335_ifd>;
+=======
+	reset-gpios = <&msmgpio 64 0>;
+	slim-ifc-dev  = <&wc9335_ifd>;
+>>>>>>> upstream/android-13
 	clock-names = "mclk", "native";
 	clocks = <&rpmcc RPM_SMD_DIV_CLK1>,
 		 <&rpmcc RPM_SMD_BB_CLK1>;

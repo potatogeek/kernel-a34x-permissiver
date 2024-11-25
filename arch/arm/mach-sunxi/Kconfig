@@ -1,17 +1,39 @@
+<<<<<<< HEAD
 menuconfig ARCH_SUNXI
 	bool "Allwinner SoCs"
 	depends on ARCH_MULTI_V7
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+menuconfig ARCH_SUNXI
+	bool "Allwinner SoCs"
+	depends on ARCH_MULTI_V5 || ARCH_MULTI_V7
+>>>>>>> upstream/android-13
 	select ARCH_HAS_RESET_CONTROLLER
 	select CLKSRC_MMIO
 	select GENERIC_IRQ_CHIP
 	select GPIOLIB
+<<<<<<< HEAD
+=======
+	select IRQ_DOMAIN_HIERARCHY
+	select IRQ_FASTEOI_HIERARCHY_HANDLERS
+>>>>>>> upstream/android-13
 	select PINCTRL
 	select PM_OPP
 	select SUN4I_TIMER
 	select RESET_CONTROLLER
+<<<<<<< HEAD
 
 if ARCH_SUNXI
 
+=======
+	help
+	  Support for Allwinner ARM-based family of processors
+
+if ARCH_SUNXI
+
+if ARCH_MULTI_V7
+
+>>>>>>> upstream/android-13
 config MACH_SUN4I
 	bool "Allwinner A10 (sun4i) SoCs support"
 	default ARCH_SUNXI
@@ -56,3 +78,19 @@ config ARCH_SUNXI_MC_SMP
 	select ARM_CPU_SUSPEND
 
 endif
+<<<<<<< HEAD
+=======
+
+if ARCH_MULTI_V5
+
+config MACH_SUNIV
+	bool "Allwinner ARMv5 F-series (suniv) SoCs support"
+	default ARCH_SUNXI
+	help
+	  Support for Allwinner suniv ARMv5 SoCs.
+	  (F1C100A, F1C100s, F1C200s, F1C500, F1C600)
+
+endif
+
+endif
+>>>>>>> upstream/android-13

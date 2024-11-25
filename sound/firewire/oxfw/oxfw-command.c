@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * oxfw_command.c - a part of driver for OXFW970/971 based devices
  *
  * Copyright (c) 2014 Takashi Sakamoto
+<<<<<<< HEAD
  *
  * Licensed under the terms of the GNU General Public License, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "oxfw.h"
@@ -39,7 +46,11 @@ int avc_stream_set_format(struct fw_unit *unit, enum avc_general_plug_dir dir,
 	else if (err < len + 10)
 		err = -EIO;
 	else if (buf[0] == 0x08) /* NOT IMPLEMENTED */
+<<<<<<< HEAD
 		err = -ENOSYS;
+=======
+		err = -ENXIO;
+>>>>>>> upstream/android-13
 	else if (buf[0] == 0x0a) /* REJECTED */
 		err = -EINVAL;
 	else
@@ -84,7 +95,11 @@ int avc_stream_get_format(struct fw_unit *unit,
 	else if (err < 12)
 		err = -EIO;
 	else if (buf[0] == 0x08)	/* NOT IMPLEMENTED */
+<<<<<<< HEAD
 		err = -ENOSYS;
+=======
+		err = -ENXIO;
+>>>>>>> upstream/android-13
 	else if (buf[0] == 0x0a)	/* REJECTED */
 		err = -EINVAL;
 	else if (buf[0] == 0x0b)	/* IN TRANSITION */
@@ -148,7 +163,11 @@ int avc_general_inquiry_sig_fmt(struct fw_unit *unit, unsigned int rate,
 	else if (err < 8)
 		err = -EIO;
 	else if (buf[0] == 0x08)	/* NOT IMPLEMENTED */
+<<<<<<< HEAD
 		err = -ENOSYS;
+=======
+		err = -ENXIO;
+>>>>>>> upstream/android-13
 	if (err < 0)
 		goto end;
 

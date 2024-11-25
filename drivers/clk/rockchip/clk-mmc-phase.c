@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2014 Google, Inc
  * Author: Alexandru M Stan <amstan@chromium.org>
@@ -11,6 +12,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2014 Google, Inc
+ * Author: Alexandru M Stan <amstan@chromium.org>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -55,20 +62,31 @@ static unsigned long rockchip_mmc_recalc(struct clk_hw *hw,
 static int rockchip_mmc_get_phase(struct clk_hw *hw)
 {
 	struct rockchip_mmc_clock *mmc_clock = to_mmc_clock(hw);
+<<<<<<< HEAD
 	unsigned long rate = clk_get_rate(hw->clk);
+=======
+	unsigned long rate = clk_hw_get_rate(hw);
+>>>>>>> upstream/android-13
 	u32 raw_value;
 	u16 degrees;
 	u32 delay_num = 0;
 
+<<<<<<< HEAD
 	/* See the comment for rockchip_mmc_set_phase below */
 	if (!rate)
 		return -EINVAL;
+=======
+	/* Constant signal, no measurable phase shift */
+	if (!rate)
+		return 0;
+>>>>>>> upstream/android-13
 
 	raw_value = readl(mmc_clock->reg) >> (mmc_clock->shift);
 
 	degrees = (raw_value & ROCKCHIP_MMC_DEGREE_MASK) * 90;
 
 	if (raw_value & ROCKCHIP_MMC_DELAY_SEL) {
+<<<<<<< HEAD
 		/* degrees/delaynum * 10000 */
 		unsigned long factor = (ROCKCHIP_MMC_DELAY_ELEMENT_PSEC / 10) *
 					36 * (rate / 1000000);
@@ -76,6 +94,15 @@ static int rockchip_mmc_get_phase(struct clk_hw *hw)
 		delay_num = (raw_value & ROCKCHIP_MMC_DELAYNUM_MASK);
 		delay_num >>= ROCKCHIP_MMC_DELAYNUM_OFFSET;
 		degrees += DIV_ROUND_CLOSEST(delay_num * factor, 10000);
+=======
+		/* degrees/delaynum * 1000000 */
+		unsigned long factor = (ROCKCHIP_MMC_DELAY_ELEMENT_PSEC / 10) *
+					36 * (rate / 10000);
+
+		delay_num = (raw_value & ROCKCHIP_MMC_DELAYNUM_MASK);
+		delay_num >>= ROCKCHIP_MMC_DELAYNUM_OFFSET;
+		degrees += DIV_ROUND_CLOSEST(delay_num * factor, 1000000);
+>>>>>>> upstream/android-13
 	}
 
 	return degrees % 360;
@@ -84,7 +111,11 @@ static int rockchip_mmc_get_phase(struct clk_hw *hw)
 static int rockchip_mmc_set_phase(struct clk_hw *hw, int degrees)
 {
 	struct rockchip_mmc_clock *mmc_clock = to_mmc_clock(hw);
+<<<<<<< HEAD
 	unsigned long rate = clk_get_rate(hw->clk);
+=======
+	unsigned long rate = clk_hw_get_rate(hw);
+>>>>>>> upstream/android-13
 	u8 nineties, remainder;
 	u8 delay_num;
 	u32 raw_value;
@@ -201,7 +232,11 @@ struct clk *rockchip_clk_register_mmc(const char *name,
 				const char *const *parent_names, u8 num_parents,
 				void __iomem *reg, int shift)
 {
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	struct rockchip_mmc_clock *mmc_clock;
 	struct clk *clk;
 	int ret;

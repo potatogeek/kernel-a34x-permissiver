@@ -1,7 +1,10 @@
 #
 # Broadcom Generic BMIPS kernel
 #
+<<<<<<< HEAD
 platform-$(CONFIG_BMIPS_GENERIC)	+= bmips/
+=======
+>>>>>>> upstream/android-13
 cflags-$(CONFIG_BMIPS_GENERIC)		+=				\
 		-I$(srctree)/arch/mips/include/asm/mach-bmips/
 load-$(CONFIG_BMIPS_GENERIC)		:= 0xffffffff80010000

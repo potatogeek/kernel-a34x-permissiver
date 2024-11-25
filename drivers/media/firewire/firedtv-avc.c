@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * FireDTV driver (formerly known as FireSAT)
  *
  * Copyright (C) 2004 Andreas Monitzer <andy@monitzer.com>
  * Copyright (C) 2008 Ben Backx <ben@bbackx.com>
  * Copyright (C) 2008 Henrik Kurelid <henrik@kurelid.se>
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License as
  *	published by the Free Software Foundation; either version 2 of
  *	the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bug.h>
@@ -1169,7 +1176,15 @@ int avc_ca_pmt(struct firedtv *fdtv, char *msg, int length)
 		read_pos += program_info_length;
 		write_pos += program_info_length;
 	}
+<<<<<<< HEAD
 	while (read_pos < length) {
+=======
+	while (read_pos + 4 < length) {
+		if (write_pos + 4 >= sizeof(c->operand) - 4) {
+			ret = -EINVAL;
+			goto out;
+		}
+>>>>>>> upstream/android-13
 		c->operand[write_pos++] = msg[read_pos++];
 		c->operand[write_pos++] = msg[read_pos++];
 		c->operand[write_pos++] = msg[read_pos++];
@@ -1181,13 +1196,25 @@ int avc_ca_pmt(struct firedtv *fdtv, char *msg, int length)
 		c->operand[write_pos++] = es_info_length >> 8;
 		c->operand[write_pos++] = es_info_length & 0xff;
 		if (es_info_length > 0) {
+<<<<<<< HEAD
+=======
+			if (read_pos >= length) {
+				ret = -EINVAL;
+				goto out;
+			}
+>>>>>>> upstream/android-13
 			pmt_cmd_id = msg[read_pos++];
 			if (pmt_cmd_id != 1 && pmt_cmd_id != 4)
 				dev_err(fdtv->device, "invalid pmt_cmd_id %d at stream level\n",
 					pmt_cmd_id);
 
+<<<<<<< HEAD
 			if (es_info_length > sizeof(c->operand) - 4 -
 					     write_pos) {
+=======
+			if (es_info_length > sizeof(c->operand) - 4 - write_pos ||
+			    es_info_length > length - read_pos) {
+>>>>>>> upstream/android-13
 				ret = -EINVAL;
 				goto out;
 			}

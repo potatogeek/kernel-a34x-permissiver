@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* $Id: aty128fb.c,v 1.1.1.1.36.1 1999/12/11 09:03:05 Exp $
  *  linux/drivers/video/aty128fb.c -- Frame buffer device for ATI Rage128
  *
@@ -161,10 +165,29 @@ static char * const r128_family[] = {
 static int aty128_probe(struct pci_dev *pdev,
                                const struct pci_device_id *ent);
 static void aty128_remove(struct pci_dev *pdev);
+<<<<<<< HEAD
 static int aty128_pci_suspend(struct pci_dev *pdev, pm_message_t state);
 static int aty128_pci_resume(struct pci_dev *pdev);
 static int aty128_do_resume(struct pci_dev *pdev);
 
+=======
+static int aty128_pci_suspend_late(struct device *dev, pm_message_t state);
+static int __maybe_unused aty128_pci_suspend(struct device *dev);
+static int __maybe_unused aty128_pci_hibernate(struct device *dev);
+static int __maybe_unused aty128_pci_freeze(struct device *dev);
+static int __maybe_unused aty128_pci_resume(struct device *dev);
+static int aty128_do_resume(struct pci_dev *pdev);
+
+static const struct dev_pm_ops aty128_pci_pm_ops = {
+	.suspend	= aty128_pci_suspend,
+	.resume		= aty128_pci_resume,
+	.freeze		= aty128_pci_freeze,
+	.thaw		= aty128_pci_resume,
+	.poweroff	= aty128_pci_hibernate,
+	.restore	= aty128_pci_resume,
+};
+
+>>>>>>> upstream/android-13
 /* supported Rage128 chipsets */
 static const struct pci_device_id aty128_pci_tbl[] = {
 	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RAGE128_LE,
@@ -271,8 +294,12 @@ static struct pci_driver aty128fb_driver = {
 	.id_table	= aty128_pci_tbl,
 	.probe		= aty128_probe,
 	.remove		= aty128_remove,
+<<<<<<< HEAD
 	.suspend	= aty128_pci_suspend,
 	.resume		= aty128_pci_resume,
+=======
+	.driver.pm	= &aty128_pci_pm_ops,
+>>>>>>> upstream/android-13
 };
 
 /* packed BIOS settings */
@@ -333,6 +360,7 @@ static const struct aty128_meminfo sdr_128 = {
 	.name = "128-bit SDR SGRAM (1:1)",
 };
 
+<<<<<<< HEAD
 static const struct aty128_meminfo sdr_64 = {
 	.ML = 4,
 	.MB = 8,
@@ -347,6 +375,8 @@ static const struct aty128_meminfo sdr_64 = {
 	.name = "64-bit SDR SGRAM (1:1)",
 };
 
+=======
+>>>>>>> upstream/android-13
 static const struct aty128_meminfo sdr_sgram = {
 	.ML = 4,
 	.MB = 4,
@@ -397,11 +427,15 @@ static int default_lcd_on = 1;
 static bool mtrr = true;
 
 #ifdef CONFIG_FB_ATY128_BACKLIGHT
+<<<<<<< HEAD
 #ifdef CONFIG_PMAC_BACKLIGHT
 static int backlight = 1;
 #else
 static int backlight = 0;
 #endif
+=======
+static int backlight = IS_BUILTIN(CONFIG_PMAC_BACKLIGHT);
+>>>>>>> upstream/android-13
 #endif
 
 /* PLL constants */
@@ -486,11 +520,14 @@ static int aty128_encode_var(struct fb_var_screeninfo *var,
                              const struct aty128fb_par *par);
 static int aty128_decode_var(struct fb_var_screeninfo *var,
                              struct aty128fb_par *par);
+<<<<<<< HEAD
 #if 0
 static void aty128_get_pllinfo(struct aty128fb_par *par, void __iomem *bios);
 static void __iomem *aty128_map_ROM(struct pci_dev *pdev,
 				    const struct aty128fb_par *par);
 #endif
+=======
+>>>>>>> upstream/android-13
 static void aty128_timings(struct aty128fb_par *par);
 static void aty128_init_engine(struct aty128fb_par *par);
 static void aty128_reset_engine(const struct aty128fb_par *par);
@@ -513,7 +550,11 @@ static void aty128_bl_set_power(struct fb_info *info, int power);
 			  (readb(bios + (v) + 3) << 24))
 
 
+<<<<<<< HEAD
 static struct fb_ops aty128fb_ops = {
+=======
+static const struct fb_ops aty128fb_ops = {
+>>>>>>> upstream/android-13
 	.owner		= THIS_MODULE,
 	.fb_check_var	= aty128fb_check_var,
 	.fb_set_par	= aty128fb_set_par,
@@ -1664,6 +1705,7 @@ static void aty128_st_pal(u_int regno, u_int red, u_int green, u_int blue,
 			  struct aty128fb_par *par)
 {
 	if (par->chip_gen == rage_M3) {
+<<<<<<< HEAD
 #if 0
 		/* Note: For now, on M3, we set palette on both heads, which may
 		 * be useless. Can someone with a M3 check this ?
@@ -1677,6 +1719,8 @@ static void aty128_st_pal(u_int regno, u_int red, u_int green, u_int blue,
 		aty_st_8(PALETTE_INDEX, regno);
 		aty_st_le32(PALETTE_DATA, (red<<16)|(green<<8)|blue);
 #endif
+=======
+>>>>>>> upstream/android-13
 		aty_st_le32(DAC_CNTL, aty_ld_le32(DAC_CNTL) &
 			    ~DAC_PALETTE_ACCESS_CNTL);
 	}
@@ -2102,10 +2146,16 @@ static int aty128_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 
 	/* We have the resources. Now virtualize them */
 	info = framebuffer_alloc(sizeof(struct aty128fb_par), &pdev->dev);
+<<<<<<< HEAD
 	if (info == NULL) {
 		printk(KERN_ERR "aty128fb: can't alloc fb_info_aty128\n");
 		goto err_free_mmio;
 	}
+=======
+	if (!info)
+		goto err_free_mmio;
+
+>>>>>>> upstream/android-13
 	par = info->par;
 
 	info->pseudo_palette = par->pseudo_palette;
@@ -2349,6 +2399,7 @@ static int aty128fb_ioctl(struct fb_info *info, u_int cmd, u_long arg)
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 #if 0
     /*
      *  Accelerated functions
@@ -2417,6 +2468,11 @@ static void aty128_set_suspend(struct aty128fb_par *par, int suspend)
 {
 	u32	pmgt;
 	struct pci_dev *pdev = par->pdev;
+=======
+static void aty128_set_suspend(struct aty128fb_par *par, int suspend)
+{
+	u32	pmgt;
+>>>>>>> upstream/android-13
 
 	if (!par->pdev->pm_cap)
 		return;
@@ -2443,6 +2499,7 @@ static void aty128_set_suspend(struct aty128fb_par *par, int suspend)
 		aty_st_le32(BUS_CNTL1, 0x00000010);
 		aty_st_le32(MEM_POWER_MISC, 0x0c830000);
 		msleep(100);
+<<<<<<< HEAD
 
 		/* Switch PCI power management to D2 */
 		pci_set_power_state(pdev, PCI_D2);
@@ -2460,6 +2517,17 @@ static int aty128_pci_suspend(struct pci_dev *pdev, pm_message_t state)
 	 */
 	pci_save_state(pdev);
 
+=======
+	}
+}
+
+static int aty128_pci_suspend_late(struct device *dev, pm_message_t state)
+{
+	struct pci_dev *pdev = to_pci_dev(dev);
+	struct fb_info *info = pci_get_drvdata(pdev);
+	struct aty128fb_par *par = info->par;
+
+>>>>>>> upstream/android-13
 	/* We don't do anything but D2, for now we return 0, but
 	 * we may want to change that. How do we know if the BIOS
 	 * can properly take care of D3 ? Also, with swsusp, we
@@ -2518,6 +2586,24 @@ static int aty128_pci_suspend(struct pci_dev *pdev, pm_message_t state)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int __maybe_unused aty128_pci_suspend(struct device *dev)
+{
+	return aty128_pci_suspend_late(dev, PMSG_SUSPEND);
+}
+
+static int __maybe_unused aty128_pci_hibernate(struct device *dev)
+{
+	return aty128_pci_suspend_late(dev, PMSG_HIBERNATE);
+}
+
+static int __maybe_unused aty128_pci_freeze(struct device *dev)
+{
+	return aty128_pci_suspend_late(dev, PMSG_FREEZE);
+}
+
+>>>>>>> upstream/android-13
 static int aty128_do_resume(struct pci_dev *pdev)
 {
 	struct fb_info *info = pci_get_drvdata(pdev);
@@ -2564,12 +2650,20 @@ static int aty128_do_resume(struct pci_dev *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int aty128_pci_resume(struct pci_dev *pdev)
+=======
+static int __maybe_unused aty128_pci_resume(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	int rc;
 
 	console_lock();
+<<<<<<< HEAD
 	rc = aty128_do_resume(pdev);
+=======
+	rc = aty128_do_resume(to_pci_dev(dev));
+>>>>>>> upstream/android-13
 	console_unlock();
 
 	return rc;

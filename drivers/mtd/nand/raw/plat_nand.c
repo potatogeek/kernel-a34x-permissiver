@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Generic NAND driver
  *
  * Author: Vitaly Wool <vitalywool@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -15,14 +22,37 @@
 #include <linux/platform_device.h>
 #include <linux/slab.h>
 #include <linux/mtd/mtd.h>
+<<<<<<< HEAD
 #include <linux/mtd/rawnand.h>
 #include <linux/mtd/partitions.h>
 
 struct plat_nand_data {
+=======
+#include <linux/mtd/platnand.h>
+
+struct plat_nand_data {
+	struct nand_controller	controller;
+>>>>>>> upstream/android-13
 	struct nand_chip	chip;
 	void __iomem		*io_base;
 };
 
+<<<<<<< HEAD
+=======
+static int plat_nand_attach_chip(struct nand_chip *chip)
+{
+	if (chip->ecc.engine_type == NAND_ECC_ENGINE_TYPE_SOFT &&
+	    chip->ecc.algo == NAND_ECC_ALGO_UNKNOWN)
+		chip->ecc.algo = NAND_ECC_ALGO_HAMMING;
+
+	return 0;
+}
+
+static const struct nand_controller_ops plat_nand_ops = {
+	.attach_chip = plat_nand_attach_chip,
+};
+
+>>>>>>> upstream/android-13
 /*
  * Probe for the NAND device.
  */
@@ -51,6 +81,13 @@ static int plat_nand_probe(struct platform_device *pdev)
 	if (!data)
 		return -ENOMEM;
 
+<<<<<<< HEAD
+=======
+	data->controller.ops = &plat_nand_ops;
+	nand_controller_init(&data->controller);
+	data->chip.controller = &data->controller;
+
+>>>>>>> upstream/android-13
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	data->io_base = devm_ioremap_resource(&pdev->dev, res);
 	if (IS_ERR(data->io_base))
@@ -60,6 +97,7 @@ static int plat_nand_probe(struct platform_device *pdev)
 	mtd = nand_to_mtd(&data->chip);
 	mtd->dev.parent = &pdev->dev;
 
+<<<<<<< HEAD
 	data->chip.IO_ADDR_R = data->io_base;
 	data->chip.IO_ADDR_W = data->io_base;
 	data->chip.cmd_ctrl = pdata->ctrl.cmd_ctrl;
@@ -74,6 +112,19 @@ static int plat_nand_probe(struct platform_device *pdev)
 	data->chip.ecc.mode = NAND_ECC_SOFT;
 	data->chip.ecc.algo = NAND_ECC_HAMMING;
 
+=======
+	data->chip.legacy.IO_ADDR_R = data->io_base;
+	data->chip.legacy.IO_ADDR_W = data->io_base;
+	data->chip.legacy.cmd_ctrl = pdata->ctrl.cmd_ctrl;
+	data->chip.legacy.dev_ready = pdata->ctrl.dev_ready;
+	data->chip.legacy.select_chip = pdata->ctrl.select_chip;
+	data->chip.legacy.write_buf = pdata->ctrl.write_buf;
+	data->chip.legacy.read_buf = pdata->ctrl.read_buf;
+	data->chip.legacy.chip_delay = pdata->chip.chip_delay;
+	data->chip.options |= pdata->chip.options;
+	data->chip.bbt_options |= pdata->chip.bbt_options;
+
+>>>>>>> upstream/android-13
 	platform_set_drvdata(pdev, data);
 
 	/* Handle any platform specific setup */
@@ -83,6 +134,16 @@ static int plat_nand_probe(struct platform_device *pdev)
 			goto out;
 	}
 
+<<<<<<< HEAD
+=======
+	/*
+	 * This driver assumes that the default ECC engine should be TYPE_SOFT.
+	 * Set ->engine_type before registering the NAND devices in order to
+	 * provide a driver specific default value.
+	 */
+	data->chip.ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
+
+>>>>>>> upstream/android-13
 	/* Scan to find existence of the device */
 	err = nand_scan(&data->chip, pdata->chip.nr_chips);
 	if (err)
@@ -111,8 +172,17 @@ static int plat_nand_remove(struct platform_device *pdev)
 {
 	struct plat_nand_data *data = platform_get_drvdata(pdev);
 	struct platform_nand_data *pdata = dev_get_platdata(&pdev->dev);
+<<<<<<< HEAD
 
 	nand_release(&data->chip);
+=======
+	struct nand_chip *chip = &data->chip;
+	int ret;
+
+	ret = mtd_device_unregister(nand_to_mtd(chip));
+	WARN_ON(ret);
+	nand_cleanup(chip);
+>>>>>>> upstream/android-13
 	if (pdata->ctrl.remove)
 		pdata->ctrl.remove(pdev);
 

@@ -568,7 +568,11 @@ gk20a_instmem = {
 };
 
 int
+<<<<<<< HEAD
 gk20a_instmem_new(struct nvkm_device *device, int index,
+=======
+gk20a_instmem_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+>>>>>>> upstream/android-13
 		  struct nvkm_instmem **pimem)
 {
 	struct nvkm_device_tegra *tdev = device->func->tegra(device);
@@ -576,7 +580,11 @@ gk20a_instmem_new(struct nvkm_device *device, int index,
 
 	if (!(imem = kzalloc(sizeof(*imem), GFP_KERNEL)))
 		return -ENOMEM;
+<<<<<<< HEAD
 	nvkm_instmem_ctor(&gk20a_instmem, device, index, &imem->base);
+=======
+	nvkm_instmem_ctor(&gk20a_instmem, device, type, inst, &imem->base);
+>>>>>>> upstream/android-13
 	mutex_init(&imem->lock);
 	*pimem = &imem->base;
 
@@ -594,8 +602,12 @@ gk20a_instmem_new(struct nvkm_device *device, int index,
 
 		nvkm_info(&imem->base.subdev, "using IOMMU\n");
 	} else {
+<<<<<<< HEAD
 		imem->attrs = DMA_ATTR_NON_CONSISTENT |
 			      DMA_ATTR_WEAK_ORDERING |
+=======
+		imem->attrs = DMA_ATTR_WEAK_ORDERING |
+>>>>>>> upstream/android-13
 			      DMA_ATTR_WRITE_COMBINE;
 
 		nvkm_info(&imem->base.subdev, "using DMA API\n");

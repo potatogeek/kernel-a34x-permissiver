@@ -1,6 +1,7 @@
 #include <linux/ptrace.h>
 #include <linux/version.h>
 #include <uapi/linux/bpf.h>
+<<<<<<< HEAD
 #include "bpf_helpers.h"
 
 struct bpf_map_def SEC("maps") counters = {
@@ -21,6 +22,30 @@ struct bpf_map_def SEC("maps") values2 = {
 	.value_size = sizeof(struct bpf_perf_event_value),
 	.max_entries = 64,
 };
+=======
+#include <bpf/bpf_helpers.h>
+
+struct {
+	__uint(type, BPF_MAP_TYPE_PERF_EVENT_ARRAY);
+	__uint(key_size, sizeof(int));
+	__uint(value_size, sizeof(u32));
+	__uint(max_entries, 64);
+} counters SEC(".maps");
+
+struct {
+	__uint(type, BPF_MAP_TYPE_HASH);
+	__type(key, int);
+	__type(value, u64);
+	__uint(max_entries, 64);
+} values SEC(".maps");
+
+struct {
+	__uint(type, BPF_MAP_TYPE_HASH);
+	__type(key, int);
+	__type(value, struct bpf_perf_event_value);
+	__uint(max_entries, 64);
+} values2 SEC(".maps");
+>>>>>>> upstream/android-13
 
 SEC("kprobe/htab_map_get_next_key")
 int bpf_prog1(struct pt_regs *ctx)

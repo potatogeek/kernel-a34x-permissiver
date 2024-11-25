@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * GemTek radio card driver
  *
@@ -124,7 +128,11 @@ struct gemtek {
 #define BU2614_FMUN_SHIFT	(BU2614_VOID2_BITS + BU2614_VOID2_SHIFT)
 #define BU2614_TEST_SHIFT	(BU2614_FMUN_BITS + BU2614_FMUN_SHIFT)
 
+<<<<<<< HEAD
 #define MKMASK(field)	(((1<<BU2614_##field##_BITS) - 1) << \
+=======
+#define MKMASK(field)	(((1UL<<BU2614_##field##_BITS) - 1) << \
+>>>>>>> upstream/android-13
 			BU2614_##field##_SHIFT)
 #define BU2614_PORT_MASK	MKMASK(PORT)
 #define BU2614_FREQ_MASK	MKMASK(FREQ)

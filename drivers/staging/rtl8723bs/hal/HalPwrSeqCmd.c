@@ -39,10 +39,17 @@ u8 HalPwrSeqCmdParsing(
 	u8 CutVersion,
 	u8 FabVersion,
 	u8 InterfaceType,
+<<<<<<< HEAD
 	WLAN_PWR_CFG PwrSeqCmd[]
 )
 {
 	WLAN_PWR_CFG PwrCfgCmd;
+=======
+	struct wlan_pwr_cfg PwrSeqCmd[]
+)
+{
+	struct wlan_pwr_cfg PwrCfgCmd;
+>>>>>>> upstream/android-13
 	u8 bPollingBit = false;
 	u32 AryIdx = 0;
 	u8 value = 0;
@@ -53,6 +60,7 @@ u8 HalPwrSeqCmdParsing(
 	do {
 		PwrCfgCmd = PwrSeqCmd[AryIdx];
 
+<<<<<<< HEAD
 		RT_TRACE(
 			_module_hal_init_c_,
 			_drv_info_,
@@ -69,6 +77,8 @@ u8 HalPwrSeqCmdParsing(
 			)
 		);
 
+=======
+>>>>>>> upstream/android-13
 		/* 2 Only Handle the command whose FAB, CUT, and Interface are matched */
 		if (
 			(GET_PWR_CFG_FAB_MASK(PwrCfgCmd) & FabVersion) &&
@@ -77,6 +87,7 @@ u8 HalPwrSeqCmdParsing(
 		) {
 			switch (GET_PWR_CFG_CMD(PwrCfgCmd)) {
 			case PWR_CMD_READ:
+<<<<<<< HEAD
 				RT_TRACE(
 					_module_hal_init_c_,
 					_drv_info_,
@@ -90,6 +101,11 @@ u8 HalPwrSeqCmdParsing(
 					_drv_info_,
 					("HalPwrSeqCmdParsing: PWR_CMD_WRITE\n")
 				);
+=======
+				break;
+
+			case PWR_CMD_WRITE:
+>>>>>>> upstream/android-13
 				offset = GET_PWR_CFG_OFFSET(PwrCfgCmd);
 
 				/*  */
@@ -118,17 +134,24 @@ u8 HalPwrSeqCmdParsing(
 						&GET_PWR_CFG_MASK(PwrCfgCmd)
 					);
 
+<<<<<<< HEAD
 					/*  Write the value back to sytem register */
+=======
+					/*  Write the value back to system register */
+>>>>>>> upstream/android-13
 					rtw_write8(padapter, offset, value);
 				}
 				break;
 
 			case PWR_CMD_POLLING:
+<<<<<<< HEAD
 				RT_TRACE(
 					_module_hal_init_c_,
 					_drv_info_,
 					("HalPwrSeqCmdParsing: PWR_CMD_POLLING\n")
 				);
+=======
+>>>>>>> upstream/android-13
 
 				bPollingBit = false;
 				offset = GET_PWR_CFG_OFFSET(PwrCfgCmd);
@@ -147,6 +170,7 @@ u8 HalPwrSeqCmdParsing(
 					else
 						udelay(10);
 
+<<<<<<< HEAD
 					if (pollingCount++ > maxPollingCnt) {
 						DBG_871X(
 							"Fail to polling Offset[%#x]=%02x\n",
@@ -155,16 +179,24 @@ u8 HalPwrSeqCmdParsing(
 						);
 						return false;
 					}
+=======
+					if (pollingCount++ > maxPollingCnt)
+						return false;
+
+>>>>>>> upstream/android-13
 				} while (!bPollingBit);
 
 				break;
 
 			case PWR_CMD_DELAY:
+<<<<<<< HEAD
 				RT_TRACE(
 					_module_hal_init_c_,
 					_drv_info_,
 					("HalPwrSeqCmdParsing: PWR_CMD_DELAY\n")
 				);
+=======
+>>>>>>> upstream/android-13
 				if (GET_PWR_CFG_VALUE(PwrCfgCmd) == PWRSEQ_DELAY_US)
 					udelay(GET_PWR_CFG_OFFSET(PwrCfgCmd));
 				else
@@ -173,6 +205,7 @@ u8 HalPwrSeqCmdParsing(
 
 			case PWR_CMD_END:
 				/*  When this command is parsed, end the process */
+<<<<<<< HEAD
 				RT_TRACE(
 					_module_hal_init_c_,
 					_drv_info_,
@@ -186,6 +219,11 @@ u8 HalPwrSeqCmdParsing(
 					_drv_err_,
 					("HalPwrSeqCmdParsing: Unknown CMD!!\n")
 				);
+=======
+				return true;
+
+			default:
+>>>>>>> upstream/android-13
 				break;
 			}
 		}

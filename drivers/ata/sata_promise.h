@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  sata_promise.h - Promise SATA common definitions and inline funcs
  *
  *  Copyright 2003-2004 Red Hat, Inc.
  *
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -22,6 +27,10 @@
  *  libata documentation is available via 'make {ps|pdf}docs',
  *  as Documentation/driver-api/libata.rst
  *
+=======
+ *  libata documentation is available via 'make {ps|pdf}docs',
+ *  as Documentation/driver-api/libata.rst
+>>>>>>> upstream/android-13
  */
 
 #ifndef __SATA_PROMISE_H__

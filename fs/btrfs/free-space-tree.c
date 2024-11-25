@@ -10,24 +10,45 @@
 #include "locking.h"
 #include "free-space-tree.h"
 #include "transaction.h"
+<<<<<<< HEAD
 
 static int __add_block_group_free_space(struct btrfs_trans_handle *trans,
 					struct btrfs_block_group_cache *block_group,
 					struct btrfs_path *path);
 
 void set_free_space_tree_thresholds(struct btrfs_block_group_cache *cache)
+=======
+#include "block-group.h"
+
+static int __add_block_group_free_space(struct btrfs_trans_handle *trans,
+					struct btrfs_block_group *block_group,
+					struct btrfs_path *path);
+
+void set_free_space_tree_thresholds(struct btrfs_block_group *cache)
+>>>>>>> upstream/android-13
 {
 	u32 bitmap_range;
 	size_t bitmap_size;
 	u64 num_bitmaps, total_bitmap_size;
 
+<<<<<<< HEAD
+=======
+	if (WARN_ON(cache->length == 0))
+		btrfs_warn(cache->fs_info, "block group %llu length is zero",
+			   cache->start);
+
+>>>>>>> upstream/android-13
 	/*
 	 * We convert to bitmaps when the disk space required for using extents
 	 * exceeds that required for using bitmaps.
 	 */
 	bitmap_range = cache->fs_info->sectorsize * BTRFS_FREE_SPACE_BITMAP_BITS;
+<<<<<<< HEAD
 	num_bitmaps = div_u64(cache->key.offset + bitmap_range - 1,
 			      bitmap_range);
+=======
+	num_bitmaps = div_u64(cache->length + bitmap_range - 1, bitmap_range);
+>>>>>>> upstream/android-13
 	bitmap_size = sizeof(struct btrfs_item) + BTRFS_FREE_SPACE_BITMAP_SIZE;
 	total_bitmap_size = num_bitmaps * bitmap_size;
 	cache->bitmap_high_thresh = div_u64(total_bitmap_size,
@@ -44,7 +65,11 @@ void set_free_space_tree_thresholds(struct btrfs_block_group_cache *cache)
 }
 
 static int add_new_free_space_info(struct btrfs_trans_handle *trans,
+<<<<<<< HEAD
 				   struct btrfs_block_group_cache *block_group,
+=======
+				   struct btrfs_block_group *block_group,
+>>>>>>> upstream/android-13
 				   struct btrfs_path *path)
 {
 	struct btrfs_root *root = trans->fs_info->free_space_root;
@@ -53,9 +78,15 @@ static int add_new_free_space_info(struct btrfs_trans_handle *trans,
 	struct extent_buffer *leaf;
 	int ret;
 
+<<<<<<< HEAD
 	key.objectid = block_group->key.objectid;
 	key.type = BTRFS_FREE_SPACE_INFO_KEY;
 	key.offset = block_group->key.offset;
+=======
+	key.objectid = block_group->start;
+	key.type = BTRFS_FREE_SPACE_INFO_KEY;
+	key.offset = block_group->length;
+>>>>>>> upstream/android-13
 
 	ret = btrfs_insert_empty_item(trans, root, path, &key, sizeof(*info));
 	if (ret)
@@ -74,26 +105,46 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 struct btrfs_free_space_info *
 search_free_space_info(struct btrfs_trans_handle *trans,
 		       struct btrfs_fs_info *fs_info,
 		       struct btrfs_block_group_cache *block_group,
 		       struct btrfs_path *path, int cow)
 {
+=======
+EXPORT_FOR_TESTS
+struct btrfs_free_space_info *search_free_space_info(
+		struct btrfs_trans_handle *trans,
+		struct btrfs_block_group *block_group,
+		struct btrfs_path *path, int cow)
+{
+	struct btrfs_fs_info *fs_info = block_group->fs_info;
+>>>>>>> upstream/android-13
 	struct btrfs_root *root = fs_info->free_space_root;
 	struct btrfs_key key;
 	int ret;
 
+<<<<<<< HEAD
 	key.objectid = block_group->key.objectid;
 	key.type = BTRFS_FREE_SPACE_INFO_KEY;
 	key.offset = block_group->key.offset;
+=======
+	key.objectid = block_group->start;
+	key.type = BTRFS_FREE_SPACE_INFO_KEY;
+	key.offset = block_group->length;
+>>>>>>> upstream/android-13
 
 	ret = btrfs_search_slot(trans, root, &key, path, 0, cow);
 	if (ret < 0)
 		return ERR_PTR(ret);
 	if (ret != 0) {
 		btrfs_warn(fs_info, "missing free space info for %llu",
+<<<<<<< HEAD
 			   block_group->key.objectid);
+=======
+			   block_group->start);
+>>>>>>> upstream/android-13
 		ASSERT(0);
 		return ERR_PTR(-ENOENT);
 	}
@@ -131,9 +182,16 @@ static int btrfs_search_prev_slot(struct btrfs_trans_handle *trans,
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline u32 free_space_bitmap_size(u64 size, u32 sectorsize)
 {
 	return DIV_ROUND_UP((u32)div_u64(size, sectorsize), BITS_PER_BYTE);
+=======
+static inline u32 free_space_bitmap_size(const struct btrfs_fs_info *fs_info,
+					 u64 size)
+{
+	return DIV_ROUND_UP(size >> fs_info->sectorsize_bits, BITS_PER_BYTE);
+>>>>>>> upstream/android-13
 }
 
 static unsigned long *alloc_bitmap(u32 bitmap_size)
@@ -176,8 +234,14 @@ static void le_bitmap_set(unsigned long *map, unsigned int start, int len)
 	}
 }
 
+<<<<<<< HEAD
 int convert_free_space_to_bitmaps(struct btrfs_trans_handle *trans,
 				  struct btrfs_block_group_cache *block_group,
+=======
+EXPORT_FOR_TESTS
+int convert_free_space_to_bitmaps(struct btrfs_trans_handle *trans,
+				  struct btrfs_block_group *block_group,
+>>>>>>> upstream/android-13
 				  struct btrfs_path *path)
 {
 	struct btrfs_fs_info *fs_info = trans->fs_info;
@@ -194,16 +258,25 @@ int convert_free_space_to_bitmaps(struct btrfs_trans_handle *trans,
 	int done = 0, nr;
 	int ret;
 
+<<<<<<< HEAD
 	bitmap_size = free_space_bitmap_size(block_group->key.offset,
 					     fs_info->sectorsize);
+=======
+	bitmap_size = free_space_bitmap_size(fs_info, block_group->length);
+>>>>>>> upstream/android-13
 	bitmap = alloc_bitmap(bitmap_size);
 	if (!bitmap) {
 		ret = -ENOMEM;
 		goto out;
 	}
 
+<<<<<<< HEAD
 	start = block_group->key.objectid;
 	end = block_group->key.objectid + block_group->key.offset;
+=======
+	start = block_group->start;
+	end = block_group->start + block_group->length;
+>>>>>>> upstream/android-13
 
 	key.objectid = end - 1;
 	key.type = (u8)-1;
@@ -221,8 +294,13 @@ int convert_free_space_to_bitmaps(struct btrfs_trans_handle *trans,
 			btrfs_item_key_to_cpu(leaf, &found_key, path->slots[0] - 1);
 
 			if (found_key.type == BTRFS_FREE_SPACE_INFO_KEY) {
+<<<<<<< HEAD
 				ASSERT(found_key.objectid == block_group->key.objectid);
 				ASSERT(found_key.offset == block_group->key.offset);
+=======
+				ASSERT(found_key.objectid == block_group->start);
+				ASSERT(found_key.offset == block_group->length);
+>>>>>>> upstream/android-13
 				done = 1;
 				break;
 			} else if (found_key.type == BTRFS_FREE_SPACE_EXTENT_KEY) {
@@ -252,7 +330,11 @@ int convert_free_space_to_bitmaps(struct btrfs_trans_handle *trans,
 		btrfs_release_path(path);
 	}
 
+<<<<<<< HEAD
 	info = search_free_space_info(trans, fs_info, block_group, path, 1);
+=======
+	info = search_free_space_info(trans, block_group, path, 1);
+>>>>>>> upstream/android-13
 	if (IS_ERR(info)) {
 		ret = PTR_ERR(info);
 		goto out;
@@ -268,7 +350,11 @@ int convert_free_space_to_bitmaps(struct btrfs_trans_handle *trans,
 	if (extent_count != expected_extent_count) {
 		btrfs_err(fs_info,
 			  "incorrect extent count for %llu; counted %u, expected %u",
+<<<<<<< HEAD
 			  block_group->key.objectid, extent_count,
+=======
+			  block_group->start, extent_count,
+>>>>>>> upstream/android-13
 			  expected_extent_count);
 		ASSERT(0);
 		ret = -EIO;
@@ -284,8 +370,12 @@ int convert_free_space_to_bitmaps(struct btrfs_trans_handle *trans,
 		u32 data_size;
 
 		extent_size = min(end - i, bitmap_range);
+<<<<<<< HEAD
 		data_size = free_space_bitmap_size(extent_size,
 						   fs_info->sectorsize);
+=======
+		data_size = free_space_bitmap_size(fs_info, extent_size);
+>>>>>>> upstream/android-13
 
 		key.objectid = i;
 		key.type = BTRFS_FREE_SPACE_BITMAP_KEY;
@@ -315,8 +405,14 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 int convert_free_space_to_extents(struct btrfs_trans_handle *trans,
 				  struct btrfs_block_group_cache *block_group,
+=======
+EXPORT_FOR_TESTS
+int convert_free_space_to_extents(struct btrfs_trans_handle *trans,
+				  struct btrfs_block_group *block_group,
+>>>>>>> upstream/android-13
 				  struct btrfs_path *path)
 {
 	struct btrfs_fs_info *fs_info = trans->fs_info;
@@ -332,16 +428,25 @@ int convert_free_space_to_extents(struct btrfs_trans_handle *trans,
 	int done = 0, nr;
 	int ret;
 
+<<<<<<< HEAD
 	bitmap_size = free_space_bitmap_size(block_group->key.offset,
 					     fs_info->sectorsize);
+=======
+	bitmap_size = free_space_bitmap_size(fs_info, block_group->length);
+>>>>>>> upstream/android-13
 	bitmap = alloc_bitmap(bitmap_size);
 	if (!bitmap) {
 		ret = -ENOMEM;
 		goto out;
 	}
 
+<<<<<<< HEAD
 	start = block_group->key.objectid;
 	end = block_group->key.objectid + block_group->key.offset;
+=======
+	start = block_group->start;
+	end = block_group->start + block_group->length;
+>>>>>>> upstream/android-13
 
 	key.objectid = end - 1;
 	key.type = (u8)-1;
@@ -359,8 +464,13 @@ int convert_free_space_to_extents(struct btrfs_trans_handle *trans,
 			btrfs_item_key_to_cpu(leaf, &found_key, path->slots[0] - 1);
 
 			if (found_key.type == BTRFS_FREE_SPACE_INFO_KEY) {
+<<<<<<< HEAD
 				ASSERT(found_key.objectid == block_group->key.objectid);
 				ASSERT(found_key.offset == block_group->key.offset);
+=======
+				ASSERT(found_key.objectid == block_group->start);
+				ASSERT(found_key.offset == block_group->length);
+>>>>>>> upstream/android-13
 				done = 1;
 				break;
 			} else if (found_key.type == BTRFS_FREE_SPACE_BITMAP_KEY) {
@@ -376,8 +486,13 @@ int convert_free_space_to_extents(struct btrfs_trans_handle *trans,
 						     fs_info->sectorsize *
 						     BITS_PER_BYTE);
 				bitmap_cursor = ((char *)bitmap) + bitmap_pos;
+<<<<<<< HEAD
 				data_size = free_space_bitmap_size(found_key.offset,
 								   fs_info->sectorsize);
+=======
+				data_size = free_space_bitmap_size(fs_info,
+								found_key.offset);
+>>>>>>> upstream/android-13
 
 				ptr = btrfs_item_ptr_offset(leaf, path->slots[0] - 1);
 				read_extent_buffer(leaf, bitmap_cursor, ptr,
@@ -396,7 +511,11 @@ int convert_free_space_to_extents(struct btrfs_trans_handle *trans,
 		btrfs_release_path(path);
 	}
 
+<<<<<<< HEAD
 	info = search_free_space_info(trans, fs_info, block_group, path, 1);
+=======
+	info = search_free_space_info(trans, block_group, path, 1);
+>>>>>>> upstream/android-13
 	if (IS_ERR(info)) {
 		ret = PTR_ERR(info);
 		goto out;
@@ -409,7 +528,11 @@ int convert_free_space_to_extents(struct btrfs_trans_handle *trans,
 	btrfs_mark_buffer_dirty(leaf);
 	btrfs_release_path(path);
 
+<<<<<<< HEAD
 	nrbits = div_u64(block_group->key.offset, block_group->fs_info->sectorsize);
+=======
+	nrbits = block_group->length >> block_group->fs_info->sectorsize_bits;
+>>>>>>> upstream/android-13
 	start_bit = find_next_bit_le(bitmap, nrbits, 0);
 
 	while (start_bit < nrbits) {
@@ -433,7 +556,11 @@ int convert_free_space_to_extents(struct btrfs_trans_handle *trans,
 	if (extent_count != expected_extent_count) {
 		btrfs_err(fs_info,
 			  "incorrect extent count for %llu; counted %u, expected %u",
+<<<<<<< HEAD
 			  block_group->key.objectid, extent_count,
+=======
+			  block_group->start, extent_count,
+>>>>>>> upstream/android-13
 			  expected_extent_count);
 		ASSERT(0);
 		ret = -EIO;
@@ -449,7 +576,11 @@ out:
 }
 
 static int update_free_space_extent_count(struct btrfs_trans_handle *trans,
+<<<<<<< HEAD
 					  struct btrfs_block_group_cache *block_group,
+=======
+					  struct btrfs_block_group *block_group,
+>>>>>>> upstream/android-13
 					  struct btrfs_path *path,
 					  int new_extents)
 {
@@ -461,8 +592,12 @@ static int update_free_space_extent_count(struct btrfs_trans_handle *trans,
 	if (new_extents == 0)
 		return 0;
 
+<<<<<<< HEAD
 	info = search_free_space_info(trans, trans->fs_info, block_group, path,
 				      1);
+=======
+	info = search_free_space_info(trans, block_group, path, 1);
+>>>>>>> upstream/android-13
 	if (IS_ERR(info)) {
 		ret = PTR_ERR(info);
 		goto out;
@@ -487,7 +622,12 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 int free_space_test_bit(struct btrfs_block_group_cache *block_group,
+=======
+EXPORT_FOR_TESTS
+int free_space_test_bit(struct btrfs_block_group *block_group,
+>>>>>>> upstream/android-13
 			struct btrfs_path *path, u64 offset)
 {
 	struct extent_buffer *leaf;
@@ -509,7 +649,11 @@ int free_space_test_bit(struct btrfs_block_group_cache *block_group,
 	return !!extent_buffer_test_bit(leaf, ptr, i);
 }
 
+<<<<<<< HEAD
 static void free_space_set_bits(struct btrfs_block_group_cache *block_group,
+=======
+static void free_space_set_bits(struct btrfs_block_group *block_group,
+>>>>>>> upstream/android-13
 				struct btrfs_path *path, u64 *start, u64 *size,
 				int bit)
 {
@@ -533,8 +677,13 @@ static void free_space_set_bits(struct btrfs_block_group_cache *block_group,
 		end = found_end;
 
 	ptr = btrfs_item_ptr_offset(leaf, path->slots[0]);
+<<<<<<< HEAD
 	first = div_u64(*start - found_start, fs_info->sectorsize);
 	last = div_u64(end - found_start, fs_info->sectorsize);
+=======
+	first = (*start - found_start) >> fs_info->sectorsize_bits;
+	last = (end - found_start) >> fs_info->sectorsize_bits;
+>>>>>>> upstream/android-13
 	if (bit)
 		extent_buffer_bitmap_set(leaf, ptr, first, last - first);
 	else
@@ -577,7 +726,11 @@ static int free_space_next_bitmap(struct btrfs_trans_handle *trans,
  * the bitmap.
  */
 static int modify_free_space_bitmap(struct btrfs_trans_handle *trans,
+<<<<<<< HEAD
 				    struct btrfs_block_group_cache *block_group,
+=======
+				    struct btrfs_block_group *block_group,
+>>>>>>> upstream/android-13
 				    struct btrfs_path *path,
 				    u64 start, u64 size, int remove)
 {
@@ -593,7 +746,11 @@ static int modify_free_space_bitmap(struct btrfs_trans_handle *trans,
 	 * Read the bit for the block immediately before the extent of space if
 	 * that block is within the block group.
 	 */
+<<<<<<< HEAD
 	if (start > block_group->key.objectid) {
+=======
+	if (start > block_group->start) {
+>>>>>>> upstream/android-13
 		u64 prev_block = start - block_group->fs_info->sectorsize;
 
 		key.objectid = prev_block;
@@ -645,7 +802,11 @@ static int modify_free_space_bitmap(struct btrfs_trans_handle *trans,
 	 * Read the bit for the block immediately after the extent of space if
 	 * that block is within the block group.
 	 */
+<<<<<<< HEAD
 	if (end < block_group->key.objectid + block_group->key.offset) {
+=======
+	if (end < block_group->start + block_group->length) {
+>>>>>>> upstream/android-13
 		/* The next block may be in the next bitmap. */
 		btrfs_item_key_to_cpu(path->nodes[0], &key, path->slots[0]);
 		if (end >= key.objectid + key.offset) {
@@ -690,7 +851,11 @@ out:
 }
 
 static int remove_free_space_extent(struct btrfs_trans_handle *trans,
+<<<<<<< HEAD
 				    struct btrfs_block_group_cache *block_group,
+=======
+				    struct btrfs_block_group *block_group,
+>>>>>>> upstream/android-13
 				    struct btrfs_path *path,
 				    u64 start, u64 size)
 {
@@ -775,8 +940,14 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 int __remove_from_free_space_tree(struct btrfs_trans_handle *trans,
 				  struct btrfs_block_group_cache *block_group,
+=======
+EXPORT_FOR_TESTS
+int __remove_from_free_space_tree(struct btrfs_trans_handle *trans,
+				  struct btrfs_block_group *block_group,
+>>>>>>> upstream/android-13
 				  struct btrfs_path *path, u64 start, u64 size)
 {
 	struct btrfs_free_space_info *info;
@@ -789,8 +960,12 @@ int __remove_from_free_space_tree(struct btrfs_trans_handle *trans,
 			return ret;
 	}
 
+<<<<<<< HEAD
 	info = search_free_space_info(NULL, trans->fs_info, block_group, path,
 				      0);
+=======
+	info = search_free_space_info(NULL, block_group, path, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(info))
 		return PTR_ERR(info);
 	flags = btrfs_free_space_flags(path->nodes[0], info);
@@ -808,7 +983,11 @@ int __remove_from_free_space_tree(struct btrfs_trans_handle *trans,
 int remove_from_free_space_tree(struct btrfs_trans_handle *trans,
 				u64 start, u64 size)
 {
+<<<<<<< HEAD
 	struct btrfs_block_group_cache *block_group;
+=======
+	struct btrfs_block_group *block_group;
+>>>>>>> upstream/android-13
 	struct btrfs_path *path;
 	int ret;
 
@@ -842,7 +1021,11 @@ out:
 }
 
 static int add_free_space_extent(struct btrfs_trans_handle *trans,
+<<<<<<< HEAD
 				 struct btrfs_block_group_cache *block_group,
+=======
+				 struct btrfs_block_group *block_group,
+>>>>>>> upstream/android-13
 				 struct btrfs_path *path,
 				 u64 start, u64 size)
 {
@@ -876,7 +1059,11 @@ static int add_free_space_extent(struct btrfs_trans_handle *trans,
 	new_key.offset = size;
 
 	/* Search for a neighbor on the left. */
+<<<<<<< HEAD
 	if (start == block_group->key.objectid)
+=======
+	if (start == block_group->start)
+>>>>>>> upstream/android-13
 		goto right;
 	key.objectid = start - 1;
 	key.type = (u8)-1;
@@ -896,8 +1083,13 @@ static int add_free_space_extent(struct btrfs_trans_handle *trans,
 
 	found_start = key.objectid;
 	found_end = key.objectid + key.offset;
+<<<<<<< HEAD
 	ASSERT(found_start >= block_group->key.objectid &&
 	       found_end > block_group->key.objectid);
+=======
+	ASSERT(found_start >= block_group->start &&
+	       found_end > block_group->start);
+>>>>>>> upstream/android-13
 	ASSERT(found_start < start && found_end <= start);
 
 	/*
@@ -916,7 +1108,11 @@ static int add_free_space_extent(struct btrfs_trans_handle *trans,
 
 right:
 	/* Search for a neighbor on the right. */
+<<<<<<< HEAD
 	if (end == block_group->key.objectid + block_group->key.offset)
+=======
+	if (end == block_group->start + block_group->length)
+>>>>>>> upstream/android-13
 		goto insert;
 	key.objectid = end;
 	key.type = (u8)-1;
@@ -936,8 +1132,13 @@ right:
 
 	found_start = key.objectid;
 	found_end = key.objectid + key.offset;
+<<<<<<< HEAD
 	ASSERT(found_start >= block_group->key.objectid &&
 	       found_end > block_group->key.objectid);
+=======
+	ASSERT(found_start >= block_group->start &&
+	       found_end > block_group->start);
+>>>>>>> upstream/android-13
 	ASSERT((found_start < start && found_end <= start) ||
 	       (found_start >= end && found_end > end));
 
@@ -968,11 +1169,19 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 int __add_to_free_space_tree(struct btrfs_trans_handle *trans,
 			     struct btrfs_block_group_cache *block_group,
 			     struct btrfs_path *path, u64 start, u64 size)
 {
 	struct btrfs_fs_info *fs_info = trans->fs_info;
+=======
+EXPORT_FOR_TESTS
+int __add_to_free_space_tree(struct btrfs_trans_handle *trans,
+			     struct btrfs_block_group *block_group,
+			     struct btrfs_path *path, u64 start, u64 size)
+{
+>>>>>>> upstream/android-13
 	struct btrfs_free_space_info *info;
 	u32 flags;
 	int ret;
@@ -983,7 +1192,11 @@ int __add_to_free_space_tree(struct btrfs_trans_handle *trans,
 			return ret;
 	}
 
+<<<<<<< HEAD
 	info = search_free_space_info(NULL, fs_info, block_group, path, 0);
+=======
+	info = search_free_space_info(NULL, block_group, path, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(info))
 		return PTR_ERR(info);
 	flags = btrfs_free_space_flags(path->nodes[0], info);
@@ -1001,7 +1214,11 @@ int __add_to_free_space_tree(struct btrfs_trans_handle *trans,
 int add_to_free_space_tree(struct btrfs_trans_handle *trans,
 			   u64 start, u64 size)
 {
+<<<<<<< HEAD
 	struct btrfs_block_group_cache *block_group;
+=======
+	struct btrfs_block_group *block_group;
+>>>>>>> upstream/android-13
 	struct btrfs_path *path;
 	int ret;
 
@@ -1039,7 +1256,11 @@ out:
  * through the normal add/remove hooks.
  */
 static int populate_free_space_tree(struct btrfs_trans_handle *trans,
+<<<<<<< HEAD
 				    struct btrfs_block_group_cache *block_group)
+=======
+				    struct btrfs_block_group *block_group)
+>>>>>>> upstream/android-13
 {
 	struct btrfs_root *extent_root = trans->fs_info->extent_root;
 	struct btrfs_path *path, *path2;
@@ -1071,7 +1292,11 @@ static int populate_free_space_tree(struct btrfs_trans_handle *trans,
 	 * BLOCK_GROUP_ITEM, so an extent may precede the block group that it's
 	 * contained in.
 	 */
+<<<<<<< HEAD
 	key.objectid = block_group->key.objectid;
+=======
+	key.objectid = block_group->start;
+>>>>>>> upstream/android-13
 	key.type = BTRFS_EXTENT_ITEM_KEY;
 	key.offset = 0;
 
@@ -1080,8 +1305,13 @@ static int populate_free_space_tree(struct btrfs_trans_handle *trans,
 		goto out_locked;
 	ASSERT(ret == 0);
 
+<<<<<<< HEAD
 	start = block_group->key.objectid;
 	end = block_group->key.objectid + block_group->key.offset;
+=======
+	start = block_group->start;
+	end = block_group->start + block_group->length;
+>>>>>>> upstream/android-13
 	while (1) {
 		btrfs_item_key_to_cpu(path->nodes[0], &key, path->slots[0]);
 
@@ -1105,7 +1335,11 @@ static int populate_free_space_tree(struct btrfs_trans_handle *trans,
 			else
 				start += key.offset;
 		} else if (key.type == BTRFS_BLOCK_GROUP_ITEM_KEY) {
+<<<<<<< HEAD
 			if (key.objectid != block_group->key.objectid)
+=======
+			if (key.objectid != block_group->start)
+>>>>>>> upstream/android-13
 				break;
 		}
 
@@ -1136,7 +1370,11 @@ int btrfs_create_free_space_tree(struct btrfs_fs_info *fs_info)
 	struct btrfs_trans_handle *trans;
 	struct btrfs_root *tree_root = fs_info->tree_root;
 	struct btrfs_root *free_space_root;
+<<<<<<< HEAD
 	struct btrfs_block_group_cache *block_group;
+=======
+	struct btrfs_block_group *block_group;
+>>>>>>> upstream/android-13
 	struct rb_node *node;
 	int ret;
 
@@ -1145,7 +1383,12 @@ int btrfs_create_free_space_tree(struct btrfs_fs_info *fs_info)
 		return PTR_ERR(trans);
 
 	set_bit(BTRFS_FS_CREATING_FREE_SPACE_TREE, &fs_info->flags);
+<<<<<<< HEAD
 	free_space_root = btrfs_create_tree(trans, fs_info,
+=======
+	set_bit(BTRFS_FS_FREE_SPACE_TREE_UNTRUSTED, &fs_info->flags);
+	free_space_root = btrfs_create_tree(trans,
+>>>>>>> upstream/android-13
 					    BTRFS_FREE_SPACE_TREE_OBJECTID);
 	if (IS_ERR(free_space_root)) {
 		ret = PTR_ERR(free_space_root);
@@ -1155,7 +1398,11 @@ int btrfs_create_free_space_tree(struct btrfs_fs_info *fs_info)
 
 	node = rb_first(&fs_info->block_group_cache_tree);
 	while (node) {
+<<<<<<< HEAD
 		block_group = rb_entry(node, struct btrfs_block_group_cache,
+=======
+		block_group = rb_entry(node, struct btrfs_block_group,
+>>>>>>> upstream/android-13
 				       cache_node);
 		ret = populate_free_space_tree(trans, block_group);
 		if (ret)
@@ -1166,11 +1413,26 @@ int btrfs_create_free_space_tree(struct btrfs_fs_info *fs_info)
 	btrfs_set_fs_compat_ro(fs_info, FREE_SPACE_TREE);
 	btrfs_set_fs_compat_ro(fs_info, FREE_SPACE_TREE_VALID);
 	clear_bit(BTRFS_FS_CREATING_FREE_SPACE_TREE, &fs_info->flags);
+<<<<<<< HEAD
 
 	return btrfs_commit_transaction(trans);
 
 abort:
 	clear_bit(BTRFS_FS_CREATING_FREE_SPACE_TREE, &fs_info->flags);
+=======
+	ret = btrfs_commit_transaction(trans);
+
+	/*
+	 * Now that we've committed the transaction any reading of our commit
+	 * root will be safe, so we can cache from the free space tree now.
+	 */
+	clear_bit(BTRFS_FS_FREE_SPACE_TREE_UNTRUSTED, &fs_info->flags);
+	return ret;
+
+abort:
+	clear_bit(BTRFS_FS_CREATING_FREE_SPACE_TREE, &fs_info->flags);
+	clear_bit(BTRFS_FS_FREE_SPACE_TREE_UNTRUSTED, &fs_info->flags);
+>>>>>>> upstream/android-13
 	btrfs_abort_transaction(trans, ret);
 	btrfs_end_transaction(trans);
 	return ret;
@@ -1188,8 +1450,11 @@ static int clear_free_space_tree(struct btrfs_trans_handle *trans,
 	if (!path)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	path->leave_spinning = 1;
 
+=======
+>>>>>>> upstream/android-13
 	key.objectid = 0;
 	key.type = 0;
 	key.offset = 0;
@@ -1243,14 +1508,22 @@ int btrfs_clear_free_space_tree(struct btrfs_fs_info *fs_info)
 	list_del(&free_space_root->dirty_list);
 
 	btrfs_tree_lock(free_space_root->node);
+<<<<<<< HEAD
 	clean_tree_block(fs_info, free_space_root->node);
+=======
+	btrfs_clean_tree_block(free_space_root->node);
+>>>>>>> upstream/android-13
 	btrfs_tree_unlock(free_space_root->node);
 	btrfs_free_tree_block(trans, free_space_root, free_space_root->node,
 			      0, 1);
 
+<<<<<<< HEAD
 	free_extent_buffer(free_space_root->node);
 	free_extent_buffer(free_space_root->commit_root);
 	kfree(free_space_root);
+=======
+	btrfs_put_root(free_space_root);
+>>>>>>> upstream/android-13
 
 	return btrfs_commit_transaction(trans);
 
@@ -1261,7 +1534,11 @@ abort:
 }
 
 static int __add_block_group_free_space(struct btrfs_trans_handle *trans,
+<<<<<<< HEAD
 					struct btrfs_block_group_cache *block_group,
+=======
+					struct btrfs_block_group *block_group,
+>>>>>>> upstream/android-13
 					struct btrfs_path *path)
 {
 	int ret;
@@ -1273,12 +1550,21 @@ static int __add_block_group_free_space(struct btrfs_trans_handle *trans,
 		return ret;
 
 	return __add_to_free_space_tree(trans, block_group, path,
+<<<<<<< HEAD
 					block_group->key.objectid,
 					block_group->key.offset);
 }
 
 int add_block_group_free_space(struct btrfs_trans_handle *trans,
 			       struct btrfs_block_group_cache *block_group)
+=======
+					block_group->start,
+					block_group->length);
+}
+
+int add_block_group_free_space(struct btrfs_trans_handle *trans,
+			       struct btrfs_block_group *block_group)
+>>>>>>> upstream/android-13
 {
 	struct btrfs_fs_info *fs_info = trans->fs_info;
 	struct btrfs_path *path = NULL;
@@ -1308,7 +1594,11 @@ out:
 }
 
 int remove_block_group_free_space(struct btrfs_trans_handle *trans,
+<<<<<<< HEAD
 				  struct btrfs_block_group_cache *block_group)
+=======
+				  struct btrfs_block_group *block_group)
+>>>>>>> upstream/android-13
 {
 	struct btrfs_root *root = trans->fs_info->free_space_root;
 	struct btrfs_path *path;
@@ -1332,8 +1622,13 @@ int remove_block_group_free_space(struct btrfs_trans_handle *trans,
 		goto out;
 	}
 
+<<<<<<< HEAD
 	start = block_group->key.objectid;
 	end = block_group->key.objectid + block_group->key.offset;
+=======
+	start = block_group->start;
+	end = block_group->start + block_group->length;
+>>>>>>> upstream/android-13
 
 	key.objectid = end - 1;
 	key.type = (u8)-1;
@@ -1351,8 +1646,13 @@ int remove_block_group_free_space(struct btrfs_trans_handle *trans,
 			btrfs_item_key_to_cpu(leaf, &found_key, path->slots[0] - 1);
 
 			if (found_key.type == BTRFS_FREE_SPACE_INFO_KEY) {
+<<<<<<< HEAD
 				ASSERT(found_key.objectid == block_group->key.objectid);
 				ASSERT(found_key.offset == block_group->key.offset);
+=======
+				ASSERT(found_key.objectid == block_group->start);
+				ASSERT(found_key.offset == block_group->length);
+>>>>>>> upstream/android-13
 				done = 1;
 				nr++;
 				path->slots[0]--;
@@ -1387,7 +1687,11 @@ static int load_free_space_bitmaps(struct btrfs_caching_control *caching_ctl,
 				   struct btrfs_path *path,
 				   u32 expected_extent_count)
 {
+<<<<<<< HEAD
 	struct btrfs_block_group_cache *block_group;
+=======
+	struct btrfs_block_group *block_group;
+>>>>>>> upstream/android-13
 	struct btrfs_fs_info *fs_info;
 	struct btrfs_root *root;
 	struct btrfs_key key;
@@ -1403,7 +1707,11 @@ static int load_free_space_bitmaps(struct btrfs_caching_control *caching_ctl,
 	fs_info = block_group->fs_info;
 	root = fs_info->free_space_root;
 
+<<<<<<< HEAD
 	end = block_group->key.objectid + block_group->key.offset;
+=======
+	end = block_group->start + block_group->length;
+>>>>>>> upstream/android-13
 
 	while (1) {
 		ret = btrfs_next_item(root, path);
@@ -1450,7 +1758,11 @@ static int load_free_space_bitmaps(struct btrfs_caching_control *caching_ctl,
 	if (extent_count != expected_extent_count) {
 		btrfs_err(fs_info,
 			  "incorrect extent count for %llu; counted %u, expected %u",
+<<<<<<< HEAD
 			  block_group->key.objectid, extent_count,
+=======
+			  block_group->start, extent_count,
+>>>>>>> upstream/android-13
 			  expected_extent_count);
 		ASSERT(0);
 		ret = -EIO;
@@ -1468,7 +1780,11 @@ static int load_free_space_extents(struct btrfs_caching_control *caching_ctl,
 				   struct btrfs_path *path,
 				   u32 expected_extent_count)
 {
+<<<<<<< HEAD
 	struct btrfs_block_group_cache *block_group;
+=======
+	struct btrfs_block_group *block_group;
+>>>>>>> upstream/android-13
 	struct btrfs_fs_info *fs_info;
 	struct btrfs_root *root;
 	struct btrfs_key key;
@@ -1481,7 +1797,11 @@ static int load_free_space_extents(struct btrfs_caching_control *caching_ctl,
 	fs_info = block_group->fs_info;
 	root = fs_info->free_space_root;
 
+<<<<<<< HEAD
 	end = block_group->key.objectid + block_group->key.offset;
+=======
+	end = block_group->start + block_group->length;
+>>>>>>> upstream/android-13
 
 	while (1) {
 		ret = btrfs_next_item(root, path);
@@ -1512,7 +1832,11 @@ static int load_free_space_extents(struct btrfs_caching_control *caching_ctl,
 	if (extent_count != expected_extent_count) {
 		btrfs_err(fs_info,
 			  "incorrect extent count for %llu; counted %u, expected %u",
+<<<<<<< HEAD
 			  block_group->key.objectid, extent_count,
+=======
+			  block_group->start, extent_count,
+>>>>>>> upstream/android-13
 			  expected_extent_count);
 		ASSERT(0);
 		ret = -EIO;
@@ -1528,15 +1852,22 @@ out:
 
 int load_free_space_tree(struct btrfs_caching_control *caching_ctl)
 {
+<<<<<<< HEAD
 	struct btrfs_block_group_cache *block_group;
 	struct btrfs_fs_info *fs_info;
+=======
+	struct btrfs_block_group *block_group;
+>>>>>>> upstream/android-13
 	struct btrfs_free_space_info *info;
 	struct btrfs_path *path;
 	u32 extent_count, flags;
 	int ret;
 
 	block_group = caching_ctl->block_group;
+<<<<<<< HEAD
 	fs_info = block_group->fs_info;
+=======
+>>>>>>> upstream/android-13
 
 	path = btrfs_alloc_path();
 	if (!path)
@@ -1550,7 +1881,11 @@ int load_free_space_tree(struct btrfs_caching_control *caching_ctl)
 	path->search_commit_root = 1;
 	path->reada = READA_FORWARD;
 
+<<<<<<< HEAD
 	info = search_free_space_info(NULL, fs_info, block_group, path, 0);
+=======
+	info = search_free_space_info(NULL, block_group, path, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(info)) {
 		ret = PTR_ERR(info);
 		goto out;

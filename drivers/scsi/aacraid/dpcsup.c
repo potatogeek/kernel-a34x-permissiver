@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	Adaptec AAC series RAID controller driver
  *	(c) Copyright 2001 Red Hat Inc.
@@ -9,6 +13,7 @@
  *               2010-2015 PMC-Sierra, Inc. (aacraid@pmc-sierra.com)
  *		 2016-2017 Microsemi Corp. (aacraid@microsemi.com)
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2, or (at your option)
@@ -23,12 +28,17 @@
  * along with this program; see the file COPYING.  If not, write to
  * the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  * Module Name:
  *  dpcsup.c
  *
  * Abstract: All DPC processing routines for the cyclone board occur here.
+<<<<<<< HEAD
  *
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -38,7 +48,10 @@
 #include <linux/slab.h>
 #include <linux/completion.h>
 #include <linux/blkdev.h>
+<<<<<<< HEAD
 #include <linux/semaphore.h>
+=======
+>>>>>>> upstream/android-13
 
 #include "aacraid.h"
 
@@ -115,10 +128,18 @@ unsigned int aac_response_normal(struct aac_queue * q)
 		}
 		if (hwfib->header.XferState & cpu_to_le32(NoResponseExpected | Async)) 
 		{
+<<<<<<< HEAD
 	        	if (hwfib->header.XferState & cpu_to_le32(NoResponseExpected))
 				FIB_COUNTER_INCREMENT(aac_config.NoResponseRecved);
 			else 
 				FIB_COUNTER_INCREMENT(aac_config.AsyncRecved);
+=======
+			if (hwfib->header.XferState & cpu_to_le32(NoResponseExpected)) {
+				FIB_COUNTER_INCREMENT(aac_config.NoResponseRecved);
+			} else {
+				FIB_COUNTER_INCREMENT(aac_config.AsyncRecved);
+			}
+>>>>>>> upstream/android-13
 			/*
 			 *	NOTE:  we cannot touch the fib after this
 			 *	    call, because it may have been deallocated.
@@ -129,7 +150,11 @@ unsigned int aac_response_normal(struct aac_queue * q)
 			spin_lock_irqsave(&fib->event_lock, flagv);
 			if (!fib->done) {
 				fib->done = 1;
+<<<<<<< HEAD
 				up(&fib->event_wait);
+=======
+				complete(&fib->event_wait);
+>>>>>>> upstream/android-13
 			}
 			spin_unlock_irqrestore(&fib->event_lock, flagv);
 
@@ -245,7 +270,10 @@ static void aac_aif_callback(void *context, struct fib * fibptr)
 	struct fib *fibctx;
 	struct aac_dev *dev;
 	struct aac_aifcmd *cmd;
+<<<<<<< HEAD
 	int status;
+=======
+>>>>>>> upstream/android-13
 
 	fibctx = (struct fib *)context;
 	BUG_ON(fibptr == NULL);
@@ -265,7 +293,11 @@ static void aac_aif_callback(void *context, struct fib * fibptr)
 	cmd = (struct aac_aifcmd *) fib_data(fibctx);
 	cmd->command = cpu_to_le32(AifReqEvent);
 
+<<<<<<< HEAD
 	status = aac_fib_send(AifRequest,
+=======
+	aac_fib_send(AifRequest,
+>>>>>>> upstream/android-13
 		fibctx,
 		sizeof(struct hw_fib)-sizeof(struct aac_fibhdr),
 		FsaNormal,
@@ -274,7 +306,11 @@ static void aac_aif_callback(void *context, struct fib * fibptr)
 }
 
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  *	aac_intr_normal	-	Handle command replies
  *	@dev: Device
  *	@index: completion reference
@@ -376,16 +412,27 @@ unsigned int aac_intr_normal(struct aac_dev *dev, u32 index, int isAif,
 				start_callback = 1;
 			} else {
 				unsigned long flagv;
+<<<<<<< HEAD
 				int complete = 0;
+=======
+				int completed = 0;
+>>>>>>> upstream/android-13
 
 				dprintk((KERN_INFO "event_wait up\n"));
 				spin_lock_irqsave(&fib->event_lock, flagv);
 				if (fib->done == 2) {
 					fib->done = 1;
+<<<<<<< HEAD
 					complete = 1;
 				} else {
 					fib->done = 1;
 					up(&fib->event_wait);
+=======
+					completed = 1;
+				} else {
+					fib->done = 1;
+					complete(&fib->event_wait);
+>>>>>>> upstream/android-13
 				}
 				spin_unlock_irqrestore(&fib->event_lock, flagv);
 
@@ -395,7 +442,11 @@ unsigned int aac_intr_normal(struct aac_dev *dev, u32 index, int isAif,
 					mflags);
 
 				FIB_COUNTER_INCREMENT(aac_config.NativeRecved);
+<<<<<<< HEAD
 				if (complete)
+=======
+				if (completed)
+>>>>>>> upstream/android-13
 					aac_fib_complete(fib);
 			}
 		} else {
@@ -419,6 +470,7 @@ unsigned int aac_intr_normal(struct aac_dev *dev, u32 index, int isAif,
 			if (hwfib->header.XferState &
 				cpu_to_le32(NoResponseExpected | Async)) {
 				if (hwfib->header.XferState & cpu_to_le32(
+<<<<<<< HEAD
 					NoResponseExpected))
 					FIB_COUNTER_INCREMENT(
 						aac_config.NoResponseRecved);
@@ -429,15 +481,35 @@ unsigned int aac_intr_normal(struct aac_dev *dev, u32 index, int isAif,
 			} else {
 				unsigned long flagv;
 				int complete = 0;
+=======
+					NoResponseExpected)) {
+					FIB_COUNTER_INCREMENT(
+						aac_config.NoResponseRecved);
+				} else {
+					FIB_COUNTER_INCREMENT(
+						aac_config.AsyncRecved);
+				}
+				start_callback = 1;
+			} else {
+				unsigned long flagv;
+				int completed = 0;
+>>>>>>> upstream/android-13
 
 				dprintk((KERN_INFO "event_wait up\n"));
 				spin_lock_irqsave(&fib->event_lock, flagv);
 				if (fib->done == 2) {
 					fib->done = 1;
+<<<<<<< HEAD
 					complete = 1;
 				} else {
 					fib->done = 1;
 					up(&fib->event_wait);
+=======
+					completed = 1;
+				} else {
+					fib->done = 1;
+					complete(&fib->event_wait);
+>>>>>>> upstream/android-13
 				}
 				spin_unlock_irqrestore(&fib->event_lock, flagv);
 
@@ -447,7 +519,11 @@ unsigned int aac_intr_normal(struct aac_dev *dev, u32 index, int isAif,
 					mflags);
 
 				FIB_COUNTER_INCREMENT(aac_config.NormalRecved);
+<<<<<<< HEAD
 				if (complete)
+=======
+				if (completed)
+>>>>>>> upstream/android-13
 					aac_fib_complete(fib);
 			}
 		}

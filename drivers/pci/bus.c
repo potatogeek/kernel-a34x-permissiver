@@ -23,7 +23,11 @@ void pci_add_resource_offset(struct list_head *resources, struct resource *res,
 
 	entry = resource_list_create_entry(res, 0);
 	if (!entry) {
+<<<<<<< HEAD
 		printk(KERN_ERR "PCI: can't add host bridge window %pR\n", res);
+=======
+		pr_err("PCI: can't add host bridge window %pR\n", res);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -288,8 +292,12 @@ bool pci_bus_clip_resource(struct pci_dev *dev, int idx)
 		res->end = end;
 		res->flags &= ~IORESOURCE_UNSET;
 		orig_res.flags &= ~IORESOURCE_UNSET;
+<<<<<<< HEAD
 		pci_printk(KERN_DEBUG, dev, "%pR clipped to %pR\n",
 				 &orig_res, res);
+=======
+		pci_info(dev, "%pR clipped to %pR\n", &orig_res, res);
+>>>>>>> upstream/android-13
 
 		return true;
 	}
@@ -414,11 +422,17 @@ struct pci_bus *pci_bus_get(struct pci_bus *bus)
 		get_device(&bus->dev);
 	return bus;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(pci_bus_get);
+=======
+>>>>>>> upstream/android-13
 
 void pci_bus_put(struct pci_bus *bus)
 {
 	if (bus)
 		put_device(&bus->dev);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(pci_bus_put);
+=======
+>>>>>>> upstream/android-13

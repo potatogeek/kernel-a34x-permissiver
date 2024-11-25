@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  HID driver for Sony / PS2 / PS3 / PS4 BD devices.
  *
@@ -10,6 +14,7 @@
  *  Copyright (c) 2013 Colin Leitner <colin.leitner@gmail.com>
  *  Copyright (c) 2014-2016 Frank Praznik <frank.praznik@gmail.com>
  *  Copyright (c) 2018 Todd Kelner
+<<<<<<< HEAD
  */
 
 /*
@@ -17,6 +22,14 @@
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
+=======
+ *  Copyright (c) 2020-2021 Pascal Giard <pascal.giard@etsmtl.ca>
+ *  Copyright (c) 2020 Sanjay Govind <sanjay.govind9@gmail.com>
+ *  Copyright (c) 2021 Daniel Nguyen <daniel.nguyen.1@ens.etsmtl.ca>
+ */
+
+/*
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -38,6 +51,11 @@
 #include <linux/idr.h>
 #include <linux/input/mt.h>
 #include <linux/crc32.h>
+<<<<<<< HEAD
+=======
+#include <linux/usb.h>
+#include <linux/timer.h>
+>>>>>>> upstream/android-13
 #include <asm/unaligned.h>
 
 #include "hid-ids.h"
@@ -58,6 +76,13 @@
 #define FUTUREMAX_DANCE_MAT       BIT(13)
 #define NSG_MR5U_REMOTE_BT        BIT(14)
 #define NSG_MR7U_REMOTE_BT        BIT(15)
+<<<<<<< HEAD
+=======
+#define SHANWAN_GAMEPAD           BIT(16)
+#define GH_GUITAR_CONTROLLER      BIT(17)
+#define GHL_GUITAR_PS3WIIU        BIT(18)
+#define GHL_GUITAR_PS4            BIT(19)
+>>>>>>> upstream/android-13
 
 #define SIXAXIS_CONTROLLER (SIXAXIS_CONTROLLER_USB | SIXAXIS_CONTROLLER_BT)
 #define MOTION_CONTROLLER (MOTION_CONTROLLER_USB | MOTION_CONTROLLER_BT)
@@ -81,6 +106,29 @@
 #define NSG_MRXU_MAX_X 1667
 #define NSG_MRXU_MAX_Y 1868
 
+<<<<<<< HEAD
+=======
+/* The PS3/Wii U dongles require a poke every 10 seconds, but the PS4
+ * requires one every 8 seconds. Using 8 seconds for all for simplicity.
+ */
+#define GHL_GUITAR_POKE_INTERVAL 8 /* In seconds */
+#define GUITAR_TILT_USAGE 44
+
+/* Magic data taken from GHLtarUtility:
+ * https://github.com/ghlre/GHLtarUtility/blob/master/PS3Guitar.cs
+ * Note: The Wii U and PS3 dongles happen to share the same!
+ */
+static const char ghl_ps3wiiu_magic_data[] = {
+	0x02, 0x08, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+
+/* Magic data for the PS4 dongles sniffed with a USB protocol
+ * analyzer.
+ */
+static const char ghl_ps4_magic_data[] = {
+	0x30, 0x02, 0x08, 0x0A, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+>>>>>>> upstream/android-13
 
 /* PS/3 Motion controller */
 static u8 motion_rdesc[] = {
@@ -552,7 +600,13 @@ struct sony_sc {
 	struct power_supply_desc battery_desc;
 	int device_id;
 	unsigned fw_version;
+<<<<<<< HEAD
 	unsigned hw_version;
+=======
+	bool fw_version_created;
+	unsigned hw_version;
+	bool hw_version_created;
+>>>>>>> upstream/android-13
 	u8 *output_report_dmabuf;
 
 #ifdef CONFIG_SONY_FF
@@ -564,9 +618,14 @@ struct sony_sc {
 	u8 hotplug_worker_initialized;
 	u8 state_worker_initialized;
 	u8 defer_initialization;
+<<<<<<< HEAD
 	u8 cable_state;
 	u8 battery_charging;
 	u8 battery_capacity;
+=======
+	u8 battery_capacity;
+	int battery_status;
+>>>>>>> upstream/android-13
 	u8 led_state[MAX_LEDS];
 	u8 led_delay_on[MAX_LEDS];
 	u8 led_delay_off[MAX_LEDS];
@@ -580,6 +639,12 @@ struct sony_sc {
 	enum ds4_dongle_state ds4_dongle_state;
 	/* DS4 calibration data */
 	struct ds4_calibration_data ds4_calib_data[6];
+<<<<<<< HEAD
+=======
+	/* GH Live */
+	struct urb *ghl_urb;
+	struct timer_list ghl_poke_timer;
+>>>>>>> upstream/android-13
 };
 
 static void sony_set_leds(struct sony_sc *sc);
@@ -603,6 +668,76 @@ static inline void sony_schedule_work(struct sony_sc *sc,
 	}
 }
 
+<<<<<<< HEAD
+=======
+static void ghl_magic_poke_cb(struct urb *urb)
+{
+	struct sony_sc *sc = urb->context;
+
+	if (urb->status < 0)
+		hid_err(sc->hdev, "URB transfer failed : %d", urb->status);
+
+	mod_timer(&sc->ghl_poke_timer, jiffies + GHL_GUITAR_POKE_INTERVAL*HZ);
+}
+
+static void ghl_magic_poke(struct timer_list *t)
+{
+	int ret;
+	struct sony_sc *sc = from_timer(sc, t, ghl_poke_timer);
+
+	ret = usb_submit_urb(sc->ghl_urb, GFP_ATOMIC);
+	if (ret < 0)
+		hid_err(sc->hdev, "usb_submit_urb failed: %d", ret);
+}
+
+static int ghl_init_urb(struct sony_sc *sc, struct usb_device *usbdev,
+					   const char ghl_magic_data[], u16 poke_size)
+{
+	struct usb_ctrlrequest *cr;
+	u8 *databuf;
+	unsigned int pipe;
+	u16 ghl_magic_value = (((HID_OUTPUT_REPORT + 1) << 8) | ghl_magic_data[0]);
+
+	pipe = usb_sndctrlpipe(usbdev, 0);
+
+	cr = devm_kzalloc(&sc->hdev->dev, sizeof(*cr), GFP_ATOMIC);
+	if (cr == NULL)
+		return -ENOMEM;
+
+	databuf = devm_kzalloc(&sc->hdev->dev, poke_size, GFP_ATOMIC);
+	if (databuf == NULL)
+		return -ENOMEM;
+
+	cr->bRequestType =
+		USB_RECIP_INTERFACE | USB_TYPE_CLASS | USB_DIR_OUT;
+	cr->bRequest = USB_REQ_SET_CONFIGURATION;
+	cr->wValue = cpu_to_le16(ghl_magic_value);
+	cr->wIndex = 0;
+	cr->wLength = cpu_to_le16(poke_size);
+	memcpy(databuf, ghl_magic_data, poke_size);
+	usb_fill_control_urb(
+		sc->ghl_urb, usbdev, pipe,
+		(unsigned char *) cr, databuf, poke_size,
+		ghl_magic_poke_cb, sc);
+	return 0;
+}
+
+static int guitar_mapping(struct hid_device *hdev, struct hid_input *hi,
+			  struct hid_field *field, struct hid_usage *usage,
+			  unsigned long **bit, int *max)
+{
+	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_MSVENDOR) {
+		unsigned int abs = usage->hid & HID_USAGE;
+
+		if (abs == GUITAR_TILT_USAGE) {
+			hid_map_usage_clear(hi, usage, bit, max, EV_ABS, ABS_RY);
+			return 1;
+		}
+	}
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static ssize_t ds4_show_poll_interval(struct device *dev,
 				struct device_attribute
 				*attr, char *buf)
@@ -894,7 +1029,12 @@ static void sixaxis_parse_report(struct sony_sc *sc, u8 *rd, int size)
 	static const u8 sixaxis_battery_capacity[] = { 0, 1, 25, 50, 75, 100 };
 	unsigned long flags;
 	int offset;
+<<<<<<< HEAD
 	u8 cable_state, battery_capacity, battery_charging;
+=======
+	u8 battery_capacity;
+	int battery_status;
+>>>>>>> upstream/android-13
 
 	/*
 	 * The sixaxis is charging if the battery value is 0xee
@@ -906,6 +1046,7 @@ static void sixaxis_parse_report(struct sony_sc *sc, u8 *rd, int size)
 
 	if (rd[offset] >= 0xee) {
 		battery_capacity = 100;
+<<<<<<< HEAD
 		battery_charging = !(rd[offset] & 0x01);
 		cable_state = 1;
 	} else {
@@ -919,6 +1060,18 @@ static void sixaxis_parse_report(struct sony_sc *sc, u8 *rd, int size)
 	sc->cable_state = cable_state;
 	sc->battery_capacity = battery_capacity;
 	sc->battery_charging = battery_charging;
+=======
+		battery_status = (rd[offset] & 0x01) ? POWER_SUPPLY_STATUS_FULL : POWER_SUPPLY_STATUS_CHARGING;
+	} else {
+		u8 index = rd[offset] <= 5 ? rd[offset] : 5;
+		battery_capacity = sixaxis_battery_capacity[index];
+		battery_status = POWER_SUPPLY_STATUS_DISCHARGING;
+	}
+
+	spin_lock_irqsave(&sc->lock, flags);
+	sc->battery_capacity = battery_capacity;
+	sc->battery_status = battery_status;
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&sc->lock, flags);
 
 	if (sc->quirks & SIXAXIS_CONTROLLER) {
@@ -946,7 +1099,12 @@ static void dualshock4_parse_report(struct sony_sc *sc, u8 *rd, int size)
 	struct input_dev *input_dev = hidinput->input;
 	unsigned long flags;
 	int n, m, offset, num_touch_data, max_touch_data;
+<<<<<<< HEAD
 	u8 cable_state, battery_capacity, battery_charging;
+=======
+	u8 cable_state, battery_capacity;
+	int battery_status;
+>>>>>>> upstream/android-13
 	u16 timestamp;
 
 	/* When using Bluetooth the header is 2 bytes longer, so skip these. */
@@ -1051,6 +1209,7 @@ static void dualshock4_parse_report(struct sony_sc *sc, u8 *rd, int size)
 	 */
 	offset = data_offset + DS4_INPUT_REPORT_BATTERY_OFFSET;
 	cable_state = (rd[offset] >> 4) & 0x01;
+<<<<<<< HEAD
 	battery_capacity = rd[offset] & 0x0F;
 
 	/*
@@ -1074,6 +1233,54 @@ static void dualshock4_parse_report(struct sony_sc *sc, u8 *rd, int size)
 	sc->cable_state = cable_state;
 	sc->battery_capacity = battery_capacity;
 	sc->battery_charging = battery_charging;
+=======
+
+	/*
+	 * Interpretation of the battery_capacity data depends on the cable state.
+	 * When no cable is connected (bit4 is 0):
+	 * - 0:10: percentage in units of 10%.
+	 * When a cable is plugged in:
+	 * - 0-10: percentage in units of 10%.
+	 * - 11: battery is full
+	 * - 14: not charging due to Voltage or temperature error
+	 * - 15: charge error
+	 */
+	if (cable_state) {
+		u8 battery_data = rd[offset] & 0xf;
+
+		if (battery_data < 10) {
+			/* Take the mid-point for each battery capacity value,
+			 * because on the hardware side 0 = 0-9%, 1=10-19%, etc.
+			 * This matches official platform behavior, which does
+			 * the same.
+			 */
+			battery_capacity = battery_data * 10 + 5;
+			battery_status = POWER_SUPPLY_STATUS_CHARGING;
+		} else if (battery_data == 10) {
+			battery_capacity = 100;
+			battery_status = POWER_SUPPLY_STATUS_CHARGING;
+		} else if (battery_data == 11) {
+			battery_capacity = 100;
+			battery_status = POWER_SUPPLY_STATUS_FULL;
+		} else { /* 14, 15 and undefined values */
+			battery_capacity = 0;
+			battery_status = POWER_SUPPLY_STATUS_UNKNOWN;
+		}
+	} else {
+		u8 battery_data = rd[offset] & 0xf;
+
+		if (battery_data < 10)
+			battery_capacity = battery_data * 10 + 5;
+		else /* 10 */
+			battery_capacity = 100;
+
+		battery_status = POWER_SUPPLY_STATUS_DISCHARGING;
+	}
+
+	spin_lock_irqsave(&sc->lock, flags);
+	sc->battery_capacity = battery_capacity;
+	sc->battery_status = battery_status;
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&sc->lock, flags);
 
 	/*
@@ -1362,6 +1569,11 @@ static int sony_mapping(struct hid_device *hdev, struct hid_input *hi,
 	if (sc->quirks & DUALSHOCK4_CONTROLLER)
 		return ds4_mapping(hdev, hi, field, usage, bit, max);
 
+<<<<<<< HEAD
+=======
+	if (sc->quirks & GH_GUITAR_CONTROLLER)
+		return guitar_mapping(hdev, hi, field, usage, bit, max);
+>>>>>>> upstream/android-13
 
 	/* Let hid-core decide for the others */
 	return 0;
@@ -1511,6 +1723,10 @@ static int sony_register_sensors(struct sony_sc *sc)
  */
 static int sixaxis_set_operational_usb(struct hid_device *hdev)
 {
+<<<<<<< HEAD
+=======
+	struct sony_sc *sc = hid_get_drvdata(hdev);
+>>>>>>> upstream/android-13
 	const int buf_size =
 		max(SIXAXIS_REPORT_0xF2_SIZE, SIXAXIS_REPORT_0xF5_SIZE);
 	u8 *buf;
@@ -1540,6 +1756,7 @@ static int sixaxis_set_operational_usb(struct hid_device *hdev)
 
 	/*
 	 * But the USB interrupt would cause SHANWAN controllers to
+<<<<<<< HEAD
 	 * start rumbling non-stop.
 	 */
 	if (strcmp(hdev->name, "SHANWAN PS3 GamePad")) {
@@ -1548,6 +1765,17 @@ static int sixaxis_set_operational_usb(struct hid_device *hdev)
 			hid_info(hdev, "can't set operational mode: step 3, ignoring\n");
 			ret = 0;
 		}
+=======
+	 * start rumbling non-stop, so skip step 3 for these controllers.
+	 */
+	if (sc->quirks & SHANWAN_GAMEPAD)
+		goto out;
+
+	ret = hid_hw_output_report(hdev, buf, 1);
+	if (ret < 0) {
+		hid_info(hdev, "can't set operational mode: step 3, ignoring\n");
+		ret = 0;
+>>>>>>> upstream/android-13
 	}
 
 out:
@@ -1597,16 +1825,50 @@ static int dualshock4_get_calibration_data(struct sony_sc *sc)
 	 * of the controller, so that it sends input reports of type 0x11.
 	 */
 	if (sc->quirks & (DUALSHOCK4_CONTROLLER_USB | DUALSHOCK4_DONGLE)) {
+<<<<<<< HEAD
+=======
+		int retries;
+
+>>>>>>> upstream/android-13
 		buf = kmalloc(DS4_FEATURE_REPORT_0x02_SIZE, GFP_KERNEL);
 		if (!buf)
 			return -ENOMEM;
 
+<<<<<<< HEAD
 		ret = hid_hw_raw_request(sc->hdev, 0x02, buf,
 					 DS4_FEATURE_REPORT_0x02_SIZE,
 					 HID_FEATURE_REPORT,
 					 HID_REQ_GET_REPORT);
 		if (ret < 0)
 			goto err_stop;
+=======
+		/* We should normally receive the feature report data we asked
+		 * for, but hidraw applications such as Steam can issue feature
+		 * reports as well. In particular for Dongle reconnects, Steam
+		 * and this function are competing resulting in often receiving
+		 * data for a different HID report, so retry a few times.
+		 */
+		for (retries = 0; retries < 3; retries++) {
+			ret = hid_hw_raw_request(sc->hdev, 0x02, buf,
+						 DS4_FEATURE_REPORT_0x02_SIZE,
+						 HID_FEATURE_REPORT,
+						 HID_REQ_GET_REPORT);
+			if (ret < 0)
+				goto err_stop;
+
+			if (buf[0] != 0x02) {
+				if (retries < 2) {
+					hid_warn(sc->hdev, "Retrying DualShock 4 get calibration report (0x02) request\n");
+					continue;
+				} else {
+					ret = -EILSEQ;
+					goto err_stop;
+				}
+			} else {
+				break;
+			}
+		}
+>>>>>>> upstream/android-13
 	} else {
 		u8 bthdr = 0xA3;
 		u32 crc;
@@ -2118,9 +2380,20 @@ static void sixaxis_send_output_report(struct sony_sc *sc)
 		}
 	}
 
+<<<<<<< HEAD
 	hid_hw_raw_request(sc->hdev, report->report_id, (u8 *)report,
 			sizeof(struct sixaxis_output_report),
 			HID_OUTPUT_REPORT, HID_REQ_SET_REPORT);
+=======
+	/* SHANWAN controllers require output reports via intr channel */
+	if (sc->quirks & SHANWAN_GAMEPAD)
+		hid_hw_output_report(sc->hdev, (u8 *)report,
+				sizeof(struct sixaxis_output_report));
+	else
+		hid_hw_raw_request(sc->hdev, report->report_id, (u8 *)report,
+				sizeof(struct sixaxis_output_report),
+				HID_OUTPUT_REPORT, HID_REQ_SET_REPORT);
+>>>>>>> upstream/android-13
 }
 
 static void dualshock4_send_output_report(struct sony_sc *sc)
@@ -2295,12 +2568,21 @@ static int sony_battery_get_property(struct power_supply *psy,
 	struct sony_sc *sc = power_supply_get_drvdata(psy);
 	unsigned long flags;
 	int ret = 0;
+<<<<<<< HEAD
 	u8 battery_charging, battery_capacity, cable_state;
 
 	spin_lock_irqsave(&sc->lock, flags);
 	battery_charging = sc->battery_charging;
 	battery_capacity = sc->battery_capacity;
 	cable_state = sc->cable_state;
+=======
+	u8 battery_capacity;
+	int battery_status;
+
+	spin_lock_irqsave(&sc->lock, flags);
+	battery_capacity = sc->battery_capacity;
+	battery_status = sc->battery_status;
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&sc->lock, flags);
 
 	switch (psp) {
@@ -2314,6 +2596,7 @@ static int sony_battery_get_property(struct power_supply *psy,
 		val->intval = battery_capacity;
 		break;
 	case POWER_SUPPLY_PROP_STATUS:
+<<<<<<< HEAD
 		if (battery_charging)
 			val->intval = POWER_SUPPLY_STATUS_CHARGING;
 		else
@@ -2321,6 +2604,9 @@ static int sony_battery_get_property(struct power_supply *psy,
 				val->intval = POWER_SUPPLY_STATUS_FULL;
 			else
 				val->intval = POWER_SUPPLY_STATUS_DISCHARGING;
+=======
+		val->intval = battery_status;
+>>>>>>> upstream/android-13
 		break;
 	default:
 		ret = -EINVAL;
@@ -2718,6 +3004,7 @@ static int sony_input_configured(struct hid_device *hdev,
 
 		ret = device_create_file(&sc->hdev->dev, &dev_attr_firmware_version);
 		if (ret) {
+<<<<<<< HEAD
 			/* Make zero for cleanup reasons of sysfs entries. */
 			sc->fw_version = 0;
 			sc->hw_version = 0;
@@ -2731,6 +3018,19 @@ static int sony_input_configured(struct hid_device *hdev,
 			hid_err(sc->hdev, "can't create sysfs hardware_version attribute err: %d\n", ret);
 			goto err_stop;
 		}
+=======
+			hid_err(sc->hdev, "can't create sysfs firmware_version attribute err: %d\n", ret);
+			goto err_stop;
+		}
+		sc->fw_version_created = true;
+
+		ret = device_create_file(&sc->hdev->dev, &dev_attr_hardware_version);
+		if (ret) {
+			hid_err(sc->hdev, "can't create sysfs hardware_version attribute err: %d\n", ret);
+			goto err_stop;
+		}
+		sc->hw_version_created = true;
+>>>>>>> upstream/android-13
 
 		/*
 		 * The Dualshock 4 touchpad supports 2 touches and has a
@@ -2822,9 +3122,15 @@ err_stop:
 	 */
 	if (sc->ds4_bt_poll_interval)
 		device_remove_file(&sc->hdev->dev, &dev_attr_bt_poll_interval);
+<<<<<<< HEAD
 	if (sc->fw_version)
 		device_remove_file(&sc->hdev->dev, &dev_attr_firmware_version);
 	if (sc->hw_version)
+=======
+	if (sc->fw_version_created)
+		device_remove_file(&sc->hdev->dev, &dev_attr_firmware_version);
+	if (sc->hw_version_created)
+>>>>>>> upstream/android-13
 		device_remove_file(&sc->hdev->dev, &dev_attr_hardware_version);
 	sony_cancel_work_sync(sc);
 	sony_remove_dev_list(sc);
@@ -2837,11 +3143,22 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
 	int ret;
 	unsigned long quirks = id->driver_data;
 	struct sony_sc *sc;
+<<<<<<< HEAD
+=======
+	struct usb_device *usbdev;
+>>>>>>> upstream/android-13
 	unsigned int connect_mask = HID_CONNECT_DEFAULT;
 
 	if (!strcmp(hdev->name, "FutureMax Dance Mat"))
 		quirks |= FUTUREMAX_DANCE_MAT;
 
+<<<<<<< HEAD
+=======
+	if (!strcmp(hdev->name, "SHANWAN PS3 GamePad") ||
+	    !strcmp(hdev->name, "ShanWan PS(R) Ga`epad"))
+		quirks |= SHANWAN_GAMEPAD;
+
+>>>>>>> upstream/android-13
 	sc = devm_kzalloc(&hdev->dev, sizeof(*sc), GFP_KERNEL);
 	if (sc == NULL) {
 		hid_err(hdev, "can't alloc sony descriptor\n");
@@ -2890,10 +3207,51 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
 	 */
 	if (!(hdev->claimed & HID_CLAIMED_INPUT)) {
 		hid_err(hdev, "failed to claim input\n");
+<<<<<<< HEAD
 		hid_hw_stop(hdev);
 		return -ENODEV;
 	}
 
+=======
+		ret = -ENODEV;
+		goto err;
+	}
+
+	if (sc->quirks & (GHL_GUITAR_PS3WIIU | GHL_GUITAR_PS4)) {
+		if (!hid_is_usb(hdev)) {
+			ret = -EINVAL;
+			goto err;
+		}
+
+		usbdev = to_usb_device(sc->hdev->dev.parent->parent);
+
+		sc->ghl_urb = usb_alloc_urb(0, GFP_ATOMIC);
+		if (!sc->ghl_urb) {
+			ret = -ENOMEM;
+			goto err;
+		}
+
+		if (sc->quirks & GHL_GUITAR_PS3WIIU)
+			ret = ghl_init_urb(sc, usbdev, ghl_ps3wiiu_magic_data,
+							   ARRAY_SIZE(ghl_ps3wiiu_magic_data));
+		else if (sc->quirks & GHL_GUITAR_PS4)
+			ret = ghl_init_urb(sc, usbdev, ghl_ps4_magic_data,
+							   ARRAY_SIZE(ghl_ps4_magic_data));
+		if (ret) {
+			hid_err(hdev, "error preparing URB\n");
+			goto err;
+		}
+
+		timer_setup(&sc->ghl_poke_timer, ghl_magic_poke, 0);
+		mod_timer(&sc->ghl_poke_timer,
+			  jiffies + GHL_GUITAR_POKE_INTERVAL*HZ);
+	}
+
+	return ret;
+
+err:
+	hid_hw_stop(hdev);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -2901,15 +3259,30 @@ static void sony_remove(struct hid_device *hdev)
 {
 	struct sony_sc *sc = hid_get_drvdata(hdev);
 
+<<<<<<< HEAD
+=======
+	if (sc->quirks & (GHL_GUITAR_PS3WIIU | GHL_GUITAR_PS4)) {
+		del_timer_sync(&sc->ghl_poke_timer);
+		usb_free_urb(sc->ghl_urb);
+	}
+
+>>>>>>> upstream/android-13
 	hid_hw_close(hdev);
 
 	if (sc->quirks & DUALSHOCK4_CONTROLLER_BT)
 		device_remove_file(&sc->hdev->dev, &dev_attr_bt_poll_interval);
 
+<<<<<<< HEAD
 	if (sc->fw_version)
 		device_remove_file(&sc->hdev->dev, &dev_attr_firmware_version);
 
 	if (sc->hw_version)
+=======
+	if (sc->fw_version_created)
+		device_remove_file(&sc->hdev->dev, &dev_attr_firmware_version);
+
+	if (sc->hw_version_created)
+>>>>>>> upstream/android-13
 		device_remove_file(&sc->hdev->dev, &dev_attr_hardware_version);
 
 	sony_cancel_work_sync(sc);
@@ -3012,6 +3385,21 @@ static const struct hid_device_id sony_devices[] = {
 	/* SMK-Link NSG-MR7U Remote Control */
 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SMK, USB_DEVICE_ID_SMK_NSG_MR7U_REMOTE),
 		.driver_data = NSG_MR7U_REMOTE_BT },
+<<<<<<< HEAD
+=======
+	/* Guitar Hero Live PS3 and Wii U guitar dongles */
+	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3WIIU_GHLIVE_DONGLE),
+		.driver_data = GHL_GUITAR_PS3WIIU | GH_GUITAR_CONTROLLER },
+	/* Guitar Hero PC Guitar Dongle */
+	{ HID_USB_DEVICE(USB_VENDOR_ID_REDOCTANE, USB_DEVICE_ID_REDOCTANE_GUITAR_DONGLE),
+		.driver_data = GH_GUITAR_CONTROLLER },
+	/* Guitar Hero PS3 World Tour Guitar Dongle */
+	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_GUITAR_DONGLE),
+		.driver_data = GH_GUITAR_CONTROLLER },
+	/* Guitar Hero Live PS4 guitar dongles */
+	{ HID_USB_DEVICE(USB_VENDOR_ID_REDOCTANE, USB_DEVICE_ID_REDOCTANE_PS4_GHLIVE_DONGLE),
+		.driver_data = GHL_GUITAR_PS4 | GH_GUITAR_CONTROLLER },
+>>>>>>> upstream/android-13
 	{ }
 };
 MODULE_DEVICE_TABLE(hid, sony_devices);

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/mach-rpc/dma.c
  *
  *  Copyright (C) 1998 Russell King
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  *  DMA functions specific to RiscPC architecture
  */
 #include <linux/mman.h>
@@ -27,10 +34,18 @@
 
 struct iomd_dma {
 	struct dma_struct	dma;
+<<<<<<< HEAD
 	unsigned int		state;
 	unsigned long		base;		/* Controller base address */
 	int			irq;		/* Controller IRQ */
 	struct scatterlist	cur_sg;		/* Current controller buffer */
+=======
+	void __iomem		*base;		/* Controller base address */
+	int			irq;		/* Controller IRQ */
+	unsigned int		state;
+	dma_addr_t		cur_addr;
+	unsigned int		cur_len;
+>>>>>>> upstream/android-13
 	dma_addr_t		dma_addr;
 	unsigned int		dma_len;
 };
@@ -53,13 +68,22 @@ typedef enum {
 #define CR	(IOMD_IO0CR - IOMD_IO0CURA)
 #define ST	(IOMD_IO0ST - IOMD_IO0CURA)
 
+<<<<<<< HEAD
 static void iomd_get_next_sg(struct scatterlist *sg, struct iomd_dma *idma)
+=======
+static void iomd_get_next_sg(struct iomd_dma *idma)
+>>>>>>> upstream/android-13
 {
 	unsigned long end, offset, flags = 0;
 
 	if (idma->dma.sg) {
+<<<<<<< HEAD
 		sg->dma_address = idma->dma_addr;
 		offset = sg->dma_address & ~PAGE_MASK;
+=======
+		idma->cur_addr = idma->dma_addr;
+		offset = idma->cur_addr & ~PAGE_MASK;
+>>>>>>> upstream/android-13
 
 		end = offset + idma->dma_len;
 
@@ -69,7 +93,11 @@ static void iomd_get_next_sg(struct scatterlist *sg, struct iomd_dma *idma)
 		if (offset + TRANSFER_SIZE >= end)
 			flags |= DMA_END_L;
 
+<<<<<<< HEAD
 		sg->length = end - TRANSFER_SIZE;
+=======
+		idma->cur_len = end - TRANSFER_SIZE;
+>>>>>>> upstream/android-13
 
 		idma->dma_len -= end - offset;
 		idma->dma_addr += end - offset;
@@ -87,16 +115,25 @@ static void iomd_get_next_sg(struct scatterlist *sg, struct iomd_dma *idma)
 		}
 	} else {
 		flags = DMA_END_S | DMA_END_L;
+<<<<<<< HEAD
 		sg->dma_address = 0;
 		sg->length = 0;
 	}
 
 	sg->length |= flags;
+=======
+		idma->cur_addr = 0;
+		idma->cur_len = 0;
+	}
+
+	idma->cur_len |= flags;
+>>>>>>> upstream/android-13
 }
 
 static irqreturn_t iomd_dma_handle(int irq, void *dev_id)
 {
 	struct iomd_dma *idma = dev_id;
+<<<<<<< HEAD
 	unsigned long base = idma->base;
 
 	do {
@@ -133,6 +170,41 @@ static irqreturn_t iomd_dma_handle(int irq, void *dev_id)
 	idma->state = ~DMA_ST_AB;
 	disable_irq_nosync(irq);
 
+=======
+	void __iomem *base = idma->base;
+	unsigned int state = idma->state;
+	unsigned int status, cur, end;
+
+	do {
+		status = readb(base + ST);
+		if (!(status & DMA_ST_INT))
+			goto out;
+
+		if ((state ^ status) & DMA_ST_AB)
+			iomd_get_next_sg(idma);
+
+		// This efficiently implements state = OFL != AB ? AB : 0
+		state = ((status >> 2) ^ status) & DMA_ST_AB;
+		if (state) {
+			cur = CURA;
+			end = ENDA;
+		} else {
+			cur = CURB;
+			end = ENDB;
+		}
+		writel(idma->cur_addr, base + cur);
+		writel(idma->cur_len, base + end);
+
+		if (status & DMA_ST_OFL &&
+		    idma->cur_len == (DMA_END_S|DMA_END_L))
+			break;
+	} while (1);
+
+	state = ~DMA_ST_AB;
+	disable_irq_nosync(irq);
+out:
+	idma->state = state;
+>>>>>>> upstream/android-13
 	return IRQ_HANDLED;
 }
 
@@ -151,10 +223,23 @@ static void iomd_free_dma(unsigned int chan, dma_t *dma)
 	free_irq(idma->irq, idma);
 }
 
+<<<<<<< HEAD
 static void iomd_enable_dma(unsigned int chan, dma_t *dma)
 {
 	struct iomd_dma *idma = container_of(dma, struct iomd_dma, dma);
 	unsigned long dma_base = idma->base;
+=======
+static struct device isa_dma_dev = {
+	.init_name		= "fallback device",
+	.coherent_dma_mask	= ~(dma_addr_t)0,
+	.dma_mask		= &isa_dma_dev.coherent_dma_mask,
+};
+
+static void iomd_enable_dma(unsigned int chan, dma_t *dma)
+{
+	struct iomd_dma *idma = container_of(dma, struct iomd_dma, dma);
+	void __iomem *base = idma->base;
+>>>>>>> upstream/android-13
 	unsigned int ctrl = TRANSFER_SIZE | DMA_CR_E;
 
 	if (idma->dma.invalid) {
@@ -168,7 +253,11 @@ static void iomd_enable_dma(unsigned int chan, dma_t *dma)
 			idma->dma.sg = &idma->dma.buf;
 			idma->dma.sgcount = 1;
 			idma->dma.buf.length = idma->dma.count;
+<<<<<<< HEAD
 			idma->dma.buf.dma_address = dma_map_single(NULL,
+=======
+			idma->dma.buf.dma_address = dma_map_single(&isa_dma_dev,
+>>>>>>> upstream/android-13
 				idma->dma.addr, idma->dma.count,
 				idma->dma.dma_mode == DMA_MODE_READ ?
 				DMA_FROM_DEVICE : DMA_TO_DEVICE);
@@ -177,27 +266,43 @@ static void iomd_enable_dma(unsigned int chan, dma_t *dma)
 		idma->dma_addr = idma->dma.sg->dma_address;
 		idma->dma_len = idma->dma.sg->length;
 
+<<<<<<< HEAD
 		iomd_writeb(DMA_CR_C, dma_base + CR);
+=======
+		writeb(DMA_CR_C, base + CR);
+>>>>>>> upstream/android-13
 		idma->state = DMA_ST_AB;
 	}
 
 	if (idma->dma.dma_mode == DMA_MODE_READ)
 		ctrl |= DMA_CR_D;
 
+<<<<<<< HEAD
 	iomd_writeb(ctrl, dma_base + CR);
+=======
+	writeb(ctrl, base + CR);
+>>>>>>> upstream/android-13
 	enable_irq(idma->irq);
 }
 
 static void iomd_disable_dma(unsigned int chan, dma_t *dma)
 {
 	struct iomd_dma *idma = container_of(dma, struct iomd_dma, dma);
+<<<<<<< HEAD
 	unsigned long dma_base = idma->base;
+=======
+	void __iomem *base = idma->base;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 
 	local_irq_save(flags);
 	if (idma->state != ~DMA_ST_AB)
 		disable_irq(idma->irq);
+<<<<<<< HEAD
 	iomd_writeb(0, dma_base + CR);
+=======
+	writeb(0, base + CR);
+>>>>>>> upstream/android-13
 	local_irq_restore(flags);
 }
 
@@ -360,6 +465,7 @@ static int __init rpc_dma_init(void)
 	 */
 	iomd_writeb(DMA_EXT_IO3|DMA_EXT_IO2, IOMD_DMAEXT);
 
+<<<<<<< HEAD
 	iomd_dma[DMA_0].base	= IOMD_IO0CURA;
 	iomd_dma[DMA_0].irq	= IRQ_DMA0;
 	iomd_dma[DMA_1].base	= IOMD_IO1CURA;
@@ -371,6 +477,19 @@ static int __init rpc_dma_init(void)
 	iomd_dma[DMA_S0].base	= IOMD_SD0CURA;
 	iomd_dma[DMA_S0].irq	= IRQ_DMAS0;
 	iomd_dma[DMA_S1].base	= IOMD_SD1CURA;
+=======
+	iomd_dma[DMA_0].base	= IOMD_BASE + IOMD_IO0CURA;
+	iomd_dma[DMA_0].irq	= IRQ_DMA0;
+	iomd_dma[DMA_1].base	= IOMD_BASE + IOMD_IO1CURA;
+	iomd_dma[DMA_1].irq	= IRQ_DMA1;
+	iomd_dma[DMA_2].base	= IOMD_BASE + IOMD_IO2CURA;
+	iomd_dma[DMA_2].irq	= IRQ_DMA2;
+	iomd_dma[DMA_3].base	= IOMD_BASE + IOMD_IO3CURA;
+	iomd_dma[DMA_3].irq	= IRQ_DMA3;
+	iomd_dma[DMA_S0].base	= IOMD_BASE + IOMD_SD0CURA;
+	iomd_dma[DMA_S0].irq	= IRQ_DMAS0;
+	iomd_dma[DMA_S1].base	= IOMD_BASE + IOMD_SD1CURA;
+>>>>>>> upstream/android-13
 	iomd_dma[DMA_S1].irq	= IRQ_DMAS1;
 
 	for (i = DMA_0; i <= DMA_S1; i++) {

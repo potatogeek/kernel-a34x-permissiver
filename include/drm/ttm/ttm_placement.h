@@ -42,6 +42,7 @@
 #define TTM_PL_VRAM             2
 #define TTM_PL_PRIV             3
 
+<<<<<<< HEAD
 #define TTM_PL_FLAG_SYSTEM      (1 << TTM_PL_SYSTEM)
 #define TTM_PL_FLAG_TT          (1 << TTM_PL_TT)
 #define TTM_PL_FLAG_VRAM        (1 << TTM_PL_VRAM)
@@ -56,10 +57,14 @@
  * reference the buffer.
  * TTM_PL_FLAG_NO_EVICT means that the buffer may never
  * be evicted to make room for other buffers.
+=======
+/*
+>>>>>>> upstream/android-13
  * TTM_PL_FLAG_TOPDOWN requests to be placed from the
  * top of the memory area, instead of the bottom.
  */
 
+<<<<<<< HEAD
 #define TTM_PL_FLAG_CACHED      (1 << 16)
 #define TTM_PL_FLAG_UNCACHED    (1 << 17)
 #define TTM_PL_FLAG_WC          (1 << 18)
@@ -72,6 +77,13 @@
 				 TTM_PL_FLAG_WC)
 
 #define TTM_PL_MASK_MEMTYPE     (TTM_PL_MASK_MEM | TTM_PL_MASK_CACHING)
+=======
+#define TTM_PL_FLAG_CONTIGUOUS  (1 << 0)
+#define TTM_PL_FLAG_TOPDOWN     (1 << 1)
+
+/* For multihop handling */
+#define TTM_PL_FLAG_TEMPORARY   (1 << 2)
+>>>>>>> upstream/android-13
 
 /**
  * struct ttm_place
@@ -85,6 +97,10 @@
 struct ttm_place {
 	unsigned	fpfn;
 	unsigned	lpfn;
+<<<<<<< HEAD
+=======
+	uint32_t	mem_type;
+>>>>>>> upstream/android-13
 	uint32_t	flags;
 };
 

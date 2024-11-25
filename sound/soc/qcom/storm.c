@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2010-2011,2013-2015 The Linux Foundation. All rights reserved.
  *
@@ -10,6 +11,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2010-2011,2013-2015 The Linux Foundation. All rights reserved.
+ *
+>>>>>>> upstream/android-13
  * storm.c -- ALSA SoC machine driver for QTi ipq806x-based Storm board
  */
 
@@ -27,7 +34,11 @@
 static int storm_ops_hw_params(struct snd_pcm_substream *substream,
 		struct snd_pcm_hw_params *params)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *soc_runtime = substream->private_data;
+=======
+	struct snd_soc_pcm_runtime *soc_runtime = asoc_substream_to_rtd(substream);
+>>>>>>> upstream/android-13
 	struct snd_soc_card *card = soc_runtime->card;
 	snd_pcm_format_t format = params_format(params);
 	unsigned int rate = params_rate(params);
@@ -47,7 +58,11 @@ static int storm_ops_hw_params(struct snd_pcm_substream *substream,
 	 */
 	sysclk_freq = rate * bitwidth * 2 * STORM_SYSCLK_MULT;
 
+<<<<<<< HEAD
 	ret = snd_soc_dai_set_sysclk(soc_runtime->cpu_dai, 0, sysclk_freq, 0);
+=======
+	ret = snd_soc_dai_set_sysclk(asoc_rtd_to_cpu(soc_runtime, 0), 0, sysclk_freq, 0);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(card->dev, "error setting sysclk to %u: %d\n",
 			sysclk_freq, ret);
@@ -61,11 +76,24 @@ static const struct snd_soc_ops storm_soc_ops = {
 	.hw_params	= storm_ops_hw_params,
 };
 
+<<<<<<< HEAD
 static struct snd_soc_dai_link storm_dai_link = {
 	.name		= "Primary",
 	.stream_name	= "Primary",
 	.codec_dai_name	= "HiFi",
 	.ops		= &storm_soc_ops,
+=======
+SND_SOC_DAILINK_DEFS(hifi,
+	DAILINK_COMP_ARRAY(COMP_EMPTY()),
+	DAILINK_COMP_ARRAY(COMP_CODEC(NULL, "HiFi")),
+	DAILINK_COMP_ARRAY(COMP_EMPTY()));
+
+static struct snd_soc_dai_link storm_dai_link = {
+	.name		= "Primary",
+	.stream_name	= "Primary",
+	.ops		= &storm_soc_ops,
+	SND_SOC_DAILINK_REG(hifi),
+>>>>>>> upstream/android-13
 };
 
 static int storm_parse_of(struct snd_soc_card *card)
@@ -73,6 +101,7 @@ static int storm_parse_of(struct snd_soc_card *card)
 	struct snd_soc_dai_link *dai_link = card->dai_link;
 	struct device_node *np = card->dev->of_node;
 
+<<<<<<< HEAD
 	dai_link->cpu_of_node = of_parse_phandle(np, "cpu", 0);
 	if (!dai_link->cpu_of_node) {
 		dev_err(card->dev, "error getting cpu phandle\n");
@@ -82,6 +111,17 @@ static int storm_parse_of(struct snd_soc_card *card)
 
 	dai_link->codec_of_node = of_parse_phandle(np, "codec", 0);
 	if (!dai_link->codec_of_node) {
+=======
+	dai_link->cpus->of_node = of_parse_phandle(np, "cpu", 0);
+	if (!dai_link->cpus->of_node) {
+		dev_err(card->dev, "error getting cpu phandle\n");
+		return -EINVAL;
+	}
+	dai_link->platforms->of_node = dai_link->cpus->of_node;
+
+	dai_link->codecs->of_node = of_parse_phandle(np, "codec", 0);
+	if (!dai_link->codecs->of_node) {
+>>>>>>> upstream/android-13
 		dev_err(card->dev, "error getting codec phandle\n");
 		return -EINVAL;
 	}

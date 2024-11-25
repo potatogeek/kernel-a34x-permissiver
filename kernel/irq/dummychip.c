@@ -13,7 +13,11 @@
 
 /*
  * What should we do if we get a hw irq event on an illegal vector?
+<<<<<<< HEAD
  * Each architecture has to answer this themself.
+=======
+ * Each architecture has to answer this themselves.
+>>>>>>> upstream/android-13
  */
 static void ack_bad(struct irq_data *data)
 {

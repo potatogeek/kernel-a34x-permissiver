@@ -75,7 +75,10 @@ ENTRY(return_to_handler)
 	RESTORE_RET_ABI_STATE
 	jalr	a1
 ENDPROC(return_to_handler)
+<<<<<<< HEAD
 EXPORT_SYMBOL(return_to_handler)
+=======
+>>>>>>> upstream/android-13
 #endif
 
 #ifndef CONFIG_DYNAMIC_FTRACE

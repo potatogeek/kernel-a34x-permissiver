@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (c) 2015-2017 The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -8,6 +9,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* Copyright (c) 2015-2017 The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 #include <linux/acpi.h>
 #include <linux/bitops.h>
@@ -31,6 +36,10 @@
 #include <asm/barrier.h>
 #include <asm/local64.h>
 #include <asm/sysreg.h>
+<<<<<<< HEAD
+=======
+#include <soc/qcom/kryo-l2-accessors.h>
+>>>>>>> upstream/android-13
 
 #define MAX_L2_CTRS             9
 
@@ -87,8 +96,11 @@
 #define L2_COUNTER_RELOAD       BIT_ULL(31)
 #define L2_CYCLE_COUNTER_RELOAD BIT_ULL(63)
 
+<<<<<<< HEAD
 #define L2CPUSRSELR_EL1         sys_reg(3, 3, 15, 0, 6)
 #define L2CPUSRDR_EL1           sys_reg(3, 3, 15, 0, 7)
+=======
+>>>>>>> upstream/android-13
 
 #define reg_idx(reg, i)         (((i) * IA_L2_REG_OFFSET) + reg##_BASE)
 
@@ -107,6 +119,7 @@
 #define L2_EVENT_STREX                     0x421
 #define L2_EVENT_CLREX                     0x422
 
+<<<<<<< HEAD
 static DEFINE_RAW_SPINLOCK(l2_access_lock);
 
 /**
@@ -149,6 +162,9 @@ static u64 get_l2_indirect_reg(u64 reg)
 
 	return val;
 }
+=======
+
+>>>>>>> upstream/android-13
 
 struct cluster_pmu;
 
@@ -219,28 +235,49 @@ static inline struct cluster_pmu *get_cluster_pmu(
 static void cluster_pmu_reset(void)
 {
 	/* Reset all counters */
+<<<<<<< HEAD
 	set_l2_indirect_reg(L2PMCR, L2PMCR_RESET_ALL);
 	set_l2_indirect_reg(L2PMCNTENCLR, l2_counter_present_mask);
 	set_l2_indirect_reg(L2PMINTENCLR, l2_counter_present_mask);
 	set_l2_indirect_reg(L2PMOVSCLR, l2_counter_present_mask);
+=======
+	kryo_l2_set_indirect_reg(L2PMCR, L2PMCR_RESET_ALL);
+	kryo_l2_set_indirect_reg(L2PMCNTENCLR, l2_counter_present_mask);
+	kryo_l2_set_indirect_reg(L2PMINTENCLR, l2_counter_present_mask);
+	kryo_l2_set_indirect_reg(L2PMOVSCLR, l2_counter_present_mask);
+>>>>>>> upstream/android-13
 }
 
 static inline void cluster_pmu_enable(void)
 {
+<<<<<<< HEAD
 	set_l2_indirect_reg(L2PMCR, L2PMCR_COUNTERS_ENABLE);
+=======
+	kryo_l2_set_indirect_reg(L2PMCR, L2PMCR_COUNTERS_ENABLE);
+>>>>>>> upstream/android-13
 }
 
 static inline void cluster_pmu_disable(void)
 {
+<<<<<<< HEAD
 	set_l2_indirect_reg(L2PMCR, L2PMCR_COUNTERS_DISABLE);
+=======
+	kryo_l2_set_indirect_reg(L2PMCR, L2PMCR_COUNTERS_DISABLE);
+>>>>>>> upstream/android-13
 }
 
 static inline void cluster_pmu_counter_set_value(u32 idx, u64 value)
 {
 	if (idx == l2_cycle_ctr_idx)
+<<<<<<< HEAD
 		set_l2_indirect_reg(L2PMCCNTR, value);
 	else
 		set_l2_indirect_reg(reg_idx(IA_L2PMXEVCNTR, idx), value);
+=======
+		kryo_l2_set_indirect_reg(L2PMCCNTR, value);
+	else
+		kryo_l2_set_indirect_reg(reg_idx(IA_L2PMXEVCNTR, idx), value);
+>>>>>>> upstream/android-13
 }
 
 static inline u64 cluster_pmu_counter_get_value(u32 idx)
@@ -248,46 +285,80 @@ static inline u64 cluster_pmu_counter_get_value(u32 idx)
 	u64 value;
 
 	if (idx == l2_cycle_ctr_idx)
+<<<<<<< HEAD
 		value = get_l2_indirect_reg(L2PMCCNTR);
 	else
 		value = get_l2_indirect_reg(reg_idx(IA_L2PMXEVCNTR, idx));
+=======
+		value = kryo_l2_get_indirect_reg(L2PMCCNTR);
+	else
+		value = kryo_l2_get_indirect_reg(reg_idx(IA_L2PMXEVCNTR, idx));
+>>>>>>> upstream/android-13
 
 	return value;
 }
 
 static inline void cluster_pmu_counter_enable(u32 idx)
 {
+<<<<<<< HEAD
 	set_l2_indirect_reg(L2PMCNTENSET, idx_to_reg_bit(idx));
+=======
+	kryo_l2_set_indirect_reg(L2PMCNTENSET, idx_to_reg_bit(idx));
+>>>>>>> upstream/android-13
 }
 
 static inline void cluster_pmu_counter_disable(u32 idx)
 {
+<<<<<<< HEAD
 	set_l2_indirect_reg(L2PMCNTENCLR, idx_to_reg_bit(idx));
+=======
+	kryo_l2_set_indirect_reg(L2PMCNTENCLR, idx_to_reg_bit(idx));
+>>>>>>> upstream/android-13
 }
 
 static inline void cluster_pmu_counter_enable_interrupt(u32 idx)
 {
+<<<<<<< HEAD
 	set_l2_indirect_reg(L2PMINTENSET, idx_to_reg_bit(idx));
+=======
+	kryo_l2_set_indirect_reg(L2PMINTENSET, idx_to_reg_bit(idx));
+>>>>>>> upstream/android-13
 }
 
 static inline void cluster_pmu_counter_disable_interrupt(u32 idx)
 {
+<<<<<<< HEAD
 	set_l2_indirect_reg(L2PMINTENCLR, idx_to_reg_bit(idx));
+=======
+	kryo_l2_set_indirect_reg(L2PMINTENCLR, idx_to_reg_bit(idx));
+>>>>>>> upstream/android-13
 }
 
 static inline void cluster_pmu_set_evccntcr(u32 val)
 {
+<<<<<<< HEAD
 	set_l2_indirect_reg(L2PMCCNTCR, val);
+=======
+	kryo_l2_set_indirect_reg(L2PMCCNTCR, val);
+>>>>>>> upstream/android-13
 }
 
 static inline void cluster_pmu_set_evcntcr(u32 ctr, u32 val)
 {
+<<<<<<< HEAD
 	set_l2_indirect_reg(reg_idx(IA_L2PMXEVCNTCR, ctr), val);
+=======
+	kryo_l2_set_indirect_reg(reg_idx(IA_L2PMXEVCNTCR, ctr), val);
+>>>>>>> upstream/android-13
 }
 
 static inline void cluster_pmu_set_evtyper(u32 ctr, u32 val)
 {
+<<<<<<< HEAD
 	set_l2_indirect_reg(reg_idx(IA_L2PMXEVTYPER, ctr), val);
+=======
+	kryo_l2_set_indirect_reg(reg_idx(IA_L2PMXEVTYPER, ctr), val);
+>>>>>>> upstream/android-13
 }
 
 static void cluster_pmu_set_resr(struct cluster_pmu *cluster,
@@ -303,11 +374,19 @@ static void cluster_pmu_set_resr(struct cluster_pmu *cluster,
 
 	spin_lock_irqsave(&cluster->pmu_lock, flags);
 
+<<<<<<< HEAD
 	resr_val = get_l2_indirect_reg(L2PMRESR);
 	resr_val &= ~(L2PMRESR_GROUP_MASK << shift);
 	resr_val |= field;
 	resr_val |= L2PMRESR_EN;
 	set_l2_indirect_reg(L2PMRESR, resr_val);
+=======
+	resr_val = kryo_l2_get_indirect_reg(L2PMRESR);
+	resr_val &= ~(L2PMRESR_GROUP_MASK << shift);
+	resr_val |= field;
+	resr_val |= L2PMRESR_EN;
+	kryo_l2_set_indirect_reg(L2PMRESR, resr_val);
+>>>>>>> upstream/android-13
 
 	spin_unlock_irqrestore(&cluster->pmu_lock, flags);
 }
@@ -323,14 +402,24 @@ static inline void cluster_pmu_set_evfilter_sys_mode(u32 ctr)
 		   L2PMXEVFILTER_ORGFILTER_IDINDEP |
 		   L2PMXEVFILTER_ORGFILTER_ALL;
 
+<<<<<<< HEAD
 	set_l2_indirect_reg(reg_idx(IA_L2PMXEVFILTER, ctr), val);
+=======
+	kryo_l2_set_indirect_reg(reg_idx(IA_L2PMXEVFILTER, ctr), val);
+>>>>>>> upstream/android-13
 }
 
 static inline u32 cluster_pmu_getreset_ovsr(void)
 {
+<<<<<<< HEAD
 	u32 result = get_l2_indirect_reg(L2PMOVSSET);
 
 	set_l2_indirect_reg(L2PMOVSCLR, result);
+=======
+	u32 result = kryo_l2_get_indirect_reg(L2PMOVSSET);
+
+	kryo_l2_set_indirect_reg(L2PMOVSCLR, result);
+>>>>>>> upstream/android-13
 	return result;
 }
 
@@ -509,6 +598,7 @@ static int l2_cache_event_init(struct perf_event *event)
 		return -EOPNOTSUPP;
 	}
 
+<<<<<<< HEAD
 	/* We cannot filter accurately so we just don't allow it. */
 	if (event->attr.exclude_user || event->attr.exclude_kernel ||
 	    event->attr.exclude_hv || event->attr.exclude_idle) {
@@ -517,6 +607,8 @@ static int l2_cache_event_init(struct perf_event *event)
 		return -EOPNOTSUPP;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (((L2_EVT_GROUP(event->attr.config) > L2_EVT_GROUP_MAX) ||
 	     ((event->attr.config & ~L2_EVT_MASK) != 0)) &&
 	    (event->attr.config != L2CYCLE_CTR_RAW_CODE)) {
@@ -707,7 +799,11 @@ static struct attribute *l2_cache_pmu_cpumask_attrs[] = {
 	NULL,
 };
 
+<<<<<<< HEAD
 static struct attribute_group l2_cache_pmu_cpumask_group = {
+=======
+static const struct attribute_group l2_cache_pmu_cpumask_group = {
+>>>>>>> upstream/android-13
 	.attrs = l2_cache_pmu_cpumask_attrs,
 };
 
@@ -723,7 +819,11 @@ static struct attribute *l2_cache_pmu_formats[] = {
 	NULL,
 };
 
+<<<<<<< HEAD
 static struct attribute_group l2_cache_pmu_format_group = {
+=======
+static const struct attribute_group l2_cache_pmu_format_group = {
+>>>>>>> upstream/android-13
 	.name = "format",
 	.attrs = l2_cache_pmu_formats,
 };
@@ -734,6 +834,7 @@ static ssize_t l2cache_pmu_event_show(struct device *dev,
 	struct perf_pmu_events_attr *pmu_attr;
 
 	pmu_attr = container_of(attr, struct perf_pmu_events_attr, attr);
+<<<<<<< HEAD
 	return sprintf(page, "event=0x%02llx\n", pmu_attr->id);
 }
 
@@ -742,6 +843,13 @@ static ssize_t l2cache_pmu_event_show(struct device *dev,
 		{ .attr = __ATTR(_name, 0444, l2cache_pmu_event_show, NULL), \
 		  .id = _id, }						     \
 	})[0].attr.attr)
+=======
+	return sysfs_emit(page, "event=0x%02llx\n", pmu_attr->id);
+}
+
+#define L2CACHE_EVENT_ATTR(_name, _id)			    \
+	PMU_EVENT_ATTR_ID(_name, l2cache_pmu_event_show, _id)
+>>>>>>> upstream/android-13
 
 static struct attribute *l2_cache_pmu_events[] = {
 	L2CACHE_EVENT_ATTR(cycles, L2_EVENT_CYCLES),
@@ -758,7 +866,11 @@ static struct attribute *l2_cache_pmu_events[] = {
 	NULL
 };
 
+<<<<<<< HEAD
 static struct attribute_group l2_cache_pmu_events_group = {
+=======
+static const struct attribute_group l2_cache_pmu_events_group = {
+>>>>>>> upstream/android-13
 	.name = "events",
 	.attrs = l2_cache_pmu_events,
 };
@@ -783,7 +895,11 @@ static int get_num_counters(void)
 {
 	int val;
 
+<<<<<<< HEAD
 	val = get_l2_indirect_reg(L2PMCR);
+=======
+	val = kryo_l2_get_indirect_reg(L2PMCR);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Read number of counters from L2PMCR and add 1
@@ -797,7 +913,11 @@ static struct cluster_pmu *l2_cache_associate_cpu_with_cluster(
 {
 	u64 mpidr;
 	int cpu_cluster_id;
+<<<<<<< HEAD
 	struct cluster_pmu *cluster = NULL;
+=======
+	struct cluster_pmu *cluster;
+>>>>>>> upstream/android-13
 
 	/*
 	 * This assumes that the cluster_id is in MPIDR[aff1] for
@@ -819,10 +939,17 @@ static struct cluster_pmu *l2_cache_associate_cpu_with_cluster(
 			 cluster->cluster_id);
 		cpumask_set_cpu(cpu, &cluster->cluster_cpus);
 		*per_cpu_ptr(l2cache_pmu->pmu_cluster, cpu) = cluster;
+<<<<<<< HEAD
 		break;
 	}
 
 	return cluster;
+=======
+		return cluster;
+	}
+
+	return NULL;
+>>>>>>> upstream/android-13
 }
 
 static int l2cache_pmu_online_cpu(unsigned int cpu, struct hlist_node *node)
@@ -925,6 +1052,7 @@ static int l2_cache_pmu_probe_cluster(struct device *dev, void *data)
 	cluster->cluster_id = fw_cluster_id;
 
 	irq = platform_get_irq(sdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(&pdev->dev,
 			"Failed to get valid irq for cluster %ld\n",
@@ -932,13 +1060,22 @@ static int l2_cache_pmu_probe_cluster(struct device *dev, void *data)
 		return irq;
 	}
 	irq_set_status_flags(irq, IRQ_NOAUTOEN);
+=======
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 	cluster->irq = irq;
 
 	cluster->l2cache_pmu = l2cache_pmu;
 	cluster->on_cpu = -1;
 
 	err = devm_request_irq(&pdev->dev, irq, l2_cache_handle_irq,
+<<<<<<< HEAD
 			       IRQF_NOBALANCING | IRQF_NO_THREAD,
+=======
+			       IRQF_NOBALANCING | IRQF_NO_THREAD |
+			       IRQF_NO_AUTOEN,
+>>>>>>> upstream/android-13
 			       "l2-cache-pmu", cluster);
 	if (err) {
 		dev_err(&pdev->dev,
@@ -982,6 +1119,10 @@ static int l2_cache_pmu_probe(struct platform_device *pdev)
 		.stop		= l2_cache_event_stop,
 		.read		= l2_cache_event_read,
 		.attr_groups	= l2_cache_pmu_attr_grps,
+<<<<<<< HEAD
+=======
+		.capabilities	= PERF_PMU_CAP_NO_EXCLUDE,
+>>>>>>> upstream/android-13
 	};
 
 	l2cache_pmu->num_counters = get_num_counters();
@@ -1047,6 +1188,10 @@ static struct platform_driver l2_cache_pmu_driver = {
 	.driver = {
 		.name = "qcom-l2cache-pmu",
 		.acpi_match_table = ACPI_PTR(l2_cache_pmu_acpi_match),
+<<<<<<< HEAD
+=======
+		.suppress_bind_attrs = true,
+>>>>>>> upstream/android-13
 	},
 	.probe = l2_cache_pmu_probe,
 	.remove = l2_cache_pmu_remove,

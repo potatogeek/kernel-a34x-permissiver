@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Silicon Labs Si2168 DVB-T/T2/C demodulator driver
  *
  * Copyright (C) 2014 Antti Palosaari <crope@iki.fi>
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef SI2168_PRIV_H
@@ -43,12 +50,21 @@ struct si2168_dev {
 	unsigned int chip_id;
 	unsigned int version;
 	const char *firmware_name;
+<<<<<<< HEAD
 	bool active;
 	bool warm;
 	u8 ts_mode;
 	bool ts_clock_inv;
 	bool ts_clock_gapped;
 	bool spectral_inversion;
+=======
+	u8 ts_mode;
+	unsigned int active:1;
+	unsigned int warm:1;
+	unsigned int ts_clock_inv:1;
+	unsigned int ts_clock_gapped:1;
+	unsigned int spectral_inversion:1;
+>>>>>>> upstream/android-13
 };
 
 /* firmware command struct */

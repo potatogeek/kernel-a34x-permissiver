@@ -11,6 +11,7 @@
 /* AVERTV STUDIO 303 Remote */
 
 static struct rc_map_table avertv_303[] = {
+<<<<<<< HEAD
 	{ 0x2a, KEY_1 },
 	{ 0x32, KEY_2 },
 	{ 0x3a, KEY_3 },
@@ -21,6 +22,18 @@ static struct rc_map_table avertv_303[] = {
 	{ 0x72, KEY_8 },
 	{ 0x7a, KEY_9 },
 	{ 0x0e, KEY_0 },
+=======
+	{ 0x2a, KEY_NUMERIC_1 },
+	{ 0x32, KEY_NUMERIC_2 },
+	{ 0x3a, KEY_NUMERIC_3 },
+	{ 0x4a, KEY_NUMERIC_4 },
+	{ 0x52, KEY_NUMERIC_5 },
+	{ 0x5a, KEY_NUMERIC_6 },
+	{ 0x6a, KEY_NUMERIC_7 },
+	{ 0x72, KEY_NUMERIC_8 },
+	{ 0x7a, KEY_NUMERIC_9 },
+	{ 0x0e, KEY_NUMERIC_0 },
+>>>>>>> upstream/android-13
 
 	{ 0x02, KEY_POWER },
 	{ 0x22, KEY_VIDEO },

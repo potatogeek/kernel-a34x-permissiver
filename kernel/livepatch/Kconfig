@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 config HAVE_LIVEPATCH
 	bool
 	help
@@ -5,7 +9,11 @@ config HAVE_LIVEPATCH
 
 config LIVEPATCH
 	bool "Kernel Live Patching"
+<<<<<<< HEAD
 	depends on DYNAMIC_FTRACE_WITH_REGS
+=======
+	depends on DYNAMIC_FTRACE_WITH_REGS || DYNAMIC_FTRACE_WITH_ARGS
+>>>>>>> upstream/android-13
 	depends on MODULES
 	depends on SYSFS
 	depends on KALLSYMS_ALL

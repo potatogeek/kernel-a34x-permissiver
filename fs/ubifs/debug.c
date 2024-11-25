@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * This file is part of UBIFS.
  *
  * Copyright (C) 2006-2008 Nokia Corporation
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
@@ -16,6 +21,8 @@
  * this program; if not, write to the Free Software Foundation, Inc., 51
  * Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  * Authors: Artem Bityutskiy (Битюцкий Артём)
  *          Adrian Hunter
  */
@@ -165,6 +172,11 @@ const char *dbg_ntype(int type)
 		return "commit start node";
 	case UBIFS_ORPH_NODE:
 		return "orphan node";
+<<<<<<< HEAD
+=======
+	case UBIFS_AUTH_NODE:
+		return "auth node";
+>>>>>>> upstream/android-13
 	default:
 		return "unknown node";
 	}
@@ -301,9 +313,15 @@ void ubifs_dump_inode(struct ubifs_info *c, const struct inode *inode)
 	kfree(pdent);
 }
 
+<<<<<<< HEAD
 void ubifs_dump_node(const struct ubifs_info *c, const void *node)
 {
 	int i, n;
+=======
+void ubifs_dump_node(const struct ubifs_info *c, const void *node, int node_len)
+{
+	int i, n, type, safe_len, max_node_len, min_node_len;
+>>>>>>> upstream/android-13
 	union ubifs_key key;
 	const struct ubifs_ch *ch = node;
 	char key_buf[DBG_KEY_BUF_LEN];
@@ -316,10 +334,47 @@ void ubifs_dump_node(const struct ubifs_info *c, const void *node)
 		return;
 	}
 
+<<<<<<< HEAD
 	spin_lock(&dbg_lock);
 	dump_ch(node);
 
 	switch (ch->node_type) {
+=======
+	/* Skip dumping unknown type node */
+	type = ch->node_type;
+	if (type < 0 || type >= UBIFS_NODE_TYPES_CNT) {
+		pr_err("node type %d was not recognized\n", type);
+		return;
+	}
+
+	spin_lock(&dbg_lock);
+	dump_ch(node);
+
+	if (c->ranges[type].max_len == 0) {
+		max_node_len = min_node_len = c->ranges[type].len;
+	} else {
+		max_node_len = c->ranges[type].max_len;
+		min_node_len = c->ranges[type].min_len;
+	}
+	safe_len = le32_to_cpu(ch->len);
+	safe_len = safe_len > 0 ? safe_len : 0;
+	safe_len = min3(safe_len, max_node_len, node_len);
+	if (safe_len < min_node_len) {
+		pr_err("node len(%d) is too short for %s, left %d bytes:\n",
+		       safe_len, dbg_ntype(type),
+		       safe_len > UBIFS_CH_SZ ?
+		       safe_len - (int)UBIFS_CH_SZ : 0);
+		if (safe_len > UBIFS_CH_SZ)
+			print_hex_dump(KERN_ERR, "", DUMP_PREFIX_OFFSET, 32, 1,
+				       (void *)node + UBIFS_CH_SZ,
+				       safe_len - UBIFS_CH_SZ, 0);
+		goto out_unlock;
+	}
+	if (safe_len != le32_to_cpu(ch->len))
+		pr_err("\ttruncated node length      %d\n", safe_len);
+
+	switch (type) {
+>>>>>>> upstream/android-13
 	case UBIFS_PAD_NODE:
 	{
 		const struct ubifs_pad_node *pad = node;
@@ -463,7 +518,12 @@ void ubifs_dump_node(const struct ubifs_info *c, const void *node)
 		pr_err("\tnlen           %d\n", nlen);
 		pr_err("\tname           ");
 
+<<<<<<< HEAD
 		if (nlen > UBIFS_MAX_NLEN)
+=======
+		if (nlen > UBIFS_MAX_NLEN ||
+		    nlen > safe_len - UBIFS_DENT_NODE_SZ)
+>>>>>>> upstream/android-13
 			pr_err("(bad name length, not printing, bad or corrupted node)");
 		else {
 			for (i = 0; i < nlen && dent->name[i]; i++)
@@ -477,7 +537,10 @@ void ubifs_dump_node(const struct ubifs_info *c, const void *node)
 	case UBIFS_DATA_NODE:
 	{
 		const struct ubifs_data_node *dn = node;
+<<<<<<< HEAD
 		int dlen = le32_to_cpu(ch->len) - UBIFS_DATA_NODE_SZ;
+=======
+>>>>>>> upstream/android-13
 
 		key_read(c, &dn->key, &key);
 		pr_err("\tkey            %s\n",
@@ -485,10 +548,20 @@ void ubifs_dump_node(const struct ubifs_info *c, const void *node)
 		pr_err("\tsize           %u\n", le32_to_cpu(dn->size));
 		pr_err("\tcompr_typ      %d\n",
 		       (int)le16_to_cpu(dn->compr_type));
+<<<<<<< HEAD
 		pr_err("\tdata size      %d\n", dlen);
 		pr_err("\tdata:\n");
 		print_hex_dump(KERN_ERR, "\t", DUMP_PREFIX_OFFSET, 32, 1,
 			       (void *)&dn->data, dlen, 0);
+=======
+		pr_err("\tdata size      %u\n",
+		       le32_to_cpu(ch->len) - (unsigned int)UBIFS_DATA_NODE_SZ);
+		pr_err("\tdata (length = %d):\n",
+		       safe_len - (int)UBIFS_DATA_NODE_SZ);
+		print_hex_dump(KERN_ERR, "\t", DUMP_PREFIX_OFFSET, 32, 1,
+			       (void *)&dn->data,
+			       safe_len - (int)UBIFS_DATA_NODE_SZ, 0);
+>>>>>>> upstream/android-13
 		break;
 	}
 	case UBIFS_TRUN_NODE:
@@ -505,6 +578,7 @@ void ubifs_dump_node(const struct ubifs_info *c, const void *node)
 	case UBIFS_IDX_NODE:
 	{
 		const struct ubifs_idx_node *idx = node;
+<<<<<<< HEAD
 
 		n = le16_to_cpu(idx->child_cnt);
 		pr_err("\tchild_cnt      %d\n", n);
@@ -512,6 +586,18 @@ void ubifs_dump_node(const struct ubifs_info *c, const void *node)
 		pr_err("\tBranches:\n");
 
 		for (i = 0; i < n && i < c->fanout - 1; i++) {
+=======
+		int max_child_cnt = (safe_len - UBIFS_IDX_NODE_SZ) /
+				    (ubifs_idx_node_sz(c, 1) -
+				    UBIFS_IDX_NODE_SZ);
+
+		n = min_t(int, le16_to_cpu(idx->child_cnt), max_child_cnt);
+		pr_err("\tchild_cnt      %d\n", (int)le16_to_cpu(idx->child_cnt));
+		pr_err("\tlevel          %d\n", (int)le16_to_cpu(idx->level));
+		pr_err("\tBranches:\n");
+
+		for (i = 0; i < n && i < c->fanout; i++) {
+>>>>>>> upstream/android-13
 			const struct ubifs_branch *br;
 
 			br = ubifs_idx_branch(c, idx, i);
@@ -535,17 +621,33 @@ void ubifs_dump_node(const struct ubifs_info *c, const void *node)
 				le64_to_cpu(orph->cmt_no) & LLONG_MAX);
 		pr_err("\tlast node flag %llu\n",
 		       (unsigned long long)(le64_to_cpu(orph->cmt_no)) >> 63);
+<<<<<<< HEAD
 		n = (le32_to_cpu(ch->len) - UBIFS_ORPH_NODE_SZ) >> 3;
+=======
+		n = (safe_len - UBIFS_ORPH_NODE_SZ) >> 3;
+>>>>>>> upstream/android-13
 		pr_err("\t%d orphan inode numbers:\n", n);
 		for (i = 0; i < n; i++)
 			pr_err("\t  ino %llu\n",
 			       (unsigned long long)le64_to_cpu(orph->inos[i]));
 		break;
 	}
+<<<<<<< HEAD
 	default:
 		pr_err("node type %d was not recognized\n",
 		       (int)ch->node_type);
 	}
+=======
+	case UBIFS_AUTH_NODE:
+	{
+		break;
+	}
+	default:
+		pr_err("node type %d was not recognized\n", type);
+	}
+
+out_unlock:
+>>>>>>> upstream/android-13
 	spin_unlock(&dbg_lock);
 }
 
@@ -770,7 +872,11 @@ void ubifs_dump_lpt_info(struct ubifs_info *c)
 	pr_err("\tnnode_sz:      %d\n", c->nnode_sz);
 	pr_err("\tltab_sz:       %d\n", c->ltab_sz);
 	pr_err("\tlsave_sz:      %d\n", c->lsave_sz);
+<<<<<<< HEAD
 	pr_err("\tbig_lpt:       %d\n", c->big_lpt);
+=======
+	pr_err("\tbig_lpt:       %u\n", c->big_lpt);
+>>>>>>> upstream/android-13
 	pr_err("\tlpt_hght:      %d\n", c->lpt_hght);
 	pr_err("\tpnode_cnt:     %d\n", c->pnode_cnt);
 	pr_err("\tnnode_cnt:     %d\n", c->nnode_cnt);
@@ -797,6 +903,7 @@ void ubifs_dump_lpt_info(struct ubifs_info *c)
 	spin_unlock(&dbg_lock);
 }
 
+<<<<<<< HEAD
 void ubifs_dump_sleb(const struct ubifs_info *c,
 		     const struct ubifs_scan_leb *sleb, int offs)
 {
@@ -813,6 +920,8 @@ void ubifs_dump_sleb(const struct ubifs_info *c,
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 void ubifs_dump_leb(const struct ubifs_info *c, int lnum)
 {
 	struct ubifs_scan_leb *sleb;
@@ -821,7 +930,11 @@ void ubifs_dump_leb(const struct ubifs_info *c, int lnum)
 
 	pr_err("(pid %d) start dumping LEB %d\n", current->pid, lnum);
 
+<<<<<<< HEAD
 	buf = __vmalloc(c->leb_size, GFP_NOFS, PAGE_KERNEL);
+=======
+	buf = __vmalloc(c->leb_size, GFP_NOFS);
+>>>>>>> upstream/android-13
 	if (!buf) {
 		ubifs_err(c, "cannot allocate memory for dumping LEB %d", lnum);
 		return;
@@ -840,7 +953,11 @@ void ubifs_dump_leb(const struct ubifs_info *c, int lnum)
 		cond_resched();
 		pr_err("Dumping node at LEB %d:%d len %d\n", lnum,
 		       snod->offs, snod->len);
+<<<<<<< HEAD
 		ubifs_dump_node(c, snod->node);
+=======
+		ubifs_dump_node(c, snod->node, c->leb_size - snod->offs);
+>>>>>>> upstream/android-13
 	}
 
 	pr_err("(pid %d) finish dumping LEB %d\n", current->pid, lnum);
@@ -1018,7 +1135,11 @@ void dbg_save_space_info(struct ubifs_info *c)
  *
  * This function compares current flash space information with the information
  * which was saved when the 'dbg_save_space_info()' function was called.
+<<<<<<< HEAD
  * Returns zero if the information has not changed, and %-EINVAL it it has
+=======
+ * Returns zero if the information has not changed, and %-EINVAL if it has
+>>>>>>> upstream/android-13
  * changed.
  */
 int dbg_check_space_info(struct ubifs_info *c)
@@ -1218,7 +1339,11 @@ static int dbg_check_key_order(struct ubifs_info *c, struct ubifs_zbranch *zbr1,
 		ubifs_err(c, "but it should have key %s according to tnc",
 			  dbg_snprintf_key(c, &zbr1->key, key_buf,
 					   DBG_KEY_BUF_LEN));
+<<<<<<< HEAD
 		ubifs_dump_node(c, dent1);
+=======
+		ubifs_dump_node(c, dent1, UBIFS_MAX_DENT_NODE_SZ);
+>>>>>>> upstream/android-13
 		goto out_free;
 	}
 
@@ -1230,7 +1355,11 @@ static int dbg_check_key_order(struct ubifs_info *c, struct ubifs_zbranch *zbr1,
 		ubifs_err(c, "but it should have key %s according to tnc",
 			  dbg_snprintf_key(c, &zbr2->key, key_buf,
 					   DBG_KEY_BUF_LEN));
+<<<<<<< HEAD
 		ubifs_dump_node(c, dent2);
+=======
+		ubifs_dump_node(c, dent2, UBIFS_MAX_DENT_NODE_SZ);
+>>>>>>> upstream/android-13
 		goto out_free;
 	}
 
@@ -1249,9 +1378,15 @@ static int dbg_check_key_order(struct ubifs_info *c, struct ubifs_zbranch *zbr1,
 			  dbg_snprintf_key(c, &key, key_buf, DBG_KEY_BUF_LEN));
 
 	ubifs_msg(c, "first node at %d:%d\n", zbr1->lnum, zbr1->offs);
+<<<<<<< HEAD
 	ubifs_dump_node(c, dent1);
 	ubifs_msg(c, "second node at %d:%d\n", zbr2->lnum, zbr2->offs);
 	ubifs_dump_node(c, dent2);
+=======
+	ubifs_dump_node(c, dent1, UBIFS_MAX_DENT_NODE_SZ);
+	ubifs_msg(c, "second node at %d:%d\n", zbr2->lnum, zbr2->offs);
+	ubifs_dump_node(c, dent2, UBIFS_MAX_DENT_NODE_SZ);
+>>>>>>> upstream/android-13
 
 out_free:
 	kfree(dent2);
@@ -1598,7 +1733,10 @@ int dbg_walk_index(struct ubifs_info *c, dbg_leaf_callback leaf_cb,
 				err = PTR_ERR(child);
 				goto out_unlock;
 			}
+<<<<<<< HEAD
 			zbr->znode = child;
+=======
+>>>>>>> upstream/android-13
 		}
 
 		znode = child;
@@ -2117,7 +2255,11 @@ out:
 
 out_dump:
 	ubifs_msg(c, "dump of node at LEB %d:%d", zbr->lnum, zbr->offs);
+<<<<<<< HEAD
 	ubifs_dump_node(c, node);
+=======
+	ubifs_dump_node(c, node, zbr->len);
+>>>>>>> upstream/android-13
 out_free:
 	kfree(node);
 	return err;
@@ -2250,7 +2392,11 @@ out_dump:
 
 	ubifs_msg(c, "dump of the inode %lu sitting in LEB %d:%d",
 		  (unsigned long)fscki->inum, zbr->lnum, zbr->offs);
+<<<<<<< HEAD
 	ubifs_dump_node(c, ino);
+=======
+	ubifs_dump_node(c, ino, zbr->len);
+>>>>>>> upstream/android-13
 	kfree(ino);
 	return -EINVAL;
 }
@@ -2321,12 +2467,20 @@ int dbg_check_data_nodes_order(struct ubifs_info *c, struct list_head *head)
 
 		if (sa->type != UBIFS_DATA_NODE) {
 			ubifs_err(c, "bad node type %d", sa->type);
+<<<<<<< HEAD
 			ubifs_dump_node(c, sa->node);
+=======
+			ubifs_dump_node(c, sa->node, c->leb_size - sa->offs);
+>>>>>>> upstream/android-13
 			return -EINVAL;
 		}
 		if (sb->type != UBIFS_DATA_NODE) {
 			ubifs_err(c, "bad node type %d", sb->type);
+<<<<<<< HEAD
 			ubifs_dump_node(c, sb->node);
+=======
+			ubifs_dump_node(c, sb->node, c->leb_size - sb->offs);
+>>>>>>> upstream/android-13
 			return -EINVAL;
 		}
 
@@ -2357,8 +2511,13 @@ int dbg_check_data_nodes_order(struct ubifs_info *c, struct list_head *head)
 	return 0;
 
 error_dump:
+<<<<<<< HEAD
 	ubifs_dump_node(c, sa->node);
 	ubifs_dump_node(c, sb->node);
+=======
+	ubifs_dump_node(c, sa->node, c->leb_size - sa->offs);
+	ubifs_dump_node(c, sb->node, c->leb_size - sb->offs);
+>>>>>>> upstream/android-13
 	return -EINVAL;
 }
 
@@ -2389,13 +2548,21 @@ int dbg_check_nondata_nodes_order(struct ubifs_info *c, struct list_head *head)
 		if (sa->type != UBIFS_INO_NODE && sa->type != UBIFS_DENT_NODE &&
 		    sa->type != UBIFS_XENT_NODE) {
 			ubifs_err(c, "bad node type %d", sa->type);
+<<<<<<< HEAD
 			ubifs_dump_node(c, sa->node);
+=======
+			ubifs_dump_node(c, sa->node, c->leb_size - sa->offs);
+>>>>>>> upstream/android-13
 			return -EINVAL;
 		}
 		if (sb->type != UBIFS_INO_NODE && sb->type != UBIFS_DENT_NODE &&
 		    sb->type != UBIFS_XENT_NODE) {
 			ubifs_err(c, "bad node type %d", sb->type);
+<<<<<<< HEAD
 			ubifs_dump_node(c, sb->node);
+=======
+			ubifs_dump_node(c, sb->node, c->leb_size - sb->offs);
+>>>>>>> upstream/android-13
 			return -EINVAL;
 		}
 
@@ -2445,11 +2612,18 @@ int dbg_check_nondata_nodes_order(struct ubifs_info *c, struct list_head *head)
 
 error_dump:
 	ubifs_msg(c, "dumping first node");
+<<<<<<< HEAD
 	ubifs_dump_node(c, sa->node);
 	ubifs_msg(c, "dumping second node");
 	ubifs_dump_node(c, sb->node);
 	return -EINVAL;
 	return 0;
+=======
+	ubifs_dump_node(c, sa->node, c->leb_size - sa->offs);
+	ubifs_msg(c, "dumping second node");
+	ubifs_dump_node(c, sb->node, c->leb_size - sb->offs);
+	return -EINVAL;
+>>>>>>> upstream/android-13
 }
 
 static inline int chance(unsigned int n, unsigned int out_of)
@@ -2745,6 +2919,7 @@ static ssize_t dfs_file_write(struct file *file, const char __user *u,
 	struct dentry *dent = file->f_path.dentry;
 	int val;
 
+<<<<<<< HEAD
 	/*
 	 * TODO: this is racy - the file-system might have already been
 	 * unmounted and we'd oops in this case. The plan is to fix it with
@@ -2757,6 +2932,8 @@ static ssize_t dfs_file_write(struct file *file, const char __user *u,
 	 * The other way to go suggested by Al Viro is to create a separate
 	 * 'ubifs-debug' file-system instead.
 	 */
+=======
+>>>>>>> upstream/android-13
 	if (file->f_path.dentry == d->dfs_dump_lprops) {
 		ubifs_dump_lprops(c);
 		return count;
@@ -2808,14 +2985,19 @@ static const struct file_operations dfs_fops = {
  * dbg_debugfs_init_fs - initialize debugfs for UBIFS instance.
  * @c: UBIFS file-system description object
  *
+<<<<<<< HEAD
  * This function creates all debugfs files for this instance of UBIFS. Returns
  * zero in case of success and a negative error code in case of failure.
+=======
+ * This function creates all debugfs files for this instance of UBIFS.
+>>>>>>> upstream/android-13
  *
  * Note, the only reason we have not merged this function with the
  * 'ubifs_debugging_init()' function is because it is better to initialize
  * debugfs interfaces at the very end of the mount process, and remove them at
  * the very beginning of the mount process.
  */
+<<<<<<< HEAD
 int dbg_debugfs_init_fs(struct ubifs_info *c)
 {
 	int err, n;
@@ -2917,6 +3099,63 @@ out:
 	ubifs_err(c, "cannot create \"%s\" debugfs file or directory, error %d\n",
 		  fname, err);
 	return err;
+=======
+void dbg_debugfs_init_fs(struct ubifs_info *c)
+{
+	int n;
+	const char *fname;
+	struct ubifs_debug_info *d = c->dbg;
+
+	n = snprintf(d->dfs_dir_name, UBIFS_DFS_DIR_LEN + 1, UBIFS_DFS_DIR_NAME,
+		     c->vi.ubi_num, c->vi.vol_id);
+	if (n > UBIFS_DFS_DIR_LEN) {
+		/* The array size is too small */
+		return;
+	}
+
+	fname = d->dfs_dir_name;
+	d->dfs_dir = debugfs_create_dir(fname, dfs_rootdir);
+
+	fname = "dump_lprops";
+	d->dfs_dump_lprops = debugfs_create_file(fname, S_IWUSR, d->dfs_dir, c,
+						 &dfs_fops);
+
+	fname = "dump_budg";
+	d->dfs_dump_budg = debugfs_create_file(fname, S_IWUSR, d->dfs_dir, c,
+					       &dfs_fops);
+
+	fname = "dump_tnc";
+	d->dfs_dump_tnc = debugfs_create_file(fname, S_IWUSR, d->dfs_dir, c,
+					      &dfs_fops);
+
+	fname = "chk_general";
+	d->dfs_chk_gen = debugfs_create_file(fname, S_IRUSR | S_IWUSR,
+					     d->dfs_dir, c, &dfs_fops);
+
+	fname = "chk_index";
+	d->dfs_chk_index = debugfs_create_file(fname, S_IRUSR | S_IWUSR,
+					       d->dfs_dir, c, &dfs_fops);
+
+	fname = "chk_orphans";
+	d->dfs_chk_orph = debugfs_create_file(fname, S_IRUSR | S_IWUSR,
+					      d->dfs_dir, c, &dfs_fops);
+
+	fname = "chk_lprops";
+	d->dfs_chk_lprops = debugfs_create_file(fname, S_IRUSR | S_IWUSR,
+						d->dfs_dir, c, &dfs_fops);
+
+	fname = "chk_fs";
+	d->dfs_chk_fs = debugfs_create_file(fname, S_IRUSR | S_IWUSR,
+					    d->dfs_dir, c, &dfs_fops);
+
+	fname = "tst_recovery";
+	d->dfs_tst_rcvry = debugfs_create_file(fname, S_IRUSR | S_IWUSR,
+					       d->dfs_dir, c, &dfs_fops);
+
+	fname = "ro_error";
+	d->dfs_ro_error = debugfs_create_file(fname, S_IRUSR | S_IWUSR,
+					      d->dfs_dir, c, &dfs_fops);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -2925,8 +3164,12 @@ out:
  */
 void dbg_debugfs_exit_fs(struct ubifs_info *c)
 {
+<<<<<<< HEAD
 	if (IS_ENABLED(CONFIG_DEBUG_FS))
 		debugfs_remove_recursive(c->dbg->dfs_dir);
+=======
+	debugfs_remove_recursive(c->dbg->dfs_dir);
+>>>>>>> upstream/android-13
 }
 
 struct ubifs_global_debug_info ubifs_dbg;
@@ -3002,6 +3245,7 @@ static const struct file_operations dfs_global_fops = {
  *
  * UBIFS uses debugfs file-system to expose various debugging knobs to
  * user-space. This function creates "ubifs" directory in the debugfs
+<<<<<<< HEAD
  * file-system. Returns zero in case of success and a negative error code in
  * case of failure.
  */
@@ -3071,6 +3315,40 @@ out:
 	pr_err("UBIFS error (pid %d): cannot create \"%s\" debugfs file or directory, error %d\n",
 	       current->pid, fname, err);
 	return err;
+=======
+ * file-system.
+ */
+void dbg_debugfs_init(void)
+{
+	const char *fname;
+
+	fname = "ubifs";
+	dfs_rootdir = debugfs_create_dir(fname, NULL);
+
+	fname = "chk_general";
+	dfs_chk_gen = debugfs_create_file(fname, S_IRUSR | S_IWUSR, dfs_rootdir,
+					  NULL, &dfs_global_fops);
+
+	fname = "chk_index";
+	dfs_chk_index = debugfs_create_file(fname, S_IRUSR | S_IWUSR,
+					    dfs_rootdir, NULL, &dfs_global_fops);
+
+	fname = "chk_orphans";
+	dfs_chk_orph = debugfs_create_file(fname, S_IRUSR | S_IWUSR,
+					   dfs_rootdir, NULL, &dfs_global_fops);
+
+	fname = "chk_lprops";
+	dfs_chk_lprops = debugfs_create_file(fname, S_IRUSR | S_IWUSR,
+					     dfs_rootdir, NULL, &dfs_global_fops);
+
+	fname = "chk_fs";
+	dfs_chk_fs = debugfs_create_file(fname, S_IRUSR | S_IWUSR, dfs_rootdir,
+					 NULL, &dfs_global_fops);
+
+	fname = "tst_recovery";
+	dfs_tst_rcvry = debugfs_create_file(fname, S_IRUSR | S_IWUSR,
+					    dfs_rootdir, NULL, &dfs_global_fops);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -3078,8 +3356,12 @@ out:
  */
 void dbg_debugfs_exit(void)
 {
+<<<<<<< HEAD
 	if (IS_ENABLED(CONFIG_DEBUG_FS))
 		debugfs_remove_recursive(dfs_rootdir);
+=======
+	debugfs_remove_recursive(dfs_rootdir);
+>>>>>>> upstream/android-13
 }
 
 void ubifs_assert_failed(struct ubifs_info *c, const char *expr,

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Regmap support for HD-audio verbs
  *
@@ -20,6 +24,10 @@
 #include <sound/core.h>
 #include <sound/hdaudio.h>
 #include <sound/hda_regmap.h>
+<<<<<<< HEAD
+=======
+#include "local.h"
+>>>>>>> upstream/android-13
 
 static int codec_pm_lock(struct hdac_device *codec)
 {
@@ -359,7 +367,13 @@ static const struct regmap_config hda_regmap_cfg = {
 	.cache_type = REGCACHE_RBTREE,
 	.reg_read = hda_reg_read,
 	.reg_write = hda_reg_write,
+<<<<<<< HEAD
 	.use_single_rw = true,
+=======
+	.use_single_read = true,
+	.use_single_write = true,
+	.disable_locking = true,
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -382,7 +396,11 @@ int snd_hdac_regmap_init(struct hdac_device *codec)
 EXPORT_SYMBOL_GPL(snd_hdac_regmap_init);
 
 /**
+<<<<<<< HEAD
  * snd_hdac_regmap_init - Release the regmap from HDA codec
+=======
+ * snd_hdac_regmap_exit - Release the regmap from HDA codec
+>>>>>>> upstream/android-13
  * @codec: the codec object
  */
 void snd_hdac_regmap_exit(struct hdac_device *codec)
@@ -422,12 +440,38 @@ EXPORT_SYMBOL_GPL(snd_hdac_regmap_add_vendor_verb);
 static int reg_raw_write(struct hdac_device *codec, unsigned int reg,
 			 unsigned int val)
 {
+<<<<<<< HEAD
 	if (!codec->regmap)
 		return hda_reg_write(codec, reg, val);
 	else
 		return regmap_write(codec->regmap, reg, val);
 }
 
+=======
+	int err;
+
+	mutex_lock(&codec->regmap_lock);
+	if (!codec->regmap)
+		err = hda_reg_write(codec, reg, val);
+	else
+		err = regmap_write(codec->regmap, reg, val);
+	mutex_unlock(&codec->regmap_lock);
+	return err;
+}
+
+/* a helper macro to call @func_call; retry with power-up if failed */
+#define CALL_RAW_FUNC(codec, func_call)				\
+	({							\
+		int _err = func_call;				\
+		if (_err == -EAGAIN) {				\
+			_err = snd_hdac_power_up_pm(codec);	\
+			if (_err >= 0)				\
+				_err = func_call;		\
+			snd_hdac_power_down_pm(codec);		\
+		}						\
+		_err;})
+
+>>>>>>> upstream/android-13
 /**
  * snd_hdac_regmap_write_raw - write a pseudo register with power mgmt
  * @codec: the codec object
@@ -439,6 +483,7 @@ static int reg_raw_write(struct hdac_device *codec, unsigned int reg,
 int snd_hdac_regmap_write_raw(struct hdac_device *codec, unsigned int reg,
 			      unsigned int val)
 {
+<<<<<<< HEAD
 	int err;
 
 	err = reg_raw_write(codec, reg, val);
@@ -449,22 +494,38 @@ int snd_hdac_regmap_write_raw(struct hdac_device *codec, unsigned int reg,
 		snd_hdac_power_down_pm(codec);
 	}
 	return err;
+=======
+	return CALL_RAW_FUNC(codec, reg_raw_write(codec, reg, val));
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(snd_hdac_regmap_write_raw);
 
 static int reg_raw_read(struct hdac_device *codec, unsigned int reg,
 			unsigned int *val, bool uncached)
 {
+<<<<<<< HEAD
 	if (uncached || !codec->regmap)
 		return hda_reg_read(codec, reg, val);
 	else
 		return regmap_read(codec->regmap, reg, val);
+=======
+	int err;
+
+	mutex_lock(&codec->regmap_lock);
+	if (uncached || !codec->regmap)
+		err = hda_reg_read(codec, reg, val);
+	else
+		err = regmap_read(codec->regmap, reg, val);
+	mutex_unlock(&codec->regmap_lock);
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static int __snd_hdac_regmap_read_raw(struct hdac_device *codec,
 				      unsigned int reg, unsigned int *val,
 				      bool uncached)
 {
+<<<<<<< HEAD
 	int err;
 
 	err = reg_raw_read(codec, reg, val, uncached);
@@ -475,6 +536,9 @@ static int __snd_hdac_regmap_read_raw(struct hdac_device *codec,
 		snd_hdac_power_down_pm(codec);
 	}
 	return err;
+=======
+	return CALL_RAW_FUNC(codec, reg_raw_read(codec, reg, val, uncached));
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -501,11 +565,47 @@ int snd_hdac_regmap_read_raw_uncached(struct hdac_device *codec,
 	return __snd_hdac_regmap_read_raw(codec, reg, val, true);
 }
 
+<<<<<<< HEAD
+=======
+static int reg_raw_update(struct hdac_device *codec, unsigned int reg,
+			  unsigned int mask, unsigned int val)
+{
+	unsigned int orig;
+	bool change;
+	int err;
+
+	mutex_lock(&codec->regmap_lock);
+	if (codec->regmap) {
+		err = regmap_update_bits_check(codec->regmap, reg, mask, val,
+					       &change);
+		if (!err)
+			err = change ? 1 : 0;
+	} else {
+		err = hda_reg_read(codec, reg, &orig);
+		if (!err) {
+			val &= mask;
+			val |= orig & ~mask;
+			if (val != orig) {
+				err = hda_reg_write(codec, reg, val);
+				if (!err)
+					err = 1;
+			}
+		}
+	}
+	mutex_unlock(&codec->regmap_lock);
+	return err;
+}
+
+>>>>>>> upstream/android-13
 /**
  * snd_hdac_regmap_update_raw - update a pseudo register with power mgmt
  * @codec: the codec object
  * @reg: pseudo register
+<<<<<<< HEAD
  * @mask: bit mask to udpate
+=======
+ * @mask: bit mask to update
+>>>>>>> upstream/android-13
  * @val: value to update
  *
  * Returns zero if successful or a negative error code.
@@ -513,6 +613,7 @@ int snd_hdac_regmap_read_raw_uncached(struct hdac_device *codec,
 int snd_hdac_regmap_update_raw(struct hdac_device *codec, unsigned int reg,
 			       unsigned int mask, unsigned int val)
 {
+<<<<<<< HEAD
 	unsigned int orig;
 	int err;
 
@@ -529,3 +630,59 @@ int snd_hdac_regmap_update_raw(struct hdac_device *codec, unsigned int reg,
 	return 1;
 }
 EXPORT_SYMBOL_GPL(snd_hdac_regmap_update_raw);
+=======
+	return CALL_RAW_FUNC(codec, reg_raw_update(codec, reg, mask, val));
+}
+EXPORT_SYMBOL_GPL(snd_hdac_regmap_update_raw);
+
+static int reg_raw_update_once(struct hdac_device *codec, unsigned int reg,
+			       unsigned int mask, unsigned int val)
+{
+	unsigned int orig;
+	int err;
+
+	if (!codec->regmap)
+		return reg_raw_update(codec, reg, mask, val);
+
+	mutex_lock(&codec->regmap_lock);
+	regcache_cache_only(codec->regmap, true);
+	err = regmap_read(codec->regmap, reg, &orig);
+	regcache_cache_only(codec->regmap, false);
+	if (err < 0)
+		err = regmap_update_bits(codec->regmap, reg, mask, val);
+	mutex_unlock(&codec->regmap_lock);
+	return err;
+}
+
+/**
+ * snd_hdac_regmap_update_raw_once - initialize the register value only once
+ * @codec: the codec object
+ * @reg: pseudo register
+ * @mask: bit mask to update
+ * @val: value to update
+ *
+ * Performs the update of the register bits only once when the register
+ * hasn't been initialized yet.  Used in HD-audio legacy driver.
+ * Returns zero if successful or a negative error code
+ */
+int snd_hdac_regmap_update_raw_once(struct hdac_device *codec, unsigned int reg,
+				    unsigned int mask, unsigned int val)
+{
+	return CALL_RAW_FUNC(codec, reg_raw_update_once(codec, reg, mask, val));
+}
+EXPORT_SYMBOL_GPL(snd_hdac_regmap_update_raw_once);
+
+/**
+ * snd_hdac_regmap_sync - sync out the cached values for PM resume
+ * @codec: the codec object
+ */
+void snd_hdac_regmap_sync(struct hdac_device *codec)
+{
+	if (codec->regmap) {
+		mutex_lock(&codec->regmap_lock);
+		regcache_sync(codec->regmap);
+		mutex_unlock(&codec->regmap_lock);
+	}
+}
+EXPORT_SYMBOL_GPL(snd_hdac_regmap_sync);
+>>>>>>> upstream/android-13

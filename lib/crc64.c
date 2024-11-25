@@ -4,7 +4,11 @@
  *
  * This is a basic crc64 implementation following ECMA-182 specification,
  * which can be found from,
+<<<<<<< HEAD
  * http://www.ecma-international.org/publications/standards/Ecma-182.htm
+=======
+ * https://www.ecma-international.org/publications/standards/Ecma-182.htm
+>>>>>>> upstream/android-13
  *
  * Dr. Ross N. Williams has a great document to introduce the idea of CRC
  * algorithm, here the CRC64 code is also inspired by the table-driven
@@ -28,6 +32,10 @@
 
 #include <linux/module.h>
 #include <linux/types.h>
+<<<<<<< HEAD
+=======
+#include <linux/crc64.h>
+>>>>>>> upstream/android-13
 #include "crc64table.h"
 
 MODULE_DESCRIPTION("CRC64 calculations");
@@ -36,7 +44,11 @@ MODULE_LICENSE("GPL v2");
 /**
  * crc64_be - Calculate bitwise big-endian ECMA-182 CRC64
  * @crc: seed value for computation. 0 or (u64)~0 for a new CRC calculation,
+<<<<<<< HEAD
 	or the previous crc64 value if computing incrementally.
+=======
+ *       or the previous crc64 value if computing incrementally.
+>>>>>>> upstream/android-13
  * @p: pointer to buffer over which CRC64 is run
  * @len: length of buffer @p
  */

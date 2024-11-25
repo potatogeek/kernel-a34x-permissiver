@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2012, NVIDIA CORPORATION.  All rights reserved.
  *
@@ -12,6 +13,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2012, NVIDIA CORPORATION.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/acpi.h>
@@ -22,7 +28,11 @@
 extern struct of_device_id __timer_of_table[];
 
 static const struct of_device_id __timer_of_table_sentinel
+<<<<<<< HEAD
 	__used __section(__timer_of_table_end);
+=======
+	__used __section("__timer_of_table_end");
+>>>>>>> upstream/android-13
 
 void __init timer_probe(void)
 {
@@ -40,7 +50,13 @@ void __init timer_probe(void)
 
 		ret = init_func_ret(np);
 		if (ret) {
+<<<<<<< HEAD
 			pr_err("Failed to initialize '%pOF': %d\n", np, ret);
+=======
+			if (ret != -EPROBE_DEFER)
+				pr_err("Failed to initialize '%pOF': %d\n", np,
+				       ret);
+>>>>>>> upstream/android-13
 			continue;
 		}
 

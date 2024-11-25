@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * mm/interval_tree.c - interval tree for mapping->i_mmap
  *
  * Copyright (C) 2012, Michel Lespinasse <walken@google.com>
+<<<<<<< HEAD
  *
  * This file is released under the GPL v2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/mm.h>
@@ -23,7 +30,11 @@ static inline unsigned long vma_last_pgoff(struct vm_area_struct *v)
 
 INTERVAL_TREE_DEFINE(struct vm_area_struct, shared.rb,
 		     unsigned long, shared.rb_subtree_last,
+<<<<<<< HEAD
 		     vma_start_pgoff, vma_last_pgoff,, vma_interval_tree)
+=======
+		     vma_start_pgoff, vma_last_pgoff, /* empty */, vma_interval_tree)
+>>>>>>> upstream/android-13
 
 /* Insert node immediately after prev in the interval tree */
 void vma_interval_tree_insert_after(struct vm_area_struct *node,

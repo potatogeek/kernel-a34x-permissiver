@@ -7,7 +7,11 @@
  *	Copyright (C) 2003,2004
  *	    Neil Whelchel (koyama@firstlight.net)
  *
+<<<<<<< HEAD
  * See Documentation/usb/usb-serial.txt for more information on using this
+=======
+ * See Documentation/usb/usb-serial.rst for more information on using this
+>>>>>>> upstream/android-13
  * driver
  *
  * See http://geocities.com/i0xox0i for information on this driver and the
@@ -100,7 +104,10 @@ struct cypress_private {
 	int write_urb_interval;            /* interval to use for write urb */
 	int read_urb_interval;             /* interval to use for read urb */
 	int comm_is_ok;                    /* true if communication is (still) ok */
+<<<<<<< HEAD
 	int termios_initialized;
+=======
+>>>>>>> upstream/android-13
 	__u8 line_control;	   	   /* holds dtr / rts value */
 	__u8 current_status;	   	   /* received from last read - info on dsr,cts,cd,ri,etc */
 	__u8 current_config;	   	   /* stores the current configuration byte */
@@ -109,31 +116,48 @@ struct cypress_private {
 	int get_cfg_unsafe;		   /* If true, the CYPRESS_GET_CONFIG is unsafe */
 	int baud_rate;			   /* stores current baud rate in
 					      integer form */
+<<<<<<< HEAD
 	int isthrottled;		   /* if throttled, discard reads */
 	char prev_status;		   /* used for TIOCMIWAIT */
 	/* we pass a pointer to this as the argument sent to
 	   cypress_set_termios old_termios */
 	struct ktermios tmp_termios; 	   /* stores the old termios settings */
+=======
+	char prev_status;		   /* used for TIOCMIWAIT */
+>>>>>>> upstream/android-13
 };
 
 /* function prototypes for the Cypress USB to serial device */
 static int  cypress_earthmate_port_probe(struct usb_serial_port *port);
 static int  cypress_hidcom_port_probe(struct usb_serial_port *port);
 static int  cypress_ca42v2_port_probe(struct usb_serial_port *port);
+<<<<<<< HEAD
 static int  cypress_port_remove(struct usb_serial_port *port);
+=======
+static void cypress_port_remove(struct usb_serial_port *port);
+>>>>>>> upstream/android-13
 static int  cypress_open(struct tty_struct *tty, struct usb_serial_port *port);
 static void cypress_close(struct usb_serial_port *port);
 static void cypress_dtr_rts(struct usb_serial_port *port, int on);
 static int  cypress_write(struct tty_struct *tty, struct usb_serial_port *port,
 			const unsigned char *buf, int count);
 static void cypress_send(struct usb_serial_port *port);
+<<<<<<< HEAD
 static int  cypress_write_room(struct tty_struct *tty);
+=======
+static unsigned int cypress_write_room(struct tty_struct *tty);
+static void cypress_earthmate_init_termios(struct tty_struct *tty);
+>>>>>>> upstream/android-13
 static void cypress_set_termios(struct tty_struct *tty,
 			struct usb_serial_port *port, struct ktermios *old);
 static int  cypress_tiocmget(struct tty_struct *tty);
 static int  cypress_tiocmset(struct tty_struct *tty,
 			unsigned int set, unsigned int clear);
+<<<<<<< HEAD
 static int  cypress_chars_in_buffer(struct tty_struct *tty);
+=======
+static unsigned int cypress_chars_in_buffer(struct tty_struct *tty);
+>>>>>>> upstream/android-13
 static void cypress_throttle(struct tty_struct *tty);
 static void cypress_unthrottle(struct tty_struct *tty);
 static void cypress_set_dead(struct usb_serial_port *port);
@@ -155,6 +179,10 @@ static struct usb_serial_driver cypress_earthmate_device = {
 	.dtr_rts =			cypress_dtr_rts,
 	.write =			cypress_write,
 	.write_room =			cypress_write_room,
+<<<<<<< HEAD
+=======
+	.init_termios =			cypress_earthmate_init_termios,
+>>>>>>> upstream/android-13
 	.set_termios =			cypress_set_termios,
 	.tiocmget =			cypress_tiocmget,
 	.tiocmset =			cypress_tiocmset,
@@ -329,7 +357,11 @@ static int cypress_serial_control(struct tty_struct *tty,
 
 		/* fill the feature_buffer with new configuration */
 		put_unaligned_le32(new_baudrate, feature_buffer);
+<<<<<<< HEAD
 		feature_buffer[4] |= data_bits;   /* assign data bits in 2 bit space ( max 3 ) */
+=======
+		feature_buffer[4] |= data_bits - 5;   /* assign data bits in 2 bit space ( max 3 ) */
+>>>>>>> upstream/android-13
 		/* 1 bit gap */
 		feature_buffer[4] |= (stop_bits << 3);   /* assign stop bits in 1 bit space */
 		feature_buffer[4] |= (parity_enable << 4);   /* assign parity flag in 1 bit space */
@@ -380,7 +412,11 @@ static int cypress_serial_control(struct tty_struct *tty,
 			retval = -ENOTTY;
 			goto out;
 		}
+<<<<<<< HEAD
 		dev_dbg(dev, "%s - retreiving serial line settings\n", __func__);
+=======
+		dev_dbg(dev, "%s - retrieving serial line settings\n", __func__);
+>>>>>>> upstream/android-13
 		do {
 			retval = usb_control_msg(port->serial->dev,
 					usb_rcvctrlpipe(port->serial->dev, 0),
@@ -469,7 +505,10 @@ static int cypress_generic_port_probe(struct usb_serial_port *port)
 
 	priv->cmd_ctrl = 0;
 	priv->line_control = 0;
+<<<<<<< HEAD
 	priv->termios_initialized = 0;
+=======
+>>>>>>> upstream/android-13
 	priv->rx_flags = 0;
 	/* Default packet format setting is determined by packet size.
 	   Anything with a size larger then 9 must have a separate
@@ -568,7 +607,11 @@ static int cypress_ca42v2_port_probe(struct usb_serial_port *port)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int cypress_port_remove(struct usb_serial_port *port)
+=======
+static void cypress_port_remove(struct usb_serial_port *port)
+>>>>>>> upstream/android-13
 {
 	struct cypress_private *priv;
 
@@ -576,8 +619,11 @@ static int cypress_port_remove(struct usb_serial_port *port)
 
 	kfifo_free(&priv->write_fifo);
 	kfree(priv);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int cypress_open(struct tty_struct *tty, struct usb_serial_port *port)
@@ -606,7 +652,11 @@ static int cypress_open(struct tty_struct *tty, struct usb_serial_port *port)
 	cypress_send(port);
 
 	if (tty)
+<<<<<<< HEAD
 		cypress_set_termios(tty, port, &priv->tmp_termios);
+=======
+		cypress_set_termios(tty, port, NULL);
+>>>>>>> upstream/android-13
 
 	/* setup the port and start reading from the device */
 	usb_fill_int_urb(port->interrupt_in_urb, serial->dev,
@@ -795,18 +845,30 @@ send:
 
 
 /* returns how much space is available in the soft buffer */
+<<<<<<< HEAD
 static int cypress_write_room(struct tty_struct *tty)
 {
 	struct usb_serial_port *port = tty->driver_data;
 	struct cypress_private *priv = usb_get_serial_port_data(port);
 	int room = 0;
+=======
+static unsigned int cypress_write_room(struct tty_struct *tty)
+{
+	struct usb_serial_port *port = tty->driver_data;
+	struct cypress_private *priv = usb_get_serial_port_data(port);
+	unsigned int room;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 
 	spin_lock_irqsave(&priv->lock, flags);
 	room = kfifo_avail(&priv->write_fifo);
 	spin_unlock_irqrestore(&priv->lock, flags);
 
+<<<<<<< HEAD
 	dev_dbg(&port->dev, "%s - returns %d\n", __func__, room);
+=======
+	dev_dbg(&port->dev, "%s - returns %u\n", __func__, room);
+>>>>>>> upstream/android-13
 	return room;
 }
 
@@ -859,17 +921,30 @@ static int cypress_tiocmset(struct tty_struct *tty,
 	return cypress_write(tty, port, NULL, 0);
 }
 
+<<<<<<< HEAD
+=======
+static void cypress_earthmate_init_termios(struct tty_struct *tty)
+{
+	tty_encode_baud_rate(tty, 4800, 4800);
+}
+
+>>>>>>> upstream/android-13
 static void cypress_set_termios(struct tty_struct *tty,
 	struct usb_serial_port *port, struct ktermios *old_termios)
 {
 	struct cypress_private *priv = usb_get_serial_port_data(port);
 	struct device *dev = &port->dev;
 	int data_bits, stop_bits, parity_type, parity_enable;
+<<<<<<< HEAD
 	unsigned cflag, iflag;
+=======
+	unsigned int cflag;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	__u8 oldlines;
 	int linechange = 0;
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&priv->lock, flags);
 	/* We can't clean this one up as we don't know the device type
 	   early enough */
@@ -897,10 +972,13 @@ static void cypress_set_termios(struct tty_struct *tty,
 	}
 	spin_unlock_irqrestore(&priv->lock, flags);
 
+=======
+>>>>>>> upstream/android-13
 	/* Unsupported features need clearing */
 	tty->termios.c_cflag &= ~(CMSPAR|CRTSCTS);
 
 	cflag = tty->termios.c_cflag;
+<<<<<<< HEAD
 	iflag = tty->termios.c_iflag;
 
 	/* check if there are new settings */
@@ -909,6 +987,8 @@ static void cypress_set_termios(struct tty_struct *tty,
 		priv->tmp_termios = tty->termios;
 		spin_unlock_irqrestore(&priv->lock, flags);
 	}
+=======
+>>>>>>> upstream/android-13
 
 	/* set number of data bits, parity, stop bits */
 	/* when parity is disabled the parity type bit is ignored */
@@ -923,6 +1003,7 @@ static void cypress_set_termios(struct tty_struct *tty,
 	} else
 		parity_enable = parity_type = 0;
 
+<<<<<<< HEAD
 	switch (cflag & CSIZE) {
 	case CS5:
 		data_bits = 0;
@@ -940,6 +1021,10 @@ static void cypress_set_termios(struct tty_struct *tty,
 		dev_err(dev, "%s - CSIZE was set, but not CS5-CS8\n", __func__);
 		data_bits = 3;
 	}
+=======
+	data_bits = tty_get_char_size(cflag);
+
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&priv->lock, flags);
 	oldlines = priv->line_control;
 	if ((cflag & CBAUD) == B0) {
@@ -1006,18 +1091,30 @@ static void cypress_set_termios(struct tty_struct *tty,
 
 
 /* returns amount of data still left in soft buffer */
+<<<<<<< HEAD
 static int cypress_chars_in_buffer(struct tty_struct *tty)
 {
 	struct usb_serial_port *port = tty->driver_data;
 	struct cypress_private *priv = usb_get_serial_port_data(port);
 	int chars = 0;
+=======
+static unsigned int cypress_chars_in_buffer(struct tty_struct *tty)
+{
+	struct usb_serial_port *port = tty->driver_data;
+	struct cypress_private *priv = usb_get_serial_port_data(port);
+	unsigned int chars;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 
 	spin_lock_irqsave(&priv->lock, flags);
 	chars = kfifo_len(&priv->write_fifo);
 	spin_unlock_irqrestore(&priv->lock, flags);
 
+<<<<<<< HEAD
 	dev_dbg(&port->dev, "%s - returns %d\n", __func__, chars);
+=======
+	dev_dbg(&port->dev, "%s - returns %u\n", __func__, chars);
+>>>>>>> upstream/android-13
 	return chars;
 }
 
@@ -1082,7 +1179,11 @@ static void cypress_read_int_callback(struct urb *urb)
 		return;
 	case -EPIPE:
 		/* Can't call usb_clear_halt while in_interrupt */
+<<<<<<< HEAD
 		/* FALLS THROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		/* something ugly is going on... */
 		dev_err(dev, "%s - unexpected nonzero read status received: %d\n",
@@ -1231,7 +1332,11 @@ static void cypress_write_int_callback(struct urb *urb)
 		return;
 	case -EPIPE:
 		/* Cannot call usb_clear_halt while in_interrupt */
+<<<<<<< HEAD
 		/* FALLTHROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		dev_err(dev, "%s - unexpected nonzero write status received: %d\n",
 			__func__, status);
@@ -1250,9 +1355,17 @@ MODULE_AUTHOR(DRIVER_AUTHOR);
 MODULE_DESCRIPTION(DRIVER_DESC);
 MODULE_LICENSE("GPL");
 
+<<<<<<< HEAD
 module_param(stats, bool, S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(stats, "Enable statistics or not");
 module_param(interval, int, S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(interval, "Overrides interrupt interval");
 module_param(unstable_bauds, bool, S_IRUGO | S_IWUSR);
+=======
+module_param(stats, bool, 0644);
+MODULE_PARM_DESC(stats, "Enable statistics or not");
+module_param(interval, int, 0644);
+MODULE_PARM_DESC(interval, "Overrides interrupt interval");
+module_param(unstable_bauds, bool, 0644);
+>>>>>>> upstream/android-13
 MODULE_PARM_DESC(unstable_bauds, "Allow unstable baud rates");

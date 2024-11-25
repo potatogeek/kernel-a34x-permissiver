@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
  *  Universal interface for Audio Codec '97
  *
  *  For more details look to AC '97 component specification revision 2.2
  *  by Intel Corporation (http://developer.intel.com).
+<<<<<<< HEAD
  *
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -20,6 +25,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define AC97_ID_AK4540		0x414b4d00

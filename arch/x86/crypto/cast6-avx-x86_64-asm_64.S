@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Cast6 Cipher 8-way parallel algorithm (AVX/x86_64)
  *
@@ -5,6 +9,7 @@
  *     <Johannes.Goetzfried@informatik.stud.uni-erlangen.de>
  *
  * Copyright © 2012-2013 Jussi Kivilinna <jussi.kivilinna@iki.fi>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +26,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
  * USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
@@ -227,8 +234,11 @@
 
 .section	.rodata.cst16, "aM", @progbits, 16
 .align 16
+<<<<<<< HEAD
 .Lxts_gf128mul_and_shl1_mask:
 	.byte 0x87, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0
+=======
+>>>>>>> upstream/android-13
 .Lbswap_mask:
 	.byte 3, 2, 1, 0, 7, 6, 5, 4, 11, 10, 9, 8, 15, 14, 13, 12
 .Lbswap128_mask:
@@ -262,7 +272,11 @@
 .text
 
 .align 8
+<<<<<<< HEAD
 __cast6_enc_blk8:
+=======
+SYM_FUNC_START_LOCAL(__cast6_enc_blk8)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	%rdi: ctx
 	 *	RA1, RB1, RC1, RD1, RA2, RB2, RC2, RD2: blocks
@@ -306,11 +320,19 @@ __cast6_enc_blk8:
 	outunpack_blocks(RA1, RB1, RC1, RD1, RTMP, RX, RKRF, RKM);
 	outunpack_blocks(RA2, RB2, RC2, RD2, RTMP, RX, RKRF, RKM);
 
+<<<<<<< HEAD
 	ret;
 ENDPROC(__cast6_enc_blk8)
 
 .align 8
 __cast6_dec_blk8:
+=======
+	RET;
+SYM_FUNC_END(__cast6_enc_blk8)
+
+.align 8
+SYM_FUNC_START_LOCAL(__cast6_dec_blk8)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	%rdi: ctx
 	 *	RA1, RB1, RC1, RD1, RA2, RB2, RC2, RD2: encrypted blocks
@@ -353,10 +375,17 @@ __cast6_dec_blk8:
 	outunpack_blocks(RA1, RB1, RC1, RD1, RTMP, RX, RKRF, RKM);
 	outunpack_blocks(RA2, RB2, RC2, RD2, RTMP, RX, RKRF, RKM);
 
+<<<<<<< HEAD
 	ret;
 ENDPROC(__cast6_dec_blk8)
 
 ENTRY(cast6_ecb_enc_8way)
+=======
+	RET;
+SYM_FUNC_END(__cast6_dec_blk8)
+
+SYM_FUNC_START(cast6_ecb_enc_8way)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	%rdi: ctx
 	 *	%rsi: dst
@@ -376,10 +405,17 @@ ENTRY(cast6_ecb_enc_8way)
 
 	popq %r15;
 	FRAME_END
+<<<<<<< HEAD
 	ret;
 ENDPROC(cast6_ecb_enc_8way)
 
 ENTRY(cast6_ecb_dec_8way)
+=======
+	RET;
+SYM_FUNC_END(cast6_ecb_enc_8way)
+
+SYM_FUNC_START(cast6_ecb_dec_8way)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	%rdi: ctx
 	 *	%rsi: dst
@@ -399,10 +435,17 @@ ENTRY(cast6_ecb_dec_8way)
 
 	popq %r15;
 	FRAME_END
+<<<<<<< HEAD
 	ret;
 ENDPROC(cast6_ecb_dec_8way)
 
 ENTRY(cast6_cbc_dec_8way)
+=======
+	RET;
+SYM_FUNC_END(cast6_ecb_dec_8way)
+
+SYM_FUNC_START(cast6_cbc_dec_8way)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	%rdi: ctx
 	 *	%rsi: dst
@@ -425,6 +468,7 @@ ENTRY(cast6_cbc_dec_8way)
 	popq %r15;
 	popq %r12;
 	FRAME_END
+<<<<<<< HEAD
 	ret;
 ENDPROC(cast6_cbc_dec_8way)
 
@@ -509,3 +553,7 @@ ENTRY(cast6_xts_dec_8way)
 	FRAME_END
 	ret;
 ENDPROC(cast6_xts_dec_8way)
+=======
+	RET;
+SYM_FUNC_END(cast6_cbc_dec_8way)
+>>>>>>> upstream/android-13

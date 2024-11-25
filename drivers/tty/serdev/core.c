@@ -15,8 +15,15 @@
 #include <linux/of_device.h>
 #include <linux/pm_domain.h>
 #include <linux/pm_runtime.h>
+<<<<<<< HEAD
 #include <linux/serdev.h>
 #include <linux/slab.h>
+=======
+#include <linux/sched.h>
+#include <linux/serdev.h>
+#include <linux/slab.h>
+#include <linux/platform_data/x86/apple.h>
+>>>>>>> upstream/android-13
 
 static bool is_registered;
 static DEFINE_IDA(ctrl_ida);
@@ -30,6 +37,7 @@ static ssize_t modalias_show(struct device *dev,
 	if (len != -ENODEV)
 		return len;
 
+<<<<<<< HEAD
 	len = of_device_modalias(dev, buf, PAGE_SIZE);
 	if (len != -ENODEV)
 		return len;
@@ -42,6 +50,9 @@ static ssize_t modalias_show(struct device *dev,
 	}
 
 	return len;
+=======
+	return of_device_modalias(dev, buf, PAGE_SIZE);
+>>>>>>> upstream/android-13
 }
 static DEVICE_ATTR_RO(modalias);
 
@@ -55,10 +66,16 @@ static int serdev_device_uevent(struct device *dev, struct kobj_uevent_env *env)
 {
 	int rc;
 
+<<<<<<< HEAD
+=======
+	/* TODO: platform modalias */
+
+>>>>>>> upstream/android-13
 	rc = acpi_device_uevent_modalias(dev, env);
 	if (rc != -ENODEV)
 		return rc;
 
+<<<<<<< HEAD
 	rc = of_device_uevent_modalias(dev, env);
 	if (rc != -ENODEV)
 		return rc;
@@ -67,6 +84,9 @@ static int serdev_device_uevent(struct device *dev, struct kobj_uevent_env *env)
 		rc = dev->parent->parent->bus->uevent(dev->parent->parent, env);
 
 	return rc;
+=======
+	return of_device_uevent_modalias(dev, env);
+>>>>>>> upstream/android-13
 }
 
 static void serdev_device_release(struct device *dev)
@@ -102,6 +122,7 @@ static int serdev_device_match(struct device *dev, struct device_driver *drv)
 	if (!is_serdev_device(dev))
 		return 0;
 
+<<<<<<< HEAD
 	if (acpi_driver_match_device(dev, drv))
 		return 1;
 
@@ -113,6 +134,13 @@ static int serdev_device_match(struct device *dev, struct device_driver *drv)
 		return 1;
 
 	return 0;
+=======
+	/* TODO: platform matching */
+	if (acpi_driver_match_device(dev, drv))
+		return 1;
+
+	return of_driver_match_device(dev, drv);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -136,8 +164,13 @@ int serdev_device_add(struct serdev_device *serdev)
 
 	err = device_add(&serdev->dev);
 	if (err < 0) {
+<<<<<<< HEAD
 		dev_err(&serdev->dev, "Can't add %s, status %d\n",
 			dev_name(&serdev->dev), err);
+=======
+		dev_err(&serdev->dev, "Can't add %s, status %pe\n",
+			dev_name(&serdev->dev), ERR_PTR(err));
+>>>>>>> upstream/android-13
 		goto err_clear_serdev;
 	}
 
@@ -238,6 +271,24 @@ void serdev_device_write_wakeup(struct serdev_device *serdev)
 }
 EXPORT_SYMBOL_GPL(serdev_device_write_wakeup);
 
+<<<<<<< HEAD
+=======
+/**
+ * serdev_device_write_buf() - write data asynchronously
+ * @serdev:	serdev device
+ * @buf:	data to be written
+ * @count:	number of bytes to write
+ *
+ * Write data to the device asynchronously.
+ *
+ * Note that any accepted data has only been buffered by the controller; use
+ * serdev_device_wait_until_sent() to make sure the controller write buffer
+ * has actually been emptied.
+ *
+ * Return: The number of bytes written (less than count if not enough room in
+ * the write buffer), or a negative errno on errors.
+ */
+>>>>>>> upstream/android-13
 int serdev_device_write_buf(struct serdev_device *serdev,
 			    const unsigned char *buf, size_t count)
 {
@@ -250,6 +301,7 @@ int serdev_device_write_buf(struct serdev_device *serdev,
 }
 EXPORT_SYMBOL_GPL(serdev_device_write_buf);
 
+<<<<<<< HEAD
 int serdev_device_write(struct serdev_device *serdev,
 			const unsigned char *buf, size_t count,
 			unsigned long timeout)
@@ -261,6 +313,44 @@ int serdev_device_write(struct serdev_device *serdev,
 	    (timeout && !serdev->ops->write_wakeup))
 		return -EINVAL;
 
+=======
+/**
+ * serdev_device_write() - write data synchronously
+ * @serdev:	serdev device
+ * @buf:	data to be written
+ * @count:	number of bytes to write
+ * @timeout:	timeout in jiffies, or 0 to wait indefinitely
+ *
+ * Write data to the device synchronously by repeatedly calling
+ * serdev_device_write() until the controller has accepted all data (unless
+ * interrupted by a timeout or a signal).
+ *
+ * Note that any accepted data has only been buffered by the controller; use
+ * serdev_device_wait_until_sent() to make sure the controller write buffer
+ * has actually been emptied.
+ *
+ * Note that this function depends on serdev_device_write_wakeup() being
+ * called in the serdev driver write_wakeup() callback.
+ *
+ * Return: The number of bytes written (less than count if interrupted),
+ * -ETIMEDOUT or -ERESTARTSYS if interrupted before any bytes were written, or
+ * a negative errno on errors.
+ */
+int serdev_device_write(struct serdev_device *serdev,
+			const unsigned char *buf, size_t count,
+			long timeout)
+{
+	struct serdev_controller *ctrl = serdev->ctrl;
+	int written = 0;
+	int ret;
+
+	if (!ctrl || !ctrl->ops->write_buf || !serdev->ops->write_wakeup)
+		return -EINVAL;
+
+	if (timeout == 0)
+		timeout = MAX_SCHEDULE_TIMEOUT;
+
+>>>>>>> upstream/android-13
 	mutex_lock(&serdev->write_lock);
 	do {
 		reinit_completion(&serdev->write_comp);
@@ -269,6 +359,7 @@ int serdev_device_write(struct serdev_device *serdev,
 		if (ret < 0)
 			break;
 
+<<<<<<< HEAD
 		buf += ret;
 		count -= ret;
 
@@ -277,6 +368,31 @@ int serdev_device_write(struct serdev_device *serdev,
 							timeout)));
 	mutex_unlock(&serdev->write_lock);
 	return ret < 0 ? ret : (count ? -ETIMEDOUT : 0);
+=======
+		written += ret;
+		buf += ret;
+		count -= ret;
+
+		if (count == 0)
+			break;
+
+		timeout = wait_for_completion_interruptible_timeout(&serdev->write_comp,
+								    timeout);
+	} while (timeout > 0);
+	mutex_unlock(&serdev->write_lock);
+
+	if (ret < 0)
+		return ret;
+
+	if (timeout <= 0 && written == 0) {
+		if (timeout == -ERESTARTSYS)
+			return -ERESTARTSYS;
+		else
+			return -ETIMEDOUT;
+	}
+
+	return written;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(serdev_device_write);
 
@@ -386,15 +502,22 @@ static int serdev_drv_probe(struct device *dev)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int serdev_drv_remove(struct device *dev)
+=======
+static void serdev_drv_remove(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	const struct serdev_device_driver *sdrv = to_serdev_device_driver(dev->driver);
 	if (sdrv->remove)
 		sdrv->remove(to_serdev_device(dev));
 
 	dev_pm_domain_detach(dev, true);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static struct bus_type serdev_bus_type = {
@@ -506,7 +629,12 @@ static int of_serdev_register_devices(struct serdev_controller *ctrl)
 		err = serdev_device_add(serdev);
 		if (err) {
 			dev_err(&serdev->dev,
+<<<<<<< HEAD
 				"failure adding device. status %d\n", err);
+=======
+				"failure adding device. status %pe\n",
+				ERR_PTR(err));
+>>>>>>> upstream/android-13
 			serdev_device_put(serdev);
 		} else
 			found = true;
@@ -518,6 +646,7 @@ static int of_serdev_register_devices(struct serdev_controller *ctrl)
 }
 
 #ifdef CONFIG_ACPI
+<<<<<<< HEAD
 static acpi_status acpi_serdev_register_device(struct serdev_controller *ctrl,
 					    struct acpi_device *adev)
 {
@@ -527,6 +656,129 @@ static acpi_status acpi_serdev_register_device(struct serdev_controller *ctrl,
 	if (acpi_bus_get_status(adev) || !adev->status.present ||
 	    acpi_device_enumerated(adev))
 		return AE_OK;
+=======
+
+#define SERDEV_ACPI_MAX_SCAN_DEPTH 32
+
+struct acpi_serdev_lookup {
+	acpi_handle device_handle;
+	acpi_handle controller_handle;
+	int n;
+	int index;
+};
+
+/**
+ * serdev_acpi_get_uart_resource - Gets UARTSerialBus resource if type matches
+ * @ares:	ACPI resource
+ * @uart:	Pointer to UARTSerialBus resource will be returned here
+ *
+ * Checks if the given ACPI resource is of type UARTSerialBus.
+ * In this case, returns a pointer to it to the caller.
+ *
+ * Return: True if resource type is of UARTSerialBus, otherwise false.
+ */
+bool serdev_acpi_get_uart_resource(struct acpi_resource *ares,
+				   struct acpi_resource_uart_serialbus **uart)
+{
+	struct acpi_resource_uart_serialbus *sb;
+
+	if (ares->type != ACPI_RESOURCE_TYPE_SERIAL_BUS)
+		return false;
+
+	sb = &ares->data.uart_serial_bus;
+	if (sb->type != ACPI_RESOURCE_SERIAL_TYPE_UART)
+		return false;
+
+	*uart = sb;
+	return true;
+}
+EXPORT_SYMBOL_GPL(serdev_acpi_get_uart_resource);
+
+static int acpi_serdev_parse_resource(struct acpi_resource *ares, void *data)
+{
+	struct acpi_serdev_lookup *lookup = data;
+	struct acpi_resource_uart_serialbus *sb;
+	acpi_status status;
+
+	if (!serdev_acpi_get_uart_resource(ares, &sb))
+		return 1;
+
+	if (lookup->index != -1 && lookup->n++ != lookup->index)
+		return 1;
+
+	status = acpi_get_handle(lookup->device_handle,
+				 sb->resource_source.string_ptr,
+				 &lookup->controller_handle);
+	if (ACPI_FAILURE(status))
+		return 1;
+
+	/*
+	 * NOTE: Ideally, we would also want to retrieve other properties here,
+	 * once setting them before opening the device is supported by serdev.
+	 */
+
+	return 1;
+}
+
+static int acpi_serdev_do_lookup(struct acpi_device *adev,
+                                 struct acpi_serdev_lookup *lookup)
+{
+	struct list_head resource_list;
+	int ret;
+
+	lookup->device_handle = acpi_device_handle(adev);
+	lookup->controller_handle = NULL;
+	lookup->n = 0;
+
+	INIT_LIST_HEAD(&resource_list);
+	ret = acpi_dev_get_resources(adev, &resource_list,
+				     acpi_serdev_parse_resource, lookup);
+	acpi_dev_free_resource_list(&resource_list);
+
+	if (ret < 0)
+		return -EINVAL;
+
+	return 0;
+}
+
+static int acpi_serdev_check_resources(struct serdev_controller *ctrl,
+				       struct acpi_device *adev)
+{
+	struct acpi_serdev_lookup lookup;
+	int ret;
+
+	if (acpi_bus_get_status(adev) || !adev->status.present)
+		return -EINVAL;
+
+	/* Look for UARTSerialBusV2 resource */
+	lookup.index = -1;	// we only care for the last device
+
+	ret = acpi_serdev_do_lookup(adev, &lookup);
+	if (ret)
+		return ret;
+
+	/*
+	 * Apple machines provide an empty resource template, so on those
+	 * machines just look for immediate children with a "baud" property
+	 * (from the _DSM method) instead.
+	 */
+	if (!lookup.controller_handle && x86_apple_machine &&
+	    !acpi_dev_get_property(adev, "baud", ACPI_TYPE_BUFFER, NULL))
+		acpi_get_parent(adev->handle, &lookup.controller_handle);
+
+	/* Make sure controller and ResourceSource handle match */
+	if (ACPI_HANDLE(ctrl->dev.parent) != lookup.controller_handle)
+		return -ENODEV;
+
+	return 0;
+}
+
+static acpi_status acpi_serdev_register_device(struct serdev_controller *ctrl,
+					       struct acpi_device *adev)
+{
+	struct serdev_device *serdev;
+	int err;
+>>>>>>> upstream/android-13
 
 	serdev = serdev_device_alloc(ctrl);
 	if (!serdev) {
@@ -541,7 +793,12 @@ static acpi_status acpi_serdev_register_device(struct serdev_controller *ctrl,
 	err = serdev_device_add(serdev);
 	if (err) {
 		dev_err(&serdev->dev,
+<<<<<<< HEAD
 			"failure adding ACPI serdev device. status %d\n", err);
+=======
+			"failure adding ACPI serdev device. status %pe\n",
+			ERR_PTR(err));
+>>>>>>> upstream/android-13
 		serdev_device_put(serdev);
 	}
 
@@ -555,7 +812,11 @@ static const struct acpi_device_id serdev_acpi_devices_blacklist[] = {
 };
 
 static acpi_status acpi_serdev_add_device(acpi_handle handle, u32 level,
+<<<<<<< HEAD
 				       void *data, void **return_value)
+=======
+					  void *data, void **return_value)
+>>>>>>> upstream/android-13
 {
 	struct serdev_controller *ctrl = data;
 	struct acpi_device *adev;
@@ -563,10 +824,17 @@ static acpi_status acpi_serdev_add_device(acpi_handle handle, u32 level,
 	if (acpi_bus_get_device(handle, &adev))
 		return AE_OK;
 
+<<<<<<< HEAD
+=======
+	if (acpi_device_enumerated(adev))
+		return AE_OK;
+
+>>>>>>> upstream/android-13
 	/* Skip if black listed */
 	if (!acpi_match_device_ids(adev, serdev_acpi_devices_blacklist))
 		return AE_OK;
 
+<<<<<<< HEAD
 	return acpi_serdev_register_device(ctrl, adev);
 }
 
@@ -583,6 +851,27 @@ static int acpi_serdev_register_devices(struct serdev_controller *ctrl)
 				     acpi_serdev_add_device, NULL, ctrl, NULL);
 	if (ACPI_FAILURE(status))
 		dev_dbg(&ctrl->dev, "failed to enumerate serdev slaves\n");
+=======
+	if (acpi_serdev_check_resources(ctrl, adev))
+		return AE_OK;
+
+	return acpi_serdev_register_device(ctrl, adev);
+}
+
+
+static int acpi_serdev_register_devices(struct serdev_controller *ctrl)
+{
+	acpi_status status;
+
+	if (!has_acpi_companion(ctrl->dev.parent))
+		return -ENODEV;
+
+	status = acpi_walk_namespace(ACPI_TYPE_DEVICE, ACPI_ROOT_OBJECT,
+				     SERDEV_ACPI_MAX_SCAN_DEPTH,
+				     acpi_serdev_add_device, NULL, ctrl, NULL);
+	if (ACPI_FAILURE(status))
+		dev_warn(&ctrl->dev, "failed to enumerate serdev slaves\n");
+>>>>>>> upstream/android-13
 
 	if (!ctrl->serdev)
 		return -ENODEV;
@@ -596,6 +885,7 @@ static inline int acpi_serdev_register_devices(struct serdev_controller *ctrl)
 }
 #endif /* CONFIG_ACPI */
 
+<<<<<<< HEAD
 static int platform_serdev_register_devices(struct serdev_controller *ctrl)
 {
 	struct serdev_device *serdev;
@@ -635,6 +925,18 @@ static int platform_serdev_register_devices(struct serdev_controller *ctrl)
 int serdev_controller_add_platform(struct serdev_controller *ctrl, bool platform)
 {
 	int ret, ret_of, ret_acpi, ret_platform = -ENODEV;
+=======
+/**
+ * serdev_controller_add() - Add an serdev controller
+ * @ctrl:	controller to be registered.
+ *
+ * Register a controller previously allocated via serdev_controller_alloc() with
+ * the serdev core.
+ */
+int serdev_controller_add(struct serdev_controller *ctrl)
+{
+	int ret_of, ret_acpi, ret;
+>>>>>>> upstream/android-13
 
 	/* Can't register until after driver model init */
 	if (WARN_ON(!is_registered))
@@ -648,12 +950,18 @@ int serdev_controller_add_platform(struct serdev_controller *ctrl, bool platform
 
 	ret_of = of_serdev_register_devices(ctrl);
 	ret_acpi = acpi_serdev_register_devices(ctrl);
+<<<<<<< HEAD
 	if (platform)
 		ret_platform = platform_serdev_register_devices(ctrl);
 	if (ret_of && ret_acpi && ret_platform) {
 		dev_dbg(&ctrl->dev, "no devices registered: of:%d acpi:%d "
 				    "platform:%d\n",
 				    ret_of, ret_acpi, ret_platform);
+=======
+	if (ret_of && ret_acpi) {
+		dev_dbg(&ctrl->dev, "no devices registered: of:%pe acpi:%pe\n",
+			ERR_PTR(ret_of), ERR_PTR(ret_acpi));
+>>>>>>> upstream/android-13
 		ret = -ENODEV;
 		goto err_rpm_disable;
 	}
@@ -667,7 +975,11 @@ err_rpm_disable:
 	device_del(&ctrl->dev);
 	return ret;
 };
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(serdev_controller_add_platform);
+=======
+EXPORT_SYMBOL_GPL(serdev_controller_add);
+>>>>>>> upstream/android-13
 
 /* Remove a device associated with a controller */
 static int serdev_remove_device(struct device *dev, void *data)
@@ -687,6 +999,7 @@ static int serdev_remove_device(struct device *dev, void *data)
  */
 void serdev_controller_remove(struct serdev_controller *ctrl)
 {
+<<<<<<< HEAD
 	int dummy;
 
 	if (!ctrl)
@@ -694,14 +1007,26 @@ void serdev_controller_remove(struct serdev_controller *ctrl)
 
 	dummy = device_for_each_child(&ctrl->dev, NULL,
 				      serdev_remove_device);
+=======
+	if (!ctrl)
+		return;
+
+	device_for_each_child(&ctrl->dev, NULL, serdev_remove_device);
+>>>>>>> upstream/android-13
 	pm_runtime_disable(&ctrl->dev);
 	device_del(&ctrl->dev);
 }
 EXPORT_SYMBOL_GPL(serdev_controller_remove);
 
 /**
+<<<<<<< HEAD
  * serdev_driver_register() - Register client driver with serdev core
  * @sdrv:	client driver to be associated with client-device.
+=======
+ * __serdev_device_driver_register() - Register client driver with serdev core
+ * @sdrv:	client driver to be associated with client-device.
+ * @owner:	client driver owner to set.
+>>>>>>> upstream/android-13
  *
  * This API will register the client driver with the serdev framework.
  * It is typically called from the driver's module-init function.

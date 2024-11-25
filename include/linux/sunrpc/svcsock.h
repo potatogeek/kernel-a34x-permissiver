@@ -28,25 +28,42 @@ struct svc_sock {
 
 	/* private TCP part */
 	/* On-the-wire fragment header: */
+<<<<<<< HEAD
 	__be32			sk_reclen;
+=======
+	__be32			sk_marker;
+>>>>>>> upstream/android-13
 	/* As we receive a record, this includes the length received so
 	 * far (including the fragment header): */
 	u32			sk_tcplen;
 	/* Total length of the data (not including fragment headers)
 	 * received so far in the fragments making up this rpc: */
 	u32			sk_datalen;
+<<<<<<< HEAD
+=======
+	/* Number of queued send requests */
+	atomic_t		sk_sendqlen;
+>>>>>>> upstream/android-13
 
 	struct page *		sk_pages[RPCSVC_MAXPAGES];	/* received data */
 };
 
 static inline u32 svc_sock_reclen(struct svc_sock *svsk)
 {
+<<<<<<< HEAD
 	return ntohl(svsk->sk_reclen) & RPC_FRAGMENT_SIZE_MASK;
+=======
+	return be32_to_cpu(svsk->sk_marker) & RPC_FRAGMENT_SIZE_MASK;
+>>>>>>> upstream/android-13
 }
 
 static inline u32 svc_sock_final_rec(struct svc_sock *svsk)
 {
+<<<<<<< HEAD
 	return ntohl(svsk->sk_reclen) & RPC_LAST_STREAM_FRAGMENT;
+=======
+	return be32_to_cpu(svsk->sk_marker) & RPC_LAST_STREAM_FRAGMENT;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -59,7 +76,12 @@ void		svc_drop(struct svc_rqst *);
 void		svc_sock_update_bufs(struct svc_serv *serv);
 bool		svc_alien_sock(struct net *net, int fd);
 int		svc_addsock(struct svc_serv *serv, const int fd,
+<<<<<<< HEAD
 					char *name_return, const size_t len);
+=======
+					char *name_return, const size_t len,
+					const struct cred *cred);
+>>>>>>> upstream/android-13
 void		svc_init_xprt_sock(void);
 void		svc_cleanup_xprt_sock(void);
 struct svc_xprt *svc_sock_create(struct svc_serv *serv, int prot);

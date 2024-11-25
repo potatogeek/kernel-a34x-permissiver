@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Touch Screen driver for EETI's I2C connected touch screen panels
  *   Copyright (c) 2009,2018 Daniel Mack <daniel@zonque.org>
@@ -8,6 +12,7 @@
  * Based on migor_ts.c
  *   Copyright (c) 2008 Magnus Damm
  *   Copyright (c) 2007 Ujjwal Pande <ujjwal@kenati.com>
+<<<<<<< HEAD
  *
  * This file is free software; you can redistribute it and/or
  * modify it under the terms of the GNU  General Public
@@ -22,6 +27,8 @@
  * You should have received a copy of the GNU General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -41,6 +48,10 @@ struct eeti_ts {
 	struct input_dev *input;
 	struct gpio_desc *attn_gpio;
 	struct touchscreen_properties props;
+<<<<<<< HEAD
+=======
+	struct mutex mutex;
+>>>>>>> upstream/android-13
 	bool running;
 };
 
@@ -75,6 +86,7 @@ static void eeti_ts_report_event(struct eeti_ts *eeti, u8 *buf)
 	input_sync(eeti->input);
 }
 
+<<<<<<< HEAD
 static irqreturn_t eeti_ts_isr(int irq, void *dev_id)
 {
 	struct eeti_ts *eeti = dev_id;
@@ -99,18 +111,91 @@ static irqreturn_t eeti_ts_isr(int irq, void *dev_id)
 	} while (eeti->running &&
 		 eeti->attn_gpio && gpiod_get_value_cansleep(eeti->attn_gpio));
 
+=======
+static int eeti_ts_read(struct eeti_ts *eeti)
+{
+	int len, error;
+	char buf[6];
+
+	len = i2c_master_recv(eeti->client, buf, sizeof(buf));
+	if (len != sizeof(buf)) {
+		error = len < 0 ? len : -EIO;
+		dev_err(&eeti->client->dev,
+			"failed to read touchscreen data: %d\n",
+			error);
+		return error;
+	}
+
+	/* Motion packet */
+	if (buf[0] & 0x80)
+		eeti_ts_report_event(eeti, buf);
+
+	return 0;
+}
+
+static irqreturn_t eeti_ts_isr(int irq, void *dev_id)
+{
+	struct eeti_ts *eeti = dev_id;
+	int error;
+
+	mutex_lock(&eeti->mutex);
+
+	do {
+		/*
+		 * If we have attention GPIO, trust it. Otherwise we'll read
+		 * once and exit. We assume that in this case we are using
+		 * level triggered interrupt and it will get raised again
+		 * if/when there is more data.
+		 */
+		if (eeti->attn_gpio &&
+		    !gpiod_get_value_cansleep(eeti->attn_gpio)) {
+			break;
+		}
+
+		error = eeti_ts_read(eeti);
+		if (error)
+			break;
+
+	} while (eeti->running && eeti->attn_gpio);
+
+	mutex_unlock(&eeti->mutex);
+>>>>>>> upstream/android-13
 	return IRQ_HANDLED;
 }
 
 static void eeti_ts_start(struct eeti_ts *eeti)
 {
+<<<<<<< HEAD
 	eeti->running = true;
 	wmb();
 	enable_irq(eeti->client->irq);
+=======
+	mutex_lock(&eeti->mutex);
+
+	eeti->running = true;
+	enable_irq(eeti->client->irq);
+
+	/*
+	 * Kick the controller in case we are using edge interrupt and
+	 * we missed our edge while interrupt was disabled. We expect
+	 * the attention GPIO to be wired in this case.
+	 */
+	if (eeti->attn_gpio && gpiod_get_value_cansleep(eeti->attn_gpio))
+		eeti_ts_read(eeti);
+
+	mutex_unlock(&eeti->mutex);
+>>>>>>> upstream/android-13
 }
 
 static void eeti_ts_stop(struct eeti_ts *eeti)
 {
+<<<<<<< HEAD
+=======
+	/*
+	 * Not locking here, just setting a flag and expect that the
+	 * interrupt thread will notice the flag eventually.
+	 */
+>>>>>>> upstream/android-13
 	eeti->running = false;
 	wmb();
 	disable_irq(eeti->client->irq);
@@ -153,6 +238,11 @@ static int eeti_ts_probe(struct i2c_client *client,
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
+=======
+	mutex_init(&eeti->mutex);
+
+>>>>>>> upstream/android-13
 	input = devm_input_allocate_device(dev);
 	if (!input) {
 		dev_err(dev, "Failed to allocate input device.\n");
@@ -213,7 +303,11 @@ static int __maybe_unused eeti_ts_suspend(struct device *dev)
 
 	mutex_lock(&input_dev->mutex);
 
+<<<<<<< HEAD
 	if (input_dev->users)
+=======
+	if (input_device_enabled(input_dev))
+>>>>>>> upstream/android-13
 		eeti_ts_stop(eeti);
 
 	mutex_unlock(&input_dev->mutex);
@@ -235,7 +329,11 @@ static int __maybe_unused eeti_ts_resume(struct device *dev)
 
 	mutex_lock(&input_dev->mutex);
 
+<<<<<<< HEAD
 	if (input_dev->users)
+=======
+	if (input_device_enabled(input_dev))
+>>>>>>> upstream/android-13
 		eeti_ts_start(eeti);
 
 	mutex_unlock(&input_dev->mutex);

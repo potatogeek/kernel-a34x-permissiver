@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * PC-Speaker driver for Linux
  *
@@ -21,7 +25,10 @@
 MODULE_AUTHOR("Stas Sergeev <stsp@users.sourceforge.net>");
 MODULE_DESCRIPTION("PC-Speaker driver");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{{PC-Speaker, pcsp}}");
+=======
+>>>>>>> upstream/android-13
 MODULE_ALIAS("platform:pcspkr");
 
 static int index = SNDRV_DEFAULT_IDX1;	/* Index 0-MAX */
@@ -42,9 +49,14 @@ struct snd_pcsp pcsp_chip;
 
 static int snd_pcsp_create(struct snd_card *card)
 {
+<<<<<<< HEAD
 	static struct snd_device_ops ops = { };
 	unsigned int resolution = hrtimer_resolution;
 	int err, div, min_div, order;
+=======
+	unsigned int resolution = hrtimer_resolution;
+	int div, min_div, order;
+>>>>>>> upstream/android-13
 
 	if (!nopcm) {
 		if (resolution > PCSP_MAX_PERIOD_NS) {
@@ -83,15 +95,29 @@ static int snd_pcsp_create(struct snd_card *card)
 	pcsp_chip.port = 0x61;
 	pcsp_chip.irq = -1;
 	pcsp_chip.dma = -1;
+<<<<<<< HEAD
 
 	/* Register device */
 	err = snd_device_new(card, SNDRV_DEV_LOWLEVEL, &pcsp_chip, &ops);
 	if (err < 0)
 		return err;
+=======
+	card->private_data = &pcsp_chip;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void pcsp_stop_beep(struct snd_pcsp *chip);
+
+static void alsa_card_pcsp_free(struct snd_card *card)
+{
+	pcsp_stop_beep(card->private_data);
+}
+
+>>>>>>> upstream/android-13
 static int snd_card_pcsp_probe(int devnum, struct device *dev)
 {
 	struct snd_card *card;
@@ -103,22 +129,38 @@ static int snd_card_pcsp_probe(int devnum, struct device *dev)
 	hrtimer_init(&pcsp_chip.timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
 	pcsp_chip.timer.function = pcsp_do_timer;
 
+<<<<<<< HEAD
 	err = snd_card_new(dev, index, id, THIS_MODULE, 0, &card);
+=======
+	err = snd_devm_card_new(dev, index, id, THIS_MODULE, 0, &card);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
 	err = snd_pcsp_create(card);
 	if (err < 0)
+<<<<<<< HEAD
 		goto free_card;
+=======
+		return err;
+>>>>>>> upstream/android-13
 
 	if (!nopcm) {
 		err = snd_pcsp_new_pcm(&pcsp_chip);
 		if (err < 0)
+<<<<<<< HEAD
 			goto free_card;
 	}
 	err = snd_pcsp_new_mixer(&pcsp_chip, nopcm);
 	if (err < 0)
 		goto free_card;
+=======
+			return err;
+	}
+	err = snd_pcsp_new_mixer(&pcsp_chip, nopcm);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 
 	strcpy(card->driver, "PC-Speaker");
 	strcpy(card->shortname, "pcsp");
@@ -127,6 +169,7 @@ static int snd_card_pcsp_probe(int devnum, struct device *dev)
 
 	err = snd_card_register(card);
 	if (err < 0)
+<<<<<<< HEAD
 		goto free_card;
 
 	return 0;
@@ -134,6 +177,12 @@ static int snd_card_pcsp_probe(int devnum, struct device *dev)
 free_card:
 	snd_card_free(card);
 	return err;
+=======
+		return err;
+	card->private_free = alsa_card_pcsp_free;
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int alsa_card_pcsp_init(struct device *dev)
@@ -155,11 +204,14 @@ static int alsa_card_pcsp_init(struct device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void alsa_card_pcsp_exit(struct snd_pcsp *chip)
 {
 	snd_card_free(chip->card);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int pcsp_probe(struct platform_device *dev)
 {
 	int err;
@@ -169,15 +221,21 @@ static int pcsp_probe(struct platform_device *dev)
 		return err;
 
 	err = alsa_card_pcsp_init(&dev->dev);
+<<<<<<< HEAD
 	if (err < 0) {
 		pcspkr_input_remove(pcsp_chip.input_dev);
 		return err;
 	}
+=======
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 
 	platform_set_drvdata(dev, &pcsp_chip);
 	return 0;
 }
 
+<<<<<<< HEAD
 static int pcsp_remove(struct platform_device *dev)
 {
 	struct snd_pcsp *chip = platform_get_drvdata(dev);
@@ -186,6 +244,8 @@ static int pcsp_remove(struct platform_device *dev)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void pcsp_stop_beep(struct snd_pcsp *chip)
 {
 	pcsp_sync_stop(chip);
@@ -197,7 +257,10 @@ static int pcsp_suspend(struct device *dev)
 {
 	struct snd_pcsp *chip = dev_get_drvdata(dev);
 	pcsp_stop_beep(chip);
+<<<<<<< HEAD
 	snd_pcm_suspend_all(chip->pcm);
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -219,7 +282,10 @@ static struct platform_driver pcsp_platform_driver = {
 		.pm	= PCSP_PM_OPS,
 	},
 	.probe		= pcsp_probe,
+<<<<<<< HEAD
 	.remove		= pcsp_remove,
+=======
+>>>>>>> upstream/android-13
 	.shutdown	= pcsp_shutdown,
 };
 

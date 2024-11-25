@@ -45,5 +45,8 @@ CONFIG_SERIAL_SH_SCI_CONSOLE=y
 # CONFIG_SYSFS is not set
 # CONFIG_MISC_FILESYSTEMS is not set
 CONFIG_DEBUG_INFO=y
+<<<<<<< HEAD
 # CONFIG_ENABLE_WARN_DEPRECATED is not set
+=======
+>>>>>>> upstream/android-13
 # CONFIG_ENABLE_MUST_CHECK is not set

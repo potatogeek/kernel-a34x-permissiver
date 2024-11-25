@@ -2,16 +2,23 @@
 /*
  * Copyright (c) 2015-2018 Oracle.  All rights reserved.
  *
+<<<<<<< HEAD
  * Support for backward direction RPCs on RPC/RDMA (server-side).
  */
 
 #include <linux/module.h>
 
+=======
+ * Support for reverse-direction RPCs on RPC/RDMA (server-side).
+ */
+
+>>>>>>> upstream/android-13
 #include <linux/sunrpc/svc_rdma.h>
 
 #include "xprt_rdma.h"
 #include <trace/events/rpcrdma.h>
 
+<<<<<<< HEAD
 #define RPCDBG_FACILITY	RPCDBG_SVCXPRT
 
 #undef SVCRDMA_BACKCHANNEL_DEBUG
@@ -66,12 +73,45 @@ int svc_rdma_handle_bc_reply(struct rpc_xprt *xprt, __be32 *rdma_resp,
 	if (dst->iov_len < len)
 		goto out_unlock;
 	memcpy(dst->iov_base, p, len);
+=======
+/**
+ * svc_rdma_handle_bc_reply - Process incoming backchannel Reply
+ * @rqstp: resources for handling the Reply
+ * @rctxt: Received message
+ *
+ */
+void svc_rdma_handle_bc_reply(struct svc_rqst *rqstp,
+			      struct svc_rdma_recv_ctxt *rctxt)
+{
+	struct svc_xprt *sxprt = rqstp->rq_xprt;
+	struct rpc_xprt *xprt = sxprt->xpt_bc_xprt;
+	struct rpcrdma_xprt *r_xprt = rpcx_to_rdmax(xprt);
+	struct xdr_buf *rcvbuf = &rqstp->rq_arg;
+	struct kvec *dst, *src = &rcvbuf->head[0];
+	__be32 *rdma_resp = rctxt->rc_recv_buf;
+	struct rpc_rqst *req;
+	u32 credits;
+
+	spin_lock(&xprt->queue_lock);
+	req = xprt_lookup_rqst(xprt, *rdma_resp);
+	if (!req)
+		goto out_unlock;
+
+	dst = &req->rq_private_buf.head[0];
+	memcpy(&req->rq_private_buf, &req->rq_rcv_buf, sizeof(struct xdr_buf));
+	if (dst->iov_len < src->iov_len)
+		goto out_unlock;
+	memcpy(dst->iov_base, src->iov_base, src->iov_len);
+	xprt_pin_rqst(req);
+	spin_unlock(&xprt->queue_lock);
+>>>>>>> upstream/android-13
 
 	credits = be32_to_cpup(rdma_resp + 2);
 	if (credits == 0)
 		credits = 1;	/* don't deadlock */
 	else if (credits > r_xprt->rx_buf.rb_bc_max_requests)
 		credits = r_xprt->rx_buf.rb_bc_max_requests;
+<<<<<<< HEAD
 
 	spin_lock_bh(&xprt->transport_lock);
 	cwnd = xprt->cwnd;
@@ -102,6 +142,22 @@ out_notfound:
 }
 
 /* Send a backwards direction RPC call.
+=======
+	spin_lock(&xprt->transport_lock);
+	xprt->cwnd = credits << RPC_CWNDSHIFT;
+	spin_unlock(&xprt->transport_lock);
+
+	spin_lock(&xprt->queue_lock);
+	xprt_complete_rqst(req->rq_task, rcvbuf->len);
+	xprt_unpin_rqst(req);
+	rcvbuf->len = 0;
+
+out_unlock:
+	spin_unlock(&xprt->queue_lock);
+}
+
+/* Send a reverse-direction RPC Call.
+>>>>>>> upstream/android-13
  *
  * Caller holds the connection's mutex and has already marshaled
  * the RPC/RDMA request.
@@ -116,11 +172,25 @@ out_notfound:
  */
 static int svc_rdma_bc_sendto(struct svcxprt_rdma *rdma,
 			      struct rpc_rqst *rqst,
+<<<<<<< HEAD
 			      struct svc_rdma_send_ctxt *ctxt)
 {
 	int ret;
 
 	ret = svc_rdma_map_reply_msg(rdma, ctxt, &rqst->rq_snd_buf, NULL);
+=======
+			      struct svc_rdma_send_ctxt *sctxt)
+{
+	struct svc_rdma_recv_ctxt *rctxt;
+	int ret;
+
+	rctxt = svc_rdma_recv_ctxt_get(rdma);
+	if (!rctxt)
+		return -EIO;
+
+	ret = svc_rdma_map_reply_msg(rdma, sctxt, rctxt, &rqst->rq_snd_buf);
+	svc_rdma_recv_ctxt_put(rdma, rctxt);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return -EIO;
 
@@ -128,8 +198,19 @@ static int svc_rdma_bc_sendto(struct svcxprt_rdma *rdma,
 	 * the rq_buffer before all retransmits are complete.
 	 */
 	get_page(virt_to_page(rqst->rq_buffer));
+<<<<<<< HEAD
 	ctxt->sc_send_wr.opcode = IB_WR_SEND;
 	return svc_rdma_send(rdma, &ctxt->sc_send_wr);
+=======
+	sctxt->sc_send_wr.opcode = IB_WR_SEND;
+	ret = svc_rdma_send(rdma, sctxt);
+	if (ret < 0)
+		return ret;
+
+	ret = wait_for_completion_killable(&sctxt->sc_done);
+	svc_rdma_send_ctxt_put(rdma, sctxt);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /* Server-side transport endpoint wants a whole page for its send
@@ -184,7 +265,13 @@ rpcrdma_bc_send_request(struct svcxprt_rdma *rdma, struct rpc_rqst *rqst)
 	if (!ctxt)
 		goto drop_connection;
 
+<<<<<<< HEAD
 	p = ctxt->sc_xprt_buf;
+=======
+	p = xdr_reserve_space(&ctxt->sc_stream, RPCRDMA_HDRLEN_MIN);
+	if (!p)
+		goto put_ctxt;
+>>>>>>> upstream/android-13
 	*p++ = rqst->rq_xid;
 	*p++ = rpcrdma_version;
 	*p++ = cpu_to_be32(r_xprt->rx_buf.rb_bc_max_requests);
@@ -192,6 +279,7 @@ rpcrdma_bc_send_request(struct svcxprt_rdma *rdma, struct rpc_rqst *rqst)
 	*p++ = xdr_zero;
 	*p++ = xdr_zero;
 	*p   = xdr_zero;
+<<<<<<< HEAD
 	svc_rdma_sync_reply_hdr(rdma, ctxt, RPCRDMA_HDRLEN_MIN);
 
 #ifdef SVCRDMA_BACKCHANNEL_DEBUG
@@ -242,23 +330,70 @@ xprt_rdma_bc_send_request(struct rpc_task *task)
 	if (ret < 0)
 		return ret;
 	return 0;
+=======
+
+	rqst->rq_xtime = ktime_get();
+	rc = svc_rdma_bc_sendto(rdma, rqst, ctxt);
+	if (rc)
+		goto put_ctxt;
+	return 0;
+
+put_ctxt:
+	svc_rdma_send_ctxt_put(rdma, ctxt);
+
+drop_connection:
+	return -ENOTCONN;
+}
+
+/**
+ * xprt_rdma_bc_send_request - Send a reverse-direction Call
+ * @rqst: rpc_rqst containing Call message to be sent
+ *
+ * Return values:
+ *   %0 if the message was sent successfully
+ *   %ENOTCONN if the message was not sent
+ */
+static int xprt_rdma_bc_send_request(struct rpc_rqst *rqst)
+{
+	struct svc_xprt *sxprt = rqst->rq_xprt->bc_xprt;
+	struct svcxprt_rdma *rdma =
+		container_of(sxprt, struct svcxprt_rdma, sc_xprt);
+	int ret;
+
+	if (test_bit(XPT_DEAD, &sxprt->xpt_flags))
+		return -ENOTCONN;
+
+	ret = rpcrdma_bc_send_request(rdma, rqst);
+	if (ret == -ENOTCONN)
+		svc_close_xprt(sxprt);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void
 xprt_rdma_bc_close(struct rpc_xprt *xprt)
 {
+<<<<<<< HEAD
 	dprintk("svcrdma: %s: xprt %p\n", __func__, xprt);
+=======
+	xprt_disconnect_done(xprt);
+>>>>>>> upstream/android-13
 	xprt->cwnd = RPC_CWNDSHIFT;
 }
 
 static void
 xprt_rdma_bc_put(struct rpc_xprt *xprt)
 {
+<<<<<<< HEAD
 	dprintk("svcrdma: %s: xprt %p\n", __func__, xprt);
 
 	xprt_rdma_free_addresses(xprt);
 	xprt_free(xprt);
 	module_put(THIS_MODULE);
+=======
+	xprt_rdma_free_addresses(xprt);
+	xprt_free(xprt);
+>>>>>>> upstream/android-13
 }
 
 static const struct rpc_xprt_ops xprt_rdma_bc_procs = {
@@ -270,7 +405,11 @@ static const struct rpc_xprt_ops xprt_rdma_bc_procs = {
 	.buf_alloc		= xprt_rdma_bc_allocate,
 	.buf_free		= xprt_rdma_bc_free,
 	.send_request		= xprt_rdma_bc_send_request,
+<<<<<<< HEAD
 	.set_retrans_timeout	= xprt_set_retrans_timeout_def,
+=======
+	.wait_for_reply_request	= xprt_wait_for_reply_request_def,
+>>>>>>> upstream/android-13
 	.close			= xprt_rdma_bc_close,
 	.destroy		= xprt_rdma_bc_put,
 	.print_stats		= xprt_rdma_print_stats
@@ -291,19 +430,29 @@ xprt_setup_rdma_bc(struct xprt_create *args)
 	struct rpc_xprt *xprt;
 	struct rpcrdma_xprt *new_xprt;
 
+<<<<<<< HEAD
 	if (args->addrlen > sizeof(xprt->addr)) {
 		dprintk("RPC:       %s: address too large\n", __func__);
 		return ERR_PTR(-EBADF);
 	}
+=======
+	if (args->addrlen > sizeof(xprt->addr))
+		return ERR_PTR(-EBADF);
+>>>>>>> upstream/android-13
 
 	xprt = xprt_alloc(args->net, sizeof(*new_xprt),
 			  RPCRDMA_MAX_BC_REQUESTS,
 			  RPCRDMA_MAX_BC_REQUESTS);
+<<<<<<< HEAD
 	if (!xprt) {
 		dprintk("RPC:       %s: couldn't allocate rpc_xprt\n",
 			__func__);
 		return ERR_PTR(-ENOMEM);
 	}
+=======
+	if (!xprt)
+		return ERR_PTR(-ENOMEM);
+>>>>>>> upstream/android-13
 
 	xprt->timeout = &xprt_rdma_bc_timeout;
 	xprt_set_bound(xprt);
@@ -313,7 +462,10 @@ xprt_setup_rdma_bc(struct xprt_create *args)
 	xprt->idle_timeout = 0;
 
 	xprt->prot = XPRT_TRANSPORT_BC_RDMA;
+<<<<<<< HEAD
 	xprt->tsh_size = 0;
+=======
+>>>>>>> upstream/android-13
 	xprt->ops = &xprt_rdma_bc_procs;
 
 	memcpy(&xprt->addr, args->dstaddr, args->addrlen);
@@ -330,6 +482,7 @@ xprt_setup_rdma_bc(struct xprt_create *args)
 	args->bc_xprt->xpt_bc_xprt = xprt;
 	xprt->bc_xprt = args->bc_xprt;
 
+<<<<<<< HEAD
 	if (!try_module_get(THIS_MODULE))
 		goto out_fail;
 
@@ -344,6 +497,11 @@ out_fail:
 	xprt_put(xprt);
 	xprt_free(xprt);
 	return ERR_PTR(-EINVAL);
+=======
+	/* Final put for backchannel xprt is in __svc_rdma_free */
+	xprt_get(xprt);
+	return xprt;
+>>>>>>> upstream/android-13
 }
 
 struct xprt_class xprt_rdma_bc = {

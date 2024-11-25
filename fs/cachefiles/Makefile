@@ -7,6 +7,10 @@ cachefiles-y := \
 	bind.o \
 	daemon.o \
 	interface.o \
+<<<<<<< HEAD
+=======
+	io.o \
+>>>>>>> upstream/android-13
 	key.o \
 	main.o \
 	namei.o \
@@ -14,6 +18,9 @@ cachefiles-y := \
 	security.o \
 	xattr.o
 
+<<<<<<< HEAD
 cachefiles-$(CONFIG_CACHEFILES_HISTOGRAM) += proc.o
 
+=======
+>>>>>>> upstream/android-13
 obj-$(CONFIG_CACHEFILES) := cachefiles.o

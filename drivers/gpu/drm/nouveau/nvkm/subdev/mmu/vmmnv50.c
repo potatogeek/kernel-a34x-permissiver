@@ -184,7 +184,11 @@ nv50_vmm_flush(struct nvkm_vmm *vmm, int level)
 	struct nvkm_device *device = subdev->device;
 	int i, id;
 
+<<<<<<< HEAD
 	mutex_lock(&subdev->mutex);
+=======
+	mutex_lock(&vmm->mmu->mutex);
+>>>>>>> upstream/android-13
 	for (i = 0; i < NVKM_SUBDEV_NR; i++) {
 		if (!atomic_read(&vmm->engref[i]))
 			continue;
@@ -207,7 +211,11 @@ nv50_vmm_flush(struct nvkm_vmm *vmm, int level)
 		case NVKM_ENGINE_MSVLD : id = 0x09; break;
 		case NVKM_ENGINE_CIPHER:
 		case NVKM_ENGINE_SEC   : id = 0x0a; break;
+<<<<<<< HEAD
 		case NVKM_ENGINE_CE0   : id = 0x0d; break;
+=======
+		case NVKM_ENGINE_CE    : id = 0x0d; break;
+>>>>>>> upstream/android-13
 		default:
 			continue;
 		}
@@ -217,10 +225,16 @@ nv50_vmm_flush(struct nvkm_vmm *vmm, int level)
 			if (!(nvkm_rd32(device, 0x100c80) & 0x00000001))
 				break;
 		) < 0)
+<<<<<<< HEAD
 			nvkm_error(subdev, "%s mmu invalidate timeout\n",
 				   nvkm_subdev_name[i]);
 	}
 	mutex_unlock(&subdev->mutex);
+=======
+			nvkm_error(subdev, "%s mmu invalidate timeout\n", nvkm_subdev_type[i]);
+	}
+	mutex_unlock(&vmm->mmu->mutex);
+>>>>>>> upstream/android-13
 }
 
 int
@@ -235,7 +249,11 @@ nv50_vmm_valid(struct nvkm_vmm *vmm, void *argv, u32 argc,
 	struct nvkm_device *device = vmm->mmu->subdev.device;
 	struct nvkm_ram *ram = device->fb->ram;
 	struct nvkm_memory *memory = map->memory;
+<<<<<<< HEAD
 	u8  aper, kind, comp, priv, ro;
+=======
+	u8  aper, kind, kind_inv, comp, priv, ro;
+>>>>>>> upstream/android-13
 	int kindn, ret = -ENOSYS;
 	const u8 *kindm;
 
@@ -278,8 +296,13 @@ nv50_vmm_valid(struct nvkm_vmm *vmm, void *argv, u32 argc,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	kindm = vmm->mmu->func->kind(vmm->mmu, &kindn);
 	if (kind >= kindn || kindm[kind] == 0x7f) {
+=======
+	kindm = vmm->mmu->func->kind(vmm->mmu, &kindn, &kind_inv);
+	if (kind >= kindn || kindm[kind] == kind_inv) {
+>>>>>>> upstream/android-13
 		VMM_DEBUG(vmm, "kind %02x", kind);
 		return -EINVAL;
 	}
@@ -376,10 +399,18 @@ nv50_vmm = {
 };
 
 int
+<<<<<<< HEAD
 nv50_vmm_new(struct nvkm_mmu *mmu, u64 addr, u64 size, void *argv, u32 argc,
 	     struct lock_class_key *key, const char *name,
 	     struct nvkm_vmm **pvmm)
 {
 	return nv04_vmm_new_(&nv50_vmm, mmu, 0, addr, size,
+=======
+nv50_vmm_new(struct nvkm_mmu *mmu, bool managed, u64 addr, u64 size,
+	     void *argv, u32 argc, struct lock_class_key *key, const char *name,
+	     struct nvkm_vmm **pvmm)
+{
+	return nv04_vmm_new_(&nv50_vmm, mmu, 0, managed, addr, size,
+>>>>>>> upstream/android-13
 			     argv, argc, key, name, pvmm);
 }

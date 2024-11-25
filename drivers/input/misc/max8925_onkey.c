@@ -71,6 +71,7 @@ static int max8925_onkey_probe(struct platform_device *pdev)
 	int irq[2], error;
 
 	irq[0] = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq[0] < 0) {
 		dev_err(&pdev->dev, "No IRQ resource!\n");
 		return -EINVAL;
@@ -81,6 +82,14 @@ static int max8925_onkey_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev, "No IRQ resource!\n");
 		return -EINVAL;
 	}
+=======
+	if (irq[0] < 0)
+		return -EINVAL;
+
+	irq[1] = platform_get_irq(pdev, 1);
+	if (irq[1] < 0)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	info = devm_kzalloc(&pdev->dev, sizeof(struct max8925_onkey_info),
 			    GFP_KERNEL);

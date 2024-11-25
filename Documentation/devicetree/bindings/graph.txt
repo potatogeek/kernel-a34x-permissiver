@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Common bindings for device graphs
 
 General concept
@@ -126,3 +127,6 @@ Optional endpoint properties
 
 - remote-endpoint: phandle to an 'endpoint' subnode of a remote device node.
 
+=======
+This file has moved to graph.yaml in dt-schema repo
+>>>>>>> upstream/android-13

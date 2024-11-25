@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * APM X-Gene SoC Hardware Monitoring Driver
  *
@@ -5,6 +9,7 @@
  * Author: Loc Ho <lho@apm.com>
  *         Hoan Tran <hotran@apm.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of
@@ -18,6 +23,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  * This driver provides the following features:
  *  - Retrieve CPU total power (uW)
  *  - Retrieve IO total power (uW)
@@ -341,14 +348,22 @@ static ssize_t temp1_input_show(struct device *dev,
 
 	temp = sign_extend32(val, TEMP_NEGATIVE_BIT);
 
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%d\n", CELSIUS_TO_mCELSIUS(temp));
+=======
+	return sysfs_emit(buf, "%d\n", CELSIUS_TO_mCELSIUS(temp));
+>>>>>>> upstream/android-13
 }
 
 static ssize_t temp1_label_show(struct device *dev,
 				struct device_attribute *attr,
 				char *buf)
 {
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "SoC Temperature\n");
+=======
+	return sysfs_emit(buf, "SoC Temperature\n");
+>>>>>>> upstream/android-13
 }
 
 static ssize_t temp1_critical_alarm_show(struct device *dev,
@@ -357,21 +372,33 @@ static ssize_t temp1_critical_alarm_show(struct device *dev,
 {
 	struct xgene_hwmon_dev *ctx = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%d\n", ctx->temp_critical_alarm);
+=======
+	return sysfs_emit(buf, "%d\n", ctx->temp_critical_alarm);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t power1_label_show(struct device *dev,
 				 struct device_attribute *attr,
 				 char *buf)
 {
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "CPU power\n");
+=======
+	return sysfs_emit(buf, "CPU power\n");
+>>>>>>> upstream/android-13
 }
 
 static ssize_t power2_label_show(struct device *dev,
 				 struct device_attribute *attr,
 				 char *buf)
 {
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "IO power\n");
+=======
+	return sysfs_emit(buf, "IO power\n");
+>>>>>>> upstream/android-13
 }
 
 static ssize_t power1_input_show(struct device *dev,
@@ -386,7 +413,11 @@ static ssize_t power1_input_show(struct device *dev,
 	if (rc < 0)
 		return rc;
 
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%u\n", mWATT_TO_uWATT(val));
+=======
+	return sysfs_emit(buf, "%u\n", mWATT_TO_uWATT(val));
+>>>>>>> upstream/android-13
 }
 
 static ssize_t power2_input_show(struct device *dev,
@@ -401,7 +432,11 @@ static ssize_t power2_input_show(struct device *dev,
 	if (rc < 0)
 		return rc;
 
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%u\n", mWATT_TO_uWATT(val));
+=======
+	return sysfs_emit(buf, "%u\n", mWATT_TO_uWATT(val));
+>>>>>>> upstream/android-13
 }
 
 static DEVICE_ATTR_RO(temp1_label);
@@ -796,7 +831,11 @@ static const struct of_device_id xgene_hwmon_of_match[] = {
 };
 MODULE_DEVICE_TABLE(of, xgene_hwmon_of_match);
 
+<<<<<<< HEAD
 static struct platform_driver xgene_hwmon_driver __refdata = {
+=======
+static struct platform_driver xgene_hwmon_driver = {
+>>>>>>> upstream/android-13
 	.probe = xgene_hwmon_probe,
 	.remove = xgene_hwmon_remove,
 	.driver = {

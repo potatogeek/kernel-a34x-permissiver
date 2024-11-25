@@ -30,6 +30,7 @@
 		};
 	};
 
+<<<<<<< HEAD
 	dsa@0 {
 		status = "disabled";
 
@@ -88,6 +89,8 @@
 		};
 	};
 
+=======
+>>>>>>> upstream/android-13
 	gpio-keys {
 		compatible = "gpio-keys";
 		pinctrl-0 = <&rear_button_pins>;
@@ -131,13 +134,21 @@
 	 * 14-SFP_TX_DISABLE
 	 * 15-SFP_MOD_DEF0
 	 */
+<<<<<<< HEAD
 	pcie2_0_clkreq {
+=======
+	pcie2-0-clkreq-hog {
+>>>>>>> upstream/android-13
 		gpio-hog;
 		gpios = <4 GPIO_ACTIVE_LOW>;
 		input;
 		line-name = "pcie2.0-clkreq";
 	};
+<<<<<<< HEAD
 	pcie2_0_w_disable {
+=======
+	pcie2-0-w-disable-hog {
+>>>>>>> upstream/android-13
 		gpio-hog;
 		gpios = <7 GPIO_ACTIVE_LOW>;
 		output-low;

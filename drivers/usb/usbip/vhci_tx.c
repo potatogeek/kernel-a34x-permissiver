@@ -189,16 +189,24 @@ static int vhci_send_cmd_unlink(struct vhci_device *vdev)
 	struct vhci_unlink *unlink = NULL;
 
 	struct msghdr msg;
+<<<<<<< HEAD
 	struct kvec iov[3];
 	size_t txsize;
 
+=======
+	struct kvec iov;
+	size_t txsize;
+>>>>>>> upstream/android-13
 	size_t total_size = 0;
 
 	while ((unlink = dequeue_from_unlink_tx(vdev)) != NULL) {
 		int ret;
 		struct usbip_header pdu_header;
 
+<<<<<<< HEAD
 		txsize = 0;
+=======
+>>>>>>> upstream/android-13
 		memset(&pdu_header, 0, sizeof(pdu_header));
 		memset(&msg, 0, sizeof(msg));
 		memset(&iov, 0, sizeof(iov));
@@ -214,11 +222,19 @@ static int vhci_send_cmd_unlink(struct vhci_device *vdev)
 
 		usbip_header_correct_endian(&pdu_header, 1);
 
+<<<<<<< HEAD
 		iov[0].iov_base = &pdu_header;
 		iov[0].iov_len  = sizeof(pdu_header);
 		txsize += sizeof(pdu_header);
 
 		ret = kernel_sendmsg(vdev->ud.tcp_socket, &msg, iov, 1, txsize);
+=======
+		iov.iov_base = &pdu_header;
+		iov.iov_len  = sizeof(pdu_header);
+		txsize = sizeof(pdu_header);
+
+		ret = kernel_sendmsg(vdev->ud.tcp_socket, &msg, &iov, 1, txsize);
+>>>>>>> upstream/android-13
 		if (ret != txsize) {
 			pr_err("sendmsg failed!, ret=%d for %zd\n", ret,
 			       txsize);

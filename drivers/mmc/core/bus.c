@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/drivers/mmc/core/bus.c
  *
  *  Copyright (C) 2003 Russell King, All Rights Reserved.
  *  Copyright (C) 2007 Pierre Ossman
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  *  MMC card bus driver model
  */
 
@@ -71,6 +78,10 @@ mmc_bus_uevent(struct device *dev, struct kobj_uevent_env *env)
 {
 	struct mmc_card *card = mmc_dev_to_card(dev);
 	const char *type;
+<<<<<<< HEAD
+=======
+	unsigned int i;
+>>>>>>> upstream/android-13
 	int retval = 0;
 
 	switch (card->type) {
@@ -96,6 +107,34 @@ mmc_bus_uevent(struct device *dev, struct kobj_uevent_env *env)
 			return retval;
 	}
 
+<<<<<<< HEAD
+=======
+	if (card->type == MMC_TYPE_SDIO || card->type == MMC_TYPE_SD_COMBO) {
+		retval = add_uevent_var(env, "SDIO_ID=%04X:%04X",
+					card->cis.vendor, card->cis.device);
+		if (retval)
+			return retval;
+
+		retval = add_uevent_var(env, "SDIO_REVISION=%u.%u",
+					card->major_rev, card->minor_rev);
+		if (retval)
+			return retval;
+
+		for (i = 0; i < card->num_info; i++) {
+			retval = add_uevent_var(env, "SDIO_INFO%u=%s", i+1, card->info[i]);
+			if (retval)
+				return retval;
+		}
+	}
+
+	/*
+	 * SDIO (non-combo) cards are not handled by mmc_block driver and do not
+	 * have accessible CID register which used by mmc_card_name() function.
+	 */
+	if (card->type == MMC_TYPE_SDIO)
+		return 0;
+
+>>>>>>> upstream/android-13
 	retval = add_uevent_var(env, "MMC_NAME=%s", mmc_card_name(card));
 	if (retval)
 		return retval;
@@ -117,20 +156,28 @@ static int mmc_bus_probe(struct device *dev)
 	return drv->probe(card);
 }
 
+<<<<<<< HEAD
 static int mmc_bus_remove(struct device *dev)
+=======
+static void mmc_bus_remove(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct mmc_driver *drv = to_mmc_driver(dev->driver);
 	struct mmc_card *card = mmc_dev_to_card(dev);
 
 	drv->remove(card);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static void mmc_bus_shutdown(struct device *dev)
 {
 	struct mmc_driver *drv = to_mmc_driver(dev->driver);
 	struct mmc_card *card = mmc_dev_to_card(dev);
+<<<<<<< HEAD
 	struct mmc_host *host;
 	int ret;
 
@@ -139,6 +186,15 @@ static void mmc_bus_shutdown(struct device *dev)
 		return;
 	}
 	host = card->host;
+=======
+	struct mmc_host *host = card->host;
+	int ret;
+
+	if (!drv || !card) {
+		pr_debug("%s: %s: drv or card is NULL. SDcard/tray was removed\n", dev_name(dev), __func__);
+		return;
+	}
+>>>>>>> upstream/android-13
 
 	/* disable rescan in shutdown sequence */
 	host->rescan_disable = 1;
@@ -390,10 +446,13 @@ int mmc_add_card(struct mmc_card *card)
 void mmc_remove_card(struct mmc_card *card)
 {
 	struct mmc_host *host = card->host;
+<<<<<<< HEAD
 	struct mmc_card_error_log *err_log;
 	u64 total_c_cnt = 0;
 	u64 total_t_cnt = 0;
 	int i = 0;
+=======
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_DEBUG_FS
 	mmc_remove_card_debugfs(card);
@@ -408,6 +467,7 @@ void mmc_remove_card(struct mmc_card *card)
 				mmc_hostname(card->host), card->rca);
 			ST_LOG("%s: card %04x removed\n",
 				mmc_hostname(card->host), card->rca);
+<<<<<<< HEAD
 
 			err_log = card->err_log;
 			for (i = 0 ; i < 6 ; i++) {
@@ -422,6 +482,8 @@ void mmc_remove_card(struct mmc_card *card)
 				mmc_hostname(card->host),
 				err_log[0].ge_cnt, err_log[0].cc_cnt, err_log[0].ecc_cnt,
 				err_log[0].wp_cnt, err_log[0].oor_cnt, total_c_cnt, total_t_cnt);
+=======
+>>>>>>> upstream/android-13
 		}
 		device_del(&card->dev);
 		of_node_put(card->dev.of_node);

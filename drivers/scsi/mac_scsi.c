@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Generic Macintosh NCR5380 driver
  *
@@ -24,6 +28,10 @@
 
 #include <asm/hwtest.h>
 #include <asm/io.h>
+<<<<<<< HEAD
+=======
+#include <asm/macintosh.h>
+>>>>>>> upstream/android-13
 #include <asm/macints.h>
 #include <asm/setup.h>
 
@@ -262,19 +270,46 @@ out:
 	return addr - start;
 }
 
+<<<<<<< HEAD
+=======
+/* The "SCSI DMA" chip on the IIfx implements this register. */
+#define CTRL_REG                0x8
+#define CTRL_INTERRUPTS_ENABLE  BIT(1)
+#define CTRL_HANDSHAKE_MODE     BIT(3)
+
+static inline void write_ctrl_reg(struct NCR5380_hostdata *hostdata, u32 value)
+{
+	out_be32(hostdata->io + (CTRL_REG << 4), value);
+}
+
+>>>>>>> upstream/android-13
 static inline int macscsi_pread(struct NCR5380_hostdata *hostdata,
                                 unsigned char *dst, int len)
 {
 	u8 __iomem *s = hostdata->pdma_io + (INPUT_DATA_REG << 4);
 	unsigned char *d = dst;
+<<<<<<< HEAD
+=======
+	int result = 0;
+>>>>>>> upstream/android-13
 
 	hostdata->pdma_residual = len;
 
 	while (!NCR5380_poll_politely(hostdata, BUS_AND_STATUS_REG,
 	                              BASR_DRQ | BASR_PHASE_MATCH,
+<<<<<<< HEAD
 	                              BASR_DRQ | BASR_PHASE_MATCH, HZ / 64)) {
 		int bytes;
 
+=======
+	                              BASR_DRQ | BASR_PHASE_MATCH, 0)) {
+		int bytes;
+
+		if (macintosh_config->ident == MAC_MODEL_IIFX)
+			write_ctrl_reg(hostdata, CTRL_HANDSHAKE_MODE |
+			                         CTRL_INTERRUPTS_ENABLE);
+
+>>>>>>> upstream/android-13
 		bytes = mac_pdma_recv(s, d, min(hostdata->pdma_residual, 512));
 
 		if (bytes > 0) {
@@ -283,6 +318,7 @@ static inline int macscsi_pread(struct NCR5380_hostdata *hostdata,
 		}
 
 		if (hostdata->pdma_residual == 0)
+<<<<<<< HEAD
 			return 0;
 
 		if (NCR5380_poll_politely2(hostdata, STATUS_REG, SR_REQ, SR_REQ,
@@ -292,6 +328,17 @@ static inline int macscsi_pread(struct NCR5380_hostdata *hostdata,
 			            "%s: !REQ and !ACK\n", __func__);
 		if (!(NCR5380_read(BUS_AND_STATUS_REG) & BASR_PHASE_MATCH))
 			return 0;
+=======
+			goto out;
+
+		if (NCR5380_poll_politely2(hostdata, STATUS_REG, SR_REQ, SR_REQ,
+		                           BUS_AND_STATUS_REG, BASR_ACK,
+		                           BASR_ACK, 0) < 0)
+			scmd_printk(KERN_DEBUG, hostdata->connected,
+			            "%s: !REQ and !ACK\n", __func__);
+		if (!(NCR5380_read(BUS_AND_STATUS_REG) & BASR_PHASE_MATCH))
+			goto out;
+>>>>>>> upstream/android-13
 
 		if (bytes == 0)
 			udelay(MAC_PDMA_DELAY);
@@ -302,13 +349,26 @@ static inline int macscsi_pread(struct NCR5380_hostdata *hostdata,
 		dsprintk(NDEBUG_PSEUDO_DMA, hostdata->host,
 		         "%s: bus error (%d/%d)\n", __func__, d - dst, len);
 		NCR5380_dprint(NDEBUG_PSEUDO_DMA, hostdata->host);
+<<<<<<< HEAD
 		return -1;
+=======
+		result = -1;
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	scmd_printk(KERN_ERR, hostdata->connected,
 	            "%s: phase mismatch or !DRQ\n", __func__);
 	NCR5380_dprint(NDEBUG_PSEUDO_DMA, hostdata->host);
+<<<<<<< HEAD
 	return -1;
+=======
+	result = -1;
+out:
+	if (macintosh_config->ident == MAC_MODEL_IIFX)
+		write_ctrl_reg(hostdata, CTRL_INTERRUPTS_ENABLE);
+	return result;
+>>>>>>> upstream/android-13
 }
 
 static inline int macscsi_pwrite(struct NCR5380_hostdata *hostdata,
@@ -316,14 +376,28 @@ static inline int macscsi_pwrite(struct NCR5380_hostdata *hostdata,
 {
 	unsigned char *s = src;
 	u8 __iomem *d = hostdata->pdma_io + (OUTPUT_DATA_REG << 4);
+<<<<<<< HEAD
+=======
+	int result = 0;
+>>>>>>> upstream/android-13
 
 	hostdata->pdma_residual = len;
 
 	while (!NCR5380_poll_politely(hostdata, BUS_AND_STATUS_REG,
 	                              BASR_DRQ | BASR_PHASE_MATCH,
+<<<<<<< HEAD
 	                              BASR_DRQ | BASR_PHASE_MATCH, HZ / 64)) {
 		int bytes;
 
+=======
+	                              BASR_DRQ | BASR_PHASE_MATCH, 0)) {
+		int bytes;
+
+		if (macintosh_config->ident == MAC_MODEL_IIFX)
+			write_ctrl_reg(hostdata, CTRL_HANDSHAKE_MODE |
+			                         CTRL_INTERRUPTS_ENABLE);
+
+>>>>>>> upstream/android-13
 		bytes = mac_pdma_send(s, d, min(hostdata->pdma_residual, 512));
 
 		if (bytes > 0) {
@@ -334,19 +408,37 @@ static inline int macscsi_pwrite(struct NCR5380_hostdata *hostdata,
 		if (hostdata->pdma_residual == 0) {
 			if (NCR5380_poll_politely(hostdata, TARGET_COMMAND_REG,
 			                          TCR_LAST_BYTE_SENT,
+<<<<<<< HEAD
 			                          TCR_LAST_BYTE_SENT, HZ / 64) < 0)
 				scmd_printk(KERN_ERR, hostdata->connected,
 				            "%s: Last Byte Sent timeout\n", __func__);
 			return 0;
+=======
+			                          TCR_LAST_BYTE_SENT,
+			                          0) < 0) {
+				scmd_printk(KERN_ERR, hostdata->connected,
+				            "%s: Last Byte Sent timeout\n", __func__);
+				result = -1;
+			}
+			goto out;
+>>>>>>> upstream/android-13
 		}
 
 		if (NCR5380_poll_politely2(hostdata, STATUS_REG, SR_REQ, SR_REQ,
 		                           BUS_AND_STATUS_REG, BASR_ACK,
+<<<<<<< HEAD
 		                           BASR_ACK, HZ / 64) < 0)
 			scmd_printk(KERN_DEBUG, hostdata->connected,
 			            "%s: !REQ and !ACK\n", __func__);
 		if (!(NCR5380_read(BUS_AND_STATUS_REG) & BASR_PHASE_MATCH))
 			return 0;
+=======
+		                           BASR_ACK, 0) < 0)
+			scmd_printk(KERN_DEBUG, hostdata->connected,
+			            "%s: !REQ and !ACK\n", __func__);
+		if (!(NCR5380_read(BUS_AND_STATUS_REG) & BASR_PHASE_MATCH))
+			goto out;
+>>>>>>> upstream/android-13
 
 		if (bytes == 0)
 			udelay(MAC_PDMA_DELAY);
@@ -357,13 +449,26 @@ static inline int macscsi_pwrite(struct NCR5380_hostdata *hostdata,
 		dsprintk(NDEBUG_PSEUDO_DMA, hostdata->host,
 		         "%s: bus error (%d/%d)\n", __func__, s - src, len);
 		NCR5380_dprint(NDEBUG_PSEUDO_DMA, hostdata->host);
+<<<<<<< HEAD
 		return -1;
+=======
+		result = -1;
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	scmd_printk(KERN_ERR, hostdata->connected,
 	            "%s: phase mismatch or !DRQ\n", __func__);
 	NCR5380_dprint(NDEBUG_PSEUDO_DMA, hostdata->host);
+<<<<<<< HEAD
 	return -1;
+=======
+	result = -1;
+out:
+	if (macintosh_config->ident == MAC_MODEL_IIFX)
+		write_ctrl_reg(hostdata, CTRL_INTERRUPTS_ENABLE);
+	return result;
+>>>>>>> upstream/android-13
 }
 
 static int macscsi_dma_xfer_len(struct NCR5380_hostdata *hostdata,
@@ -398,7 +503,11 @@ static struct scsi_host_template mac_scsi_template = {
 	.this_id		= 7,
 	.sg_tablesize		= 1,
 	.cmd_per_lun		= 2,
+<<<<<<< HEAD
 	.use_clustering		= DISABLE_CLUSTERING,
+=======
+	.dma_boundary		= PAGE_SIZE - 1,
+>>>>>>> upstream/android-13
 	.cmd_size		= NCR5380_CMD_SIZE,
 	.max_sectors		= 128,
 };

@@ -74,6 +74,10 @@ struct sge *t1_sge_create(struct adapter *, struct sge_params *);
 int t1_sge_configure(struct sge *, struct sge_params *);
 int t1_sge_set_coalesce_params(struct sge *, struct sge_params *);
 void t1_sge_destroy(struct sge *);
+<<<<<<< HEAD
+=======
+irqreturn_t t1_interrupt_thread(int irq, void *data);
+>>>>>>> upstream/android-13
 irqreturn_t t1_interrupt(int irq, void *cookie);
 int t1_poll(struct napi_struct *, int);
 
@@ -81,7 +85,11 @@ netdev_tx_t t1_start_xmit(struct sk_buff *skb, struct net_device *dev);
 void t1_vlan_mode(struct adapter *adapter, netdev_features_t features);
 void t1_sge_start(struct sge *);
 void t1_sge_stop(struct sge *);
+<<<<<<< HEAD
 int t1_sge_intr_error_handler(struct sge *);
+=======
+bool t1_sge_intr_error_handler(struct sge *sge);
+>>>>>>> upstream/android-13
 void t1_sge_intr_enable(struct sge *);
 void t1_sge_intr_disable(struct sge *);
 void t1_sge_intr_clear(struct sge *);

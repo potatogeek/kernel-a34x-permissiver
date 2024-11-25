@@ -28,8 +28,14 @@
 #include <linux/init.h>
 #include <linux/string.h>
 #include <linux/ioport.h>
+<<<<<<< HEAD
 #include <linux/platform_device.h>
 #include <linux/bootmem.h>
+=======
+#include <linux/panic_notifier.h>
+#include <linux/platform_device.h>
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/pci.h>
 #include <linux/seq_file.h>
 #include <linux/root_dev.h>
@@ -46,7 +52,10 @@
 #include <linux/log2.h>
 #include <linux/export.h>
 
+<<<<<<< HEAD
 extern struct atomic_notifier_head panic_notifier_list;
+=======
+>>>>>>> upstream/android-13
 static int alpha_panic_event(struct notifier_block *, unsigned long, void *);
 static struct notifier_block alpha_panic_block = {
 	alpha_panic_event,
@@ -55,7 +64,10 @@ static struct notifier_block alpha_panic_block = {
 };
 
 #include <linux/uaccess.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/hwrpb.h>
 #include <asm/dma.h>
 #include <asm/mmu_context.h>
@@ -80,11 +92,14 @@ int alpha_l3_cacheshape;
 unsigned long alpha_verbose_mcheck = CONFIG_VERBOSE_MCHECK_ON;
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_NUMA
 struct cpumask node_to_cpumask_map[MAX_NUMNODES] __read_mostly;
 EXPORT_SYMBOL(node_to_cpumask_map);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /* Which processor we booted from.  */
 int boot_cpuid;
 
@@ -254,7 +269,11 @@ reserve_std_resources(void)
 
 	/* Fix up for the Jensen's queer RTC placement.  */
 	standard_io_resources[0].start = RTC_PORT(0);
+<<<<<<< HEAD
 	standard_io_resources[0].end = RTC_PORT(0) + 0x10;
+=======
+	standard_io_resources[0].end = RTC_PORT(0) + 0x0f;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < ARRAY_SIZE(standard_io_resources); ++i)
 		request_resource(io, standard_io_resources+i);
@@ -293,7 +312,11 @@ move_initrd(unsigned long mem_limit)
 	unsigned long size;
 
 	size = initrd_end - initrd_start;
+<<<<<<< HEAD
 	start = __alloc_bootmem(PAGE_ALIGN(size), PAGE_SIZE, 0);
+=======
+	start = memblock_alloc(PAGE_ALIGN(size), PAGE_SIZE);
+>>>>>>> upstream/android-13
 	if (!start || __pa(start) + size > mem_limit) {
 		initrd_start = initrd_end = 0;
 		return NULL;
@@ -306,15 +329,22 @@ move_initrd(unsigned long mem_limit)
 }
 #endif
 
+<<<<<<< HEAD
 #ifndef CONFIG_DISCONTIGMEM
+=======
+>>>>>>> upstream/android-13
 static void __init
 setup_memory(void *kernel_end)
 {
 	struct memclust_struct * cluster;
 	struct memdesc_struct * memdesc;
+<<<<<<< HEAD
 	unsigned long start_kernel_pfn, end_kernel_pfn;
 	unsigned long bootmap_size, bootmap_pages, bootmap_start;
 	unsigned long start, end;
+=======
+	unsigned long kernel_size;
+>>>>>>> upstream/android-13
 	unsigned long i;
 
 	/* Find free clusters, and init and free the bootmem accordingly.  */
@@ -322,19 +352,39 @@ setup_memory(void *kernel_end)
 	  (hwrpb->mddt_offset + (unsigned long) hwrpb);
 
 	for_each_mem_cluster(memdesc, cluster, i) {
+<<<<<<< HEAD
+=======
+		unsigned long end;
+
+>>>>>>> upstream/android-13
 		printk("memcluster %lu, usage %01lx, start %8lu, end %8lu\n",
 		       i, cluster->usage, cluster->start_pfn,
 		       cluster->start_pfn + cluster->numpages);
 
+<<<<<<< HEAD
+=======
+		end = cluster->start_pfn + cluster->numpages;
+		if (end > max_low_pfn)
+			max_low_pfn = end;
+
+		memblock_add(PFN_PHYS(cluster->start_pfn),
+			     cluster->numpages << PAGE_SHIFT);
+
+>>>>>>> upstream/android-13
 		/* Bit 0 is console/PALcode reserved.  Bit 1 is
 		   non-volatile memory -- we might want to mark
 		   this for later.  */
 		if (cluster->usage & 3)
+<<<<<<< HEAD
 			continue;
 
 		end = cluster->start_pfn + cluster->numpages;
 		if (end > max_low_pfn)
 			max_low_pfn = end;
+=======
+			memblock_reserve(PFN_PHYS(cluster->start_pfn),
+				         cluster->numpages << PAGE_SHIFT);
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -363,6 +413,7 @@ setup_memory(void *kernel_end)
 		max_low_pfn = mem_size_limit;
 	}
 
+<<<<<<< HEAD
 	/* Find the bounds of kernel memory.  */
 	start_kernel_pfn = PFN_DOWN(KERNEL_START_PHYS);
 	end_kernel_pfn = PFN_UP(virt_to_phys(kernel_end));
@@ -444,6 +495,11 @@ setup_memory(void *kernel_end)
 	reserve_bootmem(PFN_PHYS(bootmap_start), bootmap_size,
 			BOOTMEM_DEFAULT);
 	printk("reserving pages %ld:%ld\n", bootmap_start, bootmap_start+PFN_UP(bootmap_size));
+=======
+	/* Reserve the kernel memory. */
+	kernel_size = virt_to_phys(kernel_end) - KERNEL_START_PHYS;
+	memblock_reserve(KERNEL_START_PHYS, kernel_size);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_BLK_DEV_INITRD
 	initrd_start = INITRD_START;
@@ -459,15 +515,23 @@ setup_memory(void *kernel_end)
 				       initrd_end,
 				       phys_to_virt(PFN_PHYS(max_low_pfn)));
 		} else {
+<<<<<<< HEAD
 			reserve_bootmem(virt_to_phys((void *)initrd_start),
 					INITRD_SIZE, BOOTMEM_DEFAULT);
+=======
+			memblock_reserve(virt_to_phys((void *)initrd_start),
+					INITRD_SIZE);
+>>>>>>> upstream/android-13
 		}
 	}
 #endif /* CONFIG_BLK_DEV_INITRD */
 }
+<<<<<<< HEAD
 #else
 extern void setup_memory(void *);
 #endif /* !CONFIG_DISCONTIGMEM */
+=======
+>>>>>>> upstream/android-13
 
 int __init
 page_is_ram(unsigned long pfn)
@@ -505,6 +569,23 @@ register_cpus(void)
 
 arch_initcall(register_cpus);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_MAGIC_SYSRQ
+static void sysrq_reboot_handler(int unused)
+{
+	machine_halt();
+}
+
+static const struct sysrq_key_op srm_sysrq_reboot_op = {
+	.handler	= sysrq_reboot_handler,
+	.help_msg       = "reboot(b)",
+	.action_msg     = "Resetting",
+	.enable_mask    = SYSRQ_ENABLE_BOOT,
+};
+#endif
+
+>>>>>>> upstream/android-13
 void __init
 setup_arch(char **cmdline_p)
 {
@@ -541,7 +622,11 @@ setup_arch(char **cmdline_p)
 #ifndef alpha_using_srm
 	/* Assume that we've booted from SRM if we haven't booted from MILO.
 	   Detect the later by looking for "MILO" in the system serial nr.  */
+<<<<<<< HEAD
 	alpha_using_srm = strncmp((const char *)hwrpb->ssn, "MILO", 4) != 0;
+=======
+	alpha_using_srm = !str_has_prefix((const char *)hwrpb->ssn, "MILO");
+>>>>>>> upstream/android-13
 #endif
 #ifndef alpha_using_qemu
 	/* Similarly, look for QEMU.  */
@@ -625,8 +710,13 @@ setup_arch(char **cmdline_p)
 	/* If we're using SRM, make sysrq-b halt back to the prom,
 	   not auto-reboot.  */
 	if (alpha_using_srm) {
+<<<<<<< HEAD
 		struct sysrq_key_op *op = __sysrq_get_key_op('b');
 		op->handler = (void *) machine_halt;
+=======
+		unregister_sysrq_key('b', __sysrq_reboot_op);
+		register_sysrq_key('b', &srm_sysrq_reboot_op);
+>>>>>>> upstream/android-13
 	}
 #endif
 
@@ -680,6 +770,7 @@ setup_arch(char **cmdline_p)
 	       "VERBOSE_MCHECK "
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_DISCONTIGMEM
 	       "DISCONTIGMEM "
 #ifdef CONFIG_NUMA
@@ -687,6 +778,8 @@ setup_arch(char **cmdline_p)
 #endif
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_DEBUG_SPINLOCK
 	       "DEBUG_SPINLOCK "
 #endif
@@ -709,6 +802,11 @@ setup_arch(char **cmdline_p)
 
 	/* Find our memory.  */
 	setup_memory(kernel_end);
+<<<<<<< HEAD
+=======
+	memblock_set_bottom_up(true);
+	sparse_init();
+>>>>>>> upstream/android-13
 
 	/* First guess at cpu cache sizes.  Do this before init_arch.  */
 	determine_cpu_caches(cpu->type);
@@ -729,8 +827,11 @@ setup_arch(char **cmdline_p)
 #ifdef CONFIG_VT
 #if defined(CONFIG_VGA_CONSOLE)
 	conswitchp = &vga_con;
+<<<<<<< HEAD
 #elif defined(CONFIG_DUMMY_CONSOLE)
 	conswitchp = &dummy_con;
+=======
+>>>>>>> upstream/android-13
 #endif
 #endif
 
@@ -1488,6 +1589,10 @@ c_start(struct seq_file *f, loff_t *pos)
 static void *
 c_next(struct seq_file *f, void *v, loff_t *pos)
 {
+<<<<<<< HEAD
+=======
+	(*pos)++;
+>>>>>>> upstream/android-13
 	return NULL;
 }
 

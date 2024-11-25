@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /******************************************************************************
  *
  * Copyright(c) 2007 - 2010 Realtek Corporation. All rights reserved.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -16,6 +21,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
  *
  *
+=======
+>>>>>>> upstream/android-13
  ******************************************************************************/
 #ifndef __RTL8712_SECURITY_BITDEF_H__
 #define __RTL8712_SECURITY_BITDEF_H__

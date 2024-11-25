@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2012 Linaro Ltd.
  *
@@ -7,6 +8,11 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2012 Linaro Ltd.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/cpuidle.h>
@@ -17,7 +23,11 @@
 extern struct of_cpuidle_method __cpuidle_method_of_table[];
 
 static const struct of_cpuidle_method __cpuidle_method_of_table_sentinel
+<<<<<<< HEAD
 	__used __section(__cpuidle_method_of_table_end);
+=======
+	__used __section("__cpuidle_method_of_table_end");
+>>>>>>> upstream/android-13
 
 static struct cpuidle_ops cpuidle_ops[NR_CPUS] __ro_after_init;
 

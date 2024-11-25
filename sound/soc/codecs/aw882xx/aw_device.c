@@ -24,7 +24,11 @@
 /*#include "aw_afe.h"*/
 #include "aw_bin_parse.h"
 
+<<<<<<< HEAD
 #define AW_DEV_SYSST_CHECK_MAX   (10)
+=======
+#define AW_DEV_SYSST_CHECK_MAX   (20)
+>>>>>>> upstream/android-13
 
 enum {
 	AW_EXT_DSP_WRITE_NONE = 0,
@@ -581,6 +585,10 @@ static int aw_dev_reg_fw_update(struct aw_device *aw_dev)
 	struct aw_bstctrl_desc *bstctrl_desc = &aw_dev->bstctrl_desc;
 	struct aw_cali_desc *cali_desc = &aw_dev->cali_desc;
 	struct aw_sec_data_desc *reg_data;
+<<<<<<< HEAD
+=======
+	struct aw_volume_desc *vol_desc = &aw_dev->volume_desc;
+>>>>>>> upstream/android-13
 	int16_t *data;
 	int data_len;
 
@@ -672,9 +680,23 @@ static int aw_dev_reg_fw_update(struct aw_device *aw_dev)
 			break;
 	}
 
+<<<<<<< HEAD
 	aw_dev->ops.aw_get_volume(aw_dev, &init_volume);
 	aw_dev->volume_desc.init_volume = init_volume;
 
+=======
+	if (aw_dev->cur_prof != aw_dev->set_prof) {
+		/*clear control volume when PA change profile*/
+		vol_desc->ctl_volume = 0;
+		aw_dev->ops.aw_get_volume(aw_dev, &init_volume);
+		vol_desc->init_volume = init_volume;
+	} else {
+		if (aw_dev->ctrl_en == AW_CTRL_DISABLE) {
+			aw_dev->ops.aw_get_volume(aw_dev, &init_volume);
+			vol_desc->init_volume = init_volume;
+		}
+	}
+>>>>>>> upstream/android-13
 	/*keep min volume*/
 	aw_dev->ops.aw_set_volume(aw_dev, aw_dev->volume_desc.mute_volume);
 
@@ -1008,6 +1030,7 @@ static int aw_dev_sysst_check(struct aw_device *aw_dev)
 			ret = 0;
 			break;
 		} else {
+<<<<<<< HEAD
 			aw_dev_info(aw_dev->dev, "check fail, cnt=%d, reg_val=0x%04x",
 					i, reg_val);
 			usleep_range(AW_2000_US, AW_2000_US + 10);
@@ -1015,6 +1038,15 @@ static int aw_dev_sysst_check(struct aw_device *aw_dev)
 	}
 	if (ret < 0)
 		aw_dev_err(aw_dev->dev, "check fail");
+=======
+			aw_dev_info(aw_dev->dev, "wait for I2S clock, cnt=%d, reg_val=0x%04x",
+					i, reg_val);
+			usleep_range(AW_5000_US, AW_5000_US + 10);
+		}
+	}
+	if (ret < 0)
+		aw_dev_info(aw_dev->dev, "wait for I2S clock");
+>>>>>>> upstream/android-13
 	else
 		aw_dev_info(aw_dev->dev, "done");
 
@@ -1191,7 +1223,11 @@ int aw_device_init(struct aw_device *aw_dev, struct aw_container *aw_cfg)
 	int ret;
 
 	if (aw_dev == NULL || aw_cfg == NULL) {
+<<<<<<< HEAD
 		aw_dev_err(aw_dev->dev, "pointer is NULL");
+=======
+		aw_pr_err("pointer is NULL");
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 	}
 
@@ -1376,11 +1412,24 @@ int aw_device_start(struct aw_device *aw_dev)
 	usleep_range(AW_2000_US, AW_2000_US + 10);
 
 	ret = aw_dev_syspll_check(aw_dev);
+<<<<<<< HEAD
 	if (ret < 0) {
 		aw_dev_reg_dump(aw_dev);
 		aw_dev_pwd(aw_dev, true);
 		aw_dev_dbg(aw_dev->dev, "pll check failed cannot start");
 		return ret;
+=======
+	if (aw_dev->sys_check_en) {
+		if (ret < 0) {
+			aw_dev_reg_dump(aw_dev);
+			aw_dev_pwd(aw_dev, true);
+			aw_dev_dbg(aw_dev->dev, "pll check failed cannot start");
+			return ret;
+		}
+	} else {
+		aw_dev_dbg(aw_dev->dev, "pll check failed, but not exit");
+		ret = 0;
+>>>>>>> upstream/android-13
 	}
 
 	/*amppd on*/
@@ -1389,6 +1438,7 @@ int aw_device_start(struct aw_device *aw_dev)
 
 	/*check i2s status*/
 	ret = aw_dev_sysst_check(aw_dev);
+<<<<<<< HEAD
 	if (ret < 0) {
 		aw_dev_reg_dump(aw_dev);
 		/*close tx feedback*/
@@ -1400,6 +1450,24 @@ int aw_device_start(struct aw_device *aw_dev)
 		/*power down*/
 		aw_dev_pwd(aw_dev, true);
 		return -EINVAL;
+=======
+	if (aw_dev->sys_check_en) {
+		if (ret < 0) {
+			aw_dev_reg_dump(aw_dev);
+			/*close tx feedback*/
+			aw_dev_i2s_enable(aw_dev, false);
+			/*clear interrupt*/
+			aw_dev_clear_int_status(aw_dev);
+			/*close amppd*/
+			aw_dev_amppd(aw_dev, true);
+			/*power down*/
+			aw_dev_pwd(aw_dev, true);
+			return -EINVAL;
+		}
+	} else {
+		aw_dev_dbg(aw_dev->dev, "check failed, but not exit");
+		ret = 0;
+>>>>>>> upstream/android-13
 	}
 
 	/*boost type recover*/
@@ -1514,11 +1582,50 @@ static void aw_device_parse_sound_channel_dt(struct aw_device *aw_dev)
 	aw_dev->channel = channel_value;
 }
 
+<<<<<<< HEAD
+=======
+
+static void aw_device_parse_sys_check_dt(struct aw_device *aw_dev)
+{
+	int ret;
+
+	ret = of_property_read_u32(aw_dev->dev->of_node, "sys-check-en",
+							&aw_dev->sys_check_en);
+	if (ret < 0) {
+		aw_dev_info(aw_dev->dev, "read sys-check-en failed,use default");
+		aw_dev->sys_check_en = 1;
+		return;
+	}
+
+	aw_dev_dbg(aw_dev->dev, "read sys-check-en value is : %d", aw_dev->sys_check_en);
+}
+
+static void aw_device_parse_pretemp_check_dt(struct aw_device *aw_dev)
+{
+	int ret;
+
+	ret = of_property_read_u32(aw_dev->dev->of_node, "pretemp-check-en",
+							&aw_dev->pre_temp_check);
+	if (ret < 0) {
+		aw_dev_info(aw_dev->dev, "read pretemp-check-en failed,use default");
+		aw_dev->pre_temp_check = 0;
+		return;
+	}
+
+	aw_dev_dbg(aw_dev->dev, "read pretemp-check-en value is : %d", aw_dev->pre_temp_check);
+}
+
+>>>>>>> upstream/android-13
 static void aw_device_parse_dt(struct aw_device *aw_dev)
 {
 	aw_device_parse_sound_channel_dt(aw_dev);
 	aw_device_parse_topo_id_dt(aw_dev);
 	aw_device_parse_port_id_dt(aw_dev);
+<<<<<<< HEAD
+=======
+	aw_device_parse_sys_check_dt(aw_dev);
+	aw_device_parse_pretemp_check_dt(aw_dev);
+>>>>>>> upstream/android-13
 }
 
 int aw_dev_get_list_head(struct list_head **head)

@@ -221,7 +221,11 @@ static int __init bcm63xx_register_pci(void)
 	 * a spinlock for each io access, so this is currently kind of
 	 * broken on SMP.
 	 */
+<<<<<<< HEAD
 	pci_iospace_start = ioremap_nocache(BCM_PCI_IO_BASE_PA, 4);
+=======
+	pci_iospace_start = ioremap(BCM_PCI_IO_BASE_PA, 4);
+>>>>>>> upstream/android-13
 	if (!pci_iospace_start)
 		return -ENOMEM;
 

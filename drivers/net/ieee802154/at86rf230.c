@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * AT86RF230/RF231 driver
  *
  * Copyright (C) 2009-2012 Siemens AG
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * as published by the Free Software Foundation.
@@ -12,6 +17,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * Written by:
  * Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
  * Alexander Smirnov <alex.bluesman.smirnov@gmail.com>
@@ -108,6 +115,10 @@ struct at86rf230_local {
 	unsigned long cal_timeout;
 	bool is_tx;
 	bool is_tx_from_off;
+<<<<<<< HEAD
+=======
+	bool was_tx;
+>>>>>>> upstream/android-13
 	u8 tx_retry;
 	struct sk_buff *tx_skb;
 	struct at86rf230_state_change tx;
@@ -351,7 +362,15 @@ at86rf230_async_error_recover_complete(void *context)
 	if (ctx->free)
 		kfree(ctx);
 
+<<<<<<< HEAD
 	ieee802154_wake_queue(lp->hw);
+=======
+	if (lp->was_tx) {
+		lp->was_tx = 0;
+		dev_kfree_skb_any(lp->tx_skb);
+		ieee802154_wake_queue(lp->hw);
+	}
+>>>>>>> upstream/android-13
 }
 
 static void
@@ -360,7 +379,15 @@ at86rf230_async_error_recover(void *context)
 	struct at86rf230_state_change *ctx = context;
 	struct at86rf230_local *lp = ctx->lp;
 
+<<<<<<< HEAD
 	lp->is_tx = 0;
+=======
+	if (lp->is_tx) {
+		lp->was_tx = 1;
+		lp->is_tx = 0;
+	}
+
+>>>>>>> upstream/android-13
 	at86rf230_async_state_change(lp, ctx, STATE_RX_AACK_ON,
 				     at86rf230_async_error_recover_complete);
 }
@@ -1632,6 +1659,7 @@ static int at86rf230_stats_show(struct seq_file *file, void *offset)
 	seq_printf(file, "INVALID:\t\t%8llu\n", lp->trac.invalid);
 	return 0;
 }
+<<<<<<< HEAD
 
 static int at86rf230_stats_open(struct inode *inode, struct file *file)
 {
@@ -1649,10 +1677,18 @@ static int at86rf230_debugfs_init(struct at86rf230_local *lp)
 {
 	char debugfs_dir_name[DNAME_INLINE_LEN + 1] = "at86rf230-";
 	struct dentry *stats;
+=======
+DEFINE_SHOW_ATTRIBUTE(at86rf230_stats);
+
+static void at86rf230_debugfs_init(struct at86rf230_local *lp)
+{
+	char debugfs_dir_name[DNAME_INLINE_LEN + 1] = "at86rf230-";
+>>>>>>> upstream/android-13
 
 	strncat(debugfs_dir_name, dev_name(&lp->spi->dev), DNAME_INLINE_LEN);
 
 	at86rf230_debugfs_root = debugfs_create_dir(debugfs_dir_name, NULL);
+<<<<<<< HEAD
 	if (!at86rf230_debugfs_root)
 		return -ENOMEM;
 
@@ -1663,6 +1699,11 @@ static int at86rf230_debugfs_init(struct at86rf230_local *lp)
 		return -ENOMEM;
 
 	return 0;
+=======
+
+	debugfs_create_file("trac_stats", 0444, at86rf230_debugfs_root, lp,
+			    &at86rf230_stats_fops);
+>>>>>>> upstream/android-13
 }
 
 static void at86rf230_debugfs_remove(void)
@@ -1670,7 +1711,11 @@ static void at86rf230_debugfs_remove(void)
 	debugfs_remove_recursive(at86rf230_debugfs_root);
 }
 #else
+<<<<<<< HEAD
 static int at86rf230_debugfs_init(struct at86rf230_local *lp) { return 0; }
+=======
+static void at86rf230_debugfs_init(struct at86rf230_local *lp) { }
+>>>>>>> upstream/android-13
 static void at86rf230_debugfs_remove(void) { }
 #endif
 
@@ -1770,9 +1815,13 @@ static int at86rf230_probe(struct spi_device *spi)
 	/* going into sleep by default */
 	at86rf230_sleep(lp);
 
+<<<<<<< HEAD
 	rc = at86rf230_debugfs_init(lp);
 	if (rc)
 		goto free_dev;
+=======
+	at86rf230_debugfs_init(lp);
+>>>>>>> upstream/android-13
 
 	rc = ieee802154_register_hw(lp->hw);
 	if (rc)

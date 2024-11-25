@@ -19,8 +19,12 @@
 
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/physmap.h>
+<<<<<<< HEAD
 #include <linux/mtd/rawnand.h>
 #include <linux/mtd/partitions.h>
+=======
+#include <linux/mtd/platnand.h>
+>>>>>>> upstream/android-13
 
 #include <asm/netlogic/haldefs.h>
 #include <asm/netlogic/xlr/iomap.h>
@@ -92,8 +96,13 @@ struct xlr_nand_flash_priv {
 
 static struct xlr_nand_flash_priv nand_priv;
 
+<<<<<<< HEAD
 static void xlr_nand_ctrl(struct mtd_info *mtd, int cmd,
 		unsigned int ctrl)
+=======
+static void xlr_nand_ctrl(struct nand_chip *chip, int cmd,
+			  unsigned int ctrl)
+>>>>>>> upstream/android-13
 {
 	if (ctrl & NAND_CLE)
 		nlm_write_reg(nand_priv.flash_mmio,

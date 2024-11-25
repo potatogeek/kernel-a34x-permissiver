@@ -73,6 +73,7 @@ struct clk_ops clk_ops1 = {
 #endif /* MCFPM_PPMCR1 */
 #endif /* MCFPM_PPMCR0 */
 
+<<<<<<< HEAD
 struct clk *clk_get(struct device *dev, const char *id)
 {
 	const char *clk_name = dev ? dev_name(dev) : id ? id : NULL;
@@ -90,6 +91,15 @@ EXPORT_SYMBOL(clk_get);
 int clk_enable(struct clk *clk)
 {
 	unsigned long flags;
+=======
+int clk_enable(struct clk *clk)
+{
+	unsigned long flags;
+
+	if (!clk)
+		return 0;
+
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&clk_lock, flags);
 	if ((clk->enabled++ == 0) && clk->clk_ops)
 		clk->clk_ops->enable(clk);
@@ -113,6 +123,7 @@ void clk_disable(struct clk *clk)
 }
 EXPORT_SYMBOL(clk_disable);
 
+<<<<<<< HEAD
 void clk_put(struct clk *clk)
 {
 	if (clk->enabled != 0)
@@ -120,6 +131,8 @@ void clk_put(struct clk *clk)
 }
 EXPORT_SYMBOL(clk_put);
 
+=======
+>>>>>>> upstream/android-13
 unsigned long clk_get_rate(struct clk *clk)
 {
 	if (!clk)

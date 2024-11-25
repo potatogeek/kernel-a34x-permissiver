@@ -5,6 +5,10 @@
  * Released under the GPLv2 only.
  */
 
+<<<<<<< HEAD
+=======
+#include <linux/acpi.h>
+>>>>>>> upstream/android-13
 #include <linux/pci.h>	/* for scatterlist macros */
 #include <linux/usb.h>
 #include <linux/module.h>
@@ -118,7 +122,11 @@ static int usb_internal_control_msg(struct usb_device *usb_dev,
  * @timeout: time in msecs to wait for the message to complete before timing
  *	out (if 0 the wait is forever)
  *
+<<<<<<< HEAD
  * Context: !in_interrupt ()
+=======
+ * Context: task context, might sleep.
+>>>>>>> upstream/android-13
  *
  * This function sends a simple control message to a specified endpoint and
  * waits for the message to complete, or timeout.
@@ -165,6 +173,142 @@ int usb_control_msg(struct usb_device *dev, unsigned int pipe, __u8 request,
 EXPORT_SYMBOL_GPL(usb_control_msg);
 
 /**
+<<<<<<< HEAD
+=======
+ * usb_control_msg_send - Builds a control "send" message, sends it off and waits for completion
+ * @dev: pointer to the usb device to send the message to
+ * @endpoint: endpoint to send the message to
+ * @request: USB message request value
+ * @requesttype: USB message request type value
+ * @value: USB message value
+ * @index: USB message index value
+ * @driver_data: pointer to the data to send
+ * @size: length in bytes of the data to send
+ * @timeout: time in msecs to wait for the message to complete before timing
+ *	out (if 0 the wait is forever)
+ * @memflags: the flags for memory allocation for buffers
+ *
+ * Context: !in_interrupt ()
+ *
+ * This function sends a control message to a specified endpoint that is not
+ * expected to fill in a response (i.e. a "send message") and waits for the
+ * message to complete, or timeout.
+ *
+ * Do not use this function from within an interrupt context. If you need
+ * an asynchronous message, or need to send a message from within interrupt
+ * context, use usb_submit_urb(). If a thread in your driver uses this call,
+ * make sure your disconnect() method can wait for it to complete. Since you
+ * don't have a handle on the URB used, you can't cancel the request.
+ *
+ * The data pointer can be made to a reference on the stack, or anywhere else,
+ * as it will not be modified at all.  This does not have the restriction that
+ * usb_control_msg() has where the data pointer must be to dynamically allocated
+ * memory (i.e. memory that can be successfully DMAed to a device).
+ *
+ * Return: If successful, 0 is returned, Otherwise, a negative error number.
+ */
+int usb_control_msg_send(struct usb_device *dev, __u8 endpoint, __u8 request,
+			 __u8 requesttype, __u16 value, __u16 index,
+			 const void *driver_data, __u16 size, int timeout,
+			 gfp_t memflags)
+{
+	unsigned int pipe = usb_sndctrlpipe(dev, endpoint);
+	int ret;
+	u8 *data = NULL;
+
+	if (size) {
+		data = kmemdup(driver_data, size, memflags);
+		if (!data)
+			return -ENOMEM;
+	}
+
+	ret = usb_control_msg(dev, pipe, request, requesttype, value, index,
+			      data, size, timeout);
+	kfree(data);
+
+	if (ret < 0)
+		return ret;
+
+	return 0;
+}
+EXPORT_SYMBOL_GPL(usb_control_msg_send);
+
+/**
+ * usb_control_msg_recv - Builds a control "receive" message, sends it off and waits for completion
+ * @dev: pointer to the usb device to send the message to
+ * @endpoint: endpoint to send the message to
+ * @request: USB message request value
+ * @requesttype: USB message request type value
+ * @value: USB message value
+ * @index: USB message index value
+ * @driver_data: pointer to the data to be filled in by the message
+ * @size: length in bytes of the data to be received
+ * @timeout: time in msecs to wait for the message to complete before timing
+ *	out (if 0 the wait is forever)
+ * @memflags: the flags for memory allocation for buffers
+ *
+ * Context: !in_interrupt ()
+ *
+ * This function sends a control message to a specified endpoint that is
+ * expected to fill in a response (i.e. a "receive message") and waits for the
+ * message to complete, or timeout.
+ *
+ * Do not use this function from within an interrupt context. If you need
+ * an asynchronous message, or need to send a message from within interrupt
+ * context, use usb_submit_urb(). If a thread in your driver uses this call,
+ * make sure your disconnect() method can wait for it to complete. Since you
+ * don't have a handle on the URB used, you can't cancel the request.
+ *
+ * The data pointer can be made to a reference on the stack, or anywhere else
+ * that can be successfully written to.  This function does not have the
+ * restriction that usb_control_msg() has where the data pointer must be to
+ * dynamically allocated memory (i.e. memory that can be successfully DMAed to a
+ * device).
+ *
+ * The "whole" message must be properly received from the device in order for
+ * this function to be successful.  If a device returns less than the expected
+ * amount of data, then the function will fail.  Do not use this for messages
+ * where a variable amount of data might be returned.
+ *
+ * Return: If successful, 0 is returned, Otherwise, a negative error number.
+ */
+int usb_control_msg_recv(struct usb_device *dev, __u8 endpoint, __u8 request,
+			 __u8 requesttype, __u16 value, __u16 index,
+			 void *driver_data, __u16 size, int timeout,
+			 gfp_t memflags)
+{
+	unsigned int pipe = usb_rcvctrlpipe(dev, endpoint);
+	int ret;
+	u8 *data;
+
+	if (!size || !driver_data)
+		return -EINVAL;
+
+	data = kmalloc(size, memflags);
+	if (!data)
+		return -ENOMEM;
+
+	ret = usb_control_msg(dev, pipe, request, requesttype, value, index,
+			      data, size, timeout);
+
+	if (ret < 0)
+		goto exit;
+
+	if (ret == size) {
+		memcpy(driver_data, data, size);
+		ret = 0;
+	} else {
+		ret = -EREMOTEIO;
+	}
+
+exit:
+	kfree(data);
+	return ret;
+}
+EXPORT_SYMBOL_GPL(usb_control_msg_recv);
+
+/**
+>>>>>>> upstream/android-13
  * usb_interrupt_msg - Builds an interrupt urb, sends it off and waits for completion
  * @usb_dev: pointer to the usb device to send the message to
  * @pipe: endpoint "pipe" to send the message to
@@ -175,7 +319,11 @@ EXPORT_SYMBOL_GPL(usb_control_msg);
  * @timeout: time in msecs to wait for the message to complete before
  *	timing out (if 0 the wait is forever)
  *
+<<<<<<< HEAD
  * Context: !in_interrupt ()
+=======
+ * Context: task context, might sleep.
+>>>>>>> upstream/android-13
  *
  * This function sends a simple interrupt message to a specified endpoint and
  * waits for the message to complete, or timeout.
@@ -208,7 +356,11 @@ EXPORT_SYMBOL_GPL(usb_interrupt_msg);
  * @timeout: time in msecs to wait for the message to complete before
  *	timing out (if 0 the wait is forever)
  *
+<<<<<<< HEAD
  * Context: !in_interrupt ()
+=======
+ * Context: task context, might sleep.
+>>>>>>> upstream/android-13
  *
  * This function sends a simple bulk message to a specified endpoint
  * and waits for the message to complete, or timeout.
@@ -475,7 +627,12 @@ EXPORT_SYMBOL_GPL(usb_sg_init);
  * usb_sg_wait - synchronously execute scatter/gather request
  * @io: request block handle, as initialized with usb_sg_init().
  * 	some fields become accessible when this call returns.
+<<<<<<< HEAD
  * Context: !in_interrupt ()
+=======
+ *
+ * Context: task context, might sleep.
+>>>>>>> upstream/android-13
  *
  * This function blocks until the specified I/O operation completes.  It
  * leverages the grouping of the related I/O requests to get good transfer
@@ -629,7 +786,12 @@ EXPORT_SYMBOL_GPL(usb_sg_cancel);
  * @index: the number of the descriptor
  * @buf: where to put the descriptor
  * @size: how big is "buf"?
+<<<<<<< HEAD
  * Context: !in_interrupt ()
+=======
+ *
+ * Context: task context, might sleep.
+>>>>>>> upstream/android-13
  *
  * Gets a USB descriptor.  Convenience functions exist to simplify
  * getting some types of descriptors.  Use
@@ -650,6 +812,12 @@ int usb_get_descriptor(struct usb_device *dev, unsigned char type,
 	int i;
 	int result;
 
+<<<<<<< HEAD
+=======
+	if (size <= 0)		/* No point in asking for no data */
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	memset(buf, 0, size);	/* Make sure we parse really received data */
 
 	for (i = 0; i < 3; ++i) {
@@ -677,7 +845,12 @@ EXPORT_SYMBOL_GPL(usb_get_descriptor);
  * @index: the number of the descriptor
  * @buf: where to put the string
  * @size: how big is "buf"?
+<<<<<<< HEAD
  * Context: !in_interrupt ()
+=======
+ *
+ * Context: task context, might sleep.
+>>>>>>> upstream/android-13
  *
  * Retrieves a string, encoded using UTF-16LE (Unicode, 16 bits per character,
  * in little-endian byte order).
@@ -698,6 +871,12 @@ static int usb_get_string(struct usb_device *dev, unsigned short langid,
 	int i;
 	int result;
 
+<<<<<<< HEAD
+=======
+	if (size <= 0)		/* No point in asking for no data */
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	for (i = 0; i < 3; ++i) {
 		/* retry on length 0 or stall; some devices are flakey */
 		result = usb_control_msg(dev, usb_rcvctrlpipe(dev, 0),
@@ -812,7 +991,12 @@ static int usb_get_langid(struct usb_device *dev, unsigned char *tbuf)
  * @index: the number of the descriptor
  * @buf: where to put the string
  * @size: how big is "buf"?
+<<<<<<< HEAD
  * Context: !in_interrupt ()
+=======
+ *
+ * Context: task context, might sleep.
+>>>>>>> upstream/android-13
  *
  * This converts the UTF-16LE encoded strings returned by devices, from
  * usb_get_string_descriptor(), to null-terminated UTF-8 encoded ones
@@ -901,7 +1085,12 @@ char *usb_cache_string(struct usb_device *udev, int index)
  * usb_get_device_descriptor - (re)reads the device descriptor (usbcore)
  * @dev: the device whose device descriptor is being updated
  * @size: how much of the descriptor to read
+<<<<<<< HEAD
  * Context: !in_interrupt ()
+=======
+ *
+ * Context: task context, might sleep.
+>>>>>>> upstream/android-13
  *
  * Updates the copy of the device descriptor stored in the device structure,
  * which dedicates space for this purpose.
@@ -936,7 +1125,11 @@ int usb_get_device_descriptor(struct usb_device *dev, unsigned int size)
 /*
  * usb_set_isoch_delay - informs the device of the packet transmit delay
  * @dev: the device whose delay is to be informed
+<<<<<<< HEAD
  * Context: !in_interrupt()
+=======
+ * Context: task context, might sleep
+>>>>>>> upstream/android-13
  *
  * Since this is an optional request, we don't bother if it fails.
  */
@@ -950,11 +1143,20 @@ int usb_set_isoch_delay(struct usb_device *dev)
 	if (dev->speed < USB_SPEED_SUPER)
 		return 0;
 
+<<<<<<< HEAD
 	return usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
 			USB_REQ_SET_ISOCH_DELAY,
 			USB_DIR_OUT | USB_TYPE_STANDARD | USB_RECIP_DEVICE,
 			dev->hub_delay, 0, NULL, 0,
 			USB_CTRL_SET_TIMEOUT);
+=======
+	return usb_control_msg_send(dev, 0,
+			USB_REQ_SET_ISOCH_DELAY,
+			USB_DIR_OUT | USB_TYPE_STANDARD | USB_RECIP_DEVICE,
+			dev->hub_delay, 0, NULL, 0,
+			USB_CTRL_SET_TIMEOUT,
+			GFP_NOIO);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -964,7 +1166,12 @@ int usb_set_isoch_delay(struct usb_device *dev)
  * @type: USB_STATUS_TYPE_*; for standard or PTM status types
  * @target: zero (for device), else interface or endpoint number
  * @data: pointer to two bytes of bitmap data
+<<<<<<< HEAD
  * Context: !in_interrupt ()
+=======
+ *
+ * Context: task context, might sleep.
+>>>>>>> upstream/android-13
  *
  * Returns device, interface, or endpoint status.  Normally only of
  * interest to see if the device is self powered, or has enabled the
@@ -1041,7 +1248,12 @@ EXPORT_SYMBOL_GPL(usb_get_status);
  * usb_clear_halt - tells device to clear endpoint halt/stall condition
  * @dev: device whose endpoint is halted
  * @pipe: endpoint "pipe" being cleared
+<<<<<<< HEAD
  * Context: !in_interrupt ()
+=======
+ *
+ * Context: task context, might sleep.
+>>>>>>> upstream/android-13
  *
  * This is used to clear halt conditions for bulk and interrupt endpoints,
  * as reported by URB completion status.  Endpoints that are halted are
@@ -1072,6 +1284,7 @@ int usb_clear_halt(struct usb_device *dev, int pipe)
 	 * (like some ibmcam model 1 units) seem to expect hosts to make
 	 * this request for iso endpoints, which can't halt!
 	 */
+<<<<<<< HEAD
 	result = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
 		USB_REQ_CLEAR_FEATURE, USB_RECIP_ENDPOINT,
 		USB_ENDPOINT_HALT, endp, NULL, 0,
@@ -1079,6 +1292,15 @@ int usb_clear_halt(struct usb_device *dev, int pipe)
 
 	/* don't un-halt or force to DATA0 except on success */
 	if (result < 0)
+=======
+	result = usb_control_msg_send(dev, 0,
+				      USB_REQ_CLEAR_FEATURE, USB_RECIP_ENDPOINT,
+				      USB_ENDPOINT_HALT, endp, NULL, 0,
+				      USB_CTRL_SET_TIMEOUT, GFP_NOIO);
+
+	/* don't un-halt or force to DATA0 except on success */
+	if (result)
+>>>>>>> upstream/android-13
 		return result;
 
 	/* NOTE:  seems like Microsoft and Apple don't bother verifying
@@ -1357,7 +1579,12 @@ void usb_enable_interface(struct usb_device *dev,
  * @dev: the device whose interface is being updated
  * @interface: the interface being updated
  * @alternate: the setting being chosen.
+<<<<<<< HEAD
  * Context: !in_interrupt ()
+=======
+ *
+ * Context: task context, might sleep.
+>>>>>>> upstream/android-13
  *
  * This is used to enable data transfers on interfaces that may not
  * be enabled by default.  Not all devices support such configurability.
@@ -1452,9 +1679,17 @@ int usb_set_interface(struct usb_device *dev, int interface, int alternate)
 	if (dev->quirks & USB_QUIRK_NO_SET_INTF)
 		ret = -EPIPE;
 	else
+<<<<<<< HEAD
 		ret = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
 				   USB_REQ_SET_INTERFACE, USB_RECIP_INTERFACE,
 				   alternate, interface, NULL, 0, 5000);
+=======
+		ret = usb_control_msg_send(dev, 0,
+					   USB_REQ_SET_INTERFACE,
+					   USB_RECIP_INTERFACE, alternate,
+					   interface, NULL, 0, 5000,
+					   GFP_NOIO);
+>>>>>>> upstream/android-13
 
 	/* 9.4.10 says devices don't need this and are free to STALL the
 	 * request if the interface only has one alternate setting.
@@ -1464,7 +1699,11 @@ int usb_set_interface(struct usb_device *dev, int interface, int alternate)
 			"manual set_interface for iface %d, alt %d\n",
 			interface, alternate);
 		manual = 1;
+<<<<<<< HEAD
 	} else if (ret < 0) {
+=======
+	} else if (ret) {
+>>>>>>> upstream/android-13
 		/* Re-instate the old alt setting */
 		usb_hcd_alloc_bandwidth(dev, NULL, alt, iface->cur_altsetting);
 		usb_enable_lpm(dev);
@@ -1588,11 +1827,19 @@ int usb_reset_configuration(struct usb_device *dev)
 		mutex_unlock(hcd->bandwidth_mutex);
 		return retval;
 	}
+<<<<<<< HEAD
 	retval = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
 			USB_REQ_SET_CONFIGURATION, 0,
 			config->desc.bConfigurationValue, 0,
 			NULL, 0, USB_CTRL_SET_TIMEOUT);
 	if (retval < 0) {
+=======
+	retval = usb_control_msg_send(dev, 0, USB_REQ_SET_CONFIGURATION, 0,
+				      config->desc.bConfigurationValue, 0,
+				      NULL, 0, USB_CTRL_SET_TIMEOUT,
+				      GFP_NOIO);
+	if (retval) {
+>>>>>>> upstream/android-13
 		usb_hcd_alloc_bandwidth(dev, NULL, NULL, NULL);
 		usb_enable_lpm(dev);
 		mutex_unlock(hcd->bandwidth_mutex);
@@ -1776,7 +2023,12 @@ static void __usb_queue_reset_device(struct work_struct *ws)
  * usb_set_configuration - Makes a particular device setting be current
  * @dev: the device whose configuration is being updated
  * @configuration: the configuration being chosen.
+<<<<<<< HEAD
  * Context: !in_interrupt(), caller owns the device lock
+=======
+ *
+ * Context: task context, might sleep. Caller holds device lock.
+>>>>>>> upstream/android-13
  *
  * This is used to enable non-default device modes.  Not all devices
  * use this kind of configurability; many devices only have one
@@ -1956,16 +2208,23 @@ free_interfaces:
 			intf->dev.of_node = usb_of_get_interface_node(dev,
 					configuration, ifnum);
 		}
+<<<<<<< HEAD
+=======
+		ACPI_COMPANION_SET(&intf->dev, ACPI_COMPANION(&dev->dev));
+>>>>>>> upstream/android-13
 		intf->dev.driver = NULL;
 		intf->dev.bus = &usb_bus_type;
 		intf->dev.type = &usb_if_device_type;
 		intf->dev.groups = usb_interface_groups;
+<<<<<<< HEAD
 		/*
 		 * Please refer to usb_alloc_dev() to see why we set
 		 * dma_mask and dma_pfn_offset.
 		 */
 		intf->dev.dma_mask = dev->dev.dma_mask;
 		intf->dev.dma_pfn_offset = dev->dev.dma_pfn_offset;
+=======
+>>>>>>> upstream/android-13
 		INIT_WORK(&intf->reset_ws, __usb_queue_reset_device);
 		intf->minor = -1;
 		device_initialize(&intf->dev);
@@ -1976,10 +2235,17 @@ free_interfaces:
 	}
 	kfree(new_interfaces);
 
+<<<<<<< HEAD
 	ret = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
 			      USB_REQ_SET_CONFIGURATION, 0, configuration, 0,
 			      NULL, 0, USB_CTRL_SET_TIMEOUT);
 	if (ret < 0 && cp) {
+=======
+	ret = usb_control_msg_send(dev, 0, USB_REQ_SET_CONFIGURATION, 0,
+				   configuration, 0, NULL, 0,
+				   USB_CTRL_SET_TIMEOUT, GFP_NOIO);
+	if (ret && cp) {
+>>>>>>> upstream/android-13
 		/*
 		 * All the old state is gone, so what else can we do?
 		 * The device is probably useless now anyway.
@@ -2023,6 +2289,16 @@ free_interfaces:
 	for (i = 0; i < nintf; ++i) {
 		struct usb_interface *intf = cp->interface[i];
 
+<<<<<<< HEAD
+=======
+		if (intf->dev.of_node &&
+		    !of_device_is_available(intf->dev.of_node)) {
+			dev_info(&dev->dev, "skipping disabled interface %d\n",
+				 intf->cur_altsetting->desc.bInterfaceNumber);
+			continue;
+		}
+
+>>>>>>> upstream/android-13
 		dev_dbg(&dev->dev,
 			"adding %s (config #%d, interface %d)\n",
 			dev_name(&intf->dev), configuration,

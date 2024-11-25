@@ -26,6 +26,10 @@
 #include <linux/seq_file.h>
 #include <linux/slab.h>
 #include <linux/timer.h>
+<<<<<<< HEAD
+=======
+#include <linux/usb.h>
+>>>>>>> upstream/android-13
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
 #include <linux/workqueue.h>
@@ -266,8 +270,13 @@ struct bcm63xx_req {
  * @pd: Platform data (board/port info).
  * @usbd_clk: Clock descriptor for the USB device block.
  * @usbh_clk: Clock descriptor for the USB host block.
+<<<<<<< HEAD
  * @gadget: USB slave device.
  * @driver: Driver for USB slave devices.
+=======
+ * @gadget: USB device.
+ * @driver: Driver for USB device.
+>>>>>>> upstream/android-13
  * @usbd_regs: Base address of the USBD/USB20D block.
  * @iudma_regs: Base address of the USBD's associated IUDMA block.
  * @bep: Array of endpoints, including ep0.
@@ -287,7 +296,10 @@ struct bcm63xx_req {
  * @ep0_req_completed: ep0 request has completed; worker has not seen it yet.
  * @ep0_reply: Pending reply from gadget driver.
  * @ep0_request: Outstanding ep0 request.
+<<<<<<< HEAD
  * @debugfs_root: debugfs directory: /sys/kernel/debug/<DRV_MODULE_NAME>.
+=======
+>>>>>>> upstream/android-13
  */
 struct bcm63xx_udc {
 	spinlock_t			lock;
@@ -326,8 +338,11 @@ struct bcm63xx_udc {
 	unsigned			ep0_req_completed:1;
 	struct usb_request		*ep0_reply;
 	struct usb_request		*ep0_request;
+<<<<<<< HEAD
 
 	struct dentry			*debugfs_root;
+=======
+>>>>>>> upstream/android-13
 };
 
 static const struct usb_ep_ops bcm63xx_udc_ep_ops;
@@ -1744,7 +1759,11 @@ static void bcm63xx_ep0_process(struct work_struct *w)
 
 /**
  * bcm63xx_udc_get_frame - Read current SOF frame number from the HW.
+<<<<<<< HEAD
  * @gadget: USB slave device.
+=======
+ * @gadget: USB device.
+>>>>>>> upstream/android-13
  */
 static int bcm63xx_udc_get_frame(struct usb_gadget *gadget)
 {
@@ -1756,7 +1775,11 @@ static int bcm63xx_udc_get_frame(struct usb_gadget *gadget)
 
 /**
  * bcm63xx_udc_pullup - Enable/disable pullup on D+ line.
+<<<<<<< HEAD
  * @gadget: USB slave device.
+=======
+ * @gadget: USB device.
+>>>>>>> upstream/android-13
  * @is_on: 0 to disable pullup, 1 to enable.
  *
  * See notes in bcm63xx_select_pullup().
@@ -1805,8 +1828,13 @@ static int bcm63xx_udc_pullup(struct usb_gadget *gadget, int is_on)
 
 /**
  * bcm63xx_udc_start - Start the controller.
+<<<<<<< HEAD
  * @gadget: USB slave device.
  * @driver: Driver for USB slave devices.
+=======
+ * @gadget: USB device.
+ * @driver: Driver for USB device.
+>>>>>>> upstream/android-13
  */
 static int bcm63xx_udc_start(struct usb_gadget *gadget,
 		struct usb_gadget_driver *driver)
@@ -1842,8 +1870,13 @@ static int bcm63xx_udc_start(struct usb_gadget *gadget,
 
 /**
  * bcm63xx_udc_stop - Shut down the controller.
+<<<<<<< HEAD
  * @gadget: USB slave device.
  * @driver: Driver for USB slave devices.
+=======
+ * @gadget: USB device.
+ * @driver: Driver for USB device.
+>>>>>>> upstream/android-13
  */
 static int bcm63xx_udc_stop(struct usb_gadget *gadget)
 {
@@ -2248,9 +2281,13 @@ static void bcm63xx_udc_init_debugfs(struct bcm63xx_udc *udc)
 	if (!IS_ENABLED(CONFIG_USB_GADGET_DEBUG_FS))
 		return;
 
+<<<<<<< HEAD
 	root = debugfs_create_dir(udc->gadget.name, NULL);
 	udc->debugfs_root = root;
 
+=======
+	root = debugfs_create_dir(udc->gadget.name, usb_debug_root);
+>>>>>>> upstream/android-13
 	debugfs_create_file("usbd", 0400, root, udc, &bcm63xx_usbd_dbg_fops);
 	debugfs_create_file("iudma", 0400, root, udc, &bcm63xx_iudma_dbg_fops);
 }
@@ -2263,7 +2300,11 @@ static void bcm63xx_udc_init_debugfs(struct bcm63xx_udc *udc)
  */
 static void bcm63xx_udc_cleanup_debugfs(struct bcm63xx_udc *udc)
 {
+<<<<<<< HEAD
 	debugfs_remove_recursive(udc->debugfs_root);
+=======
+	debugfs_remove(debugfs_lookup(udc->gadget.name, usb_debug_root));
+>>>>>>> upstream/android-13
 }
 
 /***********************************************************************
@@ -2282,7 +2323,10 @@ static int bcm63xx_udc_probe(struct platform_device *pdev)
 	struct device *dev = &pdev->dev;
 	struct bcm63xx_usbd_platform_data *pd = dev_get_platdata(dev);
 	struct bcm63xx_udc *udc;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	int rc = -ENOMEM, i, irq;
 
 	udc = devm_kzalloc(dev, sizeof(*udc), GFP_KERNEL);
@@ -2298,6 +2342,7 @@ static int bcm63xx_udc_probe(struct platform_device *pdev)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	udc->usbd_regs = devm_ioremap_resource(dev, res);
 	if (IS_ERR(udc->usbd_regs))
@@ -2305,6 +2350,13 @@ static int bcm63xx_udc_probe(struct platform_device *pdev)
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
 	udc->iudma_regs = devm_ioremap_resource(dev, res);
+=======
+	udc->usbd_regs = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(udc->usbd_regs))
+		return PTR_ERR(udc->usbd_regs);
+
+	udc->iudma_regs = devm_platform_ioremap_resource(pdev, 1);
+>>>>>>> upstream/android-13
 	if (IS_ERR(udc->iudma_regs))
 		return PTR_ERR(udc->iudma_regs);
 
@@ -2328,10 +2380,15 @@ static int bcm63xx_udc_probe(struct platform_device *pdev)
 
 	/* IRQ resource #0: control interrupt (VBUS, speed, etc.) */
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(dev, "missing IRQ resource #0\n");
 		goto out_uninit;
 	}
+=======
+	if (irq < 0)
+		goto out_uninit;
+>>>>>>> upstream/android-13
 	if (devm_request_irq(dev, irq, &bcm63xx_udc_ctrl_isr, 0,
 			     dev_name(dev), udc) < 0)
 		goto report_request_failure;
@@ -2339,10 +2396,15 @@ static int bcm63xx_udc_probe(struct platform_device *pdev)
 	/* IRQ resources #1-6: data interrupts for IUDMA channels 0-5 */
 	for (i = 0; i < BCM63XX_NUM_IUDMA; i++) {
 		irq = platform_get_irq(pdev, i + 1);
+<<<<<<< HEAD
 		if (irq < 0) {
 			dev_err(dev, "missing IRQ resource #%d\n", i + 1);
 			goto out_uninit;
 		}
+=======
+		if (irq < 0)
+			goto out_uninit;
+>>>>>>> upstream/android-13
 		if (devm_request_irq(dev, irq, &bcm63xx_udc_data_isr, 0,
 				     dev_name(dev), &udc->iudma[i]) < 0)
 			goto report_request_failure;

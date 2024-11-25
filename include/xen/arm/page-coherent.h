@@ -1,4 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0 */
+<<<<<<< HEAD
 #ifndef _ASM_ARM_XEN_PAGE_COHERENT_H
 #define _ASM_ARM_XEN_PAGE_COHERENT_H
 
@@ -24,16 +25,28 @@ void __xen_dma_sync_single_for_cpu(struct device *hwdev,
 
 void __xen_dma_sync_single_for_device(struct device *hwdev,
 		dma_addr_t handle, size_t size, enum dma_data_direction dir);
+=======
+#ifndef _XEN_ARM_PAGE_COHERENT_H
+#define _XEN_ARM_PAGE_COHERENT_H
+
+#include <linux/dma-mapping.h>
+#include <asm/page.h>
+>>>>>>> upstream/android-13
 
 static inline void *xen_alloc_coherent_pages(struct device *hwdev, size_t size,
 		dma_addr_t *dma_handle, gfp_t flags, unsigned long attrs)
 {
+<<<<<<< HEAD
 	return xen_get_dma_ops(hwdev)->alloc(hwdev, size, dma_handle, flags, attrs);
+=======
+	return dma_direct_alloc(hwdev, size, dma_handle, flags, attrs);
+>>>>>>> upstream/android-13
 }
 
 static inline void xen_free_coherent_pages(struct device *hwdev, size_t size,
 		void *cpu_addr, dma_addr_t dma_handle, unsigned long attrs)
 {
+<<<<<<< HEAD
 	xen_get_dma_ops(hwdev)->free(hwdev, size, cpu_addr, dma_handle, attrs);
 }
 
@@ -105,3 +118,9 @@ static inline void xen_dma_sync_single_for_device(struct device *hwdev,
 }
 
 #endif /* _ASM_ARM_XEN_PAGE_COHERENT_H */
+=======
+	dma_direct_free(hwdev, size, cpu_addr, dma_handle, attrs);
+}
+
+#endif /* _XEN_ARM_PAGE_COHERENT_H */
+>>>>>>> upstream/android-13

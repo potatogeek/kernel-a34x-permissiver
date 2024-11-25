@@ -113,9 +113,12 @@ void math_emulate(struct math_emu_info *info)
 	unsigned long code_base = 0;
 	unsigned long code_limit = 0;	/* Initialized to stop compiler warnings */
 	struct desc_struct code_descriptor;
+<<<<<<< HEAD
 	struct fpu *fpu = &current->thread.fpu;
 
 	fpu__initialize(fpu);
+=======
+>>>>>>> upstream/android-13
 
 #ifdef RE_ENTRANT_CHECKING
 	if (emulating) {
@@ -692,12 +695,19 @@ int fpregs_soft_set(struct task_struct *target,
 
 int fpregs_soft_get(struct task_struct *target,
 		    const struct user_regset *regset,
+<<<<<<< HEAD
 		    unsigned int pos, unsigned int count,
 		    void *kbuf, void __user *ubuf)
 {
 	struct swregs_state *s387 = &target->thread.fpu.state.soft;
 	const void *space = s387->st_space;
 	int ret;
+=======
+		    struct membuf to)
+{
+	struct swregs_state *s387 = &target->thread.fpu.state.soft;
+	const void *space = s387->st_space;
+>>>>>>> upstream/android-13
 	int offset = (S387->ftop & 7) * 10, other = 80 - offset;
 
 	RE_ENTRANT_CHECK_OFF;
@@ -712,6 +722,7 @@ int fpregs_soft_get(struct task_struct *target,
 	S387->fos |= 0xffff0000;
 #endif /* PECULIAR_486 */
 
+<<<<<<< HEAD
 	ret = user_regset_copyout(&pos, &count, &kbuf, &ubuf, s387, 0,
 				  offsetof(struct swregs_state, st_space));
 
@@ -726,4 +737,13 @@ int fpregs_soft_get(struct task_struct *target,
 	RE_ENTRANT_CHECK_ON;
 
 	return ret;
+=======
+	membuf_write(&to, s387, offsetof(struct swregs_state, st_space));
+	membuf_write(&to, space + offset, other);
+	membuf_write(&to, space, offset);
+
+	RE_ENTRANT_CHECK_ON;
+
+	return 0;
+>>>>>>> upstream/android-13
 }

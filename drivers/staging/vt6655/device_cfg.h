@@ -1,16 +1,27 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0+
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 1996, 2003 VIA Networking Technologies, Inc.
  * All rights reserved.
  *
+<<<<<<< HEAD
  * File: device_cfg.h
  *
+=======
+>>>>>>> upstream/android-13
  * Purpose: Driver configuration header
  * Author: Lyndon Chen
  *
  * Date: Dec 17, 2002
  *
  */
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 #ifndef __DEVICE_CONFIG_H
 #define __DEVICE_CONFIG_H
 
@@ -39,9 +50,12 @@
 
 #include <linux/fs.h>
 #include <linux/fcntl.h>
+<<<<<<< HEAD
 #ifndef CONFIG_PATH
 #define CONFIG_PATH            "/etc/vntconfiguration.dat"
 #endif
+=======
+>>>>>>> upstream/android-13
 
 #define PKT_BUF_SZ          2390
 

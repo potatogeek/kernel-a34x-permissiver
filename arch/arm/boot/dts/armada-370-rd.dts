@@ -114,6 +114,7 @@
 			};
 		};
 	};
+<<<<<<< HEAD
 
 	dsa {
 		status = "disabled";
@@ -156,6 +157,8 @@
 			};
 		};
 	 };
+=======
+>>>>>>> upstream/android-13
 };
 
 &pciec {

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
     tda18271.h - header for the Philips / NXP TDA18271 silicon tuner
 
     Copyright (C) 2007, 2008 Michael Krufky <mkrufky@linuxtv.org>
 
+<<<<<<< HEAD
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -16,6 +21,8 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
 */
 
 #ifndef __TDA18271_H__
@@ -69,10 +76,17 @@ enum tda18271_i2c_gate {
 };
 
 enum tda18271_output_options {
+<<<<<<< HEAD
 	/* slave tuner output & loop thru & xtal oscillator always on */
 	TDA18271_OUTPUT_LT_XT_ON = 0,
 
 	/* slave tuner output loop thru off */
+=======
+	/* slave tuner output & loop through & xtal oscillator always on */
+	TDA18271_OUTPUT_LT_XT_ON = 0,
+
+	/* slave tuner output loop through off */
+>>>>>>> upstream/android-13
 	TDA18271_OUTPUT_LT_OFF = 1,
 
 	/* xtal oscillator off */

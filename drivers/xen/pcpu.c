@@ -92,7 +92,11 @@ static int xen_pcpu_up(uint32_t cpu_id)
 	return HYPERVISOR_platform_op(&op);
 }
 
+<<<<<<< HEAD
 static ssize_t show_online(struct device *dev,
+=======
+static ssize_t online_show(struct device *dev,
+>>>>>>> upstream/android-13
 			   struct device_attribute *attr,
 			   char *buf)
 {
@@ -101,7 +105,11 @@ static ssize_t show_online(struct device *dev,
 	return sprintf(buf, "%u\n", !!(cpu->flags & XEN_PCPU_FLAGS_ONLINE));
 }
 
+<<<<<<< HEAD
 static ssize_t __ref store_online(struct device *dev,
+=======
+static ssize_t __ref online_store(struct device *dev,
+>>>>>>> upstream/android-13
 				  struct device_attribute *attr,
 				  const char *buf, size_t count)
 {
@@ -130,7 +138,11 @@ static ssize_t __ref store_online(struct device *dev,
 		ret = count;
 	return ret;
 }
+<<<<<<< HEAD
 static DEVICE_ATTR(online, S_IRUGO | S_IWUSR, show_online, store_online);
+=======
+static DEVICE_ATTR_RW(online);
+>>>>>>> upstream/android-13
 
 static struct attribute *pcpu_dev_attrs[] = {
 	&dev_attr_online.attr,
@@ -345,6 +357,7 @@ static irqreturn_t xen_pcpu_interrupt(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 /* Sync with Xen hypervisor after cpu hotadded */
 void xen_pcpu_hotplug_sync(void)
 {
@@ -380,6 +393,8 @@ int xen_pcpu_id(uint32_t acpi_id)
 }
 EXPORT_SYMBOL_GPL(xen_pcpu_id);
 
+=======
+>>>>>>> upstream/android-13
 static int __init xen_pcpu_init(void)
 {
 	int irq, ret;

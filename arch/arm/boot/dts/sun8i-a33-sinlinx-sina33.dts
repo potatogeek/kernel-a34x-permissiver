@@ -63,6 +63,7 @@
 
 	panel {
 		compatible = "netron-dy,e231732";
+<<<<<<< HEAD
 		#address-cells = <1>;
 		#size-cells = <0>;
 
@@ -73,6 +74,12 @@
 
 			panel_input: endpoint@0 {
 				reg = <0>;
+=======
+		power-supply = <&reg_vcc3v3>;
+
+		port {
+			panel_input: endpoint {
+>>>>>>> upstream/android-13
 				remote-endpoint = <&tcon0_out_panel>;
 			};
 		};
@@ -117,21 +124,33 @@
 	vref-supply = <&reg_dcdc1>;
 	status = "okay";
 
+<<<<<<< HEAD
 	button@200 {
+=======
+	button-200 {
+>>>>>>> upstream/android-13
 		label = "Volume Up";
 		linux,code = <KEY_VOLUMEUP>;
 		channel = <0>;
 		voltage = <191011>;
 	};
 
+<<<<<<< HEAD
 	button@400 {
+=======
+	button-400 {
+>>>>>>> upstream/android-13
 		label = "Volume Down";
 		linux,code = <KEY_VOLUMEDOWN>;
 		channel = <0>;
 		voltage = <391304>;
 	};
 
+<<<<<<< HEAD
 	button@600 {
+=======
+	button-600 {
+>>>>>>> upstream/android-13
 		label = "Home";
 		linux,code = <KEY_HOME>;
 		channel = <0>;
@@ -140,8 +159,11 @@
 };
 
 &mmc0 {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&mmc0_pins_a>, <&mmc0_cd_pin_sina33>;
+=======
+>>>>>>> upstream/android-13
 	vmmc-supply = <&reg_dcdc1>;
 	bus-width = <4>;
 	cd-gpios = <&pio 1 4 GPIO_ACTIVE_LOW>; /* PB4 */
@@ -161,14 +183,18 @@
 &mmc2_8bit_pins {
 	/* Increase drive strength for DDR modes */
 	drive-strength = <40>;
+<<<<<<< HEAD
 	/* eMMC is missing pull-ups */
 	bias-pull-up;
+=======
+>>>>>>> upstream/android-13
 };
 
 &ohci0 {
 	status = "okay";
 };
 
+<<<<<<< HEAD
 &pio {
 	mmc0_cd_pin_sina33: mmc0_cd_pin@0 {
 		pins = "PB4";
@@ -177,14 +203,21 @@
 	};
 };
 
+=======
+>>>>>>> upstream/android-13
 &r_rsb {
 	status = "okay";
 
 	axp22x: pmic@3a3 {
 		compatible = "x-powers,axp223";
 		reg = <0x3a3>;
+<<<<<<< HEAD
 		interrupt-parent = <&nmi_intc>;
 		interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
+=======
+		interrupt-parent = <&r_intc>;
+		interrupts = <GIC_SPI 32 IRQ_TYPE_LEVEL_LOW>;
+>>>>>>> upstream/android-13
 		eldoin-supply = <&reg_dcdc1>;
 	};
 };
@@ -278,7 +311,11 @@
 
 &uart0 {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&uart0_pins_b>;
+=======
+	pinctrl-0 = <&uart0_pb_pins>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 

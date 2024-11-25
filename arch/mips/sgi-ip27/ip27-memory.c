@@ -18,7 +18,10 @@
 #include <linux/export.h>
 #include <linux/nodemask.h>
 #include <linux/swap.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/pfn.h>
 #include <linux/highmem.h>
 #include <asm/page.h>
@@ -26,14 +29,22 @@
 #include <asm/sections.h>
 
 #include <asm/sn/arch.h>
+<<<<<<< HEAD
 #include <asm/sn/hub.h>
 #include <asm/sn/klconfig.h>
 #include <asm/sn/sn_private.h>
 
+=======
+#include <asm/sn/agent.h>
+#include <asm/sn/klconfig.h>
+
+#include "ip27-common.h"
+>>>>>>> upstream/android-13
 
 #define SLOT_PFNSHIFT		(SLOT_SHIFT - PAGE_SHIFT)
 #define PFN_NASIDSHFT		(NASID_SHFT - PAGE_SHIFT)
 
+<<<<<<< HEAD
 struct node_data *__node_data[MAX_COMPACT_NODES];
 
 EXPORT_SYMBOL(__node_data);
@@ -63,6 +74,24 @@ static void gen_region_mask(hubreg_t *region_mask)
 	for_each_online_node(cnode) {
 		(*region_mask) |= 1ULL << get_region(cnode);
 	}
+=======
+struct node_data *__node_data[MAX_NUMNODES];
+
+EXPORT_SYMBOL(__node_data);
+
+static u64 gen_region_mask(void)
+{
+	int region_shift;
+	u64 region_mask;
+	nasid_t nasid;
+
+	region_shift = get_region_shift();
+	region_mask = 0;
+	for_each_online_node(nasid)
+		region_mask |= BIT_ULL(nasid >> region_shift);
+
+	return region_mask;
+>>>>>>> upstream/android-13
 }
 
 #define rou_rflag	rou_flags
@@ -105,23 +134,34 @@ static void router_recurse(klrou_t *router_a, klrou_t *router_b, int depth)
 	router_a->rou_rflag = 0;
 }
 
+<<<<<<< HEAD
 unsigned char __node_distances[MAX_COMPACT_NODES][MAX_COMPACT_NODES];
+=======
+unsigned char __node_distances[MAX_NUMNODES][MAX_NUMNODES];
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(__node_distances);
 
 static int __init compute_node_distance(nasid_t nasid_a, nasid_t nasid_b)
 {
 	klrou_t *router, *router_a = NULL, *router_b = NULL;
 	lboard_t *brd, *dest_brd;
+<<<<<<< HEAD
 	cnodeid_t cnode;
+=======
+>>>>>>> upstream/android-13
 	nasid_t nasid;
 	int port;
 
 	/* Figure out which routers nodes in question are connected to */
+<<<<<<< HEAD
 	for_each_online_node(cnode) {
 		nasid = COMPACT_TO_NASID_NODEID(cnode);
 
 		if (nasid == -1) continue;
 
+=======
+	for_each_online_node(nasid) {
+>>>>>>> upstream/android-13
 		brd = find_lboard_class((lboard_t *)KL_CONFIG_INFO(nasid),
 					KLTYPE_ROUTER);
 
@@ -154,6 +194,7 @@ static int __init compute_node_distance(nasid_t nasid_a, nasid_t nasid_b)
 		} while ((brd = find_lboard_class(KLCF_NEXT(brd), KLTYPE_ROUTER)));
 	}
 
+<<<<<<< HEAD
 	if (router_a == NULL) {
 		printk("node_distance: router_a NULL\n");
 		return -1;
@@ -168,15 +209,36 @@ static int __init compute_node_distance(nasid_t nasid_a, nasid_t nasid_b)
 
 	if (router_a == router_b)
 		return 1;
+=======
+	if (nasid_a == nasid_b)
+		return LOCAL_DISTANCE;
+
+	if (router_a == router_b)
+		return LOCAL_DISTANCE + 1;
+
+	if (router_a == NULL) {
+		pr_info("node_distance: router_a NULL\n");
+		return 255;
+	}
+	if (router_b == NULL) {
+		pr_info("node_distance: router_b NULL\n");
+		return 255;
+	}
+>>>>>>> upstream/android-13
 
 	router_distance = 100;
 	router_recurse(router_a, router_b, 2);
 
+<<<<<<< HEAD
 	return router_distance;
+=======
+	return LOCAL_DISTANCE + router_distance;
+>>>>>>> upstream/android-13
 }
 
 static void __init init_topology_matrix(void)
 {
+<<<<<<< HEAD
 	nasid_t nasid, nasid2;
 	cnodeid_t row, col;
 
@@ -190,6 +252,18 @@ static void __init init_topology_matrix(void)
 			nasid2 = COMPACT_TO_NASID_NODEID(col);
 			__node_distances[row][col] =
 				compute_node_distance(nasid, nasid2);
+=======
+	nasid_t row, col;
+
+	for (row = 0; row < MAX_NUMNODES; row++)
+		for (col = 0; col < MAX_NUMNODES; col++)
+			__node_distances[row][col] = -1;
+
+	for_each_online_node(row) {
+		for_each_online_node(col) {
+			__node_distances[row][col] =
+				compute_node_distance(row, col);
+>>>>>>> upstream/android-13
 		}
 	}
 }
@@ -197,11 +271,15 @@ static void __init init_topology_matrix(void)
 static void __init dump_topology(void)
 {
 	nasid_t nasid;
+<<<<<<< HEAD
 	cnodeid_t cnode;
+=======
+>>>>>>> upstream/android-13
 	lboard_t *brd, *dest_brd;
 	int port;
 	int router_num = 0;
 	klrou_t *router;
+<<<<<<< HEAD
 	cnodeid_t row, col;
 
 	printk("************** Topology ********************\n");
@@ -222,6 +300,24 @@ static void __init dump_topology(void)
 
 		if (nasid == -1) continue;
 
+=======
+	nasid_t row, col;
+
+	pr_info("************** Topology ********************\n");
+
+	pr_info("    ");
+	for_each_online_node(col)
+		pr_cont("%02d ", col);
+	pr_cont("\n");
+	for_each_online_node(row) {
+		pr_info("%02d  ", row);
+		for_each_online_node(col)
+			pr_cont("%2d ", node_distance(row, col));
+		pr_cont("\n");
+	}
+
+	for_each_online_node(nasid) {
+>>>>>>> upstream/android-13
 		brd = find_lboard_class((lboard_t *)KL_CONFIG_INFO(nasid),
 					KLTYPE_ROUTER);
 
@@ -231,7 +327,11 @@ static void __init dump_topology(void)
 		do {
 			if (brd->brd_flags & DUPLICATE_BOARD)
 				continue;
+<<<<<<< HEAD
 			printk("Router %d:", router_num);
+=======
+			pr_cont("Router %d:", router_num);
+>>>>>>> upstream/android-13
 			router_num++;
 
 			router = (klrou_t *)NODE_OFFSET_TO_K0(NASID_GET(brd), brd->brd_compts[0]);
@@ -245,16 +345,25 @@ static void __init dump_topology(void)
 					router->rou_port[port].port_offset);
 
 				if (dest_brd->brd_type == KLTYPE_IP27)
+<<<<<<< HEAD
 					printk(" %d", dest_brd->brd_nasid);
 				if (dest_brd->brd_type == KLTYPE_ROUTER)
 					printk(" r");
 			}
 			printk("\n");
+=======
+					pr_cont(" %d", dest_brd->brd_nasid);
+				if (dest_brd->brd_type == KLTYPE_ROUTER)
+					pr_cont(" r");
+			}
+			pr_cont("\n");
+>>>>>>> upstream/android-13
 
 		} while ( (brd = find_lboard_class(KLCF_NEXT(brd), KLTYPE_ROUTER)) );
 	}
 }
 
+<<<<<<< HEAD
 static unsigned long __init slot_getbasepfn(cnodeid_t cnode, int slot)
 {
 	nasid_t nasid = COMPACT_TO_NASID_NODEID(cnode);
@@ -265,11 +374,23 @@ static unsigned long __init slot_getbasepfn(cnodeid_t cnode, int slot)
 static unsigned long __init slot_psize_compute(cnodeid_t node, int slot)
 {
 	nasid_t nasid;
+=======
+static unsigned long __init slot_getbasepfn(nasid_t nasid, int slot)
+{
+	return ((unsigned long)nasid << PFN_NASIDSHFT) | (slot << SLOT_PFNSHIFT);
+}
+
+static unsigned long __init slot_psize_compute(nasid_t nasid, int slot)
+{
+>>>>>>> upstream/android-13
 	lboard_t *brd;
 	klmembnk_t *banks;
 	unsigned long size;
 
+<<<<<<< HEAD
 	nasid = COMPACT_TO_NASID_NODEID(node);
+=======
+>>>>>>> upstream/android-13
 	/* Find the node board */
 	brd = find_lboard((lboard_t *)KL_CONFIG_INFO(nasid), KLTYPE_IP27);
 	if (!brd)
@@ -299,10 +420,17 @@ static unsigned long __init slot_psize_compute(cnodeid_t node, int slot)
 
 static void __init mlreset(void)
 {
+<<<<<<< HEAD
 	int i;
 
 	master_nasid = get_nasid();
 	fine_mode = is_fine_dirmode();
+=======
+	u64 region_mask;
+	nasid_t nasid;
+
+	master_nasid = get_nasid();
+>>>>>>> upstream/android-13
 
 	/*
 	 * Probe for all CPUs - this creates the cpumask and sets up the
@@ -315,29 +443,41 @@ static void __init mlreset(void)
 	init_topology_matrix();
 	dump_topology();
 
+<<<<<<< HEAD
 	gen_region_mask(&region_mask);
+=======
+	region_mask = gen_region_mask();
+>>>>>>> upstream/android-13
 
 	setup_replication_mask();
 
 	/*
 	 * Set all nodes' calias sizes to 8k
 	 */
+<<<<<<< HEAD
 	for_each_online_node(i) {
 		nasid_t nasid;
 
 		nasid = COMPACT_TO_NASID_NODEID(i);
 
+=======
+	for_each_online_node(nasid) {
+>>>>>>> upstream/android-13
 		/*
 		 * Always have node 0 in the region mask, otherwise
 		 * CALIAS accesses get exceptions since the hub
 		 * thinks it is a node 0 address.
 		 */
 		REMOTE_HUB_S(nasid, PI_REGION_PRESENT, (region_mask | 1));
+<<<<<<< HEAD
 #ifdef CONFIG_REPLICATE_EXHANDLERS
 		REMOTE_HUB_S(nasid, PI_CALIAS_SIZE, PI_CALIAS_SIZE_8K);
 #else
 		REMOTE_HUB_S(nasid, PI_CALIAS_SIZE, PI_CALIAS_SIZE_0);
 #endif
+=======
+		REMOTE_HUB_S(nasid, PI_CALIAS_SIZE, PI_CALIAS_SIZE_0);
+>>>>>>> upstream/android-13
 
 #ifdef LATER
 		/*
@@ -355,7 +495,11 @@ static void __init szmem(void)
 {
 	unsigned long slot_psize, slot0sz = 0, nodebytes;	/* Hack to detect problem configs */
 	int slot;
+<<<<<<< HEAD
 	cnodeid_t node;
+=======
+	nasid_t node;
+>>>>>>> upstream/android-13
 
 	for_each_online_node(node) {
 		nodebytes = 0;
@@ -374,7 +518,11 @@ static void __init szmem(void)
 
 			if ((nodebytes >> PAGE_SHIFT) * (sizeof(struct page)) >
 						(slot0sz << PAGE_SHIFT)) {
+<<<<<<< HEAD
 				printk("Ignoring slot %d onwards on node %d\n",
+=======
+				pr_info("Ignoring slot %d onwards on node %d\n",
+>>>>>>> upstream/android-13
 								slot, node);
 				slot = MAX_MEM_SLOTS;
 				continue;
@@ -385,11 +533,18 @@ static void __init szmem(void)
 	}
 }
 
+<<<<<<< HEAD
 static void __init node_mem_init(cnodeid_t node)
 {
 	unsigned long slot_firstpfn = slot_getbasepfn(node, 0);
 	unsigned long slot_freepfn = node_getfirstfree(node);
 	unsigned long bootmap_size;
+=======
+static void __init node_mem_init(nasid_t node)
+{
+	unsigned long slot_firstpfn = slot_getbasepfn(node, 0);
+	unsigned long slot_freepfn = node_getfirstfree(node);
+>>>>>>> upstream/android-13
 	unsigned long start_pfn, end_pfn;
 
 	get_pfn_range_for_nid(node, &start_pfn, &end_pfn);
@@ -400,7 +555,10 @@ static void __init node_mem_init(cnodeid_t node)
 	__node_data[node] = __va(slot_freepfn << PAGE_SHIFT);
 	memset(__node_data[node], 0, PAGE_SIZE);
 
+<<<<<<< HEAD
 	NODE_DATA(node)->bdata = &bootmem_node_data[node];
+=======
+>>>>>>> upstream/android-13
 	NODE_DATA(node)->node_start_pfn = start_pfn;
 	NODE_DATA(node)->node_spanned_pages = end_pfn - start_pfn;
 
@@ -409,6 +567,7 @@ static void __init node_mem_init(cnodeid_t node)
 	slot_freepfn += PFN_UP(sizeof(struct pglist_data) +
 			       sizeof(struct hub_data));
 
+<<<<<<< HEAD
 	bootmap_size = init_bootmem_node(NODE_DATA(node), slot_freepfn,
 					start_pfn, end_pfn);
 	free_bootmem_with_active_regions(node, end_pfn);
@@ -416,6 +575,10 @@ static void __init node_mem_init(cnodeid_t node)
 		((slot_freepfn - slot_firstpfn) << PAGE_SHIFT) + bootmap_size,
 		BOOTMEM_DEFAULT);
 	sparse_memory_present_with_active_regions(node);
+=======
+	memblock_reserve(slot_firstpfn << PAGE_SHIFT,
+			 ((slot_freepfn - slot_firstpfn) << PAGE_SHIFT));
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -435,12 +598,22 @@ static struct node_data null_node = {
  */
 void __init prom_meminit(void)
 {
+<<<<<<< HEAD
 	cnodeid_t node;
 
 	mlreset();
 	szmem();
 
 	for (node = 0; node < MAX_COMPACT_NODES; node++) {
+=======
+	nasid_t node;
+
+	mlreset();
+	szmem();
+	max_low_pfn = PHYS_PFN(memblock_end_of_DRAM());
+
+	for (node = 0; node < MAX_NUMNODES; node++) {
+>>>>>>> upstream/android-13
 		if (node_online(node)) {
 			node_mem_init(node);
 			continue;
@@ -449,16 +622,20 @@ void __init prom_meminit(void)
 	}
 }
 
+<<<<<<< HEAD
 void __init prom_free_prom_memory(void)
 {
 	/* We got nothing to free here ...  */
 }
 
+=======
+>>>>>>> upstream/android-13
 extern void setup_zero_pages(void);
 
 void __init paging_init(void)
 {
 	unsigned long zones_size[MAX_NR_ZONES] = {0, };
+<<<<<<< HEAD
 	unsigned node;
 
 	pagetable_init();
@@ -473,12 +650,23 @@ void __init paging_init(void)
 	}
 	zones_size[ZONE_NORMAL] = max_low_pfn;
 	free_area_init_nodes(zones_size);
+=======
+
+	pagetable_init();
+	zones_size[ZONE_NORMAL] = max_low_pfn;
+	free_area_init(zones_size);
+>>>>>>> upstream/android-13
 }
 
 void __init mem_init(void)
 {
 	high_memory = (void *) __va(get_num_physpages() << PAGE_SHIFT);
+<<<<<<< HEAD
 	free_all_bootmem();
 	setup_zero_pages();	/* This comes from node 0 */
 	mem_init_print_info(NULL);
+=======
+	memblock_free_all();
+	setup_zero_pages();	/* This comes from node 0 */
+>>>>>>> upstream/android-13
 }

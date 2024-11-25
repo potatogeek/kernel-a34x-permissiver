@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (c) 2012, 2017-2018, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -8,12 +9,19 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/* Copyright (c) 2012, 2017-2018, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __DPU_IO_UTIL_H__
 #define __DPU_IO_UTIL_H__
 
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/types.h>
 
@@ -22,12 +30,15 @@
 #define DEV_WARN(fmt, args...)  pr_warn(fmt, ##args)
 #define DEV_ERR(fmt, args...)   pr_err(fmt, ##args)
 
+<<<<<<< HEAD
 struct dss_gpio {
 	unsigned int gpio;
 	unsigned int value;
 	char gpio_name[32];
 };
 
+=======
+>>>>>>> upstream/android-13
 enum dss_clk_type {
 	DSS_CLK_AHB, /* no set rate. rate controlled through rpm */
 	DSS_CLK_PCLK,
@@ -42,8 +53,11 @@ struct dss_clk {
 };
 
 struct dss_module_power {
+<<<<<<< HEAD
 	unsigned int num_gpio;
 	struct dss_gpio *gpio_config;
+=======
+>>>>>>> upstream/android-13
 	unsigned int num_clk;
 	struct dss_clk *clk_config;
 };

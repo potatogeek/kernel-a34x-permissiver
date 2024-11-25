@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * AppliedMicro X-Gene Multi-purpose PHY driver
  *
@@ -6,6 +10,7 @@
  *         Tuan Phan <tphan@apm.com>
  *         Suman Tripathi <stripathi@apm.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
@@ -19,6 +24,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  * The APM X-Gene PHY consists of two PLL clock macro's (CMU) and lanes.
  * The first PLL clock macro is used for internal reference clock. The second
  * PLL clock macro is used to generate the clock for the PHY. This driver
@@ -973,7 +980,12 @@ static void xgene_phy_sata_cfg_lanes(struct xgene_phy_ctx *ctx)
 		serdes_wr(ctx, lane, RXTX_REG1, val);
 
 		/* Latch VTT value based on the termination to ground and
+<<<<<<< HEAD
 		   enable TX FIFO */
+=======
+		 * enable TX FIFO
+		 */
+>>>>>>> upstream/android-13
 		serdes_rd(ctx, lane, RXTX_REG2, &val);
 		val = RXTX_REG2_VTT_ENA_SET(val, 0x1);
 		val = RXTX_REG2_VTT_SEL_SET(val, 0x1);
@@ -1354,7 +1366,11 @@ static int xgene_phy_hw_initialize(struct xgene_phy_ctx *ctx,
 static void xgene_phy_force_lat_summer_cal(struct xgene_phy_ctx *ctx, int lane)
 {
 	int i;
+<<<<<<< HEAD
 	struct {
+=======
+	static const struct {
+>>>>>>> upstream/android-13
 		u32 reg;
 		u32 val;
 	} serdes_reg[] = {
@@ -1627,7 +1643,11 @@ static struct phy *xgene_phy_xlate(struct device *dev,
 
 	if (args->args_count <= 0)
 		return ERR_PTR(-EINVAL);
+<<<<<<< HEAD
 	if (args->args[0] < MODE_SATA || args->args[0] >= MODE_MAX)
+=======
+	if (args->args[0] >= MODE_MAX)
+>>>>>>> upstream/android-13
 		return ERR_PTR(-EINVAL);
 
 	ctx->mode = args->args[0];
@@ -1656,7 +1676,10 @@ static int xgene_phy_probe(struct platform_device *pdev)
 {
 	struct phy_provider *phy_provider;
 	struct xgene_phy_ctx *ctx;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	u32 default_spd[] = DEFAULT_SATA_SPD_SEL;
 	u32 default_txboost_gain[] = DEFAULT_SATA_TXBOOST_GAIN;
 	u32 default_txeye_direction[] = DEFAULT_SATA_TXEYEDIRECTION;
@@ -1673,8 +1696,12 @@ static int xgene_phy_probe(struct platform_device *pdev)
 
 	ctx->dev = &pdev->dev;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	ctx->sds_base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	ctx->sds_base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(ctx->sds_base))
 		return PTR_ERR(ctx->sds_base);
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * dwarf-aux.c : libdw auxiliary interfaces
  *
@@ -15,14 +16,26 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * dwarf-aux.c : libdw auxiliary interfaces
+>>>>>>> upstream/android-13
  */
 
 #include <errno.h>
 #include <inttypes.h>
 #include <stdbool.h>
+<<<<<<< HEAD
 #include "util.h"
 #include "debug.h"
 #include "dwarf-aux.h"
+=======
+#include <stdlib.h>
+#include "debug.h"
+#include "dwarf-aux.h"
+#include "strbuf.h"
+>>>>>>> upstream/android-13
 #include "string2.h"
 
 /**
@@ -72,6 +85,54 @@ const char *cu_get_comp_dir(Dwarf_Die *cu_die)
 	return dwarf_formstring(&attr);
 }
 
+<<<<<<< HEAD
+=======
+/* Unlike dwarf_getsrc_die(), cu_getsrc_die() only returns statement line */
+static Dwarf_Line *cu_getsrc_die(Dwarf_Die *cu_die, Dwarf_Addr addr)
+{
+	Dwarf_Addr laddr;
+	Dwarf_Lines *lines;
+	Dwarf_Line *line;
+	size_t nlines, l, u, n;
+	bool flag;
+
+	if (dwarf_getsrclines(cu_die, &lines, &nlines) != 0 ||
+	    nlines == 0)
+		return NULL;
+
+	/* Lines are sorted by address, use binary search */
+	l = 0; u = nlines - 1;
+	while (l < u) {
+		n = u - (u - l) / 2;
+		line = dwarf_onesrcline(lines, n);
+		if (!line || dwarf_lineaddr(line, &laddr) != 0)
+			return NULL;
+		if (addr < laddr)
+			u = n - 1;
+		else
+			l = n;
+	}
+	/* Going backward to find the lowest line */
+	do {
+		line = dwarf_onesrcline(lines, --l);
+		if (!line || dwarf_lineaddr(line, &laddr) != 0)
+			return NULL;
+	} while (laddr == addr);
+	l++;
+	/* Going forward to find the statement line */
+	do {
+		line = dwarf_onesrcline(lines, l++);
+		if (!line || dwarf_lineaddr(line, &laddr) != 0 ||
+		    dwarf_linebeginstatement(line, &flag) != 0)
+			return NULL;
+		if (laddr > addr)
+			return NULL;
+	} while (!flag);
+
+	return line;
+}
+
+>>>>>>> upstream/android-13
 /**
  * cu_find_lineinfo - Get a line number and file name for given address
  * @cu_die: a CU DIE
@@ -81,6 +142,7 @@ const char *cu_get_comp_dir(Dwarf_Die *cu_die)
  *
  * Find a line number and file name for @addr in @cu_die.
  */
+<<<<<<< HEAD
 int cu_find_lineinfo(Dwarf_Die *cu_die, unsigned long addr,
 		    const char **fname, int *lineno)
 {
@@ -90,12 +152,35 @@ int cu_find_lineinfo(Dwarf_Die *cu_die, unsigned long addr,
 	line = dwarf_getsrc_die(cu_die, (Dwarf_Addr)addr);
 	if (line && dwarf_lineaddr(line, &laddr) == 0 &&
 	    addr == (unsigned long)laddr && dwarf_lineno(line, lineno) == 0) {
+=======
+int cu_find_lineinfo(Dwarf_Die *cu_die, Dwarf_Addr addr,
+		     const char **fname, int *lineno)
+{
+	Dwarf_Line *line;
+	Dwarf_Die die_mem;
+	Dwarf_Addr faddr;
+
+	if (die_find_realfunc(cu_die, addr, &die_mem)
+	    && die_entrypc(&die_mem, &faddr) == 0 &&
+	    faddr == addr) {
+		*fname = dwarf_decl_file(&die_mem);
+		dwarf_decl_line(&die_mem, lineno);
+		goto out;
+	}
+
+	line = cu_getsrc_die(cu_die, addr);
+	if (line && dwarf_lineno(line, lineno) == 0) {
+>>>>>>> upstream/android-13
 		*fname = dwarf_linesrc(line, NULL, NULL);
 		if (!*fname)
 			/* line number is useless without filename */
 			*lineno = 0;
 	}
 
+<<<<<<< HEAD
+=======
+out:
+>>>>>>> upstream/android-13
 	return *lineno ?: -ENOENT;
 }
 
@@ -136,7 +221,11 @@ int cu_walk_functions_at(Dwarf_Die *cu_die, Dwarf_Addr addr,
  * die_get_linkage_name - Get the linkage name of the object
  * @dw_die: A DIE of the object
  *
+<<<<<<< HEAD
  * Get the linkage name attiribute of given @dw_die.
+=======
+ * Get the linkage name attribute of given @dw_die.
+>>>>>>> upstream/android-13
  * For C++ binary, the linkage name will be the mangled symbol.
  */
 const char *die_get_linkage_name(Dwarf_Die *dw_die)
@@ -315,9 +404,31 @@ bool die_is_signed_type(Dwarf_Die *tp_die)
 bool die_is_func_def(Dwarf_Die *dw_die)
 {
 	Dwarf_Attribute attr;
+<<<<<<< HEAD
 
 	return (dwarf_tag(dw_die) == DW_TAG_subprogram &&
 		dwarf_attr(dw_die, DW_AT_declaration, &attr) == NULL);
+=======
+	Dwarf_Addr addr = 0;
+
+	if (dwarf_tag(dw_die) != DW_TAG_subprogram)
+		return false;
+
+	if (dwarf_attr(dw_die, DW_AT_declaration, &attr))
+		return false;
+
+	/*
+	 * DW_AT_declaration can be lost from function declaration
+	 * by gcc's bug #97060.
+	 * So we need to check this subprogram DIE has DW_AT_inline
+	 * or an entry address.
+	 */
+	if (!dwarf_attr(dw_die, DW_AT_inline, &attr) &&
+	    die_entrypc(dw_die, &addr) < 0)
+		return false;
+
+	return true;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -682,7 +793,11 @@ static int __die_walk_instances_cb(Dwarf_Die *inst, void *data)
  * @data: user data
  *
  * Walk on the instances of give @in_die. @in_die must be an inlined function
+<<<<<<< HEAD
  * declartion. This returns the return value of @callback if it returns
+=======
+ * declaration. This returns the return value of @callback if it returns
+>>>>>>> upstream/android-13
  * non-zero value, or -ENOENT if there is no instance.
  */
 int die_walk_instances(Dwarf_Die *or_die, int (*callback)(Dwarf_Die *, void *),
@@ -918,9 +1033,19 @@ static int __die_find_variable_cb(Dwarf_Die *die_mem, void *data)
 	if ((tag == DW_TAG_formal_parameter ||
 	     tag == DW_TAG_variable) &&
 	    die_compare_name(die_mem, fvp->name) &&
+<<<<<<< HEAD
 	/* Does the DIE have location information or external instance? */
 	    (dwarf_attr(die_mem, DW_AT_external, &attr) ||
 	     dwarf_attr(die_mem, DW_AT_location, &attr)))
+=======
+	/*
+	 * Does the DIE have location information or const value
+	 * or external instance?
+	 */
+	    (dwarf_attr(die_mem, DW_AT_external, &attr) ||
+	     dwarf_attr(die_mem, DW_AT_location, &attr) ||
+	     dwarf_attr(die_mem, DW_AT_const_value, &attr)))
+>>>>>>> upstream/android-13
 		return DIE_FIND_CB_END;
 	if (dwarf_haspc(die_mem, fvp->addr))
 		return DIE_FIND_CB_CONTINUE;

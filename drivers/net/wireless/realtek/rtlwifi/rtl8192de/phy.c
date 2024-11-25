@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2012  Realtek Corporation.
@@ -22,6 +23,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+// SPDX-License-Identifier: GPL-2.0
+/* Copyright(c) 2009-2012  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #include "../wifi.h"
 #include "../pci.h"
@@ -182,6 +187,7 @@ static u32 targetchnl_2g[TARGET_CHNL_NUM_2G] = {
 	25711, 25658, 25606, 25554, 25502, 25451, 25328
 };
 
+<<<<<<< HEAD
 static u32 _rtl92d_phy_calculate_bit_shift(u32 bitmask)
 {
 	u32 i;
@@ -192,6 +198,22 @@ static u32 _rtl92d_phy_calculate_bit_shift(u32 bitmask)
 	}
 
 	return i;
+=======
+static const u8 channel_all[59] = {
+	1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
+	36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58,
+	60, 62, 64, 100, 102, 104, 106, 108, 110, 112,
+	114, 116, 118, 120, 122, 124, 126, 128,	130,
+	132, 134, 136, 138, 140, 149, 151, 153, 155,
+	157, 159, 161, 163, 165
+};
+
+static u32 _rtl92d_phy_calculate_bit_shift(u32 bitmask)
+{
+	u32 i = ffs(bitmask);
+
+	return i ? i - 1 : 32;
+>>>>>>> upstream/android-13
 }
 
 u32 rtl92d_phy_query_bb_reg(struct ieee80211_hw *hw, u32 regaddr, u32 bitmask)
@@ -200,8 +222,13 @@ u32 rtl92d_phy_query_bb_reg(struct ieee80211_hw *hw, u32 regaddr, u32 bitmask)
 	struct rtl_hal *rtlhal = rtl_hal(rtlpriv);
 	u32 returnvalue, originalvalue, bitshift;
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_RF, DBG_TRACE, "regaddr(%#x), bitmask(%#x)\n",
 		 regaddr, bitmask);
+=======
+	rtl_dbg(rtlpriv, COMP_RF, DBG_TRACE, "regaddr(%#x), bitmask(%#x)\n",
+		regaddr, bitmask);
+>>>>>>> upstream/android-13
 	if (rtlhal->during_mac1init_radioa || rtlhal->during_mac0init_radiob) {
 		u8 dbi_direct = 0;
 
@@ -218,9 +245,15 @@ u32 rtl92d_phy_query_bb_reg(struct ieee80211_hw *hw, u32 regaddr, u32 bitmask)
 	}
 	bitshift = _rtl92d_phy_calculate_bit_shift(bitmask);
 	returnvalue = (originalvalue & bitmask) >> bitshift;
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_RF, DBG_TRACE,
 		 "BBR MASK=0x%x Addr[0x%x]=0x%x\n",
 		 bitmask, regaddr, originalvalue);
+=======
+	rtl_dbg(rtlpriv, COMP_RF, DBG_TRACE,
+		"BBR MASK=0x%x Addr[0x%x]=0x%x\n",
+		bitmask, regaddr, originalvalue);
+>>>>>>> upstream/android-13
 	return returnvalue;
 }
 
@@ -232,9 +265,15 @@ void rtl92d_phy_set_bb_reg(struct ieee80211_hw *hw,
 	u8 dbi_direct = 0;
 	u32 originalvalue, bitshift;
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_RF, DBG_TRACE,
 		 "regaddr(%#x), bitmask(%#x), data(%#x)\n",
 		 regaddr, bitmask, data);
+=======
+	rtl_dbg(rtlpriv, COMP_RF, DBG_TRACE,
+		"regaddr(%#x), bitmask(%#x), data(%#x)\n",
+		regaddr, bitmask, data);
+>>>>>>> upstream/android-13
 	if (rtlhal->during_mac1init_radioa)
 		dbi_direct = BIT(3);
 	else if (rtlhal->during_mac0init_radiob)
@@ -255,9 +294,15 @@ void rtl92d_phy_set_bb_reg(struct ieee80211_hw *hw,
 		rtl92de_write_dword_dbi(hw, (u16) regaddr, data, dbi_direct);
 	else
 		rtl_write_dword(rtlpriv, regaddr, data);
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_RF, DBG_TRACE,
 		 "regaddr(%#x), bitmask(%#x), data(%#x)\n",
 		 regaddr, bitmask, data);
+=======
+	rtl_dbg(rtlpriv, COMP_RF, DBG_TRACE,
+		"regaddr(%#x), bitmask(%#x), data(%#x)\n",
+		regaddr, bitmask, data);
+>>>>>>> upstream/android-13
 }
 
 static u32 _rtl92d_phy_rf_serial_read(struct ieee80211_hw *hw,
@@ -301,8 +346,13 @@ static u32 _rtl92d_phy_rf_serial_read(struct ieee80211_hw *hw,
 	else
 		retvalue = rtl_get_bbreg(hw, pphyreg->rf_rb,
 			BLSSIREADBACKDATA);
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_RF, DBG_TRACE, "RFR-%d Addr[0x%x] = 0x%x\n",
 		 rfpath, pphyreg->rf_rb, retvalue);
+=======
+	rtl_dbg(rtlpriv, COMP_RF, DBG_TRACE, "RFR-%d Addr[0x%x] = 0x%x\n",
+		rfpath, pphyreg->rf_rb, retvalue);
+>>>>>>> upstream/android-13
 	return retvalue;
 }
 
@@ -320,8 +370,13 @@ static void _rtl92d_phy_rf_serial_write(struct ieee80211_hw *hw,
 	/* T65 RF */
 	data_and_addr = ((newoffset << 20) | (data & 0x000fffff)) & 0x0fffffff;
 	rtl_set_bbreg(hw, pphyreg->rf3wire_offset, MASKDWORD, data_and_addr);
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_RF, DBG_TRACE, "RFW-%d Addr[0x%x]=0x%x\n",
 		 rfpath, pphyreg->rf3wire_offset, data_and_addr);
+=======
+	rtl_dbg(rtlpriv, COMP_RF, DBG_TRACE, "RFW-%d Addr[0x%x]=0x%x\n",
+		rfpath, pphyreg->rf3wire_offset, data_and_addr);
+>>>>>>> upstream/android-13
 }
 
 u32 rtl92d_phy_query_rf_reg(struct ieee80211_hw *hw,
@@ -329,6 +384,7 @@ u32 rtl92d_phy_query_rf_reg(struct ieee80211_hw *hw,
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	u32 original_value, readback_value, bitshift;
+<<<<<<< HEAD
 	unsigned long flags;
 
 	RT_TRACE(rtlpriv, COMP_RF, DBG_TRACE,
@@ -342,6 +398,20 @@ u32 rtl92d_phy_query_rf_reg(struct ieee80211_hw *hw,
 	RT_TRACE(rtlpriv, COMP_RF, DBG_TRACE,
 		 "regaddr(%#x), rfpath(%#x), bitmask(%#x), original_value(%#x)\n",
 		 regaddr, rfpath, bitmask, original_value);
+=======
+
+	rtl_dbg(rtlpriv, COMP_RF, DBG_TRACE,
+		"regaddr(%#x), rfpath(%#x), bitmask(%#x)\n",
+		regaddr, rfpath, bitmask);
+	spin_lock(&rtlpriv->locks.rf_lock);
+	original_value = _rtl92d_phy_rf_serial_read(hw, rfpath, regaddr);
+	bitshift = _rtl92d_phy_calculate_bit_shift(bitmask);
+	readback_value = (original_value & bitmask) >> bitshift;
+	spin_unlock(&rtlpriv->locks.rf_lock);
+	rtl_dbg(rtlpriv, COMP_RF, DBG_TRACE,
+		"regaddr(%#x), rfpath(%#x), bitmask(%#x), original_value(%#x)\n",
+		regaddr, rfpath, bitmask, original_value);
+>>>>>>> upstream/android-13
 	return readback_value;
 }
 
@@ -351,6 +421,7 @@ void rtl92d_phy_set_rf_reg(struct ieee80211_hw *hw, enum radio_path rfpath,
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct rtl_phy *rtlphy = &(rtlpriv->phy);
 	u32 original_value, bitshift;
+<<<<<<< HEAD
 	unsigned long flags;
 
 	RT_TRACE(rtlpriv, COMP_RF, DBG_TRACE,
@@ -359,6 +430,15 @@ void rtl92d_phy_set_rf_reg(struct ieee80211_hw *hw, enum radio_path rfpath,
 	if (bitmask == 0)
 		return;
 	spin_lock_irqsave(&rtlpriv->locks.rf_lock, flags);
+=======
+
+	rtl_dbg(rtlpriv, COMP_RF, DBG_TRACE,
+		"regaddr(%#x), bitmask(%#x), data(%#x), rfpath(%#x)\n",
+		regaddr, bitmask, data, rfpath);
+	if (bitmask == 0)
+		return;
+	spin_lock(&rtlpriv->locks.rf_lock);
+>>>>>>> upstream/android-13
 	if (rtlphy->rf_mode != RF_OP_BY_FW) {
 		if (bitmask != RFREG_OFFSET_MASK) {
 			original_value = _rtl92d_phy_rf_serial_read(hw,
@@ -369,10 +449,17 @@ void rtl92d_phy_set_rf_reg(struct ieee80211_hw *hw, enum radio_path rfpath,
 		}
 		_rtl92d_phy_rf_serial_write(hw, rfpath, regaddr, data);
 	}
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&rtlpriv->locks.rf_lock, flags);
 	RT_TRACE(rtlpriv, COMP_RF, DBG_TRACE,
 		 "regaddr(%#x), bitmask(%#x), data(%#x), rfpath(%#x)\n",
 		 regaddr, bitmask, data, rfpath);
+=======
+	spin_unlock(&rtlpriv->locks.rf_lock);
+	rtl_dbg(rtlpriv, COMP_RF, DBG_TRACE,
+		"regaddr(%#x), bitmask(%#x), data(%#x), rfpath(%#x)\n",
+		regaddr, bitmask, data, rfpath);
+>>>>>>> upstream/android-13
 }
 
 bool rtl92d_phy_mac_config(struct ieee80211_hw *hw)
@@ -382,10 +469,17 @@ bool rtl92d_phy_mac_config(struct ieee80211_hw *hw)
 	u32 arraylength;
 	u32 *ptrarray;
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_TRACE, "Read Rtl819XMACPHY_Array\n");
 	arraylength = MAC_2T_ARRAYLENGTH;
 	ptrarray = rtl8192de_mac_2tarray;
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_TRACE, "Img:Rtl819XMAC_Array\n");
+=======
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_TRACE, "Read Rtl819XMACPHY_Array\n");
+	arraylength = MAC_2T_ARRAYLENGTH;
+	ptrarray = rtl8192de_mac_2tarray;
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_TRACE, "Img:Rtl819XMAC_Array\n");
+>>>>>>> upstream/android-13
 	for (i = 0; i < arraylength; i = i + 2)
 		rtl_write_byte(rtlpriv, ptrarray[i], (u8) ptrarray[i + 1]);
 	if (rtlpriv->rtlhal.macphymode == SINGLEMAC_SINGLEPHY) {
@@ -506,6 +600,7 @@ static void _rtl92d_phy_init_bb_rf_register_definition(struct ieee80211_hw *hw)
 	rtlphy->phyreg_def[RF90_PATH_D].rfrx_afe = ROFDM0_XDRXAFE;
 
 	/* Tx AFE control 1 */
+<<<<<<< HEAD
 	rtlphy->phyreg_def[RF90_PATH_A].rftxiq_imbal = ROFDM0_XATxIQIMBALANCE;
 	rtlphy->phyreg_def[RF90_PATH_B].rftxiq_imbal = ROFDM0_XBTxIQIMBALANCE;
 	rtlphy->phyreg_def[RF90_PATH_C].rftxiq_imbal = ROFDM0_XCTxIQIMBALANCE;
@@ -516,6 +611,18 @@ static void _rtl92d_phy_init_bb_rf_register_definition(struct ieee80211_hw *hw)
 	rtlphy->phyreg_def[RF90_PATH_B].rftx_afe = ROFDM0_XBTxAFE;
 	rtlphy->phyreg_def[RF90_PATH_C].rftx_afe = ROFDM0_XCTxAFE;
 	rtlphy->phyreg_def[RF90_PATH_D].rftx_afe = ROFDM0_XDTxAFE;
+=======
+	rtlphy->phyreg_def[RF90_PATH_A].rftxiq_imbal = ROFDM0_XATXIQIMBALANCE;
+	rtlphy->phyreg_def[RF90_PATH_B].rftxiq_imbal = ROFDM0_XBTXIQIMBALANCE;
+	rtlphy->phyreg_def[RF90_PATH_C].rftxiq_imbal = ROFDM0_XCTXIQIMBALANCE;
+	rtlphy->phyreg_def[RF90_PATH_D].rftxiq_imbal = ROFDM0_XDTXIQIMBALANCE;
+
+	/* Tx AFE control 2 */
+	rtlphy->phyreg_def[RF90_PATH_A].rftx_afe = ROFDM0_XATXAFE;
+	rtlphy->phyreg_def[RF90_PATH_B].rftx_afe = ROFDM0_XBTXAFE;
+	rtlphy->phyreg_def[RF90_PATH_C].rftx_afe = ROFDM0_XCTXAFE;
+	rtlphy->phyreg_def[RF90_PATH_D].rftx_afe = ROFDM0_XDTXAFE;
+>>>>>>> upstream/android-13
 
 	/* Tranceiver LSSI Readback SI mode */
 	rtlphy->phyreg_def[RF90_PATH_A].rf_rb = RFPGA0_XA_LSSIREADBACK;
@@ -543,12 +650,18 @@ static bool _rtl92d_phy_config_bb_with_headerfile(struct ieee80211_hw *hw,
 	if (rtlhal->interfaceindex == 0) {
 		agctab_arraylen = AGCTAB_ARRAYLENGTH;
 		agctab_array_table = rtl8192de_agctab_array;
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
 			 " ===> phy:MAC0, Rtl819XAGCTAB_Array\n");
+=======
+		rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD,
+			" ===> phy:MAC0, Rtl819XAGCTAB_Array\n");
+>>>>>>> upstream/android-13
 	} else {
 		if (rtlhal->current_bandtype == BAND_ON_2_4G) {
 			agctab_arraylen = AGCTAB_2G_ARRAYLENGTH;
 			agctab_array_table = rtl8192de_agctab_2garray;
+<<<<<<< HEAD
 			RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
 				 " ===> phy:MAC1, Rtl819XAGCTAB_2GArray\n");
 		} else {
@@ -556,23 +669,44 @@ static bool _rtl92d_phy_config_bb_with_headerfile(struct ieee80211_hw *hw,
 			agctab_5garray_table = rtl8192de_agctab_5garray;
 			RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
 				 " ===> phy:MAC1, Rtl819XAGCTAB_5GArray\n");
+=======
+			rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD,
+				" ===> phy:MAC1, Rtl819XAGCTAB_2GArray\n");
+		} else {
+			agctab_5garraylen = AGCTAB_5G_ARRAYLENGTH;
+			agctab_5garray_table = rtl8192de_agctab_5garray;
+			rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD,
+				" ===> phy:MAC1, Rtl819XAGCTAB_5GArray\n");
+>>>>>>> upstream/android-13
 
 		}
 	}
 	phy_reg_arraylen = PHY_REG_2T_ARRAYLENGTH;
 	phy_regarray_table = rtl8192de_phy_reg_2tarray;
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
 		 " ===> phy:Rtl819XPHY_REG_Array_PG\n");
+=======
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD,
+		" ===> phy:Rtl819XPHY_REG_Array_PG\n");
+>>>>>>> upstream/android-13
 	if (configtype == BASEBAND_CONFIG_PHY_REG) {
 		for (i = 0; i < phy_reg_arraylen; i = i + 2) {
 			rtl_addr_delay(phy_regarray_table[i]);
 			rtl_set_bbreg(hw, phy_regarray_table[i], MASKDWORD,
 				      phy_regarray_table[i + 1]);
 			udelay(1);
+<<<<<<< HEAD
 			RT_TRACE(rtlpriv, COMP_INIT, DBG_TRACE,
 				 "The phy_regarray_table[0] is %x Rtl819XPHY_REGArray[1] is %x\n",
 				 phy_regarray_table[i],
 				 phy_regarray_table[i + 1]);
+=======
+			rtl_dbg(rtlpriv, COMP_INIT, DBG_TRACE,
+				"The phy_regarray_table[0] is %x Rtl819XPHY_REGArray[1] is %x\n",
+				phy_regarray_table[i],
+				phy_regarray_table[i + 1]);
+>>>>>>> upstream/android-13
 		}
 	} else if (configtype == BASEBAND_CONFIG_AGC_TAB) {
 		if (rtlhal->interfaceindex == 0) {
@@ -583,6 +717,7 @@ static bool _rtl92d_phy_config_bb_with_headerfile(struct ieee80211_hw *hw,
 				/* Add 1us delay between BB/RF register
 				 * setting. */
 				udelay(1);
+<<<<<<< HEAD
 				RT_TRACE(rtlpriv, COMP_INIT, DBG_TRACE,
 					 "The Rtl819XAGCTAB_Array_Table[0] is %u Rtl819XPHY_REGArray[1] is %u\n",
 					 agctab_array_table[i],
@@ -590,6 +725,15 @@ static bool _rtl92d_phy_config_bb_with_headerfile(struct ieee80211_hw *hw,
 			}
 			RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
 				 "Normal Chip, MAC0, load Rtl819XAGCTAB_Array\n");
+=======
+				rtl_dbg(rtlpriv, COMP_INIT, DBG_TRACE,
+					"The Rtl819XAGCTAB_Array_Table[0] is %u Rtl819XPHY_REGArray[1] is %u\n",
+					agctab_array_table[i],
+					agctab_array_table[i + 1]);
+			}
+			rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD,
+				"Normal Chip, MAC0, load Rtl819XAGCTAB_Array\n");
+>>>>>>> upstream/android-13
 		} else {
 			if (rtlhal->current_bandtype == BAND_ON_2_4G) {
 				for (i = 0; i < agctab_arraylen; i = i + 2) {
@@ -599,6 +743,7 @@ static bool _rtl92d_phy_config_bb_with_headerfile(struct ieee80211_hw *hw,
 					/* Add 1us delay between BB/RF register
 					 * setting. */
 					udelay(1);
+<<<<<<< HEAD
 					RT_TRACE(rtlpriv, COMP_INIT, DBG_TRACE,
 						 "The Rtl819XAGCTAB_Array_Table[0] is %u Rtl819XPHY_REGArray[1] is %u\n",
 						 agctab_array_table[i],
@@ -606,6 +751,15 @@ static bool _rtl92d_phy_config_bb_with_headerfile(struct ieee80211_hw *hw,
 				}
 				RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
 					 "Load Rtl819XAGCTAB_2GArray\n");
+=======
+					rtl_dbg(rtlpriv, COMP_INIT, DBG_TRACE,
+						"The Rtl819XAGCTAB_Array_Table[0] is %u Rtl819XPHY_REGArray[1] is %u\n",
+						agctab_array_table[i],
+						agctab_array_table[i + 1]);
+				}
+				rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD,
+					"Load Rtl819XAGCTAB_2GArray\n");
+>>>>>>> upstream/android-13
 			} else {
 				for (i = 0; i < agctab_5garraylen; i = i + 2) {
 					rtl_set_bbreg(hw,
@@ -615,6 +769,7 @@ static bool _rtl92d_phy_config_bb_with_headerfile(struct ieee80211_hw *hw,
 					/* Add 1us delay between BB/RF registeri
 					 * setting. */
 					udelay(1);
+<<<<<<< HEAD
 					RT_TRACE(rtlpriv, COMP_INIT, DBG_TRACE,
 						 "The Rtl819XAGCTAB_5GArray_Table[0] is %u Rtl819XPHY_REGArray[1] is %u\n",
 						 agctab_5garray_table[i],
@@ -622,6 +777,15 @@ static bool _rtl92d_phy_config_bb_with_headerfile(struct ieee80211_hw *hw,
 				}
 				RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
 					 "Load Rtl819XAGCTAB_5GArray\n");
+=======
+					rtl_dbg(rtlpriv, COMP_INIT, DBG_TRACE,
+						"The Rtl819XAGCTAB_5GArray_Table[0] is %u Rtl819XPHY_REGArray[1] is %u\n",
+						agctab_5garray_table[i],
+						agctab_5garray_table[i + 1]);
+				}
+				rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD,
+					"Load Rtl819XAGCTAB_5GArray\n");
+>>>>>>> upstream/android-13
 			}
 		}
 	}
@@ -672,10 +836,17 @@ static void _rtl92d_store_pwrindex_diffrate_offset(struct ieee80211_hw *hw,
 		return;
 
 	rtlphy->mcs_offset[rtlphy->pwrgroup_cnt][index] = data;
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_TRACE,
 		 "MCSTxPowerLevelOriginalOffset[%d][%d] = 0x%x\n",
 		 rtlphy->pwrgroup_cnt, index,
 		 rtlphy->mcs_offset[rtlphy->pwrgroup_cnt][index]);
+=======
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_TRACE,
+		"MCSTxPowerLevelOriginalOffset[%d][%d] = 0x%x\n",
+		rtlphy->pwrgroup_cnt, index,
+		rtlphy->mcs_offset[rtlphy->pwrgroup_cnt][index]);
+>>>>>>> upstream/android-13
 	if (index == 13)
 		rtlphy->pwrgroup_cnt++;
 }
@@ -699,8 +870,13 @@ static bool _rtl92d_phy_config_bb_with_pgheaderfile(struct ieee80211_hw *hw,
 				phy_regarray_table_pg[i + 2]);
 		}
 	} else {
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_SEND, DBG_TRACE,
 			 "configtype != BaseBand_Config_PHY_REG\n");
+=======
+		rtl_dbg(rtlpriv, COMP_SEND, DBG_TRACE,
+			"configtype != BaseBand_Config_PHY_REG\n");
+>>>>>>> upstream/android-13
 	}
 	return true;
 }
@@ -710,9 +886,15 @@ static bool _rtl92d_phy_bb_config(struct ieee80211_hw *hw)
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct rtl_phy *rtlphy = &(rtlpriv->phy);
 	struct rtl_efuse *rtlefuse = rtl_efuse(rtl_priv(hw));
+<<<<<<< HEAD
 	bool rtstatus = true;
 
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_TRACE, "==>\n");
+=======
+	bool rtstatus;
+
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_TRACE, "==>\n");
+>>>>>>> upstream/android-13
 	rtstatus = _rtl92d_phy_config_bb_with_headerfile(hw,
 		BASEBAND_CONFIG_PHY_REG);
 	if (!rtstatus) {
@@ -722,7 +904,11 @@ static bool _rtl92d_phy_bb_config(struct ieee80211_hw *hw)
 
 	/* if (rtlphy->rf_type == RF_1T2R) {
 	 *      _rtl92c_phy_bb_config_1t(hw);
+<<<<<<< HEAD
 	 *     RT_TRACE(rtlpriv, COMP_INIT, DBG_TRACE, "Config to 1T!!\n");
+=======
+	 *     rtl_dbg(rtlpriv, COMP_INIT, DBG_TRACE, "Config to 1T!!\n");
+>>>>>>> upstream/android-13
 	 *} */
 
 	if (rtlefuse->autoload_failflag == false) {
@@ -764,7 +950,11 @@ bool rtl92d_phy_bb_config(struct ieee80211_hw *hw)
 	rtl_write_byte(rtlpriv, REG_RF_CTRL, value | RF_EN | RF_RSTB |
 		RF_SDMRSTB);
 	rtl_write_byte(rtlpriv, REG_SYS_FUNC_EN, FEN_PPLL | FEN_PCIEA |
+<<<<<<< HEAD
 		FEN_DIO_PCIE | FEN_BB_GLB_RSTn | FEN_BBRSTB);
+=======
+		FEN_DIO_PCIE | FEN_BB_GLB_RSTN | FEN_BBRSTB);
+>>>>>>> upstream/android-13
 	rtl_write_byte(rtlpriv, REG_AFE_XTAL_CTRL + 1, 0x80);
 	if (!(IS_92D_SINGLEPHY(rtlpriv->rtlhal.version))) {
 		regvaldw = rtl_read_dword(rtlpriv, REG_LEDCFG0);
@@ -801,18 +991,31 @@ bool rtl92d_phy_config_rf_with_headerfile(struct ieee80211_hw *hw,
 		radiob_arraylen = RADIOB_2T_INT_PA_ARRAYLENGTH;
 		radiob_array_table = rtl8192de_radiob_2t_int_paarray;
 	}
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
 		 "PHY_ConfigRFWithHeaderFile() Radio_A:Rtl819XRadioA_1TArray\n");
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
 		 "PHY_ConfigRFWithHeaderFile() Radio_B:Rtl819XRadioB_1TArray\n");
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_TRACE, "Radio No %x\n", rfpath);
+=======
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD,
+		"PHY_ConfigRFWithHeaderFile() Radio_A:Rtl819XRadioA_1TArray\n");
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD,
+		"PHY_ConfigRFWithHeaderFile() Radio_B:Rtl819XRadioB_1TArray\n");
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_TRACE, "Radio No %x\n", rfpath);
+>>>>>>> upstream/android-13
 
 	/* this only happens when DMDP, mac0 start on 2.4G,
 	 * mac1 start on 5G, mac 0 has to set phy0&phy1
 	 * pathA or mac1 has to set phy0&phy1 pathA */
 	if ((content == radiob_txt) && (rfpath == RF90_PATH_A)) {
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
 			 " ===> althougth Path A, we load radiob.txt\n");
+=======
+		rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD,
+			" ===> althougth Path A, we load radiob.txt\n");
+>>>>>>> upstream/android-13
 		radioa_arraylen = radiob_arraylen;
 		radioa_array_table = radiob_array_table;
 	}
@@ -852,19 +1055,34 @@ void rtl92d_phy_get_hw_reg_originalvalue(struct ieee80211_hw *hw)
 	    (u8) rtl_get_bbreg(hw, ROFDM0_XCAGCCORE1, MASKBYTE0);
 	rtlphy->default_initialgain[3] =
 	    (u8) rtl_get_bbreg(hw, ROFDM0_XDAGCCORE1, MASKBYTE0);
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_TRACE,
 		 "Default initial gain (c50=0x%x, c58=0x%x, c60=0x%x, c68=0x%x\n",
 		 rtlphy->default_initialgain[0],
 		 rtlphy->default_initialgain[1],
 		 rtlphy->default_initialgain[2],
 		 rtlphy->default_initialgain[3]);
+=======
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_TRACE,
+		"Default initial gain (c50=0x%x, c58=0x%x, c60=0x%x, c68=0x%x\n",
+		rtlphy->default_initialgain[0],
+		rtlphy->default_initialgain[1],
+		rtlphy->default_initialgain[2],
+		rtlphy->default_initialgain[3]);
+>>>>>>> upstream/android-13
 	rtlphy->framesync = (u8)rtl_get_bbreg(hw, ROFDM0_RXDETECTOR3,
 					      MASKBYTE0);
 	rtlphy->framesync_c34 = rtl_get_bbreg(hw, ROFDM0_RXDETECTOR2,
 					      MASKDWORD);
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_TRACE,
 		 "Default framesync (0x%x) = 0x%x\n",
 		 ROFDM0_RXDETECTOR3, rtlphy->framesync);
+=======
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_TRACE,
+		"Default framesync (0x%x) = 0x%x\n",
+		ROFDM0_RXDETECTOR3, rtlphy->framesync);
+>>>>>>> upstream/android-13
 }
 
 static void _rtl92d_get_txpower_index(struct ieee80211_hw *hw, u8 channel,
@@ -962,6 +1180,7 @@ void rtl92d_phy_set_bw_mode(struct ieee80211_hw *hw,
 	if (rtlphy->set_bwmode_inprogress)
 		return;
 	if ((is_hal_stop(rtlhal)) || (RT_CANNOT_IO(hw))) {
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_ERR, DBG_WARNING,
 			 "FALSE driver sleep or unload\n");
 		return;
@@ -970,6 +1189,16 @@ void rtl92d_phy_set_bw_mode(struct ieee80211_hw *hw,
 	RT_TRACE(rtlpriv, COMP_SCAN, DBG_TRACE, "Switch to %s bandwidth\n",
 		 rtlphy->current_chan_bw == HT_CHANNEL_WIDTH_20 ?
 		 "20MHz" : "40MHz");
+=======
+		rtl_dbg(rtlpriv, COMP_ERR, DBG_WARNING,
+			"FALSE driver sleep or unload\n");
+		return;
+	}
+	rtlphy->set_bwmode_inprogress = true;
+	rtl_dbg(rtlpriv, COMP_SCAN, DBG_TRACE, "Switch to %s bandwidth\n",
+		rtlphy->current_chan_bw == HT_CHANNEL_WIDTH_20 ?
+		"20MHz" : "40MHz");
+>>>>>>> upstream/android-13
 	reg_bw_opmode = rtl_read_byte(rtlpriv, REG_BWOPMODE);
 	reg_prsr_rsc = rtl_read_byte(rtlpriv, REG_RRSR + 2);
 	switch (rtlphy->current_chan_bw) {
@@ -1025,7 +1254,11 @@ void rtl92d_phy_set_bw_mode(struct ieee80211_hw *hw,
 	}
 	rtl92d_phy_rf6052_set_bandwidth(hw, rtlphy->current_chan_bw);
 	rtlphy->set_bwmode_inprogress = false;
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_SCAN, DBG_TRACE, "<==\n");
+=======
+	rtl_dbg(rtlpriv, COMP_SCAN, DBG_TRACE, "<==\n");
+>>>>>>> upstream/android-13
 }
 
 static void _rtl92d_phy_stop_trx_before_changeband(struct ieee80211_hw *hw)
@@ -1042,7 +1275,11 @@ static void rtl92d_phy_switch_wirelessband(struct ieee80211_hw *hw, u8 band)
 	struct rtl_hal *rtlhal = rtl_hal(rtl_priv(hw));
 	u8 value8;
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD, "==>\n");
+=======
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD, "==>\n");
+>>>>>>> upstream/android-13
 	rtlhal->bandset = band;
 	rtlhal->current_bandtype = band;
 	if (IS_92D_SINGLEPHY(rtlhal->version))
@@ -1052,13 +1289,21 @@ static void rtl92d_phy_switch_wirelessband(struct ieee80211_hw *hw, u8 band)
 	/* reconfig BB/RF according to wireless mode */
 	if (rtlhal->current_bandtype == BAND_ON_2_4G) {
 		/* BB & RF Config */
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_CMD, DBG_DMESG, "====>2.4G\n");
+=======
+		rtl_dbg(rtlpriv, COMP_CMD, DBG_DMESG, "====>2.4G\n");
+>>>>>>> upstream/android-13
 		if (rtlhal->interfaceindex == 1)
 			_rtl92d_phy_config_bb_with_headerfile(hw,
 				BASEBAND_CONFIG_AGC_TAB);
 	} else {
 		/* 5G band */
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_CMD, DBG_DMESG, "====>5G\n");
+=======
+		rtl_dbg(rtlpriv, COMP_CMD, DBG_DMESG, "====>5G\n");
+>>>>>>> upstream/android-13
 		if (rtlhal->interfaceindex == 1)
 			_rtl92d_phy_config_bb_with_headerfile(hw,
 				BASEBAND_CONFIG_AGC_TAB);
@@ -1086,7 +1331,11 @@ static void rtl92d_phy_switch_wirelessband(struct ieee80211_hw *hw, u8 band)
 			0 ? REG_MAC0 : REG_MAC1), value8);
 	}
 	mdelay(1);
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD, "<==Switch Band OK\n");
+=======
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD, "<==Switch Band OK\n");
+>>>>>>> upstream/android-13
 }
 
 static void _rtl92d_phy_reload_imr_setting(struct ieee80211_hw *hw,
@@ -1098,9 +1347,15 @@ static void _rtl92d_phy_reload_imr_setting(struct ieee80211_hw *hw,
 	u8 group, i;
 	unsigned long flag = 0;
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_CMD, DBG_LOUD, "====>path %d\n", rfpath);
 	if (rtlpriv->rtlhal.current_bandtype == BAND_ON_5G) {
 		RT_TRACE(rtlpriv, COMP_CMD, DBG_LOUD, "====>5G\n");
+=======
+	rtl_dbg(rtlpriv, COMP_CMD, DBG_LOUD, "====>path %d\n", rfpath);
+	if (rtlpriv->rtlhal.current_bandtype == BAND_ON_5G) {
+		rtl_dbg(rtlpriv, COMP_CMD, DBG_LOUD, "====>5G\n");
+>>>>>>> upstream/android-13
 		rtl_set_bbreg(hw, RFPGA0_RFMOD, BIT(25) | BIT(24), 0);
 		rtl_set_bbreg(hw, RFPGA0_ANALOGPARAMETER4, 0x00f00000, 0xf);
 		/* fc area 0xd2c */
@@ -1121,6 +1376,7 @@ static void _rtl92d_phy_reload_imr_setting(struct ieee80211_hw *hw,
 		rtl_set_bbreg(hw, RFPGA0_RFMOD, BOFDMEN, 1);
 	} else {
 		/* G band. */
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_SCAN, DBG_LOUD,
 			 "Load RF IMR parameters for G band. IMR already setting %d\n",
 			 rtlpriv->rtlhal.load_imrandiqk_setting_for2g);
@@ -1129,6 +1385,16 @@ static void _rtl92d_phy_reload_imr_setting(struct ieee80211_hw *hw,
 			RT_TRACE(rtlpriv, COMP_SCAN, DBG_LOUD,
 				 "Load RF IMR parameters for G band. %d\n",
 				 rfpath);
+=======
+		rtl_dbg(rtlpriv, COMP_SCAN, DBG_LOUD,
+			"Load RF IMR parameters for G band. IMR already setting %d\n",
+			rtlpriv->rtlhal.load_imrandiqk_setting_for2g);
+		rtl_dbg(rtlpriv, COMP_CMD, DBG_LOUD, "====>2.4G\n");
+		if (!rtlpriv->rtlhal.load_imrandiqk_setting_for2g) {
+			rtl_dbg(rtlpriv, COMP_SCAN, DBG_LOUD,
+				"Load RF IMR parameters for G band. %d\n",
+				rfpath);
+>>>>>>> upstream/android-13
 			rtl92d_acquire_cckandrw_pagea_ctl(hw, &flag);
 			rtl_set_bbreg(hw, RFPGA0_RFMOD, BIT(25) | BIT(24), 0);
 			rtl_set_bbreg(hw, RFPGA0_ANALOGPARAMETER4,
@@ -1146,7 +1412,11 @@ static void _rtl92d_phy_reload_imr_setting(struct ieee80211_hw *hw,
 			rtl92d_release_cckandrw_pagea_ctl(hw, &flag);
 		}
 	}
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_CMD, DBG_LOUD, "<====\n");
+=======
+	rtl_dbg(rtlpriv, COMP_CMD, DBG_LOUD, "<====\n");
+>>>>>>> upstream/android-13
 }
 
 static void _rtl92d_phy_enable_rf_env(struct ieee80211_hw *hw,
@@ -1156,7 +1426,11 @@ static void _rtl92d_phy_enable_rf_env(struct ieee80211_hw *hw,
 	struct rtl_phy *rtlphy = &(rtlpriv->phy);
 	struct bb_reg_def *pphyreg = &rtlphy->phyreg_def[rfpath];
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_RF, DBG_LOUD, "====>\n");
+=======
+	rtl_dbg(rtlpriv, COMP_RF, DBG_LOUD, "====>\n");
+>>>>>>> upstream/android-13
 	/*----Store original RFENV control type----*/
 	switch (rfpath) {
 	case RF90_PATH_A:
@@ -1182,7 +1456,11 @@ static void _rtl92d_phy_enable_rf_env(struct ieee80211_hw *hw,
 	/*Set 0 to 12 bits for 8255 */
 	rtl_set_bbreg(hw, pphyreg->rfhssi_para2, B3WIREDATALENGTH, 0x0);
 	udelay(1);
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_RF, DBG_LOUD, "<====\n");
+=======
+	rtl_dbg(rtlpriv, COMP_RF, DBG_LOUD, "<====\n");
+>>>>>>> upstream/android-13
 }
 
 static void _rtl92d_phy_restore_rf_env(struct ieee80211_hw *hw, u8 rfpath,
@@ -1192,7 +1470,11 @@ static void _rtl92d_phy_restore_rf_env(struct ieee80211_hw *hw, u8 rfpath,
 	struct rtl_phy *rtlphy = &(rtlpriv->phy);
 	struct bb_reg_def *pphyreg = &rtlphy->phyreg_def[rfpath];
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_RF, DBG_LOUD, "=====>\n");
+=======
+	rtl_dbg(rtlpriv, COMP_RF, DBG_LOUD, "=====>\n");
+>>>>>>> upstream/android-13
 	/*----Restore RFENV control type----*/
 	switch (rfpath) {
 	case RF90_PATH_A:
@@ -1205,7 +1487,11 @@ static void _rtl92d_phy_restore_rf_env(struct ieee80211_hw *hw, u8 rfpath,
 			      *pu4_regval);
 		break;
 	}
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_RF, DBG_LOUD, "<=====\n");
+=======
+	rtl_dbg(rtlpriv, COMP_RF, DBG_LOUD, "<=====\n");
+>>>>>>> upstream/android-13
 }
 
 static void _rtl92d_phy_switch_rf_setting(struct ieee80211_hw *hw, u8 channel)
@@ -1219,10 +1505,17 @@ static void _rtl92d_phy_switch_rf_setting(struct ieee80211_hw *hw, u8 channel)
 	bool need_pwr_down = false, internal_pa = false;
 	u32 u4regvalue, mask = 0x1C000, value = 0, u4tmp, u4tmp2;
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_CMD, DBG_LOUD, "====>\n");
 	/* config path A for 5G */
 	if (rtlhal->current_bandtype == BAND_ON_5G) {
 		RT_TRACE(rtlpriv, COMP_CMD, DBG_LOUD, "====>5G\n");
+=======
+	rtl_dbg(rtlpriv, COMP_CMD, DBG_LOUD, "====>\n");
+	/* config path A for 5G */
+	if (rtlhal->current_bandtype == BAND_ON_5G) {
+		rtl_dbg(rtlpriv, COMP_CMD, DBG_LOUD, "====>5G\n");
+>>>>>>> upstream/android-13
 		u4tmp = curveindex_5g[channel - 1];
 		RTPRINT(rtlpriv, FINIT, INIT_IQK,
 			"ver 1 set RF-A, 5G, 0x28 = 0x%x !!\n", u4tmp);
@@ -1270,6 +1563,7 @@ static void _rtl92d_phy_switch_rf_setting(struct ieee80211_hw *hw, u8 channel)
 					      RFREG_OFFSET_MASK,
 					      rf_reg_pram_c_5g[index][i]);
 			}
+<<<<<<< HEAD
 			RT_TRACE(rtlpriv, COMP_RF, DBG_TRACE,
 				 "offset 0x%x value 0x%x path %d index %d readback 0x%x\n",
 				 rf_reg_for_c_cut_5g[i],
@@ -1278,6 +1572,16 @@ static void _rtl92d_phy_switch_rf_setting(struct ieee80211_hw *hw, u8 channel)
 				 rtl_get_rfreg(hw, (enum radio_path)path,
 					       rf_reg_for_c_cut_5g[i],
 					       RFREG_OFFSET_MASK));
+=======
+			rtl_dbg(rtlpriv, COMP_RF, DBG_TRACE,
+				"offset 0x%x value 0x%x path %d index %d readback 0x%x\n",
+				rf_reg_for_c_cut_5g[i],
+				rf_reg_pram_c_5g[index][i],
+				path, index,
+				rtl_get_rfreg(hw, (enum radio_path)path,
+					      rf_reg_for_c_cut_5g[i],
+					      RFREG_OFFSET_MASK));
+>>>>>>> upstream/android-13
 		}
 		if (need_pwr_down)
 			_rtl92d_phy_restore_rf_env(hw, path, &u4regvalue);
@@ -1309,11 +1613,19 @@ static void _rtl92d_phy_switch_rf_setting(struct ieee80211_hw *hw, u8 channel)
 						rf_for_c_cut_5g_internal_pa[i],
 						RFREG_OFFSET_MASK,
 						rf_pram_c_5g_int_pa[index][i]);
+<<<<<<< HEAD
 					RT_TRACE(rtlpriv, COMP_RF, DBG_LOUD,
 						 "offset 0x%x value 0x%x path %d index %d\n",
 						 rf_for_c_cut_5g_internal_pa[i],
 						 rf_pram_c_5g_int_pa[index][i],
 						 rfpath, index);
+=======
+					rtl_dbg(rtlpriv, COMP_RF, DBG_LOUD,
+						"offset 0x%x value 0x%x path %d index %d\n",
+						rf_for_c_cut_5g_internal_pa[i],
+						rf_pram_c_5g_int_pa[index][i],
+						rfpath, index);
+>>>>>>> upstream/android-13
 				}
 			} else {
 				rtl_set_rfreg(hw, (enum radio_path)rfpath, 0x0B,
@@ -1321,7 +1633,11 @@ static void _rtl92d_phy_switch_rf_setting(struct ieee80211_hw *hw, u8 channel)
 			}
 		}
 	} else if (rtlhal->current_bandtype == BAND_ON_2_4G) {
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_CMD, DBG_LOUD, "====>2.4G\n");
+=======
+		rtl_dbg(rtlpriv, COMP_CMD, DBG_LOUD, "====>2.4G\n");
+>>>>>>> upstream/android-13
 		u4tmp = curveindex_2g[channel - 1];
 		RTPRINT(rtlpriv, FINIT, INIT_IQK,
 			"ver 3 set RF-B, 2G, 0x28 = 0x%x !!\n", u4tmp);
@@ -1357,6 +1673,7 @@ static void _rtl92d_phy_switch_rf_setting(struct ieee80211_hw *hw, u8 channel)
 					      RFREG_OFFSET_MASK,
 					      rf_reg_param_for_c_cut_2g
 					      [index][i]);
+<<<<<<< HEAD
 			RT_TRACE(rtlpriv, COMP_RF, DBG_TRACE,
 				 "offset 0x%x value 0x%x mak 0x%x path %d index %d readback 0x%x\n",
 				 rf_reg_for_c_cut_2g[i],
@@ -1365,6 +1682,16 @@ static void _rtl92d_phy_switch_rf_setting(struct ieee80211_hw *hw, u8 channel)
 				 rtl_get_rfreg(hw, (enum radio_path)path,
 					       rf_reg_for_c_cut_2g[i],
 					       RFREG_OFFSET_MASK));
+=======
+			rtl_dbg(rtlpriv, COMP_RF, DBG_TRACE,
+				"offset 0x%x value 0x%x mak 0x%x path %d index %d readback 0x%x\n",
+				rf_reg_for_c_cut_2g[i],
+				rf_reg_param_for_c_cut_2g[index][i],
+				rf_reg_mask_for_c_cut_2g[i], path, index,
+				rtl_get_rfreg(hw, (enum radio_path)path,
+					      rf_reg_for_c_cut_2g[i],
+					      RFREG_OFFSET_MASK));
+>>>>>>> upstream/android-13
 		}
 		RTPRINT(rtlpriv, FINIT, INIT_IQK,
 			"cosa ver 3 set RF-B, 2G, 0x28 = 0x%x !!\n",
@@ -1378,11 +1705,16 @@ static void _rtl92d_phy_switch_rf_setting(struct ieee80211_hw *hw, u8 channel)
 		if (rtlhal->during_mac0init_radiob)
 			rtl92d_phy_powerdown_anotherphy(hw, true);
 	}
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_CMD, DBG_LOUD, "<====\n");
+=======
+	rtl_dbg(rtlpriv, COMP_CMD, DBG_LOUD, "<====\n");
+>>>>>>> upstream/android-13
 }
 
 u8 rtl92d_get_rightchnlplace_for_iqk(u8 chnl)
 {
+<<<<<<< HEAD
 	u8 channel_all[59] = {
 		1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
 		36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58,
@@ -1392,6 +1724,9 @@ u8 rtl92d_get_rightchnlplace_for_iqk(u8 chnl)
 		157, 159, 161, 163, 165
 	};
 	u8 place = chnl;
+=======
+	u8 place;
+>>>>>>> upstream/android-13
 
 	if (chnl > 14) {
 		for (place = 14; place < sizeof(channel_all); place++) {
@@ -1480,11 +1815,19 @@ static u8 _rtl92d_phy_patha_iqk_5g_normal(struct ieee80211_hw *hw,
 	u8 result = 0;
 	u8 i;
 	u8 retrycount = 2;
+<<<<<<< HEAD
 	u32 TxOKBit = BIT(28), RxOKBit = BIT(27);
 
 	if (rtlhal->interfaceindex == 1) {	/* PHY1 */
 		TxOKBit = BIT(31);
 		RxOKBit = BIT(30);
+=======
+	u32 TXOKBIT = BIT(28), RXOKBIT = BIT(27);
+
+	if (rtlhal->interfaceindex == 1) {	/* PHY1 */
+		TXOKBIT = BIT(31);
+		RXOKBIT = BIT(30);
+>>>>>>> upstream/android-13
 	}
 	RTPRINT(rtlpriv, FINIT, INIT_IQK,  "Path A IQK!\n");
 	/* path-A IQK setting */
@@ -1526,7 +1869,11 @@ static u8 _rtl92d_phy_patha_iqk_5g_normal(struct ieee80211_hw *hw,
 		RTPRINT(rtlpriv, FINIT, INIT_IQK,  "0xe9c = 0x%x\n", rege9c);
 		regea4 = rtl_get_bbreg(hw, 0xea4, MASKDWORD);
 		RTPRINT(rtlpriv, FINIT, INIT_IQK,  "0xea4 = 0x%x\n", regea4);
+<<<<<<< HEAD
 		if (!(regeac & TxOKBit) &&
+=======
+		if (!(regeac & TXOKBIT) &&
+>>>>>>> upstream/android-13
 		     (((rege94 & 0x03FF0000) >> 16) != 0x142)) {
 			result |= 0x01;
 		} else { /* if Tx not OK, ignore Rx */
@@ -1536,7 +1883,11 @@ static u8 _rtl92d_phy_patha_iqk_5g_normal(struct ieee80211_hw *hw,
 		}
 
 		/* if Tx is OK, check whether Rx is OK */
+<<<<<<< HEAD
 		if (!(regeac & RxOKBit) &&
+=======
+		if (!(regeac & RXOKBIT) &&
+>>>>>>> upstream/android-13
 		    (((regea4 & 0x03FF0000) >> 16) != 0x132)) {
 			result |= 0x02;
 			break;
@@ -2165,7 +2516,11 @@ static void _rtl92d_phy_patha_fill_iqk_matrix(struct ieee80211_hw *hw,
 	if (final_candidate == 0xFF) {
 		return;
 	} else if (iqk_ok) {
+<<<<<<< HEAD
 		oldval_0 = (rtl_get_bbreg(hw, ROFDM0_XATxIQIMBALANCE,
+=======
+		oldval_0 = (rtl_get_bbreg(hw, ROFDM0_XATXIQIMBALANCE,
+>>>>>>> upstream/android-13
 			MASKDWORD) >> 22) & 0x3FF;	/* OFDM0_D */
 		val_x = result[final_candidate][0];
 		if ((val_x & 0x00000200) != 0)
@@ -2174,7 +2529,11 @@ static void _rtl92d_phy_patha_fill_iqk_matrix(struct ieee80211_hw *hw,
 		RTPRINT(rtlpriv, FINIT, INIT_IQK,
 			"X = 0x%x, tx0_a = 0x%x, oldval_0 0x%x\n",
 			val_x, tx0_a, oldval_0);
+<<<<<<< HEAD
 		rtl_set_bbreg(hw, ROFDM0_XATxIQIMBALANCE, 0x3FF, tx0_a);
+=======
+		rtl_set_bbreg(hw, ROFDM0_XATXIQIMBALANCE, 0x3FF, tx0_a);
+>>>>>>> upstream/android-13
 		rtl_set_bbreg(hw, ROFDM0_ECCATHRESHOLD, BIT(24),
 			      ((val_x * oldval_0 >> 7) & 0x1));
 		val_y = result[final_candidate][1];
@@ -2188,15 +2547,25 @@ static void _rtl92d_phy_patha_fill_iqk_matrix(struct ieee80211_hw *hw,
 		RTPRINT(rtlpriv, FINIT, INIT_IQK,
 			"Y = 0x%lx, tx0_c = 0x%lx\n",
 			val_y, tx0_c);
+<<<<<<< HEAD
 		rtl_set_bbreg(hw, ROFDM0_XCTxAFE, 0xF0000000,
 			      ((tx0_c & 0x3C0) >> 6));
 		rtl_set_bbreg(hw, ROFDM0_XATxIQIMBALANCE, 0x003F0000,
+=======
+		rtl_set_bbreg(hw, ROFDM0_XCTXAFE, 0xF0000000,
+			      ((tx0_c & 0x3C0) >> 6));
+		rtl_set_bbreg(hw, ROFDM0_XATXIQIMBALANCE, 0x003F0000,
+>>>>>>> upstream/android-13
 			      (tx0_c & 0x3F));
 		if (is2t)
 			rtl_set_bbreg(hw, ROFDM0_ECCATHRESHOLD, BIT(26),
 				      ((val_y * oldval_0 >> 7) & 0x1));
 		RTPRINT(rtlpriv, FINIT, INIT_IQK, "0xC80 = 0x%x\n",
+<<<<<<< HEAD
 			rtl_get_bbreg(hw, ROFDM0_XATxIQIMBALANCE,
+=======
+			rtl_get_bbreg(hw, ROFDM0_XATXIQIMBALANCE,
+>>>>>>> upstream/android-13
 				      MASKDWORD));
 		if (txonly) {
 			RTPRINT(rtlpriv, FINIT, INIT_IQK,  "only Tx OK\n");
@@ -2224,7 +2593,11 @@ static void _rtl92d_phy_pathb_fill_iqk_matrix(struct ieee80211_hw *hw,
 	if (final_candidate == 0xFF) {
 		return;
 	} else if (iqk_ok) {
+<<<<<<< HEAD
 		oldval_1 = (rtl_get_bbreg(hw, ROFDM0_XBTxIQIMBALANCE,
+=======
+		oldval_1 = (rtl_get_bbreg(hw, ROFDM0_XBTXIQIMBALANCE,
+>>>>>>> upstream/android-13
 					  MASKDWORD) >> 22) & 0x3FF;
 		val_x = result[final_candidate][4];
 		if ((val_x & 0x00000200) != 0)
@@ -2232,7 +2605,11 @@ static void _rtl92d_phy_pathb_fill_iqk_matrix(struct ieee80211_hw *hw,
 		tx1_a = (val_x * oldval_1) >> 8;
 		RTPRINT(rtlpriv, FINIT, INIT_IQK, "X = 0x%x, tx1_a = 0x%x\n",
 			val_x, tx1_a);
+<<<<<<< HEAD
 		rtl_set_bbreg(hw, ROFDM0_XBTxIQIMBALANCE, 0x3FF, tx1_a);
+=======
+		rtl_set_bbreg(hw, ROFDM0_XBTXIQIMBALANCE, 0x3FF, tx1_a);
+>>>>>>> upstream/android-13
 		rtl_set_bbreg(hw, ROFDM0_ECCATHRESHOLD, BIT(28),
 			      ((val_x * oldval_1 >> 7) & 0x1));
 		val_y = result[final_candidate][5];
@@ -2243,9 +2620,15 @@ static void _rtl92d_phy_pathb_fill_iqk_matrix(struct ieee80211_hw *hw,
 		tx1_c = (val_y * oldval_1) >> 8;
 		RTPRINT(rtlpriv, FINIT, INIT_IQK, "Y = 0x%lx, tx1_c = 0x%lx\n",
 			val_y, tx1_c);
+<<<<<<< HEAD
 		rtl_set_bbreg(hw, ROFDM0_XDTxAFE, 0xF0000000,
 			      ((tx1_c & 0x3C0) >> 6));
 		rtl_set_bbreg(hw, ROFDM0_XBTxIQIMBALANCE, 0x003F0000,
+=======
+		rtl_set_bbreg(hw, ROFDM0_XDTXAFE, 0xF0000000,
+			      ((tx1_c & 0x3C0) >> 6));
+		rtl_set_bbreg(hw, ROFDM0_XBTXIQIMBALANCE, 0x003F0000,
+>>>>>>> upstream/android-13
 			      (tx1_c & 0x3F));
 		rtl_set_bbreg(hw, ROFDM0_ECCATHRESHOLD, BIT(30),
 			      ((val_y * oldval_1 >> 7) & 0x1));
@@ -2382,8 +2765,13 @@ void rtl92d_phy_iq_calibrate(struct ieee80211_hw *hw)
 		rtlphy->iqk_matrix[indexforchannel].iqk_done =
 			true;
 
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_SCAN | COMP_MLME, DBG_LOUD,
 			 "IQK OK indexforchannel %d\n", indexforchannel);
+=======
+		rtl_dbg(rtlpriv, COMP_SCAN | COMP_MLME, DBG_LOUD,
+			"IQK OK indexforchannel %d\n", indexforchannel);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -2394,26 +2782,45 @@ void rtl92d_phy_reload_iqk_setting(struct ieee80211_hw *hw, u8 channel)
 	struct rtl_hal *rtlhal = &(rtlpriv->rtlhal);
 	u8 indexforchannel;
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_CMD, DBG_LOUD, "channel %d\n", channel);
 	/*------Do IQK for normal chip and test chip 5G band------- */
 	indexforchannel = rtl92d_get_rightchnlplace_for_iqk(channel);
 	RT_TRACE(rtlpriv, COMP_CMD, DBG_LOUD, "indexforchannel %d done %d\n",
 		 indexforchannel,
+=======
+	rtl_dbg(rtlpriv, COMP_CMD, DBG_LOUD, "channel %d\n", channel);
+	/*------Do IQK for normal chip and test chip 5G band------- */
+	indexforchannel = rtl92d_get_rightchnlplace_for_iqk(channel);
+	rtl_dbg(rtlpriv, COMP_CMD, DBG_LOUD, "indexforchannel %d done %d\n",
+		indexforchannel,
+>>>>>>> upstream/android-13
 		 rtlphy->iqk_matrix[indexforchannel].iqk_done);
 	if (0 && !rtlphy->iqk_matrix[indexforchannel].iqk_done &&
 		rtlphy->need_iqk) {
 		/* Re Do IQK. */
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_SCAN | COMP_INIT, DBG_LOUD,
 			 "Do IQK Matrix reg for channel:%d....\n", channel);
+=======
+		rtl_dbg(rtlpriv, COMP_SCAN | COMP_INIT, DBG_LOUD,
+			"Do IQK Matrix reg for channel:%d....\n", channel);
+>>>>>>> upstream/android-13
 		rtl92d_phy_iq_calibrate(hw);
 	} else {
 		/* Just load the value. */
 		/* 2G band just load once. */
 		if (((!rtlhal->load_imrandiqk_setting_for2g) &&
 		    indexforchannel == 0) || indexforchannel > 0) {
+<<<<<<< HEAD
 			RT_TRACE(rtlpriv, COMP_SCAN, DBG_LOUD,
 				 "Just Read IQK Matrix reg for channel:%d....\n",
 				 channel);
+=======
+			rtl_dbg(rtlpriv, COMP_SCAN, DBG_LOUD,
+				"Just Read IQK Matrix reg for channel:%d....\n",
+				channel);
+>>>>>>> upstream/android-13
 			if ((rtlphy->iqk_matrix[indexforchannel].
 			     value[0] != NULL)
 				/*&&(regea4 != 0) */)
@@ -2437,7 +2844,11 @@ void rtl92d_phy_reload_iqk_setting(struct ieee80211_hw *hw, u8 channel)
 		}
 	}
 	rtlphy->need_iqk = false;
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_CMD, DBG_LOUD, "<====\n");
+=======
+	rtl_dbg(rtlpriv, COMP_CMD, DBG_LOUD, "<====\n");
+>>>>>>> upstream/android-13
 }
 
 static u32 _rtl92d_phy_get_abs(u32 val1, u32 val2)
@@ -2501,7 +2912,11 @@ static void _rtl92d_phy_reload_lck_setting(struct ieee80211_hw *hw,
 	u32 u4tmp = 0, u4regvalue = 0;
 	bool bneed_powerdown_radio = false;
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_CMD, DBG_LOUD, "path %d\n", erfpath);
+=======
+	rtl_dbg(rtlpriv, COMP_CMD, DBG_LOUD, "path %d\n", erfpath);
+>>>>>>> upstream/android-13
 	RTPRINT(rtlpriv, FINIT, INIT_IQK, "band type = %d\n",
 		rtlpriv->rtlhal.current_bandtype);
 	RTPRINT(rtlpriv, FINIT, INIT_IQK,  "channel = %d\n", channel);
@@ -2546,7 +2961,11 @@ static void _rtl92d_phy_reload_lck_setting(struct ieee80211_hw *hw,
 		if (rtlpriv->rtlhal.during_mac0init_radiob)
 			rtl92d_phy_powerdown_anotherphy(hw, true);
 	}
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_CMD, DBG_LOUD, "<====\n");
+=======
+	rtl_dbg(rtlpriv, COMP_CMD, DBG_LOUD, "<====\n");
+>>>>>>> upstream/android-13
 }
 
 static void _rtl92d_phy_lc_calibrate_sw(struct ieee80211_hw *hw, bool is2t)
@@ -2595,7 +3014,11 @@ static void _rtl92d_phy_lc_calibrate_sw(struct ieee80211_hw *hw, bool is2t)
 		}
 		RTPRINT(rtlpriv, FINIT, INIT_IQK,
 			"PHY_LCK finish delay for %d ms=2\n", timecount);
+<<<<<<< HEAD
 		u4tmp = rtl_get_rfreg(hw, index, RF_SYN_G4, RFREG_OFFSET_MASK);
+=======
+		rtl_get_rfreg(hw, index, RF_SYN_G4, RFREG_OFFSET_MASK);
+>>>>>>> upstream/android-13
 		if (index == 0 && rtlhal->interfaceindex == 0) {
 			RTPRINT(rtlpriv, FINIT, INIT_IQK,
 				"path-A / 5G LCK\n");
@@ -2603,7 +3026,11 @@ static void _rtl92d_phy_lc_calibrate_sw(struct ieee80211_hw *hw, bool is2t)
 			RTPRINT(rtlpriv, FINIT, INIT_IQK,
 				"path-B / 2.4G LCK\n");
 		}
+<<<<<<< HEAD
 		memset(&curvecount_val[0], 0, CV_CURVE_CNT * 2);
+=======
+		memset(curvecount_val, 0, sizeof(curvecount_val));
+>>>>>>> upstream/android-13
 		/* Set LC calibration off */
 		rtl_set_rfreg(hw, (enum radio_path)index, RF_CHNLBW,
 			      0x08000, 0x0);
@@ -2719,11 +3146,19 @@ void rtl92d_phy_reset_iqk_result(struct ieee80211_hw *hw)
 	struct rtl_phy *rtlphy = &(rtlpriv->phy);
 	u8 i;
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
 		 "settings regs %d default regs %d\n",
 		 (int)(sizeof(rtlphy->iqk_matrix) /
 		       sizeof(struct iqk_matrix_regs)),
 		 IQK_MATRIX_REG_NUM);
+=======
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD,
+		"settings regs %d default regs %d\n",
+		(int)(sizeof(rtlphy->iqk_matrix) /
+		      sizeof(struct iqk_matrix_regs)),
+		IQK_MATRIX_REG_NUM);
+>>>>>>> upstream/android-13
 	/* 0xe94, 0xe9c, 0xea4, 0xeac, 0xeb4, 0xebc, 0xec4, 0xecc */
 	for (i = 0; i < IQK_MATRIX_SETTINGS_NUM; i++) {
 		rtlphy->iqk_matrix[i].value[0][0] = 0x100;
@@ -2868,8 +3303,13 @@ u8 rtl92d_phy_sw_chnl(struct ieee80211_hw *hw)
 		return 0;
 
 	if ((is_hal_stop(rtlhal)) || (RT_CANNOT_IO(hw))) {
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_CHAN, DBG_LOUD,
 			 "sw_chnl_inprogress false driver sleep or unload\n");
+=======
+		rtl_dbg(rtlpriv, COMP_CHAN, DBG_LOUD,
+			"sw_chnl_inprogress false driver sleep or unload\n");
+>>>>>>> upstream/android-13
 		return 0;
 	}
 	while (rtlphy->lck_inprogress && timecount < timeout) {
@@ -2910,8 +3350,13 @@ u8 rtl92d_phy_sw_chnl(struct ieee80211_hw *hw)
 		channel = 1;
 	rtlphy->sw_chnl_stage = 0;
 	rtlphy->sw_chnl_step = 0;
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_SCAN, DBG_TRACE,
 		 "switch to channel%d\n", rtlphy->current_channel);
+=======
+	rtl_dbg(rtlpriv, COMP_SCAN, DBG_TRACE,
+		"switch to channel%d\n", rtlphy->current_channel);
+>>>>>>> upstream/android-13
 
 	do {
 		if (!rtlphy->sw_chnl_inprogress)
@@ -2928,7 +3373,11 @@ u8 rtl92d_phy_sw_chnl(struct ieee80211_hw *hw)
 		}
 		break;
 	} while (true);
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_SCAN, DBG_TRACE, "<==\n");
+=======
+	rtl_dbg(rtlpriv, COMP_SCAN, DBG_TRACE, "<==\n");
+>>>>>>> upstream/android-13
 	rtlphy->sw_chnl_inprogress = false;
 	return 1;
 }
@@ -2939,9 +3388,15 @@ static void rtl92d_phy_set_io(struct ieee80211_hw *hw)
 	struct dig_t *de_digtable = &rtlpriv->dm_digtable;
 	struct rtl_phy *rtlphy = &(rtlpriv->phy);
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_CMD, DBG_TRACE,
 		 "--->Cmd(%#x), set_io_inprogress(%d)\n",
 		 rtlphy->current_io_type, rtlphy->set_io_inprogress);
+=======
+	rtl_dbg(rtlpriv, COMP_CMD, DBG_TRACE,
+		"--->Cmd(%#x), set_io_inprogress(%d)\n",
+		rtlphy->current_io_type, rtlphy->set_io_inprogress);
+>>>>>>> upstream/android-13
 	switch (rtlphy->current_io_type) {
 	case IO_CMD_RESUME_DM_BY_SCAN:
 		de_digtable->cur_igvalue = rtlphy->initgain_backup.xaagccore1;
@@ -2959,8 +3414,13 @@ static void rtl92d_phy_set_io(struct ieee80211_hw *hw)
 		break;
 	}
 	rtlphy->set_io_inprogress = false;
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_CMD, DBG_TRACE, "<---(%#x)\n",
 		 rtlphy->current_io_type);
+=======
+	rtl_dbg(rtlpriv, COMP_CMD, DBG_TRACE, "<---(%#x)\n",
+		rtlphy->current_io_type);
+>>>>>>> upstream/android-13
 }
 
 bool rtl92d_phy_set_io_cmd(struct ieee80211_hw *hw, enum io_type iotype)
@@ -2969,12 +3429,18 @@ bool rtl92d_phy_set_io_cmd(struct ieee80211_hw *hw, enum io_type iotype)
 	struct rtl_phy *rtlphy = &(rtlpriv->phy);
 	bool postprocessing = false;
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_CMD, DBG_TRACE,
 		 "-->IO Cmd(%#x), set_io_inprogress(%d)\n",
+=======
+	rtl_dbg(rtlpriv, COMP_CMD, DBG_TRACE,
+		"-->IO Cmd(%#x), set_io_inprogress(%d)\n",
+>>>>>>> upstream/android-13
 		 iotype, rtlphy->set_io_inprogress);
 	do {
 		switch (iotype) {
 		case IO_CMD_RESUME_DM_BY_SCAN:
+<<<<<<< HEAD
 			RT_TRACE(rtlpriv, COMP_CMD, DBG_TRACE,
 				 "[IO CMD] Resume DM after scan\n");
 			postprocessing = true;
@@ -2982,6 +3448,15 @@ bool rtl92d_phy_set_io_cmd(struct ieee80211_hw *hw, enum io_type iotype)
 		case IO_CMD_PAUSE_DM_BY_SCAN:
 			RT_TRACE(rtlpriv, COMP_CMD, DBG_TRACE,
 				 "[IO CMD] Pause DM before scan\n");
+=======
+			rtl_dbg(rtlpriv, COMP_CMD, DBG_TRACE,
+				"[IO CMD] Resume DM after scan\n");
+			postprocessing = true;
+			break;
+		case IO_CMD_PAUSE_DM_BY_SCAN:
+			rtl_dbg(rtlpriv, COMP_CMD, DBG_TRACE,
+				"[IO CMD] Pause DM before scan\n");
+>>>>>>> upstream/android-13
 			postprocessing = true;
 			break;
 		default:
@@ -2997,7 +3472,11 @@ bool rtl92d_phy_set_io_cmd(struct ieee80211_hw *hw, enum io_type iotype)
 		return false;
 	}
 	rtl92d_phy_set_io(hw);
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_CMD, DBG_TRACE, "<--IO Type(%#x)\n", iotype);
+=======
+	rtl_dbg(rtlpriv, COMP_CMD, DBG_TRACE, "<--IO Type(%#x)\n", iotype);
+>>>>>>> upstream/android-13
 	return true;
 }
 
@@ -3054,8 +3533,13 @@ static void _rtl92d_phy_set_rfsleep(struct ieee80211_hw *hw)
 		rtl_write_byte(rtlpriv, REG_SYS_FUNC_EN, 0xE2);
 		rtl_write_byte(rtlpriv, REG_SYS_FUNC_EN, 0xE3);
 		rtl_write_byte(rtlpriv, REG_TXPAUSE, 0x00);
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_POWER, DBG_LOUD,
 			 "Fail !!! Switch RF timeout\n");
+=======
+		rtl_dbg(rtlpriv, COMP_POWER, DBG_LOUD,
+			"Fail !!! Switch RF timeout\n");
+>>>>>>> upstream/android-13
 		return;
 	}
 	/* e.   For PCIE: SYS_FUNC_EN 0x02[7:0] = 0xE2 reset BB TRX function */
@@ -3086,6 +3570,7 @@ bool rtl92d_phy_set_rf_power_state(struct ieee80211_hw *hw,
 		if ((ppsc->rfpwr_state == ERFOFF) &&
 		    RT_IN_PS_LEVEL(ppsc, RT_RF_OFF_LEVL_HALT_NIC)) {
 			bool rtstatus;
+<<<<<<< HEAD
 			u32 InitializeCount = 0;
 			do {
 				InitializeCount++;
@@ -3093,14 +3578,30 @@ bool rtl92d_phy_set_rf_power_state(struct ieee80211_hw *hw,
 					 "IPS Set eRf nic enable\n");
 				rtstatus = rtl_ps_enable_nic(hw);
 			} while (!rtstatus && (InitializeCount < 10));
+=======
+			u32 initializecount = 0;
+			do {
+				initializecount++;
+				rtl_dbg(rtlpriv, COMP_RF, DBG_DMESG,
+					"IPS Set eRf nic enable\n");
+				rtstatus = rtl_ps_enable_nic(hw);
+			} while (!rtstatus && (initializecount < 10));
+>>>>>>> upstream/android-13
 
 			RT_CLEAR_PS_LEVEL(ppsc,
 					  RT_RF_OFF_LEVL_HALT_NIC);
 		} else {
+<<<<<<< HEAD
 			RT_TRACE(rtlpriv, COMP_POWER, DBG_DMESG,
 				 "awake, sleeped:%d ms state_inap:%x\n",
 				 jiffies_to_msecs(jiffies -
 						  ppsc->last_sleep_jiffies),
+=======
+			rtl_dbg(rtlpriv, COMP_POWER, DBG_DMESG,
+				"awake, slept:%d ms state_inap:%x\n",
+				jiffies_to_msecs(jiffies -
+						 ppsc->last_sleep_jiffies),
+>>>>>>> upstream/android-13
 				 rtlpriv->psc.state_inap);
 			ppsc->last_awake_jiffies = jiffies;
 			_rtl92d_phy_set_rfon(hw);
@@ -3115,8 +3616,13 @@ bool rtl92d_phy_set_rf_power_state(struct ieee80211_hw *hw,
 		break;
 	case ERFOFF:
 		if (ppsc->reg_rfps_level & RT_RF_OFF_LEVL_HALT_NIC) {
+<<<<<<< HEAD
 			RT_TRACE(rtlpriv, COMP_RF, DBG_DMESG,
 				 "IPS Set eRf nic disable\n");
+=======
+			rtl_dbg(rtlpriv, COMP_RF, DBG_DMESG,
+				"IPS Set eRf nic disable\n");
+>>>>>>> upstream/android-13
 			rtl_ps_disable_nic(hw);
 			RT_SET_PS_LEVEL(ppsc, RT_RF_OFF_LEVL_HALT_NIC);
 		} else {
@@ -3140,6 +3646,7 @@ bool rtl92d_phy_set_rf_power_state(struct ieee80211_hw *hw,
 				queue_id++;
 				continue;
 			} else if (rtlpci->pdev->current_state != PCI_D0) {
+<<<<<<< HEAD
 				RT_TRACE(rtlpriv, COMP_POWER, DBG_LOUD,
 					 "eRf Off/Sleep: %d times TcbBusyQueue[%d] !=0 but lower power state!\n",
 					 i + 1, queue_id);
@@ -3149,11 +3656,23 @@ bool rtl92d_phy_set_rf_power_state(struct ieee80211_hw *hw,
 					 "eRf Off/Sleep: %d times TcbBusyQueue[%d] =%d before doze!\n",
 					 i + 1, queue_id,
 					 skb_queue_len(&ring->queue));
+=======
+				rtl_dbg(rtlpriv, COMP_POWER, DBG_LOUD,
+					"eRf Off/Sleep: %d times TcbBusyQueue[%d] !=0 but lower power state!\n",
+					i + 1, queue_id);
+				break;
+			} else {
+				rtl_dbg(rtlpriv, COMP_ERR, DBG_WARNING,
+					"eRf Off/Sleep: %d times TcbBusyQueue[%d] =%d before doze!\n",
+					i + 1, queue_id,
+					skb_queue_len(&ring->queue));
+>>>>>>> upstream/android-13
 				udelay(10);
 				i++;
 			}
 
 			if (i >= MAX_DOZE_WAITING_TIMES_9x) {
+<<<<<<< HEAD
 				RT_TRACE(rtlpriv, COMP_ERR, DBG_WARNING,
 					 "ERFOFF: %d times TcbBusyQueue[%d] = %d !\n",
 					 MAX_DOZE_WAITING_TIMES_9x, queue_id,
@@ -3169,6 +3688,23 @@ bool rtl92d_phy_set_rf_power_state(struct ieee80211_hw *hw,
 			 jiffies_to_msecs(jiffies -
 					  ppsc->last_awake_jiffies),
 			 rtlpriv->psc.state_inap);
+=======
+				rtl_dbg(rtlpriv, COMP_ERR, DBG_WARNING,
+					"ERFOFF: %d times TcbBusyQueue[%d] = %d !\n",
+					MAX_DOZE_WAITING_TIMES_9x, queue_id,
+					skb_queue_len(&ring->queue));
+				break;
+			}
+		}
+		rtl_dbg(rtlpriv, COMP_POWER, DBG_DMESG,
+			"Set rfsleep awakened:%d ms\n",
+			 jiffies_to_msecs(jiffies - ppsc->last_awake_jiffies));
+		rtl_dbg(rtlpriv, COMP_POWER, DBG_DMESG,
+			"sleep awakened:%d ms state_inap:%x\n",
+			jiffies_to_msecs(jiffies -
+					 ppsc->last_awake_jiffies),
+			rtlpriv->psc.state_inap);
+>>>>>>> upstream/android-13
 		ppsc->last_sleep_jiffies = jiffies;
 		_rtl92d_phy_set_rfsleep(hw);
 		break;
@@ -3191,6 +3727,7 @@ void rtl92d_phy_config_macphymode(struct ieee80211_hw *hw)
 
 	switch (rtlhal->macphymode) {
 	case DUALMAC_DUALPHY:
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
 			 "MacPhyMode: DUALMAC_DUALPHY\n");
 		rtl_write_byte(rtlpriv, offset, 0xF3);
@@ -3203,6 +3740,20 @@ void rtl92d_phy_config_macphymode(struct ieee80211_hw *hw)
 	case DUALMAC_SINGLEPHY:
 		RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
 			 "MacPhyMode: DUALMAC_SINGLEPHY\n");
+=======
+		rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD,
+			"MacPhyMode: DUALMAC_DUALPHY\n");
+		rtl_write_byte(rtlpriv, offset, 0xF3);
+		break;
+	case SINGLEMAC_SINGLEPHY:
+		rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD,
+			"MacPhyMode: SINGLEMAC_SINGLEPHY\n");
+		rtl_write_byte(rtlpriv, offset, 0xF4);
+		break;
+	case DUALMAC_SINGLEPHY:
+		rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD,
+			"MacPhyMode: DUALMAC_SINGLEPHY\n");
+>>>>>>> upstream/android-13
 		rtl_write_byte(rtlpriv, offset, 0xF1);
 		break;
 	}
@@ -3249,6 +3800,7 @@ void rtl92d_phy_config_macphymode_info(struct ieee80211_hw *hw)
 u8 rtl92d_get_chnlgroup_fromarray(u8 chnl)
 {
 	u8 group;
+<<<<<<< HEAD
 	u8 channel_info[59] = {
 		1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
 		36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56,
@@ -3280,6 +3832,30 @@ u8 rtl92d_get_chnlgroup_fromarray(u8 chnl)
 	else if (channel_info[chnl] <= 153)
 		group = 9;
 	else if (channel_info[chnl] <= 159)
+=======
+
+	if (channel_all[chnl] <= 3)
+		group = 0;
+	else if (channel_all[chnl] <= 9)
+		group = 1;
+	else if (channel_all[chnl] <= 14)
+		group = 2;
+	else if (channel_all[chnl] <= 44)
+		group = 3;
+	else if (channel_all[chnl] <= 54)
+		group = 4;
+	else if (channel_all[chnl] <= 64)
+		group = 5;
+	else if (channel_all[chnl] <= 112)
+		group = 6;
+	else if (channel_all[chnl] <= 126)
+		group = 7;
+	else if (channel_all[chnl] <= 140)
+		group = 8;
+	else if (channel_all[chnl] <= 153)
+		group = 9;
+	else if (channel_all[chnl] <= 159)
+>>>>>>> upstream/android-13
 		group = 10;
 	else
 		group = 11;
@@ -3370,7 +3946,11 @@ void rtl92d_update_bbrf_configuration(struct ieee80211_hw *hw)
 	struct rtl_efuse *rtlefuse = rtl_efuse(rtl_priv(hw));
 	u8 rfpath, i;
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD, "==>\n");
+=======
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD, "==>\n");
+>>>>>>> upstream/android-13
 	/* r_select_5G for path_A/B 0 for 2.4G, 1 for 5G */
 	if (rtlhal->current_bandtype == BAND_ON_2_4G) {
 		/* r_select_5G for path_A/B,0x878 */
@@ -3387,9 +3967,15 @@ void rtl92d_update_bbrf_configuration(struct ieee80211_hw *hw)
 		/* 5G LAN ON */
 		rtl_set_bbreg(hw, 0xB30, 0x00F00000, 0xa);
 		/* TX BB gain shift*1,Just for testchip,0xc80,0xc88 */
+<<<<<<< HEAD
 		rtl_set_bbreg(hw, ROFDM0_XATxIQIMBALANCE, MASKDWORD,
 			      0x40000100);
 		rtl_set_bbreg(hw, ROFDM0_XBTxIQIMBALANCE, MASKDWORD,
+=======
+		rtl_set_bbreg(hw, ROFDM0_XATXIQIMBALANCE, MASKDWORD,
+			      0x40000100);
+		rtl_set_bbreg(hw, ROFDM0_XBTXIQIMBALANCE, MASKDWORD,
+>>>>>>> upstream/android-13
 			      0x40000100);
 		if (rtlhal->macphymode == DUALMAC_DUALPHY) {
 			rtl_set_bbreg(hw, RFPGA0_XAB_RFINTERFACESW,
@@ -3443,6 +4029,7 @@ void rtl92d_update_bbrf_configuration(struct ieee80211_hw *hw)
 		rtl_set_bbreg(hw, 0xB30, 0x00F00000, 0x0);
 		/* TX BB gain shift,Just for testchip,0xc80,0xc88 */
 		if (rtlefuse->internal_pa_5g[0])
+<<<<<<< HEAD
 			rtl_set_bbreg(hw, ROFDM0_XATxIQIMBALANCE, MASKDWORD,
 				      0x2d4000b5);
 		else
@@ -3453,6 +4040,18 @@ void rtl92d_update_bbrf_configuration(struct ieee80211_hw *hw)
 				      0x2d4000b5);
 		else
 			rtl_set_bbreg(hw, ROFDM0_XBTxIQIMBALANCE, MASKDWORD,
+=======
+			rtl_set_bbreg(hw, ROFDM0_XATXIQIMBALANCE, MASKDWORD,
+				      0x2d4000b5);
+		else
+			rtl_set_bbreg(hw, ROFDM0_XATXIQIMBALANCE, MASKDWORD,
+				      0x20000080);
+		if (rtlefuse->internal_pa_5g[1])
+			rtl_set_bbreg(hw, ROFDM0_XBTXIQIMBALANCE, MASKDWORD,
+				      0x2d4000b5);
+		else
+			rtl_set_bbreg(hw, ROFDM0_XBTXIQIMBALANCE, MASKDWORD,
+>>>>>>> upstream/android-13
 				      0x20000080);
 		if (rtlhal->macphymode == DUALMAC_DUALPHY) {
 			rtl_set_bbreg(hw, RFPGA0_XAB_RFINTERFACESW,
@@ -3481,10 +4080,17 @@ void rtl92d_update_bbrf_configuration(struct ieee80211_hw *hw)
 	/* update IQK related settings */
 	rtl_set_bbreg(hw, ROFDM0_XARXIQIMBALANCE, MASKDWORD, 0x40000100);
 	rtl_set_bbreg(hw, ROFDM0_XBRXIQIMBALANCE, MASKDWORD, 0x40000100);
+<<<<<<< HEAD
 	rtl_set_bbreg(hw, ROFDM0_XCTxAFE, 0xF0000000, 0x00);
 	rtl_set_bbreg(hw, ROFDM0_ECCATHRESHOLD, BIT(30) | BIT(28) |
 		      BIT(26) | BIT(24), 0x00);
 	rtl_set_bbreg(hw, ROFDM0_XDTxAFE, 0xF0000000, 0x00);
+=======
+	rtl_set_bbreg(hw, ROFDM0_XCTXAFE, 0xF0000000, 0x00);
+	rtl_set_bbreg(hw, ROFDM0_ECCATHRESHOLD, BIT(30) | BIT(28) |
+		      BIT(26) | BIT(24), 0x00);
+	rtl_set_bbreg(hw, ROFDM0_XDTXAFE, 0xF0000000, 0x00);
+>>>>>>> upstream/android-13
 	rtl_set_bbreg(hw, 0xca0, 0xF0000000, 0x00);
 	rtl_set_bbreg(hw, ROFDM0_AGCRSSITABLE, 0x0000F000, 0x00);
 
@@ -3518,8 +4124,13 @@ void rtl92d_update_bbrf_configuration(struct ieee80211_hw *hw)
 				      BIT(13), 0x3);
 		} else {
 			rtl92d_phy_enable_anotherphy(hw, false);
+<<<<<<< HEAD
 			RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
 				 "MAC1 use DBI to update 0x888\n");
+=======
+			rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD,
+				"MAC1 use DBI to update 0x888\n");
+>>>>>>> upstream/android-13
 			/* 0x888 */
 			rtl92de_write_dword_dbi(hw, RFPGA0_ADDALLOCKEN,
 						rtl92de_read_dword_dbi(hw,
@@ -3544,9 +4155,15 @@ void rtl92d_update_bbrf_configuration(struct ieee80211_hw *hw)
 			RFREG_OFFSET_MASK);
 	}
 	for (i = 0; i < 2; i++)
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_RF, DBG_LOUD, "RF 0x18 = 0x%x\n",
 			 rtlphy->rfreg_chnlval[i]);
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD, "<==\n");
+=======
+		rtl_dbg(rtlpriv, COMP_RF, DBG_LOUD, "RF 0x18 = 0x%x\n",
+			rtlphy->rfreg_chnlval[i]);
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD, "<==\n");
+>>>>>>> upstream/android-13
 
 }
 

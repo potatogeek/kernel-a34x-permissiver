@@ -10,8 +10,13 @@
 #include <linux/jiffies.h>
 #include <linux/mutex.h>
 #include <linux/workqueue.h>
+<<<<<<< HEAD
 
 #include "greybus.h"
+=======
+#include <linux/greybus.h>
+
+>>>>>>> upstream/android-13
 #include "firmware.h"
 
 /* Timeout, in jiffies, within which the next request must be received */
@@ -86,7 +91,12 @@ static void gb_bootrom_timedout(struct work_struct *work)
 }
 
 static void gb_bootrom_set_timeout(struct gb_bootrom *bootrom,
+<<<<<<< HEAD
 			enum next_request_type next, unsigned long timeout)
+=======
+				   enum next_request_type next,
+				   unsigned long timeout)
+>>>>>>> upstream/android-13
 {
 	bootrom->next_request = next;
 	schedule_delayed_work(&bootrom->dwork, msecs_to_jiffies(timeout));
@@ -175,7 +185,11 @@ static int find_firmware(struct gb_bootrom *bootrom, u8 stage)
 		 firmware_name);
 
 	rc = request_firmware(&bootrom->fw, firmware_name,
+<<<<<<< HEAD
 		&connection->bundle->dev);
+=======
+			      &connection->bundle->dev);
+>>>>>>> upstream/android-13
 	if (rc) {
 		dev_err(&connection->bundle->dev,
 			"failed to find %s firmware (%d)\n", firmware_name, rc);
@@ -274,7 +288,11 @@ static int gb_bootrom_get_firmware(struct gb_operation *op)
 
 	if (offset >= fw->size || size > fw->size - offset) {
 		dev_warn(dev, "bad firmware request (offs = %u, size = %u)\n",
+<<<<<<< HEAD
 				offset, size);
+=======
+			 offset, size);
+>>>>>>> upstream/android-13
 		ret = -EINVAL;
 		goto unlock;
 	}
@@ -387,15 +405,25 @@ static int gb_bootrom_get_version(struct gb_bootrom *bootrom)
 				sizeof(response));
 	if (ret) {
 		dev_err(&bundle->dev,
+<<<<<<< HEAD
 				"failed to get protocol version: %d\n",
 				ret);
+=======
+			"failed to get protocol version: %d\n",
+			ret);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
 	if (response.major > request.major) {
 		dev_err(&bundle->dev,
+<<<<<<< HEAD
 				"unsupported major protocol version (%u > %u)\n",
 				response.major, request.major);
+=======
+			"unsupported major protocol version (%u > %u)\n",
+			response.major, request.major);
+>>>>>>> upstream/android-13
 		return -ENOTSUPP;
 	}
 
@@ -403,13 +431,21 @@ static int gb_bootrom_get_version(struct gb_bootrom *bootrom)
 	bootrom->protocol_minor = response.minor;
 
 	dev_dbg(&bundle->dev, "%s - %u.%u\n", __func__, response.major,
+<<<<<<< HEAD
 			response.minor);
+=======
+		response.minor);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static int gb_bootrom_probe(struct gb_bundle *bundle,
+<<<<<<< HEAD
 					const struct greybus_bundle_id *id)
+=======
+			    const struct greybus_bundle_id *id)
+>>>>>>> upstream/android-13
 {
 	struct greybus_descriptor_cport *cport_desc;
 	struct gb_connection *connection;
@@ -428,8 +464,13 @@ static int gb_bootrom_probe(struct gb_bundle *bundle,
 		return -ENOMEM;
 
 	connection = gb_connection_create(bundle,
+<<<<<<< HEAD
 						le16_to_cpu(cport_desc->id),
 						gb_bootrom_request_handler);
+=======
+					  le16_to_cpu(cport_desc->id),
+					  gb_bootrom_request_handler);
+>>>>>>> upstream/android-13
 	if (IS_ERR(connection)) {
 		ret = PTR_ERR(connection);
 		goto err_free_bootrom;
@@ -466,7 +507,11 @@ static int gb_bootrom_probe(struct gb_bundle *bundle,
 				NULL, 0);
 	if (ret) {
 		dev_err(&connection->bundle->dev,
+<<<<<<< HEAD
 				"failed to send AP READY: %d\n", ret);
+=======
+			"failed to send AP READY: %d\n", ret);
+>>>>>>> upstream/android-13
 		goto err_cancel_timeout;
 	}
 

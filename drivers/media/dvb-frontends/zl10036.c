@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver for Zarlink zl10036 DVB-S silicon tuner
  *
  * Copyright (C) 2006 Tino Reichardt
  * Copyright (C) 2007-2009 Matthias Schwarzott <zzam@gentoo.de>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License Version 2, as
  * published by the Free Software Foundation.
@@ -13,6 +18,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  **
  * The data sheet for this tuner can be found at:
  *    http://www.mcmilk.de/projects/dvb-card/datasheets/ZL10036.pdf

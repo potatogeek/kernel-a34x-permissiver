@@ -10,6 +10,10 @@
 
 #include <linux/clk.h>
 #include <linux/clk-provider.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/of.h>
 #include <linux/of_address.h>
@@ -142,7 +146,11 @@ static int lpc18xx_ccu_gate_endisable(struct clk_hw *hw, bool enable)
 	 * Divider field is write only, so divider stat field must
 	 * be read so divider field can be set accordingly.
 	 */
+<<<<<<< HEAD
 	val = clk_readl(gate->reg);
+=======
+	val = readl(gate->reg);
+>>>>>>> upstream/android-13
 	if (val & LPC18XX_CCU_DIVSTAT)
 		val |= LPC18XX_CCU_DIV;
 
@@ -155,12 +163,20 @@ static int lpc18xx_ccu_gate_endisable(struct clk_hw *hw, bool enable)
 		 * and the next write should clear the RUN bit.
 		 */
 		val |= LPC18XX_CCU_AUTO;
+<<<<<<< HEAD
 		clk_writel(val, gate->reg);
+=======
+		writel(val, gate->reg);
+>>>>>>> upstream/android-13
 
 		val &= ~LPC18XX_CCU_RUN;
 	}
 
+<<<<<<< HEAD
 	clk_writel(val, gate->reg);
+=======
+	writel(val, gate->reg);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

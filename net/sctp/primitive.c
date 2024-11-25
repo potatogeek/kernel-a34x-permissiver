@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* SCTP kernel implementation
  * Copyright (c) 1999-2000 Cisco, Inc.
  * Copyright (c) 1999-2001 Motorola, Inc.
@@ -10,6 +14,7 @@
  * functions--this file is the functions which populate the struct proto
  * for SCTP which is the BOTTOM of the sockets interface.
  *
+<<<<<<< HEAD
  * This SCTP implementation is free software;
  * you can redistribute it and/or modify it under the terms of
  * the GNU General Public License as published by
@@ -26,6 +31,8 @@
  * along with GNU CC; see the file COPYING.  If not, see
  * <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  * Please send any bug reports or fixes you make to the
  * email address(es):
  *    lksctp developers <linux-sctp@vger.kernel.org>
@@ -53,7 +60,11 @@
 int sctp_primitive_ ## name(struct net *net, struct sctp_association *asoc, \
 			    void *arg) { \
 	int error = 0; \
+<<<<<<< HEAD
 	enum sctp_event event_type; union sctp_subtype subtype; \
+=======
+	enum sctp_event_type event_type; union sctp_subtype subtype; \
+>>>>>>> upstream/android-13
 	enum sctp_state state; \
 	struct sctp_endpoint *ep; \
 	\

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 1999 Hewlett-Packard (Frank Rowand)
  * Copyright (C) 1999 Philipp Rumpf <prumpf@tux.org>
  * Copyright (C) 1999 SuSE GmbH
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  *    You should have received a copy of the GNU General Public License
  *    along with this program; if not, write to the Free Software
  *    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _PARISC_ASSEMBLY_H
@@ -129,6 +136,7 @@
 	.macro	debug value
 	.endm
 
+<<<<<<< HEAD
 
 	/* Shift Left - note the r and t can NOT be the same! */
 	.macro shl r, sa, t
@@ -138,6 +146,10 @@
 	/* The PA 2.0 shift left */
 	.macro shlw r, sa, t
 	depw,z	\r, 31-(\sa), 32-(\sa), \t
+=======
+	.macro shlw r, sa, t
+	zdep	\r, 31-(\sa), 32-(\sa), \t
+>>>>>>> upstream/android-13
 	.endm
 
 	/* And the PA 2.0W shift left */

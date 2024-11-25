@@ -12,6 +12,7 @@
 #include <asm/barrier.h>
 #include <linux/atomic.h>
 
+<<<<<<< HEAD
 /*
  * HP-PARISC specific bit operations
  * for a detailed description of the functions please refer
@@ -26,6 +27,15 @@
 
 #define CHOP_SHIFTCOUNT(x) (((unsigned long) (x)) & (BITS_PER_LONG - 1))
 
+=======
+/* compiler build environment sanity checks: */
+#if !defined(CONFIG_64BIT) && defined(__LP64__)
+#error "Please use 'ARCH=parisc' to build the 32-bit kernel."
+#endif
+#if defined(CONFIG_64BIT) && !defined(__LP64__)
+#error "Please use 'ARCH=parisc64' to build the 64-bit kernel."
+#endif
+>>>>>>> upstream/android-13
 
 /* See http://marc.theaimsgroup.com/?t=108826637900003 for discussion
  * on use of volatile and __*_bit() (set/clear/change):
@@ -35,10 +45,17 @@
 
 static __inline__ void set_bit(int nr, volatile unsigned long * addr)
 {
+<<<<<<< HEAD
 	unsigned long mask = 1UL << CHOP_SHIFTCOUNT(nr);
 	unsigned long flags;
 
 	addr += (nr >> SHIFT_PER_LONG);
+=======
+	unsigned long mask = BIT_MASK(nr);
+	unsigned long flags;
+
+	addr += BIT_WORD(nr);
+>>>>>>> upstream/android-13
 	_atomic_spin_lock_irqsave(addr, flags);
 	*addr |= mask;
 	_atomic_spin_unlock_irqrestore(addr, flags);
@@ -46,21 +63,37 @@ static __inline__ void set_bit(int nr, volatile unsigned long * addr)
 
 static __inline__ void clear_bit(int nr, volatile unsigned long * addr)
 {
+<<<<<<< HEAD
 	unsigned long mask = ~(1UL << CHOP_SHIFTCOUNT(nr));
 	unsigned long flags;
 
 	addr += (nr >> SHIFT_PER_LONG);
 	_atomic_spin_lock_irqsave(addr, flags);
 	*addr &= mask;
+=======
+	unsigned long mask = BIT_MASK(nr);
+	unsigned long flags;
+
+	addr += BIT_WORD(nr);
+	_atomic_spin_lock_irqsave(addr, flags);
+	*addr &= ~mask;
+>>>>>>> upstream/android-13
 	_atomic_spin_unlock_irqrestore(addr, flags);
 }
 
 static __inline__ void change_bit(int nr, volatile unsigned long * addr)
 {
+<<<<<<< HEAD
 	unsigned long mask = 1UL << CHOP_SHIFTCOUNT(nr);
 	unsigned long flags;
 
 	addr += (nr >> SHIFT_PER_LONG);
+=======
+	unsigned long mask = BIT_MASK(nr);
+	unsigned long flags;
+
+	addr += BIT_WORD(nr);
+>>>>>>> upstream/android-13
 	_atomic_spin_lock_irqsave(addr, flags);
 	*addr ^= mask;
 	_atomic_spin_unlock_irqrestore(addr, flags);
@@ -68,12 +101,20 @@ static __inline__ void change_bit(int nr, volatile unsigned long * addr)
 
 static __inline__ int test_and_set_bit(int nr, volatile unsigned long * addr)
 {
+<<<<<<< HEAD
 	unsigned long mask = 1UL << CHOP_SHIFTCOUNT(nr);
+=======
+	unsigned long mask = BIT_MASK(nr);
+>>>>>>> upstream/android-13
 	unsigned long old;
 	unsigned long flags;
 	int set;
 
+<<<<<<< HEAD
 	addr += (nr >> SHIFT_PER_LONG);
+=======
+	addr += BIT_WORD(nr);
+>>>>>>> upstream/android-13
 	_atomic_spin_lock_irqsave(addr, flags);
 	old = *addr;
 	set = (old & mask) ? 1 : 0;
@@ -86,12 +127,20 @@ static __inline__ int test_and_set_bit(int nr, volatile unsigned long * addr)
 
 static __inline__ int test_and_clear_bit(int nr, volatile unsigned long * addr)
 {
+<<<<<<< HEAD
 	unsigned long mask = 1UL << CHOP_SHIFTCOUNT(nr);
+=======
+	unsigned long mask = BIT_MASK(nr);
+>>>>>>> upstream/android-13
 	unsigned long old;
 	unsigned long flags;
 	int set;
 
+<<<<<<< HEAD
 	addr += (nr >> SHIFT_PER_LONG);
+=======
+	addr += BIT_WORD(nr);
+>>>>>>> upstream/android-13
 	_atomic_spin_lock_irqsave(addr, flags);
 	old = *addr;
 	set = (old & mask) ? 1 : 0;
@@ -104,11 +153,19 @@ static __inline__ int test_and_clear_bit(int nr, volatile unsigned long * addr)
 
 static __inline__ int test_and_change_bit(int nr, volatile unsigned long * addr)
 {
+<<<<<<< HEAD
 	unsigned long mask = 1UL << CHOP_SHIFTCOUNT(nr);
 	unsigned long oldbit;
 	unsigned long flags;
 
 	addr += (nr >> SHIFT_PER_LONG);
+=======
+	unsigned long mask = BIT_MASK(nr);
+	unsigned long oldbit;
+	unsigned long flags;
+
+	addr += BIT_WORD(nr);
+>>>>>>> upstream/android-13
 	_atomic_spin_lock_irqsave(addr, flags);
 	oldbit = *addr;
 	*addr = oldbit ^ mask;
@@ -188,7 +245,11 @@ static __inline__ int ffs(int x)
  * fls(0) = 0, fls(1) = 1, fls(0x80000000) = 32.
  */
 
+<<<<<<< HEAD
 static __inline__ int fls(int x)
+=======
+static __inline__ int fls(unsigned int x)
+>>>>>>> upstream/android-13
 {
 	int ret;
 	if (!x)

@@ -1,17 +1,28 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * RZ/A1 Core CPG Clocks
  *
  * Copyright (C) 2013 Ideas On Board SPRL
  * Copyright (C) 2014 Wolfram Sang, Sang Engineering <wsa@sang-engineering.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk-provider.h>
 #include <linux/clk/renesas.h>
 #include <linux/init.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/of.h>
 #include <linux/of_address.h>
@@ -39,8 +50,13 @@ static u16 __init rz_cpg_read_mode_pins(void)
 	void __iomem *ppr0, *pibc0;
 	u16 modes;
 
+<<<<<<< HEAD
 	ppr0 = ioremap_nocache(PPR0, 2);
 	pibc0 = ioremap_nocache(PIBC0, 2);
+=======
+	ppr0 = ioremap(PPR0, 2);
+	pibc0 = ioremap(PIBC0, 2);
+>>>>>>> upstream/android-13
 	BUG_ON(!ppr0 || !pibc0);
 	iowrite16(4, pibc0);	/* enable input buffer */
 	modes = ioread16(ppr0);
@@ -113,8 +129,13 @@ static void __init rz_cpg_clocks_init(struct device_node *np)
 
 		clk = rz_cpg_register_clock(np, cpg, name);
 		if (IS_ERR(clk))
+<<<<<<< HEAD
 			pr_err("%s: failed to register %s %s clock (%ld)\n",
 			       __func__, np->name, name, PTR_ERR(clk));
+=======
+			pr_err("%s: failed to register %pOFn %s clock (%ld)\n",
+			       __func__, np, name, PTR_ERR(clk));
+>>>>>>> upstream/android-13
 		else
 			cpg->data.clks[i] = clk;
 	}

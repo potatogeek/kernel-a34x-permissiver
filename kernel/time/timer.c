@@ -1,6 +1,11 @@
+<<<<<<< HEAD
 /*
  *  linux/kernel/timer.c
  *
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+>>>>>>> upstream/android-13
  *  Kernel internal timers
  *
  *  Copyright (C) 1991, 1992  Linus Torvalds
@@ -56,6 +61,14 @@
 
 #define CREATE_TRACE_POINTS
 #include <trace/events/timer.h>
+<<<<<<< HEAD
+=======
+#undef CREATE_TRACE_POINTS
+#include <trace/hooks/timer.h>
+
+EXPORT_TRACEPOINT_SYMBOL_GPL(hrtimer_expire_entry);
+EXPORT_TRACEPOINT_SYMBOL_GPL(hrtimer_expire_exit);
+>>>>>>> upstream/android-13
 
 __visible u64 jiffies_64 __cacheline_aligned_in_smp = INITIAL_JIFFIES;
 
@@ -158,7 +171,12 @@ EXPORT_SYMBOL(jiffies_64);
 
 /*
  * The time start value for each level to select the bucket at enqueue
+<<<<<<< HEAD
  * time.
+=======
+ * time. We start from the last possible delta of the previous level
+ * so that we can later add an extra LVL_GRAN(n) to n (see calc_index()).
+>>>>>>> upstream/android-13
  */
 #define LVL_START(n)	((LVL_SIZE - 1) << (((n) - 1) * LVL_CLK_SHIFT))
 
@@ -198,11 +216,24 @@ EXPORT_SYMBOL(jiffies_64);
 struct timer_base {
 	raw_spinlock_t		lock;
 	struct timer_list	*running_timer;
+<<<<<<< HEAD
 	unsigned long		clk;
 	unsigned long		next_expiry;
 	unsigned int		cpu;
 	bool			is_idle;
 	bool			must_forward_clk;
+=======
+#ifdef CONFIG_PREEMPT_RT
+	spinlock_t		expiry_lock;
+	atomic_t		timer_waiters;
+#endif
+	unsigned long		clk;
+	unsigned long		next_expiry;
+	unsigned int		cpu;
+	bool			next_expiry_recalc;
+	bool			is_idle;
+	bool			timers_pending;
+>>>>>>> upstream/android-13
 	DECLARE_BITMAP(pending_map, WHEEL_SIZE);
 	struct hlist_head	vectors[WHEEL_SIZE];
 } ____cacheline_aligned;
@@ -247,8 +278,12 @@ void timers_update_nohz(void)
 }
 
 int timer_migration_handler(struct ctl_table *table, int write,
+<<<<<<< HEAD
 			    void __user *buffer, size_t *lenp,
 			    loff_t *ppos)
+=======
+			    void *buffer, size_t *lenp, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	int ret;
 
@@ -486,6 +521,7 @@ static inline void timer_set_idx(struct timer_list *timer, unsigned int idx)
  * Helper function to calculate the array index for a given expiry
  * time.
  */
+<<<<<<< HEAD
 static inline unsigned calc_index(unsigned expires, unsigned lvl)
 {
 	expires = (expires + LVL_GRAN(lvl)) >> LVL_SHIFT(lvl);
@@ -493,11 +529,34 @@ static inline unsigned calc_index(unsigned expires, unsigned lvl)
 }
 
 static int calc_wheel_index(unsigned long expires, unsigned long clk)
+=======
+static inline unsigned calc_index(unsigned long expires, unsigned lvl,
+				  unsigned long *bucket_expiry)
+{
+
+	/*
+	 * The timer wheel has to guarantee that a timer does not fire
+	 * early. Early expiry can happen due to:
+	 * - Timer is armed at the edge of a tick
+	 * - Truncation of the expiry time in the outer wheel levels
+	 *
+	 * Round up with level granularity to prevent this.
+	 */
+	trace_android_vh_timer_calc_index(lvl, &expires);
+	expires = (expires + LVL_GRAN(lvl)) >> LVL_SHIFT(lvl);
+	*bucket_expiry = expires << LVL_SHIFT(lvl);
+	return LVL_OFFS(lvl) + (expires & LVL_MASK);
+}
+
+static int calc_wheel_index(unsigned long expires, unsigned long clk,
+			    unsigned long *bucket_expiry)
+>>>>>>> upstream/android-13
 {
 	unsigned long delta = expires - clk;
 	unsigned int idx;
 
 	if (delta < LVL_START(1)) {
+<<<<<<< HEAD
 		idx = calc_index(expires, 0);
 	} else if (delta < LVL_START(2)) {
 		idx = calc_index(expires, 1);
@@ -515,6 +574,26 @@ static int calc_wheel_index(unsigned long expires, unsigned long clk)
 		idx = calc_index(expires, 7);
 	} else if ((long) delta < 0) {
 		idx = clk & LVL_MASK;
+=======
+		idx = calc_index(expires, 0, bucket_expiry);
+	} else if (delta < LVL_START(2)) {
+		idx = calc_index(expires, 1, bucket_expiry);
+	} else if (delta < LVL_START(3)) {
+		idx = calc_index(expires, 2, bucket_expiry);
+	} else if (delta < LVL_START(4)) {
+		idx = calc_index(expires, 3, bucket_expiry);
+	} else if (delta < LVL_START(5)) {
+		idx = calc_index(expires, 4, bucket_expiry);
+	} else if (delta < LVL_START(6)) {
+		idx = calc_index(expires, 5, bucket_expiry);
+	} else if (delta < LVL_START(7)) {
+		idx = calc_index(expires, 6, bucket_expiry);
+	} else if (LVL_DEPTH > 8 && delta < LVL_START(8)) {
+		idx = calc_index(expires, 7, bucket_expiry);
+	} else if ((long) delta < 0) {
+		idx = clk & LVL_MASK;
+		*bucket_expiry = clk;
+>>>>>>> upstream/android-13
 	} else {
 		/*
 		 * Force expire obscene large timeouts to expire at the
@@ -523,11 +602,16 @@ static int calc_wheel_index(unsigned long expires, unsigned long clk)
 		if (delta >= WHEEL_TIMEOUT_CUTOFF)
 			expires = clk + WHEEL_TIMEOUT_MAX;
 
+<<<<<<< HEAD
 		idx = calc_index(expires, LVL_DEPTH - 1);
+=======
+		idx = calc_index(expires, LVL_DEPTH - 1, bucket_expiry);
+>>>>>>> upstream/android-13
 	}
 	return idx;
 }
 
+<<<<<<< HEAD
 /*
  * Enqueue the timer into the hash bucket, mark it pending in
  * the bitmap and store the index in the timer flags.
@@ -549,6 +633,8 @@ __internal_add_timer(struct timer_base *base, struct timer_list *timer)
 	enqueue_timer(base, timer, idx);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void
 trigger_dyntick_cpu(struct timer_base *base, struct timer_list *timer)
 {
@@ -570,6 +656,7 @@ trigger_dyntick_cpu(struct timer_base *base, struct timer_list *timer)
 	 * timer is not deferrable. If the other CPU is on the way to idle
 	 * then it can't set base->is_idle as we hold the base lock:
 	 */
+<<<<<<< HEAD
 	if (!base->is_idle)
 		return;
 
@@ -598,11 +685,60 @@ internal_add_timer(struct timer_base *base, struct timer_list *timer)
 {
 	__internal_add_timer(base, timer);
 	trigger_dyntick_cpu(base, timer);
+=======
+	if (base->is_idle)
+		wake_up_nohz_cpu(base->cpu);
+}
+
+/*
+ * Enqueue the timer into the hash bucket, mark it pending in
+ * the bitmap, store the index in the timer flags then wake up
+ * the target CPU if needed.
+ */
+static void enqueue_timer(struct timer_base *base, struct timer_list *timer,
+			  unsigned int idx, unsigned long bucket_expiry)
+{
+
+	hlist_add_head(&timer->entry, base->vectors + idx);
+	__set_bit(idx, base->pending_map);
+	timer_set_idx(timer, idx);
+
+	trace_timer_start(timer, timer->expires, timer->flags);
+
+	/*
+	 * Check whether this is the new first expiring timer. The
+	 * effective expiry time of the timer is required here
+	 * (bucket_expiry) instead of timer->expires.
+	 */
+	if (time_before(bucket_expiry, base->next_expiry)) {
+		/*
+		 * Set the next expiry time and kick the CPU so it
+		 * can reevaluate the wheel:
+		 */
+		base->next_expiry = bucket_expiry;
+		base->timers_pending = true;
+		base->next_expiry_recalc = false;
+		trigger_dyntick_cpu(base, timer);
+	}
+}
+
+static void internal_add_timer(struct timer_base *base, struct timer_list *timer)
+{
+	unsigned long bucket_expiry;
+	unsigned int idx;
+
+	idx = calc_wheel_index(timer->expires, base->clk, &bucket_expiry);
+	enqueue_timer(base, timer, idx, bucket_expiry);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_DEBUG_OBJECTS_TIMERS
 
+<<<<<<< HEAD
 static struct debug_obj_descr timer_debug_descr;
+=======
+static const struct debug_obj_descr timer_debug_descr;
+>>>>>>> upstream/android-13
 
 static void *timer_debug_hint(void *addr)
 {
@@ -657,7 +793,11 @@ static bool timer_fixup_activate(void *addr, enum debug_obj_state state)
 
 	case ODEBUG_STATE_ACTIVE:
 		WARN_ON(1);
+<<<<<<< HEAD
 
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		return false;
 	}
@@ -698,7 +838,11 @@ static bool timer_fixup_assert_init(void *addr, enum debug_obj_state state)
 	}
 }
 
+<<<<<<< HEAD
 static struct debug_obj_descr timer_debug_descr = {
+=======
+static const struct debug_obj_descr timer_debug_descr = {
+>>>>>>> upstream/android-13
 	.name			= "timer_list",
 	.debug_hint		= timer_debug_hint,
 	.is_static_object	= timer_is_static_object,
@@ -723,11 +867,14 @@ static inline void debug_timer_deactivate(struct timer_list *timer)
 	debug_object_deactivate(timer, &timer_debug_descr);
 }
 
+<<<<<<< HEAD
 static inline void debug_timer_free(struct timer_list *timer)
 {
 	debug_object_free(timer, &timer_debug_descr);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void debug_timer_assert_init(struct timer_list *timer)
 {
 	debug_object_assert_init(timer, &timer_debug_descr);
@@ -767,6 +914,7 @@ static inline void debug_init(struct timer_list *timer)
 	trace_timer_init(timer);
 }
 
+<<<<<<< HEAD
 static inline void
 debug_activate(struct timer_list *timer, unsigned long expires)
 {
@@ -774,6 +922,8 @@ debug_activate(struct timer_list *timer, unsigned long expires)
 	trace_timer_start(timer, expires, timer->flags);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void debug_deactivate(struct timer_list *timer)
 {
 	debug_timer_deactivate(timer);
@@ -792,6 +942,11 @@ static void do_init_timer(struct timer_list *timer,
 {
 	timer->entry.pprev = NULL;
 	timer->function = func;
+<<<<<<< HEAD
+=======
+	if (WARN_ON_ONCE(flags & ~TIMER_INIT_FLAGS))
+		flags &= TIMER_INIT_FLAGS;
+>>>>>>> upstream/android-13
 	timer->flags = flags | raw_smp_processor_id();
 	lockdep_init_map(&timer->lockdep_map, name, key, 0);
 }
@@ -837,8 +992,15 @@ static int detach_if_pending(struct timer_list *timer, struct timer_base *base,
 	if (!timer_pending(timer))
 		return 0;
 
+<<<<<<< HEAD
 	if (hlist_is_singular_node(&timer->entry, base->vectors + idx))
 		__clear_bit(idx, base->pending_map);
+=======
+	if (hlist_is_singular_node(&timer->entry, base->vectors + idx)) {
+		__clear_bit(idx, base->pending_map);
+		base->next_expiry_recalc = true;
+	}
+>>>>>>> upstream/android-13
 
 	detach_timer(timer, clear_pending);
 	return 1;
@@ -888,6 +1050,7 @@ get_target_base(struct timer_base *base, unsigned tflags)
 
 static inline void forward_timer_base(struct timer_base *base)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_NO_HZ_COMMON
 	unsigned long jnow;
 
@@ -902,6 +1065,16 @@ static inline void forward_timer_base(struct timer_base *base)
 	jnow = READ_ONCE(jiffies);
 	base->must_forward_clk = base->is_idle;
 	if ((long)(jnow - base->clk) < 2)
+=======
+	unsigned long jnow = READ_ONCE(jiffies);
+
+	/*
+	 * No need to forward if we are close enough below jiffies.
+	 * Also while executing timers, base->clk is 1 offset ahead
+	 * of jiffies to avoid endless requeuing to current jiffies.
+	 */
+	if ((long)(jnow - base->clk) < 1)
+>>>>>>> upstream/android-13
 		return;
 
 	/*
@@ -915,7 +1088,10 @@ static inline void forward_timer_base(struct timer_base *base)
 			return;
 		base->clk = base->next_expiry;
 	}
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 }
 
 
@@ -958,13 +1134,23 @@ static struct timer_base *lock_timer_base(struct timer_list *timer,
 
 #define MOD_TIMER_PENDING_ONLY		0x01
 #define MOD_TIMER_REDUCE		0x02
+<<<<<<< HEAD
+=======
+#define MOD_TIMER_NOTPENDING		0x04
+>>>>>>> upstream/android-13
 
 static inline int
 __mod_timer(struct timer_list *timer, unsigned long expires, unsigned int options)
 {
+<<<<<<< HEAD
 	struct timer_base *base, *new_base;
 	unsigned int idx = UINT_MAX;
 	unsigned long clk = 0, flags;
+=======
+	unsigned long clk = 0, flags, bucket_expiry;
+	struct timer_base *base, *new_base;
+	unsigned int idx = UINT_MAX;
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 	BUG_ON(!timer->function);
@@ -974,7 +1160,11 @@ __mod_timer(struct timer_list *timer, unsigned long expires, unsigned int option
 	 * the timer is re-modified to have the same timeout or ends up in the
 	 * same array bucket then just return:
 	 */
+<<<<<<< HEAD
 	if (timer_pending(timer)) {
+=======
+	if (!(options & MOD_TIMER_NOTPENDING) && timer_pending(timer)) {
+>>>>>>> upstream/android-13
 		/*
 		 * The downside of this optimization is that it can result in
 		 * larger granularity than you would get from adding a new
@@ -1003,7 +1193,11 @@ __mod_timer(struct timer_list *timer, unsigned long expires, unsigned int option
 		}
 
 		clk = base->clk;
+<<<<<<< HEAD
 		idx = calc_wheel_index(expires, clk);
+=======
+		idx = calc_wheel_index(expires, clk, &bucket_expiry);
+>>>>>>> upstream/android-13
 
 		/*
 		 * Retrieve and compare the array index of the pending
@@ -1050,12 +1244,17 @@ __mod_timer(struct timer_list *timer, unsigned long expires, unsigned int option
 		}
 	}
 
+<<<<<<< HEAD
 	debug_activate(timer, expires);
+=======
+	debug_timer_activate(timer);
+>>>>>>> upstream/android-13
 
 	timer->expires = expires;
 	/*
 	 * If 'idx' was calculated above and the base time did not advance
 	 * between calculating 'idx' and possibly switching the base, only
+<<<<<<< HEAD
 	 * enqueue_timer() and trigger_dyntick_cpu() is required. Otherwise
 	 * we need to (re)calculate the wheel index via
 	 * internal_add_timer().
@@ -1066,6 +1265,15 @@ __mod_timer(struct timer_list *timer, unsigned long expires, unsigned int option
 	} else {
 		internal_add_timer(base, timer);
 	}
+=======
+	 * enqueue_timer() is required. Otherwise we need to (re)calculate
+	 * the wheel index via internal_add_timer().
+	 */
+	if (idx != UINT_MAX && clk == base->clk)
+		enqueue_timer(base, timer, idx, bucket_expiry);
+	else
+		internal_add_timer(base, timer);
+>>>>>>> upstream/android-13
 
 out_unlock:
 	raw_spin_unlock_irqrestore(&base->lock, flags);
@@ -1147,7 +1355,11 @@ EXPORT_SYMBOL(timer_reduce);
 void add_timer(struct timer_list *timer)
 {
 	BUG_ON(timer_pending(timer));
+<<<<<<< HEAD
 	mod_timer(timer, timer->expires);
+=======
+	__mod_timer(timer, timer->expires, MOD_TIMER_NOTPENDING);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(add_timer);
 
@@ -1184,7 +1396,11 @@ void add_timer_on(struct timer_list *timer, int cpu)
 	}
 	forward_timer_base(base);
 
+<<<<<<< HEAD
 	debug_activate(timer, timer->expires);
+=======
+	debug_timer_activate(timer);
+>>>>>>> upstream/android-13
 	internal_add_timer(base, timer);
 	raw_spin_unlock_irqrestore(&base->lock, flags);
 }
@@ -1245,7 +1461,84 @@ int try_to_del_timer_sync(struct timer_list *timer)
 }
 EXPORT_SYMBOL(try_to_del_timer_sync);
 
+<<<<<<< HEAD
 #ifdef CONFIG_SMP
+=======
+#ifdef CONFIG_PREEMPT_RT
+static __init void timer_base_init_expiry_lock(struct timer_base *base)
+{
+	spin_lock_init(&base->expiry_lock);
+}
+
+static inline void timer_base_lock_expiry(struct timer_base *base)
+{
+	spin_lock(&base->expiry_lock);
+}
+
+static inline void timer_base_unlock_expiry(struct timer_base *base)
+{
+	spin_unlock(&base->expiry_lock);
+}
+
+/*
+ * The counterpart to del_timer_wait_running().
+ *
+ * If there is a waiter for base->expiry_lock, then it was waiting for the
+ * timer callback to finish. Drop expiry_lock and reacquire it. That allows
+ * the waiter to acquire the lock and make progress.
+ */
+static void timer_sync_wait_running(struct timer_base *base)
+{
+	if (atomic_read(&base->timer_waiters)) {
+		raw_spin_unlock_irq(&base->lock);
+		spin_unlock(&base->expiry_lock);
+		spin_lock(&base->expiry_lock);
+		raw_spin_lock_irq(&base->lock);
+	}
+}
+
+/*
+ * This function is called on PREEMPT_RT kernels when the fast path
+ * deletion of a timer failed because the timer callback function was
+ * running.
+ *
+ * This prevents priority inversion, if the softirq thread on a remote CPU
+ * got preempted, and it prevents a life lock when the task which tries to
+ * delete a timer preempted the softirq thread running the timer callback
+ * function.
+ */
+static void del_timer_wait_running(struct timer_list *timer)
+{
+	u32 tf;
+
+	tf = READ_ONCE(timer->flags);
+	if (!(tf & (TIMER_MIGRATING | TIMER_IRQSAFE))) {
+		struct timer_base *base = get_timer_base(tf);
+
+		/*
+		 * Mark the base as contended and grab the expiry lock,
+		 * which is held by the softirq across the timer
+		 * callback. Drop the lock immediately so the softirq can
+		 * expire the next timer. In theory the timer could already
+		 * be running again, but that's more than unlikely and just
+		 * causes another wait loop.
+		 */
+		atomic_inc(&base->timer_waiters);
+		spin_lock_bh(&base->expiry_lock);
+		atomic_dec(&base->timer_waiters);
+		spin_unlock_bh(&base->expiry_lock);
+	}
+}
+#else
+static inline void timer_base_init_expiry_lock(struct timer_base *base) { }
+static inline void timer_base_lock_expiry(struct timer_base *base) { }
+static inline void timer_base_unlock_expiry(struct timer_base *base) { }
+static inline void timer_sync_wait_running(struct timer_base *base) { }
+static inline void del_timer_wait_running(struct timer_list *timer) { }
+#endif
+
+#if defined(CONFIG_SMP) || defined(CONFIG_PREEMPT_RT)
+>>>>>>> upstream/android-13
 /**
  * del_timer_sync - deactivate a timer and wait for the handler to finish.
  * @timer: the timer to be deactivated
@@ -1284,6 +1577,11 @@ EXPORT_SYMBOL(try_to_del_timer_sync);
  */
 int del_timer_sync(struct timer_list *timer)
 {
+<<<<<<< HEAD
+=======
+	int ret;
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_LOCKDEP
 	unsigned long flags;
 
@@ -1301,20 +1599,49 @@ int del_timer_sync(struct timer_list *timer)
 	 * could lead to deadlock.
 	 */
 	WARN_ON(in_irq() && !(timer->flags & TIMER_IRQSAFE));
+<<<<<<< HEAD
 	for (;;) {
 		int ret = try_to_del_timer_sync(timer);
 		if (ret >= 0)
 			return ret;
 		cpu_relax();
 	}
+=======
+
+	/*
+	 * Must be able to sleep on PREEMPT_RT because of the slowpath in
+	 * del_timer_wait_running().
+	 */
+	if (IS_ENABLED(CONFIG_PREEMPT_RT) && !(timer->flags & TIMER_IRQSAFE))
+		lockdep_assert_preemption_enabled();
+
+	do {
+		ret = try_to_del_timer_sync(timer);
+
+		if (unlikely(ret < 0)) {
+			del_timer_wait_running(timer);
+			cpu_relax();
+		}
+	} while (ret < 0);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(del_timer_sync);
 #endif
 
+<<<<<<< HEAD
 static void call_timer_fn(struct timer_list *timer, void (*fn)(struct timer_list *))
 {
 	int count = preempt_count();
 	unsigned long long ts;
+=======
+static void call_timer_fn(struct timer_list *timer,
+			  void (*fn)(struct timer_list *),
+			  unsigned long baseclk)
+{
+	int count = preempt_count();
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_LOCKDEP
 	/*
@@ -1335,16 +1662,25 @@ static void call_timer_fn(struct timer_list *timer, void (*fn)(struct timer_list
 	 */
 	lock_map_acquire(&lockdep_map);
 
+<<<<<<< HEAD
 	trace_timer_expire_entry(timer);
 	check_start_time(ts);
 	fn(timer);
 	check_process_time("timer %ps", ts, fn);
+=======
+	trace_timer_expire_entry(timer, baseclk);
+	fn(timer);
+>>>>>>> upstream/android-13
 	trace_timer_expire_exit(timer);
 
 	lock_map_release(&lockdep_map);
 
 	if (count != preempt_count()) {
+<<<<<<< HEAD
 		WARN_ONCE(1, "timer: %pF preempt leak: %08x -> %08x\n",
+=======
+		WARN_ONCE(1, "timer: %pS preempt leak: %08x -> %08x\n",
+>>>>>>> upstream/android-13
 			  fn, count, preempt_count());
 		/*
 		 * Restore the preempt count. That gives us a decent
@@ -1358,6 +1694,16 @@ static void call_timer_fn(struct timer_list *timer, void (*fn)(struct timer_list
 
 static void expire_timers(struct timer_base *base, struct hlist_head *head)
 {
+<<<<<<< HEAD
+=======
+	/*
+	 * This value is required only for tracing. base->clk was
+	 * incremented directly before expire_timers was called. But expiry
+	 * is related to the old base->clk value.
+	 */
+	unsigned long baseclk = base->clk - 1;
+
+>>>>>>> upstream/android-13
 	while (!hlist_empty(head)) {
 		struct timer_list *timer;
 		void (*fn)(struct timer_list *);
@@ -1371,20 +1717,39 @@ static void expire_timers(struct timer_base *base, struct hlist_head *head)
 
 		if (timer->flags & TIMER_IRQSAFE) {
 			raw_spin_unlock(&base->lock);
+<<<<<<< HEAD
 			call_timer_fn(timer, fn);
 			raw_spin_lock(&base->lock);
 		} else {
 			raw_spin_unlock_irq(&base->lock);
 			call_timer_fn(timer, fn);
 			raw_spin_lock_irq(&base->lock);
+=======
+			call_timer_fn(timer, fn, baseclk);
+			raw_spin_lock(&base->lock);
+			base->running_timer = NULL;
+		} else {
+			raw_spin_unlock_irq(&base->lock);
+			call_timer_fn(timer, fn, baseclk);
+			raw_spin_lock_irq(&base->lock);
+			base->running_timer = NULL;
+			timer_sync_wait_running(base);
+>>>>>>> upstream/android-13
 		}
 	}
 }
 
+<<<<<<< HEAD
 static int __collect_expired_timers(struct timer_base *base,
 				    struct hlist_head *heads)
 {
 	unsigned long clk = base->clk;
+=======
+static int collect_expired_timers(struct timer_base *base,
+				  struct hlist_head *heads)
+{
+	unsigned long clk = base->clk = base->next_expiry;
+>>>>>>> upstream/android-13
 	struct hlist_head *vec;
 	int i, levels = 0;
 	unsigned int idx;
@@ -1406,7 +1771,10 @@ static int __collect_expired_timers(struct timer_base *base,
 	return levels;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_NO_HZ_COMMON
+=======
+>>>>>>> upstream/android-13
 /*
  * Find the next pending bucket of a level. Search from level start (@offset)
  * + @clk upwards and if nothing there, search from start of the level
@@ -1439,6 +1807,10 @@ static unsigned long __next_timer_interrupt(struct timer_base *base)
 	clk = base->clk;
 	for (lvl = 0; lvl < LVL_DEPTH; lvl++, offset += LVL_SIZE) {
 		int pos = next_pending_bucket(base, offset, clk & LVL_MASK);
+<<<<<<< HEAD
+=======
+		unsigned long lvl_clk = clk & LVL_CLK_MASK;
+>>>>>>> upstream/android-13
 
 		if (pos >= 0) {
 			unsigned long tmp = clk + (unsigned long) pos;
@@ -1446,6 +1818,16 @@ static unsigned long __next_timer_interrupt(struct timer_base *base)
 			tmp <<= LVL_SHIFT(lvl);
 			if (time_before(tmp, next))
 				next = tmp;
+<<<<<<< HEAD
+=======
+
+			/*
+			 * If the next expiration happens before we reach
+			 * the next level, no need to check further.
+			 */
+			if (pos <= ((LVL_CLK_DIV - lvl_clk) & LVL_CLK_MASK))
+				break;
+>>>>>>> upstream/android-13
 		}
 		/*
 		 * Clock for the next level. If the current level clock lower
@@ -1483,6 +1865,7 @@ static unsigned long __next_timer_interrupt(struct timer_base *base)
 		 * So the simple check whether the lower bits of the current
 		 * level are 0 or not is sufficient for all cases.
 		 */
+<<<<<<< HEAD
 		adj = clk & LVL_CLK_MASK ? 1 : 0;
 		clk >>= LVL_CLK_SHIFT;
 		clk += adj;
@@ -1490,6 +1873,20 @@ static unsigned long __next_timer_interrupt(struct timer_base *base)
 	return next;
 }
 
+=======
+		adj = lvl_clk ? 1 : 0;
+		clk >>= LVL_CLK_SHIFT;
+		clk += adj;
+	}
+
+	base->next_expiry_recalc = false;
+	base->timers_pending = !(next == base->clk + NEXT_TIMER_MAX_DELTA);
+
+	return next;
+}
+
+#ifdef CONFIG_NO_HZ_COMMON
+>>>>>>> upstream/android-13
 /*
  * Check, if the next hrtimer event is before the next timer wheel
  * event:
@@ -1536,7 +1933,10 @@ u64 get_next_timer_interrupt(unsigned long basej, u64 basem)
 	struct timer_base *base = this_cpu_ptr(&timer_bases[BASE_STD]);
 	u64 expires = KTIME_MAX;
 	unsigned long nextevt;
+<<<<<<< HEAD
 	bool is_max_delta;
+=======
+>>>>>>> upstream/android-13
 
 	/*
 	 * Pretend that there is no timer pending if the cpu is offline.
@@ -1546,9 +1946,16 @@ u64 get_next_timer_interrupt(unsigned long basej, u64 basem)
 		return expires;
 
 	raw_spin_lock(&base->lock);
+<<<<<<< HEAD
 	nextevt = __next_timer_interrupt(base);
 	is_max_delta = (nextevt == base->clk + NEXT_TIMER_MAX_DELTA);
 	base->next_expiry = nextevt;
+=======
+	if (base->next_expiry_recalc)
+		base->next_expiry = __next_timer_interrupt(base);
+	nextevt = base->next_expiry;
+
+>>>>>>> upstream/android-13
 	/*
 	 * We have a fresh next event. Check whether we can forward the
 	 * base. We can only do that when @basej is past base->clk
@@ -1565,7 +1972,11 @@ u64 get_next_timer_interrupt(unsigned long basej, u64 basem)
 		expires = basem;
 		base->is_idle = false;
 	} else {
+<<<<<<< HEAD
 		if (!is_max_delta)
+=======
+		if (base->timers_pending)
+>>>>>>> upstream/android-13
 			expires = basem + (u64)(nextevt - basej) * TICK_NSEC;
 		/*
 		 * If we expect to sleep more than a tick, mark the base idle.
@@ -1574,10 +1985,15 @@ u64 get_next_timer_interrupt(unsigned long basej, u64 basem)
 		 * logic is only maintained for the BASE_STD base, deferrable
 		 * timers may still see large granularity skew (by design).
 		 */
+<<<<<<< HEAD
 		if ((expires - basem) > TICK_NSEC) {
 			base->must_forward_clk = true;
 			base->is_idle = true;
 		}
+=======
+		if ((expires - basem) > TICK_NSEC)
+			base->is_idle = true;
+>>>>>>> upstream/android-13
 	}
 	raw_spin_unlock(&base->lock);
 
@@ -1601,6 +2017,7 @@ void timer_clear_idle(void)
 	 */
 	base->is_idle = false;
 }
+<<<<<<< HEAD
 
 static int collect_expired_timers(struct timer_base *base,
 				  struct hlist_head *heads)
@@ -1660,6 +2077,10 @@ void update_process_times(int user_tick)
 		run_posix_cpu_timers(p);
 }
 
+=======
+#endif
+
+>>>>>>> upstream/android-13
 /**
  * __run_timers - run all expired timers (if any) on this CPU.
  * @base: the timer vector to be processed.
@@ -1669,6 +2090,7 @@ static inline void __run_timers(struct timer_base *base)
 	struct hlist_head heads[LVL_DEPTH];
 	int levels;
 
+<<<<<<< HEAD
 	if (!time_after_eq(jiffies, base->clk))
 		return;
 
@@ -1694,12 +2116,39 @@ static inline void __run_timers(struct timer_base *base)
 
 		levels = collect_expired_timers(base, heads);
 		base->clk++;
+=======
+	if (time_before(jiffies, base->next_expiry))
+		return;
+
+	timer_base_lock_expiry(base);
+	raw_spin_lock_irq(&base->lock);
+
+	while (time_after_eq(jiffies, base->clk) &&
+	       time_after_eq(jiffies, base->next_expiry)) {
+		levels = collect_expired_timers(base, heads);
+		/*
+		 * The two possible reasons for not finding any expired
+		 * timer at this clk are that all matching timers have been
+		 * dequeued or no timer has been queued since
+		 * base::next_expiry was set to base::clk +
+		 * NEXT_TIMER_MAX_DELTA.
+		 */
+		WARN_ON_ONCE(!levels && !base->next_expiry_recalc
+			     && base->timers_pending);
+		base->clk++;
+		base->next_expiry = __next_timer_interrupt(base);
+>>>>>>> upstream/android-13
 
 		while (levels--)
 			expire_timers(base, heads + levels);
 	}
+<<<<<<< HEAD
 	base->running_timer = NULL;
 	raw_spin_unlock_irq(&base->lock);
+=======
+	raw_spin_unlock_irq(&base->lock);
+	timer_base_unlock_expiry(base);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1717,24 +2166,62 @@ static __latent_entropy void run_timer_softirq(struct softirq_action *h)
 /*
  * Called by the local, per-CPU timer interrupt on SMP.
  */
+<<<<<<< HEAD
 void run_local_timers(void)
+=======
+static void run_local_timers(void)
+>>>>>>> upstream/android-13
 {
 	struct timer_base *base = this_cpu_ptr(&timer_bases[BASE_STD]);
 
 	hrtimer_run_queues();
 	/* Raise the softirq only if required. */
+<<<<<<< HEAD
 	if (time_before(jiffies, base->clk)) {
+=======
+	if (time_before(jiffies, base->next_expiry)) {
+>>>>>>> upstream/android-13
 		if (!IS_ENABLED(CONFIG_NO_HZ_COMMON))
 			return;
 		/* CPU is awake, so check the deferrable base. */
 		base++;
+<<<<<<< HEAD
 		if (time_before(jiffies, base->clk))
+=======
+		if (time_before(jiffies, base->next_expiry))
+>>>>>>> upstream/android-13
 			return;
 	}
 	raise_softirq(TIMER_SOFTIRQ);
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * Called from the timer interrupt handler to charge one tick to the current
+ * process.  user_tick is 1 if the tick is user time, 0 for system.
+ */
+void update_process_times(int user_tick)
+{
+	struct task_struct *p = current;
+
+	PRANDOM_ADD_NOISE(jiffies, user_tick, p, 0);
+
+	/* Note: this timer irq context must be accounted for as well. */
+	account_process_tick(p, user_tick);
+	run_local_timers();
+	rcu_sched_clock_irq(user_tick);
+#ifdef CONFIG_IRQ_WORK
+	if (in_irq())
+		irq_work_tick();
+#endif
+	scheduler_tick();
+	if (IS_ENABLED(CONFIG_POSIX_TIMERS))
+		run_posix_cpu_timers();
+}
+
+/*
+>>>>>>> upstream/android-13
  * Since schedule_timeout()'s timer is defined on the stack, it must store
  * the target task on the stack as well.
  */
@@ -1754,6 +2241,7 @@ static void process_timeout(struct timer_list *t)
  * schedule_timeout - sleep until timeout
  * @timeout: timeout value in jiffies
  *
+<<<<<<< HEAD
  * Make the current task sleep until @timeout jiffies have
  * elapsed. The routine will return immediately unless
  * the current task state has been set (see set_current_state()).
@@ -1763,12 +2251,29 @@ static void process_timeout(struct timer_list *t)
  * %TASK_UNINTERRUPTIBLE - at least @timeout jiffies are guaranteed to
  * pass before the routine returns unless the current task is explicitly
  * woken up, (e.g. by wake_up_process())".
+=======
+ * Make the current task sleep until @timeout jiffies have elapsed.
+ * The function behavior depends on the current task state
+ * (see also set_current_state() description):
+ *
+ * %TASK_RUNNING - the scheduler is called, but the task does not sleep
+ * at all. That happens because sched_submit_work() does nothing for
+ * tasks in %TASK_RUNNING state.
+ *
+ * %TASK_UNINTERRUPTIBLE - at least @timeout jiffies are guaranteed to
+ * pass before the routine returns unless the current task is explicitly
+ * woken up, (e.g. by wake_up_process()).
+>>>>>>> upstream/android-13
  *
  * %TASK_INTERRUPTIBLE - the routine may return early if a signal is
  * delivered to the current task or the current task is explicitly woken
  * up.
  *
+<<<<<<< HEAD
  * The current task state is guaranteed to be TASK_RUNNING when this
+=======
+ * The current task state is guaranteed to be %TASK_RUNNING when this
+>>>>>>> upstream/android-13
  * routine returns.
  *
  * Specifying a @timeout value of %MAX_SCHEDULE_TIMEOUT will schedule
@@ -1776,7 +2281,11 @@ static void process_timeout(struct timer_list *t)
  * value will be %MAX_SCHEDULE_TIMEOUT.
  *
  * Returns 0 when the timer has expired otherwise the remaining time in
+<<<<<<< HEAD
  * jiffies will be returned.  In all cases the return value is guaranteed
+=======
+ * jiffies will be returned. In all cases the return value is guaranteed
+>>>>>>> upstream/android-13
  * to be non-negative.
  */
 signed long __sched schedule_timeout(signed long timeout)
@@ -1808,7 +2317,11 @@ signed long __sched schedule_timeout(signed long timeout)
 			printk(KERN_ERR "schedule_timeout: wrong timeout "
 				"value %lx\n", timeout);
 			dump_stack();
+<<<<<<< HEAD
 			current->state = TASK_RUNNING;
+=======
+			__set_current_state(TASK_RUNNING);
+>>>>>>> upstream/android-13
 			goto out;
 		}
 	}
@@ -1817,7 +2330,11 @@ signed long __sched schedule_timeout(signed long timeout)
 
 	timer.task = current;
 	timer_setup_on_stack(&timer.timer, process_timeout, 0);
+<<<<<<< HEAD
 	__mod_timer(&timer.timer, expire, 0);
+=======
+	__mod_timer(&timer.timer, expire, MOD_TIMER_NOTPENDING);
+>>>>>>> upstream/android-13
 	schedule();
 	del_singleshot_timer_sync(&timer.timer);
 
@@ -1890,8 +2407,13 @@ int timers_prepare_cpu(unsigned int cpu)
 		base = per_cpu_ptr(&timer_bases[b], cpu);
 		base->clk = jiffies;
 		base->next_expiry = base->clk + NEXT_TIMER_MAX_DELTA;
+<<<<<<< HEAD
 		base->is_idle = false;
 		base->must_forward_clk = true;
+=======
+		base->timers_pending = false;
+		base->is_idle = false;
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
@@ -1944,6 +2466,11 @@ static void __init init_timer_cpu(int cpu)
 		base->cpu = cpu;
 		raw_spin_lock_init(&base->lock);
 		base->clk = jiffies;
+<<<<<<< HEAD
+=======
+		base->next_expiry = base->clk + NEXT_TIMER_MAX_DELTA;
+		timer_base_init_expiry_lock(base);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1958,6 +2485,10 @@ static void __init init_timer_cpus(void)
 void __init init_timers(void)
 {
 	init_timer_cpus();
+<<<<<<< HEAD
+=======
+	posix_cputimers_init_work();
+>>>>>>> upstream/android-13
 	open_softirq(TIMER_SOFTIRQ, run_timer_softirq);
 }
 
@@ -1991,26 +2522,49 @@ unsigned long msleep_interruptible(unsigned int msecs)
 EXPORT_SYMBOL(msleep_interruptible);
 
 /**
+<<<<<<< HEAD
  * usleep_range - Sleep for an approximate time
  * @min: Minimum time in usecs to sleep
  * @max: Maximum time in usecs to sleep
  *
  * In non-atomic context where the exact wakeup time is flexible, use
  * usleep_range() instead of udelay().  The sleep improves responsiveness
+=======
+ * usleep_range_state - Sleep for an approximate time in a given state
+ * @min:	Minimum time in usecs to sleep
+ * @max:	Maximum time in usecs to sleep
+ * @state:	State of the current task that will be while sleeping
+ *
+ * In non-atomic context where the exact wakeup time is flexible, use
+ * usleep_range_state() instead of udelay().  The sleep improves responsiveness
+>>>>>>> upstream/android-13
  * by avoiding the CPU-hogging busy-wait of udelay(), and the range reduces
  * power usage by allowing hrtimers to take advantage of an already-
  * scheduled interrupt instead of scheduling a new one just for this sleep.
  */
+<<<<<<< HEAD
 void __sched usleep_range(unsigned long min, unsigned long max)
+=======
+void __sched usleep_range_state(unsigned long min, unsigned long max,
+				unsigned int state)
+>>>>>>> upstream/android-13
 {
 	ktime_t exp = ktime_add_us(ktime_get(), min);
 	u64 delta = (u64)(max - min) * NSEC_PER_USEC;
 
 	for (;;) {
+<<<<<<< HEAD
 		__set_current_state(TASK_UNINTERRUPTIBLE);
+=======
+		__set_current_state(state);
+>>>>>>> upstream/android-13
 		/* Do not return before the requested sleep time has elapsed */
 		if (!schedule_hrtimeout_range(&exp, delta, HRTIMER_MODE_ABS))
 			break;
 	}
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(usleep_range);
+=======
+EXPORT_SYMBOL(usleep_range_state);
+>>>>>>> upstream/android-13

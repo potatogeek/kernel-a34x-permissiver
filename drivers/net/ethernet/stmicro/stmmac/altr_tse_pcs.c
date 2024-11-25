@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright Altera Corporation (C) 2016. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -12,6 +13,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* Copyright Altera Corporation (C) 2016. All rights reserved.
+ *
+>>>>>>> upstream/android-13
  * Author: Tien Hock Loh <thloh@altera.com>
  */
 
@@ -68,10 +74,13 @@
 #define TSE_PCS_USE_SGMII_ENA				BIT(0)
 #define TSE_PCS_IF_USE_SGMII				0x03
 
+<<<<<<< HEAD
 #define SGMII_ADAPTER_CTRL_REG				0x00
 #define SGMII_ADAPTER_DISABLE				0x0001
 #define SGMII_ADAPTER_ENABLE				0x0000
 
+=======
+>>>>>>> upstream/android-13
 #define AUTONEGO_LINK_TIMER				20
 
 static int tse_pcs_reset(void __iomem *base, struct tse_pcs *pcs)
@@ -213,12 +222,17 @@ void tse_pcs_fix_mac_speed(struct tse_pcs *pcs, struct phy_device *phy_dev,
 			   unsigned int speed)
 {
 	void __iomem *tse_pcs_base = pcs->tse_pcs_base;
+<<<<<<< HEAD
 	void __iomem *sgmii_adapter_base = pcs->sgmii_adapter_base;
 	u32 val;
 
 	writew(SGMII_ADAPTER_ENABLE,
 	       sgmii_adapter_base + SGMII_ADAPTER_CTRL_REG);
 
+=======
+	u32 val;
+
+>>>>>>> upstream/android-13
 	pcs->autoneg = phy_dev->autoneg;
 
 	if (phy_dev->autoneg == AUTONEG_ENABLE) {

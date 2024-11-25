@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * pid.c PID controller for testing cooling devices
  *
@@ -16,6 +17,15 @@
  *
  * Author Name Jacob Pan <jacob.jun.pan@linux.intel.com>
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * pid.c PID controller for testing cooling devices
+ *
+ * Copyright (C) 2012 Intel Corporation. All rights reserved.
+ *
+ * Author Name Jacob Pan <jacob.jun.pan@linux.intel.com>
+>>>>>>> upstream/android-13
  */
 
 #include <unistd.h>

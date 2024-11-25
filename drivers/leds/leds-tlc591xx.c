@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2014 Belkin Inc.
  * Copyright 2015 Andrew Lunn <andrew@lunn.ch>
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2014 Belkin Inc.
+ * Copyright 2015 Andrew Lunn <andrew@lunn.ch>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/i2c.h>
@@ -16,6 +23,10 @@
 #include <linux/slab.h>
 
 #define TLC591XX_MAX_LEDS	16
+<<<<<<< HEAD
+=======
+#define TLC591XX_MAX_BRIGHTNESS	256
+>>>>>>> upstream/android-13
 
 #define TLC591XX_REG_MODE1	0x00
 #define MODE1_RESPON_ADDR_MASK	0xF0
@@ -115,11 +126,19 @@ tlc591xx_brightness_set(struct led_classdev *led_cdev,
 	struct tlc591xx_priv *priv = led->priv;
 	int err;
 
+<<<<<<< HEAD
 	switch (brightness) {
 	case 0:
 		err = tlc591xx_set_ledout(priv, led, LEDOUT_OFF);
 		break;
 	case LED_FULL:
+=======
+	switch ((int)brightness) {
+	case 0:
+		err = tlc591xx_set_ledout(priv, led, LEDOUT_OFF);
+		break;
+	case TLC591XX_MAX_BRIGHTNESS:
+>>>>>>> upstream/android-13
 		err = tlc591xx_set_ledout(priv, led, LEDOUT_ON);
 		break;
 	default:
@@ -131,6 +150,7 @@ tlc591xx_brightness_set(struct led_classdev *led_cdev,
 	return err;
 }
 
+<<<<<<< HEAD
 static void
 tlc591xx_destroy_devices(struct tlc591xx_priv *priv, unsigned int j)
 {
@@ -176,6 +196,8 @@ exit:
 	return err;
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct regmap_config tlc591xx_regmap = {
 	.reg_bits = 8,
 	.val_bits = 8,
@@ -195,13 +217,19 @@ static int
 tlc591xx_probe(struct i2c_client *client,
 	       const struct i2c_device_id *id)
 {
+<<<<<<< HEAD
 	struct device_node *np = client->dev.of_node, *child;
 	struct device *dev = &client->dev;
 	const struct of_device_id *match;
+=======
+	struct device_node *np, *child;
+	struct device *dev = &client->dev;
+>>>>>>> upstream/android-13
 	const struct tlc591xx *tlc591xx;
 	struct tlc591xx_priv *priv;
 	int err, count, reg;
 
+<<<<<<< HEAD
 	match = of_match_device(of_tlc591xx_leds_match, dev);
 	if (!match)
 		return -ENODEV;
@@ -211,6 +239,17 @@ tlc591xx_probe(struct i2c_client *client,
 		return -ENODEV;
 
 	count = of_get_child_count(np);
+=======
+	np = dev_of_node(dev);
+	if (!np)
+		return -ENODEV;
+
+	tlc591xx = device_get_match_data(dev);
+	if (!tlc591xx)
+		return -ENODEV;
+
+	count = of_get_available_child_count(np);
+>>>>>>> upstream/android-13
 	if (!count || count > tlc591xx->max_leds)
 		return -EINVAL;
 
@@ -228,7 +267,20 @@ tlc591xx_probe(struct i2c_client *client,
 
 	i2c_set_clientdata(client, priv);
 
+<<<<<<< HEAD
 	for_each_child_of_node(np, child) {
+=======
+	err = tlc591xx_set_mode(priv->regmap, MODE2_DIM);
+	if (err < 0)
+		return err;
+
+	for_each_available_child_of_node(np, child) {
+		struct tlc591xx_led *led;
+		struct led_init_data init_data = {};
+
+		init_data.fwnode = of_fwnode_handle(child);
+
+>>>>>>> upstream/android-13
 		err = of_property_read_u32(child, "reg", &reg);
 		if (err) {
 			of_node_put(child);
@@ -239,6 +291,7 @@ tlc591xx_probe(struct i2c_client *client,
 			of_node_put(child);
 			return -EINVAL;
 		}
+<<<<<<< HEAD
 		priv->leds[reg].active = true;
 		priv->leds[reg].ldev.name =
 			of_get_property(child, "label", NULL) ? : child->name;
@@ -255,6 +308,24 @@ tlc591xx_remove(struct i2c_client *client)
 
 	tlc591xx_destroy_devices(priv, TLC591XX_MAX_LEDS);
 
+=======
+		led = &priv->leds[reg];
+
+		led->active = true;
+		led->priv = priv;
+		led->led_no = reg;
+		led->ldev.brightness_set_blocking = tlc591xx_brightness_set;
+		led->ldev.max_brightness = TLC591XX_MAX_BRIGHTNESS;
+		err = devm_led_classdev_register_ext(dev, &led->ldev,
+						     &init_data);
+		if (err < 0) {
+			of_node_put(child);
+			return dev_err_probe(dev, err,
+					     "couldn't register LED %s\n",
+					     led->ldev.name);
+		}
+	}
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -271,7 +342,10 @@ static struct i2c_driver tlc591xx_driver = {
 		.of_match_table = of_match_ptr(of_tlc591xx_leds_match),
 	},
 	.probe = tlc591xx_probe,
+<<<<<<< HEAD
 	.remove = tlc591xx_remove,
+=======
+>>>>>>> upstream/android-13
 	.id_table = tlc591xx_id,
 };
 

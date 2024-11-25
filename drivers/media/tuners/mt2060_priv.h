@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  Driver for Microtune MT2060 "Single chip dual conversion broadband tuner"
  *
  *  Copyright (c) 2006 Olivier DANET <odanet@caramail.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef MT2060_PRIV_H

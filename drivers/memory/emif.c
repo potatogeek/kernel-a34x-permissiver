@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * EMIF driver
  *
@@ -5,10 +9,13 @@
  *
  * Aneesh V <aneesh@ti.com>
  * Santosh Shilimkar <santosh.shilimkar@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/err.h>
 #include <linux/kernel.h>
@@ -26,8 +33,14 @@
 #include <linux/list.h>
 #include <linux/spinlock.h>
 #include <linux/pm.h>
+<<<<<<< HEAD
 #include <memory/jedec_ddr.h>
 #include "emif.h"
+=======
+
+#include "emif.h"
+#include "jedec_ddr.h"
+>>>>>>> upstream/android-13
 #include "of_memory.h"
 
 /**
@@ -43,7 +56,10 @@
  * @node:			node in the device list
  * @base:			base address of memory-mapped IO registers.
  * @dev:			device pointer.
+<<<<<<< HEAD
  * @addressing			table with addressing information from the spec
+=======
+>>>>>>> upstream/android-13
  * @regs_cache:			An array of 'struct emif_regs' that stores
  *				calculated register values for different
  *				frequencies, to avoid re-calculating them on
@@ -63,7 +79,10 @@ struct emif_data {
 	unsigned long			irq_state;
 	void __iomem			*base;
 	struct device			*dev;
+<<<<<<< HEAD
 	const struct lpddr2_addressing	*addressing;
+=======
+>>>>>>> upstream/android-13
 	struct emif_regs		*regs_cache[EMIF_MAX_NUM_FREQUENCIES];
 	struct emif_regs		*curr_regs;
 	struct emif_platform_data	*plat_data;
@@ -72,9 +91,14 @@ struct emif_data {
 };
 
 static struct emif_data *emif1;
+<<<<<<< HEAD
 static spinlock_t	emif_lock;
 static unsigned long	irq_state;
 static u32		t_ck; /* DDR clock period in ps */
+=======
+static DEFINE_SPINLOCK(emif_lock);
+static unsigned long	irq_state;
+>>>>>>> upstream/android-13
 static LIST_HEAD(device_list);
 
 #ifdef CONFIG_DEBUG_FS
@@ -133,6 +157,7 @@ static int emif_regdump_show(struct seq_file *s, void *unused)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int emif_regdump_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, emif_regdump_show, inode->i_private);
@@ -143,6 +168,9 @@ static const struct file_operations emif_regdump_fops = {
 	.read			= seq_read,
 	.release		= single_release,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(emif_regdump);
+>>>>>>> upstream/android-13
 
 static int emif_mr4_show(struct seq_file *s, void *unused)
 {
@@ -152,6 +180,7 @@ static int emif_mr4_show(struct seq_file *s, void *unused)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int emif_mr4_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, emif_mr4_show, inode->i_private);
@@ -162,6 +191,9 @@ static const struct file_operations emif_mr4_fops = {
 	.read			= seq_read,
 	.release		= single_release,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(emif_mr4);
+>>>>>>> upstream/android-13
 
 static int __init_or_module emif_debugfs_init(struct emif_data *emif)
 {
@@ -190,6 +222,7 @@ static inline void __exit emif_debugfs_exit(struct emif_data *emif)
 #endif
 
 /*
+<<<<<<< HEAD
  * Calculate the period of DDR clock from frequency value
  */
 static void set_ddr_clk_period(u32 freq)
@@ -199,6 +232,8 @@ static void set_ddr_clk_period(u32 freq)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Get bus width used by EMIF. Note that this may be different from the
  * bus width of the DDR devices used. For instance two 16-bit DDR devices
  * may be connected to a given CS of EMIF. In this case bus width as far
@@ -216,6 +251,7 @@ static u32 get_emif_bus_width(struct emif_data *emif)
 	return width;
 }
 
+<<<<<<< HEAD
 /*
  * Get the CL from SDRAM_CONFIG register
  */
@@ -229,6 +265,8 @@ static u32 get_cl(struct emif_data *emif)
 	return cl;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void set_lpmode(struct emif_data *emif, u8 lpmode)
 {
 	u32 temp;
@@ -261,10 +299,16 @@ static void set_lpmode(struct emif_data *emif, u8 lpmode)
 	 * the EMIF_PWR_MGMT_CTRL[10:8] REG_LP_MODE bit field to 0x4.
 	 */
 	if ((emif->plat_data->ip_rev == EMIF_4D) &&
+<<<<<<< HEAD
 	    (EMIF_LP_MODE_PWR_DN == lpmode)) {
 		WARN_ONCE(1,
 			  "REG_LP_MODE = LP_MODE_PWR_DN(4) is prohibited by"
 			  "erratum i743 switch to LP_MODE_SELF_REFRESH(2)\n");
+=======
+	    (lpmode == EMIF_LP_MODE_PWR_DN)) {
+		WARN_ONCE(1,
+			  "REG_LP_MODE = LP_MODE_PWR_DN(4) is prohibited by erratum i743 switch to LP_MODE_SELF_REFRESH(2)\n");
+>>>>>>> upstream/android-13
 		/* rollback LP_MODE to Self-refresh mode */
 		lpmode = EMIF_LP_MODE_SELF_REFRESH;
 	}
@@ -349,6 +393,7 @@ static const struct lpddr2_addressing *get_addressing_table(
 	return &lpddr2_jedec_addressing_table[index];
 }
 
+<<<<<<< HEAD
 /*
  * Find the the right timing table from the array of timing
  * tables of the device using DDR clock frequency
@@ -546,6 +591,8 @@ static u32 get_sdram_tim_3_shdw(const struct lpddr2_timings *timings,
 	return tim3;
 }
 
+=======
+>>>>>>> upstream/android-13
 static u32 get_zq_config_reg(const struct lpddr2_addressing *addressing,
 		bool cs1_used, bool cal_resistors_per_cs)
 {
@@ -610,6 +657,7 @@ static u32 get_temp_alert_config(const struct lpddr2_addressing *addressing,
 	return alert;
 }
 
+<<<<<<< HEAD
 static u32 get_read_idle_ctrl_shdw(u8 volt_ramp)
 {
 	u32 idle = 0, val = 0;
@@ -721,6 +769,8 @@ static u32 get_ext_phy_ctrl_4_intelliphy_4d5(void)
 		fifo_we_slave_ratio << 13;
 }
 
+=======
+>>>>>>> upstream/android-13
 static u32 get_pwr_mgmt_ctrl(u32 freq, struct emif_data *emif, u32 ip_rev)
 {
 	u32 pwr_mgmt_ctrl	= 0, timeout;
@@ -843,6 +893,7 @@ static void get_temperature_level(struct emif_data *emif)
 }
 
 /*
+<<<<<<< HEAD
  * Program EMIF shadow registers that are not dependent on temperature
  * or voltage
  */
@@ -888,6 +939,8 @@ static void setup_volt_sensitive_regs(struct emif_data *emif,
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * setup_temperature_sensitive_regs() - set the timings for temperature
  * sensitive registers. This happens once at initialisation time based
  * on the temperature at boot time and subsequently based on the temperature
@@ -954,8 +1007,12 @@ static irqreturn_t handle_temp_alert(void __iomem *base, struct emif_data *emif)
 				EMIF_CUSTOM_CONFIG_EXTENDED_TEMP_PART)) {
 		if (emif->temperature_level >= SDRAM_TEMP_HIGH_DERATE_REFRESH) {
 			dev_err(emif->dev,
+<<<<<<< HEAD
 				"%s:NOT Extended temperature capable memory."
 				"Converting MR4=0x%02x as shutdown event\n",
+=======
+				"%s:NOT Extended temperature capable memory. Converting MR4=0x%02x as shutdown event\n",
+>>>>>>> upstream/android-13
 				__func__, emif->temperature_level);
 			/*
 			 * Temperature far too high - do kernel_power_off()
@@ -1297,9 +1354,15 @@ static void __init_or_module of_get_ddr_info(struct device_node *np_emif,
 	if (of_find_property(np_emif, "cal-resistor-per-cs", &len))
 		dev_info->cal_resistors_per_cs = true;
 
+<<<<<<< HEAD
 	if (of_device_is_compatible(np_ddr , "jedec,lpddr2-s4"))
 		dev_info->type = DDR_TYPE_LPDDR2_S4;
 	else if (of_device_is_compatible(np_ddr , "jedec,lpddr2-s2"))
+=======
+	if (of_device_is_compatible(np_ddr, "jedec,lpddr2-s4"))
+		dev_info->type = DDR_TYPE_LPDDR2_S4;
+	else if (of_device_is_compatible(np_ddr, "jedec,lpddr2-s2"))
+>>>>>>> upstream/android-13
 		dev_info->type = DDR_TYPE_LPDDR2_S2;
 
 	of_property_read_u32(np_ddr, "density", &density);
@@ -1425,7 +1488,11 @@ static struct emif_data *__init_or_module get_device_details(
 	temp	= devm_kzalloc(dev, sizeof(*pd), GFP_KERNEL);
 	dev_info = devm_kzalloc(dev, sizeof(*dev_info), GFP_KERNEL);
 
+<<<<<<< HEAD
 	if (!emif || !pd || !dev_info) {
+=======
+	if (!emif || !temp || !dev_info) {
+>>>>>>> upstream/android-13
 		dev_err(dev, "%s:%d: allocation error\n", __func__, __LINE__);
 		goto error;
 	}
@@ -1517,7 +1584,11 @@ static int __init_or_module emif_probe(struct platform_device *pdev)
 {
 	struct emif_data	*emif;
 	struct resource		*res;
+<<<<<<< HEAD
 	int			irq;
+=======
+	int			irq, ret;
+>>>>>>> upstream/android-13
 
 	if (pdev->dev.of_node)
 		emif = of_get_memory_device_details(pdev->dev.of_node, &pdev->dev);
@@ -1530,7 +1601,10 @@ static int __init_or_module emif_probe(struct platform_device *pdev)
 	}
 
 	list_add(&emif->node, &device_list);
+<<<<<<< HEAD
 	emif->addressing = get_addressing_table(emif->plat_data->device_info);
+=======
+>>>>>>> upstream/android-13
 
 	/* Save pointers to each other in emif and device structures */
 	emif->dev = &pdev->dev;
@@ -1542,21 +1616,35 @@ static int __init_or_module emif_probe(struct platform_device *pdev)
 		goto error;
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(emif->dev, "%s: error getting IRQ resource - %d\n",
 			__func__, irq);
 		goto error;
 	}
+=======
+	if (irq < 0)
+		goto error;
+>>>>>>> upstream/android-13
 
 	emif_onetime_settings(emif);
 	emif_debugfs_init(emif);
 	disable_and_clear_all_interrupts(emif);
+<<<<<<< HEAD
 	setup_interrupts(emif, irq);
+=======
+	ret = setup_interrupts(emif, irq);
+	if (ret)
+		goto error;
+>>>>>>> upstream/android-13
 
 	/* One-time actions taken on probing the first device */
 	if (!emif1) {
 		emif1 = emif;
+<<<<<<< HEAD
 		spin_lock_init(&emif_lock);
+=======
+>>>>>>> upstream/android-13
 
 		/*
 		 * TODO: register notifiers for frequency and voltage
@@ -1589,6 +1677,7 @@ static void emif_shutdown(struct platform_device *pdev)
 	disable_and_clear_all_interrupts(emif);
 }
 
+<<<<<<< HEAD
 static int get_emif_reg_values(struct emif_data *emif, u32 freq,
 		struct emif_regs *regs)
 {
@@ -1891,6 +1980,8 @@ static void __attribute__((unused)) freq_post_notify_handling(void)
 	spin_unlock_irqrestore(&emif_lock, irq_state);
 }
 
+=======
+>>>>>>> upstream/android-13
 #if defined(CONFIG_OF)
 static const struct of_device_id emif_of_match[] = {
 		{ .compatible = "ti,emif-4d" },

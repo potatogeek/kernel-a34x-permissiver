@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * arch/arm/kernel/unwind.c
  *
  * Copyright (C) 2008 ARM Limited
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
@@ -17,6 +22,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
+=======
+>>>>>>> upstream/android-13
  * Stack unwinding support for ARM
  *
  * An ARM EABI version of gcc is required to generate the unwind
@@ -31,9 +38,12 @@
 #warning Your compiler does not have EABI support.
 #warning    ARM unwind is known to compile only with EABI compilers.
 #warning    Change compiler or disable ARM_UNWIND option.
+<<<<<<< HEAD
 #elif (__GNUC__ == 4 && __GNUC_MINOR__ <= 2) && !defined(__clang__)
 #warning Your compiler is too buggy; it is known to not compile ARM unwind support.
 #warning    Change compiler or disable ARM_UNWIND option.
+=======
+>>>>>>> upstream/android-13
 #endif
 #endif /* __CHECKER__ */
 
@@ -249,7 +259,15 @@ static int unwind_pop_register(struct unwind_ctrl_block *ctrl,
 		if (*vsp >= (unsigned long *)ctrl->sp_high)
 			return -URC_FAILURE;
 
+<<<<<<< HEAD
 	ctrl->vrs[reg] = *(*vsp)++;
+=======
+	/* Use READ_ONCE_NOCHECK here to avoid this memory access
+	 * from being tracked by KASAN.
+	 */
+	ctrl->vrs[reg] = READ_ONCE_NOCHECK(*(*vsp));
+	(*vsp)++;
+>>>>>>> upstream/android-13
 	return URC_OK;
 }
 
@@ -403,7 +421,11 @@ int unwind_frame(struct stackframe *frame)
 
 	idx = unwind_find_idx(frame->pc);
 	if (!idx) {
+<<<<<<< HEAD
 		/* pr_warn("unwind: Index not found %08lx\n", frame->pc); */
+=======
+		pr_warn("unwind: Index not found %08lx\n", frame->pc);
+>>>>>>> upstream/android-13
 		return -URC_FAILURE;
 	}
 
@@ -457,7 +479,11 @@ int unwind_frame(struct stackframe *frame)
 		ctrl.vrs[PC] = ctrl.vrs[LR];
 
 	/* check for infinite loop */
+<<<<<<< HEAD
 	if (frame->pc == ctrl.vrs[PC])
+=======
+	if (frame->pc == ctrl.vrs[PC] && frame->sp == ctrl.vrs[SP])
+>>>>>>> upstream/android-13
 		return -URC_FAILURE;
 
 	frame->fp = ctrl.vrs[FP];
@@ -465,6 +491,7 @@ int unwind_frame(struct stackframe *frame)
 	frame->lr = ctrl.vrs[LR];
 	frame->pc = ctrl.vrs[PC];
 
+<<<<<<< HEAD
 	if (!kernel_text_address(frame->pc))
 		return -URC_FAILURE;
 
@@ -472,6 +499,13 @@ int unwind_frame(struct stackframe *frame)
 }
 
 void unwind_backtrace(struct pt_regs *regs, struct task_struct *tsk)
+=======
+	return URC_OK;
+}
+
+void unwind_backtrace(struct pt_regs *regs, struct task_struct *tsk,
+		      const char *loglvl)
+>>>>>>> upstream/android-13
 {
 	struct stackframe frame;
 
@@ -509,7 +543,11 @@ void unwind_backtrace(struct pt_regs *regs, struct task_struct *tsk)
 		urc = unwind_frame(&frame);
 		if (urc < 0)
 			break;
+<<<<<<< HEAD
 		dump_backtrace_entry(where, frame.pc, frame.sp - 4);
+=======
+		dump_backtrace_entry(where, frame.pc, frame.sp - 4, loglvl);
+>>>>>>> upstream/android-13
 	}
 }
 

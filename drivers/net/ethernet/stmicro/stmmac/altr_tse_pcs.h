@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright Altera Corporation (C) 2016. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -12,6 +13,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/* Copyright Altera Corporation (C) 2016. All rights reserved.
+ *
+>>>>>>> upstream/android-13
  * Author: Tien Hock Loh <thloh@altera.com>
  */
 
@@ -21,6 +27,13 @@
 #include <linux/phy.h>
 #include <linux/timer.h>
 
+<<<<<<< HEAD
+=======
+#define SGMII_ADAPTER_CTRL_REG		0x00
+#define SGMII_ADAPTER_ENABLE		0x0000
+#define SGMII_ADAPTER_DISABLE		0x0001
+
+>>>>>>> upstream/android-13
 struct tse_pcs {
 	struct device *dev;
 	void __iomem *tse_pcs_base;

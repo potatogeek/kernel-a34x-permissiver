@@ -38,6 +38,7 @@ struct drm_omap_param {
 	__u64 value;			/* in (set_param), out (get_param) */
 };
 
+<<<<<<< HEAD
 #define OMAP_BO_SCANOUT		0x00000001	/* scanout capable (phys contiguous) */
 #define OMAP_BO_CACHE_MASK	0x00000006	/* cache type mask, see cache modes */
 #define OMAP_BO_TILED_MASK	0x00000f00	/* tiled mapping mask, see tiled modes */
@@ -52,6 +53,22 @@ struct drm_omap_param {
 #define OMAP_BO_TILED_16	0x00000200
 #define OMAP_BO_TILED_32	0x00000300
 #define OMAP_BO_TILED		(OMAP_BO_TILED_8 | OMAP_BO_TILED_16 | OMAP_BO_TILED_32)
+=======
+/* Scanout buffer, consumable by DSS */
+#define OMAP_BO_SCANOUT		0x00000001
+
+/* Buffer CPU caching mode: cached, write-combining or uncached. */
+#define OMAP_BO_CACHED		0x00000000
+#define OMAP_BO_WC		0x00000002
+#define OMAP_BO_UNCACHED	0x00000004
+#define OMAP_BO_CACHE_MASK	0x00000006
+
+/* Use TILER for the buffer. The TILER container unit can be 8, 16 or 32 bits. */
+#define OMAP_BO_TILED_8		0x00000100
+#define OMAP_BO_TILED_16	0x00000200
+#define OMAP_BO_TILED_32	0x00000300
+#define OMAP_BO_TILED_MASK	0x00000f00
+>>>>>>> upstream/android-13
 
 union omap_gem_size {
 	__u32 bytes;		/* (for non-tiled formats) */

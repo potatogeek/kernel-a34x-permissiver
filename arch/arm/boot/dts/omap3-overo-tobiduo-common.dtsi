@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015 Ash Charles, Gumstix, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2015 Ash Charles, Gumstix, Inc.
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -25,7 +31,11 @@
 		compatible = "smsc,lan9221","smsc,lan9115";
 		bank-width = <2>;
 
+<<<<<<< HEAD
 		gpmc,mux-add-data;
+=======
+		gpmc,mux-add-data = <0>;
+>>>>>>> upstream/android-13
 		gpmc,cs-on-ns = <0>;
 		gpmc,cs-rd-off-ns = <42>;
 		gpmc,cs-wr-off-ns = <36>;

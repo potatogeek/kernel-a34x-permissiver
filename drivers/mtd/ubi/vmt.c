@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) International Business Machines Corp., 2006
  *
@@ -15,6 +16,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) International Business Machines Corp., 2006
+ *
+>>>>>>> upstream/android-13
  * Author: Artem Bityutskiy (Битюцкий Артём)
  */
 
@@ -69,16 +76,23 @@ static ssize_t vol_attribute_show(struct device *dev,
 {
 	int ret;
 	struct ubi_volume *vol = container_of(dev, struct ubi_volume, dev);
+<<<<<<< HEAD
 	struct ubi_device *ubi;
 
 	ubi = ubi_get_device(vol->ubi->ubi_num);
 	if (!ubi)
 		return -ENODEV;
+=======
+	struct ubi_device *ubi = vol->ubi;
+>>>>>>> upstream/android-13
 
 	spin_lock(&ubi->volumes_lock);
 	if (!ubi->volumes[vol->vol_id]) {
 		spin_unlock(&ubi->volumes_lock);
+<<<<<<< HEAD
 		ubi_put_device(ubi);
+=======
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	}
 	/* Take a reference to prevent volume removal */
@@ -116,7 +130,10 @@ static ssize_t vol_attribute_show(struct device *dev,
 	vol->ref_count -= 1;
 	ubi_assert(vol->ref_count >= 0);
 	spin_unlock(&ubi->volumes_lock);
+<<<<<<< HEAD
 	ubi_put_device(ubi);
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 

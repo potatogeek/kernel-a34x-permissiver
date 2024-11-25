@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015 Pengutronix, Steffen Trumtrar <kernel@pengutronix.de>
  * Copyright (c) 2017 Pengutronix, Oleksij Rempel <kernel@pengutronix.de>
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * as published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2015 Pengutronix, Steffen Trumtrar <kernel@pengutronix.de>
+ * Copyright (c) 2017 Pengutronix, Oleksij Rempel <kernel@pengutronix.de>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/mfd/syscon.h>
@@ -126,7 +133,11 @@ static int snvs_lpgpr_probe(struct platform_device *pdev)
 	cfg->dev = dev;
 	cfg->stride = 4;
 	cfg->word_size = 4;
+<<<<<<< HEAD
 	cfg->size = dcfg->size,
+=======
+	cfg->size = dcfg->size;
+>>>>>>> upstream/android-13
 	cfg->owner = THIS_MODULE;
 	cfg->reg_read  = snvs_lpgpr_read;
 	cfg->reg_write = snvs_lpgpr_write;

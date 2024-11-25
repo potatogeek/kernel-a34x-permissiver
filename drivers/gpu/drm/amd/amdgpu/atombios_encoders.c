@@ -23,11 +23,21 @@
  * Authors: Dave Airlie
  *          Alex Deucher
  */
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+
+#include <linux/pci.h>
+
+>>>>>>> upstream/android-13
 #include <drm/drm_crtc_helper.h>
 #include <drm/amdgpu_drm.h>
 #include "amdgpu.h"
 #include "amdgpu_connectors.h"
+<<<<<<< HEAD
+=======
+#include "amdgpu_display.h"
+>>>>>>> upstream/android-13
 #include "atom.h"
 #include "atombios_encoders.h"
 #include "atombios_dp.h"
@@ -67,7 +77,11 @@ u8
 amdgpu_atombios_encoder_get_backlight_level(struct amdgpu_encoder *amdgpu_encoder)
 {
 	struct drm_device *dev = amdgpu_encoder->base.dev;
+<<<<<<< HEAD
 	struct amdgpu_device *adev = dev->dev_private;
+=======
+	struct amdgpu_device *adev = drm_to_adev(dev);
+>>>>>>> upstream/android-13
 
 	if (!(adev->mode_info.firmware_flags & ATOM_BIOS_INFO_BL_CONTROLLED_BY_GPU))
 		return 0;
@@ -81,7 +95,11 @@ amdgpu_atombios_encoder_set_backlight_level(struct amdgpu_encoder *amdgpu_encode
 {
 	struct drm_encoder *encoder = &amdgpu_encoder->base;
 	struct drm_device *dev = amdgpu_encoder->base.dev;
+<<<<<<< HEAD
 	struct amdgpu_device *adev = dev->dev_private;
+=======
+	struct amdgpu_device *adev = drm_to_adev(dev);
+>>>>>>> upstream/android-13
 	struct amdgpu_encoder_atom_dig *dig;
 
 	if (!(adev->mode_info.firmware_flags & ATOM_BIOS_INFO_BL_CONTROLLED_BY_GPU))
@@ -149,7 +167,11 @@ amdgpu_atombios_encoder_get_backlight_brightness(struct backlight_device *bd)
 	struct amdgpu_backlight_privdata *pdata = bl_get_data(bd);
 	struct amdgpu_encoder *amdgpu_encoder = pdata->encoder;
 	struct drm_device *dev = amdgpu_encoder->base.dev;
+<<<<<<< HEAD
 	struct amdgpu_device *adev = dev->dev_private;
+=======
+	struct amdgpu_device *adev = drm_to_adev(dev);
+>>>>>>> upstream/android-13
 
 	return amdgpu_atombios_encoder_get_backlight_level_from_reg(adev);
 }
@@ -163,12 +185,19 @@ void amdgpu_atombios_encoder_init_backlight(struct amdgpu_encoder *amdgpu_encode
 				     struct drm_connector *drm_connector)
 {
 	struct drm_device *dev = amdgpu_encoder->base.dev;
+<<<<<<< HEAD
 	struct amdgpu_device *adev = dev->dev_private;
+=======
+	struct amdgpu_device *adev = drm_to_adev(dev);
+>>>>>>> upstream/android-13
 	struct backlight_device *bd;
 	struct backlight_properties props;
 	struct amdgpu_backlight_privdata *pdata;
 	struct amdgpu_encoder_atom_dig *dig;
+<<<<<<< HEAD
 	u8 backlight_level;
+=======
+>>>>>>> upstream/android-13
 	char bl_name[16];
 
 	/* Mac laptops with multiple GPUs use the gmux driver for backlight
@@ -204,8 +233,11 @@ void amdgpu_atombios_encoder_init_backlight(struct amdgpu_encoder *amdgpu_encode
 
 	pdata->encoder = amdgpu_encoder;
 
+<<<<<<< HEAD
 	backlight_level = amdgpu_atombios_encoder_get_backlight_level_from_reg(adev);
 
+=======
+>>>>>>> upstream/android-13
 	dig = amdgpu_encoder->enc_priv;
 	dig->bl_dev = bd;
 
@@ -226,7 +258,11 @@ void
 amdgpu_atombios_encoder_fini_backlight(struct amdgpu_encoder *amdgpu_encoder)
 {
 	struct drm_device *dev = amdgpu_encoder->base.dev;
+<<<<<<< HEAD
 	struct amdgpu_device *adev = dev->dev_private;
+=======
+	struct amdgpu_device *adev = drm_to_adev(dev);
+>>>>>>> upstream/android-13
 	struct backlight_device *bd = NULL;
 	struct amdgpu_encoder_atom_dig *dig;
 
@@ -316,7 +352,11 @@ static void
 amdgpu_atombios_encoder_setup_dac(struct drm_encoder *encoder, int action)
 {
 	struct drm_device *dev = encoder->dev;
+<<<<<<< HEAD
 	struct amdgpu_device *adev = dev->dev_private;
+=======
+	struct amdgpu_device *adev = drm_to_adev(dev);
+>>>>>>> upstream/android-13
 	struct amdgpu_encoder *amdgpu_encoder = to_amdgpu_encoder(encoder);
 	DAC_ENCODER_CONTROL_PS_ALLOCATION args;
 	int index = 0;
@@ -379,7 +419,11 @@ static void
 amdgpu_atombios_encoder_setup_dvo(struct drm_encoder *encoder, int action)
 {
 	struct drm_device *dev = encoder->dev;
+<<<<<<< HEAD
 	struct amdgpu_device *adev = dev->dev_private;
+=======
+	struct amdgpu_device *adev = drm_to_adev(dev);
+>>>>>>> upstream/android-13
 	struct amdgpu_encoder *amdgpu_encoder = to_amdgpu_encoder(encoder);
 	union dvo_encoder_control args;
 	int index = GetIndexIntoMasterTable(COMMAND, DVOEncoderControl);
@@ -496,10 +540,15 @@ int amdgpu_atombios_encoder_get_encoder_mode(struct drm_encoder *encoder)
 		} else {
 			return ATOM_ENCODER_MODE_DVI;
 		}
+<<<<<<< HEAD
 		break;
 	case DRM_MODE_CONNECTOR_LVDS:
 		return ATOM_ENCODER_MODE_LVDS;
 		break;
+=======
+	case DRM_MODE_CONNECTOR_LVDS:
+		return ATOM_ENCODER_MODE_LVDS;
+>>>>>>> upstream/android-13
 	case DRM_MODE_CONNECTOR_DisplayPort:
 		dig_connector = amdgpu_connector->con_priv;
 		if ((dig_connector->dp_sink_type == CONNECTOR_OBJECT_ID_DISPLAYPORT) ||
@@ -516,20 +565,29 @@ int amdgpu_atombios_encoder_get_encoder_mode(struct drm_encoder *encoder)
 		} else {
 			return ATOM_ENCODER_MODE_DVI;
 		}
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 	case DRM_MODE_CONNECTOR_eDP:
 		return ATOM_ENCODER_MODE_DP;
 	case DRM_MODE_CONNECTOR_DVIA:
 	case DRM_MODE_CONNECTOR_VGA:
 		return ATOM_ENCODER_MODE_CRT;
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 	case DRM_MODE_CONNECTOR_Composite:
 	case DRM_MODE_CONNECTOR_SVIDEO:
 	case DRM_MODE_CONNECTOR_9PinDIN:
 		/* fix me */
 		return ATOM_ENCODER_MODE_TV;
+<<<<<<< HEAD
 		/*return ATOM_ENCODER_MODE_CV;*/
 		break;
+=======
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -570,7 +628,11 @@ amdgpu_atombios_encoder_setup_dig_encoder(struct drm_encoder *encoder,
 				   int action, int panel_mode)
 {
 	struct drm_device *dev = encoder->dev;
+<<<<<<< HEAD
 	struct amdgpu_device *adev = dev->dev_private;
+=======
+	struct amdgpu_device *adev = drm_to_adev(dev);
+>>>>>>> upstream/android-13
 	struct amdgpu_encoder *amdgpu_encoder = to_amdgpu_encoder(encoder);
 	struct amdgpu_encoder_atom_dig *dig = amdgpu_encoder->enc_priv;
 	struct drm_connector *connector = amdgpu_get_connector_for_encoder(encoder);
@@ -759,7 +821,11 @@ amdgpu_atombios_encoder_setup_dig_transmitter(struct drm_encoder *encoder, int a
 					      uint8_t lane_num, uint8_t lane_set)
 {
 	struct drm_device *dev = encoder->dev;
+<<<<<<< HEAD
 	struct amdgpu_device *adev = dev->dev_private;
+=======
+	struct amdgpu_device *adev = drm_to_adev(dev);
+>>>>>>> upstream/android-13
 	struct amdgpu_encoder *amdgpu_encoder = to_amdgpu_encoder(encoder);
 	struct amdgpu_encoder_atom_dig *dig = amdgpu_encoder->enc_priv;
 	struct drm_connector *connector;
@@ -1175,7 +1241,11 @@ amdgpu_atombios_encoder_set_edp_panel_power(struct drm_connector *connector,
 {
 	struct amdgpu_connector *amdgpu_connector = to_amdgpu_connector(connector);
 	struct drm_device *dev = amdgpu_connector->base.dev;
+<<<<<<< HEAD
 	struct amdgpu_device *adev = dev->dev_private;
+=======
+	struct amdgpu_device *adev = drm_to_adev(dev);
+>>>>>>> upstream/android-13
 	union dig_transmitter_control args;
 	int index = GetIndexIntoMasterTable(COMMAND, UNIPHYTransmitterControl);
 	uint8_t frev, crev;
@@ -1222,7 +1292,11 @@ amdgpu_atombios_encoder_setup_external_encoder(struct drm_encoder *encoder,
 					int action)
 {
 	struct drm_device *dev = encoder->dev;
+<<<<<<< HEAD
 	struct amdgpu_device *adev = dev->dev_private;
+=======
+	struct amdgpu_device *adev = drm_to_adev(dev);
+>>>>>>> upstream/android-13
 	struct amdgpu_encoder *amdgpu_encoder = to_amdgpu_encoder(encoder);
 	struct amdgpu_encoder *ext_amdgpu_encoder = to_amdgpu_encoder(ext_encoder);
 	union external_encoder_control args;
@@ -1463,7 +1537,11 @@ void
 amdgpu_atombios_encoder_set_crtc_source(struct drm_encoder *encoder)
 {
 	struct drm_device *dev = encoder->dev;
+<<<<<<< HEAD
 	struct amdgpu_device *adev = dev->dev_private;
+=======
+	struct amdgpu_device *adev = drm_to_adev(dev);
+>>>>>>> upstream/android-13
 	struct amdgpu_encoder *amdgpu_encoder = to_amdgpu_encoder(encoder);
 	struct amdgpu_crtc *amdgpu_crtc = to_amdgpu_crtc(encoder->crtc);
 	union crtc_source_param args;
@@ -1670,7 +1748,11 @@ amdgpu_atombios_encoder_set_crtc_source(struct drm_encoder *encoder)
 void
 amdgpu_atombios_encoder_init_dig(struct amdgpu_device *adev)
 {
+<<<<<<< HEAD
 	struct drm_device *dev = adev->ddev;
+=======
+	struct drm_device *dev = adev_to_drm(adev);
+>>>>>>> upstream/android-13
 	struct drm_encoder *encoder;
 
 	list_for_each_entry(encoder, &dev->mode_config.encoder_list, head) {
@@ -1698,7 +1780,11 @@ amdgpu_atombios_encoder_dac_load_detect(struct drm_encoder *encoder,
 				 struct drm_connector *connector)
 {
 	struct drm_device *dev = encoder->dev;
+<<<<<<< HEAD
 	struct amdgpu_device *adev = dev->dev_private;
+=======
+	struct amdgpu_device *adev = drm_to_adev(dev);
+>>>>>>> upstream/android-13
 	struct amdgpu_encoder *amdgpu_encoder = to_amdgpu_encoder(encoder);
 	struct amdgpu_connector *amdgpu_connector = to_amdgpu_connector(connector);
 
@@ -1748,7 +1834,11 @@ amdgpu_atombios_encoder_dac_detect(struct drm_encoder *encoder,
 			    struct drm_connector *connector)
 {
 	struct drm_device *dev = encoder->dev;
+<<<<<<< HEAD
 	struct amdgpu_device *adev = dev->dev_private;
+=======
+	struct amdgpu_device *adev = drm_to_adev(dev);
+>>>>>>> upstream/android-13
 	struct amdgpu_encoder *amdgpu_encoder = to_amdgpu_encoder(encoder);
 	struct amdgpu_connector *amdgpu_connector = to_amdgpu_connector(connector);
 	uint32_t bios_0_scratch;
@@ -1787,7 +1877,11 @@ amdgpu_atombios_encoder_dig_detect(struct drm_encoder *encoder,
 			    struct drm_connector *connector)
 {
 	struct drm_device *dev = encoder->dev;
+<<<<<<< HEAD
 	struct amdgpu_device *adev = dev->dev_private;
+=======
+	struct amdgpu_device *adev = drm_to_adev(dev);
+>>>>>>> upstream/android-13
 	struct amdgpu_encoder *amdgpu_encoder = to_amdgpu_encoder(encoder);
 	struct amdgpu_connector *amdgpu_connector = to_amdgpu_connector(connector);
 	struct drm_encoder *ext_encoder = amdgpu_get_external_encoder(encoder);
@@ -1845,7 +1939,11 @@ amdgpu_atombios_encoder_set_bios_scratch_regs(struct drm_connector *connector,
 				       bool connected)
 {
 	struct drm_device *dev = connector->dev;
+<<<<<<< HEAD
 	struct amdgpu_device *adev = dev->dev_private;
+=======
+	struct amdgpu_device *adev = drm_to_adev(dev);
+>>>>>>> upstream/android-13
 	struct amdgpu_connector *amdgpu_connector =
 	    to_amdgpu_connector(connector);
 	struct amdgpu_encoder *amdgpu_encoder = to_amdgpu_encoder(encoder);
@@ -1996,7 +2094,11 @@ struct amdgpu_encoder_atom_dig *
 amdgpu_atombios_encoder_get_lcd_info(struct amdgpu_encoder *encoder)
 {
 	struct drm_device *dev = encoder->base.dev;
+<<<<<<< HEAD
 	struct amdgpu_device *adev = dev->dev_private;
+=======
+	struct amdgpu_device *adev = drm_to_adev(dev);
+>>>>>>> upstream/android-13
 	struct amdgpu_mode_info *mode_info = &adev->mode_info;
 	int index = GetIndexIntoMasterTable(DATA, LVDS_Info);
 	uint16_t data_offset, misc;

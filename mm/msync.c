@@ -55,9 +55,17 @@ SYSCALL_DEFINE3(msync, unsigned long, start, size_t, len, int, flags)
 		goto out;
 	/*
 	 * If the interval [start,end) covers some unmapped address ranges,
+<<<<<<< HEAD
 	 * just ignore them, but return -ENOMEM at the end.
 	 */
 	down_read(&mm->mmap_sem);
+=======
+	 * just ignore them, but return -ENOMEM at the end. Besides, if the
+	 * flag is MS_ASYNC (w/o MS_INVALIDATE) the result would be -ENOMEM
+	 * anyway and there is nothing left to do, so return immediately.
+	 */
+	mmap_read_lock(mm);
+>>>>>>> upstream/android-13
 	vma = find_vma(mm, start);
 	for (;;) {
 		struct file *file;
@@ -69,6 +77,11 @@ SYSCALL_DEFINE3(msync, unsigned long, start, size_t, len, int, flags)
 			goto out_unlock;
 		/* Here start < vma->vm_end. */
 		if (start < vma->vm_start) {
+<<<<<<< HEAD
+=======
+			if (flags == MS_ASYNC)
+				goto out_unlock;
+>>>>>>> upstream/android-13
 			start = vma->vm_start;
 			if (start >= end)
 				goto out_unlock;
@@ -88,12 +101,20 @@ SYSCALL_DEFINE3(msync, unsigned long, start, size_t, len, int, flags)
 		if ((flags & MS_SYNC) && file &&
 				(vma->vm_flags & VM_SHARED)) {
 			get_file(file);
+<<<<<<< HEAD
 			up_read(&mm->mmap_sem);
+=======
+			mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 			error = vfs_fsync_range(file, fstart, fend, 1);
 			fput(file);
 			if (error || start >= end)
 				goto out;
+<<<<<<< HEAD
 			down_read(&mm->mmap_sem);
+=======
+			mmap_read_lock(mm);
+>>>>>>> upstream/android-13
 			vma = find_vma(mm, start);
 		} else {
 			if (start >= end) {
@@ -104,7 +125,11 @@ SYSCALL_DEFINE3(msync, unsigned long, start, size_t, len, int, flags)
 		}
 	}
 out_unlock:
+<<<<<<< HEAD
 	up_read(&mm->mmap_sem);
+=======
+	mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 out:
 	return error ? : unmapped_error;
 }

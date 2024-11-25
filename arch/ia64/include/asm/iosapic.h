@@ -52,8 +52,11 @@
 
 #ifndef __ASSEMBLY__
 
+<<<<<<< HEAD
 #ifdef CONFIG_IOSAPIC
 
+=======
+>>>>>>> upstream/android-13
 #define NR_IOSAPICS			256
 
 #define iosapic_pcat_compat_init	ia64_native_iosapic_pcat_compat_init
@@ -103,6 +106,7 @@ extern int __init iosapic_register_platform_intr (u32 int_type,
 #ifdef CONFIG_NUMA
 extern void map_iosapic_to_node (unsigned int, int);
 #endif
+<<<<<<< HEAD
 #else
 #define iosapic_system_init(pcat_compat)			do { } while (0)
 #define iosapic_init(address,gsi_base)				(-EINVAL)
@@ -113,6 +117,8 @@ extern void map_iosapic_to_node (unsigned int, int);
 #define iosapic_register_platform_intr(type,gsi,pmi,eid,id, \
 	polarity,trigger)					(gsi)
 #endif
+=======
+>>>>>>> upstream/android-13
 
 # endif /* !__ASSEMBLY__ */
 #endif /* __ASM_IA64_IOSAPIC_H */

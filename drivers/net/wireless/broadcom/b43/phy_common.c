@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 
   Broadcom B43 wireless driver
@@ -9,6 +13,7 @@
   Copyright (c) 2005, 2006 Danny van Dyk <kugelfang@gentoo.org>
   Copyright (c) 2005, 2006 Andreas Jaggi <andreas.jaggi@waterwave.ch>
 
+<<<<<<< HEAD
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 2 of the License, or
@@ -23,6 +28,8 @@
   along with this program; see the file COPYING.  If not, write to
   the Free Software Foundation, Inc., 51 Franklin Steet, Fifth Floor,
   Boston, MA 02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
 
 */
 
@@ -471,7 +478,11 @@ void b43_software_rfkill(struct b43_wldev *dev, bool blocked)
 	b43_mac_enable(dev);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * b43_phy_txpower_adjust_work - TX power workqueue.
  *
  * Workqueue for updating the TX power parameters in hardware.
@@ -572,7 +583,11 @@ bool b43_is_40mhz(struct b43_wldev *dev)
 	return dev->phy.chandef->width == NL80211_CHAN_WIDTH_40;
 }
 
+<<<<<<< HEAD
 /* http://bcm-v4.sipsolutions.net/802.11/PHY/N/BmacPhyClkFgc */
+=======
+/* https://bcm-v4.sipsolutions.net/802.11/PHY/N/BmacPhyClkFgc */
+>>>>>>> upstream/android-13
 void b43_phy_force_clock(struct b43_wldev *dev, bool force)
 {
 	u32 tmp;
@@ -604,6 +619,7 @@ void b43_phy_force_clock(struct b43_wldev *dev, bool force)
 #endif
 	}
 }
+<<<<<<< HEAD
 
 /* http://bcm-v4.sipsolutions.net/802.11/PHY/Cordic */
 struct b43_c32 b43_cordic(int theta)
@@ -651,3 +667,5 @@ struct b43_c32 b43_cordic(int theta)
 
 	return ret;
 }
+=======
+>>>>>>> upstream/android-13

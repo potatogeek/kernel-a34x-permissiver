@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* Parse a signed PE binary
  *
  * Copyright (C) 2014 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public Licence
  * as published by the Free Software Foundation; either version
  * 2 of the Licence, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "PEFILE: "fmt
@@ -100,7 +107,11 @@ static int pefile_parse_binary(const void *pebuf, unsigned int pelen,
 
 	if (!ddir->certs.virtual_address || !ddir->certs.size) {
 		pr_debug("Unsigned PE binary\n");
+<<<<<<< HEAD
 		return -EKEYREJECTED;
+=======
+		return -ENODATA;
+>>>>>>> upstream/android-13
 	}
 
 	chkaddr(ctx->header_size, ddir->certs.virtual_address,
@@ -354,7 +365,10 @@ static int pefile_digest_pe(const void *pebuf, unsigned int pelen,
 		goto error_no_desc;
 
 	desc->tfm   = tfm;
+<<<<<<< HEAD
 	desc->flags = CRYPTO_TFM_REQ_MAY_SLEEP;
+=======
+>>>>>>> upstream/android-13
 	ret = crypto_shash_init(desc);
 	if (ret < 0)
 		goto error;
@@ -381,7 +395,11 @@ static int pefile_digest_pe(const void *pebuf, unsigned int pelen,
 	}
 
 error:
+<<<<<<< HEAD
 	kzfree(desc);
+=======
+	kfree_sensitive(desc);
+>>>>>>> upstream/android-13
 error_no_desc:
 	crypto_free_shash(tfm);
 	kleave(" = %d", ret);
@@ -408,6 +426,11 @@ error_no_desc:
  *  (*) 0 if at least one signature chain intersects with the keys in the trust
  *	keyring, or:
  *
+<<<<<<< HEAD
+=======
+ *  (*) -ENODATA if there is no signature present.
+ *
+>>>>>>> upstream/android-13
  *  (*) -ENOPKG if a suitable crypto module couldn't be found for a check on a
  *	chain.
  *
@@ -450,6 +473,10 @@ int verify_pefile_signature(const void *pebuf, unsigned pelen,
 	ret = pefile_digest_pe(pebuf, pelen, &ctx);
 
 error:
+<<<<<<< HEAD
 	kzfree(ctx.digest);
+=======
+	kfree_sensitive(ctx.digest);
+>>>>>>> upstream/android-13
 	return ret;
 }

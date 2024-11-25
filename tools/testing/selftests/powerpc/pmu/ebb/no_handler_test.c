@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright 2014, Michael Ellerman, IBM Corp.
  * Licensed under GPLv2.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2014, Michael Ellerman, IBM Corp.
+>>>>>>> upstream/android-13
  */
 
 #include <stdio.h>
@@ -50,8 +56,11 @@ static int no_handler_test(void)
 
 	event_close(&event);
 
+<<<<<<< HEAD
 	dump_ebb_state();
 
+=======
+>>>>>>> upstream/android-13
 	/* The real test is that we never took an EBB at 0x0 */
 
 	return 0;

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * stv0367_defs.h
  *
@@ -6,6 +10,7 @@
  * Copyright (C) ST Microelectronics.
  * Copyright (C) 2010,2011 NetUP Inc.
  * Copyright (C) 2010,2011 Igor M. Liplianin <liplianin@netup.ru>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef STV0367_DEFS_H
@@ -1096,7 +1103,11 @@ static const struct st_register def0367dd_ofdm[] = {
 };
 
 static const struct st_register def0367dd_qam[] = {
+<<<<<<< HEAD
 	{R367CAB_CTRL_1,                  0x06}, /* Orginal 0x04 */
+=======
+	{R367CAB_CTRL_1,                  0x06}, /* Original 0x04 */
+>>>>>>> upstream/android-13
 	{R367CAB_CTRL_2,                  0x03},
 	{R367CAB_IT_STATUS1,              0x2b},
 	{R367CAB_IT_STATUS2,              0x08},

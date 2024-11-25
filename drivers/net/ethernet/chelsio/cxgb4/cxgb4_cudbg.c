@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 2017 Chelsio Communications.  All rights reserved.
  *
@@ -13,6 +14,11 @@
  *  The full GNU General Public License is included in this distribution in
  *  the file called "COPYING".
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *  Copyright (C) 2017 Chelsio Communications.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include "t4_regs.h"
@@ -30,6 +36,10 @@ static const struct cxgb4_collect_entity cxgb4_collect_mem_dump[] = {
 
 static const struct cxgb4_collect_entity cxgb4_collect_hw_dump[] = {
 	{ CUDBG_MBOX_LOG, cudbg_collect_mbox_log },
+<<<<<<< HEAD
+=======
+	{ CUDBG_QDESC, cudbg_collect_qdesc },
+>>>>>>> upstream/android-13
 	{ CUDBG_DEV_LOG, cudbg_collect_fw_devlog },
 	{ CUDBG_REG_DUMP, cudbg_collect_reg_dump },
 	{ CUDBG_CIM_LA, cudbg_collect_cim_la },
@@ -77,6 +87,7 @@ static const struct cxgb4_collect_entity cxgb4_collect_hw_dump[] = {
 	{ CUDBG_HMA_INDIRECT, cudbg_collect_hma_indirect },
 };
 
+<<<<<<< HEAD
 static u32 cxgb4_get_entity_length(struct adapter *adap, u32 entity)
 {
 	struct cudbg_tcam tcam_region = { 0 };
@@ -317,6 +328,11 @@ static u32 cxgb4_get_entity_length(struct adapter *adap, u32 entity)
 
 	return len;
 }
+=======
+static const struct cxgb4_collect_entity cxgb4_collect_flash_dump[] = {
+	{ CUDBG_FLASH, cudbg_collect_flash },
+};
+>>>>>>> upstream/android-13
 
 u32 cxgb4_get_dump_length(struct adapter *adap, u32 flag)
 {
@@ -327,17 +343,31 @@ u32 cxgb4_get_dump_length(struct adapter *adap, u32 flag)
 	if (flag & CXGB4_ETH_DUMP_HW) {
 		for (i = 0; i < ARRAY_SIZE(cxgb4_collect_hw_dump); i++) {
 			entity = cxgb4_collect_hw_dump[i].entity;
+<<<<<<< HEAD
 			len += cxgb4_get_entity_length(adap, entity);
+=======
+			len += cudbg_get_entity_length(adap, entity);
+>>>>>>> upstream/android-13
 		}
 	}
 
 	if (flag & CXGB4_ETH_DUMP_MEM) {
 		for (i = 0; i < ARRAY_SIZE(cxgb4_collect_mem_dump); i++) {
 			entity = cxgb4_collect_mem_dump[i].entity;
+<<<<<<< HEAD
 			len += cxgb4_get_entity_length(adap, entity);
 		}
 	}
 
+=======
+			len += cudbg_get_entity_length(adap, entity);
+		}
+	}
+
+	if (flag & CXGB4_ETH_DUMP_FLASH)
+		len += adap->params.sf_size;
+
+>>>>>>> upstream/android-13
 	/* If compression is enabled, a smaller destination buffer is enough */
 	wsize = cudbg_get_workspace_size();
 	if (wsize && len > CUDBG_DUMP_BUFF_SIZE)
@@ -402,8 +432,12 @@ static int cudbg_alloc_compress_buff(struct cudbg_init *pdbg_init)
 
 static void cudbg_free_compress_buff(struct cudbg_init *pdbg_init)
 {
+<<<<<<< HEAD
 	if (pdbg_init->compress_buff)
 		vfree(pdbg_init->compress_buff);
+=======
+	vfree(pdbg_init->compress_buff);
+>>>>>>> upstream/android-13
 }
 
 int cxgb4_cudbg_collect(struct adapter *adap, void *buf, u32 *buf_size,
@@ -476,6 +510,16 @@ int cxgb4_cudbg_collect(struct adapter *adap, void *buf, u32 *buf_size,
 					   buf,
 					   &total_size);
 
+<<<<<<< HEAD
+=======
+	if (flag & CXGB4_ETH_DUMP_FLASH)
+		cxgb4_cudbg_collect_entity(&cudbg_init, &dbg_buff,
+					   cxgb4_collect_flash_dump,
+					   ARRAY_SIZE(cxgb4_collect_flash_dump),
+					   buf,
+					   &total_size);
+
+>>>>>>> upstream/android-13
 	cudbg_free_compress_buff(&cudbg_init);
 	cudbg_hdr->data_len = total_size;
 	if (cudbg_init.compress_type != CUDBG_COMPRESSION_NONE)

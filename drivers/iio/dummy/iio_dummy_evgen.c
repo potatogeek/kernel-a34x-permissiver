@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**
  * Copyright (c) 2011 Jonathan Cameron
  *
@@ -5,6 +6,12 @@
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2011 Jonathan Cameron
+ *
+>>>>>>> upstream/android-13
  * Companion module to the iio simple dummy example driver.
  * The purpose of this is to generate 'fake' event interrupts thus
  * allowing that driver's code to be as close as possible to that of
@@ -30,18 +37,30 @@
 #define IIO_EVENTGEN_NO 10
 
 /**
+<<<<<<< HEAD
+=======
+ * struct iio_dummy_eventgen - event generator specific state
+>>>>>>> upstream/android-13
  * @regs: irq regs we are faking
  * @lock: protect the evgen state
  * @inuse: mask of which irqs are connected
  * @irq_sim: interrupt simulator
  * @base: base of irq range
+<<<<<<< HEAD
+=======
+ * @irq_sim_domain: irq simulator domain
+>>>>>>> upstream/android-13
  */
 struct iio_dummy_eventgen {
 	struct iio_dummy_regs regs[IIO_EVENTGEN_NO];
 	struct mutex lock;
 	bool inuse[IIO_EVENTGEN_NO];
+<<<<<<< HEAD
 	struct irq_sim irq_sim;
 	int base;
+=======
+	struct irq_domain *irq_sim_domain;
+>>>>>>> upstream/android-13
 };
 
 /* We can only ever have one instance of this 'device' */
@@ -55,13 +74,23 @@ static int iio_dummy_evgen_create(void)
 	if (!iio_evgen)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	ret = irq_sim_init(&iio_evgen->irq_sim, IIO_EVENTGEN_NO);
 	if (ret < 0) {
+=======
+	iio_evgen->irq_sim_domain = irq_domain_create_sim(NULL,
+							  IIO_EVENTGEN_NO);
+	if (IS_ERR(iio_evgen->irq_sim_domain)) {
+		ret = PTR_ERR(iio_evgen->irq_sim_domain);
+>>>>>>> upstream/android-13
 		kfree(iio_evgen);
 		return ret;
 	}
 
+<<<<<<< HEAD
 	iio_evgen->base = irq_sim_irqnum(&iio_evgen->irq_sim, 0);
+=======
+>>>>>>> upstream/android-13
 	mutex_init(&iio_evgen->lock);
 
 	return 0;
@@ -83,7 +112,11 @@ int iio_dummy_evgen_get_irq(void)
 	mutex_lock(&iio_evgen->lock);
 	for (i = 0; i < IIO_EVENTGEN_NO; i++) {
 		if (!iio_evgen->inuse[i]) {
+<<<<<<< HEAD
 			ret = irq_sim_irqnum(&iio_evgen->irq_sim, i);
+=======
+			ret = irq_create_mapping(iio_evgen->irq_sim_domain, i);
+>>>>>>> upstream/android-13
 			iio_evgen->inuse[i] = true;
 			break;
 		}
@@ -104,21 +137,40 @@ EXPORT_SYMBOL_GPL(iio_dummy_evgen_get_irq);
  */
 void iio_dummy_evgen_release_irq(int irq)
 {
+<<<<<<< HEAD
 	mutex_lock(&iio_evgen->lock);
 	iio_evgen->inuse[irq - iio_evgen->base] = false;
+=======
+	struct irq_data *irqd = irq_get_irq_data(irq);
+
+	mutex_lock(&iio_evgen->lock);
+	iio_evgen->inuse[irqd_to_hwirq(irqd)] = false;
+	irq_dispose_mapping(irq);
+>>>>>>> upstream/android-13
 	mutex_unlock(&iio_evgen->lock);
 }
 EXPORT_SYMBOL_GPL(iio_dummy_evgen_release_irq);
 
 struct iio_dummy_regs *iio_dummy_evgen_get_regs(int irq)
 {
+<<<<<<< HEAD
 	return &iio_evgen->regs[irq - iio_evgen->base];
+=======
+	struct irq_data *irqd = irq_get_irq_data(irq);
+
+	return &iio_evgen->regs[irqd_to_hwirq(irqd)];
+
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(iio_dummy_evgen_get_regs);
 
 static void iio_dummy_evgen_free(void)
 {
+<<<<<<< HEAD
 	irq_sim_fini(&iio_evgen->irq_sim);
+=======
+	irq_domain_remove_sim(iio_evgen->irq_sim_domain);
+>>>>>>> upstream/android-13
 	kfree(iio_evgen);
 }
 
@@ -134,7 +186,11 @@ static ssize_t iio_evgen_poke(struct device *dev,
 {
 	struct iio_dev_attr *this_attr = to_iio_dev_attr(attr);
 	unsigned long event;
+<<<<<<< HEAD
 	int ret;
+=======
+	int ret, irq;
+>>>>>>> upstream/android-13
 
 	ret = kstrtoul(buf, 10, &event);
 	if (ret)
@@ -143,7 +199,14 @@ static ssize_t iio_evgen_poke(struct device *dev,
 	iio_evgen->regs[this_attr->address].reg_id   = this_attr->address;
 	iio_evgen->regs[this_attr->address].reg_data = event;
 
+<<<<<<< HEAD
 	irq_sim_fire(&iio_evgen->irq_sim, this_attr->address);
+=======
+	irq = irq_find_mapping(iio_evgen->irq_sim_domain, this_attr->address);
+	ret = irq_set_irqchip_state(irq, IRQCHIP_STATE_PENDING, true);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	return len;
 }
@@ -196,7 +259,14 @@ static __init int iio_dummy_evgen_init(void)
 		return ret;
 	device_initialize(&iio_evgen_dev);
 	dev_set_name(&iio_evgen_dev, "iio_evgen");
+<<<<<<< HEAD
 	return device_add(&iio_evgen_dev);
+=======
+	ret = device_add(&iio_evgen_dev);
+	if (ret)
+		put_device(&iio_evgen_dev);
+	return ret;
+>>>>>>> upstream/android-13
 }
 module_init(iio_dummy_evgen_init);
 

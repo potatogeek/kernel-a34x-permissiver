@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
  /*
   * Copyright (c) 1997-2000 LAN Media Corporation (LMC)
   * All rights reserved.  www.lanmedia.com
@@ -14,9 +18,12 @@
   * Ron Crane
   * Alan Cox
   *
+<<<<<<< HEAD
   * This software may be used and distributed according to the terms
   * of the GNU General Public License version 2, incorporated herein by reference.
   *
+=======
+>>>>>>> upstream/android-13
   * Driver for the LanMedia LMC5200, LMC5245, LMC1000, LMC1200 cards.
   *
   * To control link specific options lmcctl is required.
@@ -34,7 +41,10 @@
   * we still have link, and that the timing source is what we expected
   * it to be.  If link is lost, the interface is marked down, and
   * we no longer can transmit.
+<<<<<<< HEAD
   *
+=======
+>>>>>>> upstream/android-13
   */
 
 #include <linux/kernel.h>
@@ -102,13 +112,22 @@ static int lmc_ifdown(struct net_device * const);
 static void lmc_watchdog(struct timer_list *t);
 static void lmc_reset(lmc_softc_t * const sc);
 static void lmc_dec_reset(lmc_softc_t * const sc);
+<<<<<<< HEAD
 static void lmc_driver_timeout(struct net_device *dev);
+=======
+static void lmc_driver_timeout(struct net_device *dev, unsigned int txqueue);
+>>>>>>> upstream/android-13
 
 /*
  * linux reserves 16 device specific IOCTLs.  We call them
  * LMCIOC* to control various bits of our world.
  */
+<<<<<<< HEAD
 int lmc_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd) /*fold00*/
+=======
+static int lmc_siocdevprivate(struct net_device *dev, struct ifreq *ifr,
+			      void __user *data, int cmd) /*fold00*/
+>>>>>>> upstream/android-13
 {
     lmc_softc_t *sc = dev_to_sc(dev);
     lmc_ctl_t ctl;
@@ -116,8 +135,11 @@ int lmc_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd) /*fold00*/
     u16 regVal;
     unsigned long flags;
 
+<<<<<<< HEAD
     lmc_trace(dev, "lmc_ioctl in");
 
+=======
+>>>>>>> upstream/android-13
     /*
      * Most functions mess with the structure
      * Disable interrupts while we do the polling
@@ -129,7 +151,11 @@ int lmc_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd) /*fold00*/
          * To date internally, just copy this out to the user.
          */
     case LMCIOCGINFO: /*fold01*/
+<<<<<<< HEAD
 	if (copy_to_user(ifr->ifr_data, &sc->ictl, sizeof(lmc_ctl_t)))
+=======
+	if (copy_to_user(data, &sc->ictl, sizeof(lmc_ctl_t)))
+>>>>>>> upstream/android-13
 		ret = -EFAULT;
 	else
 		ret = 0;
@@ -146,7 +172,11 @@ int lmc_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd) /*fold00*/
             break;
         }
 
+<<<<<<< HEAD
 	if (copy_from_user(&ctl, ifr->ifr_data, sizeof(lmc_ctl_t))) {
+=======
+	if (copy_from_user(&ctl, data, sizeof(lmc_ctl_t))) {
+>>>>>>> upstream/android-13
 		ret = -EFAULT;
 		break;
 	}
@@ -176,7 +206,11 @@ int lmc_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd) /*fold00*/
 		break;
 	    }
 
+<<<<<<< HEAD
 	    if (copy_from_user(&new_type, ifr->ifr_data, sizeof(u16))) {
+=======
+	    if (copy_from_user(&new_type, data, sizeof(u16))) {
+>>>>>>> upstream/android-13
 		ret = -EFAULT;
 		break;
 	    }
@@ -216,8 +250,12 @@ int lmc_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd) /*fold00*/
 
         sc->lmc_xinfo.Magic1 = 0xDEADBEEF;
 
+<<<<<<< HEAD
         if (copy_to_user(ifr->ifr_data, &sc->lmc_xinfo,
 			 sizeof(struct lmc_xinfo)))
+=======
+	if (copy_to_user(data, &sc->lmc_xinfo, sizeof(struct lmc_xinfo)))
+>>>>>>> upstream/android-13
 		ret = -EFAULT;
 	else
 		ret = 0;
@@ -250,9 +288,15 @@ int lmc_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd) /*fold00*/
 			    regVal & T1FRAMER_SEF_MASK;
 	    }
 	    spin_unlock_irqrestore(&sc->lmc_lock, flags);
+<<<<<<< HEAD
 	    if (copy_to_user(ifr->ifr_data, &sc->lmc_device->stats,
 			     sizeof(sc->lmc_device->stats)) ||
 		copy_to_user(ifr->ifr_data + sizeof(sc->lmc_device->stats),
+=======
+	    if (copy_to_user(data, &sc->lmc_device->stats,
+			     sizeof(sc->lmc_device->stats)) ||
+		copy_to_user(data + sizeof(sc->lmc_device->stats),
+>>>>>>> upstream/android-13
 			     &sc->extra_stats, sizeof(sc->extra_stats)))
 		    ret = -EFAULT;
 	    else
@@ -287,7 +331,11 @@ int lmc_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd) /*fold00*/
             break;
         }
 
+<<<<<<< HEAD
 	if (copy_from_user(&ctl, ifr->ifr_data, sizeof(lmc_ctl_t))) {
+=======
+	if (copy_from_user(&ctl, data, sizeof(lmc_ctl_t))) {
+>>>>>>> upstream/android-13
 		ret = -EFAULT;
 		break;
 	}
@@ -319,11 +367,19 @@ int lmc_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd) /*fold00*/
 
 #ifdef DEBUG
     case LMCIOCDUMPEVENTLOG:
+<<<<<<< HEAD
 	if (copy_to_user(ifr->ifr_data, &lmcEventLogIndex, sizeof(u32))) {
 		ret = -EFAULT;
 		break;
 	}
 	if (copy_to_user(ifr->ifr_data + sizeof(u32), lmcEventLogBuf,
+=======
+	if (copy_to_user(data, &lmcEventLogIndex, sizeof(u32))) {
+		ret = -EFAULT;
+		break;
+	}
+	if (copy_to_user(data + sizeof(u32), lmcEventLogBuf,
+>>>>>>> upstream/android-13
 			 sizeof(lmcEventLogBuf)))
 		ret = -EFAULT;
 	else
@@ -351,16 +407,25 @@ int lmc_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd) /*fold00*/
              */
             netif_stop_queue(dev);
 
+<<<<<<< HEAD
 	    if (copy_from_user(&xc, ifr->ifr_data, sizeof(struct lmc_xilinx_control))) {
+=======
+	    if (copy_from_user(&xc, data, sizeof(struct lmc_xilinx_control))) {
+>>>>>>> upstream/android-13
 		ret = -EFAULT;
 		break;
 	    }
             switch(xc.command){
             case lmc_xilinx_reset: /*fold02*/
                 {
+<<<<<<< HEAD
                     u16 mii;
 		    spin_lock_irqsave(&sc->lmc_lock, flags);
                     mii = lmc_mii_readreg (sc, 0, 16);
+=======
+		    spin_lock_irqsave(&sc->lmc_lock, flags);
+                    lmc_mii_readreg (sc, 0, 16);
+>>>>>>> upstream/android-13
 
                     /*
                      * Make all of them 0 and make input
@@ -429,10 +494,16 @@ int lmc_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd) /*fold00*/
                 break;
             case lmc_xilinx_load_prom: /*fold02*/
                 {
+<<<<<<< HEAD
                     u16 mii;
                     int timeout = 500000;
 		    spin_lock_irqsave(&sc->lmc_lock, flags);
                     mii = lmc_mii_readreg (sc, 0, 16);
+=======
+                    int timeout = 500000;
+		    spin_lock_irqsave(&sc->lmc_lock, flags);
+                    lmc_mii_readreg (sc, 0, 16);
+>>>>>>> upstream/android-13
 
                     /*
                      * Make all of them 0 and make input
@@ -616,6 +687,7 @@ int lmc_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd) /*fold00*/
 
         }
         break;
+<<<<<<< HEAD
     default: /*fold01*/
         /* If we don't know what to do, give the protocol a shot. */
         ret = lmc_proto_ioctl (sc, ifr, cmd);
@@ -624,6 +696,12 @@ int lmc_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd) /*fold00*/
 
     lmc_trace(dev, "lmc_ioctl out");
 
+=======
+    default:
+	break;
+    }
+
+>>>>>>> upstream/android-13
     return ret;
 }
 
@@ -637,8 +715,11 @@ static void lmc_watchdog(struct timer_list *t) /*fold00*/
     u32 ticks;
     unsigned long flags;
 
+<<<<<<< HEAD
     lmc_trace(dev, "lmc_watchdog in");
 
+=======
+>>>>>>> upstream/android-13
     spin_lock_irqsave(&sc->lmc_lock, flags);
 
     if(sc->check != 0xBEAFCAFE){
@@ -785,9 +866,12 @@ kick_timer:
     add_timer (&sc->timer);
 
     spin_unlock_irqrestore(&sc->lmc_lock, flags);
+<<<<<<< HEAD
 
     lmc_trace(dev, "lmc_watchdog out");
 
+=======
+>>>>>>> upstream/android-13
 }
 
 static int lmc_attach(struct net_device *dev, unsigned short encoding,
@@ -802,7 +886,12 @@ static const struct net_device_ops lmc_ops = {
 	.ndo_open       = lmc_open,
 	.ndo_stop       = lmc_close,
 	.ndo_start_xmit = hdlc_start_xmit,
+<<<<<<< HEAD
 	.ndo_do_ioctl   = lmc_ioctl,
+=======
+	.ndo_siocwandev = hdlc_ioctl,
+	.ndo_siocdevprivate = lmc_siocdevprivate,
+>>>>>>> upstream/android-13
 	.ndo_tx_timeout = lmc_driver_timeout,
 	.ndo_get_stats  = lmc_get_stats,
 };
@@ -816,8 +905,11 @@ static int lmc_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 	int err;
 	static int cards_found;
 
+<<<<<<< HEAD
 	/* lmc_trace(dev, "lmc_init_one in"); */
 
+=======
+>>>>>>> upstream/android-13
 	err = pcim_enable_device(pdev);
 	if (err) {
 		printk(KERN_ERR "lmc: pci enable failed: %d\n", err);
@@ -870,7 +962,11 @@ static int lmc_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 	spin_lock_init(&sc->lmc_lock);
 	pci_set_master(pdev);
 
+<<<<<<< HEAD
 	printk(KERN_INFO "%s: detected at %lx, irq %d\n", dev->name,
+=======
+	printk(KERN_INFO "hdlc: detected at %lx, irq %d\n",
+>>>>>>> upstream/android-13
 	       dev->base_addr, dev->irq);
 
 	err = register_hdlc_device(dev);
@@ -960,7 +1056,10 @@ static int lmc_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
     sc->lmc_ok = 0;
     sc->last_link_status = 0;
 
+<<<<<<< HEAD
     lmc_trace(dev, "lmc_init_one out");
+=======
+>>>>>>> upstream/android-13
     return 0;
 }
 
@@ -986,8 +1085,11 @@ static int lmc_open(struct net_device *dev)
     lmc_softc_t *sc = dev_to_sc(dev);
     int err;
 
+<<<<<<< HEAD
     lmc_trace(dev, "lmc_open in");
 
+=======
+>>>>>>> upstream/android-13
     lmc_led_on(sc, LMC_DS3_LED0);
 
     lmc_dec_reset(sc);
@@ -997,17 +1099,25 @@ static int lmc_open(struct net_device *dev)
     LMC_EVENT_LOG(LMC_EVENT_RESET2, lmc_mii_readreg(sc, 0, 16),
 		  lmc_mii_readreg(sc, 0, 17));
 
+<<<<<<< HEAD
     if (sc->lmc_ok){
         lmc_trace(dev, "lmc_open lmc_ok out");
         return 0;
     }
+=======
+    if (sc->lmc_ok)
+        return 0;
+>>>>>>> upstream/android-13
 
     lmc_softreset (sc);
 
     /* Since we have to use PCI bus, this should work on x86,alpha,ppc */
     if (request_irq (dev->irq, lmc_interrupt, IRQF_SHARED, dev->name, dev)){
         printk(KERN_WARNING "%s: could not get irq: %d\n", dev->name, dev->irq);
+<<<<<<< HEAD
         lmc_trace(dev, "lmc_open irq failed out");
+=======
+>>>>>>> upstream/android-13
         return -EAGAIN;
     }
     sc->got_irq = 1;
@@ -1083,8 +1193,11 @@ static int lmc_open(struct net_device *dev)
     sc->timer.expires = jiffies + HZ;
     add_timer (&sc->timer);
 
+<<<<<<< HEAD
     lmc_trace(dev, "lmc_open out");
 
+=======
+>>>>>>> upstream/android-13
     return 0;
 }
 
@@ -1096,8 +1209,11 @@ static void lmc_running_reset (struct net_device *dev) /*fold00*/
 {
     lmc_softc_t *sc = dev_to_sc(dev);
 
+<<<<<<< HEAD
     lmc_trace(dev, "lmc_running_reset in");
 
+=======
+>>>>>>> upstream/android-13
     /* stop interrupts */
     /* Clear the interrupt mask */
     LMC_CSR_WRITE (sc, csr_intr, 0x00000000);
@@ -1119,8 +1235,11 @@ static void lmc_running_reset (struct net_device *dev) /*fold00*/
 
     sc->lmc_cmdmode |= (TULIP_CMD_TXRUN | TULIP_CMD_RXRUN);
     LMC_CSR_WRITE (sc, csr_command, sc->lmc_cmdmode);
+<<<<<<< HEAD
 
     lmc_trace(dev, "lmc_runnin_reset_out");
+=======
+>>>>>>> upstream/android-13
 }
 
 
@@ -1133,16 +1252,22 @@ static int lmc_close(struct net_device *dev)
     /* not calling release_region() as we should */
     lmc_softc_t *sc = dev_to_sc(dev);
 
+<<<<<<< HEAD
     lmc_trace(dev, "lmc_close in");
 
+=======
+>>>>>>> upstream/android-13
     sc->lmc_ok = 0;
     sc->lmc_media->set_link_status (sc, 0);
     del_timer (&sc->timer);
     lmc_proto_close(sc);
     lmc_ifdown (dev);
 
+<<<<<<< HEAD
     lmc_trace(dev, "lmc_close out");
 
+=======
+>>>>>>> upstream/android-13
     return 0;
 }
 
@@ -1154,8 +1279,11 @@ static int lmc_ifdown (struct net_device *dev) /*fold00*/
     u32 csr6;
     int i;
 
+<<<<<<< HEAD
     lmc_trace(dev, "lmc_ifdown in");
 
+=======
+>>>>>>> upstream/android-13
     /* Don't let anything else go on right now */
     //    dev->start = 0;
     netif_stop_queue(dev);
@@ -1205,8 +1333,11 @@ static int lmc_ifdown (struct net_device *dev) /*fold00*/
     netif_wake_queue(dev);
     sc->extra_stats.tx_tbusy0++;
 
+<<<<<<< HEAD
     lmc_trace(dev, "lmc_ifdown out");
 
+=======
+>>>>>>> upstream/android-13
     return 0;
 }
 
@@ -1221,12 +1352,18 @@ static irqreturn_t lmc_interrupt (int irq, void *dev_instance) /*fold00*/
     int i;
     s32 stat;
     unsigned int badtx;
+<<<<<<< HEAD
     u32 firstcsr;
     int max_work = LMC_RXDESCS;
     int handled = 0;
 
     lmc_trace(dev, "lmc_interrupt in");
 
+=======
+    int max_work = LMC_RXDESCS;
+    int handled = 0;
+
+>>>>>>> upstream/android-13
     spin_lock(&sc->lmc_lock);
 
     /*
@@ -1241,8 +1378,11 @@ static irqreturn_t lmc_interrupt (int irq, void *dev_instance) /*fold00*/
         goto lmc_int_fail_out;
     }
 
+<<<<<<< HEAD
     firstcsr = csr;
 
+=======
+>>>>>>> upstream/android-13
     /* always go through this loop at least once */
     while (csr & sc->lmc_intrmask) {
 	handled = 1;
@@ -1269,12 +1409,19 @@ static irqreturn_t lmc_interrupt (int irq, void *dev_instance) /*fold00*/
             lmc_running_reset (dev);
             break;
         }
+<<<<<<< HEAD
         
         if (csr & TULIP_STS_RXINTR){
             lmc_trace(dev, "rx interrupt");
             lmc_rx (dev);
             
         }
+=======
+
+        if (csr & TULIP_STS_RXINTR)
+            lmc_rx (dev);
+
+>>>>>>> upstream/android-13
         if (csr & (TULIP_STS_TXINTR | TULIP_STS_TXNOBUF | TULIP_STS_TXSTOPPED)) {
 
 	    int		n_compl = 0 ;
@@ -1322,8 +1469,12 @@ static irqreturn_t lmc_interrupt (int irq, void *dev_instance) /*fold00*/
 			sc->lmc_device->stats.tx_packets++;
                 }
 
+<<<<<<< HEAD
                 //                dev_kfree_skb(sc->lmc_txq[i]);
                 dev_kfree_skb_irq(sc->lmc_txq[i]);
+=======
+		dev_consume_skb_irq(sc->lmc_txq[i]);
+>>>>>>> upstream/android-13
                 sc->lmc_txq[i] = NULL;
 
                 badtx++;
@@ -1395,7 +1546,10 @@ lmc_int_fail_out:
 
     spin_unlock(&sc->lmc_lock);
 
+<<<<<<< HEAD
     lmc_trace(dev, "lmc_interrupt out");
+=======
+>>>>>>> upstream/android-13
     return IRQ_RETVAL(handled);
 }
 
@@ -1407,8 +1561,11 @@ static netdev_tx_t lmc_start_xmit(struct sk_buff *skb,
     int entry;
     unsigned long flags;
 
+<<<<<<< HEAD
     lmc_trace(dev, "lmc_start_xmit in");
 
+=======
+>>>>>>> upstream/android-13
     spin_lock_irqsave(&sc->lmc_lock, flags);
 
     /* normal path, tbusy known to be zero */
@@ -1483,7 +1640,10 @@ static netdev_tx_t lmc_start_xmit(struct sk_buff *skb,
 
     spin_unlock_irqrestore(&sc->lmc_lock, flags);
 
+<<<<<<< HEAD
     lmc_trace(dev, "lmc_start_xmit_out");
+=======
+>>>>>>> upstream/android-13
     return NETDEV_TX_OK;
 }
 
@@ -1499,8 +1659,11 @@ static int lmc_rx(struct net_device *dev)
     struct sk_buff *skb, *nsb;
     u16 len;
 
+<<<<<<< HEAD
     lmc_trace(dev, "lmc_rx in");
 
+=======
+>>>>>>> upstream/android-13
     lmc_led_on(sc, LMC_DS3_LED3);
 
     rxIntLoopCnt = 0;		/* debug -baz */
@@ -1679,9 +1842,12 @@ static int lmc_rx(struct net_device *dev)
     lmc_led_off(sc, LMC_DS3_LED3);
 
 skip_out_of_mem:
+<<<<<<< HEAD
 
     lmc_trace(dev, "lmc_rx out");
 
+=======
+>>>>>>> upstream/android-13
     return 0;
 }
 
@@ -1690,16 +1856,22 @@ static struct net_device_stats *lmc_get_stats(struct net_device *dev)
     lmc_softc_t *sc = dev_to_sc(dev);
     unsigned long flags;
 
+<<<<<<< HEAD
     lmc_trace(dev, "lmc_get_stats in");
 
+=======
+>>>>>>> upstream/android-13
     spin_lock_irqsave(&sc->lmc_lock, flags);
 
     sc->lmc_device->stats.rx_missed_errors += LMC_CSR_READ(sc, csr_missed_frames) & 0xffff;
 
     spin_unlock_irqrestore(&sc->lmc_lock, flags);
 
+<<<<<<< HEAD
     lmc_trace(dev, "lmc_get_stats out");
 
+=======
+>>>>>>> upstream/android-13
     return &sc->lmc_device->stats;
 }
 
@@ -1718,12 +1890,17 @@ unsigned lmc_mii_readreg (lmc_softc_t * const sc, unsigned devaddr, unsigned reg
     int command = (0xf6 << 10) | (devaddr << 5) | regno;
     int retval = 0;
 
+<<<<<<< HEAD
     lmc_trace(sc->lmc_device, "lmc_mii_readreg in");
 
     LMC_MII_SYNC (sc);
 
     lmc_trace(sc->lmc_device, "lmc_mii_readreg: done sync");
 
+=======
+    LMC_MII_SYNC (sc);
+
+>>>>>>> upstream/android-13
     for (i = 15; i >= 0; i--)
     {
         int dataval = (command & (1 << i)) ? 0x20000 : 0;
@@ -1736,8 +1913,11 @@ unsigned lmc_mii_readreg (lmc_softc_t * const sc, unsigned devaddr, unsigned reg
         /* __SLOW_DOWN_IO; */
     }
 
+<<<<<<< HEAD
     lmc_trace(sc->lmc_device, "lmc_mii_readreg: done1");
 
+=======
+>>>>>>> upstream/android-13
     for (i = 19; i > 0; i--)
     {
         LMC_CSR_WRITE (sc, csr_9, 0x40000);
@@ -1749,8 +1929,11 @@ unsigned lmc_mii_readreg (lmc_softc_t * const sc, unsigned devaddr, unsigned reg
         /* __SLOW_DOWN_IO; */
     }
 
+<<<<<<< HEAD
     lmc_trace(sc->lmc_device, "lmc_mii_readreg out");
 
+=======
+>>>>>>> upstream/android-13
     return (retval >> 1) & 0xffff;
 }
 
@@ -1759,8 +1942,11 @@ void lmc_mii_writereg (lmc_softc_t * const sc, unsigned devaddr, unsigned regno,
     int i = 32;
     int command = (0x5002 << 16) | (devaddr << 23) | (regno << 18) | data;
 
+<<<<<<< HEAD
     lmc_trace(sc->lmc_device, "lmc_mii_writereg in");
 
+=======
+>>>>>>> upstream/android-13
     LMC_MII_SYNC (sc);
 
     i = 31;
@@ -1793,16 +1979,22 @@ void lmc_mii_writereg (lmc_softc_t * const sc, unsigned devaddr, unsigned regno,
         /* __SLOW_DOWN_IO; */
         i--;
     }
+<<<<<<< HEAD
 
     lmc_trace(sc->lmc_device, "lmc_mii_writereg out");
+=======
+>>>>>>> upstream/android-13
 }
 
 static void lmc_softreset (lmc_softc_t * const sc) /*fold00*/
 {
     int i;
 
+<<<<<<< HEAD
     lmc_trace(sc->lmc_device, "lmc_softreset in");
 
+=======
+>>>>>>> upstream/android-13
     /* Initialize the receive rings and buffers. */
     sc->lmc_txfull = 0;
     sc->lmc_next_rx = 0;
@@ -1877,28 +2069,42 @@ static void lmc_softreset (lmc_softc_t * const sc) /*fold00*/
     }
     sc->lmc_txring[i - 1].buffer2 = virt_to_bus (&sc->lmc_txring[0]);
     LMC_CSR_WRITE (sc, csr_txlist, virt_to_bus (sc->lmc_txring));
+<<<<<<< HEAD
 
     lmc_trace(sc->lmc_device, "lmc_softreset out");
+=======
+>>>>>>> upstream/android-13
 }
 
 void lmc_gpio_mkinput(lmc_softc_t * const sc, u32 bits) /*fold00*/
 {
+<<<<<<< HEAD
     lmc_trace(sc->lmc_device, "lmc_gpio_mkinput in");
     sc->lmc_gpio_io &= ~bits;
     LMC_CSR_WRITE(sc, csr_gp, TULIP_GP_PINSET | (sc->lmc_gpio_io));
     lmc_trace(sc->lmc_device, "lmc_gpio_mkinput out");
+=======
+    sc->lmc_gpio_io &= ~bits;
+    LMC_CSR_WRITE(sc, csr_gp, TULIP_GP_PINSET | (sc->lmc_gpio_io));
+>>>>>>> upstream/android-13
 }
 
 void lmc_gpio_mkoutput(lmc_softc_t * const sc, u32 bits) /*fold00*/
 {
+<<<<<<< HEAD
     lmc_trace(sc->lmc_device, "lmc_gpio_mkoutput in");
     sc->lmc_gpio_io |= bits;
     LMC_CSR_WRITE(sc, csr_gp, TULIP_GP_PINSET | (sc->lmc_gpio_io));
     lmc_trace(sc->lmc_device, "lmc_gpio_mkoutput out");
+=======
+    sc->lmc_gpio_io |= bits;
+    LMC_CSR_WRITE(sc, csr_gp, TULIP_GP_PINSET | (sc->lmc_gpio_io));
+>>>>>>> upstream/android-13
 }
 
 void lmc_led_on(lmc_softc_t * const sc, u32 led) /*fold00*/
 {
+<<<<<<< HEAD
     lmc_trace(sc->lmc_device, "lmc_led_on in");
     if((~sc->lmc_miireg16) & led){ /* Already on! */
         lmc_trace(sc->lmc_device, "lmc_led_on aon out");
@@ -1908,10 +2114,18 @@ void lmc_led_on(lmc_softc_t * const sc, u32 led) /*fold00*/
     sc->lmc_miireg16 &= ~led;
     lmc_mii_writereg(sc, 0, 16, sc->lmc_miireg16);
     lmc_trace(sc->lmc_device, "lmc_led_on out");
+=======
+    if ((~sc->lmc_miireg16) & led) /* Already on! */
+        return;
+
+    sc->lmc_miireg16 &= ~led;
+    lmc_mii_writereg(sc, 0, 16, sc->lmc_miireg16);
+>>>>>>> upstream/android-13
 }
 
 void lmc_led_off(lmc_softc_t * const sc, u32 led) /*fold00*/
 {
+<<<<<<< HEAD
     lmc_trace(sc->lmc_device, "lmc_led_off in");
     if(sc->lmc_miireg16 & led){ /* Already set don't do anything */
         lmc_trace(sc->lmc_device, "lmc_led_off aoff out");
@@ -1921,11 +2135,21 @@ void lmc_led_off(lmc_softc_t * const sc, u32 led) /*fold00*/
     sc->lmc_miireg16 |= led;
     lmc_mii_writereg(sc, 0, 16, sc->lmc_miireg16);
     lmc_trace(sc->lmc_device, "lmc_led_off out");
+=======
+    if (sc->lmc_miireg16 & led) /* Already set don't do anything */
+        return;
+
+    sc->lmc_miireg16 |= led;
+    lmc_mii_writereg(sc, 0, 16, sc->lmc_miireg16);
+>>>>>>> upstream/android-13
 }
 
 static void lmc_reset(lmc_softc_t * const sc) /*fold00*/
 {
+<<<<<<< HEAD
     lmc_trace(sc->lmc_device, "lmc_reset in");
+=======
+>>>>>>> upstream/android-13
     sc->lmc_miireg16 |= LMC_MII16_FIFO_RESET;
     lmc_mii_writereg(sc, 0, 16, sc->lmc_miireg16);
 
@@ -1961,13 +2185,19 @@ static void lmc_reset(lmc_softc_t * const sc) /*fold00*/
     sc->lmc_media->init(sc);
 
     sc->extra_stats.resetCount++;
+<<<<<<< HEAD
     lmc_trace(sc->lmc_device, "lmc_reset out");
+=======
+>>>>>>> upstream/android-13
 }
 
 static void lmc_dec_reset(lmc_softc_t * const sc) /*fold00*/
 {
     u32 val;
+<<<<<<< HEAD
     lmc_trace(sc->lmc_device, "lmc_dec_reset in");
+=======
+>>>>>>> upstream/android-13
 
     /*
      * disable all interrupts
@@ -2023,14 +2253,20 @@ static void lmc_dec_reset(lmc_softc_t * const sc) /*fold00*/
     val = LMC_CSR_READ(sc, csr_sia_general);
     val |= (TULIP_WATCHDOG_TXDISABLE | TULIP_WATCHDOG_RXDISABLE);
     LMC_CSR_WRITE(sc, csr_sia_general, val);
+<<<<<<< HEAD
 
     lmc_trace(sc->lmc_device, "lmc_dec_reset out");
+=======
+>>>>>>> upstream/android-13
 }
 
 static void lmc_initcsrs(lmc_softc_t * const sc, lmc_csrptr_t csr_base, /*fold00*/
                          size_t csr_size)
 {
+<<<<<<< HEAD
     lmc_trace(sc->lmc_device, "lmc_initcsrs in");
+=======
+>>>>>>> upstream/android-13
     sc->lmc_csrs.csr_busmode	        = csr_base +  0 * csr_size;
     sc->lmc_csrs.csr_txpoll		= csr_base +  1 * csr_size;
     sc->lmc_csrs.csr_rxpoll		= csr_base +  2 * csr_size;
@@ -2047,17 +2283,26 @@ static void lmc_initcsrs(lmc_softc_t * const sc, lmc_csrptr_t csr_base, /*fold00
     sc->lmc_csrs.csr_13		        = csr_base + 13 * csr_size;
     sc->lmc_csrs.csr_14		        = csr_base + 14 * csr_size;
     sc->lmc_csrs.csr_15		        = csr_base + 15 * csr_size;
+<<<<<<< HEAD
     lmc_trace(sc->lmc_device, "lmc_initcsrs out");
 }
 
 static void lmc_driver_timeout(struct net_device *dev)
+=======
+}
+
+static void lmc_driver_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
     lmc_softc_t *sc = dev_to_sc(dev);
     u32 csr6;
     unsigned long flags;
 
+<<<<<<< HEAD
     lmc_trace(dev, "lmc_driver_timeout in");
 
+=======
+>>>>>>> upstream/android-13
     spin_lock_irqsave(&sc->lmc_lock, flags);
 
     printk("%s: Xmitter busy|\n", dev->name);
@@ -2069,7 +2314,11 @@ static void lmc_driver_timeout(struct net_device *dev)
     /*
      * Chip seems to have locked up
      * Reset it
+<<<<<<< HEAD
      * This whips out all our decriptor
+=======
+     * This whips out all our descriptor
+>>>>>>> upstream/android-13
      * table and starts from scartch
      */
 
@@ -2100,8 +2349,11 @@ static void lmc_driver_timeout(struct net_device *dev)
 bug_out:
 
     spin_unlock_irqrestore(&sc->lmc_lock, flags);
+<<<<<<< HEAD
 
     lmc_trace(dev, "lmc_driver_timeout out");
 
 
+=======
+>>>>>>> upstream/android-13
 }

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *
  *  Support for a cx23417 mpeg encoder via cx23885 host port.
@@ -8,6 +12,7 @@
  *      - CX23885/7/8 support
  *
  *  Includes parts from the ivtv driver <http://sourceforge.net/projects/ivtv/>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "cx23885.h"
@@ -1280,7 +1287,11 @@ static int vidioc_g_tuner(struct file *file, void *priv,
 		return -EINVAL;
 	if (0 != t->index)
 		return -EINVAL;
+<<<<<<< HEAD
 	strcpy(t->name, "Television");
+=======
+	strscpy(t->name, "Television", sizeof(t->name));
+>>>>>>> upstream/android-13
 	call_all(dev, tuner, g_tuner, t);
 
 	dprintk(1, "VIDIOC_G_TUNER: tuner type %d\n", t->type);
@@ -1329,6 +1340,7 @@ static int vidioc_querycap(struct file *file, void  *priv,
 	struct cx23885_dev *dev = video_drvdata(file);
 	struct cx23885_tsport  *tsport = &dev->ts1;
 
+<<<<<<< HEAD
 	strlcpy(cap->driver, dev->name, sizeof(cap->driver));
 	strlcpy(cap->card, cx23885_boards[tsport->dev->board].name,
 		sizeof(cap->card));
@@ -1339,6 +1351,17 @@ static int vidioc_querycap(struct file *file, void  *priv,
 		cap->device_caps |= V4L2_CAP_TUNER;
 	cap->capabilities = cap->device_caps | V4L2_CAP_VBI_CAPTURE |
 		V4L2_CAP_AUDIO | V4L2_CAP_DEVICE_CAPS;
+=======
+	strscpy(cap->driver, dev->name, sizeof(cap->driver));
+	strscpy(cap->card, cx23885_boards[tsport->dev->board].name,
+		sizeof(cap->card));
+	sprintf(cap->bus_info, "PCIe:%s", pci_name(dev->pci));
+	cap->capabilities = V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_READWRITE |
+			    V4L2_CAP_STREAMING | V4L2_CAP_VBI_CAPTURE |
+			    V4L2_CAP_AUDIO | V4L2_CAP_DEVICE_CAPS;
+	if (dev->tuner_type != TUNER_ABSENT)
+		cap->capabilities |= V4L2_CAP_TUNER;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1349,7 +1372,10 @@ static int vidioc_enum_fmt_vid_cap(struct file *file, void  *priv,
 	if (f->index != 0)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	strlcpy(f->description, "MPEG", sizeof(f->description));
+=======
+>>>>>>> upstream/android-13
 	f->pixelformat = V4L2_PIX_FMT_MPEG;
 
 	return 0;
@@ -1551,8 +1577,17 @@ int cx23885_417_register(struct cx23885_dev *dev)
 	video_set_drvdata(dev->v4l_device, dev);
 	dev->v4l_device->lock = &dev->lock;
 	dev->v4l_device->queue = q;
+<<<<<<< HEAD
 	err = video_register_device(dev->v4l_device,
 		VFL_TYPE_GRABBER, -1);
+=======
+	dev->v4l_device->device_caps = V4L2_CAP_VIDEO_CAPTURE |
+				       V4L2_CAP_READWRITE | V4L2_CAP_STREAMING;
+	if (dev->tuner_type != TUNER_ABSENT)
+		dev->v4l_device->device_caps |= V4L2_CAP_TUNER;
+	err = video_register_device(dev->v4l_device,
+		VFL_TYPE_VIDEO, -1);
+>>>>>>> upstream/android-13
 	if (err < 0) {
 		pr_info("%s: can't register mpeg device\n", dev->name);
 		return err;
@@ -1561,7 +1596,11 @@ int cx23885_417_register(struct cx23885_dev *dev)
 	pr_info("%s: registered device %s [mpeg]\n",
 	       dev->name, video_device_node_name(dev->v4l_device));
 
+<<<<<<< HEAD
 	/* ST: Configure the encoder paramaters, but don't begin
+=======
+	/* ST: Configure the encoder parameters, but don't begin
+>>>>>>> upstream/android-13
 	 * encoding, this resolves an issue where the first time the
 	 * encoder is started video can be choppy.
 	 */

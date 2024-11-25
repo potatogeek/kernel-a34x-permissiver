@@ -1,11 +1,17 @@
+<<<<<<< HEAD
 /* -*- mode: c; c-basic-offset: 8; -*-
  * vim: noexpandtab sw=8 ts=8 sts=0:
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+>>>>>>> upstream/android-13
  * tcp.h
  *
  * Function prototypes
  *
  * Copyright (C) 2004 Oracle.  All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -22,6 +28,8 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 021110-1307, USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef O2CLUSTER_TCP_H
@@ -47,7 +55,11 @@ struct o2net_msg
 	__be32 status;
 	__be32 key;
 	__be32 msg_num;
+<<<<<<< HEAD
 	__u8  buf[0];
+=======
+	__u8  buf[];
+>>>>>>> upstream/android-13
 };
 
 typedef int (o2net_msg_handler_func)(struct o2net_msg *msg, u32 len, void *data,
@@ -124,16 +136,25 @@ struct o2net_send_tracking;
 struct o2net_sock_container;
 
 #ifdef CONFIG_DEBUG_FS
+<<<<<<< HEAD
 int o2net_debugfs_init(void);
+=======
+void o2net_debugfs_init(void);
+>>>>>>> upstream/android-13
 void o2net_debugfs_exit(void);
 void o2net_debug_add_nst(struct o2net_send_tracking *nst);
 void o2net_debug_del_nst(struct o2net_send_tracking *nst);
 void o2net_debug_add_sc(struct o2net_sock_container *sc);
 void o2net_debug_del_sc(struct o2net_sock_container *sc);
 #else
+<<<<<<< HEAD
 static inline int o2net_debugfs_init(void)
 {
 	return 0;
+=======
+static inline void o2net_debugfs_init(void)
+{
+>>>>>>> upstream/android-13
 }
 static inline void o2net_debugfs_exit(void)
 {

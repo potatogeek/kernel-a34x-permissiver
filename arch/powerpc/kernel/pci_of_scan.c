@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Helper routines to scan the device tree for PCI devices and busses
  *
@@ -8,10 +12,13 @@
  * Copyright (C) 2003 Anton Blanchard <anton@au.ibm.com>, IBM
  *   Rework, based on alpha PCI code.
  * Copyright (c) 2009 Secret Lab Technologies Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/pci.h>
@@ -37,6 +44,7 @@ static u32 get_int_prop(struct device_node *np, const char *name, u32 def)
  * pci_parse_of_flags - Parse the flags cell of a device tree PCI address
  * @addr0: value of 1st cell of a device tree PCI address.
  * @bridge: Set this flag if the address is from a bridge 'ranges' property
+<<<<<<< HEAD
  */
 unsigned int pci_parse_of_flags(u32 addr0, int bridge)
 {
@@ -51,17 +59,86 @@ unsigned int pci_parse_of_flags(u32 addr0, int bridge)
 		if (addr0 & 0x40000000)
 			flags |= IORESOURCE_PREFETCH
 				 | PCI_BASE_ADDRESS_MEM_PREFETCH;
+=======
+ *
+ * PCI Bus Binding to IEEE Std 1275-1994
+ *
+ * Bit#            33222222 22221111 11111100 00000000
+ *                 10987654 32109876 54321098 76543210
+ * phys.hi cell:   npt000ss bbbbbbbb dddddfff rrrrrrrr
+ * phys.mid cell:  hhhhhhhh hhhhhhhh hhhhhhhh hhhhhhhh
+ * phys.lo cell:   llllllll llllllll llllllll llllllll
+ *
+ * where:
+ * n        is 0 if the address is relocatable, 1 otherwise
+ * p        is 1 if the addressable region is "prefetchable", 0 otherwise
+ * t        is 1 if the address is aliased (for non-relocatable I/O),
+ *          below 1 MB (for Memory),or below 64 KB (for relocatable I/O).
+ * ss       is the space code, denoting the address space:
+ *              00 denotes Configuration Space
+ *              01 denotes I/O Space
+ *              10 denotes 32-bit-address Memory Space
+ *              11 denotes 64-bit-address Memory Space
+ * bbbbbbbb is the 8-bit Bus Number
+ * ddddd    is the 5-bit Device Number
+ * fff      is the 3-bit Function Number
+ * rrrrrrrr is the 8-bit Register Number
+ */
+#define OF_PCI_ADDR0_SPACE(ss)		(((ss)&3)<<24)
+#define OF_PCI_ADDR0_SPACE_CFG		OF_PCI_ADDR0_SPACE(0)
+#define OF_PCI_ADDR0_SPACE_IO		OF_PCI_ADDR0_SPACE(1)
+#define OF_PCI_ADDR0_SPACE_MMIO32	OF_PCI_ADDR0_SPACE(2)
+#define OF_PCI_ADDR0_SPACE_MMIO64	OF_PCI_ADDR0_SPACE(3)
+#define OF_PCI_ADDR0_SPACE_MASK		OF_PCI_ADDR0_SPACE(3)
+#define OF_PCI_ADDR0_RELOC		(1UL<<31)
+#define OF_PCI_ADDR0_PREFETCH		(1UL<<30)
+#define OF_PCI_ADDR0_ALIAS		(1UL<<29)
+#define OF_PCI_ADDR0_BUS		0x00FF0000UL
+#define OF_PCI_ADDR0_DEV		0x0000F800UL
+#define OF_PCI_ADDR0_FN			0x00000700UL
+#define OF_PCI_ADDR0_BARREG		0x000000FFUL
+
+unsigned int pci_parse_of_flags(u32 addr0, int bridge)
+{
+	unsigned int flags = 0, as = addr0 & OF_PCI_ADDR0_SPACE_MASK;
+
+	if (as == OF_PCI_ADDR0_SPACE_MMIO32 || as == OF_PCI_ADDR0_SPACE_MMIO64) {
+		flags = IORESOURCE_MEM | PCI_BASE_ADDRESS_SPACE_MEMORY;
+
+		if (as == OF_PCI_ADDR0_SPACE_MMIO64)
+			flags |= PCI_BASE_ADDRESS_MEM_TYPE_64 | IORESOURCE_MEM_64;
+
+		if (addr0 & OF_PCI_ADDR0_ALIAS)
+			flags |= PCI_BASE_ADDRESS_MEM_TYPE_1M;
+
+		if (addr0 & OF_PCI_ADDR0_PREFETCH)
+			flags |= IORESOURCE_PREFETCH |
+				 PCI_BASE_ADDRESS_MEM_PREFETCH;
+
+>>>>>>> upstream/android-13
 		/* Note: We don't know whether the ROM has been left enabled
 		 * by the firmware or not. We mark it as disabled (ie, we do
 		 * not set the IORESOURCE_ROM_ENABLE flag) for now rather than
 		 * do a config space read, it will be force-enabled if needed
 		 */
+<<<<<<< HEAD
 		if (!bridge && (addr0 & 0xff) == 0x30)
 			flags |= IORESOURCE_READONLY;
 	} else if (addr0 & 0x01000000)
 		flags = IORESOURCE_IO | PCI_BASE_ADDRESS_SPACE_IO;
 	if (flags)
 		flags |= IORESOURCE_SIZEALIGN;
+=======
+		if (!bridge && (addr0 & OF_PCI_ADDR0_BARREG) == PCI_ROM_ADDRESS)
+			flags |= IORESOURCE_READONLY;
+
+	} else if (as == OF_PCI_ADDR0_SPACE_IO)
+		flags = IORESOURCE_IO | PCI_BASE_ADDRESS_SPACE_IO;
+
+	if (flags)
+		flags |= IORESOURCE_SIZEALIGN;
+
+>>>>>>> upstream/android-13
 	return flags;
 }
 
@@ -135,16 +212,25 @@ struct pci_dev *of_create_pci_dev(struct device_node *node,
 				 struct pci_bus *bus, int devfn)
 {
 	struct pci_dev *dev;
+<<<<<<< HEAD
 	const char *type;
+=======
+>>>>>>> upstream/android-13
 
 	dev = pci_alloc_dev(bus);
 	if (!dev)
 		return NULL;
+<<<<<<< HEAD
 	type = of_get_property(node, "device_type", NULL);
 	if (type == NULL)
 		type = "";
 
 	pr_debug("    create device, devfn: %x, type: %s\n", devfn, type);
+=======
+
+	pr_debug("    create device, devfn: %x, type: %s\n", devfn,
+		 of_node_get_device_type(node));
+>>>>>>> upstream/android-13
 
 	dev->dev.of_node = of_node_get(node);
 	dev->dev.parent = bus->bridge;
@@ -177,12 +263,20 @@ struct pci_dev *of_create_pci_dev(struct device_node *node,
 	/* Early fixups, before probing the BARs */
 	pci_fixup_device(pci_fixup_early, dev);
 
+<<<<<<< HEAD
 	if (!strcmp(type, "pci") || !strcmp(type, "pciex")) {
+=======
+	if (of_node_is_type(node, "pci") || of_node_is_type(node, "pciex")) {
+>>>>>>> upstream/android-13
 		/* a PCI-PCI bridge */
 		dev->hdr_type = PCI_HEADER_TYPE_BRIDGE;
 		dev->rom_base_reg = PCI_ROM_ADDRESS1;
 		set_pcie_hotplug_bridge(dev);
+<<<<<<< HEAD
 	} else if (!strcmp(type, "cardbus")) {
+=======
+	} else if (of_node_is_type(node, "cardbus")) {
+>>>>>>> upstream/android-13
 		dev->hdr_type = PCI_HEADER_TYPE_CARDBUS;
 	} else {
 		dev->hdr_type = PCI_HEADER_TYPE_NORMAL;
@@ -376,7 +470,10 @@ static void __of_scan_bus(struct device_node *node, struct pci_bus *bus,
 	 */
 	if (!rescan_existing)
 		pcibios_setup_bus_self(bus);
+<<<<<<< HEAD
 	pcibios_setup_bus_devices(bus);
+=======
+>>>>>>> upstream/android-13
 
 	/* Now scan child busses */
 	for_each_pci_bridge(dev, bus)

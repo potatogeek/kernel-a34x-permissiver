@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # psample packet sampling configuration
 #
 
 menuconfig PSAMPLE
+<<<<<<< HEAD
 	depends on NET
+=======
+>>>>>>> upstream/android-13
 	tristate "Packet-sampling netlink channel"
 	default n
 	help

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for Digigram pcxhr compatible soundcards
  *
  * low level interface with interrupt and message handling implementation
  *
  * Copyright (c) 2004 by Digigram <alsa@digigram.com>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -65,7 +72,11 @@
 #define PCXHR_DSP 2
 
 #if (PCXHR_DSP_OFFSET_MAX > PCXHR_PLX_OFFSET_MIN)
+<<<<<<< HEAD
 #undef  PCXHR_REG_TO_PORT(x)
+=======
+#error  PCXHR_REG_TO_PORT(x)
+>>>>>>> upstream/android-13
 #else
 #define PCXHR_REG_TO_PORT(x)	((x)>PCXHR_DSP_OFFSET_MAX ? PCXHR_PLX : PCXHR_DSP)
 #endif
@@ -479,7 +490,11 @@ enum {
 /*
  * Array of DSP commands
  */
+<<<<<<< HEAD
 static struct pcxhr_cmd_info pcxhr_dsp_cmds[] = {
+=======
+static const struct pcxhr_cmd_info pcxhr_dsp_cmds[] = {
+>>>>>>> upstream/android-13
 [CMD_VERSION] =				{ 0x010000, 1, RMH_SSIZE_FIXED },
 [CMD_SUPPORTED] =			{ 0x020000, 4, RMH_SSIZE_FIXED },
 [CMD_TEST_IT] =				{ 0x040000, 1, RMH_SSIZE_FIXED },
@@ -510,7 +525,11 @@ static struct pcxhr_cmd_info pcxhr_dsp_cmds[] = {
 };
 
 #ifdef CONFIG_SND_DEBUG_VERBOSE
+<<<<<<< HEAD
 static char* cmd_names[] = {
+=======
+static const char * const cmd_names[] = {
+>>>>>>> upstream/android-13
 [CMD_VERSION] =				"CMD_VERSION",
 [CMD_SUPPORTED] =			"CMD_SUPPORTED",
 [CMD_TEST_IT] =				"CMD_TEST_IT",
@@ -1019,7 +1038,11 @@ static int pcxhr_handle_async_err(struct pcxhr_mgr *mgr, u32 err,
 				  enum pcxhr_async_err_src err_src, int pipe,
 				  int is_capture)
 {
+<<<<<<< HEAD
 	static char* err_src_name[] = {
+=======
+	static const char * const err_src_name[] = {
+>>>>>>> upstream/android-13
 		[PCXHR_ERR_PIPE]	= "Pipe",
 		[PCXHR_ERR_STREAM]	= "Stream",
 		[PCXHR_ERR_AUDIO]	= "Audio"

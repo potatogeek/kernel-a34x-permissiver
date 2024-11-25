@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * slip.c	This module implements the SLIP protocol for kernel-based
  *		devices like TTY.  It interfaces between a raw TTY, and the
@@ -61,6 +65,10 @@
  */
 
 #define SL_CHECK_TRANSMIT
+<<<<<<< HEAD
+=======
+#include <linux/compat.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/moduleparam.h>
 
@@ -79,7 +87,10 @@
 #include <linux/rtnetlink.h>
 #include <linux/if_arp.h>
 #include <linux/if_slip.h>
+<<<<<<< HEAD
 #include <linux/compat.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/delay.h>
 #include <linux/init.h>
 #include <linux/slab.h>
@@ -108,7 +119,11 @@ static void slip_unesc6(struct slip *sl, unsigned char c);
 #ifdef CONFIG_SLIP_SMART
 static void sl_keepalive(struct timer_list *t);
 static void sl_outfill(struct timer_list *t);
+<<<<<<< HEAD
 static int sl_ioctl(struct net_device *dev, struct ifreq *rq, int cmd);
+=======
+static int sl_siocdevprivate(struct net_device *dev, struct ifreq *rq, void __user *data, int cmd);
+>>>>>>> upstream/android-13
 #endif
 
 /********************************
@@ -456,6 +471,7 @@ static void slip_write_wakeup(struct tty_struct *tty)
 
 	rcu_read_lock();
 	sl = rcu_dereference(tty->disc_data);
+<<<<<<< HEAD
 	if (!sl)
 		goto out;
 
@@ -465,13 +481,25 @@ out:
 }
 
 static void sl_tx_timeout(struct net_device *dev)
+=======
+	if (sl)
+		schedule_work(&sl->tx_work);
+	rcu_read_unlock();
+}
+
+static void sl_tx_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct slip *sl = netdev_priv(dev);
 
 	spin_lock(&sl->lock);
 
 	if (netif_queue_stopped(dev)) {
+<<<<<<< HEAD
 		if (!netif_running(dev))
+=======
+		if (!netif_running(dev) || !sl->tty)
+>>>>>>> upstream/android-13
 			goto out;
 
 		/* May be we must check transmitter timeout here ?
@@ -650,7 +678,11 @@ static const struct net_device_ops sl_netdev_ops = {
 	.ndo_change_mtu		= sl_change_mtu,
 	.ndo_tx_timeout		= sl_tx_timeout,
 #ifdef CONFIG_SLIP_SMART
+<<<<<<< HEAD
 	.ndo_do_ioctl		= sl_ioctl,
+=======
+	.ndo_siocdevprivate	= sl_siocdevprivate,
+>>>>>>> upstream/android-13
 #endif
 };
 
@@ -688,7 +720,11 @@ static void sl_setup(struct net_device *dev)
  */
 
 static void slip_receive_buf(struct tty_struct *tty, const unsigned char *cp,
+<<<<<<< HEAD
 							char *fp, int count)
+=======
+		const char *fp, int count)
+>>>>>>> upstream/android-13
 {
 	struct slip *sl = tty->disc_data;
 
@@ -1180,6 +1216,7 @@ static int slip_ioctl(struct tty_struct *tty, struct file *file,
 	}
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 static long slip_compat_ioctl(struct tty_struct *tty, struct file *file,
 					unsigned int cmd, unsigned long arg)
@@ -1208,6 +1245,16 @@ static long slip_compat_ioctl(struct tty_struct *tty, struct file *file,
    by ifconfig                                 */
 
 static int sl_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
+=======
+/* VSV changes start here */
+#ifdef CONFIG_SLIP_SMART
+/* function sl_siocdevprivate called from net/core/dev.c
+   to allow get/set outfill/keepalive parameter
+   by ifconfig                                 */
+
+static int sl_siocdevprivate(struct net_device *dev, struct ifreq *rq,
+			     void __user *data, int cmd)
+>>>>>>> upstream/android-13
 {
 	struct slip *sl = netdev_priv(dev);
 	unsigned long *p = (unsigned long *)&rq->ifr_ifru;
@@ -1215,6 +1262,12 @@ static int sl_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 	if (sl == NULL)		/* Allocation failed ?? */
 		return -ENODEV;
 
+<<<<<<< HEAD
+=======
+	if (in_compat_syscall())
+		return -EOPNOTSUPP;
+
+>>>>>>> upstream/android-13
 	spin_lock_bh(&sl->lock);
 
 	if (!sl->tty) {
@@ -1287,15 +1340,22 @@ static int sl_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 
 static struct tty_ldisc_ops sl_ldisc = {
 	.owner 		= THIS_MODULE,
+<<<<<<< HEAD
 	.magic 		= TTY_LDISC_MAGIC,
+=======
+	.num		= N_SLIP,
+>>>>>>> upstream/android-13
 	.name 		= "slip",
 	.open 		= slip_open,
 	.close	 	= slip_close,
 	.hangup	 	= slip_hangup,
 	.ioctl		= slip_ioctl,
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 	.compat_ioctl	= slip_compat_ioctl,
 #endif
+=======
+>>>>>>> upstream/android-13
 	.receive_buf	= slip_receive_buf,
 	.write_wakeup	= slip_write_wakeup,
 };
@@ -1326,7 +1386,11 @@ static int __init slip_init(void)
 		return -ENOMEM;
 
 	/* Fill in our line protocol discipline, and register it */
+<<<<<<< HEAD
 	status = tty_register_ldisc(N_SLIP, &sl_ldisc);
+=======
+	status = tty_register_ldisc(&sl_ldisc);
+>>>>>>> upstream/android-13
 	if (status != 0) {
 		printk(KERN_ERR "SLIP: can't register line discipline (err = %d)\n", status);
 		kfree(slip_devs);
@@ -1387,9 +1451,13 @@ static void __exit slip_exit(void)
 	kfree(slip_devs);
 	slip_devs = NULL;
 
+<<<<<<< HEAD
 	i = tty_unregister_ldisc(N_SLIP);
 	if (i != 0)
 		printk(KERN_ERR "SLIP: can't unregister line discipline (err = %d)\n", i);
+=======
+	tty_unregister_ldisc(&sl_ldisc);
+>>>>>>> upstream/android-13
 }
 
 module_init(slip_init);

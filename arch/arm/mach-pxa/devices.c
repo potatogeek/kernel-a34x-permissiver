@@ -4,6 +4,10 @@
 #include <linux/init.h>
 #include <linux/platform_device.h>
 #include <linux/clkdev.h>
+<<<<<<< HEAD
+=======
+#include <linux/clk-provider.h>
+>>>>>>> upstream/android-13
 #include <linux/dma-mapping.h>
 #include <linux/dmaengine.h>
 #include <linux/spi/pxa2xx_spi.h>
@@ -634,6 +638,16 @@ static struct platform_device pxa27x_device_camera = {
 
 void __init pxa_set_camera_info(struct pxacamera_platform_data *info)
 {
+<<<<<<< HEAD
+=======
+	struct clk *mclk;
+
+	/* Register a fixed-rate clock for camera sensors. */
+	mclk = clk_register_fixed_rate(NULL, "pxa_camera_clk", NULL, 0,
+					     info->mclk_10khz * 10000);
+	if (!IS_ERR(mclk))
+		clkdev_create(mclk, "mclk", NULL);
+>>>>>>> upstream/android-13
 	pxa_register_device(&pxa27x_device_camera, info);
 }
 
@@ -1065,7 +1079,11 @@ struct platform_device pxa93x_device_gpio = {
 
 /* pxa2xx-spi platform-device ID equals respective SSP platform-device ID + 1.
  * See comment in arch/arm/mach-pxa/ssp.c::ssp_probe() */
+<<<<<<< HEAD
 void __init pxa2xx_set_spi_info(unsigned id, struct pxa2xx_spi_master *info)
+=======
+void __init pxa2xx_set_spi_info(unsigned id, struct pxa2xx_spi_controller *info)
+>>>>>>> upstream/android-13
 {
 	struct platform_device *pd;
 

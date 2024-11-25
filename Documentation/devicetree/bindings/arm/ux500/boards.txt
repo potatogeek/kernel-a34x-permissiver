@@ -20,13 +20,21 @@ during retention, system won't boot without this):
 	compatible = "ste,dbx500-backupram"
 
 scu:
+<<<<<<< HEAD
 	see binding for arm/scu.txt
+=======
+	see binding for arm/arm,scu.yaml
+>>>>>>> upstream/android-13
 
 interrupt-controller:
 	see binding for interrupt-controller/arm,gic.txt
 
 timer:
+<<<<<<< HEAD
 	see binding for timer/arm,twd.txt
+=======
+	see binding for timer/arm,twd-timer.yaml
+>>>>>>> upstream/android-13
 
 clocks:
 	see binding for clocks/ux500.txt
@@ -60,7 +68,11 @@ Example:
 			      <0xa0410100 0x100>;
 		};
 
+<<<<<<< HEAD
 		scu@a04100000 {
+=======
+		scu@a0410000 {
+>>>>>>> upstream/android-13
 			compatible = "arm,cortex-a9-scu";
 			reg = <0xa0410000 0x100>;
 		};

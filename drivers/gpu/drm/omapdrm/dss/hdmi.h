@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * HDMI driver definition for TI OMAP4 Processor.
  *
@@ -14,6 +15,13 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * HDMI driver definition for TI OMAP4 Processor.
+ *
+ * Copyright (C) 2010-2011 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  */
 
 #ifndef _HDMI_H
@@ -25,6 +33,10 @@
 #include <linux/hdmi.h>
 #include <sound/omap-hdmi-audio.h>
 #include <media/cec.h>
+<<<<<<< HEAD
+=======
+#include <drm/drm_bridge.h>
+>>>>>>> upstream/android-13
 
 #include "omapdss.h"
 #include "dss.h"
@@ -313,6 +325,7 @@ void hdmi_wp_clear_irqenable(struct hdmi_wp_data *wp, u32 mask);
 int hdmi_wp_set_phy_pwr(struct hdmi_wp_data *wp, enum hdmi_phy_pwr val);
 int hdmi_wp_set_pll_pwr(struct hdmi_wp_data *wp, enum hdmi_pll_pwr val);
 void hdmi_wp_video_config_format(struct hdmi_wp_data *wp,
+<<<<<<< HEAD
 		struct hdmi_video_format *video_fmt);
 void hdmi_wp_video_config_interface(struct hdmi_wp_data *wp,
 		struct videomode *vm);
@@ -320,6 +333,15 @@ void hdmi_wp_video_config_timing(struct hdmi_wp_data *wp,
 		struct videomode *vm);
 void hdmi_wp_init_vid_fmt_timings(struct hdmi_video_format *video_fmt,
 		struct videomode *vm, struct hdmi_config *param);
+=======
+		const struct hdmi_video_format *video_fmt);
+void hdmi_wp_video_config_interface(struct hdmi_wp_data *wp,
+		const struct videomode *vm);
+void hdmi_wp_video_config_timing(struct hdmi_wp_data *wp,
+		const struct videomode *vm);
+void hdmi_wp_init_vid_fmt_timings(struct hdmi_video_format *video_fmt,
+		struct videomode *vm, const struct hdmi_config *param);
+>>>>>>> upstream/android-13
 int hdmi_wp_init(struct platform_device *pdev, struct hdmi_wp_data *wp,
 		 unsigned int version);
 phys_addr_t hdmi_wp_get_audio_dma_addr(struct hdmi_wp_data *wp);
@@ -375,6 +397,10 @@ struct omap_hdmi {
 	bool core_enabled;
 
 	struct omap_dss_device output;
+<<<<<<< HEAD
+=======
+	struct drm_bridge bridge;
+>>>>>>> upstream/android-13
 
 	struct platform_device *audio_pdev;
 	void (*audio_abort_cb)(struct device *dev);
@@ -389,6 +415,10 @@ struct omap_hdmi {
 	bool display_enabled;
 };
 
+<<<<<<< HEAD
 #define dssdev_to_hdmi(dssdev) container_of(dssdev, struct omap_hdmi, output)
+=======
+#define drm_bridge_to_hdmi(b) container_of(b, struct omap_hdmi, bridge)
+>>>>>>> upstream/android-13
 
 #endif

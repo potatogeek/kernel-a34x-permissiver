@@ -8,10 +8,39 @@
  */
 
 #include <linux/sched.h>
+<<<<<<< HEAD
+=======
+#include <linux/uaccess.h>
+>>>>>>> upstream/android-13
 
 struct task_struct;
 struct rusage;
 union thread_union;
+<<<<<<< HEAD
+=======
+struct css_set;
+
+/* All the bits taken by the old clone syscall. */
+#define CLONE_LEGACY_FLAGS 0xffffffffULL
+
+struct kernel_clone_args {
+	u64 flags;
+	int __user *pidfd;
+	int __user *child_tid;
+	int __user *parent_tid;
+	int exit_signal;
+	unsigned long stack;
+	unsigned long stack_size;
+	unsigned long tls;
+	pid_t *set_tid;
+	/* Number of elements in *set_tid */
+	size_t set_tid_size;
+	int cgroup;
+	int io_thread;
+	struct cgroup *cgrp;
+	struct css_set *cset;
+};
+>>>>>>> upstream/android-13
 
 /*
  * This serializes "schedule()" and also protects
@@ -25,14 +54,23 @@ extern spinlock_t mmlist_lock;
 extern union thread_union init_thread_union;
 extern struct task_struct init_task;
 
+<<<<<<< HEAD
 #ifdef CONFIG_PROVE_RCU
 extern int lockdep_tasklist_lock_is_held(void);
 #endif /* #ifdef CONFIG_PROVE_RCU */
+=======
+extern int lockdep_tasklist_lock_is_held(void);
+>>>>>>> upstream/android-13
 
 extern asmlinkage void schedule_tail(struct task_struct *prev);
 extern void init_idle(struct task_struct *idle, int cpu);
 
 extern int sched_fork(unsigned long clone_flags, struct task_struct *p);
+<<<<<<< HEAD
+=======
+extern void sched_cgroup_fork(struct task_struct *p, struct kernel_clone_args *kargs);
+extern void sched_post_fork(struct task_struct *p);
+>>>>>>> upstream/android-13
 extern void sched_dead(struct task_struct *p);
 
 void __noreturn do_task_dead(void);
@@ -43,6 +81,7 @@ extern void fork_init(void);
 
 extern void release_task(struct task_struct * p);
 
+<<<<<<< HEAD
 #ifdef CONFIG_HAVE_COPY_THREAD_TLS
 extern int copy_thread_tls(unsigned long, unsigned long, unsigned long,
 			struct task_struct *, unsigned long);
@@ -59,6 +98,11 @@ static inline int copy_thread_tls(
 	return copy_thread(clone_flags, sp, arg, p);
 }
 #endif
+=======
+extern int copy_thread(unsigned long, unsigned long, unsigned long,
+		       struct task_struct *, unsigned long);
+
+>>>>>>> upstream/android-13
 extern void flush_thread(void);
 
 #ifdef CONFIG_HAVE_EXIT_THREAD
@@ -70,6 +114,7 @@ static inline void exit_thread(struct task_struct *tsk)
 #endif
 extern void do_group_exit(int);
 
+<<<<<<< HEAD
 #ifdef CONFIG_UCLAMP_TASK
 extern void uclamp_exit_task(struct task_struct *p);
 #else
@@ -84,6 +129,18 @@ extern long do_fork(unsigned long, unsigned long, unsigned long, int __user *, i
 struct task_struct *fork_idle(int);
 extern pid_t kernel_thread(int (*fn)(void *), void *arg, unsigned long flags);
 extern long kernel_wait4(pid_t, int __user *, int, struct rusage *);
+=======
+extern void exit_files(struct task_struct *);
+extern void exit_itimers(struct signal_struct *);
+
+extern pid_t kernel_clone(struct kernel_clone_args *kargs);
+struct task_struct *create_io_thread(int (*fn)(void *), void *arg, int node);
+struct task_struct *fork_idle(int);
+struct mm_struct *copy_init_mm(void);
+extern pid_t kernel_thread(int (*fn)(void *), void *arg, unsigned long flags);
+extern long kernel_wait4(pid_t, int __user *, int, struct rusage *);
+int kernel_wait(pid_t pid, int *stat);
+>>>>>>> upstream/android-13
 
 extern void free_task(struct task_struct *tsk);
 
@@ -94,17 +151,39 @@ extern void sched_exec(void);
 #define sched_exec()   {}
 #endif
 
+<<<<<<< HEAD
 #define get_task_struct(tsk) do { atomic_inc(&(tsk)->usage); } while(0)
+=======
+static inline struct task_struct *get_task_struct(struct task_struct *t)
+{
+	refcount_inc(&t->usage);
+	return t;
+}
+>>>>>>> upstream/android-13
 
 extern void __put_task_struct(struct task_struct *t);
 
 static inline void put_task_struct(struct task_struct *t)
 {
+<<<<<<< HEAD
 	if (atomic_dec_and_test(&t->usage))
 		__put_task_struct(t);
 }
 
 struct task_struct *task_rcu_dereference(struct task_struct **ptask);
+=======
+	if (refcount_dec_and_test(&t->usage))
+		__put_task_struct(t);
+}
+
+static inline void put_task_struct_many(struct task_struct *t, int nr)
+{
+	if (refcount_sub_and_test(nr, &t->usage))
+		__put_task_struct(t);
+}
+
+void put_task_struct_rcu_user(struct task_struct *task);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_ARCH_WANTS_DYNAMIC_TASK_STRUCT
 extern int arch_task_struct_size __read_mostly;
@@ -142,7 +221,11 @@ static inline struct vm_struct *task_stack_vm_area(const struct task_struct *t)
  * Protects ->fs, ->files, ->mm, ->group_info, ->comm, keyring
  * subscriptions and synchronises with wait4().  Also used in procfs.  Also
  * pins the final release of task.io_context.  Also protects ->cpuset and
+<<<<<<< HEAD
  * ->cgroup.subsys[]. And ->vfork_done.
+=======
+ * ->cgroup.subsys[]. And ->vfork_done. And ->sysvshm.shm_clist.
+>>>>>>> upstream/android-13
  *
  * Nests both inside and outside of read_lock(&tasklist_lock).
  * It must not be nested with write_lock_irq(&tasklist_lock),

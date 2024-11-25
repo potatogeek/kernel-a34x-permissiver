@@ -196,6 +196,11 @@ static int bcma_host_pci_probe(struct pci_dev *dev,
 		goto err_pci_release_regions;
 	}
 
+<<<<<<< HEAD
+=======
+	bus->dev = &dev->dev;
+
+>>>>>>> upstream/android-13
 	/* Map MMIO */
 	err = -ENOMEM;
 	bus->mmio = pci_iomap(dev, 0, ~0UL);
@@ -258,8 +263,12 @@ static void bcma_host_pci_remove(struct pci_dev *dev)
 #ifdef CONFIG_PM_SLEEP
 static int bcma_host_pci_suspend(struct device *dev)
 {
+<<<<<<< HEAD
 	struct pci_dev *pdev = to_pci_dev(dev);
 	struct bcma_bus *bus = pci_get_drvdata(pdev);
+=======
+	struct bcma_bus *bus = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 
 	bus->mapped_core = NULL;
 
@@ -268,8 +277,12 @@ static int bcma_host_pci_suspend(struct device *dev)
 
 static int bcma_host_pci_resume(struct device *dev)
 {
+<<<<<<< HEAD
 	struct pci_dev *pdev = to_pci_dev(dev);
 	struct bcma_bus *bus = pci_get_drvdata(pdev);
+=======
+	struct bcma_bus *bus = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 
 	return bcma_bus_resume(bus);
 }

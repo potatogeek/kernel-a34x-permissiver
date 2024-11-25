@@ -21,6 +21,7 @@
  *
  * Authors: Alex Deucher
  */
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include "radeon.h"
 #include "radeon_asic.h"
@@ -29,6 +30,15 @@
 
 u32 si_gpu_check_soft_reset(struct radeon_device *rdev);
 
+=======
+
+#include "radeon.h"
+#include "radeon_asic.h"
+#include "radeon_trace.h"
+#include "si.h"
+#include "sid.h"
+
+>>>>>>> upstream/android-13
 /**
  * si_dma_is_lockup - Check if the DMA engine is locked up
  *
@@ -231,7 +241,11 @@ void si_dma_vm_flush(struct radeon_device *rdev, struct radeon_ring *ring,
 struct radeon_fence *si_copy_dma(struct radeon_device *rdev,
 				 uint64_t src_offset, uint64_t dst_offset,
 				 unsigned num_gpu_pages,
+<<<<<<< HEAD
 				 struct reservation_object *resv)
+=======
+				 struct dma_resv *resv)
+>>>>>>> upstream/android-13
 {
 	struct radeon_fence *fence;
 	struct radeon_sync sync;

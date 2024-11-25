@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2015 - 2016 Amazon.com, Inc. or its affiliates.
  *
@@ -28,12 +29,22 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB */
+/*
+ * Copyright 2015-2020 Amazon.com, Inc. or its affiliates. All rights reserved.
+>>>>>>> upstream/android-13
  */
 #ifndef _ENA_COMMON_H_
 #define _ENA_COMMON_H_
 
+<<<<<<< HEAD
 #define ENA_COMMON_SPEC_VERSION_MAJOR	0 /*  */
 #define ENA_COMMON_SPEC_VERSION_MINOR	10 /*  */
+=======
+#define ENA_COMMON_SPEC_VERSION_MAJOR        2
+#define ENA_COMMON_SPEC_VERSION_MINOR        0
+>>>>>>> upstream/android-13
 
 /* ENA operates with 48-bit memory addresses. ena_mem_addr_t */
 struct ena_common_mem_addr {
@@ -45,4 +56,8 @@ struct ena_common_mem_addr {
 	u16 reserved16;
 };
 
+<<<<<<< HEAD
 #endif /*_ENA_COMMON_H_ */
+=======
+#endif /* _ENA_COMMON_H_ */
+>>>>>>> upstream/android-13

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * arch/sh/boards/renesas/r7780rp/setup.c
  *
@@ -8,10 +12,13 @@
  *
  * This contains support for the R7780RP-1, R7780MP, and R7785RP
  * Highlander modules.
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/init.h>
 #include <linux/io.h>

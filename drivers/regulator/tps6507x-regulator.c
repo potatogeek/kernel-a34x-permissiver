@@ -3,7 +3,11 @@
  *
  * Regulator driver for TPS65073 PMIC
  *
+<<<<<<< HEAD
  * Copyright (C) 2009 Texas Instrument Incorporated - http://www.ti.com/
+=======
+ * Copyright (C) 2009 Texas Instrument Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -115,7 +119,10 @@ static struct tps_info tps6507x_pmic_regs[] = {
 struct tps6507x_pmic {
 	struct regulator_desc desc[TPS6507X_NUM_REGULATOR];
 	struct tps6507x_dev *mfd;
+<<<<<<< HEAD
 	struct regulator_dev *rdev[TPS6507X_NUM_REGULATOR];
+=======
+>>>>>>> upstream/android-13
 	struct tps_info *info[TPS6507X_NUM_REGULATOR];
 	struct mutex io_lock;
 };
@@ -349,7 +356,11 @@ static int tps6507x_pmic_set_voltage_sel(struct regulator_dev *dev,
 	return tps6507x_pmic_reg_write(tps, reg, data);
 }
 
+<<<<<<< HEAD
 static struct regulator_ops tps6507x_pmic_ops = {
+=======
+static const struct regulator_ops tps6507x_pmic_ops = {
+>>>>>>> upstream/android-13
 	.is_enabled = tps6507x_pmic_is_enabled,
 	.enable = tps6507x_pmic_enable,
 	.disable = tps6507x_pmic_disable,
@@ -359,6 +370,7 @@ static struct regulator_ops tps6507x_pmic_ops = {
 	.map_voltage = regulator_map_voltage_ascend,
 };
 
+<<<<<<< HEAD
 static struct of_regulator_match tps6507x_matches[] = {
 	{ .name = "VDCDC1"},
 	{ .name = "VDCDC2"},
@@ -419,6 +431,22 @@ static struct tps6507x_board *tps6507x_parse_dt_reg_data(
 	}
 
 	return tps_board;
+=======
+static int tps6507x_pmic_of_parse_cb(struct device_node *np,
+				     const struct regulator_desc *desc,
+				     struct regulator_config *config)
+{
+	struct tps6507x_pmic *tps = config->driver_data;
+	struct tps_info *info = tps->info[desc->id];
+	u32 prop;
+	int ret;
+
+	ret = of_property_read_u32(np, "ti,defdcdc_default", &prop);
+	if (!ret)
+		info->defdcdc_default = prop;
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int tps6507x_pmic_probe(struct platform_device *pdev)
@@ -426,6 +454,7 @@ static int tps6507x_pmic_probe(struct platform_device *pdev)
 	struct tps6507x_dev *tps6507x_dev = dev_get_drvdata(pdev->dev.parent);
 	struct tps_info *info = &tps6507x_pmic_regs[0];
 	struct regulator_config config = { };
+<<<<<<< HEAD
 	struct regulator_init_data *init_data;
 	struct regulator_dev *rdev;
 	struct tps6507x_pmic *tps;
@@ -434,6 +463,13 @@ static int tps6507x_pmic_probe(struct platform_device *pdev)
 	int i;
 	int error;
 	unsigned int prop;
+=======
+	struct regulator_init_data *init_data = NULL;
+	struct regulator_dev *rdev;
+	struct tps6507x_pmic *tps;
+	struct tps6507x_board *tps_board;
+	int i;
+>>>>>>> upstream/android-13
 
 	/**
 	 * tps_board points to pmic related constants
@@ -441,6 +477,7 @@ static int tps6507x_pmic_probe(struct platform_device *pdev)
 	 */
 
 	tps_board = dev_get_platdata(tps6507x_dev->dev);
+<<<<<<< HEAD
 	if (IS_ENABLED(CONFIG_OF) && !tps_board &&
 		tps6507x_dev->dev->of_node)
 		tps_board = tps6507x_parse_dt_reg_data(pdev,
@@ -455,6 +492,10 @@ static int tps6507x_pmic_probe(struct platform_device *pdev)
 	init_data = tps_board->tps6507x_pmic_init_data;
 	if (!init_data)
 		return -EINVAL;
+=======
+	if (tps_board)
+		init_data = tps_board->tps6507x_pmic_init_data;
+>>>>>>> upstream/android-13
 
 	tps = devm_kzalloc(&pdev->dev, sizeof(*tps), GFP_KERNEL);
 	if (!tps)
@@ -465,6 +506,7 @@ static int tps6507x_pmic_probe(struct platform_device *pdev)
 	/* common for all regulators */
 	tps->mfd = tps6507x_dev;
 
+<<<<<<< HEAD
 	for (i = 0; i < TPS6507X_NUM_REGULATOR; i++, info++, init_data++) {
 		/* Register the regulators */
 		tps->info[i] = info;
@@ -475,6 +517,21 @@ static int tps6507x_pmic_probe(struct platform_device *pdev)
 		}
 
 		tps->desc[i].name = info->name;
+=======
+	for (i = 0; i < TPS6507X_NUM_REGULATOR; i++, info++) {
+		/* Register the regulators */
+		tps->info[i] = info;
+		if (init_data && init_data[i].driver_data) {
+			struct tps6507x_reg_platform_data *data =
+					init_data[i].driver_data;
+			info->defdcdc_default = data->defdcdc_default;
+		}
+
+		tps->desc[i].name = info->name;
+		tps->desc[i].of_match = of_match_ptr(info->name);
+		tps->desc[i].regulators_node = of_match_ptr("regulators");
+		tps->desc[i].of_parse_cb = tps6507x_pmic_of_parse_cb;
+>>>>>>> upstream/android-13
 		tps->desc[i].id = i;
 		tps->desc[i].n_voltages = info->table_len;
 		tps->desc[i].volt_table = info->table;
@@ -486,6 +543,7 @@ static int tps6507x_pmic_probe(struct platform_device *pdev)
 		config.init_data = init_data;
 		config.driver_data = tps;
 
+<<<<<<< HEAD
 		if (tps6507x_reg_matches) {
 			error = of_property_read_u32(
 				tps6507x_reg_matches[i].of_node,
@@ -497,6 +555,8 @@ static int tps6507x_pmic_probe(struct platform_device *pdev)
 			config.of_node = tps6507x_reg_matches[i].of_node;
 		}
 
+=======
+>>>>>>> upstream/android-13
 		rdev = devm_regulator_register(&pdev->dev, &tps->desc[i],
 					       &config);
 		if (IS_ERR(rdev)) {
@@ -505,9 +565,12 @@ static int tps6507x_pmic_probe(struct platform_device *pdev)
 				pdev->name);
 			return PTR_ERR(rdev);
 		}
+<<<<<<< HEAD
 
 		/* Save regulator for cleanup */
 		tps->rdev[i] = rdev;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	tps6507x_dev->pmic = tps;

@@ -51,7 +51,11 @@ int syscore_suspend(void)
 	int ret = 0;
 
 	trace_suspend_resume(TPS("syscore_suspend"), 0, true);
+<<<<<<< HEAD
 	pr_debug("Checking wakeup interrupts\n");
+=======
+	pm_pr_dbg("Checking wakeup interrupts\n");
+>>>>>>> upstream/android-13
 
 	/* Return error code if there are any wakeup interrupts pending. */
 	if (pm_wakeup_pending())
@@ -62,20 +66,32 @@ int syscore_suspend(void)
 
 	list_for_each_entry_reverse(ops, &syscore_ops_list, node)
 		if (ops->suspend) {
+<<<<<<< HEAD
 			if (initcall_debug)
 				pr_info("PM: Calling %pF\n", ops->suspend);
+=======
+			pm_pr_dbg("Calling %pS\n", ops->suspend);
+>>>>>>> upstream/android-13
 			ret = ops->suspend();
 			if (ret)
 				goto err_out;
 			WARN_ONCE(!irqs_disabled(),
+<<<<<<< HEAD
 				"Interrupts enabled after %pF\n", ops->suspend);
+=======
+				"Interrupts enabled after %pS\n", ops->suspend);
+>>>>>>> upstream/android-13
 		}
 
 	trace_suspend_resume(TPS("syscore_suspend"), 0, false);
 	return 0;
 
  err_out:
+<<<<<<< HEAD
 	log_suspend_abort_reason("System core suspend callback %pF failed",
+=======
+	log_suspend_abort_reason("System core suspend callback %pS failed",
+>>>>>>> upstream/android-13
 		ops->suspend);
 	pr_err("PM: System core suspend callback %pF failed.\n", ops->suspend);
 
@@ -102,11 +118,18 @@ void syscore_resume(void)
 
 	list_for_each_entry(ops, &syscore_ops_list, node)
 		if (ops->resume) {
+<<<<<<< HEAD
 			if (initcall_debug)
 				pr_info("PM: Calling %pF\n", ops->resume);
 			ops->resume();
 			WARN_ONCE(!irqs_disabled(),
 				"Interrupts enabled after %pF\n", ops->resume);
+=======
+			pm_pr_dbg("Calling %pS\n", ops->resume);
+			ops->resume();
+			WARN_ONCE(!irqs_disabled(),
+				"Interrupts enabled after %pS\n", ops->resume);
+>>>>>>> upstream/android-13
 		}
 	trace_suspend_resume(TPS("syscore_resume"), 0, false);
 }
@@ -125,7 +148,11 @@ void syscore_shutdown(void)
 	list_for_each_entry_reverse(ops, &syscore_ops_list, node)
 		if (ops->shutdown) {
 			if (initcall_debug)
+<<<<<<< HEAD
 				pr_info("PM: Calling %pF\n", ops->shutdown);
+=======
+				pr_info("PM: Calling %pS\n", ops->shutdown);
+>>>>>>> upstream/android-13
 			ops->shutdown();
 		}
 

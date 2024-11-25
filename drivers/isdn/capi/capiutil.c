@@ -20,6 +20,11 @@
 #include <linux/isdn/capiutil.h>
 #include <linux/slab.h>
 
+<<<<<<< HEAD
+=======
+#include "kcapi.h"
+
+>>>>>>> upstream/android-13
 /* from CAPI2.0 DDK AVM Berlin GmbH */
 
 typedef struct {
@@ -245,6 +250,7 @@ static void jumpcstruct(_cmsg *cmsg)
 		}
 	}
 }
+<<<<<<< HEAD
 /*-------------------------------------------------------*/
 static void pars_2_message(_cmsg *cmsg)
 {
@@ -429,6 +435,8 @@ unsigned capi_cmsg_header(_cmsg *cmsg, u16 _ApplId,
 	cmsg->adr.adrController = _Controller;
 	return 0;
 }
+=======
+>>>>>>> upstream/android-13
 
 /*-------------------------------------------------------*/
 
@@ -561,9 +569,13 @@ static char *pnames[] =
 	/*2f */ "Useruserdata"
 };
 
+<<<<<<< HEAD
 
 
 #include <stdarg.h>
+=======
+#include <linux/stdarg.h>
+>>>>>>> upstream/android-13
 
 /*-------------------------------------------------------*/
 static _cdebbuf *bufprint(_cdebbuf *cdb, char *fmt, ...)
@@ -800,6 +812,7 @@ _cdebbuf *capi_message2str(u8 *msg)
 	return cdb;
 }
 
+<<<<<<< HEAD
 /**
  * capi_cmsg2str() - format _cmsg structure for printing
  * @cmsg:	_cmsg structure
@@ -831,6 +844,8 @@ _cdebbuf *capi_cmsg2str(_cmsg *cmsg)
 	return cdb;
 }
 
+=======
+>>>>>>> upstream/android-13
 int __init cdebug_init(void)
 {
 	g_cmsg = kmalloc(sizeof(_cmsg), GFP_KERNEL);
@@ -854,7 +869,11 @@ int __init cdebug_init(void)
 	return 0;
 }
 
+<<<<<<< HEAD
 void __exit cdebug_exit(void)
+=======
+void cdebug_exit(void)
+>>>>>>> upstream/android-13
 {
 	if (g_debbuf)
 		kfree(g_debbuf->buf);
@@ -885,11 +904,16 @@ int __init cdebug_init(void)
 	return 0;
 }
 
+<<<<<<< HEAD
 void __exit cdebug_exit(void)
+=======
+void cdebug_exit(void)
+>>>>>>> upstream/android-13
 {
 }
 
 #endif
+<<<<<<< HEAD
 
 EXPORT_SYMBOL(cdebbuf_free);
 EXPORT_SYMBOL(capi_cmsg2message);
@@ -898,3 +922,5 @@ EXPORT_SYMBOL(capi_cmsg_header);
 EXPORT_SYMBOL(capi_cmd2str);
 EXPORT_SYMBOL(capi_cmsg2str);
 EXPORT_SYMBOL(capi_message2str);
+=======
+>>>>>>> upstream/android-13

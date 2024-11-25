@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * GPIO driver for Analog Devices ADP5520 MFD PMICs
  *
  * Copyright 2009 Analog Devices Inc.
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2 or later.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -114,10 +121,15 @@ static int adp5520_gpio_probe(struct platform_device *pdev)
 		if (pdata->gpio_en_mask & (1 << i))
 			dev->lut[gpios++] = 1 << i;
 
+<<<<<<< HEAD
 	if (gpios < 1) {
 		ret = -EINVAL;
 		goto err;
 	}
+=======
+	if (gpios < 1)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	gc = &dev->gpio_chip;
 	gc->direction_input  = adp5520_gpio_direction_input;
@@ -149,6 +161,7 @@ static int adp5520_gpio_probe(struct platform_device *pdev)
 
 	if (ret) {
 		dev_err(&pdev->dev, "failed to write\n");
+<<<<<<< HEAD
 		goto err;
 	}
 
@@ -161,6 +174,12 @@ static int adp5520_gpio_probe(struct platform_device *pdev)
 
 err:
 	return ret;
+=======
+		return ret;
+	}
+
+	return devm_gpiochip_add_data(&pdev->dev, &dev->gpio_chip, dev);
+>>>>>>> upstream/android-13
 }
 
 static struct platform_driver adp5520_gpio_driver = {
@@ -172,7 +191,11 @@ static struct platform_driver adp5520_gpio_driver = {
 
 module_platform_driver(adp5520_gpio_driver);
 
+<<<<<<< HEAD
 MODULE_AUTHOR("Michael Hennerich <hennerich@blackfin.uclinux.org>");
+=======
+MODULE_AUTHOR("Michael Hennerich <michael.hennerich@analog.com>");
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("GPIO ADP5520 Driver");
 MODULE_LICENSE("GPL");
 MODULE_ALIAS("platform:adp5520-gpio");

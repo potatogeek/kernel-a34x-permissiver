@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright 2017, Gustavo Romero, Breno Leitao, Cyril Bur, IBM Corp.
  * Licensed under GPLv2.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2017, Gustavo Romero, Breno Leitao, Cyril Bur, IBM Corp.
+>>>>>>> upstream/android-13
  *
  * Force FP, VEC and VSX unavailable exception during transaction in all
  * possible scenarios regarding the MSR.FP and MSR.VEC state, e.g. when FP
@@ -338,16 +344,31 @@ void test_fp_vec(int fp, int vec, pthread_attr_t *attr)
 
 int tm_unavailable_test(void)
 {
+<<<<<<< HEAD
 	int rc, exception; /* FP = 0, VEC = 1, VSX = 2 */
+=======
+	int cpu, rc, exception; /* FP = 0, VEC = 1, VSX = 2 */
+>>>>>>> upstream/android-13
 	pthread_t t1;
 	pthread_attr_t attr;
 	cpu_set_t cpuset;
 
 	SKIP_IF(!have_htm());
+<<<<<<< HEAD
 
 	/* Set only CPU 0 in the mask. Both threads will be bound to CPU 0. */
 	CPU_ZERO(&cpuset);
 	CPU_SET(0, &cpuset);
+=======
+	SKIP_IF(htm_is_synthetic());
+
+	cpu = pick_online_cpu();
+	FAIL_IF(cpu < 0);
+
+	// Set only one CPU in the mask. Both threads will be bound to that CPU.
+	CPU_ZERO(&cpuset);
+	CPU_SET(cpu, &cpuset);
+>>>>>>> upstream/android-13
 
 	/* Init pthread attribute. */
 	rc = pthread_attr_init(&attr);

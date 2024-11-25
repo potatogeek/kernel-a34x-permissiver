@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/kernel/smp.c
  *
  *  Copyright (C) 2002 ARM Limited, All Rights Reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/delay.h>
@@ -29,6 +36,10 @@
 #include <linux/completion.h>
 #include <linux/cpufreq.h>
 #include <linux/irq_work.h>
+<<<<<<< HEAD
+=======
+#include <linux/kernel_stat.h>
+>>>>>>> upstream/android-13
 
 #include <linux/atomic.h>
 #include <asm/bugs.h>
@@ -40,8 +51,11 @@
 #include <asm/idmap.h>
 #include <asm/topology.h>
 #include <asm/mmu_context.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
 #include <asm/pgalloc.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/procinfo.h>
 #include <asm/processor.h>
 #include <asm/sections.h>
@@ -55,6 +69,13 @@
 #define CREATE_TRACE_POINTS
 #include <trace/events/ipi.h>
 
+<<<<<<< HEAD
+=======
+EXPORT_TRACEPOINT_SYMBOL_GPL(ipi_raise);
+EXPORT_TRACEPOINT_SYMBOL_GPL(ipi_entry);
+EXPORT_TRACEPOINT_SYMBOL_GPL(ipi_exit);
+
+>>>>>>> upstream/android-13
 /*
  * as from 2.5, kernels no longer have an init_tasks structure
  * so we need some other way of telling a new secondary core
@@ -62,12 +83,15 @@
  */
 struct secondary_data secondary_data;
 
+<<<<<<< HEAD
 /*
  * control for which core is the next to come out of the secondary
  * boot "holding pen"
  */
 volatile int pen_release = -1;
 
+=======
+>>>>>>> upstream/android-13
 enum ipi_msg_type {
 	IPI_WAKEUP,
 	IPI_TIMER,
@@ -76,18 +100,38 @@ enum ipi_msg_type {
 	IPI_CPU_STOP,
 	IPI_IRQ_WORK,
 	IPI_COMPLETION,
+<<<<<<< HEAD
+=======
+	NR_IPI,
+>>>>>>> upstream/android-13
 	/*
 	 * CPU_BACKTRACE is special and not included in NR_IPI
 	 * or tracable with trace_ipi_*
 	 */
+<<<<<<< HEAD
 	IPI_CPU_BACKTRACE,
+=======
+	IPI_CPU_BACKTRACE = NR_IPI,
+>>>>>>> upstream/android-13
 	/*
 	 * SGI8-15 can be reserved by secure firmware, and thus may
 	 * not be usable by the kernel. Please keep the above limited
 	 * to at most 8 entries.
 	 */
+<<<<<<< HEAD
 };
 
+=======
+	MAX_IPI
+};
+
+static int ipi_irq_base __read_mostly;
+static int nr_ipi __read_mostly = NR_IPI;
+static struct irq_desc *ipi_desc[MAX_IPI] __read_mostly;
+
+static void ipi_setup(int cpu);
+
+>>>>>>> upstream/android-13
 static DECLARE_COMPLETION(cpu_running);
 
 static struct smp_operations smp_ops __ro_after_init;
@@ -237,6 +281,20 @@ int platform_can_hotplug_cpu(unsigned int cpu)
 	return cpu != 0;
 }
 
+<<<<<<< HEAD
+=======
+static void ipi_teardown(int cpu)
+{
+	int i;
+
+	if (WARN_ON_ONCE(!ipi_irq_base))
+		return;
+
+	for (i = 0; i < nr_ipi; i++)
+		disable_percpu_irq(ipi_irq_base + i);
+}
+
+>>>>>>> upstream/android-13
 /*
  * __cpu_disable runs on the processor to be shutdown.
  */
@@ -249,6 +307,7 @@ int __cpu_disable(void)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 #ifdef CONFIG_MTK_GIC_TARGET_ALL
 	{
 		unsigned long flags;
@@ -260,11 +319,21 @@ int __cpu_disable(void)
 		local_irq_save(flags);
 	}
 #endif
+=======
+#ifdef CONFIG_GENERIC_ARCH_TOPOLOGY
+	remove_cpu_topology(cpu);
+#endif
+
+>>>>>>> upstream/android-13
 	/*
 	 * Take this CPU offline.  Once we clear this, we can't return,
 	 * and we must not schedule until we're ready to give up the cpu.
 	 */
 	set_cpu_online(cpu, false);
+<<<<<<< HEAD
+=======
+	ipi_teardown(cpu);
+>>>>>>> upstream/android-13
 
 	/*
 	 * OK - migrate IRQs away from this CPU
@@ -284,15 +353,22 @@ int __cpu_disable(void)
 	return 0;
 }
 
+<<<<<<< HEAD
 static DECLARE_COMPLETION(cpu_died);
 
+=======
+>>>>>>> upstream/android-13
 /*
  * called on the thread which is asking for a CPU to be shutdown -
  * waits until shutdown has completed, or it is timed out.
  */
 void __cpu_die(unsigned int cpu)
 {
+<<<<<<< HEAD
 	if (!wait_for_completion_timeout(&cpu_died, msecs_to_jiffies(5000))) {
+=======
+	if (!cpu_wait_death(cpu, 5)) {
+>>>>>>> upstream/android-13
 		pr_err("CPU%u: cpu didn't die\n", cpu);
 		return;
 	}
@@ -339,7 +415,11 @@ void arch_cpu_idle_dead(void)
 	 * this returns, power and/or clocks can be removed at any point
 	 * from this CPU and its cache by platform_cpu_kill().
 	 */
+<<<<<<< HEAD
 	complete(&cpu_died);
+=======
+	(void)cpu_report_death();
+>>>>>>> upstream/android-13
 
 	/*
 	 * Ensure that the cache lines associated with that completion are
@@ -392,6 +472,10 @@ static void smp_store_cpu_info(unsigned int cpuid)
 	cpu_info->cpuid = read_cpuid_id();
 
 	store_cpu_topology(cpuid);
+<<<<<<< HEAD
+=======
+	check_cpu_icache_size(cpuid);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -430,7 +514,10 @@ asmlinkage void secondary_start_kernel(void)
 #endif
 	pr_debug("CPU%u: Booted secondary processor\n", cpu);
 
+<<<<<<< HEAD
 	preempt_disable();
+=======
+>>>>>>> upstream/android-13
 	trace_hardirqs_off();
 
 	/*
@@ -441,6 +528,11 @@ asmlinkage void secondary_start_kernel(void)
 
 	notify_cpu_starting(cpu);
 
+<<<<<<< HEAD
+=======
+	ipi_setup(cpu);
+
+>>>>>>> upstream/android-13
 	calibrate_delay();
 
 	smp_store_cpu_info(cpu);
@@ -519,6 +611,7 @@ void __init smp_prepare_cpus(unsigned int max_cpus)
 	}
 }
 
+<<<<<<< HEAD
 static void (*__smp_cross_call)(const struct cpumask *, unsigned int);
 
 void __init set_smp_cross_call(void (*fn)(const struct cpumask *, unsigned int))
@@ -551,22 +644,46 @@ static void smp_cross_call(const struct cpumask *target, unsigned int ipinr)
 	trace_ipi_raise_rcuidle(target, ipi_types[ipinr]);
 	__smp_cross_call(target, ipinr);
 }
+=======
+static const char *ipi_types[NR_IPI] __tracepoint_string = {
+	[IPI_WAKEUP]		= "CPU wakeup interrupts",
+	[IPI_TIMER]		= "Timer broadcast interrupts",
+	[IPI_RESCHEDULE]	= "Rescheduling interrupts",
+	[IPI_CALL_FUNC]		= "Function call interrupts",
+	[IPI_CPU_STOP]		= "CPU stop interrupts",
+	[IPI_IRQ_WORK]		= "IRQ work interrupts",
+	[IPI_COMPLETION]	= "completion interrupts",
+};
+
+static void smp_cross_call(const struct cpumask *target, unsigned int ipinr);
+>>>>>>> upstream/android-13
 
 void show_ipi_list(struct seq_file *p, int prec)
 {
 	unsigned int cpu, i;
 
 	for (i = 0; i < NR_IPI; i++) {
+<<<<<<< HEAD
 		seq_printf(p, "%*s%u: ", prec - 1, "IPI", i);
 
 		for_each_online_cpu(cpu)
 			seq_printf(p, "%10u ",
 				   __get_irq_stat(cpu, ipi_irqs[i]));
+=======
+		if (!ipi_desc[i])
+			continue;
+
+		seq_printf(p, "%*s%u: ", prec - 1, "IPI", i);
+
+		for_each_online_cpu(cpu)
+			seq_printf(p, "%10u ", irq_desc_kstat_cpu(ipi_desc[i], cpu));
+>>>>>>> upstream/android-13
 
 		seq_printf(p, " %s\n", ipi_types[i]);
 	}
 }
 
+<<<<<<< HEAD
 u64 smp_irq_stat_cpu(unsigned int cpu)
 {
 	u64 sum = 0;
@@ -578,6 +695,8 @@ u64 smp_irq_stat_cpu(unsigned int cpu)
 	return sum;
 }
 
+=======
+>>>>>>> upstream/android-13
 void arch_send_call_function_ipi_mask(const struct cpumask *mask)
 {
 	smp_cross_call(mask, IPI_CALL_FUNC);
@@ -654,6 +773,7 @@ asmlinkage void __exception_irq_entry do_IPI(int ipinr, struct pt_regs *regs)
 	handle_IPI(ipinr, regs);
 }
 
+<<<<<<< HEAD
 void handle_IPI(int ipinr, struct pt_regs *regs)
 {
 	unsigned int cpu = smp_processor_id();
@@ -666,6 +786,14 @@ void handle_IPI(int ipinr, struct pt_regs *regs)
 		trace_ipi_entry_rcuidle(ipi_types[ipinr]);
 		__inc_irq_stat(cpu, ipi_irqs[ipinr]);
 	}
+=======
+static void do_handle_IPI(int ipinr)
+{
+	unsigned int cpu = smp_processor_id();
+
+	if ((unsigned)ipinr < NR_IPI)
+		trace_ipi_entry_rcuidle(ipi_types[ipinr]);
+>>>>>>> upstream/android-13
 
 	switch (ipinr) {
 	case IPI_WAKEUP:
@@ -673,9 +801,13 @@ void handle_IPI(int ipinr, struct pt_regs *regs)
 
 #ifdef CONFIG_GENERIC_CLOCKEVENTS_BROADCAST
 	case IPI_TIMER:
+<<<<<<< HEAD
 		irq_enter();
 		tick_receive_broadcast();
 		irq_exit();
+=======
+		tick_receive_broadcast();
+>>>>>>> upstream/android-13
 		break;
 #endif
 
@@ -684,6 +816,7 @@ void handle_IPI(int ipinr, struct pt_regs *regs)
 		break;
 
 	case IPI_CALL_FUNC:
+<<<<<<< HEAD
 		irq_enter();
 		generic_smp_call_function_interrupt();
 		irq_exit();
@@ -693,17 +826,29 @@ void handle_IPI(int ipinr, struct pt_regs *regs)
 		irq_enter();
 		ipi_cpu_stop(cpu);
 		irq_exit();
+=======
+		generic_smp_call_function_interrupt();
+		break;
+
+	case IPI_CPU_STOP:
+		ipi_cpu_stop(cpu);
+>>>>>>> upstream/android-13
 		break;
 
 #ifdef CONFIG_IRQ_WORK
 	case IPI_IRQ_WORK:
+<<<<<<< HEAD
 		irq_enter();
 		irq_work_run();
 		irq_exit();
+=======
+		irq_work_run();
+>>>>>>> upstream/android-13
 		break;
 #endif
 
 	case IPI_COMPLETION:
+<<<<<<< HEAD
 		irq_enter();
 		ipi_complete(cpu);
 		irq_exit();
@@ -715,6 +860,15 @@ void handle_IPI(int ipinr, struct pt_regs *regs)
 		nmi_cpu_backtrace(regs);
 		irq_exit();
 		printk_nmi_exit();
+=======
+		ipi_complete(cpu);
+		break;
+
+	case IPI_CPU_BACKTRACE:
+		printk_deferred_enter();
+		nmi_cpu_backtrace(get_irq_regs());
+		printk_deferred_exit();
+>>>>>>> upstream/android-13
 		break;
 
 	default:
@@ -723,6 +877,7 @@ void handle_IPI(int ipinr, struct pt_regs *regs)
 		break;
 	}
 
+<<<<<<< HEAD
 	if ((unsigned int)ipinr < NR_IPI) {
 		trace_ipi_exit_rcuidle(ipi_types[ipinr]);
 		check_process_time_preempt(ipi_note, count, "ipi %d %s", ts,
@@ -735,6 +890,78 @@ void smp_send_reschedule(int cpu)
 {
 	if (__smp_update_ipi_history_cb)
 		__smp_update_ipi_history_cb(cpu);
+=======
+	if ((unsigned)ipinr < NR_IPI)
+		trace_ipi_exit_rcuidle(ipi_types[ipinr]);
+}
+
+/* Legacy version, should go away once all irqchips have been converted */
+void handle_IPI(int ipinr, struct pt_regs *regs)
+{
+	struct pt_regs *old_regs = set_irq_regs(regs);
+
+	irq_enter();
+	do_handle_IPI(ipinr);
+	irq_exit();
+
+	set_irq_regs(old_regs);
+}
+
+static irqreturn_t ipi_handler(int irq, void *data)
+{
+	do_handle_IPI(irq - ipi_irq_base);
+	return IRQ_HANDLED;
+}
+
+static void smp_cross_call(const struct cpumask *target, unsigned int ipinr)
+{
+	trace_ipi_raise_rcuidle(target, ipi_types[ipinr]);
+	__ipi_send_mask(ipi_desc[ipinr], target);
+}
+
+static void ipi_setup(int cpu)
+{
+	int i;
+
+	if (WARN_ON_ONCE(!ipi_irq_base))
+		return;
+
+	for (i = 0; i < nr_ipi; i++)
+		enable_percpu_irq(ipi_irq_base + i, 0);
+}
+
+void __init set_smp_ipi_range(int ipi_base, int n)
+{
+	int i;
+
+	WARN_ON(n < MAX_IPI);
+	nr_ipi = min(n, MAX_IPI);
+
+	for (i = 0; i < nr_ipi; i++) {
+		int err;
+
+		err = request_percpu_irq(ipi_base + i, ipi_handler,
+					 "IPI", &irq_stat);
+		WARN_ON(err);
+
+		ipi_desc[i] = irq_to_desc(ipi_base + i);
+
+		if (i != IPI_RESCHEDULE)
+			irq_set_status_flags(ipi_base + i, IRQ_HIDDEN);
+		else
+			/* The recheduling IPI is special... */
+			irq_set_status_flags(ipi_base + i, IRQ_HIDDEN|IRQ_RAW);
+	}
+
+	ipi_irq_base = ipi_base;
+
+	/* Setup the boot CPU immediately */
+	ipi_setup(smp_processor_id());
+}
+
+void smp_send_reschedule(int cpu)
+{
+>>>>>>> upstream/android-13
 	smp_cross_call(cpumask_of(cpu), IPI_RESCHEDULE);
 }
 
@@ -791,15 +1018,31 @@ static int cpufreq_callback(struct notifier_block *nb,
 					unsigned long val, void *data)
 {
 	struct cpufreq_freqs *freq = data;
+<<<<<<< HEAD
 	int cpu = freq->cpu;
+=======
+	struct cpumask *cpus = freq->policy->cpus;
+	int cpu, first = cpumask_first(cpus);
+	unsigned int lpj;
+>>>>>>> upstream/android-13
 
 	if (freq->flags & CPUFREQ_CONST_LOOPS)
 		return NOTIFY_OK;
 
+<<<<<<< HEAD
 	if (!per_cpu(l_p_j_ref, cpu)) {
 		per_cpu(l_p_j_ref, cpu) =
 			per_cpu(cpu_data, cpu).loops_per_jiffy;
 		per_cpu(l_p_j_ref_freq, cpu) = freq->old;
+=======
+	if (!per_cpu(l_p_j_ref, first)) {
+		for_each_cpu(cpu, cpus) {
+			per_cpu(l_p_j_ref, cpu) =
+				per_cpu(cpu_data, cpu).loops_per_jiffy;
+			per_cpu(l_p_j_ref_freq, cpu) = freq->old;
+		}
+
+>>>>>>> upstream/android-13
 		if (!global_l_p_j_ref) {
 			global_l_p_j_ref = loops_per_jiffy;
 			global_l_p_j_ref_freq = freq->old;
@@ -811,10 +1054,18 @@ static int cpufreq_callback(struct notifier_block *nb,
 		loops_per_jiffy = cpufreq_scale(global_l_p_j_ref,
 						global_l_p_j_ref_freq,
 						freq->new);
+<<<<<<< HEAD
 		per_cpu(cpu_data, cpu).loops_per_jiffy =
 			cpufreq_scale(per_cpu(l_p_j_ref, cpu),
 					per_cpu(l_p_j_ref_freq, cpu),
 					freq->new);
+=======
+
+		lpj = cpufreq_scale(per_cpu(l_p_j_ref, first),
+				    per_cpu(l_p_j_ref_freq, first), freq->new);
+		for_each_cpu(cpu, cpus)
+			per_cpu(cpu_data, cpu).loops_per_jiffy = lpj;
+>>>>>>> upstream/android-13
 	}
 	return NOTIFY_OK;
 }
@@ -834,7 +1085,11 @@ core_initcall(register_cpufreq_notifier);
 
 static void raise_nmi(cpumask_t *mask)
 {
+<<<<<<< HEAD
 	__smp_cross_call(mask, IPI_CPU_BACKTRACE);
+=======
+	__ipi_send_mask(ipi_desc[IPI_CPU_BACKTRACE], mask);
+>>>>>>> upstream/android-13
 }
 
 void arch_trigger_cpumask_backtrace(const cpumask_t *mask, bool exclude_self)

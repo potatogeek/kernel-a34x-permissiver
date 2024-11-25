@@ -3,7 +3,11 @@
  *
  * Module Name: apdump - Dump routines for ACPI tables (acpidump)
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -289,14 +293,22 @@ int ap_dump_table_by_address(char *ascii_address)
 
 int ap_dump_table_by_name(char *signature)
 {
+<<<<<<< HEAD
 	char local_signature[ACPI_NAME_SIZE + 1];
+=======
+	char local_signature[ACPI_NAMESEG_SIZE + 1];
+>>>>>>> upstream/android-13
 	u32 instance;
 	struct acpi_table_header *table;
 	acpi_physical_address address;
 	acpi_status status;
 	int table_status;
 
+<<<<<<< HEAD
 	if (strlen(signature) != ACPI_NAME_SIZE) {
+=======
+	if (strlen(signature) != ACPI_NAMESEG_SIZE) {
+>>>>>>> upstream/android-13
 		fprintf(stderr,
 			"Invalid table signature [%s]: must be exactly 4 characters\n",
 			signature);
@@ -310,9 +322,15 @@ int ap_dump_table_by_name(char *signature)
 
 	/* To be friendly, handle tables whose signatures do not match the name */
 
+<<<<<<< HEAD
 	if (ACPI_COMPARE_NAME(local_signature, "FADT")) {
 		strcpy(local_signature, ACPI_SIG_FADT);
 	} else if (ACPI_COMPARE_NAME(local_signature, "MADT")) {
+=======
+	if (ACPI_COMPARE_NAMESEG(local_signature, "FADT")) {
+		strcpy(local_signature, ACPI_SIG_FADT);
+	} else if (ACPI_COMPARE_NAMESEG(local_signature, "MADT")) {
+>>>>>>> upstream/android-13
 		strcpy(local_signature, ACPI_SIG_MADT);
 	}
 

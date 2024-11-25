@@ -1,14 +1,22 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* drivers/rtc/rtc-max6902.c
  *
  * Copyright (C) 2006 8D Technologies inc.
  * Copyright (C) 2004 Compulab Ltd.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
  * Driver for MAX6902 spi RTC
  *
+=======
+ * Driver for MAX6902 spi RTC
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>

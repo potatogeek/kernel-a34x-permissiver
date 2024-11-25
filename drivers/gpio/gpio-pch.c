@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2011 LAPIS Semiconductor Co., Ltd.
  *
@@ -28,6 +29,27 @@
 #define PCH_LEVEL_H		(BIT(0) | BIT(1))
 #define PCH_EDGE_BOTH		BIT(2)
 #define PCH_IM_MASK		(BIT(0) | BIT(1) | BIT(2))
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2011 LAPIS Semiconductor Co., Ltd.
+ */
+#include <linux/bits.h>
+#include <linux/gpio/driver.h>
+#include <linux/interrupt.h>
+#include <linux/irq.h>
+#include <linux/kernel.h>
+#include <linux/module.h>
+#include <linux/pci.h>
+#include <linux/slab.h>
+
+#define PCH_EDGE_FALLING	0
+#define PCH_EDGE_RISING		1
+#define PCH_LEVEL_L		2
+#define PCH_LEVEL_H		3
+#define PCH_EDGE_BOTH		4
+#define PCH_IM_MASK		GENMASK(2, 0)
+>>>>>>> upstream/android-13
 
 #define PCH_IRQ_BASE		24
 
@@ -106,7 +128,11 @@ struct pch_gpio {
 	spinlock_t spinlock;
 };
 
+<<<<<<< HEAD
 static void pch_gpio_set(struct gpio_chip *gpio, unsigned nr, int val)
+=======
+static void pch_gpio_set(struct gpio_chip *gpio, unsigned int nr, int val)
+>>>>>>> upstream/android-13
 {
 	u32 reg_val;
 	struct pch_gpio *chip =	gpiochip_get_data(gpio);
@@ -115,14 +141,21 @@ static void pch_gpio_set(struct gpio_chip *gpio, unsigned nr, int val)
 	spin_lock_irqsave(&chip->spinlock, flags);
 	reg_val = ioread32(&chip->reg->po);
 	if (val)
+<<<<<<< HEAD
 		reg_val |= (1 << nr);
 	else
 		reg_val &= ~(1 << nr);
+=======
+		reg_val |= BIT(nr);
+	else
+		reg_val &= ~BIT(nr);
+>>>>>>> upstream/android-13
 
 	iowrite32(reg_val, &chip->reg->po);
 	spin_unlock_irqrestore(&chip->spinlock, flags);
 }
 
+<<<<<<< HEAD
 static int pch_gpio_get(struct gpio_chip *gpio, unsigned nr)
 {
 	struct pch_gpio *chip =	gpiochip_get_data(gpio);
@@ -131,6 +164,16 @@ static int pch_gpio_get(struct gpio_chip *gpio, unsigned nr)
 }
 
 static int pch_gpio_direction_output(struct gpio_chip *gpio, unsigned nr,
+=======
+static int pch_gpio_get(struct gpio_chip *gpio, unsigned int nr)
+{
+	struct pch_gpio *chip =	gpiochip_get_data(gpio);
+
+	return !!(ioread32(&chip->reg->pi) & BIT(nr));
+}
+
+static int pch_gpio_direction_output(struct gpio_chip *gpio, unsigned int nr,
+>>>>>>> upstream/android-13
 				     int val)
 {
 	struct pch_gpio *chip =	gpiochip_get_data(gpio);
@@ -142,6 +185,7 @@ static int pch_gpio_direction_output(struct gpio_chip *gpio, unsigned nr,
 
 	reg_val = ioread32(&chip->reg->po);
 	if (val)
+<<<<<<< HEAD
 		reg_val |= (1 << nr);
 	else
 		reg_val &= ~(1 << nr);
@@ -149,6 +193,16 @@ static int pch_gpio_direction_output(struct gpio_chip *gpio, unsigned nr,
 
 	pm = ioread32(&chip->reg->pm) & ((1 << gpio_pins[chip->ioh]) - 1);
 	pm |= (1 << nr);
+=======
+		reg_val |= BIT(nr);
+	else
+		reg_val &= ~BIT(nr);
+	iowrite32(reg_val, &chip->reg->po);
+
+	pm = ioread32(&chip->reg->pm);
+	pm &= BIT(gpio_pins[chip->ioh]) - 1;
+	pm |= BIT(nr);
+>>>>>>> upstream/android-13
 	iowrite32(pm, &chip->reg->pm);
 
 	spin_unlock_irqrestore(&chip->spinlock, flags);
@@ -156,26 +210,43 @@ static int pch_gpio_direction_output(struct gpio_chip *gpio, unsigned nr,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int pch_gpio_direction_input(struct gpio_chip *gpio, unsigned nr)
+=======
+static int pch_gpio_direction_input(struct gpio_chip *gpio, unsigned int nr)
+>>>>>>> upstream/android-13
 {
 	struct pch_gpio *chip =	gpiochip_get_data(gpio);
 	u32 pm;
 	unsigned long flags;
 
 	spin_lock_irqsave(&chip->spinlock, flags);
+<<<<<<< HEAD
 	pm = ioread32(&chip->reg->pm) & ((1 << gpio_pins[chip->ioh]) - 1);
 	pm &= ~(1 << nr);
+=======
+	pm = ioread32(&chip->reg->pm);
+	pm &= BIT(gpio_pins[chip->ioh]) - 1;
+	pm &= ~BIT(nr);
+>>>>>>> upstream/android-13
 	iowrite32(pm, &chip->reg->pm);
 	spin_unlock_irqrestore(&chip->spinlock, flags);
 
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 /*
  * Save register configuration and disable interrupts.
  */
 static void pch_gpio_save_reg_conf(struct pch_gpio *chip)
+=======
+/*
+ * Save register configuration and disable interrupts.
+ */
+static void __maybe_unused pch_gpio_save_reg_conf(struct pch_gpio *chip)
+>>>>>>> upstream/android-13
 {
 	chip->pch_gpio_reg.ien_reg = ioread32(&chip->reg->ien);
 	chip->pch_gpio_reg.imask_reg = ioread32(&chip->reg->imask);
@@ -185,14 +256,22 @@ static void pch_gpio_save_reg_conf(struct pch_gpio *chip)
 	if (chip->ioh == INTEL_EG20T_PCH)
 		chip->pch_gpio_reg.im1_reg = ioread32(&chip->reg->im1);
 	if (chip->ioh == OKISEMI_ML7223n_IOH)
+<<<<<<< HEAD
 		chip->pch_gpio_reg.gpio_use_sel_reg =\
 					    ioread32(&chip->reg->gpio_use_sel);
+=======
+		chip->pch_gpio_reg.gpio_use_sel_reg = ioread32(&chip->reg->gpio_use_sel);
+>>>>>>> upstream/android-13
 }
 
 /*
  * This function restores the register configuration of the GPIO device.
  */
+<<<<<<< HEAD
 static void pch_gpio_restore_reg_conf(struct pch_gpio *chip)
+=======
+static void __maybe_unused pch_gpio_restore_reg_conf(struct pch_gpio *chip)
+>>>>>>> upstream/android-13
 {
 	iowrite32(chip->pch_gpio_reg.ien_reg, &chip->reg->ien);
 	iowrite32(chip->pch_gpio_reg.imask_reg, &chip->reg->imask);
@@ -204,6 +283,7 @@ static void pch_gpio_restore_reg_conf(struct pch_gpio *chip)
 	if (chip->ioh == INTEL_EG20T_PCH)
 		iowrite32(chip->pch_gpio_reg.im1_reg, &chip->reg->im1);
 	if (chip->ioh == OKISEMI_ML7223n_IOH)
+<<<<<<< HEAD
 		iowrite32(chip->pch_gpio_reg.gpio_use_sel_reg,
 			  &chip->reg->gpio_use_sel);
 }
@@ -212,6 +292,15 @@ static void pch_gpio_restore_reg_conf(struct pch_gpio *chip)
 static int pch_gpio_to_irq(struct gpio_chip *gpio, unsigned offset)
 {
 	struct pch_gpio *chip = gpiochip_get_data(gpio);
+=======
+		iowrite32(chip->pch_gpio_reg.gpio_use_sel_reg, &chip->reg->gpio_use_sel);
+}
+
+static int pch_gpio_to_irq(struct gpio_chip *gpio, unsigned int offset)
+{
+	struct pch_gpio *chip = gpiochip_get_data(gpio);
+
+>>>>>>> upstream/android-13
 	return chip->irq_base + offset;
 }
 
@@ -226,7 +315,10 @@ static void pch_gpio_setup(struct pch_gpio *chip)
 	gpio->get = pch_gpio_get;
 	gpio->direction_output = pch_gpio_direction_output;
 	gpio->set = pch_gpio_set;
+<<<<<<< HEAD
 	gpio->dbg_show = NULL;
+=======
+>>>>>>> upstream/android-13
 	gpio->base = -1;
 	gpio->ngpio = gpio_pins[chip->ioh];
 	gpio->can_sleep = false;
@@ -243,17 +335,27 @@ static int pch_irq_type(struct irq_data *d, unsigned int type)
 	int ch, irq = d->irq;
 
 	ch = irq - chip->irq_base;
+<<<<<<< HEAD
 	if (irq <= chip->irq_base + 7) {
 		im_reg = &chip->reg->im0;
 		im_pos = ch;
+=======
+	if (irq < chip->irq_base + 8) {
+		im_reg = &chip->reg->im0;
+		im_pos = ch - 0;
+>>>>>>> upstream/android-13
 	} else {
 		im_reg = &chip->reg->im1;
 		im_pos = ch - 8;
 	}
+<<<<<<< HEAD
 	dev_dbg(chip->dev, "%s:irq=%d type=%d ch=%d pos=%d\n",
 		__func__, irq, type, ch, im_pos);
 
 	spin_lock_irqsave(&chip->spinlock, flags);
+=======
+	dev_dbg(chip->dev, "irq=%d type=%d ch=%d pos=%d\n", irq, type, ch, im_pos);
+>>>>>>> upstream/android-13
 
 	switch (type) {
 	case IRQ_TYPE_EDGE_RISING:
@@ -272,20 +374,36 @@ static int pch_irq_type(struct irq_data *d, unsigned int type)
 		val = PCH_LEVEL_L;
 		break;
 	default:
+<<<<<<< HEAD
 		goto unlock;
 	}
 
+=======
+		return 0;
+	}
+
+	spin_lock_irqsave(&chip->spinlock, flags);
+
+>>>>>>> upstream/android-13
 	/* Set interrupt mode */
 	im = ioread32(im_reg) & ~(PCH_IM_MASK << (im_pos * 4));
 	iowrite32(im | (val << (im_pos * 4)), im_reg);
 
 	/* And the handler */
+<<<<<<< HEAD
 	if (type & (IRQ_TYPE_LEVEL_LOW | IRQ_TYPE_LEVEL_HIGH))
 		irq_set_handler_locked(d, handle_level_irq);
 	else if (type & (IRQ_TYPE_EDGE_FALLING | IRQ_TYPE_EDGE_RISING))
 		irq_set_handler_locked(d, handle_edge_irq);
 
 unlock:
+=======
+	if (type & IRQ_TYPE_LEVEL_MASK)
+		irq_set_handler_locked(d, handle_level_irq);
+	else if (type & IRQ_TYPE_EDGE_BOTH)
+		irq_set_handler_locked(d, handle_edge_irq);
+
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&chip->spinlock, flags);
 	return 0;
 }
@@ -295,7 +413,11 @@ static void pch_irq_unmask(struct irq_data *d)
 	struct irq_chip_generic *gc = irq_data_get_irq_chip_data(d);
 	struct pch_gpio *chip = gc->private;
 
+<<<<<<< HEAD
 	iowrite32(1 << (d->irq - chip->irq_base), &chip->reg->imaskclr);
+=======
+	iowrite32(BIT(d->irq - chip->irq_base), &chip->reg->imaskclr);
+>>>>>>> upstream/android-13
 }
 
 static void pch_irq_mask(struct irq_data *d)
@@ -303,7 +425,11 @@ static void pch_irq_mask(struct irq_data *d)
 	struct irq_chip_generic *gc = irq_data_get_irq_chip_data(d);
 	struct pch_gpio *chip = gc->private;
 
+<<<<<<< HEAD
 	iowrite32(1 << (d->irq - chip->irq_base), &chip->reg->imask);
+=======
+	iowrite32(BIT(d->irq - chip->irq_base), &chip->reg->imask);
+>>>>>>> upstream/android-13
 }
 
 static void pch_irq_ack(struct irq_data *d)
@@ -311,12 +437,17 @@ static void pch_irq_ack(struct irq_data *d)
 	struct irq_chip_generic *gc = irq_data_get_irq_chip_data(d);
 	struct pch_gpio *chip = gc->private;
 
+<<<<<<< HEAD
 	iowrite32(1 << (d->irq - chip->irq_base), &chip->reg->iclr);
+=======
+	iowrite32(BIT(d->irq - chip->irq_base), &chip->reg->iclr);
+>>>>>>> upstream/android-13
 }
 
 static irqreturn_t pch_gpio_handler(int irq, void *dev_id)
 {
 	struct pch_gpio *chip = dev_id;
+<<<<<<< HEAD
 	u32 reg_val = ioread32(&chip->reg->istatus);
 	int i, ret = IRQ_NONE;
 
@@ -329,6 +460,19 @@ static irqreturn_t pch_gpio_handler(int irq, void *dev_id)
 		}
 	}
 	return ret;
+=======
+	unsigned long reg_val = ioread32(&chip->reg->istatus);
+	int i;
+
+	dev_vdbg(chip->dev, "irq=%d  status=0x%lx\n", irq, reg_val);
+
+	reg_val &= BIT(gpio_pins[chip->ioh]) - 1;
+
+	for_each_set_bit(i, &reg_val, gpio_pins[chip->ioh])
+		generic_handle_irq(chip->irq_base + i);
+
+	return IRQ_RETVAL(reg_val);
+>>>>>>> upstream/android-13
 }
 
 static int pch_gpio_alloc_generic_chip(struct pch_gpio *chip,
@@ -365,13 +509,19 @@ static int pch_gpio_probe(struct pci_dev *pdev,
 	s32 ret;
 	struct pch_gpio *chip;
 	int irq_base;
+<<<<<<< HEAD
 	u32 msk;
 
 	chip = kzalloc(sizeof(*chip), GFP_KERNEL);
+=======
+
+	chip = devm_kzalloc(&pdev->dev, sizeof(*chip), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (chip == NULL)
 		return -ENOMEM;
 
 	chip->dev = &pdev->dev;
+<<<<<<< HEAD
 	ret = pci_enable_device(pdev);
 	if (ret) {
 		dev_err(&pdev->dev, "%s : pci_enable_device FAILED", __func__);
@@ -390,6 +540,21 @@ static int pch_gpio_probe(struct pci_dev *pdev,
 		ret = -ENOMEM;
 		goto err_iomap;
 	}
+=======
+	ret = pcim_enable_device(pdev);
+	if (ret) {
+		dev_err(&pdev->dev, "pci_enable_device FAILED");
+		return ret;
+	}
+
+	ret = pcim_iomap_regions(pdev, BIT(1), KBUILD_MODNAME);
+	if (ret) {
+		dev_err(&pdev->dev, "pci_request_regions FAILED-%d", ret);
+		return ret;
+	}
+
+	chip->base = pcim_iomap_table(pdev)[1];
+>>>>>>> upstream/android-13
 
 	if (pdev->device == 0x8803)
 		chip->ioh = INTEL_EG20T_PCH;
@@ -402,6 +567,7 @@ static int pch_gpio_probe(struct pci_dev *pdev,
 	pci_set_drvdata(pdev, chip);
 	spin_lock_init(&chip->spinlock);
 	pch_gpio_setup(chip);
+<<<<<<< HEAD
 #ifdef CONFIG_OF_GPIO
 	chip->gpio.of_node = pdev->dev.of_node;
 #endif
@@ -409,6 +575,13 @@ static int pch_gpio_probe(struct pci_dev *pdev,
 	if (ret) {
 		dev_err(&pdev->dev, "PCH gpio: Failed to register GPIO\n");
 		goto err_gpiochip_add;
+=======
+
+	ret = devm_gpiochip_add_data(&pdev->dev, &chip->gpio, chip);
+	if (ret) {
+		dev_err(&pdev->dev, "PCH gpio: Failed to register GPIO\n");
+		return ret;
+>>>>>>> upstream/android-13
 	}
 
 	irq_base = devm_irq_alloc_descs(&pdev->dev, -1, 0,
@@ -416,11 +589,16 @@ static int pch_gpio_probe(struct pci_dev *pdev,
 	if (irq_base < 0) {
 		dev_warn(&pdev->dev, "PCH gpio: Failed to get IRQ base num\n");
 		chip->irq_base = -1;
+<<<<<<< HEAD
 		goto end;
+=======
+		return 0;
+>>>>>>> upstream/android-13
 	}
 	chip->irq_base = irq_base;
 
 	/* Mask all interrupts, but enable them */
+<<<<<<< HEAD
 	msk = (1 << gpio_pins[chip->ioh]) - 1;
 	iowrite32(msk, &chip->reg->imask);
 	iowrite32(msk, &chip->reg->ien);
@@ -475,12 +653,31 @@ static int pch_gpio_suspend(struct pci_dev *pdev, pm_message_t state)
 {
 	s32 ret;
 	struct pch_gpio *chip = pci_get_drvdata(pdev);
+=======
+	iowrite32(BIT(gpio_pins[chip->ioh]) - 1, &chip->reg->imask);
+	iowrite32(BIT(gpio_pins[chip->ioh]) - 1, &chip->reg->ien);
+
+	ret = devm_request_irq(&pdev->dev, pdev->irq, pch_gpio_handler,
+			       IRQF_SHARED, KBUILD_MODNAME, chip);
+	if (ret) {
+		dev_err(&pdev->dev, "request_irq failed\n");
+		return ret;
+	}
+
+	return pch_gpio_alloc_generic_chip(chip, irq_base, gpio_pins[chip->ioh]);
+}
+
+static int __maybe_unused pch_gpio_suspend(struct device *dev)
+{
+	struct pch_gpio *chip = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	unsigned long flags;
 
 	spin_lock_irqsave(&chip->spinlock, flags);
 	pch_gpio_save_reg_conf(chip);
 	spin_unlock_irqrestore(&chip->spinlock, flags);
 
+<<<<<<< HEAD
 	ret = pci_save_state(pdev);
 	if (ret) {
 		dev_err(&pdev->dev, "pci_save_state Failed-%d\n", ret);
@@ -511,6 +708,16 @@ static int pch_gpio_resume(struct pci_dev *pdev)
 	}
 	pci_restore_state(pdev);
 
+=======
+	return 0;
+}
+
+static int __maybe_unused pch_gpio_resume(struct device *dev)
+{
+	struct pch_gpio *chip = dev_get_drvdata(dev);
+	unsigned long flags;
+
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&chip->spinlock, flags);
 	iowrite32(0x01, &chip->reg->reset);
 	iowrite32(0x00, &chip->reg->reset);
@@ -519,10 +726,15 @@ static int pch_gpio_resume(struct pci_dev *pdev)
 
 	return 0;
 }
+<<<<<<< HEAD
 #else
 #define pch_gpio_suspend NULL
 #define pch_gpio_resume NULL
 #endif
+=======
+
+static SIMPLE_DEV_PM_OPS(pch_gpio_pm_ops, pch_gpio_suspend, pch_gpio_resume);
+>>>>>>> upstream/android-13
 
 static const struct pci_device_id pch_gpio_pcidev_id[] = {
 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x8803) },
@@ -537,12 +749,22 @@ static struct pci_driver pch_gpio_driver = {
 	.name = "pch_gpio",
 	.id_table = pch_gpio_pcidev_id,
 	.probe = pch_gpio_probe,
+<<<<<<< HEAD
 	.remove = pch_gpio_remove,
 	.suspend = pch_gpio_suspend,
 	.resume = pch_gpio_resume
+=======
+	.driver = {
+		.pm = &pch_gpio_pm_ops,
+	},
+>>>>>>> upstream/android-13
 };
 
 module_pci_driver(pch_gpio_driver);
 
 MODULE_DESCRIPTION("PCH GPIO PCI Driver");
+<<<<<<< HEAD
 MODULE_LICENSE("GPL");
+=======
+MODULE_LICENSE("GPL v2");
+>>>>>>> upstream/android-13

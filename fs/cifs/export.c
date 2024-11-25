@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 /*
  *   fs/cifs/export.c
+=======
+// SPDX-License-Identifier: LGPL-2.1
+/*
+>>>>>>> upstream/android-13
  *
  *   Copyright (C) International Business Machines  Corp., 2007
  *   Author(s): Steve French (sfrench@us.ibm.com)
@@ -8,6 +13,7 @@
  *
  *   Operations related to support for exporting files via NFSD
  *
+<<<<<<< HEAD
  *   This library is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU Lesser General Public License as published
  *   by the Free Software Foundation; either version 2.1 of the License, or
@@ -25,6 +31,12 @@
 
  /*
   * See Documentation/filesystems/nfs/Exporting
+=======
+ */
+
+ /*
+  * See Documentation/filesystems/nfs/exporting.rst
+>>>>>>> upstream/android-13
   * and examples in fs/exportfs
   *
   * Since cifs is a network file system, an "fsid" must be included for

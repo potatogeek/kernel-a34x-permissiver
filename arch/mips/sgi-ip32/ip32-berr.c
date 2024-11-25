@@ -29,7 +29,11 @@ static int ip32_be_handler(struct pt_regs *regs, int is_fixup)
 	show_regs(regs);
 	dump_tlb_all();
 	while(1);
+<<<<<<< HEAD
 	force_sig(SIGBUS, current);
+=======
+	force_sig(SIGBUS);
+>>>>>>> upstream/android-13
 }
 
 void __init ip32_be_init(void)

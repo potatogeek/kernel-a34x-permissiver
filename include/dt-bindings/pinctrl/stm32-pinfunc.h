@@ -32,5 +32,14 @@
 
 #define STM32_PINMUX(port, line, mode) (((PIN_NO(port, line)) << 8) | (mode))
 
+<<<<<<< HEAD
+=======
+/*  package information */
+#define STM32MP_PKG_AA	0x1
+#define STM32MP_PKG_AB	0x2
+#define STM32MP_PKG_AC	0x4
+#define STM32MP_PKG_AD	0x8
+
+>>>>>>> upstream/android-13
 #endif /* _DT_BINDINGS_STM32_PINFUNC_H */
 

@@ -1,13 +1,21 @@
+<<<<<<< HEAD
 /*
+=======
+/* SPDX-License-Identifier: GPL-2.0
+ *
+>>>>>>> upstream/android-13
  * arch/sh/kernel/cpu/sh2a/ex.S
  *
  * The SH-2A exception vector table
  *
  * Copyright (C) 2008 Yoshinori Sato
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>

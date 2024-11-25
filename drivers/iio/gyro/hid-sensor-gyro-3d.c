@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * HID Sensors Driver
  * Copyright (c) 2012, Intel Corporation.
@@ -15,10 +16,17 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * HID Sensors Driver
+ * Copyright (c) 2012, Intel Corporation.
+>>>>>>> upstream/android-13
  */
 #include <linux/device.h>
 #include <linux/platform_device.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/interrupt.h>
 #include <linux/irq.h>
 #include <linux/slab.h>
@@ -29,6 +37,13 @@
 #include <linux/iio/buffer.h>
 #include <linux/iio/trigger_consumer.h>
 #include <linux/iio/triggered_buffer.h>
+=======
+#include <linux/mod_devicetable.h>
+#include <linux/slab.h>
+#include <linux/hid-sensor-hub.h>
+#include <linux/iio/iio.h>
+#include <linux/iio/buffer.h>
+>>>>>>> upstream/android-13
 #include "../common/hid-sensors/hid-sensor-trigger.h"
 
 enum gyro_3d_channel {
@@ -38,15 +53,30 @@ enum gyro_3d_channel {
 	GYRO_3D_CHANNEL_MAX,
 };
 
+<<<<<<< HEAD
+=======
+#define CHANNEL_SCAN_INDEX_TIMESTAMP GYRO_3D_CHANNEL_MAX
+>>>>>>> upstream/android-13
 struct gyro_3d_state {
 	struct hid_sensor_hub_callbacks callbacks;
 	struct hid_sensor_common common_attributes;
 	struct hid_sensor_hub_attribute_info gyro[GYRO_3D_CHANNEL_MAX];
+<<<<<<< HEAD
 	u32 gyro_val[GYRO_3D_CHANNEL_MAX];
+=======
+	struct {
+		u32 gyro_val[GYRO_3D_CHANNEL_MAX];
+		u64 timestamp __aligned(8);
+	} scan;
+>>>>>>> upstream/android-13
 	int scale_pre_decml;
 	int scale_post_decml;
 	int scale_precision;
 	int value_offset;
+<<<<<<< HEAD
+=======
+	s64 timestamp;
+>>>>>>> upstream/android-13
 };
 
 static const u32 gyro_3d_addresses[GYRO_3D_CHANNEL_MAX] = {
@@ -55,6 +85,13 @@ static const u32 gyro_3d_addresses[GYRO_3D_CHANNEL_MAX] = {
 	HID_USAGE_SENSOR_ANGL_VELOCITY_Z_AXIS
 };
 
+<<<<<<< HEAD
+=======
+static const u32 gryo_3d_sensitivity_addresses[] = {
+	HID_USAGE_SENSOR_DATA_ANGL_VELOCITY,
+};
+
+>>>>>>> upstream/android-13
 /* Channel definitions */
 static const struct iio_chan_spec gyro_3d_channels[] = {
 	{
@@ -87,7 +124,12 @@ static const struct iio_chan_spec gyro_3d_channels[] = {
 		BIT(IIO_CHAN_INFO_SAMP_FREQ) |
 		BIT(IIO_CHAN_INFO_HYSTERESIS),
 		.scan_index = CHANNEL_SCAN_INDEX_Z,
+<<<<<<< HEAD
 	}
+=======
+	},
+	IIO_CHAN_SOFT_TIMESTAMP(CHANNEL_SCAN_INDEX_TIMESTAMP)
+>>>>>>> upstream/android-13
 };
 
 /* Adjust channel real bits based on report descriptor */
@@ -193,6 +235,7 @@ static const struct iio_info gyro_3d_info = {
 	.write_raw = &gyro_3d_write_raw,
 };
 
+<<<<<<< HEAD
 /* Function to push data to buffer */
 static void hid_sensor_push_data(struct iio_dev *indio_dev, const void *data,
 	int len)
@@ -201,6 +244,8 @@ static void hid_sensor_push_data(struct iio_dev *indio_dev, const void *data,
 	iio_push_to_buffers(indio_dev, data);
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Callback handler to send event after all samples are received and captured */
 static int gyro_3d_proc_event(struct hid_sensor_hub_device *hsdev,
 				unsigned usage_id,
@@ -210,10 +255,22 @@ static int gyro_3d_proc_event(struct hid_sensor_hub_device *hsdev,
 	struct gyro_3d_state *gyro_state = iio_priv(indio_dev);
 
 	dev_dbg(&indio_dev->dev, "gyro_3d_proc_event\n");
+<<<<<<< HEAD
 	if (atomic_read(&gyro_state->common_attributes.data_ready))
 		hid_sensor_push_data(indio_dev,
 				gyro_state->gyro_val,
 				sizeof(gyro_state->gyro_val));
+=======
+	if (atomic_read(&gyro_state->common_attributes.data_ready)) {
+		if (!gyro_state->timestamp)
+			gyro_state->timestamp = iio_get_time_ns(indio_dev);
+
+		iio_push_to_buffers_with_timestamp(indio_dev, &gyro_state->scan,
+						   gyro_state->timestamp);
+
+		gyro_state->timestamp = 0;
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -234,10 +291,22 @@ static int gyro_3d_capture_sample(struct hid_sensor_hub_device *hsdev,
 	case HID_USAGE_SENSOR_ANGL_VELOCITY_Y_AXIS:
 	case HID_USAGE_SENSOR_ANGL_VELOCITY_Z_AXIS:
 		offset = usage_id - HID_USAGE_SENSOR_ANGL_VELOCITY_X_AXIS;
+<<<<<<< HEAD
 		gyro_state->gyro_val[CHANNEL_SCAN_INDEX_X + offset] =
 						*(u32 *)raw_data;
 		ret = 0;
 	break;
+=======
+		gyro_state->scan.gyro_val[CHANNEL_SCAN_INDEX_X + offset] =
+				*(u32 *)raw_data;
+		ret = 0;
+	break;
+	case HID_USAGE_SENSOR_TIME_TIMESTAMP:
+		gyro_state->timestamp =
+			hid_sensor_convert_timestamp(&gyro_state->common_attributes,
+						     *(s64 *)raw_data);
+	break;
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
@@ -278,6 +347,7 @@ static int gyro_3d_parse_report(struct platform_device *pdev,
 				&st->gyro[CHANNEL_SCAN_INDEX_X],
 				&st->scale_pre_decml, &st->scale_post_decml);
 
+<<<<<<< HEAD
 	/* Set Sensitivity field ids, when there is no individual modifier */
 	if (st->common_attributes.sensitivity.index < 0) {
 		sensor_hub_input_get_attribute_info(hsdev,
@@ -289,6 +359,8 @@ static int gyro_3d_parse_report(struct platform_device *pdev,
 			st->common_attributes.sensitivity.index,
 			st->common_attributes.sensitivity.report_id);
 	}
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -312,14 +384,25 @@ static int hid_gyro_3d_probe(struct platform_device *pdev)
 
 	ret = hid_sensor_parse_common_attributes(hsdev,
 						HID_USAGE_SENSOR_GYRO_3D,
+<<<<<<< HEAD
 						&gyro_state->common_attributes);
+=======
+						&gyro_state->common_attributes,
+						gryo_3d_sensitivity_addresses,
+						ARRAY_SIZE(gryo_3d_sensitivity_addresses));
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(&pdev->dev, "failed to setup common attributes\n");
 		return ret;
 	}
 
+<<<<<<< HEAD
 	indio_dev->channels = kmemdup(gyro_3d_channels,
 				      sizeof(gyro_3d_channels), GFP_KERNEL);
+=======
+	indio_dev->channels = devm_kmemdup(&pdev->dev, gyro_3d_channels,
+					   sizeof(gyro_3d_channels), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!indio_dev->channels) {
 		dev_err(&pdev->dev, "failed to duplicate channels\n");
 		return -ENOMEM;
@@ -330,15 +413,23 @@ static int hid_gyro_3d_probe(struct platform_device *pdev)
 				   HID_USAGE_SENSOR_GYRO_3D, gyro_state);
 	if (ret) {
 		dev_err(&pdev->dev, "failed to setup attributes\n");
+<<<<<<< HEAD
 		goto error_free_dev_mem;
 	}
 
 	indio_dev->num_channels = ARRAY_SIZE(gyro_3d_channels);
 	indio_dev->dev.parent = &pdev->dev;
+=======
+		return ret;
+	}
+
+	indio_dev->num_channels = ARRAY_SIZE(gyro_3d_channels);
+>>>>>>> upstream/android-13
 	indio_dev->info = &gyro_3d_info;
 	indio_dev->name = name;
 	indio_dev->modes = INDIO_DIRECT_MODE;
 
+<<<<<<< HEAD
 	ret = iio_triggered_buffer_setup(indio_dev, &iio_pollfunc_store_time,
 		NULL, NULL);
 	if (ret) {
@@ -346,11 +437,19 @@ static int hid_gyro_3d_probe(struct platform_device *pdev)
 		goto error_free_dev_mem;
 	}
 	atomic_set(&gyro_state->common_attributes.data_ready, 0);
+=======
+	atomic_set(&gyro_state->common_attributes.data_ready, 0);
+
+>>>>>>> upstream/android-13
 	ret = hid_sensor_setup_trigger(indio_dev, name,
 					&gyro_state->common_attributes);
 	if (ret < 0) {
 		dev_err(&pdev->dev, "trigger setup failed\n");
+<<<<<<< HEAD
 		goto error_unreg_buffer_funcs;
+=======
+		return ret;
+>>>>>>> upstream/android-13
 	}
 
 	ret = iio_device_register(indio_dev);
@@ -374,11 +473,15 @@ static int hid_gyro_3d_probe(struct platform_device *pdev)
 error_iio_unreg:
 	iio_device_unregister(indio_dev);
 error_remove_trigger:
+<<<<<<< HEAD
 	hid_sensor_remove_trigger(&gyro_state->common_attributes);
 error_unreg_buffer_funcs:
 	iio_triggered_buffer_cleanup(indio_dev);
 error_free_dev_mem:
 	kfree(indio_dev->channels);
+=======
+	hid_sensor_remove_trigger(indio_dev, &gyro_state->common_attributes);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -391,9 +494,13 @@ static int hid_gyro_3d_remove(struct platform_device *pdev)
 
 	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_GYRO_3D);
 	iio_device_unregister(indio_dev);
+<<<<<<< HEAD
 	hid_sensor_remove_trigger(&gyro_state->common_attributes);
 	iio_triggered_buffer_cleanup(indio_dev);
 	kfree(indio_dev->channels);
+=======
+	hid_sensor_remove_trigger(indio_dev, &gyro_state->common_attributes);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -421,3 +528,7 @@ module_platform_driver(hid_gyro_3d_platform_driver);
 MODULE_DESCRIPTION("HID Sensor Gyroscope 3D");
 MODULE_AUTHOR("Srinivas Pandruvada <srinivas.pandruvada@intel.com>");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(IIO_HID);
+>>>>>>> upstream/android-13

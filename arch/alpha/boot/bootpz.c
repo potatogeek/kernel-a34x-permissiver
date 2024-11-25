@@ -18,7 +18,10 @@
 
 #include <asm/console.h>
 #include <asm/hwrpb.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/io.h>
 
 #include <stdarg.h>
@@ -201,7 +204,11 @@ extern char _end;
 	START_ADDR	KSEG address of the entry point of kernel code.
 
 	ZERO_PGE	KSEG address of page full of zeroes, but 
+<<<<<<< HEAD
 			upon entry to kerne cvan be expected
+=======
+			upon entry to kernel, it can be expected
+>>>>>>> upstream/android-13
 			to hold the parameter list and possible
 			INTRD information.
 

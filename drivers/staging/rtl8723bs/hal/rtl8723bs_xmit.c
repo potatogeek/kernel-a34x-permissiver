@@ -4,7 +4,10 @@
  * Copyright(c) 2007 - 2012 Realtek Corporation. All rights reserved.
  *
  ******************************************************************************/
+<<<<<<< HEAD
 #define _RTL8723BS_XMIT_C_
+=======
+>>>>>>> upstream/android-13
 
 #include <drv_types.h>
 #include <rtw_debug.h>
@@ -17,20 +20,30 @@ static u8 rtw_sdio_wait_enough_TxOQT_space(struct adapter *padapter, u8 agg_num)
 
 	while (pHalData->SdioTxOQTFreeSpace < agg_num) {
 		if (
+<<<<<<< HEAD
 			(padapter->bSurpriseRemoved == true) ||
 			(padapter->bDriverStopped == true)
 		) {
 			DBG_871X("%s: bSurpriseRemoved or bDriverStopped (wait TxOQT)\n", __func__);
 			return false;
 		}
+=======
+			(padapter->bSurpriseRemoved) ||
+			(padapter->bDriverStopped)
+		)
+			return false;
+>>>>>>> upstream/android-13
 
 		HalQueryTxOQTBufferStatus8723BSdio(padapter);
 
 		if ((++n % 60) == 0) {
+<<<<<<< HEAD
 			if ((n % 300) == 0) {
 				DBG_871X("%s(%d): QOT free space(%d), agg_num: %d\n",
 				__func__, n, pHalData->SdioTxOQTFreeSpace, agg_num);
 			}
+=======
+>>>>>>> upstream/android-13
 			msleep(1);
 			/* yield(); */
 		}
@@ -58,12 +71,20 @@ static s32 rtl8723_dequeue_writeport(struct adapter *padapter)
 
 	ret = ret || check_fwstate(pmlmepriv, _FW_UNDER_SURVEY);
 
+<<<<<<< HEAD
 	if (true == ret)
+=======
+	if (ret)
+>>>>>>> upstream/android-13
 		pxmitbuf = dequeue_pending_xmitbuf_under_survey(pxmitpriv);
 	else
 		pxmitbuf = dequeue_pending_xmitbuf(pxmitpriv);
 
+<<<<<<< HEAD
 	if (pxmitbuf == NULL)
+=======
+	if (!pxmitbuf)
+>>>>>>> upstream/android-13
 		return true;
 
 	deviceId = ffaddr2deviceId(pdvobjpriv, pxmitbuf->ff_hwaddr);
@@ -85,7 +106,11 @@ static s32 rtl8723_dequeue_writeport(struct adapter *padapter)
 
 query_free_page:
 	/*  check if hardware tx fifo page is enough */
+<<<<<<< HEAD
 	if (false == rtw_hal_sdio_query_tx_freepage(pri_padapter, PageIdx, pxmitbuf->pg_num)) {
+=======
+	if (!rtw_hal_sdio_query_tx_freepage(pri_padapter, PageIdx, pxmitbuf->pg_num)) {
+>>>>>>> upstream/android-13
 		if (!bUpdatePageNum) {
 			/*  Total number of page is NOT available, so update current FIFO status */
 			HalQueryTxBufferStatus8723BSdio(padapter);
@@ -99,6 +124,7 @@ query_free_page:
 	}
 
 	if (
+<<<<<<< HEAD
 		(padapter->bSurpriseRemoved == true) ||
 		(padapter->bDriverStopped == true)
 	) {
@@ -109,6 +135,12 @@ query_free_page:
 		);
 		goto free_xmitbuf;
 	}
+=======
+		(padapter->bSurpriseRemoved) ||
+		(padapter->bDriverStopped)
+	)
+		goto free_xmitbuf;
+>>>>>>> upstream/android-13
 
 	if (rtw_sdio_wait_enough_TxOQT_space(padapter, pxmitbuf->agg_num) == false)
 		goto free_xmitbuf;
@@ -124,10 +156,13 @@ free_xmitbuf:
 	/* pxmitbuf->priv_data = NULL; */
 	rtw_free_xmitbuf(pxmitpriv, pxmitbuf);
 
+<<<<<<< HEAD
 #ifdef CONFIG_SDIO_TX_TASKLET
 	tasklet_hi_schedule(&pxmitpriv->xmit_tasklet);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	return _FAIL;
 }
 
@@ -148,6 +183,7 @@ s32 rtl8723bs_xmit_buf_handler(struct adapter *padapter)
 
 	pxmitpriv = &padapter->xmitpriv;
 
+<<<<<<< HEAD
 	if (down_interruptible(&pxmitpriv->xmit_sema)) {
 		DBG_871X_LEVEL(_drv_emerg_, "%s: down SdioXmitBufSema fail!\n", __func__);
 		return _FAIL;
@@ -171,6 +207,21 @@ s32 rtl8723bs_xmit_buf_handler(struct adapter *padapter)
 	queue_pending = check_pending_xmitbuf(pxmitpriv);
 
 	if (queue_pending == false)
+=======
+	if (wait_for_completion_interruptible(&pxmitpriv->xmit_comp)) {
+		netdev_emerg(padapter->pnetdev,
+			     "%s: down SdioXmitBufSema fail!\n", __func__);
+		return _FAIL;
+	}
+
+	ret = (padapter->bDriverStopped) || (padapter->bSurpriseRemoved);
+	if (ret)
+		return _FAIL;
+
+	queue_pending = check_pending_xmitbuf(pxmitpriv);
+
+	if (!queue_pending)
+>>>>>>> upstream/android-13
 		return _SUCCESS;
 
 	ret = rtw_register_tx_alive(padapter);
@@ -202,9 +253,15 @@ static s32 xmit_xmitframes(struct adapter *padapter, struct xmit_priv *pxmitpriv
 	s32 err, ret;
 	u32 k = 0;
 	struct hw_xmit *hwxmits, *phwxmit;
+<<<<<<< HEAD
 	u8 no_res, idx, hwentry;
 	struct tx_servq *ptxservq;
 	struct list_head *sta_plist, *sta_phead, *frame_plist, *frame_phead;
+=======
+	u8 idx, hwentry;
+	struct tx_servq *ptxservq;
+	struct list_head *sta_plist, *sta_phead, *frame_plist, *frame_phead, *tmp;
+>>>>>>> upstream/android-13
 	struct xmit_frame *pxmitframe;
 	struct __queue *pframe_queue;
 	struct xmit_buf *pxmitbuf;
@@ -213,7 +270,10 @@ static s32 xmit_xmitframes(struct adapter *padapter, struct xmit_priv *pxmitpriv
 	int inx[4];
 
 	err = 0;
+<<<<<<< HEAD
 	no_res = false;
+=======
+>>>>>>> upstream/android-13
 	hwxmits = pxmitpriv->hwxmits;
 	hwentry = pxmitpriv->hwxmit_entry;
 	ptxservq = NULL;
@@ -236,8 +296,13 @@ static s32 xmit_xmitframes(struct adapter *padapter, struct xmit_priv *pxmitpriv
 		phwxmit = hwxmits + inx[idx];
 
 		if (
+<<<<<<< HEAD
 			(check_pending_xmitbuf(pxmitpriv) == true) &&
 			(padapter->mlmepriv.LinkDetectInfo.bHigherBusyTxTraffic == true)
+=======
+			(check_pending_xmitbuf(pxmitpriv)) &&
+			(padapter->mlmepriv.LinkDetectInfo.bHigherBusyTxTraffic)
+>>>>>>> upstream/android-13
 		) {
 			if ((phwxmit->accnt > 0) && (phwxmit->accnt < 5)) {
 				err = -2;
@@ -250,6 +315,7 @@ static s32 xmit_xmitframes(struct adapter *padapter, struct xmit_priv *pxmitpriv
 		spin_lock_bh(&pxmitpriv->lock);
 
 		sta_phead = get_list_head(phwxmit->sta_queue);
+<<<<<<< HEAD
 		sta_plist = get_next(sta_phead);
 		/* because stop_sta_xmit may delete sta_plist at any time */
 		/* so we should add lock here, or while loop can not exit */
@@ -273,12 +339,21 @@ static s32 xmit_xmitframes(struct adapter *padapter, struct xmit_priv *pxmitpriv
 				pxmitpriv->free_xmitframe_cnt
 			);
 #endif
+=======
+		/* because stop_sta_xmit may delete sta_plist at any time */
+		/* so we should add lock here, or while loop can not exit */
+		list_for_each_safe(sta_plist, tmp, sta_phead) {
+			ptxservq = list_entry(sta_plist, struct tx_servq,
+					      tx_pending);
+
+>>>>>>> upstream/android-13
 			pframe_queue = &ptxservq->sta_pending;
 
 			frame_phead = get_list_head(pframe_queue);
 
 			while (list_empty(frame_phead) == false) {
 				frame_plist = get_next(frame_phead);
+<<<<<<< HEAD
 				pxmitframe = LIST_CONTAINOR(frame_plist, struct xmit_frame, list);
 
 				/*  check xmit_buf size enough or not */
@@ -287,6 +362,15 @@ static s32 xmit_xmitframes(struct adapter *padapter, struct xmit_priv *pxmitpriv
 					(NULL == pxmitbuf) ||
 					((_RND(pxmitbuf->len, 8) + txlen) > max_xmit_len) ||
 					(k >= (rtw_hal_sdio_max_txoqt_free_space(padapter)-1))
+=======
+				pxmitframe = container_of(frame_plist, struct xmit_frame, list);
+
+				/*  check xmit_buf size enough or not */
+				txlen = txdesc_size + rtw_wlan_pkt_size(pxmitframe);
+				if (!pxmitbuf ||
+					((_RND(pxmitbuf->len, 8) + txlen) > max_xmit_len) ||
+					(k >= (rtw_hal_sdio_max_txoqt_free_space(padapter) - 1))
+>>>>>>> upstream/android-13
 				) {
 					if (pxmitbuf) {
 						/* pxmitbuf->priv_data will be NULL, and will crash here */
@@ -307,18 +391,30 @@ static s32 xmit_xmitframes(struct adapter *padapter, struct xmit_priv *pxmitpriv
 					}
 
 					pxmitbuf = rtw_alloc_xmitbuf(pxmitpriv);
+<<<<<<< HEAD
 					if (pxmitbuf == NULL) {
 #ifdef DBG_XMIT_BUF
 						DBG_871X_LEVEL(_drv_err_, "%s: xmit_buf is not enough!\n", __func__);
 #endif
 						err = -2;
 						up(&(pxmitpriv->xmit_sema));
+=======
+					if (!pxmitbuf) {
+#ifdef DBG_XMIT_BUF
+						netdev_err(padapter->pnetdev,
+							   "%s: xmit_buf is not enough!\n",
+							   __func__);
+#endif
+						err = -2;
+						complete(&(pxmitpriv->xmit_comp));
+>>>>>>> upstream/android-13
 						break;
 					}
 					k = 0;
 				}
 
 				/*  ok to send, remove frame from queue */
+<<<<<<< HEAD
 				if (check_fwstate(&padapter->mlmepriv, WIFI_AP_STATE) == true) {
 					if (
 						(pxmitframe->attrib.psta->state & WIFI_SLEEP_STATE) &&
@@ -332,6 +428,14 @@ static s32 xmit_xmitframes(struct adapter *padapter, struct xmit_priv *pxmitpriv
 						break;
 					}
 				}
+=======
+				if (check_fwstate(&padapter->mlmepriv, WIFI_AP_STATE) == true)
+					if (
+						(pxmitframe->attrib.psta->state & WIFI_SLEEP_STATE) &&
+						(pxmitframe->attrib.triggered == 0)
+					)
+						break;
+>>>>>>> upstream/android-13
 
 				list_del_init(&pxmitframe->list);
 				ptxservq->qcnt--;
@@ -348,7 +452,13 @@ static s32 xmit_xmitframes(struct adapter *padapter, struct xmit_priv *pxmitpriv
 
 				ret = rtw_xmitframe_coalesce(padapter, pxmitframe->pkt, pxmitframe);
 				if (ret == _FAIL) {
+<<<<<<< HEAD
 					DBG_871X_LEVEL(_drv_err_, "%s: coalesce FAIL!", __func__);
+=======
+					netdev_err(padapter->pnetdev,
+						   "%s: coalesce FAIL!",
+						   __func__);
+>>>>>>> upstream/android-13
 					/*  Todo: error handler */
 				} else {
 					k++;
@@ -357,8 +467,13 @@ static s32 xmit_xmitframes(struct adapter *padapter, struct xmit_priv *pxmitpriv
 					rtw_count_tx_stats(padapter, pxmitframe, pxmitframe->attrib.last_txcmdsz);
 
 					txlen = txdesc_size + pxmitframe->attrib.last_txcmdsz;
+<<<<<<< HEAD
 					pxmitframe->pg_num = (txlen + 127)/128;
 					pxmitbuf->pg_num += (txlen + 127)/128;
+=======
+					pxmitframe->pg_num = (txlen + 127) / 128;
+					pxmitbuf->pg_num += (txlen + 127) / 128;
+>>>>>>> upstream/android-13
 				    /* if (k != 1) */
 					/* 	((struct xmit_frame*)pxmitbuf->priv_data)->pg_num += pxmitframe->pg_num; */
 					pxmitbuf->ptail += _RND(txlen, 8); /*  round to 8 bytes alignment */
@@ -380,8 +495,11 @@ static s32 xmit_xmitframes(struct adapter *padapter, struct xmit_priv *pxmitpriv
 
 		/*  dump xmit_buf to hw tx fifo */
 		if (pxmitbuf) {
+<<<<<<< HEAD
 			RT_TRACE(_module_hal_xmit_c_, _drv_info_, ("pxmitbuf->len =%d enqueue\n", pxmitbuf->len));
 
+=======
+>>>>>>> upstream/android-13
 			if (pxmitbuf->len > 0) {
 				struct xmit_frame *pframe;
 				pframe = (struct xmit_frame *)pxmitbuf->priv_data;
@@ -420,13 +538,20 @@ static s32 rtl8723bs_xmit_handler(struct adapter *padapter)
 
 	pxmitpriv = &padapter->xmitpriv;
 
+<<<<<<< HEAD
 	if (down_interruptible(&pxmitpriv->SdioXmitSema)) {
 		DBG_871X_LEVEL(_drv_emerg_, "%s: down sema fail!\n", __func__);
+=======
+	if (wait_for_completion_interruptible(&pxmitpriv->SdioXmitStart)) {
+		netdev_emerg(padapter->pnetdev, "%s: SdioXmitStart fail!\n",
+			     __func__);
+>>>>>>> upstream/android-13
 		return _FAIL;
 	}
 
 next:
 	if (
+<<<<<<< HEAD
 		(padapter->bDriverStopped == true) ||
 		(padapter->bSurpriseRemoved == true)
 	) {
@@ -442,6 +567,12 @@ next:
 		);
 		return _FAIL;
 	}
+=======
+		(padapter->bDriverStopped) ||
+		(padapter->bSurpriseRemoved)
+	)
+		return _FAIL;
+>>>>>>> upstream/android-13
 
 	spin_lock_bh(&pxmitpriv->lock);
 	ret = rtw_txframes_pending(padapter);
@@ -484,6 +615,7 @@ int rtl8723bs_xmit_thread(void *context)
 	padapter = context;
 	pxmitpriv = &padapter->xmitpriv;
 
+<<<<<<< HEAD
 	rtw_sprintf(thread_name, 20, "RTWHALXT-" ADPT_FMT, ADPT_ARG(padapter));
 	thread_enter(thread_name);
 
@@ -493,6 +625,11 @@ int rtl8723bs_xmit_thread(void *context)
 	/*  so mark this temporary, Lucas@20130820 */
 /* 	up(&pxmitpriv->SdioXmitTerminateSema); */
 
+=======
+	rtw_sprintf(thread_name, 20, "RTWHALXT-%s", ADPT_ARG(padapter));
+	thread_enter(thread_name);
+
+>>>>>>> upstream/android-13
 	do {
 		ret = rtl8723bs_xmit_handler(padapter);
 		if (signal_pending(current)) {
@@ -500,9 +637,13 @@ int rtl8723bs_xmit_thread(void *context)
 		}
 	} while (_SUCCESS == ret);
 
+<<<<<<< HEAD
 	up(&pxmitpriv->SdioXmitTerminateSema);
 
 	RT_TRACE(_module_hal_xmit_c_, _drv_notice_, ("-%s\n", __func__));
+=======
+	complete(&pxmitpriv->SdioXmitTerminate);
+>>>>>>> upstream/android-13
 
 	thread_exit();
 }
@@ -519,15 +660,22 @@ s32 rtl8723bs_mgnt_xmit(
 	u8 *pframe = (u8 *)(pmgntframe->buf_addr) + TXDESC_OFFSET;
 	u8 txdesc_size = TXDESC_SIZE;
 
+<<<<<<< HEAD
 	RT_TRACE(_module_hal_xmit_c_, _drv_info_, ("+%s\n", __func__));
 
+=======
+>>>>>>> upstream/android-13
 	pattrib = &pmgntframe->attrib;
 	pxmitbuf = pmgntframe->pxmitbuf;
 
 	rtl8723b_update_txdesc(pmgntframe, pmgntframe->buf_addr);
 
 	pxmitbuf->len = txdesc_size + pattrib->last_txcmdsz;
+<<<<<<< HEAD
 	pxmitbuf->pg_num = (pxmitbuf->len + 127)/128; /*  128 is tx page size */
+=======
+	pxmitbuf->pg_num = (pxmitbuf->len + 127) / 128; /*  128 is tx page size */
+>>>>>>> upstream/android-13
 	pxmitbuf->ptail = pmgntframe->buf_addr + pxmitbuf->len;
 	pxmitbuf->ff_hwaddr = rtw_get_ff_hwaddr(pmgntframe);
 
@@ -574,7 +722,11 @@ s32 rtl8723bs_hal_xmit(
 		(pxmitframe->attrib.ether_type != 0x888e) &&
 		(pxmitframe->attrib.dhcp_pkt != 1)
 	) {
+<<<<<<< HEAD
 		if (padapter->mlmepriv.LinkDetectInfo.bBusyTraffic == true)
+=======
+		if (padapter->mlmepriv.LinkDetectInfo.bBusyTraffic)
+>>>>>>> upstream/android-13
 			rtw_issue_addbareq_cmd(padapter, pxmitframe);
 	}
 
@@ -582,14 +734,21 @@ s32 rtl8723bs_hal_xmit(
 	err = rtw_xmitframe_enqueue(padapter, pxmitframe);
 	spin_unlock_bh(&pxmitpriv->lock);
 	if (err != _SUCCESS) {
+<<<<<<< HEAD
 		RT_TRACE(_module_hal_xmit_c_, _drv_err_, ("rtl8723bs_hal_xmit: enqueue xmitframe fail\n"));
+=======
+>>>>>>> upstream/android-13
 		rtw_free_xmitframe(pxmitpriv, pxmitframe);
 
 		pxmitpriv->tx_drop++;
 		return true;
 	}
 
+<<<<<<< HEAD
 	up(&pxmitpriv->SdioXmitSema);
+=======
+	complete(&pxmitpriv->SdioXmitStart);
+>>>>>>> upstream/android-13
 
 	return false;
 }
@@ -607,11 +766,15 @@ s32	rtl8723bs_hal_xmitframe_enqueue(
 
 		pxmitpriv->tx_drop++;
 	} else {
+<<<<<<< HEAD
 #ifdef CONFIG_SDIO_TX_TASKLET
 		tasklet_hi_schedule(&pxmitpriv->xmit_tasklet);
 #else
 		up(&pxmitpriv->SdioXmitSema);
 #endif
+=======
+		complete(&pxmitpriv->SdioXmitStart);
+>>>>>>> upstream/android-13
 	}
 
 	return err;
@@ -633,15 +796,23 @@ s32 rtl8723bs_init_xmit_priv(struct adapter *padapter)
 	phal = GET_HAL_DATA(padapter);
 
 	spin_lock_init(&phal->SdioTxFIFOFreePageLock);
+<<<<<<< HEAD
 	sema_init(&xmitpriv->SdioXmitSema, 0);
 	sema_init(&xmitpriv->SdioXmitTerminateSema, 0);
+=======
+	init_completion(&xmitpriv->SdioXmitStart);
+	init_completion(&xmitpriv->SdioXmitTerminate);
+>>>>>>> upstream/android-13
 
 	return _SUCCESS;
 }
 
 void rtl8723bs_free_xmit_priv(struct adapter *padapter)
 {
+<<<<<<< HEAD
 	struct hal_com_data *phal;
+=======
+>>>>>>> upstream/android-13
 	struct xmit_priv *pxmitpriv;
 	struct xmit_buf *pxmitbuf;
 	struct __queue *pqueue;
@@ -649,7 +820,10 @@ void rtl8723bs_free_xmit_priv(struct adapter *padapter)
 	struct list_head tmplist;
 
 
+<<<<<<< HEAD
 	phal = GET_HAL_DATA(padapter);
+=======
+>>>>>>> upstream/android-13
 	pxmitpriv = &padapter->xmitpriv;
 	pqueue = &pxmitpriv->pending_xmitbuf_queue;
 	phead = get_list_head(pqueue);
@@ -669,7 +843,11 @@ void rtl8723bs_free_xmit_priv(struct adapter *padapter)
 		plist = get_next(phead);
 		list_del_init(plist);
 
+<<<<<<< HEAD
 		pxmitbuf = LIST_CONTAINOR(plist, struct xmit_buf, list);
+=======
+		pxmitbuf = container_of(plist, struct xmit_buf, list);
+>>>>>>> upstream/android-13
 		rtw_free_xmitframe(pxmitpriv, (struct xmit_frame *)pxmitbuf->priv_data);
 		pxmitbuf->priv_data = NULL;
 		rtw_free_xmitbuf(pxmitpriv, pxmitbuf);

@@ -5,11 +5,22 @@
 	Value type: <stringlist>
 	Definition: Value should contain
 			- "qcom,pcie-ipq8064" for ipq8064
+<<<<<<< HEAD
+=======
+			- "qcom,pcie-ipq8064-v2" for ipq8064 rev 2 or ipq8065
+>>>>>>> upstream/android-13
 			- "qcom,pcie-apq8064" for apq8064
 			- "qcom,pcie-apq8084" for apq8084
 			- "qcom,pcie-msm8996" for msm8996 or apq8096
 			- "qcom,pcie-ipq4019" for ipq4019
 			- "qcom,pcie-ipq8074" for ipq8074
+<<<<<<< HEAD
+=======
+			- "qcom,pcie-qcs404" for qcs404
+			- "qcom,pcie-sdm845" for sdm845
+			- "qcom,pcie-sm8250" for sm8250
+			- "qcom,pcie-ipq6018" for ipq6018
+>>>>>>> upstream/android-13
 
 - reg:
 	Usage: required
@@ -24,26 +35,46 @@
 			- "dbi"	   DesignWare PCIe registers
 			- "elbi"   External local bus interface registers
 			- "config" PCIe configuration space
+<<<<<<< HEAD
+=======
+			- "atu"    ATU address space (optional)
+>>>>>>> upstream/android-13
 
 - device_type:
 	Usage: required
 	Value type: <string>
+<<<<<<< HEAD
 	Definition: Should be "pci". As specified in designware-pcie.txt
+=======
+	Definition: Should be "pci". As specified in snps,dw-pcie.yaml
+>>>>>>> upstream/android-13
 
 - #address-cells:
 	Usage: required
 	Value type: <u32>
+<<<<<<< HEAD
 	Definition: Should be 3. As specified in designware-pcie.txt
+=======
+	Definition: Should be 3. As specified in snps,dw-pcie.yaml
+>>>>>>> upstream/android-13
 
 - #size-cells:
 	Usage: required
 	Value type: <u32>
+<<<<<<< HEAD
 	Definition: Should be 2. As specified in designware-pcie.txt
+=======
+	Definition: Should be 2. As specified in snps,dw-pcie.yaml
+>>>>>>> upstream/android-13
 
 - ranges:
 	Usage: required
 	Value type: <prop-encoded-array>
+<<<<<<< HEAD
 	Definition: As specified in designware-pcie.txt
+=======
+	Definition: As specified in snps,dw-pcie.yaml
+>>>>>>> upstream/android-13
 
 - interrupts:
 	Usage: required
@@ -58,17 +89,29 @@
 - #interrupt-cells:
 	Usage: required
 	Value type: <u32>
+<<<<<<< HEAD
 	Definition: Should be 1. As specified in designware-pcie.txt
+=======
+	Definition: Should be 1. As specified in snps,dw-pcie.yaml
+>>>>>>> upstream/android-13
 
 - interrupt-map-mask:
 	Usage: required
 	Value type: <prop-encoded-array>
+<<<<<<< HEAD
 	Definition: As specified in designware-pcie.txt
+=======
+	Definition: As specified in snps,dw-pcie.yaml
+>>>>>>> upstream/android-13
 
 - interrupt-map:
 	Usage: required
 	Value type: <prop-encoded-array>
+<<<<<<< HEAD
 	Definition: As specified in designware-pcie.txt
+=======
+	Definition: As specified in snps,dw-pcie.yaml
+>>>>>>> upstream/android-13
 
 - clocks:
 	Usage: required
@@ -88,6 +131,11 @@
 	Definition: Should contain the following entries
 			- "core"	Clocks the pcie hw block
 			- "phy"		Clocks the pcie PHY block
+<<<<<<< HEAD
+=======
+			- "aux" 	Clocks the pcie AUX block
+			- "ref" 	Clocks the pcie ref block
+>>>>>>> upstream/android-13
 - clock-names:
 	Usage: required for apq8084/ipq4019
 	Value type: <stringlist>
@@ -116,6 +164,53 @@
 			- "ahb"		AHB clock
 			- "aux"		Auxiliary clock
 
+<<<<<<< HEAD
+=======
+- clock-names:
+	Usage: required for ipq6018
+	Value type: <stringlist>
+	Definition: Should contain the following entries
+			- "iface"	PCIe to SysNOC BIU clock
+			- "axi_m"	AXI Master clock
+			- "axi_s"	AXI Slave clock
+			- "axi_bridge"	AXI bridge clock
+			- "rchng"
+
+- clock-names:
+	Usage: required for qcs404
+	Value type: <stringlist>
+	Definition: Should contain the following entries
+			- "iface"	AHB clock
+			- "aux"		Auxiliary clock
+			- "master_bus"	AXI Master clock
+			- "slave_bus"	AXI Slave clock
+
+- clock-names:
+	Usage: required for sdm845
+	Value type: <stringlist>
+	Definition: Should contain the following entries
+			- "aux"		Auxiliary clock
+			- "cfg"		Configuration clock
+			- "bus_master"	Master AXI clock
+			- "bus_slave"	Slave AXI clock
+			- "slave_q2a"	Slave Q2A clock
+			- "tbu"		PCIe TBU clock
+			- "pipe"	PIPE clock
+
+- clock-names:
+	Usage: required for sm8250
+	Value type: <stringlist>
+	Definition: Should contain the following entries
+			- "aux"		Auxiliary clock
+			- "cfg"		Configuration clock
+			- "bus_master"	Master AXI clock
+			- "bus_slave"	Slave AXI clock
+			- "slave_q2a"	Slave Q2A clock
+			- "tbu"		PCIe TBU clock
+			- "ddrss_sf_tbu" PCIe SF TBU clock
+			- "pipe"	PIPE clock
+
+>>>>>>> upstream/android-13
 - resets:
 	Usage: required
 	Value type: <prop-encoded-array>
@@ -154,6 +249,10 @@
 			- "pwr"			PWR reset
 			- "ahb"			AHB reset
 			- "phy_ahb"		PHY AHB reset
+<<<<<<< HEAD
+=======
+			- "ext"			EXT reset
+>>>>>>> upstream/android-13
 
 - reset-names:
 	Usage: required for ipq8074
@@ -167,6 +266,39 @@
 			- "ahb"			AHB Reset
 			- "axi_m_sticky"	AXI Master Sticky reset
 
+<<<<<<< HEAD
+=======
+- reset-names:
+	Usage: required for ipq6018
+	Value type: <stringlist>
+	Definition: Should contain the following entries
+			- "pipe"		PIPE reset
+			- "sleep"		Sleep reset
+			- "sticky"		Core Sticky reset
+			- "axi_m"		AXI Master reset
+			- "axi_s"		AXI Slave reset
+			- "ahb"			AHB Reset
+			- "axi_m_sticky"	AXI Master Sticky reset
+			- "axi_s_sticky"	AXI Slave Sticky reset
+
+- reset-names:
+	Usage: required for qcs404
+	Value type: <stringlist>
+	Definition: Should contain the following entries
+			- "axi_m"		AXI Master reset
+			- "axi_s"		AXI Slave reset
+			- "axi_m_sticky"	AXI Master Sticky reset
+			- "pipe_sticky"		PIPE sticky reset
+			- "pwr"			PWR reset
+			- "ahb"			AHB reset
+
+- reset-names:
+	Usage: required for sdm845 and sm8250
+	Value type: <stringlist>
+	Definition: Should contain the following entries
+			- "pci"			PCIe core reset
+
+>>>>>>> upstream/android-13
 - power-domains:
 	Usage: required for apq8084 and msm8996/apq8096
 	Value type: <prop-encoded-array>
@@ -195,12 +327,20 @@
 	Definition: A phandle to the PCIe endpoint power supply
 
 - phys:
+<<<<<<< HEAD
 	Usage: required for apq8084
+=======
+	Usage: required for apq8084 and qcs404
+>>>>>>> upstream/android-13
 	Value type: <phandle>
 	Definition: List of phandle(s) as listed in phy-names property
 
 - phy-names:
+<<<<<<< HEAD
 	Usage: required for apq8084
+=======
+	Usage: required for apq8084 and qcs404
+>>>>>>> upstream/android-13
 	Value type: <stringlist>
 	Definition: Should contain "pciephy"
 
@@ -237,14 +377,27 @@
 				<0 0 0 4 &intc 0 39 IRQ_TYPE_LEVEL_HIGH>; /* int_d */
 		clocks = <&gcc PCIE_A_CLK>,
 			 <&gcc PCIE_H_CLK>,
+<<<<<<< HEAD
 			 <&gcc PCIE_PHY_CLK>;
 		clock-names = "core", "iface", "phy";
+=======
+			 <&gcc PCIE_PHY_CLK>,
+			 <&gcc PCIE_AUX_CLK>,
+			 <&gcc PCIE_ALT_REF_CLK>;
+		clock-names = "core", "iface", "phy", "aux", "ref";
+>>>>>>> upstream/android-13
 		resets = <&gcc PCIE_ACLK_RESET>,
 			 <&gcc PCIE_HCLK_RESET>,
 			 <&gcc PCIE_POR_RESET>,
 			 <&gcc PCIE_PCI_RESET>,
+<<<<<<< HEAD
 			 <&gcc PCIE_PHY_RESET>;
 		reset-names = "axi", "ahb", "por", "pci", "phy";
+=======
+			 <&gcc PCIE_PHY_RESET>,
+			 <&gcc PCIE_EXT_RESET>;
+		reset-names = "axi", "ahb", "por", "pci", "phy", "ext";
+>>>>>>> upstream/android-13
 		pinctrl-0 = <&pcie_pins_default>;
 		pinctrl-names = "default";
 	};

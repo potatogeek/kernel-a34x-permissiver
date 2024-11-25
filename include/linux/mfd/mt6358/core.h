@@ -1,12 +1,37 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
+<<<<<<< HEAD
  * Copyright (c) 2019 MediaTek Inc.
+=======
+ * Copyright (c) 2020 MediaTek Inc.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __MFD_MT6358_CORE_H__
 #define __MFD_MT6358_CORE_H__
 
+<<<<<<< HEAD
 #define MT6358_REG_WIDTH 16
+=======
+struct irq_top_t {
+	int hwirq_base;
+	unsigned int num_int_regs;
+	unsigned int en_reg;
+	unsigned int en_reg_shift;
+	unsigned int sta_reg;
+	unsigned int sta_reg_shift;
+	unsigned int top_offset;
+};
+
+struct pmic_irq_data {
+	unsigned int num_top;
+	unsigned int num_pmic_irqs;
+	unsigned short top_int_status_reg;
+	bool *enable_hwirq;
+	bool *cache_hwirq;
+	const struct irq_top_t *pmic_ints;
+};
+>>>>>>> upstream/android-13
 
 enum mt6358_irq_top_status_shift {
 	MT6358_BUCK_TOP = 0,
@@ -15,7 +40,11 @@ enum mt6358_irq_top_status_shift {
 	MT6358_SCK_TOP,
 	MT6358_BM_TOP,
 	MT6358_HK_TOP,
+<<<<<<< HEAD
 	MT6358_AUD_TOP = 7,
+=======
+	MT6358_AUD_TOP,
+>>>>>>> upstream/android-13
 	MT6358_MISC_TOP,
 };
 
@@ -113,6 +142,7 @@ enum mt6358_irq_numbers {
 #define MT6358_IRQ_AUD_BASE MT6358_IRQ_AUDIO
 #define MT6358_IRQ_MISC_BASE MT6358_IRQ_SPI_CMD_ALERT
 
+<<<<<<< HEAD
 #define MT6358_IRQ_BUCK_BITS (MT6358_IRQ_VCORE_PREOC - MT6358_IRQ_BUCK_BASE)
 #define MT6358_IRQ_LDO_BITS (MT6358_IRQ_VBIF28_OC - MT6358_IRQ_LDO_BASE)
 #define MT6358_IRQ_PSC_BITS (MT6358_IRQ_VCDT_HV_DET - MT6358_IRQ_PSC_BASE)
@@ -122,19 +152,39 @@ enum mt6358_irq_numbers {
 #define MT6358_IRQ_AUD_BITS (MT6358_IRQ_ACCDET_EINT1 - MT6358_IRQ_AUD_BASE)
 #define MT6358_IRQ_MISC_BITS	\
 	(MT6358_IRQ_SPI_CMD_ALERT - MT6358_IRQ_MISC_BASE)
+=======
+#define MT6358_IRQ_BUCK_BITS (MT6358_IRQ_VCORE_PREOC - MT6358_IRQ_BUCK_BASE + 1)
+#define MT6358_IRQ_LDO_BITS (MT6358_IRQ_VBIF28_OC - MT6358_IRQ_LDO_BASE + 1)
+#define MT6358_IRQ_PSC_BITS (MT6358_IRQ_VCDT_HV_DET - MT6358_IRQ_PSC_BASE + 1)
+#define MT6358_IRQ_SCK_BITS (MT6358_IRQ_RTC - MT6358_IRQ_SCK_BASE + 1)
+#define MT6358_IRQ_BM_BITS (MT6358_IRQ_BIF - MT6358_IRQ_BM_BASE + 1)
+#define MT6358_IRQ_HK_BITS (MT6358_IRQ_NAG_C_DLTV - MT6358_IRQ_HK_BASE + 1)
+#define MT6358_IRQ_AUD_BITS (MT6358_IRQ_ACCDET_EINT1 - MT6358_IRQ_AUD_BASE + 1)
+#define MT6358_IRQ_MISC_BITS	\
+	(MT6358_IRQ_SPI_CMD_ALERT - MT6358_IRQ_MISC_BASE + 1)
+>>>>>>> upstream/android-13
 
 #define MT6358_TOP_GEN(sp)	\
 {	\
 	.hwirq_base = MT6358_IRQ_##sp##_BASE,	\
 	.num_int_regs =	\
+<<<<<<< HEAD
 		(MT6358_IRQ_##sp##_BITS / MT6358_REG_WIDTH) + 1,	\
 	.en_reg = MT6358_##sp##_TOP_INT_CON0,		\
 	.en_reg_shift = 0x6,	\
 	.sta_reg = MT6358_##sp##_TOP_INT_STATUS0,		\
+=======
+		((MT6358_IRQ_##sp##_BITS - 1) /	\
+		MTK_PMIC_REG_WIDTH) + 1,	\
+	.en_reg = MT6358_##sp##_TOP_INT_CON0,	\
+	.en_reg_shift = 0x6,	\
+	.sta_reg = MT6358_##sp##_TOP_INT_STATUS0,	\
+>>>>>>> upstream/android-13
 	.sta_reg_shift = 0x2,	\
 	.top_offset = MT6358_##sp##_TOP,	\
 }
 
+<<<<<<< HEAD
 #define MT6358_IRQ_NAME_GEN()	\
 {	\
 	[MT6358_IRQ_VPROC11_OC] = {.name = "vproc11_oc"},	\
@@ -234,4 +284,6 @@ struct mt6358_chip {
 extern unsigned int mt6358_irq_get_virq(struct device *dev, unsigned int hwirq);
 extern const char *mt6358_irq_get_name(struct device *dev, unsigned int hwirq);
 
+=======
+>>>>>>> upstream/android-13
 #endif /* __MFD_MT6358_CORE_H__ */

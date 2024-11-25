@@ -6,6 +6,7 @@
 #include <linux/kprobes.h>
 
 #include <asm/debugreg.h>
+<<<<<<< HEAD
 #include <asm/siginfo.h>			/* TRAP_TRACE, ... */
 
 #define dotraplinkage __visible
@@ -89,6 +90,24 @@ dotraplinkage void do_simd_coprocessor_error(struct pt_regs *, long);
 dotraplinkage void do_iret_error(struct pt_regs *, long);
 #endif
 dotraplinkage void do_mce(struct pt_regs *, long);
+=======
+#include <asm/idtentry.h>
+#include <asm/siginfo.h>			/* TRAP_TRACE, ... */
+#include <asm/trap_pf.h>
+
+#ifdef CONFIG_X86_64
+asmlinkage __visible notrace struct pt_regs *sync_regs(struct pt_regs *eregs);
+asmlinkage __visible notrace
+struct bad_iret_stack *fixup_bad_iret(struct bad_iret_stack *s);
+void __init trap_init(void);
+asmlinkage __visible noinstr struct pt_regs *vc_switch_off_ist(struct pt_regs *eregs);
+#endif
+
+#ifdef CONFIG_X86_F00F_BUG
+/* For handling the FOOF bug */
+void handle_invalid_op(struct pt_regs *regs);
+#endif
+>>>>>>> upstream/android-13
 
 static inline int get_si_code(unsigned long condition)
 {
@@ -103,6 +122,7 @@ static inline int get_si_code(unsigned long condition)
 extern int panic_on_unrecovered_nmi;
 
 void math_emulate(struct math_emu_info *);
+<<<<<<< HEAD
 #ifndef CONFIG_X86_32
 asmlinkage void smp_thermal_interrupt(struct pt_regs *regs);
 asmlinkage void smp_threshold_interrupt(struct pt_regs *regs);
@@ -163,4 +183,15 @@ enum x86_pf_error_code {
 	X86_PF_INSTR	=		1 << 4,
 	X86_PF_PK	=		1 << 5,
 };
+=======
+
+bool fault_in_kernel_space(unsigned long address);
+
+#ifdef CONFIG_VMAP_STACK
+void __noreturn handle_stack_overflow(struct pt_regs *regs,
+				      unsigned long fault_address,
+				      struct stack_info *info);
+#endif
+
+>>>>>>> upstream/android-13
 #endif /* _ASM_X86_TRAPS_H */

@@ -27,7 +27,13 @@
 #define MLXREG_FAN_SPEED_MAX			(MLXREG_FAN_MAX_STATE * 2)
 #define MLXREG_FAN_SPEED_MIN_LEVEL		2	/* 20 percent */
 #define MLXREG_FAN_TACHO_SAMPLES_PER_PULSE_DEF	44
+<<<<<<< HEAD
 #define MLXREG_FAN_TACHO_DIVIDER_DEF		1132
+=======
+#define MLXREG_FAN_TACHO_DIV_MIN		283
+#define MLXREG_FAN_TACHO_DIV_DEF		(MLXREG_FAN_TACHO_DIV_MIN * 4)
+#define MLXREG_FAN_TACHO_DIV_SCALE_MAX	64
+>>>>>>> upstream/android-13
 /*
  * FAN datasheet defines the formula for RPM calculations as RPM = 15/t-high.
  * The logic in a programmable device measures the time t-high by sampling the
@@ -51,7 +57,11 @@
  */
 #define MLXREG_FAN_GET_RPM(rval, d, s)	(DIV_ROUND_CLOSEST(15000000 * 100, \
 					 ((rval) + (s)) * (d)))
+<<<<<<< HEAD
 #define MLXREG_FAN_GET_FAULT(val, mask) (!((val) ^ (mask)))
+=======
+#define MLXREG_FAN_GET_FAULT(val, mask) ((val) == (mask))
+>>>>>>> upstream/android-13
 #define MLXREG_FAN_PWM_DUTY2STATE(duty)	(DIV_ROUND_CLOSEST((duty) *	\
 					 MLXREG_FAN_MAX_STATE,		\
 					 MLXREG_FAN_MAX_DUTY))
@@ -65,11 +75,19 @@
  * @connected: indicates if tachometer is connected;
  * @reg: register offset;
  * @mask: fault mask;
+<<<<<<< HEAD
+=======
+ * @prsnt: present register offset;
+>>>>>>> upstream/android-13
  */
 struct mlxreg_fan_tacho {
 	bool connected;
 	u32 reg;
 	u32 mask;
+<<<<<<< HEAD
+=======
+	u32 prsnt;
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -90,6 +108,10 @@ struct mlxreg_fan_pwm {
  * @regmap: register map of parent device;
  * @tacho: tachometer data;
  * @pwm: PWM data;
+<<<<<<< HEAD
+=======
+ * @tachos_per_drwr - number of tachometers per drawer;
+>>>>>>> upstream/android-13
  * @samples: minimum allowed samples per pulse;
  * @divider: divider value for tachometer RPM calculation;
  * @cooling: cooling device levels;
@@ -101,6 +123,10 @@ struct mlxreg_fan {
 	struct mlxreg_core_platform_data *pdata;
 	struct mlxreg_fan_tacho tacho[MLXREG_FAN_MAX_TACHO];
 	struct mlxreg_fan_pwm pwm;
+<<<<<<< HEAD
+=======
+	int tachos_per_drwr;
+>>>>>>> upstream/android-13
 	int samples;
 	int divider;
 	u8 cooling_levels[MLXREG_FAN_MAX_STATE + 1];
@@ -121,6 +147,29 @@ mlxreg_fan_read(struct device *dev, enum hwmon_sensor_types type, u32 attr,
 		tacho = &fan->tacho[channel];
 		switch (attr) {
 		case hwmon_fan_input:
+<<<<<<< HEAD
+=======
+			/*
+			 * Check FAN presence: FAN related bit in presence register is one,
+			 * if FAN is physically connected, zero - otherwise.
+			 */
+			if (tacho->prsnt && fan->tachos_per_drwr) {
+				err = regmap_read(fan->regmap, tacho->prsnt, &regval);
+				if (err)
+					return err;
+
+				/*
+				 * Map channel to presence bit - drawer can be equipped with
+				 * one or few FANs, while presence is indicated per drawer.
+				 */
+				if (BIT(channel / fan->tachos_per_drwr) & regval) {
+					/* FAN is not connected - return zero for FAN speed. */
+					*val = 0;
+					return 0;
+				}
+			}
+
+>>>>>>> upstream/android-13
 			err = regmap_read(fan->regmap, tacho->reg, &regval);
 			if (err)
 				return err;
@@ -227,6 +276,7 @@ mlxreg_fan_is_visible(const void *data, enum hwmon_sensor_types type, u32 attr,
 	return 0;
 }
 
+<<<<<<< HEAD
 static const u32 mlxreg_fan_hwmon_fan_config[] = {
 	HWMON_F_INPUT | HWMON_F_FAULT,
 	HWMON_F_INPUT | HWMON_F_FAULT,
@@ -261,6 +311,24 @@ static const struct hwmon_channel_info mlxreg_fan_hwmon_pwm = {
 static const struct hwmon_channel_info *mlxreg_fan_hwmon_info[] = {
 	&mlxreg_fan_hwmon_fan,
 	&mlxreg_fan_hwmon_pwm,
+=======
+static const struct hwmon_channel_info *mlxreg_fan_hwmon_info[] = {
+	HWMON_CHANNEL_INFO(fan,
+			   HWMON_F_INPUT | HWMON_F_FAULT,
+			   HWMON_F_INPUT | HWMON_F_FAULT,
+			   HWMON_F_INPUT | HWMON_F_FAULT,
+			   HWMON_F_INPUT | HWMON_F_FAULT,
+			   HWMON_F_INPUT | HWMON_F_FAULT,
+			   HWMON_F_INPUT | HWMON_F_FAULT,
+			   HWMON_F_INPUT | HWMON_F_FAULT,
+			   HWMON_F_INPUT | HWMON_F_FAULT,
+			   HWMON_F_INPUT | HWMON_F_FAULT,
+			   HWMON_F_INPUT | HWMON_F_FAULT,
+			   HWMON_F_INPUT | HWMON_F_FAULT,
+			   HWMON_F_INPUT | HWMON_F_FAULT),
+	HWMON_CHANNEL_INFO(pwm,
+			   HWMON_PWM_INPUT),
+>>>>>>> upstream/android-13
 	NULL
 };
 
@@ -307,8 +375,13 @@ static int mlxreg_fan_set_cur_state(struct thermal_cooling_device *cdev,
 {
 	struct mlxreg_fan *fan = cdev->devdata;
 	unsigned long cur_state;
+<<<<<<< HEAD
 	u32 regval;
 	int i;
+=======
+	int i, config = 0;
+	u32 regval;
+>>>>>>> upstream/android-13
 	int err;
 
 	/*
@@ -321,6 +394,15 @@ static int mlxreg_fan_set_cur_state(struct thermal_cooling_device *cdev,
 	 * overwritten.
 	 */
 	if (state >= MLXREG_FAN_SPEED_MIN && state <= MLXREG_FAN_SPEED_MAX) {
+<<<<<<< HEAD
+=======
+		/*
+		 * This is configuration change, which is only supported through sysfs.
+		 * For configuration non-zero value is to be returned to avoid thermal
+		 * statistics update.
+		 */
+		config = 1;
+>>>>>>> upstream/android-13
 		state -= MLXREG_FAN_MAX_STATE;
 		for (i = 0; i < state; i++)
 			fan->cooling_levels[i] = state;
@@ -335,7 +417,11 @@ static int mlxreg_fan_set_cur_state(struct thermal_cooling_device *cdev,
 
 		cur_state = MLXREG_FAN_PWM_DUTY2STATE(regval);
 		if (state < cur_state)
+<<<<<<< HEAD
 			return 0;
+=======
+			return config;
+>>>>>>> upstream/android-13
 
 		state = cur_state;
 	}
@@ -351,7 +437,11 @@ static int mlxreg_fan_set_cur_state(struct thermal_cooling_device *cdev,
 		dev_err(fan->dev, "Failed to write PWM duty\n");
 		return err;
 	}
+<<<<<<< HEAD
 	return 0;
+=======
+	return config;
+>>>>>>> upstream/android-13
 }
 
 static const struct thermal_cooling_device_ops mlxreg_fan_cooling_ops = {
@@ -360,15 +450,68 @@ static const struct thermal_cooling_device_ops mlxreg_fan_cooling_ops = {
 	.set_cur_state	= mlxreg_fan_set_cur_state,
 };
 
+<<<<<<< HEAD
+=======
+static int mlxreg_fan_connect_verify(struct mlxreg_fan *fan,
+				     struct mlxreg_core_data *data)
+{
+	u32 regval;
+	int err;
+
+	err = regmap_read(fan->regmap, data->capability, &regval);
+	if (err) {
+		dev_err(fan->dev, "Failed to query capability register 0x%08x\n",
+			data->capability);
+		return err;
+	}
+
+	return !!(regval & data->bit);
+}
+
+static int mlxreg_fan_speed_divider_get(struct mlxreg_fan *fan,
+					struct mlxreg_core_data *data)
+{
+	u32 regval;
+	int err;
+
+	err = regmap_read(fan->regmap, data->capability, &regval);
+	if (err) {
+		dev_err(fan->dev, "Failed to query capability register 0x%08x\n",
+			data->capability);
+		return err;
+	}
+
+	/*
+	 * Set divider value according to the capability register, in case it
+	 * contains valid value. Otherwise use default value. The purpose of
+	 * this validation is to protect against the old hardware, in which
+	 * this register can return zero.
+	 */
+	if (regval > 0 && regval <= MLXREG_FAN_TACHO_DIV_SCALE_MAX)
+		fan->divider = regval * MLXREG_FAN_TACHO_DIV_MIN;
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int mlxreg_fan_config(struct mlxreg_fan *fan,
 			     struct mlxreg_core_platform_data *pdata)
 {
 	struct mlxreg_core_data *data = pdata->data;
+<<<<<<< HEAD
 	bool configured = false;
 	int tacho_num = 0, i;
 
 	fan->samples = MLXREG_FAN_TACHO_SAMPLES_PER_PULSE_DEF;
 	fan->divider = MLXREG_FAN_TACHO_DIVIDER_DEF;
+=======
+	int tacho_num = 0, tacho_avail = 0, i;
+	bool configured = false;
+	int err;
+
+	fan->samples = MLXREG_FAN_TACHO_SAMPLES_PER_PULSE_DEF;
+	fan->divider = MLXREG_FAN_TACHO_DIV_DEF;
+>>>>>>> upstream/android-13
 	for (i = 0; i < pdata->counter; i++, data++) {
 		if (strnstr(data->label, "tacho", sizeof(data->label))) {
 			if (tacho_num == MLXREG_FAN_MAX_TACHO) {
@@ -376,9 +519,28 @@ static int mlxreg_fan_config(struct mlxreg_fan *fan,
 					data->label);
 				return -EINVAL;
 			}
+<<<<<<< HEAD
 			fan->tacho[tacho_num].reg = data->reg;
 			fan->tacho[tacho_num].mask = data->mask;
 			fan->tacho[tacho_num++].connected = true;
+=======
+
+			if (data->capability) {
+				err = mlxreg_fan_connect_verify(fan, data);
+				if (err < 0)
+					return err;
+				else if (!err) {
+					tacho_num++;
+					continue;
+				}
+			}
+
+			fan->tacho[tacho_num].reg = data->reg;
+			fan->tacho[tacho_num].mask = data->mask;
+			fan->tacho[tacho_num].prsnt = data->reg_prsnt;
+			fan->tacho[tacho_num++].connected = true;
+			tacho_avail++;
+>>>>>>> upstream/android-13
 		} else if (strnstr(data->label, "pwm", sizeof(data->label))) {
 			if (fan->pwm.connected) {
 				dev_err(fan->dev, "duplicate pwm entry: %s\n",
@@ -394,13 +556,30 @@ static int mlxreg_fan_config(struct mlxreg_fan *fan,
 				return -EINVAL;
 			}
 			/* Validate that conf parameters are not zeros. */
+<<<<<<< HEAD
 			if (!data->mask || !data->bit) {
+=======
+			if (!data->mask && !data->bit && !data->capability) {
+>>>>>>> upstream/android-13
 				dev_err(fan->dev, "invalid conf entry params: %s\n",
 					data->label);
 				return -EINVAL;
 			}
+<<<<<<< HEAD
 			fan->samples = data->mask;
 			fan->divider = data->bit;
+=======
+			if (data->capability) {
+				err = mlxreg_fan_speed_divider_get(fan, data);
+				if (err)
+					return err;
+			} else {
+				if (data->mask)
+					fan->samples = data->mask;
+				if (data->bit)
+					fan->divider = data->bit;
+			}
+>>>>>>> upstream/android-13
 			configured = true;
 		} else {
 			dev_err(fan->dev, "invalid label: %s\n", data->label);
@@ -408,6 +587,32 @@ static int mlxreg_fan_config(struct mlxreg_fan *fan,
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	if (pdata->capability) {
+		int drwr_avail;
+		u32 regval;
+
+		/* Obtain the number of FAN drawers, supported by system. */
+		err = regmap_read(fan->regmap, pdata->capability, &regval);
+		if (err) {
+			dev_err(fan->dev, "Failed to query capability register 0x%08x\n",
+				pdata->capability);
+			return err;
+		}
+
+		drwr_avail = hweight32(regval);
+		if (!tacho_avail || !drwr_avail || tacho_avail < drwr_avail) {
+			dev_err(fan->dev, "Configuration is invalid: drawers num %d tachos num %d\n",
+				drwr_avail, tacho_avail);
+			return -EINVAL;
+		}
+
+		/* Set the number of tachometers per one drawer. */
+		fan->tachos_per_drwr = tacho_avail / drwr_avail;
+	}
+
+>>>>>>> upstream/android-13
 	/* Init cooling levels per PWM state. */
 	for (i = 0; i < MLXREG_FAN_SPEED_MIN_LEVEL; i++)
 		fan->cooling_levels[i] = MLXREG_FAN_SPEED_MIN_LEVEL;
@@ -420,10 +625,15 @@ static int mlxreg_fan_config(struct mlxreg_fan *fan,
 static int mlxreg_fan_probe(struct platform_device *pdev)
 {
 	struct mlxreg_core_platform_data *pdata;
+<<<<<<< HEAD
+=======
+	struct device *dev = &pdev->dev;
+>>>>>>> upstream/android-13
 	struct mlxreg_fan *fan;
 	struct device *hwm;
 	int err;
 
+<<<<<<< HEAD
 	pdata = dev_get_platdata(&pdev->dev);
 	if (!pdata) {
 		dev_err(&pdev->dev, "Failed to get platform data.\n");
@@ -437,25 +647,54 @@ static int mlxreg_fan_probe(struct platform_device *pdev)
 	fan->dev = &pdev->dev;
 	fan->regmap = pdata->regmap;
 	platform_set_drvdata(pdev, fan);
+=======
+	pdata = dev_get_platdata(dev);
+	if (!pdata) {
+		dev_err(dev, "Failed to get platform data.\n");
+		return -EINVAL;
+	}
+
+	fan = devm_kzalloc(dev, sizeof(*fan), GFP_KERNEL);
+	if (!fan)
+		return -ENOMEM;
+
+	fan->dev = dev;
+	fan->regmap = pdata->regmap;
+>>>>>>> upstream/android-13
 
 	err = mlxreg_fan_config(fan, pdata);
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	hwm = devm_hwmon_device_register_with_info(&pdev->dev, "mlxreg_fan",
+=======
+	hwm = devm_hwmon_device_register_with_info(dev, "mlxreg_fan",
+>>>>>>> upstream/android-13
 						   fan,
 						   &mlxreg_fan_hwmon_chip_info,
 						   NULL);
 	if (IS_ERR(hwm)) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "Failed to register hwmon device\n");
+=======
+		dev_err(dev, "Failed to register hwmon device\n");
+>>>>>>> upstream/android-13
 		return PTR_ERR(hwm);
 	}
 
 	if (IS_REACHABLE(CONFIG_THERMAL)) {
+<<<<<<< HEAD
 		fan->cdev = thermal_cooling_device_register("mlxreg_fan", fan,
 						&mlxreg_fan_cooling_ops);
 		if (IS_ERR(fan->cdev)) {
 			dev_err(&pdev->dev, "Failed to register cooling device\n");
+=======
+		fan->cdev = devm_thermal_of_cooling_device_register(dev,
+			NULL, "mlxreg_fan", fan, &mlxreg_fan_cooling_ops);
+		if (IS_ERR(fan->cdev)) {
+			dev_err(dev, "Failed to register cooling device\n");
+>>>>>>> upstream/android-13
 			return PTR_ERR(fan->cdev);
 		}
 	}
@@ -463,6 +702,7 @@ static int mlxreg_fan_probe(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int mlxreg_fan_remove(struct platform_device *pdev)
 {
 	struct mlxreg_fan *fan = platform_get_drvdata(pdev);
@@ -473,12 +713,17 @@ static int mlxreg_fan_remove(struct platform_device *pdev)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static struct platform_driver mlxreg_fan_driver = {
 	.driver = {
 	    .name = "mlxreg-fan",
 	},
 	.probe = mlxreg_fan_probe,
+<<<<<<< HEAD
 	.remove = mlxreg_fan_remove,
+=======
+>>>>>>> upstream/android-13
 };
 
 module_platform_driver(mlxreg_fan_driver);

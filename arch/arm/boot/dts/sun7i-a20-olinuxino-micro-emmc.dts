@@ -54,8 +54,11 @@
 };
 
 &mmc2 {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&mmc2_pins_a>;
+=======
+>>>>>>> upstream/android-13
 	vmmc-supply = <&reg_vcc3v3>;
 	bus-width = <4>;
 	non-removable;

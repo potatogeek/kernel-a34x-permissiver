@@ -142,9 +142,15 @@ static int e1000e_phc_get_syncdevicetime(ktime_t *device,
 }
 
 /**
+<<<<<<< HEAD
  * e1000e_phc_getsynctime - Reads the current system/device cross timestamp
  * @ptp: ptp clock structure
  * @cts: structure containing timestamp
+=======
+ * e1000e_phc_getcrosststamp - Reads the current system/device cross timestamp
+ * @ptp: ptp clock structure
+ * @xtstamp: structure containing timestamp
+>>>>>>> upstream/android-13
  *
  * Read device and system (ART) clock simultaneously and return the scaled
  * clock values in ns.
@@ -161,14 +167,28 @@ static int e1000e_phc_getcrosststamp(struct ptp_clock_info *ptp,
 #endif/*CONFIG_E1000E_HWTS*/
 
 /**
+<<<<<<< HEAD
  * e1000e_phc_gettime - Reads the current time from the hardware clock
  * @ptp: ptp clock structure
  * @ts: timespec structure to hold the current time value
+=======
+ * e1000e_phc_gettimex - Reads the current time from the hardware clock and
+ *                       system clock
+ * @ptp: ptp clock structure
+ * @ts: timespec structure to hold the current PHC time
+ * @sts: structure to hold the current system time
+>>>>>>> upstream/android-13
  *
  * Read the timecounter and return the correct value in ns after converting
  * it into a struct timespec.
  **/
+<<<<<<< HEAD
 static int e1000e_phc_gettime(struct ptp_clock_info *ptp, struct timespec64 *ts)
+=======
+static int e1000e_phc_gettimex(struct ptp_clock_info *ptp,
+			       struct timespec64 *ts,
+			       struct ptp_system_timestamp *sts)
+>>>>>>> upstream/android-13
 {
 	struct e1000_adapter *adapter = container_of(ptp, struct e1000_adapter,
 						     ptp_clock_info);
@@ -177,8 +197,13 @@ static int e1000e_phc_gettime(struct ptp_clock_info *ptp, struct timespec64 *ts)
 
 	spin_lock_irqsave(&adapter->systim_lock, flags);
 
+<<<<<<< HEAD
 	/* Use timecounter_cyc2time() to allow non-monotonic SYSTIM readings */
 	cycles = adapter->cc.read(&adapter->cc);
+=======
+	/* NOTE: Non-monotonic SYSTIM readings may be returned */
+	cycles = e1000e_read_systim(adapter, sts);
+>>>>>>> upstream/android-13
 	ns = timecounter_cyc2time(&adapter->tc, cycles);
 
 	spin_unlock_irqrestore(&adapter->systim_lock, flags);
@@ -258,7 +283,11 @@ static const struct ptp_clock_info e1000e_ptp_clock_info = {
 	.pps		= 0,
 	.adjfreq	= e1000e_phc_adjfreq,
 	.adjtime	= e1000e_phc_adjtime,
+<<<<<<< HEAD
 	.gettime64	= e1000e_phc_gettime,
+=======
+	.gettimex64	= e1000e_phc_gettimex,
+>>>>>>> upstream/android-13
 	.settime64	= e1000e_phc_settime,
 	.enable		= e1000e_phc_enable,
 };
@@ -291,12 +320,23 @@ void e1000e_ptp_init(struct e1000_adapter *adapter)
 	case e1000_pch_lpt:
 	case e1000_pch_spt:
 	case e1000_pch_cnp:
+<<<<<<< HEAD
+=======
+	case e1000_pch_tgp:
+	case e1000_pch_adp:
+	case e1000_pch_mtp:
+	case e1000_pch_lnp:
+>>>>>>> upstream/android-13
 		if ((hw->mac.type < e1000_pch_lpt) ||
 		    (er32(TSYNCRXCTL) & E1000_TSYNCRXCTL_SYSCFI)) {
 			adapter->ptp_clock_info.max_adj = 24000000 - 1;
 			break;
 		}
+<<<<<<< HEAD
 		/* fall-through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case e1000_82574:
 	case e1000_82583:
 		adapter->ptp_clock_info.max_adj = 600000000 - 1;

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * iSCSI over TCP/IP Data-Path lib
  *
  * Copyright (C) 2008 Mike Christie
  * Copyright (C) 2008 Red Hat, Inc.  All rights reserved.
  * maintained by open-iscsi@googlegroups.com
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published
@@ -16,6 +21,8 @@
  * General Public License for more details.
  *
  * See the file COPYING included with this distribution for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef LIBISCSI_TCP_H

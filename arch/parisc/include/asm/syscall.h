@@ -18,6 +18,7 @@ static inline long syscall_get_nr(struct task_struct *tsk,
 }
 
 static inline void syscall_get_arguments(struct task_struct *tsk,
+<<<<<<< HEAD
 					 struct pt_regs *regs, unsigned int i,
 					 unsigned int n, unsigned long *args)
 {
@@ -41,6 +42,24 @@ static inline void syscall_get_arguments(struct task_struct *tsk,
 	default:
 		BUG();
 	}
+=======
+					 struct pt_regs *regs,
+					 unsigned long *args)
+{
+	args[5] = regs->gr[21];
+	args[4] = regs->gr[22];
+	args[3] = regs->gr[23];
+	args[2] = regs->gr[24];
+	args[1] = regs->gr[25];
+	args[0] = regs->gr[26];
+}
+
+static inline long syscall_get_error(struct task_struct *task,
+				     struct pt_regs *regs)
+{
+	unsigned long error = regs->gr[28];
+	return IS_ERR_VALUE(error) ? error : 0;
+>>>>>>> upstream/android-13
 }
 
 static inline long syscall_get_return_value(struct task_struct *task,
@@ -62,11 +81,19 @@ static inline void syscall_rollback(struct task_struct *task,
 	/* do nothing */
 }
 
+<<<<<<< HEAD
 static inline int syscall_get_arch(void)
 {
 	int arch = AUDIT_ARCH_PARISC;
 #ifdef CONFIG_64BIT
 	if (!is_compat_task())
+=======
+static inline int syscall_get_arch(struct task_struct *task)
+{
+	int arch = AUDIT_ARCH_PARISC;
+#ifdef CONFIG_64BIT
+	if (!__is_compat_task(task))
+>>>>>>> upstream/android-13
 		arch = AUDIT_ARCH_PARISC64;
 #endif
 	return arch;

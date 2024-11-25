@@ -36,9 +36,15 @@
 #include <linux/platform_device.h>
 #include <linux/dma-mapping.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 
 #include <asm/bootinfo.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+
+#include <asm/bootinfo.h>
+>>>>>>> upstream/android-13
 #include <asm/io.h>
 #include <asm/dma.h>
 #include <asm/jazz.h>
@@ -147,6 +153,7 @@ static int sonic_probe1(struct net_device *dev)
 		dev->dev_addr[i*2+1] = val >> 8;
 	}
 
+<<<<<<< HEAD
 	err = -ENOMEM;
 
 	/* Initialize the device structure. */
@@ -180,6 +187,14 @@ static int sonic_probe1(struct net_device *dev)
 	lp->rra_laddr = lp->rda_laddr + (SIZEOF_SONIC_RD * SONIC_NUM_RDS
 	                     * SONIC_BUS_SCALE(lp->dma_bitmode));
 
+=======
+	lp->dma_bitmode = SONIC_BITMODE32;
+
+	err = sonic_alloc_descriptors(dev);
+	if (err)
+		goto out;
+
+>>>>>>> upstream/android-13
 	dev->netdev_ops = &sonic_netdev_ops;
 	dev->watchdog_timeo = TX_TIMEOUT;
 
@@ -220,8 +235,11 @@ static int jazz_sonic_probe(struct platform_device *pdev)
 	SET_NETDEV_DEV(dev, &pdev->dev);
 	platform_set_drvdata(pdev, dev);
 
+<<<<<<< HEAD
 	netdev_boot_setup_check(dev);
 
+=======
+>>>>>>> upstream/android-13
 	dev->base_addr = res->start;
 	dev->irq = platform_get_irq(pdev, 0);
 	err = sonic_probe1(dev);

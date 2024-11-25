@@ -31,6 +31,7 @@ extern __printf(3, 4) void _udf_warn(struct super_block *sb,
 #define udf_info(fmt, ...)					\
 	pr_info("INFO " fmt, ##__VA_ARGS__)
 
+<<<<<<< HEAD
 #undef UDFFS_DEBUG
 
 #ifdef UDFFS_DEBUG
@@ -41,6 +42,10 @@ extern __printf(3, 4) void _udf_warn(struct super_block *sb,
 #define udf_debug(fmt, ...)					\
 	no_printk(fmt, ##__VA_ARGS__)
 #endif
+=======
+#define udf_debug(fmt, ...)					\
+	pr_debug("%s:%d:%s: " fmt, __FILE__, __LINE__, __func__, ##__VA_ARGS__)
+>>>>>>> upstream/android-13
 
 #define udf_fixed_to_variable(x) ( ( ( (x) >> 5 ) * 39 ) + ( (x) & 0x0000001F ) )
 #define udf_variable_to_fixed(x) ( ( ( (x) / 39 ) << 5 ) + ( (x) % 39 ) )
@@ -138,6 +143,13 @@ static inline unsigned int udf_dir_entry_len(struct fileIdentDesc *cfi)
 		le16_to_cpu(cfi->lengthOfImpUse) + cfi->lengthFileIdent,
 		UDF_NAME_PAD);
 }
+<<<<<<< HEAD
+=======
+static inline uint8_t *udf_get_fi_ident(struct fileIdentDesc *fi)
+{
+	return ((uint8_t *)(fi + 1)) + le16_to_cpu(fi->lengthOfImpUse);
+}
+>>>>>>> upstream/android-13
 
 /* file.c */
 extern long udf_ioctl(struct file *, unsigned int, unsigned long);
@@ -178,6 +190,10 @@ extern int8_t udf_next_aext(struct inode *, struct extent_position *,
 			    struct kernel_lb_addr *, uint32_t *, int);
 extern int8_t udf_current_aext(struct inode *, struct extent_position *,
 			       struct kernel_lb_addr *, uint32_t *, int);
+<<<<<<< HEAD
+=======
+extern void udf_update_extra_perms(struct inode *inode, umode_t mode);
+>>>>>>> upstream/android-13
 
 /* misc.c */
 extern struct buffer_head *udf_tgetblk(struct super_block *sb,
@@ -235,7 +251,11 @@ extern struct inode *udf_new_inode(struct inode *, umode_t);
 /* truncate.c */
 extern void udf_truncate_tail_extent(struct inode *);
 extern void udf_discard_prealloc(struct inode *);
+<<<<<<< HEAD
 extern void udf_truncate_extents(struct inode *);
+=======
+extern int udf_truncate_extents(struct inode *);
+>>>>>>> upstream/android-13
 
 /* balloc.c */
 extern void udf_free_blocks(struct super_block *, struct inode *,

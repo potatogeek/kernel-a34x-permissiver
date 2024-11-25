@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * lib/ts_bm.c		Boyer-Moore text search implementation
  *
@@ -6,6 +7,12 @@
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * lib/ts_bm.c		Boyer-Moore text search implementation
+ *
+>>>>>>> upstream/android-13
  * Authors:	Pablo Neira Ayuso <pablo@eurodev.net>
  *
  * ==========================================================================
@@ -15,7 +22,11 @@
  *   [1] A Fast String Searching Algorithm, R.S. Boyer and Moore.
  *       Communications of the Association for Computing Machinery, 
  *       20(10), 1977, pp. 762-772.
+<<<<<<< HEAD
  *       http://www.cs.utexas.edu/users/moore/publications/fstrpos.pdf
+=======
+ *       https://www.cs.utexas.edu/users/moore/publications/fstrpos.pdf
+>>>>>>> upstream/android-13
  *
  *   [2] Handbook of Exact String Matching Algorithms, Thierry Lecroq, 2004
  *       http://www-igm.univ-mlv.fr/~lecroq/string/string.pdf
@@ -56,7 +67,11 @@ struct ts_bm
 	u8 *		pattern;
 	unsigned int	patlen;
 	unsigned int 	bad_shift[ASIZE];
+<<<<<<< HEAD
 	unsigned int	good_shift[0];
+=======
+	unsigned int	good_shift[];
+>>>>>>> upstream/android-13
 };
 
 static unsigned int bm_find(struct ts_config *conf, struct ts_state *state)

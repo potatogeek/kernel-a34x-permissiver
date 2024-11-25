@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Renesas RZ/A Series WDT Driver
  *
  * Copyright (C) 2017 Renesas Electronics America, Inc.
  * Copyright (C) 2017 Chris Brandt
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
@@ -14,6 +21,10 @@
 #include <linux/delay.h>
 #include <linux/module.h>
 #include <linux/of_address.h>
+<<<<<<< HEAD
+=======
+#include <linux/of_device.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/watchdog.h>
 
@@ -34,12 +45,53 @@
 #define WRCSR_RSTE		BIT(6)
 #define WRCSR_CLEAR_WOVF	0xA500	/* special value */
 
+<<<<<<< HEAD
+=======
+/* The maximum CKS register setting value to get the longest timeout */
+#define CKS_3BIT		0x7
+#define CKS_4BIT		0xF
+
+#define DIVIDER_3BIT		16384	/* Clock divider when CKS = 0x7 */
+#define DIVIDER_4BIT		4194304	/* Clock divider when CKS = 0xF */
+
+>>>>>>> upstream/android-13
 struct rza_wdt {
 	struct watchdog_device wdev;
 	void __iomem *base;
 	struct clk *clk;
+<<<<<<< HEAD
 };
 
+=======
+	u8 count;
+	u8 cks;
+};
+
+static void rza_wdt_calc_timeout(struct rza_wdt *priv, int timeout)
+{
+	unsigned long rate = clk_get_rate(priv->clk);
+	unsigned int ticks;
+
+	if (priv->cks == CKS_4BIT) {
+		ticks = DIV_ROUND_UP(timeout * rate, DIVIDER_4BIT);
+
+		/*
+		 * Since max_timeout was set in probe, we know that the timeout
+		 * value passed will never calculate to a tick value greater
+		 * than 256.
+		 */
+		priv->count = 256 - ticks;
+
+	} else {
+		/* Start timer with longest timeout */
+		priv->count = 0;
+	}
+
+	pr_debug("%s: timeout set to %u (WTCNT=%d)\n", __func__,
+		 timeout, priv->count);
+}
+
+>>>>>>> upstream/android-13
 static int rza_wdt_start(struct watchdog_device *wdev)
 {
 	struct rza_wdt *priv = watchdog_get_drvdata(wdev);
@@ -51,6 +103,7 @@ static int rza_wdt_start(struct watchdog_device *wdev)
 	readb(priv->base + WRCSR);
 	writew(WRCSR_CLEAR_WOVF, priv->base + WRCSR);
 
+<<<<<<< HEAD
 	/*
 	 * Start timer with slowest clock source and reset option enabled.
 	 */
@@ -58,6 +111,14 @@ static int rza_wdt_start(struct watchdog_device *wdev)
 	writew(WTCNT_MAGIC | 0, priv->base + WTCNT);
 	writew(WTCSR_MAGIC | WTSCR_WT | WTSCR_TME | WTSCR_CKS(7),
 	       priv->base + WTCSR);
+=======
+	rza_wdt_calc_timeout(priv, wdev->timeout);
+
+	writew(WRCSR_MAGIC | WRCSR_RSTE, priv->base + WRCSR);
+	writew(WTCNT_MAGIC | priv->count, priv->base + WTCNT);
+	writew(WTCSR_MAGIC | WTSCR_WT | WTSCR_TME |
+	       WTSCR_CKS(priv->cks), priv->base + WTCSR);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -75,8 +136,22 @@ static int rza_wdt_ping(struct watchdog_device *wdev)
 {
 	struct rza_wdt *priv = watchdog_get_drvdata(wdev);
 
+<<<<<<< HEAD
 	writew(WTCNT_MAGIC | 0, priv->base + WTCNT);
 
+=======
+	writew(WTCNT_MAGIC | priv->count, priv->base + WTCNT);
+
+	pr_debug("%s: timeout = %u\n", __func__, wdev->timeout);
+
+	return 0;
+}
+
+static int rza_set_timeout(struct watchdog_device *wdev, unsigned int timeout)
+{
+	wdev->timeout = timeout;
+	rza_wdt_start(wdev);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -121,11 +196,16 @@ static const struct watchdog_ops rza_wdt_ops = {
 	.start = rza_wdt_start,
 	.stop = rza_wdt_stop,
 	.ping = rza_wdt_ping,
+<<<<<<< HEAD
+=======
+	.set_timeout = rza_set_timeout,
+>>>>>>> upstream/android-13
 	.restart = rza_wdt_restart,
 };
 
 static int rza_wdt_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct rza_wdt *priv;
 	struct resource *res;
 	unsigned long rate;
@@ -141,11 +221,28 @@ static int rza_wdt_probe(struct platform_device *pdev)
 		return PTR_ERR(priv->base);
 
 	priv->clk = devm_clk_get(&pdev->dev, NULL);
+=======
+	struct device *dev = &pdev->dev;
+	struct rza_wdt *priv;
+	unsigned long rate;
+	int ret;
+
+	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
+	if (!priv)
+		return -ENOMEM;
+
+	priv->base = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(priv->base))
+		return PTR_ERR(priv->base);
+
+	priv->clk = devm_clk_get(dev, NULL);
+>>>>>>> upstream/android-13
 	if (IS_ERR(priv->clk))
 		return PTR_ERR(priv->clk);
 
 	rate = clk_get_rate(priv->clk);
 	if (rate < 16384) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "invalid clock rate (%ld)\n", rate);
 		return -ENOENT;
 	}
@@ -164,22 +261,64 @@ static int rza_wdt_probe(struct platform_device *pdev)
 	priv->wdev.max_hw_heartbeat_ms = (1000 * U8_MAX) / rate;
 	dev_dbg(&pdev->dev, "max hw timeout of %dms\n",
 		 priv->wdev.max_hw_heartbeat_ms);
+=======
+		dev_err(dev, "invalid clock rate (%ld)\n", rate);
+		return -ENOENT;
+	}
+
+	priv->wdev.info = &rza_wdt_ident,
+	priv->wdev.ops = &rza_wdt_ops,
+	priv->wdev.parent = dev;
+
+	priv->cks = (u8)(uintptr_t) of_device_get_match_data(dev);
+	if (priv->cks == CKS_4BIT) {
+		/* Assume slowest clock rate possible (CKS=0xF) */
+		priv->wdev.max_timeout = (DIVIDER_4BIT * U8_MAX) / rate;
+
+	} else if (priv->cks == CKS_3BIT) {
+		/* Assume slowest clock rate possible (CKS=7) */
+		rate /= DIVIDER_3BIT;
+
+		/*
+		 * Since the max possible timeout of our 8-bit count
+		 * register is less than a second, we must use
+		 * max_hw_heartbeat_ms.
+		 */
+		priv->wdev.max_hw_heartbeat_ms = (1000 * U8_MAX) / rate;
+		dev_dbg(dev, "max hw timeout of %dms\n",
+			priv->wdev.max_hw_heartbeat_ms);
+	}
+>>>>>>> upstream/android-13
 
 	priv->wdev.min_timeout = 1;
 	priv->wdev.timeout = DEFAULT_TIMEOUT;
 
+<<<<<<< HEAD
 	watchdog_init_timeout(&priv->wdev, 0, &pdev->dev);
 	watchdog_set_drvdata(&priv->wdev, priv);
 
 	ret = devm_watchdog_register_device(&pdev->dev, &priv->wdev);
 	if (ret)
 		dev_err(&pdev->dev, "Cannot register watchdog device\n");
+=======
+	watchdog_init_timeout(&priv->wdev, 0, dev);
+	watchdog_set_drvdata(&priv->wdev, priv);
+
+	ret = devm_watchdog_register_device(dev, &priv->wdev);
+	if (ret)
+		dev_err(dev, "Cannot register watchdog device\n");
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
 static const struct of_device_id rza_wdt_of_match[] = {
+<<<<<<< HEAD
 	{ .compatible = "renesas,rza-wdt", },
+=======
+	{ .compatible = "renesas,r7s9210-wdt",	.data = (void *)CKS_4BIT, },
+	{ .compatible = "renesas,rza-wdt",	.data = (void *)CKS_3BIT, },
+>>>>>>> upstream/android-13
 	{ /* sentinel */ }
 };
 MODULE_DEVICE_TABLE(of, rza_wdt_of_match);

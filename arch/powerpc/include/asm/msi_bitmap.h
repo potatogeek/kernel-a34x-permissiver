@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 #ifndef _POWERPC_SYSDEV_MSI_BITMAP_H
 #define _POWERPC_SYSDEV_MSI_BITMAP_H
 
 /*
  * Copyright 2008, Michael Ellerman, IBM Corporation.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; version 2 of the
  * License.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/of.h>

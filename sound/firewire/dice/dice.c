@@ -1,8 +1,15 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * TC Applied Technologies Digital Interface Communications Engine driver
  *
  * Copyright (c) Clemens Ladisch <clemens@ladisch.de>
+<<<<<<< HEAD
  * Licensed under the terms of the GNU General Public License, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "dice.h"
@@ -19,10 +26,20 @@ MODULE_LICENSE("GPL v2");
 #define OUI_MAUDIO		0x000d6c
 #define OUI_MYTEK		0x001ee8
 #define OUI_SSL			0x0050c2	// Actually ID reserved by IEEE.
+<<<<<<< HEAD
+=======
+#define OUI_PRESONUS		0x000a92
+#define OUI_HARMAN		0x000fd7
+#define OUI_AVID		0x00a07e
+>>>>>>> upstream/android-13
 
 #define DICE_CATEGORY_ID	0x04
 #define WEISS_CATEGORY_ID	0x00
 #define LOUD_CATEGORY_ID	0x10
+<<<<<<< HEAD
+=======
+#define HARMAN_CATEGORY_ID	0x20
+>>>>>>> upstream/android-13
 
 #define MODEL_ALESIS_IO_BOTH	0x000001
 
@@ -55,6 +72,11 @@ static int check_dice_category(struct fw_unit *unit)
 		category = WEISS_CATEGORY_ID;
 	else if (vendor == OUI_LOUD)
 		category = LOUD_CATEGORY_ID;
+<<<<<<< HEAD
+=======
+	else if (vendor == OUI_HARMAN)
+		category = HARMAN_CATEGORY_ID;
+>>>>>>> upstream/android-13
 	else
 		category = DICE_CATEGORY_ID;
 	if (device->config_rom[3] != ((vendor << 8) | category) ||
@@ -123,6 +145,7 @@ static void dice_card_strings(struct snd_dice *dice)
 	strcpy(card->mixername, "DICE");
 }
 
+<<<<<<< HEAD
 static void dice_free(struct snd_dice *dice)
 {
 	snd_dice_stream_destroy_duplex(dice);
@@ -156,6 +179,59 @@ static void do_registration(struct work_struct *work)
 			   &dice->card);
 	if (err < 0)
 		return;
+=======
+static void dice_card_free(struct snd_card *card)
+{
+	struct snd_dice *dice = card->private_data;
+
+	snd_dice_stream_destroy_duplex(dice);
+	snd_dice_transaction_destroy(dice);
+
+	mutex_destroy(&dice->mutex);
+	fw_unit_put(dice->unit);
+}
+
+static int dice_probe(struct fw_unit *unit, const struct ieee1394_device_id *entry)
+{
+	struct snd_card *card;
+	struct snd_dice *dice;
+	snd_dice_detect_formats_t detect_formats;
+	int err;
+
+	if (!entry->driver_data && entry->vendor_id != OUI_SSL) {
+		err = check_dice_category(unit);
+		if (err < 0)
+			return -ENODEV;
+	}
+
+	err = snd_card_new(&unit->device, -1, NULL, THIS_MODULE, sizeof(*dice), &card);
+	if (err < 0)
+		return err;
+	card->private_free = dice_card_free;
+
+	dice = card->private_data;
+	dice->unit = fw_unit_get(unit);
+	dev_set_drvdata(&unit->device, dice);
+	dice->card = card;
+
+	if (!entry->driver_data)
+		detect_formats = snd_dice_stream_detect_current_formats;
+	else
+		detect_formats = (snd_dice_detect_formats_t)entry->driver_data;
+
+	// Below models are compliant to IEC 61883-1/6 and have no quirk at high sampling transfer
+	// frequency.
+	// * Avid M-Box 3 Pro
+	// * M-Audio Profire 610
+	// * M-Audio Profire 2626
+	if (entry->vendor_id == OUI_MAUDIO || entry->vendor_id == OUI_AVID)
+		dice->disable_double_pcm_frames = true;
+
+	spin_lock_init(&dice->lock);
+	mutex_init(&dice->mutex);
+	init_completion(&dice->clock_accepted);
+	init_waitqueue_head(&dice->hwdep_wait);
+>>>>>>> upstream/android-13
 
 	err = snd_dice_transaction_init(dice);
 	if (err < 0)
@@ -167,7 +243,11 @@ static void do_registration(struct work_struct *work)
 
 	dice_card_strings(dice);
 
+<<<<<<< HEAD
 	err = dice->detect_formats(dice);
+=======
+	err = detect_formats(dice);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		goto error;
 
@@ -189,6 +269,7 @@ static void do_registration(struct work_struct *work)
 	if (err < 0)
 		goto error;
 
+<<<<<<< HEAD
 	err = snd_card_register(dice->card);
 	if (err < 0)
 		goto error;
@@ -248,12 +329,23 @@ static int dice_probe(struct fw_unit *unit,
 	snd_fw_schedule_registration(unit, &dice->dwork);
 
 	return 0;
+=======
+	err = snd_card_register(card);
+	if (err < 0)
+		goto error;
+
+	return 0;
+error:
+	snd_card_free(card);
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static void dice_remove(struct fw_unit *unit)
 {
 	struct snd_dice *dice = dev_get_drvdata(&unit->device);
 
+<<<<<<< HEAD
 	/*
 	 * Confirm to stop the work for registration before the sound card is
 	 * going to be released. The work is not scheduled again because bus
@@ -268,12 +360,17 @@ static void dice_remove(struct fw_unit *unit)
 		/* Don't forget this case. */
 		dice_free(dice);
 	}
+=======
+	// Block till all of ALSA character devices are released.
+	snd_card_free(dice->card);
+>>>>>>> upstream/android-13
 }
 
 static void dice_bus_reset(struct fw_unit *unit)
 {
 	struct snd_dice *dice = dev_get_drvdata(&unit->device);
 
+<<<<<<< HEAD
 	/* Postpone a workqueue for deferred registration. */
 	if (!dice->registered)
 		snd_fw_schedule_registration(unit, &dice->dwork);
@@ -290,11 +387,38 @@ static void dice_bus_reset(struct fw_unit *unit)
 		snd_dice_stream_update_duplex(dice);
 		mutex_unlock(&dice->mutex);
 	}
+=======
+	/* The handler address register becomes initialized. */
+	snd_dice_transaction_reinit(dice);
+
+	mutex_lock(&dice->mutex);
+	snd_dice_stream_update_duplex(dice);
+	mutex_unlock(&dice->mutex);
+>>>>>>> upstream/android-13
 }
 
 #define DICE_INTERFACE	0x000001
 
+<<<<<<< HEAD
 static const struct ieee1394_device_id dice_id_table[] = {
+=======
+#define DICE_DEV_ENTRY_TYPICAL(vendor, model, data) \
+	{ \
+		.match_flags	= IEEE1394_MATCH_VENDOR_ID | \
+				  IEEE1394_MATCH_MODEL_ID | \
+				  IEEE1394_MATCH_SPECIFIER_ID | \
+				  IEEE1394_MATCH_VERSION, \
+		.vendor_id	= (vendor), \
+		.model_id	= (model), \
+		.specifier_id	= (vendor), \
+		.version	= DICE_INTERFACE, \
+		.driver_data = (kernel_ulong_t)(data), \
+	}
+
+static const struct ieee1394_device_id dice_id_table[] = {
+	// Avid M-Box 3 Pro. To match in probe function.
+	DICE_DEV_ENTRY_TYPICAL(OUI_AVID, 0x000004, snd_dice_detect_extension_formats),
+>>>>>>> upstream/android-13
 	/* M-Audio Profire 2626 has a different value in version field. */
 	{
 		.match_flags	= IEEE1394_MATCH_VENDOR_ID |
@@ -375,6 +499,17 @@ static const struct ieee1394_device_id dice_id_table[] = {
 		.model_id	= MODEL_ALESIS_IO_BOTH,
 		.driver_data = (kernel_ulong_t)snd_dice_detect_alesis_formats,
 	},
+<<<<<<< HEAD
+=======
+	// Alesis MasterControl.
+	{
+		.match_flags	= IEEE1394_MATCH_VENDOR_ID |
+				  IEEE1394_MATCH_MODEL_ID,
+		.vendor_id	= OUI_ALESIS,
+		.model_id	= 0x000002,
+		.driver_data = (kernel_ulong_t)snd_dice_detect_alesis_mastercontrol_formats,
+	},
+>>>>>>> upstream/android-13
 	/* Mytek Stereo 192 DSD-DAC. */
 	{
 		.match_flags	= IEEE1394_MATCH_VENDOR_ID |
@@ -392,6 +527,25 @@ static const struct ieee1394_device_id dice_id_table[] = {
 		.vendor_id	= OUI_SSL,
 		.model_id	= 0x000070,
 	},
+<<<<<<< HEAD
+=======
+	// Presonus FireStudio.
+	{
+		.match_flags	= IEEE1394_MATCH_VENDOR_ID |
+				  IEEE1394_MATCH_MODEL_ID,
+		.vendor_id	= OUI_PRESONUS,
+		.model_id	= 0x000008,
+		.driver_data	= (kernel_ulong_t)snd_dice_detect_presonus_formats,
+	},
+	// Lexicon I-ONYX FW810S.
+	{
+		.match_flags	= IEEE1394_MATCH_VENDOR_ID |
+				  IEEE1394_MATCH_MODEL_ID,
+		.vendor_id	= OUI_HARMAN,
+		.model_id	= 0x000001,
+		.driver_data	= (kernel_ulong_t)snd_dice_detect_harman_formats,
+	},
+>>>>>>> upstream/android-13
 	{
 		.match_flags = IEEE1394_MATCH_VERSION,
 		.version     = DICE_INTERFACE,

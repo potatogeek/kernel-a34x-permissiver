@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *
  * general timer device for using in ISDN stacks
@@ -5,6 +9,7 @@
  * Author	Karsten Keil <kkeil@novell.com>
  *
  * Copyright 2008  by Karsten Keil <kkeil@novell.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -15,6 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/poll.h>

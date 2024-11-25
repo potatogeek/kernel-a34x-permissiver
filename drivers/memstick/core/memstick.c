@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  Sony MemoryStick support
  *
  *  Copyright (C) 2007 Alex Dubov <oakad@yahoo.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
@@ -10,6 +15,10 @@
  * Special thanks to Carlos Corbacho for providing various MemoryStick cards
  * that made this driver possible.
  *
+=======
+ * Special thanks to Carlos Corbacho for providing various MemoryStick cards
+ * that made this driver possible.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/memstick.h>
@@ -95,7 +104,11 @@ static int memstick_device_probe(struct device *dev)
 	return rc;
 }
 
+<<<<<<< HEAD
 static int memstick_device_remove(struct device *dev)
+=======
+static void memstick_device_remove(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct memstick_dev *card = container_of(dev, struct memstick_dev,
 						  dev);
@@ -109,7 +122,10 @@ static int memstick_device_remove(struct device *dev)
 	}
 
 	put_device(dev);
+<<<<<<< HEAD
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_PM
@@ -335,6 +351,7 @@ static int h_memstick_read_dev_id(struct memstick_dev *card,
 				  sizeof(struct ms_id_register));
 		*mrq = &card->current_mrq;
 		return 0;
+<<<<<<< HEAD
 	} else {
 		if (!(*mrq)->error) {
 			memcpy(&id_reg, (*mrq)->data, sizeof(id_reg));
@@ -347,6 +364,19 @@ static int h_memstick_read_dev_id(struct memstick_dev *card,
 		complete(&card->mrq_complete);
 		return -EAGAIN;
 	}
+=======
+	}
+	if (!(*mrq)->error) {
+		memcpy(&id_reg, (*mrq)->data, sizeof(id_reg));
+		card->id.match_flags = MEMSTICK_MATCH_ALL;
+		card->id.type = id_reg.type;
+		card->id.category = id_reg.category;
+		card->id.class = id_reg.class;
+		dev_dbg(&card->dev, "if_mode = %02x\n", id_reg.if_mode);
+	}
+	complete(&card->mrq_complete);
+	return -EAGAIN;
+>>>>>>> upstream/android-13
 }
 
 static int h_memstick_set_rw_addr(struct memstick_dev *card,
@@ -445,6 +475,12 @@ static void memstick_check(struct work_struct *work)
 	} else if (host->card->stop)
 		host->card->stop(host->card);
 
+<<<<<<< HEAD
+=======
+	if (host->removing)
+		goto out_power_off;
+
+>>>>>>> upstream/android-13
 	card = memstick_alloc_card(host);
 
 	if (!card) {
@@ -548,6 +584,10 @@ EXPORT_SYMBOL(memstick_add_host);
  */
 void memstick_remove_host(struct memstick_host *host)
 {
+<<<<<<< HEAD
+=======
+	host->removing = 1;
+>>>>>>> upstream/android-13
 	flush_workqueue(workqueue);
 	mutex_lock(&host->lock);
 	if (host->card)

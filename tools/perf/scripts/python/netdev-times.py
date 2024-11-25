@@ -8,6 +8,11 @@
 # dev=: show only thing related to specified device
 # debug: work with debug mode. It shows buffer status.
 
+<<<<<<< HEAD
+=======
+from __future__ import print_function
+
+>>>>>>> upstream/android-13
 import os
 import sys
 
@@ -17,6 +22,10 @@ sys.path.append(os.environ['PERF_EXEC_PATH'] + \
 from perf_trace_context import *
 from Core import *
 from Util import *
+<<<<<<< HEAD
+=======
+from functools import cmp_to_key
+>>>>>>> upstream/android-13
 
 all_event_list = []; # insert all tracepoint event related with this script
 irq_dic = {}; # key is cpu and value is a list which stacks irqs
@@ -61,12 +70,20 @@ def diff_msec(src, dst):
 def print_transmit(hunk):
 	if dev != 0 and hunk['dev'].find(dev) < 0:
 		return
+<<<<<<< HEAD
 	print "%7s %5d %6d.%06dsec %12.3fmsec      %12.3fmsec" % \
+=======
+	print("%7s %5d %6d.%06dsec %12.3fmsec      %12.3fmsec" %
+>>>>>>> upstream/android-13
 		(hunk['dev'], hunk['len'],
 		nsecs_secs(hunk['queue_t']),
 		nsecs_nsecs(hunk['queue_t'])/1000,
 		diff_msec(hunk['queue_t'], hunk['xmit_t']),
+<<<<<<< HEAD
 		diff_msec(hunk['xmit_t'], hunk['free_t']))
+=======
+		diff_msec(hunk['xmit_t'], hunk['free_t'])))
+>>>>>>> upstream/android-13
 
 # Format for displaying rx packet processing
 PF_IRQ_ENTRY= "  irq_entry(+%.3fmsec irq=%d:%s)"
@@ -98,6 +115,7 @@ def print_receive(hunk):
 	if show_hunk == 0:
 		return
 
+<<<<<<< HEAD
 	print "%d.%06dsec cpu=%d" % \
 		(nsecs_secs(base_t), nsecs_nsecs(base_t)/1000, cpu)
 	for i in range(len(irq_list)):
@@ -105,10 +123,20 @@ def print_receive(hunk):
 			(diff_msec(base_t, irq_list[i]['irq_ent_t']),
 			irq_list[i]['irq'], irq_list[i]['name'])
 		print PF_JOINT
+=======
+	print("%d.%06dsec cpu=%d" %
+		(nsecs_secs(base_t), nsecs_nsecs(base_t)/1000, cpu))
+	for i in range(len(irq_list)):
+		print(PF_IRQ_ENTRY %
+			(diff_msec(base_t, irq_list[i]['irq_ent_t']),
+			irq_list[i]['irq'], irq_list[i]['name']))
+		print(PF_JOINT)
+>>>>>>> upstream/android-13
 		irq_event_list = irq_list[i]['event_list']
 		for j in range(len(irq_event_list)):
 			irq_event = irq_event_list[j]
 			if irq_event['event'] == 'netif_rx':
+<<<<<<< HEAD
 				print PF_NET_RX % \
 					(diff_msec(base_t, irq_event['time']),
 					irq_event['skbaddr'])
@@ -116,10 +144,20 @@ def print_receive(hunk):
 	print PF_SOFT_ENTRY % \
 		diff_msec(base_t, hunk['sirq_ent_t'])
 	print PF_JOINT
+=======
+				print(PF_NET_RX %
+					(diff_msec(base_t, irq_event['time']),
+					irq_event['skbaddr']))
+				print(PF_JOINT)
+	print(PF_SOFT_ENTRY %
+		diff_msec(base_t, hunk['sirq_ent_t']))
+	print(PF_JOINT)
+>>>>>>> upstream/android-13
 	event_list = hunk['event_list']
 	for i in range(len(event_list)):
 		event = event_list[i]
 		if event['event_name'] == 'napi_poll':
+<<<<<<< HEAD
 			print PF_NAPI_POLL % \
 			    (diff_msec(base_t, event['event_t']), event['dev'])
 			if i == len(event_list) - 1:
@@ -147,6 +185,37 @@ def print_receive(hunk):
 						diff_msec(base_t,
 							event['comm_t'])
 			print PF_JOINT
+=======
+			print(PF_NAPI_POLL %
+				(diff_msec(base_t, event['event_t']),
+				event['dev']))
+			if i == len(event_list) - 1:
+				print("")
+			else:
+				print(PF_JOINT)
+		else:
+			print(PF_NET_RECV %
+				(diff_msec(base_t, event['event_t']),
+				event['skbaddr'],
+				event['len']))
+			if 'comm' in event.keys():
+				print(PF_WJOINT)
+				print(PF_CPY_DGRAM %
+					(diff_msec(base_t, event['comm_t']),
+					event['pid'], event['comm']))
+			elif 'handle' in event.keys():
+				print(PF_WJOINT)
+				if event['handle'] == "kfree_skb":
+					print(PF_KFREE_SKB %
+						(diff_msec(base_t,
+						event['comm_t']),
+						event['location']))
+				elif event['handle'] == "consume_skb":
+					print(PF_CONS_SKB %
+						diff_msec(base_t,
+							event['comm_t']))
+			print(PF_JOINT)
+>>>>>>> upstream/android-13
 
 def trace_begin():
 	global show_tx
@@ -172,8 +241,12 @@ def trace_begin():
 
 def trace_end():
 	# order all events in time
+<<<<<<< HEAD
 	all_event_list.sort(lambda a,b :cmp(a[EINFO_IDX_TIME],
 					    b[EINFO_IDX_TIME]))
+=======
+	all_event_list.sort(key=cmp_to_key(lambda a,b :a[EINFO_IDX_TIME] < b[EINFO_IDX_TIME]))
+>>>>>>> upstream/android-13
 	# process all events
 	for i in range(len(all_event_list)):
 		event_info = all_event_list[i]
@@ -210,6 +283,7 @@ def trace_end():
 			print_receive(receive_hunk_list[i])
 	# display transmit hunks
 	if show_tx:
+<<<<<<< HEAD
 		print "   dev    len      Qdisc        " \
 			"       netdevice             free"
 		for i in range(len(tx_free_list)):
@@ -223,6 +297,21 @@ def trace_end():
 			(len(tx_xmit_list), of_count_tx_xmit_list)
 		print "receive:remain:%d overflow:%d" % \
 			(len(rx_skb_list), of_count_rx_skb_list)
+=======
+		print("   dev    len      Qdisc        "
+			"       netdevice             free")
+		for i in range(len(tx_free_list)):
+			print_transmit(tx_free_list[i])
+	if debug:
+		print("debug buffer status")
+		print("----------------------------")
+		print("xmit Qdisc:remain:%d overflow:%d" %
+			(len(tx_queue_list), of_count_tx_queue_list))
+		print("xmit netdevice:remain:%d overflow:%d" %
+			(len(tx_xmit_list), of_count_tx_xmit_list))
+		print("receive:remain:%d overflow:%d" %
+			(len(rx_skb_list), of_count_rx_skb_list))
+>>>>>>> upstream/android-13
 
 # called from perf, when it finds a correspoinding event
 def irq__softirq_entry(name, context, cpu, sec, nsec, pid, comm, callchain, vec):
@@ -254,7 +343,11 @@ def irq__irq_handler_exit(name, context, cpu, sec, nsec, pid, comm, callchain, i
 	all_event_list.append(event_info)
 
 def napi__napi_poll(name, context, cpu, sec, nsec, pid, comm, callchain, napi,
+<<<<<<< HEAD
                     dev_name, work=None, budget=None):
+=======
+		dev_name, work=None, budget=None):
+>>>>>>> upstream/android-13
 	event_info = (name, context, cpu, nsecs(sec, nsec), pid, comm,
 			napi, dev_name, work, budget)
 	all_event_list.append(event_info)
@@ -351,8 +444,13 @@ def handle_irq_softirq_exit(event_info):
 	if irq_list == [] or event_list == 0:
 		return
 	rec_data = {'sirq_ent_t':sirq_ent_t, 'sirq_ext_t':time,
+<<<<<<< HEAD
 		    'irq_list':irq_list, 'event_list':event_list}
 	# merge information realted to a NET_RX softirq
+=======
+			'irq_list':irq_list, 'event_list':event_list}
+	# merge information related to a NET_RX softirq
+>>>>>>> upstream/android-13
 	receive_hunk_list.append(rec_data)
 
 def handle_napi_poll(event_info):
@@ -388,7 +486,11 @@ def handle_netif_receive_skb(event_info):
 		skbaddr, skblen, dev_name) = event_info
 	if cpu in net_rx_dic.keys():
 		rec_data = {'event_name':'netif_receive_skb',
+<<<<<<< HEAD
 			    'event_t':time, 'skbaddr':skbaddr, 'len':skblen}
+=======
+				'event_t':time, 'skbaddr':skbaddr, 'len':skblen}
+>>>>>>> upstream/android-13
 		event_list = net_rx_dic[cpu]['event_list']
 		event_list.append(rec_data)
 		rx_skb_list.insert(0, rec_data)

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * INET		An implementation of the TCP/IP protocol suite for the LINUX
  *		operating system.  INET is implemented using the  BSD Socket
@@ -8,11 +12,14 @@
  * Authors:	Ralf Baechle, <ralf@waldorf-gmbh.de>
  *		Lots of code moved from tcp.c and ip.c; see those files
  *		for more names.
+<<<<<<< HEAD
  *
  *		This program is free software; you can redistribute it and/or
  *		modify it under the terms of the GNU General Public License
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/types.h>
@@ -110,6 +117,7 @@ __wsum csum_partial(const void *buff, int len, __wsum sum)
 }
 
 EXPORT_SYMBOL(csum_partial);
+<<<<<<< HEAD
 
 /*
  * copy while checksumming, otherwise like csum_partial
@@ -147,3 +155,5 @@ __wsum csum_partial_copy_from_user(const void __user *src,
 	return csum_partial(dst, len, sum);
 }
 EXPORT_SYMBOL(csum_partial_copy_from_user);
+=======
+>>>>>>> upstream/android-13

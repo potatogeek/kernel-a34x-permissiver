@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * The AEGIS-128 Authenticated-Encryption Algorithm
  *   Glue for AES-NI + SSE2 implementation
  *
  * Copyright (c) 2017-2018 Ondrej Mosnacek <omosnacek@gmail.com>
  * Copyright (C) 2017-2018 Red Hat, Inc. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -13,6 +18,12 @@
 
 #include <crypto/cryptd.h>
 #include <crypto/internal/aead.h>
+=======
+ */
+
+#include <crypto/internal/aead.h>
+#include <crypto/internal/simd.h>
+>>>>>>> upstream/android-13
 #include <crypto/internal/skcipher.h>
 #include <crypto/scatterwalk.h>
 #include <linux/module.h>
@@ -148,10 +159,15 @@ static int crypto_aegis128_aesni_setkey(struct crypto_aead *aead, const u8 *key,
 {
 	struct aegis_ctx *ctx = crypto_aegis128_aesni_ctx(aead);
 
+<<<<<<< HEAD
 	if (keylen != AEGIS128_KEY_SIZE) {
 		crypto_aead_set_flags(aead, CRYPTO_TFM_RES_BAD_KEY_LEN);
 		return -EINVAL;
 	}
+=======
+	if (keylen != AEGIS128_KEY_SIZE)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	memcpy(ctx->key.bytes, key, AEGIS128_KEY_SIZE);
 
@@ -242,6 +258,7 @@ static void crypto_aegis128_aesni_exit_tfm(struct crypto_aead *aead)
 {
 }
 
+<<<<<<< HEAD
 static int cryptd_aegis128_aesni_setkey(struct crypto_aead *aead,
 					const u8 *key, unsigned int keylen)
 {
@@ -367,6 +384,37 @@ static struct aead_alg crypto_aegis128_aesni_alg[] = {
 	}
 };
 
+=======
+static struct aead_alg crypto_aegis128_aesni_alg = {
+	.setkey = crypto_aegis128_aesni_setkey,
+	.setauthsize = crypto_aegis128_aesni_setauthsize,
+	.encrypt = crypto_aegis128_aesni_encrypt,
+	.decrypt = crypto_aegis128_aesni_decrypt,
+	.init = crypto_aegis128_aesni_init_tfm,
+	.exit = crypto_aegis128_aesni_exit_tfm,
+
+	.ivsize = AEGIS128_NONCE_SIZE,
+	.maxauthsize = AEGIS128_MAX_AUTH_SIZE,
+	.chunksize = AEGIS128_BLOCK_SIZE,
+
+	.base = {
+		.cra_flags = CRYPTO_ALG_INTERNAL,
+		.cra_blocksize = 1,
+		.cra_ctxsize = sizeof(struct aegis_ctx) +
+			       __alignof__(struct aegis_ctx),
+		.cra_alignmask = 0,
+		.cra_priority = 400,
+
+		.cra_name = "__aegis128",
+		.cra_driver_name = "__aegis128-aesni",
+
+		.cra_module = THIS_MODULE,
+	}
+};
+
+static struct simd_aead_alg *simd_alg;
+
+>>>>>>> upstream/android-13
 static int __init crypto_aegis128_aesni_module_init(void)
 {
 	if (!boot_cpu_has(X86_FEATURE_XMM2) ||
@@ -374,14 +422,23 @@ static int __init crypto_aegis128_aesni_module_init(void)
 	    !cpu_has_xfeatures(XFEATURE_MASK_SSE, NULL))
 		return -ENODEV;
 
+<<<<<<< HEAD
 	return crypto_register_aeads(crypto_aegis128_aesni_alg,
 				     ARRAY_SIZE(crypto_aegis128_aesni_alg));
+=======
+	return simd_register_aeads_compat(&crypto_aegis128_aesni_alg, 1,
+					  &simd_alg);
+>>>>>>> upstream/android-13
 }
 
 static void __exit crypto_aegis128_aesni_module_exit(void)
 {
+<<<<<<< HEAD
 	crypto_unregister_aeads(crypto_aegis128_aesni_alg,
 				ARRAY_SIZE(crypto_aegis128_aesni_alg));
+=======
+	simd_unregister_aeads(&crypto_aegis128_aesni_alg, 1, &simd_alg);
+>>>>>>> upstream/android-13
 }
 
 module_init(crypto_aegis128_aesni_module_init);

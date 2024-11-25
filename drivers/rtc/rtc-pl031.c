@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * drivers/rtc/rtc-pl031.c
  *
@@ -9,11 +13,14 @@
  *
  * Author: Mian Yousaf Kaukab <mian.yousaf.kaukab@stericsson.com>
  * Copyright 2010 (c) ST-Ericsson AB
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/rtc.h>
@@ -84,6 +91,11 @@ struct pl031_vendor_data {
 	bool clockwatch;
 	bool st_weekday;
 	unsigned long irqflags;
+<<<<<<< HEAD
+=======
+	time64_t range_min;
+	timeu64_t range_max;
+>>>>>>> upstream/android-13
 };
 
 struct pl031_local {
@@ -127,11 +139,17 @@ static int pl031_stv2_tm_to_time(struct device *dev,
 		return -EINVAL;
 	} else if (wday == -1) {
 		/* wday is not provided, calculate it here */
+<<<<<<< HEAD
 		unsigned long time;
 		struct rtc_time calc_tm;
 
 		rtc_tm_to_time(tm, &time);
 		rtc_time_to_tm(time, &calc_tm);
+=======
+		struct rtc_time calc_tm;
+
+		rtc_time64_to_tm(rtc_tm_to_time64(tm), &calc_tm);
+>>>>>>> upstream/android-13
 		wday = calc_tm.tm_wday;
 	}
 
@@ -214,6 +232,7 @@ static int pl031_stv2_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
 	unsigned long bcd_year;
 	int ret;
 
+<<<<<<< HEAD
 	/* At the moment, we can only deal with non-wildcarded alarm times. */
 	ret = rtc_valid_tm(&alarm->time);
 	if (ret == 0) {
@@ -225,6 +244,15 @@ static int pl031_stv2_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
 
 			pl031_alarm_irq_enable(dev, alarm->enabled);
 		}
+=======
+	ret = pl031_stv2_tm_to_time(dev, &alarm->time,
+				    &time, &bcd_year);
+	if (ret == 0) {
+		writel(bcd_year, ldata->base + RTC_YMR);
+		writel(time, ldata->base + RTC_MR);
+
+		pl031_alarm_irq_enable(dev, alarm->enabled);
+>>>>>>> upstream/android-13
 	}
 
 	return ret;
@@ -252,13 +280,18 @@ static int pl031_read_time(struct device *dev, struct rtc_time *tm)
 {
 	struct pl031_local *ldata = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	rtc_time_to_tm(readl(ldata->base + RTC_DR), tm);
+=======
+	rtc_time64_to_tm(readl(ldata->base + RTC_DR), tm);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static int pl031_set_time(struct device *dev, struct rtc_time *tm)
 {
+<<<<<<< HEAD
 	unsigned long time;
 	struct pl031_local *ldata = dev_get_drvdata(dev);
 	int ret;
@@ -269,13 +302,24 @@ static int pl031_set_time(struct device *dev, struct rtc_time *tm)
 		writel(time, ldata->base + RTC_LR);
 
 	return ret;
+=======
+	struct pl031_local *ldata = dev_get_drvdata(dev);
+
+	writel(rtc_tm_to_time64(tm), ldata->base + RTC_LR);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int pl031_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
 {
 	struct pl031_local *ldata = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	rtc_time_to_tm(readl(ldata->base + RTC_MR), &alarm->time);
+=======
+	rtc_time64_to_tm(readl(ldata->base + RTC_MR), &alarm->time);
+>>>>>>> upstream/android-13
 
 	alarm->pending = readl(ldata->base + RTC_RIS) & RTC_BIT_AI;
 	alarm->enabled = readl(ldata->base + RTC_IMSC) & RTC_BIT_AI;
@@ -286,6 +330,7 @@ static int pl031_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
 static int pl031_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
 {
 	struct pl031_local *ldata = dev_get_drvdata(dev);
+<<<<<<< HEAD
 	unsigned long time;
 	int ret;
 
@@ -303,6 +348,16 @@ static int pl031_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
 }
 
 static int pl031_remove(struct amba_device *adev)
+=======
+
+	writel(rtc_tm_to_time64(&alarm->time), ldata->base + RTC_MR);
+	pl031_alarm_irq_enable(dev, alarm->enabled);
+
+	return 0;
+}
+
+static void pl031_remove(struct amba_device *adev)
+>>>>>>> upstream/android-13
 {
 	struct pl031_local *ldata = dev_get_drvdata(&adev->dev);
 
@@ -310,10 +365,14 @@ static int pl031_remove(struct amba_device *adev)
 	device_init_wakeup(&adev->dev, false);
 	if (adev->irq[0])
 		free_irq(adev->irq[0], ldata);
+<<<<<<< HEAD
 	rtc_device_unregister(ldata->rtc);
 	amba_release_regions(adev);
 
 	return 0;
+=======
+	amba_release_regions(adev);
+>>>>>>> upstream/android-13
 }
 
 static int pl031_probe(struct amba_device *adev, const struct amba_id *id)
@@ -375,6 +434,7 @@ static int pl031_probe(struct amba_device *adev, const struct amba_id *id)
 		}
 	}
 
+<<<<<<< HEAD
 	if (!adev->irq[0]) {
 		/* When there's no interrupt, no point in exposing the alarm */
 		ops->read_alarm = NULL;
@@ -385,22 +445,47 @@ static int pl031_probe(struct amba_device *adev, const struct amba_id *id)
 	device_init_wakeup(&adev->dev, true);
 	ldata->rtc = rtc_device_register("pl031", &adev->dev, ops,
 					THIS_MODULE);
+=======
+	device_init_wakeup(&adev->dev, true);
+	ldata->rtc = devm_rtc_allocate_device(&adev->dev);
+>>>>>>> upstream/android-13
 	if (IS_ERR(ldata->rtc)) {
 		ret = PTR_ERR(ldata->rtc);
 		goto out;
 	}
 
+<<<<<<< HEAD
+=======
+	if (!adev->irq[0])
+		clear_bit(RTC_FEATURE_ALARM, ldata->rtc->features);
+
+	ldata->rtc->ops = ops;
+	ldata->rtc->range_min = vendor->range_min;
+	ldata->rtc->range_max = vendor->range_max;
+
+	ret = devm_rtc_register_device(ldata->rtc);
+	if (ret)
+		goto out;
+
+>>>>>>> upstream/android-13
 	if (adev->irq[0]) {
 		ret = request_irq(adev->irq[0], pl031_interrupt,
 				  vendor->irqflags, "rtc-pl031", ldata);
 		if (ret)
+<<<<<<< HEAD
 			goto out_no_irq;
+=======
+			goto out;
+>>>>>>> upstream/android-13
 		dev_pm_set_wake_irq(&adev->dev, adev->irq[0]);
 	}
 	return 0;
 
+<<<<<<< HEAD
 out_no_irq:
 	rtc_device_unregister(ldata->rtc);
+=======
+>>>>>>> upstream/android-13
 out:
 	amba_release_regions(adev);
 err_req:
@@ -417,6 +502,10 @@ static struct pl031_vendor_data arm_pl031 = {
 		.set_alarm = pl031_set_alarm,
 		.alarm_irq_enable = pl031_alarm_irq_enable,
 	},
+<<<<<<< HEAD
+=======
+	.range_max = U32_MAX,
+>>>>>>> upstream/android-13
 };
 
 /* The First ST derivative */
@@ -430,6 +519,10 @@ static struct pl031_vendor_data stv1_pl031 = {
 	},
 	.clockwatch = true,
 	.st_weekday = true,
+<<<<<<< HEAD
+=======
+	.range_max = U32_MAX,
+>>>>>>> upstream/android-13
 };
 
 /* And the second ST derivative */
@@ -450,6 +543,11 @@ static struct pl031_vendor_data stv2_pl031 = {
 	 * remove IRQF_COND_SUSPEND
 	 */
 	.irqflags = IRQF_SHARED | IRQF_COND_SUSPEND,
+<<<<<<< HEAD
+=======
+	.range_min = RTC_TIMESTAMP_BEGIN_0000,
+	.range_max = RTC_TIMESTAMP_END_9999,
+>>>>>>> upstream/android-13
 };
 
 static const struct amba_id pl031_ids[] = {

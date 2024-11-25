@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * digi00x.c - a part of driver for Digidesign Digi 002/003 family
  *
  * Copyright (c) 2014-2015 Takashi Sakamoto
+<<<<<<< HEAD
  *
  * Licensed under the terms of the GNU General Public License, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "digi00x.h"
@@ -42,6 +49,7 @@ static int name_card(struct snd_dg00x *dg00x)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void dg00x_free(struct snd_dg00x *dg00x)
 {
 	snd_dg00x_stream_destroy_duplex(dg00x);
@@ -71,6 +79,40 @@ static void do_registration(struct work_struct *work)
 			   &dg00x->card);
 	if (err < 0)
 		return;
+=======
+static void dg00x_card_free(struct snd_card *card)
+{
+	struct snd_dg00x *dg00x = card->private_data;
+
+	snd_dg00x_stream_destroy_duplex(dg00x);
+	snd_dg00x_transaction_unregister(dg00x);
+
+	mutex_destroy(&dg00x->mutex);
+	fw_unit_put(dg00x->unit);
+}
+
+static int snd_dg00x_probe(struct fw_unit *unit, const struct ieee1394_device_id *entry)
+{
+	struct snd_card *card;
+	struct snd_dg00x *dg00x;
+	int err;
+
+	err = snd_card_new(&unit->device, -1, NULL, THIS_MODULE, sizeof(*dg00x), &card);
+	if (err < 0)
+		return err;
+	card->private_free = dg00x_card_free;
+
+	dg00x = card->private_data;
+	dg00x->unit = fw_unit_get(unit);
+	dev_set_drvdata(&unit->device, dg00x);
+	dg00x->card = card;
+
+	mutex_init(&dg00x->mutex);
+	spin_lock_init(&dg00x->lock);
+	init_waitqueue_head(&dg00x->hwdep_wait);
+
+	dg00x->is_console = entry->model_id == MODEL_CONSOLE;
+>>>>>>> upstream/android-13
 
 	err = name_card(dg00x);
 	if (err < 0)
@@ -98,6 +140,7 @@ static void do_registration(struct work_struct *work)
 	if (err < 0)
 		goto error;
 
+<<<<<<< HEAD
 	err = snd_card_register(dg00x->card);
 	if (err < 0)
 		goto error;
@@ -139,12 +182,23 @@ static int snd_dg00x_probe(struct fw_unit *unit,
 	snd_fw_schedule_registration(unit, &dg00x->dwork);
 
 	return 0;
+=======
+	err = snd_card_register(card);
+	if (err < 0)
+		goto error;
+
+	return 0;
+error:
+	snd_card_free(card);
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static void snd_dg00x_update(struct fw_unit *unit)
 {
 	struct snd_dg00x *dg00x = dev_get_drvdata(&unit->device);
 
+<<<<<<< HEAD
 	/* Postpone a workqueue for deferred registration. */
 	if (!dg00x->registered)
 		snd_fw_schedule_registration(unit, &dg00x->dwork);
@@ -160,12 +214,20 @@ static void snd_dg00x_update(struct fw_unit *unit)
 		snd_dg00x_stream_update_duplex(dg00x);
 		mutex_unlock(&dg00x->mutex);
 	}
+=======
+	snd_dg00x_transaction_reregister(dg00x);
+
+	mutex_lock(&dg00x->mutex);
+	snd_dg00x_stream_update_duplex(dg00x);
+	mutex_unlock(&dg00x->mutex);
+>>>>>>> upstream/android-13
 }
 
 static void snd_dg00x_remove(struct fw_unit *unit)
 {
 	struct snd_dg00x *dg00x = dev_get_drvdata(&unit->device);
 
+<<<<<<< HEAD
 	/*
 	 * Confirm to stop the work for registration before the sound card is
 	 * going to be released. The work is not scheduled again because bus
@@ -180,6 +242,10 @@ static void snd_dg00x_remove(struct fw_unit *unit)
 		/* Don't forget this case. */
 		dg00x_free(dg00x);
 	}
+=======
+	// Block till all of ALSA character devices are released.
+	snd_card_free(dg00x->card);
+>>>>>>> upstream/android-13
 }
 
 static const struct ieee1394_device_id snd_dg00x_id_table[] = {
@@ -207,7 +273,11 @@ MODULE_DEVICE_TABLE(ieee1394, snd_dg00x_id_table);
 static struct fw_driver dg00x_driver = {
 	.driver = {
 		.owner = THIS_MODULE,
+<<<<<<< HEAD
 		.name = "snd-firewire-digi00x",
+=======
+		.name = KBUILD_MODNAME,
+>>>>>>> upstream/android-13
 		.bus = &fw_bus_type,
 	},
 	.probe    = snd_dg00x_probe,

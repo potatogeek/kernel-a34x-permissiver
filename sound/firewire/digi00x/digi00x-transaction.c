@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * digi00x-transaction.c - a part of driver for Digidesign Digi 002/003 family
  *
  * Copyright (c) 2014-2015 Takashi Sakamoto
+<<<<<<< HEAD
  *
  * Licensed under the terms of the GNU General Public License, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <sound/asound.h>

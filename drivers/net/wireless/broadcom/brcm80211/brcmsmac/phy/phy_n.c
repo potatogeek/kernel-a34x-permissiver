@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2010 Broadcom Corporation
  *
@@ -12,6 +13,11 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2010 Broadcom Corporation
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -17759,7 +17765,11 @@ static void wlc_phy_txpwrctrl_pwr_setup_nphy(struct brcms_phy *pi)
 			num = 8 *
 			      (16 * b0[tbl_id - 26] + b1[tbl_id - 26] * idx);
 			den = 32768 + a1[tbl_id - 26] * idx;
+<<<<<<< HEAD
 			pwr_est = max(((4 * num + den / 2) / den), -8);
+=======
+			pwr_est = max(DIV_ROUND_CLOSEST(4 * num, den), -8);
+>>>>>>> upstream/android-13
 			if (NREV_LT(pi->pubpi.phy_rev, 3)) {
 				if (idx <=
 				    (uint) (31 - idle_tssi[tbl_id - 26] + 1))
@@ -19044,7 +19054,10 @@ static void wlc_phy_spurwar_nphy(struct brcms_phy *pi)
 	u32 nphy_adj_noise_var_buf[] = { 0x3ff, 0x3ff };
 	bool isAdjustNoiseVar = false;
 	uint numTonesAdjust = 0;
+<<<<<<< HEAD
 	u32 tempval = 0;
+=======
+>>>>>>> upstream/android-13
 
 	if (NREV_GE(pi->pubpi.phy_rev, 3)) {
 		if (pi->phyhang_avoid)
@@ -19150,9 +19163,12 @@ static void wlc_phy_spurwar_nphy(struct brcms_phy *pi)
 					numTonesAdjust,
 					nphy_adj_tone_id_buf,
 					nphy_adj_noise_var_buf);
+<<<<<<< HEAD
 
 				tempval = 0;
 
+=======
+>>>>>>> upstream/android-13
 			} else {
 				wlc_phy_adjust_min_noisevar_nphy(pi, 0, NULL,
 								 NULL);
@@ -20046,7 +20062,11 @@ static void wlc_phy_radio_init_2056(struct brcms_phy *pi)
 			break;
 
 		default:
+<<<<<<< HEAD
 			break;
+=======
+			return;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -21991,7 +22011,11 @@ s16 wlc_phy_tempsense_nphy(struct brcms_phy *pi)
 		u16 auxADC_rssi_ctrlL, auxADC_rssi_ctrlH;
 		s32 auxADC_Vl;
 		u16 RfctrlOverride5_save, RfctrlOverride6_save;
+<<<<<<< HEAD
 		u16 RfctrlMiscReg5_save, RfctrlMiscReg6_save;
+=======
+		u16 RfctrlMiscReg5_save;
+>>>>>>> upstream/android-13
 		u16 RSSIMultCoef0QPowerDet_save;
 		u16 tempsense_Rcal;
 
@@ -22006,7 +22030,11 @@ s16 wlc_phy_tempsense_nphy(struct brcms_phy *pi)
 		RfctrlOverride5_save = read_phy_reg(pi, 0x346);
 		RfctrlOverride6_save = read_phy_reg(pi, 0x347);
 		RfctrlMiscReg5_save = read_phy_reg(pi, 0x344);
+<<<<<<< HEAD
 		RfctrlMiscReg6_save = read_phy_reg(pi, 0x345);
+=======
+		read_phy_reg(pi, 0x345); /* RfctrlMiscReg6_save */
+>>>>>>> upstream/android-13
 
 		wlc_phy_table_read_nphy(pi, NPHY_TBL_ID_AFECTRL, 1, 0x0A, 16,
 					&auxADC_Vmid_save);
@@ -22994,7 +23022,11 @@ int
 wlc_phy_rssi_compute_nphy(struct brcms_phy *pi, struct d11rxhdr *rxh)
 {
 	s16 rxpwr, rxpwr0, rxpwr1;
+<<<<<<< HEAD
 	s16 phyRx0_l, phyRx2_l;
+=======
+	s16 phyRx2_l;
+>>>>>>> upstream/android-13
 
 	rxpwr = 0;
 	rxpwr0 = rxh->PhyRxStatus_1 & PRXS1_nphy_PWR0_MASK;
@@ -23005,7 +23037,10 @@ wlc_phy_rssi_compute_nphy(struct brcms_phy *pi, struct d11rxhdr *rxh)
 	if (rxpwr1 > 127)
 		rxpwr1 -= 256;
 
+<<<<<<< HEAD
 	phyRx0_l = rxh->PhyRxStatus_0 & 0x00ff;
+=======
+>>>>>>> upstream/android-13
 	phyRx2_l = rxh->PhyRxStatus_2 & 0x00ff;
 	if (phyRx2_l > 127)
 		phyRx2_l -= 256;
@@ -23089,8 +23124,13 @@ wlc_phy_gen_load_samples_nphy(struct brcms_phy *pi, u32 f_kHz, u16 max_val,
 
 		theta += rot;
 
+<<<<<<< HEAD
 		tone_buf[t].q = (s32) FLOAT(tone_buf[t].q * max_val);
 		tone_buf[t].i = (s32) FLOAT(tone_buf[t].i * max_val);
+=======
+		tone_buf[t].q = (s32)CORDIC_FLOAT(tone_buf[t].q * max_val);
+		tone_buf[t].i = (s32)CORDIC_FLOAT(tone_buf[t].i * max_val);
+>>>>>>> upstream/android-13
 	}
 
 	wlc_phy_loadsampletable_nphy(pi, tone_buf, num_samps);
@@ -23108,8 +23148,12 @@ wlc_phy_runsamples_nphy(struct brcms_phy *pi, u16 num_samps, u16 loops,
 	u16 bb_mult;
 	u8 phy_bw, sample_cmd;
 	u16 orig_RfseqCoreActv;
+<<<<<<< HEAD
 	u16 lpf_bw_ctl_override3, lpf_bw_ctl_override4, lpf_bw_ctl_miscreg3,
 	    lpf_bw_ctl_miscreg4;
+=======
+	u16 lpf_bw_ctl_override3, lpf_bw_ctl_override4;
+>>>>>>> upstream/android-13
 
 	if (pi->phyhang_avoid)
 		wlc_phy_stay_in_carriersearch_nphy(pi, true);
@@ -23122,12 +23166,16 @@ wlc_phy_runsamples_nphy(struct brcms_phy *pi, u16 num_samps, u16 loops,
 
 		lpf_bw_ctl_override3 = read_phy_reg(pi, 0x342) & (0x1 << 7);
 		lpf_bw_ctl_override4 = read_phy_reg(pi, 0x343) & (0x1 << 7);
+<<<<<<< HEAD
 		if (lpf_bw_ctl_override3 | lpf_bw_ctl_override4) {
 			lpf_bw_ctl_miscreg3 = read_phy_reg(pi, 0x340) &
 					      (0x7 << 8);
 			lpf_bw_ctl_miscreg4 = read_phy_reg(pi, 0x341) &
 					      (0x7 << 8);
 		} else {
+=======
+		if (!(lpf_bw_ctl_override3 | lpf_bw_ctl_override4)) {
+>>>>>>> upstream/android-13
 			wlc_phy_rfctrl_override_nphy_rev7(
 				pi,
 				(0x1 << 7),
@@ -23137,12 +23185,18 @@ wlc_phy_runsamples_nphy(struct brcms_phy *pi, u16 num_samps, u16 loops,
 				NPHY_REV7_RFCTRLOVERRIDE_ID1);
 
 			pi->nphy_sample_play_lpf_bw_ctl_ovr = true;
+<<<<<<< HEAD
 
 			lpf_bw_ctl_miscreg3 = read_phy_reg(pi, 0x340) &
 					      (0x7 << 8);
 			lpf_bw_ctl_miscreg4 = read_phy_reg(pi, 0x341) &
 					      (0x7 << 8);
 		}
+=======
+		}
+		read_phy_reg(pi, 0x340); /* lpf_bw_ctl_miscreg3 */
+		read_phy_reg(pi, 0x341); /* lpf_bw_ctl_miscreg4 */
+>>>>>>> upstream/android-13
 	}
 
 	if ((pi->nphy_bb_mult_save & BB_MULT_VALID_MASK) == 0) {
@@ -23414,7 +23468,10 @@ wlc_phy_iqcal_gainparams_nphy(struct brcms_phy *pi, u16 core_no,
 			      struct nphy_iqcal_params *params)
 {
 	u8 k;
+<<<<<<< HEAD
 	int idx;
+=======
+>>>>>>> upstream/android-13
 	u16 gain_index;
 	u8 band_idx = (CHSPEC_IS5G(pi->radio_chanspec) ? 1 : 0);
 
@@ -23447,6 +23504,7 @@ wlc_phy_iqcal_gainparams_nphy(struct brcms_phy *pi, u16 core_no,
 			      (target_gain.pga[core_no] << 4) |
 			      (target_gain.txgm[core_no] << 8));
 
+<<<<<<< HEAD
 		idx = -1;
 		for (k = 0; k < NPHY_IQCAL_NUMGAINS; k++) {
 			if (tbl_iqcal_gainparams_nphy[band_idx][k][0] ==
@@ -23454,6 +23512,12 @@ wlc_phy_iqcal_gainparams_nphy(struct brcms_phy *pi, u16 core_no,
 				idx = k;
 				break;
 			}
+=======
+		for (k = 0; k < NPHY_IQCAL_NUMGAINS; k++) {
+			if (tbl_iqcal_gainparams_nphy[band_idx][k][0] ==
+			    gain_index)
+				break;
+>>>>>>> upstream/android-13
 		}
 
 		params->txgm = tbl_iqcal_gainparams_nphy[band_idx][k][1];
@@ -24715,7 +24779,10 @@ wlc_phy_a2_nphy(struct brcms_phy *pi, struct nphy_ipa_txcalgains *txgains,
 {
 	u16 phy_a1, phy_a2, phy_a3;
 	u16 phy_a4, phy_a5;
+<<<<<<< HEAD
 	bool phy_a6;
+=======
+>>>>>>> upstream/android-13
 	u8 phy_a7, m[2];
 	u32 phy_a8 = 0;
 	struct nphy_txgains phy_a9;
@@ -24725,9 +24792,12 @@ wlc_phy_a2_nphy(struct brcms_phy *pi, struct nphy_ipa_txcalgains *txgains,
 
 	phy_a7 = (core == PHY_CORE_0) ? 1 : 0;
 
+<<<<<<< HEAD
 	phy_a6 = ((cal_mode == CAL_GCTRL)
 		  || (cal_mode == CAL_SOFT)) ? true : false;
 
+=======
+>>>>>>> upstream/android-13
 	if (NREV_GE(pi->pubpi.phy_rev, 7)) {
 
 		phy_a9 = wlc_phy_get_tx_gain_nphy(pi);
@@ -25007,7 +25077,10 @@ static u8 wlc_phy_a3_nphy(struct brcms_phy *pi, u8 start_gain, u8 core)
 	s32 phy_a7, phy_a8;
 	u32 phy_a9;
 	int phy_a10;
+<<<<<<< HEAD
 	bool phy_a11 = false;
+=======
+>>>>>>> upstream/android-13
 	int phy_a12;
 	u8 phy_a13 = 0;
 	u8 phy_a14;
@@ -25075,8 +25148,11 @@ static u8 wlc_phy_a3_nphy(struct brcms_phy *pi, u8 start_gain, u8 core)
 			if (!phy_a6 && (phy_a3 != phy_a5)) {
 				if (!phy_a3)
 					phy_a12 -= (u8) phy_a1;
+<<<<<<< HEAD
 
 				phy_a11 = true;
+=======
+>>>>>>> upstream/android-13
 				break;
 			}
 
@@ -25090,8 +25166,11 @@ static u8 wlc_phy_a3_nphy(struct brcms_phy *pi, u8 start_gain, u8 core)
 					phy_a12 = phy_a14;
 				else
 					phy_a12 = phy_a13;
+<<<<<<< HEAD
 
 				phy_a11 = true;
+=======
+>>>>>>> upstream/android-13
 				break;
 			}
 
@@ -25121,8 +25200,11 @@ static u8 wlc_phy_a3_nphy(struct brcms_phy *pi, u8 start_gain, u8 core)
 			if (!phy_a6 && (phy_a3 != phy_a5)) {
 				if (!phy_a3)
 					phy_a12 -= (u8) phy_a1;
+<<<<<<< HEAD
 
 				phy_a11 = true;
+=======
+>>>>>>> upstream/android-13
 				break;
 			}
 
@@ -25136,8 +25218,11 @@ static u8 wlc_phy_a3_nphy(struct brcms_phy *pi, u8 start_gain, u8 core)
 					phy_a12 = 0;
 				else
 					phy_a12 = 127;
+<<<<<<< HEAD
 
 				phy_a11 = true;
+=======
+>>>>>>> upstream/android-13
 				break;
 			}
 
@@ -25453,12 +25538,20 @@ void wlc_phy_cal_perical_nphy_run(struct brcms_phy *pi, u8 caltype)
 			(pi->cal_type_override ==
 			 PHY_PERICAL_FULL) ? true : false;
 
+<<<<<<< HEAD
 	if ((pi->mphase_cal_phase_id > MPHASE_CAL_STATE_INIT)) {
+=======
+	if (pi->mphase_cal_phase_id > MPHASE_CAL_STATE_INIT) {
+>>>>>>> upstream/android-13
 		if (pi->nphy_txiqlocal_chanspec != pi->radio_chanspec)
 			wlc_phy_cal_perical_mphase_restart(pi);
 	}
 
+<<<<<<< HEAD
 	if ((pi->mphase_cal_phase_id == MPHASE_CAL_STATE_RXCAL))
+=======
+	if (pi->mphase_cal_phase_id == MPHASE_CAL_STATE_RXCAL)
+>>>>>>> upstream/android-13
 		wlapi_bmac_write_shm(pi->sh->physhim, M_CTS_DURATION, 10000);
 
 	wlapi_suspend_mac_and_wait(pi->sh->physhim);
@@ -27001,8 +27094,13 @@ wlc_phy_rxcal_gainctrl_nphy_rev5(struct brcms_phy *pi, u8 rx_core,
 				     NPHY_RXCAL_TONEAMP, 0, cal_type, false);
 
 		wlc_phy_rx_iq_est_nphy(pi, est, num_samps, 32, 0);
+<<<<<<< HEAD
 		i_pwr = (est[rx_core].i_pwr + num_samps / 2) / num_samps;
 		q_pwr = (est[rx_core].q_pwr + num_samps / 2) / num_samps;
+=======
+		i_pwr = DIV_ROUND_CLOSEST(est[rx_core].i_pwr, num_samps);
+		q_pwr = DIV_ROUND_CLOSEST(est[rx_core].q_pwr, num_samps);
+>>>>>>> upstream/android-13
 		curr_pwr = i_pwr + q_pwr;
 
 		switch (gainctrl_dirn) {
@@ -27684,10 +27782,17 @@ wlc_phy_cal_rxiq_nphy_rev2(struct brcms_phy *pi,
 					wlc_phy_rx_iq_est_nphy(pi, est,
 							       num_samps, 32,
 							       0);
+<<<<<<< HEAD
 					i_pwr =	(est[rx_core].i_pwr +
 						 num_samps / 2) / num_samps;
 					q_pwr =	(est[rx_core].q_pwr +
 						 num_samps / 2) / num_samps;
+=======
+					i_pwr = DIV_ROUND_CLOSEST(est[rx_core].i_pwr,
+									 num_samps);
+					q_pwr = DIV_ROUND_CLOSEST(est[rx_core].q_pwr,
+									 num_samps);
+>>>>>>> upstream/android-13
 					tot_pwr[gain_pass] = i_pwr + q_pwr;
 				} else {
 

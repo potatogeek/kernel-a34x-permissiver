@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * max5487.c - Support for MAX5487, MAX5488, MAX5489 digital potentiometers
  *
  * Copyright (C) 2016 Cristina-Gabriela Moraru <cristina.moraru09@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/spi/spi.h>
@@ -96,7 +103,11 @@ static int max5487_spi_probe(struct spi_device *spi)
 	if (!indio_dev)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	dev_set_drvdata(&spi->dev, indio_dev);
+=======
+	spi_set_drvdata(spi, indio_dev);
+>>>>>>> upstream/android-13
 	data = iio_priv(indio_dev);
 
 	data->spi = spi;
@@ -104,7 +115,10 @@ static int max5487_spi_probe(struct spi_device *spi)
 
 	indio_dev->info = &max5487_info;
 	indio_dev->name = id->name;
+<<<<<<< HEAD
 	indio_dev->dev.parent = &spi->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->channels = max5487_channels;
 	indio_dev->num_channels = ARRAY_SIZE(max5487_channels);
@@ -119,7 +133,11 @@ static int max5487_spi_probe(struct spi_device *spi)
 
 static int max5487_spi_remove(struct spi_device *spi)
 {
+<<<<<<< HEAD
 	struct iio_dev *indio_dev = dev_get_drvdata(&spi->dev);
+=======
+	struct iio_dev *indio_dev = spi_get_drvdata(spi);
+>>>>>>> upstream/android-13
 
 	iio_device_unregister(indio_dev);
 

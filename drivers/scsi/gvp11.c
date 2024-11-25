@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #include <linux/types.h>
 #include <linux/init.h>
 #include <linux/interrupt.h>
@@ -8,7 +12,10 @@
 #include <linux/module.h>
 
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/amigaints.h>
 #include <asm/amigahw.h>
 
@@ -184,7 +191,11 @@ static struct scsi_host_template gvp11_scsi_template = {
 	.this_id		= 7,
 	.sg_tablesize		= SG_ALL,
 	.cmd_per_lun		= CMD_PER_LUN,
+<<<<<<< HEAD
 	.use_clustering		= DISABLE_CLUSTERING
+=======
+	.dma_boundary		= PAGE_SIZE - 1,
+>>>>>>> upstream/android-13
 };
 
 static int check_wd33c93(struct gvp11_scsiregs *regs)

@@ -58,14 +58,20 @@ endif
 
 head-y                 := arch/sparc/kernel/head_$(BITS).o
 
+<<<<<<< HEAD
 # See arch/sparc/Kbuild for the core part of the kernel
 core-y                 += arch/sparc/
 
+=======
+>>>>>>> upstream/android-13
 libs-y                 += arch/sparc/prom/
 libs-y                 += arch/sparc/lib/
 
 drivers-$(CONFIG_PM) += arch/sparc/power/
+<<<<<<< HEAD
 drivers-$(CONFIG_OPROFILE)	+= arch/sparc/oprofile/
+=======
+>>>>>>> upstream/android-13
 
 boot := arch/sparc/boot
 
@@ -76,11 +82,22 @@ image zImage uImage tftpboot.img vmlinux.aout: vmlinux
 	$(Q)$(MAKE) $(build)=$(boot) $(boot)/$@
 
 install:
+<<<<<<< HEAD
 	$(Q)$(MAKE) $(build)=$(boot) $@
+=======
+	sh $(srctree)/$(boot)/install.sh $(KERNELRELEASE) $(KBUILD_IMAGE) \
+		System.map "$(INSTALL_PATH)"
+>>>>>>> upstream/android-13
 
 archclean:
 	$(Q)$(MAKE) $(clean)=$(boot)
 
+<<<<<<< HEAD
+=======
+archheaders:
+	$(Q)$(MAKE) $(build)=arch/sparc/kernel/syscalls all
+
+>>>>>>> upstream/android-13
 PHONY += vdso_install
 vdso_install:
 	$(Q)$(MAKE) $(build)=arch/sparc/vdso $@

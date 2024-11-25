@@ -101,9 +101,12 @@ mtrr_write(struct file *file, const char __user *buf, size_t len, loff_t * ppos)
 	int length;
 	size_t linelen;
 
+<<<<<<< HEAD
 	if (!capable(CAP_SYS_ADMIN))
 		return -EPERM;
 
+=======
+>>>>>>> upstream/android-13
 	memset(line, 0, LINE_SIZE);
 
 	len = min_t(size_t, len, LINE_SIZE - 1);
@@ -176,12 +179,20 @@ mtrr_ioctl(struct file *file, unsigned int cmd, unsigned long __arg)
 	case MTRRIOC_SET_PAGE_ENTRY:
 	case MTRRIOC_DEL_PAGE_ENTRY:
 	case MTRRIOC_KILL_PAGE_ENTRY:
+<<<<<<< HEAD
 		if (copy_from_user(&sentry, arg, sizeof sentry))
+=======
+		if (copy_from_user(&sentry, arg, sizeof(sentry)))
+>>>>>>> upstream/android-13
 			return -EFAULT;
 		break;
 	case MTRRIOC_GET_ENTRY:
 	case MTRRIOC_GET_PAGE_ENTRY:
+<<<<<<< HEAD
 		if (copy_from_user(&gentry, arg, sizeof gentry))
+=======
+		if (copy_from_user(&gentry, arg, sizeof(gentry)))
+>>>>>>> upstream/android-13
 			return -EFAULT;
 		break;
 #ifdef CONFIG_COMPAT
@@ -226,8 +237,11 @@ mtrr_ioctl(struct file *file, unsigned int cmd, unsigned long __arg)
 #ifdef CONFIG_COMPAT
 	case MTRRIOC32_ADD_ENTRY:
 #endif
+<<<<<<< HEAD
 		if (!capable(CAP_SYS_ADMIN))
 			return -EPERM;
+=======
+>>>>>>> upstream/android-13
 		err =
 		    mtrr_file_add(sentry.base, sentry.size, sentry.type, true,
 				  file, 0);
@@ -236,24 +250,33 @@ mtrr_ioctl(struct file *file, unsigned int cmd, unsigned long __arg)
 #ifdef CONFIG_COMPAT
 	case MTRRIOC32_SET_ENTRY:
 #endif
+<<<<<<< HEAD
 		if (!capable(CAP_SYS_ADMIN))
 			return -EPERM;
+=======
+>>>>>>> upstream/android-13
 		err = mtrr_add(sentry.base, sentry.size, sentry.type, false);
 		break;
 	case MTRRIOC_DEL_ENTRY:
 #ifdef CONFIG_COMPAT
 	case MTRRIOC32_DEL_ENTRY:
 #endif
+<<<<<<< HEAD
 		if (!capable(CAP_SYS_ADMIN))
 			return -EPERM;
+=======
+>>>>>>> upstream/android-13
 		err = mtrr_file_del(sentry.base, sentry.size, file, 0);
 		break;
 	case MTRRIOC_KILL_ENTRY:
 #ifdef CONFIG_COMPAT
 	case MTRRIOC32_KILL_ENTRY:
 #endif
+<<<<<<< HEAD
 		if (!capable(CAP_SYS_ADMIN))
 			return -EPERM;
+=======
+>>>>>>> upstream/android-13
 		err = mtrr_del(-1, sentry.base, sentry.size);
 		break;
 	case MTRRIOC_GET_ENTRY:
@@ -279,8 +302,11 @@ mtrr_ioctl(struct file *file, unsigned int cmd, unsigned long __arg)
 #ifdef CONFIG_COMPAT
 	case MTRRIOC32_ADD_PAGE_ENTRY:
 #endif
+<<<<<<< HEAD
 		if (!capable(CAP_SYS_ADMIN))
 			return -EPERM;
+=======
+>>>>>>> upstream/android-13
 		err =
 		    mtrr_file_add(sentry.base, sentry.size, sentry.type, true,
 				  file, 1);
@@ -289,8 +315,11 @@ mtrr_ioctl(struct file *file, unsigned int cmd, unsigned long __arg)
 #ifdef CONFIG_COMPAT
 	case MTRRIOC32_SET_PAGE_ENTRY:
 #endif
+<<<<<<< HEAD
 		if (!capable(CAP_SYS_ADMIN))
 			return -EPERM;
+=======
+>>>>>>> upstream/android-13
 		err =
 		    mtrr_add_page(sentry.base, sentry.size, sentry.type, false);
 		break;
@@ -298,16 +327,22 @@ mtrr_ioctl(struct file *file, unsigned int cmd, unsigned long __arg)
 #ifdef CONFIG_COMPAT
 	case MTRRIOC32_DEL_PAGE_ENTRY:
 #endif
+<<<<<<< HEAD
 		if (!capable(CAP_SYS_ADMIN))
 			return -EPERM;
+=======
+>>>>>>> upstream/android-13
 		err = mtrr_file_del(sentry.base, sentry.size, file, 1);
 		break;
 	case MTRRIOC_KILL_PAGE_ENTRY:
 #ifdef CONFIG_COMPAT
 	case MTRRIOC32_KILL_PAGE_ENTRY:
 #endif
+<<<<<<< HEAD
 		if (!capable(CAP_SYS_ADMIN))
 			return -EPERM;
+=======
+>>>>>>> upstream/android-13
 		err = mtrr_del_page(-1, sentry.base, sentry.size);
 		break;
 	case MTRRIOC_GET_PAGE_ENTRY:
@@ -334,7 +369,11 @@ mtrr_ioctl(struct file *file, unsigned int cmd, unsigned long __arg)
 	switch (cmd) {
 	case MTRRIOC_GET_ENTRY:
 	case MTRRIOC_GET_PAGE_ENTRY:
+<<<<<<< HEAD
 		if (copy_to_user(arg, &gentry, sizeof gentry))
+=======
+		if (copy_to_user(arg, &gentry, sizeof(gentry)))
+>>>>>>> upstream/android-13
 			err = -EFAULT;
 		break;
 #ifdef CONFIG_COMPAT
@@ -373,6 +412,7 @@ static int mtrr_close(struct inode *ino, struct file *file)
 	return single_release(ino, file);
 }
 
+<<<<<<< HEAD
 static int mtrr_seq_show(struct seq_file *seq, void *offset);
 
 static int mtrr_open(struct inode *inode, struct file *file)
@@ -395,6 +435,8 @@ static const struct file_operations mtrr_fops = {
 	.release		= mtrr_close,
 };
 
+=======
+>>>>>>> upstream/android-13
 static int mtrr_seq_show(struct seq_file *seq, void *offset)
 {
 	char factor;
@@ -426,6 +468,32 @@ static int mtrr_seq_show(struct seq_file *seq, void *offset)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int mtrr_open(struct inode *inode, struct file *file)
+{
+	if (!mtrr_if)
+		return -EIO;
+	if (!mtrr_if->get)
+		return -ENXIO;
+	if (!capable(CAP_SYS_ADMIN))
+		return -EPERM;
+	return single_open(file, mtrr_seq_show, NULL);
+}
+
+static const struct proc_ops mtrr_proc_ops = {
+	.proc_open		= mtrr_open,
+	.proc_read		= seq_read,
+	.proc_lseek		= seq_lseek,
+	.proc_write		= mtrr_write,
+	.proc_ioctl		= mtrr_ioctl,
+#ifdef CONFIG_COMPAT
+	.proc_compat_ioctl	= mtrr_ioctl,
+#endif
+	.proc_release		= mtrr_close,
+};
+
+>>>>>>> upstream/android-13
 static int __init mtrr_if_init(void)
 {
 	struct cpuinfo_x86 *c = &boot_cpu_data;
@@ -436,7 +504,11 @@ static int __init mtrr_if_init(void)
 	    (!cpu_has(c, X86_FEATURE_CENTAUR_MCR)))
 		return -ENODEV;
 
+<<<<<<< HEAD
 	proc_create("mtrr", S_IWUSR | S_IRUGO, NULL, &mtrr_fops);
+=======
+	proc_create("mtrr", S_IWUSR | S_IRUGO, NULL, &mtrr_proc_ops);
+>>>>>>> upstream/android-13
 	return 0;
 }
 arch_initcall(mtrr_if_init);

@@ -10,11 +10,21 @@ struct target {
 	const char   *tid;
 	const char   *cpu_list;
 	const char   *uid_str;
+<<<<<<< HEAD
+=======
+	const char   *bpf_str;
+>>>>>>> upstream/android-13
 	uid_t	     uid;
 	bool	     system_wide;
 	bool	     uses_mmap;
 	bool	     default_per_cpu;
 	bool	     per_thread;
+<<<<<<< HEAD
+=======
+	bool	     use_bpf;
+	bool	     hybrid;
+	const char   *attr_map;
+>>>>>>> upstream/android-13
 };
 
 enum target_errno {
@@ -36,6 +46,13 @@ enum target_errno {
 	TARGET_ERRNO__PID_OVERRIDE_SYSTEM,
 	TARGET_ERRNO__UID_OVERRIDE_SYSTEM,
 	TARGET_ERRNO__SYSTEM_OVERRIDE_THREAD,
+<<<<<<< HEAD
+=======
+	TARGET_ERRNO__BPF_OVERRIDE_CPU,
+	TARGET_ERRNO__BPF_OVERRIDE_PID,
+	TARGET_ERRNO__BPF_OVERRIDE_UID,
+	TARGET_ERRNO__BPF_OVERRIDE_THREAD,
+>>>>>>> upstream/android-13
 
 	/* for target__parse_uid() */
 	TARGET_ERRNO__INVALID_UID,

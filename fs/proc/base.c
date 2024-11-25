@@ -59,6 +59,10 @@
 #include <linux/capability.h>
 #include <linux/file.h>
 #include <linux/fdtable.h>
+<<<<<<< HEAD
+=======
+#include <linux/generic-radix-tree.h>
+>>>>>>> upstream/android-13
 #include <linux/string.h>
 #include <linux/seq_file.h>
 #include <linux/namei.h>
@@ -92,9 +96,18 @@
 #include <linux/sched/coredump.h>
 #include <linux/sched/debug.h>
 #include <linux/sched/stat.h>
+<<<<<<< HEAD
 #include <linux/flex_array.h>
 #include <linux/posix-timers.h>
 #include <linux/cpufreq_times.h>
+=======
+#include <linux/posix-timers.h>
+#include <linux/time_namespace.h>
+#include <linux/resctrl.h>
+#include <linux/cn_proc.h>
+#include <linux/cpufreq_times.h>
+#include <linux/cn_proc.h>
+>>>>>>> upstream/android-13
 #include <linux/task_integrity.h>
 #include <linux/proca.h>
 #include <trace/events/oom.h>
@@ -147,9 +160,19 @@ struct pid_entry {
 #define REG(NAME, MODE, fops)				\
 	NOD(NAME, (S_IFREG|(MODE)), NULL, &fops, {})
 #define ONE(NAME, MODE, show)				\
+<<<<<<< HEAD
 	NOD(NAME, (S_IFREG|(MODE)), 			\
 		NULL, &proc_single_file_operations,	\
 		{ .proc_show = show } )
+=======
+	NOD(NAME, (S_IFREG|(MODE)),			\
+		NULL, &proc_single_file_operations,	\
+		{ .proc_show = show } )
+#define ATTR(LSM, NAME, MODE)				\
+	NOD(NAME, (S_IFREG|(MODE)),			\
+		NULL, &proc_pid_attr_operations,	\
+		{ .lsm = LSM })
+>>>>>>> upstream/android-13
 
 /*
  * Count the number of hardlinks for the pid_entry table, excluding the .
@@ -406,11 +429,19 @@ print0:
 
 static int lock_trace(struct task_struct *task)
 {
+<<<<<<< HEAD
 	int err = mutex_lock_killable(&task->signal->cred_guard_mutex);
 	if (err)
 		return err;
 	if (!ptrace_may_access(task, PTRACE_MODE_ATTACH_FSCREDS)) {
 		mutex_unlock(&task->signal->cred_guard_mutex);
+=======
+	int err = down_read_killable(&task->signal->exec_update_lock);
+	if (err)
+		return err;
+	if (!ptrace_may_access(task, PTRACE_MODE_ATTACH_FSCREDS)) {
+		up_read(&task->signal->exec_update_lock);
+>>>>>>> upstream/android-13
 		return -EPERM;
 	}
 	return 0;
@@ -418,7 +449,11 @@ static int lock_trace(struct task_struct *task)
 
 static void unlock_trace(struct task_struct *task)
 {
+<<<<<<< HEAD
 	mutex_unlock(&task->signal->cred_guard_mutex);
+=======
+	up_read(&task->signal->exec_update_lock);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_STACKTRACE
@@ -428,7 +463,10 @@ static void unlock_trace(struct task_struct *task)
 static int proc_pid_stack(struct seq_file *m, struct pid_namespace *ns,
 			  struct pid *pid, struct task_struct *task)
 {
+<<<<<<< HEAD
 	struct stack_trace trace;
+=======
+>>>>>>> upstream/android-13
 	unsigned long *entries;
 	int err;
 
@@ -451,6 +489,7 @@ static int proc_pid_stack(struct seq_file *m, struct pid_namespace *ns,
 	if (!entries)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	trace.nr_entries	= 0;
 	trace.max_entries	= MAX_STACK_TRACE_DEPTH;
 	trace.entries		= entries;
@@ -465,6 +504,19 @@ static int proc_pid_stack(struct seq_file *m, struct pid_namespace *ns,
 		for (i = 0; i < trace.nr_entries; i++) {
 			seq_printf(m, "[<0>] %pB\n", (void *)entries[i]);
 		}
+=======
+	err = lock_trace(task);
+	if (!err) {
+		unsigned int i, nr_entries;
+
+		nr_entries = stack_trace_save_tsk(task, entries,
+						  MAX_STACK_TRACE_DEPTH, 0);
+
+		for (i = 0; i < nr_entries; i++) {
+			seq_printf(m, "[<0>] %pB\n", (void *)entries[i]);
+		}
+
+>>>>>>> upstream/android-13
 		unlock_trace(task);
 	}
 	kfree(entries);
@@ -532,7 +584,11 @@ static int proc_pid_schedstat(struct seq_file *m, struct pid_namespace *ns,
 			      struct pid *pid, struct task_struct *task)
 {
 	if (unlikely(!sched_info_on()))
+<<<<<<< HEAD
 		seq_printf(m, "0 0 0\n");
+=======
+		seq_puts(m, "0 0 0\n");
+>>>>>>> upstream/android-13
 	else
 		seq_printf(m, "%llu %llu %lu\n",
 		   (unsigned long long)task->se.sum_exec_runtime,
@@ -561,10 +617,16 @@ static int lstats_show_proc(struct seq_file *m, void *v)
 				   lr->count, lr->time, lr->max);
 			for (q = 0; q < LT_BACKTRACEDEPTH; q++) {
 				unsigned long bt = lr->backtrace[q];
+<<<<<<< HEAD
 				if (!bt)
 					break;
 				if (bt == ULONG_MAX)
 					break;
+=======
+
+				if (!bt)
+					break;
+>>>>>>> upstream/android-13
 				seq_printf(m, " %ps", (void *)bt);
 			}
 			seq_putc(m, '\n');
@@ -587,7 +649,11 @@ static ssize_t lstats_write(struct file *file, const char __user *buf,
 
 	if (!task)
 		return -ESRCH;
+<<<<<<< HEAD
 	clear_all_latency_tracing(task);
+=======
+	clear_tsk_latency_tracing(task);
+>>>>>>> upstream/android-13
 	put_task_struct(task);
 
 	return count;
@@ -606,11 +672,27 @@ static const struct file_operations proc_lstats_operations = {
 static int proc_oom_score(struct seq_file *m, struct pid_namespace *ns,
 			  struct pid *pid, struct task_struct *task)
 {
+<<<<<<< HEAD
 	unsigned long totalpages = totalram_pages + total_swap_pages;
 	unsigned long points = 0;
 
 	points = oom_badness(task, NULL, NULL, totalpages) *
 					1000 / totalpages;
+=======
+	unsigned long totalpages = totalram_pages() + total_swap_pages;
+	unsigned long points = 0;
+	long badness;
+
+	badness = oom_badness(task, totalpages);
+	/*
+	 * Special case OOM_SCORE_ADJ_MIN for all others scale the
+	 * badness value into [0, 2000] range which we have been
+	 * exporting for a long time so userspace might depend on it.
+	 */
+	if (badness != LONG_MIN)
+		points = (1000 + badness * 1000 / (long)totalpages) * 2 / 3;
+
+>>>>>>> upstream/android-13
 	seq_printf(m, "%lu\n", points);
 
 	return 0;
@@ -657,8 +739,15 @@ static int proc_pid_limits(struct seq_file *m, struct pid_namespace *ns,
 	/*
 	 * print the file header
 	 */
+<<<<<<< HEAD
        seq_printf(m, "%-25s %-20s %-20s %-10s\n",
 		  "Limit", "Soft Limit", "Hard Limit", "Units");
+=======
+	seq_puts(m, "Limit                     "
+		"Soft Limit           "
+		"Hard Limit           "
+		"Units     \n");
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < RLIM_NLIMITS; i++) {
 		if (rlim[i].rlim_cur == RLIM_INFINITY)
@@ -686,14 +775,20 @@ static int proc_pid_limits(struct seq_file *m, struct pid_namespace *ns,
 static int proc_pid_syscall(struct seq_file *m, struct pid_namespace *ns,
 			    struct pid *pid, struct task_struct *task)
 {
+<<<<<<< HEAD
 	long nr;
 	unsigned long args[6], sp, pc;
+=======
+	struct syscall_info info;
+	u64 *args = &info.data.args[0];
+>>>>>>> upstream/android-13
 	int res;
 
 	res = lock_trace(task);
 	if (res)
 		return res;
 
+<<<<<<< HEAD
 	if (task_current_syscall(task, &nr, args, 6, &sp, &pc))
 		seq_puts(m, "running\n");
 	else if (nr < 0)
@@ -704,6 +799,19 @@ static int proc_pid_syscall(struct seq_file *m, struct pid_namespace *ns,
 		       nr,
 		       args[0], args[1], args[2], args[3], args[4], args[5],
 		       sp, pc);
+=======
+	if (task_current_syscall(task, &info))
+		seq_puts(m, "running\n");
+	else if (info.data.nr < 0)
+		seq_printf(m, "%d 0x%llx 0x%llx\n",
+			   info.data.nr, info.sp, info.data.instruction_pointer);
+	else
+		seq_printf(m,
+		       "%d 0x%llx 0x%llx 0x%llx 0x%llx 0x%llx 0x%llx 0x%llx 0x%llx\n",
+		       info.data.nr,
+		       args[0], args[1], args[2], args[3], args[4], args[5],
+		       info.sp, info.data.instruction_pointer);
+>>>>>>> upstream/android-13
 	unlock_trace(task);
 
 	return 0;
@@ -731,7 +839,12 @@ static int proc_fd_access_allowed(struct inode *inode)
 	return allowed;
 }
 
+<<<<<<< HEAD
 int proc_setattr(struct dentry *dentry, struct iattr *attr)
+=======
+int proc_setattr(struct user_namespace *mnt_userns, struct dentry *dentry,
+		 struct iattr *attr)
+>>>>>>> upstream/android-13
 {
 	int error;
 	struct inode *inode = d_inode(dentry);
@@ -739,11 +852,19 @@ int proc_setattr(struct dentry *dentry, struct iattr *attr)
 	if (attr->ia_valid & ATTR_MODE)
 		return -EPERM;
 
+<<<<<<< HEAD
 	error = setattr_prepare(dentry, attr);
 	if (error)
 		return error;
 
 	setattr_copy(inode, attr);
+=======
+	error = setattr_prepare(&init_user_ns, dentry, attr);
+	if (error)
+		return error;
+
+	setattr_copy(&init_user_ns, inode, attr);
+>>>>>>> upstream/android-13
 	mark_inode_dirty(inode);
 	return 0;
 }
@@ -752,6 +873,7 @@ int proc_setattr(struct dentry *dentry, struct iattr *attr)
  * May current process learn task's sched/cmdline info (for hide_pid_min=1)
  * or euid/egid (for hide_pid_min=2)?
  */
+<<<<<<< HEAD
 static bool has_pid_permissions(struct pid_namespace *pid,
 				 struct task_struct *task,
 				 int hide_pid_min)
@@ -759,25 +881,57 @@ static bool has_pid_permissions(struct pid_namespace *pid,
 	if (pid->hide_pid < hide_pid_min)
 		return true;
 	if (in_group_p(pid->pid_gid))
+=======
+static bool has_pid_permissions(struct proc_fs_info *fs_info,
+				 struct task_struct *task,
+				 enum proc_hidepid hide_pid_min)
+{
+	/*
+	 * If 'hidpid' mount option is set force a ptrace check,
+	 * we indicate that we are using a filesystem syscall
+	 * by passing PTRACE_MODE_READ_FSCREDS
+	 */
+	if (fs_info->hide_pid == HIDEPID_NOT_PTRACEABLE)
+		return ptrace_may_access(task, PTRACE_MODE_READ_FSCREDS);
+
+	if (fs_info->hide_pid < hide_pid_min)
+		return true;
+	if (in_group_p(fs_info->pid_gid))
+>>>>>>> upstream/android-13
 		return true;
 	return ptrace_may_access(task, PTRACE_MODE_READ_FSCREDS);
 }
 
 
+<<<<<<< HEAD
 static int proc_pid_permission(struct inode *inode, int mask)
 {
 	struct pid_namespace *pid = proc_pid_ns(inode);
+=======
+static int proc_pid_permission(struct user_namespace *mnt_userns,
+			       struct inode *inode, int mask)
+{
+	struct proc_fs_info *fs_info = proc_sb_info(inode->i_sb);
+>>>>>>> upstream/android-13
 	struct task_struct *task;
 	bool has_perms;
 
 	task = get_proc_task(inode);
 	if (!task)
 		return -ESRCH;
+<<<<<<< HEAD
 	has_perms = has_pid_permissions(pid, task, HIDEPID_NO_ACCESS);
 	put_task_struct(task);
 
 	if (!has_perms) {
 		if (pid->hide_pid == HIDEPID_INVISIBLE) {
+=======
+	has_perms = has_pid_permissions(fs_info, task, HIDEPID_NO_ACCESS);
+	put_task_struct(task);
+
+	if (!has_perms) {
+		if (fs_info->hide_pid == HIDEPID_INVISIBLE) {
+>>>>>>> upstream/android-13
 			/*
 			 * Let's make getdents(), stat(), and open()
 			 * consistent with each other.  If a process
@@ -789,7 +943,11 @@ static int proc_pid_permission(struct inode *inode, int mask)
 
 		return -EPERM;
 	}
+<<<<<<< HEAD
 	return generic_permission(inode, mask);
+=======
+	return generic_permission(&init_user_ns, inode, mask);
+>>>>>>> upstream/android-13
 }
 
 
@@ -801,7 +959,11 @@ static const struct inode_operations proc_def_inode_operations = {
 static int proc_single_show(struct seq_file *m, void *v)
 {
 	struct inode *inode = m->private;
+<<<<<<< HEAD
 	struct pid_namespace *ns = proc_pid_ns(inode);
+=======
+	struct pid_namespace *ns = proc_pid_ns(inode->i_sb);
+>>>>>>> upstream/android-13
 	struct pid *pid = proc_pid(inode);
 	struct task_struct *task;
 	int ret;
@@ -893,7 +1055,11 @@ static ssize_t mem_rw(struct file *file, char __user *buf,
 	flags = FOLL_FORCE | (write ? FOLL_WRITE : 0);
 
 	while (count > 0) {
+<<<<<<< HEAD
 		int this_len = min_t(int, count, PAGE_SIZE);
+=======
+		size_t this_len = min_t(size_t, count, PAGE_SIZE);
+>>>>>>> upstream/android-13
 
 		if (write && copy_from_user(page, buf, this_len)) {
 			copied = -EFAULT;
@@ -1087,6 +1253,11 @@ static ssize_t oom_adj_read(struct file *file, char __user *buf, size_t count,
 		oom_adj = (task->signal->oom_score_adj * -OOM_DISABLE) /
 			  OOM_SCORE_ADJ_MAX;
 	put_task_struct(task);
+<<<<<<< HEAD
+=======
+	if (oom_adj > OOM_ADJUST_MAX)
+		oom_adj = OOM_ADJUST_MAX;
+>>>>>>> upstream/android-13
 	len = snprintf(buffer, sizeof(buffer), "%d\n", oom_adj);
 	return simple_read_from_buffer(buf, count, ppos, buffer, len);
 }
@@ -1279,7 +1450,11 @@ static const struct file_operations proc_oom_score_adj_operations = {
 	.llseek		= default_llseek,
 };
 
+<<<<<<< HEAD
 #ifdef CONFIG_AUDITSYSCALL
+=======
+#ifdef CONFIG_AUDIT
+>>>>>>> upstream/android-13
 #define TMPBUFLEN 11
 static ssize_t proc_loginuid_read(struct file * file, char __user * buf,
 				  size_t count, loff_t *ppos)
@@ -1306,6 +1481,13 @@ static ssize_t proc_loginuid_write(struct file * file, const char __user * buf,
 	kuid_t kloginuid;
 	int rv;
 
+<<<<<<< HEAD
+=======
+	/* Don't let kthreads write their own loginuid */
+	if (current->flags & PF_KTHREAD)
+		return -EPERM;
+
+>>>>>>> upstream/android-13
 	rcu_read_lock();
 	if (current != pid_task(proc_pid(inode), PIDTYPE_PID)) {
 		rcu_read_unlock();
@@ -1469,7 +1651,11 @@ static const struct file_operations proc_fail_nth_operations = {
 static int sched_show(struct seq_file *m, void *v)
 {
 	struct inode *inode = m->private;
+<<<<<<< HEAD
 	struct pid_namespace *ns = proc_pid_ns(inode);
+=======
+	struct pid_namespace *ns = proc_pid_ns(inode->i_sb);
+>>>>>>> upstream/android-13
 	struct task_struct *p;
 
 	p = get_proc_task(inode);
@@ -1589,6 +1775,111 @@ static const struct file_operations proc_pid_sched_autogroup_operations = {
 
 #endif /* CONFIG_SCHED_AUTOGROUP */
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_TIME_NS
+static int timens_offsets_show(struct seq_file *m, void *v)
+{
+	struct task_struct *p;
+
+	p = get_proc_task(file_inode(m->file));
+	if (!p)
+		return -ESRCH;
+	proc_timens_show_offsets(p, m);
+
+	put_task_struct(p);
+
+	return 0;
+}
+
+static ssize_t timens_offsets_write(struct file *file, const char __user *buf,
+				    size_t count, loff_t *ppos)
+{
+	struct inode *inode = file_inode(file);
+	struct proc_timens_offset offsets[2];
+	char *kbuf = NULL, *pos, *next_line;
+	struct task_struct *p;
+	int ret, noffsets;
+
+	/* Only allow < page size writes at the beginning of the file */
+	if ((*ppos != 0) || (count >= PAGE_SIZE))
+		return -EINVAL;
+
+	/* Slurp in the user data */
+	kbuf = memdup_user_nul(buf, count);
+	if (IS_ERR(kbuf))
+		return PTR_ERR(kbuf);
+
+	/* Parse the user data */
+	ret = -EINVAL;
+	noffsets = 0;
+	for (pos = kbuf; pos; pos = next_line) {
+		struct proc_timens_offset *off = &offsets[noffsets];
+		char clock[10];
+		int err;
+
+		/* Find the end of line and ensure we don't look past it */
+		next_line = strchr(pos, '\n');
+		if (next_line) {
+			*next_line = '\0';
+			next_line++;
+			if (*next_line == '\0')
+				next_line = NULL;
+		}
+
+		err = sscanf(pos, "%9s %lld %lu", clock,
+				&off->val.tv_sec, &off->val.tv_nsec);
+		if (err != 3 || off->val.tv_nsec >= NSEC_PER_SEC)
+			goto out;
+
+		clock[sizeof(clock) - 1] = 0;
+		if (strcmp(clock, "monotonic") == 0 ||
+		    strcmp(clock, __stringify(CLOCK_MONOTONIC)) == 0)
+			off->clockid = CLOCK_MONOTONIC;
+		else if (strcmp(clock, "boottime") == 0 ||
+			 strcmp(clock, __stringify(CLOCK_BOOTTIME)) == 0)
+			off->clockid = CLOCK_BOOTTIME;
+		else
+			goto out;
+
+		noffsets++;
+		if (noffsets == ARRAY_SIZE(offsets)) {
+			if (next_line)
+				count = next_line - kbuf;
+			break;
+		}
+	}
+
+	ret = -ESRCH;
+	p = get_proc_task(inode);
+	if (!p)
+		goto out;
+	ret = proc_timens_set_offset(file, p, offsets, noffsets);
+	put_task_struct(p);
+	if (ret)
+		goto out;
+
+	ret = count;
+out:
+	kfree(kbuf);
+	return ret;
+}
+
+static int timens_offsets_open(struct inode *inode, struct file *filp)
+{
+	return single_open(filp, timens_offsets_show, inode);
+}
+
+static const struct file_operations proc_timens_offsets_operations = {
+	.open		= timens_offsets_open,
+	.read		= seq_read,
+	.write		= timens_offsets_write,
+	.llseek		= seq_lseek,
+	.release	= single_release,
+};
+#endif /* CONFIG_TIME_NS */
+
+>>>>>>> upstream/android-13
 static ssize_t comm_write(struct file *file, const char __user *buf,
 				size_t count, loff_t *offset)
 {
@@ -1605,8 +1896,15 @@ static ssize_t comm_write(struct file *file, const char __user *buf,
 	if (!p)
 		return -ESRCH;
 
+<<<<<<< HEAD
 	if (same_thread_group(current, p))
 		set_task_comm(p, buffer);
+=======
+	if (same_thread_group(current, p)) {
+		set_task_comm(p, buffer);
+		proc_comm_connector(p);
+	}
+>>>>>>> upstream/android-13
 	else
 		count = -EINVAL;
 
@@ -1682,8 +1980,12 @@ static const char *proc_pid_get_link(struct dentry *dentry,
 	if (error)
 		goto out;
 
+<<<<<<< HEAD
 	nd_jump_link(&path);
 	return NULL;
+=======
+	error = nd_jump_link(&path);
+>>>>>>> upstream/android-13
 out:
 	return ERR_PTR(error);
 }
@@ -1799,11 +2101,31 @@ void task_dump_owner(struct task_struct *task, umode_t mode,
 	*rgid = gid;
 }
 
+<<<<<<< HEAD
+=======
+void proc_pid_evict_inode(struct proc_inode *ei)
+{
+	struct pid *pid = ei->pid;
+
+	if (S_ISDIR(ei->vfs_inode.i_mode)) {
+		spin_lock(&pid->lock);
+		hlist_del_init_rcu(&ei->sibling_inodes);
+		spin_unlock(&pid->lock);
+	}
+
+	put_pid(pid);
+}
+
+>>>>>>> upstream/android-13
 struct inode *proc_pid_make_inode(struct super_block * sb,
 				  struct task_struct *task, umode_t mode)
 {
 	struct inode * inode;
 	struct proc_inode *ei;
+<<<<<<< HEAD
+=======
+	struct pid *pid;
+>>>>>>> upstream/android-13
 
 	/* We need a new inode */
 
@@ -1821,10 +2143,25 @@ struct inode *proc_pid_make_inode(struct super_block * sb,
 	/*
 	 * grab the reference to task.
 	 */
+<<<<<<< HEAD
 	ei->pid = get_task_pid(task, PIDTYPE_PID);
 	if (!ei->pid)
 		goto out_unlock;
 
+=======
+	pid = get_task_pid(task, PIDTYPE_PID);
+	if (!pid)
+		goto out_unlock;
+
+	/* Let the pid remember us for quick removal */
+	ei->pid = pid;
+	if (S_ISDIR(mode)) {
+		spin_lock(&pid->lock);
+		hlist_add_head_rcu(&ei->sibling_inodes, &pid->inodes);
+		spin_unlock(&pid->lock);
+	}
+
+>>>>>>> upstream/android-13
 	task_dump_owner(task, 0, &inode->i_uid, &inode->i_gid);
 	security_task_to_inode(task, inode);
 
@@ -1836,6 +2173,7 @@ out_unlock:
 	return NULL;
 }
 
+<<<<<<< HEAD
 int pid_getattr(const struct path *path, struct kstat *stat,
 		u32 request_mask, unsigned int query_flags)
 {
@@ -1844,13 +2182,27 @@ int pid_getattr(const struct path *path, struct kstat *stat,
 	struct task_struct *task;
 
 	generic_fillattr(inode, stat);
+=======
+int pid_getattr(struct user_namespace *mnt_userns, const struct path *path,
+		struct kstat *stat, u32 request_mask, unsigned int query_flags)
+{
+	struct inode *inode = d_inode(path->dentry);
+	struct proc_fs_info *fs_info = proc_sb_info(inode->i_sb);
+	struct task_struct *task;
+
+	generic_fillattr(&init_user_ns, inode, stat);
+>>>>>>> upstream/android-13
 
 	stat->uid = GLOBAL_ROOT_UID;
 	stat->gid = GLOBAL_ROOT_GID;
 	rcu_read_lock();
 	task = pid_task(proc_pid(inode), PIDTYPE_PID);
 	if (task) {
+<<<<<<< HEAD
 		if (!has_pid_permissions(pid, task, HIDEPID_INVISIBLE)) {
+=======
+		if (!has_pid_permissions(fs_info, task, HIDEPID_INVISIBLE)) {
+>>>>>>> upstream/android-13
 			rcu_read_unlock();
 			/*
 			 * This doesn't prevent learning whether PID exists,
@@ -1930,7 +2282,11 @@ const struct dentry_operations pid_dentry_operations =
  * file type from dcache entry.
  *
  * Since all of the proc inode numbers are dynamically generated, the inode
+<<<<<<< HEAD
  * numbers do not exist until the inode is cache.  This means creating the
+=======
+ * numbers do not exist until the inode is cache.  This means creating
+>>>>>>> upstream/android-13
  * the dcache entry in readdir is necessary to keep the inode numbers
  * reported by readdir in sync with the inode numbers reported
  * by stat.
@@ -2035,11 +2391,19 @@ static int map_files_d_revalidate(struct dentry *dentry, unsigned int flags)
 		goto out;
 
 	if (!dname_to_vma_addr(dentry, &vm_start, &vm_end)) {
+<<<<<<< HEAD
 		status = down_read_killable(&mm->mmap_sem);
 		if (!status) {
 			exact_vma_exists = !!find_exact_vma(mm, vm_start,
 							    vm_end);
 			up_read(&mm->mmap_sem);
+=======
+		status = mmap_read_lock_killable(mm);
+		if (!status) {
+			exact_vma_exists = !!find_exact_vma(mm, vm_start,
+							    vm_end);
+			mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -2086,7 +2450,11 @@ static int map_files_get_link(struct dentry *dentry, struct path *path)
 	if (rc)
 		goto out_mmput;
 
+<<<<<<< HEAD
 	rc = down_read_killable(&mm->mmap_sem);
+=======
+	rc = mmap_read_lock_killable(mm);
+>>>>>>> upstream/android-13
 	if (rc)
 		goto out_mmput;
 
@@ -2097,7 +2465,11 @@ static int map_files_get_link(struct dentry *dentry, struct path *path)
 		path_get(path);
 		rc = 0;
 	}
+<<<<<<< HEAD
 	up_read(&mm->mmap_sem);
+=======
+	mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 
 out_mmput:
 	mmput(mm);
@@ -2112,16 +2484,26 @@ struct map_files_info {
 };
 
 /*
+<<<<<<< HEAD
  * Only allow CAP_SYS_ADMIN to follow the links, due to concerns about how the
  * symlinks may be used to bypass permissions on ancestor directories in the
  * path to the file in question.
+=======
+ * Only allow CAP_SYS_ADMIN and CAP_CHECKPOINT_RESTORE to follow the links, due
+ * to concerns about how the symlinks may be used to bypass permissions on
+ * ancestor directories in the path to the file in question.
+>>>>>>> upstream/android-13
  */
 static const char *
 proc_map_files_get_link(struct dentry *dentry,
 			struct inode *inode,
 		        struct delayed_call *done)
 {
+<<<<<<< HEAD
 	if (!capable(CAP_SYS_ADMIN))
+=======
+	if (!checkpoint_restore_ns_capable(&init_user_ns))
+>>>>>>> upstream/android-13
 		return ERR_PTR(-EPERM);
 
 	return proc_pid_get_link(dentry, inode, done);
@@ -2187,7 +2569,11 @@ static struct dentry *proc_map_files_lookup(struct inode *dir,
 		goto out_put_task;
 
 	result = ERR_PTR(-EINTR);
+<<<<<<< HEAD
 	if (down_read_killable(&mm->mmap_sem))
+=======
+	if (mmap_read_lock_killable(mm))
+>>>>>>> upstream/android-13
 		goto out_put_mm;
 
 	result = ERR_PTR(-ENOENT);
@@ -2200,7 +2586,11 @@ static struct dentry *proc_map_files_lookup(struct inode *dir,
 				(void *)(unsigned long)vma->vm_file->f_mode);
 
 out_no_vma:
+<<<<<<< HEAD
 	up_read(&mm->mmap_sem);
+=======
+	mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 out_put_mm:
 	mmput(mm);
 out_put_task:
@@ -2222,11 +2612,20 @@ proc_map_files_readdir(struct file *file, struct dir_context *ctx)
 	struct task_struct *task;
 	struct mm_struct *mm;
 	unsigned long nr_files, pos, i;
+<<<<<<< HEAD
 	struct flex_array *fa = NULL;
 	struct map_files_info info;
 	struct map_files_info *p;
 	int ret;
 
+=======
+	GENRADIX(struct map_files_info) fa;
+	struct map_files_info *p;
+	int ret;
+
+	genradix_init(&fa);
+
+>>>>>>> upstream/android-13
 	ret = -ENOENT;
 	task = get_proc_task(file_inode(file));
 	if (!task)
@@ -2244,7 +2643,11 @@ proc_map_files_readdir(struct file *file, struct dir_context *ctx)
 	if (!mm)
 		goto out_put_task;
 
+<<<<<<< HEAD
 	ret = down_read_killable(&mm->mmap_sem);
+=======
+	ret = mmap_read_lock_killable(mm);
+>>>>>>> upstream/android-13
 	if (ret) {
 		mmput(mm);
 		goto out_put_task;
@@ -2255,6 +2658,7 @@ proc_map_files_readdir(struct file *file, struct dir_context *ctx)
 	/*
 	 * We need two passes here:
 	 *
+<<<<<<< HEAD
 	 *  1) Collect vmas of mapped files with mmap_sem taken
 	 *  2) Release mmap_sem and instantiate entries
 	 *
@@ -2294,13 +2698,45 @@ proc_map_files_readdir(struct file *file, struct dir_context *ctx)
 		}
 	}
 	up_read(&mm->mmap_sem);
+=======
+	 *  1) Collect vmas of mapped files with mmap_lock taken
+	 *  2) Release mmap_lock and instantiate entries
+	 *
+	 * otherwise we get lockdep complained, since filldir()
+	 * routine might require mmap_lock taken in might_fault().
+	 */
+
+	for (vma = mm->mmap, pos = 2; vma; vma = vma->vm_next) {
+		if (!vma->vm_file)
+			continue;
+		if (++pos <= ctx->pos)
+			continue;
+
+		p = genradix_ptr_alloc(&fa, nr_files++, GFP_KERNEL);
+		if (!p) {
+			ret = -ENOMEM;
+			mmap_read_unlock(mm);
+			mmput(mm);
+			goto out_put_task;
+		}
+
+		p->start = vma->vm_start;
+		p->end = vma->vm_end;
+		p->mode = vma->vm_file->f_mode;
+	}
+	mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 	mmput(mm);
 
 	for (i = 0; i < nr_files; i++) {
 		char buf[4 * sizeof(long) + 2];	/* max: %lx-%lx\0 */
 		unsigned int len;
 
+<<<<<<< HEAD
 		p = flex_array_get(fa, i);
+=======
+		p = genradix_ptr(&fa, i);
+>>>>>>> upstream/android-13
 		len = snprintf(buf, sizeof(buf), "%lx-%lx", p->start, p->end);
 		if (!proc_fill_cache(file, ctx,
 				      buf, len,
@@ -2310,12 +2746,19 @@ proc_map_files_readdir(struct file *file, struct dir_context *ctx)
 			break;
 		ctx->pos++;
 	}
+<<<<<<< HEAD
 	if (fa)
 		flex_array_free(fa);
+=======
+>>>>>>> upstream/android-13
 
 out_put_task:
 	put_task_struct(task);
 out:
+<<<<<<< HEAD
+=======
+	genradix_free(&fa);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -2414,7 +2857,11 @@ static int proc_timers_open(struct inode *inode, struct file *file)
 		return -ENOMEM;
 
 	tp->pid = proc_pid(inode);
+<<<<<<< HEAD
 	tp->ns = proc_pid_ns(inode);
+=======
+	tp->ns = proc_pid_ns(inode->i_sb);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -2443,10 +2890,20 @@ static ssize_t timerslack_ns_write(struct file *file, const char __user *buf,
 		return -ESRCH;
 
 	if (p != current) {
+<<<<<<< HEAD
 		if (!capable(CAP_SYS_NICE)) {
 			count = -EPERM;
 			goto out;
 		}
+=======
+		rcu_read_lock();
+		if (!ns_capable(__task_cred(p)->user_ns, CAP_SYS_NICE)) {
+			rcu_read_unlock();
+			count = -EPERM;
+			goto out;
+		}
+		rcu_read_unlock();
+>>>>>>> upstream/android-13
 
 		err = security_task_setscheduler(p);
 		if (err) {
@@ -2479,11 +2936,22 @@ static int timerslack_ns_show(struct seq_file *m, void *v)
 		return -ESRCH;
 
 	if (p != current) {
+<<<<<<< HEAD
 
 		if (!capable(CAP_SYS_NICE)) {
 			err = -EPERM;
 			goto out;
 		}
+=======
+		rcu_read_lock();
+		if (!ns_capable(__task_cred(p)->user_ns, CAP_SYS_NICE)) {
+			rcu_read_unlock();
+			err = -EPERM;
+			goto out;
+		}
+		rcu_read_unlock();
+
+>>>>>>> upstream/android-13
 		err = security_task_getscheduler(p);
 		if (err)
 			goto out;
@@ -2538,11 +3006,18 @@ static struct dentry *proc_pident_instantiate(struct dentry *dentry,
 
 static struct dentry *proc_pident_lookup(struct inode *dir, 
 					 struct dentry *dentry,
+<<<<<<< HEAD
 					 const struct pid_entry *ents,
 					 unsigned int nents)
 {
 	struct task_struct *task = get_proc_task(dir);
 	const struct pid_entry *p, *last;
+=======
+					 const struct pid_entry *p,
+					 const struct pid_entry *end)
+{
+	struct task_struct *task = get_proc_task(dir);
+>>>>>>> upstream/android-13
 	struct dentry *res = ERR_PTR(-ENOENT);
 
 	if (!task)
@@ -2552,8 +3027,12 @@ static struct dentry *proc_pident_lookup(struct inode *dir,
 	 * Yes, it does not scale. And it should not. Don't add
 	 * new entries into /proc/<tgid>/ without very good reasons.
 	 */
+<<<<<<< HEAD
 	last = &ents[nents];
 	for (p = ents; p < last; p++) {
+=======
+	for (; p < end; p++) {
+>>>>>>> upstream/android-13
 		if (p->len != dentry->d_name.len)
 			continue;
 		if (!memcmp(dentry->d_name.name, p->name, p->len)) {
@@ -2593,6 +3072,16 @@ out:
 }
 
 #ifdef CONFIG_SECURITY
+<<<<<<< HEAD
+=======
+static int proc_pid_attr_open(struct inode *inode, struct file *file)
+{
+	file->private_data = NULL;
+	__mem_open(inode, file, PTRACE_MODE_READ_FSCREDS);
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static ssize_t proc_pid_attr_read(struct file * file, char __user * buf,
 				  size_t count, loff_t *ppos)
 {
@@ -2604,7 +3093,11 @@ static ssize_t proc_pid_attr_read(struct file * file, char __user * buf,
 	if (!task)
 		return -ESRCH;
 
+<<<<<<< HEAD
 	length = security_getprocattr(task,
+=======
+	length = security_getprocattr(task, PROC_I(inode)->op.lsm,
+>>>>>>> upstream/android-13
 				      (char*)file->f_path.dentry->d_name.name,
 				      &p);
 	put_task_struct(task);
@@ -2622,6 +3115,13 @@ static ssize_t proc_pid_attr_write(struct file * file, const char __user * buf,
 	void *page;
 	int rv;
 
+<<<<<<< HEAD
+=======
+	/* A task may only write when it was the opener. */
+	if (file->private_data != current->mm)
+		return -EPERM;
+
+>>>>>>> upstream/android-13
 	rcu_read_lock();
 	task = pid_task(proc_pid(inode), PIDTYPE_PID);
 	if (!task) {
@@ -2658,7 +3158,13 @@ static ssize_t proc_pid_attr_write(struct file * file, const char __user * buf,
 	if (rv < 0)
 		goto out_free;
 
+<<<<<<< HEAD
 	rv = security_setprocattr(file->f_path.dentry->d_name.name, page, count);
+=======
+	rv = security_setprocattr(PROC_I(inode)->op.lsm,
+				  file->f_path.dentry->d_name.name, page,
+				  count);
+>>>>>>> upstream/android-13
 	mutex_unlock(&current->signal->cred_guard_mutex);
 out_free:
 	kfree(page);
@@ -2667,6 +3173,7 @@ out:
 }
 
 static const struct file_operations proc_pid_attr_operations = {
+<<<<<<< HEAD
 	.read		= proc_pid_attr_read,
 	.write		= proc_pid_attr_write,
 	.llseek		= generic_file_llseek,
@@ -2679,6 +3186,75 @@ static const struct pid_entry attr_dir_stuff[] = {
 	REG("fscreate",   S_IRUGO|S_IWUGO, proc_pid_attr_operations),
 	REG("keycreate",  S_IRUGO|S_IWUGO, proc_pid_attr_operations),
 	REG("sockcreate", S_IRUGO|S_IWUGO, proc_pid_attr_operations),
+=======
+	.open		= proc_pid_attr_open,
+	.read		= proc_pid_attr_read,
+	.write		= proc_pid_attr_write,
+	.llseek		= generic_file_llseek,
+	.release	= mem_release,
+};
+
+#define LSM_DIR_OPS(LSM) \
+static int proc_##LSM##_attr_dir_iterate(struct file *filp, \
+			     struct dir_context *ctx) \
+{ \
+	return proc_pident_readdir(filp, ctx, \
+				   LSM##_attr_dir_stuff, \
+				   ARRAY_SIZE(LSM##_attr_dir_stuff)); \
+} \
+\
+static const struct file_operations proc_##LSM##_attr_dir_ops = { \
+	.read		= generic_read_dir, \
+	.iterate	= proc_##LSM##_attr_dir_iterate, \
+	.llseek		= default_llseek, \
+}; \
+\
+static struct dentry *proc_##LSM##_attr_dir_lookup(struct inode *dir, \
+				struct dentry *dentry, unsigned int flags) \
+{ \
+	return proc_pident_lookup(dir, dentry, \
+				  LSM##_attr_dir_stuff, \
+				  LSM##_attr_dir_stuff + ARRAY_SIZE(LSM##_attr_dir_stuff)); \
+} \
+\
+static const struct inode_operations proc_##LSM##_attr_dir_inode_ops = { \
+	.lookup		= proc_##LSM##_attr_dir_lookup, \
+	.getattr	= pid_getattr, \
+	.setattr	= proc_setattr, \
+}
+
+#ifdef CONFIG_SECURITY_SMACK
+static const struct pid_entry smack_attr_dir_stuff[] = {
+	ATTR("smack", "current",	0666),
+};
+LSM_DIR_OPS(smack);
+#endif
+
+#ifdef CONFIG_SECURITY_APPARMOR
+static const struct pid_entry apparmor_attr_dir_stuff[] = {
+	ATTR("apparmor", "current",	0666),
+	ATTR("apparmor", "prev",	0444),
+	ATTR("apparmor", "exec",	0666),
+};
+LSM_DIR_OPS(apparmor);
+#endif
+
+static const struct pid_entry attr_dir_stuff[] = {
+	ATTR(NULL, "current",		0666),
+	ATTR(NULL, "prev",		0444),
+	ATTR(NULL, "exec",		0666),
+	ATTR(NULL, "fscreate",		0666),
+	ATTR(NULL, "keycreate",		0666),
+	ATTR(NULL, "sockcreate",	0666),
+#ifdef CONFIG_SECURITY_SMACK
+	DIR("smack",			0555,
+	    proc_smack_attr_dir_inode_ops, proc_smack_attr_dir_ops),
+#endif
+#ifdef CONFIG_SECURITY_APPARMOR
+	DIR("apparmor",			0555,
+	    proc_apparmor_attr_dir_inode_ops, proc_apparmor_attr_dir_ops),
+#endif
+>>>>>>> upstream/android-13
 };
 
 static int proc_attr_dir_readdir(struct file *file, struct dir_context *ctx)
@@ -2697,7 +3273,12 @@ static struct dentry *proc_attr_dir_lookup(struct inode *dir,
 				struct dentry *dentry, unsigned int flags)
 {
 	return proc_pident_lookup(dir, dentry,
+<<<<<<< HEAD
 				  attr_dir_stuff, ARRAY_SIZE(attr_dir_stuff));
+=======
+				  attr_dir_stuff,
+				  attr_dir_stuff + ARRAY_SIZE(attr_dir_stuff));
+>>>>>>> upstream/android-13
 }
 
 static const struct inode_operations proc_attr_dir_inode_operations = {
@@ -2792,7 +3373,11 @@ static int do_io_accounting(struct task_struct *task, struct seq_file *m, int wh
 	unsigned long flags;
 	int result;
 
+<<<<<<< HEAD
 	result = mutex_lock_killable(&task->signal->cred_guard_mutex);
+=======
+	result = down_read_killable(&task->signal->exec_update_lock);
+>>>>>>> upstream/android-13
 	if (result)
 		return result;
 
@@ -2828,7 +3413,11 @@ static int do_io_accounting(struct task_struct *task, struct seq_file *m, int wh
 	result = 0;
 
 out_unlock:
+<<<<<<< HEAD
 	mutex_unlock(&task->signal->cred_guard_mutex);
+=======
+	up_read(&task->signal->exec_update_lock);
+>>>>>>> upstream/android-13
 	return result;
 }
 
@@ -2982,24 +3571,37 @@ static int proc_integrity_value_read(struct seq_file *m,
 		struct pid_namespace *ns, struct pid *pid,
 		struct task_struct *task)
 {
+<<<<<<< HEAD
 	seq_printf(m, "%x\n", task_integrity_user_read(task->integrity));
 	return 0;
 }
 
+=======
+		seq_printf(m, "%x\n", task_integrity_user_read(TASK_INTEGRITY(task)));
+	return 0;
+}
+>>>>>>> upstream/android-13
 static int proc_integrity_label_read(struct seq_file *m,
 				struct pid_namespace *ns,
 				struct pid *pid, struct task_struct *task)
 {
 	struct integrity_label *l;
+<<<<<<< HEAD
 
 	spin_lock(&task->integrity->value_lock);
 	l = task->integrity->label;
 	spin_unlock(&task->integrity->value_lock);
 
+=======
+	spin_lock(&TASK_INTEGRITY(task)->value_lock);
+	l = TASK_INTEGRITY(task)->label;
+	spin_unlock(&TASK_INTEGRITY(task)->value_lock);
+>>>>>>> upstream/android-13
 	if (l) {
 		size_t remaining_len;
 		char *buffer = NULL;
 		size_t data_len = l->len * 2;
+<<<<<<< HEAD
 
 		seq_printf(m, "%zu\n", data_len);
 		remaining_len = seq_get_buf(m, &buffer);
@@ -3007,34 +3609,55 @@ static int proc_integrity_label_read(struct seq_file *m,
 		if (data_len && remaining_len > 1) {
 			size_t size = min(data_len, remaining_len);
 
+=======
+		seq_printf(m, "%zu\n", data_len);
+		remaining_len = seq_get_buf(m, &buffer);
+		if (data_len && remaining_len > 1) {
+			size_t size = min(data_len, remaining_len);
+>>>>>>> upstream/android-13
 			bin2hex(buffer, l->data, size / 2);
 			seq_commit(m, size);
 		}
 	} else {
 		seq_printf(m, "%d\n", -1);
 	}
+<<<<<<< HEAD
 
 	return 0;
 }
 
+=======
+	return 0;
+}
+>>>>>>> upstream/android-13
 static int proc_integrity_reset_cause(struct seq_file *m,
 				struct pid_namespace *ns,
 				struct pid *pid, struct task_struct *task)
 {
+<<<<<<< HEAD
 	if (task->integrity->reset_cause != CAUSE_UNSET)
 		seq_printf(m, "%s\n", tint_reset_cause_to_string(
 			task->integrity->reset_cause));
+=======
+	if (TASK_INTEGRITY(task)->reset_cause)
+		seq_printf(m, "%s\n", tint_reset_cause_to_string(
+			TASK_INTEGRITY(task)->reset_cause));
+>>>>>>> upstream/android-13
 	else
 		seq_printf(m, "%s", "");
 	return 0;
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static int proc_integrity_reset_file(struct seq_file *m,
 				struct pid_namespace *ns,
 				struct pid *pid, struct task_struct *task)
 {
 	char *tmp = NULL;
 	char *pathname;
+<<<<<<< HEAD
 
 	if (!task->integrity->reset_file) {
 		seq_printf(m, "%s", "");
@@ -3057,24 +3680,79 @@ static int proc_integrity_reset_file(struct seq_file *m,
 	return 0;
 }
 
+=======
+	if (!TASK_INTEGRITY(task)->reset_file) {
+		seq_printf(m, "%s", "");
+		return 0;
+	}
+	tmp = (char *)__get_free_page(GFP_KERNEL);
+	if (!tmp)
+		return -ENOMEM;
+	pathname = d_path(&TASK_INTEGRITY(task)->reset_file->f_path, tmp, PAGE_SIZE);
+	if (IS_ERR(pathname))
+		goto out;
+	seq_printf(m, "%s\n", pathname);
+ out:
+	free_page((unsigned long)tmp);
+	return 0;
+}
+#ifdef CONFIG_PROCA_DEBUG
+static int proc_get_proca_cert(struct seq_file *m,
+		struct pid_namespace *ns, struct pid *pid,
+		struct task_struct *task)
+{
+	const char *cert;
+	size_t cert_size;
+	if (!proca_get_task_cert(task, &cert, &cert_size)) {
+		size_t remaining_len;
+		char *buffer = NULL;
+		size_t data_len = cert_size * 2;
+		seq_printf(m, "%zu\n", data_len);
+		remaining_len = seq_get_buf(m, &buffer);
+		if (data_len && remaining_len > 1) {
+			size_t size = min(data_len, remaining_len);
+			bin2hex(buffer, cert, size / 2);
+			seq_commit(m, size);
+			seq_putc(m, '\n');
+		}
+	} else {
+		seq_printf(m, "%d\n", -1);
+	}
+	return 0;
+}
+#endif
+>>>>>>> upstream/android-13
 static const struct pid_entry integrity_dir_stuff[] = {
 	ONE("value", S_IRUGO, proc_integrity_value_read),
 	ONE("label", S_IRUGO, proc_integrity_label_read),
 	ONE("reset_cause", S_IRUGO, proc_integrity_reset_cause),
 	ONE("reset_file", S_IRUGO, proc_integrity_reset_file),
+<<<<<<< HEAD
 };
 
+=======
+#ifdef CONFIG_PROCA_DEBUG
+	ONE("proca_certificate", S_IRUGO, proc_get_proca_cert),
+#endif
+};
+>>>>>>> upstream/android-13
 static struct dentry *proc_integrity_instantiate(struct dentry *dentry,
 		struct task_struct *task, const void *ptr)
 {
 	const struct pid_entry *p = ptr;
 	struct inode *inode;
 	struct proc_inode *ei;
+<<<<<<< HEAD
 
 	inode = proc_pid_make_inode(dentry->d_sb, task, p->mode);
 	if (!inode)
 		goto out;
 
+=======
+	inode = proc_pid_make_inode(dentry->d_sb, task, p->mode);
+	if (!inode)
+		goto out;
+>>>>>>> upstream/android-13
 	ei = PROC_I(inode);
 	if (S_ISDIR(inode->i_mode))
 		set_nlink(inode, 2);	/* Use getattr to fix if necessary */
@@ -3088,7 +3766,10 @@ static struct dentry *proc_integrity_instantiate(struct dentry *dentry,
 out:
 	return ERR_PTR(-ENOENT);
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static struct dentry *proc_integrity_lookup_common(struct inode *dir,
 		struct dentry *dentry, const struct pid_entry *ents,
 		unsigned int nents)
@@ -3096,10 +3777,15 @@ static struct dentry *proc_integrity_lookup_common(struct inode *dir,
 	struct dentry *error = ERR_PTR(-ENOENT);
 	struct task_struct *task = get_proc_task(dir);
 	const struct pid_entry *p, *last;
+<<<<<<< HEAD
 
 	if (!task)
 		goto out_no_task;
 
+=======
+	if (!task)
+		goto out_no_task;
+>>>>>>> upstream/android-13
 	last = &ents[nents - 1];
 	for (p = ents; p <= last; ++p) {
 		if (p->len != dentry->d_name.len)
@@ -3109,27 +3795,37 @@ static struct dentry *proc_integrity_lookup_common(struct inode *dir,
 	}
 	if (p > last)
 		goto out;
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	error = proc_integrity_instantiate(dentry, task, p);
 out:
 	put_task_struct(task);
 out_no_task:
 	return error;
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static struct dentry *proc_integrity_lookup(struct inode *dir,
 		struct dentry *dentry, unsigned int flags)
 {
 	return proc_integrity_lookup_common(dir, dentry,
 			integrity_dir_stuff, ARRAY_SIZE(integrity_dir_stuff));
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static int proc_integrity_readdir_common(struct file *file,
 		struct dir_context *ctx, const struct pid_entry *ents,
 		unsigned int nents)
 {
 	struct task_struct *task = get_proc_task(file_inode(file));
 	const struct pid_entry *p;
+<<<<<<< HEAD
 
 	if (!task)
 		return -ENOENT;
@@ -3140,6 +3836,14 @@ static int proc_integrity_readdir_common(struct file *file,
 	if (ctx->pos >= nents + 2)
 		goto out;
 
+=======
+	if (!task)
+		return -ENOENT;
+	if (!dir_emit_dots(file, ctx))
+		goto out;
+	if (ctx->pos >= nents + 2)
+		goto out;
+>>>>>>> upstream/android-13
 	for (p = ents + (ctx->pos - 2); p <= ents + nents - 1; ++p) {
 		if (!proc_fill_cache(file, ctx, p->name, p->len,
 				proc_integrity_instantiate, task, p))
@@ -3150,17 +3854,26 @@ out:
 	put_task_struct(task);
 	return 0;
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static int proc_integrity_readdir(struct file *file, struct dir_context *ctx)
 {
 	return proc_integrity_readdir_common(file, ctx, integrity_dir_stuff,
 			ARRAY_SIZE(integrity_dir_stuff));
 }
+<<<<<<< HEAD
 
 static const struct inode_operations proc_integrity_inode_operations = {
 	.lookup = proc_integrity_lookup,
 };
 
+=======
+static const struct inode_operations proc_integrity_inode_operations = {
+	.lookup = proc_integrity_lookup,
+};
+>>>>>>> upstream/android-13
 static const struct file_operations proc_integrity_operations = {
 	.read = generic_read_dir,
 	.iterate = proc_integrity_readdir,
@@ -3188,6 +3901,7 @@ static int proc_pid_patch_state(struct seq_file *m, struct pid_namespace *ns,
 }
 #endif /* CONFIG_LIVEPATCH */
 
+<<<<<<< HEAD
 #ifdef CONFIG_MTK_TASK_TURBO
 static int proc_turbo_task_show(struct seq_file *m, struct pid_namespace *ns,
 		struct pid *pid, struct task_struct *p)
@@ -3207,6 +3921,22 @@ static int proc_turbo_task_show(struct seq_file *m, struct pid_namespace *ns,
 	return 0;
 }
 #endif
+=======
+#ifdef CONFIG_STACKLEAK_METRICS
+static int proc_stack_depth(struct seq_file *m, struct pid_namespace *ns,
+				struct pid *pid, struct task_struct *task)
+{
+	unsigned long prev_depth = THREAD_SIZE -
+				(task->prev_lowest_stack & (THREAD_SIZE - 1));
+	unsigned long depth = THREAD_SIZE -
+				(task->lowest_stack & (THREAD_SIZE - 1));
+
+	seq_printf(m, "previous stack depth: %lu\nstack depth: %lu\n",
+							prev_depth, depth);
+	return 0;
+}
+#endif /* CONFIG_STACKLEAK_METRICS */
+>>>>>>> upstream/android-13
 
 /*
  * Thread groups
@@ -3218,7 +3948,11 @@ static const struct pid_entry tgid_base_stuff[] = {
 	DIR("task",       S_IRUGO|S_IXUGO, proc_task_inode_operations, proc_task_operations),
 	DIR("fd",         S_IRUSR|S_IXUSR, proc_fd_inode_operations, proc_fd_operations),
 	DIR("map_files",  S_IRUSR|S_IXUSR, proc_map_files_inode_operations, proc_map_files_operations),
+<<<<<<< HEAD
 	DIR("fdinfo",     S_IRUSR|S_IXUSR, proc_fdinfo_inode_operations, proc_fdinfo_operations),
+=======
+	DIR("fdinfo",     S_IRUGO|S_IXUGO, proc_fdinfo_inode_operations, proc_fdinfo_operations),
+>>>>>>> upstream/android-13
 	DIR("ns",	  S_IRUSR|S_IXUGO, proc_ns_dir_inode_operations, proc_ns_dir_operations),
 #ifdef CONFIG_NET
 	DIR("net",        S_IRUGO|S_IXUGO, proc_net_inode_operations, proc_net_operations),
@@ -3234,6 +3968,12 @@ static const struct pid_entry tgid_base_stuff[] = {
 #ifdef CONFIG_SCHED_AUTOGROUP
 	REG("autogroup",  S_IRUGO|S_IWUSR, proc_pid_sched_autogroup_operations),
 #endif
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_TIME_NS
+	REG("timens_offsets",  S_IRUGO|S_IWUSR, proc_timens_offsets_operations),
+#endif
+>>>>>>> upstream/android-13
 	REG("comm",      S_IRUGO|S_IWUSR, proc_pid_set_comm_operations),
 #ifdef CONFIG_HAVE_ARCH_TRACEHOOK
 	ONE("syscall",    S_IRUSR, proc_pid_syscall),
@@ -3244,7 +3984,10 @@ static const struct pid_entry tgid_base_stuff[] = {
 	REG("maps",       S_IRUGO, proc_pid_maps_operations),
 #ifdef CONFIG_PAGE_BOOST
 	REG("filemap_list",       S_IRUGO, proc_pid_filemap_list_operations),
+<<<<<<< HEAD
 	REG("filemap_info",       S_IRUGO|S_IWUGO, proc_pid_filemap_info_operations),
+=======
+>>>>>>> upstream/android-13
 	ONE("ioinfo",  S_IRUGO, proc_pid_ioinfo),
 #ifdef CONFIG_PAGE_BOOST_RECORDING
 	REG("io_record_control",      S_IRUGO|S_IWUGO, proc_pid_io_record_operations),
@@ -3260,9 +4003,12 @@ static const struct pid_entry tgid_base_stuff[] = {
 	REG("mounts",     S_IRUGO, proc_mounts_operations),
 	REG("mountinfo",  S_IRUGO, proc_mountinfo_operations),
 	REG("mountstats", S_IRUSR, proc_mountstats_operations),
+<<<<<<< HEAD
 #ifdef CONFIG_PROCESS_RECLAIM
 	REG("reclaim", 0222, proc_reclaim_operations),
 #endif
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PROC_PAGE_MONITOR
 	REG("clear_refs", S_IWUSR, proc_clear_refs_operations),
 	REG("smaps",      S_IRUGO, proc_pid_smaps_operations),
@@ -3290,10 +4036,20 @@ static const struct pid_entry tgid_base_stuff[] = {
 #ifdef CONFIG_CGROUPS
 	ONE("cgroup",  S_IRUGO, proc_cgroup_show),
 #endif
+<<<<<<< HEAD
 	ONE("oom_score",  S_IRUGO, proc_oom_score),
 	REG("oom_adj",    S_IRUGO|S_IWUSR, proc_oom_adj_operations),
 	REG("oom_score_adj", S_IRUGO|S_IWUSR, proc_oom_score_adj_operations),
 #ifdef CONFIG_AUDITSYSCALL
+=======
+#ifdef CONFIG_PROC_CPU_RESCTRL
+	ONE("cpu_resctrl_groups", S_IRUGO, proc_resctrl_show),
+#endif
+	ONE("oom_score",  S_IRUGO, proc_oom_score),
+	REG("oom_adj",    S_IRUGO|S_IWUSR, proc_oom_adj_operations),
+	REG("oom_score_adj", S_IRUGO|S_IWUSR, proc_oom_score_adj_operations),
+#ifdef CONFIG_AUDIT
+>>>>>>> upstream/android-13
 	REG("loginuid",   S_IWUSR|S_IRUGO, proc_loginuid_operations),
 	REG("sessionid",  S_IRUGO, proc_sessionid_operations),
 #endif
@@ -3323,6 +4079,18 @@ static const struct pid_entry tgid_base_stuff[] = {
 #ifdef CONFIG_CPU_FREQ_TIMES
 	ONE("time_in_state", 0444, proc_time_in_state_show),
 #endif
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_STACKLEAK_METRICS
+	ONE("stack_depth", S_IRUGO, proc_stack_depth),
+#endif
+#ifdef CONFIG_PROC_PID_ARCH_STATUS
+	ONE("arch_status", S_IRUGO, proc_pid_arch_status),
+#endif
+#ifdef CONFIG_SECCOMP_CACHE_DEBUG
+	ONE("seccomp_cache", S_IRUSR, proc_pid_seccomp_cache),
+#endif
+>>>>>>> upstream/android-13
 #ifdef CONFIG_FIVE
 	DIR("integrity", S_IRUGO|S_IXUGO, proc_integrity_inode_operations,
 			proc_integrity_operations),
@@ -3343,8 +4111,12 @@ static const struct file_operations proc_tgid_base_operations = {
 
 struct pid *tgid_pidfd_to_pid(const struct file *file)
 {
+<<<<<<< HEAD
 	if (!d_is_dir(file->f_path.dentry) ||
 	    (file->f_op != &proc_tgid_base_operations))
+=======
+	if (file->f_op != &proc_tgid_base_operations)
+>>>>>>> upstream/android-13
 		return ERR_PTR(-EBADF);
 
 	return proc_pid(file_inode(file));
@@ -3353,7 +4125,12 @@ struct pid *tgid_pidfd_to_pid(const struct file *file)
 static struct dentry *proc_tgid_base_lookup(struct inode *dir, struct dentry *dentry, unsigned int flags)
 {
 	return proc_pident_lookup(dir, dentry,
+<<<<<<< HEAD
 				  tgid_base_stuff, ARRAY_SIZE(tgid_base_stuff));
+=======
+				  tgid_base_stuff,
+				  tgid_base_stuff + ARRAY_SIZE(tgid_base_stuff));
+>>>>>>> upstream/android-13
 }
 
 static const struct inode_operations proc_tgid_base_inode_operations = {
@@ -3363,6 +4140,7 @@ static const struct inode_operations proc_tgid_base_inode_operations = {
 	.permission	= proc_pid_permission,
 };
 
+<<<<<<< HEAD
 static void proc_flush_task_mnt(struct vfsmount *mnt, pid_t pid, pid_t tgid)
 {
 	struct dentry *dentry, *leader, *dir;
@@ -3421,10 +4199,20 @@ out:
  * /proc/@tgid/task/@pid
  * if either directory is present flushes it and all of it'ts children
  * from the dcache.
+=======
+/**
+ * proc_flush_pid -  Remove dcache entries for @pid from the /proc dcache.
+ * @pid: pid that should be flushed.
+ *
+ * This function walks a list of inodes (that belong to any proc
+ * filesystem) that are attached to the pid and flushes them from
+ * the dentry cache.
+>>>>>>> upstream/android-13
  *
  * It is safe and reasonable to cache /proc entries for a task until
  * that task exits.  After that they just clog up the dcache with
  * useless entries, possibly causing useful dcache entries to be
+<<<<<<< HEAD
  * flushed instead.  This routine is proved to flush those useless
  * dcache entries at process exit time.
  *
@@ -3447,6 +4235,19 @@ void proc_flush_task(struct task_struct *task)
 		proc_flush_task_mnt(upid->ns->proc_mnt, upid->nr,
 					tgid->numbers[i].nr);
 	}
+=======
+ * flushed instead.  This routine is provided to flush those useless
+ * dcache entries when a process is reaped.
+ *
+ * NOTE: This routine is just an optimization so it does not guarantee
+ *       that no dcache entries will exist after a process is reaped
+ *       it just makes it very unlikely that any will persist.
+ */
+
+void proc_flush_pid(struct pid *pid)
+{
+	proc_invalidate_siblings_dcache(&pid->inodes, &pid->lock);
+>>>>>>> upstream/android-13
 }
 
 static struct dentry *proc_pid_instantiate(struct dentry * dentry,
@@ -3469,10 +4270,18 @@ static struct dentry *proc_pid_instantiate(struct dentry * dentry,
 	return d_splice_alias(inode, dentry);
 }
 
+<<<<<<< HEAD
 struct dentry *proc_pid_lookup(struct inode *dir, struct dentry * dentry, unsigned int flags)
 {
 	struct task_struct *task;
 	unsigned tgid;
+=======
+struct dentry *proc_pid_lookup(struct dentry *dentry, unsigned int flags)
+{
+	struct task_struct *task;
+	unsigned tgid;
+	struct proc_fs_info *fs_info;
+>>>>>>> upstream/android-13
 	struct pid_namespace *ns;
 	struct dentry *result = ERR_PTR(-ENOENT);
 
@@ -3480,7 +4289,12 @@ struct dentry *proc_pid_lookup(struct inode *dir, struct dentry * dentry, unsign
 	if (tgid == ~0U)
 		goto out;
 
+<<<<<<< HEAD
 	ns = dentry->d_sb->s_fs_info;
+=======
+	fs_info = proc_sb_info(dentry->d_sb);
+	ns = fs_info->pid_ns;
+>>>>>>> upstream/android-13
 	rcu_read_lock();
 	task = find_task_by_pid_ns(tgid, ns);
 	if (task)
@@ -3489,7 +4303,18 @@ struct dentry *proc_pid_lookup(struct inode *dir, struct dentry * dentry, unsign
 	if (!task)
 		goto out;
 
+<<<<<<< HEAD
 	result = proc_pid_instantiate(dentry, task, NULL);
+=======
+	/* Limit procfs to only ptraceable tasks */
+	if (fs_info->hide_pid == HIDEPID_NOT_PTRACEABLE) {
+		if (!has_pid_permissions(fs_info, task, HIDEPID_NO_ACCESS))
+			goto out_put_task;
+	}
+
+	result = proc_pid_instantiate(dentry, task, NULL);
+out_put_task:
+>>>>>>> upstream/android-13
 	put_task_struct(task);
 out:
 	return result;
@@ -3515,6 +4340,7 @@ retry:
 	pid = find_ge_pid(iter.tgid, ns);
 	if (pid) {
 		iter.tgid = pid_nr_ns(pid, ns);
+<<<<<<< HEAD
 		iter.task = pid_task(pid, PIDTYPE_PID);
 		/* What we to know is if the pid we have find is the
 		 * pid of a thread_group_leader.  Testing for task
@@ -3529,6 +4355,10 @@ retry:
 		 * As we don't care in the case of readdir.
 		 */
 		if (!iter.task || !has_group_leader_pid(iter.task)) {
+=======
+		iter.task = pid_task(pid, PIDTYPE_TGID);
+		if (!iter.task) {
+>>>>>>> upstream/android-13
 			iter.tgid += 1;
 			goto retry;
 		}
@@ -3544,20 +4374,33 @@ retry:
 int proc_pid_readdir(struct file *file, struct dir_context *ctx)
 {
 	struct tgid_iter iter;
+<<<<<<< HEAD
 	struct pid_namespace *ns = proc_pid_ns(file_inode(file));
+=======
+	struct proc_fs_info *fs_info = proc_sb_info(file_inode(file)->i_sb);
+	struct pid_namespace *ns = proc_pid_ns(file_inode(file)->i_sb);
+>>>>>>> upstream/android-13
 	loff_t pos = ctx->pos;
 
 	if (pos >= PID_MAX_LIMIT + TGID_OFFSET)
 		return 0;
 
 	if (pos == TGID_OFFSET - 2) {
+<<<<<<< HEAD
 		struct inode *inode = d_inode(ns->proc_self);
+=======
+		struct inode *inode = d_inode(fs_info->proc_self);
+>>>>>>> upstream/android-13
 		if (!dir_emit(ctx, "self", 4, inode->i_ino, DT_LNK))
 			return 0;
 		ctx->pos = pos = pos + 1;
 	}
 	if (pos == TGID_OFFSET - 1) {
+<<<<<<< HEAD
 		struct inode *inode = d_inode(ns->proc_thread_self);
+=======
+		struct inode *inode = d_inode(fs_info->proc_thread_self);
+>>>>>>> upstream/android-13
 		if (!dir_emit(ctx, "thread-self", 11, inode->i_ino, DT_LNK))
 			return 0;
 		ctx->pos = pos = pos + 1;
@@ -3571,7 +4414,11 @@ int proc_pid_readdir(struct file *file, struct dir_context *ctx)
 		unsigned int len;
 
 		cond_resched();
+<<<<<<< HEAD
 		if (!has_pid_permissions(ns, iter.task, HIDEPID_INVISIBLE))
+=======
+		if (!has_pid_permissions(fs_info, iter.task, HIDEPID_INVISIBLE))
+>>>>>>> upstream/android-13
 			continue;
 
 		len = snprintf(name, sizeof(name), "%u", iter.tgid);
@@ -3598,7 +4445,12 @@ int proc_pid_readdir(struct file *file, struct dir_context *ctx)
  * This function makes sure that the node is always accessible for members of
  * same thread group.
  */
+<<<<<<< HEAD
 static int proc_tid_comm_permission(struct inode *inode, int mask)
+=======
+static int proc_tid_comm_permission(struct user_namespace *mnt_userns,
+				    struct inode *inode, int mask)
+>>>>>>> upstream/android-13
 {
 	bool is_same_tgroup;
 	struct task_struct *task;
@@ -3617,7 +4469,11 @@ static int proc_tid_comm_permission(struct inode *inode, int mask)
 		return 0;
 	}
 
+<<<<<<< HEAD
 	return generic_permission(inode, mask);
+=======
+	return generic_permission(&init_user_ns, inode, mask);
+>>>>>>> upstream/android-13
 }
 
 static const struct inode_operations proc_tid_comm_inode_operations = {
@@ -3629,7 +4485,11 @@ static const struct inode_operations proc_tid_comm_inode_operations = {
  */
 static const struct pid_entry tid_base_stuff[] = {
 	DIR("fd",        S_IRUSR|S_IXUSR, proc_fd_inode_operations, proc_fd_operations),
+<<<<<<< HEAD
 	DIR("fdinfo",    S_IRUSR|S_IXUSR, proc_fdinfo_inode_operations, proc_fdinfo_operations),
+=======
+	DIR("fdinfo",    S_IRUGO|S_IXUGO, proc_fdinfo_inode_operations, proc_fdinfo_operations),
+>>>>>>> upstream/android-13
 	DIR("ns",	 S_IRUSR|S_IXUGO, proc_ns_dir_inode_operations, proc_ns_dir_operations),
 #ifdef CONFIG_NET
 	DIR("net",        S_IRUGO|S_IXUGO, proc_net_inode_operations, proc_net_operations),
@@ -3691,10 +4551,20 @@ static const struct pid_entry tid_base_stuff[] = {
 #ifdef CONFIG_CGROUPS
 	ONE("cgroup",  S_IRUGO, proc_cgroup_show),
 #endif
+<<<<<<< HEAD
 	ONE("oom_score", S_IRUGO, proc_oom_score),
 	REG("oom_adj",   S_IRUGO|S_IWUSR, proc_oom_adj_operations),
 	REG("oom_score_adj", S_IRUGO|S_IWUSR, proc_oom_score_adj_operations),
 #ifdef CONFIG_AUDITSYSCALL
+=======
+#ifdef CONFIG_PROC_CPU_RESCTRL
+	ONE("cpu_resctrl_groups", S_IRUGO, proc_resctrl_show),
+#endif
+	ONE("oom_score", S_IRUGO, proc_oom_score),
+	REG("oom_adj",   S_IRUGO|S_IWUSR, proc_oom_adj_operations),
+	REG("oom_score_adj", S_IRUGO|S_IWUSR, proc_oom_score_adj_operations),
+#ifdef CONFIG_AUDIT
+>>>>>>> upstream/android-13
 	REG("loginuid",  S_IWUSR|S_IRUGO, proc_loginuid_operations),
 	REG("sessionid",  S_IRUGO, proc_sessionid_operations),
 #endif
@@ -3714,12 +4584,24 @@ static const struct pid_entry tid_base_stuff[] = {
 #ifdef CONFIG_LIVEPATCH
 	ONE("patch_state",  S_IRUSR, proc_pid_patch_state),
 #endif
+<<<<<<< HEAD
 #ifdef CONFIG_CPU_FREQ_TIMES
 	ONE("time_in_state", 0444, proc_time_in_state_show),
 #endif
 #ifdef CONFIG_MTK_TASK_TURBO
 	ONE("turbo", 0444, proc_turbo_task_show),
 #endif
+=======
+#ifdef CONFIG_PROC_PID_ARCH_STATUS
+	ONE("arch_status", S_IRUGO, proc_pid_arch_status),
+#endif
+#ifdef CONFIG_SECCOMP_CACHE_DEBUG
+	ONE("seccomp_cache", S_IRUSR, proc_pid_seccomp_cache),
+#endif
+#ifdef CONFIG_CPU_FREQ_TIMES
+	ONE("time_in_state", 0444, proc_time_in_state_show),
+#endif
+>>>>>>> upstream/android-13
 };
 
 static int proc_tid_base_readdir(struct file *file, struct dir_context *ctx)
@@ -3731,7 +4613,12 @@ static int proc_tid_base_readdir(struct file *file, struct dir_context *ctx)
 static struct dentry *proc_tid_base_lookup(struct inode *dir, struct dentry *dentry, unsigned int flags)
 {
 	return proc_pident_lookup(dir, dentry,
+<<<<<<< HEAD
 				  tid_base_stuff, ARRAY_SIZE(tid_base_stuff));
+=======
+				  tid_base_stuff,
+				  tid_base_stuff + ARRAY_SIZE(tid_base_stuff));
+>>>>>>> upstream/android-13
 }
 
 static const struct file_operations proc_tid_base_operations = {
@@ -3770,6 +4657,10 @@ static struct dentry *proc_task_lookup(struct inode *dir, struct dentry * dentry
 	struct task_struct *task;
 	struct task_struct *leader = get_proc_task(dir);
 	unsigned tid;
+<<<<<<< HEAD
+=======
+	struct proc_fs_info *fs_info;
+>>>>>>> upstream/android-13
 	struct pid_namespace *ns;
 	struct dentry *result = ERR_PTR(-ENOENT);
 
@@ -3780,7 +4671,12 @@ static struct dentry *proc_task_lookup(struct inode *dir, struct dentry * dentry
 	if (tid == ~0U)
 		goto out;
 
+<<<<<<< HEAD
 	ns = dentry->d_sb->s_fs_info;
+=======
+	fs_info = proc_sb_info(dentry->d_sb);
+	ns = fs_info->pid_ns;
+>>>>>>> upstream/android-13
 	rcu_read_lock();
 	task = find_task_by_pid_ns(tid, ns);
 	if (task)
@@ -3894,7 +4790,11 @@ static int proc_task_readdir(struct file *file, struct dir_context *ctx)
 	/* f_version caches the tgid value that the last readdir call couldn't
 	 * return. lseek aka telldir automagically resets f_version to 0.
 	 */
+<<<<<<< HEAD
 	ns = proc_pid_ns(inode);
+=======
+	ns = proc_pid_ns(inode->i_sb);
+>>>>>>> upstream/android-13
 	tid = (int)file->f_version;
 	file->f_version = 0;
 	for (task = first_tid(proc_pid(inode), tid, ctx->pos - 2, ns);
@@ -3917,12 +4817,21 @@ static int proc_task_readdir(struct file *file, struct dir_context *ctx)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int proc_task_getattr(const struct path *path, struct kstat *stat,
+=======
+static int proc_task_getattr(struct user_namespace *mnt_userns,
+			     const struct path *path, struct kstat *stat,
+>>>>>>> upstream/android-13
 			     u32 request_mask, unsigned int query_flags)
 {
 	struct inode *inode = d_inode(path->dentry);
 	struct task_struct *p = get_proc_task(inode);
+<<<<<<< HEAD
 	generic_fillattr(inode, stat);
+=======
+	generic_fillattr(&init_user_ns, inode, stat);
+>>>>>>> upstream/android-13
 
 	if (p) {
 		stat->nlink += get_nr_threads(p);

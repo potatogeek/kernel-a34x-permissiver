@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *	include/asm-mips/i8259.h
  *
@@ -5,11 +9,14 @@
  *
  *	Copyright (C) 2003  Maciej W. Rozycki
  *	Copyright (C) 2003  Ralf Baechle <ralf@linux-mips.org>
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _ASM_I8259_H
 #define _ASM_I8259_H
@@ -40,6 +47,10 @@ extern raw_spinlock_t i8259A_lock;
 extern void make_8259A_irq(unsigned int irq);
 
 extern void init_i8259_irqs(void);
+<<<<<<< HEAD
+=======
+extern struct irq_domain *__init_i8259_irqs(struct device_node *node);
+>>>>>>> upstream/android-13
 
 /**
  * i8159_set_poll() - Override the i8259 polling function

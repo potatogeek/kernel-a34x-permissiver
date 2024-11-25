@@ -433,6 +433,10 @@ static int sprd_eic_irq_set_type(struct irq_data *data, unsigned int flow_type)
 		default:
 			return -ENOTSUPP;
 		}
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	default:
 		dev_err(chip->parent, "Unsupported EIC type.\n");
 		return -ENOTSUPP;
@@ -585,10 +589,15 @@ static int sprd_eic_probe(struct platform_device *pdev)
 	sprd_eic->type = pdata->type;
 
 	sprd_eic->irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (sprd_eic->irq < 0) {
 		dev_err(&pdev->dev, "Failed to get EIC interrupt.\n");
 		return sprd_eic->irq;
 	}
+=======
+	if (sprd_eic->irq < 0)
+		return sprd_eic->irq;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < SPRD_EIC_MAX_BANK; i++) {
 		/*
@@ -618,14 +627,22 @@ static int sprd_eic_probe(struct platform_device *pdev)
 		sprd_eic->chip.free = sprd_eic_free;
 		sprd_eic->chip.set_config = sprd_eic_set_config;
 		sprd_eic->chip.set = sprd_eic_set;
+<<<<<<< HEAD
 		/* fall-through */
 	case SPRD_EIC_ASYNC:
 		/* fall-through */
+=======
+		fallthrough;
+	case SPRD_EIC_ASYNC:
+>>>>>>> upstream/android-13
 	case SPRD_EIC_SYNC:
 		sprd_eic->chip.get = sprd_eic_get;
 		break;
 	case SPRD_EIC_LATCH:
+<<<<<<< HEAD
 		/* fall-through */
+=======
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}

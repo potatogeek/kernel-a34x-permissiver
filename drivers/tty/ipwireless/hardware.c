@@ -1006,9 +1006,15 @@ static int send_pending_packet(struct ipw_hardware *hw, int priority_limit)
 /*
  * Send and receive all queued packets.
  */
+<<<<<<< HEAD
 static void ipwireless_do_tasklet(unsigned long hw_)
 {
 	struct ipw_hardware *hw = (struct ipw_hardware *) hw_;
+=======
+static void ipwireless_do_tasklet(struct tasklet_struct *t)
+{
+	struct ipw_hardware *hw = from_tasklet(hw, t, tasklet);
+>>>>>>> upstream/android-13
 	unsigned long flags;
 
 	spin_lock_irqsave(&hw->lock, flags);
@@ -1635,7 +1641,11 @@ struct ipw_hardware *ipwireless_hardware_create(void)
 	INIT_LIST_HEAD(&hw->rx_queue);
 	INIT_LIST_HEAD(&hw->rx_pool);
 	spin_lock_init(&hw->lock);
+<<<<<<< HEAD
 	tasklet_init(&hw->tasklet, ipwireless_do_tasklet, (unsigned long) hw);
+=======
+	tasklet_setup(&hw->tasklet, ipwireless_do_tasklet);
+>>>>>>> upstream/android-13
 	INIT_WORK(&hw->work_rx, ipw_receive_data_work);
 	timer_setup(&hw->setup_timer, ipwireless_setup_timer, 0);
 

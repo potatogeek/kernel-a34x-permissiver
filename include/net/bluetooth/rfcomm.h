@@ -22,6 +22,10 @@
 */
 
 #include <linux/refcount.h>
+<<<<<<< HEAD
+=======
+#include <linux/android_kabi.h>
+>>>>>>> upstream/android-13
 
 #ifndef __RFCOMM_H
 #define __RFCOMM_H
@@ -34,7 +38,10 @@
 #define RFCOMM_DEFAULT_MTU	127
 #define RFCOMM_DEFAULT_CREDITS	7
 
+<<<<<<< HEAD
 #define RFCOMM_MAX_L2CAP_MTU	1013
+=======
+>>>>>>> upstream/android-13
 #define RFCOMM_MAX_CREDITS	40
 
 #define RFCOMM_SKB_HEAD_RESERVE	8
@@ -165,6 +172,11 @@ struct rfcomm_session {
 	uint   mtu;
 
 	struct list_head dlcs;
+<<<<<<< HEAD
+=======
+
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 
 struct rfcomm_dlc {
@@ -198,6 +210,12 @@ struct rfcomm_dlc {
 	void (*data_ready)(struct rfcomm_dlc *d, struct sk_buff *skb);
 	void (*state_change)(struct rfcomm_dlc *d, int err);
 	void (*modem_status)(struct rfcomm_dlc *d, u8 v24_sig);
+<<<<<<< HEAD
+=======
+
+	ANDROID_KABI_RESERVE(1);
+	ANDROID_KABI_RESERVE(2);
+>>>>>>> upstream/android-13
 };
 
 /* DLC and session flags */
@@ -356,7 +374,11 @@ struct rfcomm_dev_info {
 
 struct rfcomm_dev_list_req {
 	u16      dev_num;
+<<<<<<< HEAD
 	struct   rfcomm_dev_info dev_info[0];
+=======
+	struct   rfcomm_dev_info dev_info[];
+>>>>>>> upstream/android-13
 };
 
 int  rfcomm_dev_ioctl(struct sock *sk, unsigned int cmd, void __user *arg);

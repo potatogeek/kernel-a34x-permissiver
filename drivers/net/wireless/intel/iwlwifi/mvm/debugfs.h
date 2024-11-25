@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -63,6 +64,13 @@
  *
  *****************************************************************************/
 
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+/*
+ * Copyright (C) 2012-2014 Intel Corporation
+ * Copyright (C) 2013-2014 Intel Mobile Communications GmbH
+ */
+>>>>>>> upstream/android-13
 #define MVM_DEBUGFS_READ_FILE_OPS(name)					\
 static const struct file_operations iwl_dbgfs_##name##_ops = {		\
 	.read = iwl_dbgfs_##name##_read,				\

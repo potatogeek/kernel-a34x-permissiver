@@ -47,8 +47,13 @@ static int cz_aif1_hw_params(struct snd_pcm_substream *substream,
 			     struct snd_pcm_hw_params *params)
 {
 	int ret = 0;
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct snd_soc_dai *codec_dai = rtd->codec_dai;
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct snd_soc_dai *codec_dai = asoc_rtd_to_codec(rtd, 0);
+>>>>>>> upstream/android-13
 
 	ret = snd_soc_dai_set_pll(codec_dai, 0, RT5645_PLL1_S_MCLK,
 				  CZ_PLAT_CLK, params_rate(params) * 512);
@@ -73,7 +78,11 @@ static int cz_init(struct snd_soc_pcm_runtime *rtd)
 	struct snd_soc_card *card;
 	struct snd_soc_component *codec;
 
+<<<<<<< HEAD
 	codec = rtd->codec_dai->component;
+=======
+	codec = asoc_rtd_to_codec(rtd, 0)->component;
+>>>>>>> upstream/android-13
 	card = rtd->card;
 
 	ret = snd_soc_card_jack_new(card, "Headset Jack",
@@ -95,22 +104,44 @@ static struct snd_soc_ops cz_aif1_ops = {
 	.hw_params = cz_aif1_hw_params,
 };
 
+<<<<<<< HEAD
+=======
+SND_SOC_DAILINK_DEF(designware1,
+	DAILINK_COMP_ARRAY(COMP_CPU("designware-i2s.1.auto")));
+SND_SOC_DAILINK_DEF(designware2,
+	DAILINK_COMP_ARRAY(COMP_CPU("designware-i2s.2.auto")));
+
+SND_SOC_DAILINK_DEF(codec,
+	DAILINK_COMP_ARRAY(COMP_CODEC("i2c-10EC5650:00", "rt5645-aif1")));
+
+SND_SOC_DAILINK_DEF(platform,
+	DAILINK_COMP_ARRAY(COMP_PLATFORM("acp_audio_dma.0.auto")));
+
+>>>>>>> upstream/android-13
 static struct snd_soc_dai_link cz_dai_rt5650[] = {
 	{
 		.name = "amd-rt5645-play",
 		.stream_name = "RT5645_AIF1",
+<<<<<<< HEAD
 		.platform_name = "acp_audio_dma.0.auto",
 		.cpu_dai_name = "designware-i2s.1.auto",
 		.codec_dai_name = "rt5645-aif1",
 		.codec_name = "i2c-10EC5650:00",
+=======
+>>>>>>> upstream/android-13
 		.dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF
 				| SND_SOC_DAIFMT_CBM_CFM,
 		.init = cz_init,
 		.ops = &cz_aif1_ops,
+<<<<<<< HEAD
+=======
+		SND_SOC_DAILINK_REG(designware1, codec, platform),
+>>>>>>> upstream/android-13
 	},
 	{
 		.name = "amd-rt5645-cap",
 		.stream_name = "RT5645_AIF1",
+<<<<<<< HEAD
 		.platform_name = "acp_audio_dma.0.auto",
 		.cpu_dai_name = "designware-i2s.2.auto",
 		.codec_dai_name = "rt5645-aif1",
@@ -118,6 +149,12 @@ static struct snd_soc_dai_link cz_dai_rt5650[] = {
 		.dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF
 				| SND_SOC_DAIFMT_CBM_CFM,
 		.ops = &cz_aif1_ops,
+=======
+		.dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF
+				| SND_SOC_DAIFMT_CBM_CFM,
+		.ops = &cz_aif1_ops,
+		SND_SOC_DAILINK_REG(designware2, codec, platform),
+>>>>>>> upstream/android-13
 	},
 };
 
@@ -177,11 +214,19 @@ static int cz_probe(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_ACPI
+>>>>>>> upstream/android-13
 static const struct acpi_device_id cz_audio_acpi_match[] = {
 	{ "AMDI1002", 0 },
 	{},
 };
 MODULE_DEVICE_TABLE(acpi, cz_audio_acpi_match);
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 static struct platform_driver cz_pcm_driver = {
 	.driver = {

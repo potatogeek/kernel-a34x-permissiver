@@ -1,7 +1,10 @@
 #
 # Ralink SoC common stuff
 #
+<<<<<<< HEAD
 core-$(CONFIG_RALINK)		+= arch/mips/ralink/
+=======
+>>>>>>> upstream/android-13
 cflags-$(CONFIG_RALINK)		+= -I$(srctree)/arch/mips/include/asm/mach-ralink
 
 #

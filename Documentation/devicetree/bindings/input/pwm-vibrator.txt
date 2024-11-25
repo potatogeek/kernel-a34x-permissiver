@@ -58,8 +58,13 @@ Example from Motorola Droid 4:
 
 	vibrator {
 		compatible = "pwm-vibrator";
+<<<<<<< HEAD
 		pwms = <&pwm8 0 1000000000 0>,
 		       <&pwm9 0 1000000000 0>;
+=======
+		pwms = <&pwm9 0 1000000000 0>,
+                       <&pwm8 0 1000000000 0>;
+>>>>>>> upstream/android-13
 		pwm-names = "enable", "direction";
 		direction-duty-cycle-ns = <1000000000>;
 	};

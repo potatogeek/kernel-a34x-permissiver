@@ -6,6 +6,10 @@
 #include <linux/types.h>
 #include <linux/pci.h>
 #include <net/smc.h>
+<<<<<<< HEAD
+=======
+#include <asm/pci_insn.h>
+>>>>>>> upstream/android-13
 
 #define UTIL_STR_LEN	16
 
@@ -15,6 +19,10 @@
 #define ISM_DMB_WORD_OFFSET	1
 #define ISM_DMB_BIT_OFFSET	(ISM_DMB_WORD_OFFSET * 32)
 #define ISM_NR_DMBS		1920
+<<<<<<< HEAD
+=======
+#define ISM_IDENT_MASK		0x00FFFF
+>>>>>>> upstream/android-13
 
 #define ISM_REG_SBA	0x1
 #define ISM_REG_IEQ	0x2
@@ -31,8 +39,11 @@
 #define ISM_UNREG_SBA	0x11
 #define ISM_UNREG_IEQ	0x12
 
+<<<<<<< HEAD
 #define ISM_ERROR	0xFFFF
 
+=======
+>>>>>>> upstream/android-13
 struct ism_req_hdr {
 	u32 cmd;
 	u16 : 16;
@@ -194,8 +205,11 @@ struct ism_dev {
 	struct pci_dev *pdev;
 	struct smcd_dev *smcd;
 
+<<<<<<< HEAD
 	void __iomem *ctl;
 
+=======
+>>>>>>> upstream/android-13
 	struct ism_sba *sba;
 	dma_addr_t sba_dma_addr;
 	DECLARE_BITMAP(sba_bitmap, ISM_NR_DMBS);
@@ -209,13 +223,50 @@ struct ism_dev {
 #define ISM_CREATE_REQ(dmb, idx, sf, offset)		\
 	((dmb) | (idx) << 24 | (sf) << 23 | (offset))
 
+<<<<<<< HEAD
+=======
+struct ism_systemeid {
+	u8	seid_string[24];
+	u8	serial_number[4];
+	u8	type[4];
+};
+
+static inline void __ism_read_cmd(struct ism_dev *ism, void *data,
+				  unsigned long offset, unsigned long len)
+{
+	struct zpci_dev *zdev = to_zpci(ism->pdev);
+	u64 req = ZPCI_CREATE_REQ(zdev->fh, 2, 8);
+
+	while (len > 0) {
+		__zpci_load(data, req, offset);
+		offset += 8;
+		data += 8;
+		len -= 8;
+	}
+}
+
+static inline void __ism_write_cmd(struct ism_dev *ism, void *data,
+				   unsigned long offset, unsigned long len)
+{
+	struct zpci_dev *zdev = to_zpci(ism->pdev);
+	u64 req = ZPCI_CREATE_REQ(zdev->fh, 2, len);
+
+	if (len)
+		__zpci_store_block(data, req, offset);
+}
+
+>>>>>>> upstream/android-13
 static inline int __ism_move(struct ism_dev *ism, u64 dmb_req, void *data,
 			     unsigned int size)
 {
 	struct zpci_dev *zdev = to_zpci(ism->pdev);
 	u64 req = ZPCI_CREATE_REQ(zdev->fh, 0, size);
 
+<<<<<<< HEAD
 	return zpci_write_block(req, data, dmb_req);
+=======
+	return __zpci_store_block(data, req, dmb_req);
+>>>>>>> upstream/android-13
 }
 
 #endif /* S390_ISM_H */

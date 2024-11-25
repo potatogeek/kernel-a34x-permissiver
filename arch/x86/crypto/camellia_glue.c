@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Glue Code for assembler optimized version of Camellia
  *
@@ -5,6 +9,7 @@
  *
  * Camellia parts based on code by:
  *  Copyright (C) 2006 NTT (Nippon Telegraph and Telephone Corporation)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +26,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
  * USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <asm/unaligned.h>
@@ -29,6 +36,7 @@
 #include <linux/module.h>
 #include <linux/types.h>
 #include <crypto/algapi.h>
+<<<<<<< HEAD
 #include <asm/crypto/camellia.h>
 #include <asm/crypto/glue_helper.h>
 
@@ -46,6 +54,24 @@ asmlinkage void __camellia_enc_blk_2way(struct camellia_ctx *ctx, u8 *dst,
 EXPORT_SYMBOL_GPL(__camellia_enc_blk_2way);
 asmlinkage void camellia_dec_blk_2way(struct camellia_ctx *ctx, u8 *dst,
 				      const u8 *src);
+=======
+
+#include "camellia.h"
+#include "ecb_cbc_helpers.h"
+
+/* regular block cipher functions */
+asmlinkage void __camellia_enc_blk(const void *ctx, u8 *dst, const u8 *src,
+				   bool xor);
+EXPORT_SYMBOL_GPL(__camellia_enc_blk);
+asmlinkage void camellia_dec_blk(const void *ctx, u8 *dst, const u8 *src);
+EXPORT_SYMBOL_GPL(camellia_dec_blk);
+
+/* 2-way parallel cipher functions */
+asmlinkage void __camellia_enc_blk_2way(const void *ctx, u8 *dst, const u8 *src,
+					bool xor);
+EXPORT_SYMBOL_GPL(__camellia_enc_blk_2way);
+asmlinkage void camellia_dec_blk_2way(const void *ctx, u8 *dst, const u8 *src);
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL_GPL(camellia_dec_blk_2way);
 
 static void camellia_encrypt(struct crypto_tfm *tfm, u8 *dst, const u8 *src)
@@ -1244,12 +1270,19 @@ static void camellia_setup192(const unsigned char *key, u64 *subkey)
 }
 
 int __camellia_setkey(struct camellia_ctx *cctx, const unsigned char *key,
+<<<<<<< HEAD
 		      unsigned int key_len, u32 *flags)
 {
 	if (key_len != 16 && key_len != 24 && key_len != 32) {
 		*flags |= CRYPTO_TFM_RES_BAD_KEY_LEN;
 		return -EINVAL;
 	}
+=======
+		      unsigned int key_len)
+{
+	if (key_len != 16 && key_len != 24 && key_len != 32)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	cctx->key_length = key_len;
 
@@ -1272,8 +1305,12 @@ EXPORT_SYMBOL_GPL(__camellia_setkey);
 static int camellia_setkey(struct crypto_tfm *tfm, const u8 *key,
 			   unsigned int key_len)
 {
+<<<<<<< HEAD
 	return __camellia_setkey(crypto_tfm_ctx(tfm), key, key_len,
 				 &tfm->crt_flags);
+=======
+	return __camellia_setkey(crypto_tfm_ctx(tfm), key, key_len);
+>>>>>>> upstream/android-13
 }
 
 static int camellia_setkey_skcipher(struct crypto_skcipher *tfm, const u8 *key,
@@ -1282,6 +1319,7 @@ static int camellia_setkey_skcipher(struct crypto_skcipher *tfm, const u8 *key,
 	return camellia_setkey(&tfm->base, key, key_len);
 }
 
+<<<<<<< HEAD
 void camellia_decrypt_cbc_2way(void *ctx, u128 *dst, const u128 *src)
 {
 	u128 iv = *src;
@@ -1379,27 +1417,67 @@ static const struct common_glue_ctx camellia_dec_cbc = {
 static int ecb_encrypt(struct skcipher_request *req)
 {
 	return glue_ecb_req_128bit(&camellia_enc, req);
+=======
+void camellia_decrypt_cbc_2way(const void *ctx, u8 *dst, const u8 *src)
+{
+	u8 buf[CAMELLIA_BLOCK_SIZE];
+	const u8 *iv = src;
+
+	if (dst == src)
+		iv = memcpy(buf, iv, sizeof(buf));
+	camellia_dec_blk_2way(ctx, dst, src);
+	crypto_xor(dst + CAMELLIA_BLOCK_SIZE, iv, CAMELLIA_BLOCK_SIZE);
+}
+EXPORT_SYMBOL_GPL(camellia_decrypt_cbc_2way);
+
+static int ecb_encrypt(struct skcipher_request *req)
+{
+	ECB_WALK_START(req, CAMELLIA_BLOCK_SIZE, -1);
+	ECB_BLOCK(2, camellia_enc_blk_2way);
+	ECB_BLOCK(1, camellia_enc_blk);
+	ECB_WALK_END();
+>>>>>>> upstream/android-13
 }
 
 static int ecb_decrypt(struct skcipher_request *req)
 {
+<<<<<<< HEAD
 	return glue_ecb_req_128bit(&camellia_dec, req);
+=======
+	ECB_WALK_START(req, CAMELLIA_BLOCK_SIZE, -1);
+	ECB_BLOCK(2, camellia_dec_blk_2way);
+	ECB_BLOCK(1, camellia_dec_blk);
+	ECB_WALK_END();
+>>>>>>> upstream/android-13
 }
 
 static int cbc_encrypt(struct skcipher_request *req)
 {
+<<<<<<< HEAD
 	return glue_cbc_encrypt_req_128bit(GLUE_FUNC_CAST(camellia_enc_blk),
 					   req);
+=======
+	CBC_WALK_START(req, CAMELLIA_BLOCK_SIZE, -1);
+	CBC_ENC_BLOCK(camellia_enc_blk);
+	CBC_WALK_END();
+>>>>>>> upstream/android-13
 }
 
 static int cbc_decrypt(struct skcipher_request *req)
 {
+<<<<<<< HEAD
 	return glue_cbc_decrypt_req_128bit(&camellia_dec_cbc, req);
 }
 
 static int ctr_crypt(struct skcipher_request *req)
 {
 	return glue_ctr_req_128bit(&camellia_ctr, req);
+=======
+	CBC_WALK_START(req, CAMELLIA_BLOCK_SIZE, -1);
+	CBC_DEC_BLOCK(2, camellia_decrypt_cbc_2way);
+	CBC_DEC_BLOCK(1, camellia_dec_blk);
+	CBC_WALK_END();
+>>>>>>> upstream/android-13
 }
 
 static struct crypto_alg camellia_cipher_alg = {
@@ -1448,6 +1526,7 @@ static struct skcipher_alg camellia_skcipher_algs[] = {
 		.setkey			= camellia_setkey_skcipher,
 		.encrypt		= cbc_encrypt,
 		.decrypt		= cbc_decrypt,
+<<<<<<< HEAD
 	}, {
 		.base.cra_name		= "ctr(camellia)",
 		.base.cra_driver_name	= "ctr-camellia-asm",
@@ -1462,6 +1541,8 @@ static struct skcipher_alg camellia_skcipher_algs[] = {
 		.setkey			= camellia_setkey_skcipher,
 		.encrypt		= ctr_crypt,
 		.decrypt		= ctr_crypt,
+=======
+>>>>>>> upstream/android-13
 	}
 };
 

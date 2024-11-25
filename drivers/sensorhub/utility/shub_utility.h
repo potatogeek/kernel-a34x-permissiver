@@ -38,6 +38,7 @@
 	} while (0)
 
 #define shub_dbgf(fmt, ...) do { \
+<<<<<<< HEAD
 	pr_debug("[SHUB] %20s(%4d) : " fmt "\n", __func__, __LINE__, ##__VA_ARGS__); \
 	} while (0)
 
@@ -47,6 +48,17 @@
 
 #define shub_errf(fmt, ...) do { \
 	pr_err("[SHUB] %20s(%4d) : " fmt "\n", __func__, __LINE__, ##__VA_ARGS__); \
+=======
+	pr_debug("[SHUB] %20s(%4d): " fmt "\n", __func__, __LINE__, ##__VA_ARGS__); \
+	} while (0)
+
+#define shub_infof(fmt, ...) do { \
+	pr_info("[SHUB] %20s(%4d): " fmt "\n", __func__, __LINE__, ##__VA_ARGS__); \
+	} while (0)
+
+#define shub_errf(fmt, ...) do { \
+	pr_err("[SHUB] %20s(%4d): " fmt "\n", __func__, __LINE__, ##__VA_ARGS__); \
+>>>>>>> upstream/android-13
 	} while (0)
 
 #define MAKE_WORD(H,L) ((((u16)H) << 8 ) & 0xff00 ) | ((((u16)L)) & 0x00ff )
@@ -54,7 +66,10 @@
 #define WORD_TO_HIGH(w) ((u8)(((w) >>8 ) & 0xff))
 
 #define ABS(a) ((a) > 0 ? (a) : -(a))
+<<<<<<< HEAD
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
+=======
+>>>>>>> upstream/android-13
 
 #define BITS_PER_BYTE           8
 

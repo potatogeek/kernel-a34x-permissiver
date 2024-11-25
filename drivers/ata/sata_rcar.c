@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * Renesas R-Car SATA driver
  *
  * Author: Vladimir Barinov <source@cogentembedded.com>
  * Copyright (C) 2013-2015 Cogent Embedded, Inc.
  * Copyright (C) 2013-2015 Renesas Solutions Corp.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -915,7 +922,10 @@ static int sata_rcar_probe(struct platform_device *pdev)
 
 	host = ata_host_alloc(dev, 1);
 	if (!host) {
+<<<<<<< HEAD
 		dev_err(dev, "ata_host_alloc failed\n");
+=======
+>>>>>>> upstream/android-13
 		ret = -ENOMEM;
 		goto err_pm_put;
 	}

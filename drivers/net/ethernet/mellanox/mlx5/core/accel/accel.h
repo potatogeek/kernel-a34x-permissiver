@@ -5,7 +5,10 @@
 
 #include <linux/skbuff.h>
 #include <linux/netdevice.h>
+<<<<<<< HEAD
 #include "en.h"
+=======
+>>>>>>> upstream/android-13
 
 static inline bool is_metadata_hdr_valid(struct sk_buff *skb)
 {

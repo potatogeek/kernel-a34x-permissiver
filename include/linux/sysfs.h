@@ -7,7 +7,11 @@
  * Copyright (c) 2007 SUSE Linux Products GmbH
  * Copyright (c) 2007 Tejun Heo <teheo@suse.de>
  *
+<<<<<<< HEAD
  * Please see Documentation/filesystems/sysfs.txt for more information.
+=======
+ * Please see Documentation/filesystems/sysfs.rst for more information.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _SYSFS_H_
@@ -123,6 +127,16 @@ struct attribute_group {
 	.show	= _name##_show,						\
 }
 
+<<<<<<< HEAD
+=======
+#define __ATTR_RW_MODE(_name, _mode) {					\
+	.attr	= { .name = __stringify(_name),				\
+		    .mode = VERIFY_OCTAL_PERMISSIONS(_mode) },		\
+	.show	= _name##_show,						\
+	.store	= _name##_store,					\
+}
+
+>>>>>>> upstream/android-13
 #define __ATTR_WO(_name) {						\
 	.attr	= { .name = __stringify(_name), .mode = 0200 },		\
 	.store	= _name##_store,					\
@@ -155,13 +169,29 @@ static const struct attribute_group _name##_group = {		\
 };								\
 __ATTRIBUTE_GROUPS(_name)
 
+<<<<<<< HEAD
 struct file;
 struct vm_area_struct;
+=======
+#define BIN_ATTRIBUTE_GROUPS(_name)				\
+static const struct attribute_group _name##_group = {		\
+	.bin_attrs = _name##_attrs,				\
+};								\
+__ATTRIBUTE_GROUPS(_name)
+
+struct file;
+struct vm_area_struct;
+struct address_space;
+>>>>>>> upstream/android-13
 
 struct bin_attribute {
 	struct attribute	attr;
 	size_t			size;
 	void			*private;
+<<<<<<< HEAD
+=======
+	struct address_space *(*f_mapping)(void);
+>>>>>>> upstream/android-13
 	ssize_t (*read)(struct file *, struct kobject *, struct bin_attribute *,
 			char *, loff_t, size_t);
 	ssize_t (*write)(struct file *, struct kobject *, struct bin_attribute *,
@@ -196,6 +226,15 @@ struct bin_attribute {
 	.size	= _size,						\
 }
 
+<<<<<<< HEAD
+=======
+#define __BIN_ATTR_WO(_name, _size) {					\
+	.attr	= { .name = __stringify(_name), .mode = 0200 },		\
+	.write	= _name##_write,					\
+	.size	= _size,						\
+}
+
+>>>>>>> upstream/android-13
 #define __BIN_ATTR_RW(_name, _size)					\
 	__BIN_ATTR(_name, 0644, _name##_read, _name##_write, _size)
 
@@ -208,6 +247,12 @@ struct bin_attribute bin_attr_##_name = __BIN_ATTR(_name, _mode, _read,	\
 #define BIN_ATTR_RO(_name, _size)					\
 struct bin_attribute bin_attr_##_name = __BIN_ATTR_RO(_name, _size)
 
+<<<<<<< HEAD
+=======
+#define BIN_ATTR_WO(_name, _size)					\
+struct bin_attribute bin_attr_##_name = __BIN_ATTR_WO(_name, _size)
+
+>>>>>>> upstream/android-13
 #define BIN_ATTR_RW(_name, _size)					\
 struct bin_attribute bin_attr_##_name = __BIN_ATTR_RW(_name, _size)
 
@@ -234,7 +279,11 @@ int __must_check sysfs_create_file_ns(struct kobject *kobj,
 				      const struct attribute *attr,
 				      const void *ns);
 int __must_check sysfs_create_files(struct kobject *kobj,
+<<<<<<< HEAD
 				   const struct attribute **attr);
+=======
+				   const struct attribute * const *attr);
+>>>>>>> upstream/android-13
 int __must_check sysfs_chmod_file(struct kobject *kobj,
 				  const struct attribute *attr, umode_t mode);
 struct kernfs_node *sysfs_break_active_protection(struct kobject *kobj,
@@ -243,7 +292,11 @@ void sysfs_unbreak_active_protection(struct kernfs_node *kn);
 void sysfs_remove_file_ns(struct kobject *kobj, const struct attribute *attr,
 			  const void *ns);
 bool sysfs_remove_file_self(struct kobject *kobj, const struct attribute *attr);
+<<<<<<< HEAD
 void sysfs_remove_files(struct kobject *kobj, const struct attribute **attr);
+=======
+void sysfs_remove_files(struct kobject *kobj, const struct attribute * const *attr);
+>>>>>>> upstream/android-13
 
 int __must_check sysfs_create_bin_file(struct kobject *kobj,
 				       const struct bin_attribute *attr);
@@ -268,6 +321,11 @@ int __must_check sysfs_create_group(struct kobject *kobj,
 				    const struct attribute_group *grp);
 int __must_check sysfs_create_groups(struct kobject *kobj,
 				     const struct attribute_group **groups);
+<<<<<<< HEAD
+=======
+int __must_check sysfs_update_groups(struct kobject *kobj,
+				     const struct attribute_group **groups);
+>>>>>>> upstream/android-13
 int sysfs_update_group(struct kobject *kobj,
 		       const struct attribute_group *grp);
 void sysfs_remove_group(struct kobject *kobj,
@@ -286,9 +344,16 @@ int sysfs_add_link_to_group(struct kobject *kobj, const char *group_name,
 			    struct kobject *target, const char *link_name);
 void sysfs_remove_link_from_group(struct kobject *kobj, const char *group_name,
 				  const char *link_name);
+<<<<<<< HEAD
 int __compat_only_sysfs_link_entry_to_kobj(struct kobject *kobj,
 				      struct kobject *target_kobj,
 				      const char *target_name);
+=======
+int compat_only_sysfs_link_entry_to_kobj(struct kobject *kobj,
+					 struct kobject *target_kobj,
+					 const char *target_name,
+					 const char *symlink_name);
+>>>>>>> upstream/android-13
 
 void sysfs_notify(struct kobject *kobj, const char *dir, const char *attr);
 
@@ -299,6 +364,20 @@ static inline void sysfs_enable_ns(struct kernfs_node *kn)
 	return kernfs_enable_ns(kn);
 }
 
+<<<<<<< HEAD
+=======
+int sysfs_file_change_owner(struct kobject *kobj, const char *name, kuid_t kuid,
+			    kgid_t kgid);
+int sysfs_change_owner(struct kobject *kobj, kuid_t kuid, kgid_t kgid);
+int sysfs_link_change_owner(struct kobject *kobj, struct kobject *targ,
+			    const char *name, kuid_t kuid, kgid_t kgid);
+int sysfs_groups_change_owner(struct kobject *kobj,
+			      const struct attribute_group **groups,
+			      kuid_t kuid, kgid_t kgid);
+int sysfs_group_change_owner(struct kobject *kobj,
+			     const struct attribute_group *groups, kuid_t kuid,
+			     kgid_t kgid);
+>>>>>>> upstream/android-13
 __printf(2, 3)
 int sysfs_emit(char *buf, const char *fmt, ...);
 __printf(3, 4)
@@ -347,7 +426,11 @@ static inline int sysfs_create_file_ns(struct kobject *kobj,
 }
 
 static inline int sysfs_create_files(struct kobject *kobj,
+<<<<<<< HEAD
 				    const struct attribute **attr)
+=======
+				    const struct attribute * const *attr)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
@@ -382,7 +465,11 @@ static inline bool sysfs_remove_file_self(struct kobject *kobj,
 }
 
 static inline void sysfs_remove_files(struct kobject *kobj,
+<<<<<<< HEAD
 				     const struct attribute **attr)
+=======
+				     const struct attribute * const *attr)
+>>>>>>> upstream/android-13
 {
 }
 
@@ -438,6 +525,15 @@ static inline int sysfs_create_groups(struct kobject *kobj,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static inline int sysfs_update_groups(struct kobject *kobj,
+				      const struct attribute_group **groups)
+{
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static inline int sysfs_update_group(struct kobject *kobj,
 				const struct attribute_group *grp)
 {
@@ -488,10 +584,17 @@ static inline void sysfs_remove_link_from_group(struct kobject *kobj,
 {
 }
 
+<<<<<<< HEAD
 static inline int __compat_only_sysfs_link_entry_to_kobj(
 	struct kobject *kobj,
 	struct kobject *target_kobj,
 	const char *target_name)
+=======
+static inline int compat_only_sysfs_link_entry_to_kobj(struct kobject *kobj,
+						       struct kobject *target_kobj,
+						       const char *target_name,
+						       const char *symlink_name)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
@@ -510,6 +613,43 @@ static inline void sysfs_enable_ns(struct kernfs_node *kn)
 {
 }
 
+<<<<<<< HEAD
+=======
+static inline int sysfs_file_change_owner(struct kobject *kobj,
+					  const char *name, kuid_t kuid,
+					  kgid_t kgid)
+{
+	return 0;
+}
+
+static inline int sysfs_link_change_owner(struct kobject *kobj,
+					  struct kobject *targ,
+					  const char *name, kuid_t kuid,
+					  kgid_t kgid)
+{
+	return 0;
+}
+
+static inline int sysfs_change_owner(struct kobject *kobj, kuid_t kuid, kgid_t kgid)
+{
+	return 0;
+}
+
+static inline int sysfs_groups_change_owner(struct kobject *kobj,
+			  const struct attribute_group **groups,
+			  kuid_t kuid, kgid_t kgid)
+{
+	return 0;
+}
+
+static inline int sysfs_group_change_owner(struct kobject *kobj,
+					   const struct attribute_group *groups,
+					   kuid_t kuid, kgid_t kgid)
+{
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 __printf(2, 3)
 static inline int sysfs_emit(char *buf, const char *fmt, ...)
 {

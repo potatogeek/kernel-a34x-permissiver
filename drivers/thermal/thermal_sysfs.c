@@ -18,6 +18,10 @@
 #include <linux/slab.h>
 #include <linux/string.h>
 #include <linux/jiffies.h>
+<<<<<<< HEAD
+=======
+#include <trace/hooks/thermal.h>
+>>>>>>> upstream/android-13
 
 #include "thermal_core.h"
 
@@ -49,6 +53,7 @@ static ssize_t
 mode_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
 	struct thermal_zone_device *tz = to_thermal_zone(dev);
+<<<<<<< HEAD
 	enum thermal_device_mode mode;
 	int result;
 
@@ -61,6 +66,11 @@ mode_show(struct device *dev, struct device_attribute *attr, char *buf)
 
 	return sprintf(buf, "%s\n", mode == THERMAL_DEVICE_ENABLED ? "enabled"
 		       : "disabled");
+=======
+	int enabled = thermal_zone_device_is_enabled(tz);
+
+	return sprintf(buf, "%s\n", enabled ? "enabled" : "disabled");
+>>>>>>> upstream/android-13
 }
 
 static ssize_t
@@ -70,6 +80,7 @@ mode_store(struct device *dev, struct device_attribute *attr,
 	struct thermal_zone_device *tz = to_thermal_zone(dev);
 	int result;
 
+<<<<<<< HEAD
 	if (!tz->ops->set_mode)
 		return -EPERM;
 
@@ -77,6 +88,12 @@ mode_store(struct device *dev, struct device_attribute *attr,
 		result = tz->ops->set_mode(tz, THERMAL_DEVICE_ENABLED);
 	else if (!strncmp(buf, "disabled", sizeof("disabled") - 1))
 		result = tz->ops->set_mode(tz, THERMAL_DEVICE_DISABLED);
+=======
+	if (!strncmp(buf, "enabled", sizeof("enabled") - 1))
+		result = thermal_zone_device_enable(tz);
+	else if (!strncmp(buf, "disabled", sizeof("disabled") - 1))
+		result = thermal_zone_device_disable(tz);
+>>>>>>> upstream/android-13
 	else
 		result = -EINVAL;
 
@@ -124,7 +141,12 @@ trip_point_temp_store(struct device *dev, struct device_attribute *attr,
 {
 	struct thermal_zone_device *tz = to_thermal_zone(dev);
 	int trip, ret;
+<<<<<<< HEAD
 	int temperature;
+=======
+	int temperature, hyst = 0;
+	enum thermal_trip_type type;
+>>>>>>> upstream/android-13
 
 	if (!tz->ops->set_trip_temp)
 		return -EPERM;
@@ -139,6 +161,21 @@ trip_point_temp_store(struct device *dev, struct device_attribute *attr,
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
+=======
+	if (tz->ops->get_trip_hyst) {
+		ret = tz->ops->get_trip_hyst(tz, trip, &hyst);
+		if (ret)
+			return ret;
+	}
+
+	ret = tz->ops->get_trip_type(tz, trip, &type);
+	if (ret)
+		return ret;
+
+	thermal_notify_tz_trip_change(tz->id, trip, type, temperature, hyst);
+
+>>>>>>> upstream/android-13
 	thermal_zone_device_update(tz, THERMAL_EVENT_UNSPECIFIED);
 
 	return count;
@@ -216,6 +253,7 @@ trip_point_hyst_show(struct device *dev, struct device_attribute *attr,
 }
 
 static ssize_t
+<<<<<<< HEAD
 passive_store(struct device *dev, struct device_attribute *attr,
 	      const char *buf, size_t count)
 {
@@ -259,6 +297,8 @@ passive_show(struct device *dev, struct device_attribute *attr,
 }
 
 static ssize_t
+=======
+>>>>>>> upstream/android-13
 policy_store(struct device *dev, struct device_attribute *attr,
 	     const char *buf, size_t count)
 {
@@ -402,7 +442,10 @@ static DEVICE_ATTR_RW(sustainable_power);
 
 /* These thermal zone device attributes are created based on conditions */
 static DEVICE_ATTR_RW(mode);
+<<<<<<< HEAD
 static DEVICE_ATTR_RW(passive);
+=======
+>>>>>>> upstream/android-13
 
 /* These attributes are unconditionally added to a thermal zone */
 static struct attribute *thermal_zone_dev_attrs[] = {
@@ -424,16 +467,24 @@ static struct attribute *thermal_zone_dev_attrs[] = {
 	NULL,
 };
 
+<<<<<<< HEAD
 static struct attribute_group thermal_zone_attribute_group = {
 	.attrs = thermal_zone_dev_attrs,
 };
 
 /* We expose mode only if .get_mode is present */
+=======
+static const struct attribute_group thermal_zone_attribute_group = {
+	.attrs = thermal_zone_dev_attrs,
+};
+
+>>>>>>> upstream/android-13
 static struct attribute *thermal_zone_mode_attrs[] = {
 	&dev_attr_mode.attr,
 	NULL,
 };
 
+<<<<<<< HEAD
 static umode_t thermal_zone_mode_is_visible(struct kobject *kobj,
 					    struct attribute *attr,
 					    int attrno)
@@ -487,12 +538,19 @@ static umode_t thermal_zone_passive_is_visible(struct kobject *kobj,
 static struct attribute_group thermal_zone_passive_attribute_group = {
 	.attrs = thermal_zone_passive_attrs,
 	.is_visible = thermal_zone_passive_is_visible,
+=======
+static const struct attribute_group thermal_zone_mode_attribute_group = {
+	.attrs = thermal_zone_mode_attrs,
+>>>>>>> upstream/android-13
 };
 
 static const struct attribute_group *thermal_zone_attribute_groups[] = {
 	&thermal_zone_attribute_group,
 	&thermal_zone_mode_attribute_group,
+<<<<<<< HEAD
 	&thermal_zone_passive_attribute_group,
+=======
+>>>>>>> upstream/android-13
 	/* This is not NULL terminated as we create the group dynamically */
 };
 
@@ -912,6 +970,18 @@ static void cooling_device_stats_setup(struct thermal_cooling_device *cdev)
 	struct cooling_dev_stats *stats;
 	unsigned long states;
 	int var;
+<<<<<<< HEAD
+=======
+	int disable_cdev_stats = 0;
+
+	trace_android_vh_disable_thermal_cooling_stats(cdev,
+						&disable_cdev_stats);
+	if (disable_cdev_stats) {
+		var = ARRAY_SIZE(cooling_device_attr_groups) - 2;
+		cooling_device_attr_groups[var] = NULL;
+		return;
+	}
+>>>>>>> upstream/android-13
 
 	if (cdev->ops->get_max_state(cdev, &states))
 		return;
@@ -974,6 +1044,7 @@ trip_point_show(struct device *dev, struct device_attribute *attr, char *buf)
 	instance =
 	    container_of(attr, struct thermal_instance, attr);
 
+<<<<<<< HEAD
 	if (instance->trip == THERMAL_TRIPS_NONE)
 		return sprintf(buf, "-1\n");
 	else
@@ -998,6 +1069,9 @@ ssize_t trip_point_store(struct device *dev, struct device_attribute *attr,
 	instance->trip = trip;
 
 	return count;
+=======
+	return sprintf(buf, "%d\n", instance->trip);
+>>>>>>> upstream/android-13
 }
 
 ssize_t

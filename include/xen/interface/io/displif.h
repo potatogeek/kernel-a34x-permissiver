@@ -38,7 +38,12 @@
  *                           Protocol version
  ******************************************************************************
  */
+<<<<<<< HEAD
 #define XENDISPL_PROTOCOL_VERSION	"1"
+=======
+#define XENDISPL_PROTOCOL_VERSION	"2"
+#define XENDISPL_PROTOCOL_VERSION_INT	 2
+>>>>>>> upstream/android-13
 
 /*
  ******************************************************************************
@@ -202,6 +207,12 @@
  *      Width and height of the connector in pixels separated by
  *      XENDISPL_RESOLUTION_SEPARATOR. This defines visible area of the
  *      display.
+<<<<<<< HEAD
+=======
+ *      If backend provides extended display identification data (EDID) with
+ *      XENDISPL_OP_GET_EDID request then EDID values must take precedence
+ *      over the resolutions defined here.
+>>>>>>> upstream/android-13
  *
  *------------------ Connector Request Transport Parameters -------------------
  *
@@ -349,6 +360,11 @@
 #define XENDISPL_OP_FB_DETACH		0x13
 #define XENDISPL_OP_SET_CONFIG		0x14
 #define XENDISPL_OP_PG_FLIP		0x15
+<<<<<<< HEAD
+=======
+/* The below command is available in protocol version 2 and above. */
+#define XENDISPL_OP_GET_EDID		0x16
+>>>>>>> upstream/android-13
 
 /*
  ******************************************************************************
@@ -377,6 +393,13 @@
 #define XENDISPL_FIELD_BE_ALLOC		"be-alloc"
 #define XENDISPL_FIELD_UNIQUE_ID	"unique-id"
 
+<<<<<<< HEAD
+=======
+#define XENDISPL_EDID_BLOCK_SIZE	128
+#define XENDISPL_EDID_BLOCK_COUNT	256
+#define XENDISPL_EDID_MAX_SIZE		(XENDISPL_EDID_BLOCK_SIZE * XENDISPL_EDID_BLOCK_COUNT)
+
+>>>>>>> upstream/android-13
 /*
  ******************************************************************************
  *                          STATUS RETURN CODES
@@ -451,7 +474,13 @@
  * +----------------+----------------+----------------+----------------+
  * |                           gref_directory                          | 40
  * +----------------+----------------+----------------+----------------+
+<<<<<<< HEAD
  * |                             reserved                              | 44
+=======
+ * |                             data_ofs                              | 44
+ * +----------------+----------------+----------------+----------------+
+ * |                             reserved                              | 48
+>>>>>>> upstream/android-13
  * +----------------+----------------+----------------+----------------+
  * |/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/|
  * +----------------+----------------+----------------+----------------+
@@ -494,6 +523,10 @@
  *   buffer size (buffer_sz) exceeds what can be addressed by this single page,
  *   then reference to the next page must be supplied (see gref_dir_next_page
  *   below)
+<<<<<<< HEAD
+=======
+ * data_ofs - uint32_t, offset of the data in the buffer, octets
+>>>>>>> upstream/android-13
  */
 
 #define XENDISPL_DBUF_FLG_REQ_ALLOC	(1 << 0)
@@ -506,6 +539,10 @@ struct xendispl_dbuf_create_req {
 	uint32_t buffer_sz;
 	uint32_t flags;
 	grant_ref_t gref_directory;
+<<<<<<< HEAD
+=======
+	uint32_t data_ofs;
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -732,6 +769,47 @@ struct xendispl_page_flip_req {
 };
 
 /*
+<<<<<<< HEAD
+=======
+ * Request EDID - request EDID describing current connector:
+ *         0                1                 2               3        octet
+ * +----------------+----------------+----------------+----------------+
+ * |               id                | _OP_GET_EDID   |   reserved     | 4
+ * +----------------+----------------+----------------+----------------+
+ * |                             buffer_sz                             | 8
+ * +----------------+----------------+----------------+----------------+
+ * |                          gref_directory                           | 12
+ * +----------------+----------------+----------------+----------------+
+ * |                             reserved                              | 16
+ * +----------------+----------------+----------------+----------------+
+ * |/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/|
+ * +----------------+----------------+----------------+----------------+
+ * |                             reserved                              | 64
+ * +----------------+----------------+----------------+----------------+
+ *
+ * Notes:
+ *   - This command is not available in protocol version 1 and should be
+ *     ignored.
+ *   - This request is optional and if not supported then visible area
+ *     is defined by the relevant XenStore's "resolution" property.
+ *   - Shared buffer, allocated for EDID storage, must not be less then
+ *     XENDISPL_EDID_MAX_SIZE octets.
+ *
+ * buffer_sz - uint32_t, buffer size to be allocated, octets
+ * gref_directory - grant_ref_t, a reference to the first shared page
+ *   describing EDID buffer references. See XENDISPL_OP_DBUF_CREATE for
+ *   grant page directory structure (struct xendispl_page_directory).
+ *
+ * See response format for this request.
+ */
+
+struct xendispl_get_edid_req {
+	uint32_t buffer_sz;
+	grant_ref_t gref_directory;
+};
+
+/*
+>>>>>>> upstream/android-13
  *---------------------------------- Responses --------------------------------
  *
  * All response packets have the same length (64 octets)
@@ -753,6 +831,38 @@ struct xendispl_page_flip_req {
  * id - uint16_t, private guest value, echoed from request
  * status - int32_t, response status, zero on success and -XEN_EXX on failure
  *
+<<<<<<< HEAD
+=======
+ *
+ * Get EDID response - response for XENDISPL_OP_GET_EDID:
+ *         0                1                 2               3        octet
+ * +----------------+----------------+----------------+----------------+
+ * |               id                |    operation   |    reserved    | 4
+ * +----------------+----------------+----------------+----------------+
+ * |                              status                               | 8
+ * +----------------+----------------+----------------+----------------+
+ * |                             edid_sz                               | 12
+ * +----------------+----------------+----------------+----------------+
+ * |                             reserved                              | 16
+ * +----------------+----------------+----------------+----------------+
+ * |/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/|
+ * +----------------+----------------+----------------+----------------+
+ * |                             reserved                              | 64
+ * +----------------+----------------+----------------+----------------+
+ *
+ * Notes:
+ *   - This response is not available in protocol version 1 and should be
+ *     ignored.
+ *
+ * edid_sz - uint32_t, size of the EDID, octets
+ */
+
+struct xendispl_get_edid_resp {
+	uint32_t edid_sz;
+};
+
+/*
+>>>>>>> upstream/android-13
  *----------------------------------- Events ----------------------------------
  *
  * Events are sent via a shared page allocated by the front and propagated by
@@ -804,6 +914,10 @@ struct xendispl_req {
 		struct xendispl_fb_detach_req fb_detach;
 		struct xendispl_set_config_req set_config;
 		struct xendispl_page_flip_req pg_flip;
+<<<<<<< HEAD
+=======
+		struct xendispl_get_edid_req get_edid;
+>>>>>>> upstream/android-13
 		uint8_t reserved[56];
 	} op;
 };
@@ -813,7 +927,14 @@ struct xendispl_resp {
 	uint8_t operation;
 	uint8_t reserved;
 	int32_t status;
+<<<<<<< HEAD
 	uint8_t reserved1[56];
+=======
+	union {
+		struct xendispl_get_edid_resp get_edid;
+		uint8_t reserved1[56];
+	} op;
+>>>>>>> upstream/android-13
 };
 
 struct xendispl_evt {

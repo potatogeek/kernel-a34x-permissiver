@@ -473,7 +473,11 @@ entSys:
 	bne     $3, strace
 	beq	$4, 1f
 	ldq	$27, 0($5)
+<<<<<<< HEAD
 1:	jsr	$26, ($27), alpha_ni_syscall
+=======
+1:	jsr	$26, ($27), sys_ni_syscall
+>>>>>>> upstream/android-13
 	ldgp	$gp, 0($26)
 	blt	$0, $syscall_error	/* the call failed */
 	stq	$0, 0($sp)
@@ -544,7 +548,11 @@ $ret_success:
 	.align	4
 	.type	work_pending, @function
 work_pending:
+<<<<<<< HEAD
 	and	$17, _TIF_NOTIFY_RESUME | _TIF_SIGPENDING, $2
+=======
+	and	$17, _TIF_NOTIFY_RESUME | _TIF_SIGPENDING | _TIF_NOTIFY_SIGNAL, $2
+>>>>>>> upstream/android-13
 	bne	$2, $work_notifysig
 
 $work_resched:
@@ -587,7 +595,11 @@ strace:
 	/* get the system call pointer.. */
 	lda	$1, NR_SYSCALLS($31)
 	lda	$2, sys_call_table
+<<<<<<< HEAD
 	lda	$27, alpha_ni_syscall
+=======
+	lda	$27, sys_ni_syscall
+>>>>>>> upstream/android-13
 	cmpult	$0, $1, $1
 	s8addq	$0, $2, $2
 	beq	$1, 1f
@@ -791,7 +803,11 @@ ret_from_kernel_thread:
 
 /*
  * Special system calls.  Most of these are special in that they either
+<<<<<<< HEAD
  * have to play switch_stack games or in some way use the pt_regs struct.
+=======
+ * have to play switch_stack games.
+>>>>>>> upstream/android-13
  */
 
 .macro	fork_like name
@@ -812,19 +828,32 @@ fork_like fork
 fork_like vfork
 fork_like clone
 
+<<<<<<< HEAD
 	.align	4
 	.globl	sys_sigreturn
 	.ent	sys_sigreturn
 sys_sigreturn:
+=======
+.macro	sigreturn_like name
+	.align	4
+	.globl	sys_\name
+	.ent	sys_\name
+sys_\name:
+>>>>>>> upstream/android-13
 	.prologue 0
 	lda	$9, ret_from_straced
 	cmpult	$26, $9, $9
 	lda	$sp, -SWITCH_STACK_SIZE($sp)
+<<<<<<< HEAD
 	jsr	$26, do_sigreturn
+=======
+	jsr	$26, do_\name
+>>>>>>> upstream/android-13
 	bne	$9, 1f
 	jsr	$26, syscall_trace_leave
 1:	br	$1, undo_switch_stack
 	br	ret_from_sys_call
+<<<<<<< HEAD
 .end sys_sigreturn
 
 	.align	4
@@ -850,8 +879,33 @@ alpha_ni_syscall:
 	/* Special because it also implements overflow handling via
 	   syscall number 0.  And if you recall, zero is a special
 	   trigger for "not an error".  Store large non-zero there.  */
+=======
+.end sys_\name
+.endm
+
+sigreturn_like sigreturn
+sigreturn_like rt_sigreturn
+
+	.align	4
+	.globl	alpha_syscall_zero
+	.ent	alpha_syscall_zero
+alpha_syscall_zero:
+	.prologue 0
+	/* Special because it needs to do something opposite to
+	   force_successful_syscall_return().  We use the saved
+	   syscall number for that, zero meaning "not an error".
+	   That works nicely, but for real syscall 0 we need to
+	   make sure that this logics doesn't get confused.
+	   Store a non-zero there - -ENOSYS we need in register
+	   for our return value will do just fine.
+	  */
+>>>>>>> upstream/android-13
 	lda	$0, -ENOSYS
 	unop
 	stq	$0, 0($sp)
 	ret
+<<<<<<< HEAD
 .end alpha_ni_syscall
+=======
+.end alpha_syscall_zero
+>>>>>>> upstream/android-13

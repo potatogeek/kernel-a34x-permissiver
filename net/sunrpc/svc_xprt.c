@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/net/sunrpc/svc_xprt.c
  *
@@ -34,7 +38,11 @@ static void svc_delete_xprt(struct svc_xprt *xprt);
 /* apparently the "standard" is that clients close
  * idle connections after 5 minutes, servers after
  * 6 minutes
+<<<<<<< HEAD
  *   http://www.connectathon.org/talks96/nfstcp.pdf
+=======
+ *   http://nfsv4bat.org/Documents/ConnectAThon/1996/nfstcp.pdf
+>>>>>>> upstream/android-13
  */
 static int svc_conn_age_period = 6*60;
 
@@ -138,6 +146,23 @@ int svc_print_xprts(char *buf, int maxlen)
 	return len;
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * svc_xprt_deferred_close - Close a transport
+ * @xprt: transport instance
+ *
+ * Used in contexts that need to defer the work of shutting down
+ * the transport to an nfsd thread.
+ */
+void svc_xprt_deferred_close(struct svc_xprt *xprt)
+{
+	if (!test_and_set_bit(XPT_CLOSE, &xprt->xpt_flags))
+		svc_xprt_enqueue(xprt);
+}
+EXPORT_SYMBOL_GPL(svc_xprt_deferred_close);
+
+>>>>>>> upstream/android-13
 static void svc_xprt_free(struct kref *kref)
 {
 	struct svc_xprt *xprt =
@@ -145,12 +170,20 @@ static void svc_xprt_free(struct kref *kref)
 	struct module *owner = xprt->xpt_class->xcl_owner;
 	if (test_bit(XPT_CACHE_AUTH, &xprt->xpt_flags))
 		svcauth_unix_info_release(xprt);
+<<<<<<< HEAD
+=======
+	put_cred(xprt->xpt_cred);
+>>>>>>> upstream/android-13
 	put_net(xprt->xpt_net);
 	/* See comment on corresponding get in xs_setup_bc_tcp(): */
 	if (xprt->xpt_bc_xprt)
 		xprt_put(xprt->xpt_bc_xprt);
 	if (xprt->xpt_bc_xps)
 		xprt_switch_put(xprt->xpt_bc_xps);
+<<<<<<< HEAD
+=======
+	trace_svc_xprt_free(xprt);
+>>>>>>> upstream/android-13
 	xprt->xpt_ops->xpo_free(xprt);
 	module_put(owner);
 }
@@ -180,7 +213,10 @@ void svc_xprt_init(struct net *net, struct svc_xprt_class *xcl,
 	mutex_init(&xprt->xpt_mutex);
 	spin_lock_init(&xprt->xpt_lock);
 	set_bit(XPT_BUSY, &xprt->xpt_flags);
+<<<<<<< HEAD
 	rpc_init_wait_queue(&xprt->xpt_bc_pending, "xpt_bc_pending");
+=======
+>>>>>>> upstream/android-13
 	xprt->xpt_net = get_net(net);
 	strcpy(xprt->xpt_remotebuf, "uninitialized");
 }
@@ -205,6 +241,10 @@ static struct svc_xprt *__svc_xpo_create(struct svc_xprt_class *xcl,
 		.sin6_port		= htons(port),
 	};
 #endif
+<<<<<<< HEAD
+=======
+	struct svc_xprt *xprt;
+>>>>>>> upstream/android-13
 	struct sockaddr *sap;
 	size_t len;
 
@@ -223,24 +263,48 @@ static struct svc_xprt *__svc_xpo_create(struct svc_xprt_class *xcl,
 		return ERR_PTR(-EAFNOSUPPORT);
 	}
 
+<<<<<<< HEAD
 	return xcl->xcl_ops->xpo_create(serv, net, sap, len, flags);
 }
 
 /*
  * svc_xprt_received conditionally queues the transport for processing
  * by another thread. The caller must hold the XPT_BUSY bit and must
+=======
+	xprt = xcl->xcl_ops->xpo_create(serv, net, sap, len, flags);
+	if (IS_ERR(xprt))
+		trace_svc_xprt_create_err(serv->sv_program->pg_name,
+					  xcl->xcl_name, sap, len, xprt);
+	return xprt;
+}
+
+/**
+ * svc_xprt_received - start next receiver thread
+ * @xprt: controlling transport
+ *
+ * The caller must hold the XPT_BUSY bit and must
+>>>>>>> upstream/android-13
  * not thereafter touch transport data.
  *
  * Note: XPT_DATA only gets cleared when a read-attempt finds no (or
  * insufficient) data.
  */
+<<<<<<< HEAD
 static void svc_xprt_received(struct svc_xprt *xprt)
+=======
+void svc_xprt_received(struct svc_xprt *xprt)
+>>>>>>> upstream/android-13
 {
 	if (!test_bit(XPT_BUSY, &xprt->xpt_flags)) {
 		WARN_ONCE(1, "xprt=0x%p already busy!", xprt);
 		return;
 	}
 
+<<<<<<< HEAD
+=======
+	trace_svc_xprt_received(xprt);
+
+>>>>>>> upstream/android-13
 	/* As soon as we clear busy, the xprt could be closed and
 	 * 'put', so we need a reference to call svc_enqueue_xprt with:
 	 */
@@ -250,6 +314,10 @@ static void svc_xprt_received(struct svc_xprt *xprt)
 	xprt->xpt_server->sv_ops->svo_enqueue_xprt(xprt);
 	svc_xprt_put(xprt);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(svc_xprt_received);
+>>>>>>> upstream/android-13
 
 void svc_add_new_perm_xprt(struct svc_serv *serv, struct svc_xprt *new)
 {
@@ -262,7 +330,12 @@ void svc_add_new_perm_xprt(struct svc_serv *serv, struct svc_xprt *new)
 
 static int _svc_create_xprt(struct svc_serv *serv, const char *xprt_name,
 			    struct net *net, const int family,
+<<<<<<< HEAD
 			    const unsigned short port, int flags)
+=======
+			    const unsigned short port, int flags,
+			    const struct cred *cred)
+>>>>>>> upstream/android-13
 {
 	struct svc_xprt_class *xcl;
 
@@ -283,6 +356,10 @@ static int _svc_create_xprt(struct svc_serv *serv, const char *xprt_name,
 			module_put(xcl->xcl_owner);
 			return PTR_ERR(newxprt);
 		}
+<<<<<<< HEAD
+=======
+		newxprt->xpt_cred = get_cred(cred);
+>>>>>>> upstream/android-13
 		svc_add_new_perm_xprt(serv, newxprt);
 		newport = svc_xprt_local_port(newxprt);
 		return newport;
@@ -296,6 +373,7 @@ static int _svc_create_xprt(struct svc_serv *serv, const char *xprt_name,
 
 int svc_create_xprt(struct svc_serv *serv, const char *xprt_name,
 		    struct net *net, const int family,
+<<<<<<< HEAD
 		    const unsigned short port, int flags)
 {
 	int err;
@@ -309,6 +387,18 @@ int svc_create_xprt(struct svc_serv *serv, const char *xprt_name,
 	if (err)
 		dprintk("svc: transport %s not found, err %d\n",
 			xprt_name, err);
+=======
+		    const unsigned short port, int flags,
+		    const struct cred *cred)
+{
+	int err;
+
+	err = _svc_create_xprt(serv, xprt_name, net, family, port, flags, cred);
+	if (err == -EPROTONOSUPPORT) {
+		request_module("svc%s", xprt_name);
+		err = _svc_create_xprt(serv, xprt_name, net, family, port, flags, cred);
+	}
+>>>>>>> upstream/android-13
 	return err;
 }
 EXPORT_SYMBOL_GPL(svc_create_xprt);
@@ -367,15 +457,40 @@ static void svc_xprt_release_slot(struct svc_rqst *rqstp)
 	struct svc_xprt	*xprt = rqstp->rq_xprt;
 	if (test_and_clear_bit(RQ_DATA, &rqstp->rq_flags)) {
 		atomic_dec(&xprt->xpt_nr_rqsts);
+<<<<<<< HEAD
+=======
+		smp_wmb(); /* See smp_rmb() in svc_xprt_ready() */
+>>>>>>> upstream/android-13
 		svc_xprt_enqueue(xprt);
 	}
 }
 
+<<<<<<< HEAD
 static bool svc_xprt_has_something_to_do(struct svc_xprt *xprt)
 {
 	if (xprt->xpt_flags & ((1<<XPT_CONN)|(1<<XPT_CLOSE)))
 		return true;
 	if (xprt->xpt_flags & ((1<<XPT_DATA)|(1<<XPT_DEFERRED))) {
+=======
+static bool svc_xprt_ready(struct svc_xprt *xprt)
+{
+	unsigned long xpt_flags;
+
+	/*
+	 * If another cpu has recently updated xpt_flags,
+	 * sk_sock->flags, xpt_reserved, or xpt_nr_rqsts, we need to
+	 * know about it; otherwise it's possible that both that cpu and
+	 * this one could call svc_xprt_enqueue() without either
+	 * svc_xprt_enqueue() recognizing that the conditions below
+	 * are satisfied, and we could stall indefinitely:
+	 */
+	smp_rmb();
+	xpt_flags = READ_ONCE(xprt->xpt_flags);
+
+	if (xpt_flags & (BIT(XPT_CONN) | BIT(XPT_CLOSE)))
+		return true;
+	if (xpt_flags & (BIT(XPT_DATA) | BIT(XPT_DEFERRED))) {
+>>>>>>> upstream/android-13
 		if (xprt->xpt_ops->xpo_has_wspace(xprt) &&
 		    svc_xprt_slots_in_range(xprt))
 			return true;
@@ -391,7 +506,11 @@ void svc_xprt_do_enqueue(struct svc_xprt *xprt)
 	struct svc_rqst	*rqstp = NULL;
 	int cpu;
 
+<<<<<<< HEAD
 	if (!svc_xprt_has_something_to_do(xprt))
+=======
+	if (!svc_xprt_ready(xprt))
+>>>>>>> upstream/android-13
 		return;
 
 	/* Mark transport as busy. It will remain in this state until
@@ -485,7 +604,11 @@ void svc_reserve(struct svc_rqst *rqstp, int space)
 	if (xprt && space < rqstp->rq_reserved) {
 		atomic_sub((rqstp->rq_reserved - space), &xprt->xpt_reserved);
 		rqstp->rq_reserved = space;
+<<<<<<< HEAD
 
+=======
+		smp_wmb(); /* See smp_rmb() in svc_xprt_ready() */
+>>>>>>> upstream/android-13
 		svc_xprt_enqueue(xprt);
 	}
 }
@@ -500,6 +623,10 @@ static void svc_xprt_release(struct svc_rqst *rqstp)
 	kfree(rqstp->rq_deferred);
 	rqstp->rq_deferred = NULL;
 
+<<<<<<< HEAD
+=======
+	pagevec_release(&rqstp->rq_pvec);
+>>>>>>> upstream/android-13
 	svc_free_res_pages(rqstp);
 	rqstp->rq_res.page_len = 0;
 	rqstp->rq_res.page_base = 0;
@@ -622,6 +749,7 @@ static void svc_check_conn_limits(struct svc_serv *serv)
 static int svc_alloc_arg(struct svc_rqst *rqstp)
 {
 	struct svc_serv *serv = rqstp->rq_server;
+<<<<<<< HEAD
 	struct xdr_buf *arg;
 	int pages;
 	int i;
@@ -630,10 +758,21 @@ static int svc_alloc_arg(struct svc_rqst *rqstp)
 	pages = (serv->sv_max_mesg + 2 * PAGE_SIZE) >> PAGE_SHIFT;
 	if (pages > RPCSVC_MAXPAGES) {
 		pr_warn_once("svc: warning: pages=%u > RPCSVC_MAXPAGES=%lu\n",
+=======
+	struct xdr_buf *arg = &rqstp->rq_arg;
+	unsigned long pages, filled, ret;
+
+	pagevec_init(&rqstp->rq_pvec);
+
+	pages = (serv->sv_max_mesg + 2 * PAGE_SIZE) >> PAGE_SHIFT;
+	if (pages > RPCSVC_MAXPAGES) {
+		pr_warn_once("svc: warning: pages=%lu > RPCSVC_MAXPAGES=%lu\n",
+>>>>>>> upstream/android-13
 			     pages, RPCSVC_MAXPAGES);
 		/* use as many pages as possible */
 		pages = RPCSVC_MAXPAGES;
 	}
+<<<<<<< HEAD
 	for (i = 0; i < pages ; i++)
 		while (rqstp->rq_pages[i] == NULL) {
 			struct page *p = alloc_page(GFP_KERNEL);
@@ -652,6 +791,27 @@ static int svc_alloc_arg(struct svc_rqst *rqstp)
 
 	/* Make arg->head point to first page and arg->pages point to rest */
 	arg = &rqstp->rq_arg;
+=======
+
+	for (filled = 0; filled < pages; filled = ret) {
+		ret = alloc_pages_bulk_array(GFP_KERNEL, pages,
+					     rqstp->rq_pages);
+		if (ret > filled)
+			/* Made progress, don't sleep yet */
+			continue;
+
+		set_current_state(TASK_INTERRUPTIBLE);
+		if (signalled() || kthread_should_stop()) {
+			set_current_state(TASK_RUNNING);
+			return -EINTR;
+		}
+		schedule_timeout(msecs_to_jiffies(500));
+	}
+	rqstp->rq_page_end = &rqstp->rq_pages[pages];
+	rqstp->rq_pages[pages] = NULL; /* this might be seen in nfsd_splice_actor() */
+
+	/* Make arg->head point to first page and arg->pages point to rest */
+>>>>>>> upstream/android-13
 	arg->head[0].iov_base = page_address(rqstp->rq_pages[0]);
 	arg->head[0].iov_len = PAGE_SIZE;
 	arg->pages = rqstp->rq_pages + 1;
@@ -762,7 +922,10 @@ static int svc_handle_xprt(struct svc_rqst *rqstp, struct svc_xprt *xprt)
 	int len = 0;
 
 	if (test_bit(XPT_CLOSE, &xprt->xpt_flags)) {
+<<<<<<< HEAD
 		dprintk("svc_recv: found XPT_CLOSE\n");
+=======
+>>>>>>> upstream/android-13
 		if (test_and_clear_bit(XPT_KILL_TEMP, &xprt->xpt_flags))
 			xprt->xpt_ops->xpo_kill_temp_xprt(xprt);
 		svc_delete_xprt(xprt);
@@ -778,10 +941,21 @@ static int svc_handle_xprt(struct svc_rqst *rqstp, struct svc_xprt *xprt)
 		__module_get(xprt->xpt_class->xcl_owner);
 		svc_check_conn_limits(xprt->xpt_server);
 		newxpt = xprt->xpt_ops->xpo_accept(xprt);
+<<<<<<< HEAD
 		if (newxpt)
 			svc_add_new_temp_xprt(serv, newxpt);
 		else
 			module_put(xprt->xpt_class->xcl_owner);
+=======
+		if (newxpt) {
+			newxpt->xpt_cred = get_cred(xprt->xpt_cred);
+			svc_add_new_temp_xprt(serv, newxpt);
+			trace_svc_xprt_accept(newxpt, serv->sv_name);
+		} else {
+			module_put(xprt->xpt_class->xcl_owner);
+		}
+		svc_xprt_received(xprt);
+>>>>>>> upstream/android-13
 	} else if (svc_xprt_reserve_slot(rqstp, xprt)) {
 		/* XPT_DATA|XPT_DEFERRED case: */
 		dprintk("svc: server %p, pool %u, transport %p, inuse=%d\n",
@@ -795,9 +969,14 @@ static int svc_handle_xprt(struct svc_rqst *rqstp, struct svc_xprt *xprt)
 		rqstp->rq_stime = ktime_get();
 		rqstp->rq_reserved = serv->sv_max_mesg;
 		atomic_add(rqstp->rq_reserved, &xprt->xpt_reserved);
+<<<<<<< HEAD
 	}
 	/* clear XPT_BUSY: */
 	svc_xprt_received(xprt);
+=======
+	} else
+		svc_xprt_received(xprt);
+>>>>>>> upstream/android-13
 out:
 	trace_svc_handle_xprt(xprt, len);
 	return len;
@@ -814,6 +993,7 @@ int svc_recv(struct svc_rqst *rqstp, long timeout)
 	struct svc_serv		*serv = rqstp->rq_server;
 	int			len, err;
 
+<<<<<<< HEAD
 	dprintk("svc: server %p waiting for data (to = %ld)\n",
 		rqstp, timeout);
 
@@ -822,6 +1002,8 @@ int svc_recv(struct svc_rqst *rqstp, long timeout)
 			"svc_recv: service %p, transport not NULL!\n",
 			 rqstp);
 
+=======
+>>>>>>> upstream/android-13
 	err = svc_alloc_arg(rqstp);
 	if (err)
 		goto out;
@@ -844,6 +1026,10 @@ int svc_recv(struct svc_rqst *rqstp, long timeout)
 	err = -EAGAIN;
 	if (len <= 0)
 		goto out_release;
+<<<<<<< HEAD
+=======
+	trace_svc_xdr_recvfrom(&rqstp->rq_arg);
+>>>>>>> upstream/android-13
 
 	clear_bit(XPT_OLD, &xprt->xpt_flags);
 
@@ -853,7 +1039,10 @@ int svc_recv(struct svc_rqst *rqstp, long timeout)
 
 	if (serv->sv_stats)
 		serv->sv_stats->netcnt++;
+<<<<<<< HEAD
 	trace_svc_recv(rqstp, len);
+=======
+>>>>>>> upstream/android-13
 	return len;
 out_release:
 	rqstp->rq_res.len = 0;
@@ -869,7 +1058,10 @@ EXPORT_SYMBOL_GPL(svc_recv);
 void svc_drop(struct svc_rqst *rqstp)
 {
 	trace_svc_drop(rqstp);
+<<<<<<< HEAD
 	dprintk("svc: xprt %p dropped request\n", rqstp->rq_xprt);
+=======
+>>>>>>> upstream/android-13
 	svc_xprt_release(rqstp);
 }
 EXPORT_SYMBOL_GPL(svc_drop);
@@ -892,6 +1084,7 @@ int svc_send(struct svc_rqst *rqstp)
 	xb->len = xb->head[0].iov_len +
 		xb->page_len +
 		xb->tail[0].iov_len;
+<<<<<<< HEAD
 
 	/* Grab mutex to serialize outgoing data. */
 	mutex_lock(&xprt->xpt_mutex);
@@ -903,6 +1096,13 @@ int svc_send(struct svc_rqst *rqstp)
 		len = xprt->xpt_ops->xpo_sendto(rqstp);
 	mutex_unlock(&xprt->xpt_mutex);
 	rpc_wake_up(&xprt->xpt_bc_pending);
+=======
+	trace_svc_xdr_sendto(rqstp->rq_xid, xb);
+	trace_svc_stats_latency(rqstp);
+
+	len = xprt->xpt_ops->xpo_sendto(rqstp);
+
+>>>>>>> upstream/android-13
 	trace_svc_send(rqstp, len);
 	svc_xprt_release(rqstp);
 
@@ -1010,12 +1210,22 @@ static void svc_delete_xprt(struct svc_xprt *xprt)
 	struct svc_serv	*serv = xprt->xpt_server;
 	struct svc_deferred_req *dr;
 
+<<<<<<< HEAD
 	/* Only do this once */
 	if (test_and_set_bit(XPT_DEAD, &xprt->xpt_flags))
 		BUG();
 
 	dprintk("svc: svc_delete_xprt(%p)\n", xprt);
 	xprt->xpt_ops->xpo_detach(xprt);
+=======
+	if (test_and_set_bit(XPT_DEAD, &xprt->xpt_flags))
+		return;
+
+	trace_svc_xprt_detach(xprt);
+	xprt->xpt_ops->xpo_detach(xprt);
+	if (xprt->xpt_bc_xprt)
+		xprt->xpt_bc_xprt->ops->close(xprt->xpt_bc_xprt);
+>>>>>>> upstream/android-13
 
 	spin_lock_bh(&serv->sv_lock);
 	list_del_init(&xprt->xpt_list);
@@ -1033,6 +1243,10 @@ static void svc_delete_xprt(struct svc_xprt *xprt)
 
 void svc_close_xprt(struct svc_xprt *xprt)
 {
+<<<<<<< HEAD
+=======
+	trace_svc_xprt_close(xprt);
+>>>>>>> upstream/android-13
 	set_bit(XPT_CLOSE, &xprt->xpt_flags);
 	if (test_and_set_bit(XPT_BUSY, &xprt->xpt_flags))
 		/* someone else will have to effect the close */
@@ -1135,6 +1349,7 @@ static void svc_revisit(struct cache_deferred_req *dreq, int too_many)
 	set_bit(XPT_DEFERRED, &xprt->xpt_flags);
 	if (too_many || test_bit(XPT_DEAD, &xprt->xpt_flags)) {
 		spin_unlock(&xprt->xpt_lock);
+<<<<<<< HEAD
 		dprintk("revisit canceled\n");
 		svc_xprt_put(xprt);
 		trace_svc_drop_deferred(dr);
@@ -1145,6 +1360,17 @@ static void svc_revisit(struct cache_deferred_req *dreq, int too_many)
 	dr->xprt = NULL;
 	list_add(&dr->handle.recent, &xprt->xpt_deferred);
 	spin_unlock(&xprt->xpt_lock);
+=======
+		trace_svc_defer_drop(dr);
+		svc_xprt_put(xprt);
+		kfree(dr);
+		return;
+	}
+	dr->xprt = NULL;
+	list_add(&dr->handle.recent, &xprt->xpt_deferred);
+	spin_unlock(&xprt->xpt_lock);
+	trace_svc_defer_queue(dr);
+>>>>>>> upstream/android-13
 	svc_xprt_enqueue(xprt);
 	svc_xprt_put(xprt);
 }
@@ -1184,28 +1410,49 @@ static struct cache_deferred_req *svc_defer(struct cache_req *req)
 		dr->daddr = rqstp->rq_daddr;
 		dr->argslen = rqstp->rq_arg.len >> 2;
 		dr->xprt_hlen = rqstp->rq_xprt_hlen;
+<<<<<<< HEAD
+=======
+		dr->xprt_ctxt = rqstp->rq_xprt_ctxt;
+		rqstp->rq_xprt_ctxt = NULL;
+>>>>>>> upstream/android-13
 
 		/* back up head to the start of the buffer and copy */
 		skip = rqstp->rq_arg.len - rqstp->rq_arg.head[0].iov_len;
 		memcpy(dr->args, rqstp->rq_arg.head[0].iov_base - skip,
 		       dr->argslen << 2);
 	}
+<<<<<<< HEAD
+=======
+	trace_svc_defer(rqstp);
+>>>>>>> upstream/android-13
 	svc_xprt_get(rqstp->rq_xprt);
 	dr->xprt = rqstp->rq_xprt;
 	set_bit(RQ_DROPME, &rqstp->rq_flags);
 
 	dr->handle.revisit = svc_revisit;
+<<<<<<< HEAD
 	trace_svc_defer(rqstp);
+=======
+>>>>>>> upstream/android-13
 	return &dr->handle;
 }
 
 /*
  * recv data from a deferred request into an active one
  */
+<<<<<<< HEAD
 static int svc_deferred_recv(struct svc_rqst *rqstp)
 {
 	struct svc_deferred_req *dr = rqstp->rq_deferred;
 
+=======
+static noinline int svc_deferred_recv(struct svc_rqst *rqstp)
+{
+	struct svc_deferred_req *dr = rqstp->rq_deferred;
+
+	trace_svc_defer_recv(dr);
+
+>>>>>>> upstream/android-13
 	/* setup iov_base past transport header */
 	rqstp->rq_arg.head[0].iov_base = dr->args + (dr->xprt_hlen>>2);
 	/* The iov_len does not include the transport header bytes */
@@ -1220,6 +1467,11 @@ static int svc_deferred_recv(struct svc_rqst *rqstp)
 	rqstp->rq_xprt_hlen   = dr->xprt_hlen;
 	rqstp->rq_daddr       = dr->daddr;
 	rqstp->rq_respages    = rqstp->rq_pages;
+<<<<<<< HEAD
+=======
+	rqstp->rq_xprt_ctxt   = dr->xprt_ctxt;
+	svc_xprt_received(rqstp->rq_xprt);
+>>>>>>> upstream/android-13
 	return (dr->argslen<<2) - dr->xprt_hlen;
 }
 
@@ -1236,7 +1488,10 @@ static struct svc_deferred_req *svc_deferred_dequeue(struct svc_xprt *xprt)
 				struct svc_deferred_req,
 				handle.recent);
 		list_del_init(&dr->handle.recent);
+<<<<<<< HEAD
 		trace_svc_revisit_deferred(dr);
+=======
+>>>>>>> upstream/android-13
 	} else
 		clear_bit(XPT_DEFERRED, &xprt->xpt_flags);
 	spin_unlock(&xprt->xpt_lock);

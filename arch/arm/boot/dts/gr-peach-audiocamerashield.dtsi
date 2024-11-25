@@ -69,10 +69,13 @@
 
 	port {
 		ceu_in: endpoint {
+<<<<<<< HEAD
 			hsync-active = <1>;
 			vsync-active = <1>;
 			bus-width = <8>;
 			pclk-sample = <1>;
+=======
+>>>>>>> upstream/android-13
 			remote-endpoint = <&mt9v111_out>;
 		};
 	};

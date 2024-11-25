@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
     i2c Support for Via Technologies 82C586B South Bridge
 
     Copyright (c) 1998, 1999 Kyösti Mälkki <kmalkki@cc.hut.fi>
 
+<<<<<<< HEAD
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -12,6 +17,8 @@
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
 */
 
 #include <linux/kernel.h>

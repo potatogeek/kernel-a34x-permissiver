@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2016 Toradex AG
  *
@@ -41,6 +42,19 @@
  */
 
 / {
+=======
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * Copyright 2016-2020 Toradex
+ */
+
+/ {
+	aliases {
+		rtc0 = &rtc;
+		rtc1 = &snvs_rtc;
+	};
+
+>>>>>>> upstream/android-13
 	chosen {
 		stdout-path = "serial0:115200n8";
 	};
@@ -52,6 +66,23 @@
 		clock-frequency = <16000000>;
 	};
 
+<<<<<<< HEAD
+=======
+	gpio-keys {
+		compatible = "gpio-keys";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_gpiokeys>;
+
+		power {
+			label = "Wake-Up";
+			gpios = <&gpio1 1 GPIO_ACTIVE_HIGH>;
+			linux,code = <KEY_WAKEUP>;
+			debounce-interval = <10>;
+			wakeup-source;
+		};
+	};
+
+>>>>>>> upstream/android-13
 	panel: panel {
 		compatible = "edt,et057090dhu";
 		backlight = <&bl>;
@@ -131,6 +162,24 @@
 &i2c4 {
 	status = "okay";
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Touchscreen is using SODIMM 28/30, also used for PWM<B>, PWM<C>,
+	 * aka pwm2, pwm3. so if you enable touchscreen, disable the pwms
+	 */
+	touchscreen@4a {
+		compatible = "atmel,maxtouch";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_gpiotouch>;
+		reg = <0x4a>;
+		interrupt-parent = <&gpio1>;
+		interrupts = <9 IRQ_TYPE_EDGE_FALLING>;		/* SODIMM 28 */
+		reset-gpios = <&gpio1 10 GPIO_ACTIVE_LOW>;	/* SODIMM 30 */
+		status = "disabled";
+	};
+
+>>>>>>> upstream/android-13
 	/* M41T0M6 real time clock on carrier board */
 	rtc: m41t0m6@68 {
 		compatible = "st,m41t0";
@@ -186,3 +235,15 @@
 	vmmc-supply = <&reg_3v3>;
 	status = "okay";
 };
+<<<<<<< HEAD
+=======
+
+&iomuxc {
+	pinctrl_gpiotouch: touchgpios {
+		fsl,pins = <
+			MX7D_PAD_GPIO1_IO09__GPIO1_IO9		0x74
+			MX7D_PAD_GPIO1_IO10__GPIO1_IO10		0x14
+		>;
+	};
+};
+>>>>>>> upstream/android-13

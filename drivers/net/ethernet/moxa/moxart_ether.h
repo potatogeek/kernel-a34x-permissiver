@@ -292,6 +292,10 @@
 #define LINK_STATUS		0x4
 
 struct moxart_mac_priv_t {
+<<<<<<< HEAD
+=======
+	struct platform_device *pdev;
+>>>>>>> upstream/android-13
 	void __iomem *base;
 	unsigned int reg_maccr;
 	unsigned int reg_imr;

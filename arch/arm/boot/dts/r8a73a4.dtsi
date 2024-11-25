@@ -72,6 +72,7 @@
 		power-domains = <&pd_a3bc>;
 	};
 
+<<<<<<< HEAD
 	dmac: dma-multiplexer {
 		compatible = "renesas,shdma-mux";
 		#dma-cells = <1>;
@@ -116,6 +117,8 @@
 		};
 	};
 
+=======
+>>>>>>> upstream/android-13
 	i2c5: i2c@e60b0000 {
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -221,7 +224,11 @@
 		power-domains = <&pd_c4>;
 	};
 
+<<<<<<< HEAD
 	pfc: pin-controller@e6050000 {
+=======
+	pfc: pinctrl@e6050000 {
+>>>>>>> upstream/android-13
 		compatible = "renesas,pfc-r8a73a4";
 		reg = <0 0xe6050000 0 0x9000>;
 		gpio-controller;
@@ -409,7 +416,11 @@
 		status = "disabled";
 	};
 
+<<<<<<< HEAD
 	sdhi0: sd@ee100000 {
+=======
+	sdhi0: mmc@ee100000 {
+>>>>>>> upstream/android-13
 		compatible = "renesas,sdhi-r8a73a4";
 		reg = <0 0xee100000 0 0x100>;
 		interrupts = <GIC_SPI 165 IRQ_TYPE_LEVEL_HIGH>;
@@ -419,7 +430,11 @@
 		status = "disabled";
 	};
 
+<<<<<<< HEAD
 	sdhi1: sd@ee120000 {
+=======
+	sdhi1: mmc@ee120000 {
+>>>>>>> upstream/android-13
 		compatible = "renesas,sdhi-r8a73a4";
 		reg = <0 0xee120000 0 0x100>;
 		interrupts = <GIC_SPI 166 IRQ_TYPE_LEVEL_HIGH>;
@@ -429,7 +444,11 @@
 		status = "disabled";
 	};
 
+<<<<<<< HEAD
 	sdhi2: sd@ee140000 {
+=======
+	sdhi2: mmc@ee140000 {
+>>>>>>> upstream/android-13
 		compatible = "renesas,sdhi-r8a73a4";
 		reg = <0 0xee140000 0 0x100>;
 		interrupts = <GIC_SPI 167 IRQ_TYPE_LEVEL_HIGH>;

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * This driver supports the analog controls for the internal codec
  * found in Allwinner's A31s, A23, A33 and H3 SoCs.
  *
  * Copyright 2016 Chen-Yu Tsai <wens@csie.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/io.h>
@@ -27,6 +34,11 @@
 #include <sound/soc-dapm.h>
 #include <sound/tlv.h>
 
+<<<<<<< HEAD
+=======
+#include "sun8i-adda-pr-regmap.h"
+
+>>>>>>> upstream/android-13
 /* Codec analog control register offsets and bit fields */
 #define SUN8I_ADDA_HP_VOLC		0x00
 #define SUN8I_ADDA_HP_VOLC_PA_CLK_GATE		7
@@ -120,6 +132,7 @@
 #define SUN8I_ADDA_ADC_AP_EN_ADCLEN		6
 #define SUN8I_ADDA_ADC_AP_EN_ADCG		0
 
+<<<<<<< HEAD
 /* Analog control register access bits */
 #define ADDA_PR			0x0		/* PRCM base + 0x1c0 */
 #define ADDA_PR_RESET			BIT(28)
@@ -195,6 +208,8 @@ static const struct regmap_config adda_pr_regmap_cfg = {
 	.max_register	= 24,
 };
 
+=======
+>>>>>>> upstream/android-13
 /* mixer controls */
 static const struct snd_kcontrol_new sun8i_codec_mixer_controls[] = {
 	SOC_DAPM_DOUBLE_R("DAC Playback Switch",
@@ -901,18 +916,29 @@ MODULE_DEVICE_TABLE(of, sun8i_codec_analog_of_match);
 
 static int sun8i_codec_analog_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct resource *res;
 	struct regmap *regmap;
 	void __iomem *base;
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	struct regmap *regmap;
+	void __iomem *base;
+
+	base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(base)) {
 		dev_err(&pdev->dev, "Failed to map the registers\n");
 		return PTR_ERR(base);
 	}
 
+<<<<<<< HEAD
 	regmap = devm_regmap_init(&pdev->dev, NULL, base, &adda_pr_regmap_cfg);
+=======
+	regmap = sun8i_adda_pr_regmap_init(&pdev->dev, base);
+>>>>>>> upstream/android-13
 	if (IS_ERR(regmap)) {
 		dev_err(&pdev->dev, "Failed to create regmap\n");
 		return PTR_ERR(regmap);

@@ -15,6 +15,10 @@
 
 #include <linux/amba/pl022.h>
 #include <linux/clk.h>
+<<<<<<< HEAD
+=======
+#include <linux/clk/spear.h>
+>>>>>>> upstream/android-13
 #include <linux/clocksource.h>
 #include <linux/err.h>
 #include <linux/of.h>

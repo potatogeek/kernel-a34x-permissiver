@@ -102,7 +102,11 @@ bool __pure glob_match(char const *pat, char const *str)
 			break;
 		case '\\':
 			d = *pat++;
+<<<<<<< HEAD
 			/*FALLTHROUGH*/
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		default:	/* Literal character */
 literal:
 			if (c == d) {

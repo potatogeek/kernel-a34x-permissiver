@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2015 Jens Kuske <jenskuske@gmail.com>
  *
@@ -5,6 +9,7 @@
  * Copyright 2015 Maxime Ripard
  *
  * Maxime Ripard <maxime.ripard@free-electrons.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,12 @@
  */
 
 #include <linux/clk-provider.h>
+=======
+ */
+
+#include <linux/clk-provider.h>
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/of.h>
 #include <linux/of_address.h>
 #include <linux/slab.h>

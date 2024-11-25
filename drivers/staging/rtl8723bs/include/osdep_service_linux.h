@@ -22,7 +22,10 @@
 	#include <asm/byteorder.h>
 	#include <linux/atomic.h>
 	#include <linux/io.h>
+<<<<<<< HEAD
 	#include <linux/semaphore.h>
+=======
+>>>>>>> upstream/android-13
 	#include <linux/sem.h>
 	#include <linux/sched.h>
 	#include <linux/etherdevice.h>
@@ -41,6 +44,7 @@
         #include <net/ieee80211_radiotap.h>
 	#include <net/cfg80211.h>
 
+<<<<<<< HEAD
 	typedef struct	semaphore _sema;
 	typedef	spinlock_t	_lock;
 	typedef struct mutex		_mutex;
@@ -67,15 +71,30 @@
 	typedef struct work_struct _workitem;
 
 __inline static struct list_head *get_next(struct list_head	*list)
+=======
+	struct	__queue	{
+		struct	list_head	queue;
+		spinlock_t	lock;
+	};
+
+	#define thread_exit() complete_and_exit(NULL, 0)
+
+static inline struct list_head *get_next(struct list_head	*list)
+>>>>>>> upstream/android-13
 {
 	return list->next;
 }
 
+<<<<<<< HEAD
 __inline static struct list_head	*get_list_head(struct __queue	*queue)
+=======
+static inline struct list_head	*get_list_head(struct __queue	*queue)
+>>>>>>> upstream/android-13
 {
 	return (&(queue->queue));
 }
 
+<<<<<<< HEAD
 
 #define LIST_CONTAINOR(ptr, type, member) \
 	container_of(ptr, type, member)
@@ -92,16 +111,32 @@ __inline static void _cancel_timer(_timer *ptimer, u8 *bcancelled)
 }
 
 __inline static void _init_workitem(_workitem *pwork, void *pfunc, void *cntx)
+=======
+static inline void _set_timer(struct timer_list *ptimer, u32 delay_time)
+{
+	mod_timer(ptimer, (jiffies + (delay_time * HZ / 1000)));
+}
+
+static inline void _init_workitem(struct work_struct *pwork, void *pfunc, void *cntx)
+>>>>>>> upstream/android-13
 {
 	INIT_WORK(pwork, pfunc);
 }
 
+<<<<<<< HEAD
 __inline static void _set_workitem(_workitem *pwork)
+=======
+static inline void _set_workitem(struct work_struct *pwork)
+>>>>>>> upstream/android-13
 {
 	schedule_work(pwork);
 }
 
+<<<<<<< HEAD
 __inline static void _cancel_workitem_sync(_workitem *pwork)
+=======
+static inline void _cancel_workitem_sync(struct work_struct *pwork)
+>>>>>>> upstream/android-13
 {
 	cancel_work_sync(pwork);
 }
@@ -129,6 +164,7 @@ static inline void rtw_netif_stop_queue(struct net_device *pnetdev)
 	netif_tx_stop_all_queues(pnetdev);
 }
 
+<<<<<<< HEAD
 static inline void rtw_merge_string(char *dst, int dst_len, char *src1, char *src2)
 {
 	int	len = 0;
@@ -143,6 +179,11 @@ static inline void rtw_merge_string(char *dst, int dst_len, char *src1, char *sr
 #define NDEV_FMT "%s"
 #define NDEV_ARG(ndev) ndev->name
 #define ADPT_FMT "%s"
+=======
+#define rtw_signal_process(pid, sig) kill_pid(find_vpid((pid)), (sig), 1)
+
+#define NDEV_ARG(ndev) ndev->name
+>>>>>>> upstream/android-13
 #define ADPT_ARG(adapter) adapter->pnetdev->name
 #define FUNC_NDEV_FMT "%s(%s)"
 #define FUNC_NDEV_ARG(ndev) __func__, ndev->name
@@ -153,7 +194,18 @@ struct rtw_netdev_priv_indicator {
 	void *priv;
 	u32 sizeof_priv;
 };
+<<<<<<< HEAD
 struct net_device *rtw_alloc_etherdev_with_old_priv(int sizeof_priv, void *old_priv);
 extern struct net_device * rtw_alloc_etherdev(int sizeof_priv);
+=======
+
+static inline struct adapter *rtw_netdev_priv(struct net_device *netdev)
+{
+	return ((struct rtw_netdev_priv_indicator *)netdev_priv(netdev))->priv;
+}
+
+struct net_device *rtw_alloc_etherdev_with_old_priv(int sizeof_priv, void *old_priv);
+extern struct net_device *rtw_alloc_etherdev(int sizeof_priv);
+>>>>>>> upstream/android-13
 
 #endif

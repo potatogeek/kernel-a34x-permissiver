@@ -7,11 +7,19 @@
 
 int nitrox_crypto_register(void);
 void nitrox_crypto_unregister(void);
+<<<<<<< HEAD
+=======
+int nitrox_register_aeads(void);
+void nitrox_unregister_aeads(void);
+int nitrox_register_skciphers(void);
+void nitrox_unregister_skciphers(void);
+>>>>>>> upstream/android-13
 void *crypto_alloc_context(struct nitrox_device *ndev);
 void crypto_free_context(void *ctx);
 struct nitrox_device *nitrox_get_first_device(void);
 void nitrox_put_device(struct nitrox_device *ndev);
 
+<<<<<<< HEAD
 void nitrox_pf_cleanup_isr(struct nitrox_device *ndev);
 int nitrox_pf_init_isr(struct nitrox_device *ndev);
 
@@ -39,5 +47,17 @@ void nitrox_config_lbc_unit(struct nitrox_device *ndev);
 void invalidate_lbc(struct nitrox_device *ndev);
 void enable_pkt_input_ring(struct nitrox_device *ndev, int ring);
 void enable_pkt_solicit_port(struct nitrox_device *ndev, int port);
+=======
+int nitrox_common_sw_init(struct nitrox_device *ndev);
+void nitrox_common_sw_cleanup(struct nitrox_device *ndev);
+
+void pkt_slc_resp_tasklet(unsigned long data);
+int nitrox_process_se_request(struct nitrox_device *ndev,
+			      struct se_crypto_request *req,
+			      completion_t cb,
+			      void *cb_arg);
+void backlog_qflush_work(struct work_struct *work);
+
+>>>>>>> upstream/android-13
 
 #endif /* __NITROX_COMMON_H */

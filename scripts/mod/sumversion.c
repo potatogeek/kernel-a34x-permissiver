@@ -258,9 +258,14 @@ static int parse_file(const char *fname, struct md4_ctx *md)
 	char *file;
 	unsigned long i, len;
 
+<<<<<<< HEAD
 	file = grab_file(fname, &len);
 	if (!file)
 		return 0;
+=======
+	file = read_text_file(fname);
+	len = strlen(file);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < len; i++) {
 		/* Collapse and ignore \ and CR. */
@@ -287,7 +292,11 @@ static int parse_file(const char *fname, struct md4_ctx *md)
 
 		add_char(file[i], md);
 	}
+<<<<<<< HEAD
 	release_file(file, len);
+=======
+	free(file);
+>>>>>>> upstream/android-13
 	return 1;
 }
 /* Check whether the file is a static library or not */
@@ -304,9 +313,14 @@ static int is_static_library(const char *objfile)
  * to figure out source files. */
 static int parse_source_files(const char *objfile, struct md4_ctx *md)
 {
+<<<<<<< HEAD
 	char *cmd, *file, *line, *dir;
 	const char *base;
 	unsigned long flen, pos = 0;
+=======
+	char *cmd, *file, *line, *dir, *pos;
+	const char *base;
+>>>>>>> upstream/android-13
 	int dirlen, ret = 0, check_files = 0;
 
 	cmd = NOFAIL(malloc(strlen(objfile) + sizeof("..cmd")));
@@ -324,6 +338,7 @@ static int parse_source_files(const char *objfile, struct md4_ctx *md)
 	strncpy(dir, objfile, dirlen);
 	dir[dirlen] = '\0';
 
+<<<<<<< HEAD
 	file = grab_file(cmd, &flen);
 	if (!file) {
 		warn("could not find %s for %s\n", cmd, objfile);
@@ -332,6 +347,14 @@ static int parse_source_files(const char *objfile, struct md4_ctx *md)
 
 	/* Sum all files in the same dir or subdirs. */
 	while ((line = get_next_line(&pos, file, flen)) != NULL) {
+=======
+	file = read_text_file(cmd);
+
+	pos = file;
+
+	/* Sum all files in the same dir or subdirs. */
+	while ((line = get_line(&pos))) {
+>>>>>>> upstream/android-13
 		char* p = line;
 
 		if (strncmp(line, "source_", sizeof("source_")-1) == 0) {
@@ -382,8 +405,12 @@ static int parse_source_files(const char *objfile, struct md4_ctx *md)
 	/* Everyone parsed OK */
 	ret = 1;
 out_file:
+<<<<<<< HEAD
 	release_file(file, flen);
 out:
+=======
+	free(file);
+>>>>>>> upstream/android-13
 	free(dir);
 	free(cmd);
 	return ret;
@@ -392,6 +419,7 @@ out:
 /* Calc and record src checksum. */
 void get_src_version(const char *modname, char sum[], unsigned sumlen)
 {
+<<<<<<< HEAD
 	void *file;
 	unsigned long len;
 	struct md4_ctx md;
@@ -433,10 +461,25 @@ void get_src_version(const char *modname, char sum[], unsigned sumlen)
 
 	md4_init(&md);
 	while ((fname = strsep(&sources, " ")) != NULL) {
+=======
+	char *buf;
+	struct md4_ctx md;
+	char *fname;
+	char filelist[PATH_MAX + 1];
+
+	/* objects for a module are listed in the first line of *.mod file. */
+	snprintf(filelist, sizeof(filelist), "%s.mod", modname);
+
+	buf = read_text_file(filelist);
+
+	md4_init(&md);
+	while ((fname = strsep(&buf, "\n"))) {
+>>>>>>> upstream/android-13
 		if (!*fname)
 			continue;
 		if (!(is_static_library(fname)) &&
 				!parse_source_files(fname, &md))
+<<<<<<< HEAD
 			goto release;
 	}
 
@@ -509,4 +552,12 @@ void maybe_frob_rcs_version(const char *modfilename,
 {
 	if (strip_rcs_crap(version))
 		write_version(modfilename, version, version_offset);
+=======
+			goto free;
+	}
+
+	md4_final_ascii(&md, sum, sumlen);
+free:
+	free(buf);
+>>>>>>> upstream/android-13
 }

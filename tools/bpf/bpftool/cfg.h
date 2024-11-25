@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
 /*
  * Copyright (C) 2018 Netronome Systems, Inc.
@@ -34,6 +35,10 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+=======
+/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause) */
+/* Copyright (C) 2018 Netronome Systems, Inc. */
+>>>>>>> upstream/android-13
 
 #ifndef __BPF_TOOL_CFG_H
 #define __BPF_TOOL_CFG_H

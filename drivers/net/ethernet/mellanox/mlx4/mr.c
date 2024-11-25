@@ -966,6 +966,7 @@ void mlx4_cleanup_mr_table(struct mlx4_dev *dev)
 	mlx4_bitmap_cleanup(&mr_table->mpt_bitmap);
 }
 
+<<<<<<< HEAD
 static inline int mlx4_check_fmr(struct mlx4_fmr *fmr, u64 *page_list,
 				  int npages, u64 iova)
 {
@@ -1149,6 +1150,8 @@ int mlx4_fmr_free(struct mlx4_dev *dev, struct mlx4_fmr *fmr)
 }
 EXPORT_SYMBOL_GPL(mlx4_fmr_free);
 
+=======
+>>>>>>> upstream/android-13
 int mlx4_SYNC_TPT(struct mlx4_dev *dev)
 {
 	return mlx4_cmd(dev, 0, 0, 0, MLX4_CMD_SYNC_TPT,

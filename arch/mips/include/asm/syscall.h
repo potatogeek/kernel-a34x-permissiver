@@ -54,7 +54,11 @@ static inline void mips_syscall_update_nr(struct task_struct *task,
 		task_thread_info(task)->syscall = regs->regs[2];
 }
 
+<<<<<<< HEAD
 static inline unsigned long mips_get_syscall_arg(unsigned long *arg,
+=======
+static inline void mips_get_syscall_arg(unsigned long *arg,
+>>>>>>> upstream/android-13
 	struct task_struct *task, struct pt_regs *regs, unsigned int n)
 {
 	unsigned long usp __maybe_unused = regs->regs[29];
@@ -63,23 +67,40 @@ static inline unsigned long mips_get_syscall_arg(unsigned long *arg,
 	case 0: case 1: case 2: case 3:
 		*arg = regs->regs[4 + n];
 
+<<<<<<< HEAD
 		return 0;
 
 #ifdef CONFIG_32BIT
 	case 4: case 5: case 6: case 7:
 		return get_user(*arg, (int *)usp + n);
+=======
+		return;
+
+#ifdef CONFIG_32BIT
+	case 4: case 5: case 6: case 7:
+		get_user(*arg, (int *)usp + n);
+		return;
+>>>>>>> upstream/android-13
 #endif
 
 #ifdef CONFIG_64BIT
 	case 4: case 5: case 6: case 7:
 #ifdef CONFIG_MIPS32_O32
 		if (test_tsk_thread_flag(task, TIF_32BIT_REGS))
+<<<<<<< HEAD
 			return get_user(*arg, (int *)usp + n);
+=======
+			get_user(*arg, (int *)usp + n);
+>>>>>>> upstream/android-13
 		else
 #endif
 			*arg = regs->regs[4 + n];
 
+<<<<<<< HEAD
 		return 0;
+=======
+		return;
+>>>>>>> upstream/android-13
 #endif
 
 	default:
@@ -89,6 +110,15 @@ static inline unsigned long mips_get_syscall_arg(unsigned long *arg,
 	unreachable();
 }
 
+<<<<<<< HEAD
+=======
+static inline long syscall_get_error(struct task_struct *task,
+				     struct pt_regs *regs)
+{
+	return regs->regs[7] ? -regs->regs[2] : 0;
+}
+
+>>>>>>> upstream/android-13
 static inline long syscall_get_return_value(struct task_struct *task,
 					    struct pt_regs *regs)
 {
@@ -116,16 +146,24 @@ static inline void syscall_set_return_value(struct task_struct *task,
 
 static inline void syscall_get_arguments(struct task_struct *task,
 					 struct pt_regs *regs,
+<<<<<<< HEAD
 					 unsigned int i, unsigned int n,
 					 unsigned long *args)
 {
 	int ret;
+=======
+					 unsigned long *args)
+{
+	unsigned int i = 0;
+	unsigned int n = 6;
+>>>>>>> upstream/android-13
 
 	/* O32 ABI syscall() */
 	if (mips_syscall_is_indirect(task, regs))
 		i++;
 
 	while (n--)
+<<<<<<< HEAD
 		ret |= mips_get_syscall_arg(args++, task, regs, i++);
 
 	/*
@@ -134,12 +172,16 @@ static inline void syscall_get_arguments(struct task_struct *task,
 #if 0
 	return ret;
 #endif
+=======
+		mips_get_syscall_arg(args++, task, regs, i++);
+>>>>>>> upstream/android-13
 }
 
 extern const unsigned long sys_call_table[];
 extern const unsigned long sys32_call_table[];
 extern const unsigned long sysn32_call_table[];
 
+<<<<<<< HEAD
 static inline int syscall_get_arch(void)
 {
 	int arch = AUDIT_ARCH_MIPS;
@@ -148,6 +190,16 @@ static inline int syscall_get_arch(void)
 		arch |= __AUDIT_ARCH_64BIT;
 		/* N32 sets only TIF_32BIT_ADDR */
 		if (test_thread_flag(TIF_32BIT_ADDR))
+=======
+static inline int syscall_get_arch(struct task_struct *task)
+{
+	int arch = AUDIT_ARCH_MIPS;
+#ifdef CONFIG_64BIT
+	if (!test_tsk_thread_flag(task, TIF_32BIT_REGS)) {
+		arch |= __AUDIT_ARCH_64BIT;
+		/* N32 sets only TIF_32BIT_ADDR */
+		if (test_tsk_thread_flag(task, TIF_32BIT_ADDR))
+>>>>>>> upstream/android-13
 			arch |= __AUDIT_ARCH_CONVENTION_MIPS64_N32;
 	}
 #endif

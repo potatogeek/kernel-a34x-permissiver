@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * net/sched/sch_sfq.c	Stochastic Fairness Queueing discipline.
  *
@@ -6,6 +7,12 @@
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * net/sched/sch_sfq.c	Stochastic Fairness Queueing discipline.
+ *
+>>>>>>> upstream/android-13
  * Authors:	Alexey Kuznetsov, <kuznet@ms2.inr.ac.ru>
  */
 
@@ -182,7 +189,11 @@ static unsigned int sfq_classify(struct sk_buff *skb, struct Qdisc *sch,
 		return sfq_hash(q, skb) + 1;
 
 	*qerr = NET_XMIT_SUCCESS | __NET_XMIT_BYPASS;
+<<<<<<< HEAD
 	result = tcf_classify(skb, fl, &res, false);
+=======
+	result = tcf_classify(skb, NULL, fl, &res, false);
+>>>>>>> upstream/android-13
 	if (result >= 0) {
 #ifdef CONFIG_NET_CLS_ACT
 		switch (result) {
@@ -190,7 +201,11 @@ static unsigned int sfq_classify(struct sk_buff *skb, struct Qdisc *sch,
 		case TC_ACT_QUEUED:
 		case TC_ACT_TRAP:
 			*qerr = NET_XMIT_SUCCESS | __NET_XMIT_STOLEN;
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case TC_ACT_SHOT:
 			return 0;
 		}
@@ -353,7 +368,11 @@ sfq_enqueue(struct sk_buff *skb, struct Qdisc *sch, struct sk_buff **to_free)
 	unsigned int hash, dropped;
 	sfq_index x, qlen;
 	struct sfq_slot *slot;
+<<<<<<< HEAD
 	int uninitialized_var(ret);
+=======
+	int ret;
+>>>>>>> upstream/android-13
 	struct sk_buff *head;
 	int delta;
 

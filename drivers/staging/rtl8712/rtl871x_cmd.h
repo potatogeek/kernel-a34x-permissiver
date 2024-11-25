@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /******************************************************************************
  *
  * Copyright(c) 2007 - 2010 Realtek Corporation. All rights reserved.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -15,6 +20,8 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
  *
+=======
+>>>>>>> upstream/android-13
  * Modifications for inclusion into the Linux staging tree are
  * Copyright(c) 2010 Larry Finger. All rights reserved.
  *
@@ -91,6 +98,7 @@ do {\
 	pcmd->rspsz = 0;\
 } while (0)
 
+<<<<<<< HEAD
 u32 r8712_enqueue_cmd(struct cmd_priv *pcmdpriv, struct cmd_obj *obj);
 u32 r8712_enqueue_cmd_ex(struct cmd_priv *pcmdpriv, struct cmd_obj *obj);
 struct cmd_obj *r8712_dequeue_cmd(struct  __queue *queue);
@@ -99,6 +107,16 @@ int r8712_cmd_thread(void *context);
 u32 r8712_init_cmd_priv(struct cmd_priv *pcmdpriv);
 void r8712_free_cmd_priv(struct cmd_priv *pcmdpriv);
 u32 r8712_init_evt_priv(struct evt_priv *pevtpriv);
+=======
+void r8712_enqueue_cmd(struct cmd_priv *pcmdpriv, struct cmd_obj *obj);
+void r8712_enqueue_cmd_ex(struct cmd_priv *pcmdpriv, struct cmd_obj *obj);
+struct cmd_obj *r8712_dequeue_cmd(struct  __queue *queue);
+void r8712_free_cmd_obj(struct cmd_obj *pcmd);
+int r8712_cmd_thread(void *context);
+int r8712_init_cmd_priv(struct cmd_priv *pcmdpriv);
+void r8712_free_cmd_priv(struct cmd_priv *pcmdpriv);
+int r8712_init_evt_priv(struct evt_priv *pevtpriv);
+>>>>>>> upstream/android-13
 void r8712_free_evt_priv(struct evt_priv *pevtpriv);
 
 enum rtl871x_drvint_cid {
@@ -345,6 +363,10 @@ struct getdatarate_parm {
 	u32 rsvd;
 
 };
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 struct getdatarate_rsp {
 	u8 datarates[NumRates];
 };
@@ -389,6 +411,10 @@ struct	getphy_rsp {
 struct readBB_parm {
 	u8	offset;
 };
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 struct readBB_rsp {
 	u8	value;
 };
@@ -396,6 +422,10 @@ struct readBB_rsp {
 struct readTSSI_parm {
 	u8	offset;
 };
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 struct readTSSI_rsp {
 	u8	value;
 };
@@ -412,6 +442,10 @@ struct writePTM_parm {
 struct readRF_parm {
 	u8	offset;
 };
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 struct readRF_rsp {
 	u32	value;
 };
@@ -434,7 +468,11 @@ struct getrfintfs_parm {
  *
  *	mac[0] == 0
  *	==> CMD mode, return H2C_SUCCESS.
+<<<<<<< HEAD
  *	The following condition must be ture under CMD mode
+=======
+ *	The following condition must be true under CMD mode
+>>>>>>> upstream/android-13
  *		mac[1] == mac[4], mac[2] == mac[3], mac[0]=mac[5]= 0;
  *		s0 == 0x1234, s1 == 0xabcd, w0 == 0x78563412, w1 == 0x5aa5def7;
  *		s2 == (b1 << 8 | b0);
@@ -490,7 +528,11 @@ struct drvint_cmd_parm {
 	unsigned char *pbuf;
 };
 
+<<<<<<< HEAD
 /*------------------- Below are used for RF/BB tunning ---------------------*/
+=======
+/*------------------- Below are used for RF/BB tuning ---------------------*/
+>>>>>>> upstream/android-13
 
 struct	setantenna_parm {
 	u8	tx_antset;
@@ -510,6 +552,10 @@ struct settxagctbl_parm {
 struct gettxagctbl_parm {
 	u32 rsvd;
 };
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 struct gettxagctbl_rsp {
 	u32	txagc[MAX_RATES_LENGTH];
 };
@@ -525,6 +571,10 @@ struct setssup_parm	{
 struct getssup_parm	{
 	u32 rsvd;
 };
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 struct getssup_rsp	{
 	u8	ss_ForceUp[MAX_RATES_LENGTH];
 };
@@ -536,6 +586,10 @@ struct setssdlevel_parm	{
 struct getssdlevel_parm	{
 	u32 rsvd;
 };
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 struct getssdlevel_rsp	{
 	u8	ss_DLevel[MAX_RATES_LENGTH];
 };
@@ -547,6 +601,10 @@ struct setssulevel_parm	{
 struct getssulevel_parm	{
 	u32 rsvd;
 };
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 struct getssulevel_rsp	{
 	u8	ss_ULevel[MAX_RATES_LENGTH];
 };
@@ -597,6 +655,10 @@ struct setratable_parm {
 struct getratable_parm {
 	uint rsvd;
 };
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 struct getratable_rsp {
 	u8 ss_ForceUp[NumRates];
 	u8 ss_ULevel[NumRates];
@@ -633,6 +695,10 @@ struct getbcnokcnt_rsp {
 struct getbcnerrcnt_parm {
 	unsigned int rsvd;
 };
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 struct getbcnerrcnt_rsp {
 	unsigned long bcnerrcnt;
 };
@@ -720,6 +786,7 @@ struct DisconnectCtrlEx_param {
 #define H2C_CMD_OVERFLOW		0x06
 #define H2C_RESERVED			0x07
 
+<<<<<<< HEAD
 u8 r8712_setMacAddr_cmd(struct _adapter *padapter, u8 *mac_addr);
 u8 r8712_setassocsta_cmd(struct _adapter *padapter, u8 *mac_addr);
 u8 r8712_sitesurvey_cmd(struct _adapter *padapter,
@@ -743,6 +810,24 @@ u8 r8712_setfwdig_cmd(struct _adapter *padapter, u8 type);
 u8 r8712_setfwra_cmd(struct _adapter *padapter, u8 type);
 u8 r8712_addbareq_cmd(struct _adapter *padapter, u8 tid);
 u8 r8712_wdg_wk_cmd(struct _adapter *padapter);
+=======
+void r8712_setMacAddr_cmd(struct _adapter *padapter, u8 *mac_addr);
+u8 r8712_sitesurvey_cmd(struct _adapter *padapter,
+			struct ndis_802_11_ssid *pssid);
+int r8712_createbss_cmd(struct _adapter *padapter);
+void r8712_setstakey_cmd(struct _adapter *padapter, u8 *psta, u8 unicast_key);
+int r8712_joinbss_cmd(struct _adapter *padapter,
+		      struct wlan_network *pnetwork);
+void r8712_disassoc_cmd(struct _adapter *padapter);
+void r8712_setopmode_cmd(struct _adapter *padapter,
+		 enum NDIS_802_11_NETWORK_INFRASTRUCTURE networktype);
+int r8712_setdatarate_cmd(struct _adapter *padapter, u8 *rateset);
+void r8712_set_chplan_cmd(struct _adapter  *padapter, int chplan);
+int r8712_getrfreg_cmd(struct _adapter *padapter, u8 offset, u8 *pval);
+int r8712_setrfreg_cmd(struct _adapter  *padapter, u8 offset, u32 val);
+void r8712_addbareq_cmd(struct _adapter *padapter, u8 tid);
+void r8712_wdg_wk_cmd(struct _adapter *padapter);
+>>>>>>> upstream/android-13
 void r8712_survey_cmd_callback(struct _adapter  *padapter,
 			       struct cmd_obj *pcmd);
 void r8712_disassoc_cmd_callback(struct _adapter  *padapter,
@@ -759,7 +844,11 @@ void r8712_setstaKey_cmdrsp_callback(struct _adapter  *padapter,
 				     struct cmd_obj *pcmd);
 void r8712_setassocsta_cmdrsp_callback(struct _adapter  *padapter,
 				       struct cmd_obj *pcmd);
+<<<<<<< HEAD
 u8 r8712_disconnectCtrlEx_cmd(struct _adapter *adapter, u32 enableDrvCtrl,
+=======
+void r8712_disconnectCtrlEx_cmd(struct _adapter *adapter, u32 enableDrvCtrl,
+>>>>>>> upstream/android-13
 			u32 tryPktCnt, u32 tryPktInterval, u32 firstStageTO);
 
 struct _cmd_callback {

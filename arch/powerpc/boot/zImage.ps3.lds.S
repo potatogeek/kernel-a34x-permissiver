@@ -8,7 +8,11 @@ SECTIONS
   .kernel:vmlinux.bin : { *(.kernel:vmlinux.bin) }
   _vmlinux_end =  .;
 
+<<<<<<< HEAD
   . = ALIGN(4096);
+=======
+  . = ALIGN(8);
+>>>>>>> upstream/android-13
   _dtb_start = .;
   .kernel:dtb : { *(.kernel:dtb) }
   _dtb_end = .;

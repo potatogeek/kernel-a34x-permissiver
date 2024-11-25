@@ -6,12 +6,20 @@
 
 #include <linux/slab.h>
 #include <linux/iversion.h>
+<<<<<<< HEAD
 #include <linux/sched/mm.h>
+=======
+#include "misc.h"
+>>>>>>> upstream/android-13
 #include "delayed-inode.h"
 #include "disk-io.h"
 #include "transaction.h"
 #include "ctree.h"
 #include "qgroup.h"
+<<<<<<< HEAD
+=======
+#include "locking.h"
+>>>>>>> upstream/android-13
 
 #define BTRFS_DELAYED_WRITEBACK		512
 #define BTRFS_DELAYED_BACKGROUND	128
@@ -43,8 +51,13 @@ static inline void btrfs_init_delayed_node(
 	delayed_node->root = root;
 	delayed_node->inode_id = inode_id;
 	refcount_set(&delayed_node->refs, 0);
+<<<<<<< HEAD
 	delayed_node->ins_root = RB_ROOT;
 	delayed_node->del_root = RB_ROOT;
+=======
+	delayed_node->ins_root = RB_ROOT_CACHED;
+	delayed_node->del_root = RB_ROOT_CACHED;
+>>>>>>> upstream/android-13
 	mutex_init(&delayed_node->mutex);
 	INIT_LIST_HEAD(&delayed_node->n_list);
 	INIT_LIST_HEAD(&delayed_node->p_list);
@@ -391,7 +404,11 @@ static struct btrfs_delayed_item *__btrfs_lookup_delayed_insertion_item(
 					struct btrfs_delayed_node *delayed_node,
 					struct btrfs_key *key)
 {
+<<<<<<< HEAD
 	return __btrfs_lookup_delayed_item(&delayed_node->ins_root, key,
+=======
+	return __btrfs_lookup_delayed_item(&delayed_node->ins_root.rb_root, key,
+>>>>>>> upstream/android-13
 					   NULL, NULL);
 }
 
@@ -401,9 +418,16 @@ static int __btrfs_add_delayed_item(struct btrfs_delayed_node *delayed_node,
 {
 	struct rb_node **p, *node;
 	struct rb_node *parent_node = NULL;
+<<<<<<< HEAD
 	struct rb_root *root;
 	struct btrfs_delayed_item *item;
 	int cmp;
+=======
+	struct rb_root_cached *root;
+	struct btrfs_delayed_item *item;
+	int cmp;
+	bool leftmost = true;
+>>>>>>> upstream/android-13
 
 	if (action == BTRFS_DELAYED_INSERTION_ITEM)
 		root = &delayed_node->ins_root;
@@ -411,7 +435,11 @@ static int __btrfs_add_delayed_item(struct btrfs_delayed_node *delayed_node,
 		root = &delayed_node->del_root;
 	else
 		BUG();
+<<<<<<< HEAD
 	p = &root->rb_node;
+=======
+	p = &root->rb_root.rb_node;
+>>>>>>> upstream/android-13
 	node = &ins->rb_node;
 
 	while (*p) {
@@ -420,6 +448,7 @@ static int __btrfs_add_delayed_item(struct btrfs_delayed_node *delayed_node,
 				 rb_node);
 
 		cmp = btrfs_comp_cpu_keys(&item->key, &ins->key);
+<<<<<<< HEAD
 		if (cmp < 0)
 			p = &(*p)->rb_right;
 		else if (cmp > 0)
@@ -430,6 +459,20 @@ static int __btrfs_add_delayed_item(struct btrfs_delayed_node *delayed_node,
 
 	rb_link_node(node, parent_node, p);
 	rb_insert_color(node, root);
+=======
+		if (cmp < 0) {
+			p = &(*p)->rb_right;
+			leftmost = false;
+		} else if (cmp > 0) {
+			p = &(*p)->rb_left;
+		} else {
+			return -EEXIST;
+		}
+	}
+
+	rb_link_node(node, parent_node, p);
+	rb_insert_color_cached(node, root, leftmost);
+>>>>>>> upstream/android-13
 	ins->delayed_node = delayed_node;
 	ins->ins_or_del = action;
 
@@ -469,9 +512,18 @@ static void finish_one_item(struct btrfs_delayed_root *delayed_root)
 
 static void __btrfs_remove_delayed_item(struct btrfs_delayed_item *delayed_item)
 {
+<<<<<<< HEAD
 	struct rb_root *root;
 	struct btrfs_delayed_root *delayed_root;
 
+=======
+	struct rb_root_cached *root;
+	struct btrfs_delayed_root *delayed_root;
+
+	/* Not associated with any delayed_node */
+	if (!delayed_item->delayed_node)
+		return;
+>>>>>>> upstream/android-13
 	delayed_root = delayed_item->delayed_node->root->fs_info->delayed_root;
 
 	BUG_ON(!delayed_root);
@@ -483,7 +535,11 @@ static void __btrfs_remove_delayed_item(struct btrfs_delayed_item *delayed_item)
 	else
 		root = &delayed_item->delayed_node->del_root;
 
+<<<<<<< HEAD
 	rb_erase(&delayed_item->rb_node, root);
+=======
+	rb_erase_cached(&delayed_item->rb_node, root);
+>>>>>>> upstream/android-13
 	delayed_item->delayed_node->count--;
 
 	finish_one_item(delayed_root);
@@ -504,7 +560,11 @@ static struct btrfs_delayed_item *__btrfs_first_delayed_insertion_item(
 	struct rb_node *p;
 	struct btrfs_delayed_item *item = NULL;
 
+<<<<<<< HEAD
 	p = rb_first(&delayed_node->ins_root);
+=======
+	p = rb_first_cached(&delayed_node->ins_root);
+>>>>>>> upstream/android-13
 	if (p)
 		item = rb_entry(p, struct btrfs_delayed_item, rb_node);
 
@@ -517,7 +577,11 @@ static struct btrfs_delayed_item *__btrfs_first_delayed_deletion_item(
 	struct rb_node *p;
 	struct btrfs_delayed_item *item = NULL;
 
+<<<<<<< HEAD
 	p = rb_first(&delayed_node->del_root);
+=======
+	p = rb_first_cached(&delayed_node->del_root);
+>>>>>>> upstream/android-13
 	if (p)
 		item = rb_entry(p, struct btrfs_delayed_item, rb_node);
 
@@ -553,14 +617,22 @@ static int btrfs_delayed_item_reserve_metadata(struct btrfs_trans_handle *trans,
 	src_rsv = trans->block_rsv;
 	dst_rsv = &fs_info->delayed_block_rsv;
 
+<<<<<<< HEAD
 	num_bytes = btrfs_calc_trans_metadata_size(fs_info, 1);
+=======
+	num_bytes = btrfs_calc_insert_metadata_size(fs_info, 1);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Here we migrate space rsv from transaction rsv, since have already
 	 * reserved space when starting a transaction.  So no need to reserve
 	 * qgroup space here.
 	 */
+<<<<<<< HEAD
 	ret = btrfs_block_rsv_migrate(src_rsv, dst_rsv, num_bytes, 1);
+=======
+	ret = btrfs_block_rsv_migrate(src_rsv, dst_rsv, num_bytes, true);
+>>>>>>> upstream/android-13
 	if (!ret) {
 		trace_btrfs_space_reservation(fs_info, "delayed_item",
 					      item->key.objectid,
@@ -588,14 +660,21 @@ static void btrfs_delayed_item_release_metadata(struct btrfs_root *root,
 	trace_btrfs_space_reservation(fs_info, "delayed_item",
 				      item->key.objectid, item->bytes_reserved,
 				      0);
+<<<<<<< HEAD
 	btrfs_block_rsv_release(fs_info, rsv,
 				item->bytes_reserved);
+=======
+	btrfs_block_rsv_release(fs_info, rsv, item->bytes_reserved, NULL);
+>>>>>>> upstream/android-13
 }
 
 static int btrfs_delayed_inode_reserve_metadata(
 					struct btrfs_trans_handle *trans,
 					struct btrfs_root *root,
+<<<<<<< HEAD
 					struct btrfs_inode *inode,
+=======
+>>>>>>> upstream/android-13
 					struct btrfs_delayed_node *node)
 {
 	struct btrfs_fs_info *fs_info = root->fs_info;
@@ -607,7 +686,11 @@ static int btrfs_delayed_inode_reserve_metadata(
 	src_rsv = trans->block_rsv;
 	dst_rsv = &fs_info->delayed_block_rsv;
 
+<<<<<<< HEAD
 	num_bytes = btrfs_calc_trans_metadata_size(fs_info, 1);
+=======
+	num_bytes = btrfs_calc_metadata_size(fs_info, 1);
+>>>>>>> upstream/android-13
 
 	/*
 	 * btrfs_dirty_inode will update the inode under btrfs_join_transaction
@@ -620,11 +703,17 @@ static int btrfs_delayed_inode_reserve_metadata(
 	 */
 	if (!src_rsv || (!trans->bytes_reserved &&
 			 src_rsv->type != BTRFS_BLOCK_RSV_DELALLOC)) {
+<<<<<<< HEAD
 		ret = btrfs_qgroup_reserve_meta_prealloc(root, num_bytes, true);
+=======
+		ret = btrfs_qgroup_reserve_meta(root, num_bytes,
+					  BTRFS_QGROUP_RSV_META_PREALLOC, true);
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			return ret;
 		ret = btrfs_block_rsv_add(root, dst_rsv, num_bytes,
 					  BTRFS_RESERVE_NO_FLUSH);
+<<<<<<< HEAD
 		/*
 		 * Since we're under a transaction reserve_metadata_bytes could
 		 * try to commit the transaction which will make it return
@@ -651,6 +740,19 @@ static int btrfs_delayed_inode_reserve_metadata(
 	if (!ret) {
 		trace_btrfs_space_reservation(fs_info, "delayed_inode",
 					      btrfs_ino(inode), num_bytes, 1);
+=======
+		/* NO_FLUSH could only fail with -ENOSPC */
+		ASSERT(ret == 0 || ret == -ENOSPC);
+		if (ret)
+			btrfs_qgroup_free_meta_prealloc(root, num_bytes);
+	} else {
+		ret = btrfs_block_rsv_migrate(src_rsv, dst_rsv, num_bytes, true);
+	}
+
+	if (!ret) {
+		trace_btrfs_space_reservation(fs_info, "delayed_inode",
+					      node->inode_id, num_bytes, 1);
+>>>>>>> upstream/android-13
 		node->bytes_reserved = num_bytes;
 	}
 
@@ -669,8 +771,12 @@ static void btrfs_delayed_inode_release_metadata(struct btrfs_fs_info *fs_info,
 	rsv = &fs_info->delayed_block_rsv;
 	trace_btrfs_space_reservation(fs_info, "delayed_inode",
 				      node->inode_id, node->bytes_reserved, 0);
+<<<<<<< HEAD
 	btrfs_block_rsv_release(fs_info, rsv,
 				node->bytes_reserved);
+=======
+	btrfs_block_rsv_release(fs_info, rsv, node->bytes_reserved, NULL);
+>>>>>>> upstream/android-13
 	if (qgroup_free)
 		btrfs_qgroup_free_meta_prealloc(node->root,
 				node->bytes_reserved);
@@ -681,6 +787,7 @@ static void btrfs_delayed_inode_release_metadata(struct btrfs_fs_info *fs_info,
 }
 
 /*
+<<<<<<< HEAD
  * This helper will insert some continuous items into the same leaf according
  * to the free space of the leaf.
  */
@@ -794,10 +901,15 @@ out:
 /*
  * This helper can just do simple insertion that needn't extend item for new
  * data, such as directory name index insertion, inode insertion.
+=======
+ * Insert a single delayed item or a batch of delayed items that have consecutive
+ * keys if they exist.
+>>>>>>> upstream/android-13
  */
 static int btrfs_insert_delayed_item(struct btrfs_trans_handle *trans,
 				     struct btrfs_root *root,
 				     struct btrfs_path *path,
+<<<<<<< HEAD
 				     struct btrfs_delayed_item *delayed_item)
 {
 	struct extent_buffer *leaf;
@@ -828,11 +940,101 @@ static int btrfs_insert_delayed_item(struct btrfs_trans_handle *trans,
  * we insert an item first, then if there are some continuous items, we try
  * to insert those items into the same leaf.
  */
+=======
+				     struct btrfs_delayed_item *first_item)
+{
+	LIST_HEAD(batch);
+	struct btrfs_delayed_item *curr;
+	struct btrfs_delayed_item *next;
+	const int max_size = BTRFS_LEAF_DATA_SIZE(root->fs_info);
+	int total_size;
+	int nitems;
+	char *ins_data = NULL;
+	struct btrfs_key *ins_keys;
+	u32 *ins_sizes;
+	int ret;
+
+	list_add_tail(&first_item->tree_list, &batch);
+	nitems = 1;
+	total_size = first_item->data_len + sizeof(struct btrfs_item);
+	curr = first_item;
+
+	while (true) {
+		int next_size;
+
+		next = __btrfs_next_delayed_item(curr);
+		if (!next || !btrfs_is_continuous_delayed_item(curr, next))
+			break;
+
+		next_size = next->data_len + sizeof(struct btrfs_item);
+		if (total_size + next_size > max_size)
+			break;
+
+		list_add_tail(&next->tree_list, &batch);
+		nitems++;
+		total_size += next_size;
+		curr = next;
+	}
+
+	if (nitems == 1) {
+		ins_keys = &first_item->key;
+		ins_sizes = &first_item->data_len;
+	} else {
+		int i = 0;
+
+		ins_data = kmalloc(nitems * sizeof(u32) +
+				   nitems * sizeof(struct btrfs_key), GFP_NOFS);
+		if (!ins_data) {
+			ret = -ENOMEM;
+			goto out;
+		}
+		ins_sizes = (u32 *)ins_data;
+		ins_keys = (struct btrfs_key *)(ins_data + nitems * sizeof(u32));
+		list_for_each_entry(curr, &batch, tree_list) {
+			ins_keys[i] = curr->key;
+			ins_sizes[i] = curr->data_len;
+			i++;
+		}
+	}
+
+	ret = btrfs_insert_empty_items(trans, root, path, ins_keys, ins_sizes,
+				       nitems);
+	if (ret)
+		goto out;
+
+	list_for_each_entry(curr, &batch, tree_list) {
+		char *data_ptr;
+
+		data_ptr = btrfs_item_ptr(path->nodes[0], path->slots[0], char);
+		write_extent_buffer(path->nodes[0], &curr->data,
+				    (unsigned long)data_ptr, curr->data_len);
+		path->slots[0]++;
+	}
+
+	/*
+	 * Now release our path before releasing the delayed items and their
+	 * metadata reservations, so that we don't block other tasks for more
+	 * time than needed.
+	 */
+	btrfs_release_path(path);
+
+	list_for_each_entry_safe(curr, next, &batch, tree_list) {
+		list_del(&curr->tree_list);
+		btrfs_delayed_item_release_metadata(root, curr);
+		btrfs_release_delayed_item(curr);
+	}
+out:
+	kfree(ins_data);
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 static int btrfs_insert_delayed_items(struct btrfs_trans_handle *trans,
 				      struct btrfs_path *path,
 				      struct btrfs_root *root,
 				      struct btrfs_delayed_node *node)
 {
+<<<<<<< HEAD
 	struct btrfs_delayed_item *curr, *prev;
 	int ret = 0;
 
@@ -864,6 +1066,23 @@ do_again:
 
 insert_end:
 	mutex_unlock(&node->mutex);
+=======
+	int ret = 0;
+
+	while (ret == 0) {
+		struct btrfs_delayed_item *curr;
+
+		mutex_lock(&node->mutex);
+		curr = __btrfs_first_delayed_insertion_item(node);
+		if (!curr) {
+			mutex_unlock(&node->mutex);
+			break;
+		}
+		ret = btrfs_insert_delayed_item(trans, root, path, curr);
+		mutex_unlock(&node->mutex);
+	}
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -936,7 +1155,10 @@ static int btrfs_delete_delayed_items(struct btrfs_trans_handle *trans,
 				      struct btrfs_delayed_node *node)
 {
 	struct btrfs_delayed_item *curr, *prev;
+<<<<<<< HEAD
 	unsigned int nofs_flag;
+=======
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 do_again:
@@ -945,9 +1167,13 @@ do_again:
 	if (!curr)
 		goto delete_fail;
 
+<<<<<<< HEAD
 	nofs_flag = memalloc_nofs_save();
 	ret = btrfs_search_slot(trans, root, &curr->key, path, -1, 1);
 	memalloc_nofs_restore(nofs_flag);
+=======
+	ret = btrfs_search_slot(trans, root, &curr->key, path, -1, 1);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		goto delete_fail;
 	else if (ret > 0) {
@@ -995,6 +1221,7 @@ static void btrfs_release_delayed_inode(struct btrfs_delayed_node *delayed_node)
 
 static void btrfs_release_delayed_iref(struct btrfs_delayed_node *delayed_node)
 {
+<<<<<<< HEAD
 	struct btrfs_delayed_root *delayed_root;
 
 	ASSERT(delayed_node->root);
@@ -1003,6 +1230,18 @@ static void btrfs_release_delayed_iref(struct btrfs_delayed_node *delayed_node)
 
 	delayed_root = delayed_node->root->fs_info->delayed_root;
 	finish_one_item(delayed_root);
+=======
+
+	if (test_and_clear_bit(BTRFS_DELAYED_NODE_DEL_IREF, &delayed_node->flags)) {
+		struct btrfs_delayed_root *delayed_root;
+
+		ASSERT(delayed_node->root);
+		delayed_node->count--;
+
+		delayed_root = delayed_node->root->fs_info->delayed_root;
+		finish_one_item(delayed_root);
+	}
+>>>>>>> upstream/android-13
 }
 
 static int __btrfs_update_delayed_inode(struct btrfs_trans_handle *trans,
@@ -1014,7 +1253,10 @@ static int __btrfs_update_delayed_inode(struct btrfs_trans_handle *trans,
 	struct btrfs_key key;
 	struct btrfs_inode_item *inode_item;
 	struct extent_buffer *leaf;
+<<<<<<< HEAD
 	unsigned int nofs_flag;
+=======
+>>>>>>> upstream/android-13
 	int mod;
 	int ret;
 
@@ -1027,6 +1269,7 @@ static int __btrfs_update_delayed_inode(struct btrfs_trans_handle *trans,
 	else
 		mod = 1;
 
+<<<<<<< HEAD
 	nofs_flag = memalloc_nofs_save();
 	ret = btrfs_lookup_inode(trans, root, path, &key, mod);
 	memalloc_nofs_restore(nofs_flag);
@@ -1036,6 +1279,13 @@ static int __btrfs_update_delayed_inode(struct btrfs_trans_handle *trans,
 	} else if (ret < 0) {
 		return ret;
 	}
+=======
+	ret = btrfs_lookup_inode(trans, root, path, &key, mod);
+	if (ret > 0)
+		ret = -ENOENT;
+	if (ret < 0)
+		goto out;
+>>>>>>> upstream/android-13
 
 	leaf = path->nodes[0];
 	inode_item = btrfs_item_ptr(leaf, path->slots[0],
@@ -1045,7 +1295,11 @@ static int __btrfs_update_delayed_inode(struct btrfs_trans_handle *trans,
 	btrfs_mark_buffer_dirty(leaf);
 
 	if (!test_bit(BTRFS_DELAYED_NODE_DEL_IREF, &node->flags))
+<<<<<<< HEAD
 		goto no_iref;
+=======
+		goto out;
+>>>>>>> upstream/android-13
 
 	path->slots[0]++;
 	if (path->slots[0] >= btrfs_header_nritems(leaf))
@@ -1067,12 +1321,26 @@ again:
 	btrfs_del_item(trans, root, path);
 out:
 	btrfs_release_delayed_iref(node);
+<<<<<<< HEAD
 no_iref:
+=======
+>>>>>>> upstream/android-13
 	btrfs_release_path(path);
 err_out:
 	btrfs_delayed_inode_release_metadata(fs_info, node, (ret < 0));
 	btrfs_release_delayed_inode(node);
 
+<<<<<<< HEAD
+=======
+	/*
+	 * If we fail to update the delayed inode we need to abort the
+	 * transaction, because we could leave the inode with the improper
+	 * counts behind.
+	 */
+	if (ret && ret != -ENOENT)
+		btrfs_abort_transaction(trans, ret);
+
+>>>>>>> upstream/android-13
 	return ret;
 
 search:
@@ -1081,9 +1349,13 @@ search:
 	key.type = BTRFS_INODE_EXTREF_KEY;
 	key.offset = -1;
 
+<<<<<<< HEAD
 	nofs_flag = memalloc_nofs_save();
 	ret = btrfs_search_slot(trans, root, &key, path, -1, 1);
 	memalloc_nofs_restore(nofs_flag);
+=======
+	ret = btrfs_search_slot(trans, root, &key, path, -1, 1);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		goto err_out;
 	ASSERT(ret);
@@ -1147,13 +1419,20 @@ static int __btrfs_run_delayed_items(struct btrfs_trans_handle *trans, int nr)
 	int ret = 0;
 	bool count = (nr > 0);
 
+<<<<<<< HEAD
 	if (trans->aborted)
+=======
+	if (TRANS_ABORTED(trans))
+>>>>>>> upstream/android-13
 		return -EIO;
 
 	path = btrfs_alloc_path();
 	if (!path)
 		return -ENOMEM;
+<<<<<<< HEAD
 	path->leave_spinning = 1;
+=======
+>>>>>>> upstream/android-13
 
 	block_rsv = trans->block_rsv;
 	trans->block_rsv = &fs_info->delayed_block_rsv;
@@ -1161,7 +1440,11 @@ static int __btrfs_run_delayed_items(struct btrfs_trans_handle *trans, int nr)
 	delayed_root = fs_info->delayed_root;
 
 	curr_node = btrfs_first_delayed_node(delayed_root);
+<<<<<<< HEAD
 	while (curr_node && (!count || (count && nr--))) {
+=======
+	while (curr_node && (!count || nr--)) {
+>>>>>>> upstream/android-13
 		ret = __btrfs_commit_inode_delayed_items(trans, path,
 							 curr_node);
 		if (ret) {
@@ -1218,7 +1501,10 @@ int btrfs_commit_inode_delayed_items(struct btrfs_trans_handle *trans,
 		btrfs_release_delayed_node(delayed_node);
 		return -ENOMEM;
 	}
+<<<<<<< HEAD
 	path->leave_spinning = 1;
+=======
+>>>>>>> upstream/android-13
 
 	block_rsv = trans->block_rsv;
 	trans->block_rsv = &delayed_node->root->fs_info->delayed_block_rsv;
@@ -1263,7 +1549,10 @@ int btrfs_commit_inode_delayed_inode(struct btrfs_inode *inode)
 		ret = -ENOMEM;
 		goto trans_out;
 	}
+<<<<<<< HEAD
 	path->leave_spinning = 1;
+=======
+>>>>>>> upstream/android-13
 
 	block_rsv = trans->block_rsv;
 	trans->block_rsv = &fs_info->delayed_block_rsv;
@@ -1332,7 +1621,10 @@ static void btrfs_async_run_delayed_root(struct btrfs_work *work)
 		if (!delayed_node)
 			break;
 
+<<<<<<< HEAD
 		path->leave_spinning = 1;
+=======
+>>>>>>> upstream/android-13
 		root = delayed_node->root;
 
 		trans = btrfs_join_transaction(root);
@@ -1376,8 +1668,13 @@ static int btrfs_wq_run_delayed_node(struct btrfs_delayed_root *delayed_root,
 		return -ENOMEM;
 
 	async_work->delayed_root = delayed_root;
+<<<<<<< HEAD
 	btrfs_init_work(&async_work->work, btrfs_delayed_meta_helper,
 			btrfs_async_run_delayed_root, NULL, NULL);
+=======
+	btrfs_init_work(&async_work->work, btrfs_async_run_delayed_root, NULL,
+			NULL);
+>>>>>>> upstream/android-13
 	async_work->nr = nr;
 
 	btrfs_queue_work(fs_info->delayed_workers, &async_work->work);
@@ -1474,7 +1771,11 @@ int btrfs_insert_delayed_dir_index(struct btrfs_trans_handle *trans,
 	if (unlikely(ret)) {
 		btrfs_err(trans->fs_info,
 			  "err add delayed dir index item(name: %.*s) into the insertion tree of the delayed node(root id: %llu, inode id: %llu, errno: %d)",
+<<<<<<< HEAD
 			  name_len, name, delayed_node->root->objectid,
+=======
+			  name_len, name, delayed_node->root->root_key.objectid,
+>>>>>>> upstream/android-13
 			  delayed_node->inode_id, ret);
 		BUG();
 	}
@@ -1538,15 +1839,31 @@ int btrfs_delete_delayed_dir_index(struct btrfs_trans_handle *trans,
 	 * we have reserved enough space when we start a new transaction,
 	 * so reserving metadata failure is impossible.
 	 */
+<<<<<<< HEAD
 	BUG_ON(ret);
+=======
+	if (ret < 0) {
+		btrfs_err(trans->fs_info,
+"metadata reservation failed for delayed dir item deltiona, should have been reserved");
+		btrfs_release_delayed_item(item);
+		goto end;
+	}
+>>>>>>> upstream/android-13
 
 	mutex_lock(&node->mutex);
 	ret = __btrfs_add_delayed_deletion_item(node, item);
 	if (unlikely(ret)) {
 		btrfs_err(trans->fs_info,
 			  "err add delayed dir index item(index: %llu) into the deletion tree of the delayed node(root id: %llu, inode id: %llu, errno: %d)",
+<<<<<<< HEAD
 			  index, node->root->objectid, node->inode_id, ret);
 		BUG();
+=======
+			  index, node->root->root_key.objectid,
+			  node->inode_id, ret);
+		btrfs_delayed_item_release_metadata(dir->root, item);
+		btrfs_release_delayed_item(item);
+>>>>>>> upstream/android-13
 	}
 	mutex_unlock(&node->mutex);
 end:
@@ -1591,8 +1908,13 @@ bool btrfs_readdir_get_delayed_items(struct inode *inode,
 	 * We can only do one readdir with delayed items at a time because of
 	 * item->readdir_list.
 	 */
+<<<<<<< HEAD
 	inode_unlock_shared(inode);
 	inode_lock(inode);
+=======
+	btrfs_inode_unlock(inode, BTRFS_ILOCK_SHARED);
+	btrfs_inode_lock(inode, 0);
+>>>>>>> upstream/android-13
 
 	mutex_lock(&delayed_node->mutex);
 	item = __btrfs_first_delayed_insertion_item(delayed_node);
@@ -1703,7 +2025,11 @@ int btrfs_readdir_delayed_dir_index(struct dir_context *ctx,
 		name = (char *)(di + 1);
 		name_len = btrfs_stack_dir_name_len(di);
 
+<<<<<<< HEAD
 		d_type = btrfs_filetype_table[di->type];
+=======
+		d_type = fs_ftype_to_dtype(di->type);
+>>>>>>> upstream/android-13
 		btrfs_disk_key_to_cpu(&location, &di->location);
 
 		over = !dir_emit(ctx, name, name_len,
@@ -1723,6 +2049,11 @@ static void fill_stack_inode_item(struct btrfs_trans_handle *trans,
 				  struct btrfs_inode_item *inode_item,
 				  struct inode *inode)
 {
+<<<<<<< HEAD
+=======
+	u64 flags;
+
+>>>>>>> upstream/android-13
 	btrfs_set_stack_inode_uid(inode_item, i_uid_read(inode));
 	btrfs_set_stack_inode_gid(inode_item, i_gid_read(inode));
 	btrfs_set_stack_inode_size(inode_item, BTRFS_I(inode)->disk_i_size);
@@ -1735,7 +2066,13 @@ static void fill_stack_inode_item(struct btrfs_trans_handle *trans,
 				       inode_peek_iversion(inode));
 	btrfs_set_stack_inode_transid(inode_item, trans->transid);
 	btrfs_set_stack_inode_rdev(inode_item, inode->i_rdev);
+<<<<<<< HEAD
 	btrfs_set_stack_inode_flags(inode_item, BTRFS_I(inode)->flags);
+=======
+	flags = btrfs_inode_combine_flags(BTRFS_I(inode)->flags,
+					  BTRFS_I(inode)->ro_flags);
+	btrfs_set_stack_inode_flags(inode_item, flags);
+>>>>>>> upstream/android-13
 	btrfs_set_stack_inode_block_group(inode_item, 0);
 
 	btrfs_set_stack_timespec_sec(&inode_item->atime,
@@ -1761,6 +2098,10 @@ static void fill_stack_inode_item(struct btrfs_trans_handle *trans,
 
 int btrfs_fill_inode(struct inode *inode, u32 *rdev)
 {
+<<<<<<< HEAD
+=======
+	struct btrfs_fs_info *fs_info = BTRFS_I(inode)->root->fs_info;
+>>>>>>> upstream/android-13
 	struct btrfs_delayed_node *delayed_node;
 	struct btrfs_inode_item *inode_item;
 
@@ -1780,6 +2121,11 @@ int btrfs_fill_inode(struct inode *inode, u32 *rdev)
 	i_uid_write(inode, btrfs_stack_inode_uid(inode_item));
 	i_gid_write(inode, btrfs_stack_inode_gid(inode_item));
 	btrfs_i_size_write(BTRFS_I(inode), btrfs_stack_inode_size(inode_item));
+<<<<<<< HEAD
+=======
+	btrfs_inode_set_file_extent_range(BTRFS_I(inode), 0,
+			round_up(i_size_read(inode), fs_info->sectorsize));
+>>>>>>> upstream/android-13
 	inode->i_mode = btrfs_stack_inode_mode(inode_item);
 	set_nlink(inode, btrfs_stack_inode_nlink(inode_item));
 	inode_set_bytes(inode, btrfs_stack_inode_nbytes(inode_item));
@@ -1790,7 +2136,12 @@ int btrfs_fill_inode(struct inode *inode, u32 *rdev)
 				   btrfs_stack_inode_sequence(inode_item));
 	inode->i_rdev = 0;
 	*rdev = btrfs_stack_inode_rdev(inode_item);
+<<<<<<< HEAD
 	BTRFS_I(inode)->flags = btrfs_stack_inode_flags(inode_item);
+=======
+	btrfs_inode_split_flags(btrfs_stack_inode_flags(inode_item),
+				&BTRFS_I(inode)->flags, &BTRFS_I(inode)->ro_flags);
+>>>>>>> upstream/android-13
 
 	inode->i_atime.tv_sec = btrfs_stack_timespec_sec(&inode_item->atime);
 	inode->i_atime.tv_nsec = btrfs_stack_timespec_nsec(&inode_item->atime);
@@ -1815,17 +2166,27 @@ int btrfs_fill_inode(struct inode *inode, u32 *rdev)
 }
 
 int btrfs_delayed_update_inode(struct btrfs_trans_handle *trans,
+<<<<<<< HEAD
 			       struct btrfs_root *root, struct inode *inode)
+=======
+			       struct btrfs_root *root,
+			       struct btrfs_inode *inode)
+>>>>>>> upstream/android-13
 {
 	struct btrfs_delayed_node *delayed_node;
 	int ret = 0;
 
+<<<<<<< HEAD
 	delayed_node = btrfs_get_or_create_delayed_node(BTRFS_I(inode));
+=======
+	delayed_node = btrfs_get_or_create_delayed_node(inode);
+>>>>>>> upstream/android-13
 	if (IS_ERR(delayed_node))
 		return PTR_ERR(delayed_node);
 
 	mutex_lock(&delayed_node->mutex);
 	if (test_bit(BTRFS_DELAYED_NODE_INODE_DIRTY, &delayed_node->flags)) {
+<<<<<<< HEAD
 		fill_stack_inode_item(trans, &delayed_node->inode_item, inode);
 		goto release_node;
 	}
@@ -1836,6 +2197,18 @@ int btrfs_delayed_update_inode(struct btrfs_trans_handle *trans,
 		goto release_node;
 
 	fill_stack_inode_item(trans, &delayed_node->inode_item, inode);
+=======
+		fill_stack_inode_item(trans, &delayed_node->inode_item,
+				      &inode->vfs_inode);
+		goto release_node;
+	}
+
+	ret = btrfs_delayed_inode_reserve_metadata(trans, root, delayed_node);
+	if (ret)
+		goto release_node;
+
+	fill_stack_inode_item(trans, &delayed_node->inode_item, &inode->vfs_inode);
+>>>>>>> upstream/android-13
 	set_bit(BTRFS_DELAYED_NODE_INODE_DIRTY, &delayed_node->flags);
 	delayed_node->count++;
 	atomic_inc(&root->fs_info->delayed_root->items);
@@ -1912,8 +2285,12 @@ static void __btrfs_kill_delayed_node(struct btrfs_delayed_node *delayed_node)
 		btrfs_release_delayed_item(prev_item);
 	}
 
+<<<<<<< HEAD
 	if (test_bit(BTRFS_DELAYED_NODE_DEL_IREF, &delayed_node->flags))
 		btrfs_release_delayed_iref(delayed_node);
+=======
+	btrfs_release_delayed_iref(delayed_node);
+>>>>>>> upstream/android-13
 
 	if (test_bit(BTRFS_DELAYED_NODE_INODE_DIRTY, &delayed_node->flags)) {
 		btrfs_delayed_inode_release_metadata(fs_info, delayed_node, false);

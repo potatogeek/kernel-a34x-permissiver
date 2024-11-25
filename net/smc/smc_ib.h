@@ -14,6 +14,11 @@
 
 #include <linux/interrupt.h>
 #include <linux/if_ether.h>
+<<<<<<< HEAD
+=======
+#include <linux/mutex.h>
+#include <linux/wait.h>
+>>>>>>> upstream/android-13
 #include <rdma/ib_verbs.h>
 #include <net/smc.h>
 
@@ -24,10 +29,18 @@
 
 struct smc_ib_devices {			/* list of smc ib devices definition */
 	struct list_head	list;
+<<<<<<< HEAD
 	spinlock_t		lock;	/* protects list of smc ib devices */
 };
 
 extern struct smc_ib_devices	smc_ib_devices; /* list of smc ib devices */
+=======
+	struct mutex		mutex;	/* protects list of smc ib devices */
+};
+
+extern struct smc_ib_devices	smc_ib_devices; /* list of smc ib devices */
+extern struct smc_lgr_list smc_lgr_list; /* list of linkgroups */
+>>>>>>> upstream/android-13
 
 struct smc_ib_device {				/* ib-device infos for smc */
 	struct list_head	list;
@@ -42,14 +55,30 @@ struct smc_ib_device {				/* ib-device infos for smc */
 						/* mac address per port*/
 	u8			pnetid[SMC_MAX_PORTS][SMC_MAX_PNETID_LEN];
 						/* pnetid per port */
+<<<<<<< HEAD
 	u8			initialized : 1; /* ib dev CQ, evthdl done */
 	struct work_struct	port_event_work;
 	unsigned long		port_event_mask;
+=======
+	bool			pnetid_by_user[SMC_MAX_PORTS];
+						/* pnetid defined by user? */
+	u8			initialized : 1; /* ib dev CQ, evthdl done */
+	struct work_struct	port_event_work;
+	unsigned long		port_event_mask;
+	DECLARE_BITMAP(ports_going_away, SMC_MAX_PORTS);
+	atomic_t		lnk_cnt;	/* number of links on ibdev */
+	wait_queue_head_t	lnks_deleted;	/* wait 4 removal of all links*/
+	struct mutex		mutex;		/* protect dev setup+cleanup */
+	atomic_t		lnk_cnt_by_port[SMC_MAX_PORTS];
+						/* number of links per port */
+	int			ndev_ifidx[SMC_MAX_PORTS]; /* ndev if indexes */
+>>>>>>> upstream/android-13
 };
 
 struct smc_buf_desc;
 struct smc_link;
 
+<<<<<<< HEAD
 int smc_ib_register_client(void) __init;
 void smc_ib_unregister_client(void);
 bool smc_ib_port_active(struct smc_ib_device *smcibdev, u8 ibport);
@@ -57,6 +86,16 @@ int smc_ib_buf_map_sg(struct smc_ib_device *smcibdev,
 		      struct smc_buf_desc *buf_slot,
 		      enum dma_data_direction data_direction);
 void smc_ib_buf_unmap_sg(struct smc_ib_device *smcibdev,
+=======
+void smc_ib_ndev_change(struct net_device *ndev, unsigned long event);
+int smc_ib_register_client(void) __init;
+void smc_ib_unregister_client(void);
+bool smc_ib_port_active(struct smc_ib_device *smcibdev, u8 ibport);
+int smc_ib_buf_map_sg(struct smc_link *lnk,
+		      struct smc_buf_desc *buf_slot,
+		      enum dma_data_direction data_direction);
+void smc_ib_buf_unmap_sg(struct smc_link *lnk,
+>>>>>>> upstream/android-13
 			 struct smc_buf_desc *buf_slot,
 			 enum dma_data_direction data_direction);
 void smc_ib_dealloc_protection_domain(struct smc_link *lnk);
@@ -66,6 +105,7 @@ int smc_ib_create_queue_pair(struct smc_link *lnk);
 int smc_ib_ready_link(struct smc_link *lnk);
 int smc_ib_modify_qp_rts(struct smc_link *lnk);
 int smc_ib_modify_qp_reset(struct smc_link *lnk);
+<<<<<<< HEAD
 long smc_ib_setup_per_ibdev(struct smc_ib_device *smcibdev);
 int smc_ib_get_memory_region(struct ib_pd *pd, int access_flags,
 			     struct smc_buf_desc *buf_slot);
@@ -74,8 +114,24 @@ void smc_ib_sync_sg_for_cpu(struct smc_ib_device *smcibdev,
 			    struct smc_buf_desc *buf_slot,
 			    enum dma_data_direction data_direction);
 void smc_ib_sync_sg_for_device(struct smc_ib_device *smcibdev,
+=======
+int smc_ib_modify_qp_error(struct smc_link *lnk);
+long smc_ib_setup_per_ibdev(struct smc_ib_device *smcibdev);
+int smc_ib_get_memory_region(struct ib_pd *pd, int access_flags,
+			     struct smc_buf_desc *buf_slot, u8 link_idx);
+void smc_ib_put_memory_region(struct ib_mr *mr);
+void smc_ib_sync_sg_for_cpu(struct smc_link *lnk,
+			    struct smc_buf_desc *buf_slot,
+			    enum dma_data_direction data_direction);
+void smc_ib_sync_sg_for_device(struct smc_link *lnk,
+>>>>>>> upstream/android-13
 			       struct smc_buf_desc *buf_slot,
 			       enum dma_data_direction data_direction);
 int smc_ib_determine_gid(struct smc_ib_device *smcibdev, u8 ibport,
 			 unsigned short vlan_id, u8 gid[], u8 *sgid_index);
+<<<<<<< HEAD
+=======
+bool smc_ib_is_valid_local_systemid(void);
+int smcr_nl_get_device(struct sk_buff *skb, struct netlink_callback *cb);
+>>>>>>> upstream/android-13
 #endif

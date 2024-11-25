@@ -41,6 +41,7 @@
 static inline int ____pcpu_sigp(u16 addr, u8 order, unsigned long parm,
 				u32 *status)
 {
+<<<<<<< HEAD
 	register unsigned long reg1 asm ("1") = parm;
 	int cc;
 
@@ -50,6 +51,19 @@ static inline int ____pcpu_sigp(u16 addr, u8 order, unsigned long parm,
 		"	srl	%0,28\n"
 		: "=d" (cc), "+d" (reg1) : "d" (addr), "a" (order) : "cc");
 	*status = reg1;
+=======
+	union register_pair r1 = { .odd = parm, };
+	int cc;
+
+	asm volatile(
+		"	sigp	%[r1],%[addr],0(%[order])\n"
+		"	ipm	%[cc]\n"
+		"	srl	%[cc],28\n"
+		: [cc] "=&d" (cc), [r1] "+&d" (r1.pair)
+		: [addr] "d" (addr), [order] "a" (order)
+		: "cc");
+	*status = r1.even;
+>>>>>>> upstream/android-13
 	return cc;
 }
 

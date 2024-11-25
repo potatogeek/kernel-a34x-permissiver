@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Initialization routines
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
@@ -17,6 +18,12 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Initialization routines
+ *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -28,7 +35,13 @@
 #include <linux/time.h>
 #include <linux/ctype.h>
 #include <linux/pm.h>
+<<<<<<< HEAD
 #include <linux/completion.h>
+=======
+#include <linux/debugfs.h>
+#include <linux/completion.h>
+#include <linux/interrupt.h>
+>>>>>>> upstream/android-13
 
 #include <sound/core.h>
 #include <sound/control.h>
@@ -49,8 +62,12 @@ static const struct file_operations snd_shutdown_f_ops;
 
 /* locked for registering/using */
 static DECLARE_BITMAP(snd_cards_lock, SNDRV_CARDS);
+<<<<<<< HEAD
 struct snd_card *snd_cards[SNDRV_CARDS];
 EXPORT_SYMBOL(snd_cards);
+=======
+static struct snd_card *snd_cards[SNDRV_CARDS];
+>>>>>>> upstream/android-13
 
 static DEFINE_MUTEX(snd_card_mutex);
 
@@ -100,6 +117,7 @@ int (*snd_mixer_oss_notify_callback)(struct snd_card *card, int free_flag);
 EXPORT_SYMBOL(snd_mixer_oss_notify_callback);
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_SND_PROC_FS
 static void snd_card_id_read(struct snd_info_entry *entry,
 			     struct snd_info_buffer *buffer)
@@ -125,6 +143,8 @@ static int init_info_for_card(struct snd_card *card)
 #define init_info_for_card(card)
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static int check_empty_slot(struct module *module, int slot)
 {
 	return !slots[slot] || !*slots[slot];
@@ -173,6 +193,12 @@ void snd_device_initialize(struct device *dev, struct snd_card *card)
 }
 EXPORT_SYMBOL_GPL(snd_device_initialize);
 
+<<<<<<< HEAD
+=======
+static int snd_card_init(struct snd_card *card, struct device *parent,
+			 int idx, const char *xid, struct module *module,
+			 size_t extra_size);
+>>>>>>> upstream/android-13
 static int snd_card_do_free(struct snd_card *card);
 static const struct attribute_group card_dev_attr_group;
 
@@ -190,8 +216,11 @@ static void release_card_device(struct device *dev)
  *  @extra_size: allocate this extra size after the main soundcard structure
  *  @card_ret: the pointer to store the created card instance
  *
+<<<<<<< HEAD
  *  Creates and initializes a soundcard structure.
  *
+=======
+>>>>>>> upstream/android-13
  *  The function allocates snd_card instance via kzalloc with the given
  *  space for the driver to use freely.  The allocated struct is stored
  *  in the given card_ret pointer.
@@ -214,10 +243,113 @@ int snd_card_new(struct device *parent, int idx, const char *xid,
 	card = kzalloc(sizeof(*card) + extra_size, GFP_KERNEL);
 	if (!card)
 		return -ENOMEM;
+<<<<<<< HEAD
 	if (extra_size > 0)
 		card->private_data = (char *)card + sizeof(struct snd_card);
 	if (xid)
 		strlcpy(card->id, xid, sizeof(card->id));
+=======
+
+	err = snd_card_init(card, parent, idx, xid, module, extra_size);
+	if (err < 0) {
+		kfree(card);
+		return err;
+	}
+
+	*card_ret = card;
+	return 0;
+}
+EXPORT_SYMBOL(snd_card_new);
+
+static void __snd_card_release(struct device *dev, void *data)
+{
+	snd_card_free(data);
+}
+
+/**
+ * snd_devm_card_new - managed snd_card object creation
+ * @parent: the parent device object
+ * @idx: card index (address) [0 ... (SNDRV_CARDS-1)]
+ * @xid: card identification (ASCII string)
+ * @module: top level module for locking
+ * @extra_size: allocate this extra size after the main soundcard structure
+ * @card_ret: the pointer to store the created card instance
+ *
+ * This function works like snd_card_new() but manages the allocated resource
+ * via devres, i.e. you don't need to free explicitly.
+ *
+ * When a snd_card object is created with this function and registered via
+ * snd_card_register(), the very first devres action to call snd_card_free()
+ * is added automatically.  In that way, the resource disconnection is assured
+ * at first, then released in the expected order.
+ *
+ * If an error happens at the probe before snd_card_register() is called and
+ * there have been other devres resources, you'd need to free the card manually
+ * via snd_card_free() call in the error; otherwise it may lead to UAF due to
+ * devres call orders.  You can use snd_card_free_on_error() helper for
+ * handling it more easily.
+ */
+int snd_devm_card_new(struct device *parent, int idx, const char *xid,
+		      struct module *module, size_t extra_size,
+		      struct snd_card **card_ret)
+{
+	struct snd_card *card;
+	int err;
+
+	*card_ret = NULL;
+	card = devres_alloc(__snd_card_release, sizeof(*card) + extra_size,
+			    GFP_KERNEL);
+	if (!card)
+		return -ENOMEM;
+	card->managed = true;
+	err = snd_card_init(card, parent, idx, xid, module, extra_size);
+	if (err < 0) {
+		devres_free(card);
+		return err;
+	}
+
+	devres_add(parent, card);
+	*card_ret = card;
+	return 0;
+}
+EXPORT_SYMBOL_GPL(snd_devm_card_new);
+
+/**
+ * snd_card_free_on_error - a small helper for handling devm probe errors
+ * @dev: the managed device object
+ * @ret: the return code from the probe callback
+ *
+ * This function handles the explicit snd_card_free() call at the error from
+ * the probe callback.  It's just a small helper for simplifying the error
+ * handling with the managed devices.
+ */
+int snd_card_free_on_error(struct device *dev, int ret)
+{
+	struct snd_card *card;
+
+	if (!ret)
+		return 0;
+	card = devres_find(dev, __snd_card_release, NULL, NULL);
+	if (card)
+		snd_card_free(card);
+	return ret;
+}
+EXPORT_SYMBOL_GPL(snd_card_free_on_error);
+
+static int snd_card_init(struct snd_card *card, struct device *parent,
+			 int idx, const char *xid, struct module *module,
+			 size_t extra_size)
+{
+	int err;
+#ifdef CONFIG_SND_DEBUG
+	char name[8];
+#endif
+
+	if (extra_size > 0)
+		card->private_data = (char *)card + sizeof(struct snd_card);
+	if (xid)
+		strscpy(card->id, xid, sizeof(card->id));
+>>>>>>> upstream/android-13
 	err = 0;
 	mutex_lock(&snd_card_mutex);
 	if (idx < 0) /* first check the matching module-name slot */
@@ -235,7 +367,10 @@ int snd_card_new(struct device *parent, int idx, const char *xid,
 		mutex_unlock(&snd_card_mutex);
 		dev_err(parent, "cannot find the slot for index %d (range 0-%i), error: %d\n",
 			 idx, snd_ecards_limit - 1, err);
+<<<<<<< HEAD
 		kfree(card);
+=======
+>>>>>>> upstream/android-13
 		return err;
 	}
 	set_bit(idx, snd_cards_lock);		/* lock it */
@@ -244,12 +379,20 @@ int snd_card_new(struct device *parent, int idx, const char *xid,
 	mutex_unlock(&snd_card_mutex);
 	card->dev = parent;
 	card->number = idx;
+<<<<<<< HEAD
 	card->module = module;
+=======
+#ifdef MODULE
+	WARN_ON(!module);
+	card->module = module;
+#endif
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&card->devices);
 	init_rwsem(&card->controls_rwsem);
 	rwlock_init(&card->ctl_files_rwlock);
 	INIT_LIST_HEAD(&card->controls);
 	INIT_LIST_HEAD(&card->ctl_files);
+<<<<<<< HEAD
 	spin_lock_init(&card->files_lock);
 	INIT_LIST_HEAD(&card->files_list);
 #ifdef CONFIG_PM
@@ -258,6 +401,23 @@ int snd_card_new(struct device *parent, int idx, const char *xid,
 	init_waitqueue_head(&card->remove_sleep);
 
 	init_waitqueue_head(&card->offline_poll_wait);
+=======
+#ifdef CONFIG_SND_CTL_FAST_LOOKUP
+	xa_init(&card->ctl_numids);
+	xa_init(&card->ctl_hash);
+#endif
+	spin_lock_init(&card->files_lock);
+	INIT_LIST_HEAD(&card->files_list);
+	mutex_init(&card->memory_mutex);
+#ifdef CONFIG_PM
+	init_waitqueue_head(&card->power_sleep);
+	init_waitqueue_head(&card->power_ref_sleep);
+	atomic_set(&card->power_ref, 0);
+#endif
+	init_waitqueue_head(&card->remove_sleep);
+	card->sync_irq = -1;
+
+>>>>>>> upstream/android-13
 	device_initialize(&card->card_dev);
 	card->card_dev.parent = parent;
 	card->card_dev.class = sound_class;
@@ -283,7 +443,15 @@ int snd_card_new(struct device *parent, int idx, const char *xid,
 		dev_err(parent, "unable to create card info\n");
 		goto __error_ctl;
 	}
+<<<<<<< HEAD
 	*card_ret = card;
+=======
+
+#ifdef CONFIG_SND_DEBUG
+	sprintf(name, "card%d", idx);
+	card->debugfs_root = debugfs_create_dir(name, sound_debugfs_root);
+#endif
+>>>>>>> upstream/android-13
 	return 0;
 
       __error_ctl:
@@ -292,7 +460,30 @@ int snd_card_new(struct device *parent, int idx, const char *xid,
 	put_device(&card->card_dev);
   	return err;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(snd_card_new);
+=======
+
+/**
+ * snd_card_ref - Get the card object from the index
+ * @idx: the card index
+ *
+ * Returns a card object corresponding to the given index or NULL if not found.
+ * Release the object via snd_card_unref().
+ */
+struct snd_card *snd_card_ref(int idx)
+{
+	struct snd_card *card;
+
+	mutex_lock(&snd_card_mutex);
+	card = snd_cards[idx];
+	if (card)
+		get_device(&card->card_dev);
+	mutex_unlock(&snd_card_mutex);
+	return card;
+}
+EXPORT_SYMBOL_GPL(snd_card_ref);
+>>>>>>> upstream/android-13
 
 /* return non-zero if a card is already locked */
 int snd_card_locked(int card)
@@ -433,6 +624,12 @@ int snd_card_disconnect(struct snd_card *card)
 	/* notify all devices that we are disconnected */
 	snd_device_disconnect_all(card);
 
+<<<<<<< HEAD
+=======
+	if (card->sync_irq > 0)
+		synchronize_irq(card->sync_irq);
+
+>>>>>>> upstream/android-13
 	snd_info_card_disconnect(card);
 	if (card->registered) {
 		device_del(&card->card_dev);
@@ -447,6 +644,10 @@ int snd_card_disconnect(struct snd_card *card)
 
 #ifdef CONFIG_PM
 	wake_up(&card->power_sleep);
+<<<<<<< HEAD
+=======
+	snd_power_sync_ref(card);
+>>>>>>> upstream/android-13
 #endif
 	return 0;	
 }
@@ -483,6 +684,10 @@ EXPORT_SYMBOL_GPL(snd_card_disconnect_sync);
 
 static int snd_card_do_free(struct snd_card *card)
 {
+<<<<<<< HEAD
+=======
+	card->releasing = true;
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_SND_MIXER_OSS)
 	if (snd_mixer_oss_notify_callback)
 		snd_mixer_oss_notify_callback(card, SND_MIXER_OSS_NOTIFY_FREE);
@@ -490,14 +695,28 @@ static int snd_card_do_free(struct snd_card *card)
 	snd_device_free_all(card);
 	if (card->private_free)
 		card->private_free(card);
+<<<<<<< HEAD
 	snd_info_free_entry(card->proc_id);
+=======
+>>>>>>> upstream/android-13
 	if (snd_info_card_free(card) < 0) {
 		dev_warn(card->dev, "unable to free card info\n");
 		/* Not fatal error */
 	}
+<<<<<<< HEAD
 	if (card->release_completion)
 		complete(card->release_completion);
 	kfree(card);
+=======
+#ifdef CONFIG_SND_DEBUG
+	debugfs_remove(card->debugfs_root);
+	card->debugfs_root = NULL;
+#endif
+	if (card->release_completion)
+		complete(card->release_completion);
+	if (!card->managed)
+		kfree(card);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -535,16 +754,35 @@ EXPORT_SYMBOL(snd_card_free_when_closed);
  */
 int snd_card_free(struct snd_card *card)
 {
+<<<<<<< HEAD
 	struct completion released;
 	int ret;
 
 	init_completion(&released);
+=======
+	DECLARE_COMPLETION_ONSTACK(released);
+	int ret;
+
+	/* The call of snd_card_free() is allowed from various code paths;
+	 * a manual call from the driver and the call via devres_free, and
+	 * we need to avoid double-free. Moreover, the release via devres
+	 * may call snd_card_free() twice due to its nature, we need to have
+	 * the check here at the beginning.
+	 */
+	if (card->releasing)
+		return 0;
+
+>>>>>>> upstream/android-13
 	card->release_completion = &released;
 	ret = snd_card_free_when_closed(card);
 	if (ret)
 		return ret;
 	/* wait, until all devices are ready for the free operation */
 	wait_for_completion(&released);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL(snd_card_free);
@@ -642,7 +880,11 @@ static void snd_card_set_id_no_lock(struct snd_card *card, const char *src,
 	/* last resort... */
 	dev_err(card->dev, "unable to set card id (%s)\n", id);
 	if (card->proc_root->name)
+<<<<<<< HEAD
 		strlcpy(card->id, card->proc_root->name, sizeof(card->id));
+=======
+		strscpy(card->id, card->proc_root->name, sizeof(card->id));
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -664,17 +906,27 @@ void snd_card_set_id(struct snd_card *card, const char *nid)
 }
 EXPORT_SYMBOL(snd_card_set_id);
 
+<<<<<<< HEAD
 static ssize_t
 card_id_show_attr(struct device *dev,
 		  struct device_attribute *attr, char *buf)
+=======
+static ssize_t id_show(struct device *dev,
+		       struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct snd_card *card = container_of(dev, struct snd_card, card_dev);
 	return scnprintf(buf, PAGE_SIZE, "%s\n", card->id);
 }
 
+<<<<<<< HEAD
 static ssize_t
 card_id_store_attr(struct device *dev, struct device_attribute *attr,
 		   const char *buf, size_t count)
+=======
+static ssize_t id_store(struct device *dev, struct device_attribute *attr,
+			const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct snd_card *card = container_of(dev, struct snd_card, card_dev);
 	char buf1[sizeof(card->id)];
@@ -702,17 +954,28 @@ card_id_store_attr(struct device *dev, struct device_attribute *attr,
 	return count;
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(id, 0644, card_id_show_attr, card_id_store_attr);
 
 static ssize_t
 card_number_show_attr(struct device *dev,
 		     struct device_attribute *attr, char *buf)
+=======
+static DEVICE_ATTR_RW(id);
+
+static ssize_t number_show(struct device *dev,
+			   struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct snd_card *card = container_of(dev, struct snd_card, card_dev);
 	return scnprintf(buf, PAGE_SIZE, "%i\n", card->number);
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(number, 0444, card_number_show_attr, NULL);
+=======
+static DEVICE_ATTR_RO(number);
+>>>>>>> upstream/android-13
 
 static struct attribute *card_dev_attrs[] = {
 	&dev_attr_id.attr,
@@ -747,6 +1010,14 @@ int snd_card_add_dev_attr(struct snd_card *card,
 }
 EXPORT_SYMBOL_GPL(snd_card_add_dev_attr);
 
+<<<<<<< HEAD
+=======
+static void trigger_card_free(void *data)
+{
+	snd_card_free(data);
+}
+
+>>>>>>> upstream/android-13
 /**
  *  snd_card_register - register the soundcard
  *  @card: soundcard structure
@@ -770,9 +1041,25 @@ int snd_card_register(struct snd_card *card)
 		if (err < 0)
 			return err;
 		card->registered = true;
+<<<<<<< HEAD
 	}
 
 	if ((err = snd_device_register_all(card)) < 0)
+=======
+	} else {
+		if (card->managed)
+			devm_remove_action(card->dev, trigger_card_free, card);
+	}
+
+	if (card->managed) {
+		err = devm_add_action(card->dev, trigger_card_free, card);
+		if (err < 0)
+			return err;
+	}
+
+	err = snd_device_register_all(card);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 	mutex_lock(&snd_card_mutex);
 	if (snd_cards[card->number]) {
@@ -794,7 +1081,14 @@ int snd_card_register(struct snd_card *card)
 	}
 	snd_cards[card->number] = card;
 	mutex_unlock(&snd_card_mutex);
+<<<<<<< HEAD
 	init_info_for_card(card);
+=======
+	err = snd_info_card_register(card);
+	if (err < 0)
+		return err;
+
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_SND_MIXER_OSS)
 	if (snd_mixer_oss_notify_callback)
 		snd_mixer_oss_notify_callback(card, SND_MIXER_OSS_NOTIFY_REGISTER);
@@ -812,7 +1106,12 @@ static void snd_card_info_read(struct snd_info_entry *entry,
 
 	for (idx = count = 0; idx < SNDRV_CARDS; idx++) {
 		mutex_lock(&snd_card_mutex);
+<<<<<<< HEAD
 		if ((card = snd_cards[idx]) != NULL) {
+=======
+		card = snd_cards[idx];
+		if (card) {
+>>>>>>> upstream/android-13
 			count++;
 			snd_iprintf(buffer, "%2i [%-15s]: %s - %s\n",
 					idx,
@@ -836,7 +1135,12 @@ void snd_card_info_read_oss(struct snd_info_buffer *buffer)
 
 	for (idx = count = 0; idx < SNDRV_CARDS; idx++) {
 		mutex_lock(&snd_card_mutex);
+<<<<<<< HEAD
 		if ((card = snd_cards[idx]) != NULL) {
+=======
+		card = snd_cards[idx];
+		if (card) {
+>>>>>>> upstream/android-13
 			count++;
 			snd_iprintf(buffer, "%s\n", card->longname);
 		}
@@ -858,7 +1162,12 @@ static void snd_card_module_info_read(struct snd_info_entry *entry,
 
 	for (idx = 0; idx < SNDRV_CARDS; idx++) {
 		mutex_lock(&snd_card_mutex);
+<<<<<<< HEAD
 		if ((card = snd_cards[idx]) != NULL)
+=======
+		card = snd_cards[idx];
+		if (card)
+>>>>>>> upstream/android-13
 			snd_iprintf(buffer, "%2i %s\n",
 				    idx, card->module->name);
 		mutex_unlock(&snd_card_mutex);
@@ -999,6 +1308,7 @@ int snd_card_file_remove(struct snd_card *card, struct file *file)
 }
 EXPORT_SYMBOL(snd_card_file_remove);
 
+<<<<<<< HEAD
 /**
  * snd_card_change_online_state - mark card's online/offline state
  * @card: Card to mark
@@ -1029,12 +1339,37 @@ EXPORT_SYMBOL_GPL(snd_card_change_online_state);
  *  Return: Zero if successful, or a negative error code.
  */
 int snd_power_wait(struct snd_card *card, unsigned int power_state)
+=======
+#ifdef CONFIG_PM
+/**
+ * snd_power_ref_and_wait - wait until the card gets powered up
+ * @card: soundcard structure
+ *
+ * Take the power_ref reference count of the given card, and
+ * wait until the card gets powered up to SNDRV_CTL_POWER_D0 state.
+ * The refcount is down again while sleeping until power-up, hence this
+ * function can be used for syncing the floating control ops accesses,
+ * typically around calling control ops.
+ *
+ * The caller needs to pull down the refcount via snd_power_unref() later
+ * no matter whether the error is returned from this function or not.
+ *
+ * Return: Zero if successful, or a negative error code.
+ */
+int snd_power_ref_and_wait(struct snd_card *card)
+>>>>>>> upstream/android-13
 {
 	wait_queue_entry_t wait;
 	int result = 0;
 
+<<<<<<< HEAD
 	/* fastpath */
 	if (snd_power_get_state(card) == power_state)
+=======
+	snd_power_ref(card);
+	/* fastpath */
+	if (snd_power_get_state(card) == SNDRV_CTL_POWER_D0)
+>>>>>>> upstream/android-13
 		return 0;
 	init_waitqueue_entry(&wait, current);
 	add_wait_queue(&card->power_sleep, &wait);
@@ -1043,13 +1378,43 @@ int snd_power_wait(struct snd_card *card, unsigned int power_state)
 			result = -ENODEV;
 			break;
 		}
+<<<<<<< HEAD
 		if (snd_power_get_state(card) == power_state)
 			break;
 		set_current_state(TASK_UNINTERRUPTIBLE);
 		schedule_timeout(30 * HZ);
+=======
+		if (snd_power_get_state(card) == SNDRV_CTL_POWER_D0)
+			break;
+		snd_power_unref(card);
+		set_current_state(TASK_UNINTERRUPTIBLE);
+		schedule_timeout(30 * HZ);
+		snd_power_ref(card);
+>>>>>>> upstream/android-13
 	}
 	remove_wait_queue(&card->power_sleep, &wait);
 	return result;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(snd_power_ref_and_wait);
+
+/**
+ * snd_power_wait - wait until the card gets powered up (old form)
+ * @card: soundcard structure
+ *
+ * Wait until the card gets powered up to SNDRV_CTL_POWER_D0 state.
+ *
+ * Return: Zero if successful, or a negative error code.
+ */
+int snd_power_wait(struct snd_card *card)
+{
+	int ret;
+
+	ret = snd_power_ref_and_wait(card);
+	snd_power_unref(card);
+	return ret;
+}
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(snd_power_wait);
 #endif /* CONFIG_PM */

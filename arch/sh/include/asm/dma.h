@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * include/asm-sh/dma.h
  *
@@ -10,6 +11,16 @@
 #ifndef __ASM_SH_DMA_H
 #define __ASM_SH_DMA_H
 #ifdef __KERNEL__
+=======
+/* SPDX-License-Identifier: GPL-2.0
+ *
+ * include/asm-sh/dma.h
+ *
+ * Copyright (C) 2003, 2004  Paul Mundt
+ */
+#ifndef __ASM_SH_DMA_H
+#define __ASM_SH_DMA_H
+>>>>>>> upstream/android-13
 
 #include <linux/spinlock.h>
 #include <linux/wait.h>
@@ -147,5 +158,8 @@ extern int isa_dma_bridge_buggy;
 #define isa_dma_bridge_buggy	(0)
 #endif
 
+<<<<<<< HEAD
 #endif /* __KERNEL__ */
+=======
+>>>>>>> upstream/android-13
 #endif /* __ASM_SH_DMA_H */

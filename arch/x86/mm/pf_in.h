@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Fault Injection Test harness (FI)
  *  Copyright (C) Intel Crop.
@@ -17,6 +18,12 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
  *  USA.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ *  Fault Injection Test harness (FI)
+ *  Copyright (C) Intel Crop.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __PF_H_

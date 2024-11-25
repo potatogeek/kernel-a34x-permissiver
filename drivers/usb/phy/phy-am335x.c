@@ -57,7 +57,11 @@ static int am335x_phy_probe(struct platform_device *pdev)
 
 	am_phy->dr_mode = of_usb_get_dr_mode_by_phy(pdev->dev.of_node, -1);
 
+<<<<<<< HEAD
 	ret = usb_phy_gen_create_phy(dev, &am_phy->usb_phy_gen, NULL);
+=======
+	ret = usb_phy_gen_create_phy(dev, &am_phy->usb_phy_gen);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 

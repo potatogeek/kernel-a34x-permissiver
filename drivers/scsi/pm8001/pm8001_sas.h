@@ -58,7 +58,11 @@
 #include "pm8001_defs.h"
 
 #define DRV_NAME		"pm80xx"
+<<<<<<< HEAD
 #define DRV_VERSION		"0.1.38"
+=======
+#define DRV_VERSION		"0.1.40"
+>>>>>>> upstream/android-13
 #define PM8001_FAIL_LOGGING	0x01 /* Error message logging */
 #define PM8001_INIT_LOGGING	0x02 /* driver init logging */
 #define PM8001_DISC_LOGGING	0x04 /* discovery layer logging */
@@ -66,6 +70,7 @@
 #define PM8001_EH_LOGGING	0x10 /* libsas EH function logging*/
 #define PM8001_IOCTL_LOGGING	0x20 /* IOCTL message logging */
 #define PM8001_MSG_LOGGING	0x40 /* misc message logging */
+<<<<<<< HEAD
 #define pm8001_printk(format, arg...)	printk(KERN_INFO "pm80xx %s %d:" \
 			format, __func__, __LINE__, ## arg)
 #define PM8001_CHECK_LOGGING(HBA, LEVEL, CMD)	\
@@ -97,13 +102,31 @@ do {						\
 #define PM8001_MSG_DBG(HBA, CMD)		\
 	PM8001_CHECK_LOGGING(HBA, PM8001_MSG_LOGGING, CMD)
 
+=======
+#define PM8001_DEV_LOGGING	0x80 /* development message logging */
+#define PM8001_DEVIO_LOGGING	0x100 /* development io message logging */
+#define PM8001_IOERR_LOGGING	0x200 /* development io err message logging */
+
+#define pm8001_info(HBA, fmt, ...)					\
+	pr_info("%s:: %s  %d:" fmt,					\
+		(HBA)->name, __func__, __LINE__, ##__VA_ARGS__)
+
+#define pm8001_dbg(HBA, level, fmt, ...)				\
+do {									\
+	if (unlikely((HBA)->logging_level & PM8001_##level##_LOGGING))	\
+		pm8001_info(HBA, fmt, ##__VA_ARGS__);			\
+} while (0)
+>>>>>>> upstream/android-13
 
 #define PM8001_USE_TASKLET
 #define PM8001_USE_MSIX
 #define PM8001_READ_VPD
 
 
+<<<<<<< HEAD
 #define DEV_IS_EXPANDER(type)	((type == SAS_EDGE_EXPANDER_DEVICE) || (type == SAS_FANOUT_EXPANDER_DEVICE))
+=======
+>>>>>>> upstream/android-13
 #define IS_SPCV_12G(dev)	((dev->device == 0X8074)		\
 				|| (dev->device == 0X8076)		\
 				|| (dev->device == 0X8077)		\
@@ -127,10 +150,18 @@ struct pm8001_ioctl_payload {
 	u32	signature;
 	u16	major_function;
 	u16	minor_function;
+<<<<<<< HEAD
 	u16	length;
 	u16	status;
 	u16	offset;
 	u16	id;
+=======
+	u16	status;
+	u16	offset;
+	u16	id;
+	u32	wr_length;
+	u32	rd_length;
+>>>>>>> upstream/android-13
 	u8	*func_specific;
 };
 
@@ -142,6 +173,11 @@ struct pm8001_ioctl_payload {
 #define MPI_FATAL_EDUMP_TABLE_HANDSHAKE            0x0C     /* FDDHSHK */
 #define MPI_FATAL_EDUMP_TABLE_STATUS               0x10     /* FDDTSTAT */
 #define MPI_FATAL_EDUMP_TABLE_ACCUM_LEN            0x14     /* ACCDDLEN */
+<<<<<<< HEAD
+=======
+#define MPI_FATAL_EDUMP_TABLE_TOTAL_LEN		   0x18	    /* TOTALLEN */
+#define MPI_FATAL_EDUMP_TABLE_SIGNATURE		   0x1C     /* SIGNITURE */
+>>>>>>> upstream/android-13
 #define MPI_FATAL_EDUMP_HANDSHAKE_RDY              0x1
 #define MPI_FATAL_EDUMP_HANDSHAKE_BUSY             0x0
 #define MPI_FATAL_EDUMP_TABLE_STAT_RSVD                 0x0
@@ -197,7 +233,11 @@ struct pm8001_dispatch {
 	int (*chip_ioremap)(struct pm8001_hba_info *pm8001_ha);
 	void (*chip_iounmap)(struct pm8001_hba_info *pm8001_ha);
 	irqreturn_t (*isr)(struct pm8001_hba_info *pm8001_ha, u8 vec);
+<<<<<<< HEAD
 	u32 (*is_our_interupt)(struct pm8001_hba_info *pm8001_ha);
+=======
+	u32 (*is_our_interrupt)(struct pm8001_hba_info *pm8001_ha);
+>>>>>>> upstream/android-13
 	int (*isr_process_oq)(struct pm8001_hba_info *pm8001_ha, u8 vec);
 	void (*interrupt_enable)(struct pm8001_hba_info *pm8001_ha, u8 vec);
 	void (*interrupt_disable)(struct pm8001_hba_info *pm8001_ha, u8 vec);
@@ -231,6 +271,10 @@ struct pm8001_dispatch {
 	int (*sas_diag_execute_req)(struct pm8001_hba_info *pm8001_ha,
 		u32 state);
 	int (*sas_re_init_req)(struct pm8001_hba_info *pm8001_ha);
+<<<<<<< HEAD
+=======
+	int (*fatal_errors)(struct pm8001_hba_info *pm8001_ha);
+>>>>>>> upstream/android-13
 };
 
 struct pm8001_chip_info {
@@ -280,7 +324,11 @@ struct pm8001_device {
 	struct completion	*dcompletion;
 	struct completion	*setds_completion;
 	u32			device_id;
+<<<<<<< HEAD
 	u32			running_req;
+=======
+	atomic_t		running_req;
+>>>>>>> upstream/android-13
 };
 
 struct pm8001_prd_imt {
@@ -296,13 +344,20 @@ struct pm8001_prd {
  * CCB(Command Control Block)
  */
 struct pm8001_ccb_info {
+<<<<<<< HEAD
 	struct list_head	entry;
+=======
+>>>>>>> upstream/android-13
 	struct sas_task		*task;
 	u32			n_elem;
 	u32			ccb_tag;
 	dma_addr_t		ccb_dma_handle;
 	struct pm8001_device	*device;
+<<<<<<< HEAD
 	struct pm8001_prd	buf_prd[PM8001_MAX_DMA_SG];
+=======
+	struct pm8001_prd	*buf_prd;
+>>>>>>> upstream/android-13
 	struct fw_control_ex	*fw_control_context;
 	u8			open_retry;
 };
@@ -455,6 +510,10 @@ struct inbound_queue_table {
 	u32			reserved;
 	__le32			consumer_index;
 	u32			producer_idx;
+<<<<<<< HEAD
+=======
+	spinlock_t		iq_lock;
+>>>>>>> upstream/android-13
 };
 struct outbound_queue_table {
 	u32			element_size_cnt;
@@ -471,6 +530,11 @@ struct outbound_queue_table {
 	u32			dinterrup_to_pci_offset;
 	__le32			producer_index;
 	u32			consumer_idx;
+<<<<<<< HEAD
+=======
+	spinlock_t		oq_lock;
+	unsigned long		lock_flags;
+>>>>>>> upstream/android-13
 };
 struct pm8001_hba_memspace {
 	void __iomem  		*memvirtaddr;
@@ -497,6 +561,10 @@ struct pm8001_hba_info {
 	u32			forensic_last_offset;
 	u32			fatal_forensic_shift_offset;
 	u32			forensic_fatal_step;
+<<<<<<< HEAD
+=======
+	u32			forensic_preserved_accumulated_transfer;
+>>>>>>> upstream/android-13
 	u32			evtlog_ib_offset;
 	u32			evtlog_ob_offset;
 	void __iomem	*msg_unit_tbl_addr;/*Message Unit Table Addr*/
@@ -510,8 +578,13 @@ struct pm8001_hba_info {
 	void __iomem	*fatal_tbl_addr; /*MPI IVT Table Addr */
 	union main_cfg_table	main_cfg_tbl;
 	union general_status_table	gs_tbl;
+<<<<<<< HEAD
 	struct inbound_queue_table	inbnd_q_tbl[PM8001_MAX_SPCV_INB_NUM];
 	struct outbound_queue_table	outbnd_q_tbl[PM8001_MAX_SPCV_OUTB_NUM];
+=======
+	struct inbound_queue_table	inbnd_q_tbl[PM8001_MAX_INB_NUM];
+	struct outbound_queue_table	outbnd_q_tbl[PM8001_MAX_OUTB_NUM];
+>>>>>>> upstream/android-13
 	struct sas_phy_attribute_table	phy_attr_table;
 					/* MPI SAS PHY attributes */
 	u8			sas_addr[SAS_ADDR_SIZE];
@@ -529,19 +602,42 @@ struct pm8001_hba_info {
 	u32			iomb_size; /* SPC and SPCV IOMB size */
 	struct pm8001_device	*devices;
 	struct pm8001_ccb_info	*ccb_info;
+<<<<<<< HEAD
 #ifdef PM8001_USE_MSIX
 	int			number_of_intr;/*will be used in remove()*/
+=======
+	u32			ccb_count;
+#ifdef PM8001_USE_MSIX
+	int			number_of_intr;/*will be used in remove()*/
+	char			intr_drvname[PM8001_MAX_MSIX_VEC]
+				[PM8001_NAME_LENGTH+1+3+1];
+>>>>>>> upstream/android-13
 #endif
 #ifdef PM8001_USE_TASKLET
 	struct tasklet_struct	tasklet[PM8001_MAX_MSIX_VEC];
 #endif
 	u32			logging_level;
+<<<<<<< HEAD
+=======
+	u32			link_rate;
+>>>>>>> upstream/android-13
 	u32			fw_status;
 	u32			smp_exp_mode;
 	bool			controller_fatal_error;
 	const struct firmware 	*fw_image;
 	struct isr_param irq_vector[PM8001_MAX_MSIX_VEC];
 	u32			reset_in_progress;
+<<<<<<< HEAD
+=======
+	u32			non_fatal_count;
+	u32			non_fatal_read_length;
+	u32 max_q_num;
+	u32 ib_offset;
+	u32 ob_offset;
+	u32 ci_offset;
+	u32 pi_offset;
+	u32 max_memcnt;
+>>>>>>> upstream/android-13
 };
 
 struct pm8001_work {
@@ -664,7 +760,12 @@ int pm8001_mem_alloc(struct pci_dev *pdev, void **virt_addr,
 void pm8001_chip_iounmap(struct pm8001_hba_info *pm8001_ha);
 int pm8001_mpi_build_cmd(struct pm8001_hba_info *pm8001_ha,
 			struct inbound_queue_table *circularQ,
+<<<<<<< HEAD
 			u32 opCode, void *payload, u32 responseQueue);
+=======
+			u32 opCode, void *payload, size_t nb,
+			u32 responseQueue);
+>>>>>>> upstream/android-13
 int pm8001_mpi_msg_free_get(struct inbound_queue_table *circularQ,
 				u16 messageSize, void **messagePtr);
 u32 pm8001_mpi_msg_free_set(struct pm8001_hba_info *pm8001_ha, void *pMsg,
@@ -706,7 +807,11 @@ int pm8001_mpi_reg_resp(struct pm8001_hba_info *pm8001_ha, void *piomb);
 int pm8001_mpi_dereg_resp(struct pm8001_hba_info *pm8001_ha, void *piomb);
 int pm8001_mpi_fw_flash_update_resp(struct pm8001_hba_info *pm8001_ha,
 							void *piomb);
+<<<<<<< HEAD
 int pm8001_mpi_general_event(struct pm8001_hba_info *pm8001_ha , void *piomb);
+=======
+int pm8001_mpi_general_event(struct pm8001_hba_info *pm8001_ha, void *piomb);
+>>>>>>> upstream/android-13
 int pm8001_mpi_task_abort_resp(struct pm8001_hba_info *pm8001_ha, void *piomb);
 struct sas_task *pm8001_alloc_task(void);
 void pm8001_task_done(struct sas_task *task);
@@ -724,7 +829,15 @@ void pm8001_set_phy_profile_single(struct pm8001_hba_info *pm8001_ha,
 int pm80xx_bar4_shift(struct pm8001_hba_info *pm8001_ha, u32 shiftValue);
 ssize_t pm80xx_get_fatal_dump(struct device *cdev,
 		struct device_attribute *attr, char *buf);
+<<<<<<< HEAD
 ssize_t pm8001_get_gsm_dump(struct device *cdev, u32, char *buf);
+=======
+ssize_t pm80xx_get_non_fatal_dump(struct device *cdev,
+		struct device_attribute *attr, char *buf);
+ssize_t pm8001_get_gsm_dump(struct device *cdev, u32, char *buf);
+int pm80xx_fatal_errors(struct pm8001_hba_info *pm8001_ha);
+void pm8001_free_dev(struct pm8001_device *pm8001_dev);
+>>>>>>> upstream/android-13
 /* ctl shared API */
 extern struct device_attribute *pm8001_host_attrs[];
 
@@ -735,9 +848,13 @@ pm8001_ccb_task_free_done(struct pm8001_hba_info *pm8001_ha,
 {
 	pm8001_ccb_task_free(pm8001_ha, task, ccb, ccb_idx);
 	smp_mb(); /*in order to force CPU ordering*/
+<<<<<<< HEAD
 	spin_unlock(&pm8001_ha->lock);
 	task->task_done(task);
 	spin_lock(&pm8001_ha->lock);
+=======
+	task->task_done(task);
+>>>>>>> upstream/android-13
 }
 
 #endif

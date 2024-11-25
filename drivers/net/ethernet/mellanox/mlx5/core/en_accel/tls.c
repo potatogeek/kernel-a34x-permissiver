@@ -160,25 +160,47 @@ static void mlx5e_tls_del(struct net_device *netdev,
 				direction == TLS_OFFLOAD_CTX_DIR_TX);
 }
 
+<<<<<<< HEAD
 static void mlx5e_tls_resync_rx(struct net_device *netdev, struct sock *sk,
 				u32 seq, u64 rcd_sn)
+=======
+static int mlx5e_tls_resync(struct net_device *netdev, struct sock *sk,
+			    u32 seq, u8 *rcd_sn_data,
+			    enum tls_offload_ctx_dir direction)
+>>>>>>> upstream/android-13
 {
 	struct tls_context *tls_ctx = tls_get_ctx(sk);
 	struct mlx5e_priv *priv = netdev_priv(netdev);
 	struct mlx5e_tls_offload_context_rx *rx_ctx;
+<<<<<<< HEAD
 
+=======
+	__be64 rcd_sn = *(__be64 *)rcd_sn_data;
+
+	if (WARN_ON_ONCE(direction != TLS_OFFLOAD_CTX_DIR_RX))
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	rx_ctx = mlx5e_get_tls_rx_context(tls_ctx);
 
 	netdev_info(netdev, "resyncing seq %d rcd %lld\n", seq,
 		    be64_to_cpu(rcd_sn));
 	mlx5_accel_tls_resync_rx(priv->mdev, rx_ctx->handle, seq, rcd_sn);
 	atomic64_inc(&priv->tls->sw_stats.rx_tls_resync_reply);
+<<<<<<< HEAD
+=======
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static const struct tlsdev_ops mlx5e_tls_ops = {
 	.tls_dev_add = mlx5e_tls_add,
 	.tls_dev_del = mlx5e_tls_del,
+<<<<<<< HEAD
 	.tls_dev_resync_rx = mlx5e_tls_resync_rx,
+=======
+	.tls_dev_resync = mlx5e_tls_resync,
+>>>>>>> upstream/android-13
 };
 
 void mlx5e_tls_build_netdev(struct mlx5e_priv *priv)
@@ -186,7 +208,17 @@ void mlx5e_tls_build_netdev(struct mlx5e_priv *priv)
 	struct net_device *netdev = priv->netdev;
 	u32 caps;
 
+<<<<<<< HEAD
 	if (!mlx5_accel_is_tls_device(priv->mdev))
+=======
+	if (mlx5e_accel_is_ktls_device(priv->mdev)) {
+		mlx5e_ktls_build_netdev(priv);
+		return;
+	}
+
+	/* FPGA */
+	if (!mlx5e_accel_is_tls_device(priv->mdev))
+>>>>>>> upstream/android-13
 		return;
 
 	caps = mlx5_accel_tls_device_caps(priv->mdev);
@@ -210,8 +242,17 @@ void mlx5e_tls_build_netdev(struct mlx5e_priv *priv)
 
 int mlx5e_tls_init(struct mlx5e_priv *priv)
 {
+<<<<<<< HEAD
 	struct mlx5e_tls *tls = kzalloc(sizeof(*tls), GFP_KERNEL);
 
+=======
+	struct mlx5e_tls *tls;
+
+	if (!mlx5e_accel_is_tls_device(priv->mdev))
+		return 0;
+
+	tls = kzalloc(sizeof(*tls), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!tls)
 		return -ENOMEM;
 

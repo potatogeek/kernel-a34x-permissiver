@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * wm8903.c  --  WM8903 ALSA SoC Audio driver
  *
@@ -6,10 +10,13 @@
  *
  * Author: Mark Brown <broonie@opensource.wolfsonmicro.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * TODO:
  *  - TDM mode configuration.
  *  - Digital microphone support.
@@ -345,7 +352,11 @@ static void wm8903_seq_notifier(struct snd_soc_component *component,
 				if (!(wm8903->dcs_pending & (1 << i)))
 					continue;
 
+<<<<<<< HEAD
 				val = snd_soc_component_read32(component,
+=======
+				val = snd_soc_component_read(component,
+>>>>>>> upstream/android-13
 						   WM8903_DC_SERVO_READBACK_1 + i);
 				dev_dbg(component->dev, "DC servo %d: %x\n",
 					3 - i, val);
@@ -378,7 +389,11 @@ static int wm8903_class_w_put(struct snd_kcontrol *kcontrol,
 	u16 reg;
 	int ret;
 
+<<<<<<< HEAD
 	reg = snd_soc_component_read32(component, WM8903_CLASS_W_0);
+=======
+	reg = snd_soc_component_read(component, WM8903_CLASS_W_0);
+>>>>>>> upstream/android-13
 
 	/* Turn it off if we're about to enable bypass */
 	if (ucontrol->value.integer.value[0]) {
@@ -1227,7 +1242,11 @@ static int wm8903_set_dai_fmt(struct snd_soc_dai *codec_dai,
 			      unsigned int fmt)
 {
 	struct snd_soc_component *component = codec_dai->component;
+<<<<<<< HEAD
 	u16 aif1 = snd_soc_component_read32(component, WM8903_AUDIO_INTERFACE_1);
+=======
+	u16 aif1 = snd_soc_component_read(component, WM8903_AUDIO_INTERFACE_1);
+>>>>>>> upstream/android-13
 
 	aif1 &= ~(WM8903_LRCLK_DIR | WM8903_BCLK_DIR | WM8903_AIF_FMT_MASK |
 		  WM8903_AIF_LRCLK_INV | WM8903_AIF_BCLK_INV);
@@ -1310,12 +1329,20 @@ static int wm8903_set_dai_fmt(struct snd_soc_dai *codec_dai,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int wm8903_digital_mute(struct snd_soc_dai *codec_dai, int mute)
+=======
+static int wm8903_mute(struct snd_soc_dai *codec_dai, int mute, int direction)
+>>>>>>> upstream/android-13
 {
 	struct snd_soc_component *component = codec_dai->component;
 	u16 reg;
 
+<<<<<<< HEAD
 	reg = snd_soc_component_read32(component, WM8903_DAC_DIGITAL_1);
+=======
+	reg = snd_soc_component_read(component, WM8903_DAC_DIGITAL_1);
+>>>>>>> upstream/android-13
 
 	if (mute)
 		reg |= WM8903_DAC_MUTE;
@@ -1454,12 +1481,21 @@ static int wm8903_hw_params(struct snd_pcm_substream *substream,
 	int cur_val;
 	int clk_sys;
 
+<<<<<<< HEAD
 	u16 aif1 = snd_soc_component_read32(component, WM8903_AUDIO_INTERFACE_1);
 	u16 aif2 = snd_soc_component_read32(component, WM8903_AUDIO_INTERFACE_2);
 	u16 aif3 = snd_soc_component_read32(component, WM8903_AUDIO_INTERFACE_3);
 	u16 clock0 = snd_soc_component_read32(component, WM8903_CLOCK_RATES_0);
 	u16 clock1 = snd_soc_component_read32(component, WM8903_CLOCK_RATES_1);
 	u16 dac_digital1 = snd_soc_component_read32(component, WM8903_DAC_DIGITAL_1);
+=======
+	u16 aif1 = snd_soc_component_read(component, WM8903_AUDIO_INTERFACE_1);
+	u16 aif2 = snd_soc_component_read(component, WM8903_AUDIO_INTERFACE_2);
+	u16 aif3 = snd_soc_component_read(component, WM8903_AUDIO_INTERFACE_3);
+	u16 clock0 = snd_soc_component_read(component, WM8903_CLOCK_RATES_0);
+	u16 clock1 = snd_soc_component_read(component, WM8903_CLOCK_RATES_1);
+	u16 dac_digital1 = snd_soc_component_read(component, WM8903_DAC_DIGITAL_1);
+>>>>>>> upstream/android-13
 
 	/* Enable sloping stopband filter for low sample rates */
 	if (fs <= 24000)
@@ -1552,14 +1588,20 @@ static int wm8903_hw_params(struct snd_pcm_substream *substream,
 	 * BCLKs to clock out the samples).
 	 */
 	bclk_div = 0;
+<<<<<<< HEAD
 	best_val = ((clk_sys * 10) / bclk_divs[0].ratio) - bclk;
+=======
+>>>>>>> upstream/android-13
 	i = 1;
 	while (i < ARRAY_SIZE(bclk_divs)) {
 		cur_val = ((clk_sys * 10) / bclk_divs[i].ratio) - bclk;
 		if (cur_val < 0) /* BCLK table is sorted */
 			break;
 		bclk_div = i;
+<<<<<<< HEAD
 		best_val = cur_val;
+=======
+>>>>>>> upstream/android-13
 		i++;
 	}
 
@@ -1740,9 +1782,16 @@ static irqreturn_t wm8903_irq(int irq, void *data)
 
 static const struct snd_soc_dai_ops wm8903_dai_ops = {
 	.hw_params	= wm8903_hw_params,
+<<<<<<< HEAD
 	.digital_mute	= wm8903_digital_mute,
 	.set_fmt	= wm8903_set_dai_fmt,
 	.set_sysclk	= wm8903_set_dai_sysclk,
+=======
+	.mute_stream	= wm8903_mute,
+	.set_fmt	= wm8903_set_dai_fmt,
+	.set_sysclk	= wm8903_set_dai_sysclk,
+	.no_capture_mute = 1,
+>>>>>>> upstream/android-13
 };
 
 static struct snd_soc_dai_driver wm8903_dai = {
@@ -1762,7 +1811,11 @@ static struct snd_soc_dai_driver wm8903_dai = {
 		 .formats = WM8903_FORMATS,
 	 },
 	.ops = &wm8903_dai_ops,
+<<<<<<< HEAD
 	.symmetric_rates = 1,
+=======
+	.symmetric_rate = 1,
+>>>>>>> upstream/android-13
 };
 
 static int wm8903_resume(struct snd_soc_component *component)
@@ -1930,7 +1983,11 @@ static int wm8903_set_pdata_irq_trigger(struct i2c_client *i2c,
 		* We assume the controller imposes no restrictions,
 		* so we are able to select active-high
 		*/
+<<<<<<< HEAD
 		/* Fall-through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case IRQ_TYPE_LEVEL_HIGH:
 		pdata->irq_active_low = false;
 		break;

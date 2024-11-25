@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * SQ930x subdriver
  *
  * Copyright (C) 2010 Jean-François Moine <http://moinejf.free.fr>
  * Copyright (C) 2006 -2008 Gerard Klaver <gerard at gkall dot hobby dot nl>
  * Copyright (C) 2007 Sam Revitch <samr7@cs.washington.edu>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +19,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -1049,7 +1056,11 @@ static void sd_dq_callback(struct gspca_dev *gspca_dev)
 			v4l2_ctrl_g_ctrl(sd->gain));
 
 	gspca_dev->cam.bulk_nurbs = 1;
+<<<<<<< HEAD
 	ret = usb_submit_urb(gspca_dev->urb[0], GFP_ATOMIC);
+=======
+	ret = usb_submit_urb(gspca_dev->urb[0], GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		pr_err("sd_dq_callback() err %d\n", ret);
 

@@ -87,6 +87,12 @@ void acpi_rs_dump_resource_list(struct acpi_resource *resource_list)
 			    ("Invalid descriptor type (%X) in resource list\n",
 			     resource_list->type);
 			return;
+<<<<<<< HEAD
+=======
+		} else if (!resource_list->type) {
+			ACPI_ERROR((AE_INFO, "Invalid Zero Resource Type"));
+			return;
+>>>>>>> upstream/android-13
 		}
 
 		/* Sanity check the length. It must not be zero, or we loop forever */
@@ -258,6 +264,14 @@ acpi_rs_dump_descriptor(void *resource, struct acpi_rsdump_info *table)
 					   table->pointer[*target & 0x07]);
 			break;
 
+<<<<<<< HEAD
+=======
+		case ACPI_RSD_6BITFLAG:
+
+			acpi_rs_out_integer8(name, (ACPI_GET8(target) & 0x3F));
+			break;
+
+>>>>>>> upstream/android-13
 		case ACPI_RSD_SHORTLIST:
 			/*
 			 * Short byte list (single line output) for DMA and IRQ resources

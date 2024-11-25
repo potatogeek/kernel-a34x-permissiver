@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * tsys02d.c - Support for Measurement-Specialties tsys02d temperature sensor
  *
  * Copyright (c) 2015 Measurement-Specialties
  *
+<<<<<<< HEAD
  * Licensed under the GPL-2.
  *
+=======
+>>>>>>> upstream/android-13
  * (7-bit I2C slave address 0x40)
  *
  * Datasheet:
@@ -150,7 +157,10 @@ static int tsys02d_probe(struct i2c_client *client,
 
 	indio_dev->info = &tsys02d_info;
 	indio_dev->name = id->name;
+<<<<<<< HEAD
 	indio_dev->dev.parent = &client->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->channels = tsys02d_channels;
 	indio_dev->num_channels = ARRAY_SIZE(tsys02d_channels);

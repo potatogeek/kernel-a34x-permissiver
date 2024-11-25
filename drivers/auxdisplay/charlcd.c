@@ -8,7 +8,10 @@
 
 #include <linux/atomic.h>
 #include <linux/ctype.h>
+<<<<<<< HEAD
 #include <linux/delay.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/fs.h>
 #include <linux/miscdevice.h>
 #include <linux/module.h>
@@ -20,16 +23,21 @@
 
 #include <generated/utsrelease.h>
 
+<<<<<<< HEAD
 #include <misc/charlcd.h>
 
 #define LCD_MINOR		156
 
 #define DEFAULT_LCD_BWIDTH      40
 #define DEFAULT_LCD_HWIDTH      64
+=======
+#include "charlcd.h"
+>>>>>>> upstream/android-13
 
 /* Keep the backlight on this many seconds for each flash */
 #define LCD_BL_TEMPO_PERIOD	4
 
+<<<<<<< HEAD
 #define LCD_FLAG_B		0x0004	/* Blink on */
 #define LCD_FLAG_C		0x0008	/* Cursor on */
 #define LCD_FLAG_D		0x0010	/* Display on */
@@ -61,6 +69,8 @@
 
 #define LCD_CMD_SET_DDRAM_ADDR	0x80	/* Set display data RAM address */
 
+=======
+>>>>>>> upstream/android-13
 #define LCD_ESCAPE_LEN		24	/* Max chars for LCD escape command */
 #define LCD_ESCAPE_CHAR		27	/* Use char 27 for escape command */
 
@@ -76,26 +86,37 @@ struct charlcd_priv {
 	/* contains the LCD config state */
 	unsigned long int flags;
 
+<<<<<<< HEAD
 	/* Contains the LCD X and Y offset */
 	struct {
 		unsigned long int x;
 		unsigned long int y;
 	} addr;
 
+=======
+>>>>>>> upstream/android-13
 	/* Current escape sequence and it's length or -1 if outside */
 	struct {
 		char buf[LCD_ESCAPE_LEN + 1];
 		int len;
 	} esc_seq;
 
+<<<<<<< HEAD
 	unsigned long long drvdata[0];
 };
 
 #define to_priv(p)	container_of(p, struct charlcd_priv, lcd)
+=======
+	unsigned long long drvdata[];
+};
+
+#define charlcd_to_priv(p)	container_of(p, struct charlcd_priv, lcd)
+>>>>>>> upstream/android-13
 
 /* Device single-open policy control */
 static atomic_t charlcd_available = ATOMIC_INIT(1);
 
+<<<<<<< HEAD
 /* sleeps that many milliseconds with a reschedule */
 static void long_sleep(int ms)
 {
@@ -106,6 +127,12 @@ static void long_sleep(int ms)
 static void charlcd_backlight(struct charlcd *lcd, int on)
 {
 	struct charlcd_priv *priv = to_priv(lcd);
+=======
+/* turn the backlight on or off */
+void charlcd_backlight(struct charlcd *lcd, enum charlcd_onoff on)
+{
+	struct charlcd_priv *priv = charlcd_to_priv(lcd);
+>>>>>>> upstream/android-13
 
 	if (!lcd->ops->backlight)
 		return;
@@ -115,6 +142,10 @@ static void charlcd_backlight(struct charlcd *lcd, int on)
 		lcd->ops->backlight(lcd, on);
 	mutex_unlock(&priv->bl_tempo_lock);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(charlcd_backlight);
+>>>>>>> upstream/android-13
 
 static void charlcd_bl_off(struct work_struct *work)
 {
@@ -126,7 +157,11 @@ static void charlcd_bl_off(struct work_struct *work)
 	if (priv->bl_tempo) {
 		priv->bl_tempo = false;
 		if (!(priv->flags & LCD_FLAG_L))
+<<<<<<< HEAD
 			priv->lcd.ops->backlight(&priv->lcd, 0);
+=======
+			priv->lcd.ops->backlight(&priv->lcd, CHARLCD_OFF);
+>>>>>>> upstream/android-13
 	}
 	mutex_unlock(&priv->bl_tempo_lock);
 }
@@ -134,7 +169,11 @@ static void charlcd_bl_off(struct work_struct *work)
 /* turn the backlight on for a little while */
 void charlcd_poke(struct charlcd *lcd)
 {
+<<<<<<< HEAD
 	struct charlcd_priv *priv = to_priv(lcd);
+=======
+	struct charlcd_priv *priv = charlcd_to_priv(lcd);
+>>>>>>> upstream/android-13
 
 	if (!lcd->ops->backlight)
 		return;
@@ -143,13 +182,18 @@ void charlcd_poke(struct charlcd *lcd)
 
 	mutex_lock(&priv->bl_tempo_lock);
 	if (!priv->bl_tempo && !(priv->flags & LCD_FLAG_L))
+<<<<<<< HEAD
 		lcd->ops->backlight(lcd, 1);
+=======
+		lcd->ops->backlight(lcd, CHARLCD_ON);
+>>>>>>> upstream/android-13
 	priv->bl_tempo = true;
 	schedule_delayed_work(&priv->bl_work, LCD_BL_TEMPO_PERIOD * HZ);
 	mutex_unlock(&priv->bl_tempo_lock);
 }
 EXPORT_SYMBOL_GPL(charlcd_poke);
 
+<<<<<<< HEAD
 static void charlcd_gotoxy(struct charlcd *lcd)
 {
 	struct charlcd_priv *priv = to_priv(lcd);
@@ -175,10 +219,18 @@ static void charlcd_home(struct charlcd *lcd)
 	priv->addr.x = 0;
 	priv->addr.y = 0;
 	charlcd_gotoxy(lcd);
+=======
+static void charlcd_home(struct charlcd *lcd)
+{
+	lcd->addr.x = 0;
+	lcd->addr.y = 0;
+	lcd->ops->home(lcd);
+>>>>>>> upstream/android-13
 }
 
 static void charlcd_print(struct charlcd *lcd, char c)
 {
+<<<<<<< HEAD
 	struct charlcd_priv *priv = to_priv(lcd);
 
 	if (priv->addr.x < lcd->bwidth) {
@@ -310,6 +362,27 @@ static bool parse_n(const char *s, unsigned long *res, const char **next_s)
 
 	*next_s = s;
 	return true;
+=======
+	if (lcd->addr.x >= lcd->width)
+		return;
+
+	if (lcd->char_conv)
+		c = lcd->char_conv[(unsigned char)c];
+
+	if (!lcd->ops->print(lcd, c))
+		lcd->addr.x++;
+
+	/* prevents the cursor from wrapping onto the next line */
+	if (lcd->addr.x == lcd->width)
+		lcd->ops->gotoxy(lcd, lcd->addr.x - 1, lcd->addr.y);
+}
+
+static void charlcd_clear_display(struct charlcd *lcd)
+{
+	lcd->ops->clear_display(lcd);
+	lcd->addr.x = 0;
+	lcd->addr.y = 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -336,6 +409,10 @@ static bool parse_xy(const char *s, unsigned long *x, unsigned long *y)
 {
 	unsigned long new_x = *x;
 	unsigned long new_y = *y;
+<<<<<<< HEAD
+=======
+	char *p;
+>>>>>>> upstream/android-13
 
 	for (;;) {
 		if (!*s)
@@ -345,11 +422,23 @@ static bool parse_xy(const char *s, unsigned long *x, unsigned long *y)
 			break;
 
 		if (*s == 'x') {
+<<<<<<< HEAD
 			if (!parse_n(s + 1, &new_x, &s))
 				return false;
 		} else if (*s == 'y') {
 			if (!parse_n(s + 1, &new_y, &s))
 				return false;
+=======
+			new_x = simple_strtoul(s + 1, &p, 10);
+			if (p == s + 1)
+				return false;
+			s = p;
+		} else if (*s == 'y') {
+			new_y = simple_strtoul(s + 1, &p, 10);
+			if (p == s + 1)
+				return false;
+			s = p;
+>>>>>>> upstream/android-13
 		} else {
 			return false;
 		}
@@ -369,7 +458,11 @@ static bool parse_xy(const char *s, unsigned long *x, unsigned long *y)
 
 static inline int handle_lcd_special_code(struct charlcd *lcd)
 {
+<<<<<<< HEAD
 	struct charlcd_priv *priv = to_priv(lcd);
+=======
+	struct charlcd_priv *priv = charlcd_to_priv(lcd);
+>>>>>>> upstream/android-13
 
 	/* LCD special codes */
 
@@ -382,34 +475,82 @@ static inline int handle_lcd_special_code(struct charlcd *lcd)
 	switch (*esc) {
 	case 'D':	/* Display ON */
 		priv->flags |= LCD_FLAG_D;
+<<<<<<< HEAD
+=======
+		if (priv->flags != oldflags)
+			lcd->ops->display(lcd, CHARLCD_ON);
+
+>>>>>>> upstream/android-13
 		processed = 1;
 		break;
 	case 'd':	/* Display OFF */
 		priv->flags &= ~LCD_FLAG_D;
+<<<<<<< HEAD
+=======
+		if (priv->flags != oldflags)
+			lcd->ops->display(lcd, CHARLCD_OFF);
+
+>>>>>>> upstream/android-13
 		processed = 1;
 		break;
 	case 'C':	/* Cursor ON */
 		priv->flags |= LCD_FLAG_C;
+<<<<<<< HEAD
+=======
+		if (priv->flags != oldflags)
+			lcd->ops->cursor(lcd, CHARLCD_ON);
+
+>>>>>>> upstream/android-13
 		processed = 1;
 		break;
 	case 'c':	/* Cursor OFF */
 		priv->flags &= ~LCD_FLAG_C;
+<<<<<<< HEAD
+=======
+		if (priv->flags != oldflags)
+			lcd->ops->cursor(lcd, CHARLCD_OFF);
+
+>>>>>>> upstream/android-13
 		processed = 1;
 		break;
 	case 'B':	/* Blink ON */
 		priv->flags |= LCD_FLAG_B;
+<<<<<<< HEAD
+=======
+		if (priv->flags != oldflags)
+			lcd->ops->blink(lcd, CHARLCD_ON);
+
+>>>>>>> upstream/android-13
 		processed = 1;
 		break;
 	case 'b':	/* Blink OFF */
 		priv->flags &= ~LCD_FLAG_B;
+<<<<<<< HEAD
+=======
+		if (priv->flags != oldflags)
+			lcd->ops->blink(lcd, CHARLCD_OFF);
+
+>>>>>>> upstream/android-13
 		processed = 1;
 		break;
 	case '+':	/* Back light ON */
 		priv->flags |= LCD_FLAG_L;
+<<<<<<< HEAD
+=======
+		if (priv->flags != oldflags)
+			charlcd_backlight(lcd, CHARLCD_ON);
+
+>>>>>>> upstream/android-13
 		processed = 1;
 		break;
 	case '-':	/* Back light OFF */
 		priv->flags &= ~LCD_FLAG_L;
+<<<<<<< HEAD
+=======
+		if (priv->flags != oldflags)
+			charlcd_backlight(lcd, CHARLCD_OFF);
+
+>>>>>>> upstream/android-13
 		processed = 1;
 		break;
 	case '*':	/* Flash back light */
@@ -418,18 +559,37 @@ static inline int handle_lcd_special_code(struct charlcd *lcd)
 		break;
 	case 'f':	/* Small Font */
 		priv->flags &= ~LCD_FLAG_F;
+<<<<<<< HEAD
+=======
+		if (priv->flags != oldflags)
+			lcd->ops->fontsize(lcd, CHARLCD_FONTSIZE_SMALL);
+
+>>>>>>> upstream/android-13
 		processed = 1;
 		break;
 	case 'F':	/* Large Font */
 		priv->flags |= LCD_FLAG_F;
+<<<<<<< HEAD
+=======
+		if (priv->flags != oldflags)
+			lcd->ops->fontsize(lcd, CHARLCD_FONTSIZE_LARGE);
+
+>>>>>>> upstream/android-13
 		processed = 1;
 		break;
 	case 'n':	/* One Line */
 		priv->flags &= ~LCD_FLAG_N;
+<<<<<<< HEAD
+=======
+		if (priv->flags != oldflags)
+			lcd->ops->lines(lcd, CHARLCD_LINES_1);
+
+>>>>>>> upstream/android-13
 		processed = 1;
 		break;
 	case 'N':	/* Two Lines */
 		priv->flags |= LCD_FLAG_N;
+<<<<<<< HEAD
 		processed = 1;
 		break;
 	case 'l':	/* Shift Cursor Left */
@@ -469,10 +629,54 @@ static inline int handle_lcd_special_code(struct charlcd *lcd)
 
 		/* restore cursor position */
 		charlcd_gotoxy(lcd);
+=======
+		if (priv->flags != oldflags)
+			lcd->ops->lines(lcd, CHARLCD_LINES_2);
+
+		processed = 1;
+		break;
+	case 'l':	/* Shift Cursor Left */
+		if (lcd->addr.x > 0) {
+			if (!lcd->ops->shift_cursor(lcd, CHARLCD_SHIFT_LEFT))
+				lcd->addr.x--;
+		}
+
+		processed = 1;
+		break;
+	case 'r':	/* shift cursor right */
+		if (lcd->addr.x < lcd->width) {
+			if (!lcd->ops->shift_cursor(lcd, CHARLCD_SHIFT_RIGHT))
+				lcd->addr.x++;
+		}
+
+		processed = 1;
+		break;
+	case 'L':	/* shift display left */
+		lcd->ops->shift_display(lcd, CHARLCD_SHIFT_LEFT);
+		processed = 1;
+		break;
+	case 'R':	/* shift display right */
+		lcd->ops->shift_display(lcd, CHARLCD_SHIFT_RIGHT);
+		processed = 1;
+		break;
+	case 'k': {	/* kill end of line */
+		int x, xs, ys;
+
+		xs = lcd->addr.x;
+		ys = lcd->addr.y;
+		for (x = lcd->addr.x; x < lcd->width; x++)
+			lcd->ops->print(lcd, ' ');
+
+		/* restore cursor position */
+		lcd->addr.x = xs;
+		lcd->addr.y = ys;
+		lcd->ops->gotoxy(lcd, lcd->addr.x, lcd->addr.y);
+>>>>>>> upstream/android-13
 		processed = 1;
 		break;
 	}
 	case 'I':	/* reinitialize display */
+<<<<<<< HEAD
 		charlcd_init_display(lcd);
 		processed = 1;
 		break;
@@ -536,20 +740,40 @@ static inline int handle_lcd_special_code(struct charlcd *lcd)
 		processed = 1;
 		break;
 	}
+=======
+		lcd->ops->init_display(lcd);
+		priv->flags = ((lcd->height > 1) ? LCD_FLAG_N : 0) | LCD_FLAG_D |
+			LCD_FLAG_C | LCD_FLAG_B;
+		processed = 1;
+		break;
+	case 'G':
+		if (lcd->ops->redefine_char)
+			processed = lcd->ops->redefine_char(lcd, esc);
+		else
+			processed = 1;
+		break;
+
+>>>>>>> upstream/android-13
 	case 'x':	/* gotoxy : LxXXX[yYYY]; */
 	case 'y':	/* gotoxy : LyYYY[xXXX]; */
 		if (priv->esc_seq.buf[priv->esc_seq.len - 1] != ';')
 			break;
 
 		/* If the command is valid, move to the new address */
+<<<<<<< HEAD
 		if (parse_xy(esc, &priv->addr.x, &priv->addr.y))
 			charlcd_gotoxy(lcd);
+=======
+		if (parse_xy(esc, &lcd->addr.x, &lcd->addr.y))
+			lcd->ops->gotoxy(lcd, lcd->addr.x, lcd->addr.y);
+>>>>>>> upstream/android-13
 
 		/* Regardless of its validity, mark as processed */
 		processed = 1;
 		break;
 	}
 
+<<<<<<< HEAD
 	/* TODO: This indent party here got ugly, clean it! */
 	/* Check whether one flag was changed */
 	if (oldflags == priv->flags)
@@ -575,12 +799,18 @@ static inline int handle_lcd_special_code(struct charlcd *lcd)
 	else if ((oldflags ^ priv->flags) & LCD_FLAG_L)
 		charlcd_backlight(lcd, !!(priv->flags & LCD_FLAG_L));
 
+=======
+>>>>>>> upstream/android-13
 	return processed;
 }
 
 static void charlcd_write_char(struct charlcd *lcd, char c)
 {
+<<<<<<< HEAD
 	struct charlcd_priv *priv = to_priv(lcd);
+=======
+	struct charlcd_priv *priv = charlcd_to_priv(lcd);
+>>>>>>> upstream/android-13
 
 	/* first, we'll test if we're in escape mode */
 	if ((c != '\n') && priv->esc_seq.len >= 0) {
@@ -599,6 +829,7 @@ static void charlcd_write_char(struct charlcd *lcd, char c)
 			break;
 		case '\b':
 			/* go back one char and clear it */
+<<<<<<< HEAD
 			if (priv->addr.x > 0) {
 				/*
 				 * check if we're not at the
@@ -617,12 +848,31 @@ static void charlcd_write_char(struct charlcd *lcd, char c)
 		case '\f':
 			/* quickly clear the display */
 			charlcd_clear_fast(lcd);
+=======
+			if (lcd->addr.x > 0) {
+				/* back one char */
+				if (!lcd->ops->shift_cursor(lcd,
+							CHARLCD_SHIFT_LEFT))
+					lcd->addr.x--;
+			}
+			/* replace with a space */
+			charlcd_print(lcd, ' ');
+			/* back one char again */
+			if (!lcd->ops->shift_cursor(lcd, CHARLCD_SHIFT_LEFT))
+				lcd->addr.x--;
+
+			break;
+		case '\f':
+			/* quickly clear the display */
+			charlcd_clear_display(lcd);
+>>>>>>> upstream/android-13
 			break;
 		case '\n':
 			/*
 			 * flush the remainder of the current line and
 			 * go to the beginning of the next line
 			 */
+<<<<<<< HEAD
 			for (; priv->addr.x < lcd->bwidth; priv->addr.x++)
 				lcd->ops->write_data(lcd, ' ');
 			priv->addr.x = 0;
@@ -633,6 +883,19 @@ static void charlcd_write_char(struct charlcd *lcd, char c)
 			/* go to the beginning of the same line */
 			priv->addr.x = 0;
 			charlcd_gotoxy(lcd);
+=======
+			for (; lcd->addr.x < lcd->width; lcd->addr.x++)
+				lcd->ops->print(lcd, ' ');
+
+			lcd->addr.x = 0;
+			lcd->addr.y = (lcd->addr.y + 1) % lcd->height;
+			lcd->ops->gotoxy(lcd, lcd->addr.x, lcd->addr.y);
+			break;
+		case '\r':
+			/* go to the beginning of the same line */
+			lcd->addr.x = 0;
+			lcd->ops->gotoxy(lcd, lcd->addr.x, lcd->addr.y);
+>>>>>>> upstream/android-13
 			break;
 		case '\t':
 			/* print a space instead of the tab */
@@ -654,7 +917,11 @@ static void charlcd_write_char(struct charlcd *lcd, char c)
 
 		if (!strcmp(priv->esc_seq.buf, "[2J")) {
 			/* clear the display */
+<<<<<<< HEAD
 			charlcd_clear_fast(lcd);
+=======
+			charlcd_clear_display(lcd);
+>>>>>>> upstream/android-13
 			processed = 1;
 		} else if (!strcmp(priv->esc_seq.buf, "[H")) {
 			/* cursor to home */
@@ -687,12 +954,23 @@ static ssize_t charlcd_write(struct file *file, const char __user *buf,
 	char c;
 
 	for (; count-- > 0; (*ppos)++, tmp++) {
+<<<<<<< HEAD
 		if (!in_interrupt() && (((count + 1) & 0x1f) == 0))
 			/*
 			 * let's be a little nice with other processes
 			 * that need some CPU
 			 */
 			schedule();
+=======
+		if (((count + 1) & 0x1f) == 0) {
+			/*
+			 * charlcd_write() is invoked as a VFS->write() callback
+			 * and as such it is always invoked from preemptible
+			 * context and may sleep.
+			 */
+			cond_resched();
+		}
+>>>>>>> upstream/android-13
 
 		if (get_user(c, tmp))
 			return -EFAULT;
@@ -705,7 +983,11 @@ static ssize_t charlcd_write(struct file *file, const char __user *buf,
 
 static int charlcd_open(struct inode *inode, struct file *file)
 {
+<<<<<<< HEAD
 	struct charlcd_priv *priv = to_priv(the_charlcd);
+=======
+	struct charlcd_priv *priv = charlcd_to_priv(the_charlcd);
+>>>>>>> upstream/android-13
 	int ret;
 
 	ret = -EBUSY;
@@ -717,8 +999,15 @@ static int charlcd_open(struct inode *inode, struct file *file)
 		goto fail;
 
 	if (priv->must_clear) {
+<<<<<<< HEAD
 		charlcd_clear_display(&priv->lcd);
 		priv->must_clear = false;
+=======
+		priv->lcd.ops->clear_display(&priv->lcd);
+		priv->must_clear = false;
+		priv->lcd.addr.x = 0;
+		priv->lcd.addr.y = 0;
+>>>>>>> upstream/android-13
 	}
 	return nonseekable_open(inode, file);
 
@@ -752,23 +1041,53 @@ static void charlcd_puts(struct charlcd *lcd, const char *s)
 	int count = strlen(s);
 
 	for (; count-- > 0; tmp++) {
+<<<<<<< HEAD
 		if (!in_interrupt() && (((count + 1) & 0x1f) == 0))
 			/*
 			 * let's be a little nice with other processes
 			 * that need some CPU
 			 */
 			schedule();
+=======
+		if (((count + 1) & 0x1f) == 0)
+			cond_resched();
+>>>>>>> upstream/android-13
 
 		charlcd_write_char(lcd, *tmp);
 	}
 }
 
+<<<<<<< HEAD
 /* initialize the LCD driver */
 static int charlcd_init(struct charlcd *lcd)
 {
 	struct charlcd_priv *priv = to_priv(lcd);
 	int ret;
 
+=======
+#ifdef CONFIG_PANEL_BOOT_MESSAGE
+#define LCD_INIT_TEXT CONFIG_PANEL_BOOT_MESSAGE
+#else
+#define LCD_INIT_TEXT "Linux-" UTS_RELEASE "\n"
+#endif
+
+#ifdef CONFIG_CHARLCD_BL_ON
+#define LCD_INIT_BL "\x1b[L+"
+#elif defined(CONFIG_CHARLCD_BL_FLASH)
+#define LCD_INIT_BL "\x1b[L*"
+#else
+#define LCD_INIT_BL "\x1b[L-"
+#endif
+
+/* initialize the LCD driver */
+static int charlcd_init(struct charlcd *lcd)
+{
+	struct charlcd_priv *priv = charlcd_to_priv(lcd);
+	int ret;
+
+	priv->flags = ((lcd->height > 1) ? LCD_FLAG_N : 0) | LCD_FLAG_D |
+		      LCD_FLAG_C | LCD_FLAG_B;
+>>>>>>> upstream/android-13
 	if (lcd->ops->backlight) {
 		mutex_init(&priv->bl_tempo_lock);
 		INIT_DELAYED_WORK(&priv->bl_work, charlcd_bl_off);
@@ -779,11 +1098,19 @@ static int charlcd_init(struct charlcd *lcd)
 	 * Since charlcd_init_display() needs to write data, we have to
 	 * enable mark the LCD initialized just before.
 	 */
+<<<<<<< HEAD
 	ret = charlcd_init_display(lcd);
+=======
+	if (WARN_ON(!lcd->ops->init_display))
+		return -EINVAL;
+
+	ret = lcd->ops->init_display(lcd);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
 	/* display a short message */
+<<<<<<< HEAD
 #ifdef CONFIG_PANEL_CHANGE_MESSAGE
 #ifdef CONFIG_PANEL_BOOT_MESSAGE
 	charlcd_puts(lcd, "\x1b[Lc\x1b[Lb\x1b[L*" CONFIG_PANEL_BOOT_MESSAGE);
@@ -791,33 +1118,57 @@ static int charlcd_init(struct charlcd *lcd)
 #else
 	charlcd_puts(lcd, "\x1b[Lc\x1b[Lb\x1b[L*Linux-" UTS_RELEASE "\n");
 #endif
+=======
+	charlcd_puts(lcd, "\x1b[Lc\x1b[Lb" LCD_INIT_BL LCD_INIT_TEXT);
+
+>>>>>>> upstream/android-13
 	/* clear the display on the next device opening */
 	priv->must_clear = true;
 	charlcd_home(lcd);
 	return 0;
 }
 
+<<<<<<< HEAD
 struct charlcd *charlcd_alloc(unsigned int drvdata_size)
+=======
+struct charlcd *charlcd_alloc(void)
+>>>>>>> upstream/android-13
 {
 	struct charlcd_priv *priv;
 	struct charlcd *lcd;
 
+<<<<<<< HEAD
 	priv = kzalloc(sizeof(*priv) + drvdata_size, GFP_KERNEL);
+=======
+	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!priv)
 		return NULL;
 
 	priv->esc_seq.len = -1;
 
 	lcd = &priv->lcd;
+<<<<<<< HEAD
 	lcd->ifwidth = 8;
 	lcd->bwidth = DEFAULT_LCD_BWIDTH;
 	lcd->hwidth = DEFAULT_LCD_HWIDTH;
 	lcd->drvdata = priv->drvdata;
+=======
+>>>>>>> upstream/android-13
 
 	return lcd;
 }
 EXPORT_SYMBOL_GPL(charlcd_alloc);
 
+<<<<<<< HEAD
+=======
+void charlcd_free(struct charlcd *lcd)
+{
+	kfree(charlcd_to_priv(lcd));
+}
+EXPORT_SYMBOL_GPL(charlcd_free);
+
+>>>>>>> upstream/android-13
 static int panel_notify_sys(struct notifier_block *this, unsigned long code,
 			    void *unused)
 {
@@ -841,9 +1192,13 @@ static int panel_notify_sys(struct notifier_block *this, unsigned long code,
 }
 
 static struct notifier_block panel_notifier = {
+<<<<<<< HEAD
 	panel_notify_sys,
 	NULL,
 	0
+=======
+	.notifier_call = panel_notify_sys,
+>>>>>>> upstream/android-13
 };
 
 int charlcd_register(struct charlcd *lcd)
@@ -866,7 +1221,11 @@ EXPORT_SYMBOL_GPL(charlcd_register);
 
 int charlcd_unregister(struct charlcd *lcd)
 {
+<<<<<<< HEAD
 	struct charlcd_priv *priv = to_priv(lcd);
+=======
+	struct charlcd_priv *priv = charlcd_to_priv(lcd);
+>>>>>>> upstream/android-13
 
 	unregister_reboot_notifier(&panel_notifier);
 	charlcd_puts(lcd, "\x0cLCD driver unloaded.\x1b[Lc\x1b[Lb\x1b[L-");
@@ -874,7 +1233,11 @@ int charlcd_unregister(struct charlcd *lcd)
 	the_charlcd = NULL;
 	if (lcd->ops->backlight) {
 		cancel_delayed_work_sync(&priv->bl_work);
+<<<<<<< HEAD
 		priv->lcd.ops->backlight(&priv->lcd, 0);
+=======
+		priv->lcd.ops->backlight(&priv->lcd, CHARLCD_OFF);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;

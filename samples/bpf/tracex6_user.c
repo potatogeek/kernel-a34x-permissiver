@@ -4,7 +4,10 @@
 #include <assert.h>
 #include <fcntl.h>
 #include <linux/perf_event.h>
+<<<<<<< HEAD
 #include <linux/bpf.h>
+=======
+>>>>>>> upstream/android-13
 #include <sched.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,12 +18,23 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+<<<<<<< HEAD
 #include "bpf_load.h"
 #include <bpf/bpf.h>
+=======
+#include <bpf/bpf.h>
+#include <bpf/libbpf.h>
+>>>>>>> upstream/android-13
 #include "perf-sys.h"
 
 #define SAMPLE_PERIOD  0x7fffffffffffffffULL
 
+<<<<<<< HEAD
+=======
+/* counters, values, values2 */
+static int map_fd[3];
+
+>>>>>>> upstream/android-13
 static void check_on_cpu(int cpu, struct perf_event_attr *attr)
 {
 	struct bpf_perf_event_value value2;
@@ -173,6 +187,7 @@ static void test_bpf_perf_event(void)
 
 int main(int argc, char **argv)
 {
+<<<<<<< HEAD
 	struct rlimit r = {RLIM_INFINITY, RLIM_INFINITY};
 	char filename[256];
 
@@ -185,5 +200,51 @@ int main(int argc, char **argv)
 	}
 
 	test_bpf_perf_event();
+=======
+	struct bpf_link *links[2];
+	struct bpf_program *prog;
+	struct bpf_object *obj;
+	char filename[256];
+	int i = 0;
+
+	snprintf(filename, sizeof(filename), "%s_kern.o", argv[0]);
+	obj = bpf_object__open_file(filename, NULL);
+	if (libbpf_get_error(obj)) {
+		fprintf(stderr, "ERROR: opening BPF object file failed\n");
+		return 0;
+	}
+
+	/* load BPF program */
+	if (bpf_object__load(obj)) {
+		fprintf(stderr, "ERROR: loading BPF object file failed\n");
+		goto cleanup;
+	}
+
+	map_fd[0] = bpf_object__find_map_fd_by_name(obj, "counters");
+	map_fd[1] = bpf_object__find_map_fd_by_name(obj, "values");
+	map_fd[2] = bpf_object__find_map_fd_by_name(obj, "values2");
+	if (map_fd[0] < 0 || map_fd[1] < 0 || map_fd[2] < 0) {
+		fprintf(stderr, "ERROR: finding a map in obj file failed\n");
+		goto cleanup;
+	}
+
+	bpf_object__for_each_program(prog, obj) {
+		links[i] = bpf_program__attach(prog);
+		if (libbpf_get_error(links[i])) {
+			fprintf(stderr, "ERROR: bpf_program__attach failed\n");
+			links[i] = NULL;
+			goto cleanup;
+		}
+		i++;
+	}
+
+	test_bpf_perf_event();
+
+cleanup:
+	for (i--; i >= 0; i--)
+		bpf_link__destroy(links[i]);
+
+	bpf_object__close(obj);
+>>>>>>> upstream/android-13
 	return 0;
 }

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Samsung SoC DP (Display Port) interface driver.
  *
  * Copyright (C) 2012 Samsung Electronics Co., Ltd.
  * Author: Jingoo Han <jg1.han@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,11 +21,22 @@
 #include <linux/clk.h>
 #include <linux/of_graph.h>
 #include <linux/component.h>
+=======
+ */
+
+#include <linux/clk.h>
+#include <linux/component.h>
+#include <linux/err.h>
+#include <linux/module.h>
+#include <linux/of_graph.h>
+#include <linux/platform_device.h>
+>>>>>>> upstream/android-13
 #include <linux/pm_runtime.h>
 #include <video/of_display_timing.h>
 #include <video/of_videomode.h>
 #include <video/videomode.h>
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/drm_crtc.h>
 #include <drm/drm_crtc_helper.h>
@@ -28,6 +44,17 @@
 #include <drm/drm_panel.h>
 
 #include <drm/bridge/analogix_dp.h>
+=======
+#include <drm/bridge/analogix_dp.h>
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_bridge.h>
+#include <drm/drm_crtc.h>
+#include <drm/drm_of.h>
+#include <drm/drm_panel.h>
+#include <drm/drm_print.h>
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_simple_kms_helper.h>
+>>>>>>> upstream/android-13
 #include <drm/exynos_drm.h>
 
 #include "exynos_drm_crtc.h"
@@ -82,7 +109,12 @@ static int exynos_dp_get_modes(struct analogix_dp_plat_data *plat_data,
 
 	mode = drm_mode_create(connector->dev);
 	if (!mode) {
+<<<<<<< HEAD
 		DRM_ERROR("failed to create a new display mode.\n");
+=======
+		DRM_DEV_ERROR(dp->dev,
+			      "failed to create a new display mode.\n");
+>>>>>>> upstream/android-13
 		return num_modes;
 	}
 
@@ -108,12 +140,19 @@ static int exynos_dp_bridge_attach(struct analogix_dp_plat_data *plat_data,
 
 	/* Pre-empt DP connector creation if there's a bridge */
 	if (dp->ptn_bridge) {
+<<<<<<< HEAD
 		ret = drm_bridge_attach(&dp->encoder, dp->ptn_bridge, bridge);
 		if (ret) {
 			DRM_ERROR("Failed to attach bridge to drm\n");
 			bridge->next = NULL;
 			return ret;
 		}
+=======
+		ret = drm_bridge_attach(&dp->encoder, dp->ptn_bridge, bridge,
+					0);
+		if (ret)
+			return ret;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -136,17 +175,25 @@ static const struct drm_encoder_helper_funcs exynos_dp_encoder_helper_funcs = {
 	.disable = exynos_dp_nop,
 };
 
+<<<<<<< HEAD
 static const struct drm_encoder_funcs exynos_dp_encoder_funcs = {
 	.destroy = drm_encoder_cleanup,
 };
 
+=======
+>>>>>>> upstream/android-13
 static int exynos_dp_dt_parse_panel(struct exynos_dp_device *dp)
 {
 	int ret;
 
 	ret = of_get_videomode(dp->dev->of_node, &dp->vm, OF_USE_NATIVE_MODE);
 	if (ret) {
+<<<<<<< HEAD
 		DRM_ERROR("failed: of_get_videomode() : %d\n", ret);
+=======
+		DRM_DEV_ERROR(dp->dev,
+			      "failed: of_get_videomode() : %d\n", ret);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 	return 0;
@@ -159,6 +206,7 @@ static int exynos_dp_bind(struct device *dev, struct device *master, void *data)
 	struct drm_device *drm_dev = data;
 	int ret;
 
+<<<<<<< HEAD
 	dp->dev = dev;
 	dp->drm_dev = drm_dev;
 
@@ -168,14 +216,22 @@ static int exynos_dp_bind(struct device *dev, struct device *master, void *data)
 	dp->plat_data.attach = exynos_dp_bridge_attach;
 	dp->plat_data.get_modes = exynos_dp_get_modes;
 
+=======
+	dp->drm_dev = drm_dev;
+
+>>>>>>> upstream/android-13
 	if (!dp->plat_data.panel && !dp->ptn_bridge) {
 		ret = exynos_dp_dt_parse_panel(dp);
 		if (ret)
 			return ret;
 	}
 
+<<<<<<< HEAD
 	drm_encoder_init(drm_dev, encoder, &exynos_dp_encoder_funcs,
 			 DRM_MODE_ENCODER_TMDS, NULL);
+=======
+	drm_simple_encoder_init(drm_dev, encoder, DRM_MODE_ENCODER_TMDS);
+>>>>>>> upstream/android-13
 
 	drm_encoder_helper_add(encoder, &exynos_dp_encoder_helper_funcs);
 
@@ -185,6 +241,7 @@ static int exynos_dp_bind(struct device *dev, struct device *master, void *data)
 
 	dp->plat_data.encoder = encoder;
 
+<<<<<<< HEAD
 	dp->adp = analogix_dp_bind(dev, dp->drm_dev, &dp->plat_data);
 	if (IS_ERR(dp->adp)) {
 		dp->encoder.funcs->destroy(&dp->encoder);
@@ -192,6 +249,13 @@ static int exynos_dp_bind(struct device *dev, struct device *master, void *data)
 	}
 
 	return 0;
+=======
+	ret = analogix_dp_bind(dp->adp, dp->drm_dev);
+	if (ret)
+		dp->encoder.funcs->destroy(&dp->encoder);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void exynos_dp_unbind(struct device *dev, struct device *master,
@@ -222,6 +286,10 @@ static int exynos_dp_probe(struct platform_device *pdev)
 	if (!dp)
 		return -ENOMEM;
 
+<<<<<<< HEAD
+=======
+	dp->dev = dev;
+>>>>>>> upstream/android-13
 	/*
 	 * We just use the drvdata until driver run into component
 	 * add function, and then we would set drvdata to null, so
@@ -247,16 +315,40 @@ static int exynos_dp_probe(struct platform_device *pdev)
 
 	/* The remote port can be either a panel or a bridge */
 	dp->plat_data.panel = panel;
+<<<<<<< HEAD
 	dp->plat_data.skip_connector = !!bridge;
 	dp->ptn_bridge = bridge;
 
 out:
+=======
+	dp->plat_data.dev_type = EXYNOS_DP;
+	dp->plat_data.power_on_start = exynos_dp_poweron;
+	dp->plat_data.power_off = exynos_dp_poweroff;
+	dp->plat_data.attach = exynos_dp_bridge_attach;
+	dp->plat_data.get_modes = exynos_dp_get_modes;
+	dp->plat_data.skip_connector = !!bridge;
+
+	dp->ptn_bridge = bridge;
+
+out:
+	dp->adp = analogix_dp_probe(dev, &dp->plat_data);
+	if (IS_ERR(dp->adp))
+		return PTR_ERR(dp->adp);
+
+>>>>>>> upstream/android-13
 	return component_add(&pdev->dev, &exynos_dp_ops);
 }
 
 static int exynos_dp_remove(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	component_del(&pdev->dev, &exynos_dp_ops);
+=======
+	struct exynos_dp_device *dp = platform_get_drvdata(pdev);
+
+	component_del(&pdev->dev, &exynos_dp_ops);
+	analogix_dp_remove(dp->adp);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

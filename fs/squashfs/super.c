@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Squashfs - a compressed read only filesystem for Linux
  *
  * Copyright (c) 2002, 2003, 2004, 2005, 2006, 2007, 2008
  * Phillip Lougher <phillip@squashfs.org.uk>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2,
@@ -18,6 +23,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+=======
+>>>>>>> upstream/android-13
  * super.c
  */
 
@@ -30,9 +37,18 @@
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
 #include <linux/fs.h>
+<<<<<<< HEAD
 #include <linux/vfs.h>
 #include <linux/slab.h>
 #include <linux/mutex.h>
+=======
+#include <linux/fs_context.h>
+#include <linux/fs_parser.h>
+#include <linux/vfs.h>
+#include <linux/slab.h>
+#include <linux/mutex.h>
+#include <linux/seq_file.h>
+>>>>>>> upstream/android-13
 #include <linux/pagemap.h>
 #include <linux/init.h>
 #include <linux/module.h>
@@ -49,12 +65,64 @@
 static struct file_system_type squashfs_fs_type;
 static const struct super_operations squashfs_super_ops;
 
+<<<<<<< HEAD
 static const struct squashfs_decompressor *supported_squashfs_filesystem(short
 	major, short minor, short id)
+=======
+enum Opt_errors {
+	Opt_errors_continue,
+	Opt_errors_panic,
+};
+
+enum squashfs_param {
+	Opt_errors,
+};
+
+struct squashfs_mount_opts {
+	enum Opt_errors errors;
+};
+
+static const struct constant_table squashfs_param_errors[] = {
+	{"continue",   Opt_errors_continue },
+	{"panic",      Opt_errors_panic },
+	{}
+};
+
+static const struct fs_parameter_spec squashfs_fs_parameters[] = {
+	fsparam_enum("errors", Opt_errors, squashfs_param_errors),
+	{}
+};
+
+static int squashfs_parse_param(struct fs_context *fc, struct fs_parameter *param)
+{
+	struct squashfs_mount_opts *opts = fc->fs_private;
+	struct fs_parse_result result;
+	int opt;
+
+	opt = fs_parse(fc, squashfs_fs_parameters, param, &result);
+	if (opt < 0)
+		return opt;
+
+	switch (opt) {
+	case Opt_errors:
+		opts->errors = result.uint_32;
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+static const struct squashfs_decompressor *supported_squashfs_filesystem(
+	struct fs_context *fc,
+	short major, short minor, short id)
+>>>>>>> upstream/android-13
 {
 	const struct squashfs_decompressor *decompressor;
 
 	if (major < SQUASHFS_MAJOR) {
+<<<<<<< HEAD
 		ERROR("Major/Minor mismatch, older Squashfs %d.%d "
 			"filesystems are unsupported\n", major, minor);
 		return NULL;
@@ -62,13 +130,27 @@ static const struct squashfs_decompressor *supported_squashfs_filesystem(short
 		ERROR("Major/Minor mismatch, trying to mount newer "
 			"%d.%d filesystem\n", major, minor);
 		ERROR("Please update your kernel\n");
+=======
+		errorf(fc, "Major/Minor mismatch, older Squashfs %d.%d "
+		       "filesystems are unsupported", major, minor);
+		return NULL;
+	} else if (major > SQUASHFS_MAJOR || minor > SQUASHFS_MINOR) {
+		errorf(fc, "Major/Minor mismatch, trying to mount newer "
+		       "%d.%d filesystem", major, minor);
+		errorf(fc, "Please update your kernel");
+>>>>>>> upstream/android-13
 		return NULL;
 	}
 
 	decompressor = squashfs_lookup_decompressor(id);
 	if (!decompressor->supported) {
+<<<<<<< HEAD
 		ERROR("Filesystem uses \"%s\" compression. This is not "
 			"supported\n", decompressor->name);
+=======
+		errorf(fc, "Filesystem uses \"%s\" compression. This is not supported",
+		       decompressor->name);
+>>>>>>> upstream/android-13
 		return NULL;
 	}
 
@@ -76,8 +158,14 @@ static const struct squashfs_decompressor *supported_squashfs_filesystem(short
 }
 
 
+<<<<<<< HEAD
 static int squashfs_fill_super(struct super_block *sb, void *data, int silent)
 {
+=======
+static int squashfs_fill_super(struct super_block *sb, struct fs_context *fc)
+{
+	struct squashfs_mount_opts *opts = fc->fs_private;
+>>>>>>> upstream/android-13
 	struct squashfs_sb_info *msblk;
 	struct squashfs_super_block *sblk = NULL;
 	struct inode *root;
@@ -96,6 +184,11 @@ static int squashfs_fill_super(struct super_block *sb, void *data, int silent)
 	}
 	msblk = sb->s_fs_info;
 
+<<<<<<< HEAD
+=======
+	msblk->panic_on_errors = (opts->errors == Opt_errors_panic);
+
+>>>>>>> upstream/android-13
 	msblk->devblksize = sb_min_blocksize(sb, SQUASHFS_DEVBLK_SIZE);
 	msblk->devblksize_log2 = ffz(~msblk->devblksize);
 
@@ -111,7 +204,11 @@ static int squashfs_fill_super(struct super_block *sb, void *data, int silent)
 	sblk = squashfs_read_table(sb, SQUASHFS_START, sizeof(*sblk));
 
 	if (IS_ERR(sblk)) {
+<<<<<<< HEAD
 		ERROR("unable to read squashfs_super_block\n");
+=======
+		errorf(fc, "unable to read squashfs_super_block");
+>>>>>>> upstream/android-13
 		err = PTR_ERR(sblk);
 		sblk = NULL;
 		goto failed_mount;
@@ -122,14 +219,24 @@ static int squashfs_fill_super(struct super_block *sb, void *data, int silent)
 	/* Check it is a SQUASHFS superblock */
 	sb->s_magic = le32_to_cpu(sblk->s_magic);
 	if (sb->s_magic != SQUASHFS_MAGIC) {
+<<<<<<< HEAD
 		if (!silent)
 			ERROR("Can't find a SQUASHFS superblock on %pg\n",
 						sb->s_bdev);
+=======
+		if (!(fc->sb_flags & SB_SILENT))
+			errorf(fc, "Can't find a SQUASHFS superblock on %pg",
+			       sb->s_bdev);
+>>>>>>> upstream/android-13
 		goto failed_mount;
 	}
 
 	/* Check the MAJOR & MINOR versions and lookup compression type */
 	msblk->decompressor = supported_squashfs_filesystem(
+<<<<<<< HEAD
+=======
+			fc,
+>>>>>>> upstream/android-13
 			le16_to_cpu(sblk->s_major),
 			le16_to_cpu(sblk->s_minor),
 			le16_to_cpu(sblk->compression));
@@ -146,15 +253,24 @@ static int squashfs_fill_super(struct super_block *sb, void *data, int silent)
 	/* Check block size for sanity */
 	msblk->block_size = le32_to_cpu(sblk->block_size);
 	if (msblk->block_size > SQUASHFS_FILE_MAX_SIZE)
+<<<<<<< HEAD
 		goto failed_mount;
+=======
+		goto insanity;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Check the system page size is not larger than the filesystem
 	 * block size (by default 128K).  This is currently not supported.
 	 */
 	if (PAGE_SIZE > msblk->block_size) {
+<<<<<<< HEAD
 		ERROR("Page size > filesystem block size (%d).  This is "
 			"currently not supported!\n", msblk->block_size);
+=======
+		errorf(fc, "Page size > filesystem block size (%d).  This is "
+		       "currently not supported!", msblk->block_size);
+>>>>>>> upstream/android-13
 		goto failed_mount;
 	}
 
@@ -165,12 +281,20 @@ static int squashfs_fill_super(struct super_block *sb, void *data, int silent)
 
 	/* Check that block_size and block_log match */
 	if (msblk->block_size != (1 << msblk->block_log))
+<<<<<<< HEAD
 		goto failed_mount;
+=======
+		goto insanity;
+>>>>>>> upstream/android-13
 
 	/* Check the root inode for sanity */
 	root_inode = le64_to_cpu(sblk->root_inode);
 	if (SQUASHFS_INODE_OFFSET(root_inode) > SQUASHFS_METADATA_SIZE)
+<<<<<<< HEAD
 		goto failed_mount;
+=======
+		goto insanity;
+>>>>>>> upstream/android-13
 
 	msblk->inode_table = le64_to_cpu(sblk->inode_table_start);
 	msblk->directory_table = le64_to_cpu(sblk->directory_table_start);
@@ -197,6 +321,11 @@ static int squashfs_fill_super(struct super_block *sb, void *data, int silent)
 		(u64) le64_to_cpu(sblk->id_table_start));
 
 	sb->s_maxbytes = MAX_LFS_FILESIZE;
+<<<<<<< HEAD
+=======
+	sb->s_time_min = 0;
+	sb->s_time_max = U32_MAX;
+>>>>>>> upstream/android-13
 	sb->s_flags |= SB_RDONLY;
 	sb->s_op = &squashfs_super_ops;
 
@@ -211,7 +340,11 @@ static int squashfs_fill_super(struct super_block *sb, void *data, int silent)
 	msblk->read_page = squashfs_cache_init("data",
 		squashfs_max_decompressors(), msblk->block_size);
 	if (msblk->read_page == NULL) {
+<<<<<<< HEAD
 		ERROR("Failed to allocate read_page block\n");
+=======
+		errorf(fc, "Failed to allocate read_page block");
+>>>>>>> upstream/android-13
 		goto failed_mount;
 	}
 
@@ -219,7 +352,11 @@ static int squashfs_fill_super(struct super_block *sb, void *data, int silent)
 	if (IS_ERR(msblk->stream)) {
 		err = PTR_ERR(msblk->stream);
 		msblk->stream = NULL;
+<<<<<<< HEAD
 		goto failed_mount;
+=======
+		goto insanity;
+>>>>>>> upstream/android-13
 	}
 
 	/* Handle xattrs */
@@ -234,7 +371,11 @@ static int squashfs_fill_super(struct super_block *sb, void *data, int silent)
 	msblk->xattr_id_table = squashfs_read_xattr_id_table(sb,
 		xattr_id_table_start, &msblk->xattr_table, &msblk->xattr_ids);
 	if (IS_ERR(msblk->xattr_id_table)) {
+<<<<<<< HEAD
 		ERROR("unable to read xattr id index table\n");
+=======
+		errorf(fc, "unable to read xattr id index table");
+>>>>>>> upstream/android-13
 		err = PTR_ERR(msblk->xattr_id_table);
 		msblk->xattr_id_table = NULL;
 		if (err != -ENOTSUPP)
@@ -247,7 +388,11 @@ allocate_id_index_table:
 	msblk->id_table = squashfs_read_id_index_table(sb,
 		le64_to_cpu(sblk->id_table_start), next_table, msblk->ids);
 	if (IS_ERR(msblk->id_table)) {
+<<<<<<< HEAD
 		ERROR("unable to read id index table\n");
+=======
+		errorf(fc, "unable to read id index table");
+>>>>>>> upstream/android-13
 		err = PTR_ERR(msblk->id_table);
 		msblk->id_table = NULL;
 		goto failed_mount;
@@ -263,7 +408,11 @@ allocate_id_index_table:
 	msblk->inode_lookup_table = squashfs_read_inode_lookup_table(sb,
 		lookup_table_start, next_table, msblk->inodes);
 	if (IS_ERR(msblk->inode_lookup_table)) {
+<<<<<<< HEAD
 		ERROR("unable to read inode lookup table\n");
+=======
+		errorf(fc, "unable to read inode lookup table");
+>>>>>>> upstream/android-13
 		err = PTR_ERR(msblk->inode_lookup_table);
 		msblk->inode_lookup_table = NULL;
 		goto failed_mount;
@@ -288,7 +437,11 @@ handle_fragments:
 	msblk->fragment_index = squashfs_read_fragment_index_table(sb,
 		le64_to_cpu(sblk->fragment_table_start), next_table, fragments);
 	if (IS_ERR(msblk->fragment_index)) {
+<<<<<<< HEAD
 		ERROR("unable to read fragment index table\n");
+=======
+		errorf(fc, "unable to read fragment index table");
+>>>>>>> upstream/android-13
 		err = PTR_ERR(msblk->fragment_index);
 		msblk->fragment_index = NULL;
 		goto failed_mount;
@@ -299,13 +452,21 @@ check_directory_table:
 	/* Sanity check directory_table */
 	if (msblk->directory_table > next_table) {
 		err = -EINVAL;
+<<<<<<< HEAD
 		goto failed_mount;
+=======
+		goto insanity;
+>>>>>>> upstream/android-13
 	}
 
 	/* Sanity check inode_table */
 	if (msblk->inode_table >= msblk->directory_table) {
 		err = -EINVAL;
+<<<<<<< HEAD
 		goto failed_mount;
+=======
+		goto insanity;
+>>>>>>> upstream/android-13
 	}
 
 	/* allocate root */
@@ -334,6 +495,11 @@ check_directory_table:
 	kfree(sblk);
 	return 0;
 
+<<<<<<< HEAD
+=======
+insanity:
+	errorf(fc, "squashfs image failed sanity check");
+>>>>>>> upstream/android-13
 failed_mount:
 	squashfs_cache_delete(msblk->block_cache);
 	squashfs_cache_delete(msblk->fragment_cache);
@@ -349,6 +515,65 @@ failed_mount:
 	return err;
 }
 
+<<<<<<< HEAD
+=======
+static int squashfs_get_tree(struct fs_context *fc)
+{
+	return get_tree_bdev(fc, squashfs_fill_super);
+}
+
+static int squashfs_reconfigure(struct fs_context *fc)
+{
+	struct super_block *sb = fc->root->d_sb;
+	struct squashfs_sb_info *msblk = sb->s_fs_info;
+	struct squashfs_mount_opts *opts = fc->fs_private;
+
+	sync_filesystem(fc->root->d_sb);
+	fc->sb_flags |= SB_RDONLY;
+
+	msblk->panic_on_errors = (opts->errors == Opt_errors_panic);
+
+	return 0;
+}
+
+static void squashfs_free_fs_context(struct fs_context *fc)
+{
+	kfree(fc->fs_private);
+}
+
+static const struct fs_context_operations squashfs_context_ops = {
+	.get_tree	= squashfs_get_tree,
+	.free		= squashfs_free_fs_context,
+	.parse_param	= squashfs_parse_param,
+	.reconfigure	= squashfs_reconfigure,
+};
+
+static int squashfs_show_options(struct seq_file *s, struct dentry *root)
+{
+	struct super_block *sb = root->d_sb;
+	struct squashfs_sb_info *msblk = sb->s_fs_info;
+
+	if (msblk->panic_on_errors)
+		seq_puts(s, ",errors=panic");
+	else
+		seq_puts(s, ",errors=continue");
+
+	return 0;
+}
+
+static int squashfs_init_fs_context(struct fs_context *fc)
+{
+	struct squashfs_mount_opts *opts;
+
+	opts = kzalloc(sizeof(*opts), GFP_KERNEL);
+	if (!opts)
+		return -ENOMEM;
+
+	fc->fs_private = opts;
+	fc->ops = &squashfs_context_ops;
+	return 0;
+}
+>>>>>>> upstream/android-13
 
 static int squashfs_statfs(struct dentry *dentry, struct kstatfs *buf)
 {
@@ -364,13 +589,18 @@ static int squashfs_statfs(struct dentry *dentry, struct kstatfs *buf)
 	buf->f_files = msblk->inodes;
 	buf->f_ffree = 0;
 	buf->f_namelen = SQUASHFS_NAME_LEN;
+<<<<<<< HEAD
 	buf->f_fsid.val[0] = (u32)id;
 	buf->f_fsid.val[1] = (u32)(id >> 32);
+=======
+	buf->f_fsid = u64_to_fsid(id);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 
+<<<<<<< HEAD
 static int squashfs_remount(struct super_block *sb, int *flags, char *data)
 {
 	sync_filesystem(sb);
@@ -379,6 +609,8 @@ static int squashfs_remount(struct super_block *sb, int *flags, char *data)
 }
 
 
+=======
+>>>>>>> upstream/android-13
 static void squashfs_put_super(struct super_block *sb)
 {
 	if (sb->s_fs_info) {
@@ -397,6 +629,7 @@ static void squashfs_put_super(struct super_block *sb)
 	}
 }
 
+<<<<<<< HEAD
 
 static struct dentry *squashfs_mount(struct file_system_type *fs_type,
 				int flags, const char *dev_name, void *data)
@@ -405,6 +638,8 @@ static struct dentry *squashfs_mount(struct file_system_type *fs_type,
 }
 
 
+=======
+>>>>>>> upstream/android-13
 static struct kmem_cache *squashfs_inode_cachep;
 
 
@@ -473,6 +708,7 @@ static struct inode *squashfs_alloc_inode(struct super_block *sb)
 }
 
 
+<<<<<<< HEAD
 static void squashfs_i_callback(struct rcu_head *head)
 {
 	struct inode *inode = container_of(head, struct inode, i_rcu);
@@ -489,6 +725,18 @@ static struct file_system_type squashfs_fs_type = {
 	.owner = THIS_MODULE,
 	.name = "squashfs",
 	.mount = squashfs_mount,
+=======
+static void squashfs_free_inode(struct inode *inode)
+{
+	kmem_cache_free(squashfs_inode_cachep, squashfs_i(inode));
+}
+
+static struct file_system_type squashfs_fs_type = {
+	.owner = THIS_MODULE,
+	.name = "squashfs",
+	.init_fs_context = squashfs_init_fs_context,
+	.parameters = squashfs_fs_parameters,
+>>>>>>> upstream/android-13
 	.kill_sb = kill_block_super,
 	.fs_flags = FS_REQUIRES_DEV
 };
@@ -496,10 +744,17 @@ MODULE_ALIAS_FS("squashfs");
 
 static const struct super_operations squashfs_super_ops = {
 	.alloc_inode = squashfs_alloc_inode,
+<<<<<<< HEAD
 	.destroy_inode = squashfs_destroy_inode,
 	.statfs = squashfs_statfs,
 	.put_super = squashfs_put_super,
 	.remount_fs = squashfs_remount
+=======
+	.free_inode = squashfs_free_inode,
+	.statfs = squashfs_statfs,
+	.put_super = squashfs_put_super,
+	.show_options = squashfs_show_options,
+>>>>>>> upstream/android-13
 };
 
 module_init(init_squashfs_fs);
@@ -507,3 +762,7 @@ module_exit(exit_squashfs_fs);
 MODULE_DESCRIPTION("squashfs 4.0, a compressed read-only filesystem");
 MODULE_AUTHOR("Phillip Lougher <phillip@squashfs.org.uk>");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13

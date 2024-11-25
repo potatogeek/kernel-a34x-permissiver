@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Tegra host1x Interrupt Management
  *
  * Copyright (c) 2010-2013, NVIDIA Corporation.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -14,6 +19,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -24,6 +31,10 @@
 #include <trace/events/host1x.h>
 #include "channel.h"
 #include "dev.h"
+<<<<<<< HEAD
+=======
+#include "fence.h"
+>>>>>>> upstream/android-13
 #include "intr.h"
 
 /* Wait list management */
@@ -116,7 +127,10 @@ static void action_submit_complete(struct host1x_waitlist *waiter)
 	/*  Add nr_completed to trace */
 	trace_host1x_channel_submit_complete(dev_name(channel->dev),
 					     waiter->count, waiter->thresh);
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 }
 
 static void action_wakeup(struct host1x_waitlist *waiter)
@@ -133,12 +147,26 @@ static void action_wakeup_interruptible(struct host1x_waitlist *waiter)
 	wake_up_interruptible(wq);
 }
 
+<<<<<<< HEAD
+=======
+static void action_signal_fence(struct host1x_waitlist *waiter)
+{
+	struct host1x_syncpt_fence *f = waiter->data;
+
+	host1x_fence_signal(f);
+}
+
+>>>>>>> upstream/android-13
 typedef void (*action_handler)(struct host1x_waitlist *waiter);
 
 static const action_handler action_handlers[HOST1X_INTR_ACTION_COUNT] = {
 	action_submit_complete,
 	action_wakeup,
 	action_wakeup_interruptible,
+<<<<<<< HEAD
+=======
+	action_signal_fence,
+>>>>>>> upstream/android-13
 };
 
 static void run_handlers(struct list_head completed[HOST1X_INTR_ACTION_COUNT])
@@ -247,6 +275,7 @@ int host1x_intr_add_action(struct host1x *host, struct host1x_syncpt *syncpt,
 			host1x_hw_intr_enable_syncpt_intr(host, syncpt->id);
 	}
 
+<<<<<<< HEAD
 	spin_unlock(&syncpt->intr.lock);
 
 	if (ref)
@@ -255,10 +284,23 @@ int host1x_intr_add_action(struct host1x *host, struct host1x_syncpt *syncpt,
 }
 
 void host1x_intr_put_ref(struct host1x *host, unsigned int id, void *ref)
+=======
+	if (ref)
+		*ref = waiter;
+
+	spin_unlock(&syncpt->intr.lock);
+
+	return 0;
+}
+
+void host1x_intr_put_ref(struct host1x *host, unsigned int id, void *ref,
+			 bool flush)
+>>>>>>> upstream/android-13
 {
 	struct host1x_waitlist *waiter = ref;
 	struct host1x_syncpt *syncpt;
 
+<<<<<<< HEAD
 	while (atomic_cmpxchg(&waiter->state, WLS_PENDING, WLS_CANCELLED) ==
 	       WLS_REMOVED)
 		schedule();
@@ -266,6 +308,25 @@ void host1x_intr_put_ref(struct host1x *host, unsigned int id, void *ref)
 	syncpt = host->syncpt + id;
 	(void)process_wait_list(host, syncpt,
 				host1x_syncpt_load(host->syncpt + id));
+=======
+	atomic_cmpxchg(&waiter->state, WLS_PENDING, WLS_CANCELLED);
+
+	syncpt = host->syncpt + id;
+
+	spin_lock(&syncpt->intr.lock);
+	if (atomic_cmpxchg(&waiter->state, WLS_CANCELLED, WLS_HANDLED) ==
+	    WLS_CANCELLED) {
+		list_del(&waiter->list);
+		kref_put(&waiter->refcount, waiter_release);
+	}
+	spin_unlock(&syncpt->intr.lock);
+
+	if (flush) {
+		/* Wait until any concurrently executing handler has finished. */
+		while (atomic_read(&waiter->state) != WLS_HANDLED)
+			schedule();
+	}
+>>>>>>> upstream/android-13
 
 	kref_put(&waiter->refcount, waiter_release);
 }

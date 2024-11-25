@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * abituguru.c Copyright (c) 2005-2006 Hans de Goede <hdegoede@redhat.com>
  *
@@ -14,6 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * abituguru.c Copyright (c) 2005-2006 Hans de Goede <hdegoede@redhat.com>
+>>>>>>> upstream/android-13
  */
 /*
  * This driver supports the sensor part of the first and second revision of
@@ -1277,7 +1283,11 @@ static int abituguru_probe(struct platform_device *pdev)
 	 * El weirdo probe order, to keep the sysfs order identical to the
 	 * BIOS and window-appliction listing order.
 	 */
+<<<<<<< HEAD
 	const u8 probe_order[ABIT_UGURU_MAX_BANK1_SENSORS] = {
+=======
+	static const u8 probe_order[ABIT_UGURU_MAX_BANK1_SENSORS] = {
+>>>>>>> upstream/android-13
 		0x00, 0x01, 0x03, 0x04, 0x0A, 0x08, 0x0E, 0x02,
 		0x09, 0x06, 0x05, 0x0B, 0x0F, 0x0D, 0x07, 0x0C };
 

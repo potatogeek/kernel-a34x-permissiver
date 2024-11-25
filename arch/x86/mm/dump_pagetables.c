@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Debug helper to dump the current kernel pagetables of the system
  * so that we can see what the various memory ranges are set to.
@@ -5,11 +9,14 @@
  * (C) Copyright 2008 Intel Corporation
  *
  * Author: Arjan van de Ven <arjan@linux.intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; version 2
  * of the License.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/debugfs.h>
@@ -20,9 +27,15 @@
 #include <linux/seq_file.h>
 #include <linux/highmem.h>
 #include <linux/pci.h>
+<<<<<<< HEAD
 
 #include <asm/e820/types.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/ptdump.h>
+
+#include <asm/e820/types.h>
+>>>>>>> upstream/android-13
 
 /*
  * The dumper groups pagetable entries of the same type into one, and for
@@ -30,16 +43,29 @@
  * when a "break" in the continuity is found.
  */
 struct pg_state {
+<<<<<<< HEAD
 	int level;
 	pgprot_t current_prot;
 	pgprotval_t effective_prot;
 	unsigned long start_address;
 	unsigned long current_address;
+=======
+	struct ptdump_state ptdump;
+	int level;
+	pgprotval_t current_prot;
+	pgprotval_t effective_prot;
+	pgprotval_t prot_levels[5];
+	unsigned long start_address;
+>>>>>>> upstream/android-13
 	const struct addr_marker *marker;
 	unsigned long lines;
 	bool to_dmesg;
 	bool check_wx;
 	unsigned long wx_pages;
+<<<<<<< HEAD
+=======
+	struct seq_file *seq;
+>>>>>>> upstream/android-13
 };
 
 struct addr_marker {
@@ -178,11 +204,18 @@ static struct addr_marker address_markers[] = {
 /*
  * Print a readable form of a pgprot_t to the seq_file
  */
+<<<<<<< HEAD
 static void printk_prot(struct seq_file *m, pgprot_t prot, int level, bool dmsg)
 {
 	pgprotval_t pr = pgprot_val(prot);
 	static const char * const level_name[] =
 		{ "cr3", "pgd", "p4d", "pud", "pmd", "pte" };
+=======
+static void printk_prot(struct seq_file *m, pgprotval_t pr, int level, bool dmsg)
+{
+	static const char * const level_name[] =
+		{ "pgd", "p4d", "pud", "pmd", "pte" };
+>>>>>>> upstream/android-13
 
 	if (!(pr & _PAGE_PRESENT)) {
 		/* Not present */
@@ -206,12 +239,21 @@ static void printk_prot(struct seq_file *m, pgprot_t prot, int level, bool dmsg)
 			pt_dump_cont_printf(m, dmsg, "    ");
 
 		/* Bit 7 has a different meaning on level 3 vs 4 */
+<<<<<<< HEAD
 		if (level <= 4 && pr & _PAGE_PSE)
 			pt_dump_cont_printf(m, dmsg, "PSE ");
 		else
 			pt_dump_cont_printf(m, dmsg, "    ");
 		if ((level == 5 && pr & _PAGE_PAT) ||
 		    ((level == 4 || level == 3) && pr & _PAGE_PAT_LARGE))
+=======
+		if (level <= 3 && pr & _PAGE_PSE)
+			pt_dump_cont_printf(m, dmsg, "PSE ");
+		else
+			pt_dump_cont_printf(m, dmsg, "    ");
+		if ((level == 4 && pr & _PAGE_PAT) ||
+		    ((level == 3 || level == 2) && pr & _PAGE_PAT_LARGE))
+>>>>>>> upstream/android-13
 			pt_dump_cont_printf(m, dmsg, "PAT ");
 		else
 			pt_dump_cont_printf(m, dmsg, "    ");
@@ -227,6 +269,7 @@ static void printk_prot(struct seq_file *m, pgprot_t prot, int level, bool dmsg)
 	pt_dump_cont_printf(m, dmsg, "%s\n", level_name[level]);
 }
 
+<<<<<<< HEAD
 /*
  * On 64 bits, sign-extend the 48 bit address to 64 bit
  */
@@ -245,6 +288,13 @@ static void note_wx(struct pg_state *st)
 	unsigned long npages;
 
 	npages = (st->current_address - st->start_address) / PAGE_SIZE;
+=======
+static void note_wx(struct pg_state *st, unsigned long addr)
+{
+	unsigned long npages;
+
+	npages = (addr - st->start_address) / PAGE_SIZE;
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PCI_BIOS
 	/*
@@ -252,38 +302,92 @@ static void note_wx(struct pg_state *st)
 	 * Inform about it, but avoid the warning.
 	 */
 	if (pcibios_enabled && st->start_address >= PAGE_OFFSET + BIOS_BEGIN &&
+<<<<<<< HEAD
 	    st->current_address <= PAGE_OFFSET + BIOS_END) {
+=======
+	    addr <= PAGE_OFFSET + BIOS_END) {
+>>>>>>> upstream/android-13
 		pr_warn_once("x86/mm: PCI BIOS W+X mapping %lu pages\n", npages);
 		return;
 	}
 #endif
 	/* Account the WX pages */
 	st->wx_pages += npages;
+<<<<<<< HEAD
 	WARN_ONCE(1, "x86/mm: Found insecure W+X mapping at address %pS\n",
 		  (void *)st->start_address);
 }
 
+=======
+	WARN_ONCE(__supported_pte_mask & _PAGE_NX,
+		  "x86/mm: Found insecure W+X mapping at address %pS\n",
+		  (void *)st->start_address);
+}
+
+static void effective_prot(struct ptdump_state *pt_st, int level, u64 val)
+{
+	struct pg_state *st = container_of(pt_st, struct pg_state, ptdump);
+	pgprotval_t prot = val & PTE_FLAGS_MASK;
+	pgprotval_t effective;
+
+	if (level > 0) {
+		pgprotval_t higher_prot = st->prot_levels[level - 1];
+
+		effective = (higher_prot & prot & (_PAGE_USER | _PAGE_RW)) |
+			    ((higher_prot | prot) & _PAGE_NX);
+	} else {
+		effective = prot;
+	}
+
+	st->prot_levels[level] = effective;
+}
+
+>>>>>>> upstream/android-13
 /*
  * This function gets called on a break in a continuous series
  * of PTE entries; the next one is different so we need to
  * print what we collected so far.
  */
+<<<<<<< HEAD
 static void note_page(struct seq_file *m, struct pg_state *st,
 		      pgprot_t new_prot, pgprotval_t new_eff, int level)
 {
 	pgprotval_t prot, cur, eff;
 	static const char units[] = "BKMGTPE";
+=======
+static void note_page(struct ptdump_state *pt_st, unsigned long addr, int level,
+		      u64 val)
+{
+	struct pg_state *st = container_of(pt_st, struct pg_state, ptdump);
+	pgprotval_t new_prot, new_eff;
+	pgprotval_t cur, eff;
+	static const char units[] = "BKMGTPE";
+	struct seq_file *m = st->seq;
+
+	new_prot = val & PTE_FLAGS_MASK;
+	if (!val)
+		new_eff = 0;
+	else
+		new_eff = st->prot_levels[level];
+>>>>>>> upstream/android-13
 
 	/*
 	 * If we have a "break" in the series, we need to flush the state that
 	 * we have now. "break" is either changing perms, levels or
 	 * address space marker.
 	 */
+<<<<<<< HEAD
 	prot = pgprot_val(new_prot);
 	cur = pgprot_val(st->current_prot);
 	eff = st->effective_prot;
 
 	if (!st->level) {
+=======
+	cur = st->current_prot;
+	eff = st->effective_prot;
+
+	if (st->level == -1) {
+>>>>>>> upstream/android-13
 		/* First entry */
 		st->current_prot = new_prot;
 		st->effective_prot = new_eff;
@@ -292,14 +396,23 @@ static void note_page(struct seq_file *m, struct pg_state *st,
 		st->lines = 0;
 		pt_dump_seq_printf(m, st->to_dmesg, "---[ %s ]---\n",
 				   st->marker->name);
+<<<<<<< HEAD
 	} else if (prot != cur || new_eff != eff || level != st->level ||
 		   st->current_address >= st->marker[1].start_address) {
+=======
+	} else if (new_prot != cur || new_eff != eff || level != st->level ||
+		   addr >= st->marker[1].start_address) {
+>>>>>>> upstream/android-13
 		const char *unit = units;
 		unsigned long delta;
 		int width = sizeof(unsigned long) * 2;
 
 		if (st->check_wx && (eff & _PAGE_RW) && !(eff & _PAGE_NX))
+<<<<<<< HEAD
 			note_wx(st);
+=======
+			note_wx(st, addr);
+>>>>>>> upstream/android-13
 
 		/*
 		 * Now print the actual finished series
@@ -309,9 +422,15 @@ static void note_page(struct seq_file *m, struct pg_state *st,
 			pt_dump_seq_printf(m, st->to_dmesg,
 					   "0x%0*lx-0x%0*lx   ",
 					   width, st->start_address,
+<<<<<<< HEAD
 					   width, st->current_address);
 
 			delta = st->current_address - st->start_address;
+=======
+					   width, addr);
+
+			delta = addr - st->start_address;
+>>>>>>> upstream/android-13
 			while (!(delta & 1023) && unit[1]) {
 				delta >>= 10;
 				unit++;
@@ -328,7 +447,11 @@ static void note_page(struct seq_file *m, struct pg_state *st,
 		 * such as the start of vmalloc space etc.
 		 * This helps in the interpretation.
 		 */
+<<<<<<< HEAD
 		if (st->current_address >= st->marker[1].start_address) {
+=======
+		if (addr >= st->marker[1].start_address) {
+>>>>>>> upstream/android-13
 			if (st->marker->max_lines &&
 			    st->lines > st->marker->max_lines) {
 				unsigned long nskip =
@@ -344,13 +467,18 @@ static void note_page(struct seq_file *m, struct pg_state *st,
 					   st->marker->name);
 		}
 
+<<<<<<< HEAD
 		st->start_address = st->current_address;
+=======
+		st->start_address = addr;
+>>>>>>> upstream/android-13
 		st->current_prot = new_prot;
 		st->effective_prot = new_eff;
 		st->level = level;
 	}
 }
 
+<<<<<<< HEAD
 static inline pgprotval_t effective_prot(pgprotval_t prot1, pgprotval_t prot2)
 {
 	return (prot1 & prot2 & (_PAGE_USER | _PAGE_RW)) |
@@ -562,6 +690,36 @@ static void ptdump_walk_pgd_level_core(struct seq_file *m, pgd_t *pgd,
 	/* Flush out the last page */
 	st.current_address = normalize_addr(PTRS_PER_PGD*PGD_LEVEL_MULT);
 	note_page(m, &st, __pgprot(0), 0, 0);
+=======
+static void ptdump_walk_pgd_level_core(struct seq_file *m,
+				       struct mm_struct *mm, pgd_t *pgd,
+				       bool checkwx, bool dmesg)
+{
+	const struct ptdump_range ptdump_ranges[] = {
+#ifdef CONFIG_X86_64
+	{0, PTRS_PER_PGD * PGD_LEVEL_MULT / 2},
+	{GUARD_HOLE_END_ADDR, ~0UL},
+#else
+	{0, ~0UL},
+#endif
+	{0, 0}
+};
+
+	struct pg_state st = {
+		.ptdump = {
+			.note_page	= note_page,
+			.effective_prot = effective_prot,
+			.range		= ptdump_ranges
+		},
+		.level = -1,
+		.to_dmesg	= dmesg,
+		.check_wx	= checkwx,
+		.seq		= m
+	};
+
+	ptdump_walk_pgd(&st.ptdump, mm, pgd);
+
+>>>>>>> upstream/android-13
 	if (!checkwx)
 		return;
 	if (st.wx_pages)
@@ -571,6 +729,7 @@ static void ptdump_walk_pgd_level_core(struct seq_file *m, pgd_t *pgd,
 		pr_info("x86/mm: Checked W+X mappings: passed, no W+X pages found.\n");
 }
 
+<<<<<<< HEAD
 void ptdump_walk_pgd_level(struct seq_file *m, pgd_t *pgd)
 {
 	ptdump_walk_pgd_level_core(m, pgd, false, true);
@@ -583,6 +742,22 @@ void ptdump_walk_pgd_level_debugfs(struct seq_file *m, pgd_t *pgd, bool user)
 		pgd = kernel_to_user_pgdp(pgd);
 #endif
 	ptdump_walk_pgd_level_core(m, pgd, false, false);
+=======
+void ptdump_walk_pgd_level(struct seq_file *m, struct mm_struct *mm)
+{
+	ptdump_walk_pgd_level_core(m, mm, mm->pgd, false, true);
+}
+
+void ptdump_walk_pgd_level_debugfs(struct seq_file *m, struct mm_struct *mm,
+				   bool user)
+{
+	pgd_t *pgd = mm->pgd;
+#ifdef CONFIG_PAGE_TABLE_ISOLATION
+	if (user && boot_cpu_has(X86_FEATURE_PTI))
+		pgd = kernel_to_user_pgdp(pgd);
+#endif
+	ptdump_walk_pgd_level_core(m, mm, pgd, false, false);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(ptdump_walk_pgd_level_debugfs);
 
@@ -592,18 +767,30 @@ void ptdump_walk_user_pgd_level_checkwx(void)
 	pgd_t *pgd = INIT_PGD;
 
 	if (!(__supported_pte_mask & _PAGE_NX) ||
+<<<<<<< HEAD
 	    !static_cpu_has(X86_FEATURE_PTI))
+=======
+	    !boot_cpu_has(X86_FEATURE_PTI))
+>>>>>>> upstream/android-13
 		return;
 
 	pr_info("x86/mm: Checking user space page tables\n");
 	pgd = kernel_to_user_pgdp(pgd);
+<<<<<<< HEAD
 	ptdump_walk_pgd_level_core(NULL, pgd, true, false);
+=======
+	ptdump_walk_pgd_level_core(NULL, &init_mm, pgd, true, false);
+>>>>>>> upstream/android-13
 #endif
 }
 
 void ptdump_walk_pgd_level_checkwx(void)
 {
+<<<<<<< HEAD
 	ptdump_walk_pgd_level_core(NULL, NULL, true, false);
+=======
+	ptdump_walk_pgd_level_core(NULL, &init_mm, INIT_PGD, true, false);
+>>>>>>> upstream/android-13
 }
 
 static int __init pt_dump_init(void)

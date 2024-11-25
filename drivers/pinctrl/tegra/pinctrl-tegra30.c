@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Pinctrl data for the NVIDIA Tegra30 pinmux
  *
  * Author: Stephen Warren <swarren@nvidia.com>
  *
  * Copyright (c) 2011-2012, NVIDIA CORPORATION.  All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -13,6 +18,8 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -2141,8 +2148,13 @@ static struct tegra_function tegra30_functions[] = {
 		.lock_bit = 7,						\
 		.ioreset_bit = PINGROUP_BIT_##ior(8),			\
 		.rcv_sel_bit = -1,					\
+<<<<<<< HEAD
 		.parked_bit = -1,					\
 		.drv_reg = -1,						\
+=======
+		.drv_reg = -1,						\
+		.parked_bitmask = 0,					\
+>>>>>>> upstream/android-13
 	}
 
 #define DRV_PINGROUP(pg_name, r, hsm_b, schmitt_b, lpmd_b, drvdn_b,	\
@@ -2162,7 +2174,10 @@ static struct tegra_function tegra30_functions[] = {
 		.rcv_sel_bit = -1,					\
 		.drv_reg = DRV_PINGROUP_REG(r),				\
 		.drv_bank = 0,						\
+<<<<<<< HEAD
 		.parked_bit = -1,					\
+=======
+>>>>>>> upstream/android-13
 		.hsm_bit = hsm_b,					\
 		.schmitt_bit = schmitt_b,				\
 		.lpmd_bit = lpmd_b,					\
@@ -2175,6 +2190,10 @@ static struct tegra_function tegra30_functions[] = {
 		.slwf_bit = slwf_b,					\
 		.slwf_width = slwf_w,					\
 		.drvtype_bit = -1,					\
+<<<<<<< HEAD
+=======
+		.parked_bitmask = 0,					\
+>>>>>>> upstream/android-13
 	}
 
 static const struct tegra_pingroup tegra30_groups[] = {

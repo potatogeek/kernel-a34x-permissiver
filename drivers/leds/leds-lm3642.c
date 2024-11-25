@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
 * Simple driver for Texas Instruments LM3642 LED Flash driver chip
 * Copyright (C) 2012 Texas Instruments
@@ -6,6 +7,12 @@
 * it under the terms of the GNU General Public License version 2 as
 * published by the Free Software Foundation.
 *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+* Simple driver for Texas Instruments LM3642 LED Flash driver chip
+* Copyright (C) 2012 Texas Instruments
+>>>>>>> upstream/android-13
 */
 #include <linux/module.h>
 #include <linux/delay.h>
@@ -110,7 +117,11 @@ static int lm3642_control(struct lm3642_chip_data *chip,
 	ret = regmap_read(chip->regmap, REG_FLAG, &chip->last_flag);
 	if (ret < 0) {
 		dev_err(chip->dev, "Failed to read REG_FLAG Register\n");
+<<<<<<< HEAD
 		goto out;
+=======
+		return ret;
+>>>>>>> upstream/android-13
 	}
 
 	if (chip->last_flag)
@@ -150,11 +161,19 @@ static int lm3642_control(struct lm3642_chip_data *chip,
 		break;
 
 	default:
+<<<<<<< HEAD
 		return ret;
 	}
 	if (ret < 0) {
 		dev_err(chip->dev, "Failed to write REG_I_CTRL Register\n");
 		goto out;
+=======
+		return -EINVAL;
+	}
+	if (ret < 0) {
+		dev_err(chip->dev, "Failed to write REG_I_CTRL Register\n");
+		return ret;
+>>>>>>> upstream/android-13
 	}
 
 	if (chip->tx_pin)
@@ -163,16 +182,26 @@ static int lm3642_control(struct lm3642_chip_data *chip,
 	ret = regmap_update_bits(chip->regmap, REG_ENABLE,
 				 MODE_BITS_MASK << MODE_BITS_SHIFT,
 				 opmode << MODE_BITS_SHIFT);
+<<<<<<< HEAD
 out:
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 /* torch */
 
+<<<<<<< HEAD
 /* torch pin config for lm3642*/
 static ssize_t lm3642_torch_pin_store(struct device *dev,
 				      struct device_attribute *attr,
 				      const char *buf, size_t size)
+=======
+/* torch pin config for lm3642 */
+static ssize_t torch_pin_store(struct device *dev,
+			       struct device_attribute *attr,
+			       const char *buf, size_t size)
+>>>>>>> upstream/android-13
 {
 	ssize_t ret;
 	struct led_classdev *led_cdev = dev_get_drvdata(dev);
@@ -182,7 +211,11 @@ static ssize_t lm3642_torch_pin_store(struct device *dev,
 
 	ret = kstrtouint(buf, 10, &state);
 	if (ret)
+<<<<<<< HEAD
 		goto out_strtoint;
+=======
+		return ret;
+>>>>>>> upstream/android-13
 	if (state != 0)
 		state = 0x01 << TORCH_PIN_EN_SHIFT;
 
@@ -190,6 +223,7 @@ static ssize_t lm3642_torch_pin_store(struct device *dev,
 	ret = regmap_update_bits(chip->regmap, REG_ENABLE,
 				 TORCH_PIN_EN_MASK << TORCH_PIN_EN_SHIFT,
 				 state);
+<<<<<<< HEAD
 	if (ret < 0)
 		goto out;
 
@@ -203,6 +237,17 @@ out_strtoint:
 }
 
 static DEVICE_ATTR(torch_pin, S_IWUSR, NULL, lm3642_torch_pin_store);
+=======
+	if (ret < 0) {
+		dev_err(chip->dev, "%s:i2c access fail to register\n", __func__);
+		return ret;
+	}
+
+	return size;
+}
+
+static DEVICE_ATTR_WO(torch_pin);
+>>>>>>> upstream/android-13
 
 static int lm3642_torch_brightness_set(struct led_classdev *cdev,
 					enum led_brightness brightness)
@@ -221,9 +266,15 @@ static int lm3642_torch_brightness_set(struct led_classdev *cdev,
 /* flash */
 
 /* strobe pin config for lm3642*/
+<<<<<<< HEAD
 static ssize_t lm3642_strobe_pin_store(struct device *dev,
 				       struct device_attribute *attr,
 				       const char *buf, size_t size)
+=======
+static ssize_t strobe_pin_store(struct device *dev,
+				struct device_attribute *attr,
+				const char *buf, size_t size)
+>>>>>>> upstream/android-13
 {
 	ssize_t ret;
 	struct led_classdev *led_cdev = dev_get_drvdata(dev);
@@ -233,7 +284,11 @@ static ssize_t lm3642_strobe_pin_store(struct device *dev,
 
 	ret = kstrtouint(buf, 10, &state);
 	if (ret)
+<<<<<<< HEAD
 		goto out_strtoint;
+=======
+		return ret;
+>>>>>>> upstream/android-13
 	if (state != 0)
 		state = 0x01 << STROBE_PIN_EN_SHIFT;
 
@@ -241,6 +296,7 @@ static ssize_t lm3642_strobe_pin_store(struct device *dev,
 	ret = regmap_update_bits(chip->regmap, REG_ENABLE,
 				 STROBE_PIN_EN_MASK << STROBE_PIN_EN_SHIFT,
 				 state);
+<<<<<<< HEAD
 	if (ret < 0)
 		goto out;
 
@@ -254,6 +310,17 @@ out_strtoint:
 }
 
 static DEVICE_ATTR(strobe_pin, S_IWUSR, NULL, lm3642_strobe_pin_store);
+=======
+	if (ret < 0) {
+		dev_err(chip->dev, "%s:i2c access fail to register\n", __func__);
+		return ret;
+	}
+
+	return size;
+}
+
+static DEVICE_ATTR_WO(strobe_pin);
+>>>>>>> upstream/android-13
 
 static int lm3642_strobe_brightness_set(struct led_classdev *cdev,
 					 enum led_brightness brightness)
@@ -352,9 +419,14 @@ static int lm3642_probe(struct i2c_client *client,
 	chip->cdev_flash.max_brightness = 16;
 	chip->cdev_flash.brightness_set_blocking = lm3642_strobe_brightness_set;
 	chip->cdev_flash.default_trigger = "flash";
+<<<<<<< HEAD
 	chip->cdev_flash.groups = lm3642_flash_groups,
 	err = led_classdev_register((struct device *)
 				    &client->dev, &chip->cdev_flash);
+=======
+	chip->cdev_flash.groups = lm3642_flash_groups;
+	err = led_classdev_register(&client->dev, &chip->cdev_flash);
+>>>>>>> upstream/android-13
 	if (err < 0) {
 		dev_err(chip->dev, "failed to register flash\n");
 		goto err_out;
@@ -365,9 +437,14 @@ static int lm3642_probe(struct i2c_client *client,
 	chip->cdev_torch.max_brightness = 8;
 	chip->cdev_torch.brightness_set_blocking = lm3642_torch_brightness_set;
 	chip->cdev_torch.default_trigger = "torch";
+<<<<<<< HEAD
 	chip->cdev_torch.groups = lm3642_torch_groups,
 	err = led_classdev_register((struct device *)
 				    &client->dev, &chip->cdev_torch);
+=======
+	chip->cdev_torch.groups = lm3642_torch_groups;
+	err = led_classdev_register(&client->dev, &chip->cdev_torch);
+>>>>>>> upstream/android-13
 	if (err < 0) {
 		dev_err(chip->dev, "failed to register torch\n");
 		goto err_create_torch_file;
@@ -378,8 +455,12 @@ static int lm3642_probe(struct i2c_client *client,
 	chip->cdev_indicator.max_brightness = 8;
 	chip->cdev_indicator.brightness_set_blocking =
 						lm3642_indicator_brightness_set;
+<<<<<<< HEAD
 	err = led_classdev_register((struct device *)
 				    &client->dev, &chip->cdev_indicator);
+=======
+	err = led_classdev_register(&client->dev, &chip->cdev_indicator);
+>>>>>>> upstream/android-13
 	if (err < 0) {
 		dev_err(chip->dev, "failed to register indicator\n");
 		goto err_create_indicator_file;

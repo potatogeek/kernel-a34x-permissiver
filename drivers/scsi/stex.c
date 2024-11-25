@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * SuperTrak EX Series Storage Controller driver for Linux
  *
  *	Copyright (C) 2005-2015 Promise Technology Inc.
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
@@ -11,6 +16,10 @@
  *	Written By:
  *		Ed Lin <promise_linux@promise.com>
  *
+=======
+ *	Written By:
+ *		Ed Lin <promise_linux@promise.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -241,7 +250,11 @@ struct req_msg {
 	u8 data_dir;
 	u8 payload_sz;		/* payload size in 4-byte, not used */
 	u8 cdb[STEX_CDB_LENGTH];
+<<<<<<< HEAD
 	u32 variable[0];
+=======
+	u32 variable[];
+>>>>>>> upstream/android-13
 };
 
 struct status_msg {
@@ -403,11 +416,16 @@ static struct status_msg *stex_get_status(struct st_hba *hba)
 static void stex_invalid_field(struct scsi_cmnd *cmd,
 			       void (*done)(struct scsi_cmnd *))
 {
+<<<<<<< HEAD
 	cmd->result = (DRIVER_SENSE << 24) | SAM_STAT_CHECK_CONDITION;
 
 	/* "Invalid field in cdb" */
 	scsi_build_sense_buffer(0, cmd->sense_buffer, ILLEGAL_REQUEST, 0x24,
 				0x0);
+=======
+	/* "Invalid field in cdb" */
+	scsi_build_sense(cmd, 0, ILLEGAL_REQUEST, 0x24, 0x0);
+>>>>>>> upstream/android-13
 	done(cmd);
 }
 
@@ -548,7 +566,11 @@ stex_ss_send_cmd(struct st_hba *hba, struct req_msg *req, u16 tag)
 	msg_h = (struct st_msg_header *)req - 1;
 	if (likely(cmd)) {
 		msg_h->channel = (u8)cmd->device->channel;
+<<<<<<< HEAD
 		msg_h->timeout = cpu_to_le16(cmd->request->timeout/HZ);
+=======
+		msg_h->timeout = cpu_to_le16(scsi_cmd_to_rq(cmd)->timeout / HZ);
+>>>>>>> upstream/android-13
 	}
 	addr = hba->dma_handle + hba->req_head * hba->rq_size;
 	addr += (hba->ccb[tag].sg_count+4)/11;
@@ -630,7 +652,11 @@ stex_queuecommand_lck(struct scsi_cmnd *cmd, void (*done)(struct scsi_cmnd *))
 		if (page == 0x8 || page == 0x3f) {
 			scsi_sg_copy_from_buffer(cmd, ms10_caching_page,
 						 sizeof(ms10_caching_page));
+<<<<<<< HEAD
 			cmd->result = DID_OK << 16 | COMMAND_COMPLETE << 8;
+=======
+			cmd->result = DID_OK << 16;
+>>>>>>> upstream/android-13
 			done(cmd);
 		} else
 			stex_invalid_field(cmd, done);
@@ -649,7 +675,11 @@ stex_queuecommand_lck(struct scsi_cmnd *cmd, void (*done)(struct scsi_cmnd *))
 		break;
 	case TEST_UNIT_READY:
 		if (id == host->max_id - 1) {
+<<<<<<< HEAD
 			cmd->result = DID_OK << 16 | COMMAND_COMPLETE << 8;
+=======
+			cmd->result = DID_OK << 16;
+>>>>>>> upstream/android-13
 			done(cmd);
 			return 0;
 		}
@@ -666,7 +696,11 @@ stex_queuecommand_lck(struct scsi_cmnd *cmd, void (*done)(struct scsi_cmnd *))
 			(cmd->cmnd[1] & INQUIRY_EVPD) == 0) {
 			scsi_sg_copy_from_buffer(cmd, (void *)console_inq_page,
 						 sizeof(console_inq_page));
+<<<<<<< HEAD
 			cmd->result = DID_OK << 16 | COMMAND_COMPLETE << 8;
+=======
+			cmd->result = DID_OK << 16;
+>>>>>>> upstream/android-13
 			done(cmd);
 		} else
 			stex_invalid_field(cmd, done);
@@ -684,19 +718,34 @@ stex_queuecommand_lck(struct scsi_cmnd *cmd, void (*done)(struct scsi_cmnd *))
 			ver.console_id = host->max_id - 1;
 			ver.host_no = hba->host->host_no;
 			cp_len = scsi_sg_copy_from_buffer(cmd, &ver, cp_len);
+<<<<<<< HEAD
 			cmd->result = sizeof(ver) == cp_len ?
 				DID_OK << 16 | COMMAND_COMPLETE << 8 :
 				DID_ERROR << 16 | COMMAND_COMPLETE << 8;
 			done(cmd);
 			return 0;
 		}
+=======
+			if (sizeof(ver) == cp_len)
+				cmd->result = DID_OK << 16;
+			else
+				cmd->result = DID_ERROR << 16;
+			done(cmd);
+			return 0;
+		}
+		break;
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
 
 	cmd->scsi_done = done;
 
+<<<<<<< HEAD
 	tag = cmd->request->tag;
+=======
+	tag = scsi_cmd_to_rq(cmd)->tag;
+>>>>>>> upstream/android-13
 
 	if (unlikely(tag >= host->can_queue))
 		return SCSI_MLQUEUE_HOST_BUSY;
@@ -740,6 +789,7 @@ static void stex_scsi_done(struct st_ccb *ccb)
 		result = ccb->scsi_status;
 		switch (ccb->scsi_status) {
 		case SAM_STAT_GOOD:
+<<<<<<< HEAD
 			result |= DID_OK << 16 | COMMAND_COMPLETE << 8;
 			break;
 		case SAM_STAT_CHECK_CONDITION:
@@ -750,10 +800,23 @@ static void stex_scsi_done(struct st_ccb *ccb)
 			break;
 		default:
 			result |= DID_ERROR << 16 | COMMAND_COMPLETE << 8;
+=======
+			result |= DID_OK << 16;
+			break;
+		case SAM_STAT_CHECK_CONDITION:
+			result |= DID_OK << 16;
+			break;
+		case SAM_STAT_BUSY:
+			result |= DID_BUS_BUSY << 16;
+			break;
+		default:
+			result |= DID_ERROR << 16;
+>>>>>>> upstream/android-13
 			break;
 		}
 	}
 	else if (ccb->srb_status & SRB_SEE_SENSE)
+<<<<<<< HEAD
 		result = DRIVER_SENSE << 24 | SAM_STAT_CHECK_CONDITION;
 	else switch (ccb->srb_status) {
 		case SRB_STATUS_SELECTION_TIMEOUT:
@@ -761,11 +824,24 @@ static void stex_scsi_done(struct st_ccb *ccb)
 			break;
 		case SRB_STATUS_BUSY:
 			result = DID_BUS_BUSY << 16 | COMMAND_COMPLETE << 8;
+=======
+		result = SAM_STAT_CHECK_CONDITION;
+	else switch (ccb->srb_status) {
+		case SRB_STATUS_SELECTION_TIMEOUT:
+			result = DID_NO_CONNECT << 16;
+			break;
+		case SRB_STATUS_BUSY:
+			result = DID_BUS_BUSY << 16;
+>>>>>>> upstream/android-13
 			break;
 		case SRB_STATUS_INVALID_REQUEST:
 		case SRB_STATUS_ERROR:
 		default:
+<<<<<<< HEAD
 			result = DID_ERROR << 16 | COMMAND_COMPLETE << 8;
+=======
+			result = DID_ERROR << 16;
+>>>>>>> upstream/android-13
 			break;
 	}
 
@@ -1252,7 +1328,11 @@ static int stex_abort(struct scsi_cmnd *cmd)
 {
 	struct Scsi_Host *host = cmd->device->host;
 	struct st_hba *hba = (struct st_hba *)host->hostdata;
+<<<<<<< HEAD
 	u16 tag = cmd->request->tag;
+=======
+	u16 tag = scsi_cmd_to_rq(cmd)->tag;
+>>>>>>> upstream/android-13
 	void __iomem *base;
 	u32 data;
 	int result = SUCCESS;
@@ -1489,6 +1569,10 @@ static struct scsi_host_template driver_template = {
 	.eh_abort_handler		= stex_abort,
 	.eh_host_reset_handler		= stex_reset,
 	.this_id			= -1,
+<<<<<<< HEAD
+=======
+	.dma_boundary			= PAGE_SIZE - 1,
+>>>>>>> upstream/android-13
 };
 
 static struct pci_device_id stex_pci_tbl[] = {
@@ -1617,6 +1701,7 @@ static struct st_card_info stex_card_info[] = {
 	},
 };
 
+<<<<<<< HEAD
 static int stex_set_dma_mask(struct pci_dev * pdev)
 {
 	int ret;
@@ -1630,6 +1715,8 @@ static int stex_set_dma_mask(struct pci_dev * pdev)
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int stex_request_irq(struct st_hba *hba)
 {
 	struct pci_dev *pdev = hba->pdev;
@@ -1710,7 +1797,13 @@ static int stex_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 		goto out_release_regions;
 	}
 
+<<<<<<< HEAD
 	err = stex_set_dma_mask(pdev);
+=======
+	err = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
+	if (err)
+		err = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32));
+>>>>>>> upstream/android-13
 	if (err) {
 		printk(KERN_ERR DRV_NAME "(%s): set dma mask failed\n",
 			pci_name(pdev));

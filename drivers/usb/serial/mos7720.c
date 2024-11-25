@@ -79,6 +79,7 @@ MODULE_DEVICE_TABLE(usb, id_table);
 #define DCR_INIT_VAL       0x0c	/* SLCTIN, nINIT */
 #define ECR_INIT_VAL       0x00	/* SPP mode */
 
+<<<<<<< HEAD
 struct urbtracker {
 	struct mos7715_parport  *mos_parport;
 	struct list_head        urblist_entry;
@@ -87,6 +88,8 @@ struct urbtracker {
 	struct usb_ctrlrequest	*setup;
 };
 
+=======
+>>>>>>> upstream/android-13
 enum mos7715_pp_modes {
 	SPP = 0<<5,
 	PS2 = 1<<5,      /* moschip calls this 'NIBBLE' mode */
@@ -96,12 +99,18 @@ enum mos7715_pp_modes {
 struct mos7715_parport {
 	struct parport          *pp;	       /* back to containing struct */
 	struct kref             ref_count;     /* to instance of this struct */
+<<<<<<< HEAD
 	struct list_head        deferred_urbs; /* list deferred async urbs */
 	struct list_head        active_urbs;   /* list async urbs in flight */
 	spinlock_t              listlock;      /* protects list access */
 	bool                    msg_pending;   /* usb sync call pending */
 	struct completion       syncmsg_compl; /* usb sync call completed */
 	struct tasklet_struct   urb_tasklet;   /* for sending deferred urbs */
+=======
+	bool                    msg_pending;   /* usb sync call pending */
+	struct completion       syncmsg_compl; /* usb sync call completed */
+	struct work_struct      work;          /* restore deferred writes */
+>>>>>>> upstream/android-13
 	struct usb_serial       *serial;       /* back to containing struct */
 	__u8	                shadowECR;     /* parallel port regs... */
 	__u8	                shadowDCR;
@@ -226,8 +235,15 @@ static int read_mos_reg(struct usb_serial *serial, unsigned int serial_portnum,
 	int status;
 
 	buf = kmalloc(1, GFP_KERNEL);
+<<<<<<< HEAD
 	if (!buf)
 		return -ENOMEM;
+=======
+	if (!buf) {
+		*data = 0;
+		return -ENOMEM;
+	}
+>>>>>>> upstream/android-13
 
 	status = usb_control_msg(usbdev, pipe, request, requesttype, value,
 				     index, buf, 1, MOS_WDR_TIMEOUT);
@@ -265,6 +281,7 @@ static void destroy_mos_parport(struct kref *kref)
 	kfree(mos_parport);
 }
 
+<<<<<<< HEAD
 static void destroy_urbtracker(struct kref *kref)
 {
 	struct urbtracker *urbtrack =
@@ -432,6 +449,10 @@ static int write_parport_reg_nonblock(struct mos7715_parport *mos_parport,
 
 /*
  * This is the the common top part of all parallel port callback operations that
+=======
+/*
+ * This is the common top part of all parallel port callback operations that
+>>>>>>> upstream/android-13
  * send synchronous messages to the device.  This implements convoluted locking
  * that avoids two scenarios: (1) a port operation is called after usbserial
  * has called our release function, at which point struct mos7715_parport has
@@ -457,6 +478,13 @@ static int parport_prologue(struct parport *pp)
 	reinit_completion(&mos_parport->syncmsg_compl);
 	spin_unlock(&release_lock);
 
+<<<<<<< HEAD
+=======
+	/* ensure writes from restore are submitted before new requests */
+	if (work_pending(&mos_parport->work))
+		flush_work(&mos_parport->work);
+
+>>>>>>> upstream/android-13
 	mutex_lock(&mos_parport->serial->disc_mutex);
 	if (mos_parport->serial->disconnected) {
 		/* device disconnected */
@@ -481,6 +509,29 @@ static inline void parport_epilogue(struct parport *pp)
 	complete(&mos_parport->syncmsg_compl);
 }
 
+<<<<<<< HEAD
+=======
+static void deferred_restore_writes(struct work_struct *work)
+{
+	struct mos7715_parport *mos_parport;
+
+	mos_parport = container_of(work, struct mos7715_parport, work);
+
+	mutex_lock(&mos_parport->serial->disc_mutex);
+
+	/* if device disconnected, game over */
+	if (mos_parport->serial->disconnected)
+		goto done;
+
+	write_mos_reg(mos_parport->serial, dummy, MOS7720_DCR,
+		      mos_parport->shadowDCR);
+	write_mos_reg(mos_parport->serial, dummy, MOS7720_ECR,
+		      mos_parport->shadowECR);
+done:
+	mutex_unlock(&mos_parport->serial->disc_mutex);
+}
+
+>>>>>>> upstream/android-13
 static void parport_mos7715_write_data(struct parport *pp, unsigned char d)
 {
 	struct mos7715_parport *mos_parport = pp->private_data;
@@ -640,10 +691,15 @@ static void parport_mos7715_restore_state(struct parport *pp,
 	}
 	mos_parport->shadowDCR = s->u.pc.ctr;
 	mos_parport->shadowECR = s->u.pc.ecr;
+<<<<<<< HEAD
 	write_parport_reg_nonblock(mos_parport, MOS7720_DCR,
 				   mos_parport->shadowDCR);
 	write_parport_reg_nonblock(mos_parport, MOS7720_ECR,
 				   mos_parport->shadowECR);
+=======
+
+	schedule_work(&mos_parport->work);
+>>>>>>> upstream/android-13
 	spin_unlock(&release_lock);
 }
 
@@ -713,6 +769,7 @@ static int mos7715_parport_init(struct usb_serial *serial)
 
 	mos_parport->msg_pending = false;
 	kref_init(&mos_parport->ref_count);
+<<<<<<< HEAD
 	spin_lock_init(&mos_parport->listlock);
 	INIT_LIST_HEAD(&mos_parport->active_urbs);
 	INIT_LIST_HEAD(&mos_parport->deferred_urbs);
@@ -720,6 +777,11 @@ static int mos7715_parport_init(struct usb_serial *serial)
 	mos_parport->serial = serial;
 	tasklet_init(&mos_parport->urb_tasklet, send_deferred_urbs,
 		     (unsigned long) mos_parport);
+=======
+	usb_set_serial_data(serial, mos_parport); /* hijack private pointer */
+	mos_parport->serial = serial;
+	INIT_WORK(&mos_parport->work, deferred_restore_writes);
+>>>>>>> upstream/android-13
 	init_completion(&mos_parport->syncmsg_compl);
 
 	/* cycle parallel port reset bit */
@@ -1101,6 +1163,7 @@ static int mos7720_open(struct tty_struct *tty, struct usb_serial_port *port)
  *	this function is called by the tty driver when it wants to know how many
  *	bytes of data we currently have outstanding in the port (data that has
  *	been written, but hasn't made it out the port yet)
+<<<<<<< HEAD
  *	If successful, we return the number of bytes left to be written in the
  *	system,
  *	Otherwise we return a negative error number.
@@ -1115,13 +1178,26 @@ static int mos7720_chars_in_buffer(struct tty_struct *tty)
 	mos7720_port = usb_get_serial_port_data(port);
 	if (mos7720_port == NULL)
 		return 0;
+=======
+ */
+static unsigned int mos7720_chars_in_buffer(struct tty_struct *tty)
+{
+	struct usb_serial_port *port = tty->driver_data;
+	struct moschip_port *mos7720_port = usb_get_serial_port_data(port);
+	int i;
+	unsigned int chars = 0;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < NUM_URBS; ++i) {
 		if (mos7720_port->write_urb_pool[i] &&
 		    mos7720_port->write_urb_pool[i]->status == -EINPROGRESS)
 			chars += URB_TRANSFER_BUFFER_SIZE;
 	}
+<<<<<<< HEAD
 	dev_dbg(&port->dev, "%s - returns %d\n", __func__, chars);
+=======
+	dev_dbg(&port->dev, "%s - returns %u\n", __func__, chars);
+>>>>>>> upstream/android-13
 	return chars;
 }
 
@@ -1186,6 +1262,7 @@ static void mos7720_break(struct tty_struct *tty, int break_state)
  * mos7720_write_room
  *	this function is called by the tty driver when it wants to know how many
  *	bytes of data we can accept for a specific port.
+<<<<<<< HEAD
  *	If successful, we return the amount of room that we have for this port
  *	Otherwise we return a negative error number.
  */
@@ -1200,6 +1277,16 @@ static int mos7720_write_room(struct tty_struct *tty)
 	if (mos7720_port == NULL)
 		return -ENODEV;
 
+=======
+ */
+static unsigned int mos7720_write_room(struct tty_struct *tty)
+{
+	struct usb_serial_port *port = tty->driver_data;
+	struct moschip_port *mos7720_port = usb_get_serial_port_data(port);
+	unsigned int room = 0;
+	int i;
+
+>>>>>>> upstream/android-13
 	/* FIXME: Locking */
 	for (i = 0; i < NUM_URBS; ++i) {
 		if (mos7720_port->write_urb_pool[i] &&
@@ -1207,7 +1294,11 @@ static int mos7720_write_room(struct tty_struct *tty)
 			room += URB_TRANSFER_BUFFER_SIZE;
 	}
 
+<<<<<<< HEAD
 	dev_dbg(&port->dev, "%s - returns %d\n", __func__, room);
+=======
+	dev_dbg(&port->dev, "%s - returns %u\n", __func__, room);
+>>>>>>> upstream/android-13
 	return room;
 }
 
@@ -1790,6 +1881,7 @@ static int mos7720_tiocmset(struct tty_struct *tty,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int set_modem_info(struct moschip_port *mos7720_port, unsigned int cmd,
 			  unsigned int __user *value)
 {
@@ -1856,6 +1948,8 @@ static int get_serial_info(struct moschip_port *mos7720_port,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int mos7720_ioctl(struct tty_struct *tty,
 			 unsigned int cmd, unsigned long arg)
 {
@@ -1871,6 +1965,7 @@ static int mos7720_ioctl(struct tty_struct *tty,
 		dev_dbg(&port->dev, "%s TIOCSERGETLSR\n", __func__);
 		return get_lsr_info(tty, mos7720_port,
 					(unsigned int __user *)arg);
+<<<<<<< HEAD
 
 	/* FIXME: These should be using the mode methods */
 	case TIOCMBIS:
@@ -1883,6 +1978,8 @@ static int mos7720_ioctl(struct tty_struct *tty,
 		dev_dbg(&port->dev, "%s TIOCGSERIAL\n", __func__);
 		return get_serial_info(mos7720_port,
 				       (struct serial_struct __user *)arg);
+=======
+>>>>>>> upstream/android-13
 	}
 
 	return -ENOIOCTLCMD;
@@ -1932,8 +2029,11 @@ static void mos7720_release(struct usb_serial *serial)
 
 	if (le16_to_cpu(serial->dev->descriptor.idProduct)
 	    == MOSCHIP_DEVICE_ID_7715) {
+<<<<<<< HEAD
 		struct urbtracker *urbtrack;
 		unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 		struct mos7715_parport *mos_parport =
 			usb_get_serial_data(serial);
 
@@ -1946,11 +2046,21 @@ static void mos7720_release(struct usb_serial *serial)
 		if (mos_parport->msg_pending)
 			wait_for_completion_timeout(&mos_parport->syncmsg_compl,
 					    msecs_to_jiffies(MOS_WDR_TIMEOUT));
+<<<<<<< HEAD
+=======
+		/*
+		 * If delayed work is currently scheduled, wait for it to
+		 * complete. This also implies barriers that ensure the
+		 * below serial clearing is not hoisted above the ->work.
+		 */
+		cancel_work_sync(&mos_parport->work);
+>>>>>>> upstream/android-13
 
 		parport_remove_port(mos_parport->pp);
 		usb_set_serial_data(serial, NULL);
 		mos_parport->serial = NULL;
 
+<<<<<<< HEAD
 		/* if tasklet currently scheduled, wait for it to complete */
 		tasklet_kill(&mos_parport->urb_tasklet);
 
@@ -1961,6 +2071,8 @@ static void mos7720_release(struct usb_serial *serial)
 				    urblist_entry)
 			usb_unlink_urb(urbtrack->urb);
 		spin_unlock_irqrestore(&mos_parport->listlock, flags);
+=======
+>>>>>>> upstream/android-13
 		parport_del_port(mos_parport->pp);
 
 		kref_put(&mos_parport->ref_count, destroy_mos_parport);
@@ -1983,14 +2095,21 @@ static int mos7720_port_probe(struct usb_serial_port *port)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int mos7720_port_remove(struct usb_serial_port *port)
+=======
+static void mos7720_port_remove(struct usb_serial_port *port)
+>>>>>>> upstream/android-13
 {
 	struct moschip_port *mos7720_port;
 
 	mos7720_port = usb_get_serial_port_data(port);
 	kfree(mos7720_port);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static struct usb_serial_driver moschip7720_2port_driver = {

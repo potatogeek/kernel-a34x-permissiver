@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2013 STMicroelectronics (R&D) Limited.
  * Author(s): Srinivas Kandagatla <srinivas.kandagatla@st.com>
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2013 STMicroelectronics (R&D) Limited.
+ * Author(s): Srinivas Kandagatla <srinivas.kandagatla@st.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/irq.h>
@@ -23,6 +30,7 @@ static const char *const stih41x_dt_match[] __initconst = {
 	NULL
 };
 
+<<<<<<< HEAD
 static void sti_l2_write_sec(unsigned long val, unsigned reg)
 {
 	/*
@@ -31,6 +39,8 @@ static void sti_l2_write_sec(unsigned long val, unsigned reg)
 	 */
 }
 
+=======
+>>>>>>> upstream/android-13
 DT_MACHINE_START(STM, "STi SoC with Flattened Device Tree")
 	.dt_compat	= stih41x_dt_match,
 	.l2c_aux_val	= L2C_AUX_CTRL_SHARED_OVERRIDE |
@@ -39,5 +49,8 @@ DT_MACHINE_START(STM, "STi SoC with Flattened Device Tree")
 			  L2C_AUX_CTRL_WAY_SIZE(4),
 	.l2c_aux_mask	= 0xc0000fff,
 	.smp		= smp_ops(sti_smp_ops),
+<<<<<<< HEAD
 	.l2c_write_sec	= sti_l2_write_sec,
+=======
+>>>>>>> upstream/android-13
 MACHINE_END

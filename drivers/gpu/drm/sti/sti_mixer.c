@@ -5,8 +5,17 @@
  *          Fabien Dessenne <fabien.dessenne@st.com>
  *          for STMicroelectronics.
  */
+<<<<<<< HEAD
 #include <linux/seq_file.h>
 
+=======
+
+#include <linux/moduleparam.h>
+#include <linux/seq_file.h>
+
+#include <drm/drm_print.h>
+
+>>>>>>> upstream/android-13
 #include "sti_compositor.h"
 #include "sti_mixer.h"
 #include "sti_vtg.h"
@@ -174,7 +183,11 @@ static struct drm_info_list mixer1_debugfs_files[] = {
 	{ "mixer_aux", mixer_dbg_show, 0, NULL },
 };
 
+<<<<<<< HEAD
 int sti_mixer_debugfs_init(struct sti_mixer *mixer, struct drm_minor *minor)
+=======
+void sti_mixer_debugfs_init(struct sti_mixer *mixer, struct drm_minor *minor)
+>>>>>>> upstream/android-13
 {
 	unsigned int i;
 	struct drm_info_list *mixer_debugfs_files;
@@ -190,15 +203,25 @@ int sti_mixer_debugfs_init(struct sti_mixer *mixer, struct drm_minor *minor)
 		nb_files = ARRAY_SIZE(mixer1_debugfs_files);
 		break;
 	default:
+<<<<<<< HEAD
 		return -EINVAL;
+=======
+		return;
+>>>>>>> upstream/android-13
 	}
 
 	for (i = 0; i < nb_files; i++)
 		mixer_debugfs_files[i].data = mixer;
 
+<<<<<<< HEAD
 	return drm_debugfs_create_files(mixer_debugfs_files,
 					nb_files,
 					minor->debugfs_root, minor);
+=======
+	drm_debugfs_create_files(mixer_debugfs_files,
+				 nb_files,
+				 minor->debugfs_root, minor);
+>>>>>>> upstream/android-13
 }
 
 void sti_mixer_set_background_status(struct sti_mixer *mixer, bool enable)

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014 MediaTek Inc.
  * Author: James Liao <jamesjj.liao@mediatek.com>
@@ -10,6 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2014 MediaTek Inc.
+ * Author: James Liao <jamesjj.liao@mediatek.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -533,7 +540,11 @@ static const char * const ca53_parents[] __initconst = {
 	"univpll"
 };
 
+<<<<<<< HEAD
 static const char * const ca57_parents[] __initconst = {
+=======
+static const char * const ca72_parents[] __initconst = {
+>>>>>>> upstream/android-13
 	"clk26m",
 	"armca15pll",
 	"mainpll",
@@ -542,7 +553,11 @@ static const char * const ca57_parents[] __initconst = {
 
 static const struct mtk_composite cpu_muxes[] __initconst = {
 	MUX(CLK_INFRA_CA53SEL, "infra_ca53_sel", ca53_parents, 0x0000, 0, 2),
+<<<<<<< HEAD
 	MUX(CLK_INFRA_CA57SEL, "infra_ca57_sel", ca57_parents, 0x0000, 2, 2),
+=======
+	MUX(CLK_INFRA_CA72SEL, "infra_ca72_sel", ca72_parents, 0x0000, 2, 2),
+>>>>>>> upstream/android-13
 };
 
 static const struct mtk_composite top_muxes[] __initconst = {
@@ -761,6 +776,7 @@ static const struct mtk_gate img_clks[] __initconst = {
 	GATE_IMG(CLK_IMG_FD, "img_fd", "mm_sel", 11),
 };
 
+<<<<<<< HEAD
 static const struct mtk_gate_regs mm0_cg_regs __initconst = {
 	.set_ofs = 0x0104,
 	.clr_ofs = 0x0108,
@@ -848,6 +864,8 @@ static const struct mtk_gate mm_clks[] __initconst = {
 	GATE_MM1(CLK_MM_HDMI_HDCP24M, "mm_hdmi_hdcp24m", "hdcp_24m_sel", 20),
 };
 
+=======
+>>>>>>> upstream/android-13
 static const struct mtk_gate_regs vdec0_cg_regs __initconst = {
 	.set_ofs = 0x0000,
 	.clr_ofs = 0x0004,
@@ -1152,6 +1170,7 @@ static void __init mtk_imgsys_init(struct device_node *node)
 }
 CLK_OF_DECLARE(mtk_imgsys, "mediatek,mt8173-imgsys", mtk_imgsys_init);
 
+<<<<<<< HEAD
 static void __init mtk_mmsys_init(struct device_node *node)
 {
 	struct clk_onecell_data *clk_data;
@@ -1169,6 +1188,8 @@ static void __init mtk_mmsys_init(struct device_node *node)
 }
 CLK_OF_DECLARE(mtk_mmsys, "mediatek,mt8173-mmsys", mtk_mmsys_init);
 
+=======
+>>>>>>> upstream/android-13
 static void __init mtk_vdecsys_init(struct device_node *node)
 {
 	struct clk_onecell_data *clk_data;

@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Synaptics NavPoint (PXA27x SSP/SPI) driver.
  *
  * Copyright (C) 2012 Paul Parsons <lost.distance@yahoo.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -108,7 +115,11 @@ static void navpoint_packet(struct navpoint *navpoint)
 	case 0x19:	/* Module 0, Hello packet */
 		if ((navpoint->data[1] & 0xf0) == 0x10)
 			break;
+<<<<<<< HEAD
 		/* FALLTHROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		dev_warn(navpoint->dev,
 			 "spurious packet: data=0x%02x,0x%02x,...\n",
@@ -325,7 +336,11 @@ static int __maybe_unused navpoint_suspend(struct device *dev)
 	struct input_dev *input = navpoint->input;
 
 	mutex_lock(&input->mutex);
+<<<<<<< HEAD
 	if (input->users)
+=======
+	if (input_device_enabled(input))
+>>>>>>> upstream/android-13
 		navpoint_down(navpoint);
 	mutex_unlock(&input->mutex);
 
@@ -339,7 +354,11 @@ static int __maybe_unused navpoint_resume(struct device *dev)
 	struct input_dev *input = navpoint->input;
 
 	mutex_lock(&input->mutex);
+<<<<<<< HEAD
 	if (input->users)
+=======
+	if (input_device_enabled(input))
+>>>>>>> upstream/android-13
 		navpoint_up(navpoint);
 	mutex_unlock(&input->mutex);
 

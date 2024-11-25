@@ -38,7 +38,12 @@ struct ceph_x_authenticate {
 	__u8 struct_v;
 	__le64 client_challenge;
 	__le64 key;
+<<<<<<< HEAD
 	/* ticket blob */
+=======
+	/* old_ticket blob */
+	/* nautilus+: other_keys */
+>>>>>>> upstream/android-13
 } __attribute__ ((packed));
 
 struct ceph_x_service_ticket_request {
@@ -86,7 +91,11 @@ struct ceph_x_authorize_reply {
 
 
 /*
+<<<<<<< HEAD
  * encyption bundle
+=======
+ * encryption bundle
+>>>>>>> upstream/android-13
  */
 #define CEPHX_ENC_MAGIC 0xff009cad8826aa55ull
 

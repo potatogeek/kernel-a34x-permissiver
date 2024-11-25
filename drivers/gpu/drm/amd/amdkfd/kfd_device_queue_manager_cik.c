@@ -48,6 +48,10 @@ void device_queue_manager_init_cik(
 	asic_ops->set_cache_memory_policy = set_cache_memory_policy_cik;
 	asic_ops->update_qpd = update_qpd_cik;
 	asic_ops->init_sdma_vm = init_sdma_vm;
+<<<<<<< HEAD
+=======
+	asic_ops->mqd_manager_init = mqd_manager_init_cik;
+>>>>>>> upstream/android-13
 }
 
 void device_queue_manager_init_cik_hawaii(
@@ -56,6 +60,10 @@ void device_queue_manager_init_cik_hawaii(
 	asic_ops->set_cache_memory_policy = set_cache_memory_policy_cik;
 	asic_ops->update_qpd = update_qpd_cik_hawaii;
 	asic_ops->init_sdma_vm = init_sdma_vm_hawaii;
+<<<<<<< HEAD
+=======
+	asic_ops->mqd_manager_init = mqd_manager_init_cik_hawaii;
+>>>>>>> upstream/android-13
 }
 
 static uint32_t compute_sh_mem_bases_64bit(unsigned int top_address_nybble)

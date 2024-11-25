@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016 Felix Fietkau <nbd@nbd.name>
  *
@@ -12,10 +13,20 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+/* SPDX-License-Identifier: ISC */
+/*
+ * Copyright (C) 2016 Felix Fietkau <nbd@nbd.name>
+>>>>>>> upstream/android-13
  */
 #ifndef __MT76_DMA_H
 #define __MT76_DMA_H
 
+<<<<<<< HEAD
+=======
+#define DMA_DUMMY_DATA			((void *)~0)
+
+>>>>>>> upstream/android-13
 #define MT_RING_SIZE			0x10
 
 #define MT_DMA_CTL_SD_LEN1		GENMASK(13, 0)
@@ -25,6 +36,7 @@
 #define MT_DMA_CTL_LAST_SEC0		BIT(30)
 #define MT_DMA_CTL_DMA_DONE		BIT(31)
 
+<<<<<<< HEAD
 #define MT_TXD_INFO_LEN			GENMASK(15, 0)
 #define MT_TXD_INFO_NEXT_VLD		BIT(16)
 #define MT_TXD_INFO_TX_BURST		BIT(17)
@@ -53,6 +65,8 @@
 #define MT_MCU_MSG_TYPE			GENMASK(31, 30)
 #define MT_MCU_MSG_TYPE_CMD		BIT(30)
 
+=======
+>>>>>>> upstream/android-13
 #define MT_DMA_HDR_LEN			4
 #define MT_RX_INFO_LEN			4
 #define MT_FCE_INFO_LEN			4
@@ -65,6 +79,7 @@ struct mt76_desc {
 	__le32 info;
 } __packed __aligned(4);
 
+<<<<<<< HEAD
 enum dma_msg_port {
 	WLAN_PORT,
 	CPU_RX_PORT,
@@ -76,6 +91,27 @@ enum dma_msg_port {
 };
 
 int mt76_dma_attach(struct mt76_dev *dev);
+=======
+enum mt76_qsel {
+	MT_QSEL_MGMT,
+	MT_QSEL_HCCA,
+	MT_QSEL_EDCA,
+	MT_QSEL_EDCA_2,
+};
+
+enum mt76_mcu_evt_type {
+	EVT_CMD_DONE,
+	EVT_CMD_ERROR,
+	EVT_CMD_RETRY,
+	EVT_EVENT_PWR_RSP,
+	EVT_EVENT_WOW_RSP,
+	EVT_EVENT_CARRIER_DETECT_RSP,
+	EVT_EVENT_DFS_DETECT_RSP,
+};
+
+int mt76_dma_rx_poll(struct napi_struct *napi, int budget);
+void mt76_dma_attach(struct mt76_dev *dev);
+>>>>>>> upstream/android-13
 void mt76_dma_cleanup(struct mt76_dev *dev);
 
 #endif

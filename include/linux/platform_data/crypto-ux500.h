@@ -1,8 +1,15 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) ST-Ericsson SA 2011
  *
  * Author: Joakim Bech <joakim.xx.bech@stericsson.com> for ST-Ericsson
+<<<<<<< HEAD
  * License terms: GNU General Public License (GPL) version 2
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _CRYPTO_UX500_H
 #define _CRYPTO_UX500_H

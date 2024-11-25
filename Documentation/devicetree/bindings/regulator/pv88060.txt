@@ -121,4 +121,8 @@ Example
 				regulator-max-microvolt = <5000000>;
 			};
 		};
+<<<<<<< HEAD
 	};
+=======
+	};
+>>>>>>> upstream/android-13

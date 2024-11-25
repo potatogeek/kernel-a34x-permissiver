@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  acpi_thermal.c - ACPI Thermal Zone Driver ($Revision: 41 $)
  *
  *  Copyright (C) 2001, 2002 Andy Grover <andrew.grover@intel.com>
  *  Copyright (C) 2001, 2002 Paul Diefenbaugh <paul.s.diefenbaugh@intel.com>
  *
+<<<<<<< HEAD
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -18,15 +23,24 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
+=======
+>>>>>>> upstream/android-13
  *  This driver fully implements the ACPI thermal policy as described in the
  *  ACPI 2.0 Specification.
  *
  *  TBD: 1. Implement passive cooling hysteresis.
  *       2. Enhance passive cooling (CPU) states/limit interface to support
  *          concepts of 'multiple limiters', upper/lower limits, etc.
+<<<<<<< HEAD
  *
  */
 
+=======
+ */
+
+#define pr_fmt(fmt) "ACPI: thermal: " fmt
+
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/dmi.h>
@@ -41,8 +55,12 @@
 #include <linux/acpi.h>
 #include <linux/workqueue.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
 
 #define PREFIX "ACPI: "
+=======
+#include <linux/units.h>
+>>>>>>> upstream/android-13
 
 #define ACPI_THERMAL_CLASS		"thermal_zone"
 #define ACPI_THERMAL_DEVICE_NAME	"Thermal Zone"
@@ -56,9 +74,12 @@
 #define ACPI_THERMAL_MAX_ACTIVE	10
 #define ACPI_THERMAL_MAX_LIMIT_STR_LEN 65
 
+<<<<<<< HEAD
 #define _COMPONENT		ACPI_THERMAL_COMPONENT
 ACPI_MODULE_NAME("thermal");
 
+=======
+>>>>>>> upstream/android-13
 MODULE_AUTHOR("Paul Diefenbaugh");
 MODULE_DESCRIPTION("ACPI Thermal Zone Driver");
 MODULE_LICENSE("GPL");
@@ -185,8 +206,12 @@ struct acpi_thermal {
 	struct acpi_thermal_trips trips;
 	struct acpi_handle_list devices;
 	struct thermal_zone_device *thermal_zone;
+<<<<<<< HEAD
 	int tz_enabled;
 	int kelvin_offset;
+=======
+	int kelvin_offset;	/* in millidegrees */
+>>>>>>> upstream/android-13
 	struct work_struct thermal_check_work;
 	struct mutex thermal_check_lock;
 	refcount_t thermal_check_count;
@@ -211,8 +236,14 @@ static int acpi_thermal_get_temperature(struct acpi_thermal *tz)
 		return -ENODEV;
 
 	tz->temperature = tmp;
+<<<<<<< HEAD
 	ACPI_DEBUG_PRINT((ACPI_DB_INFO, "Temperature is %lu dK\n",
 			  tz->temperature));
+=======
+
+	acpi_handle_debug(tz->device->handle, "Temperature is %lu dK\n",
+			  tz->temperature);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -230,8 +261,13 @@ static int acpi_thermal_get_polling_frequency(struct acpi_thermal *tz)
 		return -ENODEV;
 
 	tz->polling_frequency = tmp;
+<<<<<<< HEAD
 	ACPI_DEBUG_PRINT((ACPI_DB_INFO, "Polling frequency is %lu dS\n",
 			  tz->polling_frequency));
+=======
+	acpi_handle_debug(tz->device->handle, "Polling frequency is %lu dS\n",
+			  tz->polling_frequency);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -241,6 +277,7 @@ static int acpi_thermal_set_cooling_mode(struct acpi_thermal *tz, int mode)
 	if (!tz)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (!acpi_has_method(tz->device->handle, "_SCP")) {
 		ACPI_DEBUG_PRINT((ACPI_DB_INFO, "_SCP not present\n"));
 		return -ENODEV;
@@ -248,6 +285,11 @@ static int acpi_thermal_set_cooling_mode(struct acpi_thermal *tz, int mode)
 							   "_SCP", mode))) {
 		return -ENODEV;
 	}
+=======
+	if (ACPI_FAILURE(acpi_execute_simple_method(tz->device->handle,
+						    "_SCP", mode)))
+		return -ENODEV;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -272,12 +314,21 @@ static int acpi_thermal_set_cooling_mode(struct acpi_thermal *tz, int mode)
  * 2.TODO: Devices listed in _PSL, _ALx, _TZD may change.
  *   We need to re-bind the cooling devices of a thermal zone when this occurs.
  */
+<<<<<<< HEAD
 #define ACPI_THERMAL_TRIPS_EXCEPTION(flags, str)	\
 do {	\
 	if (flags != ACPI_TRIPS_INIT)	\
 		ACPI_EXCEPTION((AE_INFO, AE_ERROR,	\
 		"ACPI thermal trip point %s changed\n"	\
 		"Please send acpidump to linux-acpi@vger.kernel.org", str)); \
+=======
+#define ACPI_THERMAL_TRIPS_EXCEPTION(flags, tz, str)	\
+do {	\
+	if (flags != ACPI_TRIPS_INIT)	\
+		acpi_handle_info(tz->device->handle,	\
+		"ACPI thermal trip point %s changed\n"	\
+		"Please report to linux-acpi@vger.kernel.org\n", str); \
+>>>>>>> upstream/android-13
 } while (0)
 
 static int acpi_thermal_trips_update(struct acpi_thermal *tz, int flag)
@@ -301,29 +352,52 @@ static int acpi_thermal_trips_update(struct acpi_thermal *tz, int flag)
 		 */
 		if (ACPI_FAILURE(status)) {
 			tz->trips.critical.flags.valid = 0;
+<<<<<<< HEAD
 			ACPI_DEBUG_PRINT((ACPI_DB_INFO,
 					  "No critical threshold\n"));
 		} else if (tmp <= 2732) {
 			pr_warn(FW_BUG "Invalid critical threshold (%llu)\n",
+=======
+			acpi_handle_debug(tz->device->handle,
+					  "No critical threshold\n");
+		} else if (tmp <= 2732) {
+			pr_info(FW_BUG "Invalid critical threshold (%llu)\n",
+>>>>>>> upstream/android-13
 				tmp);
 			tz->trips.critical.flags.valid = 0;
 		} else {
 			tz->trips.critical.flags.valid = 1;
+<<<<<<< HEAD
 			ACPI_DEBUG_PRINT((ACPI_DB_INFO,
 					  "Found critical threshold [%lu]\n",
 					  tz->trips.critical.temperature));
+=======
+			acpi_handle_debug(tz->device->handle,
+					  "Found critical threshold [%lu]\n",
+					  tz->trips.critical.temperature);
+>>>>>>> upstream/android-13
 		}
 		if (tz->trips.critical.flags.valid == 1) {
 			if (crt == -1) {
 				tz->trips.critical.flags.valid = 0;
 			} else if (crt > 0) {
+<<<<<<< HEAD
 				unsigned long crt_k = CELSIUS_TO_DECI_KELVIN(crt);
+=======
+				unsigned long crt_k = celsius_to_deci_kelvin(crt);
+
+>>>>>>> upstream/android-13
 				/*
 				 * Allow override critical threshold
 				 */
 				if (crt_k > tz->trips.critical.temperature)
+<<<<<<< HEAD
 					pr_warn(PREFIX "Critical threshold %d C\n",
 						crt);
+=======
+					pr_info("Critical threshold %d C\n", crt);
+
+>>>>>>> upstream/android-13
 				tz->trips.critical.temperature = crt_k;
 			}
 		}
@@ -335,6 +409,7 @@ static int acpi_thermal_trips_update(struct acpi_thermal *tz, int flag)
 				"_HOT", NULL, &tmp);
 		if (ACPI_FAILURE(status)) {
 			tz->trips.hot.flags.valid = 0;
+<<<<<<< HEAD
 			ACPI_DEBUG_PRINT((ACPI_DB_INFO,
 					"No hot threshold\n"));
 		} else {
@@ -343,6 +418,16 @@ static int acpi_thermal_trips_update(struct acpi_thermal *tz, int flag)
 			ACPI_DEBUG_PRINT((ACPI_DB_INFO,
 					"Found hot threshold [%lu]\n",
 					tz->trips.hot.temperature));
+=======
+			acpi_handle_debug(tz->device->handle,
+					  "No hot threshold\n");
+		} else {
+			tz->trips.hot.temperature = tmp;
+			tz->trips.hot.flags.valid = 1;
+			acpi_handle_debug(tz->device->handle,
+					  "Found hot threshold [%lu]\n",
+					  tz->trips.hot.temperature);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -353,7 +438,11 @@ static int acpi_thermal_trips_update(struct acpi_thermal *tz, int flag)
 		if (psv == -1) {
 			status = AE_SUPPORT;
 		} else if (psv > 0) {
+<<<<<<< HEAD
 			tmp = CELSIUS_TO_DECI_KELVIN(psv);
+=======
+			tmp = celsius_to_deci_kelvin(psv);
+>>>>>>> upstream/android-13
 			status = AE_OK;
 		} else {
 			status = acpi_evaluate_integer(tz->device->handle,
@@ -395,7 +484,12 @@ static int acpi_thermal_trips_update(struct acpi_thermal *tz, int flag)
 		status = acpi_evaluate_reference(tz->device->handle, "_PSL",
 							NULL, &devices);
 		if (ACPI_FAILURE(status)) {
+<<<<<<< HEAD
 			pr_warn(PREFIX "Invalid passive threshold\n");
+=======
+			acpi_handle_info(tz->device->handle,
+					 "Invalid passive threshold\n");
+>>>>>>> upstream/android-13
 			tz->trips.passive.flags.valid = 0;
 		}
 		else
@@ -405,12 +499,20 @@ static int acpi_thermal_trips_update(struct acpi_thermal *tz, int flag)
 				sizeof(struct acpi_handle_list))) {
 			memcpy(&tz->trips.passive.devices, &devices,
 				sizeof(struct acpi_handle_list));
+<<<<<<< HEAD
 			ACPI_THERMAL_TRIPS_EXCEPTION(flag, "device");
+=======
+			ACPI_THERMAL_TRIPS_EXCEPTION(flag, tz, "device");
+>>>>>>> upstream/android-13
 		}
 	}
 	if ((flag & ACPI_TRIPS_PASSIVE) || (flag & ACPI_TRIPS_DEVICES)) {
 		if (valid != tz->trips.passive.flags.valid)
+<<<<<<< HEAD
 				ACPI_THERMAL_TRIPS_EXCEPTION(flag, "state");
+=======
+				ACPI_THERMAL_TRIPS_EXCEPTION(flag, tz, "state");
+>>>>>>> upstream/android-13
 	}
 
 	/* Active (optional) */
@@ -433,7 +535,11 @@ static int acpi_thermal_trips_update(struct acpi_thermal *tz, int flag)
 					break;
 				if (i == 1)
 					tz->trips.active[0].temperature =
+<<<<<<< HEAD
 						CELSIUS_TO_DECI_KELVIN(act);
+=======
+						celsius_to_deci_kelvin(act);
+>>>>>>> upstream/android-13
 				else
 					/*
 					 * Don't allow override higher than
@@ -441,9 +547,15 @@ static int acpi_thermal_trips_update(struct acpi_thermal *tz, int flag)
 					 */
 					tz->trips.active[i - 1].temperature =
 						(tz->trips.active[i - 2].temperature <
+<<<<<<< HEAD
 						CELSIUS_TO_DECI_KELVIN(act) ?
 						tz->trips.active[i - 2].temperature :
 						CELSIUS_TO_DECI_KELVIN(act));
+=======
+						celsius_to_deci_kelvin(act) ?
+						tz->trips.active[i - 2].temperature :
+						celsius_to_deci_kelvin(act));
+>>>>>>> upstream/android-13
 				break;
 			} else {
 				tz->trips.active[i].temperature = tmp;
@@ -457,8 +569,13 @@ static int acpi_thermal_trips_update(struct acpi_thermal *tz, int flag)
 			status = acpi_evaluate_reference(tz->device->handle,
 						name, NULL, &devices);
 			if (ACPI_FAILURE(status)) {
+<<<<<<< HEAD
 				pr_warn(PREFIX "Invalid active%d threshold\n",
 					i);
+=======
+				acpi_handle_info(tz->device->handle,
+						 "Invalid active%d threshold\n", i);
+>>>>>>> upstream/android-13
 				tz->trips.active[i].flags.valid = 0;
 			}
 			else
@@ -468,26 +585,42 @@ static int acpi_thermal_trips_update(struct acpi_thermal *tz, int flag)
 					sizeof(struct acpi_handle_list))) {
 				memcpy(&tz->trips.active[i].devices, &devices,
 					sizeof(struct acpi_handle_list));
+<<<<<<< HEAD
 				ACPI_THERMAL_TRIPS_EXCEPTION(flag, "device");
+=======
+				ACPI_THERMAL_TRIPS_EXCEPTION(flag, tz, "device");
+>>>>>>> upstream/android-13
 			}
 		}
 		if ((flag & ACPI_TRIPS_ACTIVE) || (flag & ACPI_TRIPS_DEVICES))
 			if (valid != tz->trips.active[i].flags.valid)
+<<<<<<< HEAD
 				ACPI_THERMAL_TRIPS_EXCEPTION(flag, "state");
+=======
+				ACPI_THERMAL_TRIPS_EXCEPTION(flag, tz, "state");
+>>>>>>> upstream/android-13
 
 		if (!tz->trips.active[i].flags.valid)
 			break;
 	}
 
+<<<<<<< HEAD
 	if ((flag & ACPI_TRIPS_DEVICES)
 	    && acpi_has_method(tz->device->handle, "_TZD")) {
+=======
+	if (flag & ACPI_TRIPS_DEVICES) {
+>>>>>>> upstream/android-13
 		memset(&devices, 0, sizeof(devices));
 		status = acpi_evaluate_reference(tz->device->handle, "_TZD",
 						NULL, &devices);
 		if (ACPI_SUCCESS(status)
 		    && memcmp(&tz->devices, &devices, sizeof(devices))) {
 			tz->devices = devices;
+<<<<<<< HEAD
 			ACPI_THERMAL_TRIPS_EXCEPTION(flag, "device");
+=======
+			ACPI_THERMAL_TRIPS_EXCEPTION(flag, tz, "device");
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -529,11 +662,16 @@ static int thermal_get_temp(struct thermal_zone_device *thermal, int *temp)
 	if (result)
 		return result;
 
+<<<<<<< HEAD
 	*temp = DECI_KELVIN_TO_MILLICELSIUS_WITH_OFFSET(tz->temperature,
+=======
+	*temp = deci_kelvin_to_millicelsius_with_offset(tz->temperature,
+>>>>>>> upstream/android-13
 							tz->kelvin_offset);
 	return 0;
 }
 
+<<<<<<< HEAD
 static int thermal_get_mode(struct thermal_zone_device *thermal,
 				enum thermal_device_mode *mode)
 {
@@ -580,6 +718,8 @@ static int thermal_set_mode(struct thermal_zone_device *thermal,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int thermal_get_trip_type(struct thermal_zone_device *thermal,
 				 int trip, enum thermal_trip_type *type)
 {
@@ -636,7 +776,11 @@ static int thermal_get_trip_temp(struct thermal_zone_device *thermal,
 
 	if (tz->trips.critical.flags.valid) {
 		if (!trip) {
+<<<<<<< HEAD
 			*temp = DECI_KELVIN_TO_MILLICELSIUS_WITH_OFFSET(
+=======
+			*temp = deci_kelvin_to_millicelsius_with_offset(
+>>>>>>> upstream/android-13
 				tz->trips.critical.temperature,
 				tz->kelvin_offset);
 			return 0;
@@ -646,7 +790,11 @@ static int thermal_get_trip_temp(struct thermal_zone_device *thermal,
 
 	if (tz->trips.hot.flags.valid) {
 		if (!trip) {
+<<<<<<< HEAD
 			*temp = DECI_KELVIN_TO_MILLICELSIUS_WITH_OFFSET(
+=======
+			*temp = deci_kelvin_to_millicelsius_with_offset(
+>>>>>>> upstream/android-13
 				tz->trips.hot.temperature,
 				tz->kelvin_offset);
 			return 0;
@@ -656,7 +804,11 @@ static int thermal_get_trip_temp(struct thermal_zone_device *thermal,
 
 	if (tz->trips.passive.flags.valid) {
 		if (!trip) {
+<<<<<<< HEAD
 			*temp = DECI_KELVIN_TO_MILLICELSIUS_WITH_OFFSET(
+=======
+			*temp = deci_kelvin_to_millicelsius_with_offset(
+>>>>>>> upstream/android-13
 				tz->trips.passive.temperature,
 				tz->kelvin_offset);
 			return 0;
@@ -667,7 +819,11 @@ static int thermal_get_trip_temp(struct thermal_zone_device *thermal,
 	for (i = 0; i < ACPI_THERMAL_MAX_ACTIVE &&
 		tz->trips.active[i].flags.valid; i++) {
 		if (!trip) {
+<<<<<<< HEAD
 			*temp = DECI_KELVIN_TO_MILLICELSIUS_WITH_OFFSET(
+=======
+			*temp = deci_kelvin_to_millicelsius_with_offset(
+>>>>>>> upstream/android-13
 				tz->trips.active[i].temperature,
 				tz->kelvin_offset);
 			return 0;
@@ -684,7 +840,11 @@ static int thermal_get_crit_temp(struct thermal_zone_device *thermal,
 	struct acpi_thermal *tz = thermal->devdata;
 
 	if (tz->trips.critical.flags.valid) {
+<<<<<<< HEAD
 		*temperature = DECI_KELVIN_TO_MILLICELSIUS_WITH_OFFSET(
+=======
+		*temperature = deci_kelvin_to_millicelsius_with_offset(
+>>>>>>> upstream/android-13
 				tz->trips.critical.temperature,
 				tz->kelvin_offset);
 		return 0;
@@ -704,7 +864,11 @@ static int thermal_get_trend(struct thermal_zone_device *thermal,
 
 	if (type == THERMAL_TRIP_ACTIVE) {
 		int trip_temp;
+<<<<<<< HEAD
 		int temp = DECI_KELVIN_TO_MILLICELSIUS_WITH_OFFSET(
+=======
+		int temp = deci_kelvin_to_millicelsius_with_offset(
+>>>>>>> upstream/android-13
 					tz->temperature, tz->kelvin_offset);
 		if (thermal_get_trip_temp(thermal, trip, &trip_temp))
 			return -EINVAL;
@@ -735,6 +899,7 @@ static int thermal_get_trend(struct thermal_zone_device *thermal,
 	return 0;
 }
 
+<<<<<<< HEAD
 
 static int thermal_notify(struct thermal_zone_device *thermal, int trip,
 			   enum thermal_trip_type trip_type)
@@ -756,6 +921,26 @@ static int thermal_notify(struct thermal_zone_device *thermal, int trip,
 		return 1;
 
 	return 0;
+=======
+static void acpi_thermal_zone_device_hot(struct thermal_zone_device *thermal)
+{
+	struct acpi_thermal *tz = thermal->devdata;
+
+	acpi_bus_generate_netlink_event(tz->device->pnp.device_class,
+					dev_name(&tz->device->dev),
+					ACPI_THERMAL_NOTIFY_HOT, 1);
+}
+
+static void acpi_thermal_zone_device_critical(struct thermal_zone_device *thermal)
+{
+	struct acpi_thermal *tz = thermal->devdata;
+
+	acpi_bus_generate_netlink_event(tz->device->pnp.device_class,
+					dev_name(&tz->device->dev),
+					ACPI_THERMAL_NOTIFY_CRITICAL, 1);
+
+	thermal_zone_device_critical(thermal);
+>>>>>>> upstream/android-13
 }
 
 static int acpi_thermal_cooling_device_cb(struct thermal_zone_device *thermal,
@@ -825,6 +1010,7 @@ static int acpi_thermal_cooling_device_cb(struct thermal_zone_device *thermal,
 		}
 	}
 
+<<<<<<< HEAD
 	for (i = 0; i < tz->devices.count; i++) {
 		handle = tz->devices.handles[i];
 		status = acpi_bus_get_device(handle, &dev);
@@ -844,6 +1030,8 @@ static int acpi_thermal_cooling_device_cb(struct thermal_zone_device *thermal,
 		}
 	}
 
+=======
+>>>>>>> upstream/android-13
 failed:
 	return result;
 }
@@ -866,13 +1054,21 @@ static struct thermal_zone_device_ops acpi_thermal_zone_ops = {
 	.bind = acpi_thermal_bind_cooling_device,
 	.unbind	= acpi_thermal_unbind_cooling_device,
 	.get_temp = thermal_get_temp,
+<<<<<<< HEAD
 	.get_mode = thermal_get_mode,
 	.set_mode = thermal_set_mode,
+=======
+>>>>>>> upstream/android-13
 	.get_trip_type = thermal_get_trip_type,
 	.get_trip_temp = thermal_get_trip_temp,
 	.get_crit_temp = thermal_get_crit_temp,
 	.get_trend = thermal_get_trend,
+<<<<<<< HEAD
 	.notify = thermal_notify,
+=======
+	.hot = acpi_thermal_zone_device_hot,
+	.critical = acpi_thermal_zone_device_critical,
+>>>>>>> upstream/android-13
 };
 
 static int acpi_thermal_register_thermal_zone(struct acpi_thermal *tz)
@@ -911,11 +1107,16 @@ static int acpi_thermal_register_thermal_zone(struct acpi_thermal *tz)
 	result = sysfs_create_link(&tz->device->dev.kobj,
 				   &tz->thermal_zone->device.kobj, "thermal_zone");
 	if (result)
+<<<<<<< HEAD
 		return result;
+=======
+		goto unregister_tzd;
+>>>>>>> upstream/android-13
 
 	result = sysfs_create_link(&tz->thermal_zone->device.kobj,
 				   &tz->device->dev.kobj, "device");
 	if (result)
+<<<<<<< HEAD
 		return result;
 
 	status =  acpi_bus_attach_private_data(tz->device->handle,
@@ -928,6 +1129,36 @@ static int acpi_thermal_register_thermal_zone(struct acpi_thermal *tz)
 	dev_info(&tz->device->dev, "registered as thermal_zone%d\n",
 		 tz->thermal_zone->id);
 	return 0;
+=======
+		goto remove_tz_link;
+
+	status =  acpi_bus_attach_private_data(tz->device->handle,
+					       tz->thermal_zone);
+	if (ACPI_FAILURE(status)) {
+		result = -ENODEV;
+		goto remove_dev_link;
+	}
+
+	result = thermal_zone_device_enable(tz->thermal_zone);
+	if (result)
+		goto acpi_bus_detach;
+
+	dev_info(&tz->device->dev, "registered as thermal_zone%d\n",
+		 tz->thermal_zone->id);
+
+	return 0;
+
+acpi_bus_detach:
+	acpi_bus_detach_private_data(tz->device->handle);
+remove_dev_link:
+	sysfs_remove_link(&tz->thermal_zone->device.kobj, "device");
+remove_tz_link:
+	sysfs_remove_link(&tz->device->dev.kobj, "thermal_zone");
+unregister_tzd:
+	thermal_zone_device_unregister(tz->thermal_zone);
+
+	return result;
+>>>>>>> upstream/android-13
 }
 
 static void acpi_thermal_unregister_thermal_zone(struct acpi_thermal *tz)
@@ -975,8 +1206,13 @@ static void acpi_thermal_notify(struct acpi_device *device, u32 event)
 						  dev_name(&device->dev), event, 0);
 		break;
 	default:
+<<<<<<< HEAD
 		ACPI_DEBUG_PRINT((ACPI_DB_INFO,
 				  "Unsupported event [0x%x]\n", event));
+=======
+		acpi_handle_debug(device->handle, "Unsupported event [0x%x]\n",
+				  event);
+>>>>>>> upstream/android-13
 		break;
 	}
 }
@@ -1061,9 +1297,15 @@ static void acpi_thermal_guess_offset(struct acpi_thermal *tz)
 {
 	if (tz->trips.critical.flags.valid &&
 	    (tz->trips.critical.temperature % 5) == 1)
+<<<<<<< HEAD
 		tz->kelvin_offset = 2731;
 	else
 		tz->kelvin_offset = 2732;
+=======
+		tz->kelvin_offset = 273100;
+	else
+		tz->kelvin_offset = 273200;
+>>>>>>> upstream/android-13
 }
 
 static void acpi_thermal_check_fn(struct work_struct *work)
@@ -1071,8 +1313,11 @@ static void acpi_thermal_check_fn(struct work_struct *work)
 	struct acpi_thermal *tz = container_of(work, struct acpi_thermal,
 					       thermal_check_work);
 
+<<<<<<< HEAD
 	if (!tz->tz_enabled)
 		return;
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * In general, it is not sufficient to check the pending bit, because
 	 * subsequent instances of this function may be queued after one of them
@@ -1126,8 +1371,13 @@ static int acpi_thermal_add(struct acpi_device *device)
 	mutex_init(&tz->thermal_check_lock);
 	INIT_WORK(&tz->thermal_check_work, acpi_thermal_check_fn);
 
+<<<<<<< HEAD
 	pr_info(PREFIX "%s [%s] (%ld C)\n", acpi_device_name(device),
 		acpi_device_bid(device), DECI_KELVIN_TO_CELSIUS(tz->temperature));
+=======
+	pr_info("%s [%s] (%ld C)\n", acpi_device_name(device),
+		acpi_device_bid(device), deci_kelvin_to_celsius(tz->temperature));
+>>>>>>> upstream/android-13
 	goto end;
 
 free_memory:
@@ -1198,24 +1448,39 @@ static int acpi_thermal_resume(struct device *dev)
 static int thermal_act(const struct dmi_system_id *d) {
 
 	if (act == 0) {
+<<<<<<< HEAD
 		pr_notice(PREFIX "%s detected: "
 			  "disabling all active thermal trip points\n", d->ident);
+=======
+		pr_notice("%s detected: disabling all active thermal trip points\n",
+			  d->ident);
+>>>>>>> upstream/android-13
 		act = -1;
 	}
 	return 0;
 }
 static int thermal_nocrt(const struct dmi_system_id *d) {
 
+<<<<<<< HEAD
 	pr_notice(PREFIX "%s detected: "
 		  "disabling all critical thermal trip point actions.\n", d->ident);
+=======
+	pr_notice("%s detected: disabling all critical thermal trip point actions.\n",
+		  d->ident);
+>>>>>>> upstream/android-13
 	nocrt = 1;
 	return 0;
 }
 static int thermal_tzp(const struct dmi_system_id *d) {
 
 	if (tzp == 0) {
+<<<<<<< HEAD
 		pr_notice(PREFIX "%s detected: "
 			  "enabling thermal zone polling\n", d->ident);
+=======
+		pr_notice("%s detected: enabling thermal zone polling\n",
+			  d->ident);
+>>>>>>> upstream/android-13
 		tzp = 300;	/* 300 dS = 30 Seconds */
 	}
 	return 0;
@@ -1223,8 +1488,13 @@ static int thermal_tzp(const struct dmi_system_id *d) {
 static int thermal_psv(const struct dmi_system_id *d) {
 
 	if (psv == 0) {
+<<<<<<< HEAD
 		pr_notice(PREFIX "%s detected: "
 			  "disabling all passive thermal trip points\n", d->ident);
+=======
+		pr_notice("%s detected: disabling all passive thermal trip points\n",
+			  d->ident);
+>>>>>>> upstream/android-13
 		psv = -1;
 	}
 	return 0;
@@ -1277,7 +1547,11 @@ static int __init acpi_thermal_init(void)
 	dmi_check_system(thermal_dmi_table);
 
 	if (off) {
+<<<<<<< HEAD
 		pr_notice(PREFIX "thermal control disabled\n");
+=======
+		pr_notice("thermal control disabled\n");
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	}
 

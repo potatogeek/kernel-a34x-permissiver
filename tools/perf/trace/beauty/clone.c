@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: LGPL-2.1
+>>>>>>> upstream/android-13
 /*
  * trace/beauty/cone.c
  *
  *  Copyright (C) 2017, Red Hat Inc, Arnaldo Carvalho de Melo <acme@redhat.com>
+<<<<<<< HEAD
  *
  * Released under the GPL v2. (and only v2, not any later version)
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "trace/beauty/beauty.h"
@@ -11,13 +18,23 @@
 #include <sys/types.h>
 #include <uapi/linux/sched.h>
 
+<<<<<<< HEAD
 static size_t clone__scnprintf_flags(unsigned long flags, char *bf, size_t size)
 {
+=======
+static size_t clone__scnprintf_flags(unsigned long flags, char *bf, size_t size, bool show_prefix)
+{
+	const char *prefix = "CLONE_";
+>>>>>>> upstream/android-13
 	int printed = 0;
 
 #define	P_FLAG(n) \
 	if (flags & CLONE_##n) { \
+<<<<<<< HEAD
 		printed += scnprintf(bf + printed, size - printed, "%s%s", printed ? "|" : "", #n); \
+=======
+		printed += scnprintf(bf + printed, size - printed, "%s%s%s", printed ? "|" : "", show_prefix ? prefix : "", #n); \
+>>>>>>> upstream/android-13
 		flags &= ~CLONE_##n; \
 	}
 
@@ -25,6 +42,10 @@ static size_t clone__scnprintf_flags(unsigned long flags, char *bf, size_t size)
 	P_FLAG(FS);
 	P_FLAG(FILES);
 	P_FLAG(SIGHAND);
+<<<<<<< HEAD
+=======
+	P_FLAG(PIDFD);
+>>>>>>> upstream/android-13
 	P_FLAG(PTRACE);
 	P_FLAG(VFORK);
 	P_FLAG(PARENT);
@@ -44,6 +65,11 @@ static size_t clone__scnprintf_flags(unsigned long flags, char *bf, size_t size)
 	P_FLAG(NEWPID);
 	P_FLAG(NEWNET);
 	P_FLAG(IO);
+<<<<<<< HEAD
+=======
+	P_FLAG(CLEAR_SIGHAND);
+	P_FLAG(INTO_CGROUP);
+>>>>>>> upstream/android-13
 #undef P_FLAG
 
 	if (flags)
@@ -71,5 +97,9 @@ size_t syscall_arg__scnprintf_clone_flags(char *bf, size_t size, struct syscall_
 	if (!(flags & CLONE_SETTLS))
 		arg->mask |= SCC_TLS;
 
+<<<<<<< HEAD
 	return clone__scnprintf_flags(flags, bf, size);
+=======
+	return clone__scnprintf_flags(flags, bf, size, arg->show_string_prefix);
+>>>>>>> upstream/android-13
 }

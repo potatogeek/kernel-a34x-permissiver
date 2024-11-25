@@ -27,7 +27,10 @@
 #include <linux/io.h>
 #include <linux/irq.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
 #include <linux/limits.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/of_gpio.h>
 #include <linux/platform_device.h>
@@ -106,9 +109,12 @@ const struct file_operations ops_name = {				\
 #define INPUT_LOG_BUF_SIZE		512
 #define INPUT_TCLM_LOG_BUF_SIZE		64
 
+<<<<<<< HEAD
 #define MAIN_TOUCH	1
 #define SUB_TOUCH	2
 
+=======
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_SEC_DEBUG_TSP_LOG)
 //#include <linux/sec_debug.h>		/* exynos */
 #include "sec_tsp_log.h"
@@ -153,6 +159,12 @@ const struct file_operations ops_name = {				\
 	}									\
 })
 
+<<<<<<< HEAD
+=======
+#define MAIN_TOUCH	1
+#define SUB_TOUCH	2
+
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_TOUCHSCREEN_DUAL_FOLDABLE)
 #define input_raw_info(mode, dev, fmt, ...)					\
 ({										\
@@ -245,7 +257,10 @@ const struct file_operations ops_name = {				\
 #else
 #define SW_PEN_INSERT		0x13  /* set = pen insert, remove */
 #endif
+<<<<<<< HEAD
 #define SW_PEN_REVERSE_INSERT	0x0d  /* set = pen reverse insert, remove */
+=======
+>>>>>>> upstream/android-13
 
 #define EXYNOS_DISPLAY_INPUT_NOTIFIER ((IS_ENABLED(CONFIG_EXYNOS_DPU30) || IS_ENABLED(CONFIG_DRM_SAMSUNG_DPU)) && IS_ENABLED(CONFIG_PANEL_NOTIFY))
 
@@ -403,7 +418,10 @@ typedef enum {
 #if IS_ENABLED(CONFIG_SEC_ABC)
 #define SEC_ABC_SEND_EVENT_TYPE "MODULE=tsp@WARN=tsp_int_fault"
 #define SEC_ABC_SEND_EVENT_TYPE_SUB "MODULE=tsp_sub@WARN=tsp_int_fault"
+<<<<<<< HEAD
 #define SEC_ABC_SEND_EVENT_TYPE_WACOM_DIGITIZER_NOT_CONNECTED "MODULE=wacom@WARN=digitizer_not_connected"
+=======
+>>>>>>> upstream/android-13
 #endif
 
 enum display_state {
@@ -662,8 +680,11 @@ struct sec_ts_plat_data {
 
 	struct sec_ts_coordinate coord[SEC_TS_SUPPORT_TOUCH_COUNT];
 	struct sec_ts_coordinate prev_coord[SEC_TS_SUPPORT_TOUCH_COUNT];
+<<<<<<< HEAD
 	bool fill_slot;
 
+=======
+>>>>>>> upstream/android-13
 	int touch_count;
 	unsigned int palm_flag;
 	volatile u8 touch_noise_status;
@@ -806,7 +827,11 @@ int sec_tclm_execute_force_calibration(struct i2c_client *client, int cal_mode);
 extern int get_lcd_attached(char *mode);
 #endif
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_EXYNOS_DPU30) || IS_ENABLED(CONFIG_MCD_PANEL) || IS_ENABLED(CONFIG_USDM_PANEL)
+=======
+#if IS_ENABLED(CONFIG_EXYNOS_DPU30) || IS_ENABLED(CONFIG_MCD_PANEL)
+>>>>>>> upstream/android-13
 extern int get_lcd_info(char *arg);
 #endif
 
@@ -832,8 +857,12 @@ void sec_input_print_info(struct device *dev, struct sec_tclm_data *tdata);
 
 void sec_input_proximity_report(struct device *dev, int data);
 void sec_input_gesture_report(struct device *dev, int id, int x, int y);
+<<<<<<< HEAD
 void sec_input_coord_event_fill_slot(struct device *dev, int t_id);
 void sec_input_coord_event_sync_slot(struct device *dev);
+=======
+void sec_input_coord_event(struct device *dev, int t_id);
+>>>>>>> upstream/android-13
 void sec_input_release_all_finger(struct device *dev);
 int sec_input_device_register(struct device *dev, void *data);
 void sec_tclm_parse_dt(struct device *dev, struct sec_tclm_data *tdata);

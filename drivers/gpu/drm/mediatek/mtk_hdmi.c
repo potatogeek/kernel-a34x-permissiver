@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (c) 2019 MediaTek Inc.
@@ -7,6 +8,14 @@
 #include <drm/drm_crtc.h>
 #include <drm/drm_crtc_helper.h>
 #include <drm/drm_edid.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2014 MediaTek Inc.
+ * Author: Jie Qiu <jie.qiu@mediatek.com>
+ */
+
+>>>>>>> upstream/android-13
 #include <linux/arm-smccc.h>
 #include <linux/clk.h>
 #include <linux/delay.h>
@@ -15,6 +24,11 @@
 #include <linux/io.h>
 #include <linux/kernel.h>
 #include <linux/mfd/syscon.h>
+<<<<<<< HEAD
+=======
+#include <linux/module.h>
+#include <linux/mutex.h>
+>>>>>>> upstream/android-13
 #include <linux/of_platform.h>
 #include <linux/of.h>
 #include <linux/of_gpio.h>
@@ -22,7 +36,20 @@
 #include <linux/phy/phy.h>
 #include <linux/platform_device.h>
 #include <linux/regmap.h>
+<<<<<<< HEAD
 #include <sound/hdmi-codec.h>
+=======
+
+#include <sound/hdmi-codec.h>
+
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_bridge.h>
+#include <drm/drm_crtc.h>
+#include <drm/drm_edid.h>
+#include <drm/drm_print.h>
+#include <drm/drm_probe_helper.h>
+
+>>>>>>> upstream/android-13
 #include "mtk_cec.h"
 #include "mtk_hdmi.h"
 #include "mtk_hdmi_regs.h"
@@ -138,10 +165,25 @@ struct hdmi_audio_param {
 	struct hdmi_codec_params codec_params;
 };
 
+<<<<<<< HEAD
 struct mtk_hdmi {
 	struct drm_bridge bridge;
 	struct drm_connector conn;
 	struct device *dev;
+=======
+struct mtk_hdmi_conf {
+	bool tz_disabled;
+	bool cea_modes_only;
+	unsigned long max_mode_clock;
+};
+
+struct mtk_hdmi {
+	struct drm_bridge bridge;
+	struct drm_bridge *next_bridge;
+	struct drm_connector *curr_conn;/* current connector (only valid when 'enabled') */
+	struct device *dev;
+	const struct mtk_hdmi_conf *conf;
+>>>>>>> upstream/android-13
 	struct phy *phy;
 	struct device *cec_dev;
 	struct i2c_adapter *ddc_adpt;
@@ -162,6 +204,12 @@ struct mtk_hdmi {
 	bool audio_enable;
 	bool powered;
 	bool enabled;
+<<<<<<< HEAD
+=======
+	hdmi_codec_plugged_cb plugged_cb;
+	struct device *codec_dev;
+	struct mutex update_plugged_status_lock;
+>>>>>>> upstream/android-13
 };
 
 static inline struct mtk_hdmi *hdmi_ctx_from_bridge(struct drm_bridge *b)
@@ -169,11 +217,14 @@ static inline struct mtk_hdmi *hdmi_ctx_from_bridge(struct drm_bridge *b)
 	return container_of(b, struct mtk_hdmi, bridge);
 }
 
+<<<<<<< HEAD
 static inline struct mtk_hdmi *hdmi_ctx_from_conn(struct drm_connector *c)
 {
 	return container_of(c, struct mtk_hdmi, conn);
 }
 
+=======
+>>>>>>> upstream/android-13
 static u32 mtk_hdmi_read(struct mtk_hdmi *hdmi, u32 offset)
 {
 	return readl(hdmi->regs + offset);
@@ -230,8 +281,18 @@ static void mtk_hdmi_hw_make_reg_writable(struct mtk_hdmi *hdmi, bool enable)
 	 * The ARM trusted firmware provides an API for the HDMI driver to set
 	 * this control bit to enable HDMI output in supervisor mode.
 	 */
+<<<<<<< HEAD
 	arm_smccc_smc(MTK_SIP_SET_AUTHORIZED_SECURE_REG, 0x14000904, 0x80000000,
 		      0, 0, 0, 0, 0, &res);
+=======
+	if (hdmi->conf && hdmi->conf->tz_disabled)
+		regmap_update_bits(hdmi->sys_regmap,
+				   hdmi->sys_offset + HDMI_SYS_CFG20,
+				   0x80008005, enable ? 0x80000005 : 0x8000);
+	else
+		arm_smccc_smc(MTK_SIP_SET_AUTHORIZED_SECURE_REG, 0x14000904,
+			      0x80000000, 0, 0, 0, 0, 0, &res);
+>>>>>>> upstream/android-13
 
 	regmap_update_bits(hdmi->sys_regmap, hdmi->sys_offset + HDMI_SYS_CFG20,
 			   HDMI_PCLK_FREE_RUN, enable ? HDMI_PCLK_FREE_RUN : 0);
@@ -294,6 +355,7 @@ static void mtk_hdmi_hw_send_info_frame(struct mtk_hdmi *hdmi, u8 *buffer,
 	u8 checksum;
 	int ctrl_frame_en = 0;
 
+<<<<<<< HEAD
 	frame_type = *buffer;
 	buffer += 1;
 	frame_ver = *buffer;
@@ -302,6 +364,12 @@ static void mtk_hdmi_hw_send_info_frame(struct mtk_hdmi *hdmi, u8 *buffer,
 	buffer += 1;
 	checksum = *buffer;
 	buffer += 1;
+=======
+	frame_type = *buffer++;
+	frame_ver = *buffer++;
+	frame_len = *buffer++;
+	checksum = *buffer++;
+>>>>>>> upstream/android-13
 	frame_data = buffer;
 
 	dev_dbg(hdmi->dev,
@@ -325,6 +393,12 @@ static void mtk_hdmi_hw_send_info_frame(struct mtk_hdmi *hdmi, u8 *buffer,
 		ctrl_frame_en = VS_EN;
 		ctrl_reg = GRL_ACP_ISRC_CTRL;
 		break;
+<<<<<<< HEAD
+=======
+	default:
+		dev_err(hdmi->dev, "Unknown infoframe type %d\n", frame_type);
+		return;
+>>>>>>> upstream/android-13
 	}
 	mtk_hdmi_clear_bits(hdmi, ctrl_reg, ctrl_frame_en);
 	mtk_hdmi_write(hdmi, GRL_INFOFRM_TYPE, frame_type);
@@ -854,6 +928,7 @@ static void mtk_hdmi_video_set_display_mode(struct mtk_hdmi *hdmi,
 	mtk_hdmi_hw_msic_setting(hdmi, mode);
 }
 
+<<<<<<< HEAD
 static int mtk_hdmi_aud_enable_packet(struct mtk_hdmi *hdmi, bool enable)
 {
 	mtk_hdmi_hw_send_aud_packet(hdmi, enable);
@@ -867,6 +942,10 @@ static int mtk_hdmi_aud_on_off_hw_ncts(struct mtk_hdmi *hdmi, bool on)
 }
 
 static int mtk_hdmi_aud_set_input(struct mtk_hdmi *hdmi)
+=======
+
+static void mtk_hdmi_aud_set_input(struct mtk_hdmi *hdmi)
+>>>>>>> upstream/android-13
 {
 	enum hdmi_aud_channel_type chan_type;
 	u8 chan_count;
@@ -896,8 +975,11 @@ static int mtk_hdmi_aud_set_input(struct mtk_hdmi *hdmi)
 	chan_count = mtk_hdmi_aud_get_chnl_count(chan_type);
 	mtk_hdmi_hw_aud_set_i2s_chan_num(hdmi, chan_type, chan_count);
 	mtk_hdmi_hw_aud_set_input_type(hdmi, hdmi->aud_param.aud_input_type);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int mtk_hdmi_aud_set_src(struct mtk_hdmi *hdmi,
@@ -905,7 +987,11 @@ static int mtk_hdmi_aud_set_src(struct mtk_hdmi *hdmi,
 {
 	unsigned int sample_rate = hdmi->aud_param.codec_params.sample_rate;
 
+<<<<<<< HEAD
 	mtk_hdmi_aud_on_off_hw_ncts(hdmi, false);
+=======
+	mtk_hdmi_hw_ncts_enable(hdmi, false);
+>>>>>>> upstream/android-13
 	mtk_hdmi_hw_aud_src_disable(hdmi);
 	mtk_hdmi_clear_bits(hdmi, GRL_CFG2, CFG2_ACLK_INV);
 
@@ -943,7 +1029,11 @@ static int mtk_hdmi_aud_output_config(struct mtk_hdmi *hdmi,
 				      struct drm_display_mode *display_mode)
 {
 	mtk_hdmi_hw_aud_mute(hdmi);
+<<<<<<< HEAD
 	mtk_hdmi_aud_enable_packet(hdmi, false);
+=======
+	mtk_hdmi_hw_send_aud_packet(hdmi, false);
+>>>>>>> upstream/android-13
 
 	mtk_hdmi_aud_set_input(hdmi);
 	mtk_hdmi_aud_set_src(hdmi, display_mode);
@@ -952,8 +1042,13 @@ static int mtk_hdmi_aud_output_config(struct mtk_hdmi *hdmi,
 
 	usleep_range(50, 100);
 
+<<<<<<< HEAD
 	mtk_hdmi_aud_on_off_hw_ncts(hdmi, true);
 	mtk_hdmi_aud_enable_packet(hdmi, true);
+=======
+	mtk_hdmi_hw_ncts_enable(hdmi, true);
+	mtk_hdmi_hw_send_aud_packet(hdmi, true);
+>>>>>>> upstream/android-13
 	mtk_hdmi_hw_aud_unmute(hdmi);
 	return 0;
 }
@@ -962,10 +1057,18 @@ static int mtk_hdmi_setup_avi_infoframe(struct mtk_hdmi *hdmi,
 					struct drm_display_mode *mode)
 {
 	struct hdmi_avi_infoframe frame;
+<<<<<<< HEAD
 	u8 buffer[17];
 	ssize_t err;
 
 	err = drm_hdmi_avi_infoframe_from_display_mode(&frame, mode);
+=======
+	u8 buffer[HDMI_INFOFRAME_HEADER_SIZE + HDMI_AVI_INFOFRAME_SIZE];
+	ssize_t err;
+
+	err = drm_hdmi_avi_infoframe_from_display_mode(&frame,
+						       hdmi->curr_conn, mode);
+>>>>>>> upstream/android-13
 	if (err < 0) {
 		dev_err(hdmi->dev,
 			"Failed to get AVI infoframe from mode: %zd\n", err);
@@ -987,7 +1090,11 @@ static int mtk_hdmi_setup_spd_infoframe(struct mtk_hdmi *hdmi,
 					const char *product)
 {
 	struct hdmi_spd_infoframe frame;
+<<<<<<< HEAD
 	u8 buffer[29];
+=======
+	u8 buffer[HDMI_INFOFRAME_HEADER_SIZE + HDMI_SPD_INFOFRAME_SIZE];
+>>>>>>> upstream/android-13
 	ssize_t err;
 
 	err = hdmi_spd_infoframe_init(&frame, vendor, product);
@@ -1010,7 +1117,11 @@ static int mtk_hdmi_setup_spd_infoframe(struct mtk_hdmi *hdmi,
 static int mtk_hdmi_setup_audio_infoframe(struct mtk_hdmi *hdmi)
 {
 	struct hdmi_audio_infoframe frame;
+<<<<<<< HEAD
 	u8 buffer[14];
+=======
+	u8 buffer[HDMI_INFOFRAME_HEADER_SIZE + HDMI_AUDIO_INFOFRAME_SIZE];
+>>>>>>> upstream/android-13
 	ssize_t err;
 
 	err = hdmi_audio_infoframe_init(&frame);
@@ -1044,7 +1155,12 @@ static int mtk_hdmi_setup_vendor_specific_infoframe(struct mtk_hdmi *hdmi,
 	u8 buffer[10];
 	ssize_t err;
 
+<<<<<<< HEAD
 	err = drm_hdmi_vendor_infoframe_from_display_mode(&frame, mode);
+=======
+	err = drm_hdmi_vendor_infoframe_from_display_mode(&frame,
+							  hdmi->curr_conn, mode);
+>>>>>>> upstream/android-13
 	if (err) {
 		dev_err(hdmi->dev,
 			"Failed to get vendor infoframe from mode: %zd\n", err);
@@ -1079,13 +1195,21 @@ static int mtk_hdmi_output_init(struct mtk_hdmi *hdmi)
 
 static void mtk_hdmi_audio_enable(struct mtk_hdmi *hdmi)
 {
+<<<<<<< HEAD
 	mtk_hdmi_aud_enable_packet(hdmi, true);
+=======
+	mtk_hdmi_hw_send_aud_packet(hdmi, true);
+>>>>>>> upstream/android-13
 	hdmi->audio_enable = true;
 }
 
 static void mtk_hdmi_audio_disable(struct mtk_hdmi *hdmi)
 {
+<<<<<<< HEAD
 	mtk_hdmi_aud_enable_packet(hdmi, false);
+=======
+	mtk_hdmi_hw_send_aud_packet(hdmi, false);
+>>>>>>> upstream/android-13
 	hdmi->audio_enable = false;
 }
 
@@ -1176,6 +1300,7 @@ static void mtk_hdmi_clk_disable_audio(struct mtk_hdmi *hdmi)
 	clk_disable_unprepare(hdmi->clk[MTK_HDMI_CLK_AUD_SPDIF]);
 }
 
+<<<<<<< HEAD
 static enum drm_connector_status hdmi_conn_detect(struct drm_connector *conn,
 						  bool force)
 {
@@ -1235,6 +1360,58 @@ static int mtk_hdmi_conn_mode_valid(struct drm_connector *conn,
 			return MODE_BAD;
 	}
 
+=======
+static enum drm_connector_status
+mtk_hdmi_update_plugged_status(struct mtk_hdmi *hdmi)
+{
+	bool connected;
+
+	mutex_lock(&hdmi->update_plugged_status_lock);
+	connected = mtk_cec_hpd_high(hdmi->cec_dev);
+	if (hdmi->plugged_cb && hdmi->codec_dev)
+		hdmi->plugged_cb(hdmi->codec_dev, connected);
+	mutex_unlock(&hdmi->update_plugged_status_lock);
+
+	return connected ?
+	       connector_status_connected : connector_status_disconnected;
+}
+
+static enum drm_connector_status mtk_hdmi_detect(struct mtk_hdmi *hdmi)
+{
+	return mtk_hdmi_update_plugged_status(hdmi);
+}
+
+static int mtk_hdmi_bridge_mode_valid(struct drm_bridge *bridge,
+				      const struct drm_display_info *info,
+				      const struct drm_display_mode *mode)
+{
+	struct mtk_hdmi *hdmi = hdmi_ctx_from_bridge(bridge);
+	struct drm_bridge *next_bridge;
+
+	dev_dbg(hdmi->dev, "xres=%d, yres=%d, refresh=%d, intl=%d clock=%d\n",
+		mode->hdisplay, mode->vdisplay, drm_mode_vrefresh(mode),
+		!!(mode->flags & DRM_MODE_FLAG_INTERLACE), mode->clock * 1000);
+
+	next_bridge = drm_bridge_get_next_bridge(&hdmi->bridge);
+	if (next_bridge) {
+		struct drm_display_mode adjusted_mode;
+
+		drm_mode_copy(&adjusted_mode, mode);
+		if (!drm_bridge_chain_mode_fixup(next_bridge, mode,
+						 &adjusted_mode))
+			return MODE_BAD;
+	}
+
+	if (hdmi->conf) {
+		if (hdmi->conf->cea_modes_only && !drm_match_cea_mode(mode))
+			return MODE_BAD;
+
+		if (hdmi->conf->max_mode_clock &&
+		    mode->clock > hdmi->conf->max_mode_clock)
+			return MODE_CLOCK_HIGH;
+	}
+
+>>>>>>> upstream/android-13
 	if (mode->clock < 27000)
 		return MODE_CLOCK_LOW;
 	if (mode->clock > 297000)
@@ -1243,6 +1420,7 @@ static int mtk_hdmi_conn_mode_valid(struct drm_connector *conn,
 	return drm_mode_validate_size(mode, 0x1fff, 0x1fff);
 }
 
+<<<<<<< HEAD
 static struct drm_encoder *mtk_hdmi_conn_best_enc(struct drm_connector *conn)
 {
 	struct mtk_hdmi *hdmi = hdmi_ctx_from_conn(conn);
@@ -1267,23 +1445,63 @@ static const struct drm_connector_helper_funcs
 	.best_encoder = mtk_hdmi_conn_best_enc,
 };
 
+=======
+>>>>>>> upstream/android-13
 static void mtk_hdmi_hpd_event(bool hpd, struct device *dev)
 {
 	struct mtk_hdmi *hdmi = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	if (hdmi && hdmi->bridge.encoder && hdmi->bridge.encoder->dev)
 		drm_helper_hpd_irq_event(hdmi->bridge.encoder->dev);
+=======
+	if (hdmi && hdmi->bridge.encoder && hdmi->bridge.encoder->dev) {
+		static enum drm_connector_status status;
+
+		status = mtk_hdmi_detect(hdmi);
+		drm_helper_hpd_irq_event(hdmi->bridge.encoder->dev);
+		drm_bridge_hpd_notify(&hdmi->bridge, status);
+	}
+>>>>>>> upstream/android-13
 }
 
 /*
  * Bridge callbacks
  */
 
+<<<<<<< HEAD
 static int mtk_hdmi_bridge_attach(struct drm_bridge *bridge)
+=======
+static enum drm_connector_status mtk_hdmi_bridge_detect(struct drm_bridge *bridge)
+{
+	struct mtk_hdmi *hdmi = hdmi_ctx_from_bridge(bridge);
+
+	return mtk_hdmi_detect(hdmi);
+}
+
+static struct edid *mtk_hdmi_bridge_get_edid(struct drm_bridge *bridge,
+					     struct drm_connector *connector)
+{
+	struct mtk_hdmi *hdmi = hdmi_ctx_from_bridge(bridge);
+	struct edid *edid;
+
+	if (!hdmi->ddc_adpt)
+		return NULL;
+	edid = drm_get_edid(connector, hdmi->ddc_adpt);
+	if (!edid)
+		return NULL;
+	hdmi->dvi_mode = !drm_detect_monitor_audio(edid);
+	return edid;
+}
+
+static int mtk_hdmi_bridge_attach(struct drm_bridge *bridge,
+				  enum drm_bridge_attach_flags flags)
+>>>>>>> upstream/android-13
 {
 	struct mtk_hdmi *hdmi = hdmi_ctx_from_bridge(bridge);
 	int ret;
 
+<<<<<<< HEAD
 	ret = drm_connector_init(bridge->encoder->dev, &hdmi->conn,
 				 &mtk_hdmi_connector_funcs,
 				 DRM_MODE_CONNECTOR_HDMIA);
@@ -1313,6 +1531,19 @@ static int mtk_hdmi_bridge_attach(struct drm_bridge *bridge)
 				"Failed to attach external bridge: %d\n", ret);
 			return ret;
 		}
+=======
+	if (!(flags & DRM_BRIDGE_ATTACH_NO_CONNECTOR)) {
+		DRM_ERROR("%s: The flag DRM_BRIDGE_ATTACH_NO_CONNECTOR must be supplied\n",
+			  __func__);
+		return -EINVAL;
+	}
+
+	if (hdmi->next_bridge) {
+		ret = drm_bridge_attach(bridge->encoder, hdmi->next_bridge,
+					bridge, flags);
+		if (ret)
+			return ret;
+>>>>>>> upstream/android-13
 	}
 
 	mtk_cec_set_hpd_event(hdmi->cec_dev, mtk_hdmi_hpd_event, hdmi->dev);
@@ -1327,7 +1558,12 @@ static bool mtk_hdmi_bridge_mode_fixup(struct drm_bridge *bridge,
 	return true;
 }
 
+<<<<<<< HEAD
 static void mtk_hdmi_bridge_disable(struct drm_bridge *bridge)
+=======
+static void mtk_hdmi_bridge_atomic_disable(struct drm_bridge *bridge,
+					   struct drm_bridge_state *old_bridge_state)
+>>>>>>> upstream/android-13
 {
 	struct mtk_hdmi *hdmi = hdmi_ctx_from_bridge(bridge);
 
@@ -1338,10 +1574,20 @@ static void mtk_hdmi_bridge_disable(struct drm_bridge *bridge)
 	clk_disable_unprepare(hdmi->clk[MTK_HDMI_CLK_HDMI_PIXEL]);
 	clk_disable_unprepare(hdmi->clk[MTK_HDMI_CLK_HDMI_PLL]);
 
+<<<<<<< HEAD
 	hdmi->enabled = false;
 }
 
 static void mtk_hdmi_bridge_post_disable(struct drm_bridge *bridge)
+=======
+	hdmi->curr_conn = NULL;
+
+	hdmi->enabled = false;
+}
+
+static void mtk_hdmi_bridge_atomic_post_disable(struct drm_bridge *bridge,
+						struct drm_bridge_state *old_state)
+>>>>>>> upstream/android-13
 {
 	struct mtk_hdmi *hdmi = hdmi_ctx_from_bridge(bridge);
 
@@ -1355,8 +1601,13 @@ static void mtk_hdmi_bridge_post_disable(struct drm_bridge *bridge)
 }
 
 static void mtk_hdmi_bridge_mode_set(struct drm_bridge *bridge,
+<<<<<<< HEAD
 				     struct drm_display_mode *mode,
 				     struct drm_display_mode *adjusted_mode)
+=======
+				const struct drm_display_mode *mode,
+				const struct drm_display_mode *adjusted_mode)
+>>>>>>> upstream/android-13
 {
 	struct mtk_hdmi *hdmi = hdmi_ctx_from_bridge(bridge);
 
@@ -1376,7 +1627,12 @@ static void mtk_hdmi_bridge_mode_set(struct drm_bridge *bridge,
 	drm_mode_copy(&hdmi->mode, adjusted_mode);
 }
 
+<<<<<<< HEAD
 static void mtk_hdmi_bridge_pre_enable(struct drm_bridge *bridge)
+=======
+static void mtk_hdmi_bridge_atomic_pre_enable(struct drm_bridge *bridge,
+					      struct drm_bridge_state *old_state)
+>>>>>>> upstream/android-13
 {
 	struct mtk_hdmi *hdmi = hdmi_ctx_from_bridge(bridge);
 
@@ -1396,10 +1652,23 @@ static void mtk_hdmi_send_infoframe(struct mtk_hdmi *hdmi,
 		mtk_hdmi_setup_vendor_specific_infoframe(hdmi, mode);
 }
 
+<<<<<<< HEAD
 static void mtk_hdmi_bridge_enable(struct drm_bridge *bridge)
 {
 	struct mtk_hdmi *hdmi = hdmi_ctx_from_bridge(bridge);
 
+=======
+static void mtk_hdmi_bridge_atomic_enable(struct drm_bridge *bridge,
+					  struct drm_bridge_state *old_state)
+{
+	struct drm_atomic_state *state = old_state->base.state;
+	struct mtk_hdmi *hdmi = hdmi_ctx_from_bridge(bridge);
+
+	/* Retrieve the connector through the atomic state. */
+	hdmi->curr_conn = drm_atomic_get_new_connector_for_encoder(state,
+								   bridge->encoder);
+
+>>>>>>> upstream/android-13
 	mtk_hdmi_output_set_display_mode(hdmi, &hdmi->mode);
 	clk_prepare_enable(hdmi->clk[MTK_HDMI_CLK_HDMI_PLL]);
 	clk_prepare_enable(hdmi->clk[MTK_HDMI_CLK_HDMI_PIXEL]);
@@ -1410,6 +1679,7 @@ static void mtk_hdmi_bridge_enable(struct drm_bridge *bridge)
 }
 
 static const struct drm_bridge_funcs mtk_hdmi_bridge_funcs = {
+<<<<<<< HEAD
 	.attach = mtk_hdmi_bridge_attach,
 	.mode_fixup = mtk_hdmi_bridge_mode_fixup,
 	.disable = mtk_hdmi_bridge_disable,
@@ -1417,6 +1687,21 @@ static const struct drm_bridge_funcs mtk_hdmi_bridge_funcs = {
 	.mode_set = mtk_hdmi_bridge_mode_set,
 	.pre_enable = mtk_hdmi_bridge_pre_enable,
 	.enable = mtk_hdmi_bridge_enable,
+=======
+	.mode_valid = mtk_hdmi_bridge_mode_valid,
+	.atomic_duplicate_state = drm_atomic_helper_bridge_duplicate_state,
+	.atomic_destroy_state = drm_atomic_helper_bridge_destroy_state,
+	.atomic_reset = drm_atomic_helper_bridge_reset,
+	.attach = mtk_hdmi_bridge_attach,
+	.mode_fixup = mtk_hdmi_bridge_mode_fixup,
+	.atomic_disable = mtk_hdmi_bridge_atomic_disable,
+	.atomic_post_disable = mtk_hdmi_bridge_atomic_post_disable,
+	.mode_set = mtk_hdmi_bridge_mode_set,
+	.atomic_pre_enable = mtk_hdmi_bridge_atomic_pre_enable,
+	.atomic_enable = mtk_hdmi_bridge_atomic_enable,
+	.detect = mtk_hdmi_bridge_detect,
+	.get_edid = mtk_hdmi_bridge_get_edid,
+>>>>>>> upstream/android-13
 };
 
 static int mtk_hdmi_dt_parse_pdata(struct mtk_hdmi *hdmi,
@@ -1424,7 +1709,11 @@ static int mtk_hdmi_dt_parse_pdata(struct mtk_hdmi *hdmi,
 {
 	struct device *dev = &pdev->dev;
 	struct device_node *np = dev->of_node;
+<<<<<<< HEAD
 	struct device_node *cec_np, *port, *ep, *remote, *i2c_np;
+=======
+	struct device_node *cec_np, *remote, *i2c_np;
+>>>>>>> upstream/android-13
 	struct platform_device *cec_pdev;
 	struct regmap *regmap;
 	struct resource *mem;
@@ -1432,13 +1721,23 @@ static int mtk_hdmi_dt_parse_pdata(struct mtk_hdmi *hdmi,
 
 	ret = mtk_hdmi_get_all_clk(hdmi, np);
 	if (ret) {
+<<<<<<< HEAD
 		dev_err(dev, "Failed to get clocks: %d\n", ret);
+=======
+		if (ret != -EPROBE_DEFER)
+			dev_err(dev, "Failed to get clocks: %d\n", ret);
+
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
 	/* The CEC module handles HDMI hotplug detection */
+<<<<<<< HEAD
 	cec_np = of_find_compatible_node(np->parent, NULL,
 					 "mediatek,mt8173-cec");
+=======
+	cec_np = of_get_compatible_child(np->parent, "mediatek,mt8173-cec");
+>>>>>>> upstream/android-13
 	if (!cec_np) {
 		dev_err(dev, "Failed to find CEC node\n");
 		return -EINVAL;
@@ -1446,10 +1745,19 @@ static int mtk_hdmi_dt_parse_pdata(struct mtk_hdmi *hdmi,
 
 	cec_pdev = of_find_device_by_node(cec_np);
 	if (!cec_pdev) {
+<<<<<<< HEAD
 		dev_err(hdmi->dev, "Waiting for CEC device %s\n",
 			cec_np->full_name);
 		return -EPROBE_DEFER;
 	}
+=======
+		dev_err(hdmi->dev, "Waiting for CEC device %pOF\n",
+			cec_np);
+		of_node_put(cec_np);
+		return -EPROBE_DEFER;
+	}
+	of_node_put(cec_np);
+>>>>>>> upstream/android-13
 	hdmi->cec_dev = &cec_pdev->dev;
 
 	/*
@@ -1463,16 +1771,24 @@ static int mtk_hdmi_dt_parse_pdata(struct mtk_hdmi *hdmi,
 	if (IS_ERR(regmap))
 		ret = PTR_ERR(regmap);
 	if (ret) {
+<<<<<<< HEAD
 		ret = PTR_ERR(regmap);
 		dev_err(dev,
 			"Failed to get system configuration registers: %d\n",
 			ret);
 		return ret;
+=======
+		dev_err(dev,
+			"Failed to get system configuration registers: %d\n",
+			ret);
+		goto put_device;
+>>>>>>> upstream/android-13
 	}
 	hdmi->sys_regmap = regmap;
 
 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	hdmi->regs = devm_ioremap_resource(dev, mem);
+<<<<<<< HEAD
 	if (IS_ERR(hdmi->regs))
 		return PTR_ERR(hdmi->regs);
 
@@ -1506,25 +1822,67 @@ static int mtk_hdmi_dt_parse_pdata(struct mtk_hdmi *hdmi,
 			dev_err(dev, "Waiting for external bridge\n");
 			of_node_put(remote);
 			return -EPROBE_DEFER;
+=======
+	if (IS_ERR(hdmi->regs)) {
+		ret = PTR_ERR(hdmi->regs);
+		goto put_device;
+	}
+
+	remote = of_graph_get_remote_node(np, 1, 0);
+	if (!remote) {
+		ret = -EINVAL;
+		goto put_device;
+	}
+
+	if (!of_device_is_compatible(remote, "hdmi-connector")) {
+		hdmi->next_bridge = of_drm_find_bridge(remote);
+		if (!hdmi->next_bridge) {
+			dev_err(dev, "Waiting for external bridge\n");
+			of_node_put(remote);
+			ret = -EPROBE_DEFER;
+			goto put_device;
+>>>>>>> upstream/android-13
 		}
 	}
 
 	i2c_np = of_parse_phandle(remote, "ddc-i2c-bus", 0);
 	if (!i2c_np) {
+<<<<<<< HEAD
 		dev_err(dev, "Failed to find ddc-i2c-bus node in %s\n",
 			remote->full_name);
 		of_node_put(remote);
 		return -EINVAL;
+=======
+		dev_err(dev, "Failed to find ddc-i2c-bus node in %pOF\n",
+			remote);
+		of_node_put(remote);
+		ret = -EINVAL;
+		goto put_device;
+>>>>>>> upstream/android-13
 	}
 	of_node_put(remote);
 
 	hdmi->ddc_adpt = of_find_i2c_adapter_by_node(i2c_np);
+<<<<<<< HEAD
 	if (!hdmi->ddc_adpt) {
 		dev_err(dev, "Failed to get ddc i2c adapter by node\n");
 		return -EINVAL;
 	}
 
 	return 0;
+=======
+	of_node_put(i2c_np);
+	if (!hdmi->ddc_adpt) {
+		dev_err(dev, "Failed to get ddc i2c adapter by node\n");
+		ret = -EINVAL;
+		goto put_device;
+	}
+
+	return 0;
+put_device:
+	put_device(hdmi->cec_dev);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1586,6 +1944,14 @@ static int mtk_hdmi_audio_hw_params(struct device *dev, void *data,
 		hdmi_params.aud_i2s_fmt = HDMI_I2S_MODE_I2S_24BIT;
 		hdmi_params.aud_mclk = HDMI_AUD_MCLK_128FS;
 		break;
+<<<<<<< HEAD
+=======
+	case HDMI_SPDIF:
+		hdmi_params.aud_codec = HDMI_AUDIO_CODING_TYPE_PCM;
+		hdmi_params.aud_sampe_size = HDMI_AUDIO_SAMPLE_SIZE_16;
+		hdmi_params.aud_input_type = HDMI_AUD_INPUT_SPDIF;
+		break;
+>>>>>>> upstream/android-13
 	default:
 		dev_err(hdmi->dev, "%s: Invalid DAI format %d\n", __func__,
 			daifmt->fmt);
@@ -1604,8 +1970,11 @@ static int mtk_hdmi_audio_startup(struct device *dev, void *data)
 {
 	struct mtk_hdmi *hdmi = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	dev_dbg(dev, "%s\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 	mtk_hdmi_audio_enable(hdmi);
 
 	return 0;
@@ -1615,18 +1984,29 @@ static void mtk_hdmi_audio_shutdown(struct device *dev, void *data)
 {
 	struct mtk_hdmi *hdmi = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	dev_dbg(dev, "%s\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 	mtk_hdmi_audio_disable(hdmi);
 }
 
 static int
+<<<<<<< HEAD
 mtk_hdmi_audio_digital_mute(struct device *dev, void *data, bool enable)
 {
 	struct mtk_hdmi *hdmi = dev_get_drvdata(dev);
 
 	dev_dbg(dev, "%s(%d)\n", __func__, enable);
 
+=======
+mtk_hdmi_audio_mute(struct device *dev, void *data,
+		    bool enable, int direction)
+{
+	struct mtk_hdmi *hdmi = dev_get_drvdata(dev);
+
+>>>>>>> upstream/android-13
 	if (enable)
 		mtk_hdmi_hw_aud_mute(hdmi);
 	else
@@ -1639,9 +2019,31 @@ static int mtk_hdmi_audio_get_eld(struct device *dev, void *data, uint8_t *buf, 
 {
 	struct mtk_hdmi *hdmi = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	dev_dbg(dev, "%s\n", __func__);
 
 	memcpy(buf, hdmi->conn.eld, min(sizeof(hdmi->conn.eld), len));
+=======
+	if (hdmi->enabled)
+		memcpy(buf, hdmi->curr_conn->eld, min(sizeof(hdmi->curr_conn->eld), len));
+	else
+		memset(buf, 0, len);
+	return 0;
+}
+
+static int mtk_hdmi_audio_hook_plugged_cb(struct device *dev, void *data,
+					  hdmi_codec_plugged_cb fn,
+					  struct device *codec_dev)
+{
+	struct mtk_hdmi *hdmi = data;
+
+	mutex_lock(&hdmi->update_plugged_status_lock);
+	hdmi->plugged_cb = fn;
+	hdmi->codec_dev = codec_dev;
+	mutex_unlock(&hdmi->update_plugged_status_lock);
+
+	mtk_hdmi_update_plugged_status(hdmi);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1650,16 +2052,32 @@ static const struct hdmi_codec_ops mtk_hdmi_audio_codec_ops = {
 	.hw_params = mtk_hdmi_audio_hw_params,
 	.audio_startup = mtk_hdmi_audio_startup,
 	.audio_shutdown = mtk_hdmi_audio_shutdown,
+<<<<<<< HEAD
 	.digital_mute = mtk_hdmi_audio_digital_mute,
 	.get_eld = mtk_hdmi_audio_get_eld,
 };
 
 static void mtk_hdmi_register_audio_driver(struct device *dev)
 {
+=======
+	.mute_stream = mtk_hdmi_audio_mute,
+	.get_eld = mtk_hdmi_audio_get_eld,
+	.hook_plugged_cb = mtk_hdmi_audio_hook_plugged_cb,
+	.no_capture_mute = 1,
+};
+
+static int mtk_hdmi_register_audio_driver(struct device *dev)
+{
+	struct mtk_hdmi *hdmi = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	struct hdmi_codec_pdata codec_data = {
 		.ops = &mtk_hdmi_audio_codec_ops,
 		.max_i2s_channels = 2,
 		.i2s = 1,
+<<<<<<< HEAD
+=======
+		.data = hdmi,
+>>>>>>> upstream/android-13
 	};
 	struct platform_device *pdev;
 
@@ -1667,9 +2085,16 @@ static void mtk_hdmi_register_audio_driver(struct device *dev)
 					     PLATFORM_DEVID_AUTO, &codec_data,
 					     sizeof(codec_data));
 	if (IS_ERR(pdev))
+<<<<<<< HEAD
 		return;
 
 	DDPINFO("%s driver bound to HDMI\n", HDMI_CODEC_DRV_NAME);
+=======
+		return PTR_ERR(pdev);
+
+	DRM_INFO("%s driver bound to HDMI\n", HDMI_CODEC_DRV_NAME);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int mtk_drm_hdmi_probe(struct platform_device *pdev)
@@ -1683,6 +2108,10 @@ static int mtk_drm_hdmi_probe(struct platform_device *pdev)
 		return -ENOMEM;
 
 	hdmi->dev = dev;
+<<<<<<< HEAD
+=======
+	hdmi->conf = of_device_get_match_data(dev);
+>>>>>>> upstream/android-13
 
 	ret = mtk_hdmi_dt_parse_pdata(hdmi, pdev);
 	if (ret)
@@ -1695,6 +2124,10 @@ static int mtk_drm_hdmi_probe(struct platform_device *pdev)
 		return ret;
 	}
 
+<<<<<<< HEAD
+=======
+	mutex_init(&hdmi->update_plugged_status_lock);
+>>>>>>> upstream/android-13
 	platform_set_drvdata(pdev, hdmi);
 
 	ret = mtk_hdmi_output_init(hdmi);
@@ -1703,6 +2136,7 @@ static int mtk_drm_hdmi_probe(struct platform_device *pdev)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	mtk_hdmi_register_audio_driver(dev);
 
 	hdmi->bridge.funcs = &mtk_hdmi_bridge_funcs;
@@ -1712,6 +2146,20 @@ static int mtk_drm_hdmi_probe(struct platform_device *pdev)
 		dev_err(dev, "failed to add bridge, ret = %d\n", ret);
 		return ret;
 	}
+=======
+	ret = mtk_hdmi_register_audio_driver(dev);
+	if (ret) {
+		dev_err(dev, "Failed to register audio driver: %d\n", ret);
+		return ret;
+	}
+
+	hdmi->bridge.funcs = &mtk_hdmi_bridge_funcs;
+	hdmi->bridge.of_node = pdev->dev.of_node;
+	hdmi->bridge.ops = DRM_BRIDGE_OP_DETECT | DRM_BRIDGE_OP_EDID
+			 | DRM_BRIDGE_OP_HPD;
+	hdmi->bridge.type = DRM_MODE_CONNECTOR_HDMIA;
+	drm_bridge_add(&hdmi->bridge);
+>>>>>>> upstream/android-13
 
 	ret = mtk_hdmi_clk_enable_audio(hdmi);
 	if (ret) {
@@ -1719,7 +2167,10 @@ static int mtk_drm_hdmi_probe(struct platform_device *pdev)
 		goto err_bridge_remove;
 	}
 
+<<<<<<< HEAD
 	dev_dbg(dev, "mediatek hdmi probe success\n");
+=======
+>>>>>>> upstream/android-13
 	return 0;
 
 err_bridge_remove:
@@ -1742,7 +2193,11 @@ static int mtk_hdmi_suspend(struct device *dev)
 	struct mtk_hdmi *hdmi = dev_get_drvdata(dev);
 
 	mtk_hdmi_clk_disable_audio(hdmi);
+<<<<<<< HEAD
 	dev_dbg(dev, "hdmi suspend success!\n");
+=======
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1757,17 +2212,44 @@ static int mtk_hdmi_resume(struct device *dev)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	dev_dbg(dev, "hdmi resume success!\n");
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 #endif
 static SIMPLE_DEV_PM_OPS(mtk_hdmi_pm_ops,
 			 mtk_hdmi_suspend, mtk_hdmi_resume);
 
+<<<<<<< HEAD
 static const struct of_device_id mtk_drm_hdmi_of_ids[] = {
 	{ .compatible = "mediatek,mt8173-hdmi", },
 	{}
 };
+=======
+static const struct mtk_hdmi_conf mtk_hdmi_conf_mt2701 = {
+	.tz_disabled = true,
+};
+
+static const struct mtk_hdmi_conf mtk_hdmi_conf_mt8167 = {
+	.max_mode_clock = 148500,
+	.cea_modes_only = true,
+};
+
+static const struct of_device_id mtk_drm_hdmi_of_ids[] = {
+	{ .compatible = "mediatek,mt2701-hdmi",
+	  .data = &mtk_hdmi_conf_mt2701,
+	},
+	{ .compatible = "mediatek,mt8167-hdmi",
+	  .data = &mtk_hdmi_conf_mt8167,
+	},
+	{ .compatible = "mediatek,mt8173-hdmi",
+	},
+	{}
+};
+MODULE_DEVICE_TABLE(of, mtk_drm_hdmi_of_ids);
+>>>>>>> upstream/android-13
 
 static struct platform_driver mtk_hdmi_driver = {
 	.probe = mtk_drm_hdmi_probe,
@@ -1780,7 +2262,10 @@ static struct platform_driver mtk_hdmi_driver = {
 };
 
 static struct platform_driver * const mtk_hdmi_drivers[] = {
+<<<<<<< HEAD
 	&mtk_hdmi_phy_driver,
+=======
+>>>>>>> upstream/android-13
 	&mtk_hdmi_ddc_driver,
 	&mtk_cec_driver,
 	&mtk_hdmi_driver,
@@ -1788,6 +2273,7 @@ static struct platform_driver * const mtk_hdmi_drivers[] = {
 
 static int __init mtk_hdmitx_init(void)
 {
+<<<<<<< HEAD
 	int ret;
 	int i;
 
@@ -1807,14 +2293,23 @@ err:
 		platform_driver_unregister(mtk_hdmi_drivers[i]);
 
 	return ret;
+=======
+	return platform_register_drivers(mtk_hdmi_drivers,
+					 ARRAY_SIZE(mtk_hdmi_drivers));
+>>>>>>> upstream/android-13
 }
 
 static void __exit mtk_hdmitx_exit(void)
 {
+<<<<<<< HEAD
 	int i;
 
 	for (i = ARRAY_SIZE(mtk_hdmi_drivers) - 1; i >= 0; i--)
 		platform_driver_unregister(mtk_hdmi_drivers[i]);
+=======
+	platform_unregister_drivers(mtk_hdmi_drivers,
+				    ARRAY_SIZE(mtk_hdmi_drivers));
+>>>>>>> upstream/android-13
 }
 
 module_init(mtk_hdmitx_init);

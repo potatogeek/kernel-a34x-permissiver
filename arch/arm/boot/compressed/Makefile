@@ -7,11 +7,18 @@
 
 OBJS		=
 
+<<<<<<< HEAD
 AFLAGS_head.o += -DTEXT_OFFSET=$(TEXT_OFFSET)
+=======
+>>>>>>> upstream/android-13
 HEAD	= head.o
 OBJS	+= misc.o decompress.o
 ifeq ($(CONFIG_DEBUG_UNCOMPRESS),y)
 OBJS	+= debug.o
+<<<<<<< HEAD
+=======
+AFLAGS_head.o += -DDEBUG
+>>>>>>> upstream/android-13
 endif
 FONTC	= $(srctree)/lib/fonts/font_acorn_8x8.c
 
@@ -24,6 +31,10 @@ OBJS		+= hyp-stub.o
 endif
 
 GCOV_PROFILE		:= n
+<<<<<<< HEAD
+=======
+KASAN_SANITIZE		:= n
+>>>>>>> upstream/android-13
 
 # Prevents link failures: __sanitizer_cov_trace_pc() is not linked in.
 KCOV_INSTRUMENT		:= n
@@ -68,7 +79,16 @@ ZTEXTADDR	:= 0
 ZBSSADDR	:= ALIGN(8)
 endif
 
+<<<<<<< HEAD
 CPPFLAGS_vmlinux.lds := -DTEXT_START="$(ZTEXTADDR)" -DBSS_START="$(ZBSSADDR)"
+=======
+MALLOC_SIZE	:= 65536
+
+AFLAGS_head.o += -DTEXT_OFFSET=$(TEXT_OFFSET) -DMALLOC_SIZE=$(MALLOC_SIZE)
+CPPFLAGS_vmlinux.lds := -DTEXT_START="$(ZTEXTADDR)" -DBSS_START="$(ZBSSADDR)"
+CPPFLAGS_vmlinux.lds += -DTEXT_OFFSET="$(TEXT_OFFSET)"
+CPPFLAGS_vmlinux.lds += -DMALLOC_SIZE="$(MALLOC_SIZE)"
+>>>>>>> upstream/android-13
 
 compress-$(CONFIG_KERNEL_GZIP) = gzip
 compress-$(CONFIG_KERNEL_LZO)  = lzo
@@ -76,6 +96,7 @@ compress-$(CONFIG_KERNEL_LZMA) = lzma
 compress-$(CONFIG_KERNEL_XZ)   = xzkern
 compress-$(CONFIG_KERNEL_LZ4)  = lz4
 
+<<<<<<< HEAD
 # Borrowed libfdt files for the ATAG compatibility mode
 
 libfdt		:= fdt_rw.c fdt_ro.c fdt_wip.c fdt.c
@@ -92,11 +113,29 @@ $(addprefix $(obj)/,$(libfdt_objs) atags_to_fdt.o): \
 ifeq ($(CONFIG_ARM_ATAG_DTB_COMPAT),y)
 OBJS	+= $(libfdt_objs) atags_to_fdt.o
 endif
+=======
+libfdt_objs := fdt_rw.o fdt_ro.o fdt_wip.o fdt.o
+
+ifeq ($(CONFIG_ARM_ATAG_DTB_COMPAT),y)
+CFLAGS_REMOVE_atags_to_fdt.o += -Wframe-larger-than=${CONFIG_FRAME_WARN}
+CFLAGS_atags_to_fdt.o += -Wframe-larger-than=1280
+OBJS	+= $(libfdt_objs) atags_to_fdt.o
+endif
+ifeq ($(CONFIG_USE_OF),y)
+OBJS	+= $(libfdt_objs) fdt_check_mem_start.o
+endif
+
+# -fstack-protector-strong triggers protection checks in this code,
+# but it is being used too early to link to meaningful stack_chk logic.
+$(foreach o, $(libfdt_objs) atags_to_fdt.o fdt_check_mem_start.o, \
+	$(eval CFLAGS_$(o) := -I $(srctree)/scripts/dtc/libfdt -fno-stack-protector))
+>>>>>>> upstream/android-13
 
 targets       := vmlinux vmlinux.lds piggy_data piggy.o \
 		 lib1funcs.o ashldi3.o bswapsdi2.o \
 		 head.o $(OBJS)
 
+<<<<<<< HEAD
 clean-files += piggy_data lib1funcs.S ashldi3.S bswapsdi2.S \
 		$(libfdt) $(libfdt_hdrs) hyp-stub.S
 
@@ -117,6 +156,15 @@ CFLAGS_fdt_rw.o := $(nossp_flags)
 CFLAGS_fdt_wip.o := $(nossp_flags)
 
 ccflags-y := -fpic $(call cc-option,-mno-single-pic-base,) -fno-builtin -I$(obj)
+=======
+clean-files += lib1funcs.S ashldi3.S bswapsdi2.S hyp-stub.S
+
+KBUILD_CFLAGS += -DDISABLE_BRANCH_PROFILING
+
+ccflags-y := -fpic $(call cc-option,-mno-single-pic-base,) -fno-builtin \
+	     -I$(obj) $(DISABLE_ARM_SSP_PER_TASK_PLUGIN)
+ccflags-remove-$(CONFIG_FUNCTION_TRACER) += -pg
+>>>>>>> upstream/android-13
 asflags-y := -DZIMAGE
 
 # Supply kernel BSS size to the decompressor via a linker symbol.
@@ -131,12 +179,22 @@ endif
 ifeq ($(CONFIG_CPU_ENDIAN_BE8),y)
 LDFLAGS_vmlinux += --be8
 endif
+<<<<<<< HEAD
 # ?
 LDFLAGS_vmlinux += -p
+=======
+>>>>>>> upstream/android-13
 # Report unresolved symbol references
 LDFLAGS_vmlinux += --no-undefined
 # Delete all temporary local symbols
 LDFLAGS_vmlinux += -X
+<<<<<<< HEAD
+=======
+# Report orphan sections
+ifdef CONFIG_LD_ORPHAN_WARN
+LDFLAGS_vmlinux += --orphan-handling=warn
+endif
+>>>>>>> upstream/android-13
 # Next argument is a linker script
 LDFLAGS_vmlinux += -T
 
@@ -169,7 +227,11 @@ check_for_bad_syms = \
 bad_syms=$$($(NM) $@ | sed -n 's/^.\{8\} [bc] \(.*\)/\1/p') && \
 [ -z "$$bad_syms" ] || \
   ( echo "following symbols must have non local/private scope:" >&2; \
+<<<<<<< HEAD
     echo "$$bad_syms" >&2; rm -f $@; false )
+=======
+    echo "$$bad_syms" >&2; false )
+>>>>>>> upstream/android-13
 
 check_for_multiple_zreladdr = \
 if [ $(words $(ZRELADDR)) -gt 1 -a "$(CONFIG_AUTO_ZRELADDR)" = "" ]; then \

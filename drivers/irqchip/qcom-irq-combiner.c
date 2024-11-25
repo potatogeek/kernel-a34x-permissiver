@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (c) 2015-2018, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -8,6 +9,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* Copyright (c) 2015-2018, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -41,7 +46,11 @@ struct combiner {
 	int                 parent_irq;
 	u32                 nirqs;
 	u32                 nregs;
+<<<<<<< HEAD
 	struct combiner_reg regs[0];
+=======
+	struct combiner_reg regs[];
+>>>>>>> upstream/android-13
 };
 
 static inline int irq_nr(u32 reg, u32 bit)
@@ -61,7 +70,10 @@ static void combiner_handle_irq(struct irq_desc *desc)
 	chained_irq_enter(chip, desc);
 
 	for (reg = 0; reg < combiner->nregs; reg++) {
+<<<<<<< HEAD
 		int virq;
+=======
+>>>>>>> upstream/android-13
 		int hwirq;
 		u32 bit;
 		u32 status;
@@ -78,10 +90,14 @@ static void combiner_handle_irq(struct irq_desc *desc)
 			bit = __ffs(status);
 			status &= ~(1 << bit);
 			hwirq = irq_nr(reg, bit);
+<<<<<<< HEAD
 			virq = irq_find_mapping(combiner->domain, hwirq);
 			if (virq > 0)
 				generic_handle_irq(virq);
 
+=======
+			generic_handle_domain_irq(combiner->domain, hwirq);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -237,7 +253,10 @@ static int get_registers(struct platform_device *pdev, struct combiner *comb)
 static int __init combiner_probe(struct platform_device *pdev)
 {
 	struct combiner *combiner;
+<<<<<<< HEAD
 	size_t alloc_sz;
+=======
+>>>>>>> upstream/android-13
 	int nregs;
 	int err;
 
@@ -247,8 +266,13 @@ static int __init combiner_probe(struct platform_device *pdev)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	alloc_sz = sizeof(*combiner) + sizeof(struct combiner_reg) * nregs;
 	combiner = devm_kzalloc(&pdev->dev, alloc_sz, GFP_KERNEL);
+=======
+	combiner = devm_kzalloc(&pdev->dev, struct_size(combiner, regs, nregs),
+				GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!combiner)
 		return -ENOMEM;
 
@@ -257,10 +281,15 @@ static int __init combiner_probe(struct platform_device *pdev)
 		return err;
 
 	combiner->parent_irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (combiner->parent_irq <= 0) {
 		dev_err(&pdev->dev, "Error getting IRQ resource\n");
 		return -EPROBE_DEFER;
 	}
+=======
+	if (combiner->parent_irq <= 0)
+		return -EPROBE_DEFER;
+>>>>>>> upstream/android-13
 
 	combiner->domain = irq_domain_create_linear(pdev->dev.fwnode, combiner->nirqs,
 						    &domain_ops, combiner);

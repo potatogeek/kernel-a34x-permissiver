@@ -21,11 +21,15 @@
  *
  * Authors: Ben Skeggs <bskeggs@redhat.com>
  */
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 #include "nouveau_drv.h"
 #include "nouveau_dma.h"
 #include "nv10_fence.h"
 
+<<<<<<< HEAD
 int
 nv10_fence_emit(struct nouveau_fence *fence)
 {
@@ -35,6 +39,20 @@ nv10_fence_emit(struct nouveau_fence *fence)
 		BEGIN_NV04(chan, 0, NV10_SUBCHAN_REF_CNT, 1);
 		OUT_RING  (chan, fence->base.seqno);
 		FIRE_RING (chan);
+=======
+#include <nvif/push006c.h>
+
+#include <nvhw/class/cl006e.h>
+
+int
+nv10_fence_emit(struct nouveau_fence *fence)
+{
+	struct nvif_push *push = fence->channel->chan.push;
+	int ret = PUSH_WAIT(push, 2);
+	if (ret == 0) {
+		PUSH_MTHD(push, NV06E, SET_REFERENCE, fence->base.seqno);
+		PUSH_KICK(push);
+>>>>>>> upstream/android-13
 	}
 	return ret;
 }
@@ -50,7 +68,11 @@ nv10_fence_sync(struct nouveau_fence *fence,
 u32
 nv10_fence_read(struct nouveau_channel *chan)
 {
+<<<<<<< HEAD
 	return nvif_rd32(&chan->user, 0x0048);
+=======
+	return NVIF_RD32(&chan->user, NV06E, REFERENCE);
+>>>>>>> upstream/android-13
 }
 
 void
@@ -58,7 +80,11 @@ nv10_fence_context_del(struct nouveau_channel *chan)
 {
 	struct nv10_fence_chan *fctx = chan->fence;
 	nouveau_fence_context_del(&fctx->base);
+<<<<<<< HEAD
 	nvif_object_fini(&fctx->sema);
+=======
+	nvif_object_dtor(&fctx->sema);
+>>>>>>> upstream/android-13
 	chan->fence = NULL;
 	nouveau_fence_context_free(&fctx->base);
 }

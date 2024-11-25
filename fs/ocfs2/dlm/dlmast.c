@@ -1,11 +1,17 @@
+<<<<<<< HEAD
 /* -*- mode: c; c-basic-offset: 8; -*-
  * vim: noexpandtab sw=8 ts=8 sts=0:
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  * dlmast.c
  *
  * AST and BAST functionality for local and remote nodes
  *
  * Copyright (C) 2004 Oracle.  All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -22,6 +28,8 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 021110-1307, USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 
@@ -38,15 +46,25 @@
 #include <linux/spinlock.h>
 
 
+<<<<<<< HEAD
 #include "cluster/heartbeat.h"
 #include "cluster/nodemanager.h"
 #include "cluster/tcp.h"
+=======
+#include "../cluster/heartbeat.h"
+#include "../cluster/nodemanager.h"
+#include "../cluster/tcp.h"
+>>>>>>> upstream/android-13
 
 #include "dlmapi.h"
 #include "dlmcommon.h"
 
 #define MLOG_MASK_PREFIX ML_DLM
+<<<<<<< HEAD
 #include "cluster/masklog.h"
+=======
+#include "../cluster/masklog.h"
+>>>>>>> upstream/android-13
 
 static void dlm_update_lvb(struct dlm_ctxt *dlm, struct dlm_lock_resource *res,
 			   struct dlm_lock *lock);
@@ -180,6 +198,7 @@ void __dlm_queue_bast(struct dlm_ctxt *dlm, struct dlm_lock *lock)
 	spin_unlock(&lock->spinlock);
 }
 
+<<<<<<< HEAD
 void dlm_queue_bast(struct dlm_ctxt *dlm, struct dlm_lock *lock)
 {
 	BUG_ON(!dlm);
@@ -190,6 +209,8 @@ void dlm_queue_bast(struct dlm_ctxt *dlm, struct dlm_lock *lock)
 	spin_unlock(&dlm->ast_lock);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void dlm_update_lvb(struct dlm_ctxt *dlm, struct dlm_lock_resource *res,
 			   struct dlm_lock *lock)
 {

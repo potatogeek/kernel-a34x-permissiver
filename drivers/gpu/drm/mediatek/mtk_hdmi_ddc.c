@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014 MediaTek Inc.
  * Author: Jie Qiu <jie.qiu@mediatek.com>
@@ -10,6 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2014 MediaTek Inc.
+ * Author: Jie Qiu <jie.qiu@mediatek.com>
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -343,6 +350,10 @@ static const struct of_device_id mtk_hdmi_ddc_match[] = {
 	{ .compatible = "mediatek,mt8173-hdmi-ddc", },
 	{},
 };
+<<<<<<< HEAD
+=======
+MODULE_DEVICE_TABLE(of, mtk_hdmi_ddc_match);
+>>>>>>> upstream/android-13
 
 struct platform_driver mtk_hdmi_ddc_driver = {
 	.probe = mtk_hdmi_ddc_probe,

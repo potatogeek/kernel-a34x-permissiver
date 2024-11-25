@@ -19,6 +19,7 @@
 		bootargs = "console=ttyS0,115200 earlycon";
 	};
 
+<<<<<<< HEAD
 	memory {
 		reg = <0x00000000 0x08000000
 		       0x88000000 0x08000000>;
@@ -26,6 +27,16 @@
 
 	nand: nand@18028000 {
 		nandcs@0 {
+=======
+	memory@0 {
+		device_type = "memory";
+		reg = <0x00000000 0x08000000>,
+		      <0x88000000 0x08000000>;
+	};
+
+	nand_controller: nand-controller@18028000 {
+		nand@0 {
+>>>>>>> upstream/android-13
 			partitions {
 				compatible = "fixed-partitions";
 				#address-cells = <1>;
@@ -84,8 +95,11 @@
 
 	gpio-keys {
 		compatible = "gpio-keys";
+<<<<<<< HEAD
 		#address-cells = <1>;
 		#size-cells = <0>;
+=======
+>>>>>>> upstream/android-13
 
 		wps {
 			label = "WPS";

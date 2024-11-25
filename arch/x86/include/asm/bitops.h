@@ -45,6 +45,7 @@
  * We do the locked ops that don't return the old value as
  * a mask operation on a byte.
  */
+<<<<<<< HEAD
 #define IS_IMMEDIATE(nr)		(__builtin_constant_p(nr))
 #define CONST_MASK_ADDR(nr, addr)	WBYTE_ADDR((void *)(addr) + ((nr)>>3))
 #define CONST_MASK(nr)			(1 << ((nr) & 7))
@@ -71,6 +72,18 @@ set_bit(long nr, volatile unsigned long *addr)
 		asm volatile(LOCK_PREFIX "orb %1,%0"
 			: CONST_MASK_ADDR(nr, addr)
 			: "iq" ((u8)CONST_MASK(nr))
+=======
+#define CONST_MASK_ADDR(nr, addr)	WBYTE_ADDR((void *)(addr) + ((nr)>>3))
+#define CONST_MASK(nr)			(1 << ((nr) & 7))
+
+static __always_inline void
+arch_set_bit(long nr, volatile unsigned long *addr)
+{
+	if (__builtin_constant_p(nr)) {
+		asm volatile(LOCK_PREFIX "orb %b1,%0"
+			: CONST_MASK_ADDR(nr, addr)
+			: "iq" (CONST_MASK(nr))
+>>>>>>> upstream/android-13
 			: "memory");
 	} else {
 		asm volatile(LOCK_PREFIX __ASM_SIZE(bts) " %1,%0"
@@ -78,6 +91,7 @@ set_bit(long nr, volatile unsigned long *addr)
 	}
 }
 
+<<<<<<< HEAD
 /**
  * __set_bit - Set a bit in memory
  * @nr: the bit to set
@@ -88,10 +102,15 @@ set_bit(long nr, volatile unsigned long *addr)
  * may be that only one operation succeeds.
  */
 static __always_inline void __set_bit(long nr, volatile unsigned long *addr)
+=======
+static __always_inline void
+arch___set_bit(long nr, volatile unsigned long *addr)
+>>>>>>> upstream/android-13
 {
 	asm volatile(__ASM_SIZE(bts) " %1,%0" : : ADDR, "Ir" (nr) : "memory");
 }
 
+<<<<<<< HEAD
 /**
  * clear_bit - Clears a bit in memory
  * @nr: Bit to clear
@@ -109,12 +128,22 @@ clear_bit(long nr, volatile unsigned long *addr)
 		asm volatile(LOCK_PREFIX "andb %1,%0"
 			: CONST_MASK_ADDR(nr, addr)
 			: "iq" ((u8)~CONST_MASK(nr)));
+=======
+static __always_inline void
+arch_clear_bit(long nr, volatile unsigned long *addr)
+{
+	if (__builtin_constant_p(nr)) {
+		asm volatile(LOCK_PREFIX "andb %b1,%0"
+			: CONST_MASK_ADDR(nr, addr)
+			: "iq" (~CONST_MASK(nr)));
+>>>>>>> upstream/android-13
 	} else {
 		asm volatile(LOCK_PREFIX __ASM_SIZE(btr) " %1,%0"
 			: : RLONG_ADDR(addr), "Ir" (nr) : "memory");
 	}
 }
 
+<<<<<<< HEAD
 /*
  * clear_bit_unlock - Clears a bit in memory
  * @nr: Bit to clear
@@ -130,11 +159,27 @@ static __always_inline void clear_bit_unlock(long nr, volatile unsigned long *ad
 }
 
 static __always_inline void __clear_bit(long nr, volatile unsigned long *addr)
+=======
+static __always_inline void
+arch_clear_bit_unlock(long nr, volatile unsigned long *addr)
+{
+	barrier();
+	arch_clear_bit(nr, addr);
+}
+
+static __always_inline void
+arch___clear_bit(long nr, volatile unsigned long *addr)
+>>>>>>> upstream/android-13
 {
 	asm volatile(__ASM_SIZE(btr) " %1,%0" : : ADDR, "Ir" (nr) : "memory");
 }
 
+<<<<<<< HEAD
 static __always_inline bool clear_bit_unlock_is_negative_byte(long nr, volatile unsigned long *addr)
+=======
+static __always_inline bool
+arch_clear_bit_unlock_is_negative_byte(long nr, volatile unsigned long *addr)
+>>>>>>> upstream/android-13
 {
 	bool negative;
 	asm volatile(LOCK_PREFIX "andb %2,%1"
@@ -143,6 +188,7 @@ static __always_inline bool clear_bit_unlock_is_negative_byte(long nr, volatile 
 		: "ir" ((char) ~(1 << nr)) : "memory");
 	return negative;
 }
+<<<<<<< HEAD
 
 // Let everybody know we have it
 #define clear_bit_unlock_is_negative_byte clear_bit_unlock_is_negative_byte
@@ -171,10 +217,24 @@ static __always_inline void __clear_bit_unlock(long nr, volatile unsigned long *
  * may be that only one operation succeeds.
  */
 static __always_inline void __change_bit(long nr, volatile unsigned long *addr)
+=======
+#define arch_clear_bit_unlock_is_negative_byte                                 \
+	arch_clear_bit_unlock_is_negative_byte
+
+static __always_inline void
+arch___clear_bit_unlock(long nr, volatile unsigned long *addr)
+{
+	arch___clear_bit(nr, addr);
+}
+
+static __always_inline void
+arch___change_bit(long nr, volatile unsigned long *addr)
+>>>>>>> upstream/android-13
 {
 	asm volatile(__ASM_SIZE(btc) " %1,%0" : : ADDR, "Ir" (nr) : "memory");
 }
 
+<<<<<<< HEAD
 /**
  * change_bit - Toggle a bit in memory
  * @nr: Bit to change
@@ -190,12 +250,22 @@ static __always_inline void change_bit(long nr, volatile unsigned long *addr)
 		asm volatile(LOCK_PREFIX "xorb %1,%0"
 			: CONST_MASK_ADDR(nr, addr)
 			: "iq" ((u8)CONST_MASK(nr)));
+=======
+static __always_inline void
+arch_change_bit(long nr, volatile unsigned long *addr)
+{
+	if (__builtin_constant_p(nr)) {
+		asm volatile(LOCK_PREFIX "xorb %b1,%0"
+			: CONST_MASK_ADDR(nr, addr)
+			: "iq" (CONST_MASK(nr)));
+>>>>>>> upstream/android-13
 	} else {
 		asm volatile(LOCK_PREFIX __ASM_SIZE(btc) " %1,%0"
 			: : RLONG_ADDR(addr), "Ir" (nr) : "memory");
 	}
 }
 
+<<<<<<< HEAD
 /**
  * test_and_set_bit - Set a bit and return its old value
  * @nr: Bit to set
@@ -233,6 +303,22 @@ test_and_set_bit_lock(long nr, volatile unsigned long *addr)
  * but actually fail.  You must protect multiple accesses with a lock.
  */
 static __always_inline bool __test_and_set_bit(long nr, volatile unsigned long *addr)
+=======
+static __always_inline bool
+arch_test_and_set_bit(long nr, volatile unsigned long *addr)
+{
+	return GEN_BINARY_RMWcc(LOCK_PREFIX __ASM_SIZE(bts), *addr, c, "Ir", nr);
+}
+
+static __always_inline bool
+arch_test_and_set_bit_lock(long nr, volatile unsigned long *addr)
+{
+	return arch_test_and_set_bit(nr, addr);
+}
+
+static __always_inline bool
+arch___test_and_set_bit(long nr, volatile unsigned long *addr)
+>>>>>>> upstream/android-13
 {
 	bool oldbit;
 
@@ -243,6 +329,7 @@ static __always_inline bool __test_and_set_bit(long nr, volatile unsigned long *
 	return oldbit;
 }
 
+<<<<<<< HEAD
 /**
  * test_and_clear_bit - Clear a bit and return its old value
  * @nr: Bit to clear
@@ -266,6 +353,15 @@ static __always_inline bool test_and_clear_bit(long nr, volatile unsigned long *
  * If two examples of this operation race, one can appear to succeed
  * but actually fail.  You must protect multiple accesses with a lock.
  *
+=======
+static __always_inline bool
+arch_test_and_clear_bit(long nr, volatile unsigned long *addr)
+{
+	return GEN_BINARY_RMWcc(LOCK_PREFIX __ASM_SIZE(btr), *addr, c, "Ir", nr);
+}
+
+/*
+>>>>>>> upstream/android-13
  * Note: the operation is performed atomically with respect to
  * the local CPU, but not other CPUs. Portable code should not
  * rely on this behaviour.
@@ -273,7 +369,12 @@ static __always_inline bool test_and_clear_bit(long nr, volatile unsigned long *
  * accessed from a hypervisor on the same CPU if running in a VM: don't change
  * this without also updating arch/x86/kernel/kvm.c
  */
+<<<<<<< HEAD
 static __always_inline bool __test_and_clear_bit(long nr, volatile unsigned long *addr)
+=======
+static __always_inline bool
+arch___test_and_clear_bit(long nr, volatile unsigned long *addr)
+>>>>>>> upstream/android-13
 {
 	bool oldbit;
 
@@ -284,8 +385,13 @@ static __always_inline bool __test_and_clear_bit(long nr, volatile unsigned long
 	return oldbit;
 }
 
+<<<<<<< HEAD
 /* WARNING: non atomic and it can be reordered! */
 static __always_inline bool __test_and_change_bit(long nr, volatile unsigned long *addr)
+=======
+static __always_inline bool
+arch___test_and_change_bit(long nr, volatile unsigned long *addr)
+>>>>>>> upstream/android-13
 {
 	bool oldbit;
 
@@ -297,6 +403,7 @@ static __always_inline bool __test_and_change_bit(long nr, volatile unsigned lon
 	return oldbit;
 }
 
+<<<<<<< HEAD
 /**
  * test_and_change_bit - Change a bit and return its old value
  * @nr: Bit to change
@@ -309,6 +416,12 @@ static __always_inline bool test_and_change_bit(long nr, volatile unsigned long 
 {
 	GEN_BINARY_RMWcc(LOCK_PREFIX __ASM_SIZE(btc),
 	                 *addr, "Ir", nr, "%0", c);
+=======
+static __always_inline bool
+arch_test_and_change_bit(long nr, volatile unsigned long *addr)
+{
+	return GEN_BINARY_RMWcc(LOCK_PREFIX __ASM_SIZE(btc), *addr, c, "Ir", nr);
+>>>>>>> upstream/android-13
 }
 
 static __always_inline bool constant_test_bit(long nr, const volatile unsigned long *addr)
@@ -329,6 +442,7 @@ static __always_inline bool variable_test_bit(long nr, volatile const unsigned l
 	return oldbit;
 }
 
+<<<<<<< HEAD
 #if 0 /* Fool kernel-doc since it doesn't do macros yet */
 /**
  * test_bit - Determine whether a bit is set
@@ -339,6 +453,9 @@ static bool test_bit(int nr, const volatile unsigned long *addr);
 #endif
 
 #define test_bit(nr, addr)			\
+=======
+#define arch_test_bit(nr, addr)			\
+>>>>>>> upstream/android-13
 	(__builtin_constant_p((nr))		\
 	 ? constant_test_bit((nr), (addr))	\
 	 : variable_test_bit((nr), (addr)))
@@ -440,7 +557,11 @@ static __always_inline int ffs(int x)
  * set bit if value is nonzero. The last (most significant) bit is
  * at position 32.
  */
+<<<<<<< HEAD
 static __always_inline int fls(int x)
+=======
+static __always_inline int fls(unsigned int x)
+>>>>>>> upstream/android-13
 {
 	int r;
 
@@ -507,6 +628,13 @@ static __always_inline int fls64(__u64 x)
 
 #include <asm-generic/bitops/const_hweight.h>
 
+<<<<<<< HEAD
+=======
+#include <asm-generic/bitops/instrumented-atomic.h>
+#include <asm-generic/bitops/instrumented-non-atomic.h>
+#include <asm-generic/bitops/instrumented-lock.h>
+
+>>>>>>> upstream/android-13
 #include <asm-generic/bitops/le.h>
 
 #include <asm-generic/bitops/ext2-atomic-setbit.h>

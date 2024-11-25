@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016 Chris Zhong <zyw@rock-chips.com>
  * Copyright (C) 2016 ROCKCHIP, Inc.
@@ -10,15 +11,28 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2016 Chris Zhong <zyw@rock-chips.com>
+ * Copyright (C) 2016 ROCKCHIP, Inc.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _CDN_DP_CORE_H
 #define _CDN_DP_CORE_H
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/drm_crtc_helper.h>
 #include <drm/drm_dp_helper.h>
 #include <drm/drm_panel.h>
+=======
+#include <drm/drm_dp_helper.h>
+#include <drm/drm_panel.h>
+#include <drm/drm_probe_helper.h>
+
+>>>>>>> upstream/android-13
 #include "rockchip_drm_drv.h"
 
 #define MAX_PHY		2
@@ -100,9 +114,16 @@ struct cdn_dp_device {
 	struct reset_control *core_rst;
 	struct audio_info audio_info;
 	struct video_info video_info;
+<<<<<<< HEAD
 	struct drm_dp_link link;
 	struct cdn_dp_port *port[MAX_PHY];
 	u8 ports;
+=======
+	struct cdn_dp_port *port[MAX_PHY];
+	u8 ports;
+	u8 max_lanes;
+	unsigned int max_rate;
+>>>>>>> upstream/android-13
 	u8 lanes;
 	int active_port;
 

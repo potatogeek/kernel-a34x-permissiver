@@ -1,6 +1,7 @@
 #include <linux/ptrace.h>
 #include <linux/version.h>
 #include <uapi/linux/bpf.h>
+<<<<<<< HEAD
 #include "bpf_helpers.h"
 
 struct bpf_map_def SEC("maps") my_map = {
@@ -11,6 +12,19 @@ struct bpf_map_def SEC("maps") my_map = {
 };
 
 SEC("kprobe/sys_write")
+=======
+#include <bpf/bpf_helpers.h>
+#include "trace_common.h"
+
+struct {
+	__uint(type, BPF_MAP_TYPE_PERF_EVENT_ARRAY);
+	__uint(key_size, sizeof(int));
+	__uint(value_size, sizeof(u32));
+	__uint(max_entries, 2);
+} my_map SEC(".maps");
+
+SEC("kprobe/" SYSCALL(sys_write))
+>>>>>>> upstream/android-13
 int bpf_prog1(struct pt_regs *ctx)
 {
 	struct S {

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright © 2009 - Maxim Levitsky
  * Common routines & support for SmartMedia/xD format
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright © 2009 - Maxim Levitsky
+ * Common routines & support for SmartMedia/xD format
+>>>>>>> upstream/android-13
  */
 #include <linux/bitops.h>
 #include <linux/mtd/mtd.h>

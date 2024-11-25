@@ -51,6 +51,11 @@
 	SRI(CM_GAMUT_REMAP_C33_C34, CM, id),\
 	SRI(DSCL_EXT_OVERSCAN_LEFT_RIGHT, DSCL, id), \
 	SRI(DSCL_EXT_OVERSCAN_TOP_BOTTOM, DSCL, id), \
+<<<<<<< HEAD
+=======
+	SRI(DSCL_MEM_PWR_STATUS, DSCL, id), \
+	SRI(DSCL_MEM_PWR_CTRL, DSCL, id), \
+>>>>>>> upstream/android-13
 	SRI(OTG_H_BLANK, DSCL, id), \
 	SRI(OTG_V_BLANK, DSCL, id), \
 	SRI(SCL_MODE, DSCL, id), \
@@ -252,6 +257,11 @@
 	TF_SF(DSCL0_SCL_VERT_FILTER_INIT_BOT_C, SCL_V_INIT_INT_BOT_C, mask_sh),\
 	TF_SF(DSCL0_SCL_MODE, SCL_CHROMA_COEF_MODE, mask_sh),\
 	TF_SF(DSCL0_SCL_MODE, SCL_COEF_RAM_SELECT_CURRENT, mask_sh), \
+<<<<<<< HEAD
+=======
+	TF_SF(DSCL0_DSCL_MEM_PWR_CTRL, LUT_MEM_PWR_FORCE, mask_sh), \
+	TF_SF(DSCL0_DSCL_MEM_PWR_STATUS, LUT_MEM_PWR_STATE, mask_sh), \
+>>>>>>> upstream/android-13
 	TF_SF(CM0_CM_ICSC_CONTROL, CM_ICSC_MODE, mask_sh), \
 	TF_SF(CM0_CM_ICSC_C11_C12, CM_ICSC_C11, mask_sh), \
 	TF_SF(CM0_CM_ICSC_C11_C12, CM_ICSC_C12, mask_sh), \
@@ -536,6 +546,11 @@
 	type SCL_V_INIT_INT_BOT_C; \
 	type SCL_CHROMA_COEF_MODE; \
 	type SCL_COEF_RAM_SELECT_CURRENT; \
+<<<<<<< HEAD
+=======
+	type LUT_MEM_PWR_FORCE; \
+	type LUT_MEM_PWR_STATE; \
+>>>>>>> upstream/android-13
 	type CM_GAMUT_REMAP_MODE; \
 	type CM_GAMUT_REMAP_C11; \
 	type CM_GAMUT_REMAP_C12; \
@@ -1096,6 +1111,11 @@ struct dcn_dpp_mask {
 	uint32_t DSCL_EXT_OVERSCAN_TOP_BOTTOM; \
 	uint32_t OTG_H_BLANK; \
 	uint32_t OTG_V_BLANK; \
+<<<<<<< HEAD
+=======
+	uint32_t DSCL_MEM_PWR_CTRL; \
+	uint32_t DSCL_MEM_PWR_STATUS; \
+>>>>>>> upstream/android-13
 	uint32_t SCL_MODE; \
 	uint32_t LB_DATA_FORMAT; \
 	uint32_t LB_MEMORY_CTRL; \
@@ -1368,13 +1388,22 @@ enum dcn10_input_csc_select {
 
 void dpp1_set_cursor_attributes(
 		struct dpp *dpp_base,
+<<<<<<< HEAD
 		enum dc_cursor_color_format color_format);
+=======
+		struct dc_cursor_attributes *cursor_attributes);
+>>>>>>> upstream/android-13
 
 void dpp1_set_cursor_position(
 		struct dpp *dpp_base,
 		const struct dc_cursor_position *pos,
 		const struct dc_cursor_mi_param *param,
+<<<<<<< HEAD
 		uint32_t width);
+=======
+		uint32_t width,
+		uint32_t height);
+>>>>>>> upstream/android-13
 
 void dpp1_cnv_set_optional_cursor_attributes(
 			struct dpp *dpp_base,
@@ -1485,9 +1514,14 @@ void dpp1_cnv_setup (
 		enum surface_pixel_format format,
 		enum expansion_mode mode,
 		struct dc_csc_transform input_csc_color_matrix,
+<<<<<<< HEAD
 		enum dc_color_space input_color_space);
 
 void dpp1_full_bypass(struct dpp *dpp_base);
+=======
+		enum dc_color_space input_color_space,
+		struct cnv_alpha_2bit_lut *alpha_2bit_lut);
+>>>>>>> upstream/android-13
 
 void dpp1_dppclk_control(
 		struct dpp *dpp_base,
@@ -1498,6 +1532,14 @@ void dpp1_set_hdr_multiplier(
 		struct dpp *dpp_base,
 		uint32_t multiplier);
 
+<<<<<<< HEAD
+=======
+bool dpp1_get_optimal_number_of_taps(
+		struct dpp *dpp,
+		struct scaler_data *scl_data,
+		const struct scaling_taps *in_taps);
+
+>>>>>>> upstream/android-13
 void dpp1_construct(struct dcn10_dpp *dpp1,
 	struct dc_context *ctx,
 	uint32_t inst,

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * SMP support for Hexagon
  *
  * Copyright (c) 2010-2012, The Linux Foundation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -16,6 +21,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -127,12 +134,15 @@ void send_ipi(const struct cpumask *cpumask, enum ipi_message_type msg)
 	local_irq_restore(flags);
 }
 
+<<<<<<< HEAD
 static struct irqaction ipi_intdesc = {
 	.handler = handle_ipi,
 	.flags = IRQF_TRIGGER_RISING,
 	.name = "ipi_handler"
 };
 
+=======
+>>>>>>> upstream/android-13
 void __init smp_prepare_boot_cpu(void)
 {
 }
@@ -145,8 +155,13 @@ void __init smp_prepare_boot_cpu(void)
 
 void start_secondary(void)
 {
+<<<<<<< HEAD
 	unsigned int cpu;
 	unsigned long thread_ptr;
+=======
+	unsigned long thread_ptr;
+	unsigned int cpu, irq;
+>>>>>>> upstream/android-13
 
 	/*  Calculate thread_info pointer from stack pointer  */
 	__asm__ __volatile__(
@@ -168,7 +183,14 @@ void start_secondary(void)
 
 	cpu = smp_processor_id();
 
+<<<<<<< HEAD
 	setup_irq(BASE_IPI_IRQ + cpu, &ipi_intdesc);
+=======
+	irq = BASE_IPI_IRQ + cpu;
+	if (request_irq(irq, handle_ipi, IRQF_TRIGGER_RISING, "ipi_handler",
+			NULL))
+		pr_err("Failed to request irq %u (ipi_handler)\n", irq);
+>>>>>>> upstream/android-13
 
 	/*  Register the clock_event dummy  */
 	setup_percpu_clockdev();
@@ -214,7 +236,11 @@ void __init smp_cpus_done(unsigned int max_cpus)
 
 void __init smp_prepare_cpus(unsigned int max_cpus)
 {
+<<<<<<< HEAD
 	int i;
+=======
+	int i, irq = BASE_IPI_IRQ;
+>>>>>>> upstream/android-13
 
 	/*
 	 * should eventually have some sort of machine
@@ -226,8 +252,16 @@ void __init smp_prepare_cpus(unsigned int max_cpus)
 		set_cpu_present(i, true);
 
 	/*  Also need to register the interrupts for IPI  */
+<<<<<<< HEAD
 	if (max_cpus > 1)
 		setup_irq(BASE_IPI_IRQ, &ipi_intdesc);
+=======
+	if (max_cpus > 1) {
+		if (request_irq(irq, handle_ipi, IRQF_TRIGGER_RISING,
+				"ipi_handler", NULL))
+			pr_err("Failed to request irq %d (ipi_handler)\n", irq);
+	}
+>>>>>>> upstream/android-13
 }
 
 void smp_send_reschedule(int cpu)

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  sbs.c - ACPI Smart Battery System Driver ($Revision: 2.0 $)
  *
  *  Copyright (c) 2007 Alexey Starikovskiy <astarikovskiy@suse.de>
  *  Copyright (c) 2005-2007 Vladimir Lebedev <vladimir.p.lebedev@intel.com>
  *  Copyright (c) 2005 Rich Townsend <rhdt@bartol.udel.edu>
+<<<<<<< HEAD
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
@@ -20,6 +25,12 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  */
 
+=======
+ */
+
+#define pr_fmt(fmt) "ACPI: " fmt
+
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/slab.h>
 #include <linux/module.h>
@@ -36,6 +47,7 @@
 
 #include "sbshc.h"
 
+<<<<<<< HEAD
 #define PREFIX "ACPI: "
 
 #define ACPI_SBS_CLASS			"sbs"
@@ -44,6 +56,11 @@
 #define ACPI_SBS_FILE_INFO		"info"
 #define ACPI_SBS_FILE_STATE		"state"
 #define ACPI_SBS_FILE_ALARM		"alarm"
+=======
+#define ACPI_SBS_CLASS			"sbs"
+#define ACPI_AC_CLASS			"ac_adapter"
+#define ACPI_SBS_DEVICE_NAME		"Smart Battery System"
+>>>>>>> upstream/android-13
 #define ACPI_BATTERY_DIR_NAME		"BAT%i"
 #define ACPI_AC_DIR_NAME		"AC0"
 
@@ -382,7 +399,11 @@ static int acpi_battery_get_state(struct acpi_battery *battery)
 					 state_readers[i].mode,
 					 ACPI_SBS_BATTERY,
 					 state_readers[i].command,
+<<<<<<< HEAD
 				         (u8 *)battery +
+=======
+					 (u8 *)battery +
+>>>>>>> upstream/android-13
 						state_readers[i].offset);
 		if (result)
 			goto end;
@@ -560,7 +581,11 @@ static int acpi_battery_add(struct acpi_sbs *sbs, int id)
 		goto end;
 	battery->have_sysfs_alarm = 1;
       end:
+<<<<<<< HEAD
 	printk(KERN_INFO PREFIX "%s [%s]: Battery Slot [%s] (battery %s)\n",
+=======
+	pr_info("%s [%s]: Battery Slot [%s] (battery %s)\n",
+>>>>>>> upstream/android-13
 	       ACPI_SBS_DEVICE_NAME, acpi_device_bid(sbs->device),
 	       battery->name, battery->present ? "present" : "absent");
 	return result;
@@ -593,10 +618,17 @@ static int acpi_charger_add(struct acpi_sbs *sbs)
 		result = PTR_ERR(sbs->charger);
 		sbs->charger = NULL;
 	}
+<<<<<<< HEAD
 	printk(KERN_INFO PREFIX "%s [%s]: AC Adapter [%s] (%s)\n",
 	       ACPI_SBS_DEVICE_NAME, acpi_device_bid(sbs->device),
 	       ACPI_AC_DIR_NAME, sbs->charger_present ? "on-line" : "off-line");
       end:
+=======
+	pr_info("%s [%s]: AC Adapter [%s] (%s)\n",
+	       ACPI_SBS_DEVICE_NAME, acpi_device_bid(sbs->device),
+	       ACPI_AC_DIR_NAME, sbs->charger_present ? "on-line" : "off-line");
+end:
+>>>>>>> upstream/android-13
 	return result;
 }
 
@@ -674,7 +706,11 @@ static int acpi_sbs_add(struct acpi_device *device)
 		acpi_battery_add(sbs, 0);
 
 	acpi_smbus_register_callback(sbs->hc, acpi_sbs_callback, sbs);
+<<<<<<< HEAD
       end:
+=======
+end:
+>>>>>>> upstream/android-13
 	if (result)
 		acpi_sbs_remove(device);
 	return result;
@@ -727,6 +763,7 @@ static struct acpi_driver acpi_sbs_driver = {
 		},
 	.drv.pm = &acpi_sbs_pm,
 };
+<<<<<<< HEAD
 
 static int __init acpi_sbs_init(void)
 {
@@ -750,3 +787,6 @@ static void __exit acpi_sbs_exit(void)
 
 module_init(acpi_sbs_init);
 module_exit(acpi_sbs_exit);
+=======
+module_acpi_driver(acpi_sbs_driver);
+>>>>>>> upstream/android-13

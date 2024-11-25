@@ -29,17 +29,30 @@ struct adfs_discrecord {
     __u8  log2sharesize:4;
     __u8  unused40:4;
     __u8  big_flag:1;
+<<<<<<< HEAD
     __u8  unused41:1;
     __u8  nzones_high;
     __le32 format_version;
     __le32 root_size;
     __u8  unused52[60 - 52];
 };
+=======
+    __u8  unused41:7;
+    __u8  nzones_high;
+    __u8  reserved43;
+    __le32 format_version;
+    __le32 root_size;
+    __u8  unused52[60 - 52];
+} __attribute__((packed, aligned(4)));
+>>>>>>> upstream/android-13
 
 #define ADFS_DISCRECORD		(0xc00)
 #define ADFS_DR_OFFSET		(0x1c0)
 #define ADFS_DR_SIZE		 60
 #define ADFS_DR_SIZE_BITS	(ADFS_DR_SIZE << 3)
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _UAPI_ADFS_FS_H */

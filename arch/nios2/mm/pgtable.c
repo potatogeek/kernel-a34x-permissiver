@@ -10,7 +10,10 @@
 #include <linux/mm.h>
 #include <linux/sched.h>
 
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/cpuinfo.h>
 
 /* pteaddr:

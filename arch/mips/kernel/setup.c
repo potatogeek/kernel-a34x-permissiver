@@ -15,7 +15,10 @@
 #include <linux/export.h>
 #include <linux/screen_info.h>
 #include <linux/memblock.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/initrd.h>
 #include <linux/root_dev.h>
 #include <linux/highmem.h>
@@ -25,9 +28,17 @@
 #include <linux/kexec.h>
 #include <linux/sizes.h>
 #include <linux/device.h>
+<<<<<<< HEAD
 #include <linux/dma-contiguous.h>
 #include <linux/decompress/generic.h>
 #include <linux/of_fdt.h>
+=======
+#include <linux/dma-map-ops.h>
+#include <linux/decompress/generic.h>
+#include <linux/of_fdt.h>
+#include <linux/dmi.h>
+#include <linux/crash_dump.h>
+>>>>>>> upstream/android-13
 
 #include <asm/addrspace.h>
 #include <asm/bootinfo.h>
@@ -36,14 +47,21 @@
 #include <asm/cdmm.h>
 #include <asm/cpu.h>
 #include <asm/debug.h>
+<<<<<<< HEAD
 #include <asm/dma-coherence.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/sections.h>
 #include <asm/setup.h>
 #include <asm/smp-ops.h>
 #include <asm/prom.h>
 
 #ifdef CONFIG_MIPS_ELF_APPENDED_DTB
+<<<<<<< HEAD
 const char __section(.appended_dtb) __appended_dtb[0x100000];
+=======
+char __section(".appended_dtb") __appended_dtb[0x100000];
+>>>>>>> upstream/android-13
 #endif /* CONFIG_MIPS_ELF_APPENDED_DTB */
 
 struct cpuinfo_mips cpu_data[NR_CPUS] __read_mostly;
@@ -63,13 +81,22 @@ unsigned long mips_machtype __read_mostly = MACH_UNKNOWN;
 
 EXPORT_SYMBOL(mips_machtype);
 
+<<<<<<< HEAD
 struct boot_mem_map boot_mem_map;
 
+=======
+>>>>>>> upstream/android-13
 static char __initdata command_line[COMMAND_LINE_SIZE];
 char __initdata arcs_cmdline[COMMAND_LINE_SIZE];
 
 #ifdef CONFIG_CMDLINE_BOOL
+<<<<<<< HEAD
 static char __initdata builtin_cmdline[COMMAND_LINE_SIZE] = CONFIG_CMDLINE;
+=======
+static const char builtin_cmdline[] __initconst = CONFIG_CMDLINE;
+#else
+static const char builtin_cmdline[] __initconst = "";
+>>>>>>> upstream/android-13
 #endif
 
 /*
@@ -83,6 +110,12 @@ static struct resource code_resource = { .name = "Kernel code", };
 static struct resource data_resource = { .name = "Kernel data", };
 static struct resource bss_resource = { .name = "Kernel bss", };
 
+<<<<<<< HEAD
+=======
+unsigned long __kaslr_offset __ro_after_init;
+EXPORT_SYMBOL(__kaslr_offset);
+
+>>>>>>> upstream/android-13
 static void *detect_magic __initdata = detect_memory_region;
 
 #ifdef CONFIG_MIPS_AUTO_PFN_OFFSET
@@ -90,6 +123,7 @@ unsigned long ARCH_PFN_OFFSET;
 EXPORT_SYMBOL(ARCH_PFN_OFFSET);
 #endif
 
+<<<<<<< HEAD
 void __init add_memory_region(phys_addr_t start, phys_addr_t size, long type)
 {
 	int x = boot_mem_map.nr_map;
@@ -142,6 +176,8 @@ void __init add_memory_region(phys_addr_t start, phys_addr_t size, long type)
 	boot_mem_map.nr_map++;
 }
 
+=======
+>>>>>>> upstream/android-13
 void __init detect_memory_region(phys_addr_t start, phys_addr_t sz_min, phys_addr_t sz_max)
 {
 	void *dm = &detect_magic;
@@ -158,6 +194,7 @@ void __init detect_memory_region(phys_addr_t start, phys_addr_t sz_min, phys_add
 		((unsigned long long) sz_min) / SZ_1M,
 		((unsigned long long) sz_max) / SZ_1M);
 
+<<<<<<< HEAD
 	add_memory_region(start, size, BOOT_MEM_RAM);
 }
 
@@ -219,6 +256,9 @@ static void __init print_memory_map(void)
 			break;
 		}
 	}
+=======
+	memblock_add(start, size);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -333,7 +373,11 @@ static void __init finalize_initrd(void)
 
 	maybe_bswap_initrd();
 
+<<<<<<< HEAD
 	reserve_bootmem(__pa(initrd_start), size, BOOTMEM_DEFAULT);
+=======
+	memblock_reserve(__pa(initrd_start), size);
+>>>>>>> upstream/android-13
 	initrd_below_start_ok = 1;
 
 	pr_info("Initial ramdisk at: 0x%lx (%lu bytes)\n",
@@ -360,7 +404,11 @@ static unsigned long __init init_initrd(void)
  * Initialize the bootmem allocator. It also setup initrd related data
  * if needed.
  */
+<<<<<<< HEAD
 #if defined(CONFIG_SGI_IP27) || (defined(CONFIG_CPU_LOONGSON3) && defined(CONFIG_NUMA))
+=======
+#if defined(CONFIG_SGI_IP27) || (defined(CONFIG_CPU_LOONGSON64) && defined(CONFIG_NUMA))
+>>>>>>> upstream/android-13
 
 static void __init bootmem_init(void)
 {
@@ -370,6 +418,7 @@ static void __init bootmem_init(void)
 
 #else  /* !CONFIG_SGI_IP27 */
 
+<<<<<<< HEAD
 static unsigned long __init bootmap_bytes(unsigned long pages)
 {
 	unsigned long bytes = DIV_ROUND_UP(pages, 8);
@@ -386,6 +435,17 @@ static void __init bootmem_init(void)
 	bool bootmap_valid = false;
 	int i;
 
+=======
+static void __init bootmem_init(void)
+{
+	phys_addr_t ramstart, ramend;
+	unsigned long start, end;
+	int i;
+
+	ramstart = memblock_start_of_DRAM();
+	ramend = memblock_end_of_DRAM();
+
+>>>>>>> upstream/android-13
 	/*
 	 * Sanity check any INITRD first. We don't take it into account
 	 * for bootmem setup initially, rely on the end-of-kernel-code
@@ -393,6 +453,7 @@ static void __init bootmem_init(void)
 	 * will reserve the area used for the initrd.
 	 */
 	init_initrd();
+<<<<<<< HEAD
 	reserved_end = (unsigned long) PFN_UP(__pa_symbol(&_end));
 
 	/*
@@ -419,6 +480,34 @@ static void __init bootmem_init(void)
 		ramstart = min(ramstart, boot_mem_map.map[i].addr);
 
 #ifndef CONFIG_HIGHMEM
+=======
+
+	/* Reserve memory occupied by kernel. */
+	memblock_reserve(__pa_symbol(&_text),
+			__pa_symbol(&_end) - __pa_symbol(&_text));
+
+	/* max_low_pfn is not a number of pages but the end pfn of low mem */
+
+#ifdef CONFIG_MIPS_AUTO_PFN_OFFSET
+	ARCH_PFN_OFFSET = PFN_UP(ramstart);
+#else
+	/*
+	 * Reserve any memory between the start of RAM and PHYS_OFFSET
+	 */
+	if (ramstart > PHYS_OFFSET)
+		memblock_reserve(PHYS_OFFSET, ramstart - PHYS_OFFSET);
+
+	if (PFN_UP(ramstart) > ARCH_PFN_OFFSET) {
+		pr_info("Wasting %lu bytes for tracking %lu unused pages\n",
+			(unsigned long)((PFN_UP(ramstart) - ARCH_PFN_OFFSET) * sizeof(struct page)),
+			(unsigned long)(PFN_UP(ramstart) - ARCH_PFN_OFFSET));
+	}
+#endif
+
+	min_low_pfn = ARCH_PFN_OFFSET;
+	max_pfn = PFN_DOWN(ramend);
+	for_each_mem_pfn_range(i, MAX_NUMNODES, &start, &end, NULL) {
+>>>>>>> upstream/android-13
 		/*
 		 * Skip highmem here so we get an accurate max_low_pfn if low
 		 * memory stops short of high memory.
@@ -429,6 +518,7 @@ static void __init bootmem_init(void)
 			continue;
 		if (end > PFN_DOWN(HIGHMEM_START))
 			end = PFN_DOWN(HIGHMEM_START);
+<<<<<<< HEAD
 #endif
 
 		if (end > max_low_pfn)
@@ -445,11 +535,16 @@ static void __init bootmem_init(void)
 		if (start >= mapstart)
 			continue;
 		mapstart = max(reserved_end, start);
+=======
+		if (end > max_low_pfn)
+			max_low_pfn = end;
+>>>>>>> upstream/android-13
 	}
 
 	if (min_low_pfn >= max_low_pfn)
 		panic("Incorrect memory mapping !!!");
 
+<<<<<<< HEAD
 #ifdef CONFIG_MIPS_AUTO_PFN_OFFSET
 	ARCH_PFN_OFFSET = PFN_UP(ramstart);
 #else
@@ -633,6 +728,17 @@ static void __init bootmem_init(void)
 #endif
 	}
 #endif
+=======
+	if (max_pfn > PFN_DOWN(HIGHMEM_START)) {
+#ifdef CONFIG_HIGHMEM
+		highstart_pfn = PFN_DOWN(HIGHMEM_START);
+		highend_pfn = max_pfn;
+#else
+		max_low_pfn = PFN_DOWN(HIGHMEM_START);
+		max_pfn = max_low_pfn;
+#endif
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * Reserve initrd memory if needed.
@@ -642,6 +748,7 @@ static void __init bootmem_init(void)
 
 #endif	/* CONFIG_SGI_IP27 */
 
+<<<<<<< HEAD
 /*
  * arch_mem_init - initialize memory management subsystem
  *
@@ -665,6 +772,8 @@ static void __init bootmem_init(void)
  * initialization hook for anything else was introduced.
  */
 
+=======
+>>>>>>> upstream/android-13
 static int usermem __initdata;
 
 static int __init early_parse_mem(char *p)
@@ -677,15 +786,25 @@ static int __init early_parse_mem(char *p)
 	 * size.
 	 */
 	if (usermem == 0) {
+<<<<<<< HEAD
 		boot_mem_map.nr_map = 0;
 		usermem = 1;
+=======
+		usermem = 1;
+		memblock_remove(memblock_start_of_DRAM(),
+			memblock_end_of_DRAM() - memblock_start_of_DRAM());
+>>>>>>> upstream/android-13
 	}
 	start = 0;
 	size = memparse(p, &p);
 	if (*p == '@')
 		start = memparse(p + 1, &p);
 
+<<<<<<< HEAD
 	add_memory_region(start, size, BOOT_MEM_RAM);
+=======
+	memblock_add(start, size);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -711,13 +830,22 @@ static int __init early_parse_memmap(char *p)
 
 	if (*p == '@') {
 		start_at = memparse(p+1, &p);
+<<<<<<< HEAD
 		add_memory_region(start_at, mem_size, BOOT_MEM_RAM);
+=======
+		memblock_add(start_at, mem_size);
+>>>>>>> upstream/android-13
 	} else if (*p == '#') {
 		pr_err("\"memmap=nn#ss\" (force ACPI data) invalid on MIPS\n");
 		return -EINVAL;
 	} else if (*p == '$') {
 		start_at = memparse(p+1, &p);
+<<<<<<< HEAD
 		add_memory_region(start_at, mem_size, BOOT_MEM_RESERVED);
+=======
+		memblock_add(start_at, mem_size);
+		memblock_reserve(start_at, mem_size);
+>>>>>>> upstream/android-13
 	} else {
 		pr_err("\"memmap\" invalid format!\n");
 		return -EINVAL;
@@ -731,6 +859,7 @@ static int __init early_parse_memmap(char *p)
 }
 early_param("memmap", early_parse_memmap);
 
+<<<<<<< HEAD
 #ifdef CONFIG_PROC_VMCORE
 unsigned long setup_elfcorehdr, setup_elfcorehdr_size;
 static int __init early_parse_elfcorehdr(char *p)
@@ -789,6 +918,40 @@ static inline unsigned long long get_total_mem(void)
 	total = max_pfn - min_low_pfn;
 	return total << PAGE_SHIFT;
 }
+=======
+static void __init mips_reserve_vmcore(void)
+{
+#ifdef CONFIG_PROC_VMCORE
+	phys_addr_t start, end;
+	u64 i;
+
+	if (!elfcorehdr_size) {
+		for_each_mem_range(i, &start, &end) {
+			if (elfcorehdr_addr >= start && elfcorehdr_addr < end) {
+				/*
+				 * Reserve from the elf core header to the end of
+				 * the memory segment, that should all be kdump
+				 * reserved memory.
+				 */
+				elfcorehdr_size = end - elfcorehdr_addr;
+				break;
+			}
+		}
+	}
+
+	pr_info("Reserving %ldKB of memory at %ldKB for kdump\n",
+		(unsigned long)elfcorehdr_size >> 10, (unsigned long)elfcorehdr_addr >> 10);
+
+	memblock_reserve(elfcorehdr_addr, elfcorehdr_size);
+#endif
+}
+
+#ifdef CONFIG_KEXEC
+
+/* 64M alignment for crash kernel regions */
+#define CRASH_ALIGN	SZ_64M
+#define CRASH_ADDR_MAX	SZ_512M
+>>>>>>> upstream/android-13
 
 static void __init mips_parse_crashkernel(void)
 {
@@ -796,15 +959,40 @@ static void __init mips_parse_crashkernel(void)
 	unsigned long long crash_size, crash_base;
 	int ret;
 
+<<<<<<< HEAD
 	total_mem = get_total_mem();
+=======
+	total_mem = memblock_phys_mem_size();
+>>>>>>> upstream/android-13
 	ret = parse_crashkernel(boot_command_line, total_mem,
 				&crash_size, &crash_base);
 	if (ret != 0 || crash_size <= 0)
 		return;
 
+<<<<<<< HEAD
 	if (!memory_region_available(crash_base, crash_size)) {
 		pr_warn("Invalid memory region reserved for crash kernel\n");
 		return;
+=======
+	if (crash_base <= 0) {
+		crash_base = memblock_phys_alloc_range(crash_size, CRASH_ALIGN,
+						       CRASH_ALIGN,
+						       CRASH_ADDR_MAX);
+		if (!crash_base) {
+			pr_warn("crashkernel reservation failed - No suitable area found.\n");
+			return;
+		}
+	} else {
+		unsigned long long start;
+
+		start = memblock_phys_alloc_range(crash_size, 1,
+						  crash_base,
+						  crash_base + crash_size);
+		if (start != crash_base) {
+			pr_warn("Invalid memory region reserved for crash kernel\n");
+			return;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	crashk_res.start = crash_base;
@@ -821,8 +1009,12 @@ static void __init request_crashkernel(struct resource *res)
 	ret = request_resource(res, &crashk_res);
 	if (!ret)
 		pr_info("Reserving %ldMB of memory at %ldMB for crashkernel\n",
+<<<<<<< HEAD
 			(unsigned long)((crashk_res.end -
 					 crashk_res.start + 1) >> 20),
+=======
+			(unsigned long)(resource_size(&crashk_res) >> 20),
+>>>>>>> upstream/android-13
 			(unsigned long)(crashk_res.start  >> 20));
 }
 #else /* !defined(CONFIG_KEXEC)		*/
@@ -835,6 +1027,7 @@ static void __init request_crashkernel(struct resource *res)
 }
 #endif /* !defined(CONFIG_KEXEC)  */
 
+<<<<<<< HEAD
 #define USE_PROM_CMDLINE	IS_ENABLED(CONFIG_MIPS_CMDLINE_FROM_BOOTLOADER)
 #define USE_DTB_CMDLINE		IS_ENABLED(CONFIG_MIPS_CMDLINE_FROM_DTB)
 #define EXTEND_WITH_PROM	IS_ENABLED(CONFIG_MIPS_CMDLINE_DTB_EXTEND)
@@ -903,18 +1096,159 @@ static void __init arch_mem_init(char **cmdline_p)
 #endif
 	strlcpy(command_line, boot_command_line, COMMAND_LINE_SIZE);
 
+=======
+static void __init check_kernel_sections_mem(void)
+{
+	phys_addr_t start = __pa_symbol(&_text);
+	phys_addr_t size = __pa_symbol(&_end) - start;
+
+	if (!memblock_is_region_memory(start, size)) {
+		pr_info("Kernel sections are not in the memory maps\n");
+		memblock_add(start, size);
+	}
+}
+
+static void __init bootcmdline_append(const char *s, size_t max)
+{
+	if (!s[0] || !max)
+		return;
+
+	if (boot_command_line[0])
+		strlcat(boot_command_line, " ", COMMAND_LINE_SIZE);
+
+	strlcat(boot_command_line, s, max);
+}
+
+#ifdef CONFIG_OF_EARLY_FLATTREE
+
+static int __init bootcmdline_scan_chosen(unsigned long node, const char *uname,
+					  int depth, void *data)
+{
+	bool *dt_bootargs = data;
+	const char *p;
+	int l;
+
+	if (depth != 1 || !data ||
+	    (strcmp(uname, "chosen") != 0 && strcmp(uname, "chosen@0") != 0))
+		return 0;
+
+	p = of_get_flat_dt_prop(node, "bootargs", &l);
+	if (p != NULL && l > 0) {
+		bootcmdline_append(p, min(l, COMMAND_LINE_SIZE));
+		*dt_bootargs = true;
+	}
+
+	return 1;
+}
+
+#endif /* CONFIG_OF_EARLY_FLATTREE */
+
+static void __init bootcmdline_init(void)
+{
+	bool dt_bootargs = false;
+
+	/*
+	 * If CMDLINE_OVERRIDE is enabled then initializing the command line is
+	 * trivial - we simply use the built-in command line unconditionally &
+	 * unmodified.
+	 */
+	if (IS_ENABLED(CONFIG_CMDLINE_OVERRIDE)) {
+		strlcpy(boot_command_line, builtin_cmdline, COMMAND_LINE_SIZE);
+		return;
+	}
+
+	/*
+	 * If the user specified a built-in command line &
+	 * MIPS_CMDLINE_BUILTIN_EXTEND, then the built-in command line is
+	 * prepended to arguments from the bootloader or DT so we'll copy them
+	 * to the start of boot_command_line here. Otherwise, empty
+	 * boot_command_line to undo anything early_init_dt_scan_chosen() did.
+	 */
+	if (IS_ENABLED(CONFIG_MIPS_CMDLINE_BUILTIN_EXTEND))
+		strlcpy(boot_command_line, builtin_cmdline, COMMAND_LINE_SIZE);
+	else
+		boot_command_line[0] = 0;
+
+#ifdef CONFIG_OF_EARLY_FLATTREE
+	/*
+	 * If we're configured to take boot arguments from DT, look for those
+	 * now.
+	 */
+	if (IS_ENABLED(CONFIG_MIPS_CMDLINE_FROM_DTB) ||
+	    IS_ENABLED(CONFIG_MIPS_CMDLINE_DTB_EXTEND))
+		of_scan_flat_dt(bootcmdline_scan_chosen, &dt_bootargs);
+#endif
+
+	/*
+	 * If we didn't get any arguments from DT (regardless of whether that's
+	 * because we weren't configured to look for them, or because we looked
+	 * & found none) then we'll take arguments from the bootloader.
+	 * plat_mem_setup() should have filled arcs_cmdline with arguments from
+	 * the bootloader.
+	 */
+	if (IS_ENABLED(CONFIG_MIPS_CMDLINE_DTB_EXTEND) || !dt_bootargs)
+		bootcmdline_append(arcs_cmdline, COMMAND_LINE_SIZE);
+
+	/*
+	 * If the user specified a built-in command line & we didn't already
+	 * prepend it, we append it to boot_command_line here.
+	 */
+	if (IS_ENABLED(CONFIG_CMDLINE_BOOL) &&
+	    !IS_ENABLED(CONFIG_MIPS_CMDLINE_BUILTIN_EXTEND))
+		bootcmdline_append(builtin_cmdline, COMMAND_LINE_SIZE);
+}
+
+/*
+ * arch_mem_init - initialize memory management subsystem
+ *
+ *  o plat_mem_setup() detects the memory configuration and will record detected
+ *    memory areas using memblock_add.
+ *
+ * At this stage the memory configuration of the system is known to the
+ * kernel but generic memory management system is still entirely uninitialized.
+ *
+ *  o bootmem_init()
+ *  o sparse_init()
+ *  o paging_init()
+ *  o dma_contiguous_reserve()
+ *
+ * At this stage the bootmem allocator is ready to use.
+ *
+ * NOTE: historically plat_mem_setup did the entire platform initialization.
+ *	 This was rather impractical because it meant plat_mem_setup had to
+ * get away without any kind of memory allocator.  To keep old code from
+ * breaking plat_setup was just renamed to plat_mem_setup and a second platform
+ * initialization hook for anything else was introduced.
+ */
+static void __init arch_mem_init(char **cmdline_p)
+{
+	/* call board setup routine */
+	plat_mem_setup();
+	memblock_set_bottom_up(true);
+
+	bootcmdline_init();
+	strlcpy(command_line, boot_command_line, COMMAND_LINE_SIZE);
+>>>>>>> upstream/android-13
 	*cmdline_p = command_line;
 
 	parse_early_param();
 
+<<<<<<< HEAD
 	if (usermem) {
 		pr_info("User-defined physical RAM map:\n");
 		print_memory_map();
 	}
+=======
+	if (usermem)
+		pr_info("User-defined physical RAM map overwrite\n");
+
+	check_kernel_sections_mem();
+>>>>>>> upstream/android-13
 
 	early_init_fdt_reserve_self();
 	early_init_fdt_scan_reserved_mem();
 
+<<<<<<< HEAD
 	bootmem_init();
 #ifdef CONFIG_PROC_VMCORE
 	if (setup_elfcorehdr && setup_elfcorehdr_size) {
@@ -932,6 +1266,25 @@ static void __init arch_mem_init(char **cmdline_p)
 				crashk_res.end - crashk_res.start + 1,
 				BOOTMEM_DEFAULT);
 #endif
+=======
+#ifndef CONFIG_NUMA
+	memblock_set_node(0, PHYS_ADDR_MAX, &memblock.memory, 0);
+#endif
+	bootmem_init();
+
+	/*
+	 * Prevent memblock from allocating high memory.
+	 * This cannot be done before max_low_pfn is detected, so up
+	 * to this point is possible to only reserve physical memory
+	 * with memblock_reserve; memblock_alloc* can be used
+	 * only after this point
+	 */
+	memblock_set_current_limit(PFN_PHYS(max_low_pfn));
+
+	mips_reserve_vmcore();
+
+	mips_parse_crashkernel();
+>>>>>>> upstream/android-13
 	device_tree_init();
 
 	/*
@@ -947,6 +1300,7 @@ static void __init arch_mem_init(char **cmdline_p)
 	plat_swiotlb_setup();
 
 	dma_contiguous_reserve(PFN_PHYS(max_low_pfn));
+<<<<<<< HEAD
 	/* Tell bootmem about cma reserved memblock section */
 	for_each_memblock(reserved, reg)
 		if (reg->size != 0)
@@ -954,11 +1308,24 @@ static void __init arch_mem_init(char **cmdline_p)
 
 	reserve_bootmem_region(__pa_symbol(&__nosave_begin),
 			__pa_symbol(&__nosave_end)); /* Reserve for hibernation */
+=======
+
+	/* Reserve for hibernation. */
+	memblock_reserve(__pa_symbol(&__nosave_begin),
+		__pa_symbol(&__nosave_end) - __pa_symbol(&__nosave_begin));
+
+	early_memtest(PFN_PHYS(ARCH_PFN_OFFSET), PFN_PHYS(max_low_pfn));
+>>>>>>> upstream/android-13
 }
 
 static void __init resource_init(void)
 {
+<<<<<<< HEAD
 	int i;
+=======
+	phys_addr_t start, end;
+	u64 i;
+>>>>>>> upstream/android-13
 
 	if (UNCAC_BASE != IO_BASE)
 		return;
@@ -970,6 +1337,7 @@ static void __init resource_init(void)
 	bss_resource.start = __pa_symbol(&__bss_start);
 	bss_resource.end = __pa_symbol(&__bss_stop) - 1;
 
+<<<<<<< HEAD
 	for (i = 0; i < boot_mem_map.nr_map; i++) {
 		struct resource *res;
 		unsigned long start, end;
@@ -998,6 +1366,25 @@ static void __init resource_init(void)
 		default:
 			res->name = "reserved";
 		}
+=======
+	for_each_mem_range(i, &start, &end) {
+		struct resource *res;
+
+		res = memblock_alloc(sizeof(struct resource), SMP_CACHE_BYTES);
+		if (!res)
+			panic("%s: Failed to allocate %zu bytes\n", __func__,
+			      sizeof(struct resource));
+
+		res->start = start;
+		/*
+		 * In memblock, end points to the first byte after the
+		 * range while in resourses, end points to the last byte in
+		 * the range.
+		 */
+		res->end = end - 1;
+		res->flags = IORESOURCE_SYSTEM_RAM | IORESOURCE_BUSY;
+		res->name = "System RAM";
+>>>>>>> upstream/android-13
 
 		request_resource(&iomem_resource, res);
 
@@ -1048,12 +1435,19 @@ void __init setup_arch(char **cmdline_p)
 #if defined(CONFIG_VT)
 #if defined(CONFIG_VGA_CONSOLE)
 	conswitchp = &vga_con;
+<<<<<<< HEAD
 #elif defined(CONFIG_DUMMY_CONSOLE)
 	conswitchp = &dummy_con;
+=======
+>>>>>>> upstream/android-13
 #endif
 #endif
 
 	arch_mem_init(cmdline_p);
+<<<<<<< HEAD
+=======
+	dmi_setup();
+>>>>>>> upstream/android-13
 
 	resource_init();
 	plat_smp_setup();
@@ -1061,30 +1455,43 @@ void __init setup_arch(char **cmdline_p)
 
 	cpu_cache_init();
 	paging_init();
+<<<<<<< HEAD
+=======
+
+	memblock_dump_all();
+>>>>>>> upstream/android-13
 }
 
 unsigned long kernelsp[NR_CPUS];
 unsigned long fw_arg0, fw_arg1, fw_arg2, fw_arg3;
 
+<<<<<<< HEAD
 #ifdef CONFIG_USE_OF
 unsigned long fw_passed_dtb;
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_DEBUG_FS
 struct dentry *mips_debugfs_dir;
 static int __init debugfs_mips(void)
 {
+<<<<<<< HEAD
 	struct dentry *d;
 
 	d = debugfs_create_dir("mips", NULL);
 	if (!d)
 		return -ENOMEM;
 	mips_debugfs_dir = d;
+=======
+	mips_debugfs_dir = debugfs_create_dir("mips", NULL);
+>>>>>>> upstream/android-13
 	return 0;
 }
 arch_initcall(debugfs_mips);
 #endif
 
+<<<<<<< HEAD
 #if defined(CONFIG_DMA_MAYBE_COHERENT) && !defined(CONFIG_DMA_PERDEV_COHERENT)
 /* User defined DMA coherency from command line. */
 enum coherent_io_user_state coherentio = IO_COHERENCE_DEFAULT;
@@ -1094,6 +1501,12 @@ int hw_coherentio = 0;	/* Actual hardware supported DMA coherency setting. */
 static int __init setcoherentio(char *str)
 {
 	coherentio = IO_COHERENCE_ENABLED;
+=======
+#ifdef CONFIG_DMA_NONCOHERENT
+static int __init setcoherentio(char *str)
+{
+	dma_default_coherent = true;
+>>>>>>> upstream/android-13
 	pr_info("Hardware DMA cache coherency (command line)\n");
 	return 0;
 }
@@ -1101,7 +1514,11 @@ early_param("coherentio", setcoherentio);
 
 static int __init setnocoherentio(char *str)
 {
+<<<<<<< HEAD
 	coherentio = IO_COHERENCE_DISABLED;
+=======
+	dma_default_coherent = false;
+>>>>>>> upstream/android-13
 	pr_info("Software DMA cache coherency (command line)\n");
 	return 0;
 }

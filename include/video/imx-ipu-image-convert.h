@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2012-2016 Mentor Graphics Inc.
  *
  * i.MX Queued image conversion support, with tiling and rotation.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -12,6 +17,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __IMX_IPU_IMAGE_CONVERT_H__
 #define __IMX_IPU_IMAGE_CONVERT_H__

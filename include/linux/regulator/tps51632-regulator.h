@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * tps51632-regulator.h -- TPS51632 regulator
  *
@@ -7,6 +11,7 @@
  * Copyright (C) 2012 NVIDIA Corporation
 
  * Author: Laxman Dewangan <ldewangan@nvidia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +27,8 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA	02110-1301, USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __LINUX_REGULATOR_TPS51632_H

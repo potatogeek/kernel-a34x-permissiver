@@ -7,7 +7,10 @@ menuconfig ARCH_VEXPRESS
 	select ARM_GIC
 	select ARM_GLOBAL_TIMER
 	select ARM_TIMER_SP804
+<<<<<<< HEAD
 	select COMMON_CLK_VERSATILE
+=======
+>>>>>>> upstream/android-13
 	select GPIOLIB
 	select HAVE_ARM_SCU if SMP
 	select HAVE_ARM_TWD if SMP
@@ -21,8 +24,11 @@ menuconfig ARCH_VEXPRESS
 	select REGULATOR if MMC_ARMMMCI
 	select REGULATOR_FIXED_VOLTAGE if REGULATOR
 	select VEXPRESS_CONFIG
+<<<<<<< HEAD
 	select VEXPRESS_SYSCFG
 	select MFD_VEXPRESS_SYSREG
+=======
+>>>>>>> upstream/android-13
 	help
 	  This option enables support for systems using Cortex processor based
 	  ARM core and logic (FPGA) tiles on the Versatile Express motherboard,

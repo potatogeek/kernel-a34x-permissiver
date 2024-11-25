@@ -14,8 +14,11 @@
  * resource counting etc..
  */
 
+<<<<<<< HEAD
 #define ATOMIC_INIT(i)	{ (i) }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * arch_atomic_read - read atomic variable
  * @v: pointer of type atomic_t
@@ -28,7 +31,11 @@ static __always_inline int arch_atomic_read(const atomic_t *v)
 	 * Note for KASAN: we deliberately don't use READ_ONCE_NOCHECK() here,
 	 * it's non-inlined function that increases binary size and stack usage.
 	 */
+<<<<<<< HEAD
 	return READ_ONCE((v)->counter);
+=======
+	return __READ_ONCE((v)->counter);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -40,7 +47,11 @@ static __always_inline int arch_atomic_read(const atomic_t *v)
  */
 static __always_inline void arch_atomic_set(atomic_t *v, int i)
 {
+<<<<<<< HEAD
 	WRITE_ONCE(v->counter, i);
+=======
+	__WRITE_ONCE(v->counter, i);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -82,7 +93,11 @@ static __always_inline void arch_atomic_sub(int i, atomic_t *v)
  */
 static __always_inline bool arch_atomic_sub_and_test(int i, atomic_t *v)
 {
+<<<<<<< HEAD
 	GEN_BINARY_RMWcc(LOCK_PREFIX "subl", v->counter, "er", i, "%0", e);
+=======
+	return GEN_BINARY_RMWcc(LOCK_PREFIX "subl", v->counter, e, "er", i);
+>>>>>>> upstream/android-13
 }
 #define arch_atomic_sub_and_test arch_atomic_sub_and_test
 
@@ -122,7 +137,11 @@ static __always_inline void arch_atomic_dec(atomic_t *v)
  */
 static __always_inline bool arch_atomic_dec_and_test(atomic_t *v)
 {
+<<<<<<< HEAD
 	GEN_UNARY_RMWcc(LOCK_PREFIX "decl", v->counter, "%0", e);
+=======
+	return GEN_UNARY_RMWcc(LOCK_PREFIX "decl", v->counter, e);
+>>>>>>> upstream/android-13
 }
 #define arch_atomic_dec_and_test arch_atomic_dec_and_test
 
@@ -136,7 +155,11 @@ static __always_inline bool arch_atomic_dec_and_test(atomic_t *v)
  */
 static __always_inline bool arch_atomic_inc_and_test(atomic_t *v)
 {
+<<<<<<< HEAD
 	GEN_UNARY_RMWcc(LOCK_PREFIX "incl", v->counter, "%0", e);
+=======
+	return GEN_UNARY_RMWcc(LOCK_PREFIX "incl", v->counter, e);
+>>>>>>> upstream/android-13
 }
 #define arch_atomic_inc_and_test arch_atomic_inc_and_test
 
@@ -151,7 +174,11 @@ static __always_inline bool arch_atomic_inc_and_test(atomic_t *v)
  */
 static __always_inline bool arch_atomic_add_negative(int i, atomic_t *v)
 {
+<<<<<<< HEAD
 	GEN_BINARY_RMWcc(LOCK_PREFIX "addl", v->counter, "er", i, "%0", s);
+=======
+	return GEN_BINARY_RMWcc(LOCK_PREFIX "addl", v->counter, s, "er", i);
+>>>>>>> upstream/android-13
 }
 #define arch_atomic_add_negative arch_atomic_add_negative
 
@@ -166,6 +193,10 @@ static __always_inline int arch_atomic_add_return(int i, atomic_t *v)
 {
 	return i + xadd(&v->counter, i);
 }
+<<<<<<< HEAD
+=======
+#define arch_atomic_add_return arch_atomic_add_return
+>>>>>>> upstream/android-13
 
 /**
  * arch_atomic_sub_return - subtract integer and return
@@ -178,21 +209,34 @@ static __always_inline int arch_atomic_sub_return(int i, atomic_t *v)
 {
 	return arch_atomic_add_return(-i, v);
 }
+<<<<<<< HEAD
+=======
+#define arch_atomic_sub_return arch_atomic_sub_return
+>>>>>>> upstream/android-13
 
 static __always_inline int arch_atomic_fetch_add(int i, atomic_t *v)
 {
 	return xadd(&v->counter, i);
 }
+<<<<<<< HEAD
+=======
+#define arch_atomic_fetch_add arch_atomic_fetch_add
+>>>>>>> upstream/android-13
 
 static __always_inline int arch_atomic_fetch_sub(int i, atomic_t *v)
 {
 	return xadd(&v->counter, -i);
 }
+<<<<<<< HEAD
+=======
+#define arch_atomic_fetch_sub arch_atomic_fetch_sub
+>>>>>>> upstream/android-13
 
 static __always_inline int arch_atomic_cmpxchg(atomic_t *v, int old, int new)
 {
 	return arch_cmpxchg(&v->counter, old, new);
 }
+<<<<<<< HEAD
 
 #define arch_atomic_try_cmpxchg arch_atomic_try_cmpxchg
 static __always_inline bool arch_atomic_try_cmpxchg(atomic_t *v, int *old, int new)
@@ -206,6 +250,23 @@ static inline int arch_atomic_xchg(atomic_t *v, int new)
 }
 
 static inline void arch_atomic_and(int i, atomic_t *v)
+=======
+#define arch_atomic_cmpxchg arch_atomic_cmpxchg
+
+static __always_inline bool arch_atomic_try_cmpxchg(atomic_t *v, int *old, int new)
+{
+	return arch_try_cmpxchg(&v->counter, old, new);
+}
+#define arch_atomic_try_cmpxchg arch_atomic_try_cmpxchg
+
+static __always_inline int arch_atomic_xchg(atomic_t *v, int new)
+{
+	return arch_xchg(&v->counter, new);
+}
+#define arch_atomic_xchg arch_atomic_xchg
+
+static __always_inline void arch_atomic_and(int i, atomic_t *v)
+>>>>>>> upstream/android-13
 {
 	asm volatile(LOCK_PREFIX "andl %1,%0"
 			: "+m" (v->counter)
@@ -213,7 +274,11 @@ static inline void arch_atomic_and(int i, atomic_t *v)
 			: "memory");
 }
 
+<<<<<<< HEAD
 static inline int arch_atomic_fetch_and(int i, atomic_t *v)
+=======
+static __always_inline int arch_atomic_fetch_and(int i, atomic_t *v)
+>>>>>>> upstream/android-13
 {
 	int val = arch_atomic_read(v);
 
@@ -221,8 +286,14 @@ static inline int arch_atomic_fetch_and(int i, atomic_t *v)
 
 	return val;
 }
+<<<<<<< HEAD
 
 static inline void arch_atomic_or(int i, atomic_t *v)
+=======
+#define arch_atomic_fetch_and arch_atomic_fetch_and
+
+static __always_inline void arch_atomic_or(int i, atomic_t *v)
+>>>>>>> upstream/android-13
 {
 	asm volatile(LOCK_PREFIX "orl %1,%0"
 			: "+m" (v->counter)
@@ -230,7 +301,11 @@ static inline void arch_atomic_or(int i, atomic_t *v)
 			: "memory");
 }
 
+<<<<<<< HEAD
 static inline int arch_atomic_fetch_or(int i, atomic_t *v)
+=======
+static __always_inline int arch_atomic_fetch_or(int i, atomic_t *v)
+>>>>>>> upstream/android-13
 {
 	int val = arch_atomic_read(v);
 
@@ -238,8 +313,14 @@ static inline int arch_atomic_fetch_or(int i, atomic_t *v)
 
 	return val;
 }
+<<<<<<< HEAD
 
 static inline void arch_atomic_xor(int i, atomic_t *v)
+=======
+#define arch_atomic_fetch_or arch_atomic_fetch_or
+
+static __always_inline void arch_atomic_xor(int i, atomic_t *v)
+>>>>>>> upstream/android-13
 {
 	asm volatile(LOCK_PREFIX "xorl %1,%0"
 			: "+m" (v->counter)
@@ -247,7 +328,11 @@ static inline void arch_atomic_xor(int i, atomic_t *v)
 			: "memory");
 }
 
+<<<<<<< HEAD
 static inline int arch_atomic_fetch_xor(int i, atomic_t *v)
+=======
+static __always_inline int arch_atomic_fetch_xor(int i, atomic_t *v)
+>>>>>>> upstream/android-13
 {
 	int val = arch_atomic_read(v);
 
@@ -255,6 +340,10 @@ static inline int arch_atomic_fetch_xor(int i, atomic_t *v)
 
 	return val;
 }
+<<<<<<< HEAD
+=======
+#define arch_atomic_fetch_xor arch_atomic_fetch_xor
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_X86_32
 # include <asm/atomic64_32.h>
@@ -262,6 +351,9 @@ static inline int arch_atomic_fetch_xor(int i, atomic_t *v)
 # include <asm/atomic64_64.h>
 #endif
 
+<<<<<<< HEAD
 #include <asm-generic/atomic-instrumented.h>
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _ASM_X86_ATOMIC_H */

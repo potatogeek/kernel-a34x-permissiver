@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #ifndef _HFI1_KERNEL_H
 #define _HFI1_KERNEL_H
 /*
@@ -47,6 +48,18 @@
  *
  */
 
+=======
+/* SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause */
+/*
+ * Copyright(c) 2020 Cornelis Networks, Inc.
+ * Copyright(c) 2015-2020 Intel Corporation.
+ */
+
+#ifndef _HFI1_KERNEL_H
+#define _HFI1_KERNEL_H
+
+#include <linux/refcount.h>
+>>>>>>> upstream/android-13
 #include <linux/interrupt.h>
 #include <linux/pci.h>
 #include <linux/dma-mapping.h>
@@ -54,7 +67,10 @@
 #include <linux/list.h>
 #include <linux/scatterlist.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 #include <linux/idr.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/io.h>
 #include <linux/fs.h>
 #include <linux/completion.h>
@@ -65,14 +81,25 @@
 #include <linux/kthread.h>
 #include <linux/i2c.h>
 #include <linux/i2c-algo-bit.h>
+<<<<<<< HEAD
 #include <rdma/ib_hdrs.h>
 #include <rdma/opa_addr.h>
 #include <linux/rhashtable.h>
 #include <linux/netdevice.h>
+=======
+#include <linux/xarray.h>
+#include <rdma/ib_hdrs.h>
+#include <rdma/opa_addr.h>
+#include <linux/rhashtable.h>
+>>>>>>> upstream/android-13
 #include <rdma/rdma_vt.h>
 
 #include "chip_registers.h"
 #include "common.h"
+<<<<<<< HEAD
+=======
+#include "opfn.h"
+>>>>>>> upstream/android-13
 #include "verbs.h"
 #include "pio.h"
 #include "chip.h"
@@ -80,6 +107,10 @@
 #include "qsfp.h"
 #include "platform.h"
 #include "affinity.h"
+<<<<<<< HEAD
+=======
+#include "msix.h"
+>>>>>>> upstream/android-13
 
 /* bumped 1 from s/w major version of TrueScale */
 #define HFI1_CHIP_VERS_MAJ 3U
@@ -97,6 +128,11 @@
 #define NEIGHBOR_TYPE_HFI		0
 #define NEIGHBOR_TYPE_SWITCH	1
 
+<<<<<<< HEAD
+=======
+#define HFI1_MAX_ACTIVE_WORKQUEUE_ENTRIES 5
+
+>>>>>>> upstream/android-13
 extern unsigned long hfi1_cap_mask;
 #define HFI1_CAP_KGET_MASK(mask, cap) ((mask) & HFI1_CAP_##cap)
 #define HFI1_CAP_UGET_MASK(mask, cap) \
@@ -193,7 +229,21 @@ struct exp_tid_set {
 	u32 count;
 };
 
+<<<<<<< HEAD
 typedef int (*rhf_rcv_function_ptr)(struct hfi1_packet *packet);
+=======
+struct hfi1_ctxtdata;
+typedef int (*intr_handler)(struct hfi1_ctxtdata *rcd, int data);
+typedef void (*rhf_rcv_function_ptr)(struct hfi1_packet *packet);
+
+struct tid_queue {
+	struct list_head queue_head;
+			/* queue head for QP TID resource waiters */
+	u32 enqueue;	/* count of tid enqueues */
+	u32 dequeue;	/* count of tid dequeues */
+};
+
+>>>>>>> upstream/android-13
 struct hfi1_ctxtdata {
 	/* rcvhdrq base, needs mmap before useful */
 	void *rcvhdrq;
@@ -214,7 +264,17 @@ struct hfi1_ctxtdata {
 	 * be valid. Worst case is we process an extra interrupt and up to 64
 	 * packets with the wrong interrupt handler.
 	 */
+<<<<<<< HEAD
 	int (*do_interrupt)(struct hfi1_ctxtdata *rcd, int threaded);
+=======
+	intr_handler do_interrupt;
+	/** fast handler after autoactive */
+	intr_handler fast_handler;
+	/** slow handler */
+	intr_handler slow_handler;
+	/* napi pointer assiociated with netdev */
+	struct napi_struct *napi;
+>>>>>>> upstream/android-13
 	/* verbs rx_stats per rcd */
 	struct hfi1_opcode_stats_perctx *opstats;
 	/* clear interrupt mask */
@@ -287,6 +347,15 @@ struct hfi1_ctxtdata {
 	/* PSM Specific fields */
 	/* lock protecting all Expected TID data */
 	struct mutex exp_mutex;
+<<<<<<< HEAD
+=======
+	/* lock protecting all Expected TID data of kernel contexts */
+	spinlock_t exp_lock;
+	/* Queue for QP's waiting for HW TID flows */
+	struct tid_queue flow_queue;
+	/* Queue for QP's waiting for HW receive array entries */
+	struct tid_queue rarr_queue;
+>>>>>>> upstream/android-13
 	/* when waiting for rcv or pioavail */
 	wait_queue_head_t wait;
 	/* uuid from PSM */
@@ -319,6 +388,12 @@ struct hfi1_ctxtdata {
 	 */
 	u8 subctxt_cnt;
 
+<<<<<<< HEAD
+=======
+	/* Bit mask to track free TID RDMA HW flows */
+	unsigned long flow_mask;
+	struct tid_flow_state flows[RXE_NUM_TID_FLOWS];
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -356,11 +431,18 @@ struct hfi1_packet {
 	u32 rhqoff;
 	u32 dlid;
 	u32 slid;
+<<<<<<< HEAD
+=======
+	int numpkt;
+>>>>>>> upstream/android-13
 	u16 tlen;
 	s16 etail;
 	u16 pkey;
 	u8 hlen;
+<<<<<<< HEAD
 	u8 numpkt;
+=======
+>>>>>>> upstream/android-13
 	u8 rsize;
 	u8 updegr;
 	u8 etype;
@@ -518,6 +600,40 @@ static inline void hfi1_16B_set_qpn(struct opa_16b_mgmt *mgmt,
 	mgmt->src_qpn = cpu_to_be32(src_qp & OPA_16B_MGMT_QPN_MASK);
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * hfi1_get_rc_ohdr - get extended header
+ * @opah - the opaheader
+ */
+static inline struct ib_other_headers *
+hfi1_get_rc_ohdr(struct hfi1_opa_header *opah)
+{
+	struct ib_other_headers *ohdr;
+	struct ib_header *hdr = NULL;
+	struct hfi1_16b_header *hdr_16b = NULL;
+
+	/* Find out where the BTH is */
+	if (opah->hdr_type == HFI1_PKT_TYPE_9B) {
+		hdr = &opah->ibh;
+		if (ib_get_lnh(hdr) == HFI1_LRH_BTH)
+			ohdr = &hdr->u.oth;
+		else
+			ohdr = &hdr->u.l.oth;
+	} else {
+		u8 l4;
+
+		hdr_16b = &opah->opah;
+		l4  = hfi1_16B_get_l4(hdr_16b);
+		if (l4 == OPA_16B_L4_IB_LOCAL)
+			ohdr = &hdr_16b->u.oth;
+		else
+			ohdr = &hdr_16b->u.l.oth;
+	}
+	return ohdr;
+}
+
+>>>>>>> upstream/android-13
 struct rvt_sge_state;
 
 /*
@@ -622,6 +738,11 @@ struct rvt_sge_state;
 #define HFI1_RCVCTRL_NO_RHQ_DROP_DIS 0x8000
 #define HFI1_RCVCTRL_NO_EGR_DROP_ENB 0x10000
 #define HFI1_RCVCTRL_NO_EGR_DROP_DIS 0x20000
+<<<<<<< HEAD
+=======
+#define HFI1_RCVCTRL_URGENT_ENB 0x40000
+#define HFI1_RCVCTRL_URGENT_DIS 0x80000
+>>>>>>> upstream/android-13
 
 /* partition enforcement flags */
 #define HFI1_PART_ENFORCE_IN	0x1
@@ -654,12 +775,15 @@ static inline void incr_cntr64(u64 *cntr)
 		(*cntr)++;
 }
 
+<<<<<<< HEAD
 static inline void incr_cntr32(u32 *cntr)
 {
 	if (*cntr < (u32)-1LL)
 		(*cntr)++;
 }
 
+=======
+>>>>>>> upstream/android-13
 #define MAX_NAME_SIZE 64
 struct hfi1_msix_entry {
 	enum irq_type type;
@@ -669,6 +793,17 @@ struct hfi1_msix_entry {
 	struct irq_affinity_notify notify;
 };
 
+<<<<<<< HEAD
+=======
+struct hfi1_msix_info {
+	/* lock to synchronize in_use_msix access */
+	spinlock_t msix_lock;
+	DECLARE_BITMAP(in_use_msix, CCE_NUM_MSIX_VECTORS);
+	struct hfi1_msix_entry *msix_entries;
+	u16 max_requested;
+};
+
+>>>>>>> upstream/android-13
 /* per-SL CCA information */
 struct cca_timer {
 	struct hrtimer hrtimer;
@@ -708,10 +843,13 @@ struct hfi1_pportdata {
 	struct hfi1_ibport ibport_data;
 
 	struct hfi1_devdata *dd;
+<<<<<<< HEAD
 	struct kobject pport_cc_kobj;
 	struct kobject sc2vl_kobj;
 	struct kobject sl2sc_kobj;
 	struct kobject vl2mtu_kobj;
+=======
+>>>>>>> upstream/android-13
 
 	/* PHY support */
 	struct qsfp_data qsfp_info;
@@ -793,7 +931,11 @@ struct hfi1_pportdata {
 	u8 rx_pol_inv;
 
 	u8 hw_pidx;     /* physical port index */
+<<<<<<< HEAD
 	u8 port;        /* IB port number and index into dd->pports - 1 */
+=======
+	u32 port;        /* IB port number and index into dd->pports - 1 */
+>>>>>>> upstream/android-13
 	/* type of neighbor node */
 	u8 neighbor_type;
 	u8 neighbor_normal;
@@ -917,7 +1059,11 @@ typedef void (*hfi1_make_req)(struct rvt_qp *qp,
 			      struct hfi1_pkt_state *ps,
 			      struct rvt_swqe *wqe);
 extern const rhf_rcv_function_ptr normal_rhf_rcv_functions[];
+<<<<<<< HEAD
 
+=======
+extern const rhf_rcv_function_ptr netdev_rhf_rcv_functions[];
+>>>>>>> upstream/android-13
 
 /* return values for the RHF receive functions */
 #define RHF_RCV_CONTINUE  0	/* keep going */
@@ -977,6 +1123,7 @@ struct hfi1_asic_data {
 #define NUM_MAP_ENTRIES	 256
 #define NUM_MAP_REGS      32
 
+<<<<<<< HEAD
 /*
  * Number of VNIC contexts used. Ensure it is less than or equal to
  * max queues supported by VNIC (HFI1_VNIC_MAX_QUEUE).
@@ -995,6 +1142,12 @@ struct hfi1_vnic_data {
 	u8 rmt_start;
 	u8 num_ctxt;
 	u32 msix_idx;
+=======
+/* Virtual NIC information */
+struct hfi1_vnic_data {
+	struct kmem_cache *txreq_cache;
+	u8 num_vports;
+>>>>>>> upstream/android-13
 };
 
 struct hfi1_vnic_vport_info;
@@ -1009,9 +1162,15 @@ struct sdma_vl_map;
 #define SERIAL_MAX 16 /* length of the serial number */
 
 typedef int (*send_routine)(struct rvt_qp *, struct hfi1_pkt_state *, u64);
+<<<<<<< HEAD
 struct hfi1_devdata {
 	struct hfi1_ibdev verbs_dev;     /* must be first */
 	struct list_head list;
+=======
+struct hfi1_netdev_rx;
+struct hfi1_devdata {
+	struct hfi1_ibdev verbs_dev;     /* must be first */
+>>>>>>> upstream/android-13
 	/* pointers to related structs for this device */
 	/* pci access data structure */
 	struct pci_dev *pcidev;
@@ -1101,8 +1260,13 @@ struct hfi1_devdata {
 	u64 z_send_schedule;
 
 	u64 __percpu *send_schedule;
+<<<<<<< HEAD
 	/* number of reserved contexts for VNIC usage */
 	u16 num_vnic_contexts;
+=======
+	/* number of reserved contexts for netdev usage */
+	u16 num_netdev_contexts;
+>>>>>>> upstream/android-13
 	/* number of receive contexts in use by the driver */
 	u32 num_rcv_contexts;
 	/* number of pio send contexts in use by the driver */
@@ -1209,11 +1373,14 @@ struct hfi1_devdata {
 
 	struct diag_client *diag_client;
 
+<<<<<<< HEAD
 	/* MSI-X information */
 	struct hfi1_msix_entry *msix_entries;
 	u32 num_msix_entries;
 	u32 first_dyn_msix_idx;
 
+=======
+>>>>>>> upstream/android-13
 	/* general interrupt: mask of handled interrupts */
 	u64 gi_mask[CCE_NUM_INT_CSRS];
 
@@ -1227,6 +1394,12 @@ struct hfi1_devdata {
 	 */
 	struct timer_list synth_stats_timer;
 
+<<<<<<< HEAD
+=======
+	/* MSI-X information */
+	struct hfi1_msix_info msix_info;
+
+>>>>>>> upstream/android-13
 	/*
 	 * device counters
 	 */
@@ -1254,7 +1427,11 @@ struct hfi1_devdata {
 	struct err_info_constraint err_info_xmit_constraint;
 
 	atomic_t drop_packet;
+<<<<<<< HEAD
 	u8 do_drop;
+=======
+	bool do_drop;
+>>>>>>> upstream/android-13
 	u8 err_info_uncorrectable;
 	u8 err_info_fmconfig;
 
@@ -1340,7 +1517,11 @@ struct hfi1_devdata {
 	/* Number of verbs contexts which have disabled ASPM */
 	atomic_t aspm_disabled_cnt;
 	/* Keeps track of user space clients */
+<<<<<<< HEAD
 	atomic_t user_refcount;
+=======
+	refcount_t user_refcount;
+>>>>>>> upstream/android-13
 	/* Used to wait for outstanding user space clients before dev removal */
 	struct completion user_comp;
 
@@ -1349,6 +1530,7 @@ struct hfi1_devdata {
 	bool aspm_enabled;	/* ASPM state: enabled/disabled */
 	struct rhashtable *sdma_rht;
 
+<<<<<<< HEAD
 	struct kobject kobj;
 
 	/* vnic data */
@@ -1359,6 +1541,19 @@ static inline bool hfi1_vnic_is_rsm_full(struct hfi1_devdata *dd, int spare)
 {
 	return (dd->vnic.rmt_start + spare) > NUM_MAP_ENTRIES;
 }
+=======
+	/* vnic data */
+	struct hfi1_vnic_data vnic;
+	/* Lock to protect IRQ SRC register access */
+	spinlock_t irq_src_lock;
+	int vnic_num_vports;
+	struct hfi1_netdev_rx *netdev_rx;
+	struct hfi1_affinity_node *affinity_entry;
+
+	/* Keeps track of IPoIB RSM rule users */
+	atomic_t ipoib_rsm_usr_num;
+};
+>>>>>>> upstream/android-13
 
 /* 8051 firmware version helper */
 #define dc8051_ver(a, b, c) ((a) << 16 | (b) << 8 | (c))
@@ -1389,7 +1584,11 @@ struct hfi1_filedata {
 	/* for cpu affinity; -1 if none */
 	int rec_cpu_num;
 	u32 tid_n_pinned;
+<<<<<<< HEAD
 	struct mmu_rb_handler *handler;
+=======
+	bool use_mn;
+>>>>>>> upstream/android-13
 	struct tid_rb_node **entry_to_rb;
 	spinlock_t tid_lock; /* protect tid_[limit,used] counters */
 	u32 tid_limit;
@@ -1398,11 +1597,17 @@ struct hfi1_filedata {
 	u32 invalid_tid_idx;
 	/* protect invalid_tids array and invalid_tid_idx */
 	spinlock_t invalid_lock;
+<<<<<<< HEAD
 	struct mm_struct *mm;
 };
 
 extern struct list_head hfi1_dev_list;
 extern spinlock_t hfi1_devs_lock;
+=======
+};
+
+extern struct xarray hfi1_dev_table;
+>>>>>>> upstream/android-13
 struct hfi1_devdata *hfi1_lookup(int unit);
 
 static inline unsigned long uctxt_offset(struct hfi1_ctxtdata *uctxt)
@@ -1427,7 +1632,11 @@ int hfi1_create_ctxtdata(struct hfi1_pportdata *ppd, int numa,
 			 struct hfi1_ctxtdata **rcd);
 void hfi1_free_ctxt(struct hfi1_ctxtdata *rcd);
 void hfi1_init_pportdata(struct pci_dev *pdev, struct hfi1_pportdata *ppd,
+<<<<<<< HEAD
 			 struct hfi1_devdata *dd, u8 hw_pidx, u8 port);
+=======
+			 struct hfi1_devdata *dd, u8 hw_pidx, u32 port);
+>>>>>>> upstream/android-13
 void hfi1_free_ctxtdata(struct hfi1_devdata *dd, struct hfi1_ctxtdata *rcd);
 int hfi1_rcd_put(struct hfi1_ctxtdata *rcd);
 int hfi1_rcd_get(struct hfi1_ctxtdata *rcd);
@@ -1437,10 +1646,16 @@ struct hfi1_ctxtdata *hfi1_rcd_get_by_index(struct hfi1_devdata *dd, u16 ctxt);
 int handle_receive_interrupt(struct hfi1_ctxtdata *rcd, int thread);
 int handle_receive_interrupt_nodma_rtail(struct hfi1_ctxtdata *rcd, int thread);
 int handle_receive_interrupt_dma_rtail(struct hfi1_ctxtdata *rcd, int thread);
+<<<<<<< HEAD
 void set_all_slowpath(struct hfi1_devdata *dd);
 void hfi1_vnic_synchronize_irq(struct hfi1_devdata *dd);
 void hfi1_set_vnic_msix_info(struct hfi1_ctxtdata *rcd);
 void hfi1_reset_vnic_msix_info(struct hfi1_ctxtdata *rcd);
+=======
+int handle_receive_interrupt_napi_fp(struct hfi1_ctxtdata *rcd, int budget);
+int handle_receive_interrupt_napi_sp(struct hfi1_ctxtdata *rcd, int budget);
+void set_all_slowpath(struct hfi1_devdata *dd);
+>>>>>>> upstream/android-13
 
 extern const struct pci_device_id hfi1_pci_tbl[];
 void hfi1_make_ud_req_9B(struct rvt_qp *qp,
@@ -1456,12 +1671,154 @@ void hfi1_make_ud_req_16B(struct rvt_qp *qp,
 #define RCV_PKT_LIMIT   0x1 /* stop, hit limit, start thread */
 #define RCV_PKT_DONE    0x2 /* stop, no more packets detected */
 
+<<<<<<< HEAD
+=======
+/**
+ * hfi1_rcd_head - add accessor for rcd head
+ * @rcd: the context
+ */
+static inline u32 hfi1_rcd_head(struct hfi1_ctxtdata *rcd)
+{
+	return rcd->head;
+}
+
+/**
+ * hfi1_set_rcd_head - add accessor for rcd head
+ * @rcd: the context
+ * @head: the new head
+ */
+static inline void hfi1_set_rcd_head(struct hfi1_ctxtdata *rcd, u32 head)
+{
+	rcd->head = head;
+}
+
+>>>>>>> upstream/android-13
 /* calculate the current RHF address */
 static inline __le32 *get_rhf_addr(struct hfi1_ctxtdata *rcd)
 {
 	return (__le32 *)rcd->rcvhdrq + rcd->head + rcd->rhf_offset;
 }
 
+<<<<<<< HEAD
+=======
+/* return DMA_RTAIL configuration */
+static inline bool get_dma_rtail_setting(struct hfi1_ctxtdata *rcd)
+{
+	return !!HFI1_CAP_KGET_MASK(rcd->flags, DMA_RTAIL);
+}
+
+/**
+ * hfi1_seq_incr_wrap - wrapping increment for sequence
+ * @seq: the current sequence number
+ *
+ * Returns: the incremented seq
+ */
+static inline u8 hfi1_seq_incr_wrap(u8 seq)
+{
+	if (++seq > RHF_MAX_SEQ)
+		seq = 1;
+	return seq;
+}
+
+/**
+ * hfi1_seq_cnt - return seq_cnt member
+ * @rcd: the receive context
+ *
+ * Return seq_cnt member
+ */
+static inline u8 hfi1_seq_cnt(struct hfi1_ctxtdata *rcd)
+{
+	return rcd->seq_cnt;
+}
+
+/**
+ * hfi1_set_seq_cnt - return seq_cnt member
+ * @rcd: the receive context
+ *
+ * Return seq_cnt member
+ */
+static inline void hfi1_set_seq_cnt(struct hfi1_ctxtdata *rcd, u8 cnt)
+{
+	rcd->seq_cnt = cnt;
+}
+
+/**
+ * last_rcv_seq - is last
+ * @rcd: the receive context
+ * @seq: sequence
+ *
+ * return true if last packet
+ */
+static inline bool last_rcv_seq(struct hfi1_ctxtdata *rcd, u32 seq)
+{
+	return seq != rcd->seq_cnt;
+}
+
+/**
+ * rcd_seq_incr - increment context sequence number
+ * @rcd: the receive context
+ * @seq: the current sequence number
+ *
+ * Returns: true if the this was the last packet
+ */
+static inline bool hfi1_seq_incr(struct hfi1_ctxtdata *rcd, u32 seq)
+{
+	rcd->seq_cnt = hfi1_seq_incr_wrap(rcd->seq_cnt);
+	return last_rcv_seq(rcd, seq);
+}
+
+/**
+ * get_hdrqentsize - return hdrq entry size
+ * @rcd: the receive context
+ */
+static inline u8 get_hdrqentsize(struct hfi1_ctxtdata *rcd)
+{
+	return rcd->rcvhdrqentsize;
+}
+
+/**
+ * get_hdrq_cnt - return hdrq count
+ * @rcd: the receive context
+ */
+static inline u16 get_hdrq_cnt(struct hfi1_ctxtdata *rcd)
+{
+	return rcd->rcvhdrq_cnt;
+}
+
+/**
+ * hfi1_is_slowpath - check if this context is slow path
+ * @rcd: the receive context
+ */
+static inline bool hfi1_is_slowpath(struct hfi1_ctxtdata *rcd)
+{
+	return rcd->do_interrupt == rcd->slow_handler;
+}
+
+/**
+ * hfi1_is_fastpath - check if this context is fast path
+ * @rcd: the receive context
+ */
+static inline bool hfi1_is_fastpath(struct hfi1_ctxtdata *rcd)
+{
+	if (rcd->ctxt == HFI1_CTRL_CTXT)
+		return false;
+
+	return rcd->do_interrupt == rcd->fast_handler;
+}
+
+/**
+ * hfi1_set_fast - change to the fast handler
+ * @rcd: the receive context
+ */
+static inline void hfi1_set_fast(struct hfi1_ctxtdata *rcd)
+{
+	if (unlikely(!rcd))
+		return;
+	if (unlikely(!hfi1_is_fastpath(rcd)))
+		rcd->do_interrupt = rcd->fast_handler;
+}
+
+>>>>>>> upstream/android-13
 int hfi1_reset_device(int);
 
 void receive_interrupt_work(struct work_struct *work);
@@ -1582,7 +1939,11 @@ static inline void pause_for_credit_return(struct hfi1_devdata *dd)
 }
 
 /**
+<<<<<<< HEAD
  * sc_to_vlt() reverse lookup sc to vl
+=======
+ * sc_to_vlt() - reverse lookup sc to vl
+>>>>>>> upstream/android-13
  * @dd - devdata
  * @sc5 - 5 bit sc
  */
@@ -1788,10 +2149,17 @@ static inline struct hfi1_ibdev *dev_from_rdi(struct rvt_dev_info *rdi)
 	return container_of(rdi, struct hfi1_ibdev, rdi);
 }
 
+<<<<<<< HEAD
 static inline struct hfi1_ibport *to_iport(struct ib_device *ibdev, u8 port)
 {
 	struct hfi1_devdata *dd = dd_from_ibdev(ibdev);
 	unsigned pidx = port - 1; /* IB number port from 1, hdw from 0 */
+=======
+static inline struct hfi1_ibport *to_iport(struct ib_device *ibdev, u32 port)
+{
+	struct hfi1_devdata *dd = dd_from_ibdev(ibdev);
+	u32 pidx = port - 1; /* IB number port from 1, hdw from 0 */
+>>>>>>> upstream/android-13
 
 	WARN_ON(pidx >= dd->num_pports);
 	return &dd->pport[pidx].ibport_data;
@@ -1909,10 +2277,15 @@ struct cc_state *get_cc_state_protected(struct hfi1_pportdata *ppd)
 #define HFI1_CTXT_WAITING_URG 4
 
 /* free up any allocated data at closes */
+<<<<<<< HEAD
 struct hfi1_devdata *hfi1_init_dd(struct pci_dev *pdev,
 				  const struct pci_device_id *ent);
 void hfi1_free_devdata(struct hfi1_devdata *dd);
 struct hfi1_devdata *hfi1_alloc_devdata(struct pci_dev *pdev, size_t extra);
+=======
+int hfi1_init_dd(struct hfi1_devdata *dd);
+void hfi1_free_devdata(struct hfi1_devdata *dd);
+>>>>>>> upstream/android-13
 
 /* LED beaconing functions */
 void hfi1_start_led_override(struct hfi1_pportdata *ppd, unsigned int timeon,
@@ -1966,9 +2339,27 @@ int hfi1_acquire_user_pages(struct mm_struct *mm, unsigned long vaddr,
 void hfi1_release_user_pages(struct mm_struct *mm, struct page **p,
 			     size_t npages, bool dirty);
 
+<<<<<<< HEAD
 static inline void clear_rcvhdrtail(const struct hfi1_ctxtdata *rcd)
 {
 	*((u64 *)rcd->rcvhdrtail_kvaddr) = 0ULL;
+=======
+/**
+ * hfi1_rcvhdrtail_kvaddr - return tail kvaddr
+ * @rcd - the receive context
+ */
+static inline __le64 *hfi1_rcvhdrtail_kvaddr(const struct hfi1_ctxtdata *rcd)
+{
+	return (__le64 *)rcd->rcvhdrtail_kvaddr;
+}
+
+static inline void clear_rcvhdrtail(const struct hfi1_ctxtdata *rcd)
+{
+	u64 *kv = (u64 *)hfi1_rcvhdrtail_kvaddr(rcd);
+
+	if (kv)
+		*kv = 0ULL;
+>>>>>>> upstream/android-13
 }
 
 static inline u32 get_rcvhdrtail(const struct hfi1_ctxtdata *rcd)
@@ -1977,7 +2368,21 @@ static inline u32 get_rcvhdrtail(const struct hfi1_ctxtdata *rcd)
 	 * volatile because it's a DMA target from the chip, routine is
 	 * inlined, and don't want register caching or reordering.
 	 */
+<<<<<<< HEAD
 	return (u32)le64_to_cpu(*rcd->rcvhdrtail_kvaddr);
+=======
+	return (u32)le64_to_cpu(*hfi1_rcvhdrtail_kvaddr(rcd));
+}
+
+static inline bool hfi1_packet_present(struct hfi1_ctxtdata *rcd)
+{
+	if (likely(!rcd->rcvhdrtail_kvaddr)) {
+		u32 seq = rhf_rcv_seq(rhf_to_cpu(get_rhf_addr(rcd)));
+
+		return !last_rcv_seq(rcd, seq);
+	}
+	return hfi1_rcd_head(rcd) != get_rcvhdrtail(rcd);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1985,27 +2390,46 @@ static inline u32 get_rcvhdrtail(const struct hfi1_ctxtdata *rcd)
  */
 
 extern const char ib_hfi1_version[];
+<<<<<<< HEAD
+=======
+extern const struct attribute_group ib_hfi1_attr_group;
+extern const struct attribute_group *hfi1_attr_port_groups[];
+>>>>>>> upstream/android-13
 
 int hfi1_device_create(struct hfi1_devdata *dd);
 void hfi1_device_remove(struct hfi1_devdata *dd);
 
+<<<<<<< HEAD
 int hfi1_create_port_files(struct ib_device *ibdev, u8 port_num,
 			   struct kobject *kobj);
+=======
+>>>>>>> upstream/android-13
 int hfi1_verbs_register_sysfs(struct hfi1_devdata *dd);
 void hfi1_verbs_unregister_sysfs(struct hfi1_devdata *dd);
 /* Hook for sysfs read of QSFP */
 int qsfp_dump(struct hfi1_pportdata *ppd, char *buf, int len);
 
+<<<<<<< HEAD
 int hfi1_pcie_init(struct pci_dev *pdev, const struct pci_device_id *ent);
 void hfi1_clean_up_interrupts(struct hfi1_devdata *dd);
+=======
+int hfi1_pcie_init(struct hfi1_devdata *dd);
+>>>>>>> upstream/android-13
 void hfi1_pcie_cleanup(struct pci_dev *pdev);
 int hfi1_pcie_ddinit(struct hfi1_devdata *dd, struct pci_dev *pdev);
 void hfi1_pcie_ddcleanup(struct hfi1_devdata *);
 int pcie_speeds(struct hfi1_devdata *dd);
+<<<<<<< HEAD
 int request_msix(struct hfi1_devdata *dd, u32 msireq);
 int restore_pci_variables(struct hfi1_devdata *dd);
 int save_pci_variables(struct hfi1_devdata *dd);
 int do_pcie_gen3_transition(struct hfi1_devdata *dd);
+=======
+int restore_pci_variables(struct hfi1_devdata *dd);
+int save_pci_variables(struct hfi1_devdata *dd);
+int do_pcie_gen3_transition(struct hfi1_devdata *dd);
+void tune_pcie_caps(struct hfi1_devdata *dd);
+>>>>>>> upstream/android-13
 int parse_platform_config(struct hfi1_devdata *dd);
 int get_platform_config_field(struct hfi1_devdata *dd,
 			      enum platform_config_table_type_encoding
@@ -2034,7 +2458,10 @@ extern int num_user_contexts;
 extern unsigned long n_krcvqs;
 extern uint krcvqs[];
 extern int krcvqsset;
+<<<<<<< HEAD
 extern uint kdeth_qp;
+=======
+>>>>>>> upstream/android-13
 extern uint loopback;
 extern uint quick_linkup;
 extern uint rcv_intr_timeout;
@@ -2100,7 +2527,11 @@ static inline u64 hfi1_pkt_default_send_ctxt_mask(struct hfi1_devdata *dd,
 			SEND_CTXT_CHECK_ENABLE_DISALLOW_PBC_TEST_SMASK |
 #endif
 			HFI1_PKT_USER_SC_INTEGRITY;
+<<<<<<< HEAD
 	else
+=======
+	else if (ctxt_type != SC_KERNEL)
+>>>>>>> upstream/android-13
 		base_sc_integrity |= HFI1_PKT_KERNEL_SC_INTEGRITY;
 
 	/* turn on send-side job key checks if !A0 */
@@ -2146,6 +2577,7 @@ static inline u64 hfi1_pkt_base_sdma_integrity(struct hfi1_devdata *dd)
 	return base_sdma_integrity;
 }
 
+<<<<<<< HEAD
 /*
  * hfi1_early_err is used (only!) to print early errors before devdata is
  * allocated, or when dd->pcidev may not be valid, and at the tail end of
@@ -2159,6 +2591,8 @@ static inline u64 hfi1_pkt_base_sdma_integrity(struct hfi1_devdata *dd)
 #define hfi1_early_info(dev, fmt, ...) \
 	dev_info(dev, fmt, ##__VA_ARGS__)
 
+=======
+>>>>>>> upstream/android-13
 #define dd_dev_emerg(dd, fmt, ...) \
 	dev_emerg(&(dd)->pcidev->dev, "%s: " fmt, \
 		  rvt_get_ibdev_name(&(dd)->verbs_dev.rdi), ##__VA_ARGS__)
@@ -2262,6 +2696,28 @@ static inline bool is_integrated(struct hfi1_devdata *dd)
 	return dd->pcidev->device == PCI_DEVICE_ID_INTEL1;
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * hfi1_need_drop - detect need for drop
+ * @dd: - the device
+ *
+ * In some cases, the first packet needs to be dropped.
+ *
+ * Return true is the current packet needs to be dropped and false otherwise.
+ */
+static inline bool hfi1_need_drop(struct hfi1_devdata *dd)
+{
+	if (unlikely(dd->do_drop &&
+		     atomic_xchg(&dd->drop_packet, DROP_PACKET_OFF) ==
+		     DROP_PACKET_ON)) {
+		dd->do_drop = false;
+		return true;
+	}
+	return false;
+}
+
+>>>>>>> upstream/android-13
 int hfi1_tempsense_rd(struct hfi1_devdata *dd, struct hfi1_temp *temp);
 
 #define DD_DEV_ENTRY(dd)       __string(dev, dev_name(&(dd)->pcidev->dev))
@@ -2399,7 +2855,11 @@ static inline bool hfi1_get_hdr_type(u32 lid, struct rdma_ah_attr *attr)
 			HFI1_PKT_TYPE_16B : HFI1_PKT_TYPE_9B;
 
 	/*
+<<<<<<< HEAD
 	 * Return a 16B header type if either the the destination
+=======
+	 * Return a 16B header type if either the destination
+>>>>>>> upstream/android-13
 	 * or source lid is extended.
 	 */
 	if (hfi1_get_packet_type(rdma_ah_get_dlid(attr)) == HFI1_PKT_TYPE_16B)

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Atmel SMC (Static Memory Controller) helper functions.
  *
@@ -5,10 +9,13 @@
  * Copyright (C) 2017 Free Electrons
  *
  * Author: Boris Brezillon <boris.brezillon@free-electrons.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/mfd/syscon/atmel-smc.h>
@@ -240,7 +247,11 @@ EXPORT_SYMBOL_GPL(atmel_smc_cs_conf_set_cycle);
  * atmel_smc_cs_conf_apply - apply an SMC CS conf
  * @regmap: the SMC regmap
  * @cs: the CS id
+<<<<<<< HEAD
  * @conf the SMC CS conf to apply
+=======
+ * @conf: the SMC CS conf to apply
+>>>>>>> upstream/android-13
  *
  * Applies an SMC CS configuration.
  * Only valid on at91sam9/avr32 SoCs.
@@ -260,7 +271,11 @@ EXPORT_SYMBOL_GPL(atmel_smc_cs_conf_apply);
  * @regmap: the HSMC regmap
  * @cs: the CS id
  * @layout: the layout of registers
+<<<<<<< HEAD
  * @conf the SMC CS conf to apply
+=======
+ * @conf: the SMC CS conf to apply
+>>>>>>> upstream/android-13
  *
  * Applies an SMC CS configuration.
  * Only valid on post-sama5 SoCs.

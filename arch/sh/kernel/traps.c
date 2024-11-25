@@ -38,8 +38,13 @@ void die(const char *str, struct pt_regs *regs, long err)
 			task_pid_nr(current), task_stack_page(current) + 1);
 
 	if (!user_mode(regs) || in_interrupt())
+<<<<<<< HEAD
 		dump_mem("Stack: ", regs->regs[15], THREAD_SIZE +
 			 (unsigned long)task_stack_page(current));
+=======
+		dump_mem("Stack: ", KERN_DEFAULT, regs->regs[15],
+			THREAD_SIZE + (unsigned long)task_stack_page(current));
+>>>>>>> upstream/android-13
 
 	notify_die(DIE_OOPS, str, regs, err, 255, SIGSEGV);
 
@@ -118,7 +123,11 @@ int is_valid_bugaddr(unsigned long addr)
 
 	if (addr < PAGE_OFFSET)
 		return 0;
+<<<<<<< HEAD
 	if (probe_kernel_address((insn_size_t *)addr, opcode))
+=======
+	if (get_kernel_nofault(opcode, (insn_size_t *)addr))
+>>>>>>> upstream/android-13
 		return 0;
 	if (opcode == TRAPA_BUG_OPCODE)
 		return 1;
@@ -141,7 +150,11 @@ BUILD_TRAP_HANDLER(debug)
 		       SIGTRAP) == NOTIFY_STOP)
 		return;
 
+<<<<<<< HEAD
 	force_sig(SIGTRAP, current);
+=======
+	force_sig(SIGTRAP);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -167,6 +180,7 @@ BUILD_TRAP_HANDLER(bug)
 	}
 #endif
 
+<<<<<<< HEAD
 	force_sig(SIGTRAP, current);
 }
 
@@ -177,6 +191,27 @@ BUILD_TRAP_HANDLER(nmi)
 
 	nmi_enter();
 	nmi_count(cpu)++;
+=======
+	force_sig(SIGTRAP);
+}
+
+#ifdef CONFIG_DYNAMIC_FTRACE
+extern void arch_ftrace_nmi_enter(void);
+extern void arch_ftrace_nmi_exit(void);
+#else
+static inline void arch_ftrace_nmi_enter(void) { }
+static inline void arch_ftrace_nmi_exit(void) { }
+#endif
+
+BUILD_TRAP_HANDLER(nmi)
+{
+	TRAP_HANDLER_DECL;
+
+	arch_ftrace_nmi_enter();
+
+	nmi_enter();
+	this_cpu_inc(irq_stat.__nmi_count);
+>>>>>>> upstream/android-13
 
 	switch (notify_die(DIE_NMI, "NMI", regs, 0, vec & 0xff, SIGINT)) {
 	case NOTIFY_OK:
@@ -190,4 +225,9 @@ BUILD_TRAP_HANDLER(nmi)
 	}
 
 	nmi_exit();
+<<<<<<< HEAD
+=======
+
+	arch_ftrace_nmi_exit();
+>>>>>>> upstream/android-13
 }

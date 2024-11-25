@@ -33,7 +33,10 @@
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/moduleparam.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/pci.h>
 #include <linux/dma-mapping.h>
@@ -106,7 +109,10 @@ static const struct pci_device_id cxgb3_pci_tbl[] = {
 MODULE_DESCRIPTION(DRV_DESC);
 MODULE_AUTHOR("Chelsio Communications");
 MODULE_LICENSE("Dual BSD/GPL");
+<<<<<<< HEAD
 MODULE_VERSION(DRV_VERSION);
+=======
+>>>>>>> upstream/android-13
 MODULE_DEVICE_TABLE(pci, cxgb3_pci_tbl);
 
 static int dflt_msg_enable = DFLT_MSG_ENABLE;
@@ -150,7 +156,11 @@ struct workqueue_struct *cxgb3_wq;
 
 /**
  *	link_report - show link status and link speed/duplex
+<<<<<<< HEAD
  *	@p: the port whose settings are to be reported
+=======
+ *	@dev: the port whose settings are to be reported
+>>>>>>> upstream/android-13
  *
  *	Shows the link status, speed, and duplex of a port.
  */
@@ -306,8 +316,13 @@ void t3_os_link_changed(struct adapter *adapter, int port_id, int link_stat,
 
 /**
  *	t3_os_phymod_changed - handle PHY module changes
+<<<<<<< HEAD
  *	@phy: the PHY reporting the module change
  *	@mod_type: new module type
+=======
+ *	@adap: the adapter associated with the link change
+ *	@port_id: the port index whose limk status has changed
+>>>>>>> upstream/android-13
  *
  *	This is the OS-dependent handler for PHY module changes.  It is
  *	invoked when a PHY module is removed or inserted for any OS-specific
@@ -1202,7 +1217,11 @@ static void cxgb_vlan_mode(struct net_device *dev, netdev_features_t features)
 
 /**
  *	cxgb_up - enable the adapter
+<<<<<<< HEAD
  *	@adapter: adapter being enabled
+=======
+ *	@adap: adapter being enabled
+>>>>>>> upstream/android-13
  *
  *	Called when the first port is enabled, this function performs the
  *	actions necessary to make an adapter operational, such as completing
@@ -1275,6 +1294,7 @@ static int cxgb_up(struct adapter *adap)
 			free_irq(adap->msix_info[0].vec, adap);
 			goto irq_err;
 		}
+<<<<<<< HEAD
 	} else if ((err = request_irq(adap->pdev->irq,
 				      t3_intr_handler(adap,
 						      adap->sge.qs[0].rspq.
@@ -1283,6 +1303,16 @@ static int cxgb_up(struct adapter *adap)
 				       0 : IRQF_SHARED,
 				      adap->name, adap)))
 		goto irq_err;
+=======
+	} else {
+		err = request_irq(adap->pdev->irq,
+				  t3_intr_handler(adap, adap->sge.qs[0].rspq.polling),
+				  (adap->flags & USING_MSI) ? 0 : IRQF_SHARED,
+				  adap->name, adap);
+		if (err)
+			goto irq_err;
+	}
+>>>>>>> upstream/android-13
 
 	enable_all_napi(adap);
 	t3_sge_start(adap);
@@ -1630,7 +1660,10 @@ static void get_drvinfo(struct net_device *dev, struct ethtool_drvinfo *info)
 	spin_unlock(&adapter->stats_lock);
 
 	strlcpy(info->driver, DRV_NAME, sizeof(info->driver));
+<<<<<<< HEAD
 	strlcpy(info->version, DRV_VERSION, sizeof(info->version));
+=======
+>>>>>>> upstream/android-13
 	strlcpy(info->bus_info, pci_name(adapter->pdev),
 		sizeof(info->bus_info));
 	if (fw_vers)
@@ -1999,7 +2032,13 @@ static int set_sge_param(struct net_device *dev, struct ethtool_ringparam *e)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int set_coalesce(struct net_device *dev, struct ethtool_coalesce *c)
+=======
+static int set_coalesce(struct net_device *dev, struct ethtool_coalesce *c,
+			struct kernel_ethtool_coalesce *kernel_coal,
+			struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct port_info *pi = netdev_priv(dev);
 	struct adapter *adapter = pi->adapter;
@@ -2020,7 +2059,13 @@ static int set_coalesce(struct net_device *dev, struct ethtool_coalesce *c)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int get_coalesce(struct net_device *dev, struct ethtool_coalesce *c)
+=======
+static int get_coalesce(struct net_device *dev, struct ethtool_coalesce *c,
+			struct kernel_ethtool_coalesce *kernel_coal,
+			struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct port_info *pi = netdev_priv(dev);
 	struct adapter *adapter = pi->adapter;
@@ -2107,6 +2152,10 @@ static void get_wol(struct net_device *dev, struct ethtool_wolinfo *wol)
 }
 
 static const struct ethtool_ops cxgb_ethtool_ops = {
+<<<<<<< HEAD
+=======
+	.supported_coalesce_params = ETHTOOL_COALESCE_RX_USECS,
+>>>>>>> upstream/android-13
 	.get_drvinfo = get_drvinfo,
 	.get_msglevel = get_msglevel,
 	.set_msglevel = set_msglevel,
@@ -2137,6 +2186,7 @@ static int in_range(int val, int lo, int hi)
 	return val < 0 || (val <= hi && val >= lo);
 }
 
+<<<<<<< HEAD
 static int cxgb_extension_ioctl(struct net_device *dev, void __user *useraddr)
 {
 	struct port_info *pi = netdev_priv(dev);
@@ -2144,6 +2194,20 @@ static int cxgb_extension_ioctl(struct net_device *dev, void __user *useraddr)
 	u32 cmd;
 	int ret;
 
+=======
+static int cxgb_siocdevprivate(struct net_device *dev,
+			       struct ifreq *ifreq,
+			       void __user *useraddr,
+			       int cmd)
+{
+	struct port_info *pi = netdev_priv(dev);
+	struct adapter *adapter = pi->adapter;
+	int ret;
+
+	if (cmd != SIOCCHIOCTL)
+		return -EOPNOTSUPP;
+
+>>>>>>> upstream/android-13
 	if (copy_from_user(&cmd, useraddr, sizeof(cmd)))
 		return -EFAULT;
 
@@ -2545,11 +2609,17 @@ static int cxgb_ioctl(struct net_device *dev, struct ifreq *req, int cmd)
 		    !(data->phy_id & 0xe0e0))
 			data->phy_id = mdio_phy_id_c45(data->phy_id >> 8,
 						       data->phy_id & 0x1f);
+<<<<<<< HEAD
 		/* FALLTHRU */
 	case SIOCGMIIPHY:
 		return mdio_mii_ioctl(&pi->phy.mdio, data, cmd);
 	case SIOCCHIOCTL:
 		return cxgb_extension_ioctl(dev, req->ifr_data);
+=======
+		fallthrough;
+	case SIOCGMIIPHY:
+		return mdio_mii_ioctl(&pi->phy.mdio, data, cmd);
+>>>>>>> upstream/android-13
 	default:
 		return -EOPNOTSUPP;
 	}
@@ -2998,7 +3068,11 @@ void t3_fatal_err(struct adapter *adapter)
 	unsigned int fw_status[4];
 
 	if (adapter->flags & FULL_INIT_DONE) {
+<<<<<<< HEAD
 		t3_sge_stop(adapter);
+=======
+		t3_sge_stop_dma(adapter);
+>>>>>>> upstream/android-13
 		t3_write_reg(adapter, A_XGM_TX_CTRL, 0);
 		t3_write_reg(adapter, A_XGM_RX_CTRL, 0);
 		t3_write_reg(adapter, XGM_REG(A_XGM_TX_CTRL, 1), 0);
@@ -3100,8 +3174,14 @@ static void set_nqsets(struct adapter *adap)
 			nqsets = num_cpus;
 		if (nqsets < 1 || hwports == 4)
 			nqsets = 1;
+<<<<<<< HEAD
 	} else
 		nqsets = 1;
+=======
+	} else {
+		nqsets = 1;
+	}
+>>>>>>> upstream/android-13
 
 	for_each_port(adap, i) {
 		struct port_info *pi = adap2pinfo(adap, i);
@@ -3182,7 +3262,12 @@ static const struct net_device_ops cxgb_netdev_ops = {
 	.ndo_get_stats		= cxgb_get_stats,
 	.ndo_validate_addr	= eth_validate_addr,
 	.ndo_set_rx_mode	= cxgb_set_rxmode,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= cxgb_ioctl,
+=======
+	.ndo_eth_ioctl		= cxgb_ioctl,
+	.ndo_siocdevprivate	= cxgb_siocdevprivate,
+>>>>>>> upstream/android-13
 	.ndo_change_mtu		= cxgb_change_mtu,
 	.ndo_set_mac_address	= cxgb_set_mac_addr,
 	.ndo_fix_features	= cxgb_fix_features,
@@ -3211,8 +3296,11 @@ static int init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 	struct adapter *adapter = NULL;
 	struct port_info *pi;
 
+<<<<<<< HEAD
 	pr_info_once("%s - version %s\n", DRV_DESC, DRV_VERSION);
 
+=======
+>>>>>>> upstream/android-13
 	if (!cxgb3_wq) {
 		cxgb3_wq = create_singlethread_workqueue(DRV_NAME);
 		if (!cxgb3_wq) {
@@ -3234,6 +3322,7 @@ static int init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 		goto out_disable_device;
 	}
 
+<<<<<<< HEAD
 	if (!pci_set_dma_mask(pdev, DMA_BIT_MASK(64))) {
 		pci_using_dac = 1;
 		err = pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(64));
@@ -3243,6 +3332,11 @@ static int init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 			goto out_release_regions;
 		}
 	} else if ((err = pci_set_dma_mask(pdev, DMA_BIT_MASK(32))) != 0) {
+=======
+	if (!dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64))) {
+		pci_using_dac = 1;
+	} else if ((err = dma_set_mask(&pdev->dev, DMA_BIT_MASK(32))) != 0) {
+>>>>>>> upstream/android-13
 		dev_err(&pdev->dev, "no usable DMA configuration\n");
 		goto out_release_regions;
 	}
@@ -3268,7 +3362,11 @@ static int init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 		goto out_free_adapter;
 	}
 
+<<<<<<< HEAD
 	adapter->regs = ioremap_nocache(mmio_start, mmio_len);
+=======
+	adapter->regs = ioremap(mmio_start, mmio_len);
+>>>>>>> upstream/android-13
 	if (!adapter->regs) {
 		dev_err(&pdev->dev, "cannot map device registers\n");
 		err = -ENOMEM;
@@ -3445,8 +3543,12 @@ static void remove_one(struct pci_dev *pdev)
 				free_netdev(adapter->port[i]);
 
 		iounmap(adapter->regs);
+<<<<<<< HEAD
 		if (adapter->nofail_skb)
 			kfree_skb(adapter->nofail_skb);
+=======
+		kfree_skb(adapter->nofail_skb);
+>>>>>>> upstream/android-13
 		kfree(adapter);
 		pci_release_regions(pdev);
 		pci_disable_device(pdev);

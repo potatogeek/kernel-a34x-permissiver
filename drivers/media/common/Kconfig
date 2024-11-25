@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 # Used by common drivers, when they need to ask questions
 config MEDIA_COMMON_OPTIONS
 	bool
@@ -12,8 +16,17 @@ config VIDEO_TVEEPROM
 	tristate
 	depends on I2C
 
+<<<<<<< HEAD
 config CYPRESS_FIRMWARE
 	tristate "Cypress firmware helper routines"
+=======
+config TTPCI_EEPROM
+        tristate
+        depends on I2C
+
+config CYPRESS_FIRMWARE
+	tristate
+>>>>>>> upstream/android-13
 	depends on USB
 
 source "drivers/media/common/videobuf2/Kconfig"

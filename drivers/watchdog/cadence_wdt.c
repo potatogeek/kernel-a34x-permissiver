@@ -274,6 +274,14 @@ static const struct watchdog_ops cdns_wdt_ops = {
 	.set_timeout = cdns_wdt_settimeout,
 };
 
+<<<<<<< HEAD
+=======
+static void cdns_clk_disable_unprepare(void *data)
+{
+	clk_disable_unprepare(data);
+}
+
+>>>>>>> upstream/android-13
 /************************Platform Operations*****************************/
 /**
  * cdns_wdt_probe - Probe call for the device.
@@ -285,13 +293,21 @@ static const struct watchdog_ops cdns_wdt_ops = {
  */
 static int cdns_wdt_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct resource *res;
+=======
+	struct device *dev = &pdev->dev;
+>>>>>>> upstream/android-13
 	int ret, irq;
 	unsigned long clock_f;
 	struct cdns_wdt *wdt;
 	struct watchdog_device *cdns_wdt_device;
 
+<<<<<<< HEAD
 	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
+=======
+	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!wdt)
 		return -ENOMEM;
 
@@ -302,12 +318,17 @@ static int cdns_wdt_probe(struct platform_device *pdev)
 	cdns_wdt_device->min_timeout = CDNS_WDT_MIN_TIMEOUT;
 	cdns_wdt_device->max_timeout = CDNS_WDT_MAX_TIMEOUT;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	wdt->regs = devm_ioremap_resource(&pdev->dev, res);
+=======
+	wdt->regs = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(wdt->regs))
 		return PTR_ERR(wdt->regs);
 
 	/* Register the interrupt */
+<<<<<<< HEAD
 	wdt->rst = of_property_read_bool(pdev->dev.of_node, "reset-on-timeout");
 	irq = platform_get_irq(pdev, 0);
 	if (!wdt->rst && irq >= 0) {
@@ -315,6 +336,15 @@ static int cdns_wdt_probe(struct platform_device *pdev)
 				       pdev->name, pdev);
 		if (ret) {
 			dev_err(&pdev->dev,
+=======
+	wdt->rst = of_property_read_bool(dev->of_node, "reset-on-timeout");
+	irq = platform_get_irq(pdev, 0);
+	if (!wdt->rst && irq >= 0) {
+		ret = devm_request_irq(dev, irq, cdns_wdt_irq_handler, 0,
+				       pdev->name, pdev);
+		if (ret) {
+			dev_err(dev,
+>>>>>>> upstream/android-13
 				"cannot register interrupt handler err=%d\n",
 				ret);
 			return ret;
@@ -322,6 +352,7 @@ static int cdns_wdt_probe(struct platform_device *pdev)
 	}
 
 	/* Initialize the members of cdns_wdt structure */
+<<<<<<< HEAD
 	cdns_wdt_device->parent = &pdev->dev;
 
 	ret = watchdog_init_timeout(cdns_wdt_device, wdt_timeout, &pdev->dev);
@@ -330,10 +361,16 @@ static int cdns_wdt_probe(struct platform_device *pdev)
 		return ret;
 	}
 
+=======
+	cdns_wdt_device->parent = dev;
+
+	watchdog_init_timeout(cdns_wdt_device, wdt_timeout, dev);
+>>>>>>> upstream/android-13
 	watchdog_set_nowayout(cdns_wdt_device, nowayout);
 	watchdog_stop_on_reboot(cdns_wdt_device);
 	watchdog_set_drvdata(cdns_wdt_device, wdt);
 
+<<<<<<< HEAD
 	wdt->clk = devm_clk_get(&pdev->dev, NULL);
 	if (IS_ERR(wdt->clk)) {
 		dev_err(&pdev->dev, "input clock not found\n");
@@ -346,6 +383,22 @@ static int cdns_wdt_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev, "unable to enable clock\n");
 		return ret;
 	}
+=======
+	wdt->clk = devm_clk_get(dev, NULL);
+	if (IS_ERR(wdt->clk))
+		return dev_err_probe(dev, PTR_ERR(wdt->clk),
+				     "input clock not found\n");
+
+	ret = clk_prepare_enable(wdt->clk);
+	if (ret) {
+		dev_err(dev, "unable to enable clock\n");
+		return ret;
+	}
+	ret = devm_add_action_or_reset(dev, cdns_clk_disable_unprepare,
+				       wdt->clk);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	clock_f = clk_get_rate(wdt->clk);
 	if (clock_f <= CDNS_WDT_CLK_75MHZ) {
@@ -358,6 +411,7 @@ static int cdns_wdt_probe(struct platform_device *pdev)
 
 	spin_lock_init(&wdt->io_lock);
 
+<<<<<<< HEAD
 	ret = watchdog_register_device(cdns_wdt_device);
 	if (ret) {
 		dev_err(&pdev->dev, "Failed to register wdt device\n");
@@ -408,6 +462,19 @@ static void cdns_wdt_shutdown(struct platform_device *pdev)
 
 	cdns_wdt_stop(&wdt->cdns_wdt_device);
 	clk_disable_unprepare(wdt->clk);
+=======
+	watchdog_stop_on_reboot(cdns_wdt_device);
+	watchdog_stop_on_unregister(cdns_wdt_device);
+	ret = devm_watchdog_register_device(dev, cdns_wdt_device);
+	if (ret)
+		return ret;
+	platform_set_drvdata(pdev, wdt);
+
+	dev_info(dev, "Xilinx Watchdog Timer with timeout %ds%s\n",
+		 cdns_wdt_device->timeout, nowayout ? ", nowayout" : "");
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -462,8 +529,11 @@ MODULE_DEVICE_TABLE(of, cdns_wdt_of_match);
 /* Driver Structure */
 static struct platform_driver cdns_wdt_driver = {
 	.probe		= cdns_wdt_probe,
+<<<<<<< HEAD
 	.remove		= cdns_wdt_remove,
 	.shutdown	= cdns_wdt_shutdown,
+=======
+>>>>>>> upstream/android-13
 	.driver		= {
 		.name	= "cdns-wdt",
 		.of_match_table = cdns_wdt_of_match,

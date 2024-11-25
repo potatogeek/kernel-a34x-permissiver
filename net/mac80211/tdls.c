@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * mac80211 TDLS handling code
  *
@@ -5,8 +9,12 @@
  * Copyright 2014, Intel Corporation
  * Copyright 2014  Intel Mobile Communications GmbH
  * Copyright 2015 - 2016 Intel Deutschland GmbH
+<<<<<<< HEAD
  *
  * This file is GPLv2 as found in COPYING.
+=======
+ * Copyright (C) 2019 Intel Corporation
+>>>>>>> upstream/android-13
  */
 
 #include <linux/ieee80211.h>
@@ -226,12 +234,19 @@ static void ieee80211_tdls_add_link_ie(struct ieee80211_sub_if_data *sdata,
 static void
 ieee80211_tdls_add_aid(struct ieee80211_sub_if_data *sdata, struct sk_buff *skb)
 {
+<<<<<<< HEAD
 	struct ieee80211_if_managed *ifmgd = &sdata->u.mgd;
+=======
+>>>>>>> upstream/android-13
 	u8 *pos = skb_put(skb, 4);
 
 	*pos++ = WLAN_EID_AID;
 	*pos++ = 2; /* len */
+<<<<<<< HEAD
 	put_unaligned_le16(ifmgd->aid, pos);
+=======
+	put_unaligned_le16(sdata->vif.bss_conf.aid, pos);
+>>>>>>> upstream/android-13
 }
 
 /* translate numbering in the WMM parameter IE to the mac80211 notation */
@@ -240,7 +255,11 @@ static enum ieee80211_ac_numbers ieee80211_ac_from_wmm(int ac)
 	switch (ac) {
 	default:
 		WARN_ON_ONCE(1);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 0:
 		return IEEE80211_AC_BE;
 	case 1:
@@ -953,7 +972,11 @@ ieee80211_tdls_prep_mgmt_packet(struct wiphy *wiphy, struct net_device *dev,
 			set_sta_flag(sta, WLAN_STA_TDLS_INITIATOR);
 			sta->sta.tdls_initiator = false;
 		}
+<<<<<<< HEAD
 		/* fall-through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case WLAN_TDLS_SETUP_CONFIRM:
 	case WLAN_TDLS_DISCOVERY_REQUEST:
 		initiator = true;
@@ -968,7 +991,11 @@ ieee80211_tdls_prep_mgmt_packet(struct wiphy *wiphy, struct net_device *dev,
 			clear_sta_flag(sta, WLAN_STA_TDLS_INITIATOR);
 			sta->sta.tdls_initiator = true;
 		}
+<<<<<<< HEAD
 		/* fall-through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case WLAN_PUB_ACTION_TDLS_DISCOVER_RES:
 		initiator = false;
 		break;
@@ -1055,7 +1082,11 @@ ieee80211_tdls_prep_mgmt_packet(struct wiphy *wiphy, struct net_device *dev,
 
 	/* disable bottom halves when entering the Tx path */
 	local_bh_disable();
+<<<<<<< HEAD
 	__ieee80211_subif_start_xmit(skb, dev, flags, 0);
+=======
+	__ieee80211_subif_start_xmit(skb, dev, flags, 0, NULL);
+>>>>>>> upstream/android-13
 	local_bh_enable();
 
 	return ret;
@@ -1223,7 +1254,11 @@ int ieee80211_tdls_mgmt(struct wiphy *wiphy, struct net_device *dev,
 		 * by the AP.
 		 */
 		drv_mgd_protect_tdls_discover(sdata->local, sdata);
+<<<<<<< HEAD
 		/* fall-through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case WLAN_TDLS_SETUP_CONFIRM:
 	case WLAN_PUB_ACTION_TDLS_DISCOVER_RES:
 		/* no special handling */
@@ -1567,6 +1602,13 @@ ieee80211_tdls_channel_switch(struct wiphy *wiphy, struct net_device *dev,
 	u32 ch_sw_tm_ie;
 	int ret;
 
+<<<<<<< HEAD
+=======
+	if (chandef->chan->freq_offset)
+		/* this may work, but is untested */
+		return -EOPNOTSUPP;
+
+>>>>>>> upstream/android-13
 	mutex_lock(&local->sta_mtx);
 	sta = sta_info_get(sdata, addr);
 	if (!sta) {
@@ -1716,7 +1758,12 @@ ieee80211_process_tdls_channel_switch_resp(struct ieee80211_sub_if_data *sdata,
 	}
 
 	ieee802_11_parse_elems(tf->u.chan_switch_resp.variable,
+<<<<<<< HEAD
 			       skb->len - baselen, false, &elems);
+=======
+			       skb->len - baselen, false, &elems,
+			       NULL, NULL);
+>>>>>>> upstream/android-13
 	if (elems.parse_error) {
 		tdls_dbg(sdata, "Invalid IEs in TDLS channel switch resp\n");
 		ret = -EINVAL;
@@ -1828,7 +1875,11 @@ ieee80211_process_tdls_channel_switch_req(struct ieee80211_sub_if_data *sdata,
 	}
 
 	ieee802_11_parse_elems(tf->u.chan_switch_req.variable,
+<<<<<<< HEAD
 			       skb->len - baselen, false, &elems);
+=======
+			       skb->len - baselen, false, &elems, NULL, NULL);
+>>>>>>> upstream/android-13
 	if (elems.parse_error) {
 		tdls_dbg(sdata, "Invalid IEs in TDLS channel switch req\n");
 		return -EINVAL;
@@ -1916,14 +1967,22 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 static void
+=======
+void
+>>>>>>> upstream/android-13
 ieee80211_process_tdls_channel_switch(struct ieee80211_sub_if_data *sdata,
 				      struct sk_buff *skb)
 {
 	struct ieee80211_tdls_data *tf = (void *)skb->data;
 	struct wiphy *wiphy = sdata->local->hw.wiphy;
 
+<<<<<<< HEAD
 	ASSERT_RTNL();
+=======
+	lockdep_assert_wiphy(wiphy);
+>>>>>>> upstream/android-13
 
 	/* make sure the driver supports it */
 	if (!(wiphy->features & NL80211_FEATURE_TDLS_CHANNEL_SWITCH))
@@ -1967,6 +2026,7 @@ void ieee80211_teardown_tdls_peers(struct ieee80211_sub_if_data *sdata)
 	rcu_read_unlock();
 }
 
+<<<<<<< HEAD
 void ieee80211_tdls_chsw_work(struct work_struct *wk)
 {
 	struct ieee80211_local *local =
@@ -1993,6 +2053,8 @@ void ieee80211_tdls_chsw_work(struct work_struct *wk)
 	rtnl_unlock();
 }
 
+=======
+>>>>>>> upstream/android-13
 void ieee80211_tdls_handle_disconnect(struct ieee80211_sub_if_data *sdata,
 				      const u8 *peer, u16 reason)
 {

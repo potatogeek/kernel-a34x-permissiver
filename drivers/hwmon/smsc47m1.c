@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * smsc47m1.c - Part of lm_sensors, Linux kernel modules
  *		for hardware monitoring
@@ -10,6 +14,7 @@
  * Copyright (C) 2004-2007 Jean Delvare <jdelvare@suse.de>
  * Ported to Linux 2.6 by Gabriele Gorla <gorlik@yahoo.com>
  *			and Jean Delvare
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +29,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -207,8 +214,13 @@ static struct smsc47m1_data *smsc47m1_update_device(struct device *dev,
 	return data;
 }
 
+<<<<<<< HEAD
 static ssize_t get_fan(struct device *dev, struct device_attribute
 		       *devattr, char *buf)
+=======
+static ssize_t fan_show(struct device *dev, struct device_attribute *devattr,
+			char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct smsc47m1_data *data = smsc47m1_update_device(dev, 0);
@@ -226,8 +238,13 @@ static ssize_t get_fan(struct device *dev, struct device_attribute
 	return sprintf(buf, "%d\n", rpm);
 }
 
+<<<<<<< HEAD
 static ssize_t get_fan_min(struct device *dev, struct device_attribute
 			   *devattr, char *buf)
+=======
+static ssize_t fan_min_show(struct device *dev,
+			    struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct smsc47m1_data *data = smsc47m1_update_device(dev, 0);
@@ -237,32 +254,52 @@ static ssize_t get_fan_min(struct device *dev, struct device_attribute
 	return sprintf(buf, "%d\n", rpm);
 }
 
+<<<<<<< HEAD
 static ssize_t get_fan_div(struct device *dev, struct device_attribute
 			   *devattr, char *buf)
+=======
+static ssize_t fan_div_show(struct device *dev,
+			    struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct smsc47m1_data *data = smsc47m1_update_device(dev, 0);
 	return sprintf(buf, "%d\n", DIV_FROM_REG(data->fan_div[attr->index]));
 }
 
+<<<<<<< HEAD
 static ssize_t get_fan_alarm(struct device *dev, struct device_attribute
 			     *devattr, char *buf)
+=======
+static ssize_t fan_alarm_show(struct device *dev,
+			      struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	int bitnr = to_sensor_dev_attr(devattr)->index;
 	struct smsc47m1_data *data = smsc47m1_update_device(dev, 0);
 	return sprintf(buf, "%u\n", (data->alarms >> bitnr) & 1);
 }
 
+<<<<<<< HEAD
 static ssize_t get_pwm(struct device *dev, struct device_attribute
 		       *devattr, char *buf)
+=======
+static ssize_t pwm_show(struct device *dev, struct device_attribute *devattr,
+			char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct smsc47m1_data *data = smsc47m1_update_device(dev, 0);
 	return sprintf(buf, "%d\n", PWM_FROM_REG(data->pwm[attr->index]));
 }
 
+<<<<<<< HEAD
 static ssize_t get_pwm_en(struct device *dev, struct device_attribute
 			  *devattr, char *buf)
+=======
+static ssize_t pwm_en_show(struct device *dev,
+			   struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct smsc47m1_data *data = smsc47m1_update_device(dev, 0);
@@ -276,8 +313,14 @@ static ssize_t alarms_show(struct device *dev,
 	return sprintf(buf, "%d\n", data->alarms);
 }
 
+<<<<<<< HEAD
 static ssize_t set_fan_min(struct device *dev, struct device_attribute
 			   *devattr, const char *buf, size_t count)
+=======
+static ssize_t fan_min_store(struct device *dev,
+			     struct device_attribute *devattr,
+			     const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct smsc47m1_data *data = dev_get_drvdata(dev);
@@ -312,8 +355,14 @@ static ssize_t set_fan_min(struct device *dev, struct device_attribute
  * of least surprise; the user doesn't expect the fan minimum to change just
  * because the divider changed.
  */
+<<<<<<< HEAD
 static ssize_t set_fan_div(struct device *dev, struct device_attribute
 			   *devattr, const char *buf, size_t count)
+=======
+static ssize_t fan_div_store(struct device *dev,
+			     struct device_attribute *devattr,
+			     const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct smsc47m1_data *data = dev_get_drvdata(dev);
@@ -362,6 +411,11 @@ static ssize_t set_fan_div(struct device *dev, struct device_attribute
 		tmp |= data->fan_div[2] << 4;
 		smsc47m1_write_value(data, SMSC47M2_REG_FANDIV3, tmp);
 		break;
+<<<<<<< HEAD
+=======
+	default:
+		BUG();
+>>>>>>> upstream/android-13
 	}
 
 	/* Preserve fan min */
@@ -375,8 +429,13 @@ static ssize_t set_fan_div(struct device *dev, struct device_attribute
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t set_pwm(struct device *dev, struct device_attribute
 		       *devattr, const char *buf, size_t count)
+=======
+static ssize_t pwm_store(struct device *dev, struct device_attribute *devattr,
+			 const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct smsc47m1_data *data = dev_get_drvdata(dev);
@@ -401,8 +460,14 @@ static ssize_t set_pwm(struct device *dev, struct device_attribute
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t set_pwm_en(struct device *dev, struct device_attribute
 			  *devattr, const char *buf, size_t count)
+=======
+static ssize_t pwm_en_store(struct device *dev,
+			    struct device_attribute *devattr, const char *buf,
+			    size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct smsc47m1_data *data = dev_get_drvdata(dev);
@@ -427,6 +492,7 @@ static ssize_t set_pwm_en(struct device *dev, struct device_attribute
 	return count;
 }
 
+<<<<<<< HEAD
 #define fan_present(offset)						\
 static SENSOR_DEVICE_ATTR(fan##offset##_input, S_IRUGO, get_fan,	\
 		NULL, offset - 1);					\
@@ -444,6 +510,26 @@ static SENSOR_DEVICE_ATTR(pwm##offset##_enable, S_IRUGO | S_IWUSR,	\
 fan_present(1);
 fan_present(2);
 fan_present(3);
+=======
+static SENSOR_DEVICE_ATTR_RO(fan1_input, fan, 0);
+static SENSOR_DEVICE_ATTR_RW(fan1_min, fan_min, 0);
+static SENSOR_DEVICE_ATTR_RW(fan1_div, fan_div, 0);
+static SENSOR_DEVICE_ATTR_RO(fan1_alarm, fan_alarm, 0);
+static SENSOR_DEVICE_ATTR_RW(pwm1, pwm, 0);
+static SENSOR_DEVICE_ATTR_RW(pwm1_enable, pwm_en, 0);
+static SENSOR_DEVICE_ATTR_RO(fan2_input, fan, 1);
+static SENSOR_DEVICE_ATTR_RW(fan2_min, fan_min, 1);
+static SENSOR_DEVICE_ATTR_RW(fan2_div, fan_div, 1);
+static SENSOR_DEVICE_ATTR_RO(fan2_alarm, fan_alarm, 1);
+static SENSOR_DEVICE_ATTR_RW(pwm2, pwm, 1);
+static SENSOR_DEVICE_ATTR_RW(pwm2_enable, pwm_en, 1);
+static SENSOR_DEVICE_ATTR_RO(fan3_input, fan, 2);
+static SENSOR_DEVICE_ATTR_RW(fan3_min, fan_min, 2);
+static SENSOR_DEVICE_ATTR_RW(fan3_div, fan_div, 2);
+static SENSOR_DEVICE_ATTR_RO(fan3_alarm, fan_alarm, 2);
+static SENSOR_DEVICE_ATTR_RW(pwm3, pwm, 2);
+static SENSOR_DEVICE_ATTR_RW(pwm3_enable, pwm_en, 2);
+>>>>>>> upstream/android-13
 
 static DEVICE_ATTR_RO(alarms);
 
@@ -689,7 +775,11 @@ static int __init smsc47m1_handle_resources(unsigned short address,
 			/* Request the resources */
 			if (!devm_request_region(dev, start, len, DRVNAME)) {
 				dev_err(dev,
+<<<<<<< HEAD
 					"Region 0x%hx-0x%hx already in use!\n",
+=======
+					"Region 0x%x-0x%x already in use!\n",
+>>>>>>> upstream/android-13
 					start, start + len);
 				return -EBUSY;
 			}

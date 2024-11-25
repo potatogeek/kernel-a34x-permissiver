@@ -10,6 +10,13 @@ Required properties:
 
 - interrupts : The CODEC's interrupt output.
 
+<<<<<<< HEAD
+=======
+- avdd-supply: Power supply for AVDD, providing 1.8V.
+
+- cpvdd-supply: Power supply for CPVDD, providing 3.5V.
+
+>>>>>>> upstream/android-13
 Optional properties:
 
 - hp-detect-gpios:

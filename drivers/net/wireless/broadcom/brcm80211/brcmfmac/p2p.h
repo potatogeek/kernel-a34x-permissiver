@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2012 Broadcom Corporation
  *
@@ -12,6 +13,11 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2012 Broadcom Corporation
+>>>>>>> upstream/android-13
  */
 #ifndef WL_CFGP2P_H_
 #define WL_CFGP2P_H_
@@ -25,13 +31,23 @@ struct brcmf_cfg80211_info;
  *
  * @P2PAPI_BSSCFG_PRIMARY: maps to driver's primary bsscfg.
  * @P2PAPI_BSSCFG_DEVICE: maps to driver's P2P device discovery bsscfg.
+<<<<<<< HEAD
  * @P2PAPI_BSSCFG_CONNECTION: maps to driver's P2P connection bsscfg.
+=======
+ * @P2PAPI_BSSCFG_CONNECTION: maps to driver's 1st P2P connection bsscfg.
+ * @P2PAPI_BSSCFG_CONNECTION2: maps to driver's 2nd P2P connection bsscfg.
+>>>>>>> upstream/android-13
  * @P2PAPI_BSSCFG_MAX: used for range checking.
  */
 enum p2p_bss_type {
 	P2PAPI_BSSCFG_PRIMARY, /* maps to driver's primary bsscfg */
 	P2PAPI_BSSCFG_DEVICE, /* maps to driver's P2P device discovery bsscfg */
+<<<<<<< HEAD
 	P2PAPI_BSSCFG_CONNECTION, /* maps to driver's P2P connection bsscfg */
+=======
+	P2PAPI_BSSCFG_CONNECTION, /* driver's 1st P2P connection bsscfg */
+	P2PAPI_BSSCFG_CONNECTION2, /* driver's 2nd P2P connection bsscfg */
+>>>>>>> upstream/android-13
 	P2PAPI_BSSCFG_MAX
 };
 
@@ -130,7 +146,12 @@ struct brcmf_p2p_info {
 	struct brcmf_cfg80211_info *cfg;
 	unsigned long status;
 	u8 dev_addr[ETH_ALEN];
+<<<<<<< HEAD
 	u8 int_addr[ETH_ALEN];
+=======
+	u8 conn_int_addr[ETH_ALEN];
+	u8 conn2_int_addr[ETH_ALEN];
+>>>>>>> upstream/android-13
 	struct p2p_bss bss_idx[P2PAPI_BSSCFG_MAX];
 	struct timer_list listen_timer;
 	u8 listen_channel;

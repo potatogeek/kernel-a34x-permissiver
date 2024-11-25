@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Ethernet netdevice using ATM AAL5 as underlying carrier
  * (RFC1483 obsoleted by RFC2684) for Linux
@@ -92,8 +96,13 @@ struct br2684_dev {
  * This lock should be held for writing any time the list of devices or
  * their attached vcc's could be altered.  It should be held for reading
  * any time these are being queried.  Note that we sometimes need to
+<<<<<<< HEAD
  * do read-locking under interrupt context, so write locking must block
  * the current CPU's interrupts
+=======
+ * do read-locking under interrupting context, so write locking must block
+ * the current CPU's interrupts.
+>>>>>>> upstream/android-13
  */
 static DEFINE_RWLOCK(devs_lock);
 

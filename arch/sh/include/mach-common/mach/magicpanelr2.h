@@ -1,13 +1,21 @@
+<<<<<<< HEAD
 /*
+=======
+/* SPDX-License-Identifier: GPL-2.0
+ *
+>>>>>>> upstream/android-13
  *  include/asm-sh/magicpanelr2.h
  *
  *  Copyright (C) 2007  Markus Brunner, Mark Jonas
  *
  *  I/O addresses and bitmasks for Magic Panel Release 2 board
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __ASM_SH_MAGICPANELR2_H

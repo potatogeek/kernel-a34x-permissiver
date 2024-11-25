@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * HDMI driver for OMAP5
  *
@@ -8,6 +12,7 @@
  *	Mythri pk
  *	Archit Taneja <archit@ti.com>
  *	Tomi Valkeinen <tomi.valkeinen@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
@@ -20,6 +25,8 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define DSS_SUBSYS_NAME "HDMI"
@@ -35,7 +42,11 @@
 #include <linux/platform_device.h>
 #include <linux/pm_runtime.h>
 #include <linux/clk.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/of.h>
+>>>>>>> upstream/android-13
 #include <linux/regulator/consumer.h>
 #include <linux/component.h>
 #include <video/omapfb_dss.h>
@@ -724,7 +735,11 @@ static int hdmi5_bind(struct device *dev, struct device *master, void *data)
 	int irq;
 
 	hdmi.pdev = pdev;
+<<<<<<< HEAD
 	dev_set_drvdata(&pdev->dev, &hdmi);
+=======
+	platform_set_drvdata(pdev, &hdmi);
+>>>>>>> upstream/android-13
 
 	mutex_init(&hdmi.lock);
 	spin_lock_init(&hdmi.audio_playing_lock);

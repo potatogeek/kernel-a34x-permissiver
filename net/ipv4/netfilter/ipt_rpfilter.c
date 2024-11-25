@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2011 Florian Westphal <fw@strlen.de>
  *
@@ -5,6 +6,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2011 Florian Westphal <fw@strlen.de>
+ *
+>>>>>>> upstream/android-13
  * based on fib_frontend.c; Author: Alexey Kuznetsov, <kuznet@ms2.inr.ac.ru>
  */
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -36,7 +43,10 @@ static bool rpfilter_lookup_reverse(struct net *net, struct flowi4 *fl4,
 				const struct net_device *dev, u8 flags)
 {
 	struct fib_result res;
+<<<<<<< HEAD
 	bool dev_match;
+=======
+>>>>>>> upstream/android-13
 	int ret __maybe_unused;
 
 	if (fib_lookup(net, fl4, &res, FIB_LOOKUP_IGNORE_LINKSTATE))
@@ -46,6 +56,7 @@ static bool rpfilter_lookup_reverse(struct net *net, struct flowi4 *fl4,
 		if (res.type != RTN_LOCAL || !(flags & XT_RPFILTER_ACCEPT_LOCAL))
 			return false;
 	}
+<<<<<<< HEAD
 	dev_match = false;
 #ifdef CONFIG_IP_ROUTE_MULTIPATH
 	for (ret = 0; ret < res.fi->fib_nhs; ret++) {
@@ -61,6 +72,9 @@ static bool rpfilter_lookup_reverse(struct net *net, struct flowi4 *fl4,
 		dev_match = true;
 #endif
 	return dev_match || flags & XT_RPFILTER_LOOSE;
+=======
+	return fib_info_nh_uses_dev(res.fi, dev) || flags & XT_RPFILTER_LOOSE;
+>>>>>>> upstream/android-13
 }
 
 static bool

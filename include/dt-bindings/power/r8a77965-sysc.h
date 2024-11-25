@@ -21,7 +21,10 @@
 #define R8A77965_PD_A3VC		14
 #define R8A77965_PD_3DG_A		17
 #define R8A77965_PD_3DG_B		18
+<<<<<<< HEAD
 #define R8A77965_PD_A3IR		24
+=======
+>>>>>>> upstream/android-13
 #define R8A77965_PD_A2VC1		26
 
 /* Always-on power area */

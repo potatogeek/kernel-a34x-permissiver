@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2016 IBM Corporation
  *
  * Authors:
  * Thiago Jung Bauermann <bauerman@linux.vnet.ibm.com>
  * Mimi Zohar <zohar@linux.vnet.ibm.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,10 +16,18 @@
  * (at your option) any later version.
  */
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+=======
+ */
+>>>>>>> upstream/android-13
 
 #include <linux/seq_file.h>
 #include <linux/vmalloc.h>
 #include <linux/kexec.h>
+<<<<<<< HEAD
+=======
+#include <linux/of.h>
+#include <linux/ima.h>
+>>>>>>> upstream/android-13
 #include "ima.h"
 
 #ifdef CONFIG_IMA_KEXEC
@@ -106,7 +119,11 @@ void ima_add_kexec_buffer(struct kimage *image)
 		kexec_segment_size = ALIGN(ima_get_binary_runtime_size() +
 					   PAGE_SIZE / 2, PAGE_SIZE);
 	if ((kexec_segment_size == ULONG_MAX) ||
+<<<<<<< HEAD
 	    ((kexec_segment_size >> PAGE_SHIFT) > totalram_pages / 2)) {
+=======
+	    ((kexec_segment_size >> PAGE_SHIFT) > totalram_pages() / 2)) {
+>>>>>>> upstream/android-13
 		pr_err("Binary measurement list too large.\n");
 		return;
 	}
@@ -128,12 +145,17 @@ void ima_add_kexec_buffer(struct kimage *image)
 		return;
 	}
 
+<<<<<<< HEAD
 	ret = arch_ima_add_kexec_buffer(image, kbuf.mem, kexec_segment_size);
 	if (ret) {
 		pr_err("Error passing over kexec measurement buffer.\n");
 		return;
 	}
 
+=======
+	image->ima_buffer_addr = kbuf.mem;
+	image->ima_buffer_size = kexec_segment_size;
+>>>>>>> upstream/android-13
 	image->ima_buffer = kexec_buffer;
 
 	pr_debug("kexec measurement buffer for the loaded kernel at 0x%lx.\n",

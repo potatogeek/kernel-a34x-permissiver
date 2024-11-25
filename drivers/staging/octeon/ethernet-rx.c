@@ -23,6 +23,7 @@
 #include <net/xfrm.h>
 #endif /* CONFIG_XFRM */
 
+<<<<<<< HEAD
 #include <asm/octeon/octeon.h>
 
 #include "ethernet-defines.h"
@@ -40,6 +41,14 @@
 
 #include <asm/octeon/cvmx-gmxx-defs.h>
 
+=======
+#include "octeon-ethernet.h"
+#include "ethernet-defines.h"
+#include "ethernet-mem.h"
+#include "ethernet-rx.h"
+#include "ethernet-util.h"
+
+>>>>>>> upstream/android-13
 static atomic_t oct_rx_ready = ATOMIC_INIT(0);
 
 static struct oct_rx_group {
@@ -71,7 +80,11 @@ static irqreturn_t cvm_oct_do_interrupt(int irq, void *napi_id)
  *
  * Returns Non-zero if the packet can be dropped, zero otherwise.
  */
+<<<<<<< HEAD
 static inline int cvm_oct_check_rcv_error(cvmx_wqe_t *work)
+=======
+static inline int cvm_oct_check_rcv_error(struct cvmx_wqe *work)
+>>>>>>> upstream/android-13
 {
 	int port;
 
@@ -150,7 +163,11 @@ static inline int cvm_oct_check_rcv_error(cvmx_wqe_t *work)
 	return 1;
 }
 
+<<<<<<< HEAD
 static void copy_segments_to_skb(cvmx_wqe_t *work, struct sk_buff *skb)
+=======
+static void copy_segments_to_skb(struct cvmx_wqe *work, struct sk_buff *skb)
+>>>>>>> upstream/android-13
 {
 	int segments = work->word2.s.bufs;
 	union cvmx_buf_ptr segment_ptr = work->packet_ptr;
@@ -230,7 +247,11 @@ static int cvm_oct_poll(struct oct_rx_group *rx_group, int budget)
 		struct sk_buff *skb = NULL;
 		struct sk_buff **pskb = NULL;
 		int skb_in_hw;
+<<<<<<< HEAD
 		cvmx_wqe_t *work;
+=======
+		struct cvmx_wqe *work;
+>>>>>>> upstream/android-13
 		int port;
 
 		if (USE_ASYNC_IOBDMA && did_work_request)

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #include <linux/export.h>
 #include <linux/sched/signal.h>
 #include <linux/sched/task.h>
@@ -116,7 +120,11 @@ struct fs_struct *copy_fs_struct(struct fs_struct *old)
 		fs->users = 1;
 		fs->in_exec = 0;
 		spin_lock_init(&fs->lock);
+<<<<<<< HEAD
 		seqcount_init(&fs->seq);
+=======
+		seqcount_spinlock_init(&fs->seq, &fs->lock);
+>>>>>>> upstream/android-13
 		fs->umask = old->umask;
 
 		spin_lock(&old->lock);
@@ -162,6 +170,10 @@ EXPORT_SYMBOL(current_umask);
 struct fs_struct init_fs = {
 	.users		= 1,
 	.lock		= __SPIN_LOCK_UNLOCKED(init_fs.lock),
+<<<<<<< HEAD
 	.seq		= SEQCNT_ZERO(init_fs.seq),
+=======
+	.seq		= SEQCNT_SPINLOCK_ZERO(init_fs.seq, &init_fs.lock),
+>>>>>>> upstream/android-13
 	.umask		= 0022,
 };

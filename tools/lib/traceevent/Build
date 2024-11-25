@@ -4,6 +4,7 @@ libtraceevent-y += trace-seq.o
 libtraceevent-y += parse-filter.o
 libtraceevent-y += parse-utils.o
 libtraceevent-y += kbuffer-parse.o
+<<<<<<< HEAD
 
 plugin_jbd2-y         += plugin_jbd2.o
 plugin_hrtimer-y      += plugin_hrtimer.o
@@ -15,3 +16,7 @@ plugin_function-y     += plugin_function.o
 plugin_xen-y          += plugin_xen.o
 plugin_scsi-y         += plugin_scsi.o
 plugin_cfg80211-y     += plugin_cfg80211.o
+=======
+libtraceevent-y += tep_strerror.o
+libtraceevent-y += event-parse-api.o
+>>>>>>> upstream/android-13

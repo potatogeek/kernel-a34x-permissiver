@@ -57,7 +57,11 @@ process_arch()
 	local arch="$1"
 	local asm_errno=$(asm_errno_file "$arch")
 
+<<<<<<< HEAD
 	$gcc $include_path -E -dM -x c $asm_errno \
+=======
+	$gcc $CFLAGS $include_path -E -dM -x c $asm_errno \
+>>>>>>> upstream/android-13
 		|grep -hE '^#define[[:blank:]]+(E[^[:blank:]]+)[[:blank:]]+([[:digit:]]+).*' \
 		|awk '{ print $2","$3; }' \
 		|sort -t, -k2 -nu \
@@ -87,6 +91,7 @@ cat <<EoHEADER
 
 EoHEADER
 
+<<<<<<< HEAD
 # Create list of architectures and ignore those that do not appear
 # in tools/perf/arch
 archlist=""
@@ -98,3 +103,15 @@ for arch in x86 $archlist generic; do
 	process_arch "$arch"
 done
 create_arch_errno_table_func "x86 $archlist" "generic"
+=======
+# Create list of architectures that have a specific errno.h.
+archlist=""
+for arch in $(find $toolsdir/arch -maxdepth 1 -mindepth 1 -type d -printf "%f\n" | sort -r); do
+	test -f $toolsdir/arch/$arch/include/uapi/asm/errno.h && archlist="$archlist $arch"
+done
+
+for arch in generic $archlist; do
+	process_arch "$arch"
+done
+create_arch_errno_table_func "$archlist" "generic"
+>>>>>>> upstream/android-13

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0+
+=======
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+>>>>>>> upstream/android-13
 // Copyright (C) 2018 Facebook
 // Author: Yonghong Song <yhs@fb.com>
 
@@ -13,7 +17,11 @@
 #include <unistd.h>
 #include <ftw.h>
 
+<<<<<<< HEAD
 #include <bpf.h>
+=======
+#include <bpf/bpf.h>
+>>>>>>> upstream/android-13
 
 #include "main.h"
 
@@ -104,6 +112,11 @@ static void print_perf_json(int pid, int fd, __u32 prog_id, __u32 fd_type,
 		jsonw_string_field(json_wtr, "filename", buf);
 		jsonw_lluint_field(json_wtr, "offset", probe_offset);
 		break;
+<<<<<<< HEAD
+=======
+	default:
+		break;
+>>>>>>> upstream/android-13
 	}
 	jsonw_end_object(json_wtr);
 }
@@ -140,6 +153,11 @@ static void print_perf_plain(int pid, int fd, __u32 prog_id, __u32 fd_type,
 		printf("uretprobe  filename %s  offset %llu\n", buf,
 		       probe_offset);
 		break;
+<<<<<<< HEAD
+=======
+	default:
+		break;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -227,7 +245,14 @@ static int do_show(int argc, char **argv)
 static int do_help(int argc, char **argv)
 {
 	fprintf(stderr,
+<<<<<<< HEAD
 		"Usage: %s %s { show | list | help }\n"
+=======
+		"Usage: %1$s %2$s { show | list }\n"
+		"       %1$s %2$s help }\n"
+		"\n"
+		"       " HELP_SPEC_OPTIONS " }\n"
+>>>>>>> upstream/android-13
 		"",
 		bin_name, argv[-2]);
 

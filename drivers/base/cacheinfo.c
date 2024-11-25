@@ -213,6 +213,11 @@ int __weak cache_setup_acpi(unsigned int cpu)
 	return -ENOTSUPP;
 }
 
+<<<<<<< HEAD
+=======
+unsigned int coherency_max_size;
+
+>>>>>>> upstream/android-13
 static int cache_shared_cpu_map_setup(unsigned int cpu)
 {
 	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
@@ -251,6 +256,12 @@ static int cache_shared_cpu_map_setup(unsigned int cpu)
 				cpumask_set_cpu(i, &this_leaf->shared_cpu_map);
 			}
 		}
+<<<<<<< HEAD
+=======
+		/* record the maximum cache line size */
+		if (this_leaf->coherency_line_size > coherency_max_size)
+			coherency_max_size = this_leaf->coherency_line_size;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -292,6 +303,10 @@ static void free_cache_attributes(unsigned int cpu)
 
 	kfree(per_cpu_cacheinfo(cpu));
 	per_cpu_cacheinfo(cpu) = NULL;
+<<<<<<< HEAD
+=======
+	cache_leaves(cpu) = 0;
+>>>>>>> upstream/android-13
 }
 
 int __weak init_cache_level(unsigned int cpu)
@@ -357,7 +372,11 @@ static ssize_t file_name##_show(struct device *dev,		\
 		struct device_attribute *attr, char *buf)	\
 {								\
 	struct cacheinfo *this_leaf = dev_get_drvdata(dev);	\
+<<<<<<< HEAD
 	return sprintf(buf, "%u\n", this_leaf->object);		\
+=======
+	return sysfs_emit(buf, "%u\n", this_leaf->object);	\
+>>>>>>> upstream/android-13
 }
 
 show_one(id, id);
@@ -372,6 +391,7 @@ static ssize_t size_show(struct device *dev,
 {
 	struct cacheinfo *this_leaf = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	return sprintf(buf, "%uK\n", this_leaf->size >> 10);
 }
 
@@ -381,24 +401,42 @@ static ssize_t shared_cpumap_show_func(struct device *dev, bool list, char *buf)
 	const struct cpumask *mask = &this_leaf->shared_cpu_map;
 
 	return cpumap_print_to_pagebuf(list, buf, mask);
+=======
+	return sysfs_emit(buf, "%uK\n", this_leaf->size >> 10);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t shared_cpu_map_show(struct device *dev,
 				   struct device_attribute *attr, char *buf)
 {
+<<<<<<< HEAD
 	return shared_cpumap_show_func(dev, false, buf);
+=======
+	struct cacheinfo *this_leaf = dev_get_drvdata(dev);
+	const struct cpumask *mask = &this_leaf->shared_cpu_map;
+
+	return sysfs_emit(buf, "%*pb\n", nr_cpu_ids, mask);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t shared_cpu_list_show(struct device *dev,
 				    struct device_attribute *attr, char *buf)
 {
+<<<<<<< HEAD
 	return shared_cpumap_show_func(dev, true, buf);
+=======
+	struct cacheinfo *this_leaf = dev_get_drvdata(dev);
+	const struct cpumask *mask = &this_leaf->shared_cpu_map;
+
+	return sysfs_emit(buf, "%*pbl\n", nr_cpu_ids, mask);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t type_show(struct device *dev,
 			 struct device_attribute *attr, char *buf)
 {
 	struct cacheinfo *this_leaf = dev_get_drvdata(dev);
+<<<<<<< HEAD
 
 	switch (this_leaf->type) {
 	case CACHE_TYPE_DATA:
@@ -410,6 +448,25 @@ static ssize_t type_show(struct device *dev,
 	default:
 		return -EINVAL;
 	}
+=======
+	const char *output;
+
+	switch (this_leaf->type) {
+	case CACHE_TYPE_DATA:
+		output = "Data";
+		break;
+	case CACHE_TYPE_INST:
+		output = "Instruction";
+		break;
+	case CACHE_TYPE_UNIFIED:
+		output = "Unified";
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	return sysfs_emit(buf, "%s\n", output);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t allocation_policy_show(struct device *dev,
@@ -417,6 +474,7 @@ static ssize_t allocation_policy_show(struct device *dev,
 {
 	struct cacheinfo *this_leaf = dev_get_drvdata(dev);
 	unsigned int ci_attr = this_leaf->attributes;
+<<<<<<< HEAD
 	int n = 0;
 
 	if ((ci_attr & CACHE_READ_ALLOCATE) && (ci_attr & CACHE_WRITE_ALLOCATE))
@@ -426,6 +484,20 @@ static ssize_t allocation_policy_show(struct device *dev,
 	else if (ci_attr & CACHE_WRITE_ALLOCATE)
 		n = sprintf(buf, "WriteAllocate\n");
 	return n;
+=======
+	const char *output;
+
+	if ((ci_attr & CACHE_READ_ALLOCATE) && (ci_attr & CACHE_WRITE_ALLOCATE))
+		output = "ReadWriteAllocate";
+	else if (ci_attr & CACHE_READ_ALLOCATE)
+		output = "ReadAllocate";
+	else if (ci_attr & CACHE_WRITE_ALLOCATE)
+		output = "WriteAllocate";
+	else
+		return 0;
+
+	return sysfs_emit(buf, "%s\n", output);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t write_policy_show(struct device *dev,
@@ -436,9 +508,15 @@ static ssize_t write_policy_show(struct device *dev,
 	int n = 0;
 
 	if (ci_attr & CACHE_WRITE_THROUGH)
+<<<<<<< HEAD
 		n = sprintf(buf, "WriteThrough\n");
 	else if (ci_attr & CACHE_WRITE_BACK)
 		n = sprintf(buf, "WriteBack\n");
+=======
+		n = sysfs_emit(buf, "WriteThrough\n");
+	else if (ci_attr & CACHE_WRITE_BACK)
+		n = sysfs_emit(buf, "WriteBack\n");
+>>>>>>> upstream/android-13
 	return n;
 }
 
@@ -613,6 +691,11 @@ static int cache_add_dev(unsigned int cpu)
 		this_leaf = this_cpu_ci->info_list + i;
 		if (this_leaf->disable_sysfs)
 			continue;
+<<<<<<< HEAD
+=======
+		if (this_leaf->type == CACHE_TYPE_NOCACHE)
+			break;
+>>>>>>> upstream/android-13
 		cache_groups = cache_get_attribute_groups(this_leaf);
 		ci_dev = cpu_device_create(parent, this_leaf, cache_groups,
 					   "index%1u", i);

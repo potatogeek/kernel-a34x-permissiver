@@ -27,7 +27,12 @@ struct channel_path_desc_fmt1 {
 	u8 lsn;
 	u8 desc;
 	u8 chpid;
+<<<<<<< HEAD
 	u32:24;
+=======
+	u32:16;
+	u8 esc;
+>>>>>>> upstream/android-13
 	u8 chpp;
 	u32 unused[2];
 	u16 chid;
@@ -163,7 +168,13 @@ void chsc_chp_offline(struct chp_id chpid);
 int chsc_get_channel_measurement_chars(struct channel_path *chp);
 int chsc_ssqd(struct subchannel_id schid, struct chsc_ssqd_area *ssqd);
 int chsc_sadc(struct subchannel_id schid, struct chsc_scssc_area *scssc,
+<<<<<<< HEAD
 	      u64 summary_indicator_addr, u64 subchannel_indicator_addr);
+=======
+	      u64 summary_indicator_addr, u64 subchannel_indicator_addr,
+	      u8 isc);
+int chsc_sgib(u32 origin);
+>>>>>>> upstream/android-13
 int chsc_error_from_response(int response);
 
 int chsc_siosl(struct subchannel_id schid);
@@ -203,6 +214,7 @@ struct chsc_scm_info {
 
 int chsc_scm_info(struct chsc_scm_info *scm_area, u64 token);
 
+<<<<<<< HEAD
 struct chsc_brinfo_resume_token {
 	u64 t1;
 	u64 t2;
@@ -251,6 +263,12 @@ int chsc_pnso_brinfo(struct subchannel_id schid,
 		int cnc);
 
 int __init chsc_get_cssid(int idx);
+=======
+int chsc_pnso(struct subchannel_id schid, struct chsc_pnso_area *pnso_area,
+	      u8 oc, struct chsc_pnso_resume_token resume_token, int cnc);
+
+int __init chsc_get_cssid_iid(int idx, u8 *cssid, u8 *iid);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_SCM_BUS
 int scm_update_information(void);

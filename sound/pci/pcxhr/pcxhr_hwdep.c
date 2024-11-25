@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for Digigram pcxhr compatible soundcards
  *
  * hwdep device manager
  *
  * Copyright (c) 2004 by Digigram <alsa@digigram.com>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/interrupt.h>
@@ -335,6 +342,7 @@ static int pcxhr_dsp_load(struct pcxhr_mgr *mgr, int index,
         for (card_index = 0; card_index < mgr->num_cards; card_index++) {
 		struct snd_pcxhr *chip = mgr->chip[card_index];
 
+<<<<<<< HEAD
 		if ((err = pcxhr_create_pcm(chip)) < 0)
 			return err;
 
@@ -343,6 +351,19 @@ static int pcxhr_dsp_load(struct pcxhr_mgr *mgr, int index,
 				return err;
 		}
 		if ((err = snd_card_register(chip->card)) < 0)
+=======
+		err = pcxhr_create_pcm(chip);
+		if (err < 0)
+			return err;
+
+		if (card_index == 0) {
+			err = pcxhr_create_mixer(chip->mgr);
+			if (err < 0)
+				return err;
+		}
+		err = snd_card_register(chip->card);
+		if (err < 0)
+>>>>>>> upstream/android-13
 			return err;
 	}
 	err = pcxhr_start_pipes(mgr);
@@ -361,7 +382,11 @@ static int pcxhr_dsp_load(struct pcxhr_mgr *mgr, int index,
  */
 int pcxhr_setup_firmware(struct pcxhr_mgr *mgr)
 {
+<<<<<<< HEAD
 	static char *fw_files[][5] = {
+=======
+	static const char * const fw_files[][5] = {
+>>>>>>> upstream/android-13
 	[0] = { "xlxint.dat", "xlxc882hr.dat",
 		"dspe882.e56", "dspb882hr.b56", "dspd882.d56" },
 	[1] = { "xlxint.dat", "xlxc882e.dat",

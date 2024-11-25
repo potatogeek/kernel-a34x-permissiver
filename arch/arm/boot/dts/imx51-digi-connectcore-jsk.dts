@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014 Alexander Shiyan <shc_work@mail.ru>
  *
@@ -7,6 +8,11 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2014 Alexander Shiyan <shc_work@mail.ru>
+>>>>>>> upstream/android-13
  */
 
 #include "imx51-digi-connectcore-som.dtsi"
@@ -21,12 +27,34 @@
 	};
 };
 
+<<<<<<< HEAD
+=======
+&esdhc1 {
+	status = "okay";
+};
+
+>>>>>>> upstream/android-13
 &owire {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_owire>;
 	status = "okay";
 };
 
+<<<<<<< HEAD
+=======
+&pmic {
+	fsl,mc13xxx-uses-rtc;
+
+	regulators {
+		vcoincell_reg: vcoincell {
+			regulator-min-microvolt = <3000000>;
+			regulator-max-microvolt = <3000000>;
+			regulator-always-on;
+		};
+	};
+};
+
+>>>>>>> upstream/android-13
 &uart1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_uart1>;

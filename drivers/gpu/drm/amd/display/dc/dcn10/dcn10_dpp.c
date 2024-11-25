@@ -91,6 +91,7 @@ enum dscl_mode_sel {
 	DSCL_MODE_DSCL_BYPASS = 6
 };
 
+<<<<<<< HEAD
 enum gamut_remap_select {
 	GAMUT_REMAP_BYPASS = 0,
 	GAMUT_REMAP_COEFF,
@@ -98,11 +99,18 @@ enum gamut_remap_select {
 	GAMUT_REMAP_COMB_COEFF
 };
 
+=======
+>>>>>>> upstream/android-13
 void dpp_read_state(struct dpp *dpp_base,
 		struct dcn_dpp_state *s)
 {
 	struct dcn10_dpp *dpp = TO_DCN10_DPP(dpp_base);
 
+<<<<<<< HEAD
+=======
+	REG_GET(DPP_CONTROL,
+			DPP_CLOCK_ENABLE, &s->is_enabled);
+>>>>>>> upstream/android-13
 	REG_GET(CM_IGAM_CONTROL,
 			CM_IGAM_LUT_MODE, &s->igam_lut_mode);
 	REG_GET(CM_IGAM_CONTROL,
@@ -114,12 +122,23 @@ void dpp_read_state(struct dpp *dpp_base,
 	REG_GET(CM_GAMUT_REMAP_CONTROL,
 			CM_GAMUT_REMAP_MODE, &s->gamut_remap_mode);
 
+<<<<<<< HEAD
 	s->gamut_remap_c11_c12 = REG_READ(CM_GAMUT_REMAP_C11_C12);
 	s->gamut_remap_c13_c14 = REG_READ(CM_GAMUT_REMAP_C13_C14);
 	s->gamut_remap_c21_c22 = REG_READ(CM_GAMUT_REMAP_C21_C22);
 	s->gamut_remap_c23_c24 = REG_READ(CM_GAMUT_REMAP_C23_C24);
 	s->gamut_remap_c31_c32 = REG_READ(CM_GAMUT_REMAP_C31_C32);
 	s->gamut_remap_c33_c34 = REG_READ(CM_GAMUT_REMAP_C33_C34);
+=======
+	if (s->gamut_remap_mode) {
+		s->gamut_remap_c11_c12 = REG_READ(CM_GAMUT_REMAP_C11_C12);
+		s->gamut_remap_c13_c14 = REG_READ(CM_GAMUT_REMAP_C13_C14);
+		s->gamut_remap_c21_c22 = REG_READ(CM_GAMUT_REMAP_C21_C22);
+		s->gamut_remap_c23_c24 = REG_READ(CM_GAMUT_REMAP_C23_C24);
+		s->gamut_remap_c31_c32 = REG_READ(CM_GAMUT_REMAP_C31_C32);
+		s->gamut_remap_c33_c34 = REG_READ(CM_GAMUT_REMAP_C33_C34);
+	}
+>>>>>>> upstream/android-13
 }
 
 /* Program gamut remap in bypass mode */
@@ -132,11 +151,16 @@ void dpp_set_gamut_remap_bypass(struct dcn10_dpp *dpp)
 
 #define IDENTITY_RATIO(ratio) (dc_fixpt_u2d19(ratio) == (1 << 19))
 
+<<<<<<< HEAD
 static bool dpp_get_optimal_number_of_taps(
+=======
+bool dpp1_get_optimal_number_of_taps(
+>>>>>>> upstream/android-13
 		struct dpp *dpp,
 		struct scaler_data *scl_data,
 		const struct scaling_taps *in_taps)
 {
+<<<<<<< HEAD
 	uint32_t pixel_width;
 
 	if (scl_data->viewport.width > scl_data->recout.width)
@@ -144,6 +168,8 @@ static bool dpp_get_optimal_number_of_taps(
 	else
 		pixel_width = scl_data->viewport.width;
 
+=======
+>>>>>>> upstream/android-13
 	/* Some ASICs does not support  FP16 scaling, so we reject modes require this*/
 	if (scl_data->format == PIXEL_FORMAT_FP16 &&
 		dpp->caps->dscl_data_proc_format == DSCL_DATA_PRCESSING_FIXED_FORMAT &&
@@ -267,7 +293,12 @@ static void dpp1_setup_format_flags(enum surface_pixel_format input_format,\
 	if (input_format == SURFACE_PIXEL_FORMAT_GRPH_ARGB16161616F ||
 		input_format == SURFACE_PIXEL_FORMAT_GRPH_ABGR16161616F)
 		*fmt = PIXEL_FORMAT_FLOAT;
+<<<<<<< HEAD
 	else if (input_format == SURFACE_PIXEL_FORMAT_GRPH_ARGB16161616)
+=======
+	else if (input_format == SURFACE_PIXEL_FORMAT_GRPH_ARGB16161616 ||
+		input_format == SURFACE_PIXEL_FORMAT_GRPH_ABGR16161616)
+>>>>>>> upstream/android-13
 		*fmt = PIXEL_FORMAT_FIXED16;
 	else
 		*fmt = PIXEL_FORMAT_FIXED;
@@ -293,7 +324,12 @@ void dpp1_cnv_setup (
 		enum surface_pixel_format format,
 		enum expansion_mode mode,
 		struct dc_csc_transform input_csc_color_matrix,
+<<<<<<< HEAD
 		enum dc_color_space input_color_space)
+=======
+		enum dc_color_space input_color_space,
+		struct cnv_alpha_2bit_lut *alpha_2bit_lut)
+>>>>>>> upstream/android-13
 {
 	uint32_t pixel_format;
 	uint32_t alpha_en;
@@ -377,7 +413,12 @@ void dpp1_cnv_setup (
 		select = INPUT_CSC_SELECT_ICSC;
 		break;
 	case SURFACE_PIXEL_FORMAT_GRPH_ARGB16161616:
+<<<<<<< HEAD
 		pixel_format = 22;
+=======
+	case SURFACE_PIXEL_FORMAT_GRPH_ABGR16161616:
+		pixel_format = 26; /* ARGB16161616_UNORM */
+>>>>>>> upstream/android-13
 		break;
 	case SURFACE_PIXEL_FORMAT_GRPH_ARGB16161616F:
 		pixel_format = 24;
@@ -424,8 +465,14 @@ void dpp1_cnv_setup (
 
 void dpp1_set_cursor_attributes(
 		struct dpp *dpp_base,
+<<<<<<< HEAD
 		enum dc_cursor_color_format color_format)
 {
+=======
+		struct dc_cursor_attributes *cursor_attributes)
+{
+	enum dc_cursor_color_format color_format = cursor_attributes->color_format;
+>>>>>>> upstream/android-13
 	struct dcn10_dpp *dpp = TO_DCN10_DPP(dpp_base);
 
 	REG_UPDATE_2(CURSOR0_CONTROL,
@@ -446,18 +493,51 @@ void dpp1_set_cursor_position(
 		struct dpp *dpp_base,
 		const struct dc_cursor_position *pos,
 		const struct dc_cursor_mi_param *param,
+<<<<<<< HEAD
 		uint32_t width)
 {
 	struct dcn10_dpp *dpp = TO_DCN10_DPP(dpp_base);
 	int src_x_offset = pos->x - pos->x_hotspot - param->viewport.x;
 	uint32_t cur_en = pos->enable ? 1 : 0;
 
+=======
+		uint32_t width,
+		uint32_t height)
+{
+	struct dcn10_dpp *dpp = TO_DCN10_DPP(dpp_base);
+	int src_x_offset = pos->x - pos->x_hotspot - param->viewport.x;
+	int src_y_offset = pos->y - pos->y_hotspot - param->viewport.y;
+	uint32_t cur_en = pos->enable ? 1 : 0;
+
+	// Cursor width/height and hotspots need to be rotated for offset calculation
+	if (param->rotation == ROTATION_ANGLE_90 || param->rotation == ROTATION_ANGLE_270) {
+		swap(width, height);
+		if (param->rotation == ROTATION_ANGLE_90) {
+			src_x_offset = pos->x - pos->y_hotspot - param->viewport.x;
+			src_y_offset = pos->y - pos->x_hotspot - param->viewport.y;
+		}
+	} else if (param->rotation == ROTATION_ANGLE_180) {
+		src_x_offset = pos->x - param->viewport.x;
+		src_y_offset = pos->y - param->viewport.y;
+	}
+
+
+>>>>>>> upstream/android-13
 	if (src_x_offset >= (int)param->viewport.width)
 		cur_en = 0;  /* not visible beyond right edge*/
 
 	if (src_x_offset + (int)width <= 0)
 		cur_en = 0;  /* not visible beyond left edge*/
 
+<<<<<<< HEAD
+=======
+	if (src_y_offset >= (int)param->viewport.height)
+		cur_en = 0;  /* not visible beyond bottom edge*/
+
+	if (src_y_offset + (int)height <= 0)
+		cur_en = 0;  /* not visible beyond top edge*/
+
+>>>>>>> upstream/android-13
 	REG_UPDATE(CURSOR0_CONTROL,
 			CUR0_ENABLE, cur_en);
 
@@ -497,7 +577,11 @@ static const struct dpp_funcs dcn10_dpp_funcs = {
 		.dpp_read_state = dpp_read_state,
 		.dpp_reset = dpp_reset,
 		.dpp_set_scaler = dpp1_dscl_set_scaler_manual_scale,
+<<<<<<< HEAD
 		.dpp_get_optimal_number_of_taps = dpp_get_optimal_number_of_taps,
+=======
+		.dpp_get_optimal_number_of_taps = dpp1_get_optimal_number_of_taps,
+>>>>>>> upstream/android-13
 		.dpp_set_gamut_remap = dpp1_cm_set_gamut_remap,
 		.dpp_set_csc_adjustment = dpp1_cm_set_output_csc_adjustment,
 		.dpp_set_csc_default = dpp1_cm_set_output_csc_default,
@@ -518,6 +602,12 @@ static const struct dpp_funcs dcn10_dpp_funcs = {
 		.set_optional_cursor_attributes = dpp1_cnv_set_optional_cursor_attributes,
 		.dpp_dppclk_control = dpp1_dppclk_control,
 		.dpp_set_hdr_multiplier = dpp1_set_hdr_multiplier,
+<<<<<<< HEAD
+=======
+		.dpp_program_blnd_lut = NULL,
+		.dpp_program_shaper_lut = NULL,
+		.dpp_program_3dlut = NULL
+>>>>>>> upstream/android-13
 };
 
 static struct dpp_caps dcn10_dpp_cap = {
@@ -550,7 +640,12 @@ void dpp1_construct(
 	dpp->lb_pixel_depth_supported =
 		LB_PIXEL_DEPTH_18BPP |
 		LB_PIXEL_DEPTH_24BPP |
+<<<<<<< HEAD
 		LB_PIXEL_DEPTH_30BPP;
+=======
+		LB_PIXEL_DEPTH_30BPP |
+		LB_PIXEL_DEPTH_36BPP;
+>>>>>>> upstream/android-13
 
 	dpp->lb_bits_per_entry = LB_BITS_PER_ENTRY;
 	dpp->lb_memory_size = LB_TOTAL_NUMBER_OF_ENTRIES; /*0x1404*/

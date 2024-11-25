@@ -36,9 +36,14 @@
 #include <linux/efi.h>
 #include <linux/efi-bgrt.h>
 #include <linux/export.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
 #include <linux/slab.h>
 #include <linux/memblock.h>
+=======
+#include <linux/memblock.h>
+#include <linux/slab.h>
+>>>>>>> upstream/android-13
 #include <linux/spinlock.h>
 #include <linux/uaccess.h>
 #include <linux/time.h>
@@ -50,11 +55,15 @@
 #include <asm/efi.h>
 #include <asm/e820/api.h>
 #include <asm/time.h>
+<<<<<<< HEAD
 #include <asm/set_memory.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/tlbflush.h>
 #include <asm/x86_init.h>
 #include <asm/uv/uv.h>
 
+<<<<<<< HEAD
 static struct efi efi_phys __initdata;
 static efi_system_table_t efi_systab __initdata;
 
@@ -63,6 +72,48 @@ static efi_config_table_type_t arch_tables[] __initdata = {
 	{UV_SYSTEM_TABLE_GUID, "UVsystab", &efi.uv_systab},
 #endif
 	{NULL_GUID, NULL, NULL},
+=======
+static unsigned long efi_systab_phys __initdata;
+static unsigned long prop_phys = EFI_INVALID_TABLE_ADDR;
+static unsigned long uga_phys = EFI_INVALID_TABLE_ADDR;
+static unsigned long efi_runtime, efi_nr_tables;
+
+unsigned long efi_fw_vendor, efi_config_table;
+
+static const efi_config_table_type_t arch_tables[] __initconst = {
+	{EFI_PROPERTIES_TABLE_GUID,	&prop_phys,		"PROP"		},
+	{UGA_IO_PROTOCOL_GUID,		&uga_phys,		"UGA"		},
+#ifdef CONFIG_X86_UV
+	{UV_SYSTEM_TABLE_GUID,		&uv_systab_phys,	"UVsystab"	},
+#endif
+	{},
+};
+
+static const unsigned long * const efi_tables[] = {
+	&efi.acpi,
+	&efi.acpi20,
+	&efi.smbios,
+	&efi.smbios3,
+	&uga_phys,
+#ifdef CONFIG_X86_UV
+	&uv_systab_phys,
+#endif
+	&efi_fw_vendor,
+	&efi_runtime,
+	&efi_config_table,
+	&efi.esrt,
+	&prop_phys,
+	&efi_mem_attr_table,
+#ifdef CONFIG_EFI_RCI2_TABLE
+	&rci2_table_phys,
+#endif
+	&efi.tpm_log,
+	&efi.tpm_final_log,
+	&efi_rng_seed,
+#ifdef CONFIG_LOAD_UEFI_KEYS
+	&efi.mokvar_table,
+#endif
+>>>>>>> upstream/android-13
 };
 
 u64 efi_setup;		/* efi setup_data physical address */
@@ -75,6 +126,7 @@ static int __init setup_add_efi_memmap(char *arg)
 }
 early_param("add_efi_memmap", setup_add_efi_memmap);
 
+<<<<<<< HEAD
 static efi_status_t __init phys_efi_set_virtual_address_map(
 	unsigned long memory_map_size,
 	unsigned long descriptor_size,
@@ -99,11 +151,19 @@ static efi_status_t __init phys_efi_set_virtual_address_map(
 	return status;
 }
 
+=======
+>>>>>>> upstream/android-13
 void __init efi_find_mirror(void)
 {
 	efi_memory_desc_t *md;
 	u64 mirror_size = 0, total_size = 0;
 
+<<<<<<< HEAD
+=======
+	if (!efi_enabled(EFI_MEMMAP))
+		return;
+
+>>>>>>> upstream/android-13
 	for_each_efi_memory_desc(md) {
 		unsigned long long start = md->phys_addr;
 		unsigned long long size = md->num_pages << EFI_PAGE_SHIFT;
@@ -121,14 +181,26 @@ void __init efi_find_mirror(void)
 
 /*
  * Tell the kernel about the EFI memory map.  This might include
+<<<<<<< HEAD
  * more than the max 128 entries that can fit in the e820 legacy
  * (zeropage) memory map.
+=======
+ * more than the max 128 entries that can fit in the passed in e820
+ * legacy (zeropage) memory map, but the kernel's e820 table can hold
+ * E820_MAX_ENTRIES.
+>>>>>>> upstream/android-13
  */
 
 static void __init do_add_efi_memmap(void)
 {
 	efi_memory_desc_t *md;
 
+<<<<<<< HEAD
+=======
+	if (!efi_enabled(EFI_MEMMAP))
+		return;
+
+>>>>>>> upstream/android-13
 	for_each_efi_memory_desc(md) {
 		unsigned long long start = md->phys_addr;
 		unsigned long long size = md->num_pages << EFI_PAGE_SHIFT;
@@ -140,7 +212,14 @@ static void __init do_add_efi_memmap(void)
 		case EFI_BOOT_SERVICES_CODE:
 		case EFI_BOOT_SERVICES_DATA:
 		case EFI_CONVENTIONAL_MEMORY:
+<<<<<<< HEAD
 			if (md->attribute & EFI_MEMORY_WB)
+=======
+			if (efi_soft_reserve_enabled()
+			    && (md->attribute & EFI_MEMORY_SP))
+				e820_type = E820_TYPE_SOFT_RESERVED;
+			else if (md->attribute & EFI_MEMORY_WB)
+>>>>>>> upstream/android-13
 				e820_type = E820_TYPE_RAM;
 			else
 				e820_type = E820_TYPE_RESERVED;
@@ -166,11 +245,42 @@ static void __init do_add_efi_memmap(void)
 			e820_type = E820_TYPE_RESERVED;
 			break;
 		}
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		e820__range_add(start, size, e820_type);
 	}
 	e820__update_table(e820_table);
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * Given add_efi_memmap defaults to 0 and there there is no alternative
+ * e820 mechanism for soft-reserved memory, import the full EFI memory
+ * map if soft reservations are present and enabled. Otherwise, the
+ * mechanism to disable the kernel's consideration of EFI_MEMORY_SP is
+ * the efi=nosoftreserve option.
+ */
+static bool do_efi_soft_reserve(void)
+{
+	efi_memory_desc_t *md;
+
+	if (!efi_enabled(EFI_MEMMAP))
+		return false;
+
+	if (!efi_soft_reserve_enabled())
+		return false;
+
+	for_each_efi_memory_desc(md)
+		if (md->type == EFI_CONVENTIONAL_MEMORY &&
+		    (md->attribute & EFI_MEMORY_SP))
+			return true;
+	return false;
+}
+
+>>>>>>> upstream/android-13
 int __init efi_memblock_x86_reserve_range(void)
 {
 	struct efi_info *e = &boot_params.efi_info;
@@ -181,6 +291,7 @@ int __init efi_memblock_x86_reserve_range(void)
 	if (efi_enabled(EFI_PARAVIRT))
 		return 0;
 
+<<<<<<< HEAD
 #ifdef CONFIG_X86_32
 	/* Can't handle data above 4GB at this time */
 	if (e->efi_memmap_hi) {
@@ -191,6 +302,15 @@ int __init efi_memblock_x86_reserve_range(void)
 #else
 	pmap = (e->efi_memmap |	((__u64)e->efi_memmap_hi << 32));
 #endif
+=======
+	/* Can't handle firmware tables above 4GB on i386 */
+	if (IS_ENABLED(CONFIG_X86_32) && e->efi_memmap_hi > 0) {
+		pr_err("Memory map is above 4GB, disabling EFI.\n");
+		return -EINVAL;
+	}
+	pmap = (phys_addr_t)(e->efi_memmap | ((u64)e->efi_memmap_hi << 32));
+
+>>>>>>> upstream/android-13
 	data.phys_map		= pmap;
 	data.size 		= e->efi_memmap_size;
 	data.desc_size		= e->efi_memdesc_size;
@@ -200,14 +320,26 @@ int __init efi_memblock_x86_reserve_range(void)
 	if (rv)
 		return rv;
 
+<<<<<<< HEAD
 	if (add_efi_memmap)
 		do_add_efi_memmap();
 
+=======
+	if (add_efi_memmap || do_efi_soft_reserve())
+		do_add_efi_memmap();
+
+	efi_fake_memmap_early();
+
+>>>>>>> upstream/android-13
 	WARN(efi.memmap.desc_version != 1,
 	     "Unexpected EFI_MEMORY_DESCRIPTOR version %ld",
 	     efi.memmap.desc_version);
 
 	memblock_reserve(pmap, efi.memmap.nr_map * efi.memmap.desc_size);
+<<<<<<< HEAD
+=======
+	set_bit(EFI_PRESERVE_BS_REGIONS, &efi.flags);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -269,10 +401,23 @@ static void __init efi_clean_memmap(void)
 	}
 
 	if (n_removal > 0) {
+<<<<<<< HEAD
 		u64 size = efi.memmap.nr_map - n_removal;
 
 		pr_warn("Removing %d invalid memory map entries.\n", n_removal);
 		efi_memmap_install(efi.memmap.phys_map, size);
+=======
+		struct efi_memory_map_data data = {
+			.phys_map	= efi.memmap.phys_map,
+			.desc_version	= efi.memmap.desc_version,
+			.desc_size	= efi.memmap.desc_size,
+			.size		= efi.memmap.desc_size * (efi.memmap.nr_map - n_removal),
+			.flags		= 0,
+		};
+
+		pr_warn("Removing %d invalid memory map entries.\n", n_removal);
+		efi_memmap_install(&data);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -292,6 +437,7 @@ void __init efi_print_memmap(void)
 	}
 }
 
+<<<<<<< HEAD
 static int __init efi_systab_init(void *phys)
 {
 	if (efi_enabled(EFI_64BIT)) {
@@ -390,10 +536,82 @@ static int __init efi_systab_init(void *phys)
 		pr_err("Warning: System table version %d.%02d, expected 1.00 or greater!\n",
 		       efi.systab->hdr.revision >> 16,
 		       efi.systab->hdr.revision & 0xffff);
+=======
+static int __init efi_systab_init(unsigned long phys)
+{
+	int size = efi_enabled(EFI_64BIT) ? sizeof(efi_system_table_64_t)
+					  : sizeof(efi_system_table_32_t);
+	const efi_table_hdr_t *hdr;
+	bool over4g = false;
+	void *p;
+	int ret;
+
+	hdr = p = early_memremap_ro(phys, size);
+	if (p == NULL) {
+		pr_err("Couldn't map the system table!\n");
+		return -ENOMEM;
+	}
+
+	ret = efi_systab_check_header(hdr, 1);
+	if (ret) {
+		early_memunmap(p, size);
+		return ret;
+	}
+
+	if (efi_enabled(EFI_64BIT)) {
+		const efi_system_table_64_t *systab64 = p;
+
+		efi_runtime	= systab64->runtime;
+		over4g		= systab64->runtime > U32_MAX;
+
+		if (efi_setup) {
+			struct efi_setup_data *data;
+
+			data = early_memremap_ro(efi_setup, sizeof(*data));
+			if (!data) {
+				early_memunmap(p, size);
+				return -ENOMEM;
+			}
+
+			efi_fw_vendor		= (unsigned long)data->fw_vendor;
+			efi_config_table	= (unsigned long)data->tables;
+
+			over4g |= data->fw_vendor	> U32_MAX ||
+				  data->tables		> U32_MAX;
+
+			early_memunmap(data, sizeof(*data));
+		} else {
+			efi_fw_vendor		= systab64->fw_vendor;
+			efi_config_table	= systab64->tables;
+
+			over4g |= systab64->fw_vendor	> U32_MAX ||
+				  systab64->tables	> U32_MAX;
+		}
+		efi_nr_tables = systab64->nr_tables;
+	} else {
+		const efi_system_table_32_t *systab32 = p;
+
+		efi_fw_vendor		= systab32->fw_vendor;
+		efi_runtime		= systab32->runtime;
+		efi_config_table	= systab32->tables;
+		efi_nr_tables		= systab32->nr_tables;
+	}
+
+	efi.runtime_version = hdr->revision;
+
+	efi_systab_report_header(hdr, efi_fw_vendor);
+	early_memunmap(p, size);
+
+	if (IS_ENABLED(CONFIG_X86_32) && over4g) {
+		pr_err("EFI data located above 4GB, disabling EFI.\n");
+		return -EINVAL;
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int __init efi_runtime_init32(void)
 {
 	efi_runtime_services_32_t *runtime;
@@ -473,10 +691,40 @@ static int __init efi_runtime_init(void)
 	set_bit(EFI_RUNTIME_SERVICES, &efi.flags);
 
 	return 0;
+=======
+static int __init efi_config_init(const efi_config_table_type_t *arch_tables)
+{
+	void *config_tables;
+	int sz, ret;
+
+	if (efi_nr_tables == 0)
+		return 0;
+
+	if (efi_enabled(EFI_64BIT))
+		sz = sizeof(efi_config_table_64_t);
+	else
+		sz = sizeof(efi_config_table_32_t);
+
+	/*
+	 * Let's see what config tables the firmware passed to us.
+	 */
+	config_tables = early_memremap(efi_config_table, efi_nr_tables * sz);
+	if (config_tables == NULL) {
+		pr_err("Could not map Configuration table!\n");
+		return -ENOMEM;
+	}
+
+	ret = efi_config_parse_tables(config_tables, efi_nr_tables,
+				      arch_tables);
+
+	early_memunmap(config_tables, efi_nr_tables * sz);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 void __init efi_init(void)
 {
+<<<<<<< HEAD
 	efi_char16_t *c16;
 	char vendor[100] = "unknown";
 	int i = 0;
@@ -520,6 +768,22 @@ void __init efi_init(void)
 		efi.systab->hdr.revision & 0xffff, vendor);
 
 	if (efi_reuse_config(efi.systab->tables, efi.systab->nr_tables))
+=======
+	if (IS_ENABLED(CONFIG_X86_32) &&
+	    (boot_params.efi_info.efi_systab_hi ||
+	     boot_params.efi_info.efi_memmap_hi)) {
+		pr_info("Table located above 4GB, disabling EFI.\n");
+		return;
+	}
+
+	efi_systab_phys = boot_params.efi_info.efi_systab |
+			  ((__u64)boot_params.efi_info.efi_systab_hi << 32);
+
+	if (efi_systab_init(efi_systab_phys))
+		return;
+
+	if (efi_reuse_config(efi_config_table, efi_nr_tables))
+>>>>>>> upstream/android-13
 		return;
 
 	if (efi_config_init(arch_tables))
@@ -531,6 +795,7 @@ void __init efi_init(void)
 	 */
 
 	if (!efi_runtime_supported())
+<<<<<<< HEAD
 		pr_info("No EFI runtime due to 32/64-bit mismatch with kernel\n");
 	else {
 		if (efi_runtime_disabled() || efi_runtime_init()) {
@@ -539,12 +804,39 @@ void __init efi_init(void)
 		}
 	}
 
+=======
+		pr_err("No EFI runtime due to 32/64-bit mismatch with kernel\n");
+
+	if (!efi_runtime_supported() || efi_runtime_disabled()) {
+		efi_memmap_unmap();
+		return;
+	}
+
+	/* Parse the EFI Properties table if it exists */
+	if (prop_phys != EFI_INVALID_TABLE_ADDR) {
+		efi_properties_table_t *tbl;
+
+		tbl = early_memremap_ro(prop_phys, sizeof(*tbl));
+		if (tbl == NULL) {
+			pr_err("Could not map Properties table!\n");
+		} else {
+			if (tbl->memory_protection_attribute &
+			    EFI_PROPERTIES_RUNTIME_MEMORY_PROTECTION_NON_EXECUTABLE_PE_DATA)
+				set_bit(EFI_NX_PE_DATA, &efi.flags);
+
+			early_memunmap(tbl, sizeof(*tbl));
+		}
+	}
+
+	set_bit(EFI_RUNTIME_SERVICES, &efi.flags);
+>>>>>>> upstream/android-13
 	efi_clean_memmap();
 
 	if (efi_enabled(EFI_DBG))
 		efi_print_memmap();
 }
 
+<<<<<<< HEAD
 void __init efi_set_executable(efi_memory_desc_t *md, bool executable)
 {
 	u64 addr, npages;
@@ -609,6 +901,8 @@ void __init old_map_region(efi_memory_desc_t *md)
 		       (unsigned long long)md->phys_addr);
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Merge contiguous regions of the same type and attribute */
 static void __init efi_merge_regions(void)
 {
@@ -640,6 +934,7 @@ static void __init efi_merge_regions(void)
 	}
 }
 
+<<<<<<< HEAD
 static void __init get_systab_virt_addr(efi_memory_desc_t *md)
 {
 	unsigned long size;
@@ -654,6 +949,8 @@ static void __init get_systab_virt_addr(efi_memory_desc_t *md)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 static void *realloc_pages(void *old_memmap, int old_shift)
 {
 	void *ret;
@@ -707,7 +1004,11 @@ static inline void *efi_map_next_entry_reverse(void *entry)
  */
 static void *efi_map_next_entry(void *entry)
 {
+<<<<<<< HEAD
 	if (!efi_enabled(EFI_OLD_MEMMAP) && efi_enabled(EFI_64BIT)) {
+=======
+	if (efi_enabled(EFI_64BIT)) {
+>>>>>>> upstream/android-13
 		/*
 		 * Starting in UEFI v2.5 the EFI_PROPERTIES_TABLE
 		 * config table feature requires us to map all entries
@@ -756,10 +1057,26 @@ static bool should_map_region(efi_memory_desc_t *md)
 		return false;
 
 	/*
+<<<<<<< HEAD
 	 * Map all of RAM so that we can access arguments in the 1:1
 	 * mapping when making EFI runtime calls.
 	 */
 	if (IS_ENABLED(CONFIG_EFI_MIXED) && !efi_is_native()) {
+=======
+	 * EFI specific purpose memory may be reserved by default
+	 * depending on kernel config and boot options.
+	 */
+	if (md->type == EFI_CONVENTIONAL_MEMORY &&
+	    efi_soft_reserve_enabled() &&
+	    (md->attribute & EFI_MEMORY_SP))
+		return false;
+
+	/*
+	 * Map all of RAM so that we can access arguments in the 1:1
+	 * mapping when making EFI runtime calls.
+	 */
+	if (efi_is_mixed()) {
+>>>>>>> upstream/android-13
 		if (md->type == EFI_CONVENTIONAL_MEMORY ||
 		    md->type == EFI_LOADER_DATA ||
 		    md->type == EFI_LOADER_CODE)
@@ -800,7 +1117,10 @@ static void * __init efi_map_regions(int *count, int *pg_shift)
 			continue;
 
 		efi_map_region(md);
+<<<<<<< HEAD
 		get_systab_virt_addr(md);
+=======
+>>>>>>> upstream/android-13
 
 		if (left < desc_size) {
 			new_memmap = realloc_pages(new_memmap, *pg_shift);
@@ -826,6 +1146,7 @@ static void __init kexec_enter_virtual_mode(void)
 	efi_memory_desc_t *md;
 	unsigned int num_pages;
 
+<<<<<<< HEAD
 	efi.systab = NULL;
 
 	/*
@@ -835,6 +1156,13 @@ static void __init kexec_enter_virtual_mode(void)
 	 * have been mapped at these virtual addresses.
 	 */
 	if (!efi_is_native() || efi_enabled(EFI_OLD_MEMMAP)) {
+=======
+	/*
+	 * We don't do virtual mode, since we don't do runtime services, on
+	 * non-native EFI.
+	 */
+	if (efi_is_mixed()) {
+>>>>>>> upstream/android-13
 		efi_memmap_unmap();
 		clear_bit(EFI_RUNTIME_SERVICES, &efi.flags);
 		return;
@@ -850,10 +1178,15 @@ static void __init kexec_enter_virtual_mode(void)
 	* Map efi regions which were passed via setup_data. The virt_addr is a
 	* fixed addr which was used in first kernel of a kexec boot.
 	*/
+<<<<<<< HEAD
 	for_each_efi_memory_desc(md) {
 		efi_map_region_fixed(md); /* FIXME: add error handling */
 		get_systab_virt_addr(md);
 	}
+=======
+	for_each_efi_memory_desc(md)
+		efi_map_region_fixed(md); /* FIXME: add error handling */
+>>>>>>> upstream/android-13
 
 	/*
 	 * Unregister the early EFI memmap from efi_init() and install
@@ -868,8 +1201,11 @@ static void __init kexec_enter_virtual_mode(void)
 		return;
 	}
 
+<<<<<<< HEAD
 	BUG_ON(!efi.systab);
 
+=======
+>>>>>>> upstream/android-13
 	num_pages = ALIGN(efi.memmap.nr_map * efi.memmap.desc_size, PAGE_SIZE);
 	num_pages >>= PAGE_SHIFT;
 
@@ -879,6 +1215,7 @@ static void __init kexec_enter_virtual_mode(void)
 	}
 
 	efi_sync_low_kernel_mappings();
+<<<<<<< HEAD
 
 	/*
 	 * Now that EFI is in virtual mode, update the function
@@ -894,6 +1231,9 @@ static void __init kexec_enter_virtual_mode(void)
 
 	if (efi_enabled(EFI_OLD_MEMMAP) && (__supported_pte_mask & _PAGE_NX))
 		runtime_code_page_mkexec();
+=======
+	efi_native_runtime_setup();
+>>>>>>> upstream/android-13
 #endif
 }
 
@@ -903,12 +1243,15 @@ static void __init kexec_enter_virtual_mode(void)
  * has the runtime attribute bit set in its memory descriptor into the
  * efi_pgd page table.
  *
+<<<<<<< HEAD
  * The old method which used to update that memory descriptor with the
  * virtual address obtained from ioremap() is still supported when the
  * kernel is booted with efi=old_map on its command line. Same old
  * method enabled the runtime services to be called without having to
  * thunk back into physical mode for every invocation.
  *
+=======
+>>>>>>> upstream/android-13
  * The new method does a pagetable switch in a preemption-safe manner
  * so that we're in a different address space when calling a runtime
  * function. For function arguments passing we do copy the PUDs of the
@@ -926,8 +1269,11 @@ static void __init __efi_enter_virtual_mode(void)
 	efi_status_t status;
 	unsigned long pa;
 
+<<<<<<< HEAD
 	efi.systab = NULL;
 
+=======
+>>>>>>> upstream/android-13
 	if (efi_alloc_page_tables()) {
 		pr_err("Failed to allocate EFI page tables\n");
 		goto err;
@@ -959,14 +1305,18 @@ static void __init __efi_enter_virtual_mode(void)
 		efi_print_memmap();
 	}
 
+<<<<<<< HEAD
 	if (WARN_ON(!efi.systab))
 		goto err;
 
+=======
+>>>>>>> upstream/android-13
 	if (efi_setup_page_tables(pa, 1 << pg_shift))
 		goto err;
 
 	efi_sync_low_kernel_mappings();
 
+<<<<<<< HEAD
 	if (efi_is_native()) {
 		status = phys_efi_set_virtual_address_map(
 				efi.memmap.desc_size * count,
@@ -982,12 +1332,20 @@ static void __init __efi_enter_virtual_mode(void)
 				(efi_memory_desc_t *)pa);
 	}
 
+=======
+	status = efi_set_virtual_address_map(efi.memmap.desc_size * count,
+					     efi.memmap.desc_size,
+					     efi.memmap.desc_version,
+					     (efi_memory_desc_t *)pa,
+					     efi_systab_phys);
+>>>>>>> upstream/android-13
 	if (status != EFI_SUCCESS) {
 		pr_err("Unable to switch EFI into virtual mode (status=%lx)!\n",
 		       status);
 		goto err;
 	}
 
+<<<<<<< HEAD
 	/*
 	 * Now that EFI is in virtual mode, update the function
 	 * pointers in the runtime service table to the new virtual addresses.
@@ -997,12 +1355,21 @@ static void __init __efi_enter_virtual_mode(void)
 	efi.runtime_version = efi_systab.hdr.revision;
 
 	if (efi_is_native())
+=======
+	efi_check_for_embedded_firmwares();
+	efi_free_boot_services();
+
+	if (!efi_is_mixed())
+>>>>>>> upstream/android-13
 		efi_native_runtime_setup();
 	else
 		efi_thunk_runtime_setup();
 
+<<<<<<< HEAD
 	efi.set_virtual_address_map = NULL;
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Apply more restrictive page table mapping attributes now that
 	 * SVAM() has been called and the firmware has performed all
@@ -1023,6 +1390,11 @@ void __init efi_enter_virtual_mode(void)
 	if (efi_enabled(EFI_PARAVIRT))
 		return;
 
+<<<<<<< HEAD
+=======
+	efi.runtime = (efi_runtime_services_t *)efi_runtime;
+
+>>>>>>> upstream/android-13
 	if (efi_setup)
 		kexec_enter_virtual_mode();
 	else
@@ -1031,6 +1403,7 @@ void __init efi_enter_virtual_mode(void)
 	efi_dump_pagetable();
 }
 
+<<<<<<< HEAD
 static int __init arch_parse_efi_cmdline(char *str)
 {
 	if (!str) {
@@ -1044,3 +1417,58 @@ static int __init arch_parse_efi_cmdline(char *str)
 	return 0;
 }
 early_param("efi", arch_parse_efi_cmdline);
+=======
+bool efi_is_table_address(unsigned long phys_addr)
+{
+	unsigned int i;
+
+	if (phys_addr == EFI_INVALID_TABLE_ADDR)
+		return false;
+
+	for (i = 0; i < ARRAY_SIZE(efi_tables); i++)
+		if (*(efi_tables[i]) == phys_addr)
+			return true;
+
+	return false;
+}
+
+char *efi_systab_show_arch(char *str)
+{
+	if (uga_phys != EFI_INVALID_TABLE_ADDR)
+		str += sprintf(str, "UGA=0x%lx\n", uga_phys);
+	return str;
+}
+
+#define EFI_FIELD(var) efi_ ## var
+
+#define EFI_ATTR_SHOW(name) \
+static ssize_t name##_show(struct kobject *kobj, \
+				struct kobj_attribute *attr, char *buf) \
+{ \
+	return sprintf(buf, "0x%lx\n", EFI_FIELD(name)); \
+}
+
+EFI_ATTR_SHOW(fw_vendor);
+EFI_ATTR_SHOW(runtime);
+EFI_ATTR_SHOW(config_table);
+
+struct kobj_attribute efi_attr_fw_vendor = __ATTR_RO(fw_vendor);
+struct kobj_attribute efi_attr_runtime = __ATTR_RO(runtime);
+struct kobj_attribute efi_attr_config_table = __ATTR_RO(config_table);
+
+umode_t efi_attr_is_visible(struct kobject *kobj, struct attribute *attr, int n)
+{
+	if (attr == &efi_attr_fw_vendor.attr) {
+		if (efi_enabled(EFI_PARAVIRT) ||
+				efi_fw_vendor == EFI_INVALID_TABLE_ADDR)
+			return 0;
+	} else if (attr == &efi_attr_runtime.attr) {
+		if (efi_runtime == EFI_INVALID_TABLE_ADDR)
+			return 0;
+	} else if (attr == &efi_attr_config_table.attr) {
+		if (efi_config_table == EFI_INVALID_TABLE_ADDR)
+			return 0;
+	}
+	return attr->mode;
+}
+>>>>>>> upstream/android-13

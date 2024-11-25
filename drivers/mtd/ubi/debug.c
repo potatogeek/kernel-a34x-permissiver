@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) International Business Machines Corp., 2006
  *
@@ -15,6 +16,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) International Business Machines Corp., 2006
+ *
+>>>>>>> upstream/android-13
  * Author: Artem Bityutskiy (Битюцкий Артём)
  */
 
@@ -120,6 +127,10 @@ void ubi_dump_vol_info(const struct ubi_volume *vol)
 	pr_err("\tlast_eb_bytes   %d\n", vol->last_eb_bytes);
 	pr_err("\tcorrupted       %d\n", vol->corrupted);
 	pr_err("\tupd_marker      %d\n", vol->upd_marker);
+<<<<<<< HEAD
+=======
+	pr_err("\tskip_check      %d\n", vol->skip_check);
+>>>>>>> upstream/android-13
 
 	if (vol->name_len <= UBI_VOL_NAME_MAX &&
 	    strnlen(vol->name, vol->name_len + 1) == vol->name_len) {
@@ -514,17 +525,24 @@ static const struct file_operations eraseblk_count_fops = {
  */
 int ubi_debugfs_init_dev(struct ubi_device *ubi)
 {
+<<<<<<< HEAD
 	int err, n;
 	unsigned long ubi_num = ubi->ubi_num;
 	const char *fname;
 	struct dentry *dent;
 	struct ubi_debug_info *d = &ubi->dbg;
+=======
+	unsigned long ubi_num = ubi->ubi_num;
+	struct ubi_debug_info *d = &ubi->dbg;
+	int n;
+>>>>>>> upstream/android-13
 
 	if (!IS_ENABLED(CONFIG_DEBUG_FS))
 		return 0;
 
 	n = snprintf(d->dfs_dir_name, UBI_DFS_DIR_LEN + 1, UBI_DFS_DIR_NAME,
 		     ubi->ubi_num);
+<<<<<<< HEAD
 	if (n == UBI_DFS_DIR_LEN) {
 		/* The array size is too small */
 		fname = UBI_DFS_DIR_NAME;
@@ -616,6 +634,56 @@ out:
 	ubi_err(ubi, "cannot create \"%s\" debugfs file or directory, error %d\n",
 		fname, err);
 	return err;
+=======
+	if (n > UBI_DFS_DIR_LEN) {
+		/* The array size is too small */
+		return -EINVAL;
+	}
+
+	d->dfs_dir = debugfs_create_dir(d->dfs_dir_name, dfs_rootdir);
+
+	d->dfs_chk_gen = debugfs_create_file("chk_gen", S_IWUSR, d->dfs_dir,
+					     (void *)ubi_num, &dfs_fops);
+
+	d->dfs_chk_io = debugfs_create_file("chk_io", S_IWUSR, d->dfs_dir,
+					    (void *)ubi_num, &dfs_fops);
+
+	d->dfs_chk_fastmap = debugfs_create_file("chk_fastmap", S_IWUSR,
+						 d->dfs_dir, (void *)ubi_num,
+						 &dfs_fops);
+
+	d->dfs_disable_bgt = debugfs_create_file("tst_disable_bgt", S_IWUSR,
+						 d->dfs_dir, (void *)ubi_num,
+						 &dfs_fops);
+
+	d->dfs_emulate_bitflips = debugfs_create_file("tst_emulate_bitflips",
+						      S_IWUSR, d->dfs_dir,
+						      (void *)ubi_num,
+						      &dfs_fops);
+
+	d->dfs_emulate_io_failures = debugfs_create_file("tst_emulate_io_failures",
+							 S_IWUSR, d->dfs_dir,
+							 (void *)ubi_num,
+							 &dfs_fops);
+
+	d->dfs_emulate_power_cut = debugfs_create_file("tst_emulate_power_cut",
+						       S_IWUSR, d->dfs_dir,
+						       (void *)ubi_num,
+						       &dfs_fops);
+
+	d->dfs_power_cut_min = debugfs_create_file("tst_emulate_power_cut_min",
+						   S_IWUSR, d->dfs_dir,
+						   (void *)ubi_num, &dfs_fops);
+
+	d->dfs_power_cut_max = debugfs_create_file("tst_emulate_power_cut_max",
+						   S_IWUSR, d->dfs_dir,
+						   (void *)ubi_num, &dfs_fops);
+
+	debugfs_create_file("detailed_erase_block_info", S_IRUSR, d->dfs_dir,
+			    (void *)ubi_num, &eraseblk_count_fops);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /**

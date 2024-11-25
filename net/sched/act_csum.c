@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Checksum updating actions
  *
  * Copyright (c) 2010 Gregoire Baron <baronchon@n7mm.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -33,6 +40,10 @@
 #include <net/sctp/checksum.h>
 
 #include <net/act_api.h>
+<<<<<<< HEAD
+=======
+#include <net/pkt_cls.h>
+>>>>>>> upstream/android-13
 
 #include <linux/tc_act/tc_csum.h>
 #include <net/tc_act/tc_csum.h>
@@ -45,6 +56,7 @@ static unsigned int csum_net_id;
 static struct tc_action_ops act_csum_ops;
 
 static int tcf_csum_init(struct net *net, struct nlattr *nla,
+<<<<<<< HEAD
 			 struct nlattr *est, struct tc_action **a, int ovr,
 			 int bind, bool rtnl_held,
 			 struct netlink_ext_ack *extack)
@@ -52,6 +64,17 @@ static int tcf_csum_init(struct net *net, struct nlattr *nla,
 	struct tc_action_net *tn = net_generic(net, csum_net_id);
 	struct tcf_csum_params *params_new;
 	struct nlattr *tb[TCA_CSUM_MAX + 1];
+=======
+			 struct nlattr *est, struct tc_action **a,
+			 struct tcf_proto *tp,
+			 u32 flags, struct netlink_ext_ack *extack)
+{
+	struct tc_action_net *tn = net_generic(net, csum_net_id);
+	bool bind = flags & TCA_ACT_FLAGS_BIND;
+	struct tcf_csum_params *params_new;
+	struct nlattr *tb[TCA_CSUM_MAX + 1];
+	struct tcf_chain *goto_ch = NULL;
+>>>>>>> upstream/android-13
 	struct tc_csum *parm;
 	struct tcf_csum *p;
 	int ret = 0, err;
@@ -60,7 +83,12 @@ static int tcf_csum_init(struct net *net, struct nlattr *nla,
 	if (nla == NULL)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	err = nla_parse_nested(tb, TCA_CSUM_MAX, nla, csum_policy, NULL);
+=======
+	err = nla_parse_nested_deprecated(tb, TCA_CSUM_MAX, nla, csum_policy,
+					  NULL);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -70,8 +98,13 @@ static int tcf_csum_init(struct net *net, struct nlattr *nla,
 	index = parm->index;
 	err = tcf_idr_check_alloc(tn, &index, a, bind);
 	if (!err) {
+<<<<<<< HEAD
 		ret = tcf_idr_create(tn, index, est, a,
 				     &act_csum_ops, bind, true);
+=======
+		ret = tcf_idr_create_from_flags(tn, index, est, a,
+						&act_csum_ops, bind, flags);
+>>>>>>> upstream/android-13
 		if (ret) {
 			tcf_idr_cleanup(tn, index);
 			return ret;
@@ -80,7 +113,11 @@ static int tcf_csum_init(struct net *net, struct nlattr *nla,
 	} else if (err > 0) {
 		if (bind)/* dont override defaults */
 			return 0;
+<<<<<<< HEAD
 		if (!ovr) {
+=======
+		if (!(flags & TCA_ACT_FLAGS_REPLACE)) {
+>>>>>>> upstream/android-13
 			tcf_idr_release(*a, bind);
 			return -EEXIST;
 		}
@@ -88,16 +125,29 @@ static int tcf_csum_init(struct net *net, struct nlattr *nla,
 		return err;
 	}
 
+<<<<<<< HEAD
+=======
+	err = tcf_action_check_ctrlact(parm->action, tp, &goto_ch, extack);
+	if (err < 0)
+		goto release_idr;
+
+>>>>>>> upstream/android-13
 	p = to_tcf_csum(*a);
 
 	params_new = kzalloc(sizeof(*params_new), GFP_KERNEL);
 	if (unlikely(!params_new)) {
+<<<<<<< HEAD
 		tcf_idr_release(*a, bind);
 		return -ENOMEM;
+=======
+		err = -ENOMEM;
+		goto put_chain;
+>>>>>>> upstream/android-13
 	}
 	params_new->update_flags = parm->update_flags;
 
 	spin_lock_bh(&p->tcf_lock);
+<<<<<<< HEAD
 	p->tcf_action = parm->action;
 	rcu_swap_protected(p->params, params_new,
 			   lockdep_is_held(&p->tcf_lock));
@@ -110,6 +160,25 @@ static int tcf_csum_init(struct net *net, struct nlattr *nla,
 		tcf_idr_insert(tn, *a);
 
 	return ret;
+=======
+	goto_ch = tcf_action_set_ctrlact(*a, parm->action, goto_ch);
+	params_new = rcu_replace_pointer(p->params, params_new,
+					 lockdep_is_held(&p->tcf_lock));
+	spin_unlock_bh(&p->tcf_lock);
+
+	if (goto_ch)
+		tcf_chain_put_by_act(goto_ch);
+	if (params_new)
+		kfree_rcu(params_new, rcu);
+
+	return ret;
+put_chain:
+	if (goto_ch)
+		tcf_chain_put_by_act(goto_ch);
+release_idr:
+	tcf_idr_release(*a, bind);
+	return err;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -570,7 +639,11 @@ static int tcf_csum_act(struct sk_buff *skb, const struct tc_action *a,
 	params = rcu_dereference_bh(p->params);
 
 	tcf_lastuse_update(&p->tcf_tm);
+<<<<<<< HEAD
 	bstats_cpu_update(this_cpu_ptr(p->common.cpu_bstats), skb);
+=======
+	tcf_action_update_bstats(&p->common, skb);
+>>>>>>> upstream/android-13
 
 	action = READ_ONCE(p->tcf_action);
 	if (unlikely(action == TC_ACT_SHOT))
@@ -588,7 +661,12 @@ again:
 		if (!tcf_csum_ipv6(skb, update_flags))
 			goto drop;
 		break;
+<<<<<<< HEAD
 	case cpu_to_be16(ETH_P_8021AD): /* fall through */
+=======
+	case cpu_to_be16(ETH_P_8021AD):
+		fallthrough;
+>>>>>>> upstream/android-13
 	case cpu_to_be16(ETH_P_8021Q):
 		if (skb_vlan_tag_present(skb) && !orig_vlan_tag_present) {
 			protocol = skb->protocol;
@@ -614,7 +692,11 @@ out:
 	return action;
 
 drop:
+<<<<<<< HEAD
 	qstats_drop_inc(this_cpu_ptr(p->common.cpu_qstats));
+=======
+	tcf_action_inc_drop_qstats(&p->common);
+>>>>>>> upstream/android-13
 	action = TC_ACT_SHOT;
 	goto out;
 }
@@ -674,8 +756,12 @@ static int tcf_csum_walker(struct net *net, struct sk_buff *skb,
 	return tcf_generic_walker(tn, skb, cb, type, ops, extack);
 }
 
+<<<<<<< HEAD
 static int tcf_csum_search(struct net *net, struct tc_action **a, u32 index,
 			   struct netlink_ext_ack *extack)
+=======
+static int tcf_csum_search(struct net *net, struct tc_action **a, u32 index)
+>>>>>>> upstream/android-13
 {
 	struct tc_action_net *tn = net_generic(net, csum_net_id);
 
@@ -689,7 +775,11 @@ static size_t tcf_csum_get_fill_size(const struct tc_action *act)
 
 static struct tc_action_ops act_csum_ops = {
 	.kind		= "csum",
+<<<<<<< HEAD
 	.type		= TCA_ACT_CSUM,
+=======
+	.id		= TCA_ID_CSUM,
+>>>>>>> upstream/android-13
 	.owner		= THIS_MODULE,
 	.act		= tcf_csum_act,
 	.dump		= tcf_csum_dump,

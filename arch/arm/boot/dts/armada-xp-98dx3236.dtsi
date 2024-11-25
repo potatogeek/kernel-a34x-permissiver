@@ -90,7 +90,11 @@
 		};
 
 		internal-regs {
+<<<<<<< HEAD
 			sdramc@1400 {
+=======
+			sdramc: sdramc@1400 {
+>>>>>>> upstream/android-13
 				compatible = "marvell,armada-xp-sdram-controller";
 				reg = <0x1400 0x500>;
 			};
@@ -189,7 +193,11 @@
 				};
 			};
 
+<<<<<<< HEAD
 			nand: nand@d0000 {
+=======
+			nand_controller: nand-controller@d0000 {
+>>>>>>> upstream/android-13
 				clocks = <&dfx_coredivclk 0>;
 			};
 
@@ -243,7 +251,11 @@
 			ranges = <0 MBUS_ID(0x03, 0x00) 0 0x100000>;
 
 			pp0: packet-processor@0 {
+<<<<<<< HEAD
 				compatible = "marvell,prestera-98dx3236";
+=======
+				compatible = "marvell,prestera-98dx3236", "marvell,prestera";
+>>>>>>> upstream/android-13
 				reg = <0 0x4000000>;
 				interrupts = <33>, <34>, <35>;
 				dfx = <&dfx>;
@@ -264,6 +276,11 @@
 &i2c0 {
 	compatible = "marvell,mv78230-i2c", "marvell,mv64xxx-i2c";
 	reg = <0x11000 0x100>;
+<<<<<<< HEAD
+=======
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c0_pins>;
+>>>>>>> upstream/android-13
 };
 
 &mpic {
@@ -319,6 +336,14 @@
 			       "mpp2", "mpp3";
 		marvell,function = "spi0";
 	};
+<<<<<<< HEAD
+=======
+
+	i2c0_pins: i2c-pins-0 {
+		marvell,pins = "mpp14", "mpp15";
+		marvell,function = "i2c0";
+	};
+>>>>>>> upstream/android-13
 };
 
 &spi0 {

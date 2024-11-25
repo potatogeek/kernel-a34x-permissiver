@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *	ACPI PATA driver
  *
@@ -27,7 +31,11 @@ struct pata_acpi {
 
 /**
  *	pacpi_pre_reset	-	check for 40/80 pin
+<<<<<<< HEAD
  *	@ap: Port
+=======
+ *	@link: ATA link
+>>>>>>> upstream/android-13
  *	@deadline: deadline jiffies for the operation
  *
  *	Perform the PATA port setup we need.
@@ -62,8 +70,13 @@ static int pacpi_cable_detect(struct ata_port *ap)
 
 /**
  *	pacpi_discover_modes	-	filter non ACPI modes
+<<<<<<< HEAD
  *	@adev: ATA device
  *	@mask: proposed modes
+=======
+ *	@ap: ATA port
+ *	@adev: ATA device
+>>>>>>> upstream/android-13
  *
  *	Try the modes available and see which ones the ACPI method will
  *	set up sensibly. From this we get a mask of ACPI modes we can use
@@ -223,7 +236,11 @@ static struct ata_port_operations pacpi_ops = {
 /**
  *	pacpi_init_one - Register ACPI ATA PCI device with kernel services
  *	@pdev: PCI device to register
+<<<<<<< HEAD
  *	@ent: Entry in pacpi_pci_tbl matching with @pdev
+=======
+ *	@id: PCI device ID
+>>>>>>> upstream/android-13
  *
  *	Called from kernel PCI layer.
  *

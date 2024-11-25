@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * kernel/power/suspend_test.c - Suspend to RAM and standby test facility.
  *
  * Copyright (c) 2009 Pavel Machek <pavel@ucw.cz>
+<<<<<<< HEAD
  *
  * This file is released under the GPLv2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -71,7 +78,11 @@ static void __init test_wakealarm(struct rtc_device *rtc, suspend_state_t state)
 	static char info_test[] __initdata =
 		KERN_INFO "PM: test RTC wakeup from '%s' suspend\n";
 
+<<<<<<< HEAD
 	unsigned long		now;
+=======
+	time64_t		now;
+>>>>>>> upstream/android-13
 	struct rtc_wkalrm	alm;
 	int			status;
 
@@ -82,10 +93,17 @@ repeat:
 		printk(err_readtime, dev_name(&rtc->dev), status);
 		return;
 	}
+<<<<<<< HEAD
 	rtc_tm_to_time(&alm.time, &now);
 
 	memset(&alm, 0, sizeof alm);
 	rtc_time_to_tm(now + TEST_SUSPEND_SECONDS, &alm.time);
+=======
+	now = rtc_tm_to_time64(&alm.time);
+
+	memset(&alm, 0, sizeof alm);
+	rtc_time64_to_tm(now + TEST_SUSPEND_SECONDS, &alm.time);
+>>>>>>> upstream/android-13
 	alm.enabled = true;
 
 	status = rtc_set_alarm(rtc, &alm);
@@ -130,7 +148,11 @@ static int __init has_wakealarm(struct device *dev, const void *data)
 {
 	struct rtc_device *candidate = to_rtc_device(dev);
 
+<<<<<<< HEAD
 	if (!candidate->ops->set_alarm)
+=======
+	if (!test_bit(RTC_FEATURE_ALARM, candidate->features))
+>>>>>>> upstream/android-13
 		return 0;
 	if (!device_may_wakeup(candidate->dev.parent))
 		return 0;
@@ -158,22 +180,38 @@ static int __init setup_test_suspend(char *value)
 	value++;
 	suspend_type = strsep(&value, ",");
 	if (!suspend_type)
+<<<<<<< HEAD
 		return 0;
+=======
+		return 1;
+>>>>>>> upstream/android-13
 
 	repeat = strsep(&value, ",");
 	if (repeat) {
 		if (kstrtou32(repeat, 0, &test_repeat_count_max))
+<<<<<<< HEAD
 			return 0;
+=======
+			return 1;
+>>>>>>> upstream/android-13
 	}
 
 	for (i = PM_SUSPEND_MIN; i < PM_SUSPEND_MAX; i++)
 		if (!strcmp(pm_labels[i], suspend_type)) {
 			test_state_label = pm_labels[i];
+<<<<<<< HEAD
 			return 0;
 		}
 
 	printk(warn_bad_state, suspend_type);
 	return 0;
+=======
+			return 1;
+		}
+
+	printk(warn_bad_state, suspend_type);
+	return 1;
+>>>>>>> upstream/android-13
 }
 __setup("test_suspend", setup_test_suspend);
 

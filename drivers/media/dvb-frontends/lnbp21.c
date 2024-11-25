@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * lnbp21.c - driver for lnb supply and control ic lnbp21
  *
  * Copyright (C) 2006, 2009 Oliver Endriss <o.endriss@gmx.de>
  * Copyright (C) 2009 Igor M. Liplianin <liplianin@netup.ru>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -19,6 +24,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  *
  *
+=======
+>>>>>>> upstream/android-13
  * the project's page is at https://linuxtv.org
  */
 #include <linux/delay.h>

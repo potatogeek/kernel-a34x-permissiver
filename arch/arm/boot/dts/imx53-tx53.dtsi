@@ -542,7 +542,10 @@
 &pwm2 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_pwm2>;
+<<<<<<< HEAD
 	#pwm-cells = <3>;
+=======
+>>>>>>> upstream/android-13
 };
 
 &sdma {

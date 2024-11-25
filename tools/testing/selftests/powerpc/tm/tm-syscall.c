@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright 2015, Sam Bobroff, IBM Corp.
  * Licensed under GPLv2.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2015, Sam Bobroff, IBM Corp.
+>>>>>>> upstream/android-13
  *
  * Test the kernel's system call code to ensure that a system call
  * made from within an active HTM transaction is aborted with the
@@ -19,24 +25,54 @@
 #include "utils.h"
 #include "tm.h"
 
+<<<<<<< HEAD
 extern int getppid_tm_active(void);
 extern int getppid_tm_suspended(void);
+=======
+#ifndef PPC_FEATURE2_SCV
+#define PPC_FEATURE2_SCV               0x00100000 /* scv syscall */
+#endif
+
+extern int getppid_tm_active(void);
+extern int getppid_tm_suspended(void);
+extern int getppid_scv_tm_active(void);
+extern int getppid_scv_tm_suspended(void);
+>>>>>>> upstream/android-13
 
 unsigned retries = 0;
 
 #define TEST_DURATION 10 /* seconds */
+<<<<<<< HEAD
 #define TM_RETRIES 100
 
 pid_t getppid_tm(bool suspend)
+=======
+
+pid_t getppid_tm(bool scv, bool suspend)
+>>>>>>> upstream/android-13
 {
 	int i;
 	pid_t pid;
 
 	for (i = 0; i < TM_RETRIES; i++) {
+<<<<<<< HEAD
 		if (suspend)
 			pid = getppid_tm_suspended();
 		else
 			pid = getppid_tm_active();
+=======
+		if (suspend) {
+			if (scv)
+				pid = getppid_scv_tm_suspended();
+			else
+				pid = getppid_tm_suspended();
+		} else {
+			if (scv)
+				pid = getppid_scv_tm_active();
+			else
+				pid = getppid_tm_active();
+		}
+>>>>>>> upstream/android-13
 
 		if (pid >= 0)
 			return pid;
@@ -67,6 +103,10 @@ int tm_syscall(void)
 	struct timeval end, now;
 
 	SKIP_IF(!have_htm_nosc());
+<<<<<<< HEAD
+=======
+	SKIP_IF(htm_is_synthetic());
+>>>>>>> upstream/android-13
 
 	setbuf(stdout, NULL);
 
@@ -82,15 +122,34 @@ int tm_syscall(void)
 		 * Test a syscall within a suspended transaction and verify
 		 * that it succeeds.
 		 */
+<<<<<<< HEAD
 		FAIL_IF(getppid_tm(true) == -1); /* Should succeed. */
+=======
+		FAIL_IF(getppid_tm(false, true) == -1); /* Should succeed. */
+>>>>>>> upstream/android-13
 
 		/*
 		 * Test a syscall within an active transaction and verify that
 		 * it fails with the correct failure code.
 		 */
+<<<<<<< HEAD
 		FAIL_IF(getppid_tm(false) != -1);  /* Should fail... */
 		FAIL_IF(!failure_is_persistent()); /* ...persistently... */
 		FAIL_IF(!failure_is_syscall());    /* ...with code syscall. */
+=======
+		FAIL_IF(getppid_tm(false, false) != -1);  /* Should fail... */
+		FAIL_IF(!failure_is_persistent()); /* ...persistently... */
+		FAIL_IF(!failure_is_syscall());    /* ...with code syscall. */
+
+		/* Now do it all again with scv if it is available. */
+		if (have_hwcap2(PPC_FEATURE2_SCV)) {
+			FAIL_IF(getppid_tm(true, true) == -1); /* Should succeed. */
+			FAIL_IF(getppid_tm(true, false) != -1);  /* Should fail... */
+			FAIL_IF(!failure_is_persistent()); /* ...persistently... */
+			FAIL_IF(!failure_is_syscall());    /* ...with code syscall. */
+		}
+
+>>>>>>> upstream/android-13
 		gettimeofday(&now, 0);
 	}
 

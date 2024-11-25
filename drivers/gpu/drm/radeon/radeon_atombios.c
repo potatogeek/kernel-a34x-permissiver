@@ -23,13 +23,23 @@
  * Authors: Dave Airlie
  *          Alex Deucher
  */
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/radeon_drm.h>
+=======
+
+#include <linux/pci.h>
+
+#include <drm/drm_device.h>
+#include <drm/radeon_drm.h>
+
+>>>>>>> upstream/android-13
 #include "radeon.h"
 
 #include "atom.h"
 #include "atom-bits.h"
 #include "radeon_asic.h"
+<<<<<<< HEAD
 
 extern void
 radeon_add_atom_encoder(struct drm_device *dev, uint32_t encoder_enum,
@@ -39,6 +49,10 @@ radeon_add_atom_encoder(struct drm_device *dev, uint32_t encoder_enum,
 extern void
 radeon_add_legacy_encoder(struct drm_device *dev, uint32_t encoder_enum,
 			  uint32_t supported_device);
+=======
+#include "radeon_atombios.h"
+#include "radeon_legacy_encoders.h"
+>>>>>>> upstream/android-13
 
 union atom_supported_devices {
 	struct _ATOM_SUPPORTED_DEVICES_INFO info;
@@ -287,46 +301,79 @@ static bool radeon_atom_apply_quirks(struct drm_device *dev,
 				     uint16_t *line_mux,
 				     struct radeon_hpd *hpd)
 {
+<<<<<<< HEAD
 
 	/* Asus M2A-VM HDMI board lists the DVI port as HDMI */
 	if ((dev->pdev->device == 0x791e) &&
 	    (dev->pdev->subsystem_vendor == 0x1043) &&
 	    (dev->pdev->subsystem_device == 0x826d)) {
+=======
+	struct pci_dev *pdev = to_pci_dev(dev->dev);
+
+	/* Asus M2A-VM HDMI board lists the DVI port as HDMI */
+	if ((pdev->device == 0x791e) &&
+	    (pdev->subsystem_vendor == 0x1043) &&
+	    (pdev->subsystem_device == 0x826d)) {
+>>>>>>> upstream/android-13
 		if ((*connector_type == DRM_MODE_CONNECTOR_HDMIA) &&
 		    (supported_device == ATOM_DEVICE_DFP3_SUPPORT))
 			*connector_type = DRM_MODE_CONNECTOR_DVID;
 	}
 
 	/* Asrock RS600 board lists the DVI port as HDMI */
+<<<<<<< HEAD
 	if ((dev->pdev->device == 0x7941) &&
 	    (dev->pdev->subsystem_vendor == 0x1849) &&
 	    (dev->pdev->subsystem_device == 0x7941)) {
+=======
+	if ((pdev->device == 0x7941) &&
+	    (pdev->subsystem_vendor == 0x1849) &&
+	    (pdev->subsystem_device == 0x7941)) {
+>>>>>>> upstream/android-13
 		if ((*connector_type == DRM_MODE_CONNECTOR_HDMIA) &&
 		    (supported_device == ATOM_DEVICE_DFP3_SUPPORT))
 			*connector_type = DRM_MODE_CONNECTOR_DVID;
 	}
 
 	/* MSI K9A2GM V2/V3 board has no HDMI or DVI */
+<<<<<<< HEAD
 	if ((dev->pdev->device == 0x796e) &&
 	    (dev->pdev->subsystem_vendor == 0x1462) &&
 	    (dev->pdev->subsystem_device == 0x7302)) {
+=======
+	if ((pdev->device == 0x796e) &&
+	    (pdev->subsystem_vendor == 0x1462) &&
+	    (pdev->subsystem_device == 0x7302)) {
+>>>>>>> upstream/android-13
 		if ((supported_device == ATOM_DEVICE_DFP2_SUPPORT) ||
 		    (supported_device == ATOM_DEVICE_DFP3_SUPPORT))
 			return false;
 	}
 
 	/* a-bit f-i90hd - ciaranm on #radeonhd - this board has no DVI */
+<<<<<<< HEAD
 	if ((dev->pdev->device == 0x7941) &&
 	    (dev->pdev->subsystem_vendor == 0x147b) &&
 	    (dev->pdev->subsystem_device == 0x2412)) {
+=======
+	if ((pdev->device == 0x7941) &&
+	    (pdev->subsystem_vendor == 0x147b) &&
+	    (pdev->subsystem_device == 0x2412)) {
+>>>>>>> upstream/android-13
 		if (*connector_type == DRM_MODE_CONNECTOR_DVII)
 			return false;
 	}
 
 	/* Falcon NW laptop lists vga ddc line for LVDS */
+<<<<<<< HEAD
 	if ((dev->pdev->device == 0x5653) &&
 	    (dev->pdev->subsystem_vendor == 0x1462) &&
 	    (dev->pdev->subsystem_device == 0x0291)) {
+=======
+	if ((pdev->device == 0x5653) &&
+	    (pdev->subsystem_vendor == 0x1462) &&
+	    (pdev->subsystem_device == 0x0291)) {
+>>>>>>> upstream/android-13
 		if (*connector_type == DRM_MODE_CONNECTOR_LVDS) {
 			i2c_bus->valid = false;
 			*line_mux = 53;
@@ -334,26 +381,44 @@ static bool radeon_atom_apply_quirks(struct drm_device *dev,
 	}
 
 	/* HIS X1300 is DVI+VGA, not DVI+DVI */
+<<<<<<< HEAD
 	if ((dev->pdev->device == 0x7146) &&
 	    (dev->pdev->subsystem_vendor == 0x17af) &&
 	    (dev->pdev->subsystem_device == 0x2058)) {
+=======
+	if ((pdev->device == 0x7146) &&
+	    (pdev->subsystem_vendor == 0x17af) &&
+	    (pdev->subsystem_device == 0x2058)) {
+>>>>>>> upstream/android-13
 		if (supported_device == ATOM_DEVICE_DFP1_SUPPORT)
 			return false;
 	}
 
 	/* Gigabyte X1300 is DVI+VGA, not DVI+DVI */
+<<<<<<< HEAD
 	if ((dev->pdev->device == 0x7142) &&
 	    (dev->pdev->subsystem_vendor == 0x1458) &&
 	    (dev->pdev->subsystem_device == 0x2134)) {
+=======
+	if ((pdev->device == 0x7142) &&
+	    (pdev->subsystem_vendor == 0x1458) &&
+	    (pdev->subsystem_device == 0x2134)) {
+>>>>>>> upstream/android-13
 		if (supported_device == ATOM_DEVICE_DFP1_SUPPORT)
 			return false;
 	}
 
 
 	/* Funky macbooks */
+<<<<<<< HEAD
 	if ((dev->pdev->device == 0x71C5) &&
 	    (dev->pdev->subsystem_vendor == 0x106b) &&
 	    (dev->pdev->subsystem_device == 0x0080)) {
+=======
+	if ((pdev->device == 0x71C5) &&
+	    (pdev->subsystem_vendor == 0x106b) &&
+	    (pdev->subsystem_device == 0x0080)) {
+>>>>>>> upstream/android-13
 		if ((supported_device == ATOM_DEVICE_CRT1_SUPPORT) ||
 		    (supported_device == ATOM_DEVICE_DFP2_SUPPORT))
 			return false;
@@ -369,27 +434,45 @@ static bool radeon_atom_apply_quirks(struct drm_device *dev,
 	}
 
 	/* ASUS HD 3600 XT board lists the DVI port as HDMI */
+<<<<<<< HEAD
 	if ((dev->pdev->device == 0x9598) &&
 	    (dev->pdev->subsystem_vendor == 0x1043) &&
 	    (dev->pdev->subsystem_device == 0x01da)) {
+=======
+	if ((pdev->device == 0x9598) &&
+	    (pdev->subsystem_vendor == 0x1043) &&
+	    (pdev->subsystem_device == 0x01da)) {
+>>>>>>> upstream/android-13
 		if (*connector_type == DRM_MODE_CONNECTOR_HDMIA) {
 			*connector_type = DRM_MODE_CONNECTOR_DVII;
 		}
 	}
 
 	/* ASUS HD 3600 board lists the DVI port as HDMI */
+<<<<<<< HEAD
 	if ((dev->pdev->device == 0x9598) &&
 	    (dev->pdev->subsystem_vendor == 0x1043) &&
 	    (dev->pdev->subsystem_device == 0x01e4)) {
+=======
+	if ((pdev->device == 0x9598) &&
+	    (pdev->subsystem_vendor == 0x1043) &&
+	    (pdev->subsystem_device == 0x01e4)) {
+>>>>>>> upstream/android-13
 		if (*connector_type == DRM_MODE_CONNECTOR_HDMIA) {
 			*connector_type = DRM_MODE_CONNECTOR_DVII;
 		}
 	}
 
 	/* ASUS HD 3450 board lists the DVI port as HDMI */
+<<<<<<< HEAD
 	if ((dev->pdev->device == 0x95C5) &&
 	    (dev->pdev->subsystem_vendor == 0x1043) &&
 	    (dev->pdev->subsystem_device == 0x01e2)) {
+=======
+	if ((pdev->device == 0x95C5) &&
+	    (pdev->subsystem_vendor == 0x1043) &&
+	    (pdev->subsystem_device == 0x01e2)) {
+>>>>>>> upstream/android-13
 		if (*connector_type == DRM_MODE_CONNECTOR_HDMIA) {
 			*connector_type = DRM_MODE_CONNECTOR_DVII;
 		}
@@ -414,9 +497,15 @@ static bool radeon_atom_apply_quirks(struct drm_device *dev,
 	 * with different crtcs which isn't possible on the hardware
 	 * side and leaves no crtcs for LVDS or VGA.
 	 */
+<<<<<<< HEAD
 	if (((dev->pdev->device == 0x95c4) || (dev->pdev->device == 0x9591)) &&
 	    (dev->pdev->subsystem_vendor == 0x1025) &&
 	    (dev->pdev->subsystem_device == 0x013c)) {
+=======
+	if (((pdev->device == 0x95c4) || (pdev->device == 0x9591)) &&
+	    (pdev->subsystem_vendor == 0x1025) &&
+	    (pdev->subsystem_device == 0x013c)) {
+>>>>>>> upstream/android-13
 		if ((*connector_type == DRM_MODE_CONNECTOR_DVII) &&
 		    (supported_device == ATOM_DEVICE_DFP1_SUPPORT)) {
 			/* actually it's a DVI-D port not DVI-I */
@@ -428,9 +517,15 @@ static bool radeon_atom_apply_quirks(struct drm_device *dev,
 	/* XFX Pine Group device rv730 reports no VGA DDC lines
 	 * even though they are wired up to record 0x93
 	 */
+<<<<<<< HEAD
 	if ((dev->pdev->device == 0x9498) &&
 	    (dev->pdev->subsystem_vendor == 0x1682) &&
 	    (dev->pdev->subsystem_device == 0x2452) &&
+=======
+	if ((pdev->device == 0x9498) &&
+	    (pdev->subsystem_vendor == 0x1682) &&
+	    (pdev->subsystem_device == 0x2452) &&
+>>>>>>> upstream/android-13
 	    (i2c_bus->valid == false) &&
 	    !(supported_device & (ATOM_DEVICE_TV_SUPPORT | ATOM_DEVICE_CV_SUPPORT))) {
 		struct radeon_device *rdev = dev->dev_private;
@@ -438,11 +533,19 @@ static bool radeon_atom_apply_quirks(struct drm_device *dev,
 	}
 
 	/* Fujitsu D3003-S2 board lists DVI-I as DVI-D and VGA */
+<<<<<<< HEAD
 	if (((dev->pdev->device == 0x9802) ||
 	     (dev->pdev->device == 0x9805) ||
 	     (dev->pdev->device == 0x9806)) &&
 	    (dev->pdev->subsystem_vendor == 0x1734) &&
 	    (dev->pdev->subsystem_device == 0x11bd)) {
+=======
+	if (((pdev->device == 0x9802) ||
+	     (pdev->device == 0x9805) ||
+	     (pdev->device == 0x9806)) &&
+	    (pdev->subsystem_vendor == 0x1734) &&
+	    (pdev->subsystem_device == 0x11bd)) {
+>>>>>>> upstream/android-13
 		if (*connector_type == DRM_MODE_CONNECTOR_VGA) {
 			*connector_type = DRM_MODE_CONNECTOR_DVII;
 			*line_mux = 0x3103;
@@ -566,7 +669,11 @@ bool radeon_get_atom_connector_info_from_object_table(struct drm_device *dev)
 		path_size += le16_to_cpu(path->usSize);
 
 		if (device_support & le16_to_cpu(path->usDeviceTag)) {
+<<<<<<< HEAD
 			uint8_t con_obj_id, con_obj_num, con_obj_type;
+=======
+			uint8_t con_obj_id, con_obj_num;
+>>>>>>> upstream/android-13
 
 			con_obj_id =
 			    (le16_to_cpu(path->usConnObjectId) & OBJECT_ID_MASK)
@@ -574,9 +681,12 @@ bool radeon_get_atom_connector_info_from_object_table(struct drm_device *dev)
 			con_obj_num =
 			    (le16_to_cpu(path->usConnObjectId) & ENUM_ID_MASK)
 			    >> ENUM_ID_SHIFT;
+<<<<<<< HEAD
 			con_obj_type =
 			    (le16_to_cpu(path->usConnObjectId) &
 			     OBJECT_TYPE_MASK) >> OBJECT_TYPE_SHIFT;
+=======
+>>>>>>> upstream/android-13
 
 			/* TODO CV support */
 			if (le16_to_cpu(path->usDeviceTag) ==
@@ -644,6 +754,7 @@ bool radeon_get_atom_connector_info_from_object_table(struct drm_device *dev)
 			router.ddc_valid = false;
 			router.cd_valid = false;
 			for (j = 0; j < ((le16_to_cpu(path->usSize) - 8) / 2); j++) {
+<<<<<<< HEAD
 				uint8_t grph_obj_id, grph_obj_num, grph_obj_type;
 
 				grph_obj_id =
@@ -653,6 +764,9 @@ bool radeon_get_atom_connector_info_from_object_table(struct drm_device *dev)
 				    (le16_to_cpu(path->usGraphicObjIds[j]) &
 				     ENUM_ID_MASK) >> ENUM_ID_SHIFT;
 				grph_obj_type =
+=======
+				uint8_t grph_obj_type =
+>>>>>>> upstream/android-13
 				    (le16_to_cpu(path->usGraphicObjIds[j]) &
 				     OBJECT_TYPE_MASK) >> OBJECT_TYPE_SHIFT;
 
@@ -2118,7 +2232,11 @@ static int radeon_atombios_parse_power_table_1_3(struct radeon_device *rdev)
 								    ucOverdriveThermalController];
 			info.addr = power_info->info.ucOverdriveControllerAddress >> 1;
 			strlcpy(info.type, name, sizeof(info.type));
+<<<<<<< HEAD
 			i2c_new_device(&rdev->pm.i2c_bus->adapter, &info);
+=======
+			i2c_new_client_device(&rdev->pm.i2c_bus->adapter, &info);
+>>>>>>> upstream/android-13
 		}
 	}
 	num_modes = power_info->info.ucNumOfPowerModeEntries;
@@ -2368,7 +2486,11 @@ static void radeon_atombios_add_pplib_thermal_controller(struct radeon_device *r
 				const char *name = pp_lib_thermal_controller_names[controller->ucType];
 				info.addr = controller->ucI2cAddress >> 1;
 				strlcpy(info.type, name, sizeof(info.type));
+<<<<<<< HEAD
 				i2c_new_device(&rdev->pm.i2c_bus->adapter, &info);
+=======
+				i2c_new_client_device(&rdev->pm.i2c_bus->adapter, &info);
+>>>>>>> upstream/android-13
 			}
 		} else {
 			DRM_INFO("Unknown thermal controller type %d at 0x%02x %s fan control\n",

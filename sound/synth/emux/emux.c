@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Copyright (C) 2000 Takashi Iwai <tiwai@suse.de>
  *
  *  Routines for control of EMU WaveTable chip
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/wait.h>
@@ -101,7 +108,11 @@ int snd_emux_register(struct snd_emux *emu, struct snd_card *card, int index, ch
 	emu->name = kstrdup(name, GFP_KERNEL);
 	emu->voices = kcalloc(emu->max_voices, sizeof(struct snd_emux_voice),
 			      GFP_KERNEL);
+<<<<<<< HEAD
 	if (emu->voices == NULL)
+=======
+	if (emu->name == NULL || emu->voices == NULL)
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 
 	/* create soundfont list */
@@ -117,7 +128,12 @@ int snd_emux_register(struct snd_emux *emu, struct snd_card *card, int index, ch
 	if (emu->sflist == NULL)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	if ((err = snd_emux_init_hwdep(emu)) < 0)
+=======
+	err = snd_emux_init_hwdep(emu);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 
 	snd_emux_init_voices(emu);

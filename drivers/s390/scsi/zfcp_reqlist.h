@@ -17,7 +17,11 @@
 /**
  * struct zfcp_reqlist - Container for request list (reqlist)
  * @lock: Spinlock for protecting the hash list
+<<<<<<< HEAD
  * @list: Array of hashbuckets, each is a list of requests in this bucket
+=======
+ * @buckets: Array of hashbuckets, each is a list of requests in this bucket
+>>>>>>> upstream/android-13
  */
 struct zfcp_reqlist {
 	spinlock_t lock;

@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * The input core
  *
  * Copyright (c) 1999-2002 Vojtech Pavlik
  */
 
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
  */
+=======
+>>>>>>> upstream/android-13
 
 #define pr_fmt(fmt) KBUILD_BASENAME ": " fmt
 
@@ -28,6 +35,10 @@
 #include <linux/mutex.h>
 #include <linux/rcupdate.h>
 #include "input-compat.h"
+<<<<<<< HEAD
+=======
+#include "input-poller.h"
+>>>>>>> upstream/android-13
 
 MODULE_AUTHOR("Vojtech Pavlik <vojtech@suse.cz>");
 MODULE_DESCRIPTION("Input core");
@@ -370,8 +381,18 @@ static int input_get_disposition(struct input_dev *dev,
 static void input_handle_event(struct input_dev *dev,
 			       unsigned int type, unsigned int code, int value)
 {
+<<<<<<< HEAD
 	int disposition = input_get_disposition(dev, type, code, &value);
 
+=======
+	int disposition;
+
+	/* filter-out events from inhibited devices */
+	if (dev->inhibited)
+		return;
+
+	disposition = input_get_disposition(dev, type, code, &value);
+>>>>>>> upstream/android-13
 	if (disposition != INPUT_IGNORE_EVENT && type != EV_SYN)
 		add_input_randomness(type, code, value);
 
@@ -615,20 +636,46 @@ int input_open_device(struct input_handle *handle)
 
 	handle->open++;
 
+<<<<<<< HEAD
 	if (!dev->users++ && dev->open)
 		retval = dev->open(dev);
 
 	if (retval) {
 		dev->users--;
 		if (!--handle->open) {
+=======
+	if (dev->users++ || dev->inhibited) {
+		/*
+		 * Device is already opened and/or inhibited,
+		 * so we can exit immediately and report success.
+		 */
+		goto out;
+	}
+
+	if (dev->open) {
+		retval = dev->open(dev);
+		if (retval) {
+			dev->users--;
+			handle->open--;
+>>>>>>> upstream/android-13
 			/*
 			 * Make sure we are not delivering any more events
 			 * through this handle
 			 */
 			synchronize_rcu();
+<<<<<<< HEAD
 		}
 	}
 
+=======
+			goto out;
+		}
+	}
+
+	if (dev->poller)
+		input_dev_poller_start(dev->poller);
+
+>>>>>>> upstream/android-13
  out:
 	mutex_unlock(&dev->mutex);
 	return retval;
@@ -667,8 +714,17 @@ void input_close_device(struct input_handle *handle)
 
 	__input_release_device(handle);
 
+<<<<<<< HEAD
 	if (!--dev->users && dev->close)
 		dev->close(dev);
+=======
+	if (!dev->inhibited && !--dev->users) {
+		if (dev->poller)
+			input_dev_poller_stop(dev->poller);
+		if (dev->close)
+			dev->close(dev);
+	}
+>>>>>>> upstream/android-13
 
 	if (!--handle->open) {
 		/*
@@ -1204,6 +1260,7 @@ static int input_proc_devices_open(struct inode *inode, struct file *file)
 	return seq_open(file, &input_devices_seq_ops);
 }
 
+<<<<<<< HEAD
 static const struct file_operations input_devices_fileops = {
 	.owner		= THIS_MODULE,
 	.open		= input_proc_devices_open,
@@ -1211,6 +1268,14 @@ static const struct file_operations input_devices_fileops = {
 	.read		= seq_read,
 	.llseek		= seq_lseek,
 	.release	= seq_release,
+=======
+static const struct proc_ops input_devices_proc_ops = {
+	.proc_open	= input_proc_devices_open,
+	.proc_poll	= input_proc_devices_poll,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_release	= seq_release,
+>>>>>>> upstream/android-13
 };
 
 static void *input_handlers_seq_start(struct seq_file *seq, loff_t *pos)
@@ -1268,12 +1333,20 @@ static int input_proc_handlers_open(struct inode *inode, struct file *file)
 	return seq_open(file, &input_handlers_seq_ops);
 }
 
+<<<<<<< HEAD
 static const struct file_operations input_handlers_fileops = {
 	.owner		= THIS_MODULE,
 	.open		= input_proc_handlers_open,
 	.read		= seq_read,
 	.llseek		= seq_lseek,
 	.release	= seq_release,
+=======
+static const struct proc_ops input_handlers_proc_ops = {
+	.proc_open	= input_proc_handlers_open,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_release	= seq_release,
+>>>>>>> upstream/android-13
 };
 
 static int __init input_proc_init(void)
@@ -1285,12 +1358,20 @@ static int __init input_proc_init(void)
 		return -ENOMEM;
 
 	entry = proc_create("devices", 0, proc_bus_input_dir,
+<<<<<<< HEAD
 			    &input_devices_fileops);
+=======
+			    &input_devices_proc_ops);
+>>>>>>> upstream/android-13
 	if (!entry)
 		goto fail1;
 
 	entry = proc_create("handlers", 0, proc_bus_input_dir,
+<<<<<<< HEAD
 			    &input_handlers_fileops);
+=======
+			    &input_handlers_proc_ops);
+>>>>>>> upstream/android-13
 	if (!entry)
 		goto fail2;
 
@@ -1405,12 +1486,55 @@ static ssize_t input_dev_show_properties(struct device *dev,
 }
 static DEVICE_ATTR(properties, S_IRUGO, input_dev_show_properties, NULL);
 
+<<<<<<< HEAD
+=======
+static int input_inhibit_device(struct input_dev *dev);
+static int input_uninhibit_device(struct input_dev *dev);
+
+static ssize_t inhibited_show(struct device *dev,
+			      struct device_attribute *attr,
+			      char *buf)
+{
+	struct input_dev *input_dev = to_input_dev(dev);
+
+	return scnprintf(buf, PAGE_SIZE, "%d\n", input_dev->inhibited);
+}
+
+static ssize_t inhibited_store(struct device *dev,
+			       struct device_attribute *attr, const char *buf,
+			       size_t len)
+{
+	struct input_dev *input_dev = to_input_dev(dev);
+	ssize_t rv;
+	bool inhibited;
+
+	if (strtobool(buf, &inhibited))
+		return -EINVAL;
+
+	if (inhibited)
+		rv = input_inhibit_device(input_dev);
+	else
+		rv = input_uninhibit_device(input_dev);
+
+	if (rv != 0)
+		return rv;
+
+	return len;
+}
+
+static DEVICE_ATTR_RW(inhibited);
+
+>>>>>>> upstream/android-13
 static struct attribute *input_dev_attrs[] = {
 	&dev_attr_name.attr,
 	&dev_attr_phys.attr,
 	&dev_attr_uniq.attr,
 	&dev_attr_modalias.attr,
 	&dev_attr_properties.attr,
+<<<<<<< HEAD
+=======
+	&dev_attr_inhibited.attr,
+>>>>>>> upstream/android-13
 	NULL
 };
 
@@ -1520,6 +1644,10 @@ static const struct attribute_group *input_dev_attr_groups[] = {
 	&input_dev_attr_group,
 	&input_dev_id_attr_group,
 	&input_dev_caps_attr_group,
+<<<<<<< HEAD
+=======
+	&input_poller_attribute_group,
+>>>>>>> upstream/android-13
 	NULL
 };
 
@@ -1529,6 +1657,10 @@ static void input_dev_release(struct device *device)
 
 	input_ff_destroy(dev);
 	input_mt_destroy_slots(dev);
+<<<<<<< HEAD
+=======
+	kfree(dev->poller);
+>>>>>>> upstream/android-13
 	kfree(dev->absinfo);
 	kfree(dev->vals);
 	kfree(dev);
@@ -1690,6 +1822,66 @@ void input_reset_device(struct input_dev *dev)
 }
 EXPORT_SYMBOL(input_reset_device);
 
+<<<<<<< HEAD
+=======
+static int input_inhibit_device(struct input_dev *dev)
+{
+	int ret = 0;
+
+	mutex_lock(&dev->mutex);
+
+	if (dev->inhibited)
+		goto out;
+
+	if (dev->users) {
+		if (dev->close)
+			dev->close(dev);
+		if (dev->poller)
+			input_dev_poller_stop(dev->poller);
+	}
+
+	spin_lock_irq(&dev->event_lock);
+	input_dev_release_keys(dev);
+	input_dev_toggle(dev, false);
+	spin_unlock_irq(&dev->event_lock);
+
+	dev->inhibited = true;
+
+out:
+	mutex_unlock(&dev->mutex);
+	return ret;
+}
+
+static int input_uninhibit_device(struct input_dev *dev)
+{
+	int ret = 0;
+
+	mutex_lock(&dev->mutex);
+
+	if (!dev->inhibited)
+		goto out;
+
+	if (dev->users) {
+		if (dev->open) {
+			ret = dev->open(dev);
+			if (ret)
+				goto out;
+		}
+		if (dev->poller)
+			input_dev_poller_start(dev->poller);
+	}
+
+	dev->inhibited = false;
+	spin_lock_irq(&dev->event_lock);
+	input_dev_toggle(dev, true);
+	spin_unlock_irq(&dev->event_lock);
+
+out:
+	mutex_unlock(&dev->mutex);
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM_SLEEP
 static int input_dev_suspend(struct device *dev)
 {
@@ -2114,6 +2306,17 @@ void input_enable_softrepeat(struct input_dev *dev, int delay, int period)
 }
 EXPORT_SYMBOL(input_enable_softrepeat);
 
+<<<<<<< HEAD
+=======
+bool input_device_enabled(struct input_dev *dev)
+{
+	lockdep_assert_held(&dev->mutex);
+
+	return !dev->inhibited && dev->users > 0;
+}
+EXPORT_SYMBOL_GPL(input_device_enabled);
+
+>>>>>>> upstream/android-13
 /**
  * input_register_device - register device with input core
  * @dev: device to be registered
@@ -2193,6 +2396,12 @@ int input_register_device(struct input_dev *dev)
 	if (!dev->setkeycode)
 		dev->setkeycode = input_default_setkeycode;
 
+<<<<<<< HEAD
+=======
+	if (dev->poller)
+		input_dev_poller_finalize(dev->poller);
+
+>>>>>>> upstream/android-13
 	error = device_add(&dev->dev);
 	if (error)
 		goto err_free_vals;

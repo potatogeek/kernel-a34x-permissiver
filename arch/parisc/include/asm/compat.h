@@ -8,6 +8,7 @@
 #include <linux/sched.h>
 #include <linux/thread_info.h>
 
+<<<<<<< HEAD
 #define COMPAT_USER_HZ 		100
 #define COMPAT_UTS_MACHINE	"parisc\0\0"
 
@@ -38,6 +39,21 @@ typedef u32	compat_uint_t;
 typedef u32	compat_ulong_t;
 typedef u64	compat_u64;
 typedef u32	compat_uptr_t;
+=======
+#define compat_mode_t compat_mode_t
+typedef u16	compat_mode_t;
+
+#include <asm-generic/compat.h>
+
+#define COMPAT_USER_HZ 		100
+#define COMPAT_UTS_MACHINE	"parisc\0\0"
+
+typedef u32	__compat_uid_t;
+typedef u32	__compat_gid_t;
+typedef u32	compat_dev_t;
+typedef u16	compat_nlink_t;
+typedef u16	compat_ipc_pid_t;
+>>>>>>> upstream/android-13
 
 struct compat_stat {
 	compat_dev_t		st_dev;	/* dev_t is 32 bits on parisc */
@@ -48,11 +64,19 @@ struct compat_stat {
 	u16			st_reserved2;	/* old st_gid */
 	compat_dev_t		st_rdev;
 	compat_off_t		st_size;
+<<<<<<< HEAD
 	compat_time_t		st_atime;
 	u32			st_atime_nsec;
 	compat_time_t		st_mtime;
 	u32			st_mtime_nsec;
 	compat_time_t		st_ctime;
+=======
+	old_time32_t		st_atime;
+	u32			st_atime_nsec;
+	old_time32_t		st_mtime;
+	u32			st_mtime_nsec;
+	old_time32_t		st_ctime;
+>>>>>>> upstream/android-13
 	u32			st_ctime_nsec;
 	s32			st_blksize;
 	s32			st_blocks;
@@ -112,6 +136,7 @@ struct compat_sigcontext {
 
 #define COMPAT_RLIM_INFINITY 0xffffffff
 
+<<<<<<< HEAD
 typedef u32		compat_old_sigset_t;	/* at least 32 bits */
 
 #define _COMPAT_NSIG		64
@@ -119,6 +144,8 @@ typedef u32		compat_old_sigset_t;	/* at least 32 bits */
 
 typedef u32		compat_sigset_word;
 
+=======
+>>>>>>> upstream/android-13
 #define COMPAT_OFF_T_MAX	0x7fffffff
 
 struct compat_ipc64_perm {
@@ -187,6 +214,7 @@ struct compat_shmid64_ds {
 #define COMPAT_ELF_NGREG 80
 typedef compat_ulong_t compat_elf_gregset_t[COMPAT_ELF_NGREG];
 
+<<<<<<< HEAD
 /*
  * A pointer passed in from user mode. This should not
  * be used for syscall parameters, just declare them
@@ -213,6 +241,11 @@ static __inline__ void __user *arch_compat_alloc_user_space(long len)
 static inline int __is_compat_task(struct task_struct *t)
 {
 	return test_ti_thread_flag(task_thread_info(t), TIF_32BIT);
+=======
+static inline int __is_compat_task(struct task_struct *t)
+{
+	return test_tsk_thread_flag(t, TIF_32BIT);
+>>>>>>> upstream/android-13
 }
 
 static inline int is_compat_task(void)

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * TI AM33XX SRAM EMIF Driver
  *
  * Copyright (C) 2016-2017 Texas Instruments Inc.
  *	Dave Gerlach
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -138,6 +145,12 @@ static int ti_emif_alloc_sram(struct device *dev,
 	emif_data->pm_functions.exit_sr =
 		sram_resume_address(emif_data,
 				    (unsigned long)ti_emif_exit_sr);
+<<<<<<< HEAD
+=======
+	emif_data->pm_functions.run_hw_leveling =
+		sram_resume_address(emif_data,
+				    (unsigned long)ti_emif_run_hw_leveling);
+>>>>>>> upstream/android-13
 
 	emif_data->pm_data.regs_virt =
 		(struct emif_regs_amx3 *)emif_data->ti_emif_sram_data_virt;
@@ -253,7 +266,11 @@ MODULE_DEVICE_TABLE(of, ti_emif_of_match);
 static int ti_emif_resume(struct device *dev)
 {
 	unsigned long tmp =
+<<<<<<< HEAD
 			__raw_readl((void *)emif_instance->ti_emif_sram_virt);
+=======
+			__raw_readl((void __iomem *)emif_instance->ti_emif_sram_virt);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Check to see if what we are copying is already present in the
@@ -345,7 +362,11 @@ static struct platform_driver ti_emif_driver = {
 	.remove = ti_emif_remove,
 	.driver = {
 		.name = KBUILD_MODNAME,
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(ti_emif_of_match),
+=======
+		.of_match_table = ti_emif_of_match,
+>>>>>>> upstream/android-13
 		.pm = &ti_emif_pm_ops,
 	},
 };

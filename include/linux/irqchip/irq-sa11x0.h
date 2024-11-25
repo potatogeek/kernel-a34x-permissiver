@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Generic IRQ handling for the SA11x0.
  *
  * Copyright (C) 2015 Dmitry Eremin-Solenikov
  * Copyright (C) 1999-2001 Nicolas Pitre
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __INCLUDE_LINUX_IRQCHIP_IRQ_SA11x0_H

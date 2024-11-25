@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  SR-IPv6 implementation -- HMAC functions
  *
  *  Author:
  *  David Lebrun <david.lebrun@uclouvain.be>
+<<<<<<< HEAD
  *
  *
  *  This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/errno.h>
@@ -39,9 +46,13 @@
 #include <net/addrconf.h>
 #include <net/xfrm.h>
 
+<<<<<<< HEAD
 #include <linux/cryptohash.h>
 #include <crypto/hash.h>
 #include <crypto/sha.h>
+=======
+#include <crypto/hash.h>
+>>>>>>> upstream/android-13
 #include <net/seg6.h>
 #include <net/genetlink.h>
 #include <net/seg6_hmac.h>

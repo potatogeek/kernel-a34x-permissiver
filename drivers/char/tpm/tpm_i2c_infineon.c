@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2012,2013 Infineon Technologies
  *
@@ -13,6 +17,7 @@
  *
  * It is based on the original tpm_tis device driver from Leendert van
  * Dorn and Kyleen Hall.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,6 +25,8 @@
  * License.
  *
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/i2c.h>
 #include <linux/module.h>

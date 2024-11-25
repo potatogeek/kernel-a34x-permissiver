@@ -1,18 +1,31 @@
+<<<<<<< HEAD
 /**
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  * Copyright (C) 2017 Axis Communications AB
  *
  * Driver for Texas Instruments' ADC084S021 ADC chip.
  * Datasheets can be found here:
+<<<<<<< HEAD
  * http://www.ti.com/lit/ds/symlink/adc084s021.pdf
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+ * https://www.ti.com/lit/ds/symlink/adc084s021.pdf
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
 #include <linux/spi/spi.h>
 #include <linux/module.h>
+<<<<<<< HEAD
+=======
+#include <linux/mod_devicetable.h>
+>>>>>>> upstream/android-13
 #include <linux/interrupt.h>
 #include <linux/iio/iio.h>
 #include <linux/iio/buffer.h>
@@ -67,16 +80,27 @@ static const struct iio_chan_spec adc084s021_channels[] = {
 };
 
 /**
+<<<<<<< HEAD
  * Read an ADC channel and return its value.
+=======
+ * adc084s021_adc_conversion() - Read an ADC channel and return its value.
+>>>>>>> upstream/android-13
  *
  * @adc: The ADC SPI data.
  * @data: Buffer for converted data.
  */
+<<<<<<< HEAD
 static int adc084s021_adc_conversion(struct adc084s021 *adc, void *data)
 {
 	int n_words = (adc->spi_trans.len >> 1) - 1; /* Discard first word */
 	int ret, i = 0;
 	u16 *p = data;
+=======
+static int adc084s021_adc_conversion(struct adc084s021 *adc, __be16 *data)
+{
+	int n_words = (adc->spi_trans.len >> 1) - 1; /* Discard first word */
+	int ret, i = 0;
+>>>>>>> upstream/android-13
 
 	/* Do the transfer */
 	ret = spi_sync(adc->spi, &adc->message);
@@ -84,7 +108,11 @@ static int adc084s021_adc_conversion(struct adc084s021 *adc, void *data)
 		return ret;
 
 	for (; i < n_words; i++)
+<<<<<<< HEAD
 		*(p + i) = adc->rx_buf[i + 1];
+=======
+		*(data + i) = adc->rx_buf[i + 1];
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -95,6 +123,10 @@ static int adc084s021_read_raw(struct iio_dev *indio_dev,
 {
 	struct adc084s021 *adc = iio_priv(indio_dev);
 	int ret;
+<<<<<<< HEAD
+=======
+	__be16 be_val;
+>>>>>>> upstream/android-13
 
 	switch (mask) {
 	case IIO_CHAN_INFO_RAW:
@@ -109,13 +141,21 @@ static int adc084s021_read_raw(struct iio_dev *indio_dev,
 		}
 
 		adc->tx_buf[0] = channel->channel << 3;
+<<<<<<< HEAD
 		ret = adc084s021_adc_conversion(adc, val);
+=======
+		ret = adc084s021_adc_conversion(adc, &be_val);
+>>>>>>> upstream/android-13
 		iio_device_release_direct_mode(indio_dev);
 		regulator_disable(adc->reg);
 		if (ret < 0)
 			return ret;
 
+<<<<<<< HEAD
 		*val = be16_to_cpu(*val);
+=======
+		*val = be16_to_cpu(be_val);
+>>>>>>> upstream/android-13
 		*val = (*val >> channel->scan_type.shift) & 0xff;
 
 		return IIO_VAL_INT;
@@ -138,7 +178,11 @@ static int adc084s021_read_raw(struct iio_dev *indio_dev,
 }
 
 /**
+<<<<<<< HEAD
  * Read enabled ADC channels and push data to the buffer.
+=======
+ * adc084s021_buffer_trigger_handler() - Read ADC channels and push to buffer.
+>>>>>>> upstream/android-13
  *
  * @irq: The interrupt number (not used).
  * @pollfunc: Pointer to the poll func.
@@ -194,8 +238,11 @@ static const struct iio_info adc084s021_info = {
 
 static const struct iio_buffer_setup_ops adc084s021_buffer_setup_ops = {
 	.preenable = adc084s021_buffer_preenable,
+<<<<<<< HEAD
 	.postenable = iio_triggered_buffer_postenable,
 	.predisable = iio_triggered_buffer_predisable,
+=======
+>>>>>>> upstream/android-13
 	.postdisable = adc084s021_buffer_postdisable,
 };
 
@@ -214,12 +261,16 @@ static int adc084s021_probe(struct spi_device *spi)
 	adc = iio_priv(indio_dev);
 	adc->spi = spi;
 
+<<<<<<< HEAD
 	/* Connect the SPI device and the iio dev */
 	spi_set_drvdata(spi, indio_dev);
 
 	/* Initiate the Industrial I/O device */
 	indio_dev->dev.parent = &spi->dev;
 	indio_dev->dev.of_node = spi->dev.of_node;
+=======
+	/* Initiate the Industrial I/O device */
+>>>>>>> upstream/android-13
 	indio_dev->name = spi_get_device_id(spi)->name;
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->info = &adc084s021_info;
@@ -265,7 +316,11 @@ MODULE_DEVICE_TABLE(spi, adc084s021_id);
 static struct spi_driver adc084s021_driver = {
 	.driver = {
 		.name = ADC084S021_DRIVER_NAME,
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(adc084s021_of_match),
+=======
+		.of_match_table = adc084s021_of_match,
+>>>>>>> upstream/android-13
 	},
 	.probe = adc084s021_probe,
 	.id_table = adc084s021_id,

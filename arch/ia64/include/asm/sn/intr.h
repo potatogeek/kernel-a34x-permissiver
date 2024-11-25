@@ -9,6 +9,7 @@
 #ifndef _ASM_IA64_SN_INTR_H
 #define _ASM_IA64_SN_INTR_H
 
+<<<<<<< HEAD
 #include <linux/rcupdate.h>
 #include <asm/sn/types.h>
 
@@ -65,4 +66,9 @@ extern struct list_head **sn_irq_lh;
 
 #define CPU_VECTOR_TO_IRQ(cpuid,vector) (vector)
 
+=======
+#define SGI_XPC_ACTIVATE	0x30
+#define SGI_XPC_NOTIFY		0xe7
+
+>>>>>>> upstream/android-13
 #endif /* _ASM_IA64_SN_INTR_H */

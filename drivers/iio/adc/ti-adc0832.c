@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ADC0831/ADC0832/ADC0834/ADC0838 8-bit ADC driver
  *
  * Copyright (c) 2016 Akinobu Mita <akinobu.mita@gmail.com>
  *
+<<<<<<< HEAD
  * This file is subject to the terms and conditions of version 2 of
  * the GNU General Public License.  See the file COPYING in the main
  * directory of this archive for more details.
@@ -11,6 +16,13 @@
  */
 
 #include <linux/module.h>
+=======
+ * Datasheet: https://www.ti.com/lit/ds/symlink/adc0832-n.pdf
+ */
+
+#include <linux/module.h>
+#include <linux/mod_devicetable.h>
+>>>>>>> upstream/android-13
 #include <linux/spi/spi.h>
 #include <linux/iio/iio.h>
 #include <linux/regulator/consumer.h>
@@ -238,6 +250,14 @@ out:
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
+=======
+static void adc0832_reg_disable(void *reg)
+{
+	regulator_disable(reg);
+}
+
+>>>>>>> upstream/android-13
 static int adc0832_probe(struct spi_device *spi)
 {
 	struct iio_dev *indio_dev;
@@ -253,8 +273,11 @@ static int adc0832_probe(struct spi_device *spi)
 	mutex_init(&adc->lock);
 
 	indio_dev->name = spi_get_device_id(spi)->name;
+<<<<<<< HEAD
 	indio_dev->dev.parent = &spi->dev;
 	indio_dev->dev.of_node = spi->dev.of_node;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->info = &adc0832_info;
 	indio_dev->modes = INDIO_DIRECT_MODE;
 
@@ -291,6 +314,7 @@ static int adc0832_probe(struct spi_device *spi)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	spi_set_drvdata(spi, indio_dev);
 
 	ret = iio_triggered_buffer_setup(indio_dev, NULL,
@@ -325,6 +349,21 @@ static int adc0832_remove(struct spi_device *spi)
 
 #ifdef CONFIG_OF
 
+=======
+	ret = devm_add_action_or_reset(&spi->dev, adc0832_reg_disable,
+				       adc->reg);
+	if (ret)
+		return ret;
+
+	ret = devm_iio_triggered_buffer_setup(&spi->dev, indio_dev, NULL,
+					      adc0832_trigger_handler, NULL);
+	if (ret)
+		return ret;
+
+	return devm_iio_device_register(&spi->dev, indio_dev);
+}
+
+>>>>>>> upstream/android-13
 static const struct of_device_id adc0832_dt_ids[] = {
 	{ .compatible = "ti,adc0831", },
 	{ .compatible = "ti,adc0832", },
@@ -334,8 +373,11 @@ static const struct of_device_id adc0832_dt_ids[] = {
 };
 MODULE_DEVICE_TABLE(of, adc0832_dt_ids);
 
+<<<<<<< HEAD
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static const struct spi_device_id adc0832_id[] = {
 	{ "adc0831", adc0831 },
 	{ "adc0832", adc0832 },
@@ -348,10 +390,16 @@ MODULE_DEVICE_TABLE(spi, adc0832_id);
 static struct spi_driver adc0832_driver = {
 	.driver = {
 		.name = "adc0832",
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(adc0832_dt_ids),
 	},
 	.probe = adc0832_probe,
 	.remove = adc0832_remove,
+=======
+		.of_match_table = adc0832_dt_ids,
+	},
+	.probe = adc0832_probe,
+>>>>>>> upstream/android-13
 	.id_table = adc0832_id,
 };
 module_spi_driver(adc0832_driver);

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * 802_3
  *
@@ -10,7 +14,17 @@
 #include <linux/module.h>
 #include <linux/netfilter/x_tables.h>
 #include <linux/netfilter_bridge/ebtables.h>
+<<<<<<< HEAD
 #include <linux/netfilter_bridge/ebt_802_3.h>
+=======
+#include <linux/skbuff.h>
+#include <uapi/linux/netfilter_bridge/ebt_802_3.h>
+
+static struct ebt_802_3_hdr *ebt_802_3_hdr(const struct sk_buff *skb)
+{
+	return (struct ebt_802_3_hdr *)skb_mac_header(skb);
+}
+>>>>>>> upstream/android-13
 
 static bool
 ebt_802_3_mt(const struct sk_buff *skb, struct xt_action_param *par)

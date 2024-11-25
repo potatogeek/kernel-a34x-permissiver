@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2014  Realtek Corporation.
@@ -22,6 +23,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+// SPDX-License-Identifier: GPL-2.0
+/* Copyright(c) 2009-2014  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #include "../wifi.h"
 #include "phy_common.h"
@@ -36,15 +41,26 @@ u32 rtl8723_phy_query_bb_reg(struct ieee80211_hw *hw,
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	u32 returnvalue, originalvalue, bitshift;
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_RF, DBG_TRACE,
 		 "regaddr(%#x), bitmask(%#x)\n", regaddr, bitmask);
+=======
+	rtl_dbg(rtlpriv, COMP_RF, DBG_TRACE,
+		"regaddr(%#x), bitmask(%#x)\n", regaddr, bitmask);
+>>>>>>> upstream/android-13
 	originalvalue = rtl_read_dword(rtlpriv, regaddr);
 	bitshift = rtl8723_phy_calculate_bit_shift(bitmask);
 	returnvalue = (originalvalue & bitmask) >> bitshift;
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_RF, DBG_TRACE,
 		 "BBR MASK=0x%x Addr[0x%x]=0x%x\n", bitmask,
 		 regaddr, originalvalue);
+=======
+	rtl_dbg(rtlpriv, COMP_RF, DBG_TRACE,
+		"BBR MASK=0x%x Addr[0x%x]=0x%x\n", bitmask,
+		regaddr, originalvalue);
+>>>>>>> upstream/android-13
 	return returnvalue;
 }
 EXPORT_SYMBOL_GPL(rtl8723_phy_query_bb_reg);
@@ -55,9 +71,15 @@ void rtl8723_phy_set_bb_reg(struct ieee80211_hw *hw, u32 regaddr,
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	u32 originalvalue, bitshift;
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_RF, DBG_TRACE,
 		 "regaddr(%#x), bitmask(%#x), data(%#x)\n", regaddr, bitmask,
 		 data);
+=======
+	rtl_dbg(rtlpriv, COMP_RF, DBG_TRACE,
+		"regaddr(%#x), bitmask(%#x), data(%#x)\n", regaddr, bitmask,
+		data);
+>>>>>>> upstream/android-13
 
 	if (bitmask != MASKDWORD) {
 		originalvalue = rtl_read_dword(rtlpriv, regaddr);
@@ -67,14 +89,21 @@ void rtl8723_phy_set_bb_reg(struct ieee80211_hw *hw, u32 regaddr,
 
 	rtl_write_dword(rtlpriv, regaddr, data);
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_RF, DBG_TRACE,
 		 "regaddr(%#x), bitmask(%#x), data(%#x)\n",
 		 regaddr, bitmask, data);
+=======
+	rtl_dbg(rtlpriv, COMP_RF, DBG_TRACE,
+		"regaddr(%#x), bitmask(%#x), data(%#x)\n",
+		regaddr, bitmask, data);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(rtl8723_phy_set_bb_reg);
 
 u32 rtl8723_phy_calculate_bit_shift(u32 bitmask)
 {
+<<<<<<< HEAD
 	u32 i;
 
 	for (i = 0; i <= 31; i++) {
@@ -82,6 +111,11 @@ u32 rtl8723_phy_calculate_bit_shift(u32 bitmask)
 			break;
 	}
 	return i;
+=======
+	u32 i = ffs(bitmask);
+
+	return i ? i - 1 : 32;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(rtl8723_phy_calculate_bit_shift);
 
@@ -111,12 +145,19 @@ u32 rtl8723_phy_rf_serial_read(struct ieee80211_hw *hw,
 	    (newoffset << 23) | BLSSIREADEDGE;
 	rtl_set_bbreg(hw, RFPGA0_XA_HSSIPARAMETER2, MASKDWORD,
 		      tmplong & (~BLSSIREADEDGE));
+<<<<<<< HEAD
 	mdelay(1);
 	rtl_set_bbreg(hw, pphyreg->rfhssi_para2, MASKDWORD, tmplong2);
 	mdelay(1);
 	rtl_set_bbreg(hw, RFPGA0_XA_HSSIPARAMETER2, MASKDWORD,
 		      tmplong | BLSSIREADEDGE);
 	mdelay(1);
+=======
+	rtl_set_bbreg(hw, pphyreg->rfhssi_para2, MASKDWORD, tmplong2);
+	rtl_set_bbreg(hw, RFPGA0_XA_HSSIPARAMETER2, MASKDWORD,
+		      tmplong | BLSSIREADEDGE);
+	udelay(120);
+>>>>>>> upstream/android-13
 	if (rfpath == RF90_PATH_A)
 		rfpi_enable = (u8) rtl_get_bbreg(hw, RFPGA0_XA_HSSIPARAMETER1,
 						 BIT(8));
@@ -129,9 +170,15 @@ u32 rtl8723_phy_rf_serial_read(struct ieee80211_hw *hw,
 	else
 		retvalue = rtl_get_bbreg(hw, pphyreg->rf_rb,
 					 BLSSIREADBACKDATA);
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_RF, DBG_TRACE,
 		 "RFR-%d Addr[0x%x]=0x%x\n",
 		 rfpath, pphyreg->rf_rb, retvalue);
+=======
+	rtl_dbg(rtlpriv, COMP_RF, DBG_TRACE,
+		"RFR-%d Addr[0x%x]=0x%x\n",
+		rfpath, pphyreg->rf_rb, retvalue);
+>>>>>>> upstream/android-13
 	return retvalue;
 }
 EXPORT_SYMBOL_GPL(rtl8723_phy_rf_serial_read);
@@ -154,10 +201,17 @@ void rtl8723_phy_rf_serial_write(struct ieee80211_hw *hw,
 	newoffset = offset;
 	data_and_addr = ((newoffset << 20) | (data & 0x000fffff)) & 0x0fffffff;
 	rtl_set_bbreg(hw, pphyreg->rf3wire_offset, MASKDWORD, data_and_addr);
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_RF, DBG_TRACE,
 		 "RFW-%d Addr[0x%x]=0x%x\n",
 		 rfpath, pphyreg->rf3wire_offset,
 		 data_and_addr);
+=======
+	rtl_dbg(rtlpriv, COMP_RF, DBG_TRACE,
+		"RFW-%d Addr[0x%x]=0x%x\n",
+		rfpath, pphyreg->rf3wire_offset,
+		data_and_addr);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(rtl8723_phy_rf_serial_write);
 

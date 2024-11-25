@@ -10,6 +10,7 @@
 #ifndef _UAPI_ASM_SIGINFO_H
 #define _UAPI_ASM_SIGINFO_H
 
+<<<<<<< HEAD
 
 #define __ARCH_SIGEV_PREAMBLE_SIZE (sizeof(long) + 2*sizeof(int))
 #undef __ARCH_SI_TRAPNO /* exception code needs to fill this ...  */
@@ -24,6 +25,9 @@
 #else
 #error _MIPS_SZLONG neither 32 nor 64
 #endif
+=======
+#define __ARCH_SIGEV_PREAMBLE_SIZE (sizeof(long) + 2*sizeof(int))
+>>>>>>> upstream/android-13
 
 #define __ARCH_HAS_SWAPPED_SIGINFO
 

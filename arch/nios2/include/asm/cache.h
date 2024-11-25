@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2004 Microtronix Datacom Ltd.
  *
  * All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
  * NON INFRINGEMENT.  See the GNU General Public License for more
  * details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_NIOS2_CACHE_H

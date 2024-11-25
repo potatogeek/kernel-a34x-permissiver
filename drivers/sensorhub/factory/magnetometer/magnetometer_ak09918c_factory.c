@@ -36,7 +36,11 @@
 #define GM_SELFTEST_Y_SPEC_MIN -200
 #define GM_SELFTEST_Y_SPEC_MAX 200
 #define GM_SELFTEST_Z_SPEC_MIN -1000
+<<<<<<< HEAD
 #define GM_SELFTEST_Z_SPEC_MAX -150
+=======
+#define GM_SELFTEST_Z_SPEC_MAX -200
+>>>>>>> upstream/android-13
 
 int check_ak09918c_adc_data_spec(s32 sensor_value[3])
 {
@@ -183,12 +187,20 @@ static ssize_t selftest_show(struct device *dev, struct device_attribute *attr, 
 	s16 iSF_X = 0, iSF_Y = 0, iSF_Z = 0;
 	s16 iADC_X = 0, iADC_Y = 0, iADC_Z = 0;
 	int ret = 0;
+<<<<<<< HEAD
+=======
+	int spec_out_retries = 0;
+>>>>>>> upstream/android-13
 
 	shub_infof("");
 
 	/* STATUS AK09916C doesn't need FuseRomdata more*/
 	result[0] = 0;
 
+<<<<<<< HEAD
+=======
+Retry_selftest:
+>>>>>>> upstream/android-13
 	ret = shub_send_command_wait(CMD_GETVALUE, SENSOR_TYPE_GEOMAGNETIC_FIELD, SENSOR_FACTORY, 1000, NULL, 0,
 				     &buf_selftest, &buf_selftest_length, true);
 	if (ret < 0) {
@@ -222,9 +234,15 @@ static ssize_t selftest_show(struct device *dev, struct device_attribute *attr, 
 		shub_info("y failed self test, expect -200<=y<=200");
 
 	if ((iSF_Z >= GM_SELFTEST_Z_SPEC_MIN) && (iSF_Z <= GM_SELFTEST_Z_SPEC_MAX))
+<<<<<<< HEAD
 		shub_info("z passed self test, expect -1000<=z<=-150");
 	else
 		shub_info("z failed self test, expect -1000<=z<=-150");
+=======
+		shub_info("z passed self test, expect -1000<=z<=-200");
+	else
+		shub_info("z failed self test, expect -1000<=z<=-200");
+>>>>>>> upstream/android-13
 
 	/* SELFTEST */
 	if ((iSF_X >= GM_SELFTEST_X_SPEC_MIN) && (iSF_X <= GM_SELFTEST_X_SPEC_MAX) &&
@@ -233,8 +251,17 @@ static ssize_t selftest_show(struct device *dev, struct device_attribute *attr, 
 		result[1] = 0;
 	}
 
+<<<<<<< HEAD
 	if (result[1] == -1)
 		shub_info("selftest spec out.");
+=======
+	if ((result[1] == -1) && (spec_out_retries++ < 5)) {
+		shub_info("selftest spec out. Retry = %d", spec_out_retries);
+		goto Retry_selftest;
+	}
+
+	spec_out_retries = 10;
+>>>>>>> upstream/android-13
 
 	/* ADC */
 	iADC_X = (s16)((buf_selftest[5] << 8) + buf_selftest[6]);
@@ -253,7 +280,11 @@ static ssize_t selftest_show(struct device *dev, struct device_attribute *attr, 
 		result[3] = 0;
 	}
 
+<<<<<<< HEAD
 	shub_info("adc, x = %d, y = %d, z = %d", iADC_X, iADC_Y, iADC_Z);
+=======
+	shub_info("adc, x = %d, y = %d, z = %d, retry = %d", iADC_X, iADC_Y, iADC_Z, spec_out_retries);
+>>>>>>> upstream/android-13
 
 exit:
 	shub_info("out. Result = %d %d %d %d\n", result[0], result[1], result[2], result[3]);

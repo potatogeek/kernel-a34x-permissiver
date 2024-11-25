@@ -4113,6 +4113,10 @@ const struct font_desc font_7x14 = {
 	.name	= "7x14",
 	.width	= 7,
 	.height	= 14,
+<<<<<<< HEAD
+=======
+	.charcount = 256,
+>>>>>>> upstream/android-13
 	.data	= fontdata_7x14.data,
 	.pref	= 0,
 };

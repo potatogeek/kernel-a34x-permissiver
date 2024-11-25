@@ -7,6 +7,10 @@
  *               Martin Schwidefsky (schwidefsky@de.ibm.com)
  */
 
+<<<<<<< HEAD
+=======
+#include "asm/ptrace.h"
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/sched.h>
 #include <linux/sched/task_stack.h>
@@ -24,10 +28,14 @@
 #include <linux/seccomp.h>
 #include <linux/compat.h>
 #include <trace/syscall.h>
+<<<<<<< HEAD
 #include <asm/segment.h>
 #include <asm/page.h>
 #include <asm/pgtable.h>
 #include <asm/pgalloc.h>
+=======
+#include <asm/page.h>
+>>>>>>> upstream/android-13
 #include <linux/uaccess.h>
 #include <asm/unistd.h>
 #include <asm/switch_to.h>
@@ -40,9 +48,12 @@
 #include "compat_ptrace.h"
 #endif
 
+<<<<<<< HEAD
 #define CREATE_TRACE_POINTS
 #include <trace/events/syscalls.h>
 
+=======
+>>>>>>> upstream/android-13
 void update_cr_regs(struct task_struct *task)
 {
 	struct pt_regs *regs = task_pt_regs(task);
@@ -143,7 +154,11 @@ void ptrace_disable(struct task_struct *task)
 	memset(&task->thread.per_user, 0, sizeof(task->thread.per_user));
 	memset(&task->thread.per_event, 0, sizeof(task->thread.per_event));
 	clear_tsk_thread_flag(task, TIF_SINGLE_STEP);
+<<<<<<< HEAD
 	clear_pt_regs_flag(task_pt_regs(task), PIF_PER_TRAP);
+=======
+	clear_tsk_thread_flag(task, TIF_PER_TRAP);
+>>>>>>> upstream/android-13
 	task->thread.per_flags = 0;
 }
 
@@ -325,6 +340,7 @@ static inline void __poke_user_per(struct task_struct *child,
 		child->thread.per_user.end = data;
 }
 
+<<<<<<< HEAD
 static void fixup_int_code(struct task_struct *child, addr_t data)
 {
 	struct pt_regs *regs = task_pt_regs(child);
@@ -344,6 +360,8 @@ static void fixup_int_code(struct task_struct *child, addr_t data)
 
 	regs->int_code = 0x20000 | (data & 0xffff);
 }
+=======
+>>>>>>> upstream/android-13
 /*
  * Write a word to the user area of a process at location addr. This
  * operation does have an additional problem compared to peek_user.
@@ -377,10 +395,19 @@ static int __poke_user(struct task_struct *child, addr_t addr, addr_t data)
 		}
 
 		if (test_pt_regs_flag(regs, PIF_SYSCALL) &&
+<<<<<<< HEAD
 			addr == offsetof(struct user, regs.gprs[2]))
 			fixup_int_code(child, data);
 		*(addr_t *)((addr_t) &regs->psw + addr) = data;
 
+=======
+			addr == offsetof(struct user, regs.gprs[2])) {
+			struct pt_regs *regs = task_pt_regs(child);
+
+			regs->int_code = 0x20000 | (data & 0xffff);
+		}
+		*(addr_t *)((addr_t) &regs->psw + addr) = data;
+>>>>>>> upstream/android-13
 	} else if (addr < (addr_t) (&dummy->regs.orig_gpr2)) {
 		/*
 		 * access registers are stored in the thread structure
@@ -745,10 +772,19 @@ static int __poke_user_compat(struct task_struct *child,
 			regs->psw.mask = (regs->psw.mask & ~PSW_MASK_BA) |
 				(__u64)(tmp & PSW32_ADDR_AMODE);
 		} else {
+<<<<<<< HEAD
 
 			if (test_pt_regs_flag(regs, PIF_SYSCALL) &&
 				addr == offsetof(struct compat_user, regs.gprs[2]))
 				fixup_int_code(child, data);
+=======
+			if (test_pt_regs_flag(regs, PIF_SYSCALL) &&
+				addr == offsetof(struct compat_user, regs.gprs[2])) {
+				struct pt_regs *regs = task_pt_regs(child);
+
+				regs->int_code = 0x20000 | (data & 0xffff);
+			}
+>>>>>>> upstream/android-13
 			/* gpr 0-15 */
 			*(__u32*)((addr_t) &regs->psw + addr*2 + 4) = tmp;
 		}
@@ -865,6 +901,7 @@ long compat_arch_ptrace(struct task_struct *child, compat_long_t request,
 }
 #endif
 
+<<<<<<< HEAD
 asmlinkage long do_syscall_trace_enter(struct pt_regs *regs)
 {
 	unsigned long mask = -1UL;
@@ -915,12 +952,15 @@ asmlinkage void do_syscall_trace_exit(struct pt_regs *regs)
 		tracehook_report_syscall_exit(regs, 0);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * user_regset definitions.
  */
 
 static int s390_regs_get(struct task_struct *target,
 			 const struct user_regset *regset,
+<<<<<<< HEAD
 			 unsigned int pos, unsigned int count,
 			 void *kbuf, void __user *ubuf)
 {
@@ -943,6 +983,16 @@ static int s390_regs_get(struct task_struct *target,
 			pos += sizeof(*u);
 		}
 	}
+=======
+			 struct membuf to)
+{
+	unsigned pos;
+	if (target == current)
+		save_access_regs(target->thread.acrs);
+
+	for (pos = 0; pos < sizeof(s390_regs); pos += sizeof(long))
+		membuf_store(&to, __peek_user(target, pos));
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -983,8 +1033,13 @@ static int s390_regs_set(struct task_struct *target,
 }
 
 static int s390_fpregs_get(struct task_struct *target,
+<<<<<<< HEAD
 			   const struct user_regset *regset, unsigned int pos,
 			   unsigned int count, void *kbuf, void __user *ubuf)
+=======
+			   const struct user_regset *regset,
+			   struct membuf to)
+>>>>>>> upstream/android-13
 {
 	_s390_fp_regs fp_regs;
 
@@ -994,8 +1049,12 @@ static int s390_fpregs_get(struct task_struct *target,
 	fp_regs.fpc = target->thread.fpu.fpc;
 	fpregs_store(&fp_regs, &target->thread.fpu);
 
+<<<<<<< HEAD
 	return user_regset_copyout(&pos, &count, &kbuf, &ubuf,
 				   &fp_regs, 0, -1);
+=======
+	return membuf_write(&to, &fp_regs, sizeof(fp_regs));
+>>>>>>> upstream/android-13
 }
 
 static int s390_fpregs_set(struct task_struct *target,
@@ -1042,6 +1101,7 @@ static int s390_fpregs_set(struct task_struct *target,
 
 static int s390_last_break_get(struct task_struct *target,
 			       const struct user_regset *regset,
+<<<<<<< HEAD
 			       unsigned int pos, unsigned int count,
 			       void *kbuf, void __user *ubuf)
 {
@@ -1056,6 +1116,11 @@ static int s390_last_break_get(struct task_struct *target,
 		}
 	}
 	return 0;
+=======
+			       struct membuf to)
+{
+	return membuf_store(&to, target->thread.last_break);
+>>>>>>> upstream/android-13
 }
 
 static int s390_last_break_set(struct task_struct *target,
@@ -1068,6 +1133,7 @@ static int s390_last_break_set(struct task_struct *target,
 
 static int s390_tdb_get(struct task_struct *target,
 			const struct user_regset *regset,
+<<<<<<< HEAD
 			unsigned int pos, unsigned int count,
 			void *kbuf, void __user *ubuf)
 {
@@ -1078,6 +1144,17 @@ static int s390_tdb_get(struct task_struct *target,
 		return -ENODATA;
 	data = target->thread.trap_tdb;
 	return user_regset_copyout(&pos, &count, &kbuf, &ubuf, data, 0, 256);
+=======
+			struct membuf to)
+{
+	struct pt_regs *regs = task_pt_regs(target);
+	size_t size;
+
+	if (!(regs->int_code & 0x200))
+		return -ENODATA;
+	size = sizeof(target->thread.trap_tdb.data);
+	return membuf_write(&to, target->thread.trap_tdb.data, size);
+>>>>>>> upstream/android-13
 }
 
 static int s390_tdb_set(struct task_struct *target,
@@ -1090,8 +1167,12 @@ static int s390_tdb_set(struct task_struct *target,
 
 static int s390_vxrs_low_get(struct task_struct *target,
 			     const struct user_regset *regset,
+<<<<<<< HEAD
 			     unsigned int pos, unsigned int count,
 			     void *kbuf, void __user *ubuf)
+=======
+			     struct membuf to)
+>>>>>>> upstream/android-13
 {
 	__u64 vxrs[__NUM_VXRS_LOW];
 	int i;
@@ -1102,7 +1183,11 @@ static int s390_vxrs_low_get(struct task_struct *target,
 		save_fpu_regs();
 	for (i = 0; i < __NUM_VXRS_LOW; i++)
 		vxrs[i] = *((__u64 *)(target->thread.fpu.vxrs + i) + 1);
+<<<<<<< HEAD
 	return user_regset_copyout(&pos, &count, &kbuf, &ubuf, vxrs, 0, -1);
+=======
+	return membuf_write(&to, vxrs, sizeof(vxrs));
+>>>>>>> upstream/android-13
 }
 
 static int s390_vxrs_low_set(struct task_struct *target,
@@ -1131,18 +1216,28 @@ static int s390_vxrs_low_set(struct task_struct *target,
 
 static int s390_vxrs_high_get(struct task_struct *target,
 			      const struct user_regset *regset,
+<<<<<<< HEAD
 			      unsigned int pos, unsigned int count,
 			      void *kbuf, void __user *ubuf)
 {
 	__vector128 vxrs[__NUM_VXRS_HIGH];
 
+=======
+			      struct membuf to)
+{
+>>>>>>> upstream/android-13
 	if (!MACHINE_HAS_VX)
 		return -ENODEV;
 	if (target == current)
 		save_fpu_regs();
+<<<<<<< HEAD
 	memcpy(vxrs, target->thread.fpu.vxrs + __NUM_VXRS_LOW, sizeof(vxrs));
 
 	return user_regset_copyout(&pos, &count, &kbuf, &ubuf, vxrs, 0, -1);
+=======
+	return membuf_write(&to, target->thread.fpu.vxrs + __NUM_VXRS_LOW,
+			    __NUM_VXRS_HIGH * sizeof(__vector128));
+>>>>>>> upstream/android-13
 }
 
 static int s390_vxrs_high_set(struct task_struct *target,
@@ -1164,12 +1259,18 @@ static int s390_vxrs_high_set(struct task_struct *target,
 
 static int s390_system_call_get(struct task_struct *target,
 				const struct user_regset *regset,
+<<<<<<< HEAD
 				unsigned int pos, unsigned int count,
 				void *kbuf, void __user *ubuf)
 {
 	unsigned int *data = &target->thread.system_call;
 	return user_regset_copyout(&pos, &count, &kbuf, &ubuf,
 				   data, 0, sizeof(unsigned int));
+=======
+				struct membuf to)
+{
+	return membuf_store(&to, target->thread.system_call);
+>>>>>>> upstream/android-13
 }
 
 static int s390_system_call_set(struct task_struct *target,
@@ -1184,8 +1285,12 @@ static int s390_system_call_set(struct task_struct *target,
 
 static int s390_gs_cb_get(struct task_struct *target,
 			  const struct user_regset *regset,
+<<<<<<< HEAD
 			  unsigned int pos, unsigned int count,
 			  void *kbuf, void __user *ubuf)
+=======
+			  struct membuf to)
+>>>>>>> upstream/android-13
 {
 	struct gs_cb *data = target->thread.gs_cb;
 
@@ -1195,8 +1300,12 @@ static int s390_gs_cb_get(struct task_struct *target,
 		return -ENODATA;
 	if (target == current)
 		save_gs_cb(data);
+<<<<<<< HEAD
 	return user_regset_copyout(&pos, &count, &kbuf, &ubuf,
 				   data, 0, sizeof(struct gs_cb));
+=======
+	return membuf_write(&to, data, sizeof(struct gs_cb));
+>>>>>>> upstream/android-13
 }
 
 static int s390_gs_cb_set(struct task_struct *target,
@@ -1240,8 +1349,12 @@ static int s390_gs_cb_set(struct task_struct *target,
 
 static int s390_gs_bc_get(struct task_struct *target,
 			  const struct user_regset *regset,
+<<<<<<< HEAD
 			  unsigned int pos, unsigned int count,
 			  void *kbuf, void __user *ubuf)
+=======
+			  struct membuf to)
+>>>>>>> upstream/android-13
 {
 	struct gs_cb *data = target->thread.gs_bc_cb;
 
@@ -1249,8 +1362,12 @@ static int s390_gs_bc_get(struct task_struct *target,
 		return -ENODEV;
 	if (!data)
 		return -ENODATA;
+<<<<<<< HEAD
 	return user_regset_copyout(&pos, &count, &kbuf, &ubuf,
 				   data, 0, sizeof(struct gs_cb));
+=======
+	return membuf_write(&to, data, sizeof(struct gs_cb));
+>>>>>>> upstream/android-13
 }
 
 static int s390_gs_bc_set(struct task_struct *target,
@@ -1300,8 +1417,12 @@ static bool is_ri_cb_valid(struct runtime_instr_cb *cb)
 
 static int s390_runtime_instr_get(struct task_struct *target,
 				const struct user_regset *regset,
+<<<<<<< HEAD
 				unsigned int pos, unsigned int count,
 				void *kbuf, void __user *ubuf)
+=======
+				struct membuf to)
+>>>>>>> upstream/android-13
 {
 	struct runtime_instr_cb *data = target->thread.ri_cb;
 
@@ -1310,8 +1431,12 @@ static int s390_runtime_instr_get(struct task_struct *target,
 	if (!data)
 		return -ENODATA;
 
+<<<<<<< HEAD
 	return user_regset_copyout(&pos, &count, &kbuf, &ubuf,
 				   data, 0, sizeof(struct runtime_instr_cb));
+=======
+	return membuf_write(&to, data, sizeof(struct runtime_instr_cb));
+>>>>>>> upstream/android-13
 }
 
 static int s390_runtime_instr_set(struct task_struct *target,
@@ -1371,7 +1496,11 @@ static const struct user_regset s390_regsets[] = {
 		.n = sizeof(s390_regs) / sizeof(long),
 		.size = sizeof(long),
 		.align = sizeof(long),
+<<<<<<< HEAD
 		.get = s390_regs_get,
+=======
+		.regset_get = s390_regs_get,
+>>>>>>> upstream/android-13
 		.set = s390_regs_set,
 	},
 	{
@@ -1379,7 +1508,11 @@ static const struct user_regset s390_regsets[] = {
 		.n = sizeof(s390_fp_regs) / sizeof(long),
 		.size = sizeof(long),
 		.align = sizeof(long),
+<<<<<<< HEAD
 		.get = s390_fpregs_get,
+=======
+		.regset_get = s390_fpregs_get,
+>>>>>>> upstream/android-13
 		.set = s390_fpregs_set,
 	},
 	{
@@ -1387,7 +1520,11 @@ static const struct user_regset s390_regsets[] = {
 		.n = 1,
 		.size = sizeof(unsigned int),
 		.align = sizeof(unsigned int),
+<<<<<<< HEAD
 		.get = s390_system_call_get,
+=======
+		.regset_get = s390_system_call_get,
+>>>>>>> upstream/android-13
 		.set = s390_system_call_set,
 	},
 	{
@@ -1395,7 +1532,11 @@ static const struct user_regset s390_regsets[] = {
 		.n = 1,
 		.size = sizeof(long),
 		.align = sizeof(long),
+<<<<<<< HEAD
 		.get = s390_last_break_get,
+=======
+		.regset_get = s390_last_break_get,
+>>>>>>> upstream/android-13
 		.set = s390_last_break_set,
 	},
 	{
@@ -1403,7 +1544,11 @@ static const struct user_regset s390_regsets[] = {
 		.n = 1,
 		.size = 256,
 		.align = 1,
+<<<<<<< HEAD
 		.get = s390_tdb_get,
+=======
+		.regset_get = s390_tdb_get,
+>>>>>>> upstream/android-13
 		.set = s390_tdb_set,
 	},
 	{
@@ -1411,7 +1556,11 @@ static const struct user_regset s390_regsets[] = {
 		.n = __NUM_VXRS_LOW,
 		.size = sizeof(__u64),
 		.align = sizeof(__u64),
+<<<<<<< HEAD
 		.get = s390_vxrs_low_get,
+=======
+		.regset_get = s390_vxrs_low_get,
+>>>>>>> upstream/android-13
 		.set = s390_vxrs_low_set,
 	},
 	{
@@ -1419,7 +1568,11 @@ static const struct user_regset s390_regsets[] = {
 		.n = __NUM_VXRS_HIGH,
 		.size = sizeof(__vector128),
 		.align = sizeof(__vector128),
+<<<<<<< HEAD
 		.get = s390_vxrs_high_get,
+=======
+		.regset_get = s390_vxrs_high_get,
+>>>>>>> upstream/android-13
 		.set = s390_vxrs_high_set,
 	},
 	{
@@ -1427,7 +1580,11 @@ static const struct user_regset s390_regsets[] = {
 		.n = sizeof(struct gs_cb) / sizeof(__u64),
 		.size = sizeof(__u64),
 		.align = sizeof(__u64),
+<<<<<<< HEAD
 		.get = s390_gs_cb_get,
+=======
+		.regset_get = s390_gs_cb_get,
+>>>>>>> upstream/android-13
 		.set = s390_gs_cb_set,
 	},
 	{
@@ -1435,7 +1592,11 @@ static const struct user_regset s390_regsets[] = {
 		.n = sizeof(struct gs_cb) / sizeof(__u64),
 		.size = sizeof(__u64),
 		.align = sizeof(__u64),
+<<<<<<< HEAD
 		.get = s390_gs_bc_get,
+=======
+		.regset_get = s390_gs_bc_get,
+>>>>>>> upstream/android-13
 		.set = s390_gs_bc_set,
 	},
 	{
@@ -1443,13 +1604,21 @@ static const struct user_regset s390_regsets[] = {
 		.n = sizeof(struct runtime_instr_cb) / sizeof(__u64),
 		.size = sizeof(__u64),
 		.align = sizeof(__u64),
+<<<<<<< HEAD
 		.get = s390_runtime_instr_get,
+=======
+		.regset_get = s390_runtime_instr_get,
+>>>>>>> upstream/android-13
 		.set = s390_runtime_instr_set,
 	},
 };
 
 static const struct user_regset_view user_s390_view = {
+<<<<<<< HEAD
 	.name = UTS_MACHINE,
+=======
+	.name = "s390x",
+>>>>>>> upstream/android-13
 	.e_machine = EM_S390,
 	.regsets = s390_regsets,
 	.n = ARRAY_SIZE(s390_regsets)
@@ -1458,6 +1627,7 @@ static const struct user_regset_view user_s390_view = {
 #ifdef CONFIG_COMPAT
 static int s390_compat_regs_get(struct task_struct *target,
 				const struct user_regset *regset,
+<<<<<<< HEAD
 				unsigned int pos, unsigned int count,
 				void *kbuf, void __user *ubuf)
 {
@@ -1480,6 +1650,17 @@ static int s390_compat_regs_get(struct task_struct *target,
 			pos += sizeof(*u);
 		}
 	}
+=======
+				struct membuf to)
+{
+	unsigned n;
+
+	if (target == current)
+		save_access_regs(target->thread.acrs);
+
+	for (n = 0; n < sizeof(s390_compat_regs); n += sizeof(compat_ulong_t))
+		membuf_store(&to, __peek_user_compat(target, n));
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1521,6 +1702,7 @@ static int s390_compat_regs_set(struct task_struct *target,
 
 static int s390_compat_regs_high_get(struct task_struct *target,
 				     const struct user_regset *regset,
+<<<<<<< HEAD
 				     unsigned int pos, unsigned int count,
 				     void *kbuf, void __user *ubuf)
 {
@@ -1544,6 +1726,16 @@ static int s390_compat_regs_high_get(struct task_struct *target,
 			count -= sizeof(*u);
 		}
 	}
+=======
+				     struct membuf to)
+{
+	compat_ulong_t *gprs_high;
+	int i;
+
+	gprs_high = (compat_ulong_t *)task_pt_regs(target)->gprs;
+	for (i = 0; i < NUM_GPRS; i++, gprs_high += 2)
+		membuf_store(&to, *gprs_high);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1582,6 +1774,7 @@ static int s390_compat_regs_high_set(struct task_struct *target,
 
 static int s390_compat_last_break_get(struct task_struct *target,
 				      const struct user_regset *regset,
+<<<<<<< HEAD
 				      unsigned int pos, unsigned int count,
 				      void *kbuf, void __user *ubuf)
 {
@@ -1599,6 +1792,13 @@ static int s390_compat_last_break_get(struct task_struct *target,
 		}
 	}
 	return 0;
+=======
+				      struct membuf to)
+{
+	compat_ulong_t last_break = target->thread.last_break;
+
+	return membuf_store(&to, (unsigned long)last_break);
+>>>>>>> upstream/android-13
 }
 
 static int s390_compat_last_break_set(struct task_struct *target,
@@ -1615,7 +1815,11 @@ static const struct user_regset s390_compat_regsets[] = {
 		.n = sizeof(s390_compat_regs) / sizeof(compat_long_t),
 		.size = sizeof(compat_long_t),
 		.align = sizeof(compat_long_t),
+<<<<<<< HEAD
 		.get = s390_compat_regs_get,
+=======
+		.regset_get = s390_compat_regs_get,
+>>>>>>> upstream/android-13
 		.set = s390_compat_regs_set,
 	},
 	{
@@ -1623,7 +1827,11 @@ static const struct user_regset s390_compat_regsets[] = {
 		.n = sizeof(s390_fp_regs) / sizeof(compat_long_t),
 		.size = sizeof(compat_long_t),
 		.align = sizeof(compat_long_t),
+<<<<<<< HEAD
 		.get = s390_fpregs_get,
+=======
+		.regset_get = s390_fpregs_get,
+>>>>>>> upstream/android-13
 		.set = s390_fpregs_set,
 	},
 	{
@@ -1631,7 +1839,11 @@ static const struct user_regset s390_compat_regsets[] = {
 		.n = 1,
 		.size = sizeof(compat_uint_t),
 		.align = sizeof(compat_uint_t),
+<<<<<<< HEAD
 		.get = s390_system_call_get,
+=======
+		.regset_get = s390_system_call_get,
+>>>>>>> upstream/android-13
 		.set = s390_system_call_set,
 	},
 	{
@@ -1639,7 +1851,11 @@ static const struct user_regset s390_compat_regsets[] = {
 		.n = 1,
 		.size = sizeof(long),
 		.align = sizeof(long),
+<<<<<<< HEAD
 		.get = s390_compat_last_break_get,
+=======
+		.regset_get = s390_compat_last_break_get,
+>>>>>>> upstream/android-13
 		.set = s390_compat_last_break_set,
 	},
 	{
@@ -1647,7 +1863,11 @@ static const struct user_regset s390_compat_regsets[] = {
 		.n = 1,
 		.size = 256,
 		.align = 1,
+<<<<<<< HEAD
 		.get = s390_tdb_get,
+=======
+		.regset_get = s390_tdb_get,
+>>>>>>> upstream/android-13
 		.set = s390_tdb_set,
 	},
 	{
@@ -1655,7 +1875,11 @@ static const struct user_regset s390_compat_regsets[] = {
 		.n = __NUM_VXRS_LOW,
 		.size = sizeof(__u64),
 		.align = sizeof(__u64),
+<<<<<<< HEAD
 		.get = s390_vxrs_low_get,
+=======
+		.regset_get = s390_vxrs_low_get,
+>>>>>>> upstream/android-13
 		.set = s390_vxrs_low_set,
 	},
 	{
@@ -1663,7 +1887,11 @@ static const struct user_regset s390_compat_regsets[] = {
 		.n = __NUM_VXRS_HIGH,
 		.size = sizeof(__vector128),
 		.align = sizeof(__vector128),
+<<<<<<< HEAD
 		.get = s390_vxrs_high_get,
+=======
+		.regset_get = s390_vxrs_high_get,
+>>>>>>> upstream/android-13
 		.set = s390_vxrs_high_set,
 	},
 	{
@@ -1671,7 +1899,11 @@ static const struct user_regset s390_compat_regsets[] = {
 		.n = sizeof(s390_compat_regs_high) / sizeof(compat_long_t),
 		.size = sizeof(compat_long_t),
 		.align = sizeof(compat_long_t),
+<<<<<<< HEAD
 		.get = s390_compat_regs_high_get,
+=======
+		.regset_get = s390_compat_regs_high_get,
+>>>>>>> upstream/android-13
 		.set = s390_compat_regs_high_set,
 	},
 	{
@@ -1679,7 +1911,11 @@ static const struct user_regset s390_compat_regsets[] = {
 		.n = sizeof(struct gs_cb) / sizeof(__u64),
 		.size = sizeof(__u64),
 		.align = sizeof(__u64),
+<<<<<<< HEAD
 		.get = s390_gs_cb_get,
+=======
+		.regset_get = s390_gs_cb_get,
+>>>>>>> upstream/android-13
 		.set = s390_gs_cb_set,
 	},
 	{
@@ -1687,7 +1923,11 @@ static const struct user_regset s390_compat_regsets[] = {
 		.n = sizeof(struct gs_cb) / sizeof(__u64),
 		.size = sizeof(__u64),
 		.align = sizeof(__u64),
+<<<<<<< HEAD
 		.get = s390_gs_bc_get,
+=======
+		.regset_get = s390_gs_bc_get,
+>>>>>>> upstream/android-13
 		.set = s390_gs_bc_set,
 	},
 	{
@@ -1695,7 +1935,11 @@ static const struct user_regset s390_compat_regsets[] = {
 		.n = sizeof(struct runtime_instr_cb) / sizeof(__u64),
 		.size = sizeof(__u64),
 		.align = sizeof(__u64),
+<<<<<<< HEAD
 		.get = s390_runtime_instr_get,
+=======
+		.regset_get = s390_runtime_instr_get,
+>>>>>>> upstream/android-13
 		.set = s390_runtime_instr_set,
 	},
 };

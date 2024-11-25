@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2012-2015 Synaptics Incorporated
  * Copyright (C) 2016 Zodiac Inflight Innovations
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2012-2015 Synaptics Incorporated
+ * Copyright (C) 2016 Zodiac Inflight Innovations
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -27,6 +34,15 @@
 #define F54_NUM_TX_OFFSET       1
 #define F54_NUM_RX_OFFSET       0
 
+<<<<<<< HEAD
+=======
+/*
+ * The smbus protocol can read only 32 bytes max at a time.
+ * But this should be fine for i2c/spi as well.
+ */
+#define F54_REPORT_DATA_SIZE	32
+
+>>>>>>> upstream/android-13
 /* F54 commands */
 #define F54_GET_REPORT          1
 #define F54_FORCE_CAL           2
@@ -39,6 +55,11 @@
 /**
  * enum rmi_f54_report_type - RMI4 F54 report types
  *
+<<<<<<< HEAD
+=======
+ * @F54_REPORT_NONE:	No Image Report.
+ *
+>>>>>>> upstream/android-13
  * @F54_8BIT_IMAGE:	Normalized 8-Bit Image Report. The capacitance variance
  *			from baseline for each pixel.
  *
@@ -61,6 +82,13 @@
  *			Report. Set Low reference to its minimum value and high
  *			references to its maximum value, then report the raw
  *			capacitance for each pixel.
+<<<<<<< HEAD
+=======
+ *
+ * @F54_MAX_REPORT_TYPE:
+ *			Maximum number of Report Types.  Used for sanity
+ *			checking.
+>>>>>>> upstream/android-13
  */
 enum rmi_f54_report_type {
 	F54_REPORT_NONE = 0,
@@ -84,11 +112,14 @@ static const char * const rmi_f54_report_type_names[] = {
 					= "Full Raw Capacitance RX Offset Removed",
 };
 
+<<<<<<< HEAD
 struct rmi_f54_reports {
 	int start;
 	int size;
 };
 
+=======
+>>>>>>> upstream/android-13
 struct f54_data {
 	struct rmi_function *fn;
 
@@ -101,7 +132,10 @@ struct f54_data {
 	enum rmi_f54_report_type report_type;
 	u8 *report_data;
 	int report_size;
+<<<<<<< HEAD
 	struct rmi_f54_reports standard_report[2];
+=======
+>>>>>>> upstream/android-13
 
 	bool is_busy;
 	struct mutex status_mutex;
@@ -119,6 +153,10 @@ struct f54_data {
 	struct video_device vdev;
 	struct vb2_queue queue;
 	struct mutex lock;
+<<<<<<< HEAD
+=======
+	u32 sequence;
+>>>>>>> upstream/android-13
 	int input;
 	enum rmi_f54_report_type inputs[F54_MAX_REPORT_TYPE];
 };
@@ -293,6 +331,10 @@ static int rmi_f54_queue_setup(struct vb2_queue *q, unsigned int *nbuffers,
 
 static void rmi_f54_buffer_queue(struct vb2_buffer *vb)
 {
+<<<<<<< HEAD
+=======
+	struct vb2_v4l2_buffer *vbuf = to_vb2_v4l2_buffer(vb);
+>>>>>>> upstream/android-13
 	struct f54_data *f54 = vb2_get_drv_priv(vb->vb2_queue);
 	u16 *ptr;
 	enum vb2_buffer_state state;
@@ -301,6 +343,10 @@ static void rmi_f54_buffer_queue(struct vb2_buffer *vb)
 
 	mutex_lock(&f54->status_mutex);
 
+<<<<<<< HEAD
+=======
+	vb2_set_plane_payload(vb, 0, 0);
+>>>>>>> upstream/android-13
 	reptype = rmi_f54_get_reptype(f54, f54->input);
 	if (reptype == F54_REPORT_NONE) {
 		state = VB2_BUF_STATE_ERROR;
@@ -347,14 +393,34 @@ static void rmi_f54_buffer_queue(struct vb2_buffer *vb)
 data_done:
 	mutex_unlock(&f54->data_mutex);
 done:
+<<<<<<< HEAD
+=======
+	vb->timestamp = ktime_get_ns();
+	vbuf->field = V4L2_FIELD_NONE;
+	vbuf->sequence = f54->sequence++;
+>>>>>>> upstream/android-13
 	vb2_buffer_done(vb, state);
 	mutex_unlock(&f54->status_mutex);
 }
 
+<<<<<<< HEAD
+=======
+static void rmi_f54_stop_streaming(struct vb2_queue *q)
+{
+	struct f54_data *f54 = vb2_get_drv_priv(q);
+
+	f54->sequence = 0;
+}
+
+>>>>>>> upstream/android-13
 /* V4L2 structures */
 static const struct vb2_ops rmi_f54_queue_ops = {
 	.queue_setup            = rmi_f54_queue_setup,
 	.buf_queue              = rmi_f54_buffer_queue,
+<<<<<<< HEAD
+=======
+	.stop_streaming		= rmi_f54_stop_streaming,
+>>>>>>> upstream/android-13
 	.wait_prepare           = vb2_ops_wait_prepare,
 	.wait_finish            = vb2_ops_wait_finish,
 };
@@ -366,7 +432,10 @@ static const struct vb2_queue rmi_f54_queue = {
 	.ops = &rmi_f54_queue_ops,
 	.mem_ops = &vb2_vmalloc_memops,
 	.timestamp_flags = V4L2_BUF_FLAG_TIMESTAMP_MONOTONIC,
+<<<<<<< HEAD
 	.min_buffers_needed = 1,
+=======
+>>>>>>> upstream/android-13
 };
 
 static int rmi_f54_vidioc_querycap(struct file *file, void *priv,
@@ -456,6 +525,7 @@ static int rmi_f54_vidioc_fmt(struct file *file, void *priv,
 static int rmi_f54_vidioc_enum_fmt(struct file *file, void *priv,
 				   struct v4l2_fmtdesc *fmt)
 {
+<<<<<<< HEAD
 	if (fmt->type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
 		return -EINVAL;
 
@@ -475,6 +545,17 @@ static int rmi_f54_vidioc_enum_fmt(struct file *file, void *priv,
 	default:
 		return -EINVAL;
 	}
+=======
+	struct f54_data *f54 = video_drvdata(file);
+
+	if (fmt->type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
+		return -EINVAL;
+
+	if (fmt->index)
+		return -EINVAL;
+
+	fmt->pixelformat = f54->format.pixelformat;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -529,6 +610,7 @@ static void rmi_f54_work(struct work_struct *work)
 	struct f54_data *f54 = container_of(work, struct f54_data, work.work);
 	struct rmi_function *fn = f54->fn;
 	u8 fifo[2];
+<<<<<<< HEAD
 	struct rmi_f54_reports *report;
 	int report_size;
 	u8 command;
@@ -536,6 +618,13 @@ static void rmi_f54_work(struct work_struct *work)
 	int error;
 
 	data = f54->report_data;
+=======
+	int report_size;
+	u8 command;
+	int error;
+	int i;
+
+>>>>>>> upstream/android-13
 	report_size = rmi_f54_get_report_size(f54);
 	if (report_size == 0) {
 		dev_err(&fn->dev, "Bad report size, report type=%d\n",
@@ -543,8 +632,11 @@ static void rmi_f54_work(struct work_struct *work)
 		error = -EINVAL;
 		goto error;     /* retry won't help */
 	}
+<<<<<<< HEAD
 	f54->standard_report[0].size = report_size;
 	report = f54->standard_report;
+=======
+>>>>>>> upstream/android-13
 
 	mutex_lock(&f54->data_mutex);
 
@@ -569,10 +661,18 @@ static void rmi_f54_work(struct work_struct *work)
 
 	rmi_dbg(RMI_DEBUG_FN, &fn->dev, "Get report command completed, reading data\n");
 
+<<<<<<< HEAD
 	report_size = 0;
 	for (; report->size; report++) {
 		fifo[0] = report->start & 0xff;
 		fifo[1] = (report->start >> 8) & 0xff;
+=======
+	for (i = 0; i < report_size; i += F54_REPORT_DATA_SIZE) {
+		int size = min(F54_REPORT_DATA_SIZE, report_size - i);
+
+		fifo[0] = i & 0xff;
+		fifo[1] = i >> 8;
+>>>>>>> upstream/android-13
 		error = rmi_write_block(fn->rmi_dev,
 					fn->fd.data_base_addr + F54_FIFO_OFFSET,
 					fifo, sizeof(fifo));
@@ -582,6 +682,7 @@ static void rmi_f54_work(struct work_struct *work)
 		}
 
 		error = rmi_read_block(fn->rmi_dev, fn->fd.data_base_addr +
+<<<<<<< HEAD
 				       F54_REPORT_DATA_OFFSET, data,
 				       report->size);
 		if (error) {
@@ -591,6 +692,15 @@ static void rmi_f54_work(struct work_struct *work)
 		}
 		data += report->size;
 		report_size += report->size;
+=======
+				       F54_REPORT_DATA_OFFSET,
+				       f54->report_data + i, size);
+		if (error) {
+			dev_err(&fn->dev, "%s: read [%d bytes] returned %d\n",
+				__func__, size, error);
+			goto abort;
+		}
+>>>>>>> upstream/android-13
 	}
 
 abort:
@@ -692,6 +802,10 @@ static int rmi_f54_probe(struct rmi_function *fn)
 		return -ENOMEM;
 
 	rmi_f54_create_input_map(f54);
+<<<<<<< HEAD
+=======
+	rmi_f54_set_input(f54, 0);
+>>>>>>> upstream/android-13
 
 	/* register video device */
 	strlcpy(f54->v4l2.name, F54_NAME, sizeof(f54->v4l2.name));

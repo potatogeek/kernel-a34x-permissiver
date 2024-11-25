@@ -1,8 +1,16 @@
+<<<<<<< HEAD
 /*
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * IOMMU API for MTK architected m4u v1 implementations
+ *
+>>>>>>> upstream/android-13
  * Copyright (c) 2015-2016 MediaTek Inc.
  * Author: Honghui Zhang <honghui.zhang@mediatek.com>
  *
  * Based on driver/iommu/mtk_iommu.c
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -14,21 +22,34 @@
  * GNU General Public License for more details.
  */
 #include <linux/bootmem.h>
+=======
+ */
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/bug.h>
 #include <linux/clk.h>
 #include <linux/component.h>
 #include <linux/device.h>
 #include <linux/dma-mapping.h>
+<<<<<<< HEAD
 #include <linux/dma-iommu.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/err.h>
 #include <linux/interrupt.h>
 #include <linux/io.h>
 #include <linux/iommu.h>
 #include <linux/iopoll.h>
+<<<<<<< HEAD
 #include <linux/kmemleak.h>
 #include <linux/list.h>
 #include <linux/of_address.h>
 #include <linux/of_iommu.h>
+=======
+#include <linux/list.h>
+#include <linux/module.h>
+#include <linux/of_address.h>
+>>>>>>> upstream/android-13
 #include <linux/of_irq.h>
 #include <linux/of_platform.h>
 #include <linux/platform_device.h>
@@ -36,7 +57,11 @@
 #include <linux/spinlock.h>
 #include <asm/barrier.h>
 #include <asm/dma-iommu.h>
+<<<<<<< HEAD
 #include <linux/module.h>
+=======
+#include <linux/init.h>
+>>>>>>> upstream/android-13
 #include <dt-bindings/memory/mt2701-larb-port.h>
 #include <soc/mediatek/smi.h>
 #include "mtk_iommu.h"
@@ -207,13 +232,21 @@ static void mtk_iommu_config(struct mtk_iommu_data *data,
 {
 	struct mtk_smi_larb_iommu    *larb_mmu;
 	unsigned int                 larbid, portid;
+<<<<<<< HEAD
 	struct iommu_fwspec *fwspec = dev->iommu_fwspec;
+=======
+	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
+>>>>>>> upstream/android-13
 	int i;
 
 	for (i = 0; i < fwspec->num_ids; ++i) {
 		larbid = mt2701_m4u_to_larb(fwspec->ids[i]);
 		portid = mt2701_m4u_to_port(fwspec->ids[i]);
+<<<<<<< HEAD
 		larb_mmu = &data->smi_imu.larb_imu[larbid];
+=======
+		larb_mmu = &data->larb_imu[larbid];
+>>>>>>> upstream/android-13
 
 		dev_dbg(dev, "%s iommu port: %d\n",
 			enable ? "enable" : "disable", portid);
@@ -231,9 +264,14 @@ static int mtk_iommu_domain_finalise(struct mtk_iommu_data *data)
 
 	spin_lock_init(&dom->pgtlock);
 
+<<<<<<< HEAD
 	dom->pgt_va = dma_zalloc_coherent(data->dev,
 				M2701_IOMMU_PGT_SIZE,
 				&dom->pgt_pa, GFP_KERNEL);
+=======
+	dom->pgt_va = dma_alloc_coherent(data->dev, M2701_IOMMU_PGT_SIZE,
+					 &dom->pgt_pa, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!dom->pgt_va)
 		return -ENOMEM;
 
@@ -271,12 +309,24 @@ static void mtk_iommu_domain_free(struct iommu_domain *domain)
 static int mtk_iommu_attach_device(struct iommu_domain *domain,
 				   struct device *dev)
 {
+<<<<<<< HEAD
 	struct mtk_iommu_domain *dom = to_mtk_domain(domain);
 	struct mtk_iommu_data *data = dev->iommu_fwspec->iommu_priv;
 	int ret;
 
 	if (!data)
 		return -ENODEV;
+=======
+	struct mtk_iommu_data *data = dev_iommu_priv_get(dev);
+	struct mtk_iommu_domain *dom = to_mtk_domain(domain);
+	struct dma_iommu_mapping *mtk_mapping;
+	int ret;
+
+	/* Only allow the domain created internally. */
+	mtk_mapping = data->mapping;
+	if (mtk_mapping->domain != domain)
+		return 0;
+>>>>>>> upstream/android-13
 
 	if (!data->m4u_dom) {
 		data->m4u_dom = dom;
@@ -294,16 +344,24 @@ static int mtk_iommu_attach_device(struct iommu_domain *domain,
 static void mtk_iommu_detach_device(struct iommu_domain *domain,
 				    struct device *dev)
 {
+<<<<<<< HEAD
 	struct mtk_iommu_data *data = dev->iommu_fwspec->iommu_priv;
 
 	if (!data)
 		return;
+=======
+	struct mtk_iommu_data *data = dev_iommu_priv_get(dev);
+>>>>>>> upstream/android-13
 
 	mtk_iommu_config(data, dev, false);
 }
 
 static int mtk_iommu_map(struct iommu_domain *domain, unsigned long iova,
+<<<<<<< HEAD
 			 phys_addr_t paddr, size_t size, int prot)
+=======
+			 phys_addr_t paddr, size_t size, int prot, gfp_t gfp)
+>>>>>>> upstream/android-13
 {
 	struct mtk_iommu_domain *dom = to_mtk_domain(domain);
 	unsigned int page_num = size >> MT2701_IOMMU_PAGE_SHIFT;
@@ -332,7 +390,12 @@ static int mtk_iommu_map(struct iommu_domain *domain, unsigned long iova,
 }
 
 static size_t mtk_iommu_unmap(struct iommu_domain *domain,
+<<<<<<< HEAD
 			      unsigned long iova, size_t size)
+=======
+			      unsigned long iova, size_t size,
+			      struct iommu_iotlb_gather *gather)
+>>>>>>> upstream/android-13
 {
 	struct mtk_iommu_domain *dom = to_mtk_domain(domain);
 	unsigned long flags;
@@ -363,7 +426,11 @@ static phys_addr_t mtk_iommu_iova_to_phys(struct iommu_domain *domain,
 	return pa;
 }
 
+<<<<<<< HEAD
 static struct iommu_ops mtk_iommu_ops;
+=======
+static const struct iommu_ops mtk_iommu_ops;
+>>>>>>> upstream/android-13
 
 /*
  * MTK generation one iommu HW only support one iommu domain, and all the client
@@ -372,10 +439,17 @@ static struct iommu_ops mtk_iommu_ops;
 static int mtk_iommu_create_mapping(struct device *dev,
 				    struct of_phandle_args *args)
 {
+<<<<<<< HEAD
 	struct mtk_iommu_data *data;
 	struct platform_device *m4updev;
 	struct dma_iommu_mapping *mtk_mapping;
 	struct device *m4udev;
+=======
+	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
+	struct mtk_iommu_data *data;
+	struct platform_device *m4updev;
+	struct dma_iommu_mapping *mtk_mapping;
+>>>>>>> upstream/android-13
 	int ret;
 
 	if (args->args_count != 1) {
@@ -384,6 +458,7 @@ static int mtk_iommu_create_mapping(struct device *dev,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	if (!dev->iommu_fwspec) {
 		ret = iommu_fwspec_init(dev, &args->np->fwnode, &mtk_iommu_ops);
 		if (ret)
@@ -393,21 +468,42 @@ static int mtk_iommu_create_mapping(struct device *dev,
 	}
 
 	if (!dev->iommu_fwspec->iommu_priv) {
+=======
+	if (!fwspec) {
+		ret = iommu_fwspec_init(dev, &args->np->fwnode, &mtk_iommu_ops);
+		if (ret)
+			return ret;
+		fwspec = dev_iommu_fwspec_get(dev);
+	} else if (dev_iommu_fwspec_get(dev)->ops != &mtk_iommu_ops) {
+		return -EINVAL;
+	}
+
+	if (!dev_iommu_priv_get(dev)) {
+>>>>>>> upstream/android-13
 		/* Get the m4u device */
 		m4updev = of_find_device_by_node(args->np);
 		if (WARN_ON(!m4updev))
 			return -EINVAL;
 
+<<<<<<< HEAD
 		dev->iommu_fwspec->iommu_priv = platform_get_drvdata(m4updev);
+=======
+		dev_iommu_priv_set(dev, platform_get_drvdata(m4updev));
+>>>>>>> upstream/android-13
 	}
 
 	ret = iommu_fwspec_add_ids(dev, args->args, 1);
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	data = dev->iommu_fwspec->iommu_priv;
 	m4udev = data->dev;
 	mtk_mapping = m4udev->archdata.iommu;
+=======
+	data = dev_iommu_priv_get(dev);
+	mtk_mapping = data->mapping;
+>>>>>>> upstream/android-13
 	if (!mtk_mapping) {
 		/* MTK iommu support 4GB iova address space. */
 		mtk_mapping = arm_iommu_create_mapping(&platform_bus_type,
@@ -415,6 +511,7 @@ static int mtk_iommu_create_mapping(struct device *dev,
 		if (IS_ERR(mtk_mapping))
 			return PTR_ERR(mtk_mapping);
 
+<<<<<<< HEAD
 		m4udev->archdata.iommu = mtk_mapping;
 	}
 
@@ -495,6 +592,108 @@ static struct iommu_group *mtk_iommu_device_group(struct device *dev)
 	return data->m4u_group;
 }
 
+=======
+		data->mapping = mtk_mapping;
+	}
+
+	return 0;
+}
+
+static int mtk_iommu_def_domain_type(struct device *dev)
+{
+	return IOMMU_DOMAIN_UNMANAGED;
+}
+
+static struct iommu_device *mtk_iommu_probe_device(struct device *dev)
+{
+	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
+	struct of_phandle_args iommu_spec;
+	struct mtk_iommu_data *data;
+	int err, idx = 0, larbid, larbidx;
+	struct device_link *link;
+	struct device *larbdev;
+
+	/*
+	 * In the deferred case, free the existed fwspec.
+	 * Always initialize the fwspec internally.
+	 */
+	if (fwspec) {
+		iommu_fwspec_free(dev);
+		fwspec = dev_iommu_fwspec_get(dev);
+	}
+
+	while (!of_parse_phandle_with_args(dev->of_node, "iommus",
+					   "#iommu-cells",
+					   idx, &iommu_spec)) {
+
+		err = mtk_iommu_create_mapping(dev, &iommu_spec);
+		of_node_put(iommu_spec.np);
+		if (err)
+			return ERR_PTR(err);
+
+		/* dev->iommu_fwspec might have changed */
+		fwspec = dev_iommu_fwspec_get(dev);
+		idx++;
+	}
+
+	if (!fwspec || fwspec->ops != &mtk_iommu_ops)
+		return ERR_PTR(-ENODEV); /* Not a iommu client device */
+
+	data = dev_iommu_priv_get(dev);
+
+	/* Link the consumer device with the smi-larb device(supplier) */
+	larbid = mt2701_m4u_to_larb(fwspec->ids[0]);
+	for (idx = 1; idx < fwspec->num_ids; idx++) {
+		larbidx = mt2701_m4u_to_larb(fwspec->ids[idx]);
+		if (larbid != larbidx) {
+			dev_err(dev, "Can only use one larb. Fail@larb%d-%d.\n",
+				larbid, larbidx);
+			return ERR_PTR(-EINVAL);
+		}
+	}
+
+	larbdev = data->larb_imu[larbid].dev;
+	link = device_link_add(dev, larbdev,
+			       DL_FLAG_PM_RUNTIME | DL_FLAG_STATELESS);
+	if (!link)
+		dev_err(dev, "Unable to link %s\n", dev_name(larbdev));
+
+	return &data->iommu;
+}
+
+static void mtk_iommu_probe_finalize(struct device *dev)
+{
+	struct dma_iommu_mapping *mtk_mapping;
+	struct mtk_iommu_data *data;
+	int err;
+
+	data        = dev_iommu_priv_get(dev);
+	mtk_mapping = data->mapping;
+
+	err = arm_iommu_attach_device(dev, mtk_mapping);
+	if (err)
+		dev_err(dev, "Can't create IOMMU mapping - DMA-OPS will not work\n");
+}
+
+static void mtk_iommu_release_device(struct device *dev)
+{
+	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
+	struct mtk_iommu_data *data;
+	struct device *larbdev;
+	unsigned int larbid;
+
+	if (!fwspec || fwspec->ops != &mtk_iommu_ops)
+		return;
+
+	data = dev_iommu_priv_get(dev);
+	larbid = mt2701_m4u_to_larb(fwspec->ids[0]);
+	larbdev = data->larb_imu[larbid].dev;
+	device_link_remove(dev, larbdev);
+
+	iommu_fwspec_free(dev);
+}
+
+>>>>>>> upstream/android-13
 static int mtk_iommu_hw_init(const struct mtk_iommu_data *data)
 {
 	u32 regval;
@@ -536,19 +735,34 @@ static int mtk_iommu_hw_init(const struct mtk_iommu_data *data)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct iommu_ops mtk_iommu_ops = {
+=======
+static const struct iommu_ops mtk_iommu_ops = {
+>>>>>>> upstream/android-13
 	.domain_alloc	= mtk_iommu_domain_alloc,
 	.domain_free	= mtk_iommu_domain_free,
 	.attach_dev	= mtk_iommu_attach_device,
 	.detach_dev	= mtk_iommu_detach_device,
 	.map		= mtk_iommu_map,
 	.unmap		= mtk_iommu_unmap,
+<<<<<<< HEAD
 	.map_sg		= default_iommu_map_sg,
 	.iova_to_phys	= mtk_iommu_iova_to_phys,
 	.add_device	= mtk_iommu_add_device,
 	.remove_device	= mtk_iommu_remove_device,
 	.device_group	= mtk_iommu_device_group,
 	.pgsize_bitmap	= ~0UL << MT2701_IOMMU_PAGE_SHIFT,
+=======
+	.iova_to_phys	= mtk_iommu_iova_to_phys,
+	.probe_device	= mtk_iommu_probe_device,
+	.probe_finalize = mtk_iommu_probe_finalize,
+	.release_device	= mtk_iommu_release_device,
+	.def_domain_type = mtk_iommu_def_domain_type,
+	.device_group	= generic_device_group,
+	.pgsize_bitmap	= ~0UL << MT2701_IOMMU_PAGE_SHIFT,
+	.owner          = THIS_MODULE,
+>>>>>>> upstream/android-13
 };
 
 static const struct of_device_id mtk_iommu_of_ids[] = {
@@ -567,10 +781,15 @@ static int mtk_iommu_probe(struct platform_device *pdev)
 	struct device			*dev = &pdev->dev;
 	struct resource			*res;
 	struct component_match		*match = NULL;
+<<<<<<< HEAD
 	struct of_phandle_args		larb_spec;
 	struct of_phandle_iterator	it;
 	void				*protect;
 	int				larb_nr, ret, err;
+=======
+	void				*protect;
+	int				larb_nr, ret, i;
+>>>>>>> upstream/android-13
 
 	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
 	if (!data)
@@ -598,6 +817,7 @@ static int mtk_iommu_probe(struct platform_device *pdev)
 	if (IS_ERR(data->bclk))
 		return PTR_ERR(data->bclk);
 
+<<<<<<< HEAD
 	larb_nr = 0;
 	of_for_each_phandle(&it, err, dev->of_node,
 			"mediatek,larbs", NULL, 0) {
@@ -630,6 +850,36 @@ static int mtk_iommu_probe(struct platform_device *pdev)
 	}
 
 	data->smi_imu.larb_nr = larb_nr;
+=======
+	larb_nr = of_count_phandle_with_args(dev->of_node,
+					     "mediatek,larbs", NULL);
+	if (larb_nr < 0)
+		return larb_nr;
+
+	for (i = 0; i < larb_nr; i++) {
+		struct device_node *larbnode;
+		struct platform_device *plarbdev;
+
+		larbnode = of_parse_phandle(dev->of_node, "mediatek,larbs", i);
+		if (!larbnode)
+			return -EINVAL;
+
+		if (!of_device_is_available(larbnode)) {
+			of_node_put(larbnode);
+			continue;
+		}
+
+		plarbdev = of_find_device_by_node(larbnode);
+		if (!plarbdev) {
+			of_node_put(larbnode);
+			return -ENODEV;
+		}
+		data->larb_imu[i].dev = &plarbdev->dev;
+
+		component_match_add_release(dev, &match, release_of,
+					    compare_of, larbnode);
+	}
+>>>>>>> upstream/android-13
 
 	platform_set_drvdata(pdev, data);
 
@@ -642,6 +892,7 @@ static int mtk_iommu_probe(struct platform_device *pdev)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	iommu_device_set_ops(&data->iommu, &mtk_iommu_ops);
 
 	ret = iommu_device_register(&data->iommu);
@@ -652,6 +903,30 @@ static int mtk_iommu_probe(struct platform_device *pdev)
 		bus_set_iommu(&platform_bus_type,  &mtk_iommu_ops);
 
 	return component_master_add_with_match(dev, &mtk_iommu_com_ops, match);
+=======
+	ret = iommu_device_register(&data->iommu, &mtk_iommu_ops, dev);
+	if (ret)
+		goto out_sysfs_remove;
+
+	if (!iommu_present(&platform_bus_type)) {
+		ret = bus_set_iommu(&platform_bus_type,  &mtk_iommu_ops);
+		if (ret)
+			goto out_dev_unreg;
+	}
+
+	ret = component_master_add_with_match(dev, &mtk_iommu_com_ops, match);
+	if (ret)
+		goto out_bus_set_null;
+	return ret;
+
+out_bus_set_null:
+	bus_set_iommu(&platform_bus_type, NULL);
+out_dev_unreg:
+	iommu_device_unregister(&data->iommu);
+out_sysfs_remove:
+	iommu_device_sysfs_remove(&data->iommu);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int mtk_iommu_remove(struct platform_device *pdev)
@@ -713,6 +988,7 @@ static struct platform_driver mtk_iommu_driver = {
 		.pm = &mtk_iommu_pm_ops,
 	}
 };
+<<<<<<< HEAD
 
 static int __init m4u_init(void)
 {
@@ -729,4 +1005,9 @@ module_exit(m4u_exit);
 
 MODULE_DESCRIPTION("IOMMU API for MTK architected m4u v1 implementations");
 MODULE_AUTHOR("Honghui Zhang <honghui.zhang@mediatek.com>");
+=======
+module_platform_driver(mtk_iommu_driver);
+
+MODULE_DESCRIPTION("IOMMU API for MediaTek M4U v1 implementations");
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL v2");

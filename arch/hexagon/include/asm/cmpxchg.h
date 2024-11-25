@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * xchg/cmpxchg operations for the Hexagon architecture
  *
  * Copyright (c) 2010-2011, The Linux Foundation. All rights reserved.
+<<<<<<< HEAD
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -17,6 +22,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_CMPXCHG_H
@@ -56,7 +63,11 @@ static inline unsigned long __xchg(unsigned long x, volatile void *ptr,
  * Atomically swap the contents of a register with memory.  Should be atomic
  * between multiple CPU's and within interrupts on the same CPU.
  */
+<<<<<<< HEAD
 #define xchg(ptr, v) ((__typeof__(*(ptr)))__xchg((unsigned long)(v), (ptr), \
+=======
+#define arch_xchg(ptr, v) ((__typeof__(*(ptr)))__xchg((unsigned long)(v), (ptr), \
+>>>>>>> upstream/android-13
 	sizeof(*(ptr))))
 
 /*
@@ -65,7 +76,11 @@ static inline unsigned long __xchg(unsigned long x, volatile void *ptr,
  *  variable casting.
  */
 
+<<<<<<< HEAD
 #define cmpxchg(ptr, old, new)					\
+=======
+#define arch_cmpxchg(ptr, old, new)				\
+>>>>>>> upstream/android-13
 ({								\
 	__typeof__(ptr) __ptr = (ptr);				\
 	__typeof__(*(ptr)) __old = (old);			\

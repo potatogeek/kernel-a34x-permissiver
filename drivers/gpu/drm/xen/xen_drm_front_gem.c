@@ -8,6 +8,7 @@
  * Author: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
  */
 
+<<<<<<< HEAD
 #include "xen_drm_front_gem.h"
 
 #include <drm/drmP.h>
@@ -15,14 +16,29 @@
 #include <drm/drm_fb_helper.h>
 #include <drm/drm_gem.h>
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/dma-buf.h>
 #include <linux/scatterlist.h>
 #include <linux/shmem_fs.h>
 
+<<<<<<< HEAD
 #include <xen/balloon.h>
 
 #include "xen_drm_front.h"
 #include "xen_drm_front_shbuf.h"
+=======
+#include <drm/drm_fb_helper.h>
+#include <drm/drm_gem.h>
+#include <drm/drm_prime.h>
+#include <drm/drm_probe_helper.h>
+
+#include <xen/balloon.h>
+#include <xen/xen.h>
+
+#include "xen_drm_front.h"
+#include "xen_drm_front_gem.h"
+>>>>>>> upstream/android-13
 
 struct xen_gem_object {
 	struct drm_gem_object base;
@@ -58,6 +74,22 @@ static void gem_free_pages_array(struct xen_gem_object *xen_obj)
 	xen_obj->pages = NULL;
 }
 
+<<<<<<< HEAD
+=======
+static const struct vm_operations_struct xen_drm_drv_vm_ops = {
+	.open           = drm_gem_vm_open,
+	.close          = drm_gem_vm_close,
+};
+
+static const struct drm_gem_object_funcs xen_drm_front_gem_object_funcs = {
+	.free = xen_drm_front_gem_object_free,
+	.get_sg_table = xen_drm_front_gem_get_sg_table,
+	.vmap = xen_drm_front_gem_prime_vmap,
+	.vunmap = xen_drm_front_gem_prime_vunmap,
+	.vm_ops = &xen_drm_drv_vm_ops,
+};
+
+>>>>>>> upstream/android-13
 static struct xen_gem_object *gem_create_obj(struct drm_device *dev,
 					     size_t size)
 {
@@ -68,6 +100,11 @@ static struct xen_gem_object *gem_create_obj(struct drm_device *dev,
 	if (!xen_obj)
 		return ERR_PTR(-ENOMEM);
 
+<<<<<<< HEAD
+=======
+	xen_obj->base.funcs = &xen_drm_front_gem_object_funcs;
+
+>>>>>>> upstream/android-13
 	ret = drm_gem_object_init(dev, &xen_obj->base, size);
 	if (ret < 0) {
 		kfree(xen_obj);
@@ -101,8 +138,13 @@ static struct xen_gem_object *gem_create(struct drm_device *dev, size_t size)
 		 * allocate ballooned pages which will be used to map
 		 * grant references provided by the backend
 		 */
+<<<<<<< HEAD
 		ret = alloc_xenballooned_pages(xen_obj->num_pages,
 					       xen_obj->pages);
+=======
+		ret = xen_alloc_unpopulated_pages(xen_obj->num_pages,
+					          xen_obj->pages);
+>>>>>>> upstream/android-13
 		if (ret < 0) {
 			DRM_ERROR("Cannot allocate %zu ballooned pages: %d\n",
 				  xen_obj->num_pages, ret);
@@ -154,8 +196,13 @@ void xen_drm_front_gem_free_object_unlocked(struct drm_gem_object *gem_obj)
 	} else {
 		if (xen_obj->pages) {
 			if (xen_obj->be_alloc) {
+<<<<<<< HEAD
 				free_xenballooned_pages(xen_obj->num_pages,
 							xen_obj->pages);
+=======
+				xen_free_unpopulated_pages(xen_obj->num_pages,
+							   xen_obj->pages);
+>>>>>>> upstream/android-13
 				gem_free_pages_array(xen_obj);
 			} else {
 				drm_gem_put_pages(&xen_obj->base,
@@ -179,9 +226,16 @@ struct sg_table *xen_drm_front_gem_get_sg_table(struct drm_gem_object *gem_obj)
 	struct xen_gem_object *xen_obj = to_xen_gem_obj(gem_obj);
 
 	if (!xen_obj->pages)
+<<<<<<< HEAD
 		return NULL;
 
 	return drm_prime_pages_to_sg(xen_obj->pages, xen_obj->num_pages);
+=======
+		return ERR_PTR(-ENOMEM);
+
+	return drm_prime_pages_to_sg(gem_obj->dev,
+				     xen_obj->pages, xen_obj->num_pages);
+>>>>>>> upstream/android-13
 }
 
 struct drm_gem_object *
@@ -205,19 +259,33 @@ xen_drm_front_gem_import_sg_table(struct drm_device *dev,
 
 	xen_obj->sgt_imported = sgt;
 
+<<<<<<< HEAD
 	ret = drm_prime_sg_to_page_addr_arrays(sgt, xen_obj->pages,
 					       NULL, xen_obj->num_pages);
+=======
+	ret = drm_prime_sg_to_page_array(sgt, xen_obj->pages,
+					 xen_obj->num_pages);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ERR_PTR(ret);
 
 	ret = xen_drm_front_dbuf_create(drm_info->front_info,
 					xen_drm_front_dbuf_to_cookie(&xen_obj->base),
+<<<<<<< HEAD
 					0, 0, 0, size, xen_obj->pages);
+=======
+					0, 0, 0, size, sgt->sgl->offset,
+					xen_obj->pages);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ERR_PTR(ret);
 
 	DRM_DEBUG("Imported buffer of size %zu with nents %u\n",
+<<<<<<< HEAD
 		  size, sgt->nents);
+=======
+		  size, sgt->orig_nents);
+>>>>>>> upstream/android-13
 
 	return &xen_obj->base;
 }
@@ -225,8 +293,12 @@ xen_drm_front_gem_import_sg_table(struct drm_device *dev,
 static int gem_mmap_obj(struct xen_gem_object *xen_obj,
 			struct vm_area_struct *vma)
 {
+<<<<<<< HEAD
 	unsigned long addr = vma->vm_start;
 	int i;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	/*
 	 * clear the VM_PFNMAP flag that was set by drm_gem_mmap(), and set the
@@ -253,6 +325,7 @@ static int gem_mmap_obj(struct xen_gem_object *xen_obj,
 	 * FIXME: as we insert all the pages now then no .fault handler must
 	 * be called, so don't provide one
 	 */
+<<<<<<< HEAD
 	for (i = 0; i < xen_obj->num_pages; i++) {
 		int ret;
 
@@ -265,6 +338,13 @@ static int gem_mmap_obj(struct xen_gem_object *xen_obj,
 		addr += PAGE_SIZE;
 	}
 	return 0;
+=======
+	ret = vm_map_pages(vma, xen_obj->pages, xen_obj->num_pages);
+	if (ret < 0)
+		DRM_ERROR("Failed to map pages into vma: %d\n", ret);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 int xen_drm_front_gem_mmap(struct file *filp, struct vm_area_struct *vma)
@@ -282,6 +362,7 @@ int xen_drm_front_gem_mmap(struct file *filp, struct vm_area_struct *vma)
 	return gem_mmap_obj(xen_obj, vma);
 }
 
+<<<<<<< HEAD
 void *xen_drm_front_gem_prime_vmap(struct drm_gem_object *gem_obj)
 {
 	struct xen_gem_object *xen_obj = to_xen_gem_obj(gem_obj);
@@ -298,6 +379,30 @@ void xen_drm_front_gem_prime_vunmap(struct drm_gem_object *gem_obj,
 				    void *vaddr)
 {
 	vunmap(vaddr);
+=======
+int xen_drm_front_gem_prime_vmap(struct drm_gem_object *gem_obj, struct dma_buf_map *map)
+{
+	struct xen_gem_object *xen_obj = to_xen_gem_obj(gem_obj);
+	void *vaddr;
+
+	if (!xen_obj->pages)
+		return -ENOMEM;
+
+	/* Please see comment in gem_mmap_obj on mapping and attributes. */
+	vaddr = vmap(xen_obj->pages, xen_obj->num_pages,
+		     VM_MAP, PAGE_KERNEL);
+	if (!vaddr)
+		return -ENOMEM;
+	dma_buf_map_set_vaddr(map, vaddr);
+
+	return 0;
+}
+
+void xen_drm_front_gem_prime_vunmap(struct drm_gem_object *gem_obj,
+				    struct dma_buf_map *map)
+{
+	vunmap(map->vaddr);
+>>>>>>> upstream/android-13
 }
 
 int xen_drm_front_gem_prime_mmap(struct drm_gem_object *gem_obj,

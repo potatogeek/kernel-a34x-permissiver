@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Industry-pack bus support functions.
  *
  * Copyright (C) 2011-2012 CERN (www.cern.ch)
  * Author: Samuel Iglesias Gonsalvez <siglesias@igalia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; version 2 of the License.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -67,6 +74,7 @@ static int ipack_bus_probe(struct device *device)
 	struct ipack_device *dev = to_ipack_dev(device);
 	struct ipack_driver *drv = to_ipack_driver(device->driver);
 
+<<<<<<< HEAD
 	if (!drv->ops->probe)
 		return -EINVAL;
 
@@ -74,15 +82,26 @@ static int ipack_bus_probe(struct device *device)
 }
 
 static int ipack_bus_remove(struct device *device)
+=======
+	return drv->ops->probe(dev);
+}
+
+static void ipack_bus_remove(struct device *device)
+>>>>>>> upstream/android-13
 {
 	struct ipack_device *dev = to_ipack_dev(device);
 	struct ipack_driver *drv = to_ipack_driver(device->driver);
 
+<<<<<<< HEAD
 	if (!drv->ops->remove)
 		return -EINVAL;
 
 	drv->ops->remove(dev);
 	return 0;
+=======
+	if (drv->ops->remove)
+		drv->ops->remove(dev);
+>>>>>>> upstream/android-13
 }
 
 static int ipack_uevent(struct device *dev, struct kobj_uevent_env *env)
@@ -255,6 +274,12 @@ EXPORT_SYMBOL_GPL(ipack_bus_unregister);
 int ipack_driver_register(struct ipack_driver *edrv, struct module *owner,
 			  const char *name)
 {
+<<<<<<< HEAD
+=======
+	if (!edrv->ops->probe)
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	edrv->driver.owner = owner;
 	edrv->driver.name = name;
 	edrv->driver.bus = &ipack_bus_type;

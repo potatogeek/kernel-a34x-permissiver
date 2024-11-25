@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * devfreq_cooling: Thermal cooling device implementation for devices using
  *                  devfreq
  *
  * Copyright (C) 2014-2015 ARM Limited
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
@@ -12,6 +17,8 @@
  * kind, whether express or implied; without even the implied warranty
  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __DEVFREQ_COOLING_H__
@@ -23,6 +30,7 @@
 
 /**
  * struct devfreq_cooling_power - Devfreq cooling power ops
+<<<<<<< HEAD
  * @get_static_power:	Take voltage, in mV, and return the static power
  *			in mW.  If NULL, the static power is assumed
  *			to be 0.
@@ -34,6 +42,8 @@
  *			If get_dynamic_power() is NULL, then the
  *			dynamic power is calculated as
  *			@dyn_power_coeff * frequency * voltage^2
+=======
+>>>>>>> upstream/android-13
  * @get_real_power:	When this is set, the framework uses it to ask the
  *			device driver for the actual power.
  *			Some devices have more sophisticated methods
@@ -53,6 +63,7 @@
  *			max total (static + dynamic) power value for each OPP.
  */
 struct devfreq_cooling_power {
+<<<<<<< HEAD
 	unsigned long (*get_static_power)(struct devfreq *devfreq,
 					  unsigned long voltage);
 	unsigned long (*get_dynamic_power)(struct devfreq *devfreq,
@@ -61,6 +72,10 @@ struct devfreq_cooling_power {
 	int (*get_real_power)(struct devfreq *df, u32 *power,
 			      unsigned long freq, unsigned long voltage);
 	unsigned long dyn_power_coeff;
+=======
+	int (*get_real_power)(struct devfreq *df, u32 *power,
+			      unsigned long freq, unsigned long voltage);
+>>>>>>> upstream/android-13
 };
 
 #ifdef CONFIG_DEVFREQ_THERMAL
@@ -72,6 +87,12 @@ struct thermal_cooling_device *
 of_devfreq_cooling_register(struct device_node *np, struct devfreq *df);
 struct thermal_cooling_device *devfreq_cooling_register(struct devfreq *df);
 void devfreq_cooling_unregister(struct thermal_cooling_device *dfc);
+<<<<<<< HEAD
+=======
+struct thermal_cooling_device *
+devfreq_cooling_em_register(struct devfreq *df,
+			    struct devfreq_cooling_power *dfc_power);
+>>>>>>> upstream/android-13
 
 #else /* !CONFIG_DEVFREQ_THERMAL */
 
@@ -94,6 +115,16 @@ devfreq_cooling_register(struct devfreq *df)
 	return ERR_PTR(-EINVAL);
 }
 
+<<<<<<< HEAD
+=======
+static inline struct thermal_cooling_device *
+devfreq_cooling_em_register(struct devfreq *df,
+			    struct devfreq_cooling_power *dfc_power)
+{
+	return ERR_PTR(-EINVAL);
+}
+
+>>>>>>> upstream/android-13
 static inline void
 devfreq_cooling_unregister(struct thermal_cooling_device *dfc)
 {

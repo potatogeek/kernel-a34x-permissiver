@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Intel INT3496 ACPI device extcon driver
  *
@@ -7,6 +11,7 @@
  *
  * Copyright (c) 2014, Intel Corporation.
  * Author: David Cohen <david.a.cohen@linux.intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -19,6 +24,12 @@
  */
 
 #include <linux/acpi.h>
+=======
+ */
+
+#include <linux/acpi.h>
+#include <linux/devm-helpers.h>
+>>>>>>> upstream/android-13
 #include <linux/extcon-provider.h>
 #include <linux/gpio/consumer.h>
 #include <linux/interrupt.h>
@@ -109,7 +120,13 @@ static int int3496_probe(struct platform_device *pdev)
 		return -ENOMEM;
 
 	data->dev = dev;
+<<<<<<< HEAD
 	INIT_DELAYED_WORK(&data->work, int3496_do_usb_id);
+=======
+	ret = devm_delayed_work_autocancel(dev, &data->work, int3496_do_usb_id);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	data->gpio_usb_id = devm_gpiod_get(dev, "id", GPIOD_IN);
 	if (IS_ERR(data->gpio_usb_id)) {
@@ -163,6 +180,7 @@ static int int3496_probe(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int int3496_remove(struct platform_device *pdev)
 {
 	struct int3496_data *data = platform_get_drvdata(pdev);
@@ -173,6 +191,8 @@ static int int3496_remove(struct platform_device *pdev)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct acpi_device_id int3496_acpi_match[] = {
 	{ "INT3496" },
 	{ }
@@ -185,11 +205,18 @@ static struct platform_driver int3496_driver = {
 		.acpi_match_table = int3496_acpi_match,
 	},
 	.probe = int3496_probe,
+<<<<<<< HEAD
 	.remove = int3496_remove,
+=======
+>>>>>>> upstream/android-13
 };
 
 module_platform_driver(int3496_driver);
 
 MODULE_AUTHOR("Hans de Goede <hdegoede@redhat.com>");
 MODULE_DESCRIPTION("Intel INT3496 ACPI device extcon driver");
+<<<<<<< HEAD
 MODULE_LICENSE("GPL");
+=======
+MODULE_LICENSE("GPL v2");
+>>>>>>> upstream/android-13

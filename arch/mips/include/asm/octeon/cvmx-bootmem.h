@@ -146,6 +146,7 @@ struct cvmx_bootmem_desc {
 extern int cvmx_bootmem_init(void *mem_desc_ptr);
 
 /**
+<<<<<<< HEAD
  * Allocate a block of memory from the free list that was passed
  * to the application by the bootloader.
  * This is an allocate-only algorithm, so freeing memory is not possible.
@@ -158,6 +159,8 @@ extern int cvmx_bootmem_init(void *mem_desc_ptr);
 extern void *cvmx_bootmem_alloc(uint64_t size, uint64_t alignment);
 
 /**
+=======
+>>>>>>> upstream/android-13
  * Allocate a block of memory from the free list that was
  * passed to the application by the bootloader at a specific
  * address. This is an allocate-only algorithm, so
@@ -174,6 +177,7 @@ extern void *cvmx_bootmem_alloc_address(uint64_t size, uint64_t address,
 					uint64_t alignment);
 
 /**
+<<<<<<< HEAD
  * Allocate a block of memory from the free list that was
  * passed to the application by the bootloader within a specified
  * address range. This is an allocate-only algorithm, so
@@ -190,6 +194,8 @@ extern void *cvmx_bootmem_alloc_range(uint64_t size, uint64_t alignment,
 				      uint64_t min_addr, uint64_t max_addr);
 
 /**
+=======
+>>>>>>> upstream/android-13
  * Frees a previously allocated named bootmem block.
  *
  * @name:   name of block to free
@@ -214,6 +220,7 @@ extern void *cvmx_bootmem_alloc_range(uint64_t size, uint64_t alignment,
 extern void *cvmx_bootmem_alloc_named(uint64_t size, uint64_t alignment,
 				      char *name);
 
+<<<<<<< HEAD
 
 
 /**
@@ -235,6 +242,8 @@ extern void *cvmx_bootmem_alloc_named_address(uint64_t size, uint64_t address,
 
 
 
+=======
+>>>>>>> upstream/android-13
 /**
  * Allocate a block of memory from a specific range of the free list
  * that was passed to the application by the bootloader, and assign it
@@ -351,6 +360,7 @@ int64_t cvmx_bootmem_phy_named_block_alloc(uint64_t size, uint64_t min_addr,
 					   char *name, uint32_t flags);
 
 /**
+<<<<<<< HEAD
  * Finds a named memory block by name.
  * Also used for finding an unused entry in the named block table.
  *
@@ -378,6 +388,8 @@ cvmx_bootmem_phy_named_block_find(char *name, uint32_t flags);
 int cvmx_bootmem_phy_named_block_free(char *name, uint32_t flags);
 
 /**
+=======
+>>>>>>> upstream/android-13
  * Frees a block to the bootmem allocator list.	 This must
  * be used with care, as the size provided must match the size
  * of the block that was allocated, or the list will become

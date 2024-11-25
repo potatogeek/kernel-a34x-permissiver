@@ -20,7 +20,11 @@
 #include <linux/sched.h>
 #include <linux/init.h>
 #include <linux/initrd.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 
 #include <asm/ptrace.h>
 #include <asm/cacheflush.h>
@@ -233,16 +237,24 @@ albacore_init_arch(void)
 			unsigned long size;
 
 			size = initrd_end - initrd_start;
+<<<<<<< HEAD
 			free_bootmem_node(NODE_DATA(0), __pa(initrd_start),
 					  PAGE_ALIGN(size));
+=======
+			memblock_free(__pa(initrd_start), PAGE_ALIGN(size));
+>>>>>>> upstream/android-13
 			if (!move_initrd(pci_mem))
 				printk("irongate_init_arch: initrd too big "
 				       "(%ldK)\ndisabling initrd\n",
 				       size / 1024);
 		}
 #endif
+<<<<<<< HEAD
 		reserve_bootmem_node(NODE_DATA(0), pci_mem, memtop -
 				pci_mem, BOOTMEM_DEFAULT);
+=======
+		memblock_reserve(pci_mem, memtop - pci_mem);
+>>>>>>> upstream/android-13
 		printk("irongate_init_arch: temporarily reserving "
 			"region %08lx-%08lx for PCI\n", pci_mem, memtop - 1);
 	}
@@ -304,7 +316,10 @@ irongate_init_arch(void)
 #include <linux/agp_backend.h>
 #include <linux/agpgart.h>
 #include <linux/export.h>
+<<<<<<< HEAD
 #include <asm/pgalloc.h>
+=======
+>>>>>>> upstream/android-13
 
 #define GET_PAGE_DIR_OFF(addr) (addr >> 22)
 #define GET_PAGE_DIR_IDX(addr) (GET_PAGE_DIR_OFF(addr))

@@ -1,11 +1,19 @@
+<<<<<<< HEAD
 /*
 * Filename: dev.c
 *
 *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+* Filename: dev.c
+*
+>>>>>>> upstream/android-13
 * Authors: Joshua Morris <josh.h.morris@us.ibm.com>
 *	Philip Kelleher <pjk1939@linux.vnet.ibm.com>
 *
 * (C) Copyright 2013 IBM Corporation
+<<<<<<< HEAD
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -20,6 +28,8 @@
 * You should have received a copy of the GNU General Public License
 * along with this program; if not, write to the Free Software Foundation,
 * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
 */
 
 #include <linux/kernel.h>
@@ -64,6 +74,11 @@ struct rsxx_bio_meta {
 
 static struct kmem_cache *bio_meta_pool;
 
+<<<<<<< HEAD
+=======
+static blk_qc_t rsxx_submit_bio(struct bio *bio);
+
+>>>>>>> upstream/android-13
 /*----------------- Block Device Operations -----------------*/
 static int rsxx_blkdev_ioctl(struct block_device *bdev,
 				 fmode_t mode,
@@ -106,10 +121,15 @@ static int rsxx_getgeo(struct block_device *bdev, struct hd_geometry *geo)
 
 static const struct block_device_operations rsxx_fops = {
 	.owner		= THIS_MODULE,
+<<<<<<< HEAD
+=======
+	.submit_bio	= rsxx_submit_bio,
+>>>>>>> upstream/android-13
 	.getgeo		= rsxx_getgeo,
 	.ioctl		= rsxx_blkdev_ioctl,
 };
 
+<<<<<<< HEAD
 static void disk_stats_start(struct rsxx_cardinfo *card, struct bio *bio)
 {
 	generic_start_io_acct(card->queue, bio_op(bio), bio_sectors(bio),
@@ -124,6 +144,8 @@ static void disk_stats_complete(struct rsxx_cardinfo *card,
 			    &card->gendisk->part0, start_time);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void bio_dma_done_cb(struct rsxx_cardinfo *card,
 			    void *cb_data,
 			    unsigned int error)
@@ -135,7 +157,11 @@ static void bio_dma_done_cb(struct rsxx_cardinfo *card,
 
 	if (atomic_dec_and_test(&meta->pending_dmas)) {
 		if (!card->eeh_state && card->gendisk)
+<<<<<<< HEAD
 			disk_stats_complete(card, meta->bio, meta->start_time);
+=======
+			bio_end_io_acct(meta->bio, meta->start_time);
+>>>>>>> upstream/android-13
 
 		if (atomic_read(&meta->error))
 			bio_io_error(meta->bio);
@@ -145,6 +171,7 @@ static void bio_dma_done_cb(struct rsxx_cardinfo *card,
 	}
 }
 
+<<<<<<< HEAD
 static blk_qc_t rsxx_make_request(struct request_queue *q, struct bio *bio)
 {
 	struct rsxx_cardinfo *card = q->queuedata;
@@ -152,6 +179,15 @@ static blk_qc_t rsxx_make_request(struct request_queue *q, struct bio *bio)
 	blk_status_t st = BLK_STS_IOERR;
 
 	blk_queue_split(q, &bio);
+=======
+static blk_qc_t rsxx_submit_bio(struct bio *bio)
+{
+	struct rsxx_cardinfo *card = bio->bi_bdev->bd_disk->private_data;
+	struct rsxx_bio_meta *bio_meta;
+	blk_status_t st = BLK_STS_IOERR;
+
+	blk_queue_split(&bio);
+>>>>>>> upstream/android-13
 
 	might_sleep();
 
@@ -181,10 +217,16 @@ static blk_qc_t rsxx_make_request(struct request_queue *q, struct bio *bio)
 	bio_meta->bio = bio;
 	atomic_set(&bio_meta->error, 0);
 	atomic_set(&bio_meta->pending_dmas, 0);
+<<<<<<< HEAD
 	bio_meta->start_time = jiffies;
 
 	if (!unlikely(card->halt))
 		disk_stats_start(card, bio);
+=======
+
+	if (!unlikely(card->halt))
+		bio_meta->start_time = bio_start_io_acct(bio);
+>>>>>>> upstream/android-13
 
 	dev_dbg(CARD_TO_DEV(card), "BIO[%c]: meta: %p addr8: x%llx size: %d\n",
 		 bio_data_dir(bio) ? 'W' : 'R', bio_meta,
@@ -226,7 +268,11 @@ int rsxx_attach_dev(struct rsxx_cardinfo *card)
 			set_capacity(card->gendisk, card->size8 >> 9);
 		else
 			set_capacity(card->gendisk, 0);
+<<<<<<< HEAD
 		device_add_disk(CARD_TO_DEV(card), card->gendisk);
+=======
+		device_add_disk(CARD_TO_DEV(card), card->gendisk, NULL);
+>>>>>>> upstream/android-13
 		card->bdev_attached = 1;
 	}
 
@@ -262,6 +308,7 @@ int rsxx_setup_dev(struct rsxx_cardinfo *card)
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	card->queue = blk_alloc_queue(GFP_KERNEL);
 	if (!card->queue) {
 		dev_err(CARD_TO_DEV(card), "Failed queue alloc\n");
@@ -273,12 +320,18 @@ int rsxx_setup_dev(struct rsxx_cardinfo *card)
 	if (!card->gendisk) {
 		dev_err(CARD_TO_DEV(card), "Failed disk alloc\n");
 		blk_cleanup_queue(card->queue);
+=======
+	card->gendisk = blk_alloc_disk(blkdev_minors);
+	if (!card->gendisk) {
+		dev_err(CARD_TO_DEV(card), "Failed disk alloc\n");
+>>>>>>> upstream/android-13
 		unregister_blkdev(card->major, DRIVER_NAME);
 		return -ENOMEM;
 	}
 
 	if (card->config_valid) {
 		blk_size = card->config.data.block_size;
+<<<<<<< HEAD
 		blk_queue_dma_alignment(card->queue, blk_size - 1);
 		blk_queue_logical_block_size(card->queue, blk_size);
 	}
@@ -306,6 +359,33 @@ int rsxx_setup_dev(struct rsxx_cardinfo *card)
 	card->gendisk->fops = &rsxx_fops;
 	card->gendisk->private_data = card;
 	card->gendisk->queue = card->queue;
+=======
+		blk_queue_dma_alignment(card->gendisk->queue, blk_size - 1);
+		blk_queue_logical_block_size(card->gendisk->queue, blk_size);
+	}
+
+	blk_queue_max_hw_sectors(card->gendisk->queue, blkdev_max_hw_sectors);
+	blk_queue_physical_block_size(card->gendisk->queue, RSXX_HW_BLK_SIZE);
+
+	blk_queue_flag_set(QUEUE_FLAG_NONROT, card->gendisk->queue);
+	blk_queue_flag_clear(QUEUE_FLAG_ADD_RANDOM, card->gendisk->queue);
+	if (rsxx_discard_supported(card)) {
+		blk_queue_flag_set(QUEUE_FLAG_DISCARD, card->gendisk->queue);
+		blk_queue_max_discard_sectors(card->gendisk->queue,
+						RSXX_HW_BLK_SIZE >> 9);
+		card->gendisk->queue->limits.discard_granularity =
+			RSXX_HW_BLK_SIZE;
+		card->gendisk->queue->limits.discard_alignment =
+			RSXX_HW_BLK_SIZE;
+	}
+
+	snprintf(card->gendisk->disk_name, sizeof(card->gendisk->disk_name),
+		 "rsxx%d", card->disk_id);
+	card->gendisk->major = card->major;
+	card->gendisk->minors = blkdev_minors;
+	card->gendisk->fops = &rsxx_fops;
+	card->gendisk->private_data = card;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -315,11 +395,16 @@ void rsxx_destroy_dev(struct rsxx_cardinfo *card)
 	if (!enable_blkdev)
 		return;
 
+<<<<<<< HEAD
 	put_disk(card->gendisk);
 	card->gendisk = NULL;
 
 	blk_cleanup_queue(card->queue);
 	card->queue->queuedata = NULL;
+=======
+	blk_cleanup_disk(card->gendisk);
+	card->gendisk = NULL;
+>>>>>>> upstream/android-13
 	unregister_blkdev(card->major, DRIVER_NAME);
 }
 

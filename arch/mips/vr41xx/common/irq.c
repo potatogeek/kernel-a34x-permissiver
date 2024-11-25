@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Interrupt handing routines for NEC VR4100 series.
  *
  *  Copyright (C) 2005-2007  Yoichi Yuasa <yuasa@linux-mips.org>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/export.h>
 #include <linux/interrupt.h>
@@ -30,12 +37,15 @@ typedef struct irq_cascade {
 
 static irq_cascade_t irq_cascade[NR_IRQS] __cacheline_aligned;
 
+<<<<<<< HEAD
 static struct irqaction cascade_irqaction = {
 	.handler	= no_action,
 	.name		= "cascade",
 	.flags		= IRQF_NO_THREAD,
 };
 
+=======
+>>>>>>> upstream/android-13
 int cascade_irq(unsigned int irq, int (*get_irq)(unsigned int))
 {
 	int retval = 0;
@@ -49,7 +59,12 @@ int cascade_irq(unsigned int irq, int (*get_irq)(unsigned int))
 	irq_cascade[irq].get_irq = get_irq;
 
 	if (get_irq != NULL) {
+<<<<<<< HEAD
 		retval = setup_irq(irq, &cascade_irqaction);
+=======
+		retval = request_irq(irq, no_action, IRQF_NO_THREAD,
+				     "cascade", NULL);
+>>>>>>> upstream/android-13
 		if (retval < 0)
 			irq_cascade[irq].get_irq = NULL;
 	}

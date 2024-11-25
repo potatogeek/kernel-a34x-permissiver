@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2015, Christoph Hellwig.
  * Copyright (c) 2015, Intel Corporation.
@@ -6,6 +10,7 @@
 #include <linux/memory_hotplug.h>
 #include <linux/libnvdimm.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 
 static const struct attribute_group *e820_pmem_attribute_groups[] = {
 	&nvdimm_bus_attribute_group,
@@ -17,6 +22,9 @@ static const struct attribute_group *e820_pmem_region_attribute_groups[] = {
 	&nd_device_attribute_group,
 	NULL,
 };
+=======
+#include <linux/numa.h>
+>>>>>>> upstream/android-13
 
 static int e820_pmem_remove(struct platform_device *pdev)
 {
@@ -26,6 +34,7 @@ static int e820_pmem_remove(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_MEMORY_HOTPLUG
 static int e820_range_to_nid(resource_size_t addr)
 {
@@ -38,15 +47,26 @@ static int e820_range_to_nid(resource_size_t addr)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static int e820_register_one(struct resource *res, void *data)
 {
 	struct nd_region_desc ndr_desc;
 	struct nvdimm_bus *nvdimm_bus = data;
+<<<<<<< HEAD
 
 	memset(&ndr_desc, 0, sizeof(ndr_desc));
 	ndr_desc.res = res;
 	ndr_desc.attr_groups = e820_pmem_region_attribute_groups;
 	ndr_desc.numa_node = e820_range_to_nid(res->start);
+=======
+	int nid = phys_to_target_node(res->start);
+
+	memset(&ndr_desc, 0, sizeof(ndr_desc));
+	ndr_desc.res = res;
+	ndr_desc.numa_node = numa_map_to_online_node(nid);
+	ndr_desc.target_node = nid;
+>>>>>>> upstream/android-13
 	set_bit(ND_REGION_PAGEMAP, &ndr_desc.flags);
 	if (!nvdimm_pmem_region_create(nvdimm_bus, &ndr_desc))
 		return -ENXIO;
@@ -60,7 +80,10 @@ static int e820_pmem_probe(struct platform_device *pdev)
 	struct nvdimm_bus *nvdimm_bus;
 	int rc = -ENXIO;
 
+<<<<<<< HEAD
 	nd_desc.attr_groups = e820_pmem_attribute_groups;
+=======
+>>>>>>> upstream/android-13
 	nd_desc.provider_name = "e820";
 	nd_desc.module = THIS_MODULE;
 	nvdimm_bus = nvdimm_bus_register(dev, &nd_desc);

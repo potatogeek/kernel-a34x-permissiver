@@ -2,7 +2,11 @@
 /*
  * Driver for Cadence MIPI-CSI2 TX Controller
  *
+<<<<<<< HEAD
  * Copyright (C) 2017-2018 Cadence Design Systems Inc.
+=======
+ * Copyright (C) 2017-2019 Cadence Design Systems Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -52,6 +56,20 @@
 #define CSI2TX_STREAM_IF_CFG_REG(n)	(0x100 + (n) * 4)
 #define CSI2TX_STREAM_IF_CFG_FILL_LEVEL(n)	((n) & 0x1f)
 
+<<<<<<< HEAD
+=======
+/* CSI2TX V2 Registers */
+#define CSI2TX_V2_DPHY_CFG_REG			0x28
+#define CSI2TX_V2_DPHY_CFG_RESET		BIT(16)
+#define CSI2TX_V2_DPHY_CFG_CLOCK_MODE		BIT(10)
+#define CSI2TX_V2_DPHY_CFG_MODE_MASK		GENMASK(9, 8)
+#define CSI2TX_V2_DPHY_CFG_MODE_LPDT		(2 << 8)
+#define CSI2TX_V2_DPHY_CFG_MODE_HS		(1 << 8)
+#define CSI2TX_V2_DPHY_CFG_MODE_ULPS		(0 << 8)
+#define CSI2TX_V2_DPHY_CFG_CLK_ENABLE		BIT(4)
+#define CSI2TX_V2_DPHY_CFG_LANE_ENABLE(n)	BIT(n)
+
+>>>>>>> upstream/android-13
 #define CSI2TX_LANES_MAX	4
 #define CSI2TX_STREAMS_MAX	4
 
@@ -70,6 +88,16 @@ struct csi2tx_fmt {
 	u32	bpp;
 };
 
+<<<<<<< HEAD
+=======
+struct csi2tx_priv;
+
+/* CSI2TX Variant Operations */
+struct csi2tx_vops {
+	void (*dphy_setup)(struct csi2tx_priv *csi2tx);
+};
+
+>>>>>>> upstream/android-13
 struct csi2tx_priv {
 	struct device			*dev;
 	unsigned int			count;
@@ -82,6 +110,11 @@ struct csi2tx_priv {
 
 	void __iomem			*base;
 
+<<<<<<< HEAD
+=======
+	struct csi2tx_vops		*vops;
+
+>>>>>>> upstream/android-13
 	struct clk			*esc_clk;
 	struct clk			*p_clk;
 	struct clk			*pixel_clk[CSI2TX_STREAMS_MAX];
@@ -136,7 +169,11 @@ static const struct csi2tx_fmt *csi2tx_get_fmt_from_mbus(u32 mbus)
 }
 
 static int csi2tx_enum_mbus_code(struct v4l2_subdev *subdev,
+<<<<<<< HEAD
 				 struct v4l2_subdev_pad_config *cfg,
+=======
+				 struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 				 struct v4l2_subdev_mbus_code_enum *code)
 {
 	if (code->pad || code->index >= ARRAY_SIZE(csi2tx_formats))
@@ -149,20 +186,32 @@ static int csi2tx_enum_mbus_code(struct v4l2_subdev *subdev,
 
 static struct v4l2_mbus_framefmt *
 __csi2tx_get_pad_format(struct v4l2_subdev *subdev,
+<<<<<<< HEAD
 			struct v4l2_subdev_pad_config *cfg,
+=======
+			struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			struct v4l2_subdev_format *fmt)
 {
 	struct csi2tx_priv *csi2tx = v4l2_subdev_to_csi2tx(subdev);
 
 	if (fmt->which == V4L2_SUBDEV_FORMAT_TRY)
+<<<<<<< HEAD
 		return v4l2_subdev_get_try_format(subdev, cfg,
+=======
+		return v4l2_subdev_get_try_format(subdev, sd_state,
+>>>>>>> upstream/android-13
 						  fmt->pad);
 
 	return &csi2tx->pad_fmts[fmt->pad];
 }
 
 static int csi2tx_get_pad_format(struct v4l2_subdev *subdev,
+<<<<<<< HEAD
 				 struct v4l2_subdev_pad_config *cfg,
+=======
+				 struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 				 struct v4l2_subdev_format *fmt)
 {
 	const struct v4l2_mbus_framefmt *format;
@@ -171,7 +220,11 @@ static int csi2tx_get_pad_format(struct v4l2_subdev *subdev,
 	if (fmt->pad == CSI2TX_PAD_SOURCE)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	format = __csi2tx_get_pad_format(subdev, cfg, fmt);
+=======
+	format = __csi2tx_get_pad_format(subdev, sd_state, fmt);
+>>>>>>> upstream/android-13
 	if (!format)
 		return -EINVAL;
 
@@ -181,7 +234,11 @@ static int csi2tx_get_pad_format(struct v4l2_subdev *subdev,
 }
 
 static int csi2tx_set_pad_format(struct v4l2_subdev *subdev,
+<<<<<<< HEAD
 				 struct v4l2_subdev_pad_config *cfg,
+=======
+				 struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 				 struct v4l2_subdev_format *fmt)
 {
 	const struct v4l2_mbus_framefmt *src_format = &fmt->format;
@@ -194,7 +251,11 @@ static int csi2tx_set_pad_format(struct v4l2_subdev *subdev,
 	if (!csi2tx_get_fmt_from_mbus(fmt->format.code))
 		src_format = &fmt_default;
 
+<<<<<<< HEAD
 	dst_format = __csi2tx_get_pad_format(subdev, cfg, fmt);
+=======
+	dst_format = __csi2tx_get_pad_format(subdev, sd_state, fmt);
+>>>>>>> upstream/android-13
 	if (!dst_format)
 		return -EINVAL;
 
@@ -209,6 +270,71 @@ static const struct v4l2_subdev_pad_ops csi2tx_pad_ops = {
 	.set_fmt	= csi2tx_set_pad_format,
 };
 
+<<<<<<< HEAD
+=======
+/* Set Wake Up value in the D-PHY */
+static void csi2tx_dphy_set_wakeup(struct csi2tx_priv *csi2tx)
+{
+	writel(CSI2TX_DPHY_CLK_WAKEUP_ULPS_CYCLES(32),
+	       csi2tx->base + CSI2TX_DPHY_CLK_WAKEUP_REG);
+}
+
+/*
+ * Finishes the D-PHY initialization
+ * reg dphy cfg value to be used
+ */
+static void csi2tx_dphy_init_finish(struct csi2tx_priv *csi2tx, u32 reg)
+{
+	unsigned int i;
+
+	udelay(10);
+
+	/* Enable our (clock and data) lanes */
+	reg |= CSI2TX_DPHY_CFG_CLK_ENABLE;
+	for (i = 0; i < csi2tx->num_lanes; i++)
+		reg |= CSI2TX_DPHY_CFG_LANE_ENABLE(csi2tx->lanes[i] - 1);
+	writel(reg, csi2tx->base + CSI2TX_DPHY_CFG_REG);
+
+	udelay(10);
+
+	/* Switch to HS mode */
+	reg &= ~CSI2TX_DPHY_CFG_MODE_MASK;
+	writel(reg | CSI2TX_DPHY_CFG_MODE_HS,
+	       csi2tx->base + CSI2TX_DPHY_CFG_REG);
+}
+
+/* Configures D-PHY in CSIv1.3 */
+static void csi2tx_dphy_setup(struct csi2tx_priv *csi2tx)
+{
+	u32 reg;
+	unsigned int i;
+
+	csi2tx_dphy_set_wakeup(csi2tx);
+
+	/* Put our lanes (clock and data) out of reset */
+	reg = CSI2TX_DPHY_CFG_CLK_RESET | CSI2TX_DPHY_CFG_MODE_LPDT;
+	for (i = 0; i < csi2tx->num_lanes; i++)
+		reg |= CSI2TX_DPHY_CFG_LANE_RESET(csi2tx->lanes[i] - 1);
+	writel(reg, csi2tx->base + CSI2TX_DPHY_CFG_REG);
+
+	csi2tx_dphy_init_finish(csi2tx, reg);
+}
+
+/* Configures D-PHY in CSIv2 */
+static void csi2tx_v2_dphy_setup(struct csi2tx_priv *csi2tx)
+{
+	u32 reg;
+
+	csi2tx_dphy_set_wakeup(csi2tx);
+
+	/* Put our lanes (clock and data) out of reset */
+	reg = CSI2TX_V2_DPHY_CFG_RESET | CSI2TX_V2_DPHY_CFG_MODE_LPDT;
+	writel(reg, csi2tx->base + CSI2TX_V2_DPHY_CFG_REG);
+
+	csi2tx_dphy_init_finish(csi2tx, reg);
+}
+
+>>>>>>> upstream/android-13
 static void csi2tx_reset(struct csi2tx_priv *csi2tx)
 {
 	writel(CSI2TX_CONFIG_SRST_REQ, csi2tx->base + CSI2TX_CONFIG_REG);
@@ -221,7 +347,10 @@ static int csi2tx_start(struct csi2tx_priv *csi2tx)
 	struct media_entity *entity = &csi2tx->subdev.entity;
 	struct media_link *link;
 	unsigned int i;
+<<<<<<< HEAD
 	u32 reg;
+=======
+>>>>>>> upstream/android-13
 
 	csi2tx_reset(csi2tx);
 
@@ -229,6 +358,7 @@ static int csi2tx_start(struct csi2tx_priv *csi2tx)
 
 	udelay(10);
 
+<<<<<<< HEAD
 	/* Configure our PPI interface with the D-PHY */
 	writel(CSI2TX_DPHY_CLK_WAKEUP_ULPS_CYCLES(32),
 	       csi2tx->base + CSI2TX_DPHY_CLK_WAKEUP_REG);
@@ -255,6 +385,12 @@ static int csi2tx_start(struct csi2tx_priv *csi2tx)
 	       csi2tx->base + CSI2TX_DPHY_CFG_REG);
 
 	udelay(10);
+=======
+	if (csi2tx->vops && csi2tx->vops->dphy_setup) {
+		csi2tx->vops->dphy_setup(csi2tx);
+		udelay(10);
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * Create a static mapping between the CSI virtual channels
@@ -377,6 +513,10 @@ static int csi2tx_get_resources(struct csi2tx_priv *csi2tx,
 	struct resource *res;
 	unsigned int i;
 	u32 dev_cfg;
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	csi2tx->base = devm_ioremap_resource(&pdev->dev, res);
@@ -395,7 +535,16 @@ static int csi2tx_get_resources(struct csi2tx_priv *csi2tx,
 		return PTR_ERR(csi2tx->esc_clk);
 	}
 
+<<<<<<< HEAD
 	clk_prepare_enable(csi2tx->p_clk);
+=======
+	ret = clk_prepare_enable(csi2tx->p_clk);
+	if (ret) {
+		dev_err(&pdev->dev, "Couldn't prepare and enable p_clk\n");
+		return ret;
+	}
+
+>>>>>>> upstream/android-13
 	dev_cfg = readl(csi2tx->base + CSI2TX_DEVICE_CONFIG_REG);
 	clk_disable_unprepare(csi2tx->p_clk);
 
@@ -432,9 +581,15 @@ static int csi2tx_get_resources(struct csi2tx_priv *csi2tx,
 
 static int csi2tx_check_lanes(struct csi2tx_priv *csi2tx)
 {
+<<<<<<< HEAD
 	struct v4l2_fwnode_endpoint v4l2_ep;
 	struct device_node *ep;
 	int ret;
+=======
+	struct v4l2_fwnode_endpoint v4l2_ep = { .bus_type = 0 };
+	struct device_node *ep;
+	int ret, i;
+>>>>>>> upstream/android-13
 
 	ep = of_graph_get_endpoint_by_regs(csi2tx->dev->of_node, 0, 0);
 	if (!ep)
@@ -446,7 +601,11 @@ static int csi2tx_check_lanes(struct csi2tx_priv *csi2tx)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	if (v4l2_ep.bus_type != V4L2_MBUS_CSI2) {
+=======
+	if (v4l2_ep.bus_type != V4L2_MBUS_CSI2_DPHY) {
+>>>>>>> upstream/android-13
 		dev_err(csi2tx->dev, "Unsupported media bus type: 0x%x\n",
 			v4l2_ep.bus_type);
 		ret = -EINVAL;
@@ -461,6 +620,18 @@ static int csi2tx_check_lanes(struct csi2tx_priv *csi2tx)
 		goto out;
 	}
 
+<<<<<<< HEAD
+=======
+	for (i = 0; i < csi2tx->num_lanes; i++) {
+		if (v4l2_ep.bus.mipi_csi2.data_lanes[i] < 1) {
+			dev_err(csi2tx->dev, "Invalid lane[%d] number: %u\n",
+				i, v4l2_ep.bus.mipi_csi2.data_lanes[i]);
+			ret = -EINVAL;
+			goto out;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	memcpy(csi2tx->lanes, v4l2_ep.bus.mipi_csi2.data_lanes,
 	       sizeof(csi2tx->lanes));
 
@@ -469,9 +640,41 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int csi2tx_probe(struct platform_device *pdev)
 {
 	struct csi2tx_priv *csi2tx;
+=======
+static const struct csi2tx_vops csi2tx_vops = {
+	.dphy_setup = csi2tx_dphy_setup,
+};
+
+static const struct csi2tx_vops csi2tx_v2_vops = {
+	.dphy_setup = csi2tx_v2_dphy_setup,
+};
+
+static const struct of_device_id csi2tx_of_table[] = {
+	{
+		.compatible = "cdns,csi2tx",
+		.data = &csi2tx_vops
+	},
+	{
+		.compatible = "cdns,csi2tx-1.3",
+		.data = &csi2tx_vops
+	},
+	{
+		.compatible = "cdns,csi2tx-2.1",
+		.data = &csi2tx_v2_vops
+	},
+	{ }
+};
+MODULE_DEVICE_TABLE(of, csi2tx_of_table);
+
+static int csi2tx_probe(struct platform_device *pdev)
+{
+	struct csi2tx_priv *csi2tx;
+	const struct of_device_id *of_id;
+>>>>>>> upstream/android-13
 	unsigned int i;
 	int ret;
 
@@ -486,6 +689,12 @@ static int csi2tx_probe(struct platform_device *pdev)
 	if (ret)
 		goto err_free_priv;
 
+<<<<<<< HEAD
+=======
+	of_id = of_match_node(csi2tx_of_table, pdev->dev.of_node);
+	csi2tx->vops = (struct csi2tx_vops *)of_id->data;
+
+>>>>>>> upstream/android-13
 	v4l2_subdev_init(&csi2tx->subdev, &csi2tx_subdev_ops);
 	csi2tx->subdev.owner = THIS_MODULE;
 	csi2tx->subdev.dev = &pdev->dev;
@@ -543,12 +752,15 @@ static int csi2tx_remove(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct of_device_id csi2tx_of_table[] = {
 	{ .compatible = "cdns,csi2tx" },
 	{ },
 };
 MODULE_DEVICE_TABLE(of, csi2tx_of_table);
 
+=======
+>>>>>>> upstream/android-13
 static struct platform_driver csi2tx_driver = {
 	.probe	= csi2tx_probe,
 	.remove	= csi2tx_remove,

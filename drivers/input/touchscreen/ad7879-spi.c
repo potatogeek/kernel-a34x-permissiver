@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * AD7879/AD7889 touchscreen (SPI bus)
  *
  * Copyright (C) 2008-2010 Michael Hennerich, Analog Devices Inc.
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2 or later.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/input.h>	/* BUS_SPI */

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * pata_via.c 	- VIA PATA for new ATA layer
  *			  (C) 2005-2006 Red Hat Inc
@@ -662,7 +666,11 @@ static int via_init_one(struct pci_dev *pdev, const struct pci_device_id *id)
 #ifdef CONFIG_PM_SLEEP
 /**
  *	via_reinit_one		-	reinit after resume
+<<<<<<< HEAD
  *	@pdev; PCI device
+=======
+ *	@pdev: PCI device
+>>>>>>> upstream/android-13
  *
  *	Called when the VIA PATA device is resumed. We must then
  *	reconfigure the fifo and other setup we may have altered. In

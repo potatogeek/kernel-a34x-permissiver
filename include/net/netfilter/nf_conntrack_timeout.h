@@ -14,7 +14,11 @@
 struct nf_ct_timeout {
 	__u16			l3num;
 	const struct nf_conntrack_l4proto *l4proto;
+<<<<<<< HEAD
 	char			data[0];
+=======
+	char			data[];
+>>>>>>> upstream/android-13
 };
 
 struct ctnl_timeout {
@@ -32,6 +36,10 @@ struct nf_conn_timeout {
 static inline unsigned int *
 nf_ct_timeout_data(const struct nf_conn_timeout *t)
 {
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_NF_CONNTRACK_TIMEOUT
+>>>>>>> upstream/android-13
 	struct nf_ct_timeout *timeout;
 
 	timeout = rcu_dereference(t->timeout);
@@ -39,6 +47,12 @@ nf_ct_timeout_data(const struct nf_conn_timeout *t)
 		return NULL;
 
 	return (unsigned int *)timeout->data;
+<<<<<<< HEAD
+=======
+#else
+	return NULL;
+#endif
+>>>>>>> upstream/android-13
 }
 
 static inline
@@ -88,6 +102,12 @@ static inline unsigned int *nf_ct_timeout_lookup(const struct nf_conn *ct)
 int nf_conntrack_timeout_init(void);
 void nf_conntrack_timeout_fini(void);
 void nf_ct_untimeout(struct net *net, struct nf_ct_timeout *timeout);
+<<<<<<< HEAD
+=======
+int nf_ct_set_timeout(struct net *net, struct nf_conn *ct, u8 l3num, u8 l4num,
+		      const char *timeout_name);
+void nf_ct_destroy_timeout(struct nf_conn *ct);
+>>>>>>> upstream/android-13
 #else
 static inline int nf_conntrack_timeout_init(void)
 {
@@ -98,6 +118,21 @@ static inline void nf_conntrack_timeout_fini(void)
 {
         return;
 }
+<<<<<<< HEAD
+=======
+
+static inline int nf_ct_set_timeout(struct net *net, struct nf_conn *ct,
+				    u8 l3num, u8 l4num,
+				    const char *timeout_name)
+{
+	return -EOPNOTSUPP;
+}
+
+static inline void nf_ct_destroy_timeout(struct nf_conn *ct)
+{
+	return;
+}
+>>>>>>> upstream/android-13
 #endif /* CONFIG_NF_CONNTRACK_TIMEOUT */
 
 #ifdef CONFIG_NF_CONNTRACK_TIMEOUT

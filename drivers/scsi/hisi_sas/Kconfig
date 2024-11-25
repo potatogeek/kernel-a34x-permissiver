@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 config SCSI_HISI_SAS
 	tristate "HiSilicon SAS"
 	depends on HAS_IOMEM
@@ -5,6 +9,10 @@ config SCSI_HISI_SAS
 	select SCSI_SAS_LIBSAS
 	select BLK_DEV_INTEGRITY
 	depends on ATA
+<<<<<<< HEAD
+=======
+	select SATA_HOST
+>>>>>>> upstream/android-13
 	help
 		This driver supports HiSilicon's SAS HBA, including support based
 		on platform device
@@ -13,5 +21,17 @@ config SCSI_HISI_SAS_PCI
 	tristate "HiSilicon SAS on PCI bus"
 	depends on SCSI_HISI_SAS
 	depends on PCI
+<<<<<<< HEAD
 	help
 		This driver supports HiSilicon's SAS HBA based on PCI device
+=======
+	depends on ACPI
+	help
+		This driver supports HiSilicon's SAS HBA based on PCI device
+
+config SCSI_HISI_SAS_DEBUGFS_DEFAULT_ENABLE
+	bool "HiSilicon SAS debugging default enable"
+	depends on SCSI_HISI_SAS
+	help
+		Set Y to default enable DEBUGFS for SCSI_HISI_SAS
+>>>>>>> upstream/android-13

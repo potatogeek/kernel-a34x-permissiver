@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /****************************************************************************
  * Driver for Solarflare network controllers and boards
  * Copyright 2005-2006 Fen Systems Ltd.
  * Copyright 2006-2013 Solarflare Communications Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation, incorporated herein by reference.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
@@ -18,6 +25,10 @@
 #include "net_driver.h"
 #include "bitfield.h"
 #include "efx.h"
+<<<<<<< HEAD
+=======
+#include "rx_common.h"
+>>>>>>> upstream/android-13
 #include "nic.h"
 #include "farch_regs.h"
 #include "sriov.h"
@@ -322,7 +333,11 @@ void efx_farch_tx_write(struct efx_tx_queue *tx_queue)
 	unsigned write_ptr;
 	unsigned old_write_count = tx_queue->write_count;
 
+<<<<<<< HEAD
 	tx_queue->xmit_more_available = false;
+=======
+	tx_queue->xmit_pending = false;
+>>>>>>> upstream/android-13
 	if (unlikely(tx_queue->write_count == tx_queue->insert_count))
 		return;
 
@@ -374,6 +389,11 @@ int efx_farch_tx_probe(struct efx_tx_queue *tx_queue)
 	struct efx_nic *efx = tx_queue->efx;
 	unsigned entries;
 
+<<<<<<< HEAD
+=======
+	tx_queue->type = ((tx_queue->label & 1) ? EFX_TXQ_TYPE_OUTER_CSUM : 0) |
+			 ((tx_queue->label & 2) ? EFX_TXQ_TYPE_HIGHPRI : 0);
+>>>>>>> upstream/android-13
 	entries = tx_queue->ptr_mask + 1;
 	return efx_alloc_special_buffer(efx, &tx_queue->txd,
 					entries * sizeof(efx_qword_t));
@@ -381,7 +401,11 @@ int efx_farch_tx_probe(struct efx_tx_queue *tx_queue)
 
 void efx_farch_tx_init(struct efx_tx_queue *tx_queue)
 {
+<<<<<<< HEAD
 	int csum = tx_queue->queue & EFX_TXQ_TYPE_OFFLOAD;
+=======
+	int csum = tx_queue->type & EFX_TXQ_TYPE_OUTER_CSUM;
+>>>>>>> upstream/android-13
 	struct efx_nic *efx = tx_queue->efx;
 	efx_oword_t reg;
 
@@ -397,7 +421,11 @@ void efx_farch_tx_init(struct efx_tx_queue *tx_queue)
 			      FRF_AZ_TX_DESCQ_EVQ_ID,
 			      tx_queue->channel->channel,
 			      FRF_AZ_TX_DESCQ_OWNER_ID, 0,
+<<<<<<< HEAD
 			      FRF_AZ_TX_DESCQ_LABEL, tx_queue->queue,
+=======
+			      FRF_AZ_TX_DESCQ_LABEL, tx_queue->label,
+>>>>>>> upstream/android-13
 			      FRF_AZ_TX_DESCQ_SIZE,
 			      __ffs(tx_queue->txd.entries),
 			      FRF_AZ_TX_DESCQ_TYPE, 0,
@@ -411,10 +439,19 @@ void efx_farch_tx_init(struct efx_tx_queue *tx_queue)
 
 	EFX_POPULATE_OWORD_1(reg,
 			     FRF_BZ_TX_PACE,
+<<<<<<< HEAD
 			     (tx_queue->queue & EFX_TXQ_TYPE_HIGHPRI) ?
 			     FFE_BZ_TX_PACE_OFF :
 			     FFE_BZ_TX_PACE_RESERVED);
 	efx_writeo_table(efx, &reg, FR_BZ_TX_PACE_TBL, tx_queue->queue);
+=======
+			     (tx_queue->type & EFX_TXQ_TYPE_HIGHPRI) ?
+			     FFE_BZ_TX_PACE_OFF :
+			     FFE_BZ_TX_PACE_RESERVED);
+	efx_writeo_table(efx, &reg, FR_BZ_TX_PACE_TBL, tx_queue->queue);
+
+	tx_queue->tso_version = 1;
+>>>>>>> upstream/android-13
 }
 
 static void efx_farch_flush_tx_queue(struct efx_tx_queue *tx_queue)
@@ -833,14 +870,24 @@ efx_farch_handle_tx_event(struct efx_channel *channel, efx_qword_t *event)
 		/* Transmit completion */
 		tx_ev_desc_ptr = EFX_QWORD_FIELD(*event, FSF_AZ_TX_EV_DESC_PTR);
 		tx_ev_q_label = EFX_QWORD_FIELD(*event, FSF_AZ_TX_EV_Q_LABEL);
+<<<<<<< HEAD
 		tx_queue = efx_channel_get_tx_queue(
 			channel, tx_ev_q_label % EFX_TXQ_TYPES);
+=======
+		tx_queue = channel->tx_queue +
+				(tx_ev_q_label % EFX_MAX_TXQ_PER_CHANNEL);
+>>>>>>> upstream/android-13
 		efx_xmit_done(tx_queue, tx_ev_desc_ptr);
 	} else if (EFX_QWORD_FIELD(*event, FSF_AZ_TX_EV_WQ_FF_FULL)) {
 		/* Rewrite the FIFO write pointer */
 		tx_ev_q_label = EFX_QWORD_FIELD(*event, FSF_AZ_TX_EV_Q_LABEL);
+<<<<<<< HEAD
 		tx_queue = efx_channel_get_tx_queue(
 			channel, tx_ev_q_label % EFX_TXQ_TYPES);
+=======
+		tx_queue = channel->tx_queue +
+				(tx_ev_q_label % EFX_MAX_TXQ_PER_CHANNEL);
+>>>>>>> upstream/android-13
 
 		netif_tx_lock(efx->net_dev);
 		efx_farch_notify_tx_desc(tx_queue);
@@ -865,6 +912,7 @@ static u16 efx_farch_handle_rx_not_ok(struct efx_rx_queue *rx_queue,
 	bool rx_ev_tcp_udp_chksum_err, rx_ev_eth_crc_err;
 	bool rx_ev_frm_trunc, rx_ev_tobe_disc;
 	bool rx_ev_other_err, rx_ev_pause_frm;
+<<<<<<< HEAD
 	bool rx_ev_hdr_type, rx_ev_mcast_pkt;
 	unsigned rx_ev_pkt_type;
 
@@ -872,6 +920,10 @@ static u16 efx_farch_handle_rx_not_ok(struct efx_rx_queue *rx_queue,
 	rx_ev_mcast_pkt = EFX_QWORD_FIELD(*event, FSF_AZ_RX_EV_MCAST_PKT);
 	rx_ev_tobe_disc = EFX_QWORD_FIELD(*event, FSF_AZ_RX_EV_TOBE_DISC);
 	rx_ev_pkt_type = EFX_QWORD_FIELD(*event, FSF_AZ_RX_EV_PKT_TYPE);
+=======
+
+	rx_ev_tobe_disc = EFX_QWORD_FIELD(*event, FSF_AZ_RX_EV_TOBE_DISC);
+>>>>>>> upstream/android-13
 	rx_ev_buf_owner_id_err = EFX_QWORD_FIELD(*event,
 						 FSF_AZ_RX_EV_BUF_OWNER_ID_ERR);
 	rx_ev_ip_hdr_chksum_err = EFX_QWORD_FIELD(*event,
@@ -920,6 +972,11 @@ static u16 efx_farch_handle_rx_not_ok(struct efx_rx_queue *rx_queue,
 			  rx_ev_tobe_disc ? " [TOBE_DISC]" : "",
 			  rx_ev_pause_frm ? " [PAUSE]" : "");
 	}
+<<<<<<< HEAD
+=======
+#else
+	(void) rx_ev_other_err;
+>>>>>>> upstream/android-13
 #endif
 
 	if (efx->net_dev->features & NETIF_F_RXALL)
@@ -1040,10 +1097,17 @@ efx_farch_handle_rx_event(struct efx_channel *channel, const efx_qword_t *event)
 		switch (rx_ev_hdr_type) {
 		case FSE_CZ_RX_EV_HDR_TYPE_IPV4V6_TCP:
 			flags |= EFX_RX_PKT_TCP;
+<<<<<<< HEAD
 			/* fall through */
 		case FSE_CZ_RX_EV_HDR_TYPE_IPV4V6_UDP:
 			flags |= EFX_RX_PKT_CSUMMED;
 			/* fall through */
+=======
+			fallthrough;
+		case FSE_CZ_RX_EV_HDR_TYPE_IPV4V6_UDP:
+			flags |= EFX_RX_PKT_CSUMMED;
+			fallthrough;
+>>>>>>> upstream/android-13
 		case FSE_CZ_RX_EV_HDR_TYPE_IPV4V6_OTHER:
 		case FSE_AZ_RX_EV_HDR_TYPE_OTHER:
 			break;
@@ -1082,6 +1146,7 @@ static void
 efx_farch_handle_tx_flush_done(struct efx_nic *efx, efx_qword_t *event)
 {
 	struct efx_tx_queue *tx_queue;
+<<<<<<< HEAD
 	int qid;
 
 	qid = EFX_QWORD_FIELD(*event, FSF_AZ_DRIVER_EV_SUBDATA);
@@ -1092,6 +1157,18 @@ efx_farch_handle_tx_flush_done(struct efx_nic *efx, efx_qword_t *event)
 			efx_farch_magic_event(tx_queue->channel,
 					      EFX_CHANNEL_MAGIC_TX_DRAIN(tx_queue));
 		}
+=======
+	struct efx_channel *channel;
+	int qid;
+
+	qid = EFX_QWORD_FIELD(*event, FSF_AZ_DRIVER_EV_SUBDATA);
+	if (qid < EFX_MAX_TXQ_PER_CHANNEL * (efx->n_tx_channels + efx->n_extra_tx_channels)) {
+		channel = efx_get_tx_channel(efx, qid / EFX_MAX_TXQ_PER_CHANNEL);
+		tx_queue = channel->tx_queue + (qid % EFX_MAX_TXQ_PER_CHANNEL);
+		if (atomic_cmpxchg(&tx_queue->flush_outstanding, 1, 0))
+			efx_farch_magic_event(tx_queue->channel,
+					      EFX_CHANNEL_MAGIC_TX_DRAIN(tx_queue));
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1318,7 +1395,11 @@ int efx_farch_ev_process(struct efx_channel *channel, int budget)
 			if (efx->type->handle_global_event &&
 			    efx->type->handle_global_event(channel, &event))
 				break;
+<<<<<<< HEAD
 			/* else fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		default:
 			netif_err(channel->efx, hw, channel->efx->net_dev,
 				  "channel %d unknown event type %d (data "
@@ -1669,6 +1750,7 @@ void efx_farch_rx_pull_indir_table(struct efx_nic *efx)
  */
 void efx_farch_dimension_resources(struct efx_nic *efx, unsigned sram_lim_qw)
 {
+<<<<<<< HEAD
 	unsigned vi_count, buftbl_min, total_tx_channels;
 
 #ifdef CONFIG_SFC_SRIOV
@@ -1676,16 +1758,35 @@ void efx_farch_dimension_resources(struct efx_nic *efx, unsigned sram_lim_qw)
 #endif
 
 	total_tx_channels = efx->n_tx_channels + efx->n_extra_tx_channels;
+=======
+	unsigned vi_count, total_tx_channels;
+#ifdef CONFIG_SFC_SRIOV
+	struct siena_nic_data *nic_data;
+	unsigned buftbl_min;
+#endif
+
+	total_tx_channels = efx->n_tx_channels + efx->n_extra_tx_channels;
+	vi_count = max(efx->n_channels, total_tx_channels * EFX_MAX_TXQ_PER_CHANNEL);
+
+#ifdef CONFIG_SFC_SRIOV
+	nic_data = efx->nic_data;
+>>>>>>> upstream/android-13
 	/* Account for the buffer table entries backing the datapath channels
 	 * and the descriptor caches for those channels.
 	 */
 	buftbl_min = ((efx->n_rx_channels * EFX_MAX_DMAQ_SIZE +
+<<<<<<< HEAD
 		       total_tx_channels * EFX_TXQ_TYPES * EFX_MAX_DMAQ_SIZE +
 		       efx->n_channels * EFX_MAX_EVQ_SIZE)
 		      * sizeof(efx_qword_t) / EFX_BUF_SIZE);
 	vi_count = max(efx->n_channels, total_tx_channels * EFX_TXQ_TYPES);
 
 #ifdef CONFIG_SFC_SRIOV
+=======
+		       total_tx_channels * EFX_MAX_TXQ_PER_CHANNEL * EFX_MAX_DMAQ_SIZE +
+		       efx->n_channels * EFX_MAX_EVQ_SIZE)
+		      * sizeof(efx_qword_t) / EFX_BUF_SIZE);
+>>>>>>> upstream/android-13
 	if (efx->type->sriov_wanted) {
 		if (efx->type->sriov_wanted(efx)) {
 			unsigned vi_dc_entries, buftbl_free;
@@ -2045,7 +2146,11 @@ efx_farch_filter_from_gen_spec(struct efx_farch_filter_spec *spec,
 	      EFX_FILTER_MATCH_LOC_HOST | EFX_FILTER_MATCH_LOC_PORT |
 	      EFX_FILTER_MATCH_REM_HOST | EFX_FILTER_MATCH_REM_PORT):
 		is_full = true;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case (EFX_FILTER_MATCH_ETHER_TYPE | EFX_FILTER_MATCH_IP_PROTO |
 	      EFX_FILTER_MATCH_LOC_HOST | EFX_FILTER_MATCH_LOC_PORT): {
 		__be32 rhost, host1, host2;
@@ -2096,7 +2201,11 @@ efx_farch_filter_from_gen_spec(struct efx_farch_filter_spec *spec,
 
 	case EFX_FILTER_MATCH_LOC_MAC | EFX_FILTER_MATCH_OUTER_VID:
 		is_full = true;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case EFX_FILTER_MATCH_LOC_MAC:
 		spec->type = (is_full ? EFX_FARCH_FILTER_MAC_FULL :
 			      EFX_FARCH_FILTER_MAC_WILD);
@@ -2143,7 +2252,11 @@ efx_farch_filter_to_gen_spec(struct efx_filter_spec *gen_spec,
 	case EFX_FARCH_FILTER_TCP_FULL:
 	case EFX_FARCH_FILTER_UDP_FULL:
 		is_full = true;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case EFX_FARCH_FILTER_TCP_WILD:
 	case EFX_FARCH_FILTER_UDP_WILD: {
 		__be32 host1, host2;
@@ -2187,7 +2300,11 @@ efx_farch_filter_to_gen_spec(struct efx_filter_spec *gen_spec,
 
 	case EFX_FARCH_FILTER_MAC_FULL:
 		is_full = true;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case EFX_FARCH_FILTER_MAC_WILD:
 		gen_spec->match_flags = EFX_FILTER_MATCH_LOC_MAC;
 		if (is_full)
@@ -2594,7 +2711,10 @@ int efx_farch_filter_remove_safe(struct efx_nic *efx,
 	enum efx_farch_filter_table_id table_id;
 	struct efx_farch_filter_table *table;
 	unsigned int filter_idx;
+<<<<<<< HEAD
 	struct efx_farch_filter_spec *spec;
+=======
+>>>>>>> upstream/android-13
 	int rc;
 
 	table_id = efx_farch_filter_id_table_id(filter_id);
@@ -2606,7 +2726,10 @@ int efx_farch_filter_remove_safe(struct efx_nic *efx,
 	if (filter_idx >= table->size)
 		return -ENOENT;
 	down_write(&state->lock);
+<<<<<<< HEAD
 	spec = &table->spec[filter_idx];
+=======
+>>>>>>> upstream/android-13
 
 	rc = efx_farch_filter_remove(efx, table, filter_idx, priority);
 	up_write(&state->lock);

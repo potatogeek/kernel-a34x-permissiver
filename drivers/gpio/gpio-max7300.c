@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2009 Wolfram Sang, Pengutronix
  *
@@ -5,6 +6,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2009 Wolfram Sang, Pengutronix
+ *
+>>>>>>> upstream/android-13
  * Check max730x.c for further details.
  */
 

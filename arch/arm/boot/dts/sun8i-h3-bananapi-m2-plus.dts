@@ -42,6 +42,7 @@
 
 /dts-v1/;
 #include "sun8i-h3.dtsi"
+<<<<<<< HEAD
 #include "sunxi-common-regulators.dtsi"
 
 #include <dt-bindings/gpio/gpio.h>
@@ -233,4 +234,11 @@
 	usb0_vbus-supply = <&reg_usb0_vbus>;
 	/* USB host VBUS is on as long as VCC-IO is on */
 	status = "okay";
+=======
+#include "sunxi-bananapi-m2-plus.dtsi"
+
+/ {
+	model = "Banana Pi BPI-M2-Plus H3";
+	compatible = "sinovoip,bpi-m2-plus", "allwinner,sun8i-h3";
+>>>>>>> upstream/android-13
 };

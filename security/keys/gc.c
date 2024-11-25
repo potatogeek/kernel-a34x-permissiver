@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* Key garbage collector
  *
  * Copyright (C) 2009-2011 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public Licence
@@ -10,6 +15,10 @@
  */
 
 #include <linux/module.h>
+=======
+ */
+
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/security.h>
 #include <keys/keyring-type.h>
@@ -136,6 +145,14 @@ static noinline void key_gc_unused_keys(struct list_head *keys)
 		kdebug("- %u", key->serial);
 		key_check(key);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_KEY_NOTIFICATIONS
+		remove_watch_list(key->watchers, key->serial);
+		key->watchers = NULL;
+#endif
+
+>>>>>>> upstream/android-13
 		/* Throw away the key data if the key is instantiated */
 		if (state == KEY_IS_POSITIVE && key->type->destroy)
 			key->type->destroy(key);
@@ -155,7 +172,11 @@ static noinline void key_gc_unused_keys(struct list_head *keys)
 			atomic_dec(&key->user->nikeys);
 
 		key_user_put(key->user);
+<<<<<<< HEAD
 
+=======
+		key_put_tag(key->domain_tag);
+>>>>>>> upstream/android-13
 		kfree(key->description);
 
 		memzero_explicit(key, sizeof(*key));

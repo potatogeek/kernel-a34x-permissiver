@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* AF_RXRPC implementation
  *
  * Copyright (C) 2007 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -97,7 +104,12 @@ static int rxrpc_validate_address(struct rxrpc_sock *rx,
 	    srx->transport_len > len)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (srx->transport.family != rx->family)
+=======
+	if (srx->transport.family != rx->family &&
+	    srx->transport.family == AF_INET && rx->family != AF_INET6)
+>>>>>>> upstream/android-13
 		return -EAFNOSUPPORT;
 
 	switch (srx->transport.family) {
@@ -134,7 +146,11 @@ static int rxrpc_bind(struct socket *sock, struct sockaddr *saddr, int len)
 	struct sockaddr_rxrpc *srx = (struct sockaddr_rxrpc *)saddr;
 	struct rxrpc_local *local;
 	struct rxrpc_sock *rx = rxrpc_sk(sock->sk);
+<<<<<<< HEAD
 	u16 service_id = srx->srx_service;
+=======
+	u16 service_id;
+>>>>>>> upstream/android-13
 	int ret;
 
 	_enter("%p,%p,%d", rx, saddr, len);
@@ -142,6 +158,10 @@ static int rxrpc_bind(struct socket *sock, struct sockaddr *saddr, int len)
 	ret = rxrpc_validate_address(rx, srx, len);
 	if (ret < 0)
 		goto error;
+<<<<<<< HEAD
+=======
+	service_id = srx->srx_service;
+>>>>>>> upstream/android-13
 
 	lock_sock(&rx->sk);
 
@@ -248,7 +268,11 @@ static int rxrpc_listen(struct socket *sock, int backlog)
 			ret = 0;
 			break;
 		}
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		ret = -EBUSY;
 		break;
@@ -269,6 +293,10 @@ static int rxrpc_listen(struct socket *sock, int backlog)
  * @gfp: The allocation constraints
  * @notify_rx: Where to send notifications instead of socket queue
  * @upgrade: Request service upgrade for call
+<<<<<<< HEAD
+=======
+ * @interruptibility: The call is interruptible, or can be canceled.
+>>>>>>> upstream/android-13
  * @debug_id: The debug ID for tracing to be assigned to the call
  *
  * Allow a kernel service to begin a call on the nominated socket.  This just
@@ -286,6 +314,10 @@ struct rxrpc_call *rxrpc_kernel_begin_call(struct socket *sock,
 					   gfp_t gfp,
 					   rxrpc_notify_rx_t notify_rx,
 					   bool upgrade,
+<<<<<<< HEAD
+=======
+					   enum rxrpc_interruptibility interruptibility,
+>>>>>>> upstream/android-13
 					   unsigned int debug_id)
 {
 	struct rxrpc_conn_parameters cp;
@@ -308,8 +340,15 @@ struct rxrpc_call *rxrpc_kernel_begin_call(struct socket *sock,
 		key = NULL; /* a no-security key */
 
 	memset(&p, 0, sizeof(p));
+<<<<<<< HEAD
 	p.user_call_ID = user_call_ID;
 	p.tx_total_len = tx_total_len;
+=======
+	p.user_call_ID		= user_call_ID;
+	p.tx_total_len		= tx_total_len;
+	p.interruptibility	= interruptibility;
+	p.kernel		= true;
+>>>>>>> upstream/android-13
 
 	memset(&cp, 0, sizeof(cp));
 	cp.local		= rx->local;
@@ -371,6 +410,7 @@ EXPORT_SYMBOL(rxrpc_kernel_end_call);
  * @sock: The socket the call is on
  * @call: The call to check
  *
+<<<<<<< HEAD
  * Allow a kernel service to find out whether a call is still alive - ie. we're
  * getting ACKs from the server.  Returns a number representing the life state
  * which can be compared to that returned by a previous call.
@@ -382,10 +422,20 @@ EXPORT_SYMBOL(rxrpc_kernel_end_call);
 u32 rxrpc_kernel_check_life(struct socket *sock, struct rxrpc_call *call)
 {
 	return call->acks_latest;
+=======
+ * Allow a kernel service to find out whether a call is still alive -
+ * ie. whether it has completed.
+ */
+bool rxrpc_kernel_check_life(const struct socket *sock,
+			     const struct rxrpc_call *call)
+{
+	return call->state != RXRPC_CALL_COMPLETE;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(rxrpc_kernel_check_life);
 
 /**
+<<<<<<< HEAD
  * rxrpc_kernel_check_call - Check a call's state
  * @sock: The socket the call is on
  * @call: The call to check
@@ -454,6 +504,20 @@ int rxrpc_kernel_retry_call(struct socket *sock, struct rxrpc_call *call,
 	return ret;
 }
 EXPORT_SYMBOL(rxrpc_kernel_retry_call);
+=======
+ * rxrpc_kernel_get_epoch - Retrieve the epoch value from a call.
+ * @sock: The socket the call is on
+ * @call: The call to query
+ *
+ * Allow a kernel service to retrieve the epoch value from a service call to
+ * see if the client at the other end rebooted.
+ */
+u32 rxrpc_kernel_get_epoch(struct socket *sock, struct rxrpc_call *call)
+{
+	return call->conn->proto.epoch;
+}
+EXPORT_SYMBOL(rxrpc_kernel_get_epoch);
+>>>>>>> upstream/android-13
 
 /**
  * rxrpc_kernel_new_call_notification - Get notifications of new calls
@@ -475,6 +539,34 @@ void rxrpc_kernel_new_call_notification(
 }
 EXPORT_SYMBOL(rxrpc_kernel_new_call_notification);
 
+<<<<<<< HEAD
+=======
+/**
+ * rxrpc_kernel_set_max_life - Set maximum lifespan on a call
+ * @sock: The socket the call is on
+ * @call: The call to configure
+ * @hard_timeout: The maximum lifespan of the call in jiffies
+ *
+ * Set the maximum lifespan of a call.  The call will end with ETIME or
+ * ETIMEDOUT if it takes longer than this.
+ */
+void rxrpc_kernel_set_max_life(struct socket *sock, struct rxrpc_call *call,
+			       unsigned long hard_timeout)
+{
+	unsigned long now;
+
+	mutex_lock(&call->user_mutex);
+
+	now = jiffies;
+	hard_timeout += now;
+	WRITE_ONCE(call->expect_term_by, hard_timeout);
+	rxrpc_reduce_call_timer(call, hard_timeout, now, rxrpc_timer_set_for_hard);
+
+	mutex_unlock(&call->user_mutex);
+}
+EXPORT_SYMBOL(rxrpc_kernel_set_max_life);
+
+>>>>>>> upstream/android-13
 /*
  * connect an RxRPC socket
  * - this just targets it at a specific destination; no actual connection
@@ -504,6 +596,10 @@ static int rxrpc_connect(struct socket *sock, struct sockaddr *addr,
 	switch (rx->sk.sk_state) {
 	case RXRPC_UNBOUND:
 		rx->sk.sk_state = RXRPC_CLIENT_UNBOUND;
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	case RXRPC_CLIENT_UNBOUND:
 	case RXRPC_CLIENT_BOUND:
 		break;
@@ -579,7 +675,11 @@ static int rxrpc_sendmsg(struct socket *sock, struct msghdr *m, size_t len)
 
 		rx->local = local;
 		rx->sk.sk_state = RXRPC_CLIENT_BOUND;
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case RXRPC_CLIENT_BOUND:
 		if (!m->msg_name &&
@@ -587,7 +687,11 @@ static int rxrpc_sendmsg(struct socket *sock, struct msghdr *m, size_t len)
 			m->msg_name = &rx->connect_srx;
 			m->msg_namelen = sizeof(rx->connect_srx);
 		}
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case RXRPC_SERVER_BOUND:
 	case RXRPC_SERVER_LISTENING:
 		ret = rxrpc_do_sendmsg(rx, m, len);
@@ -605,11 +709,31 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+int rxrpc_sock_set_min_security_level(struct sock *sk, unsigned int val)
+{
+	if (sk->sk_state != RXRPC_UNBOUND)
+		return -EISCONN;
+	if (val > RXRPC_SECURITY_MAX)
+		return -EINVAL;
+	lock_sock(sk);
+	rxrpc_sk(sk)->min_sec_level = val;
+	release_sock(sk);
+	return 0;
+}
+EXPORT_SYMBOL(rxrpc_sock_set_min_security_level);
+
+>>>>>>> upstream/android-13
 /*
  * set RxRPC socket options
  */
 static int rxrpc_setsockopt(struct socket *sock, int level, int optname,
+<<<<<<< HEAD
 			    char __user *optval, unsigned int optlen)
+=======
+			    sockptr_t optval, unsigned int optlen)
+>>>>>>> upstream/android-13
 {
 	struct rxrpc_sock *rx = rxrpc_sk(sock->sk);
 	unsigned int min_sec_level;
@@ -660,8 +784,13 @@ static int rxrpc_setsockopt(struct socket *sock, int level, int optname,
 			ret = -EISCONN;
 			if (rx->sk.sk_state != RXRPC_UNBOUND)
 				goto error;
+<<<<<<< HEAD
 			ret = get_user(min_sec_level,
 				       (unsigned int __user *) optval);
+=======
+			ret = copy_from_sockptr(&min_sec_level, optval,
+				       sizeof(unsigned int));
+>>>>>>> upstream/android-13
 			if (ret < 0)
 				goto error;
 			ret = -EINVAL;
@@ -679,7 +808,11 @@ static int rxrpc_setsockopt(struct socket *sock, int level, int optname,
 			if (rx->sk.sk_state != RXRPC_SERVER_BOUND2)
 				goto error;
 			ret = -EFAULT;
+<<<<<<< HEAD
 			if (copy_from_user(service_upgrade, optval,
+=======
+			if (copy_from_sockptr(service_upgrade, optval,
+>>>>>>> upstream/android-13
 					   sizeof(service_upgrade)) != 0)
 				goto error;
 			ret = -EINVAL;
@@ -981,7 +1114,11 @@ static int __init af_rxrpc_init(void)
 	int ret = -1;
 	unsigned int tmp;
 
+<<<<<<< HEAD
 	BUILD_BUG_ON(sizeof(struct rxrpc_skb_priv) > FIELD_SIZEOF(struct sk_buff, cb));
+=======
+	BUILD_BUG_ON(sizeof(struct rxrpc_skb_priv) > sizeof_field(struct sk_buff, cb));
+>>>>>>> upstream/android-13
 
 	get_random_bytes(&tmp, sizeof(tmp));
 	tmp &= 0x3fffffff;

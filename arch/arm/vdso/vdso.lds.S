@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Adapted from arm64 version.
  *
@@ -5,6 +9,7 @@
  *
  * Copyright (C) 2012 ARM Limited
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  * Author: Will Deacon <will.deacon@arm.com>
  * Heavily based on the vDSO linker scripts for other archs.
  */
@@ -82,6 +89,11 @@ VERSION
 	global:
 		__vdso_clock_gettime;
 		__vdso_gettimeofday;
+<<<<<<< HEAD
+=======
+		__vdso_clock_getres;
+		__vdso_clock_gettime64;
+>>>>>>> upstream/android-13
 	local: *;
 	};
 }

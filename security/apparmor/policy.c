@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * AppArmor security module
  *
@@ -6,12 +10,15 @@
  * Copyright (C) 1998-2008 Novell/SUSE
  * Copyright 2009-2010 Canonical Ltd.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, version 2 of the
  * License.
  *
  *
+=======
+>>>>>>> upstream/android-13
  * AppArmor policy is based around profiles, which contain the rules a
  * task is confined by.  Every task in the system has a profile attached
  * to it determined either by matching "unconfined" tasks against the
@@ -192,9 +199,15 @@ static void aa_free_data(void *ptr, void *arg)
 {
 	struct aa_data *data = ptr;
 
+<<<<<<< HEAD
 	kzfree(data->data);
 	kzfree(data->key);
 	kzfree(data);
+=======
+	kfree_sensitive(data->data);
+	kfree_sensitive(data->key);
+	kfree_sensitive(data);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -222,16 +235,29 @@ void aa_free_profile(struct aa_profile *profile)
 	aa_put_profile(rcu_access_pointer(profile->parent));
 
 	aa_put_ns(profile->ns);
+<<<<<<< HEAD
 	kzfree(profile->rename);
+=======
+	kfree_sensitive(profile->rename);
+>>>>>>> upstream/android-13
 
 	aa_free_file_rules(&profile->file);
 	aa_free_cap_rules(&profile->caps);
 	aa_free_rlimit_rules(&profile->rlimits);
 
 	for (i = 0; i < profile->xattr_count; i++)
+<<<<<<< HEAD
 		kzfree(profile->xattrs[i]);
 	kzfree(profile->xattrs);
 	kzfree(profile->dirname);
+=======
+		kfree_sensitive(profile->xattrs[i]);
+	kfree_sensitive(profile->xattrs);
+	for (i = 0; i < profile->secmark_count; i++)
+		kfree_sensitive(profile->secmark[i].label);
+	kfree_sensitive(profile->secmark);
+	kfree_sensitive(profile->dirname);
+>>>>>>> upstream/android-13
 	aa_put_dfa(profile->xmatch);
 	aa_put_dfa(profile->policy.dfa);
 
@@ -239,6 +265,7 @@ void aa_free_profile(struct aa_profile *profile)
 		rht = profile->data;
 		profile->data = NULL;
 		rhashtable_free_and_destroy(rht, aa_free_data, NULL);
+<<<<<<< HEAD
 		kzfree(rht);
 	}
 
@@ -246,6 +273,16 @@ void aa_free_profile(struct aa_profile *profile)
 	aa_put_loaddata(profile->rawdata);
 
 	kzfree(profile);
+=======
+		kfree_sensitive(rht);
+	}
+
+	kfree_sensitive(profile->hash);
+	aa_put_loaddata(profile->rawdata);
+	aa_label_destroy(&profile->label);
+
+	kfree_sensitive(profile);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -584,7 +621,11 @@ static int replacement_allowed(struct aa_profile *profile, int noreplace,
 {
 	if (profile) {
 		if (profile->label.flags & FLAG_IMMUTIBLE) {
+<<<<<<< HEAD
 			*info = "cannot replace immutible profile";
+=======
+			*info = "cannot replace immutable profile";
+>>>>>>> upstream/android-13
 			return -EPERM;
 		} else if (noreplace) {
 			*info = "profile already exists";
@@ -858,7 +899,11 @@ static struct aa_profile *update_to_newest_parent(struct aa_profile *new)
 ssize_t aa_replace_profiles(struct aa_ns *policy_ns, struct aa_label *label,
 			    u32 mask, struct aa_loaddata *udata)
 {
+<<<<<<< HEAD
 	const char *ns_name, *info = NULL;
+=======
+	const char *ns_name = NULL, *info = NULL;
+>>>>>>> upstream/android-13
 	struct aa_ns *ns = NULL;
 	struct aa_load_ent *ent, *tmp;
 	struct aa_loaddata *rawdata_ent;
@@ -1045,6 +1090,10 @@ ssize_t aa_replace_profiles(struct aa_ns *policy_ns, struct aa_label *label,
 out:
 	aa_put_ns(ns);
 	aa_put_loaddata(udata);
+<<<<<<< HEAD
+=======
+	kfree(ns_name);
+>>>>>>> upstream/android-13
 
 	if (error)
 		return error;

@@ -5,7 +5,11 @@
  * License as published by the Free Software Foundation.
  */
 #include <uapi/linux/bpf.h>
+<<<<<<< HEAD
 #include "bpf_helpers.h"
+=======
+#include <bpf/bpf_helpers.h>
+>>>>>>> upstream/android-13
 
 /* from /sys/kernel/debug/tracing/events/task/task_rename/format */
 struct task_rename {

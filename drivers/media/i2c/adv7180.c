@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * adv7180.c Analog Devices ADV7180 video decoder driver
  * Copyright (c) 2009 Intel Corporation
  * Copyright (C) 2013 Cogent Embedded, Inc.
  * Copyright (C) 2013 Renesas Solutions Corp.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -14,6 +19,9 @@
  * GNU General Public License for more details.
  */
 
+=======
+ */
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/errno.h>
@@ -103,6 +111,10 @@
 #define ADV7180_REG_SHAP_FILTER_CTL_1	0x0017
 #define ADV7180_REG_CTRL_2		0x001d
 #define ADV7180_REG_VSYNC_FIELD_CTL_1	0x0031
+<<<<<<< HEAD
+=======
+#define ADV7180_VSYNC_FIELD_CTL_1_NEWAV 0x12
+>>>>>>> upstream/android-13
 #define ADV7180_REG_MANUAL_WIN_CTL_1	0x003d
 #define ADV7180_REG_MANUAL_WIN_CTL_2	0x003e
 #define ADV7180_REG_MANUAL_WIN_CTL_3	0x003f
@@ -189,6 +201,12 @@
 
 #define V4L2_CID_ADV_FAST_SWITCH	(V4L2_CID_USER_ADV7180_BASE + 0x00)
 
+<<<<<<< HEAD
+=======
+/* Initial number of frames to skip to avoid possible garbage */
+#define ADV7180_NUM_OF_SKIP_FRAMES       2
+
+>>>>>>> upstream/android-13
 struct adv7180_state;
 
 #define ADV7180_FLAG_RESET_POWERED	BIT(0)
@@ -211,6 +229,10 @@ struct adv7180_state {
 	struct mutex		mutex; /* mutual excl. when accessing chip */
 	int			irq;
 	struct gpio_desc	*pwdn_gpio;
+<<<<<<< HEAD
+=======
+	struct gpio_desc	*rst_gpio;
+>>>>>>> upstream/android-13
 	v4l2_std_id		curr_norm;
 	bool			powered;
 	bool			streaming;
@@ -222,6 +244,10 @@ struct adv7180_state {
 	struct i2c_client	*vpp_client;
 	const struct adv7180_chip_info *chip_info;
 	enum v4l2_field		field;
+<<<<<<< HEAD
+=======
+	bool			force_bt656_4;
+>>>>>>> upstream/android-13
 };
 #define to_adv7180_sd(_ctrl) (&container_of(_ctrl->handler,		\
 					    struct adv7180_state,	\
@@ -490,6 +516,22 @@ static void adv7180_set_power_pin(struct adv7180_state *state, bool on)
 	}
 }
 
+<<<<<<< HEAD
+=======
+static void adv7180_set_reset_pin(struct adv7180_state *state, bool on)
+{
+	if (!state->rst_gpio)
+		return;
+
+	if (on) {
+		gpiod_set_value_cansleep(state->rst_gpio, 1);
+	} else {
+		gpiod_set_value_cansleep(state->rst_gpio, 0);
+		usleep_range(5000, 10000);
+	}
+}
+
+>>>>>>> upstream/android-13
 static int adv7180_set_power(struct adv7180_state *state, bool on)
 {
 	u8 val;
@@ -639,7 +681,11 @@ static void adv7180_exit_controls(struct adv7180_state *state)
 }
 
 static int adv7180_enum_mbus_code(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 				  struct v4l2_subdev_pad_config *cfg,
+=======
+				  struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 				  struct v4l2_subdev_mbus_code_enum *code)
 {
 	if (code->index != 0)
@@ -705,13 +751,21 @@ static int adv7180_set_field_mode(struct adv7180_state *state)
 }
 
 static int adv7180_get_pad_format(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 				  struct v4l2_subdev_pad_config *cfg,
+=======
+				  struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 				  struct v4l2_subdev_format *format)
 {
 	struct adv7180_state *state = to_state(sd);
 
 	if (format->which == V4L2_SUBDEV_FORMAT_TRY) {
+<<<<<<< HEAD
 		format->format = *v4l2_subdev_get_try_format(sd, cfg, 0);
+=======
+		format->format = *v4l2_subdev_get_try_format(sd, sd_state, 0);
+>>>>>>> upstream/android-13
 	} else {
 		adv7180_mbus_fmt(sd, &format->format);
 		format->format.field = state->field;
@@ -721,7 +775,11 @@ static int adv7180_get_pad_format(struct v4l2_subdev *sd,
 }
 
 static int adv7180_set_pad_format(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 				  struct v4l2_subdev_pad_config *cfg,
+=======
+				  struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 				  struct v4l2_subdev_format *format)
 {
 	struct adv7180_state *state = to_state(sd);
@@ -732,7 +790,11 @@ static int adv7180_set_pad_format(struct v4l2_subdev *sd,
 	case V4L2_FIELD_NONE:
 		if (state->chip_info->flags & ADV7180_FLAG_I2P)
 			break;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		format->format.field = V4L2_FIELD_ALTERNATE;
 		break;
@@ -748,20 +810,45 @@ static int adv7180_set_pad_format(struct v4l2_subdev *sd,
 			adv7180_set_power(state, true);
 		}
 	} else {
+<<<<<<< HEAD
 		framefmt = v4l2_subdev_get_try_format(sd, cfg, 0);
+=======
+		framefmt = v4l2_subdev_get_try_format(sd, sd_state, 0);
+>>>>>>> upstream/android-13
 		*framefmt = format->format;
 	}
 
 	return ret;
 }
 
+<<<<<<< HEAD
 static int adv7180_g_mbus_config(struct v4l2_subdev *sd,
 				 struct v4l2_mbus_config *cfg)
+=======
+static int adv7180_init_cfg(struct v4l2_subdev *sd,
+			    struct v4l2_subdev_state *sd_state)
+{
+	struct v4l2_subdev_format fmt = {
+		.which = sd_state ? V4L2_SUBDEV_FORMAT_TRY
+		: V4L2_SUBDEV_FORMAT_ACTIVE,
+	};
+
+	return adv7180_set_pad_format(sd, sd_state, &fmt);
+}
+
+static int adv7180_get_mbus_config(struct v4l2_subdev *sd,
+				   unsigned int pad,
+				   struct v4l2_mbus_config *cfg)
+>>>>>>> upstream/android-13
 {
 	struct adv7180_state *state = to_state(sd);
 
 	if (state->chip_info->flags & ADV7180_FLAG_MIPI_CSI2) {
+<<<<<<< HEAD
 		cfg->type = V4L2_MBUS_CSI2;
+=======
+		cfg->type = V4L2_MBUS_CSI2_DPHY;
+>>>>>>> upstream/android-13
 		cfg->flags = V4L2_MBUS_CSI2_1_LANE |
 				V4L2_MBUS_CSI2_CHANNEL_0 |
 				V4L2_MBUS_CSI2_CONTINUOUS_CLOCK;
@@ -778,6 +865,16 @@ static int adv7180_g_mbus_config(struct v4l2_subdev *sd,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int adv7180_get_skip_frames(struct v4l2_subdev *sd, u32 *frames)
+{
+	*frames = ADV7180_NUM_OF_SKIP_FRAMES;
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int adv7180_g_pixelaspect(struct v4l2_subdev *sd, struct v4l2_fract *aspect)
 {
 	struct adv7180_state *state = to_state(sd);
@@ -840,7 +937,10 @@ static const struct v4l2_subdev_video_ops adv7180_video_ops = {
 	.querystd = adv7180_querystd,
 	.g_input_status = adv7180_g_input_status,
 	.s_routing = adv7180_s_routing,
+<<<<<<< HEAD
 	.g_mbus_config = adv7180_g_mbus_config,
+=======
+>>>>>>> upstream/android-13
 	.g_pixelaspect = adv7180_g_pixelaspect,
 	.g_tvnorms = adv7180_g_tvnorms,
 	.s_stream = adv7180_s_stream,
@@ -853,15 +953,31 @@ static const struct v4l2_subdev_core_ops adv7180_core_ops = {
 };
 
 static const struct v4l2_subdev_pad_ops adv7180_pad_ops = {
+<<<<<<< HEAD
 	.enum_mbus_code = adv7180_enum_mbus_code,
 	.set_fmt = adv7180_set_pad_format,
 	.get_fmt = adv7180_get_pad_format,
+=======
+	.init_cfg = adv7180_init_cfg,
+	.enum_mbus_code = adv7180_enum_mbus_code,
+	.set_fmt = adv7180_set_pad_format,
+	.get_fmt = adv7180_get_pad_format,
+	.get_mbus_config = adv7180_get_mbus_config,
+};
+
+static const struct v4l2_subdev_sensor_ops adv7180_sensor_ops = {
+	.g_skip_frames = adv7180_get_skip_frames,
+>>>>>>> upstream/android-13
 };
 
 static const struct v4l2_subdev_ops adv7180_ops = {
 	.core = &adv7180_core_ops,
 	.video = &adv7180_video_ops,
 	.pad = &adv7180_pad_ops,
+<<<<<<< HEAD
+=======
+	.sensor = &adv7180_sensor_ops,
+>>>>>>> upstream/android-13
 };
 
 static irqreturn_t adv7180_irq(int irq, void *devid)
@@ -944,10 +1060,33 @@ static int adv7182_init(struct adv7180_state *state)
 		adv7180_write(state, ADV7180_REG_EXTENDED_OUTPUT_CONTROL, 0x57);
 		adv7180_write(state, ADV7180_REG_CTRL_2, 0xc0);
 	} else {
+<<<<<<< HEAD
 		if (state->chip_info->flags & ADV7180_FLAG_V2)
 			adv7180_write(state,
 				      ADV7180_REG_EXTENDED_OUTPUT_CONTROL,
 				      0x17);
+=======
+		if (state->chip_info->flags & ADV7180_FLAG_V2) {
+			if (state->force_bt656_4) {
+				/* ITU-R BT.656-4 compatible */
+				adv7180_write(state,
+					      ADV7180_REG_EXTENDED_OUTPUT_CONTROL,
+					      ADV7180_EXTENDED_OUTPUT_CONTROL_NTSCDIS);
+				/* Manually set NEWAVMODE */
+				adv7180_write(state,
+					      ADV7180_REG_VSYNC_FIELD_CTL_1,
+					      ADV7180_VSYNC_FIELD_CTL_1_NEWAV);
+				/* Manually set V bit end position in NTSC mode */
+				adv7180_write(state,
+					      ADV7180_REG_NTSC_V_BIT_END,
+					      ADV7180_NTSC_V_BIT_END_MANUAL_NVEND);
+			} else {
+				adv7180_write(state,
+					      ADV7180_REG_EXTENDED_OUTPUT_CONTROL,
+					      0x17);
+			}
+		}
+>>>>>>> upstream/android-13
 		else
 			adv7180_write(state,
 				      ADV7180_REG_EXTENDED_OUTPUT_CONTROL,
@@ -1244,6 +1383,10 @@ static int init_device(struct adv7180_state *state)
 	mutex_lock(&state->mutex);
 
 	adv7180_set_power_pin(state, true);
+<<<<<<< HEAD
+=======
+	adv7180_set_reset_pin(state, false);
+>>>>>>> upstream/android-13
 
 	adv7180_write(state, ADV7180_REG_PWR_MAN, ADV7180_PWR_MAN_RES);
 	usleep_range(5000, 10000);
@@ -1295,6 +1438,10 @@ out_unlock:
 static int adv7180_probe(struct i2c_client *client,
 			 const struct i2c_device_id *id)
 {
+<<<<<<< HEAD
+=======
+	struct device_node *np = client->dev.of_node;
+>>>>>>> upstream/android-13
 	struct adv7180_state *state;
 	struct v4l2_subdev *sd;
 	int ret;
@@ -1303,9 +1450,12 @@ static int adv7180_probe(struct i2c_client *client,
 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_BYTE_DATA))
 		return -EIO;
 
+<<<<<<< HEAD
 	v4l_info(client, "chip found @ 0x%02x (%s)\n",
 		 client->addr, client->adapter->name);
 
+=======
+>>>>>>> upstream/android-13
 	state = devm_kzalloc(&client->dev, sizeof(*state), GFP_KERNEL);
 	if (state == NULL)
 		return -ENOMEM;
@@ -1322,6 +1472,7 @@ static int adv7180_probe(struct i2c_client *client,
 		return ret;
 	}
 
+<<<<<<< HEAD
 	if (state->chip_info->flags & ADV7180_FLAG_MIPI_CSI2) {
 		state->csi_client = i2c_new_dummy(client->adapter,
 				ADV7180_DEFAULT_CSI_I2C_ADDR);
@@ -1334,6 +1485,31 @@ static int adv7180_probe(struct i2c_client *client,
 				ADV7180_DEFAULT_VPP_I2C_ADDR);
 		if (!state->vpp_client) {
 			ret = -ENOMEM;
+=======
+	state->rst_gpio = devm_gpiod_get_optional(&client->dev, "reset",
+						  GPIOD_OUT_HIGH);
+	if (IS_ERR(state->rst_gpio)) {
+		ret = PTR_ERR(state->rst_gpio);
+		v4l_err(client, "request for reset pin failed: %d\n", ret);
+		return ret;
+	}
+
+	if (of_property_read_bool(np, "adv,force-bt656-4"))
+		state->force_bt656_4 = true;
+
+	if (state->chip_info->flags & ADV7180_FLAG_MIPI_CSI2) {
+		state->csi_client = i2c_new_dummy_device(client->adapter,
+				ADV7180_DEFAULT_CSI_I2C_ADDR);
+		if (IS_ERR(state->csi_client))
+			return PTR_ERR(state->csi_client);
+	}
+
+	if (state->chip_info->flags & ADV7180_FLAG_I2P) {
+		state->vpp_client = i2c_new_dummy_device(client->adapter,
+				ADV7180_DEFAULT_VPP_I2C_ADDR);
+		if (IS_ERR(state->vpp_client)) {
+			ret = PTR_ERR(state->vpp_client);
+>>>>>>> upstream/android-13
 			goto err_unregister_csi_client;
 		}
 	}
@@ -1376,8 +1552,24 @@ static int adv7180_probe(struct i2c_client *client,
 	if (ret)
 		goto err_free_irq;
 
+<<<<<<< HEAD
 	return 0;
 
+=======
+	mutex_lock(&state->mutex);
+	ret = adv7180_read(state, ADV7180_REG_IDENT);
+	mutex_unlock(&state->mutex);
+	if (ret < 0)
+		goto err_v4l2_async_unregister;
+
+	v4l_info(client, "chip id 0x%x found @ 0x%02x (%s)\n",
+		 ret, client->addr, client->adapter->name);
+
+	return 0;
+
+err_v4l2_async_unregister:
+	v4l2_async_unregister_subdev(sd);
+>>>>>>> upstream/android-13
 err_free_irq:
 	if (state->irq > 0)
 		free_irq(client->irq, state);
@@ -1409,6 +1601,10 @@ static int adv7180_remove(struct i2c_client *client)
 	i2c_unregister_device(state->vpp_client);
 	i2c_unregister_device(state->csi_client);
 
+<<<<<<< HEAD
+=======
+	adv7180_set_reset_pin(state, true);
+>>>>>>> upstream/android-13
 	adv7180_set_power_pin(state, false);
 
 	mutex_destroy(&state->mutex);
@@ -1435,8 +1631,12 @@ MODULE_DEVICE_TABLE(i2c, adv7180_id);
 #ifdef CONFIG_PM_SLEEP
 static int adv7180_suspend(struct device *dev)
 {
+<<<<<<< HEAD
 	struct i2c_client *client = to_i2c_client(dev);
 	struct v4l2_subdev *sd = i2c_get_clientdata(client);
+=======
+	struct v4l2_subdev *sd = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	struct adv7180_state *state = to_state(sd);
 
 	return adv7180_set_power(state, false);
@@ -1444,8 +1644,12 @@ static int adv7180_suspend(struct device *dev)
 
 static int adv7180_resume(struct device *dev)
 {
+<<<<<<< HEAD
 	struct i2c_client *client = to_i2c_client(dev);
 	struct v4l2_subdev *sd = i2c_get_clientdata(client);
+=======
+	struct v4l2_subdev *sd = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	struct adv7180_state *state = to_state(sd);
 	int ret;
 

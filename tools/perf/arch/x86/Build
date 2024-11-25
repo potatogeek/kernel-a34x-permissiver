@@ -1,2 +1,7 @@
+<<<<<<< HEAD
 libperf-y += util/
 libperf-y += tests/
+=======
+perf-y += util/
+perf-y += tests/
+>>>>>>> upstream/android-13

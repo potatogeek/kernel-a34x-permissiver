@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * header file for ADAV80X parts
  *
  * Copyright 2011 Analog Devices Inc.
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2 or later.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ADAV80X_H

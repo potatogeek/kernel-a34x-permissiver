@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2011-2012 Calxeda, Inc.
  *
@@ -12,6 +13,11 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2011-2012 Calxeda, Inc.
+>>>>>>> upstream/android-13
  */
 #include <linux/types.h>
 #include <linux/kernel.h>

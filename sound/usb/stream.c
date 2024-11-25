@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -12,6 +13,10 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  */
 
 
@@ -38,6 +43,18 @@
 #include "clock.h"
 #include "stream.h"
 #include "power.h"
+<<<<<<< HEAD
+=======
+#include "media.h"
+
+static void audioformat_free(struct audioformat *fp)
+{
+	list_del(&fp->list); /* unlink for avoiding double-free */
+	kfree(fp->rate_table);
+	kfree(fp->chmap);
+	kfree(fp);
+}
+>>>>>>> upstream/android-13
 
 /*
  * free a substream
@@ -48,6 +65,7 @@ static void free_substream(struct snd_usb_substream *subs)
 
 	if (!subs->num_formats)
 		return; /* not initialized */
+<<<<<<< HEAD
 	list_for_each_entry_safe(fp, n, &subs->fmt_list, list) {
 		kfree(fp->rate_table);
 		kfree(fp->chmap);
@@ -55,6 +73,12 @@ static void free_substream(struct snd_usb_substream *subs)
 	}
 	kfree(subs->rate_list.list);
 	kfree(subs->str_pd);
+=======
+	list_for_each_entry_safe(fp, n, &subs->fmt_list, list)
+		audioformat_free(fp);
+	kfree(subs->str_pd);
+	snd_media_stream_delete(subs);
+>>>>>>> upstream/android-13
 }
 
 
@@ -72,6 +96,7 @@ static void snd_usb_audio_stream_free(struct snd_usb_stream *stream)
 static void snd_usb_audio_pcm_free(struct snd_pcm *pcm)
 {
 	struct snd_usb_stream *stream = pcm->private_data;
+<<<<<<< HEAD
 	struct snd_usb_audio *chip;
 
 	if (stream) {
@@ -80,6 +105,11 @@ static void snd_usb_audio_pcm_free(struct snd_pcm *pcm)
 		stream->pcm = NULL;
 		snd_usb_audio_stream_free(stream);
 		mutex_unlock(&chip->dev_lock);
+=======
+	if (stream) {
+		stream->pcm = NULL;
+		snd_usb_audio_stream_free(stream);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -100,10 +130,18 @@ static void snd_usb_init_substream(struct snd_usb_stream *as,
 	subs->stream = as;
 	subs->direction = stream;
 	subs->dev = as->chip->dev;
+<<<<<<< HEAD
 	subs->txfr_quirk = as->chip->txfr_quirk;
 	subs->tx_length_quirk = as->chip->tx_length_quirk;
 	subs->speed = snd_usb_get_speed(subs->dev);
 	subs->pkt_offset_adj = 0;
+=======
+	subs->txfr_quirk = !!(as->chip->quirk_flags & QUIRK_FLAG_ALIGN_TRANSFER);
+	subs->tx_length_quirk = !!(as->chip->quirk_flags & QUIRK_FLAG_TX_LENGTH);
+	subs->speed = snd_usb_get_speed(subs->dev);
+	subs->pkt_offset_adj = 0;
+	subs->stream_offset_adj = 0;
+>>>>>>> upstream/android-13
 
 	snd_usb_set_pcm_ops(as->pcm, stream);
 
@@ -512,6 +550,12 @@ static int __snd_usb_add_audio_stream(struct snd_usb_audio *chip,
 		subs = &as->substream[stream];
 		if (subs->ep_num)
 			continue;
+<<<<<<< HEAD
+=======
+		if (snd_device_get_state(chip->card, as->pcm) !=
+		    SNDRV_DEV_BUILD)
+			chip->need_delayed_register = true;
+>>>>>>> upstream/android-13
 		err = snd_pcm_new_stream(as->pcm, stream, 1);
 		if (err < 0)
 			return err;
@@ -847,8 +891,12 @@ found_clock:
 	/* ok, let's parse further... */
 	if (snd_usb_parse_audio_format(chip, fp, format,
 					fmt, stream) < 0) {
+<<<<<<< HEAD
 		kfree(fp->rate_table);
 		kfree(fp);
+=======
+		audioformat_free(fp);
+>>>>>>> upstream/android-13
 		return NULL;
 	}
 
@@ -1059,9 +1107,13 @@ found_clock:
 
 		pd = kzalloc(sizeof(*pd), GFP_KERNEL);
 		if (!pd) {
+<<<<<<< HEAD
 			kfree(fp->chmap);
 			kfree(fp->rate_table);
 			kfree(fp);
+=======
+			audioformat_free(fp);
+>>>>>>> upstream/android-13
 			return NULL;
 		}
 		pd->pd_id = (stream == SNDRV_PCM_STREAM_PLAYBACK) ?
@@ -1080,9 +1132,13 @@ found_clock:
 		/* ok, let's parse further... */
 		if (snd_usb_parse_audio_format_v3(chip, fp, as, stream) < 0) {
 			kfree(pd);
+<<<<<<< HEAD
 			kfree(fp->chmap);
 			kfree(fp->rate_table);
 			kfree(fp);
+=======
+			audioformat_free(fp);
+>>>>>>> upstream/android-13
 			return NULL;
 		}
 	}
@@ -1093,7 +1149,13 @@ found_clock:
 	return fp;
 }
 
+<<<<<<< HEAD
 int snd_usb_parse_audio_interface(struct snd_usb_audio *chip, int iface_no)
+=======
+static int __snd_usb_parse_audio_interface(struct snd_usb_audio *chip,
+					   int iface_no,
+					   bool *has_non_pcm, bool non_pcm)
+>>>>>>> upstream/android-13
 {
 	struct usb_device *dev;
 	struct usb_interface *iface;
@@ -1156,9 +1218,14 @@ int snd_usb_parse_audio_interface(struct snd_usb_audio *chip, int iface_no)
 			dev_dbg(&dev->dev, "%u:%d: unknown interface protocol %#02x, assuming v1\n",
 				iface_no, altno, protocol);
 			protocol = UAC_VERSION_1;
+<<<<<<< HEAD
 			/* fall through */
 		case UAC_VERSION_1:
 			/* fall through */
+=======
+			fallthrough;
+		case UAC_VERSION_1:
+>>>>>>> upstream/android-13
 		case UAC_VERSION_2: {
 			int bm_quirk = 0;
 
@@ -1194,6 +1261,21 @@ int snd_usb_parse_audio_interface(struct snd_usb_audio *chip, int iface_no)
 		else if (IS_ERR(fp))
 			return PTR_ERR(fp);
 
+<<<<<<< HEAD
+=======
+		if (fp->fmt_type != UAC_FORMAT_TYPE_I)
+			*has_non_pcm = true;
+		if ((fp->fmt_type == UAC_FORMAT_TYPE_I) == non_pcm) {
+			audioformat_free(fp);
+			kfree(pd);
+			fp = NULL;
+			pd = NULL;
+			continue;
+		}
+
+		snd_usb_audioformat_set_sync_ep(chip, fp);
+
+>>>>>>> upstream/android-13
 		dev_dbg(&dev->dev, "%u:%d: add audio endpoint %#x\n", iface_no, altno, fp->endpoint);
 		if (protocol == UAC_VERSION_3)
 			err = snd_usb_add_audio_stream_v3(chip, stream, fp, pd);
@@ -1201,6 +1283,7 @@ int snd_usb_parse_audio_interface(struct snd_usb_audio *chip, int iface_no)
 			err = snd_usb_add_audio_stream(chip, stream, fp);
 
 		if (err < 0) {
+<<<<<<< HEAD
 			list_del(&fp->list); /* unlink for avoiding double-free */
 			kfree(pd);
 			kfree(fp->rate_table);
@@ -1212,7 +1295,59 @@ int snd_usb_parse_audio_interface(struct snd_usb_audio *chip, int iface_no)
 		usb_set_interface(chip->dev, iface_no, altno);
 		snd_usb_init_pitch(chip, iface_no, alts, fp);
 		snd_usb_init_sample_rate(chip, iface_no, alts, fp, fp->rate_max);
+=======
+			audioformat_free(fp);
+			kfree(pd);
+			return err;
+		}
+
+		/* add endpoints */
+		err = snd_usb_add_endpoint(chip, fp->endpoint,
+					   SND_USB_ENDPOINT_TYPE_DATA);
+		if (err < 0)
+			return err;
+
+		if (fp->sync_ep) {
+			err = snd_usb_add_endpoint(chip, fp->sync_ep,
+						   fp->implicit_fb ?
+						   SND_USB_ENDPOINT_TYPE_DATA :
+						   SND_USB_ENDPOINT_TYPE_SYNC);
+			if (err < 0)
+				return err;
+		}
+
+		/* try to set the interface... */
+		usb_set_interface(chip->dev, iface_no, 0);
+		snd_usb_init_pitch(chip, fp);
+		snd_usb_init_sample_rate(chip, fp, fp->rate_max);
+		usb_set_interface(chip->dev, iface_no, altno);
+		if (protocol > UAC_VERSION_1)
+			snd_vendor_set_interface(chip->dev, alts, iface_no, 0);
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+int snd_usb_parse_audio_interface(struct snd_usb_audio *chip, int iface_no)
+{
+	int err;
+	bool has_non_pcm = false;
+
+	/* parse PCM formats */
+	err = __snd_usb_parse_audio_interface(chip, iface_no, &has_non_pcm, false);
+	if (err < 0)
+		return err;
+
+	if (has_non_pcm) {
+		/* parse non-PCM formats */
+		err = __snd_usb_parse_audio_interface(chip, iface_no, &has_non_pcm, true);
+		if (err < 0)
+			return err;
+	}
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13

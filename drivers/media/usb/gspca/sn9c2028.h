@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * SN9C2028 common functions
  *
  * Copyright (C) 2009 Theodore Kilgore <kilgota@auburn,edu>
  *
  * Based closely upon the file gspca/pac_common.h
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 static const unsigned char sn9c2028_sof_marker[] = {

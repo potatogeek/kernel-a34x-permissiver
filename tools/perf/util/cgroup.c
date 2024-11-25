@@ -1,10 +1,14 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 #include "util.h"
 #include "../perf.h"
+=======
+>>>>>>> upstream/android-13
 #include <subcmd/parse-options.h>
 #include "evsel.h"
 #include "cgroup.h"
 #include "evlist.h"
+<<<<<<< HEAD
 #include <linux/stringify.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -70,6 +74,32 @@ cgroupfs_find_mountpoint(char *buf, size_t maxlen)
 	}
 	return -1;
 }
+=======
+#include "rblist.h"
+#include "metricgroup.h"
+#include "stat.h"
+#include <linux/zalloc.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/statfs.h>
+#include <fcntl.h>
+#include <stdlib.h>
+#include <string.h>
+#include <api/fs/fs.h>
+#include <ftw.h>
+#include <regex.h>
+
+int nr_cgroups;
+bool cgrp_event_expanded;
+
+/* used to match cgroup name with patterns */
+struct cgroup_name {
+	struct list_head list;
+	bool used;
+	char name[];
+};
+static LIST_HEAD(cgroup_list);
+>>>>>>> upstream/android-13
 
 static int open_cgroup(const char *name)
 {
@@ -78,7 +108,11 @@ static int open_cgroup(const char *name)
 	int fd;
 
 
+<<<<<<< HEAD
 	if (cgroupfs_find_mountpoint(mnt, PATH_MAX + 1))
+=======
+	if (cgroupfs_find_mountpoint(mnt, PATH_MAX + 1, "perf_event"))
+>>>>>>> upstream/android-13
 		return -1;
 
 	scnprintf(path, PATH_MAX, "%s/%s", mnt, name);
@@ -90,9 +124,58 @@ static int open_cgroup(const char *name)
 	return fd;
 }
 
+<<<<<<< HEAD
 static struct cgroup *evlist__find_cgroup(struct perf_evlist *evlist, const char *str)
 {
 	struct perf_evsel *counter;
+=======
+#ifdef HAVE_FILE_HANDLE
+int read_cgroup_id(struct cgroup *cgrp)
+{
+	char path[PATH_MAX + 1];
+	char mnt[PATH_MAX + 1];
+	struct {
+		struct file_handle fh;
+		uint64_t cgroup_id;
+	} handle;
+	int mount_id;
+
+	if (cgroupfs_find_mountpoint(mnt, PATH_MAX + 1, "perf_event"))
+		return -1;
+
+	scnprintf(path, PATH_MAX, "%s/%s", mnt, cgrp->name);
+
+	handle.fh.handle_bytes = sizeof(handle.cgroup_id);
+	if (name_to_handle_at(AT_FDCWD, path, &handle.fh, &mount_id, 0) < 0)
+		return -1;
+
+	cgrp->id = handle.cgroup_id;
+	return 0;
+}
+#endif  /* HAVE_FILE_HANDLE */
+
+#ifndef CGROUP2_SUPER_MAGIC
+#define CGROUP2_SUPER_MAGIC  0x63677270
+#endif
+
+int cgroup_is_v2(const char *subsys)
+{
+	char mnt[PATH_MAX + 1];
+	struct statfs stbuf;
+
+	if (cgroupfs_find_mountpoint(mnt, PATH_MAX + 1, subsys))
+		return -1;
+
+	if (statfs(mnt, &stbuf) < 0)
+		return -1;
+
+	return (stbuf.f_type == CGROUP2_SUPER_MAGIC);
+}
+
+static struct cgroup *evlist__find_cgroup(struct evlist *evlist, const char *str)
+{
+	struct evsel *counter;
+>>>>>>> upstream/android-13
 	/*
 	 * check if cgrp is already defined, if so we reuse it
 	 */
@@ -106,7 +189,11 @@ static struct cgroup *evlist__find_cgroup(struct perf_evlist *evlist, const char
 	return NULL;
 }
 
+<<<<<<< HEAD
 static struct cgroup *cgroup__new(const char *name)
+=======
+static struct cgroup *cgroup__new(const char *name, bool do_open)
+>>>>>>> upstream/android-13
 {
 	struct cgroup *cgroup = zalloc(sizeof(*cgroup));
 
@@ -116,20 +203,36 @@ static struct cgroup *cgroup__new(const char *name)
 		cgroup->name = strdup(name);
 		if (!cgroup->name)
 			goto out_err;
+<<<<<<< HEAD
 		cgroup->fd = open_cgroup(name);
 		if (cgroup->fd == -1)
 			goto out_free_name;
+=======
+
+		if (do_open) {
+			cgroup->fd = open_cgroup(name);
+			if (cgroup->fd == -1)
+				goto out_free_name;
+		} else {
+			cgroup->fd = -1;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	return cgroup;
 
 out_free_name:
+<<<<<<< HEAD
 	free(cgroup->name);
+=======
+	zfree(&cgroup->name);
+>>>>>>> upstream/android-13
 out_err:
 	free(cgroup);
 	return NULL;
 }
 
+<<<<<<< HEAD
 struct cgroup *evlist__findnew_cgroup(struct perf_evlist *evlist, const char *name)
 {
 	struct cgroup *cgroup = evlist__find_cgroup(evlist, name);
@@ -140,6 +243,18 @@ struct cgroup *evlist__findnew_cgroup(struct perf_evlist *evlist, const char *na
 static int add_cgroup(struct perf_evlist *evlist, const char *str)
 {
 	struct perf_evsel *counter;
+=======
+struct cgroup *evlist__findnew_cgroup(struct evlist *evlist, const char *name)
+{
+	struct cgroup *cgroup = evlist__find_cgroup(evlist, name);
+
+	return cgroup ?: cgroup__new(name, true);
+}
+
+static int add_cgroup(struct evlist *evlist, const char *str)
+{
+	struct evsel *counter;
+>>>>>>> upstream/android-13
 	struct cgroup *cgrp = evlist__findnew_cgroup(evlist, str);
 	int n;
 
@@ -165,7 +280,12 @@ found:
 
 static void cgroup__delete(struct cgroup *cgroup)
 {
+<<<<<<< HEAD
 	close(cgroup->fd);
+=======
+	if (cgroup->fd >= 0)
+		close(cgroup->fd);
+>>>>>>> upstream/android-13
 	zfree(&cgroup->name);
 	free(cgroup);
 }
@@ -184,31 +304,184 @@ struct cgroup *cgroup__get(struct cgroup *cgroup)
        return cgroup;
 }
 
+<<<<<<< HEAD
 static void evsel__set_default_cgroup(struct perf_evsel *evsel, struct cgroup *cgroup)
+=======
+static void evsel__set_default_cgroup(struct evsel *evsel, struct cgroup *cgroup)
+>>>>>>> upstream/android-13
 {
 	if (evsel->cgrp == NULL)
 		evsel->cgrp = cgroup__get(cgroup);
 }
 
+<<<<<<< HEAD
 void evlist__set_default_cgroup(struct perf_evlist *evlist, struct cgroup *cgroup)
 {
 	struct perf_evsel *evsel;
+=======
+void evlist__set_default_cgroup(struct evlist *evlist, struct cgroup *cgroup)
+{
+	struct evsel *evsel;
+>>>>>>> upstream/android-13
 
 	evlist__for_each_entry(evlist, evsel)
 		evsel__set_default_cgroup(evsel, cgroup);
 }
 
+<<<<<<< HEAD
 int parse_cgroups(const struct option *opt, const char *str,
 		  int unset __maybe_unused)
 {
 	struct perf_evlist *evlist = *(struct perf_evlist **)opt->value;
 	struct perf_evsel *counter;
+=======
+/* helper function for ftw() in match_cgroups and list_cgroups */
+static int add_cgroup_name(const char *fpath, const struct stat *sb __maybe_unused,
+			   int typeflag, struct FTW *ftwbuf __maybe_unused)
+{
+	struct cgroup_name *cn;
+
+	if (typeflag != FTW_D)
+		return 0;
+
+	cn = malloc(sizeof(*cn) + strlen(fpath) + 1);
+	if (cn == NULL)
+		return -1;
+
+	cn->used = false;
+	strcpy(cn->name, fpath);
+
+	list_add_tail(&cn->list, &cgroup_list);
+	return 0;
+}
+
+static void release_cgroup_list(void)
+{
+	struct cgroup_name *cn;
+
+	while (!list_empty(&cgroup_list)) {
+		cn = list_first_entry(&cgroup_list, struct cgroup_name, list);
+		list_del(&cn->list);
+		free(cn);
+	}
+}
+
+/* collect given cgroups only */
+static int list_cgroups(const char *str)
+{
+	const char *p, *e, *eos = str + strlen(str);
+	struct cgroup_name *cn;
+	char *s;
+
+	/* use given name as is - for testing purpose */
+	for (;;) {
+		p = strchr(str, ',');
+		e = p ? p : eos;
+
+		if (e - str) {
+			int ret;
+
+			s = strndup(str, e - str);
+			if (!s)
+				return -1;
+			/* pretend if it's added by ftw() */
+			ret = add_cgroup_name(s, NULL, FTW_D, NULL);
+			free(s);
+			if (ret)
+				return -1;
+		} else {
+			if (add_cgroup_name("", NULL, FTW_D, NULL) < 0)
+				return -1;
+		}
+
+		if (!p)
+			break;
+		str = p+1;
+	}
+
+	/* these groups will be used */
+	list_for_each_entry(cn, &cgroup_list, list)
+		cn->used = true;
+
+	return 0;
+}
+
+/* collect all cgroups first and then match with the pattern */
+static int match_cgroups(const char *str)
+{
+	char mnt[PATH_MAX];
+	const char *p, *e, *eos = str + strlen(str);
+	struct cgroup_name *cn;
+	regex_t reg;
+	int prefix_len;
+	char *s;
+
+	if (cgroupfs_find_mountpoint(mnt, sizeof(mnt), "perf_event"))
+		return -1;
+
+	/* cgroup_name will have a full path, skip the root directory */
+	prefix_len = strlen(mnt);
+
+	/* collect all cgroups in the cgroup_list */
+	if (nftw(mnt, add_cgroup_name, 20, 0) < 0)
+		return -1;
+
+	for (;;) {
+		p = strchr(str, ',');
+		e = p ? p : eos;
+
+		/* allow empty cgroups, i.e., skip */
+		if (e - str) {
+			/* termination added */
+			s = strndup(str, e - str);
+			if (!s)
+				return -1;
+			if (regcomp(&reg, s, REG_NOSUB)) {
+				free(s);
+				return -1;
+			}
+
+			/* check cgroup name with the pattern */
+			list_for_each_entry(cn, &cgroup_list, list) {
+				char *name = cn->name + prefix_len;
+
+				if (name[0] == '/' && name[1])
+					name++;
+				if (!regexec(&reg, name, 0, NULL, 0))
+					cn->used = true;
+			}
+			regfree(&reg);
+			free(s);
+		} else {
+			/* first entry to root cgroup */
+			cn = list_first_entry(&cgroup_list, struct cgroup_name,
+					      list);
+			cn->used = true;
+		}
+
+		if (!p)
+			break;
+		str = p+1;
+	}
+	return prefix_len;
+}
+
+int parse_cgroups(const struct option *opt, const char *str,
+		  int unset __maybe_unused)
+{
+	struct evlist *evlist = *(struct evlist **)opt->value;
+	struct evsel *counter;
+>>>>>>> upstream/android-13
 	struct cgroup *cgrp = NULL;
 	const char *p, *e, *eos = str + strlen(str);
 	char *s;
 	int ret, i;
 
+<<<<<<< HEAD
 	if (list_empty(&evlist->entries)) {
+=======
+	if (list_empty(&evlist->core.entries)) {
+>>>>>>> upstream/android-13
 		fprintf(stderr, "must define events before cgroups\n");
 		return -1;
 	}
@@ -249,3 +522,195 @@ int parse_cgroups(const struct option *opt, const char *str,
 	}
 	return 0;
 }
+<<<<<<< HEAD
+=======
+
+static bool has_pattern_string(const char *str)
+{
+	return !!strpbrk(str, "{}[]()|*+?^$");
+}
+
+int evlist__expand_cgroup(struct evlist *evlist, const char *str,
+			  struct rblist *metric_events, bool open_cgroup)
+{
+	struct evlist *orig_list, *tmp_list;
+	struct evsel *pos, *evsel, *leader;
+	struct rblist orig_metric_events;
+	struct cgroup *cgrp = NULL;
+	struct cgroup_name *cn;
+	int ret = -1;
+	int prefix_len;
+
+	if (evlist->core.nr_entries == 0) {
+		fprintf(stderr, "must define events before cgroups\n");
+		return -EINVAL;
+	}
+
+	orig_list = evlist__new();
+	tmp_list = evlist__new();
+	if (orig_list == NULL || tmp_list == NULL) {
+		fprintf(stderr, "memory allocation failed\n");
+		return -ENOMEM;
+	}
+
+	/* save original events and init evlist */
+	evlist__splice_list_tail(orig_list, &evlist->core.entries);
+	evlist->core.nr_entries = 0;
+
+	if (metric_events) {
+		orig_metric_events = *metric_events;
+		rblist__init(metric_events);
+	} else {
+		rblist__init(&orig_metric_events);
+	}
+
+	if (has_pattern_string(str))
+		prefix_len = match_cgroups(str);
+	else
+		prefix_len = list_cgroups(str);
+
+	if (prefix_len < 0)
+		goto out_err;
+
+	list_for_each_entry(cn, &cgroup_list, list) {
+		char *name;
+
+		if (!cn->used)
+			continue;
+
+		/* cgroup_name might have a full path, skip the prefix */
+		name = cn->name + prefix_len;
+		if (name[0] == '/' && name[1])
+			name++;
+		cgrp = cgroup__new(name, open_cgroup);
+		if (cgrp == NULL)
+			goto out_err;
+
+		leader = NULL;
+		evlist__for_each_entry(orig_list, pos) {
+			evsel = evsel__clone(pos);
+			if (evsel == NULL)
+				goto out_err;
+
+			cgroup__put(evsel->cgrp);
+			evsel->cgrp = cgroup__get(cgrp);
+
+			if (evsel__is_group_leader(pos))
+				leader = evsel;
+			evsel__set_leader(evsel, leader);
+
+			evlist__add(tmp_list, evsel);
+		}
+		/* cgroup__new() has a refcount, release it here */
+		cgroup__put(cgrp);
+		nr_cgroups++;
+
+		if (metric_events) {
+			perf_stat__collect_metric_expr(tmp_list);
+			if (metricgroup__copy_metric_events(tmp_list, cgrp,
+							    metric_events,
+							    &orig_metric_events) < 0)
+				goto out_err;
+		}
+
+		evlist__splice_list_tail(evlist, &tmp_list->core.entries);
+		tmp_list->core.nr_entries = 0;
+	}
+
+	if (list_empty(&evlist->core.entries)) {
+		fprintf(stderr, "no cgroup matched: %s\n", str);
+		goto out_err;
+	}
+
+	ret = 0;
+	cgrp_event_expanded = true;
+
+out_err:
+	evlist__delete(orig_list);
+	evlist__delete(tmp_list);
+	rblist__exit(&orig_metric_events);
+	release_cgroup_list();
+
+	return ret;
+}
+
+static struct cgroup *__cgroup__findnew(struct rb_root *root, uint64_t id,
+					bool create, const char *path)
+{
+	struct rb_node **p = &root->rb_node;
+	struct rb_node *parent = NULL;
+	struct cgroup *cgrp;
+
+	while (*p != NULL) {
+		parent = *p;
+		cgrp = rb_entry(parent, struct cgroup, node);
+
+		if (cgrp->id == id)
+			return cgrp;
+
+		if (cgrp->id < id)
+			p = &(*p)->rb_left;
+		else
+			p = &(*p)->rb_right;
+	}
+
+	if (!create)
+		return NULL;
+
+	cgrp = malloc(sizeof(*cgrp));
+	if (cgrp == NULL)
+		return NULL;
+
+	cgrp->name = strdup(path);
+	if (cgrp->name == NULL) {
+		free(cgrp);
+		return NULL;
+	}
+
+	cgrp->fd = -1;
+	cgrp->id = id;
+	refcount_set(&cgrp->refcnt, 1);
+
+	rb_link_node(&cgrp->node, parent, p);
+	rb_insert_color(&cgrp->node, root);
+
+	return cgrp;
+}
+
+struct cgroup *cgroup__findnew(struct perf_env *env, uint64_t id,
+			       const char *path)
+{
+	struct cgroup *cgrp;
+
+	down_write(&env->cgroups.lock);
+	cgrp = __cgroup__findnew(&env->cgroups.tree, id, true, path);
+	up_write(&env->cgroups.lock);
+	return cgrp;
+}
+
+struct cgroup *cgroup__find(struct perf_env *env, uint64_t id)
+{
+	struct cgroup *cgrp;
+
+	down_read(&env->cgroups.lock);
+	cgrp = __cgroup__findnew(&env->cgroups.tree, id, false, NULL);
+	up_read(&env->cgroups.lock);
+	return cgrp;
+}
+
+void perf_env__purge_cgroups(struct perf_env *env)
+{
+	struct rb_node *node;
+	struct cgroup *cgrp;
+
+	down_write(&env->cgroups.lock);
+	while (!RB_EMPTY_ROOT(&env->cgroups.tree)) {
+		node = rb_first(&env->cgroups.tree);
+		cgrp = rb_entry(node, struct cgroup, node);
+
+		rb_erase(node, &env->cgroups.tree);
+		cgroup__put(cgrp);
+	}
+	up_write(&env->cgroups.lock);
+}
+>>>>>>> upstream/android-13

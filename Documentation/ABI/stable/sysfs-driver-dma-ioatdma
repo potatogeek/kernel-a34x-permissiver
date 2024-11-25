@@ -1,29 +1,49 @@
+<<<<<<< HEAD
 What:           sys/devices/pciXXXX:XX/0000:XX:XX.X/dma/dma<n>chan<n>/quickdata/cap
+=======
+What:           /sys/devices/pciXXXX:XX/0000:XX:XX.X/dma/dma<n>chan<n>/quickdata/cap
+>>>>>>> upstream/android-13
 Date:           December 3, 2009
 KernelVersion:  2.6.32
 Contact:        dmaengine@vger.kernel.org
 Description:	Capabilities the DMA supports.Currently there are DMA_PQ, DMA_PQ_VAL,
 		DMA_XOR,DMA_XOR_VAL,DMA_INTERRUPT.
 
+<<<<<<< HEAD
 What:           sys/devices/pciXXXX:XX/0000:XX:XX.X/dma/dma<n>chan<n>/quickdata/ring_active
+=======
+What:           /sys/devices/pciXXXX:XX/0000:XX:XX.X/dma/dma<n>chan<n>/quickdata/ring_active
+>>>>>>> upstream/android-13
 Date:           December 3, 2009
 KernelVersion:  2.6.32
 Contact:        dmaengine@vger.kernel.org
 Description:	The number of descriptors active in the ring.
 
+<<<<<<< HEAD
 What:           sys/devices/pciXXXX:XX/0000:XX:XX.X/dma/dma<n>chan<n>/quickdata/ring_size
+=======
+What:           /sys/devices/pciXXXX:XX/0000:XX:XX.X/dma/dma<n>chan<n>/quickdata/ring_size
+>>>>>>> upstream/android-13
 Date:           December 3, 2009
 KernelVersion:  2.6.32
 Contact:        dmaengine@vger.kernel.org
 Description:	Descriptor ring size, total number of descriptors available.
 
+<<<<<<< HEAD
 What:           sys/devices/pciXXXX:XX/0000:XX:XX.X/dma/dma<n>chan<n>/quickdata/version
+=======
+What:           /sys/devices/pciXXXX:XX/0000:XX:XX.X/dma/dma<n>chan<n>/quickdata/version
+>>>>>>> upstream/android-13
 Date:           December 3, 2009
 KernelVersion:  2.6.32
 Contact:        dmaengine@vger.kernel.org
 Description:	Version of ioatdma device.
 
+<<<<<<< HEAD
 What:           sys/devices/pciXXXX:XX/0000:XX:XX.X/dma/dma<n>chan<n>/quickdata/intr_coalesce
+=======
+What:           /sys/devices/pciXXXX:XX/0000:XX:XX.X/dma/dma<n>chan<n>/quickdata/intr_coalesce
+>>>>>>> upstream/android-13
 Date:           August 8, 2017
 KernelVersion:  4.14
 Contact:        dmaengine@vger.kernel.org

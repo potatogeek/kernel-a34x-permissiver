@@ -17,7 +17,11 @@
 /* Generic Netlink HSR family definition
  */
 
+<<<<<<< HEAD
 /* attributes */
+=======
+/* attributes for HSR or PRP node */
+>>>>>>> upstream/android-13
 enum {
 	HSR_A_UNSPEC,
 	HSR_A_NODE_ADDR,

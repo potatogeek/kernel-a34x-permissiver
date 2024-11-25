@@ -28,7 +28,11 @@
      *  zorro_device_id structure or %NULL if there is no match.
      */
 
+<<<<<<< HEAD
 const struct zorro_device_id *
+=======
+static const struct zorro_device_id *
+>>>>>>> upstream/android-13
 zorro_match_device(const struct zorro_device_id *ids,
 		   const struct zorro_dev *z)
 {
@@ -39,7 +43,10 @@ zorro_match_device(const struct zorro_device_id *ids,
 	}
 	return NULL;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(zorro_match_device);
+=======
+>>>>>>> upstream/android-13
 
 
 static int zorro_device_probe(struct device *dev)
@@ -48,32 +55,50 @@ static int zorro_device_probe(struct device *dev)
 	struct zorro_driver *drv = to_zorro_driver(dev->driver);
 	struct zorro_dev *z = to_zorro_dev(dev);
 
+<<<<<<< HEAD
 	if (!z->driver && drv->probe) {
+=======
+	if (drv->probe) {
+>>>>>>> upstream/android-13
 		const struct zorro_device_id *id;
 
 		id = zorro_match_device(drv->id_table, z);
 		if (id)
 			error = drv->probe(z, id);
+<<<<<<< HEAD
 		if (error >= 0) {
 			z->driver = drv;
 			error = 0;
 		}
+=======
+		if (error >= 0)
+			error = 0;
+>>>>>>> upstream/android-13
 	}
 	return error;
 }
 
 
+<<<<<<< HEAD
 static int zorro_device_remove(struct device *dev)
+=======
+static void zorro_device_remove(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct zorro_dev *z = to_zorro_dev(dev);
 	struct zorro_driver *drv = to_zorro_driver(dev->driver);
 
+<<<<<<< HEAD
 	if (drv) {
 		if (drv->remove)
 			drv->remove(z);
 		z->driver = NULL;
 	}
 	return 0;
+=======
+	if (drv->remove)
+		drv->remove(z);
+>>>>>>> upstream/android-13
 }
 
 
@@ -120,9 +145,15 @@ EXPORT_SYMBOL(zorro_unregister_driver);
      *  @ids: array of Zorro device id structures to search in
      *  @dev: the Zorro device structure to match against
      *
+<<<<<<< HEAD
      *  Used by a driver to check whether a Zorro device present in the
      *  system is in its list of supported devices.Returns the matching
      *  zorro_device_id structure or %NULL if there is no match.
+=======
+     *  Used by the driver core to check whether a Zorro device present in the
+     *  system is in a driver's list of supported devices.  Returns 1 if
+     *  supported, and 0 if there is no match.
+>>>>>>> upstream/android-13
      */
 
 static int zorro_bus_match(struct device *dev, struct device_driver *drv)
@@ -134,12 +165,16 @@ static int zorro_bus_match(struct device *dev, struct device_driver *drv)
 	if (!ids)
 		return 0;
 
+<<<<<<< HEAD
 	while (ids->id) {
 		if (ids->id == ZORRO_WILDCARD || ids->id == z->id)
 			return 1;
 		ids++;
 	}
 	return 0;
+=======
+	return !!zorro_match_device(ids, z);
+>>>>>>> upstream/android-13
 }
 
 static int zorro_uevent(struct device *dev, struct kobj_uevent_env *env)

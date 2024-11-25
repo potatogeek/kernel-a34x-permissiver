@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 /* Copyright (C) 2012-2018 ARM Limited or its affiliates. */
+=======
+/* Copyright (C) 2012-2019 ARM Limited (or its affiliates). */
+>>>>>>> upstream/android-13
 
 #include <crypto/internal/aead.h>
 #include <crypto/authenc.h>
@@ -13,6 +17,7 @@
 #include "cc_hash.h"
 #include "cc_aead.h"
 
+<<<<<<< HEAD
 enum dma_buffer_type {
 	DMA_NULL_TYPE = -1,
 	DMA_SGL_TYPE = 1,
@@ -23,6 +28,8 @@ struct buff_mgr_handle {
 	struct dma_pool *mlli_buffs_pool;
 };
 
+=======
+>>>>>>> upstream/android-13
 union buffer_array_entry {
 	struct scatterlist *sgl;
 	dma_addr_t buffer_dma;
@@ -34,7 +41,10 @@ struct buffer_array {
 	unsigned int offset[MAX_NUM_OF_BUFFERS_IN_MLLI];
 	int nents[MAX_NUM_OF_BUFFERS_IN_MLLI];
 	int total_data_len[MAX_NUM_OF_BUFFERS_IN_MLLI];
+<<<<<<< HEAD
 	enum dma_buffer_type type[MAX_NUM_OF_BUFFERS_IN_MLLI];
+=======
+>>>>>>> upstream/android-13
 	bool is_last[MAX_NUM_OF_BUFFERS_IN_MLLI];
 	u32 *mlli_nents[MAX_NUM_OF_BUFFERS_IN_MLLI];
 };
@@ -64,11 +74,15 @@ static void cc_copy_mac(struct device *dev, struct aead_request *req,
 			enum cc_sg_cpy_direct dir)
 {
 	struct aead_req_ctx *areq_ctx = aead_request_ctx(req);
+<<<<<<< HEAD
 	struct crypto_aead *tfm = crypto_aead_reqtfm(req);
 	u32 skip = areq_ctx->assoclen + req->cryptlen;
 
 	if (areq_ctx->is_gcm4543)
 		skip += crypto_aead_ivsize(tfm);
+=======
+	u32 skip = req->assoclen + req->cryptlen;
+>>>>>>> upstream/android-13
 
 	cc_copy_sg_portion(dev, areq_ctx->backup_mac, req->src,
 			   (skip - areq_ctx->req_authsize), skip, dir);
@@ -77,9 +91,19 @@ static void cc_copy_mac(struct device *dev, struct aead_request *req,
 /**
  * cc_get_sgl_nents() - Get scatterlist number of entries.
  *
+<<<<<<< HEAD
  * @sg_list: SG list
  * @nbytes: [IN] Total SGL data bytes.
  * @lbytes: [OUT] Returns the amount of bytes at the last entry
+=======
+ * @dev: Device object
+ * @sg_list: SG list
+ * @nbytes: [IN] Total SGL data bytes.
+ * @lbytes: [OUT] Returns the amount of bytes at the last entry
+ *
+ * Return:
+ * Number of entries in the scatterlist
+>>>>>>> upstream/android-13
  */
 static unsigned int cc_get_sgl_nents(struct device *dev,
 				     struct scatterlist *sg_list,
@@ -87,6 +111,11 @@ static unsigned int cc_get_sgl_nents(struct device *dev,
 {
 	unsigned int nents = 0;
 
+<<<<<<< HEAD
+=======
+	*lbytes = 0;
+
+>>>>>>> upstream/android-13
 	while (nbytes && sg_list) {
 		nents++;
 		/* get the number of bytes in the last entry */
@@ -95,11 +124,16 @@ static unsigned int cc_get_sgl_nents(struct device *dev,
 				nbytes : sg_list->length;
 		sg_list = sg_next(sg_list);
 	}
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	dev_dbg(dev, "nents %d last bytes %d\n", nents, *lbytes);
 	return nents;
 }
 
 /**
+<<<<<<< HEAD
  * cc_zero_sgl() - Zero scatter scatter list data.
  *
  * @sgl:
@@ -129,14 +163,33 @@ void cc_zero_sgl(struct scatterlist *sgl, u32 data_len)
  * @to_skip:
  * @end:
  * @direct:
+=======
+ * cc_copy_sg_portion() - Copy scatter list data,
+ * from to_skip to end, to dest and vice versa
+ *
+ * @dev: Device object
+ * @dest: Buffer to copy to/from
+ * @sg: SG list
+ * @to_skip: Number of bytes to skip before copying
+ * @end: Offset of last byte to copy
+ * @direct: Transfer direction (true == from SG list to buffer, false == from
+ *          buffer to SG list)
+>>>>>>> upstream/android-13
  */
 void cc_copy_sg_portion(struct device *dev, u8 *dest, struct scatterlist *sg,
 			u32 to_skip, u32 end, enum cc_sg_cpy_direct direct)
 {
+<<<<<<< HEAD
 	u32 nents, lbytes;
 
 	nents = cc_get_sgl_nents(dev, sg, end, &lbytes);
 	sg_copy_buffer(sg, nents, (void *)dest, (end - to_skip + 1), to_skip,
+=======
+	u32 nents;
+
+	nents = sg_nents_for_len(sg, end);
+	sg_copy_buffer(sg, nents, dest, (end - to_skip + 1), to_skip,
+>>>>>>> upstream/android-13
 		       (direct == CC_SG_TO_BUF));
 }
 
@@ -149,8 +202,16 @@ static int cc_render_buff_to_mlli(struct device *dev, dma_addr_t buff_dma,
 
 	/* Verify there is no memory overflow*/
 	new_nents = (*curr_nents + buff_size / CC_MAX_MLLI_ENTRY_SIZE + 1);
+<<<<<<< HEAD
 	if (new_nents > MAX_NUM_OF_TOTAL_MLLI_ENTRIES)
 		return -ENOMEM;
+=======
+	if (new_nents > MAX_NUM_OF_TOTAL_MLLI_ENTRIES) {
+		dev_err(dev, "Too many mlli entries. current %d max %d\n",
+			new_nents, MAX_NUM_OF_TOTAL_MLLI_ENTRIES);
+		return -ENOMEM;
+	}
+>>>>>>> upstream/android-13
 
 	/*handle buffer longer than 64 kbytes */
 	while (buff_size > CC_MAX_MLLI_ENTRY_SIZE) {
@@ -222,13 +283,18 @@ static int cc_generate_mlli(struct device *dev, struct buffer_array *sg_data,
 		goto build_mlli_exit;
 	}
 	/* Point to start of MLLI */
+<<<<<<< HEAD
 	mlli_p = (u32 *)mlli_params->mlli_virt_addr;
+=======
+	mlli_p = mlli_params->mlli_virt_addr;
+>>>>>>> upstream/android-13
 	/* go over all SG's and link it to one MLLI table */
 	for (i = 0; i < sg_data->num_of_buffers; i++) {
 		union buffer_array_entry *entry = &sg_data->entry[i];
 		u32 tot_len = sg_data->total_data_len[i];
 		u32 offset = sg_data->offset[i];
 
+<<<<<<< HEAD
 		if (sg_data->type[i] == DMA_SGL_TYPE)
 			rc = cc_render_sg_to_mlli(dev, entry->sgl, tot_len,
 						  offset, &total_nents,
@@ -237,6 +303,10 @@ static int cc_generate_mlli(struct device *dev, struct buffer_array *sg_data,
 			rc = cc_render_buff_to_mlli(dev, entry->buffer_dma,
 						    tot_len, &total_nents,
 						    &mlli_p);
+=======
+		rc = cc_render_sg_to_mlli(dev, entry->sgl, tot_len, offset,
+					  &total_nents, &mlli_p);
+>>>>>>> upstream/android-13
 		if (rc)
 			return rc;
 
@@ -262,6 +332,7 @@ build_mlli_exit:
 	return rc;
 }
 
+<<<<<<< HEAD
 static void cc_add_buffer_entry(struct device *dev,
 				struct buffer_array *sgl_data,
 				dma_addr_t buffer_dma, unsigned int buffer_len,
@@ -283,6 +354,8 @@ static void cc_add_buffer_entry(struct device *dev,
 	sgl_data->num_of_buffers++;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void cc_add_sg_entry(struct device *dev, struct buffer_array *sgl_data,
 			    unsigned int nents, struct scatterlist *sgl,
 			    unsigned int data_len, unsigned int data_offset,
@@ -296,7 +369,10 @@ static void cc_add_sg_entry(struct device *dev, struct buffer_array *sgl_data,
 	sgl_data->entry[index].sgl = sgl;
 	sgl_data->offset[index] = data_offset;
 	sgl_data->total_data_len[index] = data_len;
+<<<<<<< HEAD
 	sgl_data->type[index] = DMA_SGL_TYPE;
+=======
+>>>>>>> upstream/android-13
 	sgl_data->is_last[index] = is_last_table;
 	sgl_data->mlli_nents[index] = mlli_nents;
 	if (sgl_data->mlli_nents[index])
@@ -308,6 +384,7 @@ static int cc_map_sg(struct device *dev, struct scatterlist *sg,
 		     unsigned int nbytes, int direction, u32 *nents,
 		     u32 max_sg_nents, u32 *lbytes, u32 *mapped_nents)
 {
+<<<<<<< HEAD
 	if (sg_is_last(sg)) {
 		/* One entry only case -set to DLLI */
 		if (dma_map_sg(dev, sg, 1, direction) != 1) {
@@ -339,6 +416,34 @@ static int cc_map_sg(struct device *dev, struct scatterlist *sg,
 		}
 	}
 
+=======
+	int ret = 0;
+
+	if (!nbytes) {
+		*mapped_nents = 0;
+		*lbytes = 0;
+		*nents = 0;
+		return 0;
+	}
+
+	*nents = cc_get_sgl_nents(dev, sg, nbytes, lbytes);
+	if (*nents > max_sg_nents) {
+		*nents = 0;
+		dev_err(dev, "Too many fragments. current %d max %d\n",
+			*nents, max_sg_nents);
+		return -ENOMEM;
+	}
+
+	ret = dma_map_sg(dev, sg, *nents, direction);
+	if (dma_mapping_error(dev, ret)) {
+		*nents = 0;
+		dev_err(dev, "dma_map_sg() sg buffer failed %d\n", ret);
+		return -ENOMEM;
+	}
+
+	*mapped_nents = ret;
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -403,7 +508,11 @@ void cc_unmap_cipher_request(struct device *dev, void *ctx,
 		dev_dbg(dev, "Unmapped iv: iv_dma_addr=%pad iv_size=%u\n",
 			&req_ctx->gen_ctx.iv_dma_addr, ivsize);
 		dma_unmap_single(dev, req_ctx->gen_ctx.iv_dma_addr,
+<<<<<<< HEAD
 				 ivsize, DMA_TO_DEVICE);
+=======
+				 ivsize, DMA_BIDIRECTIONAL);
+>>>>>>> upstream/android-13
 	}
 	/* Release pool */
 	if (req_ctx->dma_buf_type == CC_DMA_BUF_MLLI &&
@@ -429,7 +538,10 @@ int cc_map_cipher_request(struct cc_drvdata *drvdata, void *ctx,
 {
 	struct cipher_req_ctx *req_ctx = (struct cipher_req_ctx *)ctx;
 	struct mlli_params *mlli_params = &req_ctx->mlli_params;
+<<<<<<< HEAD
 	struct buff_mgr_handle *buff_mgr = drvdata->buff_mgr_handle;
+=======
+>>>>>>> upstream/android-13
 	struct device *dev = drvdata_to_dev(drvdata);
 	struct buffer_array sg_data;
 	u32 dummy = 0;
@@ -442,10 +554,16 @@ int cc_map_cipher_request(struct cc_drvdata *drvdata, void *ctx,
 
 	/* Map IV buffer */
 	if (ivsize) {
+<<<<<<< HEAD
 		dump_byte_array("iv", (u8 *)info, ivsize);
 		req_ctx->gen_ctx.iv_dma_addr =
 			dma_map_single(dev, (void *)info,
 				       ivsize, DMA_TO_DEVICE);
+=======
+		dump_byte_array("iv", info, ivsize);
+		req_ctx->gen_ctx.iv_dma_addr =
+			dma_map_single(dev, info, ivsize, DMA_BIDIRECTIONAL);
+>>>>>>> upstream/android-13
 		if (dma_mapping_error(dev, req_ctx->gen_ctx.iv_dma_addr)) {
 			dev_err(dev, "Mapping iv %u B at va=%pK for DMA failed\n",
 				ivsize, info);
@@ -494,7 +612,11 @@ int cc_map_cipher_request(struct cc_drvdata *drvdata, void *ctx,
 	}
 
 	if (req_ctx->dma_buf_type == CC_DMA_BUF_MLLI) {
+<<<<<<< HEAD
 		mlli_params->curr_pool = buff_mgr->mlli_buffs_pool;
+=======
+		mlli_params->curr_pool = drvdata->mlli_buffs_pool;
+>>>>>>> upstream/android-13
 		rc = cc_generate_mlli(dev, &sg_data, mlli_params, flags);
 		if (rc)
 			goto cipher_exit;
@@ -514,10 +636,14 @@ void cc_unmap_aead_request(struct device *dev, struct aead_request *req)
 {
 	struct aead_req_ctx *areq_ctx = aead_request_ctx(req);
 	unsigned int hw_iv_size = areq_ctx->hw_iv_size;
+<<<<<<< HEAD
 	struct crypto_aead *tfm = crypto_aead_reqtfm(req);
 	struct cc_drvdata *drvdata = dev_get_drvdata(dev);
 	u32 dummy;
 	u32 size_to_unmap = 0;
+=======
+	struct cc_drvdata *drvdata = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 
 	if (areq_ctx->mac_buf_dma_addr) {
 		dma_unmap_single(dev, areq_ctx->mac_buf_dma_addr,
@@ -557,7 +683,11 @@ void cc_unmap_aead_request(struct device *dev, struct aead_request *req)
 	if (areq_ctx->gen_ctx.iv_dma_addr) {
 		dma_unmap_single(dev, areq_ctx->gen_ctx.iv_dma_addr,
 				 hw_iv_size, DMA_BIDIRECTIONAL);
+<<<<<<< HEAD
 		kzfree(areq_ctx->gen_ctx.iv);
+=======
+		kfree_sensitive(areq_ctx->gen_ctx.iv);
+>>>>>>> upstream/android-13
 	}
 
 	/* Release pool */
@@ -575,6 +705,7 @@ void cc_unmap_aead_request(struct device *dev, struct aead_request *req)
 	dev_dbg(dev, "Unmapping src sgl: req->src=%pK areq_ctx->src.nents=%u areq_ctx->assoc.nents=%u assoclen:%u cryptlen=%u\n",
 		sg_virt(req->src), areq_ctx->src.nents, areq_ctx->assoc.nents,
 		areq_ctx->assoclen, req->cryptlen);
+<<<<<<< HEAD
 	size_to_unmap = areq_ctx->assoclen + req->cryptlen;
 	if (areq_ctx->gen_ctx.op_type == DRV_CRYPTO_DIRECTION_ENCRYPT)
 		size_to_unmap += areq_ctx->req_authsize;
@@ -583,13 +714,21 @@ void cc_unmap_aead_request(struct device *dev, struct aead_request *req)
 
 	dma_unmap_sg(dev, req->src,
 		     cc_get_sgl_nents(dev, req->src, size_to_unmap, &dummy),
+=======
+
+	dma_unmap_sg(dev, req->src, areq_ctx->src.mapped_nents,
+>>>>>>> upstream/android-13
 		     DMA_BIDIRECTIONAL);
 	if (req->src != req->dst) {
 		dev_dbg(dev, "Unmapping dst sgl: req->dst=%pK\n",
 			sg_virt(req->dst));
+<<<<<<< HEAD
 		dma_unmap_sg(dev, req->dst,
 			     cc_get_sgl_nents(dev, req->dst, size_to_unmap,
 					      &dummy),
+=======
+		dma_unmap_sg(dev, req->dst, areq_ctx->dst.mapped_nents,
+>>>>>>> upstream/android-13
 			     DMA_BIDIRECTIONAL);
 	}
 	if (drvdata->coherent &&
@@ -603,6 +742,7 @@ void cc_unmap_aead_request(struct device *dev, struct aead_request *req)
 	}
 }
 
+<<<<<<< HEAD
 static int cc_get_aead_icv_nents(struct device *dev, struct scatterlist *sgl,
 				 unsigned int sgl_nents, unsigned int authsize,
 				 u32 last_entry_data_size,
@@ -652,6 +792,12 @@ static int cc_get_aead_icv_nents(struct device *dev, struct scatterlist *sgl,
 		(*is_icv_fragmented ? "true" : "false"), nents);
 
 	return nents;
+=======
+static bool cc_is_icv_frag(unsigned int sgl_nents, unsigned int authsize,
+			   u32 last_entry_data_size)
+{
+	return ((sgl_nents > 1) && (last_entry_data_size < authsize));
+>>>>>>> upstream/android-13
 }
 
 static int cc_aead_chain_iv(struct cc_drvdata *drvdata,
@@ -681,7 +827,11 @@ static int cc_aead_chain_iv(struct cc_drvdata *drvdata,
 	if (dma_mapping_error(dev, areq_ctx->gen_ctx.iv_dma_addr)) {
 		dev_err(dev, "Mapping iv %u B at va=%pK for DMA failed\n",
 			hw_iv_size, req->iv);
+<<<<<<< HEAD
 		kzfree(areq_ctx->gen_ctx.iv);
+=======
+		kfree_sensitive(areq_ctx->gen_ctx.iv);
+>>>>>>> upstream/android-13
 		areq_ctx->gen_ctx.iv = NULL;
 		rc = -ENOMEM;
 		goto chain_iv_exit;
@@ -689,6 +839,7 @@ static int cc_aead_chain_iv(struct cc_drvdata *drvdata,
 
 	dev_dbg(dev, "Mapped iv %u B at va=%pK to dma=%pad\n",
 		hw_iv_size, req->iv, &areq_ctx->gen_ctx.iv_dma_addr);
+<<<<<<< HEAD
 	// TODO: what about CTR?? ask Ron
 	if (do_chain && areq_ctx->plaintext_authenticate_only) {
 		struct crypto_aead *tfm = crypto_aead_reqtfm(req);
@@ -701,6 +852,8 @@ static int cc_aead_chain_iv(struct cc_drvdata *drvdata,
 				    &areq_ctx->assoc.mlli_nents);
 		areq_ctx->assoc_buff_type = CC_DMA_BUF_MLLI;
 	}
+=======
+>>>>>>> upstream/android-13
 
 chain_iv_exit:
 	return rc;
@@ -713,6 +866,7 @@ static int cc_aead_chain_assoc(struct cc_drvdata *drvdata,
 {
 	struct aead_req_ctx *areq_ctx = aead_request_ctx(req);
 	int rc = 0;
+<<<<<<< HEAD
 	u32 mapped_nents = 0;
 	struct scatterlist *current_sg = req->src;
 	struct crypto_aead *tfm = crypto_aead_reqtfm(req);
@@ -723,6 +877,11 @@ static int cc_aead_chain_assoc(struct cc_drvdata *drvdata,
 	if (areq_ctx->is_gcm4543)
 		size_of_assoc += crypto_aead_ivsize(tfm);
 
+=======
+	int mapped_nents = 0;
+	struct device *dev = drvdata_to_dev(drvdata);
+
+>>>>>>> upstream/android-13
 	if (!sg_data) {
 		rc = -EINVAL;
 		goto chain_assoc_exit;
@@ -738,6 +897,7 @@ static int cc_aead_chain_assoc(struct cc_drvdata *drvdata,
 		goto chain_assoc_exit;
 	}
 
+<<<<<<< HEAD
 	//iterate over the sgl to see how many entries are for associated data
 	//it is assumed that if we reach here , the sgl is already mapped
 	sg_index = current_sg->length;
@@ -758,6 +918,12 @@ static int cc_aead_chain_assoc(struct cc_drvdata *drvdata,
 			mapped_nents++;
 		}
 	}
+=======
+	mapped_nents = sg_nents_for_len(req->src, areq_ctx->assoclen);
+	if (mapped_nents < 0)
+		return mapped_nents;
+
+>>>>>>> upstream/android-13
 	if (mapped_nents > LLI_MAX_NUM_OF_ASSOC_DATA_ENTRIES) {
 		dev_err(dev, "Too many fragments. current %d max %d\n",
 			mapped_nents, LLI_MAX_NUM_OF_ASSOC_DATA_ENTRIES);
@@ -803,6 +969,7 @@ static void cc_prepare_aead_data_dlli(struct aead_request *req,
 	struct aead_req_ctx *areq_ctx = aead_request_ctx(req);
 	enum drv_crypto_direction direct = areq_ctx->gen_ctx.op_type;
 	unsigned int authsize = areq_ctx->req_authsize;
+<<<<<<< HEAD
 
 	areq_ctx->is_icv_fragmented = false;
 	if (req->src == req->dst) {
@@ -831,11 +998,38 @@ static int cc_prepare_aead_data_mlli(struct cc_drvdata *drvdata,
 				     struct buffer_array *sg_data,
 				     u32 *src_last_bytes, u32 *dst_last_bytes,
 				     bool is_last_table)
+=======
+	struct scatterlist *sg;
+	ssize_t offset;
+
+	areq_ctx->is_icv_fragmented = false;
+
+	if ((req->src == req->dst) || direct == DRV_CRYPTO_DIRECTION_DECRYPT) {
+		sg = areq_ctx->src_sgl;
+		offset = *src_last_bytes - authsize;
+	} else {
+		sg = areq_ctx->dst_sgl;
+		offset = *dst_last_bytes - authsize;
+	}
+
+	areq_ctx->icv_dma_addr = sg_dma_address(sg) + offset;
+	areq_ctx->icv_virt_addr = sg_virt(sg) + offset;
+}
+
+static void cc_prepare_aead_data_mlli(struct cc_drvdata *drvdata,
+				      struct aead_request *req,
+				      struct buffer_array *sg_data,
+				      u32 *src_last_bytes, u32 *dst_last_bytes,
+				      bool is_last_table)
+>>>>>>> upstream/android-13
 {
 	struct aead_req_ctx *areq_ctx = aead_request_ctx(req);
 	enum drv_crypto_direction direct = areq_ctx->gen_ctx.op_type;
 	unsigned int authsize = areq_ctx->req_authsize;
+<<<<<<< HEAD
 	int rc = 0, icv_nents;
+=======
+>>>>>>> upstream/android-13
 	struct device *dev = drvdata_to_dev(drvdata);
 	struct scatterlist *sg;
 
@@ -846,6 +1040,7 @@ static int cc_prepare_aead_data_mlli(struct cc_drvdata *drvdata,
 				areq_ctx->src_offset, is_last_table,
 				&areq_ctx->src.mlli_nents);
 
+<<<<<<< HEAD
 		icv_nents = cc_get_aead_icv_nents(dev, areq_ctx->src_sgl,
 						  areq_ctx->src.nents,
 						  authsize, *src_last_bytes,
@@ -854,6 +1049,11 @@ static int cc_prepare_aead_data_mlli(struct cc_drvdata *drvdata,
 			rc = -ENOTSUPP;
 			goto prepare_data_mlli_exit;
 		}
+=======
+		areq_ctx->is_icv_fragmented =
+			cc_is_icv_frag(areq_ctx->src.nents, authsize,
+				       *src_last_bytes);
+>>>>>>> upstream/android-13
 
 		if (areq_ctx->is_icv_fragmented) {
 			/* Backup happens only when ICV is fragmented, ICV
@@ -895,6 +1095,7 @@ static int cc_prepare_aead_data_mlli(struct cc_drvdata *drvdata,
 				areq_ctx->dst_offset, is_last_table,
 				&areq_ctx->dst.mlli_nents);
 
+<<<<<<< HEAD
 		icv_nents = cc_get_aead_icv_nents(dev, areq_ctx->src_sgl,
 						  areq_ctx->src.nents,
 						  authsize, *src_last_bytes,
@@ -905,6 +1106,13 @@ static int cc_prepare_aead_data_mlli(struct cc_drvdata *drvdata,
 		}
 
 		/* Backup happens only when ICV is fragmented, ICV
+=======
+		areq_ctx->is_icv_fragmented =
+			cc_is_icv_frag(areq_ctx->src.nents, authsize,
+				       *src_last_bytes);
+		/* Backup happens only when ICV is fragmented, ICV
+
+>>>>>>> upstream/android-13
 		 * verification is made by CPU compare in order to simplify
 		 * MAC verification upon request completion
 		 */
@@ -932,6 +1140,7 @@ static int cc_prepare_aead_data_mlli(struct cc_drvdata *drvdata,
 				areq_ctx->src_offset, is_last_table,
 				&areq_ctx->src.mlli_nents);
 
+<<<<<<< HEAD
 		icv_nents = cc_get_aead_icv_nents(dev, areq_ctx->dst_sgl,
 						  areq_ctx->dst.nents,
 						  authsize, *dst_last_bytes,
@@ -940,6 +1149,11 @@ static int cc_prepare_aead_data_mlli(struct cc_drvdata *drvdata,
 			rc = -ENOTSUPP;
 			goto prepare_data_mlli_exit;
 		}
+=======
+		areq_ctx->is_icv_fragmented =
+			cc_is_icv_frag(areq_ctx->dst.nents, authsize,
+				       *dst_last_bytes);
+>>>>>>> upstream/android-13
 
 		if (!areq_ctx->is_icv_fragmented) {
 			sg = &areq_ctx->dst_sgl[areq_ctx->dst.nents - 1];
@@ -953,9 +1167,12 @@ static int cc_prepare_aead_data_mlli(struct cc_drvdata *drvdata,
 			areq_ctx->icv_virt_addr = areq_ctx->mac_buf;
 		}
 	}
+<<<<<<< HEAD
 
 prepare_data_mlli_exit:
 	return rc;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int cc_aead_chain_data(struct cc_drvdata *drvdata,
@@ -972,6 +1189,7 @@ static int cc_aead_chain_data(struct cc_drvdata *drvdata,
 	u32 src_mapped_nents = 0, dst_mapped_nents = 0;
 	u32 offset = 0;
 	/* non-inplace mode */
+<<<<<<< HEAD
 	unsigned int size_for_map = areq_ctx->assoclen + req->cryptlen;
 	struct crypto_aead *tfm = crypto_aead_reqtfm(req);
 	u32 sg_index = 0;
@@ -980,6 +1198,12 @@ static int cc_aead_chain_data(struct cc_drvdata *drvdata,
 
 	if (is_gcm4543)
 		size_to_skip += crypto_aead_ivsize(tfm);
+=======
+	unsigned int size_for_map = req->assoclen + req->cryptlen;
+	u32 sg_index = 0;
+	u32 size_to_skip = req->assoclen;
+	struct scatterlist *sgl;
+>>>>>>> upstream/android-13
 
 	offset = size_to_skip;
 
@@ -989,15 +1213,19 @@ static int cc_aead_chain_data(struct cc_drvdata *drvdata,
 	areq_ctx->src_sgl = req->src;
 	areq_ctx->dst_sgl = req->dst;
 
+<<<<<<< HEAD
 	if (is_gcm4543)
 		size_for_map += crypto_aead_ivsize(tfm);
 
+=======
+>>>>>>> upstream/android-13
 	size_for_map += (direct == DRV_CRYPTO_DIRECTION_ENCRYPT) ?
 			authsize : 0;
 	src_mapped_nents = cc_get_sgl_nents(dev, req->src, size_for_map,
 					    &src_last_bytes);
 	sg_index = areq_ctx->src_sgl->length;
 	//check where the data starts
+<<<<<<< HEAD
 	while (sg_index <= size_to_skip) {
 		offset -= areq_ctx->src_sgl->length;
 		areq_ctx->src_sgl = sg_next(areq_ctx->src_sgl);
@@ -1008,6 +1236,16 @@ static int cc_aead_chain_data(struct cc_drvdata *drvdata,
 		}
 		sg_index += areq_ctx->src_sgl->length;
 		src_mapped_nents--;
+=======
+	while (src_mapped_nents && (sg_index <= size_to_skip)) {
+		src_mapped_nents--;
+		offset -= areq_ctx->src_sgl->length;
+		sgl = sg_next(areq_ctx->src_sgl);
+		if (!sgl)
+			break;
+		areq_ctx->src_sgl = sgl;
+		sg_index += areq_ctx->src_sgl->length;
+>>>>>>> upstream/android-13
 	}
 	if (src_mapped_nents > LLI_MAX_NUM_OF_DATA_ENTRIES) {
 		dev_err(dev, "Too many fragments. current %d max %d\n",
@@ -1020,18 +1258,27 @@ static int cc_aead_chain_data(struct cc_drvdata *drvdata,
 	areq_ctx->src_offset = offset;
 
 	if (req->src != req->dst) {
+<<<<<<< HEAD
 		size_for_map = areq_ctx->assoclen + req->cryptlen;
+=======
+		size_for_map = req->assoclen + req->cryptlen;
+>>>>>>> upstream/android-13
 
 		if (direct == DRV_CRYPTO_DIRECTION_ENCRYPT)
 			size_for_map += authsize;
 		else
 			size_for_map -= authsize;
 
+<<<<<<< HEAD
 		if (is_gcm4543)
 			size_for_map += crypto_aead_ivsize(tfm);
 
 		rc = cc_map_sg(dev, req->dst, size_for_map, DMA_BIDIRECTIONAL,
 			       &areq_ctx->dst.nents,
+=======
+		rc = cc_map_sg(dev, req->dst, size_for_map, DMA_BIDIRECTIONAL,
+			       &areq_ctx->dst.mapped_nents,
+>>>>>>> upstream/android-13
 			       LLI_MAX_NUM_OF_DATA_ENTRIES, &dst_last_bytes,
 			       &dst_mapped_nents);
 		if (rc)
@@ -1044,6 +1291,7 @@ static int cc_aead_chain_data(struct cc_drvdata *drvdata,
 	offset = size_to_skip;
 
 	//check where the data starts
+<<<<<<< HEAD
 	while (sg_index <= size_to_skip) {
 		offset -= areq_ctx->dst_sgl->length;
 		areq_ctx->dst_sgl = sg_next(areq_ctx->dst_sgl);
@@ -1054,6 +1302,16 @@ static int cc_aead_chain_data(struct cc_drvdata *drvdata,
 		}
 		sg_index += areq_ctx->dst_sgl->length;
 		dst_mapped_nents--;
+=======
+	while (dst_mapped_nents && sg_index <= size_to_skip) {
+		dst_mapped_nents--;
+		offset -= areq_ctx->dst_sgl->length;
+		sgl = sg_next(areq_ctx->dst_sgl);
+		if (!sgl)
+			break;
+		areq_ctx->dst_sgl = sgl;
+		sg_index += areq_ctx->dst_sgl->length;
+>>>>>>> upstream/android-13
 	}
 	if (dst_mapped_nents > LLI_MAX_NUM_OF_DATA_ENTRIES) {
 		dev_err(dev, "Too many fragments. current %d max %d\n",
@@ -1066,9 +1324,15 @@ static int cc_aead_chain_data(struct cc_drvdata *drvdata,
 	    dst_mapped_nents  > 1 ||
 	    do_chain) {
 		areq_ctx->data_buff_type = CC_DMA_BUF_MLLI;
+<<<<<<< HEAD
 		rc = cc_prepare_aead_data_mlli(drvdata, req, sg_data,
 					       &src_last_bytes,
 					       &dst_last_bytes, is_last_table);
+=======
+		cc_prepare_aead_data_mlli(drvdata, req, sg_data,
+					  &src_last_bytes, &dst_last_bytes,
+					  is_last_table);
+>>>>>>> upstream/android-13
 	} else {
 		areq_ctx->data_buff_type = CC_DMA_BUF_DLLI;
 		cc_prepare_aead_data_dlli(req, &src_last_bytes,
@@ -1137,6 +1401,7 @@ int cc_map_aead_request(struct cc_drvdata *drvdata, struct aead_request *req)
 	struct device *dev = drvdata_to_dev(drvdata);
 	struct buffer_array sg_data;
 	unsigned int authsize = areq_ctx->req_authsize;
+<<<<<<< HEAD
 	struct buff_mgr_handle *buff_mgr = drvdata->buff_mgr_handle;
 	int rc = 0;
 	struct crypto_aead *tfm = crypto_aead_reqtfm(req);
@@ -1145,6 +1410,13 @@ int cc_map_aead_request(struct cc_drvdata *drvdata, struct aead_request *req)
 	u32 mapped_nents = 0;
 	u32 dummy = 0; /*used for the assoc data fragments */
 	u32 size_to_map = 0;
+=======
+	int rc = 0;
+	dma_addr_t dma_addr;
+	u32 mapped_nents = 0;
+	u32 dummy = 0; /*used for the assoc data fragments */
+	u32 size_to_map;
+>>>>>>> upstream/android-13
 	gfp_t flags = cc_gfp_flags(&req->base);
 
 	mlli_params->curr_pool = NULL;
@@ -1241,16 +1513,26 @@ int cc_map_aead_request(struct cc_drvdata *drvdata, struct aead_request *req)
 		areq_ctx->gcm_iv_inc2_dma_addr = dma_addr;
 	}
 
+<<<<<<< HEAD
 	size_to_map = req->cryptlen + areq_ctx->assoclen;
+=======
+	size_to_map = req->cryptlen + req->assoclen;
+>>>>>>> upstream/android-13
 	/* If we do in-place encryption, we also need the auth tag */
 	if ((areq_ctx->gen_ctx.op_type == DRV_CRYPTO_DIRECTION_ENCRYPT) &&
 	   (req->src == req->dst)) {
 		size_to_map += authsize;
 	}
+<<<<<<< HEAD
 	if (is_gcm4543)
 		size_to_map += crypto_aead_ivsize(tfm);
 	rc = cc_map_sg(dev, req->src, size_to_map, DMA_BIDIRECTIONAL,
 		       &areq_ctx->src.nents,
+=======
+
+	rc = cc_map_sg(dev, req->src, size_to_map, DMA_BIDIRECTIONAL,
+		       &areq_ctx->src.mapped_nents,
+>>>>>>> upstream/android-13
 		       (LLI_MAX_NUM_OF_ASSOC_DATA_ENTRIES +
 			LLI_MAX_NUM_OF_DATA_ENTRIES),
 		       &dummy, &mapped_nents);
@@ -1310,7 +1592,11 @@ int cc_map_aead_request(struct cc_drvdata *drvdata, struct aead_request *req)
 	 */
 	if (areq_ctx->assoc_buff_type == CC_DMA_BUF_MLLI ||
 	    areq_ctx->data_buff_type == CC_DMA_BUF_MLLI) {
+<<<<<<< HEAD
 		mlli_params->curr_pool = buff_mgr->mlli_buffs_pool;
+=======
+		mlli_params->curr_pool = drvdata->mlli_buffs_pool;
+>>>>>>> upstream/android-13
 		rc = cc_generate_mlli(dev, &sg_data, mlli_params, flags);
 		if (rc)
 			goto aead_map_failure;
@@ -1338,7 +1624,10 @@ int cc_map_hash_request_final(struct cc_drvdata *drvdata, void *ctx,
 	u32 *curr_buff_cnt = cc_hash_buf_cnt(areq_ctx);
 	struct mlli_params *mlli_params = &areq_ctx->mlli_params;
 	struct buffer_array sg_data;
+<<<<<<< HEAD
 	struct buff_mgr_handle *buff_mgr = drvdata->buff_mgr_handle;
+=======
+>>>>>>> upstream/android-13
 	int rc = 0;
 	u32 dummy = 0;
 	u32 mapped_nents = 0;
@@ -1356,7 +1645,10 @@ int cc_map_hash_request_final(struct cc_drvdata *drvdata, void *ctx,
 		return 0;
 	}
 
+<<<<<<< HEAD
 	/*TODO: copy data in case that buffer is enough for operation */
+=======
+>>>>>>> upstream/android-13
 	/* map the previous buffer */
 	if (*curr_buff_cnt) {
 		rc = cc_set_hash_buf(dev, areq_ctx, curr_buff, *curr_buff_cnt,
@@ -1385,7 +1677,11 @@ int cc_map_hash_request_final(struct cc_drvdata *drvdata, void *ctx,
 
 	/*build mlli */
 	if (areq_ctx->data_dma_buf_type == CC_DMA_BUF_MLLI) {
+<<<<<<< HEAD
 		mlli_params->curr_pool = buff_mgr->mlli_buffs_pool;
+=======
+		mlli_params->curr_pool = drvdata->mlli_buffs_pool;
+>>>>>>> upstream/android-13
 		/* add the src data to the sg_data */
 		cc_add_sg_entry(dev, &sg_data, areq_ctx->in_nents, src, nbytes,
 				0, true, &areq_ctx->mlli_nents);
@@ -1423,7 +1719,10 @@ int cc_map_hash_request_update(struct cc_drvdata *drvdata, void *ctx,
 	unsigned int update_data_len;
 	u32 total_in_len = nbytes + *curr_buff_cnt;
 	struct buffer_array sg_data;
+<<<<<<< HEAD
 	struct buff_mgr_handle *buff_mgr = drvdata->buff_mgr_handle;
+=======
+>>>>>>> upstream/android-13
 	unsigned int swap_index = 0;
 	int rc = 0;
 	u32 dummy = 0;
@@ -1441,8 +1740,12 @@ int cc_map_hash_request_update(struct cc_drvdata *drvdata, void *ctx,
 	if (total_in_len < block_size) {
 		dev_dbg(dev, " less than one block: curr_buff=%pK *curr_buff_cnt=0x%X copy_to=%pK\n",
 			curr_buff, *curr_buff_cnt, &curr_buff[*curr_buff_cnt]);
+<<<<<<< HEAD
 		areq_ctx->in_nents =
 			cc_get_sgl_nents(dev, src, nbytes, &dummy);
+=======
+		areq_ctx->in_nents = sg_nents_for_len(src, nbytes);
+>>>>>>> upstream/android-13
 		sg_copy_to_buffer(src, areq_ctx->in_nents,
 				  &curr_buff[*curr_buff_cnt], nbytes);
 		*curr_buff_cnt += nbytes;
@@ -1499,7 +1802,11 @@ int cc_map_hash_request_update(struct cc_drvdata *drvdata, void *ctx,
 	}
 
 	if (areq_ctx->data_dma_buf_type == CC_DMA_BUF_MLLI) {
+<<<<<<< HEAD
 		mlli_params->curr_pool = buff_mgr->mlli_buffs_pool;
+=======
+		mlli_params->curr_pool = drvdata->mlli_buffs_pool;
+>>>>>>> upstream/android-13
 		/* add the src data to the sg_data */
 		cc_add_sg_entry(dev, &sg_data, areq_ctx->in_nents, src,
 				(update_data_len - *curr_buff_cnt), 0, true,
@@ -1566,6 +1873,7 @@ void cc_unmap_hash_request(struct device *dev, void *ctx,
 
 int cc_buffer_mgr_init(struct cc_drvdata *drvdata)
 {
+<<<<<<< HEAD
 	struct buff_mgr_handle *buff_mgr_handle;
 	struct device *dev = drvdata_to_dev(drvdata);
 
@@ -1576,11 +1884,17 @@ int cc_buffer_mgr_init(struct cc_drvdata *drvdata)
 	drvdata->buff_mgr_handle = buff_mgr_handle;
 
 	buff_mgr_handle->mlli_buffs_pool =
+=======
+	struct device *dev = drvdata_to_dev(drvdata);
+
+	drvdata->mlli_buffs_pool =
+>>>>>>> upstream/android-13
 		dma_pool_create("dx_single_mlli_tables", dev,
 				MAX_NUM_OF_TOTAL_MLLI_ENTRIES *
 				LLI_ENTRY_BYTE_SIZE,
 				MLLI_TABLE_MIN_ALIGNMENT, 0);
 
+<<<<<<< HEAD
 	if (!buff_mgr_handle->mlli_buffs_pool)
 		goto error;
 
@@ -1589,10 +1903,17 @@ int cc_buffer_mgr_init(struct cc_drvdata *drvdata)
 error:
 	cc_buffer_mgr_fini(drvdata);
 	return -ENOMEM;
+=======
+	if (!drvdata->mlli_buffs_pool)
+		return -ENOMEM;
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 int cc_buffer_mgr_fini(struct cc_drvdata *drvdata)
 {
+<<<<<<< HEAD
 	struct buff_mgr_handle *buff_mgr_handle = drvdata->buff_mgr_handle;
 
 	if (buff_mgr_handle) {
@@ -1600,5 +1921,8 @@ int cc_buffer_mgr_fini(struct cc_drvdata *drvdata)
 		kfree(drvdata->buff_mgr_handle);
 		drvdata->buff_mgr_handle = NULL;
 	}
+=======
+	dma_pool_destroy(drvdata->mlli_buffs_pool);
+>>>>>>> upstream/android-13
 	return 0;
 }

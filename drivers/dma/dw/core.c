@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Core driver for the Synopsys DesignWare DMA Controller
  *
  * Copyright (C) 2007-2008 Atmel Corporation
  * Copyright (C) 2010-2011 ST Microelectronics
  * Copyright (C) 2013 Intel Corporation
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
@@ -37,6 +44,7 @@
  * support descriptor writeback.
  */
 
+<<<<<<< HEAD
 #define DWC_DEFAULT_CTLLO(_chan) ({				\
 		struct dw_dma_chan *_dwc = to_dw_dma_chan(_chan);	\
 		struct dma_slave_config	*_sconfig = &_dwc->dma_sconfig;	\
@@ -58,6 +66,8 @@
 		 | DWC_CTLL_SMS(_sms));				\
 	})
 
+=======
+>>>>>>> upstream/android-13
 /* The set of bus widths supported by the DMA controller */
 #define DW_DMA_BUSWIDTHS			  \
 	BIT(DMA_SLAVE_BUSWIDTH_UNDEFINED)	| \
@@ -138,6 +148,7 @@ static void dwc_desc_put(struct dw_dma_chan *dwc, struct dw_desc *desc)
 	dwc->descs_allocated--;
 }
 
+<<<<<<< HEAD
 static void dwc_initialize_chan_idma32(struct dw_dma_chan *dwc)
 {
 	u32 cfghi = 0;
@@ -176,10 +187,13 @@ static void dwc_initialize_chan_dw(struct dw_dma_chan *dwc)
 	channel_writel(dwc, CFG_HI, cfghi);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void dwc_initialize(struct dw_dma_chan *dwc)
 {
 	struct dw_dma *dw = to_dw_dma(dwc->chan.device);
 
+<<<<<<< HEAD
 	if (test_bit(DW_DMA_IS_INITIALIZED, &dwc->flags))
 		return;
 
@@ -187,12 +201,18 @@ static void dwc_initialize(struct dw_dma_chan *dwc)
 		dwc_initialize_chan_idma32(dwc);
 	else
 		dwc_initialize_chan_dw(dwc);
+=======
+	dw->initialize_chan(dwc);
+>>>>>>> upstream/android-13
 
 	/* Enable interrupts */
 	channel_set_bit(dw, MASK.XFER, dwc->mask);
 	channel_set_bit(dw, MASK.ERROR, dwc->mask);
+<<<<<<< HEAD
 
 	set_bit(DW_DMA_IS_INITIALIZED, &dwc->flags);
+=======
+>>>>>>> upstream/android-13
 }
 
 /*----------------------------------------------------------------------*/
@@ -215,6 +235,7 @@ static inline void dwc_chan_disable(struct dw_dma *dw, struct dw_dma_chan *dwc)
 		cpu_relax();
 }
 
+<<<<<<< HEAD
 static u32 bytes2block(struct dw_dma_chan *dwc, size_t bytes,
 			  unsigned int width, size_t *len)
 {
@@ -246,6 +267,8 @@ static size_t block2bytes(struct dw_dma_chan *dwc, u32 block, u32 width)
 	return DWC_CTLH_BLOCK_TS(block) << width;
 }
 
+=======
+>>>>>>> upstream/android-13
 /*----------------------------------------------------------------------*/
 
 /* Perform single block transfer */
@@ -391,10 +414,18 @@ static void dwc_complete_all(struct dw_dma *dw, struct dw_dma_chan *dwc)
 /* Returns how many bytes were already received from source */
 static inline u32 dwc_get_sent(struct dw_dma_chan *dwc)
 {
+<<<<<<< HEAD
 	u32 ctlhi = channel_readl(dwc, CTL_HI);
 	u32 ctllo = channel_readl(dwc, CTL_LO);
 
 	return block2bytes(dwc, ctlhi, ctllo >> 4 & 7);
+=======
+	struct dw_dma *dw = to_dw_dma(dwc->chan.device);
+	u32 ctlhi = channel_readl(dwc, CTL_HI);
+	u32 ctllo = channel_readl(dwc, CTL_LO);
+
+	return dw->block2bytes(dwc, ctlhi, ctllo >> 4 & 7);
+>>>>>>> upstream/android-13
 }
 
 static void dwc_scan_descriptors(struct dw_dma *dw, struct dw_dma_chan *dwc)
@@ -563,9 +594,15 @@ static void dwc_handle_error(struct dw_dma *dw, struct dw_dma_chan *dwc)
 	dwc_descriptor_complete(dwc, bad_desc, true);
 }
 
+<<<<<<< HEAD
 static void dw_dma_tasklet(unsigned long data)
 {
 	struct dw_dma *dw = (struct dw_dma *)data;
+=======
+static void dw_dma_tasklet(struct tasklet_struct *t)
+{
+	struct dw_dma *dw = from_tasklet(dw, t, tasklet);
+>>>>>>> upstream/android-13
 	struct dw_dma_chan *dwc;
 	u32 status_xfer;
 	u32 status_err;
@@ -651,7 +688,11 @@ dwc_prep_dma_memcpy(struct dma_chan *chan, dma_addr_t dest, dma_addr_t src,
 	unsigned int		src_width;
 	unsigned int		dst_width;
 	unsigned int		data_width = dw->pdata->data_width[m_master];
+<<<<<<< HEAD
 	u32			ctllo;
+=======
+	u32			ctllo, ctlhi;
+>>>>>>> upstream/android-13
 	u8			lms = DWC_LLP_LMS(m_master);
 
 	dev_vdbg(chan2dev(chan),
@@ -667,7 +708,11 @@ dwc_prep_dma_memcpy(struct dma_chan *chan, dma_addr_t dest, dma_addr_t src,
 
 	src_width = dst_width = __ffs(data_width | src | dest | len);
 
+<<<<<<< HEAD
 	ctllo = DWC_DEFAULT_CTLLO(chan)
+=======
+	ctllo = dw->prepare_ctllo(dwc)
+>>>>>>> upstream/android-13
 			| DWC_CTLL_DST_WIDTH(dst_width)
 			| DWC_CTLL_SRC_WIDTH(src_width)
 			| DWC_CTLL_DST_INC
@@ -680,10 +725,19 @@ dwc_prep_dma_memcpy(struct dma_chan *chan, dma_addr_t dest, dma_addr_t src,
 		if (!desc)
 			goto err_desc_get;
 
+<<<<<<< HEAD
 		lli_write(desc, sar, src + offset);
 		lli_write(desc, dar, dest + offset);
 		lli_write(desc, ctllo, ctllo);
 		lli_write(desc, ctlhi, bytes2block(dwc, len - offset, src_width, &xfer_count));
+=======
+		ctlhi = dw->bytes2block(dwc, len - offset, src_width, &xfer_count);
+
+		lli_write(desc, sar, src + offset);
+		lli_write(desc, dar, dest + offset);
+		lli_write(desc, ctllo, ctllo);
+		lli_write(desc, ctlhi, ctlhi);
+>>>>>>> upstream/android-13
 		desc->len = xfer_count;
 
 		if (!first) {
@@ -721,7 +775,11 @@ dwc_prep_slave_sg(struct dma_chan *chan, struct scatterlist *sgl,
 	struct dma_slave_config	*sconfig = &dwc->dma_sconfig;
 	struct dw_desc		*prev;
 	struct dw_desc		*first;
+<<<<<<< HEAD
 	u32			ctllo;
+=======
+	u32			ctllo, ctlhi;
+>>>>>>> upstream/android-13
 	u8			m_master = dwc->dws.m_master;
 	u8			lms = DWC_LLP_LMS(m_master);
 	dma_addr_t		reg;
@@ -745,10 +803,17 @@ dwc_prep_slave_sg(struct dma_chan *chan, struct scatterlist *sgl,
 	case DMA_MEM_TO_DEV:
 		reg_width = __ffs(sconfig->dst_addr_width);
 		reg = sconfig->dst_addr;
+<<<<<<< HEAD
 		ctllo = (DWC_DEFAULT_CTLLO(chan)
 				| DWC_CTLL_DST_WIDTH(reg_width)
 				| DWC_CTLL_DST_FIX
 				| DWC_CTLL_SRC_INC);
+=======
+		ctllo = dw->prepare_ctllo(dwc)
+				| DWC_CTLL_DST_WIDTH(reg_width)
+				| DWC_CTLL_DST_FIX
+				| DWC_CTLL_SRC_INC;
+>>>>>>> upstream/android-13
 
 		ctllo |= sconfig->device_fc ? DWC_CTLL_FC(DW_DMA_FC_P_M2P) :
 			DWC_CTLL_FC(DW_DMA_FC_D_M2P);
@@ -768,9 +833,17 @@ slave_sg_todev_fill_desc:
 			if (!desc)
 				goto err_desc_get;
 
+<<<<<<< HEAD
 			lli_write(desc, sar, mem);
 			lli_write(desc, dar, reg);
 			lli_write(desc, ctlhi, bytes2block(dwc, len, mem_width, &dlen));
+=======
+			ctlhi = dw->bytes2block(dwc, len, mem_width, &dlen);
+
+			lli_write(desc, sar, mem);
+			lli_write(desc, dar, reg);
+			lli_write(desc, ctlhi, ctlhi);
+>>>>>>> upstream/android-13
 			lli_write(desc, ctllo, ctllo | DWC_CTLL_SRC_WIDTH(mem_width));
 			desc->len = dlen;
 
@@ -793,10 +866,17 @@ slave_sg_todev_fill_desc:
 	case DMA_DEV_TO_MEM:
 		reg_width = __ffs(sconfig->src_addr_width);
 		reg = sconfig->src_addr;
+<<<<<<< HEAD
 		ctllo = (DWC_DEFAULT_CTLLO(chan)
 				| DWC_CTLL_SRC_WIDTH(reg_width)
 				| DWC_CTLL_DST_INC
 				| DWC_CTLL_SRC_FIX);
+=======
+		ctllo = dw->prepare_ctllo(dwc)
+				| DWC_CTLL_SRC_WIDTH(reg_width)
+				| DWC_CTLL_DST_INC
+				| DWC_CTLL_SRC_FIX;
+>>>>>>> upstream/android-13
 
 		ctllo |= sconfig->device_fc ? DWC_CTLL_FC(DW_DMA_FC_P_P2M) :
 			DWC_CTLL_FC(DW_DMA_FC_D_P2M);
@@ -814,10 +894,19 @@ slave_sg_fromdev_fill_desc:
 			if (!desc)
 				goto err_desc_get;
 
+<<<<<<< HEAD
 			lli_write(desc, sar, reg);
 			lli_write(desc, dar, mem);
 			lli_write(desc, ctlhi, bytes2block(dwc, len, reg_width, &dlen));
 			mem_width = __ffs(data_width | mem | dlen);
+=======
+			ctlhi = dw->bytes2block(dwc, len, reg_width, &dlen);
+
+			lli_write(desc, sar, reg);
+			lli_write(desc, dar, mem);
+			lli_write(desc, ctlhi, ctlhi);
+			mem_width = __ffs(data_width | mem);
+>>>>>>> upstream/android-13
 			lli_write(desc, ctllo, ctllo | DWC_CTLL_DST_WIDTH(mem_width));
 			desc->len = dlen;
 
@@ -866,6 +955,13 @@ bool dw_dma_filter(struct dma_chan *chan, void *param)
 	if (dws->dma_dev != chan->device->dev)
 		return false;
 
+<<<<<<< HEAD
+=======
+	/* permit channels in accordance with the channels mask */
+	if (dws->channels && !(dws->channels & dwc->mask))
+		return false;
+
+>>>>>>> upstream/android-13
 	/* We have to copy data since dws can be temporary storage */
 	memcpy(&dwc->dws, dws, sizeof(struct dw_dma_slave));
 
@@ -876,6 +972,7 @@ EXPORT_SYMBOL_GPL(dw_dma_filter);
 static int dwc_config(struct dma_chan *chan, struct dma_slave_config *sconfig)
 {
 	struct dw_dma_chan *dwc = to_dw_dma_chan(chan);
+<<<<<<< HEAD
 	struct dma_slave_config *sc = &dwc->dma_sconfig;
 	struct dw_dma *dw = to_dw_dma(chan->device);
 	/*
@@ -897,6 +994,19 @@ static int dwc_config(struct dma_chan *chan, struct dma_slave_config *sconfig)
 
 	sc->src_maxburst = sc->src_maxburst > 1 ? fls(sc->src_maxburst) - s : 0;
 	sc->dst_maxburst = sc->dst_maxburst > 1 ? fls(sc->dst_maxburst) - s : 0;
+=======
+	struct dw_dma *dw = to_dw_dma(chan->device);
+
+	memcpy(&dwc->dma_sconfig, sconfig, sizeof(*sconfig));
+
+	dwc->dma_sconfig.src_maxburst =
+		clamp(dwc->dma_sconfig.src_maxburst, 0U, dwc->max_burst);
+	dwc->dma_sconfig.dst_maxburst =
+		clamp(dwc->dma_sconfig.dst_maxburst, 0U, dwc->max_burst);
+
+	dw->encode_maxburst(dwc, &dwc->dma_sconfig.src_maxburst);
+	dw->encode_maxburst(dwc, &dwc->dma_sconfig.dst_maxburst);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -905,6 +1015,7 @@ static void dwc_chan_pause(struct dw_dma_chan *dwc, bool drain)
 {
 	struct dw_dma *dw = to_dw_dma(dwc->chan.device);
 	unsigned int		count = 20;	/* timeout iterations */
+<<<<<<< HEAD
 	u32			cfglo;
 
 	cfglo = channel_readl(dwc, CFG_LO);
@@ -915,6 +1026,11 @@ static void dwc_chan_pause(struct dw_dma_chan *dwc, bool drain)
 			cfglo &= ~IDMA32C_CFGL_CH_DRAIN;
 	}
 	channel_writel(dwc, CFG_LO, cfglo | DWC_CFGL_CH_SUSP);
+=======
+
+	dw->suspend_chan(dwc, drain);
+
+>>>>>>> upstream/android-13
 	while (!(channel_readl(dwc, CFG_LO) & DWC_CFGL_FIFO_EMPTY) && count--)
 		udelay(2);
 
@@ -933,11 +1049,19 @@ static int dwc_pause(struct dma_chan *chan)
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline void dwc_chan_resume(struct dw_dma_chan *dwc)
 {
 	u32 cfglo = channel_readl(dwc, CFG_LO);
 
 	channel_writel(dwc, CFG_LO, cfglo & ~DWC_CFGL_CH_SUSP);
+=======
+static inline void dwc_chan_resume(struct dw_dma_chan *dwc, bool drain)
+{
+	struct dw_dma *dw = to_dw_dma(dwc->chan.device);
+
+	dw->resume_chan(dwc, drain);
+>>>>>>> upstream/android-13
 
 	clear_bit(DW_DMA_IS_PAUSED, &dwc->flags);
 }
@@ -950,7 +1074,11 @@ static int dwc_resume(struct dma_chan *chan)
 	spin_lock_irqsave(&dwc->lock, flags);
 
 	if (test_bit(DW_DMA_IS_PAUSED, &dwc->flags))
+<<<<<<< HEAD
 		dwc_chan_resume(dwc);
+=======
+		dwc_chan_resume(dwc, false);
+>>>>>>> upstream/android-13
 
 	spin_unlock_irqrestore(&dwc->lock, flags);
 
@@ -973,7 +1101,11 @@ static int dwc_terminate_all(struct dma_chan *chan)
 
 	dwc_chan_disable(dw, dwc);
 
+<<<<<<< HEAD
 	dwc_chan_resume(dwc);
+=======
+	dwc_chan_resume(dwc, true);
+>>>>>>> upstream/android-13
 
 	/* active_list entries will end up before queued entries */
 	list_splice_init(&dwc->queue, &list);
@@ -1063,6 +1195,7 @@ static void dwc_issue_pending(struct dma_chan *chan)
 
 /*----------------------------------------------------------------------*/
 
+<<<<<<< HEAD
 /*
  * Program FIFO size of channels.
  *
@@ -1093,6 +1226,10 @@ static void dw_dma_off(struct dw_dma *dw)
 {
 	unsigned int i;
 
+=======
+void do_dw_dma_off(struct dw_dma *dw)
+{
+>>>>>>> upstream/android-13
 	dma_writel(dw, CFG, 0);
 
 	channel_clear_bit(dw, MASK.XFER, dw->all_chan_mask);
@@ -1103,12 +1240,18 @@ static void dw_dma_off(struct dw_dma *dw)
 
 	while (dma_readl(dw, CFG) & DW_CFG_DMA_EN)
 		cpu_relax();
+<<<<<<< HEAD
 
 	for (i = 0; i < dw->dma.chancnt; i++)
 		clear_bit(DW_DMA_IS_INITIALIZED, &dw->chan[i].flags);
 }
 
 static void dw_dma_on(struct dw_dma *dw)
+=======
+}
+
+void do_dw_dma_on(struct dw_dma *dw)
+>>>>>>> upstream/android-13
 {
 	dma_writel(dw, CFG, DW_CFG_DMA_EN);
 }
@@ -1144,7 +1287,11 @@ static int dwc_alloc_chan_resources(struct dma_chan *chan)
 
 	/* Enable controller here if needed */
 	if (!dw->in_use)
+<<<<<<< HEAD
 		dw_dma_on(dw);
+=======
+		do_dw_dma_on(dw);
+>>>>>>> upstream/android-13
 	dw->in_use |= dwc->mask;
 
 	return 0;
@@ -1155,7 +1302,10 @@ static void dwc_free_chan_resources(struct dma_chan *chan)
 	struct dw_dma_chan	*dwc = to_dw_dma_chan(chan);
 	struct dw_dma		*dw = to_dw_dma(chan->device);
 	unsigned long		flags;
+<<<<<<< HEAD
 	LIST_HEAD(list);
+=======
+>>>>>>> upstream/android-13
 
 	dev_dbg(chan2dev(chan), "%s: descs allocated=%u\n", __func__,
 			dwc->descs_allocated);
@@ -1170,8 +1320,11 @@ static void dwc_free_chan_resources(struct dma_chan *chan)
 	/* Clear custom channel configuration */
 	memset(&dwc->dws, 0, sizeof(struct dw_dma_slave));
 
+<<<<<<< HEAD
 	clear_bit(DW_DMA_IS_INITIALIZED, &dwc->flags);
 
+=======
+>>>>>>> upstream/android-13
 	/* Disable interrupts */
 	channel_clear_bit(dw, MASK.XFER, dwc->mask);
 	channel_clear_bit(dw, MASK.BLOCK, dwc->mask);
@@ -1182,30 +1335,66 @@ static void dwc_free_chan_resources(struct dma_chan *chan)
 	/* Disable controller in case it was a last user */
 	dw->in_use &= ~dwc->mask;
 	if (!dw->in_use)
+<<<<<<< HEAD
 		dw_dma_off(dw);
+=======
+		do_dw_dma_off(dw);
+>>>>>>> upstream/android-13
 
 	dev_vdbg(chan2dev(chan), "%s: done\n", __func__);
 }
 
+<<<<<<< HEAD
 int dw_dma_probe(struct dw_dma_chip *chip)
 {
 	struct dw_dma_platform_data *pdata;
 	struct dw_dma		*dw;
+=======
+static void dwc_caps(struct dma_chan *chan, struct dma_slave_caps *caps)
+{
+	struct dw_dma_chan *dwc = to_dw_dma_chan(chan);
+
+	caps->max_burst = dwc->max_burst;
+
+	/*
+	 * It might be crucial for some devices to have the hardware
+	 * accelerated multi-block transfers supported, aka LLPs in DW DMAC
+	 * notation. So if LLPs are supported then max_sg_burst is set to
+	 * zero which means unlimited number of SG entries can be handled in a
+	 * single DMA transaction, otherwise it's just one SG entry.
+	 */
+	if (dwc->nollp)
+		caps->max_sg_burst = 1;
+	else
+		caps->max_sg_burst = 0;
+}
+
+int do_dma_probe(struct dw_dma_chip *chip)
+{
+	struct dw_dma *dw = chip->dw;
+	struct dw_dma_platform_data *pdata;
+>>>>>>> upstream/android-13
 	bool			autocfg = false;
 	unsigned int		dw_params;
 	unsigned int		i;
 	int			err;
 
+<<<<<<< HEAD
 	dw = devm_kzalloc(chip->dev, sizeof(*dw), GFP_KERNEL);
 	if (!dw)
 		return -ENOMEM;
 
+=======
+>>>>>>> upstream/android-13
 	dw->pdata = devm_kzalloc(chip->dev, sizeof(*dw->pdata), GFP_KERNEL);
 	if (!dw->pdata)
 		return -ENOMEM;
 
 	dw->regs = chip->regs;
+<<<<<<< HEAD
 	chip->dw = dw;
+=======
+>>>>>>> upstream/android-13
 
 	pm_runtime_get_sync(chip->dev);
 
@@ -1232,8 +1421,11 @@ int dw_dma_probe(struct dw_dma_chip *chip)
 		pdata->block_size = dma_readl(dw, MAX_BLK_SIZE);
 
 		/* Fill platform data with the default values */
+<<<<<<< HEAD
 		pdata->is_private = true;
 		pdata->is_memcpy = true;
+=======
+>>>>>>> upstream/android-13
 		pdata->chan_allocation_order = CHAN_ALLOCATION_ASCENDING;
 		pdata->chan_priority = CHAN_PRIORITY_ASCENDING;
 	} else if (chip->pdata->nr_channels > DW_DMA_MAX_NR_CHANNELS) {
@@ -1257,6 +1449,7 @@ int dw_dma_probe(struct dw_dma_chip *chip)
 	dw->all_chan_mask = (1 << pdata->nr_channels) - 1;
 
 	/* Force dma off, just in case */
+<<<<<<< HEAD
 	dw_dma_off(dw);
 
 	idma32_fifo_partition(dw);
@@ -1266,6 +1459,12 @@ int dw_dma_probe(struct dw_dma_chip *chip)
 		snprintf(dw->name, sizeof(dw->name), "idma32:dmac%d", chip->id);
 	else
 		snprintf(dw->name, sizeof(dw->name), "dw:dmac%d", chip->id);
+=======
+	dw->disable(dw);
+
+	/* Device and instance ID for IRQ and DMA pool */
+	dw->set_device_name(dw, chip->id);
+>>>>>>> upstream/android-13
 
 	/* Create a pool of consistent memory blocks for hardware descriptors */
 	dw->desc_pool = dmam_pool_create(dw->name, chip->dev,
@@ -1276,7 +1475,11 @@ int dw_dma_probe(struct dw_dma_chip *chip)
 		goto err_pdata;
 	}
 
+<<<<<<< HEAD
 	tasklet_init(&dw->tasklet, dw_dma_tasklet, (unsigned long)dw);
+=======
+	tasklet_setup(&dw->tasklet, dw_dma_tasklet);
+>>>>>>> upstream/android-13
 
 	err = request_irq(chip->irq, dw_dma_interrupt, IRQF_SHARED,
 			  dw->name, dw);
@@ -1328,11 +1531,31 @@ int dw_dma_probe(struct dw_dma_chip *chip)
 			 */
 			dwc->block_size =
 				(4 << ((pdata->block_size >> 4 * i) & 0xf)) - 1;
+<<<<<<< HEAD
 			dwc->nollp =
 				(dwc_params >> DWC_PARAMS_MBLK_EN & 0x1) == 0;
 		} else {
 			dwc->block_size = pdata->block_size;
 			dwc->nollp = !pdata->multi_block[i];
+=======
+
+			/*
+			 * According to the DW DMA databook the true scatter-
+			 * gether LLPs aren't available if either multi-block
+			 * config is disabled (CHx_MULTI_BLK_EN == 0) or the
+			 * LLP register is hard-coded to zeros
+			 * (CHx_HC_LLP == 1).
+			 */
+			dwc->nollp =
+				(dwc_params >> DWC_PARAMS_MBLK_EN & 0x1) == 0 ||
+				(dwc_params >> DWC_PARAMS_HC_LLP & 0x1) == 1;
+			dwc->max_burst =
+				(0x4 << (dwc_params >> DWC_PARAMS_MSIZE & 0x7));
+		} else {
+			dwc->block_size = pdata->block_size;
+			dwc->nollp = !pdata->multi_block[i];
+			dwc->max_burst = pdata->max_burst[i] ?: DW_DMA_MAX_BURST;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -1345,10 +1568,15 @@ int dw_dma_probe(struct dw_dma_chip *chip)
 
 	/* Set capabilities */
 	dma_cap_set(DMA_SLAVE, dw->dma.cap_mask);
+<<<<<<< HEAD
 	if (pdata->is_private)
 		dma_cap_set(DMA_PRIVATE, dw->dma.cap_mask);
 	if (pdata->is_memcpy)
 		dma_cap_set(DMA_MEMCPY, dw->dma.cap_mask);
+=======
+	dma_cap_set(DMA_PRIVATE, dw->dma.cap_mask);
+	dma_cap_set(DMA_MEMCPY, dw->dma.cap_mask);
+>>>>>>> upstream/android-13
 
 	dw->dma.dev = chip->dev;
 	dw->dma.device_alloc_chan_resources = dwc_alloc_chan_resources;
@@ -1357,6 +1585,10 @@ int dw_dma_probe(struct dw_dma_chip *chip)
 	dw->dma.device_prep_dma_memcpy = dwc_prep_dma_memcpy;
 	dw->dma.device_prep_slave_sg = dwc_prep_slave_sg;
 
+<<<<<<< HEAD
+=======
+	dw->dma.device_caps = dwc_caps;
+>>>>>>> upstream/android-13
 	dw->dma.device_config = dwc_config;
 	dw->dma.device_pause = dwc_pause;
 	dw->dma.device_resume = dwc_resume;
@@ -1366,12 +1598,27 @@ int dw_dma_probe(struct dw_dma_chip *chip)
 	dw->dma.device_issue_pending = dwc_issue_pending;
 
 	/* DMA capabilities */
+<<<<<<< HEAD
+=======
+	dw->dma.min_burst = DW_DMA_MIN_BURST;
+	dw->dma.max_burst = DW_DMA_MAX_BURST;
+>>>>>>> upstream/android-13
 	dw->dma.src_addr_widths = DW_DMA_BUSWIDTHS;
 	dw->dma.dst_addr_widths = DW_DMA_BUSWIDTHS;
 	dw->dma.directions = BIT(DMA_DEV_TO_MEM) | BIT(DMA_MEM_TO_DEV) |
 			     BIT(DMA_MEM_TO_MEM);
 	dw->dma.residue_granularity = DMA_RESIDUE_GRANULARITY_BURST;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * For now there is no hardware with non uniform maximum block size
+	 * across all of the device channels, so we set the maximum segment
+	 * size as the block size found for the very first channel.
+	 */
+	dma_set_max_seg_size(dw->dma.dev, dw->chan[0].block_size);
+
+>>>>>>> upstream/android-13
 	err = dma_async_device_register(&dw->dma);
 	if (err)
 		goto err_dma_register;
@@ -1389,16 +1636,25 @@ err_pdata:
 	pm_runtime_put_sync_suspend(chip->dev);
 	return err;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(dw_dma_probe);
 
 int dw_dma_remove(struct dw_dma_chip *chip)
+=======
+
+int do_dma_remove(struct dw_dma_chip *chip)
+>>>>>>> upstream/android-13
 {
 	struct dw_dma		*dw = chip->dw;
 	struct dw_dma_chan	*dwc, *_dwc;
 
 	pm_runtime_get_sync(chip->dev);
 
+<<<<<<< HEAD
 	dw_dma_off(dw);
+=======
+	do_dw_dma_off(dw);
+>>>>>>> upstream/android-13
 	dma_async_device_unregister(&dw->dma);
 
 	free_irq(chip->irq, dw);
@@ -1413,6 +1669,7 @@ int dw_dma_remove(struct dw_dma_chip *chip)
 	pm_runtime_put_sync_suspend(chip->dev);
 	return 0;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(dw_dma_remove);
 
 int dw_dma_disable(struct dw_dma_chip *chip)
@@ -1434,6 +1691,26 @@ int dw_dma_enable(struct dw_dma_chip *chip)
 	return 0;
 }
 EXPORT_SYMBOL_GPL(dw_dma_enable);
+=======
+
+int do_dw_dma_disable(struct dw_dma_chip *chip)
+{
+	struct dw_dma *dw = chip->dw;
+
+	dw->disable(dw);
+	return 0;
+}
+EXPORT_SYMBOL_GPL(do_dw_dma_disable);
+
+int do_dw_dma_enable(struct dw_dma_chip *chip)
+{
+	struct dw_dma *dw = chip->dw;
+
+	dw->enable(dw);
+	return 0;
+}
+EXPORT_SYMBOL_GPL(do_dw_dma_enable);
+>>>>>>> upstream/android-13
 
 MODULE_LICENSE("GPL v2");
 MODULE_DESCRIPTION("Synopsys DesignWare DMA Controller core driver");

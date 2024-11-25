@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
+>>>>>>> upstream/android-13
  */
 
 #include <asm-generic/vmlinux.lds.h>
@@ -60,7 +66,10 @@ SECTIONS
 	.init.ramfs : { INIT_RAM_FS }
 
 	. = ALIGN(PAGE_SIZE);
+<<<<<<< HEAD
 	_stext = .;
+=======
+>>>>>>> upstream/android-13
 
 	HEAD_TEXT_SECTION
 	INIT_TEXT_SECTION(L1_CACHE_BYTES)
@@ -71,7 +80,10 @@ SECTIONS
 		INIT_SETUP(L1_CACHE_BYTES)
 		INIT_CALLS
 		CON_INITCALL
+<<<<<<< HEAD
 		SECURITY_INITCALL
+=======
+>>>>>>> upstream/android-13
 	}
 
 	.init.arch.info : {
@@ -87,11 +99,20 @@ SECTIONS
 
 	.text : {
 		_text = .;
+<<<<<<< HEAD
+=======
+		_stext = .;
+>>>>>>> upstream/android-13
 		TEXT_TEXT
 		SCHED_TEXT
 		CPUIDLE_TEXT
 		LOCK_TEXT
 		KPROBES_TEXT
+<<<<<<< HEAD
+=======
+		IRQENTRY_TEXT
+		SOFTIRQENTRY_TEXT
+>>>>>>> upstream/android-13
 		*(.fixup)
 		*(.gnu.warning)
 	}
@@ -99,13 +120,21 @@ SECTIONS
 	_etext = .;
 
 	_sdata = .;
+<<<<<<< HEAD
 	RO_DATA_SECTION(PAGE_SIZE)
+=======
+	RO_DATA(PAGE_SIZE)
+>>>>>>> upstream/android-13
 
 	/*
 	 * 1. this is .data essentially
 	 * 2. THREAD_SIZE for init.task, must be kernel-stk sz aligned
 	 */
+<<<<<<< HEAD
 	RW_DATA_SECTION(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
+=======
+	RW_DATA(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
+>>>>>>> upstream/android-13
 
 	_edata = .;
 
@@ -122,12 +151,19 @@ SECTIONS
 	/DISCARD/ : {	*(.eh_frame) }
 #endif
 
+<<<<<<< HEAD
 	NOTES
 
+=======
+>>>>>>> upstream/android-13
 	. = ALIGN(PAGE_SIZE);
 	_end = . ;
 
 	STABS_DEBUG
+<<<<<<< HEAD
+=======
+	ELF_DETAILS
+>>>>>>> upstream/android-13
 	DISCARDS
 
 	.arcextmap 0 : {

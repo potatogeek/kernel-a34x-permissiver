@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2015-2017 Intel Corporation.
  *
@@ -43,6 +44,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause
+/*
+ * Copyright(c) 2015-2017 Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/mm.h>
@@ -91,9 +97,13 @@ bool hfi1_can_pin_pages(struct hfi1_devdata *dd, struct mm_struct *mm,
 	/* Convert to number of pages */
 	size = DIV_ROUND_UP(size, PAGE_SIZE);
 
+<<<<<<< HEAD
 	down_read(&mm->mmap_sem);
 	pinned = mm->pinned_vm;
 	up_read(&mm->mmap_sem);
+=======
+	pinned = atomic64_read(&mm->pinned_vm);
+>>>>>>> upstream/android-13
 
 	/* First, check the absolute limit against all pinned pages. */
 	if (pinned + npages >= ulimit && !can_lock)
@@ -106,6 +116,7 @@ int hfi1_acquire_user_pages(struct mm_struct *mm, unsigned long vaddr, size_t np
 			    bool writable, struct page **pages)
 {
 	int ret;
+<<<<<<< HEAD
 
 	ret = get_user_pages_fast(vaddr, npages, writable, pages);
 	if (ret < 0)
@@ -114,6 +125,15 @@ int hfi1_acquire_user_pages(struct mm_struct *mm, unsigned long vaddr, size_t np
 	down_write(&mm->mmap_sem);
 	mm->pinned_vm += ret;
 	up_write(&mm->mmap_sem);
+=======
+	unsigned int gup_flags = FOLL_LONGTERM | (writable ? FOLL_WRITE : 0);
+
+	ret = pin_user_pages_fast(vaddr, npages, gup_flags, pages);
+	if (ret < 0)
+		return ret;
+
+	atomic64_add(ret, &mm->pinned_vm);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -121,6 +141,7 @@ int hfi1_acquire_user_pages(struct mm_struct *mm, unsigned long vaddr, size_t np
 void hfi1_release_user_pages(struct mm_struct *mm, struct page **p,
 			     size_t npages, bool dirty)
 {
+<<<<<<< HEAD
 	size_t i;
 
 	for (i = 0; i < npages; i++) {
@@ -133,5 +154,11 @@ void hfi1_release_user_pages(struct mm_struct *mm, struct page **p,
 		down_write(&mm->mmap_sem);
 		mm->pinned_vm -= npages;
 		up_write(&mm->mmap_sem);
+=======
+	unpin_user_pages_dirty_lock(p, npages, dirty);
+
+	if (mm) { /* during close after signal, mm can be NULL */
+		atomic64_sub(npages, &mm->pinned_vm);
+>>>>>>> upstream/android-13
 	}
 }

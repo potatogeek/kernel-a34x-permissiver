@@ -2,6 +2,12 @@
 # SPDX-License-Identifier: GPL-2.0
 # description: ftrace - test reading of set_ftrace_filter
 #
+<<<<<<< HEAD
+=======
+# The triggers are set within the set_ftrace_filter file
+# requires: set_ftrace_filter
+#
+>>>>>>> upstream/android-13
 # The set_ftrace_filter file of ftrace is used to list functions as well as
 # triggers (probes) attached to functions. The code to read this file is not
 # straight forward and has had various bugs in the past. This test is designed
@@ -9,6 +15,7 @@
 # file in various ways (cat vs dd).
 #
 
+<<<<<<< HEAD
 # The triggers are set within the set_ftrace_filter file
 if [ ! -f set_ftrace_filter ]; then
     echo "set_ftrace_filter not found? Is dynamic ftrace not set?"
@@ -25,15 +32,24 @@ do_reset() {
 
 fail() { # mesg
     do_reset
+=======
+fail() { # mesg
+>>>>>>> upstream/android-13
     echo $1
     exit_fail
 }
 
+<<<<<<< HEAD
 do_reset
 
 FILTER=set_ftrace_filter
 FUNC1="schedule"
 FUNC2="do_softirq"
+=======
+FILTER=set_ftrace_filter
+FUNC1="schedule"
+FUNC2="scheduler_tick"
+>>>>>>> upstream/android-13
 
 ALL_FUNCS="#### all functions enabled ####"
 
@@ -165,6 +181,9 @@ test_actual
 rm $TMPDIR/expected
 rm $TMPDIR/actual
 
+<<<<<<< HEAD
 do_reset
 
+=======
+>>>>>>> upstream/android-13
 exit 0

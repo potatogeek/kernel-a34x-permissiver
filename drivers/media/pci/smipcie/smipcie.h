@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * SMI PCIe driver for DVBSky cards.
  *
  * Copyright (C) 2014 Max nibble <nibble.max@gmail.com>
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _SMI_PCIE_H_
@@ -23,7 +30,10 @@
 #include <linux/interrupt.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/proc_fs.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/pci.h>
 #include <linux/dma-mapping.h>
 #include <linux/slab.h>
@@ -241,7 +251,10 @@ struct smi_rc {
 	struct rc_dev *rc_dev;
 	char input_phys[64];
 	char device_name[64];
+<<<<<<< HEAD
 	struct work_struct work;
+=======
+>>>>>>> upstream/android-13
 	u8 irData[256];
 
 	int users;

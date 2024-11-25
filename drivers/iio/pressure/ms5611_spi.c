@@ -1,18 +1,31 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * MS5611 pressure and temperature sensor driver (SPI bus)
  *
  * Copyright (c) Tomasz Duszynski <tduszyns@gmail.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
 #include <linux/module.h>
 #include <linux/spi/spi.h>
+<<<<<<< HEAD
 #include <linux/of_device.h>
+=======
+#include <linux/mod_devicetable.h>
+
+#include <asm/unaligned.h>
+>>>>>>> upstream/android-13
 
 #include "ms5611.h"
 
@@ -48,7 +61,11 @@ static int ms5611_spi_read_adc(struct device *dev, s32 *val)
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	*val = (buf[0] << 16) | (buf[1] << 8) | buf[2];
+=======
+	*val = get_unaligned_be24(&buf[0]);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -116,6 +133,7 @@ static int ms5611_spi_remove(struct spi_device *spi)
 	return ms5611_remove(spi_get_drvdata(spi));
 }
 
+<<<<<<< HEAD
 #if defined(CONFIG_OF)
 static const struct of_device_id ms5611_spi_matches[] = {
 	{ .compatible = "meas,ms5611" },
@@ -126,6 +144,14 @@ static const struct of_device_id ms5611_spi_matches[] = {
 };
 MODULE_DEVICE_TABLE(of, ms5611_spi_matches);
 #endif
+=======
+static const struct of_device_id ms5611_spi_matches[] = {
+	{ .compatible = "meas,ms5611" },
+	{ .compatible = "meas,ms5607" },
+	{ }
+};
+MODULE_DEVICE_TABLE(of, ms5611_spi_matches);
+>>>>>>> upstream/android-13
 
 static const struct spi_device_id ms5611_id[] = {
 	{ "ms5611", MS5611 },
@@ -137,7 +163,11 @@ MODULE_DEVICE_TABLE(spi, ms5611_id);
 static struct spi_driver ms5611_driver = {
 	.driver = {
 		.name = "ms5611",
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(ms5611_spi_matches)
+=======
+		.of_match_table = ms5611_spi_matches
+>>>>>>> upstream/android-13
 	},
 	.id_table = ms5611_id,
 	.probe = ms5611_spi_probe,

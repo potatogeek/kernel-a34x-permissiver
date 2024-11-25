@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * Copyright 2008-2009 Freescale Semiconductor, Inc. All Rights Reserved.
  * Copyright 2010 Orex Computed Radiography
  */
 
 /*
+<<<<<<< HEAD
  * The code contained herein is licensed under the GNU General Public
  * License. You may obtain a copy of the GNU General Public License
  * Version 2 or later at the following locations:
@@ -15,6 +20,8 @@
 /* based on rtc-mc13892.c */
 
 /*
+=======
+>>>>>>> upstream/android-13
  * This driver uses the 47-bit 32 kHz counter in the Freescale DryIce block
  * to implement a Linux RTC. Times and alarms are truncated to seconds.
  * Since the RTC framework performs API locking via rtc->ops_lock the
@@ -34,6 +41,10 @@
 #include <linux/delay.h>
 #include <linux/module.h>
 #include <linux/platform_device.h>
+<<<<<<< HEAD
+=======
+#include <linux/pm_wakeirq.h>
+>>>>>>> upstream/android-13
 #include <linux/rtc.h>
 #include <linux/sched.h>
 #include <linux/spinlock.h>
@@ -105,7 +116,11 @@
 
 /**
  * struct imxdi_dev - private imxdi rtc data
+<<<<<<< HEAD
  * @pdev: pionter to platform dev
+=======
+ * @pdev: pointer to platform dev
+>>>>>>> upstream/android-13
  * @rtc: pointer to rtc struct
  * @ioaddr: IO registers pointer
  * @clk: input reference clock
@@ -360,7 +375,11 @@ static int di_handle_invalid_and_failure_state(struct imxdi_dev *imxdi, u32 dsr)
 			 * the tamper register is locked. We cannot disable the
 			 * tamper detection. The TDCHL can only be reset by a
 			 * DRYICE POR, but we cannot force a DRYICE POR in
+<<<<<<< HEAD
 			 * softwere because we are still in "FAILURE STATE".
+=======
+			 * software because we are still in "FAILURE STATE".
+>>>>>>> upstream/android-13
 			 * We need a DRYICE POR via battery power cycling....
 			 */
 			/*
@@ -552,7 +571,11 @@ static int dryice_rtc_read_time(struct device *dev, struct rtc_time *tm)
 	unsigned long now;
 
 	now = readl(imxdi->ioaddr + DTCMR);
+<<<<<<< HEAD
 	rtc_time_to_tm(now, tm);
+=======
+	rtc_time64_to_tm(now, tm);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -561,7 +584,11 @@ static int dryice_rtc_read_time(struct device *dev, struct rtc_time *tm)
  * set the seconds portion of dryice time counter and clear the
  * fractional part.
  */
+<<<<<<< HEAD
 static int dryice_rtc_set_mmss(struct device *dev, unsigned long secs)
+=======
+static int dryice_rtc_set_time(struct device *dev, struct rtc_time *tm)
+>>>>>>> upstream/android-13
 {
 	struct imxdi_dev *imxdi = dev_get_drvdata(dev);
 	u32 dcr, dsr;
@@ -588,7 +615,11 @@ static int dryice_rtc_set_mmss(struct device *dev, unsigned long secs)
 	if (rc != 0)
 		return rc;
 
+<<<<<<< HEAD
 	rc = di_write_wait(imxdi, secs, DTCMR);
+=======
+	rc = di_write_wait(imxdi, rtc_tm_to_time64(tm), DTCMR);
+>>>>>>> upstream/android-13
 	if (rc != 0)
 		return rc;
 
@@ -618,7 +649,11 @@ static int dryice_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
 	u32 dcamr;
 
 	dcamr = readl(imxdi->ioaddr + DCAMR);
+<<<<<<< HEAD
 	rtc_time_to_tm(dcamr, &alarm->time);
+=======
+	rtc_time64_to_tm(dcamr, &alarm->time);
+>>>>>>> upstream/android-13
 
 	/* alarm is enabled if the interrupt is enabled */
 	alarm->enabled = (readl(imxdi->ioaddr + DIER) & DIER_CAIE) != 0;
@@ -640,6 +675,7 @@ static int dryice_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
 static int dryice_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
 {
 	struct imxdi_dev *imxdi = dev_get_drvdata(dev);
+<<<<<<< HEAD
 	unsigned long now;
 	unsigned long alarm_time;
 	int rc;
@@ -655,6 +691,12 @@ static int dryice_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
 
 	/* write the new alarm time */
 	rc = di_write_wait(imxdi, (u32)alarm_time, DCAMR);
+=======
+	int rc;
+
+	/* write the new alarm time */
+	rc = di_write_wait(imxdi, rtc_tm_to_time64(&alarm->time), DCAMR);
+>>>>>>> upstream/android-13
 	if (rc)
 		return rc;
 
@@ -668,7 +710,11 @@ static int dryice_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
 
 static const struct rtc_class_ops dryice_rtc_ops = {
 	.read_time		= dryice_rtc_read_time,
+<<<<<<< HEAD
 	.set_mmss		= dryice_rtc_set_mmss,
+=======
+	.set_time		= dryice_rtc_set_time,
+>>>>>>> upstream/android-13
 	.alarm_irq_enable	= dryice_rtc_alarm_irq_enable,
 	.read_alarm		= dryice_rtc_read_alarm,
 	.set_alarm		= dryice_rtc_set_alarm,
@@ -761,7 +807,10 @@ static void dryice_work(struct work_struct *work)
  */
 static int __init dryice_rtc_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	struct imxdi_dev *imxdi;
 	int norm_irq, sec_irq;
 	int rc;
@@ -772,8 +821,12 @@ static int __init dryice_rtc_probe(struct platform_device *pdev)
 
 	imxdi->pdev = pdev;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	imxdi->ioaddr = devm_ioremap_resource(&pdev->dev, res);
+=======
+	imxdi->ioaddr = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(imxdi->ioaddr))
 		return PTR_ERR(imxdi->ioaddr);
 
@@ -796,6 +849,13 @@ static int __init dryice_rtc_probe(struct platform_device *pdev)
 
 	mutex_init(&imxdi->write_mutex);
 
+<<<<<<< HEAD
+=======
+	imxdi->rtc = devm_rtc_allocate_device(&pdev->dev);
+	if (IS_ERR(imxdi->rtc))
+		return PTR_ERR(imxdi->rtc);
+
+>>>>>>> upstream/android-13
 	imxdi->clk = devm_clk_get(&pdev->dev, NULL);
 	if (IS_ERR(imxdi->clk))
 		return PTR_ERR(imxdi->clk);
@@ -829,12 +889,25 @@ static int __init dryice_rtc_probe(struct platform_device *pdev)
 	}
 
 	platform_set_drvdata(pdev, imxdi);
+<<<<<<< HEAD
 	imxdi->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
 				  &dryice_rtc_ops, THIS_MODULE);
 	if (IS_ERR(imxdi->rtc)) {
 		rc = PTR_ERR(imxdi->rtc);
 		goto err;
 	}
+=======
+
+	device_init_wakeup(&pdev->dev, true);
+	dev_pm_set_wake_irq(&pdev->dev, norm_irq);
+
+	imxdi->rtc->ops = &dryice_rtc_ops;
+	imxdi->rtc->range_max = U32_MAX;
+
+	rc = devm_rtc_register_device(imxdi->rtc);
+	if (rc)
+		goto err;
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -858,19 +931,29 @@ static int __exit dryice_rtc_remove(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF
+=======
+>>>>>>> upstream/android-13
 static const struct of_device_id dryice_dt_ids[] = {
 	{ .compatible = "fsl,imx25-rtc" },
 	{ /* sentinel */ }
 };
 
 MODULE_DEVICE_TABLE(of, dryice_dt_ids);
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static struct platform_driver dryice_rtc_driver = {
 	.driver = {
 		   .name = "imxdi_rtc",
+<<<<<<< HEAD
 		   .of_match_table = of_match_ptr(dryice_dt_ids),
+=======
+		   .of_match_table = dryice_dt_ids,
+>>>>>>> upstream/android-13
 		   },
 	.remove = __exit_p(dryice_rtc_remove),
 };

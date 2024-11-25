@@ -37,6 +37,12 @@
 #		ifdef CONFIG_XZ_DEC_SPARC
 #			define XZ_DEC_SPARC
 #		endif
+<<<<<<< HEAD
+=======
+#		ifdef CONFIG_XZ_DEC_MICROLZMA
+#			define XZ_DEC_MICROLZMA
+#		endif
+>>>>>>> upstream/android-13
 #		define memeq(a, b, size) (memcmp(a, b, size) == 0)
 #		define memzero(buf, size) memset(buf, 0, size)
 #	endif

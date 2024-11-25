@@ -10,6 +10,7 @@
  * Copyright (C) 1995 Adrian M. Rodriguez (adrian@remus.rutgers.edu)
  */
 
+<<<<<<< HEAD
 
 	.text
 	.align	4
@@ -97,10 +98,24 @@ sys_call_table32:
 
 	/* Now the 64-bit native Linux syscall table. */
 
+=======
+#define __SYSCALL(nr, entry) .word entry
+	.text
+	.align	4
+#ifdef CONFIG_COMPAT
+	.globl sys_call_table32
+sys_call_table32:
+#define __SYSCALL_WITH_COMPAT(nr, native, compat)	__SYSCALL(nr, compat)
+#include <asm/syscall_table_32.h>	/* Compat syscalls */
+#undef __SYSCALL_WITH_COMPAT
+#endif /* CONFIG_COMPAT */
+
+>>>>>>> upstream/android-13
 	.align	4
 	.globl sys_call_table64, sys_call_table
 sys_call_table64:
 sys_call_table:
+<<<<<<< HEAD
 /*0*/	.word sys_restart_syscall, sparc_exit, sys_fork, sys_read, sys_write
 /*5*/	.word sys_open, sys_close, sys_wait4, sys_creat, sys_link
 /*10*/  .word sys_unlink, sys_nis_syscall, sys_chdir, sys_chown, sys_mknod
@@ -174,3 +189,7 @@ sys_call_table:
 /*350*/	.word sys64_execveat, sys_membarrier, sys_userfaultfd, sys_bind, sys_listen
 	.word sys_setsockopt, sys_mlock2, sys_copy_file_range, sys_preadv2, sys_pwritev2
 /*360*/	.word sys_statx, sys_io_pgetevents
+=======
+#define __SYSCALL_WITH_COMPAT(nr, native, compat)	__SYSCALL(nr, native)
+#include <asm/syscall_table_64.h>	/* 64-bit native syscalls */
+>>>>>>> upstream/android-13

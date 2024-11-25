@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* FSI device & driver interfaces
  *
  * Copyright (C) IBM Corporation 2016
@@ -10,6 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/* FSI device & driver interfaces
+ *
+ * Copyright (C) IBM Corporation 2016
+>>>>>>> upstream/android-13
  */
 
 #ifndef LINUX_FSI_H

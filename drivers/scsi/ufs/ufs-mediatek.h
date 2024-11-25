@@ -7,11 +7,15 @@
 #define _UFS_MEDIATEK_H
 
 #include <linux/bitops.h>
+<<<<<<< HEAD
 #include <linux/pm_qos.h>
 #include <linux/soc/mediatek/mtk_sip_svc.h>
 #include <linux/soc/mediatek/mtk-pm-qos.h>
 
 #include "ufshcd.h"
+=======
+#include <linux/soc/mediatek/mtk_sip_svc.h>
+>>>>>>> upstream/android-13
 
 /*
  * Vendor specific UFSHCI Registers
@@ -19,9 +23,20 @@
 #define REG_UFS_REFCLK_CTRL         0x144
 #define REG_UFS_EXTREG              0x2100
 #define REG_UFS_MPHYCTRL            0x2200
+<<<<<<< HEAD
 #define REG_UFS_REJECT_MON          0x22AC
 #define REG_UFS_DEBUG_SEL           0x22C0
 #define REG_UFS_PROBE               0x22C8
+=======
+#define REG_UFS_MTK_IP_VER          0x2240
+#define REG_UFS_REJECT_MON          0x22AC
+#define REG_UFS_DEBUG_SEL           0x22C0
+#define REG_UFS_PROBE               0x22C8
+#define REG_UFS_DEBUG_SEL_B0        0x22D0
+#define REG_UFS_DEBUG_SEL_B1        0x22D4
+#define REG_UFS_DEBUG_SEL_B2        0x22D8
+#define REG_UFS_DEBUG_SEL_B3        0x22DC
+>>>>>>> upstream/android-13
 
 /*
  * Ref-clk control
@@ -35,6 +50,7 @@
 #define REFCLK_REQ_TIMEOUT_US       3000
 
 /*
+<<<<<<< HEAD
  * Vendor specific pre-defined parameters
  */
 #define UFS_MTK_LIMIT_NUM_LANES_RX  2
@@ -51,6 +67,8 @@
 #define UFS_MTK_LIMIT_DESIRED_MODE  UFS_HS_MODE
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Other attributes
  */
 #define VS_DEBUGCLOCKENABLE         0xD0A1
@@ -70,6 +88,29 @@ enum {
 };
 
 /*
+<<<<<<< HEAD
+=======
+ * Vendor specific host controller state
+ */
+enum {
+	VS_HCE_RESET                = 0,
+	VS_HCE_BASE                 = 1,
+	VS_HCE_OOCPR_WAIT           = 2,
+	VS_HCE_DME_RESET            = 3,
+	VS_HCE_MIDDLE               = 4,
+	VS_HCE_DME_ENABLE           = 5,
+	VS_HCE_DEFAULTS             = 6,
+	VS_HIB_IDLEEN               = 7,
+	VS_HIB_ENTER                = 8,
+	VS_HIB_ENTER_CONF           = 9,
+	VS_HIB_MIDDLE               = 10,
+	VS_HIB_WAITTIMER            = 11,
+	VS_HIB_EXIT_CONF            = 12,
+	VS_HIB_EXIT                 = 13,
+};
+
+/*
+>>>>>>> upstream/android-13
  * SiP commands
  */
 #define MTK_SIP_UFS_CONTROL               MTK_SIP_SMC_CMD(0x276)
@@ -79,6 +120,7 @@ enum {
 #define UFS_MTK_SIP_REF_CLK_NOTIFICATION  BIT(3)
 
 /*
+<<<<<<< HEAD
  * Quirks
  */
 enum ufs_mtk_host_quirks {
@@ -100,6 +142,8 @@ enum ufs_mtk_host_quirks {
 };
 
 /*
+=======
+>>>>>>> upstream/android-13
  * VS_DEBUGCLOCKENABLE
  */
 enum {
@@ -116,6 +160,7 @@ enum {
 };
 
 /*
+<<<<<<< HEAD
  * Ref-clk control mode
  */
 enum {
@@ -135,6 +180,24 @@ enum perf_mode {
 
 struct ufs_mtk_host_cfg {
 	enum ufs_mtk_host_quirks quirks;
+=======
+ * Host capability
+ */
+enum ufs_mtk_host_caps {
+	UFS_MTK_CAP_BOOST_CRYPT_ENGINE         = 1 << 0,
+	UFS_MTK_CAP_VA09_PWR_CTRL              = 1 << 1,
+	UFS_MTK_CAP_DISABLE_AH8                = 1 << 2,
+	UFS_MTK_CAP_BROKEN_VCC                 = 1 << 3,
+	UFS_MTK_CAP_PMC_VIA_FASTAUTO	       = 1 << 6,
+};
+
+struct ufs_mtk_crypt_cfg {
+	struct regulator *reg_vcore;
+	struct clk *clk_crypt_perf;
+	struct clk *clk_crypt_mux;
+	struct clk *clk_crypt_lp;
+	int vcore_volt;
+>>>>>>> upstream/android-13
 };
 
 struct ufs_mtk_hw_ver {
@@ -144,13 +207,17 @@ struct ufs_mtk_hw_ver {
 };
 
 struct ufs_mtk_host {
+<<<<<<< HEAD
 	struct ufs_mtk_host_cfg *cfg;
 	struct ufs_hba *hba;
+=======
+>>>>>>> upstream/android-13
 	struct phy *mphy;
 	struct regulator *reg_va09;
 	struct reset_control *hci_reset;
 	struct reset_control *unipro_reset;
 	struct reset_control *crypto_reset;
+<<<<<<< HEAD
 	struct ufs_mtk_hw_ver hw_ver;
 	bool mphy_powered_on;
 	bool unipro_lpm;
@@ -198,4 +265,18 @@ int ufs_mtk_perf_setup_crypto_clk(struct ufs_mtk_host *host, bool perf);
 int ufs_mtk_perf_heurisic_if_allow_cmd(struct ufs_hba *hba, struct scsi_cmnd *cmd);
 void ufs_mtk_perf_heurisic_req_done(struct ufs_hba *hba, struct scsi_cmnd *cmd);
 
+=======
+	struct ufs_hba *hba;
+	struct ufs_mtk_crypt_cfg *crypt;
+	struct ufs_mtk_hw_ver hw_ver;
+	enum ufs_mtk_host_caps caps;
+	bool mphy_powered_on;
+	bool unipro_lpm;
+	bool ref_clk_enabled;
+	u16 ref_clk_ungating_wait_us;
+	u16 ref_clk_gating_wait_us;
+	u32 ip_ver;
+};
+
+>>>>>>> upstream/android-13
 #endif /* !_UFS_MEDIATEK_H */

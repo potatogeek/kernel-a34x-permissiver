@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) Maxime Coquelin 2015
  * Copyright (C) STMicroelectronics SA 2017
@@ -25,8 +29,15 @@ struct stm32_usart_offsets {
 struct stm32_usart_config {
 	u8 uart_enable_bit; /* USART_CR1_UE */
 	bool has_7bits_data;
+<<<<<<< HEAD
 	bool has_wakeup;
 	bool has_fifo;
+=======
+	bool has_swap;
+	bool has_wakeup;
+	bool has_fifo;
+	int fifosize;
+>>>>>>> upstream/android-13
 };
 
 struct stm32_usart_info {
@@ -54,6 +65,10 @@ struct stm32_usart_info stm32f4_info = {
 	.cfg = {
 		.uart_enable_bit = 13,
 		.has_7bits_data = false,
+<<<<<<< HEAD
+=======
+		.fifosize = 1,
+>>>>>>> upstream/android-13
 	}
 };
 
@@ -74,6 +89,11 @@ struct stm32_usart_info stm32f7_info = {
 	.cfg = {
 		.uart_enable_bit = 0,
 		.has_7bits_data = true,
+<<<<<<< HEAD
+=======
+		.has_swap = true,
+		.fifosize = 1,
+>>>>>>> upstream/android-13
 	}
 };
 
@@ -94,8 +114,15 @@ struct stm32_usart_info stm32h7_info = {
 	.cfg = {
 		.uart_enable_bit = 0,
 		.has_7bits_data = true,
+<<<<<<< HEAD
 		.has_wakeup = true,
 		.has_fifo = true,
+=======
+		.has_swap = true,
+		.has_wakeup = true,
+		.has_fifo = true,
+		.fifosize = 16,
+>>>>>>> upstream/android-13
 	}
 };
 
@@ -201,6 +228,16 @@ struct stm32_usart_info stm32h7_info = {
 #define USART_CR3_WUS_MASK	GENMASK(21, 20)	/* H7 */
 #define USART_CR3_WUS_START_BIT	BIT(21)		/* H7 */
 #define USART_CR3_WUFIE		BIT(22)		/* H7 */
+<<<<<<< HEAD
+=======
+#define USART_CR3_TXFTIE	BIT(23)		/* H7 */
+#define USART_CR3_TCBGTIE	BIT(24)		/* H7 */
+#define USART_CR3_RXFTCFG_MASK	GENMASK(27, 25)	/* H7 */
+#define USART_CR3_RXFTCFG_SHIFT	25		/* H7 */
+#define USART_CR3_RXFTIE	BIT(28)		/* H7 */
+#define USART_CR3_TXFTCFG_MASK	GENMASK(31, 29)	/* H7 */
+#define USART_CR3_TXFTCFG_SHIFT	29		/* H7 */
+>>>>>>> upstream/android-13
 
 /* USART_GTPR */
 #define USART_GTPR_PSC_MASK	GENMASK(7, 0)
@@ -239,19 +276,38 @@ struct stm32_usart_info stm32h7_info = {
 struct stm32_port {
 	struct uart_port port;
 	struct clk *clk;
+<<<<<<< HEAD
 	struct stm32_usart_info *info;
+=======
+	const struct stm32_usart_info *info;
+>>>>>>> upstream/android-13
 	struct dma_chan *rx_ch;  /* dma rx channel            */
 	dma_addr_t rx_dma_buf;   /* dma rx buffer bus address */
 	unsigned char *rx_buf;   /* dma rx buffer cpu address */
 	struct dma_chan *tx_ch;  /* dma tx channel            */
 	dma_addr_t tx_dma_buf;   /* dma tx buffer bus address */
 	unsigned char *tx_buf;   /* dma tx buffer cpu address */
+<<<<<<< HEAD
 	int last_res;
 	bool tx_dma_busy;	 /* dma tx busy               */
 	bool hw_flow_control;
 	bool fifoen;
 	int wakeirq;
 	int rdr_mask;		/* receive data register mask */
+=======
+	u32 cr1_irq;		 /* USART_CR1_RXNEIE or RTOIE */
+	u32 cr3_irq;		 /* USART_CR3_RXFTIE */
+	int last_res;
+	bool tx_dma_busy;	 /* dma tx busy               */
+	bool hw_flow_control;
+	bool swap;		 /* swap RX & TX pins */
+	bool fifoen;
+	int rxftcfg;		/* RX FIFO threshold CFG      */
+	int txftcfg;		/* TX FIFO threshold CFG      */
+	bool wakeup_src;
+	int rdr_mask;		/* receive data register mask */
+	struct mctrl_gpios *gpios; /* modem control gpios */
+>>>>>>> upstream/android-13
 };
 
 static struct stm32_port stm32_ports[STM32_MAX_PORTS];

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * wm9705.c  --  ALSA Soc WM9705 codec support
  *
  * Copyright 2008 Ian Molton <spyro@f2s.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute  it and/or modify it
  *  under  the terms of  the GNU General  Public License as published by the
  *  Free Software Foundation; Version 2 of the  License only.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>

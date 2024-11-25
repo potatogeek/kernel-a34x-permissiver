@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # SGI device configuration
 #
@@ -5,8 +9,13 @@
 config NET_VENDOR_SGI
 	bool "SGI devices"
 	default y
+<<<<<<< HEAD
 	depends on (PCI && SGI_IP27) || SGI_IP32
 	---help---
+=======
+	depends on (PCI && SGI_MFD_IOC3) ||  SGI_IP32
+	help
+>>>>>>> upstream/android-13
 	  If you have a network (Ethernet) card belonging to this class, say Y.
 
 	  Note that the answer to this question doesn't directly affect the
@@ -18,10 +27,18 @@ if NET_VENDOR_SGI
 
 config SGI_IOC3_ETH
 	bool "SGI IOC3 Ethernet"
+<<<<<<< HEAD
 	depends on PCI && SGI_IP27
 	select CRC32
 	select MII
 	---help---
+=======
+	depends on PCI && SGI_MFD_IOC3
+	select CRC16
+	select CRC32
+	select MII
+	help
+>>>>>>> upstream/android-13
 	  If you have a network (Ethernet) card of this type, say Y here.
 
 config SGI_O2MACE_ETH

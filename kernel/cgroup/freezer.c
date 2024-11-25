@@ -6,6 +6,11 @@
 
 #include "cgroup-internal.h"
 
+<<<<<<< HEAD
+=======
+#include <trace/events/cgroup.h>
+
+>>>>>>> upstream/android-13
 /*
  * Propagate the cgroup frozen state upwards by the cgroup tree.
  */
@@ -28,6 +33,10 @@ static void cgroup_propagate_frozen(struct cgroup *cgrp, bool frozen)
 			    cgrp->nr_descendants) {
 				set_bit(CGRP_FROZEN, &cgrp->flags);
 				cgroup_file_notify(&cgrp->events_file);
+<<<<<<< HEAD
+=======
+				TRACE_CGROUP_PATH(notify_frozen, cgrp, 1);
+>>>>>>> upstream/android-13
 				desc++;
 			}
 		} else {
@@ -35,6 +44,10 @@ static void cgroup_propagate_frozen(struct cgroup *cgrp, bool frozen)
 			if (test_bit(CGRP_FROZEN, &cgrp->flags)) {
 				clear_bit(CGRP_FROZEN, &cgrp->flags);
 				cgroup_file_notify(&cgrp->events_file);
+<<<<<<< HEAD
+=======
+				TRACE_CGROUP_PATH(notify_frozen, cgrp, 0);
+>>>>>>> upstream/android-13
 				desc++;
 			}
 		}
@@ -73,6 +86,10 @@ void cgroup_update_frozen(struct cgroup *cgrp)
 		clear_bit(CGRP_FROZEN, &cgrp->flags);
 	}
 	cgroup_file_notify(&cgrp->events_file);
+<<<<<<< HEAD
+=======
+	TRACE_CGROUP_PATH(notify_frozen, cgrp, frozen);
+>>>>>>> upstream/android-13
 
 	/* Update the state of ancestor cgroups. */
 	cgroup_propagate_frozen(cgrp, frozen);
@@ -134,6 +151,7 @@ void cgroup_leave_frozen(bool always_leave)
 		cgroup_update_frozen(cgrp);
 		WARN_ON_ONCE(!current->frozen);
 		current->frozen = false;
+<<<<<<< HEAD
 	}
 	spin_unlock_irq(&css_set_lock);
 
@@ -147,6 +165,15 @@ void cgroup_leave_frozen(bool always_leave)
 		recalc_sigpending();
 		spin_unlock_irq(&current->sighand->siglock);
 	}
+=======
+	} else if (!(current->jobctl & JOBCTL_TRAP_FREEZE)) {
+		spin_lock(&current->sighand->siglock);
+		current->jobctl |= JOBCTL_TRAP_FREEZE;
+		set_thread_flag(TIF_SIGPENDING);
+		spin_unlock(&current->sighand->siglock);
+	}
+	spin_unlock_irq(&css_set_lock);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -189,6 +216,14 @@ static void cgroup_do_freeze(struct cgroup *cgrp, bool freeze)
 		clear_bit(CGRP_FREEZE, &cgrp->flags);
 	spin_unlock_irq(&css_set_lock);
 
+<<<<<<< HEAD
+=======
+	if (freeze)
+		TRACE_CGROUP_PATH(freeze, cgrp);
+	else
+		TRACE_CGROUP_PATH(unfreeze, cgrp);
+
+>>>>>>> upstream/android-13
 	css_task_iter_start(&cgrp->self, 0, &it);
 	while ((task = css_task_iter_next(&it))) {
 		/*
@@ -227,6 +262,18 @@ void cgroup_freezer_migrate_task(struct task_struct *task,
 		return;
 
 	/*
+<<<<<<< HEAD
+=======
+	 * It's not necessary to do changes if both of the src and dst cgroups
+	 * are not freezing and task is not frozen.
+	 */
+	if (!test_bit(CGRP_FREEZE, &src->flags) &&
+	    !test_bit(CGRP_FREEZE, &dst->flags) &&
+	    !task->frozen)
+		return;
+
+	/*
+>>>>>>> upstream/android-13
 	 * Adjust counters of freezing and frozen tasks.
 	 * Note, that if the task is frozen, but the destination cgroup is not
 	 * frozen, we bump both counters to keep them balanced.
@@ -244,6 +291,7 @@ void cgroup_freezer_migrate_task(struct task_struct *task,
 	cgroup_freeze_task(task, test_bit(CGRP_FREEZE, &dst->flags));
 }
 
+<<<<<<< HEAD
 void cgroup_freezer_frozen_exit(struct task_struct *task)
 {
 	struct cgroup *cgrp = task_dfl_cgroup(task);
@@ -254,6 +302,8 @@ void cgroup_freezer_frozen_exit(struct task_struct *task)
 	cgroup_update_frozen(cgrp);
 }
 
+=======
+>>>>>>> upstream/android-13
 void cgroup_freeze(struct cgroup *cgrp, bool freeze)
 {
 	struct cgroup_subsys_state *css;
@@ -312,6 +362,14 @@ void cgroup_freeze(struct cgroup *cgrp, bool freeze)
 	 * In both cases it's better to notify a user, that there is
 	 * nothing to wait for.
 	 */
+<<<<<<< HEAD
 	if (!applied)
 		cgroup_file_notify(&cgrp->events_file);
+=======
+	if (!applied) {
+		TRACE_CGROUP_PATH(notify_frozen, cgrp,
+				  test_bit(CGRP_FROZEN, &cgrp->flags));
+		cgroup_file_notify(&cgrp->events_file);
+	}
+>>>>>>> upstream/android-13
 }

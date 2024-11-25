@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 2008 Red Hat, Inc., Eric Paris <eparis@redhat.com>
  *
@@ -14,6 +15,11 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; see the file COPYING.  If not, write to
  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Copyright (C) 2008 Red Hat, Inc., Eric Paris <eparis@redhat.com>
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -82,6 +88,10 @@
 #include <linux/slab.h>
 #include <linux/spinlock.h>
 #include <linux/srcu.h>
+<<<<<<< HEAD
+=======
+#include <linux/ratelimit.h>
+>>>>>>> upstream/android-13
 
 #include <linux/atomic.h>
 
@@ -115,6 +125,11 @@ static __u32 *fsnotify_conn_mask_p(struct fsnotify_mark_connector *conn)
 		return &fsnotify_conn_inode(conn)->i_fsnotify_mask;
 	else if (conn->type == FSNOTIFY_OBJ_TYPE_VFSMOUNT)
 		return &fsnotify_conn_mount(conn)->mnt_fsnotify_mask;
+<<<<<<< HEAD
+=======
+	else if (conn->type == FSNOTIFY_OBJ_TYPE_SB)
+		return &fsnotify_conn_sb(conn)->s_fsnotify_mask;
+>>>>>>> upstream/android-13
 	return NULL;
 }
 
@@ -179,6 +194,40 @@ static void fsnotify_connector_destroy_workfn(struct work_struct *work)
 	}
 }
 
+<<<<<<< HEAD
+=======
+static void fsnotify_get_inode_ref(struct inode *inode)
+{
+	ihold(inode);
+	atomic_long_inc(&inode->i_sb->s_fsnotify_connectors);
+}
+
+static void fsnotify_put_inode_ref(struct inode *inode)
+{
+	struct super_block *sb = inode->i_sb;
+
+	iput(inode);
+	if (atomic_long_dec_and_test(&sb->s_fsnotify_connectors))
+		wake_up_var(&sb->s_fsnotify_connectors);
+}
+
+static void fsnotify_get_sb_connectors(struct fsnotify_mark_connector *conn)
+{
+	struct super_block *sb = fsnotify_connector_sb(conn);
+
+	if (sb)
+		atomic_long_inc(&sb->s_fsnotify_connectors);
+}
+
+static void fsnotify_put_sb_connectors(struct fsnotify_mark_connector *conn)
+{
+	struct super_block *sb = fsnotify_connector_sb(conn);
+
+	if (sb && atomic_long_dec_and_test(&sb->s_fsnotify_connectors))
+		wake_up_var(&sb->s_fsnotify_connectors);
+}
+
+>>>>>>> upstream/android-13
 static void *fsnotify_detach_connector_from_object(
 					struct fsnotify_mark_connector *conn,
 					unsigned int *type)
@@ -192,11 +241,21 @@ static void *fsnotify_detach_connector_from_object(
 	if (conn->type == FSNOTIFY_OBJ_TYPE_INODE) {
 		inode = fsnotify_conn_inode(conn);
 		inode->i_fsnotify_mask = 0;
+<<<<<<< HEAD
 		atomic_long_inc(&inode->i_sb->s_fsnotify_inode_refs);
 	} else if (conn->type == FSNOTIFY_OBJ_TYPE_VFSMOUNT) {
 		fsnotify_conn_mount(conn)->mnt_fsnotify_mask = 0;
 	}
 
+=======
+	} else if (conn->type == FSNOTIFY_OBJ_TYPE_VFSMOUNT) {
+		fsnotify_conn_mount(conn)->mnt_fsnotify_mask = 0;
+	} else if (conn->type == FSNOTIFY_OBJ_TYPE_SB) {
+		fsnotify_conn_sb(conn)->s_fsnotify_mask = 0;
+	}
+
+	fsnotify_put_sb_connectors(conn);
+>>>>>>> upstream/android-13
 	rcu_assign_pointer(*(conn->obj), NULL);
 	conn->obj = NULL;
 	conn->type = FSNOTIFY_OBJ_TYPE_DETACHED;
@@ -217,30 +276,45 @@ static void fsnotify_final_mark_destroy(struct fsnotify_mark *mark)
 /* Drop object reference originally held by a connector */
 static void fsnotify_drop_object(unsigned int type, void *objp)
 {
+<<<<<<< HEAD
 	struct inode *inode;
 	struct super_block *sb;
 
+=======
+>>>>>>> upstream/android-13
 	if (!objp)
 		return;
 	/* Currently only inode references are passed to be dropped */
 	if (WARN_ON_ONCE(type != FSNOTIFY_OBJ_TYPE_INODE))
 		return;
+<<<<<<< HEAD
 	inode = objp;
 	sb = inode->i_sb;
 	iput(inode);
 	if (atomic_long_dec_and_test(&sb->s_fsnotify_inode_refs))
 		wake_up_var(&sb->s_fsnotify_inode_refs);
+=======
+	fsnotify_put_inode_ref(objp);
+>>>>>>> upstream/android-13
 }
 
 void fsnotify_put_mark(struct fsnotify_mark *mark)
 {
+<<<<<<< HEAD
 	struct fsnotify_mark_connector *conn;
+=======
+	struct fsnotify_mark_connector *conn = READ_ONCE(mark->connector);
+>>>>>>> upstream/android-13
 	void *objp = NULL;
 	unsigned int type = FSNOTIFY_OBJ_TYPE_DETACHED;
 	bool free_conn = false;
 
 	/* Catch marks that were actually never attached to object */
+<<<<<<< HEAD
 	if (!mark->connector) {
+=======
+	if (!conn) {
+>>>>>>> upstream/android-13
 		if (refcount_dec_and_test(&mark->refcnt))
 			fsnotify_final_mark_destroy(mark);
 		return;
@@ -250,10 +324,16 @@ void fsnotify_put_mark(struct fsnotify_mark *mark)
 	 * We have to be careful so that traversals of obj_list under lock can
 	 * safely grab mark reference.
 	 */
+<<<<<<< HEAD
 	if (!refcount_dec_and_lock(&mark->refcnt, &mark->connector->lock))
 		return;
 
 	conn = mark->connector;
+=======
+	if (!refcount_dec_and_lock(&mark->refcnt, &conn->lock))
+		return;
+
+>>>>>>> upstream/android-13
 	hlist_del_init_rcu(&mark->obj_list);
 	if (hlist_empty(&conn->list)) {
 		objp = fsnotify_detach_connector_from_object(conn, &type);
@@ -261,7 +341,11 @@ void fsnotify_put_mark(struct fsnotify_mark *mark)
 	} else {
 		__fsnotify_recalc_mask(conn);
 	}
+<<<<<<< HEAD
 	mark->connector = NULL;
+=======
+	WRITE_ONCE(mark->connector, NULL);
+>>>>>>> upstream/android-13
 	spin_unlock(&conn->lock);
 
 	fsnotify_drop_object(type, objp);
@@ -285,6 +369,10 @@ void fsnotify_put_mark(struct fsnotify_mark *mark)
 	queue_delayed_work(system_unbound_wq, &reaper_work,
 			   FSNOTIFY_REAPER_DELAY);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(fsnotify_put_mark);
+>>>>>>> upstream/android-13
 
 /*
  * Get mark reference when we found the mark via lockless traversal of object
@@ -333,13 +421,24 @@ static void fsnotify_put_mark_wake(struct fsnotify_mark *mark)
 }
 
 bool fsnotify_prepare_user_wait(struct fsnotify_iter_info *iter_info)
+<<<<<<< HEAD
+=======
+	__releases(&fsnotify_mark_srcu)
+>>>>>>> upstream/android-13
 {
 	int type;
 
 	fsnotify_foreach_obj_type(type) {
 		/* This can fail if mark is being removed */
+<<<<<<< HEAD
 		if (!fsnotify_get_mark_safe(iter_info->marks[type]))
 			goto fail;
+=======
+		if (!fsnotify_get_mark_safe(iter_info->marks[type])) {
+			__release(&fsnotify_mark_srcu);
+			goto fail;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -358,6 +457,10 @@ fail:
 }
 
 void fsnotify_finish_user_wait(struct fsnotify_iter_info *iter_info)
+<<<<<<< HEAD
+=======
+	__acquires(&fsnotify_mark_srcu)
+>>>>>>> upstream/android-13
 {
 	int type;
 
@@ -395,8 +498,11 @@ void fsnotify_detach_mark(struct fsnotify_mark *mark)
 	list_del_init(&mark->g_list);
 	spin_unlock(&mark->lock);
 
+<<<<<<< HEAD
 	atomic_dec(&group->num_marks);
 
+=======
+>>>>>>> upstream/android-13
 	/* Drop mark reference acquired in fsnotify_add_mark_locked() */
 	fsnotify_put_mark(mark);
 }
@@ -439,6 +545,10 @@ void fsnotify_destroy_mark(struct fsnotify_mark *mark,
 	mutex_unlock(&group->mark_mutex);
 	fsnotify_free_mark(mark);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(fsnotify_destroy_mark);
+>>>>>>> upstream/android-13
 
 /*
  * Sorting function for lists of fsnotify marks.
@@ -477,7 +587,12 @@ int fsnotify_compare_groups(struct fsnotify_group *a, struct fsnotify_group *b)
 }
 
 static int fsnotify_attach_connector_to_object(fsnotify_connp_t *connp,
+<<<<<<< HEAD
 					       unsigned int type)
+=======
+					       unsigned int type,
+					       __kernel_fsid_t *fsid)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode = NULL;
 	struct fsnotify_mark_connector *conn;
@@ -489,8 +604,25 @@ static int fsnotify_attach_connector_to_object(fsnotify_connp_t *connp,
 	INIT_HLIST_HEAD(&conn->list);
 	conn->type = type;
 	conn->obj = connp;
+<<<<<<< HEAD
 	if (conn->type == FSNOTIFY_OBJ_TYPE_INODE)
 		inode = igrab(fsnotify_conn_inode(conn));
+=======
+	/* Cache fsid of filesystem containing the object */
+	if (fsid) {
+		conn->fsid = *fsid;
+		conn->flags = FSNOTIFY_CONN_FLAG_HAS_FSID;
+	} else {
+		conn->fsid.val[0] = conn->fsid.val[1] = 0;
+		conn->flags = 0;
+	}
+	if (conn->type == FSNOTIFY_OBJ_TYPE_INODE) {
+		inode = fsnotify_conn_inode(conn);
+		fsnotify_get_inode_ref(inode);
+	}
+	fsnotify_get_sb_connectors(conn);
+
+>>>>>>> upstream/android-13
 	/*
 	 * cmpxchg() provides the barrier so that readers of *connp can see
 	 * only initialized structure
@@ -498,7 +630,12 @@ static int fsnotify_attach_connector_to_object(fsnotify_connp_t *connp,
 	if (cmpxchg(connp, NULL, conn)) {
 		/* Someone else created list structure for us */
 		if (inode)
+<<<<<<< HEAD
 			iput(inode);
+=======
+			fsnotify_put_inode_ref(inode);
+		fsnotify_put_sb_connectors(conn);
+>>>>>>> upstream/android-13
 		kmem_cache_free(fsnotify_mark_connector_cachep, conn);
 	}
 
@@ -540,7 +677,11 @@ out:
  */
 static int fsnotify_add_mark_list(struct fsnotify_mark *mark,
 				  fsnotify_connp_t *connp, unsigned int type,
+<<<<<<< HEAD
 				  int allow_dups)
+=======
+				  int allow_dups, __kernel_fsid_t *fsid)
+>>>>>>> upstream/android-13
 {
 	struct fsnotify_mark *lmark, *last = NULL;
 	struct fsnotify_mark_connector *conn;
@@ -549,15 +690,51 @@ static int fsnotify_add_mark_list(struct fsnotify_mark *mark,
 
 	if (WARN_ON(!fsnotify_valid_obj_type(type)))
 		return -EINVAL;
+<<<<<<< HEAD
+=======
+
+	/* Backend is expected to check for zero fsid (e.g. tmpfs) */
+	if (fsid && WARN_ON_ONCE(!fsid->val[0] && !fsid->val[1]))
+		return -ENODEV;
+
+>>>>>>> upstream/android-13
 restart:
 	spin_lock(&mark->lock);
 	conn = fsnotify_grab_connector(connp);
 	if (!conn) {
 		spin_unlock(&mark->lock);
+<<<<<<< HEAD
 		err = fsnotify_attach_connector_to_object(connp, type);
 		if (err)
 			return err;
 		goto restart;
+=======
+		err = fsnotify_attach_connector_to_object(connp, type, fsid);
+		if (err)
+			return err;
+		goto restart;
+	} else if (fsid && !(conn->flags & FSNOTIFY_CONN_FLAG_HAS_FSID)) {
+		conn->fsid = *fsid;
+		/* Pairs with smp_rmb() in fanotify_get_fsid() */
+		smp_wmb();
+		conn->flags |= FSNOTIFY_CONN_FLAG_HAS_FSID;
+	} else if (fsid && (conn->flags & FSNOTIFY_CONN_FLAG_HAS_FSID) &&
+		   (fsid->val[0] != conn->fsid.val[0] ||
+		    fsid->val[1] != conn->fsid.val[1])) {
+		/*
+		 * Backend is expected to check for non uniform fsid
+		 * (e.g. btrfs), but maybe we missed something?
+		 * Only allow setting conn->fsid once to non zero fsid.
+		 * inotify and non-fid fanotify groups do not set nor test
+		 * conn->fsid.
+		 */
+		pr_warn_ratelimited("%s: fsid mismatch on object of type %u: "
+				    "%x.%x != %x.%x\n", __func__, conn->type,
+				    fsid->val[0], fsid->val[1],
+				    conn->fsid.val[0], conn->fsid.val[1]);
+		err = -EXDEV;
+		goto out_err;
+>>>>>>> upstream/android-13
 	}
 
 	/* is mark the first mark? */
@@ -588,7 +765,16 @@ restart:
 	/* mark should be the last entry.  last is the current last entry */
 	hlist_add_behind_rcu(&mark->obj_list, &last->obj_list);
 added:
+<<<<<<< HEAD
 	mark->connector = conn;
+=======
+	/*
+	 * Since connector is attached to object using cmpxchg() we are
+	 * guaranteed that connector initialization is fully visible by anyone
+	 * seeing mark->connector set.
+	 */
+	WRITE_ONCE(mark->connector, conn);
+>>>>>>> upstream/android-13
 out_err:
 	spin_unlock(&conn->lock);
 	spin_unlock(&mark->lock);
@@ -602,7 +788,11 @@ out_err:
  */
 int fsnotify_add_mark_locked(struct fsnotify_mark *mark,
 			     fsnotify_connp_t *connp, unsigned int type,
+<<<<<<< HEAD
 			     int allow_dups)
+=======
+			     int allow_dups, __kernel_fsid_t *fsid)
+>>>>>>> upstream/android-13
 {
 	struct fsnotify_group *group = mark->group;
 	int ret = 0;
@@ -619,11 +809,18 @@ int fsnotify_add_mark_locked(struct fsnotify_mark *mark,
 	mark->flags |= FSNOTIFY_MARK_FLAG_ALIVE | FSNOTIFY_MARK_FLAG_ATTACHED;
 
 	list_add(&mark->g_list, &group->marks_list);
+<<<<<<< HEAD
 	atomic_inc(&group->num_marks);
 	fsnotify_get_mark(mark); /* for g_list */
 	spin_unlock(&mark->lock);
 
 	ret = fsnotify_add_mark_list(mark, connp, type, allow_dups);
+=======
+	fsnotify_get_mark(mark); /* for g_list */
+	spin_unlock(&mark->lock);
+
+	ret = fsnotify_add_mark_list(mark, connp, type, allow_dups, fsid);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto err;
 
@@ -637,23 +834,38 @@ err:
 			 FSNOTIFY_MARK_FLAG_ATTACHED);
 	list_del_init(&mark->g_list);
 	spin_unlock(&mark->lock);
+<<<<<<< HEAD
 	atomic_dec(&group->num_marks);
+=======
+>>>>>>> upstream/android-13
 
 	fsnotify_put_mark(mark);
 	return ret;
 }
 
 int fsnotify_add_mark(struct fsnotify_mark *mark, fsnotify_connp_t *connp,
+<<<<<<< HEAD
 		      unsigned int type, int allow_dups)
+=======
+		      unsigned int type, int allow_dups, __kernel_fsid_t *fsid)
+>>>>>>> upstream/android-13
 {
 	int ret;
 	struct fsnotify_group *group = mark->group;
 
 	mutex_lock(&group->mark_mutex);
+<<<<<<< HEAD
 	ret = fsnotify_add_mark_locked(mark, connp, type, allow_dups);
 	mutex_unlock(&group->mark_mutex);
 	return ret;
 }
+=======
+	ret = fsnotify_add_mark_locked(mark, connp, type, allow_dups, fsid);
+	mutex_unlock(&group->mark_mutex);
+	return ret;
+}
+EXPORT_SYMBOL_GPL(fsnotify_add_mark);
+>>>>>>> upstream/android-13
 
 /*
  * Given a list of marks, find the mark associated with given group. If found
@@ -680,6 +892,10 @@ struct fsnotify_mark *fsnotify_find_mark(fsnotify_connp_t *connp,
 	spin_unlock(&conn->lock);
 	return NULL;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(fsnotify_find_mark);
+>>>>>>> upstream/android-13
 
 /* Clear any marks in a group with given type mask */
 void fsnotify_clear_marks_by_group(struct fsnotify_group *group,
@@ -776,7 +992,13 @@ void fsnotify_init_mark(struct fsnotify_mark *mark,
 	refcount_set(&mark->refcnt, 1);
 	fsnotify_get_group(group);
 	mark->group = group;
+<<<<<<< HEAD
 }
+=======
+	WRITE_ONCE(mark->connector, NULL);
+}
+EXPORT_SYMBOL_GPL(fsnotify_init_mark);
+>>>>>>> upstream/android-13
 
 /*
  * Destroy all marks in destroy_list, waits for SRCU period to finish before
@@ -805,3 +1027,7 @@ void fsnotify_wait_marks_destroyed(void)
 {
 	flush_delayed_work(&reaper_work);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(fsnotify_wait_marks_destroyed);
+>>>>>>> upstream/android-13

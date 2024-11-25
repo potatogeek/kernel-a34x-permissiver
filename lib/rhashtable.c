@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Resizable, Scalable, Concurrent Hash Table
  *
@@ -8,10 +12,13 @@
  * Code partially derived from nft_hash
  * Rewritten with rehash code from br_multicast plus single list
  * pointer as suggested by Josh Triplett
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/atomic.h>
@@ -31,11 +38,18 @@
 
 #define HASH_DEFAULT_SIZE	64UL
 #define HASH_MIN_SIZE		4U
+<<<<<<< HEAD
 #define BUCKET_LOCKS_PER_CPU	32UL
 
 union nested_table {
 	union nested_table __rcu *table;
 	struct rhash_head __rcu *bucket;
+=======
+
+union nested_table {
+	union nested_table __rcu *table;
+	struct rhash_lock_head __rcu *bucket;
+>>>>>>> upstream/android-13
 };
 
 static u32 head_hashfn(struct rhashtable *ht,
@@ -56,22 +70,46 @@ EXPORT_SYMBOL_GPL(lockdep_rht_mutex_is_held);
 
 int lockdep_rht_bucket_is_held(const struct bucket_table *tbl, u32 hash)
 {
+<<<<<<< HEAD
 	spinlock_t *lock = rht_bucket_lock(tbl, hash);
 
 	return (debug_locks) ? lockdep_is_held(lock) : 1;
+=======
+	if (!debug_locks)
+		return 1;
+	if (unlikely(tbl->nest))
+		return 1;
+	return bit_spin_is_locked(0, (unsigned long *)&tbl->buckets[hash]);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(lockdep_rht_bucket_is_held);
 #else
 #define ASSERT_RHT_MUTEX(HT)
 #endif
 
+<<<<<<< HEAD
+=======
+static inline union nested_table *nested_table_top(
+	const struct bucket_table *tbl)
+{
+	/* The top-level bucket entry does not need RCU protection
+	 * because it's set at the same time as tbl->nest.
+	 */
+	return (void *)rcu_dereference_protected(tbl->buckets[0], 1);
+}
+
+>>>>>>> upstream/android-13
 static void nested_table_free(union nested_table *ntbl, unsigned int size)
 {
 	const unsigned int shift = PAGE_SHIFT - ilog2(sizeof(void *));
 	const unsigned int len = 1 << shift;
 	unsigned int i;
 
+<<<<<<< HEAD
 	ntbl = rcu_dereference_raw(ntbl->table);
+=======
+	ntbl = rcu_dereference_protected(ntbl->table, 1);
+>>>>>>> upstream/android-13
 	if (!ntbl)
 		return;
 
@@ -91,7 +129,11 @@ static void nested_bucket_table_free(const struct bucket_table *tbl)
 	union nested_table *ntbl;
 	unsigned int i;
 
+<<<<<<< HEAD
 	ntbl = (union nested_table *)rcu_dereference_raw(tbl->buckets[0]);
+=======
+	ntbl = nested_table_top(tbl);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < len; i++)
 		nested_table_free(ntbl + i, size);
@@ -104,7 +146,10 @@ static void bucket_table_free(const struct bucket_table *tbl)
 	if (tbl->nest)
 		nested_bucket_table_free(tbl);
 
+<<<<<<< HEAD
 	free_bucket_spinlocks(tbl->locks);
+=======
+>>>>>>> upstream/android-13
 	kvfree(tbl);
 }
 
@@ -131,9 +176,17 @@ static union nested_table *nested_table_alloc(struct rhashtable *ht,
 			INIT_RHT_NULLS_HEAD(ntbl[i].bucket);
 	}
 
+<<<<<<< HEAD
 	rcu_assign_pointer(*prev, ntbl);
 
 	return ntbl;
+=======
+	if (cmpxchg((union nested_table **)prev, NULL, ntbl) == NULL)
+		return ntbl;
+	/* Raced with another thread. */
+	kfree(ntbl);
+	return rcu_dereference(*prev);
+>>>>>>> upstream/android-13
 }
 
 static struct bucket_table *nested_bucket_table_alloc(struct rhashtable *ht,
@@ -169,11 +222,19 @@ static struct bucket_table *bucket_table_alloc(struct rhashtable *ht,
 					       gfp_t gfp)
 {
 	struct bucket_table *tbl = NULL;
+<<<<<<< HEAD
 	size_t size, max_locks;
 	int i;
 
 	size = sizeof(*tbl) + nbuckets * sizeof(tbl->buckets[0]);
 	tbl = kvzalloc(size, gfp);
+=======
+	size_t size;
+	int i;
+	static struct lock_class_key __key;
+
+	tbl = kvzalloc(struct_size(tbl, buckets, nbuckets), gfp);
+>>>>>>> upstream/android-13
 
 	size = nbuckets;
 
@@ -185,6 +246,7 @@ static struct bucket_table *bucket_table_alloc(struct rhashtable *ht,
 	if (tbl == NULL)
 		return NULL;
 
+<<<<<<< HEAD
 	tbl->size = size;
 
 	max_locks = size >> 1;
@@ -197,6 +259,13 @@ static struct bucket_table *bucket_table_alloc(struct rhashtable *ht,
 		return NULL;
 	}
 
+=======
+	lockdep_init_map(&tbl->dep_map, "rhashtable_bucket", &__key, 0);
+
+	tbl->size = size;
+
+	rcu_head_init(&tbl->rcu);
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&tbl->walkers);
 
 	tbl->hash_rnd = get_random_u32();
@@ -220,6 +289,7 @@ static struct bucket_table *rhashtable_last_table(struct rhashtable *ht,
 	return new_tbl;
 }
 
+<<<<<<< HEAD
 static int rhashtable_rehash_one(struct rhashtable *ht, unsigned int old_hash)
 {
 	struct bucket_table *old_tbl = rht_dereference(ht->tbl, ht);
@@ -228,6 +298,17 @@ static int rhashtable_rehash_one(struct rhashtable *ht, unsigned int old_hash)
 	int err = -EAGAIN;
 	struct rhash_head *head, *next, *entry;
 	spinlock_t *new_bucket_lock;
+=======
+static int rhashtable_rehash_one(struct rhashtable *ht,
+				 struct rhash_lock_head __rcu **bkt,
+				 unsigned int old_hash)
+{
+	struct bucket_table *old_tbl = rht_dereference(ht->tbl, ht);
+	struct bucket_table *new_tbl = rhashtable_last_table(ht, old_tbl);
+	int err = -EAGAIN;
+	struct rhash_head *head, *next, *entry;
+	struct rhash_head __rcu **pprev = NULL;
+>>>>>>> upstream/android-13
 	unsigned int new_hash;
 
 	if (new_tbl->nest)
@@ -235,7 +316,12 @@ static int rhashtable_rehash_one(struct rhashtable *ht, unsigned int old_hash)
 
 	err = -ENOENT;
 
+<<<<<<< HEAD
 	rht_for_each(entry, old_tbl, old_hash) {
+=======
+	rht_for_each_from(entry, rht_ptr(bkt, old_tbl, old_hash),
+			  old_tbl, old_hash) {
+>>>>>>> upstream/android-13
 		err = 0;
 		next = rht_dereference_bucket(entry->next, old_tbl, old_hash);
 
@@ -250,6 +336,7 @@ static int rhashtable_rehash_one(struct rhashtable *ht, unsigned int old_hash)
 
 	new_hash = head_hashfn(ht, new_tbl, entry);
 
+<<<<<<< HEAD
 	new_bucket_lock = rht_bucket_lock(new_tbl, new_hash);
 
 	spin_lock_nested(new_bucket_lock, SINGLE_DEPTH_NESTING);
@@ -262,6 +349,21 @@ static int rhashtable_rehash_one(struct rhashtable *ht, unsigned int old_hash)
 	spin_unlock(new_bucket_lock);
 
 	rcu_assign_pointer(*pprev, next);
+=======
+	rht_lock_nested(new_tbl, &new_tbl->buckets[new_hash], SINGLE_DEPTH_NESTING);
+
+	head = rht_ptr(new_tbl->buckets + new_hash, new_tbl, new_hash);
+
+	RCU_INIT_POINTER(entry->next, head);
+
+	rht_assign_unlock(new_tbl, &new_tbl->buckets[new_hash], entry);
+
+	if (pprev)
+		rcu_assign_pointer(*pprev, next);
+	else
+		/* Need to preserved the bit lock. */
+		rht_assign_locked(bkt, next);
+>>>>>>> upstream/android-13
 
 out:
 	return err;
@@ -271,6 +373,7 @@ static int rhashtable_rehash_chain(struct rhashtable *ht,
 				    unsigned int old_hash)
 {
 	struct bucket_table *old_tbl = rht_dereference(ht->tbl, ht);
+<<<<<<< HEAD
 	spinlock_t *old_bucket_lock;
 	int err;
 
@@ -285,6 +388,21 @@ static int rhashtable_rehash_chain(struct rhashtable *ht,
 		err = 0;
 	}
 	spin_unlock_bh(old_bucket_lock);
+=======
+	struct rhash_lock_head __rcu **bkt = rht_bucket_var(old_tbl, old_hash);
+	int err;
+
+	if (!bkt)
+		return 0;
+	rht_lock(old_tbl, bkt);
+
+	while (!(err = rhashtable_rehash_one(ht, bkt, old_hash)))
+		;
+
+	if (err == -ENOENT)
+		err = 0;
+	rht_unlock(old_tbl, bkt);
+>>>>>>> upstream/android-13
 
 	return err;
 }
@@ -299,7 +417,12 @@ static int rhashtable_rehash_attach(struct rhashtable *ht,
 	 * rcu_assign_pointer().
 	 */
 
+<<<<<<< HEAD
 	if (cmpxchg(&old_tbl->future_tbl, NULL, new_tbl) != NULL)
+=======
+	if (cmpxchg((struct bucket_table **)&old_tbl->future_tbl, NULL,
+		    new_tbl) != NULL)
+>>>>>>> upstream/android-13
 		return -EEXIST;
 
 	return 0;
@@ -330,13 +453,25 @@ static int rhashtable_rehash_table(struct rhashtable *ht)
 	spin_lock(&ht->lock);
 	list_for_each_entry(walker, &old_tbl->walkers, list)
 		walker->tbl = NULL;
+<<<<<<< HEAD
 	spin_unlock(&ht->lock);
+=======
+>>>>>>> upstream/android-13
 
 	/* Wait for readers. All new readers will see the new
 	 * table, and thus no references to the old table will
 	 * remain.
+<<<<<<< HEAD
 	 */
 	call_rcu(&old_tbl->rcu, bucket_table_free_rcu);
+=======
+	 * We do this inside the locked region so that
+	 * rhashtable_walk_stop() can use rcu_head_after_call_rcu()
+	 * to check if it should not re-link the table.
+	 */
+	call_rcu(&old_tbl->rcu, bucket_table_free_rcu);
+	spin_unlock(&ht->lock);
+>>>>>>> upstream/android-13
 
 	return rht_dereference(new_tbl->future_tbl, ht) ? -EAGAIN : 0;
 }
@@ -478,6 +613,10 @@ fail:
 }
 
 static void *rhashtable_lookup_one(struct rhashtable *ht,
+<<<<<<< HEAD
+=======
+				   struct rhash_lock_head __rcu **bkt,
+>>>>>>> upstream/android-13
 				   struct bucket_table *tbl, unsigned int hash,
 				   const void *key, struct rhash_head *obj)
 {
@@ -485,13 +624,21 @@ static void *rhashtable_lookup_one(struct rhashtable *ht,
 		.ht = ht,
 		.key = key,
 	};
+<<<<<<< HEAD
 	struct rhash_head __rcu **pprev;
+=======
+	struct rhash_head __rcu **pprev = NULL;
+>>>>>>> upstream/android-13
 	struct rhash_head *head;
 	int elasticity;
 
 	elasticity = RHT_ELASTICITY;
+<<<<<<< HEAD
 	pprev = rht_bucket_var(tbl, hash);
 	rht_for_each_continue(head, *pprev, tbl, hash) {
+=======
+	rht_for_each_from(head, rht_ptr(bkt, tbl, hash), tbl, hash) {
+>>>>>>> upstream/android-13
 		struct rhlist_head *list;
 		struct rhlist_head *plist;
 
@@ -513,7 +660,15 @@ static void *rhashtable_lookup_one(struct rhashtable *ht,
 		RCU_INIT_POINTER(list->next, plist);
 		head = rht_dereference_bucket(head->next, tbl, hash);
 		RCU_INIT_POINTER(list->rhead.next, head);
+<<<<<<< HEAD
 		rcu_assign_pointer(*pprev, obj);
+=======
+		if (pprev)
+			rcu_assign_pointer(*pprev, obj);
+		else
+			/* Need to preserve the bit lock */
+			rht_assign_locked(bkt, obj);
+>>>>>>> upstream/android-13
 
 		return NULL;
 	}
@@ -524,6 +679,7 @@ static void *rhashtable_lookup_one(struct rhashtable *ht,
 	return ERR_PTR(-ENOENT);
 }
 
+<<<<<<< HEAD
 static struct bucket_table *rhashtable_insert_one(struct rhashtable *ht,
 						  struct bucket_table *tbl,
 						  unsigned int hash,
@@ -531,6 +687,13 @@ static struct bucket_table *rhashtable_insert_one(struct rhashtable *ht,
 						  void *data)
 {
 	struct rhash_head __rcu **pprev;
+=======
+static struct bucket_table *rhashtable_insert_one(
+	struct rhashtable *ht, struct rhash_lock_head __rcu **bkt,
+	struct bucket_table *tbl, unsigned int hash, struct rhash_head *obj,
+	void *data)
+{
+>>>>>>> upstream/android-13
 	struct bucket_table *new_tbl;
 	struct rhash_head *head;
 
@@ -553,11 +716,15 @@ static struct bucket_table *rhashtable_insert_one(struct rhashtable *ht,
 	if (unlikely(rht_grow_above_100(ht, tbl)))
 		return ERR_PTR(-EAGAIN);
 
+<<<<<<< HEAD
 	pprev = rht_bucket_insert(ht, tbl, hash);
 	if (!pprev)
 		return ERR_PTR(-ENOMEM);
 
 	head = rht_dereference_bucket(*pprev, tbl, hash);
+=======
+	head = rht_ptr(bkt, tbl, hash);
+>>>>>>> upstream/android-13
 
 	RCU_INIT_POINTER(obj->next, head);
 	if (ht->rhlist) {
@@ -567,7 +734,14 @@ static struct bucket_table *rhashtable_insert_one(struct rhashtable *ht,
 		RCU_INIT_POINTER(list->next, NULL);
 	}
 
+<<<<<<< HEAD
 	rcu_assign_pointer(*pprev, obj);
+=======
+	/* bkt is always the head of the list, so it holds
+	 * the lock, which we need to preserve
+	 */
+	rht_assign_locked(bkt, obj);
+>>>>>>> upstream/android-13
 
 	atomic_inc(&ht->nelems);
 	if (rht_grow_above_75(ht, tbl))
@@ -581,6 +755,7 @@ static void *rhashtable_try_insert(struct rhashtable *ht, const void *key,
 {
 	struct bucket_table *new_tbl;
 	struct bucket_table *tbl;
+<<<<<<< HEAD
 	unsigned int hash;
 	spinlock_t *lock;
 	void *data;
@@ -622,6 +797,37 @@ static void *rhashtable_try_insert(struct rhashtable *ht, const void *key,
 	}
 
 	spin_unlock_bh(lock);
+=======
+	struct rhash_lock_head __rcu **bkt;
+	unsigned int hash;
+	void *data;
+
+	new_tbl = rcu_dereference(ht->tbl);
+
+	do {
+		tbl = new_tbl;
+		hash = rht_head_hashfn(ht, tbl, obj, ht->p);
+		if (rcu_access_pointer(tbl->future_tbl))
+			/* Failure is OK */
+			bkt = rht_bucket_var(tbl, hash);
+		else
+			bkt = rht_bucket_insert(ht, tbl, hash);
+		if (bkt == NULL) {
+			new_tbl = rht_dereference_rcu(tbl->future_tbl, ht);
+			data = ERR_PTR(-EAGAIN);
+		} else {
+			rht_lock(tbl, bkt);
+			data = rhashtable_lookup_one(ht, bkt, tbl,
+						     hash, key, obj);
+			new_tbl = rhashtable_insert_one(ht, bkt, tbl,
+							hash, obj, data);
+			if (PTR_ERR(new_tbl) != -EEXIST)
+				data = ERR_CAST(new_tbl);
+
+			rht_unlock(tbl, bkt);
+		}
+	} while (!IS_ERR_OR_NULL(new_tbl));
+>>>>>>> upstream/android-13
 
 	if (PTR_ERR(data) == -EAGAIN)
 		data = ERR_PTR(rhashtable_insert_rehash(ht, tbl) ?:
@@ -686,7 +892,11 @@ EXPORT_SYMBOL_GPL(rhashtable_walk_enter);
  * rhashtable_walk_exit - Free an iterator
  * @iter:	Hash table Iterator
  *
+<<<<<<< HEAD
  * This function frees resources allocated by rhashtable_walk_init.
+=======
+ * This function frees resources allocated by rhashtable_walk_enter.
+>>>>>>> upstream/android-13
  */
 void rhashtable_walk_exit(struct rhashtable_iter *iter)
 {
@@ -707,7 +917,11 @@ EXPORT_SYMBOL_GPL(rhashtable_walk_exit);
  *
  * Returns zero if successful.
  *
+<<<<<<< HEAD
  * Returns -EAGAIN if resize event occured.  Note that the iterator
+=======
+ * Returns -EAGAIN if resize event occurred.  Note that the iterator
+>>>>>>> upstream/android-13
  * will rewind back to the beginning and you may use it immediately
  * by calling rhashtable_walk_next.
  *
@@ -943,10 +1157,18 @@ void rhashtable_walk_stop(struct rhashtable_iter *iter)
 	ht = iter->ht;
 
 	spin_lock(&ht->lock);
+<<<<<<< HEAD
 	if (tbl->rehash < tbl->size)
 		list_add(&iter->walker.list, &tbl->walkers);
 	else
 		iter->walker.tbl = NULL;
+=======
+	if (rcu_head_after_call_rcu(&tbl->rcu, bucket_table_free_rcu))
+		/* This bucket table is being freed, don't re-link it. */
+		iter->walker.tbl = NULL;
+	else
+		list_add(&iter->walker.list, &tbl->walkers);
+>>>>>>> upstream/android-13
 	spin_unlock(&ht->lock);
 
 out:
@@ -1046,11 +1268,14 @@ int rhashtable_init(struct rhashtable *ht,
 
 	size = rounded_hashtable_size(&ht->p);
 
+<<<<<<< HEAD
 	if (params->locks_mul)
 		ht->p.locks_mul = roundup_pow_of_two(params->locks_mul);
 	else
 		ht->p.locks_mul = BUCKET_LOCKS_PER_CPU;
 
+=======
+>>>>>>> upstream/android-13
 	ht->key_len = ht->p.key_len;
 	if (!params->hashfn) {
 		ht->p.hashfn = jhash;
@@ -1152,7 +1377,11 @@ restart:
 			struct rhash_head *pos, *next;
 
 			cond_resched();
+<<<<<<< HEAD
 			for (pos = rht_dereference(*rht_bucket(tbl, i), ht),
+=======
+			for (pos = rht_ptr_exclusive(rht_bucket(tbl, i)),
+>>>>>>> upstream/android-13
 			     next = !rht_is_a_nulls(pos) ?
 					rht_dereference(pos->next, ht) : NULL;
 			     !rht_is_a_nulls(pos);
@@ -1179,18 +1408,29 @@ void rhashtable_destroy(struct rhashtable *ht)
 }
 EXPORT_SYMBOL_GPL(rhashtable_destroy);
 
+<<<<<<< HEAD
 struct rhash_head __rcu **rht_bucket_nested(const struct bucket_table *tbl,
 					    unsigned int hash)
 {
 	const unsigned int shift = PAGE_SHIFT - ilog2(sizeof(void *));
 	static struct rhash_head __rcu *rhnull =
 		(struct rhash_head __rcu *)NULLS_MARKER(0);
+=======
+struct rhash_lock_head __rcu **__rht_bucket_nested(
+	const struct bucket_table *tbl, unsigned int hash)
+{
+	const unsigned int shift = PAGE_SHIFT - ilog2(sizeof(void *));
+>>>>>>> upstream/android-13
 	unsigned int index = hash & ((1 << tbl->nest) - 1);
 	unsigned int size = tbl->size >> tbl->nest;
 	unsigned int subhash = hash;
 	union nested_table *ntbl;
 
+<<<<<<< HEAD
 	ntbl = (union nested_table *)rcu_dereference_raw(tbl->buckets[0]);
+=======
+	ntbl = nested_table_top(tbl);
+>>>>>>> upstream/android-13
 	ntbl = rht_dereference_bucket_rcu(ntbl[index].table, tbl, hash);
 	subhash >>= tbl->nest;
 
@@ -1203,23 +1443,49 @@ struct rhash_head __rcu **rht_bucket_nested(const struct bucket_table *tbl,
 	}
 
 	if (!ntbl)
+<<<<<<< HEAD
 		return &rhnull;
+=======
+		return NULL;
+>>>>>>> upstream/android-13
 
 	return &ntbl[subhash].bucket;
 
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(rht_bucket_nested);
 
 struct rhash_head __rcu **rht_bucket_nested_insert(struct rhashtable *ht,
 						   struct bucket_table *tbl,
 						   unsigned int hash)
+=======
+EXPORT_SYMBOL_GPL(__rht_bucket_nested);
+
+struct rhash_lock_head __rcu **rht_bucket_nested(
+	const struct bucket_table *tbl, unsigned int hash)
+{
+	static struct rhash_lock_head __rcu *rhnull;
+
+	if (!rhnull)
+		INIT_RHT_NULLS_HEAD(rhnull);
+	return __rht_bucket_nested(tbl, hash) ?: &rhnull;
+}
+EXPORT_SYMBOL_GPL(rht_bucket_nested);
+
+struct rhash_lock_head __rcu **rht_bucket_nested_insert(
+	struct rhashtable *ht, struct bucket_table *tbl, unsigned int hash)
+>>>>>>> upstream/android-13
 {
 	const unsigned int shift = PAGE_SHIFT - ilog2(sizeof(void *));
 	unsigned int index = hash & ((1 << tbl->nest) - 1);
 	unsigned int size = tbl->size >> tbl->nest;
 	union nested_table *ntbl;
 
+<<<<<<< HEAD
 	ntbl = (union nested_table *)rcu_dereference_raw(tbl->buckets[0]);
+=======
+	ntbl = nested_table_top(tbl);
+>>>>>>> upstream/android-13
 	hash >>= tbl->nest;
 	ntbl = nested_table_alloc(ht, &ntbl[index].table,
 				  size <= (1 << shift));

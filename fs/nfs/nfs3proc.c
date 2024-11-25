@@ -49,8 +49,12 @@ nfs3_async_handle_jukebox(struct rpc_task *task, struct inode *inode)
 {
 	if (task->tk_status != -EJUKEBOX)
 		return 0;
+<<<<<<< HEAD
 	if (task->tk_status == -EJUKEBOX)
 		nfs_inc_stats(inode, NFSIOS_DELAY);
+=======
+	nfs_inc_stats(inode, NFSIOS_DELAY);
+>>>>>>> upstream/android-13
 	task->tk_status = 0;
 	rpc_restart_call(task);
 	rpc_delay(task, NFS_JUKEBOX_RETRY_TIME);
@@ -110,10 +114,22 @@ nfs3_proc_getattr(struct nfs_server *server, struct nfs_fh *fhandle,
 		.rpc_resp	= fattr,
 	};
 	int	status;
+<<<<<<< HEAD
 
 	dprintk("NFS call  getattr\n");
 	nfs_fattr_init(fattr);
 	status = rpc_call_sync(server->client, &msg, 0);
+=======
+	unsigned short task_flags = 0;
+
+	/* Is this is an attribute revalidation, subject to softreval? */
+	if (inode && (server->flags & NFS_MOUNT_SOFTREVAL))
+		task_flags |= RPC_TASK_TIMEOUT;
+
+	dprintk("NFS call  getattr\n");
+	nfs_fattr_init(fattr);
+	status = rpc_call_sync(server->client, &msg, task_flags);
+>>>>>>> upstream/android-13
 	dprintk("NFS reply getattr: %d\n", status);
 	return status;
 }
@@ -140,15 +156,22 @@ nfs3_proc_setattr(struct dentry *dentry, struct nfs_fattr *fattr,
 	nfs_fattr_init(fattr);
 	status = rpc_call_sync(NFS_CLIENT(inode), &msg, 0);
 	if (status == 0) {
+<<<<<<< HEAD
 		if (NFS_I(inode)->cache_validity & NFS_INO_INVALID_ACL)
 			nfs_zap_acl_cache(inode);
 		nfs_setattr_update_inode(inode, sattr, fattr);
+=======
+		nfs_setattr_update_inode(inode, sattr, fattr);
+		if (NFS_I(inode)->cache_validity & NFS_INO_INVALID_ACL)
+			nfs_zap_acl_cache(inode);
+>>>>>>> upstream/android-13
 	}
 	dprintk("NFS reply setattr: %d\n", status);
 	return status;
 }
 
 static int
+<<<<<<< HEAD
 nfs3_proc_lookup(struct inode *dir, const struct qstr *name,
 		 struct nfs_fh *fhandle, struct nfs_fattr *fattr,
 		 struct nfs4_label *label)
@@ -157,6 +180,16 @@ nfs3_proc_lookup(struct inode *dir, const struct qstr *name,
 		.fh		= NFS_FH(dir),
 		.name		= name->name,
 		.len		= name->len
+=======
+__nfs3_proc_lookup(struct inode *dir, const char *name, size_t len,
+		   struct nfs_fh *fhandle, struct nfs_fattr *fattr,
+		   unsigned short task_flags)
+{
+	struct nfs3_diropargs	arg = {
+		.fh		= NFS_FH(dir),
+		.name		= name,
+		.len		= len
+>>>>>>> upstream/android-13
 	};
 	struct nfs3_diropres	res = {
 		.fh		= fhandle,
@@ -169,25 +202,70 @@ nfs3_proc_lookup(struct inode *dir, const struct qstr *name,
 	};
 	int			status;
 
+<<<<<<< HEAD
 	dprintk("NFS call  lookup %s\n", name->name);
+=======
+>>>>>>> upstream/android-13
 	res.dir_attr = nfs_alloc_fattr();
 	if (res.dir_attr == NULL)
 		return -ENOMEM;
 
 	nfs_fattr_init(fattr);
+<<<<<<< HEAD
 	status = rpc_call_sync(NFS_CLIENT(dir), &msg, 0);
+=======
+	status = rpc_call_sync(NFS_CLIENT(dir), &msg, task_flags);
+>>>>>>> upstream/android-13
 	nfs_refresh_inode(dir, res.dir_attr);
 	if (status >= 0 && !(fattr->valid & NFS_ATTR_FATTR)) {
 		msg.rpc_proc = &nfs3_procedures[NFS3PROC_GETATTR];
 		msg.rpc_argp = fhandle;
 		msg.rpc_resp = fattr;
+<<<<<<< HEAD
 		status = rpc_call_sync(NFS_CLIENT(dir), &msg, 0);
+=======
+		status = rpc_call_sync(NFS_CLIENT(dir), &msg, task_flags);
+>>>>>>> upstream/android-13
 	}
 	nfs_free_fattr(res.dir_attr);
 	dprintk("NFS reply lookup: %d\n", status);
 	return status;
 }
 
+<<<<<<< HEAD
+=======
+static int
+nfs3_proc_lookup(struct inode *dir, struct dentry *dentry,
+		 struct nfs_fh *fhandle, struct nfs_fattr *fattr,
+		 struct nfs4_label *label)
+{
+	unsigned short task_flags = 0;
+
+	/* Is this is an attribute revalidation, subject to softreval? */
+	if (nfs_lookup_is_soft_revalidate(dentry))
+		task_flags |= RPC_TASK_TIMEOUT;
+
+	dprintk("NFS call  lookup %pd2\n", dentry);
+	return __nfs3_proc_lookup(dir, dentry->d_name.name,
+				  dentry->d_name.len, fhandle, fattr,
+				  task_flags);
+}
+
+static int nfs3_proc_lookupp(struct inode *inode, struct nfs_fh *fhandle,
+			     struct nfs_fattr *fattr, struct nfs4_label *label)
+{
+	const char dotdot[] = "..";
+	const size_t len = strlen(dotdot);
+	unsigned short task_flags = 0;
+
+	if (NFS_SERVER(inode)->flags & NFS_MOUNT_SOFTREVAL)
+		task_flags |= RPC_TASK_TIMEOUT;
+
+	return __nfs3_proc_lookup(inode, dotdot, len, fhandle, fattr,
+				  task_flags);
+}
+
+>>>>>>> upstream/android-13
 static int nfs3_proc_access(struct inode *inode, struct nfs_access_entry *entry)
 {
 	struct nfs3_accessargs	arg = {
@@ -279,15 +357,27 @@ static struct nfs3_createdata *nfs3_alloc_createdata(void)
 	return data;
 }
 
+<<<<<<< HEAD
 static int nfs3_do_create(struct inode *dir, struct dentry *dentry, struct nfs3_createdata *data)
+=======
+static struct dentry *
+nfs3_do_create(struct inode *dir, struct dentry *dentry, struct nfs3_createdata *data)
+>>>>>>> upstream/android-13
 {
 	int status;
 
 	status = rpc_call_sync(NFS_CLIENT(dir), &data->msg, 0);
 	nfs_post_op_update_inode(dir, data->res.dir_attr);
+<<<<<<< HEAD
 	if (status == 0)
 		status = nfs_instantiate(dentry, data->res.fh, data->res.fattr, NULL);
 	return status;
+=======
+	if (status != 0)
+		return ERR_PTR(status);
+
+	return nfs_add_or_obtain(dentry, data->res.fh, data->res.fattr, NULL);
+>>>>>>> upstream/android-13
 }
 
 static void nfs3_free_createdata(struct nfs3_createdata *data)
@@ -304,6 +394,10 @@ nfs3_proc_create(struct inode *dir, struct dentry *dentry, struct iattr *sattr,
 {
 	struct posix_acl *default_acl, *acl;
 	struct nfs3_createdata *data;
+<<<<<<< HEAD
+=======
+	struct dentry *d_alias;
+>>>>>>> upstream/android-13
 	int status = -ENOMEM;
 
 	dprintk("NFS call  create %pd\n", dentry);
@@ -330,7 +424,12 @@ nfs3_proc_create(struct inode *dir, struct dentry *dentry, struct iattr *sattr,
 		goto out;
 
 	for (;;) {
+<<<<<<< HEAD
 		status = nfs3_do_create(dir, dentry, data);
+=======
+		d_alias = nfs3_do_create(dir, dentry, data);
+		status = PTR_ERR_OR_ZERO(d_alias);
+>>>>>>> upstream/android-13
 
 		if (status != -ENOTSUPP)
 			break;
@@ -346,7 +445,11 @@ nfs3_proc_create(struct inode *dir, struct dentry *dentry, struct iattr *sattr,
 				break;
 
 			case NFS3_CREATE_UNCHECKED:
+<<<<<<< HEAD
 				goto out;
+=======
+				goto out_release_acls;
+>>>>>>> upstream/android-13
 		}
 		nfs_fattr_init(data->res.dir_attr);
 		nfs_fattr_init(data->res.fattr);
@@ -355,6 +458,12 @@ nfs3_proc_create(struct inode *dir, struct dentry *dentry, struct iattr *sattr,
 	if (status != 0)
 		goto out_release_acls;
 
+<<<<<<< HEAD
+=======
+	if (d_alias)
+		dentry = d_alias;
+
+>>>>>>> upstream/android-13
 	/* When we created the file with exclusive semantics, make
 	 * sure we set the attributes afterwards. */
 	if (data->arg.create.createmode == NFS3_CREATE_EXCLUSIVE) {
@@ -372,11 +481,20 @@ nfs3_proc_create(struct inode *dir, struct dentry *dentry, struct iattr *sattr,
 		nfs_post_op_update_inode(d_inode(dentry), data->res.fattr);
 		dprintk("NFS reply setattr (post-create): %d\n", status);
 		if (status != 0)
+<<<<<<< HEAD
 			goto out_release_acls;
+=======
+			goto out_dput;
+>>>>>>> upstream/android-13
 	}
 
 	status = nfs3_proc_setacls(d_inode(dentry), acl, default_acl);
 
+<<<<<<< HEAD
+=======
+out_dput:
+	dput(d_alias);
+>>>>>>> upstream/android-13
 out_release_acls:
 	posix_acl_release(acl);
 	posix_acl_release(default_acl);
@@ -504,6 +622,10 @@ nfs3_proc_symlink(struct inode *dir, struct dentry *dentry, struct page *page,
 		  unsigned int len, struct iattr *sattr)
 {
 	struct nfs3_createdata *data;
+<<<<<<< HEAD
+=======
+	struct dentry *d_alias;
+>>>>>>> upstream/android-13
 	int status = -ENOMEM;
 
 	if (len > NFS3_MAXPATHLEN)
@@ -522,7 +644,15 @@ nfs3_proc_symlink(struct inode *dir, struct dentry *dentry, struct page *page,
 	data->arg.symlink.pathlen = len;
 	data->arg.symlink.sattr = sattr;
 
+<<<<<<< HEAD
 	status = nfs3_do_create(dir, dentry, data);
+=======
+	d_alias = nfs3_do_create(dir, dentry, data);
+	status = PTR_ERR_OR_ZERO(d_alias);
+
+	if (status == 0)
+		dput(d_alias);
+>>>>>>> upstream/android-13
 
 	nfs3_free_createdata(data);
 out:
@@ -535,6 +665,10 @@ nfs3_proc_mkdir(struct inode *dir, struct dentry *dentry, struct iattr *sattr)
 {
 	struct posix_acl *default_acl, *acl;
 	struct nfs3_createdata *data;
+<<<<<<< HEAD
+=======
+	struct dentry *d_alias;
+>>>>>>> upstream/android-13
 	int status = -ENOMEM;
 
 	dprintk("NFS call  mkdir %pd\n", dentry);
@@ -553,12 +687,27 @@ nfs3_proc_mkdir(struct inode *dir, struct dentry *dentry, struct iattr *sattr)
 	data->arg.mkdir.len = dentry->d_name.len;
 	data->arg.mkdir.sattr = sattr;
 
+<<<<<<< HEAD
 	status = nfs3_do_create(dir, dentry, data);
 	if (status != 0)
 		goto out_release_acls;
 
 	status = nfs3_proc_setacls(d_inode(dentry), acl, default_acl);
 
+=======
+	d_alias = nfs3_do_create(dir, dentry, data);
+	status = PTR_ERR_OR_ZERO(d_alias);
+
+	if (status != 0)
+		goto out_release_acls;
+
+	if (d_alias)
+		dentry = d_alias;
+
+	status = nfs3_proc_setacls(d_inode(dentry), acl, default_acl);
+
+	dput(d_alias);
+>>>>>>> upstream/android-13
 out_release_acls:
 	posix_acl_release(acl);
 	posix_acl_release(default_acl);
@@ -606,6 +755,7 @@ out:
  * Also note that this implementation handles both plain readdir and
  * readdirplus.
  */
+<<<<<<< HEAD
 static int
 nfs3_proc_readdir(struct dentry *dentry, struct rpc_cred *cred,
 		  u64 cookie, struct page **pages, unsigned int count, bool plus)
@@ -623,11 +773,28 @@ nfs3_proc_readdir(struct dentry *dentry, struct rpc_cred *cred,
 	struct nfs3_readdirres	res = {
 		.verf		= verf,
 		.plus		= plus
+=======
+static int nfs3_proc_readdir(struct nfs_readdir_arg *nr_arg,
+			     struct nfs_readdir_res *nr_res)
+{
+	struct inode		*dir = d_inode(nr_arg->dentry);
+	struct nfs3_readdirargs	arg = {
+		.fh		= NFS_FH(dir),
+		.cookie		= nr_arg->cookie,
+		.plus		= nr_arg->plus,
+		.count		= nr_arg->page_len,
+		.pages		= nr_arg->pages
+	};
+	struct nfs3_readdirres	res = {
+		.verf		= nr_res->verf,
+		.plus		= nr_arg->plus,
+>>>>>>> upstream/android-13
 	};
 	struct rpc_message	msg = {
 		.rpc_proc	= &nfs3_procedures[NFS3PROC_READDIR],
 		.rpc_argp	= &arg,
 		.rpc_resp	= &res,
+<<<<<<< HEAD
 		.rpc_cred	= cred
 	};
 	int status = -ENOMEM;
@@ -637,6 +804,19 @@ nfs3_proc_readdir(struct dentry *dentry, struct rpc_cred *cred,
 
 	dprintk("NFS call  readdir%s %d\n",
 			plus? "plus" : "", (unsigned int) cookie);
+=======
+		.rpc_cred	= nr_arg->cred,
+	};
+	int status = -ENOMEM;
+
+	if (nr_arg->plus)
+		msg.rpc_proc = &nfs3_procedures[NFS3PROC_READDIRPLUS];
+	if (arg.cookie)
+		memcpy(arg.verf, nr_arg->verf, sizeof(arg.verf));
+
+	dprintk("NFS call  readdir%s %llu\n", nr_arg->plus ? "plus" : "",
+		(unsigned long long)nr_arg->cookie);
+>>>>>>> upstream/android-13
 
 	res.dir_attr = nfs_alloc_fattr();
 	if (res.dir_attr == NULL)
@@ -649,8 +829,13 @@ nfs3_proc_readdir(struct dentry *dentry, struct rpc_cred *cred,
 
 	nfs_free_fattr(res.dir_attr);
 out:
+<<<<<<< HEAD
 	dprintk("NFS reply readdir%s: %d\n",
 			plus? "plus" : "", status);
+=======
+	dprintk("NFS reply readdir%s: %d\n", nr_arg->plus ? "plus" : "",
+		status);
+>>>>>>> upstream/android-13
 	return status;
 }
 
@@ -660,6 +845,10 @@ nfs3_proc_mknod(struct inode *dir, struct dentry *dentry, struct iattr *sattr,
 {
 	struct posix_acl *default_acl, *acl;
 	struct nfs3_createdata *data;
+<<<<<<< HEAD
+=======
+	struct dentry *d_alias;
+>>>>>>> upstream/android-13
 	int status = -ENOMEM;
 
 	dprintk("NFS call  mknod %pd %u:%u\n", dentry,
@@ -695,6 +884,7 @@ nfs3_proc_mknod(struct inode *dir, struct dentry *dentry, struct iattr *sattr,
 		break;
 	default:
 		status = -EINVAL;
+<<<<<<< HEAD
 		goto out;
 	}
 
@@ -704,6 +894,22 @@ nfs3_proc_mknod(struct inode *dir, struct dentry *dentry, struct iattr *sattr,
 
 	status = nfs3_proc_setacls(d_inode(dentry), acl, default_acl);
 
+=======
+		goto out_release_acls;
+	}
+
+	d_alias = nfs3_do_create(dir, dentry, data);
+	status = PTR_ERR_OR_ZERO(d_alias);
+	if (status != 0)
+		goto out_release_acls;
+
+	if (d_alias)
+		dentry = d_alias;
+
+	status = nfs3_proc_setacls(d_inode(dentry), acl, default_acl);
+
+	dput(d_alias);
+>>>>>>> upstream/android-13
 out_release_acls:
 	posix_acl_release(acl);
 	posix_acl_release(default_acl);
@@ -786,6 +992,10 @@ nfs3_proc_pathconf(struct nfs_server *server, struct nfs_fh *fhandle,
 static int nfs3_read_done(struct rpc_task *task, struct nfs_pgio_header *hdr)
 {
 	struct inode *inode = hdr->inode;
+<<<<<<< HEAD
+=======
+	struct nfs_server *server = NFS_SERVER(inode);
+>>>>>>> upstream/android-13
 
 	if (hdr->pgio_done_cb != NULL)
 		return hdr->pgio_done_cb(task, hdr);
@@ -793,6 +1003,12 @@ static int nfs3_read_done(struct rpc_task *task, struct nfs_pgio_header *hdr)
 	if (nfs3_async_handle_jukebox(task, inode))
 		return -EAGAIN;
 
+<<<<<<< HEAD
+=======
+	if (task->tk_status >= 0 && !server->read_hdrsize)
+		cmpxchg(&server->read_hdrsize, 0, hdr->res.replen);
+
+>>>>>>> upstream/android-13
 	nfs_invalidate_atime(inode);
 	nfs_refresh_inode(inode, &hdr->fattr);
 	return 0;
@@ -802,6 +1018,10 @@ static void nfs3_proc_read_setup(struct nfs_pgio_header *hdr,
 				 struct rpc_message *msg)
 {
 	msg->rpc_proc = &nfs3_procedures[NFS3PROC_READ];
+<<<<<<< HEAD
+=======
+	hdr->args.replen = NFS_SERVER(hdr->inode)->read_hdrsize;
+>>>>>>> upstream/android-13
 }
 
 static int nfs3_proc_pgio_rpc_prepare(struct rpc_task *task,
@@ -958,10 +1178,18 @@ const struct nfs_rpc_ops nfs_v3_clientops = {
 	.nlmclnt_ops	= &nlmclnt_fl_close_lock_ops,
 	.getroot	= nfs3_proc_get_root,
 	.submount	= nfs_submount,
+<<<<<<< HEAD
 	.try_mount	= nfs_try_mount,
 	.getattr	= nfs3_proc_getattr,
 	.setattr	= nfs3_proc_setattr,
 	.lookup		= nfs3_proc_lookup,
+=======
+	.try_get_tree	= nfs_try_get_tree,
+	.getattr	= nfs3_proc_getattr,
+	.setattr	= nfs3_proc_setattr,
+	.lookup		= nfs3_proc_lookup,
+	.lookupp	= nfs3_proc_lookupp,
+>>>>>>> upstream/android-13
 	.access		= nfs3_proc_access,
 	.readlink	= nfs3_proc_readlink,
 	.create		= nfs3_proc_create,

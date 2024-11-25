@@ -22,12 +22,25 @@
 #include <linux/slab.h>
 #include <linux/sysrq.h>
 #include <linux/input/matrix_keypad.h>
+<<<<<<< HEAD
 #include <linux/mfd/cros_ec.h>
 #include <linux/mfd/cros_ec_commands.h>
 
 #include <asm/unaligned.h>
 
 /*
+=======
+#include <linux/platform_data/cros_ec_commands.h>
+#include <linux/platform_data/cros_ec_proto.h>
+
+#include <asm/unaligned.h>
+
+#define MAX_NUM_TOP_ROW_KEYS   15
+
+/**
+ * struct cros_ec_keyb - Structure representing EC keyboard device
+ *
+>>>>>>> upstream/android-13
  * @rows: Number of rows in the keypad
  * @cols: Number of columns in the keypad
  * @row_shift: log2 or number of rows, rounded up
@@ -40,6 +53,12 @@
  * @idev: The input device for the matrix keys.
  * @bs_idev: The input device for non-matrix buttons and switches (or NULL).
  * @notifier: interrupt event notifier for transport devices
+<<<<<<< HEAD
+=======
+ * @function_row_physmap: An array of the encoded rows/columns for the top
+ *                        row function keys, in an order from left to right
+ * @num_function_row_keys: The number of top row keys in a custom keyboard
+>>>>>>> upstream/android-13
  */
 struct cros_ec_keyb {
 	unsigned int rows;
@@ -56,12 +75,23 @@ struct cros_ec_keyb {
 	struct input_dev *idev;
 	struct input_dev *bs_idev;
 	struct notifier_block notifier;
+<<<<<<< HEAD
 };
 
 
 /**
  * cros_ec_bs_map - Struct mapping Linux keycodes to EC button/switch bitmap
  * #defines
+=======
+
+	u16 function_row_physmap[MAX_NUM_TOP_ROW_KEYS];
+	size_t num_function_row_keys;
+};
+
+/**
+ * struct cros_ec_bs_map - Mapping between Linux keycodes and EC button/switch
+ *	bitmap #defines
+>>>>>>> upstream/android-13
  *
  * @ev_type: The type of the input event to generate (e.g., EV_KEY).
  * @code: A linux keycode
@@ -348,6 +378,7 @@ static int cros_ec_keyb_info(struct cros_ec_device *ec_dev,
 	params->info_type = info_type;
 	params->event_type = event_type;
 
+<<<<<<< HEAD
 	ret = cros_ec_cmd_xfer(ec_dev, msg);
 	if (ret < 0) {
 		dev_warn(ec_dev->dev, "Transfer error %d/%d: %d\n",
@@ -360,6 +391,16 @@ static int cros_ec_keyb_info(struct cros_ec_device *ec_dev,
 		dev_warn(ec_dev->dev, "Error getting info %d/%d: %d\n",
 			 (int)info_type, (int)event_type, msg->result);
 		ret = -EPROTO;
+=======
+	ret = cros_ec_cmd_xfer_status(ec_dev, msg);
+	if (ret == -ENOPROTOOPT) {
+		/* With older ECs we just return 0 for everything */
+		memset(result, 0, result_size);
+		ret = 0;
+	} else if (ret < 0) {
+		dev_warn(ec_dev->dev, "Transfer error %d/%d: %d\n",
+			 (int)info_type, (int)event_type, ret);
+>>>>>>> upstream/android-13
 	} else if (ret != result_size) {
 		dev_warn(ec_dev->dev, "Wrong size %d/%d: %d != %zu\n",
 			 (int)info_type, (int)event_type,
@@ -530,6 +571,14 @@ static int cros_ec_keyb_register_matrix(struct cros_ec_keyb *ckdev)
 	struct input_dev *idev;
 	const char *phys;
 	int err;
+<<<<<<< HEAD
+=======
+	struct property *prop;
+	const __be32 *p;
+	u16 *physmap;
+	u32 key_pos;
+	int row, col;
+>>>>>>> upstream/android-13
 
 	err = matrix_keypad_parse_properties(dev, &ckdev->rows, &ckdev->cols);
 	if (err)
@@ -581,6 +630,24 @@ static int cros_ec_keyb_register_matrix(struct cros_ec_keyb *ckdev)
 	ckdev->idev = idev;
 	cros_ec_keyb_compute_valid_keys(ckdev);
 
+<<<<<<< HEAD
+=======
+	physmap = ckdev->function_row_physmap;
+	of_property_for_each_u32(dev->of_node, "function-row-physmap",
+				 prop, p, key_pos) {
+		if (ckdev->num_function_row_keys == MAX_NUM_TOP_ROW_KEYS) {
+			dev_warn(dev, "Only support up to %d top row keys\n",
+				 MAX_NUM_TOP_ROW_KEYS);
+			break;
+		}
+		row = KEY_ROW(key_pos);
+		col = KEY_COL(key_pos);
+		*physmap = MATRIX_SCAN_CODE(row, col, ckdev->row_shift);
+		physmap++;
+		ckdev->num_function_row_keys++;
+	}
+
+>>>>>>> upstream/android-13
 	err = input_register_device(ckdev->idev);
 	if (err) {
 		dev_err(dev, "cannot register input device\n");
@@ -590,6 +657,54 @@ static int cros_ec_keyb_register_matrix(struct cros_ec_keyb *ckdev)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static ssize_t function_row_physmap_show(struct device *dev,
+					 struct device_attribute *attr,
+					 char *buf)
+{
+	ssize_t size = 0;
+	int i;
+	struct cros_ec_keyb *ckdev = dev_get_drvdata(dev);
+	u16 *physmap = ckdev->function_row_physmap;
+
+	for (i = 0; i < ckdev->num_function_row_keys; i++)
+		size += scnprintf(buf + size, PAGE_SIZE - size,
+				  "%s%02X", size ? " " : "", physmap[i]);
+	if (size)
+		size += scnprintf(buf + size, PAGE_SIZE - size, "\n");
+
+	return size;
+}
+
+static DEVICE_ATTR_RO(function_row_physmap);
+
+static struct attribute *cros_ec_keyb_attrs[] = {
+	&dev_attr_function_row_physmap.attr,
+	NULL,
+};
+
+static umode_t cros_ec_keyb_attr_is_visible(struct kobject *kobj,
+					    struct attribute *attr,
+					    int n)
+{
+	struct device *dev = kobj_to_dev(kobj);
+	struct cros_ec_keyb *ckdev = dev_get_drvdata(dev);
+
+	if (attr == &dev_attr_function_row_physmap.attr &&
+	    !ckdev->num_function_row_keys)
+		return 0;
+
+	return attr->mode;
+}
+
+static const struct attribute_group cros_ec_keyb_attr_group = {
+	.is_visible = cros_ec_keyb_attr_is_visible,
+	.attrs = cros_ec_keyb_attrs,
+};
+
+
+>>>>>>> upstream/android-13
 static int cros_ec_keyb_probe(struct platform_device *pdev)
 {
 	struct cros_ec_device *ec = dev_get_drvdata(pdev->dev.parent);
@@ -620,6 +735,15 @@ static int cros_ec_keyb_probe(struct platform_device *pdev)
 		return err;
 	}
 
+<<<<<<< HEAD
+=======
+	err = devm_device_add_group(dev, &cros_ec_keyb_attr_group);
+	if (err) {
+		dev_err(dev, "failed to create attributes. err=%d\n", err);
+		return err;
+	}
+
+>>>>>>> upstream/android-13
 	ckdev->notifier.notifier_call = cros_ec_keyb_work;
 	err = blocking_notifier_chain_register(&ckdev->ec->event_notifier,
 					       &ckdev->notifier);

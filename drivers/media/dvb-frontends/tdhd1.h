@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * tdhd1.h - ALPS TDHD1-204A tuner support
  *
  * Copyright (C) 2008 Oliver Endriss <o.endriss@gmx.de>
  *
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,6 +22,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  *
  *
+=======
+>>>>>>> upstream/android-13
  * The project's page is at https://linuxtv.org
  */
 

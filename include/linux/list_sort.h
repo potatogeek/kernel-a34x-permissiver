@@ -6,7 +6,15 @@
 
 struct list_head;
 
+<<<<<<< HEAD
 void list_sort(void *priv, struct list_head *head,
 	       int (*cmp)(void *priv, struct list_head *a,
 			  struct list_head *b));
+=======
+typedef int __attribute__((nonnull(2,3))) (*list_cmp_func_t)(void *,
+		const struct list_head *, const struct list_head *);
+
+__attribute__((nonnull(2,3)))
+void list_sort(void *priv, struct list_head *head, list_cmp_func_t cmp);
+>>>>>>> upstream/android-13
 #endif

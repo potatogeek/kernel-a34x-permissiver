@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * AFE4403 Heart Rate Monitors and Low-Cost Pulse Oximeters
  *
@@ -12,6 +13,14 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * AFE4403 Heart Rate Monitors and Low-Cost Pulse Oximeters
+ *
+ * Copyright (C) 2015-2016 Texas Instruments Incorporated - https://www.ti.com/
+ *	Andrew F. Davis <afd@ti.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -31,6 +40,11 @@
 #include <linux/iio/triggered_buffer.h>
 #include <linux/iio/trigger_consumer.h>
 
+<<<<<<< HEAD
+=======
+#include <asm/unaligned.h>
+
+>>>>>>> upstream/android-13
 #include "afe440x.h"
 
 #define AFE4403_DRIVER_NAME		"afe4403"
@@ -231,6 +245,7 @@ static int afe4403_read(struct afe4403_data *afe, unsigned int reg, u32 *val)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	ret = spi_write_then_read(afe->spi, &reg, 1, rx, 3);
 	if (ret)
 		return ret;
@@ -238,6 +253,13 @@ static int afe4403_read(struct afe4403_data *afe, unsigned int reg, u32 *val)
 	*val = (rx[0] << 16) |
 		(rx[1] << 8) |
 		(rx[2]);
+=======
+	ret = spi_write_then_read(afe->spi, &reg, 1, rx, sizeof(rx));
+	if (ret)
+		return ret;
+
+	*val = get_unaligned_be24(&rx[0]);
+>>>>>>> upstream/android-13
 
 	/* Disable reading from the device */
 	tx[3] = AFE440X_CONTROL0_WRITE;
@@ -332,6 +354,7 @@ static irqreturn_t afe4403_trigger_handler(int irq, void *private)
 			 indio_dev->masklength) {
 		ret = spi_write_then_read(afe->spi,
 					  &afe4403_channel_values[bit], 1,
+<<<<<<< HEAD
 					  rx, 3);
 		if (ret)
 			goto err;
@@ -339,6 +362,13 @@ static irqreturn_t afe4403_trigger_handler(int irq, void *private)
 		afe->buffer[i++] = (rx[0] << 16) |
 				   (rx[1] << 8) |
 				   (rx[2]);
+=======
+					  rx, sizeof(rx));
+		if (ret)
+			goto err;
+
+		afe->buffer[i++] = get_unaligned_be24(&rx[0]);
+>>>>>>> upstream/android-13
 	}
 
 	/* Disable reading from the device */
@@ -522,7 +552,10 @@ static int afe4403_probe(struct spi_device *spi)
 	}
 
 	indio_dev->modes = INDIO_DIRECT_MODE;
+<<<<<<< HEAD
 	indio_dev->dev.parent = afe->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->channels = afe4403_channels;
 	indio_dev->num_channels = ARRAY_SIZE(afe4403_channels);
 	indio_dev->name = AFE4403_DRIVER_NAME;
@@ -532,7 +565,11 @@ static int afe4403_probe(struct spi_device *spi)
 		afe->trig = devm_iio_trigger_alloc(afe->dev,
 						   "%s-dev%d",
 						   indio_dev->name,
+<<<<<<< HEAD
 						   indio_dev->id);
+=======
+						   iio_device_id(indio_dev));
+>>>>>>> upstream/android-13
 		if (!afe->trig) {
 			dev_err(afe->dev, "Unable to allocate IIO trigger\n");
 			ret = -ENOMEM;
@@ -542,7 +579,10 @@ static int afe4403_probe(struct spi_device *spi)
 		iio_trigger_set_drvdata(afe->trig, indio_dev);
 
 		afe->trig->ops = &afe4403_trigger_ops;
+<<<<<<< HEAD
 		afe->trig->dev.parent = afe->dev;
+=======
+>>>>>>> upstream/android-13
 
 		ret = iio_trigger_register(afe->trig);
 		if (ret) {

@@ -30,9 +30,15 @@ the topic. Eg: "Floating-point.json".
 All the topic JSON files for a CPU model/family should be in a separate
 sub directory. Thus for the Silvermont X86 CPU:
 
+<<<<<<< HEAD
 	$ ls tools/perf/pmu-events/arch/x86/Silvermont_core
 	Cache.json 	Memory.json 	Virtual-Memory.json
 	Frontend.json 	Pipeline.json
+=======
+	$ ls tools/perf/pmu-events/arch/x86/silvermont
+	cache.json     memory.json    virtual-memory.json
+	frontend.json  pipeline.json
+>>>>>>> upstream/android-13
 
 The JSONs folder for a CPU model/family may be placed in the root arch
 folder, or may be placed in a vendor sub-folder under the arch folder
@@ -94,7 +100,11 @@ users to specify events by their name:
 
 where 'pm_1plus_ppc_cmpl' is a Power8 PMU event.
 
+<<<<<<< HEAD
 However some errors in processing may cause the perf build to fail.
+=======
+However some errors in processing may cause the alias build to fail.
+>>>>>>> upstream/android-13
 
 Mapfile format
 ===============
@@ -119,7 +129,11 @@ where:
 
 	Header line
 		The header line is the first line in the file, which is
+<<<<<<< HEAD
 		always _IGNORED_. It can empty.
+=======
+		always _IGNORED_. It can be empty.
+>>>>>>> upstream/android-13
 
 	CPUID:
 		CPUID is an arch-specific char string, that can be used
@@ -138,11 +152,16 @@ where:
 		files, relative to the directory containing the mapfile.csv
 
 	Type:
+<<<<<<< HEAD
 		indicates whether the events or "core" or "uncore" events.
+=======
+		indicates whether the events are "core" or "uncore" events.
+>>>>>>> upstream/android-13
 
 
 	Eg:
 
+<<<<<<< HEAD
 	$ grep Silvermont tools/perf/pmu-events/arch/x86/mapfile.csv
 	GenuineIntel-6-37,V13,Silvermont_core,core
 	GenuineIntel-6-4D,V13,Silvermont_core,core
@@ -150,3 +169,12 @@ where:
 
 	i.e the three CPU models use the JSON files (i.e PMU events) listed
 	in the directory 'tools/perf/pmu-events/arch/x86/Silvermont_core'.
+=======
+	$ grep silvermont tools/perf/pmu-events/arch/x86/mapfile.csv
+	GenuineIntel-6-37,v13,silvermont,core
+	GenuineIntel-6-4D,v13,silvermont,core
+	GenuineIntel-6-4C,v13,silvermont,core
+
+	i.e the three CPU models use the JSON files (i.e PMU events) listed
+	in the directory 'tools/perf/pmu-events/arch/x86/silvermont'.
+>>>>>>> upstream/android-13

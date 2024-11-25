@@ -25,7 +25,11 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE. */
+<<<<<<< HEAD
 #include <linux/types.h>
+=======
+#include <linux/virtio_types.h>
+>>>>>>> upstream/android-13
 #include <linux/virtio_ids.h>
 #include <linux/virtio_config.h>
 
@@ -36,7 +40,11 @@
 
 struct virtio_9p_config {
 	/* length of the tag name */
+<<<<<<< HEAD
 	__u16 tag_len;
+=======
+	__virtio16 tag_len;
+>>>>>>> upstream/android-13
 	/* non-NULL terminated tag name */
 	__u8 tag[0];
 } __attribute__((packed));

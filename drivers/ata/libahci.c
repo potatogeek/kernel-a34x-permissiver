@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  libahci.c - Common AHCI SATA low-level routines
  *
@@ -7,6 +11,7 @@
  *
  *  Copyright 2004-2005 Red Hat, Inc.
  *
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -23,13 +28,18 @@
  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  *
+=======
+>>>>>>> upstream/android-13
  * libata documentation is available via 'make {ps|pdf}docs',
  * as Documentation/driver-api/libata.rst
  *
  * AHCI hardware documentation:
  * http://www.intel.com/technology/serialata/pdf/rev1_0.pdf
  * http://www.intel.com/technology/serialata/pdf/rev1_1.pdf
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -141,6 +151,10 @@ EXPORT_SYMBOL_GPL(ahci_shost_attrs);
 struct device_attribute *ahci_sdev_attrs[] = {
 	&dev_attr_sw_activity,
 	&dev_attr_unload_heads,
+<<<<<<< HEAD
+=======
+	&dev_attr_ncq_prio_supported,
+>>>>>>> upstream/android-13
 	&dev_attr_ncq_prio_enable,
 	NULL
 };
@@ -509,6 +523,14 @@ void ahci_save_initial_config(struct device *dev, struct ahci_host_priv *hpriv)
 		cap |= HOST_CAP_ALPM;
 	}
 
+<<<<<<< HEAD
+=======
+	if ((cap & HOST_CAP_SXS) && (hpriv->flags & AHCI_HFLAG_NO_SXS)) {
+		dev_info(dev, "controller does not support SXS, disabling CAP_SXS\n");
+		cap &= ~HOST_CAP_SXS;
+	}
+
+>>>>>>> upstream/android-13
 	if (hpriv->force_port_map && port_map != hpriv->force_port_map) {
 		dev_info(dev, "forcing port_map 0x%x -> 0x%x\n",
 			 port_map, hpriv->force_port_map);
@@ -2315,6 +2337,21 @@ int ahci_port_resume(struct ata_port *ap)
 EXPORT_SYMBOL_GPL(ahci_port_resume);
 
 #ifdef CONFIG_PM
+<<<<<<< HEAD
+=======
+static void ahci_handle_s2idle(struct ata_port *ap)
+{
+	void __iomem *port_mmio = ahci_port_base(ap);
+	u32 devslp;
+
+	if (pm_suspend_via_firmware())
+		return;
+	devslp = readl(port_mmio + PORT_DEVSLP);
+	if ((devslp & PORT_DEVSLP_ADSE))
+		ata_msleep(ap, devslp_idle_timeout);
+}
+
+>>>>>>> upstream/android-13
 static int ahci_port_suspend(struct ata_port *ap, pm_message_t mesg)
 {
 	const char *emsg = NULL;
@@ -2328,6 +2365,12 @@ static int ahci_port_suspend(struct ata_port *ap, pm_message_t mesg)
 		ata_port_freeze(ap);
 	}
 
+<<<<<<< HEAD
+=======
+	if (acpi_storage_d3(ap->host->dev))
+		ahci_handle_s2idle(ap);
+
+>>>>>>> upstream/android-13
 	ahci_rpm_put_port(ap);
 	return rc;
 }
@@ -2382,7 +2425,10 @@ static int ahci_port_start(struct ata_port *ap)
 	mem = dmam_alloc_coherent(dev, dma_sz, &mem_dma, GFP_KERNEL);
 	if (!mem)
 		return -ENOMEM;
+<<<<<<< HEAD
 	memset(mem, 0, dma_sz);
+=======
+>>>>>>> upstream/android-13
 
 	/*
 	 * First item in chunk of DMA memory: 32-slot command table,
@@ -2600,7 +2646,12 @@ int ahci_host_activate(struct ata_host *host, struct scsi_host_template *sht)
 	int rc;
 
 	if (hpriv->flags & AHCI_HFLAG_MULTI_MSI) {
+<<<<<<< HEAD
 		if (hpriv->irq_handler)
+=======
+		if (hpriv->irq_handler &&
+		    hpriv->irq_handler != ahci_single_level_irq_intr)
+>>>>>>> upstream/android-13
 			dev_warn(host->dev,
 			         "both AHCI_HFLAG_MULTI_MSI flag set and custom irq handler implemented\n");
 		if (!hpriv->get_irq_vector) {

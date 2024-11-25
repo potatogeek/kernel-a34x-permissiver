@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * sama5d31ek.dts - Device Tree file for SAMA5D31-EK board
  *
  *  Copyright (C) 2013 Atmel,
  *                2013 Ludovic Desroches <ludovic.desroches@atmel.com>
+<<<<<<< HEAD
  *
  * Licensed under GPLv2 or later.
+=======
+>>>>>>> upstream/android-13
  */
 /dts-v1/;
 #include "sama5d31.dtsi"

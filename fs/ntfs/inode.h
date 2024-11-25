@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * inode.h - Defines for inode structures NTFS Linux kernel driver. Part of
  *	     the Linux-NTFS project.
  *
  * Copyright (c) 2001-2007 Anton Altaparmakov
  * Copyright (c) 2002 Richard Russon
+<<<<<<< HEAD
  *
  * This program/include file is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
@@ -19,6 +24,8 @@
  * along with this program (in the main directory of the Linux-NTFS
  * distribution in the file COPYING); if not, write to the Free Software
  * Foundation,Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _LINUX_NTFS_INODE_H
@@ -267,9 +274,13 @@ typedef struct {
 	ATTR_TYPE type;
 } ntfs_attr;
 
+<<<<<<< HEAD
 typedef int (*test_t)(struct inode *, void *);
 
 extern int ntfs_test_inode(struct inode *vi, ntfs_attr *na);
+=======
+extern int ntfs_test_inode(struct inode *vi, void *data);
+>>>>>>> upstream/android-13
 
 extern struct inode *ntfs_iget(struct super_block *sb, unsigned long mft_no);
 extern struct inode *ntfs_attr_iget(struct inode *base_vi, ATTR_TYPE type,
@@ -278,7 +289,11 @@ extern struct inode *ntfs_index_iget(struct inode *base_vi, ntfschar *name,
 		u32 name_len);
 
 extern struct inode *ntfs_alloc_big_inode(struct super_block *sb);
+<<<<<<< HEAD
 extern void ntfs_destroy_big_inode(struct inode *inode);
+=======
+extern void ntfs_free_big_inode(struct inode *inode);
+>>>>>>> upstream/android-13
 extern void ntfs_evict_big_inode(struct inode *vi);
 
 extern void __ntfs_init_inode(struct super_block *sb, ntfs_inode *ni);
@@ -305,7 +320,12 @@ extern int ntfs_show_options(struct seq_file *sf, struct dentry *root);
 extern int ntfs_truncate(struct inode *vi);
 extern void ntfs_truncate_vfs(struct inode *vi);
 
+<<<<<<< HEAD
 extern int ntfs_setattr(struct dentry *dentry, struct iattr *attr);
+=======
+extern int ntfs_setattr(struct user_namespace *mnt_userns,
+			struct dentry *dentry, struct iattr *attr);
+>>>>>>> upstream/android-13
 
 extern int __ntfs_write_inode(struct inode *vi, int sync);
 

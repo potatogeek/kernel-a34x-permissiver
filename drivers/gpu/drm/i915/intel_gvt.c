@@ -22,7 +22,13 @@
  */
 
 #include "i915_drv.h"
+<<<<<<< HEAD
 #include "intel_gvt.h"
+=======
+#include "i915_vgpu.h"
+#include "intel_gvt.h"
+#include "gvt/gvt.h"
+>>>>>>> upstream/android-13
 
 /**
  * DOC: Intel GVT-g host support
@@ -49,6 +55,14 @@ static bool is_supported_device(struct drm_i915_private *dev_priv)
 		return true;
 	if (IS_BROXTON(dev_priv))
 		return true;
+<<<<<<< HEAD
+=======
+	if (IS_COFFEELAKE(dev_priv))
+		return true;
+	if (IS_COMETLAKE(dev_priv))
+		return true;
+
+>>>>>>> upstream/android-13
 	return false;
 }
 
@@ -60,22 +74,39 @@ static bool is_supported_device(struct drm_i915_private *dev_priv)
  */
 void intel_gvt_sanitize_options(struct drm_i915_private *dev_priv)
 {
+<<<<<<< HEAD
 	if (!i915_modparams.enable_gvt)
 		return;
 
 	if (intel_vgpu_active(dev_priv)) {
 		DRM_INFO("GVT-g is disabled for guest\n");
+=======
+	if (!dev_priv->params.enable_gvt)
+		return;
+
+	if (intel_vgpu_active(dev_priv)) {
+		drm_info(&dev_priv->drm, "GVT-g is disabled for guest\n");
+>>>>>>> upstream/android-13
 		goto bail;
 	}
 
 	if (!is_supported_device(dev_priv)) {
+<<<<<<< HEAD
 		DRM_INFO("Unsupported device. GVT-g is disabled\n");
+=======
+		drm_info(&dev_priv->drm,
+			 "Unsupported device. GVT-g is disabled\n");
+>>>>>>> upstream/android-13
 		goto bail;
 	}
 
 	return;
 bail:
+<<<<<<< HEAD
 	i915_modparams.enable_gvt = 0;
+=======
+	dev_priv->params.enable_gvt = 0;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -92,6 +123,7 @@ int intel_gvt_init(struct drm_i915_private *dev_priv)
 {
 	int ret;
 
+<<<<<<< HEAD
 	if (i915_inject_load_failure())
 		return -ENODEV;
 
@@ -117,27 +149,83 @@ int intel_gvt_init(struct drm_i915_private *dev_priv)
 	ret = intel_gvt_init_device(dev_priv);
 	if (ret) {
 		DRM_DEBUG_DRIVER("Fail to init GVT device\n");
+=======
+	if (i915_inject_probe_failure(dev_priv))
+		return -ENODEV;
+
+	if (!dev_priv->params.enable_gvt) {
+		drm_dbg(&dev_priv->drm,
+			"GVT-g is disabled by kernel params\n");
+		return 0;
+	}
+
+	if (intel_uc_wants_guc_submission(&dev_priv->gt.uc)) {
+		drm_err(&dev_priv->drm,
+			"i915 GVT-g loading failed due to Graphics virtualization is not yet supported with GuC submission\n");
+		return -EIO;
+	}
+
+	ret = intel_gvt_init_device(dev_priv);
+	if (ret) {
+		drm_dbg(&dev_priv->drm, "Fail to init GVT device\n");
+>>>>>>> upstream/android-13
 		goto bail;
 	}
 
 	return 0;
 
 bail:
+<<<<<<< HEAD
 	i915_modparams.enable_gvt = 0;
 	return 0;
 }
 
 /**
  * intel_gvt_cleanup - cleanup GVT components when i915 driver is unloading
+=======
+	dev_priv->params.enable_gvt = 0;
+	return 0;
+}
+
+static inline bool intel_gvt_active(struct drm_i915_private *dev_priv)
+{
+	return dev_priv->gvt;
+}
+
+/**
+ * intel_gvt_driver_remove - cleanup GVT components when i915 driver is
+ *			     unbinding
+>>>>>>> upstream/android-13
  * @dev_priv: drm i915 private *
  *
  * This function is called at the i915 driver unloading stage, to shutdown
  * GVT components and release the related resources.
  */
+<<<<<<< HEAD
 void intel_gvt_cleanup(struct drm_i915_private *dev_priv)
+=======
+void intel_gvt_driver_remove(struct drm_i915_private *dev_priv)
+>>>>>>> upstream/android-13
 {
 	if (!intel_gvt_active(dev_priv))
 		return;
 
 	intel_gvt_clean_device(dev_priv);
 }
+<<<<<<< HEAD
+=======
+
+/**
+ * intel_gvt_resume - GVT resume routine wapper
+ *
+ * @dev_priv: drm i915 private *
+ *
+ * This function is called at the i915 driver resume stage to restore required
+ * HW status for GVT so that vGPU can continue running after resumed.
+ */
+void intel_gvt_resume(struct drm_i915_private *dev_priv)
+{
+	if (intel_gvt_active(dev_priv))
+		intel_gvt_pm_resume(dev_priv->gvt);
+}
+>>>>>>> upstream/android-13

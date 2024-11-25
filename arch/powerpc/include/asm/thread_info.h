@@ -10,6 +10,7 @@
 #define _ASM_POWERPC_THREAD_INFO_H
 
 #include <asm/asm-const.h>
+<<<<<<< HEAD
 
 #ifdef __KERNEL__
 
@@ -29,12 +30,48 @@
 #include <asm/page.h>
 #include <asm/accounting.h>
 
+=======
+#include <asm/page.h>
+
+#ifdef __KERNEL__
+
+#if defined(CONFIG_VMAP_STACK) && CONFIG_THREAD_SHIFT < PAGE_SHIFT
+#define THREAD_SHIFT		PAGE_SHIFT
+#else
+#define THREAD_SHIFT		CONFIG_THREAD_SHIFT
+#endif
+
+#define THREAD_SIZE		(1 << THREAD_SHIFT)
+
+/*
+ * By aligning VMAP'd stacks to 2 * THREAD_SIZE, we can detect overflow by
+ * checking sp & (1 << THREAD_SHIFT), which we can do cheaply in the entry
+ * assembly.
+ */
+#ifdef CONFIG_VMAP_STACK
+#define THREAD_ALIGN_SHIFT	(THREAD_SHIFT + 1)
+#else
+#define THREAD_ALIGN_SHIFT	THREAD_SHIFT
+#endif
+
+#define THREAD_ALIGN		(1 << THREAD_ALIGN_SHIFT)
+
+#ifndef __ASSEMBLY__
+#include <linux/cache.h>
+#include <asm/processor.h>
+#include <asm/accounting.h>
+
+#define SLB_PRELOAD_NR	16U
+>>>>>>> upstream/android-13
 /*
  * low level task data.
  */
 struct thread_info {
+<<<<<<< HEAD
 	struct task_struct *task;		/* main task structure */
 	int		cpu;			/* cpu we're on */
+=======
+>>>>>>> upstream/android-13
 	int		preempt_count;		/* 0 => preemptable,
 						   <0 => BUG */
 	unsigned long	local_flags;		/* private flags for thread */
@@ -44,6 +81,13 @@ struct thread_info {
 #if defined(CONFIG_VIRT_CPU_ACCOUNTING_NATIVE) && defined(CONFIG_PPC32)
 	struct cpu_accounting_data accounting;
 #endif
+<<<<<<< HEAD
+=======
+	unsigned char slb_preload_nr;
+	unsigned char slb_preload_tail;
+	u32 slb_preload_esid[SLB_PRELOAD_NR];
+
+>>>>>>> upstream/android-13
 	/* low level flags - has atomic operations done on it */
 	unsigned long	flags ____cacheline_aligned_in_smp;
 };
@@ -53,8 +97,11 @@ struct thread_info {
  */
 #define INIT_THREAD_INFO(tsk)			\
 {						\
+<<<<<<< HEAD
 	.task =		&tsk,			\
 	.cpu =		0,			\
+=======
+>>>>>>> upstream/android-13
 	.preempt_count = INIT_PREEMPT_COUNT,	\
 	.flags =	0,			\
 }
@@ -62,6 +109,7 @@ struct thread_info {
 #define THREAD_SIZE_ORDER	(THREAD_SHIFT - PAGE_SHIFT)
 
 /* how to get the thread information struct from C */
+<<<<<<< HEAD
 static inline struct thread_info *current_thread_info(void)
 {
 	unsigned long val;
@@ -72,6 +120,13 @@ static inline struct thread_info *current_thread_info(void)
 }
 
 extern int arch_dup_task_struct(struct task_struct *dst, struct task_struct *src);
+=======
+extern int arch_dup_task_struct(struct task_struct *dst, struct task_struct *src);
+
+void arch_setup_new_exec(void);
+#define arch_setup_new_exec arch_setup_new_exec
+
+>>>>>>> upstream/android-13
 #endif /* __ASSEMBLY__ */
 
 /*
@@ -80,13 +135,21 @@ extern int arch_dup_task_struct(struct task_struct *dst, struct task_struct *src
 #define TIF_SYSCALL_TRACE	0	/* syscall trace active */
 #define TIF_SIGPENDING		1	/* signal pending */
 #define TIF_NEED_RESCHED	2	/* rescheduling necessary */
+<<<<<<< HEAD
 #define TIF_FSCHECK		3	/* Check FS is USER_DS on return */
 #define TIF_32BIT		4	/* 32 bit binary */
+=======
+#define TIF_NOTIFY_SIGNAL	3	/* signal notifications exist */
+#define TIF_SYSCALL_EMU		4	/* syscall emulation active */
+>>>>>>> upstream/android-13
 #define TIF_RESTORE_TM		5	/* need to restore TM FP/VEC/VSX */
 #define TIF_PATCH_PENDING	6	/* pending live patching update */
 #define TIF_SYSCALL_AUDIT	7	/* syscall auditing active */
 #define TIF_SINGLESTEP		8	/* singlestepping active */
+<<<<<<< HEAD
 #define TIF_NOHZ		9	/* in adaptive nohz mode */
+=======
+>>>>>>> upstream/android-13
 #define TIF_SECCOMP		10	/* secure computing */
 #define TIF_RESTOREALL		11	/* Restore all regs (implies NOERROR) */
 #define TIF_NOERROR		12	/* Force successful syscall return */
@@ -100,11 +163,19 @@ extern int arch_dup_task_struct(struct task_struct *dst, struct task_struct *src
 #define TIF_ELF2ABI		18	/* function descriptors must die! */
 #endif
 #define TIF_POLLING_NRFLAG	19	/* true if poll_idle() is polling TIF_NEED_RESCHED */
+<<<<<<< HEAD
+=======
+#define TIF_32BIT		20	/* 32 bit binary */
+>>>>>>> upstream/android-13
 
 /* as above, but as bit values */
 #define _TIF_SYSCALL_TRACE	(1<<TIF_SYSCALL_TRACE)
 #define _TIF_SIGPENDING		(1<<TIF_SIGPENDING)
 #define _TIF_NEED_RESCHED	(1<<TIF_NEED_RESCHED)
+<<<<<<< HEAD
+=======
+#define _TIF_NOTIFY_SIGNAL	(1<<TIF_NOTIFY_SIGNAL)
+>>>>>>> upstream/android-13
 #define _TIF_POLLING_NRFLAG	(1<<TIF_POLLING_NRFLAG)
 #define _TIF_32BIT		(1<<TIF_32BIT)
 #define _TIF_RESTORE_TM		(1<<TIF_RESTORE_TM)
@@ -118,16 +189,27 @@ extern int arch_dup_task_struct(struct task_struct *dst, struct task_struct *src
 #define _TIF_UPROBE		(1<<TIF_UPROBE)
 #define _TIF_SYSCALL_TRACEPOINT	(1<<TIF_SYSCALL_TRACEPOINT)
 #define _TIF_EMULATE_STACK_STORE	(1<<TIF_EMULATE_STACK_STORE)
+<<<<<<< HEAD
 #define _TIF_NOHZ		(1<<TIF_NOHZ)
 #define _TIF_FSCHECK		(1<<TIF_FSCHECK)
 #define _TIF_SYSCALL_DOTRACE	(_TIF_SYSCALL_TRACE | _TIF_SYSCALL_AUDIT | \
 				 _TIF_SECCOMP | _TIF_SYSCALL_TRACEPOINT | \
 				 _TIF_NOHZ)
+=======
+#define _TIF_SYSCALL_EMU	(1<<TIF_SYSCALL_EMU)
+#define _TIF_SYSCALL_DOTRACE	(_TIF_SYSCALL_TRACE | _TIF_SYSCALL_AUDIT | \
+				 _TIF_SECCOMP | _TIF_SYSCALL_TRACEPOINT | \
+				 _TIF_SYSCALL_EMU)
+>>>>>>> upstream/android-13
 
 #define _TIF_USER_WORK_MASK	(_TIF_SIGPENDING | _TIF_NEED_RESCHED | \
 				 _TIF_NOTIFY_RESUME | _TIF_UPROBE | \
 				 _TIF_RESTORE_TM | _TIF_PATCH_PENDING | \
+<<<<<<< HEAD
 				 _TIF_FSCHECK)
+=======
+				 _TIF_NOTIFY_SIGNAL)
+>>>>>>> upstream/android-13
 #define _TIF_PERSYSCALL_MASK	(_TIF_RESTOREALL|_TIF_NOERROR)
 
 /* Bits in local_flags */
@@ -144,16 +226,34 @@ extern int arch_dup_task_struct(struct task_struct *dst, struct task_struct *src
 
 #ifndef __ASSEMBLY__
 
+<<<<<<< HEAD
+=======
+static inline void clear_thread_local_flags(unsigned int flags)
+{
+	struct thread_info *ti = current_thread_info();
+	ti->local_flags &= ~flags;
+}
+
+>>>>>>> upstream/android-13
 static inline bool test_thread_local_flags(unsigned int flags)
 {
 	struct thread_info *ti = current_thread_info();
 	return (ti->local_flags & flags) != 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PPC64
 #define is_32bit_task()	(test_thread_flag(TIF_32BIT))
 #else
 #define is_32bit_task()	(1)
+=======
+#ifdef CONFIG_COMPAT
+#define is_32bit_task()	(test_thread_flag(TIF_32BIT))
+#define is_tsk_32bit_task(tsk)	(test_tsk_thread_flag(tsk, TIF_32BIT))
+#else
+#define is_32bit_task()	(IS_ENABLED(CONFIG_PPC32))
+#define is_tsk_32bit_task(tsk)	(IS_ENABLED(CONFIG_PPC32))
+>>>>>>> upstream/android-13
 #endif
 
 #if defined(CONFIG_PPC64)

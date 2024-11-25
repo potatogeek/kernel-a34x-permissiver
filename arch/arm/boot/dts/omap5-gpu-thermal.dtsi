@@ -1,7 +1,11 @@
 /*
  * Device Tree Source for OMAP543x SoC GPU thermal
  *
+<<<<<<< HEAD
  * Copyright (C) 2013 Texas Instruments Incorporated - http://www.ti.com/
+=======
+ * Copyright (C) 2013 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  * Contact: Eduardo Valentin <eduardo.valentin@ti.com>
  *
  * This file is licensed under the terms of the GNU General Public License

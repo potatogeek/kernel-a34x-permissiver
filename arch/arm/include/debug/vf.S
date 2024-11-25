@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2013 Freescale Semiconductor, Inc.
  *
@@ -5,6 +6,11 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright 2013 Freescale Semiconductor, Inc.
+>>>>>>> upstream/android-13
  */
 
 #define VF_UART0_BASE_ADDR	0x40027000
@@ -33,5 +39,12 @@
 	beq	1001b			@ wait until transmit done
 	.endm
 
+<<<<<<< HEAD
 	.macro	waituart,rd,rx
+=======
+	.macro	waituartcts,rd,rx
+	.endm
+
+	.macro	waituarttxrdy,rd,rx
+>>>>>>> upstream/android-13
 	.endm

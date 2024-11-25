@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  c 2001 PPC 64 Team, IBM Corp
  *
@@ -13,6 +14,13 @@
  * TODO: Split the /dev/nvram part (that one can use
  *       drivers/char/generic_nvram.c) from the arch & partition
  *       parsing code.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  c 2001 PPC 64 Team, IBM Corp
+ *
+ * /dev/nvram driver for PPC64
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -657,6 +665,10 @@ static void oops_to_nvram(struct kmsg_dumper *dumper,
 {
 	struct oops_log_info *oops_hdr = (struct oops_log_info *)oops_buf;
 	static unsigned int oops_count = 0;
+<<<<<<< HEAD
+=======
+	static struct kmsg_dump_iter iter;
+>>>>>>> upstream/android-13
 	static bool panicking = false;
 	static DEFINE_SPINLOCK(lock);
 	unsigned long flags;
@@ -665,9 +677,13 @@ static void oops_to_nvram(struct kmsg_dumper *dumper,
 	int rc = -1;
 
 	switch (reason) {
+<<<<<<< HEAD
 	case KMSG_DUMP_RESTART:
 	case KMSG_DUMP_HALT:
 	case KMSG_DUMP_POWEROFF:
+=======
+	case KMSG_DUMP_SHUTDOWN:
+>>>>>>> upstream/android-13
 		/* These are almost always orderly shutdowns. */
 		return;
 	case KMSG_DUMP_OOPS:
@@ -693,13 +709,23 @@ static void oops_to_nvram(struct kmsg_dumper *dumper,
 		return;
 
 	if (big_oops_buf) {
+<<<<<<< HEAD
 		kmsg_dump_get_buffer(dumper, false,
+=======
+		kmsg_dump_rewind(&iter);
+		kmsg_dump_get_buffer(&iter, false,
+>>>>>>> upstream/android-13
 				     big_oops_buf, big_oops_buf_sz, &text_len);
 		rc = zip_oops(text_len);
 	}
 	if (rc != 0) {
+<<<<<<< HEAD
 		kmsg_dump_rewind(dumper);
 		kmsg_dump_get_buffer(dumper, false,
+=======
+		kmsg_dump_rewind(&iter);
+		kmsg_dump_get_buffer(&iter, false,
+>>>>>>> upstream/android-13
 				     oops_data, oops_data_sz, &text_len);
 		err_type = ERR_TYPE_KERNEL_PANIC;
 		oops_hdr->version = cpu_to_be16(OOPS_HDR_VERSION);
@@ -714,6 +740,7 @@ static void oops_to_nvram(struct kmsg_dumper *dumper,
 	spin_unlock_irqrestore(&lock, flags);
 }
 
+<<<<<<< HEAD
 static loff_t dev_nvram_llseek(struct file *file, loff_t offset, int origin)
 {
 	if (ppc_md.nvram_size == NULL)
@@ -844,6 +871,8 @@ static struct miscdevice nvram_dev = {
 };
 
 
+=======
+>>>>>>> upstream/android-13
 #ifdef DEBUG_NVRAM
 static void __init nvram_print_partitions(char * label)
 {
@@ -991,9 +1020,17 @@ loff_t __init nvram_create_partition(const char *name, int sig,
 	long size = 0;
 	int rc;
 
+<<<<<<< HEAD
 	/* Convert sizes from bytes to blocks */
 	req_size = _ALIGN_UP(req_size, NVRAM_BLOCK_LEN) / NVRAM_BLOCK_LEN;
 	min_size = _ALIGN_UP(min_size, NVRAM_BLOCK_LEN) / NVRAM_BLOCK_LEN;
+=======
+	BUILD_BUG_ON(NVRAM_BLOCK_LEN != 16);
+
+	/* Convert sizes from bytes to blocks */
+	req_size = ALIGN(req_size, NVRAM_BLOCK_LEN) / NVRAM_BLOCK_LEN;
+	min_size = ALIGN(min_size, NVRAM_BLOCK_LEN) / NVRAM_BLOCK_LEN;
+>>>>>>> upstream/android-13
 
 	/* If no minimum size specified, make it the same as the
 	 * requested size
@@ -1191,6 +1228,7 @@ int __init nvram_scan_partitions(void)
 	kfree(header);
 	return err;
 }
+<<<<<<< HEAD
 
 static int __init nvram_init(void)
 {
@@ -1210,3 +1248,5 @@ static int __init nvram_init(void)
   	return rc;
 }
 device_initcall(nvram_init);
+=======
+>>>>>>> upstream/android-13

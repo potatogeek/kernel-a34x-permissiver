@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * entry_from_vm86.c - tests kernel entries from vm86 mode
  * Copyright (c) 2014-2015 Andrew Lutomirski
  *
  * This exercises a few paths that need to special-case vm86 mode.
+<<<<<<< HEAD
  *
  * GPL v2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define _GNU_SOURCE

@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Arizona core driver
  *
  * Copyright 2012 Wolfson Microelectronics plc
  *
  * Author: Mark Brown <broonie@opensource.wolfsonmicro.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -83,7 +90,11 @@ int arizona_clk32k_disable(struct arizona *arizona)
 {
 	mutex_lock(&arizona->clk_lock);
 
+<<<<<<< HEAD
 	BUG_ON(arizona->clk32k_ref <= 0);
+=======
+	WARN_ON(arizona->clk32k_ref <= 0);
+>>>>>>> upstream/android-13
 
 	arizona->clk32k_ref--;
 
@@ -800,6 +811,7 @@ const struct dev_pm_ops arizona_pm_ops = {
 EXPORT_SYMBOL_GPL(arizona_pm_ops);
 
 #ifdef CONFIG_OF
+<<<<<<< HEAD
 unsigned long arizona_of_get_type(struct device *dev)
 {
 	const struct of_device_id *id = of_match_device(arizona_of_match, dev);
@@ -811,17 +823,23 @@ unsigned long arizona_of_get_type(struct device *dev)
 }
 EXPORT_SYMBOL_GPL(arizona_of_get_type);
 
+=======
+>>>>>>> upstream/android-13
 static int arizona_of_get_core_pdata(struct arizona *arizona)
 {
 	struct arizona_pdata *pdata = &arizona->pdata;
 	int ret, i;
 
 	/* Handle old non-standard DT binding */
+<<<<<<< HEAD
 	pdata->reset = devm_gpiod_get_from_of_node(arizona->dev,
 						   arizona->dev->of_node,
 						   "wlf,reset", 0,
 						   GPIOD_OUT_LOW,
 						   "arizona /RESET");
+=======
+	pdata->reset = devm_gpiod_get(arizona->dev, "wlf,reset", GPIOD_OUT_LOW);
+>>>>>>> upstream/android-13
 	if (IS_ERR(pdata->reset)) {
 		ret = PTR_ERR(pdata->reset);
 
@@ -899,11 +917,14 @@ static const char * const wm5102_supplies[] = {
 static const struct mfd_cell wm5102_devs[] = {
 	{ .name = "arizona-micsupp" },
 	{ .name = "arizona-gpio" },
+<<<<<<< HEAD
 	{
 		.name = "arizona-extcon",
 		.parent_supplies = wm5102_supplies,
 		.num_parent_supplies = 1, /* We only need MICVDD */
 	},
+=======
+>>>>>>> upstream/android-13
 	{ .name = "arizona-haptics" },
 	{ .name = "arizona-pwm" },
 	{
@@ -916,11 +937,14 @@ static const struct mfd_cell wm5102_devs[] = {
 static const struct mfd_cell wm5110_devs[] = {
 	{ .name = "arizona-micsupp" },
 	{ .name = "arizona-gpio" },
+<<<<<<< HEAD
 	{
 		.name = "arizona-extcon",
 		.parent_supplies = wm5102_supplies,
 		.num_parent_supplies = 1, /* We only need MICVDD */
 	},
+=======
+>>>>>>> upstream/android-13
 	{ .name = "arizona-haptics" },
 	{ .name = "arizona-pwm" },
 	{
@@ -957,11 +981,14 @@ static const char * const wm8997_supplies[] = {
 static const struct mfd_cell wm8997_devs[] = {
 	{ .name = "arizona-micsupp" },
 	{ .name = "arizona-gpio" },
+<<<<<<< HEAD
 	{
 		.name = "arizona-extcon",
 		.parent_supplies = wm8997_supplies,
 		.num_parent_supplies = 1, /* We only need MICVDD */
 	},
+=======
+>>>>>>> upstream/android-13
 	{ .name = "arizona-haptics" },
 	{ .name = "arizona-pwm" },
 	{
@@ -974,11 +1001,14 @@ static const struct mfd_cell wm8997_devs[] = {
 static const struct mfd_cell wm8998_devs[] = {
 	{ .name = "arizona-micsupp" },
 	{ .name = "arizona-gpio" },
+<<<<<<< HEAD
 	{
 		.name = "arizona-extcon",
 		.parent_supplies = wm5102_supplies,
 		.num_parent_supplies = 1, /* We only need MICVDD */
 	},
+=======
+>>>>>>> upstream/android-13
 	{ .name = "arizona-haptics" },
 	{ .name = "arizona-pwm" },
 	{
@@ -990,7 +1020,11 @@ static const struct mfd_cell wm8998_devs[] = {
 
 int arizona_dev_init(struct arizona *arizona)
 {
+<<<<<<< HEAD
 	const char * const mclk_name[] = { "mclk1", "mclk2" };
+=======
+	static const char * const mclk_name[] = { "mclk1", "mclk2" };
+>>>>>>> upstream/android-13
 	struct device *dev = arizona->dev;
 	const char *type_name = NULL;
 	unsigned int reg, val;
@@ -1485,3 +1519,8 @@ int arizona_dev_exit(struct arizona *arizona)
 	return 0;
 }
 EXPORT_SYMBOL_GPL(arizona_dev_exit);
+<<<<<<< HEAD
+=======
+
+MODULE_LICENSE("GPL v2");
+>>>>>>> upstream/android-13

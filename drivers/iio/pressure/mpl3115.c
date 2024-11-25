@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * mpl3115.c - Support for Freescale MPL3115A2 pressure/temperature sensor
  *
  * Copyright (c) 2013 Peter Meerwald <pmeerw@pmeerw.net>
  *
+<<<<<<< HEAD
  * This file is subject to the terms and conditions of version 2 of
  * the GNU General Public License.  See the file COPYING in the main
  * directory of this archive for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * (7-bit I2C slave address 0x60)
  *
  * TODO: FIFO buffer, altimeter mode, oversampling, continuous mode,
@@ -251,7 +258,10 @@ static int mpl3115_probe(struct i2c_client *client,
 	i2c_set_clientdata(client, indio_dev);
 	indio_dev->info = &mpl3115_info;
 	indio_dev->name = id->name;
+<<<<<<< HEAD
 	indio_dev->dev.parent = &client->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->channels = mpl3115_channels;
 	indio_dev->num_channels = ARRAY_SIZE(mpl3115_channels);

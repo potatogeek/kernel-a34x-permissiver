@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2011-2016 Synaptics Incorporated
  * Copyright (c) 2011 Unixphere
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2011-2016 Synaptics Incorporated
+ * Copyright (c) 2011 Unixphere
+>>>>>>> upstream/android-13
  */
 
 #include <linux/i2c.h>
@@ -20,12 +27,22 @@
  * struct rmi_i2c_xport - stores information for i2c communication
  *
  * @xport: The transport interface structure
+<<<<<<< HEAD
+=======
+ * @client: The I2C client device structure
+>>>>>>> upstream/android-13
  *
  * @page_mutex: Locks current page to avoid changing pages in unexpected ways.
  * @page: Keeps track of the current virtual page
  *
  * @tx_buf: Buffer used for transmitting data to the sensor over i2c.
  * @tx_buf_size: Size of the buffer
+<<<<<<< HEAD
+=======
+ *
+ * @supplies: Array of voltage regulators
+ * @startup_delay: Milliseconds to pause after powering up the regulators
+>>>>>>> upstream/android-13
  */
 struct rmi_i2c_xport {
 	struct rmi_transport_dev xport;

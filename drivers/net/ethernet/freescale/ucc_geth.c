@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2006-2009 Freescale Semicondutor, Inc. All rights reserved.
  *
@@ -6,11 +10,14 @@
  *
  * Description:
  * QE UCC Gigabit Ethernet Driver
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -30,6 +37,10 @@
 #include <linux/dma-mapping.h>
 #include <linux/mii.h>
 #include <linux/phy.h>
+<<<<<<< HEAD
+=======
+#include <linux/phy_fixed.h>
+>>>>>>> upstream/android-13
 #include <linux/workqueue.h>
 #include <linux/of_address.h>
 #include <linux/of_irq.h>
@@ -45,7 +56,10 @@
 #include <soc/fsl/qe/ucc.h>
 #include <soc/fsl/qe/ucc_fast.h>
 #include <asm/machdep.h>
+<<<<<<< HEAD
 #include <net/sch_generic.h>
+=======
+>>>>>>> upstream/android-13
 
 #include "ucc_geth.h"
 
@@ -74,9 +88,38 @@ static struct {
 module_param_named(debug, debug.msg_enable, int, 0);
 MODULE_PARM_DESC(debug, "Debug verbosity level (0=none, ..., 0xffff=all)");
 
+<<<<<<< HEAD
 static struct ucc_geth_info ugeth_primary_info = {
 	.uf_info = {
 		    .bd_mem_part = MEM_PART_SYSTEM,
+=======
+static int ucc_geth_thread_count(enum ucc_geth_num_of_threads idx)
+{
+	static const u8 count[] = {
+		[UCC_GETH_NUM_OF_THREADS_1] = 1,
+		[UCC_GETH_NUM_OF_THREADS_2] = 2,
+		[UCC_GETH_NUM_OF_THREADS_4] = 4,
+		[UCC_GETH_NUM_OF_THREADS_6] = 6,
+		[UCC_GETH_NUM_OF_THREADS_8] = 8,
+	};
+	if (idx >= ARRAY_SIZE(count))
+		return 0;
+	return count[idx];
+}
+
+static inline int ucc_geth_tx_queues(const struct ucc_geth_info *info)
+{
+	return 1;
+}
+
+static inline int ucc_geth_rx_queues(const struct ucc_geth_info *info)
+{
+	return 1;
+}
+
+static const struct ucc_geth_info ugeth_primary_info = {
+	.uf_info = {
+>>>>>>> upstream/android-13
 		    .rtsm = UCC_FAST_SEND_IDLES_BETWEEN_FRAMES,
 		    .max_rx_buf_length = 1536,
 		    /* adjusted at startup if max-speed 1000 */
@@ -94,8 +137,11 @@ static struct ucc_geth_info ugeth_primary_info = {
 		    .tcrc = UCC_FAST_16_BIT_CRC,
 		    .synl = UCC_FAST_SYNC_LEN_NOT_USED,
 		    },
+<<<<<<< HEAD
 	.numQueuesTx = 1,
 	.numQueuesRx = 1,
+=======
+>>>>>>> upstream/android-13
 	.extendedFilteringChainPointer = ((uint32_t) NULL),
 	.typeorlen = 3072 /*1536 */ ,
 	.nonBackToBackIfgPart1 = 0x40,
@@ -161,8 +207,11 @@ static struct ucc_geth_info ugeth_primary_info = {
 	.riscRx = QE_RISC_ALLOCATION_RISC1_AND_RISC2,
 };
 
+<<<<<<< HEAD
 static struct ucc_geth_info ugeth_info[8];
 
+=======
+>>>>>>> upstream/android-13
 #ifdef DEBUG
 static void mem_disp(u8 *addr, int size)
 {
@@ -562,7 +611,11 @@ static void dump_bds(struct ucc_geth_private *ugeth)
 	int i;
 	int length;
 
+<<<<<<< HEAD
 	for (i = 0; i < ugeth->ug_info->numQueuesTx; i++) {
+=======
+	for (i = 0; i < ucc_geth_tx_queues(ugeth->ug_info); i++) {
+>>>>>>> upstream/android-13
 		if (ugeth->p_tx_bd_ring[i]) {
 			length =
 			    (ugeth->ug_info->bdRingLenTx[i] *
@@ -571,7 +624,11 @@ static void dump_bds(struct ucc_geth_private *ugeth)
 			mem_disp(ugeth->p_tx_bd_ring[i], length);
 		}
 	}
+<<<<<<< HEAD
 	for (i = 0; i < ugeth->ug_info->numQueuesRx; i++) {
+=======
+	for (i = 0; i < ucc_geth_rx_queues(ugeth->ug_info); i++) {
+>>>>>>> upstream/android-13
 		if (ugeth->p_rx_bd_ring[i]) {
 			length =
 			    (ugeth->ug_info->bdRingLenRx[i] *
@@ -675,6 +732,7 @@ static void dump_regs(struct ucc_geth_private *ugeth)
 		in_be32(&ugeth->ug_regs->scam));
 
 	if (ugeth->p_thread_data_tx) {
+<<<<<<< HEAD
 		int numThreadsTxNumerical;
 		switch (ugeth->ug_info->numThreadsTx) {
 		case UCC_GETH_NUM_OF_THREADS_1:
@@ -696,11 +754,18 @@ static void dump_regs(struct ucc_geth_private *ugeth)
 			numThreadsTxNumerical = 0;
 			break;
 		}
+=======
+		int count = ucc_geth_thread_count(ugeth->ug_info->numThreadsTx);
+>>>>>>> upstream/android-13
 
 		pr_info("Thread data TXs:\n");
 		pr_info("Base address: 0x%08x\n",
 			(u32)ugeth->p_thread_data_tx);
+<<<<<<< HEAD
 		for (i = 0; i < numThreadsTxNumerical; i++) {
+=======
+		for (i = 0; i < count; i++) {
+>>>>>>> upstream/android-13
 			pr_info("Thread data TX[%d]:\n", i);
 			pr_info("Base address: 0x%08x\n",
 				(u32)&ugeth->p_thread_data_tx[i]);
@@ -709,6 +774,7 @@ static void dump_regs(struct ucc_geth_private *ugeth)
 		}
 	}
 	if (ugeth->p_thread_data_rx) {
+<<<<<<< HEAD
 		int numThreadsRxNumerical;
 		switch (ugeth->ug_info->numThreadsRx) {
 		case UCC_GETH_NUM_OF_THREADS_1:
@@ -730,11 +796,18 @@ static void dump_regs(struct ucc_geth_private *ugeth)
 			numThreadsRxNumerical = 0;
 			break;
 		}
+=======
+		int count = ucc_geth_thread_count(ugeth->ug_info->numThreadsRx);
+>>>>>>> upstream/android-13
 
 		pr_info("Thread data RX:\n");
 		pr_info("Base address: 0x%08x\n",
 			(u32)ugeth->p_thread_data_rx);
+<<<<<<< HEAD
 		for (i = 0; i < numThreadsRxNumerical; i++) {
+=======
+		for (i = 0; i < count; i++) {
+>>>>>>> upstream/android-13
 			pr_info("Thread data RX[%d]:\n", i);
 			pr_info("Base address: 0x%08x\n",
 				(u32)&ugeth->p_thread_data_rx[i]);
@@ -909,7 +982,11 @@ static void dump_regs(struct ucc_geth_private *ugeth)
 	if (ugeth->p_send_q_mem_reg) {
 		pr_info("Send Q memory registers:\n");
 		pr_info("Base address: 0x%08x\n", (u32)ugeth->p_send_q_mem_reg);
+<<<<<<< HEAD
 		for (i = 0; i < ugeth->ug_info->numQueuesTx; i++) {
+=======
+		for (i = 0; i < ucc_geth_tx_queues(ugeth->ug_info); i++) {
+>>>>>>> upstream/android-13
 			pr_info("SQQD[%d]:\n", i);
 			pr_info("Base address: 0x%08x\n",
 				(u32)&ugeth->p_send_q_mem_reg->sqqd[i]);
@@ -941,7 +1018,11 @@ static void dump_regs(struct ucc_geth_private *ugeth)
 		pr_info("RX IRQ coalescing tables:\n");
 		pr_info("Base address: 0x%08x\n",
 			(u32)ugeth->p_rx_irq_coalescing_tbl);
+<<<<<<< HEAD
 		for (i = 0; i < ugeth->ug_info->numQueuesRx; i++) {
+=======
+		for (i = 0; i < ucc_geth_rx_queues(ugeth->ug_info); i++) {
+>>>>>>> upstream/android-13
 			pr_info("RX IRQ coalescing table entry[%d]:\n", i);
 			pr_info("Base address: 0x%08x\n",
 				(u32)&ugeth->p_rx_irq_coalescing_tbl->
@@ -963,7 +1044,11 @@ static void dump_regs(struct ucc_geth_private *ugeth)
 	if (ugeth->p_rx_bd_qs_tbl) {
 		pr_info("RX BD QS tables:\n");
 		pr_info("Base address: 0x%08x\n", (u32)ugeth->p_rx_bd_qs_tbl);
+<<<<<<< HEAD
 		for (i = 0; i < ugeth->ug_info->numQueuesRx; i++) {
+=======
+		for (i = 0; i < ucc_geth_rx_queues(ugeth->ug_info); i++) {
+>>>>>>> upstream/android-13
 			pr_info("RX BD QS table[%d]:\n", i);
 			pr_info("Base address: 0x%08x\n",
 				(u32)&ugeth->p_rx_bd_qs_tbl[i]);
@@ -1352,7 +1437,11 @@ static int adjust_enet_interface(struct ucc_geth_private *ugeth)
 		switch (ugeth->max_speed) {
 		case SPEED_10:
 			upsmr |= UCC_GETH_UPSMR_R10M;
+<<<<<<< HEAD
 			/* FALLTHROUGH */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case SPEED_100:
 			if (ugeth->phy_interface != PHY_INTERFACE_MODE_RTBI)
 				upsmr |= UCC_GETH_UPSMR_RMM;
@@ -1362,7 +1451,11 @@ static int adjust_enet_interface(struct ucc_geth_private *ugeth)
 	    (ugeth->phy_interface == PHY_INTERFACE_MODE_RTBI)) {
 		upsmr |= UCC_GETH_UPSMR_TBIM;
 	}
+<<<<<<< HEAD
 	if ((ugeth->phy_interface == PHY_INTERFACE_MODE_SGMII))
+=======
+	if (ugeth->phy_interface == PHY_INTERFACE_MODE_SGMII)
+>>>>>>> upstream/android-13
 		upsmr |= UCC_GETH_UPSMR_SGMM;
 
 	out_be32(&uf_regs->upsmr, upsmr);
@@ -1743,6 +1836,7 @@ static int init_phy(struct net_device *dev)
 	if (priv->phy_interface == PHY_INTERFACE_MODE_SGMII)
 		uec_configure_serdes(dev);
 
+<<<<<<< HEAD
 	phydev->supported &= (SUPPORTED_MII |
 			      SUPPORTED_Autoneg |
 			      ADVERTISED_10baseT_Half |
@@ -1754,6 +1848,9 @@ static int init_phy(struct net_device *dev)
 		phydev->supported |= ADVERTISED_1000baseT_Full;
 
 	phydev->advertising = phydev->supported;
+=======
+	phy_set_max_speed(phydev, priv->max_speed);
+>>>>>>> upstream/android-13
 
 	priv->phydev = phydev;
 
@@ -1849,7 +1946,11 @@ static void ucc_geth_free_rx(struct ucc_geth_private *ugeth)
 	ug_info = ugeth->ug_info;
 	uf_info = &ug_info->uf_info;
 
+<<<<<<< HEAD
 	for (i = 0; i < ugeth->ug_info->numQueuesRx; i++) {
+=======
+	for (i = 0; i < ucc_geth_rx_queues(ugeth->ug_info); i++) {
+>>>>>>> upstream/android-13
 		if (ugeth->p_rx_bd_ring[i]) {
 			/* Return existing data buffers in ring */
 			bd = ugeth->p_rx_bd_ring[i];
@@ -1870,12 +1971,16 @@ static void ucc_geth_free_rx(struct ucc_geth_private *ugeth)
 
 			kfree(ugeth->rx_skbuff[i]);
 
+<<<<<<< HEAD
 			if (ugeth->ug_info->uf_info.bd_mem_part ==
 			    MEM_PART_SYSTEM)
 				kfree((void *)ugeth->rx_bd_ring_offset[i]);
 			else if (ugeth->ug_info->uf_info.bd_mem_part ==
 				 MEM_PART_MURAM)
 				qe_muram_free(ugeth->rx_bd_ring_offset[i]);
+=======
+			kfree(ugeth->p_rx_bd_ring[i]);
+>>>>>>> upstream/android-13
 			ugeth->p_rx_bd_ring[i] = NULL;
 		}
 	}
@@ -1894,7 +1999,11 @@ static void ucc_geth_free_tx(struct ucc_geth_private *ugeth)
 	ug_info = ugeth->ug_info;
 	uf_info = &ug_info->uf_info;
 
+<<<<<<< HEAD
 	for (i = 0; i < ugeth->ug_info->numQueuesTx; i++) {
+=======
+	for (i = 0; i < ucc_geth_tx_queues(ugeth->ug_info); i++) {
+>>>>>>> upstream/android-13
 		bd = ugeth->p_tx_bd_ring[i];
 		if (!bd)
 			continue;
@@ -1912,6 +2021,7 @@ static void ucc_geth_free_tx(struct ucc_geth_private *ugeth)
 
 		kfree(ugeth->tx_skbuff[i]);
 
+<<<<<<< HEAD
 		if (ugeth->p_tx_bd_ring[i]) {
 			if (ugeth->ug_info->uf_info.bd_mem_part ==
 			    MEM_PART_SYSTEM)
@@ -1921,6 +2031,10 @@ static void ucc_geth_free_tx(struct ucc_geth_private *ugeth)
 				qe_muram_free(ugeth->tx_bd_ring_offset[i]);
 			ugeth->p_tx_bd_ring[i] = NULL;
 		}
+=======
+		kfree(ugeth->p_tx_bd_ring[i]);
+		ugeth->p_tx_bd_ring[i] = NULL;
+>>>>>>> upstream/android-13
 	}
 
 }
@@ -1935,6 +2049,7 @@ static void ucc_geth_memclean(struct ucc_geth_private *ugeth)
 		ugeth->uccf = NULL;
 	}
 
+<<<<<<< HEAD
 	if (ugeth->p_thread_data_tx) {
 		qe_muram_free(ugeth->thread_dat_tx_offset);
 		ugeth->p_thread_data_tx = NULL;
@@ -1979,6 +2094,41 @@ static void ucc_geth_memclean(struct ucc_geth_private *ugeth)
 		qe_muram_free(ugeth->rx_bd_qs_tbl_offset);
 		ugeth->p_rx_bd_qs_tbl = NULL;
 	}
+=======
+	qe_muram_free_addr(ugeth->p_thread_data_tx);
+	ugeth->p_thread_data_tx = NULL;
+
+	qe_muram_free_addr(ugeth->p_thread_data_rx);
+	ugeth->p_thread_data_rx = NULL;
+
+	qe_muram_free_addr(ugeth->p_exf_glbl_param);
+	ugeth->p_exf_glbl_param = NULL;
+
+	qe_muram_free_addr(ugeth->p_rx_glbl_pram);
+	ugeth->p_rx_glbl_pram = NULL;
+
+	qe_muram_free_addr(ugeth->p_tx_glbl_pram);
+	ugeth->p_tx_glbl_pram = NULL;
+
+	qe_muram_free_addr(ugeth->p_send_q_mem_reg);
+	ugeth->p_send_q_mem_reg = NULL;
+
+	qe_muram_free_addr(ugeth->p_scheduler);
+	ugeth->p_scheduler = NULL;
+
+	qe_muram_free_addr(ugeth->p_tx_fw_statistics_pram);
+	ugeth->p_tx_fw_statistics_pram = NULL;
+
+	qe_muram_free_addr(ugeth->p_rx_fw_statistics_pram);
+	ugeth->p_rx_fw_statistics_pram = NULL;
+
+	qe_muram_free_addr(ugeth->p_rx_irq_coalescing_tbl);
+	ugeth->p_rx_irq_coalescing_tbl = NULL;
+
+	qe_muram_free_addr(ugeth->p_rx_bd_qs_tbl);
+	ugeth->p_rx_bd_qs_tbl = NULL;
+
+>>>>>>> upstream/android-13
 	if (ugeth->p_init_enet_param_shadow) {
 		return_init_enet_entries(ugeth,
 					 &(ugeth->p_init_enet_param_shadow->
@@ -2087,6 +2237,7 @@ static int ucc_struct_init(struct ucc_geth_private *ugeth)
 	ug_info = ugeth->ug_info;
 	uf_info = &ug_info->uf_info;
 
+<<<<<<< HEAD
 	if (!((uf_info->bd_mem_part == MEM_PART_SYSTEM) ||
 	      (uf_info->bd_mem_part == MEM_PART_MURAM))) {
 		if (netif_msg_probe(ugeth))
@@ -2096,6 +2247,10 @@ static int ucc_struct_init(struct ucc_geth_private *ugeth)
 
 	/* Rx BD lengths */
 	for (i = 0; i < ug_info->numQueuesRx; i++) {
+=======
+	/* Rx BD lengths */
+	for (i = 0; i < ucc_geth_rx_queues(ug_info); i++) {
+>>>>>>> upstream/android-13
 		if ((ug_info->bdRingLenRx[i] < UCC_GETH_RX_BD_RING_SIZE_MIN) ||
 		    (ug_info->bdRingLenRx[i] %
 		     UCC_GETH_RX_BD_RING_SIZE_ALIGNMENT)) {
@@ -2106,7 +2261,11 @@ static int ucc_struct_init(struct ucc_geth_private *ugeth)
 	}
 
 	/* Tx BD lengths */
+<<<<<<< HEAD
 	for (i = 0; i < ug_info->numQueuesTx; i++) {
+=======
+	for (i = 0; i < ucc_geth_tx_queues(ug_info); i++) {
+>>>>>>> upstream/android-13
 		if (ug_info->bdRingLenTx[i] < UCC_GETH_TX_BD_RING_SIZE_MIN) {
 			if (netif_msg_probe(ugeth))
 				pr_err("Tx BD ring length must be no smaller than 2\n");
@@ -2123,14 +2282,22 @@ static int ucc_struct_init(struct ucc_geth_private *ugeth)
 	}
 
 	/* num Tx queues */
+<<<<<<< HEAD
 	if (ug_info->numQueuesTx > NUM_TX_QUEUES) {
+=======
+	if (ucc_geth_tx_queues(ug_info) > NUM_TX_QUEUES) {
+>>>>>>> upstream/android-13
 		if (netif_msg_probe(ugeth))
 			pr_err("number of tx queues too large\n");
 		return -EINVAL;
 	}
 
 	/* num Rx queues */
+<<<<<<< HEAD
 	if (ug_info->numQueuesRx > NUM_RX_QUEUES) {
+=======
+	if (ucc_geth_rx_queues(ug_info) > NUM_RX_QUEUES) {
+>>>>>>> upstream/android-13
 		if (netif_msg_probe(ugeth))
 			pr_err("number of rx queues too large\n");
 		return -EINVAL;
@@ -2138,7 +2305,11 @@ static int ucc_struct_init(struct ucc_geth_private *ugeth)
 
 	/* l2qt */
 	for (i = 0; i < UCC_GETH_VLAN_PRIORITY_MAX; i++) {
+<<<<<<< HEAD
 		if (ug_info->l2qt[i] >= ug_info->numQueuesRx) {
+=======
+		if (ug_info->l2qt[i] >= ucc_geth_rx_queues(ug_info)) {
+>>>>>>> upstream/android-13
 			if (netif_msg_probe(ugeth))
 				pr_err("VLAN priority table entry must not be larger than number of Rx queues\n");
 			return -EINVAL;
@@ -2147,7 +2318,11 @@ static int ucc_struct_init(struct ucc_geth_private *ugeth)
 
 	/* l3qt */
 	for (i = 0; i < UCC_GETH_IP_PRIORITY_MAX; i++) {
+<<<<<<< HEAD
 		if (ug_info->l3qt[i] >= ug_info->numQueuesRx) {
+=======
+		if (ug_info->l3qt[i] >= ucc_geth_rx_queues(ug_info)) {
+>>>>>>> upstream/android-13
 			if (netif_msg_probe(ugeth))
 				pr_err("IP priority table entry must not be larger than number of Rx queues\n");
 			return -EINVAL;
@@ -2170,10 +2345,17 @@ static int ucc_struct_init(struct ucc_geth_private *ugeth)
 
 	/* Generate uccm_mask for receive */
 	uf_info->uccm_mask = ug_info->eventRegMask & UCCE_OTHER;/* Errors */
+<<<<<<< HEAD
 	for (i = 0; i < ug_info->numQueuesRx; i++)
 		uf_info->uccm_mask |= (UCC_GETH_UCCE_RXF0 << i);
 
 	for (i = 0; i < ug_info->numQueuesTx; i++)
+=======
+	for (i = 0; i < ucc_geth_rx_queues(ug_info); i++)
+		uf_info->uccm_mask |= (UCC_GETH_UCCE_RXF0 << i);
+
+	for (i = 0; i < ucc_geth_tx_queues(ug_info); i++)
+>>>>>>> upstream/android-13
 		uf_info->uccm_mask |= (UCC_GETH_UCCE_TXB0 << i);
 	/* Initialize the general fast UCC block. */
 	if (ucc_fast_init(uf_info, &ugeth->uccf)) {
@@ -2212,6 +2394,7 @@ static int ucc_geth_alloc_tx(struct ucc_geth_private *ugeth)
 	uf_info = &ug_info->uf_info;
 
 	/* Allocate Tx bds */
+<<<<<<< HEAD
 	for (j = 0; j < ug_info->numQueuesTx; j++) {
 		/* Allocate in multiple of
 		   UCC_GETH_TX_BD_RING_SIZE_MEMORY_ALIGNMENT,
@@ -2242,12 +2425,26 @@ static int ucc_geth_alloc_tx(struct ucc_geth_private *ugeth)
 				    (u8 __iomem *) qe_muram_addr(ugeth->
 							 tx_bd_ring_offset[j]);
 		}
+=======
+	for (j = 0; j < ucc_geth_tx_queues(ug_info); j++) {
+		u32 align = max(UCC_GETH_TX_BD_RING_ALIGNMENT,
+				UCC_GETH_TX_BD_RING_SIZE_MEMORY_ALIGNMENT);
+		u32 alloc;
+
+		length = ug_info->bdRingLenTx[j] * sizeof(struct qe_bd);
+		alloc = round_up(length, align);
+		alloc = roundup_pow_of_two(alloc);
+
+		ugeth->p_tx_bd_ring[j] = kmalloc(alloc, GFP_KERNEL);
+
+>>>>>>> upstream/android-13
 		if (!ugeth->p_tx_bd_ring[j]) {
 			if (netif_msg_ifup(ugeth))
 				pr_err("Can not allocate memory for Tx bd rings\n");
 			return -ENOMEM;
 		}
 		/* Zero unused end of bd ring, according to spec */
+<<<<<<< HEAD
 		memset_io((void __iomem *)(ugeth->p_tx_bd_ring[j] +
 		       ug_info->bdRingLenTx[j] * sizeof(struct qe_bd)), 0,
 		       length - ug_info->bdRingLenTx[j] * sizeof(struct qe_bd));
@@ -2259,6 +2456,17 @@ static int ucc_geth_alloc_tx(struct ucc_geth_private *ugeth)
 		ugeth->tx_skbuff[j] =
 			kmalloc_array(ugeth->ug_info->bdRingLenTx[j],
 				      sizeof(struct sk_buff *), GFP_KERNEL);
+=======
+		memset(ugeth->p_tx_bd_ring[j] + length, 0, alloc - length);
+	}
+
+	/* Init Tx bds */
+	for (j = 0; j < ucc_geth_tx_queues(ug_info); j++) {
+		/* Setup the skbuff rings */
+		ugeth->tx_skbuff[j] =
+			kcalloc(ugeth->ug_info->bdRingLenTx[j],
+				sizeof(struct sk_buff *), GFP_KERNEL);
+>>>>>>> upstream/android-13
 
 		if (ugeth->tx_skbuff[j] == NULL) {
 			if (netif_msg_ifup(ugeth))
@@ -2266,9 +2474,12 @@ static int ucc_geth_alloc_tx(struct ucc_geth_private *ugeth)
 			return -ENOMEM;
 		}
 
+<<<<<<< HEAD
 		for (i = 0; i < ugeth->ug_info->bdRingLenTx[j]; i++)
 			ugeth->tx_skbuff[j][i] = NULL;
 
+=======
+>>>>>>> upstream/android-13
 		ugeth->skb_curtx[j] = ugeth->skb_dirtytx[j] = 0;
 		bd = ugeth->confBd[j] = ugeth->txBd[j] = ugeth->p_tx_bd_ring[j];
 		for (i = 0; i < ug_info->bdRingLenTx[j]; i++) {
@@ -2298,6 +2509,7 @@ static int ucc_geth_alloc_rx(struct ucc_geth_private *ugeth)
 	uf_info = &ug_info->uf_info;
 
 	/* Allocate Rx bds */
+<<<<<<< HEAD
 	for (j = 0; j < ug_info->numQueuesRx; j++) {
 		length = ug_info->bdRingLenRx[j] * sizeof(struct qe_bd);
 		if (uf_info->bd_mem_part == MEM_PART_SYSTEM) {
@@ -2319,6 +2531,17 @@ static int ucc_geth_alloc_rx(struct ucc_geth_private *ugeth)
 				    (u8 __iomem *) qe_muram_addr(ugeth->
 							 rx_bd_ring_offset[j]);
 		}
+=======
+	for (j = 0; j < ucc_geth_rx_queues(ug_info); j++) {
+		u32 align = UCC_GETH_RX_BD_RING_ALIGNMENT;
+		u32 alloc;
+
+		length = ug_info->bdRingLenRx[j] * sizeof(struct qe_bd);
+		alloc = round_up(length, align);
+		alloc = roundup_pow_of_two(alloc);
+
+		ugeth->p_rx_bd_ring[j] = kmalloc(alloc, GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (!ugeth->p_rx_bd_ring[j]) {
 			if (netif_msg_ifup(ugeth))
 				pr_err("Can not allocate memory for Rx bd rings\n");
@@ -2327,11 +2550,19 @@ static int ucc_geth_alloc_rx(struct ucc_geth_private *ugeth)
 	}
 
 	/* Init Rx bds */
+<<<<<<< HEAD
 	for (j = 0; j < ug_info->numQueuesRx; j++) {
 		/* Setup the skbuff rings */
 		ugeth->rx_skbuff[j] =
 			kmalloc_array(ugeth->ug_info->bdRingLenRx[j],
 				      sizeof(struct sk_buff *), GFP_KERNEL);
+=======
+	for (j = 0; j < ucc_geth_rx_queues(ug_info); j++) {
+		/* Setup the skbuff rings */
+		ugeth->rx_skbuff[j] =
+			kcalloc(ugeth->ug_info->bdRingLenRx[j],
+				sizeof(struct sk_buff *), GFP_KERNEL);
+>>>>>>> upstream/android-13
 
 		if (ugeth->rx_skbuff[j] == NULL) {
 			if (netif_msg_ifup(ugeth))
@@ -2339,9 +2570,12 @@ static int ucc_geth_alloc_rx(struct ucc_geth_private *ugeth)
 			return -ENOMEM;
 		}
 
+<<<<<<< HEAD
 		for (i = 0; i < ugeth->ug_info->bdRingLenRx[j]; i++)
 			ugeth->rx_skbuff[j][i] = NULL;
 
+=======
+>>>>>>> upstream/android-13
 		ugeth->skb_currx[j] = 0;
 		bd = ugeth->rxBd[j] = ugeth->p_rx_bd_ring[j];
 		for (i = 0; i < ug_info->bdRingLenRx[j]; i++) {
@@ -2373,10 +2607,17 @@ static int ucc_geth_startup(struct ucc_geth_private *ugeth)
 	u32 init_enet_pram_offset, cecr_subblock, command;
 	u32 ifstat, i, j, size, l2qt, l3qt;
 	u16 temoder = UCC_GETH_TEMODER_INIT;
+<<<<<<< HEAD
 	u16 test;
 	u8 function_code = 0;
 	u8 __iomem *endOfRing;
 	u8 numThreadsRxNumerical, numThreadsTxNumerical;
+=======
+	u8 function_code = 0;
+	u8 __iomem *endOfRing;
+	u8 numThreadsRxNumerical, numThreadsTxNumerical;
+	s32 rx_glbl_pram_offset, tx_glbl_pram_offset;
+>>>>>>> upstream/android-13
 
 	ugeth_vdbg("%s: IN", __func__);
 	uccf = ugeth->uccf;
@@ -2385,6 +2626,7 @@ static int ucc_geth_startup(struct ucc_geth_private *ugeth)
 	uf_regs = uccf->uf_regs;
 	ug_regs = ugeth->ug_regs;
 
+<<<<<<< HEAD
 	switch (ug_info->numThreadsRx) {
 	case UCC_GETH_NUM_OF_THREADS_1:
 		numThreadsRxNumerical = 1;
@@ -2402,11 +2644,16 @@ static int ucc_geth_startup(struct ucc_geth_private *ugeth)
 		numThreadsRxNumerical = 8;
 		break;
 	default:
+=======
+	numThreadsRxNumerical = ucc_geth_thread_count(ug_info->numThreadsRx);
+	if (!numThreadsRxNumerical) {
+>>>>>>> upstream/android-13
 		if (netif_msg_ifup(ugeth))
 			pr_err("Bad number of Rx threads value\n");
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	switch (ug_info->numThreadsTx) {
 	case UCC_GETH_NUM_OF_THREADS_1:
 		numThreadsTxNumerical = 1;
@@ -2424,6 +2671,10 @@ static int ucc_geth_startup(struct ucc_geth_private *ugeth)
 		numThreadsTxNumerical = 8;
 		break;
 	default:
+=======
+	numThreadsTxNumerical = ucc_geth_thread_count(ug_info->numThreadsTx);
+	if (!numThreadsTxNumerical) {
+>>>>>>> upstream/android-13
 		if (netif_msg_ifup(ugeth))
 			pr_err("Bad number of Tx threads value\n");
 		return -EINVAL;
@@ -2521,20 +2772,31 @@ static int ucc_geth_startup(struct ucc_geth_private *ugeth)
 	 */
 	/* Tx global PRAM */
 	/* Allocate global tx parameter RAM page */
+<<<<<<< HEAD
 	ugeth->tx_glbl_pram_offset =
 	    qe_muram_alloc(sizeof(struct ucc_geth_tx_global_pram),
 			   UCC_GETH_TX_GLOBAL_PRAM_ALIGNMENT);
 	if (IS_ERR_VALUE(ugeth->tx_glbl_pram_offset)) {
+=======
+	tx_glbl_pram_offset =
+	    qe_muram_alloc(sizeof(struct ucc_geth_tx_global_pram),
+			   UCC_GETH_TX_GLOBAL_PRAM_ALIGNMENT);
+	if (tx_glbl_pram_offset < 0) {
+>>>>>>> upstream/android-13
 		if (netif_msg_ifup(ugeth))
 			pr_err("Can not allocate DPRAM memory for p_tx_glbl_pram\n");
 		return -ENOMEM;
 	}
+<<<<<<< HEAD
 	ugeth->p_tx_glbl_pram =
 	    (struct ucc_geth_tx_global_pram __iomem *) qe_muram_addr(ugeth->
 							tx_glbl_pram_offset);
 	/* Zero out p_tx_glbl_pram */
 	memset_io((void __iomem *)ugeth->p_tx_glbl_pram, 0, sizeof(struct ucc_geth_tx_global_pram));
 
+=======
+	ugeth->p_tx_glbl_pram = qe_muram_addr(tx_glbl_pram_offset);
+>>>>>>> upstream/android-13
 	/* Fill global PRAM */
 
 	/* TQPTR */
@@ -2568,7 +2830,11 @@ static int ucc_geth_startup(struct ucc_geth_private *ugeth)
 	/* SQPTR */
 	/* Size varies with number of Tx queues */
 	ugeth->send_q_mem_reg_offset =
+<<<<<<< HEAD
 	    qe_muram_alloc(ug_info->numQueuesTx *
+=======
+	    qe_muram_alloc(ucc_geth_tx_queues(ug_info) *
+>>>>>>> upstream/android-13
 			   sizeof(struct ucc_geth_send_queue_qd),
 			   UCC_GETH_SEND_QUEUE_QUEUE_DESCRIPTOR_ALIGNMENT);
 	if (IS_ERR_VALUE(ugeth->send_q_mem_reg_offset)) {
@@ -2584,6 +2850,7 @@ static int ucc_geth_startup(struct ucc_geth_private *ugeth)
 
 	/* Setup the table */
 	/* Assume BD rings are already established */
+<<<<<<< HEAD
 	for (i = 0; i < ug_info->numQueuesTx; i++) {
 		endOfRing =
 		    ugeth->p_tx_bd_ring[i] + (ug_info->bdRingLenTx[i] -
@@ -2602,11 +2869,26 @@ static int ucc_geth_startup(struct ucc_geth_private *ugeth)
 				 last_bd_completed_address,
 				 (u32)qe_muram_dma(endOfRing));
 		}
+=======
+	for (i = 0; i < ucc_geth_tx_queues(ug_info); i++) {
+		endOfRing =
+		    ugeth->p_tx_bd_ring[i] + (ug_info->bdRingLenTx[i] -
+					      1) * sizeof(struct qe_bd);
+		out_be32(&ugeth->p_send_q_mem_reg->sqqd[i].bd_ring_base,
+			 (u32) virt_to_phys(ugeth->p_tx_bd_ring[i]));
+		out_be32(&ugeth->p_send_q_mem_reg->sqqd[i].
+			 last_bd_completed_address,
+			 (u32) virt_to_phys(endOfRing));
+>>>>>>> upstream/android-13
 	}
 
 	/* schedulerbasepointer */
 
+<<<<<<< HEAD
 	if (ug_info->numQueuesTx > 1) {
+=======
+	if (ucc_geth_tx_queues(ug_info) > 1) {
+>>>>>>> upstream/android-13
 	/* scheduler exists only if more than 1 tx queue */
 		ugeth->scheduler_offset =
 		    qe_muram_alloc(sizeof(struct ucc_geth_scheduler),
@@ -2622,8 +2904,11 @@ static int ucc_geth_startup(struct ucc_geth_private *ugeth)
 							   scheduler_offset);
 		out_be32(&ugeth->p_tx_glbl_pram->schedulerbasepointer,
 			 ugeth->scheduler_offset);
+<<<<<<< HEAD
 		/* Zero out p_scheduler */
 		memset_io((void __iomem *)ugeth->p_scheduler, 0, sizeof(struct ucc_geth_scheduler));
+=======
+>>>>>>> upstream/android-13
 
 		/* Set values in scheduler */
 		out_be32(&ugeth->p_scheduler->mblinterval,
@@ -2666,14 +2951,18 @@ static int ucc_geth_startup(struct ucc_geth_private *ugeth)
 		ugeth->p_tx_fw_statistics_pram =
 		    (struct ucc_geth_tx_firmware_statistics_pram __iomem *)
 		    qe_muram_addr(ugeth->tx_fw_statistics_pram_offset);
+<<<<<<< HEAD
 		/* Zero out p_tx_fw_statistics_pram */
 		memset_io((void __iomem *)ugeth->p_tx_fw_statistics_pram,
 		       0, sizeof(struct ucc_geth_tx_firmware_statistics_pram));
+=======
+>>>>>>> upstream/android-13
 	}
 
 	/* temoder */
 	/* Already has speed set */
 
+<<<<<<< HEAD
 	if (ug_info->numQueuesTx > 1)
 		temoder |= TEMODER_SCHEDULER_ENABLE;
 	if (ug_info->ipCheckSumGenerate)
@@ -2683,6 +2972,15 @@ static int ucc_geth_startup(struct ucc_geth_private *ugeth)
 
 	test = in_be16(&ugeth->p_tx_glbl_pram->temoder);
 
+=======
+	if (ucc_geth_tx_queues(ug_info) > 1)
+		temoder |= TEMODER_SCHEDULER_ENABLE;
+	if (ug_info->ipCheckSumGenerate)
+		temoder |= TEMODER_IP_CHECKSUM_GENERATE;
+	temoder |= ((ucc_geth_tx_queues(ug_info) - 1) << TEMODER_NUM_OF_QUEUES_SHIFT);
+	out_be16(&ugeth->p_tx_glbl_pram->temoder, temoder);
+
+>>>>>>> upstream/android-13
 	/* Function code register value to be used later */
 	function_code = UCC_BMR_BO_BE | UCC_BMR_GBL;
 	/* Required for QE */
@@ -2692,20 +2990,31 @@ static int ucc_geth_startup(struct ucc_geth_private *ugeth)
 
 	/* Rx global PRAM */
 	/* Allocate global rx parameter RAM page */
+<<<<<<< HEAD
 	ugeth->rx_glbl_pram_offset =
 	    qe_muram_alloc(sizeof(struct ucc_geth_rx_global_pram),
 			   UCC_GETH_RX_GLOBAL_PRAM_ALIGNMENT);
 	if (IS_ERR_VALUE(ugeth->rx_glbl_pram_offset)) {
+=======
+	rx_glbl_pram_offset =
+	    qe_muram_alloc(sizeof(struct ucc_geth_rx_global_pram),
+			   UCC_GETH_RX_GLOBAL_PRAM_ALIGNMENT);
+	if (rx_glbl_pram_offset < 0) {
+>>>>>>> upstream/android-13
 		if (netif_msg_ifup(ugeth))
 			pr_err("Can not allocate DPRAM memory for p_rx_glbl_pram\n");
 		return -ENOMEM;
 	}
+<<<<<<< HEAD
 	ugeth->p_rx_glbl_pram =
 	    (struct ucc_geth_rx_global_pram __iomem *) qe_muram_addr(ugeth->
 							rx_glbl_pram_offset);
 	/* Zero out p_rx_glbl_pram */
 	memset_io((void __iomem *)ugeth->p_rx_glbl_pram, 0, sizeof(struct ucc_geth_rx_global_pram));
 
+=======
+	ugeth->p_rx_glbl_pram = qe_muram_addr(rx_glbl_pram_offset);
+>>>>>>> upstream/android-13
 	/* Fill global PRAM */
 
 	/* RQPTR */
@@ -2743,16 +3052,23 @@ static int ucc_geth_startup(struct ucc_geth_private *ugeth)
 		ugeth->p_rx_fw_statistics_pram =
 		    (struct ucc_geth_rx_firmware_statistics_pram __iomem *)
 		    qe_muram_addr(ugeth->rx_fw_statistics_pram_offset);
+<<<<<<< HEAD
 		/* Zero out p_rx_fw_statistics_pram */
 		memset_io((void __iomem *)ugeth->p_rx_fw_statistics_pram, 0,
 		       sizeof(struct ucc_geth_rx_firmware_statistics_pram));
+=======
+>>>>>>> upstream/android-13
 	}
 
 	/* intCoalescingPtr */
 
 	/* Size varies with number of Rx queues */
 	ugeth->rx_irq_coalescing_tbl_offset =
+<<<<<<< HEAD
 	    qe_muram_alloc(ug_info->numQueuesRx *
+=======
+	    qe_muram_alloc(ucc_geth_rx_queues(ug_info) *
+>>>>>>> upstream/android-13
 			   sizeof(struct ucc_geth_rx_interrupt_coalescing_entry)
 			   + 4, UCC_GETH_RX_INTERRUPT_COALESCING_ALIGNMENT);
 	if (IS_ERR_VALUE(ugeth->rx_irq_coalescing_tbl_offset)) {
@@ -2768,7 +3084,11 @@ static int ucc_geth_startup(struct ucc_geth_private *ugeth)
 		 ugeth->rx_irq_coalescing_tbl_offset);
 
 	/* Fill interrupt coalescing table */
+<<<<<<< HEAD
 	for (i = 0; i < ug_info->numQueuesRx; i++) {
+=======
+	for (i = 0; i < ucc_geth_rx_queues(ug_info); i++) {
+>>>>>>> upstream/android-13
 		out_be32(&ugeth->p_rx_irq_coalescing_tbl->coalescingentry[i].
 			 interruptcoalescingmaxvalue,
 			 ug_info->interruptcoalescingmaxvalue[i]);
@@ -2817,7 +3137,11 @@ static int ucc_geth_startup(struct ucc_geth_private *ugeth)
 	/* RBDQPTR */
 	/* Size varies with number of Rx queues */
 	ugeth->rx_bd_qs_tbl_offset =
+<<<<<<< HEAD
 	    qe_muram_alloc(ug_info->numQueuesRx *
+=======
+	    qe_muram_alloc(ucc_geth_rx_queues(ug_info) *
+>>>>>>> upstream/android-13
 			   (sizeof(struct ucc_geth_rx_bd_queues_entry) +
 			    sizeof(struct ucc_geth_rx_prefetched_bds)),
 			   UCC_GETH_RX_BD_QUEUES_ALIGNMENT);
@@ -2831,6 +3155,7 @@ static int ucc_geth_startup(struct ucc_geth_private *ugeth)
 	    (struct ucc_geth_rx_bd_queues_entry __iomem *) qe_muram_addr(ugeth->
 				    rx_bd_qs_tbl_offset);
 	out_be32(&ugeth->p_rx_glbl_pram->rbdqptr, ugeth->rx_bd_qs_tbl_offset);
+<<<<<<< HEAD
 	/* Zero out p_rx_bd_qs_tbl */
 	memset_io((void __iomem *)ugeth->p_rx_bd_qs_tbl,
 	       0,
@@ -2848,6 +3173,14 @@ static int ucc_geth_startup(struct ucc_geth_private *ugeth)
 			out_be32(&ugeth->p_rx_bd_qs_tbl[i].externalbdbaseptr,
 				 (u32)qe_muram_dma(ugeth->p_rx_bd_ring[i]));
 		}
+=======
+
+	/* Setup the table */
+	/* Assume BD rings are already established */
+	for (i = 0; i < ucc_geth_rx_queues(ug_info); i++) {
+		out_be32(&ugeth->p_rx_bd_qs_tbl[i].externalbdbaseptr,
+			 (u32) virt_to_phys(ugeth->p_rx_bd_ring[i]));
+>>>>>>> upstream/android-13
 		/* rest of fields handled by QE */
 	}
 
@@ -2868,7 +3201,11 @@ static int ucc_geth_startup(struct ucc_geth_private *ugeth)
 	    ug_info->
 	    vlanOperationNonTagged << REMODER_VLAN_OPERATION_NON_TAGGED_SHIFT;
 	remoder |= ug_info->rxQoSMode << REMODER_RX_QOS_MODE_SHIFT;
+<<<<<<< HEAD
 	remoder |= ((ug_info->numQueuesRx - 1) << REMODER_NUM_OF_QUEUES_SHIFT);
+=======
+	remoder |= ((ucc_geth_rx_queues(ug_info) - 1) << REMODER_NUM_OF_QUEUES_SHIFT);
+>>>>>>> upstream/android-13
 	if (ug_info->ipCheckSumCheck)
 		remoder |= REMODER_IP_CHECKSUM_CHECK;
 	if (ug_info->ipAddressAlignment)
@@ -2951,14 +3288,21 @@ static int ucc_geth_startup(struct ucc_geth_private *ugeth)
 	 * allocated resources can be released when the channel is freed.
 	 */
 	if (!(ugeth->p_init_enet_param_shadow =
+<<<<<<< HEAD
 	      kmalloc(sizeof(struct ucc_geth_init_pram), GFP_KERNEL))) {
+=======
+	      kzalloc(sizeof(struct ucc_geth_init_pram), GFP_KERNEL))) {
+>>>>>>> upstream/android-13
 		if (netif_msg_ifup(ugeth))
 			pr_err("Can not allocate memory for p_UccInitEnetParamShadows\n");
 		return -ENOMEM;
 	}
+<<<<<<< HEAD
 	/* Zero out *p_init_enet_param_shadow */
 	memset((char *)ugeth->p_init_enet_param_shadow,
 	       0, sizeof(struct ucc_geth_init_pram));
+=======
+>>>>>>> upstream/android-13
 
 	/* Fill shadow InitEnet command parameter structure */
 
@@ -2978,7 +3322,11 @@ static int ucc_geth_startup(struct ucc_geth_private *ugeth)
 	    ((u32) ug_info->numThreadsTx) << ENET_INIT_PARAM_TGF_SHIFT;
 
 	ugeth->p_init_enet_param_shadow->rgftgfrxglobal |=
+<<<<<<< HEAD
 	    ugeth->rx_glbl_pram_offset | ug_info->riscRx;
+=======
+	    rx_glbl_pram_offset | ug_info->riscRx;
+>>>>>>> upstream/android-13
 	if ((ug_info->largestexternallookupkeysize !=
 	     QE_FLTR_LARGEST_EXTERNAL_TABLE_LOOKUP_KEY_SIZE_NONE) &&
 	    (ug_info->largestexternallookupkeysize !=
@@ -3016,7 +3364,11 @@ static int ucc_geth_startup(struct ucc_geth_private *ugeth)
 	}
 
 	ugeth->p_init_enet_param_shadow->txglobal =
+<<<<<<< HEAD
 	    ugeth->tx_glbl_pram_offset | ug_info->riscTx;
+=======
+	    tx_glbl_pram_offset | ug_info->riscTx;
+>>>>>>> upstream/android-13
 	if ((ret_val =
 	     fill_init_enet_entries(ugeth,
 				    &(ugeth->p_init_enet_param_shadow->
@@ -3030,7 +3382,11 @@ static int ucc_geth_startup(struct ucc_geth_private *ugeth)
 	}
 
 	/* Load Rx bds with buffers */
+<<<<<<< HEAD
 	for (i = 0; i < ug_info->numQueuesRx; i++) {
+=======
+	for (i = 0; i < ucc_geth_rx_queues(ug_info); i++) {
+>>>>>>> upstream/android-13
 		if ((ret_val = rx_bd_buffer_set(ugeth, (u8) i)) != 0) {
 			if (netif_msg_ifup(ugeth))
 				pr_err("Can not fill Rx bds with buffers\n");
@@ -3301,12 +3657,20 @@ static int ucc_geth_poll(struct napi_struct *napi, int budget)
 
 	/* Tx event processing */
 	spin_lock(&ugeth->lock);
+<<<<<<< HEAD
 	for (i = 0; i < ug_info->numQueuesTx; i++)
+=======
+	for (i = 0; i < ucc_geth_tx_queues(ug_info); i++)
+>>>>>>> upstream/android-13
 		ucc_geth_tx(ugeth->ndev, i);
 	spin_unlock(&ugeth->lock);
 
 	howmany = 0;
+<<<<<<< HEAD
 	for (i = 0; i < ug_info->numQueuesRx; i++)
+=======
+	for (i = 0; i < ucc_geth_rx_queues(ug_info); i++)
+>>>>>>> upstream/android-13
 		howmany += ucc_geth_rx(ugeth, i, budget - howmany);
 
 	if (howmany < budget) {
@@ -3559,7 +3923,11 @@ static void ucc_geth_timeout_work(struct work_struct *work)
  * ucc_geth_timeout gets called when a packet has not been
  * transmitted after a set amount of time.
  */
+<<<<<<< HEAD
 static void ucc_geth_timeout(struct net_device *dev)
+=======
+static void ucc_geth_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct ucc_geth_private *ugeth = netdev_priv(dev);
 
@@ -3689,15 +4057,56 @@ static const struct net_device_ops ucc_geth_netdev_ops = {
 	.ndo_stop		= ucc_geth_close,
 	.ndo_start_xmit		= ucc_geth_start_xmit,
 	.ndo_validate_addr	= eth_validate_addr,
+<<<<<<< HEAD
 	.ndo_set_mac_address	= ucc_geth_set_mac_addr,
 	.ndo_set_rx_mode	= ucc_geth_set_multi,
 	.ndo_tx_timeout		= ucc_geth_timeout,
 	.ndo_do_ioctl		= ucc_geth_ioctl,
+=======
+	.ndo_change_carrier     = fixed_phy_change_carrier,
+	.ndo_set_mac_address	= ucc_geth_set_mac_addr,
+	.ndo_set_rx_mode	= ucc_geth_set_multi,
+	.ndo_tx_timeout		= ucc_geth_timeout,
+	.ndo_eth_ioctl		= ucc_geth_ioctl,
+>>>>>>> upstream/android-13
 #ifdef CONFIG_NET_POLL_CONTROLLER
 	.ndo_poll_controller	= ucc_netpoll,
 #endif
 };
 
+<<<<<<< HEAD
+=======
+static int ucc_geth_parse_clock(struct device_node *np, const char *which,
+				enum qe_clock *out)
+{
+	const char *sprop;
+	char buf[24];
+
+	snprintf(buf, sizeof(buf), "%s-clock-name", which);
+	sprop = of_get_property(np, buf, NULL);
+	if (sprop) {
+		*out = qe_clock_source(sprop);
+	} else {
+		u32 val;
+
+		snprintf(buf, sizeof(buf), "%s-clock", which);
+		if (of_property_read_u32(np, buf, &val)) {
+			/* If both *-clock-name and *-clock are missing,
+			 * we want to tell people to use *-clock-name.
+			 */
+			pr_err("missing %s-clock-name property\n", buf);
+			return -EINVAL;
+		}
+		*out = val;
+	}
+	if (*out < QE_CLK_NONE || *out > QE_CLK24) {
+		pr_err("invalid %s property\n", buf);
+		return -EINVAL;
+	}
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int ucc_geth_probe(struct platform_device* ofdev)
 {
 	struct device *device = &ofdev->dev;
@@ -3708,8 +4117,11 @@ static int ucc_geth_probe(struct platform_device* ofdev)
 	struct resource res;
 	int err, ucc_num, max_speed = 0;
 	const unsigned int *prop;
+<<<<<<< HEAD
 	const char *sprop;
 	const void *mac_addr;
+=======
+>>>>>>> upstream/android-13
 	phy_interface_t phy_interface;
 	static const int enet_to_speed[] = {
 		SPEED_10, SPEED_10, SPEED_10,
@@ -3738,6 +4150,7 @@ static int ucc_geth_probe(struct platform_device* ofdev)
 	if ((ucc_num < 0) || (ucc_num > 7))
 		return -ENODEV;
 
+<<<<<<< HEAD
 	ug_info = &ugeth_info[ucc_num];
 	if (ug_info == NULL) {
 		if (netif_msg_probe(&debug))
@@ -3794,6 +4207,24 @@ static int ucc_geth_probe(struct platform_device* ofdev)
 	err = of_address_to_resource(np, 0, &res);
 	if (err)
 		return -EINVAL;
+=======
+	ug_info = kmemdup(&ugeth_primary_info, sizeof(*ug_info), GFP_KERNEL);
+	if (ug_info == NULL)
+		return -ENOMEM;
+
+	ug_info->uf_info.ucc_num = ucc_num;
+
+	err = ucc_geth_parse_clock(np, "rx", &ug_info->uf_info.rx_clock);
+	if (err)
+		goto err_free_info;
+	err = ucc_geth_parse_clock(np, "tx", &ug_info->uf_info.tx_clock);
+	if (err)
+		goto err_free_info;
+
+	err = of_address_to_resource(np, 0, &res);
+	if (err)
+		goto err_free_info;
+>>>>>>> upstream/android-13
 
 	ug_info->uf_info.regs = res.start;
 	ug_info->uf_info.irq = irq_of_parse_and_map(np, 0);
@@ -3806,7 +4237,11 @@ static int ucc_geth_probe(struct platform_device* ofdev)
 		 */
 		err = of_phy_register_fixed_link(np);
 		if (err)
+<<<<<<< HEAD
 			return err;
+=======
+			goto err_free_info;
+>>>>>>> upstream/android-13
 		ug_info->phy_node = of_node_get(np);
 	}
 
@@ -3919,9 +4354,13 @@ static int ucc_geth_probe(struct platform_device* ofdev)
 		goto err_free_netdev;
 	}
 
+<<<<<<< HEAD
 	mac_addr = of_get_mac_address(np);
 	if (mac_addr)
 		memcpy(dev->dev_addr, mac_addr, ETH_ALEN);
+=======
+	of_get_mac_address(np, dev->dev_addr);
+>>>>>>> upstream/android-13
 
 	ugeth->ug_info = ug_info;
 	ugeth->dev = device;
@@ -3937,6 +4376,11 @@ err_deregister_fixed_link:
 		of_phy_deregister_fixed_link(np);
 	of_node_put(ug_info->tbi_node);
 	of_node_put(ug_info->phy_node);
+<<<<<<< HEAD
+=======
+err_free_info:
+	kfree(ug_info);
+>>>>>>> upstream/android-13
 
 	return err;
 }
@@ -3953,6 +4397,10 @@ static int ucc_geth_remove(struct platform_device* ofdev)
 		of_phy_deregister_fixed_link(np);
 	of_node_put(ugeth->ug_info->tbi_node);
 	of_node_put(ugeth->ug_info->phy_node);
+<<<<<<< HEAD
+=======
+	kfree(ugeth->ug_info);
+>>>>>>> upstream/android-13
 	free_netdev(dev);
 
 	return 0;
@@ -3981,6 +4429,7 @@ static struct platform_driver ucc_geth_driver = {
 
 static int __init ucc_geth_init(void)
 {
+<<<<<<< HEAD
 	int i, ret;
 
 	if (netif_msg_drv(&debug))
@@ -3992,6 +4441,12 @@ static int __init ucc_geth_init(void)
 	ret = platform_driver_register(&ucc_geth_driver);
 
 	return ret;
+=======
+	if (netif_msg_drv(&debug))
+		pr_info(DRV_DESC "\n");
+
+	return platform_driver_register(&ucc_geth_driver);
+>>>>>>> upstream/android-13
 }
 
 static void __exit ucc_geth_exit(void)
@@ -4004,5 +4459,8 @@ module_exit(ucc_geth_exit);
 
 MODULE_AUTHOR("Freescale Semiconductor, Inc");
 MODULE_DESCRIPTION(DRV_DESC);
+<<<<<<< HEAD
 MODULE_VERSION(DRV_VERSION);
+=======
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");

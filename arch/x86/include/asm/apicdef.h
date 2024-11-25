@@ -432,6 +432,7 @@ struct local_apic {
  #define BAD_APICID 0xFFFFu
 #endif
 
+<<<<<<< HEAD
 enum ioapic_irq_destination_types {
 	dest_Fixed		= 0,
 	dest_LowestPrio		= 1,
@@ -441,6 +442,15 @@ enum ioapic_irq_destination_types {
 	dest_INIT		= 5,
 	dest__reserved_2	= 6,
 	dest_ExtINT		= 7
+=======
+enum apic_delivery_modes {
+	APIC_DELIVERY_MODE_FIXED	= 0,
+	APIC_DELIVERY_MODE_LOWESTPRIO   = 1,
+	APIC_DELIVERY_MODE_SMI		= 2,
+	APIC_DELIVERY_MODE_NMI		= 4,
+	APIC_DELIVERY_MODE_INIT		= 5,
+	APIC_DELIVERY_MODE_EXTINT	= 7,
+>>>>>>> upstream/android-13
 };
 
 #endif /* _ASM_X86_APICDEF_H */

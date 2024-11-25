@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2011-2013 Freescale Semiconductor, Inc. All Rights Reserved.
  *
@@ -14,6 +15,11 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (C) 2011-2013 Freescale Semiconductor, Inc. All Rights Reserved.
+>>>>>>> upstream/android-13
  */
 #ifndef __LINUX_REG_PFUZE100_H
 #define __LINUX_REG_PFUZE100_H
@@ -33,7 +39,12 @@
 #define PFUZE100_VGEN4		12
 #define PFUZE100_VGEN5		13
 #define PFUZE100_VGEN6		14
+<<<<<<< HEAD
 #define PFUZE100_MAX_REGULATOR	15
+=======
+#define PFUZE100_COIN		15
+#define PFUZE100_MAX_REGULATOR	16
+>>>>>>> upstream/android-13
 
 #define PFUZE200_SW1AB		0
 #define PFUZE200_SW2		1
@@ -75,10 +86,13 @@
 #define PFUZE3001_VLDO3		8
 #define PFUZE3001_VLDO4		9
 
+<<<<<<< HEAD
 struct regulator_init_data;
 
 struct pfuze_regulator_platform_data {
 	struct regulator_init_data *init_data[PFUZE100_MAX_REGULATOR];
 };
 
+=======
+>>>>>>> upstream/android-13
 #endif /* __LINUX_REG_PFUZE100_H */

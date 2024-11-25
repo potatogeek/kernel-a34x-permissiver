@@ -52,6 +52,7 @@ static inline GtkWidget *perf_gtk__setup_info_bar(void)
 }
 #endif
 
+<<<<<<< HEAD
 struct perf_evsel;
 struct perf_evlist;
 struct hist_entry;
@@ -62,6 +63,17 @@ int perf_evlist__gtk_browse_hists(struct perf_evlist *evlist, const char *help,
 				  float min_pcnt);
 int hist_entry__gtk_annotate(struct hist_entry *he,
 			     struct perf_evsel *evsel,
+=======
+struct evsel;
+struct evlist;
+struct hist_entry;
+struct hist_browser_timer;
+
+int evlist__gtk_browse_hists(struct evlist *evlist, const char *help,
+			     struct hist_browser_timer *hbt, float min_pcnt);
+int hist_entry__gtk_annotate(struct hist_entry *he,
+			     struct evsel *evsel,
+>>>>>>> upstream/android-13
 			     struct hist_browser_timer *hbt);
 void perf_gtk__show_annotations(void);
 

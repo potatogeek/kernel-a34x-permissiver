@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -56,6 +57,12 @@
  *
  *****************************************************************************/
 
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+/*
+ * Copyright (C) 2017 Intel Deutschland GmbH
+ */
+>>>>>>> upstream/android-13
 #ifndef __iwl_fw_api_led_h__
 #define __iwl_fw_api_led_h__
 

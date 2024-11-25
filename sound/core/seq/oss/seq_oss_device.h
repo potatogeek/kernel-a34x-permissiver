@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * OSS compatible sequencer driver
  *
  * Copyright (C) 1998,99 Takashi Iwai <tiwai@suse.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __SEQ_OSS_DEVICE_H
@@ -30,6 +37,10 @@
 #include <sound/rawmidi.h>
 #include <sound/seq_kernel.h>
 #include <sound/info.h>
+<<<<<<< HEAD
+=======
+#include "../seq_clientmgr.h"
+>>>>>>> upstream/android-13
 
 /* max. applications */
 #define SNDRV_SEQ_OSS_MAX_CLIENTS	16
@@ -150,11 +161,24 @@ snd_seq_oss_dispatch(struct seq_oss_devinfo *dp, struct snd_seq_event *ev, int a
 	return snd_seq_kernel_client_dispatch(dp->cseq, ev, atomic, hop);
 }
 
+<<<<<<< HEAD
 /* ioctl */
 static inline int
 snd_seq_oss_control(struct seq_oss_devinfo *dp, unsigned int type, void *arg)
 {
 	return snd_seq_kernel_client_ctl(dp->cseq, type, arg);
+=======
+/* ioctl for writeq */
+static inline int
+snd_seq_oss_control(struct seq_oss_devinfo *dp, unsigned int type, void *arg)
+{
+	int err;
+
+	snd_seq_client_ioctl_lock(dp->cseq);
+	err = snd_seq_kernel_client_ctl(dp->cseq, type, arg);
+	snd_seq_client_ioctl_unlock(dp->cseq);
+	return err;
+>>>>>>> upstream/android-13
 }
 
 /* fill the addresses in header */

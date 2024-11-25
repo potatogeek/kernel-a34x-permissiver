@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (c) 2016, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -8,6 +9,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* Copyright (c) 2016, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/ethtool.h>
@@ -108,7 +113,11 @@ static void emac_get_strings(struct net_device *netdev, u32 stringset, u8 *data)
 
 	case ETH_SS_STATS:
 		for (i = 0; i < EMAC_STATS_LEN; i++) {
+<<<<<<< HEAD
 			strlcpy(data, emac_ethtool_stat_strings[i],
+=======
+			strscpy(data, emac_ethtool_stat_strings[i],
+>>>>>>> upstream/android-13
 				ETH_GSTRING_LEN);
 			data += ETH_GSTRING_LEN;
 		}

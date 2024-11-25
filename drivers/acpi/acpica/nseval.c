@@ -14,11 +14,14 @@
 #define _COMPONENT          ACPI_NAMESPACE
 ACPI_MODULE_NAME("nseval")
 
+<<<<<<< HEAD
 /* Local prototypes */
 static void
 acpi_ns_exec_module_code(union acpi_operand_object *method_obj,
 			 struct acpi_evaluate_info *info);
 
+=======
+>>>>>>> upstream/android-13
 /*******************************************************************************
  *
  * FUNCTION:    acpi_ns_evaluate
@@ -44,7 +47,10 @@ acpi_ns_exec_module_code(union acpi_operand_object *method_obj,
  * MUTEX:       Locks interpreter
  *
  ******************************************************************************/
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 acpi_status acpi_ns_evaluate(struct acpi_evaluate_info *info)
 {
 	acpi_status status;
@@ -104,6 +110,16 @@ acpi_status acpi_ns_evaluate(struct acpi_evaluate_info *info)
 		return_ACPI_STATUS(AE_NO_MEMORY);
 	}
 
+<<<<<<< HEAD
+=======
+	/* Optional object evaluation log */
+
+	ACPI_DEBUG_PRINT_RAW((ACPI_DB_EVALUATION,
+			      "%-26s:  %s (%s)\n", "   Enter evaluation",
+			      &info->full_pathname[1],
+			      acpi_ut_get_type_name(info->node->type)));
+
+>>>>>>> upstream/android-13
 	/* Count the number of arguments being passed in */
 
 	info->param_count = 0;
@@ -289,6 +305,15 @@ acpi_status acpi_ns_evaluate(struct acpi_evaluate_info *info)
 			  info->relative_pathname));
 
 cleanup:
+<<<<<<< HEAD
+=======
+	/* Optional object evaluation log */
+
+	ACPI_DEBUG_PRINT_RAW((ACPI_DB_EVALUATION,
+			      "%-26s:  %s\n", "   Exit evaluation",
+			      &info->full_pathname[1]));
+
+>>>>>>> upstream/android-13
 	/*
 	 * Namespace was unlocked by the handling acpi_ns* function, so we
 	 * just free the pathname and return
@@ -297,6 +322,7 @@ cleanup:
 	info->full_pathname = NULL;
 	return_ACPI_STATUS(status);
 }
+<<<<<<< HEAD
 
 /*******************************************************************************
  *
@@ -481,3 +507,5 @@ exit:
 	}
 	return_VOID;
 }
+=======
+>>>>>>> upstream/android-13

@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Copyright (C) 2012-2019, Samsung Electronics Co., Ltd.
+=======
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd All Rights Reserved
+>>>>>>> upstream/android-13
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -12,6 +16,10 @@
  */
 
 #include <linux/export.h>
+<<<<<<< HEAD
+=======
+#include <linux/mm.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/vmalloc.h>
 #include <asm/page.h>
@@ -22,6 +30,7 @@
 #include "misc.h"
 #include "types.h"
 #include "core/log.h"
+<<<<<<< HEAD
 #include "core/mem.h"
 #include "core/wait.h"
 
@@ -37,12 +46,27 @@ static void tzdev_teec_release_shared_memory(void *data)
 
 static uint32_t tzdev_teec_shared_memory_init(TEEC_Context *context, TEEC_SharedMemory *sharedMem,
 		struct page **pages, unsigned int num_pages)
+=======
+#include "core/wait.h"
+#include "core/iw_shmem.h"
+
+#define PTR_ALIGN_PGDN(p)	((typeof(p))(((uintptr_t)(p)) & PAGE_MASK))
+#define OFFSET_IN_PAGE(x)	((x) & (~PAGE_MASK))
+
+static uint32_t tzdev_teec_shared_memory_init(TEEC_Context *context,
+		TEEC_SharedMemory *sharedMem)
+>>>>>>> upstream/android-13
 {
 	struct tzdev_teec_shared_memory *shm;
 	uint32_t result;
 	void *addr;
 	size_t size;
 	unsigned int offset;
+<<<<<<< HEAD
+=======
+	unsigned int flags = TZDEV_IW_SHMEM_FLAG_SYNC
+			| (sharedMem->flags & TEEC_MEM_OUTPUT ? TZDEV_IW_SHMEM_FLAG_WRITE : 0);
+>>>>>>> upstream/android-13
 	int ret;
 
 	log_debug(tzdev_teec, "Enter, context = %pK sharedMem = %pK buffer = %pK size = %zu flags = %x\n",
@@ -59,6 +83,7 @@ static uint32_t tzdev_teec_shared_memory_init(TEEC_Context *context, TEEC_Shared
 	offset = OFFSET_IN_PAGE((uintptr_t)sharedMem->buffer);
 	size = PAGE_ALIGN(sharedMem->size + offset);
 
+<<<<<<< HEAD
 	shm->id = 0;
 
 	if (sharedMem->size) {
@@ -80,6 +105,26 @@ static uint32_t tzdev_teec_shared_memory_init(TEEC_Context *context, TEEC_Shared
 	shm->context = context;
 	shm->pages = pages;
 	shm->num_pages = num_pages;
+=======
+	shm->is_allocated = !sharedMem->buffer;
+
+	if (shm->is_allocated)
+		/* According to the TEE Client API Specification the size is allowed to be zero. In this case
+		 * sharedMem->buffer MUST not be NULL. So we register 1 byte shared memory and write its
+		 * pointer to the buffer. */
+		ret = tzdev_iw_shmem_register(&sharedMem->buffer, size ? size : 1, flags);
+	else
+		ret = tzdev_iw_shmem_register_exist(addr, size, flags);
+	if (ret < 0) {
+		log_error(tzdev_teec, "Failed to register shared memory, ret = %d\n", ret);
+		result = tzdev_teec_error_to_tee_error(ret);
+		kfree(shm);
+		goto out;
+	}
+
+	shm->id = ret;
+	shm->context = context;
+>>>>>>> upstream/android-13
 	shm->offset = offset;
 
 	sharedMem->imp = shm;
@@ -101,10 +146,15 @@ static void tzdev_teec_shared_memory_fini(TEEC_SharedMemory *sharedMem)
 
 	sharedMem->imp = NULL;
 
+<<<<<<< HEAD
 	if (shm->id) {
 		BUG_ON(tzdev_mem_release(shm->id));
 		wait_event_uninterruptible_freezable_nested(shm->wq, shm->released == 1);
 	}
+=======
+	if (shm->id)
+		BUG_ON(tzdev_iw_shmem_release(shm->id));
+>>>>>>> upstream/android-13
 
 	kfree(shm);
 
@@ -159,6 +209,7 @@ out:
 	return result;
 }
 
+<<<<<<< HEAD
 static uint32_t tzdev_teec_register_shared_memory(TEEC_Context *context,
 		TEEC_SharedMemory *sharedMem, struct page **pages,
 		unsigned int num_pages, uint32_t *origin)
@@ -198,6 +249,8 @@ out:
 	return result;
 }
 
+=======
+>>>>>>> upstream/android-13
 static uint32_t tzdev_teec_shared_memory_check_args(TEEC_Context *context,
 		TEEC_SharedMemory *sharedMem, bool null_buffer)
 {
@@ -233,16 +286,27 @@ static uint32_t tzdev_teec_shared_memory_check_args(TEEC_Context *context,
 	return TEEC_SUCCESS;
 }
 
+<<<<<<< HEAD
 TEEC_Result TEEC_RegisterSharedMemory(TEEC_Context *context, TEEC_SharedMemory *sharedMem)
 {
 	struct tzdev_teec_shared_memory *shm;
 	uint32_t result;
 	uint32_t origin;
+=======
+static uint32_t tzdev_teec_register_shared_memory(TEEC_Context *context, TEEC_SharedMemory *sharedMem,
+		bool null_buffer)
+{
+	struct tzdev_teec_context *ctx;
+	struct tzdev_teec_shared_memory *shm;
+	uint32_t origin;
+	uint32_t result;
+>>>>>>> upstream/android-13
 
 	log_debug(tzdev_teec, "Enter, context = %pK sharedMem = %pK\n", context, sharedMem);
 
 	origin = TEEC_ORIGIN_API;
 
+<<<<<<< HEAD
 	result = tzdev_teec_shared_memory_check_args(context, sharedMem, false);
 	if (result != TEEC_SUCCESS)
 		goto out;
@@ -250,10 +314,36 @@ TEEC_Result TEEC_RegisterSharedMemory(TEEC_Context *context, TEEC_SharedMemory *
 	result = tzdev_teec_register_shared_memory(context, sharedMem, NULL, 0, &origin);
 	if (result != TEEC_SUCCESS)
 		goto out;
+=======
+	result = tzdev_teec_shared_memory_check_args(context, sharedMem, null_buffer);
+	if (result != TEEC_SUCCESS)
+		goto out;
+
+	ctx = context->imp;
+
+	result = tzdev_teec_shared_memory_init(context, sharedMem);
+	if (result != TEEC_SUCCESS) {
+		log_error(tzdev_teec, "Failed to create shared memory, context = %pK sharedMem = %pK\n",
+				context, sharedMem);
+		goto out;
+	}
+
+	mutex_lock(&ctx->mutex);
+	result = tzdev_teec_grant_shared_memory_rights(sharedMem, &origin);
+	mutex_unlock(&ctx->mutex);
+
+	if (result != TEEC_SUCCESS) {
+		log_error(tzdev_teec, "Failed to grant shared memory rights, context = %pK sharedMem = %pK\n",
+				context, sharedMem);
+		tzdev_teec_shared_memory_fini(sharedMem);
+		goto out;
+	}
+>>>>>>> upstream/android-13
 
 	shm = sharedMem->imp;
 
 	log_debug(tzdev_teec, "Success, context = %pK sharedMem = %pK id = %u\n",
+<<<<<<< HEAD
 			context, sharedMem, shm->id);
 
 out:
@@ -262,10 +352,27 @@ out:
 
 	return result;
 }
+=======
+		  context, sharedMem, shm->id);
+
+out:
+	tzdev_teec_fixup_origin(result, &origin);
+
+	log_debug(tzdev_teec, "Exit, context = %pK sharedMem = %pK\n", context, sharedMem);
+
+	return result;
+}
+
+TEEC_Result TEEC_RegisterSharedMemory(TEEC_Context *context, TEEC_SharedMemory *sharedMem)
+{
+	return tzdev_teec_register_shared_memory(context, sharedMem, false);
+}
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(TEEC_RegisterSharedMemory);
 
 TEEC_Result TEEC_AllocateSharedMemory(TEEC_Context *context, TEEC_SharedMemory *sharedMem)
 {
+<<<<<<< HEAD
 	struct tzdev_teec_shared_memory *shm;
 	struct page **pages;
 	unsigned int num_pages;
@@ -327,13 +434,19 @@ out:
 			context, sharedMem, result, origin);
 
 	return result;
+=======
+	return tzdev_teec_register_shared_memory(context, sharedMem, true);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(TEEC_AllocateSharedMemory);
 
 void TEEC_ReleaseSharedMemory(TEEC_SharedMemory *sharedMem)
 {
 	struct tzdev_teec_shared_memory *shm;
+<<<<<<< HEAD
 	unsigned int i;
+=======
+>>>>>>> upstream/android-13
 	uint32_t result = TEEC_SUCCESS;
 	uint32_t origin;
 
@@ -348,6 +461,7 @@ void TEEC_ReleaseSharedMemory(TEEC_SharedMemory *sharedMem)
 	}
 
 	shm = sharedMem->imp;
+<<<<<<< HEAD
 	if (shm->num_pages) {
 		vunmap(sharedMem->buffer);
 
@@ -356,6 +470,9 @@ void TEEC_ReleaseSharedMemory(TEEC_SharedMemory *sharedMem)
 
 		kfree(shm->pages);
 
+=======
+	if (shm->is_allocated) {
+>>>>>>> upstream/android-13
 		sharedMem->buffer = NULL;
 		sharedMem->size = 0;
 	}

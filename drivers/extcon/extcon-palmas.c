@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Palmas USB transceiver driver
  *
@@ -20,6 +21,20 @@
  * GNU General Public License for more details.
  */
 
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Palmas USB transceiver driver
+ *
+ * Copyright (C) 2013 Texas Instruments Incorporated - https://www.ti.com
+ * Author: Graeme Gregory <gg@slimlogic.co.uk>
+ * Author: Kishon Vijay Abraham I <kishon@ti.com>
+ * Based on twl6030_usb.c
+ * Author: Hema HK <hemahk@ti.com>
+ */
+
+#include <linux/devm-helpers.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/interrupt.h>
 #include <linux/platform_device.h>
@@ -216,6 +231,7 @@ static int palmas_usb_probe(struct platform_device *pdev)
 
 	palmas_usb->id_gpiod = devm_gpiod_get_optional(&pdev->dev, "id",
 							GPIOD_IN);
+<<<<<<< HEAD
 	if (IS_ERR(palmas_usb->id_gpiod)) {
 		dev_err(&pdev->dev, "failed to get id gpio\n");
 		return PTR_ERR(palmas_usb->id_gpiod);
@@ -227,6 +243,17 @@ static int palmas_usb_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev, "failed to get vbus gpio\n");
 		return PTR_ERR(palmas_usb->vbus_gpiod);
 	}
+=======
+	if (IS_ERR(palmas_usb->id_gpiod))
+		return dev_err_probe(&pdev->dev, PTR_ERR(palmas_usb->id_gpiod),
+				     "failed to get id gpio\n");
+
+	palmas_usb->vbus_gpiod = devm_gpiod_get_optional(&pdev->dev, "vbus",
+							GPIOD_IN);
+	if (IS_ERR(palmas_usb->vbus_gpiod))
+		return dev_err_probe(&pdev->dev, PTR_ERR(palmas_usb->vbus_gpiod),
+				     "failed to get id gpio\n");
+>>>>>>> upstream/android-13
 
 	if (palmas_usb->enable_id_detection && palmas_usb->id_gpiod) {
 		palmas_usb->enable_id_detection = false;
@@ -250,7 +277,15 @@ static int palmas_usb_probe(struct platform_device *pdev)
 			palmas_usb->sw_debounce_jiffies = msecs_to_jiffies(debounce);
 	}
 
+<<<<<<< HEAD
 	INIT_DELAYED_WORK(&palmas_usb->wq_detectid, palmas_gpio_id_detect);
+=======
+	status = devm_delayed_work_autocancel(&pdev->dev,
+					      &palmas_usb->wq_detectid,
+					      palmas_gpio_id_detect);
+	if (status)
+		return status;
+>>>>>>> upstream/android-13
 
 	palmas->usb = palmas_usb;
 	palmas_usb->palmas = palmas;
@@ -372,6 +407,7 @@ static int palmas_usb_probe(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int palmas_usb_remove(struct platform_device *pdev)
 {
 	struct palmas_usb *palmas_usb = platform_get_drvdata(pdev);
@@ -381,6 +417,8 @@ static int palmas_usb_remove(struct platform_device *pdev)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM_SLEEP
 static int palmas_usb_suspend(struct device *dev)
 {
@@ -435,7 +473,10 @@ static const struct of_device_id of_palmas_match_tbl[] = {
 
 static struct platform_driver palmas_usb_driver = {
 	.probe = palmas_usb_probe,
+<<<<<<< HEAD
 	.remove = palmas_usb_remove,
+=======
+>>>>>>> upstream/android-13
 	.driver = {
 		.name = "palmas-usb",
 		.of_match_table = of_palmas_match_tbl,

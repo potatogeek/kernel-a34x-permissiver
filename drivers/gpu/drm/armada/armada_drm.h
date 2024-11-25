@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 Russell King
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2012 Russell King
+>>>>>>> upstream/android-13
  */
 #ifndef ARMADA_DRM_H
 #define ARMADA_DRM_H
@@ -11,11 +17,21 @@
 #include <linux/kfifo.h>
 #include <linux/io.h>
 #include <linux/workqueue.h>
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+
+#include <drm/drm_device.h>
+#include <drm/drm_mm.h>
+>>>>>>> upstream/android-13
 
 struct armada_crtc;
 struct armada_gem_object;
 struct clk;
+<<<<<<< HEAD
+=======
+struct drm_display_mode;
+>>>>>>> upstream/android-13
 struct drm_fb_helper;
 
 static inline void
@@ -73,11 +89,20 @@ struct armada_private {
 #endif
 };
 
+<<<<<<< HEAD
+=======
+#define drm_to_armada_dev(dev) container_of(dev, struct armada_private, drm)
+
+>>>>>>> upstream/android-13
 int armada_fbdev_init(struct drm_device *);
 void armada_fbdev_fini(struct drm_device *);
 
 int armada_overlay_plane_create(struct drm_device *, unsigned long);
 
+<<<<<<< HEAD
+=======
+void armada_drm_crtc_debugfs_init(struct armada_crtc *dcrtc);
+>>>>>>> upstream/android-13
 int armada_drm_debugfs_init(struct drm_minor *);
 
 #endif

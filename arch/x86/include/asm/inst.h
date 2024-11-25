@@ -12,7 +12,10 @@
 
 #define REG_TYPE_R32		0
 #define REG_TYPE_R64		1
+<<<<<<< HEAD
 #define REG_TYPE_XMM		2
+=======
+>>>>>>> upstream/android-13
 #define REG_TYPE_INVALID	100
 
 	.macro R32_NUM opd r32
@@ -123,6 +126,7 @@
 #endif
 	.endm
 
+<<<<<<< HEAD
 	.macro XMM_NUM opd xmm
 	\opd = REG_NUM_INVALID
 	.ifc \xmm,%xmm0
@@ -179,21 +183,32 @@
 	R32_NUM reg_type_r32 \reg
 	R64_NUM reg_type_r64 \reg
 	XMM_NUM reg_type_xmm \reg
+=======
+	.macro REG_TYPE type reg
+	R32_NUM reg_type_r32 \reg
+	R64_NUM reg_type_r64 \reg
+>>>>>>> upstream/android-13
 	.if reg_type_r64 <> REG_NUM_INVALID
 	\type = REG_TYPE_R64
 	.elseif reg_type_r32 <> REG_NUM_INVALID
 	\type = REG_TYPE_R32
+<<<<<<< HEAD
 	.elseif reg_type_xmm <> REG_NUM_INVALID
 	\type = REG_TYPE_XMM
+=======
+>>>>>>> upstream/android-13
 	.else
 	\type = REG_TYPE_INVALID
 	.endif
 	.endm
 
+<<<<<<< HEAD
 	.macro PFX_OPD_SIZE
 	.byte 0x66
 	.endm
 
+=======
+>>>>>>> upstream/android-13
 	.macro PFX_REX opd1 opd2 W=0
 	.if ((\opd1 | \opd2) & 8) || \W
 	.byte 0x40 | ((\opd1 & 8) >> 3) | ((\opd2 & 8) >> 1) | (\W << 3)
@@ -203,6 +218,7 @@
 	.macro MODRM mod opd1 opd2
 	.byte \mod | (\opd1 & 7) | ((\opd2 & 7) << 3)
 	.endm
+<<<<<<< HEAD
 
 	.macro PSHUFB_XMM xmm1 xmm2
 	XMM_NUM pshufb_opd1 \xmm1
@@ -306,6 +322,8 @@
 	.endif
 	MODRM 0xc0 movq_r64_xmm_opd1 movq_r64_xmm_opd2
 	.endm
+=======
+>>>>>>> upstream/android-13
 #endif
 
 #endif

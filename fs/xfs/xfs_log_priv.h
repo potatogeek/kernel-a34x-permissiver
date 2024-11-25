@@ -10,6 +10,7 @@ struct xfs_buf;
 struct xlog;
 struct xlog_ticket;
 struct xfs_mount;
+<<<<<<< HEAD
 struct xfs_log_callback;
 
 /*
@@ -20,6 +21,8 @@ struct xfs_log_callback;
 #define XLOG_IO_ERROR		0x8	/* log hit an I/O error, and being
 					   shutdown */
 #define XLOG_TAIL_WARN		0x10	/* log tail verify warning issued */
+=======
+>>>>>>> upstream/android-13
 
 /*
  * get client id from packed copy.
@@ -41,6 +44,7 @@ static inline uint xlog_get_client_id(__be32 i)
 /*
  * In core log state
  */
+<<<<<<< HEAD
 #define XLOG_STATE_ACTIVE    0x0001 /* Current IC log being written to */
 #define XLOG_STATE_WANT_SYNC 0x0002 /* Want to sync this iclog; no more writes */
 #define XLOG_STATE_SYNCING   0x0004 /* This IC log is syncing */
@@ -62,6 +66,42 @@ static inline uint xlog_get_client_id(__be32 i)
 
 #define XLOG_TIC_FLAGS \
 	{ XLOG_TIC_INITED,	"XLOG_TIC_INITED" }, \
+=======
+enum xlog_iclog_state {
+	XLOG_STATE_ACTIVE,	/* Current IC log being written to */
+	XLOG_STATE_WANT_SYNC,	/* Want to sync this iclog; no more writes */
+	XLOG_STATE_SYNCING,	/* This IC log is syncing */
+	XLOG_STATE_DONE_SYNC,	/* Done syncing to disk */
+	XLOG_STATE_CALLBACK,	/* Callback functions now */
+	XLOG_STATE_DIRTY,	/* Dirty IC log, not ready for ACTIVE status */
+};
+
+#define XLOG_STATE_STRINGS \
+	{ XLOG_STATE_ACTIVE,	"XLOG_STATE_ACTIVE" }, \
+	{ XLOG_STATE_WANT_SYNC,	"XLOG_STATE_WANT_SYNC" }, \
+	{ XLOG_STATE_SYNCING,	"XLOG_STATE_SYNCING" }, \
+	{ XLOG_STATE_DONE_SYNC,	"XLOG_STATE_DONE_SYNC" }, \
+	{ XLOG_STATE_CALLBACK,	"XLOG_STATE_CALLBACK" }, \
+	{ XLOG_STATE_DIRTY,	"XLOG_STATE_DIRTY" }
+
+/*
+ * In core log flags
+ */
+#define XLOG_ICL_NEED_FLUSH	(1 << 0)	/* iclog needs REQ_PREFLUSH */
+#define XLOG_ICL_NEED_FUA	(1 << 1)	/* iclog needs REQ_FUA */
+
+#define XLOG_ICL_STRINGS \
+	{ XLOG_ICL_NEED_FLUSH,	"XLOG_ICL_NEED_FLUSH" }, \
+	{ XLOG_ICL_NEED_FUA,	"XLOG_ICL_NEED_FUA" }
+
+
+/*
+ * Log ticket flags
+ */
+#define XLOG_TIC_PERM_RESERV	0x1	/* permanent reservation */
+
+#define XLOG_TIC_FLAGS \
+>>>>>>> upstream/android-13
 	{ XLOG_TIC_PERM_RESERV,	"XLOG_TIC_PERM_RESERV" }
 
 /*
@@ -179,11 +219,16 @@ typedef struct xlog_ticket {
  *	the iclog.
  * - ic_forcewait is used to implement synchronous forcing of the iclog to disk.
  * - ic_next is the pointer to the next iclog in the ring.
+<<<<<<< HEAD
  * - ic_bp is a pointer to the buffer used to write this incore log to disk.
  * - ic_log is a pointer back to the global log structure.
  * - ic_callback is a linked list of callback function/argument pairs to be
  *	called after an iclog finishes writing.
  * - ic_size is the full size of the header plus data.
+=======
+ * - ic_log is a pointer back to the global log structure.
+ * - ic_size is the full size of the log buffer, minus the cycle headers.
+>>>>>>> upstream/android-13
  * - ic_offset is the current number of bytes written to in this iclog.
  * - ic_refcnt is bumped when someone is writing to the log.
  * - ic_state is the state of the iclog.
@@ -193,7 +238,11 @@ typedef struct xlog_ticket {
  * structure cacheline aligned. The following fields can be contended on
  * by independent processes:
  *
+<<<<<<< HEAD
  *	- ic_callback_*
+=======
+ *	- ic_callbacks
+>>>>>>> upstream/android-13
  *	- ic_refcnt
  *	- fields protected by the global l_icloglock
  *
@@ -206,6 +255,7 @@ typedef struct xlog_in_core {
 	wait_queue_head_t	ic_write_wait;
 	struct xlog_in_core	*ic_next;
 	struct xlog_in_core	*ic_prev;
+<<<<<<< HEAD
 	struct xfs_buf		*ic_bp;
 	struct xlog		*ic_log;
 	int			ic_size;
@@ -218,11 +268,30 @@ typedef struct xlog_in_core {
 	spinlock_t		ic_callback_lock ____cacheline_aligned_in_smp;
 	struct xfs_log_callback	*ic_callback;
 	struct xfs_log_callback	**ic_callback_tail;
+=======
+	struct xlog		*ic_log;
+	u32			ic_size;
+	u32			ic_offset;
+	enum xlog_iclog_state	ic_state;
+	unsigned int		ic_flags;
+	char			*ic_datap;	/* pointer to iclog data */
+	struct list_head	ic_callbacks;
+>>>>>>> upstream/android-13
 
 	/* reference counts need their own cacheline */
 	atomic_t		ic_refcnt ____cacheline_aligned_in_smp;
 	xlog_in_core_2_t	*ic_data;
 #define ic_header	ic_data->hic_header
+<<<<<<< HEAD
+=======
+#ifdef DEBUG
+	bool			ic_fail_crc : 1;
+#endif
+	struct semaphore	ic_sema;
+	struct work_struct	ic_end_io_work;
+	struct bio		ic_bio;
+	struct bio_vec		ic_bvec[];
+>>>>>>> upstream/android-13
 } xlog_in_core_t;
 
 /*
@@ -235,17 +304,31 @@ struct xfs_cil;
 
 struct xfs_cil_ctx {
 	struct xfs_cil		*cil;
+<<<<<<< HEAD
 	xfs_lsn_t		sequence;	/* chkpt sequence # */
 	xfs_lsn_t		start_lsn;	/* first LSN of chkpt commit */
 	xfs_lsn_t		commit_lsn;	/* chkpt commit record lsn */
+=======
+	xfs_csn_t		sequence;	/* chkpt sequence # */
+	xfs_lsn_t		start_lsn;	/* first LSN of chkpt commit */
+	xfs_lsn_t		commit_lsn;	/* chkpt commit record lsn */
+	struct xlog_in_core	*commit_iclog;
+>>>>>>> upstream/android-13
 	struct xlog_ticket	*ticket;	/* chkpt ticket */
 	int			nvecs;		/* number of regions */
 	int			space_used;	/* aggregate size of regions */
 	struct list_head	busy_extents;	/* busy extents in chkpt */
 	struct xfs_log_vec	*lv_chain;	/* logvecs being pushed */
+<<<<<<< HEAD
 	struct xfs_log_callback	log_cb;		/* completion callback hook. */
 	struct list_head	committing;	/* ctx committing list */
 	struct work_struct	discard_endio_work;
+=======
+	struct list_head	iclog_entry;
+	struct list_head	committing;	/* ctx committing list */
+	struct work_struct	discard_endio_work;
+	struct work_struct	push_work;
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -268,16 +351,30 @@ struct xfs_cil {
 	struct xlog		*xc_log;
 	struct list_head	xc_cil;
 	spinlock_t		xc_cil_lock;
+<<<<<<< HEAD
+=======
+	struct workqueue_struct	*xc_push_wq;
+>>>>>>> upstream/android-13
 
 	struct rw_semaphore	xc_ctx_lock ____cacheline_aligned_in_smp;
 	struct xfs_cil_ctx	*xc_ctx;
 
 	spinlock_t		xc_push_lock ____cacheline_aligned_in_smp;
+<<<<<<< HEAD
 	xfs_lsn_t		xc_push_seq;
 	struct list_head	xc_committing;
 	wait_queue_head_t	xc_commit_wait;
 	xfs_lsn_t		xc_current_sequence;
 	struct work_struct	xc_push_work;
+=======
+	xfs_csn_t		xc_push_seq;
+	bool			xc_push_commit_stable;
+	struct list_head	xc_committing;
+	wait_queue_head_t	xc_commit_wait;
+	wait_queue_head_t	xc_start_wait;
+	xfs_csn_t		xc_current_sequence;
+	wait_queue_head_t	xc_push_wait;	/* background push throttle */
+>>>>>>> upstream/android-13
 } ____cacheline_aligned_in_smp;
 
 /*
@@ -321,6 +418,7 @@ struct xfs_cil {
  * tries to keep 25% of the log free, so we need to keep below that limit or we
  * risk running out of free log space to start any new transactions.
  *
+<<<<<<< HEAD
  * In order to keep background CIL push efficient, we will set a lower
  * threshold at which background pushing is attempted without blocking current
  * transaction commits.  A separate, higher bound defines when CIL pushes are
@@ -328,6 +426,55 @@ struct xfs_cil {
  * threshold, yet give us plenty of space for aggregation on large logs.
  */
 #define XLOG_CIL_SPACE_LIMIT(log)	(log->l_logsize >> 3)
+=======
+ * In order to keep background CIL push efficient, we only need to ensure the
+ * CIL is large enough to maintain sufficient in-memory relogging to avoid
+ * repeated physical writes of frequently modified metadata. If we allow the CIL
+ * to grow to a substantial fraction of the log, then we may be pinning hundreds
+ * of megabytes of metadata in memory until the CIL flushes. This can cause
+ * issues when we are running low on memory - pinned memory cannot be reclaimed,
+ * and the CIL consumes a lot of memory. Hence we need to set an upper physical
+ * size limit for the CIL that limits the maximum amount of memory pinned by the
+ * CIL but does not limit performance by reducing relogging efficiency
+ * significantly.
+ *
+ * As such, the CIL push threshold ends up being the smaller of two thresholds:
+ * - a threshold large enough that it allows CIL to be pushed and progress to be
+ *   made without excessive blocking of incoming transaction commits. This is
+ *   defined to be 12.5% of the log space - half the 25% push threshold of the
+ *   AIL.
+ * - small enough that it doesn't pin excessive amounts of memory but maintains
+ *   close to peak relogging efficiency. This is defined to be 16x the iclog
+ *   buffer window (32MB) as measurements have shown this to be roughly the
+ *   point of diminishing performance increases under highly concurrent
+ *   modification workloads.
+ *
+ * To prevent the CIL from overflowing upper commit size bounds, we introduce a
+ * new threshold at which we block committing transactions until the background
+ * CIL commit commences and switches to a new context. While this is not a hard
+ * limit, it forces the process committing a transaction to the CIL to block and
+ * yeild the CPU, giving the CIL push work a chance to be scheduled and start
+ * work. This prevents a process running lots of transactions from overfilling
+ * the CIL because it is not yielding the CPU. We set the blocking limit at
+ * twice the background push space threshold so we keep in line with the AIL
+ * push thresholds.
+ *
+ * Note: this is not a -hard- limit as blocking is applied after the transaction
+ * is inserted into the CIL and the push has been triggered. It is largely a
+ * throttling mechanism that allows the CIL push to be scheduled and run. A hard
+ * limit will be difficult to implement without introducing global serialisation
+ * in the CIL commit fast path, and it's not at all clear that we actually need
+ * such hard limits given the ~7 years we've run without a hard limit before
+ * finding the first situation where a checkpoint size overflow actually
+ * occurred. Hence the simple throttle, and an ASSERT check to tell us that
+ * we've overrun the max size.
+ */
+#define XLOG_CIL_SPACE_LIMIT(log)	\
+	min_t(int, (log)->l_logsize >> 3, BBTOB(XLOG_TOTAL_REC_SHIFT(log)) << 4)
+
+#define XLOG_CIL_BLOCKING_SPACE_LIMIT(log)	\
+	(XLOG_CIL_SPACE_LIMIT(log) * 2)
+>>>>>>> upstream/android-13
 
 /*
  * ticket grant locks, queues and accounting have their own cachlines
@@ -350,18 +497,28 @@ struct xlog {
 	struct xfs_mount	*l_mp;	        /* mount point */
 	struct xfs_ail		*l_ailp;	/* AIL log is working with */
 	struct xfs_cil		*l_cilp;	/* CIL log is working with */
+<<<<<<< HEAD
 	struct xfs_buf		*l_xbuf;        /* extra buffer for log
 						 * wrapping */
 	struct xfs_buftarg	*l_targ;        /* buftarg of log */
 	struct delayed_work	l_work;		/* background flush work */
 	uint			l_flags;
+=======
+	struct xfs_buftarg	*l_targ;        /* buftarg of log */
+	struct workqueue_struct	*l_ioend_workqueue; /* for I/O completions */
+	struct delayed_work	l_work;		/* background flush work */
+	long			l_opstate;	/* operational state */
+>>>>>>> upstream/android-13
 	uint			l_quotaoffs_flag; /* XFS_DQ_*, for QUOTAOFFs */
 	struct list_head	*l_buf_cancel_table;
 	int			l_iclog_hsize;  /* size of iclog header */
 	int			l_iclog_heads;  /* # of iclog header sectors */
 	uint			l_sectBBsize;   /* sector size in BBs (2^n) */
 	int			l_iclog_size;	/* size of log in bytes */
+<<<<<<< HEAD
 	int			l_iclog_size_log; /* log power size of log */
+=======
+>>>>>>> upstream/android-13
 	int			l_iclog_bufs;	/* number of iclog buffers */
 	xfs_daddr_t		l_logBBstart;   /* start block of log */
 	int			l_logsize;      /* size of log in bytes */
@@ -399,17 +556,57 @@ struct xlog {
 	/* The following field are used for debugging; need to hold icloglock */
 #ifdef DEBUG
 	void			*l_iclog_bak[XLOG_MAX_ICLOGS];
+<<<<<<< HEAD
 	/* log record crc error injection factor */
 	uint32_t		l_badcrc_factor;
 #endif
 	/* log recovery lsn tracking (for buffer submission */
 	xfs_lsn_t		l_recovery_lsn;
+=======
+#endif
+	/* log recovery lsn tracking (for buffer submission */
+	xfs_lsn_t		l_recovery_lsn;
+
+	uint32_t		l_iclog_roundoff;/* padding roundoff */
+
+	/* Users of log incompat features should take a read lock. */
+	struct rw_semaphore	l_incompat_users;
+>>>>>>> upstream/android-13
 };
 
 #define XLOG_BUF_CANCEL_BUCKET(log, blkno) \
 	((log)->l_buf_cancel_table + ((uint64_t)blkno % XLOG_BC_TABLE_SIZE))
 
+<<<<<<< HEAD
 #define XLOG_FORCED_SHUTDOWN(log)	((log)->l_flags & XLOG_IO_ERROR)
+=======
+/*
+ * Bits for operational state
+ */
+#define XLOG_ACTIVE_RECOVERY	0	/* in the middle of recovery */
+#define XLOG_RECOVERY_NEEDED	1	/* log was recovered */
+#define XLOG_IO_ERROR		2	/* log hit an I/O error, and being
+				   shutdown */
+#define XLOG_TAIL_WARN		3	/* log tail verify warning issued */
+
+static inline bool
+xlog_recovery_needed(struct xlog *log)
+{
+	return test_bit(XLOG_RECOVERY_NEEDED, &log->l_opstate);
+}
+
+static inline bool
+xlog_in_recovery(struct xlog *log)
+{
+	return test_bit(XLOG_ACTIVE_RECOVERY, &log->l_opstate);
+}
+
+static inline bool
+xlog_is_shutdown(struct xlog *log)
+{
+	return test_bit(XLOG_IO_ERROR, &log->l_opstate);
+}
+>>>>>>> upstream/android-13
 
 /* common routines */
 extern int
@@ -418,7 +615,11 @@ xlog_recover(
 extern int
 xlog_recover_finish(
 	struct xlog		*log);
+<<<<<<< HEAD
 extern int
+=======
+extern void
+>>>>>>> upstream/android-13
 xlog_recover_cancel(struct xlog *);
 
 extern __le32	 xlog_cksum(struct xlog *log, struct xlog_rec_header *rhead,
@@ -431,9 +632,13 @@ xlog_ticket_alloc(
 	int		unit_bytes,
 	int		count,
 	char		client,
+<<<<<<< HEAD
 	bool		permanent,
 	xfs_km_flags_t	alloc_flags);
 
+=======
+	bool		permanent);
+>>>>>>> upstream/android-13
 
 static inline void
 xlog_write_adv_cnt(void **ptr, int *len, int *off, size_t bytes)
@@ -445,6 +650,7 @@ xlog_write_adv_cnt(void **ptr, int *len, int *off, size_t bytes)
 
 void	xlog_print_tic_res(struct xfs_mount *mp, struct xlog_ticket *ticket);
 void	xlog_print_trans(struct xfs_trans *);
+<<<<<<< HEAD
 int
 xlog_write(
 	struct xlog		*log,
@@ -453,6 +659,18 @@ xlog_write(
 	xfs_lsn_t		*start_lsn,
 	struct xlog_in_core	**commit_iclog,
 	uint			flags);
+=======
+int	xlog_write(struct xlog *log, struct xfs_cil_ctx *ctx,
+		struct xfs_log_vec *log_vector, struct xlog_ticket *tic,
+		uint optype);
+void	xfs_log_ticket_ungrant(struct xlog *log, struct xlog_ticket *ticket);
+void	xfs_log_ticket_regrant(struct xlog *log, struct xlog_ticket *ticket);
+
+void xlog_state_switch_iclogs(struct xlog *log, struct xlog_in_core *iclog,
+		int eventual_size);
+int xlog_state_release_iclog(struct xlog *log, struct xlog_in_core *iclog,
+		xfs_lsn_t log_tail_lsn);
+>>>>>>> upstream/android-13
 
 /*
  * When we crack an atomic LSN, we sample it first so that the value will not
@@ -516,18 +734,32 @@ int	xlog_cil_init(struct xlog *log);
 void	xlog_cil_init_post_recovery(struct xlog *log);
 void	xlog_cil_destroy(struct xlog *log);
 bool	xlog_cil_empty(struct xlog *log);
+<<<<<<< HEAD
+=======
+void	xlog_cil_commit(struct xlog *log, struct xfs_trans *tp,
+			xfs_csn_t *commit_seq, bool regrant);
+void	xlog_cil_set_ctx_write_state(struct xfs_cil_ctx *ctx,
+			struct xlog_in_core *iclog);
+
+>>>>>>> upstream/android-13
 
 /*
  * CIL force routines
  */
+<<<<<<< HEAD
 xfs_lsn_t
 xlog_cil_force_lsn(
 	struct xlog *log,
 	xfs_lsn_t sequence);
+=======
+void xlog_cil_flush(struct xlog *log);
+xfs_lsn_t xlog_cil_force_seq(struct xlog *log, xfs_csn_t sequence);
+>>>>>>> upstream/android-13
 
 static inline void
 xlog_cil_force(struct xlog *log)
 {
+<<<<<<< HEAD
 	xlog_cil_force_lsn(log, log->l_cilp->xc_current_sequence);
 }
 
@@ -538,11 +770,25 @@ xlog_cil_force(struct xlog *log)
 #define XLOG_UNMOUNT_REC_TYPE	(-1U)
 
 /*
+=======
+	xlog_cil_force_seq(log, log->l_cilp->xc_current_sequence);
+}
+
+/*
+>>>>>>> upstream/android-13
  * Wrapper function for waiting on a wait queue serialised against wakeups
  * by a spinlock. This matches the semantics of all the wait queues used in the
  * log code.
  */
+<<<<<<< HEAD
 static inline void xlog_wait(wait_queue_head_t *wq, spinlock_t *lock)
+=======
+static inline void
+xlog_wait(
+	struct wait_queue_head	*wq,
+	struct spinlock		*lock)
+		__releases(lock)
+>>>>>>> upstream/android-13
 {
 	DECLARE_WAITQUEUE(wait, current);
 
@@ -553,6 +799,11 @@ static inline void xlog_wait(wait_queue_head_t *wq, spinlock_t *lock)
 	remove_wait_queue(wq, &wait);
 }
 
+<<<<<<< HEAD
+=======
+int xlog_wait_on_iclog(struct xlog_in_core *iclog);
+
+>>>>>>> upstream/android-13
 /*
  * The LSN is valid so long as it is behind the current LSN. If it isn't, this
  * means that the next log record that includes this metadata could have a

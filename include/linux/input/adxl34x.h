@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * include/linux/input/adxl34x.h
  *
@@ -6,8 +10,11 @@
  * device's "struct device" holds this information.
  *
  * Copyright 2009 Analog Devices Inc.
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2 or later.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __LINUX_INPUT_ADXL34X_H__

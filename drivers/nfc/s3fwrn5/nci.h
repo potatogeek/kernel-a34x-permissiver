@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * NCI based driver for Samsung S3FWRN5 NFC chip
  *
  * Copyright (C) 2015 Samsung Electrnoics
  * Robert Baldyga <r.baldyga@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -15,6 +20,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __LOCAL_S3FWRN5_NCI_H_
@@ -22,9 +29,12 @@
 
 #include "s3fwrn5.h"
 
+<<<<<<< HEAD
 #define NCI_PROP_AGAIN		0x01
 
 #define NCI_PROP_GET_RFREG	0x21
+=======
+>>>>>>> upstream/android-13
 #define NCI_PROP_SET_RFREG	0x22
 
 struct nci_prop_set_rfreg_cmd {
@@ -36,6 +46,7 @@ struct nci_prop_set_rfreg_rsp {
 	__u8 status;
 };
 
+<<<<<<< HEAD
 #define NCI_PROP_GET_RFREG_VER	0x24
 
 struct nci_prop_get_rfreg_ver_rsp {
@@ -53,6 +64,8 @@ struct nci_prop_set_rfreg_ver_rsp {
 	__u8 status;
 };
 
+=======
+>>>>>>> upstream/android-13
 #define NCI_PROP_START_RFREG	0x26
 
 struct nci_prop_start_rfreg_rsp {
@@ -81,9 +94,13 @@ struct nci_prop_fw_cfg_rsp {
 	__u8 status;
 };
 
+<<<<<<< HEAD
 #define NCI_PROP_WR_RESET	0x2f
 
 void s3fwrn5_nci_get_prop_ops(struct nci_driver_ops **ops, size_t *n);
+=======
+extern const struct nci_driver_ops s3fwrn5_nci_prop_ops[4];
+>>>>>>> upstream/android-13
 int s3fwrn5_nci_rf_configure(struct s3fwrn5_info *info, const char *fw_name);
 
 #endif /* __LOCAL_S3FWRN5_NCI_H_ */

@@ -12,17 +12,28 @@
 #include <linux/types.h>
 #include <linux/errno.h>
 #include <linux/fs.h>
+<<<<<<< HEAD
+=======
+#include <linux/fs_context.h>
+#include <linux/fs_parser.h>
+>>>>>>> upstream/android-13
 #include <linux/namei.h>
 #include <linux/vfs.h>
 #include <linux/slab.h>
 #include <linux/pagemap.h>
 #include <linux/time.h>
+<<<<<<< HEAD
 #include <linux/parser.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/sysfs.h>
 #include <linux/init.h>
 #include <linux/kobject.h>
 #include <linux/seq_file.h>
+<<<<<<< HEAD
 #include <linux/mount.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/uio.h>
 #include <asm/ebcdic.h>
 #include "hypfs.h"
@@ -76,7 +87,11 @@ static void hypfs_remove(struct dentry *dentry)
 		else
 			simple_unlink(d_inode(parent), dentry);
 	}
+<<<<<<< HEAD
 	d_delete(dentry);
+=======
+	d_drop(dentry);
+>>>>>>> upstream/android-13
 	dput(dentry);
 	inode_unlock(d_inode(parent));
 }
@@ -207,6 +222,7 @@ static int hypfs_release(struct inode *inode, struct file *filp)
 	return 0;
 }
 
+<<<<<<< HEAD
 enum { opt_uid, opt_gid, opt_err };
 
 static const match_table_t hypfs_tokens = {
@@ -253,6 +269,41 @@ static int hypfs_parse_options(char *options, struct super_block *sb)
 			pr_err("%s is not a valid mount option\n", str);
 			return -EINVAL;
 		}
+=======
+enum { Opt_uid, Opt_gid, };
+
+static const struct fs_parameter_spec hypfs_fs_parameters[] = {
+	fsparam_u32("gid", Opt_gid),
+	fsparam_u32("uid", Opt_uid),
+	{}
+};
+
+static int hypfs_parse_param(struct fs_context *fc, struct fs_parameter *param)
+{
+	struct hypfs_sb_info *hypfs_info = fc->s_fs_info;
+	struct fs_parse_result result;
+	kuid_t uid;
+	kgid_t gid;
+	int opt;
+
+	opt = fs_parse(fc, hypfs_fs_parameters, param, &result);
+	if (opt < 0)
+		return opt;
+
+	switch (opt) {
+	case Opt_uid:
+		uid = make_kuid(current_user_ns(), result.uint_32);
+		if (!uid_valid(uid))
+			return invalf(fc, "Unknown uid");
+		hypfs_info->uid = uid;
+		break;
+	case Opt_gid:
+		gid = make_kgid(current_user_ns(), result.uint_32);
+		if (!gid_valid(gid))
+			return invalf(fc, "Unknown gid");
+		hypfs_info->gid = gid;
+		break;
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
@@ -266,6 +317,7 @@ static int hypfs_show_options(struct seq_file *s, struct dentry *root)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int hypfs_fill_super(struct super_block *sb, void *data, int silent)
 {
 	struct inode *root_inode;
@@ -280,12 +332,25 @@ static int hypfs_fill_super(struct super_block *sb, void *data, int silent)
 	sbi->uid = current_uid();
 	sbi->gid = current_gid();
 	sb->s_fs_info = sbi;
+=======
+static int hypfs_fill_super(struct super_block *sb, struct fs_context *fc)
+{
+	struct hypfs_sb_info *sbi = sb->s_fs_info;
+	struct inode *root_inode;
+	struct dentry *root_dentry, *update_file;
+	int rc;
+
+>>>>>>> upstream/android-13
 	sb->s_blocksize = PAGE_SIZE;
 	sb->s_blocksize_bits = PAGE_SHIFT;
 	sb->s_magic = HYPFS_MAGIC;
 	sb->s_op = &hypfs_s_ops;
+<<<<<<< HEAD
 	if (hypfs_parse_options(data, sb))
 		return -EINVAL;
+=======
+
+>>>>>>> upstream/android-13
 	root_inode = hypfs_make_inode(sb, S_IFDIR | 0755);
 	if (!root_inode)
 		return -ENOMEM;
@@ -309,10 +374,44 @@ static int hypfs_fill_super(struct super_block *sb, void *data, int silent)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct dentry *hypfs_mount(struct file_system_type *fst, int flags,
 			const char *devname, void *data)
 {
 	return mount_single(fst, flags, data, hypfs_fill_super);
+=======
+static int hypfs_get_tree(struct fs_context *fc)
+{
+	return get_tree_single(fc, hypfs_fill_super);
+}
+
+static void hypfs_free_fc(struct fs_context *fc)
+{
+	kfree(fc->s_fs_info);
+}
+
+static const struct fs_context_operations hypfs_context_ops = {
+	.free		= hypfs_free_fc,
+	.parse_param	= hypfs_parse_param,
+	.get_tree	= hypfs_get_tree,
+};
+
+static int hypfs_init_fs_context(struct fs_context *fc)
+{
+	struct hypfs_sb_info *sbi;
+
+	sbi = kzalloc(sizeof(struct hypfs_sb_info), GFP_KERNEL);
+	if (!sbi)
+		return -ENOMEM;
+
+	mutex_init(&sbi->lock);
+	sbi->uid = current_uid();
+	sbi->gid = current_gid();
+
+	fc->s_fs_info = sbi;
+	fc->ops = &hypfs_context_ops;
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void hypfs_kill_super(struct super_block *sb)
@@ -443,7 +542,12 @@ static const struct file_operations hypfs_file_ops = {
 static struct file_system_type hypfs_type = {
 	.owner		= THIS_MODULE,
 	.name		= "s390_hypfs",
+<<<<<<< HEAD
 	.mount		= hypfs_mount,
+=======
+	.init_fs_context = hypfs_init_fs_context,
+	.parameters	= hypfs_fs_parameters,
+>>>>>>> upstream/android-13
 	.kill_sb	= hypfs_kill_super
 };
 
@@ -457,9 +561,14 @@ static int __init hypfs_init(void)
 {
 	int rc;
 
+<<<<<<< HEAD
 	rc = hypfs_dbfs_init();
 	if (rc)
 		return rc;
+=======
+	hypfs_dbfs_init();
+
+>>>>>>> upstream/android-13
 	if (hypfs_diag_init()) {
 		rc = -ENODATA;
 		goto fail_dbfs_exit;
@@ -468,10 +577,14 @@ static int __init hypfs_init(void)
 		rc = -ENODATA;
 		goto fail_hypfs_diag_exit;
 	}
+<<<<<<< HEAD
 	if (hypfs_sprp_init()) {
 		rc = -ENODATA;
 		goto fail_hypfs_vm_exit;
 	}
+=======
+	hypfs_sprp_init();
+>>>>>>> upstream/android-13
 	if (hypfs_diag0c_init()) {
 		rc = -ENODATA;
 		goto fail_hypfs_sprp_exit;
@@ -490,7 +603,10 @@ fail_hypfs_diag0c_exit:
 	hypfs_diag0c_exit();
 fail_hypfs_sprp_exit:
 	hypfs_sprp_exit();
+<<<<<<< HEAD
 fail_hypfs_vm_exit:
+=======
+>>>>>>> upstream/android-13
 	hypfs_vm_exit();
 fail_hypfs_diag_exit:
 	hypfs_diag_exit();

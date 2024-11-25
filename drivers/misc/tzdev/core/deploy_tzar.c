@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Copyright (C) 2012-2019 Samsung Electronics, Inc.
+=======
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd All Rights Reserved
+>>>>>>> upstream/android-13
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -21,9 +25,15 @@
 
 #include "tz_common.h"
 #include "core/deploy_tzar.h"
+<<<<<<< HEAD
 #include "core/iwsock.h"
 #include "core/log.h"
 #include "core/mem.h"
+=======
+#include "core/iw_shmem.h"
+#include "core/iwsock.h"
+#include "core/log.h"
+>>>>>>> upstream/android-13
 #include "core/subsystem.h"
 #include "teec/iw_messages.h"
 
@@ -78,8 +88,12 @@ static __ref int tz_deploy_handler(void *arg)
 
 	memcpy(tzar, tzdev_tzar_begin, size);
 
+<<<<<<< HEAD
 	ret = tzdev_mem_register(tzar, DIV_ROUND_UP(size, PAGE_SIZE) * PAGE_SIZE, 0, NULL,
 			NULL);
+=======
+	ret = tzdev_iw_shmem_register_exist(tzar, size, 0);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		log_error(tzdev_deploy_tzar, "Failed to register shared memory, error=%d\n", ret);
 		goto out_tzar;
@@ -130,7 +144,11 @@ static __ref int tz_deploy_handler(void *arg)
 out_sock:
 	tz_iwsock_release(sd);
 out_mem:
+<<<<<<< HEAD
 	tzdev_mem_release(command.buf_desc.id);
+=======
+	tzdev_iw_shmem_release(command.buf_desc.id);
+>>>>>>> upstream/android-13
 out_tzar:
 	vfree(tzar);
 

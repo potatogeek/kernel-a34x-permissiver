@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2005-2008 Freescale Semiconductor, Inc. All Rights Reserved.
  * Copyright 2008 Luotao Fu, kernel@pengutronix.de
@@ -10,6 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2005-2008 Freescale Semiconductor, Inc. All Rights Reserved.
+ * Copyright 2008 Luotao Fu, kernel@pengutronix.de
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -100,7 +107,10 @@ static int mxc_w1_probe(struct platform_device *pdev)
 {
 	struct mxc_w1_device *mdev;
 	unsigned long clkrate;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	unsigned int clkdiv;
 	int err;
 
@@ -128,8 +138,12 @@ static int mxc_w1_probe(struct platform_device *pdev)
 		dev_warn(&pdev->dev,
 			 "Incorrect time base frequency %lu Hz\n", clkrate);
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	mdev->regs = devm_ioremap_resource(&pdev->dev, res);
+=======
+	mdev->regs = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(mdev->regs)) {
 		err = PTR_ERR(mdev->regs);
 		goto out_disable_clk;

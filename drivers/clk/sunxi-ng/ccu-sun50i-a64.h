@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Copyright 2016 Maxime Ripard
  *
  * Maxime Ripard <maxime.ripard@free-electrons.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _CCU_SUN50I_A64_H_
@@ -27,7 +34,13 @@
 #define CLK_PLL_AUDIO_2X		4
 #define CLK_PLL_AUDIO_4X		5
 #define CLK_PLL_AUDIO_8X		6
+<<<<<<< HEAD
 #define CLK_PLL_VIDEO0			7
+=======
+
+/* PLL_VIDEO0 exported for HDMI PHY */
+
+>>>>>>> upstream/android-13
 #define CLK_PLL_VIDEO0_2X		8
 #define CLK_PLL_VE			9
 #define CLK_PLL_DDR0			10
@@ -43,7 +56,10 @@
 #define CLK_PLL_HSIC			18
 #define CLK_PLL_DE			19
 #define CLK_PLL_DDR1			20
+<<<<<<< HEAD
 #define CLK_CPUX			21
+=======
+>>>>>>> upstream/android-13
 #define CLK_AXI				22
 #define CLK_APB				23
 #define CLK_AHB1			24
@@ -63,10 +79,13 @@
 
 /* All the DRAM gates are exported */
 
+<<<<<<< HEAD
 /* Some more module clocks are exported */
 
 #define CLK_MBUS			112
 
+=======
+>>>>>>> upstream/android-13
 /* And the DSI and GPU module clock is exported */
 
 #define CLK_NUMBER			(CLK_GPU + 1)

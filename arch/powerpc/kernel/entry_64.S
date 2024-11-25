@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  PowerPC version 
  *    Copyright (C) 1995-1996 Gary Thomas (gdt@linuxppc.org)
@@ -11,15 +15,22 @@
  *
  *  This file contains the system call entry code, context switch
  *  code, and exception/interrupt return code for PowerPC.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version
  *  2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/errno.h>
 #include <linux/err.h>
+<<<<<<< HEAD
+=======
+#include <asm/cache.h>
+>>>>>>> upstream/android-13
 #include <asm/unistd.h>
 #include <asm/processor.h>
 #include <asm/page.h>
@@ -35,7 +46,10 @@
 #include <asm/irqflags.h>
 #include <asm/hw_irq.h>
 #include <asm/context_tracking.h>
+<<<<<<< HEAD
 #include <asm/tm.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/ppc-opcode.h>
 #include <asm/barrier.h>
 #include <asm/export.h>
@@ -46,10 +60,15 @@
 #include <asm/exception-64e.h>
 #endif
 #include <asm/feature-fixups.h>
+<<<<<<< HEAD
+=======
+#include <asm/kup.h>
+>>>>>>> upstream/android-13
 
 /*
  * System calls.
  */
+<<<<<<< HEAD
 	.section	".toc","aw"
 SYS_CALL_TABLE:
 	.tc sys_call_table[TC],sys_call_table
@@ -511,15 +530,26 @@ _GLOBAL(ret_from_kernel_thread)
 	blrl
 	li	r3,0
 	b	.Lsyscall_exit
+=======
+	.section	".text"
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PPC_BOOK3S_64
 
 #define FLUSH_COUNT_CACHE	\
 1:	nop;			\
+<<<<<<< HEAD
 	patch_site 1b, patch__call_flush_count_cache
 
 
 #define BCCTR_FLUSH	.long 0x4c400420
+=======
+	patch_site 1b, patch__call_flush_branch_caches1; \
+1:	nop;			\
+	patch_site 1b, patch__call_flush_branch_caches2; \
+1:	nop;			\
+	patch_site 1b, patch__call_flush_branch_caches3
+>>>>>>> upstream/android-13
 
 .macro nops number
 	.rept \number
@@ -528,8 +558,13 @@ _GLOBAL(ret_from_kernel_thread)
 .endm
 
 .balign 32
+<<<<<<< HEAD
 .global flush_count_cache
 flush_count_cache:
+=======
+.global flush_branch_caches
+flush_branch_caches:
+>>>>>>> upstream/android-13
 	/* Save LR into r9 */
 	mflr	r9
 
@@ -551,7 +586,11 @@ flush_count_cache:
 	li	r9,0x7fff
 	mtctr	r9
 
+<<<<<<< HEAD
 	BCCTR_FLUSH
+=======
+	PPC_BCCTR_FLUSH
+>>>>>>> upstream/android-13
 
 2:	nop
 	patch_site 2b patch__flush_count_cache_return
@@ -560,7 +599,11 @@ flush_count_cache:
 
 	.rept 278
 	.balign 32
+<<<<<<< HEAD
 	BCCTR_FLUSH
+=======
+	PPC_BCCTR_FLUSH
+>>>>>>> upstream/android-13
 	nops	7
 	.endr
 
@@ -574,7 +617,11 @@ flush_count_cache:
  * state of one is saved on its kernel stack.  Then the state
  * of the other is restored from its kernel stack.  The memory
  * management hardware is updated to the second process's state.
+<<<<<<< HEAD
  * Finally, we can return to the second process, via ret_from_except.
+=======
+ * Finally, we can return to the second process, via interrupt_return.
+>>>>>>> upstream/android-13
  * On entry, r3 points to the THREAD for the current task, r4
  * points to the THREAD for the new task.
  *
@@ -593,14 +640,24 @@ _GLOBAL(_switch)
 	std	r0,16(r1)
 	stdu	r1,-SWITCH_FRAME_SIZE(r1)
 	/* r3-r13 are caller saved -- Cort */
+<<<<<<< HEAD
 	SAVE_8GPRS(14, r1)
 	SAVE_10GPRS(22, r1)
+=======
+	SAVE_NVGPRS(r1)
+>>>>>>> upstream/android-13
 	std	r0,_NIP(r1)	/* Return to switch caller */
 	mfcr	r23
 	std	r23,_CCR(r1)
 	std	r1,KSP(r3)	/* Set old stack pointer */
 
+<<<<<<< HEAD
 	FLUSH_COUNT_CACHE
+=======
+	kuap_check_amr r9, r10
+
+	FLUSH_COUNT_CACHE	/* Clobbers r9, ctr */
+>>>>>>> upstream/android-13
 
 	/*
 	 * On SMP kernels, care must be taken because a task may be
@@ -613,7 +670,11 @@ _GLOBAL(_switch)
 	 * kernel/sched/core.c).
 	 *
 	 * Uncacheable stores in the case of involuntary preemption must
+<<<<<<< HEAD
 	 * be taken care of. The smp_mb__before_spin_lock() in __schedule()
+=======
+	 * be taken care of. The smp_mb__after_spinlock() in __schedule()
+>>>>>>> upstream/android-13
 	 * is implemented as hwsync on powerpc, which orders MMIO too. So
 	 * long as there is an hwsync in the context switch path, it will
 	 * be executed on the source CPU after the task has performed
@@ -635,6 +696,13 @@ _GLOBAL(_switch)
 
 	addi	r6,r4,-THREAD	/* Convert THREAD to 'current' */
 	std	r6,PACACURRENT(r13)	/* Set new 'current' */
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_STACKPROTECTOR)
+	ld	r6, TASK_CANARY(r6)
+	std	r6, PACA_CANARY(r13)
+#endif
+>>>>>>> upstream/android-13
 
 	ld	r8,KSP(r4)	/* new stack pointer */
 #ifdef CONFIG_PPC_BOOK3S_64
@@ -683,13 +751,23 @@ END_MMU_FTR_SECTION_IFSET(MMU_FTR_1T_SEGMENT)
 
 	isync
 	slbie	r6
+<<<<<<< HEAD
 	slbie	r6		/* Workaround POWER5 < DD2.1 issue */
+=======
+BEGIN_FTR_SECTION
+	slbie	r6		/* Workaround POWER5 < DD2.1 issue */
+END_FTR_SECTION_IFCLR(CPU_FTR_ARCH_207S)
+>>>>>>> upstream/android-13
 	slbmte	r7,r0
 	isync
 2:
 #endif /* CONFIG_PPC_BOOK3S_64 */
 
+<<<<<<< HEAD
 	CURRENT_THREAD_INFO(r7, r8)  /* base of new stack */
+=======
+	clrrdi	r7, r8, THREAD_SHIFT	/* base of new stack */
+>>>>>>> upstream/android-13
 	/* Note: this uses SWITCH_FRAME_SIZE rather than INT_FRAME_SIZE
 	   because we don't need to leave the 288-byte ABI gap at the
 	   top of the kernel stack. */
@@ -710,8 +788,12 @@ END_MMU_FTR_SECTION_IFSET(MMU_FTR_1T_SEGMENT)
 	mtcrf	0xFF,r6
 
 	/* r3-r13 are destroyed -- Cort */
+<<<<<<< HEAD
 	REST_8GPRS(14, r1)
 	REST_10GPRS(22, r1)
+=======
+	REST_NVGPRS(r1)
+>>>>>>> upstream/android-13
 
 	/* convert old thread to its task_struct for return value */
 	addi	r3,r3,-THREAD
@@ -720,6 +802,7 @@ END_MMU_FTR_SECTION_IFSET(MMU_FTR_1T_SEGMENT)
 	addi	r1,r1,SWITCH_FRAME_SIZE
 	blr
 
+<<<<<<< HEAD
 	.align	7
 _GLOBAL(ret_from_except)
 	ld	r11,_TRAP(r1)
@@ -1124,6 +1207,8 @@ _ASM_NOKPROBE_SYMBOL(restore);
 _ASM_NOKPROBE_SYMBOL(fast_exception_return);
 
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PPC_RTAS
 /*
  * On CHRP, the Run-Time Abstraction Services (RTAS) have to be
@@ -1136,7 +1221,11 @@ _ASM_NOKPROBE_SYMBOL(fast_exception_return);
 _GLOBAL(enter_rtas)
 	mflr	r0
 	std	r0,16(r1)
+<<<<<<< HEAD
         stdu	r1,-RTAS_FRAME_SIZE(r1)	/* Save SP and create stack space. */
+=======
+        stdu	r1,-SWITCH_FRAME_SIZE(r1) /* Save SP and create stack space. */
+>>>>>>> upstream/android-13
 
 	/* Because RTAS is running in 32b mode, it clobbers the high order half
 	 * of all registers that it saves.  We therefore save those registers
@@ -1144,8 +1233,12 @@ _GLOBAL(enter_rtas)
    	 */
 	SAVE_GPR(2, r1)			/* Save the TOC */
 	SAVE_GPR(13, r1)		/* Save paca */
+<<<<<<< HEAD
 	SAVE_8GPRS(14, r1)		/* Save the non-volatiles */
 	SAVE_10GPRS(22, r1)		/* ditto */
+=======
+	SAVE_NVGPRS(r1)			/* Save the non-volatiles */
+>>>>>>> upstream/android-13
 
 	mfcr	r4
 	std	r4,_CCR(r1)
@@ -1170,7 +1263,11 @@ _GLOBAL(enter_rtas)
 	 */
 	lbz	r0,PACAIRQSOFTMASK(r13)
 1:	tdeqi	r0,IRQS_ENABLED
+<<<<<<< HEAD
 	EMIT_BUG_ENTRY 1b,__FILE__,__LINE__,BUGFLAG_WARNING
+=======
+	EMIT_WARN_ENTRY 1b,__FILE__,__LINE__,BUGFLAG_WARNING
+>>>>>>> upstream/android-13
 #endif
 
 	/* Hard-disable interrupts */
@@ -1252,8 +1349,12 @@ rtas_restore_regs:
 	/* relocation is on at this point */
 	REST_GPR(2, r1)			/* Restore the TOC */
 	REST_GPR(13, r1)		/* Restore paca */
+<<<<<<< HEAD
 	REST_8GPRS(14, r1)		/* Restore the non-volatiles */
 	REST_10GPRS(22, r1)		/* ditto */
+=======
+	REST_NVGPRS(r1)			/* Restore the non-volatiles */
+>>>>>>> upstream/android-13
 
 	GET_PACA(r13)
 
@@ -1268,7 +1369,11 @@ rtas_restore_regs:
 	ld	r8,_DSISR(r1)
 	mtdsisr	r8
 
+<<<<<<< HEAD
         addi	r1,r1,RTAS_FRAME_SIZE	/* Unstack our frame */
+=======
+        addi	r1,r1,SWITCH_FRAME_SIZE	/* Unstack our frame */
+>>>>>>> upstream/android-13
 	ld	r0,16(r1)		/* get return address */
 
 	mtlr    r0
@@ -1279,7 +1384,11 @@ rtas_restore_regs:
 _GLOBAL(enter_prom)
 	mflr	r0
 	std	r0,16(r1)
+<<<<<<< HEAD
         stdu	r1,-PROM_FRAME_SIZE(r1)	/* Save SP and create stack space */
+=======
+        stdu	r1,-SWITCH_FRAME_SIZE(r1) /* Save SP and create stack space */
+>>>>>>> upstream/android-13
 
 	/* Because PROM is running in 32b mode, it clobbers the high order half
 	 * of all registers that it saves.  We therefore save those registers
@@ -1287,8 +1396,12 @@ _GLOBAL(enter_prom)
    	 */
 	SAVE_GPR(2, r1)
 	SAVE_GPR(13, r1)
+<<<<<<< HEAD
 	SAVE_8GPRS(14, r1)
 	SAVE_10GPRS(22, r1)
+=======
+	SAVE_NVGPRS(r1)
+>>>>>>> upstream/android-13
 	mfcr	r10
 	mfmsr	r11
 	std	r10,_CCR(r1)
@@ -1310,7 +1423,11 @@ _GLOBAL(enter_prom)
 	mtsrr1	r11
 	rfi
 #else /* CONFIG_PPC_BOOK3E */
+<<<<<<< HEAD
 	LOAD_REG_IMMEDIATE(r12, MSR_SF | MSR_ISF | MSR_LE)
+=======
+	LOAD_REG_IMMEDIATE(r12, MSR_SF | MSR_LE)
+>>>>>>> upstream/android-13
 	andc	r11,r11,r12
 	mtsrr1	r11
 	RFI_TO_KERNEL
@@ -1332,12 +1449,20 @@ _GLOBAL(enter_prom)
 	/* Restore other registers */
 	REST_GPR(2, r1)
 	REST_GPR(13, r1)
+<<<<<<< HEAD
 	REST_8GPRS(14, r1)
 	REST_10GPRS(22, r1)
 	ld	r4,_CCR(r1)
 	mtcr	r4
 	
         addi	r1,r1,PROM_FRAME_SIZE
+=======
+	REST_NVGPRS(r1)
+	ld	r4,_CCR(r1)
+	mtcr	r4
+
+        addi	r1,r1,SWITCH_FRAME_SIZE
+>>>>>>> upstream/android-13
 	ld	r0,16(r1)
 	mtlr    r0
         blr

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * MIPS cacheinfo support
  *
@@ -12,6 +13,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * MIPS cacheinfo support
+>>>>>>> upstream/android-13
  */
 #include <linux/cacheinfo.h>
 
@@ -28,7 +34,11 @@ do {								\
 	leaf++;							\
 } while (0)
 
+<<<<<<< HEAD
 static int __init_cache_level(unsigned int cpu)
+=======
+int init_cache_level(unsigned int cpu)
+>>>>>>> upstream/android-13
 {
 	struct cpuinfo_mips *c = &current_cpu_data;
 	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
@@ -46,6 +56,14 @@ static int __init_cache_level(unsigned int cpu)
 
 	leaves += (c->icache.waysize) ? 2 : 1;
 
+<<<<<<< HEAD
+=======
+	if (c->vcache.waysize) {
+		levels++;
+		leaves++;
+	}
+
+>>>>>>> upstream/android-13
 	if (c->scache.waysize) {
 		levels++;
 		leaves++;
@@ -80,11 +98,16 @@ static void fill_cpumask_cluster(int cpu, cpumask_t *cpu_map)
 			cpumask_set_cpu(cpu1, cpu_map);
 }
 
+<<<<<<< HEAD
 static int __populate_cache_leaves(unsigned int cpu)
+=======
+int populate_cache_leaves(unsigned int cpu)
+>>>>>>> upstream/android-13
 {
 	struct cpuinfo_mips *c = &current_cpu_data;
 	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
 	struct cacheinfo *this_leaf = this_cpu_ci->info_list;
+<<<<<<< HEAD
 
 	if (c->icache.waysize) {
 		/* L1 caches are per core */
@@ -104,11 +127,46 @@ static int __populate_cache_leaves(unsigned int cpu)
 
 	if (c->tcache.waysize)
 		populate_cache(tcache, this_leaf, 3, CACHE_TYPE_UNIFIED);
+=======
+	int level = 1;
+
+	if (c->icache.waysize) {
+		/* I/D caches are per core */
+		fill_cpumask_siblings(cpu, &this_leaf->shared_cpu_map);
+		populate_cache(dcache, this_leaf, level, CACHE_TYPE_DATA);
+		fill_cpumask_siblings(cpu, &this_leaf->shared_cpu_map);
+		populate_cache(icache, this_leaf, level, CACHE_TYPE_INST);
+		level++;
+	} else {
+		populate_cache(dcache, this_leaf, level, CACHE_TYPE_UNIFIED);
+		level++;
+	}
+
+	if (c->vcache.waysize) {
+		/* Vcache is per core as well */
+		fill_cpumask_siblings(cpu, &this_leaf->shared_cpu_map);
+		populate_cache(vcache, this_leaf, level, CACHE_TYPE_UNIFIED);
+		level++;
+	}
+
+	if (c->scache.waysize) {
+		/* Scache is per cluster */
+		fill_cpumask_cluster(cpu, &this_leaf->shared_cpu_map);
+		populate_cache(scache, this_leaf, level, CACHE_TYPE_UNIFIED);
+		level++;
+	}
+
+	if (c->tcache.waysize)
+		populate_cache(tcache, this_leaf, level, CACHE_TYPE_UNIFIED);
+>>>>>>> upstream/android-13
 
 	this_cpu_ci->cpu_map_populated = true;
 
 	return 0;
 }
+<<<<<<< HEAD
 
 DEFINE_SMP_CALL_CACHE_FUNCTION(init_cache_level)
 DEFINE_SMP_CALL_CACHE_FUNCTION(populate_cache_leaves)
+=======
+>>>>>>> upstream/android-13

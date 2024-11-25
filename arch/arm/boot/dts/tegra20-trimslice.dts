@@ -3,6 +3,10 @@
 
 #include <dt-bindings/input/input.h>
 #include "tegra20.dtsi"
+<<<<<<< HEAD
+=======
+#include "tegra20-cpu-opp.dtsi"
+>>>>>>> upstream/android-13
 
 / {
 	model = "Compulab TrimSlice board";
@@ -287,7 +291,11 @@
 		status = "okay";
 		spi-max-frequency = <48000000>;
 		spi-flash@0 {
+<<<<<<< HEAD
 			compatible = "winbond,w25q80bl";
+=======
+			compatible = "winbond,w25q80bl", "jedec,spi-nor";
+>>>>>>> upstream/android-13
 			reg = <0>;
 			spi-max-frequency = <48000000>;
 		};
@@ -365,19 +373,28 @@
 		status = "okay";
 	};
 
+<<<<<<< HEAD
 	sdhci@c8000000 {
+=======
+	mmc@c8000000 {
+>>>>>>> upstream/android-13
 		status = "okay";
 		broken-cd;
 		bus-width = <4>;
 	};
 
+<<<<<<< HEAD
 	sdhci@c8000600 {
+=======
+	mmc@c8000600 {
+>>>>>>> upstream/android-13
 		status = "okay";
 		cd-gpios = <&gpio TEGRA_GPIO(P, 1) GPIO_ACTIVE_LOW>;
 		wp-gpios = <&gpio TEGRA_GPIO(P, 2) GPIO_ACTIVE_HIGH>;
 		bus-width = <4>;
 	};
 
+<<<<<<< HEAD
 	clocks {
 		compatible = "simple-bus";
 		#address-cells = <1>;
@@ -389,6 +406,12 @@
 			#clock-cells = <0>;
 			clock-frequency = <32768>;
 		};
+=======
+	clk32k_in: clock@0 {
+		compatible = "fixed-clock";
+		clock-frequency = <32768>;
+		#clock-cells = <0>;
+>>>>>>> upstream/android-13
 	};
 
 	gpio-keys {
@@ -407,6 +430,7 @@
 		gpios = <&gpio TEGRA_GPIO(X, 7) GPIO_ACTIVE_LOW>;
 	};
 
+<<<<<<< HEAD
 	regulators {
 		compatible = "simple-bus";
 		#address-cells = <1>;
@@ -459,6 +483,49 @@
 			regulator-max-microvolt = <1050000>;
 			regulator-always-on;
 		};
+=======
+	hdmi_vdd_reg: regulator@0 {
+		compatible = "regulator-fixed";
+		regulator-name = "avdd_hdmi";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-always-on;
+	};
+
+	hdmi_pll_reg: regulator@1 {
+		compatible = "regulator-fixed";
+		regulator-name = "avdd_hdmi_pll";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		regulator-always-on;
+	};
+
+	vbus_reg: regulator@2 {
+		compatible = "regulator-fixed";
+		regulator-name = "usb1_vbus";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		enable-active-high;
+		gpio = <&gpio TEGRA_GPIO(V, 2) 0>;
+		regulator-always-on;
+		regulator-boot-on;
+	};
+
+	pci_clk_reg: regulator@3 {
+		compatible = "regulator-fixed";
+		regulator-name = "pci_clk";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-always-on;
+	};
+
+	pci_vdd_reg: regulator@4 {
+		compatible = "regulator-fixed";
+		regulator-name = "pci_vdd";
+		regulator-min-microvolt = <1050000>;
+		regulator-max-microvolt = <1050000>;
+		regulator-always-on;
+>>>>>>> upstream/android-13
 	};
 
 	sound {
@@ -471,4 +538,17 @@
 			 <&tegra_car TEGRA20_CLK_CDEV1>;
 		clock-names = "pll_a", "pll_a_out0", "mclk";
 	};
+<<<<<<< HEAD
+=======
+
+	cpus {
+		cpu0: cpu@0 {
+			operating-points-v2 = <&cpu0_opp_table>;
+		};
+
+		cpu@1 {
+			operating-points-v2 = <&cpu0_opp_table>;
+		};
+	};
+>>>>>>> upstream/android-13
 };

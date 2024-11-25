@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * ToupTek UCMOS / AmScope MU series camera driver
  * TODO: contrast with ScopeTek / AmScope MDC cameras
@@ -7,6 +11,7 @@
  * Special thanks to Bushing for helping with the decrypt algorithm and
  * Sean O'Sullivan / the Rensselaer Center for Open Source
  * Software (RCOS) for helping me learn kernel development
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "gspca.h"
@@ -185,7 +192,11 @@ static const struct v4l2_pix_format vga_mode[] = {
 };
 
 /*
+<<<<<<< HEAD
  * As theres no known frame sync, the only way to keep synced is to try hard
+=======
+ * As there's no known frame sync, the only way to keep synced is to try hard
+>>>>>>> upstream/android-13
  * to never miss any packets
  */
 #if MAX_NURBS < 4
@@ -259,7 +270,11 @@ static void setexposure(struct gspca_dev *gspca_dev, s32 val)
 		return;
 	}
 	gspca_dbg(gspca_dev, D_STREAM, "exposure: 0x%04X ms\n\n", value);
+<<<<<<< HEAD
 	/* Wonder if theres a good reason for sending it twice */
+=======
+	/* Wonder if there's a good reason for sending it twice */
+>>>>>>> upstream/android-13
 	/* probably not but leave it in because...why not */
 	reg_w(gspca_dev, value, REG_COARSE_INTEGRATION_TIME_);
 	reg_w(gspca_dev, value, REG_COARSE_INTEGRATION_TIME_);

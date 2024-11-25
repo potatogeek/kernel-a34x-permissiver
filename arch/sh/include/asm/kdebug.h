@@ -13,6 +13,11 @@ enum die_val {
 
 /* arch/sh/kernel/dumpstack.c */
 extern void printk_address(unsigned long address, int reliable);
+<<<<<<< HEAD
 extern void dump_mem(const char *str, unsigned long bottom, unsigned long top);
+=======
+extern void dump_mem(const char *str, const char *loglvl,
+		     unsigned long bottom, unsigned long top);
+>>>>>>> upstream/android-13
 
 #endif /* __ASM_SH_KDEBUG_H */

@@ -8,3 +8,7 @@ int main(void)
 	free(get_current_dir_name());
 	return 0;
 }
+<<<<<<< HEAD
+=======
+#undef _GNU_SOURCE
+>>>>>>> upstream/android-13

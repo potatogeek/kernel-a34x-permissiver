@@ -7,6 +7,10 @@
 #ifndef _SPARC64_TIMER_H
 #define _SPARC64_TIMER_H
 
+<<<<<<< HEAD
+=======
+#include <uapi/asm/asi.h>
+>>>>>>> upstream/android-13
 #include <linux/types.h>
 #include <linux/init.h>
 

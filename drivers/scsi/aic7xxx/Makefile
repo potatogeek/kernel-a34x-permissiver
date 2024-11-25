@@ -34,7 +34,10 @@ aic79xx-y					+= aic79xx_osm.o	\
 						   aic79xx_proc.o	\
 						   aic79xx_osm_pci.o
 
+<<<<<<< HEAD
 ccflags-y += -Idrivers/scsi
+=======
+>>>>>>> upstream/android-13
 ifdef WARNINGS_BECOME_ERRORS
 ccflags-y += -Werror
 endif

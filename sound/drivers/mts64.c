@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*     
  *   ALSA Driver for Ego Systems Inc. (ESI) Miditerminal 4140
  *   Copyright (c) 2006 by Matthias König <mk@phasorlab.de>
@@ -16,6 +17,12 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*     
+ *   ALSA Driver for Ego Systems Inc. (ESI) Miditerminal 4140
+ *   Copyright (c) 2006 by Matthias König <mk@phasorlab.de>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -51,7 +58,10 @@ MODULE_PARM_DESC(enable, "Enable " CARD_NAME " soundcard.");
 MODULE_AUTHOR("Matthias Koenig <mk@phasorlab.de>");
 MODULE_DESCRIPTION("ESI Miditerminal 4140");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{{ESI,Miditerminal 4140}}");
+=======
+>>>>>>> upstream/android-13
 
 /*********************************************************************
  * Chip specific
@@ -275,7 +285,11 @@ static int mts64_device_close(struct mts64 *mts)
  */
 static u8 mts64_map_midi_input(u8 c)
 {
+<<<<<<< HEAD
 	static u8 map[] = { 0, 1, 4, 2, 3 };
+=======
+	static const u8 map[] = { 0, 1, 4, 2, 3 };
+>>>>>>> upstream/android-13
 
 	return map[c];
 }
@@ -367,7 +381,11 @@ static void mts64_smpte_start(struct parport *p,
 			      u8 seconds, u8 frames,
 			      u8 idx)
 {
+<<<<<<< HEAD
 	static u8 fps[5] = { MTS64_CMD_SMPTE_FPS_24, 
+=======
+	static const u8 fps[5] = { MTS64_CMD_SMPTE_FPS_24,
+>>>>>>> upstream/android-13
 			     MTS64_CMD_SMPTE_FPS_25,
 			     MTS64_CMD_SMPTE_FPS_2997, 
 			     MTS64_CMD_SMPTE_FPS_30D,
@@ -481,7 +499,11 @@ __out:
 	return changed;
 }
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new mts64_ctl_smpte_switch = {
+=======
+static const struct snd_kcontrol_new mts64_ctl_smpte_switch = {
+>>>>>>> upstream/android-13
 	.iface = SNDRV_CTL_ELEM_IFACE_RAWMIDI,
 	.name  = "SMPTE Playback Switch",
 	.index = 0,
@@ -554,7 +576,11 @@ static int snd_mts64_ctl_smpte_time_put(struct snd_kcontrol *kctl,
 	return changed;
 }
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new mts64_ctl_smpte_time_hours = {
+=======
+static const struct snd_kcontrol_new mts64_ctl_smpte_time_hours = {
+>>>>>>> upstream/android-13
 	.iface = SNDRV_CTL_ELEM_IFACE_RAWMIDI,
 	.name  = "SMPTE Time Hours",
 	.index = 0,
@@ -565,7 +591,11 @@ static struct snd_kcontrol_new mts64_ctl_smpte_time_hours = {
 	.put  = snd_mts64_ctl_smpte_time_put
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new mts64_ctl_smpte_time_minutes = {
+=======
+static const struct snd_kcontrol_new mts64_ctl_smpte_time_minutes = {
+>>>>>>> upstream/android-13
 	.iface = SNDRV_CTL_ELEM_IFACE_RAWMIDI,
 	.name  = "SMPTE Time Minutes",
 	.index = 0,
@@ -576,7 +606,11 @@ static struct snd_kcontrol_new mts64_ctl_smpte_time_minutes = {
 	.put  = snd_mts64_ctl_smpte_time_put
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new mts64_ctl_smpte_time_seconds = {
+=======
+static const struct snd_kcontrol_new mts64_ctl_smpte_time_seconds = {
+>>>>>>> upstream/android-13
 	.iface = SNDRV_CTL_ELEM_IFACE_RAWMIDI,
 	.name  = "SMPTE Time Seconds",
 	.index = 0,
@@ -587,7 +621,11 @@ static struct snd_kcontrol_new mts64_ctl_smpte_time_seconds = {
 	.put  = snd_mts64_ctl_smpte_time_put
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new mts64_ctl_smpte_time_frames = {
+=======
+static const struct snd_kcontrol_new mts64_ctl_smpte_time_frames = {
+>>>>>>> upstream/android-13
 	.iface = SNDRV_CTL_ELEM_IFACE_RAWMIDI,
 	.name  = "SMPTE Time Frames",
 	.index = 0,
@@ -639,7 +677,11 @@ static int snd_mts64_ctl_smpte_fps_put(struct snd_kcontrol *kctl,
 	return changed;
 }
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new mts64_ctl_smpte_fps = {
+=======
+static const struct snd_kcontrol_new mts64_ctl_smpte_fps = {
+>>>>>>> upstream/android-13
 	.iface = SNDRV_CTL_ELEM_IFACE_RAWMIDI,
 	.name  = "SMPTE Fps",
 	.index = 0,
@@ -655,7 +697,11 @@ static int snd_mts64_ctl_create(struct snd_card *card,
 				struct mts64 *mts)
 {
 	int err, i;
+<<<<<<< HEAD
 	static struct snd_kcontrol_new *control[] = {
+=======
+	static const struct snd_kcontrol_new *control[] = {
+>>>>>>> upstream/android-13
 		&mts64_ctl_smpte_switch,
 		&mts64_ctl_smpte_time_hours,
 		&mts64_ctl_smpte_time_minutes,
@@ -965,7 +1011,12 @@ static int snd_mts64_probe(struct platform_device *pdev)
 		goto free_pardev;
 	}
 
+<<<<<<< HEAD
 	if ((err = snd_mts64_create(card, pardev, &mts)) < 0) {
+=======
+	err = snd_mts64_create(card, pardev, &mts);
+	if (err < 0) {
+>>>>>>> upstream/android-13
 		snd_printd("Cannot create main component\n");
 		goto release_pardev;
 	}
@@ -978,19 +1029,34 @@ static int snd_mts64_probe(struct platform_device *pdev)
 		goto __err;
 	}
 	
+<<<<<<< HEAD
 	if ((err = snd_mts64_rawmidi_create(card)) < 0) {
+=======
+	err = snd_mts64_rawmidi_create(card);
+	if (err < 0) {
+>>>>>>> upstream/android-13
 		snd_printd("Creating Rawmidi component failed\n");
 		goto __err;
 	}
 
 	/* init device */
+<<<<<<< HEAD
 	if ((err = mts64_device_init(p)) < 0)
+=======
+	err = mts64_device_init(p);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		goto __err;
 
 	platform_set_drvdata(pdev, card);
 
 	/* At this point card will be usable */
+<<<<<<< HEAD
 	if ((err = snd_card_register(card)) < 0) {
+=======
+	err = snd_card_register(card);
+	if (err < 0) {
+>>>>>>> upstream/android-13
 		snd_printd("Cannot register card\n");
 		goto __err;
 	}
@@ -1046,7 +1112,12 @@ static int __init snd_mts64_module_init(void)
 {
 	int err;
 
+<<<<<<< HEAD
 	if ((err = platform_driver_register(&snd_mts64_driver)) < 0)
+=======
+	err = platform_driver_register(&snd_mts64_driver);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 
 	if (parport_register_driver(&mts64_parport_driver) != 0) {

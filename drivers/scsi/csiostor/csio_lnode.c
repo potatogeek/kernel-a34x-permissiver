@@ -619,7 +619,11 @@ csio_ln_vnp_read_cbfn(struct csio_hw *hw, struct csio_mb *mbp)
 	struct fc_els_csp *csp;
 	struct fc_els_cssp *clsp;
 	enum fw_retval retval;
+<<<<<<< HEAD
 	__be32 nport_id;
+=======
+	__be32 nport_id = 0;
+>>>>>>> upstream/android-13
 
 	retval = FW_CMD_RETVAL_G(ntohl(rsp->alloc_to_len16));
 	if (retval != FW_SUCCESS) {
@@ -1187,7 +1191,10 @@ csio_lns_online(struct csio_lnode *ln, enum csio_ln_ev evt)
 		break;
 
 	case CSIO_LNE_LINK_DOWN:
+<<<<<<< HEAD
 		/* Fall through */
+=======
+>>>>>>> upstream/android-13
 	case CSIO_LNE_DOWN_LINK:
 		csio_set_state(&ln->sm, csio_lns_uninit);
 		if (csio_is_phys_ln(ln)) {
@@ -1848,8 +1855,13 @@ csio_ln_fdmi_init(struct csio_lnode *ln)
 	/* Allocate Dma buffers for FDMI response Payload */
 	dma_buf = &ln->mgmt_req->dma_buf;
 	dma_buf->len = 2048;
+<<<<<<< HEAD
 	dma_buf->vaddr = pci_alloc_consistent(hw->pdev, dma_buf->len,
 						&dma_buf->paddr);
+=======
+	dma_buf->vaddr = dma_alloc_coherent(&hw->pdev->dev, dma_buf->len,
+						&dma_buf->paddr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!dma_buf->vaddr) {
 		csio_err(hw, "Failed to alloc DMA buffer for FDMI!\n");
 		kfree(ln->mgmt_req);
@@ -1876,7 +1888,11 @@ csio_ln_fdmi_exit(struct csio_lnode *ln)
 
 	dma_buf = &ln->mgmt_req->dma_buf;
 	if (dma_buf->vaddr)
+<<<<<<< HEAD
 		pci_free_consistent(hw->pdev, dma_buf->len, dma_buf->vaddr,
+=======
+		dma_free_coherent(&hw->pdev->dev, dma_buf->len, dma_buf->vaddr,
+>>>>>>> upstream/android-13
 				    dma_buf->paddr);
 
 	kfree(ln->mgmt_req);
@@ -1992,7 +2008,11 @@ static int
 csio_ln_init(struct csio_lnode *ln)
 {
 	int rv = -EINVAL;
+<<<<<<< HEAD
 	struct csio_lnode *rln, *pln;
+=======
+	struct csio_lnode *pln;
+>>>>>>> upstream/android-13
 	struct csio_hw *hw = csio_lnode_to_hw(ln);
 
 	csio_init_state(&ln->sm, csio_lns_uninit);
@@ -2022,7 +2042,10 @@ csio_ln_init(struct csio_lnode *ln)
 		 * THe rest is common for non-root physical and NPIV lnodes.
 		 * Just get references to all other modules
 		 */
+<<<<<<< HEAD
 		rln = csio_root_lnode(ln);
+=======
+>>>>>>> upstream/android-13
 
 		if (csio_is_npiv_ln(ln)) {
 			/* NPIV */
@@ -2069,10 +2092,16 @@ csio_ln_exit(struct csio_lnode *ln)
 	ln->fcfinfo = NULL;
 }
 
+<<<<<<< HEAD
 /**
  * csio_lnode_init - Initialize the members of an lnode.
  * @ln:		lnode
  *
+=======
+/*
+ * csio_lnode_init - Initialize the members of an lnode.
+ * @ln:		lnode
+>>>>>>> upstream/android-13
  */
 int
 csio_lnode_init(struct csio_lnode *ln, struct csio_hw *hw,

@@ -13,6 +13,10 @@
 #include <linux/pnp.h>
 #include <linux/string.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
+=======
+#include <linux/property.h>
+>>>>>>> upstream/android-13
 #include <linux/serial_core.h>
 #include <linux/bitops.h>
 
@@ -462,8 +466,13 @@ serial_pnp_probe(struct pnp_dev *dev, const struct pnp_device_id *dev_id)
 		return -ENODEV;
 
 	dev_dbg(&dev->dev,
+<<<<<<< HEAD
 		 "Setup PNP port: port %lx, mem %pa, irq %d, type %d\n",
 		 uart.port.iobase, &uart.port.mapbase,
+=======
+		 "Setup PNP port: port %#lx, mem %#llx, irq %u, type %u\n",
+		 uart.port.iobase, (unsigned long long)uart.port.mapbase,
+>>>>>>> upstream/android-13
 		 uart.port.irq, uart.port.iotype);
 
 	if (flags & CIR_PORT) {
@@ -475,6 +484,10 @@ serial_pnp_probe(struct pnp_dev *dev, const struct pnp_device_id *dev_id)
 	if (pnp_irq_flags(dev, 0) & IORESOURCE_IRQ_SHAREABLE)
 		uart.port.flags |= UPF_SHARE_IRQ;
 	uart.port.uartclk = 1843200;
+<<<<<<< HEAD
+=======
+	device_property_read_u32(&dev->dev, "clock-frequency", &uart.port.uartclk);
+>>>>>>> upstream/android-13
 	uart.port.dev = &dev->dev;
 
 	line = serial8250_register_8250_port(&uart);
@@ -498,10 +511,16 @@ static void serial_pnp_remove(struct pnp_dev *dev)
 		serial8250_unregister_port(line - 1);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 static int serial_pnp_suspend(struct pnp_dev *dev, pm_message_t state)
 {
 	long line = (long)pnp_get_drvdata(dev);
+=======
+static int __maybe_unused serial_pnp_suspend(struct device *dev)
+{
+	long line = (long)dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 
 	if (!line)
 		return -ENODEV;
@@ -509,26 +528,43 @@ static int serial_pnp_suspend(struct pnp_dev *dev, pm_message_t state)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int serial_pnp_resume(struct pnp_dev *dev)
 {
 	long line = (long)pnp_get_drvdata(dev);
+=======
+static int __maybe_unused serial_pnp_resume(struct device *dev)
+{
+	long line = (long)dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 
 	if (!line)
 		return -ENODEV;
 	serial8250_resume_port(line - 1);
 	return 0;
 }
+<<<<<<< HEAD
 #else
 #define serial_pnp_suspend NULL
 #define serial_pnp_resume NULL
 #endif /* CONFIG_PM */
+=======
+
+static SIMPLE_DEV_PM_OPS(serial_pnp_pm_ops, serial_pnp_suspend, serial_pnp_resume);
+>>>>>>> upstream/android-13
 
 static struct pnp_driver serial_pnp_driver = {
 	.name		= "serial",
 	.probe		= serial_pnp_probe,
 	.remove		= serial_pnp_remove,
+<<<<<<< HEAD
 	.suspend	= serial_pnp_suspend,
 	.resume		= serial_pnp_resume,
+=======
+	.driver         = {
+		.pm     = &serial_pnp_pm_ops,
+	},
+>>>>>>> upstream/android-13
 	.id_table	= pnp_dev_table,
 };
 

@@ -26,16 +26,23 @@ extern unsigned long get_pid_from_context(mm_context_t *ctx);
  */
 extern pgd_t *pgd_current;
 
+<<<<<<< HEAD
 static inline void enter_lazy_tlb(struct mm_struct *mm, struct task_struct *tsk)
 {
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Initialize the context related info for a new mm_struct instance.
  *
  * Set all new contexts to 0, that way the generation will never match
  * the currently running generation when this context is switched in.
  */
+<<<<<<< HEAD
+=======
+#define init_new_context init_new_context
+>>>>>>> upstream/android-13
 static inline int init_new_context(struct task_struct *tsk,
 					struct mm_struct *mm)
 {
@@ -43,6 +50,7 @@ static inline int init_new_context(struct task_struct *tsk,
 	return 0;
 }
 
+<<<<<<< HEAD
 /*
  * Destroy context related info for an mm_struct that is about
  * to be put to rest.
@@ -59,10 +67,23 @@ static inline void deactivate_mm(struct task_struct *tsk,
 {
 }
 
+=======
+void switch_mm(struct mm_struct *prev, struct mm_struct *next,
+		struct task_struct *tsk);
+
+>>>>>>> upstream/android-13
 /*
  * After we have set current->mm to a new value, this activates
  * the context for the new mm so we see the new mappings.
  */
+<<<<<<< HEAD
 void activate_mm(struct mm_struct *prev, struct mm_struct *next);
 
+=======
+#define activate_mm activate_mm
+void activate_mm(struct mm_struct *prev, struct mm_struct *next);
+
+#include <asm-generic/mmu_context.h>
+
+>>>>>>> upstream/android-13
 #endif /* _ASM_NIOS2_MMU_CONTEXT_H */

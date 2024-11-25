@@ -58,6 +58,10 @@ MODULE_LICENSE("GPL v2");
  * @queue: vb2 video capture queue
  * @qlock: spinlock controlling access to buf_list and sequence
  * @buf_list: list of buffers queued for DMA
+<<<<<<< HEAD
+=======
+ * @field: the field (TOP/BOTTOM/other) of the current buffer
+>>>>>>> upstream/android-13
  * @sequence: frame sequence counter
  */
 struct skeleton {
@@ -80,6 +84,7 @@ struct skeleton {
 };
 
 struct skel_buffer {
+<<<<<<< HEAD
 	struct vb2_buffer vb;
 	struct list_head list;
 };
@@ -87,6 +92,15 @@ struct skel_buffer {
 static inline struct skel_buffer *to_skel_buffer(struct vb2_buffer *vb2)
 {
 	return container_of(vb2, struct skel_buffer, vb);
+=======
+	struct vb2_v4l2_buffer vb;
+	struct list_head list;
+};
+
+static inline struct skel_buffer *to_skel_buffer(struct vb2_v4l2_buffer *vbuf)
+{
+	return container_of(vbuf, struct skel_buffer, vb);
+>>>>>>> upstream/android-13
 }
 
 static const struct pci_device_id skeleton_pci_tbl[] = {
@@ -139,16 +153,26 @@ static irqreturn_t skeleton_irq(int irq, void *dev_id)
 		spin_lock(&skel->qlock);
 		list_del(&new_buf->list);
 		spin_unlock(&skel->qlock);
+<<<<<<< HEAD
 		v4l2_get_timestamp(&new_buf->vb.v4l2_buf.timestamp);
 		new_buf->vb.v4l2_buf.sequence = skel->sequence++;
 		new_buf->vb.v4l2_buf.field = skel->field;
+=======
+		new_buf->vb.vb2_buf.timestamp = ktime_get_ns();
+		new_buf->vb.sequence = skel->sequence++;
+		new_buf->vb.field = skel->field;
+>>>>>>> upstream/android-13
 		if (skel->format.field == V4L2_FIELD_ALTERNATE) {
 			if (skel->field == V4L2_FIELD_BOTTOM)
 				skel->field = V4L2_FIELD_TOP;
 			else if (skel->field == V4L2_FIELD_TOP)
 				skel->field = V4L2_FIELD_BOTTOM;
 		}
+<<<<<<< HEAD
 		vb2_buffer_done(&new_buf->vb, VB2_BUF_STATE_DONE);
+=======
+		vb2_buffer_done(&new_buf->vb.vb2_buf, VB2_BUF_STATE_DONE);
+>>>>>>> upstream/android-13
 	}
 #endif
 	return IRQ_HANDLED;
@@ -212,8 +236,14 @@ static int buffer_prepare(struct vb2_buffer *vb)
  */
 static void buffer_queue(struct vb2_buffer *vb)
 {
+<<<<<<< HEAD
 	struct skeleton *skel = vb2_get_drv_priv(vb->vb2_queue);
 	struct skel_buffer *buf = to_skel_buffer(vb);
+=======
+	struct vb2_v4l2_buffer *vbuf = to_vb2_v4l2_buffer(vb);
+	struct skeleton *skel = vb2_get_drv_priv(vb->vb2_queue);
+	struct skel_buffer *buf = to_skel_buffer(vbuf);
+>>>>>>> upstream/android-13
 	unsigned long flags;
 
 	spin_lock_irqsave(&skel->qlock, flags);
@@ -232,7 +262,11 @@ static void return_all_buffers(struct skeleton *skel,
 
 	spin_lock_irqsave(&skel->qlock, flags);
 	list_for_each_entry_safe(buf, node, &skel->buf_list, list) {
+<<<<<<< HEAD
 		vb2_buffer_done(&buf->vb, state);
+=======
+		vb2_buffer_done(&buf->vb.vb2_buf, state);
+>>>>>>> upstream/android-13
 		list_del(&buf->list);
 	}
 	spin_unlock_irqrestore(&skel->qlock, flags);
@@ -877,7 +911,11 @@ static int skeleton_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	vdev->tvnorms = SKEL_TVNORMS;
 	video_set_drvdata(vdev, skel);
 
+<<<<<<< HEAD
 	ret = video_register_device(vdev, VFL_TYPE_GRABBER, -1);
+=======
+	ret = video_register_device(vdev, VFL_TYPE_VIDEO, -1);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto free_hdl;
 

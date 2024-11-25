@@ -1,17 +1,25 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * RTC subsystem, nvmem interface
  *
  * Copyright (C) 2017 Alexandre Belloni
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
 #include <linux/types.h>
 #include <linux/nvmem-consumer.h>
 #include <linux/rtc.h>
+<<<<<<< HEAD
 #include <linux/sysfs.h>
 
 /*
@@ -87,10 +95,19 @@ int rtc_nvmem_register(struct rtc_device *rtc,
 {
 	if (!IS_ERR_OR_NULL(rtc->nvmem))
 		return -EBUSY;
+=======
+
+int devm_rtc_nvmem_register(struct rtc_device *rtc,
+		       struct nvmem_config *nvmem_config)
+{
+	struct device *dev = rtc->dev.parent;
+	struct nvmem_device *nvmem;
+>>>>>>> upstream/android-13
 
 	if (!nvmem_config)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	nvmem_config->dev = rtc->dev.parent;
 	nvmem_config->owner = rtc->owner;
 	rtc->nvmem = nvmem_register(nvmem_config);
@@ -116,3 +133,14 @@ void rtc_nvmem_unregister(struct rtc_device *rtc)
 
 	nvmem_unregister(rtc->nvmem);
 }
+=======
+	nvmem_config->dev = dev;
+	nvmem_config->owner = rtc->owner;
+	nvmem = devm_nvmem_register(dev, nvmem_config);
+	if (IS_ERR(nvmem))
+		dev_err(dev, "failed to register nvmem device for RTC\n");
+
+	return PTR_ERR_OR_ZERO(nvmem);
+}
+EXPORT_SYMBOL_GPL(devm_rtc_nvmem_register);
+>>>>>>> upstream/android-13

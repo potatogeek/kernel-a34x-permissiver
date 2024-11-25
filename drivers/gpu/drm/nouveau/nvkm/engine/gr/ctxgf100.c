@@ -1324,10 +1324,15 @@ gf100_grctx_generate_sm_id(struct gf100_gr *gr, int gpc, int tpc, int sm)
 void
 gf100_grctx_generate_floorsweep(struct gf100_gr *gr)
 {
+<<<<<<< HEAD
 	struct nvkm_device *device = gr->base.engine.subdev.device;
 	const struct gf100_grctx_func *func = gr->func->grctx;
 	int gpc, sm, i, j;
 	u32 data;
+=======
+	const struct gf100_grctx_func *func = gr->func->grctx;
+	int sm;
+>>>>>>> upstream/android-13
 
 	for (sm = 0; sm < gr->sm_nr; sm++) {
 		func->sm_id(gr, gr->sm[sm].gpc, gr->sm[sm].tpc, sm);
@@ -1335,12 +1340,18 @@ gf100_grctx_generate_floorsweep(struct gf100_gr *gr)
 			func->tpc_nr(gr, gr->sm[sm].gpc);
 	}
 
+<<<<<<< HEAD
 	for (gpc = 0, i = 0; i < 4; i++) {
 		for (data = 0, j = 0; j < 8 && gpc < gr->gpc_nr; j++, gpc++)
 			data |= gr->tpc_nr[gpc] << (j * 4);
 		nvkm_wr32(device, 0x406028 + (i * 4), data);
 		nvkm_wr32(device, 0x405870 + (i * 4), data);
 	}
+=======
+	gf100_gr_init_num_tpc_per_gpc(gr, false, true);
+	if (!func->skip_pd_num_tpc_per_gpc)
+		gf100_gr_init_num_tpc_per_gpc(gr, true, false);
+>>>>>>> upstream/android-13
 
 	if (func->r4060a8)
 		func->r4060a8(gr);
@@ -1374,7 +1385,11 @@ gf100_grctx_generate_main(struct gf100_gr *gr, struct gf100_grctx *info)
 
 	nvkm_mc_unk260(device, 0);
 
+<<<<<<< HEAD
 	if (!gr->fuc_sw_ctx) {
+=======
+	if (!gr->sw_ctx) {
+>>>>>>> upstream/android-13
 		gf100_gr_mmio(gr, grctx->hub);
 		gf100_gr_mmio(gr, grctx->gpc_0);
 		gf100_gr_mmio(gr, grctx->zcull);
@@ -1382,7 +1397,11 @@ gf100_grctx_generate_main(struct gf100_gr *gr, struct gf100_grctx *info)
 		gf100_gr_mmio(gr, grctx->tpc);
 		gf100_gr_mmio(gr, grctx->ppc);
 	} else {
+<<<<<<< HEAD
 		gf100_gr_mmio(gr, gr->fuc_sw_ctx);
+=======
+		gf100_gr_mmio(gr, gr->sw_ctx);
+>>>>>>> upstream/android-13
 	}
 
 	gf100_gr_wait_idle(gr);
@@ -1401,8 +1420,13 @@ gf100_grctx_generate_main(struct gf100_gr *gr, struct gf100_grctx *info)
 	gf100_gr_wait_idle(gr);
 
 	if (grctx->r400088) grctx->r400088(gr, false);
+<<<<<<< HEAD
 	if (gr->fuc_bundle)
 		gf100_gr_icmd(gr, gr->fuc_bundle);
+=======
+	if (gr->bundle)
+		gf100_gr_icmd(gr, gr->bundle);
+>>>>>>> upstream/android-13
 	else
 		gf100_gr_icmd(gr, grctx->icmd);
 	if (grctx->sw_veid_bundle_init)
@@ -1411,8 +1435,13 @@ gf100_grctx_generate_main(struct gf100_gr *gr, struct gf100_grctx *info)
 
 	nvkm_wr32(device, 0x404154, idle_timeout);
 
+<<<<<<< HEAD
 	if (gr->fuc_method)
 		gf100_gr_mthd(gr, gr->fuc_method);
+=======
+	if (gr->method)
+		gf100_gr_mthd(gr, gr->method);
+>>>>>>> upstream/android-13
 	else
 		gf100_gr_mthd(gr, grctx->mthd);
 	nvkm_mc_unk260(device, 1);
@@ -1431,6 +1460,11 @@ gf100_grctx_generate_main(struct gf100_gr *gr, struct gf100_grctx *info)
 		grctx->r419a3c(gr);
 	if (grctx->r408840)
 		grctx->r408840(gr);
+<<<<<<< HEAD
+=======
+	if (grctx->r419c0c)
+		grctx->r419c0c(gr);
+>>>>>>> upstream/android-13
 }
 
 #define CB_RESERVED 0x80000
@@ -1523,6 +1557,7 @@ gf100_grctx_generate(struct gf100_gr *gr)
 	/* Make channel current. */
 	addr = nvkm_memory_addr(inst) >> 12;
 	if (gr->firmware) {
+<<<<<<< HEAD
 		nvkm_wr32(device, 0x409840, 0x00000030);
 		nvkm_wr32(device, 0x409500, 0x80000000 | addr);
 		nvkm_wr32(device, 0x409504, 0x00000003);
@@ -1530,6 +1565,11 @@ gf100_grctx_generate(struct gf100_gr *gr)
 			if (nvkm_rd32(device, 0x409800) & 0x00000010)
 				break;
 		);
+=======
+		ret = gf100_gr_fecs_bind_pointer(gr, 0x80000000 | addr);
+		if (ret)
+			goto done;
+>>>>>>> upstream/android-13
 
 		nvkm_kmap(data);
 		nvkm_wo32(data, 0x1c, 1);

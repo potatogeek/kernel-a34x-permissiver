@@ -14,6 +14,14 @@ Required properties:
   - VA-supply, VD-supply, VLS-supply, VLC-supply: power supplies for the device,
     as covered in Documentation/devicetree/bindings/regulator/regulator.txt
 
+<<<<<<< HEAD
+=======
+Optional properties:
+
+  - reset-gpios : a GPIO spec to define which pin is connected to the chip's
+    !RESET pin
+
+>>>>>>> upstream/android-13
 Example:
 
 cs42888: codec@48 {
@@ -25,4 +33,8 @@ cs42888: codec@48 {
 	VD-supply = <&reg_audio>;
 	VLS-supply = <&reg_audio>;
 	VLC-supply = <&reg_audio>;
+<<<<<<< HEAD
+=======
+	reset-gpios = <&pca9557_b 1 GPIO_ACTIVE_LOW>;
+>>>>>>> upstream/android-13
 };

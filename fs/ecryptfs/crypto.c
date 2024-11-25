@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 /**
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  * eCryptfs: Linux filesystem encryption layer
  *
  * Copyright (C) 1997-2004 Erez Zadok
@@ -6,6 +11,7 @@
  * Copyright (C) 2004-2007 International Business Machines Corp.
  *   Author(s): Michael A. Halcrow <mahalcro@us.ibm.com>
  *   		Michael C. Thompson <mcthomps@us.ibm.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,6 +27,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  * 02111-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <crypto/hash.h>
@@ -36,15 +44,21 @@
 #include <linux/scatterlist.h>
 #include <linux/slab.h>
 #include <asm/unaligned.h>
+<<<<<<< HEAD
 //ODE
 #include <crypto/rng.h>
 
 #include <linux/kernel.h>
+=======
+#include <linux/kernel.h>
+#include <linux/xattr.h>
+>>>>>>> upstream/android-13
 #include "ecryptfs_kernel.h"
 
 #define DECRYPT		0
 #define ENCRYPT		1
 
+<<<<<<< HEAD
 #ifdef CONFIG_CRYPTO_FIPS
 static struct crypto_rng *ecryptfs_crypto_rng;
 
@@ -176,6 +190,8 @@ void ecryptfs_to_hex(char *dst, char *src, size_t src_size)
 		sprintf(&dst[x * 2], "%.2x", (unsigned char)src[x]);
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * ecryptfs_from_hex
  * @dst: Buffer to take the bytes from src hex; must be at least of
@@ -195,6 +211,7 @@ void ecryptfs_from_hex(char *dst, char *src, int dst_size)
 	}
 }
 
+<<<<<<< HEAD
 static int ecryptfs_hash_digest(struct crypto_shash *tfm,
 				char *src, int len, char *dst)
 {
@@ -236,6 +253,8 @@ static int ecryptfs_calculate_sha256(char *dst,
 	return rc;
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * ecryptfs_calculate_md5 - calculates the md5 of @src
  * @dst: Pointer to 16 bytes of allocated memory
@@ -250,15 +269,21 @@ static int ecryptfs_calculate_md5(char *dst,
 				  struct ecryptfs_crypt_stat *crypt_stat,
 				  char *src, int len)
 {
+<<<<<<< HEAD
 	struct crypto_shash *tfm;
 	int rc = 0;
 
 	tfm = crypt_stat->hash_tfm;
 	rc = ecryptfs_hash_digest(tfm, src, len, dst);
+=======
+	int rc = crypto_shash_tfm_digest(crypt_stat->hash_tfm, src, len, dst);
+
+>>>>>>> upstream/android-13
 	if (rc) {
 		printk(KERN_ERR
 		       "%s: Error computing crypto hash; rc = [%d]\n",
 		       __func__, rc);
+<<<<<<< HEAD
 	}
 
 	return rc;
@@ -275,6 +300,11 @@ static int ecryptfs_calculate_hash(char *dst,
 	else
 		rc = ecryptfs_calculate_md5(dst, crypt_stat, src, len);
 
+=======
+		goto out;
+	}
+out:
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -315,8 +345,13 @@ int ecryptfs_derive_iv(char *iv, struct ecryptfs_crypt_stat *crypt_stat,
 		       loff_t offset)
 {
 	int rc = 0;
+<<<<<<< HEAD
 	char src[ECRYPTFS_MAX_IV_BYTES + 16];
 	char *dst = NULL;
+=======
+	char dst[MD5_DIGEST_SIZE];
+	char src[ECRYPTFS_MAX_IV_BYTES + 16];
+>>>>>>> upstream/android-13
 
 	if (unlikely(ecryptfs_verbosity > 0)) {
 		ecryptfs_printk(KERN_DEBUG, "root iv:\n");
@@ -333,12 +368,16 @@ int ecryptfs_derive_iv(char *iv, struct ecryptfs_crypt_stat *crypt_stat,
 		ecryptfs_printk(KERN_DEBUG, "source:\n");
 		ecryptfs_dump_hex(src, (crypt_stat->iv_bytes + 16));
 	}
+<<<<<<< HEAD
 
 	dst = kmalloc((crypt_stat->mount_crypt_stat->flags & ECRYPTFS_ENABLE_CC)?SHA256_HASH_SIZE:MD5_DIGEST_SIZE, GFP_KERNEL);
 	if (!dst)
 		goto out;
 
 	rc = ecryptfs_calculate_hash(dst, crypt_stat, src,
+=======
+	rc = ecryptfs_calculate_md5(dst, crypt_stat, src,
+>>>>>>> upstream/android-13
 				    (crypt_stat->iv_bytes + 16));
 	if (rc) {
 		ecryptfs_printk(KERN_WARNING, "Error attempting to compute "
@@ -351,7 +390,10 @@ int ecryptfs_derive_iv(char *iv, struct ecryptfs_crypt_stat *crypt_stat,
 		ecryptfs_dump_hex(iv, crypt_stat->iv_bytes);
 	}
 out:
+<<<<<<< HEAD
 	kfree(dst);
+=======
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -506,10 +548,13 @@ static int crypt_scatterlist(struct ecryptfs_crypt_stat *crypt_stat,
 	struct extent_crypt_result ecr;
 	int rc = 0;
 
+<<<<<<< HEAD
 	if (!crypt_stat || !crypt_stat->tfm
 	       || !(crypt_stat->flags & ECRYPTFS_STRUCT_INITIALIZED))
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	if (unlikely(ecryptfs_verbosity > 0)) {
 		ecryptfs_printk(KERN_DEBUG, "Key size [%zd]; key:\n",
 				crypt_stat->key_size);
@@ -560,7 +605,11 @@ out:
 	return rc;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * lower_offset_for_page
  *
  * Convert an eCryptfs page index into a lower byte offset
@@ -745,7 +794,11 @@ int ecryptfs_decrypt_page(struct page *page)
 		rc = crypt_extent(crypt_stat, page, page,
 				  extent_offset, DECRYPT);
 		if (rc) {
+<<<<<<< HEAD
 			printk(KERN_ERR "%s: Error encrypting extent; "
+=======
+			printk(KERN_ERR "%s: Error decrypting extent; "
+>>>>>>> upstream/android-13
 			       "rc = [%d]\n", __func__, rc);
 			goto out;
 		}
@@ -793,7 +846,12 @@ int ecryptfs_init_crypt_ctx(struct ecryptfs_crypt_stat *crypt_stat)
 				full_alg_name);
 		goto out_free;
 	}
+<<<<<<< HEAD
 	crypto_skcipher_set_flags(crypt_stat->tfm, CRYPTO_TFM_REQ_WEAK_KEY);
+=======
+	crypto_skcipher_set_flags(crypt_stat->tfm,
+				  CRYPTO_TFM_REQ_FORBID_WEAK_KEYS);
+>>>>>>> upstream/android-13
 	rc = 0;
 out_free:
 	kfree(full_alg_name);
@@ -836,16 +894,25 @@ void ecryptfs_set_default_sizes(struct ecryptfs_crypt_stat *crypt_stat)
 	}
 }
 
+<<<<<<< HEAD
 /**
  * ecryptfs_compute_root_iv
  * @crypt_stats
+=======
+/*
+ * ecryptfs_compute_root_iv
+>>>>>>> upstream/android-13
  *
  * On error, sets the root IV to all 0's.
  */
 int ecryptfs_compute_root_iv(struct ecryptfs_crypt_stat *crypt_stat)
 {
 	int rc = 0;
+<<<<<<< HEAD
 	char *dst = NULL;
+=======
+	char dst[MD5_DIGEST_SIZE];
+>>>>>>> upstream/android-13
 
 	BUG_ON(crypt_stat->iv_bytes > MD5_DIGEST_SIZE);
 	BUG_ON(crypt_stat->iv_bytes <= 0);
@@ -855,12 +922,17 @@ int ecryptfs_compute_root_iv(struct ecryptfs_crypt_stat *crypt_stat)
 				"cannot generate root IV\n");
 		goto out;
 	}
+<<<<<<< HEAD
 	dst = kmalloc((crypt_stat->mount_crypt_stat->flags & ECRYPTFS_ENABLE_CC)?SHA256_HASH_SIZE:MD5_DIGEST_SIZE, GFP_KERNEL);
 	if (!dst)
 		goto out;
 
 	rc = ecryptfs_calculate_hash(dst, crypt_stat, crypt_stat->key,
 			    crypt_stat->key_size);
+=======
+	rc = ecryptfs_calculate_md5(dst, crypt_stat, crypt_stat->key,
+				    crypt_stat->key_size);
+>>>>>>> upstream/android-13
 	if (rc) {
 		ecryptfs_printk(KERN_WARNING, "Error attempting to compute "
 				"MD5 while generating root IV\n");
@@ -872,6 +944,7 @@ out:
 		memset(crypt_stat->root_iv, 0, crypt_stat->iv_bytes);
 		crypt_stat->flags |= ECRYPTFS_SECURITY_WARNING;
 	}
+<<<<<<< HEAD
 	if (!dst)
 		kfree(dst);
 	return rc;
@@ -890,6 +963,14 @@ static void ecryptfs_generate_new_key(struct ecryptfs_crypt_stat *crypt_stat)
 {
 	get_random_key(crypt_stat->key, crypt_stat->key_size);
 
+=======
+	return rc;
+}
+
+static void ecryptfs_generate_new_key(struct ecryptfs_crypt_stat *crypt_stat)
+{
+	get_random_bytes(crypt_stat->key, crypt_stat->key_size);
+>>>>>>> upstream/android-13
 	crypt_stat->flags |= ECRYPTFS_KEY_VALID;
 	ecryptfs_compute_root_iv(crypt_stat);
 	if (unlikely(ecryptfs_verbosity > 0)) {
@@ -1065,8 +1146,12 @@ static struct ecryptfs_flag_map_elem ecryptfs_flag_map[] = {
 	{0x00000001, ECRYPTFS_ENABLE_HMAC},
 	{0x00000002, ECRYPTFS_ENCRYPTED},
 	{0x00000004, ECRYPTFS_METADATA_IN_XATTR},
+<<<<<<< HEAD
 	{0x00000008, ECRYPTFS_ENCRYPT_FILENAMES},
 	{0x00000010, ECRYPTFS_SUPPORT_HMAC_KEY},
+=======
+	{0x00000008, ECRYPTFS_ENCRYPT_FILENAMES}
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -1074,6 +1159,7 @@ static struct ecryptfs_flag_map_elem ecryptfs_flag_map[] = {
  * @crypt_stat: The cryptographic context
  * @page_virt: Source data to be parsed
  * @bytes_read: Updated with the number of bytes read
+<<<<<<< HEAD
  *
  * Returns zero on success; non-zero if the flag set is invalid
  */
@@ -1081,6 +1167,12 @@ static int ecryptfs_process_flags(struct ecryptfs_crypt_stat *crypt_stat,
 				  char *page_virt, int *bytes_read)
 {
 	int rc = 0;
+=======
+ */
+static void ecryptfs_process_flags(struct ecryptfs_crypt_stat *crypt_stat,
+				  char *page_virt, int *bytes_read)
+{
+>>>>>>> upstream/android-13
 	int i;
 	u32 flags;
 
@@ -1093,7 +1185,10 @@ static int ecryptfs_process_flags(struct ecryptfs_crypt_stat *crypt_stat,
 	/* Version is in top 8 bits of the 32-bit flag vector */
 	crypt_stat->file_version = ((flags >> 24) & 0xFF);
 	(*bytes_read) = 4;
+<<<<<<< HEAD
 	return rc;
+=======
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1286,10 +1381,13 @@ static int ecryptfs_write_headers_virt(char *page_virt, size_t max,
 	int rc;
 	size_t written;
 	size_t offset;
+<<<<<<< HEAD
 #ifdef CONFIG_ECRYPTFS_FEK_INTEGRITY
 	crypt_stat->flags |= ECRYPTFS_ENABLE_HMAC;
 	crypt_stat->flags |= ECRYPTFS_SUPPORT_HMAC_KEY;
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	offset = ECRYPTFS_FILE_SIZE_BYTES;
 	write_ecryptfs_marker((page_virt + offset), &written);
@@ -1306,9 +1404,12 @@ static int ecryptfs_write_headers_virt(char *page_virt, size_t max,
 	if (rc)
 		ecryptfs_printk(KERN_WARNING, "Error generating key packet "
 				"set; rc = [%d]\n", rc);
+<<<<<<< HEAD
 #ifdef CONFIG_ECRYPTFS_FEK_INTEGRITY
 	memcpy((page_virt + HASH_OFFSET), crypt_stat->hash, FEK_HASH_SIZE);
 #endif
+=======
+>>>>>>> upstream/android-13
 	if (size) {
 		offset += written;
 		*size = offset;
@@ -1338,9 +1439,27 @@ ecryptfs_write_metadata_to_xattr(struct dentry *ecryptfs_dentry,
 				 char *page_virt, size_t size)
 {
 	int rc;
+<<<<<<< HEAD
 
 	rc = ecryptfs_setxattr(ecryptfs_dentry, ecryptfs_inode,
 			       ECRYPTFS_XATTR_NAME, page_virt, size, 0);
+=======
+	struct dentry *lower_dentry = ecryptfs_dentry_to_lower(ecryptfs_dentry);
+	struct inode *lower_inode = d_inode(lower_dentry);
+
+	if (!(lower_inode->i_opflags & IOP_XATTR)) {
+		rc = -EOPNOTSUPP;
+		goto out;
+	}
+
+	inode_lock(lower_inode);
+	rc = __vfs_setxattr(&init_user_ns, lower_dentry, lower_inode,
+			    ECRYPTFS_XATTR_NAME, page_virt, size, 0);
+	if (!rc && ecryptfs_inode)
+		fsstack_copy_attr_all(ecryptfs_inode, lower_inode);
+	inode_unlock(lower_inode);
+out:
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -1514,12 +1633,16 @@ static int ecryptfs_read_headers_virt(char *page_virt,
 	if (!(crypt_stat->flags & ECRYPTFS_I_SIZE_INITIALIZED))
 		ecryptfs_i_size_init(page_virt, d_inode(ecryptfs_dentry));
 	offset += MAGIC_ECRYPTFS_MARKER_SIZE_BYTES;
+<<<<<<< HEAD
 	rc = ecryptfs_process_flags(crypt_stat, (page_virt + offset),
 				    &bytes_read);
 	if (rc) {
 		ecryptfs_printk(KERN_WARNING, "Error processing flags\n");
 		goto out;
 	}
+=======
+	ecryptfs_process_flags(crypt_stat, (page_virt + offset), &bytes_read);
+>>>>>>> upstream/android-13
 	if (crypt_stat->file_version > ECRYPTFS_SUPPORTED_FILE_VERSION) {
 		ecryptfs_printk(KERN_WARNING, "File version is [%d]; only "
 				"file version [%d] is supported by this "
@@ -1540,11 +1663,14 @@ static int ecryptfs_read_headers_virt(char *page_virt,
 		offset += bytes_read;
 	} else
 		set_default_header_data(crypt_stat);
+<<<<<<< HEAD
 #ifdef CONFIG_ECRYPTFS_FEK_INTEGRITY
 	if (crypt_stat->flags & ECRYPTFS_ENABLE_HMAC) {
 		memcpy(crypt_stat->hash, (page_virt + HASH_OFFSET), FEK_HASH_SIZE);
 	}
 #endif
+=======
+>>>>>>> upstream/android-13
 	rc = ecryptfs_parse_packet_set(crypt_stat, (page_virt + offset),
 				       ecryptfs_dentry);
 out:
@@ -1605,7 +1731,11 @@ int ecryptfs_read_and_validate_xattr_region(struct dentry *dentry,
 	return rc;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * ecryptfs_read_metadata
  *
  * Common entry point for reading file metadata. From here, we could
@@ -1683,7 +1813,11 @@ out:
 	return rc;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * ecryptfs_encrypt_filename - encrypt filename
  *
  * CBC-encrypts the filename. We do not want to encrypt the same
@@ -1782,7 +1916,11 @@ out:
  */
 static int
 ecryptfs_process_key_cipher(struct crypto_skcipher **key_tfm,
+<<<<<<< HEAD
 			    char *cipher_name, size_t *key_size, u32 mount_flags)
+=======
+			    char *cipher_name, size_t *key_size)
+>>>>>>> upstream/android-13
 {
 	char dummy_key[ECRYPTFS_MAX_KEY_BYTES];
 	char *full_alg_name = NULL;
@@ -1795,9 +1933,14 @@ ecryptfs_process_key_cipher(struct crypto_skcipher **key_tfm,
 		      "allowable is [%d]\n", *key_size, ECRYPTFS_MAX_KEY_BYTES);
 		goto out;
 	}
+<<<<<<< HEAD
 
 	rc = ecryptfs_crypto_api_algify_cipher_name(&full_alg_name, cipher_name,
 						    (mount_flags & ECRYPTFS_ENABLE_CC)?ECRYPTFS_AES_CBC_MODE:ECRYPTFS_AES_ECB_MODE);
+=======
+	rc = ecryptfs_crypto_api_algify_cipher_name(&full_alg_name, cipher_name,
+						    "ecb");
+>>>>>>> upstream/android-13
 	if (rc)
 		goto out;
 	*key_tfm = crypto_alloc_skcipher(full_alg_name, 0, CRYPTO_ALG_ASYNC);
@@ -1807,12 +1950,19 @@ ecryptfs_process_key_cipher(struct crypto_skcipher **key_tfm,
 		       "[%s]; rc = [%d]\n", full_alg_name, rc);
 		goto out;
 	}
+<<<<<<< HEAD
 	crypto_skcipher_set_flags(*key_tfm, CRYPTO_TFM_REQ_WEAK_KEY);
 	if (*key_size == 0)
 		*key_size = crypto_skcipher_default_keysize(*key_tfm);
 
 	get_random_key(dummy_key, *key_size);
 
+=======
+	crypto_skcipher_set_flags(*key_tfm, CRYPTO_TFM_REQ_FORBID_WEAK_KEYS);
+	if (*key_size == 0)
+		*key_size = crypto_skcipher_max_keysize(*key_tfm);
+	get_random_bytes(dummy_key, *key_size);
+>>>>>>> upstream/android-13
 	rc = crypto_skcipher_setkey(*key_tfm, dummy_key, *key_size);
 	if (rc) {
 		printk(KERN_ERR "Error attempting to set key of size [%zd] for "
@@ -1828,11 +1978,18 @@ out:
 
 struct kmem_cache *ecryptfs_key_tfm_cache;
 static struct list_head key_tfm_list;
+<<<<<<< HEAD
 struct mutex key_tfm_list_mutex;
 
 int __init ecryptfs_init_crypto(void)
 {
 	mutex_init(&key_tfm_list_mutex);
+=======
+DEFINE_MUTEX(key_tfm_list_mutex);
+
+int __init ecryptfs_init_crypto(void)
+{
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&key_tfm_list);
 	return 0;
 }
@@ -1853,16 +2010,23 @@ int ecryptfs_destroy_crypto(void)
 		crypto_free_skcipher(key_tfm->key_tfm);
 		kmem_cache_free(ecryptfs_key_tfm_cache, key_tfm);
 	}
+<<<<<<< HEAD
 #ifdef CONFIG_CRYPTO_FIPS
 	crypto_rng_destroy();
 #endif
+=======
+>>>>>>> upstream/android-13
 	mutex_unlock(&key_tfm_list_mutex);
 	return 0;
 }
 
 int
 ecryptfs_add_new_key_tfm(struct ecryptfs_key_tfm **key_tfm, char *cipher_name,
+<<<<<<< HEAD
 			 size_t key_size, u32 mount_flags)
+=======
+			 size_t key_size)
+>>>>>>> upstream/android-13
 {
 	struct ecryptfs_key_tfm *tmp_tfm;
 	int rc = 0;
@@ -1881,6 +2045,7 @@ ecryptfs_add_new_key_tfm(struct ecryptfs_key_tfm **key_tfm, char *cipher_name,
 		ECRYPTFS_MAX_CIPHER_NAME_SIZE);
 	tmp_tfm->cipher_name[ECRYPTFS_MAX_CIPHER_NAME_SIZE] = '\0';
 	tmp_tfm->key_size = key_size;
+<<<<<<< HEAD
 
 	strncpy(tmp_tfm->cipher_mode,
 			(mount_flags & ECRYPTFS_ENABLE_CC)?ECRYPTFS_AES_CBC_MODE:ECRYPTFS_AES_ECB_MODE,
@@ -1891,6 +2056,11 @@ ecryptfs_add_new_key_tfm(struct ecryptfs_key_tfm **key_tfm, char *cipher_name,
 					 &tmp_tfm->key_size,
 					 mount_flags);
 
+=======
+	rc = ecryptfs_process_key_cipher(&tmp_tfm->key_tfm,
+					 tmp_tfm->cipher_name,
+					 &tmp_tfm->key_size);
+>>>>>>> upstream/android-13
 	if (rc) {
 		printk(KERN_ERR "Error attempting to initialize key TFM "
 		       "cipher with name = [%s]; rc = [%d]\n",
@@ -1915,15 +2085,23 @@ out:
  * Returns 1 if found, with @key_tfm set
  * Returns 0 if not found, with @key_tfm set to NULL
  */
+<<<<<<< HEAD
 int ecryptfs_tfm_exists(char *cipher_name, char *cipher_mode, struct ecryptfs_key_tfm **key_tfm)
+=======
+int ecryptfs_tfm_exists(char *cipher_name, struct ecryptfs_key_tfm **key_tfm)
+>>>>>>> upstream/android-13
 {
 	struct ecryptfs_key_tfm *tmp_key_tfm;
 
 	BUG_ON(!mutex_is_locked(&key_tfm_list_mutex));
 
 	list_for_each_entry(tmp_key_tfm, &key_tfm_list, key_tfm_list) {
+<<<<<<< HEAD
 		if (strcmp(tmp_key_tfm->cipher_name, cipher_name) == 0 &&
 			(strcmp(tmp_key_tfm->cipher_mode, cipher_mode) == 0)) {
+=======
+		if (strcmp(tmp_key_tfm->cipher_name, cipher_name) == 0) {
+>>>>>>> upstream/android-13
 			if (key_tfm)
 				(*key_tfm) = tmp_key_tfm;
 			return 1;
@@ -1947,29 +2125,44 @@ int ecryptfs_tfm_exists(char *cipher_name, char *cipher_mode, struct ecryptfs_ke
  */
 int ecryptfs_get_tfm_and_mutex_for_cipher_name(struct crypto_skcipher **tfm,
 					       struct mutex **tfm_mutex,
+<<<<<<< HEAD
 					       char *cipher_name, u32 mount_flags)
 {
 	struct ecryptfs_key_tfm *key_tfm;
 	int rc = 0;
 	char cipher_mode[ECRYPTFS_MAX_CIPHER_MODE_SIZE+1] = {0,};
+=======
+					       char *cipher_name)
+{
+	struct ecryptfs_key_tfm *key_tfm;
+	int rc = 0;
+>>>>>>> upstream/android-13
 
 	(*tfm) = NULL;
 	(*tfm_mutex) = NULL;
 
 	mutex_lock(&key_tfm_list_mutex);
+<<<<<<< HEAD
 	strncpy(cipher_mode,
 			(mount_flags & ECRYPTFS_ENABLE_CC)?ECRYPTFS_AES_CBC_MODE:ECRYPTFS_AES_ECB_MODE,
 			ECRYPTFS_MAX_CIPHER_MODE_SIZE + 1);
 
 	if (!ecryptfs_tfm_exists(cipher_name, cipher_mode, &key_tfm)) {
 		rc = ecryptfs_add_new_key_tfm(&key_tfm, cipher_name, 0, mount_flags);
+=======
+	if (!ecryptfs_tfm_exists(cipher_name, &key_tfm)) {
+		rc = ecryptfs_add_new_key_tfm(&key_tfm, cipher_name, 0);
+>>>>>>> upstream/android-13
 		if (rc) {
 			printk(KERN_ERR "Error adding new key_tfm to list; "
 					"rc = [%d]\n", rc);
 			goto out;
 		}
 	}
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	(*tfm) = key_tfm->key_tfm;
 	(*tfm_mutex) = &key_tfm->key_tfm_mutex;
 out:
@@ -2132,10 +2325,18 @@ out:
 
 /**
  * ecryptfs_encrypt_and_encode_filename - converts a plaintext file name to cipher text
+<<<<<<< HEAD
  * @crypt_stat: The crypt_stat struct associated with the file anem to encode
  * @name: The plaintext name
  * @length: The length of the plaintext
  * @encoded_name: The encypted name
+=======
+ * @encoded_name: The encrypted name
+ * @encoded_name_size: Length of the encrypted name
+ * @mount_crypt_stat: The crypt_stat struct associated with the file name to encode
+ * @name: The plaintext name
+ * @name_size: The length of the plaintext name
+>>>>>>> upstream/android-13
  *
  * Encrypts and encodes a filename into something that constitutes a
  * valid filename for a filesystem, with printable characters.
@@ -2247,7 +2448,11 @@ static bool is_dot_dotdot(const char *name, size_t name_size)
  * ecryptfs_decode_and_decrypt_filename - converts the encoded cipher text name to decoded plaintext
  * @plaintext_name: The plaintext name
  * @plaintext_name_size: The plaintext name size
+<<<<<<< HEAD
  * @ecryptfs_dir_dentry: eCryptfs directory dentry
+=======
+ * @sb: Ecryptfs's super_block
+>>>>>>> upstream/android-13
  * @name: The filename in cipher text
  * @name_size: The cipher text name size
  *
@@ -2334,8 +2539,12 @@ int ecryptfs_set_f_namelen(long *namelen, long lower_namelen,
 	}
 
 	rc = ecryptfs_get_tfm_and_mutex_for_cipher_name(&tfm, &tfm_mutex,
+<<<<<<< HEAD
 		mount_crypt_stat->global_default_fn_cipher_name, mount_crypt_stat->flags);
 
+=======
+			mount_crypt_stat->global_default_fn_cipher_name);
+>>>>>>> upstream/android-13
 	if (unlikely(rc)) {
 		(*namelen) = 0;
 		return rc;

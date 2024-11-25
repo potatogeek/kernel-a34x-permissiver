@@ -8,7 +8,11 @@
  *	Copyright (C) 1999 - 2001
  *	    Greg Kroah-Hartman (greg@kroah.com)
  *
+<<<<<<< HEAD
  * See Documentation/usb/usb-serial.txt for more information on using this
+=======
+ * See Documentation/usb/usb-serial.rst for more information on using this
+>>>>>>> upstream/android-13
  * driver
  */
 
@@ -79,12 +83,21 @@ static int  whiteheat_firmware_attach(struct usb_serial *serial);
 static int  whiteheat_attach(struct usb_serial *serial);
 static void whiteheat_release(struct usb_serial *serial);
 static int  whiteheat_port_probe(struct usb_serial_port *port);
+<<<<<<< HEAD
 static int  whiteheat_port_remove(struct usb_serial_port *port);
 static int  whiteheat_open(struct tty_struct *tty,
 			struct usb_serial_port *port);
 static void whiteheat_close(struct usb_serial_port *port);
 static int  whiteheat_ioctl(struct tty_struct *tty,
 			unsigned int cmd, unsigned long arg);
+=======
+static void whiteheat_port_remove(struct usb_serial_port *port);
+static int  whiteheat_open(struct tty_struct *tty,
+			struct usb_serial_port *port);
+static void whiteheat_close(struct usb_serial_port *port);
+static void whiteheat_get_serial(struct tty_struct *tty,
+			struct serial_struct *ss);
+>>>>>>> upstream/android-13
 static void whiteheat_set_termios(struct tty_struct *tty,
 			struct usb_serial_port *port, struct ktermios *old);
 static int  whiteheat_tiocmget(struct tty_struct *tty);
@@ -120,7 +133,11 @@ static struct usb_serial_driver whiteheat_device = {
 	.port_remove =		whiteheat_port_remove,
 	.open =			whiteheat_open,
 	.close =		whiteheat_close,
+<<<<<<< HEAD
 	.ioctl =		whiteheat_ioctl,
+=======
+	.get_serial =		whiteheat_get_serial,
+>>>>>>> upstream/android-13
 	.set_termios =		whiteheat_set_termios,
 	.break_ctl =		whiteheat_break_ctl,
 	.tiocmget =		whiteheat_tiocmget,
@@ -170,7 +187,10 @@ static int firm_report_tx_done(struct usb_serial_port *port);
 #define COMMAND_PORT		4
 #define COMMAND_TIMEOUT		(2*HZ)	/* 2 second timeout for a command */
 #define	COMMAND_TIMEOUT_MS	2000
+<<<<<<< HEAD
 #define CLOSING_DELAY		(30 * HZ)
+=======
+>>>>>>> upstream/android-13
 
 
 /*****************************************************************************
@@ -345,14 +365,21 @@ static int whiteheat_port_probe(struct usb_serial_port *port)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int whiteheat_port_remove(struct usb_serial_port *port)
+=======
+static void whiteheat_port_remove(struct usb_serial_port *port)
+>>>>>>> upstream/android-13
 {
 	struct whiteheat_private *info;
 
 	info = usb_get_serial_port_data(port);
 	kfree(info);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int whiteheat_open(struct tty_struct *tty, struct usb_serial_port *port)
@@ -442,6 +469,7 @@ static int whiteheat_tiocmset(struct tty_struct *tty,
 }
 
 
+<<<<<<< HEAD
 static int whiteheat_ioctl(struct tty_struct *tty,
 					unsigned int cmd, unsigned long arg)
 {
@@ -469,6 +497,11 @@ static int whiteheat_ioctl(struct tty_struct *tty,
 	}
 
 	return -ENOIOCTLCMD;
+=======
+static void whiteheat_get_serial(struct tty_struct *tty, struct serial_struct *ss)
+{
+	ss->baud_base = 460800;
+>>>>>>> upstream/android-13
 }
 
 
@@ -611,9 +644,14 @@ static int firm_send_command(struct usb_serial_port *port, __u8 command,
 		switch (command) {
 		case WHITEHEAT_GET_DTR_RTS:
 			info = usb_get_serial_port_data(port);
+<<<<<<< HEAD
 			memcpy(&info->mcr, command_info->result_buffer,
 					sizeof(struct whiteheat_dr_info));
 				break;
+=======
+			info->mcr = command_info->result_buffer[0];
+			break;
+>>>>>>> upstream/android-13
 		}
 	}
 exit:
@@ -652,6 +690,7 @@ static void firm_setup_port(struct tty_struct *tty)
 
 	port_settings.port = port->port_number + 1;
 
+<<<<<<< HEAD
 	/* get the byte size */
 	switch (cflag & CSIZE) {
 	case CS5:	port_settings.bits = 5;   break;
@@ -660,6 +699,9 @@ static void firm_setup_port(struct tty_struct *tty)
 	default:
 	case CS8:	port_settings.bits = 8;   break;
 	}
+=======
+	port_settings.bits = tty_get_char_size(cflag);
+>>>>>>> upstream/android-13
 	dev_dbg(dev, "%s - data bits = %d\n", __func__, port_settings.bits);
 
 	/* determine the parity */

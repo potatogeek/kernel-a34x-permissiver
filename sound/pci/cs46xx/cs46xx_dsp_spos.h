@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  The driver for the Cirrus Logic's Sound Fusion CS46XX based soundcards
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
@@ -17,6 +18,12 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ *  The driver for the Cirrus Logic's Sound Fusion CS46XX based soundcards
+ *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __CS46XX_DSP_SPOS_H__
@@ -177,22 +184,31 @@ struct dsp_spos_instance {
 	/* proc fs */  
 	struct snd_card *snd_card;
 	struct snd_info_entry * proc_dsp_dir;
+<<<<<<< HEAD
 	struct snd_info_entry * proc_sym_info_entry;
 	struct snd_info_entry * proc_modules_info_entry;
 	struct snd_info_entry * proc_parameter_dump_info_entry;
 	struct snd_info_entry * proc_sample_dump_info_entry;
+=======
+>>>>>>> upstream/android-13
 
 	/* SCB's descriptors */
 	int nscb;
 	int scb_highest_frag_index;
 	struct dsp_scb_descriptor scbs[DSP_MAX_SCB_DESC];
+<<<<<<< HEAD
 	struct snd_info_entry * proc_scb_info_entry;
+=======
+>>>>>>> upstream/android-13
 	struct dsp_scb_descriptor * the_null_scb;
 
 	/* Task's descriptors */
 	int ntask;
 	struct dsp_task_descriptor tasks[DSP_MAX_TASK_DESC];
+<<<<<<< HEAD
 	struct snd_info_entry * proc_task_info_entry;
+=======
+>>>>>>> upstream/android-13
 
 	/* SPDIF status */
 	int spdif_status_out;

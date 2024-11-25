@@ -6,7 +6,10 @@
 # Copyright (c) 2009 Wind River Systems, Inc. All Rights Reserved.
 #
 
+<<<<<<< HEAD
 CCVERSION	:= $(shell $(CC) -v 2>&1 | sed -ne '$$p')
+=======
+>>>>>>> upstream/android-13
 obj-y := kdb_io.o kdb_main.o kdb_support.o kdb_bt.o gen-kdb_cmds.o kdb_bp.o kdb_debugger.o
 obj-$(CONFIG_KDB_KEYBOARD)    += kdb_keyboard.o
 

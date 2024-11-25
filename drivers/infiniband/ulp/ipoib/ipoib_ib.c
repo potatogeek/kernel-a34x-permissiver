@@ -66,7 +66,11 @@ struct ipoib_ah *ipoib_create_ah(struct net_device *dev,
 	ah->last_send = 0;
 	kref_init(&ah->ref);
 
+<<<<<<< HEAD
 	vah = rdma_create_ah(pd, attr);
+=======
+	vah = rdma_create_ah(pd, attr, RDMA_CREATE_AH_SLEEPABLE);
+>>>>>>> upstream/android-13
 	if (IS_ERR(vah)) {
 		kfree(ah);
 		ah = (struct ipoib_ah *)vah;
@@ -293,7 +297,12 @@ int ipoib_dma_map_tx(struct ib_device *ca, struct ipoib_tx_buf *tx_req)
 		const skb_frag_t *frag = &skb_shinfo(skb)->frags[i];
 		mapping[i + off] = ib_dma_map_page(ca,
 						 skb_frag_page(frag),
+<<<<<<< HEAD
 						 frag->page_offset, skb_frag_size(frag),
+=======
+						 skb_frag_off(frag),
+						 skb_frag_size(frag),
+>>>>>>> upstream/android-13
 						 DMA_TO_DEVICE);
 		if (unlikely(ib_dma_mapping_error(ca, mapping[i + off])))
 			goto partial_error;
@@ -672,7 +681,10 @@ int ipoib_send(struct net_device *dev, struct sk_buff *skb,
 static void ipoib_reap_dead_ahs(struct ipoib_dev_priv *priv)
 {
 	struct ipoib_ah *ah, *tah;
+<<<<<<< HEAD
 	LIST_HEAD(remove_list);
+=======
+>>>>>>> upstream/android-13
 	unsigned long flags;
 
 	netif_tx_lock_bh(priv->dev);
@@ -681,7 +693,11 @@ static void ipoib_reap_dead_ahs(struct ipoib_dev_priv *priv)
 	list_for_each_entry_safe(ah, tah, &priv->dead_ahs, list)
 		if ((int) priv->tx_tail - (int) ah->last_send >= 0) {
 			list_del(&ah->list);
+<<<<<<< HEAD
 			rdma_destroy_ah(ah->ah);
+=======
+			rdma_destroy_ah(ah->ah, 0);
+>>>>>>> upstream/android-13
 			kfree(ah);
 		}
 
@@ -1060,7 +1076,11 @@ static bool ipoib_dev_addr_changed_valid(struct ipoib_dev_priv *priv)
 	union ib_gid *netdev_gid;
 	int err;
 	u16 index;
+<<<<<<< HEAD
 	u8 port;
+=======
+	u32 port;
+>>>>>>> upstream/android-13
 	bool ret = false;
 
 	netdev_gid = (union ib_gid *)(priv->dev->dev_addr + 4);

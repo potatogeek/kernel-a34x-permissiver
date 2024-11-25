@@ -23,6 +23,10 @@
 #include <linux/list.h>
 #include <linux/module.h>
 #include <linux/memory.h>
+<<<<<<< HEAD
+=======
+#include <linux/vmalloc.h>
+>>>>>>> upstream/android-13
 
 #include <trace/syscall.h>
 
@@ -34,24 +38,50 @@
 
 #ifdef CONFIG_DYNAMIC_FTRACE
 
+<<<<<<< HEAD
 int ftrace_arch_code_modify_prepare(void)
     __acquires(&text_mutex)
 {
 	mutex_lock(&text_mutex);
 	set_kernel_text_rw();
 	set_all_modules_text_rw();
+=======
+static int ftrace_poke_late = 0;
+
+int ftrace_arch_code_modify_prepare(void)
+    __acquires(&text_mutex)
+{
+	/*
+	 * Need to grab text_mutex to prevent a race from module loading
+	 * and live kernel patching from changing the text permissions while
+	 * ftrace has it set to "read/write".
+	 */
+	mutex_lock(&text_mutex);
+	ftrace_poke_late = 1;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 int ftrace_arch_code_modify_post_process(void)
     __releases(&text_mutex)
 {
+<<<<<<< HEAD
 	set_all_modules_text_ro();
 	set_kernel_text_ro();
+=======
+	/*
+	 * ftrace_make_{call,nop}() may be called during
+	 * module load, and we need to finish the text_poke_queue()
+	 * that they do, here.
+	 */
+	text_poke_finish();
+	ftrace_poke_late = 0;
+>>>>>>> upstream/android-13
 	mutex_unlock(&text_mutex);
 	return 0;
 }
 
+<<<<<<< HEAD
 union ftrace_code_union {
 	char code[MCOUNT_INSN_SIZE];
 	struct {
@@ -116,6 +146,21 @@ ftrace_modify_code_direct(unsigned long ip, unsigned const char *old_code,
 	unsigned char replaced[MCOUNT_INSN_SIZE];
 
 	ftrace_expected = old_code;
+=======
+static const char *ftrace_nop_replace(void)
+{
+	return x86_nops[5];
+}
+
+static const char *ftrace_call_replace(unsigned long ip, unsigned long addr)
+{
+	return text_gen_insn(CALL_INSN_OPCODE, (void *)ip, (void *)addr);
+}
+
+static int ftrace_verify_code(unsigned long ip, const char *old_code)
+{
+	char cur_code[MCOUNT_INSN_SIZE];
+>>>>>>> upstream/android-13
 
 	/*
 	 * Note:
@@ -124,6 +169,7 @@ ftrace_modify_code_direct(unsigned long ip, unsigned const char *old_code,
 	 * Carefully read and modify the code with probe_kernel_*(), and make
 	 * sure what we read is what we expected it to be before modifying it.
 	 */
+<<<<<<< HEAD
 
 	/* read the text we want to modify */
 	if (probe_kernel_read(replaced, (void *)ip, MCOUNT_INSN_SIZE))
@@ -140,15 +186,56 @@ ftrace_modify_code_direct(unsigned long ip, unsigned const char *old_code,
 		return -EPERM;
 
 	sync_core();
+=======
+	/* read the text we want to modify */
+	if (copy_from_kernel_nofault(cur_code, (void *)ip, MCOUNT_INSN_SIZE)) {
+		WARN_ON(1);
+		return -EFAULT;
+	}
+
+	/* Make sure it is what we expect it to be */
+	if (memcmp(cur_code, old_code, MCOUNT_INSN_SIZE) != 0) {
+		WARN_ON(1);
+		return -EINVAL;
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 int ftrace_make_nop(struct module *mod,
 		    struct dyn_ftrace *rec, unsigned long addr)
 {
 	unsigned const char *new, *old;
 	unsigned long ip = rec->ip;
+=======
+/*
+ * Marked __ref because it calls text_poke_early() which is .init.text. That is
+ * ok because that call will happen early, during boot, when .init sections are
+ * still present.
+ */
+static int __ref
+ftrace_modify_code_direct(unsigned long ip, const char *old_code,
+			  const char *new_code)
+{
+	int ret = ftrace_verify_code(ip, old_code);
+	if (ret)
+		return ret;
+
+	/* replace the text with the new text */
+	if (ftrace_poke_late)
+		text_poke_queue((void *)ip, new_code, MCOUNT_INSN_SIZE, NULL);
+	else
+		text_poke_early((void *)ip, new_code, MCOUNT_INSN_SIZE);
+	return 0;
+}
+
+int ftrace_make_nop(struct module *mod, struct dyn_ftrace *rec, unsigned long addr)
+{
+	unsigned long ip = rec->ip;
+	const char *new, *old;
+>>>>>>> upstream/android-13
 
 	old = ftrace_call_replace(ip, addr);
 	new = ftrace_nop_replace();
@@ -162,19 +249,33 @@ int ftrace_make_nop(struct module *mod,
 	 * just modify the code directly.
 	 */
 	if (addr == MCOUNT_ADDR)
+<<<<<<< HEAD
 		return ftrace_modify_code_direct(rec->ip, old, new);
 
 	ftrace_expected = NULL;
 
 	/* Normal cases use add_brk_on_nop */
+=======
+		return ftrace_modify_code_direct(ip, old, new);
+
+	/*
+	 * x86 overrides ftrace_replace_code -- this function will never be used
+	 * in this case.
+	 */
+>>>>>>> upstream/android-13
 	WARN_ONCE(1, "invalid use of ftrace_make_nop");
 	return -EINVAL;
 }
 
 int ftrace_make_call(struct dyn_ftrace *rec, unsigned long addr)
 {
+<<<<<<< HEAD
 	unsigned const char *new, *old;
 	unsigned long ip = rec->ip;
+=======
+	unsigned long ip = rec->ip;
+	const char *new, *old;
+>>>>>>> upstream/android-13
 
 	old = ftrace_nop_replace();
 	new = ftrace_call_replace(ip, addr);
@@ -184,6 +285,7 @@ int ftrace_make_call(struct dyn_ftrace *rec, unsigned long addr)
 }
 
 /*
+<<<<<<< HEAD
  * The modifying_ftrace_code is used to tell the breakpoint
  * handler to call ftrace_int3_handler(). If it fails to
  * call this handler for a breakpoint added by ftrace, then
@@ -221,6 +323,8 @@ ftrace_modify_code(unsigned long ip, unsigned const char *old_code,
 		   unsigned const char *new_code);
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Should never be called:
  *  As it is only called by __ftrace_replace_code() which is called by
  *  ftrace_replace_code() that x86 overrides, and by ftrace_update_code()
@@ -232,6 +336,7 @@ int ftrace_modify_call(struct dyn_ftrace *rec, unsigned long old_addr,
 				 unsigned long addr)
 {
 	WARN_ON(1);
+<<<<<<< HEAD
 	ftrace_expected = NULL;
 	return -EINVAL;
 }
@@ -323,10 +428,28 @@ int ftrace_int3_handler(struct pt_regs *regs)
 		return 1;
 	}
 #endif
+=======
+	return -EINVAL;
+}
+
+int ftrace_update_ftrace_func(ftrace_func_t func)
+{
+	unsigned long ip;
+	const char *new;
+
+	ip = (unsigned long)(&ftrace_call);
+	new = ftrace_call_replace(ip, (unsigned long)func);
+	text_poke_bp((void *)ip, new, MCOUNT_INSN_SIZE, NULL);
+
+	ip = (unsigned long)(&ftrace_regs_call);
+	new = ftrace_call_replace(ip, (unsigned long)func);
+	text_poke_bp((void *)ip, new, MCOUNT_INSN_SIZE, NULL);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int ftrace_write(unsigned long ip, const char *val, int size)
 {
 	ip = text_ip_addr(ip);
@@ -577,17 +700,24 @@ static void run_sync(void)
 		local_irq_disable();
 }
 
+=======
+>>>>>>> upstream/android-13
 void ftrace_replace_code(int enable)
 {
 	struct ftrace_rec_iter *iter;
 	struct dyn_ftrace *rec;
+<<<<<<< HEAD
 	const char *report = "adding breakpoints";
 	int count = 0;
+=======
+	const char *new, *old;
+>>>>>>> upstream/android-13
 	int ret;
 
 	for_ftrace_rec_iter(iter) {
 		rec = ftrace_rec_iter_record(iter);
 
+<<<<<<< HEAD
 		ret = add_breakpoints(rec, enable);
 		if (ret)
 			goto remove_breakpoints;
@@ -674,16 +804,66 @@ ftrace_modify_code(unsigned long ip, unsigned const char *old_code,
 	if (ftrace_write(ip, old_code, 1))
 		BUG();
 	goto out;
+=======
+		switch (ftrace_test_record(rec, enable)) {
+		case FTRACE_UPDATE_IGNORE:
+		default:
+			continue;
+
+		case FTRACE_UPDATE_MAKE_CALL:
+			old = ftrace_nop_replace();
+			break;
+
+		case FTRACE_UPDATE_MODIFY_CALL:
+		case FTRACE_UPDATE_MAKE_NOP:
+			old = ftrace_call_replace(rec->ip, ftrace_get_addr_curr(rec));
+			break;
+		}
+
+		ret = ftrace_verify_code(rec->ip, old);
+		if (ret) {
+			ftrace_bug(ret, rec);
+			return;
+		}
+	}
+
+	for_ftrace_rec_iter(iter) {
+		rec = ftrace_rec_iter_record(iter);
+
+		switch (ftrace_test_record(rec, enable)) {
+		case FTRACE_UPDATE_IGNORE:
+		default:
+			continue;
+
+		case FTRACE_UPDATE_MAKE_CALL:
+		case FTRACE_UPDATE_MODIFY_CALL:
+			new = ftrace_call_replace(rec->ip, ftrace_get_addr_new(rec));
+			break;
+
+		case FTRACE_UPDATE_MAKE_NOP:
+			new = ftrace_nop_replace();
+			break;
+		}
+
+		text_poke_queue((void *)rec->ip, new, MCOUNT_INSN_SIZE, NULL);
+		ftrace_update_record(rec, enable);
+	}
+	text_poke_finish();
+>>>>>>> upstream/android-13
 }
 
 void arch_ftrace_update_code(int command)
 {
+<<<<<<< HEAD
 	/* See comment above by declaration of modifying_ftrace_code */
 	atomic_inc(&modifying_ftrace_code);
 
 	ftrace_modify_all_code(command);
 
 	atomic_dec(&modifying_ftrace_code);
+=======
+	ftrace_modify_all_code(command);
+>>>>>>> upstream/android-13
 }
 
 int __init ftrace_dyn_arch_init(void)
@@ -701,12 +881,17 @@ static inline void *alloc_tramp(unsigned long size)
 {
 	return module_alloc(size);
 }
+<<<<<<< HEAD
 static inline void tramp_free(void *tramp, int size)
 {
 	int npages = PAGE_ALIGN(size) >> PAGE_SHIFT;
 
 	set_memory_nx((unsigned long)tramp, npages);
 	set_memory_rw((unsigned long)tramp, npages);
+=======
+static inline void tramp_free(void *tramp)
+{
+>>>>>>> upstream/android-13
 	module_memfree(tramp);
 }
 #else
@@ -715,14 +900,26 @@ static inline void *alloc_tramp(unsigned long size)
 {
 	return NULL;
 }
+<<<<<<< HEAD
 static inline void tramp_free(void *tramp, int size) { }
+=======
+static inline void tramp_free(void *tramp) { }
+>>>>>>> upstream/android-13
 #endif
 
 /* Defined as markers to the end of the ftrace default trampolines */
 extern void ftrace_regs_caller_end(void);
+<<<<<<< HEAD
 extern void ftrace_epilogue(void);
 extern void ftrace_caller_op_ptr(void);
 extern void ftrace_regs_caller_op_ptr(void);
+=======
+extern void ftrace_regs_caller_ret(void);
+extern void ftrace_caller_end(void);
+extern void ftrace_caller_op_ptr(void);
+extern void ftrace_regs_caller_op_ptr(void);
+extern void ftrace_regs_caller_jmp(void);
+>>>>>>> upstream/android-13
 
 /* movq function_trace_op(%rip), %rdx */
 /* 0x48 0x8b 0x15 <offset-to-ftrace_trace_op (4 bytes)> */
@@ -744,7 +941,11 @@ union ftrace_op_code_union {
 	} __attribute__((packed));
 };
 
+<<<<<<< HEAD
 #define RET_SIZE		1
+=======
+#define RET_SIZE		1 + IS_ENABLED(CONFIG_SLS)
+>>>>>>> upstream/android-13
 
 static unsigned long
 create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
@@ -752,6 +953,11 @@ create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
 	unsigned long start_offset;
 	unsigned long end_offset;
 	unsigned long op_offset;
+<<<<<<< HEAD
+=======
+	unsigned long call_offset;
+	unsigned long jmp_offset;
+>>>>>>> upstream/android-13
 	unsigned long offset;
 	unsigned long npages;
 	unsigned long size;
@@ -768,10 +974,21 @@ create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
 		start_offset = (unsigned long)ftrace_regs_caller;
 		end_offset = (unsigned long)ftrace_regs_caller_end;
 		op_offset = (unsigned long)ftrace_regs_caller_op_ptr;
+<<<<<<< HEAD
 	} else {
 		start_offset = (unsigned long)ftrace_caller;
 		end_offset = (unsigned long)ftrace_epilogue;
 		op_offset = (unsigned long)ftrace_caller_op_ptr;
+=======
+		call_offset = (unsigned long)ftrace_regs_call;
+		jmp_offset = (unsigned long)ftrace_regs_caller_jmp;
+	} else {
+		start_offset = (unsigned long)ftrace_caller;
+		end_offset = (unsigned long)ftrace_caller_end;
+		op_offset = (unsigned long)ftrace_caller_op_ptr;
+		call_offset = (unsigned long)ftrace_call;
+		jmp_offset = 0;
+>>>>>>> upstream/android-13
 	}
 
 	size = end_offset - start_offset;
@@ -789,7 +1006,11 @@ create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
 	npages = DIV_ROUND_UP(*tramp_size, PAGE_SIZE);
 
 	/* Copy ftrace_caller onto the trampoline memory */
+<<<<<<< HEAD
 	ret = probe_kernel_read(trampoline, (void *)start_offset, size);
+=======
+	ret = copy_from_kernel_nofault(trampoline, (void *)start_offset, size);
+>>>>>>> upstream/android-13
 	if (WARN_ON(ret < 0))
 		goto fail;
 
@@ -797,10 +1018,28 @@ create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
 
 	/* The trampoline ends with ret(q) */
 	retq = (unsigned long)ftrace_stub;
+<<<<<<< HEAD
 	ret = probe_kernel_read(ip, (void *)retq, RET_SIZE);
 	if (WARN_ON(ret < 0))
 		goto fail;
 
+=======
+	ret = copy_from_kernel_nofault(ip, (void *)retq, RET_SIZE);
+	if (WARN_ON(ret < 0))
+		goto fail;
+
+	/* No need to test direct calls on created trampolines */
+	if (ops->flags & FTRACE_OPS_FL_SAVE_REGS) {
+		/* NOP the jnz 1f; but make sure it's a 2 byte jnz */
+		ip = trampoline + (jmp_offset - start_offset);
+		if (WARN_ON(*(char *)ip != 0x75))
+			goto fail;
+		ret = copy_from_kernel_nofault(ip, x86_nops[2], 2);
+		if (ret < 0)
+			goto fail;
+	}
+
+>>>>>>> upstream/android-13
 	/*
 	 * The address of the ftrace_ops that is used for this trampoline
 	 * is stored at the end of the trampoline. This will be used to
@@ -828,6 +1067,7 @@ create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
 	/* put in the new offset to the ftrace_ops */
 	memcpy(trampoline + op_offset, &op_ptr, OP_REF_SIZE);
 
+<<<<<<< HEAD
 	/* ALLOC_TRAMP flags lets us know we created it */
 	ops->flags |= FTRACE_OPS_FL_ALLOC_TRAMP;
 
@@ -843,6 +1083,57 @@ fail:
 	return 0;
 }
 
+=======
+	/* put in the call to the function */
+	mutex_lock(&text_mutex);
+	call_offset -= start_offset;
+	memcpy(trampoline + call_offset,
+	       text_gen_insn(CALL_INSN_OPCODE,
+			     trampoline + call_offset,
+			     ftrace_ops_get_func(ops)), CALL_INSN_SIZE);
+	mutex_unlock(&text_mutex);
+
+	/* ALLOC_TRAMP flags lets us know we created it */
+	ops->flags |= FTRACE_OPS_FL_ALLOC_TRAMP;
+
+	set_vm_flush_reset_perms(trampoline);
+
+	if (likely(system_state != SYSTEM_BOOTING))
+		set_memory_ro((unsigned long)trampoline, npages);
+	set_memory_x((unsigned long)trampoline, npages);
+	return (unsigned long)trampoline;
+fail:
+	tramp_free(trampoline);
+	return 0;
+}
+
+void set_ftrace_ops_ro(void)
+{
+	struct ftrace_ops *ops;
+	unsigned long start_offset;
+	unsigned long end_offset;
+	unsigned long npages;
+	unsigned long size;
+
+	do_for_each_ftrace_op(ops, ftrace_ops_list) {
+		if (!(ops->flags & FTRACE_OPS_FL_ALLOC_TRAMP))
+			continue;
+
+		if (ops->flags & FTRACE_OPS_FL_SAVE_REGS) {
+			start_offset = (unsigned long)ftrace_regs_caller;
+			end_offset = (unsigned long)ftrace_regs_caller_end;
+		} else {
+			start_offset = (unsigned long)ftrace_caller;
+			end_offset = (unsigned long)ftrace_caller_end;
+		}
+		size = end_offset - start_offset;
+		size = size + RET_SIZE + sizeof(void *);
+		npages = DIV_ROUND_UP(size, PAGE_SIZE);
+		set_memory_ro((unsigned long)ops->trampoline, npages);
+	} while_for_each_ftrace_op(ops);
+}
+
+>>>>>>> upstream/android-13
 static unsigned long calc_trampoline_call_offset(bool save_regs)
 {
 	unsigned long start_offset;
@@ -862,6 +1153,7 @@ static unsigned long calc_trampoline_call_offset(bool save_regs)
 void arch_ftrace_update_trampoline(struct ftrace_ops *ops)
 {
 	ftrace_func_t func;
+<<<<<<< HEAD
 	unsigned char *new;
 	unsigned long offset;
 	unsigned long ip;
@@ -878,10 +1170,19 @@ void arch_ftrace_update_trampoline(struct ftrace_ops *ops)
 		npages = PAGE_ALIGN(ops->trampoline_size) >> PAGE_SHIFT;
 		set_memory_rw(ops->trampoline, npages);
 	} else {
+=======
+	unsigned long offset;
+	unsigned long ip;
+	unsigned int size;
+	const char *new;
+
+	if (!ops->trampoline) {
+>>>>>>> upstream/android-13
 		ops->trampoline = create_trampoline(ops, &size);
 		if (!ops->trampoline)
 			return;
 		ops->trampoline_size = size;
+<<<<<<< HEAD
 		npages = PAGE_ALIGN(size) >> PAGE_SHIFT;
 	}
 
@@ -899,25 +1200,62 @@ void arch_ftrace_update_trampoline(struct ftrace_ops *ops)
 
 	/* The update should never fail */
 	WARN_ON(ret);
+=======
+		return;
+	}
+
+	/*
+	 * The ftrace_ops caller may set up its own trampoline.
+	 * In such a case, this code must not modify it.
+	 */
+	if (!(ops->flags & FTRACE_OPS_FL_ALLOC_TRAMP))
+		return;
+
+	offset = calc_trampoline_call_offset(ops->flags & FTRACE_OPS_FL_SAVE_REGS);
+	ip = ops->trampoline + offset;
+	func = ftrace_ops_get_func(ops);
+
+	mutex_lock(&text_mutex);
+	/* Do a safe modify in case the trampoline is executing */
+	new = ftrace_call_replace(ip, (unsigned long)func);
+	text_poke_bp((void *)ip, new, MCOUNT_INSN_SIZE, NULL);
+	mutex_unlock(&text_mutex);
+>>>>>>> upstream/android-13
 }
 
 /* Return the address of the function the trampoline calls */
 static void *addr_from_call(void *ptr)
 {
+<<<<<<< HEAD
 	union ftrace_code_union calc;
 	int ret;
 
 	ret = probe_kernel_read(&calc, ptr, MCOUNT_INSN_SIZE);
+=======
+	union text_poke_insn call;
+	int ret;
+
+	ret = copy_from_kernel_nofault(&call, ptr, CALL_INSN_SIZE);
+>>>>>>> upstream/android-13
 	if (WARN_ON_ONCE(ret < 0))
 		return NULL;
 
 	/* Make sure this is a call */
+<<<<<<< HEAD
 	if (WARN_ON_ONCE(calc.op != 0xe8)) {
 		pr_warn("Expected e8, got %x\n", calc.op);
 		return NULL;
 	}
 
 	return ptr + MCOUNT_INSN_SIZE + calc.offset;
+=======
+	if (WARN_ON_ONCE(call.opcode != CALL_INSN_OPCODE)) {
+		pr_warn("Expected E8, got %x\n", call.opcode);
+		return NULL;
+	}
+
+	return ptr + CALL_INSN_SIZE + call.disp;
+>>>>>>> upstream/android-13
 }
 
 void prepare_ftrace_return(unsigned long self_addr, unsigned long *parent,
@@ -972,7 +1310,11 @@ void arch_ftrace_trampoline_free(struct ftrace_ops *ops)
 	if (!ops || !(ops->flags & FTRACE_OPS_FL_ALLOC_TRAMP))
 		return;
 
+<<<<<<< HEAD
 	tramp_free((void *)ops->trampoline, ops->trampoline_size);
+=======
+	tramp_free((void *)ops->trampoline);
+>>>>>>> upstream/android-13
 	ops->trampoline = 0;
 }
 
@@ -984,19 +1326,33 @@ void arch_ftrace_trampoline_free(struct ftrace_ops *ops)
 #ifdef CONFIG_DYNAMIC_FTRACE
 extern void ftrace_graph_call(void);
 
+<<<<<<< HEAD
 static unsigned char *ftrace_jmp_replace(unsigned long ip, unsigned long addr)
 {
 	return ftrace_text_replace(0xe9, ip, addr);
+=======
+static const char *ftrace_jmp_replace(unsigned long ip, unsigned long addr)
+{
+	return text_gen_insn(JMP32_INSN_OPCODE, (void *)ip, (void *)addr);
+>>>>>>> upstream/android-13
 }
 
 static int ftrace_mod_jmp(unsigned long ip, void *func)
 {
+<<<<<<< HEAD
 	unsigned char *new;
 
 	ftrace_update_func_call = 0UL;
 	new = ftrace_jmp_replace(ip, (unsigned long)func);
 
 	return update_ftrace_func(ip, new);
+=======
+	const char *new;
+
+	new = ftrace_jmp_replace(ip, (unsigned long)func);
+	text_poke_bp((void *)ip, new, MCOUNT_INSN_SIZE, NULL);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 int ftrace_enable_ftrace_graph_caller(void)
@@ -1022,10 +1378,16 @@ int ftrace_disable_ftrace_graph_caller(void)
 void prepare_ftrace_return(unsigned long self_addr, unsigned long *parent,
 			   unsigned long frame_pointer)
 {
+<<<<<<< HEAD
 	unsigned long old;
 	int faulted;
 	unsigned long return_hooker = (unsigned long)
 				&return_to_handler;
+=======
+	unsigned long return_hooker = (unsigned long)&return_to_handler;
+	unsigned long old;
+	int faulted;
+>>>>>>> upstream/android-13
 
 	/*
 	 * When resuming from suspend-to-ram, this function can be indirectly

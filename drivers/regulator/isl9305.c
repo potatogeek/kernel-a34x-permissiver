@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * isl9305 - Intersil ISL9305 DCDC regulator
  *
  * Copyright 2014 Linaro Ltd
  *
  * Author: Mark Brown <broonie@kernel.org>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute  it and/or modify it
  *  under  the terms of  the GNU General  Public License as published by the
  *  Free Software Foundation;  either version 2 of the  License, or (at your
  *  option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -84,6 +91,10 @@ static const struct regulator_desc isl9305_regulators[] = {
 		.enable_mask =	ISL9305_DCD1_EN,
 		.supply_name =	"VINDCD1",
 		.ops =		&isl9305_ops,
+<<<<<<< HEAD
+=======
+		.owner =	THIS_MODULE,
+>>>>>>> upstream/android-13
 	},
 	[ISL9305_DCD2] = {
 		.name =		"DCD2",
@@ -98,6 +109,10 @@ static const struct regulator_desc isl9305_regulators[] = {
 		.enable_mask =	ISL9305_DCD2_EN,
 		.supply_name =	"VINDCD2",
 		.ops =		&isl9305_ops,
+<<<<<<< HEAD
+=======
+		.owner =	THIS_MODULE,
+>>>>>>> upstream/android-13
 	},
 	[ISL9305_LDO1] = {
 		.name =		"LDO1",
@@ -112,6 +127,10 @@ static const struct regulator_desc isl9305_regulators[] = {
 		.enable_mask =	ISL9305_LDO1_EN,
 		.supply_name =	"VINLDO1",
 		.ops =		&isl9305_ops,
+<<<<<<< HEAD
+=======
+		.owner =	THIS_MODULE,
+>>>>>>> upstream/android-13
 	},
 	[ISL9305_LDO2] = {
 		.name =		"LDO2",
@@ -126,6 +145,10 @@ static const struct regulator_desc isl9305_regulators[] = {
 		.enable_mask =	ISL9305_LDO2_EN,
 		.supply_name =	"VINLDO2",
 		.ops =		&isl9305_ops,
+<<<<<<< HEAD
+=======
+		.owner =	THIS_MODULE,
+>>>>>>> upstream/android-13
 	},
 };
 
@@ -137,8 +160,12 @@ static const struct regmap_config isl9305_regmap = {
 	.cache_type = REGCACHE_RBTREE,
 };
 
+<<<<<<< HEAD
 static int isl9305_i2c_probe(struct i2c_client *i2c,
 			     const struct i2c_device_id *id)
+=======
+static int isl9305_i2c_probe(struct i2c_client *i2c)
+>>>>>>> upstream/android-13
 {
 	struct regulator_config config = { };
 	struct isl9305_pdata *pdata = i2c->dev.platform_data;
@@ -198,7 +225,11 @@ static struct i2c_driver isl9305_regulator_driver = {
 		.name = "isl9305",
 		.of_match_table	= of_match_ptr(isl9305_dt_ids),
 	},
+<<<<<<< HEAD
 	.probe = isl9305_i2c_probe,
+=======
+	.probe_new = isl9305_i2c_probe,
+>>>>>>> upstream/android-13
 	.id_table = isl9305_i2c_id,
 };
 

@@ -24,7 +24,10 @@
 #include <linux/slab.h>
 #include <linux/usb/ulpi.h>
 #include <linux/pm_runtime.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/clk.h>
 #include <linux/usb.h>
 #include <linux/usb/hcd.h>
@@ -78,6 +81,10 @@ static const struct ehci_driver_overrides ehci_omap_overrides __initconst = {
 
 /**
  * ehci_hcd_omap_probe - initialize TI-based HCDs
+<<<<<<< HEAD
+=======
+ * @pdev: Pointer to this platform device's information
+>>>>>>> upstream/android-13
  *
  * Allocates basic resources for this USB host controller, and
  * then invokes the start() method for the HCD associated with it
@@ -115,10 +122,15 @@ static int ehci_hcd_omap_probe(struct platform_device *pdev)
 	}
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(dev, "EHCI irq failed: %d\n", irq);
 		return irq;
 	}
+=======
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 
 	res =  platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	regs = devm_ioremap_resource(dev, res);

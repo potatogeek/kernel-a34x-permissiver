@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Hauppauge HD PVR USB driver
  *
  * Copyright (C) 2001-2004 Greg Kroah-Hartman (greg@kroah.com)
  * Copyright (C) 2008      Janne Grunau (j@jannau.net)
  * Copyright (C) 2008      John Poet
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License as
  *	published by the Free Software Foundation, version 2.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -367,9 +374,15 @@ static int hdpvr_probe(struct usb_interface *interface,
 	}
 
 	client = hdpvr_register_ir_i2c(dev);
+<<<<<<< HEAD
 	if (!client) {
 		v4l2_err(&dev->v4l2_dev, "i2c IR device register failed\n");
 		retval = -ENODEV;
+=======
+	if (IS_ERR(client)) {
+		v4l2_err(&dev->v4l2_dev, "i2c IR device register failed\n");
+		retval = PTR_ERR(client);
+>>>>>>> upstream/android-13
 		goto reg_fail;
 	}
 #endif

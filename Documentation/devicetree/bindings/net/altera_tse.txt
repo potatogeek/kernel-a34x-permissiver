@@ -46,9 +46,14 @@ Required properties:
 	- reg: phy id used to communicate to phy.
 	- device_type: Must be "ethernet-phy".
 
+<<<<<<< HEAD
 Optional properties:
 - local-mac-address: See ethernet.txt in the same directory.
 - max-frame-size: See ethernet.txt in the same directory.
+=======
+The MAC address will be determined using the optional properties defined in
+ethernet.txt.
+>>>>>>> upstream/android-13
 
 Example:
 

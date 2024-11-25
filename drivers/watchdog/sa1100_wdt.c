@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  *	Watchdog driver for the SA11x0/PXA2xx
  *
  *	(c) Copyright 2000 Oleg Drokin <green@crimea.edu>
  *	    Based on SoftDog driver by Alan Cox <alan@lxorguk.ukuu.org.uk>
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *	Neither Oleg Drokin nor iXcelerator.com admit liability nor provide
  *	warranty for any of this software. This material is provided
  *	"AS-IS" and at no charge.
@@ -59,7 +66,11 @@ static int sa1100dog_open(struct inode *inode, struct file *file)
 	writel_relaxed(OSSR_M3, OSSR);
 	writel_relaxed(OWER_WME, OWER);
 	writel_relaxed(readl_relaxed(OIER) | OIER_E3, OIER);
+<<<<<<< HEAD
 	return nonseekable_open(inode, file);
+=======
+	return stream_open(inode, file);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -131,7 +142,11 @@ static long sa1100dog_ioctl(struct file *file, unsigned int cmd,
 
 		pre_margin = oscr_freq * time;
 		writel_relaxed(readl_relaxed(OSCR) + pre_margin, OSMR3);
+<<<<<<< HEAD
 		/*fall through*/
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case WDIOC_GETTIMEOUT:
 		ret = put_user(pre_margin / oscr_freq, p);
@@ -145,6 +160,10 @@ static const struct file_operations sa1100dog_fops = {
 	.llseek		= no_llseek,
 	.write		= sa1100dog_write,
 	.unlocked_ioctl	= sa1100dog_ioctl,
+<<<<<<< HEAD
+=======
+	.compat_ioctl	= compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 	.open		= sa1100dog_open,
 	.release	= sa1100dog_release,
 };

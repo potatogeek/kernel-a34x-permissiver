@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
   This file is provided under a dual BSD/GPLv2 license.  When using or
   redistributing this file, you may do so under either license.
@@ -44,6 +45,10 @@
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+=======
+/* SPDX-License-Identifier: (BSD-3-Clause OR GPL-2.0-only) */
+/* Copyright(c) 2014 - 2020 Intel Corporation */
+>>>>>>> upstream/android-13
 #ifndef _ICP_QAT_FW_LA_H_
 #define _ICP_QAT_FW_LA_H_
 #include "icp_qat_fw.h"
@@ -77,6 +82,12 @@ struct icp_qat_fw_la_bulk_req {
 	struct icp_qat_fw_comn_req_cd_ctrl cd_ctrl;
 };
 
+<<<<<<< HEAD
+=======
+#define ICP_QAT_FW_LA_USE_UCS_SLICE_TYPE 1
+#define QAT_LA_SLICE_TYPE_BITPOS 14
+#define QAT_LA_SLICE_TYPE_MASK 0x3
+>>>>>>> upstream/android-13
 #define ICP_QAT_FW_LA_GCM_IV_LEN_12_OCTETS 1
 #define ICP_QAT_FW_LA_GCM_IV_LEN_NOT_12_OCTETS 0
 #define QAT_FW_LA_ZUC_3G_PROTO_FLAG_BITPOS 12
@@ -223,6 +234,7 @@ struct icp_qat_fw_la_bulk_req {
 	QAT_FIELD_SET(flags, val, QAT_LA_PARTIAL_BITPOS, \
 	QAT_LA_PARTIAL_MASK)
 
+<<<<<<< HEAD
 struct icp_qat_fw_cipher_req_hdr_cd_pars {
 	union {
 		struct {
@@ -234,6 +246,23 @@ struct icp_qat_fw_cipher_req_hdr_cd_pars {
 		} s;
 		struct {
 			uint32_t cipher_key_array[ICP_QAT_FW_NUM_LONGWORDS_4];
+=======
+#define ICP_QAT_FW_LA_SLICE_TYPE_SET(flags, val) \
+	QAT_FIELD_SET(flags, val, QAT_LA_SLICE_TYPE_BITPOS, \
+	QAT_LA_SLICE_TYPE_MASK)
+
+struct icp_qat_fw_cipher_req_hdr_cd_pars {
+	union {
+		struct {
+			__u64 content_desc_addr;
+			__u16 content_desc_resrvd1;
+			__u8 content_desc_params_sz;
+			__u8 content_desc_hdr_resrvd2;
+			__u32 content_desc_resrvd3;
+		} s;
+		struct {
+			__u32 cipher_key_array[ICP_QAT_FW_NUM_LONGWORDS_4];
+>>>>>>> upstream/android-13
 		} s1;
 	} u;
 };
@@ -241,6 +270,7 @@ struct icp_qat_fw_cipher_req_hdr_cd_pars {
 struct icp_qat_fw_cipher_auth_req_hdr_cd_pars {
 	union {
 		struct {
+<<<<<<< HEAD
 			uint64_t content_desc_addr;
 			uint16_t content_desc_resrvd1;
 			uint8_t content_desc_params_sz;
@@ -249,11 +279,22 @@ struct icp_qat_fw_cipher_auth_req_hdr_cd_pars {
 		} s;
 		struct {
 			uint32_t cipher_key_array[ICP_QAT_FW_NUM_LONGWORDS_4];
+=======
+			__u64 content_desc_addr;
+			__u16 content_desc_resrvd1;
+			__u8 content_desc_params_sz;
+			__u8 content_desc_hdr_resrvd2;
+			__u32 content_desc_resrvd3;
+		} s;
+		struct {
+			__u32 cipher_key_array[ICP_QAT_FW_NUM_LONGWORDS_4];
+>>>>>>> upstream/android-13
 		} sl;
 	} u;
 };
 
 struct icp_qat_fw_cipher_cd_ctrl_hdr {
+<<<<<<< HEAD
 	uint8_t cipher_state_sz;
 	uint8_t cipher_key_sz;
 	uint8_t cipher_cfg_offset;
@@ -305,6 +346,59 @@ struct icp_qat_fw_cipher_auth_cd_ctrl_hdr {
 	uint8_t outer_state1_sz;
 	uint8_t outer_res_sz;
 	uint8_t outer_prefix_offset;
+=======
+	__u8 cipher_state_sz;
+	__u8 cipher_key_sz;
+	__u8 cipher_cfg_offset;
+	__u8 next_curr_id;
+	__u8 cipher_padding_sz;
+	__u8 resrvd1;
+	__u16 resrvd2;
+	__u32 resrvd3[ICP_QAT_FW_NUM_LONGWORDS_3];
+};
+
+struct icp_qat_fw_auth_cd_ctrl_hdr {
+	__u32 resrvd1;
+	__u8 resrvd2;
+	__u8 hash_flags;
+	__u8 hash_cfg_offset;
+	__u8 next_curr_id;
+	__u8 resrvd3;
+	__u8 outer_prefix_sz;
+	__u8 final_sz;
+	__u8 inner_res_sz;
+	__u8 resrvd4;
+	__u8 inner_state1_sz;
+	__u8 inner_state2_offset;
+	__u8 inner_state2_sz;
+	__u8 outer_config_offset;
+	__u8 outer_state1_sz;
+	__u8 outer_res_sz;
+	__u8 outer_prefix_offset;
+};
+
+struct icp_qat_fw_cipher_auth_cd_ctrl_hdr {
+	__u8 cipher_state_sz;
+	__u8 cipher_key_sz;
+	__u8 cipher_cfg_offset;
+	__u8 next_curr_id_cipher;
+	__u8 cipher_padding_sz;
+	__u8 hash_flags;
+	__u8 hash_cfg_offset;
+	__u8 next_curr_id_auth;
+	__u8 resrvd1;
+	__u8 outer_prefix_sz;
+	__u8 final_sz;
+	__u8 inner_res_sz;
+	__u8 resrvd2;
+	__u8 inner_state1_sz;
+	__u8 inner_state2_offset;
+	__u8 inner_state2_sz;
+	__u8 outer_config_offset;
+	__u8 outer_state1_sz;
+	__u8 outer_res_sz;
+	__u8 outer_prefix_offset;
+>>>>>>> upstream/android-13
 };
 
 #define ICP_QAT_FW_AUTH_HDR_FLAG_DO_NESTED 1
@@ -315,6 +409,7 @@ struct icp_qat_fw_cipher_auth_cd_ctrl_hdr {
 #define ICP_QAT_FW_CIPHER_REQUEST_PARAMETERS_OFFSET (0)
 
 struct icp_qat_fw_la_cipher_req_params {
+<<<<<<< HEAD
 	uint32_t cipher_offset;
 	uint32_t cipher_length;
 	union {
@@ -322,11 +417,21 @@ struct icp_qat_fw_la_cipher_req_params {
 		struct {
 			uint64_t cipher_IV_ptr;
 			uint64_t resrvd1;
+=======
+	__u32 cipher_offset;
+	__u32 cipher_length;
+	union {
+		__u32 cipher_IV_array[ICP_QAT_FW_NUM_LONGWORDS_4];
+		struct {
+			__u64 cipher_IV_ptr;
+			__u64 resrvd1;
+>>>>>>> upstream/android-13
 		} s;
 	} u;
 };
 
 struct icp_qat_fw_la_auth_req_params {
+<<<<<<< HEAD
 	uint32_t auth_off;
 	uint32_t auth_len;
 	union {
@@ -351,12 +456,43 @@ struct icp_qat_fw_la_auth_req_params_resrvd_flds {
 	} u2;
 	uint8_t resrvd1;
 	uint16_t resrvd2;
+=======
+	__u32 auth_off;
+	__u32 auth_len;
+	union {
+		__u64 auth_partial_st_prefix;
+		__u64 aad_adr;
+	} u1;
+	__u64 auth_res_addr;
+	union {
+		__u8 inner_prefix_sz;
+		__u8 aad_sz;
+	} u2;
+	__u8 resrvd1;
+	__u8 hash_state_sz;
+	__u8 auth_res_sz;
+} __packed;
+
+struct icp_qat_fw_la_auth_req_params_resrvd_flds {
+	__u32 resrvd[ICP_QAT_FW_NUM_LONGWORDS_6];
+	union {
+		__u8 inner_prefix_sz;
+		__u8 aad_sz;
+	} u2;
+	__u8 resrvd1;
+	__u16 resrvd2;
+>>>>>>> upstream/android-13
 };
 
 struct icp_qat_fw_la_resp {
 	struct icp_qat_fw_comn_resp_hdr comn_resp;
+<<<<<<< HEAD
 	uint64_t opaque_data;
 	uint32_t resrvd[ICP_QAT_FW_NUM_LONGWORDS_4];
+=======
+	__u64 opaque_data;
+	__u32 resrvd[ICP_QAT_FW_NUM_LONGWORDS_4];
+>>>>>>> upstream/android-13
 };
 
 #define ICP_QAT_FW_CIPHER_NEXT_ID_GET(cd_ctrl_hdr_t) \

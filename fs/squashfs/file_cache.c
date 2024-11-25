@@ -1,9 +1,16 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2013
  * Phillip Lougher <phillip@squashfs.org.uk>
  *
  * This work is licensed under the terms of the GNU GPL, version 2. See
  * the COPYING file in the top-level directory.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2013
+ * Phillip Lougher <phillip@squashfs.org.uk>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/fs.h>

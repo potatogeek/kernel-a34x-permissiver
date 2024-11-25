@@ -1,8 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #include <linux/export.h>
 #include <linux/kref.h>
 #include <linux/list.h>
 #include <linux/mutex.h>
 #include <linux/phylink.h>
+<<<<<<< HEAD
+=======
+#include <linux/property.h>
+>>>>>>> upstream/android-13
 #include <linux/rtnetlink.h>
 #include <linux/slab.h>
 
@@ -30,7 +38,10 @@ struct sfp_bus {
 
 	const struct sfp_upstream_ops *upstream_ops;
 	void *upstream;
+<<<<<<< HEAD
 	struct net_device *netdev;
+=======
+>>>>>>> upstream/android-13
 	struct phy_device *phydev;
 
 	bool registered;
@@ -43,6 +54,20 @@ static void sfp_quirk_2500basex(const struct sfp_eeprom_id *id,
 	phylink_set(modes, 2500baseX_Full);
 }
 
+<<<<<<< HEAD
+=======
+static void sfp_quirk_ubnt_uf_instant(const struct sfp_eeprom_id *id,
+				      unsigned long *modes)
+{
+	/* Ubiquiti U-Fiber Instant module claims that support all transceiver
+	 * types including 10G Ethernet which is not truth. So clear all claimed
+	 * modes and set only one mode which module supports: 1000baseX_Full.
+	 */
+	phylink_zero(modes);
+	phylink_set(modes, 1000baseX_Full);
+}
+
+>>>>>>> upstream/android-13
 static const struct sfp_quirk sfp_quirks[] = {
 	{
 		// Alcatel Lucent G-010S-P can operate at 2500base-X, but
@@ -62,6 +87,19 @@ static const struct sfp_quirk sfp_quirks[] = {
 		.vendor = "HUAWEI",
 		.part = "MA5671A",
 		.modes = sfp_quirk_2500basex,
+<<<<<<< HEAD
+=======
+	}, {
+		// Lantech 8330-262D-E can operate at 2500base-X, but
+		// incorrectly report 2500MBd NRZ in their EEPROM
+		.vendor = "Lantech",
+		.part = "8330-262D-E",
+		.modes = sfp_quirk_2500basex,
+	}, {
+		.vendor = "UBNT",
+		.part = "UF-INSTANT",
+		.modes = sfp_quirk_ubnt_uf_instant,
+>>>>>>> upstream/android-13
 	},
 };
 
@@ -102,6 +140,10 @@ static const struct sfp_quirk *sfp_lookup_quirk(const struct sfp_eeprom_id *id)
 
 	return NULL;
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 /**
  * sfp_parse_port() - Parse the EEPROM base ID, setting the port type
  * @bus: a pointer to the &struct sfp_bus structure for the sfp module
@@ -123,6 +165,7 @@ int sfp_parse_port(struct sfp_bus *bus, const struct sfp_eeprom_id *id,
 
 	/* port is the physical connector, set this from the connector field. */
 	switch (id->base.connector) {
+<<<<<<< HEAD
 	case SFP_CONNECTOR_SC:
 	case SFP_CONNECTOR_FIBERJACK:
 	case SFP_CONNECTOR_LC:
@@ -141,10 +184,33 @@ int sfp_parse_port(struct sfp_bus *bus, const struct sfp_eeprom_id *id,
 		break;
 
 	case SFP_CONNECTOR_UNSPEC:
+=======
+	case SFF8024_CONNECTOR_SC:
+	case SFF8024_CONNECTOR_FIBERJACK:
+	case SFF8024_CONNECTOR_LC:
+	case SFF8024_CONNECTOR_MT_RJ:
+	case SFF8024_CONNECTOR_MU:
+	case SFF8024_CONNECTOR_OPTICAL_PIGTAIL:
+	case SFF8024_CONNECTOR_MPO_1X12:
+	case SFF8024_CONNECTOR_MPO_2X16:
+		port = PORT_FIBRE;
+		break;
+
+	case SFF8024_CONNECTOR_RJ45:
+		port = PORT_TP;
+		break;
+
+	case SFF8024_CONNECTOR_COPPER_PIGTAIL:
+		port = PORT_DA;
+		break;
+
+	case SFF8024_CONNECTOR_UNSPEC:
+>>>>>>> upstream/android-13
 		if (id->base.e1000_base_t) {
 			port = PORT_TP;
 			break;
 		}
+<<<<<<< HEAD
 		/* fallthrough */
 	case SFP_CONNECTOR_SG: /* guess */
 	case SFP_CONNECTOR_MPO_1X12:
@@ -152,6 +218,13 @@ int sfp_parse_port(struct sfp_bus *bus, const struct sfp_eeprom_id *id,
 	case SFP_CONNECTOR_HSSDC_II:
 	case SFP_CONNECTOR_NOSEPARATE:
 	case SFP_CONNECTOR_MXC_2X16:
+=======
+		fallthrough;
+	case SFF8024_CONNECTOR_SG: /* guess */
+	case SFF8024_CONNECTOR_HSSDC_II:
+	case SFF8024_CONNECTOR_NOSEPARATE:
+	case SFF8024_CONNECTOR_MXC_2X16:
+>>>>>>> upstream/android-13
 		port = PORT_OTHER;
 		break;
 	default:
@@ -178,6 +251,36 @@ int sfp_parse_port(struct sfp_bus *bus, const struct sfp_eeprom_id *id,
 EXPORT_SYMBOL_GPL(sfp_parse_port);
 
 /**
+<<<<<<< HEAD
+=======
+ * sfp_may_have_phy() - indicate whether the module may have a PHY
+ * @bus: a pointer to the &struct sfp_bus structure for the sfp module
+ * @id: a pointer to the module's &struct sfp_eeprom_id
+ *
+ * Parse the EEPROM identification given in @id, and return whether
+ * this module may have a PHY.
+ */
+bool sfp_may_have_phy(struct sfp_bus *bus, const struct sfp_eeprom_id *id)
+{
+	if (id->base.e1000_base_t)
+		return true;
+
+	if (id->base.phys_id != SFF8024_ID_DWDM_SFP) {
+		switch (id->base.extended_cc) {
+		case SFF8024_ECC_10GBASE_T_SFI:
+		case SFF8024_ECC_10GBASE_T_SR:
+		case SFF8024_ECC_5GBASE_T:
+		case SFF8024_ECC_2_5GBASE_T:
+			return true;
+		}
+	}
+
+	return false;
+}
+EXPORT_SYMBOL_GPL(sfp_may_have_phy);
+
+/**
+>>>>>>> upstream/android-13
  * sfp_parse_support() - Parse the eeprom id for supported link modes
  * @bus: a pointer to the &struct sfp_bus structure for the sfp module
  * @id: a pointer to the module's &struct sfp_eeprom_id
@@ -236,6 +339,15 @@ void sfp_parse_support(struct sfp_bus *bus, const struct sfp_eeprom_id *id,
 	    br_min <= 1300 && br_max >= 1200)
 		phylink_set(modes, 1000baseX_Full);
 
+<<<<<<< HEAD
+=======
+	/* 100Base-FX, 100Base-LX, 100Base-PX, 100Base-BX10 */
+	if (id->base.e100_base_fx || id->base.e100_base_lx)
+		phylink_set(modes, 100baseFX_Full);
+	if ((id->base.e_base_px || id->base.e_base_bx10) && br_nom == 100)
+		phylink_set(modes, 100baseFX_Full);
+
+>>>>>>> upstream/android-13
 	/* For active or passive cables, select the link modes
 	 * based on the bit rates and the cable compliance bytes.
 	 */
@@ -260,6 +372,7 @@ void sfp_parse_support(struct sfp_bus *bus, const struct sfp_eeprom_id *id,
 	}
 
 	switch (id->base.extended_cc) {
+<<<<<<< HEAD
 	case 0x00: /* Unspecified */
 		break;
 	case 0x02: /* 100Gbase-SR4 or 25Gbase-SR */
@@ -276,6 +389,35 @@ void sfp_parse_support(struct sfp_bus *bus, const struct sfp_eeprom_id *id,
 		phylink_set(modes, 100000baseCR4_Full);
 		phylink_set(modes, 25000baseCR_Full);
 		break;
+=======
+	case SFF8024_ECC_UNSPEC:
+		break;
+	case SFF8024_ECC_100GBASE_SR4_25GBASE_SR:
+		phylink_set(modes, 100000baseSR4_Full);
+		phylink_set(modes, 25000baseSR_Full);
+		break;
+	case SFF8024_ECC_100GBASE_LR4_25GBASE_LR:
+	case SFF8024_ECC_100GBASE_ER4_25GBASE_ER:
+		phylink_set(modes, 100000baseLR4_ER4_Full);
+		break;
+	case SFF8024_ECC_100GBASE_CR4:
+		phylink_set(modes, 100000baseCR4_Full);
+		fallthrough;
+	case SFF8024_ECC_25GBASE_CR_S:
+	case SFF8024_ECC_25GBASE_CR_N:
+		phylink_set(modes, 25000baseCR_Full);
+		break;
+	case SFF8024_ECC_10GBASE_T_SFI:
+	case SFF8024_ECC_10GBASE_T_SR:
+		phylink_set(modes, 10000baseT_Full);
+		break;
+	case SFF8024_ECC_5GBASE_T:
+		phylink_set(modes, 5000baseT_Full);
+		break;
+	case SFF8024_ECC_2_5GBASE_T:
+		phylink_set(modes, 2500baseT_Full);
+		break;
+>>>>>>> upstream/android-13
 	default:
 		dev_warn(bus->sfp_dev,
 			 "Unknown/unsupported extended compliance code: 0x%02x\n",
@@ -294,6 +436,7 @@ void sfp_parse_support(struct sfp_bus *bus, const struct sfp_eeprom_id *id,
 	}
 
 	/* If we haven't discovered any modes that this module supports, try
+<<<<<<< HEAD
 	 * the encoding and bitrate to determine supported modes. Some BiDi
 	 * modules (eg, 1310nm/1550nm) are not 1000BASE-BX compliant due to
 	 * the differing wavelengths, so do not set any transceiver bits.
@@ -303,6 +446,21 @@ void sfp_parse_support(struct sfp_bus *bus, const struct sfp_eeprom_id *id,
 		if (id->base.encoding == SFP_ENCODING_8B10B && br_nom &&
 		    br_min <= 1300 && br_max >= 1200)
 			phylink_set(modes, 1000baseX_Full);
+=======
+	 * the bitrate to determine supported modes. Some BiDi modules (eg,
+	 * 1310nm/1550nm) are not 1000BASE-BX compliant due to the differing
+	 * wavelengths, so do not set any transceiver bits.
+	 *
+	 * Do the same for modules supporting 2500BASE-X. Note that some
+	 * modules use 2500Mbaud rather than 3100 or 3200Mbaud for
+	 * 2500BASE-X, so we allow some slack here.
+	 */
+	if (bitmap_empty(modes, __ETHTOOL_LINK_MODE_MASK_NBITS) && br_nom) {
+		if (br_min <= 1300 && br_max >= 1200)
+			phylink_set(modes, 1000baseX_Full);
+		if (br_min <= 3200 && br_max >= 2500)
+			phylink_set(modes, 2500baseX_Full);
+>>>>>>> upstream/android-13
 	}
 
 	if (bus->sfp_quirk)
@@ -319,6 +477,7 @@ EXPORT_SYMBOL_GPL(sfp_parse_support);
 /**
  * sfp_select_interface() - Select appropriate phy_interface_t mode
  * @bus: a pointer to the &struct sfp_bus structure for the sfp module
+<<<<<<< HEAD
  * @id: a pointer to the module's &struct sfp_eeprom_id
  * @link_modes: ethtool link modes mask
  *
@@ -331,24 +490,59 @@ phy_interface_t sfp_select_interface(struct sfp_bus *bus,
 				     const struct sfp_eeprom_id *id,
 				     unsigned long *link_modes)
 {
+=======
+ * @link_modes: ethtool link modes mask
+ *
+ * Derive the phy_interface_t mode for the SFP module from the link
+ * modes mask.
+ */
+phy_interface_t sfp_select_interface(struct sfp_bus *bus,
+				     unsigned long *link_modes)
+{
+	if (phylink_test(link_modes, 25000baseCR_Full) ||
+	    phylink_test(link_modes, 25000baseKR_Full) ||
+	    phylink_test(link_modes, 25000baseSR_Full))
+		return PHY_INTERFACE_MODE_25GBASER;
+
+>>>>>>> upstream/android-13
 	if (phylink_test(link_modes, 10000baseCR_Full) ||
 	    phylink_test(link_modes, 10000baseSR_Full) ||
 	    phylink_test(link_modes, 10000baseLR_Full) ||
 	    phylink_test(link_modes, 10000baseLRM_Full) ||
+<<<<<<< HEAD
 	    phylink_test(link_modes, 10000baseER_Full))
 		return PHY_INTERFACE_MODE_10GKR;
+=======
+	    phylink_test(link_modes, 10000baseER_Full) ||
+	    phylink_test(link_modes, 10000baseT_Full))
+		return PHY_INTERFACE_MODE_10GBASER;
+
+	if (phylink_test(link_modes, 5000baseT_Full))
+		return PHY_INTERFACE_MODE_5GBASER;
+>>>>>>> upstream/android-13
 
 	if (phylink_test(link_modes, 2500baseX_Full))
 		return PHY_INTERFACE_MODE_2500BASEX;
 
+<<<<<<< HEAD
 	if (id->base.e1000_base_t ||
 	    id->base.e100_base_lx ||
 	    id->base.e100_base_fx)
+=======
+	if (phylink_test(link_modes, 1000baseT_Half) ||
+	    phylink_test(link_modes, 1000baseT_Full))
+>>>>>>> upstream/android-13
 		return PHY_INTERFACE_MODE_SGMII;
 
 	if (phylink_test(link_modes, 1000baseX_Full))
 		return PHY_INTERFACE_MODE_1000BASEX;
 
+<<<<<<< HEAD
+=======
+	if (phylink_test(link_modes, 100baseFX_Full))
+		return PHY_INTERFACE_MODE_100BASEX;
+
+>>>>>>> upstream/android-13
 	dev_warn(bus->sfp_dev, "Unable to ascertain link mode\n");
 
 	return PHY_INTERFACE_MODE_NA;
@@ -403,10 +597,26 @@ static void sfp_bus_release(struct kref *kref)
 	kfree(bus);
 }
 
+<<<<<<< HEAD
 static void sfp_bus_put(struct sfp_bus *bus)
 {
 	kref_put_mutex(&bus->kref, sfp_bus_release, &sfp_mutex);
 }
+=======
+/**
+ * sfp_bus_put() - put a reference on the &struct sfp_bus
+ * @bus: the &struct sfp_bus found via sfp_bus_find_fwnode()
+ *
+ * Put a reference on the &struct sfp_bus and free the underlying structure
+ * if this was the last reference.
+ */
+void sfp_bus_put(struct sfp_bus *bus)
+{
+	if (bus)
+		kref_put_mutex(&bus->kref, sfp_bus_release, &sfp_mutex);
+}
+EXPORT_SYMBOL_GPL(sfp_bus_put);
+>>>>>>> upstream/android-13
 
 static int sfp_register_bus(struct sfp_bus *bus)
 {
@@ -422,11 +632,19 @@ static int sfp_register_bus(struct sfp_bus *bus)
 				return ret;
 		}
 	}
+<<<<<<< HEAD
 	bus->socket_ops->attach(bus->sfp);
 	if (bus->started)
 		bus->socket_ops->start(bus->sfp);
 	bus->netdev->sfp_bus = bus;
 	bus->registered = true;
+=======
+	bus->registered = true;
+	bus->socket_ops->attach(bus->sfp);
+	if (bus->started)
+		bus->socket_ops->start(bus->sfp);
+	bus->upstream_ops->attach(bus->upstream, bus);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -434,8 +652,13 @@ static void sfp_unregister_bus(struct sfp_bus *bus)
 {
 	const struct sfp_upstream_ops *ops = bus->upstream_ops;
 
+<<<<<<< HEAD
 	bus->netdev->sfp_bus = NULL;
 	if (bus->registered) {
+=======
+	if (bus->registered) {
+		bus->upstream_ops->detach(bus->upstream, bus);
+>>>>>>> upstream/android-13
 		if (bus->started)
 			bus->socket_ops->stop(bus->sfp);
 		bus->socket_ops->detach(bus->sfp);
@@ -480,6 +703,29 @@ int sfp_get_module_eeprom(struct sfp_bus *bus, struct ethtool_eeprom *ee,
 EXPORT_SYMBOL_GPL(sfp_get_module_eeprom);
 
 /**
+<<<<<<< HEAD
+=======
+ * sfp_get_module_eeprom_by_page() - Read a page from the SFP module EEPROM
+ * @bus: a pointer to the &struct sfp_bus structure for the sfp module
+ * @page: a &struct ethtool_module_eeprom
+ * @extack: extack for reporting problems
+ *
+ * Read an EEPROM page as specified by the supplied @page. See the
+ * documentation for &struct ethtool_module_eeprom for the page to be read.
+ *
+ * Returns 0 on success or a negative errno number. More error
+ * information might be provided via extack
+ */
+int sfp_get_module_eeprom_by_page(struct sfp_bus *bus,
+				  const struct ethtool_module_eeprom *page,
+				  struct netlink_ext_ack *extack)
+{
+	return bus->socket_ops->module_eeprom_by_page(bus->sfp, page, extack);
+}
+EXPORT_SYMBOL_GPL(sfp_get_module_eeprom_by_page);
+
+/**
+>>>>>>> upstream/android-13
  * sfp_upstream_start() - Inform the SFP that the network device is up
  * @bus: a pointer to the &struct sfp_bus structure for the sfp module
  *
@@ -517,6 +763,7 @@ static void sfp_upstream_clear(struct sfp_bus *bus)
 {
 	bus->upstream_ops = NULL;
 	bus->upstream = NULL;
+<<<<<<< HEAD
 	bus->netdev = NULL;
 }
 
@@ -581,6 +828,125 @@ void sfp_unregister_upstream(struct sfp_bus *bus)
 	sfp_bus_put(bus);
 }
 EXPORT_SYMBOL_GPL(sfp_unregister_upstream);
+=======
+}
+
+/**
+ * sfp_bus_find_fwnode() - parse and locate the SFP bus from fwnode
+ * @fwnode: firmware node for the parent device (MAC or PHY)
+ *
+ * Parse the parent device's firmware node for a SFP bus, and locate
+ * the sfp_bus structure, incrementing its reference count.  This must
+ * be put via sfp_bus_put() when done.
+ *
+ * Returns:
+ *	- on success, a pointer to the sfp_bus structure,
+ *	- %NULL if no SFP is specified,
+ *	- on failure, an error pointer value:
+ *
+ *	- corresponding to the errors detailed for
+ *	  fwnode_property_get_reference_args().
+ *	- %-ENOMEM if we failed to allocate the bus.
+ *	- an error from the upstream's connect_phy() method.
+ */
+struct sfp_bus *sfp_bus_find_fwnode(struct fwnode_handle *fwnode)
+{
+	struct fwnode_reference_args ref;
+	struct sfp_bus *bus;
+	int ret;
+
+	ret = fwnode_property_get_reference_args(fwnode, "sfp", NULL,
+						 0, 0, &ref);
+	if (ret == -ENOENT)
+		return NULL;
+	else if (ret < 0)
+		return ERR_PTR(ret);
+
+	if (!fwnode_device_is_available(ref.fwnode)) {
+		fwnode_handle_put(ref.fwnode);
+		return NULL;
+	}
+
+	bus = sfp_bus_get(ref.fwnode);
+	fwnode_handle_put(ref.fwnode);
+	if (!bus)
+		return ERR_PTR(-ENOMEM);
+
+	return bus;
+}
+EXPORT_SYMBOL_GPL(sfp_bus_find_fwnode);
+
+/**
+ * sfp_bus_add_upstream() - parse and register the neighbouring device
+ * @bus: the &struct sfp_bus found via sfp_bus_find_fwnode()
+ * @upstream: the upstream private data
+ * @ops: the upstream's &struct sfp_upstream_ops
+ *
+ * Add upstream driver for the SFP bus, and if the bus is complete, register
+ * the SFP bus using sfp_register_upstream().  This takes a reference on the
+ * bus, so it is safe to put the bus after this call.
+ *
+ * Returns:
+ *	- on success, a pointer to the sfp_bus structure,
+ *	- %NULL if no SFP is specified,
+ *	- on failure, an error pointer value:
+ *
+ *	- corresponding to the errors detailed for
+ *	  fwnode_property_get_reference_args().
+ *	- %-ENOMEM if we failed to allocate the bus.
+ *	- an error from the upstream's connect_phy() method.
+ */
+int sfp_bus_add_upstream(struct sfp_bus *bus, void *upstream,
+			 const struct sfp_upstream_ops *ops)
+{
+	int ret;
+
+	/* If no bus, return success */
+	if (!bus)
+		return 0;
+
+	rtnl_lock();
+	kref_get(&bus->kref);
+	bus->upstream_ops = ops;
+	bus->upstream = upstream;
+
+	if (bus->sfp) {
+		ret = sfp_register_bus(bus);
+		if (ret)
+			sfp_upstream_clear(bus);
+	} else {
+		ret = 0;
+	}
+	rtnl_unlock();
+
+	if (ret)
+		sfp_bus_put(bus);
+
+	return ret;
+}
+EXPORT_SYMBOL_GPL(sfp_bus_add_upstream);
+
+/**
+ * sfp_bus_del_upstream() - Delete a sfp bus
+ * @bus: a pointer to the &struct sfp_bus structure for the sfp module
+ *
+ * Delete a previously registered upstream connection for the SFP
+ * module. @bus should have been added by sfp_bus_add_upstream().
+ */
+void sfp_bus_del_upstream(struct sfp_bus *bus)
+{
+	if (bus) {
+		rtnl_lock();
+		if (bus->sfp)
+			sfp_unregister_bus(bus);
+		sfp_upstream_clear(bus);
+		rtnl_unlock();
+
+		sfp_bus_put(bus);
+	}
+}
+EXPORT_SYMBOL_GPL(sfp_bus_del_upstream);
+>>>>>>> upstream/android-13
 
 /* Socket driver entry points */
 int sfp_add_phy(struct sfp_bus *bus, struct phy_device *phydev)
@@ -651,6 +1017,30 @@ void sfp_module_remove(struct sfp_bus *bus)
 }
 EXPORT_SYMBOL_GPL(sfp_module_remove);
 
+<<<<<<< HEAD
+=======
+int sfp_module_start(struct sfp_bus *bus)
+{
+	const struct sfp_upstream_ops *ops = sfp_get_upstream_ops(bus);
+	int ret = 0;
+
+	if (ops && ops->module_start)
+		ret = ops->module_start(bus->upstream);
+
+	return ret;
+}
+EXPORT_SYMBOL_GPL(sfp_module_start);
+
+void sfp_module_stop(struct sfp_bus *bus)
+{
+	const struct sfp_upstream_ops *ops = sfp_get_upstream_ops(bus);
+
+	if (ops && ops->module_stop)
+		ops->module_stop(bus->upstream);
+}
+EXPORT_SYMBOL_GPL(sfp_module_stop);
+
+>>>>>>> upstream/android-13
 static void sfp_socket_clear(struct sfp_bus *bus)
 {
 	bus->sfp_dev = NULL;
@@ -670,7 +1060,11 @@ struct sfp_bus *sfp_register_socket(struct device *dev, struct sfp *sfp,
 		bus->sfp = sfp;
 		bus->socket_ops = ops;
 
+<<<<<<< HEAD
 		if (bus->netdev) {
+=======
+		if (bus->upstream_ops) {
+>>>>>>> upstream/android-13
 			ret = sfp_register_bus(bus);
 			if (ret)
 				sfp_socket_clear(bus);
@@ -690,7 +1084,11 @@ EXPORT_SYMBOL_GPL(sfp_register_socket);
 void sfp_unregister_socket(struct sfp_bus *bus)
 {
 	rtnl_lock();
+<<<<<<< HEAD
 	if (bus->netdev)
+=======
+	if (bus->upstream_ops)
+>>>>>>> upstream/android-13
 		sfp_unregister_bus(bus);
 	sfp_socket_clear(bus);
 	rtnl_unlock();

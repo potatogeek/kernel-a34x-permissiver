@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* Generic associative array implementation.
  *
  * See Documentation/core-api/assoc_array.rst for information.
  *
  * Copyright (C) 2013 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public Licence
  * as published by the Free Software Foundation; either version
  * 2 of the Licence, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 //#define DEBUG
 #include <linux/rcupdate.h>
@@ -1117,6 +1124,10 @@ struct assoc_array_edit *assoc_array_delete(struct assoc_array *array,
 						index_key))
 				goto found_leaf;
 		}
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case assoc_array_walk_tree_empty:
 	case assoc_array_walk_found_wrong_shortcut:
 	default:

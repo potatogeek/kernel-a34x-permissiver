@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /***************************************************************************
  *
  * Copyright (C) 2004-2008 SMSC
  * Copyright (C) 2005-2008 ARM
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  ***************************************************************************
  * Rewritten, heavily based on smsc911x simple driver by SMSC.
  * Partly uses io macros from smc91x.c by Nicolas Pitre
@@ -26,7 +33,10 @@
  *   LAN9210, LAN9211
  *   LAN9220, LAN9221
  *   LAN89218,LAN9250
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -570,6 +580,10 @@ static int smsc911x_mii_read(struct mii_bus *bus, int phyaddr, int regidx)
 	unsigned int addr;
 	int i, reg;
 
+<<<<<<< HEAD
+=======
+	pm_runtime_get_sync(bus->parent);
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&pdata->mac_lock, flags);
 
 	/* Confirm MII not busy */
@@ -595,6 +609,10 @@ static int smsc911x_mii_read(struct mii_bus *bus, int phyaddr, int regidx)
 
 out:
 	spin_unlock_irqrestore(&pdata->mac_lock, flags);
+<<<<<<< HEAD
+=======
+	pm_runtime_put(bus->parent);
+>>>>>>> upstream/android-13
 	return reg;
 }
 
@@ -607,6 +625,10 @@ static int smsc911x_mii_write(struct mii_bus *bus, int phyaddr, int regidx,
 	unsigned int addr;
 	int i, reg;
 
+<<<<<<< HEAD
+=======
+	pm_runtime_get_sync(bus->parent);
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&pdata->mac_lock, flags);
 
 	/* Confirm MII not busy */
@@ -636,6 +658,10 @@ static int smsc911x_mii_write(struct mii_bus *bus, int phyaddr, int regidx,
 
 out:
 	spin_unlock_irqrestore(&pdata->mac_lock, flags);
+<<<<<<< HEAD
+=======
+	pm_runtime_put(bus->parent);
+>>>>>>> upstream/android-13
 	return reg;
 }
 
@@ -1048,10 +1074,17 @@ static int smsc911x_mii_probe(struct net_device *dev)
 
 	phy_attached_info(phydev);
 
+<<<<<<< HEAD
 	/* mask with MAC supported features */
 	phydev->supported &= (PHY_BASIC_FEATURES | SUPPORTED_Pause |
 			      SUPPORTED_Asym_Pause);
 	phydev->advertising = phydev->supported;
+=======
+	phy_set_max_speed(phydev, SPEED_100);
+
+	/* mask with MAC supported features */
+	phy_support_asym_pause(phydev);
+>>>>>>> upstream/android-13
 
 	pdata->last_duplex = -1;
 	pdata->last_carrier = -1;
@@ -1209,9 +1242,14 @@ smsc911x_rx_fastforward(struct smsc911x_data *pdata, unsigned int pktwords)
 			SMSC_WARN(pdata, hw, "Timed out waiting for "
 				  "RX FFWD to finish, RX_DP_CTRL: 0x%08X", val);
 	} else {
+<<<<<<< HEAD
 		unsigned int temp;
 		while (pktwords--)
 			temp = smsc911x_reg_read(pdata, RX_DATA_FIFO);
+=======
+		while (pktwords--)
+			smsc911x_reg_read(pdata, RX_DATA_FIFO);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1603,6 +1641,11 @@ static int smsc911x_open(struct net_device *dev)
 	int retval;
 	int irq_flags;
 
+<<<<<<< HEAD
+=======
+	pm_runtime_get_sync(dev->dev.parent);
+
+>>>>>>> upstream/android-13
 	/* find and start the given phy */
 	if (!dev->phydev) {
 		retval = smsc911x_mii_probe(dev);
@@ -1749,6 +1792,10 @@ mii_free_out:
 	phy_disconnect(dev->phydev);
 	dev->phydev = NULL;
 out:
+<<<<<<< HEAD
+=======
+	pm_runtime_put(dev->dev.parent);
+>>>>>>> upstream/android-13
 	return retval;
 }
 
@@ -1780,6 +1827,10 @@ static int smsc911x_stop(struct net_device *dev)
 		dev->phydev = NULL;
 	}
 	netif_carrier_off(dev);
+<<<<<<< HEAD
+=======
+	pm_runtime_put(dev->dev.parent);
+>>>>>>> upstream/android-13
 
 	SMSC_TRACE(pdata, ifdown, "Interface stopped");
 	return 0;
@@ -1956,6 +2007,7 @@ static int smsc911x_set_mac_address(struct net_device *dev, void *p)
 	return 0;
 }
 
+<<<<<<< HEAD
 /* Standard ioctls for mii-tool */
 static int smsc911x_do_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 {
@@ -1965,6 +2017,8 @@ static int smsc911x_do_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 	return phy_mii_ioctl(dev->phydev, ifr, cmd);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void smsc911x_ethtool_getdrvinfo(struct net_device *dev,
 					struct ethtool_drvinfo *info)
 {
@@ -2077,7 +2131,10 @@ static int smsc911x_eeprom_write_location(struct smsc911x_data *pdata,
 					  u8 address, u8 data)
 {
 	u32 op = E2P_CMD_EPC_CMD_ERASE_ | address;
+<<<<<<< HEAD
 	u32 temp;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	SMSC_TRACE(pdata, drv, "address 0x%x, data 0x%x", address, data);
@@ -2088,7 +2145,11 @@ static int smsc911x_eeprom_write_location(struct smsc911x_data *pdata,
 		smsc911x_reg_write(pdata, E2P_DATA, (u32)data);
 
 		/* Workaround for hardware read-after-write restriction */
+<<<<<<< HEAD
 		temp = smsc911x_reg_read(pdata, BYTE_TEST);
+=======
+		smsc911x_reg_read(pdata, BYTE_TEST);
+>>>>>>> upstream/android-13
 
 		ret = smsc911x_eeprom_send_cmd(pdata, op);
 	}
@@ -2164,7 +2225,11 @@ static const struct net_device_ops smsc911x_netdev_ops = {
 	.ndo_start_xmit		= smsc911x_hard_start_xmit,
 	.ndo_get_stats		= smsc911x_get_stats,
 	.ndo_set_rx_mode	= smsc911x_set_multicast_list,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= smsc911x_do_ioctl,
+=======
+	.ndo_eth_ioctl		= phy_do_ioctl_running,
+>>>>>>> upstream/android-13
 	.ndo_validate_addr	= eth_validate_addr,
 	.ndo_set_mac_address 	= smsc911x_set_mac_address,
 #ifdef CONFIG_NET_POLL_CONTROLLER
@@ -2358,7 +2423,10 @@ static int smsc911x_drv_remove(struct platform_device *pdev)
 
 	free_netdev(dev);
 
+<<<<<<< HEAD
 	pm_runtime_put(&pdev->dev);
+=======
+>>>>>>> upstream/android-13
 	pm_runtime_disable(&pdev->dev);
 
 	return 0;
@@ -2446,7 +2514,11 @@ static int smsc911x_drv_probe(struct platform_device *pdev)
 	if (irq == -EPROBE_DEFER) {
 		retval = -EPROBE_DEFER;
 		goto out_0;
+<<<<<<< HEAD
 	} else if (irq <= 0) {
+=======
+	} else if (irq < 0) {
+>>>>>>> upstream/android-13
 		pr_warn("Could not allocate irq resource\n");
 		retval = -ENODEV;
 		goto out_0;
@@ -2467,7 +2539,11 @@ static int smsc911x_drv_probe(struct platform_device *pdev)
 
 	pdata = netdev_priv(dev);
 	dev->irq = irq;
+<<<<<<< HEAD
 	pdata->ioaddr = ioremap_nocache(res->start, res_size);
+=======
+	pdata->ioaddr = ioremap(res->start, res_size);
+>>>>>>> upstream/android-13
 	if (!pdata->ioaddr) {
 		retval = -ENOMEM;
 		goto out_ioremap_fail;
@@ -2564,6 +2640,10 @@ static int smsc911x_drv_probe(struct platform_device *pdev)
 	}
 
 	spin_unlock_irq(&pdata->mac_lock);
+<<<<<<< HEAD
+=======
+	pm_runtime_put(&pdev->dev);
+>>>>>>> upstream/android-13
 
 	netdev_info(dev, "MAC Address: %pM\n", dev->dev_addr);
 
@@ -2665,11 +2745,19 @@ static const struct of_device_id smsc911x_dt_ids[] = {
 MODULE_DEVICE_TABLE(of, smsc911x_dt_ids);
 #endif
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_ACPI
+>>>>>>> upstream/android-13
 static const struct acpi_device_id smsc911x_acpi_match[] = {
 	{ "ARMH9118", 0 },
 	{ }
 };
 MODULE_DEVICE_TABLE(acpi, smsc911x_acpi_match);
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 static struct platform_driver smsc911x_driver = {
 	.probe = smsc911x_drv_probe,

@@ -26,7 +26,14 @@
  *          Jerome Glisse
  *          Christian König
  */
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+
+#include <drm/drm_device.h>
+#include <drm/drm_file.h>
+
+>>>>>>> upstream/android-13
 #include "radeon.h"
 
 /*
@@ -42,7 +49,11 @@
  * wptr.  The GPU then starts fetching commands and executes
  * them until the pointers are equal again.
  */
+<<<<<<< HEAD
 static int radeon_debugfs_ring_init(struct radeon_device *rdev, struct radeon_ring *ring);
+=======
+static void radeon_debugfs_ring_init(struct radeon_device *rdev, struct radeon_ring *ring);
+>>>>>>> upstream/android-13
 
 /**
  * radeon_ring_supports_scratch_reg - check if the ring supports
@@ -214,6 +225,10 @@ void radeon_ring_undo(struct radeon_ring *ring)
 /**
  * radeon_ring_unlock_undo - reset the wptr and unlock the ring
  *
+<<<<<<< HEAD
+=======
+ * @rdev:       radeon device structure
+>>>>>>> upstream/android-13
  * @ring: radeon_ring structure holding ring information
  *
  * Call radeon_ring_undo() then unlock the ring (all asics).
@@ -227,6 +242,10 @@ void radeon_ring_unlock_undo(struct radeon_device *rdev, struct radeon_ring *rin
 /**
  * radeon_ring_lockup_update - update lockup variables
  *
+<<<<<<< HEAD
+=======
+ * @rdev:       radeon device structure
+>>>>>>> upstream/android-13
  * @ring: radeon_ring structure holding ring information
  *
  * Update the last rptr value and timestamp (all asics).
@@ -271,6 +290,10 @@ bool radeon_ring_test_lockup(struct radeon_device *rdev, struct radeon_ring *rin
  *
  * @rdev: radeon_device pointer
  * @ring: the ring we want to back up
+<<<<<<< HEAD
+=======
+ * @data: placeholder for returned commit data
+>>>>>>> upstream/android-13
  *
  * Saves all unprocessed commits from a ring, returns the number of dwords saved.
  */
@@ -380,6 +403,10 @@ int radeon_ring_init(struct radeon_device *rdev, struct radeon_ring *ring, unsig
 	ring->ring_size = ring_size;
 	ring->rptr_offs = rptr_offs;
 	ring->nop = nop;
+<<<<<<< HEAD
+=======
+	ring->rdev = rdev;
+>>>>>>> upstream/android-13
 	/* Allocate ring buffer */
 	if (ring->ring_obj == NULL) {
 		r = radeon_bo_create(rdev, ring->ring_size, PAGE_SIZE, true,
@@ -414,9 +441,13 @@ int radeon_ring_init(struct radeon_device *rdev, struct radeon_ring *ring, unsig
 		ring->next_rptr_gpu_addr = rdev->wb.gpu_addr + index;
 		ring->next_rptr_cpu_addr = &rdev->wb.wb[index/4];
 	}
+<<<<<<< HEAD
 	if (radeon_debugfs_ring_init(rdev, ring)) {
 		DRM_ERROR("Failed to register debugfs file for rings !\n");
 	}
+=======
+	radeon_debugfs_ring_init(rdev, ring);
+>>>>>>> upstream/android-13
 	radeon_ring_lockup_update(rdev, ring);
 	return 0;
 }
@@ -457,6 +488,7 @@ void radeon_ring_fini(struct radeon_device *rdev, struct radeon_ring *ring)
  */
 #if defined(CONFIG_DEBUG_FS)
 
+<<<<<<< HEAD
 static int radeon_debugfs_ring_info(struct seq_file *m, void *data)
 {
 	struct drm_info_node *node = (struct drm_info_node *) m->private;
@@ -464,6 +496,12 @@ static int radeon_debugfs_ring_info(struct seq_file *m, void *data)
 	struct radeon_device *rdev = dev->dev_private;
 	int ridx = *(int*)node->info_ent->data;
 	struct radeon_ring *ring = &rdev->ring[ridx];
+=======
+static int radeon_debugfs_ring_info_show(struct seq_file *m, void *unused)
+{
+	struct radeon_ring *ring = (struct radeon_ring *) m->private;
+	struct radeon_device *rdev = ring->rdev;
+>>>>>>> upstream/android-13
 
 	uint32_t rptr, wptr, rptr_next;
 	unsigned count, i, j;
@@ -514,6 +552,7 @@ static int radeon_debugfs_ring_info(struct seq_file *m, void *data)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int radeon_gfx_index = RADEON_RING_TYPE_GFX_INDEX;
 static int cayman_cp1_index = CAYMAN_RING_TYPE_CP1_INDEX;
 static int cayman_cp2_index = CAYMAN_RING_TYPE_CP2_INDEX;
@@ -554,4 +593,45 @@ static int radeon_debugfs_ring_init(struct radeon_device *rdev, struct radeon_ri
 	}
 #endif
 	return 0;
+=======
+DEFINE_SHOW_ATTRIBUTE(radeon_debugfs_ring_info);
+
+static const char *radeon_debugfs_ring_idx_to_name(uint32_t ridx)
+{
+	switch (ridx) {
+	case RADEON_RING_TYPE_GFX_INDEX:
+		return "radeon_ring_gfx";
+	case CAYMAN_RING_TYPE_CP1_INDEX:
+		return "radeon_ring_cp1";
+	case CAYMAN_RING_TYPE_CP2_INDEX:
+		return "radeon_ring_cp2";
+	case R600_RING_TYPE_DMA_INDEX:
+		return "radeon_ring_dma1";
+	case CAYMAN_RING_TYPE_DMA1_INDEX:
+		return "radeon_ring_dma2";
+	case R600_RING_TYPE_UVD_INDEX:
+		return "radeon_ring_uvd";
+	case TN_RING_TYPE_VCE1_INDEX:
+		return "radeon_ring_vce1";
+	case TN_RING_TYPE_VCE2_INDEX:
+		return "radeon_ring_vce2";
+	default:
+		return NULL;
+
+	}
+}
+#endif
+
+static void radeon_debugfs_ring_init(struct radeon_device *rdev, struct radeon_ring *ring)
+{
+#if defined(CONFIG_DEBUG_FS)
+	const char *ring_name = radeon_debugfs_ring_idx_to_name(ring->idx);
+	struct dentry *root = rdev->ddev->primary->debugfs_root;
+
+	if (ring_name)
+		debugfs_create_file(ring_name, 0444, root, ring,
+				    &radeon_debugfs_ring_info_fops);
+
+#endif
+>>>>>>> upstream/android-13
 }

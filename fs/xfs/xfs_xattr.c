@@ -5,6 +5,7 @@
  */
 
 #include "xfs.h"
+<<<<<<< HEAD
 #include "xfs_format.h"
 #include "xfs_log_format.h"
 #include "xfs_trans_resv.h"
@@ -17,12 +18,27 @@
 
 #include <linux/posix_acl_xattr.h>
 #include <linux/xattr.h>
+=======
+#include "xfs_shared.h"
+#include "xfs_format.h"
+#include "xfs_log_format.h"
+#include "xfs_da_format.h"
+#include "xfs_trans_resv.h"
+#include "xfs_mount.h"
+#include "xfs_inode.h"
+#include "xfs_attr.h"
+#include "xfs_acl.h"
+#include "xfs_da_btree.h"
+
+#include <linux/posix_acl_xattr.h>
+>>>>>>> upstream/android-13
 
 
 static int
 xfs_xattr_get(const struct xattr_handler *handler, struct dentry *unused,
 		struct inode *inode, const char *name, void *value, size_t size)
 {
+<<<<<<< HEAD
 	int xflags = handler->flags;
 	struct xfs_inode *ip = XFS_I(inode);
 	int error, asize = size;
@@ -83,6 +99,44 @@ xfs_xattr_set(const struct xattr_handler *handler, struct dentry *unused,
 	if (!error)
 		xfs_forget_acl(inode, name, xflags);
 
+=======
+	struct xfs_da_args	args = {
+		.dp		= XFS_I(inode),
+		.attr_filter	= handler->flags,
+		.name		= name,
+		.namelen	= strlen(name),
+		.value		= value,
+		.valuelen	= size,
+	};
+	int			error;
+
+	error = xfs_attr_get(&args);
+	if (error)
+		return error;
+	return args.valuelen;
+}
+
+static int
+xfs_xattr_set(const struct xattr_handler *handler,
+	      struct user_namespace *mnt_userns, struct dentry *unused,
+	      struct inode *inode, const char *name, const void *value,
+	      size_t size, int flags)
+{
+	struct xfs_da_args	args = {
+		.dp		= XFS_I(inode),
+		.attr_filter	= handler->flags,
+		.attr_flags	= flags,
+		.name		= name,
+		.namelen	= strlen(name),
+		.value		= (void *)value,
+		.valuelen	= size,
+	};
+	int			error;
+
+	error = xfs_attr_set(&args);
+	if (!error && (handler->flags & XFS_ATTR_ROOT))
+		xfs_forget_acl(inode, name);
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -95,14 +149,22 @@ static const struct xattr_handler xfs_xattr_user_handler = {
 
 static const struct xattr_handler xfs_xattr_trusted_handler = {
 	.prefix	= XATTR_TRUSTED_PREFIX,
+<<<<<<< HEAD
 	.flags	= ATTR_ROOT,
+=======
+	.flags	= XFS_ATTR_ROOT,
+>>>>>>> upstream/android-13
 	.get	= xfs_xattr_get,
 	.set	= xfs_xattr_set,
 };
 
 static const struct xattr_handler xfs_xattr_security_handler = {
 	.prefix	= XATTR_SECURITY_PREFIX,
+<<<<<<< HEAD
 	.flags	= ATTR_SECURE,
+=======
+	.flags	= XFS_ATTR_SECURE,
+>>>>>>> upstream/android-13
 	.get	= xfs_xattr_get,
 	.set	= xfs_xattr_set,
 };
@@ -132,7 +194,11 @@ __xfs_xattr_put_listent(
 	if (context->count < 0 || context->seen_enough)
 		return;
 
+<<<<<<< HEAD
 	if (!context->alist)
+=======
+	if (!context->buffer)
+>>>>>>> upstream/android-13
 		goto compute_size;
 
 	arraytop = context->count + prefix_len + namelen + 1;
@@ -141,7 +207,11 @@ __xfs_xattr_put_listent(
 		context->seen_enough = 1;
 		return;
 	}
+<<<<<<< HEAD
 	offset = (char *)context->alist + context->count;
+=======
+	offset = context->buffer + context->count;
+>>>>>>> upstream/android-13
 	strncpy(offset, prefix, prefix_len);
 	offset += prefix_len;
 	strncpy(offset, (char *)name, namelen);			/* real name */
@@ -216,7 +286,10 @@ xfs_vn_listxattr(
 	size_t		size)
 {
 	struct xfs_attr_list_context context;
+<<<<<<< HEAD
 	struct attrlist_cursor_kern cursor = { 0 };
+=======
+>>>>>>> upstream/android-13
 	struct inode	*inode = d_inode(dentry);
 	int		error;
 
@@ -225,14 +298,23 @@ xfs_vn_listxattr(
 	 */
 	memset(&context, 0, sizeof(context));
 	context.dp = XFS_I(inode);
+<<<<<<< HEAD
 	context.cursor = &cursor;
 	context.resynch = 1;
 	context.alist = size ? data : NULL;
+=======
+	context.resynch = 1;
+	context.buffer = size ? data : NULL;
+>>>>>>> upstream/android-13
 	context.bufsize = size;
 	context.firstu = context.bufsize;
 	context.put_listent = xfs_xattr_put_listent;
 
+<<<<<<< HEAD
 	error = xfs_attr_list_int(&context);
+=======
+	error = xfs_attr_list(&context);
+>>>>>>> upstream/android-13
 	if (error)
 		return error;
 	if (context.count < 0)

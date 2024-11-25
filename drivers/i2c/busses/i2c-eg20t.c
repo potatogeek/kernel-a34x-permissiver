@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2011 LAPIS Semiconductor Co., Ltd.
  *
@@ -9,6 +10,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2011 LAPIS Semiconductor Co., Ltd.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -156,7 +162,11 @@ struct i2c_algo_pch_data {
 
 /**
  * struct adapter_info - This structure holds the adapter information for the
+<<<<<<< HEAD
 			 PCH i2c controller
+=======
+ *			 PCH i2c controller
+>>>>>>> upstream/android-13
  * @pch_data:		stores a list of i2c_algo_pch_data
  * @pch_i2c_suspended:	specifies whether the system is suspended or not
  *			perhaps with more lines and words.
@@ -366,6 +376,10 @@ static void pch_i2c_repstart(struct i2c_algo_pch_data *adap)
 /**
  * pch_i2c_writebytes() - write data to I2C bus in normal mode
  * @i2c_adap:	Pointer to the struct i2c_adapter.
+<<<<<<< HEAD
+=======
+ * @msgs:	Pointer to the i2c message structure.
+>>>>>>> upstream/android-13
  * @last:	specifies whether last message or not.
  *		In the case of compound mode it will be 1 for last message,
  *		otherwise 0.
@@ -854,11 +868,18 @@ static void pch_i2c_remove(struct pci_dev *pdev)
 	kfree(adap_info);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 static int pch_i2c_suspend(struct pci_dev *pdev, pm_message_t state)
 {
 	int ret;
 	int i;
+=======
+static int __maybe_unused pch_i2c_suspend(struct device *dev)
+{
+	int i;
+	struct pci_dev *pdev = to_pci_dev(dev);
+>>>>>>> upstream/android-13
 	struct adapter_info *adap_info = pci_get_drvdata(pdev);
 	void __iomem *p = adap_info->pch_data[0].pch_base_address;
 
@@ -880,6 +901,7 @@ static int pch_i2c_suspend(struct pci_dev *pdev, pm_message_t state)
 		ioread32(p + PCH_I2CSR), ioread32(p + PCH_I2CBUFSTA),
 		ioread32(p + PCH_I2CESRSTA));
 
+<<<<<<< HEAD
 	ret = pci_save_state(pdev);
 
 	if (ret) {
@@ -908,6 +930,15 @@ static int pch_i2c_resume(struct pci_dev *pdev)
 	}
 
 	pci_enable_wake(pdev, PCI_D3hot, 0);
+=======
+	return 0;
+}
+
+static int __maybe_unused pch_i2c_resume(struct device *dev)
+{
+	int i;
+	struct adapter_info *adap_info = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < adap_info->ch_num; i++)
 		pch_i2c_init(&adap_info->pch_data[i]);
@@ -916,18 +947,27 @@ static int pch_i2c_resume(struct pci_dev *pdev)
 
 	return 0;
 }
+<<<<<<< HEAD
 #else
 #define pch_i2c_suspend NULL
 #define pch_i2c_resume NULL
 #endif
+=======
+
+static SIMPLE_DEV_PM_OPS(pch_i2c_pm_ops, pch_i2c_suspend, pch_i2c_resume);
+>>>>>>> upstream/android-13
 
 static struct pci_driver pch_pcidriver = {
 	.name = KBUILD_MODNAME,
 	.id_table = pch_pcidev_id,
 	.probe = pch_i2c_probe,
 	.remove = pch_i2c_remove,
+<<<<<<< HEAD
 	.suspend = pch_i2c_suspend,
 	.resume = pch_i2c_resume
+=======
+	.driver.pm = &pch_i2c_pm_ops,
+>>>>>>> upstream/android-13
 };
 
 module_pci_driver(pch_pcidriver);

@@ -24,7 +24,11 @@ static void discover_timer(struct timer_list *t)
 	aoecmd_cfg(0xffff, 0xff);
 }
 
+<<<<<<< HEAD
 static void
+=======
+static void __exit
+>>>>>>> upstream/android-13
 aoe_exit(void)
 {
 	del_timer_sync(&timer);

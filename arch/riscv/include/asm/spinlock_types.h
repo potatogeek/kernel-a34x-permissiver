@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015 Regents of the University of California
  *
@@ -9,6 +10,11 @@
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *   GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2015 Regents of the University of California
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_RISCV_SPINLOCK_TYPES_H
@@ -30,4 +36,8 @@ typedef struct {
 
 #define __ARCH_RW_LOCK_UNLOCKED		{ 0 }
 
+<<<<<<< HEAD
 #endif
+=======
+#endif /* _ASM_RISCV_SPINLOCK_TYPES_H */
+>>>>>>> upstream/android-13

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0+
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+>>>>>>> upstream/android-13
 /*
  * Helpers for controlling modem lines via GPIO
  *
@@ -114,19 +118,31 @@ static inline
 struct gpio_desc *mctrl_gpio_to_gpiod(struct mctrl_gpios *gpios,
 				      enum mctrl_gpio_idx gidx)
 {
+<<<<<<< HEAD
 	return ERR_PTR(-ENOSYS);
+=======
+	return NULL;
+>>>>>>> upstream/android-13
 }
 
 static inline
 struct mctrl_gpios *mctrl_gpio_init(struct uart_port *port, unsigned int idx)
 {
+<<<<<<< HEAD
 	return ERR_PTR(-ENOSYS);
+=======
+	return NULL;
+>>>>>>> upstream/android-13
 }
 
 static inline
 struct mctrl_gpios *mctrl_gpio_init_noauto(struct device *dev, unsigned int idx)
 {
+<<<<<<< HEAD
 	return ERR_PTR(-ENOSYS);
+=======
+	return NULL;
+>>>>>>> upstream/android-13
 }
 
 static inline

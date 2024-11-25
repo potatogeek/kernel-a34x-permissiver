@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2011 Texas Instruments Inc
  *
@@ -9,6 +10,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2011 Texas Instruments Inc
+>>>>>>> upstream/android-13
  */
 #ifndef _VPIF_TYPES_H
 #define _VPIF_TYPES_H
@@ -56,8 +62,11 @@ struct vpif_display_config {
 	int i2c_adapter_id;
 	struct vpif_display_chan_config chan_config[VPIF_DISPLAY_MAX_CHANNELS];
 	const char *card_name;
+<<<<<<< HEAD
 	struct v4l2_async_subdev **asd;	/* Flat array, arranged in groups */
 	int *asd_sizes;		/* 0-terminated array of asd group sizes */
+=======
+>>>>>>> upstream/android-13
 };
 
 struct vpif_input {

@@ -1,15 +1,23 @@
+<<<<<<< HEAD
 /*
  * ALSA SoC TLV320AIC3X codec driver
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* ALSA SoC TLV320AIC3X codec driver
+>>>>>>> upstream/android-13
  *
  * Author:      Vladimir Barinov, <vbarinov@embeddedalley.com>
  * Copyright:   (C) 2007 MontaVista Software, Inc., <source@mvista.com>
  *
  * Based on sound/soc/codecs/wm8753.c by Liam Girdwood
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Notes:
  *  The AIC3X is a driver for a low power stereo audio
  *  codecs aic31, aic32, aic33, aic3007.
@@ -85,10 +93,13 @@ struct aic3x_priv {
 	int master;
 	int gpio_reset;
 	int power;
+<<<<<<< HEAD
 #define AIC3X_MODEL_3X 0
 #define AIC3X_MODEL_33 1
 #define AIC3X_MODEL_3007 2
 #define AIC3X_MODEL_3104 3
+=======
+>>>>>>> upstream/android-13
 	u16 model;
 
 	/* Selects the micbias voltage */
@@ -138,10 +149,14 @@ static bool aic3x_volatile_reg(struct device *dev, unsigned int reg)
 	}
 }
 
+<<<<<<< HEAD
 static const struct regmap_config aic3x_regmap = {
 	.reg_bits = 8,
 	.val_bits = 8,
 
+=======
+const struct regmap_config aic3x_regmap = {
+>>>>>>> upstream/android-13
 	.max_register = DAC_ICC_ADJ,
 	.reg_defaults = aic3x_reg,
 	.num_reg_defaults = ARRAY_SIZE(aic3x_reg),
@@ -150,6 +165,10 @@ static const struct regmap_config aic3x_regmap = {
 
 	.cache_type = REGCACHE_RBTREE,
 };
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(aic3x_regmap);
+>>>>>>> upstream/android-13
 
 #define SOC_DAPM_SINGLE_AIC3X(xname, reg, shift, mask, invert) \
 	SOC_SINGLE_EXT(xname, reg, shift, mask, invert, \
@@ -324,6 +343,12 @@ static DECLARE_TLV_DB_SCALE(adc_tlv, 0, 50, 0);
  */
 static DECLARE_TLV_DB_SCALE(output_stage_tlv, -5900, 50, 1);
 
+<<<<<<< HEAD
+=======
+/* Output volumes. From 0 to 9 dB in 1 dB steps */
+static const DECLARE_TLV_DB_SCALE(out_tlv, 0, 100, 0);
+
+>>>>>>> upstream/android-13
 static const struct snd_kcontrol_new aic3x_snd_controls[] = {
 	/* Output */
 	SOC_DOUBLE_R_TLV("PCM Playback Volume",
@@ -386,11 +411,25 @@ static const struct snd_kcontrol_new aic3x_snd_controls[] = {
 			 DACL1_2_HPLCOM_VOL, DACR1_2_HPRCOM_VOL,
 			 0, 118, 1, output_stage_tlv),
 
+<<<<<<< HEAD
 	/* Output pin mute controls */
 	SOC_DOUBLE_R("Line Playback Switch", LLOPM_CTRL, RLOPM_CTRL, 3,
 		     0x01, 0),
 	SOC_DOUBLE_R("HP Playback Switch", HPLOUT_CTRL, HPROUT_CTRL, 3,
 		     0x01, 0),
+=======
+	/* Output pin controls */
+	SOC_DOUBLE_R_TLV("Line Playback Volume", LLOPM_CTRL, RLOPM_CTRL, 4,
+			 9, 0, out_tlv),
+	SOC_DOUBLE_R("Line Playback Switch", LLOPM_CTRL, RLOPM_CTRL, 3,
+		     0x01, 0),
+	SOC_DOUBLE_R_TLV("HP Playback Volume", HPLOUT_CTRL, HPROUT_CTRL, 4,
+			 9, 0, out_tlv),
+	SOC_DOUBLE_R("HP Playback Switch", HPLOUT_CTRL, HPROUT_CTRL, 3,
+		     0x01, 0),
+	SOC_DOUBLE_R_TLV("HPCOM Playback Volume", HPLCOM_CTRL, HPRCOM_CTRL,
+			 4, 9, 0, out_tlv),
+>>>>>>> upstream/android-13
 	SOC_DOUBLE_R("HPCOM Playback Switch", HPLCOM_CTRL, HPRCOM_CTRL, 3,
 		     0x01, 0),
 
@@ -472,6 +511,12 @@ static const struct snd_kcontrol_new aic3x_mono_controls[] = {
 			 0, 118, 1, output_stage_tlv),
 
 	SOC_SINGLE("Mono Playback Switch", MONOLOPM_CTRL, 3, 0x01, 0),
+<<<<<<< HEAD
+=======
+	SOC_SINGLE_TLV("Mono Playback Volume", MONOLOPM_CTRL, 4, 9, 0,
+			out_tlv),
+
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -1001,6 +1046,10 @@ static int aic3x_add_widgets(struct snd_soc_component *component)
 	switch (aic3x->model) {
 	case AIC3X_MODEL_3X:
 	case AIC3X_MODEL_33:
+<<<<<<< HEAD
+=======
+	case AIC3X_MODEL_3106:
+>>>>>>> upstream/android-13
 		snd_soc_dapm_new_controls(dapm, aic3x_extra_dapm_widgets,
 					  ARRAY_SIZE(aic3x_extra_dapm_widgets));
 		snd_soc_dapm_add_routes(dapm, intercon_extra,
@@ -1047,7 +1096,11 @@ static int aic3x_hw_params(struct snd_pcm_substream *substream,
 		width = params_width(params);
 
 	/* select data word length */
+<<<<<<< HEAD
 	data = snd_soc_component_read32(component, AIC3X_ASD_INTF_CTRLB) & (~(0x3 << 4));
+=======
+	data = snd_soc_component_read(component, AIC3X_ASD_INTF_CTRLB) & (~(0x3 << 4));
+>>>>>>> upstream/android-13
 	switch (width) {
 	case 16:
 		break;
@@ -1207,11 +1260,19 @@ static int aic3x_prepare(struct snd_pcm_substream *substream,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int aic3x_mute(struct snd_soc_dai *dai, int mute)
 {
 	struct snd_soc_component *component = dai->component;
 	u8 ldac_reg = snd_soc_component_read32(component, LDAC_VOL) & ~MUTE_ON;
 	u8 rdac_reg = snd_soc_component_read32(component, RDAC_VOL) & ~MUTE_ON;
+=======
+static int aic3x_mute(struct snd_soc_dai *dai, int mute, int direction)
+{
+	struct snd_soc_component *component = dai->component;
+	u8 ldac_reg = snd_soc_component_read(component, LDAC_VOL) & ~MUTE_ON;
+	u8 rdac_reg = snd_soc_component_read(component, RDAC_VOL) & ~MUTE_ON;
+>>>>>>> upstream/android-13
 
 	if (mute) {
 		snd_soc_component_write(component, LDAC_VOL, ldac_reg | MUTE_ON);
@@ -1247,8 +1308,13 @@ static int aic3x_set_dai_fmt(struct snd_soc_dai *codec_dai,
 	struct aic3x_priv *aic3x = snd_soc_component_get_drvdata(component);
 	u8 iface_areg, iface_breg;
 
+<<<<<<< HEAD
 	iface_areg = snd_soc_component_read32(component, AIC3X_ASD_INTF_CTRLA) & 0x3f;
 	iface_breg = snd_soc_component_read32(component, AIC3X_ASD_INTF_CTRLB) & 0x3f;
+=======
+	iface_areg = snd_soc_component_read(component, AIC3X_ASD_INTF_CTRLA) & 0x3f;
+	iface_breg = snd_soc_component_read(component, AIC3X_ASD_INTF_CTRLB) & 0x3f;
+>>>>>>> upstream/android-13
 
 	/* set master/slave audio interface */
 	switch (fmt & SND_SOC_DAIFMT_MASTER_MASK) {
@@ -1260,6 +1326,19 @@ static int aic3x_set_dai_fmt(struct snd_soc_dai *codec_dai,
 		aic3x->master = 0;
 		iface_areg &= ~(BIT_CLK_MASTER | WORD_CLK_MASTER);
 		break;
+<<<<<<< HEAD
+=======
+	case SND_SOC_DAIFMT_CBM_CFS:
+		aic3x->master = 1;
+		iface_areg |= BIT_CLK_MASTER;
+		iface_areg &= ~WORD_CLK_MASTER;
+		break;
+	case SND_SOC_DAIFMT_CBS_CFM:
+		aic3x->master = 1;
+		iface_areg |= WORD_CLK_MASTER;
+		iface_areg &= ~BIT_CLK_MASTER;
+		break;
+>>>>>>> upstream/android-13
 	default:
 		return -EINVAL;
 	}
@@ -1388,8 +1467,13 @@ static int aic3x_set_power(struct snd_soc_component *component, int power)
 		 * writing one of them and thus caused other one also not
 		 * being written
 		 */
+<<<<<<< HEAD
 		pll_c = snd_soc_component_read32(component, AIC3X_PLL_PROGC_REG);
 		pll_d = snd_soc_component_read32(component, AIC3X_PLL_PROGD_REG);
+=======
+		pll_c = snd_soc_component_read(component, AIC3X_PLL_PROGC_REG);
+		pll_d = snd_soc_component_read(component, AIC3X_PLL_PROGD_REG);
+>>>>>>> upstream/android-13
 		if (pll_c == aic3x_reg[AIC3X_PLL_PROGC_REG].def ||
 			pll_d == aic3x_reg[AIC3X_PLL_PROGD_REG].def) {
 			snd_soc_component_write(component, AIC3X_PLL_PROGC_REG, pll_c);
@@ -1462,10 +1546,18 @@ static int aic3x_set_bias_level(struct snd_soc_component *component,
 static const struct snd_soc_dai_ops aic3x_dai_ops = {
 	.hw_params	= aic3x_hw_params,
 	.prepare	= aic3x_prepare,
+<<<<<<< HEAD
 	.digital_mute	= aic3x_mute,
 	.set_sysclk	= aic3x_set_dai_sysclk,
 	.set_fmt	= aic3x_set_dai_fmt,
 	.set_tdm_slot	= aic3x_set_dai_tdm_slot,
+=======
+	.mute_stream	= aic3x_mute,
+	.set_sysclk	= aic3x_set_dai_sysclk,
+	.set_fmt	= aic3x_set_dai_fmt,
+	.set_tdm_slot	= aic3x_set_dai_tdm_slot,
+	.no_capture_mute = 1,
+>>>>>>> upstream/android-13
 };
 
 static struct snd_soc_dai_driver aic3x_dai = {
@@ -1483,7 +1575,11 @@ static struct snd_soc_dai_driver aic3x_dai = {
 		.rates = AIC3X_RATES,
 		.formats = AIC3X_FORMATS,},
 	.ops = &aic3x_dai_ops,
+<<<<<<< HEAD
 	.symmetric_rates = 1,
+=======
+	.symmetric_rate = 1,
+>>>>>>> upstream/android-13
 };
 
 static void aic3x_mono_init(struct snd_soc_component *component)
@@ -1567,6 +1663,10 @@ static int aic3x_init(struct snd_soc_component *component)
 	switch (aic3x->model) {
 	case AIC3X_MODEL_3X:
 	case AIC3X_MODEL_33:
+<<<<<<< HEAD
+=======
+	case AIC3X_MODEL_3106:
+>>>>>>> upstream/android-13
 		aic3x_mono_init(component);
 		break;
 	case AIC3X_MODEL_3007:
@@ -1594,7 +1694,11 @@ static bool aic3x_is_shared_reset(struct aic3x_priv *aic3x)
 	return false;
 }
 
+<<<<<<< HEAD
 static int aic3x_probe(struct snd_soc_component *component)
+=======
+static int aic3x_component_probe(struct snd_soc_component *component)
+>>>>>>> upstream/android-13
 {
 	struct aic3x_priv *aic3x = snd_soc_component_get_drvdata(component);
 	int ret, i;
@@ -1604,13 +1708,23 @@ static int aic3x_probe(struct snd_soc_component *component)
 	for (i = 0; i < ARRAY_SIZE(aic3x->supplies); i++) {
 		aic3x->disable_nb[i].nb.notifier_call = aic3x_regulator_event;
 		aic3x->disable_nb[i].aic3x = aic3x;
+<<<<<<< HEAD
 		ret = regulator_register_notifier(aic3x->supplies[i].consumer,
 						  &aic3x->disable_nb[i].nb);
+=======
+		ret = devm_regulator_register_notifier(
+						aic3x->supplies[i].consumer,
+						&aic3x->disable_nb[i].nb);
+>>>>>>> upstream/android-13
 		if (ret) {
 			dev_err(component->dev,
 				"Failed to request regulator notifier: %d\n",
 				 ret);
+<<<<<<< HEAD
 			goto err_notif;
+=======
+			return ret;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -1632,6 +1746,10 @@ static int aic3x_probe(struct snd_soc_component *component)
 	switch (aic3x->model) {
 	case AIC3X_MODEL_3X:
 	case AIC3X_MODEL_33:
+<<<<<<< HEAD
+=======
+	case AIC3X_MODEL_3106:
+>>>>>>> upstream/android-13
 		snd_soc_add_component_controls(component, aic3x_extra_snd_controls,
 				ARRAY_SIZE(aic3x_extra_snd_controls));
 		snd_soc_add_component_controls(component, aic3x_mono_controls,
@@ -1668,6 +1786,7 @@ static int aic3x_probe(struct snd_soc_component *component)
 	aic3x_add_widgets(component);
 
 	return 0;
+<<<<<<< HEAD
 
 err_notif:
 	while (i--)
@@ -1684,12 +1803,18 @@ static void aic3x_remove(struct snd_soc_component *component)
 	for (i = 0; i < ARRAY_SIZE(aic3x->supplies); i++)
 		regulator_unregister_notifier(aic3x->supplies[i].consumer,
 					      &aic3x->disable_nb[i].nb);
+=======
+>>>>>>> upstream/android-13
 }
 
 static const struct snd_soc_component_driver soc_component_dev_aic3x = {
 	.set_bias_level		= aic3x_set_bias_level,
+<<<<<<< HEAD
 	.probe			= aic3x_probe,
 	.remove			= aic3x_remove,
+=======
+	.probe			= aic3x_component_probe,
+>>>>>>> upstream/android-13
 	.controls		= aic3x_snd_controls,
 	.num_controls		= ARRAY_SIZE(aic3x_snd_controls),
 	.dapm_widgets		= aic3x_dapm_widgets,
@@ -1701,10 +1826,16 @@ static const struct snd_soc_component_driver soc_component_dev_aic3x = {
 	.non_legacy_dai_naming	= 1,
 };
 
+<<<<<<< HEAD
 static void aic3x_configure_ocmv(struct i2c_client *client)
 {
 	struct device_node *np = client->dev.of_node;
 	struct aic3x_priv *aic3x = i2c_get_clientdata(client);
+=======
+static void aic3x_configure_ocmv(struct device *dev, struct aic3x_priv *aic3x)
+{
+	struct device_node *np = dev->of_node;
+>>>>>>> upstream/android-13
 	u32 value;
 	int dvdd, avdd;
 
@@ -1720,7 +1851,11 @@ static void aic3x_configure_ocmv(struct i2c_client *client)
 	avdd = regulator_get_voltage(aic3x->supplies[2].consumer);
 
 	if (avdd > 3600000 || dvdd > 1950000) {
+<<<<<<< HEAD
 		dev_warn(&client->dev,
+=======
+		dev_warn(dev,
+>>>>>>> upstream/android-13
 			 "Too high supply voltage(s) AVDD: %d, DVDD: %d\n",
 			 avdd, dvdd);
 	} else if (avdd == 3600000 && dvdd == 1950000) {
@@ -1732,12 +1867,17 @@ static void aic3x_configure_ocmv(struct i2c_client *client)
 	} else if (avdd >= 2700000 && dvdd >= 1525000) {
 		aic3x->ocmv = HPOUT_SC_OCMV_1_35V;
 	} else {
+<<<<<<< HEAD
 		dev_warn(&client->dev,
+=======
+		dev_warn(dev,
+>>>>>>> upstream/android-13
 			 "Invalid supply voltage(s) AVDD: %d, DVDD: %d\n",
 			 avdd, dvdd);
 	}
 }
 
+<<<<<<< HEAD
 /*
  * AIC3X 2 wire address can be up to 4 devices with device addresses
  * 0x18, 0x19, 0x1A, 0x1B
@@ -1752,6 +1892,8 @@ static const struct i2c_device_id aic3x_i2c_id[] = {
 	{ }
 };
 MODULE_DEVICE_TABLE(i2c, aic3x_i2c_id);
+=======
+>>>>>>> upstream/android-13
 
 static const struct reg_sequence aic3007_class_d[] = {
 	/* Class-D speaker driver init; datasheet p. 46 */
@@ -1763,6 +1905,7 @@ static const struct reg_sequence aic3007_class_d[] = {
 	{ AIC3X_PAGE_SELECT, 0x00 },
 };
 
+<<<<<<< HEAD
 /*
  * If the i2c layer weren't so broken, we could pass this kind of data
  * around
@@ -1782,6 +1925,22 @@ static int aic3x_i2c_probe(struct i2c_client *i2c,
 		return -ENOMEM;
 
 	aic3x->regmap = devm_regmap_init_i2c(i2c, &aic3x_regmap);
+=======
+int aic3x_probe(struct device *dev, struct regmap *regmap, kernel_ulong_t driver_data)
+{
+	struct aic3x_pdata *pdata = dev->platform_data;
+	struct aic3x_priv *aic3x;
+	struct aic3x_setup_data *ai3x_setup;
+	struct device_node *np = dev->of_node;
+	int ret, i;
+	u32 value;
+
+	aic3x = devm_kzalloc(dev, sizeof(struct aic3x_priv), GFP_KERNEL);
+	if (!aic3x)
+		return -ENOMEM;
+
+	aic3x->regmap = regmap;
+>>>>>>> upstream/android-13
 	if (IS_ERR(aic3x->regmap)) {
 		ret = PTR_ERR(aic3x->regmap);
 		return ret;
@@ -1789,14 +1948,22 @@ static int aic3x_i2c_probe(struct i2c_client *i2c,
 
 	regcache_cache_only(aic3x->regmap, true);
 
+<<<<<<< HEAD
 	i2c_set_clientdata(i2c, aic3x);
+=======
+	dev_set_drvdata(dev, aic3x);
+>>>>>>> upstream/android-13
 	if (pdata) {
 		aic3x->gpio_reset = pdata->gpio_reset;
 		aic3x->setup = pdata->setup;
 		aic3x->micbias_vg = pdata->micbias_vg;
 	} else if (np) {
+<<<<<<< HEAD
 		ai3x_setup = devm_kzalloc(&i2c->dev, sizeof(*ai3x_setup),
 								GFP_KERNEL);
+=======
+		ai3x_setup = devm_kzalloc(dev, sizeof(*ai3x_setup), GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (!ai3x_setup)
 			return -ENOMEM;
 
@@ -1806,7 +1973,11 @@ static int aic3x_i2c_probe(struct i2c_client *i2c,
 		} else {
 			ret = of_get_named_gpio(np, "gpio-reset", 0);
 			if (ret > 0) {
+<<<<<<< HEAD
 				dev_warn(&i2c->dev, "Using deprecated property \"gpio-reset\", please update your DT");
+=======
+				dev_warn(dev, "Using deprecated property \"gpio-reset\", please update your DT");
+>>>>>>> upstream/android-13
 				aic3x->gpio_reset = ret;
 			} else {
 				aic3x->gpio_reset = -1;
@@ -1831,7 +2002,11 @@ static int aic3x_i2c_probe(struct i2c_client *i2c,
 				break;
 			default :
 				aic3x->micbias_vg = AIC3X_MICBIAS_OFF;
+<<<<<<< HEAD
 				dev_err(&i2c->dev, "Unsuitable MicBias voltage "
+=======
+				dev_err(dev, "Unsuitable MicBias voltage "
+>>>>>>> upstream/android-13
 							"found in DT\n");
 			}
 		} else {
@@ -1842,7 +2017,11 @@ static int aic3x_i2c_probe(struct i2c_client *i2c,
 		aic3x->gpio_reset = -1;
 	}
 
+<<<<<<< HEAD
 	aic3x->model = id->driver_data;
+=======
+	aic3x->model = driver_data;
+>>>>>>> upstream/android-13
 
 	if (gpio_is_valid(aic3x->gpio_reset) &&
 	    !aic3x_is_shared_reset(aic3x)) {
@@ -1855,6 +2034,7 @@ static int aic3x_i2c_probe(struct i2c_client *i2c,
 	for (i = 0; i < ARRAY_SIZE(aic3x->supplies); i++)
 		aic3x->supplies[i].supply = aic3x_supply_names[i];
 
+<<<<<<< HEAD
 	ret = devm_regulator_bulk_get(&i2c->dev, ARRAY_SIZE(aic3x->supplies),
 				      aic3x->supplies);
 	if (ret != 0) {
@@ -1863,17 +2043,35 @@ static int aic3x_i2c_probe(struct i2c_client *i2c,
 	}
 
 	aic3x_configure_ocmv(i2c);
+=======
+	ret = devm_regulator_bulk_get(dev, ARRAY_SIZE(aic3x->supplies),
+				      aic3x->supplies);
+	if (ret != 0) {
+		dev_err(dev, "Failed to request supplies: %d\n", ret);
+		goto err_gpio;
+	}
+
+	aic3x_configure_ocmv(dev, aic3x);
+>>>>>>> upstream/android-13
 
 	if (aic3x->model == AIC3X_MODEL_3007) {
 		ret = regmap_register_patch(aic3x->regmap, aic3007_class_d,
 					    ARRAY_SIZE(aic3007_class_d));
 		if (ret != 0)
+<<<<<<< HEAD
 			dev_err(&i2c->dev, "Failed to init class D: %d\n",
 				ret);
 	}
 
 	ret = devm_snd_soc_register_component(&i2c->dev,
 			&soc_component_dev_aic3x, &aic3x_dai, 1);
+=======
+			dev_err(dev, "Failed to init class D: %d\n",
+				ret);
+	}
+
+	ret = devm_snd_soc_register_component(dev, &soc_component_dev_aic3x, &aic3x_dai, 1);
+>>>>>>> upstream/android-13
 
 	if (ret != 0)
 		goto err_gpio;
@@ -1890,10 +2088,18 @@ err_gpio:
 err:
 	return ret;
 }
+<<<<<<< HEAD
 
 static int aic3x_i2c_remove(struct i2c_client *client)
 {
 	struct aic3x_priv *aic3x = i2c_get_clientdata(client);
+=======
+EXPORT_SYMBOL(aic3x_probe);
+
+int aic3x_remove(struct device *dev)
+{
+	struct aic3x_priv *aic3x = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 
 	list_del(&aic3x->list);
 
@@ -1904,6 +2110,7 @@ static int aic3x_i2c_remove(struct i2c_client *client)
 	}
 	return 0;
 }
+<<<<<<< HEAD
 
 #if defined(CONFIG_OF)
 static const struct of_device_id tlv320aic3x_of_match[] = {
@@ -1929,6 +2136,9 @@ static struct i2c_driver aic3x_i2c_driver = {
 };
 
 module_i2c_driver(aic3x_i2c_driver);
+=======
+EXPORT_SYMBOL(aic3x_remove);
+>>>>>>> upstream/android-13
 
 MODULE_DESCRIPTION("ASoC TLV320AIC3X codec driver");
 MODULE_AUTHOR("Vladimir Barinov");

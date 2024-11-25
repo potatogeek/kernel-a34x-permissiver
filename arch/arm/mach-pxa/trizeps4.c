@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/mach-pxa/trizeps4.c
  *
@@ -6,10 +10,13 @@
  *  Author:	Jürgen Schindele
  *  Created:	20 02, 2006
  *  Copyright:	Jürgen Schindele
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -35,7 +42,11 @@
 #include <asm/memory.h>
 #include <asm/mach-types.h>
 #include <asm/irq.h>
+<<<<<<< HEAD
 #include <asm/sizes.h>
+=======
+#include <linux/sizes.h>
+>>>>>>> upstream/android-13
 
 #include <asm/mach/arch.h>
 #include <asm/mach/map.h>
@@ -355,9 +366,12 @@ static struct pxamci_platform_data trizeps4_mci_platform_data = {
 	.exit		= trizeps4_mci_exit,
 	.get_ro		= NULL,	/* write-protection not supported */
 	.setpower 	= NULL,	/* power-switching not supported */
+<<<<<<< HEAD
 	.gpio_card_detect = -1,
 	.gpio_card_ro	= -1,
 	.gpio_power	= -1,
+=======
+>>>>>>> upstream/android-13
 };
 
 /****************************************************************************

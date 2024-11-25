@@ -1,6 +1,11 @@
 /* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
+<<<<<<< HEAD
 #ifndef _ASM_IA64_CMPXCHG_H
 #define _ASM_IA64_CMPXCHG_H
+=======
+#ifndef _UAPI_ASM_IA64_CMPXCHG_H
+#define _UAPI_ASM_IA64_CMPXCHG_H
+>>>>>>> upstream/android-13
 
 /*
  * Compare/Exchange, forked from asm/intrinsics.h
@@ -53,8 +58,15 @@ extern void ia64_xchg_called_with_bad_pointer(void);
 	__xchg_result;							\
 })
 
+<<<<<<< HEAD
 #define xchg(ptr, x)							\
 ((__typeof__(*(ptr))) __xchg((unsigned long) (x), (ptr), sizeof(*(ptr))))
+=======
+#ifndef __KERNEL__
+#define xchg(ptr, x)							\
+({(__typeof__(*(ptr))) __xchg((unsigned long) (x), (ptr), sizeof(*(ptr)));})
+#endif
+>>>>>>> upstream/android-13
 
 /*
  * Atomic compare and exchange.  Compare OLD with MEM, if identical,
@@ -126,12 +138,20 @@ extern long ia64_cmpxchg_called_with_bad_pointer(void);
  * we had to back-pedal and keep the "legacy" behavior of a full fence :-(
  */
 
+<<<<<<< HEAD
+=======
+#ifndef __KERNEL__
+>>>>>>> upstream/android-13
 /* for compatibility with other platforms: */
 #define cmpxchg(ptr, o, n)	cmpxchg_acq((ptr), (o), (n))
 #define cmpxchg64(ptr, o, n)	cmpxchg_acq((ptr), (o), (n))
 
 #define cmpxchg_local		cmpxchg
 #define cmpxchg64_local		cmpxchg64
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_IA64_DEBUG_CMPXCHG
 # define CMPXCHG_BUGCHECK_DECL	int _cmpxchg_bugcheck_count = 128;
@@ -139,9 +159,15 @@ extern long ia64_cmpxchg_called_with_bad_pointer(void);
 do {									\
 	if (_cmpxchg_bugcheck_count-- <= 0) {				\
 		void *ip;						\
+<<<<<<< HEAD
 		extern int printk(const char *fmt, ...);		\
 		ip = (void *) ia64_getreg(_IA64_REG_IP);		\
 		printk("CMPXCHG_BUGCHECK: stuck at %p on word %p\n", ip, (v));\
+=======
+		extern int _printk(const char *fmt, ...);		\
+		ip = (void *) ia64_getreg(_IA64_REG_IP);		\
+		_printk("CMPXCHG_BUGCHECK: stuck at %p on word %p\n", ip, (v));\
+>>>>>>> upstream/android-13
 		break;							\
 	}								\
 } while (0)
@@ -152,4 +178,8 @@ do {									\
 
 #endif /* !__ASSEMBLY__ */
 
+<<<<<<< HEAD
 #endif /* _ASM_IA64_CMPXCHG_H */
+=======
+#endif /* _UAPI_ASM_IA64_CMPXCHG_H */
+>>>>>>> upstream/android-13

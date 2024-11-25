@@ -3,7 +3,11 @@
  *
  * Module Name: dswstate - Dispatcher parse tree walk management routines
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -530,7 +534,11 @@ struct acpi_walk_state *acpi_ds_create_walk_state(acpi_owner_id owner_id,
 
 	/* Init the method args/local */
 
+<<<<<<< HEAD
 #if (!defined (ACPI_NO_METHOD_EXECUTION) && !defined (ACPI_CONSTANT_EVAL_ONLY))
+=======
+#ifndef ACPI_CONSTANT_EVAL_ONLY
+>>>>>>> upstream/android-13
 	acpi_ds_method_data_init(walk_state);
 #endif
 

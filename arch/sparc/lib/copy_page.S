@@ -8,7 +8,11 @@
 #include <asm/visasm.h>
 #include <asm/thread_info.h>
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 #include <asm/spitfire.h>
 #include <asm/head.h>
 #include <asm/export.h>

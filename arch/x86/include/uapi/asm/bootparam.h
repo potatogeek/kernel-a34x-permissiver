@@ -2,7 +2,11 @@
 #ifndef _ASM_X86_BOOTPARAM_H
 #define _ASM_X86_BOOTPARAM_H
 
+<<<<<<< HEAD
 /* setup_data types */
+=======
+/* setup_data/setup_indirect types */
+>>>>>>> upstream/android-13
 #define SETUP_NONE			0
 #define SETUP_E820_EXT			1
 #define SETUP_DTB			2
@@ -11,6 +15,14 @@
 #define SETUP_APPLE_PROPERTIES		5
 #define SETUP_JAILHOUSE			6
 
+<<<<<<< HEAD
+=======
+#define SETUP_INDIRECT			(1<<31)
+
+/* SETUP_INDIRECT | max(SETUP_*) */
+#define SETUP_TYPE_MAX			(SETUP_INDIRECT | SETUP_JAILHOUSE)
+
+>>>>>>> upstream/android-13
 /* ram_size flags */
 #define RAMDISK_IMAGE_START_MASK	0x07FF
 #define RAMDISK_PROMPT_FLAG		0x8000
@@ -29,6 +41,11 @@
 #define XLF_EFI_HANDOVER_32		(1<<2)
 #define XLF_EFI_HANDOVER_64		(1<<3)
 #define XLF_EFI_KEXEC			(1<<4)
+<<<<<<< HEAD
+=======
+#define XLF_5LEVEL			(1<<5)
+#define XLF_5LEVEL_ENABLED		(1<<6)
+>>>>>>> upstream/android-13
 
 #ifndef __ASSEMBLY__
 
@@ -47,6 +64,17 @@ struct setup_data {
 	__u8 data[0];
 };
 
+<<<<<<< HEAD
+=======
+/* extensible setup indirect data node */
+struct setup_indirect {
+	__u32 type;
+	__u32 reserved;  /* Reserved, must be set to zero. */
+	__u64 len;
+	__u64 addr;
+};
+
+>>>>>>> upstream/android-13
 struct setup_header {
 	__u8	setup_sects;
 	__u16	root_flags;
@@ -86,6 +114,10 @@ struct setup_header {
 	__u64	pref_address;
 	__u32	init_size;
 	__u32	handover_offset;
+<<<<<<< HEAD
+=======
+	__u32	kernel_info_offset;
+>>>>>>> upstream/android-13
 } __attribute__((packed));
 
 struct sys_desc_table {
@@ -137,6 +169,7 @@ struct boot_e820_entry {
  * setup data structure.
  */
 struct jailhouse_setup_data {
+<<<<<<< HEAD
 	__u16	version;
 	__u16	compatible_version;
 	__u16	pm_timer_address;
@@ -146,6 +179,24 @@ struct jailhouse_setup_data {
 	__u32	apic_khz;
 	__u8	standard_ioapic;
 	__u8	cpu_ids[255];
+=======
+	struct {
+		__u16	version;
+		__u16	compatible_version;
+	} __attribute__((packed)) hdr;
+	struct {
+		__u16	pm_timer_address;
+		__u16	num_cpus;
+		__u64	pci_mmconfig_base;
+		__u32	tsc_khz;
+		__u32	apic_khz;
+		__u8	standard_ioapic;
+		__u8	cpu_ids[255];
+	} __attribute__((packed)) v1;
+	struct {
+		__u32	flags;
+	} __attribute__((packed)) v2;
+>>>>>>> upstream/android-13
 } __attribute__((packed));
 
 /* The so-called "zeropage" */
@@ -155,7 +206,12 @@ struct boot_params {
 	__u8  _pad2[4];					/* 0x054 */
 	__u64  tboot_addr;				/* 0x058 */
 	struct ist_info ist_info;			/* 0x060 */
+<<<<<<< HEAD
 	__u8  _pad3[16];				/* 0x070 */
+=======
+	__u64 acpi_rsdp_addr;				/* 0x070 */
+	__u8  _pad3[8];					/* 0x078 */
+>>>>>>> upstream/android-13
 	__u8  hd0_info[16];	/* obsolete! */		/* 0x080 */
 	__u8  hd1_info[16];	/* obsolete! */		/* 0x090 */
 	struct sys_desc_table sys_desc_table; /* obsolete! */	/* 0x0a0 */
@@ -210,7 +266,11 @@ struct boot_params {
  * handling of page tables.
  *
  * These enums should only ever be used by x86 code, and the code that uses
+<<<<<<< HEAD
  * it should be well contained and compartamentalized.
+=======
+ * it should be well contained and compartmentalized.
+>>>>>>> upstream/android-13
  *
  * KVM and Xen HVM do not have a subarch as these are expected to follow
  * standard x86 boot entries. If there is a genuine need for "hypervisor" type
@@ -228,10 +288,17 @@ struct boot_params {
  * @X86_SUBARCH_XEN: Used for Xen guest types which follow the PV boot path,
  * 	which start at asm startup_xen() entry point and later jump to the C
  * 	xen_start_kernel() entry point. Both domU and dom0 type of guests are
+<<<<<<< HEAD
  * 	currently supportd through this PV boot path.
  * @X86_SUBARCH_INTEL_MID: Used for Intel MID (Mobile Internet Device) platform
  *	systems which do not have the PCI legacy interfaces.
  * @X86_SUBARCH_CE4100: Used for Intel CE media processor (CE4100) SoC for
+=======
+ * 	currently supported through this PV boot path.
+ * @X86_SUBARCH_INTEL_MID: Used for Intel MID (Mobile Internet Device) platform
+ *	systems which do not have the PCI legacy interfaces.
+ * @X86_SUBARCH_CE4100: Used for Intel CE media processor (CE4100) SoC
+>>>>>>> upstream/android-13
  * 	for settop boxes and media devices, the use of a subarch for CE4100
  * 	is more of a hack...
  */

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 config PINCTRL_MVEBU
 	bool
 	select PINMUX
@@ -45,8 +49,16 @@ config PINCTRL_ORION
 	select PINCTRL_MVEBU
 
 config PINCTRL_ARMADA_37XX
+<<<<<<< HEAD
        bool
        select GENERIC_PINCONF
        select MFD_SYSCON
        select PINCONF
        select PINMUX
+=======
+	bool
+	select GENERIC_PINCONF
+	select MFD_SYSCON
+	select PINCONF
+	select PINMUX
+>>>>>>> upstream/android-13

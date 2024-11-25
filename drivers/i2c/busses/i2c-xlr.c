@@ -362,7 +362,10 @@ static int xlr_i2c_probe(struct platform_device *pdev)
 {
 	const struct of_device_id *match;
 	struct xlr_i2c_private  *priv;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	struct clk *clk;
 	unsigned long clk_rate;
 	unsigned long clk_div;
@@ -380,8 +383,12 @@ static int xlr_i2c_probe(struct platform_device *pdev)
 	else
 		priv->cfg = &xlr_i2c_config_default;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	priv->iobase = devm_ioremap_resource(&pdev->dev, res);
+=======
+	priv->iobase = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(priv->iobase))
 		return PTR_ERR(priv->iobase);
 
@@ -404,7 +411,11 @@ static int xlr_i2c_probe(struct platform_device *pdev)
 
 	if (of_property_read_u32(pdev->dev.of_node, "clock-frequency",
 				 &busfreq))
+<<<<<<< HEAD
 		busfreq = 100000;
+=======
+		busfreq = I2C_MAX_STANDARD_MODE_FREQ;
+>>>>>>> upstream/android-13
 
 	clk = devm_clk_get(&pdev->dev, NULL);
 	if (!IS_ERR(clk)) {
@@ -433,11 +444,22 @@ static int xlr_i2c_probe(struct platform_device *pdev)
 	i2c_set_adapdata(&priv->adap, priv);
 	ret = i2c_add_numbered_adapter(&priv->adap);
 	if (ret < 0)
+<<<<<<< HEAD
 		return ret;
+=======
+		goto err_unprepare_clk;
+>>>>>>> upstream/android-13
 
 	platform_set_drvdata(pdev, priv);
 	dev_info(&priv->adap.dev, "Added I2C Bus.\n");
 	return 0;
+<<<<<<< HEAD
+=======
+
+err_unprepare_clk:
+	clk_unprepare(clk);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int xlr_i2c_remove(struct platform_device *pdev)

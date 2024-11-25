@@ -349,7 +349,12 @@ static int load_dsp(struct echoaudio *chip, u16 *code)
 
 	/* If this board requires a resident loader, install it. */
 #ifdef DSP_56361
+<<<<<<< HEAD
 	if ((i = install_resident_loader(chip)) < 0)
+=======
+	i = install_resident_loader(chip);
+	if (i < 0)
+>>>>>>> upstream/android-13
 		return i;
 #endif
 
@@ -495,7 +500,12 @@ static int load_firmware(struct echoaudio *chip)
 
 	/* See if the ASIC is present and working - only if the DSP is already loaded */
 	if (chip->dsp_code) {
+<<<<<<< HEAD
 		if ((box_type = check_asic_status(chip)) >= 0)
+=======
+		box_type = check_asic_status(chip);
+		if (box_type >= 0)
+>>>>>>> upstream/android-13
 			return box_type;
 		/* ASIC check failed; force the DSP to reload */
 		chip->dsp_code = NULL;
@@ -509,7 +519,12 @@ static int load_firmware(struct echoaudio *chip)
 	if (err < 0)
 		return err;
 
+<<<<<<< HEAD
 	if ((box_type = load_asic(chip)) < 0)
+=======
+	box_type = load_asic(chip);
+	if (box_type < 0)
+>>>>>>> upstream/android-13
 		return box_type;	/* error */
 
 	return box_type;
@@ -635,6 +650,7 @@ This function assumes there are no more than 16 in/out busses or pipes
 Meters is an array [3][16][2] of long. */
 static void get_audio_meters(struct echoaudio *chip, long *meters)
 {
+<<<<<<< HEAD
 	int i, m, n;
 
 	m = 0;
@@ -645,11 +661,23 @@ static void get_audio_meters(struct echoaudio *chip, long *meters)
 	}
 	for (; n < 32; n++)
 		meters[n] = 0;
+=======
+	unsigned int i, m, n;
+
+	for (i = 0 ; i < 96; i++)
+		meters[i] = 0;
+
+	for (m = 0, n = 0, i = 0; i < num_busses_out(chip); i++, m++) {
+		meters[n++] = chip->comm_page->vu_meter[m];
+		meters[n++] = chip->comm_page->peak_meter[m];
+	}
+>>>>>>> upstream/android-13
 
 #ifdef ECHOCARD_ECHO3G
 	m = E3G_MAX_OUTPUTS;	/* Skip unused meters */
 #endif
 
+<<<<<<< HEAD
 	for (i = 0; i < num_busses_in(chip); i++, m++) {
 		meters[n++] = chip->comm_page->vu_meter[m];
 		meters[n++] = chip->comm_page->peak_meter[m];
@@ -659,12 +687,23 @@ static void get_audio_meters(struct echoaudio *chip, long *meters)
 
 #ifdef ECHOCARD_HAS_VMIXER
 	for (i = 0; i < num_pipes_out(chip); i++, m++) {
+=======
+	for (n = 32, i = 0; i < num_busses_in(chip); i++, m++) {
+		meters[n++] = chip->comm_page->vu_meter[m];
+		meters[n++] = chip->comm_page->peak_meter[m];
+	}
+#ifdef ECHOCARD_HAS_VMIXER
+	for (n = 64, i = 0; i < num_pipes_out(chip); i++, m++) {
+>>>>>>> upstream/android-13
 		meters[n++] = chip->comm_page->vu_meter[m];
 		meters[n++] = chip->comm_page->peak_meter[m];
 	}
 #endif
+<<<<<<< HEAD
 	for (; n < 96; n++)
 		meters[n] = 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 
@@ -673,7 +712,12 @@ static int restore_dsp_rettings(struct echoaudio *chip)
 {
 	int i, o, err;
 
+<<<<<<< HEAD
 	if ((err = check_asic_status(chip)) < 0)
+=======
+	err = check_asic_status(chip);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 
 	/* Gina20/Darla20 only. Should be harmless for other cards. */
@@ -904,7 +948,11 @@ static int pause_transport(struct echoaudio *chip, u32 channel_mask)
 		return 0;
 	}
 
+<<<<<<< HEAD
 	dev_warn(chip->card->dev, "pause_transport: No pipes to stop!\n");
+=======
+	dev_dbg(chip->card->dev, "pause_transport: No pipes to stop!\n");
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -930,7 +978,11 @@ static int stop_transport(struct echoaudio *chip, u32 channel_mask)
 		return 0;
 	}
 
+<<<<<<< HEAD
 	dev_warn(chip->card->dev, "stop_transport: No pipes to stop!\n");
+=======
+	dev_dbg(chip->card->dev, "stop_transport: No pipes to stop!\n");
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1058,7 +1110,10 @@ static int allocate_pipes(struct echoaudio *chip, struct audiopipe *pipe,
 {
 	int i;
 	u32 channel_mask;
+<<<<<<< HEAD
 	char is_cyclic;
+=======
+>>>>>>> upstream/android-13
 
 	dev_dbg(chip->card->dev,
 		"allocate_pipes: ch=%d int=%d\n", pipe_index, interleave);
@@ -1066,8 +1121,11 @@ static int allocate_pipes(struct echoaudio *chip, struct audiopipe *pipe,
 	if (chip->bad_board)
 		return -EIO;
 
+<<<<<<< HEAD
 	is_cyclic = 1;	/* This driver uses cyclic buffers only */
 
+=======
+>>>>>>> upstream/android-13
 	for (channel_mask = i = 0; i < interleave; i++)
 		channel_mask |= 1 << (pipe_index + i);
 	if (chip->pipe_alloc_mask & channel_mask) {
@@ -1078,8 +1136,13 @@ static int allocate_pipes(struct echoaudio *chip, struct audiopipe *pipe,
 
 	chip->comm_page->position[pipe_index] = 0;
 	chip->pipe_alloc_mask |= channel_mask;
+<<<<<<< HEAD
 	if (is_cyclic)
 		chip->pipe_cyclic_mask |= channel_mask;
+=======
+	/* This driver uses cyclic buffers only */
+	chip->pipe_cyclic_mask |= channel_mask;
+>>>>>>> upstream/android-13
 	pipe->index = pipe_index;
 	pipe->interleave = interleave;
 	pipe->state = PIPE_STATE_STOPPED;

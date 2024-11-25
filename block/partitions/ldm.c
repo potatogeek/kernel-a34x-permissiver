@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 /**
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  * ldm - Support for Windows Logical Disk Manager (Dynamic Disks)
  *
  * Copyright (C) 2001,2002 Richard Russon <ldm@flatcap.org>
@@ -6,6 +11,7 @@
  * Copyright (C) 2001,2002 Jakob Kemi <jakob.kemi@telia.com>
  *
  * Documentation is available at http://www.linux-ntfs.org/doku.php?id=downloads 
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -21,6 +27,8 @@
  * this program (in the main directory of the source in the file COPYING); if
  * not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -28,12 +36,21 @@
 #include <linux/stringify.h>
 #include <linux/kernel.h>
 #include <linux/uuid.h>
+<<<<<<< HEAD
 
 #include "ldm.h"
 #include "check.h"
 #include "msdos.h"
 
 /**
+=======
+#include <linux/msdos_partition.h>
+
+#include "ldm.h"
+#include "check.h"
+
+/*
+>>>>>>> upstream/android-13
  * ldm_debug/info/error/crit - Output an error message
  * @f:    A printf format string containing the message
  * @...:  Variables to substitute into @f
@@ -318,7 +335,11 @@ static bool ldm_validate_privheads(struct parsed_partitions *state,
 		}
 	}
 
+<<<<<<< HEAD
 	num_sects = state->bdev->bd_inode->i_size >> 9;
+=======
+	num_sects = get_capacity(state->disk);
+>>>>>>> upstream/android-13
 
 	if ((ph[0]->config_start > num_sects) ||
 	   ((ph[0]->config_start + ph[0]->config_size) > num_sects)) {
@@ -353,11 +374,19 @@ out:
 /**
  * ldm_validate_tocblocks - Validate the table of contents and its backups
  * @state: Partition check state including device holding the LDM Database
+<<<<<<< HEAD
  * @base:  Offset, into @state->bdev, of the database
  * @ldb:   Cache of the database structures
  *
  * Find and compare the four tables of contents of the LDM Database stored on
  * @state->bdev and return the parsed information into @toc1.
+=======
+ * @base:  Offset, into @state->disk, of the database
+ * @ldb:   Cache of the database structures
+ *
+ * Find and compare the four tables of contents of the LDM Database stored on
+ * @state->disk and return the parsed information into @toc1.
+>>>>>>> upstream/android-13
  *
  * The offsets and sizes of the configs are range-checked against a privhead.
  *
@@ -500,14 +529,23 @@ out:
  *       only likely to happen if the underlying device is strange.  If that IS
  *       the case we should return zero to let someone else try.
  *
+<<<<<<< HEAD
  * Return:  'true'   @state->bdev is a dynamic disk
  *          'false'  @state->bdev is not a dynamic disk, or an error occurred
+=======
+ * Return:  'true'   @state->disk is a dynamic disk
+ *          'false'  @state->disk is not a dynamic disk, or an error occurred
+>>>>>>> upstream/android-13
  */
 static bool ldm_validate_partition_table(struct parsed_partitions *state)
 {
 	Sector sect;
 	u8 *data;
+<<<<<<< HEAD
 	struct partition *p;
+=======
+	struct msdos_partition *p;
+>>>>>>> upstream/android-13
 	int i;
 	bool result = false;
 
@@ -522,9 +560,15 @@ static bool ldm_validate_partition_table(struct parsed_partitions *state)
 	if (*(__le16*) (data + 0x01FE) != cpu_to_le16 (MSDOS_LABEL_MAGIC))
 		goto out;
 
+<<<<<<< HEAD
 	p = (struct partition*)(data + 0x01BE);
 	for (i = 0; i < 4; i++, p++)
 		if (SYS_IND (p) == LDM_PARTITION) {
+=======
+	p = (struct msdos_partition *)(data + 0x01BE);
+	for (i = 0; i < 4; i++, p++)
+		if (p->sys_ind == LDM_PARTITION) {
+>>>>>>> upstream/android-13
 			result = true;
 			break;
 		}
@@ -924,7 +968,11 @@ static bool ldm_parse_dsk4 (const u8 *buffer, int buflen, struct vblk *vb)
 		return false;
 
 	disk = &vb->vblk.disk;
+<<<<<<< HEAD
 	uuid_copy(&disk->disk_id, (uuid_t *)(buffer + 0x18 + r_name));
+=======
+	import_uuid(&disk->disk_id, buffer + 0x18 + r_name);
+>>>>>>> upstream/android-13
 	return true;
 }
 
@@ -1247,7 +1295,11 @@ static bool ldm_frag_add (const u8 *data, int size, struct list_head *frags)
 	BUG_ON (!data || !frags);
 
 	if (size < 2 * VBLK_SIZE_HEAD) {
+<<<<<<< HEAD
 		ldm_error("Value of size is to small.");
+=======
+		ldm_error("Value of size is too small.");
+>>>>>>> upstream/android-13
 		return false;
 	}
 
@@ -1354,7 +1406,11 @@ static bool ldm_frag_commit (struct list_head *frags, struct ldmdb *ldb)
 /**
  * ldm_get_vblks - Read the on-disk database of VBLKs into memory
  * @state: Partition check state including device holding the LDM Database
+<<<<<<< HEAD
  * @base:  Offset, into @state->bdev, of the database
+=======
+ * @base:  Offset, into @state->disk, of the database
+>>>>>>> upstream/android-13
  * @ldb:   Cache of the database structures
  *
  * To use the information from the VBLKs, they need to be read from the disk,
@@ -1446,10 +1502,17 @@ static void ldm_free_vblks (struct list_head *lh)
  * example, if the device is hda, we would have: hda1: LDM database, hda2, hda3,
  * and so on: the actual data containing partitions.
  *
+<<<<<<< HEAD
  * Return:  1 Success, @state->bdev is a dynamic disk and we handled it
  *          0 Success, @state->bdev is not a dynamic disk
  *         -1 An error occurred before enough information had been read
  *            Or @state->bdev is a dynamic disk, but it may be corrupted
+=======
+ * Return:  1 Success, @state->disk is a dynamic disk and we handled it
+ *          0 Success, @state->disk is not a dynamic disk
+ *         -1 An error occurred before enough information had been read
+ *            Or @state->disk is a dynamic disk, but it may be corrupted
+>>>>>>> upstream/android-13
  */
 int ldm_partition(struct parsed_partitions *state)
 {

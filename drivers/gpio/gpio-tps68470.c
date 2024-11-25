@@ -47,7 +47,10 @@ static int tps68470_gpio_get(struct gpio_chip *gc, unsigned int offset)
 	return !!(val & BIT(offset));
 }
 
+<<<<<<< HEAD
 /* Return 0 if output, 1 if input */
+=======
+>>>>>>> upstream/android-13
 static int tps68470_gpio_get_direction(struct gpio_chip *gc,
 				       unsigned int offset)
 {
@@ -57,7 +60,11 @@ static int tps68470_gpio_get_direction(struct gpio_chip *gc,
 
 	/* rest are always outputs */
 	if (offset >= TPS68470_N_REGULAR_GPIO)
+<<<<<<< HEAD
 		return 0;
+=======
+		return GPIO_LINE_DIRECTION_OUT;
+>>>>>>> upstream/android-13
 
 	ret = regmap_read(regmap, TPS68470_GPIO_CTL_REG_A(offset), &val);
 	if (ret) {
@@ -67,7 +74,12 @@ static int tps68470_gpio_get_direction(struct gpio_chip *gc,
 	}
 
 	val &= TPS68470_GPIO_MODE_MASK;
+<<<<<<< HEAD
 	return val >= TPS68470_GPIO_MODE_OUT_CMOS ? 0 : 1;
+=======
+	return val >= TPS68470_GPIO_MODE_OUT_CMOS ? GPIO_LINE_DIRECTION_OUT :
+						    GPIO_LINE_DIRECTION_IN;
+>>>>>>> upstream/android-13
 }
 
 static void tps68470_gpio_set(struct gpio_chip *gc, unsigned int offset,
@@ -125,7 +137,10 @@ static const char *tps68470_names[TPS68470_N_GPIO] = {
 static int tps68470_gpio_probe(struct platform_device *pdev)
 {
 	struct tps68470_gpio_data *tps68470_gpio;
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 
 	tps68470_gpio = devm_kzalloc(&pdev->dev, sizeof(*tps68470_gpio),
 				     GFP_KERNEL);
@@ -146,6 +161,7 @@ static int tps68470_gpio_probe(struct platform_device *pdev)
 	tps68470_gpio->gc.base = -1;
 	tps68470_gpio->gc.parent = &pdev->dev;
 
+<<<<<<< HEAD
 	ret = devm_gpiochip_add_data(&pdev->dev, &tps68470_gpio->gc,
 				     tps68470_gpio);
 	if (ret < 0) {
@@ -156,6 +172,9 @@ static int tps68470_gpio_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, tps68470_gpio);
 
 	return ret;
+=======
+	return devm_gpiochip_add_data(&pdev->dev, &tps68470_gpio->gc, tps68470_gpio);
+>>>>>>> upstream/android-13
 }
 
 static struct platform_driver tps68470_gpio_driver = {

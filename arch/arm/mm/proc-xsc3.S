@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * linux/arch/arm/mm/proc-xsc3.S
  *
@@ -7,10 +11,13 @@
  * Copyright 2004 (C) Intel Corp.
  * Copyright 2005 (C) MontaVista Software, Inc.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * MMU functions for the Intel XScale3 Core (XSC3).  The XSC3 core is
  * an extension to Intel's original XScale core that adds the following
  * features:
@@ -26,9 +33,15 @@
 
 #include <linux/linkage.h>
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <asm/assembler.h>
 #include <asm/hwcap.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+#include <asm/assembler.h>
+#include <asm/hwcap.h>
+>>>>>>> upstream/android-13
 #include <asm/pgtable-hwdef.h>
 #include <asm/page.h>
 #include <asm/ptrace.h>
@@ -499,7 +512,11 @@ xsc3_crval:
 
 	.align
 
+<<<<<<< HEAD
 	.section ".proc.info.init", #alloc
+=======
+	.section ".proc.info.init", "a"
+>>>>>>> upstream/android-13
 
 .macro xsc3_proc_info name:req, cpu_val:req, cpu_mask:req
 	.type	__\name\()_proc_info,#object

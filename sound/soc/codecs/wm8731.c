@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * wm8731.c  --  WM8731 ALSA SoC Audio driver
  *
@@ -7,10 +11,13 @@
  * Author: Richard Purdie <richard@openedhand.com>
  *
  * Based on wm8753.c by Liam Girdwood
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -339,7 +346,11 @@ static int wm8731_hw_params(struct snd_pcm_substream *substream,
 {
 	struct snd_soc_component *component = dai->component;
 	struct wm8731_priv *wm8731 = snd_soc_component_get_drvdata(component);
+<<<<<<< HEAD
 	u16 iface = snd_soc_component_read32(component, WM8731_IFACE) & 0xfff3;
+=======
+	u16 iface = snd_soc_component_read(component, WM8731_IFACE) & 0xfff3;
+>>>>>>> upstream/android-13
 	int i = get_coeff(wm8731->sysclk, params_rate(params));
 	u16 srate = (coeff_div[i].sr << 2) |
 		(coeff_div[i].bosr << 1) | coeff_div[i].usb;
@@ -369,10 +380,17 @@ static int wm8731_hw_params(struct snd_pcm_substream *substream,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int wm8731_mute(struct snd_soc_dai *dai, int mute)
 {
 	struct snd_soc_component *component = dai->component;
 	u16 mute_reg = snd_soc_component_read32(component, WM8731_APDIGI) & 0xfff7;
+=======
+static int wm8731_mute(struct snd_soc_dai *dai, int mute, int direction)
+{
+	struct snd_soc_component *component = dai->component;
+	u16 mute_reg = snd_soc_component_read(component, WM8731_APDIGI) & 0xfff7;
+>>>>>>> upstream/android-13
 
 	if (mute)
 		snd_soc_component_write(component, WM8731_APDIGI, mute_reg | 0x8);
@@ -513,7 +531,11 @@ static int wm8731_set_bias_level(struct snd_soc_component *component,
 		}
 
 		/* Clear PWROFF, gate CLKOUT, everything else as-is */
+<<<<<<< HEAD
 		reg = snd_soc_component_read32(component, WM8731_PWR) & 0xff7f;
+=======
+		reg = snd_soc_component_read(component, WM8731_PWR) & 0xff7f;
+>>>>>>> upstream/android-13
 		snd_soc_component_write(component, WM8731_PWR, reg | 0x0040);
 		break;
 	case SND_SOC_BIAS_OFF:
@@ -549,9 +571,16 @@ static int wm8731_startup(struct snd_pcm_substream *substream,
 static const struct snd_soc_dai_ops wm8731_dai_ops = {
 	.startup	= wm8731_startup,
 	.hw_params	= wm8731_hw_params,
+<<<<<<< HEAD
 	.digital_mute	= wm8731_mute,
 	.set_sysclk	= wm8731_set_dai_sysclk,
 	.set_fmt	= wm8731_set_dai_fmt,
+=======
+	.mute_stream	= wm8731_mute,
+	.set_sysclk	= wm8731_set_dai_sysclk,
+	.set_fmt	= wm8731_set_dai_fmt,
+	.no_capture_mute = 1,
+>>>>>>> upstream/android-13
 };
 
 static struct snd_soc_dai_driver wm8731_dai = {
@@ -569,7 +598,11 @@ static struct snd_soc_dai_driver wm8731_dai = {
 		.rates = WM8731_RATES,
 		.formats = WM8731_FORMATS,},
 	.ops = &wm8731_dai_ops,
+<<<<<<< HEAD
 	.symmetric_rates = 1,
+=======
+	.symmetric_rate = 1,
+>>>>>>> upstream/android-13
 };
 
 static int wm8731_request_supplies(struct device *dev,
@@ -604,7 +637,11 @@ static int wm8731_hw_init(struct device *dev, struct wm8731_priv *wm8731)
 	ret = wm8731_reset(wm8731->regmap);
 	if (ret < 0) {
 		dev_err(dev, "Failed to issue reset: %d\n", ret);
+<<<<<<< HEAD
 		goto err_regulator_enable;
+=======
+		goto err;
+>>>>>>> upstream/android-13
 	}
 
 	/* Clear POWEROFF, keep everything else disabled */
@@ -621,10 +658,14 @@ static int wm8731_hw_init(struct device *dev, struct wm8731_priv *wm8731)
 
 	regcache_mark_dirty(wm8731->regmap);
 
+<<<<<<< HEAD
 err_regulator_enable:
 	/* Regulators will be enabled by bias management */
 	regulator_bulk_disable(ARRAY_SIZE(wm8731->supplies), wm8731->supplies);
 
+=======
+err:
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -768,21 +809,42 @@ static int wm8731_i2c_probe(struct i2c_client *i2c,
 		ret = PTR_ERR(wm8731->regmap);
 		dev_err(&i2c->dev, "Failed to allocate register map: %d\n",
 			ret);
+<<<<<<< HEAD
 		return ret;
+=======
+		goto err_regulator_enable;
+>>>>>>> upstream/android-13
 	}
 
 	ret = wm8731_hw_init(&i2c->dev, wm8731);
 	if (ret != 0)
+<<<<<<< HEAD
 		return ret;
+=======
+		goto err_regulator_enable;
+>>>>>>> upstream/android-13
 
 	ret = devm_snd_soc_register_component(&i2c->dev,
 			&soc_component_dev_wm8731, &wm8731_dai, 1);
 	if (ret != 0) {
 		dev_err(&i2c->dev, "Failed to register CODEC: %d\n", ret);
+<<<<<<< HEAD
 		return ret;
 	}
 
 	return 0;
+=======
+		goto err_regulator_enable;
+	}
+
+	return 0;
+
+err_regulator_enable:
+	/* Regulators will be enabled by bias management */
+	regulator_bulk_disable(ARRAY_SIZE(wm8731->supplies), wm8731->supplies);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int wm8731_i2c_remove(struct i2c_client *client)

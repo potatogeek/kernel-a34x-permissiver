@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015 HiSilicon Technologies Co., Ltd.
  *
@@ -14,6 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2015 HiSilicon Technologies Co., Ltd.
+>>>>>>> upstream/android-13
  */
 
 /dts-v1/;
@@ -27,7 +33,11 @@
 		serial0 = &uart0;
 	};
 
+<<<<<<< HEAD
 	memory {
+=======
+	memory@80000000 {
+>>>>>>> upstream/android-13
 		device_type = "memory";
 		reg = <0x80000000 0x40000000>;
 	};

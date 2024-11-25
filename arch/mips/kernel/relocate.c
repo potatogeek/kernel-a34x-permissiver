@@ -18,6 +18,10 @@
 #include <linux/kernel.h>
 #include <linux/libfdt.h>
 #include <linux/of_fdt.h>
+<<<<<<< HEAD
+=======
+#include <linux/panic_notifier.h>
+>>>>>>> upstream/android-13
 #include <linux/sched/task.h>
 #include <linux/start_kernel.h>
 #include <linux/string.h>
@@ -64,12 +68,17 @@ static void __init sync_icache(void *kbase, unsigned long kernel_length)
 			: "r" (kbase));
 
 		kbase += step;
+<<<<<<< HEAD
 	} while (kbase < kend);
+=======
+	} while (step && kbase < kend);
+>>>>>>> upstream/android-13
 
 	/* Completion barrier */
 	__sync();
 }
 
+<<<<<<< HEAD
 static int __init apply_r_mips_64_rel(u32 *loc_orig, u32 *loc_new, long offset)
 {
 	*(u64 *)loc_new += offset;
@@ -82,6 +91,16 @@ static int __init apply_r_mips_32_rel(u32 *loc_orig, u32 *loc_new, long offset)
 	*loc_new += offset;
 
 	return 0;
+=======
+static void __init apply_r_mips_64_rel(u32 *loc_new, long offset)
+{
+	*(u64 *)loc_new += offset;
+}
+
+static void __init apply_r_mips_32_rel(u32 *loc_new, long offset)
+{
+	*loc_new += offset;
+>>>>>>> upstream/android-13
 }
 
 static int __init apply_r_mips_26_rel(u32 *loc_orig, u32 *loc_new, long offset)
@@ -95,7 +114,11 @@ static int __init apply_r_mips_26_rel(u32 *loc_orig, u32 *loc_new, long offset)
 
 	/* Original target address */
 	target_addr <<= 2;
+<<<<<<< HEAD
 	target_addr += (unsigned long)loc_orig & ~0x03ffffff;
+=======
+	target_addr += (unsigned long)loc_orig & 0xf0000000;
+>>>>>>> upstream/android-13
 
 	/* Get the new target address */
 	target_addr += offset;
@@ -105,7 +128,11 @@ static int __init apply_r_mips_26_rel(u32 *loc_orig, u32 *loc_new, long offset)
 		return -ENOEXEC;
 	}
 
+<<<<<<< HEAD
 	target_addr -= (unsigned long)loc_new & ~0x03ffffff;
+=======
+	target_addr -= (unsigned long)loc_new & 0xf0000000;
+>>>>>>> upstream/android-13
 	target_addr >>= 2;
 
 	*loc_new = (*loc_new & ~0x03ffffff) | (target_addr & 0x03ffffff);
@@ -114,7 +141,12 @@ static int __init apply_r_mips_26_rel(u32 *loc_orig, u32 *loc_new, long offset)
 }
 
 
+<<<<<<< HEAD
 static int __init apply_r_mips_hi16_rel(u32 *loc_orig, u32 *loc_new, long offset)
+=======
+static void __init apply_r_mips_hi16_rel(u32 *loc_orig, u32 *loc_new,
+					 long offset)
+>>>>>>> upstream/android-13
 {
 	unsigned long insn = *loc_orig;
 	unsigned long target = (insn & 0xffff) << 16; /* high 16bits of target */
@@ -122,6 +154,7 @@ static int __init apply_r_mips_hi16_rel(u32 *loc_orig, u32 *loc_new, long offset
 	target += offset;
 
 	*loc_new = (insn & ~0xffff) | ((target >> 16) & 0xffff);
+<<<<<<< HEAD
 	return 0;
 }
 
@@ -133,6 +166,35 @@ static int (*reloc_handlers_rel[]) (u32 *, u32 *, long) __initdata = {
 };
 
 int __init do_relocations(void *kbase_old, void *kbase_new, long offset)
+=======
+}
+
+static int __init reloc_handler(u32 type, u32 *loc_orig, u32 *loc_new,
+				long offset)
+{
+	switch (type) {
+	case R_MIPS_64:
+		apply_r_mips_64_rel(loc_new, offset);
+		break;
+	case R_MIPS_32:
+		apply_r_mips_32_rel(loc_new, offset);
+		break;
+	case R_MIPS_26:
+		return apply_r_mips_26_rel(loc_orig, loc_new, offset);
+	case R_MIPS_HI16:
+		apply_r_mips_hi16_rel(loc_orig, loc_new, offset);
+		break;
+	default:
+		pr_err("Unhandled relocation type %d at 0x%pK\n", type,
+		       loc_orig);
+		return -ENOEXEC;
+	}
+
+	return 0;
+}
+
+static int __init do_relocations(void *kbase_old, void *kbase_new, long offset)
+>>>>>>> upstream/android-13
 {
 	u32 *r;
 	u32 *loc_orig;
@@ -146,6 +208,7 @@ int __init do_relocations(void *kbase_old, void *kbase_new, long offset)
 			break;
 
 		type = (*r >> 24) & 0xff;
+<<<<<<< HEAD
 		loc_orig = (void *)(kbase_old + ((*r & 0x00ffffff) << 2));
 		loc_new = RELOCATED(loc_orig);
 
@@ -157,6 +220,12 @@ int __init do_relocations(void *kbase_old, void *kbase_new, long offset)
 		}
 
 		res = reloc_handlers_rel[type](loc_orig, loc_new, offset);
+=======
+		loc_orig = kbase_old + ((*r & 0x00ffffff) << 2);
+		loc_new = RELOCATED(loc_orig);
+
+		res = reloc_handler(type, loc_orig, loc_new, offset);
+>>>>>>> upstream/android-13
 		if (res)
 			return res;
 	}
@@ -300,6 +369,23 @@ static inline int __init relocation_addr_valid(void *loc_new)
 	return 1;
 }
 
+<<<<<<< HEAD
+=======
+static inline void __init update_kaslr_offset(unsigned long *addr, long offset)
+{
+	unsigned long *new_addr = (unsigned long *)RELOCATED(addr);
+
+	*new_addr = (unsigned long)offset;
+}
+
+#if defined(CONFIG_USE_OF)
+void __weak *plat_get_fdt(void)
+{
+	return NULL;
+}
+#endif
+
+>>>>>>> upstream/android-13
 void *__init relocate_kernel(void)
 {
 	void *loc_new;
@@ -403,6 +489,12 @@ void *__init relocate_kernel(void)
 
 		/* Return the new kernel's entry point */
 		kernel_entry = RELOCATED(start_kernel);
+<<<<<<< HEAD
+=======
+
+		/* Error may occur before, so keep it at last */
+		update_kaslr_offset(&__kaslr_offset, offset);
+>>>>>>> upstream/android-13
 	}
 out:
 	return kernel_entry;
@@ -411,6 +503,7 @@ out:
 /*
  * Show relocation information on panic.
  */
+<<<<<<< HEAD
 void show_kernel_relocation(const char *level)
 {
 	unsigned long offset;
@@ -420,6 +513,13 @@ void show_kernel_relocation(const char *level)
 	if (IS_ENABLED(CONFIG_RELOCATABLE) && offset > 0) {
 		printk(level);
 		pr_cont("Kernel relocated by 0x%pK\n", (void *)offset);
+=======
+static void show_kernel_relocation(const char *level)
+{
+	if (__kaslr_offset > 0) {
+		printk(level);
+		pr_cont("Kernel relocated by 0x%pK\n", (void *)__kaslr_offset);
+>>>>>>> upstream/android-13
 		pr_cont(" .text @ 0x%pK\n", _text);
 		pr_cont(" .data @ 0x%pK\n", _sdata);
 		pr_cont(" .bss  @ 0x%pK\n", __bss_start);

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ADC12130/ADC12132/ADC12138 12-bit plus sign ADC driver
  *
  * Copyright (c) 2016 Akinobu Mita <akinobu.mita@gmail.com>
  *
+<<<<<<< HEAD
  * This file is subject to the terms and conditions of version 2 of
  * the GNU General Public License.  See the file COPYING in the main
  * directory of this archive for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * Datasheet: http://www.ti.com/lit/ds/symlink/adc12138.pdf
  */
 
@@ -415,7 +422,10 @@ static int adc12138_probe(struct spi_device *spi)
 	init_completion(&adc->complete);
 
 	indio_dev->name = spi_get_device_id(spi)->name;
+<<<<<<< HEAD
 	indio_dev->dev.parent = &spi->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->info = &adc12138_info;
 	indio_dev->modes = INDIO_DIRECT_MODE;
 

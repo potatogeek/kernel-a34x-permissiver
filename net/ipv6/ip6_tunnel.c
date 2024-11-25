@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	IPv6 tunneling device
  *	Linux INET6 implementation
@@ -10,12 +14,15 @@
  *      linux/net/ipv6/sit.c and linux/net/ipv4/ipip.c
  *
  *      RFC 2473
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -94,6 +101,7 @@ struct ip6_tnl_net {
 	struct ip6_tnl __rcu *collect_md_tun;
 };
 
+<<<<<<< HEAD
 static struct net_device_stats *ip6_get_stats(struct net_device *dev)
 {
 	struct pcpu_sw_netstats tmp, sum = { 0 };
@@ -126,6 +134,20 @@ static struct net_device_stats *ip6_get_stats(struct net_device *dev)
 
 /**
  * ip6_tnl_lookup - fetch tunnel matching the end-point addresses
+=======
+static inline int ip6_tnl_mpls_supported(void)
+{
+	return IS_ENABLED(CONFIG_MPLS);
+}
+
+#define for_each_ip6_tunnel_rcu(start) \
+	for (t = rcu_dereference(start); t; t = rcu_dereference(t->next))
+
+/**
+ * ip6_tnl_lookup - fetch tunnel matching the end-point addresses
+ *   @net: network namespace
+ *   @link: ifindex of underlying interface
+>>>>>>> upstream/android-13
  *   @remote: the address of the tunnel exit-point
  *   @local: the address of the tunnel entry-point
  *
@@ -135,6 +157,7 @@ static struct net_device_stats *ip6_get_stats(struct net_device *dev)
  *   else %NULL
  **/
 
+<<<<<<< HEAD
 #define for_each_ip6_tunnel_rcu(start) \
 	for (t = rcu_dereference(start); t; t = rcu_dereference(t->next))
 
@@ -143,33 +166,82 @@ ip6_tnl_lookup(struct net *net, const struct in6_addr *remote, const struct in6_
 {
 	unsigned int hash = HASH(remote, local);
 	struct ip6_tnl *t;
+=======
+static struct ip6_tnl *
+ip6_tnl_lookup(struct net *net, int link,
+	       const struct in6_addr *remote, const struct in6_addr *local)
+{
+	unsigned int hash = HASH(remote, local);
+	struct ip6_tnl *t, *cand = NULL;
+>>>>>>> upstream/android-13
 	struct ip6_tnl_net *ip6n = net_generic(net, ip6_tnl_net_id);
 	struct in6_addr any;
 
 	for_each_ip6_tunnel_rcu(ip6n->tnls_r_l[hash]) {
+<<<<<<< HEAD
 		if (ipv6_addr_equal(local, &t->parms.laddr) &&
 		    ipv6_addr_equal(remote, &t->parms.raddr) &&
 		    (t->dev->flags & IFF_UP))
 			return t;
+=======
+		if (!ipv6_addr_equal(local, &t->parms.laddr) ||
+		    !ipv6_addr_equal(remote, &t->parms.raddr) ||
+		    !(t->dev->flags & IFF_UP))
+			continue;
+
+		if (link == t->parms.link)
+			return t;
+		else
+			cand = t;
+>>>>>>> upstream/android-13
 	}
 
 	memset(&any, 0, sizeof(any));
 	hash = HASH(&any, local);
 	for_each_ip6_tunnel_rcu(ip6n->tnls_r_l[hash]) {
+<<<<<<< HEAD
 		if (ipv6_addr_equal(local, &t->parms.laddr) &&
 		    ipv6_addr_any(&t->parms.raddr) &&
 		    (t->dev->flags & IFF_UP))
 			return t;
+=======
+		if (!ipv6_addr_equal(local, &t->parms.laddr) ||
+		    !ipv6_addr_any(&t->parms.raddr) ||
+		    !(t->dev->flags & IFF_UP))
+			continue;
+
+		if (link == t->parms.link)
+			return t;
+		else if (!cand)
+			cand = t;
+>>>>>>> upstream/android-13
 	}
 
 	hash = HASH(remote, &any);
 	for_each_ip6_tunnel_rcu(ip6n->tnls_r_l[hash]) {
+<<<<<<< HEAD
 		if (ipv6_addr_equal(remote, &t->parms.raddr) &&
 		    ipv6_addr_any(&t->parms.laddr) &&
 		    (t->dev->flags & IFF_UP))
 			return t;
 	}
 
+=======
+		if (!ipv6_addr_equal(remote, &t->parms.raddr) ||
+		    !ipv6_addr_any(&t->parms.laddr) ||
+		    !(t->dev->flags & IFF_UP))
+			continue;
+
+		if (link == t->parms.link)
+			return t;
+		else if (!cand)
+			cand = t;
+	}
+
+	if (cand)
+		return cand;
+
+>>>>>>> upstream/android-13
 	t = rcu_dereference(ip6n->collect_md_tun);
 	if (t && t->dev->flags & IFF_UP)
 		return t;
@@ -183,6 +255,10 @@ ip6_tnl_lookup(struct net *net, const struct in6_addr *remote, const struct in6_
 
 /**
  * ip6_tnl_bucket - get head of list matching given tunnel parameters
+<<<<<<< HEAD
+=======
+ *   @ip6n: the private data for ip6_vti in the netns
+>>>>>>> upstream/android-13
  *   @p: parameters containing tunnel end-points
  *
  * Description:
@@ -209,6 +285,10 @@ ip6_tnl_bucket(struct ip6_tnl_net *ip6n, const struct __ip6_tnl_parm *p)
 
 /**
  * ip6_tnl_link - add tunnel to hash table
+<<<<<<< HEAD
+=======
+ *   @ip6n: the private data for ip6_vti in the netns
+>>>>>>> upstream/android-13
  *   @t: tunnel to be added
  **/
 
@@ -225,6 +305,10 @@ ip6_tnl_link(struct ip6_tnl_net *ip6n, struct ip6_tnl *t)
 
 /**
  * ip6_tnl_unlink - remove tunnel from hash table
+<<<<<<< HEAD
+=======
+ *   @ip6n: the private data for ip6_vti in the netns
+>>>>>>> upstream/android-13
  *   @t: tunnel to be removed
  **/
 
@@ -281,8 +365,13 @@ out:
 
 /**
  * ip6_tnl_create - create a new tunnel
+<<<<<<< HEAD
  *   @p: tunnel parameters
  *   @pt: pointer to new tunnel
+=======
+ *   @net: network namespace
+ *   @p: tunnel parameters
+>>>>>>> upstream/android-13
  *
  * Description:
  *   Create tunnel matching given parameters.
@@ -330,6 +419,10 @@ failed:
 
 /**
  * ip6_tnl_locate - find or create tunnel matching given parameters
+<<<<<<< HEAD
+=======
+ *   @net: network namespace
+>>>>>>> upstream/android-13
  *   @p: tunnel parameters
  *   @create: != 0 if allowed to create new tunnel if no match found
  *
@@ -355,7 +448,12 @@ static struct ip6_tnl *ip6_tnl_locate(struct net *net,
 	     (t = rtnl_dereference(*tp)) != NULL;
 	     tp = &t->next) {
 		if (ipv6_addr_equal(local, &t->parms.laddr) &&
+<<<<<<< HEAD
 		    ipv6_addr_equal(remote, &t->parms.raddr)) {
+=======
+		    ipv6_addr_equal(remote, &t->parms.raddr) &&
+		    p->link == t->parms.link) {
+>>>>>>> upstream/android-13
 			if (create)
 				return ERR_PTR(-EEXIST);
 
@@ -391,8 +489,14 @@ ip6_tnl_dev_uninit(struct net_device *dev)
 }
 
 /**
+<<<<<<< HEAD
  * parse_tvl_tnl_enc_lim - handle encapsulation limit option
  *   @skb: received socket buffer
+=======
+ * ip6_tnl_parse_tlv_enc_lim - handle encapsulation limit option
+ *   @skb: received socket buffer
+ *   @raw: the ICMPv6 error message data
+>>>>>>> upstream/android-13
  *
  * Return:
  *   0 if none was found,
@@ -420,7 +524,11 @@ __u16 ip6_tnl_parse_tlv_enc_lim(struct sk_buff *skb, __u8 *raw)
 				break;
 			optlen = 8;
 		} else if (nexthdr == NEXTHDR_AUTH) {
+<<<<<<< HEAD
 			optlen = (hdr->hdrlen + 2) << 2;
+=======
+			optlen = ipv6_authlen(hdr);
+>>>>>>> upstream/android-13
 		} else {
 			optlen = ipv6_optlen(hdr);
 		}
@@ -461,6 +569,7 @@ __u16 ip6_tnl_parse_tlv_enc_lim(struct sk_buff *skb, __u8 *raw)
 }
 EXPORT_SYMBOL(ip6_tnl_parse_tlv_enc_lim);
 
+<<<<<<< HEAD
 /**
  * ip6_tnl_err - tunnel error handler
  *
@@ -469,6 +578,11 @@ EXPORT_SYMBOL(ip6_tnl_parse_tlv_enc_lim);
  *   to the specifications in RFC 2473.
  **/
 
+=======
+/* ip6_tnl_err() should handle errors in the tunnel according to the
+ * specifications in RFC 2473.
+ */
+>>>>>>> upstream/android-13
 static int
 ip6_tnl_err(struct sk_buff *skb, __u8 ipproto, struct inet6_skb_parm *opt,
 	    u8 *type, u8 *code, int *msg, __u32 *info, int offset)
@@ -489,7 +603,11 @@ ip6_tnl_err(struct sk_buff *skb, __u8 ipproto, struct inet6_skb_parm *opt,
 	   processing of the error. */
 
 	rcu_read_lock();
+<<<<<<< HEAD
 	t = ip6_tnl_lookup(dev_net(skb->dev), &ipv6h->daddr, &ipv6h->saddr);
+=======
+	t = ip6_tnl_lookup(dev_net(skb->dev), skb->dev->ifindex, &ipv6h->daddr, &ipv6h->saddr);
+>>>>>>> upstream/android-13
 	if (!t)
 		goto out;
 
@@ -500,8 +618,11 @@ ip6_tnl_err(struct sk_buff *skb, __u8 ipproto, struct inet6_skb_parm *opt,
 	err = 0;
 
 	switch (*type) {
+<<<<<<< HEAD
 		struct ipv6_tlv_tnl_enc_lim *tel;
 		__u32 mtu, teli;
+=======
+>>>>>>> upstream/android-13
 	case ICMPV6_DEST_UNREACH:
 		net_dbg_ratelimited("%s: Path to destination invalid or inactive!\n",
 				    t->parms.name);
@@ -514,7 +635,14 @@ ip6_tnl_err(struct sk_buff *skb, __u8 ipproto, struct inet6_skb_parm *opt,
 			rel_msg = 1;
 		}
 		break;
+<<<<<<< HEAD
 	case ICMPV6_PARAMPROB:
+=======
+	case ICMPV6_PARAMPROB: {
+		struct ipv6_tlv_tnl_enc_lim *tel;
+		__u32 teli;
+
+>>>>>>> upstream/android-13
 		teli = 0;
 		if ((*code) == ICMPV6_HDR_FIELD)
 			teli = ip6_tnl_parse_tlv_enc_lim(skb, skb->data);
@@ -531,7 +659,14 @@ ip6_tnl_err(struct sk_buff *skb, __u8 ipproto, struct inet6_skb_parm *opt,
 					    t->parms.name);
 		}
 		break;
+<<<<<<< HEAD
 	case ICMPV6_PKT_TOOBIG:
+=======
+	}
+	case ICMPV6_PKT_TOOBIG: {
+		__u32 mtu;
+
+>>>>>>> upstream/android-13
 		ip6_update_pmtu(skb, net, htonl(*info), 0, 0,
 				sock_net_uid(net, NULL));
 		mtu = *info - offset;
@@ -545,6 +680,10 @@ ip6_tnl_err(struct sk_buff *skb, __u8 ipproto, struct inet6_skb_parm *opt,
 			rel_msg = 1;
 		}
 		break;
+<<<<<<< HEAD
+=======
+	}
+>>>>>>> upstream/android-13
 	case NDISC_REDIRECT:
 		ip6_redirect(skb, net, skb->dev->ifindex, 0,
 			     sock_net_uid(net, NULL));
@@ -696,6 +835,23 @@ ip6ip6_err(struct sk_buff *skb, struct inet6_skb_parm *opt,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int
+mplsip6_err(struct sk_buff *skb, struct inet6_skb_parm *opt,
+	    u8 type, u8 code, int offset, __be32 info)
+{
+	__u32 rel_info = ntohl(info);
+	int err, rel_msg = 0;
+	u8 rel_type = type;
+	u8 rel_code = code;
+
+	err = ip6_tnl_err(skb, IPPROTO_MPLS, opt, &rel_type, &rel_code,
+			  &rel_msg, &rel_info, offset);
+	return err;
+}
+
+>>>>>>> upstream/android-13
 static int ip4ip6_dscp_ecn_decapsulate(const struct ip6_tnl *t,
 				       const struct ipv6hdr *ipv6h,
 				       struct sk_buff *skb)
@@ -718,6 +874,17 @@ static int ip6ip6_dscp_ecn_decapsulate(const struct ip6_tnl *t,
 	return IP6_ECN_decapsulate(ipv6h, skb);
 }
 
+<<<<<<< HEAD
+=======
+static inline int mplsip6_dscp_ecn_decapsulate(const struct ip6_tnl *t,
+					       const struct ipv6hdr *ipv6h,
+					       struct sk_buff *skb)
+{
+	/* ECN is not supported in AF_MPLS */
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 __u32 ip6_tnl_get_cap(struct ip6_tnl *t,
 			     const struct in6_addr *laddr,
 			     const struct in6_addr *raddr)
@@ -818,6 +985,10 @@ static int __ip6_tnl_rcv(struct ip6_tnl *tunnel, struct sk_buff *skb,
 		skb_postpull_rcsum(skb, eth_hdr(skb), ETH_HLEN);
 	} else {
 		skb->dev = tunnel->dev;
+<<<<<<< HEAD
+=======
+		skb_reset_mac_header(skb);
+>>>>>>> upstream/android-13
 	}
 
 	skb_reset_network_header(skb);
@@ -887,6 +1058,14 @@ static const struct tnl_ptk_info tpi_v4 = {
 	.proto = htons(ETH_P_IP),
 };
 
+<<<<<<< HEAD
+=======
+static const struct tnl_ptk_info tpi_mpls = {
+	/* no tunnel info required for mplsip6. */
+	.proto = htons(ETH_P_MPLS_UC),
+};
+
+>>>>>>> upstream/android-13
 static int ipxip6_rcv(struct sk_buff *skb, u8 ipproto,
 		      const struct tnl_ptk_info *tpi,
 		      int (*dscp_ecn_decapsulate)(const struct ip6_tnl *t,
@@ -899,7 +1078,11 @@ static int ipxip6_rcv(struct sk_buff *skb, u8 ipproto,
 	int ret = -1;
 
 	rcu_read_lock();
+<<<<<<< HEAD
 	t = ip6_tnl_lookup(dev_net(skb->dev), &ipv6h->saddr, &ipv6h->daddr);
+=======
+	t = ip6_tnl_lookup(dev_net(skb->dev), skb->dev->ifindex, &ipv6h->saddr, &ipv6h->daddr);
+>>>>>>> upstream/android-13
 
 	if (t) {
 		u8 tproto = READ_ONCE(t->parms.proto);
@@ -944,6 +1127,15 @@ static int ip6ip6_rcv(struct sk_buff *skb)
 			  ip6ip6_dscp_ecn_decapsulate);
 }
 
+<<<<<<< HEAD
+=======
+static int mplsip6_rcv(struct sk_buff *skb)
+{
+	return ipxip6_rcv(skb, IPPROTO_MPLS, &tpi_mpls,
+			  mplsip6_dscp_ecn_decapsulate);
+}
+
+>>>>>>> upstream/android-13
 struct ipv6_tel_txoption {
 	struct ipv6_txoptions ops;
 	__u8 dst_opt[8];
@@ -1005,14 +1197,24 @@ int ip6_tnl_xmit_ctl(struct ip6_tnl *t,
 
 		if (unlikely(!ipv6_chk_addr_and_flags(net, laddr, ldev, false,
 						      0, IFA_F_TENTATIVE)))
+<<<<<<< HEAD
 			pr_warn("%s xmit: Local address not yet configured!\n",
 				p->name);
+=======
+			pr_warn_ratelimited("%s xmit: Local address not yet configured!\n",
+					    p->name);
+>>>>>>> upstream/android-13
 		else if (!(p->flags & IP6_TNL_F_ALLOW_LOCAL_REMOTE) &&
 			 !ipv6_addr_is_multicast(raddr) &&
 			 unlikely(ipv6_chk_addr_and_flags(net, raddr, ldev,
 							  true, 0, IFA_F_TENTATIVE)))
+<<<<<<< HEAD
 			pr_warn("%s xmit: Routing loop! Remote address found on this node!\n",
 				p->name);
+=======
+			pr_warn_ratelimited("%s xmit: Routing loop! Remote address found on this node!\n",
+					    p->name);
+>>>>>>> upstream/android-13
 		else
 			ret = 1;
 		rcu_read_unlock();
@@ -1239,6 +1441,7 @@ tx_err_dst_release:
 EXPORT_SYMBOL(ip6_tnl_xmit);
 
 static inline int
+<<<<<<< HEAD
 ip4ip6_tnl_xmit(struct sk_buff *skb, struct net_device *dev)
 {
 	struct ip6_tnl *t = netdev_priv(dev);
@@ -1246,15 +1449,32 @@ ip4ip6_tnl_xmit(struct sk_buff *skb, struct net_device *dev)
 	int encap_limit = -1;
 	struct flowi6 fl6;
 	__u8 dsfield;
+=======
+ipxip6_tnl_xmit(struct sk_buff *skb, struct net_device *dev,
+		u8 protocol)
+{
+	struct ip6_tnl *t = netdev_priv(dev);
+	struct ipv6hdr *ipv6h;
+	const struct iphdr  *iph;
+	int encap_limit = -1;
+	__u16 offset;
+	struct flowi6 fl6;
+	__u8 dsfield, orig_dsfield;
+>>>>>>> upstream/android-13
 	__u32 mtu;
 	u8 tproto;
 	int err;
 
+<<<<<<< HEAD
 	iph = ip_hdr(skb);
 	memset(&(IPCB(skb)->opt), 0, sizeof(IPCB(skb)->opt));
 
 	tproto = READ_ONCE(t->parms.proto);
 	if (tproto != IPPROTO_IPIP && tproto != 0)
+=======
+	tproto = READ_ONCE(t->parms.proto);
+	if (tproto != protocol && tproto != 0)
+>>>>>>> upstream/android-13
 		return -1;
 
 	if (t->parms.collect_md) {
@@ -1267,11 +1487,16 @@ ip4ip6_tnl_xmit(struct sk_buff *skb, struct net_device *dev)
 			return -1;
 		key = &tun_info->key;
 		memset(&fl6, 0, sizeof(fl6));
+<<<<<<< HEAD
 		fl6.flowi6_proto = IPPROTO_IPIP;
+=======
+		fl6.flowi6_proto = protocol;
+>>>>>>> upstream/android-13
 		fl6.saddr = key->u.ipv6.src;
 		fl6.daddr = key->u.ipv6.dst;
 		fl6.flowlabel = key->label;
 		dsfield =  key->tos;
+<<<<<<< HEAD
 	} else {
 		if (!(t->parms.flags & IP6_TNL_F_IGN_ENCAP_LIMIT))
 			encap_limit = t->parms.encap_limit;
@@ -1371,18 +1596,89 @@ ip6ip6_tnl_xmit(struct sk_buff *skb, struct net_device *dev)
 			dsfield = ip6_tclass(t->parms.flowinfo);
 		if (t->parms.flags & IP6_TNL_F_USE_ORIG_FLOWLABEL)
 			fl6.flowlabel |= ip6_flowlabel(ipv6h);
+=======
+		switch (protocol) {
+		case IPPROTO_IPIP:
+			iph = ip_hdr(skb);
+			orig_dsfield = ipv4_get_dsfield(iph);
+			break;
+		case IPPROTO_IPV6:
+			ipv6h = ipv6_hdr(skb);
+			orig_dsfield = ipv6_get_dsfield(ipv6h);
+			break;
+		default:
+			orig_dsfield = dsfield;
+			break;
+		}
+	} else {
+		if (!(t->parms.flags & IP6_TNL_F_IGN_ENCAP_LIMIT))
+			encap_limit = t->parms.encap_limit;
+		if (protocol == IPPROTO_IPV6) {
+			offset = ip6_tnl_parse_tlv_enc_lim(skb,
+						skb_network_header(skb));
+			/* ip6_tnl_parse_tlv_enc_lim() might have
+			 * reallocated skb->head
+			 */
+			if (offset > 0) {
+				struct ipv6_tlv_tnl_enc_lim *tel;
+
+				tel = (void *)&skb_network_header(skb)[offset];
+				if (tel->encap_limit == 0) {
+					icmpv6_ndo_send(skb, ICMPV6_PARAMPROB,
+							ICMPV6_HDR_FIELD, offset + 2);
+					return -1;
+				}
+				encap_limit = tel->encap_limit - 1;
+			}
+		}
+
+		memcpy(&fl6, &t->fl.u.ip6, sizeof(fl6));
+		fl6.flowi6_proto = protocol;
+
+>>>>>>> upstream/android-13
 		if (t->parms.flags & IP6_TNL_F_USE_ORIG_FWMARK)
 			fl6.flowi6_mark = skb->mark;
 		else
 			fl6.flowi6_mark = t->parms.fwmark;
+<<<<<<< HEAD
 	}
 
 	fl6.flowi6_uid = sock_net_uid(dev_net(dev), NULL);
 	dsfield = INET_ECN_encapsulate(dsfield, ipv6_get_dsfield(ipv6h));
+=======
+		switch (protocol) {
+		case IPPROTO_IPIP:
+			iph = ip_hdr(skb);
+			orig_dsfield = ipv4_get_dsfield(iph);
+			if (t->parms.flags & IP6_TNL_F_USE_ORIG_TCLASS)
+				dsfield = orig_dsfield;
+			else
+				dsfield = ip6_tclass(t->parms.flowinfo);
+			break;
+		case IPPROTO_IPV6:
+			ipv6h = ipv6_hdr(skb);
+			orig_dsfield = ipv6_get_dsfield(ipv6h);
+			if (t->parms.flags & IP6_TNL_F_USE_ORIG_TCLASS)
+				dsfield = orig_dsfield;
+			else
+				dsfield = ip6_tclass(t->parms.flowinfo);
+			if (t->parms.flags & IP6_TNL_F_USE_ORIG_FLOWLABEL)
+				fl6.flowlabel |= ip6_flowlabel(ipv6h);
+			break;
+		default:
+			orig_dsfield = dsfield = ip6_tclass(t->parms.flowinfo);
+			break;
+		}
+	}
+
+	fl6.flowi6_uid = sock_net_uid(dev_net(dev), NULL);
+	dsfield = INET_ECN_encapsulate(dsfield, orig_dsfield);
+>>>>>>> upstream/android-13
 
 	if (iptunnel_handle_offloads(skb, SKB_GSO_IPXIP6))
 		return -1;
 
+<<<<<<< HEAD
 	skb_set_inner_ipproto(skb, IPPROTO_IPV6);
 
 	err = ip6_tnl_xmit(skb, dev, dsfield, &fl6, encap_limit, &mtu,
@@ -1390,6 +1686,26 @@ ip6ip6_tnl_xmit(struct sk_buff *skb, struct net_device *dev)
 	if (err != 0) {
 		if (err == -EMSGSIZE)
 			icmpv6_send(skb, ICMPV6_PKT_TOOBIG, 0, mtu);
+=======
+	skb_set_inner_ipproto(skb, protocol);
+
+	err = ip6_tnl_xmit(skb, dev, dsfield, &fl6, encap_limit, &mtu,
+			   protocol);
+	if (err != 0) {
+		/* XXX: send ICMP error even if DF is not set. */
+		if (err == -EMSGSIZE)
+			switch (protocol) {
+			case IPPROTO_IPIP:
+				icmp_ndo_send(skb, ICMP_DEST_UNREACH,
+					      ICMP_FRAG_NEEDED, htonl(mtu));
+				break;
+			case IPPROTO_IPV6:
+				icmpv6_ndo_send(skb, ICMPV6_PKT_TOOBIG, 0, mtu);
+				break;
+			default:
+				break;
+			}
+>>>>>>> upstream/android-13
 		return -1;
 	}
 
@@ -1401,6 +1717,10 @@ ip6_tnl_start_xmit(struct sk_buff *skb, struct net_device *dev)
 {
 	struct ip6_tnl *t = netdev_priv(dev);
 	struct net_device_stats *stats = &t->dev->stats;
+<<<<<<< HEAD
+=======
+	u8 ipproto;
+>>>>>>> upstream/android-13
 	int ret;
 
 	if (!pskb_inet_may_pull(skb))
@@ -1408,15 +1728,31 @@ ip6_tnl_start_xmit(struct sk_buff *skb, struct net_device *dev)
 
 	switch (skb->protocol) {
 	case htons(ETH_P_IP):
+<<<<<<< HEAD
 		ret = ip4ip6_tnl_xmit(skb, dev);
 		break;
 	case htons(ETH_P_IPV6):
 		ret = ip6ip6_tnl_xmit(skb, dev);
+=======
+		ipproto = IPPROTO_IPIP;
+		break;
+	case htons(ETH_P_IPV6):
+		if (ip6_tnl_addr_conflict(t, ipv6_hdr(skb)))
+			goto tx_err;
+		ipproto = IPPROTO_IPV6;
+		break;
+	case htons(ETH_P_MPLS_UC):
+		ipproto = IPPROTO_MPLS;
+>>>>>>> upstream/android-13
 		break;
 	default:
 		goto tx_err;
 	}
 
+<<<<<<< HEAD
+=======
+	ret = ipxip6_tnl_xmit(skb, dev, ipproto);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		goto tx_err;
 
@@ -1432,8 +1768,15 @@ tx_err:
 static void ip6_tnl_link_config(struct ip6_tnl *t)
 {
 	struct net_device *dev = t->dev;
+<<<<<<< HEAD
 	struct __ip6_tnl_parm *p = &t->parms;
 	struct flowi6 *fl6 = &t->fl.u.ip6;
+=======
+	struct net_device *tdev = NULL;
+	struct __ip6_tnl_parm *p = &t->parms;
+	struct flowi6 *fl6 = &t->fl.u.ip6;
+	unsigned int mtu;
+>>>>>>> upstream/android-13
 	int t_hlen;
 
 	memcpy(dev->dev_addr, &p->laddr, sizeof(struct in6_addr));
@@ -1469,6 +1812,7 @@ static void ip6_tnl_link_config(struct ip6_tnl *t)
 		struct rt6_info *rt = rt6_lookup(t->net,
 						 &p->raddr, &p->laddr,
 						 p->link, NULL, strict);
+<<<<<<< HEAD
 
 		if (!rt)
 			return;
@@ -1478,13 +1822,31 @@ static void ip6_tnl_link_config(struct ip6_tnl *t)
 				t_hlen;
 
 			dev->mtu = rt->dst.dev->mtu - t_hlen;
+=======
+		if (rt) {
+			tdev = rt->dst.dev;
+			ip6_rt_put(rt);
+		}
+
+		if (!tdev && p->link)
+			tdev = __dev_get_by_index(t->net, p->link);
+
+		if (tdev) {
+			dev->hard_header_len = tdev->hard_header_len + t_hlen;
+			mtu = min_t(unsigned int, tdev->mtu, IP6_MAX_MTU);
+
+			dev->mtu = mtu - t_hlen;
+>>>>>>> upstream/android-13
 			if (!(t->parms.flags & IP6_TNL_F_IGN_ENCAP_LIMIT))
 				dev->mtu -= 8;
 
 			if (dev->mtu < IPV6_MIN_MTU)
 				dev->mtu = IPV6_MIN_MTU;
 		}
+<<<<<<< HEAD
 		ip6_rt_put(rt);
+=======
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1565,9 +1927,16 @@ ip6_tnl_parm_to_user(struct ip6_tnl_parm *u, const struct __ip6_tnl_parm *p)
 }
 
 /**
+<<<<<<< HEAD
  * ip6_tnl_ioctl - configure ipv6 tunnels from userspace
  *   @dev: virtual device associated with tunnel
  *   @ifr: parameters passed from userspace
+=======
+ * ip6_tnl_siocdevprivate - configure ipv6 tunnels from userspace
+ *   @dev: virtual device associated with tunnel
+ *   @ifr: unused
+ *   @data: parameters passed from userspace
+>>>>>>> upstream/android-13
  *   @cmd: command to be performed
  *
  * Description:
@@ -1593,7 +1962,12 @@ ip6_tnl_parm_to_user(struct ip6_tnl_parm *u, const struct __ip6_tnl_parm *p)
  **/
 
 static int
+<<<<<<< HEAD
 ip6_tnl_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
+=======
+ip6_tnl_siocdevprivate(struct net_device *dev, struct ifreq *ifr,
+		       void __user *data, int cmd)
+>>>>>>> upstream/android-13
 {
 	int err = 0;
 	struct ip6_tnl_parm p;
@@ -1607,7 +1981,11 @@ ip6_tnl_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 	switch (cmd) {
 	case SIOCGETTUNNEL:
 		if (dev == ip6n->fb_tnl_dev) {
+<<<<<<< HEAD
 			if (copy_from_user(&p, ifr->ifr_ifru.ifru_data, sizeof(p))) {
+=======
+			if (copy_from_user(&p, data, sizeof(p))) {
+>>>>>>> upstream/android-13
 				err = -EFAULT;
 				break;
 			}
@@ -1619,9 +1997,14 @@ ip6_tnl_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 			memset(&p, 0, sizeof(p));
 		}
 		ip6_tnl_parm_to_user(&p, &t->parms);
+<<<<<<< HEAD
 		if (copy_to_user(ifr->ifr_ifru.ifru_data, &p, sizeof(p))) {
 			err = -EFAULT;
 		}
+=======
+		if (copy_to_user(data, &p, sizeof(p)))
+			err = -EFAULT;
+>>>>>>> upstream/android-13
 		break;
 	case SIOCADDTUNNEL:
 	case SIOCCHGTUNNEL:
@@ -1629,7 +2012,11 @@ ip6_tnl_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 		if (!ns_capable(net->user_ns, CAP_NET_ADMIN))
 			break;
 		err = -EFAULT;
+<<<<<<< HEAD
 		if (copy_from_user(&p, ifr->ifr_ifru.ifru_data, sizeof(p)))
+=======
+		if (copy_from_user(&p, data, sizeof(p)))
+>>>>>>> upstream/android-13
 			break;
 		err = -EINVAL;
 		if (p.proto != IPPROTO_IPV6 && p.proto != IPPROTO_IPIP &&
@@ -1653,7 +2040,11 @@ ip6_tnl_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 		if (!IS_ERR(t)) {
 			err = 0;
 			ip6_tnl_parm_to_user(&p, &t->parms);
+<<<<<<< HEAD
 			if (copy_to_user(ifr->ifr_ifru.ifru_data, &p, sizeof(p)))
+=======
+			if (copy_to_user(data, &p, sizeof(p)))
+>>>>>>> upstream/android-13
 				err = -EFAULT;
 
 		} else {
@@ -1667,7 +2058,11 @@ ip6_tnl_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 
 		if (dev == ip6n->fb_tnl_dev) {
 			err = -EFAULT;
+<<<<<<< HEAD
 			if (copy_from_user(&p, ifr->ifr_ifru.ifru_data, sizeof(p)))
+=======
+			if (copy_from_user(&p, data, sizeof(p)))
+>>>>>>> upstream/android-13
 				break;
 			err = -ENOENT;
 			ip6_tnl_parm_from_user(&p1, &p);
@@ -1786,9 +2181,15 @@ static const struct net_device_ops ip6_tnl_netdev_ops = {
 	.ndo_init	= ip6_tnl_dev_init,
 	.ndo_uninit	= ip6_tnl_dev_uninit,
 	.ndo_start_xmit = ip6_tnl_start_xmit,
+<<<<<<< HEAD
 	.ndo_do_ioctl	= ip6_tnl_ioctl,
 	.ndo_change_mtu = ip6_tnl_change_mtu,
 	.ndo_get_stats	= ip6_get_stats,
+=======
+	.ndo_siocdevprivate = ip6_tnl_siocdevprivate,
+	.ndo_change_mtu = ip6_tnl_change_mtu,
+	.ndo_get_stats64 = dev_get_tstats64,
+>>>>>>> upstream/android-13
 	.ndo_get_iflink = ip6_tnl_get_iflink,
 };
 
@@ -1809,6 +2210,10 @@ static const struct net_device_ops ip6_tnl_netdev_ops = {
 static void ip6_tnl_dev_setup(struct net_device *dev)
 {
 	dev->netdev_ops = &ip6_tnl_netdev_ops;
+<<<<<<< HEAD
+=======
+	dev->header_ops = &ip_tunnel_header_ops;
+>>>>>>> upstream/android-13
 	dev->needs_free_netdev = true;
 	dev->priv_destructor = ip6_dev_free;
 
@@ -2199,6 +2604,15 @@ static struct xfrm6_tunnel ip6ip6_handler __read_mostly = {
 	.priority	=	1,
 };
 
+<<<<<<< HEAD
+=======
+static struct xfrm6_tunnel mplsip6_handler __read_mostly = {
+	.handler	= mplsip6_rcv,
+	.err_handler	= mplsip6_err,
+	.priority	=	1,
+};
+
+>>>>>>> upstream/android-13
 static void __net_exit ip6_tnl_destroy_tunnels(struct net *net, struct list_head *list)
 {
 	struct ip6_tnl_net *ip6n = net_generic(net, ip6_tnl_net_id);
@@ -2323,6 +2737,18 @@ static int __init ip6_tunnel_init(void)
 		pr_err("%s: can't register ip6ip6\n", __func__);
 		goto out_ip6ip6;
 	}
+<<<<<<< HEAD
+=======
+
+	if (ip6_tnl_mpls_supported()) {
+		err = xfrm6_tunnel_register(&mplsip6_handler, AF_MPLS);
+		if (err < 0) {
+			pr_err("%s: can't register mplsip6\n", __func__);
+			goto out_mplsip6;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	err = rtnl_link_register(&ip6_link_ops);
 	if (err < 0)
 		goto rtnl_link_failed;
@@ -2330,6 +2756,12 @@ static int __init ip6_tunnel_init(void)
 	return 0;
 
 rtnl_link_failed:
+<<<<<<< HEAD
+=======
+	if (ip6_tnl_mpls_supported())
+		xfrm6_tunnel_deregister(&mplsip6_handler, AF_MPLS);
+out_mplsip6:
+>>>>>>> upstream/android-13
 	xfrm6_tunnel_deregister(&ip6ip6_handler, AF_INET6);
 out_ip6ip6:
 	xfrm6_tunnel_deregister(&ip4ip6_handler, AF_INET);
@@ -2352,6 +2784,12 @@ static void __exit ip6_tunnel_cleanup(void)
 	if (xfrm6_tunnel_deregister(&ip6ip6_handler, AF_INET6))
 		pr_info("%s: can't deregister ip6ip6\n", __func__);
 
+<<<<<<< HEAD
+=======
+	if (ip6_tnl_mpls_supported() &&
+	    xfrm6_tunnel_deregister(&mplsip6_handler, AF_MPLS))
+		pr_info("%s: can't deregister mplsip6\n", __func__);
+>>>>>>> upstream/android-13
 	unregister_pernet_device(&ip6_tnl_net_ops);
 }
 

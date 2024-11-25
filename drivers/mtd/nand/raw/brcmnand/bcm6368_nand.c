@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2015 Simon Arlott
  *
@@ -10,6 +11,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2015 Simon Arlott
+ *
+>>>>>>> upstream/android-13
  * Derived from bcm63138_nand.c:
  * Copyright © 2015 Broadcom Corporation
  *

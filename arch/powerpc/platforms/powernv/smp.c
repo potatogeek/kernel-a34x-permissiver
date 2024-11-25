@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * SMP support for PowerNV machines.
  *
  * Copyright 2011 IBM Corp.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -147,6 +154,12 @@ static int pnv_smp_cpu_disable(void)
 		xive_smp_disable_cpu();
 	else
 		xics_migrate_irqs_away();
+<<<<<<< HEAD
+=======
+
+	cleanup_cpu_mmu_context();
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -162,7 +175,11 @@ static void pnv_flush_interrupts(void)
 	}
 }
 
+<<<<<<< HEAD
 static void pnv_smp_cpu_kill_self(void)
+=======
+static void pnv_cpu_offline_self(void)
+>>>>>>> upstream/android-13
 {
 	unsigned long srr1, unexpected_mask, wmask;
 	unsigned int cpu;
@@ -421,6 +438,10 @@ static struct smp_ops_t pnv_smp_ops = {
 #ifdef CONFIG_HOTPLUG_CPU
 	.cpu_disable	= pnv_smp_cpu_disable,
 	.cpu_die	= generic_cpu_die,
+<<<<<<< HEAD
+=======
+	.cpu_offline_self = pnv_cpu_offline_self,
+>>>>>>> upstream/android-13
 #endif /* CONFIG_HOTPLUG_CPU */
 };
 
@@ -434,7 +455,10 @@ void __init pnv_smp_init(void)
 	smp_ops = &pnv_smp_ops;
 
 #ifdef CONFIG_HOTPLUG_CPU
+<<<<<<< HEAD
 	ppc_md.cpu_die	= pnv_smp_cpu_kill_self;
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_KEXEC_CORE
 	crash_wake_offline = 1;
 #endif

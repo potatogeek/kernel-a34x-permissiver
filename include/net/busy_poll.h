@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * net busy poll support
  * Copyright(c) 2013 Intel Corporation.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
  * version 2, as published by the Free Software Foundation.
@@ -15,6 +20,8 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  *
+=======
+>>>>>>> upstream/android-13
  * Author: Eliezer Tamir
  *
  * Contact Information:
@@ -35,6 +42,11 @@
  */
 #define MIN_NAPI_ID ((unsigned int)(NR_CPUS + 1))
 
+<<<<<<< HEAD
+=======
+#define BUSY_POLL_BUDGET 8
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_NET_RX_BUSY_POLL
 
 struct napi_struct;
@@ -48,14 +60,22 @@ static inline bool net_busy_loop_on(void)
 
 static inline bool sk_can_busy_loop(const struct sock *sk)
 {
+<<<<<<< HEAD
 	return sk->sk_ll_usec && !signal_pending(current);
+=======
+	return READ_ONCE(sk->sk_ll_usec) && !signal_pending(current);
+>>>>>>> upstream/android-13
 }
 
 bool sk_busy_loop_end(void *p, unsigned long start_time);
 
 void napi_busy_loop(unsigned int napi_id,
 		    bool (*loop_end)(void *, unsigned long),
+<<<<<<< HEAD
 		    void *loop_end_arg);
+=======
+		    void *loop_end_arg, bool prefer_busy_poll, u16 budget);
+>>>>>>> upstream/android-13
 
 #else /* CONFIG_NET_RX_BUSY_POLL */
 static inline unsigned long net_busy_loop_on(void)
@@ -117,7 +137,13 @@ static inline void sk_busy_loop(struct sock *sk, int nonblock)
 	unsigned int napi_id = READ_ONCE(sk->sk_napi_id);
 
 	if (napi_id >= MIN_NAPI_ID)
+<<<<<<< HEAD
 		napi_busy_loop(napi_id, nonblock ? NULL : sk_busy_loop_end, sk);
+=======
+		napi_busy_loop(napi_id, nonblock ? NULL : sk_busy_loop_end, sk,
+			       READ_ONCE(sk->sk_prefer_busy_poll),
+			       READ_ONCE(sk->sk_busy_poll_budget) ?: BUSY_POLL_BUDGET);
+>>>>>>> upstream/android-13
 #endif
 }
 
@@ -126,7 +152,15 @@ static inline void skb_mark_napi_id(struct sk_buff *skb,
 				    struct napi_struct *napi)
 {
 #ifdef CONFIG_NET_RX_BUSY_POLL
+<<<<<<< HEAD
 	skb->napi_id = napi->napi_id;
+=======
+	/* If the skb was already marked with a valid NAPI ID, avoid overwriting
+	 * it.
+	 */
+	if (skb->napi_id < MIN_NAPI_ID)
+		skb->napi_id = napi->napi_id;
+>>>>>>> upstream/android-13
 #endif
 }
 
@@ -139,13 +173,36 @@ static inline void sk_mark_napi_id(struct sock *sk, const struct sk_buff *skb)
 	sk_rx_queue_set(sk, skb);
 }
 
+<<<<<<< HEAD
+=======
+static inline void __sk_mark_napi_id_once(struct sock *sk, unsigned int napi_id)
+{
+#ifdef CONFIG_NET_RX_BUSY_POLL
+	if (!READ_ONCE(sk->sk_napi_id))
+		WRITE_ONCE(sk->sk_napi_id, napi_id);
+#endif
+}
+
+>>>>>>> upstream/android-13
 /* variant used for unconnected sockets */
 static inline void sk_mark_napi_id_once(struct sock *sk,
 					const struct sk_buff *skb)
 {
 #ifdef CONFIG_NET_RX_BUSY_POLL
+<<<<<<< HEAD
 	if (!READ_ONCE(sk->sk_napi_id))
 		WRITE_ONCE(sk->sk_napi_id, skb->napi_id);
+=======
+	__sk_mark_napi_id_once(sk, skb->napi_id);
+#endif
+}
+
+static inline void sk_mark_napi_id_once_xdp(struct sock *sk,
+					    const struct xdp_buff *xdp)
+{
+#ifdef CONFIG_NET_RX_BUSY_POLL
+	__sk_mark_napi_id_once(sk, xdp->rxq->napi_id);
+>>>>>>> upstream/android-13
 #endif
 }
 

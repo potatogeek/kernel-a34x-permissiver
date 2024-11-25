@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Fitipower FC0013 tuner driver
  *
  * Copyright (C) 2012 Hans-Frieder Vogt <hfvogt@gmx.net>
  * partially based on driver code from Fitipower
  * Copyright (C) 2010 Fitipower Integrated Technology Inc
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -15,6 +20,8 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "fc0013.h"

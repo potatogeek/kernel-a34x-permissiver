@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 	Copyright (C) 2010 Willow Garage <http://www.willowgarage.com>
 	Copyright (C) 2009 - 2010 Ivo van Doorn <IvDoorn@gmail.com>
@@ -7,6 +11,7 @@
 	Copyright (C) 2009 Axel Kollhofer <rain_maker@root-forum.org>
 	<http://rt2x00.serialmonkey.com>
 
+<<<<<<< HEAD
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation; either version 2 of the License, or
@@ -19,6 +24,8 @@
 
 	You should have received a copy of the GNU General Public License
 	along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -100,6 +107,7 @@ static void rt2800usb_stop_queue(struct data_queue *queue)
 	}
 }
 
+<<<<<<< HEAD
 /*
  * test if there is an entry in any TX queue for which DMA is done
  * but the TX status has not been returned yet
@@ -145,6 +153,8 @@ static bool rt2800usb_txstatus_timeout(struct rt2x00_dev *rt2x00dev)
 	return false;
 }
 
+=======
+>>>>>>> upstream/android-13
 #define TXSTATUS_READ_INTERVAL 1000000
 
 static bool rt2800usb_tx_sta_fifo_read_completed(struct rt2x00_dev *rt2x00dev,
@@ -171,10 +181,17 @@ static bool rt2800usb_tx_sta_fifo_read_completed(struct rt2x00_dev *rt2x00dev,
 	}
 
 	/* Check if there is any entry that timedout waiting on TX status */
+<<<<<<< HEAD
 	if (rt2800usb_txstatus_timeout(rt2x00dev))
 		queue_work(rt2x00dev->workqueue, &rt2x00dev->txdone_work);
 
 	if (rt2800usb_txstatus_pending(rt2x00dev)) {
+=======
+	if (rt2800_txstatus_timeout(rt2x00dev))
+		queue_work(rt2x00dev->workqueue, &rt2x00dev->txdone_work);
+
+	if (rt2800_txstatus_pending(rt2x00dev)) {
+>>>>>>> upstream/android-13
 		/* Read register after 1 ms */
 		hrtimer_start(&rt2x00dev->txstatus_timer,
 			      TXSTATUS_READ_INTERVAL,
@@ -189,7 +206,11 @@ stop_reading:
 	 * clear_bit someone could do rt2x00usb_interrupt_txdone, so recheck
 	 * here again if status reading is needed.
 	 */
+<<<<<<< HEAD
 	if (rt2800usb_txstatus_pending(rt2x00dev) &&
+=======
+	if (rt2800_txstatus_pending(rt2x00dev) &&
+>>>>>>> upstream/android-13
 	    !test_and_set_bit(TX_STATUS_READING, &rt2x00dev->flags))
 		return true;
 	else
@@ -435,6 +456,17 @@ static int rt2800usb_set_device_state(struct rt2x00_dev *rt2x00dev,
 	return retval;
 }
 
+<<<<<<< HEAD
+=======
+static unsigned int rt2800usb_get_dma_done(struct data_queue *queue)
+{
+	struct queue_entry *entry;
+
+	entry = rt2x00queue_get_entry(queue, Q_INDEX_DMA_DONE);
+	return entry->entry_idx;
+}
+
+>>>>>>> upstream/android-13
 /*
  * TX descriptor initialization
  */
@@ -501,6 +533,7 @@ static int rt2800usb_get_tx_data_len(struct queue_entry *entry)
 /*
  * TX control handlers
  */
+<<<<<<< HEAD
 static bool rt2800usb_txdone_entry_check(struct queue_entry *entry, u32 reg)
 {
 	__le32 *txwi;
@@ -607,24 +640,38 @@ static void rt2800usb_txdone_nostatus(struct rt2x00_dev *rt2x00dev)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 static void rt2800usb_work_txdone(struct work_struct *work)
 {
 	struct rt2x00_dev *rt2x00dev =
 	    container_of(work, struct rt2x00_dev, txdone_work);
 
 	while (!kfifo_is_empty(&rt2x00dev->txstatus_fifo) ||
+<<<<<<< HEAD
 	       rt2800usb_txstatus_timeout(rt2x00dev)) {
 
 		rt2800usb_txdone(rt2x00dev);
 
 		rt2800usb_txdone_nostatus(rt2x00dev);
+=======
+	       rt2800_txstatus_timeout(rt2x00dev)) {
+
+		rt2800_txdone(rt2x00dev, UINT_MAX);
+
+		rt2800_txdone_nostatus(rt2x00dev);
+>>>>>>> upstream/android-13
 
 		/*
 		 * The hw may delay sending the packet after DMA complete
 		 * if the medium is busy, thus the TX_STA_FIFO entry is
 		 * also delayed -> use a timer to retrieve it.
 		 */
+<<<<<<< HEAD
 		if (rt2800usb_txstatus_pending(rt2x00dev))
+=======
+		if (rt2800_txstatus_pending(rt2x00dev))
+>>>>>>> upstream/android-13
 			rt2800usb_async_read_tx_status(rt2x00dev);
 	}
 }
@@ -697,13 +744,21 @@ static void rt2800usb_fill_rxdone(struct queue_entry *entry,
 		 * stripped it from the frame. Signal this to mac80211.
 		 */
 		rxdesc->flags |= RX_FLAG_MMIC_STRIPPED;
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> upstream/android-13
 		if (rxdesc->cipher_status == RX_CRYPTO_SUCCESS) {
 			rxdesc->flags |= RX_FLAG_DECRYPTED;
 		} else if (rxdesc->cipher_status == RX_CRYPTO_FAIL_MIC) {
 			/*
 			 * In order to check the Michael Mic, the packet must have
+<<<<<<< HEAD
 			 * been decrypted.  Mac80211 doesnt check the MMIC failure 
+=======
+			 * been decrypted.  Mac80211 doesnt check the MMIC failure
+>>>>>>> upstream/android-13
 			 * flag to initiate MMIC countermeasures if the decoded flag
 			 * has not been set.
 			 */
@@ -808,6 +863,10 @@ static const struct ieee80211_ops rt2800usb_mac80211_ops = {
 	.get_survey		= rt2800_get_survey,
 	.get_ringparam		= rt2x00mac_get_ringparam,
 	.tx_frames_pending	= rt2x00mac_tx_frames_pending,
+<<<<<<< HEAD
+=======
+	.reconfig_complete	= rt2x00mac_reconfig_complete,
+>>>>>>> upstream/android-13
 };
 
 static const struct rt2800_ops rt2800usb_rt2800_ops = {
@@ -823,6 +882,10 @@ static const struct rt2800_ops rt2800usb_rt2800_ops = {
 	.drv_write_firmware	= rt2800usb_write_firmware,
 	.drv_init_registers	= rt2800usb_init_registers,
 	.drv_get_txwi		= rt2800usb_get_txwi,
+<<<<<<< HEAD
+=======
+	.drv_get_dma_done	= rt2800usb_get_dma_done,
+>>>>>>> upstream/android-13
 };
 
 static const struct rt2x00lib_ops rt2800usb_rt2x00_ops = {
@@ -840,6 +903,10 @@ static const struct rt2x00lib_ops rt2800usb_rt2x00_ops = {
 	.link_tuner		= rt2800_link_tuner,
 	.gain_calibration	= rt2800_gain_calibration,
 	.vco_calibration	= rt2800_vco_calibration,
+<<<<<<< HEAD
+=======
+	.watchdog		= rt2800_watchdog,
+>>>>>>> upstream/android-13
 	.start_queue		= rt2800usb_start_queue,
 	.kick_queue		= rt2x00usb_kick_queue,
 	.stop_queue		= rt2800usb_stop_queue,
@@ -858,6 +925,10 @@ static const struct rt2x00lib_ops rt2800usb_rt2x00_ops = {
 	.config_erp		= rt2800_config_erp,
 	.config_ant		= rt2800_config_ant,
 	.config			= rt2800_config,
+<<<<<<< HEAD
+=======
+	.pre_reset_hw		= rt2800_pre_reset_hw,
+>>>>>>> upstream/android-13
 };
 
 static void rt2800usb_queue_init(struct data_queue *queue)
@@ -896,7 +967,10 @@ static void rt2800usb_queue_init(struct data_queue *queue)
 		break;
 
 	case QID_ATIM:
+<<<<<<< HEAD
 		/* fallthrough */
+=======
+>>>>>>> upstream/android-13
 	default:
 		BUG();
 		break;
@@ -1139,6 +1213,10 @@ static const struct usb_device_id rt2800usb_device_table[] = {
 	{ USB_DEVICE(0x177f, 0x0313) },
 	{ USB_DEVICE(0x177f, 0x0323) },
 	{ USB_DEVICE(0x177f, 0x0324) },
+<<<<<<< HEAD
+=======
+	{ USB_DEVICE(0x177f, 0x1163) },
+>>>>>>> upstream/android-13
 	/* U-Media */
 	{ USB_DEVICE(0x157e, 0x300e) },
 	{ USB_DEVICE(0x157e, 0x3013) },
@@ -1237,6 +1315,10 @@ static const struct usb_device_id rt2800usb_device_table[] = {
 	{ USB_DEVICE(0x0846, 0x9013) },
 	{ USB_DEVICE(0x0846, 0x9019) },
 	/* Planex */
+<<<<<<< HEAD
+=======
+	{ USB_DEVICE(0x2019, 0xed14) },
+>>>>>>> upstream/android-13
 	{ USB_DEVICE(0x2019, 0xed19) },
 	/* Ralink */
 	{ USB_DEVICE(0x148f, 0x3573) },
@@ -1397,7 +1479,10 @@ static const struct usb_device_id rt2800usb_device_table[] = {
 MODULE_AUTHOR(DRV_PROJECT);
 MODULE_VERSION(DRV_VERSION);
 MODULE_DESCRIPTION("Ralink RT2800 USB Wireless LAN driver.");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("Ralink RT2870 USB chipset based cards");
+=======
+>>>>>>> upstream/android-13
 MODULE_DEVICE_TABLE(usb, rt2800usb_device_table);
 MODULE_FIRMWARE(FIRMWARE_RT2870);
 MODULE_LICENSE("GPL");

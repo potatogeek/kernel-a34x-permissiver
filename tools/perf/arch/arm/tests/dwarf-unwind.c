@@ -3,6 +3,10 @@
 #include "perf_regs.h"
 #include "thread.h"
 #include "map.h"
+<<<<<<< HEAD
+=======
+#include "maps.h"
+>>>>>>> upstream/android-13
 #include "event.h"
 #include "debug.h"
 #include "tests/tests.h"
@@ -25,7 +29,11 @@ static int sample_ustack(struct perf_sample *sample,
 
 	sp = (unsigned long) regs[PERF_REG_ARM_SP];
 
+<<<<<<< HEAD
 	map = map_groups__find(thread->mg, (u64)sp);
+=======
+	map = maps__find(thread->maps, (u64)sp);
+>>>>>>> upstream/android-13
 	if (!map) {
 		pr_debug("failed to get stack map\n");
 		free(buf);

@@ -15,6 +15,19 @@
 #include "inffast.h"
 #include "infutil.h"
 
+<<<<<<< HEAD
+=======
+/* architecture-specific bits */
+#ifdef CONFIG_ZLIB_DFLTCC
+#  include "../zlib_dfltcc/dfltcc.h"
+#else
+#define INFLATE_RESET_HOOK(strm) do {} while (0)
+#define INFLATE_TYPEDO_HOOK(strm, flush) do {} while (0)
+#define INFLATE_NEED_UPDATEWINDOW(strm) 1
+#define INFLATE_NEED_CHECKSUM(strm) 1
+#endif
+
+>>>>>>> upstream/android-13
 int zlib_inflate_workspacesize(void)
 {
     return sizeof(struct inflate_workspace);
@@ -42,6 +55,10 @@ int zlib_inflateReset(z_streamp strm)
     state->write = 0;
     state->whave = 0;
 
+<<<<<<< HEAD
+=======
+    INFLATE_RESET_HOOK(strm);
+>>>>>>> upstream/android-13
     return Z_OK;
 }
 
@@ -66,7 +83,19 @@ int zlib_inflateInit2(z_streamp strm, int windowBits)
         return Z_STREAM_ERROR;
     }
     state->wbits = (unsigned)windowBits;
+<<<<<<< HEAD
     state->window = &WS(strm)->working_window[0];
+=======
+#ifdef CONFIG_ZLIB_DFLTCC
+    /*
+     * DFLTCC requires the window to be page aligned.
+     * Thus, we overallocate and take the aligned portion of the buffer.
+     */
+    state->window = PTR_ALIGN(&WS(strm)->working_window[0], PAGE_SIZE);
+#else
+    state->window = &WS(strm)->working_window[0];
+#endif
+>>>>>>> upstream/android-13
 
     return zlib_inflateReset(strm);
 }
@@ -227,11 +256,14 @@ static int zlib_inflateSyncPacket(z_streamp strm)
         bits -= bits & 7; \
     } while (0)
 
+<<<<<<< HEAD
 /* Reverse the bytes in a 32-bit value */
 #define REVERSE(q) \
     ((((q) >> 24) & 0xff) + (((q) >> 8) & 0xff00) + \
      (((q) & 0xff00) << 8) + (((q) & 0xff) << 24))
 
+=======
+>>>>>>> upstream/android-13
 /*
    inflate() uses a state machine to process as much input data and generate as
    much output data as possible before returning.  The state machine is
@@ -382,6 +414,10 @@ int zlib_inflate(z_streamp strm, int flush)
             strm->adler = state->check = REVERSE(hold);
             INITBITS();
             state->mode = DICT;
+<<<<<<< HEAD
+=======
+	    fallthrough;
+>>>>>>> upstream/android-13
         case DICT:
             if (state->havedict == 0) {
                 RESTORE();
@@ -389,9 +425,18 @@ int zlib_inflate(z_streamp strm, int flush)
             }
             strm->adler = state->check = zlib_adler32(0L, NULL, 0);
             state->mode = TYPE;
+<<<<<<< HEAD
         case TYPE:
             if (flush == Z_BLOCK) goto inf_leave;
         case TYPEDO:
+=======
+	    fallthrough;
+        case TYPE:
+            if (flush == Z_BLOCK) goto inf_leave;
+	    fallthrough;
+        case TYPEDO:
+            INFLATE_TYPEDO_HOOK(strm, flush);
+>>>>>>> upstream/android-13
             if (state->last) {
                 BYTEBITS();
                 state->mode = CHECK;
@@ -428,6 +473,10 @@ int zlib_inflate(z_streamp strm, int flush)
             state->length = (unsigned)hold & 0xffff;
             INITBITS();
             state->mode = COPY;
+<<<<<<< HEAD
+=======
+	    fallthrough;
+>>>>>>> upstream/android-13
         case COPY:
             copy = state->length;
             if (copy) {
@@ -461,6 +510,10 @@ int zlib_inflate(z_streamp strm, int flush)
 #endif
             state->have = 0;
             state->mode = LENLENS;
+<<<<<<< HEAD
+=======
+	    fallthrough;
+>>>>>>> upstream/android-13
         case LENLENS:
             while (state->have < state->ncode) {
                 NEEDBITS(3);
@@ -481,6 +534,10 @@ int zlib_inflate(z_streamp strm, int flush)
             }
             state->have = 0;
             state->mode = CODELENS;
+<<<<<<< HEAD
+=======
+	    fallthrough;
+>>>>>>> upstream/android-13
         case CODELENS:
             while (state->have < state->nlen + state->ndist) {
                 for (;;) {
@@ -554,6 +611,10 @@ int zlib_inflate(z_streamp strm, int flush)
                 break;
             }
             state->mode = LEN;
+<<<<<<< HEAD
+=======
+	    fallthrough;
+>>>>>>> upstream/android-13
         case LEN:
             if (have >= 6 && left >= 258) {
                 RESTORE();
@@ -593,6 +654,10 @@ int zlib_inflate(z_streamp strm, int flush)
             }
             state->extra = (unsigned)(this.op) & 15;
             state->mode = LENEXT;
+<<<<<<< HEAD
+=======
+	    fallthrough;
+>>>>>>> upstream/android-13
         case LENEXT:
             if (state->extra) {
                 NEEDBITS(state->extra);
@@ -600,6 +665,10 @@ int zlib_inflate(z_streamp strm, int flush)
                 DROPBITS(state->extra);
             }
             state->mode = DIST;
+<<<<<<< HEAD
+=======
+	    fallthrough;
+>>>>>>> upstream/android-13
         case DIST:
             for (;;) {
                 this = state->distcode[BITS(state->distbits)];
@@ -625,6 +694,10 @@ int zlib_inflate(z_streamp strm, int flush)
             state->offset = (unsigned)this.val;
             state->extra = (unsigned)(this.op) & 15;
             state->mode = DISTEXT;
+<<<<<<< HEAD
+=======
+	    fallthrough;
+>>>>>>> upstream/android-13
         case DISTEXT:
             if (state->extra) {
                 NEEDBITS(state->extra);
@@ -644,6 +717,10 @@ int zlib_inflate(z_streamp strm, int flush)
                 break;
             }
             state->mode = MATCH;
+<<<<<<< HEAD
+=======
+	    fallthrough;
+>>>>>>> upstream/android-13
         case MATCH:
             if (left == 0) goto inf_leave;
             copy = out - left;
@@ -681,7 +758,11 @@ int zlib_inflate(z_streamp strm, int flush)
                 out -= left;
                 strm->total_out += out;
                 state->total += out;
+<<<<<<< HEAD
                 if (out)
+=======
+                if (INFLATE_NEED_CHECKSUM(strm) && out)
+>>>>>>> upstream/android-13
                     strm->adler = state->check =
                         UPDATE(state->check, put - out, out);
                 out = left;
@@ -694,6 +775,10 @@ int zlib_inflate(z_streamp strm, int flush)
                 INITBITS();
             }
             state->mode = DONE;
+<<<<<<< HEAD
+=======
+	    fallthrough;
+>>>>>>> upstream/android-13
         case DONE:
             ret = Z_STREAM_END;
             goto inf_leave;
@@ -714,7 +799,12 @@ int zlib_inflate(z_streamp strm, int flush)
      */
   inf_leave:
     RESTORE();
+<<<<<<< HEAD
     if (state->wsize || (state->mode < CHECK && out != strm->avail_out))
+=======
+    if (INFLATE_NEED_UPDATEWINDOW(strm) &&
+            (state->wsize || (state->mode < CHECK && out != strm->avail_out)))
+>>>>>>> upstream/android-13
         zlib_updatewindow(strm, out);
 
     in -= strm->avail_in;
@@ -722,7 +812,11 @@ int zlib_inflate(z_streamp strm, int flush)
     strm->total_in += in;
     strm->total_out += out;
     state->total += out;
+<<<<<<< HEAD
     if (state->wrap && out)
+=======
+    if (INFLATE_NEED_CHECKSUM(strm) && state->wrap && out)
+>>>>>>> upstream/android-13
         strm->adler = state->check =
             UPDATE(state->check, strm->next_out - out, out);
 

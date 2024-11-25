@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* QLogic qed NIC Driver
  * Copyright (c) 2015-2017  QLogic Corporation
  *
@@ -28,6 +29,12 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause) */
+/* QLogic qed NIC Driver
+ * Copyright (c) 2015-2017  QLogic Corporation
+ * Copyright (c) 2019-2020 Marvell International Ltd.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _QED_HW_H
@@ -315,4 +322,23 @@ int qed_init_fw_data(struct qed_dev *cdev,
 int qed_dmae_sanity(struct qed_hwfn *p_hwfn,
 		    struct qed_ptt *p_ptt, const char *phase);
 
+<<<<<<< HEAD
+=======
+#define QED_HW_ERR_MAX_STR_SIZE 256
+
+/**
+ * @brief qed_hw_err_notify - Notify upper layer driver and management FW
+ *	about a HW error.
+ *
+ * @param p_hwfn
+ * @param p_ptt
+ * @param err_type
+ * @param fmt - debug data buffer to send to the MFW
+ * @param ... - buffer format args
+ */
+void __printf(4, 5) __cold qed_hw_err_notify(struct qed_hwfn *p_hwfn,
+					     struct qed_ptt *p_ptt,
+					     enum qed_hw_err_type err_type,
+					     const char *fmt, ...);
+>>>>>>> upstream/android-13
 #endif

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2007 Casey Schaufler <casey@schaufler-ca.com>
  *
@@ -8,6 +9,14 @@
  * Author:
  *      Casey Schaufler <casey@schaufler-ca.com>
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2007 Casey Schaufler <casey@schaufler-ca.com>
+ *
+ * Author:
+ *      Casey Schaufler <casey@schaufler-ca.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef _SECURITY_SMACK_H
@@ -24,6 +33,10 @@
 #include <linux/list.h>
 #include <linux/rculist.h>
 #include <linux/lsm_audit.h>
+<<<<<<< HEAD
+=======
+#include <linux/msg.h>
+>>>>>>> upstream/android-13
 
 /*
  * Use IPv6 port labeling if IPv6 is enabled and secmarks
@@ -103,7 +116,16 @@ struct socket_smack {
 	struct smack_known	*smk_out;	/* outbound label */
 	struct smack_known	*smk_in;	/* inbound label */
 	struct smack_known	*smk_packet;	/* TCP peer label */
+<<<<<<< HEAD
 };
+=======
+	int			smk_state;	/* netlabel socket states */
+};
+#define	SMK_NETLBL_UNSET	0
+#define	SMK_NETLBL_UNLABELED	1
+#define	SMK_NETLBL_LABELED	2
+#define	SMK_NETLBL_REQSKB	3
+>>>>>>> upstream/android-13
 
 /*
  * Inode smack data
@@ -112,9 +134,13 @@ struct inode_smack {
 	struct smack_known	*smk_inode;	/* label of the fso */
 	struct smack_known	*smk_task;	/* label of the task */
 	struct smack_known	*smk_mmap;	/* label of the mmap domain */
+<<<<<<< HEAD
 	struct mutex		smk_lock;	/* initialization lock */
 	int			smk_flags;	/* smack inode flags */
 	struct rcu_head         smk_rcu;	/* for freeing inode_smack */
+=======
+	int			smk_flags;	/* smack inode flags */
+>>>>>>> upstream/android-13
 };
 
 struct task_smack {
@@ -151,7 +177,10 @@ struct smk_net4addr {
 	struct smack_known	*smk_label;	/* label */
 };
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_IPV6)
+=======
+>>>>>>> upstream/android-13
 /*
  * An entry in the table identifying IPv6 hosts.
  */
@@ -162,9 +191,13 @@ struct smk_net6addr {
 	int			smk_masks;	/* mask size */
 	struct smack_known	*smk_label;	/* label */
 };
+<<<<<<< HEAD
 #endif /* CONFIG_IPV6 */
 
 #ifdef SMACK_IPV6_PORT_LABELING
+=======
+
+>>>>>>> upstream/android-13
 /*
  * An entry in the table identifying ports.
  */
@@ -177,7 +210,10 @@ struct smk_port_label {
 	short			smk_sock_type;	/* Socket type */
 	short			smk_can_reuse;
 };
+<<<<<<< HEAD
 #endif /* SMACK_IPV6_PORT_LABELING */
+=======
+>>>>>>> upstream/android-13
 
 struct smack_known_list_elem {
 	struct list_head	list;
@@ -195,6 +231,7 @@ struct smack_known_list_elem {
 
 enum {
 	Opt_error = -1,
+<<<<<<< HEAD
 	Opt_fsdefault = 1,
 	Opt_fsfloor = 2,
 	Opt_fshat = 3,
@@ -211,10 +248,20 @@ enum {
 #define SMK_FSROOT	"smackfsroot="
 #define SMK_FSTRANS	"smackfstransmute="
 
+=======
+	Opt_fsdefault = 0,
+	Opt_fsfloor = 1,
+	Opt_fshat = 2,
+	Opt_fsroot = 3,
+	Opt_fstransmute = 4,
+};
+
+>>>>>>> upstream/android-13
 #define SMACK_DELETE_OPTION	"-DELETE"
 #define SMACK_CIPSO_OPTION 	"-CIPSO"
 
 /*
+<<<<<<< HEAD
  * How communications on this socket are treated.
  * Usually it's determined by the underlying netlabel code
  * but there are certain cases, including single label hosts
@@ -228,6 +275,8 @@ enum {
 #define SMACK_CIPSO_SOCKET	1
 
 /*
+=======
+>>>>>>> upstream/android-13
  * CIPSO defaults.
  */
 #define SMACK_CIPSO_DOI_DEFAULT		3	/* Historical */
@@ -323,11 +372,19 @@ struct smack_known *smk_find_entry(const char *);
 bool smack_privileged(int cap);
 bool smack_privileged_cred(int cap, const struct cred *cred);
 void smk_destroy_label_list(struct list_head *list);
+<<<<<<< HEAD
+=======
+int smack_populate_secattr(struct smack_known *skp);
+>>>>>>> upstream/android-13
 
 /*
  * Shared data.
  */
+<<<<<<< HEAD
 extern int smack_enabled;
+=======
+extern int smack_enabled __initdata;
+>>>>>>> upstream/android-13
 extern int smack_cipso_direct;
 extern int smack_cipso_mapped;
 extern struct smack_known *smack_net_ambient;
@@ -336,6 +393,10 @@ extern struct smack_known *smack_syslog_label;
 extern struct smack_known *smack_unconfined;
 #endif
 extern int smack_ptrace_rule;
+<<<<<<< HEAD
+=======
+extern struct lsm_blob_sizes smack_blob_sizes;
+>>>>>>> upstream/android-13
 
 extern struct smack_known smack_known_floor;
 extern struct smack_known smack_known_hat;
@@ -346,22 +407,66 @@ extern struct smack_known smack_known_web;
 extern struct mutex	smack_known_lock;
 extern struct list_head smack_known_list;
 extern struct list_head smk_net4addr_list;
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_IPV6)
 extern struct list_head smk_net6addr_list;
 #endif /* CONFIG_IPV6 */
+=======
+extern struct list_head smk_net6addr_list;
+>>>>>>> upstream/android-13
 
 extern struct mutex     smack_onlycap_lock;
 extern struct list_head smack_onlycap_list;
 
 #define SMACK_HASH_SLOTS 16
 extern struct hlist_head smack_known_hash[SMACK_HASH_SLOTS];
+<<<<<<< HEAD
+=======
+extern struct kmem_cache *smack_rule_cache;
+
+static inline struct task_smack *smack_cred(const struct cred *cred)
+{
+	return cred->security + smack_blob_sizes.lbs_cred;
+}
+
+static inline struct smack_known **smack_file(const struct file *file)
+{
+	return (struct smack_known **)(file->f_security +
+				       smack_blob_sizes.lbs_file);
+}
+
+static inline struct inode_smack *smack_inode(const struct inode *inode)
+{
+	return inode->i_security + smack_blob_sizes.lbs_inode;
+}
+
+static inline struct smack_known **smack_msg_msg(const struct msg_msg *msg)
+{
+	return msg->security + smack_blob_sizes.lbs_msg_msg;
+}
+
+static inline struct smack_known **smack_ipc(const struct kern_ipc_perm *ipc)
+{
+	return ipc->security + smack_blob_sizes.lbs_ipc;
+}
+
+static inline struct superblock_smack *smack_superblock(
+					const struct super_block *superblock)
+{
+	return superblock->s_security + smack_blob_sizes.lbs_superblock;
+}
+>>>>>>> upstream/android-13
 
 /*
  * Is the directory transmuting?
  */
 static inline int smk_inode_transmutable(const struct inode *isp)
 {
+<<<<<<< HEAD
 	struct inode_smack *sip = isp->i_security;
+=======
+	struct inode_smack *sip = smack_inode(isp);
+>>>>>>> upstream/android-13
 	return (sip->smk_flags & SMK_INODE_TRANSMUTE) != 0;
 }
 
@@ -370,7 +475,11 @@ static inline int smk_inode_transmutable(const struct inode *isp)
  */
 static inline struct smack_known *smk_of_inode(const struct inode *isp)
 {
+<<<<<<< HEAD
 	struct inode_smack *sip = isp->i_security;
+=======
+	struct inode_smack *sip = smack_inode(isp);
+>>>>>>> upstream/android-13
 	return sip->smk_inode;
 }
 
@@ -382,6 +491,7 @@ static inline struct smack_known *smk_of_task(const struct task_smack *tsp)
 	return tsp->smk_task;
 }
 
+<<<<<<< HEAD
 static inline struct smack_known *smk_of_task_struct(const struct task_struct *t)
 {
 	struct smack_known *skp;
@@ -389,6 +499,37 @@ static inline struct smack_known *smk_of_task_struct(const struct task_struct *t
 	rcu_read_lock();
 	skp = smk_of_task(__task_cred(t)->security);
 	rcu_read_unlock();
+=======
+static inline struct smack_known *smk_of_task_struct_subj(
+						const struct task_struct *t)
+{
+	struct smack_known *skp;
+	const struct cred *cred;
+
+	rcu_read_lock();
+
+	cred = rcu_dereference(t->cred);
+	skp = smk_of_task(smack_cred(cred));
+
+	rcu_read_unlock();
+
+	return skp;
+}
+
+static inline struct smack_known *smk_of_task_struct_obj(
+						const struct task_struct *t)
+{
+	struct smack_known *skp;
+	const struct cred *cred;
+
+	rcu_read_lock();
+
+	cred = __task_cred(t);
+	skp = smk_of_task(smack_cred(cred));
+
+	rcu_read_unlock();
+
+>>>>>>> upstream/android-13
 	return skp;
 }
 
@@ -405,7 +546,11 @@ static inline struct smack_known *smk_of_forked(const struct task_smack *tsp)
  */
 static inline struct smack_known *smk_of_current(void)
 {
+<<<<<<< HEAD
 	return smk_of_task(current_security());
+=======
+	return smk_of_task(smack_cred(current_cred()));
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -483,10 +628,13 @@ static inline void smk_ad_setfield_u_fs_path_dentry(struct smk_audit_info *a,
 						    struct dentry *d)
 {
 }
+<<<<<<< HEAD
 static inline void smk_ad_setfield_u_fs_path_mnt(struct smk_audit_info *a,
 						 struct vfsmount *m)
 {
 }
+=======
+>>>>>>> upstream/android-13
 static inline void smk_ad_setfield_u_fs_inode(struct smk_audit_info *a,
 					      struct inode *i)
 {

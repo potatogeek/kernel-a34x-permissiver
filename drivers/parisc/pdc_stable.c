@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* 
  *    Interfaces to retrieve and set PDC Stable options (firmware)
  *
  *    Copyright (C) 2005-2006 Thibaut VARENE <varenet@parisc-linux.org>
  *
+<<<<<<< HEAD
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License, version 2, as
  *    published by the Free Software Foundation.
@@ -17,6 +22,8 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *
+=======
+>>>>>>> upstream/android-13
  *    DEV NOTE: the PDC Procedures reference states that:
  *    "A minimum of 96 bytes of Stable Storage is required. Providing more than
  *    96 bytes of Stable Storage is optional [...]. Failure to provide the
@@ -992,8 +999,15 @@ pdcs_register_pathentries(void)
 		entry->kobj.kset = paths_kset;
 		err = kobject_init_and_add(&entry->kobj, &ktype_pdcspath, NULL,
 					   "%s", entry->name);
+<<<<<<< HEAD
 		if (err)
 			return err;
+=======
+		if (err) {
+			kobject_put(&entry->kobj);
+			return err;
+		}
+>>>>>>> upstream/android-13
 
 		/* kobject is now registered */
 		write_lock(&entry->rw_lock);

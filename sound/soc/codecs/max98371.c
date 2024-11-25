@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * max98371.c -- ALSA SoC Stereo MAX98371 driver
  *
  * Copyright 2015-16 Maxim Integrated Products
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/i2c.h>
@@ -157,10 +164,13 @@ static const DECLARE_TLV_DB_RANGE(max98371_gain_tlv,
 	8, 10, TLV_DB_SCALE_ITEM(400, 100, 0)
 );
 
+<<<<<<< HEAD
 static const DECLARE_TLV_DB_RANGE(max98371_noload_gain_tlv,
 	0, 11, TLV_DB_SCALE_ITEM(950, 100, 0),
 );
 
+=======
+>>>>>>> upstream/android-13
 static const DECLARE_TLV_DB_SCALE(digital_tlv, -6300, 50, 1);
 
 static const struct snd_kcontrol_new max98371_snd_controls[] = {
@@ -415,16 +425,27 @@ static const struct i2c_device_id max98371_i2c_id[] = {
 
 MODULE_DEVICE_TABLE(i2c, max98371_i2c_id);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_OF
+>>>>>>> upstream/android-13
 static const struct of_device_id max98371_of_match[] = {
 	{ .compatible = "maxim,max98371", },
 	{ }
 };
 MODULE_DEVICE_TABLE(of, max98371_of_match);
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 static struct i2c_driver max98371_i2c_driver = {
 	.driver = {
 		.name = "max98371",
+<<<<<<< HEAD
 		.pm = NULL,
+=======
+>>>>>>> upstream/android-13
 		.of_match_table = of_match_ptr(max98371_of_match),
 	},
 	.probe  = max98371_i2c_probe,

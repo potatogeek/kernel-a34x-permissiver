@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Simple "CDC Subset" USB Networking Links
  * Copyright (C) 2000-2005 by David Brownell
@@ -14,6 +15,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Simple "CDC Subset" USB Networking Links
+ * Copyright (C) 2000-2005 by David Brownell
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>

@@ -2,6 +2,12 @@
 #ifndef __ASPEED_VHUB_H
 #define __ASPEED_VHUB_H
 
+<<<<<<< HEAD
+=======
+#include <linux/usb.h>
+#include <linux/usb/ch11.h>
+
+>>>>>>> upstream/android-13
 /*****************************
  *                           *
  * VHUB register definitions *
@@ -48,6 +54,7 @@
 #define VHUB_CTRL_UPSTREAM_CONNECT		(1 << 0)
 
 /* IER & ISR */
+<<<<<<< HEAD
 #define VHUB_IRQ_USB_CMD_DEADLOCK		(1 << 18)
 #define VHUB_IRQ_EP_POOL_NAK			(1 << 17)
 #define VHUB_IRQ_EP_POOL_ACK_STALL		(1 << 16)
@@ -56,6 +63,13 @@
 #define VHUB_IRQ_DEVICE3			(1 << 11)
 #define VHUB_IRQ_DEVICE2			(1 << 10)
 #define VHUB_IRQ_DEVICE1			(1 << 9)
+=======
+#define VHUB_IRQ_DEV1_BIT			9
+#define VHUB_IRQ_USB_CMD_DEADLOCK		(1 << 18)
+#define VHUB_IRQ_EP_POOL_NAK			(1 << 17)
+#define VHUB_IRQ_EP_POOL_ACK_STALL		(1 << 16)
+#define VHUB_IRQ_DEVICE1			(1 << (VHUB_IRQ_DEV1_BIT))
+>>>>>>> upstream/android-13
 #define VHUB_IRQ_BUS_RESUME			(1 << 8)
 #define VHUB_IRQ_BUS_SUSPEND 			(1 << 7)
 #define VHUB_IRQ_BUS_RESET 			(1 << 6)
@@ -67,6 +81,12 @@
 #define VHUB_IRQ_HUB_EP0_SETUP			(1 << 0)
 #define VHUB_IRQ_ACK_ALL			0x1ff
 
+<<<<<<< HEAD
+=======
+/* Downstream device IRQ mask. */
+#define VHUB_DEV_IRQ(n)				(VHUB_IRQ_DEVICE1 << (n))
+
+>>>>>>> upstream/android-13
 /* SW reset reg */
 #define VHUB_SW_RESET_EP_POOL			(1 << 9)
 #define VHUB_SW_RESET_DMA_CONTROLLER		(1 << 8)
@@ -76,6 +96,7 @@
 #define VHUB_SW_RESET_DEVICE2			(1 << 2)
 #define VHUB_SW_RESET_DEVICE1			(1 << 1)
 #define VHUB_SW_RESET_ROOT_HUB			(1 << 0)
+<<<<<<< HEAD
 #define VHUB_SW_RESET_ALL			(VHUB_SW_RESET_EP_POOL | \
 						 VHUB_SW_RESET_DMA_CONTROLLER | \
 						 VHUB_SW_RESET_DEVICE5 | \
@@ -87,6 +108,11 @@
 /* EP ACK/NACK IRQ masks */
 #define VHUB_EP_IRQ(n)				(1 << (n))
 #define VHUB_EP_IRQ_ALL				0x7fff	/* 15 EPs */
+=======
+
+/* EP ACK/NACK IRQ masks */
+#define VHUB_EP_IRQ(n)				(1 << (n))
+>>>>>>> upstream/android-13
 
 /* USB status reg */
 #define VHUB_USBSTS_HISPEED			(1 << 27)
@@ -210,6 +236,14 @@
  *                                      *
  ****************************************/
 
+<<<<<<< HEAD
+=======
+/*
+ * AST_VHUB_NUM_GEN_EPs and AST_VHUB_NUM_PORTS are kept to avoid breaking
+ * existing AST2400/AST2500 platforms. AST2600 and future vhub revisions
+ * should define number of downstream ports and endpoints in device tree.
+ */
+>>>>>>> upstream/android-13
 #define AST_VHUB_NUM_GEN_EPs	15	/* Generic non-0 EPs */
 #define AST_VHUB_NUM_PORTS	5	/* vHub ports */
 #define AST_VHUB_EP0_MAX_PACKET	64	/* EP0's max packet size */
@@ -257,6 +291,10 @@ enum ep0_state {
 	ep0_state_token,
 	ep0_state_data,
 	ep0_state_status,
+<<<<<<< HEAD
+=======
+	ep0_state_stall,
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -311,7 +349,11 @@ struct ast_vhub_ep {
 			/* Registers */
 			void __iomem   		*regs;
 
+<<<<<<< HEAD
 			/* Index in global pool (0..14) */
+=======
+			/* Index in global pool (zero-based) */
+>>>>>>> upstream/android-13
 			unsigned int		g_idx;
 
 			/* DMA Descriptors */
@@ -341,7 +383,11 @@ struct ast_vhub_dev {
 	struct ast_vhub			*vhub;
 	void __iomem			*regs;
 
+<<<<<<< HEAD
 	/* Device index (0...4) and name string */
+=======
+	/* Device index (zero-based) and name string */
+>>>>>>> upstream/android-13
 	unsigned int			index;
 	const char			*name;
 
@@ -353,12 +399,20 @@ struct ast_vhub_dev {
 	struct usb_gadget_driver	*driver;
 	bool				registered : 1;
 	bool				wakeup_en : 1;
+<<<<<<< HEAD
 	bool				suspended : 1;
+=======
+>>>>>>> upstream/android-13
 	bool				enabled : 1;
 
 	/* Endpoint structures */
 	struct ast_vhub_ep		ep0;
+<<<<<<< HEAD
 	struct ast_vhub_ep		*epns[AST_VHUB_NUM_GEN_EPs];
+=======
+	struct ast_vhub_ep		**epns;
+	u32				max_epns;
+>>>>>>> upstream/android-13
 
 };
 #define to_ast_dev(__g) container_of(__g, struct ast_vhub_dev, gadget)
@@ -373,6 +427,15 @@ struct ast_vhub_port {
 	struct ast_vhub_dev	dev;
 };
 
+<<<<<<< HEAD
+=======
+struct ast_vhub_full_cdesc {
+	struct usb_config_descriptor	cfg;
+	struct usb_interface_descriptor intf;
+	struct usb_endpoint_descriptor	ep;
+} __packed;
+
+>>>>>>> upstream/android-13
 /* Global vhub structure */
 struct ast_vhub {
 	struct platform_device		*pdev;
@@ -393,10 +456,20 @@ struct ast_vhub {
 	bool				ep1_stalled : 1;
 
 	/* Per-port info */
+<<<<<<< HEAD
 	struct ast_vhub_port		ports[AST_VHUB_NUM_PORTS];
 
 	/* Generic EP data structures */
 	struct ast_vhub_ep		epns[AST_VHUB_NUM_GEN_EPs];
+=======
+	struct ast_vhub_port		*ports;
+	u32				max_ports;
+	u32				port_irq_mask;
+
+	/* Generic EP data structures */
+	struct ast_vhub_ep		*epns;
+	u32				max_epns;
+>>>>>>> upstream/android-13
 
 	/* Upstream bus is suspended ? */
 	bool				suspended : 1;
@@ -409,6 +482,15 @@ struct ast_vhub {
 
 	/* Upstream bus speed captured at bus reset */
 	unsigned int			speed;
+<<<<<<< HEAD
+=======
+
+	/* Standard USB Descriptors of the vhub. */
+	struct usb_device_descriptor	vhub_dev_desc;
+	struct ast_vhub_full_cdesc	vhub_conf_desc;
+	struct usb_hub_descriptor	vhub_hub_desc;
+	struct list_head		vhub_str_desc;
+>>>>>>> upstream/android-13
 };
 
 /* Standard request handlers result codes */
@@ -507,6 +589,10 @@ void ast_vhub_init_hw(struct ast_vhub *vhub);
 /* ep0.c */
 void ast_vhub_ep0_handle_ack(struct ast_vhub_ep *ep, bool in_ack);
 void ast_vhub_ep0_handle_setup(struct ast_vhub_ep *ep);
+<<<<<<< HEAD
+=======
+void ast_vhub_reset_ep0(struct ast_vhub_dev *dev);
+>>>>>>> upstream/android-13
 void ast_vhub_init_ep0(struct ast_vhub *vhub, struct ast_vhub_ep *ep,
 		       struct ast_vhub_dev *dev);
 int ast_vhub_reply(struct ast_vhub_ep *ep, char *ptr, int len);
@@ -517,7 +603,11 @@ int __ast_vhub_simple_reply(struct ast_vhub_ep *ep, int len, ...);
 			       __VA_ARGS__)
 
 /* hub.c */
+<<<<<<< HEAD
 void ast_vhub_init_hub(struct ast_vhub *vhub);
+=======
+int ast_vhub_init_hub(struct ast_vhub *vhub);
+>>>>>>> upstream/android-13
 enum std_req_rc ast_vhub_std_hub_request(struct ast_vhub_ep *ep,
 					 struct usb_ctrlrequest *crq);
 enum std_req_rc ast_vhub_class_hub_request(struct ast_vhub_ep *ep,

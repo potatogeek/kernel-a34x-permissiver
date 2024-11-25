@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* (C) 1999 Jérôme de Vivie <devivie@info.enserb.u-bordeaux.fr>
  * (C) 1999 Hervé Eychenne <eychenne@info.enserb.u-bordeaux.fr>
  * (C) 2006-2012 Patrick McHardy <kaber@trash.net>
@@ -5,22 +6,36 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* (C) 1999 Jérôme de Vivie <devivie@info.enserb.u-bordeaux.fr>
+ * (C) 1999 Hervé Eychenne <eychenne@info.enserb.u-bordeaux.fr>
+ * (C) 2006-2012 Patrick McHardy <kaber@trash.net>
+>>>>>>> upstream/android-13
  */
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
 #include <linux/slab.h>
 #include <linux/module.h>
 #include <linux/skbuff.h>
+<<<<<<< HEAD
 #include <linux/spinlock.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/interrupt.h>
 
 #include <linux/netfilter/x_tables.h>
 #include <linux/netfilter/xt_limit.h>
 
 struct xt_limit_priv {
+<<<<<<< HEAD
 	spinlock_t lock;
 	unsigned long prev;
 	uint32_t credit;
+=======
+	unsigned long prev;
+	u32 credit;
+>>>>>>> upstream/android-13
 };
 
 MODULE_LICENSE("GPL");
@@ -69,6 +84,7 @@ limit_mt(const struct sk_buff *skb, struct xt_action_param *par)
 {
 	const struct xt_rateinfo *r = par->matchinfo;
 	struct xt_limit_priv *priv = r->master;
+<<<<<<< HEAD
 	unsigned long now = jiffies;
 
 	spin_lock_bh(&priv->lock);
@@ -85,6 +101,33 @@ limit_mt(const struct sk_buff *skb, struct xt_action_param *par)
 
 	spin_unlock_bh(&priv->lock);
 	return false;
+=======
+	unsigned long now;
+	u32 old_credit, new_credit, credit_increase = 0;
+	bool ret;
+
+	/* fastpath if there is nothing to update */
+	if ((READ_ONCE(priv->credit) < r->cost) && (READ_ONCE(priv->prev) == jiffies))
+		return false;
+
+	do {
+		now = jiffies;
+		credit_increase += (now - xchg(&priv->prev, now)) * CREDITS_PER_JIFFY;
+		old_credit = READ_ONCE(priv->credit);
+		new_credit = old_credit;
+		new_credit += credit_increase;
+		if (new_credit > r->credit_cap)
+			new_credit = r->credit_cap;
+		if (new_credit >= r->cost) {
+			ret = true;
+			new_credit -= r->cost;
+		} else {
+			ret = false;
+		}
+	} while (cmpxchg(&priv->credit, old_credit, new_credit) != old_credit);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /* Precision saver. */
@@ -125,7 +168,10 @@ static int limit_mt_check(const struct xt_mtchk_param *par)
 		r->credit_cap = priv->credit; /* Credits full. */
 		r->cost = user2credits(r->avg);
 	}
+<<<<<<< HEAD
 	spin_lock_init(&priv->lock);
+=======
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -137,7 +183,11 @@ static void limit_mt_destroy(const struct xt_mtdtor_param *par)
 	kfree(info->master);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
+=======
+#ifdef CONFIG_NETFILTER_XTABLES_COMPAT
+>>>>>>> upstream/android-13
 struct compat_xt_rateinfo {
 	u_int32_t avg;
 	u_int32_t burst;
@@ -179,7 +229,11 @@ static int limit_mt_compat_to_user(void __user *dst, const void *src)
 	};
 	return copy_to_user(dst, &cm, sizeof(cm)) ? -EFAULT : 0;
 }
+<<<<<<< HEAD
 #endif /* CONFIG_COMPAT */
+=======
+#endif /* CONFIG_NETFILTER_XTABLES_COMPAT */
+>>>>>>> upstream/android-13
 
 static struct xt_match limit_mt_reg __read_mostly = {
 	.name             = "limit",
@@ -189,7 +243,11 @@ static struct xt_match limit_mt_reg __read_mostly = {
 	.checkentry       = limit_mt_check,
 	.destroy          = limit_mt_destroy,
 	.matchsize        = sizeof(struct xt_rateinfo),
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
+=======
+#ifdef CONFIG_NETFILTER_XTABLES_COMPAT
+>>>>>>> upstream/android-13
 	.compatsize       = sizeof(struct compat_xt_rateinfo),
 	.compat_from_user = limit_mt_compat_from_user,
 	.compat_to_user   = limit_mt_compat_to_user,

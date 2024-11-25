@@ -94,14 +94,25 @@ static void mac_exception(void *handle, enum fman_mac_exceptions ex)
 		__func__, ex);
 }
 
+<<<<<<< HEAD
 static void set_fman_mac_params(struct mac_device *mac_dev,
 				struct fman_mac_params *params)
+=======
+static int set_fman_mac_params(struct mac_device *mac_dev,
+			       struct fman_mac_params *params)
+>>>>>>> upstream/android-13
 {
 	struct mac_priv_s *priv = mac_dev->priv;
 
 	params->base_addr = (typeof(params->base_addr))
 		devm_ioremap(priv->dev, mac_dev->res->start,
 			     resource_size(mac_dev->res));
+<<<<<<< HEAD
+=======
+	if (!params->base_addr)
+		return -ENOMEM;
+
+>>>>>>> upstream/android-13
 	memcpy(&params->addr, mac_dev->addr, sizeof(mac_dev->addr));
 	params->max_speed	= priv->max_speed;
 	params->phy_if		= mac_dev->phy_if;
@@ -112,6 +123,11 @@ static void set_fman_mac_params(struct mac_device *mac_dev,
 	params->event_cb	= mac_exception;
 	params->dev_id		= mac_dev;
 	params->internal_phy_node = priv->internal_phy_node;
+<<<<<<< HEAD
+=======
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int tgec_initialization(struct mac_device *mac_dev)
@@ -123,7 +139,13 @@ static int tgec_initialization(struct mac_device *mac_dev)
 
 	priv = mac_dev->priv;
 
+<<<<<<< HEAD
 	set_fman_mac_params(mac_dev, &params);
+=======
+	err = set_fman_mac_params(mac_dev, &params);
+	if (err)
+		goto _return;
+>>>>>>> upstream/android-13
 
 	mac_dev->fman_mac = tgec_config(&params);
 	if (!mac_dev->fman_mac) {
@@ -169,7 +191,13 @@ static int dtsec_initialization(struct mac_device *mac_dev)
 
 	priv = mac_dev->priv;
 
+<<<<<<< HEAD
 	set_fman_mac_params(mac_dev, &params);
+=======
+	err = set_fman_mac_params(mac_dev, &params);
+	if (err)
+		goto _return;
+>>>>>>> upstream/android-13
 
 	mac_dev->fman_mac = dtsec_config(&params);
 	if (!mac_dev->fman_mac) {
@@ -218,7 +246,13 @@ static int memac_initialization(struct mac_device *mac_dev)
 
 	priv = mac_dev->priv;
 
+<<<<<<< HEAD
 	set_fman_mac_params(mac_dev, &params);
+=======
+	err = set_fman_mac_params(mac_dev, &params);
+	if (err)
+		goto _return;
+>>>>>>> upstream/android-13
 
 	if (priv->max_speed == SPEED_10000)
 		params.phy_if = PHY_INTERFACE_MODE_XGMII;
@@ -359,8 +393,13 @@ EXPORT_SYMBOL(fman_set_mac_active_pause);
 /**
  * fman_get_pause_cfg
  * @mac_dev:	A pointer to the MAC device
+<<<<<<< HEAD
  * @rx:		Return value for RX setting
  * @tx:		Return value for TX setting
+=======
+ * @rx_pause:	Return value for RX setting
+ * @tx_pause:	Return value for TX setting
+>>>>>>> upstream/android-13
  *
  * Determine the MAC RX/TX PAUSE frames settings based on PHY
  * autonegotiation or values set by eththool.
@@ -393,11 +432,15 @@ void fman_get_pause_cfg(struct mac_device *mac_dev, bool *rx_pause,
 	 */
 
 	/* get local capabilities */
+<<<<<<< HEAD
 	lcl_adv = 0;
 	if (phy_dev->advertising & ADVERTISED_Pause)
 		lcl_adv |= ADVERTISE_PAUSE_CAP;
 	if (phy_dev->advertising & ADVERTISED_Asym_Pause)
 		lcl_adv |= ADVERTISE_PAUSE_ASYM;
+=======
+	lcl_adv = linkmode_adv_to_lcl_adv_t(phy_dev->advertising);
+>>>>>>> upstream/android-13
 
 	/* get link partner capabilities */
 	rmt_adv = 0;
@@ -528,6 +571,10 @@ static void setup_memac(struct mac_device *mac_dev)
 	| SUPPORTED_Autoneg \
 	| SUPPORTED_Pause \
 	| SUPPORTED_Asym_Pause \
+<<<<<<< HEAD
+=======
+	| SUPPORTED_FIBRE \
+>>>>>>> upstream/android-13
 	| SUPPORTED_MII)
 
 static DEFINE_MUTEX(eth_lock);
@@ -609,10 +656,16 @@ static int mac_probe(struct platform_device *_of_dev)
 	struct platform_device	*of_dev;
 	struct resource		 res;
 	struct mac_priv_s	*priv;
+<<<<<<< HEAD
 	const u8		*mac_addr;
 	u32			 val;
 	u8			fman_id;
 	int			phy_if;
+=======
+	u32			 val;
+	u8			fman_id;
+	phy_interface_t          phy_if;
+>>>>>>> upstream/android-13
 
 	dev = &_of_dev->dev;
 	mac_node = dev->of_node;
@@ -696,7 +749,11 @@ static int mac_probe(struct platform_device *_of_dev)
 
 	mac_dev->res = __devm_request_region(dev,
 					     fman_get_mem_region(priv->fman),
+<<<<<<< HEAD
 					     res.start, res.end + 1 - res.start,
+=======
+					     res.start, resource_size(&res),
+>>>>>>> upstream/android-13
 					     "mac");
 	if (!mac_dev->res) {
 		dev_err(dev, "__devm_request_mem_region(mac) failed\n");
@@ -705,7 +762,11 @@ static int mac_probe(struct platform_device *_of_dev)
 	}
 
 	priv->vaddr = devm_ioremap(dev, mac_dev->res->start,
+<<<<<<< HEAD
 				   mac_dev->res->end + 1 - mac_dev->res->start);
+=======
+				   resource_size(mac_dev->res));
+>>>>>>> upstream/android-13
 	if (!priv->vaddr) {
 		dev_err(dev, "devm_ioremap() failed\n");
 		err = -EIO;
@@ -727,6 +788,7 @@ static int mac_probe(struct platform_device *_of_dev)
 	priv->cell_index = (u8)val;
 
 	/* Get the MAC address */
+<<<<<<< HEAD
 	mac_addr = of_get_mac_address(mac_node);
 	if (!mac_addr) {
 		dev_err(dev, "of_get_mac_address(%pOF) failed\n", mac_node);
@@ -734,6 +796,11 @@ static int mac_probe(struct platform_device *_of_dev)
 		goto _return_of_get_parent;
 	}
 	memcpy(mac_dev->addr, mac_addr, sizeof(mac_dev->addr));
+=======
+	err = of_get_mac_address(mac_node, mac_dev->addr);
+	if (err)
+		dev_warn(dev, "of_get_mac_address(%pOF) failed\n", mac_node);
+>>>>>>> upstream/android-13
 
 	/* Get the port handles */
 	nph = of_count_phandle_with_args(mac_node, "fsl,fman-ports", NULL);
@@ -780,8 +847,13 @@ static int mac_probe(struct platform_device *_of_dev)
 	}
 
 	/* Get the PHY connection type */
+<<<<<<< HEAD
 	phy_if = of_get_phy_mode(mac_node);
 	if (phy_if < 0) {
+=======
+	err = of_get_phy_mode(mac_node, &phy_if);
+	if (err) {
+>>>>>>> upstream/android-13
 		dev_warn(dev,
 			 "of_get_phy_mode() for %pOF failed. Defaulting to SGMII\n",
 			 mac_node);
@@ -859,9 +931,14 @@ static int mac_probe(struct platform_device *_of_dev)
 	if (err < 0)
 		dev_err(dev, "fman_set_mac_active_pause() = %d\n", err);
 
+<<<<<<< HEAD
 	dev_info(dev, "FMan MAC address: %02hx:%02hx:%02hx:%02hx:%02hx:%02hx\n",
 		 mac_dev->addr[0], mac_dev->addr[1], mac_dev->addr[2],
 		 mac_dev->addr[3], mac_dev->addr[4], mac_dev->addr[5]);
+=======
+	if (!is_zero_ether_addr(mac_dev->addr))
+		dev_info(dev, "FMan MAC address: %pM\n", mac_dev->addr);
+>>>>>>> upstream/android-13
 
 	priv->eth_dev = dpaa_eth_add_device(fman_id, mac_dev);
 	if (IS_ERR(priv->eth_dev)) {

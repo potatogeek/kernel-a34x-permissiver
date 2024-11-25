@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *      names.c  --  USB name database manipulation routines
  *
  *      Copyright (C) 1999, 2000  Thomas Sailer (sailer@ife.ee.ethz.ch)
  *
+<<<<<<< HEAD
  *      This program is free software; you can redistribute it and/or modify
  *      it under the terms of the GNU General Public License as published by
  *      the Free Software Foundation; either version 2 of the License, or
@@ -24,6 +29,10 @@
  *	Copyright (C) 2005 Takahiro Hirofuchi
  *		- names_deinit() is added.
  *
+=======
+ *	Copyright (C) 2005 Takahiro Hirofuchi
+ *		- names_deinit() is added.
+>>>>>>> upstream/android-13
  */
 
 #include <sys/types.h>

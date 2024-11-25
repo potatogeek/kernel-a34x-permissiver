@@ -1,10 +1,23 @@
+<<<<<<< HEAD
+=======
+.. SPDX-License-Identifier: GPL-2.0
+.. include:: <isonum.txt>
+
+>>>>>>> upstream/android-13
 =============================
 Suspend/Hibernation Notifiers
 =============================
 
+<<<<<<< HEAD
 ::
 
  Copyright (c) 2016 Intel Corp., Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+=======
+:Copyright: |copy| 2016 Intel Corporation
+
+:Author: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+
+>>>>>>> upstream/android-13
 
 There are some operations that subsystems or drivers may want to carry out
 before hibernation/suspend or after restore/resume, but they require the system

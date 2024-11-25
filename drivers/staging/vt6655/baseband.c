@@ -3,8 +3,11 @@
  * Copyright (c) 1996, 2003 VIA Networking Technologies, Inc.
  * All rights reserved.
  *
+<<<<<<< HEAD
  * File: baseband.c
  *
+=======
+>>>>>>> upstream/android-13
  * Purpose: Implement functions to access baseband
  *
  * Author: Kyle Hsu
@@ -12,12 +15,19 @@
  * Date: Aug.22, 2002
  *
  * Functions:
+<<<<<<< HEAD
  *      BBuGetFrameTime        - Calculate data frame transmitting time
  *      BBvCaculateParameter   - Caculate PhyLength, PhyService and Phy Signal
  *                               parameter for baseband Tx
  *      BBbReadEmbedded         - Embedded read baseband register via MAC
  *      BBbWriteEmbedded        - Embedded write baseband register via MAC
  *      BBbVT3253Init          - VIA VT3253 baseband chip init code
+=======
+ *      bb_get_frame_time	 - Calculate data frame transmitting time
+ *      bb_read_embedded	 - Embedded read baseband register via MAC
+ *      bb_write_embedded	 - Embedded write baseband register via MAC
+ *      bb_vt3253_init		 - VIA VT3253 baseband chip init code
+>>>>>>> upstream/android-13
  *
  * Revision History:
  *      06-10-2003 Bryan YC Fan:  Re-write codes to support VT3253 spec.
@@ -54,7 +64,11 @@
 /*---------------------  Static Variables  --------------------------*/
 
 #define CB_VT3253_INIT_FOR_RFMD 446
+<<<<<<< HEAD
 static const unsigned char byVT3253InitTab_RFMD[CB_VT3253_INIT_FOR_RFMD][2] = {
+=======
+static const unsigned char by_vt3253_init_tab_rfmd[CB_VT3253_INIT_FOR_RFMD][2] = {
+>>>>>>> upstream/android-13
 	{0x00, 0x30},
 	{0x01, 0x00},
 	{0x02, 0x00},
@@ -1685,7 +1699,11 @@ static unsigned char byVT3253B0_AGC[CB_VT3253B0_AGC][2] = {
 	{0xF0, 0x00},
 };
 
+<<<<<<< HEAD
 static const unsigned short awcFrameTime[MAX_RATE] = {
+=======
+static const unsigned short awc_frame_time[MAX_RATE] = {
+>>>>>>> upstream/android-13
 		10, 20, 55, 110, 24, 36, 48, 72, 96, 144, 192, 216
 };
 
@@ -1695,15 +1713,23 @@ static const unsigned short awcFrameTime[MAX_RATE] = {
  *
  * Parameters:
  *  In:
+<<<<<<< HEAD
  *      byPreambleType  - Preamble Type
  *      byPktType        - PK_TYPE_11A, PK_TYPE_11B, PK_TYPE_11GB, PK_TYPE_11GA
  *      cbFrameLength   - Baseband Type
  *      wRate           - Tx Rate
+=======
+ *      by_preamble_type  - Preamble Type
+ *      by_pkt_type        - PK_TYPE_11A, PK_TYPE_11B, PK_TYPE_11GB, PK_TYPE_11GA
+ *      cb_frame_length   - Baseband Type
+ *      tx_rate           - Tx Rate
+>>>>>>> upstream/android-13
  *  Out:
  *
  * Return Value: FrameTime
  *
  */
+<<<<<<< HEAD
 unsigned int
 BBuGetFrameTime(
 	unsigned char byPreambleType,
@@ -1746,6 +1772,46 @@ BBuGetFrameTime(
 		uFrameTime += 6;     /* ?????? */
 
 	return 20 + uFrameTime; /* ?????? */
+=======
+unsigned int bb_get_frame_time(unsigned char by_preamble_type,
+			       unsigned char by_pkt_type,
+			       unsigned int cb_frame_length,
+			       unsigned short tx_rate)
+{
+	unsigned int frame_time;
+	unsigned int preamble;
+	unsigned int tmp;
+	unsigned int rate_idx = (unsigned int)tx_rate;
+	unsigned int rate = 0;
+
+	if (rate_idx > RATE_54M)
+		return 0;
+
+	rate = (unsigned int)awc_frame_time[rate_idx];
+
+	if (rate_idx <= 3) {		    /* CCK mode */
+		if (by_preamble_type == 1) /* Short */
+			preamble = 96;
+		else
+			preamble = 192;
+		frame_time = (cb_frame_length * 80) / rate;  /* ????? */
+		tmp = (frame_time * rate) / 80;
+		if (cb_frame_length != tmp)
+			frame_time++;
+
+		return preamble + frame_time;
+	}
+	frame_time = (cb_frame_length * 8 + 22) / rate; /* ???????? */
+	tmp = ((frame_time * rate) - 22) / 8;
+	if (cb_frame_length != tmp)
+		frame_time++;
+
+	frame_time = frame_time * 4;    /* ??????? */
+	if (by_pkt_type != PK_TYPE_11A)
+		frame_time += 6;     /* ?????? */
+
+	return 20 + frame_time; /* ?????? */
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1903,13 +1969,20 @@ void vnt_get_phy_field(struct vnt_private *priv, u32 frame_length,
  * Parameters:
  *  In:
  *      iobase      - I/O base address
+<<<<<<< HEAD
  *      byBBAddr    - address of register in Baseband
  *  Out:
  *      pbyData     - data read
+=======
+ *      by_bb_addr  - address of register in Baseband
+ *  Out:
+ *      pby_data    - data read
+>>>>>>> upstream/android-13
  *
  * Return Value: true if succeeded; false if failed.
  *
  */
+<<<<<<< HEAD
 bool BBbReadEmbedded(struct vnt_private *priv,
 		     unsigned char byBBAddr, unsigned char *pbyData)
 {
@@ -1919,18 +1992,38 @@ bool BBbReadEmbedded(struct vnt_private *priv,
 
 	/* BB reg offset */
 	VNSvOutPortB(iobase + MAC_REG_BBREGADR, byBBAddr);
+=======
+bool bb_read_embedded(struct vnt_private *priv, unsigned char by_bb_addr,
+		      unsigned char *pby_data)
+{
+	void __iomem *iobase = priv->PortOffset;
+	unsigned short ww;
+	unsigned char by_value;
+
+	/* BB reg offset */
+	VNSvOutPortB(iobase + MAC_REG_BBREGADR, by_bb_addr);
+>>>>>>> upstream/android-13
 
 	/* turn on REGR */
 	MACvRegBitsOn(iobase, MAC_REG_BBREGCTL, BBREGCTL_REGR);
 	/* W_MAX_TIMEOUT is the timeout period */
 	for (ww = 0; ww < W_MAX_TIMEOUT; ww++) {
+<<<<<<< HEAD
 		VNSvInPortB(iobase + MAC_REG_BBREGCTL, &byValue);
 		if (byValue & BBREGCTL_DONE)
+=======
+		VNSvInPortB(iobase + MAC_REG_BBREGCTL, &by_value);
+		if (by_value & BBREGCTL_DONE)
+>>>>>>> upstream/android-13
 			break;
 	}
 
 	/* get BB data */
+<<<<<<< HEAD
 	VNSvInPortB(iobase + MAC_REG_BBREGDATA, pbyData);
+=======
+	VNSvInPortB(iobase + MAC_REG_BBREGDATA, pby_data);
+>>>>>>> upstream/android-13
 
 	if (ww == W_MAX_TIMEOUT) {
 		pr_debug(" DBG_PORT80(0x30)\n");
@@ -1945,14 +2038,20 @@ bool BBbReadEmbedded(struct vnt_private *priv,
  * Parameters:
  *  In:
  *      iobase      - I/O base address
+<<<<<<< HEAD
  *      byBBAddr    - address of register in Baseband
  *      byData      - data to write
+=======
+ *      by_bb_addr  - address of register in Baseband
+ *      by_data     - data to write
+>>>>>>> upstream/android-13
  *  Out:
  *      none
  *
  * Return Value: true if succeeded; false if failed.
  *
  */
+<<<<<<< HEAD
 bool BBbWriteEmbedded(struct vnt_private *priv,
 		      unsigned char byBBAddr, unsigned char byData)
 {
@@ -1964,13 +2063,31 @@ bool BBbWriteEmbedded(struct vnt_private *priv,
 	VNSvOutPortB(iobase + MAC_REG_BBREGADR, byBBAddr);
 	/* set BB data */
 	VNSvOutPortB(iobase + MAC_REG_BBREGDATA, byData);
+=======
+bool bb_write_embedded(struct vnt_private *priv, unsigned char by_bb_addr,
+		       unsigned char by_data)
+{
+	void __iomem *iobase = priv->PortOffset;
+	unsigned short ww;
+	unsigned char by_value;
+
+	/* BB reg offset */
+	VNSvOutPortB(iobase + MAC_REG_BBREGADR, by_bb_addr);
+	/* set BB data */
+	VNSvOutPortB(iobase + MAC_REG_BBREGDATA, by_data);
+>>>>>>> upstream/android-13
 
 	/* turn on BBREGCTL_REGW */
 	MACvRegBitsOn(iobase, MAC_REG_BBREGCTL, BBREGCTL_REGW);
 	/* W_MAX_TIMEOUT is the timeout period */
 	for (ww = 0; ww < W_MAX_TIMEOUT; ww++) {
+<<<<<<< HEAD
 		VNSvInPortB(iobase + MAC_REG_BBREGCTL, &byValue);
 		if (byValue & BBREGCTL_DONE)
+=======
+		VNSvInPortB(iobase + MAC_REG_BBREGCTL, &by_value);
+		if (by_value & BBREGCTL_DONE)
+>>>>>>> upstream/android-13
 			break;
 	}
 
@@ -1996,6 +2113,7 @@ bool BBbWriteEmbedded(struct vnt_private *priv,
  *
  */
 
+<<<<<<< HEAD
 bool BBbVT3253Init(struct vnt_private *priv)
 {
 	bool bResult = true;
@@ -2014,11 +2132,35 @@ bool BBbVT3253Init(struct vnt_private *priv)
 		} else {
 			for (ii = 0; ii < CB_VT3253B0_INIT_FOR_RFMD; ii++)
 				bResult &= BBbWriteEmbedded(priv,
+=======
+bool bb_vt3253_init(struct vnt_private *priv)
+{
+	bool result = true;
+	int        ii;
+	void __iomem *iobase = priv->PortOffset;
+	unsigned char by_rf_type = priv->byRFType;
+	unsigned char by_local_id = priv->byLocalID;
+
+	if (by_rf_type == RF_RFMD2959) {
+		if (by_local_id <= REV_ID_VT3253_A1) {
+			for (ii = 0; ii < CB_VT3253_INIT_FOR_RFMD; ii++)
+				result &= bb_write_embedded(priv,
+					by_vt3253_init_tab_rfmd[ii][0],
+					by_vt3253_init_tab_rfmd[ii][1]);
+
+		} else {
+			for (ii = 0; ii < CB_VT3253B0_INIT_FOR_RFMD; ii++)
+				result &= bb_write_embedded(priv,
+>>>>>>> upstream/android-13
 					byVT3253B0_RFMD[ii][0],
 					byVT3253B0_RFMD[ii][1]);
 
 			for (ii = 0; ii < CB_VT3253B0_AGC_FOR_RFMD2959; ii++)
+<<<<<<< HEAD
 				bResult &= BBbWriteEmbedded(priv,
+=======
+				result &= bb_write_embedded(priv,
+>>>>>>> upstream/android-13
 					byVT3253B0_AGC4_RFMD2959[ii][0],
 					byVT3253B0_AGC4_RFMD2959[ii][1]);
 
@@ -2033,14 +2175,24 @@ bool BBbVT3253Init(struct vnt_private *priv)
 		priv->ldBmThreshold[1] = -50;
 		priv->ldBmThreshold[2] = 0;
 		priv->ldBmThreshold[3] = 0;
+<<<<<<< HEAD
 	} else if ((byRFType == RF_AIROHA) || (byRFType == RF_AL2230S)) {
 		for (ii = 0; ii < CB_VT3253B0_INIT_FOR_AIROHA2230; ii++)
 			bResult &= BBbWriteEmbedded(priv,
+=======
+	} else if ((by_rf_type == RF_AIROHA) || (by_rf_type == RF_AL2230S)) {
+		for (ii = 0; ii < CB_VT3253B0_INIT_FOR_AIROHA2230; ii++)
+			result &= bb_write_embedded(priv,
+>>>>>>> upstream/android-13
 				byVT3253B0_AIROHA2230[ii][0],
 				byVT3253B0_AIROHA2230[ii][1]);
 
 		for (ii = 0; ii < CB_VT3253B0_AGC; ii++)
+<<<<<<< HEAD
 			bResult &= BBbWriteEmbedded(priv,
+=======
+			result &= bb_write_embedded(priv,
+>>>>>>> upstream/android-13
 				byVT3253B0_AGC[ii][0], byVT3253B0_AGC[ii][1]);
 
 		priv->abyBBVGA[0] = 0x1C;
@@ -2051,14 +2203,24 @@ bool BBbVT3253Init(struct vnt_private *priv)
 		priv->ldBmThreshold[1] = -48;
 		priv->ldBmThreshold[2] = 0;
 		priv->ldBmThreshold[3] = 0;
+<<<<<<< HEAD
 	} else if (byRFType == RF_UW2451) {
 		for (ii = 0; ii < CB_VT3253B0_INIT_FOR_UW2451; ii++)
 			bResult &= BBbWriteEmbedded(priv,
+=======
+	} else if (by_rf_type == RF_UW2451) {
+		for (ii = 0; ii < CB_VT3253B0_INIT_FOR_UW2451; ii++)
+			result &= bb_write_embedded(priv,
+>>>>>>> upstream/android-13
 				byVT3253B0_UW2451[ii][0],
 				byVT3253B0_UW2451[ii][1]);
 
 		for (ii = 0; ii < CB_VT3253B0_AGC; ii++)
+<<<<<<< HEAD
 			bResult &= BBbWriteEmbedded(priv,
+=======
+			result &= bb_write_embedded(priv,
+>>>>>>> upstream/android-13
 				byVT3253B0_AGC[ii][0],
 				byVT3253B0_AGC[ii][1]);
 
@@ -2073,9 +2235,15 @@ bool BBbVT3253Init(struct vnt_private *priv)
 		priv->ldBmThreshold[1] = -50;
 		priv->ldBmThreshold[2] = 0;
 		priv->ldBmThreshold[3] = 0;
+<<<<<<< HEAD
 	} else if (byRFType == RF_UW2452) {
 		for (ii = 0; ii < CB_VT3253B0_INIT_FOR_UW2451; ii++)
 			bResult &= BBbWriteEmbedded(priv,
+=======
+	} else if (by_rf_type == RF_UW2452) {
+		for (ii = 0; ii < CB_VT3253B0_INIT_FOR_UW2451; ii++)
+			result &= bb_write_embedded(priv,
+>>>>>>> upstream/android-13
 				byVT3253B0_UW2451[ii][0],
 				byVT3253B0_UW2451[ii][1]);
 
@@ -2084,7 +2252,11 @@ bool BBbVT3253Init(struct vnt_private *priv)
 		 * 0x45->0x41(VC1/VC2 define, make the ANT_A, ANT_B inverted)
 		 */
 
+<<<<<<< HEAD
 		/*bResult &= BBbWriteEmbedded(iobase,0x09,0x41);*/
+=======
+		/*bResult &= bb_write_embedded(iobase,0x09,0x41);*/
+>>>>>>> upstream/android-13
 
 		/* Init ANT B select,
 		 * RX Config CR10 = 0x28->0x2A,
@@ -2092,6 +2264,7 @@ bool BBbVT3253Init(struct vnt_private *priv)
 		 * make the ANT_A, ANT_B inverted)
 		 */
 
+<<<<<<< HEAD
 		/*bResult &= BBbWriteEmbedded(iobase,0x0a,0x28);*/
 		/* Select VC1/VC2, CR215 = 0x02->0x06 */
 		bResult &= BBbWriteEmbedded(priv, 0xd7, 0x06);
@@ -2109,6 +2282,25 @@ bool BBbVT3253Init(struct vnt_private *priv)
 
 		for (ii = 0; ii < CB_VT3253B0_AGC; ii++)
 			bResult &= BBbWriteEmbedded(priv,
+=======
+		/*bResult &= bb_write_embedded(iobase,0x0a,0x28);*/
+		/* Select VC1/VC2, CR215 = 0x02->0x06 */
+		result &= bb_write_embedded(priv, 0xd7, 0x06);
+
+		/* {{RobertYu:20050125, request by Jack */
+		result &= bb_write_embedded(priv, 0x90, 0x20);
+		result &= bb_write_embedded(priv, 0x97, 0xeb);
+		/* }} */
+
+		/* {{RobertYu:20050221, request by Jack */
+		result &= bb_write_embedded(priv, 0xa6, 0x00);
+		result &= bb_write_embedded(priv, 0xa8, 0x30);
+		/* }} */
+		result &= bb_write_embedded(priv, 0xb0, 0x58);
+
+		for (ii = 0; ii < CB_VT3253B0_AGC; ii++)
+			result &= bb_write_embedded(priv,
+>>>>>>> upstream/android-13
 				byVT3253B0_AGC[ii][0], byVT3253B0_AGC[ii][1]);
 
 		priv->abyBBVGA[0] = 0x14;
@@ -2121,14 +2313,24 @@ bool BBbVT3253Init(struct vnt_private *priv)
 		priv->ldBmThreshold[3] = 0;
 		/* }} RobertYu */
 
+<<<<<<< HEAD
 	} else if (byRFType == RF_VT3226) {
 		for (ii = 0; ii < CB_VT3253B0_INIT_FOR_AIROHA2230; ii++)
 			bResult &= BBbWriteEmbedded(priv,
+=======
+	} else if (by_rf_type == RF_VT3226) {
+		for (ii = 0; ii < CB_VT3253B0_INIT_FOR_AIROHA2230; ii++)
+			result &= bb_write_embedded(priv,
+>>>>>>> upstream/android-13
 				byVT3253B0_AIROHA2230[ii][0],
 				byVT3253B0_AIROHA2230[ii][1]);
 
 		for (ii = 0; ii < CB_VT3253B0_AGC; ii++)
+<<<<<<< HEAD
 			bResult &= BBbWriteEmbedded(priv,
+=======
+			result &= bb_write_embedded(priv,
+>>>>>>> upstream/android-13
 				byVT3253B0_AGC[ii][0], byVT3253B0_AGC[ii][1]);
 
 		priv->abyBBVGA[0] = 0x1C;
@@ -2142,9 +2344,15 @@ bool BBbVT3253Init(struct vnt_private *priv)
 		/* Fix VT3226 DFC system timing issue */
 		MACvSetRFLE_LatchBase(iobase);
 		/* {{ RobertYu: 20050104 */
+<<<<<<< HEAD
 	} else if (byRFType == RF_AIROHA7230) {
 		for (ii = 0; ii < CB_VT3253B0_INIT_FOR_AIROHA2230; ii++)
 			bResult &= BBbWriteEmbedded(priv,
+=======
+	} else if (by_rf_type == RF_AIROHA7230) {
+		for (ii = 0; ii < CB_VT3253B0_INIT_FOR_AIROHA2230; ii++)
+			result &= bb_write_embedded(priv,
+>>>>>>> upstream/android-13
 				byVT3253B0_AIROHA2230[ii][0],
 				byVT3253B0_AIROHA2230[ii][1]);
 
@@ -2152,6 +2360,7 @@ bool BBbVT3253Init(struct vnt_private *priv)
 		/* Init ANT B select,TX Config CR09 = 0x61->0x45,
 		 * 0x45->0x41(VC1/VC2 define, make the ANT_A, ANT_B inverted)
 		 */
+<<<<<<< HEAD
 		/*bResult &= BBbWriteEmbedded(iobase,0x09,0x41);*/
 		/* Init ANT B select,RX Config CR10 = 0x28->0x2A,
 		 * 0x2A->0x28(VC1/VC2 define, make the ANT_A, ANT_B inverted)
@@ -2163,6 +2372,19 @@ bool BBbVT3253Init(struct vnt_private *priv)
 
 		for (ii = 0; ii < CB_VT3253B0_AGC; ii++)
 			bResult &= BBbWriteEmbedded(priv,
+=======
+		/* bResult &= bb_write_embedded(iobase,0x09,0x41);*/
+		/* Init ANT B select,RX Config CR10 = 0x28->0x2A,
+		 * 0x2A->0x28(VC1/VC2 define, make the ANT_A, ANT_B inverted)
+		 */
+		/* bResult &= BBbWriteEmbedded(iobase,0x0a,0x28);*/
+		/* Select VC1/VC2, CR215 = 0x02->0x06 */
+		result &= bb_write_embedded(priv, 0xd7, 0x06);
+		/* }} */
+
+		for (ii = 0; ii < CB_VT3253B0_AGC; ii++)
+			result &= bb_write_embedded(priv,
+>>>>>>> upstream/android-13
 				byVT3253B0_AGC[ii][0], byVT3253B0_AGC[ii][1]);
 
 		priv->abyBBVGA[0] = 0x1C;
@@ -2180,12 +2402,21 @@ bool BBbVT3253Init(struct vnt_private *priv)
 		priv->abyBBVGA[0] = 0x1C;
 	}
 
+<<<<<<< HEAD
 	if (byLocalID > REV_ID_VT3253_A1) {
 		BBbWriteEmbedded(priv, 0x04, 0x7F);
 		BBbWriteEmbedded(priv, 0x0D, 0x01);
 	}
 
 	return bResult;
+=======
+	if (by_local_id > REV_ID_VT3253_A1) {
+		bb_write_embedded(priv, 0x04, 0x7F);
+		bb_write_embedded(priv, 0x0D, 0x01);
+	}
+
+	return result;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2201,6 +2432,7 @@ bool BBbVT3253Init(struct vnt_private *priv)
  *
  */
 void
+<<<<<<< HEAD
 BBvSetShortSlotTime(struct vnt_private *priv)
 {
 	unsigned char byBBRxConf = 0;
@@ -2237,6 +2469,44 @@ void BBvSetVGAGainOffset(struct vnt_private *priv, unsigned char byData)
 		byBBRxConf |= 0x20; /* 0010 0000 */
 	priv->byBBVGACurrent = byData;
 	BBbWriteEmbedded(priv, 0x0A, byBBRxConf); /* CR10 */
+=======
+bb_set_short_slot_time(struct vnt_private *priv)
+{
+	unsigned char by_bb_rx_conf = 0;
+	unsigned char by_bb_vga = 0;
+
+	bb_read_embedded(priv, 0x0A, &by_bb_rx_conf); /* CR10 */
+
+	if (priv->bShortSlotTime)
+		by_bb_rx_conf &= 0xDF; /* 1101 1111 */
+	else
+		by_bb_rx_conf |= 0x20; /* 0010 0000 */
+
+	/* patch for 3253B0 Baseband with Cardbus module */
+	bb_read_embedded(priv, 0xE7, &by_bb_vga);
+	if (by_bb_vga == priv->abyBBVGA[0])
+		by_bb_rx_conf |= 0x20; /* 0010 0000 */
+
+	bb_write_embedded(priv, 0x0A, by_bb_rx_conf); /* CR10 */
+}
+
+void bb_set_vga_gain_offset(struct vnt_private *priv, unsigned char by_data)
+{
+	unsigned char by_bb_rx_conf = 0;
+
+	bb_write_embedded(priv, 0xE7, by_data);
+
+	bb_read_embedded(priv, 0x0A, &by_bb_rx_conf); /* CR10 */
+	/* patch for 3253B0 Baseband with Cardbus module */
+	if (by_data == priv->abyBBVGA[0])
+		by_bb_rx_conf |= 0x20; /* 0010 0000 */
+	else if (priv->bShortSlotTime)
+		by_bb_rx_conf &= 0xDF; /* 1101 1111 */
+	else
+		by_bb_rx_conf |= 0x20; /* 0010 0000 */
+	priv->byBBVGACurrent = by_data;
+	bb_write_embedded(priv, 0x0A, by_bb_rx_conf); /* CR10 */
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2252,12 +2522,21 @@ void BBvSetVGAGainOffset(struct vnt_private *priv, unsigned char byData)
  *
  */
 void
+<<<<<<< HEAD
 BBvSoftwareReset(struct vnt_private *priv)
 {
 	BBbWriteEmbedded(priv, 0x50, 0x40);
 	BBbWriteEmbedded(priv, 0x50, 0);
 	BBbWriteEmbedded(priv, 0x9C, 0x01);
 	BBbWriteEmbedded(priv, 0x9C, 0);
+=======
+bb_software_reset(struct vnt_private *priv)
+{
+	bb_write_embedded(priv, 0x50, 0x40);
+	bb_write_embedded(priv, 0x50, 0);
+	bb_write_embedded(priv, 0x9C, 0x01);
+	bb_write_embedded(priv, 0x9C, 0);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2273,6 +2552,7 @@ BBvSoftwareReset(struct vnt_private *priv)
  *
  */
 void
+<<<<<<< HEAD
 BBvPowerSaveModeON(struct vnt_private *priv)
 {
 	unsigned char byOrgData;
@@ -2280,6 +2560,15 @@ BBvPowerSaveModeON(struct vnt_private *priv)
 	BBbReadEmbedded(priv, 0x0D, &byOrgData);
 	byOrgData |= BIT(0);
 	BBbWriteEmbedded(priv, 0x0D, byOrgData);
+=======
+bb_power_save_mode_on(struct vnt_private *priv)
+{
+	unsigned char by_org_data;
+
+	bb_read_embedded(priv, 0x0D, &by_org_data);
+	by_org_data |= BIT(0);
+	bb_write_embedded(priv, 0x0D, by_org_data);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2295,6 +2584,7 @@ BBvPowerSaveModeON(struct vnt_private *priv)
  *
  */
 void
+<<<<<<< HEAD
 BBvPowerSaveModeOFF(struct vnt_private *priv)
 {
 	unsigned char byOrgData;
@@ -2302,6 +2592,15 @@ BBvPowerSaveModeOFF(struct vnt_private *priv)
 	BBbReadEmbedded(priv, 0x0D, &byOrgData);
 	byOrgData &= ~(BIT(0));
 	BBbWriteEmbedded(priv, 0x0D, byOrgData);
+=======
+bb_power_save_mode_off(struct vnt_private *priv)
+{
+	unsigned char by_org_data;
+
+	bb_read_embedded(priv, 0x0D, &by_org_data);
+	by_org_data &= ~(BIT(0));
+	bb_write_embedded(priv, 0x0D, by_org_data);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2310,7 +2609,11 @@ BBvPowerSaveModeOFF(struct vnt_private *priv)
  * Parameters:
  *  In:
  *      priv          - Device Structure
+<<<<<<< HEAD
  *      byAntennaMode    - Antenna Mode
+=======
+ *      by_antenna_mode    - Antenna Mode
+>>>>>>> upstream/android-13
  *  Out:
  *      none
  *
@@ -2319,6 +2622,7 @@ BBvPowerSaveModeOFF(struct vnt_private *priv)
  */
 
 void
+<<<<<<< HEAD
 BBvSetTxAntennaMode(struct vnt_private *priv, unsigned char byAntennaMode)
 {
 	unsigned char byBBTxConf;
@@ -2335,6 +2639,24 @@ BBvSetTxAntennaMode(struct vnt_private *priv, unsigned char byAntennaMode)
 		byBBTxConf |= 0x04;
 	}
 	BBbWriteEmbedded(priv, 0x09, byBBTxConf); /* CR09 */
+=======
+bb_set_tx_antenna_mode(struct vnt_private *priv, unsigned char by_antenna_mode)
+{
+	unsigned char by_bb_tx_conf;
+
+	bb_read_embedded(priv, 0x09, &by_bb_tx_conf); /* CR09 */
+	if (by_antenna_mode == ANT_DIVERSITY) {
+		/* bit 1 is diversity */
+		by_bb_tx_conf |= 0x02;
+	} else if (by_antenna_mode == ANT_A) {
+		/* bit 2 is ANTSEL */
+		by_bb_tx_conf &= 0xF9; /* 1111 1001 */
+	} else if (by_antenna_mode == ANT_B) {
+		by_bb_tx_conf &= 0xFD; /* 1111 1101 */
+		by_bb_tx_conf |= 0x04;
+	}
+	bb_write_embedded(priv, 0x09, by_bb_tx_conf); /* CR09 */
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2343,7 +2665,11 @@ BBvSetTxAntennaMode(struct vnt_private *priv, unsigned char byAntennaMode)
  * Parameters:
  *  In:
  *      priv          - Device Structure
+<<<<<<< HEAD
  *      byAntennaMode    - Antenna Mode
+=======
+ *      by_antenna_mode   - Antenna Mode
+>>>>>>> upstream/android-13
  *  Out:
  *      none
  *
@@ -2352,6 +2678,7 @@ BBvSetTxAntennaMode(struct vnt_private *priv, unsigned char byAntennaMode)
  */
 
 void
+<<<<<<< HEAD
 BBvSetRxAntennaMode(struct vnt_private *priv, unsigned char byAntennaMode)
 {
 	unsigned char byBBRxConf;
@@ -2371,6 +2698,27 @@ BBvSetRxAntennaMode(struct vnt_private *priv, unsigned char byAntennaMode)
 
 /*
  * Description: BBvSetDeepSleep
+=======
+bb_set_rx_antenna_mode(struct vnt_private *priv, unsigned char by_antenna_mode)
+{
+	unsigned char by_bb_rx_conf;
+
+	bb_read_embedded(priv, 0x0A, &by_bb_rx_conf); /* CR10 */
+	if (by_antenna_mode == ANT_DIVERSITY) {
+		by_bb_rx_conf |= 0x01;
+
+	} else if (by_antenna_mode == ANT_A) {
+		by_bb_rx_conf &= 0xFC; /* 1111 1100 */
+	} else if (by_antenna_mode == ANT_B) {
+		by_bb_rx_conf &= 0xFE; /* 1111 1110 */
+		by_bb_rx_conf |= 0x02;
+	}
+	bb_write_embedded(priv, 0x0A, by_bb_rx_conf); /* CR10 */
+}
+
+/*
+ * Description: bb_set_deep_sleep
+>>>>>>> upstream/android-13
  *
  * Parameters:
  *  In:
@@ -2382,6 +2730,7 @@ BBvSetRxAntennaMode(struct vnt_private *priv, unsigned char byAntennaMode)
  *
  */
 void
+<<<<<<< HEAD
 BBvSetDeepSleep(struct vnt_private *priv, unsigned char byLocalID)
 {
 	BBbWriteEmbedded(priv, 0x0C, 0x17); /* CR12 */
@@ -2394,3 +2743,11 @@ BBvExitDeepSleep(struct vnt_private *priv, unsigned char byLocalID)
 	BBbWriteEmbedded(priv, 0x0C, 0x00); /* CR12 */
 	BBbWriteEmbedded(priv, 0x0D, 0x01); /* CR13 */
 }
+=======
+bb_set_deep_sleep(struct vnt_private *priv, unsigned char by_local_id)
+{
+	bb_write_embedded(priv, 0x0C, 0x17); /* CR12 */
+	bb_write_embedded(priv, 0x0D, 0xB9); /* CR13 */
+}
+
+>>>>>>> upstream/android-13

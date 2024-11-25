@@ -23,7 +23,11 @@
  * unmapping a portion of the virtual address space, these hooks are called according to
  * the following template:
  *
+<<<<<<< HEAD
  *	tlb <- tlb_gather_mmu(mm, start, end);		// start unmap for address space MM
+=======
+ *	tlb <- tlb_gather_mmu(mm);			// start unmap for address space MM
+>>>>>>> upstream/android-13
  *	{
  *	  for each vma that needs a shootdown do {
  *	    tlb_start_vma(tlb, vma);
@@ -36,12 +40,17 @@
  *	    tlb_end_vma(tlb, vma);
  *	  }
  *	}
+<<<<<<< HEAD
  *	tlb_finish_mmu(tlb, start, end);	// finish unmap for address space MM
+=======
+ *	tlb_finish_mmu(tlb);				// finish unmap for address space MM
+>>>>>>> upstream/android-13
  */
 #include <linux/mm.h>
 #include <linux/pagemap.h>
 #include <linux/swap.h>
 
+<<<<<<< HEAD
 #include <asm/pgalloc.h>
 #include <asm/processor.h>
 #include <asm/tlbflush.h>
@@ -305,5 +314,11 @@ do {							\
 	tlb->need_flush = 1;				\
 	__pud_free_tlb(tlb, pudp, address);		\
 } while (0)
+=======
+#include <asm/processor.h>
+#include <asm/tlbflush.h>
+
+#include <asm-generic/tlb.h>
+>>>>>>> upstream/android-13
 
 #endif /* _ASM_IA64_TLB_H */

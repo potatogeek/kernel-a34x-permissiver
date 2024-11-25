@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *
  * Copyright (C) 2011 Novell Inc.
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *
+ * Copyright (C) 2011 Novell Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/fs.h>
@@ -13,17 +20,33 @@
 #include <linux/xattr.h>
 #include <linux/posix_acl.h>
 #include <linux/ratelimit.h>
+<<<<<<< HEAD
 #include "overlayfs.h"
 
 
 int ovl_setattr(struct dentry *dentry, struct iattr *attr)
+=======
+#include <linux/fiemap.h>
+#include <linux/fileattr.h>
+#include <linux/security.h>
+#include <linux/namei.h>
+#include "overlayfs.h"
+
+
+int ovl_setattr(struct user_namespace *mnt_userns, struct dentry *dentry,
+		struct iattr *attr)
+>>>>>>> upstream/android-13
 {
 	int err;
 	bool full_copy_up = false;
 	struct dentry *upperdentry;
 	const struct cred *old_cred;
 
+<<<<<<< HEAD
 	err = setattr_prepare(dentry, attr);
+=======
+	err = setattr_prepare(&init_user_ns, dentry, attr);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
@@ -32,12 +55,15 @@ int ovl_setattr(struct dentry *dentry, struct iattr *attr)
 		goto out;
 
 	if (attr->ia_valid & ATTR_SIZE) {
+<<<<<<< HEAD
 		struct inode *realinode = d_inode(ovl_dentry_real(dentry));
 
 		err = -ETXTBSY;
 		if (atomic_read(&realinode->i_writecount) < 0)
 			goto out_drop_write;
 
+=======
+>>>>>>> upstream/android-13
 		/* Truncate should trigger data copy up as well */
 		full_copy_up = true;
 	}
@@ -61,10 +87,35 @@ int ovl_setattr(struct dentry *dentry, struct iattr *attr)
 		if (attr->ia_valid & (ATTR_KILL_SUID|ATTR_KILL_SGID))
 			attr->ia_valid &= ~ATTR_MODE;
 
+<<<<<<< HEAD
 		inode_lock(upperdentry->d_inode);
 		old_cred = ovl_override_creds(dentry->d_sb);
 		err = notify_change(upperdentry, attr, NULL);
 		ovl_revert_creds(old_cred);
+=======
+		/*
+		 * We might have to translate ovl file into real file object
+		 * once use cases emerge.  For now, simply don't let underlying
+		 * filesystem rely on attr->ia_file
+		 */
+		attr->ia_valid &= ~ATTR_FILE;
+
+		/*
+		 * If open(O_TRUNC) is done, VFS calls ->setattr with ATTR_OPEN
+		 * set.  Overlayfs does not pass O_TRUNC flag to underlying
+		 * filesystem during open -> do not pass ATTR_OPEN.  This
+		 * disables optimization in fuse which assumes open(O_TRUNC)
+		 * already set file size to 0.  But we never passed O_TRUNC to
+		 * fuse.  So by clearing ATTR_OPEN, fuse will be forced to send
+		 * setattr request to server.
+		 */
+		attr->ia_valid &= ~ATTR_OPEN;
+
+		inode_lock(upperdentry->d_inode);
+		old_cred = ovl_override_creds(dentry->d_sb);
+		err = notify_change(&init_user_ns, upperdentry, attr, NULL);
+		ovl_revert_creds(dentry->d_sb, old_cred);
+>>>>>>> upstream/android-13
 		if (!err)
 			ovl_copyattr(upperdentry->d_inode, dentry->d_inode);
 		inode_unlock(upperdentry->d_inode);
@@ -78,11 +129,19 @@ out:
 	return err;
 }
 
+<<<<<<< HEAD
 static int ovl_map_dev_ino(struct dentry *dentry, struct kstat *stat,
 			   struct ovl_layer *lower_layer)
 {
 	bool samefs = ovl_same_sb(dentry->d_sb);
 	unsigned int xinobits = ovl_xino_bits(dentry->d_sb);
+=======
+static void ovl_map_dev_ino(struct dentry *dentry, struct kstat *stat, int fsid)
+{
+	bool samefs = ovl_same_fs(dentry->d_sb);
+	unsigned int xinobits = ovl_xino_bits(dentry->d_sb);
+	unsigned int xinoshift = 64 - xinobits;
+>>>>>>> upstream/android-13
 
 	if (samefs) {
 		/*
@@ -91,13 +150,19 @@ static int ovl_map_dev_ino(struct dentry *dentry, struct kstat *stat,
 		 * which is friendly to du -x.
 		 */
 		stat->dev = dentry->d_sb->s_dev;
+<<<<<<< HEAD
 		return 0;
 	} else if (xinobits) {
 		unsigned int shift = 64 - xinobits;
+=======
+		return;
+	} else if (xinobits) {
+>>>>>>> upstream/android-13
 		/*
 		 * All inode numbers of underlying fs should not be using the
 		 * high xinobits, so we use high xinobits to partition the
 		 * overlay st_ino address space. The high bits holds the fsid
+<<<<<<< HEAD
 		 * (upper fsid is 0). This way overlay inode numbers are unique
 		 * and all inodes use overlay st_dev. Inode numbers are also
 		 * persistent for a given layer configuration.
@@ -111,6 +176,20 @@ static int ovl_map_dev_ino(struct dentry *dentry, struct kstat *stat,
 
 			stat->dev = dentry->d_sb->s_dev;
 			return 0;
+=======
+		 * (upper fsid is 0). The lowest xinobit is reserved for mapping
+		 * the non-persistent inode numbers range in case of overflow.
+		 * This way all overlay inode numbers are unique and use the
+		 * overlay st_dev.
+		 */
+		if (likely(!(stat->ino >> xinoshift))) {
+			stat->ino |= ((u64)fsid) << (xinoshift + 1);
+			stat->dev = dentry->d_sb->s_dev;
+			return;
+		} else if (ovl_xino_warn(dentry->d_sb)) {
+			pr_warn_ratelimited("inode number too big (%pd2, ino=%llu, xinobits=%d)\n",
+					    dentry, stat->ino, xinobits);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -127,6 +206,7 @@ static int ovl_map_dev_ino(struct dentry *dentry, struct kstat *stat,
 		 */
 		stat->dev = dentry->d_sb->s_dev;
 		stat->ino = dentry->d_inode->i_ino;
+<<<<<<< HEAD
 	} else if (lower_layer && lower_layer->fsid) {
 		/*
 		 * For non-samefs setup, if we cannot map all layers st_ino
@@ -143,14 +223,35 @@ static int ovl_map_dev_ino(struct dentry *dentry, struct kstat *stat,
 
 int ovl_getattr(const struct path *path, struct kstat *stat,
 		u32 request_mask, unsigned int flags)
+=======
+	} else {
+		/*
+		 * For non-samefs setup, if we cannot map all layers st_ino
+		 * to a unified address space, we need to make sure that st_dev
+		 * is unique per underlying fs, so we use the unique anonymous
+		 * bdev assigned to the underlying fs.
+		 */
+		stat->dev = OVL_FS(dentry->d_sb)->fs[fsid].pseudo_dev;
+	}
+}
+
+int ovl_getattr(struct user_namespace *mnt_userns, const struct path *path,
+		struct kstat *stat, u32 request_mask, unsigned int flags)
+>>>>>>> upstream/android-13
 {
 	struct dentry *dentry = path->dentry;
 	enum ovl_path_type type;
 	struct path realpath;
 	const struct cred *old_cred;
+<<<<<<< HEAD
 	bool is_dir = S_ISDIR(dentry->d_inode->i_mode);
 	bool samefs = ovl_same_sb(dentry->d_sb);
 	struct ovl_layer *lower_layer = NULL;
+=======
+	struct inode *inode = d_inode(dentry);
+	bool is_dir = S_ISDIR(inode->i_mode);
+	int fsid = 0;
+>>>>>>> upstream/android-13
 	int err;
 	bool metacopy_blocks = false;
 
@@ -162,6 +263,12 @@ int ovl_getattr(const struct path *path, struct kstat *stat,
 	if (err)
 		goto out;
 
+<<<<<<< HEAD
+=======
+	/* Report the effective immutable/append-only STATX flags */
+	generic_fill_statx_attr(inode, stat);
+
+>>>>>>> upstream/android-13
 	/*
 	 * For non-dir or same fs, we use st_ino of the copy up origin.
 	 * This guaranties constant st_dev/st_ino across copy up.
@@ -171,9 +278,15 @@ int ovl_getattr(const struct path *path, struct kstat *stat,
 	 * If lower filesystem supports NFS file handles, this also guaranties
 	 * persistent st_ino across mount cycle.
 	 */
+<<<<<<< HEAD
 	if (!is_dir || samefs || ovl_xino_bits(dentry->d_sb)) {
 		if (!OVL_TYPE_UPPER(type)) {
 			lower_layer = ovl_layer_lower(dentry);
+=======
+	if (!is_dir || ovl_same_dev(dentry->d_sb)) {
+		if (!OVL_TYPE_UPPER(type)) {
+			fsid = ovl_layer_lower(dentry)->fsid;
+>>>>>>> upstream/android-13
 		} else if (OVL_TYPE_ORIGIN(type)) {
 			struct kstat lowerstat;
 			u32 lowermask = STATX_INO | STATX_BLOCKS |
@@ -203,6 +316,7 @@ int ovl_getattr(const struct path *path, struct kstat *stat,
 			if (ovl_test_flag(OVL_INDEX, d_inode(dentry)) ||
 			    (!ovl_verify_lower(dentry->d_sb) &&
 			     (is_dir || lowerstat.nlink == 1))) {
+<<<<<<< HEAD
 				lower_layer = ovl_layer_lower(dentry);
 				/*
 				 * Cannot use origin st_dev;st_ino because
@@ -211,6 +325,10 @@ int ovl_getattr(const struct path *path, struct kstat *stat,
 				 */
 				if (samefs || lower_layer->fsid)
 					stat->ino = lowerstat.ino;
+=======
+				fsid = ovl_layer_lower(dentry)->fsid;
+				stat->ino = lowerstat.ino;
+>>>>>>> upstream/android-13
 			}
 
 			/*
@@ -244,9 +362,13 @@ int ovl_getattr(const struct path *path, struct kstat *stat,
 		}
 	}
 
+<<<<<<< HEAD
 	err = ovl_map_dev_ino(dentry, stat, lower_layer);
 	if (err)
 		goto out;
+=======
+	ovl_map_dev_ino(dentry, stat, fsid);
+>>>>>>> upstream/android-13
 
 	/*
 	 * It's probably not worth it to count subdirs to get the
@@ -266,12 +388,21 @@ int ovl_getattr(const struct path *path, struct kstat *stat,
 		stat->nlink = dentry->d_inode->i_nlink;
 
 out:
+<<<<<<< HEAD
 	ovl_revert_creds(old_cred);
+=======
+	ovl_revert_creds(dentry->d_sb, old_cred);
+>>>>>>> upstream/android-13
 
 	return err;
 }
 
+<<<<<<< HEAD
 int ovl_permission(struct inode *inode, int mask)
+=======
+int ovl_permission(struct user_namespace *mnt_userns,
+		   struct inode *inode, int mask)
+>>>>>>> upstream/android-13
 {
 	struct inode *upperinode = ovl_inode_upper(inode);
 	struct inode *realinode = upperinode ?: ovl_inode_lower(inode);
@@ -288,7 +419,11 @@ int ovl_permission(struct inode *inode, int mask)
 	 * Check overlay inode with the creds of task and underlying inode
 	 * with creds of mounter
 	 */
+<<<<<<< HEAD
 	err = generic_permission(inode, mask);
+=======
+	err = generic_permission(&init_user_ns, inode, mask);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
@@ -299,8 +434,13 @@ int ovl_permission(struct inode *inode, int mask)
 		/* Make sure mounter can read file for copy up later */
 		mask |= MAY_READ;
 	}
+<<<<<<< HEAD
 	err = inode_permission(realinode, mask);
 	ovl_revert_creds(old_cred);
+=======
+	err = inode_permission(&init_user_ns, realinode, mask);
+	ovl_revert_creds(inode->i_sb, old_cred);
+>>>>>>> upstream/android-13
 
 	return err;
 }
@@ -317,6 +457,7 @@ static const char *ovl_get_link(struct dentry *dentry,
 
 	old_cred = ovl_override_creds(dentry->d_sb);
 	p = vfs_get_link(ovl_dentry_real(dentry), done);
+<<<<<<< HEAD
 	ovl_revert_creds(old_cred);
 	return p;
 }
@@ -325,6 +466,22 @@ bool ovl_is_private_xattr(const char *name)
 {
 	return strncmp(name, OVL_XATTR_PREFIX,
 		       sizeof(OVL_XATTR_PREFIX) - 1) == 0;
+=======
+	ovl_revert_creds(dentry->d_sb, old_cred);
+	return p;
+}
+
+bool ovl_is_private_xattr(struct super_block *sb, const char *name)
+{
+	struct ovl_fs *ofs = sb->s_fs_info;
+
+	if (ofs->config.userxattr)
+		return strncmp(name, OVL_XATTR_USER_PREFIX,
+			       sizeof(OVL_XATTR_USER_PREFIX) - 1) == 0;
+	else
+		return strncmp(name, OVL_XATTR_TRUSTED_PREFIX,
+			       sizeof(OVL_XATTR_TRUSTED_PREFIX) - 1) == 0;
+>>>>>>> upstream/android-13
 }
 
 int ovl_xattr_set(struct dentry *dentry, struct inode *inode, const char *name,
@@ -341,8 +498,13 @@ int ovl_xattr_set(struct dentry *dentry, struct inode *inode, const char *name,
 
 	if (!value && !upperdentry) {
 		old_cred = ovl_override_creds(dentry->d_sb);
+<<<<<<< HEAD
 		err = vfs_getxattr(realdentry, name, NULL, 0);
 		revert_creds(old_cred);
+=======
+		err = vfs_getxattr(&init_user_ns, realdentry, name, NULL, 0);
+		ovl_revert_creds(dentry->d_sb, old_cred);
+>>>>>>> upstream/android-13
 		if (err < 0)
 			goto out_drop_write;
 	}
@@ -357,12 +519,22 @@ int ovl_xattr_set(struct dentry *dentry, struct inode *inode, const char *name,
 
 	old_cred = ovl_override_creds(dentry->d_sb);
 	if (value)
+<<<<<<< HEAD
 		err = vfs_setxattr(realdentry, name, value, size, flags);
 	else {
 		WARN_ON(flags != XATTR_REPLACE);
 		err = vfs_removexattr(realdentry, name);
 	}
 	ovl_revert_creds(old_cred);
+=======
+		err = vfs_setxattr(&init_user_ns, realdentry, name, value, size,
+				   flags);
+	else {
+		WARN_ON(flags != XATTR_REPLACE);
+		err = vfs_removexattr(&init_user_ns, realdentry, name);
+	}
+	ovl_revert_creds(dentry->d_sb, old_cred);
+>>>>>>> upstream/android-13
 
 	/* copy c/mtime */
 	ovl_copyattr(d_inode(realdentry), inode);
@@ -373,6 +545,7 @@ out:
 	return err;
 }
 
+<<<<<<< HEAD
 int __ovl_xattr_get(struct dentry *dentry, struct inode *inode,
 		    const char *name, void *value, size_t size)
 {
@@ -388,6 +561,8 @@ int __ovl_xattr_get(struct dentry *dentry, struct inode *inode,
 	return res;
 }
 
+=======
+>>>>>>> upstream/android-13
 int ovl_xattr_get(struct dentry *dentry, struct inode *inode, const char *name,
 		  void *value, size_t size)
 {
@@ -397,6 +572,7 @@ int ovl_xattr_get(struct dentry *dentry, struct inode *inode, const char *name,
 		ovl_i_dentry_upper(inode) ?: ovl_dentry_lower(dentry);
 
 	old_cred = ovl_override_creds(dentry->d_sb);
+<<<<<<< HEAD
 	res = vfs_getxattr(realdentry, name, value, size);
 	ovl_revert_creds(old_cred);
 	return res;
@@ -411,6 +587,25 @@ static bool ovl_can_list(const char *s)
 	/* Never list trusted.overlay, list other trusted for superuser only */
 	return !ovl_is_private_xattr(s) &&
 	       ns_capable_noaudit(&init_user_ns, CAP_SYS_ADMIN);
+=======
+	res = vfs_getxattr(&init_user_ns, realdentry, name, value, size);
+	ovl_revert_creds(dentry->d_sb, old_cred);
+	return res;
+}
+
+static bool ovl_can_list(struct super_block *sb, const char *s)
+{
+	/* Never list private (.overlay) */
+	if (ovl_is_private_xattr(sb, s))
+		return false;
+
+	/* List all non-trusted xattrs */
+	if (strncmp(s, XATTR_TRUSTED_PREFIX, XATTR_TRUSTED_PREFIX_LEN) != 0)
+		return true;
+
+	/* list other trusted for superuser only */
+	return ns_capable_noaudit(&init_user_ns, CAP_SYS_ADMIN);
+>>>>>>> upstream/android-13
 }
 
 ssize_t ovl_listxattr(struct dentry *dentry, char *list, size_t size)
@@ -423,7 +618,11 @@ ssize_t ovl_listxattr(struct dentry *dentry, char *list, size_t size)
 
 	old_cred = ovl_override_creds(dentry->d_sb);
 	res = vfs_listxattr(realdentry, list, size);
+<<<<<<< HEAD
 	ovl_revert_creds(old_cred);
+=======
+	ovl_revert_creds(dentry->d_sb, old_cred);
+>>>>>>> upstream/android-13
 	if (res <= 0 || size == 0)
 		return res;
 
@@ -436,7 +635,11 @@ ssize_t ovl_listxattr(struct dentry *dentry, char *list, size_t size)
 			return -EIO;
 
 		len -= slen;
+<<<<<<< HEAD
 		if (!ovl_can_list(s)) {
+=======
+		if (!ovl_can_list(dentry->d_sb, s)) {
+>>>>>>> upstream/android-13
 			res -= slen;
 			memmove(s, s + slen, len);
 		} else {
@@ -447,7 +650,11 @@ ssize_t ovl_listxattr(struct dentry *dentry, char *list, size_t size)
 	return res;
 }
 
+<<<<<<< HEAD
 struct posix_acl *ovl_get_acl(struct inode *inode, int type)
+=======
+struct posix_acl *ovl_get_acl(struct inode *inode, int type, bool rcu)
+>>>>>>> upstream/android-13
 {
 	struct inode *realinode = ovl_inode_real(inode);
 	const struct cred *old_cred;
@@ -456,9 +663,18 @@ struct posix_acl *ovl_get_acl(struct inode *inode, int type)
 	if (!IS_ENABLED(CONFIG_FS_POSIX_ACL) || !IS_POSIXACL(realinode))
 		return NULL;
 
+<<<<<<< HEAD
 	old_cred = ovl_override_creds(inode->i_sb);
 	acl = get_acl(realinode, type);
 	ovl_revert_creds(old_cred);
+=======
+	if (rcu)
+		return get_cached_acl_rcu(realinode, type);
+
+	old_cred = ovl_override_creds(inode->i_sb);
+	acl = get_acl(realinode, type);
+	ovl_revert_creds(inode->i_sb, old_cred);
+>>>>>>> upstream/android-13
 
 	return acl;
 }
@@ -468,7 +684,11 @@ int ovl_update_time(struct inode *inode, struct timespec64 *ts, int flags)
 	if (flags & S_ATIME) {
 		struct ovl_fs *ofs = inode->i_sb->s_fs_info;
 		struct path upperpath = {
+<<<<<<< HEAD
 			.mnt = ofs->upper_mnt,
+=======
+			.mnt = ovl_upper_mnt(ofs),
+>>>>>>> upstream/android-13
 			.dentry = ovl_upperdentry_dereference(OVL_I(inode)),
 		};
 
@@ -484,19 +704,161 @@ static int ovl_fiemap(struct inode *inode, struct fiemap_extent_info *fieinfo,
 		      u64 start, u64 len)
 {
 	int err;
+<<<<<<< HEAD
 	struct inode *realinode = ovl_inode_real(inode);
+=======
+	struct inode *realinode = ovl_inode_realdata(inode);
+>>>>>>> upstream/android-13
 	const struct cred *old_cred;
 
 	if (!realinode->i_op->fiemap)
 		return -EOPNOTSUPP;
 
 	old_cred = ovl_override_creds(inode->i_sb);
+<<<<<<< HEAD
 
 	if (fieinfo->fi_flags & FIEMAP_FLAG_SYNC)
 		filemap_write_and_wait(realinode->i_mapping);
 
 	err = realinode->i_op->fiemap(realinode, fieinfo, start, len);
 	ovl_revert_creds(old_cred);
+=======
+	err = realinode->i_op->fiemap(realinode, fieinfo, start, len);
+	ovl_revert_creds(inode->i_sb, old_cred);
+
+	return err;
+}
+
+/*
+ * Work around the fact that security_file_ioctl() takes a file argument.
+ * Introducing security_inode_fileattr_get/set() hooks would solve this issue
+ * properly.
+ */
+static int ovl_security_fileattr(struct path *realpath, struct fileattr *fa,
+				 bool set)
+{
+	struct file *file;
+	unsigned int cmd;
+	int err;
+
+	file = dentry_open(realpath, O_RDONLY, current_cred());
+	if (IS_ERR(file))
+		return PTR_ERR(file);
+
+	if (set)
+		cmd = fa->fsx_valid ? FS_IOC_FSSETXATTR : FS_IOC_SETFLAGS;
+	else
+		cmd = fa->fsx_valid ? FS_IOC_FSGETXATTR : FS_IOC_GETFLAGS;
+
+	err = security_file_ioctl(file, cmd, 0);
+	fput(file);
+
+	return err;
+}
+
+int ovl_real_fileattr_set(struct path *realpath, struct fileattr *fa)
+{
+	int err;
+
+	err = ovl_security_fileattr(realpath, fa, true);
+	if (err)
+		return err;
+
+	return vfs_fileattr_set(&init_user_ns, realpath->dentry, fa);
+}
+
+int ovl_fileattr_set(struct user_namespace *mnt_userns,
+		     struct dentry *dentry, struct fileattr *fa)
+{
+	struct inode *inode = d_inode(dentry);
+	struct path upperpath;
+	const struct cred *old_cred;
+	unsigned int flags;
+	int err;
+
+	err = ovl_want_write(dentry);
+	if (err)
+		goto out;
+
+	err = ovl_copy_up(dentry);
+	if (!err) {
+		ovl_path_real(dentry, &upperpath);
+
+		old_cred = ovl_override_creds(inode->i_sb);
+		/*
+		 * Store immutable/append-only flags in xattr and clear them
+		 * in upper fileattr (in case they were set by older kernel)
+		 * so children of "ovl-immutable" directories lower aliases of
+		 * "ovl-immutable" hardlinks could be copied up.
+		 * Clear xattr when flags are cleared.
+		 */
+		err = ovl_set_protattr(inode, upperpath.dentry, fa);
+		if (!err)
+			err = ovl_real_fileattr_set(&upperpath, fa);
+		ovl_revert_creds(inode->i_sb, old_cred);
+
+		/*
+		 * Merge real inode flags with inode flags read from
+		 * overlay.protattr xattr
+		 */
+		flags = ovl_inode_real(inode)->i_flags & OVL_COPY_I_FLAGS_MASK;
+
+		BUILD_BUG_ON(OVL_PROT_I_FLAGS_MASK & ~OVL_COPY_I_FLAGS_MASK);
+		flags |= inode->i_flags & OVL_PROT_I_FLAGS_MASK;
+		inode_set_flags(inode, flags, OVL_COPY_I_FLAGS_MASK);
+
+		/* Update ctime */
+		ovl_copyattr(ovl_inode_real(inode), inode);
+	}
+	ovl_drop_write(dentry);
+out:
+	return err;
+}
+
+/* Convert inode protection flags to fileattr flags */
+static void ovl_fileattr_prot_flags(struct inode *inode, struct fileattr *fa)
+{
+	BUILD_BUG_ON(OVL_PROT_FS_FLAGS_MASK & ~FS_COMMON_FL);
+	BUILD_BUG_ON(OVL_PROT_FSX_FLAGS_MASK & ~FS_XFLAG_COMMON);
+
+	if (inode->i_flags & S_APPEND) {
+		fa->flags |= FS_APPEND_FL;
+		fa->fsx_xflags |= FS_XFLAG_APPEND;
+	}
+	if (inode->i_flags & S_IMMUTABLE) {
+		fa->flags |= FS_IMMUTABLE_FL;
+		fa->fsx_xflags |= FS_XFLAG_IMMUTABLE;
+	}
+}
+
+int ovl_real_fileattr_get(struct path *realpath, struct fileattr *fa)
+{
+	int err;
+
+	err = ovl_security_fileattr(realpath, fa, false);
+	if (err)
+		return err;
+
+	err = vfs_fileattr_get(realpath->dentry, fa);
+	if (err == -ENOIOCTLCMD)
+		err = -ENOTTY;
+	return err;
+}
+
+int ovl_fileattr_get(struct dentry *dentry, struct fileattr *fa)
+{
+	struct inode *inode = d_inode(dentry);
+	struct path realpath;
+	const struct cred *old_cred;
+	int err;
+
+	ovl_path_real(dentry, &realpath);
+
+	old_cred = ovl_override_creds(inode->i_sb);
+	err = ovl_real_fileattr_get(&realpath, fa);
+	ovl_fileattr_prot_flags(inode, fa);
+	ovl_revert_creds(inode->i_sb, old_cred);
+>>>>>>> upstream/android-13
 
 	return err;
 }
@@ -509,6 +871,11 @@ static const struct inode_operations ovl_file_inode_operations = {
 	.get_acl	= ovl_get_acl,
 	.update_time	= ovl_update_time,
 	.fiemap		= ovl_fiemap,
+<<<<<<< HEAD
+=======
+	.fileattr_get	= ovl_fileattr_get,
+	.fileattr_set	= ovl_fileattr_set,
+>>>>>>> upstream/android-13
 };
 
 static const struct inode_operations ovl_symlink_inode_operations = {
@@ -535,11 +902,19 @@ static const struct address_space_operations ovl_aops = {
 
 /*
  * It is possible to stack overlayfs instance on top of another
+<<<<<<< HEAD
  * overlayfs instance as lower layer. We need to annonate the
  * stackable i_mutex locks according to stack level of the super
  * block instance. An overlayfs instance can never be in stack
  * depth 0 (there is always a real fs below it).  An overlayfs
  * inode lock will use the lockdep annotaion ovl_i_mutex_key[depth].
+=======
+ * overlayfs instance as lower layer. We need to annotate the
+ * stackable i_mutex locks according to stack level of the super
+ * block instance. An overlayfs instance can never be in stack
+ * depth 0 (there is always a real fs below it).  An overlayfs
+ * inode lock will use the lockdep annotation ovl_i_mutex_key[depth].
+>>>>>>> upstream/android-13
  *
  * For example, here is a snip from /proc/lockdep_chains after
  * dir_iterate of nested overlayfs:
@@ -547,6 +922,30 @@ static const struct address_space_operations ovl_aops = {
  * [...] &ovl_i_mutex_dir_key[depth]   (stack_depth=2)
  * [...] &ovl_i_mutex_dir_key[depth]#2 (stack_depth=1)
  * [...] &type->i_mutex_dir_key        (stack_depth=0)
+<<<<<<< HEAD
+=======
+ *
+ * Locking order w.r.t ovl_want_write() is important for nested overlayfs.
+ *
+ * This chain is valid:
+ * - inode->i_rwsem			(inode_lock[2])
+ * - upper_mnt->mnt_sb->s_writers	(ovl_want_write[0])
+ * - OVL_I(inode)->lock			(ovl_inode_lock[2])
+ * - OVL_I(lowerinode)->lock		(ovl_inode_lock[1])
+ *
+ * And this chain is valid:
+ * - inode->i_rwsem			(inode_lock[2])
+ * - OVL_I(inode)->lock			(ovl_inode_lock[2])
+ * - lowerinode->i_rwsem		(inode_lock[1])
+ * - OVL_I(lowerinode)->lock		(ovl_inode_lock[1])
+ *
+ * But lowerinode->i_rwsem SHOULD NOT be acquired while ovl_want_write() is
+ * held, because it is in reverse order of the non-nested case using the same
+ * upper fs:
+ * - inode->i_rwsem			(inode_lock[1])
+ * - upper_mnt->mnt_sb->s_writers	(ovl_want_write[0])
+ * - OVL_I(inode)->lock			(ovl_inode_lock[1])
+>>>>>>> upstream/android-13
  */
 #define OVL_MAX_NESTING FILESYSTEM_MAX_STACK_DEPTH
 
@@ -571,16 +970,33 @@ static inline void ovl_lockdep_annotate_inode_mutex_key(struct inode *inode)
 #endif
 }
 
+<<<<<<< HEAD
 static void ovl_fill_inode(struct inode *inode, umode_t mode, dev_t rdev,
 			   unsigned long ino, int fsid)
 {
 	int xinobits = ovl_xino_bits(inode->i_sb);
+=======
+static void ovl_next_ino(struct inode *inode)
+{
+	struct ovl_fs *ofs = inode->i_sb->s_fs_info;
+
+	inode->i_ino = atomic_long_inc_return(&ofs->last_ino);
+	if (unlikely(!inode->i_ino))
+		inode->i_ino = atomic_long_inc_return(&ofs->last_ino);
+}
+
+static void ovl_map_ino(struct inode *inode, unsigned long ino, int fsid)
+{
+	int xinobits = ovl_xino_bits(inode->i_sb);
+	unsigned int xinoshift = 64 - xinobits;
+>>>>>>> upstream/android-13
 
 	/*
 	 * When d_ino is consistent with st_ino (samefs or i_ino has enough
 	 * bits to encode layer), set the same value used for st_ino to i_ino,
 	 * so inode number exposed via /proc/locks and a like will be
 	 * consistent with d_ino and st_ino values. An i_ino value inconsistent
+<<<<<<< HEAD
 	 * with d_ino also causes nfsd readdirplus to fail.  When called from
 	 * ovl_new_inode(), ino arg is 0, so i_ino will be updated to real
 	 * upper inode i_ino on ovl_inode_init() or ovl_inode_update().
@@ -592,6 +1008,56 @@ static void ovl_fill_inode(struct inode *inode, umode_t mode, dev_t rdev,
 	} else {
 		inode->i_ino = get_next_ino();
 	}
+=======
+	 * with d_ino also causes nfsd readdirplus to fail.
+	 */
+	inode->i_ino = ino;
+	if (ovl_same_fs(inode->i_sb)) {
+		return;
+	} else if (xinobits && likely(!(ino >> xinoshift))) {
+		inode->i_ino |= (unsigned long)fsid << (xinoshift + 1);
+		return;
+	}
+
+	/*
+	 * For directory inodes on non-samefs with xino disabled or xino
+	 * overflow, we allocate a non-persistent inode number, to be used for
+	 * resolving st_ino collisions in ovl_map_dev_ino().
+	 *
+	 * To avoid ino collision with legitimate xino values from upper
+	 * layer (fsid 0), use the lowest xinobit to map the non
+	 * persistent inode numbers to the unified st_ino address space.
+	 */
+	if (S_ISDIR(inode->i_mode)) {
+		ovl_next_ino(inode);
+		if (xinobits) {
+			inode->i_ino &= ~0UL >> xinobits;
+			inode->i_ino |= 1UL << xinoshift;
+		}
+	}
+}
+
+void ovl_inode_init(struct inode *inode, struct ovl_inode_params *oip,
+		    unsigned long ino, int fsid)
+{
+	struct inode *realinode;
+
+	if (oip->upperdentry)
+		OVL_I(inode)->__upperdentry = oip->upperdentry;
+	if (oip->lowerpath && oip->lowerpath->dentry)
+		OVL_I(inode)->lower = igrab(d_inode(oip->lowerpath->dentry));
+	if (oip->lowerdata)
+		OVL_I(inode)->lowerdata = igrab(d_inode(oip->lowerdata));
+
+	realinode = ovl_inode_real(inode);
+	ovl_copyattr(realinode, inode);
+	ovl_copyflags(realinode, inode);
+	ovl_map_ino(inode, ino, fsid);
+}
+
+static void ovl_fill_inode(struct inode *inode, umode_t mode, dev_t rdev)
+{
+>>>>>>> upstream/android-13
 	inode->i_mode = mode;
 	inode->i_flags |= S_NOCMTIME;
 #ifdef CONFIG_FS_POSIX_ACL
@@ -635,7 +1101,11 @@ static void ovl_fill_inode(struct inode *inode, umode_t mode, dev_t rdev,
  * For the first, copy up case, the union nlink does not change, whether the
  * operation succeeds or fails, but the upper inode nlink may change.
  * Therefore, before copy up, we store the union nlink value relative to the
+<<<<<<< HEAD
  * lower inode nlink in the index inode xattr trusted.overlay.nlink.
+=======
+ * lower inode nlink in the index inode xattr .overlay.nlink.
+>>>>>>> upstream/android-13
  *
  * For the second, upper hardlink case, the union nlink should be incremented
  * or decremented IFF the operation succeeds, aligned with nlink change of the
@@ -670,8 +1140,13 @@ static int ovl_set_nlink_common(struct dentry *dentry,
 	if (WARN_ON(len >= sizeof(buf)))
 		return -EIO;
 
+<<<<<<< HEAD
 	return ovl_do_setxattr(ovl_dentry_upper(dentry),
 			       OVL_XATTR_NLINK, buf, len, 0);
+=======
+	return ovl_do_setxattr(OVL_FS(inode->i_sb), ovl_dentry_upper(dentry),
+			       OVL_XATTR_NLINK, buf, len);
+>>>>>>> upstream/android-13
 }
 
 int ovl_set_nlink_upper(struct dentry *dentry)
@@ -684,7 +1159,11 @@ int ovl_set_nlink_lower(struct dentry *dentry)
 	return ovl_set_nlink_common(dentry, ovl_dentry_lower(dentry), "L%+i");
 }
 
+<<<<<<< HEAD
 unsigned int ovl_get_nlink(struct dentry *lowerdentry,
+=======
+unsigned int ovl_get_nlink(struct ovl_fs *ofs, struct dentry *lowerdentry,
+>>>>>>> upstream/android-13
 			   struct dentry *upperdentry,
 			   unsigned int fallback)
 {
@@ -696,7 +1175,12 @@ unsigned int ovl_get_nlink(struct dentry *lowerdentry,
 	if (!lowerdentry || !upperdentry || d_inode(lowerdentry)->i_nlink == 1)
 		return fallback;
 
+<<<<<<< HEAD
 	err = vfs_getxattr(upperdentry, OVL_XATTR_NLINK, &buf, sizeof(buf) - 1);
+=======
+	err = ovl_do_getxattr(ofs, upperdentry, OVL_XATTR_NLINK,
+			      &buf, sizeof(buf) - 1);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		goto fail;
 
@@ -718,7 +1202,11 @@ unsigned int ovl_get_nlink(struct dentry *lowerdentry,
 	return nlink;
 
 fail:
+<<<<<<< HEAD
 	pr_warn_ratelimited("overlayfs: failed to get index nlink (%pd2, err=%i)\n",
+=======
+	pr_warn_ratelimited("failed to get index nlink (%pd2, err=%i)\n",
+>>>>>>> upstream/android-13
 			    upperdentry, err);
 	return fallback;
 }
@@ -729,7 +1217,11 @@ struct inode *ovl_new_inode(struct super_block *sb, umode_t mode, dev_t rdev)
 
 	inode = new_inode(sb);
 	if (inode)
+<<<<<<< HEAD
 		ovl_fill_inode(inode, mode, rdev, 0, 0);
+=======
+		ovl_fill_inode(inode, mode, rdev);
+>>>>>>> upstream/android-13
 
 	return inode;
 }
@@ -853,7 +1345,11 @@ struct inode *ovl_get_trap_inode(struct super_block *sb, struct dentry *dir)
  * Does overlay inode need to be hashed by lower inode?
  */
 static bool ovl_hash_bylower(struct super_block *sb, struct dentry *upper,
+<<<<<<< HEAD
 			     struct dentry *lower, struct dentry *index)
+=======
+			     struct dentry *lower, bool index)
+>>>>>>> upstream/android-13
 {
 	struct ovl_fs *ofs = sb->s_fs_info;
 
@@ -866,7 +1362,11 @@ static bool ovl_hash_bylower(struct super_block *sb, struct dentry *upper,
 		return true;
 
 	/* Yes, if won't be copied up */
+<<<<<<< HEAD
 	if (!ofs->upper_mnt)
+=======
+	if (!ovl_upper_mnt(ofs))
+>>>>>>> upstream/android-13
 		return true;
 
 	/* No, if lower hardlink is or will be broken on copy up */
@@ -894,6 +1394,10 @@ static struct inode *ovl_iget5(struct super_block *sb, struct inode *newinode,
 struct inode *ovl_get_inode(struct super_block *sb,
 			    struct ovl_inode_params *oip)
 {
+<<<<<<< HEAD
+=======
+	struct ovl_fs *ofs = OVL_FS(sb);
+>>>>>>> upstream/android-13
 	struct dentry *upperdentry = oip->upperdentry;
 	struct ovl_path *lowerpath = oip->lowerpath;
 	struct inode *realinode = upperdentry ? d_inode(upperdentry) : NULL;
@@ -902,7 +1406,11 @@ struct inode *ovl_get_inode(struct super_block *sb,
 	bool bylower = ovl_hash_bylower(sb, upperdentry, lowerdentry,
 					oip->index);
 	int fsid = bylower ? lowerpath->layer->fsid : 0;
+<<<<<<< HEAD
 	bool is_dir, metacopy = false;
+=======
+	bool is_dir;
+>>>>>>> upstream/android-13
 	unsigned long ino = 0;
 	int err = oip->newinode ? -EEXIST : -ENOMEM;
 
@@ -941,7 +1449,12 @@ struct inode *ovl_get_inode(struct super_block *sb,
 
 		/* Recalculate nlink for non-dir due to indexing */
 		if (!is_dir)
+<<<<<<< HEAD
 			nlink = ovl_get_nlink(lowerdentry, upperdentry, nlink);
+=======
+			nlink = ovl_get_nlink(ofs, lowerdentry, upperdentry,
+					      nlink);
+>>>>>>> upstream/android-13
 		set_nlink(inode, nlink);
 		ino = key->i_ino;
 	} else {
@@ -954,15 +1467,23 @@ struct inode *ovl_get_inode(struct super_block *sb,
 		ino = realinode->i_ino;
 		fsid = lowerpath->layer->fsid;
 	}
+<<<<<<< HEAD
 	ovl_fill_inode(inode, realinode->i_mode, realinode->i_rdev, ino, fsid);
 	ovl_inode_init(inode, upperdentry, lowerdentry, oip->lowerdata);
 
 	if (upperdentry && ovl_is_impuredir(upperdentry))
+=======
+	ovl_fill_inode(inode, realinode->i_mode, realinode->i_rdev);
+	ovl_inode_init(inode, oip, ino, fsid);
+
+	if (upperdentry && ovl_is_impuredir(sb, upperdentry))
+>>>>>>> upstream/android-13
 		ovl_set_flag(OVL_IMPURE, inode);
 
 	if (oip->index)
 		ovl_set_flag(OVL_INDEX, inode);
 
+<<<<<<< HEAD
 	if (upperdentry) {
 		err = ovl_check_metacopy_xattr(upperdentry);
 		if (err < 0)
@@ -972,6 +1493,8 @@ struct inode *ovl_get_inode(struct super_block *sb,
 			ovl_set_flag(OVL_UPPERDATA, inode);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	OVL_I(inode)->redirect = oip->redirect;
 
 	if (bylower)
@@ -980,18 +1503,33 @@ struct inode *ovl_get_inode(struct super_block *sb,
 	/* Check for non-merge dir that may have whiteouts */
 	if (is_dir) {
 		if (((upperdentry && lowerdentry) || oip->numlower > 1) ||
+<<<<<<< HEAD
 		    ovl_check_origin_xattr(upperdentry ?: lowerdentry)) {
+=======
+		    ovl_check_origin_xattr(ofs, upperdentry ?: lowerdentry)) {
+>>>>>>> upstream/android-13
 			ovl_set_flag(OVL_WHITEOUTS, inode);
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	/* Check for immutable/append-only inode flags in xattr */
+	if (upperdentry)
+		ovl_check_protattr(inode, upperdentry);
+
+>>>>>>> upstream/android-13
 	if (inode->i_state & I_NEW)
 		unlock_new_inode(inode);
 out:
 	return inode;
 
 out_err:
+<<<<<<< HEAD
 	pr_warn_ratelimited("overlayfs: failed to get inode (%i)\n", err);
+=======
+	pr_warn_ratelimited("failed to get inode (%i)\n", err);
+>>>>>>> upstream/android-13
 	inode = ERR_PTR(err);
 	goto out;
 }

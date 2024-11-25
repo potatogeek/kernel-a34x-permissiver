@@ -248,7 +248,11 @@ static int sync_magnetometer_status(void)
 static void print_magnetometer_debug(void)
 {
 	struct shub_sensor *sensor = get_sensor(SENSOR_TYPE_GEOMAGNETIC_FIELD);
+<<<<<<< HEAD
 	struct sensor_event *event = &(sensor->last_event_buffer);
+=======
+	struct sensor_event *event = &(sensor->event_buffer);
+>>>>>>> upstream/android-13
 	struct mag_event *sensor_value = (struct mag_event *)(event->value);
 
 	shub_info("%s(%u) : %d, %d, %d, %d (%lld) (%ums, %dms)", sensor->name, SENSOR_TYPE_GEOMAGNETIC_FIELD,
@@ -256,6 +260,7 @@ static void print_magnetometer_debug(void)
 		  sensor->sampling_period, sensor->max_report_latency);
 }
 
+<<<<<<< HEAD
 static struct magnetometer_data magnetometer_data;
 static struct sensor_funcs magnetometer_sensor_funcs = {
 	.sync_status = sync_magnetometer_status,
@@ -272,12 +277,17 @@ static struct sensor_funcs magnetometer_sensor_funcs = {
 int init_magnetometer(bool en)
 {
 	int ret = 0;
+=======
+int init_magnetometer(bool en)
+{
+>>>>>>> upstream/android-13
 	struct shub_sensor *sensor = get_sensor(SENSOR_TYPE_GEOMAGNETIC_FIELD);
 
 	if (!sensor)
 		return 0;
 
 	if (en) {
+<<<<<<< HEAD
 		int receive_size = sensor->spec.version >= MAG_EVENT_SIZE_4BYTE_VERSION ?
 								MAG_RECEIVE_EVENT_SIZE(sizeof(s32)) : MAG_RECEIVE_EVENT_SIZE(sizeof(s16));
 
@@ -295,17 +305,90 @@ int init_magnetometer(bool en)
 	}
 
 	return ret;
+=======
+		strcpy(sensor->name, "geomagnetic_sensor");
+		sensor->report_mode_continuous = true;
+
+		if (sensor->spec.version >= MAG_EVENT_SIZE_4BYTE_VERSION)
+			sensor->receive_event_size = MAG_RECEIVE_EVENT_SIZE(sizeof(s32));
+		else
+			sensor->receive_event_size = MAG_RECEIVE_EVENT_SIZE(sizeof(s16));
+
+		shub_infof("receive_event_size : %d", sensor->receive_event_size);
+
+		sensor->report_event_size = sizeof(struct mag_event);
+		sensor->event_buffer.value = kzalloc(sizeof(struct mag_event), GFP_KERNEL);
+		if (!sensor->event_buffer.value)
+			goto err_no_mem;
+
+		sensor->data = kzalloc(sizeof(struct magnetometer_data), GFP_KERNEL);
+		if (!sensor->data)
+			goto err_no_mem;
+
+		sensor->funcs = kzalloc(sizeof(struct sensor_funcs), GFP_KERNEL);
+		if (!sensor->funcs)
+			goto err_no_mem;
+
+		sensor->funcs->sync_status = sync_magnetometer_status;
+		sensor->funcs->set_position = set_mag_position;
+		sensor->funcs->get_position = get_mag_position;
+		sensor->funcs->print_debug = print_magnetometer_debug;
+		sensor->funcs->parsing_data = parsing_mag_calibration;
+		sensor->funcs->open_calibration_file = open_mag_calibration_file;
+		sensor->funcs->get_sensor_value = get_mag_sensor_value;
+		sensor->funcs->init_variable = init_magnetometer_variable;
+		sensor->funcs->get_init_chipset_funcs = get_magnetometer_init_chipset_funcs;
+	} else {
+		struct magnetometer_data *data = get_sensor(SENSOR_TYPE_GEOMAGNETIC_FIELD)->data;
+
+		kfree(data->cal_data);
+		data->cal_data = NULL;
+
+		kfree(data->mag_matrix);
+		data->mag_matrix = NULL;
+
+		kfree(data->cover_matrix);
+		data->cover_matrix = NULL;
+
+		kfree(sensor->data);
+		sensor->data = NULL;
+
+		kfree(sensor->funcs);
+		sensor->funcs = NULL;
+
+		kfree(sensor->event_buffer.value);
+		sensor->event_buffer.value = NULL;
+	}
+
+	return 0;
+
+err_no_mem:
+	kfree(sensor->event_buffer.value);
+	sensor->event_buffer.value = NULL;
+
+	kfree(sensor->funcs);
+	sensor->funcs = NULL;
+
+	kfree(sensor->data);
+	sensor->data = NULL;
+
+	return -ENOMEM;
+>>>>>>> upstream/android-13
 }
 
 int init_magnetometer_power(bool en)
 {
+<<<<<<< HEAD
 	int ret = 0;
+=======
+>>>>>>> upstream/android-13
 	struct shub_sensor *sensor = get_sensor(SENSOR_TYPE_GEOMAGNETIC_POWER);
 
 	if (!sensor)
 		return 0;
 
 	if (en) {
+<<<<<<< HEAD
 		int size = sizeof(struct mag_power_event);
 		ret = init_default_func(sensor, "geomagnetic_power", size, size, size);
 	} else {
@@ -313,4 +396,25 @@ int init_magnetometer_power(bool en)
 	}
 
 	return ret;
+=======
+		strcpy(sensor->name, "geomagnetic_power");
+		sensor->receive_event_size = sizeof(struct mag_power_event);
+		sensor->report_event_size = sizeof(struct mag_power_event);
+		sensor->event_buffer.value = kzalloc(sizeof(struct mag_power_event), GFP_KERNEL);
+		if (!sensor->event_buffer.value)
+			goto err_no_mem;
+
+	} else {
+		kfree(sensor->event_buffer.value);
+		sensor->event_buffer.value = NULL;
+	}
+
+	return 0;
+
+err_no_mem:
+	kfree(sensor->event_buffer.value);
+	sensor->event_buffer.value = NULL;
+
+	return -ENOMEM;
+>>>>>>> upstream/android-13
 }

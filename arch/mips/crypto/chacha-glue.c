@@ -128,13 +128,21 @@ static struct skcipher_alg algs[] = {
 
 static int __init chacha_simd_mod_init(void)
 {
+<<<<<<< HEAD
 	return IS_REACHABLE(CONFIG_CRYPTO_BLKCIPHER) ?
+=======
+	return IS_REACHABLE(CONFIG_CRYPTO_SKCIPHER) ?
+>>>>>>> upstream/android-13
 		crypto_register_skciphers(algs, ARRAY_SIZE(algs)) : 0;
 }
 
 static void __exit chacha_simd_mod_fini(void)
 {
+<<<<<<< HEAD
 	if (IS_REACHABLE(CONFIG_CRYPTO_BLKCIPHER))
+=======
+	if (IS_REACHABLE(CONFIG_CRYPTO_SKCIPHER))
+>>>>>>> upstream/android-13
 		crypto_unregister_skciphers(algs, ARRAY_SIZE(algs));
 }
 

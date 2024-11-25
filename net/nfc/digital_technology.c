@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * NFC Digital Protocol stack
  * Copyright (c) 2013, Intel Corporation.
@@ -11,6 +12,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * NFC Digital Protocol stack
+ * Copyright (c) 2013, Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "digital: %s: " fmt, __func__
@@ -474,8 +481,17 @@ static int digital_in_send_sdd_req(struct nfc_digital_dev *ddev,
 	skb_put_u8(skb, sel_cmd);
 	skb_put_u8(skb, DIGITAL_SDD_REQ_SEL_PAR);
 
+<<<<<<< HEAD
 	return digital_in_send_cmd(ddev, skb, 30, digital_in_recv_sdd_res,
 				   target);
+=======
+	rc = digital_in_send_cmd(ddev, skb, 30, digital_in_recv_sdd_res,
+				 target);
+	if (rc)
+		kfree_skb(skb);
+
+	return rc;
+>>>>>>> upstream/android-13
 }
 
 static void digital_in_recv_sens_res(struct nfc_digital_dev *ddev, void *arg,

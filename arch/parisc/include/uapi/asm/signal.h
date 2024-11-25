@@ -35,6 +35,7 @@
 #define SIGURG		29
 #define SIGXFSZ		30
 #define SIGUNUSED	31
+<<<<<<< HEAD
 #define SIGSYS		31 /* Linux doesn't use this */
 
 /* These should not be considered constants from userland.  */
@@ -54,6 +55,14 @@
  * SA_ONESHOT and SA_NOMASK are the historical Linux names for the Single
  * Unix names RESETHAND and NODEFER respectively.
  */
+=======
+#define SIGSYS		31
+
+/* These should not be considered constants from userland.  */
+#define SIGRTMIN	32
+#define SIGRTMAX	_NSIG
+
+>>>>>>> upstream/android-13
 #define SA_ONSTACK	0x00000001
 #define SA_RESETHAND	0x00000004
 #define SA_NOCLDSTOP	0x00000008
@@ -61,7 +70,10 @@
 #define SA_NODEFER	0x00000020
 #define SA_RESTART	0x00000040
 #define SA_NOCLDWAIT	0x00000080
+<<<<<<< HEAD
 #define _SA_SIGGFAULT	0x00000100 /* HPUX */
+=======
+>>>>>>> upstream/android-13
 
 #define SA_NOMASK	SA_NODEFER
 #define SA_ONESHOT	SA_RESETHAND
@@ -69,6 +81,7 @@
 #define MINSIGSTKSZ	2048
 #define SIGSTKSZ	8192
 
+<<<<<<< HEAD
 
 #define SIG_BLOCK          0	/* for blocking signals */
 #define SIG_UNBLOCK        1	/* for unblocking signals */
@@ -77,6 +90,9 @@
 #define SIG_DFL	((__sighandler_t)0)	/* default signal handling */
 #define SIG_IGN	((__sighandler_t)1)	/* ignore signal */
 #define SIG_ERR	((__sighandler_t)-1)	/* error return from signal */
+=======
+#include <asm-generic/signal-defs.h>
+>>>>>>> upstream/android-13
 
 # ifndef __ASSEMBLY__
 
@@ -85,6 +101,7 @@
 /* Avoid too many header ordering problems.  */
 struct siginfo;
 
+<<<<<<< HEAD
 /* Type of a signal handler.  */
 #if defined(__LP64__)
 /* function pointers on 64-bit parisc are pointers to little structs and the
@@ -97,6 +114,8 @@ typedef void __signalfn_t(int);
 typedef __signalfn_t __user *__sighandler_t;
 #endif
 
+=======
+>>>>>>> upstream/android-13
 typedef struct sigaltstack {
 	void __user *ss_sp;
 	int ss_flags;

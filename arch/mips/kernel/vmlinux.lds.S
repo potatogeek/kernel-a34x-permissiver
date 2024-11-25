@@ -10,6 +10,14 @@
  */
 #define BSS_FIRST_SECTIONS *(.bss..swapper_pg_dir)
 
+<<<<<<< HEAD
+=======
+/* Cavium Octeon should not have a separate PT_NOTE Program Header. */
+#ifndef CONFIG_CAVIUM_OCTEON_SOC
+#define EMITS_PT_NOTE
+#endif
+
+>>>>>>> upstream/android-13
 #include <asm-generic/vmlinux.lds.h>
 
 #undef mips
@@ -61,9 +69,16 @@ SECTIONS
 		KPROBES_TEXT
 		IRQENTRY_TEXT
 		SOFTIRQENTRY_TEXT
+<<<<<<< HEAD
 		*(.text.*)
 		*(.fixup)
 		*(.gnu.warning)
+=======
+		*(.fixup)
+		*(.gnu.warning)
+		. = ALIGN(16);
+		*(.got)	/* Global offset table */
+>>>>>>> upstream/android-13
 	} :text = 0
 	_etext = .;	/* End of text section */
 
@@ -72,6 +87,7 @@ SECTIONS
 	/* Exception table for data bus errors */
 	__dbe_table : {
 		__start___dbe_table = .;
+<<<<<<< HEAD
 		*(__dbe_table)
 		__stop___dbe_table = .;
 	}
@@ -86,6 +102,14 @@ SECTIONS
 
 	_sdata = .;			/* Start of data section */
 	RODATA
+=======
+		KEEP(*(__dbe_table))
+		__stop___dbe_table = .;
+	}
+
+	_sdata = .;			/* Start of data section */
+	RO_DATA(4096)
+>>>>>>> upstream/android-13
 
 	/* writeable */
 	.data : {	/* Data */
@@ -124,7 +148,11 @@ SECTIONS
 	. = ALIGN(4);
 	.mips.machines.init : AT(ADDR(.mips.machines.init) - LOAD_OFFSET) {
 		__mips_machines_start = .;
+<<<<<<< HEAD
 		*(.mips.machines.init)
+=======
+		KEEP(*(.mips.machines.init))
+>>>>>>> upstream/android-13
 		__mips_machines_end = .;
 	}
 
@@ -141,7 +169,17 @@ SECTIONS
 	PERCPU_SECTION(1 << CONFIG_MIPS_L1_CACHE_SHIFT)
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_MIPS_ELF_APPENDED_DTB
+=======
+	.rel.dyn : ALIGN(8) {
+		*(.rel)
+		*(.rel*)
+	}
+
+#ifdef CONFIG_MIPS_ELF_APPENDED_DTB
+	STRUCT_ALIGN();
+>>>>>>> upstream/android-13
 	.appended_dtb : AT(ADDR(.appended_dtb) - LOAD_OFFSET) {
 		*(.appended_dtb)
 		KEEP(*(.appended_dtb))
@@ -169,6 +207,14 @@ SECTIONS
 #endif
 
 #ifdef CONFIG_MIPS_RAW_APPENDED_DTB
+<<<<<<< HEAD
+=======
+	.fill : {
+		FILL(0);
+		BYTE(0);
+		STRUCT_ALIGN();
+	}
+>>>>>>> upstream/android-13
 	__appended_dtb = .;
 	/* leave space for appended DTB */
 	. += 0x100000;
@@ -206,6 +252,10 @@ SECTIONS
 
 	STABS_DEBUG
 	DWARF_DEBUG
+<<<<<<< HEAD
+=======
+	ELF_DETAILS
+>>>>>>> upstream/android-13
 
 	/* These must appear regardless of  .  */
 	.gptab.sdata : {
@@ -223,9 +273,16 @@ SECTIONS
 		/* ABI crap starts here */
 		*(.MIPS.abiflags)
 		*(.MIPS.options)
+<<<<<<< HEAD
 		*(.options)
 		*(.pdr)
 		*(.reginfo)
 		*(.eh_frame)
+=======
+		*(.gnu.attributes)
+		*(.options)
+		*(.pdr)
+		*(.reginfo)
+>>>>>>> upstream/android-13
 	}
 }

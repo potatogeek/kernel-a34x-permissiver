@@ -27,7 +27,11 @@ obj-y				+= idle/
 obj-y				+= char/ipmi/
 
 obj-$(CONFIG_ACPI)		+= acpi/
+<<<<<<< HEAD
 obj-$(CONFIG_SFI)		+= sfi/
+=======
+
+>>>>>>> upstream/android-13
 # PnP must come after ACPI since it will eventually need to check if acpi
 # was used and do nothing if so
 obj-$(CONFIG_PNP)		+= pnp/
@@ -41,7 +45,12 @@ obj-$(CONFIG_DMADEVICES)	+= dma/
 # SOC specific infrastructure drivers.
 obj-y				+= soc/
 
+<<<<<<< HEAD
 obj-$(CONFIG_VIRTIO)		+= virtio/
+=======
+obj-y				+= virtio/
+obj-$(CONFIG_VDPA)		+= vdpa/
+>>>>>>> upstream/android-13
 obj-$(CONFIG_XEN)		+= xen/
 
 # regulators early, since some subsystems rely on them to initialize
@@ -56,7 +65,11 @@ obj-y				+= tty/
 obj-y				+= char/
 
 # iommu/ comes before gpu as gpu are using iommu controllers
+<<<<<<< HEAD
 obj-$(CONFIG_IOMMU_SUPPORT)	+= iommu/
+=======
+obj-y				+= iommu/
+>>>>>>> upstream/android-13
 
 # gpu/ comes after char for AGP vs DRM startup and after iommu
 obj-y				+= gpu/
@@ -68,6 +81,7 @@ obj-$(CONFIG_FB_I810)           += video/fbdev/i810/
 obj-$(CONFIG_FB_INTEL)          += video/fbdev/intelfb/
 
 obj-$(CONFIG_PARPORT)		+= parport/
+<<<<<<< HEAD
 obj-$(CONFIG_NVM)		+= lightnvm/
 obj-$(CONFIG_SPI)               += spi/
 obj-$(CONFIG_MEMORY)		+= memory/
@@ -78,6 +92,15 @@ obj-$(CONFIG_DMA_SHARED_BUFFER) += dma-buf/
 obj-$(CONFIG_NUBUS)		+= nubus/
 obj-y				+= macintosh/
 obj-$(CONFIG_IDE)		+= ide/
+=======
+obj-y				+= base/ block/ misc/ mfd/ nfc/
+obj-$(CONFIG_LIBNVDIMM)		+= nvdimm/
+obj-$(CONFIG_DAX)		+= dax/
+obj-$(CONFIG_CXL_BUS)		+= cxl/
+obj-$(CONFIG_DMA_SHARED_BUFFER) += dma-buf/
+obj-$(CONFIG_NUBUS)		+= nubus/
+obj-y				+= macintosh/
+>>>>>>> upstream/android-13
 obj-y				+= scsi/
 obj-y				+= nvme/
 obj-$(CONFIG_ATA)		+= ata/
@@ -102,7 +125,10 @@ obj-$(CONFIG_ZORRO)		+= zorro/
 obj-$(CONFIG_ATA_OVER_ETH)	+= block/aoe/
 obj-$(CONFIG_PARIDE) 		+= block/paride/
 obj-$(CONFIG_TC)		+= tc/
+<<<<<<< HEAD
 obj-$(CONFIG_UWB)		+= uwb/
+=======
+>>>>>>> upstream/android-13
 obj-$(CONFIG_USB_PHY)		+= usb/
 obj-$(CONFIG_USB)		+= usb/
 obj-$(CONFIG_USB_SUPPORT)	+= usb/
@@ -113,8 +139,12 @@ obj-$(CONFIG_SERIO)		+= input/serio/
 obj-$(CONFIG_GAMEPORT)		+= input/gameport/
 obj-$(CONFIG_INPUT)		+= input/
 obj-$(CONFIG_RTC_LIB)		+= rtc/
+<<<<<<< HEAD
 obj-y				+= i2c/ media/
 obj-y				+= i3c/
+=======
+obj-y				+= i2c/ i3c/ media/
+>>>>>>> upstream/android-13
 obj-$(CONFIG_PPS)		+= pps/
 obj-y				+= ptp/
 obj-$(CONFIG_W1)		+= w1/
@@ -135,6 +165,7 @@ obj-y				+= mmc/
 obj-$(CONFIG_MEMSTICK)		+= memstick/
 obj-$(CONFIG_NEW_LEDS)		+= leds/
 obj-$(CONFIG_INFINIBAND)	+= infiniband/
+<<<<<<< HEAD
 obj-$(CONFIG_SGI_SN)		+= sn/
 obj-y				+= firmware/
 obj-$(CONFIG_CRYPTO)		+= crypto/
@@ -142,6 +173,12 @@ obj-$(CONFIG_SUPERH)		+= sh/
 ifndef CONFIG_ARCH_USES_GETTIMEOFFSET
 obj-y				+= clocksource/
 endif
+=======
+obj-y				+= firmware/
+obj-$(CONFIG_CRYPTO)		+= crypto/
+obj-$(CONFIG_SUPERH)		+= sh/
+obj-y				+= clocksource/
+>>>>>>> upstream/android-13
 obj-$(CONFIG_DCA)		+= dca/
 obj-$(CONFIG_HID)		+= hid/
 obj-$(CONFIG_PPC_PS3)		+= ps3/
@@ -149,8 +186,16 @@ obj-$(CONFIG_OF)		+= of/
 obj-$(CONFIG_SSB)		+= ssb/
 obj-$(CONFIG_BCMA)		+= bcma/
 obj-$(CONFIG_VHOST_RING)	+= vhost/
+<<<<<<< HEAD
 obj-$(CONFIG_VHOST)		+= vhost/
 obj-$(CONFIG_VLYNQ)		+= vlynq/
+=======
+obj-$(CONFIG_VHOST_IOTLB)	+= vhost/
+obj-$(CONFIG_VHOST)		+= vhost/
+obj-$(CONFIG_VLYNQ)		+= vlynq/
+obj-$(CONFIG_GREYBUS)		+= greybus/
+obj-$(CONFIG_COMEDI)		+= comedi/
+>>>>>>> upstream/android-13
 obj-$(CONFIG_STAGING)		+= staging/
 obj-y				+= platform/
 
@@ -160,6 +205,7 @@ obj-$(CONFIG_REMOTEPROC)	+= remoteproc/
 obj-$(CONFIG_RPMSG)		+= rpmsg/
 obj-$(CONFIG_SOUNDWIRE)		+= soundwire/
 
+<<<<<<< HEAD
 obj-$(CONFIG_ENERGY_MODEL)	+= energy_model/
 
 # Virtualization drivers
@@ -168,16 +214,32 @@ obj-$(CONFIG_HYPERV)		+= hv/
 
 obj-$(CONFIG_PM_DEVFREQ)	+= devfreq/
 obj-$(CONFIG_EXTCON)		+= extcon/
+=======
+# Virtualization drivers
+obj-$(CONFIG_VIRT_DRIVERS)	+= virt/
+obj-$(subst m,y,$(CONFIG_HYPERV))	+= hv/
+
+obj-$(CONFIG_PM_DEVFREQ)	+= devfreq/
+obj-$(CONFIG_EXTCON)		+= extcon/
+obj-$(CONFIG_MEMORY)		+= memory/
+>>>>>>> upstream/android-13
 obj-$(CONFIG_IIO)		+= iio/
 obj-$(CONFIG_VME_BUS)		+= vme/
 obj-$(CONFIG_IPACK_BUS)		+= ipack/
 obj-$(CONFIG_NTB)		+= ntb/
+<<<<<<< HEAD
 obj-$(CONFIG_FMC)		+= fmc/
+=======
+>>>>>>> upstream/android-13
 obj-$(CONFIG_POWERCAP)		+= powercap/
 obj-$(CONFIG_MCB)		+= mcb/
 obj-$(CONFIG_PERF_EVENTS)	+= perf/
 obj-$(CONFIG_RAS)		+= ras/
+<<<<<<< HEAD
 obj-$(CONFIG_THUNDERBOLT)	+= thunderbolt/
+=======
+obj-$(CONFIG_USB4)		+= thunderbolt/
+>>>>>>> upstream/android-13
 obj-$(CONFIG_CORESIGHT)		+= hwtracing/coresight/
 obj-y				+= hwtracing/intel_th/
 obj-$(CONFIG_STM)		+= hwtracing/stm/
@@ -191,6 +253,7 @@ obj-$(CONFIG_UNISYS_VISORBUS)	+= visorbus/
 obj-$(CONFIG_SIOX)		+= siox/
 obj-$(CONFIG_GNSS)		+= gnss/
 obj-$(CONFIG_INTERCONNECT)	+= interconnect/
+<<<<<<< HEAD
 obj-$(CONFIG_SWITCH)		+= switch/
 obj-$(CONFIG_SEC_EXT)	+= samsung/
 # SPU signature verify
@@ -220,3 +283,59 @@ obj-y += battery/common/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
 obj-y += sensorhub/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
 obj-y += input/touchscreen/goodix/berlin/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
 obj-y += sensors_lego/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+=======
+obj-$(CONFIG_COUNTER)		+= counter/
+obj-$(CONFIG_MOST)		+= most/
+obj-$(CONFIG_TRUSTONIC_TEE)	+= gud/
+
+# Bus Traffic Shaper
+obj-$(CONFIG_EXYNOS_BTS)        += bts/
+
+# vision drivers
+obj-$(CONFIG_VISION_SUPPORT)	+= vision/
+
+# ABC Driver
+obj-${CONFIG_SEC_STI}           += sti/
+
+# ABC Driver
+obj-${CONFIG_DRV_SAMSUNG}           += samsung/
+
+ifeq ($(CONFIG_EXYNOS_VARIANT1),y)
+include $(srctree)/drivers/Makefile.variant1
+endif
+obj-y += mfd/slsi/s2mf301/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+obj-y += vibrator/common/vib_info/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+obj-y += muic/slsi/platform/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+obj-y += vibrator/common/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+obj-y += battery/fuelgauge/sm5714_fuelgauge/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+obj-y += battery/fuelgauge/s2mf301_fuelgauge/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+obj-y += misc/drb/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+obj-y += gpu/drm/samsung/panel/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+obj-y += sensorhub/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+obj-y += samsung/debug/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+obj-y += net/dropdump/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+obj-y += input/input_boost/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+obj-y += usb/common/vbus_notifier/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+obj-y += gpu/drm/samsung/panel/tft_common/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+obj-y += battery/core/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+obj-y += muic/common/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+obj-y += usb/typec/slsi/s2mf301/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+obj-y += usb/typec/manager/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+obj-y += input/sec_input/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+obj-y += fingerprint/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+obj-y += usb/typec/slsi/common/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+obj-y += battery/charger/sm5714_charger/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+obj-y += battery/charger/s2mf301_charger/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+obj-y += usb/typec/common/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+obj-y += muic/slsi/s2mf301/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+obj-y += mfd/sm/sm5714/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+obj-y += input/touchscreen/novatek/nt36523_spi/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+obj-y += input/touchscreen/ovt/td4150_spi/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+obj-y += input/touchscreen/ilitek/ili9881x/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+obj-y += sensors_lego/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+obj-y += battery/common/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+obj-y += samsung/pm/sec_thermistor/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+obj-y += muic/sm/sm5714/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+obj-y += usb/typec/sm/sm5714/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+obj-y += vibrator/dc/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+>>>>>>> upstream/android-13

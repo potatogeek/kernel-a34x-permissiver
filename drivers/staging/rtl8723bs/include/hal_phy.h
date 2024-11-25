@@ -6,6 +6,7 @@
  ******************************************************************************/
 #ifndef __HAL_PHY_H__
 #define __HAL_PHY_H__
+<<<<<<< HEAD
 
 
 #if DISABLE_BB_RF
@@ -31,6 +32,8 @@
 
 #define	RF6052_MAX_PATH				2
 
+=======
+>>>>>>> upstream/android-13
 /*  */
 /*  Antenna detection method, i.e., using single tone detection or RSSI reported from each antenna detected. */
 /*  Added by Roger, 2013.05.22. */
@@ -42,6 +45,7 @@
 
 
 /*--------------------------Define Parameters-------------------------------*/
+<<<<<<< HEAD
 enum BAND_TYPE {
 	BAND_ON_2_4G = 0,
 	BAND_ON_5G,
@@ -50,6 +54,9 @@ enum BAND_TYPE {
 };
 
 enum RF_TYPE {
+=======
+enum {
+>>>>>>> upstream/android-13
 	RF_TYPE_MIN = 0,	/*  0 */
 	RF_8225 = 1,		/*  1 11b/g RF for verification only */
 	RF_8256 = 2,		/*  2 11b/g/n */
@@ -59,11 +66,18 @@ enum RF_TYPE {
 	RF_TYPE_MAX
 };
 
+<<<<<<< HEAD
 enum RF_PATH {
 	RF_PATH_A = 0,
 	RF_PATH_B,
 	RF_PATH_C,
 	RF_PATH_D
+=======
+enum rf_path {
+	RF_PATH_A = 0,
+	RF_PATH_B,
+	RF_PATH_MAX
+>>>>>>> upstream/android-13
 };
 
 #define	TX_1S			0
@@ -74,6 +88,7 @@ enum RF_PATH {
 #define	RF_PATH_MAX_92C_88E		2
 #define	RF_PATH_MAX_90_8812		4	/* Max RF number 90 support */
 
+<<<<<<< HEAD
 enum ANTENNA_PATH {
        ANTENNA_NONE	= 0,
 	ANTENNA_D	= 1,
@@ -119,12 +134,19 @@ enum HW_BLOCK {
 enum WIRELESS_MODE {
 	WIRELESS_MODE_UNKNOWN = 0x00,
 	WIRELESS_MODE_A = 0x01,
+=======
+enum wireless_mode {
+	WIRELESS_MODE_UNKNOWN = 0x00,
+>>>>>>> upstream/android-13
 	WIRELESS_MODE_B = 0x02,
 	WIRELESS_MODE_G = 0x04,
 	WIRELESS_MODE_AUTO = 0x08,
 	WIRELESS_MODE_N_24G = 0x10,
+<<<<<<< HEAD
 	WIRELESS_MODE_N_5G = 0x20,
 	WIRELESS_MODE_AC_5G = 0x40,
+=======
+>>>>>>> upstream/android-13
 	WIRELESS_MODE_AC_24G  = 0x80,
 	WIRELESS_MODE_AC_ONLY  = 0x100,
 };
@@ -146,6 +168,7 @@ struct SwChnlCmd {
 	u32 			msDelay;
 };
 
+<<<<<<< HEAD
 struct R_ANTENNA_SELECT_OFDM {
 #ifdef __LITTLE_ENDIAN
 	u32 		r_tx_antenna:4;
@@ -170,6 +193,8 @@ struct R_ANTENNA_SELECT_OFDM {
 #endif
 };
 
+=======
+>>>>>>> upstream/android-13
 /*--------------------------Exported Function prototype---------------------*/
 
 #endif /* __HAL_COMMON_H__ */

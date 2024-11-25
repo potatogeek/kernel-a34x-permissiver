@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 /*
  * QLogic qlcnic NIC Driver
  * Copyright (c) 2009-2013 QLogic Corporation
  *
  * See LICENSE.qlcnic for copyright and licensing details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * QLogic qlcnic NIC Driver
+ * Copyright (c) 2009-2013 QLogic Corporation
+>>>>>>> upstream/android-13
  */
 
 #include <linux/netdevice.h>
@@ -459,7 +466,11 @@ static int qlcnic_tx_pkt(struct qlcnic_adapter *adapter,
 			 struct cmd_desc_type0 *first_desc, struct sk_buff *skb,
 			 struct qlcnic_host_tx_ring *tx_ring)
 {
+<<<<<<< HEAD
 	u8 l4proto, opcode = 0, hdr_len = 0;
+=======
+	u8 l4proto, opcode = 0, hdr_len = 0, tag_vlan = 0;
+>>>>>>> upstream/android-13
 	u16 flags = 0, vlan_tci = 0;
 	int copied, offset, copy_len, size;
 	struct cmd_desc_type0 *hwdesc;
@@ -472,6 +483,7 @@ static int qlcnic_tx_pkt(struct qlcnic_adapter *adapter,
 		flags = QLCNIC_FLAGS_VLAN_TAGGED;
 		vlan_tci = ntohs(vh->h_vlan_TCI);
 		protocol = ntohs(vh->h_vlan_encapsulated_proto);
+<<<<<<< HEAD
 	} else if (skb_vlan_tag_present(skb)) {
 		flags = QLCNIC_FLAGS_VLAN_OOB;
 		vlan_tci = skb_vlan_tag_get(skb);
@@ -480,6 +492,18 @@ static int qlcnic_tx_pkt(struct qlcnic_adapter *adapter,
 		if (vlan_tci && !(adapter->flags & QLCNIC_TAGGING_ENABLED))
 			return -EIO;
 		if (vlan_tci && (adapter->flags & QLCNIC_TAGGING_ENABLED))
+=======
+		tag_vlan = 1;
+	} else if (skb_vlan_tag_present(skb)) {
+		flags = QLCNIC_FLAGS_VLAN_OOB;
+		vlan_tci = skb_vlan_tag_get(skb);
+		tag_vlan = 1;
+	}
+	if (unlikely(adapter->tx_pvid)) {
+		if (tag_vlan && !(adapter->flags & QLCNIC_TAGGING_ENABLED))
+			return -EIO;
+		if (tag_vlan && (adapter->flags & QLCNIC_TAGGING_ENABLED))
+>>>>>>> upstream/android-13
 			goto set_flags;
 
 		flags = QLCNIC_FLAGS_VLAN_OOB;
@@ -579,16 +603,26 @@ static int qlcnic_map_tx_skb(struct pci_dev *pdev, struct sk_buff *skb,
 			     struct qlcnic_cmd_buffer *pbuf)
 {
 	struct qlcnic_skb_frag *nf;
+<<<<<<< HEAD
 	struct skb_frag_struct *frag;
+=======
+	skb_frag_t *frag;
+>>>>>>> upstream/android-13
 	int i, nr_frags;
 	dma_addr_t map;
 
 	nr_frags = skb_shinfo(skb)->nr_frags;
 	nf = &pbuf->frag_array[0];
 
+<<<<<<< HEAD
 	map = pci_map_single(pdev, skb->data, skb_headlen(skb),
 			     PCI_DMA_TODEVICE);
 	if (pci_dma_mapping_error(pdev, map))
+=======
+	map = dma_map_single(&pdev->dev, skb->data, skb_headlen(skb),
+			     DMA_TO_DEVICE);
+	if (dma_mapping_error(&pdev->dev, map))
+>>>>>>> upstream/android-13
 		goto out_err;
 
 	nf->dma = map;
@@ -611,11 +645,19 @@ static int qlcnic_map_tx_skb(struct pci_dev *pdev, struct sk_buff *skb,
 unwind:
 	while (--i >= 0) {
 		nf = &pbuf->frag_array[i+1];
+<<<<<<< HEAD
 		pci_unmap_page(pdev, nf->dma, nf->length, PCI_DMA_TODEVICE);
 	}
 
 	nf = &pbuf->frag_array[0];
 	pci_unmap_single(pdev, nf->dma, skb_headlen(skb), PCI_DMA_TODEVICE);
+=======
+		dma_unmap_page(&pdev->dev, nf->dma, nf->length, DMA_TO_DEVICE);
+	}
+
+	nf = &pbuf->frag_array[0];
+	dma_unmap_single(&pdev->dev, nf->dma, skb_headlen(skb), DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 
 out_err:
 	return -ENOMEM;
@@ -629,11 +671,19 @@ static void qlcnic_unmap_buffers(struct pci_dev *pdev, struct sk_buff *skb,
 
 	for (i = 0; i < nr_frags; i++) {
 		nf = &pbuf->frag_array[i+1];
+<<<<<<< HEAD
 		pci_unmap_page(pdev, nf->dma, nf->length, PCI_DMA_TODEVICE);
 	}
 
 	nf = &pbuf->frag_array[0];
 	pci_unmap_single(pdev, nf->dma, skb_headlen(skb), PCI_DMA_TODEVICE);
+=======
+		dma_unmap_page(&pdev->dev, nf->dma, nf->length, DMA_TO_DEVICE);
+	}
+
+	nf = &pbuf->frag_array[0];
+	dma_unmap_single(&pdev->dev, nf->dma, skb_headlen(skb), DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 	pbuf->skb = NULL;
 }
 
@@ -824,10 +874,17 @@ static int qlcnic_alloc_rx_skb(struct qlcnic_adapter *adapter,
 	}
 
 	skb_reserve(skb, NET_IP_ALIGN);
+<<<<<<< HEAD
 	dma = pci_map_single(pdev, skb->data,
 			     rds_ring->dma_size, PCI_DMA_FROMDEVICE);
 
 	if (pci_dma_mapping_error(pdev, dma)) {
+=======
+	dma = dma_map_single(&pdev->dev, skb->data, rds_ring->dma_size,
+			     DMA_FROM_DEVICE);
+
+	if (dma_mapping_error(&pdev->dev, dma)) {
+>>>>>>> upstream/android-13
 		adapter->stats.rx_dma_map_error++;
 		dev_kfree_skb_any(skb);
 		return -ENOMEM;
@@ -902,6 +959,7 @@ static int qlcnic_process_cmd_ring(struct qlcnic_adapter *adapter,
 		buffer = &tx_ring->cmd_buf_arr[sw_consumer];
 		if (buffer->skb) {
 			frag = &buffer->frag_array[0];
+<<<<<<< HEAD
 			pci_unmap_single(pdev, frag->dma, frag->length,
 					 PCI_DMA_TODEVICE);
 			frag->dma = 0ULL;
@@ -909,6 +967,15 @@ static int qlcnic_process_cmd_ring(struct qlcnic_adapter *adapter,
 				frag++;
 				pci_unmap_page(pdev, frag->dma, frag->length,
 					       PCI_DMA_TODEVICE);
+=======
+			dma_unmap_single(&pdev->dev, frag->dma, frag->length,
+					 DMA_TO_DEVICE);
+			frag->dma = 0ULL;
+			for (i = 1; i < buffer->frag_count; i++) {
+				frag++;
+				dma_unmap_page(&pdev->dev, frag->dma,
+					       frag->length, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 				frag->dma = 0ULL;
 			}
 			tx_ring->tx_stats.xmit_finished++;
@@ -1146,8 +1213,13 @@ static struct sk_buff *qlcnic_process_rxbuf(struct qlcnic_adapter *adapter,
 		return NULL;
 	}
 
+<<<<<<< HEAD
 	pci_unmap_single(adapter->pdev, buffer->dma, ring->dma_size,
 			 PCI_DMA_FROMDEVICE);
+=======
+	dma_unmap_single(&adapter->pdev->dev, buffer->dma, ring->dma_size,
+			 DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 
 	skb = buffer->skb;
 	if (likely((adapter->netdev->features & NETIF_F_RXCSUM) &&
@@ -1389,6 +1461,10 @@ static int qlcnic_process_rcv_ring(struct qlcnic_host_sds_ring *sds_ring, int ma
 			break;
 		case QLCNIC_RESPONSE_DESC:
 			qlcnic_handle_fw_message(desc_cnt, consumer, sds_ring);
+<<<<<<< HEAD
+=======
+			goto skip;
+>>>>>>> upstream/android-13
 		default:
 			goto skip;
 		}

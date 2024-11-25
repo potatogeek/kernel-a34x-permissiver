@@ -15,6 +15,11 @@
 # for a x86 HW PMU event: PEBS with load latency data.
 #
 
+<<<<<<< HEAD
+=======
+from __future__ import print_function
+
+>>>>>>> upstream/android-13
 import os
 import sys
 import math
@@ -37,7 +42,11 @@ con = sqlite3.connect("/dev/shm/perf.db")
 con.isolation_level = None
 
 def trace_begin():
+<<<<<<< HEAD
 	print "In trace_begin:\n"
+=======
+        print("In trace_begin:\n")
+>>>>>>> upstream/android-13
 
         #
         # Will create several tables at the start, pebs_ll is for PEBS data with
@@ -76,12 +85,20 @@ def process_event(param_dict):
         name       = param_dict["ev_name"]
 
         # Symbol and dso info are not always resolved
+<<<<<<< HEAD
         if (param_dict.has_key("dso")):
+=======
+        if ("dso" in param_dict):
+>>>>>>> upstream/android-13
                 dso = param_dict["dso"]
         else:
                 dso = "Unknown_dso"
 
+<<<<<<< HEAD
         if (param_dict.has_key("symbol")):
+=======
+        if ("symbol" in param_dict):
+>>>>>>> upstream/android-13
                 symbol = param_dict["symbol"]
         else:
                 symbol = "Unknown_symbol"
@@ -102,7 +119,11 @@ def insert_db(event):
                                 event.ip, event.status, event.dse, event.dla, event.lat))
 
 def trace_end():
+<<<<<<< HEAD
 	print "In trace_end:\n"
+=======
+        print("In trace_end:\n")
+>>>>>>> upstream/android-13
         # We show the basic info for the 2 type of event classes
         show_general_events()
         show_pebs_ll()
@@ -123,6 +144,7 @@ def show_general_events():
         # Check the total record number in the table
         count = con.execute("select count(*) from gen_events")
         for t in count:
+<<<<<<< HEAD
                 print "There is %d records in gen_events table" % t[0]
                 if t[0] == 0:
                         return
@@ -146,6 +168,31 @@ def show_general_events():
         dsoq = con.execute("select dso, count(dso) from gen_events group by dso order by -count(dso)")
         for row in dsoq:
              print "%40s %8d     %s" % (row[0], row[1], num2sym(row[1]))
+=======
+                print("There is %d records in gen_events table" % t[0])
+                if t[0] == 0:
+                        return
+
+        print("Statistics about the general events grouped by thread/symbol/dso: \n")
+
+         # Group by thread
+        commq = con.execute("select comm, count(comm) from gen_events group by comm order by -count(comm)")
+        print("\n%16s %8s %16s\n%s" % ("comm", "number", "histogram", "="*42))
+        for row in commq:
+             print("%16s %8d     %s" % (row[0], row[1], num2sym(row[1])))
+
+        # Group by symbol
+        print("\n%32s %8s %16s\n%s" % ("symbol", "number", "histogram", "="*58))
+        symbolq = con.execute("select symbol, count(symbol) from gen_events group by symbol order by -count(symbol)")
+        for row in symbolq:
+             print("%32s %8d     %s" % (row[0], row[1], num2sym(row[1])))
+
+        # Group by dso
+        print("\n%40s %8s %16s\n%s" % ("dso", "number", "histogram", "="*74))
+        dsoq = con.execute("select dso, count(dso) from gen_events group by dso order by -count(dso)")
+        for row in dsoq:
+             print("%40s %8d     %s" % (row[0], row[1], num2sym(row[1])))
+>>>>>>> upstream/android-13
 
 #
 # This function just shows the basic info, and we could do more with the
@@ -156,6 +203,7 @@ def show_pebs_ll():
 
         count = con.execute("select count(*) from pebs_ll")
         for t in count:
+<<<<<<< HEAD
                 print "There is %d records in pebs_ll table" % t[0]
                 if t[0] == 0:
                         return
@@ -188,3 +236,37 @@ def show_pebs_ll():
 
 def trace_unhandled(event_name, context, event_fields_dict):
 		print ' '.join(['%s=%s'%(k,str(v))for k,v in sorted(event_fields_dict.items())])
+=======
+                print("There is %d records in pebs_ll table" % t[0])
+                if t[0] == 0:
+                        return
+
+        print("Statistics about the PEBS Load Latency events grouped by thread/symbol/dse/latency: \n")
+
+        # Group by thread
+        commq = con.execute("select comm, count(comm) from pebs_ll group by comm order by -count(comm)")
+        print("\n%16s %8s %16s\n%s" % ("comm", "number", "histogram", "="*42))
+        for row in commq:
+             print("%16s %8d     %s" % (row[0], row[1], num2sym(row[1])))
+
+        # Group by symbol
+        print("\n%32s %8s %16s\n%s" % ("symbol", "number", "histogram", "="*58))
+        symbolq = con.execute("select symbol, count(symbol) from pebs_ll group by symbol order by -count(symbol)")
+        for row in symbolq:
+             print("%32s %8d     %s" % (row[0], row[1], num2sym(row[1])))
+
+        # Group by dse
+        dseq = con.execute("select dse, count(dse) from pebs_ll group by dse order by -count(dse)")
+        print("\n%32s %8s %16s\n%s" % ("dse", "number", "histogram", "="*58))
+        for row in dseq:
+             print("%32s %8d     %s" % (row[0], row[1], num2sym(row[1])))
+
+        # Group by latency
+        latq = con.execute("select lat, count(lat) from pebs_ll group by lat order by lat")
+        print("\n%32s %8s %16s\n%s" % ("latency", "number", "histogram", "="*58))
+        for row in latq:
+             print("%32s %8d     %s" % (row[0], row[1], num2sym(row[1])))
+
+def trace_unhandled(event_name, context, event_fields_dict):
+        print (' '.join(['%s=%s'%(k,str(v))for k,v in sorted(event_fields_dict.items())]))
+>>>>>>> upstream/android-13

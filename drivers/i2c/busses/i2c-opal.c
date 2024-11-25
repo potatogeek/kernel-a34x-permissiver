@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * IBM OPAL I2C driver
  * Copyright (C) 2014 IBM
@@ -14,6 +15,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * IBM OPAL I2C driver
+ * Copyright (C) 2014 IBM
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -137,7 +144,11 @@ static int i2c_opal_smbus_xfer(struct i2c_adapter *adap, u16 addr,
 	case I2C_SMBUS_BYTE:
 		req.buffer_ra = cpu_to_be64(__pa(&data->byte));
 		req.size = cpu_to_be32(1);
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case I2C_SMBUS_QUICK:
 		req.type = (read_write == I2C_SMBUS_READ) ?
 			OPAL_I2C_RAW_READ : OPAL_I2C_RAW_WRITE;

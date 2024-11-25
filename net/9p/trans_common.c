@@ -17,7 +17,13 @@
 #include "trans_common.h"
 
 /**
+<<<<<<< HEAD
  *  p9_release_pages - Release pages after the transaction.
+=======
+ * p9_release_pages - Release pages after the transaction.
+ * @pages: array of pages to be put
+ * @nr_pages: size of array
+>>>>>>> upstream/android-13
  */
 void p9_release_pages(struct page **pages, int nr_pages)
 {

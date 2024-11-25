@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0
 #include <asm/unistd_32.h>
+<<<<<<< HEAD
+=======
+#include <asm/audit.h>
+>>>>>>> upstream/android-13
 
 unsigned ia32_dir_class[] = {
 #include <asm-generic/audit_dir_write.h>

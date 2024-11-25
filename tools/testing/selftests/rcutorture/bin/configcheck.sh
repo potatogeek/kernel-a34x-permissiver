@@ -1,4 +1,5 @@
 #!/bin/bash
+<<<<<<< HEAD
 # Usage: configcheck.sh .config .config-template
 #
 # This program is free software; you can redistribute it and/or modify
@@ -18,6 +19,15 @@
 # Copyright (C) IBM Corporation, 2011
 #
 # Authors: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
+=======
+# SPDX-License-Identifier: GPL-2.0+
+#
+# Usage: configcheck.sh .config .config-template
+#
+# Copyright (C) IBM Corporation, 2011
+#
+# Authors: Paul E. McKenney <paulmck@linux.ibm.com>
+>>>>>>> upstream/android-13
 
 T=${TMPDIR-/tmp}/abat-chk-config.sh.$$
 trap 'rm -rf $T' 0
@@ -26,6 +36,10 @@ mkdir $T
 cat $1 > $T/.config
 
 cat $2 | sed -e 's/\(.*\)=n/# \1 is not set/' -e 's/^#CHECK#//' |
+<<<<<<< HEAD
+=======
+grep -v '^CONFIG_INITRAMFS_SOURCE' |
+>>>>>>> upstream/android-13
 awk	'
 {
 		print "if grep -q \"" $0 "\" < '"$T/.config"'";

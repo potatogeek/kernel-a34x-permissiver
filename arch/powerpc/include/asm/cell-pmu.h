@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Cell Broadband Engine Performance Monitor
  *
@@ -6,6 +10,7 @@
  * Author:
  *   David Erb (djerb@us.ibm.com)
  *   Kevin Corry (kevcorry@us.ibm.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +25,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __ASM_CELL_PMU_H__

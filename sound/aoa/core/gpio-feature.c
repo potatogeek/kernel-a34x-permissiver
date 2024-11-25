@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Apple Onboard Audio feature call GPIO control
  *
  * Copyright 2006 Johannes Berg <johannes@sipsolutions.net>
  *
+<<<<<<< HEAD
  * GPL v2, can be found in COPYING.
  *
+=======
+>>>>>>> upstream/android-13
  * This file contains the GPIO control routines for
  * direct (through feature calls) access to the GPIO
  * registers.
@@ -82,6 +89,10 @@ static struct device_node *get_gpio(char *name,
 			if (altname && (strcmp(audio_gpio, altname) == 0))
 				break;
 		}
+<<<<<<< HEAD
+=======
+		of_node_put(gpio);
+>>>>>>> upstream/android-13
 		/* still not found, assume not there */
 		if (!np)
 			return NULL;

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  Copyright (C) 1995  Linus Torvalds
  *
@@ -39,21 +43,35 @@
 #include <linux/ftrace.h>
 #include <linux/syscalls.h>
 
+<<<<<<< HEAD
 #include <asm/pgtable.h>
 #include <asm/processor.h>
+=======
+#include <asm/processor.h>
+#include <asm/pkru.h>
+>>>>>>> upstream/android-13
 #include <asm/fpu/internal.h>
 #include <asm/mmu_context.h>
 #include <asm/prctl.h>
 #include <asm/desc.h>
 #include <asm/proto.h>
 #include <asm/ia32.h>
+<<<<<<< HEAD
 #include <asm/syscalls.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/debugreg.h>
 #include <asm/switch_to.h>
 #include <asm/xen/hypervisor.h>
 #include <asm/vdso.h>
+<<<<<<< HEAD
 #include <asm/intel_rdt_sched.h>
 #include <asm/unistd.h>
+=======
+#include <asm/resctrl.h>
+#include <asm/unistd.h>
+#include <asm/fsgsbase.h>
+>>>>>>> upstream/android-13
 #ifdef CONFIG_IA32_EMULATION
 /* Not included via unistd.h */
 #include <asm/unistd_32_ia32.h>
@@ -61,23 +79,36 @@
 
 #include "process.h"
 
+<<<<<<< HEAD
 __visible DEFINE_PER_CPU(unsigned long, rsp_scratch);
 
 /* Prints also some state that isn't saved in the pt_regs */
 void __show_regs(struct pt_regs *regs, enum show_regs_mode mode)
+=======
+/* Prints also some state that isn't saved in the pt_regs */
+void __show_regs(struct pt_regs *regs, enum show_regs_mode mode,
+		 const char *log_lvl)
+>>>>>>> upstream/android-13
 {
 	unsigned long cr0 = 0L, cr2 = 0L, cr3 = 0L, cr4 = 0L, fs, gs, shadowgs;
 	unsigned long d0, d1, d2, d3, d6, d7;
 	unsigned int fsindex, gsindex;
+<<<<<<< HEAD
 	unsigned int ds, cs, es;
 
 	show_iret_regs(regs);
+=======
+	unsigned int ds, es;
+
+	show_iret_regs(regs, log_lvl);
+>>>>>>> upstream/android-13
 
 	if (regs->orig_ax != -1)
 		pr_cont(" ORIG_RAX: %016lx\n", regs->orig_ax);
 	else
 		pr_cont("\n");
 
+<<<<<<< HEAD
 	printk(KERN_DEFAULT "RAX: %016lx RBX: %016lx RCX: %016lx\n",
 	       regs->ax, regs->bx, regs->cx);
 	printk(KERN_DEFAULT "RDX: %016lx RSI: %016lx RDI: %016lx\n",
@@ -88,6 +119,18 @@ void __show_regs(struct pt_regs *regs, enum show_regs_mode mode)
 	       regs->r10, regs->r11, regs->r12);
 	printk(KERN_DEFAULT "R13: %016lx R14: %016lx R15: %016lx\n",
 	       regs->r13, regs->r14, regs->r15);
+=======
+	printk("%sRAX: %016lx RBX: %016lx RCX: %016lx\n",
+	       log_lvl, regs->ax, regs->bx, regs->cx);
+	printk("%sRDX: %016lx RSI: %016lx RDI: %016lx\n",
+	       log_lvl, regs->dx, regs->si, regs->di);
+	printk("%sRBP: %016lx R08: %016lx R09: %016lx\n",
+	       log_lvl, regs->bp, regs->r8, regs->r9);
+	printk("%sR10: %016lx R11: %016lx R12: %016lx\n",
+	       log_lvl, regs->r10, regs->r11, regs->r12);
+	printk("%sR13: %016lx R14: %016lx R15: %016lx\n",
+	       log_lvl, regs->r13, regs->r14, regs->r15);
+>>>>>>> upstream/android-13
 
 	if (mode == SHOW_REGS_SHORT)
 		return;
@@ -95,13 +138,21 @@ void __show_regs(struct pt_regs *regs, enum show_regs_mode mode)
 	if (mode == SHOW_REGS_USER) {
 		rdmsrl(MSR_FS_BASE, fs);
 		rdmsrl(MSR_KERNEL_GS_BASE, shadowgs);
+<<<<<<< HEAD
 		printk(KERN_DEFAULT "FS:  %016lx GS:  %016lx\n",
 		       fs, shadowgs);
+=======
+		printk("%sFS:  %016lx GS:  %016lx\n",
+		       log_lvl, fs, shadowgs);
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	asm("movl %%ds,%0" : "=r" (ds));
+<<<<<<< HEAD
 	asm("movl %%cs,%0" : "=r" (cs));
+=======
+>>>>>>> upstream/android-13
 	asm("movl %%es,%0" : "=r" (es));
 	asm("movl %%fs,%0" : "=r" (fsindex));
 	asm("movl %%gs,%0" : "=r" (gsindex));
@@ -115,12 +166,21 @@ void __show_regs(struct pt_regs *regs, enum show_regs_mode mode)
 	cr3 = __read_cr3();
 	cr4 = __read_cr4();
 
+<<<<<<< HEAD
 	printk(KERN_DEFAULT "FS:  %016lx(%04x) GS:%016lx(%04x) knlGS:%016lx\n",
 	       fs, fsindex, gs, gsindex, shadowgs);
 	printk(KERN_DEFAULT "CS:  %04x DS: %04x ES: %04x CR0: %016lx\n", cs, ds,
 			es, cr0);
 	printk(KERN_DEFAULT "CR2: %016lx CR3: %016lx CR4: %016lx\n", cr2, cr3,
 			cr4);
+=======
+	printk("%sFS:  %016lx(%04x) GS:%016lx(%04x) knlGS:%016lx\n",
+	       log_lvl, fs, fsindex, gs, gsindex, shadowgs);
+	printk("%sCS:  %04lx DS: %04x ES: %04x CR0: %016lx\n",
+		log_lvl, regs->cs, ds, es, cr0);
+	printk("%sCR2: %016lx CR3: %016lx CR4: %016lx\n",
+		log_lvl, cr2, cr3, cr4);
+>>>>>>> upstream/android-13
 
 	get_debugreg(d0, 0);
 	get_debugreg(d1, 1);
@@ -132,6 +192,7 @@ void __show_regs(struct pt_regs *regs, enum show_regs_mode mode)
 	/* Only print out debug registers if they are in their non-default state. */
 	if (!((d0 == 0) && (d1 == 0) && (d2 == 0) && (d3 == 0) &&
 	    (d6 == DR6_RESERVED) && (d7 == 0x400))) {
+<<<<<<< HEAD
 		printk(KERN_DEFAULT "DR0: %016lx DR1: %016lx DR2: %016lx\n",
 		       d0, d1, d2);
 		printk(KERN_DEFAULT "DR3: %016lx DR6: %016lx DR7: %016lx\n",
@@ -140,10 +201,21 @@ void __show_regs(struct pt_regs *regs, enum show_regs_mode mode)
 
 	if (boot_cpu_has(X86_FEATURE_OSPKE))
 		printk(KERN_DEFAULT "PKRU: %08x\n", read_pkru());
+=======
+		printk("%sDR0: %016lx DR1: %016lx DR2: %016lx\n",
+		       log_lvl, d0, d1, d2);
+		printk("%sDR3: %016lx DR6: %016lx DR7: %016lx\n",
+		       log_lvl, d3, d6, d7);
+	}
+
+	if (cpu_feature_enabled(X86_FEATURE_OSPKE))
+		printk("%sPKRU: %08x\n", log_lvl, read_pkru());
+>>>>>>> upstream/android-13
 }
 
 void release_thread(struct task_struct *dead_task)
 {
+<<<<<<< HEAD
 	if (dead_task->mm) {
 #ifdef CONFIG_MODIFY_LDT_SYSCALL
 		if (dead_task->mm->context.ldt) {
@@ -155,6 +227,9 @@ void release_thread(struct task_struct *dead_task)
 		}
 #endif
 	}
+=======
+	WARN_ON(dead_task->mm);
+>>>>>>> upstream/android-13
 }
 
 enum which_selector {
@@ -163,6 +238,59 @@ enum which_selector {
 };
 
 /*
+<<<<<<< HEAD
+=======
+ * Out of line to be protected from kprobes and tracing. If this would be
+ * traced or probed than any access to a per CPU variable happens with
+ * the wrong GS.
+ *
+ * It is not used on Xen paravirt. When paravirt support is needed, it
+ * needs to be renamed with native_ prefix.
+ */
+static noinstr unsigned long __rdgsbase_inactive(void)
+{
+	unsigned long gsbase;
+
+	lockdep_assert_irqs_disabled();
+
+	if (!static_cpu_has(X86_FEATURE_XENPV)) {
+		native_swapgs();
+		gsbase = rdgsbase();
+		native_swapgs();
+	} else {
+		instrumentation_begin();
+		rdmsrl(MSR_KERNEL_GS_BASE, gsbase);
+		instrumentation_end();
+	}
+
+	return gsbase;
+}
+
+/*
+ * Out of line to be protected from kprobes and tracing. If this would be
+ * traced or probed than any access to a per CPU variable happens with
+ * the wrong GS.
+ *
+ * It is not used on Xen paravirt. When paravirt support is needed, it
+ * needs to be renamed with native_ prefix.
+ */
+static noinstr void __wrgsbase_inactive(unsigned long gsbase)
+{
+	lockdep_assert_irqs_disabled();
+
+	if (!static_cpu_has(X86_FEATURE_XENPV)) {
+		native_swapgs();
+		wrgsbase(gsbase);
+		native_swapgs();
+	} else {
+		instrumentation_begin();
+		wrmsrl(MSR_KERNEL_GS_BASE, gsbase);
+		instrumentation_end();
+	}
+}
+
+/*
+>>>>>>> upstream/android-13
  * Saves the FS or GS base for an outgoing thread if FSGSBASE extensions are
  * not available.  The goal is to be reasonably fast on non-FSGSBASE systems.
  * It's forcibly inlined because it'll generate better code and this function
@@ -211,6 +339,7 @@ static __always_inline void save_fsgs(struct task_struct *task)
 {
 	savesegment(fs, task->thread.fsindex);
 	savesegment(gs, task->thread.gsindex);
+<<<<<<< HEAD
 	save_base_legacy(task, task->thread.fsindex, FS);
 	save_base_legacy(task, task->thread.gsindex, GS);
 }
@@ -227,6 +356,37 @@ void save_fsgs_for_kvm(void)
 	save_fsgs(current);
 }
 EXPORT_SYMBOL_GPL(save_fsgs_for_kvm);
+=======
+	if (static_cpu_has(X86_FEATURE_FSGSBASE)) {
+		/*
+		 * If FSGSBASE is enabled, we can't make any useful guesses
+		 * about the base, and user code expects us to save the current
+		 * value.  Fortunately, reading the base directly is efficient.
+		 */
+		task->thread.fsbase = rdfsbase();
+		task->thread.gsbase = __rdgsbase_inactive();
+	} else {
+		save_base_legacy(task, task->thread.fsindex, FS);
+		save_base_legacy(task, task->thread.gsindex, GS);
+	}
+}
+
+/*
+ * While a process is running,current->thread.fsbase and current->thread.gsbase
+ * may not match the corresponding CPU registers (see save_base_legacy()).
+ */
+void current_save_fsgs(void)
+{
+	unsigned long flags;
+
+	/* Interrupts need to be off for FSGSBASE */
+	local_irq_save(flags);
+	save_fsgs(current);
+	local_irq_restore(flags);
+}
+#if IS_ENABLED(CONFIG_KVM)
+EXPORT_SYMBOL_GPL(current_save_fsgs);
+>>>>>>> upstream/android-13
 #endif
 
 static __always_inline void loadseg(enum which_selector which,
@@ -288,6 +448,7 @@ static __always_inline void load_seg_legacy(unsigned short prev_index,
 	}
 }
 
+<<<<<<< HEAD
 int copy_thread_tls(unsigned long clone_flags, unsigned long sp,
 		unsigned long arg, struct task_struct *p, unsigned long tls)
 {
@@ -368,6 +529,167 @@ out:
 	}
 
 	return err;
+=======
+/*
+ * Store prev's PKRU value and load next's PKRU value if they differ. PKRU
+ * is not XSTATE managed on context switch because that would require a
+ * lookup in the task's FPU xsave buffer and require to keep that updated
+ * in various places.
+ */
+static __always_inline void x86_pkru_load(struct thread_struct *prev,
+					  struct thread_struct *next)
+{
+	if (!cpu_feature_enabled(X86_FEATURE_OSPKE))
+		return;
+
+	/* Stash the prev task's value: */
+	prev->pkru = rdpkru();
+
+	/*
+	 * PKRU writes are slightly expensive.  Avoid them when not
+	 * strictly necessary:
+	 */
+	if (prev->pkru != next->pkru)
+		wrpkru(next->pkru);
+}
+
+static __always_inline void x86_fsgsbase_load(struct thread_struct *prev,
+					      struct thread_struct *next)
+{
+	if (static_cpu_has(X86_FEATURE_FSGSBASE)) {
+		/* Update the FS and GS selectors if they could have changed. */
+		if (unlikely(prev->fsindex || next->fsindex))
+			loadseg(FS, next->fsindex);
+		if (unlikely(prev->gsindex || next->gsindex))
+			loadseg(GS, next->gsindex);
+
+		/* Update the bases. */
+		wrfsbase(next->fsbase);
+		__wrgsbase_inactive(next->gsbase);
+	} else {
+		load_seg_legacy(prev->fsindex, prev->fsbase,
+				next->fsindex, next->fsbase, FS);
+		load_seg_legacy(prev->gsindex, prev->gsbase,
+				next->gsindex, next->gsbase, GS);
+	}
+}
+
+unsigned long x86_fsgsbase_read_task(struct task_struct *task,
+				     unsigned short selector)
+{
+	unsigned short idx = selector >> 3;
+	unsigned long base;
+
+	if (likely((selector & SEGMENT_TI_MASK) == 0)) {
+		if (unlikely(idx >= GDT_ENTRIES))
+			return 0;
+
+		/*
+		 * There are no user segments in the GDT with nonzero bases
+		 * other than the TLS segments.
+		 */
+		if (idx < GDT_ENTRY_TLS_MIN || idx > GDT_ENTRY_TLS_MAX)
+			return 0;
+
+		idx -= GDT_ENTRY_TLS_MIN;
+		base = get_desc_base(&task->thread.tls_array[idx]);
+	} else {
+#ifdef CONFIG_MODIFY_LDT_SYSCALL
+		struct ldt_struct *ldt;
+
+		/*
+		 * If performance here mattered, we could protect the LDT
+		 * with RCU.  This is a slow path, though, so we can just
+		 * take the mutex.
+		 */
+		mutex_lock(&task->mm->context.lock);
+		ldt = task->mm->context.ldt;
+		if (unlikely(!ldt || idx >= ldt->nr_entries))
+			base = 0;
+		else
+			base = get_desc_base(ldt->entries + idx);
+		mutex_unlock(&task->mm->context.lock);
+#else
+		base = 0;
+#endif
+	}
+
+	return base;
+}
+
+unsigned long x86_gsbase_read_cpu_inactive(void)
+{
+	unsigned long gsbase;
+
+	if (boot_cpu_has(X86_FEATURE_FSGSBASE)) {
+		unsigned long flags;
+
+		local_irq_save(flags);
+		gsbase = __rdgsbase_inactive();
+		local_irq_restore(flags);
+	} else {
+		rdmsrl(MSR_KERNEL_GS_BASE, gsbase);
+	}
+
+	return gsbase;
+}
+
+void x86_gsbase_write_cpu_inactive(unsigned long gsbase)
+{
+	if (boot_cpu_has(X86_FEATURE_FSGSBASE)) {
+		unsigned long flags;
+
+		local_irq_save(flags);
+		__wrgsbase_inactive(gsbase);
+		local_irq_restore(flags);
+	} else {
+		wrmsrl(MSR_KERNEL_GS_BASE, gsbase);
+	}
+}
+
+unsigned long x86_fsbase_read_task(struct task_struct *task)
+{
+	unsigned long fsbase;
+
+	if (task == current)
+		fsbase = x86_fsbase_read_cpu();
+	else if (boot_cpu_has(X86_FEATURE_FSGSBASE) ||
+		 (task->thread.fsindex == 0))
+		fsbase = task->thread.fsbase;
+	else
+		fsbase = x86_fsgsbase_read_task(task, task->thread.fsindex);
+
+	return fsbase;
+}
+
+unsigned long x86_gsbase_read_task(struct task_struct *task)
+{
+	unsigned long gsbase;
+
+	if (task == current)
+		gsbase = x86_gsbase_read_cpu_inactive();
+	else if (boot_cpu_has(X86_FEATURE_FSGSBASE) ||
+		 (task->thread.gsindex == 0))
+		gsbase = task->thread.gsbase;
+	else
+		gsbase = x86_fsgsbase_read_task(task, task->thread.gsindex);
+
+	return gsbase;
+}
+
+void x86_fsbase_write_task(struct task_struct *task, unsigned long fsbase)
+{
+	WARN_ON_ONCE(task == current);
+
+	task->thread.fsbase = fsbase;
+}
+
+void x86_gsbase_write_task(struct task_struct *task, unsigned long gsbase)
+{
+	WARN_ON_ONCE(task == current);
+
+	task->thread.gsbase = gsbase;
+>>>>>>> upstream/android-13
 }
 
 static void
@@ -393,7 +715,10 @@ start_thread_common(struct pt_regs *regs, unsigned long new_ip,
 	regs->cs		= _cs;
 	regs->ss		= _ss;
 	regs->flags		= X86_EFLAGS_IF;
+<<<<<<< HEAD
 	force_iret();
+=======
+>>>>>>> upstream/android-13
 }
 
 void
@@ -405,11 +730,18 @@ start_thread(struct pt_regs *regs, unsigned long new_ip, unsigned long new_sp)
 EXPORT_SYMBOL_GPL(start_thread);
 
 #ifdef CONFIG_COMPAT
+<<<<<<< HEAD
 void compat_start_thread(struct pt_regs *regs, u32 new_ip, u32 new_sp)
 {
 	start_thread_common(regs, new_ip, new_sp,
 			    test_thread_flag(TIF_X32)
 			    ? __USER_CS : __USER32_CS,
+=======
+void compat_start_thread(struct pt_regs *regs, u32 new_ip, u32 new_sp, bool x32)
+{
+	start_thread_common(regs, new_ip, new_sp,
+			    x32 ? __USER_CS : __USER32_CS,
+>>>>>>> upstream/android-13
 			    __USER_DS, __USER_DS);
 }
 #endif
@@ -434,9 +766,16 @@ __switch_to(struct task_struct *prev_p, struct task_struct *next_p)
 	int cpu = smp_processor_id();
 
 	WARN_ON_ONCE(IS_ENABLED(CONFIG_DEBUG_ENTRY) &&
+<<<<<<< HEAD
 		     this_cpu_read(irq_count) != -1);
 
 	switch_fpu_prepare(prev_fpu, cpu);
+=======
+		     this_cpu_read(hardirq_stack_inuse));
+
+	if (!test_thread_flag(TIF_NEED_FPU_LOAD))
+		switch_fpu_prepare(prev_fpu, cpu);
+>>>>>>> upstream/android-13
 
 	/* We must save %fs and %gs before load_TLS() because
 	 * %fs and %gs may be cleared by load_TLS().
@@ -454,9 +793,13 @@ __switch_to(struct task_struct *prev_p, struct task_struct *next_p)
 	/*
 	 * Leave lazy mode, flushing any hypercalls made here.  This
 	 * must be done after loading TLS entries in the GDT but before
+<<<<<<< HEAD
 	 * loading segments that might reference them, and and it must
 	 * be done before fpu__restore(), so the TS bit is up to
 	 * date.
+=======
+	 * loading segments that might reference them.
+>>>>>>> upstream/android-13
 	 */
 	arch_end_context_switch(next_p);
 
@@ -482,12 +825,18 @@ __switch_to(struct task_struct *prev_p, struct task_struct *next_p)
 	if (unlikely(next->ds | prev->ds))
 		loadsegment(ds, next->ds);
 
+<<<<<<< HEAD
 	load_seg_legacy(prev->fsindex, prev->fsbase,
 			next->fsindex, next->fsbase, FS);
 	load_seg_legacy(prev->gsindex, prev->gsbase,
 			next->gsindex, next->gsbase, GS);
 
 	switch_fpu_finish(next_fpu, cpu);
+=======
+	x86_fsgsbase_load(prev, next);
+
+	x86_pkru_load(prev, next);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Switch the PDA and FPU contexts.
@@ -495,11 +844,17 @@ __switch_to(struct task_struct *prev_p, struct task_struct *next_p)
 	this_cpu_write(current_task, next_p);
 	this_cpu_write(cpu_current_top_of_stack, task_top_of_stack(next_p));
 
+<<<<<<< HEAD
+=======
+	switch_fpu_finish(next_fpu);
+
+>>>>>>> upstream/android-13
 	/* Reload sp0. */
 	update_task_stack(next_p);
 
 	switch_to_extra(prev_p, next_p);
 
+<<<<<<< HEAD
 #ifdef CONFIG_XEN_PV
 	/*
 	 * On Xen PV, IOPL bits in pt_regs->flags have no effect, and
@@ -511,6 +866,8 @@ __switch_to(struct task_struct *prev_p, struct task_struct *next_p)
 		xen_set_iopl_mask(next->iopl);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	if (static_cpu_has_bug(X86_BUG_SYSRET_SS_ATTRS)) {
 		/*
 		 * AMD CPUs have a misfeature: SYSRET sets the SS selector but
@@ -540,7 +897,11 @@ __switch_to(struct task_struct *prev_p, struct task_struct *next_p)
 	}
 
 	/* Load the Intel cache allocation PQR MSR. */
+<<<<<<< HEAD
 	intel_rdt_sched_in();
+=======
+	resctrl_sched_in();
+>>>>>>> upstream/android-13
 
 	return prev_p;
 }
@@ -550,6 +911,7 @@ void set_personality_64bit(void)
 	/* inherit personality from parent */
 
 	/* Make sure to be in 64bit mode */
+<<<<<<< HEAD
 	clear_thread_flag(TIF_IA32);
 	clear_thread_flag(TIF_ADDR32);
 	clear_thread_flag(TIF_X32);
@@ -560,17 +922,30 @@ void set_personality_64bit(void)
 	/* Ensure the corresponding mm is not marked. */
 	if (current->mm)
 		current->mm->context.ia32_compat = 0;
+=======
+	clear_thread_flag(TIF_ADDR32);
+	/* Pretend that this comes from a 64bit execve */
+	task_pt_regs(current)->orig_ax = __NR_execve;
+	current_thread_info()->status &= ~TS_COMPAT;
+	if (current->mm)
+		current->mm->context.flags = MM_CONTEXT_HAS_VSYSCALL;
+>>>>>>> upstream/android-13
 
 	/* TBD: overwrites user setup. Should have two bits.
 	   But 64bit processes have always behaved this way,
 	   so it's not too bad. The main problem is just that
+<<<<<<< HEAD
 	   32bit childs are affected again. */
+=======
+	   32bit children are affected again. */
+>>>>>>> upstream/android-13
 	current->personality &= ~READ_IMPLIES_EXEC;
 }
 
 static void __set_personality_x32(void)
 {
 #ifdef CONFIG_X86_X32
+<<<<<<< HEAD
 	clear_thread_flag(TIF_IA32);
 	set_thread_flag(TIF_X32);
 	if (current->mm)
@@ -581,6 +956,17 @@ static void __set_personality_x32(void)
 	 * flag to determine compat status.  The x86 mmap() code relies on
 	 * the syscall bitness so set x32 syscall bit right here to make
 	 * in_compat_syscall() work during exec().
+=======
+	if (current->mm)
+		current->mm->context.flags = 0;
+
+	current->personality &= ~READ_IMPLIES_EXEC;
+	/*
+	 * in_32bit_syscall() uses the presence of the x32 syscall bit
+	 * flag to determine compat status.  The x86 mmap() code relies on
+	 * the syscall bitness so set x32 syscall bit right here to make
+	 * in_32bit_syscall() work during exec().
+>>>>>>> upstream/android-13
 	 *
 	 * Pretend to come from a x32 execve.
 	 */
@@ -592,10 +978,21 @@ static void __set_personality_x32(void)
 static void __set_personality_ia32(void)
 {
 #ifdef CONFIG_IA32_EMULATION
+<<<<<<< HEAD
 	set_thread_flag(TIF_IA32);
 	clear_thread_flag(TIF_X32);
 	if (current->mm)
 		current->mm->context.ia32_compat = TIF_IA32;
+=======
+	if (current->mm) {
+		/*
+		 * uprobes applied to this MM need to know this and
+		 * cannot use user_64bit_mode() at that time.
+		 */
+		current->mm->context.flags = MM_CONTEXT_UPROBE_IA32;
+	}
+
+>>>>>>> upstream/android-13
 	current->personality |= force_personality32;
 	/* Prepare the first "return" to user space */
 	task_pt_regs(current)->orig_ax = __NR_ia32_execve;
@@ -631,6 +1028,7 @@ static long prctl_map_vdso(const struct vdso_image *image, unsigned long addr)
 long do_arch_prctl_64(struct task_struct *task, int option, unsigned long arg2)
 {
 	int ret = 0;
+<<<<<<< HEAD
 	int doit = task == current;
 	int cpu;
 
@@ -669,16 +1067,85 @@ long do_arch_prctl_64(struct task_struct *task, int option, unsigned long arg2)
 			rdmsrl(MSR_FS_BASE, base);
 		else
 			base = task->thread.fsbase;
+=======
+
+	switch (option) {
+	case ARCH_SET_GS: {
+		if (unlikely(arg2 >= TASK_SIZE_MAX))
+			return -EPERM;
+
+		preempt_disable();
+		/*
+		 * ARCH_SET_GS has always overwritten the index
+		 * and the base. Zero is the most sensible value
+		 * to put in the index, and is the only value that
+		 * makes any sense if FSGSBASE is unavailable.
+		 */
+		if (task == current) {
+			loadseg(GS, 0);
+			x86_gsbase_write_cpu_inactive(arg2);
+
+			/*
+			 * On non-FSGSBASE systems, save_base_legacy() expects
+			 * that we also fill in thread.gsbase.
+			 */
+			task->thread.gsbase = arg2;
+
+		} else {
+			task->thread.gsindex = 0;
+			x86_gsbase_write_task(task, arg2);
+		}
+		preempt_enable();
+		break;
+	}
+	case ARCH_SET_FS: {
+		/*
+		 * Not strictly needed for %fs, but do it for symmetry
+		 * with %gs
+		 */
+		if (unlikely(arg2 >= TASK_SIZE_MAX))
+			return -EPERM;
+
+		preempt_disable();
+		/*
+		 * Set the selector to 0 for the same reason
+		 * as %gs above.
+		 */
+		if (task == current) {
+			loadseg(FS, 0);
+			x86_fsbase_write_cpu(arg2);
+
+			/*
+			 * On non-FSGSBASE systems, save_base_legacy() expects
+			 * that we also fill in thread.fsbase.
+			 */
+			task->thread.fsbase = arg2;
+		} else {
+			task->thread.fsindex = 0;
+			x86_fsbase_write_task(task, arg2);
+		}
+		preempt_enable();
+		break;
+	}
+	case ARCH_GET_FS: {
+		unsigned long base = x86_fsbase_read_task(task);
+
+>>>>>>> upstream/android-13
 		ret = put_user(base, (unsigned long __user *)arg2);
 		break;
 	}
 	case ARCH_GET_GS: {
+<<<<<<< HEAD
 		unsigned long base;
 
 		if (doit)
 			rdmsrl(MSR_KERNEL_GS_BASE, base);
 		else
 			base = task->thread.gsbase;
+=======
+		unsigned long base = x86_gsbase_read_task(task);
+
+>>>>>>> upstream/android-13
 		ret = put_user(base, (unsigned long __user *)arg2);
 		break;
 	}

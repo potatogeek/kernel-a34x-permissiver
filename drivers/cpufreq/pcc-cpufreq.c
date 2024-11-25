@@ -109,7 +109,11 @@ struct pcc_cpu {
 
 static struct pcc_cpu __percpu *pcc_cpu_info;
 
+<<<<<<< HEAD
 static int pcc_cpufreq_verify(struct cpufreq_policy *policy)
+=======
+static int pcc_cpufreq_verify(struct cpufreq_policy_data *policy)
+>>>>>>> upstream/android-13
 {
 	cpufreq_verify_within_cpu_limits(policy);
 	return 0;
@@ -268,7 +272,11 @@ static int pcc_get_offset(int cpu)
 	if (!pccp || pccp->type != ACPI_TYPE_PACKAGE) {
 		ret = -ENODEV;
 		goto out_free;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 
 	offset = &(pccp->package.elements[0]);
 	if (!offset || offset->type != ACPI_TYPE_INTEGER) {
@@ -445,7 +453,11 @@ static int __init pcc_cpufreq_probe(void)
 		goto out_free;
 	}
 
+<<<<<<< HEAD
 	pcch_virt_addr = ioremap_nocache(mem_resource->minimum,
+=======
+	pcch_virt_addr = ioremap(mem_resource->minimum,
+>>>>>>> upstream/android-13
 					mem_resource->address_length);
 	if (pcch_virt_addr == NULL) {
 		pr_debug("probe: could not map shared mem region\n");
@@ -582,10 +594,17 @@ static int __init pcc_cpufreq_init(void)
 
 	/* Skip initialization if another cpufreq driver is there. */
 	if (cpufreq_get_current_driver())
+<<<<<<< HEAD
 		return 0;
 
 	if (acpi_disabled)
 		return 0;
+=======
+		return -EEXIST;
+
+	if (acpi_disabled)
+		return -ENODEV;
+>>>>>>> upstream/android-13
 
 	ret = pcc_cpufreq_probe();
 	if (ret) {
@@ -616,7 +635,11 @@ static void __exit pcc_cpufreq_exit(void)
 	free_percpu(pcc_cpu_info);
 }
 
+<<<<<<< HEAD
 static const struct acpi_device_id processor_device_ids[] = {
+=======
+static const struct acpi_device_id __maybe_unused processor_device_ids[] = {
+>>>>>>> upstream/android-13
 	{ACPI_PROCESSOR_OBJECT_HID, },
 	{ACPI_PROCESSOR_DEVICE_HID, },
 	{},

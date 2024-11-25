@@ -10,11 +10,17 @@
 #include "xfs_log_format.h"
 #include "xfs_trans_resv.h"
 #include "xfs_mount.h"
+<<<<<<< HEAD
 #include "xfs_inode.h"
 #include "xfs_trans.h"
 #include "xfs_buf_item.h"
 #include "xfs_trans_priv.h"
 #include "xfs_error.h"
+=======
+#include "xfs_trans.h"
+#include "xfs_buf_item.h"
+#include "xfs_trans_priv.h"
+>>>>>>> upstream/android-13
 #include "xfs_trace.h"
 
 /*
@@ -40,7 +46,11 @@ xfs_trans_buf_item_match(
 		blip = (struct xfs_buf_log_item *)lip;
 		if (blip->bli_item.li_type == XFS_LI_BUF &&
 		    blip->bli_buf->b_target == target &&
+<<<<<<< HEAD
 		    XFS_BUF_ADDR(blip->bli_buf) == map[0].bm_bn &&
+=======
+		    xfs_buf_daddr(blip->bli_buf) == map[0].bm_bn &&
+>>>>>>> upstream/android-13
 		    blip->bli_buf->b_length == len) {
 			ASSERT(blip->bli_buf->b_map_count == nmaps);
 			return blip->bli_buf;
@@ -114,12 +124,17 @@ xfs_trans_bjoin(
  * If the transaction pointer is NULL, make this just a normal
  * get_buf() call.
  */
+<<<<<<< HEAD
 struct xfs_buf *
+=======
+int
+>>>>>>> upstream/android-13
 xfs_trans_get_buf_map(
 	struct xfs_trans	*tp,
 	struct xfs_buftarg	*target,
 	struct xfs_buf_map	*map,
 	int			nmaps,
+<<<<<<< HEAD
 	xfs_buf_flags_t		flags)
 {
 	xfs_buf_t		*bp;
@@ -127,6 +142,18 @@ xfs_trans_get_buf_map(
 
 	if (!tp)
 		return xfs_buf_get_map(target, map, nmaps, flags);
+=======
+	xfs_buf_flags_t		flags,
+	struct xfs_buf		**bpp)
+{
+	struct xfs_buf		*bp;
+	struct xfs_buf_log_item	*bip;
+	int			error;
+
+	*bpp = NULL;
+	if (!tp)
+		return xfs_buf_get_map(target, map, nmaps, flags, bpp);
+>>>>>>> upstream/android-13
 
 	/*
 	 * If we find the buffer in the cache with this transaction
@@ -137,7 +164,11 @@ xfs_trans_get_buf_map(
 	bp = xfs_trans_buf_item_match(tp, target, map, nmaps);
 	if (bp != NULL) {
 		ASSERT(xfs_buf_islocked(bp));
+<<<<<<< HEAD
 		if (XFS_FORCED_SHUTDOWN(tp->t_mountp)) {
+=======
+		if (xfs_is_shutdown(tp->t_mountp)) {
+>>>>>>> upstream/android-13
 			xfs_buf_stale(bp);
 			bp->b_flags |= XBF_DONE;
 		}
@@ -148,6 +179,7 @@ xfs_trans_get_buf_map(
 		ASSERT(atomic_read(&bip->bli_refcount) > 0);
 		bip->bli_recur++;
 		trace_xfs_trans_get_buf_recur(bip);
+<<<<<<< HEAD
 		return bp;
 	}
 
@@ -155,11 +187,21 @@ xfs_trans_get_buf_map(
 	if (bp == NULL) {
 		return NULL;
 	}
+=======
+		*bpp = bp;
+		return 0;
+	}
+
+	error = xfs_buf_get_map(target, map, nmaps, flags, &bp);
+	if (error)
+		return error;
+>>>>>>> upstream/android-13
 
 	ASSERT(!bp->b_error);
 
 	_xfs_trans_bjoin(tp, bp, 1);
 	trace_xfs_trans_get_buf(bp->b_log_item);
+<<<<<<< HEAD
 	return bp;
 }
 
@@ -209,6 +251,41 @@ xfs_trans_getsb(
 
 	_xfs_trans_bjoin(tp, bp, 1);
 	trace_xfs_trans_getsb(bp->b_log_item);
+=======
+	*bpp = bp;
+	return 0;
+}
+
+/*
+ * Get and lock the superblock buffer for the given transaction.
+ */
+struct xfs_buf *
+xfs_trans_getsb(
+	struct xfs_trans	*tp)
+{
+	struct xfs_buf		*bp = tp->t_mountp->m_sb_bp;
+
+	/*
+	 * Just increment the lock recursion count if the buffer is already
+	 * attached to this transaction.
+	 */
+	if (bp->b_transp == tp) {
+		struct xfs_buf_log_item	*bip = bp->b_log_item;
+
+		ASSERT(bip != NULL);
+		ASSERT(atomic_read(&bip->bli_refcount) > 0);
+		bip->bli_recur++;
+
+		trace_xfs_trans_getsb_recur(bip);
+	} else {
+		xfs_buf_lock(bp);
+		xfs_buf_hold(bp);
+		_xfs_trans_bjoin(tp, bp, 1);
+
+		trace_xfs_trans_getsb(bp->b_log_item);
+	}
+
+>>>>>>> upstream/android-13
 	return bp;
 }
 
@@ -259,20 +336,59 @@ xfs_trans_read_buf_map(
 		 * We never locked this buf ourselves, so we shouldn't
 		 * brelse it either. Just get out.
 		 */
+<<<<<<< HEAD
 		if (XFS_FORCED_SHUTDOWN(mp)) {
+=======
+		if (xfs_is_shutdown(mp)) {
+>>>>>>> upstream/android-13
 			trace_xfs_trans_read_buf_shut(bp, _RET_IP_);
 			return -EIO;
 		}
 
+<<<<<<< HEAD
+=======
+		/*
+		 * Check if the caller is trying to read a buffer that is
+		 * already attached to the transaction yet has no buffer ops
+		 * assigned.  Ops are usually attached when the buffer is
+		 * attached to the transaction, or by the read caller if
+		 * special circumstances.  That didn't happen, which is not
+		 * how this is supposed to go.
+		 *
+		 * If the buffer passes verification we'll let this go, but if
+		 * not we have to shut down.  Let the transaction cleanup code
+		 * release this buffer when it kills the tranaction.
+		 */
+		ASSERT(bp->b_ops != NULL);
+		error = xfs_buf_reverify(bp, ops);
+		if (error) {
+			xfs_buf_ioerror_alert(bp, __return_address);
+
+			if (tp->t_flags & XFS_TRANS_DIRTY)
+				xfs_force_shutdown(tp->t_mountp,
+						SHUTDOWN_META_IO_ERROR);
+
+			/* bad CRC means corrupted metadata */
+			if (error == -EFSBADCRC)
+				error = -EFSCORRUPTED;
+			return error;
+		}
+
+>>>>>>> upstream/android-13
 		bip = bp->b_log_item;
 		bip->bli_recur++;
 
 		ASSERT(atomic_read(&bip->bli_refcount) > 0);
 		trace_xfs_trans_read_buf_recur(bip);
+<<<<<<< HEAD
+=======
+		ASSERT(bp->b_ops != NULL || ops == NULL);
+>>>>>>> upstream/android-13
 		*bpp = bp;
 		return 0;
 	}
 
+<<<<<<< HEAD
 	bp = xfs_buf_read_map(target, map, nmaps, flags, ops);
 	if (!bp) {
 		if (!(flags & XBF_TRYLOCK))
@@ -307,6 +423,23 @@ xfs_trans_read_buf_map(
 	}
 
 	if (XFS_FORCED_SHUTDOWN(mp)) {
+=======
+	error = xfs_buf_read_map(target, map, nmaps, flags, &bp, ops,
+			__return_address);
+	switch (error) {
+	case 0:
+		break;
+	default:
+		if (tp && (tp->t_flags & XFS_TRANS_DIRTY))
+			xfs_force_shutdown(tp->t_mountp, SHUTDOWN_META_IO_ERROR);
+		fallthrough;
+	case -ENOMEM:
+	case -EAGAIN:
+		return error;
+	}
+
+	if (xfs_is_shutdown(mp)) {
+>>>>>>> upstream/android-13
 		xfs_buf_relse(bp);
 		trace_xfs_trans_read_buf_shut(bp, _RET_IP_);
 		return -EIO;
@@ -316,11 +449,31 @@ xfs_trans_read_buf_map(
 		_xfs_trans_bjoin(tp, bp, 1);
 		trace_xfs_trans_read_buf(bp->b_log_item);
 	}
+<<<<<<< HEAD
+=======
+	ASSERT(bp->b_ops != NULL || ops == NULL);
+>>>>>>> upstream/android-13
 	*bpp = bp;
 	return 0;
 
 }
 
+<<<<<<< HEAD
+=======
+/* Has this buffer been dirtied by anyone? */
+bool
+xfs_trans_buf_is_dirty(
+	struct xfs_buf		*bp)
+{
+	struct xfs_buf_log_item	*bip = bp->b_log_item;
+
+	if (!bip)
+		return false;
+	ASSERT(bip->bli_item.li_type == XFS_LI_BUF);
+	return test_bit(XFS_LI_DIRTY, &bip->bli_item.li_flags);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Release a buffer previously joined to the transaction. If the buffer is
  * modified within this transaction, decrement the recursion count but do not
@@ -386,14 +539,22 @@ xfs_trans_brelse(
 
 /*
  * Mark the buffer as not needing to be unlocked when the buf item's
+<<<<<<< HEAD
  * iop_unlock() routine is called.  The buffer must already be locked
+=======
+ * iop_committing() routine is called.  The buffer must already be locked
+>>>>>>> upstream/android-13
  * and associated with the given transaction.
  */
 /* ARGSUSED */
 void
 xfs_trans_bhold(
 	xfs_trans_t		*tp,
+<<<<<<< HEAD
 	xfs_buf_t		*bp)
+=======
+	struct xfs_buf		*bp)
+>>>>>>> upstream/android-13
 {
 	struct xfs_buf_log_item	*bip = bp->b_log_item;
 
@@ -414,7 +575,11 @@ xfs_trans_bhold(
 void
 xfs_trans_bhold_release(
 	xfs_trans_t		*tp,
+<<<<<<< HEAD
 	xfs_buf_t		*bp)
+=======
+	struct xfs_buf		*bp)
+>>>>>>> upstream/android-13
 {
 	struct xfs_buf_log_item	*bip = bp->b_log_item;
 
@@ -441,24 +606,34 @@ xfs_trans_dirty_buf(
 
 	ASSERT(bp->b_transp == tp);
 	ASSERT(bip != NULL);
+<<<<<<< HEAD
 	ASSERT(bp->b_iodone == NULL ||
 	       bp->b_iodone == xfs_buf_iodone_callbacks);
+=======
+>>>>>>> upstream/android-13
 
 	/*
 	 * Mark the buffer as needing to be written out eventually,
 	 * and set its iodone function to remove the buffer's buf log
 	 * item from the AIL and free it when the buffer is flushed
+<<<<<<< HEAD
 	 * to disk.  See xfs_buf_attach_iodone() for more details
 	 * on li_cb and xfs_buf_iodone_callbacks().
 	 * If we end up aborting this transaction, we trap this buffer
 	 * inside the b_bdstrat callback so that this won't get written to
 	 * disk.
+=======
+	 * to disk.
+>>>>>>> upstream/android-13
 	 */
 	bp->b_flags |= XBF_DONE;
 
 	ASSERT(atomic_read(&bip->bli_refcount) > 0);
+<<<<<<< HEAD
 	bp->b_iodone = xfs_buf_iodone_callbacks;
 	bip->bli_item.li_cb = xfs_buf_iodone;
+=======
+>>>>>>> upstream/android-13
 
 	/*
 	 * If we invalidated the buffer within this transaction, then
@@ -538,7 +713,11 @@ xfs_trans_log_buf(
 void
 xfs_trans_binval(
 	xfs_trans_t		*tp,
+<<<<<<< HEAD
 	xfs_buf_t		*bp)
+=======
+	struct xfs_buf		*bp)
+>>>>>>> upstream/android-13
 {
 	struct xfs_buf_log_item	*bip = bp->b_log_item;
 	int			i;
@@ -593,7 +772,11 @@ xfs_trans_binval(
 void
 xfs_trans_inode_buf(
 	xfs_trans_t		*tp,
+<<<<<<< HEAD
 	xfs_buf_t		*bp)
+=======
+	struct xfs_buf		*bp)
+>>>>>>> upstream/android-13
 {
 	struct xfs_buf_log_item	*bip = bp->b_log_item;
 
@@ -602,6 +785,10 @@ xfs_trans_inode_buf(
 	ASSERT(atomic_read(&bip->bli_refcount) > 0);
 
 	bip->bli_flags |= XFS_BLI_INODE_BUF;
+<<<<<<< HEAD
+=======
+	bp->b_flags |= _XBF_INODES;
+>>>>>>> upstream/android-13
 	xfs_trans_buf_set_type(tp, bp, XFS_BLFT_DINO_BUF);
 }
 
@@ -617,7 +804,11 @@ xfs_trans_inode_buf(
 void
 xfs_trans_stale_inode_buf(
 	xfs_trans_t		*tp,
+<<<<<<< HEAD
 	xfs_buf_t		*bp)
+=======
+	struct xfs_buf		*bp)
+>>>>>>> upstream/android-13
 {
 	struct xfs_buf_log_item	*bip = bp->b_log_item;
 
@@ -626,7 +817,11 @@ xfs_trans_stale_inode_buf(
 	ASSERT(atomic_read(&bip->bli_refcount) > 0);
 
 	bip->bli_flags |= XFS_BLI_STALE_INODE;
+<<<<<<< HEAD
 	bip->bli_item.li_cb = xfs_buf_iodone;
+=======
+	bp->b_flags |= _XBF_INODES;
+>>>>>>> upstream/android-13
 	xfs_trans_buf_set_type(tp, bp, XFS_BLFT_DINO_BUF);
 }
 
@@ -642,7 +837,11 @@ xfs_trans_stale_inode_buf(
 void
 xfs_trans_inode_alloc_buf(
 	xfs_trans_t		*tp,
+<<<<<<< HEAD
 	xfs_buf_t		*bp)
+=======
+	struct xfs_buf		*bp)
+>>>>>>> upstream/android-13
 {
 	struct xfs_buf_log_item	*bip = bp->b_log_item;
 
@@ -651,6 +850,10 @@ xfs_trans_inode_alloc_buf(
 	ASSERT(atomic_read(&bip->bli_refcount) > 0);
 
 	bip->bli_flags |= XFS_BLI_INODE_ALLOC_BUF;
+<<<<<<< HEAD
+=======
+	bp->b_flags |= _XBF_INODES;
+>>>>>>> upstream/android-13
 	xfs_trans_buf_set_type(tp, bp, XFS_BLFT_DINO_BUF);
 }
 
@@ -735,7 +938,11 @@ xfs_trans_buf_copy_type(
 void
 xfs_trans_dquot_buf(
 	xfs_trans_t		*tp,
+<<<<<<< HEAD
 	xfs_buf_t		*bp,
+=======
+	struct xfs_buf		*bp,
+>>>>>>> upstream/android-13
 	uint			type)
 {
 	struct xfs_buf_log_item	*bip = bp->b_log_item;
@@ -761,5 +968,9 @@ xfs_trans_dquot_buf(
 		break;
 	}
 
+<<<<<<< HEAD
+=======
+	bp->b_flags |= _XBF_DQUOTS;
+>>>>>>> upstream/android-13
 	xfs_trans_buf_set_type(tp, bp, type);
 }

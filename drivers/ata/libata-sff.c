@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  libata-sff.c - helper library for PCI IDE BMDMA
  *
@@ -24,12 +25,24 @@
  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  libata-sff.c - helper library for PCI IDE BMDMA
+ *
+ *  Copyright 2003-2006 Red Hat, Inc.  All rights reserved.
+ *  Copyright 2003-2006 Jeff Garzik
+ *
+>>>>>>> upstream/android-13
  *  libata documentation is available via 'make {ps|pdf}docs',
  *  as Documentation/driver-api/libata.rst
  *
  *  Hardware documentation available from http://www.t13.org/ and
  *  http://www.sata-io.org/
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -657,6 +670,23 @@ unsigned int ata_sff_data_xfer32(struct ata_queued_cmd *qc, unsigned char *buf,
 }
 EXPORT_SYMBOL_GPL(ata_sff_data_xfer32);
 
+<<<<<<< HEAD
+=======
+static void ata_pio_xfer(struct ata_queued_cmd *qc, struct page *page,
+		unsigned int offset, size_t xfer_size)
+{
+	bool do_write = (qc->tf.flags & ATA_TFLAG_WRITE);
+	unsigned char *buf;
+
+	buf = kmap_atomic(page);
+	qc->ap->ops->sff_data_xfer(qc, buf + offset, xfer_size, do_write);
+	kunmap_atomic(buf);
+
+	if (!do_write && !PageSlab(page))
+		flush_dcache_page(page);
+}
+
+>>>>>>> upstream/android-13
 /**
  *	ata_pio_sector - Transfer a sector of data.
  *	@qc: Command on going
@@ -668,11 +698,17 @@ EXPORT_SYMBOL_GPL(ata_sff_data_xfer32);
  */
 static void ata_pio_sector(struct ata_queued_cmd *qc)
 {
+<<<<<<< HEAD
 	int do_write = (qc->tf.flags & ATA_TFLAG_WRITE);
 	struct ata_port *ap = qc->ap;
 	struct page *page;
 	unsigned int offset;
 	unsigned char *buf;
+=======
+	struct ata_port *ap = qc->ap;
+	struct page *page;
+	unsigned int offset;
+>>>>>>> upstream/android-13
 
 	if (!qc->cursg) {
 		qc->curbytes = qc->nbytes;
@@ -690,6 +726,7 @@ static void ata_pio_sector(struct ata_queued_cmd *qc)
 
 	DPRINTK("data %s\n", qc->tf.flags & ATA_TFLAG_WRITE ? "write" : "read");
 
+<<<<<<< HEAD
 	/* do the actual data transfer */
 	buf = kmap_atomic(page);
 	ap->ops->sff_data_xfer(qc, buf + offset, qc->sect_size, do_write);
@@ -697,6 +734,22 @@ static void ata_pio_sector(struct ata_queued_cmd *qc)
 
 	if (!do_write && !PageSlab(page))
 		flush_dcache_page(page);
+=======
+	/*
+	 * Split the transfer when it splits a page boundary.  Note that the
+	 * split still has to be dword aligned like all ATA data transfers.
+	 */
+	WARN_ON_ONCE(offset % 4);
+	if (offset + qc->sect_size > PAGE_SIZE) {
+		unsigned int split_len = PAGE_SIZE - offset;
+
+		ata_pio_xfer(qc, page, offset, split_len);
+		ata_pio_xfer(qc, nth_page(page, 1), 0,
+			     qc->sect_size - split_len);
+	} else {
+		ata_pio_xfer(qc, page, offset, qc->sect_size);
+	}
+>>>>>>> upstream/android-13
 
 	qc->curbytes += qc->sect_size;
 	qc->cursg_ofs += qc->sect_size;
@@ -3173,6 +3226,7 @@ void ata_pci_bmdma_init(struct ata_host *host)
 	 * ->sff_irq_clear method.  Try to initialize bmdma_addr
 	 * regardless of dma masks.
 	 */
+<<<<<<< HEAD
 	rc = dma_set_mask(&pdev->dev, ATA_DMA_MASK);
 	if (rc)
 		ata_bmdma_nodma(host, "failed to set dma mask");
@@ -3182,6 +3236,11 @@ void ata_pci_bmdma_init(struct ata_host *host)
 			ata_bmdma_nodma(host,
 					"failed to set consistent dma mask");
 	}
+=======
+	rc = dma_set_mask_and_coherent(&pdev->dev, ATA_DMA_MASK);
+	if (rc)
+		ata_bmdma_nodma(host, "failed to set dma mask");
+>>>>>>> upstream/android-13
 
 	/* request and iomap DMA region */
 	rc = pcim_iomap_regions(pdev, 1 << 4, dev_driver_string(gdev));

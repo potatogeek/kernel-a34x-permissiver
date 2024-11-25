@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
+>>>>>>> upstream/android-13
  */
 
 #ifndef __ASM_ARC_SMP_H
@@ -108,7 +114,10 @@ static inline const char *arc_platform_smp_cpuinfo(void)
 #include <asm/spinlock.h>
 
 extern arch_spinlock_t smp_atomic_ops_lock;
+<<<<<<< HEAD
 extern arch_spinlock_t smp_bitops_lock;
+=======
+>>>>>>> upstream/android-13
 
 #define atomic_ops_lock(flags)	do {		\
 	local_irq_save(flags);			\
@@ -120,6 +129,7 @@ extern arch_spinlock_t smp_bitops_lock;
 	local_irq_restore(flags);		\
 } while (0)
 
+<<<<<<< HEAD
 #define bitops_lock(flags)	do {		\
 	local_irq_save(flags);			\
 	arch_spin_lock(&smp_bitops_lock);	\
@@ -130,14 +140,19 @@ extern arch_spinlock_t smp_bitops_lock;
 	local_irq_restore(flags);		\
 } while (0)
 
+=======
+>>>>>>> upstream/android-13
 #else /* !CONFIG_SMP */
 
 #define atomic_ops_lock(flags)		local_irq_save(flags)
 #define atomic_ops_unlock(flags)	local_irq_restore(flags)
 
+<<<<<<< HEAD
 #define bitops_lock(flags)		local_irq_save(flags)
 #define bitops_unlock(flags)		local_irq_restore(flags)
 
+=======
+>>>>>>> upstream/android-13
 #endif /* !CONFIG_SMP */
 
 #endif	/* !CONFIG_ARC_HAS_LLSC */

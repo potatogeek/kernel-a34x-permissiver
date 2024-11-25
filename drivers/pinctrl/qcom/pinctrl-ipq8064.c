@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014, The Linux Foundation. All rights reserved.
  *
@@ -10,6 +11,11 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2014, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -308,7 +314,11 @@ static const char * const gpio_groups[] = {
 };
 
 static const char * const mdio_groups[] = {
+<<<<<<< HEAD
 	"gpio0", "gpio1", "gpio10", "gpio11",
+=======
+	"gpio0", "gpio1", "gpio2", "gpio10", "gpio11", "gpio66",
+>>>>>>> upstream/android-13
 };
 
 static const char * const mi2s_groups[] = {
@@ -412,8 +422,13 @@ static const char * const usb2_hsic_groups[] = {
 };
 
 static const char * const rgmii2_groups[] = {
+<<<<<<< HEAD
 	"gpio27", "gpio28", "gpio29", "gpio30", "gpio31", "gpio32",
 	"gpio51", "gpio52", "gpio59", "gpio60", "gpio61", "gpio62",
+=======
+	"gpio2", "gpio27", "gpio28", "gpio29", "gpio30", "gpio31", "gpio32",
+	"gpio51", "gpio52", "gpio59", "gpio60", "gpio61", "gpio62", "gpio66",
+>>>>>>> upstream/android-13
 };
 
 static const char * const sata_groups[] = {
@@ -548,7 +563,11 @@ static const struct msm_function ipq8064_functions[] = {
 static const struct msm_pingroup ipq8064_groups[] = {
 	PINGROUP(0, mdio, NA, NA, NA, NA, NA, NA, NA, NA, NA),
 	PINGROUP(1, mdio, NA, NA, NA, NA, NA, NA, NA, NA, NA),
+<<<<<<< HEAD
 	PINGROUP(2, gsbi5_spi_cs3, NA, NA, NA, NA, NA, NA, NA, NA, NA),
+=======
+	PINGROUP(2, gsbi5_spi_cs3, rgmii2, mdio, NA, NA, NA, NA, NA, NA, NA),
+>>>>>>> upstream/android-13
 	PINGROUP(3, pcie1_rst, pcie1_prsnt, pdm, NA, NA, NA, NA, NA, NA, NA),
 	PINGROUP(4, pcie1_pwren_n, pcie1_pwren, NA, NA, NA, NA, NA, NA, NA, NA),
 	PINGROUP(5, pcie1_clk_req, pcie1_pwrflt, NA, NA, NA, NA, NA, NA, NA, NA),
@@ -612,7 +631,11 @@ static const struct msm_pingroup ipq8064_groups[] = {
 	PINGROUP(63, pcie3_rst, NA, NA, NA, NA, NA, NA, NA, NA, NA),
 	PINGROUP(64, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA),
 	PINGROUP(65, pcie3_clk_req, NA, NA, NA, NA, NA, NA, NA, NA, NA),
+<<<<<<< HEAD
 	PINGROUP(66, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA),
+=======
+	PINGROUP(66, rgmii2, mdio, NA, NA, NA, NA, NA, NA, NA, NA),
+>>>>>>> upstream/android-13
 	PINGROUP(67, usb2_hsic, NA, NA, NA, NA, NA, NA, NA, NA, NA),
 	PINGROUP(68, usb2_hsic, NA, NA, NA, NA, NA, NA, NA, NA, NA),
 	SDC_PINGROUP(sdc3_clk, 0x204a, 14, 6),

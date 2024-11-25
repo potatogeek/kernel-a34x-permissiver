@@ -10,10 +10,18 @@ PERF_HAVE_JITDUMP := 1
 # Syscall table generation
 #
 
+<<<<<<< HEAD
 out    := $(OUTPUT)arch/x86/include/generated/asm
 header := $(out)/syscalls_64.c
 sys    := $(srctree)/tools/perf/arch/x86/entry/syscalls
 systbl := $(sys)/syscalltbl.sh
+=======
+generated := $(OUTPUT)arch/x86/include/generated
+out       := $(generated)/asm
+header    := $(out)/syscalls_64.c
+sys       := $(srctree)/tools/perf/arch/x86/entry/syscalls
+systbl    := $(sys)/syscalltbl.sh
+>>>>>>> upstream/android-13
 
 # Create output directory if not already present
 _dummy := $(shell [ -d '$(out)' ] || mkdir -p '$(out)')
@@ -22,6 +30,10 @@ $(header): $(sys)/syscall_64.tbl $(systbl)
 	$(Q)$(SHELL) '$(systbl)' $(sys)/syscall_64.tbl 'x86_64' > $@
 
 clean::
+<<<<<<< HEAD
 	$(call QUIET_CLEAN, x86) $(RM) $(header)
+=======
+	$(call QUIET_CLEAN, x86) $(RM) -r $(header) $(generated)
+>>>>>>> upstream/android-13
 
 archheaders: $(header)

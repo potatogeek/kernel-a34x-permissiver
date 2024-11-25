@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *      Meson Watchdog Driver
  *
  *      Copyright (c) 2014 Carlo Caione
+<<<<<<< HEAD
  *
  *      This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -164,6 +171,7 @@ MODULE_DEVICE_TABLE(of, meson_wdt_dt_ids);
 
 static int meson_wdt_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct resource *res;
 	struct meson_wdt_dev *meson_wdt;
 	const struct of_device_id *of_id;
@@ -186,6 +194,23 @@ static int meson_wdt_probe(struct platform_device *pdev)
 	meson_wdt->data = of_id->data;
 
 	meson_wdt->wdt_dev.parent = &pdev->dev;
+=======
+	struct device *dev = &pdev->dev;
+	struct meson_wdt_dev *meson_wdt;
+	int err;
+
+	meson_wdt = devm_kzalloc(dev, sizeof(*meson_wdt), GFP_KERNEL);
+	if (!meson_wdt)
+		return -ENOMEM;
+
+	meson_wdt->wdt_base = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(meson_wdt->wdt_base))
+		return PTR_ERR(meson_wdt->wdt_base);
+
+	meson_wdt->data = device_get_match_data(dev);
+
+	meson_wdt->wdt_dev.parent = dev;
+>>>>>>> upstream/android-13
 	meson_wdt->wdt_dev.info = &meson_wdt_info;
 	meson_wdt->wdt_dev.ops = &meson_wdt_ops;
 	meson_wdt->wdt_dev.max_timeout =
@@ -197,18 +222,30 @@ static int meson_wdt_probe(struct platform_device *pdev)
 
 	watchdog_set_drvdata(&meson_wdt->wdt_dev, meson_wdt);
 
+<<<<<<< HEAD
 	watchdog_init_timeout(&meson_wdt->wdt_dev, timeout, &pdev->dev);
+=======
+	watchdog_init_timeout(&meson_wdt->wdt_dev, timeout, dev);
+>>>>>>> upstream/android-13
 	watchdog_set_nowayout(&meson_wdt->wdt_dev, nowayout);
 	watchdog_set_restart_priority(&meson_wdt->wdt_dev, 128);
 
 	meson_wdt_stop(&meson_wdt->wdt_dev);
 
 	watchdog_stop_on_reboot(&meson_wdt->wdt_dev);
+<<<<<<< HEAD
 	err = devm_watchdog_register_device(&pdev->dev, &meson_wdt->wdt_dev);
 	if (err)
 		return err;
 
 	dev_info(&pdev->dev, "Watchdog enabled (timeout=%d sec, nowayout=%d)",
+=======
+	err = devm_watchdog_register_device(dev, &meson_wdt->wdt_dev);
+	if (err)
+		return err;
+
+	dev_info(dev, "Watchdog enabled (timeout=%d sec, nowayout=%d)",
+>>>>>>> upstream/android-13
 		 meson_wdt->wdt_dev.timeout, nowayout);
 
 	return 0;

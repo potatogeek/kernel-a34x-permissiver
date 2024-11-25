@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * IguanaWorks USB IR Transceiver support
  *
  * Copyright (C) 2012 Sean Young <sean@mess.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -23,7 +30,10 @@
 #include <linux/completion.h>
 #include <media/rc-core.h>
 
+<<<<<<< HEAD
 #define DRIVER_NAME "iguanair"
+=======
+>>>>>>> upstream/android-13
 #define BUF_SIZE 152
 
 struct iguanair {
@@ -36,8 +46,11 @@ struct iguanair {
 	uint8_t bufsize;
 	uint8_t cycle_overhead;
 
+<<<<<<< HEAD
 	struct mutex lock;
 
+=======
+>>>>>>> upstream/android-13
 	/* receiver support */
 	bool receiver_on;
 	dma_addr_t dma_in, dma_out;
@@ -71,7 +84,11 @@ struct iguanair {
 #define MAX_IN_PACKET		8u
 #define MAX_OUT_PACKET		(sizeof(struct send_packet) + BUF_SIZE)
 #define TIMEOUT			1000
+<<<<<<< HEAD
 #define RX_RESOLUTION		21333
+=======
+#define RX_RESOLUTION		21
+>>>>>>> upstream/android-13
 
 struct packet {
 	uint16_t start;
@@ -85,7 +102,11 @@ struct send_packet {
 	uint8_t channels;
 	uint8_t busy7;
 	uint8_t busy4;
+<<<<<<< HEAD
 	uint8_t payload[0];
+=======
+	uint8_t payload[];
+>>>>>>> upstream/android-13
 };
 
 static void process_ir_data(struct iguanair *ir, unsigned len)
@@ -113,7 +134,11 @@ static void process_ir_data(struct iguanair *ir, unsigned len)
 			break;
 		case CMD_TX_OVERFLOW:
 			ir->tx_overflow = true;
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case CMD_RECEIVER_OFF:
 		case CMD_RECEIVER_ON:
 		case CMD_SEND:
@@ -129,6 +154,7 @@ static void process_ir_data(struct iguanair *ir, unsigned len)
 			break;
 		}
 	} else if (len >= 7) {
+<<<<<<< HEAD
 		DEFINE_IR_RAW_EVENT(rawir);
 		unsigned i;
 		bool event = false;
@@ -139,6 +165,16 @@ static void process_ir_data(struct iguanair *ir, unsigned len)
 			if (ir->buf_in[i] == 0x80) {
 				rawir.pulse = false;
 				rawir.duration = US_TO_NS(21845);
+=======
+		struct ir_raw_event rawir = {};
+		unsigned i;
+		bool event = false;
+
+		for (i = 0; i < 7; i++) {
+			if (ir->buf_in[i] == 0x80) {
+				rawir.pulse = false;
+				rawir.duration = 21845;
+>>>>>>> upstream/android-13
 			} else {
 				rawir.pulse = (ir->buf_in[i] & 0x80) == 0;
 				rawir.duration = ((ir->buf_in[i] & 0x7f) + 1) *
@@ -295,8 +331,11 @@ static int iguanair_set_tx_carrier(struct rc_dev *dev, uint32_t carrier)
 	if (carrier < 25000 || carrier > 150000)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	mutex_lock(&ir->lock);
 
+=======
+>>>>>>> upstream/android-13
 	if (carrier != ir->carrier) {
 		uint32_t cycles, fours, sevens;
 
@@ -325,8 +364,11 @@ static int iguanair_set_tx_carrier(struct rc_dev *dev, uint32_t carrier)
 		ir->packet->busy4 = 110 - fours;
 	}
 
+<<<<<<< HEAD
 	mutex_unlock(&ir->lock);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -337,9 +379,13 @@ static int iguanair_set_tx_mask(struct rc_dev *dev, uint32_t mask)
 	if (mask > 15)
 		return 4;
 
+<<<<<<< HEAD
 	mutex_lock(&ir->lock);
 	ir->packet->channels = mask << 4;
 	mutex_unlock(&ir->lock);
+=======
+	ir->packet->channels = mask << 4;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -350,8 +396,11 @@ static int iguanair_tx(struct rc_dev *dev, unsigned *txbuf, unsigned count)
 	unsigned int i, size, p, periods;
 	int rc;
 
+<<<<<<< HEAD
 	mutex_lock(&ir->lock);
 
+=======
+>>>>>>> upstream/android-13
 	/* convert from us to carrier periods */
 	for (i = size = 0; i < count; i++) {
 		periods = DIV_ROUND_CLOSEST(txbuf[i] * ir->carrier, 1000000);
@@ -379,8 +428,11 @@ static int iguanair_tx(struct rc_dev *dev, unsigned *txbuf, unsigned count)
 		rc = -EOVERFLOW;
 
 out:
+<<<<<<< HEAD
 	mutex_unlock(&ir->lock);
 
+=======
+>>>>>>> upstream/android-13
 	return rc ? rc : count;
 }
 
@@ -389,14 +441,20 @@ static int iguanair_open(struct rc_dev *rdev)
 	struct iguanair *ir = rdev->priv;
 	int rc;
 
+<<<<<<< HEAD
 	mutex_lock(&ir->lock);
 
+=======
+>>>>>>> upstream/android-13
 	rc = iguanair_receiver(ir, true);
 	if (rc == 0)
 		ir->receiver_on = true;
 
+<<<<<<< HEAD
 	mutex_unlock(&ir->lock);
 
+=======
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -405,14 +463,20 @@ static void iguanair_close(struct rc_dev *rdev)
 	struct iguanair *ir = rdev->priv;
 	int rc;
 
+<<<<<<< HEAD
 	mutex_lock(&ir->lock);
 
+=======
+>>>>>>> upstream/android-13
 	rc = iguanair_receiver(ir, false);
 	ir->receiver_on = false;
 	if (rc && rc != -ENODEV)
 		dev_warn(ir->dev, "failed to disable receiver: %d\n", rc);
+<<<<<<< HEAD
 
 	mutex_unlock(&ir->lock);
+=======
+>>>>>>> upstream/android-13
 }
 
 static int iguanair_probe(struct usb_interface *intf,
@@ -452,7 +516,10 @@ static int iguanair_probe(struct usb_interface *intf,
 	ir->rc = rc;
 	ir->dev = &intf->dev;
 	ir->udev = udev;
+<<<<<<< HEAD
 	mutex_init(&ir->lock);
+=======
+>>>>>>> upstream/android-13
 
 	init_completion(&ir->completion);
 	pipeout = usb_sndintpipe(udev,
@@ -494,7 +561,11 @@ static int iguanair_probe(struct usb_interface *intf,
 	rc->s_tx_mask = iguanair_set_tx_mask;
 	rc->s_tx_carrier = iguanair_set_tx_carrier;
 	rc->tx_ir = iguanair_tx;
+<<<<<<< HEAD
 	rc->driver_name = DRIVER_NAME;
+=======
+	rc->driver_name = KBUILD_MODNAME;
+>>>>>>> upstream/android-13
 	rc->map_name = RC_MAP_RC6_MCE;
 	rc->min_timeout = 1;
 	rc->timeout = IR_DEFAULT_TIMEOUT;
@@ -549,8 +620,11 @@ static int iguanair_suspend(struct usb_interface *intf, pm_message_t message)
 	struct iguanair *ir = usb_get_intfdata(intf);
 	int rc = 0;
 
+<<<<<<< HEAD
 	mutex_lock(&ir->lock);
 
+=======
+>>>>>>> upstream/android-13
 	if (ir->receiver_on) {
 		rc = iguanair_receiver(ir, false);
 		if (rc)
@@ -560,17 +634,24 @@ static int iguanair_suspend(struct usb_interface *intf, pm_message_t message)
 	usb_kill_urb(ir->urb_in);
 	usb_kill_urb(ir->urb_out);
 
+<<<<<<< HEAD
 	mutex_unlock(&ir->lock);
 
+=======
+>>>>>>> upstream/android-13
 	return rc;
 }
 
 static int iguanair_resume(struct usb_interface *intf)
 {
 	struct iguanair *ir = usb_get_intfdata(intf);
+<<<<<<< HEAD
 	int rc = 0;
 
 	mutex_lock(&ir->lock);
+=======
+	int rc;
+>>>>>>> upstream/android-13
 
 	rc = usb_submit_urb(ir->urb_in, GFP_KERNEL);
 	if (rc)
@@ -582,8 +663,11 @@ static int iguanair_resume(struct usb_interface *intf)
 			dev_warn(ir->dev, "failed to enable receiver after resume\n");
 	}
 
+<<<<<<< HEAD
 	mutex_unlock(&ir->lock);
 
+=======
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -593,7 +677,11 @@ static const struct usb_device_id iguanair_table[] = {
 };
 
 static struct usb_driver iguanair_driver = {
+<<<<<<< HEAD
 	.name =	DRIVER_NAME,
+=======
+	.name =	KBUILD_MODNAME,
+>>>>>>> upstream/android-13
 	.probe = iguanair_probe,
 	.disconnect = iguanair_disconnect,
 	.suspend = iguanair_suspend,

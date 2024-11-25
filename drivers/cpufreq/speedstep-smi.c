@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Intel SpeedStep SMI driver.
  *
  * (C) 2003  Hiroshi Miura <miura@da-cha.org>
+<<<<<<< HEAD
  *
  *  Licensed under the terms of the GNU GPL License version 2.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 
@@ -301,6 +308,7 @@ static struct cpufreq_driver speedstep_driver = {
 };
 
 static const struct x86_cpu_id ss_smi_ids[] = {
+<<<<<<< HEAD
 	{ X86_VENDOR_INTEL, 6, 0xb, },
 	{ X86_VENDOR_INTEL, 6, 0x8, },
 	{ X86_VENDOR_INTEL, 15, 2 },
@@ -310,6 +318,13 @@ static const struct x86_cpu_id ss_smi_ids[] = {
 /* Not auto loaded currently */
 MODULE_DEVICE_TABLE(x86cpu, ss_smi_ids);
 #endif
+=======
+	X86_MATCH_VENDOR_FAM_MODEL(INTEL,  6, 0x8, 0),
+	X86_MATCH_VENDOR_FAM_MODEL(INTEL,  6, 0xb, 0),
+	X86_MATCH_VENDOR_FAM_MODEL(INTEL, 15, 0x2, 0),
+	{}
+};
+>>>>>>> upstream/android-13
 
 /**
  * speedstep_init - initializes the SpeedStep CPUFreq driver

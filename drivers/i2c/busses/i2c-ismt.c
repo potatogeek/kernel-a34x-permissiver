@@ -53,7 +53,11 @@
  *  Features supported by this driver:
  *  Hardware PEC                     yes
  *  Block buffer                     yes
+<<<<<<< HEAD
  *  Block process call transaction   no
+=======
+ *  Block process call transaction   yes
+>>>>>>> upstream/android-13
  *  Slave mode                       no
  */
 
@@ -75,7 +79,13 @@
 /* PCI DIDs for the Intel SMBus Message Transport (SMT) Devices */
 #define PCI_DEVICE_ID_INTEL_S1200_SMT0	0x0c59
 #define PCI_DEVICE_ID_INTEL_S1200_SMT1	0x0c5a
+<<<<<<< HEAD
 #define PCI_DEVICE_ID_INTEL_DNV_SMT	0x19ac
+=======
+#define PCI_DEVICE_ID_INTEL_CDF_SMT	0x18ac
+#define PCI_DEVICE_ID_INTEL_DNV_SMT	0x19ac
+#define PCI_DEVICE_ID_INTEL_EBG_SMT	0x1bff
+>>>>>>> upstream/android-13
 #define PCI_DEVICE_ID_INTEL_AVOTON_SMT	0x1f15
 
 #define ISMT_DESC_ENTRIES	2	/* number of descriptor entries */
@@ -175,6 +185,7 @@ struct ismt_priv {
 	u8 buffer[I2C_SMBUS_BLOCK_MAX + 16];	/* temp R/W data buffer */
 };
 
+<<<<<<< HEAD
 /**
  * ismt_ids - PCI device IDs supported by this driver
  */
@@ -182,6 +193,14 @@ static const struct pci_device_id ismt_ids[] = {
 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_S1200_SMT0) },
 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_S1200_SMT1) },
 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_DNV_SMT) },
+=======
+static const struct pci_device_id ismt_ids[] = {
+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_S1200_SMT0) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_S1200_SMT1) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_CDF_SMT) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_DNV_SMT) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_EBG_SMT) },
+>>>>>>> upstream/android-13
 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_AVOTON_SMT) },
 	{ 0, }
 };
@@ -195,6 +214,11 @@ MODULE_PARM_DESC(bus_speed, "Bus Speed in kHz (0 = BIOS default)");
 
 /**
  * __ismt_desc_dump() - dump the contents of a specific descriptor
+<<<<<<< HEAD
+=======
+ * @dev: the iSMT device
+ * @desc: the iSMT hardware descriptor
+>>>>>>> upstream/android-13
  */
 static void __ismt_desc_dump(struct device *dev, const struct ismt_desc *desc)
 {
@@ -329,7 +353,12 @@ static int ismt_process_desc(const struct ismt_desc *desc,
 
 	if (desc->status & ISMT_DESC_SCS) {
 		if (read_write == I2C_SMBUS_WRITE &&
+<<<<<<< HEAD
 		    size != I2C_SMBUS_PROC_CALL)
+=======
+		    size != I2C_SMBUS_PROC_CALL &&
+		    size != I2C_SMBUS_BLOCK_PROC_CALL)
+>>>>>>> upstream/android-13
 			return 0;
 
 		switch (size) {
@@ -342,6 +371,10 @@ static int ismt_process_desc(const struct ismt_desc *desc,
 			data->word = dma_buffer[0] | (dma_buffer[1] << 8);
 			break;
 		case I2C_SMBUS_BLOCK_DATA:
+<<<<<<< HEAD
+=======
+		case I2C_SMBUS_BLOCK_PROC_CALL:
+>>>>>>> upstream/android-13
 			if (desc->rxbytes != dma_buffer[0] + 1)
 				return -EMSGSIZE;
 
@@ -515,6 +548,21 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
 		}
 		break;
 
+<<<<<<< HEAD
+=======
+	case I2C_SMBUS_BLOCK_PROC_CALL:
+		dev_dbg(dev, "I2C_SMBUS_BLOCK_PROC_CALL\n");
+		dma_size = I2C_SMBUS_BLOCK_MAX;
+		desc->tgtaddr_rw = ISMT_DESC_ADDR_RW(addr, 1);
+		desc->wr_len_cmd = data->block[0] + 1;
+		desc->rd_len = dma_size;
+		desc->control |= ISMT_DESC_BLK;
+		dma_direction = DMA_BIDIRECTIONAL;
+		dma_buffer[0] = command;
+		memcpy(&dma_buffer[1], &data->block[1], data->block[0]);
+		break;
+
+>>>>>>> upstream/android-13
 	case I2C_SMBUS_I2C_BLOCK_DATA:
 		/* Make sure the length is valid */
 		if (data->block[0] < 1)
@@ -621,16 +669,23 @@ static u32 ismt_func(struct i2c_adapter *adap)
 	       I2C_FUNC_SMBUS_BYTE_DATA		|
 	       I2C_FUNC_SMBUS_WORD_DATA		|
 	       I2C_FUNC_SMBUS_PROC_CALL		|
+<<<<<<< HEAD
+=======
+	       I2C_FUNC_SMBUS_BLOCK_PROC_CALL	|
+>>>>>>> upstream/android-13
 	       I2C_FUNC_SMBUS_BLOCK_DATA	|
 	       I2C_FUNC_SMBUS_I2C_BLOCK		|
 	       I2C_FUNC_SMBUS_PEC;
 }
 
+<<<<<<< HEAD
 /**
  * smbus_algorithm - the adapter algorithm and supported functionality
  * @smbus_xfer: the adapter algorithm
  * @functionality: functionality supported by the adapter
  */
+=======
+>>>>>>> upstream/android-13
 static const struct i2c_algorithm smbus_algorithm = {
 	.smbus_xfer	= ismt_access,
 	.functionality	= ismt_func,
@@ -779,8 +834,11 @@ static int ismt_dev_init(struct ismt_priv *priv)
 	if (!priv->hw)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	memset(priv->hw, 0, (ISMT_DESC_ENTRIES * sizeof(struct ismt_desc)));
 
+=======
+>>>>>>> upstream/android-13
 	priv->head = 0;
 	init_completion(&priv->cmp);
 

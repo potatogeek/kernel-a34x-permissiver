@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Core private header for the pin control subsystem
  *
@@ -5,8 +9,11 @@
  * Written on behalf of Linaro for ST-Ericsson
  *
  * Author: Linus Walleij <linus.walleij@linaro.org>
+<<<<<<< HEAD
  *
  * License terms: GNU General Public License (GPL) version 2
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kref.h>
@@ -237,10 +244,13 @@ extern struct pinctrl_gpio_range *
 pinctrl_find_gpio_range_from_pin_nolock(struct pinctrl_dev *pctldev,
 					unsigned int pin);
 
+<<<<<<< HEAD
 int pinctrl_register_map(const struct pinctrl_map *maps, unsigned num_maps,
 			 bool dup);
 void pinctrl_unregister_map(const struct pinctrl_map *map);
 
+=======
+>>>>>>> upstream/android-13
 extern int pinctrl_force_sleep(struct pinctrl_dev *pctldev);
 extern int pinctrl_force_default(struct pinctrl_dev *pctldev);
 

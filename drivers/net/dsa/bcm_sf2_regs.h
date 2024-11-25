@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Broadcom Starfighter 2 switch register defines
  *
  * Copyright (C) 2014, Broadcom Corporation
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __BCM_SF2_REGS_H
 #define __BCM_SF2_REGS_H
@@ -21,9 +28,17 @@ enum bcm_sf2_reg_offs {
 	REG_SWITCH_REVISION,
 	REG_PHY_REVISION,
 	REG_SPHY_CNTRL,
+<<<<<<< HEAD
 	REG_RGMII_0_CNTRL,
 	REG_RGMII_1_CNTRL,
 	REG_RGMII_2_CNTRL,
+=======
+	REG_CROSSBAR,
+	REG_RGMII_0_CNTRL,
+	REG_RGMII_1_CNTRL,
+	REG_RGMII_2_CNTRL,
+	REG_RGMII_11_CNTRL,
+>>>>>>> upstream/android-13
 	REG_LED_0_CNTRL,
 	REG_LED_1_CNTRL,
 	REG_LED_2_CNTRL,
@@ -51,7 +66,16 @@ enum bcm_sf2_reg_offs {
 #define  PHY_PHYAD_SHIFT		8
 #define  PHY_PHYAD_MASK			0x1F
 
+<<<<<<< HEAD
 #define REG_RGMII_CNTRL_P(x)		(REG_RGMII_0_CNTRL + (x))
+=======
+/* Relative to REG_CROSSBAR */
+#define CROSSBAR_BCM4908_INT_P7		0
+#define CROSSBAR_BCM4908_INT_RUNNER	1
+#define CROSSBAR_BCM4908_EXT_SERDES	0
+#define CROSSBAR_BCM4908_EXT_GPHY4	1
+#define CROSSBAR_BCM4908_EXT_RGMII	2
+>>>>>>> upstream/android-13
 
 /* Relative to REG_RGMII_CNTRL */
 #define  RGMII_MODE_EN			(1 << 0)
@@ -400,6 +424,13 @@ enum bcm_sf2_reg_offs {
 #define CORE_RATE_METER6		0x281e0
 #define  CIR_REF_CNT_MASK		0x7ffff
 
+<<<<<<< HEAD
+=======
+#define CORE_STAT_GREEN_CNTR		0x28200
+#define CORE_STAT_YELLOW_CNTR		0x28210
+#define CORE_STAT_RED_CNTR		0x28220
+
+>>>>>>> upstream/android-13
 #define CORE_CFP_CTL_REG		0x28400
 #define  CFP_EN_MAP_MASK		0x1ff
 

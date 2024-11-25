@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  acpi_osl.c - OS-dependent functions ($Revision: 83 $)
  *
@@ -6,6 +10,7 @@
  *  Copyright (C) 2001, 2002 Paul Diefenbaugh <paul.s.diefenbaugh@intel.com>
  *  Copyright (c) 2008 Intel Corporation
  *   Author: Matthew Wilcox <willy@linux.intel.com>
+<<<<<<< HEAD
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
@@ -23,11 +28,21 @@
  *
  */
 
+=======
+ */
+
+#define pr_fmt(fmt) "ACPI: OSL: " fmt
+
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/slab.h>
 #include <linux/mm.h>
 #include <linux/highmem.h>
+<<<<<<< HEAD
+=======
+#include <linux/lockdep.h>
+>>>>>>> upstream/android-13
 #include <linux/pci.h>
 #include <linux/interrupt.h>
 #include <linux/kmod.h>
@@ -40,6 +55,10 @@
 #include <linux/list.h>
 #include <linux/jiffies.h>
 #include <linux/semaphore.h>
+<<<<<<< HEAD
+=======
+#include <linux/security.h>
+>>>>>>> upstream/android-13
 
 #include <asm/io.h>
 #include <linux/uaccess.h>
@@ -49,6 +68,10 @@
 #include "acpica/acnamesp.h"
 #include "internal.h"
 
+<<<<<<< HEAD
+=======
+/* Definitions for ACPI_DEBUG_PRINT() */
+>>>>>>> upstream/android-13
 #define _COMPONENT		ACPI_OS_SERVICES
 ACPI_MODULE_NAME("osl");
 
@@ -89,11 +112,22 @@ struct acpi_ioremap {
 	void __iomem *virt;
 	acpi_physical_address phys;
 	acpi_size size;
+<<<<<<< HEAD
 	unsigned long refcount;
+=======
+	union {
+		unsigned long refcount;
+		struct rcu_work rwork;
+	} track;
+>>>>>>> upstream/android-13
 };
 
 static LIST_HEAD(acpi_ioremaps);
 static DEFINE_MUTEX(acpi_ioremap_lock);
+<<<<<<< HEAD
+=======
+#define acpi_ioremap_lock_held() lock_is_held(&acpi_ioremap_lock.dep_map)
+>>>>>>> upstream/android-13
 
 static void __init acpi_request_region (struct acpi_generic_address *gas,
 	unsigned int length, char *desc)
@@ -194,8 +228,24 @@ acpi_physical_address __init acpi_os_get_root_pointer(void)
 	acpi_physical_address pa;
 
 #ifdef CONFIG_KEXEC
+<<<<<<< HEAD
 	if (acpi_rsdp)
 		return acpi_rsdp;
+=======
+	/*
+	 * We may have been provided with an RSDP on the command line,
+	 * but if a malicious user has done so they may be pointing us
+	 * at modified ACPI tables that could alter kernel behaviour -
+	 * so, we check the lockdown status before making use of
+	 * it. If we trust it then also stash it in an architecture
+	 * specific location (if appropriate) so it can be carried
+	 * over further kexec()s.
+	 */
+	if (acpi_rsdp && !security_locked_down(LOCKDOWN_ACPI_TABLES)) {
+		acpi_arch_set_root_pointer(acpi_rsdp);
+		return acpi_rsdp;
+	}
+>>>>>>> upstream/android-13
 #endif
 	pa = acpi_arch_get_root_pointer();
 	if (pa)
@@ -206,7 +256,11 @@ acpi_physical_address __init acpi_os_get_root_pointer(void)
 			return efi.acpi20;
 		if (efi.acpi != EFI_INVALID_TABLE_ADDR)
 			return efi.acpi;
+<<<<<<< HEAD
 		pr_err(PREFIX "System description tables not found\n");
+=======
+		pr_err("System description tables not found\n");
+>>>>>>> upstream/android-13
 	} else if (IS_ENABLED(CONFIG_ACPI_LEGACY_TABLES_LOOKUP)) {
 		acpi_find_root_pointer(&pa);
 	}
@@ -220,7 +274,11 @@ acpi_map_lookup(acpi_physical_address phys, acpi_size size)
 {
 	struct acpi_ioremap *map;
 
+<<<<<<< HEAD
 	list_for_each_entry_rcu(map, &acpi_ioremaps, list)
+=======
+	list_for_each_entry_rcu(map, &acpi_ioremaps, list, acpi_ioremap_lock_held())
+>>>>>>> upstream/android-13
 		if (map->phys <= phys &&
 		    phys + size <= map->phys + map->size)
 			return map;
@@ -250,7 +308,11 @@ void __iomem *acpi_os_get_iomem(acpi_physical_address phys, unsigned int size)
 	map = acpi_map_lookup(phys, size);
 	if (map) {
 		virt = map->virt + (phys - map->phys);
+<<<<<<< HEAD
 		map->refcount++;
+=======
+		map->track.refcount++;
+>>>>>>> upstream/android-13
 	}
 	mutex_unlock(&acpi_ioremap_lock);
 	return virt;
@@ -263,7 +325,11 @@ acpi_map_lookup_virt(void __iomem *virt, acpi_size size)
 {
 	struct acpi_ioremap *map;
 
+<<<<<<< HEAD
 	list_for_each_entry_rcu(map, &acpi_ioremaps, list)
+=======
+	list_for_each_entry_rcu(map, &acpi_ioremaps, list, acpi_ioremap_lock_held())
+>>>>>>> upstream/android-13
 		if (map->virt <= virt &&
 		    virt + size <= map->virt + map->size)
 			return map;
@@ -315,8 +381,13 @@ static void acpi_unmap(acpi_physical_address pg_off, void __iomem *vaddr)
  * During early init (when acpi_permanent_mmap has not been set yet) this
  * routine simply calls __acpi_map_table() to get the job done.
  */
+<<<<<<< HEAD
 void __iomem *__ref
 acpi_os_map_iomem(acpi_physical_address phys, acpi_size size)
+=======
+void __iomem __ref
+*acpi_os_map_iomem(acpi_physical_address phys, acpi_size size)
+>>>>>>> upstream/android-13
 {
 	struct acpi_ioremap *map;
 	void __iomem *virt;
@@ -324,7 +395,11 @@ acpi_os_map_iomem(acpi_physical_address phys, acpi_size size)
 	acpi_size pg_sz;
 
 	if (phys > ULONG_MAX) {
+<<<<<<< HEAD
 		printk(KERN_ERR PREFIX "Cannot map memory that high\n");
+=======
+		pr_err("Cannot map memory that high: 0x%llx\n", phys);
+>>>>>>> upstream/android-13
 		return NULL;
 	}
 
@@ -335,7 +410,11 @@ acpi_os_map_iomem(acpi_physical_address phys, acpi_size size)
 	/* Check if there's a suitable mapping already. */
 	map = acpi_map_lookup(phys, size);
 	if (map) {
+<<<<<<< HEAD
 		map->refcount++;
+=======
+		map->track.refcount++;
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
@@ -347,7 +426,11 @@ acpi_os_map_iomem(acpi_physical_address phys, acpi_size size)
 
 	pg_off = round_down(phys, PAGE_SIZE);
 	pg_sz = round_up(phys + size, PAGE_SIZE) - pg_off;
+<<<<<<< HEAD
 	virt = acpi_map(pg_off, pg_sz);
+=======
+	virt = acpi_map(phys, size);
+>>>>>>> upstream/android-13
 	if (!virt) {
 		mutex_unlock(&acpi_ioremap_lock);
 		kfree(map);
@@ -355,10 +438,17 @@ acpi_os_map_iomem(acpi_physical_address phys, acpi_size size)
 	}
 
 	INIT_LIST_HEAD(&map->list);
+<<<<<<< HEAD
 	map->virt = virt;
 	map->phys = pg_off;
 	map->size = pg_sz;
 	map->refcount = 1;
+=======
+	map->virt = (void __iomem __force *)((unsigned long)virt & PAGE_MASK);
+	map->phys = pg_off;
+	map->size = pg_sz;
+	map->track.refcount = 1;
+>>>>>>> upstream/android-13
 
 	list_add_tail_rcu(&map->list, &acpi_ioremaps);
 
@@ -374,6 +464,7 @@ void *__ref acpi_os_map_memory(acpi_physical_address phys, acpi_size size)
 }
 EXPORT_SYMBOL_GPL(acpi_os_map_memory);
 
+<<<<<<< HEAD
 /* Must be called with mutex_lock(&acpi_ioremap_lock) */
 static unsigned long acpi_os_drop_map_ref(struct acpi_ioremap *map)
 {
@@ -387,18 +478,46 @@ static unsigned long acpi_os_drop_map_ref(struct acpi_ioremap *map)
 static void acpi_os_map_cleanup(struct acpi_ioremap *map)
 {
 	synchronize_rcu_expedited();
+=======
+static void acpi_os_map_remove(struct work_struct *work)
+{
+	struct acpi_ioremap *map = container_of(to_rcu_work(work),
+						struct acpi_ioremap,
+						track.rwork);
+
+>>>>>>> upstream/android-13
 	acpi_unmap(map->phys, map->virt);
 	kfree(map);
 }
 
+<<<<<<< HEAD
+=======
+/* Must be called with mutex_lock(&acpi_ioremap_lock) */
+static void acpi_os_drop_map_ref(struct acpi_ioremap *map)
+{
+	if (--map->track.refcount)
+		return;
+
+	list_del_rcu(&map->list);
+
+	INIT_RCU_WORK(&map->track.rwork, acpi_os_map_remove);
+	queue_rcu_work(system_wq, &map->track.rwork);
+}
+
+>>>>>>> upstream/android-13
 /**
  * acpi_os_unmap_iomem - Drop a memory mapping reference.
  * @virt: Start of the address range to drop a reference to.
  * @size: Size of the address range to drop a reference to.
  *
  * Look up the given virtual address range in the list of existing ACPI memory
+<<<<<<< HEAD
  * mappings, drop a reference to it and unmap it if there are no more active
  * references to it.
+=======
+ * mappings, drop a reference to it and if there are no more active references
+ * to it, queue it up for later removal.
+>>>>>>> upstream/android-13
  *
  * During early init (when acpi_permanent_mmap has not been set yet) this
  * routine simply calls __acpi_unmap_table() to get the job done.  Since
@@ -408,7 +527,10 @@ static void acpi_os_map_cleanup(struct acpi_ioremap *map)
 void __ref acpi_os_unmap_iomem(void __iomem *virt, acpi_size size)
 {
 	struct acpi_ioremap *map;
+<<<<<<< HEAD
 	unsigned long refcount;
+=======
+>>>>>>> upstream/android-13
 
 	if (!acpi_permanent_mmap) {
 		__acpi_unmap_table(virt, size);
@@ -416,6 +538,7 @@ void __ref acpi_os_unmap_iomem(void __iomem *virt, acpi_size size)
 	}
 
 	mutex_lock(&acpi_ioremap_lock);
+<<<<<<< HEAD
 	map = acpi_map_lookup_virt(virt, size);
 	if (!map) {
 		mutex_unlock(&acpi_ioremap_lock);
@@ -443,10 +566,43 @@ int acpi_os_map_generic_address(struct acpi_generic_address *gas)
 
 	if (gas->space_id != ACPI_ADR_SPACE_SYSTEM_MEMORY)
 		return 0;
+=======
+
+	map = acpi_map_lookup_virt(virt, size);
+	if (!map) {
+		mutex_unlock(&acpi_ioremap_lock);
+		WARN(true, "ACPI: %s: bad address %p\n", __func__, virt);
+		return;
+	}
+	acpi_os_drop_map_ref(map);
+
+	mutex_unlock(&acpi_ioremap_lock);
+}
+EXPORT_SYMBOL_GPL(acpi_os_unmap_iomem);
+
+/**
+ * acpi_os_unmap_memory - Drop a memory mapping reference.
+ * @virt: Start of the address range to drop a reference to.
+ * @size: Size of the address range to drop a reference to.
+ */
+void __ref acpi_os_unmap_memory(void *virt, acpi_size size)
+{
+	acpi_os_unmap_iomem((void __iomem *)virt, size);
+}
+EXPORT_SYMBOL_GPL(acpi_os_unmap_memory);
+
+void __iomem *acpi_os_map_generic_address(struct acpi_generic_address *gas)
+{
+	u64 addr;
+
+	if (gas->space_id != ACPI_ADR_SPACE_SYSTEM_MEMORY)
+		return NULL;
+>>>>>>> upstream/android-13
 
 	/* Handle possible alignment issues */
 	memcpy(&addr, &gas->address, sizeof(addr));
 	if (!addr || !gas->bit_width)
+<<<<<<< HEAD
 		return -EINVAL;
 
 	virt = acpi_os_map_iomem(addr, gas->bit_width / 8);
@@ -454,6 +610,11 @@ int acpi_os_map_generic_address(struct acpi_generic_address *gas)
 		return -EIO;
 
 	return 0;
+=======
+		return NULL;
+
+	return acpi_os_map_iomem(addr, gas->bit_width / 8);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(acpi_os_map_generic_address);
 
@@ -461,7 +622,10 @@ void acpi_os_unmap_generic_address(struct acpi_generic_address *gas)
 {
 	u64 addr;
 	struct acpi_ioremap *map;
+<<<<<<< HEAD
 	unsigned long refcount;
+=======
+>>>>>>> upstream/android-13
 
 	if (gas->space_id != ACPI_ADR_SPACE_SYSTEM_MEMORY)
 		return;
@@ -472,16 +636,26 @@ void acpi_os_unmap_generic_address(struct acpi_generic_address *gas)
 		return;
 
 	mutex_lock(&acpi_ioremap_lock);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	map = acpi_map_lookup(addr, gas->bit_width / 8);
 	if (!map) {
 		mutex_unlock(&acpi_ioremap_lock);
 		return;
 	}
+<<<<<<< HEAD
 	refcount = acpi_os_drop_map_ref(map);
 	mutex_unlock(&acpi_ioremap_lock);
 
 	if (!refcount)
 		acpi_os_map_cleanup(map);
+=======
+	acpi_os_drop_map_ref(map);
+
+	mutex_unlock(&acpi_ioremap_lock);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(acpi_os_unmap_generic_address);
 
@@ -524,13 +698,21 @@ acpi_os_predefined_override(const struct acpi_predefined_names *init_val,
 
 	*new_val = NULL;
 	if (!memcmp(init_val->name, "_OS_", 4) && strlen(acpi_os_name)) {
+<<<<<<< HEAD
 		printk(KERN_INFO PREFIX "Overriding _OS definition to '%s'\n",
 		       acpi_os_name);
+=======
+		pr_info("Overriding _OS definition to '%s'\n", acpi_os_name);
+>>>>>>> upstream/android-13
 		*new_val = acpi_os_name;
 	}
 
 	if (!memcmp(init_val->name, "_REV", 4) && acpi_rev_override) {
+<<<<<<< HEAD
 		printk(KERN_INFO PREFIX "Overriding _REV return value to 5\n");
+=======
+		pr_info("Overriding _REV return value to 5\n");
+>>>>>>> upstream/android-13
 		*new_val = (char *)5;
 	}
 
@@ -571,15 +753,23 @@ acpi_os_install_interrupt_handler(u32 gsi, acpi_osd_handler handler,
 		return AE_ALREADY_ACQUIRED;
 
 	if (acpi_gsi_to_irq(gsi, &irq) < 0) {
+<<<<<<< HEAD
 		printk(KERN_ERR PREFIX "SCI (ACPI GSI %d) not registered\n",
 		       gsi);
+=======
+		pr_err("SCI (ACPI GSI %d) not registered\n", gsi);
+>>>>>>> upstream/android-13
 		return AE_OK;
 	}
 
 	acpi_irq_handler = handler;
 	acpi_irq_context = context;
 	if (request_irq(irq, acpi_irq, IRQF_SHARED, "acpi", acpi_irq)) {
+<<<<<<< HEAD
 		printk(KERN_ERR PREFIX "SCI (IRQ%d) allocation failed\n", irq);
+=======
+		pr_err("SCI (IRQ%d) allocation failed\n", irq);
+>>>>>>> upstream/android-13
 		acpi_irq_handler = NULL;
 		return AE_NOT_ACQUIRED;
 	}
@@ -775,6 +965,10 @@ acpi_os_write_memory(acpi_physical_address phys_addr, u64 value, u32 width)
 	return AE_OK;
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PCI
+>>>>>>> upstream/android-13
 acpi_status
 acpi_os_read_pci_configuration(struct acpi_pci_id * pci_id, u32 reg,
 			       u64 *value, u32 width)
@@ -833,6 +1027,10 @@ acpi_os_write_pci_configuration(struct acpi_pci_id * pci_id, u32 reg,
 
 	return (result ? AE_ERROR : AE_OK);
 }
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 static void acpi_os_execute_deferred(struct work_struct *work)
 {
@@ -1065,7 +1263,11 @@ acpi_status acpi_os_execute(acpi_execute_type type,
 	if (type == OSL_DEBUGGER_MAIN_THREAD) {
 		ret = acpi_debugger_create_thread(function, context);
 		if (ret) {
+<<<<<<< HEAD
 			pr_err("Call to kthread_create() failed.\n");
+=======
+			pr_err("Kernel thread creation failed\n");
+>>>>>>> upstream/android-13
 			status = AE_ERROR;
 		}
 		goto out_thread;
@@ -1115,8 +1317,12 @@ acpi_status acpi_os_execute(acpi_execute_type type,
 	 */
 	ret = queue_work_on(0, queue, &dpc->work);
 	if (!ret) {
+<<<<<<< HEAD
 		printk(KERN_ERR PREFIX
 			  "Call to queue_work() failed.\n");
+=======
+		pr_err("Unable to queue work\n");
+>>>>>>> upstream/android-13
 		status = AE_ERROR;
 	}
 err_workqueue:
@@ -1159,9 +1365,15 @@ acpi_status acpi_hotplug_schedule(struct acpi_device *adev, u32 src)
 {
 	struct acpi_hp_work *hpw;
 
+<<<<<<< HEAD
 	ACPI_DEBUG_PRINT((ACPI_DB_EXEC,
 		  "Scheduling hotplug event (%p, %u) for deferred execution.\n",
 		  adev, src));
+=======
+	acpi_handle_debug(adev->handle,
+			  "Scheduling hotplug event %u for deferred handling\n",
+			   src);
+>>>>>>> upstream/android-13
 
 	hpw = kmalloc(sizeof(*hpw), GFP_KERNEL);
 	if (!hpw)
@@ -1349,7 +1561,11 @@ acpi_status acpi_os_signal(u32 function, void *info)
 {
 	switch (function) {
 	case ACPI_SIGNAL_FATAL:
+<<<<<<< HEAD
 		printk(KERN_ERR PREFIX "Fatal opcode executed\n");
+=======
+		pr_err("Fatal opcode executed\n");
+>>>>>>> upstream/android-13
 		break;
 	case ACPI_SIGNAL_BREAKPOINT:
 		/*
@@ -1401,7 +1617,11 @@ __setup("acpi_os_name=", acpi_os_name_setup);
 static int __init acpi_no_auto_serialize_setup(char *str)
 {
 	acpi_gbl_auto_serialize_methods = FALSE;
+<<<<<<< HEAD
 	pr_info("ACPI: auto-serialization disabled\n");
+=======
+	pr_info("Auto-serialization disabled\n");
+>>>>>>> upstream/android-13
 
 	return 1;
 }
@@ -1452,6 +1672,7 @@ __setup("acpi_enforce_resources=", acpi_enforce_resources_setup);
 int acpi_check_resource_conflict(const struct resource *res)
 {
 	acpi_adr_space_type space_id;
+<<<<<<< HEAD
 	acpi_size length;
 	u8 warn = 0;
 	int clash = 0;
@@ -1484,6 +1705,30 @@ int acpi_check_resource_conflict(const struct resource *res)
 		if (acpi_enforce_resources == ENFORCE_RESOURCES_STRICT)
 			return -EBUSY;
 	}
+=======
+
+	if (acpi_enforce_resources == ENFORCE_RESOURCES_NO)
+		return 0;
+
+	if (res->flags & IORESOURCE_IO)
+		space_id = ACPI_ADR_SPACE_SYSTEM_IO;
+	else if (res->flags & IORESOURCE_MEM)
+		space_id = ACPI_ADR_SPACE_SYSTEM_MEMORY;
+	else
+		return 0;
+
+	if (!acpi_check_address_range(space_id, res->start, resource_size(res), 1))
+		return 0;
+
+	pr_info("Resource conflict; ACPI support missing from driver?\n");
+
+	if (acpi_enforce_resources == ENFORCE_RESOURCES_STRICT)
+		return -EBUSY;
+
+	if (acpi_enforce_resources == ENFORCE_RESOURCES_LAX)
+		pr_notice("Resource conflict: System may be unstable or behave erratically\n");
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL(acpi_check_resource_conflict);
@@ -1491,12 +1736,16 @@ EXPORT_SYMBOL(acpi_check_resource_conflict);
 int acpi_check_region(resource_size_t start, resource_size_t n,
 		      const char *name)
 {
+<<<<<<< HEAD
 	struct resource res = {
 		.start = start,
 		.end   = start + n - 1,
 		.name  = name,
 		.flags = IORESOURCE_IO,
 	};
+=======
+	struct resource res = DEFINE_RES_IO_NAMED(start, n, name);
+>>>>>>> upstream/android-13
 
 	return acpi_check_resource_conflict(&res);
 }
@@ -1564,11 +1813,34 @@ static acpi_status acpi_deactivate_mem_region(acpi_handle handle, u32 level,
 acpi_status acpi_release_memory(acpi_handle handle, struct resource *res,
 				u32 level)
 {
+<<<<<<< HEAD
 	if (!(res->flags & IORESOURCE_MEM))
 		return AE_TYPE;
 
 	return acpi_walk_namespace(ACPI_TYPE_REGION, handle, level,
 				   acpi_deactivate_mem_region, NULL, res, NULL);
+=======
+	acpi_status status;
+
+	if (!(res->flags & IORESOURCE_MEM))
+		return AE_TYPE;
+
+	status = acpi_walk_namespace(ACPI_TYPE_REGION, handle, level,
+				     acpi_deactivate_mem_region, NULL,
+				     res, NULL);
+	if (ACPI_FAILURE(status))
+		return status;
+
+	/*
+	 * Wait for all of the mappings queued up for removal by
+	 * acpi_deactivate_mem_region() to actually go away.
+	 */
+	synchronize_rcu();
+	rcu_barrier();
+	flush_scheduled_work();
+
+	return AE_OK;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(acpi_release_memory);
 
@@ -1596,6 +1868,10 @@ void acpi_os_delete_lock(acpi_spinlock handle)
  */
 
 acpi_cpu_flags acpi_os_acquire_lock(acpi_spinlock lockp)
+<<<<<<< HEAD
+=======
+	__acquires(lockp)
+>>>>>>> upstream/android-13
 {
 	acpi_cpu_flags flags;
 	spin_lock_irqsave(lockp, flags);
@@ -1607,6 +1883,10 @@ acpi_cpu_flags acpi_os_acquire_lock(acpi_spinlock lockp)
  */
 
 void acpi_os_release_lock(acpi_spinlock lockp, acpi_cpu_flags flags)
+<<<<<<< HEAD
+=======
+	__releases(lockp)
+>>>>>>> upstream/android-13
 {
 	spin_unlock_irqrestore(lockp, flags);
 }
@@ -1699,7 +1979,11 @@ acpi_status acpi_os_release_object(acpi_cache_t * cache, void *object)
 static int __init acpi_no_static_ssdt_setup(char *s)
 {
 	acpi_gbl_disable_ssdt_table_install = TRUE;
+<<<<<<< HEAD
 	pr_info("ACPI: static SSDT installation disabled\n");
+=======
+	pr_info("Static SSDT installation disabled\n");
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1708,8 +1992,12 @@ early_param("acpi_no_static_ssdt", acpi_no_static_ssdt_setup);
 
 static int __init acpi_disable_return_repair(char *s)
 {
+<<<<<<< HEAD
 	printk(KERN_NOTICE PREFIX
 	       "ACPI: Predefined validation mechanism disabled\n");
+=======
+	pr_notice("Predefined validation mechanism disabled\n");
+>>>>>>> upstream/android-13
 	acpi_gbl_disable_auto_repair = TRUE;
 
 	return 1;
@@ -1721,17 +2009,34 @@ acpi_status __init acpi_os_initialize(void)
 {
 	acpi_os_map_generic_address(&acpi_gbl_FADT.xpm1a_event_block);
 	acpi_os_map_generic_address(&acpi_gbl_FADT.xpm1b_event_block);
+<<<<<<< HEAD
 	acpi_os_map_generic_address(&acpi_gbl_FADT.xgpe0_block);
 	acpi_os_map_generic_address(&acpi_gbl_FADT.xgpe1_block);
+=======
+
+	acpi_gbl_xgpe0_block_logical_address =
+		(unsigned long)acpi_os_map_generic_address(&acpi_gbl_FADT.xgpe0_block);
+	acpi_gbl_xgpe1_block_logical_address =
+		(unsigned long)acpi_os_map_generic_address(&acpi_gbl_FADT.xgpe1_block);
+
+>>>>>>> upstream/android-13
 	if (acpi_gbl_FADT.flags & ACPI_FADT_RESET_REGISTER) {
 		/*
 		 * Use acpi_os_map_generic_address to pre-map the reset
 		 * register if it's in system memory.
 		 */
+<<<<<<< HEAD
 		int rv;
 
 		rv = acpi_os_map_generic_address(&acpi_gbl_FADT.reset_register);
 		pr_debug(PREFIX "%s: map reset_reg status %d\n", __func__, rv);
+=======
+		void *rv;
+
+		rv = acpi_os_map_generic_address(&acpi_gbl_FADT.reset_register);
+		pr_debug("%s: Reset register mapping %s\n", __func__,
+			 rv ? "successful" : "failed");
+>>>>>>> upstream/android-13
 	}
 	acpi_os_initialized = true;
 
@@ -1759,8 +2064,17 @@ acpi_status acpi_os_terminate(void)
 
 	acpi_os_unmap_generic_address(&acpi_gbl_FADT.xgpe1_block);
 	acpi_os_unmap_generic_address(&acpi_gbl_FADT.xgpe0_block);
+<<<<<<< HEAD
 	acpi_os_unmap_generic_address(&acpi_gbl_FADT.xpm1b_event_block);
 	acpi_os_unmap_generic_address(&acpi_gbl_FADT.xpm1a_event_block);
+=======
+	acpi_gbl_xgpe0_block_logical_address = 0UL;
+	acpi_gbl_xgpe1_block_logical_address = 0UL;
+
+	acpi_os_unmap_generic_address(&acpi_gbl_FADT.xpm1b_event_block);
+	acpi_os_unmap_generic_address(&acpi_gbl_FADT.xpm1a_event_block);
+
+>>>>>>> upstream/android-13
 	if (acpi_gbl_FADT.flags & ACPI_FADT_RESET_REGISTER)
 		acpi_os_unmap_generic_address(&acpi_gbl_FADT.reset_register);
 

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # Wireless LAN device configuration
 #
@@ -8,11 +12,16 @@ menuconfig WLAN
 	depends on NET
 	select WIRELESS
 	default y
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  This section contains all the pre 802.11 and 802.11 wireless
 	  device drivers. For a complete list of drivers and documentation
 	  on them refer to the wireless wiki:
 
+<<<<<<< HEAD
 	  http://wireless.kernel.org/en/users/Drivers
 
 if WLAN
@@ -30,6 +39,12 @@ config WIRELESS_WDS
 	  help you migrate to 4-addr AP/client (or, if it's really
 	  necessary, give up on our plan of removing it).
 
+=======
+	  https://wireless.wiki.kernel.org/en/users/Drivers
+
+if WLAN
+
+>>>>>>> upstream/android-13
 source "drivers/net/wireless/admtek/Kconfig"
 source "drivers/net/wireless/ath/Kconfig"
 source "drivers/net/wireless/atmel/Kconfig"
@@ -39,6 +54,10 @@ source "drivers/net/wireless/intel/Kconfig"
 source "drivers/net/wireless/intersil/Kconfig"
 source "drivers/net/wireless/marvell/Kconfig"
 source "drivers/net/wireless/mediatek/Kconfig"
+<<<<<<< HEAD
+=======
+source "drivers/net/wireless/microchip/Kconfig"
+>>>>>>> upstream/android-13
 source "drivers/net/wireless/ralink/Kconfig"
 source "drivers/net/wireless/realtek/Kconfig"
 source "drivers/net/wireless/rsi/Kconfig"
@@ -46,6 +65,10 @@ source "drivers/net/wireless/st/Kconfig"
 source "drivers/net/wireless/ti/Kconfig"
 source "drivers/net/wireless/zydas/Kconfig"
 source "drivers/net/wireless/quantenna/Kconfig"
+<<<<<<< HEAD
+=======
+source "drivers/net/wireless/scsc/Kconfig"
+>>>>>>> upstream/android-13
 
 config PCMCIA_RAYCS
 	tristate "Aviator/Raytheon 2.4GHz wireless support"
@@ -53,10 +76,18 @@ config PCMCIA_RAYCS
 	select WIRELESS_EXT
 	select WEXT_SPY
 	select WEXT_PRIV
+<<<<<<< HEAD
 	---help---
 	  Say Y here if you intend to attach an Aviator/Raytheon PCMCIA
 	  (PC-card) wireless Ethernet networking card to your computer.
 	  Please read the file <file:Documentation/networking/ray_cs.txt> for
+=======
+	help
+	  Say Y here if you intend to attach an Aviator/Raytheon PCMCIA
+	  (PC-card) wireless Ethernet networking card to your computer.
+	  Please read the file
+	  <file:Documentation/networking/device_drivers/wifi/ray_cs.rst> for
+>>>>>>> upstream/android-13
 	  details.
 
 	  To compile this driver as a module, choose M here: the module will be
@@ -75,7 +106,11 @@ config PCMCIA_WL3501
 config MAC80211_HWSIM
 	tristate "Simulated radio testing tool for mac80211"
 	depends on MAC80211
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  This driver is a developer testing tool that can be used to test
 	  IEEE 802.11 networking stack (mac80211) functionality. This is not
 	  needed for normal wireless LAN usage and is only for testing. See
@@ -93,7 +128,11 @@ config USB_NET_RNDIS_WLAN
 	select USB_USBNET
 	select USB_NET_CDCETHER
 	select USB_NET_RNDIS_HOST
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  This is a driver for wireless RNDIS devices.
 	  These are USB based adapters found in devices such as:
 
@@ -117,7 +156,11 @@ config USB_NET_RNDIS_WLAN
 config VIRT_WIFI
 	tristate "Wifi wrapper for ethernet drivers"
 	depends on CFG80211
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  This option adds support for ethernet connections to appear as if they
 	  are wifi connections through a special rtnetlink device.
 

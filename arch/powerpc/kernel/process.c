@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Derived from "arch/i386/kernel/process.c"
  *    Copyright (C) 1995  Linus Torvalds
@@ -7,11 +11,14 @@
  *
  *  PowerPC version
  *    Copyright (C) 1995-1996 Gary Thomas (gdt@linuxppc.org)
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version
  *  2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/errno.h>
@@ -43,8 +50,14 @@
 #include <linux/uaccess.h>
 #include <linux/elf-randomize.h>
 #include <linux/pkeys.h>
+<<<<<<< HEAD
 
 #include <asm/pgtable.h>
+=======
+#include <linux/seq_buf.h>
+
+#include <asm/interrupt.h>
+>>>>>>> upstream/android-13
 #include <asm/io.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>
@@ -65,6 +78,11 @@
 #include <asm/livepatch.h>
 #include <asm/cpu_has_feature.h>
 #include <asm/asm-prototypes.h>
+<<<<<<< HEAD
+=======
+#include <asm/stacktrace.h>
+#include <asm/hw_breakpoint.h>
+>>>>>>> upstream/android-13
 
 #include <linux/kprobes.h>
 #include <linux/kdebug.h>
@@ -97,7 +115,12 @@ static void check_if_tm_restore_required(struct task_struct *tsk)
 	if (tsk == current && tsk->thread.regs &&
 	    MSR_TM_ACTIVE(tsk->thread.regs->msr) &&
 	    !test_thread_flag(TIF_RESTORE_TM)) {
+<<<<<<< HEAD
 		tsk->thread.ckpt_regs.msr = tsk->thread.regs->msr;
+=======
+		regs_set_return_msr(&tsk->thread.ckpt_regs,
+						tsk->thread.regs->msr);
+>>>>>>> upstream/android-13
 		set_thread_flag(TIF_RESTORE_TM);
 	}
 }
@@ -118,17 +141,27 @@ static int __init enable_strict_msr_control(char *str)
 }
 early_param("ppc_strict_facility_enable", enable_strict_msr_control);
 
+<<<<<<< HEAD
 unsigned long msr_check_and_set(unsigned long bits)
+=======
+/* notrace because it's called by restore_math */
+unsigned long notrace msr_check_and_set(unsigned long bits)
+>>>>>>> upstream/android-13
 {
 	unsigned long oldmsr = mfmsr();
 	unsigned long newmsr;
 
 	newmsr = oldmsr | bits;
 
+<<<<<<< HEAD
 #ifdef CONFIG_VSX
 	if (cpu_has_feature(CPU_FTR_VSX) && (bits & MSR_FP))
 		newmsr |= MSR_VSX;
 #endif
+=======
+	if (cpu_has_feature(CPU_FTR_VSX) && (bits & MSR_FP))
+		newmsr |= MSR_VSX;
+>>>>>>> upstream/android-13
 
 	if (oldmsr != newmsr)
 		mtmsr_isync(newmsr);
@@ -137,17 +170,27 @@ unsigned long msr_check_and_set(unsigned long bits)
 }
 EXPORT_SYMBOL_GPL(msr_check_and_set);
 
+<<<<<<< HEAD
 void __msr_check_and_clear(unsigned long bits)
+=======
+/* notrace because it's called by restore_math */
+void notrace __msr_check_and_clear(unsigned long bits)
+>>>>>>> upstream/android-13
 {
 	unsigned long oldmsr = mfmsr();
 	unsigned long newmsr;
 
 	newmsr = oldmsr & ~bits;
 
+<<<<<<< HEAD
 #ifdef CONFIG_VSX
 	if (cpu_has_feature(CPU_FTR_VSX) && (bits & MSR_FP))
 		newmsr &= ~MSR_VSX;
 #endif
+=======
+	if (cpu_has_feature(CPU_FTR_VSX) && (bits & MSR_FP))
+		newmsr &= ~MSR_VSX;
+>>>>>>> upstream/android-13
 
 	if (oldmsr != newmsr)
 		mtmsr_isync(newmsr);
@@ -162,11 +205,17 @@ static void __giveup_fpu(struct task_struct *tsk)
 	save_fpu(tsk);
 	msr = tsk->thread.regs->msr;
 	msr &= ~(MSR_FP|MSR_FE0|MSR_FE1);
+<<<<<<< HEAD
 #ifdef CONFIG_VSX
 	if (cpu_has_feature(CPU_FTR_VSX))
 		msr &= ~MSR_VSX;
 #endif
 	tsk->thread.regs->msr = msr;
+=======
+	if (cpu_has_feature(CPU_FTR_VSX))
+		msr &= ~MSR_VSX;
+	regs_set_return_msr(tsk->thread.regs, msr);
+>>>>>>> upstream/android-13
 }
 
 void giveup_fpu(struct task_struct *tsk)
@@ -235,6 +284,7 @@ void enable_kernel_fp(void)
 	}
 }
 EXPORT_SYMBOL(enable_kernel_fp);
+<<<<<<< HEAD
 
 static int restore_fp(struct task_struct *tsk)
 {
@@ -252,6 +302,13 @@ static int restore_fp(struct task_struct *tsk) { return 0; }
 #ifdef CONFIG_ALTIVEC
 #define loadvec(thr) ((thr).load_vec)
 
+=======
+#else
+static inline void __giveup_fpu(struct task_struct *tsk) { }
+#endif /* CONFIG_PPC_FPU */
+
+#ifdef CONFIG_ALTIVEC
+>>>>>>> upstream/android-13
 static void __giveup_altivec(struct task_struct *tsk)
 {
 	unsigned long msr;
@@ -259,11 +316,17 @@ static void __giveup_altivec(struct task_struct *tsk)
 	save_altivec(tsk);
 	msr = tsk->thread.regs->msr;
 	msr &= ~MSR_VEC;
+<<<<<<< HEAD
 #ifdef CONFIG_VSX
 	if (cpu_has_feature(CPU_FTR_VSX))
 		msr &= ~MSR_VSX;
 #endif
 	tsk->thread.regs->msr = msr;
+=======
+	if (cpu_has_feature(CPU_FTR_VSX))
+		msr &= ~MSR_VSX;
+	regs_set_return_msr(tsk->thread.regs, msr);
+>>>>>>> upstream/android-13
 }
 
 void giveup_altivec(struct task_struct *tsk)
@@ -317,6 +380,7 @@ void flush_altivec_to_thread(struct task_struct *tsk)
 	}
 }
 EXPORT_SYMBOL_GPL(flush_altivec_to_thread);
+<<<<<<< HEAD
 
 static int restore_altivec(struct task_struct *tsk)
 {
@@ -332,6 +396,8 @@ static int restore_altivec(struct task_struct *tsk)
 #else
 #define loadvec(thr) 0
 static inline int restore_altivec(struct task_struct *tsk) { return 0; }
+=======
+>>>>>>> upstream/android-13
 #endif /* CONFIG_ALTIVEC */
 
 #ifdef CONFIG_VSX
@@ -399,6 +465,7 @@ void flush_vsx_to_thread(struct task_struct *tsk)
 	}
 }
 EXPORT_SYMBOL_GPL(flush_vsx_to_thread);
+<<<<<<< HEAD
 
 static int restore_vsx(struct task_struct *tsk)
 {
@@ -411,6 +478,8 @@ static int restore_vsx(struct task_struct *tsk)
 }
 #else
 static inline int restore_vsx(struct task_struct *tsk) { return 0; }
+=======
+>>>>>>> upstream/android-13
 #endif /* CONFIG_VSX */
 
 #ifdef CONFIG_SPE
@@ -455,6 +524,7 @@ static unsigned long msr_all_available;
 
 static int __init init_msr_all_available(void)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_PPC_FPU
 	msr_all_available |= MSR_FP;
 #endif
@@ -470,6 +540,16 @@ static int __init init_msr_all_available(void)
 	if (cpu_has_feature(CPU_FTR_SPE))
 		msr_all_available |= MSR_SPE;
 #endif
+=======
+	if (IS_ENABLED(CONFIG_PPC_FPU))
+		msr_all_available |= MSR_FP;
+	if (cpu_has_feature(CPU_FTR_ALTIVEC))
+		msr_all_available |= MSR_VEC;
+	if (cpu_has_feature(CPU_FTR_VSX))
+		msr_all_available |= MSR_VSX;
+	if (cpu_has_feature(CPU_FTR_SPE))
+		msr_all_available |= MSR_SPE;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -493,6 +573,7 @@ void giveup_all(struct task_struct *tsk)
 
 	WARN_ON((usermsr & MSR_VSX) && !((usermsr & MSR_FP) && (usermsr & MSR_VEC)));
 
+<<<<<<< HEAD
 #ifdef CONFIG_PPC_FPU
 	if (usermsr & MSR_FP)
 		__giveup_fpu(tsk);
@@ -505,11 +586,20 @@ void giveup_all(struct task_struct *tsk)
 	if (usermsr & MSR_SPE)
 		__giveup_spe(tsk);
 #endif
+=======
+	if (usermsr & MSR_FP)
+		__giveup_fpu(tsk);
+	if (usermsr & MSR_VEC)
+		__giveup_altivec(tsk);
+	if (usermsr & MSR_SPE)
+		__giveup_spe(tsk);
+>>>>>>> upstream/android-13
 
 	msr_check_and_clear(msr_all_available);
 }
 EXPORT_SYMBOL(giveup_all);
 
+<<<<<<< HEAD
 void restore_math(struct pt_regs *regs)
 {
 	unsigned long msr;
@@ -540,6 +630,120 @@ void restore_math(struct pt_regs *regs)
 
 	regs->msr = msr;
 }
+=======
+#ifdef CONFIG_PPC_BOOK3S_64
+#ifdef CONFIG_PPC_FPU
+static bool should_restore_fp(void)
+{
+	if (current->thread.load_fp) {
+		current->thread.load_fp++;
+		return true;
+	}
+	return false;
+}
+
+static void do_restore_fp(void)
+{
+	load_fp_state(&current->thread.fp_state);
+}
+#else
+static bool should_restore_fp(void) { return false; }
+static void do_restore_fp(void) { }
+#endif /* CONFIG_PPC_FPU */
+
+#ifdef CONFIG_ALTIVEC
+static bool should_restore_altivec(void)
+{
+	if (cpu_has_feature(CPU_FTR_ALTIVEC) && (current->thread.load_vec)) {
+		current->thread.load_vec++;
+		return true;
+	}
+	return false;
+}
+
+static void do_restore_altivec(void)
+{
+	load_vr_state(&current->thread.vr_state);
+	current->thread.used_vr = 1;
+}
+#else
+static bool should_restore_altivec(void) { return false; }
+static void do_restore_altivec(void) { }
+#endif /* CONFIG_ALTIVEC */
+
+static bool should_restore_vsx(void)
+{
+	if (cpu_has_feature(CPU_FTR_VSX))
+		return true;
+	return false;
+}
+#ifdef CONFIG_VSX
+static void do_restore_vsx(void)
+{
+	current->thread.used_vsr = 1;
+}
+#else
+static void do_restore_vsx(void) { }
+#endif /* CONFIG_VSX */
+
+/*
+ * The exception exit path calls restore_math() with interrupts hard disabled
+ * but the soft irq state not "reconciled". ftrace code that calls
+ * local_irq_save/restore causes warnings.
+ *
+ * Rather than complicate the exit path, just don't trace restore_math. This
+ * could be done by having ftrace entry code check for this un-reconciled
+ * condition where MSR[EE]=0 and PACA_IRQ_HARD_DIS is not set, and
+ * temporarily fix it up for the duration of the ftrace call.
+ */
+void notrace restore_math(struct pt_regs *regs)
+{
+	unsigned long msr;
+	unsigned long new_msr = 0;
+
+	msr = regs->msr;
+
+	/*
+	 * new_msr tracks the facilities that are to be restored. Only reload
+	 * if the bit is not set in the user MSR (if it is set, the registers
+	 * are live for the user thread).
+	 */
+	if ((!(msr & MSR_FP)) && should_restore_fp())
+		new_msr |= MSR_FP;
+
+	if ((!(msr & MSR_VEC)) && should_restore_altivec())
+		new_msr |= MSR_VEC;
+
+	if ((!(msr & MSR_VSX)) && should_restore_vsx()) {
+		if (((msr | new_msr) & (MSR_FP | MSR_VEC)) == (MSR_FP | MSR_VEC))
+			new_msr |= MSR_VSX;
+	}
+
+	if (new_msr) {
+		unsigned long fpexc_mode = 0;
+
+		msr_check_and_set(new_msr);
+
+		if (new_msr & MSR_FP) {
+			do_restore_fp();
+
+			// This also covers VSX, because VSX implies FP
+			fpexc_mode = current->thread.fpexc_mode;
+		}
+
+		if (new_msr & MSR_VEC)
+			do_restore_altivec();
+
+		if (new_msr & MSR_VSX)
+			do_restore_vsx();
+
+		msr_check_and_clear(new_msr);
+
+		regs_set_return_msr(regs, regs->msr | new_msr | fpexc_mode);
+	}
+}
+#endif /* CONFIG_PPC_BOOK3S_64 */
+>>>>>>> upstream/android-13
 
 static void save_all(struct task_struct *tsk)
 {
@@ -567,7 +771,10 @@ static void save_all(struct task_struct *tsk)
 		__giveup_spe(tsk);
 
 	msr_check_and_clear(msr_all_available);
+<<<<<<< HEAD
 	thread_pkey_regs_save(&tsk->thread);
+=======
+>>>>>>> upstream/android-13
 }
 
 void flush_all_to_thread(struct task_struct *tsk)
@@ -600,6 +807,7 @@ void do_send_trap(struct pt_regs *regs, unsigned long address,
 				    (void __user *)address);
 }
 #else	/* !CONFIG_PPC_ADV_DEBUG_REGS */
+<<<<<<< HEAD
 void do_break (struct pt_regs *regs, unsigned long address,
 		    unsigned long error_code)
 {
@@ -607,12 +815,57 @@ void do_break (struct pt_regs *regs, unsigned long address,
 
 	current->thread.trap_nr = TRAP_HWBKPT;
 	if (notify_die(DIE_DABR_MATCH, "dabr_match", regs, error_code,
+=======
+
+static void do_break_handler(struct pt_regs *regs)
+{
+	struct arch_hw_breakpoint null_brk = {0};
+	struct arch_hw_breakpoint *info;
+	struct ppc_inst instr = ppc_inst(0);
+	int type = 0;
+	int size = 0;
+	unsigned long ea;
+	int i;
+
+	/*
+	 * If underneath hw supports only one watchpoint, we know it
+	 * caused exception. 8xx also falls into this category.
+	 */
+	if (nr_wp_slots() == 1) {
+		__set_breakpoint(0, &null_brk);
+		current->thread.hw_brk[0] = null_brk;
+		current->thread.hw_brk[0].flags |= HW_BRK_FLAG_DISABLED;
+		return;
+	}
+
+	/* Otherwise findout which DAWR caused exception and disable it. */
+	wp_get_instr_detail(regs, &instr, &type, &size, &ea);
+
+	for (i = 0; i < nr_wp_slots(); i++) {
+		info = &current->thread.hw_brk[i];
+		if (!info->address)
+			continue;
+
+		if (wp_check_constraints(regs, instr, ea, type, size, info)) {
+			__set_breakpoint(i, &null_brk);
+			current->thread.hw_brk[i] = null_brk;
+			current->thread.hw_brk[i].flags |= HW_BRK_FLAG_DISABLED;
+		}
+	}
+}
+
+DEFINE_INTERRUPT_HANDLER(do_break)
+{
+	current->thread.trap_nr = TRAP_HWBKPT;
+	if (notify_die(DIE_DABR_MATCH, "dabr_match", regs, regs->dsisr,
+>>>>>>> upstream/android-13
 			11, SIGSEGV) == NOTIFY_STOP)
 		return;
 
 	if (debugger_break_match(regs))
 		return;
 
+<<<<<<< HEAD
 	/* Clear the breakpoint */
 	hw_breakpoint_disable();
 
@@ -627,6 +880,24 @@ void do_break (struct pt_regs *regs, unsigned long address,
 #endif	/* CONFIG_PPC_ADV_DEBUG_REGS */
 
 static DEFINE_PER_CPU(struct arch_hw_breakpoint, current_brk);
+=======
+	/*
+	 * We reach here only when watchpoint exception is generated by ptrace
+	 * event (or hw is buggy!). Now if CONFIG_HAVE_HW_BREAKPOINT is set,
+	 * watchpoint is already handled by hw_breakpoint_handler() so we don't
+	 * have to do anything. But when CONFIG_HAVE_HW_BREAKPOINT is not set,
+	 * we need to manually handle the watchpoint here.
+	 */
+	if (!IS_ENABLED(CONFIG_HAVE_HW_BREAKPOINT))
+		do_break_handler(regs);
+
+	/* Deliver the signal to userspace */
+	force_sig_fault(SIGTRAP, TRAP_HWBKPT, (void __user *)regs->dar);
+}
+#endif	/* CONFIG_PPC_ADV_DEBUG_REGS */
+
+static DEFINE_PER_CPU(struct arch_hw_breakpoint, current_brk[HBP_NUM_MAX]);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PPC_ADV_DEBUG_REGS
 /*
@@ -700,23 +971,68 @@ void switch_booke_debug_regs(struct debug_reg *new_debug)
 EXPORT_SYMBOL_GPL(switch_booke_debug_regs);
 #else	/* !CONFIG_PPC_ADV_DEBUG_REGS */
 #ifndef CONFIG_HAVE_HW_BREAKPOINT
+<<<<<<< HEAD
 static void set_breakpoint(struct arch_hw_breakpoint *brk)
 {
 	preempt_disable();
 	__set_breakpoint(brk);
+=======
+static void set_breakpoint(int i, struct arch_hw_breakpoint *brk)
+{
+	preempt_disable();
+	__set_breakpoint(i, brk);
+>>>>>>> upstream/android-13
 	preempt_enable();
 }
 
 static void set_debug_reg_defaults(struct thread_struct *thread)
 {
+<<<<<<< HEAD
 	thread->hw_brk.address = 0;
 	thread->hw_brk.type = 0;
 	if (ppc_breakpoint_available())
 		set_breakpoint(&thread->hw_brk);
+=======
+	int i;
+	struct arch_hw_breakpoint null_brk = {0};
+
+	for (i = 0; i < nr_wp_slots(); i++) {
+		thread->hw_brk[i] = null_brk;
+		if (ppc_breakpoint_available())
+			set_breakpoint(i, &thread->hw_brk[i]);
+	}
+}
+
+static inline bool hw_brk_match(struct arch_hw_breakpoint *a,
+				struct arch_hw_breakpoint *b)
+{
+	if (a->address != b->address)
+		return false;
+	if (a->type != b->type)
+		return false;
+	if (a->len != b->len)
+		return false;
+	/* no need to check hw_len. it's calculated from address and len */
+	return true;
+}
+
+static void switch_hw_breakpoint(struct task_struct *new)
+{
+	int i;
+
+	for (i = 0; i < nr_wp_slots(); i++) {
+		if (likely(hw_brk_match(this_cpu_ptr(&current_brk[i]),
+					&new->thread.hw_brk[i])))
+			continue;
+
+		__set_breakpoint(i, &new->thread.hw_brk[i]);
+	}
+>>>>>>> upstream/android-13
 }
 #endif /* !CONFIG_HAVE_HW_BREAKPOINT */
 #endif	/* CONFIG_PPC_ADV_DEBUG_REGS */
 
+<<<<<<< HEAD
 #ifdef CONFIG_PPC_ADV_DEBUG_REGS
 static inline int __set_dabr(unsigned long dabr, unsigned long dabrx)
 {
@@ -763,6 +1079,8 @@ static inline int __set_dabr(unsigned long dabr, unsigned long dabrx)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static inline int set_dabr(struct arch_hw_breakpoint *brk)
 {
 	unsigned long dabr, dabrx;
@@ -773,6 +1091,7 @@ static inline int set_dabr(struct arch_hw_breakpoint *brk)
 	if (ppc_md.set_dabr)
 		return ppc_md.set_dabr(dabr, dabrx);
 
+<<<<<<< HEAD
 	return __set_dabr(dabr, dabrx);
 }
 
@@ -811,6 +1130,65 @@ void __set_breakpoint(struct arch_hw_breakpoint *brk)
 	if (cpu_has_feature(CPU_FTR_DAWR))
 		// Power8 or later
 		set_dawr(brk);
+=======
+	if (IS_ENABLED(CONFIG_PPC_ADV_DEBUG_REGS)) {
+		mtspr(SPRN_DAC1, dabr);
+		if (IS_ENABLED(CONFIG_PPC_47x))
+			isync();
+		return 0;
+	} else if (IS_ENABLED(CONFIG_PPC_BOOK3S)) {
+		mtspr(SPRN_DABR, dabr);
+		if (cpu_has_feature(CPU_FTR_DABRX))
+			mtspr(SPRN_DABRX, dabrx);
+		return 0;
+	} else {
+		return -EINVAL;
+	}
+}
+
+static inline int set_breakpoint_8xx(struct arch_hw_breakpoint *brk)
+{
+	unsigned long lctrl1 = LCTRL1_CTE_GT | LCTRL1_CTF_LT | LCTRL1_CRWE_RW |
+			       LCTRL1_CRWF_RW;
+	unsigned long lctrl2 = LCTRL2_LW0EN | LCTRL2_LW0LADC | LCTRL2_SLW0EN;
+	unsigned long start_addr = ALIGN_DOWN(brk->address, HW_BREAKPOINT_SIZE);
+	unsigned long end_addr = ALIGN(brk->address + brk->len, HW_BREAKPOINT_SIZE);
+
+	if (start_addr == 0)
+		lctrl2 |= LCTRL2_LW0LA_F;
+	else if (end_addr == 0)
+		lctrl2 |= LCTRL2_LW0LA_E;
+	else
+		lctrl2 |= LCTRL2_LW0LA_EandF;
+
+	mtspr(SPRN_LCTRL2, 0);
+
+	if ((brk->type & HW_BRK_TYPE_RDWR) == 0)
+		return 0;
+
+	if ((brk->type & HW_BRK_TYPE_RDWR) == HW_BRK_TYPE_READ)
+		lctrl1 |= LCTRL1_CRWE_RO | LCTRL1_CRWF_RO;
+	if ((brk->type & HW_BRK_TYPE_RDWR) == HW_BRK_TYPE_WRITE)
+		lctrl1 |= LCTRL1_CRWE_WO | LCTRL1_CRWF_WO;
+
+	mtspr(SPRN_CMPE, start_addr - 1);
+	mtspr(SPRN_CMPF, end_addr);
+	mtspr(SPRN_LCTRL1, lctrl1);
+	mtspr(SPRN_LCTRL2, lctrl2);
+
+	return 0;
+}
+
+void __set_breakpoint(int nr, struct arch_hw_breakpoint *brk)
+{
+	memcpy(this_cpu_ptr(&current_brk[nr]), brk, sizeof(*brk));
+
+	if (dawr_enabled())
+		// Power8 or later
+		set_dawr(nr, brk);
+	else if (IS_ENABLED(CONFIG_PPC_8xx))
+		set_breakpoint_8xx(brk);
+>>>>>>> upstream/android-13
 	else if (!cpu_has_feature(CPU_FTR_ARCH_207S))
 		// Power7 or earlier
 		set_dabr(brk);
@@ -822,8 +1200,13 @@ void __set_breakpoint(struct arch_hw_breakpoint *brk)
 /* Check if we have DAWR or DABR hardware */
 bool ppc_breakpoint_available(void)
 {
+<<<<<<< HEAD
 	if (cpu_has_feature(CPU_FTR_DAWR))
 		return true; /* POWER8 DAWR */
+=======
+	if (dawr_enabled())
+		return true; /* POWER8 DAWR or POWER9 forced DAWR */
+>>>>>>> upstream/android-13
 	if (cpu_has_feature(CPU_FTR_ARCH_207S))
 		return false; /* POWER9 with DAWR disabled */
 	/* DABR: Everything but POWER8 and POWER9 */
@@ -831,6 +1214,7 @@ bool ppc_breakpoint_available(void)
 }
 EXPORT_SYMBOL_GPL(ppc_breakpoint_available);
 
+<<<<<<< HEAD
 static inline bool hw_brk_match(struct arch_hw_breakpoint *a,
 			      struct arch_hw_breakpoint *b)
 {
@@ -843,6 +1227,8 @@ static inline bool hw_brk_match(struct arch_hw_breakpoint *a,
 	return true;
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PPC_TRANSACTIONAL_MEM
 
 static inline bool tm_enabled(struct task_struct *tsk)
@@ -1064,12 +1450,22 @@ void restore_tm_state(struct pt_regs *regs)
 #endif
 	restore_math(regs);
 
+<<<<<<< HEAD
 	regs->msr |= msr_diff;
 }
 
 #else
 #define tm_recheckpoint_new_task(new)
 #define __switch_to_tm(prev, new)
+=======
+	regs_set_return_msr(regs, regs->msr | msr_diff);
+}
+
+#else /* !CONFIG_PPC_TRANSACTIONAL_MEM */
+#define tm_recheckpoint_new_task(new)
+#define __switch_to_tm(prev, new)
+void tm_reclaim_current(uint8_t cause) {}
+>>>>>>> upstream/android-13
 #endif /* CONFIG_PPC_TRANSACTIONAL_MEM */
 
 static inline void save_sprs(struct thread_struct *t)
@@ -1078,6 +1474,13 @@ static inline void save_sprs(struct thread_struct *t)
 	if (cpu_has_feature(CPU_FTR_ALTIVEC))
 		t->vrsave = mfspr(SPRN_VRSAVE);
 #endif
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_SPE
+	if (cpu_has_feature(CPU_FTR_SPE))
+		t->spefscr = mfspr(SPRN_SPEFSCR);
+#endif
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PPC_BOOK3S_64
 	if (cpu_has_feature(CPU_FTR_DSCR))
 		t->dscr = mfspr(SPRN_DSCR);
@@ -1098,8 +1501,11 @@ static inline void save_sprs(struct thread_struct *t)
 		t->tar = mfspr(SPRN_TAR);
 	}
 #endif
+<<<<<<< HEAD
 
 	thread_pkey_regs_save(t);
+=======
+>>>>>>> upstream/android-13
 }
 
 static inline void restore_sprs(struct thread_struct *old_thread,
@@ -1110,6 +1516,14 @@ static inline void restore_sprs(struct thread_struct *old_thread,
 	    old_thread->vrsave != new_thread->vrsave)
 		mtspr(SPRN_VRSAVE, new_thread->vrsave);
 #endif
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_SPE
+	if (cpu_has_feature(CPU_FTR_SPE) &&
+	    old_thread->spefscr != new_thread->spefscr)
+		mtspr(SPRN_SPEFSCR, new_thread->spefscr);
+#endif
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PPC_BOOK3S_64
 	if (cpu_has_feature(CPU_FTR_DSCR)) {
 		u64 dscr = get_paca()->dscr_default;
@@ -1140,6 +1554,7 @@ static inline void restore_sprs(struct thread_struct *old_thread,
 		mtspr(SPRN_TIDR, new_thread->tidr);
 #endif
 
+<<<<<<< HEAD
 	thread_pkey_regs_restore(new_thread, old_thread);
 }
 
@@ -1148,6 +1563,10 @@ static inline void restore_sprs(struct thread_struct *old_thread,
 static const u8 dummy_copy_buffer[CP_SIZE] __attribute__((aligned(CP_SIZE)));
 #endif
 
+=======
+}
+
+>>>>>>> upstream/android-13
 struct task_struct *__switch_to(struct task_struct *prev,
 	struct task_struct *new)
 {
@@ -1170,6 +1589,22 @@ struct task_struct *__switch_to(struct task_struct *prev,
 			__flush_tlb_pending(batch);
 		batch->active = 0;
 	}
+<<<<<<< HEAD
+=======
+
+	/*
+	 * On POWER9 the copy-paste buffer can only paste into
+	 * foreign real addresses, so unprivileged processes can not
+	 * see the data or use it in any way unless they have
+	 * foreign real mappings. If the new process has the foreign
+	 * real address mappings, we must issue a cp_abort to clear
+	 * any state and prevent snooping, corruption or a covert
+	 * channel. ISA v3.1 supports paste into local memory.
+	 */
+	if (new->mm && (cpu_has_feature(CPU_FTR_ARCH_31) ||
+			atomic_read(&new->mm->context.vas_windows)))
+		asm volatile(PPC_CP_ABORT);
+>>>>>>> upstream/android-13
 #endif /* CONFIG_PPC_BOOK3S_64 */
 
 #ifdef CONFIG_PPC_ADV_DEBUG_REGS
@@ -1180,8 +1615,12 @@ struct task_struct *__switch_to(struct task_struct *prev,
  * schedule DABR
  */
 #ifndef CONFIG_HAVE_HW_BREAKPOINT
+<<<<<<< HEAD
 	if (unlikely(!hw_brk_match(this_cpu_ptr(&current_brk), &new->thread.hw_brk)))
 		__set_breakpoint(&new->thread.hw_brk);
+=======
+	switch_hw_breakpoint(new);
+>>>>>>> upstream/android-13
 #endif /* CONFIG_HAVE_HW_BREAKPOINT */
 #endif
 
@@ -1206,23 +1645,55 @@ struct task_struct *__switch_to(struct task_struct *prev,
 	}
 
 	/*
+<<<<<<< HEAD
 	 * Call restore_sprs() before calling _switch(). If we move it after
 	 * _switch() then we miss out on calling it for new tasks. The reason
 	 * for this is we manually create a stack frame for new tasks that
 	 * directly returns through ret_from_fork() or
+=======
+	 * Call restore_sprs() and set_return_regs_changed() before calling
+	 * _switch(). If we move it after _switch() then we miss out on calling
+	 * it for new tasks. The reason for this is we manually create a stack
+	 * frame for new tasks that directly returns through ret_from_fork() or
+>>>>>>> upstream/android-13
 	 * ret_from_kernel_thread(). See copy_thread() for details.
 	 */
 	restore_sprs(old_thread, new_thread);
 
+<<<<<<< HEAD
 	last = _switch(old_thread, new_thread);
 
 #ifdef CONFIG_PPC_BOOK3S_64
+=======
+	set_return_regs_changed(); /* _switch changes stack (and regs) */
+
+#ifdef CONFIG_PPC32
+	kuap_assert_locked();
+#endif
+	last = _switch(old_thread, new_thread);
+
+	/*
+	 * Nothing after _switch will be run for newly created tasks,
+	 * because they switch directly to ret_from_fork/ret_from_kernel_thread
+	 * etc. Code added here should have a comment explaining why that is
+	 * okay.
+	 */
+
+#ifdef CONFIG_PPC_BOOK3S_64
+	/*
+	 * This applies to a process that was context switched while inside
+	 * arch_enter_lazy_mmu_mode(), to re-activate the batch that was
+	 * deactivated above, before _switch(). This will never be the case
+	 * for new tasks.
+	 */
+>>>>>>> upstream/android-13
 	if (current_thread_info()->local_flags & _TLF_LAZY_MMU) {
 		current_thread_info()->local_flags &= ~_TLF_LAZY_MMU;
 		batch = this_cpu_ptr(&ppc64_tlb_batch);
 		batch->active = 1;
 	}
 
+<<<<<<< HEAD
 	if (current_thread_info()->task->thread.regs) {
 		restore_math(current_thread_info()->task->thread.regs);
 
@@ -1237,27 +1708,59 @@ struct task_struct *__switch_to(struct task_struct *prev,
 		if (current_thread_info()->task->thread.used_vas)
 			asm volatile(PPC_CP_ABORT);
 	}
+=======
+	/*
+	 * Math facilities are masked out of the child MSR in copy_thread.
+	 * A new task does not need to restore_math because it will
+	 * demand fault them.
+	 */
+	if (current->thread.regs)
+		restore_math(current->thread.regs);
+>>>>>>> upstream/android-13
 #endif /* CONFIG_PPC_BOOK3S_64 */
 
 	return last;
 }
 
+<<<<<<< HEAD
 static int instructions_to_print = 16;
+=======
+#define NR_INSN_TO_PRINT	16
+>>>>>>> upstream/android-13
 
 static void show_instructions(struct pt_regs *regs)
 {
 	int i;
+<<<<<<< HEAD
 	unsigned long pc = regs->nip - (instructions_to_print * 3 / 4 *
 			sizeof(int));
 
 	printk("Instruction dump:");
 
 	for (i = 0; i < instructions_to_print; i++) {
+=======
+	unsigned long nip = regs->nip;
+	unsigned long pc = regs->nip - (NR_INSN_TO_PRINT * 3 / 4 * sizeof(int));
+
+	printk("Instruction dump:");
+
+	/*
+	 * If we were executing with the MMU off for instructions, adjust pc
+	 * rather than printing XXXXXXXX.
+	 */
+	if (!IS_ENABLED(CONFIG_BOOKE) && !(regs->msr & MSR_IR)) {
+		pc = (unsigned long)phys_to_virt(pc);
+		nip = (unsigned long)phys_to_virt(regs->nip);
+	}
+
+	for (i = 0; i < NR_INSN_TO_PRINT; i++) {
+>>>>>>> upstream/android-13
 		int instr;
 
 		if (!(i % 8))
 			pr_cont("\n");
 
+<<<<<<< HEAD
 #if !defined(CONFIG_BOOKE)
 		/* If executing with the IMMU off, adjust pc rather
 		 * than print XXXXXXXX.
@@ -1271,6 +1774,13 @@ static void show_instructions(struct pt_regs *regs)
 			pr_cont("XXXXXXXX ");
 		} else {
 			if (regs->nip == pc)
+=======
+		if (!__kernel_text_address(pc) ||
+		    get_kernel_nofault(instr, (const void *)pc)) {
+			pr_cont("XXXXXXXX ");
+		} else {
+			if (nip == pc)
+>>>>>>> upstream/android-13
 				pr_cont("<%08x> ", instr);
 			else
 				pr_cont("%08x ", instr);
@@ -1285,6 +1795,7 @@ static void show_instructions(struct pt_regs *regs)
 void show_user_instructions(struct pt_regs *regs)
 {
 	unsigned long pc;
+<<<<<<< HEAD
 	int i;
 
 	pc = regs->nip - (instructions_to_print * 3 / 4 * sizeof(int));
@@ -1322,6 +1833,36 @@ void show_user_instructions(struct pt_regs *regs)
 	}
 
 	pr_cont("\n");
+=======
+	int n = NR_INSN_TO_PRINT;
+	struct seq_buf s;
+	char buf[96]; /* enough for 8 times 9 + 2 chars */
+
+	pc = regs->nip - (NR_INSN_TO_PRINT * 3 / 4 * sizeof(int));
+
+	seq_buf_init(&s, buf, sizeof(buf));
+
+	while (n) {
+		int i;
+
+		seq_buf_clear(&s);
+
+		for (i = 0; i < 8 && n; i++, n--, pc += sizeof(int)) {
+			int instr;
+
+			if (copy_from_user_nofault(&instr, (void __user *)pc,
+					sizeof(instr))) {
+				seq_buf_printf(&s, "XXXXXXXX ");
+				continue;
+			}
+			seq_buf_printf(&s, regs->nip == pc ? "<%08x> " : "%08x ", instr);
+		}
+
+		if (!seq_buf_has_overflowed(&s))
+			pr_info("%s[%d]: code: %s\n", current->comm,
+				current->pid, s.buffer);
+	}
+>>>>>>> upstream/android-13
 }
 
 struct regbit {
@@ -1408,6 +1949,7 @@ static void print_msr_bits(unsigned long val)
 #ifdef CONFIG_PPC64
 #define REG		"%016lx"
 #define REGS_PER_LINE	4
+<<<<<<< HEAD
 #define LAST_VOLATILE	13
 #else
 #define REG		"%08lx"
@@ -1421,6 +1963,17 @@ void show_regs(struct pt_regs * regs)
 
 	show_regs_print_info(KERN_DEFAULT);
 
+=======
+#else
+#define REG		"%08lx"
+#define REGS_PER_LINE	8
+#endif
+
+static void __show_regs(struct pt_regs *regs)
+{
+	int i, trap;
+
+>>>>>>> upstream/android-13
 	printk("NIP:  "REG" LR: "REG" CTR: "REG"\n",
 	       regs->nip, regs->link, regs->ctr);
 	printk("REGS: %px TRAP: %04lx   %s  (%s)\n",
@@ -1429,6 +1982,7 @@ void show_regs(struct pt_regs * regs)
 	print_msr_bits(regs->msr);
 	pr_cont("  CR: %08lx  XER: %08lx\n", regs->ccr, regs->xer);
 	trap = TRAP(regs);
+<<<<<<< HEAD
 	if ((TRAP(regs) != 0xc00) && cpu_has_feature(CPU_FTR_CFAR))
 		pr_cont("CFAR: "REG" ", regs->orig_gpr3);
 	if (trap == 0x200 || trap == 0x300 || trap == 0x600)
@@ -1437,6 +1991,19 @@ void show_regs(struct pt_regs * regs)
 #else
 		pr_cont("DAR: "REG" DSISR: %08lx ", regs->dar, regs->dsisr);
 #endif
+=======
+	if (!trap_is_syscall(regs) && cpu_has_feature(CPU_FTR_CFAR))
+		pr_cont("CFAR: "REG" ", regs->orig_gpr3);
+	if (trap == INTERRUPT_MACHINE_CHECK ||
+	    trap == INTERRUPT_DATA_STORAGE ||
+	    trap == INTERRUPT_ALIGNMENT) {
+		if (IS_ENABLED(CONFIG_4xx) || IS_ENABLED(CONFIG_BOOKE))
+			pr_cont("DEAR: "REG" ESR: "REG" ", regs->dear, regs->esr);
+		else
+			pr_cont("DAR: "REG" DSISR: %08lx ", regs->dar, regs->dsisr);
+	}
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PPC64
 	pr_cont("IRQMASK: %lx ", regs->softe);
 #endif
@@ -1449,19 +2016,38 @@ void show_regs(struct pt_regs * regs)
 		if ((i % REGS_PER_LINE) == 0)
 			pr_cont("\nGPR%02d: ", i);
 		pr_cont(REG " ", regs->gpr[i]);
+<<<<<<< HEAD
 		if (i == LAST_VOLATILE && !FULL_REGS(regs))
 			break;
 	}
 	pr_cont("\n");
 #ifdef CONFIG_KALLSYMS
+=======
+	}
+	pr_cont("\n");
+>>>>>>> upstream/android-13
 	/*
 	 * Lookup NIP late so we have the best change of getting the
 	 * above info out without failing
 	 */
+<<<<<<< HEAD
 	printk("NIP ["REG"] %pS\n", regs->nip, (void *)regs->nip);
 	printk("LR ["REG"] %pS\n", regs->link, (void *)regs->link);
 #endif
 	show_stack(current, (unsigned long *) regs->gpr[1]);
+=======
+	if (IS_ENABLED(CONFIG_KALLSYMS)) {
+		printk("NIP ["REG"] %pS\n", regs->nip, (void *)regs->nip);
+		printk("LR ["REG"] %pS\n", regs->link, (void *)regs->link);
+	}
+}
+
+void show_regs(struct pt_regs *regs)
+{
+	show_regs_print_info(KERN_DEFAULT);
+	__show_regs(regs);
+	show_stack(current, (unsigned long *) regs->gpr[1], KERN_DEFAULT);
+>>>>>>> upstream/android-13
 	if (!user_mode(regs))
 		show_instructions(regs);
 }
@@ -1475,6 +2061,7 @@ void flush_thread(void)
 #endif /* CONFIG_HAVE_HW_BREAKPOINT */
 }
 
+<<<<<<< HEAD
 int set_thread_uses_vas(void)
 {
 #ifdef CONFIG_PPC_BOOK3S_64
@@ -1494,6 +2081,28 @@ int set_thread_uses_vas(void)
 
 #endif /* CONFIG_PPC_BOOK3S_64 */
 	return 0;
+=======
+void arch_setup_new_exec(void)
+{
+
+#ifdef CONFIG_PPC_BOOK3S_64
+	if (!radix_enabled())
+		hash__setup_new_exec();
+#endif
+	/*
+	 * If we exec out of a kernel thread then thread.regs will not be
+	 * set.  Do it now.
+	 */
+	if (!current->thread.regs) {
+		struct pt_regs *regs = task_stack_page(current) + THREAD_SIZE;
+		current->thread.regs = regs - 1;
+	}
+
+#ifdef CONFIG_PPC_MEM_KEYS
+	current->thread.regs->amr  = default_amr;
+	current->thread.regs->iamr  = default_iamr;
+#endif
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_PPC64
@@ -1609,21 +2218,42 @@ static void setup_ksp_vsid(struct task_struct *p, unsigned long sp)
  * Copy architecture-specific thread state
  */
 int copy_thread(unsigned long clone_flags, unsigned long usp,
+<<<<<<< HEAD
 		unsigned long kthread_arg, struct task_struct *p)
 {
 	struct pt_regs *childregs, *kregs;
 	extern void ret_from_fork(void);
+=======
+		unsigned long kthread_arg, struct task_struct *p,
+		unsigned long tls)
+{
+	struct pt_regs *childregs, *kregs;
+	extern void ret_from_fork(void);
+	extern void ret_from_fork_scv(void);
+>>>>>>> upstream/android-13
 	extern void ret_from_kernel_thread(void);
 	void (*f)(void);
 	unsigned long sp = (unsigned long)task_stack_page(p) + THREAD_SIZE;
 	struct thread_info *ti = task_thread_info(p);
+<<<<<<< HEAD
 
 	klp_init_thread_info(ti);
+=======
+#ifdef CONFIG_HAVE_HW_BREAKPOINT
+	int i;
+#endif
+
+	klp_init_thread_info(p);
+>>>>>>> upstream/android-13
 
 	/* Copy registers */
 	sp -= sizeof(struct pt_regs);
 	childregs = (struct pt_regs *) sp;
+<<<<<<< HEAD
 	if (unlikely(p->flags & PF_KTHREAD)) {
+=======
+	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
+>>>>>>> upstream/android-13
 		/* kernel thread */
 		memset(childregs, 0, sizeof(struct pt_regs));
 		childregs->gpr[1] = sp + sizeof(struct pt_regs);
@@ -1641,11 +2271,15 @@ int copy_thread(unsigned long clone_flags, unsigned long usp,
 	} else {
 		/* user thread */
 		struct pt_regs *regs = current_pt_regs();
+<<<<<<< HEAD
 		CHECK_FULL_REGS(regs);
+=======
+>>>>>>> upstream/android-13
 		*childregs = *regs;
 		if (usp)
 			childregs->gpr[1] = usp;
 		p->thread.regs = childregs;
+<<<<<<< HEAD
 		childregs->gpr[3] = 0;  /* Result from fork() */
 		if (clone_flags & CLONE_SETTLS) {
 #ifdef CONFIG_PPC64
@@ -1657,6 +2291,22 @@ int copy_thread(unsigned long clone_flags, unsigned long usp,
 		}
 
 		f = ret_from_fork;
+=======
+		/* 64s sets this in ret_from_fork */
+		if (!IS_ENABLED(CONFIG_PPC_BOOK3S_64))
+			childregs->gpr[3] = 0;  /* Result from fork() */
+		if (clone_flags & CLONE_SETTLS) {
+			if (!is_32bit_task())
+				childregs->gpr[13] = tls;
+			else
+				childregs->gpr[2] = tls;
+		}
+
+		if (trap_is_scv(regs))
+			f = ret_from_fork_scv;
+		else
+			f = ret_from_fork;
+>>>>>>> upstream/android-13
 	}
 	childregs->msr &= ~(MSR_FP|MSR_VEC|MSR_VSX);
 	sp -= STACK_FRAME_OVERHEAD;
@@ -1674,6 +2324,7 @@ int copy_thread(unsigned long clone_flags, unsigned long usp,
 	kregs = (struct pt_regs *) sp;
 	sp -= STACK_FRAME_OVERHEAD;
 	p->thread.ksp = sp;
+<<<<<<< HEAD
 #ifdef CONFIG_PPC32
 	p->thread.ksp_limit = (unsigned long)task_stack_page(p) +
 				_ALIGN_UP(sizeof(struct thread_info), 16);
@@ -1686,6 +2337,22 @@ int copy_thread(unsigned long clone_flags, unsigned long usp,
 #ifdef CONFIG_ALTIVEC
 	p->thread.vr_save_area = NULL;
 #endif
+=======
+#ifdef CONFIG_HAVE_HW_BREAKPOINT
+	for (i = 0; i < nr_wp_slots(); i++)
+		p->thread.ptrace_bps[i] = NULL;
+#endif
+
+#ifdef CONFIG_PPC_FPU_REGS
+	p->thread.fp_save_area = NULL;
+#endif
+#ifdef CONFIG_ALTIVEC
+	p->thread.vr_save_area = NULL;
+#endif
+#if defined(CONFIG_PPC_BOOK3S_32) && defined(CONFIG_PPC_KUAP)
+	p->thread.kuap = KUAP_NONE;
+#endif
+>>>>>>> upstream/android-13
 
 	setup_ksp_vsid(p, sp);
 
@@ -1695,14 +2362,36 @@ int copy_thread(unsigned long clone_flags, unsigned long usp,
 		p->thread.dscr = mfspr(SPRN_DSCR);
 	}
 	if (cpu_has_feature(CPU_FTR_HAS_PPR))
+<<<<<<< HEAD
 		p->thread.ppr = INIT_PPR;
 
 	p->thread.tidr = 0;
 #endif
+=======
+		childregs->ppr = DEFAULT_PPR;
+
+	p->thread.tidr = 0;
+#endif
+	/*
+	 * Run with the current AMR value of the kernel
+	 */
+#ifdef CONFIG_PPC_PKEY
+	if (mmu_has_feature(MMU_FTR_BOOK3S_KUAP))
+		kregs->amr = AMR_KUAP_BLOCKED;
+
+	if (mmu_has_feature(MMU_FTR_BOOK3S_KUEP))
+		kregs->iamr = AMR_KUEP_BLOCKED;
+#endif
+>>>>>>> upstream/android-13
 	kregs->nip = ppc_function_entry(f);
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+void preload_new_slb_context(unsigned long start, unsigned long sp);
+
+>>>>>>> upstream/android-13
 /*
  * Set up a thread for executing a new program
  */
@@ -1710,6 +2399,7 @@ void start_thread(struct pt_regs *regs, unsigned long start, unsigned long sp)
 {
 #ifdef CONFIG_PPC64
 	unsigned long load_addr = regs->gpr[2];	/* saved by ELF_PLAT_INIT */
+<<<<<<< HEAD
 #endif
 
 	/*
@@ -1720,6 +2410,12 @@ void start_thread(struct pt_regs *regs, unsigned long start, unsigned long sp)
 		struct pt_regs *regs = task_stack_page(current) + THREAD_SIZE;
 		current->thread.regs = regs - 1;
 	}
+=======
+
+	if (IS_ENABLED(CONFIG_PPC_BOOK3S_64) && !radix_enabled())
+		preload_new_slb_context(start, sp);
+#endif
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PPC_TRANSACTIONAL_MEM
 	/*
@@ -1738,6 +2434,7 @@ void start_thread(struct pt_regs *regs, unsigned long start, unsigned long sp)
 	regs->ccr = 0;
 	regs->gpr[1] = sp;
 
+<<<<<<< HEAD
 	/*
 	 * We have just cleared all the nonvolatile GPRs, so make
 	 * FULL_REGS(regs) return true.  This is necessary to allow
@@ -1745,6 +2442,8 @@ void start_thread(struct pt_regs *regs, unsigned long start, unsigned long sp)
 	 */
 	regs->trap &= ~1UL;
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PPC32
 	regs->mq = 0;
 	regs->nip = start;
@@ -1789,6 +2488,7 @@ void start_thread(struct pt_regs *regs, unsigned long start, unsigned long sp)
 			}
 			regs->gpr[2] = toc;
 		}
+<<<<<<< HEAD
 		regs->nip = entry;
 		regs->msr = MSR_USER64;
 	} else {
@@ -1796,13 +2496,32 @@ void start_thread(struct pt_regs *regs, unsigned long start, unsigned long sp)
 		regs->gpr[2] = 0;
 		regs->msr = MSR_USER32;
 	}
+=======
+		regs_set_return_ip(regs, entry);
+		regs_set_return_msr(regs, MSR_USER64);
+	} else {
+		regs->gpr[2] = 0;
+		regs_set_return_ip(regs, start);
+		regs_set_return_msr(regs, MSR_USER32);
+	}
+
+>>>>>>> upstream/android-13
 #endif
 #ifdef CONFIG_VSX
 	current->thread.used_vsr = 0;
 #endif
+<<<<<<< HEAD
 	current->thread.load_fp = 0;
 	memset(&current->thread.fp_state, 0, sizeof(current->thread.fp_state));
 	current->thread.fp_save_area = NULL;
+=======
+	current->thread.load_slb = 0;
+	current->thread.load_fp = 0;
+#ifdef CONFIG_PPC_FPU_REGS
+	memset(&current->thread.fp_state, 0, sizeof(current->thread.fp_state));
+	current->thread.fp_save_area = NULL;
+#endif
+>>>>>>> upstream/android-13
 #ifdef CONFIG_ALTIVEC
 	memset(&current->thread.vr_state, 0, sizeof(current->thread.vr_state));
 	current->thread.vr_state.vscr.u[3] = 0x00010000; /* Java mode disabled */
@@ -1823,8 +2542,11 @@ void start_thread(struct pt_regs *regs, unsigned long start, unsigned long sp)
 	current->thread.tm_tfiar = 0;
 	current->thread.load_tm = 0;
 #endif /* CONFIG_PPC_TRANSACTIONAL_MEM */
+<<<<<<< HEAD
 
 	thread_pkey_regs_init(&current->thread);
+=======
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(start_thread);
 
@@ -1840,7 +2562,10 @@ int set_fpexc_mode(struct task_struct *tsk, unsigned int val)
 	 * fpexc_mode.  fpexc_mode is also used for setting FP exception
 	 * mode (asyn, precise, disabled) for 'Classic' FP. */
 	if (val & PR_FP_EXC_SW_ENABLE) {
+<<<<<<< HEAD
 #ifdef CONFIG_SPE
+=======
+>>>>>>> upstream/android-13
 		if (cpu_has_feature(CPU_FTR_SPE)) {
 			/*
 			 * When the sticky exception bits are set
@@ -1854,16 +2579,27 @@ int set_fpexc_mode(struct task_struct *tsk, unsigned int val)
 			 * anyway to restore the prctl settings from
 			 * the saved environment.
 			 */
+<<<<<<< HEAD
 			tsk->thread.spefscr_last = mfspr(SPRN_SPEFSCR);
 			tsk->thread.fpexc_mode = val &
 				(PR_FP_EXC_SW_ENABLE | PR_FP_ALL_EXCEPT);
+=======
+#ifdef CONFIG_SPE
+			tsk->thread.spefscr_last = mfspr(SPRN_SPEFSCR);
+			tsk->thread.fpexc_mode = val &
+				(PR_FP_EXC_SW_ENABLE | PR_FP_ALL_EXCEPT);
+#endif
+>>>>>>> upstream/android-13
 			return 0;
 		} else {
 			return -EINVAL;
 		}
+<<<<<<< HEAD
 #else
 		return -EINVAL;
 #endif
+=======
+>>>>>>> upstream/android-13
 	}
 
 	/* on a CONFIG_SPE this does not hurt us.  The bits that
@@ -1874,18 +2610,31 @@ int set_fpexc_mode(struct task_struct *tsk, unsigned int val)
 	if (val > PR_FP_EXC_PRECISE)
 		return -EINVAL;
 	tsk->thread.fpexc_mode = __pack_fe01(val);
+<<<<<<< HEAD
 	if (regs != NULL && (regs->msr & MSR_FP) != 0)
 		regs->msr = (regs->msr & ~(MSR_FE0|MSR_FE1))
 			| tsk->thread.fpexc_mode;
+=======
+	if (regs != NULL && (regs->msr & MSR_FP) != 0) {
+		regs_set_return_msr(regs, (regs->msr & ~(MSR_FE0|MSR_FE1))
+						| tsk->thread.fpexc_mode);
+	}
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 int get_fpexc_mode(struct task_struct *tsk, unsigned long adr)
 {
+<<<<<<< HEAD
 	unsigned int val;
 
 	if (tsk->thread.fpexc_mode & PR_FP_EXC_SW_ENABLE)
 #ifdef CONFIG_SPE
+=======
+	unsigned int val = 0;
+
+	if (tsk->thread.fpexc_mode & PR_FP_EXC_SW_ENABLE) {
+>>>>>>> upstream/android-13
 		if (cpu_has_feature(CPU_FTR_SPE)) {
 			/*
 			 * When the sticky exception bits are set
@@ -1899,6 +2648,7 @@ int get_fpexc_mode(struct task_struct *tsk, unsigned long adr)
 			 * anyway to restore the prctl settings from
 			 * the saved environment.
 			 */
+<<<<<<< HEAD
 			tsk->thread.spefscr_last = mfspr(SPRN_SPEFSCR);
 			val = tsk->thread.fpexc_mode;
 		} else
@@ -1908,6 +2658,17 @@ int get_fpexc_mode(struct task_struct *tsk, unsigned long adr)
 #endif
 	else
 		val = __unpack_fe01(tsk->thread.fpexc_mode);
+=======
+#ifdef CONFIG_SPE
+			tsk->thread.spefscr_last = mfspr(SPRN_SPEFSCR);
+			val = tsk->thread.fpexc_mode;
+#endif
+		} else
+			return -EINVAL;
+	} else {
+		val = __unpack_fe01(tsk->thread.fpexc_mode);
+	}
+>>>>>>> upstream/android-13
 	return put_user(val, (unsigned int __user *) adr);
 }
 
@@ -1923,9 +2684,15 @@ int set_endian(struct task_struct *tsk, unsigned int val)
 		return -EINVAL;
 
 	if (val == PR_ENDIAN_BIG)
+<<<<<<< HEAD
 		regs->msr &= ~MSR_LE;
 	else if (val == PR_ENDIAN_LITTLE || val == PR_ENDIAN_PPC_LITTLE)
 		regs->msr |= MSR_LE;
+=======
+		regs_set_return_msr(regs, regs->msr & ~MSR_LE);
+	else if (val == PR_ENDIAN_LITTLE || val == PR_ENDIAN_PPC_LITTLE)
+		regs_set_return_msr(regs, regs->msr | MSR_LE);
+>>>>>>> upstream/android-13
 	else
 		return -EINVAL;
 
@@ -1972,6 +2739,7 @@ static inline int valid_irq_stack(unsigned long sp, struct task_struct *p,
 	unsigned long stack_page;
 	unsigned long cpu = task_cpu(p);
 
+<<<<<<< HEAD
 	/*
 	 * Avoid crashing if the stack has overflowed and corrupted
 	 * task_cpu(p), which is in the thread_info struct.
@@ -1990,26 +2758,89 @@ static inline int valid_irq_stack(unsigned long sp, struct task_struct *p,
 	return 0;
 }
 
+=======
+	stack_page = (unsigned long)hardirq_ctx[cpu];
+	if (sp >= stack_page && sp <= stack_page + THREAD_SIZE - nbytes)
+		return 1;
+
+	stack_page = (unsigned long)softirq_ctx[cpu];
+	if (sp >= stack_page && sp <= stack_page + THREAD_SIZE - nbytes)
+		return 1;
+
+	return 0;
+}
+
+static inline int valid_emergency_stack(unsigned long sp, struct task_struct *p,
+					unsigned long nbytes)
+{
+#ifdef CONFIG_PPC64
+	unsigned long stack_page;
+	unsigned long cpu = task_cpu(p);
+
+	if (!paca_ptrs)
+		return 0;
+
+	stack_page = (unsigned long)paca_ptrs[cpu]->emergency_sp - THREAD_SIZE;
+	if (sp >= stack_page && sp <= stack_page + THREAD_SIZE - nbytes)
+		return 1;
+
+# ifdef CONFIG_PPC_BOOK3S_64
+	stack_page = (unsigned long)paca_ptrs[cpu]->nmi_emergency_sp - THREAD_SIZE;
+	if (sp >= stack_page && sp <= stack_page + THREAD_SIZE - nbytes)
+		return 1;
+
+	stack_page = (unsigned long)paca_ptrs[cpu]->mc_emergency_sp - THREAD_SIZE;
+	if (sp >= stack_page && sp <= stack_page + THREAD_SIZE - nbytes)
+		return 1;
+# endif
+#endif
+
+	return 0;
+}
+
+
+>>>>>>> upstream/android-13
 int validate_sp(unsigned long sp, struct task_struct *p,
 		       unsigned long nbytes)
 {
 	unsigned long stack_page = (unsigned long)task_stack_page(p);
 
+<<<<<<< HEAD
 	if (sp >= stack_page + sizeof(struct thread_struct)
 	    && sp <= stack_page + THREAD_SIZE - nbytes)
 		return 1;
 
 	return valid_irq_stack(sp, p, nbytes);
+=======
+	if (sp < THREAD_SIZE)
+		return 0;
+
+	if (sp >= stack_page && sp <= stack_page + THREAD_SIZE - nbytes)
+		return 1;
+
+	if (valid_irq_stack(sp, p, nbytes))
+		return 1;
+
+	return valid_emergency_stack(sp, p, nbytes);
+>>>>>>> upstream/android-13
 }
 
 EXPORT_SYMBOL(validate_sp);
 
+<<<<<<< HEAD
 unsigned long get_wchan(struct task_struct *p)
+=======
+static unsigned long __get_wchan(struct task_struct *p)
+>>>>>>> upstream/android-13
 {
 	unsigned long ip, sp;
 	int count = 0;
 
+<<<<<<< HEAD
 	if (!p || p == current || p->state == TASK_RUNNING)
+=======
+	if (!p || p == current || task_is_running(p))
+>>>>>>> upstream/android-13
 		return 0;
 
 	sp = p->thread.ksp;
@@ -2019,7 +2850,11 @@ unsigned long get_wchan(struct task_struct *p)
 	do {
 		sp = *(unsigned long *)sp;
 		if (!validate_sp(sp, p, STACK_FRAME_OVERHEAD) ||
+<<<<<<< HEAD
 		    p->state == TASK_RUNNING)
+=======
+		    task_is_running(p))
+>>>>>>> upstream/android-13
 			return 0;
 		if (count > 0) {
 			ip = ((unsigned long *)sp)[STACK_FRAME_LR_SAVE];
@@ -2030,13 +2865,36 @@ unsigned long get_wchan(struct task_struct *p)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int kstack_depth_to_print = CONFIG_PRINT_STACK_DEPTH;
 
 void show_stack(struct task_struct *tsk, unsigned long *stack)
+=======
+unsigned long get_wchan(struct task_struct *p)
+{
+	unsigned long ret;
+
+	if (!try_get_task_stack(p))
+		return 0;
+
+	ret = __get_wchan(p);
+
+	put_task_stack(p);
+
+	return ret;
+}
+
+static int kstack_depth_to_print = CONFIG_PRINT_STACK_DEPTH;
+
+void __no_sanitize_address show_stack(struct task_struct *tsk,
+				      unsigned long *stack,
+				      const char *loglvl)
+>>>>>>> upstream/android-13
 {
 	unsigned long sp, ip, lr, newsp;
 	int count = 0;
 	int firstframe = 1;
+<<<<<<< HEAD
 #ifdef CONFIG_FUNCTION_GRAPH_TRACER
 	int curr_frame = current->curr_ret_stack;
 	extern void return_to_handler(void);
@@ -2049,20 +2907,43 @@ void show_stack(struct task_struct *tsk, unsigned long *stack)
 	if (sp == 0) {
 		if (tsk == current)
 			sp = current_stack_pointer();
+=======
+	unsigned long ret_addr;
+	int ftrace_idx = 0;
+
+	if (tsk == NULL)
+		tsk = current;
+
+	if (!try_get_task_stack(tsk))
+		return;
+
+	sp = (unsigned long) stack;
+	if (sp == 0) {
+		if (tsk == current)
+			sp = current_stack_frame();
+>>>>>>> upstream/android-13
 		else
 			sp = tsk->thread.ksp;
 	}
 
 	lr = 0;
+<<<<<<< HEAD
 	printk("Call Trace:\n");
 	do {
 		if (!validate_sp(sp, tsk, STACK_FRAME_OVERHEAD))
 			return;
+=======
+	printk("%sCall Trace:\n", loglvl);
+	do {
+		if (!validate_sp(sp, tsk, STACK_FRAME_OVERHEAD))
+			break;
+>>>>>>> upstream/android-13
 
 		stack = (unsigned long *) sp;
 		newsp = stack[0];
 		ip = stack[STACK_FRAME_LR_SAVE];
 		if (!firstframe || ip != lr) {
+<<<<<<< HEAD
 			printk("["REG"] ["REG"] %pS", sp, ip, (void *)ip);
 #ifdef CONFIG_FUNCTION_GRAPH_TRACER
 			if ((ip == rth) && curr_frame >= 0) {
@@ -2071,6 +2952,14 @@ void show_stack(struct task_struct *tsk, unsigned long *stack)
 				curr_frame--;
 			}
 #endif
+=======
+			printk("%s["REG"] ["REG"] %pS",
+				loglvl, sp, ip, (void *)ip);
+			ret_addr = ftrace_graph_ret_addr(current,
+						&ftrace_idx, ip, stack);
+			if (ret_addr != ip)
+				pr_cont(" (%pS)", (void *)ret_addr);
+>>>>>>> upstream/android-13
 			if (firstframe)
 				pr_cont(" (unreliable)");
 			pr_cont("\n");
@@ -2081,6 +2970,7 @@ void show_stack(struct task_struct *tsk, unsigned long *stack)
 		 * See if this is an exception frame.
 		 * We look for the "regshere" marker in the current frame.
 		 */
+<<<<<<< HEAD
 		if (validate_sp(sp, tsk, STACK_INT_FRAME_SIZE)
 		    && stack[STACK_FRAME_MARKER] == STACK_FRAME_REGS_MARKER) {
 			struct pt_regs *regs = (struct pt_regs *)
@@ -2088,11 +2978,30 @@ void show_stack(struct task_struct *tsk, unsigned long *stack)
 			lr = regs->link;
 			printk("--- interrupt: %lx at %pS\n    LR = %pS\n",
 			       regs->trap, (void *)regs->nip, (void *)lr);
+=======
+		if (validate_sp(sp, tsk, STACK_FRAME_WITH_PT_REGS)
+		    && stack[STACK_FRAME_MARKER] == STACK_FRAME_REGS_MARKER) {
+			struct pt_regs *regs = (struct pt_regs *)
+				(sp + STACK_FRAME_OVERHEAD);
+
+			lr = regs->link;
+			printk("%s--- interrupt: %lx at %pS\n",
+			       loglvl, regs->trap, (void *)regs->nip);
+			__show_regs(regs);
+			printk("%s--- interrupt: %lx\n",
+			       loglvl, regs->trap);
+
+>>>>>>> upstream/android-13
 			firstframe = 1;
 		}
 
 		sp = newsp;
 	} while (count++ < kstack_depth_to_print);
+<<<<<<< HEAD
+=======
+
+	put_task_stack(tsk);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_PPC64

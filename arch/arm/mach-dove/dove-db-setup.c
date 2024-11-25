@@ -24,7 +24,11 @@
 #include <linux/gpio.h>
 #include <asm/mach-types.h>
 #include <asm/mach/arch.h>
+<<<<<<< HEAD
 #include <mach/dove.h>
+=======
+#include "dove.h"
+>>>>>>> upstream/android-13
 #include "common.h"
 
 static struct mv643xx_eth_platform_data dove_db_ge00_data = {

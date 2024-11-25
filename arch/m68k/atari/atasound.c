@@ -26,7 +26,10 @@
 
 #include <asm/atarihw.h>
 #include <asm/irq.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/atariints.h>
 
 

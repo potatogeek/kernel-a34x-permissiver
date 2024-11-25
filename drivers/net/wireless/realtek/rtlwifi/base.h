@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2012  Realtek Corporation.
@@ -22,6 +23,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/* Copyright(c) 2009-2012  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #ifndef __RTL_BASE_H__
 #define __RTL_BASE_H__
@@ -68,6 +73,7 @@ enum ap_peer {
 #define MAX_LISTEN_INTERVAL		10
 #define MAX_RATE_TRIES			4
 
+<<<<<<< HEAD
 #define SET_80211_HDR_FRAME_CONTROL(_hdr, _val)		\
 	WRITEEF2BYTE(_hdr, _val)
 #define SET_80211_HDR_TYPE_AND_SUBTYPE(_hdr, _val)	\
@@ -77,6 +83,8 @@ enum ap_peer {
 #define SET_80211_HDR_TO_DS(_hdr, _val)			\
 	SET_BITS_TO_LE_2BYTE(_hdr, 8, 1, _val)
 
+=======
+>>>>>>> upstream/android-13
 #define SET_80211_PS_POLL_AID(_hdr, _val)		\
 	(*(u16 *)((u8 *)(_hdr) + 2) = _val)
 #define SET_80211_PS_POLL_BSSID(_hdr, _val)		\
@@ -84,14 +92,18 @@ enum ap_peer {
 #define SET_80211_PS_POLL_TA(_hdr, _val)		\
 	ether_addr_copy(((u8 *)(_hdr))+10, (u8 *)(_val))
 
+<<<<<<< HEAD
 #define SET_80211_HDR_DURATION(_hdr, _val)	\
 	(*(u16 *)((u8 *)(_hdr) + FRAME_OFFSET_DURATION) = le16_to_cpu(_val))
+=======
+>>>>>>> upstream/android-13
 #define SET_80211_HDR_ADDRESS1(_hdr, _val)	\
 	CP_MACADDR((u8 *)(_hdr)+FRAME_OFFSET_ADDRESS1, (u8 *)(_val))
 #define SET_80211_HDR_ADDRESS2(_hdr, _val)	\
 	CP_MACADDR((u8 *)(_hdr)+FRAME_OFFSET_ADDRESS2, (u8 *)(_val))
 #define SET_80211_HDR_ADDRESS3(_hdr, _val)	\
 	CP_MACADDR((u8 *)(_hdr)+FRAME_OFFSET_ADDRESS3, (u8 *)(_val))
+<<<<<<< HEAD
 #define SET_80211_HDR_FRAGMENT_SEQUENCE(_hdr, _val)  \
 	WRITEEF2BYTE((u8 *)(_hdr)+FRAME_OFFSET_SEQUENCE, _val)
 
@@ -113,6 +125,13 @@ enum ap_peer {
 	SET_BITS_TO_LE_4BYTE((__pdesc) + 8, 19, 1, __val)
 #define SET_TX_DESC_SW_DEFINE(__pdesc, __val)	\
 	SET_BITS_TO_LE_4BYTE((__pdesc) + 24, 0, 12, __val)
+=======
+
+#define SET_TX_DESC_SPE_RPT(__pdesc, __val)			\
+	le32p_replace_bits((__le32 *)(__pdesc + 8), __val, BIT(19))
+#define SET_TX_DESC_SW_DEFINE(__pdesc, __val)	\
+	le32p_replace_bits((__le32 *)(__pdesc + 24), __val, GENMASK(11, 0))
+>>>>>>> upstream/android-13
 
 int rtl_init_core(struct ieee80211_hw *hw);
 void rtl_deinit_core(struct ieee80211_hw *hw);
@@ -157,9 +176,12 @@ int rtl_rx_agg_start(struct ieee80211_hw *hw,
 int rtl_rx_agg_stop(struct ieee80211_hw *hw,
 		    struct ieee80211_sta *sta, u16 tid);
 void rtl_rx_ampdu_apply(struct rtl_priv *rtlpriv);
+<<<<<<< HEAD
 void rtl_watchdog_wq_callback(void *data);
 void rtl_fwevt_wq_callback(void *data);
 void rtl_c2hcmd_wq_callback(void *data);
+=======
+>>>>>>> upstream/android-13
 void rtl_c2hcmd_launcher(struct ieee80211_hw *hw, int exec);
 void rtl_c2hcmd_enqueue(struct ieee80211_hw *hw, struct sk_buff *skb);
 

@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * omap iommu: main structures
  *
  * Copyright (C) 2008-2009 Nokia Corporation
  *
  * Written by Hiroshi DOYU <Hiroshi.DOYU@nokia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _OMAP_IOMMU_H
@@ -76,16 +83,32 @@ struct omap_iommu {
 
 	void *ctx; /* iommu context: registres saved area */
 
+<<<<<<< HEAD
+=======
+	struct cr_regs *cr_ctx;
+	u32 num_cr_ctx;
+
+>>>>>>> upstream/android-13
 	int has_bus_err_back;
 	u32 id;
 
 	struct iommu_device iommu;
 	struct iommu_group *group;
+<<<<<<< HEAD
+=======
+
+	u8 pwrst;
+>>>>>>> upstream/android-13
 };
 
 /**
  * struct omap_iommu_arch_data - omap iommu private data
+<<<<<<< HEAD
  * @iommu_dev: handle of the iommu device
+=======
+ * @iommu_dev: handle of the OMAP iommu device
+ * @dev: handle of the iommu device
+>>>>>>> upstream/android-13
  *
  * This is an omap iommu private data object, which binds an iommu user
  * to its iommu device. This object should be placed at the iommu user's
@@ -94,6 +117,10 @@ struct omap_iommu {
  */
 struct omap_iommu_arch_data {
 	struct omap_iommu *iommu_dev;
+<<<<<<< HEAD
+=======
+	struct device *dev;
+>>>>>>> upstream/android-13
 };
 
 struct cr_regs {

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *
  * Intel Management Engine Interface (Intel MEI) Linux driver
@@ -12,6 +13,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (c) 2013-2020, Intel Corporation. All rights reserved.
+ * Intel Management Engine Interface (Intel MEI) Linux driver
+>>>>>>> upstream/android-13
  */
 
 #include <linux/pci.h>
@@ -670,14 +677,25 @@ static int mei_txe_fw_status(struct mei_device *dev,
 }
 
 /**
+<<<<<<< HEAD
  *  mei_txe_hw_config - configure hardware at the start of the devices
+=======
+ * mei_txe_hw_config - configure hardware at the start of the devices
+>>>>>>> upstream/android-13
  *
  * @dev: the device structure
  *
  * Configure hardware at the start of the device should be done only
  *   once at the device probe time
+<<<<<<< HEAD
  */
 static void mei_txe_hw_config(struct mei_device *dev)
+=======
+ *
+ * Return: always 0
+ */
+static int mei_txe_hw_config(struct mei_device *dev)
+>>>>>>> upstream/android-13
 {
 
 	struct mei_txe_hw *hw = to_txe_hw(dev);
@@ -687,6 +705,11 @@ static void mei_txe_hw_config(struct mei_device *dev)
 
 	dev_dbg(dev->dev, "aliveness_resp = 0x%08x, readiness = 0x%08x.\n",
 		hw->aliveness, hw->readiness);
+<<<<<<< HEAD
+=======
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1207,8 +1230,12 @@ struct mei_device *mei_txe_dev_init(struct pci_dev *pdev)
 	struct mei_device *dev;
 	struct mei_txe_hw *hw;
 
+<<<<<<< HEAD
 	dev = devm_kzalloc(&pdev->dev, sizeof(struct mei_device) +
 			   sizeof(struct mei_txe_hw), GFP_KERNEL);
+=======
+	dev = devm_kzalloc(&pdev->dev, sizeof(*dev) + sizeof(*hw), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!dev)
 		return NULL;
 

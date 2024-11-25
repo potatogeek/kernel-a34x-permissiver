@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2011 matt mooney <mfm@muteddisk.com>
  *               2005-2007 Takahiro Hirofuchi
  * Copyright (C) 2015-2016 Samsung Electronics
  *               Igor Kotrasinski <i.kotrasinsk@samsung.com>
  *               Krzysztof Opasiak <k.opasiak@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <sys/types.h>
@@ -45,7 +52,12 @@ static const char usbip_list_usage_string[] =
 	"usbip list [-p|--parsable] <args>\n"
 	"    -p, --parsable         Parsable list format\n"
 	"    -r, --remote=<host>    List the exportable USB devices on <host>\n"
+<<<<<<< HEAD
 	"    -l, --local            List the local USB devices\n";
+=======
+	"    -l, --local            List the local USB devices\n"
+	"    -d, --device           List the local USB gadgets bound to usbip-vudc\n";
+>>>>>>> upstream/android-13
 
 void usbip_list_usage(void)
 {

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/fs/nfs/file.c
  *
@@ -88,9 +92,15 @@ nfs_file_release(struct inode *inode, struct file *filp)
 EXPORT_SYMBOL_GPL(nfs_file_release);
 
 /**
+<<<<<<< HEAD
  * nfs_revalidate_size - Revalidate the file size
  * @inode - pointer to inode struct
  * @file - pointer to struct file
+=======
+ * nfs_revalidate_file_size - Revalidate the file size
+ * @inode: pointer to inode struct
+ * @filp: pointer to struct file
+>>>>>>> upstream/android-13
  *
  * Revalidates the file length. This is basically a wrapper around
  * nfs_revalidate_inode() that takes into account the fact that we may
@@ -104,7 +114,11 @@ static int nfs_revalidate_file_size(struct inode *inode, struct file *filp)
 
 	if (filp->f_flags & O_DIRECT)
 		goto force_reval;
+<<<<<<< HEAD
 	if (nfs_check_cache_invalid(inode, NFS_INO_REVAL_PAGECACHE))
+=======
+	if (nfs_check_cache_invalid(inode, NFS_INO_INVALID_SIZE))
+>>>>>>> upstream/android-13
 		goto force_reval;
 	return 0;
 force_reval:
@@ -139,6 +153,10 @@ static int
 nfs_file_flush(struct file *file, fl_owner_t id)
 {
 	struct inode	*inode = file_inode(file);
+<<<<<<< HEAD
+=======
+	errseq_t since;
+>>>>>>> upstream/android-13
 
 	dprintk("NFS: flush(%pD2)\n", file);
 
@@ -147,7 +165,13 @@ nfs_file_flush(struct file *file, fl_owner_t id)
 		return 0;
 
 	/* Flush writes to the server and return any errors */
+<<<<<<< HEAD
 	return vfs_fsync(file, 0);
+=======
+	since = filemap_sample_wb_err(file->f_mapping);
+	nfs_wb_all(inode);
+	return filemap_check_wb_err(file->f_mapping, since);
+>>>>>>> upstream/android-13
 }
 
 ssize_t
@@ -157,7 +181,11 @@ nfs_file_read(struct kiocb *iocb, struct iov_iter *to)
 	ssize_t result;
 
 	if (iocb->ki_flags & IOCB_DIRECT)
+<<<<<<< HEAD
 		return nfs_file_direct_read(iocb, to);
+=======
+		return nfs_file_direct_read(iocb, to, false);
+>>>>>>> upstream/android-13
 
 	dprintk("NFS: read(%pD2, %zu@%lu)\n",
 		iocb->ki_filp,
@@ -199,6 +227,7 @@ EXPORT_SYMBOL_GPL(nfs_file_mmap);
  * Flush any dirty pages for this process, and check for write errors.
  * The return status from this call provides a reliable indication of
  * whether any write errors occurred for this process.
+<<<<<<< HEAD
  *
  * Notice that it clears the NFS_CONTEXT_ERROR_WRITE before synching to
  * disk, but it retrieves and clears ctx->error after synching, despite
@@ -206,18 +235,26 @@ EXPORT_SYMBOL_GPL(nfs_file_mmap);
  * This is because the former is used to notify the _next_ call to
  * nfs_file_write() that a write error occurred, and hence cause it to
  * fall back to doing a synchronous write.
+=======
+>>>>>>> upstream/android-13
  */
 static int
 nfs_file_fsync_commit(struct file *file, int datasync)
 {
+<<<<<<< HEAD
 	struct nfs_open_context *ctx = nfs_file_open_context(file);
 	struct inode *inode = file_inode(file);
 	int do_resend, status;
 	int ret = 0;
+=======
+	struct inode *inode = file_inode(file);
+	int ret;
+>>>>>>> upstream/android-13
 
 	dprintk("NFS: fsync file(%pD2) datasync %d\n", file, datasync);
 
 	nfs_inc_stats(inode, NFSIOS_VFSFSYNC);
+<<<<<<< HEAD
 	do_resend = test_and_clear_bit(NFS_CONTEXT_RESEND_WRITES, &ctx->flags);
 	status = nfs_commit_inode(inode, FLUSH_SYNC);
 	if (test_bit(NFS_CONTEXT_ERROR_WRITE, &ctx->flags)) {
@@ -234,11 +271,18 @@ nfs_file_fsync_commit(struct file *file, int datasync)
 		ret = -EAGAIN;
 out:
 	return ret;
+=======
+	ret = nfs_commit_inode(inode, FLUSH_SYNC);
+	if (ret < 0)
+		return ret;
+	return file_check_and_advance_wb_err(file);
+>>>>>>> upstream/android-13
 }
 
 int
 nfs_file_fsync(struct file *file, loff_t start, loff_t end, int datasync)
 {
+<<<<<<< HEAD
 	int ret;
 	struct inode *inode = file_inode(file);
 
@@ -257,6 +301,26 @@ nfs_file_fsync(struct file *file, loff_t start, loff_t end, int datasync)
 		ret = nfs_file_fsync_commit(file, datasync);
 		if (!ret)
 			ret = pnfs_sync_inode(inode, !!datasync);
+=======
+	struct nfs_open_context *ctx = nfs_file_open_context(file);
+	struct inode *inode = file_inode(file);
+	int ret;
+
+	trace_nfs_fsync_enter(inode);
+
+	for (;;) {
+		ret = file_write_and_wait_range(file, start, end);
+		if (ret != 0)
+			break;
+		ret = nfs_file_fsync_commit(file, datasync);
+		if (ret != 0)
+			break;
+		ret = pnfs_sync_inode(inode, !!datasync);
+		if (ret != 0)
+			break;
+		if (!test_and_clear_bit(NFS_CONTEXT_RESEND_WRITES, &ctx->flags))
+			break;
+>>>>>>> upstream/android-13
 		/*
 		 * If nfs_file_fsync_commit detected a server reboot, then
 		 * resend all dirty pages that might have been covered by
@@ -264,7 +328,11 @@ nfs_file_fsync(struct file *file, loff_t start, loff_t end, int datasync)
 		 */
 		start = 0;
 		end = LLONG_MAX;
+<<<<<<< HEAD
 	} while (ret == -EAGAIN);
+=======
+	}
+>>>>>>> upstream/android-13
 
 	trace_nfs_fsync_exit(inode, ret);
 	return ret;
@@ -276,6 +344,15 @@ EXPORT_SYMBOL_GPL(nfs_file_fsync);
  * then a modify/write/read cycle when writing to a page in the
  * page cache.
  *
+<<<<<<< HEAD
+=======
+ * Some pNFS layout drivers can only read/write at a certain block
+ * granularity like all block devices and therefore we must perform
+ * read/modify/write whenever a page hasn't read yet and the data
+ * to be written there is not aligned to a block boundary and/or
+ * smaller than the block size.
+ *
+>>>>>>> upstream/android-13
  * The modify/write/read cycle may occur if a page is read before
  * being completely filled by the writer.  In this situation, the
  * page must be completely written to stable storage on the server
@@ -291,13 +368,18 @@ EXPORT_SYMBOL_GPL(nfs_file_fsync);
  * and that the new data won't completely replace the old data in
  * that range of the file.
  */
+<<<<<<< HEAD
 static int nfs_want_read_modify_write(struct file *file, struct page *page,
 			loff_t pos, unsigned len)
+=======
+static bool nfs_full_page_write(struct page *page, loff_t pos, unsigned int len)
+>>>>>>> upstream/android-13
 {
 	unsigned int pglen = nfs_page_length(page);
 	unsigned int offset = pos & (PAGE_SIZE - 1);
 	unsigned int end = offset + len;
 
+<<<<<<< HEAD
 	if (pnfs_ld_read_whole_page(file->f_mapping->host)) {
 		if (!PageUptodate(page))
 			return 1;
@@ -311,6 +393,28 @@ static int nfs_want_read_modify_write(struct file *file, struct page *page,
 	    (end < pglen || offset))		/* replace all valid bytes? */
 		return 1;
 	return 0;
+=======
+	return !pglen || (end >= pglen && !offset);
+}
+
+static bool nfs_want_read_modify_write(struct file *file, struct page *page,
+			loff_t pos, unsigned int len)
+{
+	/*
+	 * Up-to-date pages, those with ongoing or full-page write
+	 * don't need read/modify/write
+	 */
+	if (PageUptodate(page) || PagePrivate(page) ||
+	    nfs_full_page_write(page, pos, len))
+		return false;
+
+	if (pnfs_ld_read_whole_page(file->f_mapping->host))
+		return true;
+	/* Open for reading too? */
+	if (file->f_mode & FMODE_READ)
+		return true;
+	return false;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -492,7 +596,23 @@ static int nfs_launder_page(struct page *page)
 static int nfs_swap_activate(struct swap_info_struct *sis, struct file *file,
 						sector_t *span)
 {
+<<<<<<< HEAD
 	struct rpc_clnt *clnt = NFS_CLIENT(file->f_mapping->host);
+=======
+	unsigned long blocks;
+	long long isize;
+	struct rpc_clnt *clnt = NFS_CLIENT(file->f_mapping->host);
+	struct inode *inode = file->f_mapping->host;
+
+	spin_lock(&inode->i_lock);
+	blocks = inode->i_blocks;
+	isize = inode->i_size;
+	spin_unlock(&inode->i_lock);
+	if (blocks*512 < isize) {
+		pr_warn("swap activate: swapfile has holes\n");
+		return -EINVAL;
+	}
+>>>>>>> upstream/android-13
 
 	*span = sis->pages;
 
@@ -581,14 +701,26 @@ static const struct vm_operations_struct nfs_file_vm_ops = {
 	.fault = filemap_fault,
 	.map_pages = filemap_map_pages,
 	.page_mkwrite = nfs_vm_page_mkwrite,
+<<<<<<< HEAD
 };
 
 static int nfs_need_check_write(struct file *filp, struct inode *inode)
+=======
+	.speculative = true,
+};
+
+static int nfs_need_check_write(struct file *filp, struct inode *inode,
+				int error)
+>>>>>>> upstream/android-13
 {
 	struct nfs_open_context *ctx;
 
 	ctx = nfs_file_open_context(filp);
+<<<<<<< HEAD
 	if (test_bit(NFS_CONTEXT_ERROR_WRITE, &ctx->flags) ||
+=======
+	if (nfs_error_is_fatal_on_server(error) ||
+>>>>>>> upstream/android-13
 	    nfs_ctx_key_to_expire(ctx, inode))
 		return 1;
 	return 0;
@@ -598,15 +730,26 @@ ssize_t nfs_file_write(struct kiocb *iocb, struct iov_iter *from)
 {
 	struct file *file = iocb->ki_filp;
 	struct inode *inode = file_inode(file);
+<<<<<<< HEAD
 	unsigned long written = 0;
 	ssize_t result;
+=======
+	unsigned int mntflags = NFS_SERVER(inode)->flags;
+	ssize_t result, written;
+	errseq_t since;
+	int error;
+>>>>>>> upstream/android-13
 
 	result = nfs_key_timeout_notify(file, inode);
 	if (result)
 		return result;
 
 	if (iocb->ki_flags & IOCB_DIRECT)
+<<<<<<< HEAD
 		return nfs_file_direct_write(iocb, from);
+=======
+		return nfs_file_direct_write(iocb, from, false);
+>>>>>>> upstream/android-13
 
 	dprintk("NFS: write(%pD2, %zu@%Ld)\n",
 		file, iov_iter_count(from), (long long) iocb->ki_pos);
@@ -616,14 +759,25 @@ ssize_t nfs_file_write(struct kiocb *iocb, struct iov_iter *from)
 	/*
 	 * O_APPEND implies that we must revalidate the file length.
 	 */
+<<<<<<< HEAD
 	if (iocb->ki_flags & IOCB_APPEND) {
+=======
+	if (iocb->ki_flags & IOCB_APPEND || iocb->ki_pos > i_size_read(inode)) {
+>>>>>>> upstream/android-13
 		result = nfs_revalidate_file_size(inode, file);
 		if (result)
 			goto out;
 	}
+<<<<<<< HEAD
 	if (iocb->ki_pos > i_size_read(inode))
 		nfs_revalidate_mapping(inode, file->f_mapping);
 
+=======
+
+	nfs_clear_invalid_mapping(file->f_mapping);
+
+	since = filemap_sample_wb_err(file->f_mapping);
+>>>>>>> upstream/android-13
 	nfs_start_io_write(inode);
 	result = generic_write_checks(iocb, from);
 	if (result > 0) {
@@ -637,13 +791,37 @@ ssize_t nfs_file_write(struct kiocb *iocb, struct iov_iter *from)
 
 	written = result;
 	iocb->ki_pos += written;
+<<<<<<< HEAD
+=======
+
+	if (mntflags & NFS_MOUNT_WRITE_EAGER) {
+		result = filemap_fdatawrite_range(file->f_mapping,
+						  iocb->ki_pos - written,
+						  iocb->ki_pos - 1);
+		if (result < 0)
+			goto out;
+	}
+	if (mntflags & NFS_MOUNT_WRITE_WAIT) {
+		result = filemap_fdatawait_range(file->f_mapping,
+						 iocb->ki_pos - written,
+						 iocb->ki_pos - 1);
+		if (result < 0)
+			goto out;
+	}
+>>>>>>> upstream/android-13
 	result = generic_write_sync(iocb, written);
 	if (result < 0)
 		goto out;
 
 	/* Return error values */
+<<<<<<< HEAD
 	if (nfs_need_check_write(file, inode)) {
 		int err = vfs_fsync(file, 0);
+=======
+	error = filemap_check_wb_err(file->f_mapping, since);
+	if (nfs_need_check_write(file, inode, error)) {
+		int err = nfs_wb_all(inode);
+>>>>>>> upstream/android-13
 		if (err < 0)
 			result = err;
 	}
@@ -653,7 +831,11 @@ out:
 
 out_swapfile:
 	printk(KERN_INFO "NFS: attempt to write to active swap file!\n");
+<<<<<<< HEAD
 	return -EBUSY;
+=======
+	return -ETXTBSY;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(nfs_file_write);
 
@@ -697,7 +879,11 @@ do_unlk(struct file *filp, int cmd, struct file_lock *fl, int is_local)
 	 * Flush all pending writes before doing anything
 	 * with locks..
 	 */
+<<<<<<< HEAD
 	vfs_fsync(filp, 0);
+=======
+	nfs_wb_all(inode);
+>>>>>>> upstream/android-13
 
 	l_ctx = nfs_get_lock_context(nfs_file_open_context(filp));
 	if (!IS_ERR(l_ctx)) {
@@ -779,9 +965,14 @@ int nfs_lock(struct file *filp, int cmd, struct file_lock *fl)
 
 	nfs_inc_stats(inode, NFSIOS_VFSLOCK);
 
+<<<<<<< HEAD
 	/* No mandatory locks over NFS */
 	if (__mandatory_lock(inode) && fl->fl_type != F_UNLCK)
 		goto out_err;
+=======
+	if (fl->fl_flags & FL_RECLAIM)
+		return -ENOGRACE;
+>>>>>>> upstream/android-13
 
 	if (NFS_SERVER(inode)->flags & NFS_MOUNT_LOCAL_FCNTL)
 		is_local = 1;

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * linux/arch/arm/mach-at91/at91rm9200_time.c
  *
  *  Copyright (C) 2003 SAN People
  *  Copyright (C) 2003 ATMEL
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -152,7 +159,10 @@ static int
 clkevt32k_next_event(unsigned long delta, struct clock_event_device *dev)
 {
 	u32		alm;
+<<<<<<< HEAD
 	int		status = 0;
+=======
+>>>>>>> upstream/android-13
 	unsigned int	val;
 
 	BUG_ON(delta < 2);
@@ -176,7 +186,11 @@ clkevt32k_next_event(unsigned long delta, struct clock_event_device *dev)
 	alm += delta;
 	regmap_write(regmap_st, AT91_ST_RTAR, alm);
 
+<<<<<<< HEAD
 	return status;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static struct clock_event_device clkevt = {

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015 Regents of the University of California
  * Copyright (C) 2017 SiFive
@@ -10,6 +11,12 @@
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *   GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2015 Regents of the University of California
+ * Copyright (C) 2017 SiFive
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_RISCV_SPINLOCK_H

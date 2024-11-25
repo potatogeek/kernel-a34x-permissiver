@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Marvell PXA2xx family pin control
  *
  * Copyright (C) 2015 Robert Jarzmik
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
@@ -14,6 +21,10 @@
 #include <linux/of.h>
 #include <linux/of_address.h>
 #include <linux/module.h>
+<<<<<<< HEAD
+=======
+#include <linux/pinctrl/machine.h>
+>>>>>>> upstream/android-13
 #include <linux/pinctrl/pinconf.h>
 #include <linux/pinctrl/pinconf-generic.h>
 #include <linux/pinctrl/pinmux.h>
@@ -197,7 +208,11 @@ static int pxa2xx_pconf_group_get(struct pinctrl_dev *pctldev,
 
 	spin_lock_irqsave(&pctl->lock, flags);
 	val = readl_relaxed(pgsr) & BIT(pin % 32);
+<<<<<<< HEAD
 	*config = val ? PIN_CONFIG_LOW_POWER_MODE : 0;
+=======
+	*config = val ? PIN_CONFIG_MODE_LOW_POWER : 0;
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&pctl->lock, flags);
 
 	dev_dbg(pctl->dev, "get sleep gpio state(pin=%d) %d\n",
@@ -220,7 +235,11 @@ static int pxa2xx_pconf_group_set(struct pinctrl_dev *pctldev,
 
 	for (i = 0; i < num_configs; i++) {
 		switch (pinconf_to_config_param(configs[i])) {
+<<<<<<< HEAD
 		case PIN_CONFIG_LOW_POWER_MODE:
+=======
+		case PIN_CONFIG_MODE_LOW_POWER:
+>>>>>>> upstream/android-13
 			is_set = pinconf_to_config_argument(configs[i]);
 			break;
 		default:
@@ -428,6 +447,7 @@ int pxa2xx_pinctrl_init(struct platform_device *pdev,
 }
 EXPORT_SYMBOL_GPL(pxa2xx_pinctrl_init);
 
+<<<<<<< HEAD
 int pxa2xx_pinctrl_exit(struct platform_device *pdev)
 {
 	struct pxa_pinctrl *pctl = platform_get_drvdata(pdev);
@@ -437,6 +457,8 @@ int pxa2xx_pinctrl_exit(struct platform_device *pdev)
 }
 EXPORT_SYMBOL_GPL(pxa2xx_pinctrl_exit);
 
+=======
+>>>>>>> upstream/android-13
 MODULE_AUTHOR("Robert Jarzmik <robert.jarzmik@free.fr>");
 MODULE_DESCRIPTION("Marvell PXA2xx pinctrl driver");
 MODULE_LICENSE("GPL v2");

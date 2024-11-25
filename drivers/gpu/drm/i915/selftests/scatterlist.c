@@ -24,7 +24,12 @@
 #include <linux/prime_numbers.h>
 #include <linux/random.h>
 
+<<<<<<< HEAD
 #include "../i915_selftest.h"
+=======
+#include "i915_selftest.h"
+#include "i915_utils.h"
+>>>>>>> upstream/android-13
 
 #define PFN_BIAS (1 << 10)
 

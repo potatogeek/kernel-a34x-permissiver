@@ -166,6 +166,7 @@ unsigned long iommu_tbl_range_alloc(struct device *dev,
 		}
 	}
 
+<<<<<<< HEAD
 	if (dev)
 		boundary_size = ALIGN(dma_get_seg_boundary(dev) + 1,
 				      1 << iommu->table_shift);
@@ -173,6 +174,8 @@ unsigned long iommu_tbl_range_alloc(struct device *dev,
 		boundary_size = ALIGN(1ULL << 32, 1 << iommu->table_shift);
 
 	boundary_size = boundary_size >> iommu->table_shift;
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * if the skip_span_boundary_check had been set during init, we set
 	 * things up so that iommu_is_span_boundary() merely checks if the
@@ -181,6 +184,12 @@ unsigned long iommu_tbl_range_alloc(struct device *dev,
 	if ((iommu->flags & IOMMU_NO_SPAN_BOUND) != 0) {
 		shift = 0;
 		boundary_size = iommu->poolsize * iommu->nr_pools;
+<<<<<<< HEAD
+=======
+	} else {
+		boundary_size = dma_get_seg_boundary_nr_pages(dev,
+					iommu->table_shift);
+>>>>>>> upstream/android-13
 	}
 	n = iommu_area_alloc(iommu->map, limit, start, npages, shift,
 			     boundary_size, align_mask);

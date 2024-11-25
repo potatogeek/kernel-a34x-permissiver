@@ -1,10 +1,16 @@
 #ifndef _ASM_X86_UNWIND_HINTS_H
 #define _ASM_X86_UNWIND_HINTS_H
 
+<<<<<<< HEAD
+=======
+#include <linux/objtool.h>
+
+>>>>>>> upstream/android-13
 #include "orc_types.h"
 
 #ifdef __ASSEMBLY__
 
+<<<<<<< HEAD
 /*
  * In asm, there are two kinds of code: normal C-type callable functions and
  * the rest.  The normal callable functions can be called by other code, and
@@ -46,6 +52,13 @@
 .endm
 
 .macro UNWIND_HINT_REGS base=%rsp offset=0 indirect=0 extra=1 iret=0
+=======
+.macro UNWIND_HINT_EMPTY
+	UNWIND_HINT sp_reg=ORC_REG_UNDEFINED type=UNWIND_HINT_TYPE_CALL end=1
+.endm
+
+.macro UNWIND_HINT_REGS base=%rsp offset=0 indirect=0 extra=1 partial=0
+>>>>>>> upstream/android-13
 	.if \base == %rsp
 		.if \indirect
 			.set sp_reg, ORC_REG_SP_INDIRECT
@@ -66,6 +79,7 @@
 
 	.set sp_offset, \offset
 
+<<<<<<< HEAD
 	.if \iret
 		.set type, ORC_TYPE_REGS_IRET
 	.elseif \extra == 0
@@ -73,12 +87,22 @@
 		.set sp_offset, \offset + (16*8)
 	.else
 		.set type, ORC_TYPE_REGS
+=======
+	.if \partial
+		.set type, UNWIND_HINT_TYPE_REGS_PARTIAL
+	.elseif \extra == 0
+		.set type, UNWIND_HINT_TYPE_REGS_PARTIAL
+		.set sp_offset, \offset + (16*8)
+	.else
+		.set type, UNWIND_HINT_TYPE_REGS
+>>>>>>> upstream/android-13
 	.endif
 
 	UNWIND_HINT sp_reg=sp_reg sp_offset=sp_offset type=type
 .endm
 
 .macro UNWIND_HINT_IRET_REGS base=%rsp offset=0
+<<<<<<< HEAD
 	UNWIND_HINT_REGS base=\base offset=\offset iret=1
 .endm
 
@@ -104,6 +128,15 @@
 
 #define UNWIND_HINT_RESTORE UNWIND_HINT(0, 0, UNWIND_HINT_TYPE_RESTORE, 0)
 
+=======
+	UNWIND_HINT_REGS base=\base offset=\offset partial=1
+.endm
+
+.macro UNWIND_HINT_FUNC
+	UNWIND_HINT sp_reg=ORC_REG_SP sp_offset=8 type=UNWIND_HINT_TYPE_FUNC
+.endm
+
+>>>>>>> upstream/android-13
 #endif /* __ASSEMBLY__ */
 
 #endif /* _ASM_X86_UNWIND_HINTS_H */

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Hardware monitoring driver for Analog Devices ADM1275 Hot-Swap Controller
  * and Digital Power Monitor
  *
  * Copyright (c) 2011 Ericsson AB.
  * Copyright (c) 2018 Guenter Roeck
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +19,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -23,6 +30,11 @@
 #include <linux/slab.h>
 #include <linux/i2c.h>
 #include <linux/bitops.h>
+<<<<<<< HEAD
+=======
+#include <linux/bitfield.h>
+#include <linux/log2.h>
+>>>>>>> upstream/android-13
 #include "pmbus.h"
 
 enum chips { adm1075, adm1272, adm1275, adm1276, adm1278, adm1293, adm1294 };
@@ -78,6 +90,21 @@ enum chips { adm1075, adm1272, adm1275, adm1276, adm1278, adm1293, adm1294 };
 #define ADM1075_VAUX_OV_WARN		BIT(7)
 #define ADM1075_VAUX_UV_WARN		BIT(6)
 
+<<<<<<< HEAD
+=======
+#define ADM1275_VI_AVG_SHIFT		0
+#define ADM1275_VI_AVG_MASK		GENMASK(ADM1275_VI_AVG_SHIFT + 2, \
+						ADM1275_VI_AVG_SHIFT)
+#define ADM1275_SAMPLES_AVG_MAX		128
+
+#define ADM1278_PWR_AVG_SHIFT		11
+#define ADM1278_PWR_AVG_MASK		GENMASK(ADM1278_PWR_AVG_SHIFT + 2, \
+						ADM1278_PWR_AVG_SHIFT)
+#define ADM1278_VI_AVG_SHIFT		8
+#define ADM1278_VI_AVG_MASK		GENMASK(ADM1278_VI_AVG_SHIFT + 2, \
+						ADM1278_VI_AVG_SHIFT)
+
+>>>>>>> upstream/android-13
 struct adm1275_data {
 	int id;
 	bool have_oc_fault;
@@ -89,6 +116,10 @@ struct adm1275_data {
 	bool have_pin_min;
 	bool have_pin_max;
 	bool have_temp_max;
+<<<<<<< HEAD
+=======
+	bool have_power_sampling;
+>>>>>>> upstream/android-13
 	struct pmbus_driver_info info;
 };
 
@@ -164,7 +195,68 @@ static const struct coefficients adm1293_coefficients[] = {
 	[18] = { 7658, 0, -3 },		/* power, 21V, irange200 */
 };
 
+<<<<<<< HEAD
 static int adm1275_read_word_data(struct i2c_client *client, int page, int reg)
+=======
+static int adm1275_read_pmon_config(const struct adm1275_data *data,
+				    struct i2c_client *client, bool is_power)
+{
+	int shift, ret;
+	u16 mask;
+
+	/*
+	 * The PMON configuration register is a 16-bit register only on chips
+	 * supporting power average sampling. On other chips it is an 8-bit
+	 * register.
+	 */
+	if (data->have_power_sampling) {
+		ret = i2c_smbus_read_word_data(client, ADM1275_PMON_CONFIG);
+		mask = is_power ? ADM1278_PWR_AVG_MASK : ADM1278_VI_AVG_MASK;
+		shift = is_power ? ADM1278_PWR_AVG_SHIFT : ADM1278_VI_AVG_SHIFT;
+	} else {
+		ret = i2c_smbus_read_byte_data(client, ADM1275_PMON_CONFIG);
+		mask = ADM1275_VI_AVG_MASK;
+		shift = ADM1275_VI_AVG_SHIFT;
+	}
+	if (ret < 0)
+		return ret;
+
+	return (ret & mask) >> shift;
+}
+
+static int adm1275_write_pmon_config(const struct adm1275_data *data,
+				     struct i2c_client *client,
+				     bool is_power, u16 word)
+{
+	int shift, ret;
+	u16 mask;
+
+	if (data->have_power_sampling) {
+		ret = i2c_smbus_read_word_data(client, ADM1275_PMON_CONFIG);
+		mask = is_power ? ADM1278_PWR_AVG_MASK : ADM1278_VI_AVG_MASK;
+		shift = is_power ? ADM1278_PWR_AVG_SHIFT : ADM1278_VI_AVG_SHIFT;
+	} else {
+		ret = i2c_smbus_read_byte_data(client, ADM1275_PMON_CONFIG);
+		mask = ADM1275_VI_AVG_MASK;
+		shift = ADM1275_VI_AVG_SHIFT;
+	}
+	if (ret < 0)
+		return ret;
+
+	word = (ret & ~mask) | ((word << shift) & mask);
+	if (data->have_power_sampling)
+		ret = i2c_smbus_write_word_data(client, ADM1275_PMON_CONFIG,
+						word);
+	else
+		ret = i2c_smbus_write_byte_data(client, ADM1275_PMON_CONFIG,
+						word);
+
+	return ret;
+}
+
+static int adm1275_read_word_data(struct i2c_client *client, int page,
+				  int phase, int reg)
+>>>>>>> upstream/android-13
 {
 	const struct pmbus_driver_info *info = pmbus_get_driver_info(client);
 	const struct adm1275_data *data = to_adm1275_data(info);
@@ -177,33 +269,57 @@ static int adm1275_read_word_data(struct i2c_client *client, int page, int reg)
 	case PMBUS_IOUT_UC_FAULT_LIMIT:
 		if (!data->have_uc_fault)
 			return -ENXIO;
+<<<<<<< HEAD
 		ret = pmbus_read_word_data(client, 0, ADM1275_IOUT_WARN2_LIMIT);
+=======
+		ret = pmbus_read_word_data(client, 0, 0xff,
+					   ADM1275_IOUT_WARN2_LIMIT);
+>>>>>>> upstream/android-13
 		break;
 	case PMBUS_IOUT_OC_FAULT_LIMIT:
 		if (!data->have_oc_fault)
 			return -ENXIO;
+<<<<<<< HEAD
 		ret = pmbus_read_word_data(client, 0, ADM1275_IOUT_WARN2_LIMIT);
+=======
+		ret = pmbus_read_word_data(client, 0, 0xff,
+					   ADM1275_IOUT_WARN2_LIMIT);
+>>>>>>> upstream/android-13
 		break;
 	case PMBUS_VOUT_OV_WARN_LIMIT:
 		if (data->have_vout)
 			return -ENODATA;
+<<<<<<< HEAD
 		ret = pmbus_read_word_data(client, 0,
+=======
+		ret = pmbus_read_word_data(client, 0, 0xff,
+>>>>>>> upstream/android-13
 					   ADM1075_VAUX_OV_WARN_LIMIT);
 		break;
 	case PMBUS_VOUT_UV_WARN_LIMIT:
 		if (data->have_vout)
 			return -ENODATA;
+<<<<<<< HEAD
 		ret = pmbus_read_word_data(client, 0,
+=======
+		ret = pmbus_read_word_data(client, 0, 0xff,
+>>>>>>> upstream/android-13
 					   ADM1075_VAUX_UV_WARN_LIMIT);
 		break;
 	case PMBUS_READ_VOUT:
 		if (data->have_vout)
 			return -ENODATA;
+<<<<<<< HEAD
 		ret = pmbus_read_word_data(client, 0, ADM1075_READ_VAUX);
+=======
+		ret = pmbus_read_word_data(client, 0, 0xff,
+					   ADM1075_READ_VAUX);
+>>>>>>> upstream/android-13
 		break;
 	case PMBUS_VIRT_READ_IOUT_MIN:
 		if (!data->have_iout_min)
 			return -ENXIO;
+<<<<<<< HEAD
 		ret = pmbus_read_word_data(client, 0, ADM1293_IOUT_MIN);
 		break;
 	case PMBUS_VIRT_READ_IOUT_MAX:
@@ -214,21 +330,52 @@ static int adm1275_read_word_data(struct i2c_client *client, int page, int reg)
 		break;
 	case PMBUS_VIRT_READ_VIN_MAX:
 		ret = pmbus_read_word_data(client, 0, ADM1275_PEAK_VIN);
+=======
+		ret = pmbus_read_word_data(client, 0, 0xff,
+					   ADM1293_IOUT_MIN);
+		break;
+	case PMBUS_VIRT_READ_IOUT_MAX:
+		ret = pmbus_read_word_data(client, 0, 0xff,
+					   ADM1275_PEAK_IOUT);
+		break;
+	case PMBUS_VIRT_READ_VOUT_MAX:
+		ret = pmbus_read_word_data(client, 0, 0xff,
+					   ADM1275_PEAK_VOUT);
+		break;
+	case PMBUS_VIRT_READ_VIN_MAX:
+		ret = pmbus_read_word_data(client, 0, 0xff,
+					   ADM1275_PEAK_VIN);
+>>>>>>> upstream/android-13
 		break;
 	case PMBUS_VIRT_READ_PIN_MIN:
 		if (!data->have_pin_min)
 			return -ENXIO;
+<<<<<<< HEAD
 		ret = pmbus_read_word_data(client, 0, ADM1293_PIN_MIN);
+=======
+		ret = pmbus_read_word_data(client, 0, 0xff,
+					   ADM1293_PIN_MIN);
+>>>>>>> upstream/android-13
 		break;
 	case PMBUS_VIRT_READ_PIN_MAX:
 		if (!data->have_pin_max)
 			return -ENXIO;
+<<<<<<< HEAD
 		ret = pmbus_read_word_data(client, 0, ADM1276_PEAK_PIN);
+=======
+		ret = pmbus_read_word_data(client, 0, 0xff,
+					   ADM1276_PEAK_PIN);
+>>>>>>> upstream/android-13
 		break;
 	case PMBUS_VIRT_READ_TEMP_MAX:
 		if (!data->have_temp_max)
 			return -ENXIO;
+<<<<<<< HEAD
 		ret = pmbus_read_word_data(client, 0, ADM1278_PEAK_TEMP);
+=======
+		ret = pmbus_read_word_data(client, 0, 0xff,
+					   ADM1278_PEAK_TEMP);
+>>>>>>> upstream/android-13
 		break;
 	case PMBUS_VIRT_RESET_IOUT_HISTORY:
 	case PMBUS_VIRT_RESET_VOUT_HISTORY:
@@ -242,6 +389,24 @@ static int adm1275_read_word_data(struct i2c_client *client, int page, int reg)
 		if (!data->have_temp_max)
 			return -ENXIO;
 		break;
+<<<<<<< HEAD
+=======
+	case PMBUS_VIRT_POWER_SAMPLES:
+		if (!data->have_power_sampling)
+			return -ENXIO;
+		ret = adm1275_read_pmon_config(data, client, true);
+		if (ret < 0)
+			break;
+		ret = BIT(ret);
+		break;
+	case PMBUS_VIRT_IN_SAMPLES:
+	case PMBUS_VIRT_CURR_SAMPLES:
+		ret = adm1275_read_pmon_config(data, client, false);
+		if (ret < 0)
+			break;
+		ret = BIT(ret);
+		break;
+>>>>>>> upstream/android-13
 	default:
 		ret = -ENODATA;
 		break;
@@ -286,6 +451,22 @@ static int adm1275_write_word_data(struct i2c_client *client, int page, int reg,
 	case PMBUS_VIRT_RESET_TEMP_HISTORY:
 		ret = pmbus_write_word_data(client, 0, ADM1278_PEAK_TEMP, 0);
 		break;
+<<<<<<< HEAD
+=======
+	case PMBUS_VIRT_POWER_SAMPLES:
+		if (!data->have_power_sampling)
+			return -ENXIO;
+		word = clamp_val(word, 1, ADM1275_SAMPLES_AVG_MAX);
+		ret = adm1275_write_pmon_config(data, client, true,
+						ilog2(word));
+		break;
+	case PMBUS_VIRT_IN_SAMPLES:
+	case PMBUS_VIRT_CURR_SAMPLES:
+		word = clamp_val(word, 1, ADM1275_SAMPLES_AVG_MAX);
+		ret = adm1275_write_pmon_config(data, client, false,
+						ilog2(word));
+		break;
+>>>>>>> upstream/android-13
 	default:
 		ret = -ENODATA;
 		break;
@@ -361,8 +542,12 @@ static const struct i2c_device_id adm1275_id[] = {
 };
 MODULE_DEVICE_TABLE(i2c, adm1275_id);
 
+<<<<<<< HEAD
 static int adm1275_probe(struct i2c_client *client,
 			 const struct i2c_device_id *id)
+=======
+static int adm1275_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	s32 (*config_read_fn)(const struct i2c_client *client, u8 reg);
 	u8 block_buffer[I2C_SMBUS_BLOCK_MAX + 1];
@@ -374,6 +559,10 @@ static int adm1275_probe(struct i2c_client *client,
 	const struct coefficients *coefficients;
 	int vindex = -1, voindex = -1, cindex = -1, pindex = -1;
 	int tindex = -1;
+<<<<<<< HEAD
+=======
+	u32 shunt;
+>>>>>>> upstream/android-13
 
 	if (!i2c_check_functionality(client->adapter,
 				     I2C_FUNC_SMBUS_READ_BYTE_DATA
@@ -404,10 +593,17 @@ static int adm1275_probe(struct i2c_client *client,
 		return -ENODEV;
 	}
 
+<<<<<<< HEAD
 	if (id->driver_data != mid->driver_data)
 		dev_notice(&client->dev,
 			   "Device mismatch: Configured %s, detected %s\n",
 			   id->name, mid->name);
+=======
+	if (strcmp(client->name, mid->name) != 0)
+		dev_notice(&client->dev,
+			   "Device mismatch: Configured %s, detected %s\n",
+			   client->name, mid->name);
+>>>>>>> upstream/android-13
 
 	if (mid->driver_data == adm1272 || mid->driver_data == adm1278 ||
 	    mid->driver_data == adm1293 || mid->driver_data == adm1294)
@@ -427,6 +623,16 @@ static int adm1275_probe(struct i2c_client *client,
 	if (!data)
 		return -ENOMEM;
 
+<<<<<<< HEAD
+=======
+	if (of_property_read_u32(client->dev.of_node,
+				 "shunt-resistor-micro-ohms", &shunt))
+		shunt = 1000; /* 1 mOhm if not set via DT */
+
+	if (shunt == 0)
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	data->id = mid->driver_data;
 
 	info = &data->info;
@@ -437,7 +643,12 @@ static int adm1275_probe(struct i2c_client *client,
 	info->format[PSC_CURRENT_OUT] = direct;
 	info->format[PSC_POWER] = direct;
 	info->format[PSC_TEMPERATURE] = direct;
+<<<<<<< HEAD
 	info->func[0] = PMBUS_HAVE_IOUT | PMBUS_HAVE_STATUS_IOUT;
+=======
+	info->func[0] = PMBUS_HAVE_IOUT | PMBUS_HAVE_STATUS_IOUT |
+			PMBUS_HAVE_SAMPLES;
+>>>>>>> upstream/android-13
 
 	info->read_word_data = adm1275_read_word_data;
 	info->read_byte_data = adm1275_read_byte_data;
@@ -478,6 +689,10 @@ static int adm1275_probe(struct i2c_client *client,
 		data->have_vout = true;
 		data->have_pin_max = true;
 		data->have_temp_max = true;
+<<<<<<< HEAD
+=======
+		data->have_power_sampling = true;
+>>>>>>> upstream/android-13
 
 		coefficients = adm1272_coefficients;
 		vindex = (config & ADM1275_VRANGE) ? 1 : 0;
@@ -501,11 +716,21 @@ static int adm1275_probe(struct i2c_client *client,
 		tindex = 8;
 
 		info->func[0] |= PMBUS_HAVE_PIN | PMBUS_HAVE_STATUS_INPUT |
+<<<<<<< HEAD
 			PMBUS_HAVE_VOUT | PMBUS_HAVE_STATUS_VOUT;
 
 		/* Enable VOUT if not enabled (it is disabled by default) */
 		if (!(config & ADM1278_VOUT_EN)) {
 			config |= ADM1278_VOUT_EN;
+=======
+			PMBUS_HAVE_VOUT | PMBUS_HAVE_STATUS_VOUT |
+			PMBUS_HAVE_TEMP | PMBUS_HAVE_STATUS_TEMP;
+
+		/* Enable VOUT & TEMP1 if not enabled (disabled by default) */
+		if ((config & (ADM1278_VOUT_EN | ADM1278_TEMP1_EN)) !=
+		    (ADM1278_VOUT_EN | ADM1278_TEMP1_EN)) {
+			config |= ADM1278_VOUT_EN | ADM1278_TEMP1_EN;
+>>>>>>> upstream/android-13
 			ret = i2c_smbus_write_byte_data(client,
 							ADM1275_PMON_CONFIG,
 							config);
@@ -515,10 +740,13 @@ static int adm1275_probe(struct i2c_client *client,
 				return -ENODEV;
 			}
 		}
+<<<<<<< HEAD
 
 		if (config & ADM1278_TEMP1_EN)
 			info->func[0] |=
 				PMBUS_HAVE_TEMP | PMBUS_HAVE_STATUS_TEMP;
+=======
+>>>>>>> upstream/android-13
 		if (config & ADM1278_VIN_EN)
 			info->func[0] |= PMBUS_HAVE_VIN;
 		break;
@@ -563,6 +791,10 @@ static int adm1275_probe(struct i2c_client *client,
 		data->have_vout = true;
 		data->have_pin_max = true;
 		data->have_temp_max = true;
+<<<<<<< HEAD
+=======
+		data->have_power_sampling = true;
+>>>>>>> upstream/android-13
 
 		coefficients = adm1278_coefficients;
 		vindex = 0;
@@ -571,11 +803,21 @@ static int adm1275_probe(struct i2c_client *client,
 		tindex = 3;
 
 		info->func[0] |= PMBUS_HAVE_PIN | PMBUS_HAVE_STATUS_INPUT |
+<<<<<<< HEAD
 			PMBUS_HAVE_VOUT | PMBUS_HAVE_STATUS_VOUT;
 
 		/* Enable VOUT if not enabled (it is disabled by default) */
 		if (!(config & ADM1278_VOUT_EN)) {
 			config |= ADM1278_VOUT_EN;
+=======
+			PMBUS_HAVE_VOUT | PMBUS_HAVE_STATUS_VOUT |
+			PMBUS_HAVE_TEMP | PMBUS_HAVE_STATUS_TEMP;
+
+		/* Enable VOUT & TEMP1 if not enabled (disabled by default) */
+		if ((config & (ADM1278_VOUT_EN | ADM1278_TEMP1_EN)) !=
+		    (ADM1278_VOUT_EN | ADM1278_TEMP1_EN)) {
+			config |= ADM1278_VOUT_EN | ADM1278_TEMP1_EN;
+>>>>>>> upstream/android-13
 			ret = i2c_smbus_write_byte_data(client,
 							ADM1275_PMON_CONFIG,
 							config);
@@ -586,9 +828,12 @@ static int adm1275_probe(struct i2c_client *client,
 			}
 		}
 
+<<<<<<< HEAD
 		if (config & ADM1278_TEMP1_EN)
 			info->func[0] |=
 				PMBUS_HAVE_TEMP | PMBUS_HAVE_STATUS_TEMP;
+=======
+>>>>>>> upstream/android-13
 		if (config & ADM1278_VIN_EN)
 			info->func[0] |= PMBUS_HAVE_VIN;
 		break;
@@ -598,6 +843,10 @@ static int adm1275_probe(struct i2c_client *client,
 		data->have_pin_min = true;
 		data->have_pin_max = true;
 		data->have_mfr_vaux_status = true;
+<<<<<<< HEAD
+=======
+		data->have_power_sampling = true;
+>>>>>>> upstream/android-13
 
 		coefficients = adm1293_coefficients;
 
@@ -660,12 +909,23 @@ static int adm1275_probe(struct i2c_client *client,
 		info->R[PSC_VOLTAGE_OUT] = coefficients[voindex].R;
 	}
 	if (cindex >= 0) {
+<<<<<<< HEAD
 		info->m[PSC_CURRENT_OUT] = coefficients[cindex].m;
+=======
+		/* Scale current with sense resistor value */
+		info->m[PSC_CURRENT_OUT] =
+			coefficients[cindex].m * shunt / 1000;
+>>>>>>> upstream/android-13
 		info->b[PSC_CURRENT_OUT] = coefficients[cindex].b;
 		info->R[PSC_CURRENT_OUT] = coefficients[cindex].R;
 	}
 	if (pindex >= 0) {
+<<<<<<< HEAD
 		info->m[PSC_POWER] = coefficients[pindex].m;
+=======
+		info->m[PSC_POWER] =
+			coefficients[pindex].m * shunt / 1000;
+>>>>>>> upstream/android-13
 		info->b[PSC_POWER] = coefficients[pindex].b;
 		info->R[PSC_POWER] = coefficients[pindex].R;
 	}
@@ -675,15 +935,23 @@ static int adm1275_probe(struct i2c_client *client,
 		info->R[PSC_TEMPERATURE] = coefficients[tindex].R;
 	}
 
+<<<<<<< HEAD
 	return pmbus_do_probe(client, id, info);
+=======
+	return pmbus_do_probe(client, info);
+>>>>>>> upstream/android-13
 }
 
 static struct i2c_driver adm1275_driver = {
 	.driver = {
 		   .name = "adm1275",
 		   },
+<<<<<<< HEAD
 	.probe = adm1275_probe,
 	.remove = pmbus_do_remove,
+=======
+	.probe_new = adm1275_probe,
+>>>>>>> upstream/android-13
 	.id_table = adm1275_id,
 };
 
@@ -692,3 +960,7 @@ module_i2c_driver(adm1275_driver);
 MODULE_AUTHOR("Guenter Roeck");
 MODULE_DESCRIPTION("PMBus driver for Analog Devices ADM1275 and compatibles");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(PMBUS);
+>>>>>>> upstream/android-13

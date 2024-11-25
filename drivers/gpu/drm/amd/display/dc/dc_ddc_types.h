@@ -44,6 +44,7 @@ enum i2caux_transaction_action {
 	I2CAUX_TRANSACTION_ACTION_DP_READ = 0x90
 };
 
+<<<<<<< HEAD
 enum aux_channel_operation_result {
 	AUX_CHANNEL_OPERATION_SUCCEEDED,
 	AUX_CHANNEL_OPERATION_FAILED_REASON_UNKNOWN,
@@ -53,6 +54,8 @@ enum aux_channel_operation_result {
 };
 
 
+=======
+>>>>>>> upstream/android-13
 struct aux_request_transaction_data {
 	enum aux_transaction_type type;
 	enum i2caux_transaction_action action;
@@ -68,6 +71,11 @@ enum aux_transaction_reply {
 	AUX_TRANSACTION_REPLY_AUX_ACK = 0x00,
 	AUX_TRANSACTION_REPLY_AUX_NACK = 0x01,
 	AUX_TRANSACTION_REPLY_AUX_DEFER = 0x02,
+<<<<<<< HEAD
+=======
+	AUX_TRANSACTION_REPLY_I2C_OVER_AUX_NACK = 0x04,
+	AUX_TRANSACTION_REPLY_I2C_OVER_AUX_DEFER = 0x08,
+>>>>>>> upstream/android-13
 
 	AUX_TRANSACTION_REPLY_I2C_ACK = 0x00,
 	AUX_TRANSACTION_REPLY_I2C_NACK = 0x10,

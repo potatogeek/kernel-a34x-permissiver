@@ -1,6 +1,11 @@
+<<<<<<< HEAD
 /*
  * This file is part of the Linux kernel, and is made available under
  * the terms of the GNU General Public License version 2.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  *
  * Misc librarized functions for cmdline poking.
  */
@@ -59,7 +64,11 @@ __cmdline_find_option_bool(const char *cmdline, int max_cmdline_size,
 			state = st_wordcmp;
 			opptr = option;
 			wstart = pos;
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 
 		case st_wordcmp:
 			if (!*opptr) {
@@ -90,7 +99,11 @@ __cmdline_find_option_bool(const char *cmdline, int max_cmdline_size,
 				break;
 			}
 			state = st_wordskip;
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 
 		case st_wordskip:
 			if (!c)
@@ -152,7 +165,11 @@ __cmdline_find_option(const char *cmdline, int max_cmdline_size,
 
 			state = st_wordcmp;
 			opptr = option;
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 
 		case st_wordcmp:
 			if ((c == '=') && !*opptr) {
@@ -173,7 +190,11 @@ __cmdline_find_option(const char *cmdline, int max_cmdline_size,
 				break;
 			}
 			state = st_wordskip;
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 
 		case st_wordskip:
 			if (myisspace(c))

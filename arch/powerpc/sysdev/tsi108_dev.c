@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * tsi108/109 device setup code
  *
  * Maintained by Roy Zang < tie-fei.zang@freescale.com >
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/stddef.h>
@@ -18,6 +25,10 @@
 #include <linux/irq.h>
 #include <linux/export.h>
 #include <linux/device.h>
+<<<<<<< HEAD
+=======
+#include <linux/etherdevice.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/of_net.h>
 #include <asm/tsi108.h>
@@ -51,7 +62,11 @@ phys_addr_t get_csrbase(void)
 		const void *prop = of_get_property(tsi, "reg", &size);
 		tsi108_csr_base = of_translate_address(tsi, prop);
 		of_node_put(tsi);
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 	return tsi108_csr_base;
 }
 
@@ -76,7 +91,10 @@ static int __init tsi108_eth_of_init(void)
 		struct device_node *phy, *mdio;
 		hw_info tsi_eth_data;
 		const unsigned int *phy_id;
+<<<<<<< HEAD
 		const void *mac_addr;
+=======
+>>>>>>> upstream/android-13
 		const phandle *ph;
 
 		memset(r, 0, sizeof(r));
@@ -104,9 +122,13 @@ static int __init tsi108_eth_of_init(void)
 			goto err;
 		}
 
+<<<<<<< HEAD
 		mac_addr = of_get_mac_address(np);
 		if (mac_addr)
 			memcpy(tsi_eth_data.mac_addr, mac_addr, 6);
+=======
+		of_get_mac_address(np, tsi_eth_data.mac_addr);
+>>>>>>> upstream/android-13
 
 		ph = of_get_property(np, "mdio-handle", NULL);
 		mdio = of_find_node_by_phandle(*ph);

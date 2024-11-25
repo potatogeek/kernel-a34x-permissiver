@@ -26,6 +26,10 @@
 #include <linux/module.h>
 #include <linux/of.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
+=======
+#include <linux/sysfs.h>
+>>>>>>> upstream/android-13
 
 /* multiplexer per channel data */
 struct i2c_mux_priv {
@@ -243,8 +247,12 @@ struct i2c_mux_core *i2c_mux_alloc(struct i2c_adapter *parent,
 {
 	struct i2c_mux_core *muxc;
 
+<<<<<<< HEAD
 	muxc = devm_kzalloc(dev, sizeof(*muxc)
 			    + max_adapters * sizeof(muxc->adapter[0])
+=======
+	muxc = devm_kzalloc(dev, struct_size(muxc, adapter, max_adapters)
+>>>>>>> upstream/android-13
 			    + sizeof_priv, GFP_KERNEL);
 	if (!muxc)
 		return NULL;
@@ -310,12 +318,24 @@ int i2c_mux_add_adapter(struct i2c_mux_core *muxc,
 		else
 			priv->algo.master_xfer = __i2c_mux_master_xfer;
 	}
+<<<<<<< HEAD
+=======
+	if (parent->algo->master_xfer_atomic)
+		priv->algo.master_xfer_atomic = priv->algo.master_xfer;
+
+>>>>>>> upstream/android-13
 	if (parent->algo->smbus_xfer) {
 		if (muxc->mux_locked)
 			priv->algo.smbus_xfer = i2c_mux_smbus_xfer;
 		else
 			priv->algo.smbus_xfer = __i2c_mux_smbus_xfer;
 	}
+<<<<<<< HEAD
+=======
+	if (parent->algo->smbus_xfer_atomic)
+		priv->algo.smbus_xfer_atomic = priv->algo.smbus_xfer;
+
+>>>>>>> upstream/android-13
 	priv->algo.functionality = i2c_mux_functionality;
 
 	/* Now fill out new adapter structure */

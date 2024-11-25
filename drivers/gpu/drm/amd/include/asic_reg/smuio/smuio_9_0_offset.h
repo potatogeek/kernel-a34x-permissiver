@@ -175,4 +175,10 @@
 #define mmSMUSVI0_PLANE0_CURRENTVID_BASE_IDX                                                           0
 #define mmSMUSVI0_PLANE0_CURRENTVID                                                                    0x0013
 
+<<<<<<< HEAD
+=======
+#define mmSMUSVI0_TEL_PLANE0_BASE_IDX                                                                  0
+#define mmSMUSVI0_TEL_PLANE0                                                                           0x0004
+
+>>>>>>> upstream/android-13
 #endif

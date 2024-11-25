@@ -1,8 +1,15 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * oxfw_pcm.c - a part of driver for OXFW970/971 based devices
  *
  * Copyright (c) Clemens Ladisch <clemens@ladisch.de>
+<<<<<<< HEAD
  * Licensed under the terms of the GNU General Public License, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "oxfw.h"
@@ -170,16 +177,25 @@ end:
 static int pcm_open(struct snd_pcm_substream *substream)
 {
 	struct snd_oxfw *oxfw = substream->private_data;
+<<<<<<< HEAD
+=======
+	struct amdtp_domain *d = &oxfw->domain;
+>>>>>>> upstream/android-13
 	int err;
 
 	err = snd_oxfw_stream_lock_try(oxfw);
 	if (err < 0)
+<<<<<<< HEAD
 		goto end;
+=======
+		return err;
+>>>>>>> upstream/android-13
 
 	err = init_hw_params(oxfw, substream);
 	if (err < 0)
 		goto err_locked;
 
+<<<<<<< HEAD
 	/*
 	 * When any PCM streams are already running, the available sampling
 	 * rate is limited at current value.
@@ -194,6 +210,47 @@ static int pcm_open(struct snd_pcm_substream *substream)
 	snd_pcm_set_sync(substream);
 end:
 	return err;
+=======
+	mutex_lock(&oxfw->mutex);
+
+	// When source of clock is not internal or any stream is reserved for
+	// transmission of PCM frames, the available sampling rate is limited
+	// at current one.
+	if (oxfw->substreams_count > 0 && d->events_per_period > 0) {
+		unsigned int frames_per_period = d->events_per_period;
+		unsigned int frames_per_buffer = d->events_per_buffer;
+
+		err = limit_to_current_params(substream);
+		if (err < 0) {
+			mutex_unlock(&oxfw->mutex);
+			goto err_locked;
+		}
+
+		if (frames_per_period > 0) {
+			err = snd_pcm_hw_constraint_minmax(substream->runtime,
+					SNDRV_PCM_HW_PARAM_PERIOD_SIZE,
+					frames_per_period, frames_per_period);
+			if (err < 0) {
+				mutex_unlock(&oxfw->mutex);
+				goto err_locked;
+			}
+
+			err = snd_pcm_hw_constraint_minmax(substream->runtime,
+					SNDRV_PCM_HW_PARAM_BUFFER_SIZE,
+					frames_per_buffer, frames_per_buffer);
+			if (err < 0) {
+				mutex_unlock(&oxfw->mutex);
+				goto err_locked;
+			}
+		}
+	}
+
+	mutex_unlock(&oxfw->mutex);
+
+	snd_pcm_set_sync(substream);
+
+	return 0;
+>>>>>>> upstream/android-13
 err_locked:
 	snd_oxfw_stream_lock_release(oxfw);
 	return err;
@@ -211,6 +268,7 @@ static int pcm_capture_hw_params(struct snd_pcm_substream *substream,
 				 struct snd_pcm_hw_params *hw_params)
 {
 	struct snd_oxfw *oxfw = substream->private_data;
+<<<<<<< HEAD
 	int err;
 
 	err = snd_pcm_lib_alloc_vmalloc_buffer(substream,
@@ -225,11 +283,32 @@ static int pcm_capture_hw_params(struct snd_pcm_substream *substream,
 	}
 
 	return 0;
+=======
+	int err = 0;
+
+	if (substream->runtime->status->state == SNDRV_PCM_STATE_OPEN) {
+		unsigned int rate = params_rate(hw_params);
+		unsigned int channels = params_channels(hw_params);
+		unsigned int frames_per_period = params_period_size(hw_params);
+		unsigned int frames_per_buffer = params_buffer_size(hw_params);
+
+		mutex_lock(&oxfw->mutex);
+		err = snd_oxfw_stream_reserve_duplex(oxfw, &oxfw->tx_stream,
+					rate, channels, frames_per_period,
+					frames_per_buffer);
+		if (err >= 0)
+			++oxfw->substreams_count;
+		mutex_unlock(&oxfw->mutex);
+	}
+
+	return err;
+>>>>>>> upstream/android-13
 }
 static int pcm_playback_hw_params(struct snd_pcm_substream *substream,
 				  struct snd_pcm_hw_params *hw_params)
 {
 	struct snd_oxfw *oxfw = substream->private_data;
+<<<<<<< HEAD
 	int err;
 
 	err = snd_pcm_lib_alloc_vmalloc_buffer(substream,
@@ -244,6 +323,26 @@ static int pcm_playback_hw_params(struct snd_pcm_substream *substream,
 	}
 
 	return 0;
+=======
+	int err = 0;
+
+	if (substream->runtime->status->state == SNDRV_PCM_STATE_OPEN) {
+		unsigned int rate = params_rate(hw_params);
+		unsigned int channels = params_channels(hw_params);
+		unsigned int frames_per_period = params_period_size(hw_params);
+		unsigned int frames_per_buffer = params_buffer_size(hw_params);
+
+		mutex_lock(&oxfw->mutex);
+		err = snd_oxfw_stream_reserve_duplex(oxfw, &oxfw->rx_stream,
+					rate, channels, frames_per_period,
+					frames_per_buffer);
+		if (err >= 0)
+			++oxfw->substreams_count;
+		mutex_unlock(&oxfw->mutex);
+	}
+
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static int pcm_capture_hw_free(struct snd_pcm_substream *substream)
@@ -253,6 +352,7 @@ static int pcm_capture_hw_free(struct snd_pcm_substream *substream)
 	mutex_lock(&oxfw->mutex);
 
 	if (substream->runtime->status->state != SNDRV_PCM_STATE_OPEN)
+<<<<<<< HEAD
 		oxfw->capture_substreams--;
 
 	snd_oxfw_stream_stop_simplex(oxfw, &oxfw->tx_stream);
@@ -260,6 +360,15 @@ static int pcm_capture_hw_free(struct snd_pcm_substream *substream)
 	mutex_unlock(&oxfw->mutex);
 
 	return snd_pcm_lib_free_vmalloc_buffer(substream);
+=======
+		--oxfw->substreams_count;
+
+	snd_oxfw_stream_stop_duplex(oxfw);
+
+	mutex_unlock(&oxfw->mutex);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 static int pcm_playback_hw_free(struct snd_pcm_substream *substream)
 {
@@ -268,6 +377,7 @@ static int pcm_playback_hw_free(struct snd_pcm_substream *substream)
 	mutex_lock(&oxfw->mutex);
 
 	if (substream->runtime->status->state != SNDRV_PCM_STATE_OPEN)
+<<<<<<< HEAD
 		oxfw->playback_substreams--;
 
 	snd_oxfw_stream_stop_simplex(oxfw, &oxfw->rx_stream);
@@ -275,17 +385,33 @@ static int pcm_playback_hw_free(struct snd_pcm_substream *substream)
 	mutex_unlock(&oxfw->mutex);
 
 	return snd_pcm_lib_free_vmalloc_buffer(substream);
+=======
+		--oxfw->substreams_count;
+
+	snd_oxfw_stream_stop_duplex(oxfw);
+
+	mutex_unlock(&oxfw->mutex);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int pcm_capture_prepare(struct snd_pcm_substream *substream)
 {
 	struct snd_oxfw *oxfw = substream->private_data;
+<<<<<<< HEAD
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	int err;
 
 	mutex_lock(&oxfw->mutex);
 	err = snd_oxfw_stream_start_simplex(oxfw, &oxfw->tx_stream,
 					    runtime->rate, runtime->channels);
+=======
+	int err;
+
+	mutex_lock(&oxfw->mutex);
+	err = snd_oxfw_stream_start_duplex(oxfw);
+>>>>>>> upstream/android-13
 	mutex_unlock(&oxfw->mutex);
 	if (err < 0)
 		goto end;
@@ -297,12 +423,19 @@ end:
 static int pcm_playback_prepare(struct snd_pcm_substream *substream)
 {
 	struct snd_oxfw *oxfw = substream->private_data;
+<<<<<<< HEAD
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	int err;
 
 	mutex_lock(&oxfw->mutex);
 	err = snd_oxfw_stream_start_simplex(oxfw, &oxfw->rx_stream,
 					    runtime->rate, runtime->channels);
+=======
+	int err;
+
+	mutex_lock(&oxfw->mutex);
+	err = snd_oxfw_stream_start_duplex(oxfw);
+>>>>>>> upstream/android-13
 	mutex_unlock(&oxfw->mutex);
 	if (err < 0)
 		goto end;
@@ -353,27 +486,43 @@ static snd_pcm_uframes_t pcm_capture_pointer(struct snd_pcm_substream *sbstm)
 {
 	struct snd_oxfw *oxfw = sbstm->private_data;
 
+<<<<<<< HEAD
 	return amdtp_stream_pcm_pointer(&oxfw->tx_stream);
+=======
+	return amdtp_domain_stream_pcm_pointer(&oxfw->domain, &oxfw->tx_stream);
+>>>>>>> upstream/android-13
 }
 static snd_pcm_uframes_t pcm_playback_pointer(struct snd_pcm_substream *sbstm)
 {
 	struct snd_oxfw *oxfw = sbstm->private_data;
 
+<<<<<<< HEAD
 	return amdtp_stream_pcm_pointer(&oxfw->rx_stream);
+=======
+	return amdtp_domain_stream_pcm_pointer(&oxfw->domain, &oxfw->rx_stream);
+>>>>>>> upstream/android-13
 }
 
 static int pcm_capture_ack(struct snd_pcm_substream *substream)
 {
 	struct snd_oxfw *oxfw = substream->private_data;
 
+<<<<<<< HEAD
 	return amdtp_stream_pcm_ack(&oxfw->tx_stream);
+=======
+	return amdtp_domain_stream_pcm_ack(&oxfw->domain, &oxfw->tx_stream);
+>>>>>>> upstream/android-13
 }
 
 static int pcm_playback_ack(struct snd_pcm_substream *substream)
 {
 	struct snd_oxfw *oxfw = substream->private_data;
 
+<<<<<<< HEAD
 	return amdtp_stream_pcm_ack(&oxfw->rx_stream);
+=======
+	return amdtp_domain_stream_pcm_ack(&oxfw->domain, &oxfw->rx_stream);
+>>>>>>> upstream/android-13
 }
 
 int snd_oxfw_create_pcm(struct snd_oxfw *oxfw)
@@ -381,26 +530,38 @@ int snd_oxfw_create_pcm(struct snd_oxfw *oxfw)
 	static const struct snd_pcm_ops capture_ops = {
 		.open      = pcm_open,
 		.close     = pcm_close,
+<<<<<<< HEAD
 		.ioctl     = snd_pcm_lib_ioctl,
+=======
+>>>>>>> upstream/android-13
 		.hw_params = pcm_capture_hw_params,
 		.hw_free   = pcm_capture_hw_free,
 		.prepare   = pcm_capture_prepare,
 		.trigger   = pcm_capture_trigger,
 		.pointer   = pcm_capture_pointer,
 		.ack       = pcm_capture_ack,
+<<<<<<< HEAD
 		.page      = snd_pcm_lib_get_vmalloc_page,
+=======
+>>>>>>> upstream/android-13
 	};
 	static const struct snd_pcm_ops playback_ops = {
 		.open      = pcm_open,
 		.close     = pcm_close,
+<<<<<<< HEAD
 		.ioctl     = snd_pcm_lib_ioctl,
+=======
+>>>>>>> upstream/android-13
 		.hw_params = pcm_playback_hw_params,
 		.hw_free   = pcm_playback_hw_free,
 		.prepare   = pcm_playback_prepare,
 		.trigger   = pcm_playback_trigger,
 		.pointer   = pcm_playback_pointer,
 		.ack       = pcm_playback_ack,
+<<<<<<< HEAD
 		.page      = snd_pcm_lib_get_vmalloc_page,
+=======
+>>>>>>> upstream/android-13
 	};
 	struct snd_pcm *pcm;
 	unsigned int cap = 0;
@@ -418,6 +579,10 @@ int snd_oxfw_create_pcm(struct snd_oxfw *oxfw)
 	snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_PLAYBACK, &playback_ops);
 	if (cap > 0)
 		snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_CAPTURE, &capture_ops);
+<<<<<<< HEAD
+=======
+	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_VMALLOC, NULL, 0, 0);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

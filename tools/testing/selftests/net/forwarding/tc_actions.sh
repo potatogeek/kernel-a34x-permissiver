@@ -2,7 +2,12 @@
 # SPDX-License-Identifier: GPL-2.0
 
 ALL_TESTS="gact_drop_and_ok_test mirred_egress_redirect_test \
+<<<<<<< HEAD
 	mirred_egress_mirror_test gact_trap_test"
+=======
+	mirred_egress_mirror_test matchall_mirred_egress_mirror_test \
+	gact_trap_test"
+>>>>>>> upstream/android-13
 NUM_NETIFS=4
 source tc_common.sh
 source lib.sh
@@ -50,6 +55,12 @@ switch_destroy()
 mirred_egress_test()
 {
 	local action=$1
+<<<<<<< HEAD
+=======
+	local protocol=$2
+	local classifier=$3
+	local classifier_args=$4
+>>>>>>> upstream/android-13
 
 	RET=0
 
@@ -62,9 +73,15 @@ mirred_egress_test()
 	tc_check_packets "dev $h2 ingress" 101 1
 	check_fail $? "Matched without redirect rule inserted"
 
+<<<<<<< HEAD
 	tc filter add dev $swp1 ingress protocol ip pref 1 handle 101 flower \
 		$tcflags dst_ip 192.0.2.2 action mirred egress $action \
 		dev $swp2
+=======
+	tc filter add dev $swp1 ingress protocol $protocol pref 1 handle 101 \
+		$classifier $tcflags $classifier_args \
+		action mirred egress $action dev $swp2
+>>>>>>> upstream/android-13
 
 	$MZ $h1 -c 1 -p 64 -a $h1mac -b $h2mac -A 192.0.2.1 -B 192.0.2.2 \
 		-t ip -q
@@ -72,10 +89,18 @@ mirred_egress_test()
 	tc_check_packets "dev $h2 ingress" 101 1
 	check_err $? "Did not match incoming $action packet"
 
+<<<<<<< HEAD
 	tc filter del dev $swp1 ingress protocol ip pref 1 handle 101 flower
 	tc filter del dev $h2 ingress protocol ip pref 1 handle 101 flower
 
 	log_test "mirred egress $action ($tcflags)"
+=======
+	tc filter del dev $swp1 ingress protocol $protocol pref 1 handle 101 \
+		$classifier
+	tc filter del dev $h2 ingress protocol ip pref 1 handle 101 flower
+
+	log_test "mirred egress $classifier $action ($tcflags)"
+>>>>>>> upstream/android-13
 }
 
 gact_drop_and_ok_test()
@@ -187,12 +212,25 @@ cleanup()
 
 mirred_egress_redirect_test()
 {
+<<<<<<< HEAD
 	mirred_egress_test "redirect"
+=======
+	mirred_egress_test "redirect" "ip" "flower" "dst_ip 192.0.2.2"
+>>>>>>> upstream/android-13
 }
 
 mirred_egress_mirror_test()
 {
+<<<<<<< HEAD
 	mirred_egress_test "mirror"
+=======
+	mirred_egress_test "mirror" "ip" "flower" "dst_ip 192.0.2.2"
+}
+
+matchall_mirred_egress_mirror_test()
+{
+	mirred_egress_test "mirror" "all" "matchall" ""
+>>>>>>> upstream/android-13
 }
 
 trap cleanup EXIT

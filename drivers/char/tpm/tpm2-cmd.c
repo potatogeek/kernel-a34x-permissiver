@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2014, 2015 Intel Corporation
  *
@@ -8,15 +12,19 @@
  *
  * This file contains TPM2 protocol implementations of the commands
  * used by the kernel internally.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; version 2
  * of the License.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "tpm.h"
 #include <crypto/hash_info.h>
+<<<<<<< HEAD
 #include <keys/trusted-type.h>
 
 enum tpm2_object_attributes {
@@ -163,6 +171,132 @@ static const u8 tpm2_ordinal_duration[TPM2_CC_LAST - TPM2_CC_FIRST + 1] = {
 	TPM_UNDEFINED,		/* 18e */
 	TPM_UNDEFINED		/* 18f */
 };
+=======
+
+static struct tpm2_hash tpm2_hash_map[] = {
+	{HASH_ALGO_SHA1, TPM_ALG_SHA1},
+	{HASH_ALGO_SHA256, TPM_ALG_SHA256},
+	{HASH_ALGO_SHA384, TPM_ALG_SHA384},
+	{HASH_ALGO_SHA512, TPM_ALG_SHA512},
+	{HASH_ALGO_SM3_256, TPM_ALG_SM3_256},
+};
+
+int tpm2_get_timeouts(struct tpm_chip *chip)
+{
+	/* Fixed timeouts for TPM2 */
+	chip->timeout_a = msecs_to_jiffies(TPM2_TIMEOUT_A);
+	chip->timeout_b = msecs_to_jiffies(TPM2_TIMEOUT_B);
+	chip->timeout_c = msecs_to_jiffies(TPM2_TIMEOUT_C);
+	chip->timeout_d = msecs_to_jiffies(TPM2_TIMEOUT_D);
+
+	/* PTP spec timeouts */
+	chip->duration[TPM_SHORT] = msecs_to_jiffies(TPM2_DURATION_SHORT);
+	chip->duration[TPM_MEDIUM] = msecs_to_jiffies(TPM2_DURATION_MEDIUM);
+	chip->duration[TPM_LONG] = msecs_to_jiffies(TPM2_DURATION_LONG);
+
+	/* Key creation commands long timeouts */
+	chip->duration[TPM_LONG_LONG] =
+		msecs_to_jiffies(TPM2_DURATION_LONG_LONG);
+
+	chip->flags |= TPM_CHIP_FLAG_HAVE_TIMEOUTS;
+
+	return 0;
+}
+
+/**
+ * tpm2_ordinal_duration_index() - returns an index to the chip duration table
+ * @ordinal: TPM command ordinal.
+ *
+ * The function returns an index to the chip duration table
+ * (enum tpm_duration), that describes the maximum amount of
+ * time the chip could take to return the result for a  particular ordinal.
+ *
+ * The values of the MEDIUM, and LONG durations are taken
+ * from the PC Client Profile (PTP) specification (750, 2000 msec)
+ *
+ * LONG_LONG is for commands that generates keys which empirically takes
+ * a longer time on some systems.
+ *
+ * Return:
+ * * TPM_MEDIUM
+ * * TPM_LONG
+ * * TPM_LONG_LONG
+ * * TPM_UNDEFINED
+ */
+static u8 tpm2_ordinal_duration_index(u32 ordinal)
+{
+	switch (ordinal) {
+	/* Startup */
+	case TPM2_CC_STARTUP:                 /* 144 */
+		return TPM_MEDIUM;
+
+	case TPM2_CC_SELF_TEST:               /* 143 */
+		return TPM_LONG;
+
+	case TPM2_CC_GET_RANDOM:              /* 17B */
+		return TPM_LONG;
+
+	case TPM2_CC_SEQUENCE_UPDATE:         /* 15C */
+		return TPM_MEDIUM;
+	case TPM2_CC_SEQUENCE_COMPLETE:       /* 13E */
+		return TPM_MEDIUM;
+	case TPM2_CC_EVENT_SEQUENCE_COMPLETE: /* 185 */
+		return TPM_MEDIUM;
+	case TPM2_CC_HASH_SEQUENCE_START:     /* 186 */
+		return TPM_MEDIUM;
+
+	case TPM2_CC_VERIFY_SIGNATURE:        /* 177 */
+		return TPM_LONG_LONG;
+
+	case TPM2_CC_PCR_EXTEND:              /* 182 */
+		return TPM_MEDIUM;
+
+	case TPM2_CC_HIERARCHY_CONTROL:       /* 121 */
+		return TPM_LONG;
+	case TPM2_CC_HIERARCHY_CHANGE_AUTH:   /* 129 */
+		return TPM_LONG;
+
+	case TPM2_CC_GET_CAPABILITY:          /* 17A */
+		return TPM_MEDIUM;
+
+	case TPM2_CC_NV_READ:                 /* 14E */
+		return TPM_LONG;
+
+	case TPM2_CC_CREATE_PRIMARY:          /* 131 */
+		return TPM_LONG_LONG;
+	case TPM2_CC_CREATE:                  /* 153 */
+		return TPM_LONG_LONG;
+	case TPM2_CC_CREATE_LOADED:           /* 191 */
+		return TPM_LONG_LONG;
+
+	default:
+		return TPM_UNDEFINED;
+	}
+}
+
+/**
+ * tpm2_calc_ordinal_duration() - calculate the maximum command duration
+ * @chip:    TPM chip to use.
+ * @ordinal: TPM command ordinal.
+ *
+ * The function returns the maximum amount of time the chip could take
+ * to return the result for a particular ordinal in jiffies.
+ *
+ * Return: A maximal duration time for an ordinal in jiffies.
+ */
+unsigned long tpm2_calc_ordinal_duration(struct tpm_chip *chip, u32 ordinal)
+{
+	unsigned int index;
+
+	index = tpm2_ordinal_duration_index(ordinal);
+
+	if (index != TPM_UNDEFINED)
+		return chip->duration[index];
+	else
+		return msecs_to_jiffies(TPM2_DURATION_DEFAULT);
+}
+
+>>>>>>> upstream/android-13
 
 struct tpm2_pcr_read_out {
 	__be32	update_cnt;
@@ -179,20 +313,51 @@ struct tpm2_pcr_read_out {
  * tpm2_pcr_read() - read a PCR value
  * @chip:	TPM chip to use.
  * @pcr_idx:	index of the PCR to read.
+<<<<<<< HEAD
  * @res_buf:	buffer to store the resulting hash.
  *
  * Return: Same as with tpm_transmit_cmd.
  */
 int tpm2_pcr_read(struct tpm_chip *chip, int pcr_idx, u8 *res_buf)
 {
+=======
+ * @digest:	PCR bank and buffer current PCR value is written to.
+ * @digest_size_ptr:	pointer to variable that stores the digest size.
+ *
+ * Return: Same as with tpm_transmit_cmd.
+ */
+int tpm2_pcr_read(struct tpm_chip *chip, u32 pcr_idx,
+		  struct tpm_digest *digest, u16 *digest_size_ptr)
+{
+	int i;
+>>>>>>> upstream/android-13
 	int rc;
 	struct tpm_buf buf;
 	struct tpm2_pcr_read_out *out;
 	u8 pcr_select[TPM2_PCR_SELECT_MIN] = {0};
+<<<<<<< HEAD
+=======
+	u16 digest_size;
+	u16 expected_digest_size = 0;
+>>>>>>> upstream/android-13
 
 	if (pcr_idx >= TPM2_PLATFORM_PCR)
 		return -EINVAL;
 
+<<<<<<< HEAD
+=======
+	if (!digest_size_ptr) {
+		for (i = 0; i < chip->nr_allocated_banks &&
+		     chip->allocated_banks[i].alg_id != digest->alg_id; i++)
+			;
+
+		if (i == chip->nr_allocated_banks)
+			return -EINVAL;
+
+		expected_digest_size = chip->allocated_banks[i].digest_size;
+	}
+
+>>>>>>> upstream/android-13
 	rc = tpm_buf_init(&buf, TPM2_ST_NO_SESSIONS, TPM2_CC_PCR_READ);
 	if (rc)
 		return rc;
@@ -200,11 +365,16 @@ int tpm2_pcr_read(struct tpm_chip *chip, int pcr_idx, u8 *res_buf)
 	pcr_select[pcr_idx >> 3] = 1 << (pcr_idx & 0x7);
 
 	tpm_buf_append_u32(&buf, 1);
+<<<<<<< HEAD
 	tpm_buf_append_u16(&buf, TPM2_ALG_SHA1);
+=======
+	tpm_buf_append_u16(&buf, digest->alg_id);
+>>>>>>> upstream/android-13
 	tpm_buf_append_u8(&buf, TPM2_PCR_SELECT_MIN);
 	tpm_buf_append(&buf, (const unsigned char *)pcr_select,
 		       sizeof(pcr_select));
 
+<<<<<<< HEAD
 	rc = tpm_transmit_cmd(chip, NULL, buf.data, PAGE_SIZE, 0, 0,
 			res_buf ? "attempting to read a pcr value" : NULL);
 	if (rc == 0 && res_buf) {
@@ -212,6 +382,25 @@ int tpm2_pcr_read(struct tpm_chip *chip, int pcr_idx, u8 *res_buf)
 		memcpy(res_buf, out->digest, SHA1_DIGEST_SIZE);
 	}
 
+=======
+	rc = tpm_transmit_cmd(chip, &buf, 0, "attempting to read a pcr value");
+	if (rc)
+		goto out;
+
+	out = (struct tpm2_pcr_read_out *)&buf.data[TPM_HEADER_SIZE];
+	digest_size = be16_to_cpu(out->digest_size);
+	if (digest_size > sizeof(digest->digest) ||
+	    (!digest_size_ptr && digest_size != expected_digest_size)) {
+		rc = -EINVAL;
+		goto out;
+	}
+
+	if (digest_size_ptr)
+		*digest_size_ptr = digest_size;
+
+	memcpy(digest->digest, out->digest, digest_size);
+out:
+>>>>>>> upstream/android-13
 	tpm_buf_destroy(&buf);
 	return rc;
 }
@@ -228,22 +417,33 @@ struct tpm2_null_auth_area {
  *
  * @chip:	TPM chip to use.
  * @pcr_idx:	index of the PCR.
+<<<<<<< HEAD
  * @count:	number of digests passed.
+=======
+>>>>>>> upstream/android-13
  * @digests:	list of pcr banks and corresponding digest values to extend.
  *
  * Return: Same as with tpm_transmit_cmd.
  */
+<<<<<<< HEAD
 int tpm2_pcr_extend(struct tpm_chip *chip, int pcr_idx, u32 count,
 		    struct tpm2_digest *digests)
+=======
+int tpm2_pcr_extend(struct tpm_chip *chip, u32 pcr_idx,
+		    struct tpm_digest *digests)
+>>>>>>> upstream/android-13
 {
 	struct tpm_buf buf;
 	struct tpm2_null_auth_area auth_area;
 	int rc;
 	int i;
+<<<<<<< HEAD
 	int j;
 
 	if (count > ARRAY_SIZE(chip->active_banks))
 		return -EINVAL;
+=======
+>>>>>>> upstream/android-13
 
 	rc = tpm_buf_init(&buf, TPM2_ST_SESSIONS, TPM2_CC_PCR_EXTEND);
 	if (rc)
@@ -259,6 +459,7 @@ int tpm2_pcr_extend(struct tpm_chip *chip, int pcr_idx, u32 count,
 	tpm_buf_append_u32(&buf, sizeof(struct tpm2_null_auth_area));
 	tpm_buf_append(&buf, (const unsigned char *)&auth_area,
 		       sizeof(auth_area));
+<<<<<<< HEAD
 	tpm_buf_append_u32(&buf, count);
 
 	for (i = 0; i < count; i++) {
@@ -274,13 +475,27 @@ int tpm2_pcr_extend(struct tpm_chip *chip, int pcr_idx, u32 count,
 
 	rc = tpm_transmit_cmd(chip, NULL, buf.data, PAGE_SIZE, 0, 0,
 			      "attempting extend a PCR value");
+=======
+	tpm_buf_append_u32(&buf, chip->nr_allocated_banks);
+
+	for (i = 0; i < chip->nr_allocated_banks; i++) {
+		tpm_buf_append_u16(&buf, digests[i].alg_id);
+		tpm_buf_append(&buf, (const unsigned char *)&digests[i].digest,
+			       chip->allocated_banks[i].digest_size);
+	}
+
+	rc = tpm_transmit_cmd(chip, &buf, 0, "attempting extend a PCR value");
+>>>>>>> upstream/android-13
 
 	tpm_buf_destroy(&buf);
 
 	return rc;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 struct tpm2_get_random_out {
 	__be16 size;
 	u8 buffer[TPM_MAX_RNG_DATA];
@@ -295,7 +510,11 @@ struct tpm2_get_random_out {
  *
  * Return:
  *   size of the buffer on success,
+<<<<<<< HEAD
  *   -errno otherwise
+=======
+ *   -errno otherwise (positive TPM return codes are masked to -EIO)
+>>>>>>> upstream/android-13
  */
 int tpm2_get_random(struct tpm_chip *chip, u8 *dest, size_t max)
 {
@@ -318,12 +537,24 @@ int tpm2_get_random(struct tpm_chip *chip, u8 *dest, size_t max)
 	do {
 		tpm_buf_reset(&buf, TPM2_ST_NO_SESSIONS, TPM2_CC_GET_RANDOM);
 		tpm_buf_append_u16(&buf, num_bytes);
+<<<<<<< HEAD
 		err = tpm_transmit_cmd(chip, NULL, buf.data, PAGE_SIZE,
 				       offsetof(struct tpm2_get_random_out,
 						buffer),
 				       0, "attempting get random");
 		if (err)
 			goto out;
+=======
+		err = tpm_transmit_cmd(chip, &buf,
+				       offsetof(struct tpm2_get_random_out,
+						buffer),
+				       "attempting get random");
+		if (err) {
+			if (err > 0)
+				err = -EIO;
+			goto out;
+		}
+>>>>>>> upstream/android-13
 
 		out = (struct tpm2_get_random_out *)
 			&buf.data[TPM_HEADER_SIZE];
@@ -350,6 +581,7 @@ out:
 }
 
 /**
+<<<<<<< HEAD
  * tpm2_flush_context_cmd() - execute a TPM2_FlushContext command
  * @chip: TPM chip to use
  * @payload: the key data in clear and encrypted form
@@ -359,6 +591,13 @@ out:
  */
 void tpm2_flush_context_cmd(struct tpm_chip *chip, u32 handle,
 			    unsigned int flags)
+=======
+ * tpm2_flush_context() - execute a TPM2_FlushContext command
+ * @chip:	TPM chip to use
+ * @handle:	context handle
+ */
+void tpm2_flush_context(struct tpm_chip *chip, u32 handle)
+>>>>>>> upstream/android-13
 {
 	struct tpm_buf buf;
 	int rc;
@@ -372,6 +611,7 @@ void tpm2_flush_context_cmd(struct tpm_chip *chip, u32 handle,
 
 	tpm_buf_append_u32(&buf, handle);
 
+<<<<<<< HEAD
 	(void) tpm_transmit_cmd(chip, NULL, buf.data, PAGE_SIZE, 0, flags,
 				"flushing context");
 
@@ -680,6 +920,12 @@ out:
 	mutex_unlock(&chip->tpm_mutex);
 	return rc;
 }
+=======
+	tpm_transmit_cmd(chip, &buf, 0, "flushing context");
+	tpm_buf_destroy(&buf);
+}
+EXPORT_SYMBOL_GPL(tpm2_flush_context);
+>>>>>>> upstream/android-13
 
 struct tpm2_get_cap_out {
 	u8 more_data;
@@ -713,7 +959,11 @@ ssize_t tpm2_get_tpm_pt(struct tpm_chip *chip, u32 property_id,  u32 *value,
 	tpm_buf_append_u32(&buf, TPM2_CAP_TPM_PROPERTIES);
 	tpm_buf_append_u32(&buf, property_id);
 	tpm_buf_append_u32(&buf, 1);
+<<<<<<< HEAD
 	rc = tpm_transmit_cmd(chip, NULL, buf.data, PAGE_SIZE, 0, 0, NULL);
+=======
+	rc = tpm_transmit_cmd(chip, &buf, 0, NULL);
+>>>>>>> upstream/android-13
 	if (!rc) {
 		out = (struct tpm2_get_cap_out *)
 			&buf.data[TPM_HEADER_SIZE];
@@ -743,6 +993,7 @@ void tpm2_shutdown(struct tpm_chip *chip, u16 shutdown_type)
 	if (rc)
 		return;
 	tpm_buf_append_u16(&buf, shutdown_type);
+<<<<<<< HEAD
 	tpm_transmit_cmd(chip, NULL, buf.data, PAGE_SIZE, 0, 0,
 			 "stopping the TPM");
 	tpm_buf_destroy(&buf);
@@ -774,6 +1025,12 @@ unsigned long tpm2_calc_ordinal_duration(struct tpm_chip *chip, u32 ordinal)
 }
 EXPORT_SYMBOL_GPL(tpm2_calc_ordinal_duration);
 
+=======
+	tpm_transmit_cmd(chip, &buf, 0, "stopping the TPM");
+	tpm_buf_destroy(&buf);
+}
+
+>>>>>>> upstream/android-13
 /**
  * tpm2_do_selftest() - ensure that all self tests have passed
  *
@@ -799,7 +1056,11 @@ static int tpm2_do_selftest(struct tpm_chip *chip)
 			return rc;
 
 		tpm_buf_append_u8(&buf, full);
+<<<<<<< HEAD
 		rc = tpm_transmit_cmd(chip, NULL, buf.data, PAGE_SIZE, 0, 0,
+=======
+		rc = tpm_transmit_cmd(chip, &buf, 0,
+>>>>>>> upstream/android-13
 				      "attempting the self test");
 		tpm_buf_destroy(&buf);
 
@@ -826,7 +1087,11 @@ static int tpm2_do_selftest(struct tpm_chip *chip)
  */
 int tpm2_probe(struct tpm_chip *chip)
 {
+<<<<<<< HEAD
 	struct tpm_output_header *out;
+=======
+	struct tpm_header *out;
+>>>>>>> upstream/android-13
 	struct tpm_buf buf;
 	int rc;
 
@@ -836,10 +1101,17 @@ int tpm2_probe(struct tpm_chip *chip)
 	tpm_buf_append_u32(&buf, TPM2_CAP_TPM_PROPERTIES);
 	tpm_buf_append_u32(&buf, TPM_PT_TOTAL_COMMANDS);
 	tpm_buf_append_u32(&buf, 1);
+<<<<<<< HEAD
 	rc = tpm_transmit_cmd(chip, NULL, buf.data, PAGE_SIZE, 0, 0, NULL);
 	/* We ignore TPM return codes on purpose. */
 	if (rc >=  0) {
 		out = (struct tpm_output_header *)buf.data;
+=======
+	rc = tpm_transmit_cmd(chip, &buf, 0, NULL);
+	/* We ignore TPM return codes on purpose. */
+	if (rc >=  0) {
+		out = (struct tpm_header *)buf.data;
+>>>>>>> upstream/android-13
 		if (be16_to_cpu(out->tag) == TPM2_ST_NO_SESSIONS)
 			chip->flags |= TPM_CHIP_FLAG_TPM2;
 	}
@@ -848,21 +1120,61 @@ int tpm2_probe(struct tpm_chip *chip)
 }
 EXPORT_SYMBOL_GPL(tpm2_probe);
 
+<<<<<<< HEAD
+=======
+static int tpm2_init_bank_info(struct tpm_chip *chip, u32 bank_index)
+{
+	struct tpm_bank_info *bank = chip->allocated_banks + bank_index;
+	struct tpm_digest digest = { .alg_id = bank->alg_id };
+	int i;
+
+	/*
+	 * Avoid unnecessary PCR read operations to reduce overhead
+	 * and obtain identifiers of the crypto subsystem.
+	 */
+	for (i = 0; i < ARRAY_SIZE(tpm2_hash_map); i++) {
+		enum hash_algo crypto_algo = tpm2_hash_map[i].crypto_id;
+
+		if (bank->alg_id != tpm2_hash_map[i].tpm_id)
+			continue;
+
+		bank->digest_size = hash_digest_size[crypto_algo];
+		bank->crypto_id = crypto_algo;
+		return 0;
+	}
+
+	bank->crypto_id = HASH_ALGO__LAST;
+
+	return tpm2_pcr_read(chip, 0, &digest, &bank->digest_size);
+}
+
+>>>>>>> upstream/android-13
 struct tpm2_pcr_selection {
 	__be16  hash_alg;
 	u8  size_of_select;
 	u8  pcr_select[3];
 } __packed;
 
+<<<<<<< HEAD
 static ssize_t tpm2_get_pcr_allocation(struct tpm_chip *chip)
+=======
+ssize_t tpm2_get_pcr_allocation(struct tpm_chip *chip)
+>>>>>>> upstream/android-13
 {
 	struct tpm2_pcr_selection pcr_selection;
 	struct tpm_buf buf;
 	void *marker;
 	void *end;
 	void *pcr_select_offset;
+<<<<<<< HEAD
 	unsigned int count;
 	u32 sizeof_pcr_selection;
+=======
+	u32 sizeof_pcr_selection;
+	u32 nr_possible_banks;
+	u32 nr_alloc_banks = 0;
+	u16 hash_alg;
+>>>>>>> upstream/android-13
 	u32 rsp_len;
 	int rc;
 	int i = 0;
@@ -875,6 +1187,7 @@ static ssize_t tpm2_get_pcr_allocation(struct tpm_chip *chip)
 	tpm_buf_append_u32(&buf, 0);
 	tpm_buf_append_u32(&buf, 1);
 
+<<<<<<< HEAD
 	rc = tpm_transmit_cmd(chip, NULL, buf.data, PAGE_SIZE, 9, 0,
 			      "get tpm pcr allocation");
 	if (rc)
@@ -885,6 +1198,20 @@ static ssize_t tpm2_get_pcr_allocation(struct tpm_chip *chip)
 
 	if (count > ARRAY_SIZE(chip->active_banks)) {
 		rc = -ENODEV;
+=======
+	rc = tpm_transmit_cmd(chip, &buf, 9, "get tpm pcr allocation");
+	if (rc)
+		goto out;
+
+	nr_possible_banks = be32_to_cpup(
+		(__be32 *)&buf.data[TPM_HEADER_SIZE + 5]);
+
+	chip->allocated_banks = kcalloc(nr_possible_banks,
+					sizeof(*chip->allocated_banks),
+					GFP_KERNEL);
+	if (!chip->allocated_banks) {
+		rc = -ENOMEM;
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
@@ -893,7 +1220,11 @@ static ssize_t tpm2_get_pcr_allocation(struct tpm_chip *chip)
 	rsp_len = be32_to_cpup((__be32 *)&buf.data[2]);
 	end = &buf.data[rsp_len];
 
+<<<<<<< HEAD
 	for (i = 0; i < count; i++) {
+=======
+	for (i = 0; i < nr_possible_banks; i++) {
+>>>>>>> upstream/android-13
 		pcr_select_offset = marker +
 			offsetof(struct tpm2_pcr_selection, size_of_select);
 		if (pcr_select_offset >= end) {
@@ -902,23 +1233,49 @@ static ssize_t tpm2_get_pcr_allocation(struct tpm_chip *chip)
 		}
 
 		memcpy(&pcr_selection, marker, sizeof(pcr_selection));
+<<<<<<< HEAD
 		chip->active_banks[i] = be16_to_cpu(pcr_selection.hash_alg);
+=======
+		hash_alg = be16_to_cpu(pcr_selection.hash_alg);
+
+		pcr_select_offset = memchr_inv(pcr_selection.pcr_select, 0,
+					       pcr_selection.size_of_select);
+		if (pcr_select_offset) {
+			chip->allocated_banks[nr_alloc_banks].alg_id = hash_alg;
+
+			rc = tpm2_init_bank_info(chip, nr_alloc_banks);
+			if (rc < 0)
+				break;
+
+			nr_alloc_banks++;
+		}
+
+>>>>>>> upstream/android-13
 		sizeof_pcr_selection = sizeof(pcr_selection.hash_alg) +
 			sizeof(pcr_selection.size_of_select) +
 			pcr_selection.size_of_select;
 		marker = marker + sizeof_pcr_selection;
 	}
 
+<<<<<<< HEAD
 out:
 	if (i < ARRAY_SIZE(chip->active_banks))
 		chip->active_banks[i] = TPM2_ALG_ERROR;
 
+=======
+	chip->nr_allocated_banks = nr_alloc_banks;
+out:
+>>>>>>> upstream/android-13
 	tpm_buf_destroy(&buf);
 
 	return rc;
 }
 
+<<<<<<< HEAD
 static int tpm2_get_cc_attrs_tbl(struct tpm_chip *chip)
+=======
+int tpm2_get_cc_attrs_tbl(struct tpm_chip *chip)
+>>>>>>> upstream/android-13
 {
 	struct tpm_buf buf;
 	u32 nr_commands;
@@ -951,8 +1308,12 @@ static int tpm2_get_cc_attrs_tbl(struct tpm_chip *chip)
 	tpm_buf_append_u32(&buf, TPM2_CC_FIRST);
 	tpm_buf_append_u32(&buf, nr_commands);
 
+<<<<<<< HEAD
 	rc = tpm_transmit_cmd(chip, NULL, buf.data, PAGE_SIZE,
 			      9 + 4 * nr_commands, 0, NULL);
+=======
+	rc = tpm_transmit_cmd(chip, &buf, 9 + 4 * nr_commands, NULL);
+>>>>>>> upstream/android-13
 	if (rc) {
 		tpm_buf_destroy(&buf);
 		goto out;
@@ -986,6 +1347,39 @@ out:
 		rc = -ENODEV;
 	return rc;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(tpm2_get_cc_attrs_tbl);
+
+/**
+ * tpm2_startup - turn on the TPM
+ * @chip: TPM chip to use
+ *
+ * Normally the firmware should start the TPM. This function is provided as a
+ * workaround if this does not happen. A legal case for this could be for
+ * example when a TPM emulator is used.
+ *
+ * Return: same as tpm_transmit_cmd()
+ */
+
+static int tpm2_startup(struct tpm_chip *chip)
+{
+	struct tpm_buf buf;
+	int rc;
+
+	dev_info(&chip->dev, "starting up the TPM manually\n");
+
+	rc = tpm_buf_init(&buf, TPM2_ST_NO_SESSIONS, TPM2_CC_STARTUP);
+	if (rc < 0)
+		return rc;
+
+	tpm_buf_append_u16(&buf, TPM2_SU_CLEAR);
+	rc = tpm_transmit_cmd(chip, &buf, 0, "attempting to start the TPM");
+	tpm_buf_destroy(&buf);
+
+	return rc;
+}
+>>>>>>> upstream/android-13
 
 /**
  * tpm2_auto_startup - Perform the standard automatic TPM initialization
@@ -998,7 +1392,11 @@ int tpm2_auto_startup(struct tpm_chip *chip)
 {
 	int rc;
 
+<<<<<<< HEAD
 	rc = tpm_get_timeouts(chip);
+=======
+	rc = tpm2_get_timeouts(chip);
+>>>>>>> upstream/android-13
 	if (rc)
 		goto out;
 
@@ -1007,7 +1405,11 @@ int tpm2_auto_startup(struct tpm_chip *chip)
 		goto out;
 
 	if (rc == TPM2_RC_INITIALIZE) {
+<<<<<<< HEAD
 		rc = tpm_startup(chip);
+=======
+		rc = tpm2_startup(chip);
+>>>>>>> upstream/android-13
 		if (rc)
 			goto out;
 
@@ -1016,10 +1418,13 @@ int tpm2_auto_startup(struct tpm_chip *chip)
 			goto out;
 	}
 
+<<<<<<< HEAD
 	rc = tpm2_get_pcr_allocation(chip);
 	if (rc)
 		goto out;
 
+=======
+>>>>>>> upstream/android-13
 	rc = tpm2_get_cc_attrs_tbl(chip);
 
 out:

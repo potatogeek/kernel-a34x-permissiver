@@ -3,7 +3,11 @@
  *
  * Name: acexcep.h - Exception codes returned by the ACPI subsystem
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -40,12 +44,20 @@
 struct acpi_exception_info {
 	char *name;
 
+<<<<<<< HEAD
 #ifdef ACPI_HELP_APP
+=======
+#if defined (ACPI_HELP_APP) || defined (ACPI_ASL_COMPILER)
+>>>>>>> upstream/android-13
 	char *description;
 #endif
 };
 
+<<<<<<< HEAD
 #ifdef ACPI_HELP_APP
+=======
+#if defined (ACPI_HELP_APP) || defined (ACPI_ASL_COMPILER)
+>>>>>>> upstream/android-13
 #define EXCEP_TXT(name,description)     {name, description}
 #else
 #define EXCEP_TXT(name,description)     {name}
@@ -171,8 +183,15 @@ struct acpi_exception_info {
 #define AE_AML_LOOP_TIMEOUT             EXCEP_AML (0x0021)
 #define AE_AML_UNINITIALIZED_NODE       EXCEP_AML (0x0022)
 #define AE_AML_TARGET_TYPE              EXCEP_AML (0x0023)
+<<<<<<< HEAD
 
 #define AE_CODE_AML_MAX                 0x0023
+=======
+#define AE_AML_PROTOCOL                 EXCEP_AML (0x0024)
+#define AE_AML_BUFFER_LENGTH            EXCEP_AML (0x0025)
+
+#define AE_CODE_AML_MAX                 0x0025
+>>>>>>> upstream/android-13
 
 /*
  * Internal exceptions used for control
@@ -309,7 +328,12 @@ static const struct acpi_exception_info acpi_gbl_exception_names_aml[] = {
 		  "An ACPI name contains invalid character(s)"),
 	EXCEP_TXT("AE_AML_NAME_NOT_FOUND",
 		  "Could not resolve a named reference"),
+<<<<<<< HEAD
 	EXCEP_TXT("AE_AML_INTERNAL", "An internal error within the interprete"),
+=======
+	EXCEP_TXT("AE_AML_INTERNAL",
+		  "An internal error within the interpreter"),
+>>>>>>> upstream/android-13
 	EXCEP_TXT("AE_AML_INVALID_SPACE_ID",
 		  "An Operation Region SpaceID is invalid"),
 	EXCEP_TXT("AE_AML_STRING_LIMIT",
@@ -347,7 +371,14 @@ static const struct acpi_exception_info acpi_gbl_exception_names_aml[] = {
 	EXCEP_TXT("AE_AML_UNINITIALIZED_NODE",
 		  "A namespace node is uninitialized or unresolved"),
 	EXCEP_TXT("AE_AML_TARGET_TYPE",
+<<<<<<< HEAD
 		  "A target operand of an incorrect type was encountered")
+=======
+		  "A target operand of an incorrect type was encountered"),
+	EXCEP_TXT("AE_AML_PROTOCOL", "Violation of a fixed ACPI protocol"),
+	EXCEP_TXT("AE_AML_BUFFER_LENGTH",
+		  "The length of the buffer is invalid/incorrect")
+>>>>>>> upstream/android-13
 };
 
 static const struct acpi_exception_info acpi_gbl_exception_names_ctrl[] = {

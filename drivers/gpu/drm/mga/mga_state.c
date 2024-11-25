@@ -32,8 +32,11 @@
  *    Gareth Hughes <gareth@valinux.com>
  */
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/mga_drm.h>
+=======
+>>>>>>> upstream/android-13
 #include "mga_drv.h"
 
 /* ================================================================
@@ -944,7 +947,10 @@ static int mga_dma_iload(struct drm_device *dev, void *data, struct drm_file *fi
 	struct drm_device_dma *dma = dev->dma;
 	drm_mga_private_t *dev_priv = dev->dev_private;
 	struct drm_buf *buf;
+<<<<<<< HEAD
 	drm_mga_buf_priv_t *buf_priv;
+=======
+>>>>>>> upstream/android-13
 	drm_mga_iload_t *iload = data;
 	DRM_DEBUG("\n");
 
@@ -961,7 +967,10 @@ static int mga_dma_iload(struct drm_device *dev, void *data, struct drm_file *fi
 		return -EINVAL;
 
 	buf = dma->buflist[iload->idx];
+<<<<<<< HEAD
 	buf_priv = buf->dev_private;
+=======
+>>>>>>> upstream/android-13
 
 	if (mga_verify_iload(dev_priv, iload->dstorg, iload->length)) {
 		mga_freelist_put(dev, buf);
@@ -1009,6 +1018,10 @@ int mga_getparam(struct drm_device *dev, void *data, struct drm_file *file_priv)
 {
 	drm_mga_private_t *dev_priv = dev->dev_private;
 	drm_mga_getparam_t *param = data;
+<<<<<<< HEAD
+=======
+	struct pci_dev *pdev = to_pci_dev(dev->dev);
+>>>>>>> upstream/android-13
 	int value;
 
 	if (!dev_priv) {
@@ -1016,11 +1029,19 @@ int mga_getparam(struct drm_device *dev, void *data, struct drm_file *file_priv)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	DRM_DEBUG("pid=%d\n", DRM_CURRENTPID);
 
 	switch (param->param) {
 	case MGA_PARAM_IRQ_NR:
 		value = dev->pdev->irq;
+=======
+	DRM_DEBUG("pid=%d\n", task_pid_nr(current));
+
+	switch (param->param) {
+	case MGA_PARAM_IRQ_NR:
+		value = pdev->irq;
+>>>>>>> upstream/android-13
 		break;
 	case MGA_PARAM_CARD_TYPE:
 		value = dev_priv->chipset;
@@ -1048,7 +1069,11 @@ static int mga_set_fence(struct drm_device *dev, void *data, struct drm_file *fi
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	DRM_DEBUG("pid=%d\n", DRM_CURRENTPID);
+=======
+	DRM_DEBUG("pid=%d\n", task_pid_nr(current));
+>>>>>>> upstream/android-13
 
 	/* I would normal do this assignment in the declaration of fence,
 	 * but dev_priv may be NULL.
@@ -1077,7 +1102,11 @@ file_priv)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	DRM_DEBUG("pid=%d\n", DRM_CURRENTPID);
+=======
+	DRM_DEBUG("pid=%d\n", task_pid_nr(current));
+>>>>>>> upstream/android-13
 
 	mga_driver_fence_wait(dev, fence);
 	return 0;

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Hardware monitoring driver for LTC3815
  *
  * Copyright (c) 2015 Linear Technology
  * Copyright (c) 2015 Guenter Roeck
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -64,7 +71,11 @@ static int ltc3815_write_byte(struct i2c_client *client, int page, u8 reg)
 		 * LTC3815 does not support the CLEAR_FAULTS command.
 		 * Emulate it by clearing the status register.
 		 */
+<<<<<<< HEAD
 		ret = pmbus_read_word_data(client, 0, PMBUS_STATUS_WORD);
+=======
+		ret = pmbus_read_word_data(client, 0, 0xff, PMBUS_STATUS_WORD);
+>>>>>>> upstream/android-13
 		if (ret > 0) {
 			pmbus_write_word_data(client, 0, PMBUS_STATUS_WORD,
 					      ret);
@@ -78,12 +89,18 @@ static int ltc3815_write_byte(struct i2c_client *client, int page, u8 reg)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int ltc3815_read_word_data(struct i2c_client *client, int page, int reg)
+=======
+static int ltc3815_read_word_data(struct i2c_client *client, int page,
+				  int phase, int reg)
+>>>>>>> upstream/android-13
 {
 	int ret;
 
 	switch (reg) {
 	case PMBUS_VIRT_READ_VIN_MAX:
+<<<<<<< HEAD
 		ret = pmbus_read_word_data(client, page, LTC3815_MFR_VIN_PEAK);
 		break;
 	case PMBUS_VIRT_READ_VOUT_MAX:
@@ -97,6 +114,26 @@ static int ltc3815_read_word_data(struct i2c_client *client, int page, int reg)
 		break;
 	case PMBUS_VIRT_READ_IIN_MAX:
 		ret = pmbus_read_word_data(client, page, LTC3815_MFR_IIN_PEAK);
+=======
+		ret = pmbus_read_word_data(client, page, phase,
+					   LTC3815_MFR_VIN_PEAK);
+		break;
+	case PMBUS_VIRT_READ_VOUT_MAX:
+		ret = pmbus_read_word_data(client, page, phase,
+					   LTC3815_MFR_VOUT_PEAK);
+		break;
+	case PMBUS_VIRT_READ_TEMP_MAX:
+		ret = pmbus_read_word_data(client, page, phase,
+					   LTC3815_MFR_TEMP_PEAK);
+		break;
+	case PMBUS_VIRT_READ_IOUT_MAX:
+		ret = pmbus_read_word_data(client, page, phase,
+					   LTC3815_MFR_IOUT_PEAK);
+		break;
+	case PMBUS_VIRT_READ_IIN_MAX:
+		ret = pmbus_read_word_data(client, page, phase,
+					   LTC3815_MFR_IIN_PEAK);
+>>>>>>> upstream/android-13
 		break;
 	case PMBUS_VIRT_RESET_VOUT_HISTORY:
 	case PMBUS_VIRT_RESET_VIN_HISTORY:
@@ -181,8 +218,12 @@ static struct pmbus_driver_info ltc3815_info = {
 	.write_word_data = ltc3815_write_word_data,
 };
 
+<<<<<<< HEAD
 static int ltc3815_probe(struct i2c_client *client,
 			 const struct i2c_device_id *id)
+=======
+static int ltc3815_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	int chip_id;
 
@@ -196,15 +237,23 @@ static int ltc3815_probe(struct i2c_client *client,
 	if ((chip_id & LTC3815_ID_MASK) != LTC3815_ID)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	return pmbus_do_probe(client, id, &ltc3815_info);
+=======
+	return pmbus_do_probe(client, &ltc3815_info);
+>>>>>>> upstream/android-13
 }
 
 static struct i2c_driver ltc3815_driver = {
 	.driver = {
 		   .name = "ltc3815",
 		   },
+<<<<<<< HEAD
 	.probe = ltc3815_probe,
 	.remove = pmbus_do_remove,
+=======
+	.probe_new = ltc3815_probe,
+>>>>>>> upstream/android-13
 	.id_table = ltc3815_id,
 };
 
@@ -213,3 +262,7 @@ module_i2c_driver(ltc3815_driver);
 MODULE_AUTHOR("Guenter Roeck");
 MODULE_DESCRIPTION("PMBus driver for LTC3815");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(PMBUS);
+>>>>>>> upstream/android-13

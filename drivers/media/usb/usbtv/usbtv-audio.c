@@ -85,6 +85,7 @@ static int snd_usbtv_pcm_close(struct snd_pcm_substream *substream)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int snd_usbtv_hw_params(struct snd_pcm_substream *substream,
 		struct snd_pcm_hw_params *hw_params)
 {
@@ -109,6 +110,8 @@ static int snd_usbtv_hw_free(struct snd_pcm_substream *substream)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int snd_usbtv_prepare(struct snd_pcm_substream *substream)
 {
 	struct usbtv *chip = snd_pcm_substream_chip(substream);
@@ -336,9 +339,12 @@ static snd_pcm_uframes_t snd_usbtv_pointer(struct snd_pcm_substream *substream)
 static const struct snd_pcm_ops snd_usbtv_pcm_ops = {
 	.open = snd_usbtv_pcm_open,
 	.close = snd_usbtv_pcm_close,
+<<<<<<< HEAD
 	.ioctl = snd_pcm_lib_ioctl,
 	.hw_params = snd_usbtv_hw_params,
 	.hw_free = snd_usbtv_hw_free,
+=======
+>>>>>>> upstream/android-13
 	.prepare = snd_usbtv_prepare,
 	.trigger = snd_usbtv_card_trigger,
 	.pointer = snd_usbtv_pointer,
@@ -358,8 +364,13 @@ int usbtv_audio_init(struct usbtv *usbtv)
 	if (rv < 0)
 		return rv;
 
+<<<<<<< HEAD
 	strlcpy(card->driver, usbtv->dev->driver->name, sizeof(card->driver));
 	strlcpy(card->shortname, "usbtv", sizeof(card->shortname));
+=======
+	strscpy(card->driver, usbtv->dev->driver->name, sizeof(card->driver));
+	strscpy(card->shortname, "usbtv", sizeof(card->shortname));
+>>>>>>> upstream/android-13
 	snprintf(card->longname, sizeof(card->longname),
 		"USBTV Audio at bus %d device %d", usbtv->udev->bus->busnum,
 		usbtv->udev->devnum);
@@ -372,14 +383,23 @@ int usbtv_audio_init(struct usbtv *usbtv)
 	if (rv < 0)
 		goto err;
 
+<<<<<<< HEAD
 	strlcpy(pcm->name, "USBTV Audio Input", sizeof(pcm->name));
+=======
+	strscpy(pcm->name, "USBTV Audio Input", sizeof(pcm->name));
+>>>>>>> upstream/android-13
 	pcm->info_flags = 0;
 	pcm->private_data = usbtv;
 
 	snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_CAPTURE, &snd_usbtv_pcm_ops);
+<<<<<<< HEAD
 	snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_CONTINUOUS,
 		snd_dma_continuous_data(GFP_KERNEL), USBTV_AUDIO_BUFFER,
 		USBTV_AUDIO_BUFFER);
+=======
+	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_CONTINUOUS,
+		NULL, USBTV_AUDIO_BUFFER, USBTV_AUDIO_BUFFER);
+>>>>>>> upstream/android-13
 
 	rv = snd_card_register(card);
 	if (rv)

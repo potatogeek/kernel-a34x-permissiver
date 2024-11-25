@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2011, ARM Ltd.
  * Copyright (c) 2013, NVIDIA Corporation. All rights reserved.
@@ -13,6 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2011, ARM Ltd.
+ * Copyright (c) 2013, NVIDIA Corporation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __MACH_TEGRA_COMMON_H

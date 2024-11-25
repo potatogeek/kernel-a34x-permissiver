@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2011 - 2012 Intel Corporation. All rights reserved.
  *
@@ -14,6 +15,12 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright(c) 2011 - 2012 Intel Corporation. All rights reserved.
+ *
+>>>>>>> upstream/android-13
  * Maintained at www.Open-FCoE.org
  */
 
@@ -324,7 +331,11 @@ static ssize_t store_ctlr_mode(struct device *dev,
 	default:
 		LIBFCOE_SYSFS_DBG(ctlr, "Mode change not supported.\n");
 		return -ENOTSUPP;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 }
 
 static FCOE_DEVICE_ATTR(ctlr, mode, S_IRUGO | S_IWUSR,
@@ -358,7 +369,11 @@ static ssize_t store_ctlr_enabled(struct device *dev,
 		break;
 	case FCOE_CTLR_UNUSED:
 		return -ENOTSUPP;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 
 	rc = ctlr->f->set_fcoe_ctlr_enabled(ctlr);
 	if (rc)
@@ -671,8 +686,24 @@ static const struct device_type fcoe_fcf_device_type = {
 	.release = fcoe_fcf_device_release,
 };
 
+<<<<<<< HEAD
 static BUS_ATTR(ctlr_create, S_IWUSR, NULL, fcoe_ctlr_create_store);
 static BUS_ATTR(ctlr_destroy, S_IWUSR, NULL, fcoe_ctlr_destroy_store);
+=======
+static ssize_t ctlr_create_store(struct bus_type *bus, const char *buf,
+				 size_t count)
+{
+	return fcoe_ctlr_create_store(bus, buf, count);
+}
+static BUS_ATTR_WO(ctlr_create);
+
+static ssize_t ctlr_destroy_store(struct bus_type *bus, const char *buf,
+				  size_t count)
+{
+	return fcoe_ctlr_destroy_store(bus, buf, count);
+}
+static BUS_ATTR_WO(ctlr_destroy);
+>>>>>>> upstream/android-13
 
 static struct attribute *fcoe_bus_attrs[] = {
 	&bus_attr_ctlr_create.attr,
@@ -1054,6 +1085,7 @@ EXPORT_SYMBOL_GPL(fcoe_fcf_device_add);
 
 int __init fcoe_sysfs_setup(void)
 {
+<<<<<<< HEAD
 	int error;
 
 	atomic_set(&ctlr_num, 0);
@@ -1064,6 +1096,12 @@ int __init fcoe_sysfs_setup(void)
 		return error;
 
 	return 0;
+=======
+	atomic_set(&ctlr_num, 0);
+	atomic_set(&fcf_num, 0);
+
+	return bus_register(&fcoe_bus_type);
+>>>>>>> upstream/android-13
 }
 
 void __exit fcoe_sysfs_teardown(void)

@@ -8,10 +8,16 @@
 
 #include <linux/clk.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/of_gpio.h>
+=======
+#include <linux/gpio/consumer.h>
+#include <linux/init.h>
+#include <linux/module.h>
+>>>>>>> upstream/android-13
 #include <linux/of_platform.h>
 #include <linux/pinctrl/consumer.h>
 #include <linux/platform_device.h>
@@ -20,8 +26,13 @@
 #include <linux/irq.h>
 #include <linux/suspend.h>
 #include <linux/time.h>
+<<<<<<< HEAD
 #include "arche_platform.h"
 #include "greybus.h"
+=======
+#include <linux/greybus.h>
+#include "arche_platform.h"
+>>>>>>> upstream/android-13
 
 #if IS_ENABLED(CONFIG_USB_HSIC_USB3613)
 #include <linux/usb/usb3613.h>
@@ -45,6 +56,7 @@ enum svc_wakedetect_state {
 
 struct arche_platform_drvdata {
 	/* Control GPIO signals to and from AP <=> SVC */
+<<<<<<< HEAD
 	int svc_reset_gpio;
 	bool is_reset_act_hi;
 	int svc_sysboot_gpio;
@@ -53,6 +65,16 @@ struct arche_platform_drvdata {
 	enum arche_platform_state state;
 
 	int svc_refclk_req;
+=======
+	struct gpio_desc *svc_reset;
+	bool is_reset_act_hi;
+	struct gpio_desc *svc_sysboot;
+	struct gpio_desc *wake_detect; /* bi-dir,maps to WAKE_MOD & WAKE_FRAME signals */
+
+	enum arche_platform_state state;
+
+	struct gpio_desc *svc_refclk_req;
+>>>>>>> upstream/android-13
 	struct clk *svc_ref_clk;
 
 	struct pinctrl *pinctrl;
@@ -78,16 +100,27 @@ static void arche_platform_set_state(struct arche_platform_drvdata *arche_pdata,
 }
 
 /* Requires arche_pdata->wake_lock is held by calling context */
+<<<<<<< HEAD
 static void arche_platform_set_wake_detect_state(
 				struct arche_platform_drvdata *arche_pdata,
 				enum svc_wakedetect_state state)
+=======
+static void arche_platform_set_wake_detect_state(struct arche_platform_drvdata *arche_pdata,
+						 enum svc_wakedetect_state state)
+>>>>>>> upstream/android-13
 {
 	arche_pdata->wake_detect_state = state;
 }
 
+<<<<<<< HEAD
 static inline void svc_reset_onoff(unsigned int gpio, bool onoff)
 {
 	gpio_set_value(gpio, onoff);
+=======
+static inline void svc_reset_onoff(struct gpio_desc *gpio, bool onoff)
+{
+	gpiod_set_raw_value(gpio, onoff);
+>>>>>>> upstream/android-13
 }
 
 static int apb_cold_boot(struct device *dev, void *data)
@@ -116,7 +149,10 @@ static int apb_poweroff(struct device *dev, void *data)
 static void arche_platform_wd_irq_en(struct arche_platform_drvdata *arche_pdata)
 {
 	/* Enable interrupt here, to read event back from SVC */
+<<<<<<< HEAD
 	gpio_direction_input(arche_pdata->wake_detect_gpio);
+=======
+>>>>>>> upstream/android-13
 	enable_irq(arche_pdata->wake_detect_irq);
 }
 
@@ -160,7 +196,11 @@ static irqreturn_t arche_platform_wd_irq(int irq, void *devid)
 
 	spin_lock_irqsave(&arche_pdata->wake_lock, flags);
 
+<<<<<<< HEAD
 	if (gpio_get_value(arche_pdata->wake_detect_gpio)) {
+=======
+	if (gpiod_get_value(arche_pdata->wake_detect)) {
+>>>>>>> upstream/android-13
 		/* wake/detect rising */
 
 		/*
@@ -183,9 +223,14 @@ static irqreturn_t arche_platform_wd_irq(int irq, void *devid)
 						WD_STATE_COLDBOOT_START) {
 					arche_platform_set_wake_detect_state(arche_pdata,
 									     WD_STATE_COLDBOOT_TRIG);
+<<<<<<< HEAD
 					spin_unlock_irqrestore(
 						&arche_pdata->wake_lock,
 						flags);
+=======
+					spin_unlock_irqrestore(&arche_pdata->wake_lock,
+							       flags);
+>>>>>>> upstream/android-13
 					return IRQ_WAKE_THREAD;
 				}
 			}
@@ -224,10 +269,16 @@ arche_platform_coldboot_seq(struct arche_platform_drvdata *arche_pdata)
 
 	dev_info(arche_pdata->dev, "Booting from cold boot state\n");
 
+<<<<<<< HEAD
 	svc_reset_onoff(arche_pdata->svc_reset_gpio,
 			arche_pdata->is_reset_act_hi);
 
 	gpio_set_value(arche_pdata->svc_sysboot_gpio, 0);
+=======
+	svc_reset_onoff(arche_pdata->svc_reset, arche_pdata->is_reset_act_hi);
+
+	gpiod_set_value(arche_pdata->svc_sysboot, 0);
+>>>>>>> upstream/android-13
 	usleep_range(100, 200);
 
 	ret = clk_prepare_enable(arche_pdata->svc_ref_clk);
@@ -238,8 +289,12 @@ arche_platform_coldboot_seq(struct arche_platform_drvdata *arche_pdata)
 	}
 
 	/* bring SVC out of reset */
+<<<<<<< HEAD
 	svc_reset_onoff(arche_pdata->svc_reset_gpio,
 			!arche_pdata->is_reset_act_hi);
+=======
+	svc_reset_onoff(arche_pdata->svc_reset, !arche_pdata->is_reset_act_hi);
+>>>>>>> upstream/android-13
 
 	arche_platform_set_state(arche_pdata, ARCHE_PLATFORM_STATE_ACTIVE);
 
@@ -259,10 +314,16 @@ arche_platform_fw_flashing_seq(struct arche_platform_drvdata *arche_pdata)
 
 	dev_info(arche_pdata->dev, "Switching to FW flashing state\n");
 
+<<<<<<< HEAD
 	svc_reset_onoff(arche_pdata->svc_reset_gpio,
 			arche_pdata->is_reset_act_hi);
 
 	gpio_set_value(arche_pdata->svc_sysboot_gpio, 1);
+=======
+	svc_reset_onoff(arche_pdata->svc_reset, arche_pdata->is_reset_act_hi);
+
+	gpiod_set_value(arche_pdata->svc_sysboot, 1);
+>>>>>>> upstream/android-13
 
 	usleep_range(100, 200);
 
@@ -273,8 +334,12 @@ arche_platform_fw_flashing_seq(struct arche_platform_drvdata *arche_pdata)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	svc_reset_onoff(arche_pdata->svc_reset_gpio,
 			!arche_pdata->is_reset_act_hi);
+=======
+	svc_reset_onoff(arche_pdata->svc_reset,	!arche_pdata->is_reset_act_hi);
+>>>>>>> upstream/android-13
 
 	arche_platform_set_state(arche_pdata, ARCHE_PLATFORM_STATE_FW_FLASHING);
 
@@ -305,8 +370,12 @@ arche_platform_poweroff_seq(struct arche_platform_drvdata *arche_pdata)
 	clk_disable_unprepare(arche_pdata->svc_ref_clk);
 
 	/* As part of exit, put APB back in reset state */
+<<<<<<< HEAD
 	svc_reset_onoff(arche_pdata->svc_reset_gpio,
 			arche_pdata->is_reset_act_hi);
+=======
+	svc_reset_onoff(arche_pdata->svc_reset,	arche_pdata->is_reset_act_hi);
+>>>>>>> upstream/android-13
 
 	arche_platform_set_state(arche_pdata, ARCHE_PLATFORM_STATE_OFF);
 }
@@ -435,6 +504,10 @@ static int arche_platform_probe(struct platform_device *pdev)
 	struct device *dev = &pdev->dev;
 	struct device_node *np = dev->of_node;
 	int ret;
+<<<<<<< HEAD
+=======
+	unsigned int flags;
+>>>>>>> upstream/android-13
 
 	arche_pdata = devm_kzalloc(&pdev->dev, sizeof(*arche_pdata),
 				   GFP_KERNEL);
@@ -444,6 +517,7 @@ static int arche_platform_probe(struct platform_device *pdev)
 	/* setup svc reset gpio */
 	arche_pdata->is_reset_act_hi = of_property_read_bool(np,
 							     "svc,reset-active-high");
+<<<<<<< HEAD
 	arche_pdata->svc_reset_gpio = of_get_named_gpio(np,
 							"svc,reset-gpio",
 							0);
@@ -460,10 +534,22 @@ static int arche_platform_probe(struct platform_device *pdev)
 				    arche_pdata->is_reset_act_hi);
 	if (ret) {
 		dev_err(dev, "failed to set svc-reset gpio dir:%d\n", ret);
+=======
+	if (arche_pdata->is_reset_act_hi)
+		flags = GPIOD_OUT_HIGH;
+	else
+		flags = GPIOD_OUT_LOW;
+
+	arche_pdata->svc_reset = devm_gpiod_get(dev, "svc,reset", flags);
+	if (IS_ERR(arche_pdata->svc_reset)) {
+		ret = PTR_ERR(arche_pdata->svc_reset);
+		dev_err(dev, "failed to request svc-reset GPIO: %d\n", ret);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 	arche_platform_set_state(arche_pdata, ARCHE_PLATFORM_STATE_OFF);
 
+<<<<<<< HEAD
 	arche_pdata->svc_sysboot_gpio = of_get_named_gpio(np,
 							  "svc,sysboot-gpio",
 							  0);
@@ -479,10 +565,18 @@ static int arche_platform_probe(struct platform_device *pdev)
 	ret = gpio_direction_output(arche_pdata->svc_sysboot_gpio, 0);
 	if (ret) {
 		dev_err(dev, "failed to set svc-reset gpio dir:%d\n", ret);
+=======
+	arche_pdata->svc_sysboot = devm_gpiod_get(dev, "svc,sysboot",
+						  GPIOD_OUT_LOW);
+	if (IS_ERR(arche_pdata->svc_sysboot)) {
+		ret = PTR_ERR(arche_pdata->svc_sysboot);
+		dev_err(dev, "failed to request sysboot0 GPIO: %d\n", ret);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
 	/* setup the clock request gpio first */
+<<<<<<< HEAD
 	arche_pdata->svc_refclk_req = of_get_named_gpio(np,
 							"svc,refclk-req-gpio",
 							0);
@@ -499,6 +593,13 @@ static int arche_platform_probe(struct platform_device *pdev)
 	ret = gpio_direction_input(arche_pdata->svc_refclk_req);
 	if (ret) {
 		dev_err(dev, "failed to set svc-clk-req gpio dir :%d\n", ret);
+=======
+	arche_pdata->svc_refclk_req = devm_gpiod_get(dev, "svc,refclk-req",
+						     GPIOD_IN);
+	if (IS_ERR(arche_pdata->svc_refclk_req)) {
+		ret = PTR_ERR(arche_pdata->svc_refclk_req);
+		dev_err(dev, "failed to request svc-clk-req GPIO: %d\n", ret);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
@@ -515,6 +616,7 @@ static int arche_platform_probe(struct platform_device *pdev)
 	arche_pdata->num_apbs = of_get_child_count(np);
 	dev_dbg(dev, "Number of APB's available - %d\n", arche_pdata->num_apbs);
 
+<<<<<<< HEAD
 	arche_pdata->wake_detect_gpio = of_get_named_gpio(np,
 							  "svc,wake-detect-gpio",
 							  0);
@@ -528,6 +630,13 @@ static int arche_platform_probe(struct platform_device *pdev)
 	if (ret) {
 		dev_err(dev, "Failed requesting wake_detect gpio %d\n",
 			arche_pdata->wake_detect_gpio);
+=======
+	arche_pdata->wake_detect = devm_gpiod_get(dev, "svc,wake-detect",
+						  GPIOD_IN);
+	if (IS_ERR(arche_pdata->wake_detect)) {
+		ret = PTR_ERR(arche_pdata->wake_detect);
+		dev_err(dev, "Failed requesting wake_detect GPIO: %d\n", ret);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
@@ -538,7 +647,11 @@ static int arche_platform_probe(struct platform_device *pdev)
 	spin_lock_init(&arche_pdata->wake_lock);
 	mutex_init(&arche_pdata->platform_state_mutex);
 	arche_pdata->wake_detect_irq =
+<<<<<<< HEAD
 		gpio_to_irq(arche_pdata->wake_detect_gpio);
+=======
+		gpiod_to_irq(arche_pdata->wake_detect);
+>>>>>>> upstream/android-13
 
 	ret = devm_request_threaded_irq(dev, arche_pdata->wake_detect_irq,
 					arche_platform_wd_irq,

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015 Linaro Ltd.
  * Author: Pi-Cheng Chen <pi-cheng.chen@linaro.org>
@@ -10,6 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2015 Linaro Ltd.
+ * Author: Pi-Cheng Chen <pi-cheng.chen@linaro.org>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __DRV_CLK_CPUMUX_H

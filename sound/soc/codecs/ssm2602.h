@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * File:         sound/soc/codecs/ssm2602.h
  * Author:       Cliff Cai <Cliff.Cai@analog.com>
@@ -8,6 +12,7 @@
  *               Copyright 2008 Analog Devices Inc.
  *
  * Bugs:         Enter bugs at http://blackfin.uclinux.org/
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +28,8 @@
  * along with this program; if not, see the file COPYING, or write
  * to the Free Software Foundation, Inc.,
  * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _SSM2602_H

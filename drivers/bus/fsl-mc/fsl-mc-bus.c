@@ -3,6 +3,10 @@
  * Freescale Management Complex (MC) bus driver
  *
  * Copyright (C) 2014-2016 Freescale Semiconductor, Inc.
+<<<<<<< HEAD
+=======
+ * Copyright 2019-2020 NXP
+>>>>>>> upstream/android-13
  * Author: German Rivera <German.Rivera@freescale.com>
  *
  */
@@ -18,24 +22,46 @@
 #include <linux/bitops.h>
 #include <linux/msi.h>
 #include <linux/dma-mapping.h>
+<<<<<<< HEAD
 
 #include "fsl-mc-private.h"
 
 /**
+=======
+#include <linux/acpi.h>
+#include <linux/iommu.h>
+
+#include "fsl-mc-private.h"
+
+/*
+>>>>>>> upstream/android-13
  * Default DMA mask for devices on a fsl-mc bus
  */
 #define FSL_MC_DEFAULT_DMA_MASK	(~0ULL)
 
+<<<<<<< HEAD
+=======
+static struct fsl_mc_version mc_version;
+
+>>>>>>> upstream/android-13
 /**
  * struct fsl_mc - Private data of a "fsl,qoriq-mc" platform device
  * @root_mc_bus_dev: fsl-mc device representing the root DPRC
  * @num_translation_ranges: number of entries in addr_translation_ranges
  * @translation_ranges: array of bus to system address translation ranges
+<<<<<<< HEAD
+=======
+ * @fsl_mc_regs: base address of register bank
+>>>>>>> upstream/android-13
  */
 struct fsl_mc {
 	struct fsl_mc_device *root_mc_bus_dev;
 	u8 num_translation_ranges;
 	struct fsl_mc_addr_translation_range *translation_ranges;
+<<<<<<< HEAD
+=======
+	void __iomem *fsl_mc_regs;
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -54,6 +80,7 @@ struct fsl_mc_addr_translation_range {
 	phys_addr_t start_phys_addr;
 };
 
+<<<<<<< HEAD
 /**
  * struct mc_version
  * @major: Major version number: incremented on API compatibility changes
@@ -67,6 +94,17 @@ struct mc_version {
 	u32 minor;
 	u32 revision;
 };
+=======
+#define FSL_MC_GCR1	0x0
+#define GCR1_P1_STOP	BIT(31)
+#define GCR1_P2_STOP	BIT(30)
+
+#define FSL_MC_FAPR	0x28
+#define MC_FAPR_PL	BIT(18)
+#define MC_FAPR_BMT	BIT(17)
+
+static phys_addr_t mc_portal_base_phys_addr;
+>>>>>>> upstream/android-13
 
 /**
  * fsl_mc_bus_match - device to driver matching callback
@@ -83,6 +121,15 @@ static int fsl_mc_bus_match(struct device *dev, struct device_driver *drv)
 	struct fsl_mc_driver *mc_drv = to_fsl_mc_driver(drv);
 	bool found = false;
 
+<<<<<<< HEAD
+=======
+	/* When driver_override is set, only bind to the matching driver */
+	if (mc_dev->driver_override) {
+		found = !strcmp(mc_dev->driver_override, mc_drv->driver.name);
+		goto out;
+	}
+
+>>>>>>> upstream/android-13
 	if (!mc_drv->match_id_table)
 		goto out;
 
@@ -112,7 +159,11 @@ out:
 	return found;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * fsl_mc_bus_uevent - callback invoked when a device is added
  */
 static int fsl_mc_bus_uevent(struct device *dev, struct kobj_uevent_env *env)
@@ -127,6 +178,24 @@ static int fsl_mc_bus_uevent(struct device *dev, struct kobj_uevent_env *env)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int fsl_mc_dma_configure(struct device *dev)
+{
+	struct device *dma_dev = dev;
+	struct fsl_mc_device *mc_dev = to_fsl_mc_device(dev);
+	u32 input_id = mc_dev->icid;
+
+	while (dev_is_fsl_mc(dma_dev))
+		dma_dev = dma_dev->parent;
+
+	if (dev_of_node(dma_dev))
+		return of_dma_configure_id(dev, dma_dev->of_node, 0, &input_id);
+
+	return acpi_dma_configure_id(dev, DEV_DMA_COHERENT, &input_id);
+}
+
+>>>>>>> upstream/android-13
 static ssize_t modalias_show(struct device *dev, struct device_attribute *attr,
 			     char *buf)
 {
@@ -137,56 +206,280 @@ static ssize_t modalias_show(struct device *dev, struct device_attribute *attr,
 }
 static DEVICE_ATTR_RO(modalias);
 
+<<<<<<< HEAD
 static struct attribute *fsl_mc_dev_attrs[] = {
 	&dev_attr_modalias.attr,
+=======
+static ssize_t driver_override_store(struct device *dev,
+				     struct device_attribute *attr,
+				     const char *buf, size_t count)
+{
+	struct fsl_mc_device *mc_dev = to_fsl_mc_device(dev);
+	char *driver_override, *old = mc_dev->driver_override;
+	char *cp;
+
+	if (WARN_ON(dev->bus != &fsl_mc_bus_type))
+		return -EINVAL;
+
+	if (count >= (PAGE_SIZE - 1))
+		return -EINVAL;
+
+	driver_override = kstrndup(buf, count, GFP_KERNEL);
+	if (!driver_override)
+		return -ENOMEM;
+
+	cp = strchr(driver_override, '\n');
+	if (cp)
+		*cp = '\0';
+
+	if (strlen(driver_override)) {
+		mc_dev->driver_override = driver_override;
+	} else {
+		kfree(driver_override);
+		mc_dev->driver_override = NULL;
+	}
+
+	kfree(old);
+
+	return count;
+}
+
+static ssize_t driver_override_show(struct device *dev,
+				    struct device_attribute *attr, char *buf)
+{
+	struct fsl_mc_device *mc_dev = to_fsl_mc_device(dev);
+
+	return snprintf(buf, PAGE_SIZE, "%s\n", mc_dev->driver_override);
+}
+static DEVICE_ATTR_RW(driver_override);
+
+static struct attribute *fsl_mc_dev_attrs[] = {
+	&dev_attr_modalias.attr,
+	&dev_attr_driver_override.attr,
+>>>>>>> upstream/android-13
 	NULL,
 };
 
 ATTRIBUTE_GROUPS(fsl_mc_dev);
 
+<<<<<<< HEAD
+=======
+static int scan_fsl_mc_bus(struct device *dev, void *data)
+{
+	struct fsl_mc_device *root_mc_dev;
+	struct fsl_mc_bus *root_mc_bus;
+
+	if (!fsl_mc_is_root_dprc(dev))
+		goto exit;
+
+	root_mc_dev = to_fsl_mc_device(dev);
+	root_mc_bus = to_fsl_mc_bus(root_mc_dev);
+	mutex_lock(&root_mc_bus->scan_mutex);
+	dprc_scan_objects(root_mc_dev, false);
+	mutex_unlock(&root_mc_bus->scan_mutex);
+
+exit:
+	return 0;
+}
+
+static ssize_t rescan_store(struct bus_type *bus,
+			    const char *buf, size_t count)
+{
+	unsigned long val;
+
+	if (kstrtoul(buf, 0, &val) < 0)
+		return -EINVAL;
+
+	if (val)
+		bus_for_each_dev(bus, NULL, NULL, scan_fsl_mc_bus);
+
+	return count;
+}
+static BUS_ATTR_WO(rescan);
+
+static int fsl_mc_bus_set_autorescan(struct device *dev, void *data)
+{
+	struct fsl_mc_device *root_mc_dev;
+	unsigned long val;
+	char *buf = data;
+
+	if (!fsl_mc_is_root_dprc(dev))
+		goto exit;
+
+	root_mc_dev = to_fsl_mc_device(dev);
+
+	if (kstrtoul(buf, 0, &val) < 0)
+		return -EINVAL;
+
+	if (val)
+		enable_dprc_irq(root_mc_dev);
+	else
+		disable_dprc_irq(root_mc_dev);
+
+exit:
+	return 0;
+}
+
+static int fsl_mc_bus_get_autorescan(struct device *dev, void *data)
+{
+	struct fsl_mc_device *root_mc_dev;
+	char *buf = data;
+
+	if (!fsl_mc_is_root_dprc(dev))
+		goto exit;
+
+	root_mc_dev = to_fsl_mc_device(dev);
+
+	sprintf(buf, "%d\n", get_dprc_irq_state(root_mc_dev));
+exit:
+	return 0;
+}
+
+static ssize_t autorescan_store(struct bus_type *bus,
+				const char *buf, size_t count)
+{
+	bus_for_each_dev(bus, NULL, (void *)buf, fsl_mc_bus_set_autorescan);
+
+	return count;
+}
+
+static ssize_t autorescan_show(struct bus_type *bus, char *buf)
+{
+	bus_for_each_dev(bus, NULL, (void *)buf, fsl_mc_bus_get_autorescan);
+	return strlen(buf);
+}
+
+static BUS_ATTR_RW(autorescan);
+
+static struct attribute *fsl_mc_bus_attrs[] = {
+	&bus_attr_rescan.attr,
+	&bus_attr_autorescan.attr,
+	NULL,
+};
+
+ATTRIBUTE_GROUPS(fsl_mc_bus);
+
+>>>>>>> upstream/android-13
 struct bus_type fsl_mc_bus_type = {
 	.name = "fsl-mc",
 	.match = fsl_mc_bus_match,
 	.uevent = fsl_mc_bus_uevent,
+<<<<<<< HEAD
 	.dev_groups = fsl_mc_dev_groups,
+=======
+	.dma_configure  = fsl_mc_dma_configure,
+	.dev_groups = fsl_mc_dev_groups,
+	.bus_groups = fsl_mc_bus_groups,
+>>>>>>> upstream/android-13
 };
 EXPORT_SYMBOL_GPL(fsl_mc_bus_type);
 
 struct device_type fsl_mc_bus_dprc_type = {
 	.name = "fsl_mc_bus_dprc"
 };
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(fsl_mc_bus_dprc_type);
+>>>>>>> upstream/android-13
 
 struct device_type fsl_mc_bus_dpni_type = {
 	.name = "fsl_mc_bus_dpni"
 };
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(fsl_mc_bus_dpni_type);
+>>>>>>> upstream/android-13
 
 struct device_type fsl_mc_bus_dpio_type = {
 	.name = "fsl_mc_bus_dpio"
 };
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(fsl_mc_bus_dpio_type);
+>>>>>>> upstream/android-13
 
 struct device_type fsl_mc_bus_dpsw_type = {
 	.name = "fsl_mc_bus_dpsw"
 };
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(fsl_mc_bus_dpsw_type);
+>>>>>>> upstream/android-13
 
 struct device_type fsl_mc_bus_dpbp_type = {
 	.name = "fsl_mc_bus_dpbp"
 };
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(fsl_mc_bus_dpbp_type);
+>>>>>>> upstream/android-13
 
 struct device_type fsl_mc_bus_dpcon_type = {
 	.name = "fsl_mc_bus_dpcon"
 };
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(fsl_mc_bus_dpcon_type);
+>>>>>>> upstream/android-13
 
 struct device_type fsl_mc_bus_dpmcp_type = {
 	.name = "fsl_mc_bus_dpmcp"
 };
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(fsl_mc_bus_dpmcp_type);
+>>>>>>> upstream/android-13
 
 struct device_type fsl_mc_bus_dpmac_type = {
 	.name = "fsl_mc_bus_dpmac"
 };
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(fsl_mc_bus_dpmac_type);
+>>>>>>> upstream/android-13
 
 struct device_type fsl_mc_bus_dprtc_type = {
 	.name = "fsl_mc_bus_dprtc"
 };
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(fsl_mc_bus_dprtc_type);
+
+struct device_type fsl_mc_bus_dpseci_type = {
+	.name = "fsl_mc_bus_dpseci"
+};
+EXPORT_SYMBOL_GPL(fsl_mc_bus_dpseci_type);
+
+struct device_type fsl_mc_bus_dpdmux_type = {
+	.name = "fsl_mc_bus_dpdmux"
+};
+EXPORT_SYMBOL_GPL(fsl_mc_bus_dpdmux_type);
+
+struct device_type fsl_mc_bus_dpdcei_type = {
+	.name = "fsl_mc_bus_dpdcei"
+};
+EXPORT_SYMBOL_GPL(fsl_mc_bus_dpdcei_type);
+
+struct device_type fsl_mc_bus_dpaiop_type = {
+	.name = "fsl_mc_bus_dpaiop"
+};
+EXPORT_SYMBOL_GPL(fsl_mc_bus_dpaiop_type);
+
+struct device_type fsl_mc_bus_dpci_type = {
+	.name = "fsl_mc_bus_dpci"
+};
+EXPORT_SYMBOL_GPL(fsl_mc_bus_dpci_type);
+
+struct device_type fsl_mc_bus_dpdmai_type = {
+	.name = "fsl_mc_bus_dpdmai"
+};
+EXPORT_SYMBOL_GPL(fsl_mc_bus_dpdmai_type);
+
+struct device_type fsl_mc_bus_dpdbg_type = {
+	.name = "fsl_mc_bus_dpdbg"
+};
+EXPORT_SYMBOL_GPL(fsl_mc_bus_dpdbg_type);
+>>>>>>> upstream/android-13
 
 static struct device_type *fsl_mc_get_device_type(const char *type)
 {
@@ -203,6 +496,16 @@ static struct device_type *fsl_mc_get_device_type(const char *type)
 		{ &fsl_mc_bus_dpmcp_type, "dpmcp" },
 		{ &fsl_mc_bus_dpmac_type, "dpmac" },
 		{ &fsl_mc_bus_dprtc_type, "dprtc" },
+<<<<<<< HEAD
+=======
+		{ &fsl_mc_bus_dpseci_type, "dpseci" },
+		{ &fsl_mc_bus_dpdmux_type, "dpdmux" },
+		{ &fsl_mc_bus_dpdcei_type, "dpdcei" },
+		{ &fsl_mc_bus_dpaiop_type, "dpaiop" },
+		{ &fsl_mc_bus_dpci_type, "dpci" },
+		{ &fsl_mc_bus_dpdmai_type, "dpdmai" },
+		{ &fsl_mc_bus_dpdbg_type, "dpdbg" },
+>>>>>>> upstream/android-13
 		{ NULL, NULL }
 	};
 	int i;
@@ -255,7 +558,11 @@ static void fsl_mc_driver_shutdown(struct device *dev)
 	mc_drv->shutdown(mc_dev);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * __fsl_mc_driver_register - registers a child device driver with the
  * MC bus
  *
@@ -291,7 +598,11 @@ int __fsl_mc_driver_register(struct fsl_mc_driver *mc_driver,
 }
 EXPORT_SYMBOL_GPL(__fsl_mc_driver_register);
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * fsl_mc_driver_unregister - unregisters a device driver from the
  * MC bus
  */
@@ -312,7 +623,11 @@ EXPORT_SYMBOL_GPL(fsl_mc_driver_unregister);
  */
 static int mc_get_version(struct fsl_mc_io *mc_io,
 			  u32 cmd_flags,
+<<<<<<< HEAD
 			  struct mc_version *mc_ver_info)
+=======
+			  struct fsl_mc_version *mc_ver_info)
+>>>>>>> upstream/android-13
 {
 	struct fsl_mc_command cmd = { 0 };
 	struct dpmng_rsp_get_version *rsp_params;
@@ -338,10 +653,31 @@ static int mc_get_version(struct fsl_mc_io *mc_io,
 }
 
 /**
+<<<<<<< HEAD
  * fsl_mc_get_root_dprc - function to traverse to the root dprc
  */
 static void fsl_mc_get_root_dprc(struct device *dev,
 				 struct device **root_dprc_dev)
+=======
+ * fsl_mc_get_version - function to retrieve the MC f/w version information
+ *
+ * Return:	mc version when called after fsl-mc-bus probe; NULL otherwise.
+ */
+struct fsl_mc_version *fsl_mc_get_version(void)
+{
+	if (mc_version.major)
+		return &mc_version;
+
+	return NULL;
+}
+EXPORT_SYMBOL_GPL(fsl_mc_get_version);
+
+/*
+ * fsl_mc_get_root_dprc - function to traverse to the root dprc
+ */
+void fsl_mc_get_root_dprc(struct device *dev,
+			 struct device **root_dprc_dev)
+>>>>>>> upstream/android-13
 {
 	if (!dev) {
 		*root_dprc_dev = NULL;
@@ -382,7 +718,11 @@ common_cleanup:
 }
 
 static int get_dprc_icid(struct fsl_mc_io *mc_io,
+<<<<<<< HEAD
 			 int container_id, u16 *icid)
+=======
+			 int container_id, u32 *icid)
+>>>>>>> upstream/android-13
 {
 	struct dprc_attributes attr;
 	int error;
@@ -471,10 +811,42 @@ static int fsl_mc_device_get_mmio_regions(struct fsl_mc_device *mc_dev,
 				"dprc_get_obj_region() failed: %d\n", error);
 			goto error_cleanup_regions;
 		}
+<<<<<<< HEAD
 
 		error = translate_mc_addr(mc_dev, mc_region_type,
 					  region_desc.base_offset,
 					  &regions[i].start);
+=======
+		/*
+		 * Older MC only returned region offset and no base address
+		 * If base address is in the region_desc use it otherwise
+		 * revert to old mechanism
+		 */
+		if (region_desc.base_address) {
+			regions[i].start = region_desc.base_address +
+						region_desc.base_offset;
+		} else {
+			error = translate_mc_addr(mc_dev, mc_region_type,
+					  region_desc.base_offset,
+					  &regions[i].start);
+
+			/*
+			 * Some versions of the MC firmware wrongly report
+			 * 0 for register base address of the DPMCP associated
+			 * with child DPRC objects thus rendering them unusable.
+			 * This is particularly troublesome in ACPI boot
+			 * scenarios where the legacy way of extracting this
+			 * base address from the device tree does not apply.
+			 * Given that DPMCPs share the same base address,
+			 * workaround this by using the base address extracted
+			 * from the root DPRC container.
+			 */
+			if (is_fsl_mc_bus_dprc(mc_dev) &&
+			    regions[i].start == region_desc.base_offset)
+				regions[i].start += mc_portal_base_phys_addr;
+		}
+
+>>>>>>> upstream/android-13
 		if (error < 0) {
 			dev_err(parent_dev,
 				"Invalid MC offset: %#x (for %s.%d\'s region %d)\n",
@@ -485,9 +857,14 @@ static int fsl_mc_device_get_mmio_regions(struct fsl_mc_device *mc_dev,
 
 		regions[i].end = regions[i].start + region_desc.size - 1;
 		regions[i].name = "fsl-mc object MMIO region";
+<<<<<<< HEAD
 		regions[i].flags = IORESOURCE_IO;
 		if (region_desc.flags & DPRC_REGION_CACHEABLE)
 			regions[i].flags |= IORESOURCE_CACHEABLE;
+=======
+		regions[i].flags = region_desc.flags & IORESOURCE_BITS;
+		regions[i].flags |= IORESOURCE_MEM;
+>>>>>>> upstream/android-13
 	}
 
 	mc_dev->regions = regions;
@@ -498,7 +875,11 @@ error_cleanup_regions:
 	return error;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * fsl_mc_is_root_dprc - function to check if a given device is a root dprc
  */
 bool fsl_mc_is_root_dprc(struct device *dev)
@@ -523,7 +904,11 @@ static void fsl_mc_device_release(struct device *dev)
 		kfree(mc_dev);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Add a newly discovered fsl-mc device to be visible in Linux
  */
 int fsl_mc_device_add(struct fsl_mc_obj_desc *obj_desc,
@@ -549,6 +934,10 @@ int fsl_mc_device_add(struct fsl_mc_obj_desc *obj_desc,
 		if (!mc_bus)
 			return -ENOMEM;
 
+<<<<<<< HEAD
+=======
+		mutex_init(&mc_bus->scan_mutex);
+>>>>>>> upstream/android-13
 		mc_dev = &mc_bus->mc_dev;
 	} else {
 		/*
@@ -616,6 +1005,10 @@ int fsl_mc_device_add(struct fsl_mc_obj_desc *obj_desc,
 		mc_dev->icid = parent_mc_dev->icid;
 		mc_dev->dma_mask = FSL_MC_DEFAULT_DMA_MASK;
 		mc_dev->dev.dma_mask = &mc_dev->dma_mask;
+<<<<<<< HEAD
+=======
+		mc_dev->dev.coherent_dma_mask = mc_dev->dma_mask;
+>>>>>>> upstream/android-13
 		dev_set_msi_domain(&mc_dev->dev,
 				   dev_get_msi_domain(&parent_mc_dev->dev));
 	}
@@ -633,10 +1026,13 @@ int fsl_mc_device_add(struct fsl_mc_obj_desc *obj_desc,
 			goto error_cleanup_dev;
 	}
 
+<<<<<<< HEAD
 	/* Objects are coherent, unless 'no shareability' flag set. */
 	if (!(obj_desc->flags & FSL_MC_OBJ_FLAG_NO_MEM_SHAREABILITY))
 		arch_setup_dma_ops(&mc_dev->dev, 0, 0, NULL, true);
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * The device-specific probe callback will get invoked by device_add()
 	 */
@@ -662,6 +1058,11 @@ error_cleanup_dev:
 }
 EXPORT_SYMBOL_GPL(fsl_mc_device_add);
 
+<<<<<<< HEAD
+=======
+static struct notifier_block fsl_mc_nb;
+
+>>>>>>> upstream/android-13
 /**
  * fsl_mc_device_remove - Remove an fsl-mc device from being visible to
  * Linux
@@ -670,6 +1071,12 @@ EXPORT_SYMBOL_GPL(fsl_mc_device_add);
  */
 void fsl_mc_device_remove(struct fsl_mc_device *mc_dev)
 {
+<<<<<<< HEAD
+=======
+	kfree(mc_dev->driver_override);
+	mc_dev->driver_override = NULL;
+
+>>>>>>> upstream/android-13
 	/*
 	 * The device-specific remove callback will get invoked by device_del()
 	 */
@@ -678,6 +1085,71 @@ void fsl_mc_device_remove(struct fsl_mc_device *mc_dev)
 }
 EXPORT_SYMBOL_GPL(fsl_mc_device_remove);
 
+<<<<<<< HEAD
+=======
+struct fsl_mc_device *fsl_mc_get_endpoint(struct fsl_mc_device *mc_dev,
+					  u16 if_id)
+{
+	struct fsl_mc_device *mc_bus_dev, *endpoint;
+	struct fsl_mc_obj_desc endpoint_desc = {{ 0 }};
+	struct dprc_endpoint endpoint1 = {{ 0 }};
+	struct dprc_endpoint endpoint2 = {{ 0 }};
+	int state, err;
+
+	mc_bus_dev = to_fsl_mc_device(mc_dev->dev.parent);
+	strcpy(endpoint1.type, mc_dev->obj_desc.type);
+	endpoint1.id = mc_dev->obj_desc.id;
+	endpoint1.if_id = if_id;
+
+	err = dprc_get_connection(mc_bus_dev->mc_io, 0,
+				  mc_bus_dev->mc_handle,
+				  &endpoint1, &endpoint2,
+				  &state);
+
+	if (err == -ENOTCONN || state == -1)
+		return ERR_PTR(-ENOTCONN);
+
+	if (err < 0) {
+		dev_err(&mc_bus_dev->dev, "dprc_get_connection() = %d\n", err);
+		return ERR_PTR(err);
+	}
+
+	strcpy(endpoint_desc.type, endpoint2.type);
+	endpoint_desc.id = endpoint2.id;
+	endpoint = fsl_mc_device_lookup(&endpoint_desc, mc_bus_dev);
+
+	/*
+	 * We know that the device has an endpoint because we verified by
+	 * interrogating the firmware. This is the case when the device was not
+	 * yet discovered by the fsl-mc bus, thus the lookup returned NULL.
+	 * Force a rescan of the devices in this container and retry the lookup.
+	 */
+	if (!endpoint) {
+		struct fsl_mc_bus *mc_bus = to_fsl_mc_bus(mc_bus_dev);
+
+		if (mutex_trylock(&mc_bus->scan_mutex)) {
+			err = dprc_scan_objects(mc_bus_dev, true);
+			mutex_unlock(&mc_bus->scan_mutex);
+		}
+
+		if (err < 0)
+			return ERR_PTR(err);
+	}
+
+	endpoint = fsl_mc_device_lookup(&endpoint_desc, mc_bus_dev);
+	/*
+	 * This means that the endpoint might reside in a different isolation
+	 * context (DPRC/container). Not much to do, so return a permssion
+	 * error.
+	 */
+	if (!endpoint)
+		return ERR_PTR(-EPERM);
+
+	return endpoint;
+}
+EXPORT_SYMBOL_GPL(fsl_mc_get_endpoint);
+
+>>>>>>> upstream/android-13
 static int parse_mc_ranges(struct device *dev,
 			   int *paddr_cells,
 			   int *mc_addr_cells,
@@ -693,8 +1165,13 @@ static int parse_mc_ranges(struct device *dev,
 	*ranges_start = of_get_property(mc_node, "ranges", &ranges_len);
 	if (!(*ranges_start) || !ranges_len) {
 		dev_warn(dev,
+<<<<<<< HEAD
 			 "missing or empty ranges property for device tree node '%s'\n",
 			 mc_node->name);
+=======
+			 "missing or empty ranges property for device tree node '%pOFn'\n",
+			 mc_node);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
@@ -717,7 +1194,11 @@ static int parse_mc_ranges(struct device *dev,
 
 	tuple_len = range_tuple_cell_count * sizeof(__be32);
 	if (ranges_len % tuple_len != 0) {
+<<<<<<< HEAD
 		dev_err(dev, "malformed ranges property '%s'\n", mc_node->name);
+=======
+		dev_err(dev, "malformed ranges property '%pOFn'\n", mc_node);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -781,7 +1262,11 @@ static int get_mc_addr_translation_ranges(struct device *dev,
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * fsl_mc_bus_probe - callback invoked when the root MC bus is being
  * added
  */
@@ -794,9 +1279,14 @@ static int fsl_mc_bus_probe(struct platform_device *pdev)
 	struct fsl_mc_io *mc_io = NULL;
 	int container_id;
 	phys_addr_t mc_portal_phys_addr;
+<<<<<<< HEAD
 	u32 mc_portal_size;
 	struct mc_version mc_version;
 	struct resource res;
+=======
+	u32 mc_portal_size, mc_stream_id;
+	struct resource *plat_res;
+>>>>>>> upstream/android-13
 
 	mc = devm_kzalloc(&pdev->dev, sizeof(*mc), GFP_KERNEL);
 	if (!mc)
@@ -804,6 +1294,7 @@ static int fsl_mc_bus_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, mc);
 
+<<<<<<< HEAD
 	/*
 	 * Get physical address of MC portal for the root DPRC:
 	 */
@@ -817,6 +1308,58 @@ static int fsl_mc_bus_probe(struct platform_device *pdev)
 
 	mc_portal_phys_addr = res.start;
 	mc_portal_size = resource_size(&res);
+=======
+	plat_res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
+	if (plat_res) {
+		mc->fsl_mc_regs = devm_ioremap_resource(&pdev->dev, plat_res);
+		if (IS_ERR(mc->fsl_mc_regs))
+			return PTR_ERR(mc->fsl_mc_regs);
+	}
+
+	if (mc->fsl_mc_regs) {
+		if (IS_ENABLED(CONFIG_ACPI) && !dev_of_node(&pdev->dev)) {
+			mc_stream_id = readl(mc->fsl_mc_regs + FSL_MC_FAPR);
+			/*
+			 * HW ORs the PL and BMT bit, places the result in bit
+			 * 14 of the StreamID and ORs in the ICID. Calculate it
+			 * accordingly.
+			 */
+			mc_stream_id = (mc_stream_id & 0xffff) |
+				((mc_stream_id & (MC_FAPR_PL | MC_FAPR_BMT)) ?
+					BIT(14) : 0);
+			error = acpi_dma_configure_id(&pdev->dev,
+						      DEV_DMA_COHERENT,
+						      &mc_stream_id);
+			if (error == -EPROBE_DEFER)
+				return error;
+			if (error)
+				dev_warn(&pdev->dev,
+					 "failed to configure dma: %d.\n",
+					 error);
+		}
+
+		/*
+		 * Some bootloaders pause the MC firmware before booting the
+		 * kernel so that MC will not cause faults as soon as the
+		 * SMMU probes due to the fact that there's no configuration
+		 * in place for MC.
+		 * At this point MC should have all its SMMU setup done so make
+		 * sure it is resumed.
+		 */
+		writel(readl(mc->fsl_mc_regs + FSL_MC_GCR1) &
+			     (~(GCR1_P1_STOP | GCR1_P2_STOP)),
+		       mc->fsl_mc_regs + FSL_MC_GCR1);
+	}
+
+	/*
+	 * Get physical address of MC portal for the root DPRC:
+	 */
+	plat_res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+	mc_portal_phys_addr = plat_res->start;
+	mc_portal_size = resource_size(plat_res);
+	mc_portal_base_phys_addr = mc_portal_phys_addr & ~0x3ffffff;
+
+>>>>>>> upstream/android-13
 	error = fsl_create_mc_io(&pdev->dev, mc_portal_phys_addr,
 				 mc_portal_size, NULL,
 				 FSL_MC_IO_ATOMIC_CONTEXT_PORTAL, &mc_io);
@@ -833,11 +1376,21 @@ static int fsl_mc_bus_probe(struct platform_device *pdev)
 	dev_info(&pdev->dev, "MC firmware version: %u.%u.%u\n",
 		 mc_version.major, mc_version.minor, mc_version.revision);
 
+<<<<<<< HEAD
 	error = get_mc_addr_translation_ranges(&pdev->dev,
 					       &mc->translation_ranges,
 					       &mc->num_translation_ranges);
 	if (error < 0)
 		goto error_cleanup_mc_io;
+=======
+	if (dev_of_node(&pdev->dev)) {
+		error = get_mc_addr_translation_ranges(&pdev->dev,
+						&mc->translation_ranges,
+						&mc->num_translation_ranges);
+		if (error < 0)
+			goto error_cleanup_mc_io;
+	}
+>>>>>>> upstream/android-13
 
 	error = dprc_get_container_id(mc_io, 0, &container_id);
 	if (error < 0) {
@@ -864,6 +1417,10 @@ static int fsl_mc_bus_probe(struct platform_device *pdev)
 		goto error_cleanup_mc_io;
 
 	mc->root_mc_bus_dev = mc_bus_dev;
+<<<<<<< HEAD
+=======
+	mc_bus_dev->dev.fwnode = pdev->dev.fwnode;
+>>>>>>> upstream/android-13
 	return 0;
 
 error_cleanup_mc_io:
@@ -871,7 +1428,11 @@ error_cleanup_mc_io:
 	return error;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * fsl_mc_bus_remove - callback invoked when the root MC bus is being
  * removed
  */
@@ -887,9 +1448,32 @@ static int fsl_mc_bus_remove(struct platform_device *pdev)
 	fsl_destroy_mc_io(mc->root_mc_bus_dev->mc_io);
 	mc->root_mc_bus_dev->mc_io = NULL;
 
+<<<<<<< HEAD
 	return 0;
 }
 
+=======
+	bus_unregister_notifier(&fsl_mc_bus_type, &fsl_mc_nb);
+
+	if (mc->fsl_mc_regs) {
+		/*
+		 * Pause the MC firmware so that it doesn't crash in certain
+		 * scenarios, such as kexec.
+		 */
+		writel(readl(mc->fsl_mc_regs + FSL_MC_GCR1) |
+		       (GCR1_P1_STOP | GCR1_P2_STOP),
+		       mc->fsl_mc_regs + FSL_MC_GCR1);
+	}
+
+	return 0;
+}
+
+static void fsl_mc_bus_shutdown(struct platform_device *pdev)
+{
+	fsl_mc_bus_remove(pdev);
+}
+
+>>>>>>> upstream/android-13
 static const struct of_device_id fsl_mc_bus_match_table[] = {
 	{.compatible = "fsl,qoriq-mc",},
 	{},
@@ -897,14 +1481,69 @@ static const struct of_device_id fsl_mc_bus_match_table[] = {
 
 MODULE_DEVICE_TABLE(of, fsl_mc_bus_match_table);
 
+<<<<<<< HEAD
+=======
+static const struct acpi_device_id fsl_mc_bus_acpi_match_table[] = {
+	{"NXP0008", 0 },
+	{ }
+};
+MODULE_DEVICE_TABLE(acpi, fsl_mc_bus_acpi_match_table);
+
+>>>>>>> upstream/android-13
 static struct platform_driver fsl_mc_bus_driver = {
 	.driver = {
 		   .name = "fsl_mc_bus",
 		   .pm = NULL,
 		   .of_match_table = fsl_mc_bus_match_table,
+<<<<<<< HEAD
 		   },
 	.probe = fsl_mc_bus_probe,
 	.remove = fsl_mc_bus_remove,
+=======
+		   .acpi_match_table = fsl_mc_bus_acpi_match_table,
+		   },
+	.probe = fsl_mc_bus_probe,
+	.remove = fsl_mc_bus_remove,
+	.shutdown = fsl_mc_bus_shutdown,
+};
+
+static int fsl_mc_bus_notifier(struct notifier_block *nb,
+			       unsigned long action, void *data)
+{
+	struct device *dev = data;
+	struct resource *res;
+	void __iomem *fsl_mc_regs;
+
+	if (action != BUS_NOTIFY_ADD_DEVICE)
+		return 0;
+
+	if (!of_match_device(fsl_mc_bus_match_table, dev) &&
+	    !acpi_match_device(fsl_mc_bus_acpi_match_table, dev))
+		return 0;
+
+	res = platform_get_resource(to_platform_device(dev), IORESOURCE_MEM, 1);
+	if (!res)
+		return 0;
+
+	fsl_mc_regs = ioremap(res->start, resource_size(res));
+	if (!fsl_mc_regs)
+		return 0;
+
+	/*
+	 * Make sure that the MC firmware is paused before the IOMMU setup for
+	 * it is done or otherwise the firmware will crash right after the SMMU
+	 * gets probed and enabled.
+	 */
+	writel(readl(fsl_mc_regs + FSL_MC_GCR1) | (GCR1_P1_STOP | GCR1_P2_STOP),
+	       fsl_mc_regs + FSL_MC_GCR1);
+	iounmap(fsl_mc_regs);
+
+	return 0;
+}
+
+static struct notifier_block fsl_mc_nb = {
+	.notifier_call = fsl_mc_bus_notifier,
+>>>>>>> upstream/android-13
 };
 
 static int __init fsl_mc_bus_driver_init(void)
@@ -931,7 +1570,11 @@ static int __init fsl_mc_bus_driver_init(void)
 	if (error < 0)
 		goto error_cleanup_dprc_driver;
 
+<<<<<<< HEAD
 	return 0;
+=======
+	return bus_register_notifier(&platform_bus_type, &fsl_mc_nb);
+>>>>>>> upstream/android-13
 
 error_cleanup_dprc_driver:
 	dprc_driver_exit();

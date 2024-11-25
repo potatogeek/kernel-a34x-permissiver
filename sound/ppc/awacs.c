@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * PMac AWACS lowlevel functions
  *
  * Copyright (c) by Takashi Iwai <tiwai@suse.de>
  * code based on dmasound.c.
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 
@@ -477,7 +484,11 @@ static int snd_pmac_awacs_put_master_amp(struct snd_kcontrol *kcontrol,
 #define AMP_CH_SPK	0
 #define AMP_CH_HD	1
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_pmac_awacs_amp_vol[] = {
+=======
+static const struct snd_kcontrol_new snd_pmac_awacs_amp_vol[] = {
+>>>>>>> upstream/android-13
 	{ .iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 	  .name = "Speaker Playback Volume",
 	  .info = snd_pmac_awacs_info_volume_amp,
@@ -595,46 +606,78 @@ static int snd_pmac_screamer_mic_boost_put(struct snd_kcontrol *kcontrol,
 /*
  * lists of mixer elements
  */
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_pmac_awacs_mixers[] = {
+=======
+static const struct snd_kcontrol_new snd_pmac_awacs_mixers[] = {
+>>>>>>> upstream/android-13
 	AWACS_SWITCH("Master Capture Switch", 1, SHIFT_LOOPTHRU, 0),
 	AWACS_VOLUME("Master Capture Volume", 0, 4, 0),
 /*	AWACS_SWITCH("Unknown Playback Switch", 6, SHIFT_PAROUT0, 0), */
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_pmac_screamer_mixers_beige[] = {
+=======
+static const struct snd_kcontrol_new snd_pmac_screamer_mixers_beige[] = {
+>>>>>>> upstream/android-13
 	AWACS_VOLUME("Master Playback Volume", 2, 6, 1),
 	AWACS_VOLUME("Play-through Playback Volume", 5, 6, 1),
 	AWACS_SWITCH("Line Capture Switch", 0, SHIFT_MUX_MIC, 0),
 	AWACS_SWITCH("CD Capture Switch", 0, SHIFT_MUX_LINE, 0),
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_pmac_screamer_mixers_lo[] = {
 	AWACS_VOLUME("Line out Playback Volume", 2, 6, 1),
 };
 
 static struct snd_kcontrol_new snd_pmac_screamer_mixers_imac[] = {
+=======
+static const struct snd_kcontrol_new snd_pmac_screamer_mixers_lo[] = {
+	AWACS_VOLUME("Line out Playback Volume", 2, 6, 1),
+};
+
+static const struct snd_kcontrol_new snd_pmac_screamer_mixers_imac[] = {
+>>>>>>> upstream/android-13
 	AWACS_VOLUME("Play-through Playback Volume", 5, 6, 1),
 	AWACS_SWITCH("CD Capture Switch", 0, SHIFT_MUX_CD, 0),
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_pmac_screamer_mixers_g4agp[] = {
+=======
+static const struct snd_kcontrol_new snd_pmac_screamer_mixers_g4agp[] = {
+>>>>>>> upstream/android-13
 	AWACS_VOLUME("Line out Playback Volume", 2, 6, 1),
 	AWACS_VOLUME("Master Playback Volume", 5, 6, 1),
 	AWACS_SWITCH("CD Capture Switch", 0, SHIFT_MUX_CD, 0),
 	AWACS_SWITCH("Line Capture Switch", 0, SHIFT_MUX_MIC, 0),
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_pmac_awacs_mixers_pmac7500[] = {
+=======
+static const struct snd_kcontrol_new snd_pmac_awacs_mixers_pmac7500[] = {
+>>>>>>> upstream/android-13
 	AWACS_VOLUME("Line out Playback Volume", 2, 6, 1),
 	AWACS_SWITCH("CD Capture Switch", 0, SHIFT_MUX_CD, 0),
 	AWACS_SWITCH("Line Capture Switch", 0, SHIFT_MUX_MIC, 0),
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_pmac_awacs_mixers_pmac5500[] = {
 	AWACS_VOLUME("Headphone Playback Volume", 2, 6, 1),
 };
 
 static struct snd_kcontrol_new snd_pmac_awacs_mixers_pmac[] = {
+=======
+static const struct snd_kcontrol_new snd_pmac_awacs_mixers_pmac5500[] = {
+	AWACS_VOLUME("Headphone Playback Volume", 2, 6, 1),
+};
+
+static const struct snd_kcontrol_new snd_pmac_awacs_mixers_pmac[] = {
+>>>>>>> upstream/android-13
 	AWACS_VOLUME("Master Playback Volume", 2, 6, 1),
 	AWACS_SWITCH("CD Capture Switch", 0, SHIFT_MUX_CD, 0),
 };
@@ -642,16 +685,25 @@ static struct snd_kcontrol_new snd_pmac_awacs_mixers_pmac[] = {
 /* FIXME: is this correct order?
  * screamer (powerbook G3 pismo) seems to have different bits...
  */
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_pmac_awacs_mixers2[] = {
+=======
+static const struct snd_kcontrol_new snd_pmac_awacs_mixers2[] = {
+>>>>>>> upstream/android-13
 	AWACS_SWITCH("Line Capture Switch", 0, SHIFT_MUX_LINE, 0),
 	AWACS_SWITCH("Mic Capture Switch", 0, SHIFT_MUX_MIC, 0),
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_pmac_screamer_mixers2[] = {
+=======
+static const struct snd_kcontrol_new snd_pmac_screamer_mixers2[] = {
+>>>>>>> upstream/android-13
 	AWACS_SWITCH("Line Capture Switch", 0, SHIFT_MUX_MIC, 0),
 	AWACS_SWITCH("Mic Capture Switch", 0, SHIFT_MUX_LINE, 0),
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_pmac_awacs_mixers2_pmac5500[] = {
 	AWACS_SWITCH("CD Capture Switch", 0, SHIFT_MUX_CD, 0),
 };
@@ -670,6 +722,26 @@ static struct snd_kcontrol_new snd_pmac_awacs_mic_boost[] = {
 };
 
 static struct snd_kcontrol_new snd_pmac_screamer_mic_boost[] = {
+=======
+static const struct snd_kcontrol_new snd_pmac_awacs_mixers2_pmac5500[] = {
+	AWACS_SWITCH("CD Capture Switch", 0, SHIFT_MUX_CD, 0),
+};
+
+static const struct snd_kcontrol_new snd_pmac_awacs_master_sw =
+AWACS_SWITCH("Master Playback Switch", 1, SHIFT_HDMUTE, 1);
+
+static const struct snd_kcontrol_new snd_pmac_awacs_master_sw_imac =
+AWACS_SWITCH("Line out Playback Switch", 1, SHIFT_HDMUTE, 1);
+
+static const struct snd_kcontrol_new snd_pmac_awacs_master_sw_pmac5500 =
+AWACS_SWITCH("Headphone Playback Switch", 1, SHIFT_HDMUTE, 1);
+
+static const struct snd_kcontrol_new snd_pmac_awacs_mic_boost[] = {
+	AWACS_SWITCH("Mic Boost Capture Switch", 0, SHIFT_GAINLINE, 0),
+};
+
+static const struct snd_kcontrol_new snd_pmac_screamer_mic_boost[] = {
+>>>>>>> upstream/android-13
 	{ .iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 	  .name = "Mic Boost Capture Volume",
 	  .info = snd_pmac_screamer_mic_boost_info,
@@ -678,23 +750,36 @@ static struct snd_kcontrol_new snd_pmac_screamer_mic_boost[] = {
 	},
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_pmac_awacs_mic_boost_pmac7500[] =
+=======
+static const struct snd_kcontrol_new snd_pmac_awacs_mic_boost_pmac7500[] =
+>>>>>>> upstream/android-13
 {
 	AWACS_SWITCH("Line Boost Capture Switch", 0, SHIFT_GAINLINE, 0),
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_pmac_screamer_mic_boost_beige[] =
+=======
+static const struct snd_kcontrol_new snd_pmac_screamer_mic_boost_beige[] =
+>>>>>>> upstream/android-13
 {
 	AWACS_SWITCH("Line Boost Capture Switch", 0, SHIFT_GAINLINE, 0),
 	AWACS_SWITCH("CD Boost Capture Switch", 6, SHIFT_MIC_BOOST, 0),
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_pmac_screamer_mic_boost_imac[] =
+=======
+static const struct snd_kcontrol_new snd_pmac_screamer_mic_boost_imac[] =
+>>>>>>> upstream/android-13
 {
 	AWACS_SWITCH("Line Boost Capture Switch", 0, SHIFT_GAINLINE, 0),
 	AWACS_SWITCH("Mic Boost Capture Switch", 6, SHIFT_MIC_BOOST, 0),
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_pmac_awacs_speaker_vol[] = {
 	AWACS_VOLUME("Speaker Playback Volume", 4, 6, 1),
 };
@@ -706,6 +791,19 @@ static struct snd_kcontrol_new snd_pmac_awacs_speaker_sw_imac1 =
 AWACS_SWITCH("Speaker Playback Switch", 1, SHIFT_PAROUT1, 1);
 
 static struct snd_kcontrol_new snd_pmac_awacs_speaker_sw_imac2 =
+=======
+static const struct snd_kcontrol_new snd_pmac_awacs_speaker_vol[] = {
+	AWACS_VOLUME("Speaker Playback Volume", 4, 6, 1),
+};
+
+static const struct snd_kcontrol_new snd_pmac_awacs_speaker_sw =
+AWACS_SWITCH("Speaker Playback Switch", 1, SHIFT_SPKMUTE, 1);
+
+static const struct snd_kcontrol_new snd_pmac_awacs_speaker_sw_imac1 =
+AWACS_SWITCH("Speaker Playback Switch", 1, SHIFT_PAROUT1, 1);
+
+static const struct snd_kcontrol_new snd_pmac_awacs_speaker_sw_imac2 =
+>>>>>>> upstream/android-13
 AWACS_SWITCH("Speaker Playback Switch", 1, SHIFT_PAROUT1, 0);
 
 
@@ -713,7 +811,11 @@ AWACS_SWITCH("Speaker Playback Switch", 1, SHIFT_PAROUT1, 0);
  * add new mixer elements to the card
  */
 static int build_mixers(struct snd_pmac *chip, int nums,
+<<<<<<< HEAD
 			struct snd_kcontrol_new *mixers)
+=======
+			const struct snd_kcontrol_new *mixers)
+>>>>>>> upstream/android-13
 {
 	int i, err;
 
@@ -1076,12 +1178,21 @@ snd_pmac_awacs_init(struct snd_pmac *chip)
 	if (pm5500 || imac || lombard) {
 		vmaster_sw = snd_ctl_make_virtual_master(
 			"Master Playback Switch", (unsigned int *) NULL);
+<<<<<<< HEAD
 		err = snd_ctl_add_slave_uncached(vmaster_sw,
 						 chip->master_sw_ctl);
 		if (err < 0)
 			return err;
 		err = snd_ctl_add_slave_uncached(vmaster_sw,
 						  chip->speaker_sw_ctl);
+=======
+		err = snd_ctl_add_follower_uncached(vmaster_sw,
+						    chip->master_sw_ctl);
+		if (err < 0)
+			return err;
+		err = snd_ctl_add_follower_uncached(vmaster_sw,
+						    chip->speaker_sw_ctl);
+>>>>>>> upstream/android-13
 		if (err < 0)
 			return err;
 		err = snd_ctl_add(chip->card, vmaster_sw);
@@ -1089,10 +1200,17 @@ snd_pmac_awacs_init(struct snd_pmac *chip)
 			return err;
 		vmaster_vol = snd_ctl_make_virtual_master(
 			"Master Playback Volume", (unsigned int *) NULL);
+<<<<<<< HEAD
 		err = snd_ctl_add_slave(vmaster_vol, master_vol);
 		if (err < 0)
 			return err;
 		err = snd_ctl_add_slave(vmaster_vol, speaker_vol);
+=======
+		err = snd_ctl_add_follower(vmaster_vol, master_vol);
+		if (err < 0)
+			return err;
+		err = snd_ctl_add_follower(vmaster_vol, speaker_vol);
+>>>>>>> upstream/android-13
 		if (err < 0)
 			return err;
 		err = snd_ctl_add(chip->card, vmaster_vol);

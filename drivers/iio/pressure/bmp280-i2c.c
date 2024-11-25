@@ -1,7 +1,13 @@
+<<<<<<< HEAD
 #include <linux/module.h>
 #include <linux/i2c.h>
 #include <linux/acpi.h>
 #include <linux/of.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+#include <linux/module.h>
+#include <linux/i2c.h>
+>>>>>>> upstream/android-13
 #include <linux/regmap.h>
 
 #include "bmp280.h"
@@ -37,6 +43,7 @@ static int bmp280_i2c_probe(struct i2c_client *client,
 				   client->irq);
 }
 
+<<<<<<< HEAD
 static int bmp280_i2c_remove(struct i2c_client *client)
 {
 	return bmp280_common_remove(&client->dev);
@@ -52,6 +59,8 @@ static const struct acpi_device_id bmp280_acpi_i2c_match[] = {
 MODULE_DEVICE_TABLE(acpi, bmp280_acpi_i2c_match);
 
 #ifdef CONFIG_OF
+=======
+>>>>>>> upstream/android-13
 static const struct of_device_id bmp280_of_i2c_match[] = {
 	{ .compatible = "bosch,bme280", .data = (void *)BME280_CHIP_ID },
 	{ .compatible = "bosch,bmp280", .data = (void *)BMP280_CHIP_ID },
@@ -60,9 +69,12 @@ static const struct of_device_id bmp280_of_i2c_match[] = {
 	{ },
 };
 MODULE_DEVICE_TABLE(of, bmp280_of_i2c_match);
+<<<<<<< HEAD
 #else
 #define bmp280_of_i2c_match NULL
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static const struct i2c_device_id bmp280_i2c_id[] = {
 	{"bmp280", BMP280_CHIP_ID },
@@ -76,12 +88,19 @@ MODULE_DEVICE_TABLE(i2c, bmp280_i2c_id);
 static struct i2c_driver bmp280_i2c_driver = {
 	.driver = {
 		.name	= "bmp280",
+<<<<<<< HEAD
 		.acpi_match_table = ACPI_PTR(bmp280_acpi_i2c_match),
 		.of_match_table = of_match_ptr(bmp280_of_i2c_match),
 		.pm = &bmp280_dev_pm_ops,
 	},
 	.probe		= bmp280_i2c_probe,
 	.remove		= bmp280_i2c_remove,
+=======
+		.of_match_table = bmp280_of_i2c_match,
+		.pm = &bmp280_dev_pm_ops,
+	},
+	.probe		= bmp280_i2c_probe,
+>>>>>>> upstream/android-13
 	.id_table	= bmp280_i2c_id,
 };
 module_i2c_driver(bmp280_i2c_driver);

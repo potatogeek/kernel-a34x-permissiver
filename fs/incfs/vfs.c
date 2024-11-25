@@ -10,9 +10,18 @@
 #include <linux/fs_stack.h>
 #include <linux/fsnotify.h>
 #include <linux/fsverity.h>
+<<<<<<< HEAD
 #include <linux/namei.h>
 #include <linux/parser.h>
 #include <linux/seq_file.h>
+=======
+#include <linux/mmap_lock.h>
+#include <linux/namei.h>
+#include <linux/pagemap.h>
+#include <linux/parser.h>
+#include <linux/seq_file.h>
+#include <linux/backing-dev-defs.h>
+>>>>>>> upstream/android-13
 
 #include <uapi/linux/incrementalfs.h>
 
@@ -33,13 +42,23 @@ static void dentry_release(struct dentry *d);
 static int iterate_incfs_dir(struct file *file, struct dir_context *ctx);
 static struct dentry *dir_lookup(struct inode *dir_inode,
 		struct dentry *dentry, unsigned int flags);
+<<<<<<< HEAD
 static int dir_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode);
+=======
+static int dir_mkdir(struct user_namespace *ns, struct inode *dir,
+		     struct dentry *dentry, umode_t mode);
+>>>>>>> upstream/android-13
 static int dir_unlink(struct inode *dir, struct dentry *dentry);
 static int dir_link(struct dentry *old_dentry, struct inode *dir,
 			 struct dentry *new_dentry);
 static int dir_rmdir(struct inode *dir, struct dentry *dentry);
 static int dir_rename(struct inode *old_dir, struct dentry *old_dentry,
+<<<<<<< HEAD
 		struct inode *new_dir, struct dentry *new_dentry);
+=======
+		struct inode *new_dir, struct dentry *new_dentry,
+		unsigned int flags);
+>>>>>>> upstream/android-13
 
 static int file_open(struct inode *inode, struct file *file);
 static int file_release(struct inode *inode, struct file *file);
@@ -55,14 +74,26 @@ static struct inode *alloc_inode(struct super_block *sb);
 static void free_inode(struct inode *inode);
 static void evict_inode(struct inode *inode);
 
+<<<<<<< HEAD
 static int incfs_setattr(struct dentry *dentry, struct iattr *ia);
 static int incfs_getattr(const struct path *path,
+=======
+static int incfs_setattr(struct user_namespace *ns, struct dentry *dentry,
+			 struct iattr *ia);
+static int incfs_getattr(struct user_namespace *ns, const struct path *path,
+>>>>>>> upstream/android-13
 			 struct kstat *stat, u32 request_mask,
 			 unsigned int query_flags);
 static ssize_t incfs_getxattr(struct dentry *d, const char *name,
 			void *value, size_t size);
+<<<<<<< HEAD
 static ssize_t incfs_setxattr(struct dentry *d, const char *name,
 			const void *value, size_t size, int flags);
+=======
+static ssize_t incfs_setxattr(struct user_namespace *ns, struct dentry *d,
+			      const char *name, const void *value, size_t size,
+			      int flags);
+>>>>>>> upstream/android-13
 static ssize_t incfs_listxattr(struct dentry *d, char *list, size_t size);
 
 static int show_options(struct seq_file *, struct dentry *);
@@ -76,11 +107,19 @@ static const struct super_operations incfs_super_ops = {
 	.show_options = show_options
 };
 
+<<<<<<< HEAD
 static int dir_rename_wrap(struct inode *old_dir, struct dentry *old_dentry,
 		struct inode *new_dir, struct dentry *new_dentry,
 		unsigned int flags)
 {
 	return dir_rename(old_dir, old_dentry, new_dir, new_dentry);
+=======
+static int dir_rename_wrap(struct user_namespace *ns, struct inode *old_dir,
+			   struct dentry *old_dentry, struct inode *new_dir,
+			   struct dentry *new_dentry, unsigned int flags)
+{
+	return dir_rename(old_dir, old_dentry, new_dir, new_dentry, flags);
+>>>>>>> upstream/android-13
 }
 
 static const struct inode_operations incfs_dir_inode_ops = {
@@ -163,11 +202,19 @@ static int incfs_handler_getxattr(const struct xattr_handler *xh,
 }
 
 static int incfs_handler_setxattr(const struct xattr_handler *xh,
+<<<<<<< HEAD
+=======
+				  struct user_namespace *ns,
+>>>>>>> upstream/android-13
 				  struct dentry *d, struct inode *inode,
 				  const char *name, const void *buffer,
 				  size_t size, int flags)
 {
+<<<<<<< HEAD
 	return incfs_setxattr(d, name, buffer, size, flags);
+=======
+	return incfs_setxattr(ns, d, name, buffer, size, flags);
+>>>>>>> upstream/android-13
 }
 
 static const struct xattr_handler incfs_xattr_handler = {
@@ -288,7 +335,11 @@ static u64 read_size_attr(struct dentry *backing_dentry)
 	__le64 attr_value;
 	ssize_t bytes_read;
 
+<<<<<<< HEAD
 	bytes_read = vfs_getxattr(backing_dentry, INCFS_XATTR_SIZE_NAME,
+=======
+	bytes_read = vfs_getxattr(&init_user_ns, backing_dentry, INCFS_XATTR_SIZE_NAME,
+>>>>>>> upstream/android-13
 			(char *)&attr_value, sizeof(attr_value));
 
 	if (bytes_read != sizeof(attr_value))
@@ -300,7 +351,11 @@ static u64 read_size_attr(struct dentry *backing_dentry)
 /* Read verity flag from the attribute. Quicker than reading the header */
 static bool read_verity_attr(struct dentry *backing_dentry)
 {
+<<<<<<< HEAD
 	return vfs_getxattr(backing_dentry, INCFS_XATTR_VERITY_NAME, NULL, 0)
+=======
+	return vfs_getxattr(&init_user_ns, backing_dentry, INCFS_XATTR_VERITY_NAME, NULL, 0)
+>>>>>>> upstream/android-13
 		>= 0;
 }
 
@@ -435,7 +490,12 @@ static int incfs_init_dentry(struct dentry *dentry, struct path *path)
 }
 
 static struct dentry *open_or_create_special_dir(struct dentry *backing_dir,
+<<<<<<< HEAD
 						 const char *name)
+=======
+						 const char *name,
+						 bool *created)
+>>>>>>> upstream/android-13
 {
 	struct dentry *index_dentry;
 	struct inode *backing_inode = d_inode(backing_dir);
@@ -448,16 +508,30 @@ static struct dentry *open_or_create_special_dir(struct dentry *backing_dir,
 		return index_dentry;
 	} else if (d_really_is_positive(index_dentry)) {
 		/* Index already exists. */
+<<<<<<< HEAD
+=======
+		*created = false;
+>>>>>>> upstream/android-13
 		return index_dentry;
 	}
 
 	/* Index needs to be created. */
 	inode_lock_nested(backing_inode, I_MUTEX_PARENT);
+<<<<<<< HEAD
 	err = vfs_mkdir(backing_inode, index_dentry, 0777);
 	inode_unlock(backing_inode);
 
 	if (err)
 		return ERR_PTR(err);
+=======
+	err = vfs_mkdir(&init_user_ns, backing_inode, index_dentry, 0777);
+	inode_unlock(backing_inode);
+
+	if (err) {
+		dput(index_dentry);
+		return ERR_PTR(err);
+	}
+>>>>>>> upstream/android-13
 
 	if (!d_really_is_positive(index_dentry) ||
 		unlikely(d_unhashed(index_dentry))) {
@@ -465,6 +539,10 @@ static struct dentry *open_or_create_special_dir(struct dentry *backing_dir,
 		return ERR_PTR(-EINVAL);
 	}
 
+<<<<<<< HEAD
+=======
+	*created = true;
+>>>>>>> upstream/android-13
 	return index_dentry;
 }
 
@@ -572,7 +650,11 @@ int incfs_link(struct dentry *what, struct dentry *where)
 	int error = 0;
 
 	inode_lock_nested(pinode, I_MUTEX_PARENT);
+<<<<<<< HEAD
 	error = vfs_link(what, pinode, where, NULL);
+=======
+	error = vfs_link(what, &init_user_ns, pinode, where, NULL);
+>>>>>>> upstream/android-13
 	inode_unlock(pinode);
 
 	dput(parent_dentry);
@@ -586,7 +668,11 @@ int incfs_unlink(struct dentry *dentry)
 	int error = 0;
 
 	inode_lock_nested(pinode, I_MUTEX_PARENT);
+<<<<<<< HEAD
 	error = vfs_unlink(pinode, dentry, NULL);
+=======
+	error = vfs_unlink(&init_user_ns, pinode, dentry, NULL);
+>>>>>>> upstream/android-13
 	inode_unlock(pinode);
 
 	dput(parent_dentry);
@@ -600,7 +686,11 @@ static int incfs_rmdir(struct dentry *dentry)
 	int error = 0;
 
 	inode_lock_nested(pinode, I_MUTEX_PARENT);
+<<<<<<< HEAD
 	error = vfs_rmdir(pinode, dentry);
+=======
+	error = vfs_rmdir(&init_user_ns, pinode, dentry);
+>>>>>>> upstream/android-13
 	inode_unlock(pinode);
 
 	dput(parent_dentry);
@@ -644,7 +734,11 @@ static void notify_unlink(struct dentry *dentry, const char *file_id_str,
 		goto out;
 	}
 
+<<<<<<< HEAD
 	fsnotify_nameremove(file, 0);
+=======
+	fsnotify_unlink(d_inode(dir), file);
+>>>>>>> upstream/android-13
 	d_delete(file);
 
 out:
@@ -906,6 +1000,11 @@ static long dispatch_ioctl(struct file *f, unsigned int req, unsigned long arg)
 		return incfs_ioctl_get_flags(f, (void __user *) arg);
 	case FS_IOC_MEASURE_VERITY:
 		return incfs_ioctl_measure_verity(f, (void __user *)arg);
+<<<<<<< HEAD
+=======
+	case FS_IOC_READ_VERITY_METADATA:
+		return incfs_ioctl_read_verity_metadata(f, (void __user *)arg);
+>>>>>>> upstream/android-13
 	default:
 		return -EINVAL;
 	}
@@ -925,6 +1024,10 @@ static long incfs_compat_ioctl(struct file *file, unsigned int cmd,
 	case INCFS_IOC_GET_BLOCK_COUNT:
 	case FS_IOC_ENABLE_VERITY:
 	case FS_IOC_MEASURE_VERITY:
+<<<<<<< HEAD
+=======
+	case FS_IOC_READ_VERITY_METADATA:
+>>>>>>> upstream/android-13
 		break;
 	default:
 		return -ENOIOCTLCMD;
@@ -1017,7 +1120,11 @@ out:
 	return ERR_PTR(err);
 }
 
+<<<<<<< HEAD
 static int dir_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
+=======
+static int dir_mkdir(struct user_namespace *ns, struct inode *dir, struct dentry *dentry, umode_t mode)
+>>>>>>> upstream/android-13
 {
 	struct mount_info *mi = get_mount_info(dir->i_sb);
 	struct inode_info *dir_node = get_incfs_node(dir);
@@ -1053,7 +1160,11 @@ static int dir_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
 		goto out;
 	}
 	inode_lock_nested(dir_node->n_backing_inode, I_MUTEX_PARENT);
+<<<<<<< HEAD
 	err = vfs_mkdir(dir_node->n_backing_inode, backing_dentry, mode | 0222);
+=======
+	err = vfs_mkdir(ns, dir_node->n_backing_inode, backing_dentry, mode | 0222);
+>>>>>>> upstream/android-13
 	inode_unlock(dir_node->n_backing_inode);
 	if (!err) {
 		struct inode *inode = NULL;
@@ -1103,7 +1214,11 @@ static int file_delete(struct mount_info *mi, struct dentry *dentry,
 	if (nlink > 3)
 		goto just_unlink;
 
+<<<<<<< HEAD
 	uuid_size = vfs_getxattr(backing_dentry, INCFS_XATTR_ID_NAME,
+=======
+	uuid_size = vfs_getxattr(&init_user_ns, backing_dentry, INCFS_XATTR_ID_NAME,
+>>>>>>> upstream/android-13
 			file_id_str, 2 * sizeof(incfs_uuid_t));
 	if (uuid_size < 0) {
 		error = uuid_size;
@@ -1318,7 +1433,12 @@ path_err:
 }
 
 static int dir_rename(struct inode *old_dir, struct dentry *old_dentry,
+<<<<<<< HEAD
 		struct inode *new_dir, struct dentry *new_dentry)
+=======
+		struct inode *new_dir, struct dentry *new_dentry,
+		unsigned int flags)
+>>>>>>> upstream/android-13
 {
 	struct mount_info *mi = get_mount_info(old_dir->i_sb);
 	struct dentry *backing_old_dentry;
@@ -1327,6 +1447,10 @@ static int dir_rename(struct inode *old_dir, struct dentry *old_dentry,
 	struct dentry *backing_new_dir_dentry;
 	struct inode *target_inode;
 	struct dentry *trap;
+<<<<<<< HEAD
+=======
+	struct renamedata rd = {};
+>>>>>>> upstream/android-13
 	int error = 0;
 
 	error = mutex_lock_interruptible(&mi->mi_dir_struct_mutex);
@@ -1368,9 +1492,22 @@ static int dir_rename(struct inode *old_dir, struct dentry *old_dentry,
 		goto unlock_out;
 	}
 
+<<<<<<< HEAD
 	error = vfs_rename(d_inode(backing_old_dir_dentry), backing_old_dentry,
 			d_inode(backing_new_dir_dentry), backing_new_dentry,
 			NULL, 0);
+=======
+	rd.old_dir	= d_inode(backing_old_dir_dentry);
+	rd.old_dentry	= backing_old_dentry;
+	rd.new_dir	= d_inode(backing_new_dir_dentry);
+	rd.new_dentry	= backing_new_dentry;
+	rd.flags	= flags;
+	rd.old_mnt_userns = &init_user_ns;
+	rd.new_mnt_userns = &init_user_ns;
+	rd.delegated_inode = NULL;
+
+	error = vfs_rename(&rd);
+>>>>>>> upstream/android-13
 	if (error)
 		goto unlock_out;
 	if (target_inode)
@@ -1572,7 +1709,12 @@ static void evict_inode(struct inode *inode)
 	clear_inode(inode);
 }
 
+<<<<<<< HEAD
 static int incfs_setattr(struct dentry *dentry, struct iattr *ia)
+=======
+static int incfs_setattr(struct user_namespace *ns, struct dentry *dentry,
+			 struct iattr *ia)
+>>>>>>> upstream/android-13
 {
 	struct dentry_info *di = get_incfs_dentry(dentry);
 	struct dentry *backing_dentry;
@@ -1599,7 +1741,11 @@ static int incfs_setattr(struct dentry *dentry, struct iattr *ia)
 	}
 
 	inode_lock(d_inode(backing_dentry));
+<<<<<<< HEAD
 	error = notify_change(backing_dentry, ia, NULL);
+=======
+	error = notify_change(ns, backing_dentry, ia, NULL);
+>>>>>>> upstream/android-13
 	inode_unlock(d_inode(backing_dentry));
 
 	if (error)
@@ -1608,17 +1754,29 @@ static int incfs_setattr(struct dentry *dentry, struct iattr *ia)
 	if (S_ISREG(backing_inode->i_mode))
 		ia->ia_mode &= ~0222;
 
+<<<<<<< HEAD
 	return simple_setattr(dentry, ia);
 }
 
 
 static int incfs_getattr(const struct path *path,
+=======
+	return simple_setattr(ns, dentry, ia);
+}
+
+
+static int incfs_getattr(struct user_namespace *ns, const struct path *path,
+>>>>>>> upstream/android-13
 			 struct kstat *stat, u32 request_mask,
 			 unsigned int query_flags)
 {
 	struct inode *inode = d_inode(path->dentry);
 
+<<<<<<< HEAD
 	generic_fillattr(inode, stat);
+=======
+	generic_fillattr(ns, inode, stat);
+>>>>>>> upstream/android-13
 
 	if (inode->i_ino < INCFS_START_INO_RANGE)
 		return 0;
@@ -1658,7 +1816,11 @@ static ssize_t incfs_getxattr(struct dentry *d, const char *name,
 	int i;
 
 	if (di && di->backing_path.dentry)
+<<<<<<< HEAD
 		return vfs_getxattr(di->backing_path.dentry, name, value, size);
+=======
+		return vfs_getxattr(&init_user_ns, di->backing_path.dentry, name, value, size);
+>>>>>>> upstream/android-13
 
 	if (strcmp(name, "security.selinux"))
 		return -ENODATA;
@@ -1682,8 +1844,14 @@ static ssize_t incfs_getxattr(struct dentry *d, const char *name,
 }
 
 
+<<<<<<< HEAD
 static ssize_t incfs_setxattr(struct dentry *d, const char *name,
 			const void *value, size_t size, int flags)
+=======
+static ssize_t incfs_setxattr(struct user_namespace *ns, struct dentry *d,
+			      const char *name, const void *value, size_t size,
+			      int flags)
+>>>>>>> upstream/android-13
 {
 	struct dentry_info *di = get_incfs_dentry(d);
 	struct mount_info *mi = get_mount_info(d->d_sb);
@@ -1692,8 +1860,13 @@ static ssize_t incfs_setxattr(struct dentry *d, const char *name,
 	int i;
 
 	if (di && di->backing_path.dentry)
+<<<<<<< HEAD
 		return vfs_setxattr(di->backing_path.dentry, name, value, size,
 				    flags);
+=======
+		return vfs_setxattr(ns, di->backing_path.dentry, name, value,
+				    size, flags);
+>>>>>>> upstream/android-13
 
 	if (strcmp(name, "security.selinux"))
 		return -ENODATA;
@@ -1740,6 +1913,10 @@ struct dentry *incfs_mount_fs(struct file_system_type *type, int flags,
 	struct super_block *src_fs_sb = NULL;
 	struct inode *root_inode = NULL;
 	struct super_block *sb = sget(type, NULL, set_anon_super, flags, NULL);
+<<<<<<< HEAD
+=======
+	bool dir_created = false;
+>>>>>>> upstream/android-13
 	int error = 0;
 
 	if (IS_ERR(sb))
@@ -1748,7 +1925,11 @@ struct dentry *incfs_mount_fs(struct file_system_type *type, int flags,
 	sb->s_op = &incfs_super_ops;
 	sb->s_d_op = &incfs_dentry_ops;
 	sb->s_flags |= S_NOATIME;
+<<<<<<< HEAD
 	sb->s_magic = (long)INCFS_MAGIC_NUMBER;
+=======
+	sb->s_magic = INCFS_MAGIC_NUMBER;
+>>>>>>> upstream/android-13
 	sb->s_time_gran = 1;
 	sb->s_blocksize = INCFS_DATA_FILE_BLOCK_SIZE;
 	sb->s_blocksize_bits = blksize_bits(sb->s_blocksize);
@@ -1756,17 +1937,34 @@ struct dentry *incfs_mount_fs(struct file_system_type *type, int flags,
 
 	BUILD_BUG_ON(PAGE_SIZE != INCFS_DATA_FILE_BLOCK_SIZE);
 
+<<<<<<< HEAD
 	error = parse_options(&options, (char *)data);
 	if (error != 0) {
 		pr_err("incfs: Options parsing error. %d\n", error);
 		goto err;
+=======
+	if (!dev_name) {
+		pr_err("incfs: Backing dir is not set, filesystem can't be mounted.\n");
+		error = -ENOENT;
+		goto err_deactivate;
+	}
+
+	error = parse_options(&options, (char *)data);
+	if (error != 0) {
+		pr_err("incfs: Options parsing error. %d\n", error);
+		goto err_deactivate;
+>>>>>>> upstream/android-13
 	}
 
 	sb->s_bdi->ra_pages = options.readahead_pages;
 	if (!dev_name) {
 		pr_err("incfs: Backing dir is not set, filesystem can't be mounted.\n");
 		error = -ENOENT;
+<<<<<<< HEAD
 		goto err;
+=======
+		goto err_free_opts;
+>>>>>>> upstream/android-13
 	}
 
 	error = kern_path(dev_name, LOOKUP_FOLLOW | LOOKUP_DIRECTORY,
@@ -1775,6 +1973,7 @@ struct dentry *incfs_mount_fs(struct file_system_type *type, int flags,
 		!d_really_is_positive(backing_dir_path.dentry)) {
 		pr_err("incfs: Error accessing: %s.\n",
 			dev_name);
+<<<<<<< HEAD
 		goto err;
 	}
 	src_fs_sb = backing_dir_path.dentry->d_sb;
@@ -1791,22 +1990,59 @@ struct dentry *incfs_mount_fs(struct file_system_type *type, int flags,
 
 	index_dir = open_or_create_special_dir(backing_dir_path.dentry,
 					       INCFS_INDEX_NAME);
+=======
+		goto err_free_opts;
+	}
+	src_fs_sb = backing_dir_path.dentry->d_sb;
+	sb->s_maxbytes = src_fs_sb->s_maxbytes;
+	sb->s_stack_depth = src_fs_sb->s_stack_depth + 1;
+
+	if (sb->s_stack_depth > FILESYSTEM_MAX_STACK_DEPTH) {
+		error = -EINVAL;
+		goto err_put_path;
+	}
+
+	mi = incfs_alloc_mount_info(sb, &options, &backing_dir_path);
+	if (IS_ERR_OR_NULL(mi)) {
+		error = PTR_ERR(mi);
+		pr_err("incfs: Error allocating mount info. %d\n", error);
+		goto err_put_path;
+	}
+
+	sb->s_fs_info = mi;
+	mi->mi_backing_dir_path = backing_dir_path;
+	index_dir = open_or_create_special_dir(backing_dir_path.dentry,
+					       INCFS_INDEX_NAME, &dir_created);
+>>>>>>> upstream/android-13
 	if (IS_ERR_OR_NULL(index_dir)) {
 		error = PTR_ERR(index_dir);
 		pr_err("incfs: Can't find or create .index dir in %s\n",
 			dev_name);
 		/* No need to null index_dir since we don't put it */
+<<<<<<< HEAD
 		goto err;
 	}
 	mi->mi_index_dir = index_dir;
 
 	incomplete_dir = open_or_create_special_dir(backing_dir_path.dentry,
 						    INCFS_INCOMPLETE_NAME);
+=======
+		goto err_put_path;
+	}
+
+	mi->mi_index_dir = index_dir;
+	mi->mi_index_free = dir_created;
+
+	incomplete_dir = open_or_create_special_dir(backing_dir_path.dentry,
+						    INCFS_INCOMPLETE_NAME,
+						    &dir_created);
+>>>>>>> upstream/android-13
 	if (IS_ERR_OR_NULL(incomplete_dir)) {
 		error = PTR_ERR(incomplete_dir);
 		pr_err("incfs: Can't find or create .incomplete dir in %s\n",
 			dev_name);
 		/* No need to null incomplete_dir since we don't put it */
+<<<<<<< HEAD
 		goto err;
 	}
 	mi->mi_incomplete_dir = incomplete_dir;
@@ -1816,28 +2052,58 @@ struct dentry *incfs_mount_fs(struct file_system_type *type, int flags,
 	if (IS_ERR(root_inode)) {
 		error = PTR_ERR(root_inode);
 		goto err;
+=======
+		goto err_put_path;
+	}
+	mi->mi_incomplete_dir = incomplete_dir;
+	mi->mi_incomplete_free = dir_created;
+
+	root_inode = fetch_regular_inode(sb, backing_dir_path.dentry);
+	if (IS_ERR(root_inode)) {
+		error = PTR_ERR(root_inode);
+		goto err_put_path;
+>>>>>>> upstream/android-13
 	}
 
 	sb->s_root = d_make_root(root_inode);
 	if (!sb->s_root) {
 		error = -ENOMEM;
+<<<<<<< HEAD
 		goto err;
 	}
 	error = incfs_init_dentry(sb->s_root, &backing_dir_path);
 	if (error)
 		goto err;
+=======
+		goto err_put_path;
+	}
+	error = incfs_init_dentry(sb->s_root, &backing_dir_path);
+	if (error)
+		goto err_put_path;
+>>>>>>> upstream/android-13
 
 	path_put(&backing_dir_path);
 	sb->s_flags |= SB_ACTIVE;
 
 	pr_debug("incfs: mount\n");
 	return dget(sb->s_root);
+<<<<<<< HEAD
 err:
 	sb->s_fs_info = NULL;
 	path_put(&backing_dir_path);
 	incfs_free_mount_info(mi);
 	deactivate_locked_super(sb);
 	free_options(&options);
+=======
+
+err_put_path:
+	path_put(&backing_dir_path);
+err_free_opts:
+	free_options(&options);
+err_deactivate:
+	deactivate_locked_super(sb);
+	pr_err("incfs: mount failed %d\n", error);
+>>>>>>> upstream/android-13
 	return ERR_PTR(error);
 }
 
@@ -1872,10 +2138,35 @@ out:
 void incfs_kill_sb(struct super_block *sb)
 {
 	struct mount_info *mi = sb->s_fs_info;
+<<<<<<< HEAD
 
 	pr_debug("incfs: unmount\n");
 	generic_shutdown_super(sb);
 	incfs_free_mount_info(mi);
+=======
+	struct inode *dinode = NULL;
+
+	pr_debug("incfs: unmount\n");
+
+	if (mi) {
+		if (mi->mi_backing_dir_path.dentry)
+			dinode = d_inode(mi->mi_backing_dir_path.dentry);
+
+		if (dinode) {
+			if (mi->mi_index_dir && mi->mi_index_free)
+				vfs_rmdir(&init_user_ns, dinode,
+					  mi->mi_index_dir);
+
+			if (mi->mi_incomplete_dir && mi->mi_incomplete_free)
+				vfs_rmdir(&init_user_ns, dinode,
+					  mi->mi_incomplete_dir);
+		}
+
+		incfs_free_mount_info(mi);
+		sb->s_fs_info = NULL;
+	}
+	kill_anon_super(sb);
+>>>>>>> upstream/android-13
 }
 
 static int show_options(struct seq_file *m, struct dentry *root)

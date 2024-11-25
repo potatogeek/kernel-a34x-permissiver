@@ -19,7 +19,10 @@
 #include <linux/string.h>
 #include <linux/kernel.h>
 
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/cacheflush.h>
 
 /*

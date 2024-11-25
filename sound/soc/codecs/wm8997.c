@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * wm8997.c  --  WM8997 ALSA SoC Audio driver
  *
  * Copyright 2012 Wolfson Microelectronics plc
  *
  * Author: Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -516,6 +523,7 @@ SND_SOC_DAPM_PGA("ISRC2DEC2", ARIZONA_ISRC_2_CTRL_3,
 
 SND_SOC_DAPM_AIF_OUT("AIF1TX1", NULL, 0,
 		     ARIZONA_AIF1_TX_ENABLES, ARIZONA_AIF1TX1_ENA_SHIFT, 0),
+<<<<<<< HEAD
 SND_SOC_DAPM_AIF_OUT("AIF1TX2", NULL, 0,
 		     ARIZONA_AIF1_TX_ENABLES, ARIZONA_AIF1TX2_ENA_SHIFT, 0),
 SND_SOC_DAPM_AIF_OUT("AIF1TX3", NULL, 0,
@@ -529,10 +537,26 @@ SND_SOC_DAPM_AIF_OUT("AIF1TX6", NULL, 0,
 SND_SOC_DAPM_AIF_OUT("AIF1TX7", NULL, 0,
 		     ARIZONA_AIF1_TX_ENABLES, ARIZONA_AIF1TX7_ENA_SHIFT, 0),
 SND_SOC_DAPM_AIF_OUT("AIF1TX8", NULL, 0,
+=======
+SND_SOC_DAPM_AIF_OUT("AIF1TX2", NULL, 1,
+		     ARIZONA_AIF1_TX_ENABLES, ARIZONA_AIF1TX2_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_OUT("AIF1TX3", NULL, 2,
+		     ARIZONA_AIF1_TX_ENABLES, ARIZONA_AIF1TX3_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_OUT("AIF1TX4", NULL, 3,
+		     ARIZONA_AIF1_TX_ENABLES, ARIZONA_AIF1TX4_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_OUT("AIF1TX5", NULL, 4,
+		     ARIZONA_AIF1_TX_ENABLES, ARIZONA_AIF1TX5_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_OUT("AIF1TX6", NULL, 5,
+		     ARIZONA_AIF1_TX_ENABLES, ARIZONA_AIF1TX6_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_OUT("AIF1TX7", NULL, 6,
+		     ARIZONA_AIF1_TX_ENABLES, ARIZONA_AIF1TX7_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_OUT("AIF1TX8", NULL, 7,
+>>>>>>> upstream/android-13
 		     ARIZONA_AIF1_TX_ENABLES, ARIZONA_AIF1TX8_ENA_SHIFT, 0),
 
 SND_SOC_DAPM_AIF_IN("AIF1RX1", NULL, 0,
 		    ARIZONA_AIF1_RX_ENABLES, ARIZONA_AIF1RX1_ENA_SHIFT, 0),
+<<<<<<< HEAD
 SND_SOC_DAPM_AIF_IN("AIF1RX2", NULL, 0,
 		    ARIZONA_AIF1_RX_ENABLES, ARIZONA_AIF1RX2_ENA_SHIFT, 0),
 SND_SOC_DAPM_AIF_IN("AIF1RX3", NULL, 0,
@@ -546,21 +570,45 @@ SND_SOC_DAPM_AIF_IN("AIF1RX6", NULL, 0,
 SND_SOC_DAPM_AIF_IN("AIF1RX7", NULL, 0,
 		    ARIZONA_AIF1_RX_ENABLES, ARIZONA_AIF1RX7_ENA_SHIFT, 0),
 SND_SOC_DAPM_AIF_IN("AIF1RX8", NULL, 0,
+=======
+SND_SOC_DAPM_AIF_IN("AIF1RX2", NULL, 1,
+		    ARIZONA_AIF1_RX_ENABLES, ARIZONA_AIF1RX2_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_IN("AIF1RX3", NULL, 2,
+		    ARIZONA_AIF1_RX_ENABLES, ARIZONA_AIF1RX3_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_IN("AIF1RX4", NULL, 3,
+		    ARIZONA_AIF1_RX_ENABLES, ARIZONA_AIF1RX4_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_IN("AIF1RX5", NULL, 4,
+		    ARIZONA_AIF1_RX_ENABLES, ARIZONA_AIF1RX5_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_IN("AIF1RX6", NULL, 5,
+		    ARIZONA_AIF1_RX_ENABLES, ARIZONA_AIF1RX6_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_IN("AIF1RX7", NULL, 6,
+		    ARIZONA_AIF1_RX_ENABLES, ARIZONA_AIF1RX7_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_IN("AIF1RX8", NULL, 7,
+>>>>>>> upstream/android-13
 		    ARIZONA_AIF1_RX_ENABLES, ARIZONA_AIF1RX8_ENA_SHIFT, 0),
 
 SND_SOC_DAPM_AIF_OUT("AIF2TX1", NULL, 0,
 		     ARIZONA_AIF2_TX_ENABLES, ARIZONA_AIF2TX1_ENA_SHIFT, 0),
+<<<<<<< HEAD
 SND_SOC_DAPM_AIF_OUT("AIF2TX2", NULL, 0,
+=======
+SND_SOC_DAPM_AIF_OUT("AIF2TX2", NULL, 1,
+>>>>>>> upstream/android-13
 		     ARIZONA_AIF2_TX_ENABLES, ARIZONA_AIF2TX2_ENA_SHIFT, 0),
 
 SND_SOC_DAPM_AIF_IN("AIF2RX1", NULL, 0,
 		    ARIZONA_AIF2_RX_ENABLES, ARIZONA_AIF2RX1_ENA_SHIFT, 0),
+<<<<<<< HEAD
 SND_SOC_DAPM_AIF_IN("AIF2RX2", NULL, 0,
+=======
+SND_SOC_DAPM_AIF_IN("AIF2RX2", NULL, 1,
+>>>>>>> upstream/android-13
 		    ARIZONA_AIF2_RX_ENABLES, ARIZONA_AIF2RX2_ENA_SHIFT, 0),
 
 SND_SOC_DAPM_AIF_OUT("SLIMTX1", NULL, 0,
 		     ARIZONA_SLIMBUS_TX_CHANNEL_ENABLE,
 		     ARIZONA_SLIMTX1_ENA_SHIFT, 0),
+<<<<<<< HEAD
 SND_SOC_DAPM_AIF_OUT("SLIMTX2", NULL, 0,
 		     ARIZONA_SLIMBUS_TX_CHANNEL_ENABLE,
 		     ARIZONA_SLIMTX2_ENA_SHIFT, 0),
@@ -580,12 +628,34 @@ SND_SOC_DAPM_AIF_OUT("SLIMTX7", NULL, 0,
 		     ARIZONA_SLIMBUS_TX_CHANNEL_ENABLE,
 		     ARIZONA_SLIMTX7_ENA_SHIFT, 0),
 SND_SOC_DAPM_AIF_OUT("SLIMTX8", NULL, 0,
+=======
+SND_SOC_DAPM_AIF_OUT("SLIMTX2", NULL, 1,
+		     ARIZONA_SLIMBUS_TX_CHANNEL_ENABLE,
+		     ARIZONA_SLIMTX2_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_OUT("SLIMTX3", NULL, 2,
+		     ARIZONA_SLIMBUS_TX_CHANNEL_ENABLE,
+		     ARIZONA_SLIMTX3_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_OUT("SLIMTX4", NULL, 3,
+		     ARIZONA_SLIMBUS_TX_CHANNEL_ENABLE,
+		     ARIZONA_SLIMTX4_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_OUT("SLIMTX5", NULL, 4,
+		     ARIZONA_SLIMBUS_TX_CHANNEL_ENABLE,
+		     ARIZONA_SLIMTX5_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_OUT("SLIMTX6", NULL, 5,
+		     ARIZONA_SLIMBUS_TX_CHANNEL_ENABLE,
+		     ARIZONA_SLIMTX6_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_OUT("SLIMTX7", NULL, 6,
+		     ARIZONA_SLIMBUS_TX_CHANNEL_ENABLE,
+		     ARIZONA_SLIMTX7_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_OUT("SLIMTX8", NULL, 7,
+>>>>>>> upstream/android-13
 		     ARIZONA_SLIMBUS_TX_CHANNEL_ENABLE,
 		     ARIZONA_SLIMTX8_ENA_SHIFT, 0),
 
 SND_SOC_DAPM_AIF_IN("SLIMRX1", NULL, 0,
 		    ARIZONA_SLIMBUS_RX_CHANNEL_ENABLE,
 		    ARIZONA_SLIMRX1_ENA_SHIFT, 0),
+<<<<<<< HEAD
 SND_SOC_DAPM_AIF_IN("SLIMRX2", NULL, 0,
 		    ARIZONA_SLIMBUS_RX_CHANNEL_ENABLE,
 		    ARIZONA_SLIMRX2_ENA_SHIFT, 0),
@@ -605,6 +675,27 @@ SND_SOC_DAPM_AIF_IN("SLIMRX7", NULL, 0,
 		    ARIZONA_SLIMBUS_RX_CHANNEL_ENABLE,
 		    ARIZONA_SLIMRX7_ENA_SHIFT, 0),
 SND_SOC_DAPM_AIF_IN("SLIMRX8", NULL, 0,
+=======
+SND_SOC_DAPM_AIF_IN("SLIMRX2", NULL, 1,
+		    ARIZONA_SLIMBUS_RX_CHANNEL_ENABLE,
+		    ARIZONA_SLIMRX2_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_IN("SLIMRX3", NULL, 2,
+		    ARIZONA_SLIMBUS_RX_CHANNEL_ENABLE,
+		    ARIZONA_SLIMRX3_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_IN("SLIMRX4", NULL, 3,
+		    ARIZONA_SLIMBUS_RX_CHANNEL_ENABLE,
+		    ARIZONA_SLIMRX4_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_IN("SLIMRX5", NULL, 4,
+		    ARIZONA_SLIMBUS_RX_CHANNEL_ENABLE,
+		    ARIZONA_SLIMRX5_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_IN("SLIMRX6", NULL, 5,
+		    ARIZONA_SLIMBUS_RX_CHANNEL_ENABLE,
+		    ARIZONA_SLIMRX6_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_IN("SLIMRX7", NULL, 6,
+		    ARIZONA_SLIMBUS_RX_CHANNEL_ENABLE,
+		    ARIZONA_SLIMRX7_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_IN("SLIMRX8", NULL, 7,
+>>>>>>> upstream/android-13
 		    ARIZONA_SLIMBUS_RX_CHANNEL_ENABLE,
 		    ARIZONA_SLIMRX8_ENA_SHIFT, 0),
 
@@ -972,8 +1063,13 @@ static struct snd_soc_dai_driver wm8997_dai[] = {
 			 .formats = WM8997_FORMATS,
 		 },
 		.ops = &arizona_dai_ops,
+<<<<<<< HEAD
 		.symmetric_rates = 1,
 		.symmetric_samplebits = 1,
+=======
+		.symmetric_rate = 1,
+		.symmetric_sample_bits = 1,
+>>>>>>> upstream/android-13
 	},
 	{
 		.name = "wm8997-aif2",
@@ -994,8 +1090,13 @@ static struct snd_soc_dai_driver wm8997_dai[] = {
 			 .formats = WM8997_FORMATS,
 		 },
 		.ops = &arizona_dai_ops,
+<<<<<<< HEAD
 		.symmetric_rates = 1,
 		.symmetric_samplebits = 1,
+=======
+		.symmetric_rate = 1,
+		.symmetric_sample_bits = 1,
+>>>>>>> upstream/android-13
 	},
 	{
 		.name = "wm8997-slim1",
@@ -1099,6 +1200,10 @@ static const struct snd_soc_component_driver soc_component_dev_wm8997 = {
 	.remove			= wm8997_component_remove,
 	.set_sysclk		= arizona_set_sysclk,
 	.set_pll		= wm8997_set_fll,
+<<<<<<< HEAD
+=======
+	.set_jack		= arizona_jack_set_jack,
+>>>>>>> upstream/android-13
 	.controls		= wm8997_snd_controls,
 	.num_controls		= ARRAY_SIZE(wm8997_snd_controls),
 	.dapm_widgets		= wm8997_dapm_widgets,
@@ -1135,6 +1240,14 @@ static int wm8997_probe(struct platform_device *pdev)
 
 	arizona_init_dvfs(&wm8997->core);
 
+<<<<<<< HEAD
+=======
+	/* This may return -EPROBE_DEFER, so do this early on */
+	ret = arizona_jack_codec_dev_probe(&wm8997->core, &pdev->dev);
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	for (i = 0; i < ARRAY_SIZE(wm8997->fll); i++)
 		wm8997->fll[i].vco_mult = 1;
 
@@ -1166,10 +1279,17 @@ static int wm8997_probe(struct platform_device *pdev)
 
 	ret = arizona_init_vol_limit(arizona);
 	if (ret < 0)
+<<<<<<< HEAD
 		return ret;
 	ret = arizona_init_spk_irqs(arizona);
 	if (ret < 0)
 		return ret;
+=======
+		goto err_jack_codec_dev;
+	ret = arizona_init_spk_irqs(arizona);
+	if (ret < 0)
+		goto err_jack_codec_dev;
+>>>>>>> upstream/android-13
 
 	ret = devm_snd_soc_register_component(&pdev->dev,
 					      &soc_component_dev_wm8997,
@@ -1184,6 +1304,11 @@ static int wm8997_probe(struct platform_device *pdev)
 
 err_spk_irqs:
 	arizona_free_spk_irqs(arizona);
+<<<<<<< HEAD
+=======
+err_jack_codec_dev:
+	arizona_jack_codec_dev_remove(&wm8997->core);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -1197,6 +1322,11 @@ static int wm8997_remove(struct platform_device *pdev)
 
 	arizona_free_spk_irqs(arizona);
 
+<<<<<<< HEAD
+=======
+	arizona_jack_codec_dev_remove(&wm8997->core);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 

@@ -8,11 +8,18 @@
  */
 #include "builtin.h"
 
+<<<<<<< HEAD
 #include "util/util.h"
+=======
+>>>>>>> upstream/android-13
 #include "util/color.h"
 #include <linux/list.h>
 #include "util/cache.h"
 #include <linux/rbtree.h>
+<<<<<<< HEAD
+=======
+#include <linux/zalloc.h>
+>>>>>>> upstream/android-13
 #include "util/symbol.h"
 
 #include "perf.h"
@@ -24,18 +31,35 @@
 #include "util/event.h"
 #include <subcmd/parse-options.h>
 #include "util/parse-events.h"
+<<<<<<< HEAD
 #include "util/thread.h"
 #include "util/sort.h"
 #include "util/hist.h"
+=======
+#include "util/sort.h"
+#include "util/hist.h"
+#include "util/dso.h"
+#include "util/machine.h"
+#include "util/map.h"
+>>>>>>> upstream/android-13
 #include "util/session.h"
 #include "util/tool.h"
 #include "util/data.h"
 #include "arch/common.h"
 #include "util/block-range.h"
+<<<<<<< HEAD
+=======
+#include "util/map_symbol.h"
+#include "util/branch.h"
+>>>>>>> upstream/android-13
 
 #include <dlfcn.h>
 #include <errno.h>
 #include <linux/bitmap.h>
+<<<<<<< HEAD
+=======
+#include <linux/err.h>
+>>>>>>> upstream/android-13
 
 struct perf_annotate {
 	struct perf_tool tool;
@@ -78,7 +102,11 @@ static void process_basic_block(struct addr_map_symbol *start,
 				struct addr_map_symbol *end,
 				struct branch_flags *flags)
 {
+<<<<<<< HEAD
 	struct symbol *sym = start->sym;
+=======
+	struct symbol *sym = start->ms.sym;
+>>>>>>> upstream/android-13
 	struct annotation *notes = sym ? symbol__annotation(sym) : NULL;
 	struct block_range_iter iter;
 	struct block_range *entry;
@@ -155,11 +183,17 @@ static int hist_iter__branch_callback(struct hist_entry_iter *iter,
 	struct hist_entry *he = iter->he;
 	struct branch_info *bi;
 	struct perf_sample *sample = iter->sample;
+<<<<<<< HEAD
 	struct perf_evsel *evsel = iter->evsel;
 	int err;
 
 	hist__account_cycles(sample->branch_stack, al, sample, false);
 
+=======
+	struct evsel *evsel = iter->evsel;
+	int err;
+
+>>>>>>> upstream/android-13
 	bi = he->branch_info;
 	err = addr_map_symbol__inc_samples(&bi->from, sample, evsel);
 
@@ -172,7 +206,11 @@ out:
 	return err;
 }
 
+<<<<<<< HEAD
 static int process_branch_callback(struct perf_evsel *evsel,
+=======
+static int process_branch_callback(struct evsel *evsel,
+>>>>>>> upstream/android-13
 				   struct perf_sample *sample,
 				   struct addr_location *al __maybe_unused,
 				   struct perf_annotate *ann,
@@ -198,6 +236,11 @@ static int process_branch_callback(struct perf_evsel *evsel,
 	if (a.map != NULL)
 		a.map->dso->hit = 1;
 
+<<<<<<< HEAD
+=======
+	hist__account_cycles(sample->branch_stack, al, sample, false, NULL);
+
+>>>>>>> upstream/android-13
 	ret = hist_entry_iter__add(&iter, &a, PERF_MAX_STACK_DEPTH, ann);
 	return ret;
 }
@@ -207,11 +250,17 @@ static bool has_annotation(struct perf_annotate *ann)
 	return ui__has_annotation() || ann->use_stdio2;
 }
 
+<<<<<<< HEAD
 static int perf_evsel__add_sample(struct perf_evsel *evsel,
 				  struct perf_sample *sample,
 				  struct addr_location *al,
 				  struct perf_annotate *ann,
 				  struct machine *machine)
+=======
+static int evsel__add_sample(struct evsel *evsel, struct perf_sample *sample,
+			     struct addr_location *al, struct perf_annotate *ann,
+			     struct machine *machine)
+>>>>>>> upstream/android-13
 {
 	struct hists *hists = evsel__hists(evsel);
 	struct hist_entry *he;
@@ -227,7 +276,11 @@ static int perf_evsel__add_sample(struct perf_evsel *evsel,
 		 * the DSO?
 		 */
 		if (al->sym != NULL) {
+<<<<<<< HEAD
 			rb_erase(&al->sym->rb_node,
+=======
+			rb_erase_cached(&al->sym->rb_node,
+>>>>>>> upstream/android-13
 				 &al->map->dso->symbols);
 			symbol__delete(al->sym);
 			dso__reset_find_symbol_cache(al->map->dso);
@@ -236,7 +289,11 @@ static int perf_evsel__add_sample(struct perf_evsel *evsel,
 	}
 
 	/*
+<<<<<<< HEAD
 	 * XXX filtered samples can still have branch entires pointing into our
+=======
+	 * XXX filtered samples can still have branch entries pointing into our
+>>>>>>> upstream/android-13
 	 * symbol and are missed.
 	 */
 	process_branch_stack(sample->branch_stack, al, sample);
@@ -256,7 +313,11 @@ static int perf_evsel__add_sample(struct perf_evsel *evsel,
 static int process_sample_event(struct perf_tool *tool,
 				union perf_event *event,
 				struct perf_sample *sample,
+<<<<<<< HEAD
 				struct perf_evsel *evsel,
+=======
+				struct evsel *evsel,
+>>>>>>> upstream/android-13
 				struct machine *machine)
 {
 	struct perf_annotate *ann = container_of(tool, struct perf_annotate, tool);
@@ -273,7 +334,11 @@ static int process_sample_event(struct perf_tool *tool,
 		goto out_put;
 
 	if (!al.filtered &&
+<<<<<<< HEAD
 	    perf_evsel__add_sample(evsel, sample, &al, ann, machine)) {
+=======
+	    evsel__add_sample(evsel, sample, &al, ann, machine)) {
+>>>>>>> upstream/android-13
 		pr_warning("problem incrementing symbol count, "
 			   "skipping event\n");
 		ret = -1;
@@ -283,16 +348,25 @@ out_put:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int process_feature_event(struct perf_tool *tool,
 				 union perf_event *event,
 				 struct perf_session *session)
 {
 	if (event->feat.feat_id < HEADER_LAST_FEATURE)
 		return perf_event__process_feature(tool, event, session);
+=======
+static int process_feature_event(struct perf_session *session,
+				 union perf_event *event)
+{
+	if (event->feat.feat_id < HEADER_LAST_FEATURE)
+		return perf_event__process_feature(session, event);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int hist_entry__tty_annotate(struct hist_entry *he,
+<<<<<<< HEAD
 				    struct perf_evsel *evsel,
 				    struct perf_annotate *ann)
 {
@@ -307,6 +381,22 @@ static void hists__find_annotations(struct hists *hists,
 				    struct perf_annotate *ann)
 {
 	struct rb_node *nd = rb_first(&hists->entries), *next;
+=======
+				    struct evsel *evsel,
+				    struct perf_annotate *ann)
+{
+	if (!ann->use_stdio2)
+		return symbol__tty_annotate(&he->ms, evsel, &ann->opts);
+
+	return symbol__tty_annotate2(&he->ms, evsel, &ann->opts);
+}
+
+static void hists__find_annotations(struct hists *hists,
+				    struct evsel *evsel,
+				    struct perf_annotate *ann)
+{
+	struct rb_node *nd = rb_first_cached(&hists->entries), *next;
+>>>>>>> upstream/android-13
 	int key = K_RIGHT;
 
 	while (nd) {
@@ -333,7 +423,11 @@ find_next:
 		if (use_browser == 2) {
 			int ret;
 			int (*annotate)(struct hist_entry *he,
+<<<<<<< HEAD
 					struct perf_evsel *evsel,
+=======
+					struct evsel *evsel,
+>>>>>>> upstream/android-13
 					struct hist_browser_timer *hbt);
 
 			annotate = dlsym(perf_gtk_handle,
@@ -372,6 +466,7 @@ find_next:
 		} else {
 			hist_entry__tty_annotate(he, evsel, ann);
 			nd = rb_next(nd);
+<<<<<<< HEAD
 			/*
 			 * Since we have a hist_entry per IP for the same
 			 * symbol, free he->ms.sym->src to signal we already
@@ -379,6 +474,8 @@ find_next:
 			 */
 			zfree(&notes->src->cycles_hist);
 			zfree(&notes->src);
+=======
+>>>>>>> upstream/android-13
 		}
 	}
 }
@@ -387,7 +484,11 @@ static int __cmd_annotate(struct perf_annotate *ann)
 {
 	int ret;
 	struct perf_session *session = ann->session;
+<<<<<<< HEAD
 	struct perf_evsel *pos;
+=======
+	struct evsel *pos;
+>>>>>>> upstream/android-13
 	u64 total_nr_samples;
 
 	if (ann->cpu_list) {
@@ -409,8 +510,13 @@ static int __cmd_annotate(struct perf_annotate *ann)
 		goto out;
 
 	if (dump_trace) {
+<<<<<<< HEAD
 		perf_session__fprintf_nr_events(session, stdout);
 		perf_evlist__fprintf_nr_events(session->evlist, stdout);
+=======
+		perf_session__fprintf_nr_events(session, stdout, false);
+		evlist__fprintf_nr_events(session->evlist, stdout, false);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
@@ -423,17 +529,28 @@ static int __cmd_annotate(struct perf_annotate *ann)
 	total_nr_samples = 0;
 	evlist__for_each_entry(session->evlist, pos) {
 		struct hists *hists = evsel__hists(pos);
+<<<<<<< HEAD
 		u32 nr_samples = hists->stats.nr_events[PERF_RECORD_SAMPLE];
+=======
+		u32 nr_samples = hists->stats.nr_samples;
+>>>>>>> upstream/android-13
 
 		if (nr_samples > 0) {
 			total_nr_samples += nr_samples;
 			hists__collapse_resort(hists, NULL);
 			/* Don't sort callchain */
+<<<<<<< HEAD
 			perf_evsel__reset_sample_bit(pos, CALLCHAIN);
 			perf_evsel__output_resort(pos, NULL);
 
 			if (symbol_conf.event_group &&
 			    !perf_evsel__is_group_leader(pos))
+=======
+			evsel__reset_sample_bit(pos, CALLCHAIN);
+			evsel__output_resort(pos, NULL);
+
+			if (symbol_conf.event_group && !evsel__is_group_leader(pos))
+>>>>>>> upstream/android-13
 				continue;
 
 			hists__find_annotations(hists, pos, ann);
@@ -441,7 +558,11 @@ static int __cmd_annotate(struct perf_annotate *ann)
 	}
 
 	if (total_nr_samples == 0) {
+<<<<<<< HEAD
 		ui__error("The %s file has no samples!\n", session->data->file.path);
+=======
+		ui__error("The %s data has no samples!\n", session->data->path);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
@@ -480,6 +601,12 @@ int cmd_annotate(int argc, const char **argv)
 			.attr	= perf_event__process_attr,
 			.build_id = perf_event__process_build_id,
 			.tracing_data   = perf_event__process_tracing_data,
+<<<<<<< HEAD
+=======
+			.id_index	= perf_event__process_id_index,
+			.auxtrace_info	= perf_event__process_auxtrace_info,
+			.auxtrace	= perf_event__process_auxtrace,
+>>>>>>> upstream/android-13
 			.feature	= process_feature_event,
 			.ordered_events = true,
 			.ordering_requires_timestamps = true,
@@ -489,6 +616,12 @@ int cmd_annotate(int argc, const char **argv)
 	struct perf_data data = {
 		.mode  = PERF_DATA_MODE_READ,
 	};
+<<<<<<< HEAD
+=======
+	struct itrace_synth_opts itrace_synth_opts = {
+		.set = 0,
+	};
+>>>>>>> upstream/android-13
 	struct option options[] = {
 	OPT_STRING('i', "input", &input_name, "file",
 		    "input file name"),
@@ -531,8 +664,21 @@ int cmd_annotate(int argc, const char **argv)
 		    "Display raw encoding of assembly instructions (default)"),
 	OPT_STRING('M', "disassembler-style", &annotate.opts.disassembler_style, "disassembler style",
 		   "Specify disassembler style (e.g. -M intel for intel syntax)"),
+<<<<<<< HEAD
 	OPT_STRING(0, "objdump", &annotate.opts.objdump_path, "path",
 		   "objdump binary to use for disassembly and annotations"),
+=======
+	OPT_STRING(0, "prefix", &annotate.opts.prefix, "prefix",
+		    "Add prefix to source file path names in programs (with --prefix-strip)"),
+	OPT_STRING(0, "prefix-strip", &annotate.opts.prefix_strip, "N",
+		    "Strip first N entries of source file path name in programs (with --prefix)"),
+	OPT_STRING(0, "objdump", &annotate.opts.objdump_path, "path",
+		   "objdump binary to use for disassembly and annotations"),
+	OPT_BOOLEAN(0, "demangle", &symbol_conf.demangle,
+		    "Enable symbol demangling"),
+	OPT_BOOLEAN(0, "demangle-kernel", &symbol_conf.demangle_kernel,
+		    "Enable kernel symbol demangling"),
+>>>>>>> upstream/android-13
 	OPT_BOOLEAN(0, "group", &symbol_conf.event_group,
 		    "Show event group information together"),
 	OPT_BOOLEAN(0, "show-total-period", &symbol_conf.show_total_period,
@@ -545,6 +691,12 @@ int cmd_annotate(int argc, const char **argv)
 	OPT_CALLBACK(0, "percent-type", &annotate.opts, "local-period",
 		     "Set percent type local/global-period/hits",
 		     annotate_parse_percent_type),
+<<<<<<< HEAD
+=======
+	OPT_CALLBACK_OPTARG(0, "itrace", &itrace_synth_opts, NULL, "opts",
+			    "Instruction Tracing options\n" ITRACE_HELP,
+			    itrace_parse_synth_opts),
+>>>>>>> upstream/android-13
 
 	OPT_END()
 	};
@@ -558,6 +710,11 @@ int cmd_annotate(int argc, const char **argv)
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
+=======
+	annotation_config__init(&annotate.opts);
+
+>>>>>>> upstream/android-13
 	argc = parse_options(argc, argv, options, annotate_usage, 0);
 	if (argc) {
 		/*
@@ -570,6 +727,12 @@ int cmd_annotate(int argc, const char **argv)
 		annotate.sym_hist_filter = argv[0];
 	}
 
+<<<<<<< HEAD
+=======
+	if (annotate_check_args(&annotate.opts) < 0)
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	if (symbol_conf.show_nr_samples && annotate.use_gtk) {
 		pr_err("--show-nr-samples is not available in --gtk mode at this time\n");
 		return ret;
@@ -578,24 +741,41 @@ int cmd_annotate(int argc, const char **argv)
 	if (quiet)
 		perf_quiet_option();
 
+<<<<<<< HEAD
 	data.file.path = input_name;
 
 	annotate.session = perf_session__new(&data, false, &annotate.tool);
 	if (annotate.session == NULL)
 		return -1;
+=======
+	data.path = input_name;
+
+	annotate.session = perf_session__new(&data, &annotate.tool);
+	if (IS_ERR(annotate.session))
+		return PTR_ERR(annotate.session);
+
+	annotate.session->itrace_synth_opts = &itrace_synth_opts;
+>>>>>>> upstream/android-13
 
 	annotate.has_br_stack = perf_header__has_feat(&annotate.session->header,
 						      HEADER_BRANCH_STACK);
 
 	if (annotate.group_set)
+<<<<<<< HEAD
 		perf_evlist__force_leader(annotate.session->evlist);
+=======
+		evlist__force_leader(annotate.session->evlist);
+>>>>>>> upstream/android-13
 
 	ret = symbol__annotation_init();
 	if (ret < 0)
 		goto out_delete;
 
+<<<<<<< HEAD
 	annotation_config__init();
 
+=======
+>>>>>>> upstream/android-13
 	symbol_conf.try_vmlinux_path = true;
 
 	ret = symbol__init(&annotate.session->header.env);
@@ -611,6 +791,7 @@ int cmd_annotate(int argc, const char **argv)
 
 	setup_browser(true);
 
+<<<<<<< HEAD
 	if ((use_browser == 1 || annotate.use_stdio2) && annotate.has_br_stack) {
 		sort__mode = SORT_MODE__BRANCH;
 		if (setup_sorting(annotate.session->evlist) < 0)
@@ -619,6 +800,24 @@ int cmd_annotate(int argc, const char **argv)
 		if (setup_sorting(NULL) < 0)
 			usage_with_options(annotate_usage, options);
 	}
+=======
+	/*
+	 * Events of different processes may correspond to the same
+	 * symbol, we do not care about the processes in annotate,
+	 * set sort order to avoid repeated output.
+	 */
+	sort_order = "dso,symbol";
+
+	/*
+	 * Set SORT_MODE__BRANCH so that annotate display IPC/Cycle
+	 * if branch info is in perf data in TUI mode.
+	 */
+	if ((use_browser == 1 || annotate.use_stdio2) && annotate.has_br_stack)
+		sort__mode = SORT_MODE__BRANCH;
+
+	if (setup_sorting(NULL) < 0)
+		usage_with_options(annotate_usage, options);
+>>>>>>> upstream/android-13
 
 	ret = __cmd_annotate(&annotate);
 

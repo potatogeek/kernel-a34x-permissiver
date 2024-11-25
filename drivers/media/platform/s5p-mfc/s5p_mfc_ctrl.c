@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * linux/drivers/media/platform/s5p-mfc/s5p_mfc_ctrl.c
  *
  * Copyright (c) 2010 Samsung Electronics Co., Ltd.
  *		http://www.samsung.com/
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -51,7 +58,11 @@ int s5p_mfc_load_firmware(struct s5p_mfc_dev *dev)
 	struct firmware *fw_blob;
 	int i, err = -EINVAL;
 
+<<<<<<< HEAD
 	/* Firmare has to be present as a separate file or compiled
+=======
+	/* Firmware has to be present as a separate file or compiled
+>>>>>>> upstream/android-13
 	 * into kernel. */
 	mfc_debug_enter();
 

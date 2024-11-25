@@ -1,7 +1,11 @@
 /*******************************************************************
  * This file is part of the Emulex Linux Device Driver for         *
  * Fibre Channel Host Bus Adapters.                                *
+<<<<<<< HEAD
  * Copyright (C) 2017-2018 Broadcom. All Rights Reserved. The term *
+=======
+ * Copyright (C) 2017-2021 Broadcom. All Rights Reserved. The term *
+>>>>>>> upstream/android-13
  * “Broadcom” refers to Broadcom Inc. and/or its subsidiaries.  *
  * Copyright (C) 2004-2016 Emulex.  All rights reserved.           *
  * EMULEX and SLI are trademarks of Emulex.                        *
@@ -37,8 +41,11 @@
 #include <scsi/scsi_transport_fc.h>
 #include <scsi/fc/fc_fs.h>
 
+<<<<<<< HEAD
 #include <linux/nvme-fc-driver.h>
 
+=======
+>>>>>>> upstream/android-13
 #include "lpfc_hw4.h"
 #include "lpfc_hw.h"
 #include "lpfc_sli.h"
@@ -48,7 +55,10 @@
 #include "lpfc.h"
 #include "lpfc_scsi.h"
 #include "lpfc_nvme.h"
+<<<<<<< HEAD
 #include "lpfc_nvmet.h"
+=======
+>>>>>>> upstream/android-13
 #include "lpfc_logmsg.h"
 #include "lpfc_version.h"
 #include "lpfc_compat.h"
@@ -60,6 +70,7 @@
 #define LPFC_MIN_DEVLOSS_TMO	1
 #define LPFC_MAX_DEVLOSS_TMO	255
 
+<<<<<<< HEAD
 #define LPFC_DEF_MRQ_POST	512
 #define LPFC_MIN_MRQ_POST	512
 #define LPFC_MAX_MRQ_POST	2048
@@ -67,6 +78,10 @@
 #define LPFC_MAX_NVME_INFO_TMP_LEN	100
 #define LPFC_NVME_INFO_MORE_STR		"\nCould be more info...\n"
 
+=======
+#define LPFC_MAX_INFO_TMP_LEN	100
+#define LPFC_INFO_MORE_STR	"\nCould be more info...\n"
+>>>>>>> upstream/android-13
 /*
  * Write key size should be multiple of 4. If write key is changed
  * make sure that library write key is also changed.
@@ -74,6 +89,26 @@
 #define LPFC_REG_WRITE_KEY_SIZE	4
 #define LPFC_REG_WRITE_KEY	"EMLX"
 
+<<<<<<< HEAD
+=======
+const char *const trunk_errmsg[] = {	/* map errcode */
+	"",	/* There is no such error code at index 0*/
+	"link negotiated speed does not match existing"
+		" trunk - link was \"low\" speed",
+	"link negotiated speed does not match"
+		" existing trunk - link was \"middle\" speed",
+	"link negotiated speed does not match existing"
+		" trunk - link was \"high\" speed",
+	"Attached to non-trunking port - F_Port",
+	"Attached to non-trunking port - N_Port",
+	"FLOGI response timeout",
+	"non-FLOGI frame received",
+	"Invalid FLOGI response",
+	"Trunking initialization protocol",
+	"Trunk peer device mismatch",
+};
+
+>>>>>>> upstream/android-13
 /**
  * lpfc_jedec_to_ascii - Hex to ascii convertor according to JEDEC rules
  * @incr: integer to convert.
@@ -105,6 +140,186 @@ lpfc_jedec_to_ascii(int incr, char hdw[])
 	return;
 }
 
+<<<<<<< HEAD
+=======
+static ssize_t
+lpfc_cmf_info_show(struct device *dev, struct device_attribute *attr,
+		   char *buf)
+{
+	struct Scsi_Host  *shost = class_to_shost(dev);
+	struct lpfc_vport *vport = (struct lpfc_vport *)shost->hostdata;
+	struct lpfc_hba   *phba = vport->phba;
+	struct lpfc_cgn_info *cp = NULL;
+	struct lpfc_cgn_stat *cgs;
+	int  len = 0;
+	int cpu;
+	u64 rcv, total;
+	char tmp[LPFC_MAX_INFO_TMP_LEN] = {0};
+
+	if (phba->cgn_i)
+		cp = (struct lpfc_cgn_info *)phba->cgn_i->virt;
+
+	scnprintf(tmp, sizeof(tmp),
+		  "Congestion Mgmt Info: E2Eattr %d Ver %d "
+		  "CMF %d cnt %d\n",
+		  phba->sli4_hba.pc_sli4_params.mi_ver,
+		  cp ? cp->cgn_info_version : 0,
+		  phba->sli4_hba.pc_sli4_params.cmf, phba->cmf_timer_cnt);
+
+	if (strlcat(buf, tmp, PAGE_SIZE) >= PAGE_SIZE)
+		goto buffer_done;
+
+	if (!phba->sli4_hba.pc_sli4_params.cmf)
+		goto buffer_done;
+
+	switch (phba->cgn_init_reg_signal) {
+	case EDC_CG_SIG_WARN_ONLY:
+		scnprintf(tmp, sizeof(tmp),
+			  "Register: Init:  Signal:WARN  ");
+		break;
+	case EDC_CG_SIG_WARN_ALARM:
+		scnprintf(tmp, sizeof(tmp),
+			  "Register: Init:  Signal:WARN|ALARM  ");
+		break;
+	default:
+		scnprintf(tmp, sizeof(tmp),
+			  "Register: Init:  Signal:NONE  ");
+		break;
+	}
+	if (strlcat(buf, tmp, PAGE_SIZE) >= PAGE_SIZE)
+		goto buffer_done;
+
+	switch (phba->cgn_init_reg_fpin) {
+	case LPFC_CGN_FPIN_WARN:
+		scnprintf(tmp, sizeof(tmp),
+			  "FPIN:WARN\n");
+		break;
+	case LPFC_CGN_FPIN_ALARM:
+		scnprintf(tmp, sizeof(tmp),
+			  "FPIN:ALARM\n");
+		break;
+	case LPFC_CGN_FPIN_BOTH:
+		scnprintf(tmp, sizeof(tmp),
+			  "FPIN:WARN|ALARM\n");
+		break;
+	default:
+		scnprintf(tmp, sizeof(tmp),
+			  "FPIN:NONE\n");
+		break;
+	}
+	if (strlcat(buf, tmp, PAGE_SIZE) >= PAGE_SIZE)
+		goto buffer_done;
+
+	switch (phba->cgn_reg_signal) {
+	case EDC_CG_SIG_WARN_ONLY:
+		scnprintf(tmp, sizeof(tmp),
+			  "       Current:  Signal:WARN  ");
+		break;
+	case EDC_CG_SIG_WARN_ALARM:
+		scnprintf(tmp, sizeof(tmp),
+			  "       Current:  Signal:WARN|ALARM  ");
+		break;
+	default:
+		scnprintf(tmp, sizeof(tmp),
+			  "       Current:  Signal:NONE  ");
+		break;
+	}
+	if (strlcat(buf, tmp, PAGE_SIZE) >= PAGE_SIZE)
+		goto buffer_done;
+
+	switch (phba->cgn_reg_fpin) {
+	case LPFC_CGN_FPIN_WARN:
+		scnprintf(tmp, sizeof(tmp),
+			  "FPIN:WARN  ACQEcnt:%d\n", phba->cgn_acqe_cnt);
+		break;
+	case LPFC_CGN_FPIN_ALARM:
+		scnprintf(tmp, sizeof(tmp),
+			  "FPIN:ALARM  ACQEcnt:%d\n", phba->cgn_acqe_cnt);
+		break;
+	case LPFC_CGN_FPIN_BOTH:
+		scnprintf(tmp, sizeof(tmp),
+			  "FPIN:WARN|ALARM  ACQEcnt:%d\n", phba->cgn_acqe_cnt);
+		break;
+	default:
+		scnprintf(tmp, sizeof(tmp),
+			  "FPIN:NONE  ACQEcnt:%d\n", phba->cgn_acqe_cnt);
+		break;
+	}
+	if (strlcat(buf, tmp, PAGE_SIZE) >= PAGE_SIZE)
+		goto buffer_done;
+
+	if (phba->cmf_active_mode != phba->cgn_p.cgn_param_mode) {
+		switch (phba->cmf_active_mode) {
+		case LPFC_CFG_OFF:
+			scnprintf(tmp, sizeof(tmp), "Active: Mode:Off\n");
+			break;
+		case LPFC_CFG_MANAGED:
+			scnprintf(tmp, sizeof(tmp), "Active: Mode:Managed\n");
+			break;
+		case LPFC_CFG_MONITOR:
+			scnprintf(tmp, sizeof(tmp), "Active: Mode:Monitor\n");
+			break;
+		default:
+			scnprintf(tmp, sizeof(tmp), "Active: Mode:Unknown\n");
+		}
+		if (strlcat(buf, tmp, PAGE_SIZE) >= PAGE_SIZE)
+			goto buffer_done;
+	}
+
+	switch (phba->cgn_p.cgn_param_mode) {
+	case LPFC_CFG_OFF:
+		scnprintf(tmp, sizeof(tmp), "Config: Mode:Off  ");
+		break;
+	case LPFC_CFG_MANAGED:
+		scnprintf(tmp, sizeof(tmp), "Config: Mode:Managed ");
+		break;
+	case LPFC_CFG_MONITOR:
+		scnprintf(tmp, sizeof(tmp), "Config: Mode:Monitor ");
+		break;
+	default:
+		scnprintf(tmp, sizeof(tmp), "Config: Mode:Unknown ");
+	}
+	if (strlcat(buf, tmp, PAGE_SIZE) >= PAGE_SIZE)
+		goto buffer_done;
+
+	total = 0;
+	rcv = 0;
+	for_each_present_cpu(cpu) {
+		cgs = per_cpu_ptr(phba->cmf_stat, cpu);
+		total += atomic64_read(&cgs->total_bytes);
+		rcv += atomic64_read(&cgs->rcv_bytes);
+	}
+
+	scnprintf(tmp, sizeof(tmp),
+		  "IObusy:%d Info:%d Bytes: Rcv:x%llx Total:x%llx\n",
+		  atomic_read(&phba->cmf_busy),
+		  phba->cmf_active_info, rcv, total);
+	if (strlcat(buf, tmp, PAGE_SIZE) >= PAGE_SIZE)
+		goto buffer_done;
+
+	scnprintf(tmp, sizeof(tmp),
+		  "Port_speed:%d  Link_byte_cnt:%ld  "
+		  "Max_byte_per_interval:%ld\n",
+		  lpfc_sli_port_speed_get(phba),
+		  (unsigned long)phba->cmf_link_byte_count,
+		  (unsigned long)phba->cmf_max_bytes_per_interval);
+	strlcat(buf, tmp, PAGE_SIZE);
+
+buffer_done:
+	len = strnlen(buf, PAGE_SIZE);
+
+	if (unlikely(len >= (PAGE_SIZE - 1))) {
+		lpfc_printf_log(phba, KERN_INFO, LOG_CGN_MGMT,
+				"6312 Catching potential buffer "
+				"overflow > PAGE_SIZE = %lu bytes\n",
+				PAGE_SIZE);
+		strscpy(buf + PAGE_SIZE - 1 - sizeof(LPFC_INFO_MORE_STR),
+			LPFC_INFO_MORE_STR, sizeof(LPFC_INFO_MORE_STR) + 1);
+	}
+	return len;
+}
+
+>>>>>>> upstream/android-13
 /**
  * lpfc_drvr_version_show - Return the Emulex driver string with version number
  * @dev: class unused variable.
@@ -155,15 +370,25 @@ lpfc_nvme_info_show(struct device *dev, struct device_attribute *attr,
 	struct lpfc_nvme_rport *rport;
 	struct lpfc_nodelist *ndlp;
 	struct nvme_fc_remote_port *nrport;
+<<<<<<< HEAD
 	struct lpfc_nvme_ctrl_stat *cstat;
+=======
+	struct lpfc_fc4_ctrl_stat *cstat;
+>>>>>>> upstream/android-13
 	uint64_t data1, data2, data3;
 	uint64_t totin, totout, tot;
 	char *statep;
 	int i;
 	int len = 0;
+<<<<<<< HEAD
 	char tmp[LPFC_MAX_NVME_INFO_TMP_LEN] = {0};
 
 	if (!(phba->cfg_enable_fc4_type & LPFC_ENABLE_NVME)) {
+=======
+	char tmp[LPFC_MAX_INFO_TMP_LEN] = {0};
+
+	if (!(vport->cfg_enable_fc4_type & LPFC_ENABLE_NVME)) {
+>>>>>>> upstream/android-13
 		len = scnprintf(buf, PAGE_SIZE, "NVME Disabled\n");
 		return len;
 	}
@@ -333,11 +558,18 @@ lpfc_nvme_info_show(struct device *dev, struct device_attribute *attr,
 		goto buffer_done;
 
 	scnprintf(tmp, sizeof(tmp),
+<<<<<<< HEAD
 		  "XRI Dist lpfc%d Total %d NVME %d SCSI %d ELS %d\n",
 		  phba->brd_no,
 		  phba->sli4_hba.max_cfg_param.max_xri,
 		  phba->sli4_hba.nvme_xri_max,
 		  phba->sli4_hba.scsi_xri_max,
+=======
+		  "XRI Dist lpfc%d Total %d IO %d ELS %d\n",
+		  phba->brd_no,
+		  phba->sli4_hba.max_cfg_param.max_xri,
+		  phba->sli4_hba.io_xri_max,
+>>>>>>> upstream/android-13
 		  lpfc_sli4_get_els_iocb_cnt(phba));
 	if (strlcat(buf, tmp, PAGE_SIZE) >= PAGE_SIZE)
 		goto buffer_done;
@@ -362,11 +594,19 @@ lpfc_nvme_info_show(struct device *dev, struct device_attribute *attr,
 
 	list_for_each_entry(ndlp, &vport->fc_nodes, nlp_listp) {
 		nrport = NULL;
+<<<<<<< HEAD
 		spin_lock(&vport->phba->hbalock);
 		rport = lpfc_ndlp_get_nrport(ndlp);
 		if (rport)
 			nrport = rport->remoteport;
 		spin_unlock(&vport->phba->hbalock);
+=======
+		spin_lock(&ndlp->lock);
+		rport = lpfc_ndlp_get_nrport(ndlp);
+		if (rport)
+			nrport = rport->remoteport;
+		spin_unlock(&ndlp->lock);
+>>>>>>> upstream/android-13
 		if (!nrport)
 			continue;
 
@@ -458,6 +698,7 @@ lpfc_nvme_info_show(struct device *dev, struct device_attribute *attr,
 
 	totin = 0;
 	totout = 0;
+<<<<<<< HEAD
 	for (i = 0; i < phba->cfg_nvme_io_channel; i++) {
 		cstat = &lport->cstat[i];
 		tot = atomic_read(&cstat->fc4NvmeIoCmpls);
@@ -465,6 +706,15 @@ lpfc_nvme_info_show(struct device *dev, struct device_attribute *attr,
 		data1 = atomic_read(&cstat->fc4NvmeInputRequests);
 		data2 = atomic_read(&cstat->fc4NvmeOutputRequests);
 		data3 = atomic_read(&cstat->fc4NvmeControlRequests);
+=======
+	for (i = 0; i < phba->cfg_hdw_queue; i++) {
+		cstat = &phba->sli4_hba.hdwq[i].nvme_cstat;
+		tot = cstat->io_cmpls;
+		totin += tot;
+		data1 = cstat->input_requests;
+		data2 = cstat->output_requests;
+		data3 = cstat->control_requests;
+>>>>>>> upstream/android-13
 		totout += (data1 + data2 + data3);
 	}
 	scnprintf(tmp, sizeof(tmp),
@@ -481,8 +731,13 @@ lpfc_nvme_info_show(struct device *dev, struct device_attribute *attr,
 		  atomic_read(&lport->xmt_fcp_noxri),
 		  atomic_read(&lport->xmt_fcp_bad_ndlp),
 		  atomic_read(&lport->xmt_fcp_qdepth),
+<<<<<<< HEAD
 		  atomic_read(&lport->xmt_fcp_err),
 		  atomic_read(&lport->xmt_fcp_wqerr));
+=======
+		  atomic_read(&lport->xmt_fcp_wqerr),
+		  atomic_read(&lport->xmt_fcp_err));
+>>>>>>> upstream/android-13
 	if (strlcat(buf, tmp, PAGE_SIZE) >= PAGE_SIZE)
 		goto buffer_done;
 
@@ -506,17 +761,77 @@ lpfc_nvme_info_show(struct device *dev, struct device_attribute *attr,
 				"6314 Catching potential buffer "
 				"overflow > PAGE_SIZE = %lu bytes\n",
 				PAGE_SIZE);
+<<<<<<< HEAD
 		strlcpy(buf + PAGE_SIZE - 1 -
 			strnlen(LPFC_NVME_INFO_MORE_STR, PAGE_SIZE - 1),
 			LPFC_NVME_INFO_MORE_STR,
 			strnlen(LPFC_NVME_INFO_MORE_STR, PAGE_SIZE - 1)
 			+ 1);
+=======
+		strscpy(buf + PAGE_SIZE - 1 - sizeof(LPFC_INFO_MORE_STR),
+			LPFC_INFO_MORE_STR,
+			sizeof(LPFC_INFO_MORE_STR) + 1);
+>>>>>>> upstream/android-13
 	}
 
 	return len;
 }
 
 static ssize_t
+<<<<<<< HEAD
+=======
+lpfc_scsi_stat_show(struct device *dev, struct device_attribute *attr,
+		    char *buf)
+{
+	struct Scsi_Host *shost = class_to_shost(dev);
+	struct lpfc_vport *vport = shost_priv(shost);
+	struct lpfc_hba *phba = vport->phba;
+	int len;
+	struct lpfc_fc4_ctrl_stat *cstat;
+	u64 data1, data2, data3;
+	u64 tot, totin, totout;
+	int i;
+	char tmp[LPFC_MAX_SCSI_INFO_TMP_LEN] = {0};
+
+	if (!(vport->cfg_enable_fc4_type & LPFC_ENABLE_FCP) ||
+	    (phba->sli_rev != LPFC_SLI_REV4))
+		return 0;
+
+	scnprintf(buf, PAGE_SIZE, "SCSI HDWQ Statistics\n");
+
+	totin = 0;
+	totout = 0;
+	for (i = 0; i < phba->cfg_hdw_queue; i++) {
+		cstat = &phba->sli4_hba.hdwq[i].scsi_cstat;
+		tot = cstat->io_cmpls;
+		totin += tot;
+		data1 = cstat->input_requests;
+		data2 = cstat->output_requests;
+		data3 = cstat->control_requests;
+		totout += (data1 + data2 + data3);
+
+		scnprintf(tmp, sizeof(tmp), "HDWQ (%d): Rd %016llx Wr %016llx "
+			  "IO %016llx ", i, data1, data2, data3);
+		if (strlcat(buf, tmp, PAGE_SIZE) >= PAGE_SIZE)
+			goto buffer_done;
+
+		scnprintf(tmp, sizeof(tmp), "Cmpl %016llx OutIO %016llx\n",
+			  tot, ((data1 + data2 + data3) - tot));
+		if (strlcat(buf, tmp, PAGE_SIZE) >= PAGE_SIZE)
+			goto buffer_done;
+	}
+	scnprintf(tmp, sizeof(tmp), "Total FCP Cmpl %016llx Issue %016llx "
+		  "OutIO %016llx\n", totin, totout, totout - totin);
+	strlcat(buf, tmp, PAGE_SIZE);
+
+buffer_done:
+	len = strnlen(buf, PAGE_SIZE);
+
+	return len;
+}
+
+static ssize_t
+>>>>>>> upstream/android-13
 lpfc_bg_info_show(struct device *dev, struct device_attribute *attr,
 		  char *buf)
 {
@@ -777,7 +1092,12 @@ lpfc_hdw_show(struct device *dev, struct device_attribute *attr, char *buf)
 	lpfc_vpd_t *vp = &phba->vpd;
 
 	lpfc_jedec_to_ascii(vp->rev.biuRev, hdw);
+<<<<<<< HEAD
 	return scnprintf(buf, PAGE_SIZE, "%s\n", hdw);
+=======
+	return scnprintf(buf, PAGE_SIZE, "%s %08x %08x\n", hdw,
+			 vp->rev.smRev, vp->rev.smFwRev);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -806,7 +1126,11 @@ lpfc_option_rom_version_show(struct device *dev, struct device_attribute *attr,
 }
 
 /**
+<<<<<<< HEAD
  * lpfc_state_show - Return the link state of the port
+=======
+ * lpfc_link_state_show - Return the link state of the port
+>>>>>>> upstream/android-13
  * @dev: class converted to a Scsi_host structure.
  * @attr: device attribute, not used.
  * @buf: on return contains text describing the state of the link.
@@ -894,6 +1218,45 @@ lpfc_link_state_show(struct device *dev, struct device_attribute *attr,
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	if ((phba->sli_rev == LPFC_SLI_REV4) &&
+	    ((bf_get(lpfc_sli_intf_if_type,
+	     &phba->sli4_hba.sli_intf) ==
+	     LPFC_SLI_INTF_IF_TYPE_6))) {
+		struct lpfc_trunk_link link = phba->trunk_link;
+
+		if (bf_get(lpfc_conf_trunk_port0, &phba->sli4_hba))
+			len += scnprintf(buf + len, PAGE_SIZE - len,
+				"Trunk port 0: Link %s %s\n",
+				(link.link0.state == LPFC_LINK_UP) ?
+				 "Up" : "Down. ",
+				trunk_errmsg[link.link0.fault]);
+
+		if (bf_get(lpfc_conf_trunk_port1, &phba->sli4_hba))
+			len += scnprintf(buf + len, PAGE_SIZE - len,
+				"Trunk port 1: Link %s %s\n",
+				(link.link1.state == LPFC_LINK_UP) ?
+				 "Up" : "Down. ",
+				trunk_errmsg[link.link1.fault]);
+
+		if (bf_get(lpfc_conf_trunk_port2, &phba->sli4_hba))
+			len += scnprintf(buf + len, PAGE_SIZE - len,
+				"Trunk port 2: Link %s %s\n",
+				(link.link2.state == LPFC_LINK_UP) ?
+				 "Up" : "Down. ",
+				trunk_errmsg[link.link2.fault]);
+
+		if (bf_get(lpfc_conf_trunk_port3, &phba->sli4_hba))
+			len += scnprintf(buf + len, PAGE_SIZE - len,
+				"Trunk port 3: Link %s %s\n",
+				(link.link3.state == LPFC_LINK_UP) ?
+				 "Up" : "Down. ",
+				trunk_errmsg[link.link3.fault]);
+
+	}
+
+>>>>>>> upstream/android-13
 	return len;
 }
 
@@ -1044,6 +1407,12 @@ lpfc_issue_lip(struct Scsi_Host *shost)
 	pmboxq->u.mb.mbxCommand = MBX_DOWN_LINK;
 	pmboxq->u.mb.mbxOwner = OWN_HOST;
 
+<<<<<<< HEAD
+=======
+	if ((vport->fc_flag & FC_PT2PT) && (vport->fc_flag & FC_PT2PT_NO_NVME))
+		vport->fc_flag &= ~FC_PT2PT_NO_NVME;
+
+>>>>>>> upstream/android-13
 	mbxstatus = lpfc_sli_issue_mbox_wait(phba, pmboxq, LPFC_MBOX_TMO * 2);
 
 	if ((mbxstatus == MBX_SUCCESS) &&
@@ -1082,8 +1451,12 @@ lpfc_emptyq_wait(struct lpfc_hba *phba, struct list_head *q, spinlock_t *lock)
 		msleep(20);
 		if (cnt++ > 250) {  /* 5 secs */
 			lpfc_printf_log(phba, KERN_WARNING, LOG_INIT,
+<<<<<<< HEAD
 					"0466 %s %s\n",
 					"Outstanding IO when ",
+=======
+					"0466 Outstanding IO when "
+>>>>>>> upstream/android-13
 					"bringing Adapter offline\n");
 				return 0;
 		}
@@ -1132,6 +1505,23 @@ lpfc_do_offline(struct lpfc_hba *phba, uint32_t type)
 
 	psli = &phba->sli;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * If freeing the queues have already started, don't access them.
+	 * Otherwise set FREE_WAIT to indicate that queues are being used
+	 * to hold the freeing process until we finish.
+	 */
+	spin_lock_irq(&phba->hbalock);
+	if (!(psli->sli_flag & LPFC_QUEUE_FREE_INIT)) {
+		psli->sli_flag |= LPFC_QUEUE_FREE_WAIT;
+	} else {
+		spin_unlock_irq(&phba->hbalock);
+		goto skip_wait;
+	}
+	spin_unlock_irq(&phba->hbalock);
+
+>>>>>>> upstream/android-13
 	/* Wait a little for things to settle down, but not
 	 * long enough for dev loss timeout to expire.
 	 */
@@ -1153,6 +1543,14 @@ lpfc_do_offline(struct lpfc_hba *phba, uint32_t type)
 		}
 	}
 out:
+<<<<<<< HEAD
+=======
+	spin_lock_irq(&phba->hbalock);
+	psli->sli_flag &= ~LPFC_QUEUE_FREE_WAIT;
+	spin_unlock_irq(&phba->hbalock);
+
+skip_wait:
+>>>>>>> upstream/android-13
 	init_completion(&online_compl);
 	rc = lpfc_workq_post_event(phba, &status, &online_compl, type);
 	if (rc == 0)
@@ -1167,6 +1565,85 @@ out:
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * lpfc_reset_pci_bus - resets PCI bridge controller's secondary bus of an HBA
+ * @phba: lpfc_hba pointer.
+ *
+ * Description:
+ * Issues a PCI secondary bus reset for the phba->pcidev.
+ *
+ * Notes:
+ * First walks the bus_list to ensure only PCI devices with Emulex
+ * vendor id, device ids that support hot reset, only one occurrence
+ * of function 0, and all ports on the bus are in offline mode to ensure the
+ * hot reset only affects one valid HBA.
+ *
+ * Returns:
+ * -ENOTSUPP, cfg_enable_hba_reset must be of value 2
+ * -ENODEV,   NULL ptr to pcidev
+ * -EBADSLT,  detected invalid device
+ * -EBUSY,    port is not in offline state
+ *      0,    successful
+ */
+static int
+lpfc_reset_pci_bus(struct lpfc_hba *phba)
+{
+	struct pci_dev *pdev = phba->pcidev;
+	struct Scsi_Host *shost = NULL;
+	struct lpfc_hba *phba_other = NULL;
+	struct pci_dev *ptr = NULL;
+	int res;
+
+	if (phba->cfg_enable_hba_reset != 2)
+		return -ENOTSUPP;
+
+	if (!pdev) {
+		lpfc_printf_log(phba, KERN_INFO, LOG_INIT, "8345 pdev NULL!\n");
+		return -ENODEV;
+	}
+
+	res = lpfc_check_pci_resettable(phba);
+	if (res)
+		return res;
+
+	/* Walk the list of devices on the pci_dev's bus */
+	list_for_each_entry(ptr, &pdev->bus->devices, bus_list) {
+		/* Check port is offline */
+		shost = pci_get_drvdata(ptr);
+		if (shost) {
+			phba_other =
+				((struct lpfc_vport *)shost->hostdata)->phba;
+			if (!(phba_other->pport->fc_flag & FC_OFFLINE_MODE)) {
+				lpfc_printf_log(phba_other, KERN_INFO, LOG_INIT,
+						"8349 WWPN = 0x%02x%02x%02x%02x"
+						"%02x%02x%02x%02x is not "
+						"offline!\n",
+						phba_other->wwpn[0],
+						phba_other->wwpn[1],
+						phba_other->wwpn[2],
+						phba_other->wwpn[3],
+						phba_other->wwpn[4],
+						phba_other->wwpn[5],
+						phba_other->wwpn[6],
+						phba_other->wwpn[7]);
+				return -EBUSY;
+			}
+		}
+	}
+
+	/* Issue PCI bus reset */
+	res = pci_reset_bus(pdev);
+	if (res) {
+		lpfc_printf_log(phba, KERN_ERR, LOG_INIT,
+				"8350 PCI reset bus failed: %d\n", res);
+	}
+
+	return res;
+}
+
+/**
+>>>>>>> upstream/android-13
  * lpfc_selective_reset - Offline then onlines the port
  * @phba: lpfc_hba pointer.
  *
@@ -1279,8 +1756,14 @@ lpfc_sli4_pdev_status_reg_wait(struct lpfc_hba *phba)
 	int i;
 
 	msleep(100);
+<<<<<<< HEAD
 	lpfc_readl(phba->sli4_hba.u.if_type2.STATUSregaddr,
 		   &portstat_reg.word0);
+=======
+	if (lpfc_readl(phba->sli4_hba.u.if_type2.STATUSregaddr,
+		       &portstat_reg.word0))
+		return -EIO;
+>>>>>>> upstream/android-13
 
 	/* verify if privileged for the request operation */
 	if (!bf_get(lpfc_sliport_status_rn, &portstat_reg) &&
@@ -1290,8 +1773,14 @@ lpfc_sli4_pdev_status_reg_wait(struct lpfc_hba *phba)
 	/* wait for the SLI port firmware ready after firmware reset */
 	for (i = 0; i < LPFC_FW_RESET_MAXIMUM_WAIT_10MS_CNT; i++) {
 		msleep(10);
+<<<<<<< HEAD
 		lpfc_readl(phba->sli4_hba.u.if_type2.STATUSregaddr,
 			   &portstat_reg.word0);
+=======
+		if (lpfc_readl(phba->sli4_hba.u.if_type2.STATUSregaddr,
+			       &portstat_reg.word0))
+			continue;
+>>>>>>> upstream/android-13
 		if (!bf_get(lpfc_sliport_status_err, &portstat_reg))
 			continue;
 		if (!bf_get(lpfc_sliport_status_rn, &portstat_reg))
@@ -1310,6 +1799,10 @@ lpfc_sli4_pdev_status_reg_wait(struct lpfc_hba *phba)
 /**
  * lpfc_sli4_pdev_reg_request - Request physical dev to perform a register acc
  * @phba: lpfc_hba pointer.
+<<<<<<< HEAD
+=======
+ * @opcode: The sli4 config command opcode.
+>>>>>>> upstream/android-13
  *
  * Description:
  * Request SLI4 interface type-2 device to perform a physical register set
@@ -1341,6 +1834,7 @@ lpfc_sli4_pdev_reg_request(struct lpfc_hba *phba, uint32_t opcode)
 	before_fc_flag = phba->pport->fc_flag;
 	sriov_nr_virtfn = phba->cfg_sriov_nr_virtfn;
 
+<<<<<<< HEAD
 	/* Disable SR-IOV virtual functions if enabled */
 	if (phba->cfg_sriov_nr_virtfn) {
 		pci_disable_sriov(pdev);
@@ -1360,6 +1854,27 @@ lpfc_sli4_pdev_reg_request(struct lpfc_hba *phba, uint32_t opcode)
 	/* wait for the device to be quiesced before firmware reset */
 	msleep(100);
 
+=======
+	if (opcode == LPFC_FW_DUMP) {
+		init_completion(&online_compl);
+		phba->fw_dump_cmpl = &online_compl;
+	} else {
+		/* Disable SR-IOV virtual functions if enabled */
+		if (phba->cfg_sriov_nr_virtfn) {
+			pci_disable_sriov(pdev);
+			phba->cfg_sriov_nr_virtfn = 0;
+		}
+
+		status = lpfc_do_offline(phba, LPFC_EVT_OFFLINE);
+
+		if (status != 0)
+			return status;
+
+		/* wait for the device to be quiesced before firmware reset */
+		msleep(100);
+	}
+
+>>>>>>> upstream/android-13
 	reg_val = readl(phba->sli4_hba.conf_regs_memmap_p +
 			LPFC_CTL_PDEV_CTL_OFFSET);
 
@@ -1388,10 +1903,16 @@ lpfc_sli4_pdev_reg_request(struct lpfc_hba *phba, uint32_t opcode)
 		lpfc_printf_log(phba, KERN_ERR, LOG_SLI,
 				"3153 Fail to perform the requested "
 				"access: x%x\n", reg_val);
+<<<<<<< HEAD
+=======
+		if (phba->fw_dump_cmpl)
+			phba->fw_dump_cmpl = NULL;
+>>>>>>> upstream/android-13
 		return rc;
 	}
 
 	/* keep the original port state */
+<<<<<<< HEAD
 	if (before_fc_flag & FC_OFFLINE_MODE)
 		goto out;
 
@@ -1406,6 +1927,38 @@ lpfc_sli4_pdev_reg_request(struct lpfc_hba *phba, uint32_t opcode)
 out:
 	/* in any case, restore the virtual functions enabled as before */
 	if (sriov_nr_virtfn) {
+=======
+	if (before_fc_flag & FC_OFFLINE_MODE) {
+		if (phba->fw_dump_cmpl)
+			phba->fw_dump_cmpl = NULL;
+		goto out;
+	}
+
+	/* Firmware dump will trigger an HA_ERATT event, and
+	 * lpfc_handle_eratt_s4 routine already handles bringing the port back
+	 * online.
+	 */
+	if (opcode == LPFC_FW_DUMP) {
+		wait_for_completion(phba->fw_dump_cmpl);
+	} else  {
+		init_completion(&online_compl);
+		job_posted = lpfc_workq_post_event(phba, &status, &online_compl,
+						   LPFC_EVT_ONLINE);
+		if (!job_posted)
+			goto out;
+
+		wait_for_completion(&online_compl);
+	}
+out:
+	/* in any case, restore the virtual functions enabled as before */
+	if (sriov_nr_virtfn) {
+		/* If fw_dump was performed, first disable to clean up */
+		if (opcode == LPFC_FW_DUMP) {
+			pci_disable_sriov(pdev);
+			phba->cfg_sriov_nr_virtfn = 0;
+		}
+
+>>>>>>> upstream/android-13
 		sriov_err =
 			lpfc_sli_probe_sriov_nr_virtfn(phba, sriov_nr_virtfn);
 		if (!sriov_err)
@@ -1441,6 +1994,68 @@ lpfc_nport_evt_cnt_show(struct device *dev, struct device_attribute *attr,
 	return scnprintf(buf, PAGE_SIZE, "%d\n", phba->nport_event_cnt);
 }
 
+<<<<<<< HEAD
+=======
+static int
+lpfc_set_trunking(struct lpfc_hba *phba, char *buff_out)
+{
+	LPFC_MBOXQ_t *mbox = NULL;
+	unsigned long val = 0;
+	char *pval = NULL;
+	int rc = 0;
+
+	if (!strncmp("enable", buff_out,
+				 strlen("enable"))) {
+		pval = buff_out + strlen("enable") + 1;
+		rc = kstrtoul(pval, 0, &val);
+		if (rc)
+			return rc; /* Invalid  number */
+	} else if (!strncmp("disable", buff_out,
+				 strlen("disable"))) {
+		val = 0;
+	} else {
+		return -EINVAL;  /* Invalid command */
+	}
+
+	switch (val) {
+	case 0:
+		val = 0x0; /* Disable */
+		break;
+	case 2:
+		val = 0x1; /* Enable two port trunk */
+		break;
+	case 4:
+		val = 0x2; /* Enable four port trunk */
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	lpfc_printf_log(phba, KERN_ERR, LOG_MBOX,
+			"0070 Set trunk mode with val %ld ", val);
+
+	mbox = mempool_alloc(phba->mbox_mem_pool, GFP_KERNEL);
+	if (!mbox)
+		return -ENOMEM;
+
+	lpfc_sli4_config(phba, mbox, LPFC_MBOX_SUBSYSTEM_FCOE,
+			 LPFC_MBOX_OPCODE_FCOE_FC_SET_TRUNK_MODE,
+			 12, LPFC_SLI4_MBX_EMBED);
+
+	bf_set(lpfc_mbx_set_trunk_mode,
+	       &mbox->u.mqe.un.set_trunk_mode,
+	       val);
+	rc = lpfc_sli_issue_mbox(phba, mbox, MBX_POLL);
+	if (rc)
+		lpfc_printf_log(phba, KERN_ERR, LOG_MBOX,
+				"0071 Set trunk mode failed with status: %d",
+				rc);
+	mempool_free(mbox, phba->mbox_mem_pool);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /**
  * lpfc_board_mode_show - Return the state of the board
  * @dev: class device that is converted into a Scsi_host.
@@ -1533,6 +2148,16 @@ lpfc_board_mode_store(struct device *dev, struct device_attribute *attr,
 		status = lpfc_sli4_pdev_reg_request(phba, LPFC_FW_RESET);
 	else if (strncmp(buf, "dv_reset", sizeof("dv_reset") - 1) == 0)
 		status = lpfc_sli4_pdev_reg_request(phba, LPFC_DV_RESET);
+<<<<<<< HEAD
+=======
+	else if (strncmp(buf, "pci_bus_reset", sizeof("pci_bus_reset") - 1)
+		 == 0)
+		status = lpfc_reset_pci_bus(phba);
+	else if (strncmp(buf, "heartbeat", sizeof("heartbeat") - 1) == 0)
+		lpfc_issue_hb_tmo(phba);
+	else if (strncmp(buf, "trunk", sizeof("trunk") - 1) == 0)
+		status = lpfc_set_trunking(phba, (char *)buf + sizeof("trunk"));
+>>>>>>> upstream/android-13
 	else
 		status = -EINVAL;
 
@@ -1601,7 +2226,11 @@ lpfc_get_hba_info(struct lpfc_hba *phba,
 	pmb = &pmboxq->u.mb;
 	pmb->mbxCommand = MBX_READ_CONFIG;
 	pmb->mbxOwner = OWN_HOST;
+<<<<<<< HEAD
 	pmboxq->context1 = NULL;
+=======
+	pmboxq->ctx_buf = NULL;
+>>>>>>> upstream/android-13
 
 	if (phba->pport->fc_flag & FC_OFFLINE_MODE)
 		rc = MBX_NOT_FINISHED;
@@ -1968,6 +2597,7 @@ lpfc_poll_store(struct device *dev, struct device_attribute *attr,
 }
 
 /**
+<<<<<<< HEAD
  * lpfc_fips_level_show - Return the current FIPS level for the HBA
  * @dev: class unused variable.
  * @attr: device attribute, not used.
@@ -2028,6 +2658,8 @@ lpfc_dss_show(struct device *dev, struct device_attribute *attr,
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * lpfc_sriov_hw_max_virtfn_show - Return maximum number of virtual functions
  * @dev: class converted to a Scsi_host structure.
  * @attr: device attribute, not used.
@@ -2053,11 +2685,14 @@ lpfc_sriov_hw_max_virtfn_show(struct device *dev,
 	return scnprintf(buf, PAGE_SIZE, "%d\n", max_nr_virtfn);
 }
 
+<<<<<<< HEAD
 static inline bool lpfc_rangecheck(uint val, uint min, uint max)
 {
 	return val >= min && val <= max;
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * lpfc_enable_bbcr_set: Sets an attribute value.
  * @phba: pointer the the adapter structure.
@@ -2077,18 +2712,32 @@ lpfc_enable_bbcr_set(struct lpfc_hba *phba, uint val)
 {
 	if (lpfc_rangecheck(val, 0, 1) && phba->sli_rev == LPFC_SLI_REV4) {
 		lpfc_printf_log(phba, KERN_ERR, LOG_INIT,
+<<<<<<< HEAD
 				"3068 %s_enable_bbcr changed from %d to %d\n",
 				LPFC_DRIVER_NAME, phba->cfg_enable_bbcr, val);
+=======
+				"3068 lpfc_enable_bbcr changed from %d to "
+				"%d\n", phba->cfg_enable_bbcr, val);
+>>>>>>> upstream/android-13
 		phba->cfg_enable_bbcr = val;
 		return 0;
 	}
 	lpfc_printf_log(phba, KERN_ERR, LOG_INIT,
+<<<<<<< HEAD
 			"0451 %s_enable_bbcr cannot set to %d, range is 0, 1\n",
 			LPFC_DRIVER_NAME, val);
 	return -EINVAL;
 }
 
 /**
+=======
+			"0451 lpfc_enable_bbcr cannot set to %d, range is 0, "
+			"1\n", val);
+	return -EINVAL;
+}
+
+/*
+>>>>>>> upstream/android-13
  * lpfc_param_show - Return a cfg attribute value in decimal
  *
  * Description:
@@ -2114,7 +2763,11 @@ lpfc_##attr##_show(struct device *dev, struct device_attribute *attr, \
 			phba->cfg_##attr);\
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * lpfc_param_hex_show - Return a cfg attribute value in hex
  *
  * Description:
@@ -2142,7 +2795,11 @@ lpfc_##attr##_show(struct device *dev, struct device_attribute *attr, \
 			phba->cfg_##attr);\
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * lpfc_param_init - Initializes a cfg attribute
  *
  * Description:
@@ -2176,7 +2833,11 @@ lpfc_##attr##_init(struct lpfc_hba *phba, uint val) \
 	return -EINVAL;\
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * lpfc_param_set - Set a cfg attribute value
  *
  * Description:
@@ -2213,7 +2874,11 @@ lpfc_##attr##_set(struct lpfc_hba *phba, uint val) \
 	return -EINVAL;\
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * lpfc_param_store - Set a vport attribute value
  *
  * Description:
@@ -2253,7 +2918,11 @@ lpfc_##attr##_store(struct device *dev, struct device_attribute *attr, \
 		return -EINVAL;\
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * lpfc_vport_param_show - Return decimal formatted cfg attribute value
  *
  * Description:
@@ -2277,7 +2946,11 @@ lpfc_##attr##_show(struct device *dev, struct device_attribute *attr, \
 	return scnprintf(buf, PAGE_SIZE, "%d\n", vport->cfg_##attr);\
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * lpfc_vport_param_hex_show - Return hex formatted attribute value
  *
  * Description:
@@ -2302,7 +2975,11 @@ lpfc_##attr##_show(struct device *dev, struct device_attribute *attr, \
 	return scnprintf(buf, PAGE_SIZE, "%#x\n", vport->cfg_##attr);\
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * lpfc_vport_param_init - Initialize a vport cfg attribute
  *
  * Description:
@@ -2335,7 +3012,11 @@ lpfc_##attr##_init(struct lpfc_vport *vport, uint val) \
 	return -EINVAL;\
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * lpfc_vport_param_set - Set a vport cfg attribute
  *
  * Description:
@@ -2371,7 +3052,11 @@ lpfc_##attr##_set(struct lpfc_vport *vport, uint val) \
 	return -EINVAL;\
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * lpfc_vport_param_store - Set a vport attribute
  *
  * Description:
@@ -2408,6 +3093,10 @@ lpfc_##attr##_store(struct device *dev, struct device_attribute *attr, \
 
 
 static DEVICE_ATTR(nvme_info, 0444, lpfc_nvme_info_show, NULL);
+<<<<<<< HEAD
+=======
+static DEVICE_ATTR(scsi_stat, 0444, lpfc_scsi_stat_show, NULL);
+>>>>>>> upstream/android-13
 static DEVICE_ATTR(bg_info, S_IRUGO, lpfc_bg_info_show, NULL);
 static DEVICE_ATTR(bg_guard_err, S_IRUGO, lpfc_bg_guard_err_show, NULL);
 static DEVICE_ATTR(bg_apptag_err, S_IRUGO, lpfc_bg_apptag_err_show, NULL);
@@ -2441,13 +3130,20 @@ static DEVICE_ATTR(max_xri, S_IRUGO, lpfc_max_xri_show, NULL);
 static DEVICE_ATTR(used_xri, S_IRUGO, lpfc_used_xri_show, NULL);
 static DEVICE_ATTR(npiv_info, S_IRUGO, lpfc_npiv_info_show, NULL);
 static DEVICE_ATTR_RO(lpfc_temp_sensor);
+<<<<<<< HEAD
 static DEVICE_ATTR_RO(lpfc_fips_level);
 static DEVICE_ATTR_RO(lpfc_fips_rev);
 static DEVICE_ATTR_RO(lpfc_dss);
+=======
+>>>>>>> upstream/android-13
 static DEVICE_ATTR_RO(lpfc_sriov_hw_max_virtfn);
 static DEVICE_ATTR(protocol, S_IRUGO, lpfc_sli4_protocol_show, NULL);
 static DEVICE_ATTR(lpfc_xlane_supported, S_IRUGO, lpfc_oas_supported_show,
 		   NULL);
+<<<<<<< HEAD
+=======
+static DEVICE_ATTR(cmf_info, 0444, lpfc_cmf_info_show, NULL);
+>>>>>>> upstream/android-13
 
 static char *lpfc_soft_wwn_key = "C99G71SL8032A";
 #define WWN_SZ 8
@@ -2529,8 +3225,13 @@ lpfc_soft_wwn_enable_store(struct device *dev, struct device_attribute *attr,
 	 */
 	if (vvvl == 1 && cpu_to_be32(*fawwpn_key) == FAPWWN_KEY_VENDOR) {
 		lpfc_printf_log(phba, KERN_ERR, LOG_INIT,
+<<<<<<< HEAD
 				 "0051 "LPFC_DRIVER_NAME" soft wwpn can not"
 				 " be enabled: fawwpn is enabled\n");
+=======
+				"0051 lpfc soft wwpn can not be enabled: "
+				"fawwpn is enabled\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -2576,7 +3277,11 @@ lpfc_soft_wwpn_show(struct device *dev, struct device_attribute *attr,
 
 /**
  * lpfc_soft_wwpn_store - Set the ww port name of the adapter
+<<<<<<< HEAD
  * @dev class device that is converted into a Scsi_host.
+=======
+ * @dev: class device that is converted into a Scsi_host.
+>>>>>>> upstream/android-13
  * @attr: device attribute, not used.
  * @buf: contains the wwpn in hexadecimal.
  * @count: number of wwpn bytes in buf
@@ -2673,7 +3378,12 @@ lpfc_soft_wwnn_show(struct device *dev, struct device_attribute *attr,
 
 /**
  * lpfc_soft_wwnn_store - sets the ww node name of the adapter
+<<<<<<< HEAD
  * @cdev: class device that is converted into a Scsi_host.
+=======
+ * @dev: class device that is converted into a Scsi_host.
+ * @attr: device attribute, not used.
+>>>>>>> upstream/android-13
  * @buf: contains the ww node name in hexadecimal.
  * @count: number of wwnn bytes in buf.
  *
@@ -3009,9 +3719,17 @@ static DEVICE_ATTR(lpfc_xlane_lun_status, S_IRUGO,
  * lpfc_oas_lun_state_set - enable or disable a lun for Optimized Access Storage
  *			   (OAS) operations.
  * @phba: lpfc_hba pointer.
+<<<<<<< HEAD
  * @ndlp: pointer to fcp target node.
  * @lun: the fc lun for setting oas state.
  * @oas_state: the oas state to be set to the lun.
+=======
+ * @vpt_wwpn: wwpn of the vport associated with the returned lun
+ * @tgt_wwpn: wwpn of the target associated with the returned lun
+ * @lun: the fc lun for setting oas state.
+ * @oas_state: the oas state to be set to the lun.
+ * @pri: priority
+>>>>>>> upstream/android-13
  *
  * Returns:
  * SUCCESS : 0
@@ -3049,6 +3767,10 @@ lpfc_oas_lun_state_set(struct lpfc_hba *phba, uint8_t vpt_wwpn[],
  * @vpt_wwpn: wwpn of the vport associated with the returned lun
  * @tgt_wwpn: wwpn of the target associated with the returned lun
  * @lun_status: status of the lun returned lun
+<<<<<<< HEAD
+=======
+ * @lun_pri: priority of the lun returned lun
+>>>>>>> upstream/android-13
  *
  * Returns the first or next lun enabled for OAS operations for the vport/target
  * specified.  If a lun is found, its vport wwpn, target wwpn and status is
@@ -3087,6 +3809,10 @@ lpfc_oas_lun_get_next(struct lpfc_hba *phba, uint8_t vpt_wwpn[],
  * @tgt_wwpn: target wwpn by reference.
  * @lun: the fc lun for setting oas state.
  * @oas_state: the oas state to be set to the oas_lun.
+<<<<<<< HEAD
+=======
+ * @pri: priority
+>>>>>>> upstream/android-13
  *
  * This routine enables (OAS_LUN_ENABLE) or disables (OAS_LUN_DISABLE)
  * a lun for OAS operations.
@@ -3161,6 +3887,10 @@ lpfc_oas_lun_show(struct device *dev, struct device_attribute *attr,
  * @dev: class device that is converted into a Scsi_host.
  * @attr: device attribute, not used.
  * @buf: buffer for passing information.
+<<<<<<< HEAD
+=======
+ * @count: size of the formatting string
+>>>>>>> upstream/android-13
  *
  * This function sets the OAS state for lun.  Before this function is called,
  * the vport wwpn, target wwpn, and oas state need to be set.
@@ -3240,11 +3970,16 @@ unsigned long lpfc_no_hba_reset[MAX_HBAS_NO_RESET] = {
 module_param_array(lpfc_no_hba_reset, ulong, &lpfc_no_hba_reset_cnt, 0444);
 MODULE_PARM_DESC(lpfc_no_hba_reset, "WWPN of HBAs that should not be reset");
 
+<<<<<<< HEAD
 LPFC_ATTR(sli_mode, 0, 0, 3,
 	"SLI mode selector:"
 	" 0 - auto (SLI-3 if supported),"
 	" 2 - select SLI-2 even on SLI-3 capable HBAs,"
 	" 3 - select SLI-3");
+=======
+LPFC_ATTR(sli_mode, 3, 3, 3,
+	"SLI mode selector: 3 - select SLI-3");
+>>>>>>> upstream/android-13
 
 LPFC_ATTR_R(enable_npiv, 1, 0, 1,
 	"Enable NPIV functionality");
@@ -3253,6 +3988,18 @@ LPFC_ATTR_R(fcf_failover_policy, 1, 1, 2,
 	"FCF Fast failover=1 Priority failover=2");
 
 /*
+<<<<<<< HEAD
+=======
+ * lpfc_fcp_wait_abts_rsp: Modifies criteria for reporting completion of
+ * aborted IO.
+ * The range is [0,1]. Default value is 0
+ *      0, IO completes after ABTS issued (default).
+ *      1, IO completes after receipt of ABTS response or timeout.
+ */
+LPFC_ATTR_R(fcp_wait_abts_rsp, 0, 0, 1, "Wait for FCP ABTS completion");
+
+/*
+>>>>>>> upstream/android-13
 # lpfc_enable_rrq: Track XRI/OXID reuse after IO failures
 #	0x0 = disabled, XRI/OXID use not tracked.
 #	0x1 = XRI/OXID reuse is timed with ratov, RRQ sent.
@@ -3271,6 +4018,34 @@ LPFC_ATTR_R(enable_rrq, 2, 0, 2,
 LPFC_ATTR_R(suppress_link_up, LPFC_INITIALIZE_LINK, LPFC_INITIALIZE_LINK,
 		LPFC_DELAY_INIT_LINK_INDEFINITELY,
 		"Suppress Link Up at initialization");
+<<<<<<< HEAD
+=======
+
+static ssize_t
+lpfc_pls_show(struct device *dev, struct device_attribute *attr, char *buf)
+{
+	struct Scsi_Host  *shost = class_to_shost(dev);
+	struct lpfc_hba   *phba = ((struct lpfc_vport *)shost->hostdata)->phba;
+
+	return scnprintf(buf, PAGE_SIZE, "%d\n",
+			 phba->sli4_hba.pc_sli4_params.pls);
+}
+static DEVICE_ATTR(pls, 0444,
+			 lpfc_pls_show, NULL);
+
+static ssize_t
+lpfc_pt_show(struct device *dev, struct device_attribute *attr, char *buf)
+{
+	struct Scsi_Host  *shost = class_to_shost(dev);
+	struct lpfc_hba   *phba = ((struct lpfc_vport *)shost->hostdata)->phba;
+
+	return scnprintf(buf, PAGE_SIZE, "%d\n",
+			 (phba->hba_flag & HBA_PERSISTENT_TOPO) ? 1 : 0);
+}
+static DEVICE_ATTR(pt, 0444,
+			 lpfc_pt_show, NULL);
+
+>>>>>>> upstream/android-13
 /*
 # lpfc_cnt: Number of IOCBs allocated for ELS, CT, and ABTS
 #       1 - (1024)
@@ -3318,9 +4093,12 @@ lpfc_txcmplq_hw_show(struct device *dev, struct device_attribute *attr,
 static DEVICE_ATTR(txcmplq_hw, S_IRUGO,
 			 lpfc_txcmplq_hw_show, NULL);
 
+<<<<<<< HEAD
 LPFC_ATTR_R(iocb_cnt, 2, 1, 5,
 	"Number of IOCBs alloc for ELS, CT, and ABTS: 1k to 5k IOCBs");
 
+=======
+>>>>>>> upstream/android-13
 /*
 # lpfc_nodev_tmo: If set, it will hold all I/O errors on devices that disappear
 # until the timer expires. Value range is [0,255]. Default value is 30.
@@ -3411,6 +4189,7 @@ lpfc_update_rport_devloss_tmo(struct lpfc_vport *vport)
 	shost = lpfc_shost_from_vport(vport);
 	spin_lock_irq(shost->host_lock);
 	list_for_each_entry(ndlp, &vport->fc_nodes, nlp_listp) {
+<<<<<<< HEAD
 		if (!NLP_CHK_NODE_ACT(ndlp))
 			continue;
 		if (ndlp->rport)
@@ -3423,6 +4202,18 @@ lpfc_update_rport_devloss_tmo(struct lpfc_vport *vport)
 		spin_unlock(&vport->phba->hbalock);
 		if (remoteport)
 			nvme_fc_set_remoteport_devloss(rport->remoteport,
+=======
+		if (ndlp->rport)
+			ndlp->rport->dev_loss_tmo = vport->cfg_devloss_tmo;
+#if (IS_ENABLED(CONFIG_NVME_FC))
+		spin_lock(&ndlp->lock);
+		rport = lpfc_ndlp_get_nrport(ndlp);
+		if (rport)
+			remoteport = rport->remoteport;
+		spin_unlock(&ndlp->lock);
+		if (rport && remoteport)
+			nvme_fc_set_remoteport_devloss(remoteport,
+>>>>>>> upstream/android-13
 						       vport->cfg_devloss_tmo);
 #endif
 	}
@@ -3558,6 +4349,7 @@ LPFC_ATTR_R(nvmet_mrq_post,
  * lpfc_enable_fc4_type: Defines what FC4 types are supported.
  * Supported Values:  1 - register just FCP
  *                    3 - register both FCP and NVME
+<<<<<<< HEAD
  * Supported values are [1,3]. Default value is 1
  */
 LPFC_ATTR_R(enable_fc4_type, LPFC_ENABLE_FCP,
@@ -3581,6 +4373,15 @@ LPFC_ATTR_R(xri_split, 50, 10, 90,
 	    "Percentage of FCP XRI resources versus NVME");
 
 /*
+=======
+ * Supported values are [1,3]. Default value is 3
+ */
+LPFC_ATTR_R(enable_fc4_type, LPFC_DEF_ENBL_FC4_TYPE,
+	    LPFC_ENABLE_FCP, LPFC_MAX_ENBL_FC4_TYPE,
+	    "Enable FC4 Protocol support - FCP / NVME");
+
+/*
+>>>>>>> upstream/android-13
 # lpfc_log_verbose: Only turn this flag on if you are willing to risk being
 # deluged with LOTS of information.
 # You can set a bit mask to record specific types of verbose messages:
@@ -3598,12 +4399,18 @@ LPFC_VPORT_ATTR_R(enable_da_id, 1, 0, 1,
 
 /*
 # lun_queue_depth:  This parameter is used to limit the number of outstanding
+<<<<<<< HEAD
 # commands per FCP LUN. Value range is [1,512]. Default value is 30.
 # If this parameter value is greater than 1/8th the maximum number of exchanges
 # supported by the HBA port, then the lun queue depth will be reduced to
 # 1/8th the maximum number of exchanges.
 */
 LPFC_VPORT_ATTR_R(lun_queue_depth, 30, 1, 512,
+=======
+# commands per FCP LUN.
+*/
+LPFC_VPORT_ATTR_R(lun_queue_depth, 64, 1, 512,
+>>>>>>> upstream/android-13
 		  "Max number of FCP commands we can queue to a specific LUN");
 
 /*
@@ -3618,8 +4425,13 @@ lpfc_vport_param_init(tgt_queue_depth, LPFC_MAX_TGT_QDEPTH,
 		      LPFC_MIN_TGT_QDEPTH, LPFC_MAX_TGT_QDEPTH);
 
 /**
+<<<<<<< HEAD
  * lpfc_tgt_queue_depth_store: Sets an attribute value.
  * @phba: pointer the the adapter structure.
+=======
+ * lpfc_tgt_queue_depth_set: Sets an attribute value.
+ * @vport: lpfc vport structure pointer.
+>>>>>>> upstream/android-13
  * @val: integer attribute value.
  *
  * Description: Sets the parameter to the new value.
@@ -3803,9 +4615,17 @@ LPFC_ATTR(topology, 0, 0, 6,
 	"Select Fibre Channel topology");
 
 /**
+<<<<<<< HEAD
  * lpfc_topology_set - Set the adapters topology field
  * @phba: lpfc_hba pointer.
  * @val: topology value.
+=======
+ * lpfc_topology_store - Set the adapters topology field
+ * @dev: class device that is converted into a scsi_host.
+ * @attr:device attribute, not used.
+ * @buf: buffer for passing information.
+ * @count: size of the data buffer.
+>>>>>>> upstream/android-13
  *
  * Description:
  * If val is in a valid range then set the adapter's topology field and
@@ -3830,6 +4650,10 @@ lpfc_topology_store(struct device *dev, struct device_attribute *attr,
 	const char *val_buf = buf;
 	int err;
 	uint32_t prev_val;
+<<<<<<< HEAD
+=======
+	u8 sli_family, if_type;
+>>>>>>> upstream/android-13
 
 	if (!strncmp(buf, "nolip ", strlen("nolip "))) {
 		nolip = 1;
@@ -3850,8 +4674,24 @@ lpfc_topology_store(struct device *dev, struct device_attribute *attr,
 				val);
 			return -EINVAL;
 		}
+<<<<<<< HEAD
 		if ((phba->pcidev->device == PCI_DEVICE_ID_LANCER_G6_FC ||
 		     phba->pcidev->device == PCI_DEVICE_ID_LANCER_G7_FC) &&
+=======
+		/*
+		 * The 'topology' is not a configurable parameter if :
+		 *   - persistent topology enabled
+		 *   - ASIC_GEN_NUM >= 0xC, with no private loop support
+		 */
+		sli_family = bf_get(lpfc_sli_intf_sli_family,
+				    &phba->sli4_hba.sli_intf);
+		if_type = bf_get(lpfc_sli_intf_if_type,
+				 &phba->sli4_hba.sli_intf);
+		if ((phba->hba_flag & HBA_PERSISTENT_TOPO ||
+		    (!phba->sli4_hba.pc_sli4_params.pls &&
+		     (sli_family == LPFC_SLI_INTF_FAMILY_G6 ||
+		      if_type == LPFC_SLI_INTF_IF_TYPE_6))) &&
+>>>>>>> upstream/android-13
 		    val == 4) {
 			lpfc_printf_vlog(vport, KERN_ERR, LOG_INIT,
 				"3114 Loop mode not supported\n");
@@ -3916,6 +4756,10 @@ static DEVICE_ATTR_RO(lpfc_static_vport);
 /**
  * lpfc_stat_data_ctrl_store - write call back for lpfc_stat_data_ctrl sysfs file
  * @dev: Pointer to class device.
+<<<<<<< HEAD
+=======
+ * @attr: Unused.
+>>>>>>> upstream/android-13
  * @buf: Data buffer.
  * @count: Size of the data buffer.
  *
@@ -4079,7 +4923,12 @@ lpfc_stat_data_ctrl_store(struct device *dev, struct device_attribute *attr,
 
 /**
  * lpfc_stat_data_ctrl_show - Read function for lpfc_stat_data_ctrl sysfs file
+<<<<<<< HEAD
  * @dev: Pointer to class device object.
+=======
+ * @dev: Pointer to class device.
+ * @attr: Unused.
+>>>>>>> upstream/android-13
  * @buf: Data buffer.
  *
  * This function is the read call back function for
@@ -4158,7 +5007,11 @@ static DEVICE_ATTR_RW(lpfc_stat_data_ctrl);
  * @filp: sysfs file
  * @kobj: Pointer to the kernel object
  * @bin_attr: Attribute object
+<<<<<<< HEAD
  * @buff: Buffer pointer
+=======
+ * @buf: Buffer pointer
+>>>>>>> upstream/android-13
  * @off: File offset
  * @count: Buffer size
  *
@@ -4188,7 +5041,11 @@ sysfs_drvr_stat_data_read(struct file *filp, struct kobject *kobj,
 
 	spin_lock_irq(shost->host_lock);
 	list_for_each_entry(ndlp, &vport->fc_nodes, nlp_listp) {
+<<<<<<< HEAD
 		if (!NLP_CHK_NODE_ACT(ndlp) || !ndlp->lat_data)
+=======
+		if (!ndlp->lat_data)
+>>>>>>> upstream/android-13
 			continue;
 
 		if (nport_index > 0) {
@@ -4244,9 +5101,17 @@ static struct bin_attribute sysfs_drvr_stat_data_attr = {
 # Value range is [0,16]. Default value is 0.
 */
 /**
+<<<<<<< HEAD
  * lpfc_link_speed_set - Set the adapters link speed
  * @phba: lpfc_hba pointer.
  * @val: link speed value.
+=======
+ * lpfc_link_speed_store - Set the adapters link speed
+ * @dev: Pointer to class device.
+ * @attr: Unused.
+ * @buf: Data buffer.
+ * @count: Size of the data buffer.
+>>>>>>> upstream/android-13
  *
  * Description:
  * If val is in a valid range then set the adapter's link speed field and
@@ -4505,7 +5370,11 @@ static DEVICE_ATTR_RW(lpfc_aer_support);
  * Description:
  * If the @buf contains 1 and the device currently has the AER support
  * enabled, then invokes the kernel AER helper routine
+<<<<<<< HEAD
  * pci_cleanup_aer_uncorrect_error_status to clean up the uncorrectable
+=======
+ * pci_aer_clear_nonfatal_status() to clean up the uncorrectable
+>>>>>>> upstream/android-13
  * error status register.
  *
  * Notes:
@@ -4531,7 +5400,11 @@ lpfc_aer_cleanup_state(struct device *dev, struct device_attribute *attr,
 		return -EINVAL;
 
 	if (phba->hba_flag & HBA_AER_ENABLED)
+<<<<<<< HEAD
 		rc = pci_cleanup_aer_uncorrect_error_status(phba->pcidev);
+=======
+		rc = pci_aer_clear_nonfatal_status(phba->pcidev);
+>>>>>>> upstream/android-13
 
 	if (rc == 0)
 		return strlen(buf);
@@ -4643,7 +5516,11 @@ lpfc_param_show(sriov_nr_virtfn)
 static DEVICE_ATTR_RW(lpfc_sriov_nr_virtfn);
 
 /**
+<<<<<<< HEAD
  * lpfc_request_firmware_store - Request for Linux generic firmware upgrade
+=======
+ * lpfc_request_firmware_upgrade_store - Request for Linux generic firmware upgrade
+>>>>>>> upstream/android-13
  *
  * @dev: class device that is converted into a Scsi_host.
  * @attr: device attribute, not used.
@@ -4665,7 +5542,11 @@ lpfc_request_firmware_upgrade_store(struct device *dev,
 	struct Scsi_Host *shost = class_to_shost(dev);
 	struct lpfc_vport *vport = (struct lpfc_vport *)shost->hostdata;
 	struct lpfc_hba *phba = vport->phba;
+<<<<<<< HEAD
 	int val = 0, rc = -EINVAL;
+=======
+	int val = 0, rc;
+>>>>>>> upstream/android-13
 
 	/* Sanity check on user data */
 	if (!isdigit(buf[0]))
@@ -4714,6 +5595,67 @@ static DEVICE_ATTR(lpfc_req_fw_upgrade, S_IRUGO | S_IWUSR,
 		   lpfc_request_firmware_upgrade_store);
 
 /**
+<<<<<<< HEAD
+=======
+ * lpfc_force_rscn_store
+ *
+ * @dev: class device that is converted into a Scsi_host.
+ * @attr: device attribute, not used.
+ * @buf: unused string
+ * @count: unused variable.
+ *
+ * Description:
+ * Force the switch to send a RSCN to all other NPorts in our zone
+ * If we are direct connect pt2pt, build the RSCN command ourself
+ * and send to the other NPort. Not supported for private loop.
+ *
+ * Returns:
+ * 0      - on success
+ * -EIO   - if command is not sent
+ **/
+static ssize_t
+lpfc_force_rscn_store(struct device *dev, struct device_attribute *attr,
+		      const char *buf, size_t count)
+{
+	struct Scsi_Host *shost = class_to_shost(dev);
+	struct lpfc_vport *vport = (struct lpfc_vport *)shost->hostdata;
+	int i;
+
+	i = lpfc_issue_els_rscn(vport, 0);
+	if (i)
+		return -EIO;
+	return strlen(buf);
+}
+
+/*
+ * lpfc_force_rscn: Force an RSCN to be sent to all remote NPorts
+ * connected to  the HBA.
+ *
+ * Value range is any ascii value
+ */
+static int lpfc_force_rscn;
+module_param(lpfc_force_rscn, int, 0644);
+MODULE_PARM_DESC(lpfc_force_rscn,
+		 "Force an RSCN to be sent to all remote NPorts");
+lpfc_param_show(force_rscn)
+
+/**
+ * lpfc_force_rscn_init - Force an RSCN to be sent to all remote NPorts
+ * @phba: lpfc_hba pointer.
+ * @val: unused value.
+ *
+ * Returns:
+ * zero if val saved.
+ **/
+static int
+lpfc_force_rscn_init(struct lpfc_hba *phba, int val)
+{
+	return 0;
+}
+static DEVICE_ATTR_RW(lpfc_force_rscn);
+
+/**
+>>>>>>> upstream/android-13
  * lpfc_fcp_imax_store
  *
  * @dev: class device that is converted into a Scsi_host.
@@ -4737,6 +5679,11 @@ lpfc_fcp_imax_store(struct device *dev, struct device_attribute *attr,
 	struct Scsi_Host *shost = class_to_shost(dev);
 	struct lpfc_vport *vport = (struct lpfc_vport *)shost->hostdata;
 	struct lpfc_hba *phba = vport->phba;
+<<<<<<< HEAD
+=======
+	struct lpfc_eq_intr_info *eqi;
+	uint32_t usdelay;
+>>>>>>> upstream/android-13
 	int val = 0, i;
 
 	/* fcp_imax is only valid for SLI4 */
@@ -4757,12 +5704,36 @@ lpfc_fcp_imax_store(struct device *dev, struct device_attribute *attr,
 	if (val && (val < LPFC_MIN_IMAX || val > LPFC_MAX_IMAX))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	phba->cfg_fcp_imax = (uint32_t)val;
 	phba->initial_imax = phba->cfg_fcp_imax;
 
 	for (i = 0; i < phba->io_channel_irqs; i += LPFC_MAX_EQ_DELAY_EQID_CNT)
 		lpfc_modify_hba_eq_delay(phba, i, LPFC_MAX_EQ_DELAY_EQID_CNT,
 					 val);
+=======
+	phba->cfg_auto_imax = (val) ? 0 : 1;
+	if (phba->cfg_fcp_imax && !val) {
+		queue_delayed_work(phba->wq, &phba->eq_delay_work,
+				   msecs_to_jiffies(LPFC_EQ_DELAY_MSECS));
+
+		for_each_present_cpu(i) {
+			eqi = per_cpu_ptr(phba->sli4_hba.eq_info, i);
+			eqi->icnt = 0;
+		}
+	}
+
+	phba->cfg_fcp_imax = (uint32_t)val;
+
+	if (phba->cfg_fcp_imax)
+		usdelay = LPFC_SEC_TO_USEC / phba->cfg_fcp_imax;
+	else
+		usdelay = 0;
+
+	for (i = 0; i < phba->cfg_irq_chann; i += LPFC_MAX_EQ_DELAY_EQID_CNT)
+		lpfc_modify_hba_eq_delay(phba, i, LPFC_MAX_EQ_DELAY_EQID_CNT,
+					 usdelay);
+>>>>>>> upstream/android-13
 
 	return strlen(buf);
 }
@@ -4816,6 +5787,7 @@ lpfc_fcp_imax_init(struct lpfc_hba *phba, int val)
 
 static DEVICE_ATTR_RW(lpfc_fcp_imax);
 
+<<<<<<< HEAD
 /*
  * lpfc_auto_imax: Controls Auto-interrupt coalescing values support.
  *       0       No auto_imax support
@@ -4828,6 +5800,125 @@ LPFC_ATTR_RW(auto_imax, 1, 0, 1, "Enable Auto imax");
 
 /**
  * lpfc_state_show - Display current driver CPU affinity
+=======
+/**
+ * lpfc_cq_max_proc_limit_store
+ *
+ * @dev: class device that is converted into a Scsi_host.
+ * @attr: device attribute, not used.
+ * @buf: string with the cq max processing limit of cqes
+ * @count: unused variable.
+ *
+ * Description:
+ * If val is in a valid range, then set value on each cq
+ *
+ * Returns:
+ * The length of the buf: if successful
+ * -ERANGE: if val is not in the valid range
+ * -EINVAL: if bad value format or intended mode is not supported.
+ **/
+static ssize_t
+lpfc_cq_max_proc_limit_store(struct device *dev, struct device_attribute *attr,
+			 const char *buf, size_t count)
+{
+	struct Scsi_Host *shost = class_to_shost(dev);
+	struct lpfc_vport *vport = (struct lpfc_vport *)shost->hostdata;
+	struct lpfc_hba *phba = vport->phba;
+	struct lpfc_queue *eq, *cq;
+	unsigned long val;
+	int i;
+
+	/* cq_max_proc_limit is only valid for SLI4 */
+	if (phba->sli_rev != LPFC_SLI_REV4)
+		return -EINVAL;
+
+	/* Sanity check on user data */
+	if (!isdigit(buf[0]))
+		return -EINVAL;
+	if (kstrtoul(buf, 0, &val))
+		return -EINVAL;
+
+	if (val < LPFC_CQ_MIN_PROC_LIMIT || val > LPFC_CQ_MAX_PROC_LIMIT)
+		return -ERANGE;
+
+	phba->cfg_cq_max_proc_limit = (uint32_t)val;
+
+	/* set the values on the cq's */
+	for (i = 0; i < phba->cfg_irq_chann; i++) {
+		/* Get the EQ corresponding to the IRQ vector */
+		eq = phba->sli4_hba.hba_eq_hdl[i].eq;
+		if (!eq)
+			continue;
+
+		list_for_each_entry(cq, &eq->child_list, list)
+			cq->max_proc_limit = min(phba->cfg_cq_max_proc_limit,
+						 cq->entry_count);
+	}
+
+	return strlen(buf);
+}
+
+/*
+ * lpfc_cq_max_proc_limit: The maximum number CQE entries processed in an
+ *   itteration of CQ processing.
+ */
+static int lpfc_cq_max_proc_limit = LPFC_CQ_DEF_MAX_PROC_LIMIT;
+module_param(lpfc_cq_max_proc_limit, int, 0644);
+MODULE_PARM_DESC(lpfc_cq_max_proc_limit,
+	    "Set the maximum number CQEs processed in an iteration of "
+	    "CQ processing");
+lpfc_param_show(cq_max_proc_limit)
+
+/*
+ * lpfc_cq_poll_threshold: Set the threshold of CQE completions in a
+ *   single handler call which should request a polled completion rather
+ *   than re-enabling interrupts.
+ */
+LPFC_ATTR_RW(cq_poll_threshold, LPFC_CQ_DEF_THRESHOLD_TO_POLL,
+	     LPFC_CQ_MIN_THRESHOLD_TO_POLL,
+	     LPFC_CQ_MAX_THRESHOLD_TO_POLL,
+	     "CQE Processing Threshold to enable Polling");
+
+/**
+ * lpfc_cq_max_proc_limit_init - Set the initial cq max_proc_limit
+ * @phba: lpfc_hba pointer.
+ * @val: entry limit
+ *
+ * Description:
+ * If val is in a valid range, then initialize the adapter's maximum
+ * value.
+ *
+ * Returns:
+ *  Always returns 0 for success, even if value not always set to
+ *  requested value. If value out of range or not supported, will fall
+ *  back to default.
+ **/
+static int
+lpfc_cq_max_proc_limit_init(struct lpfc_hba *phba, int val)
+{
+	phba->cfg_cq_max_proc_limit = LPFC_CQ_DEF_MAX_PROC_LIMIT;
+
+	if (phba->sli_rev != LPFC_SLI_REV4)
+		return 0;
+
+	if (val >= LPFC_CQ_MIN_PROC_LIMIT && val <= LPFC_CQ_MAX_PROC_LIMIT) {
+		phba->cfg_cq_max_proc_limit = val;
+		return 0;
+	}
+
+	lpfc_printf_log(phba, KERN_ERR, LOG_INIT,
+			"0371 lpfc_cq_max_proc_limit: %d out of range, using "
+			"default\n",
+			phba->cfg_cq_max_proc_limit);
+
+	return 0;
+}
+
+static DEVICE_ATTR_RW(lpfc_cq_max_proc_limit);
+
+/**
+ * lpfc_fcp_cpu_map_show - Display current driver CPU affinity
+>>>>>>> upstream/android-13
  * @dev: class converted to a Scsi_host structure.
  * @attr: device attribute, not used.
  * @buf: on return contains text describing the state of the link.
@@ -4857,6 +5948,7 @@ lpfc_fcp_cpu_map_show(struct device *dev, struct device_attribute *attr,
 	case 1:
 		len += scnprintf(buf + len, PAGE_SIZE-len,
 				"fcp_cpu_map: HBA centric mapping (%d): "
+<<<<<<< HEAD
 				"%d online CPUs\n",
 				phba->cfg_fcp_cpu_map,
 				phba->sli4_hba.num_online_cpu);
@@ -4888,19 +5980,91 @@ lpfc_fcp_cpu_map_show(struct device *dev, struct device_attribute *attr,
 					phba->sli4_hba.curr_disp_cpu,
 					cpup->channel_id, cpup->phys_id,
 					cpup->core_id, cpup->irq);
+=======
+				"%d of %d CPUs online from %d possible CPUs\n",
+				phba->cfg_fcp_cpu_map, num_online_cpus(),
+				num_present_cpus(),
+				phba->sli4_hba.num_possible_cpu);
+		break;
+	}
+
+	while (phba->sli4_hba.curr_disp_cpu <
+	       phba->sli4_hba.num_possible_cpu) {
+		cpup = &phba->sli4_hba.cpu_map[phba->sli4_hba.curr_disp_cpu];
+
+		if (!cpu_present(phba->sli4_hba.curr_disp_cpu))
+			len += scnprintf(buf + len, PAGE_SIZE - len,
+					"CPU %02d not present\n",
+					phba->sli4_hba.curr_disp_cpu);
+		else if (cpup->eq == LPFC_VECTOR_MAP_EMPTY) {
+			if (cpup->hdwq == LPFC_VECTOR_MAP_EMPTY)
+				len += scnprintf(
+					buf + len, PAGE_SIZE - len,
+					"CPU %02d hdwq None "
+					"physid %d coreid %d ht %d ua %d\n",
+					phba->sli4_hba.curr_disp_cpu,
+					cpup->phys_id, cpup->core_id,
+					(cpup->flag & LPFC_CPU_MAP_HYPER),
+					(cpup->flag & LPFC_CPU_MAP_UNASSIGN));
+			else
+				len += scnprintf(
+					buf + len, PAGE_SIZE - len,
+					"CPU %02d EQ None hdwq %04d "
+					"physid %d coreid %d ht %d ua %d\n",
+					phba->sli4_hba.curr_disp_cpu,
+					cpup->hdwq, cpup->phys_id,
+					cpup->core_id,
+					(cpup->flag & LPFC_CPU_MAP_HYPER),
+					(cpup->flag & LPFC_CPU_MAP_UNASSIGN));
+		} else {
+			if (cpup->hdwq == LPFC_VECTOR_MAP_EMPTY)
+				len += scnprintf(
+					buf + len, PAGE_SIZE - len,
+					"CPU %02d hdwq None "
+					"physid %d coreid %d ht %d ua %d IRQ %d\n",
+					phba->sli4_hba.curr_disp_cpu,
+					cpup->phys_id,
+					cpup->core_id,
+					(cpup->flag & LPFC_CPU_MAP_HYPER),
+					(cpup->flag & LPFC_CPU_MAP_UNASSIGN),
+					lpfc_get_irq(cpup->eq));
+			else
+				len += scnprintf(
+					buf + len, PAGE_SIZE - len,
+					"CPU %02d EQ %04d hdwq %04d "
+					"physid %d coreid %d ht %d ua %d IRQ %d\n",
+					phba->sli4_hba.curr_disp_cpu,
+					cpup->eq, cpup->hdwq, cpup->phys_id,
+					cpup->core_id,
+					(cpup->flag & LPFC_CPU_MAP_HYPER),
+					(cpup->flag & LPFC_CPU_MAP_UNASSIGN),
+					lpfc_get_irq(cpup->eq));
+		}
+>>>>>>> upstream/android-13
 
 		phba->sli4_hba.curr_disp_cpu++;
 
 		/* display max number of CPUs keeping some margin */
 		if (phba->sli4_hba.curr_disp_cpu <
+<<<<<<< HEAD
 				phba->sli4_hba.num_present_cpu &&
 				(len >= (PAGE_SIZE - 64))) {
 			len += scnprintf(buf + len, PAGE_SIZE-len, "more...\n");
+=======
+				phba->sli4_hba.num_possible_cpu &&
+				(len >= (PAGE_SIZE - 64))) {
+			len += scnprintf(buf + len,
+					PAGE_SIZE - len, "more...\n");
+>>>>>>> upstream/android-13
 			break;
 		}
 	}
 
+<<<<<<< HEAD
 	if (phba->sli4_hba.curr_disp_cpu == phba->sli4_hba.num_present_cpu)
+=======
+	if (phba->sli4_hba.curr_disp_cpu == phba->sli4_hba.num_possible_cpu)
+>>>>>>> upstream/android-13
 		phba->sli4_hba.curr_disp_cpu = 0;
 
 	return len;
@@ -4920,14 +6084,19 @@ static ssize_t
 lpfc_fcp_cpu_map_store(struct device *dev, struct device_attribute *attr,
 		       const char *buf, size_t count)
 {
+<<<<<<< HEAD
 	int status = -EINVAL;
 	return status;
+=======
+	return -EINVAL;
+>>>>>>> upstream/android-13
 }
 
 /*
 # lpfc_fcp_cpu_map: Defines how to map CPUs to IRQ vectors
 # for the HBA.
 #
+<<<<<<< HEAD
 # Value range is [0 to 2]. Default value is LPFC_DRIVER_CPU_MAP (2).
 #	0 - Do not affinitze IRQ vectors
 #	1 - Affintize HBA vectors with respect to each HBA
@@ -4936,6 +6105,15 @@ lpfc_fcp_cpu_map_store(struct device *dev, struct device_attribute *attr,
 #	    (round robin thru all CPUs across all HBAs)
 */
 static int lpfc_fcp_cpu_map = LPFC_DRIVER_CPU_MAP;
+=======
+# Value range is [0 to 1]. Default value is LPFC_HBA_CPU_MAP (1).
+#	0 - Do not affinitze IRQ vectors
+#	1 - Affintize HBA vectors with respect to each HBA
+#	    (start with CPU0 for each HBA)
+# This also defines how Hardware Queues are mapped to specific CPUs.
+*/
+static int lpfc_fcp_cpu_map = LPFC_HBA_CPU_MAP;
+>>>>>>> upstream/android-13
 module_param(lpfc_fcp_cpu_map, int, S_IRUGO|S_IWUSR);
 MODULE_PARM_DESC(lpfc_fcp_cpu_map,
 		 "Defines how to map CPUs to IRQ vectors per HBA");
@@ -4969,7 +6147,11 @@ lpfc_fcp_cpu_map_init(struct lpfc_hba *phba, int val)
 	lpfc_printf_log(phba, KERN_ERR, LOG_INIT,
 			"3326 lpfc_fcp_cpu_map: %d out of range, using "
 			"default\n", val);
+<<<<<<< HEAD
 	phba->cfg_fcp_cpu_map = LPFC_DRIVER_CPU_MAP;
+=======
+	phba->cfg_fcp_cpu_map = LPFC_HBA_CPU_MAP;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -4985,9 +6167,15 @@ LPFC_VPORT_ATTR_R(fcp_class, 3, 2, 3,
 
 /*
 # lpfc_use_adisc: Use ADISC for FCP rediscovery instead of PLOGI. Value range
+<<<<<<< HEAD
 # is [0,1]. Default value is 0.
 */
 LPFC_VPORT_ATTR_RW(use_adisc, 0, 0, 1,
+=======
+# is [0,1]. Default value is 1.
+*/
+LPFC_VPORT_ATTR_RW(use_adisc, 1, 0, 1,
+>>>>>>> upstream/android-13
 		   "Use ADISC on rediscovery to authenticate FCP devices");
 
 /*
@@ -5014,6 +6202,7 @@ LPFC_ATTR_RW(nvmet_fb_size, 0, 0, 65536,
  * lpfc_nvme_enable_fb: Enable NVME first burst on I and T functions.
  * For the Initiator (I), enabling this parameter means that an NVMET
  * PRLI response with FBA enabled and an FB_SIZE set to a nonzero value will be
+<<<<<<< HEAD
  * processed by the initiator for subsequent NVME FCP IO. For the target
  * function (T), enabling this parameter qualifies the lpfc_nvmet_fb_size
  * driver parameter as the target function's first burst size returned to the
@@ -5023,6 +6212,14 @@ LPFC_ATTR_RW(nvmet_fb_size, 0, 0, 65536,
  */
 LPFC_ATTR_RW(nvme_enable_fb, 0, 0, 1,
 	     "Enable First Burst feature on I and T functions.");
+=======
+ * processed by the initiator for subsequent NVME FCP IO.
+ * Currently, this feature is not supported on the NVME target
+ * Value range is [0,1]. Default value is 0 (disabled).
+ */
+LPFC_ATTR_RW(nvme_enable_fb, 0, 0, 1,
+	     "Enable First Burst feature for NVME Initiator.");
+>>>>>>> upstream/android-13
 
 /*
 # lpfc_max_scsicmpl_time: Use scsi command completion time to control I/O queue
@@ -5050,8 +6247,11 @@ lpfc_max_scsicmpl_time_set(struct lpfc_vport *vport, int val)
 
 	spin_lock_irq(shost->host_lock);
 	list_for_each_entry_safe(ndlp, next_ndlp, &vport->fc_nodes, nlp_listp) {
+<<<<<<< HEAD
 		if (!NLP_CHK_NODE_ACT(ndlp))
 			continue;
+=======
+>>>>>>> upstream/android-13
 		if (ndlp->nlp_state == NLP_STE_UNUSED_NODE)
 			continue;
 		ndlp->cmd_qdepth = vport->cfg_tgt_queue_depth;
@@ -5069,6 +6269,7 @@ static DEVICE_ATTR_RW(lpfc_max_scsicmpl_time);
 LPFC_ATTR_R(ack0, 0, 0, 1, "Enable ACK0 support");
 
 /*
+<<<<<<< HEAD
  * lpfc_io_sched: Determine scheduling algrithmn for issuing FCP cmds
  * range is [0,1]. Default value is 0.
  * For [0], FCP commands are issued to Work Queues ina round robin fashion.
@@ -5076,6 +6277,22 @@ LPFC_ATTR_R(ack0, 0, 0, 1, "Enable ACK0 support");
  *          current CPU.
  *
  * LPFC_FCP_SCHED_ROUND_ROBIN == 0
+=======
+# lpfc_xri_rebalancing: enable or disable XRI rebalancing feature
+# range is [0,1]. Default value is 1.
+*/
+LPFC_ATTR_R(xri_rebalancing, 1, 0, 1, "Enable/Disable XRI rebalancing");
+
+/*
+ * lpfc_io_sched: Determine scheduling algrithmn for issuing FCP cmds
+ * range is [0,1]. Default value is 0.
+ * For [0], FCP commands are issued to Work Queues based on upper layer
+ * hardware queue index.
+ * For [1], FCP commands are issued to a Work Queue associated with the
+ *          current CPU.
+ *
+ * LPFC_FCP_SCHED_BY_HDWQ == 0
+>>>>>>> upstream/android-13
  * LPFC_FCP_SCHED_BY_CPU == 1
  *
  * The driver dynamically sets this to 1 (BY_CPU) if it's able to set up cpu
@@ -5083,11 +6300,31 @@ LPFC_ATTR_R(ack0, 0, 0, 1, "Enable ACK0 support");
  * CPU. Otherwise, the default 0 (Round Robin) scheduling of FCP/NVME I/Os
  * through WQs will be used.
  */
+<<<<<<< HEAD
 LPFC_ATTR_RW(fcp_io_sched, LPFC_FCP_SCHED_ROUND_ROBIN,
 	     LPFC_FCP_SCHED_ROUND_ROBIN,
 	     LPFC_FCP_SCHED_BY_CPU,
 	     "Determine scheduling algorithm for "
 	     "issuing commands [0] - Round Robin, [1] - Current CPU");
+=======
+LPFC_ATTR_RW(fcp_io_sched, LPFC_FCP_SCHED_BY_CPU,
+	     LPFC_FCP_SCHED_BY_HDWQ,
+	     LPFC_FCP_SCHED_BY_CPU,
+	     "Determine scheduling algorithm for "
+	     "issuing commands [0] - Hardware Queue, [1] - Current CPU");
+
+/*
+ * lpfc_ns_query: Determine algrithmn for NameServer queries after RSCN
+ * range is [0,1]. Default value is 0.
+ * For [0], GID_FT is used for NameServer queries after RSCN (default)
+ * For [1], GID_PT is used for NameServer queries after RSCN
+ *
+ */
+LPFC_ATTR_RW(ns_query, LPFC_NS_QUERY_GID_FT,
+	     LPFC_NS_QUERY_GID_FT, LPFC_NS_QUERY_GID_PT,
+	     "Determine algorithm NameServer queries after RSCN "
+	     "[0] - GID_FT, [1] - GID_PT");
+>>>>>>> upstream/android-13
 
 /*
 # lpfc_fcp2_no_tgt_reset: Determine bus reset behavior
@@ -5237,6 +6474,7 @@ LPFC_ATTR_RW(nvme_embed_cmd, 1, 0, 2,
 	     "Embed NVME Command in WQE");
 
 /*
+<<<<<<< HEAD
  * lpfc_fcp_io_channel: Set the number of FCP IO channels the driver
  * will advertise it supports to the SCSI layer. This also will map to
  * the number of WQs the driver will create.
@@ -5272,14 +6510,238 @@ LPFC_ATTR_R(nvme_io_channel,
 	    LPFC_NVME_IO_CHAN_DEF,
 	    LPFC_HBA_IO_CHAN_MIN, LPFC_HBA_IO_CHAN_MAX,
 	    "Set the number of NVME I/O channels");
+=======
+ * lpfc_fcp_mq_threshold: Set the maximum number of Hardware Queues
+ * the driver will advertise it supports to the SCSI layer.
+ *
+ *      0    = Set nr_hw_queues by the number of CPUs or HW queues.
+ *      1,256 = Manually specify nr_hw_queue value to be advertised,
+ *
+ * Value range is [0,256]. Default value is 8.
+ */
+LPFC_ATTR_R(fcp_mq_threshold, LPFC_FCP_MQ_THRESHOLD_DEF,
+	    LPFC_FCP_MQ_THRESHOLD_MIN, LPFC_FCP_MQ_THRESHOLD_MAX,
+	    "Set the number of SCSI Queues advertised");
+
+/*
+ * lpfc_hdw_queue: Set the number of Hardware Queues the driver
+ * will advertise it supports to the NVME and  SCSI layers. This also
+ * will map to the number of CQ/WQ pairs the driver will create.
+ *
+ * The NVME Layer will try to create this many, plus 1 administrative
+ * hardware queue. The administrative queue will always map to WQ 0
+ * A hardware IO queue maps (qidx) to a specific driver CQ/WQ.
+ *
+ *      0    = Configure the number of hdw queues to the number of active CPUs.
+ *      1,256 = Manually specify how many hdw queues to use.
+ *
+ * Value range is [0,256]. Default value is 0.
+ */
+LPFC_ATTR_R(hdw_queue,
+	    LPFC_HBA_HDWQ_DEF,
+	    LPFC_HBA_HDWQ_MIN, LPFC_HBA_HDWQ_MAX,
+	    "Set the number of I/O Hardware Queues");
+
+#if IS_ENABLED(CONFIG_X86)
+/**
+ * lpfc_cpumask_irq_mode_init - initalizes cpumask of phba based on
+ *				irq_chann_mode
+ * @phba: Pointer to HBA context object.
+ **/
+static void
+lpfc_cpumask_irq_mode_init(struct lpfc_hba *phba)
+{
+	unsigned int cpu, first_cpu, numa_node = NUMA_NO_NODE;
+	const struct cpumask *sibling_mask;
+	struct cpumask *aff_mask = &phba->sli4_hba.irq_aff_mask;
+
+	cpumask_clear(aff_mask);
+
+	if (phba->irq_chann_mode == NUMA_MODE) {
+		/* Check if we're a NUMA architecture */
+		numa_node = dev_to_node(&phba->pcidev->dev);
+		if (numa_node == NUMA_NO_NODE) {
+			phba->irq_chann_mode = NORMAL_MODE;
+			return;
+		}
+	}
+
+	for_each_possible_cpu(cpu) {
+		switch (phba->irq_chann_mode) {
+		case NUMA_MODE:
+			if (cpu_to_node(cpu) == numa_node)
+				cpumask_set_cpu(cpu, aff_mask);
+			break;
+		case NHT_MODE:
+			sibling_mask = topology_sibling_cpumask(cpu);
+			first_cpu = cpumask_first(sibling_mask);
+			if (first_cpu < nr_cpu_ids)
+				cpumask_set_cpu(first_cpu, aff_mask);
+			break;
+		default:
+			break;
+		}
+	}
+}
+#endif
+
+static void
+lpfc_assign_default_irq_chann(struct lpfc_hba *phba)
+{
+#if IS_ENABLED(CONFIG_X86)
+	switch (boot_cpu_data.x86_vendor) {
+	case X86_VENDOR_AMD:
+		/* If AMD architecture, then default is NUMA_MODE */
+		phba->irq_chann_mode = NUMA_MODE;
+		break;
+	case X86_VENDOR_INTEL:
+		/* If Intel architecture, then default is no hyperthread mode */
+		phba->irq_chann_mode = NHT_MODE;
+		break;
+	default:
+		phba->irq_chann_mode = NORMAL_MODE;
+		break;
+	}
+	lpfc_cpumask_irq_mode_init(phba);
+#else
+	phba->irq_chann_mode = NORMAL_MODE;
+#endif
+}
+
+/*
+ * lpfc_irq_chann: Set the number of IRQ vectors that are available
+ * for Hardware Queues to utilize.  This also will map to the number
+ * of EQ / MSI-X vectors the driver will create. This should never be
+ * more than the number of Hardware Queues
+ *
+ *	0		= Configure number of IRQ Channels to:
+ *			  if AMD architecture, number of CPUs on HBA's NUMA node
+ *			  if Intel architecture, number of physical CPUs.
+ *			  otherwise, number of active CPUs.
+ *	[1,256]		= Manually specify how many IRQ Channels to use.
+ *
+ * Value range is [0,256]. Default value is [0].
+ */
+static uint lpfc_irq_chann = LPFC_IRQ_CHANN_DEF;
+module_param(lpfc_irq_chann, uint, 0444);
+MODULE_PARM_DESC(lpfc_irq_chann, "Set number of interrupt vectors to allocate");
+
+/* lpfc_irq_chann_init - Set the hba irq_chann initial value
+ * @phba: lpfc_hba pointer.
+ * @val: contains the initial value
+ *
+ * Description:
+ * Validates the initial value is within range and assigns it to the
+ * adapter. If not in range, an error message is posted and the
+ * default value is assigned.
+ *
+ * Returns:
+ * zero if value is in range and is set
+ * -EINVAL if value was out of range
+ **/
+static int
+lpfc_irq_chann_init(struct lpfc_hba *phba, uint32_t val)
+{
+	const struct cpumask *aff_mask;
+
+	if (phba->cfg_use_msi != 2) {
+		lpfc_printf_log(phba, KERN_INFO, LOG_INIT,
+				"8532 use_msi = %u ignoring cfg_irq_numa\n",
+				phba->cfg_use_msi);
+		phba->irq_chann_mode = NORMAL_MODE;
+		phba->cfg_irq_chann = LPFC_IRQ_CHANN_DEF;
+		return 0;
+	}
+
+	/* Check if default setting was passed */
+	if (val == LPFC_IRQ_CHANN_DEF &&
+	    phba->cfg_hdw_queue == LPFC_HBA_HDWQ_DEF &&
+	    phba->sli_rev == LPFC_SLI_REV4)
+		lpfc_assign_default_irq_chann(phba);
+
+	if (phba->irq_chann_mode != NORMAL_MODE) {
+		aff_mask = &phba->sli4_hba.irq_aff_mask;
+
+		if (cpumask_empty(aff_mask)) {
+			lpfc_printf_log(phba, KERN_INFO, LOG_INIT,
+					"8533 Could not identify CPUS for "
+					"mode %d, ignoring\n",
+					phba->irq_chann_mode);
+			phba->irq_chann_mode = NORMAL_MODE;
+			phba->cfg_irq_chann = LPFC_IRQ_CHANN_DEF;
+		} else {
+			phba->cfg_irq_chann = cpumask_weight(aff_mask);
+
+			/* If no hyperthread mode, then set hdwq count to
+			 * aff_mask weight as well
+			 */
+			if (phba->irq_chann_mode == NHT_MODE)
+				phba->cfg_hdw_queue = phba->cfg_irq_chann;
+
+			lpfc_printf_log(phba, KERN_INFO, LOG_INIT,
+					"8543 lpfc_irq_chann set to %u "
+					"(mode: %d)\n", phba->cfg_irq_chann,
+					phba->irq_chann_mode);
+		}
+	} else {
+		if (val > LPFC_IRQ_CHANN_MAX) {
+			lpfc_printf_log(phba, KERN_INFO, LOG_INIT,
+					"8545 lpfc_irq_chann attribute cannot "
+					"be set to %u, allowed range is "
+					"[%u,%u]\n",
+					val,
+					LPFC_IRQ_CHANN_MIN,
+					LPFC_IRQ_CHANN_MAX);
+			phba->cfg_irq_chann = LPFC_IRQ_CHANN_DEF;
+			return -EINVAL;
+		}
+		if (phba->sli_rev == LPFC_SLI_REV4) {
+			phba->cfg_irq_chann = val;
+		} else {
+			phba->cfg_irq_chann = 2;
+			phba->cfg_hdw_queue = 1;
+		}
+	}
+
+	return 0;
+}
+
+/**
+ * lpfc_irq_chann_show - Display value of irq_chann
+ * @dev: class converted to a Scsi_host structure.
+ * @attr: device attribute, not used.
+ * @buf: on return contains a string with the list sizes
+ *
+ * Returns: size of formatted string.
+ **/
+static ssize_t
+lpfc_irq_chann_show(struct device *dev, struct device_attribute *attr,
+		    char *buf)
+{
+	struct Scsi_Host *shost = class_to_shost(dev);
+	struct lpfc_vport *vport = (struct lpfc_vport *)shost->hostdata;
+	struct lpfc_hba *phba = vport->phba;
+
+	return scnprintf(buf, PAGE_SIZE, "%u\n", phba->cfg_irq_chann);
+}
+
+static DEVICE_ATTR_RO(lpfc_irq_chann);
+>>>>>>> upstream/android-13
 
 /*
 # lpfc_enable_hba_reset: Allow or prevent HBA resets to the hardware.
 #       0  = HBA resets disabled
 #       1  = HBA resets enabled (default)
+<<<<<<< HEAD
 # Value range is [0,1]. Default value is 1.
 */
 LPFC_ATTR_R(enable_hba_reset, 1, 0, 1, "Enable HBA resets from the driver.");
+=======
+#       2  = HBA reset via PCI bus reset enabled
+# Value range is [0,2]. Default value is 1.
+*/
+LPFC_ATTR_RW(enable_hba_reset, 1, 0, 2, "Enable HBA resets from the driver.");
+>>>>>>> upstream/android-13
 
 /*
 # lpfc_enable_hba_heartbeat: Disable HBA heartbeat timer..
@@ -5313,6 +6775,7 @@ LPFC_ATTR_RW(XLanePriority, 0, 0x0, 0x7f, "CS_CTL for Express Lane Feature.");
 LPFC_ATTR_R(enable_bg, 0, 0, 1, "Enable BlockGuard Support");
 
 /*
+<<<<<<< HEAD
 # lpfc_fcp_look_ahead: Look ahead for completions in FCP start routine
 #       0  = disabled (default)
 #       1  = enabled
@@ -5324,6 +6787,9 @@ unsigned int lpfc_fcp_look_ahead = LPFC_LOOK_AHEAD_OFF;
 
 /*
 # lpfc_prot_mask: i
+=======
+# lpfc_prot_mask:
+>>>>>>> upstream/android-13
 #	- Bit mask of host protection capabilities used to register with the
 #	  SCSI mid-layer
 # 	- Only meaningful if BG is turned on (lpfc_enable_bg=1).
@@ -5348,7 +6814,11 @@ LPFC_ATTR(prot_mask,
 	"T10-DIF host protection capabilities mask");
 
 /*
+<<<<<<< HEAD
 # lpfc_prot_guard: i
+=======
+# lpfc_prot_guard:
+>>>>>>> upstream/android-13
 #	- Bit mask of protection guard types to register with the SCSI mid-layer
 #	- Guard types are currently either 1) T10-DIF CRC 2) IP checksum
 #	- Allows you to ultimately specify which profiles to use
@@ -5378,15 +6848,86 @@ LPFC_ATTR(delay_discovery, 0, 0, 1,
 
 /*
  * lpfc_sg_seg_cnt - Initial Maximum DMA Segment Count
+<<<<<<< HEAD
  * This value can be set to values between 64 and 4096. The default value is
  * 64, but may be increased to allow for larger Max I/O sizes. The scsi layer
  * will be allowed to request I/Os of sizes up to (MAX_SEG_COUNT * SEG_SIZE).
+=======
+ * This value can be set to values between 64 and 4096. The default value
+ * is 64, but may be increased to allow for larger Max I/O sizes. The scsi
+ * and nvme layers will allow I/O sizes up to (MAX_SEG_COUNT * SEG_SIZE).
+>>>>>>> upstream/android-13
  * Because of the additional overhead involved in setting up T10-DIF,
  * this parameter will be limited to 128 if BlockGuard is enabled under SLI4
  * and will be limited to 512 if BlockGuard is enabled under SLI3.
  */
+<<<<<<< HEAD
 LPFC_ATTR_R(sg_seg_cnt, LPFC_DEFAULT_SG_SEG_CNT, LPFC_MIN_SG_SEG_CNT,
 	    LPFC_MAX_SG_SEG_CNT, "Max Scatter Gather Segment Count");
+=======
+static uint lpfc_sg_seg_cnt = LPFC_DEFAULT_SG_SEG_CNT;
+module_param(lpfc_sg_seg_cnt, uint, 0444);
+MODULE_PARM_DESC(lpfc_sg_seg_cnt, "Max Scatter Gather Segment Count");
+
+/**
+ * lpfc_sg_seg_cnt_show - Display the scatter/gather list sizes
+ *    configured for the adapter
+ * @dev: class converted to a Scsi_host structure.
+ * @attr: device attribute, not used.
+ * @buf: on return contains a string with the list sizes
+ *
+ * Returns: size of formatted string.
+ **/
+static ssize_t
+lpfc_sg_seg_cnt_show(struct device *dev, struct device_attribute *attr,
+		     char *buf)
+{
+	struct Scsi_Host  *shost = class_to_shost(dev);
+	struct lpfc_vport *vport = (struct lpfc_vport *)shost->hostdata;
+	struct lpfc_hba   *phba = vport->phba;
+	int len;
+
+	len = scnprintf(buf, PAGE_SIZE, "SGL sz: %d  total SGEs: %d\n",
+		       phba->cfg_sg_dma_buf_size, phba->cfg_total_seg_cnt);
+
+	len += scnprintf(buf + len, PAGE_SIZE - len,
+			"Cfg: %d  SCSI: %d  NVME: %d\n",
+			phba->cfg_sg_seg_cnt, phba->cfg_scsi_seg_cnt,
+			phba->cfg_nvme_seg_cnt);
+	return len;
+}
+
+static DEVICE_ATTR_RO(lpfc_sg_seg_cnt);
+
+/**
+ * lpfc_sg_seg_cnt_init - Set the hba sg_seg_cnt initial value
+ * @phba: lpfc_hba pointer.
+ * @val: contains the initial value
+ *
+ * Description:
+ * Validates the initial value is within range and assigns it to the
+ * adapter. If not in range, an error message is posted and the
+ * default value is assigned.
+ *
+ * Returns:
+ * zero if value is in range and is set
+ * -EINVAL if value was out of range
+ **/
+static int
+lpfc_sg_seg_cnt_init(struct lpfc_hba *phba, int val)
+{
+	if (val >= LPFC_MIN_SG_SEG_CNT && val <= LPFC_MAX_SG_SEG_CNT) {
+		phba->cfg_sg_seg_cnt = val;
+		return 0;
+	}
+	lpfc_printf_log(phba, KERN_ERR, LOG_INIT,
+			"0409 lpfc_sg_seg_cnt attribute cannot be set to %d, "
+			"allowed range is [%d, %d]\n",
+			val, LPFC_MIN_SG_SEG_CNT, LPFC_MAX_SG_SEG_CNT);
+	phba->cfg_sg_seg_cnt = LPFC_DEFAULT_SG_SEG_CNT;
+	return -EINVAL;
+}
+>>>>>>> upstream/android-13
 
 /*
  * lpfc_enable_mds_diags: Enable MDS Diagnostics
@@ -5394,7 +6935,82 @@ LPFC_ATTR_R(sg_seg_cnt, LPFC_DEFAULT_SG_SEG_CNT, LPFC_MIN_SG_SEG_CNT,
  *       1  = MDS Diagnostics enabled
  * Value range is [0,1]. Default value is 0.
  */
+<<<<<<< HEAD
 LPFC_ATTR_R(enable_mds_diags, 0, 0, 1, "Enable MDS Diagnostics");
+=======
+LPFC_ATTR_RW(enable_mds_diags, 0, 0, 1, "Enable MDS Diagnostics");
+
+/*
+ * lpfc_ras_fwlog_buffsize: Firmware logging host buffer size
+ *	0 = Disable firmware logging (default)
+ *	[1-4] = Multiple of 1/4th Mb of host memory for FW logging
+ * Value range [0..4]. Default value is 0
+ */
+LPFC_ATTR(ras_fwlog_buffsize, 0, 0, 4, "Host memory for FW logging");
+lpfc_param_show(ras_fwlog_buffsize);
+
+static ssize_t
+lpfc_ras_fwlog_buffsize_set(struct lpfc_hba  *phba, uint val)
+{
+	int ret = 0;
+	enum ras_state state;
+
+	if (!lpfc_rangecheck(val, 0, 4))
+		return -EINVAL;
+
+	if (phba->cfg_ras_fwlog_buffsize == val)
+		return 0;
+
+	if (phba->cfg_ras_fwlog_func != PCI_FUNC(phba->pcidev->devfn))
+		return -EINVAL;
+
+	spin_lock_irq(&phba->hbalock);
+	state = phba->ras_fwlog.state;
+	spin_unlock_irq(&phba->hbalock);
+
+	if (state == REG_INPROGRESS) {
+		lpfc_printf_log(phba, KERN_ERR, LOG_SLI, "6147 RAS Logging "
+				"registration is in progress\n");
+		return -EBUSY;
+	}
+
+	/* For disable logging: stop the logs and free the DMA.
+	 * For ras_fwlog_buffsize size change we still need to free and
+	 * reallocate the DMA in lpfc_sli4_ras_fwlog_init.
+	 */
+	phba->cfg_ras_fwlog_buffsize = val;
+	if (state == ACTIVE) {
+		lpfc_ras_stop_fwlog(phba);
+		lpfc_sli4_ras_dma_free(phba);
+	}
+
+	lpfc_sli4_ras_init(phba);
+	if (phba->ras_fwlog.ras_enabled)
+		ret = lpfc_sli4_ras_fwlog_init(phba, phba->cfg_ras_fwlog_level,
+					       LPFC_RAS_ENABLE_LOGGING);
+	return ret;
+}
+
+lpfc_param_store(ras_fwlog_buffsize);
+static DEVICE_ATTR_RW(lpfc_ras_fwlog_buffsize);
+
+/*
+ * lpfc_ras_fwlog_level: Firmware logging verbosity level
+ * Valid only if firmware logging is enabled
+ * 0(Least Verbosity) 4 (most verbosity)
+ * Value range is [0..4]. Default value is 0
+ */
+LPFC_ATTR_RW(ras_fwlog_level, 0, 0, 4, "Firmware Logging Level");
+
+/*
+ * lpfc_ras_fwlog_func: Firmware logging enabled on function number
+ * Default function which has RAS support : 0
+ * Value Range is [0..7].
+ * FW logging is a global action and enablement is via a specific
+ * port.
+ */
+LPFC_ATTR_RW(ras_fwlog_func, 0, 0, 7, "Firmware Logging Enabled on Function");
+>>>>>>> upstream/android-13
 
 /*
  * lpfc_enable_bbcr: Enable BB Credit Recovery
@@ -5404,6 +7020,22 @@ LPFC_ATTR_R(enable_mds_diags, 0, 0, 1, "Enable MDS Diagnostics");
  */
 LPFC_BBCR_ATTR_RW(enable_bbcr, 1, 0, 1, "Enable BBC Recovery");
 
+<<<<<<< HEAD
+=======
+/* Signaling module parameters */
+int lpfc_fabric_cgn_frequency = 100; /* 100 ms default */
+module_param(lpfc_fabric_cgn_frequency, int, 0444);
+MODULE_PARM_DESC(lpfc_fabric_cgn_frequency, "Congestion signaling fabric freq");
+
+int lpfc_acqe_cgn_frequency = 10; /* 10 sec default */
+module_param(lpfc_acqe_cgn_frequency, int, 0444);
+MODULE_PARM_DESC(lpfc_acqe_cgn_frequency, "Congestion signaling ACQE freq");
+
+int lpfc_use_cgn_signal = 1; /* 0 - only use FPINs, 1 - Use signals if avail  */
+module_param(lpfc_use_cgn_signal, int, 0444);
+MODULE_PARM_DESC(lpfc_use_cgn_signal, "Use Congestion signaling if available");
+
+>>>>>>> upstream/android-13
 /*
  * lpfc_enable_dpp: Enable DPP on G7
  *       0  = DPP on G7 disabled
@@ -5412,8 +7044,61 @@ LPFC_BBCR_ATTR_RW(enable_bbcr, 1, 0, 1, "Enable BBC Recovery");
  */
 LPFC_ATTR_RW(enable_dpp, 1, 0, 1, "Enable Direct Packet Push");
 
+<<<<<<< HEAD
 struct device_attribute *lpfc_hba_attrs[] = {
 	&dev_attr_nvme_info,
+=======
+/*
+ * lpfc_enable_mi: Enable FDMI MIB
+ *       0  = disabled
+ *       1  = enabled (default)
+ * Value range is [0,1].
+ */
+LPFC_ATTR_R(enable_mi, 1, 0, 1, "Enable MI");
+
+/*
+ * lpfc_max_vmid: Maximum number of VMs to be tagged. This is valid only if
+ * either vmid_app_header or vmid_priority_tagging is enabled.
+ *       4 - 255  = vmid support enabled for 4-255 VMs
+ *       Value range is [4,255].
+ */
+LPFC_ATTR_RW(max_vmid, LPFC_MIN_VMID, LPFC_MIN_VMID, LPFC_MAX_VMID,
+	     "Maximum number of VMs supported");
+
+/*
+ * lpfc_vmid_inactivity_timeout: Inactivity timeout duration in hours
+ *       0  = Timeout is disabled
+ * Value range is [0,24].
+ */
+LPFC_ATTR_RW(vmid_inactivity_timeout, 4, 0, 24,
+	     "Inactivity timeout in hours");
+
+/*
+ * lpfc_vmid_app_header: Enable App Header VMID support
+ *       0  = Support is disabled (default)
+ *       1  = Support is enabled
+ * Value range is [0,1].
+ */
+LPFC_ATTR_RW(vmid_app_header, LPFC_VMID_APP_HEADER_DISABLE,
+	     LPFC_VMID_APP_HEADER_DISABLE, LPFC_VMID_APP_HEADER_ENABLE,
+	     "Enable App Header VMID support");
+
+/*
+ * lpfc_vmid_priority_tagging: Enable Priority Tagging VMID support
+ *       0  = Support is disabled (default)
+ *       1  = Allow supported targets only
+ *       2  = Allow all targets
+ * Value range is [0,2].
+ */
+LPFC_ATTR_RW(vmid_priority_tagging, LPFC_VMID_PRIO_TAG_DISABLE,
+	     LPFC_VMID_PRIO_TAG_DISABLE,
+	     LPFC_VMID_PRIO_TAG_ALL_TARGETS,
+	     "Enable Priority Tagging VMID support");
+
+struct device_attribute *lpfc_hba_attrs[] = {
+	&dev_attr_nvme_info,
+	&dev_attr_scsi_stat,
+>>>>>>> upstream/android-13
 	&dev_attr_bg_info,
 	&dev_attr_bg_guard_err,
 	&dev_attr_bg_apptag_err,
@@ -5441,15 +7126,26 @@ struct device_attribute *lpfc_hba_attrs[] = {
 	&dev_attr_lpfc_nodev_tmo,
 	&dev_attr_lpfc_devloss_tmo,
 	&dev_attr_lpfc_enable_fc4_type,
+<<<<<<< HEAD
 	&dev_attr_lpfc_xri_split,
+=======
+>>>>>>> upstream/android-13
 	&dev_attr_lpfc_fcp_class,
 	&dev_attr_lpfc_use_adisc,
 	&dev_attr_lpfc_first_burst_size,
 	&dev_attr_lpfc_ack0,
+<<<<<<< HEAD
+=======
+	&dev_attr_lpfc_xri_rebalancing,
+>>>>>>> upstream/android-13
 	&dev_attr_lpfc_topology,
 	&dev_attr_lpfc_scan_down,
 	&dev_attr_lpfc_link_speed,
 	&dev_attr_lpfc_fcp_io_sched,
+<<<<<<< HEAD
+=======
+	&dev_attr_lpfc_ns_query,
+>>>>>>> upstream/android-13
 	&dev_attr_lpfc_fcp2_no_tgt_reset,
 	&dev_attr_lpfc_cr_delay,
 	&dev_attr_lpfc_cr_count,
@@ -5462,6 +7158,10 @@ struct device_attribute *lpfc_hba_attrs[] = {
 	&dev_attr_lpfc_enable_npiv,
 	&dev_attr_lpfc_fcf_failover_policy,
 	&dev_attr_lpfc_enable_rrq,
+<<<<<<< HEAD
+=======
+	&dev_attr_lpfc_fcp_wait_abts_rsp,
+>>>>>>> upstream/android-13
 	&dev_attr_nport_evt_cnt,
 	&dev_attr_board_mode,
 	&dev_attr_max_vpi,
@@ -5478,12 +7178,24 @@ struct device_attribute *lpfc_hba_attrs[] = {
 	&dev_attr_lpfc_use_msi,
 	&dev_attr_lpfc_nvme_oas,
 	&dev_attr_lpfc_nvme_embed_cmd,
+<<<<<<< HEAD
 	&dev_attr_lpfc_auto_imax,
 	&dev_attr_lpfc_fcp_imax,
 	&dev_attr_lpfc_fcp_cpu_map,
 	&dev_attr_lpfc_fcp_io_channel,
 	&dev_attr_lpfc_suppress_rsp,
 	&dev_attr_lpfc_nvme_io_channel,
+=======
+	&dev_attr_lpfc_fcp_imax,
+	&dev_attr_lpfc_force_rscn,
+	&dev_attr_lpfc_cq_poll_threshold,
+	&dev_attr_lpfc_cq_max_proc_limit,
+	&dev_attr_lpfc_fcp_cpu_map,
+	&dev_attr_lpfc_fcp_mq_threshold,
+	&dev_attr_lpfc_hdw_queue,
+	&dev_attr_lpfc_irq_chann,
+	&dev_attr_lpfc_suppress_rsp,
+>>>>>>> upstream/android-13
 	&dev_attr_lpfc_nvmet_mrq,
 	&dev_attr_lpfc_nvmet_mrq_post,
 	&dev_attr_lpfc_nvme_enable_fb,
@@ -5510,6 +7222,7 @@ struct device_attribute *lpfc_hba_attrs[] = {
 	&dev_attr_lpfc_sriov_nr_virtfn,
 	&dev_attr_lpfc_req_fw_upgrade,
 	&dev_attr_lpfc_suppress_link_up,
+<<<<<<< HEAD
 	&dev_attr_lpfc_iocb_cnt,
 	&dev_attr_iocb_hw,
 	&dev_attr_txq_hw,
@@ -5517,12 +7230,33 @@ struct device_attribute *lpfc_hba_attrs[] = {
 	&dev_attr_lpfc_fips_level,
 	&dev_attr_lpfc_fips_rev,
 	&dev_attr_lpfc_dss,
+=======
+	&dev_attr_iocb_hw,
+	&dev_attr_pls,
+	&dev_attr_pt,
+	&dev_attr_txq_hw,
+	&dev_attr_txcmplq_hw,
+>>>>>>> upstream/android-13
 	&dev_attr_lpfc_sriov_hw_max_virtfn,
 	&dev_attr_protocol,
 	&dev_attr_lpfc_xlane_supported,
 	&dev_attr_lpfc_enable_mds_diags,
+<<<<<<< HEAD
 	&dev_attr_lpfc_enable_bbcr,
 	&dev_attr_lpfc_enable_dpp,
+=======
+	&dev_attr_lpfc_ras_fwlog_buffsize,
+	&dev_attr_lpfc_ras_fwlog_level,
+	&dev_attr_lpfc_ras_fwlog_func,
+	&dev_attr_lpfc_enable_bbcr,
+	&dev_attr_lpfc_enable_dpp,
+	&dev_attr_lpfc_enable_mi,
+	&dev_attr_cmf_info,
+	&dev_attr_lpfc_max_vmid,
+	&dev_attr_lpfc_vmid_inactivity_timeout,
+	&dev_attr_lpfc_vmid_app_header,
+	&dev_attr_lpfc_vmid_priority_tagging,
+>>>>>>> upstream/android-13
 	NULL,
 };
 
@@ -5549,8 +7283,12 @@ struct device_attribute *lpfc_vport_attrs[] = {
 	&dev_attr_lpfc_max_scsicmpl_time,
 	&dev_attr_lpfc_stat_data_ctrl,
 	&dev_attr_lpfc_static_vport,
+<<<<<<< HEAD
 	&dev_attr_lpfc_fips_level,
 	&dev_attr_lpfc_fips_rev,
+=======
+	&dev_attr_cmf_info,
+>>>>>>> upstream/android-13
 	NULL,
 };
 
@@ -5939,15 +7677,36 @@ lpfc_get_host_speed(struct Scsi_Host *shost)
 		case LPFC_LINK_SPEED_64GHZ:
 			fc_host_speed(shost) = FC_PORTSPEED_64GBIT;
 			break;
+<<<<<<< HEAD
+=======
+		case LPFC_LINK_SPEED_128GHZ:
+			fc_host_speed(shost) = FC_PORTSPEED_128GBIT;
+			break;
+		case LPFC_LINK_SPEED_256GHZ:
+			fc_host_speed(shost) = FC_PORTSPEED_256GBIT;
+			break;
+>>>>>>> upstream/android-13
 		default:
 			fc_host_speed(shost) = FC_PORTSPEED_UNKNOWN;
 			break;
 		}
 	} else if (lpfc_is_link_up(phba) && (phba->hba_flag & HBA_FCOE_MODE)) {
 		switch (phba->fc_linkspeed) {
+<<<<<<< HEAD
 		case LPFC_ASYNC_LINK_SPEED_10GBPS:
 			fc_host_speed(shost) = FC_PORTSPEED_10GBIT;
 			break;
+=======
+		case LPFC_ASYNC_LINK_SPEED_1GBPS:
+			fc_host_speed(shost) = FC_PORTSPEED_1GBIT;
+			break;
+		case LPFC_ASYNC_LINK_SPEED_10GBPS:
+			fc_host_speed(shost) = FC_PORTSPEED_10GBIT;
+			break;
+		case LPFC_ASYNC_LINK_SPEED_20GBPS:
+			fc_host_speed(shost) = FC_PORTSPEED_20GBIT;
+			break;
+>>>>>>> upstream/android-13
 		case LPFC_ASYNC_LINK_SPEED_25GBPS:
 			fc_host_speed(shost) = FC_PORTSPEED_25GBIT;
 			break;
@@ -6038,6 +7797,7 @@ lpfc_get_stats(struct Scsi_Host *shost)
 	pmb = &pmboxq->u.mb;
 	pmb->mbxCommand = MBX_READ_STATUS;
 	pmb->mbxOwner = OWN_HOST;
+<<<<<<< HEAD
 	pmboxq->context1 = NULL;
 	pmboxq->vport = vport;
 
@@ -6050,6 +7810,24 @@ lpfc_get_stats(struct Scsi_Host *shost)
 		if (rc != MBX_TIMEOUT)
 			mempool_free(pmboxq, phba->mbox_mem_pool);
 		return NULL;
+=======
+	pmboxq->ctx_buf = NULL;
+	pmboxq->vport = vport;
+
+	if (vport->fc_flag & FC_OFFLINE_MODE) {
+		rc = lpfc_sli_issue_mbox(phba, pmboxq, MBX_POLL);
+		if (rc != MBX_SUCCESS) {
+			mempool_free(pmboxq, phba->mbox_mem_pool);
+			return NULL;
+		}
+	} else {
+		rc = lpfc_sli_issue_mbox_wait(phba, pmboxq, phba->fc_ratov * 2);
+		if (rc != MBX_SUCCESS) {
+			if (rc != MBX_TIMEOUT)
+				mempool_free(pmboxq, phba->mbox_mem_pool);
+			return NULL;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	memset(hs, 0, sizeof (struct fc_host_statistics));
@@ -6070,6 +7848,7 @@ lpfc_get_stats(struct Scsi_Host *shost)
 	memset(pmboxq, 0, sizeof (LPFC_MBOXQ_t));
 	pmb->mbxCommand = MBX_READ_LNK_STAT;
 	pmb->mbxOwner = OWN_HOST;
+<<<<<<< HEAD
 	pmboxq->context1 = NULL;
 	pmboxq->vport = vport;
 
@@ -6082,6 +7861,24 @@ lpfc_get_stats(struct Scsi_Host *shost)
 		if (rc != MBX_TIMEOUT)
 			mempool_free(pmboxq, phba->mbox_mem_pool);
 		return NULL;
+=======
+	pmboxq->ctx_buf = NULL;
+	pmboxq->vport = vport;
+
+	if (vport->fc_flag & FC_OFFLINE_MODE) {
+		rc = lpfc_sli_issue_mbox(phba, pmboxq, MBX_POLL);
+		if (rc != MBX_SUCCESS) {
+			mempool_free(pmboxq, phba->mbox_mem_pool);
+			return NULL;
+		}
+	} else {
+		rc = lpfc_sli_issue_mbox_wait(phba, pmboxq, phba->fc_ratov * 2);
+		if (rc != MBX_SUCCESS) {
+			if (rc != MBX_TIMEOUT)
+				mempool_free(pmboxq, phba->mbox_mem_pool);
+			return NULL;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	hs->link_failure_count = pmb->un.varRdLnk.linkFailureCnt;
@@ -6092,6 +7889,12 @@ lpfc_get_stats(struct Scsi_Host *shost)
 	hs->invalid_crc_count = pmb->un.varRdLnk.crcCnt;
 	hs->error_frames = pmb->un.varRdLnk.crcCnt;
 
+<<<<<<< HEAD
+=======
+	hs->cn_sig_warn = atomic64_read(&phba->cgn_acqe_stat.warn);
+	hs->cn_sig_alarm = atomic64_read(&phba->cgn_acqe_stat.alarm);
+
+>>>>>>> upstream/android-13
 	hs->link_failure_count -= lso->link_failure_count;
 	hs->loss_of_sync_count -= lso->loss_of_sync_count;
 	hs->loss_of_signal_count -= lso->loss_of_signal_count;
@@ -6150,6 +7953,7 @@ lpfc_reset_stats(struct Scsi_Host *shost)
 	pmb->mbxCommand = MBX_READ_STATUS;
 	pmb->mbxOwner = OWN_HOST;
 	pmb->un.varWords[0] = 0x1; /* reset request */
+<<<<<<< HEAD
 	pmboxq->context1 = NULL;
 	pmboxq->vport = vport;
 
@@ -6163,11 +7967,31 @@ lpfc_reset_stats(struct Scsi_Host *shost)
 		if (rc != MBX_TIMEOUT)
 			mempool_free(pmboxq, phba->mbox_mem_pool);
 		return;
+=======
+	pmboxq->ctx_buf = NULL;
+	pmboxq->vport = vport;
+
+	if ((vport->fc_flag & FC_OFFLINE_MODE) ||
+		(!(psli->sli_flag & LPFC_SLI_ACTIVE))) {
+		rc = lpfc_sli_issue_mbox(phba, pmboxq, MBX_POLL);
+		if (rc != MBX_SUCCESS) {
+			mempool_free(pmboxq, phba->mbox_mem_pool);
+			return;
+		}
+	} else {
+		rc = lpfc_sli_issue_mbox_wait(phba, pmboxq, phba->fc_ratov * 2);
+		if (rc != MBX_SUCCESS) {
+			if (rc != MBX_TIMEOUT)
+				mempool_free(pmboxq, phba->mbox_mem_pool);
+			return;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	memset(pmboxq, 0, sizeof(LPFC_MBOXQ_t));
 	pmb->mbxCommand = MBX_READ_LNK_STAT;
 	pmb->mbxOwner = OWN_HOST;
+<<<<<<< HEAD
 	pmboxq->context1 = NULL;
 	pmboxq->vport = vport;
 
@@ -6181,6 +8005,25 @@ lpfc_reset_stats(struct Scsi_Host *shost)
 		if (rc != MBX_TIMEOUT)
 			mempool_free( pmboxq, phba->mbox_mem_pool);
 		return;
+=======
+	pmboxq->ctx_buf = NULL;
+	pmboxq->vport = vport;
+
+	if ((vport->fc_flag & FC_OFFLINE_MODE) ||
+	    (!(psli->sli_flag & LPFC_SLI_ACTIVE))) {
+		rc = lpfc_sli_issue_mbox(phba, pmboxq, MBX_POLL);
+		if (rc != MBX_SUCCESS) {
+			mempool_free(pmboxq, phba->mbox_mem_pool);
+			return;
+		}
+	} else {
+		rc = lpfc_sli_issue_mbox_wait(phba, pmboxq, phba->fc_ratov * 2);
+		if (rc != MBX_SUCCESS) {
+			if (rc != MBX_TIMEOUT)
+				mempool_free(pmboxq, phba->mbox_mem_pool);
+			return;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	lso->link_failure_count = pmb->un.varRdLnk.linkFailureCnt;
@@ -6195,6 +8038,15 @@ lpfc_reset_stats(struct Scsi_Host *shost)
 	else
 		lso->link_events = (phba->fc_eventTag >> 1);
 
+<<<<<<< HEAD
+=======
+	atomic64_set(&phba->cgn_acqe_stat.warn, 0);
+	atomic64_set(&phba->cgn_acqe_stat.alarm, 0);
+
+	memset(&shost_to_fc_host(shost)->fpin_stats, 0,
+	       sizeof(shost_to_fc_host(shost)->fpin_stats));
+
+>>>>>>> upstream/android-13
 	psli->stats_start = ktime_get_seconds();
 
 	mempool_free(pmboxq, phba->mbox_mem_pool);
@@ -6225,8 +8077,12 @@ lpfc_get_node_by_target(struct scsi_target *starget)
 	spin_lock_irq(shost->host_lock);
 	/* Search for this, mapped, target ID */
 	list_for_each_entry(ndlp, &vport->fc_nodes, nlp_listp) {
+<<<<<<< HEAD
 		if (NLP_CHK_NODE_ACT(ndlp) &&
 		    ndlp->nlp_state == NLP_STE_MAPPED_NODE &&
+=======
+		if (ndlp->nlp_state == NLP_STE_MAPPED_NODE &&
+>>>>>>> upstream/android-13
 		    starget->id == ndlp->nlp_sid) {
 			spin_unlock_irq(shost->host_lock);
 			return ndlp;
@@ -6290,13 +8146,43 @@ lpfc_get_starget_port_name(struct scsi_target *starget)
 static void
 lpfc_set_rport_loss_tmo(struct fc_rport *rport, uint32_t timeout)
 {
+<<<<<<< HEAD
+=======
+	struct lpfc_rport_data *rdata = rport->dd_data;
+	struct lpfc_nodelist *ndlp = rdata->pnode;
+#if (IS_ENABLED(CONFIG_NVME_FC))
+	struct lpfc_nvme_rport *nrport = NULL;
+#endif
+
+>>>>>>> upstream/android-13
 	if (timeout)
 		rport->dev_loss_tmo = timeout;
 	else
 		rport->dev_loss_tmo = 1;
+<<<<<<< HEAD
 }
 
 /**
+=======
+
+	if (!ndlp) {
+		dev_info(&rport->dev, "Cannot find remote node to "
+				      "set rport dev loss tmo, port_id x%x\n",
+				      rport->port_id);
+		return;
+	}
+
+#if (IS_ENABLED(CONFIG_NVME_FC))
+	nrport = lpfc_ndlp_get_nrport(ndlp);
+
+	if (nrport && nrport->remoteport)
+		nvme_fc_set_remoteport_devloss(nrport->remoteport,
+					       rport->dev_loss_tmo);
+#endif
+}
+
+/*
+>>>>>>> upstream/android-13
  * lpfc_rport_show_function - Return rport target information
  *
  * Description:
@@ -6345,6 +8231,10 @@ lpfc_set_vport_symbolic_name(struct fc_vport *fc_vport)
 /**
  * lpfc_hba_log_verbose_init - Set hba's log verbose level
  * @phba: Pointer to lpfc_hba struct.
+<<<<<<< HEAD
+=======
+ * @verbose: Verbose level to set.
+>>>>>>> upstream/android-13
  *
  * This function is called by the lpfc_get_cfgparam() routine to set the
  * module lpfc_log_verbose into the @phba cfg_log_verbose for use with
@@ -6490,13 +8380,48 @@ struct fc_function_template lpfc_vport_transport_functions = {
 };
 
 /**
+<<<<<<< HEAD
+=======
+ * lpfc_get_hba_function_mode - Used to determine the HBA function in FCoE
+ * Mode
+ * @phba: lpfc_hba pointer.
+ **/
+static void
+lpfc_get_hba_function_mode(struct lpfc_hba *phba)
+{
+	/* If the adapter supports FCoE mode */
+	switch (phba->pcidev->device) {
+	case PCI_DEVICE_ID_SKYHAWK:
+	case PCI_DEVICE_ID_SKYHAWK_VF:
+	case PCI_DEVICE_ID_LANCER_FCOE:
+	case PCI_DEVICE_ID_LANCER_FCOE_VF:
+	case PCI_DEVICE_ID_ZEPHYR_DCSP:
+	case PCI_DEVICE_ID_HORNET:
+	case PCI_DEVICE_ID_TIGERSHARK:
+	case PCI_DEVICE_ID_TOMCAT:
+		phba->hba_flag |= HBA_FCOE_MODE;
+		break;
+	default:
+	/* for others, clear the flag */
+		phba->hba_flag &= ~HBA_FCOE_MODE;
+	}
+}
+
+/**
+>>>>>>> upstream/android-13
  * lpfc_get_cfgparam - Used during probe_one to init the adapter structure
  * @phba: lpfc_hba pointer.
  **/
 void
 lpfc_get_cfgparam(struct lpfc_hba *phba)
 {
+<<<<<<< HEAD
 	lpfc_fcp_io_sched_init(phba, lpfc_fcp_io_sched);
+=======
+	lpfc_hba_log_verbose_init(phba, lpfc_log_verbose);
+	lpfc_fcp_io_sched_init(phba, lpfc_fcp_io_sched);
+	lpfc_ns_query_init(phba, lpfc_ns_query);
+>>>>>>> upstream/android-13
 	lpfc_fcp2_no_tgt_reset_init(phba, lpfc_fcp2_no_tgt_reset);
 	lpfc_cr_delay_init(phba, lpfc_cr_delay);
 	lpfc_cr_count_init(phba, lpfc_cr_count);
@@ -6504,6 +8429,10 @@ lpfc_get_cfgparam(struct lpfc_hba *phba)
 	lpfc_multi_ring_rctl_init(phba, lpfc_multi_ring_rctl);
 	lpfc_multi_ring_type_init(phba, lpfc_multi_ring_type);
 	lpfc_ack0_init(phba, lpfc_ack0);
+<<<<<<< HEAD
+=======
+	lpfc_xri_rebalancing_init(phba, lpfc_xri_rebalancing);
+>>>>>>> upstream/android-13
 	lpfc_topology_init(phba, lpfc_topology);
 	lpfc_link_speed_init(phba, lpfc_link_speed);
 	lpfc_poll_tmo_init(phba, lpfc_poll_tmo);
@@ -6511,18 +8440,37 @@ lpfc_get_cfgparam(struct lpfc_hba *phba)
 	lpfc_enable_npiv_init(phba, lpfc_enable_npiv);
 	lpfc_fcf_failover_policy_init(phba, lpfc_fcf_failover_policy);
 	lpfc_enable_rrq_init(phba, lpfc_enable_rrq);
+<<<<<<< HEAD
+=======
+	lpfc_fcp_wait_abts_rsp_init(phba, lpfc_fcp_wait_abts_rsp);
+>>>>>>> upstream/android-13
 	lpfc_fdmi_on_init(phba, lpfc_fdmi_on);
 	lpfc_enable_SmartSAN_init(phba, lpfc_enable_SmartSAN);
 	lpfc_use_msi_init(phba, lpfc_use_msi);
 	lpfc_nvme_oas_init(phba, lpfc_nvme_oas);
 	lpfc_nvme_embed_cmd_init(phba, lpfc_nvme_embed_cmd);
+<<<<<<< HEAD
 	lpfc_auto_imax_init(phba, lpfc_auto_imax);
 	lpfc_fcp_imax_init(phba, lpfc_fcp_imax);
+=======
+	lpfc_fcp_imax_init(phba, lpfc_fcp_imax);
+	lpfc_force_rscn_init(phba, lpfc_force_rscn);
+	lpfc_cq_poll_threshold_init(phba, lpfc_cq_poll_threshold);
+	lpfc_cq_max_proc_limit_init(phba, lpfc_cq_max_proc_limit);
+>>>>>>> upstream/android-13
 	lpfc_fcp_cpu_map_init(phba, lpfc_fcp_cpu_map);
 	lpfc_enable_hba_reset_init(phba, lpfc_enable_hba_reset);
 	lpfc_enable_hba_heartbeat_init(phba, lpfc_enable_hba_heartbeat);
 
 	lpfc_EnableXLane_init(phba, lpfc_EnableXLane);
+<<<<<<< HEAD
+=======
+	/* VMID Inits */
+	lpfc_max_vmid_init(phba, lpfc_max_vmid);
+	lpfc_vmid_inactivity_timeout_init(phba, lpfc_vmid_inactivity_timeout);
+	lpfc_vmid_app_header_init(phba, lpfc_vmid_app_header);
+	lpfc_vmid_priority_tagging_init(phba, lpfc_vmid_priority_tagging);
+>>>>>>> upstream/android-13
 	if (phba->sli_rev != LPFC_SLI_REV4)
 		phba->cfg_EnableXLane = 0;
 	lpfc_XLanePriority_init(phba, lpfc_XLanePriority);
@@ -6541,8 +8489,23 @@ lpfc_get_cfgparam(struct lpfc_hba *phba)
 	else
 		phba->cfg_poll = lpfc_poll;
 
+<<<<<<< HEAD
 	if (phba->cfg_enable_bg)
 		phba->sli3_options |= LPFC_SLI3_BG_ENABLED;
+=======
+	/* Get the function mode */
+	lpfc_get_hba_function_mode(phba);
+
+	/* BlockGuard allowed for FC only. */
+	if (phba->cfg_enable_bg && phba->hba_flag & HBA_FCOE_MODE) {
+		lpfc_printf_log(phba, KERN_INFO, LOG_INIT,
+				"0581 BlockGuard feature not supported\n");
+		/* If set, clear the BlockGuard support param */
+		phba->cfg_enable_bg = 0;
+	} else if (phba->cfg_enable_bg) {
+		phba->sli3_options |= LPFC_SLI3_BG_ENABLED;
+	}
+>>>>>>> upstream/android-13
 
 	lpfc_suppress_rsp_init(phba, lpfc_suppress_rsp);
 
@@ -6553,29 +8516,56 @@ lpfc_get_cfgparam(struct lpfc_hba *phba)
 	/* Initialize first burst. Target vs Initiator are different. */
 	lpfc_nvme_enable_fb_init(phba, lpfc_nvme_enable_fb);
 	lpfc_nvmet_fb_size_init(phba, lpfc_nvmet_fb_size);
+<<<<<<< HEAD
 	lpfc_fcp_io_channel_init(phba, lpfc_fcp_io_channel);
 	lpfc_nvme_io_channel_init(phba, lpfc_nvme_io_channel);
 	lpfc_enable_bbcr_init(phba, lpfc_enable_bbcr);
 	lpfc_enable_dpp_init(phba, lpfc_enable_dpp);
+=======
+	lpfc_fcp_mq_threshold_init(phba, lpfc_fcp_mq_threshold);
+	lpfc_hdw_queue_init(phba, lpfc_hdw_queue);
+	lpfc_irq_chann_init(phba, lpfc_irq_chann);
+	lpfc_enable_bbcr_init(phba, lpfc_enable_bbcr);
+	lpfc_enable_dpp_init(phba, lpfc_enable_dpp);
+	lpfc_enable_mi_init(phba, lpfc_enable_mi);
+
+	phba->cgn_p.cgn_param_mode = LPFC_CFG_OFF;
+	phba->cmf_active_mode = LPFC_CFG_OFF;
+	if (lpfc_fabric_cgn_frequency > EDC_CG_SIGFREQ_CNT_MAX ||
+	   lpfc_fabric_cgn_frequency < EDC_CG_SIGFREQ_CNT_MIN)
+		lpfc_fabric_cgn_frequency = 100; /* 100 ms default */
+>>>>>>> upstream/android-13
 
 	if (phba->sli_rev != LPFC_SLI_REV4) {
 		/* NVME only supported on SLI4 */
 		phba->nvmet_support = 0;
+<<<<<<< HEAD
 		phba->cfg_enable_fc4_type = LPFC_ENABLE_FCP;
 		phba->cfg_enable_bbcr = 0;
+=======
+		phba->cfg_nvmet_mrq = 0;
+		phba->cfg_enable_fc4_type = LPFC_ENABLE_FCP;
+		phba->cfg_enable_bbcr = 0;
+		phba->cfg_xri_rebalancing = 0;
+>>>>>>> upstream/android-13
 	} else {
 		/* We MUST have FCP support */
 		if (!(phba->cfg_enable_fc4_type & LPFC_ENABLE_FCP))
 			phba->cfg_enable_fc4_type |= LPFC_ENABLE_FCP;
 	}
 
+<<<<<<< HEAD
 	if (phba->cfg_auto_imax && !phba->cfg_fcp_imax)
 		phba->cfg_auto_imax = 0;
 	phba->initial_imax = phba->cfg_fcp_imax;
+=======
+	phba->cfg_auto_imax = (phba->cfg_fcp_imax) ? 0 : 1;
+>>>>>>> upstream/android-13
 
 	phba->cfg_enable_pbde = 0;
 
 	/* A value of 0 means use the number of CPUs found in the system */
+<<<<<<< HEAD
 	if (phba->cfg_fcp_io_channel == 0)
 		phba->cfg_fcp_io_channel = phba->sli4_hba.num_present_cpu;
 	if (phba->cfg_nvme_io_channel == 0)
@@ -6598,15 +8588,39 @@ lpfc_get_cfgparam(struct lpfc_hba *phba)
 	lpfc_sg_seg_cnt_init(phba, lpfc_sg_seg_cnt);
 	lpfc_hba_queue_depth_init(phba, lpfc_hba_queue_depth);
 	lpfc_hba_log_verbose_init(phba, lpfc_log_verbose);
+=======
+	if (phba->cfg_hdw_queue == 0)
+		phba->cfg_hdw_queue = phba->sli4_hba.num_present_cpu;
+	if (phba->cfg_irq_chann == 0)
+		phba->cfg_irq_chann = phba->sli4_hba.num_present_cpu;
+	if (phba->cfg_irq_chann > phba->cfg_hdw_queue &&
+	    phba->sli_rev == LPFC_SLI_REV4)
+		phba->cfg_irq_chann = phba->cfg_hdw_queue;
+
+	phba->cfg_soft_wwnn = 0L;
+	phba->cfg_soft_wwpn = 0L;
+	lpfc_sg_seg_cnt_init(phba, lpfc_sg_seg_cnt);
+	lpfc_hba_queue_depth_init(phba, lpfc_hba_queue_depth);
+>>>>>>> upstream/android-13
 	lpfc_aer_support_init(phba, lpfc_aer_support);
 	lpfc_sriov_nr_virtfn_init(phba, lpfc_sriov_nr_virtfn);
 	lpfc_request_firmware_upgrade_init(phba, lpfc_req_fw_upgrade);
 	lpfc_suppress_link_up_init(phba, lpfc_suppress_link_up);
+<<<<<<< HEAD
 	lpfc_iocb_cnt_init(phba, lpfc_iocb_cnt);
 	lpfc_delay_discovery_init(phba, lpfc_delay_discovery);
 	lpfc_sli_mode_init(phba, lpfc_sli_mode);
 	phba->cfg_enable_dss = 1;
 	lpfc_enable_mds_diags_init(phba, lpfc_enable_mds_diags);
+=======
+	lpfc_delay_discovery_init(phba, lpfc_delay_discovery);
+	lpfc_sli_mode_init(phba, lpfc_sli_mode);
+	lpfc_enable_mds_diags_init(phba, lpfc_enable_mds_diags);
+	lpfc_ras_fwlog_buffsize_init(phba, lpfc_ras_fwlog_buffsize);
+	lpfc_ras_fwlog_level_init(phba, lpfc_ras_fwlog_level);
+	lpfc_ras_fwlog_func_init(phba, lpfc_ras_fwlog_func);
+
+>>>>>>> upstream/android-13
 	return;
 }
 
@@ -6618,16 +8632,42 @@ lpfc_get_cfgparam(struct lpfc_hba *phba)
 void
 lpfc_nvme_mod_param_dep(struct lpfc_hba *phba)
 {
+<<<<<<< HEAD
 	if (phba->cfg_nvme_io_channel > phba->sli4_hba.num_present_cpu)
 		phba->cfg_nvme_io_channel = phba->sli4_hba.num_present_cpu;
 
 	if (phba->cfg_fcp_io_channel > phba->sli4_hba.num_present_cpu)
 		phba->cfg_fcp_io_channel = phba->sli4_hba.num_present_cpu;
+=======
+	int  logit = 0;
+
+	if (phba->cfg_hdw_queue > phba->sli4_hba.num_present_cpu) {
+		phba->cfg_hdw_queue = phba->sli4_hba.num_present_cpu;
+		logit = 1;
+	}
+	if (phba->cfg_irq_chann > phba->sli4_hba.num_present_cpu) {
+		phba->cfg_irq_chann = phba->sli4_hba.num_present_cpu;
+		logit = 1;
+	}
+	if (phba->cfg_irq_chann > phba->cfg_hdw_queue) {
+		phba->cfg_irq_chann = phba->cfg_hdw_queue;
+		logit = 1;
+	}
+	if (logit)
+		lpfc_printf_log(phba, KERN_ERR, LOG_SLI,
+				"2006 Reducing Queues - CPU limitation: "
+				"IRQ %d HDWQ %d\n",
+				phba->cfg_irq_chann,
+				phba->cfg_hdw_queue);
+>>>>>>> upstream/android-13
 
 	if (phba->cfg_enable_fc4_type & LPFC_ENABLE_NVME &&
 	    phba->nvmet_support) {
 		phba->cfg_enable_fc4_type &= ~LPFC_ENABLE_FCP;
+<<<<<<< HEAD
 		phba->cfg_fcp_io_channel = 0;
+=======
+>>>>>>> upstream/android-13
 
 		lpfc_printf_log(phba, KERN_INFO, LOG_NVME_DISC,
 				"6013 %s x%x fb_size x%x, fb_max x%x\n",
@@ -6644,11 +8684,19 @@ lpfc_nvme_mod_param_dep(struct lpfc_hba *phba)
 		}
 
 		if (!phba->cfg_nvmet_mrq)
+<<<<<<< HEAD
 			phba->cfg_nvmet_mrq = phba->cfg_nvme_io_channel;
 
 		/* Adjust lpfc_nvmet_mrq to avoid running out of WQE slots */
 		if (phba->cfg_nvmet_mrq > phba->cfg_nvme_io_channel) {
 			phba->cfg_nvmet_mrq = phba->cfg_nvme_io_channel;
+=======
+			phba->cfg_nvmet_mrq = phba->cfg_hdw_queue;
+
+		/* Adjust lpfc_nvmet_mrq to avoid running out of WQE slots */
+		if (phba->cfg_nvmet_mrq > phba->cfg_hdw_queue) {
+			phba->cfg_nvmet_mrq = phba->cfg_hdw_queue;
+>>>>>>> upstream/android-13
 			lpfc_printf_log(phba, KERN_ERR, LOG_NVME_DISC,
 					"6018 Adjust lpfc_nvmet_mrq to %d\n",
 					phba->cfg_nvmet_mrq);
@@ -6659,6 +8707,7 @@ lpfc_nvme_mod_param_dep(struct lpfc_hba *phba)
 	} else {
 		/* Not NVME Target mode.  Turn off Target parameters. */
 		phba->nvmet_support = 0;
+<<<<<<< HEAD
 		phba->cfg_nvmet_mrq = LPFC_NVMET_MRQ_OFF;
 		phba->cfg_nvmet_fb_size = 0;
 	}
@@ -6667,6 +8716,11 @@ lpfc_nvme_mod_param_dep(struct lpfc_hba *phba)
 		phba->io_channel_irqs = phba->cfg_fcp_io_channel;
 	else
 		phba->io_channel_irqs = phba->cfg_nvme_io_channel;
+=======
+		phba->cfg_nvmet_mrq = 0;
+		phba->cfg_nvmet_fb_size = 0;
+	}
+>>>>>>> upstream/android-13
 }
 
 /**

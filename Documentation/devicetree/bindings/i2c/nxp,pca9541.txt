@@ -22,7 +22,11 @@ Example:
 			#size-cells = <0>;
 
 			eeprom@54 {
+<<<<<<< HEAD
 				compatible = "at,24c08";
+=======
+				compatible = "atmel,24c08";
+>>>>>>> upstream/android-13
 				reg = <0x54>;
 			};
 		};

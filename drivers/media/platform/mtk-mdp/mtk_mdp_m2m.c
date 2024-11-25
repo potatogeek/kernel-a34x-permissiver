@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2015-2016 MediaTek Inc.
  * Author: Houlong Wei <houlong.wei@mediatek.com>
  *         Ming Hsiu Tsai <minghsiu.tsai@mediatek.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -11,6 +16,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -201,13 +208,20 @@ static const struct mtk_mdp_fmt *mtk_mdp_try_fmt_mplane(struct mtk_mdp_ctx *ctx,
 
 	pix_mp->field = V4L2_FIELD_NONE;
 	pix_mp->pixelformat = fmt->pixelformat;
+<<<<<<< HEAD
 	if (!V4L2_TYPE_IS_OUTPUT(f->type)) {
+=======
+	if (V4L2_TYPE_IS_CAPTURE(f->type)) {
+>>>>>>> upstream/android-13
 		pix_mp->colorspace = ctx->colorspace;
 		pix_mp->xfer_func = ctx->xfer_func;
 		pix_mp->ycbcr_enc = ctx->ycbcr_enc;
 		pix_mp->quantization = ctx->quant;
 	}
+<<<<<<< HEAD
 	memset(pix_mp->reserved, 0, sizeof(pix_mp->reserved));
+=======
+>>>>>>> upstream/android-13
 
 	max_w = variant->pix_max->target_rot_dis_w;
 	max_h = variant->pix_max->target_rot_dis_h;
@@ -255,8 +269,11 @@ static const struct mtk_mdp_fmt *mtk_mdp_try_fmt_mplane(struct mtk_mdp_ctx *ctx,
 		pix_mp->plane_fmt[i].bytesperline = bpl;
 		if (pix_mp->plane_fmt[i].sizeimage < sizeimage)
 			pix_mp->plane_fmt[i].sizeimage = sizeimage;
+<<<<<<< HEAD
 		memset(pix_mp->plane_fmt[i].reserved, 0,
 		       sizeof(pix_mp->plane_fmt[i].reserved));
+=======
+>>>>>>> upstream/android-13
 		mtk_mdp_dbg(2, "[%d] p%d, bpl:%d, sizeimage:%u (%u)", ctx->id,
 			    i, bpl, pix_mp->plane_fmt[i].sizeimage, sizeimage);
 	}
@@ -335,9 +352,14 @@ static int mtk_mdp_try_crop(struct mtk_mdp_ctx *ctx, u32 type,
 	mtk_mdp_bound_align_image(&new_w, min_w, max_w, align_w,
 				  &new_h, min_h, max_h, align_h);
 
+<<<<<<< HEAD
 	if (!V4L2_TYPE_IS_OUTPUT(type) &&
 		(ctx->ctrls.rotate->val == 90 ||
 		ctx->ctrls.rotate->val == 270))
+=======
+	if (V4L2_TYPE_IS_CAPTURE(type) &&
+	    (ctx->ctrls.rotate->val == 90 || ctx->ctrls.rotate->val == 270))
+>>>>>>> upstream/android-13
 		mtk_mdp_check_crop_change(new_h, new_w,
 					  &r->width, &r->height);
 	else
@@ -377,6 +399,7 @@ void mtk_mdp_ctx_state_lock_set(struct mtk_mdp_ctx *ctx, u32 state)
 	mutex_unlock(&ctx->slock);
 }
 
+<<<<<<< HEAD
 static void mtk_mdp_ctx_state_lock_clear(struct mtk_mdp_ctx *ctx, u32 state)
 {
 	mutex_lock(&ctx->slock);
@@ -384,6 +407,8 @@ static void mtk_mdp_ctx_state_lock_clear(struct mtk_mdp_ctx *ctx, u32 state)
 	mutex_unlock(&ctx->slock);
 }
 
+=======
+>>>>>>> upstream/android-13
 static bool mtk_mdp_ctx_state_is_set(struct mtk_mdp_ctx *ctx, u32 mask)
 {
 	bool ret;
@@ -410,12 +435,21 @@ static int mtk_mdp_m2m_start_streaming(struct vb2_queue *q, unsigned int count)
 	struct mtk_mdp_ctx *ctx = q->drv_priv;
 	int ret;
 
+<<<<<<< HEAD
 	ret = pm_runtime_get_sync(&ctx->mdp_dev->pdev->dev);
 	if (ret < 0)
 		mtk_mdp_dbg(1, "[%d] pm_runtime_get_sync failed:%d",
 			    ctx->id, ret);
 
 	return 0;
+=======
+	ret = pm_runtime_resume_and_get(&ctx->mdp_dev->pdev->dev);
+	if (ret < 0)
+		mtk_mdp_dbg(1, "[%d] pm_runtime_resume_and_get failed:%d",
+			    ctx->id, ret);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void *mtk_mdp_m2m_buf_remove(struct mtk_mdp_ctx *ctx,
@@ -473,12 +507,16 @@ static void mtk_mdp_prepare_addr(struct mtk_mdp_ctx *ctx,
 static void mtk_mdp_m2m_get_bufs(struct mtk_mdp_ctx *ctx)
 {
 	struct mtk_mdp_frame *s_frame, *d_frame;
+<<<<<<< HEAD
 	struct vb2_buffer *src_vb, *dst_vb;
+=======
+>>>>>>> upstream/android-13
 	struct vb2_v4l2_buffer *src_vbuf, *dst_vbuf;
 
 	s_frame = &ctx->s_frame;
 	d_frame = &ctx->d_frame;
 
+<<<<<<< HEAD
 	src_vb = v4l2_m2m_next_src_buf(ctx->m2m_ctx);
 	mtk_mdp_prepare_addr(ctx, src_vb, s_frame, &s_frame->addr);
 
@@ -487,6 +525,14 @@ static void mtk_mdp_m2m_get_bufs(struct mtk_mdp_ctx *ctx)
 
 	src_vbuf = to_vb2_v4l2_buffer(src_vb);
 	dst_vbuf = to_vb2_v4l2_buffer(dst_vb);
+=======
+	src_vbuf = v4l2_m2m_next_src_buf(ctx->m2m_ctx);
+	mtk_mdp_prepare_addr(ctx, &src_vbuf->vb2_buf, s_frame, &s_frame->addr);
+
+	dst_vbuf = v4l2_m2m_next_dst_buf(ctx->m2m_ctx);
+	mtk_mdp_prepare_addr(ctx, &dst_vbuf->vb2_buf, d_frame, &d_frame->addr);
+
+>>>>>>> upstream/android-13
 	dst_vbuf->vb2_buf.timestamp = src_vbuf->vb2_buf.timestamp;
 }
 
@@ -494,17 +540,26 @@ static void mtk_mdp_process_done(void *priv, int vb_state)
 {
 	struct mtk_mdp_dev *mdp = priv;
 	struct mtk_mdp_ctx *ctx;
+<<<<<<< HEAD
 	struct vb2_buffer *src_vb, *dst_vb;
 	struct vb2_v4l2_buffer *src_vbuf = NULL, *dst_vbuf = NULL;
+=======
+	struct vb2_v4l2_buffer *src_vbuf, *dst_vbuf;
+>>>>>>> upstream/android-13
 
 	ctx = v4l2_m2m_get_curr_priv(mdp->m2m_dev);
 	if (!ctx)
 		return;
 
+<<<<<<< HEAD
 	src_vb = v4l2_m2m_src_buf_remove(ctx->m2m_ctx);
 	src_vbuf = to_vb2_v4l2_buffer(src_vb);
 	dst_vb = v4l2_m2m_dst_buf_remove(ctx->m2m_ctx);
 	dst_vbuf = to_vb2_v4l2_buffer(dst_vb);
+=======
+	src_vbuf = v4l2_m2m_src_buf_remove(ctx->m2m_ctx);
+	dst_vbuf = v4l2_m2m_dst_buf_remove(ctx->m2m_ctx);
+>>>>>>> upstream/android-13
 
 	dst_vbuf->vb2_buf.timestamp = src_vbuf->vb2_buf.timestamp;
 	dst_vbuf->timecode = src_vbuf->timecode;
@@ -619,14 +674,24 @@ static int mtk_mdp_m2m_querycap(struct file *file, void *fh,
 	struct mtk_mdp_ctx *ctx = fh_to_ctx(fh);
 	struct mtk_mdp_dev *mdp = ctx->mdp_dev;
 
+<<<<<<< HEAD
 	strlcpy(cap->driver, MTK_MDP_MODULE_NAME, sizeof(cap->driver));
 	strlcpy(cap->card, mdp->pdev->name, sizeof(cap->card));
 	strlcpy(cap->bus_info, "platform:mt8173", sizeof(cap->bus_info));
+=======
+	strscpy(cap->driver, MTK_MDP_MODULE_NAME, sizeof(cap->driver));
+	strscpy(cap->card, mdp->pdev->name, sizeof(cap->card));
+	strscpy(cap->bus_info, "platform:mt8173", sizeof(cap->bus_info));
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int mtk_mdp_enum_fmt_mplane(struct v4l2_fmtdesc *f, u32 type)
+=======
+static int mtk_mdp_enum_fmt(struct v4l2_fmtdesc *f, u32 type)
+>>>>>>> upstream/android-13
 {
 	const struct mtk_mdp_fmt *fmt;
 
@@ -639,6 +704,7 @@ static int mtk_mdp_enum_fmt_mplane(struct v4l2_fmtdesc *f, u32 type)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int mtk_mdp_m2m_enum_fmt_mplane_vid_cap(struct file *file, void *priv,
 				       struct v4l2_fmtdesc *f)
 {
@@ -649,6 +715,18 @@ static int mtk_mdp_m2m_enum_fmt_mplane_vid_out(struct file *file, void *priv,
 				       struct v4l2_fmtdesc *f)
 {
 	return mtk_mdp_enum_fmt_mplane(f, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE);
+=======
+static int mtk_mdp_m2m_enum_fmt_vid_cap(struct file *file, void *priv,
+					struct v4l2_fmtdesc *f)
+{
+	return mtk_mdp_enum_fmt(f, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE);
+}
+
+static int mtk_mdp_m2m_enum_fmt_vid_out(struct file *file, void *priv,
+					struct v4l2_fmtdesc *f)
+{
+	return mtk_mdp_enum_fmt(f, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE);
+>>>>>>> upstream/android-13
 }
 
 static int mtk_mdp_m2m_g_fmt_mplane(struct file *file, void *fh,
@@ -740,11 +818,14 @@ static int mtk_mdp_m2m_s_fmt_mplane(struct file *file, void *fh,
 		ctx->quant = pix_mp->quantization;
 	}
 
+<<<<<<< HEAD
 	if (V4L2_TYPE_IS_OUTPUT(f->type))
 		mtk_mdp_ctx_state_lock_set(ctx, MTK_MDP_SRC_FMT);
 	else
 		mtk_mdp_ctx_state_lock_set(ctx, MTK_MDP_DST_FMT);
 
+=======
+>>>>>>> upstream/android-13
 	mtk_mdp_dbg(2, "[%d] type:%d, frame:%dx%d", ctx->id, f->type,
 		    frame->width, frame->height);
 
@@ -756,6 +837,7 @@ static int mtk_mdp_m2m_reqbufs(struct file *file, void *fh,
 {
 	struct mtk_mdp_ctx *ctx = fh_to_ctx(fh);
 
+<<<<<<< HEAD
 	if (reqbufs->count == 0) {
 		if (reqbufs->type == V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE)
 			mtk_mdp_ctx_state_lock_clear(ctx, MTK_MDP_SRC_FMT);
@@ -763,6 +845,8 @@ static int mtk_mdp_m2m_reqbufs(struct file *file, void *fh,
 			mtk_mdp_ctx_state_lock_clear(ctx, MTK_MDP_DST_FMT);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	return v4l2_m2m_reqbufs(file, ctx->m2m_ctx, reqbufs);
 }
 
@@ -772,6 +856,7 @@ static int mtk_mdp_m2m_streamon(struct file *file, void *fh,
 	struct mtk_mdp_ctx *ctx = fh_to_ctx(fh);
 	int ret;
 
+<<<<<<< HEAD
 	/* The source and target color format need to be set */
 	if (V4L2_TYPE_IS_OUTPUT(type)) {
 		if (!mtk_mdp_ctx_state_is_set(ctx, MTK_MDP_SRC_FMT))
@@ -780,6 +865,8 @@ static int mtk_mdp_m2m_streamon(struct file *file, void *fh,
 		return -EINVAL;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (!mtk_mdp_ctx_state_is_set(ctx, MTK_MDP_VPU_INIT)) {
 		ret = mtk_mdp_vpu_init(&ctx->vpu);
 		if (ret < 0) {
@@ -913,6 +1000,7 @@ static int mtk_mdp_m2m_s_selection(struct file *file, void *fh,
 		frame = &ctx->d_frame;
 
 	/* Check to see if scaling ratio is within supported range */
+<<<<<<< HEAD
 	if (mtk_mdp_ctx_state_is_set(ctx, MTK_MDP_DST_FMT | MTK_MDP_SRC_FMT)) {
 		if (V4L2_TYPE_IS_OUTPUT(s->type)) {
 			ret = mtk_mdp_check_scaler_ratio(variant, new_r.width,
@@ -931,6 +1019,23 @@ static int mtk_mdp_m2m_s_selection(struct file *file, void *fh,
 				"Out of scaler range");
 			return -EINVAL;
 		}
+=======
+	if (V4L2_TYPE_IS_OUTPUT(s->type))
+		ret = mtk_mdp_check_scaler_ratio(variant, new_r.width,
+			new_r.height, ctx->d_frame.crop.width,
+			ctx->d_frame.crop.height,
+			ctx->ctrls.rotate->val);
+	else
+		ret = mtk_mdp_check_scaler_ratio(variant,
+			ctx->s_frame.crop.width,
+			ctx->s_frame.crop.height, new_r.width,
+			new_r.height, ctx->ctrls.rotate->val);
+
+	if (ret) {
+		dev_info(&ctx->mdp_dev->pdev->dev,
+			"Out of scaler range");
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 
 	s->r = new_r;
@@ -941,8 +1046,13 @@ static int mtk_mdp_m2m_s_selection(struct file *file, void *fh,
 
 static const struct v4l2_ioctl_ops mtk_mdp_m2m_ioctl_ops = {
 	.vidioc_querycap		= mtk_mdp_m2m_querycap,
+<<<<<<< HEAD
 	.vidioc_enum_fmt_vid_cap_mplane	= mtk_mdp_m2m_enum_fmt_mplane_vid_cap,
 	.vidioc_enum_fmt_vid_out_mplane	= mtk_mdp_m2m_enum_fmt_mplane_vid_out,
+=======
+	.vidioc_enum_fmt_vid_cap	= mtk_mdp_m2m_enum_fmt_vid_cap,
+	.vidioc_enum_fmt_vid_out	= mtk_mdp_m2m_enum_fmt_vid_out,
+>>>>>>> upstream/android-13
 	.vidioc_g_fmt_vid_cap_mplane	= mtk_mdp_m2m_g_fmt_mplane,
 	.vidioc_g_fmt_vid_out_mplane	= mtk_mdp_m2m_g_fmt_mplane,
 	.vidioc_try_fmt_vid_cap_mplane	= mtk_mdp_m2m_try_fmt_mplane,
@@ -1003,7 +1113,10 @@ static int mtk_mdp_s_ctrl(struct v4l2_ctrl *ctrl)
 	struct mtk_mdp_ctx *ctx = ctrl_to_ctx(ctrl);
 	struct mtk_mdp_dev *mdp = ctx->mdp_dev;
 	struct mtk_mdp_variant *variant = mdp->variant;
+<<<<<<< HEAD
 	u32 state = MTK_MDP_DST_FMT | MTK_MDP_SRC_FMT;
+=======
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 	if (ctrl->flags & V4L2_CTRL_FLAG_INACTIVE)
@@ -1017,6 +1130,7 @@ static int mtk_mdp_s_ctrl(struct v4l2_ctrl *ctrl)
 		ctx->vflip = ctrl->val;
 		break;
 	case V4L2_CID_ROTATE:
+<<<<<<< HEAD
 		if (mtk_mdp_ctx_state_is_set(ctx, state)) {
 			ret = mtk_mdp_check_scaler_ratio(variant,
 					ctx->s_frame.crop.width,
@@ -1028,6 +1142,17 @@ static int mtk_mdp_s_ctrl(struct v4l2_ctrl *ctrl)
 			if (ret)
 				return -EINVAL;
 		}
+=======
+		ret = mtk_mdp_check_scaler_ratio(variant,
+				ctx->s_frame.crop.width,
+				ctx->s_frame.crop.height,
+				ctx->d_frame.crop.width,
+				ctx->d_frame.crop.height,
+				ctx->ctrls.rotate->val);
+
+		if (ret)
+			return -EINVAL;
+>>>>>>> upstream/android-13
 
 		ctx->rotation = ctrl->val;
 		break;
@@ -1104,6 +1229,10 @@ static int mtk_mdp_m2m_open(struct file *file)
 	struct video_device *vfd = video_devdata(file);
 	struct mtk_mdp_ctx *ctx = NULL;
 	int ret;
+<<<<<<< HEAD
+=======
+	struct v4l2_format default_format;
+>>>>>>> upstream/android-13
 
 	ctx = kzalloc(sizeof(*ctx), GFP_KERNEL);
 	if (!ctx)
@@ -1158,6 +1287,19 @@ static int mtk_mdp_m2m_open(struct file *file)
 	list_add(&ctx->list, &mdp->ctx_list);
 	mutex_unlock(&mdp->lock);
 
+<<<<<<< HEAD
+=======
+	/* Default format */
+	memset(&default_format, 0, sizeof(default_format));
+	default_format.type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
+	default_format.fmt.pix_mp.width = 32;
+	default_format.fmt.pix_mp.height = 32;
+	default_format.fmt.pix_mp.pixelformat = V4L2_PIX_FMT_YUV420M;
+	mtk_mdp_m2m_s_fmt_mplane(file, &ctx->fh, &default_format);
+	default_format.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
+	mtk_mdp_m2m_s_fmt_mplane(file, &ctx->fh, &default_format);
+
+>>>>>>> upstream/android-13
 	mtk_mdp_dbg(0, "%s [%d]", dev_name(&mdp->pdev->dev), ctx->id);
 
 	return 0;
@@ -1243,7 +1385,11 @@ int mtk_mdp_register_m2m_device(struct mtk_mdp_dev *mdp)
 		goto err_m2m_init;
 	}
 
+<<<<<<< HEAD
 	ret = video_register_device(mdp->vdev, VFL_TYPE_GRABBER, 2);
+=======
+	ret = video_register_device(mdp->vdev, VFL_TYPE_VIDEO, 2);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(dev, "failed to register video device\n");
 		goto err_vdev_register;

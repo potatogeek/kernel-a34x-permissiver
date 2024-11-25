@@ -355,7 +355,11 @@
 /* Commonly used basic types */
 struct hfa384x_bytestr {
 	__le16 len;
+<<<<<<< HEAD
 	u8 data[0];
+=======
+	u8 data[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct hfa384x_bytestr32 {
@@ -421,7 +425,11 @@ struct hfa384x_authenticate_station_data {
 /*-- Configuration Record: WPAData       (data portion only) --*/
 struct hfa384x_wpa_data {
 	__le16 datalen;
+<<<<<<< HEAD
 	u8 data[0];		/* max 80 */
+=======
+	u8 data[];		/* max 80 */
+>>>>>>> upstream/android-13
 } __packed;
 
 /*--------------------------------------------------------------------
@@ -475,6 +483,7 @@ struct hfa384x_tx_frame {
 	u16 tx_control;
 
 	/*-- 802.11 Header Information --*/
+<<<<<<< HEAD
 
 	u16 frame_control;
 	u16 duration_id;
@@ -483,6 +492,9 @@ struct hfa384x_tx_frame {
 	u8 address3[6];
 	u16 sequence_control;
 	u8 address4[6];
+=======
+	struct p80211_hdr hdr;
+>>>>>>> upstream/android-13
 	__le16 data_len;		/* little endian format */
 
 	/*-- 802.3 Header Information --*/
@@ -541,6 +553,7 @@ struct hfa384x_rx_frame {
 	u16 reserved2;
 
 	/*-- 802.11 Header Information (802.11 byte order) --*/
+<<<<<<< HEAD
 	__le16 frame_control;
 	u16 duration_id;
 	u8 address1[6];
@@ -548,6 +561,9 @@ struct hfa384x_rx_frame {
 	u8 address3[6];
 	u16 sequence_control;
 	u8 address4[6];
+=======
+	struct p80211_hdr hdr;
+>>>>>>> upstream/android-13
 	__le16 data_len;		/* hfa384x (little endian) format */
 
 	/*-- 802.3 Header Information --*/
@@ -1181,8 +1197,11 @@ struct hfa384x_usbctlx {
 	ctlx_cmdcb_t cmdcb;	/* Async command callback */
 	ctlx_usercb_t usercb;	/* Async user callback, */
 	void *usercb_data;	/*  at CTLX completion  */
+<<<<<<< HEAD
 
 	int variant;		/* Identifies cmd variant */
+=======
+>>>>>>> upstream/android-13
 };
 
 struct hfa384x_usbctlxq {
@@ -1337,7 +1356,13 @@ struct hfa384x {
 						  * interface
 						  */
 
+<<<<<<< HEAD
 	struct hfa384x_caplevel cap_act_sta_mfi; /* sta f/w to modem interface */
+=======
+	struct hfa384x_caplevel cap_act_sta_mfi; /*
+						  * sta f/w to modem interface
+						  */
+>>>>>>> upstream/android-13
 
 	struct hfa384x_caplevel cap_act_ap_cfi;	/*
 						 * ap f/w to controller
@@ -1359,7 +1384,13 @@ struct hfa384x {
 
 	struct hfa384x_inf_frame *scanresults;
 
+<<<<<<< HEAD
 	struct prism2sta_authlist authlist;	/* Authenticated station list. */
+=======
+	struct prism2sta_authlist authlist;	/*
+						 * Authenticated station list.
+						 */
+>>>>>>> upstream/android-13
 	unsigned int accessmode;		/* Access mode. */
 	struct prism2sta_accesslist allow;	/* Allowed station list. */
 	struct prism2sta_accesslist deny;	/* Denied station list. */
@@ -1369,13 +1400,23 @@ struct hfa384x {
 void hfa384x_create(struct hfa384x *hw, struct usb_device *usb);
 void hfa384x_destroy(struct hfa384x *hw);
 
+<<<<<<< HEAD
 int
 hfa384x_corereset(struct hfa384x *hw, int holdtime, int settletime, int genesis);
+=======
+int hfa384x_corereset(struct hfa384x *hw, int holdtime, int settletime,
+		      int genesis);
+>>>>>>> upstream/android-13
 int hfa384x_drvr_disable(struct hfa384x *hw, u16 macport);
 int hfa384x_drvr_enable(struct hfa384x *hw, u16 macport);
 int hfa384x_drvr_flashdl_enable(struct hfa384x *hw);
 int hfa384x_drvr_flashdl_disable(struct hfa384x *hw);
+<<<<<<< HEAD
 int hfa384x_drvr_flashdl_write(struct hfa384x *hw, u32 daddr, void *buf, u32 len);
+=======
+int hfa384x_drvr_flashdl_write(struct hfa384x *hw, u32 daddr, void *buf,
+			       u32 len);
+>>>>>>> upstream/android-13
 int hfa384x_drvr_getconfig(struct hfa384x *hw, u16 rid, void *buf, u16 len);
 int hfa384x_drvr_ramdl_enable(struct hfa384x *hw, u32 exeaddr);
 int hfa384x_drvr_ramdl_disable(struct hfa384x *hw);
@@ -1383,7 +1424,12 @@ int hfa384x_drvr_ramdl_write(struct hfa384x *hw, u32 daddr, void *buf, u32 len);
 int hfa384x_drvr_readpda(struct hfa384x *hw, void *buf, unsigned int len);
 int hfa384x_drvr_setconfig(struct hfa384x *hw, u16 rid, void *buf, u16 len);
 
+<<<<<<< HEAD
 static inline int hfa384x_drvr_getconfig16(struct hfa384x *hw, u16 rid, void *val)
+=======
+static inline int
+hfa384x_drvr_getconfig16(struct hfa384x *hw, u16 rid, void *val)
+>>>>>>> upstream/android-13
 {
 	int result = 0;
 
@@ -1419,7 +1465,11 @@ int hfa384x_drvr_start(struct hfa384x *hw);
 int hfa384x_drvr_stop(struct hfa384x *hw);
 int
 hfa384x_drvr_txframe(struct hfa384x *hw, struct sk_buff *skb,
+<<<<<<< HEAD
 		     union p80211_hdr *p80211_hdr,
+=======
+		     struct p80211_hdr *p80211_hdr,
+>>>>>>> upstream/android-13
 		     struct p80211_metawep *p80211_wep);
 void hfa384x_tx_timeout(struct wlandevice *wlandev);
 

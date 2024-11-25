@@ -48,7 +48,10 @@
 # This code schedules 2 blocks at a time, with 4 lanes per block
 ########################################################################
 
+<<<<<<< HEAD
 #ifdef CONFIG_AS_AVX2
+=======
+>>>>>>> upstream/android-13
 #include <linux/linkage.h>
 
 ## assume buffers not aligned
@@ -118,15 +121,22 @@ _XMM_SAVE_SIZE	= 0
 _INP_END_SIZE	= 8
 _INP_SIZE	= 8
 _CTX_SIZE	= 8
+<<<<<<< HEAD
 _RSP_SIZE	= 8
+=======
+>>>>>>> upstream/android-13
 
 _XFER		= 0
 _XMM_SAVE	= _XFER     + _XFER_SIZE
 _INP_END	= _XMM_SAVE + _XMM_SAVE_SIZE
 _INP		= _INP_END  + _INP_END_SIZE
 _CTX		= _INP      + _INP_SIZE
+<<<<<<< HEAD
 _RSP		= _CTX      + _CTX_SIZE
 STACK_SIZE	= _RSP      + _RSP_SIZE
+=======
+STACK_SIZE	= _CTX      + _CTX_SIZE
+>>>>>>> upstream/android-13
 
 # rotate_Xs
 # Rotate values of symbols X0...X3
@@ -526,7 +536,11 @@ STACK_SIZE	= _RSP      + _RSP_SIZE
 ## arg 3 : Num blocks
 ########################################################################
 .text
+<<<<<<< HEAD
 ENTRY(sha256_transform_rorx)
+=======
+SYM_FUNC_START(sha256_transform_rorx)
+>>>>>>> upstream/android-13
 .align 32
 	pushq	%rbx
 	pushq	%r12
@@ -534,11 +548,19 @@ ENTRY(sha256_transform_rorx)
 	pushq	%r14
 	pushq	%r15
 
+<<<<<<< HEAD
 	mov	%rsp, %rax
 	subq	$STACK_SIZE, %rsp
 	and	$-32, %rsp	# align rsp to 32 byte boundary
 	mov	%rax, _RSP(%rsp)
 
+=======
+	push	%rbp
+	mov	%rsp, %rbp
+
+	subq	$STACK_SIZE, %rsp
+	and	$-32, %rsp	# align rsp to 32 byte boundary
+>>>>>>> upstream/android-13
 
 	shl	$6, NUM_BLKS	# convert to bytes
 	jz	done_hash
@@ -705,15 +727,25 @@ only_one_block:
 
 done_hash:
 
+<<<<<<< HEAD
 	mov	_RSP(%rsp), %rsp
+=======
+	mov	%rbp, %rsp
+	pop	%rbp
+>>>>>>> upstream/android-13
 
 	popq	%r15
 	popq	%r14
 	popq	%r13
 	popq	%r12
 	popq	%rbx
+<<<<<<< HEAD
 	ret
 ENDPROC(sha256_transform_rorx)
+=======
+	RET
+SYM_FUNC_END(sha256_transform_rorx)
+>>>>>>> upstream/android-13
 
 .section	.rodata.cst512.K256, "aM", @progbits, 512
 .align 64
@@ -767,5 +799,8 @@ _SHUF_00BA:
 .align 32
 _SHUF_DC00:
 	.octa 0x0b0a090803020100FFFFFFFFFFFFFFFF,0x0b0a090803020100FFFFFFFFFFFFFFFF
+<<<<<<< HEAD
 
 #endif
+=======
+>>>>>>> upstream/android-13

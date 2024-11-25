@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * pcm emulation on emu8000 wavetable
  *
  *  Copyright (C) 2002 Takashi Iwai <tiwai@suse.de>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "emu8000_local.h"
@@ -448,7 +455,11 @@ enum {
 #define LOOP_WRITE(rec, offset, _buf, count, mode)		\
 	do {							\
 		struct snd_emu8000 *emu = (rec)->emu;		\
+<<<<<<< HEAD
 		unsigned short *buf = (unsigned short *)(_buf); \
+=======
+		unsigned short *buf = (__force unsigned short *)(_buf); \
+>>>>>>> upstream/android-13
 		snd_emu8000_write_wait(emu, 1);			\
 		EMU8000_SMALW_WRITE(emu, offset);		\
 		while (count > 0) {				\
@@ -505,7 +516,11 @@ static int emu8k_pcm_silence(struct snd_pcm_substream *subs,
 #define LOOP_WRITE(rec, pos, _buf, count, mode)				\
 	do {								\
 		struct snd_emu8000 *emu = rec->emu;			\
+<<<<<<< HEAD
 		unsigned short *buf = (unsigned short *)(_buf);		\
+=======
+		unsigned short *buf = (__force unsigned short *)(_buf);	\
+>>>>>>> upstream/android-13
 		snd_emu8000_write_wait(emu, 1);				\
 		EMU8000_SMALW_WRITE(emu, pos + rec->loop_start[0]);	\
 		if (rec->voices > 1)					\
@@ -639,7 +654,12 @@ static int emu8k_pcm_prepare(struct snd_pcm_substream *subs)
 		int err, i, ch;
 
 		snd_emux_terminate_all(rec->emu->emu);
+<<<<<<< HEAD
 		if ((err = emu8k_open_dram_for_pcm(rec->emu, rec->voices)) != 0)
+=======
+		err = emu8k_open_dram_for_pcm(rec->emu, rec->voices);
+		if (err)
+>>>>>>> upstream/android-13
 			return err;
 		rec->dram_opened = 1;
 
@@ -673,7 +693,10 @@ static snd_pcm_uframes_t emu8k_pcm_pointer(struct snd_pcm_substream *subs)
 static const struct snd_pcm_ops emu8k_pcm_ops = {
 	.open =		emu8k_pcm_open,
 	.close =	emu8k_pcm_close,
+<<<<<<< HEAD
 	.ioctl =	snd_pcm_lib_ioctl,
+=======
+>>>>>>> upstream/android-13
 	.hw_params =	emu8k_pcm_hw_params,
 	.hw_free =	emu8k_pcm_hw_free,
 	.prepare =	emu8k_pcm_prepare,
@@ -696,7 +719,12 @@ int snd_emu8000_pcm_new(struct snd_card *card, struct snd_emu8000 *emu, int inde
 	struct snd_pcm *pcm;
 	int err;
 
+<<<<<<< HEAD
 	if ((err = snd_pcm_new(card, "Emu8000 PCM", index, 1, 0, &pcm)) < 0)
+=======
+	err = snd_pcm_new(card, "Emu8000 PCM", index, 1, 0, &pcm);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 	pcm->private_data = emu;
 	pcm->private_free = snd_emu8000_pcm_free;

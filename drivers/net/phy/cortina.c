@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *    Copyright 2017 NXP
  *
@@ -11,6 +12,12 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ *    Copyright 2017 NXP
+ *
+>>>>>>> upstream/android-13
  *    CORTINA is a registered trademark of Cortina Systems, Inc.
  *
  */
@@ -26,8 +33,12 @@
 
 static int cortina_read_reg(struct phy_device *phydev, u16 regnum)
 {
+<<<<<<< HEAD
 	return mdiobus_read(phydev->mdio.bus, phydev->mdio.addr,
 			    MII_ADDR_C45 | regnum);
+=======
+	return mdiobus_c45_read(phydev->mdio.bus, phydev->mdio.addr, 0, regnum);
+>>>>>>> upstream/android-13
 }
 
 static int cortina_read_status(struct phy_device *phydev)
@@ -88,10 +99,16 @@ static struct phy_driver cortina_driver[] = {
 	.phy_id		= PHY_ID_CS4340,
 	.phy_id_mask	= 0xffffffff,
 	.name		= "Cortina CS4340",
+<<<<<<< HEAD
 	.config_init	= gen10g_config_init,
 	.config_aneg	= gen10g_config_aneg,
 	.read_status	= cortina_read_status,
 	.soft_reset	= gen10g_no_soft_reset,
+=======
+	.features       = PHY_10GBIT_FEATURES,
+	.config_aneg	= gen10g_config_aneg,
+	.read_status	= cortina_read_status,
+>>>>>>> upstream/android-13
 	.probe		= cortina_probe,
 },
 };

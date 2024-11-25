@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Driver for Digigram VX soundcards
  *
  * Hardware core part
  *
  * Copyright (c) 2002 by Takashi Iwai <tiwai@suse.de>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __SOUND_VX_COMMON_H
@@ -160,8 +167,13 @@ struct vx_core {
 	/* ports are defined externally */
 
 	/* low-level functions */
+<<<<<<< HEAD
 	struct snd_vx_hardware *hw;
 	struct snd_vx_ops *ops;
+=======
+	const struct snd_vx_hardware *hw;
+	const struct snd_vx_ops *ops;
+>>>>>>> upstream/android-13
 
 	struct mutex lock;
 
@@ -206,8 +218,14 @@ struct vx_core {
 /*
  * constructor
  */
+<<<<<<< HEAD
 struct vx_core *snd_vx_create(struct snd_card *card, struct snd_vx_hardware *hw,
 			      struct snd_vx_ops *ops, int extra_size);
+=======
+struct vx_core *snd_vx_create(struct snd_card *card,
+			      const struct snd_vx_hardware *hw,
+			      const struct snd_vx_ops *ops, int extra_size);
+>>>>>>> upstream/android-13
 int snd_vx_setup_firmware(struct vx_core *chip);
 int snd_vx_load_boot_image(struct vx_core *chip, const struct firmware *dsp);
 int snd_vx_dsp_boot(struct vx_core *chip, const struct firmware *dsp);

@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 /* Copyright (C) 2009-2018  B.A.T.M.A.N. contributors:
  *
  * Marek Lindner
@@ -14,6 +15,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+/* Copyright (C) B.A.T.M.A.N. contributors:
+ *
+ * Marek Lindner
+>>>>>>> upstream/android-13
  */
 
 #include "gateway_common.h"
@@ -22,12 +28,21 @@
 #include <linux/atomic.h>
 #include <linux/byteorder/generic.h>
 #include <linux/errno.h>
+<<<<<<< HEAD
 #include <linux/kernel.h>
+=======
+#include <linux/kstrtox.h>
+#include <linux/limits.h>
+>>>>>>> upstream/android-13
 #include <linux/math64.h>
 #include <linux/netdevice.h>
 #include <linux/stddef.h>
 #include <linux/string.h>
 #include <uapi/linux/batadv_packet.h>
+<<<<<<< HEAD
+=======
+#include <uapi/linux/batman_adv.h>
+>>>>>>> upstream/android-13
 
 #include "gateway_client.h"
 #include "log.h"

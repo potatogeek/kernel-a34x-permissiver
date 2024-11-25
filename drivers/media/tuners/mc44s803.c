@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Driver for Freescale MC44S803 Low Power CMOS Broadband Tuner
  *
  *  Copyright (c) 2009 Jochen Friedrich <jochen@scram.de>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>

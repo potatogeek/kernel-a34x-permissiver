@@ -28,7 +28,11 @@
 #include <linux/smp.h>
 #include <linux/spinlock.h>
 #include <linux/kallsyms.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/interrupt.h>
 #include <linux/ptrace.h>
 #include <linux/kgdb.h>
@@ -50,13 +54,20 @@
 #include <asm/fpu.h>
 #include <asm/fpu_emulator.h>
 #include <asm/idle.h>
+<<<<<<< HEAD
+=======
+#include <asm/isa-rev.h>
+>>>>>>> upstream/android-13
 #include <asm/mips-cps.h>
 #include <asm/mips-r2-to-r6-emul.h>
 #include <asm/mipsregs.h>
 #include <asm/mipsmtregs.h>
 #include <asm/module.h>
 #include <asm/msa.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/ptrace.h>
 #include <asm/sections.h>
 #include <asm/siginfo.h>
@@ -70,6 +81,13 @@
 #include <asm/tlbex.h>
 #include <asm/uasm.h>
 
+<<<<<<< HEAD
+=======
+#include <asm/mach-loongson64/cpucfg-emul.h>
+
+#include "access-helper.h"
+
+>>>>>>> upstream/android-13
 extern void check_wait(void);
 extern asmlinkage void rollback_handle_int(void);
 extern asmlinkage void handle_int(void);
@@ -88,6 +106,10 @@ extern asmlinkage void handle_tr(void);
 extern asmlinkage void handle_msa_fpe(void);
 extern asmlinkage void handle_fpe(void);
 extern asmlinkage void handle_ftlb(void);
+<<<<<<< HEAD
+=======
+extern asmlinkage void handle_gsexc(void);
+>>>>>>> upstream/android-13
 extern asmlinkage void handle_msa(void);
 extern asmlinkage void handle_mdmx(void);
 extern asmlinkage void handle_watch(void);
@@ -105,11 +127,17 @@ void (*board_bind_eic_interrupt)(int irq, int regset);
 void (*board_ebase_setup)(void);
 void(*board_cache_error_setup)(void);
 
+<<<<<<< HEAD
 static void show_raw_backtrace(unsigned long reg29)
+=======
+static void show_raw_backtrace(unsigned long reg29, const char *loglvl,
+			       bool user)
+>>>>>>> upstream/android-13
 {
 	unsigned long *sp = (unsigned long *)(reg29 & ~3);
 	unsigned long addr;
 
+<<<<<<< HEAD
 	printk("Call Trace:");
 #ifdef CONFIG_KALLSYMS
 	printk("\n");
@@ -125,6 +153,21 @@ static void show_raw_backtrace(unsigned long reg29)
 			print_ip_sym(addr);
 	}
 	printk("\n");
+=======
+	printk("%sCall Trace:", loglvl);
+#ifdef CONFIG_KALLSYMS
+	printk("%s\n", loglvl);
+#endif
+	while (!kstack_end(sp)) {
+		if (__get_addr(&addr, sp++, user)) {
+			printk("%s (Bad stack address)", loglvl);
+			break;
+		}
+		if (__kernel_text_address(addr))
+			print_ip_sym(loglvl, addr);
+	}
+	printk("%s\n", loglvl);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_KALLSYMS
@@ -137,7 +180,12 @@ static int __init set_raw_show_trace(char *str)
 __setup("raw_show_trace", set_raw_show_trace);
 #endif
 
+<<<<<<< HEAD
 static void show_backtrace(struct task_struct *task, const struct pt_regs *regs)
+=======
+static void show_backtrace(struct task_struct *task, const struct pt_regs *regs,
+			   const char *loglvl, bool user)
+>>>>>>> upstream/android-13
 {
 	unsigned long sp = regs->regs[29];
 	unsigned long ra = regs->regs[31];
@@ -147,12 +195,21 @@ static void show_backtrace(struct task_struct *task, const struct pt_regs *regs)
 		task = current;
 
 	if (raw_show_trace || user_mode(regs) || !__kernel_text_address(pc)) {
+<<<<<<< HEAD
 		show_raw_backtrace(sp);
 		return;
 	}
 	printk("Call Trace:\n");
 	do {
 		print_ip_sym(pc);
+=======
+		show_raw_backtrace(sp, loglvl, user);
+		return;
+	}
+	printk("%sCall Trace:\n", loglvl);
+	do {
+		print_ip_sym(loglvl, pc);
+>>>>>>> upstream/android-13
 		pc = unwind_stack(task, &sp, pc, &ra);
 	} while (pc);
 	pr_cont("\n");
@@ -163,6 +220,7 @@ static void show_backtrace(struct task_struct *task, const struct pt_regs *regs)
  * with at least a bit of error checking ...
  */
 static void show_stacktrace(struct task_struct *task,
+<<<<<<< HEAD
 	const struct pt_regs *regs)
 {
 	const int field = 2 * sizeof(unsigned long);
@@ -171,18 +229,36 @@ static void show_stacktrace(struct task_struct *task,
 	unsigned long __user *sp = (unsigned long __user *)regs->regs[29];
 
 	printk("Stack :");
+=======
+	const struct pt_regs *regs, const char *loglvl, bool user)
+{
+	const int field = 2 * sizeof(unsigned long);
+	unsigned long stackdata;
+	int i;
+	unsigned long *sp = (unsigned long *)regs->regs[29];
+
+	printk("%sStack :", loglvl);
+>>>>>>> upstream/android-13
 	i = 0;
 	while ((unsigned long) sp & (PAGE_SIZE - 1)) {
 		if (i && ((i % (64 / field)) == 0)) {
 			pr_cont("\n");
+<<<<<<< HEAD
 			printk("       ");
+=======
+			printk("%s       ", loglvl);
+>>>>>>> upstream/android-13
 		}
 		if (i > 39) {
 			pr_cont(" ...");
 			break;
 		}
 
+<<<<<<< HEAD
 		if (__get_user(stackdata, sp++)) {
+=======
+		if (__get_addr(&stackdata, sp++, user)) {
+>>>>>>> upstream/android-13
 			pr_cont(" (Bad stack address)");
 			break;
 		}
@@ -191,6 +267,7 @@ static void show_stacktrace(struct task_struct *task,
 		i++;
 	}
 	pr_cont("\n");
+<<<<<<< HEAD
 	show_backtrace(task, regs);
 }
 
@@ -198,6 +275,14 @@ void show_stack(struct task_struct *task, unsigned long *sp)
 {
 	struct pt_regs regs;
 	mm_segment_t old_fs = get_fs();
+=======
+	show_backtrace(task, regs, loglvl, user);
+}
+
+void show_stack(struct task_struct *task, unsigned long *sp, const char *loglvl)
+{
+	struct pt_regs regs;
+>>>>>>> upstream/android-13
 
 	regs.cp0_status = KSU_KERNEL;
 	if (sp) {
@@ -209,15 +294,19 @@ void show_stack(struct task_struct *task, unsigned long *sp)
 			regs.regs[29] = task->thread.reg29;
 			regs.regs[31] = 0;
 			regs.cp0_epc = task->thread.reg31;
+<<<<<<< HEAD
 #ifdef CONFIG_KGDB_KDB
 		} else if (atomic_read(&kgdb_active) != -1 &&
 			   kdb_current_regs) {
 			memcpy(&regs, kdb_current_regs, sizeof(regs));
 #endif /* CONFIG_KGDB_KDB */
+=======
+>>>>>>> upstream/android-13
 		} else {
 			prepare_frametrace(&regs);
 		}
 	}
+<<<<<<< HEAD
 	/*
 	 * show_stack() deals exclusively with kernel mode, so be sure to access
 	 * the stack in the kernel (not user) address space.
@@ -231,10 +320,20 @@ static void show_code(unsigned int __user *pc)
 {
 	long i;
 	unsigned short __user *pc16 = NULL;
+=======
+	show_stacktrace(task, &regs, loglvl, false);
+}
+
+static void show_code(void *pc, bool user)
+{
+	long i;
+	unsigned short *pc16 = NULL;
+>>>>>>> upstream/android-13
 
 	printk("Code:");
 
 	if ((unsigned long)pc & 1)
+<<<<<<< HEAD
 		pc16 = (unsigned short __user *)((unsigned long)pc & ~1);
 	for(i = -3 ; i < 6 ; i++) {
 		unsigned int insn;
@@ -245,6 +344,32 @@ static void show_code(unsigned int __user *pc)
 		pr_cont("%c%0*x%c", (i?' ':'<'), pc16 ? 4 : 8, insn, (i?' ':'>'));
 	}
 	pr_cont("\n");
+=======
+		pc16 = (u16 *)((unsigned long)pc & ~1);
+
+	for(i = -3 ; i < 6 ; i++) {
+		if (pc16) {
+			u16 insn16;
+
+			if (__get_inst16(&insn16, pc16 + i, user))
+				goto bad_address;
+
+			pr_cont("%c%04x%c", (i?' ':'<'), insn16, (i?' ':'>'));
+		} else {
+			u32 insn32;
+
+			if (__get_inst32(&insn32, (u32 *)pc + i, user))
+				goto bad_address;
+
+			pr_cont("%c%08x%c", (i?' ':'<'), insn32, (i?' ':'>'));
+		}
+	}
+	pr_cont("\n");
+	return;
+
+bad_address:
+	pr_cont(" (Bad address in epc)\n\n");
+>>>>>>> upstream/android-13
 }
 
 static void __show_regs(const struct pt_regs *regs)
@@ -277,8 +402,15 @@ static void __show_regs(const struct pt_regs *regs)
 #ifdef CONFIG_CPU_HAS_SMARTMIPS
 	printk("Acx    : %0*lx\n", field, regs->acx);
 #endif
+<<<<<<< HEAD
 	printk("Hi    : %0*lx\n", field, regs->hi);
 	printk("Lo    : %0*lx\n", field, regs->lo);
+=======
+	if (MIPS_ISA_REV < 6) {
+		printk("Hi    : %0*lx\n", field, regs->hi);
+		printk("Lo    : %0*lx\n", field, regs->lo);
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * Saved cp0 registers
@@ -348,14 +480,21 @@ static void __show_regs(const struct pt_regs *regs)
  */
 void show_regs(struct pt_regs *regs)
 {
+<<<<<<< HEAD
 	__show_regs((struct pt_regs *)regs);
+=======
+	__show_regs(regs);
+>>>>>>> upstream/android-13
 	dump_stack();
 }
 
 void show_registers(struct pt_regs *regs)
 {
 	const int field = 2 * sizeof(unsigned long);
+<<<<<<< HEAD
 	mm_segment_t old_fs = get_fs();
+=======
+>>>>>>> upstream/android-13
 
 	__show_regs(regs);
 	print_modules();
@@ -370,6 +509,7 @@ void show_registers(struct pt_regs *regs)
 			printk("*HwTLS: %0*lx\n", field, tls);
 	}
 
+<<<<<<< HEAD
 	if (!user_mode(regs))
 		/* Necessary for getting the correct stack content */
 		set_fs(KERNEL_DS);
@@ -377,6 +517,11 @@ void show_registers(struct pt_regs *regs)
 	show_code((unsigned int __user *) regs->cp0_epc);
 	printk("\n");
 	set_fs(old_fs);
+=======
+	show_stacktrace(current, regs, KERN_DEFAULT, user_mode(regs));
+	show_code((void *)regs->cp0_epc, user_mode(regs));
+	printk("\n");
+>>>>>>> upstream/android-13
 }
 
 static DEFINE_RAW_SPINLOCK(die_lock);
@@ -479,7 +624,11 @@ asmlinkage void do_be(struct pt_regs *regs)
 		goto out;
 
 	die_if_kernel("Oops", regs);
+<<<<<<< HEAD
 	force_sig(SIGBUS, current);
+=======
+	force_sig(SIGBUS);
+>>>>>>> upstream/android-13
 
 out:
 	exception_exit(prev_state);
@@ -695,6 +844,53 @@ static int simulate_sync(struct pt_regs *regs, unsigned int opcode)
 	return -1;			/* Must be something else ... */
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * Loongson-3 CSR instructions emulation
+ */
+
+#ifdef CONFIG_CPU_LOONGSON3_CPUCFG_EMULATION
+
+#define LWC2             0xc8000000
+#define RS               BASE
+#define CSR_OPCODE2      0x00000118
+#define CSR_OPCODE2_MASK 0x000007ff
+#define CSR_FUNC_MASK    RT
+#define CSR_FUNC_CPUCFG  0x8
+
+static int simulate_loongson3_cpucfg(struct pt_regs *regs,
+				     unsigned int opcode)
+{
+	int op = opcode & OPCODE;
+	int op2 = opcode & CSR_OPCODE2_MASK;
+	int csr_func = (opcode & CSR_FUNC_MASK) >> 16;
+
+	if (op == LWC2 && op2 == CSR_OPCODE2 && csr_func == CSR_FUNC_CPUCFG) {
+		int rd = (opcode & RD) >> 11;
+		int rs = (opcode & RS) >> 21;
+		__u64 sel = regs->regs[rs];
+
+		perf_sw_event(PERF_COUNT_SW_EMULATION_FAULTS, 1, regs, 0);
+
+		/* Do not emulate on unsupported core models. */
+		preempt_disable();
+		if (!loongson3_cpucfg_emulation_enabled(&current_cpu_data)) {
+			preempt_enable();
+			return -1;
+		}
+		regs->regs[rd] = loongson3_cpucfg_read_synthesized(
+			&current_cpu_data, sel);
+		preempt_enable();
+		return 0;
+	}
+
+	/* Not ours.  */
+	return -1;
+}
+#endif /* CONFIG_CPU_LOONGSON3_CPUCFG_EMULATION */
+
+>>>>>>> upstream/android-13
 asmlinkage void do_ov(struct pt_regs *regs)
 {
 	enum ctx_state prev_state;
@@ -702,10 +898,19 @@ asmlinkage void do_ov(struct pt_regs *regs)
 	prev_state = exception_enter();
 	die_if_kernel("Integer overflow", regs);
 
+<<<<<<< HEAD
 	force_sig_fault(SIGFPE, FPE_INTOVF, (void __user *)regs->cp0_epc, current);
 	exception_exit(prev_state);
 }
 
+=======
+	force_sig_fault(SIGFPE, FPE_INTOVF, (void __user *)regs->cp0_epc);
+	exception_exit(prev_state);
+}
+
+#ifdef CONFIG_MIPS_FP_SUPPORT
+
+>>>>>>> upstream/android-13
 /*
  * Send SIGFPE according to FCSR Cause bits, which must have already
  * been masked against Enable bits.  This is impotant as Inexact can
@@ -728,13 +933,20 @@ void force_fcr31_sig(unsigned long fcr31, void __user *fault_addr,
 	else if (fcr31 & FPU_CSR_INE_X)
 		si_code = FPE_FLTRES;
 
+<<<<<<< HEAD
 	force_sig_fault(SIGFPE, si_code, fault_addr, tsk);
+=======
+	force_sig_fault_to_task(SIGFPE, si_code, fault_addr, tsk);
+>>>>>>> upstream/android-13
 }
 
 int process_fpemu_return(int sig, void __user *fault_addr, unsigned long fcr31)
 {
 	int si_code;
+<<<<<<< HEAD
 	struct vm_area_struct *vma;
+=======
+>>>>>>> upstream/android-13
 
 	switch (sig) {
 	case 0:
@@ -745,6 +957,7 @@ int process_fpemu_return(int sig, void __user *fault_addr, unsigned long fcr31)
 		return 1;
 
 	case SIGBUS:
+<<<<<<< HEAD
 		force_sig_fault(SIGBUS, BUS_ADRERR, fault_addr, current);
 		return 1;
 
@@ -761,6 +974,23 @@ int process_fpemu_return(int sig, void __user *fault_addr, unsigned long fcr31)
 
 	default:
 		force_sig(sig, current);
+=======
+		force_sig_fault(SIGBUS, BUS_ADRERR, fault_addr);
+		return 1;
+
+	case SIGSEGV:
+		mmap_read_lock(current->mm);
+		if (vma_lookup(current->mm, (unsigned long)fault_addr))
+			si_code = SEGV_ACCERR;
+		else
+			si_code = SEGV_MAPERR;
+		mmap_read_unlock(current->mm);
+		force_sig_fault(SIGSEGV, si_code, fault_addr);
+		return 1;
+
+	default:
+		force_sig(sig);
+>>>>>>> upstream/android-13
 		return 1;
 	}
 }
@@ -794,9 +1024,12 @@ static int simulate_fp(struct pt_regs *regs, unsigned int opcode,
 	regs->cp0_epc = old_epc;
 	regs->regs[31] = old_ra;
 
+<<<<<<< HEAD
 	/* Save the FP context to struct thread_struct */
 	lose_fpu(1);
 
+=======
+>>>>>>> upstream/android-13
 	/* Run the emulator */
 	sig = fpu_emulator_cop1Handler(regs, &current->thread.fpu, 1,
 				       &fault_addr);
@@ -848,8 +1081,11 @@ asmlinkage void do_fpe(struct pt_regs *regs, unsigned long fcr31)
 		 * register operands before invoking the emulator, which seems
 		 * a bit extreme for what should be an infrequent event.
 		 */
+<<<<<<< HEAD
 		/* Ensure 'resume' not overwrite saved fp context again. */
 		lose_fpu(1);
+=======
+>>>>>>> upstream/android-13
 
 		/* Run the emulator */
 		sig = fpu_emulator_cop1Handler(regs, &current->thread.fpu, 1,
@@ -876,6 +1112,48 @@ out:
 	exception_exit(prev_state);
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * MIPS MT processors may have fewer FPU contexts than CPU threads. If we've
+ * emulated more than some threshold number of instructions, force migration to
+ * a "CPU" that has FP support.
+ */
+static void mt_ase_fp_affinity(void)
+{
+#ifdef CONFIG_MIPS_MT_FPAFF
+	if (mt_fpemul_threshold > 0 &&
+	     ((current->thread.emulated_fp++ > mt_fpemul_threshold))) {
+		/*
+		 * If there's no FPU present, or if the application has already
+		 * restricted the allowed set to exclude any CPUs with FPUs,
+		 * we'll skip the procedure.
+		 */
+		if (cpumask_intersects(&current->cpus_mask, &mt_fpu_cpumask)) {
+			cpumask_t tmask;
+
+			current->thread.user_cpus_allowed
+				= current->cpus_mask;
+			cpumask_and(&tmask, &current->cpus_mask,
+				    &mt_fpu_cpumask);
+			set_cpus_allowed_ptr(current, &tmask);
+			set_thread_flag(TIF_FPUBOUND);
+		}
+	}
+#endif /* CONFIG_MIPS_MT_FPAFF */
+}
+
+#else /* !CONFIG_MIPS_FP_SUPPORT */
+
+static int simulate_fp(struct pt_regs *regs, unsigned int opcode,
+		       unsigned long old_epc, unsigned long old_ra)
+{
+	return -1;
+}
+
+#endif /* !CONFIG_MIPS_FP_SUPPORT */
+
+>>>>>>> upstream/android-13
 void do_trap_or_bp(struct pt_regs *regs, unsigned int code, int si_code,
 	const char *str)
 {
@@ -904,11 +1182,19 @@ void do_trap_or_bp(struct pt_regs *regs, unsigned int code, int si_code,
 		die_if_kernel(b, regs);
 		force_sig_fault(SIGFPE,
 				code == BRK_DIVZERO ? FPE_INTDIV : FPE_INTOVF,
+<<<<<<< HEAD
 				(void __user *) regs->cp0_epc, current);
 		break;
 	case BRK_BUG:
 		die_if_kernel("Kernel bug detected", regs);
 		force_sig(SIGTRAP, current);
+=======
+				(void __user *) regs->cp0_epc);
+		break;
+	case BRK_BUG:
+		die_if_kernel("Kernel bug detected", regs);
+		force_sig(SIGTRAP);
+>>>>>>> upstream/android-13
 		break;
 	case BRK_MEMU:
 		/*
@@ -923,15 +1209,25 @@ void do_trap_or_bp(struct pt_regs *regs, unsigned int code, int si_code,
 			return;
 
 		die_if_kernel("Math emu break/trap", regs);
+<<<<<<< HEAD
 		force_sig(SIGTRAP, current);
+=======
+		force_sig(SIGTRAP);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		scnprintf(b, sizeof(b), "%s instruction in kernel code", str);
 		die_if_kernel(b, regs);
 		if (si_code) {
+<<<<<<< HEAD
 			force_sig_fault(SIGTRAP, si_code, NULL,	current);
 		} else {
 			force_sig(SIGTRAP, current);
+=======
+			force_sig_fault(SIGTRAP, si_code, NULL);
+		} else {
+			force_sig(SIGTRAP);
+>>>>>>> upstream/android-13
 		}
 	}
 }
@@ -941,18 +1237,26 @@ asmlinkage void do_bp(struct pt_regs *regs)
 	unsigned long epc = msk_isa16_mode(exception_epc(regs));
 	unsigned int opcode, bcode;
 	enum ctx_state prev_state;
+<<<<<<< HEAD
 	mm_segment_t seg;
 
 	seg = get_fs();
 	if (!user_mode(regs))
 		set_fs(KERNEL_DS);
+=======
+	bool user = user_mode(regs);
+>>>>>>> upstream/android-13
 
 	prev_state = exception_enter();
 	current->thread.trap_nr = (regs->cp0_cause >> 2) & 0x1f;
 	if (get_isa16_mode(regs->cp0_epc)) {
 		u16 instr[2];
 
+<<<<<<< HEAD
 		if (__get_user(instr[0], (u16 __user *)epc))
+=======
+		if (__get_inst16(&instr[0], (u16 *)epc, user))
+>>>>>>> upstream/android-13
 			goto out_sigsegv;
 
 		if (!cpu_has_mmips) {
@@ -963,13 +1267,21 @@ asmlinkage void do_bp(struct pt_regs *regs)
 			bcode = instr[0] & 0xf;
 		} else {
 			/* 32-bit microMIPS BREAK */
+<<<<<<< HEAD
 			if (__get_user(instr[1], (u16 __user *)(epc + 2)))
+=======
+			if (__get_inst16(&instr[1], (u16 *)(epc + 2), user))
+>>>>>>> upstream/android-13
 				goto out_sigsegv;
 			opcode = (instr[0] << 16) | instr[1];
 			bcode = (opcode >> 6) & ((1 << 20) - 1);
 		}
 	} else {
+<<<<<<< HEAD
 		if (__get_user(opcode, (unsigned int __user *)epc))
+=======
+		if (__get_inst32(&opcode, (u32 *)epc, user))
+>>>>>>> upstream/android-13
 			goto out_sigsegv;
 		bcode = (opcode >> 6) & ((1 << 20) - 1);
 	}
@@ -1019,12 +1331,19 @@ asmlinkage void do_bp(struct pt_regs *regs)
 	do_trap_or_bp(regs, bcode, TRAP_BRKPT, "Break");
 
 out:
+<<<<<<< HEAD
 	set_fs(seg);
+=======
+>>>>>>> upstream/android-13
 	exception_exit(prev_state);
 	return;
 
 out_sigsegv:
+<<<<<<< HEAD
 	force_sig(SIGSEGV, current);
+=======
+	force_sig(SIGSEGV);
+>>>>>>> upstream/android-13
 	goto out;
 }
 
@@ -1033,6 +1352,7 @@ asmlinkage void do_tr(struct pt_regs *regs)
 	u32 opcode, tcode = 0;
 	enum ctx_state prev_state;
 	u16 instr[2];
+<<<<<<< HEAD
 	mm_segment_t seg;
 	unsigned long epc = msk_isa16_mode(exception_epc(regs));
 
@@ -1045,13 +1365,27 @@ asmlinkage void do_tr(struct pt_regs *regs)
 	if (get_isa16_mode(regs->cp0_epc)) {
 		if (__get_user(instr[0], (u16 __user *)(epc + 0)) ||
 		    __get_user(instr[1], (u16 __user *)(epc + 2)))
+=======
+	bool user = user_mode(regs);
+	unsigned long epc = msk_isa16_mode(exception_epc(regs));
+
+	prev_state = exception_enter();
+	current->thread.trap_nr = (regs->cp0_cause >> 2) & 0x1f;
+	if (get_isa16_mode(regs->cp0_epc)) {
+		if (__get_inst16(&instr[0], (u16 *)(epc + 0), user) ||
+		    __get_inst16(&instr[1], (u16 *)(epc + 2), user))
+>>>>>>> upstream/android-13
 			goto out_sigsegv;
 		opcode = (instr[0] << 16) | instr[1];
 		/* Immediate versions don't provide a code.  */
 		if (!(opcode & OPCODE))
 			tcode = (opcode >> 12) & ((1 << 4) - 1);
 	} else {
+<<<<<<< HEAD
 		if (__get_user(opcode, (u32 __user *)epc))
+=======
+		if (__get_inst32(&opcode, (u32 *)epc, user))
+>>>>>>> upstream/android-13
 			goto out_sigsegv;
 		/* Immediate versions don't provide a code.  */
 		if (!(opcode & OPCODE))
@@ -1061,12 +1395,19 @@ asmlinkage void do_tr(struct pt_regs *regs)
 	do_trap_or_bp(regs, tcode, 0, "Trap");
 
 out:
+<<<<<<< HEAD
 	set_fs(seg);
+=======
+>>>>>>> upstream/android-13
 	exception_exit(prev_state);
 	return;
 
 out_sigsegv:
+<<<<<<< HEAD
 	force_sig(SIGSEGV, current);
+=======
+	force_sig(SIGSEGV);
+>>>>>>> upstream/android-13
 	goto out;
 }
 
@@ -1132,6 +1473,14 @@ no_r2_instr:
 
 		if (status < 0)
 			status = simulate_fp(regs, opcode, old_epc, old31);
+<<<<<<< HEAD
+=======
+
+#ifdef CONFIG_CPU_LOONGSON3_CPUCFG_EMULATION
+		if (status < 0)
+			status = simulate_loongson3_cpucfg(regs, opcode);
+#endif
+>>>>>>> upstream/android-13
 	} else if (cpu_has_mmips) {
 		unsigned short mmop[2] = { 0 };
 
@@ -1152,7 +1501,11 @@ no_r2_instr:
 	if (unlikely(status > 0)) {
 		regs->cp0_epc = old_epc;		/* Undo skip-over.  */
 		regs->regs[31] = old31;
+<<<<<<< HEAD
 		force_sig(status, current);
+=======
+		force_sig(status);
+>>>>>>> upstream/android-13
 	}
 
 out:
@@ -1160,6 +1513,7 @@ out:
 }
 
 /*
+<<<<<<< HEAD
  * MIPS MT processors may have fewer FPU contexts than CPU threads. If we've
  * emulated more than some threshold number of instructions, force migration to
  * a "CPU" that has FP support.
@@ -1189,6 +1543,8 @@ static void mt_ase_fp_affinity(void)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * No lock; only written during early bootup by CPU 0.
  */
 static RAW_NOTIFIER_HEAD(cu2_chain);
@@ -1210,11 +1566,16 @@ static int default_cu2_call(struct notifier_block *nfb, unsigned long action,
 
 	die_if_kernel("COP2: Unhandled kernel unaligned access or invalid "
 			      "instruction", regs);
+<<<<<<< HEAD
 	force_sig(SIGILL, current);
+=======
+	force_sig(SIGILL);
+>>>>>>> upstream/android-13
 
 	return NOTIFY_OK;
 }
 
+<<<<<<< HEAD
 static int enable_restore_fp_context(int msa)
 {
 	int err, was_fpu_owner, prior_msa;
@@ -1225,13 +1586,44 @@ static int enable_restore_fp_context(int msa)
 		err = init_fpu();
 		if (msa && !err) {
 			enable_msa();
+=======
+#ifdef CONFIG_MIPS_FP_SUPPORT
+
+static int enable_restore_fp_context(int msa)
+{
+	int err, was_fpu_owner, prior_msa;
+	bool first_fp;
+
+	/* Initialize context if it hasn't been used already */
+	first_fp = init_fp_ctx(current);
+
+	if (first_fp) {
+		preempt_disable();
+		err = own_fpu_inatomic(1);
+		if (msa && !err) {
+			enable_msa();
+			/*
+			 * with MSA enabled, userspace can see MSACSR
+			 * and MSA regs, but the values in them are from
+			 * other task before current task, restore them
+			 * from saved fp/msa context
+			 */
+			write_msa_csr(current->thread.fpu.msacsr);
+			/*
+			 * own_fpu_inatomic(1) just restore low 64bit,
+			 * fix the high 64bit
+			 */
+>>>>>>> upstream/android-13
 			init_msa_upper();
 			set_thread_flag(TIF_USEDMSA);
 			set_thread_flag(TIF_MSA_CTX_LIVE);
 		}
 		preempt_enable();
+<<<<<<< HEAD
 		if (!err)
 			set_used_math();
+=======
+>>>>>>> upstream/android-13
 		return err;
 	}
 
@@ -1322,17 +1714,35 @@ out:
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+#else /* !CONFIG_MIPS_FP_SUPPORT */
+
+static int enable_restore_fp_context(int msa)
+{
+	return SIGILL;
+}
+
+#endif /* CONFIG_MIPS_FP_SUPPORT */
+
+>>>>>>> upstream/android-13
 asmlinkage void do_cpu(struct pt_regs *regs)
 {
 	enum ctx_state prev_state;
 	unsigned int __user *epc;
 	unsigned long old_epc, old31;
+<<<<<<< HEAD
 	void __user *fault_addr;
 	unsigned int opcode;
 	unsigned long fcr31;
 	unsigned int cpid;
 	int status, err;
 	int sig;
+=======
+	unsigned int opcode;
+	unsigned int cpid;
+	int status;
+>>>>>>> upstream/android-13
 
 	prev_state = exception_enter();
 	cpid = (regs->cp0_cause >> CAUSEB_CE) & 3;
@@ -1365,11 +1775,19 @@ asmlinkage void do_cpu(struct pt_regs *regs)
 		if (unlikely(status > 0)) {
 			regs->cp0_epc = old_epc;	/* Undo skip-over.  */
 			regs->regs[31] = old31;
+<<<<<<< HEAD
 			force_sig(status, current);
+=======
+			force_sig(status);
+>>>>>>> upstream/android-13
 		}
 
 		break;
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_MIPS_FP_SUPPORT
+>>>>>>> upstream/android-13
 	case 3:
 		/*
 		 * The COP3 opcode space and consequently the CP0.Status.CU3
@@ -1384,12 +1802,24 @@ asmlinkage void do_cpu(struct pt_regs *regs)
 		 * emulator too.
 		 */
 		if (raw_cpu_has_fpu || !cpu_has_mips_4_5_64_r2_r6) {
+<<<<<<< HEAD
 			force_sig(SIGILL, current);
 			break;
 		}
 		/* Fall through.  */
 
 	case 1:
+=======
+			force_sig(SIGILL);
+			break;
+		}
+		fallthrough;
+	case 1: {
+		void __user *fault_addr;
+		unsigned long fcr31;
+		int err, sig;
+
+>>>>>>> upstream/android-13
 		err = enable_restore_fp_context(0);
 
 		if (raw_cpu_has_fpu && !err)
@@ -1410,6 +1840,16 @@ asmlinkage void do_cpu(struct pt_regs *regs)
 			mt_ase_fp_affinity();
 
 		break;
+<<<<<<< HEAD
+=======
+	}
+#else /* CONFIG_MIPS_FP_SUPPORT */
+	case 1:
+	case 3:
+		force_sig(SIGILL);
+		break;
+#endif /* CONFIG_MIPS_FP_SUPPORT */
+>>>>>>> upstream/android-13
 
 	case 2:
 		raw_notifier_call_chain(&cu2_chain, CU2_EXCEPTION, regs);
@@ -1434,7 +1874,11 @@ asmlinkage void do_msa_fpe(struct pt_regs *regs, unsigned int msacsr)
 	local_irq_enable();
 
 	die_if_kernel("do_msa_fpe invoked from kernel context!", regs);
+<<<<<<< HEAD
 	force_sig(SIGFPE, current);
+=======
+	force_sig(SIGFPE);
+>>>>>>> upstream/android-13
 out:
 	exception_exit(prev_state);
 }
@@ -1447,7 +1891,11 @@ asmlinkage void do_msa(struct pt_regs *regs)
 	prev_state = exception_enter();
 
 	if (!cpu_has_msa || test_thread_flag(TIF_32BIT_FPREGS)) {
+<<<<<<< HEAD
 		force_sig(SIGILL, current);
+=======
+		force_sig(SIGILL);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
@@ -1455,7 +1903,11 @@ asmlinkage void do_msa(struct pt_regs *regs)
 
 	err = enable_restore_fp_context(1);
 	if (err)
+<<<<<<< HEAD
 		force_sig(SIGILL, current);
+=======
+		force_sig(SIGILL);
+>>>>>>> upstream/android-13
 out:
 	exception_exit(prev_state);
 }
@@ -1465,7 +1917,11 @@ asmlinkage void do_mdmx(struct pt_regs *regs)
 	enum ctx_state prev_state;
 
 	prev_state = exception_enter();
+<<<<<<< HEAD
 	force_sig(SIGILL, current);
+=======
+	force_sig(SIGILL);
+>>>>>>> upstream/android-13
 	exception_exit(prev_state);
 }
 
@@ -1491,7 +1947,11 @@ asmlinkage void do_watch(struct pt_regs *regs)
 	if (test_tsk_thread_flag(current, TIF_LOAD_WATCH)) {
 		mips_read_watch_registers();
 		local_irq_enable();
+<<<<<<< HEAD
 		force_sig_fault(SIGTRAP, TRAP_HWBKPT, NULL, current);
+=======
+		force_sig_fault(SIGTRAP, TRAP_HWBKPT, NULL);
+>>>>>>> upstream/android-13
 	} else {
 		mips_clear_watch_registers();
 		local_irq_enable();
@@ -1503,7 +1963,10 @@ asmlinkage void do_mcheck(struct pt_regs *regs)
 {
 	int multi_match = regs->cp0_status & ST0_TS;
 	enum ctx_state prev_state;
+<<<<<<< HEAD
 	mm_segment_t old_fs = get_fs();
+=======
+>>>>>>> upstream/android-13
 
 	prev_state = exception_enter();
 	show_regs(regs);
@@ -1514,12 +1977,16 @@ asmlinkage void do_mcheck(struct pt_regs *regs)
 		dump_tlb_all();
 	}
 
+<<<<<<< HEAD
 	if (!user_mode(regs))
 		set_fs(KERNEL_DS);
 
 	show_code((unsigned int __user *) regs->cp0_epc);
 
 	set_fs(old_fs);
+=======
+	show_code((void *)regs->cp0_epc, user_mode(regs));
+>>>>>>> upstream/android-13
 
 	/*
 	 * Some chips may have other causes of machine check (e.g. SB1
@@ -1562,7 +2029,11 @@ asmlinkage void do_mt(struct pt_regs *regs)
 	}
 	die_if_kernel("MIPS MT Thread exception in kernel", regs);
 
+<<<<<<< HEAD
 	force_sig(SIGILL, current);
+=======
+	force_sig(SIGILL);
+>>>>>>> upstream/android-13
 }
 
 
@@ -1571,7 +2042,11 @@ asmlinkage void do_dsp(struct pt_regs *regs)
 	if (cpu_has_dsp)
 		panic("Unexpected DSP exception");
 
+<<<<<<< HEAD
 	force_sig(SIGILL, current);
+=======
+	force_sig(SIGILL);
+>>>>>>> upstream/android-13
 }
 
 asmlinkage void do_reserved(struct pt_regs *regs)
@@ -1605,7 +2080,11 @@ __setup("nol2par", nol2parity);
  * Some MIPS CPUs can enable/disable for cache parity detection, but do
  * it different ways.
  */
+<<<<<<< HEAD
 static inline void parity_protection_init(void)
+=======
+static inline __init void parity_protection_init(void)
+>>>>>>> upstream/android-13
 {
 #define ERRCTL_PE	0x80000000
 #define ERRCTL_L2P	0x00800000
@@ -1731,7 +2210,11 @@ static inline void parity_protection_init(void)
 
 	case CPU_5KC:
 	case CPU_5KE:
+<<<<<<< HEAD
 	case CPU_LOONGSON1:
+=======
+	case CPU_LOONGSON32:
+>>>>>>> upstream/android-13
 		write_c0_ecc(0x80000000);
 		back_to_back_c0_hazard();
 		/* Set the PE bit (bit 31) in the c0_errctl register. */
@@ -1827,6 +2310,40 @@ asmlinkage void do_ftlb(void)
 	cache_parity_error();
 }
 
+<<<<<<< HEAD
+=======
+asmlinkage void do_gsexc(struct pt_regs *regs, u32 diag1)
+{
+	u32 exccode = (diag1 & LOONGSON_DIAG1_EXCCODE) >>
+			LOONGSON_DIAG1_EXCCODE_SHIFT;
+	enum ctx_state prev_state;
+
+	prev_state = exception_enter();
+
+	switch (exccode) {
+	case 0x08:
+		/* Undocumented exception, will trigger on certain
+		 * also-undocumented instructions accessible from userspace.
+		 * Processor state is not otherwise corrupted, but currently
+		 * we don't know how to proceed. Maybe there is some
+		 * undocumented control flag to enable the instructions?
+		 */
+		force_sig(SIGILL);
+		break;
+
+	default:
+		/* None of the other exceptions, documented or not, have
+		 * further details given; none are encountered in the wild
+		 * either. Panic in case some of them turn out to be fatal.
+		 */
+		show_regs(regs);
+		panic("Unhandled Loongson exception - GSCause = %08x", diag1);
+	}
+
+	exception_exit(prev_state);
+}
+
+>>>>>>> upstream/android-13
 /*
  * SDBBP EJTAG debug exception handler.
  * We skip the instruction and return to the next instruction.
@@ -1890,13 +2407,24 @@ void __noreturn nmi_exception_handler(struct pt_regs *regs)
 	nmi_exit();
 }
 
+<<<<<<< HEAD
 #define VECTORSPACING 0x100	/* for EI/VI mode */
 
+=======
+>>>>>>> upstream/android-13
 unsigned long ebase;
 EXPORT_SYMBOL_GPL(ebase);
 unsigned long exception_handlers[32];
 unsigned long vi_handlers[64];
 
+<<<<<<< HEAD
+=======
+void reserve_exception_space(phys_addr_t addr, unsigned long size)
+{
+	memblock_reserve(addr, size);
+}
+
+>>>>>>> upstream/android-13
 void __init *set_except_vector(int n, void *addr)
 {
 	unsigned long handler = (unsigned long) addr;
@@ -1978,6 +2506,7 @@ static void *set_vi_srs_handler(int n, vi_handler_t addr, int srs)
 		 * If no shadow set is selected then use the default handler
 		 * that does normal register saving and standard interrupt exit
 		 */
+<<<<<<< HEAD
 		extern char except_vec_vi, except_vec_vi_lui;
 		extern char except_vec_vi_ori, except_vec_vi_end;
 		extern char rollback_except_vec_vi;
@@ -1991,6 +2520,21 @@ static void *set_vi_srs_handler(int n, vi_handler_t addr, int srs)
 		const int ori_offset = &except_vec_vi_ori - vec_start;
 #endif
 		const int handler_len = &except_vec_vi_end - vec_start;
+=======
+		extern const u8 except_vec_vi[], except_vec_vi_lui[];
+		extern const u8 except_vec_vi_ori[], except_vec_vi_end[];
+		extern const u8 rollback_except_vec_vi[];
+		const u8 *vec_start = using_rollback_handler() ?
+				      rollback_except_vec_vi : except_vec_vi;
+#if defined(CONFIG_CPU_MICROMIPS) || defined(CONFIG_CPU_BIG_ENDIAN)
+		const int lui_offset = except_vec_vi_lui - vec_start + 2;
+		const int ori_offset = except_vec_vi_ori - vec_start + 2;
+#else
+		const int lui_offset = except_vec_vi_lui - vec_start;
+		const int ori_offset = except_vec_vi_ori - vec_start;
+#endif
+		const int handler_len = except_vec_vi_end - vec_start;
+>>>>>>> upstream/android-13
 
 		if (handler_len > VECTORSPACING) {
 			/*
@@ -2085,7 +2629,11 @@ static void configure_status(void)
 	 * flag that some firmware may have left set and the TS bit (for
 	 * IP27).  Set XX for ISA IV code to work.
 	 */
+<<<<<<< HEAD
 	unsigned int status_set = ST0_CU0;
+=======
+	unsigned int status_set = ST0_KERNEL_CUMASK;
+>>>>>>> upstream/android-13
 #ifdef CONFIG_64BIT
 	status_set |= ST0_FR|ST0_KX|ST0_SX|ST0_UX;
 #endif
@@ -2122,7 +2670,11 @@ static void configure_hwrena(void)
 
 static void configure_exception_vector(void)
 {
+<<<<<<< HEAD
 	if (cpu_has_veic || cpu_has_vint) {
+=======
+	if (cpu_has_mips_r2_r6) {
+>>>>>>> upstream/android-13
 		unsigned long sr = set_c0_status(ST0_BEV);
 		/* If available, use WG to set top bits of EBASE */
 		if (cpu_has_ebase_wg) {
@@ -2134,6 +2686,11 @@ static void configure_exception_vector(void)
 		}
 		write_c0_ebase(ebase);
 		write_c0_status(sr);
+<<<<<<< HEAD
+=======
+	}
+	if (cpu_has_veic || cpu_has_vint) {
+>>>>>>> upstream/android-13
 		/* Setting vector spacing enables EI/VI mode  */
 		change_c0_intctl(0x3e0, VECTORSPACING);
 	}
@@ -2164,6 +2721,7 @@ void per_cpu_trap_init(bool is_boot_cpu)
 	 *  o read IntCtl.IPFDC to determine the fast debug channel interrupt
 	 */
 	if (cpu_has_mips_r2_r6) {
+<<<<<<< HEAD
 		/*
 		 * We shouldn't trust a secondary core has a sane EBASE register
 		 * so use the one calculated by the boot CPU.
@@ -2180,6 +2738,8 @@ void per_cpu_trap_init(bool is_boot_cpu)
 			write_c0_ebase(ebase);
 		}
 
+=======
+>>>>>>> upstream/android-13
 		cp0_compare_irq_shift = CAUSEB_TI - CAUSEB_IP;
 		cp0_compare_irq = (read_c0_intctl() >> INTCTLB_IPTI) & 7;
 		cp0_perfcount_irq = (read_c0_intctl() >> INTCTLB_IPPCI) & 7;
@@ -2194,7 +2754,13 @@ void per_cpu_trap_init(bool is_boot_cpu)
 		cp0_fdc_irq = -1;
 	}
 
+<<<<<<< HEAD
 	if (!cpu_data[cpu].asid_cache)
+=======
+	if (cpu_has_mmid)
+		cpu_data[cpu].asid_cache = 0;
+	else if (!cpu_data[cpu].asid_cache)
+>>>>>>> upstream/android-13
 		cpu_data[cpu].asid_cache = asid_first_version(cpu);
 
 	mmgrab(&init_mm);
@@ -2210,7 +2776,11 @@ void per_cpu_trap_init(bool is_boot_cpu)
 }
 
 /* Install CPU exception handler */
+<<<<<<< HEAD
 void set_handler(unsigned long offset, void *addr, unsigned long size)
+=======
+void set_handler(unsigned long offset, const void *addr, unsigned long size)
+>>>>>>> upstream/android-13
 {
 #ifdef CONFIG_CPU_MICROMIPS
 	memcpy((void *)(ebase + offset), ((unsigned char *)addr - 1), size);
@@ -2253,6 +2823,7 @@ void __init trap_init(void)
 	extern char except_vec3_generic;
 	extern char except_vec4;
 	extern char except_vec3_r4000;
+<<<<<<< HEAD
 	unsigned long i;
 
 	check_wait();
@@ -2263,6 +2834,26 @@ void __init trap_init(void)
 
 		ebase = (unsigned long)
 			__alloc_bootmem(size, 1 << fls(size), 0);
+=======
+	unsigned long i, vec_size;
+	phys_addr_t ebase_pa;
+
+	check_wait();
+
+	if (!cpu_has_mips_r2_r6) {
+		ebase = CAC_BASE;
+		vec_size = 0x400;
+	} else {
+		if (cpu_has_veic || cpu_has_vint)
+			vec_size = 0x200 + VECTORSPACING*64;
+		else
+			vec_size = PAGE_SIZE;
+
+		ebase_pa = memblock_phys_alloc(vec_size, 1 << fls(vec_size));
+		if (!ebase_pa)
+			panic("%s: Failed to allocate %lu bytes align=0x%x\n",
+			      __func__, vec_size, 1 << fls(vec_size));
+>>>>>>> upstream/android-13
 
 		/*
 		 * Try to ensure ebase resides in KSeg0 if possible.
@@ -2275,6 +2866,7 @@ void __init trap_init(void)
 		 * EVA is special though as it allows segments to be rearranged
 		 * and to become uncached during cache error handling.
 		 */
+<<<<<<< HEAD
 		ebase_pa = __pa(ebase);
 		if (!IS_ENABLED(CONFIG_EVA) && !WARN_ON(ebase_pa >= 0x20000000))
 			ebase = CKSEG0ADDR(ebase_pa);
@@ -2292,6 +2884,12 @@ void __init trap_init(void)
 				ebase += (read_c0_ebase() & 0x3ffff000);
 			}
 		}
+=======
+		if (!IS_ENABLED(CONFIG_EVA) && !WARN_ON(ebase_pa >= 0x20000000))
+			ebase = CKSEG0ADDR(ebase_pa);
+		else
+			ebase = (unsigned long)phys_to_virt(ebase_pa);
+>>>>>>> upstream/android-13
 	}
 
 	if (cpu_has_mmips) {
@@ -2306,6 +2904,10 @@ void __init trap_init(void)
 	if (board_ebase_setup)
 		board_ebase_setup();
 	per_cpu_trap_init(true);
+<<<<<<< HEAD
+=======
+	memblock_set_bottom_up(false);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Copy the generic exception handlers to their final destination.
@@ -2378,7 +2980,11 @@ void __init trap_init(void)
 	else {
 		if (cpu_has_vtag_icache)
 			set_except_vector(EXCCODE_RI, handle_ri_rdhwr_tlbp);
+<<<<<<< HEAD
 		else if (current_cpu_type() == CPU_LOONGSON3)
+=======
+		else if (current_cpu_type() == CPU_LOONGSON64)
+>>>>>>> upstream/android-13
 			set_except_vector(EXCCODE_RI, handle_ri_rdhwr_tlbp);
 		else
 			set_except_vector(EXCCODE_RI, handle_ri_rdhwr);
@@ -2395,7 +3001,15 @@ void __init trap_init(void)
 	if (cpu_has_fpu && !cpu_has_nofpuex)
 		set_except_vector(EXCCODE_FPE, handle_fpe);
 
+<<<<<<< HEAD
 	set_except_vector(MIPS_EXCCODE_TLBPAR, handle_ftlb);
+=======
+	if (cpu_has_ftlbparex)
+		set_except_vector(MIPS_EXCCODE_TLBPAR, handle_ftlb);
+
+	if (cpu_has_gsexcex)
+		set_except_vector(LOONGSON_EXCCODE_GSEXC, handle_gsexc);
+>>>>>>> upstream/android-13
 
 	if (cpu_has_rixiex) {
 		set_except_vector(EXCCODE_TLBRI, tlb_do_page_fault_0);
@@ -2424,7 +3038,11 @@ void __init trap_init(void)
 	else
 		set_handler(0x080, &except_vec3_generic, 0x80);
 
+<<<<<<< HEAD
 	local_flush_icache_range(ebase, ebase + 0x400);
+=======
+	local_flush_icache_range(ebase, ebase + vec_size);
+>>>>>>> upstream/android-13
 
 	sort_extable(__start___dbe_table, __stop___dbe_table);
 

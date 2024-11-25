@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 /*
  * (C) 2002 - 2003 Dominik Brodowski <linux@brodo.de>
  *
  *  Licensed under the terms of the GNU GPL License version 2.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * (C) 2002 - 2003 Dominik Brodowski <linux@brodo.de>
+ *
+>>>>>>> upstream/android-13
  *  Library for common functions for Intel SpeedStep v.1 and v.2 support
  *
  *  BIG FAT DISCLAIMER: Work in progress code. Possibly *dangerous*
@@ -241,7 +248,11 @@ unsigned int speedstep_get_frequency(enum speedstep_processor processor)
 		return pentium3_get_frequency(processor);
 	default:
 		return 0;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL_GPL(speedstep_get_frequency);
@@ -367,7 +378,11 @@ enum speedstep_processor speedstep_detect_processor(void)
 			} else
 				return SPEEDSTEP_CPU_PIII_C;
 		}
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		return 0;
 	}

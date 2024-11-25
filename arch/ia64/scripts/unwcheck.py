@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 #!/usr/bin/env python
+=======
+#!/usr/bin/env python3
+>>>>>>> upstream/android-13
 # SPDX-License-Identifier: GPL-2.0
 #
 # Usage: unwcheck.py FILE

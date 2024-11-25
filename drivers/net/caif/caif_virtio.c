@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) ST-Ericsson AB 2013
  * Authors: Vicram Arv
  *	    Dmitry Tarnyagin <dmitry.tarnyagin@lockless.no>
  *	    Sjur Brendeland
+<<<<<<< HEAD
  * License terms: GNU General Public License (GPL) version 2
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/if_arp.h>
@@ -315,7 +322,11 @@ exit:
 	case 0:
 		++cfv->stats.rx_napi_complete;
 
+<<<<<<< HEAD
 		/* Really out of patckets? (stolen from virtio_net)*/
+=======
+		/* Really out of packets? (stolen from virtio_net)*/
+>>>>>>> upstream/android-13
 		napi_complete(napi);
 		if (unlikely(!vringh_notify_enable_kern(cfv->vr_rx)) &&
 		    napi_schedule_prep(napi)) {
@@ -463,7 +474,11 @@ static int cfv_netdev_close(struct net_device *netdev)
 	vringh_notify_disable_kern(cfv->vr_rx);
 	napi_disable(&cfv->napi);
 
+<<<<<<< HEAD
 	/* Release any TX buffers on both used and avilable rings */
+=======
+	/* Release any TX buffers on both used and available rings */
+>>>>>>> upstream/android-13
 	cfv_release_used_buf(cfv->vq_tx);
 	spin_lock_irqsave(&cfv->tx_lock, flags);
 	while ((buf_info = virtqueue_detach_unused_buf(cfv->vq_tx)))
@@ -497,7 +512,11 @@ static struct buf_info *cfv_alloc_and_copy_to_shm(struct cfv_info *cfv,
 	if (unlikely(!buf_info))
 		goto err;
 
+<<<<<<< HEAD
 	/* Make the IP header aligned in tbe buffer */
+=======
+	/* Make the IP header aligned in the buffer */
+>>>>>>> upstream/android-13
 	hdr_ofs = cfv->tx_hr + info->hdr_len;
 	pad_len = hdr_ofs & (IP_HDR_ALIGN - 1);
 	buf_info->size = cfv->tx_hr + skb->len + cfv->tx_tr + pad_len;
@@ -519,7 +538,11 @@ err:
 }
 
 /* Put the CAIF packet on the virtio ring and kick the receiver */
+<<<<<<< HEAD
 static int cfv_netdev_tx(struct sk_buff *skb, struct net_device *netdev)
+=======
+static netdev_tx_t cfv_netdev_tx(struct sk_buff *skb, struct net_device *netdev)
+>>>>>>> upstream/android-13
 {
 	struct cfv_info *cfv = netdev_priv(netdev);
 	struct buf_info *buf_info;
@@ -598,9 +621,15 @@ err:
 	return NETDEV_TX_OK;
 }
 
+<<<<<<< HEAD
 static void cfv_tx_release_tasklet(unsigned long drv)
 {
 	struct cfv_info *cfv = (struct cfv_info *)drv;
+=======
+static void cfv_tx_release_tasklet(struct tasklet_struct *t)
+{
+	struct cfv_info *cfv = from_tasklet(cfv, t, tx_release_tasklet);
+>>>>>>> upstream/android-13
 	cfv_release_used_buf(cfv->vq_tx);
 }
 
@@ -623,11 +652,15 @@ static void cfv_netdev_setup(struct net_device *netdev)
 /* Create debugfs counters for the device */
 static inline void debugfs_init(struct cfv_info *cfv)
 {
+<<<<<<< HEAD
 	cfv->debugfs =
 		debugfs_create_dir(netdev_name(cfv->ndev), NULL);
 
 	if (IS_ERR(cfv->debugfs))
 		return;
+=======
+	cfv->debugfs = debugfs_create_dir(netdev_name(cfv->ndev), NULL);
+>>>>>>> upstream/android-13
 
 	debugfs_create_u32("rx-napi-complete", 0400, cfv->debugfs,
 			   &cfv->stats.rx_napi_complete);
@@ -656,7 +689,11 @@ static int cfv_probe(struct virtio_device *vdev)
 	const char *cfv_netdev_name = "cfvrt";
 	struct net_device *netdev;
 	struct cfv_info *cfv;
+<<<<<<< HEAD
 	int err = -EINVAL;
+=======
+	int err;
+>>>>>>> upstream/android-13
 
 	netdev = alloc_netdev(sizeof(struct cfv_info), cfv_netdev_name,
 			      NET_NAME_UNKNOWN, cfv_netdev_setup);
@@ -720,9 +757,13 @@ static int cfv_probe(struct virtio_device *vdev)
 	cfv->ctx.head = USHRT_MAX;
 	netif_napi_add(netdev, &cfv->napi, cfv_rx_poll, CFV_DEFAULT_QUOTA);
 
+<<<<<<< HEAD
 	tasklet_init(&cfv->tx_release_tasklet,
 		     cfv_tx_release_tasklet,
 		     (unsigned long)cfv);
+=======
+	tasklet_setup(&cfv->tx_release_tasklet, cfv_tx_release_tasklet);
+>>>>>>> upstream/android-13
 
 	/* Carrier is off until netdevice is opened */
 	netif_carrier_off(netdev);

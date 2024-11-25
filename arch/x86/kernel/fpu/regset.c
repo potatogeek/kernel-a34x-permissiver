@@ -2,11 +2,20 @@
 /*
  * FPU register's regset abstraction, for ptrace, core dumps, etc.
  */
+<<<<<<< HEAD
+=======
+#include <linux/sched/task_stack.h>
+#include <linux/vmalloc.h>
+
+>>>>>>> upstream/android-13
 #include <asm/fpu/internal.h>
 #include <asm/fpu/signal.h>
 #include <asm/fpu/regset.h>
 #include <asm/fpu/xstate.h>
+<<<<<<< HEAD
 #include <linux/sched/task_stack.h>
+=======
+>>>>>>> upstream/android-13
 
 /*
  * The xstateregs_active() routine is the same as the regset_fpregs_active() routine,
@@ -15,21 +24,30 @@
  */
 int regset_fpregs_active(struct task_struct *target, const struct user_regset *regset)
 {
+<<<<<<< HEAD
 	struct fpu *target_fpu = &target->thread.fpu;
 
 	return target_fpu->initialized ? regset->n : 0;
+=======
+	return regset->n;
+>>>>>>> upstream/android-13
 }
 
 int regset_xregset_fpregs_active(struct task_struct *target, const struct user_regset *regset)
 {
+<<<<<<< HEAD
 	struct fpu *target_fpu = &target->thread.fpu;
 
 	if (boot_cpu_has(X86_FEATURE_FXSR) && target_fpu->initialized)
+=======
+	if (boot_cpu_has(X86_FEATURE_FXSR))
+>>>>>>> upstream/android-13
 		return regset->n;
 	else
 		return 0;
 }
 
+<<<<<<< HEAD
 int xfpregs_get(struct task_struct *target, const struct user_regset *regset,
 		unsigned int pos, unsigned int count,
 		void *kbuf, void __user *ubuf)
@@ -44,6 +62,60 @@ int xfpregs_get(struct task_struct *target, const struct user_regset *regset,
 
 	return user_regset_copyout(&pos, &count, &kbuf, &ubuf,
 				   &fpu->state.fxsave, 0, -1);
+=======
+/*
+ * The regset get() functions are invoked from:
+ *
+ *   - coredump to dump the current task's fpstate. If the current task
+ *     owns the FPU then the memory state has to be synchronized and the
+ *     FPU register state preserved. Otherwise fpstate is already in sync.
+ *
+ *   - ptrace to dump fpstate of a stopped task, in which case the registers
+ *     have already been saved to fpstate on context switch.
+ */
+static void sync_fpstate(struct fpu *fpu)
+{
+	if (fpu == &current->thread.fpu)
+		fpu_sync_fpstate(fpu);
+}
+
+/*
+ * Invalidate cached FPU registers before modifying the stopped target
+ * task's fpstate.
+ *
+ * This forces the target task on resume to restore the FPU registers from
+ * modified fpstate. Otherwise the task might skip the restore and operate
+ * with the cached FPU registers which discards the modifications.
+ */
+static void fpu_force_restore(struct fpu *fpu)
+{
+	/*
+	 * Only stopped child tasks can be used to modify the FPU
+	 * state in the fpstate buffer:
+	 */
+	WARN_ON_FPU(fpu == &current->thread.fpu);
+
+	__fpu_invalidate_fpregs_state(fpu);
+}
+
+int xfpregs_get(struct task_struct *target, const struct user_regset *regset,
+		struct membuf to)
+{
+	struct fpu *fpu = &target->thread.fpu;
+
+	if (!cpu_feature_enabled(X86_FEATURE_FXSR))
+		return -ENODEV;
+
+	sync_fpstate(fpu);
+
+	if (!use_xsave()) {
+		return membuf_write(&to, &fpu->state.fxsave,
+				    sizeof(fpu->state.fxsave));
+	}
+
+	copy_xstate_to_uabi_buf(to, target, XSTATE_COPY_FX);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 int xfpregs_set(struct task_struct *target, const struct user_regset *regset,
@@ -51,6 +123,7 @@ int xfpregs_set(struct task_struct *target, const struct user_regset *regset,
 		const void *kbuf, const void __user *ubuf)
 {
 	struct fpu *fpu = &target->thread.fpu;
+<<<<<<< HEAD
 	int ret;
 
 	if (!boot_cpu_has(X86_FEATURE_FXSR))
@@ -112,6 +185,53 @@ int xstateregs_get(struct task_struct *target, const struct user_regset *regset,
 		ret = user_regset_copyout(&pos, &count, &kbuf, &ubuf, xsave, 0, -1);
 	}
 	return ret;
+=======
+	struct fxregs_state newstate;
+	int ret;
+
+	if (!cpu_feature_enabled(X86_FEATURE_FXSR))
+		return -ENODEV;
+
+	/* No funny business with partial or oversized writes is permitted. */
+	if (pos != 0 || count != sizeof(newstate))
+		return -EINVAL;
+
+	ret = user_regset_copyin(&pos, &count, &kbuf, &ubuf, &newstate, 0, -1);
+	if (ret)
+		return ret;
+
+	/* Do not allow an invalid MXCSR value. */
+	if (newstate.mxcsr & ~mxcsr_feature_mask)
+		return -EINVAL;
+
+	fpu_force_restore(fpu);
+
+	/* Copy the state  */
+	memcpy(&fpu->state.fxsave, &newstate, sizeof(newstate));
+
+	/* Clear xmm8..15 for 32-bit callers */
+	BUILD_BUG_ON(sizeof(fpu->state.fxsave.xmm_space) != 16 * 16);
+	if (in_ia32_syscall())
+		memset(&fpu->state.fxsave.xmm_space[8*4], 0, 8 * 16);
+
+	/* Mark FP and SSE as in use when XSAVE is enabled */
+	if (use_xsave())
+		fpu->state.xsave.header.xfeatures |= XFEATURE_MASK_FPSSE;
+
+	return 0;
+}
+
+int xstateregs_get(struct task_struct *target, const struct user_regset *regset,
+		struct membuf to)
+{
+	if (!cpu_feature_enabled(X86_FEATURE_XSAVE))
+		return -ENODEV;
+
+	sync_fpstate(&target->thread.fpu);
+
+	copy_xstate_to_uabi_buf(to, target, XSTATE_COPY_XSAVE);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 int xstateregs_set(struct task_struct *target, const struct user_regset *regset,
@@ -119,15 +239,23 @@ int xstateregs_set(struct task_struct *target, const struct user_regset *regset,
 		  const void *kbuf, const void __user *ubuf)
 {
 	struct fpu *fpu = &target->thread.fpu;
+<<<<<<< HEAD
 	struct xregs_state *xsave;
 	int ret;
 
 	if (!boot_cpu_has(X86_FEATURE_XSAVE))
+=======
+	struct xregs_state *tmpbuf = NULL;
+	int ret;
+
+	if (!cpu_feature_enabled(X86_FEATURE_XSAVE))
+>>>>>>> upstream/android-13
 		return -ENODEV;
 
 	/*
 	 * A whole standard-format XSAVE buffer is needed:
 	 */
+<<<<<<< HEAD
 	if ((pos != 0) || (count < fpu_user_xstate_size))
 		return -EFAULT;
 
@@ -157,6 +285,27 @@ int xstateregs_set(struct task_struct *target, const struct user_regset *regset,
 	if (ret)
 		fpstate_init(&fpu->state);
 
+=======
+	if (pos != 0 || count != fpu_user_xstate_size)
+		return -EFAULT;
+
+	if (!kbuf) {
+		tmpbuf = vmalloc(count);
+		if (!tmpbuf)
+			return -ENOMEM;
+
+		if (copy_from_user(tmpbuf, ubuf, count)) {
+			ret = -EFAULT;
+			goto out;
+		}
+	}
+
+	fpu_force_restore(fpu);
+	ret = copy_uabi_from_kernel_to_xstate(&fpu->state.xsave, kbuf ?: tmpbuf);
+
+out:
+	vfree(tmpbuf);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -232,10 +381,17 @@ static inline u32 twd_fxsr_to_i387(struct fxregs_state *fxsave)
  * FXSR floating point environment conversions.
  */
 
+<<<<<<< HEAD
 void
 convert_from_fxsr(struct user_i387_ia32_struct *env, struct task_struct *tsk)
 {
 	struct fxregs_state *fxsave = &tsk->thread.fpu.state.fxsave;
+=======
+static void __convert_from_fxsr(struct user_i387_ia32_struct *env,
+				struct task_struct *tsk,
+				struct fxregs_state *fxsave)
+{
+>>>>>>> upstream/android-13
 	struct _fpreg *to = (struct _fpreg *) &env->st_space[0];
 	struct _fpxreg *from = (struct _fpxreg *) &fxsave->st_space[0];
 	int i;
@@ -269,11 +425,24 @@ convert_from_fxsr(struct user_i387_ia32_struct *env, struct task_struct *tsk)
 		memcpy(&to[i], &from[i], sizeof(to[0]));
 }
 
+<<<<<<< HEAD
 void convert_to_fxsr(struct task_struct *tsk,
 		     const struct user_i387_ia32_struct *env)
 
 {
 	struct fxregs_state *fxsave = &tsk->thread.fpu.state.fxsave;
+=======
+void
+convert_from_fxsr(struct user_i387_ia32_struct *env, struct task_struct *tsk)
+{
+	__convert_from_fxsr(env, tsk, &tsk->thread.fpu.state.fxsave);
+}
+
+void convert_to_fxsr(struct fxregs_state *fxsave,
+		     const struct user_i387_ia32_struct *env)
+
+{
+>>>>>>> upstream/android-13
 	struct _fpreg *from = (struct _fpreg *) &env->st_space[0];
 	struct _fpxreg *to = (struct _fpxreg *) &fxsave->st_space[0];
 	int i;
@@ -298,6 +467,7 @@ void convert_to_fxsr(struct task_struct *tsk,
 }
 
 int fpregs_get(struct task_struct *target, const struct user_regset *regset,
+<<<<<<< HEAD
 	       unsigned int pos, unsigned int count,
 	       void *kbuf, void __user *ubuf)
 {
@@ -324,6 +494,36 @@ int fpregs_get(struct task_struct *target, const struct user_regset *regset,
 	convert_from_fxsr(&env, target);
 
 	return user_regset_copyout(&pos, &count, &kbuf, &ubuf, &env, 0, -1);
+=======
+	       struct membuf to)
+{
+	struct fpu *fpu = &target->thread.fpu;
+	struct user_i387_ia32_struct env;
+	struct fxregs_state fxsave, *fx;
+
+	sync_fpstate(fpu);
+
+	if (!cpu_feature_enabled(X86_FEATURE_FPU))
+		return fpregs_soft_get(target, regset, to);
+
+	if (!cpu_feature_enabled(X86_FEATURE_FXSR)) {
+		return membuf_write(&to, &fpu->state.fsave,
+				    sizeof(struct fregs_state));
+	}
+
+	if (use_xsave()) {
+		struct membuf mb = { .p = &fxsave, .left = sizeof(fxsave) };
+
+		/* Handle init state optimized xstate correctly */
+		copy_xstate_to_uabi_buf(mb, target, XSTATE_COPY_FP);
+		fx = &fxsave;
+	} else {
+		fx = &fpu->state.fxsave;
+	}
+
+	__convert_from_fxsr(&env, target, fx);
+	return membuf_write(&to, &env, sizeof(env));
+>>>>>>> upstream/android-13
 }
 
 int fpregs_set(struct task_struct *target, const struct user_regset *regset,
@@ -334,6 +534,7 @@ int fpregs_set(struct task_struct *target, const struct user_regset *regset,
 	struct user_i387_ia32_struct env;
 	int ret;
 
+<<<<<<< HEAD
 	fpu__prepare_write(fpu);
 	fpstate_sanitize_xstate(fpu);
 
@@ -384,4 +585,34 @@ int dump_fpu(struct pt_regs *regs, struct user_i387_struct *ufpu)
 }
 EXPORT_SYMBOL(dump_fpu);
 
+=======
+	/* No funny business with partial or oversized writes is permitted. */
+	if (pos != 0 || count != sizeof(struct user_i387_ia32_struct))
+		return -EINVAL;
+
+	if (!cpu_feature_enabled(X86_FEATURE_FPU))
+		return fpregs_soft_set(target, regset, pos, count, kbuf, ubuf);
+
+	ret = user_regset_copyin(&pos, &count, &kbuf, &ubuf, &env, 0, -1);
+	if (ret)
+		return ret;
+
+	fpu_force_restore(fpu);
+
+	if (cpu_feature_enabled(X86_FEATURE_FXSR))
+		convert_to_fxsr(&fpu->state.fxsave, &env);
+	else
+		memcpy(&fpu->state.fsave, &env, sizeof(env));
+
+	/*
+	 * Update the header bit in the xsave header, indicating the
+	 * presence of FP.
+	 */
+	if (cpu_feature_enabled(X86_FEATURE_XSAVE))
+		fpu->state.xsave.header.xfeatures |= XFEATURE_MASK_FP;
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 #endif	/* CONFIG_X86_32 || CONFIG_IA32_EMULATION */

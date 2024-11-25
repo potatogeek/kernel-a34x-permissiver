@@ -1,8 +1,16 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
 #include "util.h"
+=======
+#include <inttypes.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <string.h>
+#include <internal/lib.h> // page_size
+>>>>>>> upstream/android-13
 #include "machine.h"
 #include "api/fs/fs.h"
 #include "debug.h"
@@ -34,6 +42,7 @@ int arch__fix_module_text_start(u64 *start, u64 *size, const char *name)
 
 	return 0;
 }
+<<<<<<< HEAD
 
 /* On s390 kernel text segment start is located at very low memory addresses,
  * for example 0x10000. Modules are located at very high memory addresses,
@@ -50,3 +59,5 @@ void arch__symbols__fixup_end(struct symbol *p, struct symbol *c)
 		p->end = c->start;
 	pr_debug4("%s sym:%s end:%#lx\n", __func__, p->name, p->end);
 }
+=======
+>>>>>>> upstream/android-13

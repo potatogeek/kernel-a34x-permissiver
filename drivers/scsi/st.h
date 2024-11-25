@@ -35,7 +35,10 @@ struct st_request {
 
 /* The tape buffer descriptor. */
 struct st_buffer {
+<<<<<<< HEAD
 	unsigned char dma;	/* DMA-able buffer */
+=======
+>>>>>>> upstream/android-13
 	unsigned char cleared;  /* internal buffer cleared after open? */
 	unsigned short do_dio;  /* direct i/o set up? */
 	int buffer_size;
@@ -133,7 +136,10 @@ struct scsi_tape {
 	unsigned char two_fm;
 	unsigned char fast_mteom;
 	unsigned char immediate;
+<<<<<<< HEAD
 	unsigned char restr_dma;
+=======
+>>>>>>> upstream/android-13
 	unsigned char scsi2_logical;
 	unsigned char default_drvbuffer;	/* 0xff = don't touch, value 3 bits */
 	unsigned char cln_mode;			/* 0 = none, otherwise sense byte nbr */
@@ -189,7 +195,11 @@ struct scsi_tape {
 	unsigned char last_cmnd[6];
 	unsigned char last_sense[16];
 #endif
+<<<<<<< HEAD
 	struct gendisk *disk;
+=======
+	char name[DISK_NAME_LEN];
+>>>>>>> upstream/android-13
 	struct kref     kref;
 	struct scsi_tape_stats *stats;
 };

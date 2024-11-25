@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2012-2016, The Linux Foundation. All rights reserved.
  * Copyright (C) 2017 Linaro Ltd.
@@ -11,6 +12,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2012-2016, The Linux Foundation. All rights reserved.
+ * Copyright (C) 2017 Linaro Ltd.
+>>>>>>> upstream/android-13
  */
 #ifndef __HFI_H__
 #define __HFI_H__
@@ -111,6 +118,10 @@ struct hfi_inst_ops {
 			 u32 hfi_flags, u64 timestamp_us);
 	void (*event_notify)(struct venus_inst *inst, u32 event,
 			     struct hfi_event_data *data);
+<<<<<<< HEAD
+=======
+	void (*flush_done)(struct venus_inst *inst);
+>>>>>>> upstream/android-13
 };
 
 struct hfi_ops {
@@ -153,6 +164,10 @@ struct hfi_ops {
 
 int hfi_create(struct venus_core *core, const struct hfi_core_ops *ops);
 void hfi_destroy(struct venus_core *core);
+<<<<<<< HEAD
+=======
+void hfi_reinit(struct venus_core *core);
+>>>>>>> upstream/android-13
 
 int hfi_core_init(struct venus_core *core);
 int hfi_core_deinit(struct venus_core *core, bool blocking);
@@ -170,7 +185,11 @@ int hfi_session_continue(struct venus_inst *inst);
 int hfi_session_abort(struct venus_inst *inst);
 int hfi_session_load_res(struct venus_inst *inst);
 int hfi_session_unload_res(struct venus_inst *inst);
+<<<<<<< HEAD
 int hfi_session_flush(struct venus_inst *inst);
+=======
+int hfi_session_flush(struct venus_inst *inst, u32 type, bool block);
+>>>>>>> upstream/android-13
 int hfi_session_set_buffers(struct venus_inst *inst,
 			    struct hfi_buffer_desc *bd);
 int hfi_session_unset_buffers(struct venus_inst *inst,

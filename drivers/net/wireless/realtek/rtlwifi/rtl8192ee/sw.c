@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2014  Realtek Corporation.
@@ -22,6 +23,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+// SPDX-License-Identifier: GPL-2.0
+/* Copyright(c) 2009-2014  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #include "../wifi.h"
 #include "../core.h"
@@ -31,7 +36,10 @@
 #include "phy.h"
 #include "dm.h"
 #include "hw.h"
+<<<<<<< HEAD
 #include "sw.h"
+=======
+>>>>>>> upstream/android-13
 #include "fw.h"
 #include "trx.h"
 #include "led.h"
@@ -87,7 +95,11 @@ static void rtl92ee_init_aspm_vars(struct ieee80211_hw *hw)
 	rtlpci->const_support_pciaspm = rtlpriv->cfg->mod_params->aspm_support;
 }
 
+<<<<<<< HEAD
 int rtl92ee_init_sw_vars(struct ieee80211_hw *hw)
+=======
+static int rtl92ee_init_sw_vars(struct ieee80211_hw *hw)
+>>>>>>> upstream/android-13
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct rtl_pci *rtlpci = rtl_pcidev(rtl_pcipriv(hw));
@@ -98,9 +110,15 @@ int rtl92ee_init_sw_vars(struct ieee80211_hw *hw)
 	rtlpci->msi_support = rtlpriv->cfg->mod_params->msi_support;
 	rtlpriv->btcoexist.btc_ops = rtl_btc_get_ops_pointer();
 
+<<<<<<< HEAD
 	rtlpriv->dm.dm_initialgain_enable = 1;
 	rtlpriv->dm.dm_flag = 0;
 	rtlpriv->dm.disable_framebursting = 0;
+=======
+	rtlpriv->dm.dm_initialgain_enable = true;
+	rtlpriv->dm.dm_flag = 0;
+	rtlpriv->dm.disable_framebursting = false;
+>>>>>>> upstream/android-13
 	rtlpci->transmit_config = CFENDFORM | BIT(15);
 
 	/*just 2.4G band*/
@@ -186,7 +204,11 @@ int rtl92ee_init_sw_vars(struct ieee80211_hw *hw)
 	return 0;
 }
 
+<<<<<<< HEAD
 void rtl92ee_deinit_sw_vars(struct ieee80211_hw *hw)
+=======
+static void rtl92ee_deinit_sw_vars(struct ieee80211_hw *hw)
+>>>>>>> upstream/android-13
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 
@@ -197,7 +219,11 @@ void rtl92ee_deinit_sw_vars(struct ieee80211_hw *hw)
 }
 
 /* get bt coexist status */
+<<<<<<< HEAD
 bool rtl92ee_get_btc_status(void)
+=======
+static bool rtl92ee_get_btc_status(void)
+>>>>>>> upstream/android-13
 {
 	return true;
 }

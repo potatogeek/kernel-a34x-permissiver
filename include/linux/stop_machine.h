@@ -24,6 +24,10 @@ typedef int (*cpu_stop_fn_t)(void *arg);
 struct cpu_stop_work {
 	struct list_head	list;		/* cpu_stopper->works */
 	cpu_stop_fn_t		fn;
+<<<<<<< HEAD
+=======
+	unsigned long		caller;
+>>>>>>> upstream/android-13
 	void			*arg;
 	struct cpu_stop_done	*done;
 };
@@ -32,10 +36,18 @@ int stop_one_cpu(unsigned int cpu, cpu_stop_fn_t fn, void *arg);
 int stop_two_cpus(unsigned int cpu1, unsigned int cpu2, cpu_stop_fn_t fn, void *arg);
 bool stop_one_cpu_nowait(unsigned int cpu, cpu_stop_fn_t fn, void *arg,
 			 struct cpu_stop_work *work_buf);
+<<<<<<< HEAD
 int stop_cpus(const struct cpumask *cpumask, cpu_stop_fn_t fn, void *arg);
 int try_stop_cpus(const struct cpumask *cpumask, cpu_stop_fn_t fn, void *arg);
 void stop_machine_park(int cpu);
 void stop_machine_unpark(int cpu);
+=======
+void stop_machine_park(int cpu);
+void stop_machine_unpark(int cpu);
+void stop_machine_yield(const struct cpumask *cpumask);
+
+extern void print_stop_info(const char *log_lvl, struct task_struct *task);
+>>>>>>> upstream/android-13
 
 #else	/* CONFIG_SMP */
 
@@ -81,6 +93,7 @@ static inline bool stop_one_cpu_nowait(unsigned int cpu,
 	return false;
 }
 
+<<<<<<< HEAD
 static inline int stop_cpus(const struct cpumask *cpumask,
 			    cpu_stop_fn_t fn, void *arg)
 {
@@ -94,6 +107,9 @@ static inline int try_stop_cpus(const struct cpumask *cpumask,
 {
 	return stop_cpus(cpumask, fn, arg);
 }
+=======
+static inline void print_stop_info(const char *log_lvl, struct task_struct *task) { }
+>>>>>>> upstream/android-13
 
 #endif	/* CONFIG_SMP */
 

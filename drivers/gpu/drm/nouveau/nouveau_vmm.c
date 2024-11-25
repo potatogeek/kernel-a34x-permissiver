@@ -22,6 +22,10 @@
 #include "nouveau_vmm.h"
 #include "nouveau_drv.h"
 #include "nouveau_bo.h"
+<<<<<<< HEAD
+=======
+#include "nouveau_svm.h"
+>>>>>>> upstream/android-13
 #include "nouveau_mem.h"
 
 void
@@ -68,15 +72,24 @@ nouveau_vma_del(struct nouveau_vma **pvma)
 		}
 		list_del(&vma->head);
 		kfree(*pvma);
+<<<<<<< HEAD
 		*pvma = NULL;
 	}
+=======
+	}
+	*pvma = NULL;
+>>>>>>> upstream/android-13
 }
 
 int
 nouveau_vma_new(struct nouveau_bo *nvbo, struct nouveau_vmm *vmm,
 		struct nouveau_vma **pvma)
 {
+<<<<<<< HEAD
 	struct nouveau_mem *mem = nouveau_mem(&nvbo->bo.mem);
+=======
+	struct nouveau_mem *mem = nouveau_mem(nvbo->bo.resource);
+>>>>>>> upstream/android-13
 	struct nouveau_vma *vma;
 	struct nvif_vma tmp;
 	int ret;
@@ -95,7 +108,11 @@ nouveau_vma_new(struct nouveau_bo *nvbo, struct nouveau_vmm *vmm,
 	vma->fence = NULL;
 	list_add_tail(&vma->head, &nvbo->vma_list);
 
+<<<<<<< HEAD
 	if (nvbo->bo.mem.mem_type != TTM_PL_SYSTEM &&
+=======
+	if (nvbo->bo.resource->mem_type != TTM_PL_SYSTEM &&
+>>>>>>> upstream/android-13
 	    mem->mem.page == nvbo->page) {
 		ret = nvif_vmm_get(&vmm->vmm, LAZY, false, mem->mem.page, 0,
 				   mem->mem.size, &tmp);
@@ -119,15 +136,25 @@ done:
 void
 nouveau_vmm_fini(struct nouveau_vmm *vmm)
 {
+<<<<<<< HEAD
 	nvif_vmm_fini(&vmm->vmm);
+=======
+	nouveau_svmm_fini(&vmm->svmm);
+	nvif_vmm_dtor(&vmm->vmm);
+>>>>>>> upstream/android-13
 	vmm->cli = NULL;
 }
 
 int
 nouveau_vmm_init(struct nouveau_cli *cli, s32 oclass, struct nouveau_vmm *vmm)
 {
+<<<<<<< HEAD
 	int ret = nvif_vmm_init(&cli->mmu, oclass, PAGE_SIZE, 0, NULL, 0,
 				&vmm->vmm);
+=======
+	int ret = nvif_vmm_ctor(&cli->mmu, "drmVmm", oclass, false, PAGE_SIZE,
+				0, NULL, 0, &vmm->vmm);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 

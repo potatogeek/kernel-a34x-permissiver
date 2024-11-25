@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) Intel Corp. 2007.
  * All Rights Reserved.
@@ -6,6 +10,7 @@
  * develop this driver.
  *
  * This file is part of the Carillo Ranch video subsystem driver.
+<<<<<<< HEAD
  * The Carillo Ranch video subsystem driver is free software;
  * you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +26,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this driver; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+=======
+>>>>>>> upstream/android-13
  *
  * Authors:
  *   Thomas Hellstrom <thomas-at-tungstengraphics-dot-com>
@@ -73,6 +80,7 @@ struct cr_panel {
 
 static int cr_backlight_set_intensity(struct backlight_device *bd)
 {
+<<<<<<< HEAD
 	int intensity = bd->props.brightness;
 	u32 addr = gpio_bar + CRVML_PANEL_PORT;
 	u32 cur = inl(addr);
@@ -93,6 +101,20 @@ static int cr_backlight_set_intensity(struct backlight_device *bd)
 		cur |= CRVML_BACKLIGHT_OFF;
 		outl(cur, addr);
 	} /* anything else, don't bother */
+=======
+	u32 addr = gpio_bar + CRVML_PANEL_PORT;
+	u32 cur = inl(addr);
+
+	if (backlight_get_brightness(bd) == 0) {
+		/* OFF */
+		cur |= CRVML_BACKLIGHT_OFF;
+		outl(cur, addr);
+	} else {
+		/* FULL ON */
+		cur &= ~CRVML_BACKLIGHT_OFF;
+		outl(cur, addr);
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -104,9 +126,15 @@ static int cr_backlight_get_intensity(struct backlight_device *bd)
 	u8 intensity;
 
 	if (cur & CRVML_BACKLIGHT_OFF)
+<<<<<<< HEAD
 		intensity = FB_BLANK_POWERDOWN;
 	else
 		intensity = FB_BLANK_UNBLANK;
+=======
+		intensity = 0;
+	else
+		intensity = 1;
+>>>>>>> upstream/android-13
 
 	return intensity;
 }

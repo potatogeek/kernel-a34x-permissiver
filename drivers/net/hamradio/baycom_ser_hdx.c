@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*****************************************************************************/
 
 /*
@@ -5,6 +9,7 @@
  *
  *	Copyright (C) 1996-2000  Thomas Sailer (sailer@ife.ee.ethz.ch)
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
  *	the Free Software Foundation; either version 2 of the License, or
@@ -19,11 +24,16 @@
  *	along with this program; if not, write to the Free Software
  *	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  *  Please note that the GPL allows you to use the driver, NOT the radio.
  *  In order to use the radio, you need a license from the communications
  *  authority of your country.
  *
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  *  Supported modems
  *
  *  ser12:  This is a very simple 1200 baud AFSK modem. The modem consists only
@@ -34,7 +44,10 @@
  *          port, the kernel driver for serial ports cannot be used, and this
  *          driver only supports standard serial hardware (8250, 16450, 16550A)
  *
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  *  Command line options (insmod command line)
  *
  *  mode     ser12    hardware DCD
@@ -45,7 +58,10 @@
  *  iobase   base address of the port; common values are 0x3f8, 0x2f8, 0x3e8, 0x2e8
  *  irq      interrupt line of the port; common values are 4,3
  *
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  *  History:
  *   0.1  26.06.1996  Adapted from baycom.c and made network driver interface
  *        18.10.1996  Changed to new user space access routines (copy_{to,from}_user)
@@ -537,7 +553,11 @@ static int ser12_close(struct net_device *dev)
 
 /* --------------------------------------------------------------------- */
 
+<<<<<<< HEAD
 static int baycom_ioctl(struct net_device *dev, struct ifreq *ifr,
+=======
+static int baycom_ioctl(struct net_device *dev, void __user *data,
+>>>>>>> upstream/android-13
 			struct hdlcdrv_ioctl *hi, int cmd);
 
 /* --------------------------------------------------------------------- */
@@ -567,7 +587,11 @@ static int baycom_setmode(struct baycom_state *bc, const char *modestr)
 
 /* --------------------------------------------------------------------- */
 
+<<<<<<< HEAD
 static int baycom_ioctl(struct net_device *dev, struct ifreq *ifr,
+=======
+static int baycom_ioctl(struct net_device *dev, void __user *data,
+>>>>>>> upstream/android-13
 			struct hdlcdrv_ioctl *hi, int cmd)
 {
 	struct baycom_state *bc;
@@ -589,7 +613,11 @@ static int baycom_ioctl(struct net_device *dev, struct ifreq *ifr,
 		strcpy(hi->data.modename, "ser12");
 		if (bc->opt_dcd <= 0)
 			strcat(hi->data.modename, (!bc->opt_dcd) ? "*" : (bc->opt_dcd == -2) ? "@" : "+");
+<<<<<<< HEAD
 		if (copy_to_user(ifr->ifr_data, hi, sizeof(struct hdlcdrv_ioctl)))
+=======
+		if (copy_to_user(data, hi, sizeof(struct hdlcdrv_ioctl)))
+>>>>>>> upstream/android-13
 			return -EFAULT;
 		return 0;
 
@@ -601,7 +629,11 @@ static int baycom_ioctl(struct net_device *dev, struct ifreq *ifr,
 
 	case HDLCDRVCTL_MODELIST:
 		strcpy(hi->data.modename, "ser12");
+<<<<<<< HEAD
 		if (copy_to_user(ifr->ifr_data, hi, sizeof(struct hdlcdrv_ioctl)))
+=======
+		if (copy_to_user(data, hi, sizeof(struct hdlcdrv_ioctl)))
+>>>>>>> upstream/android-13
 			return -EFAULT;
 		return 0;
 
@@ -610,7 +642,11 @@ static int baycom_ioctl(struct net_device *dev, struct ifreq *ifr,
 
 	}
 
+<<<<<<< HEAD
 	if (copy_from_user(&bi, ifr->ifr_data, sizeof(bi)))
+=======
+	if (copy_from_user(&bi, data, sizeof(bi)))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 	switch (bi.cmd) {
 	default:
@@ -625,7 +661,11 @@ static int baycom_ioctl(struct net_device *dev, struct ifreq *ifr,
 #endif /* BAYCOM_DEBUG */
 
 	}
+<<<<<<< HEAD
 	if (copy_to_user(ifr->ifr_data, &bi, sizeof(bi)))
+=======
+	if (copy_to_user(data, &bi, sizeof(bi)))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 	return 0;
 

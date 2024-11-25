@@ -10,6 +10,7 @@ extern void usb_wwan_dtr_rts(struct usb_serial_port *port, int on);
 extern int usb_wwan_open(struct tty_struct *tty, struct usb_serial_port *port);
 extern void usb_wwan_close(struct usb_serial_port *port);
 extern int usb_wwan_port_probe(struct usb_serial_port *port);
+<<<<<<< HEAD
 extern int usb_wwan_port_remove(struct usb_serial_port *port);
 extern int usb_wwan_write_room(struct tty_struct *tty);
 extern int usb_wwan_tiocmget(struct tty_struct *tty);
@@ -20,6 +21,16 @@ extern int usb_wwan_ioctl(struct tty_struct *tty,
 extern int usb_wwan_write(struct tty_struct *tty, struct usb_serial_port *port,
 			  const unsigned char *buf, int count);
 extern int usb_wwan_chars_in_buffer(struct tty_struct *tty);
+=======
+extern void usb_wwan_port_remove(struct usb_serial_port *port);
+extern unsigned int usb_wwan_write_room(struct tty_struct *tty);
+extern int usb_wwan_tiocmget(struct tty_struct *tty);
+extern int usb_wwan_tiocmset(struct tty_struct *tty,
+			     unsigned int set, unsigned int clear);
+extern int usb_wwan_write(struct tty_struct *tty, struct usb_serial_port *port,
+			  const unsigned char *buf, int count);
+extern unsigned int usb_wwan_chars_in_buffer(struct tty_struct *tty);
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM
 extern int usb_wwan_suspend(struct usb_serial *serial, pm_message_t message);
 extern int usb_wwan_resume(struct usb_serial *serial);

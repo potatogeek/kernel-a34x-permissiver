@@ -1,6 +1,7 @@
 Distributed Switch Architecture Device Tree Bindings
 ----------------------------------------------------
 
+<<<<<<< HEAD
 Two bindings exist, one of which has been deprecated due to
 limitations.
 
@@ -406,3 +407,6 @@ Example:
 			};
 		};
 	};
+=======
+See Documentation/devicetree/bindings/net/dsa/dsa.yaml for the documentation.
+>>>>>>> upstream/android-13

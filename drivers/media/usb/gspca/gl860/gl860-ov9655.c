@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Subdriver for the GL860 chip with the OV9655 sensor
  * Author Olivier LORIN, from logs done by Simon (Sur3) and Almighurt
  * on dsd's weblog
@@ -14,6 +15,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/* Subdriver for the GL860 chip with the OV9655 sensor
+ * Author Olivier LORIN, from logs done by Simon (Sur3) and Almighurt
+ * on dsd's weblog
+>>>>>>> upstream/android-13
  */
 
 /* Sensor : OV9655 */

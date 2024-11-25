@@ -123,7 +123,10 @@ pll_map(struct nvkm_bios *bios)
 	case NV_20:
 	case NV_30:
 		return nv04_pll_mapping;
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 	case NV_40:
 		return nv40_pll_mapping;
 	case NV_50:
@@ -134,6 +137,10 @@ pll_map(struct nvkm_bios *bios)
 		    device->chipset == 0xaa ||
 		    device->chipset == 0xac)
 			return g84_pll_mapping;
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		return NULL;
 	}

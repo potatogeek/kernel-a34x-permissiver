@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* scm.c - Socket level control messages processing.
  *
  * Author:	Alexey Kuznetsov, <kuznet@ms2.inr.ac.ru>
  *              Alignment and value checking mods by Craig Metz
+<<<<<<< HEAD
  *
  *		This program is free software; you can redistribute it and/or
  *		modify it under the terms of the GNU General Public License
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -29,6 +36,10 @@
 #include <linux/pid.h>
 #include <linux/nsproxy.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
+=======
+#include <linux/errqueue.h>
+>>>>>>> upstream/android-13
 
 #include <linux/uaccess.h>
 
@@ -82,7 +93,11 @@ static int scm_fp_copy(struct cmsghdr *cmsg, struct scm_fp_list **fplp)
 
 	if (!fpl)
 	{
+<<<<<<< HEAD
 		fpl = kmalloc(sizeof(struct scm_fp_list), GFP_KERNEL);
+=======
+		fpl = kmalloc(sizeof(struct scm_fp_list), GFP_KERNEL_ACCOUNT);
+>>>>>>> upstream/android-13
 		if (!fpl)
 			return -ENOMEM;
 		*fplp = fpl;
@@ -215,6 +230,7 @@ EXPORT_SYMBOL(__scm_send);
 
 int put_cmsg(struct msghdr * msg, int level, int type, int len, void *data)
 {
+<<<<<<< HEAD
 	struct cmsghdr __user *cm
 		= (__force struct cmsghdr __user *)msg->msg_control;
 	struct cmsghdr cmhdr;
@@ -225,6 +241,14 @@ int put_cmsg(struct msghdr * msg, int level, int type, int len, void *data)
 		return put_cmsg_compat(msg, level, type, len, data);
 
 	if (cm==NULL || msg->msg_controllen < sizeof(*cm)) {
+=======
+	int cmlen = CMSG_LEN(len);
+
+	if (msg->msg_flags & MSG_CMSG_COMPAT)
+		return put_cmsg_compat(msg, level, type, len, data);
+
+	if (!msg->msg_control || msg->msg_controllen < sizeof(struct cmsghdr)) {
+>>>>>>> upstream/android-13
 		msg->msg_flags |= MSG_CTRUNC;
 		return 0; /* XXX: return error? check spec. */
 	}
@@ -232,6 +256,7 @@ int put_cmsg(struct msghdr * msg, int level, int type, int len, void *data)
 		msg->msg_flags |= MSG_CTRUNC;
 		cmlen = msg->msg_controllen;
 	}
+<<<<<<< HEAD
 	cmhdr.cmsg_level = level;
 	cmhdr.cmsg_type = type;
 	cmhdr.cmsg_len = cmlen;
@@ -264,10 +289,96 @@ void scm_detach_fds(struct msghdr *msg, struct scm_cookie *scm)
 	int err = 0, i;
 
 	if (MSG_CMSG_COMPAT & msg->msg_flags) {
+=======
+
+	if (msg->msg_control_is_user) {
+		struct cmsghdr __user *cm = msg->msg_control_user;
+
+		if (!user_write_access_begin(cm, cmlen))
+			goto efault;
+
+		unsafe_put_user(cmlen, &cm->cmsg_len, efault_end);
+		unsafe_put_user(level, &cm->cmsg_level, efault_end);
+		unsafe_put_user(type, &cm->cmsg_type, efault_end);
+		unsafe_copy_to_user(CMSG_USER_DATA(cm), data,
+				    cmlen - sizeof(*cm), efault_end);
+		user_write_access_end();
+	} else {
+		struct cmsghdr *cm = msg->msg_control;
+
+		cm->cmsg_level = level;
+		cm->cmsg_type = type;
+		cm->cmsg_len = cmlen;
+		memcpy(CMSG_DATA(cm), data, cmlen - sizeof(*cm));
+	}
+
+	cmlen = min(CMSG_SPACE(len), msg->msg_controllen);
+	msg->msg_control += cmlen;
+	msg->msg_controllen -= cmlen;
+	return 0;
+
+efault_end:
+	user_write_access_end();
+efault:
+	return -EFAULT;
+}
+EXPORT_SYMBOL(put_cmsg);
+
+void put_cmsg_scm_timestamping64(struct msghdr *msg, struct scm_timestamping_internal *tss_internal)
+{
+	struct scm_timestamping64 tss;
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(tss.ts); i++) {
+		tss.ts[i].tv_sec = tss_internal->ts[i].tv_sec;
+		tss.ts[i].tv_nsec = tss_internal->ts[i].tv_nsec;
+	}
+
+	put_cmsg(msg, SOL_SOCKET, SO_TIMESTAMPING_NEW, sizeof(tss), &tss);
+}
+EXPORT_SYMBOL(put_cmsg_scm_timestamping64);
+
+void put_cmsg_scm_timestamping(struct msghdr *msg, struct scm_timestamping_internal *tss_internal)
+{
+	struct scm_timestamping tss;
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(tss.ts); i++) {
+		tss.ts[i].tv_sec = tss_internal->ts[i].tv_sec;
+		tss.ts[i].tv_nsec = tss_internal->ts[i].tv_nsec;
+	}
+
+	put_cmsg(msg, SOL_SOCKET, SO_TIMESTAMPING_OLD, sizeof(tss), &tss);
+}
+EXPORT_SYMBOL(put_cmsg_scm_timestamping);
+
+static int scm_max_fds(struct msghdr *msg)
+{
+	if (msg->msg_controllen <= sizeof(struct cmsghdr))
+		return 0;
+	return (msg->msg_controllen - sizeof(struct cmsghdr)) / sizeof(int);
+}
+
+void scm_detach_fds(struct msghdr *msg, struct scm_cookie *scm)
+{
+	struct cmsghdr __user *cm =
+		(__force struct cmsghdr __user *)msg->msg_control;
+	unsigned int o_flags = (msg->msg_flags & MSG_CMSG_CLOEXEC) ? O_CLOEXEC : 0;
+	int fdmax = min_t(int, scm_max_fds(msg), scm->fp->count);
+	int __user *cmsg_data = CMSG_USER_DATA(cm);
+	int err = 0, i;
+
+	/* no use for FD passing from kernel space callers */
+	if (WARN_ON_ONCE(!msg->msg_control_is_user))
+		return;
+
+	if (msg->msg_flags & MSG_CMSG_COMPAT) {
+>>>>>>> upstream/android-13
 		scm_detach_fds_compat(msg, scm);
 		return;
 	}
 
+<<<<<<< HEAD
 	if (msg->msg_controllen > sizeof(struct cmsghdr))
 		fdmax = ((msg->msg_controllen - sizeof(struct cmsghdr))
 			 / sizeof(int));
@@ -305,25 +416,50 @@ void scm_detach_fds(struct msghdr *msg, struct scm_cookie *scm)
 	if (i > 0)
 	{
 		int cmlen = CMSG_LEN(i*sizeof(int));
+=======
+	for (i = 0; i < fdmax; i++) {
+		err = receive_fd_user(scm->fp->fp[i], cmsg_data + i, o_flags);
+		if (err < 0)
+			break;
+	}
+
+	if (i > 0) {
+		int cmlen = CMSG_LEN(i * sizeof(int));
+
+>>>>>>> upstream/android-13
 		err = put_user(SOL_SOCKET, &cm->cmsg_level);
 		if (!err)
 			err = put_user(SCM_RIGHTS, &cm->cmsg_type);
 		if (!err)
 			err = put_user(cmlen, &cm->cmsg_len);
 		if (!err) {
+<<<<<<< HEAD
 			cmlen = CMSG_SPACE(i*sizeof(int));
+=======
+			cmlen = CMSG_SPACE(i * sizeof(int));
+>>>>>>> upstream/android-13
 			if (msg->msg_controllen < cmlen)
 				cmlen = msg->msg_controllen;
 			msg->msg_control += cmlen;
 			msg->msg_controllen -= cmlen;
 		}
 	}
+<<<<<<< HEAD
 	if (i < fdnum || (fdnum && fdmax <= 0))
 		msg->msg_flags |= MSG_CTRUNC;
 
 	/*
 	 * All of the files that fit in the message have had their
 	 * usage counts incremented, so we just free the list.
+=======
+
+	if (i < scm->fp->count || (scm->fp->count && fdmax <= 0))
+		msg->msg_flags |= MSG_CTRUNC;
+
+	/*
+	 * All of the files that fit in the message have had their usage counts
+	 * incremented, so we just free the list.
+>>>>>>> upstream/android-13
 	 */
 	__scm_destroy(scm);
 }
@@ -338,7 +474,11 @@ struct scm_fp_list *scm_fp_dup(struct scm_fp_list *fpl)
 		return NULL;
 
 	new_fpl = kmemdup(fpl, offsetof(struct scm_fp_list, fp[fpl->count]),
+<<<<<<< HEAD
 			  GFP_KERNEL);
+=======
+			  GFP_KERNEL_ACCOUNT);
+>>>>>>> upstream/android-13
 	if (new_fpl) {
 		for (i = 0; i < fpl->count; i++)
 			get_file(fpl->fp[i]);

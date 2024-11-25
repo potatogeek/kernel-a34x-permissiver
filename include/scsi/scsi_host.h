@@ -12,7 +12,10 @@
 #include <scsi/scsi.h>
 #include <linux/android_kabi.h>
 
+<<<<<<< HEAD
 struct request_queue;
+=======
+>>>>>>> upstream/android-13
 struct block_device;
 struct completion;
 struct module;
@@ -21,6 +24,7 @@ struct scsi_device;
 struct scsi_host_cmd_pool;
 struct scsi_target;
 struct Scsi_Host;
+<<<<<<< HEAD
 struct scsi_host_cmd_pool;
 struct scsi_transport_template;
 struct blk_queue_tags;
@@ -41,10 +45,24 @@ struct blk_queue_tags;
 #define SG_NONE 0
 #define SG_ALL	SG_CHUNK_SIZE
 
+=======
+struct scsi_transport_template;
+
+
+#define SG_ALL	SG_CHUNK_SIZE
+
+#ifdef CONFIG_ARCH_NO_SG_CHAIN
+#define SG_UFS SG_ALL
+#else
+#define SG_UFS 256
+#endif
+
+>>>>>>> upstream/android-13
 #define MODE_UNKNOWN 0x00
 #define MODE_INITIATOR 0x01
 #define MODE_TARGET 0x02
 
+<<<<<<< HEAD
 #define DISABLE_CLUSTERING 0
 #define ENABLE_CLUSTERING 1
 
@@ -78,14 +96,33 @@ struct scsi_host_template {
 	 */
 	int (* compat_ioctl)(struct scsi_device *dev, int cmd, void __user *arg);
 #endif
+=======
+struct scsi_host_template {
+	/*
+	 * Put fields referenced in IO submission path together in
+	 * same cacheline
+	 */
+
+	/*
+	 * Additional per-command data allocated for the driver.
+	 */
+	unsigned int cmd_size;
+>>>>>>> upstream/android-13
 
 	/*
 	 * The queuecommand function is used to queue up a scsi
 	 * command block to the LLDD.  When the driver finished
 	 * processing the command the done callback is invoked.
 	 *
+<<<<<<< HEAD
 	 * If queuecommand returns 0, then the HBA has accepted the
 	 * command.  The done() function must be called on the command
+=======
+	 * If queuecommand returns 0, then the driver has accepted the
+	 * command.  It must also push it to the HBA if the scsi_cmnd
+	 * flag SCMD_LAST is set, or if the driver does not implement
+	 * commit_rqs.  The done() function must be called on the command
+>>>>>>> upstream/android-13
 	 * when the driver has finished with it. (you may call done on the
 	 * command before queuecommand returns, but in this case you
 	 * *must* return 0 from queuecommand).
@@ -114,6 +151,54 @@ struct scsi_host_template {
 	int (* queuecommand)(struct Scsi_Host *, struct scsi_cmnd *);
 
 	/*
+<<<<<<< HEAD
+=======
+	 * The commit_rqs function is used to trigger a hardware
+	 * doorbell after some requests have been queued with
+	 * queuecommand, when an error is encountered before sending
+	 * the request with SCMD_LAST set.
+	 *
+	 * STATUS: OPTIONAL
+	 */
+	void (*commit_rqs)(struct Scsi_Host *, u16);
+
+	struct module *module;
+	const char *name;
+
+	/*
+	 * The info function will return whatever useful information the
+	 * developer sees fit.  If not provided, then the name field will
+	 * be used instead.
+	 *
+	 * Status: OPTIONAL
+	 */
+	const char *(*info)(struct Scsi_Host *);
+
+	/*
+	 * Ioctl interface
+	 *
+	 * Status: OPTIONAL
+	 */
+	int (*ioctl)(struct scsi_device *dev, unsigned int cmd,
+		     void __user *arg);
+
+
+#ifdef CONFIG_COMPAT
+	/*
+	 * Compat handler. Handle 32bit ABI.
+	 * When unknown ioctl is passed return -ENOIOCTLCMD.
+	 *
+	 * Status: OPTIONAL
+	 */
+	int (*compat_ioctl)(struct scsi_device *dev, unsigned int cmd,
+			    void __user *arg);
+#endif
+
+	int (*init_cmd_priv)(struct Scsi_Host *shost, struct scsi_cmnd *cmd);
+	int (*exit_cmd_priv)(struct Scsi_Host *shost, struct scsi_cmnd *cmd);
+
+	/*
+>>>>>>> upstream/android-13
 	 * This is an error handling strategy routine.  You don't need to
 	 * define one of these if you don't want to - there is a default
 	 * routine that is present that should work in most cases.  For those
@@ -273,6 +358,26 @@ struct scsi_host_template {
 	int (* map_queues)(struct Scsi_Host *shost);
 
 	/*
+<<<<<<< HEAD
+=======
+	 * SCSI interface of blk_poll - poll for IO completions.
+	 * Only applicable if SCSI LLD exposes multiple h/w queues.
+	 *
+	 * Return value: Number of completed entries found.
+	 *
+	 * Status: OPTIONAL
+	 */
+	int (* mq_poll)(struct Scsi_Host *shost, unsigned int queue_num);
+
+	/*
+	 * Check if scatterlists need to be padded for DMA draining.
+	 *
+	 * Status: OPTIONAL
+	 */
+	bool (* dma_need_drain)(struct request *rq);
+
+	/*
+>>>>>>> upstream/android-13
 	 * This function determines the BIOS parameters for a given
 	 * harddisk.  These tend to be numbers that are made up by
 	 * the host adapter.  Parameters:
@@ -304,15 +409,28 @@ struct scsi_host_template {
 	/*
 	 * This is an optional routine that allows the transport to become
 	 * involved when a scsi io timer fires. The return value tells the
+<<<<<<< HEAD
 	 * timer routine how to finish the io timeout handling:
 	 * EH_HANDLED:		I fixed the error, please complete the command
 	 * EH_RESET_TIMER:	I need more time, reset the timer and
 	 *			begin counting again
 	 * EH_DONE:		Begin normal error recovery
+=======
+	 * timer routine how to finish the io timeout handling.
+>>>>>>> upstream/android-13
 	 *
 	 * Status: OPTIONAL
 	 */
 	enum blk_eh_timer_return (*eh_timed_out)(struct scsi_cmnd *);
+<<<<<<< HEAD
+=======
+	/*
+	 * Optional routine that allows the transport to decide if a cmd
+	 * is retryable. Return true if the transport is in a state the
+	 * cmd should be retried on.
+	 */
+	bool (*eh_should_retry_cmd)(struct scsi_cmnd *scmd);
+>>>>>>> upstream/android-13
 
 	/* This is an optional routine that allows transport to initiate
 	 * LLD adapter or firmware reset using sysfs attribute.
@@ -326,7 +444,10 @@ struct scsi_host_template {
 #define SCSI_ADAPTER_RESET	1
 #define SCSI_FIRMWARE_RESET	2
 
+<<<<<<< HEAD
 	void (*tw_ctrl)(struct scsi_device *sdev, int en);
+=======
+>>>>>>> upstream/android-13
 
 	/*
 	 * Name of proc directory
@@ -342,7 +463,11 @@ struct scsi_host_template {
 	/*
 	 * This determines if we will use a non-interrupt driven
 	 * or an interrupt driven scheme.  It is set to the maximum number
+<<<<<<< HEAD
 	 * of simultaneous commands a given host adapter will accept.
+=======
+	 * of simultaneous commands a single hw queue in HBA will accept.
+>>>>>>> upstream/android-13
 	 */
 	int can_queue;
 
@@ -368,11 +493,24 @@ struct scsi_host_template {
 	unsigned int max_sectors;
 
 	/*
+<<<<<<< HEAD
+=======
+	 * Maximum size in bytes of a single segment.
+	 */
+	unsigned int max_segment_size;
+
+	/*
+>>>>>>> upstream/android-13
 	 * DMA scatter gather segment boundary limit. A segment crossing this
 	 * boundary will be split in two.
 	 */
 	unsigned long dma_boundary;
 
+<<<<<<< HEAD
+=======
+	unsigned long virt_boundary_mask;
+
+>>>>>>> upstream/android-13
 	/*
 	 * This specifies "machine infinity" for host templates which don't
 	 * limit the transfer size.  Note this limit represents an absolute
@@ -412,6 +550,7 @@ struct scsi_host_template {
 	unsigned supported_mode:2;
 
 	/*
+<<<<<<< HEAD
 	 * True if this host adapter uses unchecked DMA onto an ISA bus.
 	 */
 	unsigned unchecked_isa_dma:1;
@@ -427,6 +566,8 @@ struct scsi_host_template {
 	unsigned use_clustering:1;
 
 	/*
+=======
+>>>>>>> upstream/android-13
 	 * True for emulated SCSI host adapters (e.g. ATAPI).
 	 */
 	unsigned emulated:1;
@@ -439,8 +580,13 @@ struct scsi_host_template {
 	/* True if the controller does not support WRITE SAME */
 	unsigned no_write_same:1;
 
+<<<<<<< HEAD
 	/* True if the low-level driver supports blk-mq only */
 	unsigned force_blk_mq:1;
+=======
+	/* True if the host uses host-wide tagspace */
+	unsigned host_tagset:1;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Countdown for host blocking with no commands outstanding.
@@ -481,10 +627,13 @@ struct scsi_host_template {
 	 */
 	u64 vendor_id;
 
+<<<<<<< HEAD
 	/*
 	 * Additional per-command data allocated for the driver.
 	 */
 	unsigned int cmd_size;
+=======
+>>>>>>> upstream/android-13
 	struct scsi_host_cmd_pool *cmd_pool;
 
 	/* Delay for runtime autosuspend */
@@ -508,7 +657,10 @@ struct scsi_host_template {
 		unsigned long irq_flags;				\
 		int rc;							\
 		spin_lock_irqsave(shost->host_lock, irq_flags);		\
+<<<<<<< HEAD
 		scsi_cmd_get_serial(shost, cmd);			\
+=======
+>>>>>>> upstream/android-13
 		rc = func_name##_lck (cmd, cmd->scsi_done);			\
 		spin_unlock_irqrestore(shost->host_lock, irq_flags);	\
 		return rc;						\
@@ -549,6 +701,10 @@ struct Scsi_Host {
 
 	struct mutex		scan_mutex;/* serialize scanning activity */
 
+<<<<<<< HEAD
+=======
+	struct list_head	eh_abort_list;
+>>>>>>> upstream/android-13
 	struct list_head	eh_cmd_q;
 	struct task_struct    * ehandler;  /* Error recovery thread. */
 	struct completion     * eh_action; /* Wait for specific actions on the
@@ -557,6 +713,7 @@ struct Scsi_Host {
 	struct scsi_host_template *hostt;
 	struct scsi_transport_template *transportt;
 
+<<<<<<< HEAD
 	/*
 	 * Area to keep a shared tag map (if needed, will be
 	 * NULL if not).
@@ -567,6 +724,11 @@ struct Scsi_Host {
 	};
 
 	atomic_t host_busy;		   /* commands actually active on low-level */
+=======
+	/* Area to keep a shared tag map */
+	struct blk_mq_tag_set	tag_set;
+
+>>>>>>> upstream/android-13
 	atomic_t host_blocked;
 
 	unsigned int host_failed;	   /* commands that failed.
@@ -614,12 +776,19 @@ struct Scsi_Host {
 	short unsigned int sg_tablesize;
 	short unsigned int sg_prot_tablesize;
 	unsigned int max_sectors;
+<<<<<<< HEAD
 	unsigned long dma_boundary;
+=======
+	unsigned int max_segment_size;
+	unsigned long dma_boundary;
+	unsigned long virt_boundary_mask;
+>>>>>>> upstream/android-13
 	/*
 	 * In scsi-mq mode, the number of hardware queues supported by the LLD.
 	 *
 	 * Note: it is assumed that each hardware queue has a queue depth of
 	 * can_queue. In other words, the total queue depth per host
+<<<<<<< HEAD
 	 * is nr_hw_queues * can_queue.
 	 */
 	unsigned nr_hw_queues;
@@ -632,6 +801,14 @@ struct Scsi_Host {
 	unsigned active_mode:2;
 	unsigned unchecked_isa_dma:1;
 	unsigned use_clustering:1;
+=======
+	 * is nr_hw_queues * can_queue. However, for when host_tagset is set,
+	 * the total queue depth is can_queue.
+	 */
+	unsigned nr_hw_queues;
+	unsigned nr_maps;
+	unsigned active_mode:2;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Host has requested that no further requests come through for the
@@ -658,17 +835,27 @@ struct Scsi_Host {
 	/* The controller does not support WRITE SAME */
 	unsigned no_write_same:1;
 
+<<<<<<< HEAD
 	unsigned use_blk_mq:1;
 	unsigned use_cmd_list:1;
+=======
+	/* True if the host uses host-wide tagspace */
+	unsigned host_tagset:1;
+>>>>>>> upstream/android-13
 
 	/* Host responded with short (<36 bytes) INQUIRY result */
 	unsigned short_inquiry:1;
 
+<<<<<<< HEAD
 	/*
 	 * Set "DBD" field in mode_sense caching mode page in case it is
 	 * mandatory by LLD standard.
 	 */
 	unsigned set_dbd_for_caching:1;
+=======
+	/* The transport requires the LUN bits NOT to be stored in CDB[1] */
+	unsigned no_scsi2_lun_in_cdb:1;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Optional work queue to be utilized by the transport
@@ -681,9 +868,12 @@ struct Scsi_Host {
 	 */
 	struct workqueue_struct *tmf_work_q;
 
+<<<<<<< HEAD
 	/* The transport requires the LUN bits NOT to be stored in CDB[1] */
 	unsigned no_scsi2_lun_in_cdb:1;
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Value host_blocked counts down from
 	 */
@@ -718,12 +908,21 @@ struct Scsi_Host {
 	 */
 	struct device *dma_dev;
 
+<<<<<<< HEAD
+=======
+	ANDROID_KABI_RESERVE(1);
+
+>>>>>>> upstream/android-13
 	/*
 	 * We should ensure that this is aligned, both for better performance
 	 * and also because some compilers (m68k) don't automatically force
 	 * alignment to a long boundary.
 	 */
+<<<<<<< HEAD
 	unsigned long hostdata[0]  /* Used for storage of host specific stuff */
+=======
+	unsigned long hostdata[]  /* Used for storage of host specific stuff */
+>>>>>>> upstream/android-13
 		__attribute__ ((aligned (sizeof(unsigned long))));
 };
 
@@ -758,11 +957,14 @@ static inline int scsi_host_in_recovery(struct Scsi_Host *shost)
 		shost->tmf_in_progress;
 }
 
+<<<<<<< HEAD
 static inline bool shost_use_blk_mq(struct Scsi_Host *shost)
 {
 	return shost->use_blk_mq;
 }
 
+=======
+>>>>>>> upstream/android-13
 extern int scsi_queue_work(struct Scsi_Host *, struct work_struct *);
 extern void scsi_flush_work(struct Scsi_Host *);
 
@@ -778,7 +980,12 @@ extern int scsi_host_busy(struct Scsi_Host *shost);
 extern void scsi_host_put(struct Scsi_Host *t);
 extern struct Scsi_Host *scsi_host_lookup(unsigned short);
 extern const char *scsi_host_state_name(enum scsi_host_state);
+<<<<<<< HEAD
 extern void scsi_cmd_get_serial(struct Scsi_Host *, struct scsi_cmnd *);
+=======
+extern void scsi_host_complete_all_commands(struct Scsi_Host *shost,
+					    enum scsi_host_status status);
+>>>>>>> upstream/android-13
 
 static inline int __must_check scsi_add_host(struct Scsi_Host *host,
 					     struct device *dev)
@@ -803,9 +1010,17 @@ static inline int scsi_host_scan_allowed(struct Scsi_Host *shost)
 
 extern void scsi_unblock_requests(struct Scsi_Host *);
 extern void scsi_block_requests(struct Scsi_Host *);
+<<<<<<< HEAD
 #ifdef CONFIG_BLK_TURBO_WRITE
 extern void scsi_reset_tw_state(struct Scsi_Host *);
 #endif
+=======
+extern int scsi_host_block(struct Scsi_Host *shost);
+extern int scsi_host_unblock(struct Scsi_Host *shost, int new_state);
+
+void scsi_host_busy_iter(struct Scsi_Host *,
+			 bool (*fn)(struct scsi_cmnd *, void *, bool), void *priv);
+>>>>>>> upstream/android-13
 
 struct class_container;
 

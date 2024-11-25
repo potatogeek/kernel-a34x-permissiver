@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2011-2013 Freescale Semiconductor, Inc.
  * Copyright 2011 Linaro Ltd.
@@ -27,13 +28,29 @@
 #include <linux/pci.h>
 #include <linux/phy.h>
 #include <linux/reboot.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2011-2013 Freescale Semiconductor, Inc.
+ * Copyright 2011 Linaro Ltd.
+ */
+
+#include <linux/clk.h>
+#include <linux/irqchip.h>
+#include <linux/of_platform.h>
+#include <linux/pci.h>
+#include <linux/phy.h>
+>>>>>>> upstream/android-13
 #include <linux/regmap.h>
 #include <linux/micrel_phy.h>
 #include <linux/mfd/syscon.h>
 #include <linux/mfd/syscon/imx6q-iomuxc-gpr.h>
 #include <asm/mach/arch.h>
 #include <asm/mach/map.h>
+<<<<<<< HEAD
 #include <asm/system_misc.h>
+=======
+>>>>>>> upstream/android-13
 
 #include "common.h"
 #include "cpuidle.h"
@@ -59,6 +76,7 @@ static int ksz9021rn_phy_fixup(struct phy_device *phydev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void mmd_write_reg(struct phy_device *dev, int device, int reg, int val)
 {
 	phy_write(dev, 0x0d, device);
@@ -80,6 +98,8 @@ static int ksz9031rn_phy_fixup(struct phy_device *dev)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * fixup for PLX PEX8909 bridge to configure GPIO1-7 as output High
  * as they are used for slots1-7 PERST#
@@ -108,6 +128,7 @@ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_PLX, 0x8609, ventana_pciesw_early_fixup);
 DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_PLX, 0x8606, ventana_pciesw_early_fixup);
 DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_PLX, 0x8604, ventana_pciesw_early_fixup);
 
+<<<<<<< HEAD
 static int ar8031_phy_fixup(struct phy_device *dev)
 {
 	u16 val;
@@ -166,17 +187,22 @@ static int ar8035_phy_fixup(struct phy_device *dev)
 
 #define PHY_ID_AR8035 0x004dd072
 
+=======
+>>>>>>> upstream/android-13
 static void __init imx6q_enet_phy_init(void)
 {
 	if (IS_BUILTIN(CONFIG_PHYLIB)) {
 		phy_register_fixup_for_uid(PHY_ID_KSZ9021, MICREL_PHY_ID_MASK,
 				ksz9021rn_phy_fixup);
+<<<<<<< HEAD
 		phy_register_fixup_for_uid(PHY_ID_KSZ9031, MICREL_PHY_ID_MASK,
 				ksz9031rn_phy_fixup);
 		phy_register_fixup_for_uid(PHY_ID_AR8031, 0xffffffef,
 				ar8031_phy_fixup);
 		phy_register_fixup_for_uid(PHY_ID_AR8035, 0xffffffef,
 				ar8035_phy_fixup);
+=======
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -264,14 +290,25 @@ static void __init imx6q_axi_init(void)
 
 static void __init imx6q_init_machine(void)
 {
+<<<<<<< HEAD
 	struct device *parent;
 
 	if (cpu_is_imx6q() && imx_get_soc_revision() == IMX_CHIP_REVISION_2_0)
 		imx_print_silicon_rev("i.MX6QP", IMX_CHIP_REVISION_1_0);
+=======
+	if (cpu_is_imx6q() && imx_get_soc_revision() >= IMX_CHIP_REVISION_2_0)
+		/*
+		 * SoCs that identify as i.MX6Q >= rev 2.0 are really i.MX6QP.
+		 * Quirk: i.MX6QP revision = i.MX6Q revision - (1, 0),
+		 * e.g. i.MX6QP rev 1.1 identifies as i.MX6Q rev 2.1.
+		 */
+		imx_print_silicon_rev("i.MX6QP", imx_get_soc_revision() - 0x10);
+>>>>>>> upstream/android-13
 	else
 		imx_print_silicon_rev(cpu_is_imx6dl() ? "i.MX6DL" : "i.MX6Q",
 				imx_get_soc_revision());
 
+<<<<<<< HEAD
 	parent = imx_soc_device_init();
 	if (parent == NULL)
 		pr_warn("failed to initialize soc device\n");
@@ -279,6 +316,11 @@ static void __init imx6q_init_machine(void)
 	imx6q_enet_phy_init();
 
 	of_platform_default_populate(NULL, NULL, parent);
+=======
+	imx6q_enet_phy_init();
+
+	of_platform_default_populate(NULL, NULL, NULL);
+>>>>>>> upstream/android-13
 
 	imx_anatop_init();
 	cpu_is_imx6q() ?  imx6q_pm_init() : imx6dl_pm_init();

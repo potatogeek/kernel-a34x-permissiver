@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*****************************************************************************
  *
  * Copyright (C) 2008 Cedric Bregardis <cedric.bregardis@free.fr> and
@@ -5,6 +9,7 @@
  *
  * This file is part of the Audiowerk2 ALSA driver
  *
+<<<<<<< HEAD
  * The Audiowerk2 ALSA driver is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2.
@@ -19,6 +24,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
+=======
+>>>>>>> upstream/android-13
  *****************************************************************************/
 #include <linux/init.h>
 #include <linux/pci.h>
@@ -112,19 +119,28 @@ struct aw2 {
 /*********************************
  * FUNCTION DECLARATIONS
  ********************************/
+<<<<<<< HEAD
 static int snd_aw2_dev_free(struct snd_device *device);
 static int snd_aw2_create(struct snd_card *card,
 			  struct pci_dev *pci, struct aw2 **rchip);
 static int snd_aw2_probe(struct pci_dev *pci,
 			 const struct pci_device_id *pci_id);
 static void snd_aw2_remove(struct pci_dev *pci);
+=======
+static int snd_aw2_create(struct snd_card *card, struct pci_dev *pci);
+static int snd_aw2_probe(struct pci_dev *pci,
+			 const struct pci_device_id *pci_id);
+>>>>>>> upstream/android-13
 static int snd_aw2_pcm_playback_open(struct snd_pcm_substream *substream);
 static int snd_aw2_pcm_playback_close(struct snd_pcm_substream *substream);
 static int snd_aw2_pcm_capture_open(struct snd_pcm_substream *substream);
 static int snd_aw2_pcm_capture_close(struct snd_pcm_substream *substream);
+<<<<<<< HEAD
 static int snd_aw2_pcm_hw_params(struct snd_pcm_substream *substream,
 				 struct snd_pcm_hw_params *hw_params);
 static int snd_aw2_pcm_hw_free(struct snd_pcm_substream *substream);
+=======
+>>>>>>> upstream/android-13
 static int snd_aw2_pcm_prepare_playback(struct snd_pcm_substream *substream);
 static int snd_aw2_pcm_prepare_capture(struct snd_pcm_substream *substream);
 static int snd_aw2_pcm_trigger_playback(struct snd_pcm_substream *substream,
@@ -173,7 +189,10 @@ static struct pci_driver aw2_driver = {
 	.name = KBUILD_MODNAME,
 	.id_table = snd_aw2_ids,
 	.probe = snd_aw2_probe,
+<<<<<<< HEAD
 	.remove = snd_aw2_remove,
+=======
+>>>>>>> upstream/android-13
 };
 
 module_pci_driver(aw2_driver);
@@ -182,9 +201,12 @@ module_pci_driver(aw2_driver);
 static const struct snd_pcm_ops snd_aw2_playback_ops = {
 	.open = snd_aw2_pcm_playback_open,
 	.close = snd_aw2_pcm_playback_close,
+<<<<<<< HEAD
 	.ioctl = snd_pcm_lib_ioctl,
 	.hw_params = snd_aw2_pcm_hw_params,
 	.hw_free = snd_aw2_pcm_hw_free,
+=======
+>>>>>>> upstream/android-13
 	.prepare = snd_aw2_pcm_prepare_playback,
 	.trigger = snd_aw2_pcm_trigger_playback,
 	.pointer = snd_aw2_pcm_pointer_playback,
@@ -194,9 +216,12 @@ static const struct snd_pcm_ops snd_aw2_playback_ops = {
 static const struct snd_pcm_ops snd_aw2_capture_ops = {
 	.open = snd_aw2_pcm_capture_open,
 	.close = snd_aw2_pcm_capture_close,
+<<<<<<< HEAD
 	.ioctl = snd_pcm_lib_ioctl,
 	.hw_params = snd_aw2_pcm_hw_params,
 	.hw_free = snd_aw2_pcm_hw_free,
+=======
+>>>>>>> upstream/android-13
 	.prepare = snd_aw2_pcm_prepare_capture,
 	.trigger = snd_aw2_pcm_trigger_capture,
 	.pointer = snd_aw2_pcm_pointer_capture,
@@ -218,6 +243,7 @@ static const struct snd_kcontrol_new aw2_control = {
  ********************************/
 
 /* component-destructor */
+<<<<<<< HEAD
 static int snd_aw2_dev_free(struct snd_device *device)
 {
 	struct aw2 *chip = device->device_data;
@@ -237,10 +263,19 @@ static int snd_aw2_dev_free(struct snd_device *device)
 	kfree(chip);
 
 	return 0;
+=======
+static void snd_aw2_free(struct snd_card *card)
+{
+	struct aw2 *chip = card->private_data;
+
+	/* Free hardware */
+	snd_aw2_saa7146_free(&chip->saa7146);
+>>>>>>> upstream/android-13
 }
 
 /* chip-specific constructor */
 static int snd_aw2_create(struct snd_card *card,
+<<<<<<< HEAD
 			  struct pci_dev *pci, struct aw2 **rchip)
 {
 	struct aw2 *chip;
@@ -253,11 +288,21 @@ static int snd_aw2_create(struct snd_card *card,
 
 	/* initialize the PCI entry */
 	err = pci_enable_device(pci);
+=======
+			  struct pci_dev *pci)
+{
+	struct aw2 *chip = card->private_data;
+	int err;
+
+	/* initialize the PCI entry */
+	err = pcim_enable_device(pci);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 	pci_set_master(pci);
 
 	/* check PCI availability (32bit DMA) */
+<<<<<<< HEAD
 	if ((dma_set_mask(&pci->dev, DMA_BIT_MASK(32)) < 0) ||
 	    (dma_set_coherent_mask(&pci->dev, DMA_BIT_MASK(32)) < 0)) {
 		dev_err(card->dev, "Impossible to set 32bit mask DMA\n");
@@ -269,6 +314,12 @@ static int snd_aw2_create(struct snd_card *card,
 		pci_disable_device(pci);
 		return -ENOMEM;
 	}
+=======
+	if (dma_set_mask_and_coherent(&pci->dev, DMA_BIT_MASK(32))) {
+		dev_err(card->dev, "Impossible to set 32bit mask DMA\n");
+		return -ENXIO;
+	}
+>>>>>>> upstream/android-13
 
 	/* initialize the stuff */
 	chip->card = card;
@@ -276,6 +327,7 @@ static int snd_aw2_create(struct snd_card *card,
 	chip->irq = -1;
 
 	/* (1) PCI resource allocation */
+<<<<<<< HEAD
 	err = pci_request_regions(pci, "Audiowerk2");
 	if (err < 0) {
 		pci_disable_device(pci);
@@ -294,10 +346,18 @@ static int snd_aw2_create(struct snd_card *card,
 		kfree(chip);
 		return -ENOMEM;
 	}
+=======
+	err = pcim_iomap_regions(pci, 1 << 0, "Audiowerk2");
+	if (err < 0)
+		return err;
+	chip->iobase_phys = pci_resource_start(pci, 0);
+	chip->iobase_virt = pcim_iomap_table(pci)[0];
+>>>>>>> upstream/android-13
 
 	/* (2) initialization of the chip hardware */
 	snd_aw2_saa7146_setup(&chip->saa7146, chip->iobase_virt);
 
+<<<<<<< HEAD
 	if (request_irq(pci->irq, snd_aw2_saa7146_interrupt,
 			IRQF_SHARED, KBUILD_MODNAME, chip)) {
 		dev_err(card->dev, "Cannot grab irq %d\n", pci->irq);
@@ -321,6 +381,16 @@ static int snd_aw2_create(struct snd_card *card,
 	}
 
 	*rchip = chip;
+=======
+	if (devm_request_irq(&pci->dev, pci->irq, snd_aw2_saa7146_interrupt,
+			     IRQF_SHARED, KBUILD_MODNAME, chip)) {
+		dev_err(card->dev, "Cannot grab irq %d\n", pci->irq);
+		return -EBUSY;
+	}
+	chip->irq = pci->irq;
+	card->sync_irq = chip->irq;
+	card->private_free = snd_aw2_free;
+>>>>>>> upstream/android-13
 
 	dev_info(card->dev,
 		 "Audiowerk 2 sound card (saa7146 chipset) detected and managed\n");
@@ -345,6 +415,7 @@ static int snd_aw2_probe(struct pci_dev *pci,
 	}
 
 	/* (2) Create card instance */
+<<<<<<< HEAD
 	err = snd_card_new(&pci->dev, index[dev], id[dev], THIS_MODULE,
 			   0, &card);
 	if (err < 0)
@@ -356,6 +427,18 @@ static int snd_aw2_probe(struct pci_dev *pci,
 		snd_card_free(card);
 		return err;
 	}
+=======
+	err = snd_devm_card_new(&pci->dev, index[dev], id[dev], THIS_MODULE,
+				sizeof(*chip), &card);
+	if (err < 0)
+		return err;
+	chip = card->private_data;
+
+	/* (3) Create main component */
+	err = snd_aw2_create(card, pci);
+	if (err < 0)
+		goto error;
+>>>>>>> upstream/android-13
 
 	/* initialize mutex */
 	mutex_init(&chip->mtx);
@@ -373,22 +456,34 @@ static int snd_aw2_probe(struct pci_dev *pci,
 
 	/* (6) Register card instance */
 	err = snd_card_register(card);
+<<<<<<< HEAD
 	if (err < 0) {
 		snd_card_free(card);
 		return err;
 	}
+=======
+	if (err < 0)
+		goto error;
+>>>>>>> upstream/android-13
 
 	/* (7) Set PCI driver data */
 	pci_set_drvdata(pci, card);
 
 	dev++;
 	return 0;
+<<<<<<< HEAD
 }
 
 /* destructor */
 static void snd_aw2_remove(struct pci_dev *pci)
 {
 	snd_card_free(pci_get_drvdata(pci));
+=======
+
+ error:
+	snd_card_free(card);
+	return err;
+>>>>>>> upstream/android-13
 }
 
 /* open callback */
@@ -424,6 +519,7 @@ static int snd_aw2_pcm_capture_close(struct snd_pcm_substream *substream)
 	return 0;
 }
 
+<<<<<<< HEAD
  /* hw_params callback */
 static int snd_aw2_pcm_hw_params(struct snd_pcm_substream *substream,
 				 struct snd_pcm_hw_params *hw_params)
@@ -438,6 +534,8 @@ static int snd_aw2_pcm_hw_free(struct snd_pcm_substream *substream)
 	return snd_pcm_lib_free_pages(substream);
 }
 
+=======
+>>>>>>> upstream/android-13
 /* prepare callback for playback */
 static int snd_aw2_pcm_prepare_playback(struct snd_pcm_substream *substream)
 {
@@ -624,6 +722,7 @@ static int snd_aw2_new_pcm(struct aw2 *chip)
 
 	/* pre-allocation of buffers */
 	/* Preallocate continuous pages. */
+<<<<<<< HEAD
 	err = snd_pcm_lib_preallocate_pages_for_all(pcm_playback_ana,
 						    SNDRV_DMA_TYPE_DEV,
 						    snd_dma_pci_data
@@ -633,6 +732,12 @@ static int snd_aw2_new_pcm(struct aw2 *chip)
 		dev_err(chip->card->dev,
 			"snd_pcm_lib_preallocate_pages_for_all error (0x%X)\n",
 			err);
+=======
+	snd_pcm_set_managed_buffer_all(pcm_playback_ana,
+				       SNDRV_DMA_TYPE_DEV,
+				       &chip->pci->dev,
+				       64 * 1024, 64 * 1024);
+>>>>>>> upstream/android-13
 
 	err = snd_pcm_new(chip->card, "Audiowerk2 digital playback", 1, 1, 0,
 			  &pcm_playback_num);
@@ -661,6 +766,7 @@ static int snd_aw2_new_pcm(struct aw2 *chip)
 
 	/* pre-allocation of buffers */
 	/* Preallocate continuous pages. */
+<<<<<<< HEAD
 	err = snd_pcm_lib_preallocate_pages_for_all(pcm_playback_num,
 						    SNDRV_DMA_TYPE_DEV,
 						    snd_dma_pci_data
@@ -670,6 +776,12 @@ static int snd_aw2_new_pcm(struct aw2 *chip)
 		dev_err(chip->card->dev,
 			"snd_pcm_lib_preallocate_pages_for_all error (0x%X)\n",
 			err);
+=======
+	snd_pcm_set_managed_buffer_all(pcm_playback_num,
+				       SNDRV_DMA_TYPE_DEV,
+				       &chip->pci->dev,
+				       64 * 1024, 64 * 1024);
+>>>>>>> upstream/android-13
 
 	err = snd_pcm_new(chip->card, "Audiowerk2 capture", 2, 0, 1,
 			  &pcm_capture);
@@ -699,6 +811,7 @@ static int snd_aw2_new_pcm(struct aw2 *chip)
 
 	/* pre-allocation of buffers */
 	/* Preallocate continuous pages. */
+<<<<<<< HEAD
 	err = snd_pcm_lib_preallocate_pages_for_all(pcm_capture,
 						    SNDRV_DMA_TYPE_DEV,
 						    snd_dma_pci_data
@@ -709,6 +822,12 @@ static int snd_aw2_new_pcm(struct aw2 *chip)
 			"snd_pcm_lib_preallocate_pages_for_all error (0x%X)\n",
 			err);
 
+=======
+	snd_pcm_set_managed_buffer_all(pcm_capture,
+				       SNDRV_DMA_TYPE_DEV,
+				       &chip->pci->dev,
+				       64 * 1024, 64 * 1024);
+>>>>>>> upstream/android-13
 
 	/* Create control */
 	err = snd_ctl_add(chip->card, snd_ctl_new1(&aw2_control, chip));

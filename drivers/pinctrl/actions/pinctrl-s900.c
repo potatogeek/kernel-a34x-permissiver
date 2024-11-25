@@ -13,6 +13,10 @@
 #include <linux/of.h>
 #include <linux/platform_device.h>
 #include <linux/pinctrl/pinctrl.h>
+<<<<<<< HEAD
+=======
+#include <linux/pinctrl/pinconf-generic.h>
+>>>>>>> upstream/android-13
 #include "pinctrl-owl.h"
 
 /* Pinctrl registers offset */
@@ -33,6 +37,7 @@
 #define PAD_SR1			(0x0274)
 #define PAD_SR2			(0x0278)
 
+<<<<<<< HEAD
 #define OWL_GPIO_PORT_A		0
 #define OWL_GPIO_PORT_B		1
 #define OWL_GPIO_PORT_C		2
@@ -40,6 +45,8 @@
 #define OWL_GPIO_PORT_E		4
 #define OWL_GPIO_PORT_F		5
 
+=======
+>>>>>>> upstream/android-13
 #define _GPIOA(offset)		(offset)
 #define _GPIOB(offset)		(32 + (offset))
 #define _GPIOC(offset)		(64 + (offset))
@@ -892,6 +899,7 @@ static unsigned int i2c2_sr_pads[]		= { I2C2_SCLK, I2C2_SDATA };
 static unsigned int sensor0_sr_pads[]		= { SENSOR0_PCLK,
 						    SENSOR0_CKOUT };
 
+<<<<<<< HEAD
 #define MUX_PG(group_name, reg, shift, width)				\
 	{								\
 		.name = #group_name,					\
@@ -941,6 +949,8 @@ static unsigned int sensor0_sr_pads[]		= { SENSOR0_PCLK,
 		.sr_shift = shift,					\
 		.sr_width = width,					\
 	}
+=======
+>>>>>>> upstream/android-13
 
 /* Pinctrl groups */
 static const struct owl_pingroup s900_groups[] = {
@@ -1442,6 +1452,7 @@ static const char * const sirq2_groups[] = {
 	"sirq2_dummy",
 };
 
+<<<<<<< HEAD
 #define FUNCTION(fname)					\
 	{						\
 		.name = #fname,				\
@@ -1449,6 +1460,8 @@ static const char * const sirq2_groups[] = {
 		.ngroups = ARRAY_SIZE(fname##_groups),	\
 	}
 
+=======
+>>>>>>> upstream/android-13
 static const struct owl_pinmux_func s900_functions[] = {
 	[S900_MUX_ERAM] = FUNCTION(eram),
 	[S900_MUX_ETH_RMII] = FUNCTION(eth_rmii),
@@ -1500,6 +1513,7 @@ static const struct owl_pinmux_func s900_functions[] = {
 	[S900_MUX_SIRQ1] = FUNCTION(sirq1),
 	[S900_MUX_SIRQ2] = FUNCTION(sirq2)
 };
+<<<<<<< HEAD
 /* PAD PULL UP/DOWN CONFIGURES */
 #define PULLCTL_CONF(pull_reg, pull_sft, pull_wdt)			\
 	{								\
@@ -1522,6 +1536,8 @@ static const struct owl_pinmux_func s900_functions[] = {
 #define PAD_ST_CONF(pad_name, st_reg, st_sft, st_wdt)			\
 	struct owl_st pad_name##_st_conf				\
 		= ST_CONF(st_reg, st_sft, st_wdt)
+=======
+>>>>>>> upstream/android-13
 
 /* PAD_PULLCTL0 */
 static PAD_PULLCTL_CONF(ETH_RXER, 0, 18, 2);
@@ -1639,6 +1655,7 @@ static PAD_ST_CONF(SPI0_SS, 1, 2, 1);
 static PAD_ST_CONF(I2S_BCLK0, 1, 1, 1);
 static PAD_ST_CONF(I2S_MCLK0, 1, 0, 1);
 
+<<<<<<< HEAD
 #define PAD_INFO(name)							\
 	{								\
 		.pad = name,						\
@@ -1669,6 +1686,10 @@ static PAD_ST_CONF(I2S_MCLK0, 1, 0, 1);
 
 /* Pad info table */
 static struct owl_padinfo s900_padinfo[NUM_PADS] = {
+=======
+/* Pad info table */
+static const struct owl_padinfo s900_padinfo[NUM_PADS] = {
+>>>>>>> upstream/android-13
 	[ETH_TXD0] = PAD_INFO_ST(ETH_TXD0),
 	[ETH_TXD1] = PAD_INFO_ST(ETH_TXD1),
 	[ETH_TXEN] = PAD_INFO_ST(ETH_TXEN),
@@ -1821,6 +1842,7 @@ static struct owl_padinfo s900_padinfo[NUM_PADS] = {
 	[SGPIO3] = PAD_INFO_PULLCTL_ST(SGPIO3)
 };
 
+<<<<<<< HEAD
 #define OWL_GPIO_PORT(port, base, count, _outen, _inen, _dat,		\
 			_intc_ctl, _intc_pd, _intc_msk, _intc_type)	\
 	[OWL_GPIO_PORT_##port] = {					\
@@ -1843,6 +1865,77 @@ static const struct owl_gpio_port s900_gpio_ports[] = {
 	OWL_GPIO_PORT(E, 0x0030, 32, 0x0, 0x4, 0x8, 0x51C, 0x1F8, 0x1FC, 0x230),
 	OWL_GPIO_PORT(F, 0x00F0, 8, 0x0, 0x4, 0x8, 0x460, 0x140, 0x144, 0x178)
 };
+=======
+static const struct owl_gpio_port s900_gpio_ports[] = {
+	OWL_GPIO_PORT(A, 0x0000, 32, 0x0, 0x4, 0x8, 0x204, 0x208, 0x20C, 0x240, 0),
+	OWL_GPIO_PORT(B, 0x000C, 32, 0x0, 0x4, 0x8, 0x534, 0x204, 0x208, 0x23C, 0),
+	OWL_GPIO_PORT(C, 0x0018, 12, 0x0, 0x4, 0x8, 0x52C, 0x200, 0x204, 0x238, 0),
+	OWL_GPIO_PORT(D, 0x0024, 30, 0x0, 0x4, 0x8, 0x524, 0x1FC, 0x200, 0x234, 0),
+	OWL_GPIO_PORT(E, 0x0030, 32, 0x0, 0x4, 0x8, 0x51C, 0x1F8, 0x1FC, 0x230, 0),
+	OWL_GPIO_PORT(F, 0x00F0, 8, 0x0, 0x4, 0x8, 0x460, 0x140, 0x144, 0x178, 0)
+};
+
+enum s900_pinconf_pull {
+	OWL_PINCONF_PULL_HIZ,
+	OWL_PINCONF_PULL_DOWN,
+	OWL_PINCONF_PULL_UP,
+	OWL_PINCONF_PULL_HOLD,
+};
+
+static int s900_pad_pinconf_arg2val(const struct owl_padinfo *info,
+				unsigned int param,
+				u32 *arg)
+{
+	switch (param) {
+	case PIN_CONFIG_BIAS_BUS_HOLD:
+		*arg = OWL_PINCONF_PULL_HOLD;
+		break;
+	case PIN_CONFIG_BIAS_HIGH_IMPEDANCE:
+		*arg = OWL_PINCONF_PULL_HIZ;
+		break;
+	case PIN_CONFIG_BIAS_PULL_DOWN:
+		*arg = OWL_PINCONF_PULL_DOWN;
+		break;
+	case PIN_CONFIG_BIAS_PULL_UP:
+		*arg = OWL_PINCONF_PULL_UP;
+		break;
+	case PIN_CONFIG_INPUT_SCHMITT_ENABLE:
+		*arg = (*arg >= 1 ? 1 : 0);
+		break;
+	default:
+		return -ENOTSUPP;
+	}
+
+	return 0;
+}
+
+static int s900_pad_pinconf_val2arg(const struct owl_padinfo *padinfo,
+				unsigned int param,
+				u32 *arg)
+{
+	switch (param) {
+	case PIN_CONFIG_BIAS_BUS_HOLD:
+		*arg = *arg == OWL_PINCONF_PULL_HOLD;
+		break;
+	case PIN_CONFIG_BIAS_HIGH_IMPEDANCE:
+		*arg = *arg == OWL_PINCONF_PULL_HIZ;
+		break;
+	case PIN_CONFIG_BIAS_PULL_DOWN:
+		*arg = *arg == OWL_PINCONF_PULL_DOWN;
+		break;
+	case PIN_CONFIG_BIAS_PULL_UP:
+		*arg = *arg == OWL_PINCONF_PULL_UP;
+		break;
+	case PIN_CONFIG_INPUT_SCHMITT_ENABLE:
+		*arg = *arg == 1;
+		break;
+	default:
+		return -ENOTSUPP;
+	}
+
+	return 0;
+}
+>>>>>>> upstream/android-13
 
 static struct owl_pinctrl_soc_data s900_pinctrl_data = {
 	.padinfo = s900_padinfo,
@@ -1854,7 +1947,13 @@ static struct owl_pinctrl_soc_data s900_pinctrl_data = {
 	.ngroups = ARRAY_SIZE(s900_groups),
 	.ngpios = NUM_GPIOS,
 	.ports = s900_gpio_ports,
+<<<<<<< HEAD
 	.nports = ARRAY_SIZE(s900_gpio_ports)
+=======
+	.nports = ARRAY_SIZE(s900_gpio_ports),
+	.padctl_arg2val = s900_pad_pinconf_arg2val,
+	.padctl_val2arg = s900_pad_pinconf_val2arg,
+>>>>>>> upstream/android-13
 };
 
 static int s900_pinctrl_probe(struct platform_device *pdev)

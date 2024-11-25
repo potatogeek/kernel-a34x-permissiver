@@ -1,6 +1,9 @@
 
 #include "shub_sensor.h"
+<<<<<<< HEAD
 #include "shub_sensor_manager.h"
+=======
+>>>>>>> upstream/android-13
 #include "../sensorhub/shub_device.h"
 #include "../utility/shub_utility.h"
 
@@ -19,6 +22,7 @@ get_sensor_init_chipset_funcs(char *name, get_init_chipset_funcs_ptr *get_chipse
 	return chipset_funcs;
 }
 
+<<<<<<< HEAD
 void destroy_default_func(struct shub_sensor *sensor) {
 	if (sensor) {
 		kfree_and_clear(sensor->event_buffer.value);
@@ -55,6 +59,8 @@ err_no_mem:
 	return -ENOMEM;
 }
 
+=======
+>>>>>>> upstream/android-13
 int init_shub_sensor(struct shub_sensor *sensor)
 {
 	int ret;

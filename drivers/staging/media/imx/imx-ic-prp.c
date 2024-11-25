@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * V4L2 Capture IC Preprocess Subdev for Freescale i.MX5/6 SOC
  *
@@ -6,11 +10,14 @@
  * for resizing, colorspace conversion, and rotation.
  *
  * Copyright (c) 2012-2017 Mentor Graphics Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/delay.h>
 #include <linux/interrupt.h>
@@ -30,8 +37,13 @@
 /*
  * Min/Max supported width and heights.
  */
+<<<<<<< HEAD
 #define MIN_W       176
 #define MIN_H       144
+=======
+#define MIN_W        32
+#define MIN_H        32
+>>>>>>> upstream/android-13
 #define MAX_W      4096
 #define MAX_H      4096
 #define W_ALIGN    4 /* multiple of 16 pixels */
@@ -39,16 +51,22 @@
 #define S_ALIGN    1 /* multiple of 2 */
 
 struct prp_priv {
+<<<<<<< HEAD
 	struct imx_media_dev *md;
+=======
+>>>>>>> upstream/android-13
 	struct imx_ic_priv *ic_priv;
 	struct media_pad pad[PRP_NUM_PADS];
 
 	/* lock to protect all members below */
 	struct mutex lock;
 
+<<<<<<< HEAD
 	/* IPU units we require */
 	struct ipu_soc *ipu;
 
+=======
+>>>>>>> upstream/android-13
 	struct v4l2_subdev *src_sd;
 	struct v4l2_subdev *sink_sd_prpenc;
 	struct v4l2_subdev *sink_sd_prpvf;
@@ -66,7 +84,11 @@ static inline struct prp_priv *sd_to_priv(struct v4l2_subdev *sd)
 {
 	struct imx_ic_priv *ic_priv = v4l2_get_subdevdata(sd);
 
+<<<<<<< HEAD
 	return ic_priv->prp_priv;
+=======
+	return ic_priv->task_priv;
+>>>>>>> upstream/android-13
 }
 
 static int prp_start(struct prp_priv *priv)
@@ -74,12 +96,19 @@ static int prp_start(struct prp_priv *priv)
 	struct imx_ic_priv *ic_priv = priv->ic_priv;
 	bool src_is_vdic;
 
+<<<<<<< HEAD
 	priv->ipu = priv->md->ipu[ic_priv->ipu_id];
 
 	/* set IC to receive from CSI or VDI depending on source */
 	src_is_vdic = !!(priv->src_sd->grp_id & IMX_MEDIA_GRP_ID_VDIC);
 
 	ipu_set_ic_src_mux(priv->ipu, priv->csi_id, src_is_vdic);
+=======
+	/* set IC to receive from CSI or VDI depending on source */
+	src_is_vdic = !!(priv->src_sd->grp_id & IMX_MEDIA_GRP_ID_IPU_VDIC);
+
+	ipu_set_ic_src_mux(ic_priv->ipu, priv->csi_id, src_is_vdic);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -89,13 +118,21 @@ static void prp_stop(struct prp_priv *priv)
 }
 
 static struct v4l2_mbus_framefmt *
+<<<<<<< HEAD
 __prp_get_fmt(struct prp_priv *priv, struct v4l2_subdev_pad_config *cfg,
+=======
+__prp_get_fmt(struct prp_priv *priv, struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 	      unsigned int pad, enum v4l2_subdev_format_whence which)
 {
 	struct imx_ic_priv *ic_priv = priv->ic_priv;
 
 	if (which == V4L2_SUBDEV_FORMAT_TRY)
+<<<<<<< HEAD
 		return v4l2_subdev_get_try_format(&ic_priv->sd, cfg, pad);
+=======
+		return v4l2_subdev_get_try_format(&ic_priv->sd, sd_state, pad);
+>>>>>>> upstream/android-13
 	else
 		return &priv->format_mbus;
 }
@@ -105,7 +142,11 @@ __prp_get_fmt(struct prp_priv *priv, struct v4l2_subdev_pad_config *cfg,
  */
 
 static int prp_enum_mbus_code(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 			      struct v4l2_subdev_pad_config *cfg,
+=======
+			      struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			      struct v4l2_subdev_mbus_code_enum *code)
 {
 	struct prp_priv *priv = sd_to_priv(sd);
@@ -116,8 +157,13 @@ static int prp_enum_mbus_code(struct v4l2_subdev *sd,
 
 	switch (code->pad) {
 	case PRP_SINK_PAD:
+<<<<<<< HEAD
 		ret = imx_media_enum_ipu_format(&code->code, code->index,
 						CS_SEL_ANY);
+=======
+		ret = imx_media_enum_ipu_formats(&code->code, code->index,
+						 PIXFMT_SEL_YUV_RGB);
+>>>>>>> upstream/android-13
 		break;
 	case PRP_SRC_PAD_PRPENC:
 	case PRP_SRC_PAD_PRPVF:
@@ -125,7 +171,12 @@ static int prp_enum_mbus_code(struct v4l2_subdev *sd,
 			ret = -EINVAL;
 			goto out;
 		}
+<<<<<<< HEAD
 		infmt = __prp_get_fmt(priv, cfg, PRP_SINK_PAD, code->which);
+=======
+		infmt = __prp_get_fmt(priv, sd_state, PRP_SINK_PAD,
+				      code->which);
+>>>>>>> upstream/android-13
 		code->code = infmt->code;
 		break;
 	default:
@@ -137,7 +188,11 @@ out:
 }
 
 static int prp_get_fmt(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 		       struct v4l2_subdev_pad_config *cfg,
+=======
+		       struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 		       struct v4l2_subdev_format *sdformat)
 {
 	struct prp_priv *priv = sd_to_priv(sd);
@@ -149,7 +204,11 @@ static int prp_get_fmt(struct v4l2_subdev *sd,
 
 	mutex_lock(&priv->lock);
 
+<<<<<<< HEAD
 	fmt = __prp_get_fmt(priv, cfg, sdformat->pad, sdformat->which);
+=======
+	fmt = __prp_get_fmt(priv, sd_state, sdformat->pad, sdformat->which);
+>>>>>>> upstream/android-13
 	if (!fmt) {
 		ret = -EINVAL;
 		goto out;
@@ -162,7 +221,11 @@ out:
 }
 
 static int prp_set_fmt(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 		       struct v4l2_subdev_pad_config *cfg,
+=======
+		       struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 		       struct v4l2_subdev_format *sdformat)
 {
 	struct prp_priv *priv = sd_to_priv(sd);
@@ -181,7 +244,11 @@ static int prp_set_fmt(struct v4l2_subdev *sd,
 		goto out;
 	}
 
+<<<<<<< HEAD
 	infmt = __prp_get_fmt(priv, cfg, PRP_SINK_PAD, sdformat->which);
+=======
+	infmt = __prp_get_fmt(priv, sd_state, PRP_SINK_PAD, sdformat->which);
+>>>>>>> upstream/android-13
 
 	switch (sdformat->pad) {
 	case PRP_SINK_PAD:
@@ -190,6 +257,7 @@ static int prp_set_fmt(struct v4l2_subdev *sd,
 				      MIN_H, MAX_H, H_ALIGN, S_ALIGN);
 
 		cc = imx_media_find_ipu_format(sdformat->format.code,
+<<<<<<< HEAD
 					       CS_SEL_ANY);
 		if (!cc) {
 			imx_media_enum_ipu_format(&code, 0, CS_SEL_ANY);
@@ -199,6 +267,19 @@ static int prp_set_fmt(struct v4l2_subdev *sd,
 
 		imx_media_fill_default_mbus_fields(&sdformat->format, infmt,
 						   true);
+=======
+					       PIXFMT_SEL_YUV_RGB);
+		if (!cc) {
+			imx_media_enum_ipu_formats(&code, 0,
+						   PIXFMT_SEL_YUV_RGB);
+			cc = imx_media_find_ipu_format(code,
+						       PIXFMT_SEL_YUV_RGB);
+			sdformat->format.code = cc->codes[0];
+		}
+
+		if (sdformat->format.field == V4L2_FIELD_ANY)
+			sdformat->format.field = V4L2_FIELD_NONE;
+>>>>>>> upstream/android-13
 		break;
 	case PRP_SRC_PAD_PRPENC:
 	case PRP_SRC_PAD_PRPVF:
@@ -207,7 +288,13 @@ static int prp_set_fmt(struct v4l2_subdev *sd,
 		break;
 	}
 
+<<<<<<< HEAD
 	fmt = __prp_get_fmt(priv, cfg, sdformat->pad, sdformat->which);
+=======
+	imx_media_try_colorimetry(&sdformat->format, true);
+
+	fmt = __prp_get_fmt(priv, sd_state, sdformat->pad, sdformat->which);
+>>>>>>> upstream/android-13
 	*fmt = sdformat->format;
 out:
 	mutex_unlock(&priv->lock);
@@ -220,12 +307,21 @@ static int prp_link_setup(struct media_entity *entity,
 {
 	struct v4l2_subdev *sd = media_entity_to_v4l2_subdev(entity);
 	struct imx_ic_priv *ic_priv = v4l2_get_subdevdata(sd);
+<<<<<<< HEAD
 	struct prp_priv *priv = ic_priv->prp_priv;
 	struct v4l2_subdev *remote_sd;
 	int ret = 0;
 
 	dev_dbg(ic_priv->dev, "link setup %s -> %s", remote->entity->name,
 		local->entity->name);
+=======
+	struct prp_priv *priv = ic_priv->task_priv;
+	struct v4l2_subdev *remote_sd;
+	int ret = 0;
+
+	dev_dbg(ic_priv->ipu_dev, "%s: link setup %s -> %s",
+		ic_priv->sd.name, remote->entity->name, local->entity->name);
+>>>>>>> upstream/android-13
 
 	remote_sd = media_entity_to_v4l2_subdev(remote->entity);
 
@@ -237,8 +333,13 @@ static int prp_link_setup(struct media_entity *entity,
 				ret = -EBUSY;
 				goto out;
 			}
+<<<<<<< HEAD
 			if (priv->sink_sd_prpenc && (remote_sd->grp_id &
 						     IMX_MEDIA_GRP_ID_VDIC)) {
+=======
+			if (priv->sink_sd_prpenc &&
+			    (remote_sd->grp_id & IMX_MEDIA_GRP_ID_IPU_VDIC)) {
+>>>>>>> upstream/android-13
 				ret = -EINVAL;
 				goto out;
 			}
@@ -259,7 +360,11 @@ static int prp_link_setup(struct media_entity *entity,
 				goto out;
 			}
 			if (priv->src_sd && (priv->src_sd->grp_id &
+<<<<<<< HEAD
 					     IMX_MEDIA_GRP_ID_VDIC)) {
+=======
+					     IMX_MEDIA_GRP_ID_IPU_VDIC)) {
+>>>>>>> upstream/android-13
 				ret = -EINVAL;
 				goto out;
 			}
@@ -299,7 +404,11 @@ static int prp_link_validate(struct v4l2_subdev *sd,
 			     struct v4l2_subdev_format *sink_fmt)
 {
 	struct imx_ic_priv *ic_priv = v4l2_get_subdevdata(sd);
+<<<<<<< HEAD
 	struct prp_priv *priv = ic_priv->prp_priv;
+=======
+	struct prp_priv *priv = ic_priv->task_priv;
+>>>>>>> upstream/android-13
 	struct v4l2_subdev *csi;
 	int ret;
 
@@ -308,14 +417,23 @@ static int prp_link_validate(struct v4l2_subdev *sd,
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	csi = imx_media_find_upstream_subdev(priv->md, &ic_priv->sd.entity,
 					     IMX_MEDIA_GRP_ID_CSI);
+=======
+	csi = imx_media_pipeline_subdev(&ic_priv->sd.entity,
+					IMX_MEDIA_GRP_ID_IPU_CSI, true);
+>>>>>>> upstream/android-13
 	if (IS_ERR(csi))
 		csi = NULL;
 
 	mutex_lock(&priv->lock);
 
+<<<<<<< HEAD
 	if (priv->src_sd->grp_id & IMX_MEDIA_GRP_ID_VDIC) {
+=======
+	if (priv->src_sd->grp_id & IMX_MEDIA_GRP_ID_IPU_VDIC) {
+>>>>>>> upstream/android-13
 		/*
 		 * the ->PRPENC link cannot be enabled if the source
 		 * is the VDIC
@@ -334,10 +452,17 @@ static int prp_link_validate(struct v4l2_subdev *sd,
 
 	if (csi) {
 		switch (csi->grp_id) {
+<<<<<<< HEAD
 		case IMX_MEDIA_GRP_ID_CSI0:
 			priv->csi_id = 0;
 			break;
 		case IMX_MEDIA_GRP_ID_CSI1:
+=======
+		case IMX_MEDIA_GRP_ID_IPU_CSI0:
+			priv->csi_id = 0;
+			break;
+		case IMX_MEDIA_GRP_ID_IPU_CSI1:
+>>>>>>> upstream/android-13
 			priv->csi_id = 1;
 			break;
 		default:
@@ -355,7 +480,11 @@ out:
 static int prp_s_stream(struct v4l2_subdev *sd, int enable)
 {
 	struct imx_ic_priv *ic_priv = v4l2_get_subdevdata(sd);
+<<<<<<< HEAD
 	struct prp_priv *priv = ic_priv->prp_priv;
+=======
+	struct prp_priv *priv = ic_priv->task_priv;
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 	mutex_lock(&priv->lock);
@@ -372,7 +501,12 @@ static int prp_s_stream(struct v4l2_subdev *sd, int enable)
 	if (priv->stream_count != !enable)
 		goto update_count;
 
+<<<<<<< HEAD
 	dev_dbg(ic_priv->dev, "stream %s\n", enable ? "ON" : "OFF");
+=======
+	dev_dbg(ic_priv->ipu_dev, "%s: stream %s\n", sd->name,
+		enable ? "ON" : "OFF");
+>>>>>>> upstream/android-13
 
 	if (enable)
 		ret = prp_start(priv);
@@ -422,14 +556,26 @@ static int prp_s_frame_interval(struct v4l2_subdev *sd,
 	if (fi->pad >= PRP_NUM_PADS)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	/* No limits on frame interval */
 	mutex_lock(&priv->lock);
 	priv->frame_interval = fi->interval;
+=======
+	mutex_lock(&priv->lock);
+
+	/* No limits on valid frame intervals */
+	if (fi->interval.numerator == 0 || fi->interval.denominator == 0)
+		fi->interval = priv->frame_interval;
+	else
+		priv->frame_interval = fi->interval;
+
+>>>>>>> upstream/android-13
 	mutex_unlock(&priv->lock);
 
 	return 0;
 }
 
+<<<<<<< HEAD
 /*
  * retrieve our pads parsed from the OF graph by the media device
  */
@@ -447,11 +593,19 @@ static int prp_registered(struct v4l2_subdev *sd)
 			MEDIA_PAD_FL_SINK : MEDIA_PAD_FL_SOURCE;
 	}
 
+=======
+static int prp_registered(struct v4l2_subdev *sd)
+{
+	struct prp_priv *priv = sd_to_priv(sd);
+	u32 code;
+
+>>>>>>> upstream/android-13
 	/* init default frame interval */
 	priv->frame_interval.numerator = 1;
 	priv->frame_interval.denominator = 30;
 
 	/* set a default mbus format  */
+<<<<<<< HEAD
 	imx_media_enum_ipu_format(&code, 0, CS_SEL_YUV);
 	ret = imx_media_init_mbus_fmt(&priv->format_mbus, 640, 480, code,
 				      V4L2_FIELD_NONE, NULL);
@@ -459,6 +613,14 @@ static int prp_registered(struct v4l2_subdev *sd)
 		return ret;
 
 	return media_entity_pads_init(&sd->entity, PRP_NUM_PADS, priv->pad);
+=======
+	imx_media_enum_ipu_formats(&code, 0, PIXFMT_SEL_YUV);
+
+	return imx_media_init_mbus_fmt(&priv->format_mbus,
+				       IMX_MEDIA_DEF_PIX_WIDTH,
+				       IMX_MEDIA_DEF_PIX_HEIGHT, code,
+				       V4L2_FIELD_NONE, NULL);
+>>>>>>> upstream/android-13
 }
 
 static const struct v4l2_subdev_pad_ops prp_pad_ops = {
@@ -492,21 +654,43 @@ static const struct v4l2_subdev_internal_ops prp_internal_ops = {
 static int prp_init(struct imx_ic_priv *ic_priv)
 {
 	struct prp_priv *priv;
+<<<<<<< HEAD
 
 	priv = devm_kzalloc(ic_priv->dev, sizeof(*priv), GFP_KERNEL);
+=======
+	int i;
+
+	priv = devm_kzalloc(ic_priv->ipu_dev, sizeof(*priv), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!priv)
 		return -ENOMEM;
 
 	mutex_init(&priv->lock);
+<<<<<<< HEAD
 	ic_priv->prp_priv = priv;
 	priv->ic_priv = ic_priv;
 
 	return 0;
+=======
+	ic_priv->task_priv = priv;
+	priv->ic_priv = ic_priv;
+
+	for (i = 0; i < PRP_NUM_PADS; i++)
+		priv->pad[i].flags = (i == PRP_SINK_PAD) ?
+			MEDIA_PAD_FL_SINK : MEDIA_PAD_FL_SOURCE;
+
+	return media_entity_pads_init(&ic_priv->sd.entity, PRP_NUM_PADS,
+				      priv->pad);
+>>>>>>> upstream/android-13
 }
 
 static void prp_remove(struct imx_ic_priv *ic_priv)
 {
+<<<<<<< HEAD
 	struct prp_priv *priv = ic_priv->prp_priv;
+=======
+	struct prp_priv *priv = ic_priv->task_priv;
+>>>>>>> upstream/android-13
 
 	mutex_destroy(&priv->lock);
 }

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Mirics MSi2500 driver
  * Mirics MSi3101 SDR Dongle driver
  *
  * Copyright (C) 2013 Antti Palosaari <crope@iki.fi>
  *
+<<<<<<< HEAD
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation; either version 2 of the License, or
@@ -14,6 +19,8 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * That driver is somehow based of pwc driver:
  *  (C) 1999-2004 Nemosoft Unv.
  *  (C) 2004-2006 Luc Saillard (luc@saillard.org)
@@ -75,7 +82,10 @@ static const struct v4l2_frequency_band bands[] = {
 
 /* stream formats */
 struct msi2500_format {
+<<<<<<< HEAD
 	char	*name;
+=======
+>>>>>>> upstream/android-13
 	u32	pixelformat;
 	u32	buffersize;
 };
@@ -83,11 +93,15 @@ struct msi2500_format {
 /* format descriptions for capture and preview */
 static struct msi2500_format formats[] = {
 	{
+<<<<<<< HEAD
 		.name		= "Complex S8",
+=======
+>>>>>>> upstream/android-13
 		.pixelformat	= V4L2_SDR_FMT_CS8,
 		.buffersize	= 3 * 1008,
 #if 0
 	}, {
+<<<<<<< HEAD
 		.name		= "10+2-bit signed",
 		.pixelformat	= MSI2500_PIX_FMT_SDR_MSI2500_384,
 	}, {
@@ -104,6 +118,19 @@ static struct msi2500_format formats[] = {
 		.buffersize	= 3 * 1008,
 	}, {
 		.name		= "Complex U16LE (emulated)",
+=======
+		.pixelformat	= MSI2500_PIX_FMT_SDR_MSI2500_384,
+	}, {
+		.pixelformat	= MSI2500_PIX_FMT_SDR_S12,
+#endif
+	}, {
+		.pixelformat	= V4L2_SDR_FMT_CS14LE,
+		.buffersize	= 3 * 1008,
+	}, {
+		.pixelformat	= V4L2_SDR_FMT_CU8,
+		.buffersize	= 3 * 1008,
+	}, {
+>>>>>>> upstream/android-13
 		.pixelformat	=  V4L2_SDR_FMT_CU16LE,
 		.buffersize	= 3 * 1008,
 	},
@@ -604,12 +631,18 @@ static int msi2500_querycap(struct file *file, void *fh,
 
 	dev_dbg(dev->dev, "\n");
 
+<<<<<<< HEAD
 	strlcpy(cap->driver, KBUILD_MODNAME, sizeof(cap->driver));
 	strlcpy(cap->card, dev->vdev.name, sizeof(cap->card));
 	usb_make_path(dev->udev, cap->bus_info, sizeof(cap->bus_info));
 	cap->device_caps = V4L2_CAP_SDR_CAPTURE | V4L2_CAP_STREAMING |
 			V4L2_CAP_READWRITE | V4L2_CAP_TUNER;
 	cap->capabilities = cap->device_caps | V4L2_CAP_DEVICE_CAPS;
+=======
+	strscpy(cap->driver, KBUILD_MODNAME, sizeof(cap->driver));
+	strscpy(cap->card, dev->vdev.name, sizeof(cap->card));
+	usb_make_path(dev->udev, cap->bus_info, sizeof(cap->bus_info));
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -886,7 +919,11 @@ static void msi2500_stop_streaming(struct vb2_queue *vq)
 
 	/* according to tests, at least 700us delay is required  */
 	msleep(20);
+<<<<<<< HEAD
 	if (!msi2500_ctrl_msg(dev, CMD_STOP_STREAMING, 0)) {
+=======
+	if (dev->udev && !msi2500_ctrl_msg(dev, CMD_STOP_STREAMING, 0)) {
+>>>>>>> upstream/android-13
 		/* sleep USB IF / ADC */
 		msi2500_ctrl_msg(dev, CMD_WREG, 0x01000003);
 	}
@@ -916,7 +953,10 @@ static int msi2500_enum_fmt_sdr_cap(struct file *file, void *priv,
 	if (f->index >= dev->num_formats)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	strlcpy(f->description, formats[f->index].name, sizeof(f->description));
+=======
+>>>>>>> upstream/android-13
 	f->pixelformat = formats[f->index].pixelformat;
 
 	return 0;
@@ -932,7 +972,10 @@ static int msi2500_g_fmt_sdr_cap(struct file *file, void *priv,
 
 	f->fmt.sdr.pixelformat = dev->pixelformat;
 	f->fmt.sdr.buffersize = dev->buffersize;
+<<<<<<< HEAD
 	memset(f->fmt.sdr.reserved, 0, sizeof(f->fmt.sdr.reserved));
+=======
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -950,7 +993,10 @@ static int msi2500_s_fmt_sdr_cap(struct file *file, void *priv,
 	if (vb2_is_busy(q))
 		return -EBUSY;
 
+<<<<<<< HEAD
 	memset(f->fmt.sdr.reserved, 0, sizeof(f->fmt.sdr.reserved));
+=======
+>>>>>>> upstream/android-13
 	for (i = 0; i < dev->num_formats; i++) {
 		if (formats[i].pixelformat == f->fmt.sdr.pixelformat) {
 			dev->pixelformat = formats[i].pixelformat;
@@ -977,7 +1023,10 @@ static int msi2500_try_fmt_sdr_cap(struct file *file, void *priv,
 	dev_dbg(dev->dev, "pixelformat fourcc %4.4s\n",
 		(char *)&f->fmt.sdr.pixelformat);
 
+<<<<<<< HEAD
 	memset(f->fmt.sdr.reserved, 0, sizeof(f->fmt.sdr.reserved));
+=======
+>>>>>>> upstream/android-13
 	for (i = 0; i < dev->num_formats; i++) {
 		if (formats[i].pixelformat == f->fmt.sdr.pixelformat) {
 			f->fmt.sdr.buffersize = formats[i].buffersize;
@@ -1017,7 +1066,11 @@ static int msi2500_g_tuner(struct file *file, void *priv, struct v4l2_tuner *v)
 	dev_dbg(dev->dev, "index=%d\n", v->index);
 
 	if (v->index == 0) {
+<<<<<<< HEAD
 		strlcpy(v->name, "Mirics MSi2500", sizeof(v->name));
+=======
+		strscpy(v->name, "Mirics MSi2500", sizeof(v->name));
+>>>>>>> upstream/android-13
 		v->type = V4L2_TUNER_ADC;
 		v->capability = V4L2_TUNER_CAP_1HZ | V4L2_TUNER_CAP_FREQ_BANDS;
 		v->rangelow =   1200000;
@@ -1283,6 +1336,11 @@ static int msi2500_probe(struct usb_interface *intf,
 	dev->v4l2_dev.ctrl_handler = &dev->hdl;
 	dev->vdev.v4l2_dev = &dev->v4l2_dev;
 	dev->vdev.lock = &dev->v4l2_lock;
+<<<<<<< HEAD
+=======
+	dev->vdev.device_caps = V4L2_CAP_SDR_CAPTURE | V4L2_CAP_STREAMING |
+				V4L2_CAP_READWRITE | V4L2_CAP_TUNER;
+>>>>>>> upstream/android-13
 
 	ret = video_register_device(&dev->vdev, VFL_TYPE_SDR, -1);
 	if (ret) {

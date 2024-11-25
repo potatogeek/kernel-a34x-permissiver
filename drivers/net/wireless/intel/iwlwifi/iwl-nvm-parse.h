@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -63,6 +64,13 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+/*
+ * Copyright (C) 2005-2015, 2018-2020 Intel Corporation
+ * Copyright (C) 2016-2017 Intel Deutschland GmbH
+ */
+>>>>>>> upstream/android-13
 #ifndef __iwl_nvm_parse_h__
 #define __iwl_nvm_parse_h__
 
@@ -90,10 +98,18 @@ enum iwl_nvm_sbands_flags {
  */
 struct iwl_nvm_data *
 iwl_parse_nvm_data(struct iwl_trans *trans, const struct iwl_cfg *cfg,
+<<<<<<< HEAD
 		   const __be16 *nvm_hw, const __le16 *nvm_sw,
 		   const __le16 *nvm_calib, const __le16 *regulatory,
 		   const __le16 *mac_override, const __le16 *phy_sku,
 		   u8 tx_chains, u8 rx_chains, bool lar_fw_supported);
+=======
+		   const struct iwl_fw *fw,
+		   const __be16 *nvm_hw, const __le16 *nvm_sw,
+		   const __le16 *nvm_calib, const __le16 *regulatory,
+		   const __le16 *mac_override, const __le16 *phy_sku,
+		   u8 tx_chains, u8 rx_chains);
+>>>>>>> upstream/android-13
 
 /**
  * iwl_parse_mcc_info - parse MCC (mobile country code) info coming from FW
@@ -108,7 +124,11 @@ iwl_parse_nvm_data(struct iwl_trans *trans, const struct iwl_cfg *cfg,
 struct ieee80211_regdomain *
 iwl_parse_nvm_mcc_info(struct device *dev, const struct iwl_cfg *cfg,
 		       int num_of_ch, __le32 *channels, u16 fw_mcc,
+<<<<<<< HEAD
 		       u16 geo_info, u16 cap);
+=======
+		       u16 geo_info, u16 cap, u8 resp_ver);
+>>>>>>> upstream/android-13
 
 /**
  * struct iwl_nvm_section - describes an NVM section in memory.
@@ -139,4 +159,8 @@ void iwl_nvm_fixups(u32 hw_id, unsigned int section, u8 *data,
  */
 struct iwl_nvm_data *iwl_get_nvm(struct iwl_trans *trans,
 				 const struct iwl_fw *fw);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 #endif /* __iwl_nvm_parse_h__ */

@@ -14,6 +14,10 @@
 
 #define CLK_R_APB2	3
 
+<<<<<<< HEAD
 #define CLK_NUMBER	(CLK_W1 + 1)
+=======
+#define CLK_NUMBER	(CLK_R_APB2_RSB + 1)
+>>>>>>> upstream/android-13
 
 #endif /* _CCU_SUN50I_H6_R_H */

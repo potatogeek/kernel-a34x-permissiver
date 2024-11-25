@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Driver for TANBAC TB0219 base board.
  *
  *  Copyright (C) 2005  Yoichi Yuasa <yuasa@linux-mips.org>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/platform_device.h>
 #include <linux/fs.h>
@@ -243,7 +250,11 @@ static int tanbac_tb0219_open(struct inode *inode, struct file *file)
 	case 16 ... 23:
 	case 32 ... 39:
 	case 48 ... 55:
+<<<<<<< HEAD
 		return nonseekable_open(inode, file);
+=======
+		return stream_open(inode, file);
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}

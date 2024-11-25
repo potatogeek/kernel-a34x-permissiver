@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Keypad driver for Analog Devices ADP5520 MFD PMICs
  *
  * Copyright 2009 Analog Devices Inc.
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2 or later.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>

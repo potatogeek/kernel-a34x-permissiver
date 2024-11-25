@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* ir-rc6-decoder.c - A decoder for the RC6 IR protocol
  *
  * Copyright (C) 2010 by David Härdeman <david@hardeman.nu>
@@ -10,6 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* ir-rc6-decoder.c - A decoder for the RC6 IR protocol
+ *
+ * Copyright (C) 2010 by David Härdeman <david@hardeman.nu>
+>>>>>>> upstream/android-13
  */
 
 #include "rc-core-priv.h"
@@ -23,7 +30,11 @@
  * RC6-6A-32	(MCE version with toggle bit in body)
  */
 
+<<<<<<< HEAD
 #define RC6_UNIT		444444	/* nanosecs */
+=======
+#define RC6_UNIT		444	/* microseconds */
+>>>>>>> upstream/android-13
 #define RC6_HEADER_NBITS	4	/* not including toggle bit */
 #define RC6_0_NBITS		16
 #define RC6_6A_32_NBITS		32
@@ -40,6 +51,10 @@
 #define RC6_6A_MCE_TOGGLE_MASK	0x8000	/* for the body bits */
 #define RC6_6A_LCC_MASK		0xffff0000 /* RC6-6A-32 long customer code mask */
 #define RC6_6A_MCE_CC		0x800f0000 /* MCE customer code */
+<<<<<<< HEAD
+=======
+#define RC6_6A_ZOTAC_CC		0x80340000 /* Zotac customer code */
+>>>>>>> upstream/android-13
 #define RC6_6A_KATHREIN_CC	0x80460000 /* Kathrein RCU-676 customer code */
 #ifndef CHAR_BIT
 #define CHAR_BIT 8	/* Normally in <limits.h> */
@@ -71,7 +86,11 @@ static enum rc6_mode rc6_mode(struct rc6_dec *data)
 	case 6:
 		if (!data->toggle)
 			return RC6_MODE_6A;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		return RC6_MODE_UNKNOWN;
 	}
@@ -102,7 +121,11 @@ static int ir_rc6_decode(struct rc_dev *dev, struct ir_raw_event ev)
 
 again:
 	dev_dbg(&dev->dev, "RC6 decode started at state %i (%uus %s)\n",
+<<<<<<< HEAD
 		data->state, TO_US(ev.duration), TO_STR(ev.pulse));
+=======
+		data->state, ev.duration, TO_STR(ev.pulse));
+>>>>>>> upstream/android-13
 
 	if (!geq_margin(ev.duration, RC6_UNIT, RC6_UNIT / 2))
 		return 0;
@@ -246,6 +269,10 @@ again:
 				switch (scancode & RC6_6A_LCC_MASK) {
 				case RC6_6A_MCE_CC:
 				case RC6_6A_KATHREIN_CC:
+<<<<<<< HEAD
+=======
+				case RC6_6A_ZOTAC_CC:
+>>>>>>> upstream/android-13
 					protocol = RC_PROTO_RC6_MCE;
 					toggle = !!(scancode & RC6_6A_MCE_TOGGLE_MASK);
 					scancode &= ~RC6_6A_MCE_TOGGLE_MASK;
@@ -276,7 +303,11 @@ again:
 
 out:
 	dev_dbg(&dev->dev, "RC6 decode failed at state %i (%uus %s)\n",
+<<<<<<< HEAD
 		data->state, TO_US(ev.duration), TO_STR(ev.pulse));
+=======
+		data->state, ev.duration, TO_STR(ev.pulse));
+>>>>>>> upstream/android-13
 	data->state = STATE_INACTIVE;
 	return -EINVAL;
 }

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * ntc_thermistor.h - NTC Thermistors
  *
  *  Copyright (C) 2010 Samsung Electronics
  *  MyungJoo Ham <myungjoo.ham@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _LINUX_NTC_H
 #define _LINUX_NTC_H
@@ -24,10 +31,18 @@
 struct iio_channel;
 
 enum ntc_thermistor_type {
+<<<<<<< HEAD
 	TYPE_NCPXXWB473,
 	TYPE_NCPXXWL333,
 	TYPE_B57330V2103,
 	TYPE_NCPXXWF104,
+=======
+	TYPE_B57330V2103,
+	TYPE_B57891S0103,
+	TYPE_NCPXXWB473,
+	TYPE_NCPXXWF104,
+	TYPE_NCPXXWL333,
+>>>>>>> upstream/android-13
 	TYPE_NCPXXXH103,
 };
 
@@ -41,7 +56,11 @@ struct ntc_thermistor_platform_data {
 	 * read_uV()
 	 *
 	 * How to setup pullup_ohm, pulldown_ohm, and connect is
+<<<<<<< HEAD
 	 * described at Documentation/hwmon/ntc_thermistor
+=======
+	 * described at Documentation/hwmon/ntc_thermistor.rst
+>>>>>>> upstream/android-13
 	 *
 	 * pullup/down_ohm: 0 for infinite / not-connected
 	 *

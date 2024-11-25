@@ -12,6 +12,7 @@
 #include <linux/if_vlan.h>
 #include <linux/ip.h>
 #include <linux/ipv6.h>
+<<<<<<< HEAD
 #include "bpf_helpers.h"
 
 struct bpf_map_def SEC("maps") rxcnt = {
@@ -20,6 +21,16 @@ struct bpf_map_def SEC("maps") rxcnt = {
 	.value_size = sizeof(long),
 	.max_entries = 256,
 };
+=======
+#include <bpf/bpf_helpers.h>
+
+struct {
+	__uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);
+	__type(key, u32);
+	__type(value, long);
+	__uint(max_entries, 256);
+} rxcnt SEC(".maps");
+>>>>>>> upstream/android-13
 
 static int parse_ipv4(void *data, u64 nh_off, void *data_end)
 {
@@ -57,6 +68,10 @@ int xdp_prog1(struct xdp_md *ctx)
 
 	h_proto = eth->h_proto;
 
+<<<<<<< HEAD
+=======
+	/* Handle VLAN tagged packet */
+>>>>>>> upstream/android-13
 	if (h_proto == htons(ETH_P_8021Q) || h_proto == htons(ETH_P_8021AD)) {
 		struct vlan_hdr *vhdr;
 
@@ -66,6 +81,10 @@ int xdp_prog1(struct xdp_md *ctx)
 			return rc;
 		h_proto = vhdr->h_vlan_encapsulated_proto;
 	}
+<<<<<<< HEAD
+=======
+	/* Handle double VLAN tagged packet */
+>>>>>>> upstream/android-13
 	if (h_proto == htons(ETH_P_8021Q) || h_proto == htons(ETH_P_8021AD)) {
 		struct vlan_hdr *vhdr;
 

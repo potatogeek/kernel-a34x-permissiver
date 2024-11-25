@@ -20,6 +20,11 @@ Usage:
 
 
       --annotate    synonym for -T
+<<<<<<< HEAD
+=======
+      --color       synonym for -c (requires diff with --color support)
+       -c           enable colored output
+>>>>>>> upstream/android-13
        -f           print full dts in diff (--unified=99999)
        -h           synonym for --help
        -help        synonym for --help
@@ -27,7 +32,12 @@ Usage:
        -s SRCTREE   linux kernel source tree is at path SRCTREE
                         (default is current directory)
        -S           linux kernel source tree is at root of current git repo
+<<<<<<< HEAD
        -T           Annotate output .dts with input source file and line (-T -T for more details)
+=======
+       -T           annotate output .dts with input source file and line
+                        (-T -T for more details)
+>>>>>>> upstream/android-13
        -u           unsorted, do not sort DTx
 
 
@@ -56,12 +66,17 @@ Otherwise DTx is treated as a dts source file (aka .dts).
    or '/include/' to be processed.
 
    If DTx_1 and DTx_2 are in different architectures, then this script
+<<<<<<< HEAD
    may not work since \${ARCH} is part of the include path.  Two possible
    workarounds:
 
       `basename $0` \\
           <(ARCH=arch_of_dtx_1 `basename $0` DTx_1) \\
           <(ARCH=arch_of_dtx_2 `basename $0` DTx_2)
+=======
+   may not work since \${ARCH} is part of the include path.  The following
+   workaround can be used:
+>>>>>>> upstream/android-13
 
       `basename $0` ARCH=arch_of_dtx_1 DTx_1 >tmp_dtx_1.dts
       `basename $0` ARCH=arch_of_dtx_2 DTx_2 >tmp_dtx_2.dts
@@ -177,6 +192,10 @@ compile_to_dts() {
 annotate=""
 cmd_diff=0
 diff_flags="-u"
+<<<<<<< HEAD
+=======
+diff_color=""
+>>>>>>> upstream/android-13
 dtx_file_1=""
 dtx_file_2=""
 dtc_sort="-s"
@@ -188,6 +207,16 @@ while [ $# -gt 0 ] ; do
 
 	case $1 in
 
+<<<<<<< HEAD
+=======
+	-c | --color )
+		if diff --color /dev/null /dev/null 2>/dev/null ; then
+			diff_color="--color=always"
+		fi
+		shift
+		;;
+
+>>>>>>> upstream/android-13
 	-f )
 		diff_flags="--unified=999999"
 		shift
@@ -343,7 +372,11 @@ DTC="\
 
 if (( ${cmd_diff} )) ; then
 
+<<<<<<< HEAD
 	diff ${diff_flags} --label "${dtx_file_1}" --label "${dtx_file_2}" \
+=======
+	diff ${diff_flags} ${diff_color} --label "${dtx_file_1}" --label "${dtx_file_2}" \
+>>>>>>> upstream/android-13
 		<(compile_to_dts "${dtx_file_1}" "${dtx_path_1_dtc_include}") \
 		<(compile_to_dts "${dtx_file_2}" "${dtx_path_2_dtc_include}")
 

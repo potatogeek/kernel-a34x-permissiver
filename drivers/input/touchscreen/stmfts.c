@@ -198,7 +198,11 @@ static void stmfts_report_contact_release(struct stmfts_data *sdata,
 	u8 slot_id = (event[0] & STMFTS_MASK_TOUCH_ID) >> 4;
 
 	input_mt_slot(sdata->input, slot_id);
+<<<<<<< HEAD
 	input_mt_report_slot_state(sdata->input, MT_TOOL_FINGER, false);
+=======
+	input_mt_report_slot_inactive(sdata->input);
+>>>>>>> upstream/android-13
 
 	input_sync(sdata->input);
 }
@@ -255,7 +259,11 @@ static void stmfts_parse_events(struct stmfts_data *sdata)
 		case STMFTS_EV_SLEEP_OUT_CONTROLLER_READY:
 		case STMFTS_EV_STATUS:
 			complete(&sdata->cmd_done);
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 
 		case STMFTS_EV_NO_EVENT:
 		case STMFTS_EV_DEBUG:
@@ -691,10 +699,16 @@ static int stmfts_probe(struct i2c_client *client,
 	 * interrupts. To be on the safe side it's better to not enable
 	 * the interrupts during their request.
 	 */
+<<<<<<< HEAD
 	irq_set_status_flags(client->irq, IRQ_NOAUTOEN);
 	err = devm_request_threaded_irq(&client->dev, client->irq,
 					NULL, stmfts_irq_handler,
 					IRQF_ONESHOT,
+=======
+	err = devm_request_threaded_irq(&client->dev, client->irq,
+					NULL, stmfts_irq_handler,
+					IRQF_ONESHOT | IRQF_NO_AUTOEN,
+>>>>>>> upstream/android-13
 					"stmfts_irq", sdata);
 	if (err)
 		return err;

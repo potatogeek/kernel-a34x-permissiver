@@ -71,10 +71,18 @@ void vsp1_entity_route_setup(struct vsp1_entity *entity,
 
 void vsp1_entity_configure_stream(struct vsp1_entity *entity,
 				  struct vsp1_pipeline *pipe,
+<<<<<<< HEAD
 				  struct vsp1_dl_body *dlb)
 {
 	if (entity->ops->configure_stream)
 		entity->ops->configure_stream(entity, pipe, dlb);
+=======
+				  struct vsp1_dl_list *dl,
+				  struct vsp1_dl_body *dlb)
+{
+	if (entity->ops->configure_stream)
+		entity->ops->configure_stream(entity, pipe, dl, dlb);
+>>>>>>> upstream/android-13
 }
 
 void vsp1_entity_configure_frame(struct vsp1_entity *entity,
@@ -102,7 +110,11 @@ void vsp1_entity_configure_partition(struct vsp1_entity *entity,
 /**
  * vsp1_entity_get_pad_config - Get the pad configuration for an entity
  * @entity: the entity
+<<<<<<< HEAD
  * @cfg: the TRY pad configuration
+=======
+ * @sd_state: the TRY state
+>>>>>>> upstream/android-13
  * @which: configuration selector (ACTIVE or TRY)
  *
  * When called with which set to V4L2_SUBDEV_FORMAT_ACTIVE the caller must hold
@@ -113,9 +125,15 @@ void vsp1_entity_configure_partition(struct vsp1_entity *entity,
  * and simply returned when requested. The ACTIVE configuration comes from the
  * entity structure.
  */
+<<<<<<< HEAD
 struct v4l2_subdev_pad_config *
 vsp1_entity_get_pad_config(struct vsp1_entity *entity,
 			   struct v4l2_subdev_pad_config *cfg,
+=======
+struct v4l2_subdev_state *
+vsp1_entity_get_pad_config(struct vsp1_entity *entity,
+			   struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			   enum v4l2_subdev_format_whence which)
 {
 	switch (which) {
@@ -123,14 +141,22 @@ vsp1_entity_get_pad_config(struct vsp1_entity *entity,
 		return entity->config;
 	case V4L2_SUBDEV_FORMAT_TRY:
 	default:
+<<<<<<< HEAD
 		return cfg;
+=======
+		return sd_state;
+>>>>>>> upstream/android-13
 	}
 }
 
 /**
  * vsp1_entity_get_pad_format - Get a pad format from storage for an entity
  * @entity: the entity
+<<<<<<< HEAD
  * @cfg: the configuration storage
+=======
+ * @sd_state: the state storage
+>>>>>>> upstream/android-13
  * @pad: the pad number
  *
  * Return the format stored in the given configuration for an entity's pad. The
@@ -138,16 +164,27 @@ vsp1_entity_get_pad_config(struct vsp1_entity *entity,
  */
 struct v4l2_mbus_framefmt *
 vsp1_entity_get_pad_format(struct vsp1_entity *entity,
+<<<<<<< HEAD
 			   struct v4l2_subdev_pad_config *cfg,
 			   unsigned int pad)
 {
 	return v4l2_subdev_get_try_format(&entity->subdev, cfg, pad);
+=======
+			   struct v4l2_subdev_state *sd_state,
+			   unsigned int pad)
+{
+	return v4l2_subdev_get_try_format(&entity->subdev, sd_state, pad);
+>>>>>>> upstream/android-13
 }
 
 /**
  * vsp1_entity_get_pad_selection - Get a pad selection from storage for entity
  * @entity: the entity
+<<<<<<< HEAD
  * @cfg: the configuration storage
+=======
+ * @sd_state: the state storage
+>>>>>>> upstream/android-13
  * @pad: the pad number
  * @target: the selection target
  *
@@ -157,14 +194,26 @@ vsp1_entity_get_pad_format(struct vsp1_entity *entity,
  */
 struct v4l2_rect *
 vsp1_entity_get_pad_selection(struct vsp1_entity *entity,
+<<<<<<< HEAD
 			      struct v4l2_subdev_pad_config *cfg,
+=======
+			      struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			      unsigned int pad, unsigned int target)
 {
 	switch (target) {
 	case V4L2_SEL_TGT_COMPOSE:
+<<<<<<< HEAD
 		return v4l2_subdev_get_try_compose(&entity->subdev, cfg, pad);
 	case V4L2_SEL_TGT_CROP:
 		return v4l2_subdev_get_try_crop(&entity->subdev, cfg, pad);
+=======
+		return v4l2_subdev_get_try_compose(&entity->subdev, sd_state,
+						   pad);
+	case V4L2_SEL_TGT_CROP:
+		return v4l2_subdev_get_try_crop(&entity->subdev, sd_state,
+						pad);
+>>>>>>> upstream/android-13
 	default:
 		return NULL;
 	}
@@ -179,7 +228,11 @@ vsp1_entity_get_pad_selection(struct vsp1_entity *entity,
  * function can be used as a handler for the subdev pad::init_cfg operation.
  */
 int vsp1_entity_init_cfg(struct v4l2_subdev *subdev,
+<<<<<<< HEAD
 			 struct v4l2_subdev_pad_config *cfg)
+=======
+			 struct v4l2_subdev_state *sd_state)
+>>>>>>> upstream/android-13
 {
 	struct v4l2_subdev_format format;
 	unsigned int pad;
@@ -188,10 +241,17 @@ int vsp1_entity_init_cfg(struct v4l2_subdev *subdev,
 		memset(&format, 0, sizeof(format));
 
 		format.pad = pad;
+<<<<<<< HEAD
 		format.which = cfg ? V4L2_SUBDEV_FORMAT_TRY
 			     : V4L2_SUBDEV_FORMAT_ACTIVE;
 
 		v4l2_subdev_call(subdev, pad, set_fmt, cfg, &format);
+=======
+		format.which = sd_state ? V4L2_SUBDEV_FORMAT_TRY
+			     : V4L2_SUBDEV_FORMAT_ACTIVE;
+
+		v4l2_subdev_call(subdev, pad, set_fmt, sd_state, &format);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -207,6 +267,7 @@ int vsp1_entity_init_cfg(struct v4l2_subdev *subdev,
  * a direct drop-in for the operation handler.
  */
 int vsp1_subdev_get_pad_format(struct v4l2_subdev *subdev,
+<<<<<<< HEAD
 			       struct v4l2_subdev_pad_config *cfg,
 			       struct v4l2_subdev_format *fmt)
 {
@@ -214,6 +275,15 @@ int vsp1_subdev_get_pad_format(struct v4l2_subdev *subdev,
 	struct v4l2_subdev_pad_config *config;
 
 	config = vsp1_entity_get_pad_config(entity, cfg, fmt->which);
+=======
+			       struct v4l2_subdev_state *sd_state,
+			       struct v4l2_subdev_format *fmt)
+{
+	struct vsp1_entity *entity = to_vsp1_entity(subdev);
+	struct v4l2_subdev_state *config;
+
+	config = vsp1_entity_get_pad_config(entity, sd_state, fmt->which);
+>>>>>>> upstream/android-13
 	if (!config)
 		return -EINVAL;
 
@@ -238,7 +308,11 @@ int vsp1_subdev_get_pad_format(struct v4l2_subdev *subdev,
  * the sink pad.
  */
 int vsp1_subdev_enum_mbus_code(struct v4l2_subdev *subdev,
+<<<<<<< HEAD
 			       struct v4l2_subdev_pad_config *cfg,
+=======
+			       struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			       struct v4l2_subdev_mbus_code_enum *code,
 			       const unsigned int *codes, unsigned int ncodes)
 {
@@ -250,7 +324,11 @@ int vsp1_subdev_enum_mbus_code(struct v4l2_subdev *subdev,
 
 		code->code = codes[code->index];
 	} else {
+<<<<<<< HEAD
 		struct v4l2_subdev_pad_config *config;
+=======
+		struct v4l2_subdev_state *config;
+>>>>>>> upstream/android-13
 		struct v4l2_mbus_framefmt *format;
 
 		/*
@@ -260,7 +338,12 @@ int vsp1_subdev_enum_mbus_code(struct v4l2_subdev *subdev,
 		if (code->index)
 			return -EINVAL;
 
+<<<<<<< HEAD
 		config = vsp1_entity_get_pad_config(entity, cfg, code->which);
+=======
+		config = vsp1_entity_get_pad_config(entity, sd_state,
+						    code->which);
+>>>>>>> upstream/android-13
 		if (!config)
 			return -EINVAL;
 
@@ -289,17 +372,29 @@ int vsp1_subdev_enum_mbus_code(struct v4l2_subdev *subdev,
  * source pad size identical to the sink pad.
  */
 int vsp1_subdev_enum_frame_size(struct v4l2_subdev *subdev,
+<<<<<<< HEAD
 				struct v4l2_subdev_pad_config *cfg,
+=======
+				struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 				struct v4l2_subdev_frame_size_enum *fse,
 				unsigned int min_width, unsigned int min_height,
 				unsigned int max_width, unsigned int max_height)
 {
 	struct vsp1_entity *entity = to_vsp1_entity(subdev);
+<<<<<<< HEAD
 	struct v4l2_subdev_pad_config *config;
 	struct v4l2_mbus_framefmt *format;
 	int ret = 0;
 
 	config = vsp1_entity_get_pad_config(entity, cfg, fse->which);
+=======
+	struct v4l2_subdev_state *config;
+	struct v4l2_mbus_framefmt *format;
+	int ret = 0;
+
+	config = vsp1_entity_get_pad_config(entity, sd_state, fse->which);
+>>>>>>> upstream/android-13
 	if (!config)
 		return -EINVAL;
 
@@ -352,14 +447,22 @@ done:
  * source pad.
  */
 int vsp1_subdev_set_pad_format(struct v4l2_subdev *subdev,
+<<<<<<< HEAD
 			       struct v4l2_subdev_pad_config *cfg,
+=======
+			       struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			       struct v4l2_subdev_format *fmt,
 			       const unsigned int *codes, unsigned int ncodes,
 			       unsigned int min_width, unsigned int min_height,
 			       unsigned int max_width, unsigned int max_height)
 {
 	struct vsp1_entity *entity = to_vsp1_entity(subdev);
+<<<<<<< HEAD
 	struct v4l2_subdev_pad_config *config;
+=======
+	struct v4l2_subdev_state *config;
+>>>>>>> upstream/android-13
 	struct v4l2_mbus_framefmt *format;
 	struct v4l2_rect *selection;
 	unsigned int i;
@@ -367,7 +470,11 @@ int vsp1_subdev_set_pad_format(struct v4l2_subdev *subdev,
 
 	mutex_lock(&entity->lock);
 
+<<<<<<< HEAD
 	config = vsp1_entity_get_pad_config(entity, cfg, fmt->which);
+=======
+	config = vsp1_entity_get_pad_config(entity, sd_state, fmt->which);
+>>>>>>> upstream/android-13
 	if (!config) {
 		ret = -EINVAL;
 		goto done;
@@ -404,7 +511,11 @@ int vsp1_subdev_set_pad_format(struct v4l2_subdev *subdev,
 	format = vsp1_entity_get_pad_format(entity, config, entity->source_pad);
 	*format = fmt->format;
 
+<<<<<<< HEAD
 	/* Reset the crop and compose rectangles */
+=======
+	/* Reset the crop and compose rectangles. */
+>>>>>>> upstream/android-13
 	selection = vsp1_entity_get_pad_selection(entity, config, fmt->pad,
 						  V4L2_SEL_TGT_CROP);
 	selection->left = 0;
@@ -671,10 +782,17 @@ int vsp1_entity_init(struct vsp1_device *vsp1, struct vsp1_entity *entity,
 	 * Allocate the pad configuration to store formats and selection
 	 * rectangles.
 	 */
+<<<<<<< HEAD
 	entity->config = v4l2_subdev_alloc_pad_config(&entity->subdev);
 	if (entity->config == NULL) {
 		media_entity_cleanup(&entity->subdev.entity);
 		return -ENOMEM;
+=======
+	entity->config = v4l2_subdev_alloc_state(&entity->subdev);
+	if (IS_ERR(entity->config)) {
+		media_entity_cleanup(&entity->subdev.entity);
+		return PTR_ERR(entity->config);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -686,6 +804,10 @@ void vsp1_entity_destroy(struct vsp1_entity *entity)
 		entity->ops->destroy(entity);
 	if (entity->subdev.ctrl_handler)
 		v4l2_ctrl_handler_free(entity->subdev.ctrl_handler);
+<<<<<<< HEAD
 	v4l2_subdev_free_pad_config(entity->config);
+=======
+	v4l2_subdev_free_state(entity->config);
+>>>>>>> upstream/android-13
 	media_entity_cleanup(&entity->subdev.entity);
 }

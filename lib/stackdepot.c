@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Generic stack depot for storing stack traces.
  *
@@ -10,12 +14,17 @@
  * Instead, stack depot maintains a hashtable of unique stacktraces. Since alloc
  * and free stacks repeat a lot, we save about 100x space.
  * Stacks are never removed from depot, so we store them contiguously one after
+<<<<<<< HEAD
  * another in a contiguos memory allocation.
+=======
+ * another in a contiguous memory allocation.
+>>>>>>> upstream/android-13
  *
  * Author: Alexander Potapenko <glider@google.com>
  * Copyright (C) 2016 Google, Inc.
  *
  * Based on code by Dmitry Chernenkov.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,6 +35,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/gfp.h>
@@ -39,6 +50,10 @@
 #include <linux/stackdepot.h>
 #include <linux/string.h>
 #include <linux/types.h>
+<<<<<<< HEAD
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 
 #define DEPOT_STACK_BITS (sizeof(depot_stack_handle_t) * 8)
 
@@ -69,11 +84,16 @@ struct stack_record {
 	struct stack_record *next;	/* Link in the hashtable */
 	u32 hash;			/* Hash in the hastable */
 	u32 size;			/* Number of frames in the stack */
+<<<<<<< HEAD
 #ifdef CONFIG_PAGE_OWNER
 	u32 hit;
 #endif
 	union handle_parts handle;
 	unsigned long entries[1];	/* Variable-sized array of entries. */
+=======
+	union handle_parts handle;
+	unsigned long entries[];	/* Variable-sized array of entries. */
+>>>>>>> upstream/android-13
 };
 
 static void *stack_slabs[STACK_ALLOC_MAX_SLABS];
@@ -82,11 +102,14 @@ static int depot_index;
 static int next_slab_inited;
 static size_t depot_offset;
 static DEFINE_RAW_SPINLOCK(depot_lock);
+<<<<<<< HEAD
 #ifdef CONFIG_PAGE_OWNER
 static struct stack_record *max_found;
 static DEFINE_SPINLOCK(max_found_lock);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 
 static bool init_stack_slab(void **prealloc)
 {
@@ -109,7 +132,11 @@ static bool init_stack_slab(void **prealloc)
 		}
 		/*
 		 * This smp_store_release pairs with smp_load_acquire() from
+<<<<<<< HEAD
 		 * |next_slab_inited| above and in depot_save_stack().
+=======
+		 * |next_slab_inited| above and in stack_depot_save().
+>>>>>>> upstream/android-13
 		 */
 		smp_store_release(&next_slab_inited, 1);
 	}
@@ -117,12 +144,20 @@ static bool init_stack_slab(void **prealloc)
 }
 
 /* Allocation of a new stack in raw storage */
+<<<<<<< HEAD
 static struct stack_record *depot_alloc_stack(unsigned long *entries, int size,
 		u32 hash, void **prealloc, gfp_t alloc_flags)
 {
 	int required_size = offsetof(struct stack_record, entries) +
 		sizeof(unsigned long) * size;
 	struct stack_record *stack;
+=======
+static struct stack_record *
+depot_alloc_stack(unsigned long *entries, int size, u32 hash, void **prealloc)
+{
+	struct stack_record *stack;
+	size_t required_size = struct_size(stack, entries, size);
+>>>>>>> upstream/android-13
 
 	required_size = ALIGN(required_size, 1 << STACK_ALLOC_ALIGN);
 
@@ -135,7 +170,11 @@ static struct stack_record *depot_alloc_stack(unsigned long *entries, int size,
 		depot_offset = 0;
 		/*
 		 * smp_store_release() here pairs with smp_load_acquire() from
+<<<<<<< HEAD
 		 * |next_slab_inited| in depot_save_stack() and
+=======
+		 * |next_slab_inited| in stack_depot_save() and
+>>>>>>> upstream/android-13
 		 * init_stack_slab().
 		 */
 		if (depot_index + 1 < STACK_ALLOC_MAX_SLABS)
@@ -149,6 +188,7 @@ static struct stack_record *depot_alloc_stack(unsigned long *entries, int size,
 
 	stack->hash = hash;
 	stack->size = size;
+<<<<<<< HEAD
 #ifdef CONFIG_PAGE_OWNER
 	stack->hit = 0;
 #endif
@@ -156,11 +196,18 @@ static struct stack_record *depot_alloc_stack(unsigned long *entries, int size,
 	stack->handle.offset = depot_offset >> STACK_ALLOC_ALIGN;
 	stack->handle.valid = 1;
 	memcpy(stack->entries, entries, size * sizeof(unsigned long));
+=======
+	stack->handle.slabindex = depot_index;
+	stack->handle.offset = depot_offset >> STACK_ALLOC_ALIGN;
+	stack->handle.valid = 1;
+	memcpy(stack->entries, entries, flex_array_size(stack, entries, size));
+>>>>>>> upstream/android-13
 	depot_offset += required_size;
 
 	return stack;
 }
 
+<<<<<<< HEAD
 #define STACK_HASH_ORDER 20
 #define STACK_HASH_SIZE (1L << STACK_HASH_ORDER)
 #define STACK_HASH_MASK (STACK_HASH_SIZE - 1)
@@ -169,13 +216,52 @@ static struct stack_record *depot_alloc_stack(unsigned long *entries, int size,
 static struct stack_record *stack_table[STACK_HASH_SIZE] = {
 	[0 ...	STACK_HASH_SIZE - 1] = NULL
 };
+=======
+#define STACK_HASH_SIZE (1L << CONFIG_STACK_HASH_ORDER)
+#define STACK_HASH_MASK (STACK_HASH_SIZE - 1)
+#define STACK_HASH_SEED 0x9747b28c
+
+static bool stack_depot_disable;
+static struct stack_record **stack_table;
+
+static int __init is_stack_depot_disabled(char *str)
+{
+	int ret;
+
+	ret = kstrtobool(str, &stack_depot_disable);
+	if (!ret && stack_depot_disable) {
+		pr_info("Stack Depot is disabled\n");
+		stack_table = NULL;
+	}
+	return 0;
+}
+early_param("stack_depot_disable", is_stack_depot_disabled);
+
+int __init stack_depot_init(void)
+{
+	if (!stack_depot_disable) {
+		size_t size = (STACK_HASH_SIZE * sizeof(struct stack_record *));
+		int i;
+
+		stack_table = memblock_alloc(size, size);
+		for (i = 0; i < STACK_HASH_SIZE;  i++)
+			stack_table[i] = NULL;
+	}
+	return 0;
+}
+>>>>>>> upstream/android-13
 
 /* Calculate hash for a stack */
 static inline u32 hash_stack(unsigned long *entries, unsigned int size)
 {
 	return jhash2((u32 *)entries,
+<<<<<<< HEAD
 			       size * sizeof(unsigned long) / sizeof(u32),
 			       STACK_HASH_SEED);
+=======
+		      array_size(size,  sizeof(*entries)) / sizeof(u32),
+		      STACK_HASH_SEED);
+>>>>>>> upstream/android-13
 }
 
 /* Use our own, non-instrumented version of memcmp().
@@ -209,6 +295,7 @@ static inline struct stack_record *find_stack(struct stack_record *bucket,
 	return NULL;
 }
 
+<<<<<<< HEAD
 void depot_fetch_stack(depot_stack_handle_t handle, struct stack_trace *trace)
 {
 	union handle_parts parts = { .handle = handle };
@@ -280,6 +367,89 @@ depot_stack_handle_t depot_save_stack(struct stack_trace *trace,
 		goto fast_exit;
 
 	hash = hash_stack(trace->entries, trace->nr_entries);
+=======
+/**
+ * stack_depot_fetch - Fetch stack entries from a depot
+ *
+ * @handle:		Stack depot handle which was returned from
+ *			stack_depot_save().
+ * @entries:		Pointer to store the entries address
+ *
+ * Return: The number of trace entries for this depot.
+ */
+unsigned int stack_depot_fetch(depot_stack_handle_t handle,
+			       unsigned long **entries)
+{
+	union handle_parts parts = { .handle = handle };
+	void *slab;
+	size_t offset = parts.offset << STACK_ALLOC_ALIGN;
+	struct stack_record *stack;
+
+	*entries = NULL;
+	if (parts.slabindex > depot_index) {
+		WARN(1, "slab index %d out of bounds (%d) for stack id %08x\n",
+			parts.slabindex, depot_index, handle);
+		return 0;
+	}
+	slab = stack_slabs[parts.slabindex];
+	if (!slab)
+		return 0;
+	stack = slab + offset;
+
+	*entries = stack->entries;
+	return stack->size;
+}
+EXPORT_SYMBOL_GPL(stack_depot_fetch);
+
+/**
+ * __stack_depot_save - Save a stack trace from an array
+ *
+ * @entries:		Pointer to storage array
+ * @nr_entries:		Size of the storage array
+ * @alloc_flags:	Allocation gfp flags
+ * @can_alloc:		Allocate stack slabs (increased chance of failure if false)
+ *
+ * Saves a stack trace from @entries array of size @nr_entries. If @can_alloc is
+ * %true, is allowed to replenish the stack slab pool in case no space is left
+ * (allocates using GFP flags of @alloc_flags). If @can_alloc is %false, avoids
+ * any allocations and will fail if no space is left to store the stack trace.
+ *
+ * If the stack trace in @entries is from an interrupt, only the portion up to
+ * interrupt entry is saved.
+ *
+ * Context: Any context, but setting @can_alloc to %false is required if
+ *          alloc_pages() cannot be used from the current context. Currently
+ *          this is the case from contexts where neither %GFP_ATOMIC nor
+ *          %GFP_NOWAIT can be used (NMI, raw_spin_lock).
+ *
+ * Return: The handle of the stack struct stored in depot, 0 on failure.
+ */
+depot_stack_handle_t __stack_depot_save(unsigned long *entries,
+					unsigned int nr_entries,
+					gfp_t alloc_flags, bool can_alloc)
+{
+	struct stack_record *found = NULL, **bucket;
+	depot_stack_handle_t retval = 0;
+	struct page *page = NULL;
+	void *prealloc = NULL;
+	unsigned long flags;
+	u32 hash;
+
+	/*
+	 * If this stack trace is from an interrupt, including anything before
+	 * interrupt entry usually leads to unbounded stackdepot growth.
+	 *
+	 * Because use of filter_irq_stacks() is a requirement to ensure
+	 * stackdepot can efficiently deduplicate interrupt stacks, always
+	 * filter_irq_stacks() to simplify all callers' use of stackdepot.
+	 */
+	nr_entries = filter_irq_stacks(entries, nr_entries);
+
+	if (unlikely(nr_entries == 0) || stack_depot_disable)
+		goto fast_exit;
+
+	hash = hash_stack(entries, nr_entries);
+>>>>>>> upstream/android-13
 	bucket = &stack_table[hash & STACK_HASH_MASK];
 
 	/*
@@ -287,8 +457,13 @@ depot_stack_handle_t depot_save_stack(struct stack_trace *trace,
 	 * The smp_load_acquire() here pairs with smp_store_release() to
 	 * |bucket| below.
 	 */
+<<<<<<< HEAD
 	found = find_stack(smp_load_acquire(bucket), trace->entries,
 			   trace->nr_entries, hash);
+=======
+	found = find_stack(smp_load_acquire(bucket), entries,
+			   nr_entries, hash);
+>>>>>>> upstream/android-13
 	if (found)
 		goto exit;
 
@@ -300,7 +475,11 @@ depot_stack_handle_t depot_save_stack(struct stack_trace *trace,
 	 * The smp_load_acquire() here pairs with smp_store_release() to
 	 * |next_slab_inited| in depot_alloc_stack() and init_stack_slab().
 	 */
+<<<<<<< HEAD
 	if (unlikely(!smp_load_acquire(&next_slab_inited))) {
+=======
+	if (unlikely(can_alloc && !smp_load_acquire(&next_slab_inited))) {
+>>>>>>> upstream/android-13
 		/*
 		 * Zero out zone modifiers, as we don't have specific zone
 		 * requirements. Keep the flags related to allocation in atomic
@@ -316,11 +495,18 @@ depot_stack_handle_t depot_save_stack(struct stack_trace *trace,
 
 	raw_spin_lock_irqsave(&depot_lock, flags);
 
+<<<<<<< HEAD
 	found = find_stack(*bucket, trace->entries, trace->nr_entries, hash);
 	if (!found) {
 		struct stack_record *new =
 			depot_alloc_stack(trace->entries, trace->nr_entries,
 					  hash, &prealloc, alloc_flags);
+=======
+	found = find_stack(*bucket, entries, nr_entries, hash);
+	if (!found) {
+		struct stack_record *new = depot_alloc_stack(entries, nr_entries, hash, &prealloc);
+
+>>>>>>> upstream/android-13
 		if (new) {
 			new->next = *bucket;
 			/*
@@ -349,4 +535,28 @@ exit:
 fast_exit:
 	return retval;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(depot_save_stack);
+=======
+EXPORT_SYMBOL_GPL(__stack_depot_save);
+
+/**
+ * stack_depot_save - Save a stack trace from an array
+ *
+ * @entries:		Pointer to storage array
+ * @nr_entries:		Size of the storage array
+ * @alloc_flags:	Allocation gfp flags
+ *
+ * Context: Contexts where allocations via alloc_pages() are allowed.
+ *          See __stack_depot_save() for more details.
+ *
+ * Return: The handle of the stack struct stored in depot, 0 on failure.
+ */
+depot_stack_handle_t stack_depot_save(unsigned long *entries,
+				      unsigned int nr_entries,
+				      gfp_t alloc_flags)
+{
+	return __stack_depot_save(entries, nr_entries, alloc_flags, true);
+}
+EXPORT_SYMBOL_GPL(stack_depot_save);
+>>>>>>> upstream/android-13

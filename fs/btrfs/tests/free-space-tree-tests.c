@@ -9,6 +9,10 @@
 #include "../disk-io.h"
 #include "../free-space-tree.h"
 #include "../transaction.h"
+<<<<<<< HEAD
+=======
+#include "../block-group.h"
+>>>>>>> upstream/android-13
 
 struct free_space_extent {
 	u64 start;
@@ -17,7 +21,11 @@ struct free_space_extent {
 
 static int __check_free_space_extents(struct btrfs_trans_handle *trans,
 				      struct btrfs_fs_info *fs_info,
+<<<<<<< HEAD
 				      struct btrfs_block_group_cache *cache,
+=======
+				      struct btrfs_block_group *cache,
+>>>>>>> upstream/android-13
 				      struct btrfs_path *path,
 				      const struct free_space_extent * const extents,
 				      unsigned int num_extents)
@@ -30,7 +38,11 @@ static int __check_free_space_extents(struct btrfs_trans_handle *trans,
 	unsigned int i;
 	int ret;
 
+<<<<<<< HEAD
 	info = search_free_space_info(trans, fs_info, cache, path, 0);
+=======
+	info = search_free_space_info(trans, cache, path, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(info)) {
 		test_err("could not find free space info");
 		ret = PTR_ERR(info);
@@ -47,7 +59,11 @@ static int __check_free_space_extents(struct btrfs_trans_handle *trans,
 	if (flags & BTRFS_FREE_SPACE_USING_BITMAPS) {
 		if (path->slots[0] != 0)
 			goto invalid;
+<<<<<<< HEAD
 		end = cache->key.objectid + cache->key.offset;
+=======
+		end = cache->start + cache->length;
+>>>>>>> upstream/android-13
 		i = 0;
 		while (++path->slots[0] < btrfs_header_nritems(path->nodes[0])) {
 			btrfs_item_key_to_cpu(path->nodes[0], &key, path->slots[0]);
@@ -59,8 +75,11 @@ static int __check_free_space_extents(struct btrfs_trans_handle *trans,
 				if (prev_bit == 0 && bit == 1) {
 					extent_start = offset;
 				} else if (prev_bit == 1 && bit == 0) {
+<<<<<<< HEAD
 					if (i >= num_extents)
 						goto invalid;
+=======
+>>>>>>> upstream/android-13
 					if (i >= num_extents ||
 					    extent_start != extents[i].start ||
 					    offset - extent_start != extents[i].length)
@@ -106,7 +125,11 @@ invalid:
 
 static int check_free_space_extents(struct btrfs_trans_handle *trans,
 				    struct btrfs_fs_info *fs_info,
+<<<<<<< HEAD
 				    struct btrfs_block_group_cache *cache,
+=======
+				    struct btrfs_block_group *cache,
+>>>>>>> upstream/android-13
 				    struct btrfs_path *path,
 				    const struct free_space_extent * const extents,
 				    unsigned int num_extents)
@@ -115,7 +138,11 @@ static int check_free_space_extents(struct btrfs_trans_handle *trans,
 	u32 flags;
 	int ret;
 
+<<<<<<< HEAD
 	info = search_free_space_info(trans, fs_info, cache, path, 0);
+=======
+	info = search_free_space_info(trans, cache, path, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(info)) {
 		test_err("could not find free space info");
 		btrfs_release_path(path);
@@ -149,12 +176,20 @@ static int check_free_space_extents(struct btrfs_trans_handle *trans,
 
 static int test_empty_block_group(struct btrfs_trans_handle *trans,
 				  struct btrfs_fs_info *fs_info,
+<<<<<<< HEAD
 				  struct btrfs_block_group_cache *cache,
+=======
+				  struct btrfs_block_group *cache,
+>>>>>>> upstream/android-13
 				  struct btrfs_path *path,
 				  u32 alignment)
 {
 	const struct free_space_extent extents[] = {
+<<<<<<< HEAD
 		{cache->key.objectid, cache->key.offset},
+=======
+		{cache->start, cache->length},
+>>>>>>> upstream/android-13
 	};
 
 	return check_free_space_extents(trans, fs_info, cache, path,
@@ -163,7 +198,11 @@ static int test_empty_block_group(struct btrfs_trans_handle *trans,
 
 static int test_remove_all(struct btrfs_trans_handle *trans,
 			   struct btrfs_fs_info *fs_info,
+<<<<<<< HEAD
 			   struct btrfs_block_group_cache *cache,
+=======
+			   struct btrfs_block_group *cache,
+>>>>>>> upstream/android-13
 			   struct btrfs_path *path,
 			   u32 alignment)
 {
@@ -171,8 +210,13 @@ static int test_remove_all(struct btrfs_trans_handle *trans,
 	int ret;
 
 	ret = __remove_from_free_space_tree(trans, cache, path,
+<<<<<<< HEAD
 					    cache->key.objectid,
 					    cache->key.offset);
+=======
+					    cache->start,
+					    cache->length);
+>>>>>>> upstream/android-13
 	if (ret) {
 		test_err("could not remove free space");
 		return ret;
@@ -184,18 +228,30 @@ static int test_remove_all(struct btrfs_trans_handle *trans,
 
 static int test_remove_beginning(struct btrfs_trans_handle *trans,
 				 struct btrfs_fs_info *fs_info,
+<<<<<<< HEAD
 				 struct btrfs_block_group_cache *cache,
+=======
+				 struct btrfs_block_group *cache,
+>>>>>>> upstream/android-13
 				 struct btrfs_path *path,
 				 u32 alignment)
 {
 	const struct free_space_extent extents[] = {
+<<<<<<< HEAD
 		{cache->key.objectid + alignment,
 			cache->key.offset - alignment},
+=======
+		{cache->start + alignment, cache->length - alignment},
+>>>>>>> upstream/android-13
 	};
 	int ret;
 
 	ret = __remove_from_free_space_tree(trans, cache, path,
+<<<<<<< HEAD
 					    cache->key.objectid, alignment);
+=======
+					    cache->start, alignment);
+>>>>>>> upstream/android-13
 	if (ret) {
 		test_err("could not remove free space");
 		return ret;
@@ -208,19 +264,32 @@ static int test_remove_beginning(struct btrfs_trans_handle *trans,
 
 static int test_remove_end(struct btrfs_trans_handle *trans,
 			   struct btrfs_fs_info *fs_info,
+<<<<<<< HEAD
 			   struct btrfs_block_group_cache *cache,
+=======
+			   struct btrfs_block_group *cache,
+>>>>>>> upstream/android-13
 			   struct btrfs_path *path,
 			   u32 alignment)
 {
 	const struct free_space_extent extents[] = {
+<<<<<<< HEAD
 		{cache->key.objectid, cache->key.offset - alignment},
+=======
+		{cache->start, cache->length - alignment},
+>>>>>>> upstream/android-13
 	};
 	int ret;
 
 	ret = __remove_from_free_space_tree(trans, cache, path,
+<<<<<<< HEAD
 					    cache->key.objectid +
 					    cache->key.offset - alignment,
 					    alignment);
+=======
+				    cache->start + cache->length - alignment,
+				    alignment);
+>>>>>>> upstream/android-13
 	if (ret) {
 		test_err("could not remove free space");
 		return ret;
@@ -232,19 +301,32 @@ static int test_remove_end(struct btrfs_trans_handle *trans,
 
 static int test_remove_middle(struct btrfs_trans_handle *trans,
 			      struct btrfs_fs_info *fs_info,
+<<<<<<< HEAD
 			      struct btrfs_block_group_cache *cache,
+=======
+			      struct btrfs_block_group *cache,
+>>>>>>> upstream/android-13
 			      struct btrfs_path *path,
 			      u32 alignment)
 {
 	const struct free_space_extent extents[] = {
+<<<<<<< HEAD
 		{cache->key.objectid, alignment},
 		{cache->key.objectid + 2 * alignment,
 			cache->key.offset - 2 * alignment},
+=======
+		{cache->start, alignment},
+		{cache->start + 2 * alignment, cache->length - 2 * alignment},
+>>>>>>> upstream/android-13
 	};
 	int ret;
 
 	ret = __remove_from_free_space_tree(trans, cache, path,
+<<<<<<< HEAD
 					    cache->key.objectid + alignment,
+=======
+					    cache->start + alignment,
+>>>>>>> upstream/android-13
 					    alignment);
 	if (ret) {
 		test_err("could not remove free space");
@@ -257,24 +339,40 @@ static int test_remove_middle(struct btrfs_trans_handle *trans,
 
 static int test_merge_left(struct btrfs_trans_handle *trans,
 			   struct btrfs_fs_info *fs_info,
+<<<<<<< HEAD
 			   struct btrfs_block_group_cache *cache,
+=======
+			   struct btrfs_block_group *cache,
+>>>>>>> upstream/android-13
 			   struct btrfs_path *path,
 			   u32 alignment)
 {
 	const struct free_space_extent extents[] = {
+<<<<<<< HEAD
 		{cache->key.objectid, 2 * alignment},
+=======
+		{cache->start, 2 * alignment},
+>>>>>>> upstream/android-13
 	};
 	int ret;
 
 	ret = __remove_from_free_space_tree(trans, cache, path,
+<<<<<<< HEAD
 					    cache->key.objectid,
 					    cache->key.offset);
+=======
+					    cache->start, cache->length);
+>>>>>>> upstream/android-13
 	if (ret) {
 		test_err("could not remove free space");
 		return ret;
 	}
 
+<<<<<<< HEAD
 	ret = __add_to_free_space_tree(trans, cache, path, cache->key.objectid,
+=======
+	ret = __add_to_free_space_tree(trans, cache, path, cache->start,
+>>>>>>> upstream/android-13
 				       alignment);
 	if (ret) {
 		test_err("could not add free space");
@@ -282,7 +380,11 @@ static int test_merge_left(struct btrfs_trans_handle *trans,
 	}
 
 	ret = __add_to_free_space_tree(trans, cache, path,
+<<<<<<< HEAD
 				       cache->key.objectid + alignment,
+=======
+				       cache->start + alignment,
+>>>>>>> upstream/android-13
 				       alignment);
 	if (ret) {
 		test_err("could not add free space");
@@ -295,25 +397,41 @@ static int test_merge_left(struct btrfs_trans_handle *trans,
 
 static int test_merge_right(struct btrfs_trans_handle *trans,
 			   struct btrfs_fs_info *fs_info,
+<<<<<<< HEAD
 			   struct btrfs_block_group_cache *cache,
+=======
+			   struct btrfs_block_group *cache,
+>>>>>>> upstream/android-13
 			   struct btrfs_path *path,
 			   u32 alignment)
 {
 	const struct free_space_extent extents[] = {
+<<<<<<< HEAD
 		{cache->key.objectid + alignment, 2 * alignment},
+=======
+		{cache->start + alignment, 2 * alignment},
+>>>>>>> upstream/android-13
 	};
 	int ret;
 
 	ret = __remove_from_free_space_tree(trans, cache, path,
+<<<<<<< HEAD
 					    cache->key.objectid,
 					    cache->key.offset);
+=======
+					    cache->start, cache->length);
+>>>>>>> upstream/android-13
 	if (ret) {
 		test_err("could not remove free space");
 		return ret;
 	}
 
 	ret = __add_to_free_space_tree(trans, cache, path,
+<<<<<<< HEAD
 				       cache->key.objectid + 2 * alignment,
+=======
+				       cache->start + 2 * alignment,
+>>>>>>> upstream/android-13
 				       alignment);
 	if (ret) {
 		test_err("could not add free space");
@@ -321,7 +439,11 @@ static int test_merge_right(struct btrfs_trans_handle *trans,
 	}
 
 	ret = __add_to_free_space_tree(trans, cache, path,
+<<<<<<< HEAD
 				       cache->key.objectid + alignment,
+=======
+				       cache->start + alignment,
+>>>>>>> upstream/android-13
 				       alignment);
 	if (ret) {
 		test_err("could not add free space");
@@ -334,24 +456,40 @@ static int test_merge_right(struct btrfs_trans_handle *trans,
 
 static int test_merge_both(struct btrfs_trans_handle *trans,
 			   struct btrfs_fs_info *fs_info,
+<<<<<<< HEAD
 			   struct btrfs_block_group_cache *cache,
+=======
+			   struct btrfs_block_group *cache,
+>>>>>>> upstream/android-13
 			   struct btrfs_path *path,
 			   u32 alignment)
 {
 	const struct free_space_extent extents[] = {
+<<<<<<< HEAD
 		{cache->key.objectid, 3 * alignment},
+=======
+		{cache->start, 3 * alignment},
+>>>>>>> upstream/android-13
 	};
 	int ret;
 
 	ret = __remove_from_free_space_tree(trans, cache, path,
+<<<<<<< HEAD
 					    cache->key.objectid,
 					    cache->key.offset);
+=======
+					    cache->start, cache->length);
+>>>>>>> upstream/android-13
 	if (ret) {
 		test_err("could not remove free space");
 		return ret;
 	}
 
+<<<<<<< HEAD
 	ret = __add_to_free_space_tree(trans, cache, path, cache->key.objectid,
+=======
+	ret = __add_to_free_space_tree(trans, cache, path, cache->start,
+>>>>>>> upstream/android-13
 				       alignment);
 	if (ret) {
 		test_err("could not add free space");
@@ -359,16 +497,24 @@ static int test_merge_both(struct btrfs_trans_handle *trans,
 	}
 
 	ret = __add_to_free_space_tree(trans, cache, path,
+<<<<<<< HEAD
 				       cache->key.objectid + 2 * alignment,
 				       alignment);
+=======
+				       cache->start + 2 * alignment, alignment);
+>>>>>>> upstream/android-13
 	if (ret) {
 		test_err("could not add free space");
 		return ret;
 	}
 
 	ret = __add_to_free_space_tree(trans, cache, path,
+<<<<<<< HEAD
 				       cache->key.objectid + alignment,
 				       alignment);
+=======
+				       cache->start + alignment, alignment);
+>>>>>>> upstream/android-13
 	if (ret) {
 		test_err("could not add free space");
 		return ret;
@@ -380,26 +526,44 @@ static int test_merge_both(struct btrfs_trans_handle *trans,
 
 static int test_merge_none(struct btrfs_trans_handle *trans,
 			   struct btrfs_fs_info *fs_info,
+<<<<<<< HEAD
 			   struct btrfs_block_group_cache *cache,
+=======
+			   struct btrfs_block_group *cache,
+>>>>>>> upstream/android-13
 			   struct btrfs_path *path,
 			   u32 alignment)
 {
 	const struct free_space_extent extents[] = {
+<<<<<<< HEAD
 		{cache->key.objectid, alignment},
 		{cache->key.objectid + 2 * alignment, alignment},
 		{cache->key.objectid + 4 * alignment, alignment},
+=======
+		{cache->start, alignment},
+		{cache->start + 2 * alignment, alignment},
+		{cache->start + 4 * alignment, alignment},
+>>>>>>> upstream/android-13
 	};
 	int ret;
 
 	ret = __remove_from_free_space_tree(trans, cache, path,
+<<<<<<< HEAD
 					    cache->key.objectid,
 					    cache->key.offset);
+=======
+					    cache->start, cache->length);
+>>>>>>> upstream/android-13
 	if (ret) {
 		test_err("could not remove free space");
 		return ret;
 	}
 
+<<<<<<< HEAD
 	ret = __add_to_free_space_tree(trans, cache, path, cache->key.objectid,
+=======
+	ret = __add_to_free_space_tree(trans, cache, path, cache->start,
+>>>>>>> upstream/android-13
 				       alignment);
 	if (ret) {
 		test_err("could not add free space");
@@ -407,16 +571,24 @@ static int test_merge_none(struct btrfs_trans_handle *trans,
 	}
 
 	ret = __add_to_free_space_tree(trans, cache, path,
+<<<<<<< HEAD
 				       cache->key.objectid + 4 * alignment,
 				       alignment);
+=======
+				       cache->start + 4 * alignment, alignment);
+>>>>>>> upstream/android-13
 	if (ret) {
 		test_err("could not add free space");
 		return ret;
 	}
 
 	ret = __add_to_free_space_tree(trans, cache, path,
+<<<<<<< HEAD
 				       cache->key.objectid + 2 * alignment,
 				       alignment);
+=======
+				       cache->start + 2 * alignment, alignment);
+>>>>>>> upstream/android-13
 	if (ret) {
 		test_err("could not add free space");
 		return ret;
@@ -428,7 +600,11 @@ static int test_merge_none(struct btrfs_trans_handle *trans,
 
 typedef int (*test_func_t)(struct btrfs_trans_handle *,
 			   struct btrfs_fs_info *,
+<<<<<<< HEAD
 			   struct btrfs_block_group_cache *,
+=======
+			   struct btrfs_block_group *,
+>>>>>>> upstream/android-13
 			   struct btrfs_path *,
 			   u32 alignment);
 
@@ -437,21 +613,33 @@ static int run_test(test_func_t test_func, int bitmaps, u32 sectorsize,
 {
 	struct btrfs_fs_info *fs_info;
 	struct btrfs_root *root = NULL;
+<<<<<<< HEAD
 	struct btrfs_block_group_cache *cache = NULL;
+=======
+	struct btrfs_block_group *cache = NULL;
+>>>>>>> upstream/android-13
 	struct btrfs_trans_handle trans;
 	struct btrfs_path *path = NULL;
 	int ret;
 
 	fs_info = btrfs_alloc_dummy_fs_info(nodesize, sectorsize);
 	if (!fs_info) {
+<<<<<<< HEAD
 		test_err("couldn't allocate dummy fs info");
+=======
+		test_std_err(TEST_ALLOC_FS_INFO);
+>>>>>>> upstream/android-13
 		ret = -ENOMEM;
 		goto out;
 	}
 
 	root = btrfs_alloc_dummy_root(fs_info);
 	if (IS_ERR(root)) {
+<<<<<<< HEAD
 		test_err("couldn't allocate dummy root");
+=======
+		test_std_err(TEST_ALLOC_ROOT);
+>>>>>>> upstream/android-13
 		ret = PTR_ERR(root);
 		goto out;
 	}
@@ -463,7 +651,11 @@ static int run_test(test_func_t test_func, int bitmaps, u32 sectorsize,
 
 	root->node = alloc_test_extent_buffer(root->fs_info, nodesize);
 	if (IS_ERR(root->node)) {
+<<<<<<< HEAD
 		test_err("couldn't allocate dummy buffer");
+=======
+		test_std_err(TEST_ALLOC_EXTENT_BUFFER);
+>>>>>>> upstream/android-13
 		ret = PTR_ERR(root->node);
 		goto out;
 	}
@@ -473,7 +665,11 @@ static int run_test(test_func_t test_func, int bitmaps, u32 sectorsize,
 
 	cache = btrfs_alloc_dummy_block_group(fs_info, 8 * alignment);
 	if (!cache) {
+<<<<<<< HEAD
 		test_err("couldn't allocate dummy block group cache");
+=======
+		test_std_err(TEST_ALLOC_BLOCK_GROUP);
+>>>>>>> upstream/android-13
 		ret = -ENOMEM;
 		goto out;
 	}
@@ -486,7 +682,11 @@ static int run_test(test_func_t test_func, int bitmaps, u32 sectorsize,
 
 	path = btrfs_alloc_path();
 	if (!path) {
+<<<<<<< HEAD
 		test_err("couldn't allocate path");
+=======
+		test_std_err(TEST_ALLOC_ROOT);
+>>>>>>> upstream/android-13
 		ret = -ENOMEM;
 		goto out;
 	}
@@ -539,7 +739,11 @@ static int run_test_both_formats(test_func_t test_func, u32 sectorsize,
 	ret = run_test(test_func, 0, sectorsize, nodesize, alignment);
 	if (ret) {
 		test_err(
+<<<<<<< HEAD
 	"%pf failed with extents, sectorsize=%u, nodesize=%u, alignment=%u",
+=======
+	"%ps failed with extents, sectorsize=%u, nodesize=%u, alignment=%u",
+>>>>>>> upstream/android-13
 			 test_func, sectorsize, nodesize, alignment);
 		test_ret = ret;
 	}
@@ -547,7 +751,11 @@ static int run_test_both_formats(test_func_t test_func, u32 sectorsize,
 	ret = run_test(test_func, 1, sectorsize, nodesize, alignment);
 	if (ret) {
 		test_err(
+<<<<<<< HEAD
 	"%pf failed with bitmaps, sectorsize=%u, nodesize=%u, alignment=%u",
+=======
+	"%ps failed with bitmaps, sectorsize=%u, nodesize=%u, alignment=%u",
+>>>>>>> upstream/android-13
 			 test_func, sectorsize, nodesize, alignment);
 		test_ret = ret;
 	}

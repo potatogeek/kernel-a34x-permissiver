@@ -37,6 +37,13 @@ struct smcd_dmb {
 #define ISM_EVENT_GID	1
 #define ISM_EVENT_SWR	2
 
+<<<<<<< HEAD
+=======
+#define ISM_RESERVED_VLANID	0x1FFF
+
+#define ISM_ERROR	0xFFFF
+
+>>>>>>> upstream/android-13
 struct smcd_event {
 	u32 type;
 	u32 code;
@@ -61,6 +68,11 @@ struct smcd_ops {
 	int (*move_data)(struct smcd_dev *dev, u64 dmb_tok, unsigned int idx,
 			 bool sf, unsigned int offset, void *data,
 			 unsigned int size);
+<<<<<<< HEAD
+=======
+	void (*get_system_eid)(struct smcd_dev *dev, u8 **eid);
+	u16 (*get_chid)(struct smcd_dev *dev);
+>>>>>>> upstream/android-13
 };
 
 struct smcd_dev {
@@ -74,6 +86,15 @@ struct smcd_dev {
 	struct list_head vlan;
 	struct workqueue_struct *event_wq;
 	u8 pnetid[SMC_MAX_PNETID_LEN];
+<<<<<<< HEAD
+=======
+	bool pnetid_by_user;
+	struct list_head lgr_list;
+	spinlock_t lgr_lock;
+	atomic_t lgr_cnt;
+	wait_queue_head_t lgrs_deleted;
+	u8 going_away : 1;
+>>>>>>> upstream/android-13
 };
 
 struct smcd_dev *smcd_alloc_dev(struct device *parent, const char *name,

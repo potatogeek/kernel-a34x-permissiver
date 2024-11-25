@@ -10,3 +10,9 @@ Kernel clients
 
 .. kernel-doc:: drivers/gpu/drm/drm_client.c
    :export:
+<<<<<<< HEAD
+=======
+
+.. kernel-doc:: drivers/gpu/drm/drm_client_modeset.c
+   :export:
+>>>>>>> upstream/android-13

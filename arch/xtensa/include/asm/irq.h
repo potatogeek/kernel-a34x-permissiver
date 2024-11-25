@@ -12,7 +12,11 @@
 #define _XTENSA_IRQ_H
 
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <variant/core.h>
+=======
+#include <asm/core.h>
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PLATFORM_NR_IRQS
 # define PLATFORM_NR_IRQS CONFIG_PLATFORM_NR_IRQS

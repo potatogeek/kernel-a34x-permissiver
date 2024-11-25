@@ -29,11 +29,18 @@
 #include <linux/slab.h>
 #include <linux/syscore_ops.h>
 #include <linux/ratelimit.h>
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 #include <asm/ptrace.h>
 #include <asm/signal.h>
 #include <asm/io.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/irq.h>
 #include <asm/machdep.h>
 #include <asm/mpic.h>
@@ -602,7 +609,11 @@ static void __init mpic_scan_ht_pics(struct mpic *mpic)
 /* Find an mpic associated with a given linux interrupt */
 static struct mpic *mpic_find(unsigned int irq)
 {
+<<<<<<< HEAD
 	if (irq < NUM_ISA_INTERRUPTS)
+=======
+	if (irq < NR_IRQS_LEGACY)
+>>>>>>> upstream/android-13
 		return NULL;
 
 	return irq_get_chip_data(irq);
@@ -964,7 +975,11 @@ static struct irq_chip mpic_irq_chip = {
 };
 
 #ifdef CONFIG_SMP
+<<<<<<< HEAD
 static struct irq_chip mpic_ipi_chip = {
+=======
+static const struct irq_chip mpic_ipi_chip = {
+>>>>>>> upstream/android-13
 	.irq_mask	= mpic_mask_ipi,
 	.irq_unmask	= mpic_unmask_ipi,
 	.irq_eoi	= mpic_end_ipi,
@@ -978,7 +993,11 @@ static struct irq_chip mpic_tm_chip = {
 };
 
 #ifdef CONFIG_MPIC_U3_HT_IRQS
+<<<<<<< HEAD
 static struct irq_chip mpic_irq_ht_chip = {
+=======
+static const struct irq_chip mpic_irq_ht_chip = {
+>>>>>>> upstream/android-13
 	.irq_startup	= mpic_startup_ht_irq,
 	.irq_shutdown	= mpic_shutdown_ht_irq,
 	.irq_mask	= mpic_mask_irq,

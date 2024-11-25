@@ -3,14 +3,22 @@
 #include <linux/mm.h>
 #include <linux/slab.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/stacktrace.h>
 #include <linux/page_owner.h>
 #include <linux/jump_label.h>
 #include <linux/migrate.h>
 #include <linux/stackdepot.h>
 #include <linux/seq_file.h>
+<<<<<<< HEAD
 #include <linux/stackdepot.h>
+=======
+#include <linux/sched/clock.h>
+>>>>>>> upstream/android-13
 
 #include "internal.h"
 
@@ -25,9 +33,19 @@ struct page_owner {
 	short last_migrate_reason;
 	gfp_t gfp_mask;
 	depot_stack_handle_t handle;
+<<<<<<< HEAD
 };
 
 static bool page_owner_disabled = true;
+=======
+	depot_stack_handle_t free_handle;
+	u64 ts_nsec;
+	u64 free_ts_nsec;
+	pid_t pid;
+};
+
+static bool page_owner_enabled = false;
+>>>>>>> upstream/android-13
 DEFINE_STATIC_KEY_FALSE(page_owner_inited);
 
 static depot_stack_handle_t dummy_handle;
@@ -38,6 +56,7 @@ static void init_early_allocated_pages(void);
 
 static int __init early_page_owner_param(char *buf)
 {
+<<<<<<< HEAD
 	if (!buf)
 		return -EINVAL;
 
@@ -45,20 +64,28 @@ static int __init early_page_owner_param(char *buf)
 		page_owner_disabled = false;
 
 	return 0;
+=======
+	return kstrtobool(buf, &page_owner_enabled);
+>>>>>>> upstream/android-13
 }
 early_param("page_owner", early_page_owner_param);
 
 static bool need_page_owner(void)
 {
+<<<<<<< HEAD
 	if (page_owner_disabled)
 		return false;
 
 	return true;
+=======
+	return page_owner_enabled;
+>>>>>>> upstream/android-13
 }
 
 static __always_inline depot_stack_handle_t create_dummy_stack(void)
 {
 	unsigned long entries[4];
+<<<<<<< HEAD
 	struct stack_trace dummy;
 
 	dummy.nr_entries = 0;
@@ -68,6 +95,12 @@ static __always_inline depot_stack_handle_t create_dummy_stack(void)
 
 	save_stack_trace(&dummy);
 	return depot_save_stack(&dummy, GFP_KERNEL);
+=======
+	unsigned int nr_entries;
+
+	nr_entries = stack_trace_save(entries, ARRAY_SIZE(entries), 0);
+	return stack_depot_save(entries, nr_entries, GFP_KERNEL);
+>>>>>>> upstream/android-13
 }
 
 static noinline void register_dummy_stack(void)
@@ -87,7 +120,11 @@ static noinline void register_early_stack(void)
 
 static void init_page_owner(void)
 {
+<<<<<<< HEAD
 	if (page_owner_disabled)
+=======
+	if (!page_owner_enabled)
+>>>>>>> upstream/android-13
 		return;
 
 	register_dummy_stack();
@@ -108,6 +145,7 @@ static inline struct page_owner *get_page_owner(struct page_ext *page_ext)
 	return (void *)page_ext + page_owner_ops.offset;
 }
 
+<<<<<<< HEAD
 void __reset_page_owner(struct page *page, unsigned int order)
 {
 	int i;
@@ -136,10 +174,31 @@ static inline bool check_recursive_alloc(struct stack_trace *trace,
 
 	return false;
 }
+=======
+depot_stack_handle_t get_page_owner_handle(struct page_ext *page_ext, unsigned long pfn)
+{
+	struct page_owner *page_owner;
+	depot_stack_handle_t handle;
+
+	if (!page_owner_enabled)
+		return 0;
+
+	page_owner = get_page_owner(page_ext);
+
+	/* skip handle for tail pages of higher order allocations */
+	if (!IS_ALIGNED(pfn, 1 << page_owner->order))
+		return 0;
+
+	handle = READ_ONCE(page_owner->handle);
+	return handle;
+}
+EXPORT_SYMBOL_NS_GPL(get_page_owner_handle, MINIDUMP);
+>>>>>>> upstream/android-13
 
 static noinline depot_stack_handle_t save_stack(gfp_t flags)
 {
 	unsigned long entries[PAGE_OWNER_STACK_DEPTH];
+<<<<<<< HEAD
 	struct stack_trace trace = {
 		.nr_entries = 0,
 		.entries = entries,
@@ -182,6 +241,74 @@ static inline void __set_page_owner_handle(struct page_ext *page_ext,
 	page_owner->last_migrate_reason = -1;
 
 	__set_bit(PAGE_EXT_OWNER, &page_ext->flags);
+=======
+	depot_stack_handle_t handle;
+	unsigned int nr_entries;
+
+	/*
+	 * Avoid recursion.
+	 *
+	 * Sometimes page metadata allocation tracking requires more
+	 * memory to be allocated:
+	 * - when new stack trace is saved to stack depot
+	 * - when backtrace itself is calculated (ia64)
+	 */
+	if (current->in_page_owner)
+		return dummy_handle;
+	current->in_page_owner = 1;
+
+	nr_entries = stack_trace_save(entries, ARRAY_SIZE(entries), 2);
+	handle = stack_depot_save(entries, nr_entries, flags);
+	if (!handle)
+		handle = failure_handle;
+
+	current->in_page_owner = 0;
+	return handle;
+}
+
+void __reset_page_owner(struct page *page, unsigned int order)
+{
+	int i;
+	struct page_ext *page_ext;
+	depot_stack_handle_t handle;
+	struct page_owner *page_owner;
+	u64 free_ts_nsec = local_clock();
+
+	page_ext = lookup_page_ext(page);
+	if (unlikely(!page_ext))
+		return;
+
+	handle = save_stack(GFP_NOWAIT | __GFP_NOWARN);
+	for (i = 0; i < (1 << order); i++) {
+		__clear_bit(PAGE_EXT_OWNER_ALLOCATED, &page_ext->flags);
+		page_owner = get_page_owner(page_ext);
+		page_owner->free_handle = handle;
+		page_owner->free_ts_nsec = free_ts_nsec;
+		page_ext = page_ext_next(page_ext);
+	}
+}
+
+static inline void __set_page_owner_handle(struct page_ext *page_ext,
+					depot_stack_handle_t handle,
+					unsigned int order, gfp_t gfp_mask)
+{
+	struct page_owner *page_owner;
+	int i;
+
+	for (i = 0; i < (1 << order); i++) {
+		page_owner = get_page_owner(page_ext);
+		page_owner->handle = handle;
+		page_owner->order = order;
+		page_owner->gfp_mask = gfp_mask;
+		page_owner->last_migrate_reason = -1;
+		page_owner->pid = current->pid;
+		page_owner->ts_nsec = local_clock();
+		__set_bit(PAGE_EXT_OWNER, &page_ext->flags);
+		__set_bit(PAGE_EXT_OWNER_ALLOCATED, &page_ext->flags);
+
+		page_ext = page_ext_next(page_ext);
+	}
+>>>>>>> upstream/android-13
 }
 
 noinline void __set_page_owner(struct page *page, unsigned int order,
@@ -209,7 +336,11 @@ void __set_page_owner_migrate_reason(struct page *page, int reason)
 	page_owner->last_migrate_reason = reason;
 }
 
+<<<<<<< HEAD
 void __split_page_owner(struct page *page, unsigned int order)
+=======
+void __split_page_owner(struct page *page, unsigned int nr)
+>>>>>>> upstream/android-13
 {
 	int i;
 	struct page_ext *page_ext = lookup_page_ext(page);
@@ -218,10 +349,18 @@ void __split_page_owner(struct page *page, unsigned int order)
 	if (unlikely(!page_ext))
 		return;
 
+<<<<<<< HEAD
 	page_owner = get_page_owner(page_ext);
 	page_owner->order = 0;
 	for (i = 1; i < (1 << order); i++)
 		__copy_page_owner(page, page + i);
+=======
+	for (i = 0; i < nr; i++) {
+		page_owner = get_page_owner(page_ext);
+		page_owner->order = 0;
+		page_ext = page_ext_next(page_ext);
+	}
+>>>>>>> upstream/android-13
 }
 
 void __copy_page_owner(struct page *oldpage, struct page *newpage)
@@ -240,17 +379,31 @@ void __copy_page_owner(struct page *oldpage, struct page *newpage)
 	new_page_owner->last_migrate_reason =
 		old_page_owner->last_migrate_reason;
 	new_page_owner->handle = old_page_owner->handle;
+<<<<<<< HEAD
+=======
+	new_page_owner->pid = old_page_owner->pid;
+	new_page_owner->ts_nsec = old_page_owner->ts_nsec;
+	new_page_owner->free_ts_nsec = old_page_owner->ts_nsec;
+>>>>>>> upstream/android-13
 
 	/*
 	 * We don't clear the bit on the oldpage as it's going to be freed
 	 * after migration. Until then, the info can be useful in case of
+<<<<<<< HEAD
 	 * a bug, and the overal stats will be off a bit only temporarily.
+=======
+	 * a bug, and the overall stats will be off a bit only temporarily.
+>>>>>>> upstream/android-13
 	 * Also, migrate_misplaced_transhuge_page() can still fail the
 	 * migration and then we want the oldpage to retain the info. But
 	 * in that case we also don't need to explicitly clear the info from
 	 * the new page, which will be freed.
 	 */
 	__set_bit(PAGE_EXT_OWNER, &new_ext->flags);
+<<<<<<< HEAD
+=======
+	__set_bit(PAGE_EXT_OWNER_ALLOCATED, &new_ext->flags);
+>>>>>>> upstream/android-13
 }
 
 void pagetypeinfo_showmixedcount_print(struct seq_file *m,
@@ -259,8 +412,13 @@ void pagetypeinfo_showmixedcount_print(struct seq_file *m,
 	struct page *page;
 	struct page_ext *page_ext;
 	struct page_owner *page_owner;
+<<<<<<< HEAD
 	unsigned long pfn = zone->zone_start_pfn, block_end_pfn;
 	unsigned long end_pfn = pfn + zone->spanned_pages;
+=======
+	unsigned long pfn, block_end_pfn;
+	unsigned long end_pfn = zone_end_pfn(zone);
+>>>>>>> upstream/android-13
 	unsigned long count[MIGRATE_TYPES] = { 0, };
 	int pageblock_mt, page_mt;
 	int i;
@@ -286,9 +444,12 @@ void pagetypeinfo_showmixedcount_print(struct seq_file *m,
 		pageblock_mt = get_pageblock_migratetype(page);
 
 		for (; pfn < block_end_pfn; pfn++) {
+<<<<<<< HEAD
 			if (!pfn_valid_within(pfn))
 				continue;
 
+=======
+>>>>>>> upstream/android-13
 			/* The pageblock is online, no need to recheck. */
 			page = pfn_to_page(pfn);
 
@@ -298,7 +459,11 @@ void pagetypeinfo_showmixedcount_print(struct seq_file *m,
 			if (PageBuddy(page)) {
 				unsigned long freepage_order;
 
+<<<<<<< HEAD
 				freepage_order = page_order_unsafe(page);
+=======
+				freepage_order = buddy_order_unsafe(page);
+>>>>>>> upstream/android-13
 				if (freepage_order < MAX_ORDER)
 					pfn += (1UL << freepage_order) - 1;
 				continue;
@@ -311,12 +476,20 @@ void pagetypeinfo_showmixedcount_print(struct seq_file *m,
 			if (unlikely(!page_ext))
 				continue;
 
+<<<<<<< HEAD
 			if (!test_bit(PAGE_EXT_OWNER, &page_ext->flags))
 				continue;
 
 			page_owner = get_page_owner(page_ext);
 			page_mt = gfpflags_to_migratetype(
 					page_owner->gfp_mask);
+=======
+			if (!test_bit(PAGE_EXT_OWNER_ALLOCATED, &page_ext->flags))
+				continue;
+
+			page_owner = get_page_owner(page_ext);
+			page_mt = gfp_migratetype(page_owner->gfp_mask);
+>>>>>>> upstream/android-13
 			if (pageblock_mt != page_mt) {
 				if (is_migrate_cma(pageblock_mt))
 					count[MIGRATE_MOVABLE]++;
@@ -342,6 +515,7 @@ print_page_owner(char __user *buf, size_t count, unsigned long pfn,
 		struct page *page, struct page_owner *page_owner,
 		depot_stack_handle_t handle)
 {
+<<<<<<< HEAD
 	int ret;
 	int pageblock_mt, page_mt;
 	char *kbuf;
@@ -352,6 +526,12 @@ print_page_owner(char __user *buf, size_t count, unsigned long pfn,
 		.max_entries = PAGE_OWNER_STACK_DEPTH,
 		.skip = 0
 	};
+=======
+	int ret, pageblock_mt, page_mt;
+	unsigned long *entries;
+	unsigned int nr_entries;
+	char *kbuf;
+>>>>>>> upstream/android-13
 
 	count = min_t(size_t, count, PAGE_SIZE);
 	kbuf = kmalloc(count, GFP_KERNEL);
@@ -359,16 +539,27 @@ print_page_owner(char __user *buf, size_t count, unsigned long pfn,
 		return -ENOMEM;
 
 	ret = snprintf(kbuf, count,
+<<<<<<< HEAD
 			"Page allocated via order %u, mask %#x(%pGg)\n",
 			page_owner->order, page_owner->gfp_mask,
 			&page_owner->gfp_mask);
+=======
+			"Page allocated via order %u, mask %#x(%pGg), pid %d, ts %llu ns, free_ts %llu ns\n",
+			page_owner->order, page_owner->gfp_mask,
+			&page_owner->gfp_mask, page_owner->pid,
+			page_owner->ts_nsec, page_owner->free_ts_nsec);
+>>>>>>> upstream/android-13
 
 	if (ret >= count)
 		goto err;
 
 	/* Print information relevant to grouping pages by mobility */
 	pageblock_mt = get_pageblock_migratetype(page);
+<<<<<<< HEAD
 	page_mt  = gfpflags_to_migratetype(page_owner->gfp_mask);
+=======
+	page_mt  = gfp_migratetype(page_owner->gfp_mask);
+>>>>>>> upstream/android-13
 	ret += snprintf(kbuf + ret, count - ret,
 			"PFN %lu type %s Block %lu type %s Flags %#lx(%pGp)\n",
 			pfn,
@@ -380,8 +571,13 @@ print_page_owner(char __user *buf, size_t count, unsigned long pfn,
 	if (ret >= count)
 		goto err;
 
+<<<<<<< HEAD
 	depot_fetch_stack(handle, &trace);
 	ret += snprint_stack_trace(kbuf + ret, count - ret, &trace, 0);
+=======
+	nr_entries = stack_depot_fetch(handle, &entries);
+	ret += stack_trace_snprint(kbuf + ret, count - ret, entries, nr_entries, 0);
+>>>>>>> upstream/android-13
 	if (ret >= count)
 		goto err;
 
@@ -408,6 +604,7 @@ err:
 	return -ENOMEM;
 }
 
+<<<<<<< HEAD
 void __dump_page_owner(struct page *page)
 {
 	struct page_ext *page_ext = lookup_page_ext(page);
@@ -420,6 +617,15 @@ void __dump_page_owner(struct page *page)
 		.skip = 0
 	};
 	depot_stack_handle_t handle;
+=======
+void __dump_page_owner(const struct page *page)
+{
+	struct page_ext *page_ext = lookup_page_ext(page);
+	struct page_owner *page_owner;
+	depot_stack_handle_t handle;
+	unsigned long *entries;
+	unsigned int nr_entries;
+>>>>>>> upstream/android-13
 	gfp_t gfp_mask;
 	int mt;
 
@@ -430,6 +636,7 @@ void __dump_page_owner(struct page *page)
 
 	page_owner = get_page_owner(page_ext);
 	gfp_mask = page_owner->gfp_mask;
+<<<<<<< HEAD
 	mt = gfpflags_to_migratetype(gfp_mask);
 
 	if (!test_bit(PAGE_EXT_OWNER, &page_ext->flags)) {
@@ -447,6 +654,40 @@ void __dump_page_owner(struct page *page)
 	pr_alert("page allocated via order %u, migratetype %s, gfp_mask %#x(%pGg)\n",
 		 page_owner->order, migratetype_names[mt], gfp_mask, &gfp_mask);
 	print_stack_trace(&trace, 0);
+=======
+	mt = gfp_migratetype(gfp_mask);
+
+	if (!test_bit(PAGE_EXT_OWNER, &page_ext->flags)) {
+		pr_alert("page_owner info is not present (never set?)\n");
+		return;
+	}
+
+	if (test_bit(PAGE_EXT_OWNER_ALLOCATED, &page_ext->flags))
+		pr_alert("page_owner tracks the page as allocated\n");
+	else
+		pr_alert("page_owner tracks the page as freed\n");
+
+	pr_alert("page last allocated via order %u, migratetype %s, gfp_mask %#x(%pGg), pid %d, ts %llu, free_ts %llu\n",
+		 page_owner->order, migratetype_names[mt], gfp_mask, &gfp_mask,
+		 page_owner->pid, page_owner->ts_nsec, page_owner->free_ts_nsec);
+
+	handle = READ_ONCE(page_owner->handle);
+	if (!handle) {
+		pr_alert("page_owner allocation stack trace missing\n");
+	} else {
+		nr_entries = stack_depot_fetch(handle, &entries);
+		stack_trace_print(entries, nr_entries, 0);
+	}
+
+	handle = READ_ONCE(page_owner->free_handle);
+	if (!handle) {
+		pr_alert("page_owner free stack trace missing\n");
+	} else {
+		nr_entries = stack_depot_fetch(handle, &entries);
+		pr_alert("page last free stack trace:\n");
+		stack_trace_print(entries, nr_entries, 0);
+	}
+>>>>>>> upstream/android-13
 
 	if (page_owner->last_migrate_reason != -1)
 		pr_alert("page has been migrated, last migrate reason: %s\n",
@@ -485,6 +726,7 @@ read_page_owner(struct file *file, char __user *buf, size_t count, loff_t *ppos)
 			continue;
 		}
 
+<<<<<<< HEAD
 		/* Check for holes within a MAX_ORDER area */
 		if (!pfn_valid_within(pfn))
 			continue;
@@ -492,6 +734,11 @@ read_page_owner(struct file *file, char __user *buf, size_t count, loff_t *ppos)
 		page = pfn_to_page(pfn);
 		if (PageBuddy(page)) {
 			unsigned long freepage_order = page_order_unsafe(page);
+=======
+		page = pfn_to_page(pfn);
+		if (PageBuddy(page)) {
+			unsigned long freepage_order = buddy_order_unsafe(page);
+>>>>>>> upstream/android-13
 
 			if (freepage_order < MAX_ORDER)
 				pfn += (1UL << freepage_order) - 1;
@@ -509,9 +756,29 @@ read_page_owner(struct file *file, char __user *buf, size_t count, loff_t *ppos)
 		if (!test_bit(PAGE_EXT_OWNER, &page_ext->flags))
 			continue;
 
+<<<<<<< HEAD
 		page_owner = get_page_owner(page_ext);
 
 		/*
+=======
+		/*
+		 * Although we do have the info about past allocation of free
+		 * pages, it's not relevant for current memory usage.
+		 */
+		if (!test_bit(PAGE_EXT_OWNER_ALLOCATED, &page_ext->flags))
+			continue;
+
+		page_owner = get_page_owner(page_ext);
+
+		/*
+		 * Don't print "tail" pages of high-order allocations as that
+		 * would inflate the stats.
+		 */
+		if (!IS_ALIGNED(pfn, 1 << page_owner->order))
+			continue;
+
+		/*
+>>>>>>> upstream/android-13
 		 * Access to page_ext->handle isn't synchronous so we should
 		 * be careful to access it.
 		 */
@@ -552,6 +819,7 @@ static void init_pages_in_zone(pg_data_t *pgdat, struct zone *zone)
 		block_end_pfn = min(block_end_pfn, end_pfn);
 
 		for (; pfn < block_end_pfn; pfn++) {
+<<<<<<< HEAD
 			struct page *page;
 			struct page_ext *page_ext;
 
@@ -560,6 +828,11 @@ static void init_pages_in_zone(pg_data_t *pgdat, struct zone *zone)
 
 			page = pfn_to_page(pfn);
 
+=======
+			struct page *page = pfn_to_page(pfn);
+			struct page_ext *page_ext;
+
+>>>>>>> upstream/android-13
 			if (page_zone(page) != zone)
 				continue;
 
@@ -571,7 +844,11 @@ static void init_pages_in_zone(pg_data_t *pgdat, struct zone *zone)
 			 * heavy lock contention.
 			 */
 			if (PageBuddy(page)) {
+<<<<<<< HEAD
 				unsigned long order = page_order_unsafe(page);
+=======
+				unsigned long order = buddy_order_unsafe(page);
+>>>>>>> upstream/android-13
 
 				if (order > 0 && order < MAX_ORDER)
 					pfn += (1UL << order) - 1;
@@ -590,7 +867,12 @@ static void init_pages_in_zone(pg_data_t *pgdat, struct zone *zone)
 				continue;
 
 			/* Found early allocated page */
+<<<<<<< HEAD
 			__set_page_owner_handle(page_ext, early_handle, 0, 0);
+=======
+			__set_page_owner_handle(page_ext, early_handle,
+						0, 0);
+>>>>>>> upstream/android-13
 			count++;
 		}
 		cond_resched();
@@ -627,13 +909,17 @@ static const struct file_operations proc_page_owner_operations = {
 
 static int __init pageowner_init(void)
 {
+<<<<<<< HEAD
 	struct dentry *dentry;
 
+=======
+>>>>>>> upstream/android-13
 	if (!static_branch_unlikely(&page_owner_inited)) {
 		pr_info("page_owner is disabled\n");
 		return 0;
 	}
 
+<<<<<<< HEAD
 	dentry = debugfs_create_file("page_owner", 0400, NULL,
 				     NULL, &proc_page_owner_operations);
 
@@ -729,3 +1015,11 @@ ssize_t print_max_page_owner(void)
 
 	return 0;
 }
+=======
+	debugfs_create_file("page_owner", 0400, NULL, NULL,
+			    &proc_page_owner_operations);
+
+	return 0;
+}
+late_initcall(pageowner_init)
+>>>>>>> upstream/android-13

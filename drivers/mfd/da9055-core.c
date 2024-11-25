@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Device access for Dialog DA9055 PMICs.
  *
  * Copyright(c) 2012 Dialog Semiconductor Ltd.
  *
  * Author: David Dajun Chen <dchen@diasemi.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute  it and/or modify it
  *  under  the terms of  the GNU General  Public License as published by the
  *  Free Software Foundation;  either version 2 of the  License, or (at your
  *  option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -258,6 +265,7 @@ const struct regmap_config da9055_regmap_config = {
 };
 EXPORT_SYMBOL_GPL(da9055_regmap_config);
 
+<<<<<<< HEAD
 static struct resource da9055_onkey_resource = {
 	.name = "ONKEY",
 	.start = DA9055_IRQ_NONKEY,
@@ -293,6 +301,21 @@ static struct resource da9055_ld05_6_resource = {
 	.end   = DA9055_IRQ_REGULATOR,
 	.flags = IORESOURCE_IRQ,
 };
+=======
+static const struct resource da9055_onkey_resource =
+	DEFINE_RES_IRQ_NAMED(DA9055_IRQ_NONKEY, "ONKEY");
+
+static const struct resource da9055_rtc_resource[] = {
+	DEFINE_RES_IRQ_NAMED(DA9055_IRQ_ALARM, "ALM"),
+	DEFINE_RES_IRQ_NAMED(DA9055_IRQ_TICK, "TICK"),
+};
+
+static const struct resource da9055_hwmon_resource =
+	DEFINE_RES_IRQ_NAMED(DA9055_IRQ_HWMON, "HWMON");
+
+static const struct resource da9055_ld05_6_resource =
+	DEFINE_RES_IRQ_NAMED(DA9055_IRQ_REGULATOR, "REGULATOR");
+>>>>>>> upstream/android-13
 
 static const struct mfd_cell da9055_devs[] = {
 	{

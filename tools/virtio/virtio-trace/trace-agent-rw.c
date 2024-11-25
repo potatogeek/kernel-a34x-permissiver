@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Read/write thread of a guest agent for virtio-trace
  *
  * Copyright (C) 2012 Hitachi, Ltd.
  * Created by Yoshihiro Yunomae <yoshihiro.yunomae.ez@hitachi.com>
  *            Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
+<<<<<<< HEAD
  *
  * Licensed under GPL version 2 only.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define _GNU_SOURCE

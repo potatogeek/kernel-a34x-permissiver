@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Rockchip PDM ALSA SoC Digital Audio Interface(DAI)  driver
  *
  * Copyright (C) 2017 Fuzhou Rockchip Electronics Co., Ltd
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -12,6 +17,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ROCKCHIP_PDM_H
@@ -42,6 +49,12 @@
 
 /* PDM CTRL0 */
 #define PDM_PATH_MSK		(0xf << 27)
+<<<<<<< HEAD
+=======
+#define PDM_MODE_MSK		BIT(31)
+#define PDM_MODE_RJ		0
+#define PDM_MODE_LJ		BIT(31)
+>>>>>>> upstream/android-13
 #define PDM_PATH3_EN		BIT(30)
 #define PDM_PATH2_EN		BIT(29)
 #define PDM_PATH1_EN		BIT(28)
@@ -50,7 +63,20 @@
 #define PDM_VDW_MSK		(0x1f << 0)
 #define PDM_VDW(X)		((X - 1) << 0)
 
+<<<<<<< HEAD
 /* PDM CLK CTRL */
+=======
+/* PDM CTRL1 */
+#define PDM_FD_NUMERATOR_SFT	16
+#define PDM_FD_NUMERATOR_MSK	GENMASK(31, 16)
+#define PDM_FD_DENOMINATOR_SFT	0
+#define PDM_FD_DENOMINATOR_MSK	GENMASK(15, 0)
+
+/* PDM CLK CTRL */
+#define PDM_CLK_FD_RATIO_MSK	BIT(6)
+#define PDM_CLK_FD_RATIO_40	(0X0 << 6)
+#define PDM_CLK_FD_RATIO_35	BIT(6)
+>>>>>>> upstream/android-13
 #define PDM_CLK_MSK		BIT(5)
 #define PDM_CLK_EN		BIT(5)
 #define PDM_CLK_DIS		(0x0 << 5)

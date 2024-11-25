@@ -5,6 +5,10 @@
  */
 
 #include <dt-bindings/gpio/gpio.h>
+<<<<<<< HEAD
+=======
+#include <dt-bindings/regulator/dlg,da9063-regulator.h>
+>>>>>>> upstream/android-13
 
 / {
 	aliases {
@@ -83,11 +87,20 @@
 	status = "okay";
 
 	eeprom@50 {
+<<<<<<< HEAD
 		compatible = "atmel,24c32";
 		reg = <0x50>;
 	};
 
 	pmic@58 {
+=======
+		compatible = "st,24c32", "atmel,24c32";
+		pagesize = <32>;
+		reg = <0x50>;
+	};
+
+	pmic: pmic@58 {
+>>>>>>> upstream/android-13
 		compatible = "dlg,da9062";
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_pmic>;
@@ -95,13 +108,28 @@
 		interrupt-parent = <&gpio1>;
 		interrupts = <2 IRQ_TYPE_LEVEL_LOW>;
 		interrupt-controller;
+<<<<<<< HEAD
+=======
+		gpio-controller;
+		#gpio-cells = <2>;
+>>>>>>> upstream/android-13
 
 		da9062_rtc: rtc {
 			compatible = "dlg,da9062-rtc";
 		};
 
+<<<<<<< HEAD
 		watchdog {
 			compatible = "dlg,da9062-watchdog";
+=======
+		da9062_onkey: onkey {
+			compatible = "dlg,da9062-onkey";
+		};
+
+		watchdog {
+			compatible = "dlg,da9062-watchdog";
+			dlg,use-sw-pm;
+>>>>>>> upstream/android-13
 		};
 
 		regulators {
@@ -109,6 +137,10 @@
 				regulator-name = "vdd_arm";
 				regulator-min-microvolt = <925000>;
 				regulator-max-microvolt = <1380000>;
+<<<<<<< HEAD
+=======
+				regulator-initial-mode = <DA9063_BUCK_MODE_SYNC>;
+>>>>>>> upstream/android-13
 				regulator-always-on;
 			};
 
@@ -116,6 +148,10 @@
 				regulator-name = "vdd_soc";
 				regulator-min-microvolt = <1150000>;
 				regulator-max-microvolt = <1380000>;
+<<<<<<< HEAD
+=======
+				regulator-initial-mode = <DA9063_BUCK_MODE_SYNC>;
+>>>>>>> upstream/android-13
 				regulator-always-on;
 			};
 
@@ -123,6 +159,10 @@
 				regulator-name = "vdd_ddr3";
 				regulator-min-microvolt = <1500000>;
 				regulator-max-microvolt = <1500000>;
+<<<<<<< HEAD
+=======
+				regulator-initial-mode = <DA9063_BUCK_MODE_SYNC>;
+>>>>>>> upstream/android-13
 				regulator-always-on;
 			};
 
@@ -130,6 +170,10 @@
 				regulator-name = "vdd_eth";
 				regulator-min-microvolt = <1200000>;
 				regulator-max-microvolt = <1200000>;
+<<<<<<< HEAD
+=======
+				regulator-initial-mode = <DA9063_BUCK_MODE_SYNC>;
+>>>>>>> upstream/android-13
 				regulator-always-on;
 			};
 

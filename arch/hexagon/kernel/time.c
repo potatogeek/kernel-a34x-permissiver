@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Time related functions for Hexagon architecture
  *
  * Copyright (c) 2010-2011, The Linux Foundation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -16,6 +21,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -30,9 +37,16 @@
 #include <linux/of_irq.h>
 #include <linux/module.h>
 
+<<<<<<< HEAD
 #include <asm/timer-regs.h>
 #include <asm/hexagon_vm.h>
 
+=======
+#include <asm/hexagon_vm.h>
+
+#define TIMER_ENABLE		BIT(0)
+
+>>>>>>> upstream/android-13
 /*
  * For the clocksource we need:
  *	pcycle frequency (600MHz)
@@ -46,6 +60,16 @@ cycles_t	pcycle_freq_mhz;
 cycles_t	thread_freq_mhz;
 cycles_t	sleep_clk_freq;
 
+<<<<<<< HEAD
+=======
+/*
+ * 8x50 HDD Specs 5-8.  Simulator co-sim not fixed until
+ * release 1.1, and then it's "adjustable" and probably not defaulted.
+ */
+#define RTOS_TIMER_INT		3
+#define RTOS_TIMER_REGS_ADDR	0xAB000000UL
+
+>>>>>>> upstream/android-13
 static struct resource rtos_timer_resources[] = {
 	{
 		.start	= RTOS_TIMER_REGS_ADDR,
@@ -93,7 +117,11 @@ static int set_next_event(unsigned long delta, struct clock_event_device *evt)
 	iowrite32(0, &rtos_timer->clear);
 
 	iowrite32(delta, &rtos_timer->match);
+<<<<<<< HEAD
 	iowrite32(1 << TIMER_ENABLE, &rtos_timer->enable);
+=======
+	iowrite32(TIMER_ENABLE, &rtos_timer->enable);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -156,6 +184,7 @@ static irqreturn_t timer_interrupt(int irq, void *devid)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 /*  This should also be pulled from devtree  */
 static struct irqaction rtos_timer_intdesc = {
 	.handler = timer_interrupt,
@@ -163,6 +192,8 @@ static struct irqaction rtos_timer_intdesc = {
 	.name = "rtos_timer"
 };
 
+=======
+>>>>>>> upstream/android-13
 /*
  * time_init_deferred - called by start_kernel to set up timer/clock source
  *
@@ -176,6 +207,10 @@ void __init time_init_deferred(void)
 {
 	struct resource *resource = NULL;
 	struct clock_event_device *ce_dev = &hexagon_clockevent_dev;
+<<<<<<< HEAD
+=======
+	unsigned long flag = IRQF_TIMER | IRQF_TRIGGER_RISING;
+>>>>>>> upstream/android-13
 
 	ce_dev->cpumask = cpu_all_mask;
 
@@ -208,7 +243,12 @@ void __init time_init_deferred(void)
 #endif
 
 	clockevents_register_device(ce_dev);
+<<<<<<< HEAD
 	setup_irq(ce_dev->irq, &rtos_timer_intdesc);
+=======
+	if (request_irq(ce_dev->irq, timer_interrupt, flag, "rtos_timer", NULL))
+		pr_err("Failed to register rtos_timer interrupt\n");
+>>>>>>> upstream/android-13
 }
 
 void __init time_init(void)

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2015, 2016 Intel Corporation.
  *
@@ -43,6 +44,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause
+/*
+ * Copyright(c) 2015, 2016 Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/pci.h>
@@ -91,9 +97,15 @@ static void add_full_mgmt_pkey(struct hfi1_pportdata *ppd)
 
 /**
  * format_hwmsg - format a single hwerror message
+<<<<<<< HEAD
  * @msg message buffer
  * @msgl length of message buffer
  * @hwmsg message to add to message buffer
+=======
+ * @msg: message buffer
+ * @msgl: length of message buffer
+ * @hwmsg: message to add to message buffer
+>>>>>>> upstream/android-13
  */
 static void format_hwmsg(char *msg, size_t msgl, const char *hwmsg)
 {
@@ -104,11 +116,19 @@ static void format_hwmsg(char *msg, size_t msgl, const char *hwmsg)
 
 /**
  * hfi1_format_hwerrors - format hardware error messages for display
+<<<<<<< HEAD
  * @hwerrs hardware errors bit vector
  * @hwerrmsgs hardware error descriptions
  * @nhwerrmsgs number of hwerrmsgs
  * @msg message buffer
  * @msgl message buffer length
+=======
+ * @hwerrs: hardware errors bit vector
+ * @hwerrmsgs: hardware error descriptions
+ * @nhwerrmsgs: number of hwerrmsgs
+ * @msg: message buffer
+ * @msgl: message buffer length
+>>>>>>> upstream/android-13
  */
 void hfi1_format_hwerrors(u64 hwerrs, const struct hfi1_hwerror_msgs *hwerrmsgs,
 			  size_t nhwerrmsgs, char *msg, size_t msgl)

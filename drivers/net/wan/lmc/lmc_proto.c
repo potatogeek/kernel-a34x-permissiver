@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
  /*
   * Copyright (c) 1997-2000 LAN Media Corporation (LMC)
   * All rights reserved.  www.lanmedia.com
@@ -13,9 +17,12 @@
   * Ron Crane
   * Allan Cox
   *
+<<<<<<< HEAD
   * This software may be used and distributed according to the terms
   * of the GNU General Public License version 2, incorporated herein by reference.
   *
+=======
+>>>>>>> upstream/android-13
   * Driver for the LanMedia LMC5200, LMC5245, LMC1000, LMC1200 cards.
   */
 
@@ -49,7 +56,10 @@
 // attach
 void lmc_proto_attach(lmc_softc_t *sc) /*FOLD00*/
 {
+<<<<<<< HEAD
     lmc_trace(sc->lmc_device, "lmc_proto_attach in");
+=======
+>>>>>>> upstream/android-13
     if (sc->if_type == LMC_NET) {
             struct net_device *dev = sc->lmc_device;
             /*
@@ -59,6 +69,7 @@ void lmc_proto_attach(lmc_softc_t *sc) /*FOLD00*/
             dev->hard_header_len = 0;
             dev->addr_len = 0;
         }
+<<<<<<< HEAD
     lmc_trace(sc->lmc_device, "lmc_proto_attach out");
 }
 
@@ -68,37 +79,51 @@ int lmc_proto_ioctl(lmc_softc_t *sc, struct ifreq *ifr, int cmd)
 	if (sc->if_type == LMC_PPP)
 		return hdlc_ioctl(sc->lmc_device, ifr, cmd);
 	return -EOPNOTSUPP;
+=======
+>>>>>>> upstream/android-13
 }
 
 int lmc_proto_open(lmc_softc_t *sc)
 {
 	int ret = 0;
 
+<<<<<<< HEAD
 	lmc_trace(sc->lmc_device, "lmc_proto_open in");
 
+=======
+>>>>>>> upstream/android-13
 	if (sc->if_type == LMC_PPP) {
 		ret = hdlc_open(sc->lmc_device);
 		if (ret < 0)
 			printk(KERN_WARNING "%s: HDLC open failed: %d\n",
 			       sc->name, ret);
 	}
+<<<<<<< HEAD
 
 	lmc_trace(sc->lmc_device, "lmc_proto_open out");
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 void lmc_proto_close(lmc_softc_t *sc)
 {
+<<<<<<< HEAD
 	lmc_trace(sc->lmc_device, "lmc_proto_close in");
 
 	if (sc->if_type == LMC_PPP)
 		hdlc_close(sc->lmc_device);
 
 	lmc_trace(sc->lmc_device, "lmc_proto_close out");
+=======
+	if (sc->if_type == LMC_PPP)
+		hdlc_close(sc->lmc_device);
+>>>>>>> upstream/android-13
 }
 
 __be16 lmc_proto_type(lmc_softc_t *sc, struct sk_buff *skb) /*FOLD00*/
 {
+<<<<<<< HEAD
     lmc_trace(sc->lmc_device, "lmc_proto_type in");
     switch(sc->if_type){
     case LMC_PPP:
@@ -117,11 +142,27 @@ __be16 lmc_proto_type(lmc_softc_t *sc, struct sk_buff *skb) /*FOLD00*/
     }
     lmc_trace(sc->lmc_device, "lmc_proto_tye out");
 
+=======
+    switch(sc->if_type){
+    case LMC_PPP:
+	    return hdlc_type_trans(skb, sc->lmc_device);
+    case LMC_NET:
+        return htons(ETH_P_802_2);
+    case LMC_RAW: /* Packet type for skbuff kind of useless */
+        return htons(ETH_P_802_2);
+    default:
+        printk(KERN_WARNING "%s: No protocol set for this interface, assuming 802.2 (which is wrong!!)\n", sc->name);
+        return htons(ETH_P_802_2);
+    }
+>>>>>>> upstream/android-13
 }
 
 void lmc_proto_netif(lmc_softc_t *sc, struct sk_buff *skb) /*FOLD00*/
 {
+<<<<<<< HEAD
     lmc_trace(sc->lmc_device, "lmc_proto_netif in");
+=======
+>>>>>>> upstream/android-13
     switch(sc->if_type){
     case LMC_PPP:
     case LMC_NET:
@@ -131,5 +172,8 @@ void lmc_proto_netif(lmc_softc_t *sc, struct sk_buff *skb) /*FOLD00*/
     case LMC_RAW:
         break;
     }
+<<<<<<< HEAD
     lmc_trace(sc->lmc_device, "lmc_proto_netif out");
+=======
+>>>>>>> upstream/android-13
 }

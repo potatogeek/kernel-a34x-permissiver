@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) International Business Machines Corp., 2006
  *
@@ -15,6 +16,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) International Business Machines Corp., 2006
+ *
+>>>>>>> upstream/android-13
  * Author: Artem Bityutskiy (Битюцкий Артём)
  */
 
@@ -463,7 +470,11 @@ EXPORT_SYMBOL_GPL(ubi_leb_read);
  * ubi_leb_read_sg - read data into a scatter gather list.
  * @desc: volume descriptor
  * @lnum: logical eraseblock number to read from
+<<<<<<< HEAD
  * @buf: buffer where to store the read data
+=======
+ * @sgl: UBI scatter gather list to store the read data
+>>>>>>> upstream/android-13
  * @offset: offset within the logical eraseblock to read from
  * @len: how many bytes to read
  * @check: whether UBI has to check the read data's CRC or not.

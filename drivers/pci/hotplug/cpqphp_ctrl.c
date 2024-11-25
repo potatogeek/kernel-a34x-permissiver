@@ -1130,9 +1130,13 @@ static u8 set_controller_speed(struct controller *ctrl, u8 adapter_speed, u8 hp_
 	for (slot = ctrl->slot; slot; slot = slot->next) {
 		if (slot->device == (hp_slot + ctrl->slot_device_offset))
 			continue;
+<<<<<<< HEAD
 		if (!slot->hotplug_slot || !slot->hotplug_slot->info)
 			continue;
 		if (slot->hotplug_slot->info->adapter_status == 0)
+=======
+		if (get_presence_status(ctrl, slot) == 0)
+>>>>>>> upstream/android-13
 			continue;
 		/* If another adapter is running on the same segment but at a
 		 * lower speed/mode, we allow the new adapter to function at
@@ -1767,6 +1771,7 @@ void cpqhp_event_stop_thread(void)
 }
 
 
+<<<<<<< HEAD
 static int update_slot_info(struct controller *ctrl, struct slot *slot)
 {
 	struct hotplug_slot_info *info;
@@ -1785,6 +1790,8 @@ static int update_slot_info(struct controller *ctrl, struct slot *slot)
 	return result;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void interrupt_event_handler(struct controller *ctrl)
 {
 	int loop = 0;
@@ -1884,9 +1891,12 @@ static void interrupt_event_handler(struct controller *ctrl)
 				/***********POWER FAULT */
 				else if (ctrl->event_queue[loop].event_type == INT_POWER_FAULT) {
 					dbg("power fault\n");
+<<<<<<< HEAD
 				} else {
 					/* refresh notification */
 					update_slot_info(ctrl, p_slot);
+=======
+>>>>>>> upstream/android-13
 				}
 
 				ctrl->event_queue[loop].event_type = 0;
@@ -1895,14 +1905,21 @@ static void interrupt_event_handler(struct controller *ctrl)
 			}
 		}		/* End of FOR loop */
 	}
+<<<<<<< HEAD
 
 	return;
+=======
+>>>>>>> upstream/android-13
 }
 
 
 /**
  * cpqhp_pushbutton_thread - handle pushbutton events
+<<<<<<< HEAD
  * @slot: target slot (struct)
+=======
+ * @t: pointer to struct timer_list which holds all timer-related callbacks
+>>>>>>> upstream/android-13
  *
  * Scheduled procedure to handle blocking stuff for the pushbuttons.
  * Handles all pending events and exits.
@@ -1966,8 +1983,11 @@ void cpqhp_pushbutton_thread(struct timer_list *t)
 
 		p_slot->state = STATIC_STATE;
 	}
+<<<<<<< HEAD
 
 	return;
+=======
+>>>>>>> upstream/android-13
 }
 
 
@@ -2057,9 +2077,12 @@ int cpqhp_process_SI(struct controller *ctrl, struct pci_func *func)
 	if (rc)
 		dbg("%s: rc = %d\n", __func__, rc);
 
+<<<<<<< HEAD
 	if (p_slot)
 		update_slot_info(ctrl, p_slot);
 
+=======
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -2125,9 +2148,12 @@ int cpqhp_process_SS(struct controller *ctrl, struct pci_func *func)
 		rc = 1;
 	}
 
+<<<<<<< HEAD
 	if (p_slot)
 		update_slot_info(ctrl, p_slot);
 
+=======
+>>>>>>> upstream/android-13
 	return rc;
 }
 

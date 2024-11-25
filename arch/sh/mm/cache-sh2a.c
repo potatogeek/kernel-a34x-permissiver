@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * arch/sh/mm/cache-sh2a.c
  *
  * Copyright (C) 2008 Yoshinori Sato
+<<<<<<< HEAD
  *
  * Released under the terms of the GNU GPL v2.0.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>

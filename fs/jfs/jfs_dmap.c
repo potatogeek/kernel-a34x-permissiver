@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *   Copyright (C) International Business Machines Corp., 2000-2004
  *   Portions Copyright (C) Tino Reichardt, 2012
@@ -15,6 +16,12 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program;  if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *   Copyright (C) International Business Machines Corp., 2000-2004
+ *   Portions Copyright (C) Tino Reichardt, 2012
+>>>>>>> upstream/android-13
  */
 
 #include <linux/fs.h>
@@ -161,6 +168,10 @@ static const s8 budtab[256] = {
  *	0	- success
  *	-ENOMEM	- insufficient memory
  *	-EIO	- i/o error
+<<<<<<< HEAD
+=======
+ *	-EINVAL - wrong bmap data
+>>>>>>> upstream/android-13
  */
 int dbMount(struct inode *ipbmap)
 {
@@ -192,6 +203,15 @@ int dbMount(struct inode *ipbmap)
 	bmp->db_nfree = le64_to_cpu(dbmp_le->dn_nfree);
 	bmp->db_l2nbperpage = le32_to_cpu(dbmp_le->dn_l2nbperpage);
 	bmp->db_numag = le32_to_cpu(dbmp_le->dn_numag);
+<<<<<<< HEAD
+=======
+	if (!bmp->db_numag) {
+		release_metapage(mp);
+		kfree(bmp);
+		return -EINVAL;
+	}
+
+>>>>>>> upstream/android-13
 	bmp->db_maxlevel = le32_to_cpu(dbmp_le->dn_maxlevel);
 	bmp->db_maxag = le32_to_cpu(dbmp_le->dn_maxag);
 	bmp->db_agpref = le32_to_cpu(dbmp_le->dn_agpref);
@@ -681,7 +701,11 @@ unlock:
  *		this does not succeed, we finally try to allocate anywhere
  *		within the aggregate.
  *
+<<<<<<< HEAD
  *		we also try to allocate anywhere within the aggregate for
+=======
+ *		we also try to allocate anywhere within the aggregate
+>>>>>>> upstream/android-13
  *		for allocation requests larger than the allocation group
  *		size or requests that specify no hint value.
  *
@@ -2562,15 +2586,29 @@ dbAdjCtl(struct bmap * bmp, s64 blkno, int newval, int alloc, int level)
 		 */
 		if (oldval == NOFREE) {
 			rc = dbBackSplit((dmtree_t *) dcp, leafno);
+<<<<<<< HEAD
 			if (rc)
 				return rc;
+=======
+			if (rc) {
+				release_metapage(mp);
+				return rc;
+			}
+>>>>>>> upstream/android-13
 			oldval = dcp->stree[ti];
 		}
 		dbSplit((dmtree_t *) dcp, leafno, dcp->budmin, newval);
 	} else {
 		rc = dbJoin((dmtree_t *) dcp, leafno, newval);
+<<<<<<< HEAD
 		if (rc)
 			return rc;
+=======
+		if (rc) {
+			release_metapage(mp);
+			return rc;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	/* check if the root of the current dmap control page changed due
@@ -3669,7 +3707,11 @@ void dbFinalizeBmap(struct inode *ipbmap)
 	 * (the leftmost ag with average free space in it);
 	 */
 //agpref:
+<<<<<<< HEAD
 	/* get the number of active ags and inacitve ags */
+=======
+	/* get the number of active ags and inactive ags */
+>>>>>>> upstream/android-13
 	actags = bmp->db_maxag + 1;
 	inactags = bmp->db_numag - actags;
 	ag_rem = bmp->db_mapsize & (bmp->db_agsize - 1);	/* ??? */
@@ -4040,7 +4082,10 @@ static int dbGetL2AGSize(s64 nblocks)
  */
 #define MAXL0PAGES	(1 + LPERCTL)
 #define MAXL1PAGES	(1 + LPERCTL * MAXL0PAGES)
+<<<<<<< HEAD
 #define MAXL2PAGES	(1 + LPERCTL * MAXL1PAGES)
+=======
+>>>>>>> upstream/android-13
 
 /*
  * convert number of map pages to the zero origin top dmapctl level

@@ -153,7 +153,11 @@ static struct vmlogrdr_priv_t sys_ser[] = {
 	}
 };
 
+<<<<<<< HEAD
 #define MAXMINOR  (sizeof(sys_ser)/sizeof(struct vmlogrdr_priv_t))
+=======
+#define MAXMINOR  ARRAY_SIZE(sys_ser)
+>>>>>>> upstream/android-13
 
 static char FENCE[] = {"EOR"};
 static int vmlogrdr_major = 0;
@@ -679,6 +683,7 @@ static const struct attribute_group *vmlogrdr_attr_groups[] = {
 	NULL,
 };
 
+<<<<<<< HEAD
 static int vmlogrdr_pm_prepare(struct device *dev)
 {
 	int rc;
@@ -702,11 +707,16 @@ static const struct dev_pm_ops vmlogrdr_pm_ops = {
 	.prepare = vmlogrdr_pm_prepare,
 };
 
+=======
+>>>>>>> upstream/android-13
 static struct class *vmlogrdr_class;
 static struct device_driver vmlogrdr_driver = {
 	.name = "vmlogrdr",
 	.bus  = &iucv_bus,
+<<<<<<< HEAD
 	.pm = &vmlogrdr_pm_ops,
+=======
+>>>>>>> upstream/android-13
 	.groups = vmlogrdr_drv_attr_groups,
 };
 

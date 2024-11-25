@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * lib/btree.c	- Simple In-memory B+Tree
  *
@@ -7,6 +8,15 @@
  * Bits and pieces stolen from Peter Zijlstra's code, which is
  * Copyright 2007, Red Hat Inc. Peter Zijlstra
  * GPLv2
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * lib/btree.c	- Simple In-memory B+Tree
+ *
+ * Copyright (c) 2007-2008 Joern Engel <joern@purestorage.com>
+ * Bits and pieces stolen from Peter Zijlstra's code, which is
+ * Copyright 2007, Red Hat Inc. Peter Zijlstra
+>>>>>>> upstream/android-13
  *
  * see http://programming.kicks-ass.net/kernel-patches/vma_lookup/btree.patch
  *

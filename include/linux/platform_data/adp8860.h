@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Definitions and platform data for Analog Devices
  * Backlight drivers ADP8860
  *
  * Copyright 2009-2010 Analog Devices Inc.
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2 or later.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __LINUX_I2C_ADP8860_H

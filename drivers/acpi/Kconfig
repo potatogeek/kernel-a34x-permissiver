@@ -9,8 +9,13 @@ config ARCH_SUPPORTS_ACPI
 menuconfig ACPI
 	bool "ACPI (Advanced Configuration and Power Interface) Support"
 	depends on ARCH_SUPPORTS_ACPI
+<<<<<<< HEAD
 	depends on PCI
 	select PNP
+=======
+	select PNP
+	select NLS
+>>>>>>> upstream/android-13
 	default y if X86
 	help
 	  Advanced Configuration and Power Interface (ACPI) support for 
@@ -32,7 +37,11 @@ menuconfig ACPI
 	  Linux support for ACPI is based on Intel Corporation's ACPI
 	  Component Architecture (ACPI CA).  For more information on the
 	  ACPI CA, see:
+<<<<<<< HEAD
 	  <http://acpica.org/>
+=======
+	  <https://acpica.org/>
+>>>>>>> upstream/android-13
 
 	  ACPI is an open industry specification originally co-developed by
 	  Hewlett-Packard, Intel, Microsoft, Phoenix, and Toshiba. Currently,
@@ -40,8 +49,12 @@ menuconfig ACPI
 	  the UEFI Forum and any UEFI member can join the ASWG and contribute
 	  to the ACPI specification.
 	  The specification is available at:
+<<<<<<< HEAD
 	  <http://www.acpi.info>
 	  <http://www.uefi.org/acpi/specs>
+=======
+	  <https://uefi.org/specifications>
+>>>>>>> upstream/android-13
 
 if ACPI
 
@@ -88,6 +101,17 @@ config ACPI_SPCR_TABLE
 	  This table provides information about the configuration of the
 	  earlycon console.
 
+<<<<<<< HEAD
+=======
+config ACPI_FPDT
+	bool "ACPI Firmware Performance Data Table (FPDT) support"
+	depends on X86_64
+	help
+	  Enable support for the Firmware Performance Data Table (FPDT).
+	  This table provides information on the timing of the system
+	  boot, S3 suspend and S3 resume firmware code paths.
+
+>>>>>>> upstream/android-13
 config ACPI_LPIT
 	bool
 	depends on X86_64
@@ -99,6 +123,7 @@ config ACPI_SLEEP
 	depends on ACPI_SYSTEM_POWER_STATES_SUPPORT
 	default y
 
+<<<<<<< HEAD
 config ACPI_PROCFS_POWER
 	bool "Deprecated power /proc/acpi directories"
 	depends on X86 && PROC_FS
@@ -116,6 +141,8 @@ config ACPI_PROCFS_POWER
 
 	  Say N to delete power /proc/acpi/ directories that have moved to /sys.
 
+=======
+>>>>>>> upstream/android-13
 config ACPI_REV_OVERRIDE_POSSIBLE
 	bool "Allow supported ACPI revision to be overridden"
 	depends on X86
@@ -138,7 +165,10 @@ config ACPI_REV_OVERRIDE_POSSIBLE
 
 config ACPI_EC_DEBUGFS
 	tristate "EC read/write access through /sys/kernel/debug/ec"
+<<<<<<< HEAD
 	default n
+=======
+>>>>>>> upstream/android-13
 	help
 	  Say N to disable Embedded Controller /sys/kernel/debug interface
 
@@ -156,7 +186,10 @@ config ACPI_EC_DEBUGFS
 
 config ACPI_AC
 	tristate "AC Adapter"
+<<<<<<< HEAD
 	depends on X86
+=======
+>>>>>>> upstream/android-13
 	select POWER_SUPPLY
 	default y
 	help
@@ -169,7 +202,10 @@ config ACPI_AC
 
 config ACPI_BATTERY
 	tristate "Battery"
+<<<<<<< HEAD
 	depends on X86
+=======
+>>>>>>> upstream/android-13
 	select POWER_SUPPLY
 	default y
 	help
@@ -193,6 +229,33 @@ config ACPI_BUTTON
 	  To compile this driver as a module, choose M here:
 	  the module will be called button.
 
+<<<<<<< HEAD
+=======
+config ACPI_TINY_POWER_BUTTON
+	tristate "Tiny Power Button Driver"
+	depends on !ACPI_BUTTON
+	help
+	  This driver provides a tiny alternative to the ACPI Button driver.
+	  The tiny power button driver only handles the power button. Rather
+	  than notifying userspace via the input layer or a netlink event, this
+	  driver directly signals the init process to shut down.
+
+	  This driver is particularly suitable for cloud and VM environments,
+	  which use a simulated power button to initiate a controlled poweroff,
+	  but which may not want to run a separate userspace daemon to process
+	  input events.
+
+config ACPI_TINY_POWER_BUTTON_SIGNAL
+	int "Tiny Power Button Signal"
+	depends on ACPI_TINY_POWER_BUTTON
+	default 38
+	help
+	  Default signal to send to init in response to the power button.
+
+	  Likely values here include 38 (SIGRTMIN+4) to power off, or 2
+	  (SIGINT) to simulate Ctrl+Alt+Del.
+
+>>>>>>> upstream/android-13
 config ACPI_VIDEO
 	tristate "Video"
 	depends on X86 && BACKLIGHT_CLASS_DEVICE
@@ -244,6 +307,10 @@ config ACPI_CPU_FREQ_PSS
 
 config ACPI_PROCESSOR_CSTATE
 	def_bool y
+<<<<<<< HEAD
+=======
+	depends on ACPI_PROCESSOR
+>>>>>>> upstream/android-13
 	depends on IA64 || X86
 
 config ACPI_PROCESSOR_IDLE
@@ -268,9 +335,15 @@ config ACPI_CPPC_LIB
 
 config ACPI_PROCESSOR
 	tristate "Processor"
+<<<<<<< HEAD
 	depends on X86 || IA64 || ARM64
 	select ACPI_PROCESSOR_IDLE
 	select ACPI_CPU_FREQ_PSS if X86 || IA64
+=======
+	depends on X86 || IA64 || ARM64 || LOONGARCH
+	select ACPI_PROCESSOR_IDLE
+	select ACPI_CPU_FREQ_PSS if X86 || IA64 || LOONGARCH
+>>>>>>> upstream/android-13
 	default y
 	help
 	  This driver adds support for the ACPI Processor package. It is required
@@ -283,7 +356,10 @@ config ACPI_PROCESSOR
 config ACPI_IPMI
 	tristate "IPMI"
 	depends on IPMI_HANDLER
+<<<<<<< HEAD
 	default n
+=======
+>>>>>>> upstream/android-13
 	help
 	  This driver enables the ACPI to access the BMC controller. And it
 	  uses the IPMI request/response message to communicate with BMC
@@ -323,11 +399,16 @@ config ACPI_THERMAL
 	  To compile this driver as a module, choose M here:
 	  the module will be called thermal.
 
+<<<<<<< HEAD
 config ACPI_NUMA
 	bool "NUMA support"
 	depends on NUMA
 	depends on (X86 || IA64 || ARM64)
 	default y if IA64_GENERIC || IA64_SGI_SN2 || ARM64
+=======
+config ACPI_PLATFORM_PROFILE
+	tristate
+>>>>>>> upstream/android-13
 
 config ACPI_CUSTOM_DSDT_FILE
 	string "Custom DSDT Table file to include"
@@ -335,10 +416,17 @@ config ACPI_CUSTOM_DSDT_FILE
 	depends on !STANDALONE
 	help
 	  This option supports a custom DSDT by linking it into the kernel.
+<<<<<<< HEAD
 	  See Documentation/acpi/dsdt-override.txt
 
 	  Enter the full path name to the file which includes the AmlCode
 	  declaration.
+=======
+	  See Documentation/admin-guide/acpi/dsdt-override.rst
+
+	  Enter the full path name to the file which includes the AmlCode
+	  or dsdt_aml_code declaration.
+>>>>>>> upstream/android-13
 
 	  If unsure, don't enter a file name.
 
@@ -357,24 +445,49 @@ config ACPI_TABLE_UPGRADE
 	  This option provides functionality to upgrade arbitrary ACPI tables
 	  via initrd. No functional change if no ACPI tables are passed via
 	  initrd, therefore it's safe to say Y.
+<<<<<<< HEAD
 	  See Documentation/acpi/initrd_table_override.txt for details
 
 config ACPI_DEBUG
 	bool "Debug Statements"
 	default n
+=======
+	  See Documentation/admin-guide/acpi/initrd_table_override.rst for details
+
+config ACPI_TABLE_OVERRIDE_VIA_BUILTIN_INITRD
+	bool "Override ACPI tables from built-in initrd"
+	depends on ACPI_TABLE_UPGRADE
+	depends on INITRAMFS_SOURCE!="" && INITRAMFS_COMPRESSION_NONE
+	help
+	  This option provides functionality to override arbitrary ACPI tables
+	  from built-in uncompressed initrd.
+
+	  See Documentation/admin-guide/acpi/initrd_table_override.rst for details
+
+config ACPI_DEBUG
+	bool "Debug Statements"
+>>>>>>> upstream/android-13
 	help
 	  The ACPI subsystem can produce debug output.  Saying Y enables this
 	  output and increases the kernel size by around 50K.
 
 	  Use the acpi.debug_layer and acpi.debug_level kernel command-line
+<<<<<<< HEAD
 	  parameters documented in Documentation/acpi/debug.txt and
+=======
+	  parameters documented in Documentation/firmware-guide/acpi/debug.rst and
+>>>>>>> upstream/android-13
 	  Documentation/admin-guide/kernel-parameters.rst to control the type and
 	  amount of debug output.
 
 config ACPI_PCI_SLOT
 	bool "PCI slot detection driver"
+<<<<<<< HEAD
 	depends on SYSFS
 	default n
+=======
+	depends on SYSFS && PCI
+>>>>>>> upstream/android-13
 	help
 	  This driver creates entries in /sys/bus/pci/slots/ for all PCI
 	  slots in the system.  This can help correlate PCI bus addresses,
@@ -390,9 +503,12 @@ config ACPI_CONTAINER
 
 	  This helps support hotplug of nodes, CPUs, and memory.
 
+<<<<<<< HEAD
 	  To compile this driver as a module, choose M here:
 	  the module will be called container.
 
+=======
+>>>>>>> upstream/android-13
 config ACPI_HOTPLUG_MEMORY
 	bool "Memory Hotplug"
 	depends on MEMORY_HOTPLUG
@@ -406,9 +522,12 @@ config ACPI_HOTPLUG_MEMORY
 	  removing memory devices at runtime, you need not enable
 	  this driver.
 
+<<<<<<< HEAD
 	  To compile this driver as a module, choose M here:
 	  the module will be called acpi_memhotplug.
 
+=======
+>>>>>>> upstream/android-13
 config ACPI_HOTPLUG_IOAPIC
 	bool
 	depends on PCI
@@ -436,11 +555,18 @@ config ACPI_HED
 config ACPI_CUSTOM_METHOD
 	tristate "Allow ACPI methods to be inserted/replaced at run time"
 	depends on DEBUG_FS
+<<<<<<< HEAD
 	default n
 	help
 	  This debug facility allows ACPI AML methods to be inserted and/or
 	  replaced without rebooting the system. For details refer to:
 	  Documentation/acpi/method-customizing.txt.
+=======
+	help
+	  This debug facility allows ACPI AML methods to be inserted and/or
+	  replaced without rebooting the system. For details refer to:
+	  Documentation/firmware-guide/acpi/method-customizing.rst.
+>>>>>>> upstream/android-13
 
 	  NOTE: This option is security sensitive, because it allows arbitrary
 	  kernel memory to be written to by root (uid=0) users, allowing them
@@ -451,7 +577,11 @@ config ACPI_CUSTOM_METHOD
 config ACPI_BGRT
 	bool "Boottime Graphics Resource Table support"
 	depends on EFI && (X86 || ARM64)
+<<<<<<< HEAD
         help
+=======
+	help
+>>>>>>> upstream/android-13
 	  This driver adds support for exposing the ACPI Boottime Graphics
 	  Resource Table, which allows the operating system to obtain
 	  data from the firmware boot splash. It will appear under
@@ -470,7 +600,11 @@ config ACPI_REDUCED_HARDWARE_ONLY
 	  If you are unsure what to do, do not enable this option.
 
 source "drivers/acpi/nfit/Kconfig"
+<<<<<<< HEAD
 
+=======
+source "drivers/acpi/numa/Kconfig"
+>>>>>>> upstream/android-13
 source "drivers/acpi/apei/Kconfig"
 source "drivers/acpi/dptf/Kconfig"
 
@@ -481,7 +615,10 @@ config ACPI_EXTLOG
 	tristate "Extended Error Log support"
 	depends on X86_MCE && X86_LOCAL_APIC && EDAC
 	select UEFI_CPER
+<<<<<<< HEAD
 	default n
+=======
+>>>>>>> upstream/android-13
 	help
 	  Certain usages such as Predictive Failure Analysis (PFA) require
 	  more information about the error than what can be described in
@@ -498,6 +635,7 @@ config ACPI_EXTLOG
 	  driver adds support for that functionality with corresponding
 	  tracepoint which carries that information to userspace.
 
+<<<<<<< HEAD
 menuconfig PMIC_OPREGION
 	bool "PMIC (Power Management Integrated Circuit) operation region support"
 	help
@@ -538,6 +676,10 @@ config CHT_DC_TI_PMIC_OPREGION
 	  This config adds ACPI operation region support for Dollar Cove TI PMIC.
 
 endif
+=======
+config ACPI_ADXL
+	bool
+>>>>>>> upstream/android-13
 
 config ACPI_CONFIGFS
 	tristate "ACPI configfs support"
@@ -554,6 +696,7 @@ config ACPI_PPTT
 	bool
 endif
 
+<<<<<<< HEAD
 config TPS68470_PMIC_OPREGION
 	bool "ACPI operation region support for TPS68470 PMIC"
 	depends on MFD_TPS68470
@@ -569,6 +712,12 @@ config TPS68470_PMIC_OPREGION
 	  This option is a bool as it provides an ACPI operation
 	  region, which must be available before any of the devices
 	  using this, are probed.
+=======
+source "drivers/acpi/pmic/Kconfig"
+
+config ACPI_VIOT
+	bool
+>>>>>>> upstream/android-13
 
 endif	# ACPI
 
@@ -587,3 +736,21 @@ config X86_PM_TIMER
 
 	  You should nearly always say Y here because many modern
 	  systems require this timer.
+<<<<<<< HEAD
+=======
+
+config ACPI_PRMT
+	bool "Platform Runtime Mechanism Support"
+	depends on EFI && X86_64
+	default y
+	help
+	  Platform Runtime Mechanism (PRM) is a firmware interface exposing a
+	  set of binary executables that can be called from the AML interpreter
+	  or directly from device drivers.
+
+	  Say Y to enable the AML interpreter to execute the PRM code.
+
+	  While this feature is optional in principle, leaving it out may
+	  substantially increase computational overhead related to the
+	  initialization of some server systems.
+>>>>>>> upstream/android-13

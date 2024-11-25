@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * ulpi.c - USB ULPI PHY bus
  *
  * Copyright (C) 2015 Intel Corporation
@@ -39,8 +43,16 @@ static int ulpi_match(struct device *dev, struct device_driver *driver)
 	struct ulpi *ulpi = to_ulpi_dev(dev);
 	const struct ulpi_device_id *id;
 
+<<<<<<< HEAD
 	/* Some ULPI devices don't have a vendor id so rely on OF match */
 	if (ulpi->id.vendor == 0)
+=======
+	/*
+	 * Some ULPI devices don't have a vendor id
+	 * or provide an id_table so rely on OF match.
+	 */
+	if (ulpi->id.vendor == 0 || !drv->id_table)
+>>>>>>> upstream/android-13
 		return of_driver_match_device(dev, driver);
 
 	for (id = drv->id_table; id->vendor; id++)
@@ -78,14 +90,21 @@ static int ulpi_probe(struct device *dev)
 	return drv->probe(to_ulpi_dev(dev));
 }
 
+<<<<<<< HEAD
 static int ulpi_remove(struct device *dev)
+=======
+static void ulpi_remove(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct ulpi_driver *drv = to_ulpi_driver(dev->driver);
 
 	if (drv->remove)
 		drv->remove(to_ulpi_dev(dev));
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static struct bus_type ulpi_bus = {
@@ -118,7 +137,11 @@ static struct attribute *ulpi_dev_attrs[] = {
 	NULL
 };
 
+<<<<<<< HEAD
 static struct attribute_group ulpi_dev_attr_group = {
+=======
+static const struct attribute_group ulpi_dev_attr_group = {
+>>>>>>> upstream/android-13
 	.attrs = ulpi_dev_attrs,
 };
 
@@ -129,6 +152,10 @@ static const struct attribute_group *ulpi_dev_attr_groups[] = {
 
 static void ulpi_dev_release(struct device *dev)
 {
+<<<<<<< HEAD
+=======
+	of_node_put(dev->of_node);
+>>>>>>> upstream/android-13
 	kfree(to_ulpi_dev(dev));
 }
 
@@ -141,8 +168,14 @@ static const struct device_type ulpi_dev_type = {
 /* -------------------------------------------------------------------------- */
 
 /**
+<<<<<<< HEAD
  * ulpi_register_driver - register a driver with the ULPI bus
  * @drv: driver being registered
+=======
+ * __ulpi_register_driver - register a driver with the ULPI bus
+ * @drv: driver being registered
+ * @module: ends up being THIS_MODULE
+>>>>>>> upstream/android-13
  *
  * Registers a driver with the ULPI bus.
  */
@@ -245,12 +278,25 @@ static int ulpi_register(struct device *dev, struct ulpi *ulpi)
 		return ret;
 
 	ret = ulpi_read_id(ulpi);
+<<<<<<< HEAD
 	if (ret)
 		return ret;
 
 	ret = device_register(&ulpi->dev);
 	if (ret)
 		return ret;
+=======
+	if (ret) {
+		of_node_put(ulpi->dev.of_node);
+		return ret;
+	}
+
+	ret = device_register(&ulpi->dev);
+	if (ret) {
+		put_device(&ulpi->dev);
+		return ret;
+	}
+>>>>>>> upstream/android-13
 
 	dev_dbg(&ulpi->dev, "registered ULPI PHY: vendor %04x, product %04x\n",
 		ulpi->id.vendor, ulpi->id.product);
@@ -290,14 +336,21 @@ EXPORT_SYMBOL_GPL(ulpi_register_interface);
 
 /**
  * ulpi_unregister_interface - unregister ULPI interface
+<<<<<<< HEAD
  * @intrf: struct ulpi_interface
+=======
+ * @ulpi: struct ulpi_interface
+>>>>>>> upstream/android-13
  *
  * Unregisters a ULPI device and it's interface that was created with
  * ulpi_create_interface().
  */
 void ulpi_unregister_interface(struct ulpi *ulpi)
 {
+<<<<<<< HEAD
 	of_node_put(ulpi->dev.of_node);
+=======
+>>>>>>> upstream/android-13
 	device_unregister(&ulpi->dev);
 }
 EXPORT_SYMBOL_GPL(ulpi_unregister_interface);

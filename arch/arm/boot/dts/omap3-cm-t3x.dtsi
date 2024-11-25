@@ -246,7 +246,11 @@
 };
 
 &venc {
+<<<<<<< HEAD
 	status = "ok";
+=======
+	status = "okay";
+>>>>>>> upstream/android-13
 
 	port {
 		venc_out: endpoint {
@@ -257,7 +261,11 @@
 };
 
 &mcbsp2 {
+<<<<<<< HEAD
 	status = "ok";
+=======
+	status = "okay";
+>>>>>>> upstream/android-13
 
 	pinctrl-names = "default";
 	pinctrl-0 = <&mcbsp2_pins>;

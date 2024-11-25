@@ -290,8 +290,12 @@ static struct pci_driver orinoco_nortel_driver = {
 	.id_table	= orinoco_nortel_id_table,
 	.probe		= orinoco_nortel_init_one,
 	.remove		= orinoco_nortel_remove_one,
+<<<<<<< HEAD
 	.suspend	= orinoco_pci_suspend,
 	.resume		= orinoco_pci_resume,
+=======
+	.driver.pm	= &orinoco_pci_pm_ops,
+>>>>>>> upstream/android-13
 };
 
 static char version[] __initdata = DRIVER_NAME " " DRIVER_VERSION
@@ -313,6 +317,7 @@ static void __exit orinoco_nortel_exit(void)
 
 module_init(orinoco_nortel_init);
 module_exit(orinoco_nortel_exit);
+<<<<<<< HEAD
 
 /*
  * Local variables:
@@ -321,3 +326,5 @@ module_exit(orinoco_nortel_exit);
  *  tab-width: 8
  * End:
  */
+=======
+>>>>>>> upstream/android-13

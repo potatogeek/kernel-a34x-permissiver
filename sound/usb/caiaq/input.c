@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *   Copyright (c) 2006,2007 Daniel Mack, Tim Ruetz
  *
@@ -14,6 +15,11 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *   Copyright (c) 2006,2007 Daniel Mack, Tim Ruetz
+>>>>>>> upstream/android-13
 */
 
 #include <linux/device.h>
@@ -27,6 +33,7 @@
 #include "device.h"
 #include "input.h"
 
+<<<<<<< HEAD
 static unsigned short keycode_ak1[] =  { KEY_C, KEY_B, KEY_A };
 static unsigned short keycode_rk2[] =  { KEY_1, KEY_2, KEY_3, KEY_4,
 					 KEY_5, KEY_6, KEY_7 };
@@ -34,6 +41,15 @@ static unsigned short keycode_rk3[] =  { KEY_1, KEY_2, KEY_3, KEY_4,
 					 KEY_5, KEY_6, KEY_7, KEY_8, KEY_9 };
 
 static unsigned short keycode_kore[] = {
+=======
+static const unsigned short keycode_ak1[] =  { KEY_C, KEY_B, KEY_A };
+static const unsigned short keycode_rk2[] =  { KEY_1, KEY_2, KEY_3, KEY_4,
+					 KEY_5, KEY_6, KEY_7 };
+static const unsigned short keycode_rk3[] =  { KEY_1, KEY_2, KEY_3, KEY_4,
+					 KEY_5, KEY_6, KEY_7, KEY_8, KEY_9 };
+
+static const unsigned short keycode_kore[] = {
+>>>>>>> upstream/android-13
 	KEY_FN_F1,      /* "menu"               */
 	KEY_FN_F7,      /* "lcd backlight       */
 	KEY_FN_F2,      /* "control"            */
@@ -73,7 +89,11 @@ static unsigned short keycode_kore[] = {
 #define MASCHINE_PADS      (16)
 #define MASCHINE_PAD(X)    ((X) + ABS_PRESSURE)
 
+<<<<<<< HEAD
 static unsigned short keycode_maschine[] = {
+=======
+static const unsigned short keycode_maschine[] = {
+>>>>>>> upstream/android-13
 	MASCHINE_BUTTON(40), /* mute       */
 	MASCHINE_BUTTON(39), /* solo       */
 	MASCHINE_BUTTON(38), /* select     */

@@ -6,7 +6,11 @@
 
 #include <linux/kernel.h>
 #include <linux/mm.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/vmalloc.h>
 #include <linux/slab.h>
 #include <linux/xfrm.h>

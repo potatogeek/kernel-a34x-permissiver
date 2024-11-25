@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* C global declaration parser for genksyms.
    Copyright 1996, 1997 Linux International.
 
@@ -20,6 +21,18 @@
    along with this program; if not, write to the Free Software Foundation,
    Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
 
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * C global declaration parser for genksyms.
+ * Copyright 1996, 1997 Linux International.
+ *
+ * New implementation contributed by Richard Henderson <rth@tamu.edu>
+ * Based on original work by Bjorn Ekwall <bj0rn@blox.se>
+ *
+ * This file is part of the Linux modutils.
+ */
+>>>>>>> upstream/android-13
 
 %{
 
@@ -92,6 +105,10 @@ static void record_compound(struct string_list **keyw,
 %token SHORT_KEYW
 %token SIGNED_KEYW
 %token STATIC_KEYW
+<<<<<<< HEAD
+=======
+%token STATIC_ASSERT_KEYW
+>>>>>>> upstream/android-13
 %token STRUCT_KEYW
 %token TYPEDEF_KEYW
 %token UNION_KEYW
@@ -109,6 +126,10 @@ static void record_compound(struct string_list **keyw,
 %token BRACE_PHRASE
 %token BRACKET_PHRASE
 %token EXPRESSION_PHRASE
+<<<<<<< HEAD
+=======
+%token STATIC_ASSERT_PHRASE
+>>>>>>> upstream/android-13
 
 %token CHAR
 %token DOTS
@@ -142,6 +163,10 @@ declaration1:
 	| function_definition
 	| asm_definition
 	| export_definition
+<<<<<<< HEAD
+=======
+	| static_assert
+>>>>>>> upstream/android-13
 	| error ';'				{ $$ = $2; }
 	| error '}'				{ $$ = $2; }
 	;
@@ -505,6 +530,13 @@ export_definition:
 		{ export_symbol((*$3)->string); $$ = $5; }
 	;
 
+<<<<<<< HEAD
+=======
+/* Ignore any module scoped _Static_assert(...) */
+static_assert:
+	STATIC_ASSERT_PHRASE ';'			{ $$ = $2; }
+	;
+>>>>>>> upstream/android-13
 
 %%
 

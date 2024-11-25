@@ -256,7 +256,12 @@ static void scm_request_finish(struct scm_request *scmrq)
 	for (i = 0; i < nr_requests_per_io && scmrq->request[i]; i++) {
 		error = blk_mq_rq_to_pdu(scmrq->request[i]);
 		*error = scmrq->error;
+<<<<<<< HEAD
 		blk_mq_complete_request(scmrq->request[i]);
+=======
+		if (likely(!blk_should_fake_timeout(scmrq->request[i]->q)))
+			blk_mq_complete_request(scmrq->request[i]);
+>>>>>>> upstream/android-13
 	}
 
 	atomic_dec(&bdev->queued_reqs);
@@ -461,12 +466,21 @@ int scm_blk_dev_setup(struct scm_blk_dev *bdev, struct scm_device *scmdev)
 	if (ret)
 		goto out;
 
+<<<<<<< HEAD
 	rq = blk_mq_init_queue(&bdev->tag_set);
 	if (IS_ERR(rq)) {
 		ret = PTR_ERR(rq);
 		goto out_tag;
 	}
 	bdev->rq = rq;
+=======
+	bdev->gendisk = blk_mq_alloc_disk(&bdev->tag_set, scmdev);
+	if (IS_ERR(bdev->gendisk)) {
+		ret = PTR_ERR(bdev->gendisk);
+		goto out_tag;
+	}
+	rq = bdev->rq = bdev->gendisk->queue;
+>>>>>>> upstream/android-13
 	nr_max_blk = min(scmdev->nr_max_block,
 			 (unsigned int) (PAGE_SIZE / sizeof(struct aidaw)));
 
@@ -476,6 +490,7 @@ int scm_blk_dev_setup(struct scm_blk_dev *bdev, struct scm_device *scmdev)
 	blk_queue_flag_set(QUEUE_FLAG_NONROT, rq);
 	blk_queue_flag_clear(QUEUE_FLAG_ADD_RANDOM, rq);
 
+<<<<<<< HEAD
 	bdev->gendisk = alloc_disk(SCM_NR_PARTS);
 	if (!bdev->gendisk) {
 		ret = -ENOMEM;
@@ -487,6 +502,13 @@ int scm_blk_dev_setup(struct scm_blk_dev *bdev, struct scm_device *scmdev)
 	bdev->gendisk->queue = rq;
 	bdev->gendisk->major = scm_major;
 	bdev->gendisk->first_minor = devindex * SCM_NR_PARTS;
+=======
+	bdev->gendisk->private_data = scmdev;
+	bdev->gendisk->fops = &scm_blk_devops;
+	bdev->gendisk->major = scm_major;
+	bdev->gendisk->first_minor = devindex * SCM_NR_PARTS;
+	bdev->gendisk->minors = SCM_NR_PARTS;
+>>>>>>> upstream/android-13
 
 	len = snprintf(bdev->gendisk->disk_name, DISK_NAME_LEN, "scm");
 	if (devindex > 25) {
@@ -500,11 +522,17 @@ int scm_blk_dev_setup(struct scm_blk_dev *bdev, struct scm_device *scmdev)
 
 	/* 512 byte sectors */
 	set_capacity(bdev->gendisk, scmdev->size >> 9);
+<<<<<<< HEAD
 	device_add_disk(&scmdev->dev, bdev->gendisk);
 	return 0;
 
 out_queue:
 	blk_cleanup_queue(rq);
+=======
+	device_add_disk(&scmdev->dev, bdev->gendisk, NULL);
+	return 0;
+
+>>>>>>> upstream/android-13
 out_tag:
 	blk_mq_free_tag_set(&bdev->tag_set);
 out:
@@ -515,9 +543,14 @@ out:
 void scm_blk_dev_cleanup(struct scm_blk_dev *bdev)
 {
 	del_gendisk(bdev->gendisk);
+<<<<<<< HEAD
 	blk_cleanup_queue(bdev->gendisk->queue);
 	blk_mq_free_tag_set(&bdev->tag_set);
 	put_disk(bdev->gendisk);
+=======
+	blk_cleanup_disk(bdev->gendisk);
+	blk_mq_free_tag_set(&bdev->tag_set);
+>>>>>>> upstream/android-13
 }
 
 void scm_blk_set_available(struct scm_blk_dev *bdev)

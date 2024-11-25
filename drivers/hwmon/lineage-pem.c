@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for Lineage Compact Power Line series of power entry modules.
  *
@@ -5,6 +9,7 @@
  *
  * Documentation:
  *  http://www.lineagepower.com/oem/pdf/CPLI2C.pdf
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +24,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -282,8 +289,13 @@ static long pem_get_fan(u8 *data, int len, int index)
  * Show boolean, either a fault or an alarm.
  * .nr points to the register, .index is the bit mask to check
  */
+<<<<<<< HEAD
 static ssize_t pem_show_bool(struct device *dev,
 			     struct device_attribute *da, char *buf)
+=======
+static ssize_t pem_bool_show(struct device *dev, struct device_attribute *da,
+			     char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute_2 *attr = to_sensor_dev_attr_2(da);
 	struct pem_data *data = pem_update_device(dev);
@@ -293,10 +305,17 @@ static ssize_t pem_show_bool(struct device *dev,
 		return PTR_ERR(data);
 
 	status = data->data_string[attr->nr] & attr->index;
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%d\n", !!status);
 }
 
 static ssize_t pem_show_data(struct device *dev, struct device_attribute *da,
+=======
+	return sysfs_emit(buf, "%d\n", !!status);
+}
+
+static ssize_t pem_data_show(struct device *dev, struct device_attribute *da,
+>>>>>>> upstream/android-13
 			     char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
@@ -309,10 +328,17 @@ static ssize_t pem_show_data(struct device *dev, struct device_attribute *da,
 	value = pem_get_data(data->data_string, sizeof(data->data_string),
 			     attr->index);
 
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%ld\n", value);
 }
 
 static ssize_t pem_show_input(struct device *dev, struct device_attribute *da,
+=======
+	return sysfs_emit(buf, "%ld\n", value);
+}
+
+static ssize_t pem_input_show(struct device *dev, struct device_attribute *da,
+>>>>>>> upstream/android-13
 			      char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
@@ -325,10 +351,17 @@ static ssize_t pem_show_input(struct device *dev, struct device_attribute *da,
 	value = pem_get_input(data->input_string, sizeof(data->input_string),
 			      attr->index);
 
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%ld\n", value);
 }
 
 static ssize_t pem_show_fan(struct device *dev, struct device_attribute *da,
+=======
+	return sysfs_emit(buf, "%ld\n", value);
+}
+
+static ssize_t pem_fan_show(struct device *dev, struct device_attribute *da,
+>>>>>>> upstream/android-13
 			    char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
@@ -341,6 +374,7 @@ static ssize_t pem_show_fan(struct device *dev, struct device_attribute *da,
 	value = pem_get_fan(data->fan_speed, sizeof(data->fan_speed),
 			    attr->index);
 
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%ld\n", value);
 }
 
@@ -392,6 +426,48 @@ static SENSOR_DEVICE_ATTR_2(temp1_crit_alarm, S_IRUGO, pem_show_bool, NULL,
 			    PEM_DATA_ALARM_1, ALRM1_TEMP_SHUTDOWN);
 static SENSOR_DEVICE_ATTR_2(temp1_fault, S_IRUGO, pem_show_bool, NULL,
 			    PEM_DATA_ALARM_2, ALRM2_TEMP_FAULT);
+=======
+	return sysfs_emit(buf, "%ld\n", value);
+}
+
+/* Voltages */
+static SENSOR_DEVICE_ATTR_RO(in1_input, pem_data, PEM_DATA_VOUT_LSB);
+static SENSOR_DEVICE_ATTR_2_RO(in1_alarm, pem_bool, PEM_DATA_ALARM_1,
+			       ALRM1_VOUT_OUT_LIMIT);
+static SENSOR_DEVICE_ATTR_2_RO(in1_crit_alarm, pem_bool, PEM_DATA_ALARM_1,
+			       ALRM1_OV_VOLT_SHUTDOWN);
+static SENSOR_DEVICE_ATTR_RO(in2_input, pem_input, PEM_INPUT_VOLTAGE);
+static SENSOR_DEVICE_ATTR_2_RO(in2_alarm, pem_bool, PEM_DATA_ALARM_1,
+			       ALRM1_VIN_OUT_LIMIT | ALRM1_PRIMARY_FAULT);
+
+/* Currents */
+static SENSOR_DEVICE_ATTR_RO(curr1_input, pem_data, PEM_DATA_CURRENT);
+static SENSOR_DEVICE_ATTR_2_RO(curr1_alarm, pem_bool, PEM_DATA_ALARM_1,
+			       ALRM1_VIN_OVERCURRENT);
+
+/* Power */
+static SENSOR_DEVICE_ATTR_RO(power1_input, pem_input, PEM_INPUT_POWER_LSB);
+static SENSOR_DEVICE_ATTR_2_RO(power1_alarm, pem_bool, PEM_DATA_ALARM_1,
+			       ALRM1_POWER_LIMIT);
+
+/* Fans */
+static SENSOR_DEVICE_ATTR_RO(fan1_input, pem_fan, PEM_FAN_FAN1);
+static SENSOR_DEVICE_ATTR_RO(fan2_input, pem_fan, PEM_FAN_FAN2);
+static SENSOR_DEVICE_ATTR_RO(fan3_input, pem_fan, PEM_FAN_FAN3);
+static SENSOR_DEVICE_ATTR_2_RO(fan1_alarm, pem_bool, PEM_DATA_ALARM_2,
+			       ALRM2_FAN_FAULT);
+
+/* Temperatures */
+static SENSOR_DEVICE_ATTR_RO(temp1_input, pem_data, PEM_DATA_TEMP);
+static SENSOR_DEVICE_ATTR_RO(temp1_max, pem_data, PEM_DATA_TEMP_MAX);
+static SENSOR_DEVICE_ATTR_RO(temp1_crit, pem_data, PEM_DATA_TEMP_CRIT);
+static SENSOR_DEVICE_ATTR_2_RO(temp1_alarm, pem_bool, PEM_DATA_ALARM_1,
+			       ALRM1_TEMP_WARNING);
+static SENSOR_DEVICE_ATTR_2_RO(temp1_crit_alarm, pem_bool, PEM_DATA_ALARM_1,
+			       ALRM1_TEMP_SHUTDOWN);
+static SENSOR_DEVICE_ATTR_2_RO(temp1_fault, pem_bool, PEM_DATA_ALARM_2,
+			       ALRM2_TEMP_FAULT);
+>>>>>>> upstream/android-13
 
 static struct attribute *pem_attributes[] = {
 	&sensor_dev_attr_in1_input.dev_attr.attr,
@@ -441,8 +517,12 @@ static const struct attribute_group pem_fan_group = {
 	.attrs = pem_fan_attributes,
 };
 
+<<<<<<< HEAD
 static int pem_probe(struct i2c_client *client,
 		     const struct i2c_device_id *id)
+=======
+static int pem_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct i2c_adapter *adapter = client->adapter;
 	struct device *dev = &client->dev;
@@ -536,7 +616,11 @@ static struct i2c_driver pem_driver = {
 	.driver = {
 		   .name = "lineage_pem",
 		   },
+<<<<<<< HEAD
 	.probe = pem_probe,
+=======
+	.probe_new = pem_probe,
+>>>>>>> upstream/android-13
 	.id_table = pem_id,
 };
 

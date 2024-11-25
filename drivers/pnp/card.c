@@ -80,7 +80,11 @@ static int card_probe(struct pnp_card *card, struct pnp_card_driver *drv)
 	if (!id)
 		return 0;
 
+<<<<<<< HEAD
 	clink = pnp_alloc(sizeof(*clink));
+=======
+	clink = kzalloc(sizeof(*clink), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!clink)
 		return 0;
 	clink->card = card;
@@ -181,8 +185,13 @@ struct pnp_card *pnp_alloc_card(struct pnp_protocol *protocol, int id, char *pnp
 	return card;
 }
 
+<<<<<<< HEAD
 static ssize_t pnp_show_card_name(struct device *dmdev,
 				  struct device_attribute *attr, char *buf)
+=======
+static ssize_t name_show(struct device *dmdev,
+			 struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	char *str = buf;
 	struct pnp_card *card = to_pnp_card(dmdev);
@@ -191,10 +200,17 @@ static ssize_t pnp_show_card_name(struct device *dmdev,
 	return (str - buf);
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(name, S_IRUGO, pnp_show_card_name, NULL);
 
 static ssize_t pnp_show_card_ids(struct device *dmdev,
 				 struct device_attribute *attr, char *buf)
+=======
+static DEVICE_ATTR_RO(name);
+
+static ssize_t card_id_show(struct device *dmdev,
+			    struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	char *str = buf;
 	struct pnp_card *card = to_pnp_card(dmdev);
@@ -207,7 +223,11 @@ static ssize_t pnp_show_card_ids(struct device *dmdev,
 	return (str - buf);
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(card_id, S_IRUGO, pnp_show_card_ids, NULL);
+=======
+static DEVICE_ATTR_RO(card_id);
+>>>>>>> upstream/android-13
 
 static int pnp_interface_attach_card(struct pnp_card *card)
 {
@@ -369,6 +389,10 @@ err_out:
 	dev->card_link = NULL;
 	return NULL;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL(pnp_request_card_device);
+>>>>>>> upstream/android-13
 
 /**
  * pnp_release_card_device - call this when the driver no longer needs the device
@@ -382,6 +406,10 @@ void pnp_release_card_device(struct pnp_dev *dev)
 	device_release_driver(&dev->dev);
 	drv->link.remove = &card_remove_first;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL(pnp_release_card_device);
+>>>>>>> upstream/android-13
 
 /*
  * suspend/resume callbacks
@@ -439,6 +467,10 @@ int pnp_register_card_driver(struct pnp_card_driver *drv)
 	}
 	return 0;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL(pnp_register_card_driver);
+>>>>>>> upstream/android-13
 
 /**
  * pnp_unregister_card_driver - unregisters a PnP card driver from the PnP Layer
@@ -451,8 +483,11 @@ void pnp_unregister_card_driver(struct pnp_card_driver *drv)
 	mutex_unlock(&pnp_lock);
 	pnp_unregister_driver(&drv->link);
 }
+<<<<<<< HEAD
 
 EXPORT_SYMBOL(pnp_request_card_device);
 EXPORT_SYMBOL(pnp_release_card_device);
 EXPORT_SYMBOL(pnp_register_card_driver);
+=======
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(pnp_unregister_card_driver);

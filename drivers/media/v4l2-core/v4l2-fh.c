@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * v4l2-fh.c
  *
@@ -6,6 +10,7 @@
  * Copyright (C) 2009--2010 Nokia Corporation.
  *
  * Contact: Sakari Ailus <sakari.ailus@iki.fi>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,6 +20,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
@@ -104,6 +111,10 @@ int v4l2_fh_release(struct file *filp)
 		v4l2_fh_del(fh);
 		v4l2_fh_exit(fh);
 		kfree(fh);
+<<<<<<< HEAD
+=======
+		filp->private_data = NULL;
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }

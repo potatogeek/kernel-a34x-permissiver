@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Driver for the Conexant CX25821 PCIe bridge
  *
  *  Copyright (C) 2009 Conexant Systems Inc.
  *  Authors  <shu.lin@conexant.com>, <hiep.huynh@conexant.com>
  *	Based on Steven Toth <stoth@linuxtv.org> cx23885 driver
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,6 +20,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -306,7 +313,11 @@ int cx25821_i2c_register(struct cx25821_i2c *bus)
 	bus->i2c_client = cx25821_i2c_client_template;
 	bus->i2c_adap.dev.parent = &dev->pci->dev;
 
+<<<<<<< HEAD
 	strlcpy(bus->i2c_adap.name, bus->dev->name, sizeof(bus->i2c_adap.name));
+=======
+	strscpy(bus->i2c_adap.name, bus->dev->name, sizeof(bus->i2c_adap.name));
+>>>>>>> upstream/android-13
 
 	bus->i2c_adap.algo_data = bus;
 	i2c_set_adapdata(&bus->i2c_adap, &dev->v4l2_dev);

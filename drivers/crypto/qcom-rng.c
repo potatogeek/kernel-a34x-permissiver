@@ -7,6 +7,11 @@
 #include <linux/acpi.h>
 #include <linux/clk.h>
 #include <linux/crypto.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+#include <linux/iopoll.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/of.h>
 #include <linux/platform_device.h>
@@ -42,6 +47,7 @@ static int qcom_rng_read(struct qcom_rng *rng, u8 *data, unsigned int max)
 {
 	unsigned int currsize = 0;
 	u32 val;
+<<<<<<< HEAD
 
 	/* read random data from hardware */
 	do {
@@ -52,6 +58,21 @@ static int qcom_rng_read(struct qcom_rng *rng, u8 *data, unsigned int max)
 		val = readl_relaxed(rng->base + PRNG_DATA_OUT);
 		if (!val)
 			break;
+=======
+	int ret;
+
+	/* read random data from hardware */
+	do {
+		ret = readl_poll_timeout(rng->base + PRNG_STATUS, val,
+					 val & PRNG_STATUS_DATA_AVAIL,
+					 200, 10000);
+		if (ret)
+			return ret;
+
+		val = readl_relaxed(rng->base + PRNG_DATA_OUT);
+		if (!val)
+			return -EINVAL;
+>>>>>>> upstream/android-13
 
 		if ((max - currsize) >= WORD_SZ) {
 			memcpy(data, &val, WORD_SZ);
@@ -60,11 +81,18 @@ static int qcom_rng_read(struct qcom_rng *rng, u8 *data, unsigned int max)
 		} else {
 			/* copy only remaining bytes */
 			memcpy(data, &val, max - currsize);
+<<<<<<< HEAD
 			break;
 		}
 	} while (currsize < max);
 
 	return currsize;
+=======
+		}
+	} while (currsize < max);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int qcom_rng_generate(struct crypto_rng *tfm,
@@ -86,7 +114,11 @@ static int qcom_rng_generate(struct crypto_rng *tfm,
 	mutex_unlock(&rng->lock);
 	clk_disable_unprepare(rng->clk);
 
+<<<<<<< HEAD
 	return 0;
+=======
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int qcom_rng_seed(struct crypto_rng *tfm, const u8 *seed,
@@ -153,7 +185,10 @@ static struct rng_alg qcom_rng_alg = {
 
 static int qcom_rng_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	struct qcom_rng *rng;
 	int ret;
 
@@ -164,8 +199,12 @@ static int qcom_rng_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, rng);
 	mutex_init(&rng->lock);
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	rng->base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	rng->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(rng->base))
 		return PTR_ERR(rng->base);
 

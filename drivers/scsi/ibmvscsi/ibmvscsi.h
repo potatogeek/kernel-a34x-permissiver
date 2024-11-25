@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /* ------------------------------------------------------------
  * ibmvscsi.h
  * (C) Copyright IBM Corporation 1994, 2003
@@ -5,6 +9,7 @@
  *          Santiago Leon (santil@us.ibm.com)
  *          Dave Boutcher (sleddog@us.ibm.com)
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -20,6 +25,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
  * USA
  *
+=======
+>>>>>>> upstream/android-13
  * ------------------------------------------------------------
  * Emulation of a SCSI host adapter for Virtual I/O devices
  *
@@ -88,13 +95,27 @@ struct event_pool {
 	dma_addr_t iu_token;
 };
 
+<<<<<<< HEAD
+=======
+enum ibmvscsi_host_action {
+	IBMVSCSI_HOST_ACTION_NONE = 0,
+	IBMVSCSI_HOST_ACTION_RESET,
+	IBMVSCSI_HOST_ACTION_REENABLE,
+	IBMVSCSI_HOST_ACTION_UNBLOCK,
+};
+
+>>>>>>> upstream/android-13
 /* all driver data associated with a host adapter */
 struct ibmvscsi_host_data {
 	struct list_head host_list;
 	atomic_t request_limit;
 	int client_migrated;
+<<<<<<< HEAD
 	int reset_crq;
 	int reenable_crq;
+=======
+	enum ibmvscsi_host_action action;
+>>>>>>> upstream/android-13
 	struct device *dev;
 	struct event_pool pool;
 	struct crq_queue queue;

@@ -16,7 +16,10 @@ struct ceph_none_authorizer {
 	struct ceph_authorizer base;
 	char buf[128];
 	int buf_len;
+<<<<<<< HEAD
 	char reply_buf[0];
+=======
+>>>>>>> upstream/android-13
 };
 
 struct ceph_auth_none_info {

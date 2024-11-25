@@ -47,23 +47,39 @@ SECTIONS
 		LOCK_TEXT
 		KPROBES_TEXT
 		IRQENTRY_TEXT
+<<<<<<< HEAD
+=======
+		SOFTIRQENTRY_TEXT
+>>>>>>> upstream/android-13
 		*(.fixup)
 	}
 
 	_etext = .;			/* End of text and rodata section */
 
 	_sdata = .;
+<<<<<<< HEAD
 	RO_DATA_SECTION(PAGE_SIZE)
 	RW_DATA_SECTION(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
 	_edata  =  .;
 
 	EXCEPTION_TABLE(16)
 	NOTES
+=======
+	RO_DATA(PAGE_SIZE)
+	RW_DATA(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
+	_edata  =  .;
+
+	EXCEPTION_TABLE(16)
+>>>>>>> upstream/android-13
 	BSS_SECTION(4, 4, 4)
 	_end = .;
 
 	STABS_DEBUG
 	DWARF_DEBUG
+<<<<<<< HEAD
+=======
+	ELF_DETAILS
+>>>>>>> upstream/android-13
 
 	DISCARDS
 }

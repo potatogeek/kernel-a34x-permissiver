@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/net/sunrpc/svcsock.c
  *
@@ -43,8 +47,13 @@
 #include <net/tcp.h>
 #include <net/tcp_states.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
 #include <asm/ioctls.h>
 #include <trace/events/skb.h>
+=======
+#include <linux/highmem.h>
+#include <asm/ioctls.h>
+>>>>>>> upstream/android-13
 
 #include <linux/sunrpc/types.h>
 #include <linux/sunrpc/clnt.h>
@@ -54,6 +63,12 @@
 #include <linux/sunrpc/stats.h>
 #include <linux/sunrpc/xprt.h>
 
+<<<<<<< HEAD
+=======
+#include <trace/events/sunrpc.h>
+
+#include "socklib.h"
+>>>>>>> upstream/android-13
 #include "sunrpc.h"
 
 #define RPCDBG_FACILITY	RPCDBG_SVCXPRT
@@ -70,6 +85,7 @@ static void		svc_sock_free(struct svc_xprt *);
 static struct svc_xprt *svc_create_socket(struct svc_serv *, int,
 					  struct net *, struct sockaddr *,
 					  int, int);
+<<<<<<< HEAD
 #if defined(CONFIG_SUNRPC_BACKCHANNEL)
 static struct svc_xprt *svc_bc_create_socket(struct svc_serv *, int,
 					     struct net *, struct sockaddr *,
@@ -77,6 +93,8 @@ static struct svc_xprt *svc_bc_create_socket(struct svc_serv *, int,
 static void svc_bc_sock_free(struct svc_xprt *xprt);
 #endif /* CONFIG_SUNRPC_BACKCHANNEL */
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_DEBUG_LOCK_ALLOC
 static struct lock_class_key svc_key[2];
 static struct lock_class_key svc_slock_key[2];
@@ -113,31 +131,57 @@ static void svc_reclassify_socket(struct socket *sock)
 }
 #endif
 
+<<<<<<< HEAD
 /*
  * Release an skbuff after use
  */
 static void svc_release_skb(struct svc_rqst *rqstp)
+=======
+/**
+ * svc_tcp_release_rqst - Release transport-related resources
+ * @rqstp: request structure with resources to be released
+ *
+ */
+static void svc_tcp_release_rqst(struct svc_rqst *rqstp)
+>>>>>>> upstream/android-13
 {
 	struct sk_buff *skb = rqstp->rq_xprt_ctxt;
 
 	if (skb) {
 		struct svc_sock *svsk =
 			container_of(rqstp->rq_xprt, struct svc_sock, sk_xprt);
+<<<<<<< HEAD
 		rqstp->rq_xprt_ctxt = NULL;
 
 		dprintk("svc: service %p, releasing skb %p\n", rqstp, skb);
+=======
+
+		rqstp->rq_xprt_ctxt = NULL;
+>>>>>>> upstream/android-13
 		skb_free_datagram_locked(svsk->sk_sk, skb);
 	}
 }
 
+<<<<<<< HEAD
 static void svc_release_udp_skb(struct svc_rqst *rqstp)
+=======
+/**
+ * svc_udp_release_rqst - Release transport-related resources
+ * @rqstp: request structure with resources to be released
+ *
+ */
+static void svc_udp_release_rqst(struct svc_rqst *rqstp)
+>>>>>>> upstream/android-13
 {
 	struct sk_buff *skb = rqstp->rq_xprt_ctxt;
 
 	if (skb) {
 		rqstp->rq_xprt_ctxt = NULL;
+<<<<<<< HEAD
 
 		dprintk("svc: service %p, releasing skb %p\n", rqstp, skb);
+=======
+>>>>>>> upstream/android-13
 		consume_skb(skb);
 	}
 }
@@ -180,6 +224,7 @@ static void svc_set_cmsg_data(struct svc_rqst *rqstp, struct cmsghdr *cmh)
 	}
 }
 
+<<<<<<< HEAD
 /*
  * send routine intended to be shared by the fore- and back-channel
  */
@@ -283,6 +328,12 @@ out:
 		xdr->len, len, svc_print_addr(rqstp, buf, sizeof(buf)));
 
 	return len;
+=======
+static int svc_sock_result_payload(struct svc_rqst *rqstp, unsigned int offset,
+				   unsigned int length)
+{
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -322,6 +373,7 @@ static int svc_one_sock_name(struct svc_sock *svsk, char *buf, int remaining)
 	return len;
 }
 
+<<<<<<< HEAD
 /*
  * Generic recvfrom routine.
  */
@@ -334,18 +386,76 @@ static int svc_recvfrom(struct svc_rqst *rqstp, struct kvec *iov, int nr,
 		.msg_flags	= MSG_DONTWAIT,
 	};
 	int len;
+=======
+#if ARCH_IMPLEMENTS_FLUSH_DCACHE_PAGE
+static void svc_flush_bvec(const struct bio_vec *bvec, size_t size, size_t seek)
+{
+	struct bvec_iter bi = {
+		.bi_size	= size + seek,
+	};
+	struct bio_vec bv;
+
+	bvec_iter_advance(bvec, &bi, seek & PAGE_MASK);
+	for_each_bvec(bv, bvec, bi, bi)
+		flush_dcache_page(bv.bv_page);
+}
+#else
+static inline void svc_flush_bvec(const struct bio_vec *bvec, size_t size,
+				  size_t seek)
+{
+}
+#endif
+
+/*
+ * Read from @rqstp's transport socket. The incoming message fills whole
+ * pages in @rqstp's rq_pages array until the last page of the message
+ * has been received into a partial page.
+ */
+static ssize_t svc_tcp_read_msg(struct svc_rqst *rqstp, size_t buflen,
+				size_t seek)
+{
+	struct svc_sock *svsk =
+		container_of(rqstp->rq_xprt, struct svc_sock, sk_xprt);
+	struct bio_vec *bvec = rqstp->rq_bvec;
+	struct msghdr msg = { NULL };
+	unsigned int i;
+	ssize_t len;
+	size_t t;
+>>>>>>> upstream/android-13
 
 	rqstp->rq_xprt_hlen = 0;
 
 	clear_bit(XPT_DATA, &svsk->sk_xprt.xpt_flags);
+<<<<<<< HEAD
 	iov_iter_kvec(&msg.msg_iter, READ | ITER_KVEC, iov, nr, buflen);
 	len = sock_recvmsg(svsk->sk_sock, &msg, msg.msg_flags);
+=======
+
+	for (i = 0, t = 0; t < buflen; i++, t += PAGE_SIZE) {
+		bvec[i].bv_page = rqstp->rq_pages[i];
+		bvec[i].bv_len = PAGE_SIZE;
+		bvec[i].bv_offset = 0;
+	}
+	rqstp->rq_respages = &rqstp->rq_pages[i];
+	rqstp->rq_next_page = rqstp->rq_respages + 1;
+
+	iov_iter_bvec(&msg.msg_iter, READ, bvec, i, buflen);
+	if (seek) {
+		iov_iter_advance(&msg.msg_iter, seek);
+		buflen -= seek;
+	}
+	len = sock_recvmsg(svsk->sk_sock, &msg, MSG_DONTWAIT);
+	if (len > 0)
+		svc_flush_bvec(bvec, len, seek);
+
+>>>>>>> upstream/android-13
 	/* If we read a full record, then assume there may be more
 	 * data to read (stream based sockets only!)
 	 */
 	if (len == buflen)
 		set_bit(XPT_DATA, &svsk->sk_xprt.xpt_flags);
 
+<<<<<<< HEAD
 	dprintk("svc: socket %p recvfrom(%p, %zu) = %d\n",
 		svsk, iov[0].iov_base, iov[0].iov_len, len);
 	return len;
@@ -378,6 +488,11 @@ static int svc_partial_recvfrom(struct svc_rqst *rqstp,
 	return ret;
 }
 
+=======
+	return len;
+}
+
+>>>>>>> upstream/android-13
 /*
  * Set socket snd and rcv buffer lengths
  */
@@ -411,6 +526,7 @@ static void svc_data_ready(struct sock *sk)
 	struct svc_sock	*svsk = (struct svc_sock *)sk->sk_user_data;
 
 	if (svsk) {
+<<<<<<< HEAD
 		dprintk("svc: socket %p(inet %p), busy=%d\n",
 			svsk, sk,
 			test_bit(XPT_BUSY, &svsk->sk_xprt.xpt_flags));
@@ -418,6 +534,12 @@ static void svc_data_ready(struct sock *sk)
 		/* Refer to svc_setup_socket() for details. */
 		rmb();
 		svsk->sk_odata(sk);
+=======
+		/* Refer to svc_setup_socket() for details. */
+		rmb();
+		svsk->sk_odata(sk);
+		trace_svcsock_data_ready(&svsk->sk_xprt, 0);
+>>>>>>> upstream/android-13
 		if (!test_and_set_bit(XPT_DATA, &svsk->sk_xprt.xpt_flags))
 			svc_xprt_enqueue(&svsk->sk_xprt);
 	}
@@ -431,11 +553,17 @@ static void svc_write_space(struct sock *sk)
 	struct svc_sock	*svsk = (struct svc_sock *)(sk->sk_user_data);
 
 	if (svsk) {
+<<<<<<< HEAD
 		dprintk("svc: socket %p(inet %p), write_space busy=%d\n",
 			svsk, sk, test_bit(XPT_BUSY, &svsk->sk_xprt.xpt_flags));
 
 		/* Refer to svc_setup_socket() for details. */
 		rmb();
+=======
+		/* Refer to svc_setup_socket() for details. */
+		rmb();
+		trace_svcsock_write_space(&svsk->sk_xprt, 0);
+>>>>>>> upstream/android-13
 		svsk->sk_owspace(sk);
 		svc_xprt_enqueue(&svsk->sk_xprt);
 	}
@@ -452,6 +580,7 @@ static int svc_tcp_has_wspace(struct svc_xprt *xprt)
 
 static void svc_tcp_kill_temp_xprt(struct svc_xprt *xprt)
 {
+<<<<<<< HEAD
 	struct svc_sock *svsk;
 	struct socket *sock;
 	struct linger no_linger = {
@@ -463,6 +592,11 @@ static void svc_tcp_kill_temp_xprt(struct svc_xprt *xprt)
 	sock = svsk->sk_sock;
 	kernel_setsockopt(sock, SOL_SOCKET, SO_LINGER,
 			  (char *)&no_linger, sizeof(no_linger));
+=======
+	struct svc_sock *svsk = container_of(xprt, struct svc_sock, sk_xprt);
+
+	sock_no_linger(svsk->sk_sock->sk);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -520,8 +654,20 @@ static int svc_udp_get_dest_address(struct svc_rqst *rqstp,
 	return 0;
 }
 
+<<<<<<< HEAD
 /*
  * Receive a datagram from a UDP socket.
+=======
+/**
+ * svc_udp_recvfrom - Receive a datagram from a UDP socket.
+ * @rqstp: request structure into which to receive an RPC Call
+ *
+ * Called in a loop when XPT_DATA has been set.
+ *
+ * Returns:
+ *   On success, the number of bytes in a received RPC Call, or
+ *   %0 if a complete RPC Call message was not ready to return
+>>>>>>> upstream/android-13
  */
 static int svc_udp_recvfrom(struct svc_rqst *rqstp)
 {
@@ -555,6 +701,7 @@ static int svc_udp_recvfrom(struct svc_rqst *rqstp)
 	    svc_sock_setbufsize(svsk, serv->sv_nrthreads + 3);
 
 	clear_bit(XPT_DATA, &svsk->sk_xprt.xpt_flags);
+<<<<<<< HEAD
 	skb = NULL;
 	err = kernel_recvmsg(svsk->sk_sock, &msg, NULL,
 			     0, 0, MSG_PEEK | MSG_DONTWAIT);
@@ -569,6 +716,16 @@ static int svc_udp_recvfrom(struct svc_rqst *rqstp)
 		}
 		return 0;
 	}
+=======
+	err = kernel_recvmsg(svsk->sk_sock, &msg, NULL,
+			     0, 0, MSG_PEEK | MSG_DONTWAIT);
+	if (err < 0)
+		goto out_recv_err;
+	skb = skb_recv_udp(svsk->sk_sk, 0, 1, &err);
+	if (!skb)
+		goto out_recv_err;
+
+>>>>>>> upstream/android-13
 	len = svc_addr_len(svc_addr(rqstp));
 	rqstp->rq_addrlen = len;
 	if (skb->tstamp == 0) {
@@ -579,6 +736,7 @@ static int svc_udp_recvfrom(struct svc_rqst *rqstp)
 	sock_write_timestamp(svsk->sk_sk, skb->tstamp);
 	set_bit(XPT_DATA, &svsk->sk_xprt.xpt_flags); /* there may be more data... */
 
+<<<<<<< HEAD
 	len  = skb->len;
 	rqstp->rq_arg.len = len;
 
@@ -589,16 +747,31 @@ static int svc_udp_recvfrom(struct svc_rqst *rqstp)
 				     cmh->cmsg_level, cmh->cmsg_type);
 		goto out_free;
 	}
+=======
+	len = skb->len;
+	rqstp->rq_arg.len = len;
+	trace_svcsock_udp_recv(&svsk->sk_xprt, len);
+
+	rqstp->rq_prot = IPPROTO_UDP;
+
+	if (!svc_udp_get_dest_address(rqstp, cmh))
+		goto out_cmsg_err;
+>>>>>>> upstream/android-13
 	rqstp->rq_daddrlen = svc_addr_len(svc_daddr(rqstp));
 
 	if (skb_is_nonlinear(skb)) {
 		/* we have to copy */
 		local_bh_disable();
+<<<<<<< HEAD
 		if (csum_partial_copy_to_xdr(&rqstp->rq_arg, skb)) {
 			local_bh_enable();
 			/* checksum error */
 			goto out_free;
 		}
+=======
+		if (csum_partial_copy_to_xdr(&rqstp->rq_arg, skb))
+			goto out_bh_enable;
+>>>>>>> upstream/android-13
 		local_bh_enable();
 		consume_skb(skb);
 	} else {
@@ -625,6 +798,7 @@ static int svc_udp_recvfrom(struct svc_rqst *rqstp)
 	if (serv->sv_stats)
 		serv->sv_stats->netudpcnt++;
 
+<<<<<<< HEAD
 	return len;
 out_free:
 	kfree_skb(skb);
@@ -648,6 +822,85 @@ svc_udp_sendto(struct svc_rqst *rqstp)
 
 static void svc_udp_prep_reply_hdr(struct svc_rqst *rqstp)
 {
+=======
+	svc_xprt_received(rqstp->rq_xprt);
+	return len;
+
+out_recv_err:
+	if (err != -EAGAIN) {
+		/* possibly an icmp error */
+		set_bit(XPT_DATA, &svsk->sk_xprt.xpt_flags);
+	}
+	trace_svcsock_udp_recv_err(&svsk->sk_xprt, err);
+	goto out_clear_busy;
+out_cmsg_err:
+	net_warn_ratelimited("svc: received unknown control message %d/%d; dropping RPC reply datagram\n",
+			     cmh->cmsg_level, cmh->cmsg_type);
+	goto out_free;
+out_bh_enable:
+	local_bh_enable();
+out_free:
+	kfree_skb(skb);
+out_clear_busy:
+	svc_xprt_received(rqstp->rq_xprt);
+	return 0;
+}
+
+/**
+ * svc_udp_sendto - Send out a reply on a UDP socket
+ * @rqstp: completed svc_rqst
+ *
+ * xpt_mutex ensures @rqstp's whole message is written to the socket
+ * without interruption.
+ *
+ * Returns the number of bytes sent, or a negative errno.
+ */
+static int svc_udp_sendto(struct svc_rqst *rqstp)
+{
+	struct svc_xprt *xprt = rqstp->rq_xprt;
+	struct svc_sock	*svsk = container_of(xprt, struct svc_sock, sk_xprt);
+	struct xdr_buf *xdr = &rqstp->rq_res;
+	union {
+		struct cmsghdr	hdr;
+		long		all[SVC_PKTINFO_SPACE / sizeof(long)];
+	} buffer;
+	struct cmsghdr *cmh = &buffer.hdr;
+	struct msghdr msg = {
+		.msg_name	= &rqstp->rq_addr,
+		.msg_namelen	= rqstp->rq_addrlen,
+		.msg_control	= cmh,
+		.msg_controllen	= sizeof(buffer),
+	};
+	unsigned int sent;
+	int err;
+
+	svc_udp_release_rqst(rqstp);
+
+	svc_set_cmsg_data(rqstp, cmh);
+
+	mutex_lock(&xprt->xpt_mutex);
+
+	if (svc_xprt_is_dead(xprt))
+		goto out_notconn;
+
+	err = xprt_sock_sendmsg(svsk->sk_sock, &msg, xdr, 0, 0, &sent);
+	xdr_free_bvec(xdr);
+	if (err == -ECONNREFUSED) {
+		/* ICMP error on earlier request. */
+		err = xprt_sock_sendmsg(svsk->sk_sock, &msg, xdr, 0, 0, &sent);
+		xdr_free_bvec(xdr);
+	}
+	trace_svcsock_udp_send(xprt, err);
+
+	mutex_unlock(&xprt->xpt_mutex);
+	if (err < 0)
+		return err;
+	return sent;
+
+out_notconn:
+	mutex_unlock(&xprt->xpt_mutex);
+	return -ENOTCONN;
+>>>>>>> upstream/android-13
 }
 
 static int svc_udp_has_wspace(struct svc_xprt *xprt)
@@ -690,10 +943,17 @@ static const struct svc_xprt_ops svc_udp_ops = {
 	.xpo_create = svc_udp_create,
 	.xpo_recvfrom = svc_udp_recvfrom,
 	.xpo_sendto = svc_udp_sendto,
+<<<<<<< HEAD
 	.xpo_release_rqst = svc_release_udp_skb,
 	.xpo_detach = svc_sock_detach,
 	.xpo_free = svc_sock_free,
 	.xpo_prep_reply_hdr = svc_udp_prep_reply_hdr,
+=======
+	.xpo_result_payload = svc_sock_result_payload,
+	.xpo_release_rqst = svc_udp_release_rqst,
+	.xpo_detach = svc_sock_detach,
+	.xpo_free = svc_sock_free,
+>>>>>>> upstream/android-13
 	.xpo_has_wspace = svc_udp_has_wspace,
 	.xpo_accept = svc_udp_accept,
 	.xpo_secure_port = svc_sock_secure_port,
@@ -710,8 +970,11 @@ static struct svc_xprt_class svc_udp_class = {
 
 static void svc_udp_init(struct svc_sock *svsk, struct svc_serv *serv)
 {
+<<<<<<< HEAD
 	int err, level, optname, one = 1;
 
+=======
+>>>>>>> upstream/android-13
 	svc_xprt_init(sock_net(svsk->sk_sock->sk), &svc_udp_class,
 		      &svsk->sk_xprt, serv);
 	clear_bit(XPT_CACHE_AUTH, &svsk->sk_xprt.xpt_flags);
@@ -731,19 +994,29 @@ static void svc_udp_init(struct svc_sock *svsk, struct svc_serv *serv)
 	/* make sure we get destination address info */
 	switch (svsk->sk_sk->sk_family) {
 	case AF_INET:
+<<<<<<< HEAD
 		level = SOL_IP;
 		optname = IP_PKTINFO;
 		break;
 	case AF_INET6:
 		level = SOL_IPV6;
 		optname = IPV6_RECVPKTINFO;
+=======
+		ip_sock_set_pktinfo(svsk->sk_sock->sk);
+		break;
+	case AF_INET6:
+		ip6_sock_set_recvpktinfo(svsk->sk_sock->sk);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		BUG();
 	}
+<<<<<<< HEAD
 	err = kernel_setsockopt(svsk->sk_sock, level, optname,
 					(char *)&one, sizeof(one));
 	dprintk("svc: kernel_setsockopt returned %d\n", err);
+=======
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -754,9 +1027,12 @@ static void svc_tcp_listen_data_ready(struct sock *sk)
 {
 	struct svc_sock	*svsk = (struct svc_sock *)sk->sk_user_data;
 
+<<<<<<< HEAD
 	dprintk("svc: socket %p TCP (listen) state change %d\n",
 		sk, sk->sk_state);
 
+=======
+>>>>>>> upstream/android-13
 	if (svsk) {
 		/* Refer to svc_setup_socket() for details. */
 		rmb();
@@ -777,8 +1053,12 @@ static void svc_tcp_listen_data_ready(struct sock *sk)
 		if (svsk) {
 			set_bit(XPT_CONN, &svsk->sk_xprt.xpt_flags);
 			svc_xprt_enqueue(&svsk->sk_xprt);
+<<<<<<< HEAD
 		} else
 			printk("svc: socket %p: no user data\n", sk);
+=======
+		}
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -789,6 +1069,7 @@ static void svc_tcp_state_change(struct sock *sk)
 {
 	struct svc_sock	*svsk = (struct svc_sock *)sk->sk_user_data;
 
+<<<<<<< HEAD
 	dprintk("svc: socket %p TCP (connected) state change %d (svsk %p)\n",
 		sk, sk->sk_state, sk->sk_user_data);
 
@@ -802,6 +1083,15 @@ static void svc_tcp_state_change(struct sock *sk)
 			set_bit(XPT_CLOSE, &svsk->sk_xprt.xpt_flags);
 			svc_xprt_enqueue(&svsk->sk_xprt);
 		}
+=======
+	if (svsk) {
+		/* Refer to svc_setup_socket() for details. */
+		rmb();
+		svsk->sk_ostate(sk);
+		trace_svcsock_tcp_state(&svsk->sk_xprt, svsk->sk_sock);
+		if (sk->sk_state != TCP_ESTABLISHED)
+			svc_xprt_deferred_close(&svsk->sk_xprt);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -818,9 +1108,13 @@ static struct svc_xprt *svc_tcp_accept(struct svc_xprt *xprt)
 	struct socket	*newsock;
 	struct svc_sock	*newsvsk;
 	int		err, slen;
+<<<<<<< HEAD
 	RPC_IFDEBUG(char buf[RPC_MAX_ADDRBUFLEN]);
 
 	dprintk("svc: tcp_accept %p sock %p\n", svsk, sock);
+=======
+
+>>>>>>> upstream/android-13
 	if (!sock)
 		return NULL;
 
@@ -833,18 +1127,27 @@ static struct svc_xprt *svc_tcp_accept(struct svc_xprt *xprt)
 		else if (err != -EAGAIN)
 			net_warn_ratelimited("%s: accept failed (err %d)!\n",
 					     serv->sv_name, -err);
+<<<<<<< HEAD
+=======
+		trace_svcsock_accept_err(xprt, serv->sv_name, err);
+>>>>>>> upstream/android-13
 		return NULL;
 	}
 	set_bit(XPT_CONN, &svsk->sk_xprt.xpt_flags);
 
 	err = kernel_getpeername(newsock, sin);
 	if (err < 0) {
+<<<<<<< HEAD
 		net_warn_ratelimited("%s: peername failed (err %d)!\n",
 				     serv->sv_name, -err);
+=======
+		trace_svcsock_getpeername_err(xprt, serv->sv_name, err);
+>>>>>>> upstream/android-13
 		goto failed;		/* aborted connection or whatever */
 	}
 	slen = err;
 
+<<<<<<< HEAD
 	/* Ideally, we would want to reject connections from unauthorized
 	 * hosts here, but when we get encryption, the IP of the host won't
 	 * tell us anything.  For now just warn about unpriv connections.
@@ -857,6 +1160,8 @@ static struct svc_xprt *svc_tcp_accept(struct svc_xprt *xprt)
 	dprintk("%s: connect from %s\n", serv->sv_name,
 		__svc_print_addr(sin, buf, sizeof(buf)));
 
+=======
+>>>>>>> upstream/android-13
 	/* Reset the inherited callbacks before calling svc_setup_socket */
 	newsock->sk->sk_state_change = svsk->sk_ostate;
 	newsock->sk->sk_data_ready = svsk->sk_odata;
@@ -874,10 +1179,15 @@ static struct svc_xprt *svc_tcp_accept(struct svc_xprt *xprt)
 	svc_xprt_set_remote(&newsvsk->sk_xprt, sin, slen);
 	err = kernel_getsockname(newsock, sin);
 	slen = err;
+<<<<<<< HEAD
 	if (unlikely(err < 0)) {
 		dprintk("svc_tcp_accept: kernel_getsockname error %d\n", -err);
 		slen = offsetof(struct sockaddr, sa_data);
 	}
+=======
+	if (unlikely(err < 0))
+		slen = offsetof(struct sockaddr, sa_data);
+>>>>>>> upstream/android-13
 	svc_xprt_set_local(&newsvsk->sk_xprt, sin, slen);
 
 	if (sock_is_loopback(newsock->sk))
@@ -894,6 +1204,7 @@ failed:
 	return NULL;
 }
 
+<<<<<<< HEAD
 static unsigned int svc_tcp_restore_pages(struct svc_sock *svsk, struct svc_rqst *rqstp)
 {
 	unsigned int i, len, npages;
@@ -901,6 +1212,16 @@ static unsigned int svc_tcp_restore_pages(struct svc_sock *svsk, struct svc_rqst
 	if (svsk->sk_datalen == 0)
 		return 0;
 	len = svsk->sk_datalen;
+=======
+static size_t svc_tcp_restore_pages(struct svc_sock *svsk,
+				    struct svc_rqst *rqstp)
+{
+	size_t len = svsk->sk_datalen;
+	unsigned int i, npages;
+
+	if (!len)
+		return 0;
+>>>>>>> upstream/android-13
 	npages = (len + PAGE_SIZE - 1) >> PAGE_SHIFT;
 	for (i = 0; i < npages; i++) {
 		if (rqstp->rq_pages[i] != NULL)
@@ -949,6 +1270,7 @@ out:
 }
 
 /*
+<<<<<<< HEAD
  * Receive fragment record header.
  * If we haven't gotten the record length yet, get the next four bytes.
  */
@@ -989,6 +1311,47 @@ error:
 	return len;
 err_delete:
 	set_bit(XPT_CLOSE, &svsk->sk_xprt.xpt_flags);
+=======
+ * Receive fragment record header into sk_marker.
+ */
+static ssize_t svc_tcp_read_marker(struct svc_sock *svsk,
+				   struct svc_rqst *rqstp)
+{
+	ssize_t want, len;
+
+	/* If we haven't gotten the record length yet,
+	 * get the next four bytes.
+	 */
+	if (svsk->sk_tcplen < sizeof(rpc_fraghdr)) {
+		struct msghdr	msg = { NULL };
+		struct kvec	iov;
+
+		want = sizeof(rpc_fraghdr) - svsk->sk_tcplen;
+		iov.iov_base = ((char *)&svsk->sk_marker) + svsk->sk_tcplen;
+		iov.iov_len  = want;
+		iov_iter_kvec(&msg.msg_iter, READ, &iov, 1, want);
+		len = sock_recvmsg(svsk->sk_sock, &msg, MSG_DONTWAIT);
+		if (len < 0)
+			return len;
+		svsk->sk_tcplen += len;
+		if (len < want) {
+			/* call again to read the remaining bytes */
+			goto err_short;
+		}
+		trace_svcsock_marker(&svsk->sk_xprt, svsk->sk_marker);
+		if (svc_sock_reclen(svsk) + svsk->sk_datalen >
+		    svsk->sk_xprt.xpt_server->sv_max_mesg)
+			goto err_too_large;
+	}
+	return svc_sock_reclen(svsk);
+
+err_too_large:
+	net_notice_ratelimited("svc: %s %s RPC fragment too large: %d\n",
+			       __func__, svsk->sk_xprt.xpt_server->sv_name,
+			       svc_sock_reclen(svsk));
+	svc_xprt_deferred_close(&svsk->sk_xprt);
+err_short:
+>>>>>>> upstream/android-13
 	return -EAGAIN;
 }
 
@@ -1006,7 +1369,11 @@ static int receive_cb_reply(struct svc_sock *svsk, struct svc_rqst *rqstp)
 
 	if (!bc_xprt)
 		return -EAGAIN;
+<<<<<<< HEAD
 	spin_lock(&bc_xprt->recv_lock);
+=======
+	spin_lock(&bc_xprt->queue_lock);
+>>>>>>> upstream/android-13
 	req = xprt_lookup_rqst(bc_xprt, xid);
 	if (!req)
 		goto unlock_notfound;
@@ -1024,7 +1391,11 @@ static int receive_cb_reply(struct svc_sock *svsk, struct svc_rqst *rqstp)
 	memcpy(dst->iov_base, src->iov_base, src->iov_len);
 	xprt_complete_rqst(req->rq_task, rqstp->rq_arg.len);
 	rqstp->rq_arg.len = 0;
+<<<<<<< HEAD
 	spin_unlock(&bc_xprt->recv_lock);
+=======
+	spin_unlock(&bc_xprt->queue_lock);
+>>>>>>> upstream/android-13
 	return 0;
 unlock_notfound:
 	printk(KERN_NOTICE
@@ -1033,6 +1404,7 @@ unlock_notfound:
 		__func__, ntohl(calldir),
 		bc_xprt, ntohl(xid));
 unlock_eagain:
+<<<<<<< HEAD
 	spin_unlock(&bc_xprt->recv_lock);
 	return -EAGAIN;
 }
@@ -1063,12 +1435,43 @@ static void svc_tcp_fragment_received(struct svc_sock *svsk)
 
 /*
  * Receive data from a TCP socket.
+=======
+	spin_unlock(&bc_xprt->queue_lock);
+	return -EAGAIN;
+}
+
+static void svc_tcp_fragment_received(struct svc_sock *svsk)
+{
+	/* If we have more data, signal svc_xprt_enqueue() to try again */
+	svsk->sk_tcplen = 0;
+	svsk->sk_marker = xdr_zero;
+}
+
+/**
+ * svc_tcp_recvfrom - Receive data from a TCP socket
+ * @rqstp: request structure into which to receive an RPC Call
+ *
+ * Called in a loop when XPT_DATA has been set.
+ *
+ * Read the 4-byte stream record marker, then use the record length
+ * in that marker to set up exactly the resources needed to receive
+ * the next RPC message into @rqstp.
+ *
+ * Returns:
+ *   On success, the number of bytes in a received RPC Call, or
+ *   %0 if a complete RPC Call message was not ready to return
+ *
+ * The zero return case handles partial receives and callback Replies.
+ * The state of a partial receive is preserved in the svc_sock for
+ * the next call to svc_tcp_recvfrom.
+>>>>>>> upstream/android-13
  */
 static int svc_tcp_recvfrom(struct svc_rqst *rqstp)
 {
 	struct svc_sock	*svsk =
 		container_of(rqstp->rq_xprt, struct svc_sock, sk_xprt);
 	struct svc_serv	*serv = svsk->sk_xprt.xpt_server;
+<<<<<<< HEAD
 	int		len;
 	struct kvec *vec;
 	unsigned int want, base;
@@ -1082,10 +1485,20 @@ static int svc_tcp_recvfrom(struct svc_rqst *rqstp)
 		test_bit(XPT_CLOSE, &svsk->sk_xprt.xpt_flags));
 
 	len = svc_tcp_recv_record(svsk, rqstp);
+=======
+	size_t want, base;
+	ssize_t len;
+	__be32 *p;
+	__be32 calldir;
+
+	clear_bit(XPT_DATA, &svsk->sk_xprt.xpt_flags);
+	len = svc_tcp_read_marker(svsk, rqstp);
+>>>>>>> upstream/android-13
 	if (len < 0)
 		goto error;
 
 	base = svc_tcp_restore_pages(svsk, rqstp);
+<<<<<<< HEAD
 	want = svc_sock_reclen(svsk) - (svsk->sk_tcplen - sizeof(rpc_fraghdr));
 
 	vec = rqstp->rq_vec;
@@ -1119,6 +1532,19 @@ static int svc_tcp_recvfrom(struct svc_rqst *rqstp)
 		svsk->sk_datalen = 0;
 		goto err_delete; /* client is nuts. */
 	}
+=======
+	want = len - (svsk->sk_tcplen - sizeof(rpc_fraghdr));
+	len = svc_tcp_read_msg(rqstp, base + want, base);
+	if (len >= 0) {
+		trace_svcsock_tcp_recv(&svsk->sk_xprt, len);
+		svsk->sk_tcplen += len;
+		svsk->sk_datalen += len;
+	}
+	if (len != want || !svc_sock_final_rec(svsk))
+		goto err_incomplete;
+	if (svsk->sk_datalen < 8)
+		goto err_nuts;
+>>>>>>> upstream/android-13
 
 	rqstp->rq_arg.len = svsk->sk_datalen;
 	rqstp->rq_arg.page_base = 0;
@@ -1151,6 +1577,7 @@ static int svc_tcp_recvfrom(struct svc_rqst *rqstp)
 	if (serv->sv_stats)
 		serv->sv_stats->nettcpcnt++;
 
+<<<<<<< HEAD
 	return rqstp->rq_arg.len;
 
 error:
@@ -1208,6 +1635,169 @@ void svc_tcp_prep_reply_hdr(struct svc_rqst *rqstp)
 
 	/* tcp needs a space for the record length... */
 	svc_putnl(resv, 0);
+=======
+	svc_xprt_received(rqstp->rq_xprt);
+	return rqstp->rq_arg.len;
+
+err_incomplete:
+	svc_tcp_save_pages(svsk, rqstp);
+	if (len < 0 && len != -EAGAIN)
+		goto err_delete;
+	if (len == want)
+		svc_tcp_fragment_received(svsk);
+	else
+		trace_svcsock_tcp_recv_short(&svsk->sk_xprt,
+				svc_sock_reclen(svsk),
+				svsk->sk_tcplen - sizeof(rpc_fraghdr));
+	goto err_noclose;
+error:
+	if (len != -EAGAIN)
+		goto err_delete;
+	trace_svcsock_tcp_recv_eagain(&svsk->sk_xprt, 0);
+	goto err_noclose;
+err_nuts:
+	svsk->sk_datalen = 0;
+err_delete:
+	trace_svcsock_tcp_recv_err(&svsk->sk_xprt, len);
+	svc_xprt_deferred_close(&svsk->sk_xprt);
+err_noclose:
+	svc_xprt_received(rqstp->rq_xprt);
+	return 0;	/* record not complete */
+}
+
+static int svc_tcp_send_kvec(struct socket *sock, const struct kvec *vec,
+			      int flags)
+{
+	return kernel_sendpage(sock, virt_to_page(vec->iov_base),
+			       offset_in_page(vec->iov_base),
+			       vec->iov_len, flags);
+}
+
+/*
+ * kernel_sendpage() is used exclusively to reduce the number of
+ * copy operations in this path. Therefore the caller must ensure
+ * that the pages backing @xdr are unchanging.
+ *
+ * In addition, the logic assumes that * .bv_len is never larger
+ * than PAGE_SIZE.
+ */
+static int svc_tcp_sendmsg(struct socket *sock, struct xdr_buf *xdr,
+			   rpc_fraghdr marker, unsigned int *sentp)
+{
+	const struct kvec *head = xdr->head;
+	const struct kvec *tail = xdr->tail;
+	struct kvec rm = {
+		.iov_base	= &marker,
+		.iov_len	= sizeof(marker),
+	};
+	struct msghdr msg = {
+		.msg_flags	= 0,
+	};
+	int ret;
+
+	*sentp = 0;
+	ret = xdr_alloc_bvec(xdr, GFP_KERNEL);
+	if (ret < 0)
+		return ret;
+
+	ret = kernel_sendmsg(sock, &msg, &rm, 1, rm.iov_len);
+	if (ret < 0)
+		return ret;
+	*sentp += ret;
+	if (ret != rm.iov_len)
+		return -EAGAIN;
+
+	ret = svc_tcp_send_kvec(sock, head, 0);
+	if (ret < 0)
+		return ret;
+	*sentp += ret;
+	if (ret != head->iov_len)
+		goto out;
+
+	if (xdr->page_len) {
+		unsigned int offset, len, remaining;
+		struct bio_vec *bvec;
+
+		bvec = xdr->bvec + (xdr->page_base >> PAGE_SHIFT);
+		offset = offset_in_page(xdr->page_base);
+		remaining = xdr->page_len;
+		while (remaining > 0) {
+			len = min(remaining, bvec->bv_len - offset);
+			ret = kernel_sendpage(sock, bvec->bv_page,
+					      bvec->bv_offset + offset,
+					      len, 0);
+			if (ret < 0)
+				return ret;
+			*sentp += ret;
+			if (ret != len)
+				goto out;
+			remaining -= len;
+			offset = 0;
+			bvec++;
+		}
+	}
+
+	if (tail->iov_len) {
+		ret = svc_tcp_send_kvec(sock, tail, 0);
+		if (ret < 0)
+			return ret;
+		*sentp += ret;
+	}
+
+out:
+	return 0;
+}
+
+/**
+ * svc_tcp_sendto - Send out a reply on a TCP socket
+ * @rqstp: completed svc_rqst
+ *
+ * xpt_mutex ensures @rqstp's whole message is written to the socket
+ * without interruption.
+ *
+ * Returns the number of bytes sent, or a negative errno.
+ */
+static int svc_tcp_sendto(struct svc_rqst *rqstp)
+{
+	struct svc_xprt *xprt = rqstp->rq_xprt;
+	struct svc_sock	*svsk = container_of(xprt, struct svc_sock, sk_xprt);
+	struct xdr_buf *xdr = &rqstp->rq_res;
+	rpc_fraghdr marker = cpu_to_be32(RPC_LAST_STREAM_FRAGMENT |
+					 (u32)xdr->len);
+	unsigned int sent;
+	int err;
+
+	svc_tcp_release_rqst(rqstp);
+
+	atomic_inc(&svsk->sk_sendqlen);
+	mutex_lock(&xprt->xpt_mutex);
+	if (svc_xprt_is_dead(xprt))
+		goto out_notconn;
+	tcp_sock_set_cork(svsk->sk_sk, true);
+	err = svc_tcp_sendmsg(svsk->sk_sock, xdr, marker, &sent);
+	xdr_free_bvec(xdr);
+	trace_svcsock_tcp_send(xprt, err < 0 ? (long)err : sent);
+	if (err < 0 || sent != (xdr->len + sizeof(marker)))
+		goto out_close;
+	if (atomic_dec_and_test(&svsk->sk_sendqlen))
+		tcp_sock_set_cork(svsk->sk_sk, false);
+	mutex_unlock(&xprt->xpt_mutex);
+	return sent;
+
+out_notconn:
+	atomic_dec(&svsk->sk_sendqlen);
+	mutex_unlock(&xprt->xpt_mutex);
+	return -ENOTCONN;
+out_close:
+	pr_notice("rpc-srv/tcp: %s: %s %d when sending %d bytes - shutting down socket\n",
+		  xprt->xpt_server->sv_name,
+		  (err < 0) ? "got error" : "sent",
+		  (err < 0) ? err : sent, xdr->len);
+	svc_xprt_deferred_close(xprt);
+	atomic_dec(&svsk->sk_sendqlen);
+	mutex_unlock(&xprt->xpt_mutex);
+	return -EAGAIN;
+>>>>>>> upstream/android-13
 }
 
 static struct svc_xprt *svc_tcp_create(struct svc_serv *serv,
@@ -1218,6 +1808,7 @@ static struct svc_xprt *svc_tcp_create(struct svc_serv *serv,
 	return svc_create_socket(serv, IPPROTO_TCP, net, sa, salen, flags);
 }
 
+<<<<<<< HEAD
 #if defined(CONFIG_SUNRPC_BACKCHANNEL)
 static struct svc_xprt *svc_bc_create_socket(struct svc_serv *, int,
 					     struct net *, struct sockaddr *,
@@ -1270,14 +1861,23 @@ static void svc_cleanup_bc_xprt_sock(void)
 }
 #endif /* CONFIG_SUNRPC_BACKCHANNEL */
 
+=======
+>>>>>>> upstream/android-13
 static const struct svc_xprt_ops svc_tcp_ops = {
 	.xpo_create = svc_tcp_create,
 	.xpo_recvfrom = svc_tcp_recvfrom,
 	.xpo_sendto = svc_tcp_sendto,
+<<<<<<< HEAD
 	.xpo_release_rqst = svc_release_skb,
 	.xpo_detach = svc_tcp_sock_detach,
 	.xpo_free = svc_sock_free,
 	.xpo_prep_reply_hdr = svc_tcp_prep_reply_hdr,
+=======
+	.xpo_result_payload = svc_sock_result_payload,
+	.xpo_release_rqst = svc_tcp_release_rqst,
+	.xpo_detach = svc_tcp_sock_detach,
+	.xpo_free = svc_sock_free,
+>>>>>>> upstream/android-13
 	.xpo_has_wspace = svc_tcp_has_wspace,
 	.xpo_accept = svc_tcp_accept,
 	.xpo_secure_port = svc_sock_secure_port,
@@ -1296,14 +1896,20 @@ void svc_init_xprt_sock(void)
 {
 	svc_reg_xprt_class(&svc_tcp_class);
 	svc_reg_xprt_class(&svc_udp_class);
+<<<<<<< HEAD
 	svc_init_bc_xprt_sock();
+=======
+>>>>>>> upstream/android-13
 }
 
 void svc_cleanup_xprt_sock(void)
 {
 	svc_unreg_xprt_class(&svc_tcp_class);
 	svc_unreg_xprt_class(&svc_udp_class);
+<<<<<<< HEAD
 	svc_cleanup_bc_xprt_sock();
+=======
+>>>>>>> upstream/android-13
 }
 
 static void svc_tcp_init(struct svc_sock *svsk, struct svc_serv *serv)
@@ -1315,23 +1921,37 @@ static void svc_tcp_init(struct svc_sock *svsk, struct svc_serv *serv)
 	set_bit(XPT_CACHE_AUTH, &svsk->sk_xprt.xpt_flags);
 	set_bit(XPT_CONG_CTRL, &svsk->sk_xprt.xpt_flags);
 	if (sk->sk_state == TCP_LISTEN) {
+<<<<<<< HEAD
 		dprintk("setting up TCP socket for listening\n");
+=======
+>>>>>>> upstream/android-13
 		strcpy(svsk->sk_xprt.xpt_remotebuf, "listener");
 		set_bit(XPT_LISTENER, &svsk->sk_xprt.xpt_flags);
 		sk->sk_data_ready = svc_tcp_listen_data_ready;
 		set_bit(XPT_CONN, &svsk->sk_xprt.xpt_flags);
 	} else {
+<<<<<<< HEAD
 		dprintk("setting up TCP socket for reading\n");
+=======
+>>>>>>> upstream/android-13
 		sk->sk_state_change = svc_tcp_state_change;
 		sk->sk_data_ready = svc_data_ready;
 		sk->sk_write_space = svc_write_space;
 
+<<<<<<< HEAD
 		svsk->sk_reclen = 0;
+=======
+		svsk->sk_marker = xdr_zero;
+>>>>>>> upstream/android-13
 		svsk->sk_tcplen = 0;
 		svsk->sk_datalen = 0;
 		memset(&svsk->sk_pages[0], 0, sizeof(svsk->sk_pages));
 
+<<<<<<< HEAD
 		tcp_sk(sk)->nonagle |= TCP_NAGLE_OFF;
+=======
+		tcp_sock_set_nodelay(sk);
+>>>>>>> upstream/android-13
 
 		set_bit(XPT_DATA, &svsk->sk_xprt.xpt_flags);
 		switch (sk->sk_state) {
@@ -1339,7 +1959,11 @@ static void svc_tcp_init(struct svc_sock *svsk, struct svc_serv *serv)
 		case TCP_ESTABLISHED:
 			break;
 		default:
+<<<<<<< HEAD
 			set_bit(XPT_CLOSE, &svsk->sk_xprt.xpt_flags);
+=======
+			svc_xprt_deferred_close(&svsk->sk_xprt);
+>>>>>>> upstream/android-13
 		}
 	}
 }
@@ -1371,7 +1995,10 @@ static struct svc_sock *svc_setup_socket(struct svc_serv *serv,
 	int		pmap_register = !(flags & SVC_SOCK_ANONYMOUS);
 	int		err = 0;
 
+<<<<<<< HEAD
 	dprintk("svc: svc_setup_socket %p\n", sock);
+=======
+>>>>>>> upstream/android-13
 	svsk = kzalloc(sizeof(*svsk), GFP_KERNEL);
 	if (!svsk)
 		return ERR_PTR(-ENOMEM);
@@ -1408,12 +2035,16 @@ static struct svc_sock *svc_setup_socket(struct svc_serv *serv,
 	else
 		svc_tcp_init(svsk, serv);
 
+<<<<<<< HEAD
 	dprintk("svc: svc_setup_socket created %p (inet %p), "
 			"listen %d close %d\n",
 			svsk, svsk->sk_sk,
 			test_bit(XPT_LISTENER, &svsk->sk_xprt.xpt_flags),
 			test_bit(XPT_CLOSE, &svsk->sk_xprt.xpt_flags));
 
+=======
+	trace_svcsock_new_socket(sock);
+>>>>>>> upstream/android-13
 	return svsk;
 }
 
@@ -1439,13 +2070,21 @@ EXPORT_SYMBOL_GPL(svc_alien_sock);
  * @fd: file descriptor of the new listener
  * @name_return: pointer to buffer to fill in with name of listener
  * @len: size of the buffer
+<<<<<<< HEAD
+=======
+ * @cred: credential
+>>>>>>> upstream/android-13
  *
  * Fills in socket name and returns positive length of name if successful.
  * Name is terminated with '\n'.  On error, returns a negative errno
  * value.
  */
 int svc_addsock(struct svc_serv *serv, const int fd, char *name_return,
+<<<<<<< HEAD
 		const size_t len)
+=======
+		const size_t len, const struct cred *cred)
+>>>>>>> upstream/android-13
 {
 	int err = 0;
 	struct socket *so = sockfd_lookup(fd, &err);
@@ -1478,6 +2117,10 @@ int svc_addsock(struct svc_serv *serv, const int fd, char *name_return,
 	salen = kernel_getsockname(svsk->sk_sock, sin);
 	if (salen >= 0)
 		svc_xprt_set_local(&svsk->sk_xprt, sin, salen);
+<<<<<<< HEAD
+=======
+	svsk->sk_xprt.xpt_cred = get_cred(cred);
+>>>>>>> upstream/android-13
 	svc_add_new_perm_xprt(serv, &svsk->sk_xprt);
 	return svc_one_sock_name(svsk, name_return, len);
 out:
@@ -1503,12 +2146,15 @@ static struct svc_xprt *svc_create_socket(struct svc_serv *serv,
 	struct sockaddr *newsin = (struct sockaddr *)&addr;
 	int		newlen;
 	int		family;
+<<<<<<< HEAD
 	int		val;
 	RPC_IFDEBUG(char buf[RPC_MAX_ADDRBUFLEN]);
 
 	dprintk("svc: svc_create_socket(%s, %d, %s)\n",
 			serv->sv_program->pg_name, protocol,
 			__svc_print_addr(sin, buf, sizeof(buf)));
+=======
+>>>>>>> upstream/android-13
 
 	if (protocol != IPPROTO_UDP && protocol != IPPROTO_TCP) {
 		printk(KERN_WARNING "svc: only UDP and TCP "
@@ -1539,11 +2185,16 @@ static struct svc_xprt *svc_create_socket(struct svc_serv *serv,
 	 * getting requests from IPv4 remotes.  Those should
 	 * be shunted to a PF_INET listener via rpcbind.
 	 */
+<<<<<<< HEAD
 	val = 1;
 	if (family == PF_INET6)
 		kernel_setsockopt(sock, SOL_IPV6, IPV6_V6ONLY,
 					(char *)&val, sizeof(val));
 
+=======
+	if (family == PF_INET6)
+		ip6_sock_set_v6only(sock->sk);
+>>>>>>> upstream/android-13
 	if (type == SOCK_STREAM)
 		sock->sk->sk_reuse = SK_CAN_REUSE; /* allow address reuse */
 	error = kernel_bind(sock, sin, len);
@@ -1568,7 +2219,10 @@ static struct svc_xprt *svc_create_socket(struct svc_serv *serv,
 	svc_xprt_set_local(&svsk->sk_xprt, newsin, newlen);
 	return (struct svc_xprt *)svsk;
 bummer:
+<<<<<<< HEAD
 	dprintk("svc: svc_create_socket error = %d\n", -error);
+=======
+>>>>>>> upstream/android-13
 	sock_release(sock);
 	return ERR_PTR(error);
 }
@@ -1582,8 +2236,11 @@ static void svc_sock_detach(struct svc_xprt *xprt)
 	struct svc_sock *svsk = container_of(xprt, struct svc_sock, sk_xprt);
 	struct sock *sk = svsk->sk_sk;
 
+<<<<<<< HEAD
 	dprintk("svc: svc_sock_detach(%p)\n", svsk);
 
+=======
+>>>>>>> upstream/android-13
 	/* put back the old socket callbacks */
 	lock_sock(sk);
 	sk->sk_state_change = svsk->sk_ostate;
@@ -1600,8 +2257,11 @@ static void svc_tcp_sock_detach(struct svc_xprt *xprt)
 {
 	struct svc_sock *svsk = container_of(xprt, struct svc_sock, sk_xprt);
 
+<<<<<<< HEAD
 	dprintk("svc: svc_tcp_sock_detach(%p)\n", svsk);
 
+=======
+>>>>>>> upstream/android-13
 	svc_sock_detach(xprt);
 
 	if (!test_bit(XPT_LISTENER, &xprt->xpt_flags)) {
@@ -1616,7 +2276,10 @@ static void svc_tcp_sock_detach(struct svc_xprt *xprt)
 static void svc_sock_free(struct svc_xprt *xprt)
 {
 	struct svc_sock *svsk = container_of(xprt, struct svc_sock, sk_xprt);
+<<<<<<< HEAD
 	dprintk("svc: svc_sock_free(%p)\n", svsk);
+=======
+>>>>>>> upstream/android-13
 
 	if (svsk->sk_sock->file)
 		sockfd_put(svsk->sk_sock);
@@ -1624,6 +2287,7 @@ static void svc_sock_free(struct svc_xprt *xprt)
 		sock_release(svsk->sk_sock);
 	kfree(svsk);
 }
+<<<<<<< HEAD
 
 #if defined(CONFIG_SUNRPC_BACKCHANNEL)
 /*
@@ -1666,3 +2330,5 @@ static void svc_bc_sock_free(struct svc_xprt *xprt)
 		kfree(container_of(xprt, struct svc_sock, sk_xprt));
 }
 #endif /* CONFIG_SUNRPC_BACKCHANNEL */
+=======
+>>>>>>> upstream/android-13

@@ -54,7 +54,11 @@ static int test_sock(void)
 		BPF_RAW_INSN(BPF_JMP | BPF_CALL, 0, 0, 0, BPF_FUNC_map_lookup_elem),
 		BPF_JMP_IMM(BPF_JEQ, BPF_REG_0, 0, 2),
 		BPF_MOV64_IMM(BPF_REG_1, 1), /* r1 = 1 */
+<<<<<<< HEAD
 		BPF_RAW_INSN(BPF_STX | BPF_XADD | BPF_DW, BPF_REG_0, BPF_REG_1, 0, 0), /* xadd r0 += r1 */
+=======
+		BPF_ATOMIC_OP(BPF_DW, BPF_ADD, BPF_REG_0, BPF_REG_1, 0),
+>>>>>>> upstream/android-13
 		BPF_MOV64_IMM(BPF_REG_0, 0), /* r0 = 0 */
 		BPF_EXIT_INSN(),
 	};
@@ -99,7 +103,11 @@ int main(void)
 {
 	FILE *f;
 
+<<<<<<< HEAD
 	f = popen("ping -c5 localhost", "r");
+=======
+	f = popen("ping -4 -c5 localhost", "r");
+>>>>>>> upstream/android-13
 	(void)f;
 
 	return test_sock();

@@ -634,7 +634,11 @@ _loop3:
  * param: function's name
  */
 .macro SHA1_VECTOR_ASM  name
+<<<<<<< HEAD
 	ENTRY(\name)
+=======
+	SYM_FUNC_START(\name)
+>>>>>>> upstream/android-13
 
 	push	%rbx
 	push	%r12
@@ -645,9 +649,15 @@ _loop3:
 	RESERVE_STACK  = (W_SIZE*4 + 8+24)
 
 	/* Align stack */
+<<<<<<< HEAD
 	mov	%rsp, %rbx
 	and	$~(0x20-1), %rsp
 	push	%rbx
+=======
+	push	%rbp
+	mov	%rsp, %rbp
+	and	$~(0x20-1), %rsp
+>>>>>>> upstream/android-13
 	sub	$RESERVE_STACK, %rsp
 
 	avx2_zeroupper
@@ -665,8 +675,13 @@ _loop3:
 
 	avx2_zeroupper
 
+<<<<<<< HEAD
 	add	$RESERVE_STACK, %rsp
 	pop	%rsp
+=======
+	mov	%rbp, %rsp
+	pop	%rbp
+>>>>>>> upstream/android-13
 
 	pop	%r15
 	pop	%r14
@@ -674,9 +689,15 @@ _loop3:
 	pop	%r12
 	pop	%rbx
 
+<<<<<<< HEAD
 	ret
 
 	ENDPROC(\name)
+=======
+	RET
+
+	SYM_FUNC_END(\name)
+>>>>>>> upstream/android-13
 .endm
 
 .section .rodata

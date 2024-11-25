@@ -9,6 +9,7 @@ Required Properties:
 	- "amlogic,meson8-clkc" for Meson8 (S802) SoCs
 	- "amlogic,meson8b-clkc" for Meson8 (S805) SoCs
 	- "amlogic,meson8m2-clkc" for Meson8m2 (S812) SoCs
+<<<<<<< HEAD
 - reg: it must be composed by two tuples:
 	0) physical base address of the xtal register and length of memory
 	   mapped region.
@@ -17,6 +18,19 @@ Required Properties:
 
 - #clock-cells: should be 1.
 - #reset-cells: should be 1.
+=======
+- #clock-cells: should be 1.
+- #reset-cells: should be 1.
+- clocks: list of clock phandles, one for each entry in clock-names
+- clock-names: should contain the following:
+  * "xtal": the 24MHz system oscillator
+  * "ddr_pll": the DDR PLL clock
+  * "clk_32k": (if present) the 32kHz clock signal from GPIOAO_6 (CLK_32K_IN)
+
+Parent node should have the following properties :
+- compatible: "amlogic,meson-hhi-sysctrl", "simple-mfd", "syscon"
+- reg: base address and size of the HHI system control register space.
+>>>>>>> upstream/android-13
 
 Each clock is assigned an identifier and client nodes can use this identifier
 to specify the clock which they consume. All available clocks are defined as
@@ -30,9 +44,14 @@ device tree sources).
 
 Example: Clock controller node:
 
+<<<<<<< HEAD
 	clkc: clock-controller@c1104000 {
 		compatible = "amlogic,meson8b-clkc";
 		reg = <0xc1108000 0x4>, <0xc1104000 0x460>;
+=======
+	clkc: clock-controller {
+		compatible = "amlogic,meson8b-clkc";
+>>>>>>> upstream/android-13
 		#clock-cells = <1>;
 		#reset-cells = <1>;
 	};

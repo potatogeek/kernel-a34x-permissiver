@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2016, 2017 Intel Corporation.
  *
@@ -43,6 +44,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause
+/*
+ * Copyright(c) 2016 - 2020 Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/hash.h>
@@ -53,10 +59,19 @@
 #include <rdma/ib_verbs.h>
 #include <rdma/ib_hdrs.h>
 #include <rdma/opa_addr.h>
+<<<<<<< HEAD
+=======
+#include <rdma/uverbs_ioctl.h>
+>>>>>>> upstream/android-13
 #include "qp.h"
 #include "vt.h"
 #include "trace.h"
 
+<<<<<<< HEAD
+=======
+#define RVT_RWQ_COUNT_THRESHOLD 16
+
+>>>>>>> upstream/android-13
 static void rvt_rc_timeout(struct timer_list *t);
 static void rvt_reset_qp(struct rvt_dev_info *rdi, struct rvt_qp *qp,
 			 enum ib_qp_type type);
@@ -120,6 +135,190 @@ const int ib_rvt_state_ops[IB_QPS_ERR + 1] = {
 };
 EXPORT_SYMBOL(ib_rvt_state_ops);
 
+<<<<<<< HEAD
+=======
+/* platform specific: return the last level cache (llc) size, in KiB */
+static int rvt_wss_llc_size(void)
+{
+	/* assume that the boot CPU value is universal for all CPUs */
+	return boot_cpu_data.x86_cache_size;
+}
+
+/* platform specific: cacheless copy */
+static void cacheless_memcpy(void *dst, void *src, size_t n)
+{
+	/*
+	 * Use the only available X64 cacheless copy.  Add a __user cast
+	 * to quiet sparse.  The src agument is already in the kernel so
+	 * there are no security issues.  The extra fault recovery machinery
+	 * is not invoked.
+	 */
+	__copy_user_nocache(dst, (void __user *)src, n, 0);
+}
+
+void rvt_wss_exit(struct rvt_dev_info *rdi)
+{
+	struct rvt_wss *wss = rdi->wss;
+
+	if (!wss)
+		return;
+
+	/* coded to handle partially initialized and repeat callers */
+	kfree(wss->entries);
+	wss->entries = NULL;
+	kfree(rdi->wss);
+	rdi->wss = NULL;
+}
+
+/*
+ * rvt_wss_init - Init wss data structures
+ *
+ * Return: 0 on success
+ */
+int rvt_wss_init(struct rvt_dev_info *rdi)
+{
+	unsigned int sge_copy_mode = rdi->dparms.sge_copy_mode;
+	unsigned int wss_threshold = rdi->dparms.wss_threshold;
+	unsigned int wss_clean_period = rdi->dparms.wss_clean_period;
+	long llc_size;
+	long llc_bits;
+	long table_size;
+	long table_bits;
+	struct rvt_wss *wss;
+	int node = rdi->dparms.node;
+
+	if (sge_copy_mode != RVT_SGE_COPY_ADAPTIVE) {
+		rdi->wss = NULL;
+		return 0;
+	}
+
+	rdi->wss = kzalloc_node(sizeof(*rdi->wss), GFP_KERNEL, node);
+	if (!rdi->wss)
+		return -ENOMEM;
+	wss = rdi->wss;
+
+	/* check for a valid percent range - default to 80 if none or invalid */
+	if (wss_threshold < 1 || wss_threshold > 100)
+		wss_threshold = 80;
+
+	/* reject a wildly large period */
+	if (wss_clean_period > 1000000)
+		wss_clean_period = 256;
+
+	/* reject a zero period */
+	if (wss_clean_period == 0)
+		wss_clean_period = 1;
+
+	/*
+	 * Calculate the table size - the next power of 2 larger than the
+	 * LLC size.  LLC size is in KiB.
+	 */
+	llc_size = rvt_wss_llc_size() * 1024;
+	table_size = roundup_pow_of_two(llc_size);
+
+	/* one bit per page in rounded up table */
+	llc_bits = llc_size / PAGE_SIZE;
+	table_bits = table_size / PAGE_SIZE;
+	wss->pages_mask = table_bits - 1;
+	wss->num_entries = table_bits / BITS_PER_LONG;
+
+	wss->threshold = (llc_bits * wss_threshold) / 100;
+	if (wss->threshold == 0)
+		wss->threshold = 1;
+
+	wss->clean_period = wss_clean_period;
+	atomic_set(&wss->clean_counter, wss_clean_period);
+
+	wss->entries = kcalloc_node(wss->num_entries, sizeof(*wss->entries),
+				    GFP_KERNEL, node);
+	if (!wss->entries) {
+		rvt_wss_exit(rdi);
+		return -ENOMEM;
+	}
+
+	return 0;
+}
+
+/*
+ * Advance the clean counter.  When the clean period has expired,
+ * clean an entry.
+ *
+ * This is implemented in atomics to avoid locking.  Because multiple
+ * variables are involved, it can be racy which can lead to slightly
+ * inaccurate information.  Since this is only a heuristic, this is
+ * OK.  Any innaccuracies will clean themselves out as the counter
+ * advances.  That said, it is unlikely the entry clean operation will
+ * race - the next possible racer will not start until the next clean
+ * period.
+ *
+ * The clean counter is implemented as a decrement to zero.  When zero
+ * is reached an entry is cleaned.
+ */
+static void wss_advance_clean_counter(struct rvt_wss *wss)
+{
+	int entry;
+	int weight;
+	unsigned long bits;
+
+	/* become the cleaner if we decrement the counter to zero */
+	if (atomic_dec_and_test(&wss->clean_counter)) {
+		/*
+		 * Set, not add, the clean period.  This avoids an issue
+		 * where the counter could decrement below the clean period.
+		 * Doing a set can result in lost decrements, slowing the
+		 * clean advance.  Since this a heuristic, this possible
+		 * slowdown is OK.
+		 *
+		 * An alternative is to loop, advancing the counter by a
+		 * clean period until the result is > 0. However, this could
+		 * lead to several threads keeping another in the clean loop.
+		 * This could be mitigated by limiting the number of times
+		 * we stay in the loop.
+		 */
+		atomic_set(&wss->clean_counter, wss->clean_period);
+
+		/*
+		 * Uniquely grab the entry to clean and move to next.
+		 * The current entry is always the lower bits of
+		 * wss.clean_entry.  The table size, wss.num_entries,
+		 * is always a power-of-2.
+		 */
+		entry = (atomic_inc_return(&wss->clean_entry) - 1)
+			& (wss->num_entries - 1);
+
+		/* clear the entry and count the bits */
+		bits = xchg(&wss->entries[entry], 0);
+		weight = hweight64((u64)bits);
+		/* only adjust the contended total count if needed */
+		if (weight)
+			atomic_sub(weight, &wss->total_count);
+	}
+}
+
+/*
+ * Insert the given address into the working set array.
+ */
+static void wss_insert(struct rvt_wss *wss, void *address)
+{
+	u32 page = ((unsigned long)address >> PAGE_SHIFT) & wss->pages_mask;
+	u32 entry = page / BITS_PER_LONG; /* assumes this ends up a shift */
+	u32 nr = page & (BITS_PER_LONG - 1);
+
+	if (!test_and_set_bit(nr, &wss->entries[entry]))
+		atomic_inc(&wss->total_count);
+
+	wss_advance_clean_counter(wss);
+}
+
+/*
+ * Is the working set larger than the threshold?
+ */
+static inline bool wss_exceeds_threshold(struct rvt_wss *wss)
+{
+	return atomic_read(&wss->total_count) >= wss->threshold;
+}
+
+>>>>>>> upstream/android-13
 static void get_map_page(struct rvt_qpn_table *qpt,
 			 struct rvt_qpn_map *map)
 {
@@ -139,6 +338,10 @@ static void get_map_page(struct rvt_qpn_table *qpt,
 
 /**
  * init_qpn_table - initialize the QP number table for a device
+<<<<<<< HEAD
+=======
+ * @rdi: rvt dev struct
+>>>>>>> upstream/android-13
  * @qpt: the QPN table
  */
 static int init_qpn_table(struct rvt_dev_info *rdi, struct rvt_qpn_table *qpt)
@@ -340,16 +543,31 @@ static inline unsigned mk_qpn(struct rvt_qpn_table *qpt,
  *	       IB_QPT_SMI/IB_QPT_GSI
  * @rdi: rvt device info structure
  * @qpt: queue pair number table pointer
+<<<<<<< HEAD
  * @port_num: IB port number, 1 based, comes from core
+=======
+ * @type: the QP type
+ * @port_num: IB port number, 1 based, comes from core
+ * @exclude_prefix: prefix of special queue pair number being allocated
+>>>>>>> upstream/android-13
  *
  * Return: The queue pair number
  */
 static int alloc_qpn(struct rvt_dev_info *rdi, struct rvt_qpn_table *qpt,
+<<<<<<< HEAD
 		     enum ib_qp_type type, u8 port_num)
+=======
+		     enum ib_qp_type type, u8 port_num, u8 exclude_prefix)
+>>>>>>> upstream/android-13
 {
 	u32 i, offset, max_scan, qpn;
 	struct rvt_qpn_map *map;
 	u32 ret;
+<<<<<<< HEAD
+=======
+	u32 max_qpn = exclude_prefix == RVT_AIP_QP_PREFIX ?
+		RVT_AIP_QPN_MAX : RVT_QPN_MAX;
+>>>>>>> upstream/android-13
 
 	if (rdi->driver_f.alloc_qpn)
 		return rdi->driver_f.alloc_qpn(rdi, qpt, type, port_num);
@@ -369,7 +587,11 @@ static int alloc_qpn(struct rvt_dev_info *rdi, struct rvt_qpn_table *qpt,
 	}
 
 	qpn = qpt->last + qpt->incr;
+<<<<<<< HEAD
 	if (qpn >= RVT_QPN_MAX)
+=======
+	if (qpn >= max_qpn)
+>>>>>>> upstream/android-13
 		qpn = qpt->incr | ((qpt->last & 1) ^ 1);
 	/* offset carries bit 0 */
 	offset = qpn & RVT_BITS_PER_PAGE_MASK;
@@ -445,6 +667,7 @@ static void rvt_clear_mr_refs(struct rvt_qp *qp, int clr_sends)
 		while (qp->s_last != qp->s_head) {
 			struct rvt_swqe *wqe = rvt_get_swqe_ptr(qp, qp->s_last);
 
+<<<<<<< HEAD
 			rvt_put_swqe(wqe);
 
 			if (qp->ibqp.qp_type == IB_QPT_UD ||
@@ -452,6 +675,9 @@ static void rvt_clear_mr_refs(struct rvt_qp *qp, int clr_sends)
 			    qp->ibqp.qp_type == IB_QPT_GSI)
 				atomic_dec(&ibah_to_rvtah(
 						wqe->ud_wr.ah)->refcount);
+=======
+			rvt_put_qp_swqe(qp, wqe);
+>>>>>>> upstream/android-13
 			if (++qp->s_last >= qp->s_size)
 				qp->s_last = 0;
 			smp_wmb(); /* see qp_set_savail */
@@ -474,8 +700,13 @@ static void rvt_clear_mr_refs(struct rvt_qp *qp, int clr_sends)
 
 /**
  * rvt_swqe_has_lkey - return true if lkey is used by swqe
+<<<<<<< HEAD
  * @wqe - the send wqe
  * @lkey - the lkey
+=======
+ * @wqe: the send wqe
+ * @lkey: the lkey
+>>>>>>> upstream/android-13
  *
  * Test the swqe for using lkey
  */
@@ -494,8 +725,13 @@ static bool rvt_swqe_has_lkey(struct rvt_swqe *wqe, u32 lkey)
 
 /**
  * rvt_qp_sends_has_lkey - return true is qp sends use lkey
+<<<<<<< HEAD
  * @qp - the rvt_qp
  * @lkey - the lkey
+=======
+ * @qp: the rvt_qp
+ * @lkey: the lkey
+>>>>>>> upstream/android-13
  */
 static bool rvt_qp_sends_has_lkey(struct rvt_qp *qp, u32 lkey)
 {
@@ -518,8 +754,13 @@ static bool rvt_qp_sends_has_lkey(struct rvt_qp *qp, u32 lkey)
 
 /**
  * rvt_qp_acks_has_lkey - return true if acks have lkey
+<<<<<<< HEAD
  * @qp - the qp
  * @lkey - the lkey
+=======
+ * @qp: the qp
+ * @lkey: the lkey
+>>>>>>> upstream/android-13
  */
 static bool rvt_qp_acks_has_lkey(struct rvt_qp *qp, u32 lkey)
 {
@@ -535,10 +776,17 @@ static bool rvt_qp_acks_has_lkey(struct rvt_qp *qp, u32 lkey)
 	return false;
 }
 
+<<<<<<< HEAD
 /*
  * rvt_qp_mr_clean - clean up remote ops for lkey
  * @qp - the qp
  * @lkey - the lkey that is being de-registered
+=======
+/**
+ * rvt_qp_mr_clean - clean up remote ops for lkey
+ * @qp: the qp
+ * @lkey: the lkey that is being de-registered
+>>>>>>> upstream/android-13
  *
  * This routine checks if the lkey is being used by
  * the qp.
@@ -630,7 +878,53 @@ static void rvt_remove_qp(struct rvt_dev_info *rdi, struct rvt_qp *qp)
 }
 
 /**
+<<<<<<< HEAD
  * rvt_init_qp - initialize the QP state to the reset state
+=======
+ * rvt_alloc_rq - allocate memory for user or kernel buffer
+ * @rq: receive queue data structure
+ * @size: number of request queue entries
+ * @node: The NUMA node
+ * @udata: True if user data is available or not false
+ *
+ * Return: If memory allocation failed, return -ENONEM
+ * This function is used by both shared receive
+ * queues and non-shared receive queues to allocate
+ * memory.
+ */
+int rvt_alloc_rq(struct rvt_rq *rq, u32 size, int node,
+		 struct ib_udata *udata)
+{
+	if (udata) {
+		rq->wq = vmalloc_user(sizeof(struct rvt_rwq) + size);
+		if (!rq->wq)
+			goto bail;
+		/* need kwq with no buffers */
+		rq->kwq = kzalloc_node(sizeof(*rq->kwq), GFP_KERNEL, node);
+		if (!rq->kwq)
+			goto bail;
+		rq->kwq->curr_wq = rq->wq->wq;
+	} else {
+		/* need kwq with buffers */
+		rq->kwq =
+			vzalloc_node(sizeof(struct rvt_krwq) + size, node);
+		if (!rq->kwq)
+			goto bail;
+		rq->kwq->curr_wq = rq->kwq->wq;
+	}
+
+	spin_lock_init(&rq->kwq->p_lock);
+	spin_lock_init(&rq->kwq->c_lock);
+	return 0;
+bail:
+	rvt_free_rq(rq);
+	return -ENOMEM;
+}
+
+/**
+ * rvt_init_qp - initialize the QP state to the reset state
+ * @rdi: rvt dev struct
+>>>>>>> upstream/android-13
  * @qp: the QP to init or reinit
  * @type: the QP type
  *
@@ -677,17 +971,26 @@ static void rvt_init_qp(struct rvt_dev_info *rdi, struct rvt_qp *qp,
 	qp->s_mig_state = IB_MIG_MIGRATED;
 	qp->r_head_ack_queue = 0;
 	qp->s_tail_ack_queue = 0;
+<<<<<<< HEAD
 	qp->s_num_rd_atomic = 0;
 	if (qp->r_rq.wq) {
 		qp->r_rq.wq->head = 0;
 		qp->r_rq.wq->tail = 0;
 	}
+=======
+	qp->s_acked_ack_queue = 0;
+	qp->s_num_rd_atomic = 0;
+>>>>>>> upstream/android-13
 	qp->r_sge.num_sge = 0;
 	atomic_set(&qp->s_reserved_used, 0);
 }
 
 /**
  * _rvt_reset_qp - initialize the QP state to the reset state
+<<<<<<< HEAD
+=======
+ * @rdi: rvt dev struct
+>>>>>>> upstream/android-13
  * @qp: the QP to reset
  * @type: the QP type
  *
@@ -761,7 +1064,12 @@ static void rvt_reset_qp(struct rvt_dev_info *rdi, struct rvt_qp *qp,
 	spin_unlock_irq(&qp->r_lock);
 }
 
+<<<<<<< HEAD
 /** rvt_free_qpn - Free a qpn from the bit map
+=======
+/**
+ * rvt_free_qpn - Free a qpn from the bit map
+>>>>>>> upstream/android-13
  * @qpt: QP table
  * @qpn: queue pair number to free
  */
@@ -769,14 +1077,80 @@ static void rvt_free_qpn(struct rvt_qpn_table *qpt, u32 qpn)
 {
 	struct rvt_qpn_map *map;
 
+<<<<<<< HEAD
+=======
+	if ((qpn & RVT_AIP_QP_PREFIX_MASK) == RVT_AIP_QP_BASE)
+		qpn &= RVT_AIP_QP_SUFFIX;
+
+>>>>>>> upstream/android-13
 	map = qpt->map + (qpn & RVT_QPN_MASK) / RVT_BITS_PER_PAGE;
 	if (map->page)
 		clear_bit(qpn & RVT_BITS_PER_PAGE_MASK, map->page);
 }
 
 /**
+<<<<<<< HEAD
  * rvt_create_qp - create a queue pair for a device
  * @ibpd: the protection domain who's device we create the queue pair for
+=======
+ * get_allowed_ops - Given a QP type return the appropriate allowed OP
+ * @type: valid, supported, QP type
+ */
+static u8 get_allowed_ops(enum ib_qp_type type)
+{
+	return type == IB_QPT_RC ? IB_OPCODE_RC : type == IB_QPT_UC ?
+		IB_OPCODE_UC : IB_OPCODE_UD;
+}
+
+/**
+ * free_ud_wq_attr - Clean up AH attribute cache for UD QPs
+ * @qp: Valid QP with allowed_ops set
+ *
+ * The rvt_swqe data structure being used is a union, so this is
+ * only valid for UD QPs.
+ */
+static void free_ud_wq_attr(struct rvt_qp *qp)
+{
+	struct rvt_swqe *wqe;
+	int i;
+
+	for (i = 0; qp->allowed_ops == IB_OPCODE_UD && i < qp->s_size; i++) {
+		wqe = rvt_get_swqe_ptr(qp, i);
+		kfree(wqe->ud_wr.attr);
+		wqe->ud_wr.attr = NULL;
+	}
+}
+
+/**
+ * alloc_ud_wq_attr - AH attribute cache for UD QPs
+ * @qp: Valid QP with allowed_ops set
+ * @node: Numa node for allocation
+ *
+ * The rvt_swqe data structure being used is a union, so this is
+ * only valid for UD QPs.
+ */
+static int alloc_ud_wq_attr(struct rvt_qp *qp, int node)
+{
+	struct rvt_swqe *wqe;
+	int i;
+
+	for (i = 0; qp->allowed_ops == IB_OPCODE_UD && i < qp->s_size; i++) {
+		wqe = rvt_get_swqe_ptr(qp, i);
+		wqe->ud_wr.attr = kzalloc_node(sizeof(*wqe->ud_wr.attr),
+					       GFP_KERNEL, node);
+		if (!wqe->ud_wr.attr) {
+			free_ud_wq_attr(qp);
+			return -ENOMEM;
+		}
+	}
+
+	return 0;
+}
+
+/**
+ * rvt_create_qp - create a queue pair for a device
+ * @ibqp: the queue pair
+>>>>>>> upstream/android-13
  * @init_attr: the attributes of the queue pair
  * @udata: user data for libibverbs.so
  *
@@ -784,6 +1158,7 @@ static void rvt_free_qpn(struct rvt_qpn_table *qpt, u32 qpn)
  * unique idea of what queue pair numbers mean. For instance there is a reserved
  * range for PSM.
  *
+<<<<<<< HEAD
  * Return: the queue pair on success, otherwise returns an errno.
  *
  * Called by the ib_create_qp() core verbs function.
@@ -809,19 +1184,55 @@ struct ib_qp *rvt_create_qp(struct ib_pd *ibpd,
 	    init_attr->cap.max_send_wr > rdi->dparms.props.max_qp_wr ||
 	    init_attr->create_flags)
 		return ERR_PTR(-EINVAL);
+=======
+ * Return: 0 on success, otherwise returns an errno.
+ *
+ * Called by the ib_create_qp() core verbs function.
+ */
+int rvt_create_qp(struct ib_qp *ibqp, struct ib_qp_init_attr *init_attr,
+		  struct ib_udata *udata)
+{
+	struct rvt_qp *qp = ibqp_to_rvtqp(ibqp);
+	int ret = -ENOMEM;
+	struct rvt_swqe *swq = NULL;
+	size_t sz;
+	size_t sg_list_sz = 0;
+	struct rvt_dev_info *rdi = ib_to_rvt(ibqp->device);
+	void *priv = NULL;
+	size_t sqsize;
+	u8 exclude_prefix = 0;
+
+	if (!rdi)
+		return -EINVAL;
+
+	if (init_attr->create_flags & ~IB_QP_CREATE_NETDEV_USE)
+		return -EOPNOTSUPP;
+
+	if (init_attr->cap.max_send_sge > rdi->dparms.props.max_send_sge ||
+	    init_attr->cap.max_send_wr > rdi->dparms.props.max_qp_wr)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	/* Check receive queue parameters if no SRQ is specified. */
 	if (!init_attr->srq) {
 		if (init_attr->cap.max_recv_sge >
 		    rdi->dparms.props.max_recv_sge ||
 		    init_attr->cap.max_recv_wr > rdi->dparms.props.max_qp_wr)
+<<<<<<< HEAD
 			return ERR_PTR(-EINVAL);
+=======
+			return -EINVAL;
+>>>>>>> upstream/android-13
 
 		if (init_attr->cap.max_send_sge +
 		    init_attr->cap.max_send_wr +
 		    init_attr->cap.max_recv_sge +
 		    init_attr->cap.max_recv_wr == 0)
+<<<<<<< HEAD
 			return ERR_PTR(-EINVAL);
+=======
+			return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 	sqsize =
 		init_attr->cap.max_send_wr + 1 +
@@ -830,6 +1241,7 @@ struct ib_qp *rvt_create_qp(struct ib_pd *ibpd,
 	case IB_QPT_SMI:
 	case IB_QPT_GSI:
 		if (init_attr->port_num == 0 ||
+<<<<<<< HEAD
 		    init_attr->port_num > ibpd->device->phys_port_cnt)
 			return ERR_PTR(-EINVAL);
 		/* fall through */
@@ -845,6 +1257,19 @@ struct ib_qp *rvt_create_qp(struct ib_pd *ibpd,
 
 		sz = sizeof(*qp);
 		sg_list_sz = 0;
+=======
+		    init_attr->port_num > ibqp->device->phys_port_cnt)
+			return -EINVAL;
+		fallthrough;
+	case IB_QPT_UC:
+	case IB_QPT_RC:
+	case IB_QPT_UD:
+		sz = struct_size(swq, sg_list, init_attr->cap.max_send_sge);
+		swq = vzalloc_node(array_size(sz, sqsize), rdi->dparms.node);
+		if (!swq)
+			return -ENOMEM;
+
+>>>>>>> upstream/android-13
 		if (init_attr->srq) {
 			struct rvt_srq *srq = ibsrq_to_rvtsrq(init_attr->srq);
 
@@ -854,10 +1279,18 @@ struct ib_qp *rvt_create_qp(struct ib_pd *ibpd,
 		} else if (init_attr->cap.max_recv_sge > 1)
 			sg_list_sz = sizeof(*qp->r_sg_list) *
 				(init_attr->cap.max_recv_sge - 1);
+<<<<<<< HEAD
 		qp = kzalloc_node(sz + sg_list_sz, GFP_KERNEL,
 				  rdi->dparms.node);
 		if (!qp)
 			goto bail_swq;
+=======
+		qp->r_sg_list =
+			kzalloc_node(sg_list_sz, GFP_KERNEL, rdi->dparms.node);
+		if (!qp->r_sg_list)
+			goto bail_qp;
+		qp->allowed_ops = get_allowed_ops(init_attr->qp_type);
+>>>>>>> upstream/android-13
 
 		RCU_INIT_POINTER(qp->next, NULL);
 		if (init_attr->qp_type == IB_QPT_RC) {
@@ -881,7 +1314,11 @@ struct ib_qp *rvt_create_qp(struct ib_pd *ibpd,
 		 */
 		priv = rdi->driver_f.qp_priv_alloc(rdi, qp);
 		if (IS_ERR(priv)) {
+<<<<<<< HEAD
 			ret = priv;
+=======
+			ret = PTR_ERR(priv);
+>>>>>>> upstream/android-13
 			goto bail_qp;
 		}
 		qp->priv = priv;
@@ -895,6 +1332,7 @@ struct ib_qp *rvt_create_qp(struct ib_pd *ibpd,
 			qp->r_rq.max_sge = init_attr->cap.max_recv_sge;
 			sz = (sizeof(struct ib_sge) * qp->r_rq.max_sge) +
 				sizeof(struct rvt_rwqe);
+<<<<<<< HEAD
 			if (udata)
 				qp->r_rq.wq = vmalloc_user(
 						sizeof(struct rvt_rwq) +
@@ -905,6 +1343,11 @@ struct ib_qp *rvt_create_qp(struct ib_pd *ibpd,
 						qp->r_rq.size * sz,
 						rdi->dparms.node);
 			if (!qp->r_rq.wq)
+=======
+			ret = rvt_alloc_rq(&qp->r_rq, qp->r_rq.size * sz,
+					   rdi->dparms.node, udata);
+			if (ret)
+>>>>>>> upstream/android-13
 				goto bail_driver_priv;
 		}
 
@@ -915,7 +1358,10 @@ struct ib_qp *rvt_create_qp(struct ib_pd *ibpd,
 		spin_lock_init(&qp->r_lock);
 		spin_lock_init(&qp->s_hlock);
 		spin_lock_init(&qp->s_lock);
+<<<<<<< HEAD
 		spin_lock_init(&qp->r_rq.lock);
+=======
+>>>>>>> upstream/android-13
 		atomic_set(&qp->refcount, 0);
 		atomic_set(&qp->local_ops_pending, 0);
 		init_waitqueue_head(&qp->wait);
@@ -927,6 +1373,7 @@ struct ib_qp *rvt_create_qp(struct ib_pd *ibpd,
 		qp->s_max_sge = init_attr->cap.max_send_sge;
 		if (init_attr->sq_sig_type == IB_SIGNAL_REQ_WR)
 			qp->s_flags = RVT_S_SIGNAL_REQ_WR;
+<<<<<<< HEAD
 
 		err = alloc_qpn(rdi, &rdi->qp_dev->qpn_table,
 				init_attr->qp_type,
@@ -938,11 +1385,41 @@ struct ib_qp *rvt_create_qp(struct ib_pd *ibpd,
 		qp->ibqp.qp_num = err;
 		qp->port_num = init_attr->port_num;
 		rvt_init_qp(rdi, qp, init_attr->qp_type);
+=======
+		ret = alloc_ud_wq_attr(qp, rdi->dparms.node);
+		if (ret)
+			goto bail_rq_rvt;
+
+		if (init_attr->create_flags & IB_QP_CREATE_NETDEV_USE)
+			exclude_prefix = RVT_AIP_QP_PREFIX;
+
+		ret = alloc_qpn(rdi, &rdi->qp_dev->qpn_table,
+				init_attr->qp_type,
+				init_attr->port_num,
+				exclude_prefix);
+		if (ret < 0)
+			goto bail_rq_wq;
+
+		qp->ibqp.qp_num = ret;
+		if (init_attr->create_flags & IB_QP_CREATE_NETDEV_USE)
+			qp->ibqp.qp_num |= RVT_AIP_QP_BASE;
+		qp->port_num = init_attr->port_num;
+		rvt_init_qp(rdi, qp, init_attr->qp_type);
+		if (rdi->driver_f.qp_priv_init) {
+			ret = rdi->driver_f.qp_priv_init(rdi, qp, init_attr);
+			if (ret)
+				goto bail_rq_wq;
+		}
+>>>>>>> upstream/android-13
 		break;
 
 	default:
 		/* Don't support raw QPs */
+<<<<<<< HEAD
 		return ERR_PTR(-EINVAL);
+=======
+		return -EOPNOTSUPP;
+>>>>>>> upstream/android-13
 	}
 
 	init_attr->cap.max_inline_data = 0;
@@ -955,6 +1432,7 @@ struct ib_qp *rvt_create_qp(struct ib_pd *ibpd,
 		if (!qp->r_rq.wq) {
 			__u64 offset = 0;
 
+<<<<<<< HEAD
 			err = ib_copy_to_udata(udata, &offset,
 					       sizeof(offset));
 			if (err) {
@@ -978,6 +1456,26 @@ struct ib_qp *rvt_create_qp(struct ib_pd *ibpd,
 				ret = ERR_PTR(err);
 				goto bail_ip;
 			}
+=======
+			ret = ib_copy_to_udata(udata, &offset,
+					       sizeof(offset));
+			if (ret)
+				goto bail_qpn;
+		} else {
+			u32 s = sizeof(struct rvt_rwq) + qp->r_rq.size * sz;
+
+			qp->ip = rvt_create_mmap_info(rdi, s, udata,
+						      qp->r_rq.wq);
+			if (IS_ERR(qp->ip)) {
+				ret = PTR_ERR(qp->ip);
+				goto bail_qpn;
+			}
+
+			ret = ib_copy_to_udata(udata, &qp->ip->offset,
+					       sizeof(qp->ip->offset));
+			if (ret)
+				goto bail_ip;
+>>>>>>> upstream/android-13
 		}
 		qp->pid = current->pid;
 	}
@@ -985,7 +1483,11 @@ struct ib_qp *rvt_create_qp(struct ib_pd *ibpd,
 	spin_lock(&rdi->n_qps_lock);
 	if (rdi->n_qps_allocated == rdi->dparms.props.max_qp) {
 		spin_unlock(&rdi->n_qps_lock);
+<<<<<<< HEAD
 		ret = ERR_PTR(-ENOMEM);
+=======
+		ret = -ENOMEM;
+>>>>>>> upstream/android-13
 		goto bail_ip;
 	}
 
@@ -1011,6 +1513,7 @@ struct ib_qp *rvt_create_qp(struct ib_pd *ibpd,
 		spin_unlock_irq(&rdi->pending_lock);
 	}
 
+<<<<<<< HEAD
 	ret = &qp->ibqp;
 
 	/*
@@ -1036,6 +1539,9 @@ struct ib_qp *rvt_create_qp(struct ib_pd *ibpd,
 	}
 
 	return ret;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 
 bail_ip:
 	if (qp->ip)
@@ -1045,19 +1551,31 @@ bail_qpn:
 	rvt_free_qpn(&rdi->qp_dev->qpn_table, qp->ibqp.qp_num);
 
 bail_rq_wq:
+<<<<<<< HEAD
 	if (!qp->ip)
 		vfree(qp->r_rq.wq);
+=======
+	free_ud_wq_attr(qp);
+
+bail_rq_rvt:
+	rvt_free_rq(&qp->r_rq);
+>>>>>>> upstream/android-13
 
 bail_driver_priv:
 	rdi->driver_f.qp_priv_free(rdi, qp);
 
 bail_qp:
 	kfree(qp->s_ack_queue);
+<<<<<<< HEAD
 	kfree(qp);
 
 bail_swq:
 	vfree(swq);
 
+=======
+	kfree(qp->r_sg_list);
+	vfree(swq);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -1112,6 +1630,7 @@ int rvt_error_qp(struct rvt_qp *qp, enum ib_wc_status err)
 	}
 	wc.status = IB_WC_WR_FLUSH_ERR;
 
+<<<<<<< HEAD
 	if (qp->r_rq.wq) {
 		struct rvt_rwq *wq;
 		u32 head;
@@ -1125,6 +1644,28 @@ int rvt_error_qp(struct rvt_qp *qp, enum ib_wc_status err)
 		if (head >= qp->r_rq.size)
 			head = 0;
 		tail = wq->tail;
+=======
+	if (qp->r_rq.kwq) {
+		u32 head;
+		u32 tail;
+		struct rvt_rwq *wq = NULL;
+		struct rvt_krwq *kwq = NULL;
+
+		spin_lock(&qp->r_rq.kwq->c_lock);
+		/* qp->ip used to validate if there is a  user buffer mmaped */
+		if (qp->ip) {
+			wq = qp->r_rq.wq;
+			head = RDMA_READ_UAPI_ATOMIC(wq->head);
+			tail = RDMA_READ_UAPI_ATOMIC(wq->tail);
+		} else {
+			kwq = qp->r_rq.kwq;
+			head = kwq->head;
+			tail = kwq->tail;
+		}
+		/* sanity check pointers before trusting them */
+		if (head >= qp->r_rq.size)
+			head = 0;
+>>>>>>> upstream/android-13
 		if (tail >= qp->r_rq.size)
 			tail = 0;
 		while (tail != head) {
@@ -1133,9 +1674,17 @@ int rvt_error_qp(struct rvt_qp *qp, enum ib_wc_status err)
 				tail = 0;
 			rvt_cq_enter(ibcq_to_rvtcq(qp->ibqp.recv_cq), &wc, 1);
 		}
+<<<<<<< HEAD
 		wq->tail = tail;
 
 		spin_unlock(&qp->r_rq.lock);
+=======
+		if (qp->ip)
+			RDMA_WRITE_UAPI_ATOMIC(wq->tail, tail);
+		else
+			kwq->tail = tail;
+		spin_unlock(&qp->r_rq.kwq->c_lock);
+>>>>>>> upstream/android-13
 	} else if (qp->ibqp.event_handler) {
 		ret = 1;
 	}
@@ -1189,10 +1738,17 @@ int rvt_modify_qp(struct ib_qp *ibqp, struct ib_qp_attr *attr,
 	int lastwqe = 0;
 	int mig = 0;
 	int pmtu = 0; /* for gcc warning only */
+<<<<<<< HEAD
 	enum rdma_link_layer link;
 	int opa_ah;
 
 	link = rdma_port_get_link_layer(ibqp->device, qp->port_num);
+=======
+	int opa_ah;
+
+	if (attr_mask & ~IB_QP_ATTR_STANDARD_BITS)
+		return -EOPNOTSUPP;
+>>>>>>> upstream/android-13
 
 	spin_lock_irq(&qp->r_lock);
 	spin_lock(&qp->s_hlock);
@@ -1204,7 +1760,11 @@ int rvt_modify_qp(struct ib_qp *ibqp, struct ib_qp_attr *attr,
 	opa_ah = rdma_cap_opa_ah(ibqp->device, qp->port_num);
 
 	if (!ib_modify_qp_is_ok(cur_state, new_state, ibqp->qp_type,
+<<<<<<< HEAD
 				attr_mask, link))
+=======
+				attr_mask))
+>>>>>>> upstream/android-13
 		goto inval;
 
 	if (rdi->driver_f.check_modify_qp &&
@@ -1447,13 +2007,21 @@ inval:
 /**
  * rvt_destroy_qp - destroy a queue pair
  * @ibqp: the queue pair to destroy
+<<<<<<< HEAD
+=======
+ * @udata: unused by the driver
+>>>>>>> upstream/android-13
  *
  * Note that this can be called while the QP is actively sending or
  * receiving!
  *
  * Return: 0 on success.
  */
+<<<<<<< HEAD
 int rvt_destroy_qp(struct ib_qp *ibqp)
+=======
+int rvt_destroy_qp(struct ib_qp *ibqp, struct ib_udata *udata)
+>>>>>>> upstream/android-13
 {
 	struct rvt_qp *qp = ibqp_to_rvtqp(ibqp);
 	struct rvt_dev_info *rdi = ib_to_rvt(ibqp->device);
@@ -1474,6 +2042,7 @@ int rvt_destroy_qp(struct ib_qp *ibqp)
 
 	if (qp->ip)
 		kref_put(&qp->ip->ref, rvt_release_mmap_info);
+<<<<<<< HEAD
 	else
 		vfree(qp->r_rq.wq);
 	vfree(qp->s_wq);
@@ -1482,6 +2051,16 @@ int rvt_destroy_qp(struct ib_qp *ibqp)
 	rdma_destroy_ah_attr(&qp->remote_ah_attr);
 	rdma_destroy_ah_attr(&qp->alt_ah_attr);
 	kfree(qp);
+=======
+	kvfree(qp->r_rq.kwq);
+	rdi->driver_f.qp_priv_free(rdi, qp);
+	kfree(qp->s_ack_queue);
+	kfree(qp->r_sg_list);
+	rdma_destroy_ah_attr(&qp->remote_ah_attr);
+	rdma_destroy_ah_attr(&qp->alt_ah_attr);
+	free_ud_wq_attr(qp);
+	vfree(qp->s_wq);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1548,7 +2127,11 @@ int rvt_query_qp(struct ib_qp *ibqp, struct ib_qp_attr *attr,
 }
 
 /**
+<<<<<<< HEAD
  * rvt_post_receive - post a receive on a QP
+=======
+ * rvt_post_recv - post a receive on a QP
+>>>>>>> upstream/android-13
  * @ibqp: the QP to post the receive on
  * @wr: the WR to post
  * @bad_wr: the first bad WR is put here
@@ -1561,7 +2144,11 @@ int rvt_post_recv(struct ib_qp *ibqp, const struct ib_recv_wr *wr,
 		  const struct ib_recv_wr **bad_wr)
 {
 	struct rvt_qp *qp = ibqp_to_rvtqp(ibqp);
+<<<<<<< HEAD
 	struct rvt_rwq *wq = qp->r_rq.wq;
+=======
+	struct rvt_krwq *wq = qp->r_rq.kwq;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	int qp_err_flush = (ib_rvt_state_ops[qp->state] & RVT_FLUSH_RECV) &&
 				!qp->ibqp.srq;
@@ -1582,12 +2169,21 @@ int rvt_post_recv(struct ib_qp *ibqp, const struct ib_recv_wr *wr,
 			return -EINVAL;
 		}
 
+<<<<<<< HEAD
 		spin_lock_irqsave(&qp->r_rq.lock, flags);
 		next = wq->head + 1;
 		if (next >= qp->r_rq.size)
 			next = 0;
 		if (next == wq->tail) {
 			spin_unlock_irqrestore(&qp->r_rq.lock, flags);
+=======
+		spin_lock_irqsave(&qp->r_rq.kwq->p_lock, flags);
+		next = wq->head + 1;
+		if (next >= qp->r_rq.size)
+			next = 0;
+		if (next == READ_ONCE(wq->tail)) {
+			spin_unlock_irqrestore(&qp->r_rq.kwq->p_lock, flags);
+>>>>>>> upstream/android-13
 			*bad_wr = wr;
 			return -ENOMEM;
 		}
@@ -1604,25 +2200,45 @@ int rvt_post_recv(struct ib_qp *ibqp, const struct ib_recv_wr *wr,
 			wqe = rvt_get_rwqe_ptr(&qp->r_rq, wq->head);
 			wqe->wr_id = wr->wr_id;
 			wqe->num_sge = wr->num_sge;
+<<<<<<< HEAD
 			for (i = 0; i < wr->num_sge; i++)
 				wqe->sg_list[i] = wr->sg_list[i];
+=======
+			for (i = 0; i < wr->num_sge; i++) {
+				wqe->sg_list[i].addr = wr->sg_list[i].addr;
+				wqe->sg_list[i].length = wr->sg_list[i].length;
+				wqe->sg_list[i].lkey = wr->sg_list[i].lkey;
+			}
+>>>>>>> upstream/android-13
 			/*
 			 * Make sure queue entry is written
 			 * before the head index.
 			 */
+<<<<<<< HEAD
 			smp_wmb();
 			wq->head = next;
 		}
 		spin_unlock_irqrestore(&qp->r_rq.lock, flags);
+=======
+			smp_store_release(&wq->head, next);
+		}
+		spin_unlock_irqrestore(&qp->r_rq.kwq->p_lock, flags);
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
 
 /**
  * rvt_qp_valid_operation - validate post send wr request
+<<<<<<< HEAD
  * @qp - the qp
  * @post-parms - the post send table for the driver
  * @wr - the work request
+=======
+ * @qp: the qp
+ * @post_parms: the post send table for the driver
+ * @wr: the work request
+>>>>>>> upstream/android-13
  *
  * The routine validates the operation based on the
  * validation table an returns the length of the operation
@@ -1694,10 +2310,16 @@ static inline int rvt_qp_is_avail(
 
 	/* see rvt_qp_wqe_unreserve() */
 	smp_mb__before_atomic();
+<<<<<<< HEAD
 	reserved_used = atomic_read(&qp->s_reserved_used);
 	if (unlikely(reserved_op)) {
 		/* see rvt_qp_wqe_unreserve() */
 		smp_mb__before_atomic();
+=======
+	if (unlikely(reserved_op)) {
+		/* see rvt_qp_wqe_unreserve() */
+		reserved_used = atomic_read(&qp->s_reserved_used);
+>>>>>>> upstream/android-13
 		if (reserved_used >= rdi->dparms.reserved_operations)
 			return -ENOMEM;
 		return 0;
@@ -1705,14 +2327,22 @@ static inline int rvt_qp_is_avail(
 	/* non-reserved operations */
 	if (likely(qp->s_avail))
 		return 0;
+<<<<<<< HEAD
 	slast = READ_ONCE(qp->s_last);
+=======
+	/* See rvt_qp_complete_swqe() */
+	slast = smp_load_acquire(&qp->s_last);
+>>>>>>> upstream/android-13
 	if (qp->s_head >= slast)
 		avail = qp->s_size - (qp->s_head - slast);
 	else
 		avail = slast - qp->s_head;
 
+<<<<<<< HEAD
 	/* see rvt_qp_wqe_unreserve() */
 	smp_mb__before_atomic();
+=======
+>>>>>>> upstream/android-13
 	reserved_used = atomic_read(&qp->s_reserved_used);
 	avail =  avail - 1 -
 		(rdi->dparms.reserved_operations - reserved_used);
@@ -1734,10 +2364,18 @@ static inline int rvt_qp_is_avail(
  * rvt_post_one_wr - post one RC, UC, or UD send work request
  * @qp: the QP to post on
  * @wr: the work request to send
+<<<<<<< HEAD
  */
 static int rvt_post_one_wr(struct rvt_qp *qp,
 			   const struct ib_send_wr *wr,
 			   int *call_send)
+=======
+ * @call_send: kick the send engine into gear
+ */
+static int rvt_post_one_wr(struct rvt_qp *qp,
+			   const struct ib_send_wr *wr,
+			   bool *call_send)
+>>>>>>> upstream/android-13
 {
 	struct rvt_swqe *wqe;
 	u32 next;
@@ -1842,6 +2480,7 @@ static int rvt_post_one_wr(struct rvt_qp *qp,
 		wqe->wr.num_sge = j;
 	}
 
+<<<<<<< HEAD
 	/* general part of wqe valid - allow for driver checks */
 	if (rdi->driver_f.check_send_wqe) {
 		ret = rdi->driver_f.check_send_wqe(qp, wqe);
@@ -1858,6 +2497,19 @@ static int rvt_post_one_wr(struct rvt_qp *qp,
 
 		log_pmtu = ah->log_pmtu;
 		atomic_inc(&ibah_to_rvtah(ud_wr(wr)->ah)->refcount);
+=======
+	/*
+	 * Calculate and set SWQE PSN values prior to handing it off
+	 * to the driver's check routine. This give the driver the
+	 * opportunity to adjust PSN values based on internal checks.
+	 */
+	log_pmtu = qp->log_pmtu;
+	if (qp->allowed_ops == IB_OPCODE_UD) {
+		struct rvt_ah *ah = rvt_get_swqe_ah(wqe);
+
+		log_pmtu = ah->log_pmtu;
+		rdma_copy_ah_attr(wqe->ud_wr.attr, &ah->attr);
+>>>>>>> upstream/android-13
 	}
 
 	if (rdi->post_parms[wr->opcode].flags & RVT_OPERATION_LOCAL) {
@@ -1875,8 +2527,23 @@ static int rvt_post_one_wr(struct rvt_qp *qp,
 				(wqe->length ?
 					((wqe->length - 1) >> log_pmtu) :
 					0);
+<<<<<<< HEAD
 		qp->s_next_psn = wqe->lpsn + 1;
 	}
+=======
+	}
+
+	/* general part of wqe valid - allow for driver checks */
+	if (rdi->driver_f.setup_wqe) {
+		ret = rdi->driver_f.setup_wqe(qp, wqe, call_send);
+		if (ret < 0)
+			goto bail_inval_free_ref;
+	}
+
+	if (!(rdi->post_parms[wr->opcode].flags & RVT_OPERATION_LOCAL))
+		qp->s_next_psn = wqe->lpsn + 1;
+
+>>>>>>> upstream/android-13
 	if (unlikely(reserved_op)) {
 		wqe->wr.send_flags |= RVT_SEND_RESERVE_USED;
 		rvt_qp_wqe_reserve(qp, wqe);
@@ -1890,6 +2557,12 @@ static int rvt_post_one_wr(struct rvt_qp *qp,
 
 	return 0;
 
+<<<<<<< HEAD
+=======
+bail_inval_free_ref:
+	if (qp->allowed_ops == IB_OPCODE_UD)
+		rdma_destroy_ah_attr(wqe->ud_wr.attr);
+>>>>>>> upstream/android-13
 bail_inval_free:
 	/* release mr holds */
 	while (j) {
@@ -1916,7 +2589,11 @@ int rvt_post_send(struct ib_qp *ibqp, const struct ib_send_wr *wr,
 	struct rvt_qp *qp = ibqp_to_rvtqp(ibqp);
 	struct rvt_dev_info *rdi = ib_to_rvt(ibqp->device);
 	unsigned long flags = 0;
+<<<<<<< HEAD
 	int call_send;
+=======
+	bool call_send;
+>>>>>>> upstream/android-13
 	unsigned nreq = 0;
 	int err = 0;
 
@@ -1949,7 +2626,15 @@ int rvt_post_send(struct ib_qp *ibqp, const struct ib_send_wr *wr,
 bail:
 	spin_unlock_irqrestore(&qp->s_hlock, flags);
 	if (nreq) {
+<<<<<<< HEAD
 		if (call_send)
+=======
+		/*
+		 * Only call do_send if there is exactly one packet, and the
+		 * driver said it was ok.
+		 */
+		if (nreq == 1 && call_send)
+>>>>>>> upstream/android-13
 			rdi->driver_f.do_send(qp);
 		else
 			rdi->driver_f.schedule_send_no_lock(qp);
@@ -1958,7 +2643,11 @@ bail:
 }
 
 /**
+<<<<<<< HEAD
  * rvt_post_srq_receive - post a receive on a shared receive queue
+=======
+ * rvt_post_srq_recv - post a receive on a shared receive queue
+>>>>>>> upstream/android-13
  * @ibsrq: the SRQ to post the receive on
  * @wr: the list of work requests to post
  * @bad_wr: A pointer to the first WR to cause a problem is put here
@@ -1971,7 +2660,11 @@ int rvt_post_srq_recv(struct ib_srq *ibsrq, const struct ib_recv_wr *wr,
 		      const struct ib_recv_wr **bad_wr)
 {
 	struct rvt_srq *srq = ibsrq_to_rvtsrq(ibsrq);
+<<<<<<< HEAD
 	struct rvt_rwq *wq;
+=======
+	struct rvt_krwq *wq;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 
 	for (; wr; wr = wr->next) {
@@ -1984,6 +2677,7 @@ int rvt_post_srq_recv(struct ib_srq *ibsrq, const struct ib_recv_wr *wr,
 			return -EINVAL;
 		}
 
+<<<<<<< HEAD
 		spin_lock_irqsave(&srq->rq.lock, flags);
 		wq = srq->rq.wq;
 		next = wq->head + 1;
@@ -1991,6 +2685,15 @@ int rvt_post_srq_recv(struct ib_srq *ibsrq, const struct ib_recv_wr *wr,
 			next = 0;
 		if (next == wq->tail) {
 			spin_unlock_irqrestore(&srq->rq.lock, flags);
+=======
+		spin_lock_irqsave(&srq->rq.kwq->p_lock, flags);
+		wq = srq->rq.kwq;
+		next = wq->head + 1;
+		if (next >= srq->rq.size)
+			next = 0;
+		if (next == READ_ONCE(wq->tail)) {
+			spin_unlock_irqrestore(&srq->rq.kwq->p_lock, flags);
+>>>>>>> upstream/android-13
 			*bad_wr = wr;
 			return -ENOMEM;
 		}
@@ -1998,17 +2701,47 @@ int rvt_post_srq_recv(struct ib_srq *ibsrq, const struct ib_recv_wr *wr,
 		wqe = rvt_get_rwqe_ptr(&srq->rq, wq->head);
 		wqe->wr_id = wr->wr_id;
 		wqe->num_sge = wr->num_sge;
+<<<<<<< HEAD
 		for (i = 0; i < wr->num_sge; i++)
 			wqe->sg_list[i] = wr->sg_list[i];
 		/* Make sure queue entry is written before the head index. */
 		smp_wmb();
 		wq->head = next;
 		spin_unlock_irqrestore(&srq->rq.lock, flags);
+=======
+		for (i = 0; i < wr->num_sge; i++) {
+			wqe->sg_list[i].addr = wr->sg_list[i].addr;
+			wqe->sg_list[i].length = wr->sg_list[i].length;
+			wqe->sg_list[i].lkey = wr->sg_list[i].lkey;
+		}
+		/* Make sure queue entry is written before the head index. */
+		smp_store_release(&wq->head, next);
+		spin_unlock_irqrestore(&srq->rq.kwq->p_lock, flags);
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * rvt used the internal kernel struct as part of its ABI, for now make sure
+ * the kernel struct does not change layout. FIXME: rvt should never cast the
+ * user struct to a kernel struct.
+ */
+static struct ib_sge *rvt_cast_sge(struct rvt_wqe_sge *sge)
+{
+	BUILD_BUG_ON(offsetof(struct ib_sge, addr) !=
+		     offsetof(struct rvt_wqe_sge, addr));
+	BUILD_BUG_ON(offsetof(struct ib_sge, length) !=
+		     offsetof(struct rvt_wqe_sge, length));
+	BUILD_BUG_ON(offsetof(struct ib_sge, lkey) !=
+		     offsetof(struct rvt_wqe_sge, lkey));
+	return (struct ib_sge *)sge;
+}
+
+/*
+>>>>>>> upstream/android-13
  * Validate a RWQE and fill in the SGE state.
  * Return 1 if OK.
  */
@@ -2031,7 +2764,11 @@ static int init_sge(struct rvt_qp *qp, struct rvt_rwqe *wqe)
 			continue;
 		/* Check LKEY */
 		ret = rvt_lkey_ok(rkt, pd, j ? &ss->sg_list[j - 1] : &ss->sge,
+<<<<<<< HEAD
 				  NULL, &wqe->sg_list[i],
+=======
+				  NULL, rvt_cast_sge(&wqe->sg_list[i]),
+>>>>>>> upstream/android-13
 				  IB_ACCESS_LOCAL_WRITE);
 		if (unlikely(ret <= 0))
 			goto bad_lkey;
@@ -2060,6 +2797,28 @@ bad_lkey:
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * get_rvt_head - get head indices of the circular buffer
+ * @rq: data structure for request queue entry
+ * @ip: the QP
+ *
+ * Return - head index value
+ */
+static inline u32 get_rvt_head(struct rvt_rq *rq, void *ip)
+{
+	u32 head;
+
+	if (ip)
+		head = RDMA_READ_UAPI_ATOMIC(rq->wq->head);
+	else
+		head = rq->kwq->head;
+
+	return head;
+}
+
+/**
+>>>>>>> upstream/android-13
  * rvt_get_rwqe - copy the next RWQE into the QP's RWQE
  * @qp: the QP
  * @wr_id_only: update qp->r_wr_id only, not qp->r_sge
@@ -2073,28 +2832,50 @@ int rvt_get_rwqe(struct rvt_qp *qp, bool wr_id_only)
 {
 	unsigned long flags;
 	struct rvt_rq *rq;
+<<<<<<< HEAD
+=======
+	struct rvt_krwq *kwq = NULL;
+>>>>>>> upstream/android-13
 	struct rvt_rwq *wq;
 	struct rvt_srq *srq;
 	struct rvt_rwqe *wqe;
 	void (*handler)(struct ib_event *, void *);
 	u32 tail;
+<<<<<<< HEAD
 	int ret;
+=======
+	u32 head;
+	int ret;
+	void *ip = NULL;
+>>>>>>> upstream/android-13
 
 	if (qp->ibqp.srq) {
 		srq = ibsrq_to_rvtsrq(qp->ibqp.srq);
 		handler = srq->ibsrq.event_handler;
 		rq = &srq->rq;
+<<<<<<< HEAD
+=======
+		ip = srq->ip;
+>>>>>>> upstream/android-13
 	} else {
 		srq = NULL;
 		handler = NULL;
 		rq = &qp->r_rq;
+<<<<<<< HEAD
 	}
 
 	spin_lock_irqsave(&rq->lock, flags);
+=======
+		ip = qp->ip;
+	}
+
+	spin_lock_irqsave(&rq->kwq->c_lock, flags);
+>>>>>>> upstream/android-13
 	if (!(ib_rvt_state_ops[qp->state] & RVT_PROCESS_RECV_OK)) {
 		ret = 0;
 		goto unlock;
 	}
+<<<<<<< HEAD
 
 	wq = rq->wq;
 	tail = wq->tail;
@@ -2106,6 +2887,29 @@ int rvt_get_rwqe(struct rvt_qp *qp, bool wr_id_only)
 		goto unlock;
 	}
 	/* Make sure entry is read after head index is read. */
+=======
+	kwq = rq->kwq;
+	if (ip) {
+		wq = rq->wq;
+		tail = RDMA_READ_UAPI_ATOMIC(wq->tail);
+	} else {
+		tail = kwq->tail;
+	}
+
+	/* Validate tail before using it since it is user writable. */
+	if (tail >= rq->size)
+		tail = 0;
+
+	if (kwq->count < RVT_RWQ_COUNT_THRESHOLD) {
+		head = get_rvt_head(rq, ip);
+		kwq->count = rvt_get_rq_count(rq, head, tail);
+	}
+	if (unlikely(kwq->count == 0)) {
+		ret = 0;
+		goto unlock;
+	}
+	/* Make sure entry is read after the count is read. */
+>>>>>>> upstream/android-13
 	smp_rmb();
 	wqe = rvt_get_rwqe_ptr(rq, tail);
 	/*
@@ -2115,22 +2919,37 @@ int rvt_get_rwqe(struct rvt_qp *qp, bool wr_id_only)
 	 */
 	if (++tail >= rq->size)
 		tail = 0;
+<<<<<<< HEAD
 	wq->tail = tail;
+=======
+	if (ip)
+		RDMA_WRITE_UAPI_ATOMIC(wq->tail, tail);
+	else
+		kwq->tail = tail;
+>>>>>>> upstream/android-13
 	if (!wr_id_only && !init_sge(qp, wqe)) {
 		ret = -1;
 		goto unlock;
 	}
 	qp->r_wr_id = wqe->wr_id;
 
+<<<<<<< HEAD
 	ret = 1;
 	set_bit(RVT_R_WRID_VALID, &qp->r_aflags);
 	if (handler) {
 		u32 n;
 
+=======
+	kwq->count--;
+	ret = 1;
+	set_bit(RVT_R_WRID_VALID, &qp->r_aflags);
+	if (handler) {
+>>>>>>> upstream/android-13
 		/*
 		 * Validate head pointer value and compute
 		 * the number of remaining WQEs.
 		 */
+<<<<<<< HEAD
 		n = wq->head;
 		if (n >= rq->size)
 			n = 0;
@@ -2152,13 +2971,38 @@ int rvt_get_rwqe(struct rvt_qp *qp, bool wr_id_only)
 	}
 unlock:
 	spin_unlock_irqrestore(&rq->lock, flags);
+=======
+		if (kwq->count < srq->limit) {
+			kwq->count =
+				rvt_get_rq_count(rq,
+						 get_rvt_head(rq, ip), tail);
+			if (kwq->count < srq->limit) {
+				struct ib_event ev;
+
+				srq->limit = 0;
+				spin_unlock_irqrestore(&rq->kwq->c_lock, flags);
+				ev.device = qp->ibqp.device;
+				ev.element.srq = qp->ibqp.srq;
+				ev.event = IB_EVENT_SRQ_LIMIT_REACHED;
+				handler(&ev, srq->ibsrq.srq_context);
+				goto bail;
+			}
+		}
+	}
+unlock:
+	spin_unlock_irqrestore(&rq->kwq->c_lock, flags);
+>>>>>>> upstream/android-13
 bail:
 	return ret;
 }
 EXPORT_SYMBOL(rvt_get_rwqe);
 
 /**
+<<<<<<< HEAD
  * qp_comm_est - handle trap with QP established
+=======
+ * rvt_comm_est - handle trap with QP established
+>>>>>>> upstream/android-13
  * @qp: the QP
  */
 void rvt_comm_est(struct rvt_qp *qp)
@@ -2213,11 +3057,20 @@ static inline unsigned long rvt_aeth_to_usec(u32 aeth)
 }
 
 /*
+<<<<<<< HEAD
  *  rvt_add_retry_timer - add/start a retry timer
  *  @qp - the QP
  *  add a retry timer on the QP
  */
 void rvt_add_retry_timer(struct rvt_qp *qp)
+=======
+ *  rvt_add_retry_timer_ext - add/start a retry timer
+ *  @qp - the QP
+ *  @shift - timeout shift to wait for multiple packets
+ *  add a retry timer on the QP
+ */
+void rvt_add_retry_timer_ext(struct rvt_qp *qp, u8 shift)
+>>>>>>> upstream/android-13
 {
 	struct ib_qp *ibqp = &qp->ibqp;
 	struct rvt_dev_info *rdi = ib_to_rvt(ibqp->device);
@@ -2225,6 +3078,7 @@ void rvt_add_retry_timer(struct rvt_qp *qp)
 	lockdep_assert_held(&qp->s_lock);
 	qp->s_flags |= RVT_S_TIMER;
        /* 4.096 usec. * (1 << qp->timeout) */
+<<<<<<< HEAD
 	qp->s_timer.expires = jiffies + qp->timeout_jiffies +
 			     rdi->busy_jiffies;
 	add_timer(&qp->s_timer);
@@ -2236,6 +3090,18 @@ EXPORT_SYMBOL(rvt_add_retry_timer);
  * @qp - the QP
  * @aeth - aeth of RNR timeout, simulated aeth for loopback
  * add an rnr timer on the QP
+=======
+	qp->s_timer.expires = jiffies + rdi->busy_jiffies +
+			      (qp->timeout_jiffies << shift);
+	add_timer(&qp->s_timer);
+}
+EXPORT_SYMBOL(rvt_add_retry_timer_ext);
+
+/**
+ * rvt_add_rnr_timer - add/start an rnr timer on the QP
+ * @qp: the QP
+ * @aeth: aeth of RNR timeout, simulated aeth for loopback
+>>>>>>> upstream/android-13
  */
 void rvt_add_rnr_timer(struct rvt_qp *qp, u32 aeth)
 {
@@ -2252,7 +3118,11 @@ EXPORT_SYMBOL(rvt_add_rnr_timer);
 
 /**
  * rvt_stop_rc_timers - stop all timers
+<<<<<<< HEAD
  * @qp - the QP
+=======
+ * @qp: the QP
+>>>>>>> upstream/android-13
  * stop any pending timers
  */
 void rvt_stop_rc_timers(struct rvt_qp *qp)
@@ -2269,7 +3139,11 @@ EXPORT_SYMBOL(rvt_stop_rc_timers);
 
 /**
  * rvt_stop_rnr_timer - stop an rnr timer
+<<<<<<< HEAD
  * @qp - the QP
+=======
+ * @qp: the QP
+>>>>>>> upstream/android-13
  *
  * stop an rnr timer and return if the timer
  * had been pending.
@@ -2286,7 +3160,11 @@ static void rvt_stop_rnr_timer(struct rvt_qp *qp)
 
 /**
  * rvt_del_timers_sync - wait for any timeout routines to exit
+<<<<<<< HEAD
  * @qp - the QP
+=======
+ * @qp: the QP
+>>>>>>> upstream/android-13
  */
 void rvt_del_timers_sync(struct rvt_qp *qp)
 {
@@ -2295,7 +3173,11 @@ void rvt_del_timers_sync(struct rvt_qp *qp)
 }
 EXPORT_SYMBOL(rvt_del_timers_sync);
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * This is called from s_timer for missing responses.
  */
 static void rvt_rc_timeout(struct timer_list *t)
@@ -2345,12 +3227,21 @@ EXPORT_SYMBOL(rvt_rc_rnr_retry);
  * rvt_qp_iter_init - initial for QP iteration
  * @rdi: rvt devinfo
  * @v: u64 value
+<<<<<<< HEAD
+=======
+ * @cb: user-defined callback
+>>>>>>> upstream/android-13
  *
  * This returns an iterator suitable for iterating QPs
  * in the system.
  *
+<<<<<<< HEAD
  * The @cb is a user defined callback and @v is a 64
  * bit value passed to and relevant for processing in the
+=======
+ * The @cb is a user-defined callback and @v is a 64-bit
+ * value passed to and relevant for processing in the
+>>>>>>> upstream/android-13
  * @cb.  An example use case would be to alter QP processing
  * based on criteria not part of the rvt_qp.
  *
@@ -2381,7 +3272,11 @@ EXPORT_SYMBOL(rvt_qp_iter_init);
 
 /**
  * rvt_qp_iter_next - return the next QP in iter
+<<<<<<< HEAD
  * @iter - the iterator
+=======
+ * @iter: the iterator
+>>>>>>> upstream/android-13
  *
  * Fine grained QP iterator suitable for use
  * with debugfs seq_file mechanisms.
@@ -2444,6 +3339,7 @@ EXPORT_SYMBOL(rvt_qp_iter_next);
 
 /**
  * rvt_qp_iter - iterate all QPs
+<<<<<<< HEAD
  * @rdi - rvt devinfo
  * @v - a 64 bit value
  * @cb - a callback
@@ -2452,6 +3348,16 @@ EXPORT_SYMBOL(rvt_qp_iter_next);
  *
  * The @cb is a user defined callback and @v is a 64
  * bit value passed to and relevant for processing in the
+=======
+ * @rdi: rvt devinfo
+ * @v: a 64-bit value
+ * @cb: a callback
+ *
+ * This provides a way for iterating all QPs.
+ *
+ * The @cb is a user-defined callback and @v is a 64-bit
+ * value passed to and relevant for processing in the
+>>>>>>> upstream/android-13
  * cb.  An example use case would be to alter QP processing
  * based on criteria not part of the rvt_qp.
  *
@@ -2484,3 +3390,449 @@ void rvt_qp_iter(struct rvt_dev_info *rdi,
 	rcu_read_unlock();
 }
 EXPORT_SYMBOL(rvt_qp_iter);
+<<<<<<< HEAD
+=======
+
+/*
+ * This should be called with s_lock held.
+ */
+void rvt_send_complete(struct rvt_qp *qp, struct rvt_swqe *wqe,
+		       enum ib_wc_status status)
+{
+	u32 old_last, last;
+	struct rvt_dev_info *rdi;
+
+	if (!(ib_rvt_state_ops[qp->state] & RVT_PROCESS_OR_FLUSH_SEND))
+		return;
+	rdi = ib_to_rvt(qp->ibqp.device);
+
+	old_last = qp->s_last;
+	trace_rvt_qp_send_completion(qp, wqe, old_last);
+	last = rvt_qp_complete_swqe(qp, wqe, rdi->wc_opcode[wqe->wr.opcode],
+				    status);
+	if (qp->s_acked == old_last)
+		qp->s_acked = last;
+	if (qp->s_cur == old_last)
+		qp->s_cur = last;
+	if (qp->s_tail == old_last)
+		qp->s_tail = last;
+	if (qp->state == IB_QPS_SQD && last == qp->s_cur)
+		qp->s_draining = 0;
+}
+EXPORT_SYMBOL(rvt_send_complete);
+
+/**
+ * rvt_copy_sge - copy data to SGE memory
+ * @qp: associated QP
+ * @ss: the SGE state
+ * @data: the data to copy
+ * @length: the length of the data
+ * @release: boolean to release MR
+ * @copy_last: do a separate copy of the last 8 bytes
+ */
+void rvt_copy_sge(struct rvt_qp *qp, struct rvt_sge_state *ss,
+		  void *data, u32 length,
+		  bool release, bool copy_last)
+{
+	struct rvt_sge *sge = &ss->sge;
+	int i;
+	bool in_last = false;
+	bool cacheless_copy = false;
+	struct rvt_dev_info *rdi = ib_to_rvt(qp->ibqp.device);
+	struct rvt_wss *wss = rdi->wss;
+	unsigned int sge_copy_mode = rdi->dparms.sge_copy_mode;
+
+	if (sge_copy_mode == RVT_SGE_COPY_CACHELESS) {
+		cacheless_copy = length >= PAGE_SIZE;
+	} else if (sge_copy_mode == RVT_SGE_COPY_ADAPTIVE) {
+		if (length >= PAGE_SIZE) {
+			/*
+			 * NOTE: this *assumes*:
+			 * o The first vaddr is the dest.
+			 * o If multiple pages, then vaddr is sequential.
+			 */
+			wss_insert(wss, sge->vaddr);
+			if (length >= (2 * PAGE_SIZE))
+				wss_insert(wss, (sge->vaddr + PAGE_SIZE));
+
+			cacheless_copy = wss_exceeds_threshold(wss);
+		} else {
+			wss_advance_clean_counter(wss);
+		}
+	}
+
+	if (copy_last) {
+		if (length > 8) {
+			length -= 8;
+		} else {
+			copy_last = false;
+			in_last = true;
+		}
+	}
+
+again:
+	while (length) {
+		u32 len = rvt_get_sge_length(sge, length);
+
+		WARN_ON_ONCE(len == 0);
+		if (unlikely(in_last)) {
+			/* enforce byte transfer ordering */
+			for (i = 0; i < len; i++)
+				((u8 *)sge->vaddr)[i] = ((u8 *)data)[i];
+		} else if (cacheless_copy) {
+			cacheless_memcpy(sge->vaddr, data, len);
+		} else {
+			memcpy(sge->vaddr, data, len);
+		}
+		rvt_update_sge(ss, len, release);
+		data += len;
+		length -= len;
+	}
+
+	if (copy_last) {
+		copy_last = false;
+		in_last = true;
+		length = 8;
+		goto again;
+	}
+}
+EXPORT_SYMBOL(rvt_copy_sge);
+
+static enum ib_wc_status loopback_qp_drop(struct rvt_ibport *rvp,
+					  struct rvt_qp *sqp)
+{
+	rvp->n_pkt_drops++;
+	/*
+	 * For RC, the requester would timeout and retry so
+	 * shortcut the timeouts and just signal too many retries.
+	 */
+	return sqp->ibqp.qp_type == IB_QPT_RC ?
+		IB_WC_RETRY_EXC_ERR : IB_WC_SUCCESS;
+}
+
+/**
+ * rvt_ruc_loopback - handle UC and RC loopback requests
+ * @sqp: the sending QP
+ *
+ * This is called from rvt_do_send() to forward a WQE addressed to the same HFI
+ * Note that although we are single threaded due to the send engine, we still
+ * have to protect against post_send().  We don't have to worry about
+ * receive interrupts since this is a connected protocol and all packets
+ * will pass through here.
+ */
+void rvt_ruc_loopback(struct rvt_qp *sqp)
+{
+	struct rvt_ibport *rvp =  NULL;
+	struct rvt_dev_info *rdi = ib_to_rvt(sqp->ibqp.device);
+	struct rvt_qp *qp;
+	struct rvt_swqe *wqe;
+	struct rvt_sge *sge;
+	unsigned long flags;
+	struct ib_wc wc;
+	u64 sdata;
+	atomic64_t *maddr;
+	enum ib_wc_status send_status;
+	bool release;
+	int ret;
+	bool copy_last = false;
+	int local_ops = 0;
+
+	rcu_read_lock();
+	rvp = rdi->ports[sqp->port_num - 1];
+
+	/*
+	 * Note that we check the responder QP state after
+	 * checking the requester's state.
+	 */
+
+	qp = rvt_lookup_qpn(ib_to_rvt(sqp->ibqp.device), rvp,
+			    sqp->remote_qpn);
+
+	spin_lock_irqsave(&sqp->s_lock, flags);
+
+	/* Return if we are already busy processing a work request. */
+	if ((sqp->s_flags & (RVT_S_BUSY | RVT_S_ANY_WAIT)) ||
+	    !(ib_rvt_state_ops[sqp->state] & RVT_PROCESS_OR_FLUSH_SEND))
+		goto unlock;
+
+	sqp->s_flags |= RVT_S_BUSY;
+
+again:
+	if (sqp->s_last == READ_ONCE(sqp->s_head))
+		goto clr_busy;
+	wqe = rvt_get_swqe_ptr(sqp, sqp->s_last);
+
+	/* Return if it is not OK to start a new work request. */
+	if (!(ib_rvt_state_ops[sqp->state] & RVT_PROCESS_NEXT_SEND_OK)) {
+		if (!(ib_rvt_state_ops[sqp->state] & RVT_FLUSH_SEND))
+			goto clr_busy;
+		/* We are in the error state, flush the work request. */
+		send_status = IB_WC_WR_FLUSH_ERR;
+		goto flush_send;
+	}
+
+	/*
+	 * We can rely on the entry not changing without the s_lock
+	 * being held until we update s_last.
+	 * We increment s_cur to indicate s_last is in progress.
+	 */
+	if (sqp->s_last == sqp->s_cur) {
+		if (++sqp->s_cur >= sqp->s_size)
+			sqp->s_cur = 0;
+	}
+	spin_unlock_irqrestore(&sqp->s_lock, flags);
+
+	if (!qp) {
+		send_status = loopback_qp_drop(rvp, sqp);
+		goto serr_no_r_lock;
+	}
+	spin_lock_irqsave(&qp->r_lock, flags);
+	if (!(ib_rvt_state_ops[qp->state] & RVT_PROCESS_RECV_OK) ||
+	    qp->ibqp.qp_type != sqp->ibqp.qp_type) {
+		send_status = loopback_qp_drop(rvp, sqp);
+		goto serr;
+	}
+
+	memset(&wc, 0, sizeof(wc));
+	send_status = IB_WC_SUCCESS;
+
+	release = true;
+	sqp->s_sge.sge = wqe->sg_list[0];
+	sqp->s_sge.sg_list = wqe->sg_list + 1;
+	sqp->s_sge.num_sge = wqe->wr.num_sge;
+	sqp->s_len = wqe->length;
+	switch (wqe->wr.opcode) {
+	case IB_WR_REG_MR:
+		goto send_comp;
+
+	case IB_WR_LOCAL_INV:
+		if (!(wqe->wr.send_flags & RVT_SEND_COMPLETION_ONLY)) {
+			if (rvt_invalidate_rkey(sqp,
+						wqe->wr.ex.invalidate_rkey))
+				send_status = IB_WC_LOC_PROT_ERR;
+			local_ops = 1;
+		}
+		goto send_comp;
+
+	case IB_WR_SEND_WITH_INV:
+	case IB_WR_SEND_WITH_IMM:
+	case IB_WR_SEND:
+		ret = rvt_get_rwqe(qp, false);
+		if (ret < 0)
+			goto op_err;
+		if (!ret)
+			goto rnr_nak;
+		if (wqe->length > qp->r_len)
+			goto inv_err;
+		switch (wqe->wr.opcode) {
+		case IB_WR_SEND_WITH_INV:
+			if (!rvt_invalidate_rkey(qp,
+						 wqe->wr.ex.invalidate_rkey)) {
+				wc.wc_flags = IB_WC_WITH_INVALIDATE;
+				wc.ex.invalidate_rkey =
+					wqe->wr.ex.invalidate_rkey;
+			}
+			break;
+		case IB_WR_SEND_WITH_IMM:
+			wc.wc_flags = IB_WC_WITH_IMM;
+			wc.ex.imm_data = wqe->wr.ex.imm_data;
+			break;
+		default:
+			break;
+		}
+		break;
+
+	case IB_WR_RDMA_WRITE_WITH_IMM:
+		if (unlikely(!(qp->qp_access_flags & IB_ACCESS_REMOTE_WRITE)))
+			goto inv_err;
+		wc.wc_flags = IB_WC_WITH_IMM;
+		wc.ex.imm_data = wqe->wr.ex.imm_data;
+		ret = rvt_get_rwqe(qp, true);
+		if (ret < 0)
+			goto op_err;
+		if (!ret)
+			goto rnr_nak;
+		/* skip copy_last set and qp_access_flags recheck */
+		goto do_write;
+	case IB_WR_RDMA_WRITE:
+		copy_last = rvt_is_user_qp(qp);
+		if (unlikely(!(qp->qp_access_flags & IB_ACCESS_REMOTE_WRITE)))
+			goto inv_err;
+do_write:
+		if (wqe->length == 0)
+			break;
+		if (unlikely(!rvt_rkey_ok(qp, &qp->r_sge.sge, wqe->length,
+					  wqe->rdma_wr.remote_addr,
+					  wqe->rdma_wr.rkey,
+					  IB_ACCESS_REMOTE_WRITE)))
+			goto acc_err;
+		qp->r_sge.sg_list = NULL;
+		qp->r_sge.num_sge = 1;
+		qp->r_sge.total_len = wqe->length;
+		break;
+
+	case IB_WR_RDMA_READ:
+		if (unlikely(!(qp->qp_access_flags & IB_ACCESS_REMOTE_READ)))
+			goto inv_err;
+		if (unlikely(!rvt_rkey_ok(qp, &sqp->s_sge.sge, wqe->length,
+					  wqe->rdma_wr.remote_addr,
+					  wqe->rdma_wr.rkey,
+					  IB_ACCESS_REMOTE_READ)))
+			goto acc_err;
+		release = false;
+		sqp->s_sge.sg_list = NULL;
+		sqp->s_sge.num_sge = 1;
+		qp->r_sge.sge = wqe->sg_list[0];
+		qp->r_sge.sg_list = wqe->sg_list + 1;
+		qp->r_sge.num_sge = wqe->wr.num_sge;
+		qp->r_sge.total_len = wqe->length;
+		break;
+
+	case IB_WR_ATOMIC_CMP_AND_SWP:
+	case IB_WR_ATOMIC_FETCH_AND_ADD:
+		if (unlikely(!(qp->qp_access_flags & IB_ACCESS_REMOTE_ATOMIC)))
+			goto inv_err;
+		if (unlikely(wqe->atomic_wr.remote_addr & (sizeof(u64) - 1)))
+			goto inv_err;
+		if (unlikely(!rvt_rkey_ok(qp, &qp->r_sge.sge, sizeof(u64),
+					  wqe->atomic_wr.remote_addr,
+					  wqe->atomic_wr.rkey,
+					  IB_ACCESS_REMOTE_ATOMIC)))
+			goto acc_err;
+		/* Perform atomic OP and save result. */
+		maddr = (atomic64_t *)qp->r_sge.sge.vaddr;
+		sdata = wqe->atomic_wr.compare_add;
+		*(u64 *)sqp->s_sge.sge.vaddr =
+			(wqe->wr.opcode == IB_WR_ATOMIC_FETCH_AND_ADD) ?
+			(u64)atomic64_add_return(sdata, maddr) - sdata :
+			(u64)cmpxchg((u64 *)qp->r_sge.sge.vaddr,
+				      sdata, wqe->atomic_wr.swap);
+		rvt_put_mr(qp->r_sge.sge.mr);
+		qp->r_sge.num_sge = 0;
+		goto send_comp;
+
+	default:
+		send_status = IB_WC_LOC_QP_OP_ERR;
+		goto serr;
+	}
+
+	sge = &sqp->s_sge.sge;
+	while (sqp->s_len) {
+		u32 len = rvt_get_sge_length(sge, sqp->s_len);
+
+		WARN_ON_ONCE(len == 0);
+		rvt_copy_sge(qp, &qp->r_sge, sge->vaddr,
+			     len, release, copy_last);
+		rvt_update_sge(&sqp->s_sge, len, !release);
+		sqp->s_len -= len;
+	}
+	if (release)
+		rvt_put_ss(&qp->r_sge);
+
+	if (!test_and_clear_bit(RVT_R_WRID_VALID, &qp->r_aflags))
+		goto send_comp;
+
+	if (wqe->wr.opcode == IB_WR_RDMA_WRITE_WITH_IMM)
+		wc.opcode = IB_WC_RECV_RDMA_WITH_IMM;
+	else
+		wc.opcode = IB_WC_RECV;
+	wc.wr_id = qp->r_wr_id;
+	wc.status = IB_WC_SUCCESS;
+	wc.byte_len = wqe->length;
+	wc.qp = &qp->ibqp;
+	wc.src_qp = qp->remote_qpn;
+	wc.slid = rdma_ah_get_dlid(&qp->remote_ah_attr) & U16_MAX;
+	wc.sl = rdma_ah_get_sl(&qp->remote_ah_attr);
+	wc.port_num = 1;
+	/* Signal completion event if the solicited bit is set. */
+	rvt_recv_cq(qp, &wc, wqe->wr.send_flags & IB_SEND_SOLICITED);
+
+send_comp:
+	spin_unlock_irqrestore(&qp->r_lock, flags);
+	spin_lock_irqsave(&sqp->s_lock, flags);
+	rvp->n_loop_pkts++;
+flush_send:
+	sqp->s_rnr_retry = sqp->s_rnr_retry_cnt;
+	rvt_send_complete(sqp, wqe, send_status);
+	if (local_ops) {
+		atomic_dec(&sqp->local_ops_pending);
+		local_ops = 0;
+	}
+	goto again;
+
+rnr_nak:
+	/* Handle RNR NAK */
+	if (qp->ibqp.qp_type == IB_QPT_UC)
+		goto send_comp;
+	rvp->n_rnr_naks++;
+	/*
+	 * Note: we don't need the s_lock held since the BUSY flag
+	 * makes this single threaded.
+	 */
+	if (sqp->s_rnr_retry == 0) {
+		send_status = IB_WC_RNR_RETRY_EXC_ERR;
+		goto serr;
+	}
+	if (sqp->s_rnr_retry_cnt < 7)
+		sqp->s_rnr_retry--;
+	spin_unlock_irqrestore(&qp->r_lock, flags);
+	spin_lock_irqsave(&sqp->s_lock, flags);
+	if (!(ib_rvt_state_ops[sqp->state] & RVT_PROCESS_RECV_OK))
+		goto clr_busy;
+	rvt_add_rnr_timer(sqp, qp->r_min_rnr_timer <<
+				IB_AETH_CREDIT_SHIFT);
+	goto clr_busy;
+
+op_err:
+	send_status = IB_WC_REM_OP_ERR;
+	wc.status = IB_WC_LOC_QP_OP_ERR;
+	goto err;
+
+inv_err:
+	send_status =
+		sqp->ibqp.qp_type == IB_QPT_RC ?
+			IB_WC_REM_INV_REQ_ERR :
+			IB_WC_SUCCESS;
+	wc.status = IB_WC_LOC_QP_OP_ERR;
+	goto err;
+
+acc_err:
+	send_status = IB_WC_REM_ACCESS_ERR;
+	wc.status = IB_WC_LOC_PROT_ERR;
+err:
+	/* responder goes to error state */
+	rvt_rc_error(qp, wc.status);
+
+serr:
+	spin_unlock_irqrestore(&qp->r_lock, flags);
+serr_no_r_lock:
+	spin_lock_irqsave(&sqp->s_lock, flags);
+	rvt_send_complete(sqp, wqe, send_status);
+	if (sqp->ibqp.qp_type == IB_QPT_RC) {
+		int lastwqe;
+
+		spin_lock(&sqp->r_lock);
+		lastwqe = rvt_error_qp(sqp, IB_WC_WR_FLUSH_ERR);
+		spin_unlock(&sqp->r_lock);
+
+		sqp->s_flags &= ~RVT_S_BUSY;
+		spin_unlock_irqrestore(&sqp->s_lock, flags);
+		if (lastwqe) {
+			struct ib_event ev;
+
+			ev.device = sqp->ibqp.device;
+			ev.element.qp = &sqp->ibqp;
+			ev.event = IB_EVENT_QP_LAST_WQE_REACHED;
+			sqp->ibqp.event_handler(&ev, sqp->ibqp.qp_context);
+		}
+		goto done;
+	}
+clr_busy:
+	sqp->s_flags &= ~RVT_S_BUSY;
+unlock:
+	spin_unlock_irqrestore(&sqp->s_lock, flags);
+done:
+	rcu_read_unlock();
+}
+EXPORT_SYMBOL(rvt_ruc_loopback);
+>>>>>>> upstream/android-13

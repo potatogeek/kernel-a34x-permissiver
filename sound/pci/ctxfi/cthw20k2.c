@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**
  * Copyright (C) 2008, Creative Technology Ltd. All Rights Reserved.
  *
@@ -5,6 +6,12 @@
  * See the COPYING file included in the main directory of this source
  * distribution for the license terms and conditions.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2008, Creative Technology Ltd. All Rights Reserved.
+ *
+>>>>>>> upstream/android-13
  * @File	cthw20k2.c
  *
  * @Brief
@@ -12,7 +19,10 @@
  *
  * @Author	Liu Chun
  * @Date 	May 14 2008
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -2030,12 +2040,17 @@ static int hw_card_start(struct hw *hw)
 		return err;
 
 	/* Set DMA transfer mask */
+<<<<<<< HEAD
 	if (!dma_set_mask(&pci->dev, DMA_BIT_MASK(dma_bits))) {
 		dma_set_coherent_mask(&pci->dev, DMA_BIT_MASK(dma_bits));
 	} else {
 		dma_set_mask(&pci->dev, DMA_BIT_MASK(32));
 		dma_set_coherent_mask(&pci->dev, DMA_BIT_MASK(32));
 	}
+=======
+	if (dma_set_mask_and_coherent(&pci->dev, DMA_BIT_MASK(dma_bits)))
+		dma_set_mask_and_coherent(&pci->dev, DMA_BIT_MASK(32));
+>>>>>>> upstream/android-13
 
 	if (!hw->io_base) {
 		err = pci_request_regions(pci, "XFi");
@@ -2065,6 +2080,10 @@ static int hw_card_start(struct hw *hw)
 			goto error2;
 		}
 		hw->irq = pci->irq;
+<<<<<<< HEAD
+=======
+		hw->card->sync_irq = hw->irq;
+>>>>>>> upstream/android-13
 	}
 
 	pci_set_master(pci);

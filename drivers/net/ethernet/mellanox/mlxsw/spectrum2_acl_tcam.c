@@ -34,15 +34,26 @@ mlxsw_sp2_acl_ctcam_region_entry_insert(struct mlxsw_sp_acl_ctcam_region *cregio
 {
 	struct mlxsw_sp_acl_atcam_region *aregion;
 	struct mlxsw_sp_acl_atcam_entry *aentry;
+<<<<<<< HEAD
 	struct mlxsw_sp_acl_erp *erp;
+=======
+	struct mlxsw_sp_acl_erp_mask *erp_mask;
+>>>>>>> upstream/android-13
 
 	aregion = mlxsw_sp_acl_tcam_cregion_aregion(cregion);
 	aentry = mlxsw_sp_acl_tcam_centry_aentry(centry);
 
+<<<<<<< HEAD
 	erp = mlxsw_sp_acl_erp_get(aregion, mask, true);
 	if (IS_ERR(erp))
 		return PTR_ERR(erp);
 	aentry->erp = erp;
+=======
+	erp_mask = mlxsw_sp_acl_erp_mask_get(aregion, mask, true);
+	if (IS_ERR(erp_mask))
+		return PTR_ERR(erp_mask);
+	aentry->erp_mask = erp_mask;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -57,7 +68,11 @@ mlxsw_sp2_acl_ctcam_region_entry_remove(struct mlxsw_sp_acl_ctcam_region *cregio
 	aregion = mlxsw_sp_acl_tcam_cregion_aregion(cregion);
 	aentry = mlxsw_sp_acl_tcam_centry_aentry(centry);
 
+<<<<<<< HEAD
 	mlxsw_sp_acl_erp_put(aregion, aentry->erp);
+=======
+	mlxsw_sp_acl_erp_mask_put(aregion, aentry->erp_mask);
+>>>>>>> upstream/android-13
 }
 
 static const struct mlxsw_sp_acl_ctcam_region_ops
@@ -139,7 +154,12 @@ static void mlxsw_sp2_acl_tcam_fini(struct mlxsw_sp *mlxsw_sp, void *priv)
 static int
 mlxsw_sp2_acl_tcam_region_init(struct mlxsw_sp *mlxsw_sp, void *region_priv,
 			       void *tcam_priv,
+<<<<<<< HEAD
 			       struct mlxsw_sp_acl_tcam_region *_region)
+=======
+			       struct mlxsw_sp_acl_tcam_region *_region,
+			       void *hints_priv)
+>>>>>>> upstream/android-13
 {
 	struct mlxsw_sp2_acl_tcam_region *region = region_priv;
 	struct mlxsw_sp2_acl_tcam *tcam = tcam_priv;
@@ -147,7 +167,12 @@ mlxsw_sp2_acl_tcam_region_init(struct mlxsw_sp *mlxsw_sp, void *region_priv,
 	region->region = _region;
 
 	return mlxsw_sp_acl_atcam_region_init(mlxsw_sp, &tcam->atcam,
+<<<<<<< HEAD
 					      &region->aregion, _region,
+=======
+					      &region->aregion,
+					      _region, hints_priv,
+>>>>>>> upstream/android-13
 					      &mlxsw_sp2_acl_ctcam_region_ops);
 }
 
@@ -166,6 +191,21 @@ mlxsw_sp2_acl_tcam_region_associate(struct mlxsw_sp *mlxsw_sp,
 	return mlxsw_sp_acl_atcam_region_associate(mlxsw_sp, region->id);
 }
 
+<<<<<<< HEAD
+=======
+static void *mlxsw_sp2_acl_tcam_region_rehash_hints_get(void *region_priv)
+{
+	struct mlxsw_sp2_acl_tcam_region *region = region_priv;
+
+	return mlxsw_sp_acl_atcam_rehash_hints_get(&region->aregion);
+}
+
+static void mlxsw_sp2_acl_tcam_region_rehash_hints_put(void *hints_priv)
+{
+	mlxsw_sp_acl_atcam_rehash_hints_put(hints_priv);
+}
+
+>>>>>>> upstream/android-13
 static void mlxsw_sp2_acl_tcam_chunk_init(void *region_priv, void *chunk_priv,
 					  unsigned int priority)
 {
@@ -211,6 +251,23 @@ static void mlxsw_sp2_acl_tcam_entry_del(struct mlxsw_sp *mlxsw_sp,
 }
 
 static int
+<<<<<<< HEAD
+=======
+mlxsw_sp2_acl_tcam_entry_action_replace(struct mlxsw_sp *mlxsw_sp,
+					void *region_priv, void *entry_priv,
+					struct mlxsw_sp_acl_rule_info *rulei)
+{
+	struct mlxsw_sp2_acl_tcam_region *region = region_priv;
+	struct mlxsw_sp2_acl_tcam_entry *entry = entry_priv;
+
+	entry->act_block = rulei->act_block;
+	return mlxsw_sp_acl_atcam_entry_action_replace(mlxsw_sp,
+						       &region->aregion,
+						       &entry->aentry, rulei);
+}
+
+static int
+>>>>>>> upstream/android-13
 mlxsw_sp2_acl_tcam_entry_activity_get(struct mlxsw_sp *mlxsw_sp,
 				      void *region_priv, void *entry_priv,
 				      bool *activity)
@@ -229,11 +286,20 @@ const struct mlxsw_sp_acl_tcam_ops mlxsw_sp2_acl_tcam_ops = {
 	.region_init		= mlxsw_sp2_acl_tcam_region_init,
 	.region_fini		= mlxsw_sp2_acl_tcam_region_fini,
 	.region_associate	= mlxsw_sp2_acl_tcam_region_associate,
+<<<<<<< HEAD
+=======
+	.region_rehash_hints_get = mlxsw_sp2_acl_tcam_region_rehash_hints_get,
+	.region_rehash_hints_put = mlxsw_sp2_acl_tcam_region_rehash_hints_put,
+>>>>>>> upstream/android-13
 	.chunk_priv_size	= sizeof(struct mlxsw_sp2_acl_tcam_chunk),
 	.chunk_init		= mlxsw_sp2_acl_tcam_chunk_init,
 	.chunk_fini		= mlxsw_sp2_acl_tcam_chunk_fini,
 	.entry_priv_size	= sizeof(struct mlxsw_sp2_acl_tcam_entry),
 	.entry_add		= mlxsw_sp2_acl_tcam_entry_add,
 	.entry_del		= mlxsw_sp2_acl_tcam_entry_del,
+<<<<<<< HEAD
+=======
+	.entry_action_replace	= mlxsw_sp2_acl_tcam_entry_action_replace,
+>>>>>>> upstream/android-13
 	.entry_activity_get	= mlxsw_sp2_acl_tcam_entry_activity_get,
 };

@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  *	SoftDog:	A Software Watchdog Device
  *
  *	(c) Copyright 1996 Alan Cox <alan@lxorguk.ukuu.org.uk>,
  *							All Rights Reserved.
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *	Neither Alan Cox nor CymruNet Ltd. admit liability nor provide
  *	warranty for any of this software. This material is provided
  *	"AS-IS" and at no charge.
@@ -24,11 +31,20 @@
 #include <linux/hrtimer.h>
 #include <linux/init.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
+=======
+#include <linux/kthread.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/moduleparam.h>
 #include <linux/reboot.h>
 #include <linux/types.h>
 #include <linux/watchdog.h>
+<<<<<<< HEAD
+=======
+#include <linux/workqueue.h>
+#include <linux/sec_debug.h>
+>>>>>>> upstream/android-13
 
 #define TIMER_MARGIN	60		/* Default is 60 seconds */
 static unsigned int soft_margin = TIMER_MARGIN;	/* in seconds */
@@ -53,18 +69,53 @@ module_param(soft_panic, int, 0);
 MODULE_PARM_DESC(soft_panic,
 	"Softdog action, set to 1 to panic, 0 to reboot (default=0)");
 
+<<<<<<< HEAD
+=======
+static char *soft_reboot_cmd;
+module_param(soft_reboot_cmd, charp, 0000);
+MODULE_PARM_DESC(soft_reboot_cmd,
+	"Set reboot command. Emergency reboot takes place if unset");
+
+static bool soft_active_on_boot;
+module_param(soft_active_on_boot, bool, 0000);
+MODULE_PARM_DESC(soft_active_on_boot,
+	"Set to true to active Softdog on boot (default=false)");
+
+>>>>>>> upstream/android-13
 static struct hrtimer softdog_ticktock;
 static struct hrtimer softdog_preticktock;
 
 static struct watchdog_device softdog_dev;
 
+<<<<<<< HEAD
 static enum hrtimer_restart softdog_fire(struct hrtimer *timer)
 {
+=======
+static int reboot_kthread_fn(void *data)
+{
+	kernel_restart(soft_reboot_cmd);
+	return -EPERM; /* Should not reach here */
+}
+
+static void reboot_work_fn(struct work_struct *unused)
+{
+	kthread_run(reboot_kthread_fn, NULL, "softdog_reboot");
+}
+
+static enum hrtimer_restart softdog_fire(struct hrtimer *timer)
+{
+	static bool soft_reboot_fired;
+
+>>>>>>> upstream/android-13
 	module_put(THIS_MODULE);
 	if (soft_noboot) {
 		pr_crit("Triggered - Reboot ignored\n");
 	} else if (soft_panic) {
 		pr_crit("Initiating panic\n");
+<<<<<<< HEAD
+=======
+		secdbg_softdog_show_info();
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_SEC_DEBUG_SOFTDOG_PWDT)
 		panic("Software Watchdog Timer expired %ds", softdog_dev.timeout);
 #else
@@ -72,6 +123,36 @@ static enum hrtimer_restart softdog_fire(struct hrtimer *timer)
 #endif
 	} else {
 		pr_crit("Initiating system reboot\n");
+<<<<<<< HEAD
+=======
+		if (!soft_reboot_fired && soft_reboot_cmd != NULL) {
+			static DECLARE_WORK(reboot_work, reboot_work_fn);
+			/*
+			 * The 'kernel_restart' is a 'might-sleep' operation.
+			 * Also, executing it in system-wide workqueues blocks
+			 * any driver from using the same workqueue in its
+			 * shutdown callback function. Thus, we should execute
+			 * the 'kernel_restart' in a standalone kernel thread.
+			 * But since starting a kernel thread is also a
+			 * 'might-sleep' operation, so the 'reboot_work' is
+			 * required as a launcher of the kernel thread.
+			 *
+			 * After request the reboot, restart the timer to
+			 * schedule an 'emergency_restart' reboot after
+			 * 'TIMER_MARGIN' seconds. It's because if the softdog
+			 * hangs, it might be because of scheduling issues. And
+			 * if that is the case, both 'schedule_work' and
+			 * 'kernel_restart' may possibly be malfunctional at the
+			 * same time.
+			 */
+			soft_reboot_fired = true;
+			schedule_work(&reboot_work);
+			hrtimer_add_expires_ns(timer,
+					(u64)TIMER_MARGIN * NSEC_PER_SEC);
+
+			return HRTIMER_RESTART;
+		}
+>>>>>>> upstream/android-13
 		emergency_restart();
 		pr_crit("Reboot didn't ?????\n");
 	}
@@ -79,6 +160,11 @@ static enum hrtimer_restart softdog_fire(struct hrtimer *timer)
 	return HRTIMER_NORESTART;
 }
 
+<<<<<<< HEAD
+=======
+static struct watchdog_device softdog_dev;
+
+>>>>>>> upstream/android-13
 static enum hrtimer_restart softdog_pretimeout(struct hrtimer *timer)
 {
 	watchdog_notify_pretimeout(&softdog_dev);
@@ -93,7 +179,12 @@ static int softdog_ping(struct watchdog_device *w)
 	hrtimer_start(&softdog_ticktock, ktime_set(w->timeout, 0),
 		      HRTIMER_MODE_REL);
 
+<<<<<<< HEAD
 	pr_info_ratelimited("%s: %u\n", __func__, w->timeout);
+=======
+	if (IS_ENABLED(CONFIG_SEC_DEBUG_SOFTDOG_PWDT))
+		pr_info_ratelimited("%s: %u\n", __func__, w->timeout);
+>>>>>>> upstream/android-13
 
 	if (IS_ENABLED(CONFIG_SOFT_WATCHDOG_PRETIMEOUT)) {
 		if (w->pretimeout)
@@ -112,7 +203,12 @@ static int softdog_stop(struct watchdog_device *w)
 	if (hrtimer_cancel(&softdog_ticktock))
 		module_put(THIS_MODULE);
 
+<<<<<<< HEAD
 	pr_info_ratelimited("%s: %u\n", __func__, w->timeout);
+=======
+	if (IS_ENABLED(CONFIG_SEC_DEBUG_SOFTDOG_PWDT))
+		pr_info_ratelimited("%s: %u\n", __func__, w->timeout);
+>>>>>>> upstream/android-13
 
 	if (IS_ENABLED(CONFIG_SOFT_WATCHDOG_PRETIMEOUT))
 		hrtimer_cancel(&softdog_preticktock);
@@ -157,12 +253,23 @@ static int __init softdog_init(void)
 		softdog_preticktock.function = softdog_pretimeout;
 	}
 
+<<<<<<< HEAD
+=======
+	if (soft_active_on_boot)
+		softdog_ping(&softdog_dev);
+
+>>>>>>> upstream/android-13
 	ret = watchdog_register_device(&softdog_dev);
 	if (ret)
 		return ret;
 
 	pr_info("initialized. soft_noboot=%d soft_margin=%d sec soft_panic=%d (nowayout=%d)\n",
 		soft_noboot, softdog_dev.timeout, soft_panic, nowayout);
+<<<<<<< HEAD
+=======
+	pr_info("             soft_reboot_cmd=%s soft_active_on_boot=%d\n",
+		soft_reboot_cmd ?: "<not set>", soft_active_on_boot);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -174,6 +281,16 @@ static void __exit softdog_exit(void)
 }
 module_exit(softdog_exit);
 
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_SEC_DEBUG_SOFTDOG_PWDT)
+/*
+ * Softdog has to be /dev/watchdog1, but not /dev/watchdog0
+ */
+MODULE_SOFTDEP("pre: s3c2410_wdt");
+#endif
+
+>>>>>>> upstream/android-13
 MODULE_AUTHOR("Alan Cox");
 MODULE_DESCRIPTION("Software Watchdog Device Driver");
 MODULE_LICENSE("GPL");

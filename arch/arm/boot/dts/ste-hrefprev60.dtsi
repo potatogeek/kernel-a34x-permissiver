@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2012 ST-Ericsson AB
  *
@@ -12,6 +13,15 @@
  */
 
 #include "ste-dbx5x0.dtsi"
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2012 ST-Ericsson AB
+ *
+ * Device Tree for the HREF+ prior to the v60 variant.
+ */
+
+>>>>>>> upstream/android-13
 #include "ste-href-ab8500.dtsi"
 #include "ste-href.dtsi"
 
@@ -64,6 +74,7 @@
 			 */
 			pinctrl-names = "default";
 			pinctrl-0 = <&ssp0_hrefprev60_mode>;
+<<<<<<< HEAD
 		};
 
 		// External Micro SD slot
@@ -77,6 +88,16 @@
 			enable-active-high;
 		};
 
+=======
+			status = "okay";
+		};
+
+		// External Micro SD slot
+		mmc@80126000 {
+			cd-gpios  = <&tc3589x_gpio 3 GPIO_ACTIVE_HIGH>;
+		};
+
+>>>>>>> upstream/android-13
 		pinctrl {
 			/* Set this up using hogs */
 			pinctrl-names = "default";

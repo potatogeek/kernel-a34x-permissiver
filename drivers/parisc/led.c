@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *    Chassis LCD/LED driver for HP-PARISC workstations
  *
@@ -6,11 +10,14 @@
  *      (c) Copyright 2001-2009 Helge Deller <deller@gmx.de>
  *      (c) Copyright 2001 Randolph Chung <tausq@debian.org>
  *
+<<<<<<< HEAD
  *      This program is free software; you can redistribute it and/or modify
  *      it under the terms of the GNU General Public License as published by
  *      the Free Software Foundation; either version 2 of the License, or
  *      (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * TODO:
  *	- speed-up calculations with inlined assembler
  *	- interface to write to second row of LCD from /proc (if technically possible)
@@ -234,6 +241,7 @@ parse_error:
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 static const struct file_operations led_proc_fops = {
 	.owner		= THIS_MODULE,
 	.open		= led_proc_open,
@@ -241,6 +249,14 @@ static const struct file_operations led_proc_fops = {
 	.llseek		= seq_lseek,
 	.release	= single_release,
 	.write		= led_proc_write,
+=======
+static const struct proc_ops led_proc_ops = {
+	.proc_open	= led_proc_open,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_release	= single_release,
+	.proc_write	= led_proc_write,
+>>>>>>> upstream/android-13
 };
 
 static int __init led_create_procfs(void)
@@ -255,15 +271,25 @@ static int __init led_create_procfs(void)
 
 	if (!lcd_no_led_support)
 	{
+<<<<<<< HEAD
 		ent = proc_create_data("led", S_IRUGO|S_IWUSR, proc_pdc_root,
 					&led_proc_fops, (void *)LED_NOLCD); /* LED */
+=======
+		ent = proc_create_data("led", 0644, proc_pdc_root,
+					&led_proc_ops, (void *)LED_NOLCD); /* LED */
+>>>>>>> upstream/android-13
 		if (!ent) return -1;
 	}
 
 	if (led_type == LED_HASLCD)
 	{
+<<<<<<< HEAD
 		ent = proc_create_data("lcd", S_IRUGO|S_IWUSR, proc_pdc_root,
 					&led_proc_fops, (void *)LED_HASLCD); /* LCD */
+=======
+		ent = proc_create_data("lcd", 0644, proc_pdc_root,
+					&led_proc_ops, (void *)LED_HASLCD); /* LCD */
+>>>>>>> upstream/android-13
 		if (!ent) return -1;
 	}
 

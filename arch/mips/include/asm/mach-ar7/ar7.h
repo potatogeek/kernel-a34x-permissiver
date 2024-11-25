@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2006,2007 Felix Fietkau <nbd@openwrt.org>
  * Copyright (C) 2006,2007 Eugene Konev <ejka@openwrt.org>
@@ -15,6 +16,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (C) 2006,2007 Felix Fietkau <nbd@openwrt.org>
+ * Copyright (C) 2006,2007 Eugene Konev <ejka@openwrt.org>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __AR7_H__
@@ -144,10 +151,13 @@ static inline u8 ar7_chip_rev(void)
 		0x14))) >> 16) & 0xff;
 }
 
+<<<<<<< HEAD
 struct clk {
 	unsigned int	rate;
 };
 
+=======
+>>>>>>> upstream/android-13
 static inline int ar7_has_high_cpmac(void)
 {
 	u16 chip_id = ar7_chip_id();

@@ -12,9 +12,16 @@
 #include "strlist.h"
 #include <string.h>
 #include <api/fs/fs.h>
+<<<<<<< HEAD
 #include "asm/bug.h"
 #include "thread_map.h"
 #include "util.h"
+=======
+#include <linux/string.h>
+#include <linux/zalloc.h>
+#include "asm/bug.h"
+#include "thread_map.h"
+>>>>>>> upstream/android-13
 #include "debug.h"
 #include "event.h"
 
@@ -27,6 +34,7 @@ static int filter(const struct dirent *dir)
 		return 1;
 }
 
+<<<<<<< HEAD
 static void thread_map__reset(struct thread_map *map, int start, int nr)
 {
 	size_t size = (nr - start) * sizeof(map->map[0]);
@@ -55,6 +63,13 @@ static struct thread_map *thread_map__realloc(struct thread_map *map, int nr)
 struct thread_map *thread_map__new_by_pid(pid_t pid)
 {
 	struct thread_map *threads;
+=======
+#define thread_map__alloc(__nr) perf_thread_map__realloc(NULL, __nr)
+
+struct perf_thread_map *thread_map__new_by_pid(pid_t pid)
+{
+	struct perf_thread_map *threads;
+>>>>>>> upstream/android-13
 	char name[256];
 	int items;
 	struct dirent **namelist = NULL;
@@ -68,7 +83,11 @@ struct thread_map *thread_map__new_by_pid(pid_t pid)
 	threads = thread_map__alloc(items);
 	if (threads != NULL) {
 		for (i = 0; i < items; i++)
+<<<<<<< HEAD
 			thread_map__set_pid(threads, i, atoi(namelist[i]->d_name));
+=======
+			perf_thread_map__set_pid(threads, i, atoi(namelist[i]->d_name));
+>>>>>>> upstream/android-13
 		threads->nr = items;
 		refcount_set(&threads->refcnt, 1);
 	}
@@ -80,12 +99,21 @@ struct thread_map *thread_map__new_by_pid(pid_t pid)
 	return threads;
 }
 
+<<<<<<< HEAD
 struct thread_map *thread_map__new_by_tid(pid_t tid)
 {
 	struct thread_map *threads = thread_map__alloc(1);
 
 	if (threads != NULL) {
 		thread_map__set_pid(threads, 0, tid);
+=======
+struct perf_thread_map *thread_map__new_by_tid(pid_t tid)
+{
+	struct perf_thread_map *threads = thread_map__alloc(1);
+
+	if (threads != NULL) {
+		perf_thread_map__set_pid(threads, 0, tid);
+>>>>>>> upstream/android-13
 		threads->nr = 1;
 		refcount_set(&threads->refcnt, 1);
 	}
@@ -93,13 +121,21 @@ struct thread_map *thread_map__new_by_tid(pid_t tid)
 	return threads;
 }
 
+<<<<<<< HEAD
 static struct thread_map *__thread_map__new_all_cpus(uid_t uid)
+=======
+static struct perf_thread_map *__thread_map__new_all_cpus(uid_t uid)
+>>>>>>> upstream/android-13
 {
 	DIR *proc;
 	int max_threads = 32, items, i;
 	char path[NAME_MAX + 1 + 6];
 	struct dirent *dirent, **namelist = NULL;
+<<<<<<< HEAD
 	struct thread_map *threads = thread_map__alloc(max_threads);
+=======
+	struct perf_thread_map *threads = thread_map__alloc(max_threads);
+>>>>>>> upstream/android-13
 
 	if (threads == NULL)
 		goto out;
@@ -139,9 +175,15 @@ static struct thread_map *__thread_map__new_all_cpus(uid_t uid)
 		}
 
 		if (grow) {
+<<<<<<< HEAD
 			struct thread_map *tmp;
 
 			tmp = thread_map__realloc(threads, max_threads);
+=======
+			struct perf_thread_map *tmp;
+
+			tmp = perf_thread_map__realloc(threads, max_threads);
+>>>>>>> upstream/android-13
 			if (tmp == NULL)
 				goto out_free_namelist;
 
@@ -149,8 +191,13 @@ static struct thread_map *__thread_map__new_all_cpus(uid_t uid)
 		}
 
 		for (i = 0; i < items; i++) {
+<<<<<<< HEAD
 			thread_map__set_pid(threads, threads->nr + i,
 					    atoi(namelist[i]->d_name));
+=======
+			perf_thread_map__set_pid(threads, threads->nr + i,
+						    atoi(namelist[i]->d_name));
+>>>>>>> upstream/android-13
 		}
 
 		for (i = 0; i < items; i++)
@@ -179,17 +226,29 @@ out_free_closedir:
 	goto out_closedir;
 }
 
+<<<<<<< HEAD
 struct thread_map *thread_map__new_all_cpus(void)
+=======
+struct perf_thread_map *thread_map__new_all_cpus(void)
+>>>>>>> upstream/android-13
 {
 	return __thread_map__new_all_cpus(UINT_MAX);
 }
 
+<<<<<<< HEAD
 struct thread_map *thread_map__new_by_uid(uid_t uid)
+=======
+struct perf_thread_map *thread_map__new_by_uid(uid_t uid)
+>>>>>>> upstream/android-13
 {
 	return __thread_map__new_all_cpus(uid);
 }
 
+<<<<<<< HEAD
 struct thread_map *thread_map__new(pid_t pid, pid_t tid, uid_t uid)
+=======
+struct perf_thread_map *thread_map__new(pid_t pid, pid_t tid, uid_t uid)
+>>>>>>> upstream/android-13
 {
 	if (pid != -1)
 		return thread_map__new_by_pid(pid);
@@ -200,9 +259,15 @@ struct thread_map *thread_map__new(pid_t pid, pid_t tid, uid_t uid)
 	return thread_map__new_by_tid(tid);
 }
 
+<<<<<<< HEAD
 static struct thread_map *thread_map__new_by_pid_str(const char *pid_str)
 {
 	struct thread_map *threads = NULL, *nt;
+=======
+static struct perf_thread_map *thread_map__new_by_pid_str(const char *pid_str)
+{
+	struct perf_thread_map *threads = NULL, *nt;
+>>>>>>> upstream/android-13
 	char name[256];
 	int items, total_tasks = 0;
 	struct dirent **namelist = NULL;
@@ -232,14 +297,22 @@ static struct thread_map *thread_map__new_by_pid_str(const char *pid_str)
 			goto out_free_threads;
 
 		total_tasks += items;
+<<<<<<< HEAD
 		nt = thread_map__realloc(threads, total_tasks);
+=======
+		nt = perf_thread_map__realloc(threads, total_tasks);
+>>>>>>> upstream/android-13
 		if (nt == NULL)
 			goto out_free_namelist;
 
 		threads = nt;
 
 		for (i = 0; i < items; i++) {
+<<<<<<< HEAD
 			thread_map__set_pid(threads, j++, atoi(namelist[i]->d_name));
+=======
+			perf_thread_map__set_pid(threads, j++, atoi(namelist[i]->d_name));
+>>>>>>> upstream/android-13
 			zfree(&namelist[i]);
 		}
 		threads->nr = total_tasks;
@@ -262,6 +335,7 @@ out_free_threads:
 	goto out;
 }
 
+<<<<<<< HEAD
 struct thread_map *thread_map__new_dummy(void)
 {
 	struct thread_map *threads = thread_map__alloc(1);
@@ -277,6 +351,11 @@ struct thread_map *thread_map__new_dummy(void)
 struct thread_map *thread_map__new_by_tid_str(const char *tid_str)
 {
 	struct thread_map *threads = NULL, *nt;
+=======
+struct perf_thread_map *thread_map__new_by_tid_str(const char *tid_str)
+{
+	struct perf_thread_map *threads = NULL, *nt;
+>>>>>>> upstream/android-13
 	int ntasks = 0;
 	pid_t tid, prev_tid = INT_MAX;
 	char *end_ptr;
@@ -286,7 +365,11 @@ struct thread_map *thread_map__new_by_tid_str(const char *tid_str)
 
 	/* perf-stat expects threads to be generated even if tid not given */
 	if (!tid_str)
+<<<<<<< HEAD
 		return thread_map__new_dummy();
+=======
+		return perf_thread_map__new_dummy();
+>>>>>>> upstream/android-13
 
 	slist = strlist__new(tid_str, &slist_config);
 	if (!slist)
@@ -303,13 +386,21 @@ struct thread_map *thread_map__new_by_tid_str(const char *tid_str)
 			continue;
 
 		ntasks++;
+<<<<<<< HEAD
 		nt = thread_map__realloc(threads, ntasks);
+=======
+		nt = perf_thread_map__realloc(threads, ntasks);
+>>>>>>> upstream/android-13
 
 		if (nt == NULL)
 			goto out_free_threads;
 
 		threads = nt;
+<<<<<<< HEAD
 		thread_map__set_pid(threads, ntasks - 1, tid);
+=======
+		perf_thread_map__set_pid(threads, ntasks - 1, tid);
+>>>>>>> upstream/android-13
 		threads->nr = ntasks;
 	}
 out:
@@ -323,7 +414,11 @@ out_free_threads:
 	goto out;
 }
 
+<<<<<<< HEAD
 struct thread_map *thread_map__new_str(const char *pid, const char *tid,
+=======
+struct perf_thread_map *thread_map__new_str(const char *pid, const char *tid,
+>>>>>>> upstream/android-13
 				       uid_t uid, bool all_threads)
 {
 	if (pid)
@@ -338,6 +433,7 @@ struct thread_map *thread_map__new_str(const char *pid, const char *tid,
 	return thread_map__new_by_tid_str(tid);
 }
 
+<<<<<<< HEAD
 static void thread_map__delete(struct thread_map *threads)
 {
 	if (threads) {
@@ -365,12 +461,19 @@ void thread_map__put(struct thread_map *map)
 }
 
 size_t thread_map__fprintf(struct thread_map *threads, FILE *fp)
+=======
+size_t thread_map__fprintf(struct perf_thread_map *threads, FILE *fp)
+>>>>>>> upstream/android-13
 {
 	int i;
 	size_t printed = fprintf(fp, "%d thread%s: ",
 				 threads->nr, threads->nr > 1 ? "s" : "");
 	for (i = 0; i < threads->nr; ++i)
+<<<<<<< HEAD
 		printed += fprintf(fp, "%s%d", i ? ", " : "", thread_map__pid(threads, i));
+=======
+		printed += fprintf(fp, "%s%d", i ? ", " : "", perf_thread_map__pid(threads, i));
+>>>>>>> upstream/android-13
 
 	return printed + fprintf(fp, "\n");
 }
@@ -392,16 +495,26 @@ static int get_comm(char **comm, pid_t pid)
 		 * mark the end of the string.
 		 */
 		(*comm)[size] = 0;
+<<<<<<< HEAD
 		rtrim(*comm);
+=======
+		strim(*comm);
+>>>>>>> upstream/android-13
 	}
 
 	free(path);
 	return err;
 }
 
+<<<<<<< HEAD
 static void comm_init(struct thread_map *map, int i)
 {
 	pid_t pid = thread_map__pid(map, i);
+=======
+static void comm_init(struct perf_thread_map *map, int i)
+{
+	pid_t pid = perf_thread_map__pid(map, i);
+>>>>>>> upstream/android-13
 	char *comm = NULL;
 
 	/* dummy pid comm initialization */
@@ -420,7 +533,11 @@ static void comm_init(struct thread_map *map, int i)
 	map->map[i].comm = comm;
 }
 
+<<<<<<< HEAD
 void thread_map__read_comms(struct thread_map *threads)
+=======
+void thread_map__read_comms(struct perf_thread_map *threads)
+>>>>>>> upstream/android-13
 {
 	int i;
 
@@ -428,24 +545,39 @@ void thread_map__read_comms(struct thread_map *threads)
 		comm_init(threads, i);
 }
 
+<<<<<<< HEAD
 static void thread_map__copy_event(struct thread_map *threads,
 				   struct thread_map_event *event)
+=======
+static void thread_map__copy_event(struct perf_thread_map *threads,
+				   struct perf_record_thread_map *event)
+>>>>>>> upstream/android-13
 {
 	unsigned i;
 
 	threads->nr = (int) event->nr;
 
 	for (i = 0; i < event->nr; i++) {
+<<<<<<< HEAD
 		thread_map__set_pid(threads, i, (pid_t) event->entries[i].pid);
+=======
+		perf_thread_map__set_pid(threads, i, (pid_t) event->entries[i].pid);
+>>>>>>> upstream/android-13
 		threads->map[i].comm = strndup(event->entries[i].comm, 16);
 	}
 
 	refcount_set(&threads->refcnt, 1);
 }
 
+<<<<<<< HEAD
 struct thread_map *thread_map__new_event(struct thread_map_event *event)
 {
 	struct thread_map *threads;
+=======
+struct perf_thread_map *thread_map__new_event(struct perf_record_thread_map *event)
+{
+	struct perf_thread_map *threads;
+>>>>>>> upstream/android-13
 
 	threads = thread_map__alloc(event->nr);
 	if (threads)
@@ -454,7 +586,11 @@ struct thread_map *thread_map__new_event(struct thread_map_event *event)
 	return threads;
 }
 
+<<<<<<< HEAD
 bool thread_map__has(struct thread_map *threads, pid_t pid)
+=======
+bool thread_map__has(struct perf_thread_map *threads, pid_t pid)
+>>>>>>> upstream/android-13
 {
 	int i;
 
@@ -466,7 +602,11 @@ bool thread_map__has(struct thread_map *threads, pid_t pid)
 	return false;
 }
 
+<<<<<<< HEAD
 int thread_map__remove(struct thread_map *threads, int idx)
+=======
+int thread_map__remove(struct perf_thread_map *threads, int idx)
+>>>>>>> upstream/android-13
 {
 	int i;
 
@@ -479,7 +619,11 @@ int thread_map__remove(struct thread_map *threads, int idx)
 	/*
 	 * Free the 'idx' item and shift the rest up.
 	 */
+<<<<<<< HEAD
 	free(threads->map[idx].comm);
+=======
+	zfree(&threads->map[idx].comm);
+>>>>>>> upstream/android-13
 
 	for (i = idx; i < threads->nr - 1; i++)
 		threads->map[i] = threads->map[i + 1];

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/skbuff.h>
 #include <linux/export.h>
@@ -22,9 +26,22 @@
 #include <linux/if_ether.h>
 #include <linux/mpls.h>
 #include <linux/tcp.h>
+<<<<<<< HEAD
 #include <net/flow_dissector.h>
 #include <scsi/fc/fc_fcoe.h>
 #include <uapi/linux/batadv_packet.h>
+=======
+#include <linux/ptp_classify.h>
+#include <net/flow_dissector.h>
+#include <scsi/fc/fc_fcoe.h>
+#include <uapi/linux/batadv_packet.h>
+#include <linux/bpf.h>
+#if IS_ENABLED(CONFIG_NF_CONNTRACK)
+#include <net/netfilter/nf_conntrack_core.h>
+#include <net/netfilter/nf_conntrack_labels.h>
+#endif
+#include <linux/bpf-netns.h>
+>>>>>>> upstream/android-13
 
 static void dissector_set_key(struct flow_dissector *flow_dissector,
 			      enum flow_dissector_key_id key_id)
@@ -41,7 +58,11 @@ void skb_flow_dissector_init(struct flow_dissector *flow_dissector,
 	memset(flow_dissector, 0, sizeof(*flow_dissector));
 
 	for (i = 0; i < key_count; i++, key++) {
+<<<<<<< HEAD
 		/* User should make sure that every key target offset is withing
+=======
+		/* User should make sure that every key target offset is within
+>>>>>>> upstream/android-13
 		 * boundaries of unsigned short.
 		 */
 		BUG_ON(key->offset > USHRT_MAX);
@@ -62,6 +83,7 @@ void skb_flow_dissector_init(struct flow_dissector *flow_dissector,
 }
 EXPORT_SYMBOL(skb_flow_dissector_init);
 
+<<<<<<< HEAD
 /**
  * skb_flow_get_be16 - extract be16 entity
  * @skb: sk_buff to extract from
@@ -83,6 +105,39 @@ static __be16 skb_flow_get_be16(const struct sk_buff *skb, int poff,
 
 	return 0;
 }
+=======
+#ifdef CONFIG_BPF_SYSCALL
+int flow_dissector_bpf_prog_attach_check(struct net *net,
+					 struct bpf_prog *prog)
+{
+	enum netns_bpf_attach_type type = NETNS_BPF_FLOW_DISSECTOR;
+
+	if (net == &init_net) {
+		/* BPF flow dissector in the root namespace overrides
+		 * any per-net-namespace one. When attaching to root,
+		 * make sure we don't have any BPF program attached
+		 * to the non-root namespaces.
+		 */
+		struct net *ns;
+
+		for_each_net(ns) {
+			if (ns == &init_net)
+				continue;
+			if (rcu_access_pointer(ns->bpf.run_array[type]))
+				return -EEXIST;
+		}
+	} else {
+		/* Make sure root flow dissector is not attached
+		 * when attaching to the non-root namespace.
+		 */
+		if (rcu_access_pointer(init_net.bpf.run_array[type]))
+			return -EEXIST;
+	}
+
+	return 0;
+}
+#endif /* CONFIG_BPF_SYSCALL */
+>>>>>>> upstream/android-13
 
 /**
  * __skb_flow_get_ports - extract the upper layer ports and return them
@@ -96,7 +151,11 @@ static __be16 skb_flow_get_be16(const struct sk_buff *skb, int poff,
  * is the protocol port offset returned from proto_ports_offset
  */
 __be32 __skb_flow_get_ports(const struct sk_buff *skb, int thoff, u8 ip_proto,
+<<<<<<< HEAD
 			    void *data, int hlen)
+=======
+			    const void *data, int hlen)
+>>>>>>> upstream/android-13
 {
 	int poff = proto_ports_offset(ip_proto);
 
@@ -118,6 +177,91 @@ __be32 __skb_flow_get_ports(const struct sk_buff *skb, int thoff, u8 ip_proto,
 }
 EXPORT_SYMBOL(__skb_flow_get_ports);
 
+<<<<<<< HEAD
+=======
+static bool icmp_has_id(u8 type)
+{
+	switch (type) {
+	case ICMP_ECHO:
+	case ICMP_ECHOREPLY:
+	case ICMP_TIMESTAMP:
+	case ICMP_TIMESTAMPREPLY:
+	case ICMPV6_ECHO_REQUEST:
+	case ICMPV6_ECHO_REPLY:
+		return true;
+	}
+
+	return false;
+}
+
+/**
+ * skb_flow_get_icmp_tci - extract ICMP(6) Type, Code and Identifier fields
+ * @skb: sk_buff to extract from
+ * @key_icmp: struct flow_dissector_key_icmp to fill
+ * @data: raw buffer pointer to the packet
+ * @thoff: offset to extract at
+ * @hlen: packet header length
+ */
+void skb_flow_get_icmp_tci(const struct sk_buff *skb,
+			   struct flow_dissector_key_icmp *key_icmp,
+			   const void *data, int thoff, int hlen)
+{
+	struct icmphdr *ih, _ih;
+
+	ih = __skb_header_pointer(skb, thoff, sizeof(_ih), data, hlen, &_ih);
+	if (!ih)
+		return;
+
+	key_icmp->type = ih->type;
+	key_icmp->code = ih->code;
+
+	/* As we use 0 to signal that the Id field is not present,
+	 * avoid confusion with packets without such field
+	 */
+	if (icmp_has_id(ih->type))
+		key_icmp->id = ih->un.echo.id ? ntohs(ih->un.echo.id) : 1;
+	else
+		key_icmp->id = 0;
+}
+EXPORT_SYMBOL(skb_flow_get_icmp_tci);
+
+/* If FLOW_DISSECTOR_KEY_ICMP is set, dissect an ICMP packet
+ * using skb_flow_get_icmp_tci().
+ */
+static void __skb_flow_dissect_icmp(const struct sk_buff *skb,
+				    struct flow_dissector *flow_dissector,
+				    void *target_container, const void *data,
+				    int thoff, int hlen)
+{
+	struct flow_dissector_key_icmp *key_icmp;
+
+	if (!dissector_uses_key(flow_dissector, FLOW_DISSECTOR_KEY_ICMP))
+		return;
+
+	key_icmp = skb_flow_dissector_target(flow_dissector,
+					     FLOW_DISSECTOR_KEY_ICMP,
+					     target_container);
+
+	skb_flow_get_icmp_tci(skb, key_icmp, data, thoff, hlen);
+}
+
+void skb_flow_dissect_meta(const struct sk_buff *skb,
+			   struct flow_dissector *flow_dissector,
+			   void *target_container)
+{
+	struct flow_dissector_key_meta *meta;
+
+	if (!dissector_uses_key(flow_dissector, FLOW_DISSECTOR_KEY_META))
+		return;
+
+	meta = skb_flow_dissector_target(flow_dissector,
+					 FLOW_DISSECTOR_KEY_META,
+					 target_container);
+	meta->ingress_ifindex = skb->skb_iif;
+}
+EXPORT_SYMBOL(skb_flow_dissect_meta);
+
+>>>>>>> upstream/android-13
 static void
 skb_flow_dissect_set_enc_addr_type(enum flow_dissector_key_id type,
 				   struct flow_dissector *flow_dissector,
@@ -135,6 +279,55 @@ skb_flow_dissect_set_enc_addr_type(enum flow_dissector_key_id type,
 }
 
 void
+<<<<<<< HEAD
+=======
+skb_flow_dissect_ct(const struct sk_buff *skb,
+		    struct flow_dissector *flow_dissector,
+		    void *target_container, u16 *ctinfo_map,
+		    size_t mapsize, bool post_ct, u16 zone)
+{
+#if IS_ENABLED(CONFIG_NF_CONNTRACK)
+	struct flow_dissector_key_ct *key;
+	enum ip_conntrack_info ctinfo;
+	struct nf_conn_labels *cl;
+	struct nf_conn *ct;
+
+	if (!dissector_uses_key(flow_dissector, FLOW_DISSECTOR_KEY_CT))
+		return;
+
+	ct = nf_ct_get(skb, &ctinfo);
+	if (!ct && !post_ct)
+		return;
+
+	key = skb_flow_dissector_target(flow_dissector,
+					FLOW_DISSECTOR_KEY_CT,
+					target_container);
+
+	if (!ct) {
+		key->ct_state = TCA_FLOWER_KEY_CT_FLAGS_TRACKED |
+				TCA_FLOWER_KEY_CT_FLAGS_INVALID;
+		key->ct_zone = zone;
+		return;
+	}
+
+	if (ctinfo < mapsize)
+		key->ct_state = ctinfo_map[ctinfo];
+#if IS_ENABLED(CONFIG_NF_CONNTRACK_ZONES)
+	key->ct_zone = ct->zone.id;
+#endif
+#if IS_ENABLED(CONFIG_NF_CONNTRACK_MARK)
+	key->ct_mark = ct->mark;
+#endif
+
+	cl = nf_ct_labels_find(ct);
+	if (cl)
+		memcpy(key->ct_labels, cl->bits, sizeof(key->ct_labels));
+#endif /* CONFIG_NF_CONNTRACK */
+}
+EXPORT_SYMBOL(skb_flow_dissect_ct);
+
+void
+>>>>>>> upstream/android-13
 skb_flow_dissect_tunnel_info(const struct sk_buff *skb,
 			     struct flow_dissector *flow_dissector,
 			     void *target_container)
@@ -244,6 +437,7 @@ skb_flow_dissect_tunnel_info(const struct sk_buff *skb,
 }
 EXPORT_SYMBOL(skb_flow_dissect_tunnel_info);
 
+<<<<<<< HEAD
 static enum flow_dissect_ret
 __skb_flow_dissect_mpls(const struct sk_buff *skb,
 			struct flow_dissector *flow_dissector,
@@ -252,26 +446,70 @@ __skb_flow_dissect_mpls(const struct sk_buff *skb,
 	struct flow_dissector_key_keyid *key_keyid;
 	struct mpls_label *hdr, _hdr[2];
 	u32 entry, label;
+=======
+void skb_flow_dissect_hash(const struct sk_buff *skb,
+			   struct flow_dissector *flow_dissector,
+			   void *target_container)
+{
+	struct flow_dissector_key_hash *key;
+
+	if (!dissector_uses_key(flow_dissector, FLOW_DISSECTOR_KEY_HASH))
+		return;
+
+	key = skb_flow_dissector_target(flow_dissector,
+					FLOW_DISSECTOR_KEY_HASH,
+					target_container);
+
+	key->hash = skb_get_hash_raw(skb);
+}
+EXPORT_SYMBOL(skb_flow_dissect_hash);
+
+static enum flow_dissect_ret
+__skb_flow_dissect_mpls(const struct sk_buff *skb,
+			struct flow_dissector *flow_dissector,
+			void *target_container, const void *data, int nhoff,
+			int hlen, int lse_index, bool *entropy_label)
+{
+	struct mpls_label *hdr, _hdr;
+	u32 entry, label, bos;
+>>>>>>> upstream/android-13
 
 	if (!dissector_uses_key(flow_dissector,
 				FLOW_DISSECTOR_KEY_MPLS_ENTROPY) &&
 	    !dissector_uses_key(flow_dissector, FLOW_DISSECTOR_KEY_MPLS))
 		return FLOW_DISSECT_RET_OUT_GOOD;
 
+<<<<<<< HEAD
+=======
+	if (lse_index >= FLOW_DIS_MPLS_MAX)
+		return FLOW_DISSECT_RET_OUT_GOOD;
+
+>>>>>>> upstream/android-13
 	hdr = __skb_header_pointer(skb, nhoff, sizeof(_hdr), data,
 				   hlen, &_hdr);
 	if (!hdr)
 		return FLOW_DISSECT_RET_OUT_BAD;
 
+<<<<<<< HEAD
 	entry = ntohl(hdr[0].entry);
 	label = (entry & MPLS_LS_LABEL_MASK) >> MPLS_LS_LABEL_SHIFT;
 
 	if (dissector_uses_key(flow_dissector, FLOW_DISSECTOR_KEY_MPLS)) {
 		struct flow_dissector_key_mpls *key_mpls;
+=======
+	entry = ntohl(hdr->entry);
+	label = (entry & MPLS_LS_LABEL_MASK) >> MPLS_LS_LABEL_SHIFT;
+	bos = (entry & MPLS_LS_S_MASK) >> MPLS_LS_S_SHIFT;
+
+	if (dissector_uses_key(flow_dissector, FLOW_DISSECTOR_KEY_MPLS)) {
+		struct flow_dissector_key_mpls *key_mpls;
+		struct flow_dissector_mpls_lse *lse;
+>>>>>>> upstream/android-13
 
 		key_mpls = skb_flow_dissector_target(flow_dissector,
 						     FLOW_DISSECTOR_KEY_MPLS,
 						     target_container);
+<<<<<<< HEAD
 		key_mpls->mpls_label = label;
 		key_mpls->mpls_ttl = (entry & MPLS_LS_TTL_MASK)
 					>> MPLS_LS_TTL_SHIFT;
@@ -288,12 +526,42 @@ __skb_flow_dissect_mpls(const struct sk_buff *skb,
 		key_keyid->keyid = hdr[1].entry & htonl(MPLS_LS_LABEL_MASK);
 	}
 	return FLOW_DISSECT_RET_OUT_GOOD;
+=======
+		lse = &key_mpls->ls[lse_index];
+
+		lse->mpls_ttl = (entry & MPLS_LS_TTL_MASK) >> MPLS_LS_TTL_SHIFT;
+		lse->mpls_bos = bos;
+		lse->mpls_tc = (entry & MPLS_LS_TC_MASK) >> MPLS_LS_TC_SHIFT;
+		lse->mpls_label = label;
+		dissector_set_mpls_lse(key_mpls, lse_index);
+	}
+
+	if (*entropy_label &&
+	    dissector_uses_key(flow_dissector,
+			       FLOW_DISSECTOR_KEY_MPLS_ENTROPY)) {
+		struct flow_dissector_key_keyid *key_keyid;
+
+		key_keyid = skb_flow_dissector_target(flow_dissector,
+						      FLOW_DISSECTOR_KEY_MPLS_ENTROPY,
+						      target_container);
+		key_keyid->keyid = cpu_to_be32(label);
+	}
+
+	*entropy_label = label == MPLS_LABEL_ENTROPY;
+
+	return bos ? FLOW_DISSECT_RET_OUT_GOOD : FLOW_DISSECT_RET_PROTO_AGAIN;
+>>>>>>> upstream/android-13
 }
 
 static enum flow_dissect_ret
 __skb_flow_dissect_arp(const struct sk_buff *skb,
 		       struct flow_dissector *flow_dissector,
+<<<<<<< HEAD
 		       void *target_container, void *data, int nhoff, int hlen)
+=======
+		       void *target_container, const void *data,
+		       int nhoff, int hlen)
+>>>>>>> upstream/android-13
 {
 	struct flow_dissector_key_arp *key_arp;
 	struct {
@@ -349,7 +617,11 @@ static enum flow_dissect_ret
 __skb_flow_dissect_gre(const struct sk_buff *skb,
 		       struct flow_dissector_key_control *key_control,
 		       struct flow_dissector *flow_dissector,
+<<<<<<< HEAD
 		       void *target_container, void *data,
+=======
+		       void *target_container, const void *data,
+>>>>>>> upstream/android-13
 		       __be16 *p_proto, int *p_nhoff, int *p_hlen,
 		       unsigned int flags)
 {
@@ -382,8 +654,13 @@ __skb_flow_dissect_gre(const struct sk_buff *skb,
 	offset += sizeof(struct gre_base_hdr);
 
 	if (hdr->flags & GRE_CSUM)
+<<<<<<< HEAD
 		offset += sizeof(((struct gre_full_hdr *) 0)->csum) +
 			  sizeof(((struct gre_full_hdr *) 0)->reserved1);
+=======
+		offset += sizeof_field(struct gre_full_hdr, csum) +
+			  sizeof_field(struct gre_full_hdr, reserved1);
+>>>>>>> upstream/android-13
 
 	if (hdr->flags & GRE_KEY) {
 		const __be32 *keyid;
@@ -405,11 +682,19 @@ __skb_flow_dissect_gre(const struct sk_buff *skb,
 			else
 				key_keyid->keyid = *keyid & GRE_PPTP_KEY_MASK;
 		}
+<<<<<<< HEAD
 		offset += sizeof(((struct gre_full_hdr *) 0)->key);
 	}
 
 	if (hdr->flags & GRE_SEQ)
 		offset += sizeof(((struct pptp_gre_header *) 0)->seq);
+=======
+		offset += sizeof_field(struct gre_full_hdr, key);
+	}
+
+	if (hdr->flags & GRE_SEQ)
+		offset += sizeof_field(struct pptp_gre_header, seq);
+>>>>>>> upstream/android-13
 
 	if (gre_ver == 0) {
 		if (*p_proto == htons(ETH_P_TEB)) {
@@ -436,7 +721,11 @@ __skb_flow_dissect_gre(const struct sk_buff *skb,
 		u8 *ppp_hdr;
 
 		if (hdr->flags & GRE_ACK)
+<<<<<<< HEAD
 			offset += sizeof(((struct pptp_gre_header *) 0)->ack);
+=======
+			offset += sizeof_field(struct pptp_gre_header, ack);
+>>>>>>> upstream/android-13
 
 		ppp_hdr = __skb_header_pointer(skb, *p_nhoff + offset,
 					       sizeof(_ppp_hdr),
@@ -489,8 +778,13 @@ __skb_flow_dissect_gre(const struct sk_buff *skb,
 static enum flow_dissect_ret
 __skb_flow_dissect_batadv(const struct sk_buff *skb,
 			  struct flow_dissector_key_control *key_control,
+<<<<<<< HEAD
 			  void *data, __be16 *p_proto, int *p_nhoff, int hlen,
 			  unsigned int flags)
+=======
+			  const void *data, __be16 *p_proto, int *p_nhoff,
+			  int hlen, unsigned int flags)
+>>>>>>> upstream/android-13
 {
 	struct {
 		struct batadv_unicast_packet batadv_unicast;
@@ -521,7 +815,12 @@ __skb_flow_dissect_batadv(const struct sk_buff *skb,
 static void
 __skb_flow_dissect_tcp(const struct sk_buff *skb,
 		       struct flow_dissector *flow_dissector,
+<<<<<<< HEAD
 		       void *target_container, void *data, int thoff, int hlen)
+=======
+		       void *target_container, const void *data,
+		       int thoff, int hlen)
+>>>>>>> upstream/android-13
 {
 	struct flow_dissector_key_tcp *key_tcp;
 	struct tcphdr *th, _th;
@@ -543,9 +842,41 @@ __skb_flow_dissect_tcp(const struct sk_buff *skb,
 }
 
 static void
+<<<<<<< HEAD
 __skb_flow_dissect_ipv4(const struct sk_buff *skb,
 			struct flow_dissector *flow_dissector,
 			void *target_container, void *data, const struct iphdr *iph)
+=======
+__skb_flow_dissect_ports(const struct sk_buff *skb,
+			 struct flow_dissector *flow_dissector,
+			 void *target_container, const void *data,
+			 int nhoff, u8 ip_proto, int hlen)
+{
+	enum flow_dissector_key_id dissector_ports = FLOW_DISSECTOR_KEY_MAX;
+	struct flow_dissector_key_ports *key_ports;
+
+	if (dissector_uses_key(flow_dissector, FLOW_DISSECTOR_KEY_PORTS))
+		dissector_ports = FLOW_DISSECTOR_KEY_PORTS;
+	else if (dissector_uses_key(flow_dissector,
+				    FLOW_DISSECTOR_KEY_PORTS_RANGE))
+		dissector_ports = FLOW_DISSECTOR_KEY_PORTS_RANGE;
+
+	if (dissector_ports == FLOW_DISSECTOR_KEY_MAX)
+		return;
+
+	key_ports = skb_flow_dissector_target(flow_dissector,
+					      dissector_ports,
+					      target_container);
+	key_ports->ports = __skb_flow_get_ports(skb, nhoff, ip_proto,
+						data, hlen);
+}
+
+static void
+__skb_flow_dissect_ipv4(const struct sk_buff *skb,
+			struct flow_dissector *flow_dissector,
+			void *target_container, const void *data,
+			const struct iphdr *iph)
+>>>>>>> upstream/android-13
 {
 	struct flow_dissector_key_ip *key_ip;
 
@@ -562,7 +893,12 @@ __skb_flow_dissect_ipv4(const struct sk_buff *skb,
 static void
 __skb_flow_dissect_ipv6(const struct sk_buff *skb,
 			struct flow_dissector *flow_dissector,
+<<<<<<< HEAD
 			void *target_container, void *data, const struct ipv6hdr *iph)
+=======
+			void *target_container, const void *data,
+			const struct ipv6hdr *iph)
+>>>>>>> upstream/android-13
 {
 	struct flow_dissector_key_ip *key_ip;
 
@@ -588,8 +924,115 @@ static bool skb_flow_dissect_allowed(int *num_hdrs)
 	return (*num_hdrs <= MAX_FLOW_DISSECT_HDRS);
 }
 
+<<<<<<< HEAD
 /**
  * __skb_flow_dissect - extract the flow_keys struct and return it
+=======
+static void __skb_flow_bpf_to_target(const struct bpf_flow_keys *flow_keys,
+				     struct flow_dissector *flow_dissector,
+				     void *target_container)
+{
+	struct flow_dissector_key_ports *key_ports = NULL;
+	struct flow_dissector_key_control *key_control;
+	struct flow_dissector_key_basic *key_basic;
+	struct flow_dissector_key_addrs *key_addrs;
+	struct flow_dissector_key_tags *key_tags;
+
+	key_control = skb_flow_dissector_target(flow_dissector,
+						FLOW_DISSECTOR_KEY_CONTROL,
+						target_container);
+	key_control->thoff = flow_keys->thoff;
+	if (flow_keys->is_frag)
+		key_control->flags |= FLOW_DIS_IS_FRAGMENT;
+	if (flow_keys->is_first_frag)
+		key_control->flags |= FLOW_DIS_FIRST_FRAG;
+	if (flow_keys->is_encap)
+		key_control->flags |= FLOW_DIS_ENCAPSULATION;
+
+	key_basic = skb_flow_dissector_target(flow_dissector,
+					      FLOW_DISSECTOR_KEY_BASIC,
+					      target_container);
+	key_basic->n_proto = flow_keys->n_proto;
+	key_basic->ip_proto = flow_keys->ip_proto;
+
+	if (flow_keys->addr_proto == ETH_P_IP &&
+	    dissector_uses_key(flow_dissector, FLOW_DISSECTOR_KEY_IPV4_ADDRS)) {
+		key_addrs = skb_flow_dissector_target(flow_dissector,
+						      FLOW_DISSECTOR_KEY_IPV4_ADDRS,
+						      target_container);
+		key_addrs->v4addrs.src = flow_keys->ipv4_src;
+		key_addrs->v4addrs.dst = flow_keys->ipv4_dst;
+		key_control->addr_type = FLOW_DISSECTOR_KEY_IPV4_ADDRS;
+	} else if (flow_keys->addr_proto == ETH_P_IPV6 &&
+		   dissector_uses_key(flow_dissector,
+				      FLOW_DISSECTOR_KEY_IPV6_ADDRS)) {
+		key_addrs = skb_flow_dissector_target(flow_dissector,
+						      FLOW_DISSECTOR_KEY_IPV6_ADDRS,
+						      target_container);
+		memcpy(&key_addrs->v6addrs.src, &flow_keys->ipv6_src,
+		       sizeof(key_addrs->v6addrs.src));
+		memcpy(&key_addrs->v6addrs.dst, &flow_keys->ipv6_dst,
+		       sizeof(key_addrs->v6addrs.dst));
+		key_control->addr_type = FLOW_DISSECTOR_KEY_IPV6_ADDRS;
+	}
+
+	if (dissector_uses_key(flow_dissector, FLOW_DISSECTOR_KEY_PORTS))
+		key_ports = skb_flow_dissector_target(flow_dissector,
+						      FLOW_DISSECTOR_KEY_PORTS,
+						      target_container);
+	else if (dissector_uses_key(flow_dissector,
+				    FLOW_DISSECTOR_KEY_PORTS_RANGE))
+		key_ports = skb_flow_dissector_target(flow_dissector,
+						      FLOW_DISSECTOR_KEY_PORTS_RANGE,
+						      target_container);
+
+	if (key_ports) {
+		key_ports->src = flow_keys->sport;
+		key_ports->dst = flow_keys->dport;
+	}
+
+	if (dissector_uses_key(flow_dissector,
+			       FLOW_DISSECTOR_KEY_FLOW_LABEL)) {
+		key_tags = skb_flow_dissector_target(flow_dissector,
+						     FLOW_DISSECTOR_KEY_FLOW_LABEL,
+						     target_container);
+		key_tags->flow_label = ntohl(flow_keys->flow_label);
+	}
+}
+
+bool bpf_flow_dissect(struct bpf_prog *prog, struct bpf_flow_dissector *ctx,
+		      __be16 proto, int nhoff, int hlen, unsigned int flags)
+{
+	struct bpf_flow_keys *flow_keys = ctx->flow_keys;
+	u32 result;
+
+	/* Pass parameters to the BPF program */
+	memset(flow_keys, 0, sizeof(*flow_keys));
+	flow_keys->n_proto = proto;
+	flow_keys->nhoff = nhoff;
+	flow_keys->thoff = flow_keys->nhoff;
+
+	BUILD_BUG_ON((int)BPF_FLOW_DISSECTOR_F_PARSE_1ST_FRAG !=
+		     (int)FLOW_DISSECTOR_F_PARSE_1ST_FRAG);
+	BUILD_BUG_ON((int)BPF_FLOW_DISSECTOR_F_STOP_AT_FLOW_LABEL !=
+		     (int)FLOW_DISSECTOR_F_STOP_AT_FLOW_LABEL);
+	BUILD_BUG_ON((int)BPF_FLOW_DISSECTOR_F_STOP_AT_ENCAP !=
+		     (int)FLOW_DISSECTOR_F_STOP_AT_ENCAP);
+	flow_keys->flags = flags;
+
+	result = bpf_prog_run_pin_on_cpu(prog, ctx);
+
+	flow_keys->nhoff = clamp_t(u16, flow_keys->nhoff, nhoff, hlen);
+	flow_keys->thoff = clamp_t(u16, flow_keys->thoff,
+				   flow_keys->nhoff, hlen);
+
+	return result == BPF_OK;
+}
+
+/**
+ * __skb_flow_dissect - extract the flow_keys struct and return it
+ * @net: associated network namespace, derived from @skb if NULL
+>>>>>>> upstream/android-13
  * @skb: sk_buff to extract the flow from, can be NULL if the rest are specified
  * @flow_dissector: list of keys to dissect
  * @target_container: target structure to put dissected values into
@@ -597,6 +1040,11 @@ static bool skb_flow_dissect_allowed(int *num_hdrs)
  * @proto: protocol for which to get the flow, if @data is NULL use skb->protocol
  * @nhoff: network header offset, if @data is NULL use skb_network_offset(skb)
  * @hlen: packet header length, if @data is NULL use skb_headlen(skb)
+<<<<<<< HEAD
+=======
+ * @flags: flags that control the dissection process, e.g.
+ *         FLOW_DISSECTOR_F_STOP_AT_ENCAP.
+>>>>>>> upstream/android-13
  *
  * The function will try to retrieve individual keys into target specified
  * by flow_dissector from either the skbuff or a raw buffer specified by the
@@ -604,21 +1052,37 @@ static bool skb_flow_dissect_allowed(int *num_hdrs)
  *
  * Caller must take care of zeroing target container memory.
  */
+<<<<<<< HEAD
 bool __skb_flow_dissect(const struct sk_buff *skb,
 			struct flow_dissector *flow_dissector,
 			void *target_container,
 			void *data, __be16 proto, int nhoff, int hlen,
 			unsigned int flags)
+=======
+bool __skb_flow_dissect(const struct net *net,
+			const struct sk_buff *skb,
+			struct flow_dissector *flow_dissector,
+			void *target_container, const void *data,
+			__be16 proto, int nhoff, int hlen, unsigned int flags)
+>>>>>>> upstream/android-13
 {
 	struct flow_dissector_key_control *key_control;
 	struct flow_dissector_key_basic *key_basic;
 	struct flow_dissector_key_addrs *key_addrs;
+<<<<<<< HEAD
 	struct flow_dissector_key_ports *key_ports;
 	struct flow_dissector_key_icmp *key_icmp;
+=======
+>>>>>>> upstream/android-13
 	struct flow_dissector_key_tags *key_tags;
 	struct flow_dissector_key_vlan *key_vlan;
 	enum flow_dissect_ret fdret;
 	enum flow_dissector_key_id dissector_vlan = FLOW_DISSECTOR_KEY_MAX;
+<<<<<<< HEAD
+=======
+	bool mpls_el = false;
+	int mpls_lse = 0;
+>>>>>>> upstream/android-13
 	int num_hdrs = 0;
 	u8 ip_proto = 0;
 	bool ret;
@@ -636,8 +1100,19 @@ bool __skb_flow_dissect(const struct sk_buff *skb,
 			int offset = 0;
 
 			ops = skb->dev->dsa_ptr->tag_ops;
+<<<<<<< HEAD
 			if (ops->flow_dissect &&
 			    !ops->flow_dissect(skb, &proto, &offset)) {
+=======
+			/* Only DSA header taggers break flow dissection */
+			if (ops->needed_headroom) {
+				if (ops->flow_dissect)
+					ops->flow_dissect(skb, &proto, &offset);
+				else
+					dsa_tag_generic_flow_dissect(skb,
+								     &proto,
+								     &offset);
+>>>>>>> upstream/android-13
 				hlen -= offset;
 				nhoff += offset;
 			}
@@ -659,6 +1134,58 @@ bool __skb_flow_dissect(const struct sk_buff *skb,
 					      FLOW_DISSECTOR_KEY_BASIC,
 					      target_container);
 
+<<<<<<< HEAD
+=======
+	if (skb) {
+		if (!net) {
+			if (skb->dev)
+				net = dev_net(skb->dev);
+			else if (skb->sk)
+				net = sock_net(skb->sk);
+		}
+	}
+
+	WARN_ON_ONCE(!net);
+	if (net) {
+		enum netns_bpf_attach_type type = NETNS_BPF_FLOW_DISSECTOR;
+		struct bpf_prog_array *run_array;
+
+		rcu_read_lock();
+		run_array = rcu_dereference(init_net.bpf.run_array[type]);
+		if (!run_array)
+			run_array = rcu_dereference(net->bpf.run_array[type]);
+
+		if (run_array) {
+			struct bpf_flow_keys flow_keys;
+			struct bpf_flow_dissector ctx = {
+				.flow_keys = &flow_keys,
+				.data = data,
+				.data_end = data + hlen,
+			};
+			__be16 n_proto = proto;
+			struct bpf_prog *prog;
+
+			if (skb) {
+				ctx.skb = skb;
+				/* we can't use 'proto' in the skb case
+				 * because it might be set to skb->vlan_proto
+				 * which has been pulled from the data
+				 */
+				n_proto = skb->protocol;
+			}
+
+			prog = READ_ONCE(run_array->items[0].prog);
+			ret = bpf_flow_dissect(prog, &ctx, n_proto, nhoff,
+					       hlen, flags);
+			__skb_flow_bpf_to_target(&flow_keys, flow_dissector,
+						 target_container);
+			rcu_read_unlock();
+			return ret;
+		}
+		rcu_read_unlock();
+	}
+
+>>>>>>> upstream/android-13
 	if (dissector_uses_key(flow_dissector,
 			       FLOW_DISSECTOR_KEY_ETH_ADDRS)) {
 		struct ethhdr *eth = eth_hdr(skb);
@@ -694,11 +1221,24 @@ proto_again:
 							      FLOW_DISSECTOR_KEY_IPV4_ADDRS,
 							      target_container);
 
+<<<<<<< HEAD
 			memcpy(&key_addrs->v4addrs, &iph->saddr,
 			       sizeof(key_addrs->v4addrs));
 			key_control->addr_type = FLOW_DISSECTOR_KEY_IPV4_ADDRS;
 		}
 
+=======
+			memcpy(&key_addrs->v4addrs.src, &iph->saddr,
+			       sizeof(key_addrs->v4addrs.src));
+			memcpy(&key_addrs->v4addrs.dst, &iph->daddr,
+			       sizeof(key_addrs->v4addrs.dst));
+			key_control->addr_type = FLOW_DISSECTOR_KEY_IPV4_ADDRS;
+		}
+
+		__skb_flow_dissect_ipv4(skb, flow_dissector,
+					target_container, data, iph);
+
+>>>>>>> upstream/android-13
 		if (ip_is_fragment(iph)) {
 			key_control->flags |= FLOW_DIS_IS_FRAGMENT;
 
@@ -715,6 +1255,7 @@ proto_again:
 			}
 		}
 
+<<<<<<< HEAD
 		__skb_flow_dissect_ipv4(skb, flow_dissector,
 					target_container, data, iph);
 
@@ -723,6 +1264,8 @@ proto_again:
 			break;
 		}
 
+=======
+>>>>>>> upstream/android-13
 		break;
 	}
 	case htons(ETH_P_IPV6): {
@@ -744,8 +1287,15 @@ proto_again:
 							      FLOW_DISSECTOR_KEY_IPV6_ADDRS,
 							      target_container);
 
+<<<<<<< HEAD
 			memcpy(&key_addrs->v6addrs, &iph->saddr,
 			       sizeof(key_addrs->v6addrs));
+=======
+			memcpy(&key_addrs->v6addrs.src, &iph->saddr,
+			       sizeof(key_addrs->v6addrs.src));
+			memcpy(&key_addrs->v6addrs.dst, &iph->daddr,
+			       sizeof(key_addrs->v6addrs.dst));
+>>>>>>> upstream/android-13
 			key_control->addr_type = FLOW_DISSECTOR_KEY_IPV6_ADDRS;
 		}
 
@@ -771,9 +1321,12 @@ proto_again:
 		__skb_flow_dissect_ipv6(skb, flow_dissector,
 					target_container, data, iph);
 
+<<<<<<< HEAD
 		if (flags & FLOW_DISSECTOR_F_STOP_AT_L3)
 			fdret = FLOW_DISSECT_RET_OUT_GOOD;
 
+=======
+>>>>>>> upstream/android-13
 		break;
 	}
 	case htons(ETH_P_8021AD):
@@ -813,8 +1366,12 @@ proto_again:
 
 			if (!vlan) {
 				key_vlan->vlan_id = skb_vlan_tag_get_id(skb);
+<<<<<<< HEAD
 				key_vlan->vlan_priority =
 					(skb_vlan_tag_get_prio(skb) >> VLAN_PRIO_SHIFT);
+=======
+				key_vlan->vlan_priority = skb_vlan_tag_get_prio(skb);
+>>>>>>> upstream/android-13
 			} else {
 				key_vlan->vlan_id = ntohs(vlan->h_vlan_TCI) &
 					VLAN_VID_MASK;
@@ -823,6 +1380,10 @@ proto_again:
 					 VLAN_PRIO_MASK) >> VLAN_PRIO_SHIFT;
 			}
 			key_vlan->vlan_tpid = saved_vlan_tpid;
+<<<<<<< HEAD
+=======
+			key_vlan->vlan_eth_type = proto;
+>>>>>>> upstream/android-13
 		}
 
 		fdret = FLOW_DISSECT_RET_PROTO_AGAIN;
@@ -882,7 +1443,14 @@ proto_again:
 	case htons(ETH_P_MPLS_MC):
 		fdret = __skb_flow_dissect_mpls(skb, flow_dissector,
 						target_container, data,
+<<<<<<< HEAD
 						nhoff, hlen);
+=======
+						nhoff, hlen, mpls_lse,
+						&mpls_el);
+		nhoff += sizeof(struct mpls_label);
+		mpls_lse++;
+>>>>>>> upstream/android-13
 		break;
 	case htons(ETH_P_FCOE):
 		if ((hlen - nhoff) < FCOE_HEADER_LEN) {
@@ -906,6 +1474,24 @@ proto_again:
 						  &proto, &nhoff, hlen, flags);
 		break;
 
+<<<<<<< HEAD
+=======
+	case htons(ETH_P_1588): {
+		struct ptp_header *hdr, _hdr;
+
+		hdr = __skb_header_pointer(skb, nhoff, sizeof(_hdr), data,
+					   hlen, &_hdr);
+		if (!hdr) {
+			fdret = FLOW_DISSECT_RET_OUT_BAD;
+			break;
+		}
+
+		nhoff += ntohs(hdr->message_length);
+		fdret = FLOW_DISSECT_RET_OUT_GOOD;
+		break;
+	}
+
+>>>>>>> upstream/android-13
 	default:
 		fdret = FLOW_DISSECT_RET_OUT_BAD;
 		break;
@@ -1023,10 +1609,20 @@ ip_proto_again:
 				       data, nhoff, hlen);
 		break;
 
+<<<<<<< HEAD
+=======
+	case IPPROTO_ICMP:
+	case IPPROTO_ICMPV6:
+		__skb_flow_dissect_icmp(skb, flow_dissector, target_container,
+					data, nhoff, hlen);
+		break;
+
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
 
+<<<<<<< HEAD
 	if (dissector_uses_key(flow_dissector, FLOW_DISSECTOR_KEY_PORTS) &&
 	    !(key_control->flags & FLOW_DIS_IS_FRAGMENT)) {
 		key_ports = skb_flow_dissector_target(flow_dissector,
@@ -1043,6 +1639,11 @@ ip_proto_again:
 						     target_container);
 		key_icmp->icmp = skb_flow_get_be16(skb, nhoff, data, hlen);
 	}
+=======
+	if (!(key_control->flags & FLOW_DIS_IS_FRAGMENT))
+		__skb_flow_dissect_ports(skb, flow_dissector, target_container,
+					 data, nhoff, ip_proto, hlen);
+>>>>>>> upstream/android-13
 
 	/* Process result of IP proto processing */
 	switch (fdret) {
@@ -1093,8 +1694,13 @@ static const void *flow_keys_hash_start(const struct flow_keys *flow)
 static inline size_t flow_keys_hash_length(const struct flow_keys *flow)
 {
 	size_t diff = FLOW_KEYS_HASH_OFFSET + sizeof(flow->addrs);
+<<<<<<< HEAD
 	BUILD_BUG_ON(offsetof(typeof(*flow), addrs) !=
 		     sizeof(*flow) - sizeof(flow->addrs));
+=======
+
+	BUILD_BUG_ON((sizeof(*flow) - FLOW_KEYS_HASH_OFFSET) % sizeof(u32));
+>>>>>>> upstream/android-13
 
 	switch (flow->control.addr_type) {
 	case FLOW_DISSECTOR_KEY_IPV4_ADDRS:
@@ -1140,6 +1746,12 @@ __be32 flow_get_u32_dst(const struct flow_keys *flow)
 }
 EXPORT_SYMBOL(flow_get_u32_dst);
 
+<<<<<<< HEAD
+=======
+/* Sort the source and destination IP and the ports,
+ * to have consistent hash within the two directions
+ */
+>>>>>>> upstream/android-13
 static inline void __flow_hash_consistentify(struct flow_keys *keys)
 {
 	int addr_diff, i;
@@ -1148,11 +1760,19 @@ static inline void __flow_hash_consistentify(struct flow_keys *keys)
 	case FLOW_DISSECTOR_KEY_IPV4_ADDRS:
 		addr_diff = (__force u32)keys->addrs.v4addrs.dst -
 			    (__force u32)keys->addrs.v4addrs.src;
+<<<<<<< HEAD
 		if ((addr_diff < 0) ||
 		    (addr_diff == 0 &&
 		     ((__force u16)keys->ports.dst <
 		      (__force u16)keys->ports.src))) {
 			swap(keys->addrs.v4addrs.src, keys->addrs.v4addrs.dst);
+=======
+		if (addr_diff < 0)
+			swap(keys->addrs.v4addrs.src, keys->addrs.v4addrs.dst);
+
+		if ((__force u16)keys->ports.dst <
+		    (__force u16)keys->ports.src) {
+>>>>>>> upstream/android-13
 			swap(keys->ports.src, keys->ports.dst);
 		}
 		break;
@@ -1160,6 +1780,7 @@ static inline void __flow_hash_consistentify(struct flow_keys *keys)
 		addr_diff = memcmp(&keys->addrs.v6addrs.dst,
 				   &keys->addrs.v6addrs.src,
 				   sizeof(keys->addrs.v6addrs.dst));
+<<<<<<< HEAD
 		if ((addr_diff < 0) ||
 		    (addr_diff == 0 &&
 		     ((__force u16)keys->ports.dst <
@@ -1167,6 +1788,15 @@ static inline void __flow_hash_consistentify(struct flow_keys *keys)
 			for (i = 0; i < 4; i++)
 				swap(keys->addrs.v6addrs.src.s6_addr32[i],
 				     keys->addrs.v6addrs.dst.s6_addr32[i]);
+=======
+		if (addr_diff < 0) {
+			for (i = 0; i < 4; i++)
+				swap(keys->addrs.v6addrs.src.s6_addr32[i],
+				     keys->addrs.v6addrs.dst.s6_addr32[i]);
+		}
+		if ((__force u16)keys->ports.dst <
+		    (__force u16)keys->ports.src) {
+>>>>>>> upstream/android-13
 			swap(keys->ports.src, keys->ports.dst);
 		}
 		break;
@@ -1241,8 +1871,13 @@ u32 __skb_get_hash_symmetric(const struct sk_buff *skb)
 	__flow_hash_secret_init();
 
 	memset(&keys, 0, sizeof(keys));
+<<<<<<< HEAD
 	__skb_flow_dissect(skb, &flow_keys_dissector_symmetric, &keys,
 			   NULL, 0, 0, 0,
+=======
+	__skb_flow_dissect(NULL, skb, &flow_keys_dissector_symmetric,
+			   &keys, NULL, 0, 0, 0,
+>>>>>>> upstream/android-13
 			   FLOW_DISSECTOR_F_STOP_AT_FLOW_LABEL);
 
 	return __flow_hash_from_keys(&keys, &hashrnd);
@@ -1280,7 +1915,11 @@ __u32 skb_get_hash_perturb(const struct sk_buff *skb,
 }
 EXPORT_SYMBOL(skb_get_hash_perturb);
 
+<<<<<<< HEAD
 u32 __skb_get_poff(const struct sk_buff *skb, void *data,
+=======
+u32 __skb_get_poff(const struct sk_buff *skb, const void *data,
+>>>>>>> upstream/android-13
 		   const struct flow_keys_basic *keys, int hlen)
 {
 	u32 poff = keys->control.thoff;
@@ -1344,7 +1983,12 @@ u32 skb_get_poff(const struct sk_buff *skb)
 {
 	struct flow_keys_basic keys;
 
+<<<<<<< HEAD
 	if (!skb_flow_dissect_flow_keys_basic(skb, &keys, NULL, 0, 0, 0, 0))
+=======
+	if (!skb_flow_dissect_flow_keys_basic(NULL, skb, &keys,
+					      NULL, 0, 0, 0, 0))
+>>>>>>> upstream/android-13
 		return 0;
 
 	return __skb_get_poff(skb, skb->data, &keys, skb_headlen(skb));
@@ -1461,5 +2105,8 @@ static int __init init_default_flow_dissectors(void)
 				ARRAY_SIZE(flow_keys_basic_dissector_keys));
 	return 0;
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 core_initcall(init_default_flow_dissectors);

@@ -5,7 +5,11 @@ choice
 	default BOARD_BCM963XX
 
 config BOARD_BCM963XX
+<<<<<<< HEAD
        bool "Generic Broadcom 963xx boards"
+=======
+	bool "Generic Broadcom 963xx boards"
+>>>>>>> upstream/android-13
 	select SSB
 
 endchoice

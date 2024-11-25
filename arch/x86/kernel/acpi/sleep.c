@@ -7,6 +7,7 @@
  */
 
 #include <linux/acpi.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
 #include <linux/memblock.h>
 #include <linux/dmi.h>
@@ -14,6 +15,14 @@
 #include <asm/segment.h>
 #include <asm/desc.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/memblock.h>
+#include <linux/dmi.h>
+#include <linux/cpumask.h>
+#include <linux/pgtable.h>
+#include <asm/segment.h>
+#include <asm/desc.h>
+>>>>>>> upstream/android-13
 #include <asm/cacheflush.h>
 #include <asm/realmode.h>
 
@@ -28,12 +37,32 @@ static char temp_stack[4096];
 #endif
 
 /**
+<<<<<<< HEAD
  * x86_acpi_enter_sleep_state - enter sleep state
  * @state: Sleep state to enter.
  *
  * Wrapper around acpi_enter_sleep_state() to be called by assmebly.
  */
 acpi_status asmlinkage __visible x86_acpi_enter_sleep_state(u8 state)
+=======
+ * acpi_get_wakeup_address - provide physical address for S3 wakeup
+ *
+ * Returns the physical address where the kernel should be resumed after the
+ * system awakes from S3, e.g. for programming into the firmware waking vector.
+ */
+unsigned long acpi_get_wakeup_address(void)
+{
+	return ((unsigned long)(real_mode_header->wakeup_start));
+}
+
+/**
+ * x86_acpi_enter_sleep_state - enter sleep state
+ * @state: Sleep state to enter.
+ *
+ * Wrapper around acpi_enter_sleep_state() to be called by assembly.
+ */
+asmlinkage acpi_status __visible x86_acpi_enter_sleep_state(u8 state)
+>>>>>>> upstream/android-13
 {
 	return acpi_enter_sleep_state(state);
 }

@@ -30,4 +30,9 @@ void cik_srbm_select(struct amdgpu_device *adev,
 		     u32 me, u32 pipe, u32 queue, u32 vmid);
 int cik_set_ip_blocks(struct amdgpu_device *adev);
 
+<<<<<<< HEAD
+=======
+void legacy_doorbell_index_init(struct amdgpu_device *adev);
+
+>>>>>>> upstream/android-13
 #endif

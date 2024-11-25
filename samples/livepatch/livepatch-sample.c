@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * livepatch-sample.c - Kernel Live Patching Sample Module
  *
  * Copyright (C) 2014 Seth Jennings <sjenning@redhat.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,6 +20,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -69,6 +76,7 @@ static struct klp_patch patch = {
 
 static int livepatch_init(void)
 {
+<<<<<<< HEAD
 	int ret;
 
 	ret = klp_register_patch(&patch);
@@ -80,11 +88,17 @@ static int livepatch_init(void)
 		return ret;
 	}
 	return 0;
+=======
+	return klp_enable_patch(&patch);
+>>>>>>> upstream/android-13
 }
 
 static void livepatch_exit(void)
 {
+<<<<<<< HEAD
 	WARN_ON(klp_unregister_patch(&patch));
+=======
+>>>>>>> upstream/android-13
 }
 
 module_init(livepatch_init);

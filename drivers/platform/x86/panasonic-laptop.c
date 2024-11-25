@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  Panasonic HotKey and LCD brightness control driver
  *  (C) 2004 Hiroshi Miura <miura@da-cha.org>
@@ -8,6 +12,7 @@
  *
  *  derived from toshiba_acpi.c, Copyright (C) 2002-2004 John Belmonte
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
  *  publicshed by the Free Software Foundation.
@@ -24,6 +29,27 @@
  *---------------------------------------------------------------------------
  *
  * ChangeLog:
+=======
+ *---------------------------------------------------------------------------
+ *
+ * ChangeLog:
+ *	Aug.18, 2020	Kenneth Chan <kenneth.t.chan@gmail.com>
+ *		-v0.98	add platform devices for firmware brightness registers
+ *			add support for battery charging threshold (eco mode)
+ *			resolve hotkey double trigger
+ *			add write support to mute
+ *			fix sticky_key init bug
+ *			fix naming of platform files for consistency with other
+ *			modules
+ *			split MODULE_AUTHOR() by one author per macro call
+ *			replace ACPI prints with pr_*() macros
+ *		-v0.97	add support for cdpower hardware switch
+ *		-v0.96	merge Lucina's enhancement
+ *			Jan.13, 2009 Martin Lucina <mato@kotelna.sk>
+ *				- add support for optical driver power in
+ *				  Y and W series
+ *
+>>>>>>> upstream/android-13
  *	Sep.23, 2008	Harald Welte <laforge@gnumonks.org>
  *		-v0.95	rename driver from drivers/acpi/pcc_acpi.c to
  *			drivers/misc/panasonic-laptop.c
@@ -113,7 +139,10 @@
  *
  *      Jul.17, 2004	Hiroshi Miura <miura@da-cha.org>
  *		- v0.1  start from toshiba_acpi driver written by John Belmonte
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -128,6 +157,7 @@
 #include <linux/acpi.h>
 #include <linux/input.h>
 #include <linux/input/sparse-keymap.h>
+<<<<<<< HEAD
 
 #ifndef ACPI_HOTKEY_COMPONENT
 #define ACPI_HOTKEY_COMPONENT	0x10000000
@@ -136,6 +166,16 @@
 #define _COMPONENT		ACPI_HOTKEY_COMPONENT
 
 MODULE_AUTHOR("Hiroshi Miura, David Bronaugh and Harald Welte");
+=======
+#include <linux/platform_device.h>
+
+
+MODULE_AUTHOR("Hiroshi Miura <miura@da-cha.org>");
+MODULE_AUTHOR("David Bronaugh <dbronaugh@linuxboxen.org>");
+MODULE_AUTHOR("Harald Welte <laforge@gnumonks.org>");
+MODULE_AUTHOR("Martin Lucina <mato@kotelna.sk>");
+MODULE_AUTHOR("Kenneth Chan <kenneth.t.chan@gmail.com>");
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("ACPI HotKey driver for Panasonic Let's Note laptops");
 MODULE_LICENSE("GPL");
 
@@ -147,7 +187,14 @@ MODULE_LICENSE("GPL");
 #define METHOD_HKEY_SQTY	"SQTY"
 #define METHOD_HKEY_SINF	"SINF"
 #define METHOD_HKEY_SSET	"SSET"
+<<<<<<< HEAD
 #define HKEY_NOTIFY		 0x80
+=======
+#define METHOD_ECWR		"\\_SB.ECWR"
+#define HKEY_NOTIFY		0x80
+#define ECO_MODE_OFF		0x00
+#define ECO_MODE_ON		0x80
+>>>>>>> upstream/android-13
 
 #define ACPI_PCC_DRIVER_NAME	"Panasonic Laptop Support"
 #define ACPI_PCC_DEVICE_NAME	"Hotkey"
@@ -156,7 +203,11 @@ MODULE_LICENSE("GPL");
 #define ACPI_PCC_INPUT_PHYS	"panasonic/hkey0"
 
 /* LCD_TYPEs: 0 = Normal, 1 = Semi-transparent
+<<<<<<< HEAD
    ENV_STATEs: Normal temp=0x01, High temp=0x81, N/A=0x00
+=======
+   ECO_MODEs: 0x03 = off, 0x83 = on
+>>>>>>> upstream/android-13
 */
 enum SINF_BITS { SINF_NUM_BATTERIES = 0,
 		 SINF_LCD_TYPE,
@@ -168,7 +219,12 @@ enum SINF_BITS { SINF_NUM_BATTERIES = 0,
 		 SINF_DC_CUR_BRIGHT,
 		 SINF_MUTE,
 		 SINF_RESERVED,
+<<<<<<< HEAD
 		 SINF_ENV_STATE,
+=======
+		 SINF_ECO_MODE = 0x0A,
+		 SINF_CUR_BRIGHT = 0x0D,
+>>>>>>> upstream/android-13
 		 SINF_STICKY_KEY = 0x80,
 	};
 /* R1 handles SINF_AC_CUR_BRIGHT as SINF_CUR_BRIGHT, doesn't know AC state */
@@ -221,11 +277,24 @@ static const struct key_entry panasonic_keymap[] = {
 struct pcc_acpi {
 	acpi_handle		handle;
 	unsigned long		num_sifr;
+<<<<<<< HEAD
 	int			sticky_mode;
+=======
+	int			sticky_key;
+	int			eco_mode;
+	int			mute;
+	int			ac_brightness;
+	int			dc_brightness;
+	int			current_brightness;
+>>>>>>> upstream/android-13
 	u32			*sinf;
 	struct acpi_device	*device;
 	struct input_dev	*input_dev;
 	struct backlight_device	*backlight;
+<<<<<<< HEAD
+=======
+	struct platform_device	*platform;
+>>>>>>> upstream/android-13
 };
 
 /* method access functions */
@@ -259,8 +328,12 @@ static inline int acpi_pcc_get_sqty(struct acpi_device *device)
 	if (ACPI_SUCCESS(status))
 		return s;
 	else {
+<<<<<<< HEAD
 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR,
 				  "evaluation error HKEY.SQTY\n"));
+=======
+		pr_err("evaluation error HKEY.SQTY\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 }
@@ -275,21 +348,33 @@ static int acpi_pcc_retrieve_biosdata(struct pcc_acpi *pcc)
 	status = acpi_evaluate_object(pcc->handle, METHOD_HKEY_SINF, NULL,
 				      &buffer);
 	if (ACPI_FAILURE(status)) {
+<<<<<<< HEAD
 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR,
 				  "evaluation error HKEY.SINF\n"));
+=======
+		pr_err("evaluation error HKEY.SINF\n");
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
 	hkey = buffer.pointer;
 	if (!hkey || (hkey->type != ACPI_TYPE_PACKAGE)) {
+<<<<<<< HEAD
 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "Invalid HKEY.SINF\n"));
+=======
+		pr_err("Invalid HKEY.SINF\n");
+>>>>>>> upstream/android-13
 		status = AE_ERROR;
 		goto end;
 	}
 
 	if (pcc->num_sifr < hkey->package.count) {
+<<<<<<< HEAD
 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR,
 				 "SQTY reports bad SINF length\n"));
+=======
+		pr_err("SQTY reports bad SINF length\n");
+>>>>>>> upstream/android-13
 		status = AE_ERROR;
 		goto end;
 	}
@@ -299,8 +384,12 @@ static int acpi_pcc_retrieve_biosdata(struct pcc_acpi *pcc)
 		if (likely(element->type == ACPI_TYPE_INTEGER)) {
 			pcc->sinf[i] = element->integer.value;
 		} else
+<<<<<<< HEAD
 			ACPI_DEBUG_PRINT((ACPI_DB_ERROR,
 					 "Invalid HKEY.SINF data\n"));
+=======
+			pr_err("Invalid HKEY.SINF data\n");
+>>>>>>> upstream/android-13
 	}
 	pcc->sinf[hkey->package.count] = -1;
 
@@ -358,9 +447,107 @@ static const struct backlight_ops pcc_backlight_ops = {
 };
 
 
+<<<<<<< HEAD
 /* sysfs user interface functions */
 
 static ssize_t show_numbatt(struct device *dev, struct device_attribute *attr,
+=======
+/* returns ACPI_SUCCESS if methods to control optical drive are present */
+
+static acpi_status check_optd_present(void)
+{
+	acpi_status status = AE_OK;
+	acpi_handle handle;
+
+	status = acpi_get_handle(NULL, "\\_SB.STAT", &handle);
+	if (ACPI_FAILURE(status))
+		goto out;
+	status = acpi_get_handle(NULL, "\\_SB.FBAY", &handle);
+	if (ACPI_FAILURE(status))
+		goto out;
+	status = acpi_get_handle(NULL, "\\_SB.CDDI", &handle);
+	if (ACPI_FAILURE(status))
+		goto out;
+
+out:
+	return status;
+}
+
+/* get optical driver power state */
+
+static int get_optd_power_state(void)
+{
+	acpi_status status;
+	unsigned long long state;
+	int result;
+
+	status = acpi_evaluate_integer(NULL, "\\_SB.STAT", NULL, &state);
+	if (ACPI_FAILURE(status)) {
+		pr_err("evaluation error _SB.STAT\n");
+		result = -EIO;
+		goto out;
+	}
+	switch (state) {
+	case 0: /* power off */
+		result = 0;
+		break;
+	case 0x0f: /* power on */
+		result = 1;
+		break;
+	default:
+		result = -EIO;
+		break;
+	}
+
+out:
+	return result;
+}
+
+/* set optical drive power state */
+
+static int set_optd_power_state(int new_state)
+{
+	int result;
+	acpi_status status;
+
+	result = get_optd_power_state();
+	if (result < 0)
+		goto out;
+	if (new_state == result)
+		goto out;
+
+	switch (new_state) {
+	case 0: /* power off */
+		/* Call CDDR instead, since they both call the same method
+		 * while CDDI takes 1 arg and we are not quite sure what it is.
+		 */
+		status = acpi_evaluate_object(NULL, "\\_SB.CDDR", NULL, NULL);
+		if (ACPI_FAILURE(status)) {
+			pr_err("evaluation error _SB.CDDR\n");
+			result = -EIO;
+		}
+		break;
+	case 1: /* power on */
+		status = acpi_evaluate_object(NULL, "\\_SB.FBAY", NULL, NULL);
+		if (ACPI_FAILURE(status)) {
+			pr_err("evaluation error _SB.FBAY\n");
+			result = -EIO;
+		}
+		break;
+	default:
+		result = -EINVAL;
+		break;
+	}
+
+out:
+	return result;
+}
+
+
+/* sysfs user interface functions */
+
+static ssize_t numbatt_show(struct device *dev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 			    char *buf)
 {
 	struct acpi_device *acpi = to_acpi_device(dev);
@@ -372,7 +559,11 @@ static ssize_t show_numbatt(struct device *dev, struct device_attribute *attr,
 	return snprintf(buf, PAGE_SIZE, "%u\n", pcc->sinf[SINF_NUM_BATTERIES]);
 }
 
+<<<<<<< HEAD
 static ssize_t show_lcdtype(struct device *dev, struct device_attribute *attr,
+=======
+static ssize_t lcdtype_show(struct device *dev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 			    char *buf)
 {
 	struct acpi_device *acpi = to_acpi_device(dev);
@@ -384,7 +575,11 @@ static ssize_t show_lcdtype(struct device *dev, struct device_attribute *attr,
 	return snprintf(buf, PAGE_SIZE, "%u\n", pcc->sinf[SINF_LCD_TYPE]);
 }
 
+<<<<<<< HEAD
 static ssize_t show_mute(struct device *dev, struct device_attribute *attr,
+=======
+static ssize_t mute_show(struct device *dev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 			 char *buf)
 {
 	struct acpi_device *acpi = to_acpi_device(dev);
@@ -396,7 +591,29 @@ static ssize_t show_mute(struct device *dev, struct device_attribute *attr,
 	return snprintf(buf, PAGE_SIZE, "%u\n", pcc->sinf[SINF_MUTE]);
 }
 
+<<<<<<< HEAD
 static ssize_t show_sticky(struct device *dev, struct device_attribute *attr,
+=======
+static ssize_t mute_store(struct device *dev, struct device_attribute *attr,
+			  const char *buf, size_t count)
+{
+	struct acpi_device *acpi = to_acpi_device(dev);
+	struct pcc_acpi *pcc = acpi_driver_data(acpi);
+	int err, val;
+
+	err = kstrtoint(buf, 0, &val);
+	if (err)
+		return err;
+	if (val == 0 || val == 1) {
+		acpi_pcc_write_sset(pcc, SINF_MUTE, val);
+		pcc->mute = val;
+	}
+
+	return count;
+}
+
+static ssize_t sticky_key_show(struct device *dev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 			   char *buf)
 {
 	struct acpi_device *acpi = to_acpi_device(dev);
@@ -405,35 +622,253 @@ static ssize_t show_sticky(struct device *dev, struct device_attribute *attr,
 	if (!acpi_pcc_retrieve_biosdata(pcc))
 		return -EIO;
 
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%u\n", pcc->sinf[SINF_STICKY_KEY]);
 }
 
 static ssize_t set_sticky(struct device *dev, struct device_attribute *attr,
+=======
+	return snprintf(buf, PAGE_SIZE, "%u\n", pcc->sticky_key);
+}
+
+static ssize_t sticky_key_store(struct device *dev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 			  const char *buf, size_t count)
 {
 	struct acpi_device *acpi = to_acpi_device(dev);
 	struct pcc_acpi *pcc = acpi_driver_data(acpi);
+<<<<<<< HEAD
 	int val;
 
 	if (count && sscanf(buf, "%i", &val) == 1 &&
 	    (val == 0 || val == 1)) {
 		acpi_pcc_write_sset(pcc, SINF_STICKY_KEY, val);
 		pcc->sticky_mode = val;
+=======
+	int err, val;
+
+	err = kstrtoint(buf, 0, &val);
+	if (err)
+		return err;
+	if (val == 0 || val == 1) {
+		acpi_pcc_write_sset(pcc, SINF_STICKY_KEY, val);
+		pcc->sticky_key = val;
+>>>>>>> upstream/android-13
 	}
 
 	return count;
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(numbatt, S_IRUGO, show_numbatt, NULL);
 static DEVICE_ATTR(lcdtype, S_IRUGO, show_lcdtype, NULL);
 static DEVICE_ATTR(mute, S_IRUGO, show_mute, NULL);
 static DEVICE_ATTR(sticky_key, S_IRUGO | S_IWUSR, show_sticky, set_sticky);
+=======
+static ssize_t eco_mode_show(struct device *dev, struct device_attribute *attr,
+				char *buf)
+{
+	struct acpi_device *acpi = to_acpi_device(dev);
+	struct pcc_acpi *pcc = acpi_driver_data(acpi);
+	int result;
+
+	if (!acpi_pcc_retrieve_biosdata(pcc))
+		return -EIO;
+
+	switch (pcc->sinf[SINF_ECO_MODE]) {
+	case (ECO_MODE_OFF + 3):
+		result = 0;
+		break;
+	case (ECO_MODE_ON + 3):
+		result = 1;
+		break;
+	default:
+		result = -EIO;
+		break;
+	}
+	return snprintf(buf, PAGE_SIZE, "%u\n", result);
+}
+
+static ssize_t eco_mode_store(struct device *dev, struct device_attribute *attr,
+			  const char *buf, size_t count)
+{
+	struct acpi_device *acpi = to_acpi_device(dev);
+	struct pcc_acpi *pcc = acpi_driver_data(acpi);
+	int err, state;
+
+	union acpi_object param[2];
+	struct acpi_object_list input;
+	acpi_status status;
+
+	param[0].type = ACPI_TYPE_INTEGER;
+	param[0].integer.value = 0x15;
+	param[1].type = ACPI_TYPE_INTEGER;
+	input.count = 2;
+	input.pointer = param;
+
+	err = kstrtoint(buf, 0, &state);
+	if (err)
+		return err;
+
+	switch (state) {
+	case 0:
+		param[1].integer.value = ECO_MODE_OFF;
+		pcc->sinf[SINF_ECO_MODE] = 0;
+		pcc->eco_mode = 0;
+		break;
+	case 1:
+		param[1].integer.value = ECO_MODE_ON;
+		pcc->sinf[SINF_ECO_MODE] = 1;
+		pcc->eco_mode = 1;
+		break;
+	default:
+		/* nothing to do */
+		return count;
+	}
+
+	status = acpi_evaluate_object(NULL, METHOD_ECWR,
+				       &input, NULL);
+	if (ACPI_FAILURE(status)) {
+		pr_err("%s evaluation failed\n", METHOD_ECWR);
+		return -EINVAL;
+	}
+
+	return count;
+}
+
+static ssize_t ac_brightness_show(struct device *dev, struct device_attribute *attr,
+				  char *buf)
+{
+	struct acpi_device *acpi = to_acpi_device(dev);
+	struct pcc_acpi *pcc = acpi_driver_data(acpi);
+
+	if (!acpi_pcc_retrieve_biosdata(pcc))
+		return -EIO;
+
+	return snprintf(buf, PAGE_SIZE, "%u\n", pcc->sinf[SINF_AC_CUR_BRIGHT]);
+}
+
+static ssize_t ac_brightness_store(struct device *dev, struct device_attribute *attr,
+				   const char *buf, size_t count)
+{
+	struct acpi_device *acpi = to_acpi_device(dev);
+	struct pcc_acpi *pcc = acpi_driver_data(acpi);
+	int err, val;
+
+	err = kstrtoint(buf, 0, &val);
+	if (err)
+		return err;
+	if (val >= 0 && val <= 255) {
+		acpi_pcc_write_sset(pcc, SINF_AC_CUR_BRIGHT, val);
+		pcc->ac_brightness = val;
+	}
+
+	return count;
+}
+
+static ssize_t dc_brightness_show(struct device *dev, struct device_attribute *attr,
+				  char *buf)
+{
+	struct acpi_device *acpi = to_acpi_device(dev);
+	struct pcc_acpi *pcc = acpi_driver_data(acpi);
+
+	if (!acpi_pcc_retrieve_biosdata(pcc))
+		return -EIO;
+
+	return snprintf(buf, PAGE_SIZE, "%u\n", pcc->sinf[SINF_DC_CUR_BRIGHT]);
+}
+
+static ssize_t dc_brightness_store(struct device *dev, struct device_attribute *attr,
+				   const char *buf, size_t count)
+{
+	struct acpi_device *acpi = to_acpi_device(dev);
+	struct pcc_acpi *pcc = acpi_driver_data(acpi);
+	int err, val;
+
+	err = kstrtoint(buf, 0, &val);
+	if (err)
+		return err;
+	if (val >= 0 && val <= 255) {
+		acpi_pcc_write_sset(pcc, SINF_DC_CUR_BRIGHT, val);
+		pcc->dc_brightness = val;
+	}
+
+	return count;
+}
+
+static ssize_t current_brightness_show(struct device *dev, struct device_attribute *attr,
+				       char *buf)
+{
+	struct acpi_device *acpi = to_acpi_device(dev);
+	struct pcc_acpi *pcc = acpi_driver_data(acpi);
+
+	if (!acpi_pcc_retrieve_biosdata(pcc))
+		return -EIO;
+
+	return snprintf(buf, PAGE_SIZE, "%u\n", pcc->sinf[SINF_CUR_BRIGHT]);
+}
+
+static ssize_t current_brightness_store(struct device *dev, struct device_attribute *attr,
+					const char *buf, size_t count)
+{
+	struct acpi_device *acpi = to_acpi_device(dev);
+	struct pcc_acpi *pcc = acpi_driver_data(acpi);
+	int err, val;
+
+	err = kstrtoint(buf, 0, &val);
+	if (err)
+		return err;
+
+	if (val >= 0 && val <= 255) {
+		err = acpi_pcc_write_sset(pcc, SINF_CUR_BRIGHT, val);
+		pcc->current_brightness = val;
+	}
+
+	return count;
+}
+
+static ssize_t cdpower_show(struct device *dev, struct device_attribute *attr,
+			    char *buf)
+{
+	return snprintf(buf, PAGE_SIZE, "%d\n", get_optd_power_state());
+}
+
+static ssize_t cdpower_store(struct device *dev, struct device_attribute *attr,
+			   const char *buf, size_t count)
+{
+	int err, val;
+
+	err = kstrtoint(buf, 10, &val);
+	if (err)
+		return err;
+	set_optd_power_state(val);
+	return count;
+}
+
+static DEVICE_ATTR_RO(numbatt);
+static DEVICE_ATTR_RO(lcdtype);
+static DEVICE_ATTR_RW(mute);
+static DEVICE_ATTR_RW(sticky_key);
+static DEVICE_ATTR_RW(eco_mode);
+static DEVICE_ATTR_RW(ac_brightness);
+static DEVICE_ATTR_RW(dc_brightness);
+static DEVICE_ATTR_RW(current_brightness);
+static DEVICE_ATTR_RW(cdpower);
+>>>>>>> upstream/android-13
 
 static struct attribute *pcc_sysfs_entries[] = {
 	&dev_attr_numbatt.attr,
 	&dev_attr_lcdtype.attr,
 	&dev_attr_mute.attr,
 	&dev_attr_sticky_key.attr,
+<<<<<<< HEAD
+=======
+	&dev_attr_eco_mode.attr,
+	&dev_attr_ac_brightness.attr,
+	&dev_attr_dc_brightness.attr,
+	&dev_attr_current_brightness.attr,
+	&dev_attr_cdpower.attr,
+>>>>>>> upstream/android-13
 	NULL,
 };
 
@@ -455,8 +890,12 @@ static void acpi_pcc_generate_keyinput(struct pcc_acpi *pcc)
 	rc = acpi_evaluate_integer(pcc->handle, METHOD_HKEY_QUERY,
 				   NULL, &result);
 	if (ACPI_FAILURE(rc)) {
+<<<<<<< HEAD
 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR,
 				 "error getting hotkey status\n"));
+=======
+		pr_err("error getting hotkey status\n");
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -469,10 +908,18 @@ static void acpi_pcc_generate_keyinput(struct pcc_acpi *pcc)
 					result & 0xf, 0x80, false);
 	}
 
+<<<<<<< HEAD
 	if (!sparse_keymap_report_event(hotk_input_dev,
 					result & 0xf, result & 0x80, false))
 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR,
 				  "Unknown hotkey event: %d\n", result));
+=======
+	if ((result & 0xf) == 0x7 || (result & 0xf) == 0x9 || (result & 0xf) == 0xa) {
+		if (!sparse_keymap_report_event(hotk_input_dev,
+						result & 0xf, result & 0x80, false))
+			pr_err("Unknown hotkey event: 0x%04llx\n", result);
+	}
+>>>>>>> upstream/android-13
 }
 
 static void acpi_pcc_hotkey_notify(struct acpi_device *device, u32 event)
@@ -489,6 +936,53 @@ static void acpi_pcc_hotkey_notify(struct acpi_device *device, u32 event)
 	}
 }
 
+<<<<<<< HEAD
+=======
+static void pcc_optd_notify(acpi_handle handle, u32 event, void *data)
+{
+	if (event != ACPI_NOTIFY_EJECT_REQUEST)
+		return;
+
+	set_optd_power_state(0);
+}
+
+static int pcc_register_optd_notifier(struct pcc_acpi *pcc, char *node)
+{
+	acpi_status status;
+	acpi_handle handle;
+
+	status = acpi_get_handle(NULL, node, &handle);
+
+	if (ACPI_SUCCESS(status)) {
+		status = acpi_install_notify_handler(handle,
+				ACPI_SYSTEM_NOTIFY,
+				pcc_optd_notify, pcc);
+		if (ACPI_FAILURE(status))
+			pr_err("Failed to register notify on %s\n", node);
+	} else
+		return -ENODEV;
+
+	return 0;
+}
+
+static void pcc_unregister_optd_notifier(struct pcc_acpi *pcc, char *node)
+{
+	acpi_status status = AE_OK;
+	acpi_handle handle;
+
+	status = acpi_get_handle(NULL, node, &handle);
+
+	if (ACPI_SUCCESS(status)) {
+		status = acpi_remove_notify_handler(handle,
+				ACPI_SYSTEM_NOTIFY,
+				pcc_optd_notify);
+		if (ACPI_FAILURE(status))
+			pr_err("Error removing optd notify handler %s\n",
+					node);
+	}
+}
+
+>>>>>>> upstream/android-13
 static int acpi_pcc_init_input(struct pcc_acpi *pcc)
 {
 	struct input_dev *input_dev;
@@ -507,15 +1001,23 @@ static int acpi_pcc_init_input(struct pcc_acpi *pcc)
 
 	error = sparse_keymap_setup(input_dev, panasonic_keymap, NULL);
 	if (error) {
+<<<<<<< HEAD
 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR,
 				  "Unable to setup input device keymap\n"));
+=======
+		pr_err("Unable to setup input device keymap\n");
+>>>>>>> upstream/android-13
 		goto err_free_dev;
 	}
 
 	error = input_register_device(input_dev);
 	if (error) {
+<<<<<<< HEAD
 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR,
 				  "Unable to register input device\n"));
+=======
+		pr_err("Unable to register input device\n");
+>>>>>>> upstream/android-13
 		goto err_free_dev;
 	}
 
@@ -541,10 +1043,21 @@ static int acpi_pcc_hotkey_resume(struct device *dev)
 	if (!pcc)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "Sticky mode restore: %d\n",
 			  pcc->sticky_mode));
 
 	return acpi_pcc_write_sset(pcc, SINF_STICKY_KEY, pcc->sticky_mode);
+=======
+	acpi_pcc_write_sset(pcc, SINF_MUTE, pcc->mute);
+	acpi_pcc_write_sset(pcc, SINF_ECO_MODE, pcc->eco_mode);
+	acpi_pcc_write_sset(pcc, SINF_STICKY_KEY, pcc->sticky_key);
+	acpi_pcc_write_sset(pcc, SINF_AC_CUR_BRIGHT, pcc->ac_brightness);
+	acpi_pcc_write_sset(pcc, SINF_DC_CUR_BRIGHT, pcc->dc_brightness);
+	acpi_pcc_write_sset(pcc, SINF_CUR_BRIGHT, pcc->current_brightness);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 #endif
 
@@ -560,14 +1073,22 @@ static int acpi_pcc_hotkey_add(struct acpi_device *device)
 	num_sifr = acpi_pcc_get_sqty(device);
 
 	if (num_sifr < 0 || num_sifr > 255) {
+<<<<<<< HEAD
 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "num_sifr out of range"));
+=======
+		pr_err("num_sifr out of range");
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	}
 
 	pcc = kzalloc(sizeof(struct pcc_acpi), GFP_KERNEL);
 	if (!pcc) {
+<<<<<<< HEAD
 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR,
 				  "Couldn't allocate mem for pcc"));
+=======
+		pr_err("Couldn't allocate mem for pcc");
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 	}
 
@@ -586,15 +1107,24 @@ static int acpi_pcc_hotkey_add(struct acpi_device *device)
 
 	result = acpi_pcc_init_input(pcc);
 	if (result) {
+<<<<<<< HEAD
 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR,
 				  "Error installing keyinput handler\n"));
+=======
+		pr_err("Error installing keyinput handler\n");
+>>>>>>> upstream/android-13
 		goto out_sinf;
 	}
 
 	if (!acpi_pcc_retrieve_biosdata(pcc)) {
+<<<<<<< HEAD
 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR,
 				 "Couldn't retrieve BIOS data\n"));
 		result = -EIO;
+=======
+		result = -EIO;
+		pr_err("Couldn't retrieve BIOS data\n");
+>>>>>>> upstream/android-13
 		goto out_input;
 	}
 	/* initialize backlight */
@@ -611,16 +1141,52 @@ static int acpi_pcc_hotkey_add(struct acpi_device *device)
 	/* read the initial brightness setting from the hardware */
 	pcc->backlight->props.brightness = pcc->sinf[SINF_AC_CUR_BRIGHT];
 
+<<<<<<< HEAD
 	/* read the initial sticky key mode from the hardware */
 	pcc->sticky_mode = pcc->sinf[SINF_STICKY_KEY];
+=======
+	/* Reset initial sticky key mode since the hardware register state is not consistent */
+	acpi_pcc_write_sset(pcc, SINF_STICKY_KEY, 0);
+	pcc->sticky_key = 0;
+
+	pcc->eco_mode = pcc->sinf[SINF_ECO_MODE];
+	pcc->mute = pcc->sinf[SINF_MUTE];
+	pcc->ac_brightness = pcc->sinf[SINF_AC_CUR_BRIGHT];
+	pcc->dc_brightness = pcc->sinf[SINF_DC_CUR_BRIGHT];
+	pcc->current_brightness = pcc->sinf[SINF_CUR_BRIGHT];
+>>>>>>> upstream/android-13
 
 	/* add sysfs attributes */
 	result = sysfs_create_group(&device->dev.kobj, &pcc_attr_group);
 	if (result)
 		goto out_backlight;
 
+<<<<<<< HEAD
 	return 0;
 
+=======
+	/* optical drive initialization */
+	if (ACPI_SUCCESS(check_optd_present())) {
+		pcc->platform = platform_device_register_simple("panasonic",
+			-1, NULL, 0);
+		if (IS_ERR(pcc->platform)) {
+			result = PTR_ERR(pcc->platform);
+			goto out_backlight;
+		}
+		result = device_create_file(&pcc->platform->dev,
+			&dev_attr_cdpower);
+		pcc_register_optd_notifier(pcc, "\\_SB.PCI0.EHCI.ERHB.OPTD");
+		if (result)
+			goto out_platform;
+	} else {
+		pcc->platform = NULL;
+	}
+
+	return 0;
+
+out_platform:
+	platform_device_unregister(pcc->platform);
+>>>>>>> upstream/android-13
 out_backlight:
 	backlight_device_unregister(pcc->backlight);
 out_input:
@@ -640,6 +1206,15 @@ static int acpi_pcc_hotkey_remove(struct acpi_device *device)
 	if (!device || !pcc)
 		return -EINVAL;
 
+<<<<<<< HEAD
+=======
+	if (pcc->platform) {
+		device_remove_file(&pcc->platform->dev, &dev_attr_cdpower);
+		platform_device_unregister(pcc->platform);
+	}
+	pcc_unregister_optd_notifier(pcc, "\\_SB.PCI0.EHCI.ERHB.OPTD");
+
+>>>>>>> upstream/android-13
 	sysfs_remove_group(&device->dev.kobj, &pcc_attr_group);
 
 	backlight_device_unregister(pcc->backlight);

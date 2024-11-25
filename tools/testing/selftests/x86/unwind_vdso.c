@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * unwind_vdso.c - tests unwind info for AT_SYSINFO in the vDSO
  * Copyright (c) 2014-2015 Andrew Lutomirski
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms and conditions of the GNU General Public License,
  * version 2, as published by the Free Software Foundation.
@@ -11,6 +16,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * This tests __kernel_vsyscall's unwind info.
  */
 
@@ -19,6 +26,11 @@
 #include <features.h>
 #include <stdio.h>
 
+<<<<<<< HEAD
+=======
+#include "helpers.h"
+
+>>>>>>> upstream/android-13
 #if defined(__GLIBC__) && __GLIBC__ == 2 && __GLIBC_MINOR__ < 16
 
 int main()
@@ -44,7 +56,10 @@ int main()
 #include <stdbool.h>
 #include <sys/ptrace.h>
 #include <sys/user.h>
+<<<<<<< HEAD
 #include <sys/ucontext.h>
+=======
+>>>>>>> upstream/android-13
 #include <link.h>
 #include <sys/auxv.h>
 #include <dlfcn.h>
@@ -62,6 +77,7 @@ static void sethandler(int sig, void (*handler)(int, siginfo_t *, void *),
 		err(1, "sigaction");
 }
 
+<<<<<<< HEAD
 #ifdef __x86_64__
 # define WIDTH "q"
 #else
@@ -83,6 +99,8 @@ static void set_eflags(unsigned long eflags)
 
 #define X86_EFLAGS_TF (1UL << 8)
 
+=======
+>>>>>>> upstream/android-13
 static volatile sig_atomic_t nerrs;
 static unsigned long sysinfo;
 static bool got_sysinfo = false;

@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Ralink RT2880 timer
  * Author: John Crispin
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Copyright (C) 2013 John Crispin <john@phrozen.org>
 */
 
@@ -109,10 +116,15 @@ static int rt_timer_probe(struct platform_device *pdev)
 	}
 
 	rt->irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (rt->irq < 0) {
 		dev_err(&pdev->dev, "failed to load irq\n");
 		return rt->irq;
 	}
+=======
+	if (rt->irq < 0)
+		return rt->irq;
+>>>>>>> upstream/android-13
 
 	rt->membase = devm_ioremap_resource(&pdev->dev, res);
 	if (IS_ERR(rt->membase))

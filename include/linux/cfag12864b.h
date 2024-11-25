@@ -4,7 +4,11 @@
  *     Version: 0.1.0
  * Description: cfag12864b LCD driver header
  *
+<<<<<<< HEAD
  *      Author: Copyright (C) Miguel Ojeda Sandonis
+=======
+ *      Author: Copyright (C) Miguel Ojeda <ojeda@kernel.org>
+>>>>>>> upstream/android-13
  *        Date: 2006-10-12
  */
 

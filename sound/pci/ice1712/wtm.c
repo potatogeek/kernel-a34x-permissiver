@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	ALSA driver for ICEnsemble VT1724 (Envy24HT)
  *
@@ -6,6 +10,7 @@
  *		Copyright (c) 2006 Guedez Clement <klem.dev@gmail.com>
  *		Some functions are taken from the Prodigy192 driver
  *		source
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -21,6 +26,8 @@
  *	along with this program; if not, write to the Free Software
  *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 
@@ -491,7 +498,11 @@ static const DECLARE_TLV_DB_SCALE(db_scale_adc, 0, 150, 0);
 /*
  * Control tabs
  */
+<<<<<<< HEAD
 static struct snd_kcontrol_new stac9640_controls[] = {
+=======
+static const struct snd_kcontrol_new stac9640_controls[] = {
+>>>>>>> upstream/android-13
 	{
 		.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 		.access = (SNDRV_CTL_ELEM_ACCESS_READWRITE |
@@ -581,12 +592,20 @@ static int wtm_add_controls(struct snd_ice1712 *ice)
 
 static int wtm_init(struct snd_ice1712 *ice)
 {
+<<<<<<< HEAD
 	static unsigned short stac_inits_wtm[] = {
+=======
+	static const unsigned short stac_inits_wtm[] = {
+>>>>>>> upstream/android-13
 		STAC946X_RESET, 0,
 		STAC946X_MASTER_CLOCKING, 0x11,
 		(unsigned short)-1
 	};
+<<<<<<< HEAD
 	unsigned short *p;
+=======
+	const unsigned short *p;
+>>>>>>> upstream/android-13
 	struct wtm_spec *spec;
 
 	/*WTM 192M*/
@@ -613,7 +632,11 @@ static int wtm_init(struct snd_ice1712 *ice)
 }
 
 
+<<<<<<< HEAD
 static unsigned char wtm_eeprom[] = {
+=======
+static const unsigned char wtm_eeprom[] = {
+>>>>>>> upstream/android-13
 	[ICE_EEP2_SYSCONF]      = 0x67, /*SYSCONF: clock 192KHz, mpu401,
 							4ADC, 8DAC */
 	[ICE_EEP2_ACLINK]       = 0x80, /* ACLINK : I2S */

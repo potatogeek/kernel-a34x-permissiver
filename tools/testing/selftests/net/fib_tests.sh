@@ -9,11 +9,23 @@ ret=0
 ksft_skip=4
 
 # all tests in this script. Can be overridden with -t option
+<<<<<<< HEAD
 TESTS="unregister down carrier nexthop ipv6_rt ipv4_rt ipv6_addr_metric ipv4_addr_metric"
 VERBOSE=0
 PAUSE_ON_FAIL=no
 PAUSE=no
 IP="ip -netns testns"
+=======
+TESTS="unregister down carrier nexthop suppress ipv6_rt ipv4_rt ipv6_addr_metric ipv4_addr_metric ipv6_route_metrics ipv4_route_metrics ipv4_route_v6_gw rp_filter ipv4_del_addr ipv4_mangle ipv6_mangle"
+
+VERBOSE=0
+PAUSE_ON_FAIL=no
+PAUSE=no
+IP="ip -netns ns1"
+NS_EXEC="ip netns exec ns1"
+
+which ping6 > /dev/null 2>&1 && ping6=$(which ping6) || ping6=$(which ping)
+>>>>>>> upstream/android-13
 
 log_test()
 {
@@ -47,8 +59,16 @@ log_test()
 setup()
 {
 	set -e
+<<<<<<< HEAD
 	ip netns add testns
 	$IP link set dev lo up
+=======
+	ip netns add ns1
+	ip netns set ns1 auto
+	$IP link set dev lo up
+	ip netns exec ns1 sysctl -qw net.ipv4.ip_forward=1
+	ip netns exec ns1 sysctl -qw net.ipv6.conf.all.forwarding=1
+>>>>>>> upstream/android-13
 
 	$IP link add dummy0 type dummy
 	$IP link set dev dummy0 up
@@ -61,7 +81,12 @@ setup()
 cleanup()
 {
 	$IP link del dev dummy0 &> /dev/null
+<<<<<<< HEAD
 	ip netns del testns
+=======
+	ip netns del ns1
+	ip netns del ns2 &> /dev/null
+>>>>>>> upstream/android-13
 }
 
 get_linklocal()
@@ -428,6 +453,79 @@ fib_carrier_test()
 	fib_carrier_unicast_test
 }
 
+<<<<<<< HEAD
+=======
+fib_rp_filter_test()
+{
+	echo
+	echo "IPv4 rp_filter tests"
+
+	setup
+
+	set -e
+	ip netns add ns2
+	ip netns set ns2 auto
+
+	ip -netns ns2 link set dev lo up
+
+	$IP link add name veth1 type veth peer name veth2
+	$IP link set dev veth2 netns ns2
+	$IP address add 192.0.2.1/24 dev veth1
+	ip -netns ns2 address add 192.0.2.1/24 dev veth2
+	$IP link set dev veth1 up
+	ip -netns ns2 link set dev veth2 up
+
+	$IP link set dev lo address 52:54:00:6a:c7:5e
+	$IP link set dev veth1 address 52:54:00:6a:c7:5e
+	ip -netns ns2 link set dev lo address 52:54:00:6a:c7:5e
+	ip -netns ns2 link set dev veth2 address 52:54:00:6a:c7:5e
+
+	# 1. (ns2) redirect lo's egress to veth2's egress
+	ip netns exec ns2 tc qdisc add dev lo parent root handle 1: fq_codel
+	ip netns exec ns2 tc filter add dev lo parent 1: protocol arp basic \
+		action mirred egress redirect dev veth2
+	ip netns exec ns2 tc filter add dev lo parent 1: protocol ip basic \
+		action mirred egress redirect dev veth2
+
+	# 2. (ns1) redirect veth1's ingress to lo's ingress
+	$NS_EXEC tc qdisc add dev veth1 ingress
+	$NS_EXEC tc filter add dev veth1 ingress protocol arp basic \
+		action mirred ingress redirect dev lo
+	$NS_EXEC tc filter add dev veth1 ingress protocol ip basic \
+		action mirred ingress redirect dev lo
+
+	# 3. (ns1) redirect lo's egress to veth1's egress
+	$NS_EXEC tc qdisc add dev lo parent root handle 1: fq_codel
+	$NS_EXEC tc filter add dev lo parent 1: protocol arp basic \
+		action mirred egress redirect dev veth1
+	$NS_EXEC tc filter add dev lo parent 1: protocol ip basic \
+		action mirred egress redirect dev veth1
+
+	# 4. (ns2) redirect veth2's ingress to lo's ingress
+	ip netns exec ns2 tc qdisc add dev veth2 ingress
+	ip netns exec ns2 tc filter add dev veth2 ingress protocol arp basic \
+		action mirred ingress redirect dev lo
+	ip netns exec ns2 tc filter add dev veth2 ingress protocol ip basic \
+		action mirred ingress redirect dev lo
+
+	$NS_EXEC sysctl -qw net.ipv4.conf.all.rp_filter=1
+	$NS_EXEC sysctl -qw net.ipv4.conf.all.accept_local=1
+	$NS_EXEC sysctl -qw net.ipv4.conf.all.route_localnet=1
+	ip netns exec ns2 sysctl -qw net.ipv4.conf.all.rp_filter=1
+	ip netns exec ns2 sysctl -qw net.ipv4.conf.all.accept_local=1
+	ip netns exec ns2 sysctl -qw net.ipv4.conf.all.route_localnet=1
+	set +e
+
+	run_cmd "ip netns exec ns2 ping -w1 -c1 192.0.2.1"
+	log_test $? 0 "rp_filter passes local packets"
+
+	run_cmd "ip netns exec ns2 ping -w1 -c1 127.0.0.1"
+	log_test $? 0 "rp_filter passes loopback packets"
+
+	cleanup
+}
+
+>>>>>>> upstream/android-13
 ################################################################################
 # Tests on nexthop spec
 
@@ -577,6 +675,29 @@ fib_nexthop_test()
 	cleanup
 }
 
+<<<<<<< HEAD
+=======
+fib_suppress_test()
+{
+	echo
+	echo "FIB rule with suppress_prefixlength"
+	setup
+
+	$IP link add dummy1 type dummy
+	$IP link set dummy1 up
+	$IP -6 route add default dev dummy1
+	$IP -6 rule add table main suppress_prefixlength 0
+	ping -f -c 1000 -W 1 1234::1 >/dev/null 2>&1
+	$IP -6 rule del table main suppress_prefixlength 0
+	$IP link del dummy1
+
+	# If we got here without crashing, we're good.
+	log_test 0 0 "FIB rule suppress test"
+
+	cleanup
+}
+
+>>>>>>> upstream/android-13
 ################################################################################
 # Tests on route add and replace
 
@@ -673,11 +794,21 @@ add_initial_route6()
 
 check_route6()
 {
+<<<<<<< HEAD
 	local pfx="2001:db8:104::/64"
+=======
+	local pfx
+>>>>>>> upstream/android-13
 	local expected="$1"
 	local out
 	local rc=0
 
+<<<<<<< HEAD
+=======
+	set -- $expected
+	pfx=$1
+
+>>>>>>> upstream/android-13
 	out=$($IP -6 ro ls match ${pfx} | sed -e 's/ pref medium//')
 	check_expected "${out}" "${expected}"
 }
@@ -700,12 +831,22 @@ route_setup()
 	[ "${VERBOSE}" = "1" ] && set -x
 	set -e
 
+<<<<<<< HEAD
 	$IP li add red up type vrf table 101
+=======
+	ip netns add ns2
+	ip netns set ns2 auto
+	ip -netns ns2 link set dev lo up
+	ip netns exec ns2 sysctl -qw net.ipv4.ip_forward=1
+	ip netns exec ns2 sysctl -qw net.ipv6.conf.all.forwarding=1
+
+>>>>>>> upstream/android-13
 	$IP li add veth1 type veth peer name veth2
 	$IP li add veth3 type veth peer name veth4
 
 	$IP li set veth1 up
 	$IP li set veth3 up
+<<<<<<< HEAD
 	$IP li set veth2 vrf red up
 	$IP li set veth4 vrf red up
 	$IP li add dummy1 type dummy
@@ -722,6 +863,25 @@ route_setup()
 	$IP addr add 172.16.103.1/24 dev veth3
 	$IP addr add 172.16.103.2/24 dev veth4
 	$IP addr add 172.16.104.1/24 dev dummy1
+=======
+	$IP li set veth2 netns ns2 up
+	$IP li set veth4 netns ns2 up
+	ip -netns ns2 li add dummy1 type dummy
+	ip -netns ns2 li set dummy1 up
+
+	$IP -6 addr add 2001:db8:101::1/64 dev veth1 nodad
+	$IP -6 addr add 2001:db8:103::1/64 dev veth3 nodad
+	$IP addr add 172.16.101.1/24 dev veth1
+	$IP addr add 172.16.103.1/24 dev veth3
+
+	ip -netns ns2 -6 addr add 2001:db8:101::2/64 dev veth2 nodad
+	ip -netns ns2 -6 addr add 2001:db8:103::2/64 dev veth4 nodad
+	ip -netns ns2 -6 addr add 2001:db8:104::1/64 dev dummy1 nodad
+
+	ip -netns ns2 addr add 172.16.101.2/24 dev veth2
+	ip -netns ns2 addr add 172.16.103.2/24 dev veth4
+	ip -netns ns2 addr add 172.16.104.1/24 dev dummy1
+>>>>>>> upstream/android-13
 
 	set +e
 }
@@ -960,7 +1120,11 @@ ipv6_addr_metric_test()
 	log_test $rc 0 "Modify metric of address"
 
 	# verify prefix route removed on down
+<<<<<<< HEAD
 	run_cmd "ip netns exec testns sysctl -qw net.ipv6.conf.all.keep_addr_on_down=1"
+=======
+	run_cmd "ip netns exec ns1 sysctl -qw net.ipv6.conf.all.keep_addr_on_down=1"
+>>>>>>> upstream/android-13
 	run_cmd "$IP li set dev dummy2 down"
 	rc=$?
 	if [ $rc -eq 0 ]; then
@@ -1004,6 +1168,80 @@ ipv6_addr_metric_test()
 	cleanup
 }
 
+<<<<<<< HEAD
+=======
+ipv6_route_metrics_test()
+{
+	local rc
+
+	echo
+	echo "IPv6 routes with metrics"
+
+	route_setup
+
+	#
+	# single path with metrics
+	#
+	run_cmd "$IP -6 ro add 2001:db8:111::/64 via 2001:db8:101::2 mtu 1400"
+	rc=$?
+	if [ $rc -eq 0 ]; then
+		check_route6  "2001:db8:111::/64 via 2001:db8:101::2 dev veth1 metric 1024 mtu 1400"
+		rc=$?
+	fi
+	log_test $rc 0 "Single path route with mtu metric"
+
+
+	#
+	# multipath via separate routes with metrics
+	#
+	run_cmd "$IP -6 ro add 2001:db8:112::/64 via 2001:db8:101::2 mtu 1400"
+	run_cmd "$IP -6 ro append 2001:db8:112::/64 via 2001:db8:103::2"
+	rc=$?
+	if [ $rc -eq 0 ]; then
+		check_route6 "2001:db8:112::/64 metric 1024 mtu 1400 nexthop via 2001:db8:101::2 dev veth1 weight 1 nexthop via 2001:db8:103::2 dev veth3 weight 1"
+		rc=$?
+	fi
+	log_test $rc 0 "Multipath route via 2 single routes with mtu metric on first"
+
+	# second route is coalesced to first to make a multipath route.
+	# MTU of the second path is hidden from display!
+	run_cmd "$IP -6 ro add 2001:db8:113::/64 via 2001:db8:101::2"
+	run_cmd "$IP -6 ro append 2001:db8:113::/64 via 2001:db8:103::2 mtu 1400"
+	rc=$?
+	if [ $rc -eq 0 ]; then
+		check_route6 "2001:db8:113::/64 metric 1024 nexthop via 2001:db8:101::2 dev veth1 weight 1 nexthop via 2001:db8:103::2 dev veth3 weight 1"
+		rc=$?
+	fi
+	log_test $rc 0 "Multipath route via 2 single routes with mtu metric on 2nd"
+
+	run_cmd "$IP -6 ro del 2001:db8:113::/64 via 2001:db8:101::2"
+	if [ $? -eq 0 ]; then
+		check_route6 "2001:db8:113::/64 via 2001:db8:103::2 dev veth3 metric 1024 mtu 1400"
+		log_test $? 0 "    MTU of second leg"
+	fi
+
+	#
+	# multipath with metrics
+	#
+	run_cmd "$IP -6 ro add 2001:db8:115::/64 mtu 1400 nexthop via 2001:db8:101::2 nexthop via 2001:db8:103::2"
+	rc=$?
+	if [ $rc -eq 0 ]; then
+		check_route6  "2001:db8:115::/64 metric 1024 mtu 1400 nexthop via 2001:db8:101::2 dev veth1 weight 1 nexthop via 2001:db8:103::2 dev veth3 weight 1"
+		rc=$?
+	fi
+	log_test $rc 0 "Multipath route with mtu metric"
+
+	$IP -6 ro add 2001:db8:104::/64 via 2001:db8:101::2 mtu 1300
+	run_cmd "ip netns exec ns1 ${ping6} -w1 -c1 -s 1500 2001:db8:104::1"
+	log_test $? 0 "Using route with mtu metric"
+
+	run_cmd "$IP -6 ro add 2001:db8:114::/64 via  2001:db8:101::2  congctl lock foo"
+	log_test $? 2 "Invalid metric (fails metric_convert)"
+
+	route_cleanup
+}
+
+>>>>>>> upstream/android-13
 # add route for a prefix, flushing any existing routes first
 # expected to be the first step of a test
 add_route()
@@ -1042,10 +1280,21 @@ add_initial_route()
 
 check_route()
 {
+<<<<<<< HEAD
 	local pfx="172.16.104.0/24"
 	local expected="$1"
 	local out
 
+=======
+	local pfx
+	local expected="$1"
+	local out
+
+	set -- $expected
+	pfx=$1
+	[ "${pfx}" = "unreachable" ] && pfx=$2
+
+>>>>>>> upstream/android-13
 	out=$($IP ro ls match ${pfx})
 	check_expected "${out}" "${expected}"
 }
@@ -1241,12 +1490,43 @@ ipv4_rt_replace()
 	ipv4_rt_replace_mpath
 }
 
+<<<<<<< HEAD
+=======
+# checks that cached input route on VRF port is deleted
+# when VRF is deleted
+ipv4_local_rt_cache()
+{
+	run_cmd "ip addr add 10.0.0.1/32 dev lo"
+	run_cmd "ip netns add test-ns"
+	run_cmd "ip link add veth-outside type veth peer name veth-inside"
+	run_cmd "ip link add vrf-100 type vrf table 1100"
+	run_cmd "ip link set veth-outside master vrf-100"
+	run_cmd "ip link set veth-inside netns test-ns"
+	run_cmd "ip link set veth-outside up"
+	run_cmd "ip link set vrf-100 up"
+	run_cmd "ip route add 10.1.1.1/32 dev veth-outside table 1100"
+	run_cmd "ip netns exec test-ns ip link set veth-inside up"
+	run_cmd "ip netns exec test-ns ip addr add 10.1.1.1/32 dev veth-inside"
+	run_cmd "ip netns exec test-ns ip route add 10.0.0.1/32 dev veth-inside"
+	run_cmd "ip netns exec test-ns ip route add default via 10.0.0.1"
+	run_cmd "ip netns exec test-ns ping 10.0.0.1 -c 1 -i 1"
+	run_cmd "ip link delete vrf-100"
+
+	# if we do not hang test is a success
+	log_test $? 0 "Cached route removed from VRF port device"
+}
+
+>>>>>>> upstream/android-13
 ipv4_route_test()
 {
 	route_setup
 
 	ipv4_rt_add
 	ipv4_rt_replace
+<<<<<<< HEAD
+=======
+	ipv4_local_rt_cache
+>>>>>>> upstream/android-13
 
 	route_cleanup
 }
@@ -1360,6 +1640,307 @@ ipv4_addr_metric_test()
 	cleanup
 }
 
+<<<<<<< HEAD
+=======
+ipv4_route_metrics_test()
+{
+	local rc
+
+	echo
+	echo "IPv4 route add / append tests"
+
+	route_setup
+
+	run_cmd "$IP ro add 172.16.111.0/24 via 172.16.101.2 mtu 1400"
+	rc=$?
+	if [ $rc -eq 0 ]; then
+		check_route "172.16.111.0/24 via 172.16.101.2 dev veth1 mtu 1400"
+		rc=$?
+	fi
+	log_test $rc 0 "Single path route with mtu metric"
+
+
+	run_cmd "$IP ro add 172.16.112.0/24 mtu 1400 nexthop via 172.16.101.2 nexthop via 172.16.103.2"
+	rc=$?
+	if [ $rc -eq 0 ]; then
+		check_route "172.16.112.0/24 mtu 1400 nexthop via 172.16.101.2 dev veth1 weight 1 nexthop via 172.16.103.2 dev veth3 weight 1"
+		rc=$?
+	fi
+	log_test $rc 0 "Multipath route with mtu metric"
+
+	$IP ro add 172.16.104.0/24 via 172.16.101.2 mtu 1300
+	run_cmd "ip netns exec ns1 ping -w1 -c1 -s 1500 172.16.104.1"
+	log_test $? 0 "Using route with mtu metric"
+
+	run_cmd "$IP ro add 172.16.111.0/24 via 172.16.101.2 congctl lock foo"
+	log_test $? 2 "Invalid metric (fails metric_convert)"
+
+	route_cleanup
+}
+
+ipv4_del_addr_test()
+{
+	echo
+	echo "IPv4 delete address route tests"
+
+	setup
+
+	set -e
+	$IP li add dummy1 type dummy
+	$IP li set dummy1 up
+	$IP li add dummy2 type dummy
+	$IP li set dummy2 up
+	$IP li add red type vrf table 1111
+	$IP li set red up
+	$IP ro add vrf red unreachable default
+	$IP li set dummy2 vrf red
+
+	$IP addr add dev dummy1 172.16.104.1/24
+	$IP addr add dev dummy1 172.16.104.11/24
+	$IP addr add dev dummy2 172.16.104.1/24
+	$IP addr add dev dummy2 172.16.104.11/24
+	$IP route add 172.16.105.0/24 via 172.16.104.2 src 172.16.104.11
+	$IP route add vrf red 172.16.105.0/24 via 172.16.104.2 src 172.16.104.11
+	set +e
+
+	# removing address from device in vrf should only remove route from vrf table
+	$IP addr del dev dummy2 172.16.104.11/24
+	$IP ro ls vrf red | grep -q 172.16.105.0/24
+	log_test $? 1 "Route removed from VRF when source address deleted"
+
+	$IP ro ls | grep -q 172.16.105.0/24
+	log_test $? 0 "Route in default VRF not removed"
+
+	$IP addr add dev dummy2 172.16.104.11/24
+	$IP route add vrf red 172.16.105.0/24 via 172.16.104.2 src 172.16.104.11
+
+	$IP addr del dev dummy1 172.16.104.11/24
+	$IP ro ls | grep -q 172.16.105.0/24
+	log_test $? 1 "Route removed in default VRF when source address deleted"
+
+	$IP ro ls vrf red | grep -q 172.16.105.0/24
+	log_test $? 0 "Route in VRF is not removed by address delete"
+
+	$IP li del dummy1
+	$IP li del dummy2
+	cleanup
+}
+
+
+ipv4_route_v6_gw_test()
+{
+	local rc
+
+	echo
+	echo "IPv4 route with IPv6 gateway tests"
+
+	route_setup
+	sleep 2
+
+	#
+	# single path route
+	#
+	run_cmd "$IP ro add 172.16.104.0/24 via inet6 2001:db8:101::2"
+	rc=$?
+	log_test $rc 0 "Single path route with IPv6 gateway"
+	if [ $rc -eq 0 ]; then
+		check_route "172.16.104.0/24 via inet6 2001:db8:101::2 dev veth1"
+	fi
+
+	run_cmd "ip netns exec ns1 ping -w1 -c1 172.16.104.1"
+	log_test $rc 0 "Single path route with IPv6 gateway - ping"
+
+	run_cmd "$IP ro del 172.16.104.0/24 via inet6 2001:db8:101::2"
+	rc=$?
+	log_test $rc 0 "Single path route delete"
+	if [ $rc -eq 0 ]; then
+		check_route "172.16.112.0/24"
+	fi
+
+	#
+	# multipath - v6 then v4
+	#
+	run_cmd "$IP ro add 172.16.104.0/24 nexthop via inet6 2001:db8:101::2 dev veth1 nexthop via 172.16.103.2 dev veth3"
+	rc=$?
+	log_test $rc 0 "Multipath route add - v6 nexthop then v4"
+	if [ $rc -eq 0 ]; then
+		check_route "172.16.104.0/24 nexthop via inet6 2001:db8:101::2 dev veth1 weight 1 nexthop via 172.16.103.2 dev veth3 weight 1"
+	fi
+
+	run_cmd "$IP ro del 172.16.104.0/24 nexthop via 172.16.103.2 dev veth3 nexthop via inet6 2001:db8:101::2 dev veth1"
+	log_test $? 2 "    Multipath route delete - nexthops in wrong order"
+
+	run_cmd "$IP ro del 172.16.104.0/24 nexthop via inet6 2001:db8:101::2 dev veth1 nexthop via 172.16.103.2 dev veth3"
+	log_test $? 0 "    Multipath route delete exact match"
+
+	#
+	# multipath - v4 then v6
+	#
+	run_cmd "$IP ro add 172.16.104.0/24 nexthop via 172.16.103.2 dev veth3 nexthop via inet6 2001:db8:101::2 dev veth1"
+	rc=$?
+	log_test $rc 0 "Multipath route add - v4 nexthop then v6"
+	if [ $rc -eq 0 ]; then
+		check_route "172.16.104.0/24 nexthop via 172.16.103.2 dev veth3 weight 1 nexthop via inet6 2001:db8:101::2 dev veth1 weight 1"
+	fi
+
+	run_cmd "$IP ro del 172.16.104.0/24 nexthop via inet6 2001:db8:101::2 dev veth1 nexthop via 172.16.103.2 dev veth3"
+	log_test $? 2 "    Multipath route delete - nexthops in wrong order"
+
+	run_cmd "$IP ro del 172.16.104.0/24 nexthop via 172.16.103.2 dev veth3 nexthop via inet6 2001:db8:101::2 dev veth1"
+	log_test $? 0 "    Multipath route delete exact match"
+
+	route_cleanup
+}
+
+socat_check()
+{
+	if [ ! -x "$(command -v socat)" ]; then
+		echo "socat command not found. Skipping test"
+		return 1
+	fi
+
+	return 0
+}
+
+iptables_check()
+{
+	iptables -t mangle -L OUTPUT &> /dev/null
+	if [ $? -ne 0 ]; then
+		echo "iptables configuration not supported. Skipping test"
+		return 1
+	fi
+
+	return 0
+}
+
+ip6tables_check()
+{
+	ip6tables -t mangle -L OUTPUT &> /dev/null
+	if [ $? -ne 0 ]; then
+		echo "ip6tables configuration not supported. Skipping test"
+		return 1
+	fi
+
+	return 0
+}
+
+ipv4_mangle_test()
+{
+	local rc
+
+	echo
+	echo "IPv4 mangling tests"
+
+	socat_check || return 1
+	iptables_check || return 1
+
+	route_setup
+	sleep 2
+
+	local tmp_file=$(mktemp)
+	ip netns exec ns2 socat UDP4-LISTEN:54321,fork $tmp_file &
+
+	# Add a FIB rule and a route that will direct our connection to the
+	# listening server.
+	$IP rule add pref 100 ipproto udp sport 12345 dport 54321 table 123
+	$IP route add table 123 172.16.101.0/24 dev veth1
+
+	# Add an unreachable route to the main table that will block our
+	# connection in case the FIB rule is not hit.
+	$IP route add unreachable 172.16.101.2/32
+
+	run_cmd "echo a | $NS_EXEC socat STDIN UDP4:172.16.101.2:54321,sourceport=12345"
+	log_test $? 0 "    Connection with correct parameters"
+
+	run_cmd "echo a | $NS_EXEC socat STDIN UDP4:172.16.101.2:54321,sourceport=11111"
+	log_test $? 1 "    Connection with incorrect parameters"
+
+	# Add a mangling rule and make sure connection is still successful.
+	$NS_EXEC iptables -t mangle -A OUTPUT -j MARK --set-mark 1
+
+	run_cmd "echo a | $NS_EXEC socat STDIN UDP4:172.16.101.2:54321,sourceport=12345"
+	log_test $? 0 "    Connection with correct parameters - mangling"
+
+	# Delete the mangling rule and make sure connection is still
+	# successful.
+	$NS_EXEC iptables -t mangle -D OUTPUT -j MARK --set-mark 1
+
+	run_cmd "echo a | $NS_EXEC socat STDIN UDP4:172.16.101.2:54321,sourceport=12345"
+	log_test $? 0 "    Connection with correct parameters - no mangling"
+
+	# Verify connections were indeed successful on server side.
+	[[ $(cat $tmp_file | wc -l) -eq 3 ]]
+	log_test $? 0 "    Connection check - server side"
+
+	$IP route del unreachable 172.16.101.2/32
+	$IP route del table 123 172.16.101.0/24 dev veth1
+	$IP rule del pref 100
+
+	{ kill %% && wait %%; } 2>/dev/null
+	rm $tmp_file
+
+	route_cleanup
+}
+
+ipv6_mangle_test()
+{
+	local rc
+
+	echo
+	echo "IPv6 mangling tests"
+
+	socat_check || return 1
+	ip6tables_check || return 1
+
+	route_setup
+	sleep 2
+
+	local tmp_file=$(mktemp)
+	ip netns exec ns2 socat UDP6-LISTEN:54321,fork $tmp_file &
+
+	# Add a FIB rule and a route that will direct our connection to the
+	# listening server.
+	$IP -6 rule add pref 100 ipproto udp sport 12345 dport 54321 table 123
+	$IP -6 route add table 123 2001:db8:101::/64 dev veth1
+
+	# Add an unreachable route to the main table that will block our
+	# connection in case the FIB rule is not hit.
+	$IP -6 route add unreachable 2001:db8:101::2/128
+
+	run_cmd "echo a | $NS_EXEC socat STDIN UDP6:[2001:db8:101::2]:54321,sourceport=12345"
+	log_test $? 0 "    Connection with correct parameters"
+
+	run_cmd "echo a | $NS_EXEC socat STDIN UDP6:[2001:db8:101::2]:54321,sourceport=11111"
+	log_test $? 1 "    Connection with incorrect parameters"
+
+	# Add a mangling rule and make sure connection is still successful.
+	$NS_EXEC ip6tables -t mangle -A OUTPUT -j MARK --set-mark 1
+
+	run_cmd "echo a | $NS_EXEC socat STDIN UDP6:[2001:db8:101::2]:54321,sourceport=12345"
+	log_test $? 0 "    Connection with correct parameters - mangling"
+
+	# Delete the mangling rule and make sure connection is still
+	# successful.
+	$NS_EXEC ip6tables -t mangle -D OUTPUT -j MARK --set-mark 1
+
+	run_cmd "echo a | $NS_EXEC socat STDIN UDP6:[2001:db8:101::2]:54321,sourceport=12345"
+	log_test $? 0 "    Connection with correct parameters - no mangling"
+
+	# Verify connections were indeed successful on server side.
+	[[ $(cat $tmp_file | wc -l) -eq 3 ]]
+	log_test $? 0 "    Connection check - server side"
+
+	$IP -6 route del unreachable 2001:db8:101::2/128
+	$IP -6 route del table 123 2001:db8:101::/64 dev veth1
+	$IP -6 rule del pref 100
+
+	{ kill %% && wait %%; } 2>/dev/null
+	rm $tmp_file
+
+	route_cleanup
+}
+
+>>>>>>> upstream/android-13
 ################################################################################
 # usage
 
@@ -1421,11 +2002,26 @@ do
 	fib_unreg_test|unregister)	fib_unreg_test;;
 	fib_down_test|down)		fib_down_test;;
 	fib_carrier_test|carrier)	fib_carrier_test;;
+<<<<<<< HEAD
 	fib_nexthop_test|nexthop)	fib_nexthop_test;;
+=======
+	fib_rp_filter_test|rp_filter)	fib_rp_filter_test;;
+	fib_nexthop_test|nexthop)	fib_nexthop_test;;
+	fib_suppress_test|suppress)	fib_suppress_test;;
+>>>>>>> upstream/android-13
 	ipv6_route_test|ipv6_rt)	ipv6_route_test;;
 	ipv4_route_test|ipv4_rt)	ipv4_route_test;;
 	ipv6_addr_metric)		ipv6_addr_metric_test;;
 	ipv4_addr_metric)		ipv4_addr_metric_test;;
+<<<<<<< HEAD
+=======
+	ipv4_del_addr)			ipv4_del_addr_test;;
+	ipv6_route_metrics)		ipv6_route_metrics_test;;
+	ipv4_route_metrics)		ipv4_route_metrics_test;;
+	ipv4_route_v6_gw)		ipv4_route_v6_gw_test;;
+	ipv4_mangle)			ipv4_mangle_test;;
+	ipv6_mangle)			ipv6_mangle_test;;
+>>>>>>> upstream/android-13
 
 	help) echo "Test names: $TESTS"; exit 0;;
 	esac

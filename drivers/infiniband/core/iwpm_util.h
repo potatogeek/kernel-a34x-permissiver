@@ -78,6 +78,10 @@ struct iwpm_mapping_info {
 	struct sockaddr_storage local_sockaddr;
 	struct sockaddr_storage mapped_sockaddr;
 	u8     nl_client;
+<<<<<<< HEAD
+=======
+	u32    map_flags;
+>>>>>>> upstream/android-13
 };
 
 struct iwpm_remote_info {
@@ -89,9 +93,13 @@ struct iwpm_remote_info {
 };
 
 struct iwpm_admin_data {
+<<<<<<< HEAD
 	atomic_t refcount;
 	atomic_t nlmsg_seq;
 	int      client_list[RDMA_NL_NUM_CLIENTS];
+=======
+	atomic_t nlmsg_seq;
+>>>>>>> upstream/android-13
 	u32      reg_list[RDMA_NL_NUM_CLIENTS];
 };
 
@@ -140,13 +148,18 @@ int iwpm_wait_complete_req(struct iwpm_nlmsg_request *nlmsg_request);
 int iwpm_get_nlmsg_seq(void);
 
 /**
+<<<<<<< HEAD
  * iwpm_add_reminfo - Add remote address info of the connecting peer
+=======
+ * iwpm_add_remote_info - Add remote address info of the connecting peer
+>>>>>>> upstream/android-13
  *                    to the remote info hash table
  * @reminfo: The remote info to be added
  */
 void iwpm_add_remote_info(struct iwpm_remote_info *reminfo);
 
 /**
+<<<<<<< HEAD
  * iwpm_valid_client - Check if the port mapper client is valid
  * @nl_client: The index of the netlink client
  *
@@ -163,6 +176,8 @@ int iwpm_valid_client(u8 nl_client);
 void iwpm_set_valid(u8 nl_client, int valid);
 
 /**
+=======
+>>>>>>> upstream/android-13
  * iwpm_check_registration - Check if the client registration
  *			      matches the given one
  * @nl_client: The index of the netlink client
@@ -182,7 +197,11 @@ u32 iwpm_check_registration(u8 nl_client, u32 reg);
 void iwpm_set_registration(u8 nl_client, u32 reg);
 
 /**
+<<<<<<< HEAD
  * iwpm_get_registration
+=======
+ * iwpm_get_registration - Get the client registration
+>>>>>>> upstream/android-13
  * @nl_client: The index of the netlink client
  *
  * Returns the client registration type
@@ -209,8 +228,15 @@ int iwpm_mapinfo_available(void);
 
 /**
  * iwpm_compare_sockaddr - Compare two sockaddr storage structs
+<<<<<<< HEAD
  *
  * Returns 0 if they are holding the same ip/tcp address info,
+=======
+ * @a_sockaddr: first sockaddr to compare
+ * @b_sockaddr: second sockaddr to compare
+ *
+ * Return: 0 if they are holding the same ip/tcp address info,
+>>>>>>> upstream/android-13
  * otherwise returns 1
  */
 int iwpm_compare_sockaddr(struct sockaddr_storage *a_sockaddr,
@@ -266,4 +292,19 @@ int iwpm_parse_nlmsg(struct netlink_callback *cb, int policy_max,
  * @msg: Message to print
  */
 void iwpm_print_sockaddr(struct sockaddr_storage *sockaddr, char *msg);
+<<<<<<< HEAD
+=======
+
+/**
+ * iwpm_send_hello - Send hello response to iwpmd
+ *
+ * @nl_client: The index of the netlink client
+ * @iwpm_pid: The pid of the user space port mapper
+ * @abi_version: The kernel's abi_version
+ *
+ * Returns 0 on success or a negative error code
+ */
+int iwpm_send_hello(u8 nl_client, int iwpm_pid, u16 abi_version);
+extern u16 iwpm_ulib_version;
+>>>>>>> upstream/android-13
 #endif

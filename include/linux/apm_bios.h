@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Include file for the interface to an APM BIOS
  * Copyright 1994-2001 Stephen Rothwell (sfr@canb.auug.org.au)
@@ -11,6 +12,12 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Include file for the interface to an APM BIOS
+ * Copyright 1994-2001 Stephen Rothwell (sfr@canb.auug.org.au)
+>>>>>>> upstream/android-13
  */
 #ifndef _LINUX_APM_H
 #define _LINUX_APM_H

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Exynos DRM Parallel output support.
  *
  * Copyright (c) 2014 Samsung Electronics Co., Ltd
  *
  * Contacts: Andrzej Hajda <a.hajda@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -18,6 +23,19 @@
 #include <linux/of_graph.h>
 #include <linux/regulator/consumer.h>
 
+=======
+*/
+
+#include <linux/of_graph.h>
+#include <linux/regulator/consumer.h>
+
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_panel.h>
+#include <drm/drm_print.h>
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_simple_kms_helper.h>
+
+>>>>>>> upstream/android-13
 #include <video/of_videomode.h>
 #include <video/videomode.h>
 
@@ -44,11 +62,14 @@ static inline struct exynos_dpi *encoder_to_dpi(struct drm_encoder *e)
 static enum drm_connector_status
 exynos_dpi_detect(struct drm_connector *connector, bool force)
 {
+<<<<<<< HEAD
 	struct exynos_dpi *ctx = connector_to_dpi(connector);
 
 	if (ctx->panel && !ctx->panel->connector)
 		drm_panel_attach(ctx->panel, &ctx->connector);
 
+=======
+>>>>>>> upstream/android-13
 	return connector_status_connected;
 }
 
@@ -77,7 +98,12 @@ static int exynos_dpi_get_modes(struct drm_connector *connector)
 
 		mode = drm_mode_create(connector->dev);
 		if (!mode) {
+<<<<<<< HEAD
 			DRM_ERROR("failed to create a new display mode\n");
+=======
+			DRM_DEV_ERROR(ctx->dev,
+				      "failed to create a new display mode\n");
+>>>>>>> upstream/android-13
 			return 0;
 		}
 		drm_display_mode_from_videomode(ctx->vm, mode);
@@ -87,7 +113,11 @@ static int exynos_dpi_get_modes(struct drm_connector *connector)
 	}
 
 	if (ctx->panel)
+<<<<<<< HEAD
 		return ctx->panel->funcs->get_modes(ctx->panel);
+=======
+		return drm_panel_get_modes(ctx->panel, connector);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -108,7 +138,12 @@ static int exynos_dpi_create_connector(struct drm_encoder *encoder)
 				 &exynos_dpi_connector_funcs,
 				 DRM_MODE_CONNECTOR_VGA);
 	if (ret) {
+<<<<<<< HEAD
 		DRM_ERROR("failed to initialize connector with drm\n");
+=======
+		DRM_DEV_ERROR(ctx->dev,
+			      "failed to initialize connector with drm\n");
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
@@ -150,10 +185,13 @@ static const struct drm_encoder_helper_funcs exynos_dpi_encoder_helper_funcs = {
 	.disable = exynos_dpi_disable,
 };
 
+<<<<<<< HEAD
 static const struct drm_encoder_funcs exynos_dpi_encoder_funcs = {
 	.destroy = drm_encoder_cleanup,
 };
 
+=======
+>>>>>>> upstream/android-13
 enum {
 	FIMD_PORT_IN0,
 	FIMD_PORT_IN1,
@@ -202,8 +240,12 @@ int exynos_dpi_bind(struct drm_device *dev, struct drm_encoder *encoder)
 {
 	int ret;
 
+<<<<<<< HEAD
 	drm_encoder_init(dev, encoder, &exynos_dpi_encoder_funcs,
 			 DRM_MODE_ENCODER_TMDS, NULL);
+=======
+	drm_simple_encoder_init(dev, encoder, DRM_MODE_ENCODER_TMDS);
+>>>>>>> upstream/android-13
 
 	drm_encoder_helper_add(encoder, &exynos_dpi_encoder_helper_funcs);
 
@@ -213,7 +255,12 @@ int exynos_dpi_bind(struct drm_device *dev, struct drm_encoder *encoder)
 
 	ret = exynos_dpi_create_connector(encoder);
 	if (ret) {
+<<<<<<< HEAD
 		DRM_ERROR("failed to create connector ret = %d\n", ret);
+=======
+		DRM_DEV_ERROR(encoder_to_dpi(encoder)->dev,
+			      "failed to create connector ret = %d\n", ret);
+>>>>>>> upstream/android-13
 		drm_encoder_cleanup(encoder);
 		return ret;
 	}
@@ -253,8 +300,11 @@ int exynos_dpi_remove(struct drm_encoder *encoder)
 
 	exynos_dpi_disable(&ctx->encoder);
 
+<<<<<<< HEAD
 	if (ctx->panel)
 		drm_panel_detach(ctx->panel);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }

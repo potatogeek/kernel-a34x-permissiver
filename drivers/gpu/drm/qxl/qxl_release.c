@@ -19,9 +19,19 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+<<<<<<< HEAD
 #include "qxl_drv.h"
 #include "qxl_object.h"
 #include <trace/events/dma_fence.h>
+=======
+
+#include <linux/delay.h>
+
+#include <trace/events/dma_fence.h>
+
+#include "qxl_drv.h"
+#include "qxl_object.h"
+>>>>>>> upstream/android-13
 
 /*
  * drawable cmd cache - allocate a bunch of VRAM pages, suballocate
@@ -54,6 +64,7 @@ static long qxl_fence_wait(struct dma_fence *fence, bool intr,
 			   signed long timeout)
 {
 	struct qxl_device *qdev;
+<<<<<<< HEAD
 	struct qxl_release *release;
 	int count = 0, sc = 0;
 	bool have_drawable_releases;
@@ -104,6 +115,18 @@ retry:
 	 */
 
 signaled:
+=======
+	unsigned long cur, end = jiffies + timeout;
+
+	qdev = container_of(fence->lock, struct qxl_device, release_lock);
+
+	if (!wait_event_timeout(qdev->release_event,
+				(dma_fence_is_signaled(fence) ||
+				 (qxl_io_notify_oom(qdev), 0)),
+				timeout))
+		return 0;
+
+>>>>>>> upstream/android-13
 	cur = jiffies;
 	if (time_after(cur, end))
 		return 0;
@@ -192,6 +215,7 @@ qxl_release_free(struct qxl_device *qdev,
 		qxl_release_free_list(release);
 		kfree(release);
 	}
+<<<<<<< HEAD
 }
 
 static int qxl_release_bo_alloc(struct qxl_device *qdev,
@@ -200,6 +224,18 @@ static int qxl_release_bo_alloc(struct qxl_device *qdev,
 	/* pin releases bo's they are too messy to evict */
 	return qxl_bo_create(qdev, PAGE_SIZE, false, true,
 			     QXL_GEM_DOMAIN_VRAM, NULL, bo);
+=======
+	atomic_dec(&qdev->release_count);
+}
+
+static int qxl_release_bo_alloc(struct qxl_device *qdev,
+				struct qxl_bo **bo,
+				u32 priority)
+{
+	/* pin releases bo's they are too messy to evict */
+	return qxl_bo_create(qdev, PAGE_SIZE, false, true,
+			     QXL_GEM_DOMAIN_VRAM, priority, NULL, bo);
+>>>>>>> upstream/android-13
 }
 
 int qxl_release_list_add(struct qxl_release *release, struct qxl_bo *bo)
@@ -217,7 +253,11 @@ int qxl_release_list_add(struct qxl_release *release, struct qxl_bo *bo)
 
 	qxl_bo_ref(bo);
 	entry->tv.bo = &bo->tbo;
+<<<<<<< HEAD
 	entry->tv.shared = false;
+=======
+	entry->tv.num_shared = 0;
+>>>>>>> upstream/android-13
 	list_add_tail(&entry->tv.head, &release->bos);
 	return 0;
 }
@@ -227,19 +267,32 @@ static int qxl_release_validate_bo(struct qxl_bo *bo)
 	struct ttm_operation_ctx ctx = { true, false };
 	int ret;
 
+<<<<<<< HEAD
 	if (!bo->pin_count) {
 		qxl_ttm_placement_from_domain(bo, bo->type, false);
+=======
+	if (!bo->tbo.pin_count) {
+		qxl_ttm_placement_from_domain(bo, bo->type);
+>>>>>>> upstream/android-13
 		ret = ttm_bo_validate(&bo->tbo, &bo->placement, &ctx);
 		if (ret)
 			return ret;
 	}
 
+<<<<<<< HEAD
 	ret = reservation_object_reserve_shared(bo->tbo.resv);
+=======
+	ret = dma_resv_reserve_shared(bo->tbo.base.resv, 1);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
 	/* allocate a surface for reserved + validated buffers */
+<<<<<<< HEAD
 	ret = qxl_bo_check_id(bo->gem_base.dev->dev_private, bo);
+=======
+	ret = qxl_bo_check_id(to_qxl(bo->tbo.base.dev), bo);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 	return 0;
@@ -282,7 +335,10 @@ void qxl_release_backoff_reserve_list(struct qxl_release *release)
 	ttm_eu_backoff_reservation(&release->ticket, &release->bos);
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 int qxl_alloc_surface_release_reserved(struct qxl_device *qdev,
 				       enum qxl_surface_cmd_type surface_cmd_type,
 				       struct qxl_release *create_rel,
@@ -318,11 +374,16 @@ int qxl_alloc_release_reserved(struct qxl_device *qdev, unsigned long size,
 				       int type, struct qxl_release **release,
 				       struct qxl_bo **rbo)
 {
+<<<<<<< HEAD
 	struct qxl_bo *bo;
+=======
+	struct qxl_bo *bo, *free_bo = NULL;
+>>>>>>> upstream/android-13
 	int idr_ret;
 	int ret = 0;
 	union qxl_release_info *info;
 	int cur_idx;
+<<<<<<< HEAD
 
 	if (type == QXL_RELEASE_DRAWABLE)
 		cur_idx = 0;
@@ -330,6 +391,20 @@ int qxl_alloc_release_reserved(struct qxl_device *qdev, unsigned long size,
 		cur_idx = 1;
 	else if (type == QXL_RELEASE_CURSOR_CMD)
 		cur_idx = 2;
+=======
+	u32 priority;
+
+	if (type == QXL_RELEASE_DRAWABLE) {
+		cur_idx = 0;
+		priority = 0;
+	} else if (type == QXL_RELEASE_SURFACE_CMD) {
+		cur_idx = 1;
+		priority = 1;
+	} else if (type == QXL_RELEASE_CURSOR_CMD) {
+		cur_idx = 2;
+		priority = 1;
+	}
+>>>>>>> upstream/android-13
 	else {
 		DRM_ERROR("got illegal type: %d\n", type);
 		return -EINVAL;
@@ -341,17 +416,35 @@ int qxl_alloc_release_reserved(struct qxl_device *qdev, unsigned long size,
 			*rbo = NULL;
 		return idr_ret;
 	}
+<<<<<<< HEAD
 
 	mutex_lock(&qdev->release_mutex);
 	if (qdev->current_release_bo_offset[cur_idx] + 1 >= releases_per_bo[cur_idx]) {
 		qxl_bo_unref(&qdev->current_release_bo[cur_idx]);
+=======
+	atomic_inc(&qdev->release_count);
+
+	mutex_lock(&qdev->release_mutex);
+	if (qdev->current_release_bo_offset[cur_idx] + 1 >= releases_per_bo[cur_idx]) {
+		free_bo = qdev->current_release_bo[cur_idx];
+>>>>>>> upstream/android-13
 		qdev->current_release_bo_offset[cur_idx] = 0;
 		qdev->current_release_bo[cur_idx] = NULL;
 	}
 	if (!qdev->current_release_bo[cur_idx]) {
+<<<<<<< HEAD
 		ret = qxl_release_bo_alloc(qdev, &qdev->current_release_bo[cur_idx]);
 		if (ret) {
 			mutex_unlock(&qdev->release_mutex);
+=======
+		ret = qxl_release_bo_alloc(qdev, &qdev->current_release_bo[cur_idx], priority);
+		if (ret) {
+			mutex_unlock(&qdev->release_mutex);
+			if (free_bo) {
+				qxl_bo_unpin(free_bo);
+				qxl_bo_unref(&free_bo);
+			}
+>>>>>>> upstream/android-13
 			qxl_release_free(qdev, *release);
 			return ret;
 		}
@@ -367,6 +460,13 @@ int qxl_alloc_release_reserved(struct qxl_device *qdev, unsigned long size,
 		*rbo = bo;
 
 	mutex_unlock(&qdev->release_mutex);
+<<<<<<< HEAD
+=======
+	if (free_bo) {
+		qxl_bo_unpin(free_bo);
+		qxl_bo_unref(&free_bo);
+	}
+>>>>>>> upstream/android-13
 
 	ret = qxl_release_list_add(*release, bo);
 	qxl_bo_unref(&bo);
@@ -426,10 +526,14 @@ void qxl_release_unmap(struct qxl_device *qdev,
 void qxl_release_fence_buffer_objects(struct qxl_release *release)
 {
 	struct ttm_buffer_object *bo;
+<<<<<<< HEAD
 	struct ttm_bo_global *glob;
 	struct ttm_bo_device *bdev;
 	struct ttm_bo_driver *driver;
 	struct qxl_bo *qbo;
+=======
+	struct ttm_device *bdev;
+>>>>>>> upstream/android-13
 	struct ttm_validate_buffer *entry;
 	struct qxl_device *qdev;
 
@@ -450,6 +554,7 @@ void qxl_release_fence_buffer_objects(struct qxl_release *release)
 		       release->id | 0xf0000000, release->base.seqno);
 	trace_dma_fence_emit(&release->base);
 
+<<<<<<< HEAD
 	driver = bdev->driver;
 	glob = bdev->glob;
 
@@ -464,6 +569,15 @@ void qxl_release_fence_buffer_objects(struct qxl_release *release)
 		reservation_object_unlock(bo->resv);
 	}
 	spin_unlock(&glob->lru_lock);
+=======
+	list_for_each_entry(entry, &release->bos, head) {
+		bo = entry->bo;
+
+		dma_resv_add_shared_fence(bo->base.resv, &release->base);
+		ttm_bo_move_to_lru_tail_unlocked(bo);
+		dma_resv_unlock(bo->base.resv);
+	}
+>>>>>>> upstream/android-13
 	ww_acquire_fini(&release->ticket);
 }
 

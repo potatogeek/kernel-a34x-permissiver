@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 Texas Instruments
  * Author: Tomi Valkeinen <tomi.valkeinen@ti.com>
@@ -13,6 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2012 Texas Instruments
+ * Author: Tomi Valkeinen <tomi.valkeinen@ti.com>
+>>>>>>> upstream/android-13
  */
 
 #define DSS_SUBSYS_NAME "APPLY"
@@ -86,7 +93,11 @@ static void dispc_dump_irqs(struct seq_file *s)
 
 	seq_printf(s, "irqs %d\n", stats.irq_count);
 #define PIS(x) \
+<<<<<<< HEAD
 	seq_printf(s, "%-20s %10d\n", #x, stats.irqs[ffs(DISPC_IRQ_##x)-1]);
+=======
+	seq_printf(s, "%-20s %10d\n", #x, stats.irqs[ffs(DISPC_IRQ_##x)-1])
+>>>>>>> upstream/android-13
 
 	PIS(FRAMEDONE);
 	PIS(VSYNC);

@@ -1,10 +1,33 @@
+<<<<<<< HEAD
 config CAPI_TRACE
 	bool "CAPI trace support"
 	default y
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+config ISDN_CAPI
+	def_bool ISDN && BT
+	help
+	  This provides CAPI (the Common ISDN Application Programming
+	  Interface) Version 2.0, a standard making it easy for programs to
+	  access ISDN hardware in a device independent way. (For details see
+	  <https://www.capi.org/>.)  CAPI supports making and accepting voice
+	  and data connections, controlling call options and protocols,
+	  as well as ISDN supplementary services like call forwarding or
+	  three-party conferences (if supported by the specific hardware
+	  driver).
+
+	  This subsystem requires a hardware specific driver.
+	  See CONFIG_BT_CMTP for the last remaining regular driver
+	  in the kernel that uses the CAPI subsystem.
+
+config CAPI_TRACE
+	def_bool BT_CMTP
+>>>>>>> upstream/android-13
 	help
 	  If you say Y here, the kernelcapi driver can make verbose traces
 	  of CAPI messages. This feature can be enabled/disabled via IOCTL for
 	  every controller (default disabled).
+<<<<<<< HEAD
 	  This will increase the size of the kernelcapi module by 20 KB.
 	  If unsure, say Y.
 
@@ -19,12 +42,18 @@ config ISDN_CAPI_CAPI20
 config ISDN_CAPI_MIDDLEWARE
 	bool "CAPI2.0 Middleware support"
 	depends on ISDN_CAPI_CAPI20 && TTY
+=======
+
+config ISDN_CAPI_MIDDLEWARE
+	def_bool BT_CMTP && TTY
+>>>>>>> upstream/android-13
 	help
 	  This option will enhance the capabilities of the /dev/capi20
 	  interface.  It will provide a means of moving a data connection,
 	  established via the usual /dev/capi20 interface to a special tty
 	  device.  If you want to use pppd with pppdcapiplugin to dial up to
 	  your ISP, say Y here.
+<<<<<<< HEAD
 
 config ISDN_CAPI_CAPIDRV
 	tristate "CAPI2.0 capidrv interface support"
@@ -42,3 +71,5 @@ config ISDN_CAPI_CAPIDRV_VERBOSE
 	  If you say Y here, the capidrv interface will give verbose reasons
 	  for disconnecting. This will increase the size of the kernel by 7 KB.
 	  If unsure, say N.
+=======
+>>>>>>> upstream/android-13

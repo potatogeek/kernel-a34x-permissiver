@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2013 Politecnico di Torino, Italy
  *                    TORSEC group -- http://security.polito.it
@@ -9,12 +10,24 @@
  * published by the Free Software Foundation, version 2 of the
  * License.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2013 Politecnico di Torino, Italy
+ *                    TORSEC group -- https://security.polito.it
+ *
+ * Author: Roberto Sassu <roberto.sassu@polito.it>
+ *
+>>>>>>> upstream/android-13
  * File: ima_template.c
  *      Helpers to manage template descriptors.
  */
 
+<<<<<<< HEAD
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/rculist.h>
 #include "ima.h"
 #include "ima_template_lib.h"
@@ -26,13 +39,26 @@ static struct ima_template_desc builtin_templates[] = {
 	{.name = IMA_TEMPLATE_IMA_NAME, .fmt = IMA_TEMPLATE_IMA_FMT},
 	{.name = "ima-ng", .fmt = "d-ng|n-ng"},
 	{.name = "ima-sig", .fmt = "d-ng|n-ng|sig"},
+<<<<<<< HEAD
+=======
+	{.name = "ima-buf", .fmt = "d-ng|n-ng|buf"},
+	{.name = "ima-modsig", .fmt = "d-ng|n-ng|sig|d-modsig|modsig"},
+	{.name = "evm-sig",
+	 .fmt = "d-ng|n-ng|evmsig|xattrnames|xattrlengths|xattrvalues|iuid|igid|imode"},
+>>>>>>> upstream/android-13
 	{.name = "", .fmt = ""},	/* placeholder for a custom format */
 };
 
 static LIST_HEAD(defined_templates);
 static DEFINE_SPINLOCK(template_list);
+<<<<<<< HEAD
 
 static struct ima_template_field supported_fields[] = {
+=======
+static int template_setup_done;
+
+static const struct ima_template_field supported_fields[] = {
+>>>>>>> upstream/android-13
 	{.field_id = "d", .field_init = ima_eventdigest_init,
 	 .field_show = ima_show_template_digest},
 	{.field_id = "n", .field_init = ima_eventname_init,
@@ -43,6 +69,7 @@ static struct ima_template_field supported_fields[] = {
 	 .field_show = ima_show_template_string},
 	{.field_id = "sig", .field_init = ima_eventsig_init,
 	 .field_show = ima_show_template_sig},
+<<<<<<< HEAD
 };
 #define MAX_TEMPLATE_NAME_LEN 15
 
@@ -51,16 +78,80 @@ static struct ima_template_desc *lookup_template_desc(const char *name);
 static int template_desc_init_fields(const char *template_fmt,
 				     struct ima_template_field ***fields,
 				     int *num_fields);
+=======
+	{.field_id = "buf", .field_init = ima_eventbuf_init,
+	 .field_show = ima_show_template_buf},
+	{.field_id = "d-modsig", .field_init = ima_eventdigest_modsig_init,
+	 .field_show = ima_show_template_digest_ng},
+	{.field_id = "modsig", .field_init = ima_eventmodsig_init,
+	 .field_show = ima_show_template_sig},
+	{.field_id = "evmsig", .field_init = ima_eventevmsig_init,
+	 .field_show = ima_show_template_sig},
+	{.field_id = "iuid", .field_init = ima_eventinodeuid_init,
+	 .field_show = ima_show_template_uint},
+	{.field_id = "igid", .field_init = ima_eventinodegid_init,
+	 .field_show = ima_show_template_uint},
+	{.field_id = "imode", .field_init = ima_eventinodemode_init,
+	 .field_show = ima_show_template_uint},
+	{.field_id = "xattrnames",
+	 .field_init = ima_eventinodexattrnames_init,
+	 .field_show = ima_show_template_string},
+	{.field_id = "xattrlengths",
+	 .field_init = ima_eventinodexattrlengths_init,
+	 .field_show = ima_show_template_sig},
+	{.field_id = "xattrvalues",
+	 .field_init = ima_eventinodexattrvalues_init,
+	 .field_show = ima_show_template_sig},
+};
+
+/*
+ * Used when restoring measurements carried over from a kexec. 'd' and 'n' don't
+ * need to be accounted for since they shouldn't be defined in the same template
+ * description as 'd-ng' and 'n-ng' respectively.
+ */
+#define MAX_TEMPLATE_NAME_LEN \
+	sizeof("d-ng|n-ng|evmsig|xattrnames|xattrlengths|xattrvalues|iuid|igid|imode")
+
+static struct ima_template_desc *ima_template;
+static struct ima_template_desc *ima_buf_template;
+
+/**
+ * ima_template_has_modsig - Check whether template has modsig-related fields.
+ * @ima_template: IMA template to check.
+ *
+ * Tells whether the given template has fields referencing a file's appended
+ * signature.
+ */
+bool ima_template_has_modsig(const struct ima_template_desc *ima_template)
+{
+	int i;
+
+	for (i = 0; i < ima_template->num_fields; i++)
+		if (!strcmp(ima_template->fields[i]->field_id, "modsig") ||
+		    !strcmp(ima_template->fields[i]->field_id, "d-modsig"))
+			return true;
+
+	return false;
+}
+>>>>>>> upstream/android-13
 
 static int __init ima_template_setup(char *str)
 {
 	struct ima_template_desc *template_desc;
 	int template_len = strlen(str);
 
+<<<<<<< HEAD
 	if (ima_template)
 		return 1;
 
 	ima_init_template_list();
+=======
+	if (template_setup_done)
+		return 1;
+
+	if (!ima_template)
+		ima_init_template_list();
+>>>>>>> upstream/android-13
 
 	/*
 	 * Verify that a template with the supplied name exists.
@@ -84,6 +175,10 @@ static int __init ima_template_setup(char *str)
 	}
 
 	ima_template = template_desc;
+<<<<<<< HEAD
+=======
+	template_setup_done = 1;
+>>>>>>> upstream/android-13
 	return 1;
 }
 __setup("ima_template=", ima_template_setup);
@@ -92,7 +187,11 @@ static int __init ima_template_fmt_setup(char *str)
 {
 	int num_templates = ARRAY_SIZE(builtin_templates);
 
+<<<<<<< HEAD
 	if (ima_template)
+=======
+	if (template_setup_done)
+>>>>>>> upstream/android-13
 		return 1;
 
 	if (template_desc_init_fields(str, NULL, NULL) < 0) {
@@ -103,12 +202,20 @@ static int __init ima_template_fmt_setup(char *str)
 
 	builtin_templates[num_templates - 1].fmt = str;
 	ima_template = builtin_templates + num_templates - 1;
+<<<<<<< HEAD
+=======
+	template_setup_done = 1;
+>>>>>>> upstream/android-13
 
 	return 1;
 }
 __setup("ima_template_fmt=", ima_template_fmt_setup);
 
+<<<<<<< HEAD
 static struct ima_template_desc *lookup_template_desc(const char *name)
+=======
+struct ima_template_desc *lookup_template_desc(const char *name)
+>>>>>>> upstream/android-13
 {
 	struct ima_template_desc *template_desc;
 	int found = 0;
@@ -125,7 +232,12 @@ static struct ima_template_desc *lookup_template_desc(const char *name)
 	return found ? template_desc : NULL;
 }
 
+<<<<<<< HEAD
 static struct ima_template_field *lookup_template_field(const char *field_id)
+=======
+static const struct ima_template_field *
+lookup_template_field(const char *field_id)
+>>>>>>> upstream/android-13
 {
 	int i;
 
@@ -152,12 +264,21 @@ static int template_fmt_size(const char *template_fmt)
 	return j + 1;
 }
 
+<<<<<<< HEAD
 static int template_desc_init_fields(const char *template_fmt,
 				     struct ima_template_field ***fields,
 				     int *num_fields)
 {
 	const char *template_fmt_ptr;
 	struct ima_template_field *found_fields[IMA_TEMPLATE_NUM_FIELDS_MAX];
+=======
+int template_desc_init_fields(const char *template_fmt,
+			      const struct ima_template_field ***fields,
+			      int *num_fields)
+{
+	const char *template_fmt_ptr;
+	const struct ima_template_field *found_fields[IMA_TEMPLATE_NUM_FIELDS_MAX];
+>>>>>>> upstream/android-13
 	int template_num_fields;
 	int i, len;
 
@@ -228,6 +349,18 @@ struct ima_template_desc *ima_template_desc_current(void)
 	return ima_template;
 }
 
+<<<<<<< HEAD
+=======
+struct ima_template_desc *ima_template_desc_buf(void)
+{
+	if (!ima_buf_template) {
+		ima_init_template_list();
+		ima_buf_template = lookup_template_desc("ima-buf");
+	}
+	return ima_buf_template;
+}
+
+>>>>>>> upstream/android-13
 int __init ima_init_template(void)
 {
 	struct ima_template_desc *template = ima_template_desc_current();
@@ -236,6 +369,25 @@ int __init ima_init_template(void)
 	result = template_desc_init_fields(template->fmt,
 					   &(template->fields),
 					   &(template->num_fields));
+<<<<<<< HEAD
+=======
+	if (result < 0) {
+		pr_err("template %s init failed, result: %d\n",
+		       (strlen(template->name) ?
+		       template->name : template->fmt), result);
+		return result;
+	}
+
+	template = ima_template_desc_buf();
+	if (!template) {
+		pr_err("Failed to get ima-buf template\n");
+		return -EINVAL;
+	}
+
+	result = template_desc_init_fields(template->fmt,
+					   &(template->fields),
+					   &(template->num_fields));
+>>>>>>> upstream/android-13
 	if (result < 0)
 		pr_err("template %s init failed, result: %d\n",
 		       (strlen(template->name) ?
@@ -277,6 +429,7 @@ static int ima_restore_template_data(struct ima_template_desc *template_desc,
 				     int template_data_size,
 				     struct ima_template_entry **entry)
 {
+<<<<<<< HEAD
 	int ret = 0;
 	int i;
 
@@ -286,11 +439,35 @@ static int ima_restore_template_data(struct ima_template_desc *template_desc,
 	if (!*entry)
 		return -ENOMEM;
 
+=======
+	struct tpm_digest *digests;
+	int ret = 0;
+	int i;
+
+	*entry = kzalloc(struct_size(*entry, template_data,
+				     template_desc->num_fields), GFP_NOFS);
+	if (!*entry)
+		return -ENOMEM;
+
+	digests = kcalloc(NR_BANKS(ima_tpm_chip) + ima_extra_slots,
+			  sizeof(*digests), GFP_NOFS);
+	if (!digests) {
+		kfree(*entry);
+		return -ENOMEM;
+	}
+
+	(*entry)->digests = digests;
+
+>>>>>>> upstream/android-13
 	ret = ima_parse_buf(template_data, template_data + template_data_size,
 			    NULL, template_desc->num_fields,
 			    (*entry)->template_data, NULL, NULL,
 			    ENFORCE_FIELDS | ENFORCE_BUFEND, "template data");
 	if (ret < 0) {
+<<<<<<< HEAD
+=======
+		kfree((*entry)->digests);
+>>>>>>> upstream/android-13
 		kfree(*entry);
 		return ret;
 	}
@@ -323,6 +500,10 @@ static int ima_restore_template_data(struct ima_template_desc *template_desc,
 int ima_restore_measurement_list(loff_t size, void *buf)
 {
 	char template_name[MAX_TEMPLATE_NAME_LEN];
+<<<<<<< HEAD
+=======
+	unsigned char zero[TPM_DIGEST_SIZE] = { 0 };
+>>>>>>> upstream/android-13
 
 	struct ima_kexec_hdr *khdr = buf;
 	struct ima_field_data hdr[HDR__LAST] = {
@@ -342,9 +523,15 @@ int ima_restore_measurement_list(loff_t size, void *buf)
 		return 0;
 
 	if (ima_canonical_fmt) {
+<<<<<<< HEAD
 		khdr->version = le16_to_cpu(khdr->version);
 		khdr->count = le64_to_cpu(khdr->count);
 		khdr->buffer_size = le64_to_cpu(khdr->buffer_size);
+=======
+		khdr->version = le16_to_cpu((__force __le16)khdr->version);
+		khdr->count = le64_to_cpu((__force __le64)khdr->count);
+		khdr->buffer_size = le64_to_cpu((__force __le64)khdr->buffer_size);
+>>>>>>> upstream/android-13
 	}
 
 	if (khdr->version != 1) {
@@ -422,10 +609,26 @@ int ima_restore_measurement_list(loff_t size, void *buf)
 		if (ret < 0)
 			break;
 
+<<<<<<< HEAD
 		memcpy(entry->digest, hdr[HDR_DIGEST].data,
 		       hdr[HDR_DIGEST].len);
 		entry->pcr = !ima_canonical_fmt ? *(hdr[HDR_PCR].data) :
 			     le32_to_cpu(*(hdr[HDR_PCR].data));
+=======
+		if (memcmp(hdr[HDR_DIGEST].data, zero, sizeof(zero))) {
+			ret = ima_calc_field_array_hash(
+						&entry->template_data[0],
+						entry);
+			if (ret < 0) {
+				pr_err("cannot calculate template digest\n");
+				ret = -EINVAL;
+				break;
+			}
+		}
+
+		entry->pcr = !ima_canonical_fmt ? *(u32 *)(hdr[HDR_PCR].data) :
+			     le32_to_cpu(*(__le32 *)(hdr[HDR_PCR].data));
+>>>>>>> upstream/android-13
 		ret = ima_restore_measurement_entry(entry);
 		if (ret < 0)
 			break;

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  (C) 2003 Dave Jones.
  *
@@ -5,6 +6,13 @@
  *
  *  AMD-specific information
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ *  (C) 2003 Dave Jones.
+ *
+ *  AMD-specific information
+>>>>>>> upstream/android-13
  */
 
 union msr_fidvidctl {

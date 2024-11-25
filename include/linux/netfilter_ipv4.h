@@ -25,7 +25,10 @@ __sum16 nf_ip_checksum(struct sk_buff *skb, unsigned int hook,
 		       unsigned int dataoff, u_int8_t protocol);
 int nf_ip_route(struct net *net, struct dst_entry **dst, struct flowi *fl,
 		bool strict);
+<<<<<<< HEAD
 int nf_ip_reroute(struct sk_buff *skb, const struct nf_queue_entry *entry);
+=======
+>>>>>>> upstream/android-13
 #else
 static inline __sum16 nf_ip_checksum(struct sk_buff *skb, unsigned int hook,
 				     unsigned int dataoff, u_int8_t protocol)
@@ -37,11 +40,14 @@ static inline int nf_ip_route(struct net *net, struct dst_entry **dst,
 {
 	return -EOPNOTSUPP;
 }
+<<<<<<< HEAD
 static inline int nf_ip_reroute(struct sk_buff *skb,
 				const struct nf_queue_entry *entry)
 {
 	return -EOPNOTSUPP;
 }
+=======
+>>>>>>> upstream/android-13
 #endif /* CONFIG_INET */
 
 #endif /*__LINUX_IP_NETFILTER_H*/

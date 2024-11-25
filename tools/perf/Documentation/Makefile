@@ -1,6 +1,17 @@
+<<<<<<< HEAD
 include ../../scripts/Makefile.include
 include ../../scripts/utilities.mak
 
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+include ../../scripts/Makefile.include
+include ../../scripts/utilities.mak
+
+ARTICLES =
+# with their own formatting rules.
+SP_ARTICLES =
+
+>>>>>>> upstream/android-13
 MAN1_TXT= \
 	$(filter-out $(addsuffix .txt, $(ARTICLES) $(SP_ARTICLES)), \
 		$(wildcard perf-*.txt)) \
@@ -15,6 +26,7 @@ _MAN_HTML=$(patsubst %.txt,%.html,$(MAN_TXT))
 MAN_XML=$(addprefix $(OUTPUT),$(_MAN_XML))
 MAN_HTML=$(addprefix $(OUTPUT),$(_MAN_HTML))
 
+<<<<<<< HEAD
 ARTICLES =
 # with their own formatting rules.
 SP_ARTICLES =
@@ -22,6 +34,8 @@ API_DOCS = $(patsubst %.txt,%,$(filter-out technical/api-index-skel.txt technica
 SP_ARTICLES += $(API_DOCS)
 SP_ARTICLES += technical/api-index
 
+=======
+>>>>>>> upstream/android-13
 _DOC_HTML = $(_MAN_HTML)
 _DOC_HTML+=$(patsubst %,%.html,$(ARTICLES) $(SP_ARTICLES))
 DOC_HTML=$(addprefix $(OUTPUT),$(_DOC_HTML))
@@ -47,7 +61,11 @@ man5dir=$(mandir)/man5
 man7dir=$(mandir)/man7
 
 ASCIIDOC=asciidoc
+<<<<<<< HEAD
 ASCIIDOC_EXTRA = --unsafe -f asciidoc.conf
+=======
+ASCIIDOC_EXTRA += --unsafe -f asciidoc.conf
+>>>>>>> upstream/android-13
 ASCIIDOC_HTML = xhtml11
 MANPAGE_XSL = manpage-normal.xsl
 XMLTO_EXTRA =
@@ -58,7 +76,11 @@ HTML_REF = origin/html
 
 ifdef USE_ASCIIDOCTOR
 ASCIIDOC = asciidoctor
+<<<<<<< HEAD
 ASCIIDOC_EXTRA = -a compat-mode
+=======
+ASCIIDOC_EXTRA += -a compat-mode
+>>>>>>> upstream/android-13
 ASCIIDOC_EXTRA += -I. -rasciidoctor-extensions
 ASCIIDOC_EXTRA += -a mansource="perf" -a manmanual="perf Manual"
 ASCIIDOC_HTML = xhtml5
@@ -172,7 +194,11 @@ ifneq ($(V),1)
 endif
 endif
 
+<<<<<<< HEAD
 all: html man
+=======
+all: html man info
+>>>>>>> upstream/android-13
 
 html: $(DOC_HTML)
 
@@ -185,8 +211,11 @@ man7: $(DOC_MAN7)
 
 info: $(OUTPUT)perf.info $(OUTPUT)perfman.info
 
+<<<<<<< HEAD
 pdf: $(OUTPUT)user-manual.pdf
 
+=======
+>>>>>>> upstream/android-13
 install: install-man
 
 check-man-tools:
@@ -224,11 +253,14 @@ install-info: info
 	  echo "No directory found in $(DESTDIR)$(infodir)" >&2 ; \
 	fi
 
+<<<<<<< HEAD
 install-pdf: pdf
 	$(call QUIET_INSTALL, Documentation-pdf) \
 		$(INSTALL) -d -m 755 $(DESTDIR)$(pdfdir); \
 		$(INSTALL) -m 644 $(OUTPUT)user-manual.pdf $(DESTDIR)$(pdfdir)
 
+=======
+>>>>>>> upstream/android-13
 #install-html: html
 #	'$(SHELL_PATH_SQ)' ./install-webdoc.sh $(DESTDIR)$(htmldir)
 
@@ -241,6 +273,7 @@ $(OUTPUT)doc.dep : $(wildcard *.txt) build-docdep.perl
 	$(PERL_PATH) ./build-docdep.perl >$@+ $(QUIET_STDERR) && \
 	mv $@+ $@
 
+<<<<<<< HEAD
 -include $(OUPTUT)doc.dep
 
 _cmds_txt = cmds-ancillaryinterrogators.txt \
@@ -260,16 +293,24 @@ $(OUTPUT)cmd-list.made: cmd-list.perl ../command-list.txt $(MAN1_TXT)
 	$(QUIET_GEN)$(RM) $@ && \
 	$(PERL_PATH) ./cmd-list.perl ../command-list.txt $(QUIET_STDERR) && \
 	date >$@
+=======
+-include $(OUTPUT)doc.dep
+>>>>>>> upstream/android-13
 
 CLEAN_FILES =									\
 	$(MAN_XML) $(addsuffix +,$(MAN_XML))					\
 	$(MAN_HTML) $(addsuffix +,$(MAN_HTML))					\
 	$(DOC_HTML) $(DOC_MAN1) $(DOC_MAN5) $(DOC_MAN7)				\
 	$(OUTPUT)*.texi $(OUTPUT)*.texi+ $(OUTPUT)*.texi++			\
+<<<<<<< HEAD
 	$(OUTPUT)perf.info $(OUTPUT)perfman.info				\
 	$(OUTPUT)howto-index.txt $(OUTPUT)howto/*.html $(OUTPUT)doc.dep		\
 	$(OUTPUT)technical/api-*.html $(OUTPUT)technical/api-index.txt		\
 	$(cmds_txt) $(OUTPUT)*.made
+=======
+	$(OUTPUT)perf.info $(OUTPUT)perfman.info $(OUTPUT)doc.dep		\
+	$(OUTPUT)technical/api-*.html $(OUTPUT)technical/api-index.txt
+>>>>>>> upstream/android-13
 clean:
 	$(call QUIET_CLEAN, Documentation) $(RM) $(CLEAN_FILES)
 
@@ -294,12 +335,20 @@ $(OUTPUT)%.1 $(OUTPUT)%.5 $(OUTPUT)%.7 : $(OUTPUT)%.xml
 $(OUTPUT)%.xml : %.txt
 	$(QUIET_ASCIIDOC)$(RM) $@+ $@ && \
 	$(ASCIIDOC) -b docbook -d manpage \
+<<<<<<< HEAD
 		$(ASCIIDOC_EXTRA) -aperf_version=$(PERF_VERSION) -o $@+ $< && \
+=======
+		$(ASCIIDOC_EXTRA) -aperf_version=$(PERF_VERSION) \
+		-aperf_date=$(shell git log -1 --pretty="format:%cd" \
+				--date=short $<) \
+		-o $@+ $< && \
+>>>>>>> upstream/android-13
 	mv $@+ $@
 
 XSLT = docbook.xsl
 XSLTOPTS = --xinclude --stringparam html.stylesheet docbook-xsl.css
 
+<<<<<<< HEAD
 $(OUTPUT)user-manual.html: $(OUTPUT)user-manual.xml
 	$(QUIET_XSLTPROC)xsltproc $(XSLTOPTS) -o $@ $(XSLT) $<
 
@@ -318,6 +367,8 @@ $(OUTPUT)user-manual.pdf: $(OUTPUT)user-manual.xml
 	$(DBLATEX) -o $@+ -p /etc/asciidoc/dblatex/asciidoc-dblatex.xsl -s /etc/asciidoc/dblatex/asciidoc-dblatex.sty $< && \
 	mv $@+ $@
 
+=======
+>>>>>>> upstream/android-13
 $(OUTPUT)perfman.texi: $(MAN_XML) cat-texi.perl
 	$(QUIET_DB2TEXI)$(RM) $@+ $@ && \
 	($(foreach xml,$(MAN_XML),$(DOCBOOK2X_TEXI) --encoding=UTF-8 \
@@ -327,28 +378,38 @@ $(OUTPUT)perfman.texi: $(MAN_XML) cat-texi.perl
 	mv $@+ $@
 
 $(OUTPUT)perfman.info: $(OUTPUT)perfman.texi
+<<<<<<< HEAD
 	$(QUIET_MAKEINFO)$(MAKEINFO) --no-split --no-validate $*.texi
+=======
+	$(QUIET_MAKEINFO)$(MAKEINFO) --no-split --no-validate -o $@ $*.texi
+>>>>>>> upstream/android-13
 
 $(patsubst %.txt,%.texi,$(MAN_TXT)): %.texi : %.xml
 	$(QUIET_DB2TEXI)$(RM) $@+ $@ && \
 	$(DOCBOOK2X_TEXI) --to-stdout $*.xml >$@+ && \
 	mv $@+ $@
 
+<<<<<<< HEAD
 howto-index.txt: howto-index.sh $(wildcard howto/*.txt)
 	$(QUIET_GEN)$(RM) $@+ $@ && \
 	'$(SHELL_PATH_SQ)' ./howto-index.sh $(wildcard howto/*.txt) >$@+ && \
 	mv $@+ $@
 
+=======
+>>>>>>> upstream/android-13
 $(patsubst %,%.html,$(ARTICLES)) : %.html : %.txt
 	$(QUIET_ASCIIDOC)$(ASCIIDOC) -b $(ASCIIDOC_HTML) $*.txt
 
 WEBDOC_DEST = /pub/software/tools/perf/docs
 
+<<<<<<< HEAD
 $(patsubst %.txt,%.html,$(wildcard howto/*.txt)): %.html : %.txt
 	$(QUIET_ASCIIDOC)$(RM) $@+ $@ && \
 	sed -e '1,/^$$/d' $< | $(ASCIIDOC) -b $(ASCIIDOC_HTML) - >$@+ && \
 	mv $@+ $@
 
+=======
+>>>>>>> upstream/android-13
 # UNIMPLEMENTED
 #install-webdoc : html
 #	'$(SHELL_PATH_SQ)' ./install-webdoc.sh $(WEBDOC_DEST)

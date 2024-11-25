@@ -541,7 +541,11 @@ static int mt9t112_init_setting(const struct i2c_client *client)
 	mt9t112_mcu_write(ret, client, VAR(18, 109), 0x0AF0);
 
 	/*
+<<<<<<< HEAD
 	 * Flicker Dectection registers.
+=======
+	 * Flicker Detection registers.
+>>>>>>> upstream/android-13
 	 * This section should be replaced whenever new timing file is
 	 * generated. All the following registers need to be replaced.
 	 * Following registers are generated from Register Wizard but user can
@@ -872,8 +876,13 @@ static int mt9t112_set_params(struct mt9t112_priv *priv,
 }
 
 static int mt9t112_get_selection(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 				 struct v4l2_subdev_pad_config *cfg,
 		struct v4l2_subdev_selection *sel)
+=======
+				 struct v4l2_subdev_state *sd_state,
+				 struct v4l2_subdev_selection *sel)
+>>>>>>> upstream/android-13
 {
 	struct i2c_client *client = v4l2_get_subdevdata(sd);
 	struct mt9t112_priv *priv = to_mt9t112(client);
@@ -888,12 +897,15 @@ static int mt9t112_get_selection(struct v4l2_subdev *sd,
 		sel->r.width = MAX_WIDTH;
 		sel->r.height = MAX_HEIGHT;
 		return 0;
+<<<<<<< HEAD
 	case V4L2_SEL_TGT_CROP_DEFAULT:
 		sel->r.left = 0;
 		sel->r.top = 0;
 		sel->r.width = VGA_WIDTH;
 		sel->r.height = VGA_HEIGHT;
 		return 0;
+=======
+>>>>>>> upstream/android-13
 	case V4L2_SEL_TGT_CROP:
 		sel->r = priv->frame;
 		return 0;
@@ -903,7 +915,11 @@ static int mt9t112_get_selection(struct v4l2_subdev *sd,
 }
 
 static int mt9t112_set_selection(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 				 struct v4l2_subdev_pad_config *cfg,
+=======
+				 struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 				 struct v4l2_subdev_selection *sel)
 {
 	struct i2c_client *client = v4l2_get_subdevdata(sd);
@@ -918,7 +934,11 @@ static int mt9t112_set_selection(struct v4l2_subdev *sd,
 }
 
 static int mt9t112_get_fmt(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 			   struct v4l2_subdev_pad_config *cfg,
+=======
+			   struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			   struct v4l2_subdev_format *format)
 {
 	struct v4l2_mbus_framefmt *mf = &format->format;
@@ -959,7 +979,11 @@ static int mt9t112_s_fmt(struct v4l2_subdev *sd,
 }
 
 static int mt9t112_set_fmt(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 			   struct v4l2_subdev_pad_config *cfg,
+=======
+			   struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			   struct v4l2_subdev_format *format)
 {
 	struct i2c_client *client = v4l2_get_subdevdata(sd);
@@ -988,13 +1012,21 @@ static int mt9t112_set_fmt(struct v4l2_subdev *sd,
 
 	if (format->which == V4L2_SUBDEV_FORMAT_ACTIVE)
 		return mt9t112_s_fmt(sd, mf);
+<<<<<<< HEAD
 	cfg->try_fmt = *mf;
+=======
+	sd_state->pads->try_fmt = *mf;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static int mt9t112_enum_mbus_code(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 				  struct v4l2_subdev_pad_config *cfg,
+=======
+				  struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 				  struct v4l2_subdev_mbus_code_enum *code)
 {
 	struct i2c_client *client = v4l2_get_subdevdata(sd);

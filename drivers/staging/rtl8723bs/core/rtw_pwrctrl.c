@@ -4,8 +4,11 @@
  * Copyright(c) 2007 - 2012 Realtek Corporation. All rights reserved.
  *
  ******************************************************************************/
+<<<<<<< HEAD
 #define _RTW_PWRCTRL_C_
 
+=======
+>>>>>>> upstream/android-13
 #include <drv_types.h>
 #include <rtw_debug.h>
 #include <hal_data.h>
@@ -22,11 +25,17 @@ void _ips_enter(struct adapter *padapter)
 	pwrpriv->ips_mode = pwrpriv->ips_mode_req;
 
 	pwrpriv->ips_enter_cnts++;
+<<<<<<< HEAD
 	DBG_871X("==>ips_enter cnts:%d\n", pwrpriv->ips_enter_cnts);
 
 	if (rf_off == pwrpriv->change_rfpwrstate) {
 		pwrpriv->bpower_saving = true;
 		DBG_871X("nolinked power save enter\n");
+=======
+
+	if (rf_off == pwrpriv->change_rfpwrstate) {
+		pwrpriv->bpower_saving = true;
+>>>>>>> upstream/android-13
 
 		if (pwrpriv->ips_mode == IPS_LEVEL_2)
 			pwrpriv->bkeepfwalive = true;
@@ -43,11 +52,19 @@ void ips_enter(struct adapter *padapter)
 	struct pwrctrl_priv *pwrpriv = adapter_to_pwrctl(padapter);
 
 
+<<<<<<< HEAD
 	rtw_btcoex_IpsNotify(padapter, pwrpriv->ips_mode_req);
 
 	down(&pwrpriv->lock);
 	_ips_enter(padapter);
 	up(&pwrpriv->lock);
+=======
+	hal_btcoex_IpsNotify(padapter, pwrpriv->ips_mode_req);
+
+	mutex_lock(&pwrpriv->lock);
+	_ips_enter(padapter);
+	mutex_unlock(&pwrpriv->lock);
+>>>>>>> upstream/android-13
 }
 
 int _ips_leave(struct adapter *padapter)
@@ -59,15 +76,21 @@ int _ips_leave(struct adapter *padapter)
 		pwrpriv->bips_processing = true;
 		pwrpriv->change_rfpwrstate = rf_on;
 		pwrpriv->ips_leave_cnts++;
+<<<<<<< HEAD
 		DBG_871X("==>ips_leave cnts:%d\n", pwrpriv->ips_leave_cnts);
+=======
+>>>>>>> upstream/android-13
 
 		result = rtw_ips_pwr_up(padapter);
 		if (result == _SUCCESS) {
 			pwrpriv->rf_pwrstate = rf_on;
 		}
+<<<<<<< HEAD
 		DBG_871X("nolinked power save leave\n");
 
 		DBG_871X("==> ips_leave.....LED(0x%08x)...\n", rtw_read32(padapter, 0x4c));
+=======
+>>>>>>> upstream/android-13
 		pwrpriv->bips_processing = false;
 
 		pwrpriv->bkeepfwalive = false;
@@ -85,12 +108,21 @@ int ips_leave(struct adapter *padapter)
 	if (!is_primary_adapter(padapter))
 		return _SUCCESS;
 
+<<<<<<< HEAD
 	down(&pwrpriv->lock);
 	ret = _ips_leave(padapter);
 	up(&pwrpriv->lock);
 
 	if (_SUCCESS == ret)
 		rtw_btcoex_IpsNotify(padapter, IPS_NONE);
+=======
+	mutex_lock(&pwrpriv->lock);
+	ret = _ips_leave(padapter);
+	mutex_unlock(&pwrpriv->lock);
+
+	if (ret == _SUCCESS)
+		hal_btcoex_IpsNotify(padapter, IPS_NONE);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -103,6 +135,7 @@ static bool rtw_pwr_unassociated_idle(struct adapter *adapter)
 
 	bool ret = false;
 
+<<<<<<< HEAD
 	if (adapter_to_pwrctl(adapter)->bpower_saving == true) {
 		/* DBG_871X("%s: already in LPS or IPS mode\n", __func__); */
 		goto exit;
@@ -112,6 +145,13 @@ static bool rtw_pwr_unassociated_idle(struct adapter *adapter)
 		/* DBG_871X("%s ips_deny_time\n", __func__); */
 		goto exit;
 	}
+=======
+	if (adapter_to_pwrctl(adapter)->bpower_saving)
+		goto exit;
+
+	if (time_before(jiffies, adapter_to_pwrctl(adapter)->ips_deny_time))
+		goto exit;
+>>>>>>> upstream/android-13
 
 	if (check_fwstate(pmlmepriv, WIFI_ASOC_STATE|WIFI_SITE_MONITOR)
 		|| check_fwstate(pmlmepriv, WIFI_UNDER_LINKING|WIFI_UNDER_WPS)
@@ -134,9 +174,18 @@ static bool rtw_pwr_unassociated_idle(struct adapter *adapter)
 
 	if (pxmit_priv->free_xmitbuf_cnt != NR_XMITBUFF ||
 		pxmit_priv->free_xmit_extbuf_cnt != NR_XMIT_EXTBUFF) {
+<<<<<<< HEAD
 		DBG_871X_LEVEL(_drv_always_, "There are some pkts to transmit\n");
 		DBG_871X_LEVEL(_drv_always_, "free_xmitbuf_cnt: %d, free_xmit_extbuf_cnt: %d\n",
 			pxmit_priv->free_xmitbuf_cnt, pxmit_priv->free_xmit_extbuf_cnt);
+=======
+		netdev_dbg(adapter->pnetdev,
+			   "There are some pkts to transmit\n");
+		netdev_dbg(adapter->pnetdev,
+			   "free_xmitbuf_cnt: %d, free_xmit_extbuf_cnt: %d\n",
+			   pxmit_priv->free_xmitbuf_cnt,
+			   pxmit_priv->free_xmit_extbuf_cnt);
+>>>>>>> upstream/android-13
 		goto exit;
 	}
 
@@ -158,6 +207,7 @@ void rtw_ps_processor(struct adapter *padapter)
 	struct debug_priv *pdbgpriv = &psdpriv->drv_dbg;
 	u32 ps_deny = 0;
 
+<<<<<<< HEAD
 	down(&adapter_to_pwrctl(padapter)->lock);
 	ps_deny = rtw_ps_deny_get(padapter);
 	up(&adapter_to_pwrctl(padapter)->lock);
@@ -170,6 +220,16 @@ void rtw_ps_processor(struct adapter *padapter)
 	if (pwrpriv->bInSuspend == true) {/* system suspend or autosuspend */
 		pdbgpriv->dbg_ps_insuspend_cnt++;
 		DBG_871X("%s, pwrpriv->bInSuspend == true ignore this process\n", __func__);
+=======
+	mutex_lock(&adapter_to_pwrctl(padapter)->lock);
+	ps_deny = rtw_ps_deny_get(padapter);
+	mutex_unlock(&adapter_to_pwrctl(padapter)->lock);
+	if (ps_deny != 0)
+		goto exit;
+
+	if (pwrpriv->bInSuspend) {/* system suspend or autosuspend */
+		pdbgpriv->dbg_ps_insuspend_cnt++;
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -178,11 +238,18 @@ void rtw_ps_processor(struct adapter *padapter)
 	if (pwrpriv->ips_mode_req == IPS_NONE)
 		goto exit;
 
+<<<<<<< HEAD
 	if (rtw_pwr_unassociated_idle(padapter) == false)
 		goto exit;
 
 	if ((pwrpriv->rf_pwrstate == rf_on) && ((pwrpriv->pwr_state_check_cnts%4) == 0)) {
 		DBG_871X("==>%s\n", __func__);
+=======
+	if (!rtw_pwr_unassociated_idle(padapter))
+		goto exit;
+
+	if ((pwrpriv->rf_pwrstate == rf_on) && ((pwrpriv->pwr_state_check_cnts%4) == 0)) {
+>>>>>>> upstream/android-13
 		pwrpriv->change_rfpwrstate = rf_off;
 		{
 			ips_enter(padapter);
@@ -190,7 +257,10 @@ void rtw_ps_processor(struct adapter *padapter)
 	}
 exit:
 	pwrpriv->ps_processing = false;
+<<<<<<< HEAD
 	return;
+=======
+>>>>>>> upstream/android-13
 }
 
 static void pwr_state_check_handler(struct timer_list *t)
@@ -219,11 +289,17 @@ void traffic_check_for_leave_lps(struct adapter *padapter, u8 tx, u32 tx_packets
 
 		if (jiffies_to_msecs(jiffies - start_time) > 2000) { /*  2 sec == watch dog timer */
 			if (xmit_cnt > 8) {
+<<<<<<< HEAD
 				if ((adapter_to_pwrctl(padapter)->bLeisurePs)
 					&& (adapter_to_pwrctl(padapter)->pwr_mode != PS_MODE_ACTIVE)
 					&& (rtw_btcoex_IsBtControlLps(padapter) == false)
 					) {
 					DBG_871X("leave lps via Tx = %d\n", xmit_cnt);
+=======
+				if (adapter_to_pwrctl(padapter)->bLeisurePs
+				    && (adapter_to_pwrctl(padapter)->pwr_mode != PS_MODE_ACTIVE)
+				    && !(hal_btcoex_IsBtControlLps(padapter))) {
+>>>>>>> upstream/android-13
 					bLeaveLPS = true;
 				}
 			}
@@ -234,6 +310,7 @@ void traffic_check_for_leave_lps(struct adapter *padapter, u8 tx, u32 tx_packets
 
 	} else { /*  from rx path */
 		if (pmlmepriv->LinkDetectInfo.NumRxUnicastOkInPeriod > 4/*2*/) {
+<<<<<<< HEAD
 			if ((adapter_to_pwrctl(padapter)->bLeisurePs)
 				&& (adapter_to_pwrctl(padapter)->pwr_mode != PS_MODE_ACTIVE)
 				&& (rtw_btcoex_IsBtControlLps(padapter) == false)
@@ -241,11 +318,20 @@ void traffic_check_for_leave_lps(struct adapter *padapter, u8 tx, u32 tx_packets
 				DBG_871X("leave lps via Rx = %d\n", pmlmepriv->LinkDetectInfo.NumRxUnicastOkInPeriod);
 				bLeaveLPS = true;
 			}
+=======
+			if (adapter_to_pwrctl(padapter)->bLeisurePs
+			    && (adapter_to_pwrctl(padapter)->pwr_mode != PS_MODE_ACTIVE)
+			    && !(hal_btcoex_IsBtControlLps(padapter)))
+				bLeaveLPS = true;
+>>>>>>> upstream/android-13
 		}
 	}
 
 	if (bLeaveLPS)
+<<<<<<< HEAD
 		/* DBG_871X("leave lps via %s, Tx = %d, Rx = %d\n", tx?"Tx":"Rx", pmlmepriv->LinkDetectInfo.NumTxOkInPeriod, pmlmepriv->LinkDetectInfo.NumRxUnicastOkInPeriod); */
+=======
+>>>>>>> upstream/android-13
 		/* rtw_lps_ctrl_wk_cmd(padapter, LPS_CTRL_LEAVE, 1); */
 		rtw_lps_ctrl_wk_cmd(padapter, LPS_CTRL_LEAVE, tx?0:1);
 }
@@ -267,6 +353,7 @@ void rtw_set_rpwm(struct adapter *padapter, u8 pslv)
 
 	pslv = PS_STATE(pslv);
 
+<<<<<<< HEAD
 	if (pwrpriv->brpwmtimeout == true) {
 		DBG_871X("%s: RPWM timeout, force to set RPWM(0x%02X) again!\n", __func__, pslv);
 	} else{
@@ -284,11 +371,22 @@ void rtw_set_rpwm(struct adapter *padapter, u8 pslv)
 				 ("%s: SurpriseRemoved(%d) hw_init_completed(%d)\n",
 				  __func__, padapter->bSurpriseRemoved, padapter->hw_init_completed));
 
+=======
+	if (!pwrpriv->brpwmtimeout) {
+		if (pwrpriv->rpwm == pslv ||
+		    (pwrpriv->rpwm >= PS_STATE_S2 && pslv >= PS_STATE_S2))
+			return;
+
+	}
+
+	if ((padapter->bSurpriseRemoved) || !(padapter->hw_init_completed)) {
+>>>>>>> upstream/android-13
 		pwrpriv->cpwm = PS_STATE_S4;
 
 		return;
 	}
 
+<<<<<<< HEAD
 	if (padapter->bDriverStopped == true) {
 		RT_TRACE(_module_rtl871x_pwrctrl_c_, _drv_err_,
 				 ("%s: change power state(0x%02X) when DriverStopped\n", __func__, pslv));
@@ -298,14 +396,22 @@ void rtw_set_rpwm(struct adapter *padapter, u8 pslv)
 					 ("%s: Reject to enter PS_STATE(0x%02X) lower than S2 when DriverStopped!!\n", __func__, pslv));
 			return;
 		}
+=======
+	if (padapter->bDriverStopped) {
+		if (pslv < PS_STATE_S2)
+			return;
+>>>>>>> upstream/android-13
 	}
 
 	rpwm = pslv | pwrpriv->tog;
 	/*  only when from PS_STATE S0/S1 to S2 and higher needs ACK */
 	if ((pwrpriv->cpwm < PS_STATE_S2) && (pslv >= PS_STATE_S2))
 		rpwm |= PS_ACK;
+<<<<<<< HEAD
 	RT_TRACE(_module_rtl871x_pwrctrl_c_, _drv_notice_,
 			 ("rtw_set_rpwm: rpwm = 0x%02x cpwm = 0x%02x\n", rpwm, pwrpriv->cpwm));
+=======
+>>>>>>> upstream/android-13
 
 	pwrpriv->rpwm = pslv;
 
@@ -339,7 +445,10 @@ void rtw_set_rpwm(struct adapter *padapter, u8 pslv)
 			}
 
 			if (jiffies_to_msecs(jiffies - start_time) > LPS_RPWM_WAIT_MS) {
+<<<<<<< HEAD
 				DBG_871X("%s: polling cpwm timeout! poll_cnt =%d, cpwm_orig =%02x, cpwm_now =%02x\n", __func__, poll_cnt, cpwm_orig, cpwm_now);
+=======
+>>>>>>> upstream/android-13
 				_set_timer(&pwrpriv->pwr_rpwm_timer, 1);
 				break;
 			}
@@ -354,6 +463,7 @@ static u8 PS_RDY_CHECK(struct adapter *padapter)
 	struct pwrctrl_priv *pwrpriv = adapter_to_pwrctl(padapter);
 	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);
 
+<<<<<<< HEAD
 #if defined(CONFIG_WOWLAN) || defined(CONFIG_AP_WOWLAN)
 	if (true == pwrpriv->bInSuspend && pwrpriv->wowlan_mode)
 		return true;
@@ -365,6 +475,10 @@ static u8 PS_RDY_CHECK(struct adapter *padapter)
 	if (true == pwrpriv->bInSuspend)
 		return false;
 #endif
+=======
+	if (pwrpriv->bInSuspend)
+		return false;
+>>>>>>> upstream/android-13
 
 	curr_time = jiffies;
 
@@ -381,10 +495,16 @@ static u8 PS_RDY_CHECK(struct adapter *padapter)
 	)
 		return false;
 
+<<<<<<< HEAD
 	if ((padapter->securitypriv.dot11AuthAlgrthm == dot11AuthAlgrthm_8021X) && (padapter->securitypriv.binstallGrpkey == false)) {
 		DBG_871X("Group handshake still in progress !!!\n");
 		return false;
 	}
+=======
+	if (padapter->securitypriv.dot11AuthAlgrthm == dot11AuthAlgrthm_8021X &&
+	    !padapter->securitypriv.binstallGrpkey)
+		return false;
+>>>>>>> upstream/android-13
 
 	if (!rtw_cfg80211_pwr_mgmt(padapter))
 		return false;
@@ -395,6 +515,7 @@ static u8 PS_RDY_CHECK(struct adapter *padapter)
 void rtw_set_ps_mode(struct adapter *padapter, u8 ps_mode, u8 smart_ps, u8 bcn_ant_mode, const char *msg)
 {
 	struct pwrctrl_priv *pwrpriv = adapter_to_pwrctl(padapter);
+<<<<<<< HEAD
 #if defined(CONFIG_WOWLAN) || defined(CONFIG_AP_WOWLAN)
 	struct debug_priv *pdbgpriv = &padapter->dvobj->drv_dbg;
 #endif
@@ -472,6 +593,41 @@ void rtw_set_ps_mode(struct adapter *padapter, u8 ps_mode, u8 smart_ps, u8 bcn_a
 			rtw_btcoex_LpsNotify(padapter, ps_mode);
 
 			pwrpriv->bFwCurrentInPSMode = true;
+=======
+
+	if (ps_mode > PM_Card_Disable)
+		return;
+
+	if (pwrpriv->pwr_mode == ps_mode)
+		if (ps_mode == PS_MODE_ACTIVE)
+			return;
+
+
+	mutex_lock(&pwrpriv->lock);
+
+	/* if (pwrpriv->pwr_mode == PS_MODE_ACTIVE) */
+	if (ps_mode == PS_MODE_ACTIVE) {
+		if (!(hal_btcoex_IsBtControlLps(padapter))
+				|| (hal_btcoex_IsBtControlLps(padapter)
+					&& !(hal_btcoex_IsLpsOn(padapter)))) {
+			pwrpriv->pwr_mode = ps_mode;
+			rtw_set_rpwm(padapter, PS_STATE_S4);
+
+			rtw_hal_set_hwreg(padapter, HW_VAR_H2C_FW_PWRMODE, (u8 *)(&ps_mode));
+			pwrpriv->fw_current_in_ps_mode = false;
+
+			hal_btcoex_LpsNotify(padapter, ps_mode);
+		}
+	} else {
+		if ((PS_RDY_CHECK(padapter) && check_fwstate(&padapter->mlmepriv, WIFI_ASOC_STATE)) ||
+		    ((hal_btcoex_IsBtControlLps(padapter)) && (hal_btcoex_IsLpsOn(padapter)))
+			) {
+			u8 pslv;
+
+			hal_btcoex_LpsNotify(padapter, ps_mode);
+
+			pwrpriv->fw_current_in_ps_mode = true;
+>>>>>>> upstream/android-13
 			pwrpriv->pwr_mode = ps_mode;
 			pwrpriv->smart_ps = smart_ps;
 			pwrpriv->bcn_ant_mode = bcn_ant_mode;
@@ -481,11 +637,19 @@ void rtw_set_ps_mode(struct adapter *padapter, u8 ps_mode, u8 smart_ps, u8 bcn_a
 			if (pwrpriv->alives == 0)
 				pslv = PS_STATE_S0;
 
+<<<<<<< HEAD
 			if ((rtw_btcoex_IsBtDisabled(padapter) == false)
 				&& (rtw_btcoex_IsBtControlLps(padapter) == true)) {
 				u8 val8;
 
 				val8 = rtw_btcoex_LpsVal(padapter);
+=======
+			if (!(hal_btcoex_IsBtDisabled(padapter)) &&
+			    (hal_btcoex_IsBtControlLps(padapter))) {
+				u8 val8;
+
+				val8 = hal_btcoex_LpsVal(padapter);
+>>>>>>> upstream/android-13
 				if (val8 & BIT(4))
 					pslv = PS_STATE_S2;
 			}
@@ -494,7 +658,11 @@ void rtw_set_ps_mode(struct adapter *padapter, u8 ps_mode, u8 smart_ps, u8 bcn_a
 		}
 	}
 
+<<<<<<< HEAD
 	up(&pwrpriv->lock);
+=======
+	mutex_unlock(&pwrpriv->lock);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -513,18 +681,29 @@ s32 LPS_RF_ON_check(struct adapter *padapter, u32 delay_ms)
 	start_time = jiffies;
 	while (1) {
 		rtw_hal_get_hwreg(padapter, HW_VAR_FWLPS_RF_ON, &bAwake);
+<<<<<<< HEAD
 		if (true == bAwake)
 			break;
 
 		if (true == padapter->bSurpriseRemoved) {
 			err = -2;
 			DBG_871X("%s: device surprise removed!!\n", __func__);
+=======
+		if (bAwake)
+			break;
+
+		if (padapter->bSurpriseRemoved) {
+			err = -2;
+>>>>>>> upstream/android-13
 			break;
 		}
 
 		if (jiffies_to_msecs(jiffies - start_time) > delay_ms) {
 			err = -1;
+<<<<<<< HEAD
 			DBG_871X("%s: Wait for FW LPS leave more than %u ms!!!\n", __func__, delay_ms);
+=======
+>>>>>>> upstream/android-13
 			break;
 		}
 		msleep(1);
@@ -544,7 +723,11 @@ void LPS_Enter(struct adapter *padapter, const char *msg)
 	int n_assoc_iface = 0;
 	char buf[32] = {0};
 
+<<<<<<< HEAD
 	if (rtw_btcoex_IsBtControlLps(padapter) == true)
+=======
+	if (hal_btcoex_IsBtControlLps(padapter))
+>>>>>>> upstream/android-13
 		return;
 
 	/* Skip lps enter request if number of assocated adapters is not 1 */
@@ -557,22 +740,34 @@ void LPS_Enter(struct adapter *padapter, const char *msg)
 	if (get_iface_type(padapter) != IFACE_PORT0)
 		return;
 
+<<<<<<< HEAD
 	if (PS_RDY_CHECK(dvobj->padapters) == false)
 			return;
+=======
+	if (!PS_RDY_CHECK(dvobj->padapters))
+		return;
+>>>>>>> upstream/android-13
 
 	if (pwrpriv->bLeisurePs) {
 		/*  Idle for a while if we connect to AP a while ago. */
 		if (pwrpriv->LpsIdleCount >= 2) { /*   4 Sec */
 			if (pwrpriv->pwr_mode == PS_MODE_ACTIVE) {
+<<<<<<< HEAD
 				sprintf(buf, "WIFI-%s", msg);
+=======
+				scnprintf(buf, sizeof(buf), "WIFI-%s", msg);
+>>>>>>> upstream/android-13
 				pwrpriv->bpower_saving = true;
 				rtw_set_ps_mode(padapter, pwrpriv->power_mgnt, padapter->registrypriv.smart_ps, 0, buf);
 			}
 		} else
 			pwrpriv->LpsIdleCount++;
 	}
+<<<<<<< HEAD
 
 /* 	DBG_871X("-LeisurePSEnter\n"); */
+=======
+>>>>>>> upstream/android-13
 }
 
 /*  */
@@ -587,14 +782,22 @@ void LPS_Leave(struct adapter *padapter, const char *msg)
 	struct pwrctrl_priv *pwrpriv = dvobj_to_pwrctl(dvobj);
 	char buf[32] = {0};
 
+<<<<<<< HEAD
 /* 	DBG_871X("+LeisurePSLeave\n"); */
 
 	if (rtw_btcoex_IsBtControlLps(padapter) == true)
+=======
+	if (hal_btcoex_IsBtControlLps(padapter))
+>>>>>>> upstream/android-13
 		return;
 
 	if (pwrpriv->bLeisurePs) {
 		if (pwrpriv->pwr_mode != PS_MODE_ACTIVE) {
+<<<<<<< HEAD
 			sprintf(buf, "WIFI-%s", msg);
+=======
+			scnprintf(buf, sizeof(buf), "WIFI-%s", msg);
+>>>>>>> upstream/android-13
 			rtw_set_ps_mode(padapter, PS_MODE_ACTIVE, 0, 0, buf);
 
 			if (pwrpriv->pwr_mode == PS_MODE_ACTIVE)
@@ -603,8 +806,11 @@ void LPS_Leave(struct adapter *padapter, const char *msg)
 	}
 
 	pwrpriv->bpower_saving = false;
+<<<<<<< HEAD
 /* 	DBG_871X("-LeisurePSLeave\n"); */
 
+=======
+>>>>>>> upstream/android-13
 }
 
 void LeaveAllPowerSaveModeDirect(struct adapter *Adapter)
@@ -613,6 +819,7 @@ void LeaveAllPowerSaveModeDirect(struct adapter *Adapter)
 	struct mlme_priv *pmlmepriv = &(Adapter->mlmepriv);
 	struct pwrctrl_priv *pwrpriv = adapter_to_pwrctl(Adapter);
 
+<<<<<<< HEAD
 	DBG_871X("%s.....\n", __func__);
 
 	if (true == Adapter->bSurpriseRemoved) {
@@ -639,6 +846,26 @@ void LeaveAllPowerSaveModeDirect(struct adapter *Adapter)
 		if (pwrpriv->rf_pwrstate == rf_off)
 			if (false == ips_leave(pri_padapter))
 				DBG_871X("======> ips_leave fail.............\n");
+=======
+	if (Adapter->bSurpriseRemoved)
+		return;
+
+	if (check_fwstate(pmlmepriv, _FW_LINKED)) { /* connect */
+
+		if (pwrpriv->pwr_mode == PS_MODE_ACTIVE)
+			return;
+
+		mutex_lock(&pwrpriv->lock);
+
+		rtw_set_rpwm(Adapter, PS_STATE_S4);
+
+		mutex_unlock(&pwrpriv->lock);
+
+		rtw_lps_ctrl_wk_cmd(pri_padapter, LPS_CTRL_LEAVE, 0);
+	} else {
+		if (pwrpriv->rf_pwrstate == rf_off)
+			ips_leave(pri_padapter);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -652,6 +879,7 @@ void LeaveAllPowerSaveMode(struct adapter *Adapter)
 	u8 enqueue = 0;
 	int n_assoc_iface = 0;
 
+<<<<<<< HEAD
 	if (!Adapter->bup) {
 		DBG_871X(FUNC_ADPT_FMT ": bup =%d Skip!\n",
 			FUNC_ADPT_ARG(Adapter), Adapter->bup);
@@ -663,6 +891,13 @@ void LeaveAllPowerSaveMode(struct adapter *Adapter)
 			FUNC_ADPT_ARG(Adapter), Adapter->bSurpriseRemoved);
 		return;
 	}
+=======
+	if (!Adapter->bup)
+		return;
+
+	if (Adapter->bSurpriseRemoved)
+		return;
+>>>>>>> upstream/android-13
 
 	if (check_fwstate(&(dvobj->padapters->mlmepriv), WIFI_ASOC_STATE))
 		n_assoc_iface++;
@@ -675,14 +910,22 @@ void LeaveAllPowerSaveMode(struct adapter *Adapter)
 		LPS_Leave_check(Adapter);
 	} else {
 		if (adapter_to_pwrctl(Adapter)->rf_pwrstate == rf_off) {
+<<<<<<< HEAD
 			if (false == ips_leave(Adapter))
 				DBG_871X("======> ips_leave fail.............\n");
+=======
+			ips_leave(Adapter);
+>>>>>>> upstream/android-13
 		}
 	}
 }
 
+<<<<<<< HEAD
 void LPS_Leave_check(
 	struct adapter *padapter)
+=======
+void LPS_Leave_check(struct adapter *padapter)
+>>>>>>> upstream/android-13
 {
 	struct pwrctrl_priv *pwrpriv;
 	unsigned long	start_time;
@@ -696,6 +939,7 @@ void LPS_Leave_check(
 	cond_resched();
 
 	while (1) {
+<<<<<<< HEAD
 		down(&pwrpriv->lock);
 
 		if ((padapter->bSurpriseRemoved == true)
@@ -713,6 +957,23 @@ void LPS_Leave_check(
 			DBG_871X("Wait for cpwm event  than 100 ms!!!\n");
 			break;
 		}
+=======
+		mutex_lock(&pwrpriv->lock);
+
+		if (padapter->bSurpriseRemoved ||
+		    !(padapter->hw_init_completed) ||
+		    (pwrpriv->pwr_mode == PS_MODE_ACTIVE))
+			bReady = true;
+
+		mutex_unlock(&pwrpriv->lock);
+
+		if (bReady)
+			break;
+
+		if (jiffies_to_msecs(jiffies - start_time) > 100)
+			break;
+
+>>>>>>> upstream/android-13
 		msleep(1);
 	}
 }
@@ -724,14 +985,19 @@ void LPS_Leave_check(
  *
  * using to update cpwn of drv; and drv willl make a decision to up or down pwr level
  */
+<<<<<<< HEAD
 void cpwm_int_hdl(
 	struct adapter *padapter,
 	struct reportpwrstate_parm *preportpwrstate)
+=======
+void cpwm_int_hdl(struct adapter *padapter, struct reportpwrstate_parm *preportpwrstate)
+>>>>>>> upstream/android-13
 {
 	struct pwrctrl_priv *pwrpriv;
 
 	pwrpriv = adapter_to_pwrctl(padapter);
 
+<<<<<<< HEAD
 	down(&pwrpriv->lock);
 
 	if (pwrpriv->rpwm < PS_STATE_S2) {
@@ -739,12 +1005,19 @@ void cpwm_int_hdl(
 		up(&pwrpriv->lock);
 		goto exit;
 	}
+=======
+	mutex_lock(&pwrpriv->lock);
+
+	if (pwrpriv->rpwm < PS_STATE_S2)
+		goto exit;
+>>>>>>> upstream/android-13
 
 	pwrpriv->cpwm = PS_STATE(preportpwrstate->state);
 	pwrpriv->cpwm_tog = preportpwrstate->state & PS_TOGGLE;
 
 	if (pwrpriv->cpwm >= PS_STATE_S2) {
 		if (pwrpriv->alives & CMD_ALIVE)
+<<<<<<< HEAD
 			up(&padapter->cmdpriv.cmd_queue_sema);
 
 		if (pwrpriv->alives & XMIT_ALIVE)
@@ -756,6 +1029,17 @@ void cpwm_int_hdl(
 exit:
 	RT_TRACE(_module_rtl871x_pwrctrl_c_, _drv_notice_,
 			 ("cpwm_int_hdl: cpwm = 0x%02x\n", pwrpriv->cpwm));
+=======
+			complete(&padapter->cmdpriv.cmd_queue_comp);
+
+		if (pwrpriv->alives & XMIT_ALIVE)
+			complete(&padapter->xmitpriv.xmit_comp);
+	}
+
+exit:
+	mutex_unlock(&pwrpriv->lock);
+
+>>>>>>> upstream/android-13
 }
 
 static void cpwm_event_callback(struct work_struct *work)
@@ -765,8 +1049,11 @@ static void cpwm_event_callback(struct work_struct *work)
 	struct adapter *adapter = dvobj->if1;
 	struct reportpwrstate_parm report;
 
+<<<<<<< HEAD
 	/* DBG_871X("%s\n", __func__); */
 
+=======
+>>>>>>> upstream/android-13
 	report.state = PS_STATE_S2;
 	cpwm_int_hdl(adapter, &report);
 }
@@ -781,6 +1068,7 @@ static void rpwmtimeout_workitem_callback(struct work_struct *work)
 	pwrpriv = container_of(work, struct pwrctrl_priv, rpwmtimeoutwi);
 	dvobj = pwrctl_to_dvobj(pwrpriv);
 	padapter = dvobj->if1;
+<<<<<<< HEAD
 /* 	DBG_871X("+%s: rpwm = 0x%02X cpwm = 0x%02X\n", __func__, pwrpriv->rpwm, pwrpriv->cpwm); */
 
 	down(&pwrpriv->lock);
@@ -789,29 +1077,52 @@ static void rpwmtimeout_workitem_callback(struct work_struct *work)
 		goto exit;
 	}
 	up(&pwrpriv->lock);
+=======
+
+	mutex_lock(&pwrpriv->lock);
+	if ((pwrpriv->rpwm == pwrpriv->cpwm) || (pwrpriv->cpwm >= PS_STATE_S2))
+		goto exit;
+
+	mutex_unlock(&pwrpriv->lock);
+>>>>>>> upstream/android-13
 
 	if (rtw_read8(padapter, 0x100) != 0xEA) {
 		struct reportpwrstate_parm report;
 
 		report.state = PS_STATE_S2;
+<<<<<<< HEAD
 		DBG_871X("\n%s: FW already leave 32K!\n\n", __func__);
+=======
+>>>>>>> upstream/android-13
 		cpwm_int_hdl(padapter, &report);
 
 		return;
 	}
 
+<<<<<<< HEAD
 	down(&pwrpriv->lock);
 
 	if ((pwrpriv->rpwm == pwrpriv->cpwm) || (pwrpriv->cpwm >= PS_STATE_S2)) {
 		DBG_871X("%s: cpwm =%d, nothing to do!\n", __func__, pwrpriv->cpwm);
 		goto exit;
 	}
+=======
+	mutex_lock(&pwrpriv->lock);
+
+	if ((pwrpriv->rpwm == pwrpriv->cpwm) || (pwrpriv->cpwm >= PS_STATE_S2))
+		goto exit;
+
+>>>>>>> upstream/android-13
 	pwrpriv->brpwmtimeout = true;
 	rtw_set_rpwm(padapter, pwrpriv->rpwm);
 	pwrpriv->brpwmtimeout = false;
 
 exit:
+<<<<<<< HEAD
 	up(&pwrpriv->lock);
+=======
+	mutex_unlock(&pwrpriv->lock);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -821,22 +1132,35 @@ static void pwr_rpwm_timeout_handler(struct timer_list *t)
 {
 	struct pwrctrl_priv *pwrpriv = from_timer(pwrpriv, t, pwr_rpwm_timer);
 
+<<<<<<< HEAD
 	DBG_871X("+%s: rpwm = 0x%02X cpwm = 0x%02X\n", __func__, pwrpriv->rpwm, pwrpriv->cpwm);
 
 	if ((pwrpriv->rpwm == pwrpriv->cpwm) || (pwrpriv->cpwm >= PS_STATE_S2)) {
 		DBG_871X("+%s: cpwm =%d, nothing to do!\n", __func__, pwrpriv->cpwm);
 		return;
 	}
+=======
+	if ((pwrpriv->rpwm == pwrpriv->cpwm) || (pwrpriv->cpwm >= PS_STATE_S2))
+		return;
+>>>>>>> upstream/android-13
 
 	_set_workitem(&pwrpriv->rpwmtimeoutwi);
 }
 
+<<<<<<< HEAD
 static __inline void register_task_alive(struct pwrctrl_priv *pwrctrl, u32 tag)
+=======
+static inline void register_task_alive(struct pwrctrl_priv *pwrctrl, u32 tag)
+>>>>>>> upstream/android-13
 {
 	pwrctrl->alives |= tag;
 }
 
+<<<<<<< HEAD
 static __inline void unregister_task_alive(struct pwrctrl_priv *pwrctrl, u32 tag)
+=======
+static inline void unregister_task_alive(struct pwrctrl_priv *pwrctrl, u32 tag)
+>>>>>>> upstream/android-13
 {
 	pwrctrl->alives &= ~tag;
 }
@@ -867,6 +1191,7 @@ s32 rtw_register_task_alive(struct adapter *padapter, u32 task)
 	pwrctrl = adapter_to_pwrctl(padapter);
 	pslv = PS_STATE_S2;
 
+<<<<<<< HEAD
 	down(&pwrctrl->lock);
 
 	register_task_alive(pwrctrl, task);
@@ -876,6 +1201,13 @@ s32 rtw_register_task_alive(struct adapter *padapter, u32 task)
 				 ("%s: task = 0x%x cpwm = 0x%02x alives = 0x%08x\n",
 				  __func__, task, pwrctrl->cpwm, pwrctrl->alives));
 
+=======
+	mutex_lock(&pwrctrl->lock);
+
+	register_task_alive(pwrctrl, task);
+
+	if (pwrctrl->fw_current_in_ps_mode) {
+>>>>>>> upstream/android-13
 		if (pwrctrl->cpwm < pslv) {
 			if (pwrctrl->cpwm < PS_STATE_S2)
 				res = _FAIL;
@@ -884,9 +1216,15 @@ s32 rtw_register_task_alive(struct adapter *padapter, u32 task)
 		}
 	}
 
+<<<<<<< HEAD
 	up(&pwrctrl->lock);
 
 	if (_FAIL == res)
+=======
+	mutex_unlock(&pwrctrl->lock);
+
+	if (res == _FAIL)
+>>>>>>> upstream/android-13
 		if (pwrctrl->cpwm >= PS_STATE_S2)
 			res = _SUCCESS;
 
@@ -911,15 +1249,23 @@ void rtw_unregister_task_alive(struct adapter *padapter, u32 task)
 	pwrctrl = adapter_to_pwrctl(padapter);
 	pslv = PS_STATE_S0;
 
+<<<<<<< HEAD
 	if ((rtw_btcoex_IsBtDisabled(padapter) == false)
 		&& (rtw_btcoex_IsBtControlLps(padapter) == true)) {
 		u8 val8;
 
 		val8 = rtw_btcoex_LpsVal(padapter);
+=======
+	if (!(hal_btcoex_IsBtDisabled(padapter)) && hal_btcoex_IsBtControlLps(padapter)) {
+		u8 val8;
+
+		val8 = hal_btcoex_LpsVal(padapter);
+>>>>>>> upstream/android-13
 		if (val8 & BIT(4))
 			pslv = PS_STATE_S2;
 	}
 
+<<<<<<< HEAD
 	down(&pwrctrl->lock);
 
 	unregister_task_alive(pwrctrl, task);
@@ -930,13 +1276,24 @@ void rtw_unregister_task_alive(struct adapter *padapter, u32 task)
 				 ("%s: cpwm = 0x%02x alives = 0x%08x\n",
 				  __func__, pwrctrl->cpwm, pwrctrl->alives));
 
+=======
+	mutex_lock(&pwrctrl->lock);
+
+	unregister_task_alive(pwrctrl, task);
+
+	if ((pwrctrl->pwr_mode != PS_MODE_ACTIVE) && pwrctrl->fw_current_in_ps_mode) {
+>>>>>>> upstream/android-13
 		if (pwrctrl->cpwm > pslv)
 			if ((pslv >= PS_STATE_S2) || (pwrctrl->alives == 0))
 				rtw_set_rpwm(padapter, pslv);
 
 	}
 
+<<<<<<< HEAD
 	up(&pwrctrl->lock);
+=======
+	mutex_unlock(&pwrctrl->lock);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -962,6 +1319,7 @@ s32 rtw_register_tx_alive(struct adapter *padapter)
 	pwrctrl = adapter_to_pwrctl(padapter);
 	pslv = PS_STATE_S2;
 
+<<<<<<< HEAD
 	down(&pwrctrl->lock);
 
 	register_task_alive(pwrctrl, XMIT_ALIVE);
@@ -971,6 +1329,13 @@ s32 rtw_register_tx_alive(struct adapter *padapter)
 				 ("rtw_register_tx_alive: cpwm = 0x%02x alives = 0x%08x\n",
 				  pwrctrl->cpwm, pwrctrl->alives));
 
+=======
+	mutex_lock(&pwrctrl->lock);
+
+	register_task_alive(pwrctrl, XMIT_ALIVE);
+
+	if (pwrctrl->fw_current_in_ps_mode) {
+>>>>>>> upstream/android-13
 		if (pwrctrl->cpwm < pslv) {
 			if (pwrctrl->cpwm < PS_STATE_S2)
 				res = _FAIL;
@@ -979,9 +1344,15 @@ s32 rtw_register_tx_alive(struct adapter *padapter)
 		}
 	}
 
+<<<<<<< HEAD
 	up(&pwrctrl->lock);
 
 	if (_FAIL == res)
+=======
+	mutex_unlock(&pwrctrl->lock);
+
+	if (res == _FAIL)
+>>>>>>> upstream/android-13
 		if (pwrctrl->cpwm >= PS_STATE_S2)
 			res = _SUCCESS;
 
@@ -1011,6 +1382,7 @@ s32 rtw_register_cmd_alive(struct adapter *padapter)
 	pwrctrl = adapter_to_pwrctl(padapter);
 	pslv = PS_STATE_S2;
 
+<<<<<<< HEAD
 	down(&pwrctrl->lock);
 
 	register_task_alive(pwrctrl, CMD_ALIVE);
@@ -1020,6 +1392,13 @@ s32 rtw_register_cmd_alive(struct adapter *padapter)
 				 ("rtw_register_cmd_alive: cpwm = 0x%02x alives = 0x%08x\n",
 				  pwrctrl->cpwm, pwrctrl->alives));
 
+=======
+	mutex_lock(&pwrctrl->lock);
+
+	register_task_alive(pwrctrl, CMD_ALIVE);
+
+	if (pwrctrl->fw_current_in_ps_mode) {
+>>>>>>> upstream/android-13
 		if (pwrctrl->cpwm < pslv) {
 			if (pwrctrl->cpwm < PS_STATE_S2)
 				res = _FAIL;
@@ -1028,9 +1407,15 @@ s32 rtw_register_cmd_alive(struct adapter *padapter)
 		}
 	}
 
+<<<<<<< HEAD
 	up(&pwrctrl->lock);
 
 	if (_FAIL == res)
+=======
+	mutex_unlock(&pwrctrl->lock);
+
+	if (res == _FAIL)
+>>>>>>> upstream/android-13
 		if (pwrctrl->cpwm >= PS_STATE_S2)
 			res = _SUCCESS;
 
@@ -1052,15 +1437,23 @@ void rtw_unregister_tx_alive(struct adapter *padapter)
 	pwrctrl = adapter_to_pwrctl(padapter);
 	pslv = PS_STATE_S0;
 
+<<<<<<< HEAD
 	if ((rtw_btcoex_IsBtDisabled(padapter) == false)
 		&& (rtw_btcoex_IsBtControlLps(padapter) == true)) {
 		u8 val8;
 
 		val8 = rtw_btcoex_LpsVal(padapter);
+=======
+	if (!(hal_btcoex_IsBtDisabled(padapter)) && hal_btcoex_IsBtControlLps(padapter)) {
+		u8 val8;
+
+		val8 = hal_btcoex_LpsVal(padapter);
+>>>>>>> upstream/android-13
 		if (val8 & BIT(4))
 			pslv = PS_STATE_S2;
 	}
 
+<<<<<<< HEAD
 	down(&pwrctrl->lock);
 
 	unregister_task_alive(pwrctrl, XMIT_ALIVE);
@@ -1071,12 +1464,23 @@ void rtw_unregister_tx_alive(struct adapter *padapter)
 				 ("%s: cpwm = 0x%02x alives = 0x%08x\n",
 				  __func__, pwrctrl->cpwm, pwrctrl->alives));
 
+=======
+	mutex_lock(&pwrctrl->lock);
+
+	unregister_task_alive(pwrctrl, XMIT_ALIVE);
+
+	if ((pwrctrl->pwr_mode != PS_MODE_ACTIVE) && pwrctrl->fw_current_in_ps_mode) {
+>>>>>>> upstream/android-13
 		if (pwrctrl->cpwm > pslv)
 			if ((pslv >= PS_STATE_S2) || (pwrctrl->alives == 0))
 				rtw_set_rpwm(padapter, pslv);
 	}
 
+<<<<<<< HEAD
 	up(&pwrctrl->lock);
+=======
+	mutex_unlock(&pwrctrl->lock);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1094,15 +1498,23 @@ void rtw_unregister_cmd_alive(struct adapter *padapter)
 	pwrctrl = adapter_to_pwrctl(padapter);
 	pslv = PS_STATE_S0;
 
+<<<<<<< HEAD
 	if ((rtw_btcoex_IsBtDisabled(padapter) == false)
 		&& (rtw_btcoex_IsBtControlLps(padapter) == true)) {
 		u8 val8;
 
 		val8 = rtw_btcoex_LpsVal(padapter);
+=======
+	if (!(hal_btcoex_IsBtDisabled(padapter)) && hal_btcoex_IsBtControlLps(padapter)) {
+		u8 val8;
+
+		val8 = hal_btcoex_LpsVal(padapter);
+>>>>>>> upstream/android-13
 		if (val8 & BIT(4))
 			pslv = PS_STATE_S2;
 	}
 
+<<<<<<< HEAD
 	down(&pwrctrl->lock);
 
 	unregister_task_alive(pwrctrl, CMD_ALIVE);
@@ -1113,21 +1525,36 @@ void rtw_unregister_cmd_alive(struct adapter *padapter)
 				 ("%s: cpwm = 0x%02x alives = 0x%08x\n",
 				  __func__, pwrctrl->cpwm, pwrctrl->alives));
 
+=======
+	mutex_lock(&pwrctrl->lock);
+
+	unregister_task_alive(pwrctrl, CMD_ALIVE);
+
+	if ((pwrctrl->pwr_mode != PS_MODE_ACTIVE) && pwrctrl->fw_current_in_ps_mode) {
+>>>>>>> upstream/android-13
 		if (pwrctrl->cpwm > pslv) {
 			if ((pslv >= PS_STATE_S2) || (pwrctrl->alives == 0))
 				rtw_set_rpwm(padapter, pslv);
 		}
 	}
 
+<<<<<<< HEAD
 	up(&pwrctrl->lock);
+=======
+	mutex_unlock(&pwrctrl->lock);
+>>>>>>> upstream/android-13
 }
 
 void rtw_init_pwrctrl_priv(struct adapter *padapter)
 {
 	struct pwrctrl_priv *pwrctrlpriv = adapter_to_pwrctl(padapter);
 
+<<<<<<< HEAD
 	sema_init(&pwrctrlpriv->lock, 1);
 	sema_init(&pwrctrlpriv->check_32k_lock, 1);
+=======
+	mutex_init(&pwrctrlpriv->lock);
+>>>>>>> upstream/android-13
 	pwrctrlpriv->rf_pwrstate = rf_on;
 	pwrctrlpriv->ips_enter_cnts = 0;
 	pwrctrlpriv->ips_leave_cnts = 0;
@@ -1146,7 +1573,11 @@ void rtw_init_pwrctrl_priv(struct adapter *padapter)
 	pwrctrlpriv->power_mgnt = padapter->registrypriv.power_mgnt;/*  PS_MODE_MIN; */
 	pwrctrlpriv->bLeisurePs = pwrctrlpriv->power_mgnt != PS_MODE_ACTIVE;
 
+<<<<<<< HEAD
 	pwrctrlpriv->bFwCurrentInPSMode = false;
+=======
+	pwrctrlpriv->fw_current_in_ps_mode = false;
+>>>>>>> upstream/android-13
 
 	pwrctrlpriv->rpwm = 0;
 	pwrctrlpriv->cpwm = PS_STATE_S4;
@@ -1171,6 +1602,7 @@ void rtw_init_pwrctrl_priv(struct adapter *padapter)
 
 	pwrctrlpriv->wowlan_mode = false;
 	pwrctrlpriv->wowlan_ap_mode = false;
+<<<<<<< HEAD
 
 #ifdef CONFIG_PNO_SUPPORT
 	pwrctrlpriv->pno_inited = false;
@@ -1179,11 +1611,14 @@ void rtw_init_pwrctrl_priv(struct adapter *padapter)
 	pwrctrlpriv->pno_ssid_list = NULL;
 	pwrctrlpriv->pno_in_resume = true;
 #endif
+=======
+>>>>>>> upstream/android-13
 }
 
 
 void rtw_free_pwrctrl_priv(struct adapter *adapter)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_PNO_SUPPORT
 	if (pwrctrlpriv->pnlo_info != NULL)
 		printk("****** pnlo_info memory leak********\n");
@@ -1194,6 +1629,8 @@ void rtw_free_pwrctrl_priv(struct adapter *adapter)
 	if (pwrctrlpriv->pno_ssid_list != NULL)
 		printk("****** pno_ssid_list memory leak********\n");
 #endif
+=======
+>>>>>>> upstream/android-13
 }
 
 inline void rtw_set_ips_deny(struct adapter *padapter, u32 ms)
@@ -1205,7 +1642,11 @@ inline void rtw_set_ips_deny(struct adapter *padapter, u32 ms)
 /*
 * rtw_pwr_wakeup - Wake the NIC up from: 1)IPS. 2)USB autosuspend
 * @adapter: pointer to struct adapter structure
+<<<<<<< HEAD
 * @ips_deffer_ms: the ms wiil prevent from falling into IPS after wakeup
+=======
+* @ips_deffer_ms: the ms will prevent from falling into IPS after wakeup
+>>>>>>> upstream/android-13
 * Return _SUCCESS or _FAIL
 */
 
@@ -1229,6 +1670,7 @@ int _rtw_pwr_wakeup(struct adapter *padapter, u32 ips_deffer_ms, const char *cal
 		pwrpriv->ips_deny_time = deny_time;
 
 
+<<<<<<< HEAD
 	if (pwrpriv->ps_processing) {
 		DBG_871X("%s wait ps_processing...\n", __func__);
 		while (pwrpriv->ps_processing && jiffies_to_msecs(jiffies - start) <= 3000)
@@ -1254,27 +1696,52 @@ int _rtw_pwr_wakeup(struct adapter *padapter, u32 ips_deffer_ms, const char *cal
 
 	/* System suspend is not allowed to wakeup */
 	if ((pwrpriv->bInternalAutoSuspend == false) && (true == pwrpriv->bInSuspend)) {
+=======
+	if (pwrpriv->ps_processing)
+		while (pwrpriv->ps_processing && jiffies_to_msecs(jiffies - start) <= 3000)
+			mdelay(10);
+
+	if (!(pwrpriv->bInternalAutoSuspend) && pwrpriv->bInSuspend)
+		while (pwrpriv->bInSuspend && jiffies_to_msecs(jiffies - start) <= 3000
+		)
+			mdelay(10);
+
+	/* System suspend is not allowed to wakeup */
+	if (!(pwrpriv->bInternalAutoSuspend) && pwrpriv->bInSuspend) {
+>>>>>>> upstream/android-13
 		ret = _FAIL;
 		goto exit;
 	}
 
 	/* block??? */
+<<<<<<< HEAD
 	if ((pwrpriv->bInternalAutoSuspend == true)  && (padapter->net_closed == true)) {
+=======
+	if (pwrpriv->bInternalAutoSuspend  && padapter->net_closed) {
+>>>>>>> upstream/android-13
 		ret = _FAIL;
 		goto exit;
 	}
 
 	/* I think this should be check in IPS, LPS, autosuspend functions... */
+<<<<<<< HEAD
 	if (check_fwstate(pmlmepriv, _FW_LINKED) == true) {
+=======
+	if (check_fwstate(pmlmepriv, _FW_LINKED)) {
+>>>>>>> upstream/android-13
 		ret = _SUCCESS;
 		goto exit;
 	}
 
 	if (rf_off == pwrpriv->rf_pwrstate) {
 		{
+<<<<<<< HEAD
 			DBG_8192C("%s call ips_leave....\n", __func__);
 			if (_FAIL ==  ips_leave(padapter)) {
 				DBG_8192C("======> ips_leave fail.............\n");
+=======
+			if (ips_leave(padapter) == _FAIL) {
+>>>>>>> upstream/android-13
 				ret = _FAIL;
 				goto exit;
 			}
@@ -1282,6 +1749,7 @@ int _rtw_pwr_wakeup(struct adapter *padapter, u32 ips_deffer_ms, const char *cal
 	}
 
 	/* TODO: the following checking need to be merged... */
+<<<<<<< HEAD
 	if (padapter->bDriverStopped
 		|| !padapter->bup
 		|| !padapter->hw_init_completed
@@ -1291,6 +1759,9 @@ int _rtw_pwr_wakeup(struct adapter *padapter, u32 ips_deffer_ms, const char *cal
 			, padapter->bDriverStopped
 			, padapter->bup
 			, padapter->hw_init_completed);
+=======
+	if (padapter->bDriverStopped || !padapter->bup || !padapter->hw_init_completed) {
+>>>>>>> upstream/android-13
 		ret = false;
 		goto exit;
 	}
@@ -1310,7 +1781,11 @@ int rtw_pm_set_lps(struct adapter *padapter, u8 mode)
 
 	if (mode < PS_MODE_NUM) {
 		if (pwrctrlpriv->power_mgnt != mode) {
+<<<<<<< HEAD
 			if (PS_MODE_ACTIVE == mode)
+=======
+			if (mode == PS_MODE_ACTIVE)
+>>>>>>> upstream/android-13
 				LeaveAllPowerSaveMode(padapter);
 			else
 				pwrctrlpriv->LpsIdleCount = 2;
@@ -1331,12 +1806,19 @@ int rtw_pm_set_ips(struct adapter *padapter, u8 mode)
 
 	if (mode == IPS_NORMAL || mode == IPS_LEVEL_2) {
 		rtw_ips_mode_req(pwrctrlpriv, mode);
+<<<<<<< HEAD
 		DBG_871X("%s %s\n", __func__, mode == IPS_NORMAL?"IPS_NORMAL":"IPS_LEVEL_2");
 		return 0;
 	} else if (mode == IPS_NONE) {
 		rtw_ips_mode_req(pwrctrlpriv, mode);
 		DBG_871X("%s %s\n", __func__, "IPS_NONE");
 		if ((padapter->bSurpriseRemoved == 0) && (_FAIL == rtw_pwr_wakeup(padapter)))
+=======
+		return 0;
+	} else if (mode == IPS_NONE) {
+		rtw_ips_mode_req(pwrctrlpriv, mode);
+		if ((padapter->bSurpriseRemoved == 0) && (rtw_pwr_wakeup(padapter) == _FAIL))
+>>>>>>> upstream/android-13
 			return -EFAULT;
 	} else
 		return -EINVAL;
@@ -1348,6 +1830,7 @@ int rtw_pm_set_ips(struct adapter *padapter, u8 mode)
  * ATTENTION:
  *This function will request pwrctrl LOCK!
  */
+<<<<<<< HEAD
 void rtw_ps_deny(struct adapter *padapter, enum PS_DENY_REASON reason)
 {
 	struct pwrctrl_priv *pwrpriv;
@@ -1367,12 +1850,24 @@ void rtw_ps_deny(struct adapter *padapter, enum PS_DENY_REASON reason)
 
 /* 	DBG_871X("-" FUNC_ADPT_FMT ": Now PS deny for 0x%08X\n", */
 /* 		FUNC_ADPT_ARG(padapter), pwrpriv->ps_deny); */
+=======
+void rtw_ps_deny(struct adapter *padapter, enum ps_deny_reason reason)
+{
+	struct pwrctrl_priv *pwrpriv;
+
+	pwrpriv = adapter_to_pwrctl(padapter);
+
+	mutex_lock(&pwrpriv->lock);
+	pwrpriv->ps_deny |= BIT(reason);
+	mutex_unlock(&pwrpriv->lock);
+>>>>>>> upstream/android-13
 }
 
 /*
  * ATTENTION:
  *This function will request pwrctrl LOCK!
  */
+<<<<<<< HEAD
 void rtw_ps_deny_cancel(struct adapter *padapter, enum PS_DENY_REASON reason)
 {
 	struct pwrctrl_priv *pwrpriv;
@@ -1393,6 +1888,17 @@ void rtw_ps_deny_cancel(struct adapter *padapter, enum PS_DENY_REASON reason)
 
 /* 	DBG_871X("-" FUNC_ADPT_FMT ": Now PS deny for 0x%08X\n", */
 /* 		FUNC_ADPT_ARG(padapter), pwrpriv->ps_deny); */
+=======
+void rtw_ps_deny_cancel(struct adapter *padapter, enum ps_deny_reason reason)
+{
+	struct pwrctrl_priv *pwrpriv;
+
+	pwrpriv = adapter_to_pwrctl(padapter);
+
+	mutex_lock(&pwrpriv->lock);
+	pwrpriv->ps_deny &= ~BIT(reason);
+	mutex_unlock(&pwrpriv->lock);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1402,10 +1908,14 @@ void rtw_ps_deny_cancel(struct adapter *padapter, enum PS_DENY_REASON reason)
  */
 u32 rtw_ps_deny_get(struct adapter *padapter)
 {
+<<<<<<< HEAD
 	u32 deny;
 
 
 	deny = adapter_to_pwrctl(padapter)->ps_deny;
 
 	return deny;
+=======
+	return adapter_to_pwrctl(padapter)->ps_deny;
+>>>>>>> upstream/android-13
 }

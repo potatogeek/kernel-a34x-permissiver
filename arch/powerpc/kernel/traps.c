@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Copyright (C) 1995-1996  Gary Thomas (gdt@linuxppc.org)
  *  Copyright 2007-2010 Freescale Semiconductor, Inc.
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version
  *  2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *  Modified by Cort Dougan (cort@cs.nmt.edu)
  *  and Paul Mackerras (paulus@samba.org)
  */
@@ -41,11 +48,19 @@
 #include <linux/smp.h>
 #include <linux/console.h>
 #include <linux/kmsg_dump.h>
+<<<<<<< HEAD
 
 #include <asm/emulated_ops.h>
 #include <asm/pgtable.h>
 #include <linux/uaccess.h>
 #include <asm/debugfs.h>
+=======
+#include <linux/debugfs.h>
+
+#include <asm/emulated_ops.h>
+#include <linux/uaccess.h>
+#include <asm/interrupt.h>
+>>>>>>> upstream/android-13
 #include <asm/io.h>
 #include <asm/machdep.h>
 #include <asm/rtas.h>
@@ -57,7 +72,10 @@
 #ifdef CONFIG_PPC64
 #include <asm/firmware.h>
 #include <asm/processor.h>
+<<<<<<< HEAD
 #include <asm/tm.h>
+=======
+>>>>>>> upstream/android-13
 #endif
 #include <asm/kexec.h>
 #include <asm/ppc-opcode.h>
@@ -71,6 +89,11 @@
 #include <sysdev/fsl_pci.h>
 #include <asm/kprobes.h>
 #include <asm/stacktrace.h>
+<<<<<<< HEAD
+=======
+#include <asm/nmi.h>
+#include <asm/disassemble.h>
+>>>>>>> upstream/android-13
 
 #if defined(CONFIG_DEBUGGER) || defined(CONFIG_KEXEC_CORE)
 int (*__debugger)(struct pt_regs *regs) __read_mostly;
@@ -174,11 +197,18 @@ extern void panic_flush_kmsg_start(void)
 
 extern void panic_flush_kmsg_end(void)
 {
+<<<<<<< HEAD
 	printk_safe_flush_on_panic();
 	kmsg_dump(KMSG_DUMP_PANIC);
 	bust_spinlocks(0);
 	debug_locks_off();
 	console_flush_on_panic();
+=======
+	kmsg_dump(KMSG_DUMP_PANIC);
+	bust_spinlocks(0);
+	debug_locks_off();
+	console_flush_on_panic(CONSOLE_FLUSH_PENDING);
+>>>>>>> upstream/android-13
 }
 
 static unsigned long oops_begin(struct pt_regs *regs)
@@ -225,7 +255,11 @@ static void oops_end(unsigned long flags, struct pt_regs *regs,
 	/*
 	 * system_reset_excption handles debugger, crash dump, panic, for 0x100
 	 */
+<<<<<<< HEAD
 	if (TRAP(regs) == 0x100)
+=======
+	if (TRAP(regs) == INTERRUPT_SYSTEM_RESET)
+>>>>>>> upstream/android-13
 		return;
 
 	crash_fadump(regs, "die oops");
@@ -247,18 +281,34 @@ static void oops_end(unsigned long flags, struct pt_regs *regs,
 		mdelay(MSEC_PER_SEC);
 	}
 
+<<<<<<< HEAD
 	if (in_interrupt())
 		panic("Fatal exception in interrupt");
+=======
+>>>>>>> upstream/android-13
 	if (panic_on_oops)
 		panic("Fatal exception");
 	do_exit(signr);
 }
 NOKPROBE_SYMBOL(oops_end);
 
+<<<<<<< HEAD
+=======
+static char *get_mmu_str(void)
+{
+	if (early_radix_enabled())
+		return " MMU=Radix";
+	if (early_mmu_has_feature(MMU_FTR_HPTE_TABLE))
+		return " MMU=Hash";
+	return "";
+}
+
+>>>>>>> upstream/android-13
 static int __die(const char *str, struct pt_regs *regs, long err)
 {
 	printk("Oops: %s, sig: %ld [#%d]\n", str, err, ++die_counter);
 
+<<<<<<< HEAD
 	if (IS_ENABLED(CONFIG_CPU_LITTLE_ENDIAN))
 		printk("LE ");
 	else
@@ -277,6 +327,17 @@ static int __die(const char *str, struct pt_regs *regs, long err)
 		pr_cont("NUMA ");
 
 	pr_cont("%s\n", ppc_md.name ? ppc_md.name : "");
+=======
+	printk("%s PAGE_SIZE=%luK%s%s%s%s%s%s %s\n",
+	       IS_ENABLED(CONFIG_CPU_LITTLE_ENDIAN) ? "LE" : "BE",
+	       PAGE_SIZE / 1024, get_mmu_str(),
+	       IS_ENABLED(CONFIG_PREEMPT) ? " PREEMPT" : "",
+	       IS_ENABLED(CONFIG_SMP) ? " SMP" : "",
+	       IS_ENABLED(CONFIG_SMP) ? (" NR_CPUS=" __stringify(NR_CPUS)) : "",
+	       debug_pagealloc_enabled() ? " DEBUG_PAGEALLOC" : "",
+	       IS_ENABLED(CONFIG_NUMA) ? " NUMA" : "",
+	       ppc_md.name ? ppc_md.name : "");
+>>>>>>> upstream/android-13
 
 	if (notify_die(DIE_OOPS, str, regs, err, 255, SIGSEGV) == NOTIFY_STOP)
 		return 1;
@@ -295,7 +356,11 @@ void die(const char *str, struct pt_regs *regs, long err)
 	/*
 	 * system_reset_excption handles debugger, crash dump, panic, for 0x100
 	 */
+<<<<<<< HEAD
 	if (TRAP(regs) != 0x100) {
+=======
+	if (TRAP(regs) != INTERRUPT_SYSTEM_RESET) {
+>>>>>>> upstream/android-13
 		if (debugger(regs))
 			return;
 	}
@@ -307,12 +372,18 @@ void die(const char *str, struct pt_regs *regs, long err)
 }
 NOKPROBE_SYMBOL(die);
 
+<<<<<<< HEAD
 void user_single_step_siginfo(struct task_struct *tsk,
 				struct pt_regs *regs, siginfo_t *info)
 {
 	info->si_signo = SIGTRAP;
 	info->si_code = TRAP_TRACE;
 	info->si_addr = (void __user *)regs->nip;
+=======
+void user_single_step_report(struct pt_regs *regs)
+{
+	force_sig_fault(SIGTRAP, TRAP_TRACE, (void __user *)regs->nip);
+>>>>>>> upstream/android-13
 }
 
 static void show_signal_msg(int signr, struct pt_regs *regs, int code,
@@ -341,6 +412,7 @@ static void show_signal_msg(int signr, struct pt_regs *regs, int code,
 	show_user_instructions(regs);
 }
 
+<<<<<<< HEAD
 void _exception_pkey(int signr, struct pt_regs *regs, int code,
 		     unsigned long addr, int key)
 {
@@ -371,10 +443,43 @@ void _exception_pkey(int signr, struct pt_regs *regs, int code,
 	info.si_pkey = key;
 
 	force_sig_info(signr, &info, current);
+=======
+static bool exception_common(int signr, struct pt_regs *regs, int code,
+			      unsigned long addr)
+{
+	if (!user_mode(regs)) {
+		die("Exception in kernel mode", regs, signr);
+		return false;
+	}
+
+	/*
+	 * Must not enable interrupts even for user-mode exception, because
+	 * this can be called from machine check, which may be a NMI or IRQ
+	 * which don't like interrupts being enabled. Could check for
+	 * in_hardirq || in_nmi perhaps, but there doesn't seem to be a good
+	 * reason why _exception() should enable irqs for an exception handler,
+	 * the handlers themselves do that directly.
+	 */
+
+	show_signal_msg(signr, regs, code, addr);
+
+	current->thread.trap_nr = code;
+
+	return true;
+}
+
+void _exception_pkey(struct pt_regs *regs, unsigned long addr, int key)
+{
+	if (!exception_common(SIGSEGV, regs, SEGV_PKUERR, addr))
+		return;
+
+	force_sig_pkuerr((void __user *) addr, key);
+>>>>>>> upstream/android-13
 }
 
 void _exception(int signr, struct pt_regs *regs, int code, unsigned long addr)
 {
+<<<<<<< HEAD
 	_exception_pkey(signr, regs, code, addr, 0);
 }
 
@@ -387,6 +492,99 @@ void system_reset_exception(struct pt_regs *regs)
 	bool nested = in_nmi();
 	if (!nested)
 		nmi_enter();
+=======
+	if (!exception_common(signr, regs, code, addr))
+		return;
+
+	force_sig_fault(signr, code, (void __user *)addr);
+}
+
+/*
+ * The interrupt architecture has a quirk in that the HV interrupts excluding
+ * the NMIs (0x100 and 0x200) do not clear MSR[RI] at entry. The first thing
+ * that an interrupt handler must do is save off a GPR into a scratch register,
+ * and all interrupts on POWERNV (HV=1) use the HSPRG1 register as scratch.
+ * Therefore an NMI can clobber an HV interrupt's live HSPRG1 without noticing
+ * that it is non-reentrant, which leads to random data corruption.
+ *
+ * The solution is for NMI interrupts in HV mode to check if they originated
+ * from these critical HV interrupt regions. If so, then mark them not
+ * recoverable.
+ *
+ * An alternative would be for HV NMIs to use SPRG for scratch to avoid the
+ * HSPRG1 clobber, however this would cause guest SPRG to be clobbered. Linux
+ * guests should always have MSR[RI]=0 when its scratch SPRG is in use, so
+ * that would work. However any other guest OS that may have the SPRG live
+ * and MSR[RI]=1 could encounter silent corruption.
+ *
+ * Builds that do not support KVM could take this second option to increase
+ * the recoverability of NMIs.
+ */
+void hv_nmi_check_nonrecoverable(struct pt_regs *regs)
+{
+#ifdef CONFIG_PPC_POWERNV
+	unsigned long kbase = (unsigned long)_stext;
+	unsigned long nip = regs->nip;
+
+	if (!(regs->msr & MSR_RI))
+		return;
+	if (!(regs->msr & MSR_HV))
+		return;
+	if (regs->msr & MSR_PR)
+		return;
+
+	/*
+	 * Now test if the interrupt has hit a range that may be using
+	 * HSPRG1 without having RI=0 (i.e., an HSRR interrupt). The
+	 * problem ranges all run un-relocated. Test real and virt modes
+	 * at the same time by dropping the high bit of the nip (virt mode
+	 * entry points still have the +0x4000 offset).
+	 */
+	nip &= ~0xc000000000000000ULL;
+	if ((nip >= 0x500 && nip < 0x600) || (nip >= 0x4500 && nip < 0x4600))
+		goto nonrecoverable;
+	if ((nip >= 0x980 && nip < 0xa00) || (nip >= 0x4980 && nip < 0x4a00))
+		goto nonrecoverable;
+	if ((nip >= 0xe00 && nip < 0xec0) || (nip >= 0x4e00 && nip < 0x4ec0))
+		goto nonrecoverable;
+	if ((nip >= 0xf80 && nip < 0xfa0) || (nip >= 0x4f80 && nip < 0x4fa0))
+		goto nonrecoverable;
+
+	/* Trampoline code runs un-relocated so subtract kbase. */
+	if (nip >= (unsigned long)(start_real_trampolines - kbase) &&
+			nip < (unsigned long)(end_real_trampolines - kbase))
+		goto nonrecoverable;
+	if (nip >= (unsigned long)(start_virt_trampolines - kbase) &&
+			nip < (unsigned long)(end_virt_trampolines - kbase))
+		goto nonrecoverable;
+	return;
+
+nonrecoverable:
+	regs_set_unrecoverable(regs);
+#endif
+}
+DEFINE_INTERRUPT_HANDLER_NMI(system_reset_exception)
+{
+	unsigned long hsrr0, hsrr1;
+	bool saved_hsrrs = false;
+
+	/*
+	 * System reset can interrupt code where HSRRs are live and MSR[RI]=1.
+	 * The system reset interrupt itself may clobber HSRRs (e.g., to call
+	 * OPAL), so save them here and restore them before returning.
+	 *
+	 * Machine checks don't need to save HSRRs, as the real mode handler
+	 * is careful to avoid them, and the regular handler is not delivered
+	 * as an NMI.
+	 */
+	if (cpu_has_feature(CPU_FTR_HVMODE)) {
+		hsrr0 = mfspr(SPRN_HSRR0);
+		hsrr1 = mfspr(SPRN_HSRR1);
+		saved_hsrrs = true;
+	}
+
+	hv_nmi_check_nonrecoverable(regs);
+>>>>>>> upstream/android-13
 
 	__this_cpu_inc(irq_stat.sreset_irqs);
 
@@ -433,16 +631,31 @@ out:
 		die("Unrecoverable nested System Reset", regs, SIGABRT);
 #endif
 	/* Must die if the interrupt is not recoverable */
+<<<<<<< HEAD
 	if (!(regs->msr & MSR_RI)) {
+=======
+	if (regs_is_unrecoverable(regs)) {
+>>>>>>> upstream/android-13
 		/* For the reason explained in die_mce, nmi_exit before die */
 		nmi_exit();
 		die("Unrecoverable System Reset", regs, SIGABRT);
 	}
 
+<<<<<<< HEAD
 	if (!nested)
 		nmi_exit();
 
 	/* What should we do here? We could issue a shutdown or hard reset. */
+=======
+	if (saved_hsrrs) {
+		mtspr(SPRN_HSRR0, hsrr0);
+		mtspr(SPRN_HSRR1, hsrr1);
+	}
+
+	/* What should we do here? We could issue a shutdown or hard reset. */
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -450,9 +663,12 @@ out:
  * Check if the NIP corresponds to the address of a sync
  * instruction for which there is an entry in the exception
  * table.
+<<<<<<< HEAD
  * Note that the 601 only takes a machine check on TEA
  * (transfer error ack) signal assertion, and does not
  * set any of the top 16 bits of SRR1.
+=======
+>>>>>>> upstream/android-13
  *  -- paulus.
  */
 static inline int check_io_access(struct pt_regs *regs)
@@ -472,11 +688,19 @@ static inline int check_io_access(struct pt_regs *regs)
 		 * For the debug message, we look at the preceding
 		 * load or store.
 		 */
+<<<<<<< HEAD
 		if (*nip == PPC_INST_NOP)
 			nip -= 2;
 		else if (*nip == PPC_INST_ISYNC)
 			--nip;
 		if (*nip == PPC_INST_SYNC || (*nip >> 26) == OP_TRAP) {
+=======
+		if (*nip == PPC_RAW_NOP())
+			nip -= 2;
+		else if (*nip == PPC_RAW_ISYNC())
+			--nip;
+		if (*nip == PPC_RAW_SYNC() || get_op(*nip) == OP_TRAP) {
+>>>>>>> upstream/android-13
 			unsigned int rb;
 
 			--nip;
@@ -484,8 +708,13 @@ static inline int check_io_access(struct pt_regs *regs)
 			printk(KERN_DEBUG "%s bad port %lx at %p\n",
 			       (*nip & 0x100)? "OUT to": "IN from",
 			       regs->gpr[rb] - _IO_BASE, nip);
+<<<<<<< HEAD
 			regs->msr |= MSR_RI;
 			regs->nip = extable_fixup(entry);
+=======
+			regs_set_recoverable(regs);
+			regs_set_return_ip(regs, extable_fixup(entry));
+>>>>>>> upstream/android-13
 			return 1;
 		}
 	}
@@ -496,11 +725,20 @@ static inline int check_io_access(struct pt_regs *regs)
 #ifdef CONFIG_PPC_ADV_DEBUG_REGS
 /* On 4xx, the reason for the machine check or program exception
    is in the ESR. */
+<<<<<<< HEAD
 #define get_reason(regs)	((regs)->dsisr)
+=======
+#define get_reason(regs)	((regs)->esr)
+>>>>>>> upstream/android-13
 #define REASON_FP		ESR_FP
 #define REASON_ILLEGAL		(ESR_PIL | ESR_PUO)
 #define REASON_PRIVILEGED	ESR_PPR
 #define REASON_TRAP		ESR_PTR
+<<<<<<< HEAD
+=======
+#define REASON_PREFIXED		0
+#define REASON_BOUNDARY		0
+>>>>>>> upstream/android-13
 
 /* single-step stuff */
 #define single_stepping(regs)	(current->thread.debug.dbcr0 & DBCR0_IC)
@@ -515,12 +753,25 @@ static inline int check_io_access(struct pt_regs *regs)
 #define REASON_ILLEGAL		SRR1_PROGILL
 #define REASON_PRIVILEGED	SRR1_PROGPRIV
 #define REASON_TRAP		SRR1_PROGTRAP
+<<<<<<< HEAD
 
 #define single_stepping(regs)	((regs)->msr & MSR_SE)
 #define clear_single_step(regs)	((regs)->msr &= ~MSR_SE)
 #define clear_br_trace(regs)	((regs)->msr &= ~MSR_BE)
 #endif
 
+=======
+#define REASON_PREFIXED		SRR1_PREFIXED
+#define REASON_BOUNDARY		SRR1_BOUNDARY
+
+#define single_stepping(regs)	((regs)->msr & MSR_SE)
+#define clear_single_step(regs)	(regs_set_return_msr((regs), (regs)->msr & ~MSR_SE))
+#define clear_br_trace(regs)	(regs_set_return_msr((regs), (regs)->msr & ~MSR_BE))
+#endif
+
+#define inst_length(reason)	(((reason) & REASON_PREFIXED) ? 8 : 4)
+
+>>>>>>> upstream/android-13
 #if defined(CONFIG_E500)
 int machine_check_e500mc(struct pt_regs *regs)
 {
@@ -539,10 +790,17 @@ int machine_check_e500mc(struct pt_regs *regs)
 	printk("Caused by (from MCSR=%lx): ", reason);
 
 	if (reason & MCSR_MCP)
+<<<<<<< HEAD
 		printk("Machine Check Signal\n");
 
 	if (reason & MCSR_ICPERR) {
 		printk("Instruction Cache Parity Error\n");
+=======
+		pr_cont("Machine Check Signal\n");
+
+	if (reason & MCSR_ICPERR) {
+		pr_cont("Instruction Cache Parity Error\n");
+>>>>>>> upstream/android-13
 
 		/*
 		 * This is recoverable by invalidating the i-cache.
@@ -560,7 +818,11 @@ int machine_check_e500mc(struct pt_regs *regs)
 	}
 
 	if (reason & MCSR_DCPERR_MC) {
+<<<<<<< HEAD
 		printk("Data Cache Parity Error\n");
+=======
+		pr_cont("Data Cache Parity Error\n");
+>>>>>>> upstream/android-13
 
 		/*
 		 * In write shadow mode we auto-recover from the error, but it
@@ -579,38 +841,68 @@ int machine_check_e500mc(struct pt_regs *regs)
 	}
 
 	if (reason & MCSR_L2MMU_MHIT) {
+<<<<<<< HEAD
 		printk("Hit on multiple TLB entries\n");
+=======
+		pr_cont("Hit on multiple TLB entries\n");
+>>>>>>> upstream/android-13
 		recoverable = 0;
 	}
 
 	if (reason & MCSR_NMI)
+<<<<<<< HEAD
 		printk("Non-maskable interrupt\n");
 
 	if (reason & MCSR_IF) {
 		printk("Instruction Fetch Error Report\n");
+=======
+		pr_cont("Non-maskable interrupt\n");
+
+	if (reason & MCSR_IF) {
+		pr_cont("Instruction Fetch Error Report\n");
+>>>>>>> upstream/android-13
 		recoverable = 0;
 	}
 
 	if (reason & MCSR_LD) {
+<<<<<<< HEAD
 		printk("Load Error Report\n");
+=======
+		pr_cont("Load Error Report\n");
+>>>>>>> upstream/android-13
 		recoverable = 0;
 	}
 
 	if (reason & MCSR_ST) {
+<<<<<<< HEAD
 		printk("Store Error Report\n");
+=======
+		pr_cont("Store Error Report\n");
+>>>>>>> upstream/android-13
 		recoverable = 0;
 	}
 
 	if (reason & MCSR_LDG) {
+<<<<<<< HEAD
 		printk("Guarded Load Error Report\n");
+=======
+		pr_cont("Guarded Load Error Report\n");
+>>>>>>> upstream/android-13
 		recoverable = 0;
 	}
 
 	if (reason & MCSR_TLBSYNC)
+<<<<<<< HEAD
 		printk("Simultaneous tlbsync operations\n");
 
 	if (reason & MCSR_BSL2_ERR) {
 		printk("Level 2 Cache Error\n");
+=======
+		pr_cont("Simultaneous tlbsync operations\n");
+
+	if (reason & MCSR_BSL2_ERR) {
+		pr_cont("Level 2 Cache Error\n");
+>>>>>>> upstream/android-13
 		recoverable = 0;
 	}
 
@@ -620,7 +912,11 @@ int machine_check_e500mc(struct pt_regs *regs)
 		addr = mfspr(SPRN_MCAR);
 		addr |= (u64)mfspr(SPRN_MCARU) << 32;
 
+<<<<<<< HEAD
 		printk("Machine Check %s Address: %#llx\n",
+=======
+		pr_cont("Machine Check %s Address: %#llx\n",
+>>>>>>> upstream/android-13
 		       reason & MCSR_MEA ? "Effective" : "Physical", addr);
 	}
 
@@ -644,6 +940,7 @@ int machine_check_e500(struct pt_regs *regs)
 	printk("Caused by (from MCSR=%lx): ", reason);
 
 	if (reason & MCSR_MCP)
+<<<<<<< HEAD
 		printk("Machine Check Signal\n");
 	if (reason & MCSR_ICPERR)
 		printk("Instruction Cache Parity Error\n");
@@ -667,6 +964,31 @@ int machine_check_e500(struct pt_regs *regs)
 		printk("Bus - Instruction Parity Error\n");
 	if (reason & MCSR_BUS_RPERR)
 		printk("Bus - Read Parity Error\n");
+=======
+		pr_cont("Machine Check Signal\n");
+	if (reason & MCSR_ICPERR)
+		pr_cont("Instruction Cache Parity Error\n");
+	if (reason & MCSR_DCP_PERR)
+		pr_cont("Data Cache Push Parity Error\n");
+	if (reason & MCSR_DCPERR)
+		pr_cont("Data Cache Parity Error\n");
+	if (reason & MCSR_BUS_IAERR)
+		pr_cont("Bus - Instruction Address Error\n");
+	if (reason & MCSR_BUS_RAERR)
+		pr_cont("Bus - Read Address Error\n");
+	if (reason & MCSR_BUS_WAERR)
+		pr_cont("Bus - Write Address Error\n");
+	if (reason & MCSR_BUS_IBERR)
+		pr_cont("Bus - Instruction Data Error\n");
+	if (reason & MCSR_BUS_RBERR)
+		pr_cont("Bus - Read Data Bus Error\n");
+	if (reason & MCSR_BUS_WBERR)
+		pr_cont("Bus - Write Data Bus Error\n");
+	if (reason & MCSR_BUS_IPERR)
+		pr_cont("Bus - Instruction Parity Error\n");
+	if (reason & MCSR_BUS_RPERR)
+		pr_cont("Bus - Read Parity Error\n");
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -675,6 +997,7 @@ int machine_check_generic(struct pt_regs *regs)
 {
 	return 0;
 }
+<<<<<<< HEAD
 #elif defined(CONFIG_E200)
 int machine_check_e200(struct pt_regs *regs)
 {
@@ -700,6 +1023,8 @@ int machine_check_e200(struct pt_regs *regs)
 
 	return 0;
 }
+=======
+>>>>>>> upstream/android-13
 #elif defined(CONFIG_PPC32)
 int machine_check_generic(struct pt_regs *regs)
 {
@@ -709,6 +1034,7 @@ int machine_check_generic(struct pt_regs *regs)
 	printk("Caused by (from SRR1=%lx): ", reason);
 	switch (reason & 0x601F0000) {
 	case 0x80000:
+<<<<<<< HEAD
 		printk("Machine check signal\n");
 		break;
 	case 0:		/* for 601 */
@@ -733,11 +1059,37 @@ int machine_check_generic(struct pt_regs *regs)
 		break;
 	default:
 		printk("Unknown values in msr\n");
+=======
+		pr_cont("Machine check signal\n");
+		break;
+	case 0x40000:
+	case 0x140000:	/* 7450 MSS error and TEA */
+		pr_cont("Transfer error ack signal\n");
+		break;
+	case 0x20000:
+		pr_cont("Data parity error signal\n");
+		break;
+	case 0x10000:
+		pr_cont("Address parity error signal\n");
+		break;
+	case 0x20000000:
+		pr_cont("L1 Data Cache error\n");
+		break;
+	case 0x40000000:
+		pr_cont("L1 Instruction Cache error\n");
+		break;
+	case 0x00100000:
+		pr_cont("L2 data cache parity error\n");
+		break;
+	default:
+		pr_cont("Unknown values in msr\n");
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
 #endif /* everything else */
 
+<<<<<<< HEAD
 void machine_check_exception(struct pt_regs *regs)
 {
 	int recover = 0;
@@ -748,6 +1100,35 @@ void machine_check_exception(struct pt_regs *regs)
 	/* 64s accounts the mce in machine_check_early when in HVMODE */
 	if (!IS_ENABLED(CONFIG_PPC_BOOK3S_64) || !cpu_has_feature(CPU_FTR_HVMODE))
 		__this_cpu_inc(irq_stat.mce_exceptions);
+=======
+void die_mce(const char *str, struct pt_regs *regs, long err)
+{
+	/*
+	 * The machine check wants to kill the interrupted context, but
+	 * do_exit() checks for in_interrupt() and panics in that case, so
+	 * exit the irq/nmi before calling die.
+	 */
+	if (in_nmi())
+		nmi_exit();
+	else
+		irq_exit();
+	die(str, regs, err);
+}
+
+/*
+ * BOOK3S_64 does not usually call this handler as a non-maskable interrupt
+ * (it uses its own early real-mode handler to handle the MCE proper
+ * and then raises irq_work to call this handler when interrupts are
+ * enabled). The only time when this is not true is if the early handler
+ * is unrecoverable, then it does call this directly to try to get a
+ * message out.
+ */
+static void __machine_check_exception(struct pt_regs *regs)
+{
+	int recover = 0;
+
+	__this_cpu_inc(irq_stat.mce_exceptions);
+>>>>>>> upstream/android-13
 
 	add_taint(TAINT_MACHINE_CHECK, LOCKDEP_NOW_UNRELIABLE);
 
@@ -771,6 +1152,7 @@ void machine_check_exception(struct pt_regs *regs)
 	if (check_io_access(regs))
 		goto bail;
 
+<<<<<<< HEAD
 	if (!nested)
 		nmi_exit();
 
@@ -788,6 +1170,30 @@ bail:
 }
 
 void SMIException(struct pt_regs *regs)
+=======
+	die_mce("Machine check", regs, SIGBUS);
+
+bail:
+	/* Must die if the interrupt is not recoverable */
+	if (regs_is_unrecoverable(regs))
+		die_mce("Unrecoverable Machine check", regs, SIGBUS);
+}
+
+#ifdef CONFIG_PPC_BOOK3S_64
+DEFINE_INTERRUPT_HANDLER_ASYNC(machine_check_exception_async)
+{
+	__machine_check_exception(regs);
+}
+#endif
+DEFINE_INTERRUPT_HANDLER_NMI(machine_check_exception)
+{
+	__machine_check_exception(regs);
+
+	return 0;
+}
+
+DEFINE_INTERRUPT_HANDLER(SMIException) /* async? */
+>>>>>>> upstream/android-13
 {
 	die("System Management Interrupt", regs, SIGABRT);
 }
@@ -801,7 +1207,11 @@ static void p9_hmi_special_emu(struct pt_regs *regs)
 	unsigned long ea, msr, msr_mask;
 	bool swap;
 
+<<<<<<< HEAD
 	if (__get_user_inatomic(instr, (unsigned int __user *)regs->nip))
+=======
+	if (__get_user(instr, (unsigned int __user *)regs->nip))
+>>>>>>> upstream/android-13
 		return;
 
 	/*
@@ -845,7 +1255,11 @@ static void p9_hmi_special_emu(struct pt_regs *regs)
 	addr = (__force const void __user *)ea;
 
 	/* Check it */
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_READ, addr, 16)) {
+=======
+	if (!access_ok(addr, 16)) {
+>>>>>>> upstream/android-13
 		pr_devel("HMI vec emu: bad access %i:%s[%d] nip=%016lx"
 			 " instr=%08x addr=%016lx\n",
 			 smp_processor_id(), current->comm, current->pid,
@@ -969,16 +1383,27 @@ static void p9_hmi_special_emu(struct pt_regs *regs)
 #endif /* !__LITTLE_ENDIAN__ */
 
 	/* Go to next instruction */
+<<<<<<< HEAD
 	regs->nip += 4;
 }
 #endif /* CONFIG_VSX */
 
 void handle_hmi_exception(struct pt_regs *regs)
+=======
+	regs_add_return_ip(regs, 4);
+}
+#endif /* CONFIG_VSX */
+
+DEFINE_INTERRUPT_HANDLER_ASYNC(handle_hmi_exception)
+>>>>>>> upstream/android-13
 {
 	struct pt_regs *old_regs;
 
 	old_regs = set_irq_regs(regs);
+<<<<<<< HEAD
 	irq_enter();
+=======
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_VSX
 	/* Real mode flagged P9 special emu is needed */
@@ -998,6 +1423,7 @@ void handle_hmi_exception(struct pt_regs *regs)
 	if (ppc_md.handle_hmi_exception)
 		ppc_md.handle_hmi_exception(regs);
 
+<<<<<<< HEAD
 	irq_exit();
 	set_irq_regs(old_regs);
 }
@@ -1006,11 +1432,35 @@ void unknown_exception(struct pt_regs *regs)
 {
 	enum ctx_state prev_state = exception_enter();
 
+=======
+	set_irq_regs(old_regs);
+}
+
+DEFINE_INTERRUPT_HANDLER(unknown_exception)
+{
+	printk("Bad trap at PC: %lx, SR: %lx, vector=%lx\n",
+	       regs->nip, regs->msr, regs->trap);
+
+	_exception(SIGTRAP, regs, TRAP_UNK, 0);
+}
+
+DEFINE_INTERRUPT_HANDLER_ASYNC(unknown_async_exception)
+{
+	printk("Bad trap at PC: %lx, SR: %lx, vector=%lx\n",
+	       regs->nip, regs->msr, regs->trap);
+
+	_exception(SIGTRAP, regs, TRAP_UNK, 0);
+}
+
+DEFINE_INTERRUPT_HANDLER_NMI(unknown_nmi_exception)
+{
+>>>>>>> upstream/android-13
 	printk("Bad trap at PC: %lx, SR: %lx, vector=%lx\n",
 	       regs->nip, regs->msr, regs->trap);
 
 	_exception(SIGTRAP, regs, TRAP_UNK, 0);
 
+<<<<<<< HEAD
 	exception_exit(prev_state);
 }
 
@@ -1030,14 +1480,35 @@ bail:
 }
 
 void RunModeException(struct pt_regs *regs)
+=======
+	return 0;
+}
+
+DEFINE_INTERRUPT_HANDLER(instruction_breakpoint_exception)
+{
+	if (notify_die(DIE_IABR_MATCH, "iabr_match", regs, 5,
+					5, SIGTRAP) == NOTIFY_STOP)
+		return;
+	if (debugger_iabr_match(regs))
+		return;
+	_exception(SIGTRAP, regs, TRAP_BRKPT, regs->nip);
+}
+
+DEFINE_INTERRUPT_HANDLER(RunModeException)
+>>>>>>> upstream/android-13
 {
 	_exception(SIGTRAP, regs, TRAP_UNK, 0);
 }
 
+<<<<<<< HEAD
 void single_step_exception(struct pt_regs *regs)
 {
 	enum ctx_state prev_state = exception_enter();
 
+=======
+static void __single_step_exception(struct pt_regs *regs)
+{
+>>>>>>> upstream/android-13
 	clear_single_step(regs);
 	clear_br_trace(regs);
 
@@ -1046,6 +1517,7 @@ void single_step_exception(struct pt_regs *regs)
 
 	if (notify_die(DIE_SSTEP, "single_step", regs, 5,
 					5, SIGTRAP) == NOTIFY_STOP)
+<<<<<<< HEAD
 		goto bail;
 	if (debugger_sstep(regs))
 		goto bail;
@@ -1056,6 +1528,19 @@ bail:
 	exception_exit(prev_state);
 }
 NOKPROBE_SYMBOL(single_step_exception);
+=======
+		return;
+	if (debugger_sstep(regs))
+		return;
+
+	_exception(SIGTRAP, regs, TRAP_TRACE, regs->nip);
+}
+
+DEFINE_INTERRUPT_HANDLER(single_step_exception)
+{
+	__single_step_exception(regs);
+}
+>>>>>>> upstream/android-13
 
 /*
  * After we have successfully emulated an instruction, we have to
@@ -1066,7 +1551,11 @@ NOKPROBE_SYMBOL(single_step_exception);
 static void emulate_single_step(struct pt_regs *regs)
 {
 	if (single_stepping(regs))
+<<<<<<< HEAD
 		single_step_exception(regs);
+=======
+		__single_step_exception(regs);
+>>>>>>> upstream/android-13
 }
 
 static inline int __parse_fpscr(unsigned long fpscr)
@@ -1102,7 +1591,13 @@ static void parse_fpe(struct pt_regs *regs)
 
 	flush_fp_to_thread(current);
 
+<<<<<<< HEAD
 	code = __parse_fpscr(current->thread.fp_state.fpscr);
+=======
+#ifdef CONFIG_PPC_FPU_REGS
+	code = __parse_fpscr(current->thread.fp_state.fpscr);
+#endif
+>>>>>>> upstream/android-13
 
 	_exception(SIGFPE, regs, code, regs->nip);
 }
@@ -1253,7 +1748,10 @@ static int emulate_instruction(struct pt_regs *regs)
 
 	if (!user_mode(regs))
 		return -EINVAL;
+<<<<<<< HEAD
 	CHECK_FULL_REGS(regs);
+=======
+>>>>>>> upstream/android-13
 
 	if (get_user(instword, (u32 __user *)(regs->nip)))
 		return -EFAULT;
@@ -1350,7 +1848,10 @@ int is_valid_bugaddr(unsigned long addr)
 static int emulate_math(struct pt_regs *regs)
 {
 	int ret;
+<<<<<<< HEAD
 	extern int do_mathemu(struct pt_regs *regs);
+=======
+>>>>>>> upstream/android-13
 
 	ret = do_mathemu(regs);
 	if (ret >= 0)
@@ -1377,9 +1878,14 @@ static int emulate_math(struct pt_regs *regs)
 static inline int emulate_math(struct pt_regs *regs) { return -1; }
 #endif
 
+<<<<<<< HEAD
 void program_check_exception(struct pt_regs *regs)
 {
 	enum ctx_state prev_state = exception_enter();
+=======
+static void do_program_check(struct pt_regs *regs)
+{
+>>>>>>> upstream/android-13
 	unsigned int reason = get_reason(regs);
 
 	/* We can now get here via a FP Unavailable exception if the core
@@ -1388,22 +1894,37 @@ void program_check_exception(struct pt_regs *regs)
 	if (reason & REASON_FP) {
 		/* IEEE FP exception */
 		parse_fpe(regs);
+<<<<<<< HEAD
 		goto bail;
+=======
+		return;
+>>>>>>> upstream/android-13
 	}
 	if (reason & REASON_TRAP) {
 		unsigned long bugaddr;
 		/* Debugger is first in line to stop recursive faults in
 		 * rcu_lock, notify_die, or atomic_notifier_call_chain */
 		if (debugger_bpt(regs))
+<<<<<<< HEAD
 			goto bail;
 
 		if (kprobe_handler(regs))
 			goto bail;
+=======
+			return;
+
+		if (kprobe_handler(regs))
+			return;
+>>>>>>> upstream/android-13
 
 		/* trap exception */
 		if (notify_die(DIE_BPT, "breakpoint", regs, 5, 5, SIGTRAP)
 				== NOTIFY_STOP)
+<<<<<<< HEAD
 			goto bail;
+=======
+			return;
+>>>>>>> upstream/android-13
 
 		bugaddr = regs->nip;
 		/*
@@ -1414,11 +1935,24 @@ void program_check_exception(struct pt_regs *regs)
 
 		if (!(regs->msr & MSR_PR) &&  /* not user-mode */
 		    report_bug(bugaddr, regs) == BUG_TRAP_TYPE_WARN) {
+<<<<<<< HEAD
 			regs->nip += 4;
 			goto bail;
 		}
 		_exception(SIGTRAP, regs, TRAP_BRKPT, regs->nip);
 		goto bail;
+=======
+			const struct exception_table_entry *entry;
+
+			entry = search_exception_tables(bugaddr);
+			if (entry) {
+				regs_set_return_ip(regs, extable_fixup(entry) + regs->nip - bugaddr);
+				return;
+			}
+		}
+		_exception(SIGTRAP, regs, TRAP_BRKPT, regs->nip);
+		return;
+>>>>>>> upstream/android-13
 	}
 #ifdef CONFIG_PPC_TRANSACTIONAL_MEM
 	if (reason & REASON_TM) {
@@ -1439,10 +1973,18 @@ void program_check_exception(struct pt_regs *regs)
 		 */
 		if (user_mode(regs)) {
 			_exception(SIGILL, regs, ILL_ILLOPN, regs->nip);
+<<<<<<< HEAD
 			goto bail;
 		} else {
 			printk(KERN_EMERG "Unexpected TM Bad Thing exception "
 			       "at %lx (msr 0x%x)\n", regs->nip, reason);
+=======
+			return;
+		} else {
+			printk(KERN_EMERG "Unexpected TM Bad Thing exception "
+			       "at %lx (msr 0x%lx) tm_scratch=%llx\n",
+			       regs->nip, regs->msr, get_paca()->tm_scratch);
+>>>>>>> upstream/android-13
 			die("Unrecoverable exception", regs, SIGABRT);
 		}
 	}
@@ -1458,9 +2000,13 @@ void program_check_exception(struct pt_regs *regs)
 	if (!user_mode(regs))
 		goto sigill;
 
+<<<<<<< HEAD
 	/* We restore the interrupt state now */
 	if (!arch_irq_disabled_regs(regs))
 		local_irq_enable();
+=======
+	interrupt_cond_local_irq_enable(regs);
+>>>>>>> upstream/android-13
 
 	/* (reason & REASON_ILLEGAL) would be the obvious thing here,
 	 * but there seems to be a hardware bug on the 405GP (RevD)
@@ -1471,18 +2017,31 @@ void program_check_exception(struct pt_regs *regs)
 	 * pattern to occurrences etc. -dgibson 31/Mar/2003
 	 */
 	if (!emulate_math(regs))
+<<<<<<< HEAD
 		goto bail;
+=======
+		return;
+>>>>>>> upstream/android-13
 
 	/* Try to emulate it if we should. */
 	if (reason & (REASON_ILLEGAL | REASON_PRIVILEGED)) {
 		switch (emulate_instruction(regs)) {
 		case 0:
+<<<<<<< HEAD
 			regs->nip += 4;
 			emulate_single_step(regs);
 			goto bail;
 		case -EFAULT:
 			_exception(SIGSEGV, regs, SEGV_MAPERR, regs->nip);
 			goto bail;
+=======
+			regs_add_return_ip(regs, 4);
+			emulate_single_step(regs);
+			return;
+		case -EFAULT:
+			_exception(SIGSEGV, regs, SEGV_MAPERR, regs->nip);
+			return;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -1492,15 +2051,25 @@ sigill:
 	else
 		_exception(SIGILL, regs, ILL_ILLOPC, regs->nip);
 
+<<<<<<< HEAD
 bail:
 	exception_exit(prev_state);
 }
 NOKPROBE_SYMBOL(program_check_exception);
+=======
+}
+
+DEFINE_INTERRUPT_HANDLER(program_check_exception)
+{
+	do_program_check(regs);
+}
+>>>>>>> upstream/android-13
 
 /*
  * This occurs when running in hypervisor mode on POWER6 or later
  * and an illegal instruction is encountered.
  */
+<<<<<<< HEAD
 void emulation_assist_interrupt(struct pt_regs *regs)
 {
 	regs->msr |= REASON_ILLEGAL;
@@ -1519,15 +2088,46 @@ void alignment_exception(struct pt_regs *regs)
 
 	if (tm_abort_check(regs, TM_CAUSE_ALIGNMENT | TM_CAUSE_PERSISTENT))
 		goto bail;
+=======
+DEFINE_INTERRUPT_HANDLER(emulation_assist_interrupt)
+{
+	regs_set_return_msr(regs, regs->msr | REASON_ILLEGAL);
+	do_program_check(regs);
+}
+
+DEFINE_INTERRUPT_HANDLER(alignment_exception)
+{
+	int sig, code, fixed = 0;
+	unsigned long  reason;
+
+	interrupt_cond_local_irq_enable(regs);
+
+	reason = get_reason(regs);
+	if (reason & REASON_BOUNDARY) {
+		sig = SIGBUS;
+		code = BUS_ADRALN;
+		goto bad;
+	}
+
+	if (tm_abort_check(regs, TM_CAUSE_ALIGNMENT | TM_CAUSE_PERSISTENT))
+		return;
+>>>>>>> upstream/android-13
 
 	/* we don't implement logging of alignment exceptions */
 	if (!(current->thread.align_ctl & PR_UNALIGN_SIGBUS))
 		fixed = fix_alignment(regs);
 
 	if (fixed == 1) {
+<<<<<<< HEAD
 		regs->nip += 4;	/* skip over emulated instruction */
 		emulate_single_step(regs);
 		goto bail;
+=======
+		/* skip over emulated instruction */
+		regs_add_return_ip(regs, inst_length(reason));
+		emulate_single_step(regs);
+		return;
+>>>>>>> upstream/android-13
 	}
 
 	/* Operand address was bad */
@@ -1538,6 +2138,7 @@ void alignment_exception(struct pt_regs *regs)
 		sig = SIGBUS;
 		code = BUS_ADRALN;
 	}
+<<<<<<< HEAD
 	if (user_mode(regs))
 		_exception(sig, regs, code, regs->dar);
 	else
@@ -1579,22 +2180,55 @@ void altivec_unavailable_exception(struct pt_regs *regs)
 {
 	enum ctx_state prev_state = exception_enter();
 
+=======
+bad:
+	if (user_mode(regs))
+		_exception(sig, regs, code, regs->dar);
+	else
+		bad_page_fault(regs, sig);
+}
+
+DEFINE_INTERRUPT_HANDLER(stack_overflow_exception)
+{
+	die("Kernel stack overflow", regs, SIGSEGV);
+}
+
+DEFINE_INTERRUPT_HANDLER(kernel_fp_unavailable_exception)
+{
+	printk(KERN_EMERG "Unrecoverable FP Unavailable Exception "
+			  "%lx at %lx\n", regs->trap, regs->nip);
+	die("Unrecoverable FP Unavailable Exception", regs, SIGABRT);
+}
+
+DEFINE_INTERRUPT_HANDLER(altivec_unavailable_exception)
+{
+>>>>>>> upstream/android-13
 	if (user_mode(regs)) {
 		/* A user program has executed an altivec instruction,
 		   but this kernel doesn't support altivec. */
 		_exception(SIGILL, regs, ILL_ILLOPC, regs->nip);
+<<<<<<< HEAD
 		goto bail;
+=======
+		return;
+>>>>>>> upstream/android-13
 	}
 
 	printk(KERN_EMERG "Unrecoverable VMX/Altivec Unavailable Exception "
 			"%lx at %lx\n", regs->trap, regs->nip);
 	die("Unrecoverable VMX/Altivec Unavailable Exception", regs, SIGABRT);
+<<<<<<< HEAD
 
 bail:
 	exception_exit(prev_state);
 }
 
 void vsx_unavailable_exception(struct pt_regs *regs)
+=======
+}
+
+DEFINE_INTERRUPT_HANDLER(vsx_unavailable_exception)
+>>>>>>> upstream/android-13
 {
 	if (user_mode(regs)) {
 		/* A user program has executed an vsx instruction,
@@ -1614,7 +2248,11 @@ static void tm_unavailable(struct pt_regs *regs)
 #ifdef CONFIG_PPC_TRANSACTIONAL_MEM
 	if (user_mode(regs)) {
 		current->thread.load_tm++;
+<<<<<<< HEAD
 		regs->msr |= MSR_TM;
+=======
+		regs_set_return_msr(regs, regs->msr | MSR_TM);
+>>>>>>> upstream/android-13
 		tm_enable();
 		tm_restore_sprs(&current->thread);
 		return;
@@ -1625,7 +2263,11 @@ static void tm_unavailable(struct pt_regs *regs)
 	die("Unrecoverable TM Unavailable Exception", regs, SIGABRT);
 }
 
+<<<<<<< HEAD
 void facility_unavailable_exception(struct pt_regs *regs)
+=======
+DEFINE_INTERRUPT_HANDLER(facility_unavailable_exception)
+>>>>>>> upstream/android-13
 {
 	static char *facility_strings[] = {
 		[FSCR_FP_LG] = "FPU",
@@ -1638,6 +2280,10 @@ void facility_unavailable_exception(struct pt_regs *regs)
 		[FSCR_TAR_LG] = "TAR",
 		[FSCR_MSGP_LG] = "MSGP",
 		[FSCR_SCV_LG] = "SCV",
+<<<<<<< HEAD
+=======
+		[FSCR_PREFIX_LG] = "PREFIX",
+>>>>>>> upstream/android-13
 	};
 	char *facility = "unknown";
 	u64 value;
@@ -1645,7 +2291,11 @@ void facility_unavailable_exception(struct pt_regs *regs)
 	u8 status;
 	bool hv;
 
+<<<<<<< HEAD
 	hv = (TRAP(regs) == 0xf80);
+=======
+	hv = (TRAP(regs) == INTERRUPT_H_FAC_UNAVAIL);
+>>>>>>> upstream/android-13
 	if (hv)
 		value = mfspr(SPRN_HFSCR);
 	else
@@ -1664,9 +2314,13 @@ void facility_unavailable_exception(struct pt_regs *regs)
 		die("Unexpected facility unavailable exception", regs, SIGABRT);
 	}
 
+<<<<<<< HEAD
 	/* We restore the interrupt state now */
 	if (!arch_irq_disabled_regs(regs))
 		local_irq_enable();
+=======
+	interrupt_cond_local_irq_enable(regs);
+>>>>>>> upstream/android-13
 
 	if (status == FSCR_DSCR_LG) {
 		/*
@@ -1707,7 +2361,11 @@ void facility_unavailable_exception(struct pt_regs *regs)
 				pr_err("DSCR based mfspr emulation failed\n");
 				return;
 			}
+<<<<<<< HEAD
 			regs->nip += 4;
+=======
+			regs_add_return_ip(regs, 4);
+>>>>>>> upstream/android-13
 			emulate_single_step(regs);
 		}
 		return;
@@ -1744,7 +2402,11 @@ out:
 
 #ifdef CONFIG_PPC_TRANSACTIONAL_MEM
 
+<<<<<<< HEAD
 void fp_unavailable_tm(struct pt_regs *regs)
+=======
+DEFINE_INTERRUPT_HANDLER(fp_unavailable_tm)
+>>>>>>> upstream/android-13
 {
 	/* Note:  This does not handle any kind of FP laziness. */
 
@@ -1759,21 +2421,41 @@ void fp_unavailable_tm(struct pt_regs *regs)
          * checkpointed FP registers need to be loaded.
 	 */
 	tm_reclaim_current(TM_CAUSE_FAC_UNAV);
+<<<<<<< HEAD
 	/* Reclaim didn't save out any FPRs to transact_fprs. */
+=======
+
+	/*
+	 * Reclaim initially saved out bogus (lazy) FPRs to ckfp_state, and
+	 * then it was overwrite by the thr->fp_state by tm_reclaim_thread().
+	 *
+	 * At this point, ck{fp,vr}_state contains the exact values we want to
+	 * recheckpoint.
+	 */
+>>>>>>> upstream/android-13
 
 	/* Enable FP for the task: */
 	current->thread.load_fp = 1;
 
+<<<<<<< HEAD
 	/* This loads and recheckpoints the FP registers from
 	 * thread.fpr[].  They will remain in registers after the
 	 * checkpoint so we don't need to reload them after.
 	 * If VMX is in use, the VRs now hold checkpointed values,
 	 * so we don't want to load the VRs from the thread_struct.
+=======
+	/*
+	 * Recheckpoint all the checkpointed ckpt, ck{fp, vr}_state registers.
+>>>>>>> upstream/android-13
 	 */
 	tm_recheckpoint(&current->thread);
 }
 
+<<<<<<< HEAD
 void altivec_unavailable_tm(struct pt_regs *regs)
+=======
+DEFINE_INTERRUPT_HANDLER(altivec_unavailable_tm)
+>>>>>>> upstream/android-13
 {
 	/* See the comments in fp_unavailable_tm().  This function operates
 	 * the same way.
@@ -1788,7 +2470,11 @@ void altivec_unavailable_tm(struct pt_regs *regs)
 	current->thread.used_vr = 1;
 }
 
+<<<<<<< HEAD
 void vsx_unavailable_tm(struct pt_regs *regs)
+=======
+DEFINE_INTERRUPT_HANDLER(vsx_unavailable_tm)
+>>>>>>> upstream/android-13
 {
 	/* See the comments in fp_unavailable_tm().  This works similarly,
 	 * though we're loading both FP and VEC registers in here.
@@ -1813,11 +2499,47 @@ void vsx_unavailable_tm(struct pt_regs *regs)
 }
 #endif /* CONFIG_PPC_TRANSACTIONAL_MEM */
 
+<<<<<<< HEAD
 void performance_monitor_exception(struct pt_regs *regs)
+=======
+#ifdef CONFIG_PPC64
+DECLARE_INTERRUPT_HANDLER_NMI(performance_monitor_exception_nmi);
+DEFINE_INTERRUPT_HANDLER_NMI(performance_monitor_exception_nmi)
+>>>>>>> upstream/android-13
 {
 	__this_cpu_inc(irq_stat.pmu_irqs);
 
 	perf_irq(regs);
+<<<<<<< HEAD
+=======
+
+	return 0;
+}
+#endif
+
+DECLARE_INTERRUPT_HANDLER_ASYNC(performance_monitor_exception_async);
+DEFINE_INTERRUPT_HANDLER_ASYNC(performance_monitor_exception_async)
+{
+	__this_cpu_inc(irq_stat.pmu_irqs);
+
+	perf_irq(regs);
+}
+
+DEFINE_INTERRUPT_HANDLER_RAW(performance_monitor_exception)
+{
+	/*
+	 * On 64-bit, if perf interrupts hit in a local_irq_disable
+	 * (soft-masked) region, we consider them as NMIs. This is required to
+	 * prevent hash faults on user addresses when reading callchains (and
+	 * looks better from an irq tracing perspective).
+	 */
+	if (IS_ENABLED(CONFIG_PPC64) && unlikely(arch_irq_disabled_regs(regs)))
+		performance_monitor_exception_nmi(regs);
+	else
+		performance_monitor_exception_async(regs);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_PPC_ADV_DEBUG_REGS
@@ -1871,7 +2593,11 @@ static void handle_debug(struct pt_regs *regs, unsigned long debug_status)
 	 */
 	if (DBCR_ACTIVE_EVENTS(current->thread.debug.dbcr0,
 			       current->thread.debug.dbcr1))
+<<<<<<< HEAD
 		regs->msr |= MSR_DE;
+=======
+		regs_set_return_msr(regs, regs->msr | MSR_DE);
+>>>>>>> upstream/android-13
 	else
 		/* Make sure the IDM flag is off */
 		current->thread.debug.dbcr0 &= ~DBCR0_IDM;
@@ -1880,8 +2606,15 @@ static void handle_debug(struct pt_regs *regs, unsigned long debug_status)
 		mtspr(SPRN_DBCR0, current->thread.debug.dbcr0);
 }
 
+<<<<<<< HEAD
 void DebugException(struct pt_regs *regs, unsigned long debug_status)
 {
+=======
+DEFINE_INTERRUPT_HANDLER(DebugException)
+{
+	unsigned long debug_status = regs->dsisr;
+
+>>>>>>> upstream/android-13
 	current->thread.debug.dbsr = debug_status;
 
 	/* Hack alert: On BookE, Branch Taken stops on the branch itself, while
@@ -1890,7 +2623,11 @@ void DebugException(struct pt_regs *regs, unsigned long debug_status)
 	 * instead of stopping here when hitting a BT
 	 */
 	if (debug_status & DBSR_BT) {
+<<<<<<< HEAD
 		regs->msr &= ~MSR_DE;
+=======
+		regs_set_return_msr(regs, regs->msr & ~MSR_DE);
+>>>>>>> upstream/android-13
 
 		/* Disable BT */
 		mtspr(SPRN_DBCR0, mfspr(SPRN_DBCR0) & ~DBCR0_BT);
@@ -1901,7 +2638,11 @@ void DebugException(struct pt_regs *regs, unsigned long debug_status)
 		if (user_mode(regs)) {
 			current->thread.debug.dbcr0 &= ~DBCR0_BT;
 			current->thread.debug.dbcr0 |= DBCR0_IDM | DBCR0_IC;
+<<<<<<< HEAD
 			regs->msr |= MSR_DE;
+=======
+			regs_set_return_msr(regs, regs->msr | MSR_DE);
+>>>>>>> upstream/android-13
 			return;
 		}
 
@@ -1915,7 +2656,11 @@ void DebugException(struct pt_regs *regs, unsigned long debug_status)
 		if (debugger_sstep(regs))
 			return;
 	} else if (debug_status & DBSR_IC) { 	/* Instruction complete */
+<<<<<<< HEAD
 		regs->msr &= ~MSR_DE;
+=======
+		regs_set_return_msr(regs, regs->msr & ~MSR_DE);
+>>>>>>> upstream/android-13
 
 		/* Disable instruction completion */
 		mtspr(SPRN_DBCR0, mfspr(SPRN_DBCR0) & ~DBCR0_IC);
@@ -1937,7 +2682,11 @@ void DebugException(struct pt_regs *regs, unsigned long debug_status)
 			current->thread.debug.dbcr0 &= ~DBCR0_IC;
 			if (DBCR_ACTIVE_EVENTS(current->thread.debug.dbcr0,
 					       current->thread.debug.dbcr1))
+<<<<<<< HEAD
 				regs->msr |= MSR_DE;
+=======
+				regs_set_return_msr(regs, regs->msr | MSR_DE);
+>>>>>>> upstream/android-13
 			else
 				/* Make sure the IDM bit is off */
 				current->thread.debug.dbcr0 &= ~DBCR0_IDM;
@@ -1947,6 +2696,7 @@ void DebugException(struct pt_regs *regs, unsigned long debug_status)
 	} else
 		handle_debug(regs, debug_status);
 }
+<<<<<<< HEAD
 NOKPROBE_SYMBOL(DebugException);
 #endif /* CONFIG_PPC_ADV_DEBUG_REGS */
 
@@ -1960,6 +2710,12 @@ void TAUException(struct pt_regs *regs)
 
 #ifdef CONFIG_ALTIVEC
 void altivec_assist_exception(struct pt_regs *regs)
+=======
+#endif /* CONFIG_PPC_ADV_DEBUG_REGS */
+
+#ifdef CONFIG_ALTIVEC
+DEFINE_INTERRUPT_HANDLER(altivec_assist_exception)
+>>>>>>> upstream/android-13
 {
 	int err;
 
@@ -1974,7 +2730,11 @@ void altivec_assist_exception(struct pt_regs *regs)
 	PPC_WARN_EMULATED(altivec, regs);
 	err = emulate_altivec(regs);
 	if (err == 0) {
+<<<<<<< HEAD
 		regs->nip += 4;		/* skip emulated instruction */
+=======
+		regs_add_return_ip(regs, 4); /* skip emulated instruction */
+>>>>>>> upstream/android-13
 		emulate_single_step(regs);
 		return;
 	}
@@ -1993,9 +2753,16 @@ void altivec_assist_exception(struct pt_regs *regs)
 #endif /* CONFIG_ALTIVEC */
 
 #ifdef CONFIG_FSL_BOOKE
+<<<<<<< HEAD
 void CacheLockingException(struct pt_regs *regs, unsigned long address,
 			   unsigned long error_code)
 {
+=======
+DEFINE_INTERRUPT_HANDLER(CacheLockingException)
+{
+	unsigned long error_code = regs->dsisr;
+
+>>>>>>> upstream/android-13
 	/* We treat cache locking instructions from the user
 	 * as priv ops, in the future we could try to do
 	 * something smarter
@@ -2007,7 +2774,11 @@ void CacheLockingException(struct pt_regs *regs, unsigned long address,
 #endif /* CONFIG_FSL_BOOKE */
 
 #ifdef CONFIG_SPE
+<<<<<<< HEAD
 void SPEFloatingPointException(struct pt_regs *regs)
+=======
+DEFINE_INTERRUPT_HANDLER(SPEFloatingPointException)
+>>>>>>> upstream/android-13
 {
 	extern int do_spe_mathemu(struct pt_regs *regs);
 	unsigned long spefscr;
@@ -2015,6 +2786,11 @@ void SPEFloatingPointException(struct pt_regs *regs)
 	int code = FPE_FLTUNK;
 	int err;
 
+<<<<<<< HEAD
+=======
+	interrupt_cond_local_irq_enable(regs);
+
+>>>>>>> upstream/android-13
 	flush_spe_to_thread(current);
 
 	spefscr = current->thread.spefscr;
@@ -2036,7 +2812,11 @@ void SPEFloatingPointException(struct pt_regs *regs)
 
 	err = do_spe_mathemu(regs);
 	if (err == 0) {
+<<<<<<< HEAD
 		regs->nip += 4;		/* skip emulated instruction */
+=======
+		regs_add_return_ip(regs, 4); /* skip emulated instruction */
+>>>>>>> upstream/android-13
 		emulate_single_step(regs);
 		return;
 	}
@@ -2055,20 +2835,36 @@ void SPEFloatingPointException(struct pt_regs *regs)
 	return;
 }
 
+<<<<<<< HEAD
 void SPEFloatingPointRoundException(struct pt_regs *regs)
+=======
+DEFINE_INTERRUPT_HANDLER(SPEFloatingPointRoundException)
+>>>>>>> upstream/android-13
 {
 	extern int speround_handler(struct pt_regs *regs);
 	int err;
 
+<<<<<<< HEAD
+=======
+	interrupt_cond_local_irq_enable(regs);
+
+>>>>>>> upstream/android-13
 	preempt_disable();
 	if (regs->msr & MSR_SPE)
 		giveup_spe(current);
 	preempt_enable();
 
+<<<<<<< HEAD
 	regs->nip -= 4;
 	err = speround_handler(regs);
 	if (err == 0) {
 		regs->nip += 4;		/* skip emulated instruction */
+=======
+	regs_add_return_ip(regs, -4);
+	err = speround_handler(regs);
+	if (err == 0) {
+		regs_add_return_ip(regs, 4); /* skip emulated instruction */
+>>>>>>> upstream/android-13
 		emulate_single_step(regs);
 		return;
 	}
@@ -2093,6 +2889,7 @@ void SPEFloatingPointRoundException(struct pt_regs *regs)
  * in the MSR is 0.  This indicates that SRR0/1 are live, and that
  * we therefore lost state by taking this exception.
  */
+<<<<<<< HEAD
 void unrecoverable_exception(struct pt_regs *regs)
 {
 	printk(KERN_EMERG "Unrecoverable exception %lx at %lx\n",
@@ -2100,6 +2897,17 @@ void unrecoverable_exception(struct pt_regs *regs)
 	die("Unrecoverable exception", regs, SIGABRT);
 }
 NOKPROBE_SYMBOL(unrecoverable_exception);
+=======
+void __noreturn unrecoverable_exception(struct pt_regs *regs)
+{
+	pr_emerg("Unrecoverable exception %lx at %lx (msr=%lx)\n",
+		 regs->trap, regs->nip, regs->msr);
+	die("Unrecoverable exception", regs, SIGABRT);
+	/* die() should not return */
+	for (;;)
+		;
+}
+>>>>>>> upstream/android-13
 
 #if defined(CONFIG_BOOKE_WDT) || defined(CONFIG_40x)
 /*
@@ -2113,10 +2921,18 @@ void __attribute__ ((weak)) WatchdogHandler(struct pt_regs *regs)
 	return;
 }
 
+<<<<<<< HEAD
 void WatchdogException(struct pt_regs *regs)
 {
 	printk (KERN_EMERG "PowerPC Book-E Watchdog Exception\n");
 	WatchdogHandler(regs);
+=======
+DEFINE_INTERRUPT_HANDLER_NMI(WatchdogException)
+{
+	printk (KERN_EMERG "PowerPC Book-E Watchdog Exception\n");
+	WatchdogHandler(regs);
+	return 0;
+>>>>>>> upstream/android-13
 }
 #endif
 
@@ -2124,18 +2940,25 @@ void WatchdogException(struct pt_regs *regs)
  * We enter here if we discover during exception entry that we are
  * running in supervisor mode with a userspace value in the stack pointer.
  */
+<<<<<<< HEAD
 void kernel_bad_stack(struct pt_regs *regs)
+=======
+DEFINE_INTERRUPT_HANDLER(kernel_bad_stack)
+>>>>>>> upstream/android-13
 {
 	printk(KERN_EMERG "Bad kernel stack pointer %lx at %lx\n",
 	       regs->gpr[1], regs->nip);
 	die("Bad kernel stack pointer", regs, SIGABRT);
 }
+<<<<<<< HEAD
 NOKPROBE_SYMBOL(kernel_bad_stack);
 
 void __init trap_init(void)
 {
 }
 
+=======
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PPC_EMULATED_STATS
 
@@ -2184,6 +3007,7 @@ void ppc_warn_emulated_print(const char *type)
 
 static int __init ppc_warn_emulated_init(void)
 {
+<<<<<<< HEAD
 	struct dentry *dir, *d;
 	unsigned int i;
 	struct ppc_emulated_entry *entries = (void *)&ppc_emulated;
@@ -2213,6 +3037,22 @@ static int __init ppc_warn_emulated_init(void)
 fail:
 	debugfs_remove_recursive(dir);
 	return -ENOMEM;
+=======
+	struct dentry *dir;
+	unsigned int i;
+	struct ppc_emulated_entry *entries = (void *)&ppc_emulated;
+
+	dir = debugfs_create_dir("emulated_instructions",
+				 arch_debugfs_dir);
+
+	debugfs_create_u32("do_warn", 0644, dir, &ppc_warn_emulated);
+
+	for (i = 0; i < sizeof(ppc_emulated)/sizeof(*entries); i++)
+		debugfs_create_u32(entries[i].name, 0644, dir,
+				   (u32 *)&entries[i].val.counter);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 device_initcall(ppc_warn_emulated_init);

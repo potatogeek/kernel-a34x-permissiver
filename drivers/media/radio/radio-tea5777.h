@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef __RADIO_TEA5777_H
 #define __RADIO_TEA5777_H
 
@@ -10,6 +14,7 @@
  *
  *	Copyright (c) 2004 Jaroslav Kysela <perex@perex.cz>
  *	Copyright (c) 2012 Hans de Goede <hdegoede@redhat.com>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -21,6 +26,8 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *   GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/videodev2.h>

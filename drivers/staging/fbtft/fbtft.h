@@ -27,7 +27,11 @@
  */
 struct fbtft_gpio {
 	char name[FBTFT_GPIO_NAME_SIZE];
+<<<<<<< HEAD
 	unsigned int gpio;
+=======
+	struct gpio_desc *gpio;
+>>>>>>> upstream/android-13
 };
 
 struct fbtft_par;
@@ -134,7 +138,10 @@ struct fbtft_display {
  */
 struct fbtft_platform_data {
 	struct fbtft_display display;
+<<<<<<< HEAD
 	const struct fbtft_gpio *gpios;
+=======
+>>>>>>> upstream/android-13
 	unsigned int rotate;
 	bool bgr;
 	unsigned int fps;
@@ -207,6 +214,7 @@ struct fbtft_par {
 	unsigned int dirty_lines_start;
 	unsigned int dirty_lines_end;
 	struct {
+<<<<<<< HEAD
 		int reset;
 		int dc;
 		int rd;
@@ -216,6 +224,17 @@ struct fbtft_par {
 		int db[16];
 		int led[16];
 		int aux[16];
+=======
+		struct gpio_desc *reset;
+		struct gpio_desc *dc;
+		struct gpio_desc *rd;
+		struct gpio_desc *wr;
+		struct gpio_desc *latch;
+		struct gpio_desc *cs;
+		struct gpio_desc *db[16];
+		struct gpio_desc *led[16];
+		struct gpio_desc *aux[16];
+>>>>>>> upstream/android-13
 	} gpio;
 	const s16 *init_sequence;
 	struct {
@@ -232,13 +251,21 @@ struct fbtft_par {
 	bool polarity;
 };
 
+<<<<<<< HEAD
 #define NUMARGS(...)  (sizeof((int[]){__VA_ARGS__})/sizeof(int))
+=======
+#define NUMARGS(...)  (sizeof((int[]){__VA_ARGS__}) / sizeof(int))
+>>>>>>> upstream/android-13
 
 #define write_reg(par, ...)                                            \
 	((par)->fbtftops.write_register(par, NUMARGS(__VA_ARGS__), __VA_ARGS__))
 
 /* fbtft-core.c */
 int fbtft_write_buf_dc(struct fbtft_par *par, void *buf, size_t len, int dc);
+<<<<<<< HEAD
+=======
+__printf(5, 6)
+>>>>>>> upstream/android-13
 void fbtft_dbg_hex(const struct device *dev, int groupsize,
 		   void *buf, size_t len, const char *fmt, ...);
 struct fb_info *fbtft_framebuffer_alloc(struct fbtft_display *display,
@@ -309,7 +336,11 @@ MODULE_DEVICE_TABLE(of, dt_ids);                                           \
 static struct spi_driver fbtft_driver_spi_driver = {                       \
 	.driver = {                                                        \
 		.name   = _name,                                           \
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(dt_ids),                    \
+=======
+		.of_match_table = dt_ids,                                  \
+>>>>>>> upstream/android-13
 	},                                                                 \
 	.probe  = fbtft_driver_probe_spi,                                  \
 	.remove = fbtft_driver_remove_spi,                                 \
@@ -319,7 +350,11 @@ static struct platform_driver fbtft_driver_platform_driver = {             \
 	.driver = {                                                        \
 		.name   = _name,                                           \
 		.owner  = THIS_MODULE,                                     \
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(dt_ids),                    \
+=======
+		.of_match_table = dt_ids,                                  \
+>>>>>>> upstream/android-13
 	},                                                                 \
 	.probe  = fbtft_driver_probe_pdev,                                 \
 	.remove = fbtft_driver_remove_pdev,                                \
@@ -332,7 +367,14 @@ static int __init fbtft_driver_module_init(void)                           \
 	ret = spi_register_driver(&fbtft_driver_spi_driver);               \
 	if (ret < 0)                                                       \
 		return ret;                                                \
+<<<<<<< HEAD
 	return platform_driver_register(&fbtft_driver_platform_driver);    \
+=======
+	ret = platform_driver_register(&fbtft_driver_platform_driver);     \
+	if (ret < 0)                                                       \
+		spi_unregister_driver(&fbtft_driver_spi_driver);           \
+	return ret;                                                        \
+>>>>>>> upstream/android-13
 }                                                                          \
 									   \
 static void __exit fbtft_driver_module_exit(void)                          \
@@ -348,13 +390,28 @@ module_exit(fbtft_driver_module_exit);
 
 /* shorthand debug levels */
 #define DEBUG_LEVEL_1	DEBUG_REQUEST_GPIOS
+<<<<<<< HEAD
 #define DEBUG_LEVEL_2	(DEBUG_LEVEL_1 | DEBUG_DRIVER_INIT_FUNCTIONS | DEBUG_TIME_FIRST_UPDATE)
 #define DEBUG_LEVEL_3	(DEBUG_LEVEL_2 | DEBUG_RESET | DEBUG_INIT_DISPLAY | DEBUG_BLANK | DEBUG_REQUEST_GPIOS | DEBUG_FREE_GPIOS | DEBUG_VERIFY_GPIOS | DEBUG_BACKLIGHT | DEBUG_SYSFS)
 #define DEBUG_LEVEL_4	(DEBUG_LEVEL_2 | DEBUG_FB_READ | DEBUG_FB_WRITE | DEBUG_FB_FILLRECT | DEBUG_FB_COPYAREA | DEBUG_FB_IMAGEBLIT | DEBUG_FB_BLANK)
+=======
+#define DEBUG_LEVEL_2	(DEBUG_LEVEL_1 | DEBUG_DRIVER_INIT_FUNCTIONS        \
+				       | DEBUG_TIME_FIRST_UPDATE)
+#define DEBUG_LEVEL_3	(DEBUG_LEVEL_2 | DEBUG_RESET | DEBUG_INIT_DISPLAY   \
+				       | DEBUG_BLANK | DEBUG_REQUEST_GPIOS  \
+				       | DEBUG_FREE_GPIOS                   \
+				       | DEBUG_VERIFY_GPIOS                 \
+				       | DEBUG_BACKLIGHT | DEBUG_SYSFS)
+#define DEBUG_LEVEL_4	(DEBUG_LEVEL_2 | DEBUG_FB_READ | DEBUG_FB_WRITE     \
+				       | DEBUG_FB_FILLRECT                  \
+				       | DEBUG_FB_COPYAREA                  \
+				       | DEBUG_FB_IMAGEBLIT | DEBUG_FB_BLANK)
+>>>>>>> upstream/android-13
 #define DEBUG_LEVEL_5	(DEBUG_LEVEL_3 | DEBUG_UPDATE_DISPLAY)
 #define DEBUG_LEVEL_6	(DEBUG_LEVEL_4 | DEBUG_LEVEL_5)
 #define DEBUG_LEVEL_7	0xFFFFFFFF
 
+<<<<<<< HEAD
 #define DEBUG_DRIVER_INIT_FUNCTIONS (1<<3)
 #define DEBUG_TIME_FIRST_UPDATE     (1<<4)
 #define DEBUG_TIME_EACH_UPDATE      (1<<5)
@@ -388,6 +445,41 @@ module_exit(fbtft_driver_module_exit);
 #define DEBUG_FREE_GPIOS            (1<<29)
 #define DEBUG_REQUEST_GPIOS_MATCH   (1<<30)
 #define DEBUG_VERIFY_GPIOS          (1<<31)
+=======
+#define DEBUG_DRIVER_INIT_FUNCTIONS BIT(3)
+#define DEBUG_TIME_FIRST_UPDATE     BIT(4)
+#define DEBUG_TIME_EACH_UPDATE      BIT(5)
+#define DEBUG_DEFERRED_IO           BIT(6)
+#define DEBUG_FBTFT_INIT_FUNCTIONS  BIT(7)
+
+/* fbops */
+#define DEBUG_FB_READ               BIT(8)
+#define DEBUG_FB_WRITE              BIT(9)
+#define DEBUG_FB_FILLRECT           BIT(10)
+#define DEBUG_FB_COPYAREA           BIT(11)
+#define DEBUG_FB_IMAGEBLIT          BIT(12)
+#define DEBUG_FB_SETCOLREG          BIT(13)
+#define DEBUG_FB_BLANK              BIT(14)
+
+#define DEBUG_SYSFS                 BIT(16)
+
+/* fbtftops */
+#define DEBUG_BACKLIGHT             BIT(17)
+#define DEBUG_READ                  BIT(18)
+#define DEBUG_WRITE                 BIT(19)
+#define DEBUG_WRITE_VMEM            BIT(20)
+#define DEBUG_WRITE_REGISTER        BIT(21)
+#define DEBUG_SET_ADDR_WIN          BIT(22)
+#define DEBUG_RESET                 BIT(23)
+#define DEBUG_MKDIRTY               BIT(24)
+#define DEBUG_UPDATE_DISPLAY        BIT(25)
+#define DEBUG_INIT_DISPLAY          BIT(26)
+#define DEBUG_BLANK                 BIT(27)
+#define DEBUG_REQUEST_GPIOS         BIT(28)
+#define DEBUG_FREE_GPIOS            BIT(29)
+#define DEBUG_REQUEST_GPIOS_MATCH   BIT(30)
+#define DEBUG_VERIFY_GPIOS          BIT(31)
+>>>>>>> upstream/android-13
 
 #define fbtft_init_dbg(dev, format, arg...)                  \
 do {                                                         \
@@ -398,8 +490,13 @@ do {                                                         \
 
 #define fbtft_par_dbg(level, par, format, arg...)            \
 do {                                                         \
+<<<<<<< HEAD
 	if (unlikely(par->debug & level))                    \
 		dev_info(par->info->device, format, ##arg);  \
+=======
+	if (unlikely((par)->debug & (level)))                    \
+		dev_info((par)->info->device, format, ##arg);  \
+>>>>>>> upstream/android-13
 } while (0)
 
 #define fbtft_par_dbg_hex(level, par, dev, type, buf, num, format, arg...) \

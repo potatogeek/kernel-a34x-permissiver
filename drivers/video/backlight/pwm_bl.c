@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * linux/drivers/video/backlight/pwm_bl.c
  *
@@ -8,11 +9,21 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Simple PWM based backlight control, board code has to setup
+ * 1) pin configuration so PWM waveforms can output
+ * 2) platform_data being correctly configured
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
 #include <linux/gpio/consumer.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/init.h>
@@ -28,7 +39,10 @@
 struct pwm_bl_data {
 	struct pwm_device	*pwm;
 	struct device		*dev;
+<<<<<<< HEAD
 	unsigned int		period;
+=======
+>>>>>>> upstream/android-13
 	unsigned int		lth_brightness;
 	unsigned int		*levels;
 	bool			enabled;
@@ -46,10 +60,19 @@ struct pwm_bl_data {
 	void			(*exit)(struct device *);
 };
 
+<<<<<<< HEAD
 static void pwm_backlight_power_on(struct pwm_bl_data *pb, int brightness)
 {
 	int err;
 
+=======
+static void pwm_backlight_power_on(struct pwm_bl_data *pb)
+{
+	struct pwm_state state;
+	int err;
+
+	pwm_get_state(pb->pwm, &state);
+>>>>>>> upstream/android-13
 	if (pb->enabled)
 		return;
 
@@ -57,7 +80,12 @@ static void pwm_backlight_power_on(struct pwm_bl_data *pb, int brightness)
 	if (err < 0)
 		dev_err(pb->dev, "failed to enable power supply\n");
 
+<<<<<<< HEAD
 	pwm_enable(pb->pwm);
+=======
+	state.enabled = true;
+	pwm_apply_state(pb->pwm, &state);
+>>>>>>> upstream/android-13
 
 	if (pb->post_pwm_on_delay)
 		msleep(pb->post_pwm_on_delay);
@@ -70,6 +98,12 @@ static void pwm_backlight_power_on(struct pwm_bl_data *pb, int brightness)
 
 static void pwm_backlight_power_off(struct pwm_bl_data *pb)
 {
+<<<<<<< HEAD
+=======
+	struct pwm_state state;
+
+	pwm_get_state(pb->pwm, &state);
+>>>>>>> upstream/android-13
 	if (!pb->enabled)
 		return;
 
@@ -79,8 +113,14 @@ static void pwm_backlight_power_off(struct pwm_bl_data *pb)
 	if (pb->pwm_off_delay)
 		msleep(pb->pwm_off_delay);
 
+<<<<<<< HEAD
 	pwm_config(pb->pwm, 0, pb->period);
 	pwm_disable(pb->pwm);
+=======
+	state.enabled = false;
+	state.duty_cycle = 0;
+	pwm_apply_state(pb->pwm, &state);
+>>>>>>> upstream/android-13
 
 	regulator_disable(pb->power_supply);
 	pb->enabled = false;
@@ -89,14 +129,26 @@ static void pwm_backlight_power_off(struct pwm_bl_data *pb)
 static int compute_duty_cycle(struct pwm_bl_data *pb, int brightness)
 {
 	unsigned int lth = pb->lth_brightness;
+<<<<<<< HEAD
 	u64 duty_cycle;
 
+=======
+	struct pwm_state state;
+	u64 duty_cycle;
+
+	pwm_get_state(pb->pwm, &state);
+
+>>>>>>> upstream/android-13
 	if (pb->levels)
 		duty_cycle = pb->levels[brightness];
 	else
 		duty_cycle = brightness;
 
+<<<<<<< HEAD
 	duty_cycle *= pb->period - lth;
+=======
+	duty_cycle *= state.period - lth;
+>>>>>>> upstream/android-13
 	do_div(duty_cycle, pb->scale);
 
 	return duty_cycle + lth;
@@ -105,6 +157,7 @@ static int compute_duty_cycle(struct pwm_bl_data *pb, int brightness)
 static int pwm_backlight_update_status(struct backlight_device *bl)
 {
 	struct pwm_bl_data *pb = bl_get_data(bl);
+<<<<<<< HEAD
 	int brightness = bl->props.brightness;
 	int duty_cycle;
 
@@ -112,16 +165,30 @@ static int pwm_backlight_update_status(struct backlight_device *bl)
 	    bl->props.fb_blank != FB_BLANK_UNBLANK ||
 	    bl->props.state & BL_CORE_FBBLANK)
 		brightness = 0;
+=======
+	int brightness = backlight_get_brightness(bl);
+	struct pwm_state state;
+>>>>>>> upstream/android-13
 
 	if (pb->notify)
 		brightness = pb->notify(pb->dev, brightness);
 
 	if (brightness > 0) {
+<<<<<<< HEAD
 		duty_cycle = compute_duty_cycle(pb, brightness);
 		pwm_config(pb->pwm, duty_cycle, pb->period);
 		pwm_backlight_power_on(pb, brightness);
 	} else
 		pwm_backlight_power_off(pb);
+=======
+		pwm_get_state(pb->pwm, &state);
+		state.duty_cycle = compute_duty_cycle(pb, brightness);
+		pwm_apply_state(pb->pwm, &state);
+		pwm_backlight_power_on(pb);
+	} else {
+		pwm_backlight_power_off(pb);
+	}
+>>>>>>> upstream/android-13
 
 	if (pb->notify_after)
 		pb->notify_after(pb->dev, brightness);
@@ -143,6 +210,7 @@ static const struct backlight_ops pwm_backlight_ops = {
 };
 
 #ifdef CONFIG_OF
+<<<<<<< HEAD
 #define PWM_LUMINANCE_SCALE	10000 /* luminance scale */
 
 /* An integer based power function */
@@ -159,14 +227,23 @@ static u64 int_pow(u64 base, int exp)
 
 	return result;
 }
+=======
+#define PWM_LUMINANCE_SHIFT	16
+#define PWM_LUMINANCE_SCALE	(1 << PWM_LUMINANCE_SHIFT) /* luminance scale */
+>>>>>>> upstream/android-13
 
 /*
  * CIE lightness to PWM conversion.
  *
  * The CIE 1931 lightness formula is what actually describes how we perceive
  * light:
+<<<<<<< HEAD
  *          Y = (L* / 902.3)           if L* ≤ 0.08856
  *          Y = ((L* + 16) / 116)^3    if L* > 0.08856
+=======
+ *          Y = (L* / 903.3)           if L* ≤ 8
+ *          Y = ((L* + 16) / 116)^3    if L* > 8
+>>>>>>> upstream/android-13
  *
  * Where Y is the luminance, the amount of light coming out of the screen, and
  * is a number between 0.0 and 1.0; and L* is the lightness, how bright a human
@@ -175,6 +252,7 @@ static u64 int_pow(u64 base, int exp)
  * The following function does the fixed point maths needed to implement the
  * above formula.
  */
+<<<<<<< HEAD
 static u64 cie1931(unsigned int lightness, unsigned int scale)
 {
 	u64 retval;
@@ -185,6 +263,27 @@ static u64 cie1931(unsigned int lightness, unsigned int scale)
 	} else {
 		retval = int_pow((lightness + (16 * scale)) / 116, 3);
 		retval = DIV_ROUND_CLOSEST_ULL(retval, (scale * scale));
+=======
+static u64 cie1931(unsigned int lightness)
+{
+	u64 retval;
+
+	/*
+	 * @lightness is given as a number between 0 and 1, expressed
+	 * as a fixed-point number in scale
+	 * PWM_LUMINANCE_SCALE. Convert to a percentage, still
+	 * expressed as a fixed-point number, so the above formulas
+	 * can be applied.
+	 */
+	lightness *= 100;
+	if (lightness <= (8 * PWM_LUMINANCE_SCALE)) {
+		retval = DIV_ROUND_CLOSEST(lightness * 10, 9033);
+	} else {
+		retval = (lightness + (16 * PWM_LUMINANCE_SCALE)) / 116;
+		retval *= retval * retval;
+		retval += 1ULL << (2*PWM_LUMINANCE_SHIFT - 1);
+		retval >>= 2*PWM_LUMINANCE_SHIFT;
+>>>>>>> upstream/android-13
 	}
 
 	return retval;
@@ -218,8 +317,12 @@ int pwm_backlight_brightness_default(struct device *dev,
 	/* Fill the table using the cie1931 algorithm */
 	for (i = 0; i < data->max_brightness; i++) {
 		retval = cie1931((i * PWM_LUMINANCE_SCALE) /
+<<<<<<< HEAD
 				 data->max_brightness, PWM_LUMINANCE_SCALE) *
 				 period;
+=======
+				 data->max_brightness) * period;
+>>>>>>> upstream/android-13
 		retval = DIV_ROUND_CLOSEST_ULL(retval, PWM_LUMINANCE_SCALE);
 		if (retval > UINT_MAX)
 			return -EINVAL;
@@ -236,8 +339,12 @@ static int pwm_backlight_parse_dt(struct device *dev,
 				  struct platform_pwm_backlight_data *data)
 {
 	struct device_node *node = dev->of_node;
+<<<<<<< HEAD
 	unsigned int num_levels = 0;
 	unsigned int levels_count;
+=======
+	unsigned int num_levels;
+>>>>>>> upstream/android-13
 	unsigned int num_steps = 0;
 	struct property *prop;
 	unsigned int *table;
@@ -258,8 +365,11 @@ static int pwm_backlight_parse_dt(struct device *dev,
 			     &data->post_pwm_on_delay);
 	of_property_read_u32(node, "pwm-off-delay-ms", &data->pwm_off_delay);
 
+<<<<<<< HEAD
 	data->enable_gpio = -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Determine the number of brightness levels, if this property is not
 	 * set a default table of brightness levels will be used.
@@ -268,12 +378,20 @@ static int pwm_backlight_parse_dt(struct device *dev,
 	if (!prop)
 		return 0;
 
+<<<<<<< HEAD
 	data->max_brightness = length / sizeof(u32);
 
 	/* read brightness levels from DT property */
 	if (data->max_brightness > 0) {
 		size_t size = sizeof(*data->levels) * data->max_brightness;
 		unsigned int i, j, n = 0;
+=======
+	num_levels = length / sizeof(u32);
+
+	/* read brightness levels from DT property */
+	if (num_levels > 0) {
+		size_t size = sizeof(*data->levels) * num_levels;
+>>>>>>> upstream/android-13
 
 		data->levels = devm_kzalloc(dev, size, GFP_KERNEL);
 		if (!data->levels)
@@ -281,7 +399,11 @@ static int pwm_backlight_parse_dt(struct device *dev,
 
 		ret = of_property_read_u32_array(node, "brightness-levels",
 						 data->levels,
+<<<<<<< HEAD
 						 data->max_brightness);
+=======
+						 num_levels);
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			return ret;
 
@@ -306,7 +428,17 @@ static int pwm_backlight_parse_dt(struct device *dev,
 		 * between two points.
 		 */
 		if (num_steps) {
+<<<<<<< HEAD
 			if (data->max_brightness < 2) {
+=======
+			unsigned int num_input_levels = num_levels;
+			unsigned int i;
+			u32 x1, x2, x, dx;
+			u32 y1, y2;
+			s64 dy;
+
+			if (num_input_levels < 2) {
+>>>>>>> upstream/android-13
 				dev_err(dev, "can't interpolate\n");
 				return -EINVAL;
 			}
@@ -316,6 +448,7 @@ static int pwm_backlight_parse_dt(struct device *dev,
 			 * taking in consideration the number of interpolated
 			 * steps between two levels.
 			 */
+<<<<<<< HEAD
 			for (i = 0; i < data->max_brightness - 1; i++) {
 				if ((data->levels[i + 1] - data->levels[i]) /
 				   num_steps)
@@ -324,6 +457,9 @@ static int pwm_backlight_parse_dt(struct device *dev,
 					num_levels++;
 			}
 			num_levels++;
+=======
+			num_levels = (num_input_levels - 1) * num_steps + 1;
+>>>>>>> upstream/android-13
 			dev_dbg(dev, "new number of brightness levels: %d\n",
 				num_levels);
 
@@ -335,6 +471,7 @@ static int pwm_backlight_parse_dt(struct device *dev,
 			table = devm_kzalloc(dev, size, GFP_KERNEL);
 			if (!table)
 				return -ENOMEM;
+<<<<<<< HEAD
 
 			/* Fill the interpolated table. */
 			levels_count = 0;
@@ -353,6 +490,27 @@ static int pwm_backlight_parse_dt(struct device *dev,
 				}
 			}
 			table[levels_count] = data->levels[i];
+=======
+			/*
+			 * Fill the interpolated table[x] = y
+			 * by draw lines between each (x1, y1) to (x2, y2).
+			 */
+			dx = num_steps;
+			for (i = 0; i < num_input_levels - 1; i++) {
+				x1 = i * dx;
+				x2 = x1 + dx;
+				y1 = data->levels[i];
+				y2 = data->levels[i + 1];
+				dy = (s64)y2 - y1;
+
+				for (x = x1; x < x2; x++) {
+					table[x] = y1 +
+						div_s64(dy * (x - x1), dx);
+				}
+			}
+			/* Fill in the last point, since no line starts here. */
+			table[x2] = y2;
+>>>>>>> upstream/android-13
 
 			/*
 			 * As we use interpolation lets remove current
@@ -361,6 +519,7 @@ static int pwm_backlight_parse_dt(struct device *dev,
 			 */
 			devm_kfree(dev, data->levels);
 			data->levels = table;
+<<<<<<< HEAD
 
 			/*
 			 * Reassign max_brightness value to the new total number
@@ -370,6 +529,11 @@ static int pwm_backlight_parse_dt(struct device *dev,
 		}
 
 		data->max_brightness--;
+=======
+		}
+
+		data->max_brightness = num_levels - 1;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -397,9 +561,67 @@ int pwm_backlight_brightness_default(struct device *dev,
 }
 #endif
 
+<<<<<<< HEAD
 static int pwm_backlight_initial_power_state(const struct pwm_bl_data *pb)
 {
 	struct device_node *node = pb->dev->of_node;
+=======
+static bool pwm_backlight_is_linear(struct platform_pwm_backlight_data *data)
+{
+	unsigned int nlevels = data->max_brightness + 1;
+	unsigned int min_val = data->levels[0];
+	unsigned int max_val = data->levels[nlevels - 1];
+	/*
+	 * Multiplying by 128 means that even in pathological cases such
+	 * as (max_val - min_val) == nlevels the error at max_val is less
+	 * than 1%.
+	 */
+	unsigned int slope = (128 * (max_val - min_val)) / nlevels;
+	unsigned int margin = (max_val - min_val) / 20; /* 5% */
+	int i;
+
+	for (i = 1; i < nlevels; i++) {
+		unsigned int linear_value = min_val + ((i * slope) / 128);
+		unsigned int delta = abs(linear_value - data->levels[i]);
+
+		if (delta > margin)
+			return false;
+	}
+
+	return true;
+}
+
+static int pwm_backlight_initial_power_state(const struct pwm_bl_data *pb)
+{
+	struct device_node *node = pb->dev->of_node;
+	bool active = true;
+
+	/*
+	 * If the enable GPIO is present, observable (either as input
+	 * or output) and off then the backlight is not currently active.
+	 * */
+	if (pb->enable_gpio && gpiod_get_value_cansleep(pb->enable_gpio) == 0)
+		active = false;
+
+	if (!regulator_is_enabled(pb->power_supply))
+		active = false;
+
+	if (!pwm_is_enabled(pb->pwm))
+		active = false;
+
+	/*
+	 * Synchronize the enable_gpio with the observed state of the
+	 * hardware.
+	 */
+	if (pb->enable_gpio)
+		gpiod_direction_output(pb->enable_gpio, active);
+
+	/*
+	 * Do not change pb->enabled here! pb->enabled essentially
+	 * tells us if we own one of the regulator's use counts and
+	 * right now we do not.
+	 */
+>>>>>>> upstream/android-13
 
 	/* Not booted with device tree or no phandle link to the node */
 	if (!node || !node->phandle)
@@ -411,6 +633,7 @@ static int pwm_backlight_initial_power_state(const struct pwm_bl_data *pb)
 	 * assume that another driver will enable the backlight at the
 	 * appropriate time. Therefore, if it is disabled, keep it so.
 	 */
+<<<<<<< HEAD
 
 	/* if the enable GPIO is disabled, do not enable the backlight */
 	if (pb->enable_gpio && gpiod_get_value_cansleep(pb->enable_gpio) == 0)
@@ -425,6 +648,9 @@ static int pwm_backlight_initial_power_state(const struct pwm_bl_data *pb)
 		return FB_BLANK_POWERDOWN;
 
 	return FB_BLANK_UNBLANK;
+=======
+	return active ? FB_BLANK_UNBLANK: FB_BLANK_POWERDOWN;
+>>>>>>> upstream/android-13
 }
 
 static int pwm_backlight_probe(struct platform_device *pdev)
@@ -436,7 +662,10 @@ static int pwm_backlight_probe(struct platform_device *pdev)
 	struct device_node *node = pdev->dev.of_node;
 	struct pwm_bl_data *pb;
 	struct pwm_state state;
+<<<<<<< HEAD
 	struct pwm_args pargs;
+=======
+>>>>>>> upstream/android-13
 	unsigned int i;
 	int ret;
 
@@ -478,6 +707,7 @@ static int pwm_backlight_probe(struct platform_device *pdev)
 		goto err_alloc;
 	}
 
+<<<<<<< HEAD
 	/*
 	 * Compatibility fallback for drivers still using the integer GPIO
 	 * platform data. Must go away soon.
@@ -506,6 +736,8 @@ static int pwm_backlight_probe(struct platform_device *pdev)
 	    gpiod_get_direction(pb->enable_gpio) != 0)
 		gpiod_direction_output(pb->enable_gpio, 1);
 
+=======
+>>>>>>> upstream/android-13
 	pb->power_supply = devm_regulator_get(&pdev->dev, "power");
 	if (IS_ERR(pb->power_supply)) {
 		ret = PTR_ERR(pb->power_supply);
@@ -528,7 +760,56 @@ static int pwm_backlight_probe(struct platform_device *pdev)
 
 	dev_dbg(&pdev->dev, "got pwm for backlight\n");
 
+<<<<<<< HEAD
 	if (!data->levels) {
+=======
+	/* Sync up PWM state. */
+	pwm_init_state(pb->pwm, &state);
+
+	/*
+	 * The DT case will set the pwm_period_ns field to 0 and store the
+	 * period, parsed from the DT, in the PWM device. For the non-DT case,
+	 * set the period from platform data if it has not already been set
+	 * via the PWM lookup table.
+	 */
+	if (!state.period && (data->pwm_period_ns > 0))
+		state.period = data->pwm_period_ns;
+
+	ret = pwm_apply_state(pb->pwm, &state);
+	if (ret) {
+		dev_err(&pdev->dev, "failed to apply initial PWM state: %d\n",
+			ret);
+		goto err_alloc;
+	}
+
+	memset(&props, 0, sizeof(struct backlight_properties));
+
+	if (data->levels) {
+		pb->levels = data->levels;
+
+		/*
+		 * For the DT case, only when brightness levels is defined
+		 * data->levels is filled. For the non-DT case, data->levels
+		 * can come from platform data, however is not usual.
+		 */
+		for (i = 0; i <= data->max_brightness; i++)
+			if (data->levels[i] > pb->scale)
+				pb->scale = data->levels[i];
+
+		if (pwm_backlight_is_linear(data))
+			props.scale = BACKLIGHT_SCALE_LINEAR;
+		else
+			props.scale = BACKLIGHT_SCALE_NON_LINEAR;
+	} else if (!data->max_brightness) {
+		/*
+		 * If no brightness levels are provided and max_brightness is
+		 * not set, use the default brightness table. For the DT case,
+		 * max_brightness is set to 0 when brightness levels is not
+		 * specified. For the non-DT case, max_brightness is usually
+		 * set to some value.
+		 */
+
+>>>>>>> upstream/android-13
 		/* Get the PWM period (in nanoseconds) */
 		pwm_get_state(pb->pwm, &state);
 
@@ -539,6 +820,7 @@ static int pwm_backlight_probe(struct platform_device *pdev)
 				"failed to setup default brightness table\n");
 			goto err_alloc;
 		}
+<<<<<<< HEAD
 	}
 
 	for (i = 0; i <= data->max_brightness; i++) {
@@ -568,6 +850,28 @@ static int pwm_backlight_probe(struct platform_device *pdev)
 	pb->lth_brightness = data->lth_brightness * (pb->period / pb->scale);
 
 	memset(&props, 0, sizeof(struct backlight_properties));
+=======
+
+		for (i = 0; i <= data->max_brightness; i++) {
+			if (data->levels[i] > pb->scale)
+				pb->scale = data->levels[i];
+
+			pb->levels = data->levels;
+		}
+
+		props.scale = BACKLIGHT_SCALE_NON_LINEAR;
+	} else {
+		/*
+		 * That only happens for the non-DT case, where platform data
+		 * sets the max_brightness value.
+		 */
+		pb->scale = data->max_brightness;
+	}
+
+	pb->lth_brightness = data->lth_brightness * (div_u64(state.period,
+				pb->scale));
+
+>>>>>>> upstream/android-13
 	props.type = BACKLIGHT_RAW;
 	props.max_brightness = data->max_brightness;
 	bl = backlight_device_register(dev_name(&pdev->dev), &pdev->dev, pb,
@@ -674,5 +978,9 @@ static struct platform_driver pwm_backlight_driver = {
 module_platform_driver(pwm_backlight_driver);
 
 MODULE_DESCRIPTION("PWM based Backlight Driver");
+<<<<<<< HEAD
 MODULE_LICENSE("GPL");
+=======
+MODULE_LICENSE("GPL v2");
+>>>>>>> upstream/android-13
 MODULE_ALIAS("platform:pwm-backlight");

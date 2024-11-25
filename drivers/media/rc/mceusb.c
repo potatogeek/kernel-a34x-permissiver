@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for USB Windows Media Center Ed. eHome Infrared Transceivers
  *
@@ -19,6 +23,7 @@
  * remote/transceiver requirements and specification document, found at
  * download.microsoft.com, title
  * Windows-Media-Center-RC-IR-Collection-Green-Button-Specification-03-08-2011-V2.pdf
+<<<<<<< HEAD
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -31,6 +36,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -80,7 +87,11 @@
 #define MCE_CMD			0x1f
 #define MCE_PORT_IR		0x4	/* (0x4 << 5) | MCE_CMD = 0x9f */
 #define MCE_PORT_SYS		0x7	/* (0x7 << 5) | MCE_CMD = 0xff */
+<<<<<<< HEAD
 #define MCE_PORT_SER		0x6	/* 0xc0 thru 0xdf flush & 0x1f bytes */
+=======
+#define MCE_PORT_SER		0x6	/* 0xc0 through 0xdf flush & 0x1f bytes */
+>>>>>>> upstream/android-13
 #define MCE_PORT_MASK		0xe0	/* Mask out command bits */
 
 /* Command port headers */
@@ -433,6 +444,18 @@ static const struct usb_device_id mceusb_dev_table[] = {
 	  .driver_info = HAUPPAUGE_CX_HYBRID_TV },
 	{ USB_DEVICE(VENDOR_HAUPPAUGE, 0xb139),
 	  .driver_info = HAUPPAUGE_CX_HYBRID_TV },
+<<<<<<< HEAD
+=======
+	/* Hauppauge WinTV-HVR-935C - based on cx231xx */
+	{ USB_DEVICE(VENDOR_HAUPPAUGE, 0xb151),
+	  .driver_info = HAUPPAUGE_CX_HYBRID_TV },
+	/* Hauppauge WinTV-HVR-955Q - based on cx231xx */
+	{ USB_DEVICE(VENDOR_HAUPPAUGE, 0xb123),
+	  .driver_info = HAUPPAUGE_CX_HYBRID_TV },
+	/* Hauppauge WinTV-HVR-975 - based on cx231xx */
+	{ USB_DEVICE(VENDOR_HAUPPAUGE, 0xb150),
+	  .driver_info = HAUPPAUGE_CX_HYBRID_TV },
+>>>>>>> upstream/android-13
 	{ USB_DEVICE(VENDOR_PCTV, 0x0259),
 	  .driver_info = HAUPPAUGE_CX_HYBRID_TV },
 	{ USB_DEVICE(VENDOR_PCTV, 0x025e),
@@ -464,6 +487,10 @@ struct mceusb_dev {
 
 	/* usb */
 	struct usb_device *usbdev;
+<<<<<<< HEAD
+=======
+	struct usb_interface *usbintf;
+>>>>>>> upstream/android-13
 	struct urb *urb_in;
 	unsigned int pipe_in;
 	struct usb_endpoint_descriptor *usb_ep_out;
@@ -520,6 +547,10 @@ struct mceusb_dev {
 	unsigned long kevent_flags;
 #		define EVENT_TX_HALT	0
 #		define EVENT_RX_HALT	1
+<<<<<<< HEAD
+=======
+#		define EVENT_RST_PEND	31
+>>>>>>> upstream/android-13
 };
 
 /* MCE Device Command Strings, generally a port and command pair */
@@ -564,7 +595,11 @@ static int mceusb_cmd_datasize(u8 cmd, u8 subcmd)
 			datasize = 4;
 			break;
 		case MCE_CMD_G_REVISION:
+<<<<<<< HEAD
 			datasize = 2;
+=======
+			datasize = 4;
+>>>>>>> upstream/android-13
 			break;
 		case MCE_RSP_EQWAKESUPPORT:
 		case MCE_RSP_GETWAKESOURCE:
@@ -600,6 +635,7 @@ static void mceusb_dev_printdata(struct mceusb_dev *ir, u8 *buf, int buf_len,
 	char *inout;
 	u8 cmd, subcmd, *data;
 	struct device *dev = ir->dev;
+<<<<<<< HEAD
 	int start, skip = 0;
 	u32 carrier, period;
 
@@ -608,6 +644,11 @@ static void mceusb_dev_printdata(struct mceusb_dev *ir, u8 *buf, int buf_len,
 		skip = 2;
 
 	if (len <= skip)
+=======
+	u32 carrier, period;
+
+	if (offset < 0 || offset >= buf_len)
+>>>>>>> upstream/android-13
 		return;
 
 	dev_dbg(dev, "%cx data[%d]: %*ph (len=%d sz=%d)",
@@ -616,11 +657,40 @@ static void mceusb_dev_printdata(struct mceusb_dev *ir, u8 *buf, int buf_len,
 
 	inout = out ? "Request" : "Got";
 
+<<<<<<< HEAD
 	start  = offset + skip;
 	cmd    = buf[start] & 0xff;
 	subcmd = buf[start + 1] & 0xff;
 	data = buf + start + 2;
 
+=======
+	cmd    = buf[offset];
+	subcmd = (offset + 1 < buf_len) ? buf[offset + 1] : 0;
+	data   = &buf[offset] + 2;
+
+	/* Trace meaningless 0xb1 0x60 header bytes on original receiver */
+	if (ir->flags.microsoft_gen1 && !out && !offset) {
+		dev_dbg(dev, "MCE gen 1 header");
+		return;
+	}
+
+	/* Trace IR data header or trailer */
+	if (cmd != MCE_CMD_PORT_IR &&
+	    (cmd & MCE_PORT_MASK) == MCE_COMMAND_IRDATA) {
+		if (cmd == MCE_IRDATA_TRAILER)
+			dev_dbg(dev, "End of raw IR data");
+		else
+			dev_dbg(dev, "Raw IR data, %d pulse/space samples",
+				cmd & MCE_PACKET_LENGTH_MASK);
+		return;
+	}
+
+	/* Unexpected end of buffer? */
+	if (offset + len > buf_len)
+		return;
+
+	/* Decode MCE command/response */
+>>>>>>> upstream/android-13
 	switch (cmd) {
 	case MCE_CMD_NULL:
 		if (subcmd == MCE_CMD_NULL)
@@ -644,7 +714,11 @@ static void mceusb_dev_printdata(struct mceusb_dev *ir, u8 *buf, int buf_len,
 				dev_dbg(dev, "Get hw/sw rev?");
 			else
 				dev_dbg(dev, "hw/sw rev %*ph",
+<<<<<<< HEAD
 					4, &buf[start + 2]);
+=======
+					4, &buf[offset + 2]);
+>>>>>>> upstream/android-13
 			break;
 		case MCE_CMD_RESUME:
 			dev_dbg(dev, "Device resume requested");
@@ -753,6 +827,7 @@ static void mceusb_dev_printdata(struct mceusb_dev *ir, u8 *buf, int buf_len,
 	default:
 		break;
 	}
+<<<<<<< HEAD
 
 	if (cmd == MCE_IRDATA_TRAILER)
 		dev_dbg(dev, "End of raw IR data");
@@ -760,6 +835,8 @@ static void mceusb_dev_printdata(struct mceusb_dev *ir, u8 *buf, int buf_len,
 		 ((cmd & MCE_PORT_MASK) == MCE_COMMAND_IRDATA))
 		dev_dbg(dev, "Raw IR data, %d pulse/space samples",
 			cmd & MCE_PACKET_LENGTH_MASK);
+=======
+>>>>>>> upstream/android-13
 #endif
 }
 
@@ -772,8 +849,20 @@ static void mceusb_dev_printdata(struct mceusb_dev *ir, u8 *buf, int buf_len,
 static void mceusb_defer_kevent(struct mceusb_dev *ir, int kevent)
 {
 	set_bit(kevent, &ir->kevent_flags);
+<<<<<<< HEAD
 	if (!schedule_work(&ir->kevent))
 		dev_err(ir->dev, "kevent %d may have been dropped", kevent);
+=======
+
+	if (test_bit(EVENT_RST_PEND, &ir->kevent_flags)) {
+		dev_dbg(ir->dev, "kevent %d dropped pending USB Reset Device",
+			kevent);
+		return;
+	}
+
+	if (!schedule_work(&ir->kevent))
+		dev_dbg(ir->dev, "kevent %d already scheduled", kevent);
+>>>>>>> upstream/android-13
 	else
 		dev_dbg(ir->dev, "kevent %d scheduled", kevent);
 }
@@ -1061,7 +1150,11 @@ static int mceusb_set_timeout(struct rc_dev *dev, unsigned int timeout)
 	struct mceusb_dev *ir = dev->priv;
 	unsigned int units;
 
+<<<<<<< HEAD
 	units = DIV_ROUND_CLOSEST(timeout, US_TO_NS(MCE_TIME_UNIT));
+=======
+	units = DIV_ROUND_CLOSEST(timeout, MCE_TIME_UNIT);
+>>>>>>> upstream/android-13
 
 	cmdbuf[2] = units >> 8;
 	cmdbuf[3] = units;
@@ -1136,10 +1229,20 @@ static int mceusb_set_rx_carrier_report(struct rc_dev *dev, int enable)
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * Handle PORT_SYS/IR command response received from the MCE device.
+ *
+ * Assumes single response with all its data (not truncated)
+ * in buf_in[]. The response itself determines its total length
+ * (mceusb_cmd_datasize() + 2) and hence the minimum size of buf_in[].
+ *
+>>>>>>> upstream/android-13
  * We don't do anything but print debug spew for many of the command bits
  * we receive from the hardware, but some of them are useful information
  * we want to store so that we can use them.
  */
+<<<<<<< HEAD
 static void mceusb_handle_command(struct mceusb_dev *ir, int index)
 {
 	DEFINE_IR_RAW_EVENT(rawir);
@@ -1162,6 +1265,54 @@ static void mceusb_handle_command(struct mceusb_dev *ir, int index)
 	case MCE_RSP_EQIRNUMPORTS:
 		ir->num_txports = hi;
 		ir->num_rxports = lo;
+=======
+static void mceusb_handle_command(struct mceusb_dev *ir, u8 *buf_in)
+{
+	u8 cmd = buf_in[0];
+	u8 subcmd = buf_in[1];
+	u8 *hi = &buf_in[2];		/* read only when required */
+	u8 *lo = &buf_in[3];		/* read only when required */
+	struct ir_raw_event rawir = {};
+	u32 carrier_cycles;
+	u32 cycles_fix;
+
+	if (cmd == MCE_CMD_PORT_SYS) {
+		switch (subcmd) {
+		/* the one and only 5-byte return value command */
+		case MCE_RSP_GETPORTSTATUS:
+			if (buf_in[5] == 0 && *hi < 8)
+				ir->txports_cabled |= 1 << *hi;
+			break;
+
+		/* 1-byte return value commands */
+		case MCE_RSP_EQEMVER:
+			ir->emver = *hi;
+			break;
+
+		/* No return value commands */
+		case MCE_RSP_CMD_ILLEGAL:
+			ir->need_reset = true;
+			break;
+
+		default:
+			break;
+		}
+
+		return;
+	}
+
+	if (cmd != MCE_CMD_PORT_IR)
+		return;
+
+	switch (subcmd) {
+	/* 2-byte return value commands */
+	case MCE_RSP_EQIRTIMEOUT:
+		ir->rc->timeout = (*hi << 8 | *lo) * MCE_TIME_UNIT;
+		break;
+	case MCE_RSP_EQIRNUMPORTS:
+		ir->num_txports = *hi;
+		ir->num_rxports = *lo;
+>>>>>>> upstream/android-13
 		break;
 	case MCE_RSP_EQIRRXCFCNT:
 		/*
@@ -1174,7 +1325,11 @@ static void mceusb_handle_command(struct mceusb_dev *ir, int index)
 		 */
 		if (ir->carrier_report_enabled && ir->learning_active &&
 		    ir->pulse_tunit > 0) {
+<<<<<<< HEAD
 			carrier_cycles = (hi << 8 | lo);
+=======
+			carrier_cycles = (*hi << 8 | *lo);
+>>>>>>> upstream/android-13
 			/*
 			 * Adjust carrier cycle count by adding
 			 * 1 missed count per pulse "on"
@@ -1192,6 +1347,7 @@ static void mceusb_handle_command(struct mceusb_dev *ir, int index)
 		break;
 
 	/* 1-byte return value commands */
+<<<<<<< HEAD
 	case MCE_RSP_EQEMVER:
 		ir->emver = hi;
 		break;
@@ -1206,10 +1362,29 @@ static void mceusb_handle_command(struct mceusb_dev *ir, int index)
 			ir->rxports_active = hi;
 		}
 		break;
+=======
+	case MCE_RSP_EQIRTXPORTS:
+		ir->tx_mask = *hi;
+		break;
+	case MCE_RSP_EQIRRXPORTEN:
+		ir->learning_active = ((*hi & 0x02) == 0x02);
+		if (ir->rxports_active != *hi) {
+			dev_info(ir->dev, "%s-range (0x%x) receiver active",
+				 ir->learning_active ? "short" : "long", *hi);
+			ir->rxports_active = *hi;
+		}
+		break;
+
+	/* No return value commands */
+>>>>>>> upstream/android-13
 	case MCE_RSP_CMD_ILLEGAL:
 	case MCE_RSP_TX_TIMEOUT:
 		ir->need_reset = true;
 		break;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
@@ -1217,7 +1392,11 @@ static void mceusb_handle_command(struct mceusb_dev *ir, int index)
 
 static void mceusb_process_ir_data(struct mceusb_dev *ir, int buf_len)
 {
+<<<<<<< HEAD
 	DEFINE_IR_RAW_EVENT(rawir);
+=======
+	struct ir_raw_event rawir = {};
+>>>>>>> upstream/android-13
 	bool event = false;
 	int i = 0;
 
@@ -1235,26 +1414,45 @@ static void mceusb_process_ir_data(struct mceusb_dev *ir, int buf_len)
 			ir->rem = mceusb_cmd_datasize(ir->cmd, ir->buf_in[i]);
 			mceusb_dev_printdata(ir, ir->buf_in, buf_len, i - 1,
 					     ir->rem + 2, false);
+<<<<<<< HEAD
 			mceusb_handle_command(ir, i);
+=======
+			if (i + ir->rem < buf_len)
+				mceusb_handle_command(ir, &ir->buf_in[i - 1]);
+>>>>>>> upstream/android-13
 			ir->parser_state = CMD_DATA;
 			break;
 		case PARSE_IRDATA:
 			ir->rem--;
+<<<<<<< HEAD
 			init_ir_raw_event(&rawir);
 			rawir.pulse = ((ir->buf_in[i] & MCE_PULSE_BIT) != 0);
 			rawir.duration = (ir->buf_in[i] & MCE_PULSE_MASK);
 			if (unlikely(!rawir.duration)) {
 				dev_warn(ir->dev, "nonsensical irdata %02x with duration 0",
 					 ir->buf_in[i]);
+=======
+			rawir.pulse = ((ir->buf_in[i] & MCE_PULSE_BIT) != 0);
+			rawir.duration = (ir->buf_in[i] & MCE_PULSE_MASK);
+			if (unlikely(!rawir.duration)) {
+				dev_dbg(ir->dev, "nonsensical irdata %02x with duration 0",
+					ir->buf_in[i]);
+>>>>>>> upstream/android-13
 				break;
 			}
 			if (rawir.pulse) {
 				ir->pulse_tunit += rawir.duration;
 				ir->pulse_count++;
 			}
+<<<<<<< HEAD
 			rawir.duration *= US_TO_NS(MCE_TIME_UNIT);
 
 			dev_dbg(ir->dev, "Storing %s %u ns (%02x)",
+=======
+			rawir.duration *= MCE_TIME_UNIT;
+
+			dev_dbg(ir->dev, "Storing %s %u us (%02x)",
+>>>>>>> upstream/android-13
 				rawir.pulse ? "pulse" : "space",
 				rawir.duration,	ir->buf_in[i]);
 
@@ -1265,26 +1463,54 @@ static void mceusb_process_ir_data(struct mceusb_dev *ir, int buf_len)
 			ir->rem--;
 			break;
 		case CMD_HEADER:
+<<<<<<< HEAD
 			/* decode mce packets of the form (84),AA,BB,CC,DD */
 			/* IR data packets can span USB messages - rem */
+=======
+>>>>>>> upstream/android-13
 			ir->cmd = ir->buf_in[i];
 			if ((ir->cmd == MCE_CMD_PORT_IR) ||
 			    ((ir->cmd & MCE_PORT_MASK) !=
 			     MCE_COMMAND_IRDATA)) {
+<<<<<<< HEAD
 				ir->parser_state = SUBCMD;
 				continue;
 			}
+=======
+				/*
+				 * got PORT_SYS, PORT_IR, or unknown
+				 * command response prefix
+				 */
+				ir->parser_state = SUBCMD;
+				continue;
+			}
+			/*
+			 * got IR data prefix (0x80 + num_bytes)
+			 * decode MCE packets of the form {0x83, AA, BB, CC}
+			 * IR data packets can span USB messages
+			 */
+>>>>>>> upstream/android-13
 			ir->rem = (ir->cmd & MCE_PACKET_LENGTH_MASK);
 			mceusb_dev_printdata(ir, ir->buf_in, buf_len,
 					     i, ir->rem + 1, false);
 			if (ir->rem) {
 				ir->parser_state = PARSE_IRDATA;
 			} else {
+<<<<<<< HEAD
 				init_ir_raw_event(&rawir);
 				rawir.timeout = 1;
 				rawir.duration = ir->rc->timeout;
 				if (ir_raw_event_store_with_filter(ir->rc,
 								   &rawir))
+=======
+				struct ir_raw_event ev = {
+					.timeout = 1,
+					.duration = ir->rc->timeout
+				};
+
+				if (ir_raw_event_store_with_filter(ir->rc,
+								   &ev))
+>>>>>>> upstream/android-13
 					event = true;
 				ir->pulse_tunit = 0;
 				ir->pulse_count = 0;
@@ -1295,6 +1521,17 @@ static void mceusb_process_ir_data(struct mceusb_dev *ir, int buf_len)
 		if (ir->parser_state != CMD_HEADER && !ir->rem)
 			ir->parser_state = CMD_HEADER;
 	}
+<<<<<<< HEAD
+=======
+
+	/*
+	 * Accept IR data spanning multiple rx buffers.
+	 * Reject MCE command response spanning multiple rx buffers.
+	 */
+	if (ir->parser_state != PARSE_IRDATA || !ir->rem)
+		ir->parser_state = CMD_HEADER;
+
+>>>>>>> upstream/android-13
 	if (event) {
 		dev_dbg(ir->dev, "processed IR data");
 		ir_raw_event_handle(ir->rc);
@@ -1323,6 +1560,10 @@ static void mceusb_dev_recv(struct urb *urb)
 	case -ECONNRESET:
 	case -ENOENT:
 	case -EILSEQ:
+<<<<<<< HEAD
+=======
+	case -EPROTO:
+>>>>>>> upstream/android-13
 	case -ESHUTDOWN:
 		usb_unlink_urb(urb);
 		return;
@@ -1366,7 +1607,11 @@ static void mceusb_gen1_init(struct mceusb_dev *ir)
 	 */
 	ret = usb_control_msg(ir->usbdev, usb_rcvctrlpipe(ir->usbdev, 0),
 			      USB_REQ_SET_ADDRESS, USB_TYPE_VENDOR, 0, 0,
+<<<<<<< HEAD
 			      data, USB_CTRL_MSG_SZ, HZ * 3);
+=======
+			      data, USB_CTRL_MSG_SZ, 3000);
+>>>>>>> upstream/android-13
 	dev_dbg(dev, "set address - ret = %d", ret);
 	dev_dbg(dev, "set address - data[0] = %d, data[1] = %d",
 						data[0], data[1]);
@@ -1374,20 +1619,32 @@ static void mceusb_gen1_init(struct mceusb_dev *ir)
 	/* set feature: bit rate 38400 bps */
 	ret = usb_control_msg(ir->usbdev, usb_sndctrlpipe(ir->usbdev, 0),
 			      USB_REQ_SET_FEATURE, USB_TYPE_VENDOR,
+<<<<<<< HEAD
 			      0xc04e, 0x0000, NULL, 0, HZ * 3);
+=======
+			      0xc04e, 0x0000, NULL, 0, 3000);
+>>>>>>> upstream/android-13
 
 	dev_dbg(dev, "set feature - ret = %d", ret);
 
 	/* bRequest 4: set char length to 8 bits */
 	ret = usb_control_msg(ir->usbdev, usb_sndctrlpipe(ir->usbdev, 0),
 			      4, USB_TYPE_VENDOR,
+<<<<<<< HEAD
 			      0x0808, 0x0000, NULL, 0, HZ * 3);
+=======
+			      0x0808, 0x0000, NULL, 0, 3000);
+>>>>>>> upstream/android-13
 	dev_dbg(dev, "set char length - retB = %d", ret);
 
 	/* bRequest 2: set handshaking to use DTR/DSR */
 	ret = usb_control_msg(ir->usbdev, usb_sndctrlpipe(ir->usbdev, 0),
 			      2, USB_TYPE_VENDOR,
+<<<<<<< HEAD
 			      0x0000, 0x0100, NULL, 0, HZ * 3);
+=======
+			      0x0000, 0x0100, NULL, 0, 3000);
+>>>>>>> upstream/android-13
 	dev_dbg(dev, "set handshake  - retC = %d", ret);
 
 	/* device resume */
@@ -1464,6 +1721,7 @@ static void mceusb_deferred_kevent(struct work_struct *work)
 		container_of(work, struct mceusb_dev, kevent);
 	int status;
 
+<<<<<<< HEAD
 	if (test_bit(EVENT_RX_HALT, &ir->kevent_flags)) {
 		usb_unlink_urb(ir->urb_in);
 		status = usb_clear_halt(ir->usbdev, ir->pipe_in);
@@ -1479,13 +1737,66 @@ static void mceusb_deferred_kevent(struct work_struct *work)
 					"rx unhalt submit urb error %d",
 					status);
 			}
+=======
+	dev_err(ir->dev, "kevent handler called (flags 0x%lx)",
+		ir->kevent_flags);
+
+	if (test_bit(EVENT_RST_PEND, &ir->kevent_flags)) {
+		dev_err(ir->dev, "kevent handler canceled pending USB Reset Device");
+		return;
+	}
+
+	if (test_bit(EVENT_RX_HALT, &ir->kevent_flags)) {
+		usb_unlink_urb(ir->urb_in);
+		status = usb_clear_halt(ir->usbdev, ir->pipe_in);
+		dev_err(ir->dev, "rx clear halt status = %d", status);
+		if (status < 0) {
+			/*
+			 * Unable to clear RX halt/stall.
+			 * Will need to call usb_reset_device().
+			 */
+			dev_err(ir->dev,
+				"stuck RX HALT state requires USB Reset Device to clear");
+			usb_queue_reset_device(ir->usbintf);
+			set_bit(EVENT_RST_PEND, &ir->kevent_flags);
+			clear_bit(EVENT_RX_HALT, &ir->kevent_flags);
+
+			/* Cancel all other error events and handlers */
+			clear_bit(EVENT_TX_HALT, &ir->kevent_flags);
+			return;
+		}
+		clear_bit(EVENT_RX_HALT, &ir->kevent_flags);
+		status = usb_submit_urb(ir->urb_in, GFP_KERNEL);
+		if (status < 0) {
+			dev_err(ir->dev, "rx unhalt submit urb error = %d",
+				status);
+>>>>>>> upstream/android-13
 		}
 	}
 
 	if (test_bit(EVENT_TX_HALT, &ir->kevent_flags)) {
 		status = usb_clear_halt(ir->usbdev, ir->pipe_out);
+<<<<<<< HEAD
 		if (status < 0)
 			dev_err(ir->dev, "tx clear halt error %d", status);
+=======
+		dev_err(ir->dev, "tx clear halt status = %d", status);
+		if (status < 0) {
+			/*
+			 * Unable to clear TX halt/stall.
+			 * Will need to call usb_reset_device().
+			 */
+			dev_err(ir->dev,
+				"stuck TX HALT state requires USB Reset Device to clear");
+			usb_queue_reset_device(ir->usbintf);
+			set_bit(EVENT_RST_PEND, &ir->kevent_flags);
+			clear_bit(EVENT_TX_HALT, &ir->kevent_flags);
+
+			/* Cancel all other error events and handlers */
+			clear_bit(EVENT_RX_HALT, &ir->kevent_flags);
+			return;
+		}
+>>>>>>> upstream/android-13
 		clear_bit(EVENT_TX_HALT, &ir->kevent_flags);
 	}
 }
@@ -1518,8 +1829,13 @@ static struct rc_dev *mceusb_init_rc_dev(struct mceusb_dev *ir)
 	rc->dev.parent = dev;
 	rc->priv = ir;
 	rc->allowed_protocols = RC_PROTO_BIT_ALL_IR_DECODER;
+<<<<<<< HEAD
 	rc->min_timeout = US_TO_NS(MCE_TIME_UNIT);
 	rc->timeout = MS_TO_NS(100);
+=======
+	rc->min_timeout = MCE_TIME_UNIT;
+	rc->timeout = MS_TO_US(100);
+>>>>>>> upstream/android-13
 	if (!mceusb_model[ir->model].broken_irtimeout) {
 		rc->s_timeout = mceusb_set_timeout;
 		rc->max_timeout = 10 * IR_DEFAULT_TIMEOUT;
@@ -1536,7 +1852,11 @@ static struct rc_dev *mceusb_init_rc_dev(struct mceusb_dev *ir)
 		rc->tx_ir = mceusb_tx_ir;
 	}
 	if (ir->flags.rx2 > 0) {
+<<<<<<< HEAD
 		rc->s_learning_mode = mceusb_set_rx_wideband;
+=======
+		rc->s_wideband_receiver = mceusb_set_rx_wideband;
+>>>>>>> upstream/android-13
 		rc->s_carrier_report = mceusb_set_rx_carrier_report;
 	}
 	rc->driver_name = DRIVER_NAME;
@@ -1639,7 +1959,11 @@ static int mceusb_dev_probe(struct usb_interface *intf,
 		goto mem_alloc_fail;
 
 	ir->pipe_in = pipe;
+<<<<<<< HEAD
 	ir->buf_in = usb_alloc_coherent(dev, maxp, GFP_ATOMIC, &ir->dma_in);
+=======
+	ir->buf_in = usb_alloc_coherent(dev, maxp, GFP_KERNEL, &ir->dma_in);
+>>>>>>> upstream/android-13
 	if (!ir->buf_in)
 		goto buf_in_alloc_fail;
 
@@ -1647,6 +1971,10 @@ static int mceusb_dev_probe(struct usb_interface *intf,
 	if (!ir->urb_in)
 		goto urb_in_alloc_fail;
 
+<<<<<<< HEAD
+=======
+	ir->usbintf = intf;
+>>>>>>> upstream/android-13
 	ir->usbdev = usb_get_dev(dev);
 	ir->dev = &intf->dev;
 	ir->len_in = maxp;
@@ -1668,7 +1996,11 @@ static int mceusb_dev_probe(struct usb_interface *intf,
 	if (dev->descriptor.iManufacturer
 	    && usb_string(dev, dev->descriptor.iManufacturer,
 			  buf, sizeof(buf)) > 0)
+<<<<<<< HEAD
 		strlcpy(name, buf, sizeof(name));
+=======
+		strscpy(name, buf, sizeof(name));
+>>>>>>> upstream/android-13
 	if (dev->descriptor.iProduct
 	    && usb_string(dev, dev->descriptor.iProduct,
 			  buf, sizeof(buf)) > 0)
@@ -1754,6 +2086,11 @@ static void mceusb_dev_disconnect(struct usb_interface *intf)
 	struct usb_device *dev = interface_to_usbdev(intf);
 	struct mceusb_dev *ir = usb_get_intfdata(intf);
 
+<<<<<<< HEAD
+=======
+	dev_dbg(&intf->dev, "%s called", __func__);
+
+>>>>>>> upstream/android-13
 	usb_set_intfdata(intf, NULL);
 
 	if (!ir)

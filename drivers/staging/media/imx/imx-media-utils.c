@@ -1,16 +1,24 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * V4L2 Media Controller Driver for Freescale i.MX5/6 SOC
  *
  * Copyright (c) 2016 Mentor Graphics Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include "imx-media.h"
 
+<<<<<<< HEAD
 /*
  * List of supported pixel formats for the subdevs.
  *
@@ -25,10 +33,26 @@ static const struct imx_media_pixfmt yuv_formats[] = {
 			MEDIA_BUS_FMT_UYVY8_2X8,
 			MEDIA_BUS_FMT_UYVY8_1X16
 		},
+=======
+#define IMX_BUS_FMTS(fmt...) (const u32[]) {fmt, 0}
+
+/*
+ * List of supported pixel formats for the subdevs.
+ */
+static const struct imx_media_pixfmt pixel_formats[] = {
+	/*** YUV formats start here ***/
+	{
+		.fourcc	= V4L2_PIX_FMT_UYVY,
+		.codes  = IMX_BUS_FMTS(
+			MEDIA_BUS_FMT_UYVY8_2X8,
+			MEDIA_BUS_FMT_UYVY8_1X16
+		),
+>>>>>>> upstream/android-13
 		.cs     = IPUV3_COLORSPACE_YUV,
 		.bpp    = 16,
 	}, {
 		.fourcc	= V4L2_PIX_FMT_YUYV,
+<<<<<<< HEAD
 		.codes  = {
 			MEDIA_BUS_FMT_YUYV8_2X8,
 			MEDIA_BUS_FMT_YUYV8_1X16
@@ -41,6 +65,15 @@ static const struct imx_media_pixfmt yuv_formats[] = {
 	 * formats, NUM_NON_MBUS_YUV_FORMATS must be updated below.
 	 ***/
 	{
+=======
+		.codes  = IMX_BUS_FMTS(
+			MEDIA_BUS_FMT_YUYV8_2X8,
+			MEDIA_BUS_FMT_YUYV8_1X16
+		),
+		.cs     = IPUV3_COLORSPACE_YUV,
+		.bpp    = 16,
+	}, {
+>>>>>>> upstream/android-13
 		.fourcc	= V4L2_PIX_FMT_YUV420,
 		.cs     = IPUV3_COLORSPACE_YUV,
 		.bpp    = 12,
@@ -65,6 +98,7 @@ static const struct imx_media_pixfmt yuv_formats[] = {
 		.cs     = IPUV3_COLORSPACE_YUV,
 		.bpp    = 16,
 		.planar = true,
+<<<<<<< HEAD
 	},
 };
 
@@ -76,11 +110,25 @@ static const struct imx_media_pixfmt rgb_formats[] = {
 	{
 		.fourcc	= V4L2_PIX_FMT_RGB565,
 		.codes  = {MEDIA_BUS_FMT_RGB565_2X8_LE},
+=======
+	}, {
+		.fourcc = V4L2_PIX_FMT_YUV32,
+		.codes  = IMX_BUS_FMTS(MEDIA_BUS_FMT_AYUV8_1X32),
+		.cs     = IPUV3_COLORSPACE_YUV,
+		.bpp    = 32,
+		.ipufmt = true,
+	},
+	/*** RGB formats start here ***/
+	{
+		.fourcc	= V4L2_PIX_FMT_RGB565,
+		.codes  = IMX_BUS_FMTS(MEDIA_BUS_FMT_RGB565_2X8_LE),
+>>>>>>> upstream/android-13
 		.cs     = IPUV3_COLORSPACE_RGB,
 		.bpp    = 16,
 		.cycles = 2,
 	}, {
 		.fourcc	= V4L2_PIX_FMT_RGB24,
+<<<<<<< HEAD
 		.codes  = {
 			MEDIA_BUS_FMT_RGB888_1X24,
 			MEDIA_BUS_FMT_RGB888_2X12_LE
@@ -93,92 +141,198 @@ static const struct imx_media_pixfmt rgb_formats[] = {
 		.cs     = IPUV3_COLORSPACE_RGB,
 		.bpp    = 32,
 		.ipufmt = true,
+=======
+		.codes  = IMX_BUS_FMTS(
+			MEDIA_BUS_FMT_RGB888_1X24,
+			MEDIA_BUS_FMT_RGB888_2X12_LE
+		),
+		.cs     = IPUV3_COLORSPACE_RGB,
+		.bpp    = 24,
+	}, {
+		.fourcc	= V4L2_PIX_FMT_BGR24,
+		.cs     = IPUV3_COLORSPACE_RGB,
+		.bpp    = 24,
+	}, {
+		.fourcc	= V4L2_PIX_FMT_XRGB32,
+		.codes  = IMX_BUS_FMTS(MEDIA_BUS_FMT_ARGB8888_1X32),
+		.cs     = IPUV3_COLORSPACE_RGB,
+		.bpp    = 32,
+	}, {
+		.fourcc	= V4L2_PIX_FMT_XRGB32,
+		.codes  = IMX_BUS_FMTS(MEDIA_BUS_FMT_ARGB8888_1X32),
+		.cs     = IPUV3_COLORSPACE_RGB,
+		.bpp    = 32,
+		.ipufmt = true,
+	}, {
+		.fourcc	= V4L2_PIX_FMT_XBGR32,
+		.cs     = IPUV3_COLORSPACE_RGB,
+		.bpp    = 32,
+	}, {
+		.fourcc	= V4L2_PIX_FMT_BGRX32,
+		.cs     = IPUV3_COLORSPACE_RGB,
+		.bpp    = 32,
+	}, {
+		.fourcc	= V4L2_PIX_FMT_RGBX32,
+		.cs     = IPUV3_COLORSPACE_RGB,
+		.bpp    = 32,
+>>>>>>> upstream/android-13
 	},
 	/*** raw bayer and grayscale formats start here ***/
 	{
 		.fourcc = V4L2_PIX_FMT_SBGGR8,
+<<<<<<< HEAD
 		.codes  = {MEDIA_BUS_FMT_SBGGR8_1X8},
+=======
+		.codes  = IMX_BUS_FMTS(MEDIA_BUS_FMT_SBGGR8_1X8),
+>>>>>>> upstream/android-13
 		.cs     = IPUV3_COLORSPACE_RGB,
 		.bpp    = 8,
 		.bayer  = true,
 	}, {
 		.fourcc = V4L2_PIX_FMT_SGBRG8,
+<<<<<<< HEAD
 		.codes  = {MEDIA_BUS_FMT_SGBRG8_1X8},
+=======
+		.codes  = IMX_BUS_FMTS(MEDIA_BUS_FMT_SGBRG8_1X8),
+>>>>>>> upstream/android-13
 		.cs     = IPUV3_COLORSPACE_RGB,
 		.bpp    = 8,
 		.bayer  = true,
 	}, {
 		.fourcc = V4L2_PIX_FMT_SGRBG8,
+<<<<<<< HEAD
 		.codes  = {MEDIA_BUS_FMT_SGRBG8_1X8},
+=======
+		.codes  = IMX_BUS_FMTS(MEDIA_BUS_FMT_SGRBG8_1X8),
+>>>>>>> upstream/android-13
 		.cs     = IPUV3_COLORSPACE_RGB,
 		.bpp    = 8,
 		.bayer  = true,
 	}, {
 		.fourcc = V4L2_PIX_FMT_SRGGB8,
+<<<<<<< HEAD
 		.codes  = {MEDIA_BUS_FMT_SRGGB8_1X8},
+=======
+		.codes  = IMX_BUS_FMTS(MEDIA_BUS_FMT_SRGGB8_1X8),
+>>>>>>> upstream/android-13
 		.cs     = IPUV3_COLORSPACE_RGB,
 		.bpp    = 8,
 		.bayer  = true,
 	}, {
 		.fourcc = V4L2_PIX_FMT_SBGGR16,
+<<<<<<< HEAD
 		.codes  = {
+=======
+		.codes  = IMX_BUS_FMTS(
+>>>>>>> upstream/android-13
 			MEDIA_BUS_FMT_SBGGR10_1X10,
 			MEDIA_BUS_FMT_SBGGR12_1X12,
 			MEDIA_BUS_FMT_SBGGR14_1X14,
 			MEDIA_BUS_FMT_SBGGR16_1X16
+<<<<<<< HEAD
 		},
+=======
+		),
+>>>>>>> upstream/android-13
 		.cs     = IPUV3_COLORSPACE_RGB,
 		.bpp    = 16,
 		.bayer  = true,
 	}, {
 		.fourcc = V4L2_PIX_FMT_SGBRG16,
+<<<<<<< HEAD
 		.codes  = {
 			MEDIA_BUS_FMT_SGBRG10_1X10,
 			MEDIA_BUS_FMT_SGBRG12_1X12,
 			MEDIA_BUS_FMT_SGBRG14_1X14,
 			MEDIA_BUS_FMT_SGBRG16_1X16,
 		},
+=======
+		.codes  = IMX_BUS_FMTS(
+			MEDIA_BUS_FMT_SGBRG10_1X10,
+			MEDIA_BUS_FMT_SGBRG12_1X12,
+			MEDIA_BUS_FMT_SGBRG14_1X14,
+			MEDIA_BUS_FMT_SGBRG16_1X16
+		),
+>>>>>>> upstream/android-13
 		.cs     = IPUV3_COLORSPACE_RGB,
 		.bpp    = 16,
 		.bayer  = true,
 	}, {
 		.fourcc = V4L2_PIX_FMT_SGRBG16,
+<<<<<<< HEAD
 		.codes  = {
 			MEDIA_BUS_FMT_SGRBG10_1X10,
 			MEDIA_BUS_FMT_SGRBG12_1X12,
 			MEDIA_BUS_FMT_SGRBG14_1X14,
 			MEDIA_BUS_FMT_SGRBG16_1X16,
 		},
+=======
+		.codes  = IMX_BUS_FMTS(
+			MEDIA_BUS_FMT_SGRBG10_1X10,
+			MEDIA_BUS_FMT_SGRBG12_1X12,
+			MEDIA_BUS_FMT_SGRBG14_1X14,
+			MEDIA_BUS_FMT_SGRBG16_1X16
+		),
+>>>>>>> upstream/android-13
 		.cs     = IPUV3_COLORSPACE_RGB,
 		.bpp    = 16,
 		.bayer  = true,
 	}, {
 		.fourcc = V4L2_PIX_FMT_SRGGB16,
+<<<<<<< HEAD
 		.codes  = {
 			MEDIA_BUS_FMT_SRGGB10_1X10,
 			MEDIA_BUS_FMT_SRGGB12_1X12,
 			MEDIA_BUS_FMT_SRGGB14_1X14,
 			MEDIA_BUS_FMT_SRGGB16_1X16,
 		},
+=======
+		.codes  = IMX_BUS_FMTS(
+			MEDIA_BUS_FMT_SRGGB10_1X10,
+			MEDIA_BUS_FMT_SRGGB12_1X12,
+			MEDIA_BUS_FMT_SRGGB14_1X14,
+			MEDIA_BUS_FMT_SRGGB16_1X16
+		),
+>>>>>>> upstream/android-13
 		.cs     = IPUV3_COLORSPACE_RGB,
 		.bpp    = 16,
 		.bayer  = true,
 	}, {
 		.fourcc = V4L2_PIX_FMT_GREY,
+<<<<<<< HEAD
 		.codes = {MEDIA_BUS_FMT_Y8_1X8},
+=======
+		.codes = IMX_BUS_FMTS(
+			MEDIA_BUS_FMT_Y8_1X8,
+			MEDIA_BUS_FMT_Y10_1X10,
+			MEDIA_BUS_FMT_Y12_1X12
+		),
+>>>>>>> upstream/android-13
 		.cs     = IPUV3_COLORSPACE_RGB,
 		.bpp    = 8,
 		.bayer  = true,
 	}, {
+<<<<<<< HEAD
 		.fourcc = V4L2_PIX_FMT_Y16,
 		.codes = {
 			MEDIA_BUS_FMT_Y10_1X10,
 			MEDIA_BUS_FMT_Y12_1X12,
 		},
+=======
+		.fourcc = V4L2_PIX_FMT_Y10,
+		.codes = IMX_BUS_FMTS(MEDIA_BUS_FMT_Y10_1X10),
+		.cs     = IPUV3_COLORSPACE_RGB,
+		.bpp    = 16,
+		.bayer  = true,
+	}, {
+		.fourcc = V4L2_PIX_FMT_Y12,
+		.codes = IMX_BUS_FMTS(MEDIA_BUS_FMT_Y12_1X12),
+>>>>>>> upstream/android-13
 		.cs     = IPUV3_COLORSPACE_RGB,
 		.bpp    = 16,
 		.bayer  = true,
 	},
+<<<<<<< HEAD
 	/***
 	 * non-mbus RGB formats start here. NOTE! when adding non-mbus
 	 * formats, NUM_NON_MBUS_RGB_FORMATS must be updated below.
@@ -257,6 +411,72 @@ struct imx_media_pixfmt *__find_format(u32 fourcc,
 			return fmt;
 
 		if (!code)
+=======
+};
+
+/*
+ * Search in the pixel_formats[] array for an entry with the given fourcc
+ * that matches the requested selection criteria and return it.
+ *
+ * @fourcc: Search for an entry with the given fourcc pixel format.
+ * @fmt_sel: Allow entries only with the given selection criteria.
+ */
+const struct imx_media_pixfmt *
+imx_media_find_pixel_format(u32 fourcc, enum imx_pixfmt_sel fmt_sel)
+{
+	bool sel_ipu = fmt_sel & PIXFMT_SEL_IPU;
+	unsigned int i;
+
+	fmt_sel &= ~PIXFMT_SEL_IPU;
+
+	for (i = 0; i < ARRAY_SIZE(pixel_formats); i++) {
+		const struct imx_media_pixfmt *fmt = &pixel_formats[i];
+		enum imx_pixfmt_sel sel;
+
+		if (sel_ipu != fmt->ipufmt)
+			continue;
+
+		sel = fmt->bayer ? PIXFMT_SEL_BAYER :
+			((fmt->cs == IPUV3_COLORSPACE_YUV) ?
+			 PIXFMT_SEL_YUV : PIXFMT_SEL_RGB);
+
+		if ((fmt_sel & sel) && fmt->fourcc == fourcc)
+			return fmt;
+	}
+
+	return NULL;
+}
+EXPORT_SYMBOL_GPL(imx_media_find_pixel_format);
+
+/*
+ * Search in the pixel_formats[] array for an entry with the given media
+ * bus code that matches the requested selection criteria and return it.
+ *
+ * @code: Search for an entry with the given media-bus code.
+ * @fmt_sel: Allow entries only with the given selection criteria.
+ */
+const struct imx_media_pixfmt *
+imx_media_find_mbus_format(u32 code, enum imx_pixfmt_sel fmt_sel)
+{
+	bool sel_ipu = fmt_sel & PIXFMT_SEL_IPU;
+	unsigned int i;
+
+	fmt_sel &= ~PIXFMT_SEL_IPU;
+
+	for (i = 0; i < ARRAY_SIZE(pixel_formats); i++) {
+		const struct imx_media_pixfmt *fmt = &pixel_formats[i];
+		enum imx_pixfmt_sel sel;
+		unsigned int j;
+
+		if (sel_ipu != fmt->ipufmt)
+			continue;
+
+		sel = fmt->bayer ? PIXFMT_SEL_BAYER :
+			((fmt->cs == IPUV3_COLORSPACE_YUV) ?
+			 PIXFMT_SEL_YUV : PIXFMT_SEL_RGB);
+
+		if (!(fmt_sel & sel) || !fmt->codes)
+>>>>>>> upstream/android-13
 			continue;
 
 		for (j = 0; fmt->codes[j]; j++) {
@@ -264,6 +484,7 @@ struct imx_media_pixfmt *__find_format(u32 fourcc,
 				return fmt;
 		}
 	}
+<<<<<<< HEAD
 	return NULL;
 }
 
@@ -457,6 +678,126 @@ int imx_media_enum_ipu_format(u32 *code, u32 index, enum codespace_sel cs_sel)
 	return 0;
 }
 EXPORT_SYMBOL_GPL(imx_media_enum_ipu_format);
+=======
+
+	return NULL;
+}
+EXPORT_SYMBOL_GPL(imx_media_find_mbus_format);
+
+/*
+ * Enumerate entries in the pixel_formats[] array that match the
+ * requested selection criteria. Return the fourcc that matches the
+ * selection criteria at the requested match index.
+ *
+ * @fourcc: The returned fourcc that matches the search criteria at
+ *          the requested match index.
+ * @index: The requested match index.
+ * @fmt_sel: Include in the enumeration entries with the given selection
+ *           criteria.
+ * @code: If non-zero, only include in the enumeration entries matching this
+ *	media bus code.
+ */
+int imx_media_enum_pixel_formats(u32 *fourcc, u32 index,
+				 enum imx_pixfmt_sel fmt_sel, u32 code)
+{
+	bool sel_ipu = fmt_sel & PIXFMT_SEL_IPU;
+	unsigned int i;
+
+	fmt_sel &= ~PIXFMT_SEL_IPU;
+
+	for (i = 0; i < ARRAY_SIZE(pixel_formats); i++) {
+		const struct imx_media_pixfmt *fmt = &pixel_formats[i];
+		enum imx_pixfmt_sel sel;
+
+		if (sel_ipu != fmt->ipufmt)
+			continue;
+
+		sel = fmt->bayer ? PIXFMT_SEL_BAYER :
+			((fmt->cs == IPUV3_COLORSPACE_YUV) ?
+			 PIXFMT_SEL_YUV : PIXFMT_SEL_RGB);
+
+		if (!(fmt_sel & sel))
+			continue;
+
+		/*
+		 * If a media bus code is specified, only consider formats that
+		 * match it.
+		 */
+		if (code) {
+			unsigned int j;
+
+			if (!fmt->codes)
+				continue;
+
+			for (j = 0; fmt->codes[j]; j++) {
+				if (code == fmt->codes[j])
+					break;
+			}
+
+			if (!fmt->codes[j])
+				continue;
+		}
+
+		if (index == 0) {
+			*fourcc = fmt->fourcc;
+			return 0;
+		}
+
+		index--;
+	}
+
+	return -EINVAL;
+}
+EXPORT_SYMBOL_GPL(imx_media_enum_pixel_formats);
+
+/*
+ * Enumerate entries in the pixel_formats[] array that match the
+ * requested search criteria. Return the media-bus code that matches
+ * the search criteria at the requested match index.
+ *
+ * @code: The returned media-bus code that matches the search criteria at
+ *        the requested match index.
+ * @index: The requested match index.
+ * @fmt_sel: Include in the enumeration entries with the given selection
+ *           criteria.
+ */
+int imx_media_enum_mbus_formats(u32 *code, u32 index,
+				enum imx_pixfmt_sel fmt_sel)
+{
+	bool sel_ipu = fmt_sel & PIXFMT_SEL_IPU;
+	unsigned int i;
+
+	fmt_sel &= ~PIXFMT_SEL_IPU;
+
+	for (i = 0; i < ARRAY_SIZE(pixel_formats); i++) {
+		const struct imx_media_pixfmt *fmt = &pixel_formats[i];
+		enum imx_pixfmt_sel sel;
+		unsigned int j;
+
+		if (sel_ipu != fmt->ipufmt)
+			continue;
+
+		sel = fmt->bayer ? PIXFMT_SEL_BAYER :
+			((fmt->cs == IPUV3_COLORSPACE_YUV) ?
+			 PIXFMT_SEL_YUV : PIXFMT_SEL_RGB);
+
+		if (!(fmt_sel & sel) || !fmt->codes)
+			continue;
+
+		for (j = 0; fmt->codes[j]; j++) {
+			if (index == 0) {
+				*code = fmt->codes[j];
+				return 0;
+			}
+
+			index--;
+		}
+	}
+
+	return -EINVAL;
+}
+EXPORT_SYMBOL_GPL(imx_media_enum_mbus_formats);
+>>>>>>> upstream/android-13
 
 int imx_media_init_mbus_fmt(struct v4l2_mbus_framefmt *mbus,
 			    u32 width, u32 height, u32 code, u32 field,
@@ -467,17 +808,39 @@ int imx_media_init_mbus_fmt(struct v4l2_mbus_framefmt *mbus,
 	mbus->width = width;
 	mbus->height = height;
 	mbus->field = field;
+<<<<<<< HEAD
 	if (code == 0)
 		imx_media_enum_mbus_format(&code, 0, CS_SEL_YUV, false);
 	lcc = imx_media_find_mbus_format(code, CS_SEL_ANY, false);
 	if (!lcc) {
 		lcc = imx_media_find_ipu_format(code, CS_SEL_ANY);
+=======
+
+	if (code == 0)
+		imx_media_enum_mbus_formats(&code, 0, PIXFMT_SEL_YUV);
+
+	lcc = imx_media_find_mbus_format(code, PIXFMT_SEL_ANY);
+	if (!lcc) {
+		lcc = imx_media_find_ipu_format(code, PIXFMT_SEL_YUV_RGB);
+>>>>>>> upstream/android-13
 		if (!lcc)
 			return -EINVAL;
 	}
 
 	mbus->code = code;
+<<<<<<< HEAD
 	init_mbus_colorimetry(mbus, lcc);
+=======
+
+	mbus->colorspace = V4L2_COLORSPACE_SRGB;
+	mbus->xfer_func = V4L2_MAP_XFER_FUNC_DEFAULT(mbus->colorspace);
+	mbus->ycbcr_enc = V4L2_MAP_YCBCR_ENC_DEFAULT(mbus->colorspace);
+	mbus->quantization =
+		V4L2_MAP_QUANTIZATION_DEFAULT(lcc->cs == IPUV3_COLORSPACE_RGB,
+					      mbus->colorspace,
+					      mbus->ycbcr_enc);
+
+>>>>>>> upstream/android-13
 	if (cc)
 		*cc = lcc;
 
@@ -490,7 +853,11 @@ EXPORT_SYMBOL_GPL(imx_media_init_mbus_fmt);
  * of a subdev. Can be used as the .init_cfg pad operation.
  */
 int imx_media_init_cfg(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 		       struct v4l2_subdev_pad_config *cfg)
+=======
+		       struct v4l2_subdev_state *sd_state)
+>>>>>>> upstream/android-13
 {
 	struct v4l2_mbus_framefmt *mf_try;
 	struct v4l2_subdev_format format;
@@ -506,7 +873,11 @@ int imx_media_init_cfg(struct v4l2_subdev *sd,
 		if (ret)
 			continue;
 
+<<<<<<< HEAD
 		mf_try = v4l2_subdev_get_try_format(sd, cfg, pad);
+=======
+		mf_try = v4l2_subdev_get_try_format(sd, sd_state, pad);
+>>>>>>> upstream/android-13
 		*mf_try = format.format;
 	}
 
@@ -515,14 +886,21 @@ int imx_media_init_cfg(struct v4l2_subdev *sd,
 EXPORT_SYMBOL_GPL(imx_media_init_cfg);
 
 /*
+<<<<<<< HEAD
  * Check whether the field and colorimetry parameters in tryfmt are
  * uninitialized, and if so fill them with the values from fmt,
  * or if tryfmt->colorspace has been initialized, all the default
  * colorimetry params can be derived from tryfmt->colorspace.
+=======
+ * Default the colorspace in tryfmt to SRGB if set to an unsupported
+ * colorspace or not initialized. Then set the remaining colorimetry
+ * parameters based on the colorspace if they are uninitialized.
+>>>>>>> upstream/android-13
  *
  * tryfmt->code must be set on entry.
  *
  * If this format is destined to be routed through the Image Converter,
+<<<<<<< HEAD
  * quantization and Y`CbCr encoding must be fixed. The IC expects and
  * produces fixed quantization and Y`CbCr encoding at its input and output
  * (full range for RGB, limited range for YUV, and V4L2_YCBCR_ENC_601).
@@ -530,10 +908,18 @@ EXPORT_SYMBOL_GPL(imx_media_init_cfg);
 void imx_media_fill_default_mbus_fields(struct v4l2_mbus_framefmt *tryfmt,
 					struct v4l2_mbus_framefmt *fmt,
 					bool ic_route)
+=======
+ * Y`CbCr encoding must be fixed. The IC supports only BT.601 Y`CbCr
+ * or Rec.709 Y`CbCr encoding.
+ */
+void imx_media_try_colorimetry(struct v4l2_mbus_framefmt *tryfmt,
+			       bool ic_route)
+>>>>>>> upstream/android-13
 {
 	const struct imx_media_pixfmt *cc;
 	bool is_rgb = false;
 
+<<<<<<< HEAD
 	cc = imx_media_find_mbus_format(tryfmt->code, CS_SEL_ANY, true);
 	if (!cc)
 		cc = imx_media_find_ipu_format(tryfmt->code, CS_SEL_ANY);
@@ -555,10 +941,45 @@ void imx_media_fill_default_mbus_fields(struct v4l2_mbus_framefmt *tryfmt,
 			tryfmt->xfer_func =
 				V4L2_MAP_XFER_FUNC_DEFAULT(tryfmt->colorspace);
 		}
+=======
+	cc = imx_media_find_mbus_format(tryfmt->code, PIXFMT_SEL_ANY);
+	if (!cc)
+		cc = imx_media_find_ipu_format(tryfmt->code,
+					       PIXFMT_SEL_YUV_RGB);
+
+	if (cc && cc->cs == IPUV3_COLORSPACE_RGB)
+		is_rgb = true;
+
+	switch (tryfmt->colorspace) {
+	case V4L2_COLORSPACE_SMPTE170M:
+	case V4L2_COLORSPACE_REC709:
+	case V4L2_COLORSPACE_JPEG:
+	case V4L2_COLORSPACE_SRGB:
+	case V4L2_COLORSPACE_BT2020:
+	case V4L2_COLORSPACE_OPRGB:
+	case V4L2_COLORSPACE_DCI_P3:
+	case V4L2_COLORSPACE_RAW:
+		break;
+	default:
+		tryfmt->colorspace = V4L2_COLORSPACE_SRGB;
+		break;
+	}
+
+	if (tryfmt->xfer_func == V4L2_XFER_FUNC_DEFAULT)
+		tryfmt->xfer_func =
+			V4L2_MAP_XFER_FUNC_DEFAULT(tryfmt->colorspace);
+
+	if (ic_route) {
+		if (tryfmt->ycbcr_enc != V4L2_YCBCR_ENC_601 &&
+		    tryfmt->ycbcr_enc != V4L2_YCBCR_ENC_709)
+			tryfmt->ycbcr_enc = V4L2_YCBCR_ENC_601;
+	} else {
+>>>>>>> upstream/android-13
 		if (tryfmt->ycbcr_enc == V4L2_YCBCR_ENC_DEFAULT) {
 			tryfmt->ycbcr_enc =
 				V4L2_MAP_YCBCR_ENC_DEFAULT(tryfmt->colorspace);
 		}
+<<<<<<< HEAD
 		if (tryfmt->quantization == V4L2_QUANTIZATION_DEFAULT) {
 			tryfmt->quantization =
 				V4L2_MAP_QUANTIZATION_DEFAULT(
@@ -587,6 +1008,31 @@ int imx_media_mbus_fmt_to_pix_fmt(struct v4l2_pix_format *pix,
 		if (!cc)
 			cc = imx_media_find_mbus_format(mbus->code, CS_SEL_ANY,
 							true);
+=======
+	}
+
+	if (tryfmt->quantization == V4L2_QUANTIZATION_DEFAULT)
+		tryfmt->quantization =
+			V4L2_MAP_QUANTIZATION_DEFAULT(is_rgb,
+						      tryfmt->colorspace,
+						      tryfmt->ycbcr_enc);
+}
+EXPORT_SYMBOL_GPL(imx_media_try_colorimetry);
+
+int imx_media_mbus_fmt_to_pix_fmt(struct v4l2_pix_format *pix,
+				  const struct v4l2_mbus_framefmt *mbus,
+				  const struct imx_media_pixfmt *cc)
+{
+	u32 width;
+	u32 stride;
+
+	if (!cc) {
+		cc = imx_media_find_ipu_format(mbus->code,
+					       PIXFMT_SEL_YUV_RGB);
+		if (!cc)
+			cc = imx_media_find_mbus_format(mbus->code,
+							PIXFMT_SEL_ANY);
+>>>>>>> upstream/android-13
 		if (!cc)
 			return -EINVAL;
 	}
@@ -598,6 +1044,7 @@ int imx_media_mbus_fmt_to_pix_fmt(struct v4l2_pix_format *pix,
 	if (cc->ipufmt && cc->cs == IPUV3_COLORSPACE_YUV) {
 		u32 code;
 
+<<<<<<< HEAD
 		imx_media_enum_mbus_format(&code, 0, CS_SEL_YUV, false);
 		cc = imx_media_find_mbus_format(code, CS_SEL_YUV, false);
 	}
@@ -605,6 +1052,22 @@ int imx_media_mbus_fmt_to_pix_fmt(struct v4l2_pix_format *pix,
 	stride = cc->planar ? mbus->width : (mbus->width * cc->bpp) >> 3;
 
 	pix->width = mbus->width;
+=======
+		imx_media_enum_mbus_formats(&code, 0, PIXFMT_SEL_YUV);
+		cc = imx_media_find_mbus_format(code, PIXFMT_SEL_YUV);
+	}
+
+	/* Round up width for minimum burst size */
+	width = round_up(mbus->width, 8);
+
+	/* Round up stride for IDMAC line start address alignment */
+	if (cc->planar)
+		stride = round_up(width, 16);
+	else
+		stride = round_up((width * cc->bpp) >> 3, 8);
+
+	pix->width = width;
+>>>>>>> upstream/android-13
 	pix->height = mbus->height;
 	pix->pixelformat = cc->fourcc;
 	pix->colorspace = mbus->colorspace;
@@ -613,14 +1076,23 @@ int imx_media_mbus_fmt_to_pix_fmt(struct v4l2_pix_format *pix,
 	pix->quantization = mbus->quantization;
 	pix->field = mbus->field;
 	pix->bytesperline = stride;
+<<<<<<< HEAD
 	pix->sizeimage = (pix->width * pix->height * cc->bpp) >> 3;
+=======
+	pix->sizeimage = cc->planar ? ((stride * pix->height * cc->bpp) >> 3) :
+			 stride * pix->height;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 EXPORT_SYMBOL_GPL(imx_media_mbus_fmt_to_pix_fmt);
 
 int imx_media_mbus_fmt_to_ipu_image(struct ipu_image *image,
+<<<<<<< HEAD
 				    struct v4l2_mbus_framefmt *mbus)
+=======
+				    const struct v4l2_mbus_framefmt *mbus)
+>>>>>>> upstream/android-13
 {
 	int ret;
 
@@ -638,12 +1110,22 @@ int imx_media_mbus_fmt_to_ipu_image(struct ipu_image *image,
 EXPORT_SYMBOL_GPL(imx_media_mbus_fmt_to_ipu_image);
 
 int imx_media_ipu_image_to_mbus_fmt(struct v4l2_mbus_framefmt *mbus,
+<<<<<<< HEAD
 				    struct ipu_image *image)
 {
 	const struct imx_media_pixfmt *fmt;
 
 	fmt = imx_media_find_format(image->pix.pixelformat, CS_SEL_ANY, true);
 	if (!fmt)
+=======
+				    const struct ipu_image *image)
+{
+	const struct imx_media_pixfmt *fmt;
+
+	fmt = imx_media_find_pixel_format(image->pix.pixelformat,
+					  PIXFMT_SEL_ANY);
+	if (!fmt || !fmt->codes || !fmt->codes[0])
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	memset(mbus, 0, sizeof(*mbus));
@@ -660,18 +1142,27 @@ int imx_media_ipu_image_to_mbus_fmt(struct v4l2_mbus_framefmt *mbus,
 }
 EXPORT_SYMBOL_GPL(imx_media_ipu_image_to_mbus_fmt);
 
+<<<<<<< HEAD
 void imx_media_free_dma_buf(struct imx_media_dev *imxmd,
 			    struct imx_media_dma_buf *buf)
 {
 	if (buf->virt)
 		dma_free_coherent(imxmd->md.dev, buf->len,
 				  buf->virt, buf->phys);
+=======
+void imx_media_free_dma_buf(struct device *dev,
+			    struct imx_media_dma_buf *buf)
+{
+	if (buf->virt)
+		dma_free_coherent(dev, buf->len, buf->virt, buf->phys);
+>>>>>>> upstream/android-13
 
 	buf->virt = NULL;
 	buf->phys = 0;
 }
 EXPORT_SYMBOL_GPL(imx_media_free_dma_buf);
 
+<<<<<<< HEAD
 int imx_media_alloc_dma_buf(struct imx_media_dev *imxmd,
 			    struct imx_media_dma_buf *buf,
 			    int size)
@@ -683,6 +1174,19 @@ int imx_media_alloc_dma_buf(struct imx_media_dev *imxmd,
 				       GFP_DMA | GFP_KERNEL);
 	if (!buf->virt) {
 		dev_err(imxmd->md.dev, "failed to alloc dma buffer\n");
+=======
+int imx_media_alloc_dma_buf(struct device *dev,
+			    struct imx_media_dma_buf *buf,
+			    int size)
+{
+	imx_media_free_dma_buf(dev, buf);
+
+	buf->len = PAGE_ALIGN(size);
+	buf->virt = dma_alloc_coherent(dev, buf->len, &buf->phys,
+				       GFP_DMA | GFP_KERNEL);
+	if (!buf->virt) {
+		dev_err(dev, "%s: failed\n", __func__);
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 	}
 
@@ -696,6 +1200,7 @@ void imx_media_grp_id_to_sd_name(char *sd_name, int sz, u32 grp_id, int ipu_id)
 	int id;
 
 	switch (grp_id) {
+<<<<<<< HEAD
 	case IMX_MEDIA_GRP_ID_CSI0...IMX_MEDIA_GRP_ID_CSI1:
 		id = (grp_id >> IMX_MEDIA_GRP_ID_CSI_BIT) - 1;
 		snprintf(sd_name, sz, "ipu%d_csi%d", ipu_id + 1, id);
@@ -710,6 +1215,22 @@ void imx_media_grp_id_to_sd_name(char *sd_name, int sz, u32 grp_id, int ipu_id)
 		snprintf(sd_name, sz, "ipu%d_ic_prpenc", ipu_id + 1);
 		break;
 	case IMX_MEDIA_GRP_ID_IC_PRPVF:
+=======
+	case IMX_MEDIA_GRP_ID_IPU_CSI0...IMX_MEDIA_GRP_ID_IPU_CSI1:
+		id = (grp_id >> IMX_MEDIA_GRP_ID_IPU_CSI_BIT) - 1;
+		snprintf(sd_name, sz, "ipu%d_csi%d", ipu_id + 1, id);
+		break;
+	case IMX_MEDIA_GRP_ID_IPU_VDIC:
+		snprintf(sd_name, sz, "ipu%d_vdic", ipu_id + 1);
+		break;
+	case IMX_MEDIA_GRP_ID_IPU_IC_PRP:
+		snprintf(sd_name, sz, "ipu%d_ic_prp", ipu_id + 1);
+		break;
+	case IMX_MEDIA_GRP_ID_IPU_IC_PRPENC:
+		snprintf(sd_name, sz, "ipu%d_ic_prpenc", ipu_id + 1);
+		break;
+	case IMX_MEDIA_GRP_ID_IPU_IC_PRPVF:
+>>>>>>> upstream/android-13
 		snprintf(sd_name, sz, "ipu%d_ic_prpvf", ipu_id + 1);
 		break;
 	default:
@@ -749,22 +1270,34 @@ imx_media_find_subdev_by_devname(struct imx_media_dev *imxmd,
 EXPORT_SYMBOL_GPL(imx_media_find_subdev_by_devname);
 
 /*
+<<<<<<< HEAD
  * Adds a video device to the master video device list. This is called by
  * an async subdev that owns a video device when it is registered.
  */
 int imx_media_add_video_device(struct imx_media_dev *imxmd,
 			       struct imx_media_video_dev *vdev)
+=======
+ * Adds a video device to the master video device list. This is called
+ * when a video device is registered.
+ */
+void imx_media_add_video_device(struct imx_media_dev *imxmd,
+				struct imx_media_video_dev *vdev)
+>>>>>>> upstream/android-13
 {
 	mutex_lock(&imxmd->mutex);
 
 	list_add_tail(&vdev->list, &imxmd->vdev_list);
 
 	mutex_unlock(&imxmd->mutex);
+<<<<<<< HEAD
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(imx_media_add_video_device);
 
 /*
+<<<<<<< HEAD
  * Search upstream/downstream for a subdevice in the current pipeline
  * with given grp_id, starting from start_entity. Returns the subdev's
  * source/sink pad that it was reached from. If grp_id is zero, just
@@ -778,6 +1311,24 @@ find_pipeline_pad(struct imx_media_dev *imxmd,
 {
 	struct media_entity *me = start_entity;
 	struct media_pad *pad = NULL;
+=======
+ * Search upstream/downstream for a subdevice or video device pad in the
+ * current pipeline, starting from start_entity. Returns the device's
+ * source/sink pad that it was reached from. Must be called with
+ * mdev->graph_mutex held.
+ *
+ * If grp_id != 0, finds a subdevice's pad of given grp_id.
+ * Else If buftype != 0, finds a video device's pad of given buffer type.
+ * Else, returns the nearest source/sink pad to start_entity.
+ */
+struct media_pad *
+imx_media_pipeline_pad(struct media_entity *start_entity, u32 grp_id,
+		       enum v4l2_buf_type buftype, bool upstream)
+{
+	struct media_entity *me = start_entity;
+	struct media_pad *pad = NULL;
+	struct video_device *vfd;
+>>>>>>> upstream/android-13
 	struct v4l2_subdev *sd;
 	int i;
 
@@ -789,6 +1340,7 @@ find_pipeline_pad(struct imx_media_dev *imxmd,
 			continue;
 
 		pad = media_entity_remote_pad(spad);
+<<<<<<< HEAD
 		if (!pad || !is_media_entity_v4l2_subdev(pad->entity))
 			continue;
 
@@ -799,6 +1351,29 @@ find_pipeline_pad(struct imx_media_dev *imxmd,
 
 			return find_pipeline_pad(imxmd, pad->entity,
 						 grp_id, upstream);
+=======
+		if (!pad)
+			continue;
+
+		if (grp_id) {
+			if (is_media_entity_v4l2_subdev(pad->entity)) {
+				sd = media_entity_to_v4l2_subdev(pad->entity);
+				if (sd->grp_id & grp_id)
+					return pad;
+			}
+
+			return imx_media_pipeline_pad(pad->entity, grp_id,
+						      buftype, upstream);
+		} else if (buftype) {
+			if (is_media_entity_v4l2_video_device(pad->entity)) {
+				vfd = media_entity_to_video_device(pad->entity);
+				if (buftype == vfd->queue->type)
+					return pad;
+			}
+
+			return imx_media_pipeline_pad(pad->entity, grp_id,
+						      buftype, upstream);
+>>>>>>> upstream/android-13
 		} else {
 			return pad;
 		}
@@ -806,6 +1381,7 @@ find_pipeline_pad(struct imx_media_dev *imxmd,
 
 	return NULL;
 }
+<<<<<<< HEAD
 
 /*
  * Search upstream for a subdev in the current pipeline with
@@ -828,6 +1404,35 @@ find_upstream_subdev(struct imx_media_dev *imxmd,
 	pad = find_pipeline_pad(imxmd, start_entity, grp_id, true);
 
 	return pad ? media_entity_to_v4l2_subdev(pad->entity) : NULL;
+=======
+EXPORT_SYMBOL_GPL(imx_media_pipeline_pad);
+
+/*
+ * Search upstream/downstream for a subdev or video device in the current
+ * pipeline. Must be called with mdev->graph_mutex held.
+ */
+static struct media_entity *
+find_pipeline_entity(struct media_entity *start, u32 grp_id,
+		     enum v4l2_buf_type buftype, bool upstream)
+{
+	struct media_pad *pad = NULL;
+	struct video_device *vfd;
+	struct v4l2_subdev *sd;
+
+	if (grp_id && is_media_entity_v4l2_subdev(start)) {
+		sd = media_entity_to_v4l2_subdev(start);
+		if (sd->grp_id & grp_id)
+			return &sd->entity;
+	} else if (buftype && is_media_entity_v4l2_video_device(start)) {
+		vfd = media_entity_to_video_device(start);
+		if (buftype == vfd->queue->type)
+			return &vfd->entity;
+	}
+
+	pad = imx_media_pipeline_pad(start, grp_id, buftype, upstream);
+
+	return pad ? pad->entity : NULL;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -835,12 +1440,17 @@ find_upstream_subdev(struct imx_media_dev *imxmd,
  * start entity in the current pipeline.
  * Must be called with mdev->graph_mutex held.
  */
+<<<<<<< HEAD
 int imx_media_find_mipi_csi2_channel(struct imx_media_dev *imxmd,
 				     struct media_entity *start_entity)
+=======
+int imx_media_pipeline_csi2_channel(struct media_entity *start_entity)
+>>>>>>> upstream/android-13
 {
 	struct media_pad *pad;
 	int ret = -EPIPE;
 
+<<<<<<< HEAD
 	pad = find_pipeline_pad(imxmd, start_entity, IMX_MEDIA_GRP_ID_CSI2,
 				true);
 	if (pad) {
@@ -871,6 +1481,16 @@ imx_media_find_upstream_pad(struct imx_media_dev *imxmd,
 	return pad;
 }
 EXPORT_SYMBOL_GPL(imx_media_find_upstream_pad);
+=======
+	pad = imx_media_pipeline_pad(start_entity, IMX_MEDIA_GRP_ID_CSI2,
+				     0, true);
+	if (pad)
+		ret = pad->index - 1;
+
+	return ret;
+}
+EXPORT_SYMBOL_GPL(imx_media_pipeline_csi2_channel);
+>>>>>>> upstream/android-13
 
 /*
  * Find a subdev reached upstream from the given start entity in
@@ -878,6 +1498,7 @@ EXPORT_SYMBOL_GPL(imx_media_find_upstream_pad);
  * Must be called with mdev->graph_mutex held.
  */
 struct v4l2_subdev *
+<<<<<<< HEAD
 imx_media_find_upstream_subdev(struct imx_media_dev *imxmd,
 			       struct media_entity *start_entity,
 			       u32 grp_id)
@@ -891,6 +1512,72 @@ imx_media_find_upstream_subdev(struct imx_media_dev *imxmd,
 	return sd;
 }
 EXPORT_SYMBOL_GPL(imx_media_find_upstream_subdev);
+=======
+imx_media_pipeline_subdev(struct media_entity *start_entity, u32 grp_id,
+			  bool upstream)
+{
+	struct media_entity *me;
+
+	me = find_pipeline_entity(start_entity, grp_id, 0, upstream);
+	if (!me)
+		return ERR_PTR(-ENODEV);
+
+	return media_entity_to_v4l2_subdev(me);
+}
+EXPORT_SYMBOL_GPL(imx_media_pipeline_subdev);
+
+/*
+ * Find a subdev reached upstream from the given start entity in
+ * the current pipeline.
+ * Must be called with mdev->graph_mutex held.
+ */
+struct video_device *
+imx_media_pipeline_video_device(struct media_entity *start_entity,
+				enum v4l2_buf_type buftype, bool upstream)
+{
+	struct media_entity *me;
+
+	me = find_pipeline_entity(start_entity, 0, buftype, upstream);
+	if (!me)
+		return ERR_PTR(-ENODEV);
+
+	return media_entity_to_video_device(me);
+}
+EXPORT_SYMBOL_GPL(imx_media_pipeline_video_device);
+
+/*
+ * Find a fwnode endpoint that maps to the given subdevice's pad.
+ * If there are multiple endpoints that map to the pad, only the
+ * first endpoint encountered is returned.
+ *
+ * On success the refcount of the returned fwnode endpoint is
+ * incremented.
+ */
+struct fwnode_handle *imx_media_get_pad_fwnode(struct media_pad *pad)
+{
+	struct fwnode_handle *endpoint;
+	struct v4l2_subdev *sd;
+
+	if (!is_media_entity_v4l2_subdev(pad->entity))
+		return ERR_PTR(-ENODEV);
+
+	sd = media_entity_to_v4l2_subdev(pad->entity);
+
+	fwnode_graph_for_each_endpoint(dev_fwnode(sd->dev), endpoint) {
+		int pad_idx = media_entity_get_fwnode_pad(&sd->entity,
+							  endpoint,
+							  pad->flags);
+		if (pad_idx < 0)
+			continue;
+
+		if (pad_idx == pad->index)
+			return endpoint;
+	}
+
+	return ERR_PTR(-ENODEV);
+}
+EXPORT_SYMBOL_GPL(imx_media_get_pad_fwnode);
+>>>>>>> upstream/android-13
 
 /*
  * Turn current pipeline streaming on/off starting from entity.

@@ -5,7 +5,11 @@
 #
 # Architecture requirements
 #
+<<<<<<< HEAD
 # * arm/arm64
+=======
+# * arm/arm64/powerpc
+>>>>>>> upstream/android-13
 #
 # Rely on implicit context synchronization as a result of exception return
 # when returning from IPI handler, and when returning to user-space.
@@ -33,7 +37,11 @@
     |         arc: | TODO |
     |         arm: |  ok  |
     |       arm64: |  ok  |
+<<<<<<< HEAD
     |         c6x: | TODO |
+=======
+    |        csky: | TODO |
+>>>>>>> upstream/android-13
     |       h8300: | TODO |
     |     hexagon: | TODO |
     |        ia64: | TODO |
@@ -44,13 +52,20 @@
     |       nios2: | TODO |
     |    openrisc: | TODO |
     |      parisc: | TODO |
+<<<<<<< HEAD
     |     powerpc: | TODO |
+=======
+    |     powerpc: |  ok  |
+>>>>>>> upstream/android-13
     |       riscv: | TODO |
     |        s390: | TODO |
     |          sh: | TODO |
     |       sparc: | TODO |
     |          um: | TODO |
+<<<<<<< HEAD
     |   unicore32: | TODO |
+=======
+>>>>>>> upstream/android-13
     |         x86: |  ok  |
     |      xtensa: | TODO |
     -----------------------

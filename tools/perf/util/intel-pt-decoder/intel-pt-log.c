@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * intel_pt_log.c: Intel Processor Trace support
  * Copyright (c) 2013-2014, Intel Corporation.
@@ -11,6 +12,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * intel_pt_log.c: Intel Processor Trace support
+ * Copyright (c) 2013-2014, Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include <stdio.h>
@@ -31,6 +38,14 @@ static FILE *f;
 static char log_name[MAX_LOG_NAME];
 bool intel_pt_enable_logging;
 
+<<<<<<< HEAD
+=======
+void *intel_pt_log_fp(void)
+{
+	return f;
+}
+
+>>>>>>> upstream/android-13
 void intel_pt_log_enable(void)
 {
 	intel_pt_enable_logging = true;

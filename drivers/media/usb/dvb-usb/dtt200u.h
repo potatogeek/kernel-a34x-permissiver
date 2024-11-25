@@ -1,13 +1,21 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /* Common header file of Linux driver for the WideView/ Yakumo/ Hama/
  * Typhoon/ Yuan DVB-T USB2.0 receiver.
  *
  * Copyright (C) 2004-5 Patrick Boettcher (patrick.boettcher@posteo.de)
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or modify it
  *	under the terms of the GNU General Public License as published by the Free
  *	Software Foundation, version 2.
  *
  * see Documentation/media/dvb-drivers/dvb-usb.rst for more information
+=======
+ * see Documentation/driver-api/media/drivers/dvb-usb.rst for more information
+>>>>>>> upstream/android-13
  */
 #ifndef _DVB_USB_DTT200U_H_
 #define _DVB_USB_DTT200U_H_

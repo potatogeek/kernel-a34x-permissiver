@@ -34,6 +34,12 @@
 #ifndef __GVT_SCHED_POLICY__
 #define __GVT_SCHED_POLICY__
 
+<<<<<<< HEAD
+=======
+struct intel_gvt;
+struct intel_vgpu;
+
+>>>>>>> upstream/android-13
 struct intel_gvt_sched_policy_ops {
 	int (*init)(struct intel_gvt *gvt);
 	void (*clean)(struct intel_gvt *gvt);

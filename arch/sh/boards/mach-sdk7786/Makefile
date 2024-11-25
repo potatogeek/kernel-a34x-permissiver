@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 obj-y	:= fpga.o irq.o nmi.o setup.o
 
 obj-$(CONFIG_GPIOLIB)		+= gpio.o

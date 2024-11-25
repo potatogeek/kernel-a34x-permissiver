@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Sonix sn9c102p sn9c105 sn9c120 (jpeg) subdriver
  *
  * Copyright (C) 2009-2011 Jean-François Moine <http://moinejf.free.fr>
  * Copyright (C) 2005 Michel Xhaard mxhaard@magic.fr
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -2682,7 +2689,11 @@ static void sd_pkt_scan(struct gspca_dev *gspca_dev,
 	 * which is 62 bytes long and is followed by various information
 	 * including statuses and luminosity.
 	 *
+<<<<<<< HEAD
 	 * A marker may be splitted on two packets.
+=======
+	 * A marker may be split on two packets.
+>>>>>>> upstream/android-13
 	 *
 	 * The 6th byte of a marker contains the bits:
 	 *	0x08: USB full

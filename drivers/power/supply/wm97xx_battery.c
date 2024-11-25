@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Battery measurement code for WM97xx
  *
  * based on tosa_battery.c
  *
  * Copyright (C) 2008 Marek Vasut <marek.vasut@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -19,11 +26,19 @@
 #include <linux/wm97xx.h>
 #include <linux/spinlock.h>
 #include <linux/interrupt.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/irq.h>
 #include <linux/slab.h>
 
 static struct work_struct bat_work;
+<<<<<<< HEAD
+=======
+static struct gpio_desc *charge_gpiod;
+>>>>>>> upstream/android-13
 static DEFINE_MUTEX(work_lock);
 static int bat_status = POWER_SUPPLY_STATUS_UNKNOWN;
 static enum power_supply_property *prop;
@@ -100,12 +115,20 @@ static void wm97xx_bat_external_power_changed(struct power_supply *bat_ps)
 static void wm97xx_bat_update(struct power_supply *bat_ps)
 {
 	int old_status = bat_status;
+<<<<<<< HEAD
 	struct wm97xx_batt_pdata *pdata = power_supply_get_drvdata(bat_ps);
 
 	mutex_lock(&work_lock);
 
 	bat_status = (pdata->charge_gpio >= 0) ?
 			(gpio_get_value(pdata->charge_gpio) ?
+=======
+
+	mutex_lock(&work_lock);
+
+	bat_status = (charge_gpiod) ?
+			(gpiod_get_value(charge_gpiod) ?
+>>>>>>> upstream/android-13
 			POWER_SUPPLY_STATUS_DISCHARGING :
 			POWER_SUPPLY_STATUS_CHARGING) :
 			POWER_SUPPLY_STATUS_UNKNOWN;
@@ -175,6 +198,7 @@ static int wm97xx_bat_probe(struct platform_device *dev)
 	if (dev->id != -1)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (gpio_is_valid(pdata->charge_gpio)) {
 		ret = gpio_request(pdata->charge_gpio, "BATT CHRG");
 		if (ret)
@@ -187,6 +211,21 @@ static int wm97xx_bat_probe(struct platform_device *dev)
 				"AC Detect", dev);
 		if (ret)
 			goto err2;
+=======
+	charge_gpiod = devm_gpiod_get_optional(&dev->dev, NULL, GPIOD_IN);
+	if (IS_ERR(charge_gpiod))
+		return dev_err_probe(&dev->dev,
+				     PTR_ERR(charge_gpiod),
+				     "failed to get charge GPIO\n");
+	if (charge_gpiod) {
+		gpiod_set_consumer_name(charge_gpiod, "BATT CHRG");
+		ret = request_irq(gpiod_to_irq(charge_gpiod),
+				wm97xx_chrg_irq, 0,
+				"AC Detect", dev);
+		if (ret)
+			return dev_err_probe(&dev->dev, ret,
+					     "failed to request GPIO irq\n");
+>>>>>>> upstream/android-13
 		props++;	/* POWER_SUPPLY_PROP_STATUS */
 	}
 
@@ -208,7 +247,11 @@ static int wm97xx_bat_probe(struct platform_device *dev)
 	}
 
 	prop[i++] = POWER_SUPPLY_PROP_PRESENT;
+<<<<<<< HEAD
 	if (pdata->charge_gpio >= 0)
+=======
+	if (charge_gpiod)
+>>>>>>> upstream/android-13
 		prop[i++] = POWER_SUPPLY_PROP_STATUS;
 	if (pdata->batt_tech >= 0)
 		prop[i++] = POWER_SUPPLY_PROP_TECHNOLOGY;
@@ -246,23 +289,33 @@ static int wm97xx_bat_probe(struct platform_device *dev)
 err4:
 	kfree(prop);
 err3:
+<<<<<<< HEAD
 	if (gpio_is_valid(pdata->charge_gpio))
 		free_irq(gpio_to_irq(pdata->charge_gpio), dev);
 err2:
 	if (gpio_is_valid(pdata->charge_gpio))
 		gpio_free(pdata->charge_gpio);
 err:
+=======
+	if (charge_gpiod)
+		free_irq(gpiod_to_irq(charge_gpiod), dev);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 static int wm97xx_bat_remove(struct platform_device *dev)
 {
+<<<<<<< HEAD
 	struct wm97xx_batt_pdata *pdata = dev->dev.platform_data;
 
 	if (pdata && gpio_is_valid(pdata->charge_gpio)) {
 		free_irq(gpio_to_irq(pdata->charge_gpio), dev);
 		gpio_free(pdata->charge_gpio);
 	}
+=======
+	if (charge_gpiod)
+		free_irq(gpiod_to_irq(charge_gpiod), dev);
+>>>>>>> upstream/android-13
 	cancel_work_sync(&bat_work);
 	power_supply_unregister(bat_psy);
 	kfree(prop);

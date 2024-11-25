@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2005 - 2014 Intel Corporation. All rights reserved.
@@ -16,6 +17,14 @@
  *
  * The full GNU General Public License is included in this distribution in the
  * file called LICENSE.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/******************************************************************************
+ *
+ * Copyright(c) 2005 - 2014, 2018 - 2021 Intel Corporation. All rights reserved.
+ * Copyright(c) 2013 - 2015 Intel Mobile Communications GmbH
+ * Copyright(c) 2016 - 2017 Intel Deutschland GmbH
+>>>>>>> upstream/android-13
  *
  * Contact Information:
  *  Intel Linux Wireless <linuxwifi@intel.com>
@@ -398,7 +407,11 @@ static void rs_fill_lq_cmd(struct iwl_mvm *mvm,
 			   const struct rs_rate *initial_rate);
 static void rs_stay_in_table(struct iwl_lq_sta *lq_sta, bool force_search);
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * The following tables contain the expected throughput metrics for all rates
  *
  *	1, 2, 5.5, 11, 6, 9, 12, 18, 24, 36, 48, 54, 60 MBits
@@ -408,7 +421,10 @@ static void rs_stay_in_table(struct iwl_lq_sta *lq_sta, bool force_search);
  * CCK rates are only valid in legacy table and will only be used in G
  * (2.4 GHz) band.
  */
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static const u16 expected_tpt_legacy[IWL_RATE_COUNT] = {
 	7, 13, 35, 58, 40, 57, 72, 98, 121, 154, 177, 186, 0, 0, 0
 };
@@ -615,7 +631,11 @@ static int rs_tl_turn_on_agg_for_tid(struct iwl_mvm *mvm,
 				     struct iwl_lq_sta *lq_data, u8 tid,
 				     struct ieee80211_sta *sta)
 {
+<<<<<<< HEAD
 	int ret = -EAGAIN;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	IWL_DEBUG_HT(mvm, "Starting Tx agg: STA: %pM tid: %d\n",
 		     sta->addr, tid);
@@ -682,7 +702,11 @@ static s32 get_expected_tpt(struct iwl_scale_tbl_info *tbl, int rs_index)
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * rs_collect_tx_data - Update the success/failure sliding window
  *
  * We keep a sliding window of the last 62 packets transmitted
@@ -842,6 +866,15 @@ static u32 ucode_rate_from_rs_rate(struct iwl_mvm *mvm,
 		return ucode_rate;
 	}
 
+<<<<<<< HEAD
+=======
+	/* set RTS protection for all non legacy rates
+	 * This helps with congested environments reducing the conflict cost to
+	 * RTS retries only, instead of the entire BA packet.
+	 */
+	ucode_rate |= RATE_MCS_RTS_REQUIRED_MSK;
+
+>>>>>>> upstream/android-13
 	if (is_ht(rate)) {
 		if (index < IWL_FIRST_HT_RATE || index > IWL_LAST_HT_RATE) {
 			IWL_ERR(mvm, "Invalid HT rate index %d\n", index);
@@ -1208,6 +1241,7 @@ static u8 rs_get_tid(struct ieee80211_hdr *hdr)
 	return tid;
 }
 
+<<<<<<< HEAD
 void iwl_mvm_rs_tx_status(struct iwl_mvm *mvm, struct ieee80211_sta *sta,
 			  int tid, struct ieee80211_tx_info *info, bool ndp)
 {
@@ -1441,6 +1475,8 @@ done:
 		rs_rate_scale_perform(mvm, sta, lq_sta, tid, ndp);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * mac80211 sends us Tx status
  */
@@ -1453,8 +1489,14 @@ static void rs_drv_mac80211_tx_status(void *mvm_r,
 	struct iwl_op_mode *op_mode = mvm_r;
 	struct iwl_mvm *mvm = IWL_OP_MODE_GET_MVM(op_mode);
 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(skb);
+<<<<<<< HEAD
 
 	if (!iwl_mvm_sta_from_mac80211(sta)->vif)
+=======
+	struct iwl_mvm_sta *mvmsta = iwl_mvm_sta_from_mac80211(sta);
+
+	if (!mvmsta->vif)
+>>>>>>> upstream/android-13
 		return;
 
 	if (!ieee80211_is_data(hdr->frame_control) ||
@@ -1595,6 +1637,21 @@ static void rs_set_expected_tpt_table(struct iwl_lq_sta *lq_sta,
 	tbl->expected_tpt = rs_get_expected_tpt_table(lq_sta, column, rate->bw);
 }
 
+<<<<<<< HEAD
+=======
+/* rs uses two tables, one is active and the second is for searching better
+ * configuration. This function, according to the index of the currently
+ * active table returns the search table, which is located at the
+ * index complementary to 1 according to the active table (active = 1,
+ * search = 0 or active = 0, search = 1).
+ * Since lq_info is an arary of size 2, make sure index cannot be out of bounds.
+ */
+static inline u8 rs_search_tbl(u8 active_tbl)
+{
+	return (active_tbl ^ 1) & 1;
+}
+
+>>>>>>> upstream/android-13
 static s32 rs_get_best_rate(struct iwl_mvm *mvm,
 			    struct iwl_lq_sta *lq_sta,
 			    struct iwl_scale_tbl_info *tbl,	/* "search" */
@@ -1643,8 +1700,32 @@ static s32 rs_get_best_rate(struct iwl_mvm *mvm,
 
 static u32 rs_bw_from_sta_bw(struct ieee80211_sta *sta)
 {
+<<<<<<< HEAD
 	switch (sta->bandwidth) {
 	case IEEE80211_STA_RX_BW_160:
+=======
+	struct ieee80211_sta_vht_cap *sta_vht_cap = &sta->vht_cap;
+	struct ieee80211_vht_cap vht_cap = {
+		.vht_cap_info = cpu_to_le32(sta_vht_cap->cap),
+		.supp_mcs = sta_vht_cap->vht_mcs,
+	};
+
+	switch (sta->bandwidth) {
+	case IEEE80211_STA_RX_BW_160:
+		/*
+		 * Don't use 160 MHz if VHT extended NSS support
+		 * says we cannot use 2 streams, we don't want to
+		 * deal with this.
+		 * We only check MCS 0 - they will support that if
+		 * we got here at all and we don't care which MCS,
+		 * we want to determine a more global state.
+		 */
+		if (ieee80211_get_vht_max_nss(&vht_cap,
+					      IEEE80211_VHT_CHANWIDTH_160MHZ,
+					      0, true,
+					      sta->rx_nss) < sta->rx_nss)
+			return RATE_MCS_CHAN_WIDTH_80;
+>>>>>>> upstream/android-13
 		return RATE_MCS_CHAN_WIDTH_160;
 	case IEEE80211_STA_RX_BW_80:
 		return RATE_MCS_CHAN_WIDTH_80;
@@ -1744,6 +1825,12 @@ static void rs_set_amsdu_len(struct iwl_mvm *mvm, struct ieee80211_sta *sta,
 			     enum rs_action scale_action)
 {
 	struct iwl_mvm_sta *mvmsta = iwl_mvm_sta_from_mac80211(sta);
+<<<<<<< HEAD
+=======
+	int i;
+
+	sta->max_amsdu_len = rs_fw_get_max_amsdu_len(sta);
+>>>>>>> upstream/android-13
 
 	/*
 	 * In case TLC offload is not active amsdu_enabled is either 0xFFFF
@@ -1756,7 +1843,29 @@ static void rs_set_amsdu_len(struct iwl_mvm *mvm, struct ieee80211_sta *sta,
 	else
 		mvmsta->amsdu_enabled = 0xFFFF;
 
+<<<<<<< HEAD
 	mvmsta->max_amsdu_len = sta->max_amsdu_len;
+=======
+	if (mvmsta->vif->bss_conf.he_support &&
+	    !iwlwifi_mod_params.disable_11ax)
+		mvmsta->max_amsdu_len = sta->max_amsdu_len;
+	else
+		mvmsta->max_amsdu_len = min_t(int, sta->max_amsdu_len, 8500);
+
+	sta->max_rc_amsdu_len = mvmsta->max_amsdu_len;
+
+	for (i = 0; i < IWL_MAX_TID_COUNT; i++) {
+		if (mvmsta->amsdu_enabled)
+			sta->max_tid_amsdu_len[i] =
+				iwl_mvm_max_amsdu_size(mvm, sta, i);
+		else
+			/*
+			 * Not so elegant, but this will effectively
+			 * prevent AMSDU on this TID
+			 */
+			sta->max_tid_amsdu_len[i] = 1;
+	}
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1768,7 +1877,11 @@ static void rs_update_rate_tbl(struct iwl_mvm *mvm,
 			       struct iwl_scale_tbl_info *tbl)
 {
 	rs_fill_lq_cmd(mvm, sta, lq_sta, &tbl->rate);
+<<<<<<< HEAD
 	iwl_mvm_send_lq_cmd(mvm, &lq_sta->lq, false);
+=======
+	iwl_mvm_send_lq_cmd(mvm, &lq_sta->lq);
+>>>>>>> upstream/android-13
 }
 
 static bool rs_tweak_rate_tbl(struct iwl_mvm *mvm,
@@ -1777,7 +1890,11 @@ static bool rs_tweak_rate_tbl(struct iwl_mvm *mvm,
 			      struct iwl_scale_tbl_info *tbl,
 			      enum rs_action scale_action)
 {
+<<<<<<< HEAD
 	if (sta->bandwidth != IEEE80211_STA_RX_BW_80)
+=======
+	if (rs_bw_from_sta_bw(sta) != RATE_MCS_CHAN_WIDTH_80)
+>>>>>>> upstream/android-13
 		return false;
 
 	if (!is_vht_siso(&tbl->rate))
@@ -1905,9 +2022,15 @@ static int rs_switch_to_column(struct iwl_mvm *mvm,
 			       struct ieee80211_sta *sta,
 			       enum rs_column col_id)
 {
+<<<<<<< HEAD
 	struct iwl_scale_tbl_info *tbl = &(lq_sta->lq_info[lq_sta->active_tbl]);
 	struct iwl_scale_tbl_info *search_tbl =
 				&(lq_sta->lq_info[(1 - lq_sta->active_tbl)]);
+=======
+	struct iwl_scale_tbl_info *tbl = &lq_sta->lq_info[lq_sta->active_tbl];
+	struct iwl_scale_tbl_info *search_tbl =
+		&lq_sta->lq_info[rs_search_tbl(lq_sta->active_tbl)];
+>>>>>>> upstream/android-13
 	struct rs_rate *rate = &search_tbl->rate;
 	const struct rs_tx_column *column = &rs_tx_columns[col_id];
 	const struct rs_tx_column *curr_column = &rs_tx_columns[tbl->column];
@@ -2113,9 +2236,13 @@ static bool rs_tpc_allowed(struct iwl_mvm *mvm, struct ieee80211_vif *vif,
 	if (is_ht(rate))
 		return index == IWL_RATE_MCS_7_INDEX;
 	if (is_vht(rate))
+<<<<<<< HEAD
 		return index == IWL_RATE_MCS_7_INDEX ||
 		       index == IWL_RATE_MCS_8_INDEX ||
 		       index == IWL_RATE_MCS_9_INDEX;
+=======
+		return index == IWL_RATE_MCS_9_INDEX;
+>>>>>>> upstream/android-13
 
 	WARN_ON_ONCE(1);
 	return false;
@@ -2315,7 +2442,11 @@ static void rs_rate_scale_perform(struct iwl_mvm *mvm,
 	if (!lq_sta->search_better_tbl)
 		active_tbl = lq_sta->active_tbl;
 	else
+<<<<<<< HEAD
 		active_tbl = 1 - lq_sta->active_tbl;
+=======
+		active_tbl = rs_search_tbl(lq_sta->active_tbl);
+>>>>>>> upstream/android-13
 
 	tbl = &(lq_sta->lq_info[active_tbl]);
 	rate = &tbl->rate;
@@ -2539,7 +2670,11 @@ lq_update:
 		/* If new "search" mode was selected, set up in uCode table */
 		if (lq_sta->search_better_tbl) {
 			/* Access the "search" table, clear its history. */
+<<<<<<< HEAD
 			tbl = &(lq_sta->lq_info[(1 - lq_sta->active_tbl)]);
+=======
+			tbl = &lq_sta->lq_info[rs_search_tbl(lq_sta->active_tbl)];
+>>>>>>> upstream/android-13
 			rs_rate_scale_clear_tbl_windows(mvm, tbl);
 
 			/* Use new "search" start rate */
@@ -2853,7 +2988,11 @@ void rs_update_last_rssi(struct iwl_mvm *mvm,
 	}
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * rs_initialize_lq - Initialize a station's hardware rate table
  *
  * The uCode's station table contains a table of fallback rates
@@ -2870,7 +3009,11 @@ void rs_update_last_rssi(struct iwl_mvm *mvm,
 static void rs_initialize_lq(struct iwl_mvm *mvm,
 			     struct ieee80211_sta *sta,
 			     struct iwl_lq_sta *lq_sta,
+<<<<<<< HEAD
 			     enum nl80211_band band, bool update)
+=======
+			     enum nl80211_band band)
+>>>>>>> upstream/android-13
 {
 	struct iwl_scale_tbl_info *tbl;
 	struct rs_rate *rate;
@@ -2882,7 +3025,11 @@ static void rs_initialize_lq(struct iwl_mvm *mvm,
 	if (!lq_sta->search_better_tbl)
 		active_tbl = lq_sta->active_tbl;
 	else
+<<<<<<< HEAD
 		active_tbl = 1 - lq_sta->active_tbl;
+=======
+		active_tbl = rs_search_tbl(lq_sta->active_tbl);
+>>>>>>> upstream/android-13
 
 	tbl = &(lq_sta->lq_info[active_tbl]);
 	rate = &tbl->rate;
@@ -2900,7 +3047,11 @@ static void rs_initialize_lq(struct iwl_mvm *mvm,
 	rs_set_expected_tpt_table(lq_sta, tbl);
 	rs_fill_lq_cmd(mvm, sta, lq_sta, rate);
 	/* TODO restore station should remember the lq cmd */
+<<<<<<< HEAD
 	iwl_mvm_send_lq_cmd(mvm, &lq_sta->lq, !update);
+=======
+	iwl_mvm_send_lq_cmd(mvm, &lq_sta->lq);
+>>>>>>> upstream/android-13
 }
 
 static void rs_drv_get_rate(void *mvm_r, struct ieee80211_sta *sta,
@@ -2923,10 +3074,13 @@ static void rs_drv_get_rate(void *mvm_r, struct ieee80211_sta *sta,
 		mvm_sta = NULL;
 	}
 
+<<<<<<< HEAD
 	/* Send management frames and NO_ACK data using lowest rate. */
 	if (rate_control_send_low(sta, mvm_sta, txrc))
 		return;
 
+=======
+>>>>>>> upstream/android-13
 	if (!mvm_sta)
 		return;
 
@@ -3153,7 +3307,11 @@ void iwl_mvm_update_frame_stats(struct iwl_mvm *mvm, u32 rate, bool agg)
  * Called after adding a new station to initialize rate scaling
  */
 static void rs_drv_rate_init(struct iwl_mvm *mvm, struct ieee80211_sta *sta,
+<<<<<<< HEAD
 			     enum nl80211_band band, bool update)
+=======
+			     enum nl80211_band band)
+>>>>>>> upstream/android-13
 {
 	int i, j;
 	struct ieee80211_hw *hw = mvm->hw;
@@ -3164,6 +3322,11 @@ static void rs_drv_rate_init(struct iwl_mvm *mvm, struct ieee80211_sta *sta,
 	struct ieee80211_supported_band *sband;
 	unsigned long supp; /* must be unsigned long for for_each_set_bit */
 
+<<<<<<< HEAD
+=======
+	lockdep_assert_held(&mvmsta->lq_sta.rs_drv.pers.lock);
+
+>>>>>>> upstream/android-13
 	/* clear all non-persistent lq data */
 	memset(lq_sta, 0, offsetof(typeof(*lq_sta), pers));
 
@@ -3224,7 +3387,11 @@ static void rs_drv_rate_init(struct iwl_mvm *mvm, struct ieee80211_sta *sta,
 
 	/* These values will be overridden later */
 	lq_sta->lq.single_stream_ant_msk =
+<<<<<<< HEAD
 		first_antenna(iwl_mvm_get_valid_tx_ant(mvm));
+=======
+		iwl_mvm_bt_coex_get_single_ant_msk(mvm, iwl_mvm_get_valid_tx_ant(mvm));
+>>>>>>> upstream/android-13
 	lq_sta->lq.dual_stream_ant_msk = ANT_AB;
 
 	/* as default allow aggregation for all tids */
@@ -3233,7 +3400,11 @@ static void rs_drv_rate_init(struct iwl_mvm *mvm, struct ieee80211_sta *sta,
 #ifdef CONFIG_IWLWIFI_DEBUGFS
 	iwl_mvm_reset_frame_stats(mvm);
 #endif
+<<<<<<< HEAD
 	rs_initialize_lq(mvm, sta, lq_sta, band, update);
+=======
+	rs_initialize_lq(mvm, sta, lq_sta, band);
+>>>>>>> upstream/android-13
 }
 
 static void rs_drv_rate_update(void *mvm_r,
@@ -3256,6 +3427,257 @@ static void rs_drv_rate_update(void *mvm_r,
 	iwl_mvm_rs_rate_init(mvm, sta, sband->band, true);
 }
 
+<<<<<<< HEAD
+=======
+static void __iwl_mvm_rs_tx_status(struct iwl_mvm *mvm,
+				   struct ieee80211_sta *sta,
+				   int tid, struct ieee80211_tx_info *info,
+				   bool ndp)
+{
+	int legacy_success;
+	int retries;
+	int i;
+	struct iwl_lq_cmd *table;
+	u32 lq_hwrate;
+	struct rs_rate lq_rate, tx_resp_rate;
+	struct iwl_scale_tbl_info *curr_tbl, *other_tbl, *tmp_tbl;
+	u32 tlc_info = (uintptr_t)info->status.status_driver_data[0];
+	u8 reduced_txp = tlc_info & RS_DRV_DATA_TXP_MSK;
+	u8 lq_color = RS_DRV_DATA_LQ_COLOR_GET(tlc_info);
+	u32 tx_resp_hwrate = (uintptr_t)info->status.status_driver_data[1];
+	struct iwl_mvm_sta *mvmsta = iwl_mvm_sta_from_mac80211(sta);
+	struct iwl_lq_sta *lq_sta = &mvmsta->lq_sta.rs_drv;
+
+	if (!lq_sta->pers.drv) {
+		IWL_DEBUG_RATE(mvm, "Rate scaling not initialized yet.\n");
+		return;
+	}
+
+	/* This packet was aggregated but doesn't carry status info */
+	if ((info->flags & IEEE80211_TX_CTL_AMPDU) &&
+	    !(info->flags & IEEE80211_TX_STAT_AMPDU))
+		return;
+
+	if (rs_rate_from_ucode_rate(tx_resp_hwrate, info->band,
+				    &tx_resp_rate)) {
+		WARN_ON_ONCE(1);
+		return;
+	}
+
+#ifdef CONFIG_MAC80211_DEBUGFS
+	/* Disable last tx check if we are debugging with fixed rate but
+	 * update tx stats
+	 */
+	if (lq_sta->pers.dbg_fixed_rate) {
+		int index = tx_resp_rate.index;
+		enum rs_column column;
+		int attempts, success;
+
+		column = rs_get_column_from_rate(&tx_resp_rate);
+		if (WARN_ONCE(column == RS_COLUMN_INVALID,
+			      "Can't map rate 0x%x to column",
+			      tx_resp_hwrate))
+			return;
+
+		if (info->flags & IEEE80211_TX_STAT_AMPDU) {
+			attempts = info->status.ampdu_len;
+			success = info->status.ampdu_ack_len;
+		} else {
+			attempts = info->status.rates[0].count;
+			success = !!(info->flags & IEEE80211_TX_STAT_ACK);
+		}
+
+		lq_sta->pers.tx_stats[column][index].total += attempts;
+		lq_sta->pers.tx_stats[column][index].success += success;
+
+		IWL_DEBUG_RATE(mvm, "Fixed rate 0x%x success %d attempts %d\n",
+			       tx_resp_hwrate, success, attempts);
+		return;
+	}
+#endif
+
+	if (time_after(jiffies,
+		       (unsigned long)(lq_sta->last_tx +
+				       (IWL_MVM_RS_IDLE_TIMEOUT * HZ)))) {
+		IWL_DEBUG_RATE(mvm, "Tx idle for too long. reinit rs\n");
+		/* reach here only in case of driver RS, call directly
+		 * the unlocked version
+		 */
+		rs_drv_rate_init(mvm, sta, info->band);
+		return;
+	}
+	lq_sta->last_tx = jiffies;
+
+	/* Ignore this Tx frame response if its initial rate doesn't match
+	 * that of latest Link Quality command.  There may be stragglers
+	 * from a previous Link Quality command, but we're no longer interested
+	 * in those; they're either from the "active" mode while we're trying
+	 * to check "search" mode, or a prior "search" mode after we've moved
+	 * to a new "search" mode (which might become the new "active" mode).
+	 */
+	table = &lq_sta->lq;
+	lq_hwrate = le32_to_cpu(table->rs_table[0]);
+	if (rs_rate_from_ucode_rate(lq_hwrate, info->band, &lq_rate)) {
+		WARN_ON_ONCE(1);
+		return;
+	}
+
+	/* Here we actually compare this rate to the latest LQ command */
+	if (lq_color != LQ_FLAG_COLOR_GET(table->flags)) {
+		IWL_DEBUG_RATE(mvm,
+			       "tx resp color 0x%x does not match 0x%x\n",
+			       lq_color, LQ_FLAG_COLOR_GET(table->flags));
+
+		/* Since rates mis-match, the last LQ command may have failed.
+		 * After IWL_MISSED_RATE_MAX mis-matches, resync the uCode with
+		 * ... driver.
+		 */
+		lq_sta->missed_rate_counter++;
+		if (lq_sta->missed_rate_counter > IWL_MVM_RS_MISSED_RATE_MAX) {
+			lq_sta->missed_rate_counter = 0;
+			IWL_DEBUG_RATE(mvm,
+				       "Too many rates mismatch. Send sync LQ. rs_state %d\n",
+				       lq_sta->rs_state);
+			iwl_mvm_send_lq_cmd(mvm, &lq_sta->lq);
+		}
+		/* Regardless, ignore this status info for outdated rate */
+		return;
+	}
+
+	/* Rate did match, so reset the missed_rate_counter */
+	lq_sta->missed_rate_counter = 0;
+
+	if (!lq_sta->search_better_tbl) {
+		curr_tbl = &lq_sta->lq_info[lq_sta->active_tbl];
+		other_tbl = &lq_sta->lq_info[rs_search_tbl(lq_sta->active_tbl)];
+	} else {
+		curr_tbl = &lq_sta->lq_info[rs_search_tbl(lq_sta->active_tbl)];
+		other_tbl = &lq_sta->lq_info[lq_sta->active_tbl];
+	}
+
+	if (WARN_ON_ONCE(!rs_rate_column_match(&lq_rate, &curr_tbl->rate))) {
+		IWL_DEBUG_RATE(mvm,
+			       "Neither active nor search matches tx rate\n");
+		tmp_tbl = &lq_sta->lq_info[lq_sta->active_tbl];
+		rs_dump_rate(mvm, &tmp_tbl->rate, "ACTIVE");
+		tmp_tbl = &lq_sta->lq_info[rs_search_tbl(lq_sta->active_tbl)];
+		rs_dump_rate(mvm, &tmp_tbl->rate, "SEARCH");
+		rs_dump_rate(mvm, &lq_rate, "ACTUAL");
+
+		/* no matching table found, let's by-pass the data collection
+		 * and continue to perform rate scale to find the rate table
+		 */
+		rs_stay_in_table(lq_sta, true);
+		goto done;
+	}
+
+	/* Updating the frame history depends on whether packets were
+	 * aggregated.
+	 *
+	 * For aggregation, all packets were transmitted at the same rate, the
+	 * first index into rate scale table.
+	 */
+	if (info->flags & IEEE80211_TX_STAT_AMPDU) {
+		rs_collect_tpc_data(mvm, lq_sta, curr_tbl, tx_resp_rate.index,
+				    info->status.ampdu_len,
+				    info->status.ampdu_ack_len,
+				    reduced_txp);
+
+		/* ampdu_ack_len = 0 marks no BA was received. For TLC, treat
+		 * it as a single frame loss as we don't want the success ratio
+		 * to dip too quickly because a BA wasn't received.
+		 * For TPC, there's no need for this optimisation since we want
+		 * to recover very quickly from a bad power reduction and,
+		 * therefore we'd like the success ratio to get an immediate hit
+		 * when failing to get a BA, so we'd switch back to a lower or
+		 * zero power reduction. When FW transmits agg with a rate
+		 * different from the initial rate, it will not use reduced txp
+		 * and will send BA notification twice (one empty with reduced
+		 * txp equal to the value from LQ and one with reduced txp 0).
+		 * We need to update counters for each txp level accordingly.
+		 */
+		if (info->status.ampdu_ack_len == 0)
+			info->status.ampdu_len = 1;
+
+		rs_collect_tlc_data(mvm, mvmsta, tid, curr_tbl,
+				    tx_resp_rate.index,
+				    info->status.ampdu_len,
+				    info->status.ampdu_ack_len);
+
+		/* Update success/fail counts if not searching for new mode */
+		if (lq_sta->rs_state == RS_STATE_STAY_IN_COLUMN) {
+			lq_sta->total_success += info->status.ampdu_ack_len;
+			lq_sta->total_failed += (info->status.ampdu_len -
+					info->status.ampdu_ack_len);
+		}
+	} else {
+		/* For legacy, update frame history with for each Tx retry. */
+		retries = info->status.rates[0].count - 1;
+		/* HW doesn't send more than 15 retries */
+		retries = min(retries, 15);
+
+		/* The last transmission may have been successful */
+		legacy_success = !!(info->flags & IEEE80211_TX_STAT_ACK);
+		/* Collect data for each rate used during failed TX attempts */
+		for (i = 0; i <= retries; ++i) {
+			lq_hwrate = le32_to_cpu(table->rs_table[i]);
+			if (rs_rate_from_ucode_rate(lq_hwrate, info->band,
+						    &lq_rate)) {
+				WARN_ON_ONCE(1);
+				return;
+			}
+
+			/* Only collect stats if retried rate is in the same RS
+			 * table as active/search.
+			 */
+			if (rs_rate_column_match(&lq_rate, &curr_tbl->rate))
+				tmp_tbl = curr_tbl;
+			else if (rs_rate_column_match(&lq_rate,
+						      &other_tbl->rate))
+				tmp_tbl = other_tbl;
+			else
+				continue;
+
+			rs_collect_tpc_data(mvm, lq_sta, tmp_tbl,
+					    tx_resp_rate.index, 1,
+					    i < retries ? 0 : legacy_success,
+					    reduced_txp);
+			rs_collect_tlc_data(mvm, mvmsta, tid, tmp_tbl,
+					    tx_resp_rate.index, 1,
+					    i < retries ? 0 : legacy_success);
+		}
+
+		/* Update success/fail counts if not searching for new mode */
+		if (lq_sta->rs_state == RS_STATE_STAY_IN_COLUMN) {
+			lq_sta->total_success += legacy_success;
+			lq_sta->total_failed += retries + (1 - legacy_success);
+		}
+	}
+	/* The last TX rate is cached in lq_sta; it's set in if/else above */
+	lq_sta->last_rate_n_flags = lq_hwrate;
+	IWL_DEBUG_RATE(mvm, "reduced txpower: %d\n", reduced_txp);
+done:
+	/* See if there's a better rate or modulation mode to try. */
+	if (sta->supp_rates[info->band])
+		rs_rate_scale_perform(mvm, sta, lq_sta, tid, ndp);
+}
+
+void iwl_mvm_rs_tx_status(struct iwl_mvm *mvm, struct ieee80211_sta *sta,
+			  int tid, struct ieee80211_tx_info *info, bool ndp)
+{
+	struct iwl_mvm_sta *mvmsta = iwl_mvm_sta_from_mac80211(sta);
+
+	/* If it's locked we are in middle of init flow
+	 * just wait for next tx status to update the lq_sta data
+	 */
+	if (!spin_trylock(&mvmsta->lq_sta.rs_drv.pers.lock))
+		return;
+
+	__iwl_mvm_rs_tx_status(mvm, sta, tid, info, ndp);
+	spin_unlock(&mvmsta->lq_sta.rs_drv.pers.lock);
+}
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_MAC80211_DEBUGFS
 static void rs_build_rates_table_from_fixed(struct iwl_mvm *mvm,
 					    struct iwl_lq_cmd *lq_cmd,
@@ -3286,7 +3708,11 @@ static void rs_build_rates_table_from_fixed(struct iwl_mvm *mvm,
 	if (num_of_ant(ant) == 1)
 		lq_cmd->single_stream_ant_msk = ant;
 
+<<<<<<< HEAD
 	if (!mvm->trans->cfg->gen2)
+=======
+	if (!mvm->trans->trans_cfg->gen2)
+>>>>>>> upstream/android-13
 		lq_cmd->agg_frame_cnt_limit = LINK_QUAL_AGG_FRAME_LIMIT_DEF;
 	else
 		lq_cmd->agg_frame_cnt_limit =
@@ -3332,12 +3758,21 @@ static void rs_fill_rates_for_column(struct iwl_mvm *mvm,
 /* Building the rate table is non trivial. When we're in MIMO2/VHT/80Mhz/SGI
  * column the rate table should look like this:
  *
+<<<<<<< HEAD
  * rate[0] 0x400D019 VHT | ANT: AB BW: 80Mhz MCS: 9 NSS: 2 SGI
  * rate[1] 0x400D019 VHT | ANT: AB BW: 80Mhz MCS: 9 NSS: 2 SGI
  * rate[2] 0x400D018 VHT | ANT: AB BW: 80Mhz MCS: 8 NSS: 2 SGI
  * rate[3] 0x400D018 VHT | ANT: AB BW: 80Mhz MCS: 8 NSS: 2 SGI
  * rate[4] 0x400D017 VHT | ANT: AB BW: 80Mhz MCS: 7 NSS: 2 SGI
  * rate[5] 0x400D017 VHT | ANT: AB BW: 80Mhz MCS: 7 NSS: 2 SGI
+=======
+ * rate[0] 0x400F019 VHT | ANT: AB BW: 80Mhz MCS: 9 NSS: 2 SGI
+ * rate[1] 0x400F019 VHT | ANT: AB BW: 80Mhz MCS: 9 NSS: 2 SGI
+ * rate[2] 0x400F018 VHT | ANT: AB BW: 80Mhz MCS: 8 NSS: 2 SGI
+ * rate[3] 0x400F018 VHT | ANT: AB BW: 80Mhz MCS: 8 NSS: 2 SGI
+ * rate[4] 0x400F017 VHT | ANT: AB BW: 80Mhz MCS: 7 NSS: 2 SGI
+ * rate[5] 0x400F017 VHT | ANT: AB BW: 80Mhz MCS: 7 NSS: 2 SGI
+>>>>>>> upstream/android-13
  * rate[6] 0x4005007 VHT | ANT: A BW: 80Mhz MCS: 7 NSS: 1 NGI
  * rate[7] 0x4009006 VHT | ANT: B BW: 80Mhz MCS: 6 NSS: 1 NGI
  * rate[8] 0x4005005 VHT | ANT: A BW: 80Mhz MCS: 5 NSS: 1 NGI
@@ -3547,7 +3982,11 @@ static void rs_set_lq_ss_params(struct iwl_mvm *mvm,
 
 		bfersta_ss_params &= ~LQ_SS_BFER_ALLOWED;
 		bfersta_lq_cmd->ss_params = cpu_to_le32(bfersta_ss_params);
+<<<<<<< HEAD
 		iwl_mvm_send_lq_cmd(mvm, bfersta_lq_cmd, false);
+=======
+		iwl_mvm_send_lq_cmd(mvm, bfersta_lq_cmd);
+>>>>>>> upstream/android-13
 
 		ss_params |= LQ_SS_BFER_ALLOWED;
 		IWL_DEBUG_RATE(mvm,
@@ -3590,7 +4029,12 @@ static void rs_fill_lq_cmd(struct iwl_mvm *mvm,
 	mvmsta = iwl_mvm_sta_from_mac80211(sta);
 	mvmvif = iwl_mvm_vif_from_mac80211(mvmsta->vif);
 
+<<<<<<< HEAD
 	if (num_of_ant(initial_rate->ant) == 1)
+=======
+	if (!fw_has_capa(&mvm->fw->ucode_capa, IWL_UCODE_TLV_CAPA_COEX_SCHEMA_2) &&
+	    num_of_ant(initial_rate->ant) == 1)
+>>>>>>> upstream/android-13
 		lq_cmd->single_stream_ant_msk = initial_rate->ant;
 
 	lq_cmd->agg_frame_cnt_limit = mvmsta->max_agg_bufsize;
@@ -3610,7 +4054,11 @@ static void rs_fill_lq_cmd(struct iwl_mvm *mvm,
 			cpu_to_le16(iwl_mvm_coex_agg_time_limit(mvm, sta));
 }
 
+<<<<<<< HEAD
 static void *rs_alloc(struct ieee80211_hw *hw, struct dentry *debugfsdir)
+=======
+static void *rs_alloc(struct ieee80211_hw *hw)
+>>>>>>> upstream/android-13
 {
 	return hw->priv;
 }
@@ -3630,7 +4078,10 @@ static void rs_free_sta(void *mvm_r, struct ieee80211_sta *sta, void *mvm_sta)
 	IWL_DEBUG_RATE(mvm, "leave\n");
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_MAC80211_DEBUGFS
+=======
+>>>>>>> upstream/android-13
 int rs_pretty_print_rate(char *buf, int bufsz, const u32 rate)
 {
 
@@ -3643,7 +4094,11 @@ int rs_pretty_print_rate(char *buf, int bufsz, const u32 rate)
 	    !(rate & RATE_MCS_HE_MSK)) {
 		int index = iwl_hwrate_to_plcp_idx(rate);
 
+<<<<<<< HEAD
 		return scnprintf(buf, bufsz, "Legacy | ANT: %s Rate: %s Mbps\n",
+=======
+		return scnprintf(buf, bufsz, "Legacy | ANT: %s Rate: %s Mbps",
+>>>>>>> upstream/android-13
 				 rs_pretty_ant(ant),
 				 index == IWL_RATE_INVALID ? "BAD" :
 				 iwl_rate_mcs[index].mbps);
@@ -3686,6 +4141,7 @@ int rs_pretty_print_rate(char *buf, int bufsz, const u32 rate)
 	}
 
 	return scnprintf(buf, bufsz,
+<<<<<<< HEAD
 			 "%s | ANT: %s BW: %s MCS: %d NSS: %d %s%s%s%s\n",
 			 type, rs_pretty_ant(ant), bw, mcs, nss,
 			 (rate & RATE_MCS_SGI_MSK) ? "SGI " : "NGI ",
@@ -3695,6 +4151,19 @@ int rs_pretty_print_rate(char *buf, int bufsz, const u32 rate)
 }
 
 /**
+=======
+			 "0x%x: %s | ANT: %s BW: %s MCS: %d NSS: %d %s%s%s%s%s",
+			 rate, type, rs_pretty_ant(ant), bw, mcs, nss,
+			 (rate & RATE_MCS_SGI_MSK) ? "SGI " : "NGI ",
+			 (rate & RATE_MCS_STBC_MSK) ? "STBC " : "",
+			 (rate & RATE_MCS_LDPC_MSK) ? "LDPC " : "",
+			 (rate & RATE_HE_DUAL_CARRIER_MODE_MSK) ? "DCM " : "",
+			 (rate & RATE_MCS_BF_MSK) ? "BF " : "");
+}
+
+#ifdef CONFIG_MAC80211_DEBUGFS
+/*
+>>>>>>> upstream/android-13
  * Program the device to use fixed rate for frame transmit
  * This is for debugging/testing only
  * once the device start use fixed rate, we need to reload the module
@@ -3712,7 +4181,11 @@ static void rs_program_fix_rate(struct iwl_mvm *mvm,
 
 	if (lq_sta->pers.dbg_fixed_rate) {
 		rs_fill_lq_cmd(mvm, NULL, lq_sta, NULL);
+<<<<<<< HEAD
 		iwl_mvm_send_lq_cmd(lq_sta->pers.drv, &lq_sta->lq, false);
+=======
+		iwl_mvm_send_lq_cmd(lq_sta->pers.drv, &lq_sta->lq);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -3833,6 +4306,11 @@ static ssize_t rs_sta_dbgfs_scale_table_read(struct file *file,
 		desc += scnprintf(buff + desc, bufsz - desc,
 				  " rate[%d] 0x%X ", i, r);
 		desc += rs_pretty_print_rate(buff + desc, bufsz - desc, r);
+<<<<<<< HEAD
+=======
+		if (desc < bufsz - 1)
+			buff[desc++] = '\n';
+>>>>>>> upstream/android-13
 	}
 
 	ret = simple_read_from_buffer(user_buf, count, ppos, buff, desc);
@@ -4040,9 +4518,14 @@ static ssize_t iwl_dbgfs_ss_force_write(struct iwl_lq_sta *lq_sta, char *buf,
 #define MVM_DEBUGFS_READ_WRITE_FILE_OPS(name, bufsz) \
 	_MVM_DEBUGFS_READ_WRITE_FILE_OPS(name, bufsz, struct iwl_lq_sta)
 #define MVM_DEBUGFS_ADD_FILE_RS(name, parent, mode) do {		\
+<<<<<<< HEAD
 		if (!debugfs_create_file(#name, mode, parent, lq_sta,	\
 					 &iwl_dbgfs_##name##_ops))	\
 			goto err;					\
+=======
+		debugfs_create_file(#name, mode, parent, lq_sta,	\
+				    &iwl_dbgfs_##name##_ops);		\
+>>>>>>> upstream/android-13
 	} while (0)
 
 MVM_DEBUGFS_READ_WRITE_FILE_OPS(ss_force, 32);
@@ -4070,6 +4553,7 @@ static void rs_drv_add_sta_debugfs(void *mvm, void *priv_sta,
 			  &lq_sta->pers.dbg_fixed_txp_reduction);
 
 	MVM_DEBUGFS_ADD_FILE_RS(ss_force, dir, 0600);
+<<<<<<< HEAD
 	return;
 err:
 	IWL_ERR((struct iwl_mvm *)mvm, "Can't create debugfs entity\n");
@@ -4077,6 +4561,8 @@ err:
 
 void rs_remove_sta_debugfs(void *mvm, void *mvm_sta)
 {
+=======
+>>>>>>> upstream/android-13
 }
 #endif
 
@@ -4105,17 +4591,34 @@ static const struct rate_control_ops rs_mvm_ops_drv = {
 	.rate_update = rs_drv_rate_update,
 #ifdef CONFIG_MAC80211_DEBUGFS
 	.add_sta_debugfs = rs_drv_add_sta_debugfs,
+<<<<<<< HEAD
 	.remove_sta_debugfs = rs_remove_sta_debugfs,
 #endif
+=======
+#endif
+	.capa = RATE_CTRL_CAPA_VHT_EXT_NSS_BW,
+>>>>>>> upstream/android-13
 };
 
 void iwl_mvm_rs_rate_init(struct iwl_mvm *mvm, struct ieee80211_sta *sta,
 			  enum nl80211_band band, bool update)
 {
+<<<<<<< HEAD
 	if (iwl_mvm_has_tlc_offload(mvm))
 		rs_fw_rate_init(mvm, sta, band, update);
 	else
 		rs_drv_rate_init(mvm, sta, band, update);
+=======
+	if (iwl_mvm_has_tlc_offload(mvm)) {
+		rs_fw_rate_init(mvm, sta, band, update);
+	} else {
+		struct iwl_mvm_sta *mvmsta = iwl_mvm_sta_from_mac80211(sta);
+
+		spin_lock(&mvmsta->lq_sta.rs_drv.pers.lock);
+		rs_drv_rate_init(mvm, sta, band);
+		spin_unlock(&mvmsta->lq_sta.rs_drv.pers.lock);
+	}
+>>>>>>> upstream/android-13
 }
 
 int iwl_mvm_rate_control_register(void)
@@ -4145,11 +4648,19 @@ static int rs_drv_tx_protection(struct iwl_mvm *mvm, struct iwl_mvm_sta *mvmsta,
 			lq->flags &= ~LQ_FLAG_USE_RTS_MSK;
 	}
 
+<<<<<<< HEAD
 	return iwl_mvm_send_lq_cmd(mvm, lq, false);
+=======
+	return iwl_mvm_send_lq_cmd(mvm, lq);
+>>>>>>> upstream/android-13
 }
 
 /**
  * iwl_mvm_tx_protection - ask FW to enable RTS/CTS protection
+<<<<<<< HEAD
+=======
+ * @mvm: The mvm component
+>>>>>>> upstream/android-13
  * @mvmsta: The station
  * @enable: Enable Tx protection?
  */

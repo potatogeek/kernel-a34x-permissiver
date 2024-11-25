@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * rt5659.c  --  RT5659/RT5658 ALSA SoC audio codec driver
  *
  * Copyright 2015 Realtek Semiconductor Corp.
  * Author: Bard Liao <bardliao@realtek.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -1198,6 +1205,7 @@ static const struct snd_kcontrol_new rt5659_if3_dac_swap_mux =
 static const struct snd_kcontrol_new rt5659_if3_adc_swap_mux =
 	SOC_DAPM_ENUM("IF3 ADC Swap Source", rt5659_if3_adc_enum);
 
+<<<<<<< HEAD
 static const char * const rt5659_asrc_clk_src[] = {
 	"clk_sysy_div_out", "clk_i2s1_track", "clk_i2s2_track",
 	"clk_i2s3_track", "clk_sys2", "clk_sys3"
@@ -1235,13 +1243,19 @@ static SOC_VALUE_ENUM_SINGLE_DECL(
 	rt5659_ad_monor_asrc_enum, RT5659_ASRC_3, RT5659_AD_MONO_R_T_SFT, 0x7,
 	rt5659_asrc_clk_src, rt5659_asrc_clk_map_values);
 
+=======
+>>>>>>> upstream/android-13
 static int rt5659_hp_vol_put(struct snd_kcontrol *kcontrol,
 		struct snd_ctl_elem_value *ucontrol)
 {
 	struct snd_soc_component *component = snd_soc_kcontrol_component(kcontrol);
 	int ret = snd_soc_put_volsw(kcontrol, ucontrol);
 
+<<<<<<< HEAD
 	if (snd_soc_component_read32(component, RT5659_STO_NG2_CTRL_1) & RT5659_NG2_EN) {
+=======
+	if (snd_soc_component_read(component, RT5659_STO_NG2_CTRL_1) & RT5659_NG2_EN) {
+>>>>>>> upstream/android-13
 		snd_soc_component_update_bits(component, RT5659_STO_NG2_CTRL_1,
 			RT5659_NG2_EN_MASK, RT5659_NG2_DIS);
 		snd_soc_component_update_bits(component, RT5659_STO_NG2_CTRL_1,
@@ -1308,7 +1322,11 @@ static int rt5659_headset_detect(struct snd_soc_component *component, int jack_i
 		snd_soc_dapm_force_enable_pin(dapm,
 			"Mic Det Power");
 		snd_soc_dapm_sync(dapm);
+<<<<<<< HEAD
 		reg_63 = snd_soc_component_read32(component, RT5659_PWR_ANLG_1);
+=======
+		reg_63 = snd_soc_component_read(component, RT5659_PWR_ANLG_1);
+>>>>>>> upstream/android-13
 
 		snd_soc_component_update_bits(component, RT5659_PWR_ANLG_1,
 			RT5659_PWR_VREF2 | RT5659_PWR_MB,
@@ -1326,7 +1344,11 @@ static int rt5659_headset_detect(struct snd_soc_component *component, int jack_i
 
 		while (i < 5) {
 			msleep(sleep_time[i]);
+<<<<<<< HEAD
 			val = snd_soc_component_read32(component, RT5659_EJD_CTRL_2) & 0x0003;
+=======
+			val = snd_soc_component_read(component, RT5659_EJD_CTRL_2) & 0x0003;
+>>>>>>> upstream/android-13
 			i++;
 			if (val == 0x1 || val == 0x2 || val == 0x3)
 				break;
@@ -1360,7 +1382,11 @@ static int rt5659_button_detect(struct snd_soc_component *component)
 {
 	int btn_type, val;
 
+<<<<<<< HEAD
 	val = snd_soc_component_read32(component, RT5659_4BTN_IL_CMD_1);
+=======
+	val = snd_soc_component_read(component, RT5659_4BTN_IL_CMD_1);
+>>>>>>> upstream/android-13
 	btn_type = val & 0xfff0;
 	snd_soc_component_write(component, RT5659_4BTN_IL_CMD_1, val);
 
@@ -1399,7 +1425,11 @@ static void rt5659_jack_detect_work(struct work_struct *work)
 	if (!rt5659->component)
 		return;
 
+<<<<<<< HEAD
 	val = snd_soc_component_read32(rt5659->component, RT5659_INT_ST_1) & 0x0080;
+=======
+	val = snd_soc_component_read(rt5659->component, RT5659_INT_ST_1) & 0x0080;
+>>>>>>> upstream/android-13
 	if (!val) {
 		/* jack in */
 		if (rt5659->jack_type == 0) {
@@ -1607,7 +1637,11 @@ static int set_dmic_clk(struct snd_soc_dapm_widget *w,
 {
 	struct snd_soc_component *component = snd_soc_dapm_to_component(w->dapm);
 	struct rt5659_priv *rt5659 = snd_soc_component_get_drvdata(component);
+<<<<<<< HEAD
 	int pd, idx = -EINVAL;
+=======
+	int pd, idx;
+>>>>>>> upstream/android-13
 
 	pd = rl6231_get_pre_div(rt5659->regmap,
 		RT5659_ADDA_CLK_1, RT5659_I2S_PD1_SFT);
@@ -1699,7 +1733,11 @@ static int is_sys_clk_from_pll(struct snd_soc_dapm_widget *w,
 	unsigned int val;
 	struct snd_soc_component *component = snd_soc_dapm_to_component(w->dapm);
 
+<<<<<<< HEAD
 	val = snd_soc_component_read32(component, RT5659_GLB_CLK);
+=======
+	val = snd_soc_component_read(component, RT5659_GLB_CLK);
+>>>>>>> upstream/android-13
 	val &= RT5659_SCLK_SRC_MASK;
 	if (val == RT5659_SCLK_SRC_PLL1)
 		return 1;
@@ -1742,7 +1780,11 @@ static int is_using_asrc(struct snd_soc_dapm_widget *w,
 		return 0;
 	}
 
+<<<<<<< HEAD
 	val = (snd_soc_component_read32(component, reg) >> shift) & 0xf;
+=======
+	val = (snd_soc_component_read(component, reg) >> shift) & 0xf;
+>>>>>>> upstream/android-13
 	switch (val) {
 	case 1:
 	case 2:
@@ -2473,6 +2515,7 @@ static int set_dmic_power(struct snd_soc_dapm_widget *w,
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct snd_soc_dapm_widget rt5659_dapm_widgets[] = {
 	SND_SOC_DAPM_SUPPLY("LDO2", RT5659_PWR_ANLG_3, RT5659_PWR_LDO2_BIT, 0,
 		NULL, 0),
@@ -2480,6 +2523,20 @@ static const struct snd_soc_dapm_widget rt5659_dapm_widgets[] = {
 		NULL, 0),
 	SND_SOC_DAPM_SUPPLY("Mic Det Power", RT5659_PWR_VOL,
 		RT5659_PWR_MIC_DET_BIT, 0, NULL, 0),
+=======
+static const struct snd_soc_dapm_widget rt5659_particular_dapm_widgets[] = {
+	SND_SOC_DAPM_SUPPLY("LDO2", RT5659_PWR_ANLG_3, RT5659_PWR_LDO2_BIT, 0,
+		NULL, 0),
+	SND_SOC_DAPM_SUPPLY("MICBIAS1", RT5659_PWR_ANLG_2, RT5659_PWR_MB1_BIT,
+		0, NULL, 0),
+	SND_SOC_DAPM_SUPPLY("Mic Det Power", RT5659_PWR_VOL,
+		RT5659_PWR_MIC_DET_BIT, 0, NULL, 0),
+};
+
+static const struct snd_soc_dapm_widget rt5659_dapm_widgets[] = {
+	SND_SOC_DAPM_SUPPLY("PLL", RT5659_PWR_ANLG_3, RT5659_PWR_PLL_BIT, 0,
+		NULL, 0),
+>>>>>>> upstream/android-13
 	SND_SOC_DAPM_SUPPLY("Mono Vref", RT5659_PWR_ANLG_1,
 		RT5659_PWR_VREF3_BIT, 0, NULL, 0),
 
@@ -2504,8 +2561,11 @@ static const struct snd_soc_dapm_widget rt5659_dapm_widgets[] = {
 		RT5659_ADC_MONO_R_ASRC_SFT, 0, NULL, 0),
 
 	/* Input Side */
+<<<<<<< HEAD
 	SND_SOC_DAPM_SUPPLY("MICBIAS1", RT5659_PWR_ANLG_2, RT5659_PWR_MB1_BIT,
 		0, NULL, 0),
+=======
+>>>>>>> upstream/android-13
 	SND_SOC_DAPM_SUPPLY("MICBIAS2", RT5659_PWR_ANLG_2, RT5659_PWR_MB2_BIT,
 		0, NULL, 0),
 	SND_SOC_DAPM_SUPPLY("MICBIAS3", RT5659_PWR_ANLG_2, RT5659_PWR_MB3_BIT,
@@ -3557,8 +3617,13 @@ static int rt5659_set_component_pll(struct snd_soc_component *component, int pll
 	snd_soc_component_write(component, RT5659_PLL_CTRL_1,
 		pll_code.n_code << RT5659_PLL_N_SFT | pll_code.k_code);
 	snd_soc_component_write(component, RT5659_PLL_CTRL_2,
+<<<<<<< HEAD
 		(pll_code.m_bp ? 0 : pll_code.m_code) << RT5659_PLL_M_SFT |
 		pll_code.m_bp << RT5659_PLL_M_BP_SFT);
+=======
+		((pll_code.m_bp ? 0 : pll_code.m_code) << RT5659_PLL_M_SFT) |
+		(pll_code.m_bp << RT5659_PLL_M_BP_SFT));
+>>>>>>> upstream/android-13
 
 	rt5659->pll_in = freq_in;
 	rt5659->pll_out = freq_out;
@@ -3700,10 +3765,29 @@ static int rt5659_set_bias_level(struct snd_soc_component *component,
 
 static int rt5659_probe(struct snd_soc_component *component)
 {
+<<<<<<< HEAD
+=======
+	struct snd_soc_dapm_context *dapm =
+		snd_soc_component_get_dapm(component);
+>>>>>>> upstream/android-13
 	struct rt5659_priv *rt5659 = snd_soc_component_get_drvdata(component);
 
 	rt5659->component = component;
 
+<<<<<<< HEAD
+=======
+	switch (rt5659->pdata.jd_src) {
+	case RT5659_JD_HDA_HEADER:
+		break;
+
+	default:
+		snd_soc_dapm_new_controls(dapm,
+			rt5659_particular_dapm_widgets,
+			ARRAY_SIZE(rt5659_particular_dapm_widgets));
+		break;
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 

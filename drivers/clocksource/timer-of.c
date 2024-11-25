@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2017, Linaro Ltd.  All rights reserved.
  *
  * Author: Daniel Lezcano <daniel.lezcano@linaro.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -14,6 +19,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/clk.h>
 #include <linux/interrupt.h>
@@ -30,13 +37,23 @@
  *
  * Free the irq resource
  */
+<<<<<<< HEAD
 static __init void timer_of_irq_exit(struct of_timer_irq *of_irq)
+=======
+static void timer_of_irq_exit(struct of_timer_irq *of_irq)
+>>>>>>> upstream/android-13
 {
 	struct timer_of *to = container_of(of_irq, struct timer_of, of_irq);
 
 	struct clock_event_device *clkevt = &to->clkevt;
 
+<<<<<<< HEAD
 	of_irq->percpu ? free_percpu_irq(of_irq->irq, clkevt) :
+=======
+	if (of_irq->percpu)
+		free_percpu_irq(of_irq->irq, clkevt);
+	else
+>>>>>>> upstream/android-13
 		free_irq(of_irq->irq, clkevt);
 }
 
@@ -56,7 +73,11 @@ static __init void timer_of_irq_exit(struct of_timer_irq *of_irq)
  *
  * Returns 0 on success, < 0 otherwise
  */
+<<<<<<< HEAD
 static __init int timer_of_irq_init(struct device_node *np,
+=======
+static int timer_of_irq_init(struct device_node *np,
+>>>>>>> upstream/android-13
 				    struct of_timer_irq *of_irq)
 {
 	int ret;
@@ -66,8 +87,13 @@ static __init int timer_of_irq_init(struct device_node *np,
 	if (of_irq->name) {
 		of_irq->irq = ret = of_irq_get_byname(np, of_irq->name);
 		if (ret < 0) {
+<<<<<<< HEAD
 			pr_err("Failed to get interrupt %s for %s\n",
 			       of_irq->name, np->full_name);
+=======
+			pr_err("Failed to get interrupt %s for %pOF\n",
+			       of_irq->name, np);
+>>>>>>> upstream/android-13
 			return ret;
 		}
 	} else	{
@@ -100,7 +126,11 @@ static __init int timer_of_irq_init(struct device_node *np,
  *
  * Disables and releases the refcount on the clk
  */
+<<<<<<< HEAD
 static __init void timer_of_clk_exit(struct of_timer_clk *of_clk)
+=======
+static void timer_of_clk_exit(struct of_timer_clk *of_clk)
+>>>>>>> upstream/android-13
 {
 	of_clk->rate = 0;
 	clk_disable_unprepare(of_clk->clk);
@@ -116,7 +146,11 @@ static __init void timer_of_clk_exit(struct of_timer_clk *of_clk)
  *
  * Returns 0 on success, < 0 otherwise
  */
+<<<<<<< HEAD
 static __init int timer_of_clk_init(struct device_node *np,
+=======
+static int timer_of_clk_init(struct device_node *np,
+>>>>>>> upstream/android-13
 				    struct of_timer_clk *of_clk)
 {
 	int ret;
@@ -124,8 +158,15 @@ static __init int timer_of_clk_init(struct device_node *np,
 	of_clk->clk = of_clk->name ? of_clk_get_by_name(np, of_clk->name) :
 		of_clk_get(np, of_clk->index);
 	if (IS_ERR(of_clk->clk)) {
+<<<<<<< HEAD
 		pr_err("Failed to get clock for %pOF\n", np);
 		return PTR_ERR(of_clk->clk);
+=======
+		ret = PTR_ERR(of_clk->clk);
+		if (ret != -EPROBE_DEFER)
+			pr_err("Failed to get clock for %pOF\n", np);
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	ret = clk_prepare_enable(of_clk->clk);
@@ -153,26 +194,44 @@ out_clk_put:
 	goto out;
 }
 
+<<<<<<< HEAD
 static __init void timer_of_base_exit(struct of_timer_base *of_base)
+=======
+static void timer_of_base_exit(struct of_timer_base *of_base)
+>>>>>>> upstream/android-13
 {
 	iounmap(of_base->base);
 }
 
+<<<<<<< HEAD
 static __init int timer_of_base_init(struct device_node *np,
+=======
+static int timer_of_base_init(struct device_node *np,
+>>>>>>> upstream/android-13
 				     struct of_timer_base *of_base)
 {
 	of_base->base = of_base->name ?
 		of_io_request_and_map(np, of_base->index, of_base->name) :
 		of_iomap(np, of_base->index);
+<<<<<<< HEAD
 	if (IS_ERR(of_base->base)) {
 		pr_err("Failed to iomap (%s)\n", of_base->name);
 		return PTR_ERR(of_base->base);
+=======
+	if (IS_ERR_OR_NULL(of_base->base)) {
+		pr_err("Failed to iomap (%s:%s)\n", np->name, of_base->name);
+		return of_base->base ? PTR_ERR(of_base->base) : -ENOMEM;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
 }
 
+<<<<<<< HEAD
 int __init timer_of_init(struct device_node *np, struct timer_of *to)
+=======
+int timer_of_init(struct device_node *np, struct timer_of *to)
+>>>>>>> upstream/android-13
 {
 	int ret = -EINVAL;
 	int flags = 0;
@@ -216,6 +275,7 @@ out_fail:
 		timer_of_base_exit(&to->of_base);
 	return ret;
 }
+<<<<<<< HEAD
 
 /**
  * timer_of_cleanup - release timer_of ressources
@@ -225,6 +285,18 @@ out_fail:
  * This function should be called in init error cases
  */
 void __init timer_of_cleanup(struct timer_of *to)
+=======
+EXPORT_SYMBOL_GPL(timer_of_init);
+
+/**
+ * timer_of_cleanup - release timer_of resources
+ * @to: timer_of structure
+ *
+ * Release the resources that has been used in timer_of_init().
+ * This function should be called in init error cases
+ */
+void timer_of_cleanup(struct timer_of *to)
+>>>>>>> upstream/android-13
 {
 	if (to->flags & TIMER_OF_IRQ)
 		timer_of_irq_exit(&to->of_irq);

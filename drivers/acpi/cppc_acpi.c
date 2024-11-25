@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * CPPC (Collaborative Processor Performance Control) methods used by CPUfreq drivers.
  *
  * (C) Copyright 2014, 2015 Linaro Ltd.
  * Author: Ashwin Chaugule <ashwin.chaugule@linaro.org>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; version 2
  * of the License.
  *
+=======
+>>>>>>> upstream/android-13
  * CPPC describes a few methods for controlling CPU performance using
  * information from a per CPU table called CPC. This table is described in
  * the ACPI v5.0+ specification. The table consists of a list of
@@ -37,12 +44,19 @@
 
 #define pr_fmt(fmt)	"ACPI CPPC: " fmt
 
+<<<<<<< HEAD
 #include <linux/cpufreq.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/delay.h>
 #include <linux/iopoll.h>
 #include <linux/ktime.h>
 #include <linux/rwsem.h>
 #include <linux/wait.h>
+<<<<<<< HEAD
+=======
+#include <linux/topology.h>
+>>>>>>> upstream/android-13
 
 #include <acpi/cppc_acpi.h>
 
@@ -81,9 +95,15 @@ struct cppc_pcc_data {
 	int refcount;
 };
 
+<<<<<<< HEAD
 /* Array  to represent the PCC channel per subspace id */
 static struct cppc_pcc_data *pcc_data[MAX_PCC_SUBSPACES];
 /* The cpu_pcc_subspace_idx containsper CPU subspace id */
+=======
+/* Array to represent the PCC channel per subspace ID */
+static struct cppc_pcc_data *pcc_data[MAX_PCC_SUBSPACES];
+/* The cpu_pcc_subspace_idx contains per CPU subspace ID */
+>>>>>>> upstream/android-13
 static DEFINE_PER_CPU(int, cpu_pcc_subspace_idx);
 
 /*
@@ -104,14 +124,22 @@ static DEFINE_PER_CPU(struct cpc_desc *, cpc_desc_ptr);
 				(cpc)->cpc_entry.reg.space_id ==	\
 				ACPI_ADR_SPACE_PLATFORM_COMM)
 
+<<<<<<< HEAD
 /* Evalutes to True if reg is a NULL register descriptor */
+=======
+/* Evaluates to True if reg is a NULL register descriptor */
+>>>>>>> upstream/android-13
 #define IS_NULL_REG(reg) ((reg)->space_id ==  ACPI_ADR_SPACE_SYSTEM_MEMORY && \
 				(reg)->address == 0 &&			\
 				(reg)->bit_width == 0 &&		\
 				(reg)->bit_offset == 0 &&		\
 				(reg)->access_width == 0)
 
+<<<<<<< HEAD
 /* Evalutes to True if an optional cpc field is supported */
+=======
+/* Evaluates to True if an optional cpc field is supported */
+>>>>>>> upstream/android-13
 #define CPC_SUPPORTED(cpc) ((cpc)->type == ACPI_TYPE_INTEGER ?		\
 				!!(cpc)->cpc_entry.int_value :		\
 				!IS_NULL_REG(&(cpc)->cpc_entry.reg))
@@ -228,8 +256,13 @@ static int send_pcc_cmd(int pcc_ss_id, u16 cmd)
 {
 	int ret = -EIO, i;
 	struct cppc_pcc_data *pcc_ss_data = pcc_data[pcc_ss_id];
+<<<<<<< HEAD
 	struct acpi_pcct_shared_memory *generic_comm_base =
 		(struct acpi_pcct_shared_memory *)pcc_ss_data->pcc_comm_addr;
+=======
+	struct acpi_pcct_shared_memory __iomem *generic_comm_base =
+		pcc_ss_data->pcc_comm_addr;
+>>>>>>> upstream/android-13
 	unsigned int time_delta;
 
 	/*
@@ -322,6 +355,10 @@ end:
 		if (unlikely(ret)) {
 			for_each_possible_cpu(i) {
 				struct cpc_desc *desc = per_cpu(cpc_desc_ptr, i);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 				if (!desc)
 					continue;
 
@@ -346,7 +383,11 @@ static void cppc_chan_tx_done(struct mbox_client *cl, void *msg, int ret)
 				*(u16 *)msg, ret);
 }
 
+<<<<<<< HEAD
 struct mbox_client cppc_mbox_cl = {
+=======
+static struct mbox_client cppc_mbox_cl = {
+>>>>>>> upstream/android-13
 	.tx_done = cppc_chan_tx_done,
 	.knows_txdone = true,
 };
@@ -409,6 +450,7 @@ end:
 	return result;
 }
 
+<<<<<<< HEAD
 /**
  * acpi_get_psd_map - Map the CPUs in a common freq domain.
  * @all_cpu_data: Ptrs to CPU specific CPPC data including PSD info.
@@ -531,6 +573,90 @@ err_ret:
 
 	free_cpumask_var(covered_cpus);
 	return retval;
+=======
+bool acpi_cpc_valid(void)
+{
+	struct cpc_desc *cpc_ptr;
+	int cpu;
+
+	for_each_present_cpu(cpu) {
+		cpc_ptr = per_cpu(cpc_desc_ptr, cpu);
+		if (!cpc_ptr)
+			return false;
+	}
+
+	return true;
+}
+EXPORT_SYMBOL_GPL(acpi_cpc_valid);
+
+/**
+ * acpi_get_psd_map - Map the CPUs in the freq domain of a given cpu
+ * @cpu: Find all CPUs that share a domain with cpu.
+ * @cpu_data: Pointer to CPU specific CPPC data including PSD info.
+ *
+ *	Return: 0 for success or negative value for err.
+ */
+int acpi_get_psd_map(unsigned int cpu, struct cppc_cpudata *cpu_data)
+{
+	struct cpc_desc *cpc_ptr, *match_cpc_ptr;
+	struct acpi_psd_package *match_pdomain;
+	struct acpi_psd_package *pdomain;
+	int count_target, i;
+
+	/*
+	 * Now that we have _PSD data from all CPUs, let's setup P-state
+	 * domain info.
+	 */
+	cpc_ptr = per_cpu(cpc_desc_ptr, cpu);
+	if (!cpc_ptr)
+		return -EFAULT;
+
+	pdomain = &(cpc_ptr->domain_info);
+	cpumask_set_cpu(cpu, cpu_data->shared_cpu_map);
+	if (pdomain->num_processors <= 1)
+		return 0;
+
+	/* Validate the Domain info */
+	count_target = pdomain->num_processors;
+	if (pdomain->coord_type == DOMAIN_COORD_TYPE_SW_ALL)
+		cpu_data->shared_type = CPUFREQ_SHARED_TYPE_ALL;
+	else if (pdomain->coord_type == DOMAIN_COORD_TYPE_HW_ALL)
+		cpu_data->shared_type = CPUFREQ_SHARED_TYPE_HW;
+	else if (pdomain->coord_type == DOMAIN_COORD_TYPE_SW_ANY)
+		cpu_data->shared_type = CPUFREQ_SHARED_TYPE_ANY;
+
+	for_each_possible_cpu(i) {
+		if (i == cpu)
+			continue;
+
+		match_cpc_ptr = per_cpu(cpc_desc_ptr, i);
+		if (!match_cpc_ptr)
+			goto err_fault;
+
+		match_pdomain = &(match_cpc_ptr->domain_info);
+		if (match_pdomain->domain != pdomain->domain)
+			continue;
+
+		/* Here i and cpu are in the same domain */
+		if (match_pdomain->num_processors != count_target)
+			goto err_fault;
+
+		if (pdomain->coord_type != match_pdomain->coord_type)
+			goto err_fault;
+
+		cpumask_set_cpu(i, cpu_data->shared_cpu_map);
+	}
+
+	return 0;
+
+err_fault:
+	/* Assume no coordination on any error parsing domain info */
+	cpumask_clear(cpu_data->shared_cpu_map);
+	cpumask_set_cpu(cpu, cpu_data->shared_cpu_map);
+	cpu_data->shared_type = CPUFREQ_SHARED_TYPE_NONE;
+
+	return -EFAULT;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(acpi_get_psd_map);
 
@@ -582,7 +708,11 @@ static int register_pcc_channel(int pcc_ss_idx)
 			return -ENOMEM;
 		}
 
+<<<<<<< HEAD
 		/* Set flag so that we dont come here for each CPU. */
+=======
+		/* Set flag so that we don't come here for each CPU. */
+>>>>>>> upstream/android-13
 		pcc_data[pcc_ss_idx]->pcc_channel_acquired = true;
 	}
 
@@ -607,12 +737,20 @@ bool __weak cpc_ffh_supported(void)
  *
  * Check and allocate the cppc_pcc_data memory.
  * In some processor configurations it is possible that same subspace
+<<<<<<< HEAD
  * is shared between multiple CPU's. This is seen especially in CPU's
+=======
+ * is shared between multiple CPUs. This is seen especially in CPUs
+>>>>>>> upstream/android-13
  * with hardware multi-threading support.
  *
  * Return: 0 for success, errno for failure
  */
+<<<<<<< HEAD
 int pcc_data_alloc(int pcc_ss_id)
+=======
+static int pcc_data_alloc(int pcc_ss_id)
+>>>>>>> upstream/android-13
 {
 	if (pcc_ss_id < 0 || pcc_ss_id >= MAX_PCC_SUBSPACES)
 		return -EINVAL;
@@ -703,9 +841,19 @@ static bool is_cppc_supported(int revision, int num_ent)
  *	}
  */
 
+<<<<<<< HEAD
 /**
  * acpi_cppc_processor_probe - Search for per CPU _CPC objects.
  * @pr: Ptr to acpi_processor containing this CPUs logical Id.
+=======
+#ifndef init_freq_invariance_cppc
+static inline void init_freq_invariance_cppc(void) { }
+#endif
+
+/**
+ * acpi_cppc_processor_probe - Search for per CPU _CPC objects.
+ * @pr: Ptr to acpi_processor containing this CPU's logical ID.
+>>>>>>> upstream/android-13
  *
  *	Return: 0 for success or negative value for err.
  */
@@ -722,7 +870,11 @@ int acpi_cppc_processor_probe(struct acpi_processor *pr)
 	acpi_status status;
 	int ret = -EFAULT;
 
+<<<<<<< HEAD
 	/* Parse the ACPI _CPC table for this cpu. */
+=======
+	/* Parse the ACPI _CPC table for this CPU. */
+>>>>>>> upstream/android-13
 	status = acpi_evaluate_object_typed(handle, "_CPC", NULL, &output,
 			ACPI_TYPE_PACKAGE);
 	if (ACPI_FAILURE(status)) {
@@ -742,6 +894,14 @@ int acpi_cppc_processor_probe(struct acpi_processor *pr)
 	cpc_obj = &out_obj->package.elements[0];
 	if (cpc_obj->type == ACPI_TYPE_INTEGER)	{
 		num_ent = cpc_obj->integer.value;
+<<<<<<< HEAD
+=======
+		if (num_ent <= 1) {
+			pr_debug("Unexpected _CPC NumEntries value (%d) for CPU:%d\n",
+				 num_ent, pr->id);
+			goto out_free;
+		}
+>>>>>>> upstream/android-13
 	} else {
 		pr_debug("Unexpected entry type(%d) for NumEntries\n",
 				cpc_obj->type);
@@ -809,7 +969,11 @@ int acpi_cppc_processor_probe(struct acpi_processor *pr)
 			cpc_ptr->cpc_regs[i-2].type = ACPI_TYPE_BUFFER;
 			memcpy(&cpc_ptr->cpc_regs[i-2].cpc_entry.reg, gas_t, sizeof(*gas_t));
 		} else {
+<<<<<<< HEAD
 			pr_debug("Err in entry:%d in CPC table of CPU:%d \n", i, pr->id);
+=======
+			pr_debug("Err in entry:%d in CPC table of CPU:%d\n", i, pr->id);
+>>>>>>> upstream/android-13
 			goto out_free;
 		}
 	}
@@ -834,7 +998,11 @@ int acpi_cppc_processor_probe(struct acpi_processor *pr)
 	if (ret)
 		goto out_free;
 
+<<<<<<< HEAD
 	/* Register PCC channel once for all PCC subspace id. */
+=======
+	/* Register PCC channel once for all PCC subspace ID. */
+>>>>>>> upstream/android-13
 	if (pcc_subspace_id >= 0 && !pcc_data[pcc_subspace_id]->pcc_channel_acquired) {
 		ret = register_pcc_channel(pcc_subspace_id);
 		if (ret)
@@ -854,7 +1022,11 @@ int acpi_cppc_processor_probe(struct acpi_processor *pr)
 		goto out_free;
 	}
 
+<<<<<<< HEAD
 	/* Plug PSD data into this CPUs CPC descriptor. */
+=======
+	/* Plug PSD data into this CPU's CPC descriptor. */
+>>>>>>> upstream/android-13
 	per_cpu(cpc_desc_ptr, pr->id) = cpc_ptr;
 
 	ret = kobject_init_and_add(&cpc_ptr->kobj, &cppc_ktype, &cpu_dev->kobj,
@@ -865,6 +1037,11 @@ int acpi_cppc_processor_probe(struct acpi_processor *pr)
 		goto out_free;
 	}
 
+<<<<<<< HEAD
+=======
+	init_freq_invariance_cppc();
+
+>>>>>>> upstream/android-13
 	kfree(output.pointer);
 	return 0;
 
@@ -886,7 +1063,11 @@ EXPORT_SYMBOL_GPL(acpi_cppc_processor_probe);
 
 /**
  * acpi_cppc_processor_exit - Cleanup CPC structs.
+<<<<<<< HEAD
  * @pr: Ptr to acpi_processor containing this CPUs logical Id.
+=======
+ * @pr: Ptr to acpi_processor containing this CPU's logical ID.
+>>>>>>> upstream/android-13
  *
  * Return: Void
  */
@@ -897,7 +1078,11 @@ void acpi_cppc_processor_exit(struct acpi_processor *pr)
 	void __iomem *addr;
 	int pcc_ss_id = per_cpu(cpu_pcc_subspace_idx, pr->id);
 
+<<<<<<< HEAD
 	if (pcc_ss_id >=0 && pcc_data[pcc_ss_id]) {
+=======
+	if (pcc_ss_id >= 0 && pcc_data[pcc_ss_id]) {
+>>>>>>> upstream/android-13
 		if (pcc_data[pcc_ss_id]->pcc_channel_acquired) {
 			pcc_data[pcc_ss_id]->refcount--;
 			if (!pcc_data[pcc_ss_id]->refcount) {
@@ -926,7 +1111,11 @@ EXPORT_SYMBOL_GPL(acpi_cppc_processor_exit);
 
 /**
  * cpc_read_ffh() - Read FFH register
+<<<<<<< HEAD
  * @cpunum:	cpu number to read
+=======
+ * @cpunum:	CPU number to read
+>>>>>>> upstream/android-13
  * @reg:	cppc register information
  * @val:	place holder for return value
  *
@@ -941,7 +1130,11 @@ int __weak cpc_read_ffh(int cpunum, struct cpc_reg *reg, u64 *val)
 
 /**
  * cpc_write_ffh() - Write FFH register
+<<<<<<< HEAD
  * @cpunum:	cpu number to write
+=======
+ * @cpunum:	CPU number to write
+>>>>>>> upstream/android-13
  * @reg:	cppc register information
  * @val:	value to write
  *
@@ -963,7 +1156,11 @@ int __weak cpc_write_ffh(int cpunum, struct cpc_reg *reg, u64 val)
 static int cpc_read(int cpu, struct cpc_register_resource *reg_res, u64 *val)
 {
 	int ret_val = 0;
+<<<<<<< HEAD
 	void __iomem *vaddr = 0;
+=======
+	void __iomem *vaddr = NULL;
+>>>>>>> upstream/android-13
 	int pcc_ss_id = per_cpu(cpu_pcc_subspace_idx, cpu);
 	struct cpc_reg *reg = &reg_res->cpc_entry.reg;
 
@@ -984,6 +1181,7 @@ static int cpc_read(int cpu, struct cpc_register_resource *reg_res, u64 *val)
 				val, reg->bit_width);
 
 	switch (reg->bit_width) {
+<<<<<<< HEAD
 		case 8:
 			*val = readb_relaxed(vaddr);
 			break;
@@ -1000,6 +1198,24 @@ static int cpc_read(int cpu, struct cpc_register_resource *reg_res, u64 *val)
 			pr_debug("Error: Cannot read %u bit width from PCC for ss: %d\n",
 				 reg->bit_width, pcc_ss_id);
 			ret_val = -EFAULT;
+=======
+	case 8:
+		*val = readb_relaxed(vaddr);
+		break;
+	case 16:
+		*val = readw_relaxed(vaddr);
+		break;
+	case 32:
+		*val = readl_relaxed(vaddr);
+		break;
+	case 64:
+		*val = readq_relaxed(vaddr);
+		break;
+	default:
+		pr_debug("Error: Cannot read %u bit width from PCC for ss: %d\n",
+			 reg->bit_width, pcc_ss_id);
+		ret_val = -EFAULT;
+>>>>>>> upstream/android-13
 	}
 
 	return ret_val;
@@ -1008,7 +1224,11 @@ static int cpc_read(int cpu, struct cpc_register_resource *reg_res, u64 *val)
 static int cpc_write(int cpu, struct cpc_register_resource *reg_res, u64 val)
 {
 	int ret_val = 0;
+<<<<<<< HEAD
 	void __iomem *vaddr = 0;
+=======
+	void __iomem *vaddr = NULL;
+>>>>>>> upstream/android-13
 	int pcc_ss_id = per_cpu(cpu_pcc_subspace_idx, cpu);
 	struct cpc_reg *reg = &reg_res->cpc_entry.reg;
 
@@ -1023,6 +1243,7 @@ static int cpc_write(int cpu, struct cpc_register_resource *reg_res, u64 val)
 				val, reg->bit_width);
 
 	switch (reg->bit_width) {
+<<<<<<< HEAD
 		case 8:
 			writeb_relaxed(val, vaddr);
 			break;
@@ -1040,13 +1261,101 @@ static int cpc_write(int cpu, struct cpc_register_resource *reg_res, u64 val)
 				 reg->bit_width, pcc_ss_id);
 			ret_val = -EFAULT;
 			break;
+=======
+	case 8:
+		writeb_relaxed(val, vaddr);
+		break;
+	case 16:
+		writew_relaxed(val, vaddr);
+		break;
+	case 32:
+		writel_relaxed(val, vaddr);
+		break;
+	case 64:
+		writeq_relaxed(val, vaddr);
+		break;
+	default:
+		pr_debug("Error: Cannot write %u bit width to PCC for ss: %d\n",
+			 reg->bit_width, pcc_ss_id);
+		ret_val = -EFAULT;
+		break;
+>>>>>>> upstream/android-13
 	}
 
 	return ret_val;
 }
 
+<<<<<<< HEAD
 /**
  * cppc_get_perf_caps - Get a CPUs performance capabilities.
+=======
+static int cppc_get_perf(int cpunum, enum cppc_regs reg_idx, u64 *perf)
+{
+	struct cpc_desc *cpc_desc = per_cpu(cpc_desc_ptr, cpunum);
+	struct cpc_register_resource *reg;
+
+	if (!cpc_desc) {
+		pr_debug("No CPC descriptor for CPU:%d\n", cpunum);
+		return -ENODEV;
+	}
+
+	reg = &cpc_desc->cpc_regs[reg_idx];
+
+	if (CPC_IN_PCC(reg)) {
+		int pcc_ss_id = per_cpu(cpu_pcc_subspace_idx, cpunum);
+		struct cppc_pcc_data *pcc_ss_data = NULL;
+		int ret = 0;
+
+		if (pcc_ss_id < 0)
+			return -EIO;
+
+		pcc_ss_data = pcc_data[pcc_ss_id];
+
+		down_write(&pcc_ss_data->pcc_lock);
+
+		if (send_pcc_cmd(pcc_ss_id, CMD_READ) >= 0)
+			cpc_read(cpunum, reg, perf);
+		else
+			ret = -EIO;
+
+		up_write(&pcc_ss_data->pcc_lock);
+
+		return ret;
+	}
+
+	cpc_read(cpunum, reg, perf);
+
+	return 0;
+}
+
+/**
+ * cppc_get_desired_perf - Get the desired performance register value.
+ * @cpunum: CPU from which to get desired performance.
+ * @desired_perf: Return address.
+ *
+ * Return: 0 for success, -EIO otherwise.
+ */
+int cppc_get_desired_perf(int cpunum, u64 *desired_perf)
+{
+	return cppc_get_perf(cpunum, DESIRED_PERF, desired_perf);
+}
+EXPORT_SYMBOL_GPL(cppc_get_desired_perf);
+
+/**
+ * cppc_get_nominal_perf - Get the nominal performance register value.
+ * @cpunum: CPU from which to get nominal performance.
+ * @nominal_perf: Return address.
+ *
+ * Return: 0 for success, -EIO otherwise.
+ */
+int cppc_get_nominal_perf(int cpunum, u64 *nominal_perf)
+{
+	return cppc_get_perf(cpunum, NOMINAL_PERF, nominal_perf);
+}
+
+/**
+ * cppc_get_perf_caps - Get a CPU's performance capabilities.
+>>>>>>> upstream/android-13
  * @cpunum: CPU from which to get capabilities info.
  * @perf_caps: ptr to cppc_perf_caps. See cppc_acpi.h
  *
@@ -1056,9 +1365,15 @@ int cppc_get_perf_caps(int cpunum, struct cppc_perf_caps *perf_caps)
 {
 	struct cpc_desc *cpc_desc = per_cpu(cpc_desc_ptr, cpunum);
 	struct cpc_register_resource *highest_reg, *lowest_reg,
+<<<<<<< HEAD
 		*lowest_non_linear_reg, *nominal_reg,
 		*low_freq_reg = NULL, *nom_freq_reg = NULL;
 	u64 high, low, nom, min_nonlinear, low_f = 0, nom_f = 0;
+=======
+		*lowest_non_linear_reg, *nominal_reg, *guaranteed_reg,
+		*low_freq_reg = NULL, *nom_freq_reg = NULL;
+	u64 high, low, guaranteed, nom, min_nonlinear, low_f = 0, nom_f = 0;
+>>>>>>> upstream/android-13
 	int pcc_ss_id = per_cpu(cpu_pcc_subspace_idx, cpunum);
 	struct cppc_pcc_data *pcc_ss_data = NULL;
 	int ret = 0, regs_in_pcc = 0;
@@ -1074,6 +1389,10 @@ int cppc_get_perf_caps(int cpunum, struct cppc_perf_caps *perf_caps)
 	nominal_reg = &cpc_desc->cpc_regs[NOMINAL_PERF];
 	low_freq_reg = &cpc_desc->cpc_regs[LOWEST_FREQ];
 	nom_freq_reg = &cpc_desc->cpc_regs[NOMINAL_FREQ];
+<<<<<<< HEAD
+=======
+	guaranteed_reg = &cpc_desc->cpc_regs[GUARANTEED_PERF];
+>>>>>>> upstream/android-13
 
 	/* Are any of the regs PCC ?*/
 	if (CPC_IN_PCC(highest_reg) || CPC_IN_PCC(lowest_reg) ||
@@ -1102,6 +1421,17 @@ int cppc_get_perf_caps(int cpunum, struct cppc_perf_caps *perf_caps)
 	cpc_read(cpunum, nominal_reg, &nom);
 	perf_caps->nominal_perf = nom;
 
+<<<<<<< HEAD
+=======
+	if (guaranteed_reg->type != ACPI_TYPE_BUFFER  ||
+	    IS_NULL_REG(&guaranteed_reg->cpc_entry.reg)) {
+		perf_caps->guaranteed_perf = 0;
+	} else {
+		cpc_read(cpunum, guaranteed_reg, &guaranteed);
+		perf_caps->guaranteed_perf = guaranteed;
+	}
+
+>>>>>>> upstream/android-13
 	cpc_read(cpunum, lowest_non_linear_reg, &min_nonlinear);
 	perf_caps->lowest_nonlinear_perf = min_nonlinear;
 
@@ -1127,7 +1457,11 @@ out_err:
 EXPORT_SYMBOL_GPL(cppc_get_perf_caps);
 
 /**
+<<<<<<< HEAD
  * cppc_get_perf_ctrs - Read a CPUs performance feedback counters.
+=======
+ * cppc_get_perf_ctrs - Read a CPU's performance feedback counters.
+>>>>>>> upstream/android-13
  * @cpunum: CPU from which to read counters.
  * @perf_fb_ctrs: ptr to cppc_perf_fb_ctrs. See cppc_acpi.h
  *
@@ -1154,7 +1488,11 @@ int cppc_get_perf_ctrs(int cpunum, struct cppc_perf_fb_ctrs *perf_fb_ctrs)
 	ctr_wrap_reg = &cpc_desc->cpc_regs[CTR_WRAP_TIME];
 
 	/*
+<<<<<<< HEAD
 	 * If refernce perf register is not supported then we should
+=======
+	 * If reference perf register is not supported then we should
+>>>>>>> upstream/android-13
 	 * use the nominal perf value
 	 */
 	if (!CPC_SUPPORTED(ref_perf_reg))
@@ -1207,7 +1545,11 @@ out_err:
 EXPORT_SYMBOL_GPL(cppc_get_perf_ctrs);
 
 /**
+<<<<<<< HEAD
  * cppc_set_perf - Set a CPUs performance controls.
+=======
+ * cppc_set_perf - Set a CPU's performance controls.
+>>>>>>> upstream/android-13
  * @cpu: CPU for which to set performance controls.
  * @perf_ctrls: ptr to cppc_perf_ctrls. See cppc_acpi.h
  *
@@ -1288,7 +1630,11 @@ int cppc_set_perf(int cpu, struct cppc_perf_ctrls *perf_ctrls)
 	 * executing the Phase-II.
 	 *     2. Some other CPU has beaten this CPU to successfully execute the
 	 * write_trylock and has already acquired the write_lock. We know for a
+<<<<<<< HEAD
 	 * fact it(other CPU acquiring the write_lock) couldn't have happened
+=======
+	 * fact it (other CPU acquiring the write_lock) couldn't have happened
+>>>>>>> upstream/android-13
 	 * before this CPU's Phase-I as we held the read_lock.
 	 *     3. Some other CPU executing pcc CMD_READ has stolen the
 	 * down_write, in which case, send_pcc_cmd will check for pending
@@ -1308,7 +1654,11 @@ int cppc_set_perf(int cpu, struct cppc_perf_ctrls *perf_ctrls)
 	 * is still with OSPM.
 	 *   pending_pcc_write_cmd can also be cleared by a different CPU, if
 	 * there was a pcc CMD_READ waiting on down_write and it steals the lock
+<<<<<<< HEAD
 	 * before the pcc CMD_WRITE is completed. pcc_send_cmd checks for this
+=======
+	 * before the pcc CMD_WRITE is completed. send_pcc_cmd checks for this
+>>>>>>> upstream/android-13
 	 * case during a CMD_READ and if there are pending writes it delivers
 	 * the write command before servicing the read command
 	 */
@@ -1333,8 +1683,13 @@ EXPORT_SYMBOL_GPL(cppc_set_perf);
 /**
  * cppc_get_transition_latency - returns frequency transition latency in ns
  *
+<<<<<<< HEAD
  * ACPI CPPC does not explicitly specifiy how a platform can specify the
  * transition latency for perfromance change requests. The closest we have
+=======
+ * ACPI CPPC does not explicitly specify how a platform can specify the
+ * transition latency for performance change requests. The closest we have
+>>>>>>> upstream/android-13
  * is the timing information from the PCCT tables which provides the info
  * on the number and frequency of PCC commands the platform can handle.
  */

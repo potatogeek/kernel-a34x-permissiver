@@ -94,6 +94,11 @@
 
 	sound {
 		compatible = "fsl,imx6sl-evk-wm8962", "fsl,imx-audio-wm8962";
+<<<<<<< HEAD
+=======
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_hp>;
+>>>>>>> upstream/android-13
 		model = "wm8962-audio";
 		ssi-controller = <&ssi2>;
 		audio-codec = <&codec>;
@@ -106,6 +111,10 @@
 			"IN3R", "AMIC";
 		mux-int-port = <2>;
 		mux-ext-port = <3>;
+<<<<<<< HEAD
+=======
+		hp-det-gpio = <&gpio4 19 GPIO_ACTIVE_LOW>;
+>>>>>>> upstream/android-13
 	};
 
 	panel {
@@ -129,7 +138,11 @@
 };
 
 &ecspi1 {
+<<<<<<< HEAD
 	cs-gpios = <&gpio4 11 0>;
+=======
+	cs-gpios = <&gpio4 11 GPIO_ACTIVE_LOW>;
+>>>>>>> upstream/android-13
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_ecspi1>;
 	status = "okay";
@@ -343,6 +356,15 @@
 			>;
 		};
 
+<<<<<<< HEAD
+=======
+		pinctrl_hp: hpgrp {
+			fsl,pins = <
+				MX6SL_PAD_FEC_RX_ER__GPIO4_IO19	  0x1b0b0
+			>;
+		};
+
+>>>>>>> upstream/android-13
 		pinctrl_i2c1: i2c1grp {
 			fsl,pins = <
 				MX6SL_PAD_I2C1_SCL__I2C1_SCL	0x4001b8b1
@@ -575,11 +597,26 @@
 };
 
 &pwm1 {
+<<<<<<< HEAD
+=======
+	#pwm-cells = <2>;
+>>>>>>> upstream/android-13
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_pwm1>;
 	status = "okay";
 };
 
+<<<<<<< HEAD
+=======
+&reg_vdd1p1 {
+	vin-supply = <&sw2_reg>;
+};
+
+&reg_vdd2p5 {
+	vin-supply = <&sw2_reg>;
+};
+
+>>>>>>> upstream/android-13
 &snvs_poweroff {
 	status = "okay";
 };

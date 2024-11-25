@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2009, 2010 Red Hat Inc, Steven Rostedt <srostedt@redhat.com>
  *
@@ -16,6 +17,12 @@
  * License along with this program; if not,  see <http://www.gnu.org/licenses>
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=======
+/* SPDX-License-Identifier: LGPL-2.1 */
+/*
+ * Copyright (C) 2009, 2010 Red Hat Inc, Steven Rostedt <srostedt@redhat.com>
+ *
+>>>>>>> upstream/android-13
  */
 #ifndef _PARSE_EVENTS_H
 #define _PARSE_EVENTS_H
@@ -26,10 +33,16 @@
 #include <regex.h>
 #include <string.h>
 
+<<<<<<< HEAD
+=======
+#include "trace-seq.h"
+
+>>>>>>> upstream/android-13
 #ifndef __maybe_unused
 #define __maybe_unused __attribute__((unused))
 #endif
 
+<<<<<<< HEAD
 /* ----------------------- trace_seq ----------------------- */
 
 
@@ -37,6 +50,8 @@
 #define TRACE_SEQ_BUF_SIZE 4096
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #ifndef DEBUG_RECORD
 #define DEBUG_RECORD 0
 #endif
@@ -59,6 +74,7 @@ struct tep_record {
 #endif
 };
 
+<<<<<<< HEAD
 enum trace_seq_fail {
 	TRACE_SEQ__GOOD,
 	TRACE_SEQ__BUFFER_POISONED,
@@ -108,6 +124,20 @@ typedef int (*tep_event_handler_func)(struct trace_seq *s,
 
 typedef int (*tep_plugin_load_func)(struct tep_handle *pevent);
 typedef int (*tep_plugin_unload_func)(struct tep_handle *pevent);
+=======
+/* ----------------------- tep ----------------------- */
+
+struct tep_handle;
+struct tep_event;
+
+typedef int (*tep_event_handler_func)(struct trace_seq *s,
+				      struct tep_record *record,
+				      struct tep_event *event,
+				      void *context);
+
+typedef int (*tep_plugin_load_func)(struct tep_handle *tep);
+typedef int (*tep_plugin_unload_func)(struct tep_handle *tep);
+>>>>>>> upstream/android-13
 
 struct tep_plugin_option {
 	struct tep_plugin_option	*next;
@@ -127,12 +157,20 @@ struct tep_plugin_option {
  * TEP_PLUGIN_LOADER:  (required)
  *   The function name to initialized the plugin.
  *
+<<<<<<< HEAD
  *   int TEP_PLUGIN_LOADER(struct tep_handle *pevent)
+=======
+ *   int TEP_PLUGIN_LOADER(struct tep_handle *tep)
+>>>>>>> upstream/android-13
  *
  * TEP_PLUGIN_UNLOADER:  (optional)
  *   The function called just before unloading
  *
+<<<<<<< HEAD
  *   int TEP_PLUGIN_UNLOADER(struct tep_handle *pevent)
+=======
+ *   int TEP_PLUGIN_UNLOADER(struct tep_handle *tep)
+>>>>>>> upstream/android-13
  *
  * TEP_PLUGIN_OPTIONS:  (optional)
  *   Plugin options that can be set before loading
@@ -172,6 +210,7 @@ struct tep_plugin_option {
 #define TEP_PLUGIN_OPTIONS_NAME MAKE_STR(TEP_PLUGIN_OPTIONS)
 #define TEP_PLUGIN_ALIAS_NAME MAKE_STR(TEP_PLUGIN_ALIAS)
 
+<<<<<<< HEAD
 enum format_flags {
 	FIELD_IS_ARRAY		= 1,
 	FIELD_IS_POINTER	= 2,
@@ -186,6 +225,22 @@ enum format_flags {
 struct format_field {
 	struct format_field	*next;
 	struct event_format	*event;
+=======
+enum tep_format_flags {
+	TEP_FIELD_IS_ARRAY	= 1,
+	TEP_FIELD_IS_POINTER	= 2,
+	TEP_FIELD_IS_SIGNED	= 4,
+	TEP_FIELD_IS_STRING	= 8,
+	TEP_FIELD_IS_DYNAMIC	= 16,
+	TEP_FIELD_IS_LONG	= 32,
+	TEP_FIELD_IS_FLAG	= 64,
+	TEP_FIELD_IS_SYMBOLIC	= 128,
+};
+
+struct tep_format_field {
+	struct tep_format_field	*next;
+	struct tep_event	*event;
+>>>>>>> upstream/android-13
 	char			*type;
 	char			*name;
 	char			*alias;
@@ -196,6 +251,7 @@ struct format_field {
 	unsigned long		flags;
 };
 
+<<<<<<< HEAD
 struct format {
 	int			nr_common;
 	int			nr_fields;
@@ -208,15 +264,34 @@ struct print_arg_atom {
 };
 
 struct print_arg_string {
+=======
+struct tep_format {
+	int			nr_common;
+	int			nr_fields;
+	struct tep_format_field	*common_fields;
+	struct tep_format_field	*fields;
+};
+
+struct tep_print_arg_atom {
+	char			*atom;
+};
+
+struct tep_print_arg_string {
+>>>>>>> upstream/android-13
 	char			*string;
 	int			offset;
 };
 
+<<<<<<< HEAD
 struct print_arg_bitmask {
+=======
+struct tep_print_arg_bitmask {
+>>>>>>> upstream/android-13
 	char			*bitmask;
 	int			offset;
 };
 
+<<<<<<< HEAD
 struct print_arg_field {
 	char			*name;
 	struct format_field	*field;
@@ -267,10 +342,63 @@ struct print_arg_op {
 	int			prio;
 	struct print_arg	*left;
 	struct print_arg	*right;
+=======
+struct tep_print_arg_field {
+	char			*name;
+	struct tep_format_field	*field;
+};
+
+struct tep_print_flag_sym {
+	struct tep_print_flag_sym	*next;
+	char				*value;
+	char				*str;
+};
+
+struct tep_print_arg_typecast {
+	char 			*type;
+	struct tep_print_arg	*item;
+};
+
+struct tep_print_arg_flags {
+	struct tep_print_arg		*field;
+	char				*delim;
+	struct tep_print_flag_sym	*flags;
+};
+
+struct tep_print_arg_symbol {
+	struct tep_print_arg		*field;
+	struct tep_print_flag_sym	*symbols;
+};
+
+struct tep_print_arg_hex {
+	struct tep_print_arg	*field;
+	struct tep_print_arg	*size;
+};
+
+struct tep_print_arg_int_array {
+	struct tep_print_arg	*field;
+	struct tep_print_arg	*count;
+	struct tep_print_arg	*el_size;
+};
+
+struct tep_print_arg_dynarray {
+	struct tep_format_field	*field;
+	struct tep_print_arg	*index;
+};
+
+struct tep_print_arg;
+
+struct tep_print_arg_op {
+	char			*op;
+	int			prio;
+	struct tep_print_arg	*left;
+	struct tep_print_arg	*right;
+>>>>>>> upstream/android-13
 };
 
 struct tep_function_handler;
 
+<<<<<<< HEAD
 struct print_arg_func {
 	struct tep_function_handler	*func;
 	struct print_arg		*args;
@@ -326,12 +454,73 @@ struct event_format {
 	int			flags;
 	struct format		format;
 	struct print_fmt	print_fmt;
+=======
+struct tep_print_arg_func {
+	struct tep_function_handler	*func;
+	struct tep_print_arg		*args;
+};
+
+enum tep_print_arg_type {
+	TEP_PRINT_NULL,
+	TEP_PRINT_ATOM,
+	TEP_PRINT_FIELD,
+	TEP_PRINT_FLAGS,
+	TEP_PRINT_SYMBOL,
+	TEP_PRINT_HEX,
+	TEP_PRINT_INT_ARRAY,
+	TEP_PRINT_TYPE,
+	TEP_PRINT_STRING,
+	TEP_PRINT_BSTRING,
+	TEP_PRINT_DYNAMIC_ARRAY,
+	TEP_PRINT_OP,
+	TEP_PRINT_FUNC,
+	TEP_PRINT_BITMASK,
+	TEP_PRINT_DYNAMIC_ARRAY_LEN,
+	TEP_PRINT_HEX_STR,
+};
+
+struct tep_print_arg {
+	struct tep_print_arg		*next;
+	enum tep_print_arg_type		type;
+	union {
+		struct tep_print_arg_atom	atom;
+		struct tep_print_arg_field	field;
+		struct tep_print_arg_typecast	typecast;
+		struct tep_print_arg_flags	flags;
+		struct tep_print_arg_symbol	symbol;
+		struct tep_print_arg_hex	hex;
+		struct tep_print_arg_int_array	int_array;
+		struct tep_print_arg_func	func;
+		struct tep_print_arg_string	string;
+		struct tep_print_arg_bitmask	bitmask;
+		struct tep_print_arg_op		op;
+		struct tep_print_arg_dynarray	dynarray;
+	};
+};
+
+struct tep_print_parse;
+
+struct tep_print_fmt {
+	char			*format;
+	struct tep_print_arg	*args;
+	struct tep_print_parse	*print_cache;
+};
+
+struct tep_event {
+	struct tep_handle	*tep;
+	char			*name;
+	int			id;
+	int			flags;
+	struct tep_format	format;
+	struct tep_print_fmt	print_fmt;
+>>>>>>> upstream/android-13
 	char			*system;
 	tep_event_handler_func	handler;
 	void			*context;
 };
 
 enum {
+<<<<<<< HEAD
 	EVENT_FL_ISFTRACE	= 0x01,
 	EVENT_FL_ISPRINT	= 0x02,
 	EVENT_FL_ISBPRINT	= 0x04,
@@ -359,6 +548,35 @@ enum event_type {
 	EVENT_ITEM,
 	EVENT_DQUOTE,
 	EVENT_SQUOTE,
+=======
+	TEP_EVENT_FL_ISFTRACE	= 0x01,
+	TEP_EVENT_FL_ISPRINT	= 0x02,
+	TEP_EVENT_FL_ISBPRINT	= 0x04,
+	TEP_EVENT_FL_ISFUNCENT	= 0x10,
+	TEP_EVENT_FL_ISFUNCRET	= 0x20,
+	TEP_EVENT_FL_NOHANDLE	= 0x40,
+	TEP_EVENT_FL_PRINTRAW	= 0x80,
+
+	TEP_EVENT_FL_FAILED	= 0x80000000
+};
+
+enum tep_event_sort_type {
+	TEP_EVENT_SORT_ID,
+	TEP_EVENT_SORT_NAME,
+	TEP_EVENT_SORT_SYSTEM,
+};
+
+enum tep_event_type {
+	TEP_EVENT_ERROR,
+	TEP_EVENT_NONE,
+	TEP_EVENT_SPACE,
+	TEP_EVENT_NEWLINE,
+	TEP_EVENT_OP,
+	TEP_EVENT_DELIM,
+	TEP_EVENT_ITEM,
+	TEP_EVENT_DQUOTE,
+	TEP_EVENT_SQUOTE,
+>>>>>>> upstream/android-13
 };
 
 typedef unsigned long long (*tep_func_handler)(struct trace_seq *s,
@@ -421,7 +639,11 @@ enum tep_errno {
 	 * errno since SUS requires the errno has distinct positive values.
 	 * See 'Issue 6' in the link below.
 	 *
+<<<<<<< HEAD
 	 * http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/errno.h.html
+=======
+	 * https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/errno.h.html
+>>>>>>> upstream/android-13
 	 */
 	__TEP_ERRNO__START			= -100000,
 
@@ -431,6 +653,7 @@ enum tep_errno {
 };
 #undef _PE
 
+<<<<<<< HEAD
 struct plugin_list;
 
 #define INVALID_PLUGIN_LIST_OPTION	((char **)((unsigned long)-1))
@@ -438,10 +661,33 @@ struct plugin_list;
 struct plugin_list *tep_load_plugins(struct tep_handle *pevent);
 void tep_unload_plugins(struct plugin_list *plugin_list,
 			struct tep_handle *pevent);
+=======
+struct tep_plugin_list;
+
+#define INVALID_PLUGIN_LIST_OPTION	((char **)((unsigned long)-1))
+
+enum tep_plugin_load_priority {
+	TEP_PLUGIN_FIRST,
+	TEP_PLUGIN_LAST,
+};
+
+int tep_add_plugin_path(struct tep_handle *tep, char *path,
+			enum tep_plugin_load_priority prio);
+struct tep_plugin_list *tep_load_plugins(struct tep_handle *tep);
+void tep_unload_plugins(struct tep_plugin_list *plugin_list,
+			struct tep_handle *tep);
+void tep_load_plugins_hook(struct tep_handle *tep, const char *suffix,
+			   void (*load_plugin)(struct tep_handle *tep,
+					       const char *path,
+					       const char *name,
+					       void *data),
+			   void *data);
+>>>>>>> upstream/android-13
 char **tep_plugin_list_options(void);
 void tep_plugin_free_options_list(char **list);
 int tep_plugin_add_options(const char *name,
 			   struct tep_plugin_option *options);
+<<<<<<< HEAD
 void tep_plugin_remove_options(struct tep_plugin_option *options);
 void tep_print_plugins(struct trace_seq *s,
 			const char *prefix, const char *suffix,
@@ -598,6 +844,23 @@ __data2host8(struct tep_handle *pevent, unsigned long long data)
 })
 
 static inline int tep_host_bigendian(void)
+=======
+int tep_plugin_add_option(const char *name, const char *val);
+void tep_plugin_remove_options(struct tep_plugin_option *options);
+void tep_plugin_print_options(struct trace_seq *s);
+void tep_print_plugins(struct trace_seq *s,
+			const char *prefix, const char *suffix,
+			const struct tep_plugin_list *list);
+
+/* tep_handle */
+typedef char *(tep_func_resolver_t)(void *priv,
+				    unsigned long long *addrp, char **modp);
+void tep_set_flag(struct tep_handle *tep, int flag);
+void tep_clear_flag(struct tep_handle *tep, enum tep_flag flag);
+bool tep_test_flag(struct tep_handle *tep, enum tep_flag flags);
+
+static inline int tep_is_bigendian(void)
+>>>>>>> upstream/android-13
 {
 	unsigned char str[] = { 0x1, 0x2, 0x3, 0x4 };
 	unsigned int val;
@@ -615,6 +878,7 @@ enum trace_flag_type {
 	TRACE_FLAG_SOFTIRQ		= 0x10,
 };
 
+<<<<<<< HEAD
 int tep_set_function_resolver(struct tep_handle *pevent,
 			      tep_func_resolver_t *func, void *priv);
 void tep_reset_function_resolver(struct tep_handle *pevent);
@@ -662,10 +926,60 @@ int tep_get_common_field_val(struct trace_seq *s, struct event_format *event,
 			     const char *name, struct tep_record *record,
 			     unsigned long long *val, int err);
 int tep_get_any_field_val(struct trace_seq *s, struct event_format *event,
+=======
+int tep_set_function_resolver(struct tep_handle *tep,
+			      tep_func_resolver_t *func, void *priv);
+void tep_reset_function_resolver(struct tep_handle *tep);
+int tep_register_comm(struct tep_handle *tep, const char *comm, int pid);
+int tep_override_comm(struct tep_handle *tep, const char *comm, int pid);
+int tep_register_function(struct tep_handle *tep, char *name,
+			  unsigned long long addr, char *mod);
+int tep_register_print_string(struct tep_handle *tep, const char *fmt,
+			      unsigned long long addr);
+bool tep_is_pid_registered(struct tep_handle *tep, int pid);
+
+struct tep_event *tep_get_event(struct tep_handle *tep, int index);
+
+#define TEP_PRINT_INFO		"INFO"
+#define TEP_PRINT_INFO_RAW	"INFO_RAW"
+#define TEP_PRINT_COMM		"COMM"
+#define TEP_PRINT_LATENCY	"LATENCY"
+#define TEP_PRINT_NAME		"NAME"
+#define TEP_PRINT_PID		1U
+#define TEP_PRINT_TIME		2U
+#define TEP_PRINT_CPU		3U
+
+void tep_print_event(struct tep_handle *tep, struct trace_seq *s,
+		     struct tep_record *record, const char *fmt, ...)
+	__attribute__ ((format (printf, 4, 5)));
+
+int tep_parse_header_page(struct tep_handle *tep, char *buf, unsigned long size,
+			  int long_size);
+
+enum tep_errno tep_parse_event(struct tep_handle *tep, const char *buf,
+			       unsigned long size, const char *sys);
+enum tep_errno tep_parse_format(struct tep_handle *tep,
+				struct tep_event **eventp,
+				const char *buf,
+				unsigned long size, const char *sys);
+
+void *tep_get_field_raw(struct trace_seq *s, struct tep_event *event,
+			const char *name, struct tep_record *record,
+			int *len, int err);
+
+int tep_get_field_val(struct trace_seq *s, struct tep_event *event,
+		      const char *name, struct tep_record *record,
+		      unsigned long long *val, int err);
+int tep_get_common_field_val(struct trace_seq *s, struct tep_event *event,
+			     const char *name, struct tep_record *record,
+			     unsigned long long *val, int err);
+int tep_get_any_field_val(struct trace_seq *s, struct tep_event *event,
+>>>>>>> upstream/android-13
 			  const char *name, struct tep_record *record,
 			  unsigned long long *val, int err);
 
 int tep_print_num_field(struct trace_seq *s, const char *fmt,
+<<<<<<< HEAD
 			   struct event_format *event, const char *name,
 			   struct tep_record *record, int err);
 
@@ -879,12 +1193,183 @@ struct filter_arg_field {
 
 struct filter_arg_value {
 	enum filter_value_type	type;
+=======
+			struct tep_event *event, const char *name,
+			struct tep_record *record, int err);
+
+int tep_print_func_field(struct trace_seq *s, const char *fmt,
+			 struct tep_event *event, const char *name,
+			 struct tep_record *record, int err);
+
+enum tep_reg_handler {
+	TEP_REGISTER_SUCCESS = 0,
+	TEP_REGISTER_SUCCESS_OVERWRITE,
+};
+
+int tep_register_event_handler(struct tep_handle *tep, int id,
+			       const char *sys_name, const char *event_name,
+			       tep_event_handler_func func, void *context);
+int tep_unregister_event_handler(struct tep_handle *tep, int id,
+				 const char *sys_name, const char *event_name,
+				 tep_event_handler_func func, void *context);
+int tep_register_print_function(struct tep_handle *tep,
+				tep_func_handler func,
+				enum tep_func_arg_type ret_type,
+				char *name, ...);
+int tep_unregister_print_function(struct tep_handle *tep,
+				  tep_func_handler func, char *name);
+
+struct tep_format_field *tep_find_common_field(struct tep_event *event, const char *name);
+struct tep_format_field *tep_find_field(struct tep_event *event, const char *name);
+struct tep_format_field *tep_find_any_field(struct tep_event *event, const char *name);
+
+const char *tep_find_function(struct tep_handle *tep, unsigned long long addr);
+unsigned long long
+tep_find_function_address(struct tep_handle *tep, unsigned long long addr);
+unsigned long long tep_read_number(struct tep_handle *tep, const void *ptr, int size);
+int tep_read_number_field(struct tep_format_field *field, const void *data,
+			  unsigned long long *value);
+
+struct tep_event *tep_get_first_event(struct tep_handle *tep);
+int tep_get_events_count(struct tep_handle *tep);
+struct tep_event *tep_find_event(struct tep_handle *tep, int id);
+
+struct tep_event *
+tep_find_event_by_name(struct tep_handle *tep, const char *sys, const char *name);
+struct tep_event *
+tep_find_event_by_record(struct tep_handle *tep, struct tep_record *record);
+
+int tep_data_type(struct tep_handle *tep, struct tep_record *rec);
+int tep_data_pid(struct tep_handle *tep, struct tep_record *rec);
+int tep_data_preempt_count(struct tep_handle *tep, struct tep_record *rec);
+int tep_data_flags(struct tep_handle *tep, struct tep_record *rec);
+const char *tep_data_comm_from_pid(struct tep_handle *tep, int pid);
+struct tep_cmdline;
+struct tep_cmdline *tep_data_pid_from_comm(struct tep_handle *tep, const char *comm,
+					   struct tep_cmdline *next);
+int tep_cmdline_pid(struct tep_handle *tep, struct tep_cmdline *cmdline);
+
+void tep_print_field(struct trace_seq *s, void *data,
+		     struct tep_format_field *field);
+void tep_print_fields(struct trace_seq *s, void *data,
+		      int size __maybe_unused, struct tep_event *event);
+int tep_strerror(struct tep_handle *tep, enum tep_errno errnum,
+		 char *buf, size_t buflen);
+
+struct tep_event **tep_list_events(struct tep_handle *tep, enum tep_event_sort_type);
+struct tep_event **tep_list_events_copy(struct tep_handle *tep,
+					enum tep_event_sort_type);
+struct tep_format_field **tep_event_common_fields(struct tep_event *event);
+struct tep_format_field **tep_event_fields(struct tep_event *event);
+
+enum tep_endian {
+        TEP_LITTLE_ENDIAN = 0,
+        TEP_BIG_ENDIAN
+};
+int tep_get_cpus(struct tep_handle *tep);
+void tep_set_cpus(struct tep_handle *tep, int cpus);
+int tep_get_long_size(struct tep_handle *tep);
+void tep_set_long_size(struct tep_handle *tep, int long_size);
+int tep_get_page_size(struct tep_handle *tep);
+void tep_set_page_size(struct tep_handle *tep, int _page_size);
+bool tep_is_file_bigendian(struct tep_handle *tep);
+void tep_set_file_bigendian(struct tep_handle *tep, enum tep_endian endian);
+bool tep_is_local_bigendian(struct tep_handle *tep);
+void tep_set_local_bigendian(struct tep_handle *tep, enum tep_endian endian);
+int tep_get_header_page_size(struct tep_handle *tep);
+int tep_get_header_timestamp_size(struct tep_handle *tep);
+bool tep_is_old_format(struct tep_handle *tep);
+void tep_set_test_filters(struct tep_handle *tep, int test_filters);
+
+struct tep_handle *tep_alloc(void);
+void tep_free(struct tep_handle *tep);
+void tep_ref(struct tep_handle *tep);
+void tep_unref(struct tep_handle *tep);
+int tep_get_ref(struct tep_handle *tep);
+
+/* for debugging */
+void tep_print_funcs(struct tep_handle *tep);
+void tep_print_printk(struct tep_handle *tep);
+
+/* ----------------------- filtering ----------------------- */
+
+enum tep_filter_boolean_type {
+	TEP_FILTER_FALSE,
+	TEP_FILTER_TRUE,
+};
+
+enum tep_filter_op_type {
+	TEP_FILTER_OP_AND = 1,
+	TEP_FILTER_OP_OR,
+	TEP_FILTER_OP_NOT,
+};
+
+enum tep_filter_cmp_type {
+	TEP_FILTER_CMP_NONE,
+	TEP_FILTER_CMP_EQ,
+	TEP_FILTER_CMP_NE,
+	TEP_FILTER_CMP_GT,
+	TEP_FILTER_CMP_LT,
+	TEP_FILTER_CMP_GE,
+	TEP_FILTER_CMP_LE,
+	TEP_FILTER_CMP_MATCH,
+	TEP_FILTER_CMP_NOT_MATCH,
+	TEP_FILTER_CMP_REGEX,
+	TEP_FILTER_CMP_NOT_REGEX,
+};
+
+enum tep_filter_exp_type {
+	TEP_FILTER_EXP_NONE,
+	TEP_FILTER_EXP_ADD,
+	TEP_FILTER_EXP_SUB,
+	TEP_FILTER_EXP_MUL,
+	TEP_FILTER_EXP_DIV,
+	TEP_FILTER_EXP_MOD,
+	TEP_FILTER_EXP_RSHIFT,
+	TEP_FILTER_EXP_LSHIFT,
+	TEP_FILTER_EXP_AND,
+	TEP_FILTER_EXP_OR,
+	TEP_FILTER_EXP_XOR,
+	TEP_FILTER_EXP_NOT,
+};
+
+enum tep_filter_arg_type {
+	TEP_FILTER_ARG_NONE,
+	TEP_FILTER_ARG_BOOLEAN,
+	TEP_FILTER_ARG_VALUE,
+	TEP_FILTER_ARG_FIELD,
+	TEP_FILTER_ARG_EXP,
+	TEP_FILTER_ARG_OP,
+	TEP_FILTER_ARG_NUM,
+	TEP_FILTER_ARG_STR,
+};
+
+enum tep_filter_value_type {
+	TEP_FILTER_NUMBER,
+	TEP_FILTER_STRING,
+	TEP_FILTER_CHAR
+};
+
+struct tep_filter_arg;
+
+struct tep_filter_arg_boolean {
+	enum tep_filter_boolean_type	value;
+};
+
+struct tep_filter_arg_field {
+	struct tep_format_field		*field;
+};
+
+struct tep_filter_arg_value {
+	enum tep_filter_value_type	type;
+>>>>>>> upstream/android-13
 	union {
 		char			*str;
 		unsigned long long	val;
 	};
 };
 
+<<<<<<< HEAD
 struct filter_arg_op {
 	enum filter_op_type	type;
 	struct filter_arg	*left;
@@ -928,10 +1413,56 @@ struct filter_type {
 	int			event_id;
 	struct event_format	*event;
 	struct filter_arg	*filter;
+=======
+struct tep_filter_arg_op {
+	enum tep_filter_op_type		type;
+	struct tep_filter_arg		*left;
+	struct tep_filter_arg		*right;
+};
+
+struct tep_filter_arg_exp {
+	enum tep_filter_exp_type	type;
+	struct tep_filter_arg		*left;
+	struct tep_filter_arg		*right;
+};
+
+struct tep_filter_arg_num {
+	enum tep_filter_cmp_type	type;
+	struct tep_filter_arg		*left;
+	struct tep_filter_arg		*right;
+};
+
+struct tep_filter_arg_str {
+	enum tep_filter_cmp_type	type;
+	struct tep_format_field		*field;
+	char				*val;
+	char				*buffer;
+	regex_t				reg;
+};
+
+struct tep_filter_arg {
+	enum tep_filter_arg_type		type;
+	union {
+		struct tep_filter_arg_boolean	boolean;
+		struct tep_filter_arg_field	field;
+		struct tep_filter_arg_value	value;
+		struct tep_filter_arg_op	op;
+		struct tep_filter_arg_exp	exp;
+		struct tep_filter_arg_num	num;
+		struct tep_filter_arg_str	str;
+	};
+};
+
+struct tep_filter_type {
+	int			event_id;
+	struct tep_event	*event;
+	struct tep_filter_arg	*filter;
+>>>>>>> upstream/android-13
 };
 
 #define TEP_FILTER_ERROR_BUFSZ  1024
 
+<<<<<<< HEAD
 struct event_filter {
 	struct tep_handle	*pevent;
 	int			filters;
@@ -940,6 +1471,16 @@ struct event_filter {
 };
 
 struct event_filter *tep_filter_alloc(struct tep_handle *pevent);
+=======
+struct tep_event_filter {
+	struct tep_handle	*tep;
+	int			filters;
+	struct tep_filter_type	*event_filters;
+	char			error_buffer[TEP_FILTER_ERROR_BUFSZ];
+};
+
+struct tep_event_filter *tep_filter_alloc(struct tep_handle *tep);
+>>>>>>> upstream/android-13
 
 /* for backward compatibility */
 #define FILTER_NONE		TEP_ERRNO__NO_FILTER
@@ -947,6 +1488,7 @@ struct event_filter *tep_filter_alloc(struct tep_handle *pevent);
 #define FILTER_MISS		TEP_ERRNO__FILTER_MISS
 #define FILTER_MATCH		TEP_ERRNO__FILTER_MATCH
 
+<<<<<<< HEAD
 enum filter_trivial_type {
 	FILTER_TRIVIAL_FALSE,
 	FILTER_TRIVIAL_TRUE,
@@ -987,5 +1529,31 @@ int tep_update_trivial(struct event_filter *dest, struct event_filter *source,
 			enum filter_trivial_type type);
 
 int tep_filter_compare(struct event_filter *filter1, struct event_filter *filter2);
+=======
+enum tep_errno tep_filter_add_filter_str(struct tep_event_filter *filter,
+					 const char *filter_str);
+
+enum tep_errno tep_filter_match(struct tep_event_filter *filter,
+				struct tep_record *record);
+
+int tep_filter_strerror(struct tep_event_filter *filter, enum tep_errno err,
+			char *buf, size_t buflen);
+
+int tep_event_filtered(struct tep_event_filter *filter,
+		       int event_id);
+
+void tep_filter_reset(struct tep_event_filter *filter);
+
+void tep_filter_free(struct tep_event_filter *filter);
+
+char *tep_filter_make_string(struct tep_event_filter *filter, int event_id);
+
+int tep_filter_remove_event(struct tep_event_filter *filter,
+			    int event_id);
+
+int tep_filter_copy(struct tep_event_filter *dest, struct tep_event_filter *source);
+
+int tep_filter_compare(struct tep_event_filter *filter1, struct tep_event_filter *filter2);
+>>>>>>> upstream/android-13
 
 #endif /* _PARSE_EVENTS_H */

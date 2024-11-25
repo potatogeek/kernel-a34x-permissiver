@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * extcon-axp288.c - X-Power AXP288 PMIC extcon cable detection driver
  *
  * Copyright (c) 2017-2018 Hans de Goede <hdegoede@redhat.com>
  * Copyright (C) 2015 Intel Corporation
  * Author: Ramakrishna Pallala <ramakrishna.pallala@intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -13,6 +18,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/acpi.h>
@@ -115,7 +122,11 @@ struct axp288_extcon_info {
 };
 
 static const struct x86_cpu_id cherry_trail_cpu_ids[] = {
+<<<<<<< HEAD
 	{ X86_VENDOR_INTEL, 6, INTEL_FAM6_ATOM_AIRMONT, X86_FEATURE_ANY },
+=======
+	X86_MATCH_INTEL_FAM6_MODEL(ATOM_AIRMONT,	NULL),
+>>>>>>> upstream/android-13
 	{}
 };
 
@@ -129,7 +140,10 @@ static const char * const axp288_pwr_up_down_info[] = {
 	"Last shutdown caused by PMIC UVLO threshold",
 	"Last shutdown caused by SOC initiated cold off",
 	"Last shutdown caused by user pressing the power button",
+<<<<<<< HEAD
 	NULL,
+=======
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -138,6 +152,7 @@ static const char * const axp288_pwr_up_down_info[] = {
  */
 static void axp288_extcon_log_rsi(struct axp288_extcon_info *info)
 {
+<<<<<<< HEAD
 	const char * const *rsi;
 	unsigned int val, i, clear_mask = 0;
 	int ret;
@@ -150,6 +165,23 @@ static void axp288_extcon_log_rsi(struct axp288_extcon_info *info)
 		}
 	}
 
+=======
+	unsigned int val, i, clear_mask = 0;
+	unsigned long bits;
+	int ret;
+
+	ret = regmap_read(info->regmap, AXP288_PS_BOOT_REASON_REG, &val);
+	if (ret < 0) {
+		dev_err(info->dev, "failed to read reset source indicator\n");
+		return;
+	}
+
+	bits = val & GENMASK(ARRAY_SIZE(axp288_pwr_up_down_info) - 1, 0);
+	for_each_set_bit(i, &bits, ARRAY_SIZE(axp288_pwr_up_down_info))
+		dev_dbg(info->dev, "%s\n", axp288_pwr_up_down_info[i]);
+	clear_mask = bits;
+
+>>>>>>> upstream/android-13
 	/* Clear the register value for next reboot (write 1 to clear bit) */
 	regmap_write(info->regmap, AXP288_PS_BOOT_REASON_REG, clear_mask);
 }
@@ -328,12 +360,38 @@ static void axp288_put_role_sw(void *data)
 	usb_role_switch_put(info->role_sw);
 }
 
+<<<<<<< HEAD
+=======
+static int axp288_extcon_find_role_sw(struct axp288_extcon_info *info)
+{
+	const struct software_node *swnode;
+	struct fwnode_handle *fwnode;
+
+	if (!x86_match_cpu(cherry_trail_cpu_ids))
+		return 0;
+
+	swnode = software_node_find_by_name(NULL, "intel-xhci-usb-sw");
+	if (!swnode)
+		return -EPROBE_DEFER;
+
+	fwnode = software_node_fwnode(swnode);
+	info->role_sw = usb_role_switch_find_by_fwnode(fwnode);
+	fwnode_handle_put(fwnode);
+
+	return info->role_sw ? 0 : -EPROBE_DEFER;
+}
+
+>>>>>>> upstream/android-13
 static int axp288_extcon_probe(struct platform_device *pdev)
 {
 	struct axp288_extcon_info *info;
 	struct axp20x_dev *axp20x = dev_get_drvdata(pdev->dev.parent);
 	struct device *dev = &pdev->dev;
+<<<<<<< HEAD
 	const char *name;
+=======
+	struct acpi_device *adev;
+>>>>>>> upstream/android-13
 	int ret, i, pirq;
 
 	info = devm_kzalloc(&pdev->dev, sizeof(*info), GFP_KERNEL);
@@ -349,17 +407,31 @@ static int axp288_extcon_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, info);
 
+<<<<<<< HEAD
 	info->role_sw = usb_role_switch_get(dev);
 	if (IS_ERR(info->role_sw))
 		return PTR_ERR(info->role_sw);
+=======
+	ret = axp288_extcon_find_role_sw(info);
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	if (info->role_sw) {
 		ret = devm_add_action_or_reset(dev, axp288_put_role_sw, info);
 		if (ret)
 			return ret;
 
+<<<<<<< HEAD
 		name = acpi_dev_get_first_match_name("INT3496", NULL, -1);
 		if (name) {
 			info->id_extcon = extcon_get_extcon_dev(name);
+=======
+		adev = acpi_dev_get_first_match_dev("INT3496", NULL, -1);
+		if (adev) {
+			info->id_extcon = extcon_get_extcon_dev(acpi_dev_name(adev));
+			put_device(&adev->dev);
+>>>>>>> upstream/android-13
 			if (!info->id_extcon)
 				return -EPROBE_DEFER;
 
@@ -476,6 +548,7 @@ static struct platform_driver axp288_extcon_driver = {
 		.pm = &axp288_extcon_pm_ops,
 	},
 };
+<<<<<<< HEAD
 
 static struct device_connection axp288_extcon_role_sw_conn = {
 	.endpoint[0] = "axp288_extcon",
@@ -500,6 +573,9 @@ static void __exit axp288_extcon_exit(void)
 	platform_driver_unregister(&axp288_extcon_driver);
 }
 module_exit(axp288_extcon_exit);
+=======
+module_platform_driver(axp288_extcon_driver);
+>>>>>>> upstream/android-13
 
 MODULE_AUTHOR("Ramakrishna Pallala <ramakrishna.pallala@intel.com>");
 MODULE_AUTHOR("Hans de Goede <hdegoede@redhat.com>");

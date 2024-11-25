@@ -42,16 +42,27 @@ static inline void __virtio_clear_bit(struct virtio_device *vdev,
 	(__virtio_test_bit((dev), feature))
 
 /**
+<<<<<<< HEAD
  * virtio_has_iommu_quirk - determine whether this device has the iommu quirk
  * @vdev: the device
  */
 static inline bool virtio_has_iommu_quirk(const struct virtio_device *vdev)
+=======
+ * virtio_has_dma_quirk - determine whether this device has the DMA quirk
+ * @vdev: the device
+ */
+static inline bool virtio_has_dma_quirk(const struct virtio_device *vdev)
+>>>>>>> upstream/android-13
 {
 	/*
 	 * Note the reverse polarity of the quirk feature (compared to most
 	 * other features), this is for compatibility with legacy systems.
 	 */
+<<<<<<< HEAD
 	return !virtio_has_feature(vdev, VIRTIO_F_IOMMU_PLATFORM);
+=======
+	return !virtio_has_feature(vdev, VIRTIO_F_ACCESS_PLATFORM);
+>>>>>>> upstream/android-13
 }
 
 static inline bool virtio_is_little_endian(struct virtio_device *vdev)

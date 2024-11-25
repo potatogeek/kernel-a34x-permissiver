@@ -6,7 +6,11 @@
 #include <linux/page-flags.h>
 #include <linux/page_ext.h>
 
+<<<<<<< HEAD
 #ifdef CONFIG_IDLE_PAGE_TRACKING
+=======
+#ifdef CONFIG_PAGE_IDLE_FLAG
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_64BIT
 static inline bool page_is_young(struct page *page)
@@ -106,7 +110,11 @@ static inline void clear_page_idle(struct page *page)
 }
 #endif /* CONFIG_64BIT */
 
+<<<<<<< HEAD
 #else /* !CONFIG_IDLE_PAGE_TRACKING */
+=======
+#else /* !CONFIG_PAGE_IDLE_FLAG */
+>>>>>>> upstream/android-13
 
 static inline bool page_is_young(struct page *page)
 {
@@ -135,6 +143,10 @@ static inline void clear_page_idle(struct page *page)
 {
 }
 
+<<<<<<< HEAD
 #endif /* CONFIG_IDLE_PAGE_TRACKING */
+=======
+#endif /* CONFIG_PAGE_IDLE_FLAG */
+>>>>>>> upstream/android-13
 
 #endif /* _LINUX_MM_PAGE_IDLE_H */

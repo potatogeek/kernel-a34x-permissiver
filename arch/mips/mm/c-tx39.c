@@ -17,7 +17,10 @@
 
 #include <asm/cacheops.h>
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/mmu_context.h>
 #include <asm/isadep.h>
 #include <asm/io.h>
@@ -169,8 +172,11 @@ static void tx39_flush_cache_page(struct vm_area_struct *vma, unsigned long page
 {
 	int exec = vma->vm_flags & VM_EXEC;
 	struct mm_struct *mm = vma->vm_mm;
+<<<<<<< HEAD
 	pgd_t *pgdp;
 	pud_t *pudp;
+=======
+>>>>>>> upstream/android-13
 	pmd_t *pmdp;
 	pte_t *ptep;
 
@@ -182,10 +188,15 @@ static void tx39_flush_cache_page(struct vm_area_struct *vma, unsigned long page
 		return;
 
 	page &= PAGE_MASK;
+<<<<<<< HEAD
 	pgdp = pgd_offset(mm, page);
 	pudp = pud_offset(pgdp, page);
 	pmdp = pmd_offset(pudp, page);
 	ptep = pte_offset(pmdp, page);
+=======
+	pmdp = pmd_off(mm, page);
+	ptep = pte_offset_kernel(pmdp, page);
+>>>>>>> upstream/android-13
 
 	/*
 	 * If the page isn't marked valid, the page cannot possibly be
@@ -290,6 +301,7 @@ static void tx39_dma_cache_inv(unsigned long addr, unsigned long size)
 	}
 }
 
+<<<<<<< HEAD
 static void tx39_flush_cache_sigtramp(unsigned long addr)
 {
 	unsigned long ic_lsize = current_cpu_data.icache.linesz;
@@ -309,6 +321,8 @@ static void tx39_flush_cache_sigtramp(unsigned long addr)
 	local_irq_restore(flags);
 }
 
+=======
+>>>>>>> upstream/android-13
 static __init void tx39_probe_cache(void)
 {
 	unsigned long config;
@@ -368,7 +382,10 @@ void tx39_cache_init(void)
 		flush_icache_range	= (void *) tx39h_flush_icache_all;
 		local_flush_icache_range = (void *) tx39h_flush_icache_all;
 
+<<<<<<< HEAD
 		flush_cache_sigtramp	= (void *) tx39h_flush_icache_all;
+=======
+>>>>>>> upstream/android-13
 		local_flush_data_cache_page	= (void *) tx39h_flush_icache_all;
 		flush_data_cache_page	= (void *) tx39h_flush_icache_all;
 
@@ -397,7 +414,10 @@ void tx39_cache_init(void)
 
 		__flush_kernel_vmap_range = tx39_flush_kernel_vmap_range;
 
+<<<<<<< HEAD
 		flush_cache_sigtramp = tx39_flush_cache_sigtramp;
+=======
+>>>>>>> upstream/android-13
 		local_flush_data_cache_page = local_tx39_flush_data_cache_page;
 		flush_data_cache_page = tx39_flush_data_cache_page;
 
@@ -429,9 +449,15 @@ void tx39_cache_init(void)
 	current_cpu_data.icache.waybit = 0;
 	current_cpu_data.dcache.waybit = 0;
 
+<<<<<<< HEAD
 	printk("Primary instruction cache %ldkB, linesize %d bytes\n",
 		icache_size >> 10, current_cpu_data.icache.linesz);
 	printk("Primary data cache %ldkB, linesize %d bytes\n",
+=======
+	pr_info("Primary instruction cache %ldkB, linesize %d bytes\n",
+		icache_size >> 10, current_cpu_data.icache.linesz);
+	pr_info("Primary data cache %ldkB, linesize %d bytes\n",
+>>>>>>> upstream/android-13
 		dcache_size >> 10, current_cpu_data.dcache.linesz);
 
 	build_clear_page();

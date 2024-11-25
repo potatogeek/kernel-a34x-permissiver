@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef __PCM_PLUGIN_H
 #define __PCM_PLUGIN_H
 
 /*
  *  Digital Audio (Plugin interface) abstract layer
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
+<<<<<<< HEAD
  *
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -20,6 +25,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifdef CONFIG_SND_PCM_OSS_PLUGINS
@@ -79,7 +86,11 @@ struct snd_pcm_plugin {
 	char *buf;
 	snd_pcm_uframes_t buf_frames;
 	struct snd_pcm_plugin_channel *buf_channels;
+<<<<<<< HEAD
 	char extra_data[0];
+=======
+	char extra_data[];
+>>>>>>> upstream/android-13
 };
 
 int snd_pcm_plugin_build(struct snd_pcm_substream *handle,

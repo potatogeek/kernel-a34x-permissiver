@@ -16,7 +16,11 @@
 #include <linux/irq.h>
 #include <linux/i2c.h>
 #include <linux/mutex.h>
+<<<<<<< HEAD
 #include <linux/of.h>
+=======
+#include <linux/property.h>
+>>>>>>> upstream/android-13
 #include <linux/regmap.h>
 #include <linux/iio/iio.h>
 #include <linux/iio/buffer.h>
@@ -267,11 +271,18 @@ static int max30100_get_current_idx(unsigned int val, int *reg)
 static int max30100_led_init(struct max30100_data *data)
 {
 	struct device *dev = &data->client->dev;
+<<<<<<< HEAD
 	struct device_node *np = dev->of_node;
 	unsigned int val[2];
 	int reg, ret;
 
 	ret = of_property_read_u32_array(np, "maxim,led-current-microamp",
+=======
+	unsigned int val[2];
+	int reg, ret;
+
+	ret = device_property_read_u32_array(dev, "maxim,led-current-microamp",
+>>>>>>> upstream/android-13
 					(unsigned int *) &val, 2);
 	if (ret) {
 		/* Default to 24 mA RED LED, 50 mA IR LED */
@@ -419,7 +430,10 @@ static int max30100_probe(struct i2c_client *client,
 			  const struct i2c_device_id *id)
 {
 	struct max30100_data *data;
+<<<<<<< HEAD
 	struct iio_buffer *buffer;
+=======
+>>>>>>> upstream/android-13
 	struct iio_dev *indio_dev;
 	int ret;
 
@@ -427,20 +441,33 @@ static int max30100_probe(struct i2c_client *client,
 	if (!indio_dev)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	buffer = devm_iio_kfifo_allocate(&client->dev);
 	if (!buffer)
 		return -ENOMEM;
 
 	iio_device_attach_buffer(indio_dev, buffer);
 
+=======
+>>>>>>> upstream/android-13
 	indio_dev->name = MAX30100_DRV_NAME;
 	indio_dev->channels = max30100_channels;
 	indio_dev->info = &max30100_info;
 	indio_dev->num_channels = ARRAY_SIZE(max30100_channels);
 	indio_dev->available_scan_masks = max30100_scan_masks;
+<<<<<<< HEAD
 	indio_dev->modes = (INDIO_BUFFER_SOFTWARE | INDIO_DIRECT_MODE);
 	indio_dev->setup_ops = &max30100_buffer_setup_ops;
 	indio_dev->dev.parent = &client->dev;
+=======
+	indio_dev->modes = INDIO_DIRECT_MODE;
+
+	ret = devm_iio_kfifo_buffer_setup(&client->dev, indio_dev,
+					  INDIO_BUFFER_SOFTWARE,
+					  &max30100_buffer_setup_ops);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	data = iio_priv(indio_dev);
 	data->indio_dev = indio_dev;
@@ -502,7 +529,11 @@ MODULE_DEVICE_TABLE(of, max30100_dt_ids);
 static struct i2c_driver max30100_driver = {
 	.driver = {
 		.name	= MAX30100_DRV_NAME,
+<<<<<<< HEAD
 		.of_match_table	= of_match_ptr(max30100_dt_ids),
+=======
+		.of_match_table	= max30100_dt_ids,
+>>>>>>> upstream/android-13
 	},
 	.probe		= max30100_probe,
 	.remove		= max30100_remove,

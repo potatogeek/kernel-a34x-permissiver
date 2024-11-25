@@ -52,7 +52,10 @@ struct stm32_ipcc {
 	struct clk *clk;
 	spinlock_t lock; /* protect access to IPCC registers */
 	int irqs[IPCC_IRQ_NUM];
+<<<<<<< HEAD
 	int wkp;
+=======
+>>>>>>> upstream/android-13
 	u32 proc_id;
 	u32 n_chans;
 	u32 xcr;
@@ -145,11 +148,19 @@ static irqreturn_t stm32_ipcc_tx_irq(int irq, void *data)
 
 static int stm32_ipcc_send_data(struct mbox_chan *link, void *data)
 {
+<<<<<<< HEAD
 	unsigned int chan = (unsigned int)link->con_priv;
 	struct stm32_ipcc *ipcc = container_of(link->mbox, struct stm32_ipcc,
 					       controller);
 
 	dev_dbg(ipcc->controller.dev, "%s: chan:%d\n", __func__, chan);
+=======
+	unsigned long chan = (unsigned long)link->con_priv;
+	struct stm32_ipcc *ipcc = container_of(link->mbox, struct stm32_ipcc,
+					       controller);
+
+	dev_dbg(ipcc->controller.dev, "%s: chan:%lu\n", __func__, chan);
+>>>>>>> upstream/android-13
 
 	/* set channel n occupied */
 	stm32_ipcc_set_bits(&ipcc->lock, ipcc->reg_proc + IPCC_XSCR,
@@ -164,7 +175,11 @@ static int stm32_ipcc_send_data(struct mbox_chan *link, void *data)
 
 static int stm32_ipcc_startup(struct mbox_chan *link)
 {
+<<<<<<< HEAD
 	unsigned int chan = (unsigned int)link->con_priv;
+=======
+	unsigned long chan = (unsigned long)link->con_priv;
+>>>>>>> upstream/android-13
 	struct stm32_ipcc *ipcc = container_of(link->mbox, struct stm32_ipcc,
 					       controller);
 	int ret;
@@ -184,7 +199,11 @@ static int stm32_ipcc_startup(struct mbox_chan *link)
 
 static void stm32_ipcc_shutdown(struct mbox_chan *link)
 {
+<<<<<<< HEAD
 	unsigned int chan = (unsigned int)link->con_priv;
+=======
+	unsigned long chan = (unsigned long)link->con_priv;
+>>>>>>> upstream/android-13
 	struct stm32_ipcc *ipcc = container_of(link->mbox, struct stm32_ipcc,
 					       controller);
 
@@ -207,7 +226,11 @@ static int stm32_ipcc_probe(struct platform_device *pdev)
 	struct device_node *np = dev->of_node;
 	struct stm32_ipcc *ipcc;
 	struct resource *res;
+<<<<<<< HEAD
 	unsigned int i;
+=======
+	unsigned long i;
+>>>>>>> upstream/android-13
 	int ret;
 	u32 ip_ver;
 	static const char * const irq_name[] = {"rx", "tx"};
@@ -258,9 +281,12 @@ static int stm32_ipcc_probe(struct platform_device *pdev)
 	for (i = 0; i < IPCC_IRQ_NUM; i++) {
 		ipcc->irqs[i] = platform_get_irq_byname(pdev, irq_name[i]);
 		if (ipcc->irqs[i] < 0) {
+<<<<<<< HEAD
 			if (ipcc->irqs[i] != -EPROBE_DEFER)
 				dev_err(dev, "no IRQ specified %s\n",
 					irq_name[i]);
+=======
+>>>>>>> upstream/android-13
 			ret = ipcc->irqs[i];
 			goto err_clk;
 		}
@@ -269,7 +295,11 @@ static int stm32_ipcc_probe(struct platform_device *pdev)
 						irq_thread[i], IRQF_ONESHOT,
 						dev_name(dev), ipcc);
 		if (ret) {
+<<<<<<< HEAD
 			dev_err(dev, "failed to request irq %d (%d)\n", i, ret);
+=======
+			dev_err(dev, "failed to request irq %lu (%d)\n", i, ret);
+>>>>>>> upstream/android-13
 			goto err_clk;
 		}
 	}
@@ -282,6 +312,7 @@ static int stm32_ipcc_probe(struct platform_device *pdev)
 
 	/* wakeup */
 	if (of_property_read_bool(np, "wakeup-source")) {
+<<<<<<< HEAD
 		ipcc->wkp = platform_get_irq_byname(pdev, "wakeup");
 		if (ipcc->wkp < 0) {
 			if (ipcc->wkp != -EPROBE_DEFER)
@@ -292,12 +323,20 @@ static int stm32_ipcc_probe(struct platform_device *pdev)
 
 		device_init_wakeup(dev, true);
 		ret = dev_pm_set_dedicated_wake_irq(dev, ipcc->wkp);
+=======
+		device_set_wakeup_capable(dev, true);
+
+		ret = dev_pm_set_wake_irq(dev, ipcc->irqs[IPCC_IRQ_RX]);
+>>>>>>> upstream/android-13
 		if (ret) {
 			dev_err(dev, "Failed to set wake up irq\n");
 			goto err_init_wkp;
 		}
+<<<<<<< HEAD
 	} else {
 		device_init_wakeup(dev, false);
+=======
+>>>>>>> upstream/android-13
 	}
 
 	/* mailbox controller */
@@ -319,7 +358,11 @@ static int stm32_ipcc_probe(struct platform_device *pdev)
 	for (i = 0; i < ipcc->controller.num_chans; i++)
 		ipcc->controller.chans[i].con_priv = (void *)i;
 
+<<<<<<< HEAD
 	ret = mbox_controller_register(&ipcc->controller);
+=======
+	ret = devm_mbox_controller_register(dev, &ipcc->controller);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto err_irq_wkp;
 
@@ -336,10 +379,17 @@ static int stm32_ipcc_probe(struct platform_device *pdev)
 	return 0;
 
 err_irq_wkp:
+<<<<<<< HEAD
 	if (ipcc->wkp)
 		dev_pm_clear_wake_irq(dev);
 err_init_wkp:
 	device_init_wakeup(dev, false);
+=======
+	if (of_property_read_bool(np, "wakeup-source"))
+		dev_pm_clear_wake_irq(dev);
+err_init_wkp:
+	device_set_wakeup_capable(dev, false);
+>>>>>>> upstream/android-13
 err_clk:
 	clk_disable_unprepare(ipcc->clk);
 	return ret;
@@ -347,6 +397,7 @@ err_clk:
 
 static int stm32_ipcc_remove(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct stm32_ipcc *ipcc = platform_get_drvdata(pdev);
 
 	mbox_controller_unregister(&ipcc->controller);
@@ -355,11 +406,20 @@ static int stm32_ipcc_remove(struct platform_device *pdev)
 		dev_pm_clear_wake_irq(&pdev->dev);
 
 	device_init_wakeup(&pdev->dev, false);
+=======
+	struct device *dev = &pdev->dev;
+
+	if (of_property_read_bool(dev->of_node, "wakeup-source"))
+		dev_pm_clear_wake_irq(&pdev->dev);
+
+	device_set_wakeup_capable(dev, false);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 #ifdef CONFIG_PM_SLEEP
+<<<<<<< HEAD
 static void stm32_ipcc_set_irq_wake(struct device *dev, bool enable)
 {
 	struct stm32_ipcc *ipcc = dev_get_drvdata(dev);
@@ -370,6 +430,8 @@ static void stm32_ipcc_set_irq_wake(struct device *dev, bool enable)
 			irq_set_irq_wake(ipcc->irqs[i], enable);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int stm32_ipcc_suspend(struct device *dev)
 {
 	struct stm32_ipcc *ipcc = dev_get_drvdata(dev);
@@ -377,8 +439,11 @@ static int stm32_ipcc_suspend(struct device *dev)
 	ipcc->xmr = readl_relaxed(ipcc->reg_proc + IPCC_XMR);
 	ipcc->xcr = readl_relaxed(ipcc->reg_proc + IPCC_XCR);
 
+<<<<<<< HEAD
 	stm32_ipcc_set_irq_wake(dev, true);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -386,8 +451,11 @@ static int stm32_ipcc_resume(struct device *dev)
 {
 	struct stm32_ipcc *ipcc = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	stm32_ipcc_set_irq_wake(dev, false);
 
+=======
+>>>>>>> upstream/android-13
 	writel_relaxed(ipcc->xmr, ipcc->reg_proc + IPCC_XMR);
 	writel_relaxed(ipcc->xcr, ipcc->reg_proc + IPCC_XCR);
 

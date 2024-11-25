@@ -19,7 +19,11 @@
 
 #include "ohci.h"
 
+<<<<<<< HEAD
 #define DRIVER_DESC "OHCI EXYNOS driver"
+=======
+#define DRIVER_DESC "OHCI Exynos driver"
+>>>>>>> upstream/android-13
 
 static const char hcd_name[] = "ohci-exynos";
 static struct hc_driver __read_mostly exynos_ohci_hc_driver;
@@ -30,7 +34,13 @@ static struct hc_driver __read_mostly exynos_ohci_hc_driver;
 
 struct exynos_ohci_hcd {
 	struct clk *clk;
+<<<<<<< HEAD
 	struct phy *phy[PHY_NUMBER];
+=======
+	struct device_node *of_node;
+	struct phy *phy[PHY_NUMBER];
+	bool legacy_phy;
+>>>>>>> upstream/android-13
 };
 
 static int exynos_ohci_get_phy(struct device *dev,
@@ -38,10 +48,29 @@ static int exynos_ohci_get_phy(struct device *dev,
 {
 	struct device_node *child;
 	struct phy *phy;
+<<<<<<< HEAD
 	int phy_number;
 	int ret;
 
 	/* Get PHYs for the controller */
+=======
+	int phy_number, num_phys;
+	int ret;
+
+	/* Get PHYs for the controller */
+	num_phys = of_count_phandle_with_args(dev->of_node, "phys",
+					      "#phy-cells");
+	for (phy_number = 0; phy_number < num_phys; phy_number++) {
+		phy = devm_of_phy_get_by_index(dev, dev->of_node, phy_number);
+		if (IS_ERR(phy))
+			return PTR_ERR(phy);
+		exynos_ohci->phy[phy_number] = phy;
+	}
+	if (num_phys > 0)
+		return 0;
+
+	/* Get PHYs using legacy bindings */
+>>>>>>> upstream/android-13
 	for_each_available_child_of_node(dev->of_node, child) {
 		ret = of_property_read_u32(child, "reg", &phy_number);
 		if (ret) {
@@ -72,6 +101,10 @@ static int exynos_ohci_get_phy(struct device *dev,
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	exynos_ohci->legacy_phy = true;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -169,6 +202,17 @@ static int exynos_ohci_probe(struct platform_device *pdev)
 		goto fail_io;
 	}
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Workaround: reset of_node pointer to avoid conflict between legacy
+	 * Exynos OHCI port subnodes and generic USB device bindings
+	 */
+	exynos_ohci->of_node = pdev->dev.of_node;
+	if (exynos_ohci->legacy_phy)
+		pdev->dev.of_node = NULL;
+
+>>>>>>> upstream/android-13
 	err = usb_add_hcd(hcd, irq, IRQF_SHARED);
 	if (err) {
 		dev_err(&pdev->dev, "Failed to add USB HCD\n");
@@ -179,6 +223,10 @@ static int exynos_ohci_probe(struct platform_device *pdev)
 
 fail_add_hcd:
 	exynos_ohci_phy_disable(&pdev->dev);
+<<<<<<< HEAD
+=======
+	pdev->dev.of_node = exynos_ohci->of_node;
+>>>>>>> upstream/android-13
 fail_io:
 	clk_disable_unprepare(exynos_ohci->clk);
 fail_clk:
@@ -191,6 +239,11 @@ static int exynos_ohci_remove(struct platform_device *pdev)
 	struct usb_hcd *hcd = platform_get_drvdata(pdev);
 	struct exynos_ohci_hcd *exynos_ohci = to_exynos_ohci(hcd);
 
+<<<<<<< HEAD
+=======
+	pdev->dev.of_node = exynos_ohci->of_node;
+
+>>>>>>> upstream/android-13
 	usb_remove_hcd(hcd);
 
 	exynos_ohci_phy_disable(&pdev->dev);

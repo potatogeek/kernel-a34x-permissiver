@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * NCI based driver for Samsung S3FWRN5 NFC chip
  *
  * Copyright (C) 2015 Samsung Electrnoics
  * Robert Baldyga <r.baldyga@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -15,6 +20,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/completion.h>
@@ -31,6 +38,7 @@ static int s3fwrn5_nci_prop_rsp(struct nci_dev *ndev, struct sk_buff *skb)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct nci_driver_ops s3fwrn5_nci_prop_ops[] = {
 	{
 		.opcode = nci_opcode_pack(NCI_GID_PROPRIETARY,
@@ -42,6 +50,9 @@ static struct nci_driver_ops s3fwrn5_nci_prop_ops[] = {
 				NCI_PROP_GET_RFREG),
 		.rsp = s3fwrn5_nci_prop_rsp,
 	},
+=======
+const struct nci_driver_ops s3fwrn5_nci_prop_ops[4] = {
+>>>>>>> upstream/android-13
 	{
 		.opcode = nci_opcode_pack(NCI_GID_PROPRIETARY,
 				NCI_PROP_SET_RFREG),
@@ -49,6 +60,7 @@ static struct nci_driver_ops s3fwrn5_nci_prop_ops[] = {
 	},
 	{
 		.opcode = nci_opcode_pack(NCI_GID_PROPRIETARY,
+<<<<<<< HEAD
 				NCI_PROP_GET_RFREG_VER),
 		.rsp = s3fwrn5_nci_prop_rsp,
 	},
@@ -59,6 +71,8 @@ static struct nci_driver_ops s3fwrn5_nci_prop_ops[] = {
 	},
 	{
 		.opcode = nci_opcode_pack(NCI_GID_PROPRIETARY,
+=======
+>>>>>>> upstream/android-13
 				NCI_PROP_START_RFREG),
 		.rsp = s3fwrn5_nci_prop_rsp,
 	},
@@ -72,6 +86,7 @@ static struct nci_driver_ops s3fwrn5_nci_prop_ops[] = {
 				NCI_PROP_FW_CFG),
 		.rsp = s3fwrn5_nci_prop_rsp,
 	},
+<<<<<<< HEAD
 	{
 		.opcode = nci_opcode_pack(NCI_GID_PROPRIETARY,
 				NCI_PROP_WR_RESET),
@@ -85,6 +100,10 @@ void s3fwrn5_nci_get_prop_ops(struct nci_driver_ops **ops, size_t *n)
 	*n = ARRAY_SIZE(s3fwrn5_nci_prop_ops);
 }
 
+=======
+};
+
+>>>>>>> upstream/android-13
 #define S3FWRN5_RFREG_SECTION_SIZE 252
 
 int s3fwrn5_nci_rf_configure(struct s3fwrn5_info *info, const char *fw_name)

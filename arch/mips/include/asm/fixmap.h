@@ -17,7 +17,11 @@
 #include <spaces.h>
 #ifdef CONFIG_HIGHMEM
 #include <linux/threads.h>
+<<<<<<< HEAD
 #include <asm/kmap_types.h>
+=======
+#include <asm/kmap_size.h>
+>>>>>>> upstream/android-13
 #endif
 
 /*
@@ -52,7 +56,11 @@ enum fixed_addresses {
 #ifdef CONFIG_HIGHMEM
 	/* reserved pte's for temporary kernel mappings */
 	FIX_KMAP_BEGIN = FIX_CMAP_END + 1,
+<<<<<<< HEAD
 	FIX_KMAP_END = FIX_KMAP_BEGIN+(KM_TYPE_NR*NR_CPUS)-1,
+=======
+	FIX_KMAP_END = FIX_KMAP_BEGIN + (KM_MAX_IDX * NR_CPUS) - 1,
+>>>>>>> upstream/android-13
 #endif
 	__end_of_fixed_addresses
 };
@@ -69,9 +77,12 @@ enum fixed_addresses {
 
 #include <asm-generic/fixmap.h>
 
+<<<<<<< HEAD
 #define kmap_get_fixmap_pte(vaddr)					\
 	pte_offset_kernel(pmd_offset(pud_offset(pgd_offset_k(vaddr), (vaddr)), (vaddr)), (vaddr))
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Called from pgtable_init()
  */

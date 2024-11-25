@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (c) 2013-2016, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -8,6 +9,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* Copyright (c) 2013-2016, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 /* Qualcomm Technologies, Inc. EMAC Ethernet Controller MAC layer support
@@ -776,7 +781,11 @@ int emac_mac_rx_tx_rings_alloc_all(struct emac_adapter *adpt)
 			    8 + 2 * 8; /* 8 byte per one Tx and two Rx rings */
 
 	ring_header->used = 0;
+<<<<<<< HEAD
 	ring_header->v_addr = dma_zalloc_coherent(dev, ring_header->size,
+=======
+	ring_header->v_addr = dma_alloc_coherent(dev, ring_header->size,
+>>>>>>> upstream/android-13
 						 &ring_header->dma_addr,
 						 GFP_KERNEL);
 	if (!ring_header->v_addr)
@@ -1204,7 +1213,11 @@ void emac_mac_tx_process(struct emac_adapter *adpt, struct emac_tx_queue *tx_q)
 		if (tpbuf->skb) {
 			pkts_compl++;
 			bytes_compl += tpbuf->skb->len;
+<<<<<<< HEAD
 			dev_kfree_skb_irq(tpbuf->skb);
+=======
+			dev_consume_skb_irq(tpbuf->skb);
+>>>>>>> upstream/android-13
 			tpbuf->skb = NULL;
 		}
 
@@ -1296,11 +1309,16 @@ static int emac_tso_csum(struct emac_adapter *adpt,
 			memset(tpd, 0, sizeof(*tpd));
 			memset(&extra_tpd, 0, sizeof(extra_tpd));
 
+<<<<<<< HEAD
 			ipv6_hdr(skb)->payload_len = 0;
 			tcp_hdr(skb)->check =
 				~csum_ipv6_magic(&ipv6_hdr(skb)->saddr,
 						 &ipv6_hdr(skb)->daddr,
 						 0, IPPROTO_TCP, 0);
+=======
+			tcp_v6_gso_csum_prep(skb);
+
+>>>>>>> upstream/android-13
 			TPD_PKT_LEN_SET(&extra_tpd, skb->len);
 			TPD_LSO_SET(&extra_tpd, 1);
 			TPD_LSOV_SET(&extra_tpd, 1);
@@ -1393,6 +1411,7 @@ static void emac_tx_fill_tpd(struct emac_adapter *adpt,
 	}
 
 	for (i = 0; i < nr_frags; i++) {
+<<<<<<< HEAD
 		struct skb_frag_struct *frag;
 
 		frag = &skb_shinfo(skb)->frags[i];
@@ -1402,6 +1421,15 @@ static void emac_tx_fill_tpd(struct emac_adapter *adpt,
 		tpbuf->dma_addr = dma_map_page(adpt->netdev->dev.parent,
 					       frag->page.p, frag->page_offset,
 					       tpbuf->length, DMA_TO_DEVICE);
+=======
+		skb_frag_t *frag = &skb_shinfo(skb)->frags[i];
+
+		tpbuf = GET_TPD_BUFFER(tx_q, tx_q->tpd.produce_idx);
+		tpbuf->length = skb_frag_size(frag);
+		tpbuf->dma_addr = skb_frag_dma_map(adpt->netdev->dev.parent,
+						   frag, 0, tpbuf->length,
+						   DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 		ret = dma_mapping_error(adpt->netdev->dev.parent,
 					tpbuf->dma_addr);
 		if (ret)
@@ -1444,8 +1472,14 @@ error:
 }
 
 /* Transmit the packet using specified transmit queue */
+<<<<<<< HEAD
 int emac_mac_tx_buf_send(struct emac_adapter *adpt, struct emac_tx_queue *tx_q,
 			 struct sk_buff *skb)
+=======
+netdev_tx_t emac_mac_tx_buf_send(struct emac_adapter *adpt,
+				 struct emac_tx_queue *tx_q,
+				 struct sk_buff *skb)
+>>>>>>> upstream/android-13
 {
 	struct emac_tpd tpd;
 	u32 prod_idx;

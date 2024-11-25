@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  Shared Transport Header file
  *	To be included by the protocol stack drivers for
@@ -6,6 +10,7 @@
  *
  *  Copyright (C) 2009-2010 Texas Instruments
  *  Author: Pavan Savoy <pavan_savoy@ti.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
@@ -20,6 +25,8 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef TI_WILINK_ST_H
@@ -308,7 +315,11 @@ struct bts_header {
 	u32 magic;
 	u32 version;
 	u8 future[24];
+<<<<<<< HEAD
 	u8 actions[0];
+=======
+	u8 actions[];
+>>>>>>> upstream/android-13
 } __attribute__ ((packed));
 
 /**
@@ -318,7 +329,11 @@ struct bts_header {
 struct bts_action {
 	u16 type;
 	u16 size;
+<<<<<<< HEAD
 	u8 data[0];
+=======
+	u8 data[];
+>>>>>>> upstream/android-13
 } __attribute__ ((packed));
 
 struct bts_action_send {
@@ -328,7 +343,11 @@ struct bts_action_send {
 struct bts_action_wait {
 	u32 msec;
 	u32 size;
+<<<<<<< HEAD
 	u8 data[0];
+=======
+	u8 data[];
+>>>>>>> upstream/android-13
 } __attribute__ ((packed));
 
 struct bts_action_delay {

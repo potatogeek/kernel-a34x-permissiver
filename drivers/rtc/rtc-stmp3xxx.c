@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * Freescale STMP37XX/STMP378X Real Time Clock driver
  *
@@ -8,6 +12,7 @@
  * Copyright 2008 Embedded Alley Solutions, Inc All Rights Reserved.
  * Copyright 2011 Wolfram Sang, Pengutronix e.K.
  */
+<<<<<<< HEAD
 
 /*
  * The code contained herein is licensed under the GNU General Public
@@ -17,6 +22,8 @@
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
  */
+=======
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/io.h>
@@ -160,6 +167,7 @@ static int stmp3xxx_rtc_gettime(struct device *dev, struct rtc_time *rtc_tm)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	rtc_time_to_tm(readl(rtc_data->io + STMP3XXX_RTC_SECONDS), rtc_tm);
 	return 0;
 }
@@ -169,6 +177,17 @@ static int stmp3xxx_rtc_set_mmss(struct device *dev, unsigned long t)
 	struct stmp3xxx_rtc_data *rtc_data = dev_get_drvdata(dev);
 
 	writel(t, rtc_data->io + STMP3XXX_RTC_SECONDS);
+=======
+	rtc_time64_to_tm(readl(rtc_data->io + STMP3XXX_RTC_SECONDS), rtc_tm);
+	return 0;
+}
+
+static int stmp3xxx_rtc_settime(struct device *dev, struct rtc_time *rtc_tm)
+{
+	struct stmp3xxx_rtc_data *rtc_data = dev_get_drvdata(dev);
+
+	writel(rtc_tm_to_time64(rtc_tm), rtc_data->io + STMP3XXX_RTC_SECONDS);
+>>>>>>> upstream/android-13
 	return stmp3xxx_wait_time(rtc_data);
 }
 
@@ -214,17 +233,27 @@ static int stmp3xxx_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
 {
 	struct stmp3xxx_rtc_data *rtc_data = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	rtc_time_to_tm(readl(rtc_data->io + STMP3XXX_RTC_ALARM), &alm->time);
+=======
+	rtc_time64_to_tm(readl(rtc_data->io + STMP3XXX_RTC_ALARM), &alm->time);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int stmp3xxx_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
 {
+<<<<<<< HEAD
 	unsigned long t;
 	struct stmp3xxx_rtc_data *rtc_data = dev_get_drvdata(dev);
 
 	rtc_tm_to_time(&alm->time, &t);
 	writel(t, rtc_data->io + STMP3XXX_RTC_ALARM);
+=======
+	struct stmp3xxx_rtc_data *rtc_data = dev_get_drvdata(dev);
+
+	writel(rtc_tm_to_time64(&alm->time), rtc_data->io + STMP3XXX_RTC_ALARM);
+>>>>>>> upstream/android-13
 
 	stmp3xxx_alarm_irq_enable(dev, alm->enabled);
 
@@ -235,7 +264,11 @@ static const struct rtc_class_ops stmp3xxx_rtc_ops = {
 	.alarm_irq_enable =
 			  stmp3xxx_alarm_irq_enable,
 	.read_time	= stmp3xxx_rtc_gettime,
+<<<<<<< HEAD
 	.set_mmss	= stmp3xxx_rtc_set_mmss,
+=======
+	.set_time	= stmp3xxx_rtc_settime,
+>>>>>>> upstream/android-13
 	.read_alarm	= stmp3xxx_rtc_read_alarm,
 	.set_alarm	= stmp3xxx_rtc_set_alarm,
 };
@@ -341,7 +374,11 @@ static int stmp3xxx_rtc_probe(struct platform_device *pdev)
 	default:
 		dev_warn(&pdev->dev,
 			 "invalid crystal-freq specified in device-tree. Assuming no crystal\n");
+<<<<<<< HEAD
 		/* fall-through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 0:
 		/* keep XTAL on in low-power mode */
 		pers0_set = STMP3XXX_RTC_PERSISTENT0_XTAL24MHZ_PWRUP;
@@ -361,8 +398,12 @@ static int stmp3xxx_rtc_probe(struct platform_device *pdev)
 			STMP3XXX_RTC_CTRL_ALARM_IRQ_EN,
 		rtc_data->io + STMP3XXX_RTC_CTRL + STMP_OFFSET_REG_CLR);
 
+<<<<<<< HEAD
 	rtc_data->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
 				&stmp3xxx_rtc_ops, THIS_MODULE);
+=======
+	rtc_data->rtc = devm_rtc_allocate_device(&pdev->dev);
+>>>>>>> upstream/android-13
 	if (IS_ERR(rtc_data->rtc))
 		return PTR_ERR(rtc_data->rtc);
 
@@ -374,6 +415,16 @@ static int stmp3xxx_rtc_probe(struct platform_device *pdev)
 		return err;
 	}
 
+<<<<<<< HEAD
+=======
+	rtc_data->rtc->ops = &stmp3xxx_rtc_ops;
+	rtc_data->rtc->range_max = U32_MAX;
+
+	err = devm_rtc_register_device(rtc_data->rtc);
+	if (err)
+		return err;
+
+>>>>>>> upstream/android-13
 	stmp3xxx_wdt_register(pdev);
 	return 0;
 }
@@ -420,5 +471,9 @@ module_platform_driver(stmp3xxx_rtcdrv);
 
 MODULE_DESCRIPTION("STMP3xxx RTC Driver");
 MODULE_AUTHOR("dmitry pervushin <dpervushin@embeddedalley.com> and "
+<<<<<<< HEAD
 		"Wolfram Sang <w.sang@pengutronix.de>");
+=======
+		"Wolfram Sang <kernel@pengutronix.de>");
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");

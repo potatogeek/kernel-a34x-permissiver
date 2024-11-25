@@ -34,7 +34,11 @@
 		Phone (337) 232-1234 or 1-800-738-2226
 		Fax   (337) 232-1297
 
+<<<<<<< HEAD
 		http://www.hospiceacadiana.com/
+=======
+		https://www.hospiceacadiana.com/
+>>>>>>> upstream/android-13
 
 	Manuel
  */
@@ -80,7 +84,11 @@
 
 /* This is what we know about each Huffman coding group */
 struct group_data {
+<<<<<<< HEAD
 	/* We have an extra slot at the end of limit[] for a sentinal value. */
+=======
+	/* We have an extra slot at the end of limit[] for a sentinel value. */
+>>>>>>> upstream/android-13
 	int limit[MAX_HUFCODE_BITS+1];
 	int base[MAX_HUFCODE_BITS];
 	int permute[MAX_SYMBOLS];
@@ -337,7 +345,11 @@ static int INIT get_next_block(struct bunzip_data *bd)
 			pp <<= 1;
 			base[i+1] = pp-(t += temp[i]);
 		}
+<<<<<<< HEAD
 		limit[maxLen+1] = INT_MAX; /* Sentinal value for
+=======
+		limit[maxLen+1] = INT_MAX; /* Sentinel value for
+>>>>>>> upstream/android-13
 					    * reading next sym. */
 		limit[maxLen] = pp+temp[maxLen]-1;
 		base[minLen] = 0;
@@ -385,12 +397,20 @@ static int INIT get_next_block(struct bunzip_data *bd)
 			bd->inbufBits =
 				(bd->inbufBits << 8)|bd->inbuf[bd->inbufPos++];
 			bd->inbufBitCount += 8;
+<<<<<<< HEAD
 		};
+=======
+		}
+>>>>>>> upstream/android-13
 		bd->inbufBitCount -= hufGroup->maxLen;
 		j = (bd->inbufBits >> bd->inbufBitCount)&
 			((1 << hufGroup->maxLen)-1);
 got_huff_bits:
+<<<<<<< HEAD
 		/* Figure how how many bits are in next symbol and
+=======
+		/* Figure how many bits are in next symbol and
+>>>>>>> upstream/android-13
 		 * unget extras */
 		i = hufGroup->minLen;
 		while (j > limit[i])

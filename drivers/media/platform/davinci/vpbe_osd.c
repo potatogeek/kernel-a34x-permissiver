@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2007-2010 Texas Instruments Inc
  * Copyright (C) 2007 MontaVista Software, Inc.
@@ -6,6 +10,7 @@
  * - Initial version
  * Murali Karicheri (mkaricheri@gmail.com), Texas Instruments Ltd.
  * - ported to sub device interface
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/mod_devicetable.h>
@@ -25,11 +32,14 @@
 #include <linux/clk.h>
 #include <linux/slab.h>
 
+<<<<<<< HEAD
 #ifdef CONFIG_ARCH_DAVINCI
 #include <mach/cputype.h>
 #include <mach/hardware.h>
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #include <media/davinci/vpss.h>
 #include <media/v4l2-device.h>
 #include <media/davinci/vpbe_types.h>

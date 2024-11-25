@@ -17,11 +17,19 @@
 #include <linux/interrupt.h>
 #include <linux/init.h>
 #include <linux/io.h>
+<<<<<<< HEAD
+=======
+#include <linux/iopoll.h>
+>>>>>>> upstream/android-13
 #include <linux/of.h>
 #include <linux/of_address.h>
 #include <linux/of_device.h>
 #include <linux/of_platform.h>
 #include <linux/clk.h>
+<<<<<<< HEAD
+=======
+#include <linux/pm_runtime.h>
+>>>>>>> upstream/android-13
 
 #define ULITE_NAME		"ttyUL"
 #define ULITE_MAJOR		204
@@ -32,7 +40,11 @@
  * Register definitions
  *
  * For register details see datasheet:
+<<<<<<< HEAD
  * http://www.xilinx.com/support/documentation/ip_documentation/opb_uartlite.pdf
+=======
+ * https://www.xilinx.com/support/documentation/ip_documentation/opb_uartlite.pdf
+>>>>>>> upstream/android-13
  */
 
 #define ULITE_RX		0x00
@@ -54,6 +66,15 @@
 #define ULITE_CONTROL_RST_TX	0x01
 #define ULITE_CONTROL_RST_RX	0x02
 #define ULITE_CONTROL_IE	0x10
+<<<<<<< HEAD
+=======
+#define UART_AUTOSUSPEND_TIMEOUT	3000	/* ms */
+
+/* Static pointer to console port */
+#ifdef CONFIG_SERIAL_UARTLITE_CONSOLE
+static struct uart_port *console_port;
+#endif
+>>>>>>> upstream/android-13
 
 struct uartlite_data {
 	const struct uartlite_reg_ops *reg_ops;
@@ -385,12 +406,25 @@ static int ulite_verify_port(struct uart_port *port, struct serial_struct *ser)
 static void ulite_pm(struct uart_port *port, unsigned int state,
 		     unsigned int oldstate)
 {
+<<<<<<< HEAD
 	struct uartlite_data *pdata = port->private_data;
 
 	if (!state)
 		clk_enable(pdata->clk);
 	else
 		clk_disable(pdata->clk);
+=======
+	int ret;
+
+	if (!state) {
+		ret = pm_runtime_get_sync(port->dev);
+		if (ret < 0)
+			dev_err(port->dev, "Failed to enable clocks\n");
+	} else {
+		pm_runtime_mark_last_busy(port->dev);
+		pm_runtime_put_autosuspend(port->dev);
+	}
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_CONSOLE_POLL
@@ -443,12 +477,16 @@ static const struct uart_ops ulite_ops = {
 static void ulite_console_wait_tx(struct uart_port *port)
 {
 	u8 val;
+<<<<<<< HEAD
 	unsigned long timeout;
+=======
+>>>>>>> upstream/android-13
 
 	/*
 	 * Spin waiting for TX fifo to have space available.
 	 * When using the Microblaze Debug Module this can take up to 1s
 	 */
+<<<<<<< HEAD
 	timeout = jiffies + msecs_to_jiffies(1000);
 	while (1) {
 		val = uart_in32(ULITE_STATUS, port);
@@ -461,6 +499,12 @@ static void ulite_console_wait_tx(struct uart_port *port)
 		}
 		cpu_relax();
 	}
+=======
+	if (read_poll_timeout_atomic(uart_in32, val, !(val & ULITE_STATUS_TXFULL),
+				     0, 1000000, false, ULITE_STATUS, port))
+		dev_warn(port->dev,
+			 "timeout waiting for TX buffer empty\n");
+>>>>>>> upstream/android-13
 }
 
 static void ulite_console_putchar(struct uart_port *port, int ch)
@@ -472,7 +516,11 @@ static void ulite_console_putchar(struct uart_port *port, int ch)
 static void ulite_console_write(struct console *co, const char *s,
 				unsigned int count)
 {
+<<<<<<< HEAD
 	struct uart_port *port = &ulite_ports[co->index];
+=======
+	struct uart_port *port = console_port;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	unsigned int ier;
 	int locked = 1;
@@ -500,12 +548,17 @@ static void ulite_console_write(struct console *co, const char *s,
 
 static int ulite_console_setup(struct console *co, char *options)
 {
+<<<<<<< HEAD
 	struct uart_port *port;
+=======
+	struct uart_port *port = NULL;
+>>>>>>> upstream/android-13
 	int baud = 9600;
 	int bits = 8;
 	int parity = 'n';
 	int flow = 'n';
 
+<<<<<<< HEAD
 	if (co->index < 0 || co->index >= ULITE_NR_UARTS)
 		return -EINVAL;
 
@@ -513,10 +566,22 @@ static int ulite_console_setup(struct console *co, char *options)
 
 	/* Has the device been initialized yet? */
 	if (!port->mapbase) {
+=======
+	if (co->index >= 0 && co->index < ULITE_NR_UARTS)
+		port = ulite_ports + co->index;
+
+	/* Has the device been initialized yet? */
+	if (!port || !port->mapbase) {
+>>>>>>> upstream/android-13
 		pr_debug("console on ttyUL%i not present\n", co->index);
 		return -ENODEV;
 	}
 
+<<<<<<< HEAD
+=======
+	console_port = port;
+
+>>>>>>> upstream/android-13
 	/* not initialized yet? */
 	if (!port->membase) {
 		if (ulite_request_port(port))
@@ -541,6 +606,7 @@ static struct console ulite_console = {
 	.data	= &ulite_uart_driver,
 };
 
+<<<<<<< HEAD
 static int __init ulite_console_init(void)
 {
 	register_console(&ulite_console);
@@ -549,6 +615,8 @@ static int __init ulite_console_init(void)
 
 console_initcall(ulite_console_init);
 
+=======
+>>>>>>> upstream/android-13
 static void early_uartlite_putc(struct uart_port *port, int c)
 {
 	/*
@@ -558,6 +626,7 @@ static void early_uartlite_putc(struct uart_port *port, int c)
 	 * This limit is pretty arbitrary, unless we are at about 10 baud
 	 * we'll never timeout on a working UART.
 	 */
+<<<<<<< HEAD
 
 	unsigned retries = 1000000;
 	/* read status bit - 0x8 offset */
@@ -568,6 +637,17 @@ static void early_uartlite_putc(struct uart_port *port, int c)
 	/* write to TX_FIFO - 0x4 offset */
 	if (retries)
 		writel(c & 0xff, port->membase + 4);
+=======
+	unsigned retries = 1000000;
+
+	while (--retries &&
+	       (readl(port->membase + ULITE_STATUS) & ULITE_STATUS_TXFULL))
+		;
+
+	/* Only attempt the iowrite if we didn't timeout */
+	if (retries)
+		writel(c & 0xff, port->membase + ULITE_TX);
+>>>>>>> upstream/android-13
 }
 
 static void early_uartlite_write(struct console *console,
@@ -618,7 +698,11 @@ static struct uart_driver ulite_uart_driver = {
  *
  * Returns: 0 on success, <0 otherwise
  */
+<<<<<<< HEAD
 static int ulite_assign(struct device *dev, int id, u32 base, int irq,
+=======
+static int ulite_assign(struct device *dev, int id, phys_addr_t base, int irq,
+>>>>>>> upstream/android-13
 			struct uartlite_data *pdata)
 {
 	struct uart_port *port;
@@ -722,11 +806,45 @@ static int __maybe_unused ulite_resume(struct device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int __maybe_unused ulite_runtime_suspend(struct device *dev)
+{
+	struct uart_port *port = dev_get_drvdata(dev);
+	struct uartlite_data *pdata = port->private_data;
+
+	clk_disable(pdata->clk);
+	return 0;
+};
+
+static int __maybe_unused ulite_runtime_resume(struct device *dev)
+{
+	struct uart_port *port = dev_get_drvdata(dev);
+	struct uartlite_data *pdata = port->private_data;
+	int ret;
+
+	ret = clk_enable(pdata->clk);
+	if (ret) {
+		dev_err(dev, "Cannot enable clock.\n");
+		return ret;
+	}
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /* ---------------------------------------------------------------------
  * Platform bus binding
  */
 
+<<<<<<< HEAD
 static SIMPLE_DEV_PM_OPS(ulite_pm_ops, ulite_suspend, ulite_resume);
+=======
+static const struct dev_pm_ops ulite_pm_ops = {
+	SET_SYSTEM_SLEEP_PM_OPS(ulite_suspend, ulite_resume)
+	SET_RUNTIME_PM_OPS(ulite_runtime_suspend,
+			   ulite_runtime_resume, NULL)
+};
+>>>>>>> upstream/android-13
 
 #if defined(CONFIG_OF)
 /* Match table for of_platform binding */
@@ -761,8 +879,13 @@ static int ulite_probe(struct platform_device *pdev)
 		return -ENODEV;
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq <= 0)
 		return -ENXIO;
+=======
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 
 	pdata->clk = devm_clk_get(&pdev->dev, "s_axi_aclk");
 	if (IS_ERR(pdata->clk)) {
@@ -776,22 +899,61 @@ static int ulite_probe(struct platform_device *pdev)
 		pdata->clk = NULL;
 	}
 
+<<<<<<< HEAD
 	ret = clk_prepare(pdata->clk);
+=======
+	ret = clk_prepare_enable(pdata->clk);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(&pdev->dev, "Failed to prepare clock\n");
 		return ret;
 	}
 
+<<<<<<< HEAD
 	return ulite_assign(&pdev->dev, id, res->start, irq, pdata);
+=======
+	pm_runtime_use_autosuspend(&pdev->dev);
+	pm_runtime_set_autosuspend_delay(&pdev->dev, UART_AUTOSUSPEND_TIMEOUT);
+	pm_runtime_set_active(&pdev->dev);
+	pm_runtime_enable(&pdev->dev);
+
+	if (!ulite_uart_driver.state) {
+		dev_dbg(&pdev->dev, "uartlite: calling uart_register_driver()\n");
+		ret = uart_register_driver(&ulite_uart_driver);
+		if (ret < 0) {
+			dev_err(&pdev->dev, "Failed to register driver\n");
+			clk_disable_unprepare(pdata->clk);
+			return ret;
+		}
+	}
+
+	ret = ulite_assign(&pdev->dev, id, res->start, irq, pdata);
+
+	pm_runtime_mark_last_busy(&pdev->dev);
+	pm_runtime_put_autosuspend(&pdev->dev);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int ulite_remove(struct platform_device *pdev)
 {
 	struct uart_port *port = dev_get_drvdata(&pdev->dev);
 	struct uartlite_data *pdata = port->private_data;
+<<<<<<< HEAD
 
 	clk_disable_unprepare(pdata->clk);
 	return ulite_release(&pdev->dev);
+=======
+	int rc;
+
+	clk_disable_unprepare(pdata->clk);
+	rc = ulite_release(&pdev->dev);
+	pm_runtime_disable(&pdev->dev);
+	pm_runtime_set_suspended(&pdev->dev);
+	pm_runtime_dont_use_autosuspend(&pdev->dev);
+	return rc;
+>>>>>>> upstream/android-13
 }
 
 /* work with hotplug and coldplug */
@@ -813,6 +975,7 @@ static struct platform_driver ulite_platform_driver = {
 
 static int __init ulite_init(void)
 {
+<<<<<<< HEAD
 	int ret;
 
 	pr_debug("uartlite: calling uart_register_driver()\n");
@@ -832,6 +995,11 @@ err_plat:
 err_uart:
 	pr_err("registering uartlite driver failed: err=%i\n", ret);
 	return ret;
+=======
+
+	pr_debug("uartlite: calling platform_driver_register()\n");
+	return platform_driver_register(&ulite_platform_driver);
+>>>>>>> upstream/android-13
 }
 
 static void __exit ulite_exit(void)

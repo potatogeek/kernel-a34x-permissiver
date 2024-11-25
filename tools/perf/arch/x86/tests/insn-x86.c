@@ -1,11 +1,20 @@
 // SPDX-License-Identifier: GPL-2.0
 #include <linux/types.h>
+<<<<<<< HEAD
+=======
+#include <string.h>
+>>>>>>> upstream/android-13
 
 #include "debug.h"
 #include "tests/tests.h"
 #include "arch-tests.h"
+<<<<<<< HEAD
 
 #include "intel-pt-decoder/insn.h"
+=======
+#include "../../../../arch/x86/include/asm/insn.h"
+
+>>>>>>> upstream/android-13
 #include "intel-pt-decoder/intel-pt-insn-decoder.h"
 
 struct test_data {
@@ -47,6 +56,10 @@ static int get_op(const char *op_str)
 		{"int",     INTEL_PT_OP_INT},
 		{"syscall", INTEL_PT_OP_SYSCALL},
 		{"sysret",  INTEL_PT_OP_SYSRET},
+<<<<<<< HEAD
+=======
+		{"vmentry",  INTEL_PT_OP_VMENTRY},
+>>>>>>> upstream/android-13
 		{NULL, 0},
 	};
 	struct val_data *val;
@@ -94,6 +107,7 @@ static int get_branch(const char *branch_str)
 static int test_data_item(struct test_data *dat, int x86_64)
 {
 	struct intel_pt_insn intel_pt_insn;
+<<<<<<< HEAD
 	struct insn insn;
 	int op, branch;
 
@@ -101,6 +115,14 @@ static int test_data_item(struct test_data *dat, int x86_64)
 	insn_get_length(&insn);
 
 	if (!insn_complete(&insn)) {
+=======
+	int op, branch, ret;
+	struct insn insn;
+
+	ret = insn_decode(&insn, dat->data, MAX_INSN_SIZE,
+			  x86_64 ? INSN_MODE_64 : INSN_MODE_32);
+	if (ret < 0) {
+>>>>>>> upstream/android-13
 		pr_debug("Failed to decode: %s\n", dat->asm_rep);
 		return -1;
 	}
@@ -170,7 +192,11 @@ static int test_data_set(struct test_data *dat_set, int x86_64)
  *
  * If the test passes %0 is returned, otherwise %-1 is returned.  Use the
  * verbose (-v) option to see all the instructions and whether or not they
+<<<<<<< HEAD
  * decoded successfuly.
+=======
+ * decoded successfully.
+>>>>>>> upstream/android-13
  */
 int test__insn_x86(struct test *test __maybe_unused, int subtest __maybe_unused)
 {

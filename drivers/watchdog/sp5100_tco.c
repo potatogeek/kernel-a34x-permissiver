@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	sp5100_tco :	TCO timer driver for sp5100 chipsets
  *
@@ -6,12 +10,16 @@
  *	Based on i8xx_tco.c:
  *	(c) Copyright 2000 kernel concepts <nils@kernelconcepts.de>, All Rights
  *	Reserved.
+<<<<<<< HEAD
  *				http://www.kernelconcepts.de
  *
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
+=======
+ *				https://www.kernelconcepts.de
+>>>>>>> upstream/android-13
  *
  *	See AMD Publication 43009 "AMD SB700/710/750 Register Reference Guide",
  *	    AMD Publication 45482 "AMD SB800-Series Southbridges Register
@@ -21,6 +29,15 @@
  *	    AMD Publication 51192 "AMD Bolton FCH Register Reference Guide"
  *	    AMD Publication 52740 "BIOS and Kernel Developer’s Guide (BKDG)
  *				for AMD Family 16h Models 30h-3Fh Processors"
+<<<<<<< HEAD
+=======
+ *	    AMD Publication 55570-B1-PUB "Processor Programming Reference (PPR)
+ *				for AMD Family 17h Model 18h, Revision B1
+ *				Processors (PUB)
+ *	    AMD Publication 55772-A1-PUB "Processor Programming Reference (PPR)
+ *				for AMD Family 17h Model 20h, Revision A1
+ *				Processors (PUB)
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -245,6 +262,21 @@ static int sp5100_tco_setupdevice(struct device *dev,
 		break;
 	case efch:
 		dev_name = SB800_DEVNAME;
+<<<<<<< HEAD
+=======
+		/*
+		 * On Family 17h devices, the EFCH_PM_DECODEEN_WDT_TMREN bit of
+		 * EFCH_PM_DECODEEN not only enables the EFCH_PM_WDT_ADDR memory
+		 * region, it also enables the watchdog itself.
+		 */
+		if (boot_cpu_data.x86 == 0x17) {
+			val = sp5100_tco_read_pm_reg8(EFCH_PM_DECODEEN);
+			if (!(val & EFCH_PM_DECODEEN_WDT_TMREN)) {
+				sp5100_tco_update_pm_reg8(EFCH_PM_DECODEEN, 0xff,
+							  EFCH_PM_DECODEEN_WDT_TMREN);
+			}
+		}
+>>>>>>> upstream/android-13
 		val = sp5100_tco_read_pm_reg8(EFCH_PM_DECODEEN);
 		if (val & EFCH_PM_DECODEEN_WDT_TMREN)
 			mmio_addr = EFCH_PM_WDT_ADDR;
@@ -395,9 +427,13 @@ static int sp5100_tco_probe(struct platform_device *pdev)
 	wdd->min_timeout = 1;
 	wdd->max_timeout = 0xffff;
 
+<<<<<<< HEAD
 	if (watchdog_init_timeout(wdd, heartbeat, NULL))
 		dev_info(dev, "timeout value invalid, using %d\n",
 			 wdd->timeout);
+=======
+	watchdog_init_timeout(wdd, heartbeat, NULL);
+>>>>>>> upstream/android-13
 	watchdog_set_nowayout(wdd, nowayout);
 	watchdog_stop_on_reboot(wdd);
 	watchdog_stop_on_unregister(wdd);
@@ -408,10 +444,15 @@ static int sp5100_tco_probe(struct platform_device *pdev)
 		return ret;
 
 	ret = devm_watchdog_register_device(dev, wdd);
+<<<<<<< HEAD
 	if (ret) {
 		dev_err(dev, "cannot register watchdog device (err=%d)\n", ret);
 		return ret;
 	}
+=======
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	/* Show module parameters */
 	dev_info(dev, "initialized. heartbeat=%d sec (nowayout=%d)\n",

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 	Hopper PCI bridge driver
 
 	Copyright (C) Manu Abraham (abraham.manu@gmail.com)
 
+<<<<<<< HEAD
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation; either version 2 of the License, or
@@ -16,6 +21,8 @@
 	You should have received a copy of the GNU General Public License
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
 */
 
 #include <linux/module.h>
@@ -72,10 +79,15 @@ static irqreturn_t hopper_irq_handler(int irq, void *dev_id)
 	struct mantis_ca *ca;
 
 	mantis = (struct mantis_pci *) dev_id;
+<<<<<<< HEAD
 	if (unlikely(!mantis)) {
 		dprintk(MANTIS_ERROR, 1, "Mantis == NULL");
 		return IRQ_NONE;
 	}
+=======
+	if (unlikely(!mantis))
+		return IRQ_NONE;
+>>>>>>> upstream/android-13
 	ca = mantis->mantis_ca;
 
 	stat = mmread(MANTIS_INT_STAT);

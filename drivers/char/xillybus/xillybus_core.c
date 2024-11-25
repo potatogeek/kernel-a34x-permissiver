@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/drivers/misc/xillybus_core.c
  *
@@ -10,10 +14,13 @@
  * file in the host. The number of such pipes and their attributes are
  * set up on the logic. This driver detects these automatically and
  * creates the device files accordingly.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the smems of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/list.h>
@@ -24,7 +31,10 @@
 #include <linux/interrupt.h>
 #include <linux/sched.h>
 #include <linux/fs.h>
+<<<<<<< HEAD
 #include <linux/cdev.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/spinlock.h>
 #include <linux/mutex.h>
 #include <linux/crc32.h>
@@ -33,10 +43,17 @@
 #include <linux/slab.h>
 #include <linux/workqueue.h>
 #include "xillybus.h"
+<<<<<<< HEAD
 
 MODULE_DESCRIPTION("Xillybus core functions");
 MODULE_AUTHOR("Eli Billauer, Xillybus Ltd.");
 MODULE_VERSION("1.07");
+=======
+#include "xillybus_class.h"
+
+MODULE_DESCRIPTION("Xillybus core functions");
+MODULE_AUTHOR("Eli Billauer, Xillybus Ltd.");
+>>>>>>> upstream/android-13
 MODULE_ALIAS("xillybus_core");
 MODULE_LICENSE("GPL v2");
 
@@ -61,6 +78,7 @@ MODULE_LICENSE("GPL v2");
 
 static const char xillyname[] = "xillybus";
 
+<<<<<<< HEAD
 static struct class *xillybus_class;
 
 /*
@@ -71,6 +89,8 @@ static struct class *xillybus_class;
 
 static LIST_HEAD(list_of_endpoints);
 static struct mutex ep_list_lock;
+=======
+>>>>>>> upstream/android-13
 static struct workqueue_struct *xillybus_wq;
 
 /*
@@ -573,10 +593,15 @@ static int xilly_scan_idt(struct xilly_endpoint *endpoint,
 	unsigned char *scan;
 	int len;
 
+<<<<<<< HEAD
 	scan = idt;
 	idt_handle->idt = idt;
 
 	scan++; /* Skip version number */
+=======
+	scan = idt + 1;
+	idt_handle->names = scan;
+>>>>>>> upstream/android-13
 
 	while ((scan <= end_of_idt) && *scan) {
 		while ((scan <= end_of_idt) && *scan++)
@@ -584,6 +609,11 @@ static int xilly_scan_idt(struct xilly_endpoint *endpoint,
 		count++;
 	}
 
+<<<<<<< HEAD
+=======
+	idt_handle->names_len = scan - idt_handle->names;
+
+>>>>>>> upstream/android-13
 	scan++;
 
 	if (scan > end_of_idt) {
@@ -1410,6 +1440,7 @@ static ssize_t xillybus_write(struct file *filp, const char __user *userbuf,
 
 static int xillybus_open(struct inode *inode, struct file *filp)
 {
+<<<<<<< HEAD
 	int rc = 0;
 	unsigned long flags;
 	int minor = iminor(inode);
@@ -1435,11 +1466,26 @@ static int xillybus_open(struct inode *inode, struct file *filp)
 		       major, minor);
 		return -ENODEV;
 	}
+=======
+	int rc;
+	unsigned long flags;
+	struct xilly_endpoint *endpoint;
+	struct xilly_channel *channel;
+	int index;
+
+	rc = xillybus_find_inode(inode, (void **)&endpoint, &index);
+	if (rc)
+		return rc;
+>>>>>>> upstream/android-13
 
 	if (endpoint->fatal_error)
 		return -EIO;
 
+<<<<<<< HEAD
 	channel = endpoint->channels[1 + minor - endpoint->lowest_minor];
+=======
+	channel = endpoint->channels[1 + index];
+>>>>>>> upstream/android-13
 	filp->private_data = channel;
 
 	/*
@@ -1802,6 +1848,7 @@ static const struct file_operations xillybus_fops = {
 	.poll       = xillybus_poll,
 };
 
+<<<<<<< HEAD
 static int xillybus_init_chrdev(struct xilly_endpoint *endpoint,
 				const unsigned char *idt)
 {
@@ -1891,6 +1938,8 @@ static void xillybus_cleanup_chrdev(struct xilly_endpoint *endpoint)
 		 endpoint->num_channels);
 }
 
+=======
+>>>>>>> upstream/android-13
 struct xilly_endpoint *xillybus_init_endpoint(struct pci_dev *pdev,
 					      struct device *dev,
 					      struct xilly_endpoint_hardware
@@ -2030,6 +2079,7 @@ int xillybus_endpoint_discovery(struct xilly_endpoint *endpoint)
 	if (rc)
 		goto failed_idt;
 
+<<<<<<< HEAD
 	/*
 	 * endpoint is now completely configured. We put it on the list
 	 * available to open() before registering the char device(s)
@@ -2042,16 +2092,30 @@ int xillybus_endpoint_discovery(struct xilly_endpoint *endpoint)
 	rc = xillybus_init_chrdev(endpoint, idt_handle.idt);
 	if (rc)
 		goto failed_chrdevs;
+=======
+	rc = xillybus_init_chrdev(dev, &xillybus_fops,
+				  endpoint->ephw->owner, endpoint,
+				  idt_handle.names,
+				  idt_handle.names_len,
+				  endpoint->num_channels,
+				  xillyname, false);
+
+	if (rc)
+		goto failed_idt;
+>>>>>>> upstream/android-13
 
 	devres_release_group(dev, bootstrap_resources);
 
 	return 0;
 
+<<<<<<< HEAD
 failed_chrdevs:
 	mutex_lock(&ep_list_lock);
 	list_del(&endpoint->ep_list);
 	mutex_unlock(&ep_list_lock);
 
+=======
+>>>>>>> upstream/android-13
 failed_idt:
 	xilly_quiesce(endpoint);
 	flush_workqueue(xillybus_wq);
@@ -2062,11 +2126,15 @@ EXPORT_SYMBOL(xillybus_endpoint_discovery);
 
 void xillybus_endpoint_remove(struct xilly_endpoint *endpoint)
 {
+<<<<<<< HEAD
 	xillybus_cleanup_chrdev(endpoint);
 
 	mutex_lock(&ep_list_lock);
 	list_del(&endpoint->ep_list);
 	mutex_unlock(&ep_list_lock);
+=======
+	xillybus_cleanup_chrdev(endpoint, endpoint->dev);
+>>>>>>> upstream/android-13
 
 	xilly_quiesce(endpoint);
 
@@ -2080,6 +2148,7 @@ EXPORT_SYMBOL(xillybus_endpoint_remove);
 
 static int __init xillybus_init(void)
 {
+<<<<<<< HEAD
 	mutex_init(&ep_list_lock);
 
 	xillybus_class = class_create(THIS_MODULE, xillyname);
@@ -2091,6 +2160,11 @@ static int __init xillybus_init(void)
 		class_destroy(xillybus_class);
 		return -ENOMEM;
 	}
+=======
+	xillybus_wq = alloc_workqueue(xillyname, 0, 0);
+	if (!xillybus_wq)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -2099,8 +2173,11 @@ static void __exit xillybus_exit(void)
 {
 	/* flush_workqueue() was called for each endpoint released */
 	destroy_workqueue(xillybus_wq);
+<<<<<<< HEAD
 
 	class_destroy(xillybus_class);
+=======
+>>>>>>> upstream/android-13
 }
 
 module_init(xillybus_init);

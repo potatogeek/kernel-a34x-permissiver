@@ -16,7 +16,10 @@
 
 #include <asm/console.h>
 #include <asm/hwrpb.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/io.h>
 
 #include <stdarg.h>
@@ -24,7 +27,11 @@
 #include "ksize.h"
 
 extern unsigned long switch_to_osf_pal(unsigned long nr,
+<<<<<<< HEAD
 	struct pcb_struct * pcb_va, struct pcb_struct * pcb_pa,
+=======
+	struct pcb_struct *pcb_va, struct pcb_struct *pcb_pa,
+>>>>>>> upstream/android-13
 	unsigned long *vptb);
 
 extern void move_stack(unsigned long new_stack);

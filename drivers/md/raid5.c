@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * raid5.c : Multiple Devices driver for Linux
  *	   Copyright (C) 1996, 1997 Ingo Molnar, Miguel de Icaza, Gadi Oxman
@@ -7,6 +11,7 @@
  * RAID-4/5/6 management functions.
  * Thanks to Penguin Computing for making the RAID-6 development possible
  * by donating a test server!
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License
  * (for example /usr/src/linux/COPYING); if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -54,7 +61,10 @@
 #include <linux/slab.h>
 #include <linux/ratelimit.h>
 #include <linux/nodemask.h>
+<<<<<<< HEAD
 #include <linux/flex_array.h>
+=======
+>>>>>>> upstream/android-13
 
 #include <trace/events/block.h>
 #include <linux/list_sort.h>
@@ -78,6 +88,7 @@ static struct workqueue_struct *raid5_wq;
 
 static inline struct hlist_head *stripe_hash(struct r5conf *conf, sector_t sect)
 {
+<<<<<<< HEAD
 	int hash = (sect >> STRIPE_SHIFT) & HASH_MASK;
 	return &conf->stripe_hashtbl[hash];
 }
@@ -85,6 +96,15 @@ static inline struct hlist_head *stripe_hash(struct r5conf *conf, sector_t sect)
 static inline int stripe_hash_locks_hash(sector_t sect)
 {
 	return (sect >> STRIPE_SHIFT) & STRIPE_HASH_LOCKS_MASK;
+=======
+	int hash = (sect >> RAID5_STRIPE_SHIFT(conf)) & HASH_MASK;
+	return &conf->stripe_hashtbl[hash];
+}
+
+static inline int stripe_hash_locks_hash(struct r5conf *conf, sector_t sect)
+{
+	return (sect >> RAID5_STRIPE_SHIFT(conf)) & STRIPE_HASH_LOCKS_MASK;
+>>>>>>> upstream/android-13
 }
 
 static inline void lock_device_hash_lock(struct r5conf *conf, int hash)
@@ -457,6 +477,7 @@ out:
 	return sh;
 }
 
+<<<<<<< HEAD
 static void shrink_buffers(struct stripe_head *sh)
 {
 	struct page *p;
@@ -464,6 +485,76 @@ static void shrink_buffers(struct stripe_head *sh)
 	int num = sh->raid_conf->pool_size;
 
 	for (i = 0; i < num ; i++) {
+=======
+#if PAGE_SIZE != DEFAULT_STRIPE_SIZE
+static void free_stripe_pages(struct stripe_head *sh)
+{
+	int i;
+	struct page *p;
+
+	/* Have not allocate page pool */
+	if (!sh->pages)
+		return;
+
+	for (i = 0; i < sh->nr_pages; i++) {
+		p = sh->pages[i];
+		if (p)
+			put_page(p);
+		sh->pages[i] = NULL;
+	}
+}
+
+static int alloc_stripe_pages(struct stripe_head *sh, gfp_t gfp)
+{
+	int i;
+	struct page *p;
+
+	for (i = 0; i < sh->nr_pages; i++) {
+		/* The page have allocated. */
+		if (sh->pages[i])
+			continue;
+
+		p = alloc_page(gfp);
+		if (!p) {
+			free_stripe_pages(sh);
+			return -ENOMEM;
+		}
+		sh->pages[i] = p;
+	}
+	return 0;
+}
+
+static int
+init_stripe_shared_pages(struct stripe_head *sh, struct r5conf *conf, int disks)
+{
+	int nr_pages, cnt;
+
+	if (sh->pages)
+		return 0;
+
+	/* Each of the sh->dev[i] need one conf->stripe_size */
+	cnt = PAGE_SIZE / conf->stripe_size;
+	nr_pages = (disks + cnt - 1) / cnt;
+
+	sh->pages = kcalloc(nr_pages, sizeof(struct page *), GFP_KERNEL);
+	if (!sh->pages)
+		return -ENOMEM;
+	sh->nr_pages = nr_pages;
+	sh->stripes_per_page = cnt;
+	return 0;
+}
+#endif
+
+static void shrink_buffers(struct stripe_head *sh)
+{
+	int i;
+	int num = sh->raid_conf->pool_size;
+
+#if PAGE_SIZE == DEFAULT_STRIPE_SIZE
+	for (i = 0; i < num ; i++) {
+		struct page *p;
+
+>>>>>>> upstream/android-13
 		WARN_ON(sh->dev[i].page != sh->dev[i].orig_page);
 		p = sh->dev[i].page;
 		if (!p)
@@ -471,6 +562,14 @@ static void shrink_buffers(struct stripe_head *sh)
 		sh->dev[i].page = NULL;
 		put_page(p);
 	}
+<<<<<<< HEAD
+=======
+#else
+	for (i = 0; i < num; i++)
+		sh->dev[i].page = NULL;
+	free_stripe_pages(sh); /* Free pages */
+#endif
+>>>>>>> upstream/android-13
 }
 
 static int grow_buffers(struct stripe_head *sh, gfp_t gfp)
@@ -478,6 +577,10 @@ static int grow_buffers(struct stripe_head *sh, gfp_t gfp)
 	int i;
 	int num = sh->raid_conf->pool_size;
 
+<<<<<<< HEAD
+=======
+#if PAGE_SIZE == DEFAULT_STRIPE_SIZE
+>>>>>>> upstream/android-13
 	for (i = 0; i < num; i++) {
 		struct page *page;
 
@@ -486,8 +589,23 @@ static int grow_buffers(struct stripe_head *sh, gfp_t gfp)
 		}
 		sh->dev[i].page = page;
 		sh->dev[i].orig_page = page;
+<<<<<<< HEAD
 	}
 
+=======
+		sh->dev[i].offset = 0;
+	}
+#else
+	if (alloc_stripe_pages(sh, gfp))
+		return -ENOMEM;
+
+	for (i = 0; i < num; i++) {
+		sh->dev[i].page = raid5_get_dev_page(sh, i);
+		sh->dev[i].orig_page = sh->dev[i].page;
+		sh->dev[i].offset = raid5_get_page_offset(sh, i);
+	}
+#endif
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -636,7 +754,11 @@ raid5_get_active_stripe(struct r5conf *conf, sector_t sector,
 			int previous, int noblock, int noquiesce)
 {
 	struct stripe_head *sh;
+<<<<<<< HEAD
 	int hash = stripe_hash_locks_hash(sector);
+=======
+	int hash = stripe_hash_locks_hash(conf, sector);
+>>>>>>> upstream/android-13
 	int inc_empty_inactive_list_flag;
 
 	pr_debug("get_stripe, sector %llu\n", (unsigned long long)sector);
@@ -712,6 +834,11 @@ static bool is_full_stripe_write(struct stripe_head *sh)
 }
 
 static void lock_two_stripes(struct stripe_head *sh1, struct stripe_head *sh2)
+<<<<<<< HEAD
+=======
+		__acquires(&sh1->stripe_lock)
+		__acquires(&sh2->stripe_lock)
+>>>>>>> upstream/android-13
 {
 	if (sh1 > sh2) {
 		spin_lock_irq(&sh2->stripe_lock);
@@ -723,6 +850,11 @@ static void lock_two_stripes(struct stripe_head *sh1, struct stripe_head *sh2)
 }
 
 static void unlock_two_stripes(struct stripe_head *sh1, struct stripe_head *sh2)
+<<<<<<< HEAD
+=======
+		__releases(&sh1->stripe_lock)
+		__releases(&sh2->stripe_lock)
+>>>>>>> upstream/android-13
 {
 	spin_unlock(&sh1->stripe_lock);
 	spin_unlock_irq(&sh2->stripe_lock);
@@ -753,9 +885,15 @@ static void stripe_add_to_batch_list(struct r5conf *conf, struct stripe_head *sh
 	tmp_sec = sh->sector;
 	if (!sector_div(tmp_sec, conf->chunk_sectors))
 		return;
+<<<<<<< HEAD
 	head_sector = sh->sector - STRIPE_SECTORS;
 
 	hash = stripe_hash_locks_hash(head_sector);
+=======
+	head_sector = sh->sector - RAID5_STRIPE_SECTORS(conf);
+
+	hash = stripe_hash_locks_hash(conf, head_sector);
+>>>>>>> upstream/android-13
 	spin_lock_irq(conf->hash_locks + hash);
 	head = __find_stripe(conf, head_sector, conf->generation);
 	if (head && !atomic_inc_not_zero(&head->count)) {
@@ -878,10 +1016,18 @@ static void dispatch_bio_list(struct bio_list *tmp)
 	struct bio *bio;
 
 	while ((bio = bio_list_pop(tmp)))
+<<<<<<< HEAD
 		generic_make_request(bio);
 }
 
 static int cmp_stripe(void *priv, struct list_head *a, struct list_head *b)
+=======
+		submit_bio_noacct(bio);
+}
+
+static int cmp_stripe(void *priv, const struct list_head *a,
+		      const struct list_head *b)
+>>>>>>> upstream/android-13
 {
 	const struct r5pending_data *da = list_entry(a,
 				struct r5pending_data, sibling);
@@ -1062,7 +1208,11 @@ again:
 		       test_bit(WriteErrorSeen, &rdev->flags)) {
 			sector_t first_bad;
 			int bad_sectors;
+<<<<<<< HEAD
 			int bad = is_badblock(rdev, sh->sector, STRIPE_SECTORS,
+=======
+			int bad = is_badblock(rdev, sh->sector, RAID5_STRIPE_SECTORS(conf),
+>>>>>>> upstream/android-13
 					      &first_bad, &bad_sectors);
 			if (!bad)
 				break;
@@ -1094,7 +1244,11 @@ again:
 		if (rdev) {
 			if (s->syncing || s->expanding || s->expanded
 			    || s->replacing)
+<<<<<<< HEAD
 				md_sync_acct(rdev->bdev, STRIPE_SECTORS);
+=======
+				md_sync_acct(rdev->bdev, RAID5_STRIPE_SECTORS(conf));
+>>>>>>> upstream/android-13
 
 			set_bit(STRIPE_IO_STARTED, &sh->state);
 
@@ -1134,12 +1288,21 @@ again:
 			else
 				sh->dev[i].vec.bv_page = sh->dev[i].page;
 			bi->bi_vcnt = 1;
+<<<<<<< HEAD
 			bi->bi_io_vec[0].bv_len = STRIPE_SIZE;
 			bi->bi_io_vec[0].bv_offset = 0;
 			bi->bi_iter.bi_size = STRIPE_SIZE;
 			bi->bi_write_hint = sh->dev[i].write_hint;
 			if (!rrdev)
 				sh->dev[i].write_hint = RWF_WRITE_LIFE_NOT_SET;
+=======
+			bi->bi_io_vec[0].bv_len = RAID5_STRIPE_SIZE(conf);
+			bi->bi_io_vec[0].bv_offset = sh->dev[i].offset;
+			bi->bi_iter.bi_size = RAID5_STRIPE_SIZE(conf);
+			bi->bi_write_hint = sh->dev[i].write_hint;
+			if (!rrdev)
+				sh->dev[i].write_hint = RWH_WRITE_LIFE_NOT_SET;
+>>>>>>> upstream/android-13
 			/*
 			 * If this is discard request, set bi_vcnt 0. We don't
 			 * want to confuse SCSI because SCSI will replace payload
@@ -1150,6 +1313,7 @@ again:
 				set_bit(R5_DOUBLE_LOCKED, &sh->dev[i].flags);
 
 			if (conf->mddev->gendisk)
+<<<<<<< HEAD
 				trace_block_bio_remap(bi->bi_disk->queue,
 						      bi, disk_devt(conf->mddev->gendisk),
 						      sh->dev[i].sector);
@@ -1157,11 +1321,24 @@ again:
 				bio_list_add(&pending_bios, bi);
 			else
 				generic_make_request(bi);
+=======
+				trace_block_bio_remap(bi,
+						disk_devt(conf->mddev->gendisk),
+						sh->dev[i].sector);
+			if (should_defer && op_is_write(op))
+				bio_list_add(&pending_bios, bi);
+			else
+				submit_bio_noacct(bi);
+>>>>>>> upstream/android-13
 		}
 		if (rrdev) {
 			if (s->syncing || s->expanding || s->expanded
 			    || s->replacing)
+<<<<<<< HEAD
 				md_sync_acct(rrdev->bdev, STRIPE_SECTORS);
+=======
+				md_sync_acct(rrdev->bdev, RAID5_STRIPE_SECTORS(conf));
+>>>>>>> upstream/android-13
 
 			set_bit(STRIPE_IO_STARTED, &sh->state);
 
@@ -1188,11 +1365,19 @@ again:
 				WARN_ON(test_bit(R5_UPTODATE, &sh->dev[i].flags));
 			sh->dev[i].rvec.bv_page = sh->dev[i].page;
 			rbi->bi_vcnt = 1;
+<<<<<<< HEAD
 			rbi->bi_io_vec[0].bv_len = STRIPE_SIZE;
 			rbi->bi_io_vec[0].bv_offset = 0;
 			rbi->bi_iter.bi_size = STRIPE_SIZE;
 			rbi->bi_write_hint = sh->dev[i].write_hint;
 			sh->dev[i].write_hint = RWF_WRITE_LIFE_NOT_SET;
+=======
+			rbi->bi_io_vec[0].bv_len = RAID5_STRIPE_SIZE(conf);
+			rbi->bi_io_vec[0].bv_offset = sh->dev[i].offset;
+			rbi->bi_iter.bi_size = RAID5_STRIPE_SIZE(conf);
+			rbi->bi_write_hint = sh->dev[i].write_hint;
+			sh->dev[i].write_hint = RWH_WRITE_LIFE_NOT_SET;
+>>>>>>> upstream/android-13
 			/*
 			 * If this is discard request, set bi_vcnt 0. We don't
 			 * want to confuse SCSI because SCSI will replace payload
@@ -1200,6 +1385,7 @@ again:
 			if (op == REQ_OP_DISCARD)
 				rbi->bi_vcnt = 0;
 			if (conf->mddev->gendisk)
+<<<<<<< HEAD
 				trace_block_bio_remap(rbi->bi_disk->queue,
 						      rbi, disk_devt(conf->mddev->gendisk),
 						      sh->dev[i].sector);
@@ -1207,6 +1393,15 @@ again:
 				bio_list_add(&pending_bios, rbi);
 			else
 				generic_make_request(rbi);
+=======
+				trace_block_bio_remap(rbi,
+						disk_devt(conf->mddev->gendisk),
+						sh->dev[i].sector);
+			if (should_defer && op_is_write(op))
+				bio_list_add(&pending_bios, rbi);
+			else
+				submit_bio_noacct(rbi);
+>>>>>>> upstream/android-13
 		}
 		if (!rdev && !rrdev) {
 			if (op_is_write(op))
@@ -1231,7 +1426,11 @@ again:
 
 static struct dma_async_tx_descriptor *
 async_copy_data(int frombio, struct bio *bio, struct page **page,
+<<<<<<< HEAD
 	sector_t sector, struct dma_async_tx_descriptor *tx,
+=======
+	unsigned int poff, sector_t sector, struct dma_async_tx_descriptor *tx,
+>>>>>>> upstream/android-13
 	struct stripe_head *sh, int no_skipcopy)
 {
 	struct bio_vec bvl;
@@ -1240,6 +1439,10 @@ async_copy_data(int frombio, struct bio *bio, struct page **page,
 	int page_offset;
 	struct async_submit_ctl submit;
 	enum async_tx_flags flags = 0;
+<<<<<<< HEAD
+=======
+	struct r5conf *conf = sh->raid_conf;
+>>>>>>> upstream/android-13
 
 	if (bio->bi_iter.bi_sector >= sector)
 		page_offset = (signed)(bio->bi_iter.bi_sector - sector) * 512;
@@ -1261,8 +1464,13 @@ async_copy_data(int frombio, struct bio *bio, struct page **page,
 			len -= b_offset;
 		}
 
+<<<<<<< HEAD
 		if (len > 0 && page_offset + len > STRIPE_SIZE)
 			clen = STRIPE_SIZE - page_offset;
+=======
+		if (len > 0 && page_offset + len > RAID5_STRIPE_SIZE(conf))
+			clen = RAID5_STRIPE_SIZE(conf) - page_offset;
+>>>>>>> upstream/android-13
 		else
 			clen = len;
 
@@ -1270,6 +1478,7 @@ async_copy_data(int frombio, struct bio *bio, struct page **page,
 			b_offset += bvl.bv_offset;
 			bio_page = bvl.bv_page;
 			if (frombio) {
+<<<<<<< HEAD
 				if (sh->raid_conf->skip_copy &&
 				    b_offset == 0 && page_offset == 0 &&
 				    clen == STRIPE_SIZE &&
@@ -1281,6 +1490,19 @@ async_copy_data(int frombio, struct bio *bio, struct page **page,
 			} else
 				tx = async_memcpy(bio_page, *page, b_offset,
 						  page_offset, clen, &submit);
+=======
+				if (conf->skip_copy &&
+				    b_offset == 0 && page_offset == 0 &&
+				    clen == RAID5_STRIPE_SIZE(conf) &&
+				    !no_skipcopy)
+					*page = bio_page;
+				else
+					tx = async_memcpy(*page, bio_page, page_offset + poff,
+						  b_offset, clen, &submit);
+			} else
+				tx = async_memcpy(bio_page, *page, b_offset,
+						  page_offset + poff, clen, &submit);
+>>>>>>> upstream/android-13
 		}
 		/* chain the operations */
 		submit.depend_tx = tx;
@@ -1297,6 +1519,10 @@ static void ops_complete_biofill(void *stripe_head_ref)
 {
 	struct stripe_head *sh = stripe_head_ref;
 	int i;
+<<<<<<< HEAD
+=======
+	struct r5conf *conf = sh->raid_conf;
+>>>>>>> upstream/android-13
 
 	pr_debug("%s: stripe %llu\n", __func__,
 		(unsigned long long)sh->sector);
@@ -1317,8 +1543,13 @@ static void ops_complete_biofill(void *stripe_head_ref)
 			rbi = dev->read;
 			dev->read = NULL;
 			while (rbi && rbi->bi_iter.bi_sector <
+<<<<<<< HEAD
 				dev->sector + STRIPE_SECTORS) {
 				rbi2 = r5_next_bio(rbi, dev->sector);
+=======
+				dev->sector + RAID5_STRIPE_SECTORS(conf)) {
+				rbi2 = r5_next_bio(conf, rbi, dev->sector);
+>>>>>>> upstream/android-13
 				bio_endio(rbi);
 				rbi = rbi2;
 			}
@@ -1335,6 +1566,10 @@ static void ops_run_biofill(struct stripe_head *sh)
 	struct dma_async_tx_descriptor *tx = NULL;
 	struct async_submit_ctl submit;
 	int i;
+<<<<<<< HEAD
+=======
+	struct r5conf *conf = sh->raid_conf;
+>>>>>>> upstream/android-13
 
 	BUG_ON(sh->batch_head);
 	pr_debug("%s: stripe %llu\n", __func__,
@@ -1349,10 +1584,18 @@ static void ops_run_biofill(struct stripe_head *sh)
 			dev->toread = NULL;
 			spin_unlock_irq(&sh->stripe_lock);
 			while (rbi && rbi->bi_iter.bi_sector <
+<<<<<<< HEAD
 				dev->sector + STRIPE_SECTORS) {
 				tx = async_copy_data(0, rbi, &dev->page,
 						     dev->sector, tx, sh, 0);
 				rbi = r5_next_bio(rbi, dev->sector);
+=======
+				dev->sector + RAID5_STRIPE_SECTORS(conf)) {
+				tx = async_copy_data(0, rbi, &dev->page,
+						     dev->offset,
+						     dev->sector, tx, sh, 0);
+				rbi = r5_next_bio(conf, rbi, dev->sector);
+>>>>>>> upstream/android-13
 			}
 		}
 	}
@@ -1394,6 +1637,7 @@ static void ops_complete_compute(void *stripe_head_ref)
 }
 
 /* return a pointer to the address conversion region of the scribble buffer */
+<<<<<<< HEAD
 static addr_conv_t *to_addr_conv(struct stripe_head *sh,
 				 struct raid5_percpu *percpu, int i)
 {
@@ -1410,6 +1654,27 @@ static struct page **to_addr_page(struct raid5_percpu *percpu, int i)
 
 	addr = flex_array_get(percpu->scribble, i);
 	return addr;
+=======
+static struct page **to_addr_page(struct raid5_percpu *percpu, int i)
+{
+	return percpu->scribble + i * percpu->scribble_obj_size;
+}
+
+/* return a pointer to the address conversion region of the scribble buffer */
+static addr_conv_t *to_addr_conv(struct stripe_head *sh,
+				 struct raid5_percpu *percpu, int i)
+{
+	return (void *) (to_addr_page(percpu, i) + sh->disks + 2);
+}
+
+/*
+ * Return a pointer to record offset address.
+ */
+static unsigned int *
+to_addr_offs(struct stripe_head *sh, struct raid5_percpu *percpu)
+{
+	return (unsigned int *) (to_addr_conv(sh, percpu, 0) + sh->disks + 2);
+>>>>>>> upstream/android-13
 }
 
 static struct dma_async_tx_descriptor *
@@ -1417,9 +1682,17 @@ ops_run_compute5(struct stripe_head *sh, struct raid5_percpu *percpu)
 {
 	int disks = sh->disks;
 	struct page **xor_srcs = to_addr_page(percpu, 0);
+<<<<<<< HEAD
 	int target = sh->ops.target;
 	struct r5dev *tgt = &sh->dev[target];
 	struct page *xor_dest = tgt->page;
+=======
+	unsigned int *off_srcs = to_addr_offs(sh, percpu);
+	int target = sh->ops.target;
+	struct r5dev *tgt = &sh->dev[target];
+	struct page *xor_dest = tgt->page;
+	unsigned int off_dest = tgt->offset;
+>>>>>>> upstream/android-13
 	int count = 0;
 	struct dma_async_tx_descriptor *tx;
 	struct async_submit_ctl submit;
@@ -1431,24 +1704,45 @@ ops_run_compute5(struct stripe_head *sh, struct raid5_percpu *percpu)
 		__func__, (unsigned long long)sh->sector, target);
 	BUG_ON(!test_bit(R5_Wantcompute, &tgt->flags));
 
+<<<<<<< HEAD
 	for (i = disks; i--; )
 		if (i != target)
 			xor_srcs[count++] = sh->dev[i].page;
+=======
+	for (i = disks; i--; ) {
+		if (i != target) {
+			off_srcs[count] = sh->dev[i].offset;
+			xor_srcs[count++] = sh->dev[i].page;
+		}
+	}
+>>>>>>> upstream/android-13
 
 	atomic_inc(&sh->count);
 
 	init_async_submit(&submit, ASYNC_TX_FENCE|ASYNC_TX_XOR_ZERO_DST, NULL,
 			  ops_complete_compute, sh, to_addr_conv(sh, percpu, 0));
 	if (unlikely(count == 1))
+<<<<<<< HEAD
 		tx = async_memcpy(xor_dest, xor_srcs[0], 0, 0, STRIPE_SIZE, &submit);
 	else
 		tx = async_xor(xor_dest, xor_srcs, 0, count, STRIPE_SIZE, &submit);
+=======
+		tx = async_memcpy(xor_dest, xor_srcs[0], off_dest, off_srcs[0],
+				RAID5_STRIPE_SIZE(sh->raid_conf), &submit);
+	else
+		tx = async_xor_offs(xor_dest, off_dest, xor_srcs, off_srcs, count,
+				RAID5_STRIPE_SIZE(sh->raid_conf), &submit);
+>>>>>>> upstream/android-13
 
 	return tx;
 }
 
 /* set_syndrome_sources - populate source buffers for gen_syndrome
  * @srcs - (struct page *) array of size sh->disks
+<<<<<<< HEAD
+=======
+ * @offs - (unsigned int) array of offset for each page
+>>>>>>> upstream/android-13
  * @sh - stripe_head to parse
  *
  * Populates srcs in proper layout order for the stripe and returns the
@@ -1457,6 +1751,10 @@ ops_run_compute5(struct stripe_head *sh, struct raid5_percpu *percpu)
  * is recorded in srcs[count+1]].
  */
 static int set_syndrome_sources(struct page **srcs,
+<<<<<<< HEAD
+=======
+				unsigned int *offs,
+>>>>>>> upstream/android-13
 				struct stripe_head *sh,
 				int srctype)
 {
@@ -1487,6 +1785,15 @@ static int set_syndrome_sources(struct page **srcs,
 				srcs[slot] = sh->dev[i].orig_page;
 			else
 				srcs[slot] = sh->dev[i].page;
+<<<<<<< HEAD
+=======
+			/*
+			 * For R5_InJournal, PAGE_SIZE must be 4KB and will
+			 * not shared page. In that case, dev[i].offset
+			 * is 0.
+			 */
+			offs[slot] = sh->dev[i].offset;
+>>>>>>> upstream/android-13
 		}
 		i = raid6_next_disk(i, disks);
 	} while (i != d0_idx);
@@ -1499,12 +1806,20 @@ ops_run_compute6_1(struct stripe_head *sh, struct raid5_percpu *percpu)
 {
 	int disks = sh->disks;
 	struct page **blocks = to_addr_page(percpu, 0);
+<<<<<<< HEAD
+=======
+	unsigned int *offs = to_addr_offs(sh, percpu);
+>>>>>>> upstream/android-13
 	int target;
 	int qd_idx = sh->qd_idx;
 	struct dma_async_tx_descriptor *tx;
 	struct async_submit_ctl submit;
 	struct r5dev *tgt;
 	struct page *dest;
+<<<<<<< HEAD
+=======
+	unsigned int dest_off;
+>>>>>>> upstream/android-13
 	int i;
 	int count;
 
@@ -1523,30 +1838,52 @@ ops_run_compute6_1(struct stripe_head *sh, struct raid5_percpu *percpu)
 	tgt = &sh->dev[target];
 	BUG_ON(!test_bit(R5_Wantcompute, &tgt->flags));
 	dest = tgt->page;
+<<<<<<< HEAD
+=======
+	dest_off = tgt->offset;
+>>>>>>> upstream/android-13
 
 	atomic_inc(&sh->count);
 
 	if (target == qd_idx) {
+<<<<<<< HEAD
 		count = set_syndrome_sources(blocks, sh, SYNDROME_SRC_ALL);
+=======
+		count = set_syndrome_sources(blocks, offs, sh, SYNDROME_SRC_ALL);
+>>>>>>> upstream/android-13
 		blocks[count] = NULL; /* regenerating p is not necessary */
 		BUG_ON(blocks[count+1] != dest); /* q should already be set */
 		init_async_submit(&submit, ASYNC_TX_FENCE, NULL,
 				  ops_complete_compute, sh,
 				  to_addr_conv(sh, percpu, 0));
+<<<<<<< HEAD
 		tx = async_gen_syndrome(blocks, 0, count+2, STRIPE_SIZE, &submit);
+=======
+		tx = async_gen_syndrome(blocks, offs, count+2,
+				RAID5_STRIPE_SIZE(sh->raid_conf), &submit);
+>>>>>>> upstream/android-13
 	} else {
 		/* Compute any data- or p-drive using XOR */
 		count = 0;
 		for (i = disks; i-- ; ) {
 			if (i == target || i == qd_idx)
 				continue;
+<<<<<<< HEAD
+=======
+			offs[count] = sh->dev[i].offset;
+>>>>>>> upstream/android-13
 			blocks[count++] = sh->dev[i].page;
 		}
 
 		init_async_submit(&submit, ASYNC_TX_FENCE|ASYNC_TX_XOR_ZERO_DST,
 				  NULL, ops_complete_compute, sh,
 				  to_addr_conv(sh, percpu, 0));
+<<<<<<< HEAD
 		tx = async_xor(dest, blocks, 0, count, STRIPE_SIZE, &submit);
+=======
+		tx = async_xor_offs(dest, dest_off, blocks, offs, count,
+				RAID5_STRIPE_SIZE(sh->raid_conf), &submit);
+>>>>>>> upstream/android-13
 	}
 
 	return tx;
@@ -1565,6 +1902,10 @@ ops_run_compute6_2(struct stripe_head *sh, struct raid5_percpu *percpu)
 	struct r5dev *tgt2 = &sh->dev[target2];
 	struct dma_async_tx_descriptor *tx;
 	struct page **blocks = to_addr_page(percpu, 0);
+<<<<<<< HEAD
+=======
+	unsigned int *offs = to_addr_offs(sh, percpu);
+>>>>>>> upstream/android-13
 	struct async_submit_ctl submit;
 
 	BUG_ON(sh->batch_head);
@@ -1577,13 +1918,24 @@ ops_run_compute6_2(struct stripe_head *sh, struct raid5_percpu *percpu)
 	/* we need to open-code set_syndrome_sources to handle the
 	 * slot number conversion for 'faila' and 'failb'
 	 */
+<<<<<<< HEAD
 	for (i = 0; i < disks ; i++)
 		blocks[i] = NULL;
+=======
+	for (i = 0; i < disks ; i++) {
+		offs[i] = 0;
+		blocks[i] = NULL;
+	}
+>>>>>>> upstream/android-13
 	count = 0;
 	i = d0_idx;
 	do {
 		int slot = raid6_idx_to_slot(i, sh, &count, syndrome_disks);
 
+<<<<<<< HEAD
+=======
+		offs[slot] = sh->dev[i].offset;
+>>>>>>> upstream/android-13
 		blocks[slot] = sh->dev[i].page;
 
 		if (i == target)
@@ -1608,10 +1960,19 @@ ops_run_compute6_2(struct stripe_head *sh, struct raid5_percpu *percpu)
 			init_async_submit(&submit, ASYNC_TX_FENCE, NULL,
 					  ops_complete_compute, sh,
 					  to_addr_conv(sh, percpu, 0));
+<<<<<<< HEAD
 			return async_gen_syndrome(blocks, 0, syndrome_disks+2,
 						  STRIPE_SIZE, &submit);
 		} else {
 			struct page *dest;
+=======
+			return async_gen_syndrome(blocks, offs, syndrome_disks+2,
+						  RAID5_STRIPE_SIZE(sh->raid_conf),
+						  &submit);
+		} else {
+			struct page *dest;
+			unsigned int dest_off;
+>>>>>>> upstream/android-13
 			int data_target;
 			int qd_idx = sh->qd_idx;
 
@@ -1625,13 +1986,22 @@ ops_run_compute6_2(struct stripe_head *sh, struct raid5_percpu *percpu)
 			for (i = disks; i-- ; ) {
 				if (i == data_target || i == qd_idx)
 					continue;
+<<<<<<< HEAD
 				blocks[count++] = sh->dev[i].page;
 			}
 			dest = sh->dev[data_target].page;
+=======
+				offs[count] = sh->dev[i].offset;
+				blocks[count++] = sh->dev[i].page;
+			}
+			dest = sh->dev[data_target].page;
+			dest_off = sh->dev[data_target].offset;
+>>>>>>> upstream/android-13
 			init_async_submit(&submit,
 					  ASYNC_TX_FENCE|ASYNC_TX_XOR_ZERO_DST,
 					  NULL, NULL, NULL,
 					  to_addr_conv(sh, percpu, 0));
+<<<<<<< HEAD
 			tx = async_xor(dest, blocks, 0, count, STRIPE_SIZE,
 				       &submit);
 
@@ -1641,6 +2011,19 @@ ops_run_compute6_2(struct stripe_head *sh, struct raid5_percpu *percpu)
 					  to_addr_conv(sh, percpu, 0));
 			return async_gen_syndrome(blocks, 0, count+2,
 						  STRIPE_SIZE, &submit);
+=======
+			tx = async_xor_offs(dest, dest_off, blocks, offs, count,
+				       RAID5_STRIPE_SIZE(sh->raid_conf),
+				       &submit);
+
+			count = set_syndrome_sources(blocks, offs, sh, SYNDROME_SRC_ALL);
+			init_async_submit(&submit, ASYNC_TX_FENCE, tx,
+					  ops_complete_compute, sh,
+					  to_addr_conv(sh, percpu, 0));
+			return async_gen_syndrome(blocks, offs, count+2,
+						  RAID5_STRIPE_SIZE(sh->raid_conf),
+						  &submit);
+>>>>>>> upstream/android-13
 		}
 	} else {
 		init_async_submit(&submit, ASYNC_TX_FENCE, NULL,
@@ -1649,6 +2032,7 @@ ops_run_compute6_2(struct stripe_head *sh, struct raid5_percpu *percpu)
 		if (failb == syndrome_disks) {
 			/* We're missing D+P. */
 			return async_raid6_datap_recov(syndrome_disks+2,
+<<<<<<< HEAD
 						       STRIPE_SIZE, faila,
 						       blocks, &submit);
 		} else {
@@ -1656,6 +2040,17 @@ ops_run_compute6_2(struct stripe_head *sh, struct raid5_percpu *percpu)
 			return async_raid6_2data_recov(syndrome_disks+2,
 						       STRIPE_SIZE, faila, failb,
 						       blocks, &submit);
+=======
+						RAID5_STRIPE_SIZE(sh->raid_conf),
+						faila,
+						blocks, offs, &submit);
+		} else {
+			/* We're missing D+D. */
+			return async_raid6_2data_recov(syndrome_disks+2,
+						RAID5_STRIPE_SIZE(sh->raid_conf),
+						faila, failb,
+						blocks, offs, &submit);
+>>>>>>> upstream/android-13
 		}
 	}
 }
@@ -1681,10 +2076,18 @@ ops_run_prexor5(struct stripe_head *sh, struct raid5_percpu *percpu,
 {
 	int disks = sh->disks;
 	struct page **xor_srcs = to_addr_page(percpu, 0);
+<<<<<<< HEAD
+=======
+	unsigned int *off_srcs = to_addr_offs(sh, percpu);
+>>>>>>> upstream/android-13
 	int count = 0, pd_idx = sh->pd_idx, i;
 	struct async_submit_ctl submit;
 
 	/* existing parity data subtracted */
+<<<<<<< HEAD
+=======
+	unsigned int off_dest = off_srcs[count] = sh->dev[pd_idx].offset;
+>>>>>>> upstream/android-13
 	struct page *xor_dest = xor_srcs[count++] = sh->dev[pd_idx].page;
 
 	BUG_ON(sh->batch_head);
@@ -1694,15 +2097,34 @@ ops_run_prexor5(struct stripe_head *sh, struct raid5_percpu *percpu,
 	for (i = disks; i--; ) {
 		struct r5dev *dev = &sh->dev[i];
 		/* Only process blocks that are known to be uptodate */
+<<<<<<< HEAD
 		if (test_bit(R5_InJournal, &dev->flags))
 			xor_srcs[count++] = dev->orig_page;
 		else if (test_bit(R5_Wantdrain, &dev->flags))
 			xor_srcs[count++] = dev->page;
+=======
+		if (test_bit(R5_InJournal, &dev->flags)) {
+			/*
+			 * For this case, PAGE_SIZE must be equal to 4KB and
+			 * page offset is zero.
+			 */
+			off_srcs[count] = dev->offset;
+			xor_srcs[count++] = dev->orig_page;
+		} else if (test_bit(R5_Wantdrain, &dev->flags)) {
+			off_srcs[count] = dev->offset;
+			xor_srcs[count++] = dev->page;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	init_async_submit(&submit, ASYNC_TX_FENCE|ASYNC_TX_XOR_DROP_DST, tx,
 			  ops_complete_prexor, sh, to_addr_conv(sh, percpu, 0));
+<<<<<<< HEAD
 	tx = async_xor(xor_dest, xor_srcs, 0, count, STRIPE_SIZE, &submit);
+=======
+	tx = async_xor_offs(xor_dest, off_dest, xor_srcs, off_srcs, count,
+			RAID5_STRIPE_SIZE(sh->raid_conf), &submit);
+>>>>>>> upstream/android-13
 
 	return tx;
 }
@@ -1712,17 +2134,30 @@ ops_run_prexor6(struct stripe_head *sh, struct raid5_percpu *percpu,
 		struct dma_async_tx_descriptor *tx)
 {
 	struct page **blocks = to_addr_page(percpu, 0);
+<<<<<<< HEAD
+=======
+	unsigned int *offs = to_addr_offs(sh, percpu);
+>>>>>>> upstream/android-13
 	int count;
 	struct async_submit_ctl submit;
 
 	pr_debug("%s: stripe %llu\n", __func__,
 		(unsigned long long)sh->sector);
 
+<<<<<<< HEAD
 	count = set_syndrome_sources(blocks, sh, SYNDROME_SRC_WANT_DRAIN);
 
 	init_async_submit(&submit, ASYNC_TX_FENCE|ASYNC_TX_PQ_XOR_DST, tx,
 			  ops_complete_prexor, sh, to_addr_conv(sh, percpu, 0));
 	tx = async_gen_syndrome(blocks, 0, count+2, STRIPE_SIZE,  &submit);
+=======
+	count = set_syndrome_sources(blocks, offs, sh, SYNDROME_SRC_WANT_DRAIN);
+
+	init_async_submit(&submit, ASYNC_TX_FENCE|ASYNC_TX_PQ_XOR_DST, tx,
+			  ops_complete_prexor, sh, to_addr_conv(sh, percpu, 0));
+	tx = async_gen_syndrome(blocks, offs, count+2,
+			RAID5_STRIPE_SIZE(sh->raid_conf), &submit);
+>>>>>>> upstream/android-13
 
 	return tx;
 }
@@ -1763,7 +2198,11 @@ again:
 			WARN_ON(dev->page != dev->orig_page);
 
 			while (wbi && wbi->bi_iter.bi_sector <
+<<<<<<< HEAD
 				dev->sector + STRIPE_SECTORS) {
+=======
+				dev->sector + RAID5_STRIPE_SECTORS(conf)) {
+>>>>>>> upstream/android-13
 				if (wbi->bi_opf & REQ_FUA)
 					set_bit(R5_WantFUA, &dev->flags);
 				if (wbi->bi_opf & REQ_SYNC)
@@ -1772,6 +2211,10 @@ again:
 					set_bit(R5_Discard, &dev->flags);
 				else {
 					tx = async_copy_data(1, wbi, &dev->page,
+<<<<<<< HEAD
+=======
+							     dev->offset,
+>>>>>>> upstream/android-13
 							     dev->sector, tx, sh,
 							     r5c_is_writeback(conf->log));
 					if (dev->page != dev->orig_page &&
@@ -1781,7 +2224,11 @@ again:
 						clear_bit(R5_OVERWRITE, &dev->flags);
 					}
 				}
+<<<<<<< HEAD
 				wbi = r5_next_bio(wbi, dev->sector);
+=======
+				wbi = r5_next_bio(conf, wbi, dev->sector);
+>>>>>>> upstream/android-13
 			}
 
 			if (head_sh->batch_head) {
@@ -1851,9 +2298,17 @@ ops_run_reconstruct5(struct stripe_head *sh, struct raid5_percpu *percpu,
 {
 	int disks = sh->disks;
 	struct page **xor_srcs;
+<<<<<<< HEAD
 	struct async_submit_ctl submit;
 	int count, pd_idx = sh->pd_idx, i;
 	struct page *xor_dest;
+=======
+	unsigned int *off_srcs;
+	struct async_submit_ctl submit;
+	int count, pd_idx = sh->pd_idx, i;
+	struct page *xor_dest;
+	unsigned int off_dest;
+>>>>>>> upstream/android-13
 	int prexor = 0;
 	unsigned long flags;
 	int j = 0;
@@ -1878,15 +2333,24 @@ ops_run_reconstruct5(struct stripe_head *sh, struct raid5_percpu *percpu,
 again:
 	count = 0;
 	xor_srcs = to_addr_page(percpu, j);
+<<<<<<< HEAD
+=======
+	off_srcs = to_addr_offs(sh, percpu);
+>>>>>>> upstream/android-13
 	/* check if prexor is active which means only process blocks
 	 * that are part of a read-modify-write (written)
 	 */
 	if (head_sh->reconstruct_state == reconstruct_state_prexor_drain_run) {
 		prexor = 1;
+<<<<<<< HEAD
+=======
+		off_dest = off_srcs[count] = sh->dev[pd_idx].offset;
+>>>>>>> upstream/android-13
 		xor_dest = xor_srcs[count++] = sh->dev[pd_idx].page;
 		for (i = disks; i--; ) {
 			struct r5dev *dev = &sh->dev[i];
 			if (head_sh->dev[i].written ||
+<<<<<<< HEAD
 			    test_bit(R5_InJournal, &head_sh->dev[i].flags))
 				xor_srcs[count++] = dev->page;
 		}
@@ -1896,6 +2360,22 @@ again:
 			struct r5dev *dev = &sh->dev[i];
 			if (i != pd_idx)
 				xor_srcs[count++] = dev->page;
+=======
+			    test_bit(R5_InJournal, &head_sh->dev[i].flags)) {
+				off_srcs[count] = dev->offset;
+				xor_srcs[count++] = dev->page;
+			}
+		}
+	} else {
+		xor_dest = sh->dev[pd_idx].page;
+		off_dest = sh->dev[pd_idx].offset;
+		for (i = disks; i--; ) {
+			struct r5dev *dev = &sh->dev[i];
+			if (i != pd_idx) {
+				off_srcs[count] = dev->offset;
+				xor_srcs[count++] = dev->page;
+			}
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -1921,9 +2401,17 @@ again:
 	}
 
 	if (unlikely(count == 1))
+<<<<<<< HEAD
 		tx = async_memcpy(xor_dest, xor_srcs[0], 0, 0, STRIPE_SIZE, &submit);
 	else
 		tx = async_xor(xor_dest, xor_srcs, 0, count, STRIPE_SIZE, &submit);
+=======
+		tx = async_memcpy(xor_dest, xor_srcs[0], off_dest, off_srcs[0],
+				RAID5_STRIPE_SIZE(sh->raid_conf), &submit);
+	else
+		tx = async_xor_offs(xor_dest, off_dest, xor_srcs, off_srcs, count,
+				RAID5_STRIPE_SIZE(sh->raid_conf), &submit);
+>>>>>>> upstream/android-13
 	if (!last_stripe) {
 		j++;
 		sh = list_first_entry(&sh->batch_list, struct stripe_head,
@@ -1938,6 +2426,10 @@ ops_run_reconstruct6(struct stripe_head *sh, struct raid5_percpu *percpu,
 {
 	struct async_submit_ctl submit;
 	struct page **blocks;
+<<<<<<< HEAD
+=======
+	unsigned int *offs;
+>>>>>>> upstream/android-13
 	int count, i, j = 0;
 	struct stripe_head *head_sh = sh;
 	int last_stripe;
@@ -1962,6 +2454,10 @@ ops_run_reconstruct6(struct stripe_head *sh, struct raid5_percpu *percpu,
 
 again:
 	blocks = to_addr_page(percpu, j);
+<<<<<<< HEAD
+=======
+	offs = to_addr_offs(sh, percpu);
+>>>>>>> upstream/android-13
 
 	if (sh->reconstruct_state == reconstruct_state_prexor_drain_run) {
 		synflags = SYNDROME_SRC_WRITTEN;
@@ -1971,7 +2467,11 @@ again:
 		txflags = ASYNC_TX_ACK;
 	}
 
+<<<<<<< HEAD
 	count = set_syndrome_sources(blocks, sh, synflags);
+=======
+	count = set_syndrome_sources(blocks, offs, sh, synflags);
+>>>>>>> upstream/android-13
 	last_stripe = !head_sh->batch_head ||
 		list_first_entry(&sh->batch_list,
 				 struct stripe_head, batch_list) == head_sh;
@@ -1983,7 +2483,12 @@ again:
 	} else
 		init_async_submit(&submit, 0, tx, NULL, NULL,
 				  to_addr_conv(sh, percpu, j));
+<<<<<<< HEAD
 	tx = async_gen_syndrome(blocks, 0, count+2, STRIPE_SIZE,  &submit);
+=======
+	tx = async_gen_syndrome(blocks, offs, count+2,
+			RAID5_STRIPE_SIZE(sh->raid_conf),  &submit);
+>>>>>>> upstream/android-13
 	if (!last_stripe) {
 		j++;
 		sh = list_first_entry(&sh->batch_list, struct stripe_head,
@@ -2010,7 +2515,13 @@ static void ops_run_check_p(struct stripe_head *sh, struct raid5_percpu *percpu)
 	int pd_idx = sh->pd_idx;
 	int qd_idx = sh->qd_idx;
 	struct page *xor_dest;
+<<<<<<< HEAD
 	struct page **xor_srcs = to_addr_page(percpu, 0);
+=======
+	unsigned int off_dest;
+	struct page **xor_srcs = to_addr_page(percpu, 0);
+	unsigned int *off_srcs = to_addr_offs(sh, percpu);
+>>>>>>> upstream/android-13
 	struct dma_async_tx_descriptor *tx;
 	struct async_submit_ctl submit;
 	int count;
@@ -2022,16 +2533,30 @@ static void ops_run_check_p(struct stripe_head *sh, struct raid5_percpu *percpu)
 	BUG_ON(sh->batch_head);
 	count = 0;
 	xor_dest = sh->dev[pd_idx].page;
+<<<<<<< HEAD
+=======
+	off_dest = sh->dev[pd_idx].offset;
+	off_srcs[count] = off_dest;
+>>>>>>> upstream/android-13
 	xor_srcs[count++] = xor_dest;
 	for (i = disks; i--; ) {
 		if (i == pd_idx || i == qd_idx)
 			continue;
+<<<<<<< HEAD
+=======
+		off_srcs[count] = sh->dev[i].offset;
+>>>>>>> upstream/android-13
 		xor_srcs[count++] = sh->dev[i].page;
 	}
 
 	init_async_submit(&submit, 0, NULL, NULL, NULL,
 			  to_addr_conv(sh, percpu, 0));
+<<<<<<< HEAD
 	tx = async_xor_val(xor_dest, xor_srcs, 0, count, STRIPE_SIZE,
+=======
+	tx = async_xor_val_offs(xor_dest, off_dest, xor_srcs, off_srcs, count,
+			   RAID5_STRIPE_SIZE(sh->raid_conf),
+>>>>>>> upstream/android-13
 			   &sh->ops.zero_sum_result, &submit);
 
 	atomic_inc(&sh->count);
@@ -2042,6 +2567,10 @@ static void ops_run_check_p(struct stripe_head *sh, struct raid5_percpu *percpu)
 static void ops_run_check_pq(struct stripe_head *sh, struct raid5_percpu *percpu, int checkp)
 {
 	struct page **srcs = to_addr_page(percpu, 0);
+<<<<<<< HEAD
+=======
+	unsigned int *offs = to_addr_offs(sh, percpu);
+>>>>>>> upstream/android-13
 	struct async_submit_ctl submit;
 	int count;
 
@@ -2049,15 +2578,25 @@ static void ops_run_check_pq(struct stripe_head *sh, struct raid5_percpu *percpu
 		(unsigned long long)sh->sector, checkp);
 
 	BUG_ON(sh->batch_head);
+<<<<<<< HEAD
 	count = set_syndrome_sources(srcs, sh, SYNDROME_SRC_ALL);
+=======
+	count = set_syndrome_sources(srcs, offs, sh, SYNDROME_SRC_ALL);
+>>>>>>> upstream/android-13
 	if (!checkp)
 		srcs[count] = NULL;
 
 	atomic_inc(&sh->count);
 	init_async_submit(&submit, ASYNC_TX_ACK, NULL, ops_complete_check,
 			  sh, to_addr_conv(sh, percpu, 0));
+<<<<<<< HEAD
 	async_syndrome_val(srcs, 0, count+2, STRIPE_SIZE,
 			   &sh->ops.zero_sum_result, percpu->spare_page, &submit);
+=======
+	async_syndrome_val(srcs, offs, count+2,
+			   RAID5_STRIPE_SIZE(sh->raid_conf),
+			   &sh->ops.zero_sum_result, percpu->spare_page, 0, &submit);
+>>>>>>> upstream/android-13
 }
 
 static void raid_run_ops(struct stripe_head *sh, unsigned long ops_request)
@@ -2134,6 +2673,12 @@ static void raid_run_ops(struct stripe_head *sh, unsigned long ops_request)
 
 static void free_stripe(struct kmem_cache *sc, struct stripe_head *sh)
 {
+<<<<<<< HEAD
+=======
+#if PAGE_SIZE != DEFAULT_STRIPE_SIZE
+	kfree(sh->pages);
+#endif
+>>>>>>> upstream/android-13
 	if (sh->ppl_page)
 		__free_page(sh->ppl_page);
 	kmem_cache_free(sc, sh);
@@ -2167,9 +2712,21 @@ static struct stripe_head *alloc_stripe(struct kmem_cache *sc, gfp_t gfp,
 			sh->ppl_page = alloc_page(gfp);
 			if (!sh->ppl_page) {
 				free_stripe(sc, sh);
+<<<<<<< HEAD
 				sh = NULL;
 			}
 		}
+=======
+				return NULL;
+			}
+		}
+#if PAGE_SIZE != DEFAULT_STRIPE_SIZE
+		if (init_stripe_shared_pages(sh, conf, disks)) {
+			free_stripe(sc, sh);
+			return NULL;
+		}
+#endif
+>>>>>>> upstream/android-13
 	}
 	return sh;
 }
@@ -2226,10 +2783,20 @@ static int grow_stripes(struct r5conf *conf, int num)
 }
 
 /**
+<<<<<<< HEAD
  * scribble_len - return the required size of the scribble region
  * @num - total number of disks in the array
  *
  * The size must be enough to contain:
+=======
+ * scribble_alloc - allocate percpu scribble buffer for required size
+ *		    of the scribble region
+ * @percpu: from for_each_present_cpu() of the caller
+ * @num: total number of disks in the array
+ * @cnt: scribble objs count for required size of the scribble region
+ *
+ * The scribble buffer size must be enough to contain:
+>>>>>>> upstream/android-13
  * 1/ a struct page pointer for each device in the array +2
  * 2/ room to convert each entry in (1) to its corresponding dma
  *    (dma_map_page()) or page (page_address()) address.
@@ -2238,6 +2805,7 @@ static int grow_stripes(struct r5conf *conf, int num)
  * calculate over all devices (not just the data blocks), using zeros in place
  * of the P and Q blocks.
  */
+<<<<<<< HEAD
 static struct flex_array *scribble_alloc(int num, int cnt, gfp_t flags)
 {
 	struct flex_array *ret;
@@ -2253,6 +2821,31 @@ static struct flex_array *scribble_alloc(int num, int cnt, gfp_t flags)
 		return NULL;
 	}
 	return ret;
+=======
+static int scribble_alloc(struct raid5_percpu *percpu,
+			  int num, int cnt)
+{
+	size_t obj_size =
+		sizeof(struct page *) * (num + 2) +
+		sizeof(addr_conv_t) * (num + 2) +
+		sizeof(unsigned int) * (num + 2);
+	void *scribble;
+
+	/*
+	 * If here is in raid array suspend context, it is in memalloc noio
+	 * context as well, there is no potential recursive memory reclaim
+	 * I/Os with the GFP_KERNEL flag.
+	 */
+	scribble = kvmalloc_array(cnt, obj_size, GFP_KERNEL);
+	if (!scribble)
+		return -ENOMEM;
+
+	kvfree(percpu->scribble);
+
+	percpu->scribble = scribble;
+	percpu->scribble_obj_size = obj_size;
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int resize_chunks(struct r5conf *conf, int new_disks, int new_sectors)
@@ -2269,6 +2862,7 @@ static int resize_chunks(struct r5conf *conf, int new_disks, int new_sectors)
 	    conf->scribble_sectors >= new_sectors)
 		return 0;
 	mddev_suspend(conf->mddev);
+<<<<<<< HEAD
 	get_online_cpus();
 	for_each_present_cpu(cpu) {
 		struct raid5_percpu *percpu;
@@ -2288,6 +2882,21 @@ static int resize_chunks(struct r5conf *conf, int new_disks, int new_sectors)
 		}
 	}
 	put_online_cpus();
+=======
+	cpus_read_lock();
+
+	for_each_present_cpu(cpu) {
+		struct raid5_percpu *percpu;
+
+		percpu = per_cpu_ptr(conf->percpu, cpu);
+		err = scribble_alloc(percpu, new_disks,
+				     new_sectors / RAID5_STRIPE_SECTORS(conf));
+		if (err)
+			break;
+	}
+
+	cpus_read_unlock();
+>>>>>>> upstream/android-13
 	mddev_resume(conf->mddev);
 	if (!err) {
 		conf->scribble_disks = new_disks;
@@ -2374,9 +2983,22 @@ static int resize_stripes(struct r5conf *conf, int newsize)
 		osh = get_free_stripe(conf, hash);
 		unlock_device_hash_lock(conf, hash);
 
+<<<<<<< HEAD
 		for(i=0; i<conf->pool_size; i++) {
 			nsh->dev[i].page = osh->dev[i].page;
 			nsh->dev[i].orig_page = osh->dev[i].page;
+=======
+#if PAGE_SIZE != DEFAULT_STRIPE_SIZE
+	for (i = 0; i < osh->nr_pages; i++) {
+		nsh->pages[i] = osh->pages[i];
+		osh->pages[i] = NULL;
+	}
+#endif
+		for(i=0; i<conf->pool_size; i++) {
+			nsh->dev[i].page = osh->dev[i].page;
+			nsh->dev[i].orig_page = osh->dev[i].page;
+			nsh->dev[i].offset = osh->dev[i].offset;
+>>>>>>> upstream/android-13
 		}
 		nsh->hash_lock_index = hash;
 		free_stripe(conf->slab_cache, osh);
@@ -2425,14 +3047,42 @@ static int resize_stripes(struct r5conf *conf, int newsize)
 		nsh = list_entry(newstripes.next, struct stripe_head, lru);
 		list_del_init(&nsh->lru);
 
+<<<<<<< HEAD
+=======
+#if PAGE_SIZE != DEFAULT_STRIPE_SIZE
+		for (i = 0; i < nsh->nr_pages; i++) {
+			if (nsh->pages[i])
+				continue;
+			nsh->pages[i] = alloc_page(GFP_NOIO);
+			if (!nsh->pages[i])
+				err = -ENOMEM;
+		}
+
+		for (i = conf->raid_disks; i < newsize; i++) {
+			if (nsh->dev[i].page)
+				continue;
+			nsh->dev[i].page = raid5_get_dev_page(nsh, i);
+			nsh->dev[i].orig_page = nsh->dev[i].page;
+			nsh->dev[i].offset = raid5_get_page_offset(nsh, i);
+		}
+#else
+>>>>>>> upstream/android-13
 		for (i=conf->raid_disks; i < newsize; i++)
 			if (nsh->dev[i].page == NULL) {
 				struct page *p = alloc_page(GFP_NOIO);
 				nsh->dev[i].page = p;
 				nsh->dev[i].orig_page = p;
+<<<<<<< HEAD
 				if (!p)
 					err = -ENOMEM;
 			}
+=======
+				nsh->dev[i].offset = 0;
+				if (!p)
+					err = -ENOMEM;
+			}
+#endif
+>>>>>>> upstream/android-13
 		raid5_release_stripe(nsh);
 	}
 	/* critical section pass, GFP_NOIO no longer needed */
@@ -2516,10 +3166,17 @@ static void raid5_end_read_request(struct bio * bi)
 			 */
 			pr_info_ratelimited(
 				"md/raid:%s: read error corrected (%lu sectors at %llu on %s)\n",
+<<<<<<< HEAD
 				mdname(conf->mddev), STRIPE_SECTORS,
 				(unsigned long long)s,
 				bdevname(rdev->bdev, b));
 			atomic_add(STRIPE_SECTORS, &rdev->corrected_errors);
+=======
+				mdname(conf->mddev), RAID5_STRIPE_SECTORS(conf),
+				(unsigned long long)s,
+				bdevname(rdev->bdev, b));
+			atomic_add(RAID5_STRIPE_SECTORS(conf), &rdev->corrected_errors);
+>>>>>>> upstream/android-13
 			clear_bit(R5_ReadError, &sh->dev[i].flags);
 			clear_bit(R5_ReWrite, &sh->dev[i].flags);
 		} else if (test_bit(R5_ReadNoMerge, &sh->dev[i].flags))
@@ -2564,10 +3221,23 @@ static void raid5_end_read_request(struct bio * bi)
 				(unsigned long long)s,
 				bdn);
 		} else if (atomic_read(&rdev->read_errors)
+<<<<<<< HEAD
 			 > conf->max_nr_stripes)
 			pr_warn("md/raid:%s: Too many read errors, failing device %s.\n",
 			       mdname(conf->mddev), bdn);
 		else
+=======
+			 > conf->max_nr_stripes) {
+			if (!test_bit(Faulty, &rdev->flags)) {
+				pr_warn("md/raid:%s: %d read_errors > %d stripes\n",
+				    mdname(conf->mddev),
+				    atomic_read(&rdev->read_errors),
+				    conf->max_nr_stripes);
+				pr_warn("md/raid:%s: Too many read errors, failing device %s.\n",
+				    mdname(conf->mddev), bdn);
+			}
+		} else
+>>>>>>> upstream/android-13
 			retry = 1;
 		if (set_bad && test_bit(In_sync, &rdev->flags)
 		    && !test_bit(R5_ReadNoMerge, &sh->dev[i].flags))
@@ -2586,7 +3256,11 @@ static void raid5_end_read_request(struct bio * bi)
 			if (!(set_bad
 			      && test_bit(In_sync, &rdev->flags)
 			      && rdev_set_badblocks(
+<<<<<<< HEAD
 				      rdev, sh->sector, STRIPE_SECTORS, 0)))
+=======
+				      rdev, sh->sector, RAID5_STRIPE_SECTORS(conf), 0)))
+>>>>>>> upstream/android-13
 				md_error(conf->mddev, rdev);
 		}
 	}
@@ -2602,7 +3276,11 @@ static void raid5_end_write_request(struct bio *bi)
 	struct stripe_head *sh = bi->bi_private;
 	struct r5conf *conf = sh->raid_conf;
 	int disks = sh->disks, i;
+<<<<<<< HEAD
 	struct md_rdev *uninitialized_var(rdev);
+=======
+	struct md_rdev *rdev;
+>>>>>>> upstream/android-13
 	sector_t first_bad;
 	int bad_sectors;
 	int replacement = 0;
@@ -2638,7 +3316,11 @@ static void raid5_end_write_request(struct bio *bi)
 		if (bi->bi_status)
 			md_error(conf->mddev, rdev);
 		else if (is_badblock(rdev, sh->sector,
+<<<<<<< HEAD
 				     STRIPE_SECTORS,
+=======
+				     RAID5_STRIPE_SECTORS(conf),
+>>>>>>> upstream/android-13
 				     &first_bad, &bad_sectors))
 			set_bit(R5_MadeGoodRepl, &sh->dev[i].flags);
 	} else {
@@ -2650,7 +3332,11 @@ static void raid5_end_write_request(struct bio *bi)
 				set_bit(MD_RECOVERY_NEEDED,
 					&rdev->mddev->recovery);
 		} else if (is_badblock(rdev, sh->sector,
+<<<<<<< HEAD
 				       STRIPE_SECTORS,
+=======
+				       RAID5_STRIPE_SECTORS(conf),
+>>>>>>> upstream/android-13
 				       &first_bad, &bad_sectors)) {
 			set_bit(R5_MadeGood, &sh->dev[i].flags);
 			if (test_bit(R5_ReadError, &sh->dev[i].flags))
@@ -2684,6 +3370,21 @@ static void raid5_error(struct mddev *mddev, struct md_rdev *rdev)
 	pr_debug("raid456: error called\n");
 
 	spin_lock_irqsave(&conf->device_lock, flags);
+<<<<<<< HEAD
+=======
+
+	if (test_bit(In_sync, &rdev->flags) &&
+	    mddev->degraded == conf->max_degraded) {
+		/*
+		 * Don't allow to achieve failed state
+		 * Don't try to recover this device
+		 */
+		conf->recovery_disabled = mddev->recovery_disabled;
+		spin_unlock_irqrestore(&conf->device_lock, flags);
+		return;
+	}
+
+>>>>>>> upstream/android-13
 	set_bit(Faulty, &rdev->flags);
 	clear_bit(In_sync, &rdev->flags);
 	mddev->degraded = raid5_calc_degraded(conf);
@@ -3272,6 +3973,7 @@ static int add_stripe_bio(struct stripe_head *sh, struct bio *bi, int dd_idx,
 		/* check if page is covered */
 		sector_t sector = sh->dev[dd_idx].sector;
 		for (bi=sh->dev[dd_idx].towrite;
+<<<<<<< HEAD
 		     sector < sh->dev[dd_idx].sector + STRIPE_SECTORS &&
 			     bi && bi->bi_iter.bi_sector <= sector;
 		     bi = r5_next_bio(bi, sh->dev[dd_idx].sector)) {
@@ -3279,6 +3981,15 @@ static int add_stripe_bio(struct stripe_head *sh, struct bio *bi, int dd_idx,
 				sector = bio_end_sector(bi);
 		}
 		if (sector >= sh->dev[dd_idx].sector + STRIPE_SECTORS)
+=======
+		     sector < sh->dev[dd_idx].sector + RAID5_STRIPE_SECTORS(conf) &&
+			     bi && bi->bi_iter.bi_sector <= sector;
+		     bi = r5_next_bio(conf, bi, sh->dev[dd_idx].sector)) {
+			if (bio_end_sector(bi) >= sector)
+				sector = bio_end_sector(bi);
+		}
+		if (sector >= sh->dev[dd_idx].sector + RAID5_STRIPE_SECTORS(conf))
+>>>>>>> upstream/android-13
 			if (!test_and_set_bit(R5_OVERWRITE, &sh->dev[dd_idx].flags))
 				sh->overwrite_disks++;
 	}
@@ -3303,7 +4014,11 @@ static int add_stripe_bio(struct stripe_head *sh, struct bio *bi, int dd_idx,
 		set_bit(STRIPE_BITMAP_PENDING, &sh->state);
 		spin_unlock_irq(&sh->stripe_lock);
 		md_bitmap_startwrite(conf->mddev->bitmap, sh->sector,
+<<<<<<< HEAD
 				     STRIPE_SECTORS, 0);
+=======
+				     RAID5_STRIPE_SECTORS(conf), 0);
+>>>>>>> upstream/android-13
 		spin_lock_irq(&sh->stripe_lock);
 		clear_bit(STRIPE_BITMAP_PENDING, &sh->state);
 		if (!sh->batch_head) {
@@ -3365,7 +4080,11 @@ handle_failed_stripe(struct r5conf *conf, struct stripe_head *sh,
 				if (!rdev_set_badblocks(
 					    rdev,
 					    sh->sector,
+<<<<<<< HEAD
 					    STRIPE_SECTORS, 0))
+=======
+					    RAID5_STRIPE_SECTORS(conf), 0))
+>>>>>>> upstream/android-13
 					md_error(conf->mddev, rdev);
 				rdev_dec_pending(rdev, conf->mddev);
 			}
@@ -3385,8 +4104,13 @@ handle_failed_stripe(struct r5conf *conf, struct stripe_head *sh,
 			wake_up(&conf->wait_for_overlap);
 
 		while (bi && bi->bi_iter.bi_sector <
+<<<<<<< HEAD
 			sh->dev[i].sector + STRIPE_SECTORS) {
 			struct bio *nextbi = r5_next_bio(bi, sh->dev[i].sector);
+=======
+			sh->dev[i].sector + RAID5_STRIPE_SECTORS(conf)) {
+			struct bio *nextbi = r5_next_bio(conf, bi, sh->dev[i].sector);
+>>>>>>> upstream/android-13
 
 			md_write_end(conf->mddev);
 			bio_io_error(bi);
@@ -3394,7 +4118,11 @@ handle_failed_stripe(struct r5conf *conf, struct stripe_head *sh,
 		}
 		if (bitmap_end)
 			md_bitmap_endwrite(conf->mddev->bitmap, sh->sector,
+<<<<<<< HEAD
 					   STRIPE_SECTORS, 0, 0);
+=======
+					   RAID5_STRIPE_SECTORS(conf), 0, 0);
+>>>>>>> upstream/android-13
 		bitmap_end = 0;
 		/* and fail all 'written' */
 		bi = sh->dev[i].written;
@@ -3406,8 +4134,13 @@ handle_failed_stripe(struct r5conf *conf, struct stripe_head *sh,
 
 		if (bi) bitmap_end = 1;
 		while (bi && bi->bi_iter.bi_sector <
+<<<<<<< HEAD
 		       sh->dev[i].sector + STRIPE_SECTORS) {
 			struct bio *bi2 = r5_next_bio(bi, sh->dev[i].sector);
+=======
+		       sh->dev[i].sector + RAID5_STRIPE_SECTORS(conf)) {
+			struct bio *bi2 = r5_next_bio(conf, bi, sh->dev[i].sector);
+>>>>>>> upstream/android-13
 
 			md_write_end(conf->mddev);
 			bio_io_error(bi);
@@ -3430,9 +4163,15 @@ handle_failed_stripe(struct r5conf *conf, struct stripe_head *sh,
 			if (bi)
 				s->to_read--;
 			while (bi && bi->bi_iter.bi_sector <
+<<<<<<< HEAD
 			       sh->dev[i].sector + STRIPE_SECTORS) {
 				struct bio *nextbi =
 					r5_next_bio(bi, sh->dev[i].sector);
+=======
+			       sh->dev[i].sector + RAID5_STRIPE_SECTORS(conf)) {
+				struct bio *nextbi =
+					r5_next_bio(conf, bi, sh->dev[i].sector);
+>>>>>>> upstream/android-13
 
 				bio_io_error(bi);
 				bi = nextbi;
@@ -3440,7 +4179,11 @@ handle_failed_stripe(struct r5conf *conf, struct stripe_head *sh,
 		}
 		if (bitmap_end)
 			md_bitmap_endwrite(conf->mddev->bitmap, sh->sector,
+<<<<<<< HEAD
 					   STRIPE_SECTORS, 0, 0);
+=======
+					   RAID5_STRIPE_SECTORS(conf), 0, 0);
+>>>>>>> upstream/android-13
 		/* If we were in the middle of a write the parity block might
 		 * still be locked - so just clear all R5_LOCKED flags
 		 */
@@ -3485,14 +4228,22 @@ handle_failed_sync(struct r5conf *conf, struct stripe_head *sh,
 			    && !test_bit(Faulty, &rdev->flags)
 			    && !test_bit(In_sync, &rdev->flags)
 			    && !rdev_set_badblocks(rdev, sh->sector,
+<<<<<<< HEAD
 						   STRIPE_SECTORS, 0))
+=======
+						   RAID5_STRIPE_SECTORS(conf), 0))
+>>>>>>> upstream/android-13
 				abort = 1;
 			rdev = rcu_dereference(conf->disks[i].replacement);
 			if (rdev
 			    && !test_bit(Faulty, &rdev->flags)
 			    && !test_bit(In_sync, &rdev->flags)
 			    && !rdev_set_badblocks(rdev, sh->sector,
+<<<<<<< HEAD
 						   STRIPE_SECTORS, 0))
+=======
+						   RAID5_STRIPE_SECTORS(conf), 0))
+>>>>>>> upstream/android-13
 				abort = 1;
 		}
 		rcu_read_unlock();
@@ -3500,7 +4251,11 @@ handle_failed_sync(struct r5conf *conf, struct stripe_head *sh,
 			conf->recovery_disabled =
 				conf->mddev->recovery_disabled;
 	}
+<<<<<<< HEAD
 	md_done_sync(conf->mddev, STRIPE_SECTORS, !abort);
+=======
+	md_done_sync(conf->mddev, RAID5_STRIPE_SECTORS(conf), !abort);
+>>>>>>> upstream/android-13
 }
 
 static int want_replace(struct stripe_head *sh, int disk_idx)
@@ -3527,6 +4282,10 @@ static int need_this_block(struct stripe_head *sh, struct stripe_head_state *s,
 	struct r5dev *fdev[2] = { &sh->dev[s->failed_num[0]],
 				  &sh->dev[s->failed_num[1]] };
 	int i;
+<<<<<<< HEAD
+=======
+	bool force_rcw = (sh->raid_conf->rmw_level == PARITY_DISABLE_RMW);
+>>>>>>> upstream/android-13
 
 
 	if (test_bit(R5_LOCKED, &dev->flags) ||
@@ -3585,18 +4344,41 @@ static int need_this_block(struct stripe_head *sh, struct stripe_head_state *s,
 			 * devices must be read.
 			 */
 			return 1;
+<<<<<<< HEAD
 	}
 
 	/* If we are forced to do a reconstruct-write, either because
 	 * the current RAID6 implementation only supports that, or
 	 * because parity cannot be trusted and we are currently
 	 * recovering it, there is extra need to be careful.
+=======
+
+		if (s->failed >= 2 &&
+		    (fdev[i]->towrite ||
+		     s->failed_num[i] == sh->pd_idx ||
+		     s->failed_num[i] == sh->qd_idx) &&
+		    !test_bit(R5_UPTODATE, &fdev[i]->flags))
+			/* In max degraded raid6, If the failed disk is P, Q,
+			 * or we want to read the failed disk, we need to do
+			 * reconstruct-write.
+			 */
+			force_rcw = true;
+	}
+
+	/* If we are forced to do a reconstruct-write, because parity
+	 * cannot be trusted and we are currently recovering it, there
+	 * is extra need to be careful.
+>>>>>>> upstream/android-13
 	 * If one of the devices that we would need to read, because
 	 * it is not being overwritten (and maybe not written at all)
 	 * is missing/faulty, then we need to read everything we can.
 	 */
+<<<<<<< HEAD
 	if (sh->raid_conf->level != 6 &&
 	    sh->raid_conf->rmw_level != PARITY_DISABLE_RMW &&
+=======
+	if (!force_rcw &&
+>>>>>>> upstream/android-13
 	    sh->sector < sh->raid_conf->mddev->recovery_cp)
 		/* reconstruct-write isn't being forced */
 		return 0;
@@ -3700,7 +4482,11 @@ static int fetch_block(struct stripe_head *sh, struct stripe_head_state *s,
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * handle_stripe_fill - read or compute data to satisfy pending requests.
  */
 static void handle_stripe_fill(struct stripe_head *sh,
@@ -3775,14 +4561,23 @@ returnbi:
 				wbi = dev->written;
 				dev->written = NULL;
 				while (wbi && wbi->bi_iter.bi_sector <
+<<<<<<< HEAD
 					dev->sector + STRIPE_SECTORS) {
 					wbi2 = r5_next_bio(wbi, dev->sector);
+=======
+					dev->sector + RAID5_STRIPE_SECTORS(conf)) {
+					wbi2 = r5_next_bio(conf, wbi, dev->sector);
+>>>>>>> upstream/android-13
 					md_write_end(conf->mddev);
 					bio_endio(wbi);
 					wbi = wbi2;
 				}
 				md_bitmap_endwrite(conf->mddev->bitmap, sh->sector,
+<<<<<<< HEAD
 						   STRIPE_SECTORS,
+=======
+						   RAID5_STRIPE_SECTORS(conf),
+>>>>>>> upstream/android-13
 						   !test_bit(STRIPE_DEGRADED, &sh->state),
 						   0);
 				if (head_sh->batch_head) {
@@ -3966,10 +4761,15 @@ static int handle_stripe_dirtying(struct r5conf *conf,
 					set_bit(R5_LOCKED, &dev->flags);
 					set_bit(R5_Wantread, &dev->flags);
 					s->locked++;
+<<<<<<< HEAD
 				} else {
 					set_bit(STRIPE_DELAYED, &sh->state);
 					set_bit(STRIPE_HANDLE, &sh->state);
 				}
+=======
+				} else
+					set_bit(STRIPE_DELAYED, &sh->state);
+>>>>>>> upstream/android-13
 			}
 		}
 	}
@@ -3994,10 +4794,15 @@ static int handle_stripe_dirtying(struct r5conf *conf,
 					set_bit(R5_Wantread, &dev->flags);
 					s->locked++;
 					qread++;
+<<<<<<< HEAD
 				} else {
 					set_bit(STRIPE_DELAYED, &sh->state);
 					set_bit(STRIPE_HANDLE, &sh->state);
 				}
+=======
+				} else
+					set_bit(STRIPE_DELAYED, &sh->state);
+>>>>>>> upstream/android-13
 			}
 		}
 		if (rcw && conf->mddev->queue)
@@ -4047,7 +4852,11 @@ static void handle_parity_checks5(struct r5conf *conf, struct stripe_head *sh,
 			break;
 		}
 		dev = &sh->dev[s->failed_num[0]];
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case check_state_compute_result:
 		sh->check_state = check_state_idle;
 		if (!dev)
@@ -4089,7 +4898,11 @@ static void handle_parity_checks5(struct r5conf *conf, struct stripe_head *sh,
 			 */
 			set_bit(STRIPE_INSYNC, &sh->state);
 		else {
+<<<<<<< HEAD
 			atomic64_add(STRIPE_SECTORS, &conf->mddev->resync_mismatches);
+=======
+			atomic64_add(RAID5_STRIPE_SECTORS(conf), &conf->mddev->resync_mismatches);
+>>>>>>> upstream/android-13
 			if (test_bit(MD_RECOVERY_CHECK, &conf->mddev->recovery)) {
 				/* don't try to repair!! */
 				set_bit(STRIPE_INSYNC, &sh->state);
@@ -4097,7 +4910,11 @@ static void handle_parity_checks5(struct r5conf *conf, struct stripe_head *sh,
 						    "%llu-%llu\n", mdname(conf->mddev),
 						    (unsigned long long) sh->sector,
 						    (unsigned long long) sh->sector +
+<<<<<<< HEAD
 						    STRIPE_SECTORS);
+=======
+						    RAID5_STRIPE_SECTORS(conf));
+>>>>>>> upstream/android-13
 			} else {
 				sh->check_state = check_state_compute_run;
 				set_bit(STRIPE_COMPUTE_RUN, &sh->state);
@@ -4178,7 +4995,11 @@ static void handle_parity_checks6(struct r5conf *conf, struct stripe_head *sh,
 
 		/* we have 2-disk failure */
 		BUG_ON(s->failed != 2);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case check_state_compute_result:
 		sh->check_state = check_state_idle;
 
@@ -4254,7 +5075,11 @@ static void handle_parity_checks6(struct r5conf *conf, struct stripe_head *sh,
 				 */
 			}
 		} else {
+<<<<<<< HEAD
 			atomic64_add(STRIPE_SECTORS, &conf->mddev->resync_mismatches);
+=======
+			atomic64_add(RAID5_STRIPE_SECTORS(conf), &conf->mddev->resync_mismatches);
+>>>>>>> upstream/android-13
 			if (test_bit(MD_RECOVERY_CHECK, &conf->mddev->recovery)) {
 				/* don't try to repair!! */
 				set_bit(STRIPE_INSYNC, &sh->state);
@@ -4262,7 +5087,11 @@ static void handle_parity_checks6(struct r5conf *conf, struct stripe_head *sh,
 						    "%llu-%llu\n", mdname(conf->mddev),
 						    (unsigned long long) sh->sector,
 						    (unsigned long long) sh->sector +
+<<<<<<< HEAD
 						    STRIPE_SECTORS);
+=======
+						    RAID5_STRIPE_SECTORS(conf));
+>>>>>>> upstream/android-13
 			} else {
 				int *target = &sh->ops.target;
 
@@ -4333,7 +5162,12 @@ static void handle_stripe_expansion(struct r5conf *conf, struct stripe_head *sh)
 			/* place all the copies on one channel */
 			init_async_submit(&submit, 0, tx, NULL, NULL, NULL);
 			tx = async_memcpy(sh2->dev[dd_idx].page,
+<<<<<<< HEAD
 					  sh->dev[i].page, 0, 0, STRIPE_SIZE,
+=======
+					  sh->dev[i].page, sh2->dev[dd_idx].offset,
+					  sh->dev[i].offset, RAID5_STRIPE_SIZE(conf),
+>>>>>>> upstream/android-13
 					  &submit);
 
 			set_bit(R5_Expanded, &sh2->dev[dd_idx].flags);
@@ -4432,8 +5266,13 @@ static void analyse_stripe(struct stripe_head *sh, struct stripe_head_state *s)
 		 */
 		rdev = rcu_dereference(conf->disks[i].replacement);
 		if (rdev && !test_bit(Faulty, &rdev->flags) &&
+<<<<<<< HEAD
 		    rdev->recovery_offset >= sh->sector + STRIPE_SECTORS &&
 		    !is_badblock(rdev, sh->sector, STRIPE_SECTORS,
+=======
+		    rdev->recovery_offset >= sh->sector + RAID5_STRIPE_SECTORS(conf) &&
+		    !is_badblock(rdev, sh->sector, RAID5_STRIPE_SECTORS(conf),
+>>>>>>> upstream/android-13
 				 &first_bad, &bad_sectors))
 			set_bit(R5_ReadRepl, &dev->flags);
 		else {
@@ -4447,7 +5286,11 @@ static void analyse_stripe(struct stripe_head *sh, struct stripe_head_state *s)
 		if (rdev && test_bit(Faulty, &rdev->flags))
 			rdev = NULL;
 		if (rdev) {
+<<<<<<< HEAD
 			is_bad = is_badblock(rdev, sh->sector, STRIPE_SECTORS,
+=======
+			is_bad = is_badblock(rdev, sh->sector, RAID5_STRIPE_SECTORS(conf),
+>>>>>>> upstream/android-13
 					     &first_bad, &bad_sectors);
 			if (s->blocked_rdev == NULL
 			    && (test_bit(Blocked, &rdev->flags)
@@ -4474,7 +5317,11 @@ static void analyse_stripe(struct stripe_head *sh, struct stripe_head_state *s)
 			}
 		} else if (test_bit(In_sync, &rdev->flags))
 			set_bit(R5_Insync, &dev->flags);
+<<<<<<< HEAD
 		else if (sh->sector + STRIPE_SECTORS <= rdev->recovery_offset)
+=======
+		else if (sh->sector + RAID5_STRIPE_SECTORS(conf) <= rdev->recovery_offset)
+>>>>>>> upstream/android-13
 			/* in sync if before recovery_offset */
 			set_bit(R5_Insync, &dev->flags);
 		else if (test_bit(R5_UPTODATE, &dev->flags) &&
@@ -4563,12 +5410,21 @@ static void analyse_stripe(struct stripe_head *sh, struct stripe_head_state *s)
 	rcu_read_unlock();
 }
 
+<<<<<<< HEAD
 static int clear_batch_ready(struct stripe_head *sh)
 {
 	/* Return '1' if this is a member of batch, or
 	 * '0' if it is a lone stripe or a head which can now be
 	 * handled.
 	 */
+=======
+/*
+ * Return '1' if this is a member of batch, or '0' if it is a lone stripe or
+ * a head which can now be handled.
+ */
+static int clear_batch_ready(struct stripe_head *sh)
+{
+>>>>>>> upstream/android-13
 	struct stripe_head *tmp;
 	if (!test_and_clear_bit(STRIPE_BATCH_READY, &sh->state))
 		return (sh->batch_head && sh->batch_head != sh);
@@ -4618,7 +5474,10 @@ static void break_stripe_batch_list(struct stripe_head *head_sh,
 					  (1 << STRIPE_FULL_WRITE) |
 					  (1 << STRIPE_BIOFILL_RUN) |
 					  (1 << STRIPE_COMPUTE_RUN)  |
+<<<<<<< HEAD
 					  (1 << STRIPE_OPS_REQ_PENDING) |
+=======
+>>>>>>> upstream/android-13
 					  (1 << STRIPE_DISCARD) |
 					  (1 << STRIPE_BATCH_READY) |
 					  (1 << STRIPE_BATCH_ERR) |
@@ -4673,6 +5532,19 @@ static void handle_stripe(struct stripe_head *sh)
 	struct r5dev *pdev, *qdev;
 
 	clear_bit(STRIPE_HANDLE, &sh->state);
+<<<<<<< HEAD
+=======
+
+	/*
+	 * handle_stripe should not continue handle the batched stripe, only
+	 * the head of batch list or lone stripe can continue. Otherwise we
+	 * could see break_stripe_batch_list warns about the STRIPE_ACTIVE
+	 * is set for the batched stripe.
+	 */
+	if (clear_batch_ready(sh))
+		return;
+
+>>>>>>> upstream/android-13
 	if (test_and_set_bit_lock(STRIPE_ACTIVE, &sh->state)) {
 		/* already being handled, ensure it gets handled
 		 * again when current action finishes */
@@ -4680,11 +5552,14 @@ static void handle_stripe(struct stripe_head *sh)
 		return;
 	}
 
+<<<<<<< HEAD
 	if (clear_batch_ready(sh) ) {
 		clear_bit_unlock(STRIPE_ACTIVE, &sh->state);
 		return;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (test_and_clear_bit(STRIPE_BATCH_ERR, &sh->state))
 		break_stripe_batch_list(sh, 0);
 
@@ -4918,7 +5793,11 @@ static void handle_stripe(struct stripe_head *sh)
 	if ((s.syncing || s.replacing) && s.locked == 0 &&
 	    !test_bit(STRIPE_COMPUTE_RUN, &sh->state) &&
 	    test_bit(STRIPE_INSYNC, &sh->state)) {
+<<<<<<< HEAD
 		md_done_sync(conf->mddev, STRIPE_SECTORS, 1);
+=======
+		md_done_sync(conf->mddev, RAID5_STRIPE_SECTORS(conf), 1);
+>>>>>>> upstream/android-13
 		clear_bit(STRIPE_SYNCING, &sh->state);
 		if (test_and_clear_bit(R5_Overlap, &sh->dev[sh->pd_idx].flags))
 			wake_up(&conf->wait_for_overlap);
@@ -4937,6 +5816,7 @@ static void handle_stripe(struct stripe_head *sh)
 				if (!test_bit(R5_ReWrite, &dev->flags)) {
 					set_bit(R5_Wantwrite, &dev->flags);
 					set_bit(R5_ReWrite, &dev->flags);
+<<<<<<< HEAD
 					set_bit(R5_LOCKED, &dev->flags);
 					s.locked++;
 				} else {
@@ -4945,6 +5825,13 @@ static void handle_stripe(struct stripe_head *sh)
 					set_bit(R5_LOCKED, &dev->flags);
 					s.locked++;
 				}
+=======
+				} else
+					/* let's read it back */
+					set_bit(R5_Wantread, &dev->flags);
+				set_bit(R5_LOCKED, &dev->flags);
+				s.locked++;
+>>>>>>> upstream/android-13
 			}
 		}
 
@@ -4986,7 +5873,11 @@ static void handle_stripe(struct stripe_head *sh)
 		clear_bit(STRIPE_EXPAND_READY, &sh->state);
 		atomic_dec(&conf->reshape_stripes);
 		wake_up(&conf->wait_for_overlap);
+<<<<<<< HEAD
 		md_done_sync(conf->mddev, STRIPE_SECTORS, 1);
+=======
+		md_done_sync(conf->mddev, RAID5_STRIPE_SECTORS(conf), 1);
+>>>>>>> upstream/android-13
 	}
 
 	if (s.expanding && s.locked == 0 &&
@@ -5016,14 +5907,22 @@ finish:
 				/* We own a safe reference to the rdev */
 				rdev = conf->disks[i].rdev;
 				if (!rdev_set_badblocks(rdev, sh->sector,
+<<<<<<< HEAD
 							STRIPE_SECTORS, 0))
+=======
+							RAID5_STRIPE_SECTORS(conf), 0))
+>>>>>>> upstream/android-13
 					md_error(conf->mddev, rdev);
 				rdev_dec_pending(rdev, conf->mddev);
 			}
 			if (test_and_clear_bit(R5_MadeGood, &dev->flags)) {
 				rdev = conf->disks[i].rdev;
 				rdev_clear_badblocks(rdev, sh->sector,
+<<<<<<< HEAD
 						     STRIPE_SECTORS, 0);
+=======
+						     RAID5_STRIPE_SECTORS(conf), 0);
+>>>>>>> upstream/android-13
 				rdev_dec_pending(rdev, conf->mddev);
 			}
 			if (test_and_clear_bit(R5_MadeGoodRepl, &dev->flags)) {
@@ -5032,7 +5931,11 @@ finish:
 					/* rdev have been moved down */
 					rdev = conf->disks[i].rdev;
 				rdev_clear_badblocks(rdev, sh->sector,
+<<<<<<< HEAD
 						     STRIPE_SECTORS, 0);
+=======
+						     RAID5_STRIPE_SECTORS(conf), 0);
+>>>>>>> upstream/android-13
 				rdev_dec_pending(rdev, conf->mddev);
 			}
 		}
@@ -5090,6 +5993,7 @@ static void activate_bit_delay(struct r5conf *conf,
 	}
 }
 
+<<<<<<< HEAD
 static int raid5_congested(struct mddev *mddev, int bits)
 {
 	struct r5conf *conf = mddev->private;
@@ -5112,6 +6016,8 @@ static int raid5_congested(struct mddev *mddev, int bits)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int in_chunk_boundary(struct mddev *mddev, struct bio *bio)
 {
 	struct r5conf *conf = mddev->private;
@@ -5119,8 +6025,11 @@ static int in_chunk_boundary(struct mddev *mddev, struct bio *bio)
 	unsigned int chunk_sectors;
 	unsigned int bio_sectors = bio_sectors(bio);
 
+<<<<<<< HEAD
 	WARN_ON_ONCE(bio->bi_partno);
 
+=======
+>>>>>>> upstream/android-13
 	chunk_sectors = min(conf->chunk_sectors, conf->prev_chunk_sectors);
 	return  chunk_sectors >=
 		((sector & (chunk_sectors - 1)) + bio_sectors);
@@ -5172,11 +6081,20 @@ static struct bio *remove_bio_from_retry(struct r5conf *conf,
  */
 static void raid5_align_endio(struct bio *bi)
 {
+<<<<<<< HEAD
 	struct bio* raid_bi  = bi->bi_private;
+=======
+	struct md_io_acct *md_io_acct = bi->bi_private;
+	struct bio *raid_bi = md_io_acct->orig_bio;
+>>>>>>> upstream/android-13
 	struct mddev *mddev;
 	struct r5conf *conf;
 	struct md_rdev *rdev;
 	blk_status_t error = bi->bi_status;
+<<<<<<< HEAD
+=======
+	unsigned long start_time = md_io_acct->start_time;
+>>>>>>> upstream/android-13
 
 	bio_put(bi);
 
@@ -5188,6 +6106,11 @@ static void raid5_align_endio(struct bio *bi)
 	rdev_dec_pending(rdev, conf->mddev);
 
 	if (!error) {
+<<<<<<< HEAD
+=======
+		if (blk_queue_io_stat(raid_bi->bi_bdev->bd_disk->queue))
+			bio_end_io_acct(raid_bi, start_time);
+>>>>>>> upstream/android-13
 		bio_endio(raid_bi);
 		if (atomic_dec_and_test(&conf->active_aligned_reads))
 			wake_up(&conf->wait_for_quiescent);
@@ -5202,15 +6125,25 @@ static void raid5_align_endio(struct bio *bi)
 static int raid5_read_one_chunk(struct mddev *mddev, struct bio *raid_bio)
 {
 	struct r5conf *conf = mddev->private;
+<<<<<<< HEAD
 	int dd_idx;
 	struct bio* align_bi;
 	struct md_rdev *rdev;
 	sector_t end_sector;
+=======
+	struct bio *align_bio;
+	struct md_rdev *rdev;
+	sector_t sector, end_sector, first_bad;
+	int bad_sectors, dd_idx;
+	struct md_io_acct *md_io_acct;
+	bool did_inc;
+>>>>>>> upstream/android-13
 
 	if (!in_chunk_boundary(mddev, raid_bio)) {
 		pr_debug("%s: non aligned\n", __func__);
 		return 0;
 	}
+<<<<<<< HEAD
 	/*
 	 * use bio_clone_fast to make a copy of the bio
 	 */
@@ -5232,10 +6165,22 @@ static int raid5_read_one_chunk(struct mddev *mddev, struct bio *raid_bio)
 
 	end_sector = bio_end_sector(align_bi);
 	rcu_read_lock();
+=======
+
+	sector = raid5_compute_sector(conf, raid_bio->bi_iter.bi_sector, 0,
+				      &dd_idx, NULL);
+	end_sector = bio_end_sector(raid_bio);
+
+	rcu_read_lock();
+	if (r5c_big_stripe_cached(conf, sector))
+		goto out_rcu_unlock;
+
+>>>>>>> upstream/android-13
 	rdev = rcu_dereference(conf->disks[dd_idx].replacement);
 	if (!rdev || test_bit(Faulty, &rdev->flags) ||
 	    rdev->recovery_offset < end_sector) {
 		rdev = rcu_dereference(conf->disks[dd_idx].rdev);
+<<<<<<< HEAD
 		if (rdev &&
 		    (test_bit(Faulty, &rdev->flags) ||
 		    !(test_bit(In_sync, &rdev->flags) ||
@@ -5288,6 +6233,69 @@ static int raid5_read_one_chunk(struct mddev *mddev, struct bio *raid_bio)
 		bio_put(align_bi);
 		return 0;
 	}
+=======
+		if (!rdev)
+			goto out_rcu_unlock;
+		if (test_bit(Faulty, &rdev->flags) ||
+		    !(test_bit(In_sync, &rdev->flags) ||
+		      rdev->recovery_offset >= end_sector))
+			goto out_rcu_unlock;
+	}
+
+	atomic_inc(&rdev->nr_pending);
+	rcu_read_unlock();
+
+	if (is_badblock(rdev, sector, bio_sectors(raid_bio), &first_bad,
+			&bad_sectors)) {
+		bio_put(raid_bio);
+		rdev_dec_pending(rdev, mddev);
+		return 0;
+	}
+
+	align_bio = bio_clone_fast(raid_bio, GFP_NOIO, &mddev->io_acct_set);
+	md_io_acct = container_of(align_bio, struct md_io_acct, bio_clone);
+	raid_bio->bi_next = (void *)rdev;
+	if (blk_queue_io_stat(raid_bio->bi_bdev->bd_disk->queue))
+		md_io_acct->start_time = bio_start_io_acct(raid_bio);
+	md_io_acct->orig_bio = raid_bio;
+
+	bio_set_dev(align_bio, rdev->bdev);
+	align_bio->bi_end_io = raid5_align_endio;
+	align_bio->bi_private = md_io_acct;
+	align_bio->bi_iter.bi_sector = sector;
+
+	/* No reshape active, so we can trust rdev->data_offset */
+	align_bio->bi_iter.bi_sector += rdev->data_offset;
+
+	did_inc = false;
+	if (conf->quiesce == 0) {
+		atomic_inc(&conf->active_aligned_reads);
+		did_inc = true;
+	}
+	/* need a memory barrier to detect the race with raid5_quiesce() */
+	if (!did_inc || smp_load_acquire(&conf->quiesce) != 0) {
+		/* quiesce is in progress, so we need to undo io activation and wait
+		 * for it to finish
+		 */
+		if (did_inc && atomic_dec_and_test(&conf->active_aligned_reads))
+			wake_up(&conf->wait_for_quiescent);
+		spin_lock_irq(&conf->device_lock);
+		wait_event_lock_irq(conf->wait_for_quiescent, conf->quiesce == 0,
+				    conf->device_lock);
+		atomic_inc(&conf->active_aligned_reads);
+		spin_unlock_irq(&conf->device_lock);
+	}
+
+	if (mddev->gendisk)
+		trace_block_bio_remap(align_bio, disk_devt(mddev->gendisk),
+				      raid_bio->bi_iter.bi_sector);
+	submit_bio_noacct(align_bio);
+	return 1;
+
+out_rcu_unlock:
+	rcu_read_unlock();
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static struct bio *chunk_aligned_read(struct mddev *mddev, struct bio *raid_bio)
@@ -5301,7 +6309,11 @@ static struct bio *chunk_aligned_read(struct mddev *mddev, struct bio *raid_bio)
 		struct r5conf *conf = mddev->private;
 		split = bio_split(raid_bio, sectors, GFP_NOIO, &conf->bio_split);
 		bio_chain(split, raid_bio);
+<<<<<<< HEAD
 		generic_make_request(raid_bio);
+=======
+		submit_bio_noacct(raid_bio);
+>>>>>>> upstream/android-13
 		raid_bio = split;
 	}
 
@@ -5497,8 +6509,13 @@ static void make_discard_request(struct mddev *mddev, struct bio *bi)
 		/* Skip discard while reshape is happening */
 		return;
 
+<<<<<<< HEAD
 	logical_sector = bi->bi_iter.bi_sector & ~((sector_t)STRIPE_SECTORS-1);
 	last_sector = bi->bi_iter.bi_sector + (bi->bi_iter.bi_size>>9);
+=======
+	logical_sector = bi->bi_iter.bi_sector & ~((sector_t)RAID5_STRIPE_SECTORS(conf)-1);
+	last_sector = bio_end_sector(bi);
+>>>>>>> upstream/android-13
 
 	bi->bi_next = NULL;
 
@@ -5512,7 +6529,11 @@ static void make_discard_request(struct mddev *mddev, struct bio *bi)
 	last_sector *= conf->chunk_sectors;
 
 	for (; logical_sector < last_sector;
+<<<<<<< HEAD
 	     logical_sector += STRIPE_SECTORS) {
+=======
+	     logical_sector += RAID5_STRIPE_SECTORS(conf)) {
+>>>>>>> upstream/android-13
 		DEFINE_WAIT(w);
 		int d;
 	again:
@@ -5557,7 +6578,11 @@ static void make_discard_request(struct mddev *mddev, struct bio *bi)
 			     d++)
 				md_bitmap_startwrite(mddev->bitmap,
 						     sh->sector,
+<<<<<<< HEAD
 						     STRIPE_SECTORS,
+=======
+						     RAID5_STRIPE_SECTORS(conf),
+>>>>>>> upstream/android-13
 						     0);
 			sh->bm_seq = conf->seq_flush + 1;
 			set_bit(STRIPE_BIT_DELAY, &sh->state);
@@ -5622,12 +6647,22 @@ static bool raid5_make_request(struct mddev *mddev, struct bio * bi)
 		return true;
 	}
 
+<<<<<<< HEAD
 	logical_sector = bi->bi_iter.bi_sector & ~((sector_t)STRIPE_SECTORS-1);
 	last_sector = bio_end_sector(bi);
 	bi->bi_next = NULL;
 
 	prepare_to_wait(&conf->wait_for_overlap, &w, TASK_UNINTERRUPTIBLE);
 	for (;logical_sector < last_sector; logical_sector += STRIPE_SECTORS) {
+=======
+	logical_sector = bi->bi_iter.bi_sector & ~((sector_t)RAID5_STRIPE_SECTORS(conf)-1);
+	last_sector = bio_end_sector(bi);
+	bi->bi_next = NULL;
+
+	md_account_bio(mddev, &bi);
+	prepare_to_wait(&conf->wait_for_overlap, &w, TASK_UNINTERRUPTIBLE);
+	for (; logical_sector < last_sector; logical_sector += RAID5_STRIPE_SECTORS(conf)) {
+>>>>>>> upstream/android-13
 		int previous;
 		int seq;
 
@@ -5725,8 +6760,12 @@ static bool raid5_make_request(struct mddev *mddev, struct bio * bi)
 				do_flush = false;
 			}
 
+<<<<<<< HEAD
 			if (!sh->batch_head || sh == sh->batch_head)
 				set_bit(STRIPE_HANDLE, &sh->state);
+=======
+			set_bit(STRIPE_HANDLE, &sh->state);
+>>>>>>> upstream/android-13
 			clear_bit(STRIPE_DELAYED, &sh->state);
 			if ((!sh->batch_head || sh == sh->batch_head) &&
 			    (bi->bi_opf & REQ_SYNC) &&
@@ -5791,7 +6830,11 @@ static sector_t reshape_request(struct mddev *mddev, sector_t sector_nr, int *sk
 		sector_div(sector_nr, new_data_disks);
 		if (sector_nr) {
 			mddev->curr_resync_completed = sector_nr;
+<<<<<<< HEAD
 			sysfs_notify(&mddev->kobj, NULL, "sync_completed");
+=======
+			sysfs_notify_dirent_safe(mddev->sysfs_completed);
+>>>>>>> upstream/android-13
 			*skipped = 1;
 			retn = sector_nr;
 			goto finish;
@@ -5905,11 +6948,19 @@ static sector_t reshape_request(struct mddev *mddev, sector_t sector_nr, int *sk
 		conf->reshape_safe = mddev->reshape_position;
 		spin_unlock_irq(&conf->device_lock);
 		wake_up(&conf->wait_for_overlap);
+<<<<<<< HEAD
 		sysfs_notify(&mddev->kobj, NULL, "sync_completed");
 	}
 
 	INIT_LIST_HEAD(&stripes);
 	for (i = 0; i < reshape_sectors; i += STRIPE_SECTORS) {
+=======
+		sysfs_notify_dirent_safe(mddev->sysfs_completed);
+	}
+
+	INIT_LIST_HEAD(&stripes);
+	for (i = 0; i < reshape_sectors; i += RAID5_STRIPE_SECTORS(conf)) {
+>>>>>>> upstream/android-13
 		int j;
 		int skipped_disk = 0;
 		sh = raid5_get_active_stripe(conf, stripe_addr+i, 0, 0, 1);
@@ -5930,7 +6981,11 @@ static sector_t reshape_request(struct mddev *mddev, sector_t sector_nr, int *sk
 				skipped_disk = 1;
 				continue;
 			}
+<<<<<<< HEAD
 			memset(page_address(sh->dev[j].page), 0, STRIPE_SIZE);
+=======
+			memset(page_address(sh->dev[j].page), 0, RAID5_STRIPE_SIZE(conf));
+>>>>>>> upstream/android-13
 			set_bit(R5_Expanded, &sh->dev[j].flags);
 			set_bit(R5_UPTODATE, &sh->dev[j].flags);
 		}
@@ -5965,7 +7020,11 @@ static sector_t reshape_request(struct mddev *mddev, sector_t sector_nr, int *sk
 		set_bit(STRIPE_EXPAND_SOURCE, &sh->state);
 		set_bit(STRIPE_HANDLE, &sh->state);
 		raid5_release_stripe(sh);
+<<<<<<< HEAD
 		first_sector += STRIPE_SECTORS;
+=======
+		first_sector += RAID5_STRIPE_SECTORS(conf);
+>>>>>>> upstream/android-13
 	}
 	/* Now that the sources are clearly marked, we can release
 	 * the destination stripes
@@ -6012,7 +7071,11 @@ finish:
 		conf->reshape_safe = mddev->reshape_position;
 		spin_unlock_irq(&conf->device_lock);
 		wake_up(&conf->wait_for_overlap);
+<<<<<<< HEAD
 		sysfs_notify(&mddev->kobj, NULL, "sync_completed");
+=======
+		sysfs_notify_dirent_safe(mddev->sysfs_completed);
+>>>>>>> upstream/android-13
 	}
 ret:
 	return retn;
@@ -6071,11 +7134,20 @@ static inline sector_t raid5_sync_request(struct mddev *mddev, sector_t sector_n
 	if (!test_bit(MD_RECOVERY_REQUESTED, &mddev->recovery) &&
 	    !conf->fullsync &&
 	    !md_bitmap_start_sync(mddev->bitmap, sector_nr, &sync_blocks, 1) &&
+<<<<<<< HEAD
 	    sync_blocks >= STRIPE_SECTORS) {
 		/* we can skip this block, and probably more */
 		sync_blocks /= STRIPE_SECTORS;
 		*skipped = 1;
 		return sync_blocks * STRIPE_SECTORS; /* keep things rounded to whole stripes */
+=======
+	    sync_blocks >= RAID5_STRIPE_SECTORS(conf)) {
+		/* we can skip this block, and probably more */
+		do_div(sync_blocks, RAID5_STRIPE_SECTORS(conf));
+		*skipped = 1;
+		/* keep things rounded to whole stripes */
+		return sync_blocks * RAID5_STRIPE_SECTORS(conf);
+>>>>>>> upstream/android-13
 	}
 
 	md_bitmap_cond_end_sync(mddev->bitmap, sector_nr, false);
@@ -6108,7 +7180,11 @@ static inline sector_t raid5_sync_request(struct mddev *mddev, sector_t sector_n
 
 	raid5_release_stripe(sh);
 
+<<<<<<< HEAD
 	return STRIPE_SECTORS;
+=======
+	return RAID5_STRIPE_SECTORS(conf);
+>>>>>>> upstream/android-13
 }
 
 static int  retry_aligned_read(struct r5conf *conf, struct bio *raid_bio,
@@ -6131,14 +7207,23 @@ static int  retry_aligned_read(struct r5conf *conf, struct bio *raid_bio,
 	int handled = 0;
 
 	logical_sector = raid_bio->bi_iter.bi_sector &
+<<<<<<< HEAD
 		~((sector_t)STRIPE_SECTORS-1);
+=======
+		~((sector_t)RAID5_STRIPE_SECTORS(conf)-1);
+>>>>>>> upstream/android-13
 	sector = raid5_compute_sector(conf, logical_sector,
 				      0, &dd_idx, NULL);
 	last_sector = bio_end_sector(raid_bio);
 
 	for (; logical_sector < last_sector;
+<<<<<<< HEAD
 	     logical_sector += STRIPE_SECTORS,
 		     sector += STRIPE_SECTORS,
+=======
+	     logical_sector += RAID5_STRIPE_SECTORS(conf),
+		     sector += RAID5_STRIPE_SECTORS(conf),
+>>>>>>> upstream/android-13
 		     scnt++) {
 
 		if (scnt < offset)
@@ -6177,6 +7262,11 @@ static int  retry_aligned_read(struct r5conf *conf, struct bio *raid_bio,
 static int handle_active_stripes(struct r5conf *conf, int group,
 				 struct r5worker *worker,
 				 struct list_head *temp_inactive_list)
+<<<<<<< HEAD
+=======
+		__releases(&conf->device_lock)
+		__acquires(&conf->device_lock)
+>>>>>>> upstream/android-13
 {
 	struct stripe_head *batch[MAX_STRIPE_BATCH], *sh;
 	int i, batch_size = 0, hash;
@@ -6469,6 +7559,103 @@ raid5_rmw_level = __ATTR(rmw_level, S_IRUGO | S_IWUSR,
 			 raid5_show_rmw_level,
 			 raid5_store_rmw_level);
 
+<<<<<<< HEAD
+=======
+static ssize_t
+raid5_show_stripe_size(struct mddev  *mddev, char *page)
+{
+	struct r5conf *conf;
+	int ret = 0;
+
+	spin_lock(&mddev->lock);
+	conf = mddev->private;
+	if (conf)
+		ret = sprintf(page, "%lu\n", RAID5_STRIPE_SIZE(conf));
+	spin_unlock(&mddev->lock);
+	return ret;
+}
+
+#if PAGE_SIZE != DEFAULT_STRIPE_SIZE
+static ssize_t
+raid5_store_stripe_size(struct mddev  *mddev, const char *page, size_t len)
+{
+	struct r5conf *conf;
+	unsigned long new;
+	int err;
+	int size;
+
+	if (len >= PAGE_SIZE)
+		return -EINVAL;
+	if (kstrtoul(page, 10, &new))
+		return -EINVAL;
+
+	/*
+	 * The value should not be bigger than PAGE_SIZE. It requires to
+	 * be multiple of DEFAULT_STRIPE_SIZE and the value should be power
+	 * of two.
+	 */
+	if (new % DEFAULT_STRIPE_SIZE != 0 ||
+			new > PAGE_SIZE || new == 0 ||
+			new != roundup_pow_of_two(new))
+		return -EINVAL;
+
+	err = mddev_lock(mddev);
+	if (err)
+		return err;
+
+	conf = mddev->private;
+	if (!conf) {
+		err = -ENODEV;
+		goto out_unlock;
+	}
+
+	if (new == conf->stripe_size)
+		goto out_unlock;
+
+	pr_debug("md/raid: change stripe_size from %lu to %lu\n",
+			conf->stripe_size, new);
+
+	if (mddev->sync_thread ||
+		test_bit(MD_RECOVERY_RUNNING, &mddev->recovery) ||
+		mddev->reshape_position != MaxSector ||
+		mddev->sysfs_active) {
+		err = -EBUSY;
+		goto out_unlock;
+	}
+
+	mddev_suspend(mddev);
+	mutex_lock(&conf->cache_size_mutex);
+	size = conf->max_nr_stripes;
+
+	shrink_stripes(conf);
+
+	conf->stripe_size = new;
+	conf->stripe_shift = ilog2(new) - 9;
+	conf->stripe_sectors = new >> 9;
+	if (grow_stripes(conf, size)) {
+		pr_warn("md/raid:%s: couldn't allocate buffers\n",
+				mdname(mddev));
+		err = -ENOMEM;
+	}
+	mutex_unlock(&conf->cache_size_mutex);
+	mddev_resume(mddev);
+
+out_unlock:
+	mddev_unlock(mddev);
+	return err ?: len;
+}
+
+static struct md_sysfs_entry
+raid5_stripe_size = __ATTR(stripe_size, 0644,
+			 raid5_show_stripe_size,
+			 raid5_store_stripe_size);
+#else
+static struct md_sysfs_entry
+raid5_stripe_size = __ATTR(stripe_size, 0444,
+			 raid5_show_stripe_size,
+			 NULL);
+#endif
+>>>>>>> upstream/android-13
 
 static ssize_t
 raid5_show_preread_threshold(struct mddev *mddev, char *page)
@@ -6548,6 +7735,7 @@ raid5_store_skip_copy(struct mddev *mddev, const char *page, size_t len)
 	if (!conf)
 		err = -ENODEV;
 	else if (new != conf->skip_copy) {
+<<<<<<< HEAD
 		mddev_suspend(mddev);
 		conf->skip_copy = new;
 		if (new)
@@ -6556,6 +7744,16 @@ raid5_store_skip_copy(struct mddev *mddev, const char *page, size_t len)
 		else
 			mddev->queue->backing_dev_info->capabilities &=
 				~BDI_CAP_STABLE_WRITES;
+=======
+		struct request_queue *q = mddev->queue;
+
+		mddev_suspend(mddev);
+		conf->skip_copy = new;
+		if (new)
+			blk_queue_flag_set(QUEUE_FLAG_STABLE_WRITES, q);
+		else
+			blk_queue_flag_clear(QUEUE_FLAG_STABLE_WRITES, q);
+>>>>>>> upstream/android-13
 		mddev_resume(mddev);
 	}
 	mddev_unlock(mddev);
@@ -6595,7 +7793,10 @@ raid5_show_group_thread_cnt(struct mddev *mddev, char *page)
 
 static int alloc_thread_groups(struct r5conf *conf, int cnt,
 			       int *group_cnt,
+<<<<<<< HEAD
 			       int *worker_cnt_per_group,
+=======
+>>>>>>> upstream/android-13
 			       struct r5worker_group **worker_groups);
 static ssize_t
 raid5_store_group_thread_cnt(struct mddev *mddev, const char *page, size_t len)
@@ -6604,7 +7805,11 @@ raid5_store_group_thread_cnt(struct mddev *mddev, const char *page, size_t len)
 	unsigned int new;
 	int err;
 	struct r5worker_group *new_groups, *old_groups;
+<<<<<<< HEAD
 	int group_cnt, worker_cnt_per_group;
+=======
+	int group_cnt;
+>>>>>>> upstream/android-13
 
 	if (len >= PAGE_SIZE)
 		return -EINVAL;
@@ -6627,6 +7832,7 @@ raid5_store_group_thread_cnt(struct mddev *mddev, const char *page, size_t len)
 		if (old_groups)
 			flush_workqueue(raid5_wq);
 
+<<<<<<< HEAD
 		err = alloc_thread_groups(conf, new,
 					  &group_cnt, &worker_cnt_per_group,
 					  &new_groups);
@@ -6634,6 +7840,13 @@ raid5_store_group_thread_cnt(struct mddev *mddev, const char *page, size_t len)
 			spin_lock_irq(&conf->device_lock);
 			conf->group_cnt = group_cnt;
 			conf->worker_cnt_per_group = worker_cnt_per_group;
+=======
+		err = alloc_thread_groups(conf, new, &group_cnt, &new_groups);
+		if (!err) {
+			spin_lock_irq(&conf->device_lock);
+			conf->group_cnt = group_cnt;
+			conf->worker_cnt_per_group = new;
+>>>>>>> upstream/android-13
 			conf->worker_groups = new_groups;
 			spin_unlock_irq(&conf->device_lock);
 
@@ -6660,24 +7873,40 @@ static struct attribute *raid5_attrs[] =  {
 	&raid5_group_thread_cnt.attr,
 	&raid5_skip_copy.attr,
 	&raid5_rmw_level.attr,
+<<<<<<< HEAD
 	&r5c_journal_mode.attr,
 	NULL,
 };
 static struct attribute_group raid5_attrs_group = {
+=======
+	&raid5_stripe_size.attr,
+	&r5c_journal_mode.attr,
+	&ppl_write_hint.attr,
+	NULL,
+};
+static const struct attribute_group raid5_attrs_group = {
+>>>>>>> upstream/android-13
 	.name = NULL,
 	.attrs = raid5_attrs,
 };
 
+<<<<<<< HEAD
 static int alloc_thread_groups(struct r5conf *conf, int cnt,
 			       int *group_cnt,
 			       int *worker_cnt_per_group,
+=======
+static int alloc_thread_groups(struct r5conf *conf, int cnt, int *group_cnt,
+>>>>>>> upstream/android-13
 			       struct r5worker_group **worker_groups)
 {
 	int i, j, k;
 	ssize_t size;
 	struct r5worker *workers;
 
+<<<<<<< HEAD
 	*worker_cnt_per_group = cnt;
+=======
+>>>>>>> upstream/android-13
 	if (cnt == 0) {
 		*group_cnt = 0;
 		*worker_groups = NULL;
@@ -6743,14 +7972,20 @@ raid5_size(struct mddev *mddev, sector_t sectors, int raid_disks)
 static void free_scratch_buffer(struct r5conf *conf, struct raid5_percpu *percpu)
 {
 	safe_put_page(percpu->spare_page);
+<<<<<<< HEAD
 	if (percpu->scribble)
 		flex_array_free(percpu->scribble);
 	percpu->spare_page = NULL;
+=======
+	percpu->spare_page = NULL;
+	kvfree(percpu->scribble);
+>>>>>>> upstream/android-13
 	percpu->scribble = NULL;
 }
 
 static int alloc_scratch_buffer(struct r5conf *conf, struct raid5_percpu *percpu)
 {
+<<<<<<< HEAD
 	if (conf->level == 6 && !percpu->spare_page)
 		percpu->spare_page = alloc_page(GFP_KERNEL);
 	if (!percpu->scribble)
@@ -6762,6 +7997,20 @@ static int alloc_scratch_buffer(struct r5conf *conf, struct raid5_percpu *percpu
 						  GFP_KERNEL);
 
 	if (!percpu->scribble || (conf->level == 6 && !percpu->spare_page)) {
+=======
+	if (conf->level == 6 && !percpu->spare_page) {
+		percpu->spare_page = alloc_page(GFP_KERNEL);
+		if (!percpu->spare_page)
+			return -ENOMEM;
+	}
+
+	if (scribble_alloc(percpu,
+			   max(conf->raid_disks,
+			       conf->previous_raid_disks),
+			   max(conf->chunk_sectors,
+			       conf->prev_chunk_sectors)
+			   / RAID5_STRIPE_SECTORS(conf))) {
+>>>>>>> upstream/android-13
 		free_scratch_buffer(conf, percpu);
 		return -ENOMEM;
 	}
@@ -6877,7 +8126,11 @@ static struct r5conf *setup_conf(struct mddev *mddev)
 	struct disk_info *disk;
 	char pers_name[6];
 	int i;
+<<<<<<< HEAD
 	int group_cnt, worker_cnt_per_group;
+=======
+	int group_cnt;
+>>>>>>> upstream/android-13
 	struct r5worker_group *new_group;
 	int ret;
 
@@ -6913,6 +8166,15 @@ static struct r5conf *setup_conf(struct mddev *mddev)
 	conf = kzalloc(sizeof(struct r5conf), GFP_KERNEL);
 	if (conf == NULL)
 		goto abort;
+<<<<<<< HEAD
+=======
+
+#if PAGE_SIZE != DEFAULT_STRIPE_SIZE
+	conf->stripe_size = DEFAULT_STRIPE_SIZE;
+	conf->stripe_shift = ilog2(DEFAULT_STRIPE_SIZE) - 9;
+	conf->stripe_sectors = DEFAULT_STRIPE_SIZE >> 9;
+#endif
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&conf->free_list);
 	INIT_LIST_HEAD(&conf->pending_list);
 	conf->pending_data = kcalloc(PENDING_IO_MAX,
@@ -6923,15 +8185,25 @@ static struct r5conf *setup_conf(struct mddev *mddev)
 	for (i = 0; i < PENDING_IO_MAX; i++)
 		list_add(&conf->pending_data[i].sibling, &conf->free_list);
 	/* Don't enable multi-threading by default*/
+<<<<<<< HEAD
 	if (!alloc_thread_groups(conf, 0, &group_cnt, &worker_cnt_per_group,
 				 &new_group)) {
 		conf->group_cnt = group_cnt;
 		conf->worker_cnt_per_group = worker_cnt_per_group;
+=======
+	if (!alloc_thread_groups(conf, 0, &group_cnt, &new_group)) {
+		conf->group_cnt = group_cnt;
+		conf->worker_cnt_per_group = 0;
+>>>>>>> upstream/android-13
 		conf->worker_groups = new_group;
 	} else
 		goto abort;
 	spin_lock_init(&conf->device_lock);
+<<<<<<< HEAD
 	seqcount_init(&conf->gen_lock);
+=======
+	seqcount_spinlock_init(&conf->gen_lock, &conf->device_lock);
+>>>>>>> upstream/android-13
 	mutex_init(&conf->cache_size_mutex);
 	init_waitqueue_head(&conf->wait_for_quiescent);
 	init_waitqueue_head(&conf->wait_for_stripe);
@@ -7065,8 +8337,13 @@ static struct r5conf *setup_conf(struct mddev *mddev)
 	conf->min_nr_stripes = NR_STRIPES;
 	if (mddev->reshape_position != MaxSector) {
 		int stripes = max_t(int,
+<<<<<<< HEAD
 			((mddev->chunk_sectors << 9) / STRIPE_SIZE) * 4,
 			((mddev->new_chunk_sectors << 9) / STRIPE_SIZE) * 4);
+=======
+			((mddev->chunk_sectors << 9) / RAID5_STRIPE_SIZE(conf)) * 4,
+			((mddev->new_chunk_sectors << 9) / RAID5_STRIPE_SIZE(conf)) * 4);
+>>>>>>> upstream/android-13
 		conf->min_nr_stripes = max(NR_STRIPES, stripes);
 		if (conf->min_nr_stripes != NR_STRIPES)
 			pr_info("md/raid:%s: force stripe size %d for reshape\n",
@@ -7141,6 +8418,15 @@ static int only_parity(int raid_disk, int algo, int raid_disks, int max_degraded
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void raid5_set_io_opt(struct r5conf *conf)
+{
+	blk_queue_io_opt(conf->mddev->queue, (conf->chunk_sectors << 9) *
+			 (conf->raid_disks - conf->max_degraded));
+}
+
+>>>>>>> upstream/android-13
 static int raid5_run(struct mddev *mddev)
 {
 	struct r5conf *conf;
@@ -7149,12 +8435,28 @@ static int raid5_run(struct mddev *mddev)
 	struct md_rdev *rdev;
 	struct md_rdev *journal_dev = NULL;
 	sector_t reshape_offset = 0;
+<<<<<<< HEAD
 	int i;
 	long long min_offset_diff = 0;
 	int first = 1;
 
 	if (mddev_init_writes_pending(mddev) < 0)
 		return -ENOMEM;
+=======
+	int i, ret = 0;
+	long long min_offset_diff = 0;
+	int first = 1;
+
+	if (acct_bioset_init(mddev)) {
+		pr_err("md/raid456:%s: alloc acct bioset failed.\n", mdname(mddev));
+		return -ENOMEM;
+	}
+
+	if (mddev_init_writes_pending(mddev) < 0) {
+		ret = -ENOMEM;
+		goto exit_acct_set;
+	}
+>>>>>>> upstream/android-13
 
 	if (mddev->recovery_cp != MaxSector)
 		pr_notice("md/raid:%s: not clean -- starting background reconstruction\n",
@@ -7185,7 +8487,12 @@ static int raid5_run(struct mddev *mddev)
 	    (mddev->bitmap_info.offset || mddev->bitmap_info.file)) {
 		pr_notice("md/raid:%s: array cannot have both journal and bitmap\n",
 			  mdname(mddev));
+<<<<<<< HEAD
 		return -EINVAL;
+=======
+		ret = -EINVAL;
+		goto exit_acct_set;
+>>>>>>> upstream/android-13
 	}
 
 	if (mddev->reshape_position != MaxSector) {
@@ -7210,13 +8517,23 @@ static int raid5_run(struct mddev *mddev)
 		if (journal_dev) {
 			pr_warn("md/raid:%s: don't support reshape with journal - aborting.\n",
 				mdname(mddev));
+<<<<<<< HEAD
 			return -EINVAL;
+=======
+			ret = -EINVAL;
+			goto exit_acct_set;
+>>>>>>> upstream/android-13
 		}
 
 		if (mddev->new_level != mddev->level) {
 			pr_warn("md/raid:%s: unsupported reshape required - aborting.\n",
 				mdname(mddev));
+<<<<<<< HEAD
 			return -EINVAL;
+=======
+			ret = -EINVAL;
+			goto exit_acct_set;
+>>>>>>> upstream/android-13
 		}
 		old_disks = mddev->raid_disks - mddev->delta_disks;
 		/* reshape_position must be on a new-stripe boundary, and one
@@ -7232,7 +8549,12 @@ static int raid5_run(struct mddev *mddev)
 		if (sector_div(here_new, chunk_sectors * new_data_disks)) {
 			pr_warn("md/raid:%s: reshape_position not on a stripe boundary\n",
 				mdname(mddev));
+<<<<<<< HEAD
 			return -EINVAL;
+=======
+			ret = -EINVAL;
+			goto exit_acct_set;
+>>>>>>> upstream/android-13
 		}
 		reshape_offset = here_new * chunk_sectors;
 		/* here_new is the stripe we will write to */
@@ -7254,7 +8576,12 @@ static int raid5_run(struct mddev *mddev)
 			else if (mddev->ro == 0) {
 				pr_warn("md/raid:%s: in-place reshape must be started in read-only mode - aborting\n",
 					mdname(mddev));
+<<<<<<< HEAD
 				return -EINVAL;
+=======
+				ret = -EINVAL;
+				goto exit_acct_set;
+>>>>>>> upstream/android-13
 			}
 		} else if (mddev->reshape_backwards
 		    ? (here_new * chunk_sectors + min_offset_diff <=
@@ -7264,7 +8591,12 @@ static int raid5_run(struct mddev *mddev)
 			/* Reading from the same stripe as writing to - bad */
 			pr_warn("md/raid:%s: reshape_position too early for auto-recovery - aborting.\n",
 				mdname(mddev));
+<<<<<<< HEAD
 			return -EINVAL;
+=======
+			ret = -EINVAL;
+			goto exit_acct_set;
+>>>>>>> upstream/android-13
 		}
 		pr_debug("md/raid:%s: reshape will continue\n", mdname(mddev));
 		/* OK, we should be able to continue; */
@@ -7288,8 +8620,15 @@ static int raid5_run(struct mddev *mddev)
 	else
 		conf = mddev->private;
 
+<<<<<<< HEAD
 	if (IS_ERR(conf))
 		return PTR_ERR(conf);
+=======
+	if (IS_ERR(conf)) {
+		ret = PTR_ERR(conf);
+		goto exit_acct_set;
+	}
+>>>>>>> upstream/android-13
 
 	if (test_bit(MD_HAS_JOURNAL, &mddev->flags)) {
 		if (!journal_dev) {
@@ -7369,7 +8708,11 @@ static int raid5_run(struct mddev *mddev)
 	}
 
 	/* device size must be a multiple of chunk size */
+<<<<<<< HEAD
 	mddev->dev_sectors &= ~(mddev->chunk_sectors - 1);
+=======
+	mddev->dev_sectors &= ~((sector_t)mddev->chunk_sectors - 1);
+>>>>>>> upstream/android-13
 	mddev->resync_max_sectors = mddev->dev_sectors;
 
 	if (mddev->degraded > dirty_parity_disks &&
@@ -7425,6 +8768,7 @@ static int raid5_run(struct mddev *mddev)
 		int data_disks = conf->previous_raid_disks - conf->max_degraded;
 		int stripe = data_disks *
 			((mddev->chunk_sectors << 9) / PAGE_SIZE);
+<<<<<<< HEAD
 		if (mddev->queue->backing_dev_info->ra_pages < 2 * stripe)
 			mddev->queue->backing_dev_info->ra_pages = 2 * stripe;
 
@@ -7432,6 +8776,12 @@ static int raid5_run(struct mddev *mddev)
 		blk_queue_io_min(mddev->queue, chunk_size);
 		blk_queue_io_opt(mddev->queue, chunk_size *
 				 (conf->raid_disks - conf->max_degraded));
+=======
+
+		chunk_size = mddev->chunk_sectors << 9;
+		blk_queue_io_min(mddev->queue, chunk_size);
+		raid5_set_io_opt(conf);
+>>>>>>> upstream/android-13
 		mddev->queue->limits.raid_partial_stripes_expensive = 1;
 		/*
 		 * We can only discard a whole stripe. It doesn't make sense to
@@ -7492,7 +8842,14 @@ abort:
 	free_conf(conf);
 	mddev->private = NULL;
 	pr_warn("md/raid:%s: failed to run raid set.\n", mdname(mddev));
+<<<<<<< HEAD
 	return -EIO;
+=======
+	ret = -EIO;
+exit_acct_set:
+	acct_bioset_exit(mddev);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void raid5_free(struct mddev *mddev, void *priv)
@@ -7500,6 +8857,10 @@ static void raid5_free(struct mddev *mddev, void *priv)
 	struct r5conf *conf = priv;
 
 	free_conf(conf);
+<<<<<<< HEAD
+=======
+	acct_bioset_exit(mddev);
+>>>>>>> upstream/android-13
 	mddev->to_remove = &raid5_attrs_group;
 }
 
@@ -7797,14 +9158,24 @@ static int check_stripe_cache(struct mddev *mddev)
 	 * stripe_heads first.
 	 */
 	struct r5conf *conf = mddev->private;
+<<<<<<< HEAD
 	if (((mddev->chunk_sectors << 9) / STRIPE_SIZE) * 4
 	    > conf->min_nr_stripes ||
 	    ((mddev->new_chunk_sectors << 9) / STRIPE_SIZE) * 4
+=======
+	if (((mddev->chunk_sectors << 9) / RAID5_STRIPE_SIZE(conf)) * 4
+	    > conf->min_nr_stripes ||
+	    ((mddev->new_chunk_sectors << 9) / RAID5_STRIPE_SIZE(conf)) * 4
+>>>>>>> upstream/android-13
 	    > conf->min_nr_stripes) {
 		pr_warn("md/raid:%s: reshape: not enough stripes.  Needed %lu\n",
 			mdname(mddev),
 			((max(mddev->chunk_sectors, mddev->new_chunk_sectors) << 9)
+<<<<<<< HEAD
 			 / STRIPE_SIZE)*4);
+=======
+			 / RAID5_STRIPE_SIZE(conf))*4);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 	return 1;
@@ -7940,8 +9311,13 @@ static int raid5_start_reshape(struct mddev *mddev)
 					else
 						rdev->recovery_offset = 0;
 
+<<<<<<< HEAD
 					if (sysfs_link_rdev(mddev, rdev))
 						/* Failure here is OK */;
+=======
+					/* Failure here is OK */
+					sysfs_link_rdev(mddev, rdev);
+>>>>>>> upstream/android-13
 				}
 			} else if (rdev->raid_disk >= conf->previous_raid_disks
 				   && !test_bit(Faulty, &rdev->flags)) {
@@ -8015,6 +9391,7 @@ static void end_reshape(struct r5conf *conf)
 		spin_unlock_irq(&conf->device_lock);
 		wake_up(&conf->wait_for_overlap);
 
+<<<<<<< HEAD
 		/* read-ahead size must cover two whole stripes, which is
 		 * 2 * (datadisks) * chunksize where 'n' is the number of raid devices
 		 */
@@ -8025,6 +9402,10 @@ static void end_reshape(struct r5conf *conf)
 			if (conf->mddev->queue->backing_dev_info->ra_pages < 2 * stripe)
 				conf->mddev->queue->backing_dev_info->ra_pages = 2 * stripe;
 		}
+=======
+		if (conf->mddev->queue)
+			raid5_set_io_opt(conf);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -8072,7 +9453,14 @@ static void raid5_quiesce(struct mddev *mddev, int quiesce)
 		 * active stripes can drain
 		 */
 		r5c_flush_cache(conf, INT_MAX);
+<<<<<<< HEAD
 		conf->quiesce = 2;
+=======
+		/* need a memory barrier to make sure read_one_chunk() sees
+		 * quiesce started and reverts to slow (locked) path.
+		 */
+		smp_store_release(&conf->quiesce, 2);
+>>>>>>> upstream/android-13
 		wait_event_cmd(conf->wait_for_quiescent,
 				    atomic_read(&conf->active_stripes) == 0 &&
 				    atomic_read(&conf->active_aligned_reads) == 0,
@@ -8136,7 +9524,11 @@ static void *raid5_takeover_raid1(struct mddev *mddev)
 	while (chunksect && (mddev->array_sectors & (chunksect-1)))
 		chunksect >>= 1;
 
+<<<<<<< HEAD
 	if ((chunksect<<9) < STRIPE_SIZE)
+=======
+	if ((chunksect<<9) < RAID5_STRIPE_SIZE((struct r5conf *)mddev->private))
+>>>>>>> upstream/android-13
 		/* array size does not allow a suitable chunk size */
 		return ERR_PTR(-EINVAL);
 
@@ -8423,7 +9815,10 @@ static struct md_personality raid6_personality =
 	.finish_reshape = raid5_finish_reshape,
 	.quiesce	= raid5_quiesce,
 	.takeover	= raid6_takeover,
+<<<<<<< HEAD
 	.congested	= raid5_congested,
+=======
+>>>>>>> upstream/android-13
 	.change_consistency_policy = raid5_change_consistency_policy,
 };
 static struct md_personality raid5_personality =
@@ -8448,7 +9843,10 @@ static struct md_personality raid5_personality =
 	.finish_reshape = raid5_finish_reshape,
 	.quiesce	= raid5_quiesce,
 	.takeover	= raid5_takeover,
+<<<<<<< HEAD
 	.congested	= raid5_congested,
+=======
+>>>>>>> upstream/android-13
 	.change_consistency_policy = raid5_change_consistency_policy,
 };
 
@@ -8474,7 +9872,10 @@ static struct md_personality raid4_personality =
 	.finish_reshape = raid5_finish_reshape,
 	.quiesce	= raid5_quiesce,
 	.takeover	= raid4_takeover,
+<<<<<<< HEAD
 	.congested	= raid5_congested,
+=======
+>>>>>>> upstream/android-13
 	.change_consistency_policy = raid5_change_consistency_policy,
 };
 

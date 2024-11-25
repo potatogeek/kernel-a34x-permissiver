@@ -1,6 +1,9 @@
+<<<<<<< HEAD
 platform-$(CONFIG_MACH_TX39XX)	+= txx9/
 platform-$(CONFIG_MACH_TX49XX)	+= txx9/
 
+=======
+>>>>>>> upstream/android-13
 cflags-$(CONFIG_MACH_TX39XX)	+=					\
 		-I$(srctree)/arch/mips/include/asm/mach-tx39xx
 cflags-$(CONFIG_MACH_TX49XX)	+=					\

@@ -9,7 +9,13 @@
 # Changed by many, many contributors over the years.
 #
 
+<<<<<<< HEAD
 KASAN_SANITIZE			:= n
+=======
+# Sanitizer runtimes are unavailable and cannot be linked for early boot code.
+KASAN_SANITIZE			:= n
+KCSAN_SANITIZE			:= n
+>>>>>>> upstream/android-13
 OBJECT_FILES_NON_STANDARD	:= y
 
 # Kernel does not boot with kcov instrumentation here.
@@ -27,7 +33,11 @@ KCOV_INSTRUMENT		:= n
 SVGA_MODE	:= -DSVGA_MODE=NORMAL_VGA
 
 targets		:= vmlinux.bin setup.bin setup.elf bzImage
+<<<<<<< HEAD
 targets		+= fdimage fdimage144 fdimage288 image.iso mtools.conf
+=======
+targets		+= fdimage fdimage144 fdimage288 image.iso hdimage
+>>>>>>> upstream/android-13
 subdir-		:= compressed
 
 setup-y		+= a20.o bioscall.o cmdline.o copy.o cpu.o cpuflags.o cpucheck.o
@@ -45,8 +55,13 @@ setup-y		+= video-vesa.o
 setup-y		+= video-bios.o
 
 targets		+= $(setup-y)
+<<<<<<< HEAD
 hostprogs-y	:= tools/build
 hostprogs-$(CONFIG_X86_FEATURE_NAMES) += mkcpustr
+=======
+hostprogs	:= tools/build
+hostprogs	+= mkcpustr
+>>>>>>> upstream/android-13
 
 HOST_EXTRACFLAGS += -I$(srctree)/tools/include \
 		    -include include/generated/autoconf.h \
@@ -57,16 +72,28 @@ $(obj)/cpu.o: $(obj)/cpustr.h
 
 quiet_cmd_cpustr = CPUSTR  $@
       cmd_cpustr = $(obj)/mkcpustr > $@
+<<<<<<< HEAD
 targets += cpustr.h
 $(obj)/cpustr.h: $(obj)/mkcpustr FORCE
 	$(call if_changed,cpustr)
 endif
 clean-files += cpustr.h
+=======
+$(obj)/cpustr.h: $(obj)/mkcpustr FORCE
+	$(call if_changed,cpustr)
+endif
+targets += cpustr.h
+>>>>>>> upstream/android-13
 
 # ---------------------------------------------------------------------------
 
 KBUILD_CFLAGS	:= $(REALMODE_CFLAGS) -D_SETUP
 KBUILD_AFLAGS	:= $(KBUILD_CFLAGS) -D__ASSEMBLY__
+<<<<<<< HEAD
+=======
+KBUILD_CFLAGS	+= $(call cc-option,-fmacro-prefix-map=$(srctree)/=)
+KBUILD_CFLAGS	+= -fno-asynchronous-unwind-tables
+>>>>>>> upstream/android-13
 GCOV_PROFILE := n
 UBSAN_SANITIZE := n
 
@@ -87,7 +114,11 @@ $(obj)/vmlinux.bin: $(obj)/compressed/vmlinux FORCE
 
 SETUP_OBJS = $(addprefix $(obj)/,$(setup-y))
 
+<<<<<<< HEAD
 sed-zoffset := -e 's/^\([0-9a-fA-F]*\) [a-zA-Z] \(startup_32\|startup_64\|efi32_stub_entry\|efi64_stub_entry\|efi_pe_entry\|input_data\|_end\|_ehead\|_text\|z_.*\)$$/\#define ZO_\2 0x\1/p'
+=======
+sed-zoffset := -e 's/^\([0-9a-fA-F]*\) [a-zA-Z] \(startup_32\|startup_64\|efi32_stub_entry\|efi64_stub_entry\|efi_pe_entry\|efi32_pe_entry\|input_data\|kernel_info\|_end\|_ehead\|_text\|z_.*\)$$/\#define ZO_\2 0x\1/p'
+>>>>>>> upstream/android-13
 
 quiet_cmd_zoffset = ZOFFSET $@
       cmd_zoffset = $(NM) $< | sed -n $(sed-zoffset) > $@
@@ -112,6 +143,7 @@ $(obj)/compressed/vmlinux: FORCE
 	$(Q)$(MAKE) $(build)=$(obj)/compressed $@
 
 # Set this if you want to pass append arguments to the
+<<<<<<< HEAD
 # bzdisk/fdimage/isoimage kernel
 FDARGS =
 # Set this if you want an initrd included with the
@@ -119,10 +151,19 @@ FDARGS =
 FDINITRD =
 
 image_cmdline = default linux $(FDARGS) $(if $(FDINITRD),initrd=initrd.img,)
+=======
+# bzdisk/fdimage/hdimage/isoimage kernel
+FDARGS =
+# Set this if you want one or more initrds included in the image
+FDINITRD =
+
+imgdeps = $(obj)/bzImage $(obj)/mtools.conf $(src)/genimage.sh
+>>>>>>> upstream/android-13
 
 $(obj)/mtools.conf: $(src)/mtools.conf.in
 	sed -e 's|@OBJ@|$(obj)|g' < $< > $@
 
+<<<<<<< HEAD
 quiet_cmd_genimage = GENIMAGE $3
 cmd_genimage = sh $(srctree)/$(src)/genimage.sh $2 $3 $(obj)/bzImage \
 			$(obj)/mtools.conf '$(image_cmdline)' $(FDINITRD)
@@ -154,3 +195,36 @@ bzlilo: $(obj)/bzImage
 install:
 	sh $(srctree)/$(src)/install.sh $(KERNELRELEASE) $(obj)/bzImage \
 		System.map "$(INSTALL_PATH)"
+=======
+targets += mtools.conf
+
+# genimage.sh requires bash, but it also has a bunch of other
+# external dependencies.
+quiet_cmd_genimage = GENIMAGE $3
+cmd_genimage = $(BASH) $(srctree)/$(src)/genimage.sh $2 $3 $(obj)/bzImage \
+		$(obj)/mtools.conf '$(FDARGS)' $(FDINITRD)
+
+PHONY += bzdisk fdimage fdimage144 fdimage288 hdimage isoimage
+
+# This requires write access to /dev/fd0
+# All images require syslinux to be installed; hdimage also requires
+# EDK2/OVMF if the kernel is compiled with the EFI stub.
+bzdisk: $(imgdeps)
+	$(call cmd,genimage,bzdisk,/dev/fd0)
+
+fdimage fdimage144: $(imgdeps)
+	$(call cmd,genimage,fdimage144,$(obj)/fdimage)
+	@$(kecho) 'Kernel: $(obj)/fdimage is ready'
+
+fdimage288: $(imgdeps)
+	$(call cmd,genimage,fdimage288,$(obj)/fdimage)
+	@$(kecho) 'Kernel: $(obj)/fdimage is ready'
+
+hdimage: $(imgdeps)
+	$(call cmd,genimage,hdimage,$(obj)/hdimage)
+	@$(kecho) 'Kernel: $(obj)/hdimage is ready'
+
+isoimage: $(imgdeps)
+	$(call cmd,genimage,isoimage,$(obj)/image.iso)
+	@$(kecho) 'Kernel: $(obj)/image.iso is ready'
+>>>>>>> upstream/android-13

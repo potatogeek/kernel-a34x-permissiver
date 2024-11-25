@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2017 Chen-Yu Tsai <wens@csie.org>
  *
@@ -8,6 +9,15 @@
  */
 
 #include <linux/clk-provider.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2017 Chen-Yu Tsai <wens@csie.org>
+ */
+
+#include <linux/clk-provider.h>
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/spinlock.h>
 
 #include "ccu_sdm.h"

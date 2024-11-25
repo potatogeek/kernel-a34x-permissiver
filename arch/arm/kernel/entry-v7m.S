@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * linux/arch/arm/kernel/entry-v7m.S
  *
  * Copyright (C) 2008 ARM Ltd.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Low-level vector interface routines for the ARMv7-M architecture
  */
 #include <asm/memory.h>
@@ -26,7 +33,11 @@ __invalid_entry:
 	adr	r0, strerr
 	mrs	r1, ipsr
 	mov	r2, lr
+<<<<<<< HEAD
 	bl	printk
+=======
+	bl	_printk
+>>>>>>> upstream/android-13
 #endif
 	mov	r0, sp
 	bl	show_regs
@@ -62,7 +73,11 @@ __irq_entry:
 
 	get_thread_info tsk
 	ldr	r2, [tsk, #TI_FLAGS]
+<<<<<<< HEAD
 	tst	r2, #_TIF_WORK_MASK
+=======
+	movs	r2, r2, lsl #16
+>>>>>>> upstream/android-13
 	beq	2f			@ no work pending
 	mov	r0, #V7M_SCB_ICSR_PENDSVSET
 	str	r0, [r1, V7M_SCB_ICSR]	@ raise PendSV

@@ -1,9 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * Freescale FSL CAAM support for crypto API over QI backend.
  * Based on caamalg.c
  *
  * Copyright 2013-2016 Freescale Semiconductor, Inc.
+<<<<<<< HEAD
  * Copyright 2016-2017 NXP
+=======
+ * Copyright 2016-2019 NXP
+>>>>>>> upstream/android-13
  */
 
 #include "compat.h"
@@ -17,6 +25,11 @@
 #include "qi.h"
 #include "jr.h"
 #include "caamalg_desc.h"
+<<<<<<< HEAD
+=======
+#include <crypto/xts.h>
+#include <asm/unaligned.h>
+>>>>>>> upstream/android-13
 
 /*
  * crypto alg
@@ -35,6 +48,10 @@ struct caam_alg_entry {
 	int class2_alg_type;
 	bool rfc3686;
 	bool geniv;
+<<<<<<< HEAD
+=======
+	bool nodkp;
+>>>>>>> upstream/android-13
 };
 
 struct caam_aead_alg {
@@ -43,6 +60,15 @@ struct caam_aead_alg {
 	bool registered;
 };
 
+<<<<<<< HEAD
+=======
+struct caam_skcipher_alg {
+	struct skcipher_alg skcipher;
+	struct caam_alg_entry caam;
+	bool registered;
+};
+
+>>>>>>> upstream/android-13
 /*
  * per-session context
  */
@@ -50,7 +76,10 @@ struct caam_ctx {
 	struct device *jrdev;
 	u32 sh_desc_enc[DESC_MAX_USED_LEN];
 	u32 sh_desc_dec[DESC_MAX_USED_LEN];
+<<<<<<< HEAD
 	u32 sh_desc_givenc[DESC_MAX_USED_LEN];
+=======
+>>>>>>> upstream/android-13
 	u8 key[CAAM_MAX_KEY_SIZE];
 	dma_addr_t key_dma;
 	enum dma_data_direction dir;
@@ -60,6 +89,15 @@ struct caam_ctx {
 	struct device *qidev;
 	spinlock_t lock;	/* Protects multiple init of driver context */
 	struct caam_drv_ctx *drv_ctx[NUM_OP];
+<<<<<<< HEAD
+=======
+	bool xts_key_fallback;
+	struct crypto_skcipher *fallback;
+};
+
+struct caam_skcipher_req_ctx {
+	struct skcipher_request fallback_req;
+>>>>>>> upstream/android-13
 };
 
 static int aead_set_sh_desc(struct crypto_aead *aead)
@@ -98,6 +136,21 @@ static int aead_set_sh_desc(struct crypto_aead *aead)
 				ctx->cdata.keylen - CTR_RFC3686_NONCE_SIZE);
 	}
 
+<<<<<<< HEAD
+=======
+	/*
+	 * In case |user key| > |derived key|, using DKP<imm,imm> would result
+	 * in invalid opcodes (last bytes of user key) in the resulting
+	 * descriptor. Use DKP<ptr,imm> instead => both virtual and dma key
+	 * addresses are needed.
+	 */
+	ctx->adata.key_virt = ctx->key;
+	ctx->adata.key_dma = ctx->key_dma;
+
+	ctx->cdata.key_virt = ctx->key + ctx->adata.keylen_pad;
+	ctx->cdata.key_dma = ctx->key_dma + ctx->adata.keylen_pad;
+
+>>>>>>> upstream/android-13
 	data_len[0] = ctx->adata.keylen_pad;
 	data_len[1] = ctx->cdata.keylen;
 
@@ -111,6 +164,7 @@ static int aead_set_sh_desc(struct crypto_aead *aead)
 			      ARRAY_SIZE(data_len)) < 0)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (inl_mask & 1)
 		ctx->adata.key_virt = ctx->key;
 	else
@@ -121,6 +175,8 @@ static int aead_set_sh_desc(struct crypto_aead *aead)
 	else
 		ctx->cdata.key_dma = ctx->key_dma + ctx->adata.keylen_pad;
 
+=======
+>>>>>>> upstream/android-13
 	ctx->adata.key_inline = !!(inl_mask & 1);
 	ctx->cdata.key_inline = !!(inl_mask & 2);
 
@@ -136,6 +192,7 @@ skip_enc:
 			      ARRAY_SIZE(data_len)) < 0)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (inl_mask & 1)
 		ctx->adata.key_virt = ctx->key;
 	else
@@ -146,6 +203,8 @@ skip_enc:
 	else
 		ctx->cdata.key_dma = ctx->key_dma + ctx->adata.keylen_pad;
 
+=======
+>>>>>>> upstream/android-13
 	ctx->adata.key_inline = !!(inl_mask & 1);
 	ctx->cdata.key_inline = !!(inl_mask & 2);
 
@@ -164,6 +223,7 @@ skip_enc:
 			      ARRAY_SIZE(data_len)) < 0)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (inl_mask & 1)
 		ctx->adata.key_virt = ctx->key;
 	else
@@ -174,6 +234,8 @@ skip_enc:
 	else
 		ctx->cdata.key_dma = ctx->key_dma + ctx->adata.keylen_pad;
 
+=======
+>>>>>>> upstream/android-13
 	ctx->adata.key_inline = !!(inl_mask & 1);
 	ctx->cdata.key_inline = !!(inl_mask & 2);
 
@@ -207,6 +269,7 @@ static int aead_setkey(struct crypto_aead *aead, const u8 *key,
 	if (crypto_authenc_extractkeys(&keys, key, keylen) != 0)
 		goto badkey;
 
+<<<<<<< HEAD
 #ifdef DEBUG
 	dev_err(jrdev, "keylen %d enckeylen %d authkeylen %d\n",
 		keys.authkeylen + keys.enckeylen, keys.enckeylen,
@@ -214,6 +277,13 @@ static int aead_setkey(struct crypto_aead *aead, const u8 *key,
 	print_hex_dump(KERN_ERR, "key in @" __stringify(__LINE__)": ",
 		       DUMP_PREFIX_ADDRESS, 16, 4, key, keylen, 1);
 #endif
+=======
+	dev_dbg(jrdev, "keylen %d enckeylen %d authkeylen %d\n",
+		keys.authkeylen + keys.enckeylen, keys.enckeylen,
+		keys.authkeylen);
+	print_hex_dump_debug("key in @" __stringify(__LINE__)": ",
+			     DUMP_PREFIX_ADDRESS, 16, 4, key, keylen, 1);
+>>>>>>> upstream/android-13
 
 	/*
 	 * If DKP is supported, use it in the shared descriptor to generate
@@ -230,7 +300,11 @@ static int aead_setkey(struct crypto_aead *aead, const u8 *key,
 		memcpy(ctx->key, keys.authkey, keys.authkeylen);
 		memcpy(ctx->key + ctx->adata.keylen_pad, keys.enckey,
 		       keys.enckeylen);
+<<<<<<< HEAD
 		dma_sync_single_for_device(jrdev, ctx->key_dma,
+=======
+		dma_sync_single_for_device(jrdev->parent, ctx->key_dma,
+>>>>>>> upstream/android-13
 					   ctx->adata.keylen_pad +
 					   keys.enckeylen, ctx->dir);
 		goto skip_split_key;
@@ -244,6 +318,7 @@ static int aead_setkey(struct crypto_aead *aead, const u8 *key,
 
 	/* postpend encryption key to auth split key */
 	memcpy(ctx->key + ctx->adata.keylen_pad, keys.enckey, keys.enckeylen);
+<<<<<<< HEAD
 	dma_sync_single_for_device(jrdev, ctx->key_dma, ctx->adata.keylen_pad +
 				   keys.enckeylen, ctx->dir);
 #ifdef DEBUG
@@ -251,6 +326,15 @@ static int aead_setkey(struct crypto_aead *aead, const u8 *key,
 		       DUMP_PREFIX_ADDRESS, 16, 4, ctx->key,
 		       ctx->adata.keylen_pad + keys.enckeylen, 1);
 #endif
+=======
+	dma_sync_single_for_device(jrdev->parent, ctx->key_dma,
+				   ctx->adata.keylen_pad + keys.enckeylen,
+				   ctx->dir);
+
+	print_hex_dump_debug("ctx.key@" __stringify(__LINE__)": ",
+			     DUMP_PREFIX_ADDRESS, 16, 4, ctx->key,
+			     ctx->adata.keylen_pad + keys.enckeylen, 1);
+>>>>>>> upstream/android-13
 
 skip_split_key:
 	ctx->cdata.keylen = keys.enckeylen;
@@ -281,11 +365,34 @@ skip_split_key:
 	memzero_explicit(&keys, sizeof(keys));
 	return ret;
 badkey:
+<<<<<<< HEAD
 	crypto_aead_set_flags(aead, CRYPTO_TFM_RES_BAD_KEY_LEN);
+=======
+>>>>>>> upstream/android-13
 	memzero_explicit(&keys, sizeof(keys));
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
+=======
+static int des3_aead_setkey(struct crypto_aead *aead, const u8 *key,
+			    unsigned int keylen)
+{
+	struct crypto_authenc_keys keys;
+	int err;
+
+	err = crypto_authenc_extractkeys(&keys, key, keylen);
+	if (unlikely(err))
+		return err;
+
+	err = verify_aead_des3_key(aead, keys.enckey, keys.enckeylen) ?:
+	      aead_setkey(aead, key, keylen);
+
+	memzero_explicit(&keys, sizeof(keys));
+	return err;
+}
+
+>>>>>>> upstream/android-13
 static int gcm_set_sh_desc(struct crypto_aead *aead)
 {
 	struct caam_ctx *ctx = crypto_aead_ctx(aead);
@@ -332,6 +439,14 @@ static int gcm_set_sh_desc(struct crypto_aead *aead)
 static int gcm_setauthsize(struct crypto_aead *authenc, unsigned int authsize)
 {
 	struct caam_ctx *ctx = crypto_aead_ctx(authenc);
+<<<<<<< HEAD
+=======
+	int err;
+
+	err = crypto_gcm_check_authsize(authsize);
+	if (err)
+		return err;
+>>>>>>> upstream/android-13
 
 	ctx->authsize = authsize;
 	gcm_set_sh_desc(authenc);
@@ -346,6 +461,7 @@ static int gcm_setkey(struct crypto_aead *aead,
 	struct device *jrdev = ctx->jrdev;
 	int ret;
 
+<<<<<<< HEAD
 #ifdef DEBUG
 	print_hex_dump(KERN_ERR, "key in @" __stringify(__LINE__)": ",
 		       DUMP_PREFIX_ADDRESS, 16, 4, key, keylen, 1);
@@ -353,6 +469,18 @@ static int gcm_setkey(struct crypto_aead *aead,
 
 	memcpy(ctx->key, key, keylen);
 	dma_sync_single_for_device(jrdev, ctx->key_dma, keylen, ctx->dir);
+=======
+	ret = aes_check_keylen(keylen);
+	if (ret)
+		return ret;
+
+	print_hex_dump_debug("key in @" __stringify(__LINE__)": ",
+			     DUMP_PREFIX_ADDRESS, 16, 4, key, keylen, 1);
+
+	memcpy(ctx->key, key, keylen);
+	dma_sync_single_for_device(jrdev->parent, ctx->key_dma, keylen,
+				   ctx->dir);
+>>>>>>> upstream/android-13
 	ctx->cdata.keylen = keylen;
 
 	ret = gcm_set_sh_desc(aead);
@@ -428,6 +556,14 @@ static int rfc4106_setauthsize(struct crypto_aead *authenc,
 			       unsigned int authsize)
 {
 	struct caam_ctx *ctx = crypto_aead_ctx(authenc);
+<<<<<<< HEAD
+=======
+	int err;
+
+	err = crypto_rfc4106_check_authsize(authsize);
+	if (err)
+		return err;
+>>>>>>> upstream/android-13
 
 	ctx->authsize = authsize;
 	rfc4106_set_sh_desc(authenc);
@@ -442,6 +578,7 @@ static int rfc4106_setkey(struct crypto_aead *aead,
 	struct device *jrdev = ctx->jrdev;
 	int ret;
 
+<<<<<<< HEAD
 	if (keylen < 4)
 		return -EINVAL;
 
@@ -449,6 +586,14 @@ static int rfc4106_setkey(struct crypto_aead *aead,
 	print_hex_dump(KERN_ERR, "key in @" __stringify(__LINE__)": ",
 		       DUMP_PREFIX_ADDRESS, 16, 4, key, keylen, 1);
 #endif
+=======
+	ret = aes_check_keylen(keylen - 4);
+	if (ret)
+		return ret;
+
+	print_hex_dump_debug("key in @" __stringify(__LINE__)": ",
+			     DUMP_PREFIX_ADDRESS, 16, 4, key, keylen, 1);
+>>>>>>> upstream/android-13
 
 	memcpy(ctx->key, key, keylen);
 	/*
@@ -456,8 +601,13 @@ static int rfc4106_setkey(struct crypto_aead *aead,
 	 * in the nonce. Update the AES key length.
 	 */
 	ctx->cdata.keylen = keylen - 4;
+<<<<<<< HEAD
 	dma_sync_single_for_device(jrdev, ctx->key_dma, ctx->cdata.keylen,
 				   ctx->dir);
+=======
+	dma_sync_single_for_device(jrdev->parent, ctx->key_dma,
+				   ctx->cdata.keylen, ctx->dir);
+>>>>>>> upstream/android-13
 
 	ret = rfc4106_set_sh_desc(aead);
 	if (ret)
@@ -533,6 +683,12 @@ static int rfc4543_setauthsize(struct crypto_aead *authenc,
 {
 	struct caam_ctx *ctx = crypto_aead_ctx(authenc);
 
+<<<<<<< HEAD
+=======
+	if (authsize != 16)
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	ctx->authsize = authsize;
 	rfc4543_set_sh_desc(authenc);
 
@@ -546,6 +702,7 @@ static int rfc4543_setkey(struct crypto_aead *aead,
 	struct device *jrdev = ctx->jrdev;
 	int ret;
 
+<<<<<<< HEAD
 	if (keylen < 4)
 		return -EINVAL;
 
@@ -553,6 +710,14 @@ static int rfc4543_setkey(struct crypto_aead *aead,
 	print_hex_dump(KERN_ERR, "key in @" __stringify(__LINE__)": ",
 		       DUMP_PREFIX_ADDRESS, 16, 4, key, keylen, 1);
 #endif
+=======
+	ret = aes_check_keylen(keylen - 4);
+	if (ret)
+		return ret;
+
+	print_hex_dump_debug("key in @" __stringify(__LINE__)": ",
+			     DUMP_PREFIX_ADDRESS, 16, 4, key, keylen, 1);
+>>>>>>> upstream/android-13
 
 	memcpy(ctx->key, key, keylen);
 	/*
@@ -560,8 +725,13 @@ static int rfc4543_setkey(struct crypto_aead *aead,
 	 * in the nonce. Update the AES key length.
 	 */
 	ctx->cdata.keylen = keylen - 4;
+<<<<<<< HEAD
 	dma_sync_single_for_device(jrdev, ctx->key_dma, ctx->cdata.keylen,
 				   ctx->dir);
+=======
+	dma_sync_single_for_device(jrdev->parent, ctx->key_dma,
+				   ctx->cdata.keylen, ctx->dir);
+>>>>>>> upstream/android-13
 
 	ret = rfc4543_set_sh_desc(aead);
 	if (ret)
@@ -589,6 +759,7 @@ static int rfc4543_setkey(struct crypto_aead *aead,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int ablkcipher_setkey(struct crypto_ablkcipher *ablkcipher,
 			     const u8 *key, unsigned int keylen)
 {
@@ -614,12 +785,79 @@ static int ablkcipher_setkey(struct crypto_ablkcipher *ablkcipher,
 	 */
 	if (ctr_mode)
 		ctx1_iv_off = 16;
+=======
+static int skcipher_setkey(struct crypto_skcipher *skcipher, const u8 *key,
+			   unsigned int keylen, const u32 ctx1_iv_off)
+{
+	struct caam_ctx *ctx = crypto_skcipher_ctx(skcipher);
+	struct caam_skcipher_alg *alg =
+		container_of(crypto_skcipher_alg(skcipher), typeof(*alg),
+			     skcipher);
+	struct device *jrdev = ctx->jrdev;
+	unsigned int ivsize = crypto_skcipher_ivsize(skcipher);
+	const bool is_rfc3686 = alg->caam.rfc3686;
+	int ret = 0;
+
+	print_hex_dump_debug("key in @" __stringify(__LINE__)": ",
+			     DUMP_PREFIX_ADDRESS, 16, 4, key, keylen, 1);
+
+	ctx->cdata.keylen = keylen;
+	ctx->cdata.key_virt = key;
+	ctx->cdata.key_inline = true;
+
+	/* skcipher encrypt, decrypt shared descriptors */
+	cnstr_shdsc_skcipher_encap(ctx->sh_desc_enc, &ctx->cdata, ivsize,
+				   is_rfc3686, ctx1_iv_off);
+	cnstr_shdsc_skcipher_decap(ctx->sh_desc_dec, &ctx->cdata, ivsize,
+				   is_rfc3686, ctx1_iv_off);
+
+	/* Now update the driver contexts with the new shared descriptor */
+	if (ctx->drv_ctx[ENCRYPT]) {
+		ret = caam_drv_ctx_update(ctx->drv_ctx[ENCRYPT],
+					  ctx->sh_desc_enc);
+		if (ret) {
+			dev_err(jrdev, "driver enc context update failed\n");
+			return -EINVAL;
+		}
+	}
+
+	if (ctx->drv_ctx[DECRYPT]) {
+		ret = caam_drv_ctx_update(ctx->drv_ctx[DECRYPT],
+					  ctx->sh_desc_dec);
+		if (ret) {
+			dev_err(jrdev, "driver dec context update failed\n");
+			return -EINVAL;
+		}
+	}
+
+	return ret;
+}
+
+static int aes_skcipher_setkey(struct crypto_skcipher *skcipher,
+			       const u8 *key, unsigned int keylen)
+{
+	int err;
+
+	err = aes_check_keylen(keylen);
+	if (err)
+		return err;
+
+	return skcipher_setkey(skcipher, key, keylen, 0);
+}
+
+static int rfc3686_skcipher_setkey(struct crypto_skcipher *skcipher,
+				   const u8 *key, unsigned int keylen)
+{
+	u32 ctx1_iv_off;
+	int err;
+>>>>>>> upstream/android-13
 
 	/*
 	 * RFC3686 specific:
 	 *	| CONTEXT1[255:128] = {NONCE, IV, COUNTER}
 	 *	| *key = {KEY, NONCE}
 	 */
+<<<<<<< HEAD
 	if (is_rfc3686) {
 		ctx1_iv_off = 16 + CTR_RFC3686_NONCE_SIZE;
 		keylen -= CTR_RFC3686_NONCE_SIZE;
@@ -681,15 +919,89 @@ static int xts_ablkcipher_setkey(struct crypto_ablkcipher *ablkcipher,
 	if (keylen != 2 * AES_MIN_KEY_SIZE  && keylen != 2 * AES_MAX_KEY_SIZE) {
 		dev_err(jrdev, "key size mismatch\n");
 		goto badkey;
+=======
+	ctx1_iv_off = 16 + CTR_RFC3686_NONCE_SIZE;
+	keylen -= CTR_RFC3686_NONCE_SIZE;
+
+	err = aes_check_keylen(keylen);
+	if (err)
+		return err;
+
+	return skcipher_setkey(skcipher, key, keylen, ctx1_iv_off);
+}
+
+static int ctr_skcipher_setkey(struct crypto_skcipher *skcipher,
+			       const u8 *key, unsigned int keylen)
+{
+	u32 ctx1_iv_off;
+	int err;
+
+	/*
+	 * AES-CTR needs to load IV in CONTEXT1 reg
+	 * at an offset of 128bits (16bytes)
+	 * CONTEXT1[255:128] = IV
+	 */
+	ctx1_iv_off = 16;
+
+	err = aes_check_keylen(keylen);
+	if (err)
+		return err;
+
+	return skcipher_setkey(skcipher, key, keylen, ctx1_iv_off);
+}
+
+static int des3_skcipher_setkey(struct crypto_skcipher *skcipher,
+				const u8 *key, unsigned int keylen)
+{
+	return verify_skcipher_des3_key(skcipher, key) ?:
+	       skcipher_setkey(skcipher, key, keylen, 0);
+}
+
+static int des_skcipher_setkey(struct crypto_skcipher *skcipher,
+			       const u8 *key, unsigned int keylen)
+{
+	return verify_skcipher_des_key(skcipher, key) ?:
+	       skcipher_setkey(skcipher, key, keylen, 0);
+}
+
+static int xts_skcipher_setkey(struct crypto_skcipher *skcipher, const u8 *key,
+			       unsigned int keylen)
+{
+	struct caam_ctx *ctx = crypto_skcipher_ctx(skcipher);
+	struct device *jrdev = ctx->jrdev;
+	struct caam_drv_private *ctrlpriv = dev_get_drvdata(jrdev->parent);
+	int ret = 0;
+	int err;
+
+	err = xts_verify_key(skcipher, key, keylen);
+	if (err) {
+		dev_dbg(jrdev, "key size mismatch\n");
+		return err;
+	}
+
+	if (keylen != 2 * AES_KEYSIZE_128 && keylen != 2 * AES_KEYSIZE_256)
+		ctx->xts_key_fallback = true;
+
+	if (ctrlpriv->era <= 8 || ctx->xts_key_fallback) {
+		err = crypto_skcipher_setkey(ctx->fallback, key, keylen);
+		if (err)
+			return err;
+>>>>>>> upstream/android-13
 	}
 
 	ctx->cdata.keylen = keylen;
 	ctx->cdata.key_virt = key;
 	ctx->cdata.key_inline = true;
 
+<<<<<<< HEAD
 	/* xts ablkcipher encrypt, decrypt shared descriptors */
 	cnstr_shdsc_xts_ablkcipher_encap(ctx->sh_desc_enc, &ctx->cdata);
 	cnstr_shdsc_xts_ablkcipher_decap(ctx->sh_desc_dec, &ctx->cdata);
+=======
+	/* xts skcipher encrypt, decrypt shared descriptors */
+	cnstr_shdsc_xts_skcipher_encap(ctx->sh_desc_enc, &ctx->cdata);
+	cnstr_shdsc_xts_skcipher_decap(ctx->sh_desc_dec, &ctx->cdata);
+>>>>>>> upstream/android-13
 
 	/* Now update the driver contexts with the new shared descriptor */
 	if (ctx->drv_ctx[ENCRYPT]) {
@@ -697,7 +1009,11 @@ static int xts_ablkcipher_setkey(struct crypto_ablkcipher *ablkcipher,
 					  ctx->sh_desc_enc);
 		if (ret) {
 			dev_err(jrdev, "driver enc context update failed\n");
+<<<<<<< HEAD
 			goto badkey;
+=======
+			return -EINVAL;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -706,14 +1022,21 @@ static int xts_ablkcipher_setkey(struct crypto_ablkcipher *ablkcipher,
 					  ctx->sh_desc_dec);
 		if (ret) {
 			dev_err(jrdev, "driver dec context update failed\n");
+<<<<<<< HEAD
 			goto badkey;
+=======
+			return -EINVAL;
+>>>>>>> upstream/android-13
 		}
 	}
 
 	return ret;
+<<<<<<< HEAD
 badkey:
 	crypto_ablkcipher_set_flags(ablkcipher, CRYPTO_TFM_RES_BAD_KEY_LEN);
 	return -EINVAL;
+=======
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -737,11 +1060,19 @@ struct aead_edesc {
 	unsigned int assoclen;
 	dma_addr_t assoclen_dma;
 	struct caam_drv_req drv_req;
+<<<<<<< HEAD
 	struct qm_sg_entry sgt[0];
 };
 
 /*
  * ablkcipher_edesc - s/w-extended ablkcipher descriptor
+=======
+	struct qm_sg_entry sgt[];
+};
+
+/*
+ * skcipher_edesc - s/w-extended skcipher descriptor
+>>>>>>> upstream/android-13
  * @src_nents: number of segments in input scatterlist
  * @dst_nents: number of segments in output scatterlist
  * @iv_dma: dma address of iv for checking continuity and link table
@@ -750,14 +1081,22 @@ struct aead_edesc {
  * @drv_req: driver-specific request structure
  * @sgt: the h/w link table, followed by IV
  */
+<<<<<<< HEAD
 struct ablkcipher_edesc {
+=======
+struct skcipher_edesc {
+>>>>>>> upstream/android-13
 	int src_nents;
 	int dst_nents;
 	dma_addr_t iv_dma;
 	int qm_sg_bytes;
 	dma_addr_t qm_sg_dma;
 	struct caam_drv_req drv_req;
+<<<<<<< HEAD
 	struct qm_sg_entry sgt[0];
+=======
+	struct qm_sg_entry sgt[];
+>>>>>>> upstream/android-13
 };
 
 static struct caam_drv_ctx *get_drv_ctx(struct caam_ctx *ctx,
@@ -781,6 +1120,7 @@ static struct caam_drv_ctx *get_drv_ctx(struct caam_ctx *ctx,
 
 			if (type == ENCRYPT)
 				desc = ctx->sh_desc_enc;
+<<<<<<< HEAD
 			else if (type == DECRYPT)
 				desc = ctx->sh_desc_dec;
 			else /* (type == GIVENCRYPT) */
@@ -789,6 +1129,14 @@ static struct caam_drv_ctx *get_drv_ctx(struct caam_ctx *ctx,
 			cpu = smp_processor_id();
 			drv_ctx = caam_drv_ctx_init(ctx->qidev, &cpu, desc);
 			if (likely(!IS_ERR_OR_NULL(drv_ctx)))
+=======
+			else /* (type == DECRYPT) */
+				desc = ctx->sh_desc_dec;
+
+			cpu = smp_processor_id();
+			drv_ctx = caam_drv_ctx_init(ctx->qidev, &cpu, desc);
+			if (!IS_ERR(drv_ctx))
+>>>>>>> upstream/android-13
 				drv_ctx->op_type = type;
 
 			ctx->drv_ctx[type] = drv_ctx;
@@ -803,21 +1151,34 @@ static struct caam_drv_ctx *get_drv_ctx(struct caam_ctx *ctx,
 static void caam_unmap(struct device *dev, struct scatterlist *src,
 		       struct scatterlist *dst, int src_nents,
 		       int dst_nents, dma_addr_t iv_dma, int ivsize,
+<<<<<<< HEAD
 		       enum optype op_type, dma_addr_t qm_sg_dma,
+=======
+		       enum dma_data_direction iv_dir, dma_addr_t qm_sg_dma,
+>>>>>>> upstream/android-13
 		       int qm_sg_bytes)
 {
 	if (dst != src) {
 		if (src_nents)
 			dma_unmap_sg(dev, src, src_nents, DMA_TO_DEVICE);
+<<<<<<< HEAD
 		dma_unmap_sg(dev, dst, dst_nents, DMA_FROM_DEVICE);
+=======
+		if (dst_nents)
+			dma_unmap_sg(dev, dst, dst_nents, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 	} else {
 		dma_unmap_sg(dev, src, src_nents, DMA_BIDIRECTIONAL);
 	}
 
 	if (iv_dma)
+<<<<<<< HEAD
 		dma_unmap_single(dev, iv_dma, ivsize,
 				 op_type == GIVENCRYPT ? DMA_FROM_DEVICE :
 							 DMA_TO_DEVICE);
+=======
+		dma_unmap_single(dev, iv_dma, ivsize, iv_dir);
+>>>>>>> upstream/android-13
 	if (qm_sg_bytes)
 		dma_unmap_single(dev, qm_sg_dma, qm_sg_bytes, DMA_TO_DEVICE);
 }
@@ -830,6 +1191,7 @@ static void aead_unmap(struct device *dev,
 	int ivsize = crypto_aead_ivsize(aead);
 
 	caam_unmap(dev, req->src, req->dst, edesc->src_nents, edesc->dst_nents,
+<<<<<<< HEAD
 		   edesc->iv_dma, ivsize, edesc->drv_req.drv_ctx->op_type,
 		   edesc->qm_sg_dma, edesc->qm_sg_bytes);
 	dma_unmap_single(dev, edesc->assoclen_dma, 4, DMA_TO_DEVICE);
@@ -845,6 +1207,22 @@ static void ablkcipher_unmap(struct device *dev,
 	caam_unmap(dev, req->src, req->dst, edesc->src_nents, edesc->dst_nents,
 		   edesc->iv_dma, ivsize, edesc->drv_req.drv_ctx->op_type,
 		   edesc->qm_sg_dma, edesc->qm_sg_bytes);
+=======
+		   edesc->iv_dma, ivsize, DMA_TO_DEVICE, edesc->qm_sg_dma,
+		   edesc->qm_sg_bytes);
+	dma_unmap_single(dev, edesc->assoclen_dma, 4, DMA_TO_DEVICE);
+}
+
+static void skcipher_unmap(struct device *dev, struct skcipher_edesc *edesc,
+			   struct skcipher_request *req)
+{
+	struct crypto_skcipher *skcipher = crypto_skcipher_reqtfm(req);
+	int ivsize = crypto_skcipher_ivsize(skcipher);
+
+	caam_unmap(dev, req->src, req->dst, edesc->src_nents, edesc->dst_nents,
+		   edesc->iv_dma, ivsize, DMA_BIDIRECTIONAL, edesc->qm_sg_dma,
+		   edesc->qm_sg_bytes);
+>>>>>>> upstream/android-13
 }
 
 static void aead_done(struct caam_drv_req *drv_req, u32 status)
@@ -858,6 +1236,7 @@ static void aead_done(struct caam_drv_req *drv_req, u32 status)
 
 	qidev = caam_ctx->qidev;
 
+<<<<<<< HEAD
 	if (unlikely(status)) {
 		u32 ssrc = status & JRSTA_SSRC_MASK;
 		u8 err_id = status & JRSTA_CCBERR_ERRID_MASK;
@@ -872,6 +1251,10 @@ static void aead_done(struct caam_drv_req *drv_req, u32 status)
 		else
 			ecode = -EIO;
 	}
+=======
+	if (unlikely(status))
+		ecode = caam_jr_strstatus(qidev, status);
+>>>>>>> upstream/android-13
 
 	edesc = container_of(drv_req, typeof(*edesc), drv_req);
 	aead_unmap(qidev, edesc, aead_req);
@@ -894,6 +1277,10 @@ static struct aead_edesc *aead_edesc_alloc(struct aead_request *req,
 	gfp_t flags = (req->base.flags & CRYPTO_TFM_REQ_MAY_SLEEP) ?
 		       GFP_KERNEL : GFP_ATOMIC;
 	int src_nents, mapped_src_nents, dst_nents = 0, mapped_dst_nents = 0;
+<<<<<<< HEAD
+=======
+	int src_len, dst_len = 0;
+>>>>>>> upstream/android-13
 	struct aead_edesc *edesc;
 	dma_addr_t qm_sg_dma, iv_dma = 0;
 	int ivsize = 0;
@@ -902,10 +1289,16 @@ static struct aead_edesc *aead_edesc_alloc(struct aead_request *req,
 	int in_len, out_len;
 	struct qm_sg_entry *sg_table, *fd_sgt;
 	struct caam_drv_ctx *drv_ctx;
+<<<<<<< HEAD
 	enum optype op_type = encrypt ? ENCRYPT : DECRYPT;
 
 	drv_ctx = get_drv_ctx(ctx, op_type);
 	if (unlikely(IS_ERR_OR_NULL(drv_ctx)))
+=======
+
+	drv_ctx = get_drv_ctx(ctx, encrypt ? ENCRYPT : DECRYPT);
+	if (IS_ERR(drv_ctx))
+>>>>>>> upstream/android-13
 		return (struct aead_edesc *)drv_ctx;
 
 	/* allocate space for base edesc and hw desc commands, link tables */
@@ -916,6 +1309,7 @@ static struct aead_edesc *aead_edesc_alloc(struct aead_request *req,
 	}
 
 	if (likely(req->src == req->dst)) {
+<<<<<<< HEAD
 		src_nents = sg_nents_for_len(req->src, req->assoclen +
 					     req->cryptlen +
 						(encrypt ? authsize : 0));
@@ -923,6 +1317,15 @@ static struct aead_edesc *aead_edesc_alloc(struct aead_request *req,
 			dev_err(qidev, "Insufficient bytes (%d) in src S/G\n",
 				req->assoclen + req->cryptlen +
 				(encrypt ? authsize : 0));
+=======
+		src_len = req->assoclen + req->cryptlen +
+			  (encrypt ? authsize : 0);
+
+		src_nents = sg_nents_for_len(req->src, src_len);
+		if (unlikely(src_nents < 0)) {
+			dev_err(qidev, "Insufficient bytes (%d) in src S/G\n",
+				src_len);
+>>>>>>> upstream/android-13
 			qi_cache_free(edesc);
 			return ERR_PTR(src_nents);
 		}
@@ -935,15 +1338,26 @@ static struct aead_edesc *aead_edesc_alloc(struct aead_request *req,
 			return ERR_PTR(-ENOMEM);
 		}
 	} else {
+<<<<<<< HEAD
 		src_nents = sg_nents_for_len(req->src, req->assoclen +
 					     req->cryptlen);
 		if (unlikely(src_nents < 0)) {
 			dev_err(qidev, "Insufficient bytes (%d) in src S/G\n",
 				req->assoclen + req->cryptlen);
+=======
+		src_len = req->assoclen + req->cryptlen;
+		dst_len = src_len + (encrypt ? authsize : (-authsize));
+
+		src_nents = sg_nents_for_len(req->src, src_len);
+		if (unlikely(src_nents < 0)) {
+			dev_err(qidev, "Insufficient bytes (%d) in src S/G\n",
+				src_len);
+>>>>>>> upstream/android-13
 			qi_cache_free(edesc);
 			return ERR_PTR(src_nents);
 		}
 
+<<<<<<< HEAD
 		dst_nents = sg_nents_for_len(req->dst, req->assoclen +
 					     req->cryptlen +
 					     (encrypt ? authsize :
@@ -952,6 +1366,12 @@ static struct aead_edesc *aead_edesc_alloc(struct aead_request *req,
 			dev_err(qidev, "Insufficient bytes (%d) in dst S/G\n",
 				req->assoclen + req->cryptlen +
 				(encrypt ? authsize : (-authsize)));
+=======
+		dst_nents = sg_nents_for_len(req->dst, dst_len);
+		if (unlikely(dst_nents < 0)) {
+			dev_err(qidev, "Insufficient bytes (%d) in dst S/G\n",
+				dst_len);
+>>>>>>> upstream/android-13
 			qi_cache_free(edesc);
 			return ERR_PTR(dst_nents);
 		}
@@ -968,6 +1388,7 @@ static struct aead_edesc *aead_edesc_alloc(struct aead_request *req,
 			mapped_src_nents = 0;
 		}
 
+<<<<<<< HEAD
 		mapped_dst_nents = dma_map_sg(qidev, req->dst, dst_nents,
 					      DMA_FROM_DEVICE);
 		if (unlikely(!mapped_dst_nents)) {
@@ -975,6 +1396,21 @@ static struct aead_edesc *aead_edesc_alloc(struct aead_request *req,
 			dma_unmap_sg(qidev, req->src, src_nents, DMA_TO_DEVICE);
 			qi_cache_free(edesc);
 			return ERR_PTR(-ENOMEM);
+=======
+		if (dst_nents) {
+			mapped_dst_nents = dma_map_sg(qidev, req->dst,
+						      dst_nents,
+						      DMA_FROM_DEVICE);
+			if (unlikely(!mapped_dst_nents)) {
+				dev_err(qidev, "unable to map destination\n");
+				dma_unmap_sg(qidev, req->src, src_nents,
+					     DMA_TO_DEVICE);
+				qi_cache_free(edesc);
+				return ERR_PTR(-ENOMEM);
+			}
+		} else {
+			mapped_dst_nents = 0;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -984,9 +1420,30 @@ static struct aead_edesc *aead_edesc_alloc(struct aead_request *req,
 	/*
 	 * Create S/G table: req->assoclen, [IV,] req->src [, req->dst].
 	 * Input is not contiguous.
+<<<<<<< HEAD
 	 */
 	qm_sg_ents = 1 + !!ivsize + mapped_src_nents +
 		     (mapped_dst_nents > 1 ? mapped_dst_nents : 0);
+=======
+	 * HW reads 4 S/G entries at a time; make sure the reads don't go beyond
+	 * the end of the table by allocating more S/G entries. Logic:
+	 * if (src != dst && output S/G)
+	 *      pad output S/G, if needed
+	 * else if (src == dst && S/G)
+	 *      overlapping S/Gs; pad one of them
+	 * else if (input S/G) ...
+	 *      pad input S/G, if needed
+	 */
+	qm_sg_ents = 1 + !!ivsize + mapped_src_nents;
+	if (mapped_dst_nents > 1)
+		qm_sg_ents += pad_sg_nents(mapped_dst_nents);
+	else if ((req->src == req->dst) && (mapped_src_nents > 1))
+		qm_sg_ents = max(pad_sg_nents(qm_sg_ents),
+				 1 + !!ivsize + pad_sg_nents(mapped_src_nents));
+	else
+		qm_sg_ents = pad_sg_nents(qm_sg_ents);
+
+>>>>>>> upstream/android-13
 	sg_table = &edesc->sgt[0];
 	qm_sg_bytes = qm_sg_ents * sizeof(*sg_table);
 	if (unlikely(offsetof(struct aead_edesc, sgt) + qm_sg_bytes + ivsize >
@@ -994,7 +1451,11 @@ static struct aead_edesc *aead_edesc_alloc(struct aead_request *req,
 		dev_err(qidev, "No space for %d S/G entries and/or %dB IV\n",
 			qm_sg_ents, ivsize);
 		caam_unmap(qidev, req->src, req->dst, src_nents, dst_nents, 0,
+<<<<<<< HEAD
 			   0, 0, 0, 0);
+=======
+			   0, DMA_NONE, 0, 0);
+>>>>>>> upstream/android-13
 		qi_cache_free(edesc);
 		return ERR_PTR(-ENOMEM);
 	}
@@ -1009,7 +1470,11 @@ static struct aead_edesc *aead_edesc_alloc(struct aead_request *req,
 		if (dma_mapping_error(qidev, iv_dma)) {
 			dev_err(qidev, "unable to map IV\n");
 			caam_unmap(qidev, req->src, req->dst, src_nents,
+<<<<<<< HEAD
 				   dst_nents, 0, 0, 0, 0, 0);
+=======
+				   dst_nents, 0, 0, DMA_NONE, 0, 0);
+>>>>>>> upstream/android-13
 			qi_cache_free(edesc);
 			return ERR_PTR(-ENOMEM);
 		}
@@ -1028,7 +1493,11 @@ static struct aead_edesc *aead_edesc_alloc(struct aead_request *req,
 	if (dma_mapping_error(qidev, edesc->assoclen_dma)) {
 		dev_err(qidev, "unable to map assoclen\n");
 		caam_unmap(qidev, req->src, req->dst, src_nents, dst_nents,
+<<<<<<< HEAD
 			   iv_dma, ivsize, op_type, 0, 0);
+=======
+			   iv_dma, ivsize, DMA_TO_DEVICE, 0, 0);
+>>>>>>> upstream/android-13
 		qi_cache_free(edesc);
 		return ERR_PTR(-ENOMEM);
 	}
@@ -1039,19 +1508,31 @@ static struct aead_edesc *aead_edesc_alloc(struct aead_request *req,
 		dma_to_qm_sg_one(sg_table + qm_sg_index, iv_dma, ivsize, 0);
 		qm_sg_index++;
 	}
+<<<<<<< HEAD
 	sg_to_qm_sg_last(req->src, mapped_src_nents, sg_table + qm_sg_index, 0);
 	qm_sg_index += mapped_src_nents;
 
 	if (mapped_dst_nents > 1)
 		sg_to_qm_sg_last(req->dst, mapped_dst_nents, sg_table +
 				 qm_sg_index, 0);
+=======
+	sg_to_qm_sg_last(req->src, src_len, sg_table + qm_sg_index, 0);
+	qm_sg_index += mapped_src_nents;
+
+	if (mapped_dst_nents > 1)
+		sg_to_qm_sg_last(req->dst, dst_len, sg_table + qm_sg_index, 0);
+>>>>>>> upstream/android-13
 
 	qm_sg_dma = dma_map_single(qidev, sg_table, qm_sg_bytes, DMA_TO_DEVICE);
 	if (dma_mapping_error(qidev, qm_sg_dma)) {
 		dev_err(qidev, "unable to map S/G table\n");
 		dma_unmap_single(qidev, edesc->assoclen_dma, 4, DMA_TO_DEVICE);
 		caam_unmap(qidev, req->src, req->dst, src_nents, dst_nents,
+<<<<<<< HEAD
 			   iv_dma, ivsize, op_type, 0, 0);
+=======
+			   iv_dma, ivsize, DMA_TO_DEVICE, 0, 0);
+>>>>>>> upstream/android-13
 		qi_cache_free(edesc);
 		return ERR_PTR(-ENOMEM);
 	}
@@ -1074,7 +1555,11 @@ static struct aead_edesc *aead_edesc_alloc(struct aead_request *req,
 			dma_to_qm_sg_one_ext(&fd_sgt[0], qm_sg_dma +
 					     (1 + !!ivsize) * sizeof(*sg_table),
 					     out_len, 0);
+<<<<<<< HEAD
 	} else if (mapped_dst_nents == 1) {
+=======
+	} else if (mapped_dst_nents <= 1) {
+>>>>>>> upstream/android-13
 		dma_to_qm_sg_one(&fd_sgt[0], sg_dma_address(req->dst), out_len,
 				 0);
 	} else {
@@ -1097,7 +1582,11 @@ static inline int aead_crypt(struct aead_request *req, bool encrypt)
 
 	/* allocate extended descriptor */
 	edesc = aead_edesc_alloc(req, encrypt);
+<<<<<<< HEAD
 	if (IS_ERR_OR_NULL(edesc))
+=======
+	if (IS_ERR(edesc))
+>>>>>>> upstream/android-13
 		return PTR_ERR(edesc);
 
 	/* Create and submit job descriptor */
@@ -1124,14 +1613,20 @@ static int aead_decrypt(struct aead_request *req)
 
 static int ipsec_gcm_encrypt(struct aead_request *req)
 {
+<<<<<<< HEAD
 	if (req->assoclen < 8)
 		return -EINVAL;
 
 	return aead_crypt(req, true);
+=======
+	return crypto_ipsec_check_assoclen(req->assoclen) ? : aead_crypt(req,
+					   true);
+>>>>>>> upstream/android-13
 }
 
 static int ipsec_gcm_decrypt(struct aead_request *req)
 {
+<<<<<<< HEAD
 	if (req->assoclen < 8)
 		return -EINVAL;
 
@@ -1150,10 +1645,28 @@ static void ablkcipher_done(struct caam_drv_req *drv_req, u32 status)
 #ifdef DEBUG
 	dev_err(qidev, "%s %d: status 0x%x\n", __func__, __LINE__, status);
 #endif
+=======
+	return crypto_ipsec_check_assoclen(req->assoclen) ? : aead_crypt(req,
+					   false);
+}
+
+static void skcipher_done(struct caam_drv_req *drv_req, u32 status)
+{
+	struct skcipher_edesc *edesc;
+	struct skcipher_request *req = drv_req->app_ctx;
+	struct crypto_skcipher *skcipher = crypto_skcipher_reqtfm(req);
+	struct caam_ctx *caam_ctx = crypto_skcipher_ctx(skcipher);
+	struct device *qidev = caam_ctx->qidev;
+	int ivsize = crypto_skcipher_ivsize(skcipher);
+	int ecode = 0;
+
+	dev_dbg(qidev, "%s %d: status 0x%x\n", __func__, __LINE__, status);
+>>>>>>> upstream/android-13
 
 	edesc = container_of(drv_req, typeof(*edesc), drv_req);
 
 	if (status)
+<<<<<<< HEAD
 		caam_jr_strstatus(qidev, status);
 
 #ifdef DEBUG
@@ -1195,10 +1708,42 @@ static struct ablkcipher_edesc *ablkcipher_edesc_alloc(struct ablkcipher_request
 {
 	struct crypto_ablkcipher *ablkcipher = crypto_ablkcipher_reqtfm(req);
 	struct caam_ctx *ctx = crypto_ablkcipher_ctx(ablkcipher);
+=======
+		ecode = caam_jr_strstatus(qidev, status);
+
+	print_hex_dump_debug("dstiv  @" __stringify(__LINE__)": ",
+			     DUMP_PREFIX_ADDRESS, 16, 4, req->iv,
+			     edesc->src_nents > 1 ? 100 : ivsize, 1);
+	caam_dump_sg("dst    @" __stringify(__LINE__)": ",
+		     DUMP_PREFIX_ADDRESS, 16, 4, req->dst,
+		     edesc->dst_nents > 1 ? 100 : req->cryptlen, 1);
+
+	skcipher_unmap(qidev, edesc, req);
+
+	/*
+	 * The crypto API expects us to set the IV (req->iv) to the last
+	 * ciphertext block (CBC mode) or last counter (CTR mode).
+	 * This is used e.g. by the CTS mode.
+	 */
+	if (!ecode)
+		memcpy(req->iv, (u8 *)&edesc->sgt[0] + edesc->qm_sg_bytes,
+		       ivsize);
+
+	qi_cache_free(edesc);
+	skcipher_request_complete(req, ecode);
+}
+
+static struct skcipher_edesc *skcipher_edesc_alloc(struct skcipher_request *req,
+						   bool encrypt)
+{
+	struct crypto_skcipher *skcipher = crypto_skcipher_reqtfm(req);
+	struct caam_ctx *ctx = crypto_skcipher_ctx(skcipher);
+>>>>>>> upstream/android-13
 	struct device *qidev = ctx->qidev;
 	gfp_t flags = (req->base.flags & CRYPTO_TFM_REQ_MAY_SLEEP) ?
 		       GFP_KERNEL : GFP_ATOMIC;
 	int src_nents, mapped_src_nents, dst_nents = 0, mapped_dst_nents = 0;
+<<<<<<< HEAD
 	struct ablkcipher_edesc *edesc;
 	dma_addr_t iv_dma;
 	u8 *iv;
@@ -1216,14 +1761,39 @@ static struct ablkcipher_edesc *ablkcipher_edesc_alloc(struct ablkcipher_request
 	if (unlikely(src_nents < 0)) {
 		dev_err(qidev, "Insufficient bytes (%d) in src S/G\n",
 			req->nbytes);
+=======
+	struct skcipher_edesc *edesc;
+	dma_addr_t iv_dma;
+	u8 *iv;
+	int ivsize = crypto_skcipher_ivsize(skcipher);
+	int dst_sg_idx, qm_sg_ents, qm_sg_bytes;
+	struct qm_sg_entry *sg_table, *fd_sgt;
+	struct caam_drv_ctx *drv_ctx;
+
+	drv_ctx = get_drv_ctx(ctx, encrypt ? ENCRYPT : DECRYPT);
+	if (IS_ERR(drv_ctx))
+		return (struct skcipher_edesc *)drv_ctx;
+
+	src_nents = sg_nents_for_len(req->src, req->cryptlen);
+	if (unlikely(src_nents < 0)) {
+		dev_err(qidev, "Insufficient bytes (%d) in src S/G\n",
+			req->cryptlen);
+>>>>>>> upstream/android-13
 		return ERR_PTR(src_nents);
 	}
 
 	if (unlikely(req->src != req->dst)) {
+<<<<<<< HEAD
 		dst_nents = sg_nents_for_len(req->dst, req->nbytes);
 		if (unlikely(dst_nents < 0)) {
 			dev_err(qidev, "Insufficient bytes (%d) in dst S/G\n",
 				req->nbytes);
+=======
+		dst_nents = sg_nents_for_len(req->dst, req->cryptlen);
+		if (unlikely(dst_nents < 0)) {
+			dev_err(qidev, "Insufficient bytes (%d) in dst S/G\n",
+				req->cryptlen);
+>>>>>>> upstream/android-13
 			return ERR_PTR(dst_nents);
 		}
 
@@ -1253,14 +1823,36 @@ static struct ablkcipher_edesc *ablkcipher_edesc_alloc(struct ablkcipher_request
 	qm_sg_ents = 1 + mapped_src_nents;
 	dst_sg_idx = qm_sg_ents;
 
+<<<<<<< HEAD
 	qm_sg_ents += mapped_dst_nents > 1 ? mapped_dst_nents : 0;
 	qm_sg_bytes = qm_sg_ents * sizeof(struct qm_sg_entry);
 	if (unlikely(offsetof(struct ablkcipher_edesc, sgt) + qm_sg_bytes +
+=======
+	/*
+	 * Input, output HW S/G tables: [IV, src][dst, IV]
+	 * IV entries point to the same buffer
+	 * If src == dst, S/G entries are reused (S/G tables overlap)
+	 *
+	 * HW reads 4 S/G entries at a time; make sure the reads don't go beyond
+	 * the end of the table by allocating more S/G entries.
+	 */
+	if (req->src != req->dst)
+		qm_sg_ents += pad_sg_nents(mapped_dst_nents + 1);
+	else
+		qm_sg_ents = 1 + pad_sg_nents(qm_sg_ents);
+
+	qm_sg_bytes = qm_sg_ents * sizeof(struct qm_sg_entry);
+	if (unlikely(offsetof(struct skcipher_edesc, sgt) + qm_sg_bytes +
+>>>>>>> upstream/android-13
 		     ivsize > CAAM_QI_MEMCACHE_SIZE)) {
 		dev_err(qidev, "No space for %d S/G entries and/or %dB IV\n",
 			qm_sg_ents, ivsize);
 		caam_unmap(qidev, req->src, req->dst, src_nents, dst_nents, 0,
+<<<<<<< HEAD
 			   0, 0, 0, 0);
+=======
+			   0, DMA_NONE, 0, 0);
+>>>>>>> upstream/android-13
 		return ERR_PTR(-ENOMEM);
 	}
 
@@ -1269,13 +1861,18 @@ static struct ablkcipher_edesc *ablkcipher_edesc_alloc(struct ablkcipher_request
 	if (unlikely(!edesc)) {
 		dev_err(qidev, "could not allocate extended descriptor\n");
 		caam_unmap(qidev, req->src, req->dst, src_nents, dst_nents, 0,
+<<<<<<< HEAD
 			   0, 0, 0, 0);
+=======
+			   0, DMA_NONE, 0, 0);
+>>>>>>> upstream/android-13
 		return ERR_PTR(-ENOMEM);
 	}
 
 	/* Make sure IV is located in a DMAable area */
 	sg_table = &edesc->sgt[0];
 	iv = (u8 *)(sg_table + qm_sg_ents);
+<<<<<<< HEAD
 	memcpy(iv, req->info, ivsize);
 
 	iv_dma = dma_map_single(qidev, iv, ivsize, DMA_TO_DEVICE);
@@ -1283,6 +1880,15 @@ static struct ablkcipher_edesc *ablkcipher_edesc_alloc(struct ablkcipher_request
 		dev_err(qidev, "unable to map IV\n");
 		caam_unmap(qidev, req->src, req->dst, src_nents, dst_nents, 0,
 			   0, 0, 0, 0);
+=======
+	memcpy(iv, req->iv, ivsize);
+
+	iv_dma = dma_map_single(qidev, iv, ivsize, DMA_BIDIRECTIONAL);
+	if (dma_mapping_error(qidev, iv_dma)) {
+		dev_err(qidev, "unable to map IV\n");
+		caam_unmap(qidev, req->src, req->dst, src_nents, dst_nents, 0,
+			   0, DMA_NONE, 0, 0);
+>>>>>>> upstream/android-13
 		qi_cache_free(edesc);
 		return ERR_PTR(-ENOMEM);
 	}
@@ -1292,6 +1898,7 @@ static struct ablkcipher_edesc *ablkcipher_edesc_alloc(struct ablkcipher_request
 	edesc->iv_dma = iv_dma;
 	edesc->qm_sg_bytes = qm_sg_bytes;
 	edesc->drv_req.app_ctx = req;
+<<<<<<< HEAD
 	edesc->drv_req.cbk = ablkcipher_done;
 	edesc->drv_req.drv_ctx = drv_ctx;
 
@@ -1301,13 +1908,30 @@ static struct ablkcipher_edesc *ablkcipher_edesc_alloc(struct ablkcipher_request
 	if (mapped_dst_nents > 1)
 		sg_to_qm_sg_last(req->dst, mapped_dst_nents, sg_table +
 				 dst_sg_idx, 0);
+=======
+	edesc->drv_req.cbk = skcipher_done;
+	edesc->drv_req.drv_ctx = drv_ctx;
+
+	dma_to_qm_sg_one(sg_table, iv_dma, ivsize, 0);
+	sg_to_qm_sg(req->src, req->cryptlen, sg_table + 1, 0);
+
+	if (req->src != req->dst)
+		sg_to_qm_sg(req->dst, req->cryptlen, sg_table + dst_sg_idx, 0);
+
+	dma_to_qm_sg_one(sg_table + dst_sg_idx + mapped_dst_nents, iv_dma,
+			 ivsize, 0);
+>>>>>>> upstream/android-13
 
 	edesc->qm_sg_dma = dma_map_single(qidev, sg_table, edesc->qm_sg_bytes,
 					  DMA_TO_DEVICE);
 	if (dma_mapping_error(qidev, edesc->qm_sg_dma)) {
 		dev_err(qidev, "unable to map S/G table\n");
 		caam_unmap(qidev, req->src, req->dst, src_nents, dst_nents,
+<<<<<<< HEAD
 			   iv_dma, ivsize, op_type, 0, 0);
+=======
+			   iv_dma, ivsize, DMA_BIDIRECTIONAL, 0, 0);
+>>>>>>> upstream/android-13
 		qi_cache_free(edesc);
 		return ERR_PTR(-ENOMEM);
 	}
@@ -1315,6 +1939,7 @@ static struct ablkcipher_edesc *ablkcipher_edesc_alloc(struct ablkcipher_request
 	fd_sgt = &edesc->drv_req.fd_sgt[0];
 
 	dma_to_qm_sg_one_last_ext(&fd_sgt[1], edesc->qm_sg_dma,
+<<<<<<< HEAD
 				  ivsize + req->nbytes, 0);
 
 	if (req->src == req->dst) {
@@ -1465,10 +2090,23 @@ static struct ablkcipher_edesc *ablkcipher_giv_edesc_alloc(
 
 	dma_to_qm_sg_one_ext(&fd_sgt[0], edesc->qm_sg_dma + dst_sg_idx *
 			     sizeof(*sg_table), ivsize + req->nbytes, 0);
+=======
+				  ivsize + req->cryptlen, 0);
+
+	if (req->src == req->dst)
+		dma_to_qm_sg_one_ext(&fd_sgt[0], edesc->qm_sg_dma +
+				     sizeof(*sg_table), req->cryptlen + ivsize,
+				     0);
+	else
+		dma_to_qm_sg_one_ext(&fd_sgt[0], edesc->qm_sg_dma + dst_sg_idx *
+				     sizeof(*sg_table), req->cryptlen + ivsize,
+				     0);
+>>>>>>> upstream/android-13
 
 	return edesc;
 }
 
+<<<<<<< HEAD
 static inline int ablkcipher_crypt(struct ablkcipher_request *req, bool encrypt)
 {
 	struct ablkcipher_edesc *edesc;
@@ -1522,11 +2160,57 @@ static int ablkcipher_givencrypt(struct skcipher_givcrypt_request *creq)
 	struct caam_ctx *ctx = crypto_ablkcipher_ctx(ablkcipher);
 	int ret;
 
+=======
+static inline bool xts_skcipher_ivsize(struct skcipher_request *req)
+{
+	struct crypto_skcipher *skcipher = crypto_skcipher_reqtfm(req);
+	unsigned int ivsize = crypto_skcipher_ivsize(skcipher);
+
+	return !!get_unaligned((u64 *)(req->iv + (ivsize / 2)));
+}
+
+static inline int skcipher_crypt(struct skcipher_request *req, bool encrypt)
+{
+	struct skcipher_edesc *edesc;
+	struct crypto_skcipher *skcipher = crypto_skcipher_reqtfm(req);
+	struct caam_ctx *ctx = crypto_skcipher_ctx(skcipher);
+	struct caam_drv_private *ctrlpriv = dev_get_drvdata(ctx->jrdev->parent);
+	int ret;
+
+	/*
+	 * XTS is expected to return an error even for input length = 0
+	 * Note that the case input length < block size will be caught during
+	 * HW offloading and return an error.
+	 */
+	if (!req->cryptlen && !ctx->fallback)
+		return 0;
+
+	if (ctx->fallback && ((ctrlpriv->era <= 8 && xts_skcipher_ivsize(req)) ||
+			      ctx->xts_key_fallback)) {
+		struct caam_skcipher_req_ctx *rctx = skcipher_request_ctx(req);
+
+		skcipher_request_set_tfm(&rctx->fallback_req, ctx->fallback);
+		skcipher_request_set_callback(&rctx->fallback_req,
+					      req->base.flags,
+					      req->base.complete,
+					      req->base.data);
+		skcipher_request_set_crypt(&rctx->fallback_req, req->src,
+					   req->dst, req->cryptlen, req->iv);
+
+		return encrypt ? crypto_skcipher_encrypt(&rctx->fallback_req) :
+				 crypto_skcipher_decrypt(&rctx->fallback_req);
+	}
+
+>>>>>>> upstream/android-13
 	if (unlikely(caam_congested))
 		return -EAGAIN;
 
 	/* allocate extended descriptor */
+<<<<<<< HEAD
 	edesc = ablkcipher_giv_edesc_alloc(creq);
+=======
+	edesc = skcipher_edesc_alloc(req, encrypt);
+>>>>>>> upstream/android-13
 	if (IS_ERR(edesc))
 		return PTR_ERR(edesc);
 
@@ -1534,13 +2218,18 @@ static int ablkcipher_givencrypt(struct skcipher_givcrypt_request *creq)
 	if (!ret) {
 		ret = -EINPROGRESS;
 	} else {
+<<<<<<< HEAD
 		ablkcipher_unmap(ctx->qidev, edesc, req);
+=======
+		skcipher_unmap(ctx->qidev, edesc, req);
+>>>>>>> upstream/android-13
 		qi_cache_free(edesc);
 	}
 
 	return ret;
 }
 
+<<<<<<< HEAD
 #define template_ablkcipher	template_u.ablkcipher
 struct caam_alg_template {
 	char name[CRYPTO_MAX_ALG_NAME];
@@ -1567,10 +2256,34 @@ static struct caam_alg_template driver_algs[] = {
 			.decrypt = ablkcipher_decrypt,
 			.givencrypt = ablkcipher_givencrypt,
 			.geniv = "<built-in>",
+=======
+static int skcipher_encrypt(struct skcipher_request *req)
+{
+	return skcipher_crypt(req, true);
+}
+
+static int skcipher_decrypt(struct skcipher_request *req)
+{
+	return skcipher_crypt(req, false);
+}
+
+static struct caam_skcipher_alg driver_algs[] = {
+	{
+		.skcipher = {
+			.base = {
+				.cra_name = "cbc(aes)",
+				.cra_driver_name = "cbc-aes-caam-qi",
+				.cra_blocksize = AES_BLOCK_SIZE,
+			},
+			.setkey = aes_skcipher_setkey,
+			.encrypt = skcipher_encrypt,
+			.decrypt = skcipher_decrypt,
+>>>>>>> upstream/android-13
 			.min_keysize = AES_MIN_KEY_SIZE,
 			.max_keysize = AES_MAX_KEY_SIZE,
 			.ivsize = AES_BLOCK_SIZE,
 		},
+<<<<<<< HEAD
 		.class1_alg_type = OP_ALG_ALGSEL_AES | OP_ALG_AAI_CBC,
 	},
 	{
@@ -1584,10 +2297,25 @@ static struct caam_alg_template driver_algs[] = {
 			.decrypt = ablkcipher_decrypt,
 			.givencrypt = ablkcipher_givencrypt,
 			.geniv = "<built-in>",
+=======
+		.caam.class1_alg_type = OP_ALG_ALGSEL_AES | OP_ALG_AAI_CBC,
+	},
+	{
+		.skcipher = {
+			.base = {
+				.cra_name = "cbc(des3_ede)",
+				.cra_driver_name = "cbc-3des-caam-qi",
+				.cra_blocksize = DES3_EDE_BLOCK_SIZE,
+			},
+			.setkey = des3_skcipher_setkey,
+			.encrypt = skcipher_encrypt,
+			.decrypt = skcipher_decrypt,
+>>>>>>> upstream/android-13
 			.min_keysize = DES3_EDE_KEY_SIZE,
 			.max_keysize = DES3_EDE_KEY_SIZE,
 			.ivsize = DES3_EDE_BLOCK_SIZE,
 		},
+<<<<<<< HEAD
 		.class1_alg_type = OP_ALG_ALGSEL_3DES | OP_ALG_AAI_CBC,
 	},
 	{
@@ -1601,10 +2329,25 @@ static struct caam_alg_template driver_algs[] = {
 			.decrypt = ablkcipher_decrypt,
 			.givencrypt = ablkcipher_givencrypt,
 			.geniv = "<built-in>",
+=======
+		.caam.class1_alg_type = OP_ALG_ALGSEL_3DES | OP_ALG_AAI_CBC,
+	},
+	{
+		.skcipher = {
+			.base = {
+				.cra_name = "cbc(des)",
+				.cra_driver_name = "cbc-des-caam-qi",
+				.cra_blocksize = DES_BLOCK_SIZE,
+			},
+			.setkey = des_skcipher_setkey,
+			.encrypt = skcipher_encrypt,
+			.decrypt = skcipher_decrypt,
+>>>>>>> upstream/android-13
 			.min_keysize = DES_KEY_SIZE,
 			.max_keysize = DES_KEY_SIZE,
 			.ivsize = DES_BLOCK_SIZE,
 		},
+<<<<<<< HEAD
 		.class1_alg_type = OP_ALG_ALGSEL_DES | OP_ALG_AAI_CBC,
 	},
 	{
@@ -1634,11 +2377,44 @@ static struct caam_alg_template driver_algs[] = {
 			.decrypt = ablkcipher_decrypt,
 			.givencrypt = ablkcipher_givencrypt,
 			.geniv = "<built-in>",
+=======
+		.caam.class1_alg_type = OP_ALG_ALGSEL_DES | OP_ALG_AAI_CBC,
+	},
+	{
+		.skcipher = {
+			.base = {
+				.cra_name = "ctr(aes)",
+				.cra_driver_name = "ctr-aes-caam-qi",
+				.cra_blocksize = 1,
+			},
+			.setkey = ctr_skcipher_setkey,
+			.encrypt = skcipher_encrypt,
+			.decrypt = skcipher_decrypt,
+			.min_keysize = AES_MIN_KEY_SIZE,
+			.max_keysize = AES_MAX_KEY_SIZE,
+			.ivsize = AES_BLOCK_SIZE,
+			.chunksize = AES_BLOCK_SIZE,
+		},
+		.caam.class1_alg_type = OP_ALG_ALGSEL_AES |
+					OP_ALG_AAI_CTR_MOD128,
+	},
+	{
+		.skcipher = {
+			.base = {
+				.cra_name = "rfc3686(ctr(aes))",
+				.cra_driver_name = "rfc3686-ctr-aes-caam-qi",
+				.cra_blocksize = 1,
+			},
+			.setkey = rfc3686_skcipher_setkey,
+			.encrypt = skcipher_encrypt,
+			.decrypt = skcipher_decrypt,
+>>>>>>> upstream/android-13
 			.min_keysize = AES_MIN_KEY_SIZE +
 				       CTR_RFC3686_NONCE_SIZE,
 			.max_keysize = AES_MAX_KEY_SIZE +
 				       CTR_RFC3686_NONCE_SIZE,
 			.ivsize = CTR_RFC3686_IV_SIZE,
+<<<<<<< HEAD
 		},
 		.class1_alg_type = OP_ALG_ALGSEL_AES | OP_ALG_AAI_CTR_MOD128,
 	},
@@ -1652,11 +2428,36 @@ static struct caam_alg_template driver_algs[] = {
 			.encrypt = ablkcipher_encrypt,
 			.decrypt = ablkcipher_decrypt,
 			.geniv = "eseqiv",
+=======
+			.chunksize = AES_BLOCK_SIZE,
+		},
+		.caam = {
+			.class1_alg_type = OP_ALG_ALGSEL_AES |
+					   OP_ALG_AAI_CTR_MOD128,
+			.rfc3686 = true,
+		},
+	},
+	{
+		.skcipher = {
+			.base = {
+				.cra_name = "xts(aes)",
+				.cra_driver_name = "xts-aes-caam-qi",
+				.cra_flags = CRYPTO_ALG_NEED_FALLBACK,
+				.cra_blocksize = AES_BLOCK_SIZE,
+			},
+			.setkey = xts_skcipher_setkey,
+			.encrypt = skcipher_encrypt,
+			.decrypt = skcipher_decrypt,
+>>>>>>> upstream/android-13
 			.min_keysize = 2 * AES_MIN_KEY_SIZE,
 			.max_keysize = 2 * AES_MAX_KEY_SIZE,
 			.ivsize = AES_BLOCK_SIZE,
 		},
+<<<<<<< HEAD
 		.class1_alg_type = OP_ALG_ALGSEL_AES | OP_ALG_AAI_XTS,
+=======
+		.caam.class1_alg_type = OP_ALG_ALGSEL_AES | OP_ALG_AAI_XTS,
+>>>>>>> upstream/android-13
 	},
 };
 
@@ -1677,6 +2478,10 @@ static struct caam_aead_alg driver_aeads[] = {
 		},
 		.caam = {
 			.class1_alg_type = OP_ALG_ALGSEL_AES | OP_ALG_AAI_GCM,
+<<<<<<< HEAD
+=======
+			.nodkp = true,
+>>>>>>> upstream/android-13
 		},
 	},
 	{
@@ -1695,6 +2500,10 @@ static struct caam_aead_alg driver_aeads[] = {
 		},
 		.caam = {
 			.class1_alg_type = OP_ALG_ALGSEL_AES | OP_ALG_AAI_GCM,
+<<<<<<< HEAD
+=======
+			.nodkp = true,
+>>>>>>> upstream/android-13
 		},
 	},
 	/* Galois Counter Mode */
@@ -1714,6 +2523,10 @@ static struct caam_aead_alg driver_aeads[] = {
 		},
 		.caam = {
 			.class1_alg_type = OP_ALG_ALGSEL_AES | OP_ALG_AAI_GCM,
+<<<<<<< HEAD
+=======
+			.nodkp = true,
+>>>>>>> upstream/android-13
 		}
 	},
 	/* single-pass ipsec_esp descriptor */
@@ -1992,7 +2805,11 @@ static struct caam_aead_alg driver_aeads[] = {
 						   "cbc-des3_ede-caam-qi",
 				.cra_blocksize = DES3_EDE_BLOCK_SIZE,
 			},
+<<<<<<< HEAD
 			.setkey = aead_setkey,
+=======
+			.setkey = des3_aead_setkey,
+>>>>>>> upstream/android-13
 			.setauthsize = aead_setauthsize,
 			.encrypt = aead_encrypt,
 			.decrypt = aead_decrypt,
@@ -2014,7 +2831,11 @@ static struct caam_aead_alg driver_aeads[] = {
 						   "cbc-des3_ede-caam-qi",
 				.cra_blocksize = DES3_EDE_BLOCK_SIZE,
 			},
+<<<<<<< HEAD
 			.setkey = aead_setkey,
+=======
+			.setkey = des3_aead_setkey,
+>>>>>>> upstream/android-13
 			.setauthsize = aead_setauthsize,
 			.encrypt = aead_encrypt,
 			.decrypt = aead_decrypt,
@@ -2037,7 +2858,11 @@ static struct caam_aead_alg driver_aeads[] = {
 						   "cbc-des3_ede-caam-qi",
 				.cra_blocksize = DES3_EDE_BLOCK_SIZE,
 			},
+<<<<<<< HEAD
 			.setkey = aead_setkey,
+=======
+			.setkey = des3_aead_setkey,
+>>>>>>> upstream/android-13
 			.setauthsize = aead_setauthsize,
 			.encrypt = aead_encrypt,
 			.decrypt = aead_decrypt,
@@ -2060,7 +2885,11 @@ static struct caam_aead_alg driver_aeads[] = {
 						   "cbc-des3_ede-caam-qi",
 				.cra_blocksize = DES3_EDE_BLOCK_SIZE,
 			},
+<<<<<<< HEAD
 			.setkey = aead_setkey,
+=======
+			.setkey = des3_aead_setkey,
+>>>>>>> upstream/android-13
 			.setauthsize = aead_setauthsize,
 			.encrypt = aead_encrypt,
 			.decrypt = aead_decrypt,
@@ -2083,7 +2912,11 @@ static struct caam_aead_alg driver_aeads[] = {
 						   "cbc-des3_ede-caam-qi",
 				.cra_blocksize = DES3_EDE_BLOCK_SIZE,
 			},
+<<<<<<< HEAD
 			.setkey = aead_setkey,
+=======
+			.setkey = des3_aead_setkey,
+>>>>>>> upstream/android-13
 			.setauthsize = aead_setauthsize,
 			.encrypt = aead_encrypt,
 			.decrypt = aead_decrypt,
@@ -2106,7 +2939,11 @@ static struct caam_aead_alg driver_aeads[] = {
 						   "cbc-des3_ede-caam-qi",
 				.cra_blocksize = DES3_EDE_BLOCK_SIZE,
 			},
+<<<<<<< HEAD
 			.setkey = aead_setkey,
+=======
+			.setkey = des3_aead_setkey,
+>>>>>>> upstream/android-13
 			.setauthsize = aead_setauthsize,
 			.encrypt = aead_encrypt,
 			.decrypt = aead_decrypt,
@@ -2129,7 +2966,11 @@ static struct caam_aead_alg driver_aeads[] = {
 						   "cbc-des3_ede-caam-qi",
 				.cra_blocksize = DES3_EDE_BLOCK_SIZE,
 			},
+<<<<<<< HEAD
 			.setkey = aead_setkey,
+=======
+			.setkey = des3_aead_setkey,
+>>>>>>> upstream/android-13
 			.setauthsize = aead_setauthsize,
 			.encrypt = aead_encrypt,
 			.decrypt = aead_decrypt,
@@ -2152,7 +2993,11 @@ static struct caam_aead_alg driver_aeads[] = {
 						   "cbc-des3_ede-caam-qi",
 				.cra_blocksize = DES3_EDE_BLOCK_SIZE,
 			},
+<<<<<<< HEAD
 			.setkey = aead_setkey,
+=======
+			.setkey = des3_aead_setkey,
+>>>>>>> upstream/android-13
 			.setauthsize = aead_setauthsize,
 			.encrypt = aead_encrypt,
 			.decrypt = aead_decrypt,
@@ -2175,7 +3020,11 @@ static struct caam_aead_alg driver_aeads[] = {
 						   "cbc-des3_ede-caam-qi",
 				.cra_blocksize = DES3_EDE_BLOCK_SIZE,
 			},
+<<<<<<< HEAD
 			.setkey = aead_setkey,
+=======
+			.setkey = des3_aead_setkey,
+>>>>>>> upstream/android-13
 			.setauthsize = aead_setauthsize,
 			.encrypt = aead_encrypt,
 			.decrypt = aead_decrypt,
@@ -2198,7 +3047,11 @@ static struct caam_aead_alg driver_aeads[] = {
 						   "cbc-des3_ede-caam-qi",
 				.cra_blocksize = DES3_EDE_BLOCK_SIZE,
 			},
+<<<<<<< HEAD
 			.setkey = aead_setkey,
+=======
+			.setkey = des3_aead_setkey,
+>>>>>>> upstream/android-13
 			.setauthsize = aead_setauthsize,
 			.encrypt = aead_encrypt,
 			.decrypt = aead_decrypt,
@@ -2221,7 +3074,11 @@ static struct caam_aead_alg driver_aeads[] = {
 						   "cbc-des3_ede-caam-qi",
 				.cra_blocksize = DES3_EDE_BLOCK_SIZE,
 			},
+<<<<<<< HEAD
 			.setkey = aead_setkey,
+=======
+			.setkey = des3_aead_setkey,
+>>>>>>> upstream/android-13
 			.setauthsize = aead_setauthsize,
 			.encrypt = aead_encrypt,
 			.decrypt = aead_decrypt,
@@ -2244,7 +3101,11 @@ static struct caam_aead_alg driver_aeads[] = {
 						   "cbc-des3_ede-caam-qi",
 				.cra_blocksize = DES3_EDE_BLOCK_SIZE,
 			},
+<<<<<<< HEAD
 			.setkey = aead_setkey,
+=======
+			.setkey = des3_aead_setkey,
+>>>>>>> upstream/android-13
 			.setauthsize = aead_setauthsize,
 			.encrypt = aead_encrypt,
 			.decrypt = aead_decrypt,
@@ -2528,16 +3389,23 @@ static struct caam_aead_alg driver_aeads[] = {
 	},
 };
 
+<<<<<<< HEAD
 struct caam_crypto_alg {
 	struct list_head entry;
 	struct crypto_alg crypto_alg;
 	struct caam_alg_entry caam;
 };
 
+=======
+>>>>>>> upstream/android-13
 static int caam_init_common(struct caam_ctx *ctx, struct caam_alg_entry *caam,
 			    bool uses_dkp)
 {
 	struct caam_drv_private *priv;
+<<<<<<< HEAD
+=======
+	struct device *dev;
+>>>>>>> upstream/android-13
 
 	/*
 	 * distribute tfms across job rings to ensure in-order
@@ -2549,16 +3417,28 @@ static int caam_init_common(struct caam_ctx *ctx, struct caam_alg_entry *caam,
 		return PTR_ERR(ctx->jrdev);
 	}
 
+<<<<<<< HEAD
 	priv = dev_get_drvdata(ctx->jrdev->parent);
+=======
+	dev = ctx->jrdev->parent;
+	priv = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	if (priv->era >= 6 && uses_dkp)
 		ctx->dir = DMA_BIDIRECTIONAL;
 	else
 		ctx->dir = DMA_TO_DEVICE;
 
+<<<<<<< HEAD
 	ctx->key_dma = dma_map_single(ctx->jrdev, ctx->key, sizeof(ctx->key),
 				      ctx->dir);
 	if (dma_mapping_error(ctx->jrdev, ctx->key_dma)) {
 		dev_err(ctx->jrdev, "unable to map key\n");
+=======
+	ctx->key_dma = dma_map_single(dev, ctx->key, sizeof(ctx->key),
+				      ctx->dir);
+	if (dma_mapping_error(dev, ctx->key_dma)) {
+		dev_err(dev, "unable to map key\n");
+>>>>>>> upstream/android-13
 		caam_jr_free(ctx->jrdev);
 		return -ENOMEM;
 	}
@@ -2567,16 +3447,24 @@ static int caam_init_common(struct caam_ctx *ctx, struct caam_alg_entry *caam,
 	ctx->cdata.algtype = OP_TYPE_CLASS1_ALG | caam->class1_alg_type;
 	ctx->adata.algtype = OP_TYPE_CLASS2_ALG | caam->class2_alg_type;
 
+<<<<<<< HEAD
 	ctx->qidev = priv->qidev;
+=======
+	ctx->qidev = dev;
+>>>>>>> upstream/android-13
 
 	spin_lock_init(&ctx->lock);
 	ctx->drv_ctx[ENCRYPT] = NULL;
 	ctx->drv_ctx[DECRYPT] = NULL;
+<<<<<<< HEAD
 	ctx->drv_ctx[GIVENCRYPT] = NULL;
+=======
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int caam_cra_init(struct crypto_tfm *tfm)
 {
 	struct crypto_alg *alg = tfm->__crt_alg;
@@ -2585,6 +3473,39 @@ static int caam_cra_init(struct crypto_tfm *tfm)
 	struct caam_ctx *ctx = crypto_tfm_ctx(tfm);
 
 	return caam_init_common(ctx, &caam_alg->caam, false);
+=======
+static int caam_cra_init(struct crypto_skcipher *tfm)
+{
+	struct skcipher_alg *alg = crypto_skcipher_alg(tfm);
+	struct caam_skcipher_alg *caam_alg =
+		container_of(alg, typeof(*caam_alg), skcipher);
+	struct caam_ctx *ctx = crypto_skcipher_ctx(tfm);
+	u32 alg_aai = caam_alg->caam.class1_alg_type & OP_ALG_AAI_MASK;
+	int ret = 0;
+
+	if (alg_aai == OP_ALG_AAI_XTS) {
+		const char *tfm_name = crypto_tfm_alg_name(&tfm->base);
+		struct crypto_skcipher *fallback;
+
+		fallback = crypto_alloc_skcipher(tfm_name, 0,
+						 CRYPTO_ALG_NEED_FALLBACK);
+		if (IS_ERR(fallback)) {
+			pr_err("Failed to allocate %s fallback: %ld\n",
+			       tfm_name, PTR_ERR(fallback));
+			return PTR_ERR(fallback);
+		}
+
+		ctx->fallback = fallback;
+		crypto_skcipher_set_reqsize(tfm, sizeof(struct caam_skcipher_req_ctx) +
+					    crypto_skcipher_reqsize(fallback));
+	}
+
+	ret = caam_init_common(ctx, &caam_alg->caam, false);
+	if (ret && ctx->fallback)
+		crypto_free_skcipher(ctx->fallback);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int caam_aead_init(struct crypto_aead *tfm)
@@ -2594,24 +3515,44 @@ static int caam_aead_init(struct crypto_aead *tfm)
 						      aead);
 	struct caam_ctx *ctx = crypto_aead_ctx(tfm);
 
+<<<<<<< HEAD
 	return caam_init_common(ctx, &caam_alg->caam,
 				alg->setkey == aead_setkey);
+=======
+	return caam_init_common(ctx, &caam_alg->caam, !caam_alg->caam.nodkp);
+>>>>>>> upstream/android-13
 }
 
 static void caam_exit_common(struct caam_ctx *ctx)
 {
 	caam_drv_ctx_rel(ctx->drv_ctx[ENCRYPT]);
 	caam_drv_ctx_rel(ctx->drv_ctx[DECRYPT]);
+<<<<<<< HEAD
 	caam_drv_ctx_rel(ctx->drv_ctx[GIVENCRYPT]);
 
 	dma_unmap_single(ctx->jrdev, ctx->key_dma, sizeof(ctx->key), ctx->dir);
+=======
+
+	dma_unmap_single(ctx->jrdev->parent, ctx->key_dma, sizeof(ctx->key),
+			 ctx->dir);
+>>>>>>> upstream/android-13
 
 	caam_jr_free(ctx->jrdev);
 }
 
+<<<<<<< HEAD
 static void caam_cra_exit(struct crypto_tfm *tfm)
 {
 	caam_exit_common(crypto_tfm_ctx(tfm));
+=======
+static void caam_cra_exit(struct crypto_skcipher *tfm)
+{
+	struct caam_ctx *ctx = crypto_skcipher_ctx(tfm);
+
+	if (ctx->fallback)
+		crypto_free_skcipher(ctx->fallback);
+	caam_exit_common(ctx);
+>>>>>>> upstream/android-13
 }
 
 static void caam_aead_exit(struct crypto_aead *tfm)
@@ -2619,10 +3560,15 @@ static void caam_aead_exit(struct crypto_aead *tfm)
 	caam_exit_common(crypto_aead_ctx(tfm));
 }
 
+<<<<<<< HEAD
 static struct list_head alg_list;
 static void __exit caam_qi_algapi_exit(void)
 {
 	struct caam_crypto_alg *t_alg, *n;
+=======
+void caam_qi_algapi_exit(void)
+{
+>>>>>>> upstream/android-13
 	int i;
 
 	for (i = 0; i < ARRAY_SIZE(driver_aeads); i++) {
@@ -2632,6 +3578,7 @@ static void __exit caam_qi_algapi_exit(void)
 			crypto_unregister_aead(&t_alg->aead);
 	}
 
+<<<<<<< HEAD
 	if (!alg_list.next)
 		return;
 
@@ -2681,6 +3628,28 @@ static struct caam_crypto_alg *caam_alg_alloc(struct caam_alg_template
 	t_alg->caam.class2_alg_type = template->class2_alg_type;
 
 	return t_alg;
+=======
+	for (i = 0; i < ARRAY_SIZE(driver_algs); i++) {
+		struct caam_skcipher_alg *t_alg = driver_algs + i;
+
+		if (t_alg->registered)
+			crypto_unregister_skcipher(&t_alg->skcipher);
+	}
+}
+
+static void caam_skcipher_alg_init(struct caam_skcipher_alg *t_alg)
+{
+	struct skcipher_alg *alg = &t_alg->skcipher;
+
+	alg->base.cra_module = THIS_MODULE;
+	alg->base.cra_priority = CAAM_CRA_PRIORITY;
+	alg->base.cra_ctxsize = sizeof(struct caam_ctx);
+	alg->base.cra_flags |= (CRYPTO_ALG_ASYNC | CRYPTO_ALG_ALLOCATES_MEMORY |
+				CRYPTO_ALG_KERN_DRIVER_ONLY);
+
+	alg->init = caam_cra_init;
+	alg->exit = caam_cra_exit;
+>>>>>>> upstream/android-13
 }
 
 static void caam_aead_alg_init(struct caam_aead_alg *t_alg)
@@ -2690,12 +3659,18 @@ static void caam_aead_alg_init(struct caam_aead_alg *t_alg)
 	alg->base.cra_module = THIS_MODULE;
 	alg->base.cra_priority = CAAM_CRA_PRIORITY;
 	alg->base.cra_ctxsize = sizeof(struct caam_ctx);
+<<<<<<< HEAD
 	alg->base.cra_flags = CRYPTO_ALG_ASYNC | CRYPTO_ALG_KERN_DRIVER_ONLY;
+=======
+	alg->base.cra_flags = CRYPTO_ALG_ASYNC | CRYPTO_ALG_ALLOCATES_MEMORY |
+			      CRYPTO_ALG_KERN_DRIVER_ONLY;
+>>>>>>> upstream/android-13
 
 	alg->init = caam_aead_init;
 	alg->exit = caam_aead_exit;
 }
 
+<<<<<<< HEAD
 static int __init caam_qi_algapi_init(void)
 {
 	struct device_node *dev_node;
@@ -2735,11 +3710,25 @@ static int __init caam_qi_algapi_init(void)
 	}
 
 	INIT_LIST_HEAD(&alg_list);
+=======
+int caam_qi_algapi_init(struct device *ctrldev)
+{
+	struct caam_drv_private *priv = dev_get_drvdata(ctrldev);
+	int i = 0, err = 0;
+	u32 aes_vid, aes_inst, des_inst, md_vid, md_inst;
+	unsigned int md_limit = SHA512_DIGEST_SIZE;
+	bool registered = false;
+
+	/* Make sure this runs only on (DPAA 1.x) QI */
+	if (!priv->qi_present || caam_dpaa2)
+		return 0;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Register crypto algorithms the device supports.
 	 * First, detect presence and attributes of DES, AES, and MD blocks.
 	 */
+<<<<<<< HEAD
 	cha_vid = rd_reg32(&priv->ctrl->perfmon.cha_id_ls);
 	cha_inst = rd_reg32(&priv->ctrl->perfmon.cha_num_ls);
 	des_inst = (cha_inst & CHA_ID_LS_DES_MASK) >> CHA_ID_LS_DES_SHIFT;
@@ -2754,6 +3743,41 @@ static int __init caam_qi_algapi_init(void)
 		struct caam_crypto_alg *t_alg;
 		struct caam_alg_template *alg = driver_algs + i;
 		u32 alg_sel = alg->class1_alg_type & OP_ALG_ALGSEL_MASK;
+=======
+	if (priv->era < 10) {
+		u32 cha_vid, cha_inst;
+
+		cha_vid = rd_reg32(&priv->ctrl->perfmon.cha_id_ls);
+		aes_vid = cha_vid & CHA_ID_LS_AES_MASK;
+		md_vid = (cha_vid & CHA_ID_LS_MD_MASK) >> CHA_ID_LS_MD_SHIFT;
+
+		cha_inst = rd_reg32(&priv->ctrl->perfmon.cha_num_ls);
+		des_inst = (cha_inst & CHA_ID_LS_DES_MASK) >>
+			   CHA_ID_LS_DES_SHIFT;
+		aes_inst = cha_inst & CHA_ID_LS_AES_MASK;
+		md_inst = (cha_inst & CHA_ID_LS_MD_MASK) >> CHA_ID_LS_MD_SHIFT;
+	} else {
+		u32 aesa, mdha;
+
+		aesa = rd_reg32(&priv->ctrl->vreg.aesa);
+		mdha = rd_reg32(&priv->ctrl->vreg.mdha);
+
+		aes_vid = (aesa & CHA_VER_VID_MASK) >> CHA_VER_VID_SHIFT;
+		md_vid = (mdha & CHA_VER_VID_MASK) >> CHA_VER_VID_SHIFT;
+
+		des_inst = rd_reg32(&priv->ctrl->vreg.desa) & CHA_VER_NUM_MASK;
+		aes_inst = aesa & CHA_VER_NUM_MASK;
+		md_inst = mdha & CHA_VER_NUM_MASK;
+	}
+
+	/* If MD is present, limit digest size based on LP256 */
+	if (md_inst && md_vid  == CHA_VER_VID_MD_LP256)
+		md_limit = SHA256_DIGEST_SIZE;
+
+	for (i = 0; i < ARRAY_SIZE(driver_algs); i++) {
+		struct caam_skcipher_alg *t_alg = driver_algs + i;
+		u32 alg_sel = t_alg->caam.class1_alg_type & OP_ALG_ALGSEL_MASK;
+>>>>>>> upstream/android-13
 
 		/* Skip DES algorithms if not supported by device */
 		if (!des_inst &&
@@ -2765,6 +3789,7 @@ static int __init caam_qi_algapi_init(void)
 		if (!aes_inst && (alg_sel == OP_ALG_ALGSEL_AES))
 			continue;
 
+<<<<<<< HEAD
 		t_alg = caam_alg_alloc(alg);
 		if (IS_ERR(t_alg)) {
 			err = PTR_ERR(t_alg);
@@ -2782,6 +3807,18 @@ static int __init caam_qi_algapi_init(void)
 		}
 
 		list_add_tail(&t_alg->entry, &alg_list);
+=======
+		caam_skcipher_alg_init(t_alg);
+
+		err = crypto_register_skcipher(&t_alg->skcipher);
+		if (err) {
+			dev_warn(ctrldev, "%s alg registration failed\n",
+				 t_alg->skcipher.base.cra_driver_name);
+			continue;
+		}
+
+		t_alg->registered = true;
+>>>>>>> upstream/android-13
 		registered = true;
 	}
 
@@ -2807,8 +3844,12 @@ static int __init caam_qi_algapi_init(void)
 		 * Check support for AES algorithms not available
 		 * on LP devices.
 		 */
+<<<<<<< HEAD
 		if (((cha_vid & CHA_ID_LS_AES_MASK) == CHA_ID_LS_AES_LP) &&
 		    (alg_aai == OP_ALG_AAI_GCM))
+=======
+		if (aes_vid  == CHA_VER_VID_AES_LP && alg_aai == OP_ALG_AAI_GCM)
+>>>>>>> upstream/android-13
 			continue;
 
 		/*
@@ -2833,6 +3874,7 @@ static int __init caam_qi_algapi_init(void)
 	}
 
 	if (registered)
+<<<<<<< HEAD
 		dev_info(priv->qidev, "algorithms registered in /proc/crypto\n");
 
 	return err;
@@ -2844,3 +3886,9 @@ module_exit(caam_qi_algapi_exit);
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("Support for crypto API using CAAM-QI backend");
 MODULE_AUTHOR("Freescale Semiconductor");
+=======
+		dev_info(ctrldev, "algorithms registered in /proc/crypto\n");
+
+	return err;
+}
+>>>>>>> upstream/android-13

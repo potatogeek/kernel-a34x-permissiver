@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/fs/befs/linuxvfs.c
  *
@@ -21,6 +25,10 @@
 #include <linux/cred.h>
 #include <linux/exportfs.h>
 #include <linux/seq_file.h>
+<<<<<<< HEAD
+=======
+#include <linux/blkdev.h>
+>>>>>>> upstream/android-13
 
 #include "befs.h"
 #include "btree.h"
@@ -32,6 +40,10 @@
 MODULE_DESCRIPTION("BeOS File System (BeFS) driver");
 MODULE_AUTHOR("Will Dyson");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 
 /* The units the vfs expects inode->i_blocks to be in */
 #define VFS_BLOCK_SIZE 512
@@ -44,7 +56,11 @@ static struct dentry *befs_lookup(struct inode *, struct dentry *,
 				  unsigned int);
 static struct inode *befs_iget(struct super_block *, unsigned long);
 static struct inode *befs_alloc_inode(struct super_block *sb);
+<<<<<<< HEAD
 static void befs_destroy_inode(struct inode *inode);
+=======
+static void befs_free_inode(struct inode *inode);
+>>>>>>> upstream/android-13
 static void befs_destroy_inodecache(void);
 static int befs_symlink_readpage(struct file *, struct page *);
 static int befs_utf2nls(struct super_block *sb, const char *in, int in_len,
@@ -64,7 +80,11 @@ static struct dentry *befs_get_parent(struct dentry *child);
 
 static const struct super_operations befs_sops = {
 	.alloc_inode	= befs_alloc_inode,	/* allocate a new inode */
+<<<<<<< HEAD
 	.destroy_inode	= befs_destroy_inode, /* deallocate an inode */
+=======
+	.free_inode	= befs_free_inode, /* deallocate an inode */
+>>>>>>> upstream/android-13
 	.put_super	= befs_put_super,	/* uninit super */
 	.statfs		= befs_statfs,	/* statfs */
 	.remount_fs	= befs_remount,
@@ -281,6 +301,7 @@ befs_alloc_inode(struct super_block *sb)
 	return &bi->vfs_inode;
 }
 
+<<<<<<< HEAD
 static void befs_i_callback(struct rcu_head *head)
 {
 	struct inode *inode = container_of(head, struct inode, i_rcu);
@@ -292,6 +313,13 @@ static void befs_destroy_inode(struct inode *inode)
 	call_rcu(&inode->i_rcu, befs_i_callback);
 }
 
+=======
+static void befs_free_inode(struct inode *inode)
+{
+	kmem_cache_free(befs_inode_cachep, BEFS_I(inode));
+}
+
+>>>>>>> upstream/android-13
 static void init_once(void *foo)
 {
 	struct befs_inode_info *bi = (struct befs_inode_info *) foo;
@@ -898,6 +926,11 @@ befs_fill_super(struct super_block *sb, void *data, int silent)
 	sb_set_blocksize(sb, (ulong) befs_sb->block_size);
 	sb->s_op = &befs_sops;
 	sb->s_export_op = &befs_export_operations;
+<<<<<<< HEAD
+=======
+	sb->s_time_min = 0;
+	sb->s_time_max = 0xffffffffffffll;
+>>>>>>> upstream/android-13
 	root = befs_iget(sb, iaddr2blockno(sb, &(befs_sb->root_dir)));
 	if (IS_ERR(root)) {
 		ret = PTR_ERR(root);
@@ -965,8 +998,12 @@ befs_statfs(struct dentry *dentry, struct kstatfs *buf)
 	buf->f_bavail = buf->f_bfree;
 	buf->f_files = 0;	/* UNKNOWN */
 	buf->f_ffree = 0;	/* UNKNOWN */
+<<<<<<< HEAD
 	buf->f_fsid.val[0] = (u32)id;
 	buf->f_fsid.val[1] = (u32)(id >> 32);
+=======
+	buf->f_fsid = u64_to_fsid(id);
+>>>>>>> upstream/android-13
 	buf->f_namelen = BEFS_NAME_LEN;
 
 	befs_debug(sb, "<--- %s", __func__);

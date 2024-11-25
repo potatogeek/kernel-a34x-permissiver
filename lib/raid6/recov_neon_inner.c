@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 Intel Corporation
  * Copyright (C) 2017 Linaro Ltd. <ard.biesheuvel@linaro.org>
@@ -6,6 +7,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; version 2
  * of the License.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2012 Intel Corporation
+ * Copyright (C) 2017 Linaro Ltd. <ard.biesheuvel@linaro.org>
+>>>>>>> upstream/android-13
  */
 
 #include <arm_neon.h>
@@ -56,6 +63,7 @@ void __raid6_2data_recov_neon(int bytes, uint8_t *p, uint8_t *q, uint8_t *dp,
 		px = veorq_u8(vld1q_u8(p), vld1q_u8(dp));
 		vx = veorq_u8(vld1q_u8(q), vld1q_u8(dq));
 
+<<<<<<< HEAD
 		vy = (uint8x16_t)vshrq_n_s16((int16x8_t)vx, 4);
 		vx = vqtbl1q_u8(qm0, vandq_u8(vx, x0f));
 		vy = vqtbl1q_u8(qm1, vandq_u8(vy, x0f));
@@ -64,6 +72,16 @@ void __raid6_2data_recov_neon(int bytes, uint8_t *p, uint8_t *q, uint8_t *dp,
 		vy = (uint8x16_t)vshrq_n_s16((int16x8_t)px, 4);
 		vx = vqtbl1q_u8(pm0, vandq_u8(px, x0f));
 		vy = vqtbl1q_u8(pm1, vandq_u8(vy, x0f));
+=======
+		vy = vshrq_n_u8(vx, 4);
+		vx = vqtbl1q_u8(qm0, vandq_u8(vx, x0f));
+		vy = vqtbl1q_u8(qm1, vy);
+		qx = veorq_u8(vx, vy);
+
+		vy = vshrq_n_u8(px, 4);
+		vx = vqtbl1q_u8(pm0, vandq_u8(px, x0f));
+		vy = vqtbl1q_u8(pm1, vy);
+>>>>>>> upstream/android-13
 		vx = veorq_u8(vx, vy);
 		db = veorq_u8(vx, qx);
 
@@ -97,9 +115,15 @@ void __raid6_datap_recov_neon(int bytes, uint8_t *p, uint8_t *q, uint8_t *dq,
 
 		vx = veorq_u8(vld1q_u8(q), vld1q_u8(dq));
 
+<<<<<<< HEAD
 		vy = (uint8x16_t)vshrq_n_s16((int16x8_t)vx, 4);
 		vx = vqtbl1q_u8(qm0, vandq_u8(vx, x0f));
 		vy = vqtbl1q_u8(qm1, vandq_u8(vy, x0f));
+=======
+		vy = vshrq_n_u8(vx, 4);
+		vx = vqtbl1q_u8(qm0, vandq_u8(vx, x0f));
+		vy = vqtbl1q_u8(qm1, vy);
+>>>>>>> upstream/android-13
 		vx = veorq_u8(vx, vy);
 		vy = veorq_u8(vx, vld1q_u8(p));
 

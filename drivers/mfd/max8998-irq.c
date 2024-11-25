@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Interrupt controller support for MAX8998
  *
@@ -10,6 +11,14 @@
  * option) any later version.
  *
  */
+=======
+// SPDX-License-Identifier: GPL-2.0+
+//
+// Interrupt controller support for MAX8998
+//
+// Copyright (C) 2010 Samsung Electronics Co.Ltd
+// Author: Joonyoung Shim <jy0922.shim@samsung.com>
+>>>>>>> upstream/android-13
 
 #include <linux/device.h>
 #include <linux/interrupt.h>

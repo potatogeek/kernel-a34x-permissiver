@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2012 Stefan Roese <sr@denx.de>
  *
@@ -12,6 +13,16 @@
 /include/ "skeleton.dtsi"
 
 / {
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2012 Stefan Roese <sr@denx.de>
+ */
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+>>>>>>> upstream/android-13
 	compatible = "st,spear600";
 
 	cpus {

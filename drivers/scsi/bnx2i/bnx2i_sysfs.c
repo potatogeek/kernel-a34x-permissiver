@@ -30,6 +30,10 @@ static inline struct bnx2i_hba *bnx2i_dev_to_hba(struct device *dev)
 /**
  * bnx2i_show_sq_info - return(s currently configured send queue (SQ) size
  * @dev:	device pointer
+<<<<<<< HEAD
+=======
+ * @attr:	device attribute (unused)
+>>>>>>> upstream/android-13
  * @buf:	buffer to return current SQ size parameter
  *
  * Returns current SQ size parameter, this paramater determines the number
@@ -47,6 +51,10 @@ static ssize_t bnx2i_show_sq_info(struct device *dev,
 /**
  * bnx2i_set_sq_info - update send queue (SQ) size parameter
  * @dev:	device pointer
+<<<<<<< HEAD
+=======
+ * @attr:	device attribute (unused)
+>>>>>>> upstream/android-13
  * @buf:	buffer to return current SQ size parameter
  * @count:	parameter buffer size
  *
@@ -87,6 +95,10 @@ skip_config:
 /**
  * bnx2i_show_ccell_info - returns command cell (HQ) size
  * @dev:	device pointer
+<<<<<<< HEAD
+=======
+ * @attr:	device attribute (unused)
+>>>>>>> upstream/android-13
  * @buf:	buffer to return current SQ size parameter
  *
  * returns per-connection TCP history queue size parameter
@@ -101,8 +113,14 @@ static ssize_t bnx2i_show_ccell_info(struct device *dev,
 
 
 /**
+<<<<<<< HEAD
  * bnx2i_get_link_state - set command cell (HQ) size
  * @dev:	device pointer
+=======
+ * bnx2i_set_ccell_info - set command cell (HQ) size
+ * @dev:	device pointer
+ * @attr:	device attribute (unused)
+>>>>>>> upstream/android-13
  * @buf:	buffer to return current SQ size parameter
  * @count:	parameter buffer size
  *

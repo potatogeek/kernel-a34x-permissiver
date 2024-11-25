@@ -1,6 +1,7 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-2.0
 # description: event trigger - test traceon/off trigger
+<<<<<<< HEAD
 
 do_reset() {
     reset_trigger
@@ -10,10 +11,16 @@ do_reset() {
 
 fail() { #msg
     do_reset
+=======
+# requires: set_event events/sched/sched_process_fork/trigger
+
+fail() { #msg
+>>>>>>> upstream/android-13
     echo $1
     exit_fail
 }
 
+<<<<<<< HEAD
 if [ ! -f set_event -o ! -d events/sched ]; then
     echo "event tracing is not supported"
     exit_unsupported
@@ -27,6 +34,8 @@ fi
 reset_tracer
 do_reset
 
+=======
+>>>>>>> upstream/android-13
 echo "Test traceoff trigger"
 echo 1 > tracing_on
 echo 'traceoff' > events/sched/sched_process_fork/trigger
@@ -54,6 +63,9 @@ echo 'traceon' > events/sched/sched_process_fork/trigger
 ! echo 'traceon' > events/sched/sched_process_fork/trigger
 ! echo 'traceoff' > events/sched/sched_process_fork/trigger
 
+<<<<<<< HEAD
 do_reset
 
+=======
+>>>>>>> upstream/android-13
 exit 0

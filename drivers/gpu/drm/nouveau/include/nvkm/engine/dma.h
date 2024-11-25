@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
+=======
+/* SPDX-License-Identifier: MIT */
+>>>>>>> upstream/android-13
 #ifndef __NVKM_DMA_H__
 #define __NVKM_DMA_H__
 #include <core/engine.h>
@@ -23,9 +27,17 @@ struct nvkm_dma {
 
 struct nvkm_dmaobj *nvkm_dmaobj_search(struct nvkm_client *, u64 object);
 
+<<<<<<< HEAD
 int nv04_dma_new(struct nvkm_device *, int, struct nvkm_dma **);
 int nv50_dma_new(struct nvkm_device *, int, struct nvkm_dma **);
 int gf100_dma_new(struct nvkm_device *, int, struct nvkm_dma **);
 int gf119_dma_new(struct nvkm_device *, int, struct nvkm_dma **);
 int gv100_dma_new(struct nvkm_device *, int, struct nvkm_dma **);
+=======
+int nv04_dma_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_dma **);
+int nv50_dma_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_dma **);
+int gf100_dma_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_dma **);
+int gf119_dma_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_dma **);
+int gv100_dma_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_dma **);
+>>>>>>> upstream/android-13
 #endif

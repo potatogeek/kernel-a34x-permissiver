@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Backlight driver for Marvell Semiconductor 88PM8606
  *
  * Copyright (C) 2009 Marvell International Ltd.
  *	Haojian Zhuang <haojian.zhuang@marvell.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -124,6 +131,7 @@ out:
 
 static int pm860x_backlight_update_status(struct backlight_device *bl)
 {
+<<<<<<< HEAD
 	int brightness = bl->props.brightness;
 
 	if (bl->props.power != FB_BLANK_UNBLANK)
@@ -136,6 +144,9 @@ static int pm860x_backlight_update_status(struct backlight_device *bl)
 		brightness = 0;
 
 	return pm860x_backlight_set(bl, brightness);
+=======
+	return pm860x_backlight_set(bl, backlight_get_brightness(bl));
+>>>>>>> upstream/android-13
 }
 
 static int pm860x_backlight_get_brightness(struct backlight_device *bl)
@@ -174,7 +185,11 @@ static int pm860x_backlight_dt_init(struct platform_device *pdev,
 		return -ENODEV;
 	}
 	for_each_child_of_node(nproot, np) {
+<<<<<<< HEAD
 		if (!of_node_cmp(np->name, name)) {
+=======
+		if (of_node_name_eq(np, name)) {
+>>>>>>> upstream/android-13
 			of_property_read_u32(np, "marvell,88pm860x-iset",
 					     &iset);
 			data->iset = PM8606_WLED_CURRENT(iset);

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * NFC hardware simulation driver
  * Copyright (c) 2013, Intel Corporation.
@@ -11,6 +12,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * NFC hardware simulation driver
+ * Copyright (c) 2013, Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -201,8 +208,12 @@ static void nfcsim_recv_wq(struct work_struct *work)
 
 		if (!IS_ERR(skb))
 			dev_kfree_skb(skb);
+<<<<<<< HEAD
 
 		skb = ERR_PTR(-ENODEV);
+=======
+		return;
+>>>>>>> upstream/android-13
 	}
 
 	dev->cb(dev->nfc_digital_dev, dev->arg, skb);
@@ -249,7 +260,11 @@ static int nfcsim_send(struct nfc_digital_dev *ddev, struct sk_buff *skb,
 
 static void nfcsim_abort_cmd(struct nfc_digital_dev *ddev)
 {
+<<<<<<< HEAD
 	struct nfcsim *dev = nfc_digital_get_drvdata(ddev);
+=======
+	const struct nfcsim *dev = nfc_digital_get_drvdata(ddev);
+>>>>>>> upstream/android-13
 
 	nfcsim_link_recv_cancel(dev->link_in);
 }
@@ -329,7 +344,11 @@ static int nfcsim_tg_listen(struct nfc_digital_dev *ddev, u16 timeout,
 	return nfcsim_send(ddev, NULL, timeout, cb, arg);
 }
 
+<<<<<<< HEAD
 static struct nfc_digital_ops nfcsim_digital_ops = {
+=======
+static const struct nfc_digital_ops nfcsim_digital_ops = {
+>>>>>>> upstream/android-13
 	.in_configure_hw = nfcsim_in_configure_hw,
 	.in_send_cmd = nfcsim_in_send_cmd,
 

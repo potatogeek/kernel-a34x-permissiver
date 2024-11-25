@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Copyright (C) 2012-2019, Samsung Electronics Co., Ltd.
+=======
+ * Copyright (c) 2013 Samsung Electronics Co., Ltd All Rights Reserved
+>>>>>>> upstream/android-13
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -7,7 +11,11 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+<<<<<<< HEAD
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+=======
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+>>>>>>> upstream/android-13
  * GNU General Public License for more details.
  */
 
@@ -51,14 +59,26 @@
 #define TZDEV_SMC_CONNECT_AUX		TZDEV_SMC_COMMAND(0)
 #define TZDEV_SMC_CONNECT		TZDEV_SMC_COMMAND(1)
 #define TZDEV_SMC_SCHEDULE		TZDEV_SMC_COMMAND(3)
+<<<<<<< HEAD
 #define TZDEV_SMC_SHMEM_LIST_REG	TZDEV_SMC_COMMAND(6)
 #define TZDEV_SMC_SHMEM_LIST_RLS	TZDEV_SMC_COMMAND(7)
+=======
+#define TZDEV_SMC_IW_SHMEM_REG		TZDEV_SMC_COMMAND(6)
+#define TZDEV_SMC_IW_SHMEM_RLS		TZDEV_SMC_COMMAND(7)
+>>>>>>> upstream/android-13
 #define TZDEV_SMC_SYSCONF		TZDEV_SMC_COMMAND(9)
 #define TZDEV_SMC_TZ_PANIC_DUMP_INIT	TZDEV_SMC_COMMAND(12)
 #define TZDEV_SMC_CHECK_VERSION		TZDEV_SMC_COMMAND(13)
 #define TZDEV_SMC_BOOT_LOG_READ		TZDEV_SMC_COMMAND(16)
 #define TZDEV_SMC_PROFILER_CONTROL	TZDEV_SMC_COMMAND(17)
 #define TZDEV_SMC_SCMA_CMD		TZDEV_SMC_COMMAND(18)
+<<<<<<< HEAD
+=======
+#define TZDEV_SMC_KMEMLEAK_CMD		TZDEV_SMC_COMMAND(21)
+#define TZDEV_SMC_CHANNELS_INIT		TZDEV_SMC_COMMAND(22)
+#define TZDEV_SMC_IW_EVENTS_INIT	TZDEV_SMC_COMMAND(23)
+#define TZDEV_SMC_TVM_SHMEM_RLS		TZDEV_SMC_COMMAND(24)
+>>>>>>> upstream/android-13
 
 /* Define type for exchange with Secure kernel */
 #if defined(CONFIG_TZDEV_SK_PFNS_64BIT)
@@ -76,7 +96,11 @@ typedef	uint32_t	sk_pfn_t;
 #define NR_SMC_ARGS	7
 
 struct tzdev_smc_data {
+<<<<<<< HEAD
 	uint32_t args[NR_SMC_ARGS];
+=======
+	unsigned long args[NR_SMC_ARGS];
+>>>>>>> upstream/android-13
 };
 
 int tzdev_smc(struct tzdev_smc_data *data);
@@ -94,6 +118,7 @@ int tzdev_smc(struct tzdev_smc_data *data);
 	ret;									\
 })
 
+<<<<<<< HEAD
 #define tzdev_smc_cmd_extended(p0, p1, p2, p3, p4, p5, p6)			\
 ({										\
 	int ret;								\
@@ -112,12 +137,26 @@ int tzdev_smc(struct tzdev_smc_data *data);
 #define tzdev_smc_connect(mode, nr_pages)			tzdev_smc_cmd(TZDEV_SMC_CONNECT, (mode), (nr_pages), 0, 0, 0, 0)
 #define tzdev_smc_shmem_list_reg(id, total_pfns, flags)		tzdev_smc_cmd(TZDEV_SMC_SHMEM_LIST_REG, (id), (total_pfns), (flags), 0, 0, 0)
 #define tzdev_smc_shmem_list_rls(id)				tzdev_smc_cmd(TZDEV_SMC_SHMEM_LIST_RLS, (id), 0, 0, 0, 0, 0)
+=======
+#define tzdev_smc_schedule()					tzdev_smc_cmd(TZDEV_SMC_SCHEDULE, 0, 0, 0, 0, 0, 0)
+#define tzdev_smc_connect_aux(pfn)				tzdev_smc_cmd(TZDEV_SMC_CONNECT_AUX, (pfn), 0, 0, 0, 0, 0)
+#define tzdev_smc_connect(mode, nr_pages)			tzdev_smc_cmd(TZDEV_SMC_CONNECT, (mode), (nr_pages), 0, 0, 0, 0)
+#define tzdev_smc_iw_shmem_reg()				tzdev_smc_cmd(TZDEV_SMC_IW_SHMEM_REG, 0, 0, 0, 0, 0, 0)
+#define tzdev_smc_iw_shmem_rls(id)				tzdev_smc_cmd(TZDEV_SMC_IW_SHMEM_RLS, (id), 0, 0, 0, 0, 0)
+#define tzdev_smc_tvm_shmem_rls(handle)			tzdev_smc_cmd(TZDEV_SMC_TVM_SHMEM_RLS, (handle), 0, 0, 0, 0, 0)
+>>>>>>> upstream/android-13
 #define tzdev_smc_sysconf()					tzdev_smc_cmd(TZDEV_SMC_SYSCONF, 0, 0, 0, 0, 0, 0)
 #define tzdev_smc_tz_panic_dump_init()				tzdev_smc_cmd(TZDEV_SMC_TZ_PANIC_DUMP_INIT, 0, 0, 0, 0, 0, 0)
 #define tzdev_smc_check_version()				tzdev_smc_cmd(TZDEV_SMC_CHECK_VERSION, LINUX_VERSION_CODE, TZDEV_DRIVER_CODE, 0, 0, 0, 0)
 #define tzdev_smc_scma_cmd(cmd)					tzdev_smc_cmd(TZDEV_SMC_SCMA_CMD, cmd, 0, 0, 0, 0, 0)
 #define tzdev_smc_boot_log_read(pfn, nr_pages)			tzdev_smc_cmd(TZDEV_SMC_BOOT_LOG_READ, (pfn), (nr_pages), 0, 0, 0, 0)
 #define tzdev_smc_profiler_control(cmd, arg)			tzdev_smc_cmd(TZDEV_SMC_PROFILER_CONTROL, (cmd), (arg), 0, 0, 0, 0)
+<<<<<<< HEAD
+=======
+#define tzdev_smc_kmemleak_cmd(cmd)				tzdev_smc_cmd(TZDEV_SMC_KMEMLEAK_CMD, cmd, 0, 0, 0, 0, 0)
+#define tzdev_smc_channels_init(pfn, nr_pages)			tzdev_smc_cmd(TZDEV_SMC_CHANNELS_INIT, (pfn), (nr_pages), 0, 0, 0, 0)
+#define tzdev_smc_iw_events_init(events)			tzdev_smc_cmd(TZDEV_SMC_IW_EVENTS_INIT, (events), 0, 0, 0, 0, 0)
+>>>>>>> upstream/android-13
 
 struct tzio_sysconf *tzdev_sysconf(void);
 int tzdev_run_init_sequence(void);

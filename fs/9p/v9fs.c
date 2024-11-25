@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/fs/9p/v9fs.c
  *
@@ -5,6 +9,7 @@
  *
  *  Copyright (C) 2004-2008 by Eric Van Hensbergen <ericvh@gmail.com>
  *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2
@@ -21,6 +26,8 @@
  *  51 Franklin Street, Fifth Floor
  *  Boston, MA  02111-1301  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -170,6 +177,10 @@ int v9fs_show_options(struct seq_file *m, struct dentry *root)
 /**
  * v9fs_parse_options - parse mount options into session structure
  * @v9ses: existing v9fs session information
+<<<<<<< HEAD
+=======
+ * @opts: The mount option string
+>>>>>>> upstream/android-13
  *
  * Return 0 upon success, -ERRNO upon failure.
  */
@@ -557,12 +568,18 @@ extern int v9fs_error_init(void);
 static struct kobject *v9fs_kobj;
 
 #ifdef CONFIG_9P_FSCACHE
+<<<<<<< HEAD
 /**
  * caches_show - list caches associated with a session
  *
  * Returns the size of buffer written.
  */
 
+=======
+/*
+ * List caches associated with a session
+ */
+>>>>>>> upstream/android-13
 static ssize_t caches_show(struct kobject *kobj,
 			   struct kobj_attribute *attr,
 			   char *buf)
@@ -598,7 +615,11 @@ static struct attribute *v9fs_attrs[] = {
 	NULL,
 };
 
+<<<<<<< HEAD
 static struct attribute_group v9fs_attr_group = {
+=======
+static const struct attribute_group v9fs_attr_group = {
+>>>>>>> upstream/android-13
 	.attrs = v9fs_attrs,
 };
 
@@ -753,3 +774,7 @@ MODULE_AUTHOR("Latchesar Ionkov <lucho@ionkov.net>");
 MODULE_AUTHOR("Eric Van Hensbergen <ericvh@gmail.com>");
 MODULE_AUTHOR("Ron Minnich <rminnich@lanl.gov>");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13

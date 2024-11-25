@@ -11,7 +11,11 @@ extern int init_cow_file(int fd, char *cow_file, char *backing_file,
 extern int file_reader(__u64 offset, char *buf, int len, void *arg);
 extern int read_cow_header(int (*reader)(__u64, char *, int, void *),
 			   void *arg, __u32 *version_out,
+<<<<<<< HEAD
 			   char **backing_file_out, time_t *mtime_out,
+=======
+			   char **backing_file_out, long long *mtime_out,
+>>>>>>> upstream/android-13
 			   unsigned long long *size_out, int *sectorsize_out,
 			   __u32 *align_out, int *bitmap_offset_out);
 
@@ -24,6 +28,7 @@ extern void cow_sizes(int version, __u64 size, int sectorsize, int align,
 		      int *data_offset_out);
 
 #endif
+<<<<<<< HEAD
 
 /*
  * ---------------------------------------------------------------------------
@@ -31,3 +36,5 @@ extern void cow_sizes(int version, __u64 size, int sectorsize, int align,
  * c-file-style: "linux"
  * End:
  */
+=======
+>>>>>>> upstream/android-13

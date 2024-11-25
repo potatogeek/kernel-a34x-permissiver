@@ -12,6 +12,10 @@
 
 #include <asm/proc-fns.h>
 #include <asm/unistd.h>
+<<<<<<< HEAD
+=======
+#include <asm/fpu.h>
+>>>>>>> upstream/android-13
 
 #include <linux/ptrace.h>
 #include <nds32_intrinsic.h>
@@ -24,6 +28,7 @@ extern void show_pte(struct mm_struct *mm, unsigned long addr);
 void dump_mem(const char *lvl, unsigned long bottom, unsigned long top)
 {
 	unsigned long first;
+<<<<<<< HEAD
 	mm_segment_t fs;
 	int i;
 
@@ -35,6 +40,10 @@ void dump_mem(const char *lvl, unsigned long bottom, unsigned long top)
 	fs = get_fs();
 	set_fs(KERNEL_DS);
 
+=======
+	int i;
+
+>>>>>>> upstream/android-13
 	pr_emerg("%s(0x%08lx to 0x%08lx)\n", lvl, bottom, top);
 
 	for (first = bottom & ~31; first < top; first += 32) {
@@ -47,7 +56,13 @@ void dump_mem(const char *lvl, unsigned long bottom, unsigned long top)
 		for (p = first, i = 0; i < 8 && p < top; i++, p += 4) {
 			if (p >= bottom && p < top) {
 				unsigned long val;
+<<<<<<< HEAD
 				if (__get_user(val, (unsigned long *)p) == 0)
+=======
+
+				if (get_kernel_nofault(val,
+						(unsigned long *)p) == 0)
+>>>>>>> upstream/android-13
 					sprintf(str + i * 9, " %08lx", val);
 				else
 					sprintf(str + i * 9, " ????????");
@@ -55,12 +70,16 @@ void dump_mem(const char *lvl, unsigned long bottom, unsigned long top)
 		}
 		pr_emerg("%s%04lx:%s\n", lvl, first & 0xffff, str);
 	}
+<<<<<<< HEAD
 
 	set_fs(fs);
+=======
+>>>>>>> upstream/android-13
 }
 
 EXPORT_SYMBOL(dump_mem);
 
+<<<<<<< HEAD
 static void dump_instr(struct pt_regs *regs)
 {
 	unsigned long addr = instruction_pointer(regs);
@@ -101,13 +120,26 @@ static void __dump(struct task_struct *tsk, unsigned long *base_reg)
 	unsigned long ret_addr;
 	int cnt = LOOP_TIMES, graph = 0;
 	pr_emerg("Call Trace:\n");
+=======
+#define LOOP_TIMES (100)
+static void __dump(struct task_struct *tsk, unsigned long *base_reg,
+		   const char *loglvl)
+{
+	unsigned long ret_addr;
+	int cnt = LOOP_TIMES, graph = 0;
+	printk("%sCall Trace:\n", loglvl);
+>>>>>>> upstream/android-13
 	if (!IS_ENABLED(CONFIG_FRAME_POINTER)) {
 		while (!kstack_end(base_reg)) {
 			ret_addr = *base_reg++;
 			if (__kernel_text_address(ret_addr)) {
 				ret_addr = ftrace_graph_ret_addr(
 						tsk, &graph, ret_addr, NULL);
+<<<<<<< HEAD
 				print_ip_sym(ret_addr);
+=======
+				print_ip_sym(loglvl, ret_addr);
+>>>>>>> upstream/android-13
 			}
 			if (--cnt < 0)
 				break;
@@ -123,17 +155,28 @@ static void __dump(struct task_struct *tsk, unsigned long *base_reg)
 
 				ret_addr = ftrace_graph_ret_addr(
 						tsk, &graph, ret_addr, NULL);
+<<<<<<< HEAD
 				print_ip_sym(ret_addr);
+=======
+				print_ip_sym(loglvl, ret_addr);
+>>>>>>> upstream/android-13
 			}
 			if (--cnt < 0)
 				break;
 			base_reg = (unsigned long *)next_fp;
 		}
 	}
+<<<<<<< HEAD
 	pr_emerg("\n");
 }
 
 void show_stack(struct task_struct *tsk, unsigned long *sp)
+=======
+	printk("%s\n", loglvl);
+}
+
+void show_stack(struct task_struct *tsk, unsigned long *sp, const char *loglvl)
+>>>>>>> upstream/android-13
 {
 	unsigned long *base_reg;
 
@@ -150,7 +193,11 @@ void show_stack(struct task_struct *tsk, unsigned long *sp)
 		else
 			__asm__ __volatile__("\tori\t%0, $fp, #0\n":"=r"(base_reg));
 	}
+<<<<<<< HEAD
 	__dump(tsk, base_reg);
+=======
+	__dump(tsk, base_reg, loglvl);
+>>>>>>> upstream/android-13
 	barrier();
 }
 
@@ -177,7 +224,10 @@ void die(const char *str, struct pt_regs *regs, int err)
 
 	if (!user_mode(regs) || in_interrupt()) {
 		dump_mem("Stack: ", regs->sp, (regs->sp + PAGE_SIZE) & PAGE_MASK);
+<<<<<<< HEAD
 		dump_instr(regs);
+=======
+>>>>>>> upstream/android-13
 		dump_stack();
 	}
 
@@ -204,7 +254,11 @@ int bad_syscall(int n, struct pt_regs *regs)
 	}
 
 	force_sig_fault(SIGILL, ILL_ILLTRP,
+<<<<<<< HEAD
 			(void __user *)instruction_pointer(regs) - 4, current);
+=======
+			(void __user *)instruction_pointer(regs) - 4);
+>>>>>>> upstream/android-13
 	die_if_kernel("Oops - bad syscall", regs, n);
 	return regs->uregs[0];
 }
@@ -225,11 +279,14 @@ void __pgd_error(const char *file, int line, unsigned long val)
 }
 
 extern char *exception_vector, *exception_vector_end;
+<<<<<<< HEAD
 void __init trap_init(void)
 {
 	return;
 }
 
+=======
+>>>>>>> upstream/android-13
 void __init early_trap_init(void)
 {
 	unsigned long ivb = 0;
@@ -254,14 +311,25 @@ void __init early_trap_init(void)
 	cpu_cache_wbinval_page(base, true);
 }
 
+<<<<<<< HEAD
 void send_sigtrap(struct task_struct *tsk, struct pt_regs *regs,
 		  int error_code, int si_code)
 {
+=======
+static void send_sigtrap(struct pt_regs *regs, int error_code, int si_code)
+{
+	struct task_struct *tsk = current;
+
+>>>>>>> upstream/android-13
 	tsk->thread.trap_no = ENTRY_DEBUG_RELATED;
 	tsk->thread.error_code = error_code;
 
 	force_sig_fault(SIGTRAP, si_code,
+<<<<<<< HEAD
 			(void __user *)instruction_pointer(regs), tsk);
+=======
+			(void __user *)instruction_pointer(regs));
+>>>>>>> upstream/android-13
 }
 
 void do_debug_trap(unsigned long entry, unsigned long addr,
@@ -273,7 +341,11 @@ void do_debug_trap(unsigned long entry, unsigned long addr,
 
 	if (user_mode(regs)) {
 		/* trap_signal */
+<<<<<<< HEAD
 		send_sigtrap(current, regs, 0, TRAP_BRKPT);
+=======
+		send_sigtrap(regs, 0, TRAP_BRKPT);
+>>>>>>> upstream/android-13
 	} else {
 		/* kernel_trap */
 		if (!fixup_exception(regs))
@@ -287,7 +359,11 @@ void unhandled_interruption(struct pt_regs *regs)
 	show_regs(regs);
 	if (!user_mode(regs))
 		do_exit(SIGKILL);
+<<<<<<< HEAD
 	force_sig(SIGKILL, current);
+=======
+	force_sig(SIGKILL);
+>>>>>>> upstream/android-13
 }
 
 void unhandled_exceptions(unsigned long entry, unsigned long addr,
@@ -298,7 +374,11 @@ void unhandled_exceptions(unsigned long entry, unsigned long addr,
 	show_regs(regs);
 	if (!user_mode(regs))
 		do_exit(SIGKILL);
+<<<<<<< HEAD
 	force_sig(SIGKILL, current);
+=======
+	force_sig(SIGKILL);
+>>>>>>> upstream/android-13
 }
 
 extern int do_page_fault(unsigned long entry, unsigned long addr,
@@ -325,7 +405,11 @@ void do_revinsn(struct pt_regs *regs)
 	show_regs(regs);
 	if (!user_mode(regs))
 		do_exit(SIGILL);
+<<<<<<< HEAD
 	force_sig(SIGILL, current);
+=======
+	force_sig(SIGILL);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_ALIGNMENT_TRAP
@@ -357,6 +441,24 @@ void do_dispatch_general(unsigned long entry, unsigned long addr,
 	} else if (type == ETYPE_RESERVED_INSTRUCTION) {
 		/* Reserved instruction */
 		do_revinsn(regs);
+<<<<<<< HEAD
+=======
+	} else if (type == ETYPE_COPROCESSOR) {
+		/* Coprocessor */
+#if IS_ENABLED(CONFIG_FPU)
+		unsigned int fucop_exist = __nds32__mfsr(NDS32_SR_FUCOP_EXIST);
+		unsigned int cpid = ((itype & ITYPE_mskCPID) >> ITYPE_offCPID);
+
+		if ((cpid == FPU_CPID) &&
+		    (fucop_exist & FUCOP_EXIST_mskCP0ISFPU)) {
+			unsigned int subtype = (itype & ITYPE_mskSTYPE);
+
+			if (true == do_fpu_exception(subtype, regs))
+				return;
+		}
+#endif
+		unhandled_exceptions(entry, addr, type, regs);
+>>>>>>> upstream/android-13
 	} else if (type == ETYPE_TRAP && swid == SWID_RAISE_INTERRUPT_LEVEL) {
 		/* trap, used on v3 EDM target debugging workaround */
 		/*

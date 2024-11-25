@@ -1,7 +1,11 @@
 /*
  * DaVinci GPIO Platform Related Defines
  *
+<<<<<<< HEAD
  * Copyright (C) 2013 Texas Instruments Incorporated - http://www.ti.com/
+=======
+ * Copyright (C) 2013 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,6 +20,7 @@
 #ifndef __DAVINCI_GPIO_PLATFORM_H
 #define __DAVINCI_GPIO_PLATFORM_H
 
+<<<<<<< HEAD
 #include <linux/io.h>
 #include <linux/spinlock.h>
 
@@ -25,10 +30,16 @@
 #define MAX_INT_PER_BANK 32
 
 struct davinci_gpio_platform_data {
+=======
+struct davinci_gpio_platform_data {
+	bool	no_auto_base;
+	u32	base;
+>>>>>>> upstream/android-13
 	u32	ngpio;
 	u32	gpio_unbanked;
 };
 
+<<<<<<< HEAD
 struct davinci_gpio_irq_data {
 	void __iomem			*regs;
 	struct davinci_gpio_controller	*chip;
@@ -58,4 +69,9 @@ static inline u32 __gpio_mask(unsigned gpio)
 {
 	return 1 << (gpio % 32);
 }
+=======
+/* Convert GPIO signal to GPIO pin number */
+#define GPIO_TO_PIN(bank, gpio)	(16 * (bank) + (gpio))
+
+>>>>>>> upstream/android-13
 #endif

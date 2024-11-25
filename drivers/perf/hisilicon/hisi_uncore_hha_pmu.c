@@ -1,15 +1,26 @@
+<<<<<<< HEAD
 /*
  * HiSilicon SoC HHA uncore Hardware event counters support
  *
  * Copyright (C) 2017 Hisilicon Limited
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * HiSilicon SoC HHA uncore Hardware event counters support
+ *
+ * Copyright (C) 2017 HiSilicon Limited
+>>>>>>> upstream/android-13
  * Author: Shaokun Zhang <zhangshaokun@hisilicon.com>
  *         Anurup M <anurup.m@huawei.com>
  *
  * This code is based on the uncore PMUs like arm-cci and arm-ccn.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/acpi.h>
 #include <linux/bug.h>
@@ -17,7 +28,10 @@
 #include <linux/interrupt.h>
 #include <linux/irq.h>
 #include <linux/list.h>
+<<<<<<< HEAD
 #include <linux/platform_device.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/smp.h>
 
 #include "hisi_uncore_pmu.h"
@@ -26,6 +40,7 @@
 #define HHA_INT_MASK		0x0804
 #define HHA_INT_STATUS		0x0808
 #define HHA_INT_CLEAR		0x080C
+<<<<<<< HEAD
 #define HHA_PERF_CTRL		0x1E00
 #define HHA_EVENT_CTRL		0x1E04
 #define HHA_EVENT_TYPE0		0x1E80
@@ -40,6 +55,141 @@
 
 #define HHA_PERF_CTRL_EN	0x1
 #define HHA_EVTYPE_NONE		0xff
+=======
+#define HHA_VERSION		0x1cf0
+#define HHA_PERF_CTRL		0x1E00
+#define HHA_EVENT_CTRL		0x1E04
+#define HHA_SRCID_CTRL		0x1E08
+#define HHA_DATSRC_CTRL		0x1BF0
+#define HHA_EVENT_TYPE0		0x1E80
+/*
+ * If the HW version only supports a 48-bit counter, then
+ * bits [63:48] are reserved, which are Read-As-Zero and
+ * Writes-Ignored.
+ */
+#define HHA_CNT0_LOWER		0x1F00
+
+/* HHA PMU v1 has 16 counters and v2 only has 8 counters */
+#define HHA_V1_NR_COUNTERS	0x10
+#define HHA_V2_NR_COUNTERS	0x8
+
+#define HHA_PERF_CTRL_EN	0x1
+#define HHA_TRACETAG_EN		BIT(31)
+#define HHA_SRCID_EN		BIT(2)
+#define HHA_SRCID_CMD_SHIFT	6
+#define HHA_SRCID_MSK_SHIFT	20
+#define HHA_SRCID_CMD		GENMASK(16, 6)
+#define HHA_SRCID_MSK		GENMASK(30, 20)
+#define HHA_DATSRC_SKT_EN	BIT(23)
+#define HHA_EVTYPE_NONE		0xff
+#define HHA_V1_NR_EVENT		0x65
+#define HHA_V2_NR_EVENT		0xCE
+
+HISI_PMU_EVENT_ATTR_EXTRACTOR(srcid_cmd, config1, 10, 0);
+HISI_PMU_EVENT_ATTR_EXTRACTOR(srcid_msk, config1, 21, 11);
+HISI_PMU_EVENT_ATTR_EXTRACTOR(tracetag_en, config1, 22, 22);
+HISI_PMU_EVENT_ATTR_EXTRACTOR(datasrc_skt, config1, 23, 23);
+
+static void hisi_hha_pmu_enable_tracetag(struct perf_event *event)
+{
+	struct hisi_pmu *hha_pmu = to_hisi_pmu(event->pmu);
+	u32 tt_en = hisi_get_tracetag_en(event);
+
+	if (tt_en) {
+		u32 val;
+
+		val = readl(hha_pmu->base + HHA_SRCID_CTRL);
+		val |= HHA_TRACETAG_EN;
+		writel(val, hha_pmu->base + HHA_SRCID_CTRL);
+	}
+}
+
+static void hisi_hha_pmu_clear_tracetag(struct perf_event *event)
+{
+	struct hisi_pmu *hha_pmu = to_hisi_pmu(event->pmu);
+	u32 val;
+
+	val = readl(hha_pmu->base + HHA_SRCID_CTRL);
+	val &= ~HHA_TRACETAG_EN;
+	writel(val, hha_pmu->base + HHA_SRCID_CTRL);
+}
+
+static void hisi_hha_pmu_config_ds(struct perf_event *event)
+{
+	struct hisi_pmu *hha_pmu = to_hisi_pmu(event->pmu);
+	u32 ds_skt = hisi_get_datasrc_skt(event);
+
+	if (ds_skt) {
+		u32 val;
+
+		val = readl(hha_pmu->base + HHA_DATSRC_CTRL);
+		val |= HHA_DATSRC_SKT_EN;
+		writel(val, hha_pmu->base + HHA_DATSRC_CTRL);
+	}
+}
+
+static void hisi_hha_pmu_clear_ds(struct perf_event *event)
+{
+	struct hisi_pmu *hha_pmu = to_hisi_pmu(event->pmu);
+	u32 ds_skt = hisi_get_datasrc_skt(event);
+
+	if (ds_skt) {
+		u32 val;
+
+		val = readl(hha_pmu->base + HHA_DATSRC_CTRL);
+		val &= ~HHA_DATSRC_SKT_EN;
+		writel(val, hha_pmu->base + HHA_DATSRC_CTRL);
+	}
+}
+
+static void hisi_hha_pmu_config_srcid(struct perf_event *event)
+{
+	struct hisi_pmu *hha_pmu = to_hisi_pmu(event->pmu);
+	u32 cmd = hisi_get_srcid_cmd(event);
+
+	if (cmd) {
+		u32 val, msk;
+
+		msk = hisi_get_srcid_msk(event);
+		val = readl(hha_pmu->base + HHA_SRCID_CTRL);
+		val |= HHA_SRCID_EN | (cmd << HHA_SRCID_CMD_SHIFT) |
+			(msk << HHA_SRCID_MSK_SHIFT);
+		writel(val, hha_pmu->base + HHA_SRCID_CTRL);
+	}
+}
+
+static void hisi_hha_pmu_disable_srcid(struct perf_event *event)
+{
+	struct hisi_pmu *hha_pmu = to_hisi_pmu(event->pmu);
+	u32 cmd = hisi_get_srcid_cmd(event);
+
+	if (cmd) {
+		u32 val;
+
+		val = readl(hha_pmu->base + HHA_SRCID_CTRL);
+		val &= ~(HHA_SRCID_EN | HHA_SRCID_MSK | HHA_SRCID_CMD);
+		writel(val, hha_pmu->base + HHA_SRCID_CTRL);
+	}
+}
+
+static void hisi_hha_pmu_enable_filter(struct perf_event *event)
+{
+	if (event->attr.config1 != 0x0) {
+		hisi_hha_pmu_enable_tracetag(event);
+		hisi_hha_pmu_config_ds(event);
+		hisi_hha_pmu_config_srcid(event);
+	}
+}
+
+static void hisi_hha_pmu_disable_filter(struct perf_event *event)
+{
+	if (event->attr.config1 != 0x0) {
+		hisi_hha_pmu_disable_srcid(event);
+		hisi_hha_pmu_clear_ds(event);
+		hisi_hha_pmu_clear_tracetag(event);
+	}
+}
+>>>>>>> upstream/android-13
 
 /*
  * Select the counter register offset using the counter index
@@ -53,6 +203,7 @@ static u32 hisi_hha_pmu_get_counter_offset(int cntr_idx)
 static u64 hisi_hha_pmu_read_counter(struct hisi_pmu *hha_pmu,
 				     struct hw_perf_event *hwc)
 {
+<<<<<<< HEAD
 	u32 idx = hwc->idx;
 
 	if (!hisi_uncore_pmu_counter_valid(hha_pmu, idx)) {
@@ -62,11 +213,16 @@ static u64 hisi_hha_pmu_read_counter(struct hisi_pmu *hha_pmu,
 
 	/* Read 64 bits and like L3C, top 16 bits are RAZ */
 	return readq(hha_pmu->base + hisi_hha_pmu_get_counter_offset(idx));
+=======
+	/* Read 64 bits and like L3C, top 16 bits are RAZ */
+	return readq(hha_pmu->base + hisi_hha_pmu_get_counter_offset(hwc->idx));
+>>>>>>> upstream/android-13
 }
 
 static void hisi_hha_pmu_write_counter(struct hisi_pmu *hha_pmu,
 				       struct hw_perf_event *hwc, u64 val)
 {
+<<<<<<< HEAD
 	u32 idx = hwc->idx;
 
 	if (!hisi_uncore_pmu_counter_valid(hha_pmu, idx)) {
@@ -76,6 +232,10 @@ static void hisi_hha_pmu_write_counter(struct hisi_pmu *hha_pmu,
 
 	/* Write 64 bits and like L3C, top 16 bits are WI */
 	writeq(val, hha_pmu->base + hisi_hha_pmu_get_counter_offset(idx));
+=======
+	/* Write 64 bits and like L3C, top 16 bits are WI */
+	writeq(val, hha_pmu->base + hisi_hha_pmu_get_counter_offset(hwc->idx));
+>>>>>>> upstream/android-13
 }
 
 static void hisi_hha_pmu_write_evtype(struct hisi_pmu *hha_pmu, int idx,
@@ -171,6 +331,7 @@ static void hisi_hha_pmu_disable_counter_int(struct hisi_pmu *hha_pmu,
 	writel(val, hha_pmu->base + HHA_INT_MASK);
 }
 
+<<<<<<< HEAD
 static irqreturn_t hisi_hha_pmu_isr(int irq, void *dev_id)
 {
 	struct hisi_pmu *hha_pmu = dev_id;
@@ -227,11 +388,26 @@ static int hisi_hha_pmu_init_irq(struct hisi_pmu *hha_pmu,
 	hha_pmu->irq = irq;
 
 	return 0;
+=======
+static u32 hisi_hha_pmu_get_int_status(struct hisi_pmu *hha_pmu)
+{
+	return readl(hha_pmu->base + HHA_INT_STATUS);
+}
+
+static void hisi_hha_pmu_clear_int_status(struct hisi_pmu *hha_pmu, int idx)
+{
+	writel(1 << idx, hha_pmu->base + HHA_INT_CLEAR);
+>>>>>>> upstream/android-13
 }
 
 static const struct acpi_device_id hisi_hha_pmu_acpi_match[] = {
 	{ "HISI0243", },
+<<<<<<< HEAD
 	{},
+=======
+	{ "HISI0244", },
+	{}
+>>>>>>> upstream/android-13
 };
 MODULE_DEVICE_TABLE(acpi, hisi_hha_pmu_acpi_match);
 
@@ -239,6 +415,7 @@ static int hisi_hha_pmu_init_data(struct platform_device *pdev,
 				  struct hisi_pmu *hha_pmu)
 {
 	unsigned long long id;
+<<<<<<< HEAD
 	struct resource *res;
 	acpi_status status;
 
@@ -249,6 +426,10 @@ static int hisi_hha_pmu_init_data(struct platform_device *pdev,
 
 	hha_pmu->index_id = id;
 
+=======
+	acpi_status status;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Use SCCL_ID and UID to identify the HHA PMU, while
 	 * SCCL_ID is in MPIDR[aff2].
@@ -258,30 +439,85 @@ static int hisi_hha_pmu_init_data(struct platform_device *pdev,
 		dev_err(&pdev->dev, "Can not read hha sccl-id!\n");
 		return -EINVAL;
 	}
+<<<<<<< HEAD
 	/* HHA PMUs only share the same SCCL */
 	hha_pmu->ccl_id = -1;
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	hha_pmu->base = devm_ioremap_resource(&pdev->dev, res);
+=======
+
+	/*
+	 * Early versions of BIOS support _UID by mistake, so we support
+	 * both "hisilicon, idx-id" as preference, if available.
+	 */
+	if (device_property_read_u32(&pdev->dev, "hisilicon,idx-id",
+				     &hha_pmu->index_id)) {
+		status = acpi_evaluate_integer(ACPI_HANDLE(&pdev->dev),
+					       "_UID", NULL, &id);
+		if (ACPI_FAILURE(status)) {
+			dev_err(&pdev->dev, "Cannot read idx-id!\n");
+			return -EINVAL;
+		}
+
+		hha_pmu->index_id = id;
+	}
+	/* HHA PMUs only share the same SCCL */
+	hha_pmu->ccl_id = -1;
+
+	hha_pmu->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(hha_pmu->base)) {
 		dev_err(&pdev->dev, "ioremap failed for hha_pmu resource\n");
 		return PTR_ERR(hha_pmu->base);
 	}
 
+<<<<<<< HEAD
 	return 0;
 }
 
 static struct attribute *hisi_hha_pmu_format_attr[] = {
+=======
+	hha_pmu->identifier = readl(hha_pmu->base + HHA_VERSION);
+
+	return 0;
+}
+
+static struct attribute *hisi_hha_pmu_v1_format_attr[] = {
+>>>>>>> upstream/android-13
 	HISI_PMU_FORMAT_ATTR(event, "config:0-7"),
 	NULL,
 };
 
+<<<<<<< HEAD
 static const struct attribute_group hisi_hha_pmu_format_group = {
 	.name = "format",
 	.attrs = hisi_hha_pmu_format_attr,
 };
 
 static struct attribute *hisi_hha_pmu_events_attr[] = {
+=======
+static const struct attribute_group hisi_hha_pmu_v1_format_group = {
+	.name = "format",
+	.attrs = hisi_hha_pmu_v1_format_attr,
+};
+
+static struct attribute *hisi_hha_pmu_v2_format_attr[] = {
+	HISI_PMU_FORMAT_ATTR(event, "config:0-7"),
+	HISI_PMU_FORMAT_ATTR(srcid_cmd, "config1:0-10"),
+	HISI_PMU_FORMAT_ATTR(srcid_msk, "config1:11-21"),
+	HISI_PMU_FORMAT_ATTR(tracetag_en, "config1:22"),
+	HISI_PMU_FORMAT_ATTR(datasrc_skt, "config1:23"),
+	NULL
+};
+
+static const struct attribute_group hisi_hha_pmu_v2_format_group = {
+	.name = "format",
+	.attrs = hisi_hha_pmu_v2_format_attr,
+};
+
+static struct attribute *hisi_hha_pmu_v1_events_attr[] = {
+>>>>>>> upstream/android-13
 	HISI_PMU_EVENT_ATTR(rx_ops_num,		0x00),
 	HISI_PMU_EVENT_ATTR(rx_outer,		0x01),
 	HISI_PMU_EVENT_ATTR(rx_sccl,		0x02),
@@ -311,9 +547,29 @@ static struct attribute *hisi_hha_pmu_events_attr[] = {
 	NULL,
 };
 
+<<<<<<< HEAD
 static const struct attribute_group hisi_hha_pmu_events_group = {
 	.name = "events",
 	.attrs = hisi_hha_pmu_events_attr,
+=======
+static const struct attribute_group hisi_hha_pmu_v1_events_group = {
+	.name = "events",
+	.attrs = hisi_hha_pmu_v1_events_attr,
+};
+
+static struct attribute *hisi_hha_pmu_v2_events_attr[] = {
+	HISI_PMU_EVENT_ATTR(rx_ops_num,		0x00),
+	HISI_PMU_EVENT_ATTR(rx_outer,		0x01),
+	HISI_PMU_EVENT_ATTR(rx_sccl,		0x02),
+	HISI_PMU_EVENT_ATTR(hha_retry,		0x2e),
+	HISI_PMU_EVENT_ATTR(cycles,		0x55),
+	NULL
+};
+
+static const struct attribute_group hisi_hha_pmu_v2_events_group = {
+	.name = "events",
+	.attrs = hisi_hha_pmu_v2_events_attr,
+>>>>>>> upstream/android-13
 };
 
 static DEVICE_ATTR(cpumask, 0444, hisi_cpumask_sysfs_show, NULL);
@@ -327,6 +583,7 @@ static const struct attribute_group hisi_hha_pmu_cpumask_attr_group = {
 	.attrs = hisi_hha_pmu_cpumask_attrs,
 };
 
+<<<<<<< HEAD
 static const struct attribute_group *hisi_hha_pmu_attr_groups[] = {
 	&hisi_hha_pmu_format_group,
 	&hisi_hha_pmu_events_group,
@@ -334,6 +591,36 @@ static const struct attribute_group *hisi_hha_pmu_attr_groups[] = {
 	NULL,
 };
 
+=======
+static struct device_attribute hisi_hha_pmu_identifier_attr =
+	__ATTR(identifier, 0444, hisi_uncore_pmu_identifier_attr_show, NULL);
+
+static struct attribute *hisi_hha_pmu_identifier_attrs[] = {
+	&hisi_hha_pmu_identifier_attr.attr,
+	NULL
+};
+
+static const struct attribute_group hisi_hha_pmu_identifier_group = {
+	.attrs = hisi_hha_pmu_identifier_attrs,
+};
+
+static const struct attribute_group *hisi_hha_pmu_v1_attr_groups[] = {
+	&hisi_hha_pmu_v1_format_group,
+	&hisi_hha_pmu_v1_events_group,
+	&hisi_hha_pmu_cpumask_attr_group,
+	&hisi_hha_pmu_identifier_group,
+	NULL,
+};
+
+static const struct attribute_group *hisi_hha_pmu_v2_attr_groups[] = {
+	&hisi_hha_pmu_v2_format_group,
+	&hisi_hha_pmu_v2_events_group,
+	&hisi_hha_pmu_cpumask_attr_group,
+	&hisi_hha_pmu_identifier_group,
+	NULL
+};
+
+>>>>>>> upstream/android-13
 static const struct hisi_uncore_ops hisi_uncore_hha_ops = {
 	.write_evtype		= hisi_hha_pmu_write_evtype,
 	.get_event_idx		= hisi_uncore_pmu_get_event_idx,
@@ -345,6 +632,13 @@ static const struct hisi_uncore_ops hisi_uncore_hha_ops = {
 	.disable_counter_int	= hisi_hha_pmu_disable_counter_int,
 	.write_counter		= hisi_hha_pmu_write_counter,
 	.read_counter		= hisi_hha_pmu_read_counter,
+<<<<<<< HEAD
+=======
+	.get_int_status		= hisi_hha_pmu_get_int_status,
+	.clear_int_status	= hisi_hha_pmu_clear_int_status,
+	.enable_filter		= hisi_hha_pmu_enable_filter,
+	.disable_filter		= hisi_hha_pmu_disable_filter,
+>>>>>>> upstream/android-13
 };
 
 static int hisi_hha_pmu_dev_probe(struct platform_device *pdev,
@@ -356,6 +650,7 @@ static int hisi_hha_pmu_dev_probe(struct platform_device *pdev,
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	ret = hisi_hha_pmu_init_irq(hha_pmu, pdev);
 	if (ret)
 		return ret;
@@ -366,6 +661,26 @@ static int hisi_hha_pmu_dev_probe(struct platform_device *pdev,
 	hha_pmu->dev = &pdev->dev;
 	hha_pmu->on_cpu = -1;
 	hha_pmu->check_event = 0x65;
+=======
+	ret = hisi_uncore_pmu_init_irq(hha_pmu, pdev);
+	if (ret)
+		return ret;
+
+	if (hha_pmu->identifier >= HISI_PMU_V2) {
+		hha_pmu->counter_bits = 64;
+		hha_pmu->check_event = HHA_V2_NR_EVENT;
+		hha_pmu->pmu_events.attr_groups = hisi_hha_pmu_v2_attr_groups;
+		hha_pmu->num_counters = HHA_V2_NR_COUNTERS;
+	} else {
+		hha_pmu->counter_bits = 48;
+		hha_pmu->check_event = HHA_V1_NR_EVENT;
+		hha_pmu->pmu_events.attr_groups = hisi_hha_pmu_v1_attr_groups;
+		hha_pmu->num_counters = HHA_V1_NR_COUNTERS;
+	}
+	hha_pmu->ops = &hisi_uncore_hha_ops;
+	hha_pmu->dev = &pdev->dev;
+	hha_pmu->on_cpu = -1;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -397,6 +712,10 @@ static int hisi_hha_pmu_probe(struct platform_device *pdev)
 			      hha_pmu->sccl_id, hha_pmu->index_id);
 	hha_pmu->pmu = (struct pmu) {
 		.name		= name,
+<<<<<<< HEAD
+=======
+		.module		= THIS_MODULE,
+>>>>>>> upstream/android-13
 		.task_ctx_nr	= perf_invalid_context,
 		.event_init	= hisi_uncore_pmu_event_init,
 		.pmu_enable	= hisi_uncore_pmu_enable,
@@ -406,14 +725,24 @@ static int hisi_hha_pmu_probe(struct platform_device *pdev)
 		.start		= hisi_uncore_pmu_start,
 		.stop		= hisi_uncore_pmu_stop,
 		.read		= hisi_uncore_pmu_read,
+<<<<<<< HEAD
 		.attr_groups	= hisi_hha_pmu_attr_groups,
+=======
+		.attr_groups	= hha_pmu->pmu_events.attr_groups,
+		.capabilities	= PERF_PMU_CAP_NO_EXCLUDE,
+>>>>>>> upstream/android-13
 	};
 
 	ret = perf_pmu_register(&hha_pmu->pmu, name, -1);
 	if (ret) {
 		dev_err(hha_pmu->dev, "HHA PMU register failed!\n");
+<<<<<<< HEAD
 		cpuhp_state_remove_instance(CPUHP_AP_PERF_ARM_HISI_HHA_ONLINE,
 					    &hha_pmu->node);
+=======
+		cpuhp_state_remove_instance_nocalls(
+			CPUHP_AP_PERF_ARM_HISI_HHA_ONLINE, &hha_pmu->node);
+>>>>>>> upstream/android-13
 	}
 
 	return ret;
@@ -424,9 +753,14 @@ static int hisi_hha_pmu_remove(struct platform_device *pdev)
 	struct hisi_pmu *hha_pmu = platform_get_drvdata(pdev);
 
 	perf_pmu_unregister(&hha_pmu->pmu);
+<<<<<<< HEAD
 	cpuhp_state_remove_instance(CPUHP_AP_PERF_ARM_HISI_HHA_ONLINE,
 				    &hha_pmu->node);
 
+=======
+	cpuhp_state_remove_instance_nocalls(CPUHP_AP_PERF_ARM_HISI_HHA_ONLINE,
+					    &hha_pmu->node);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -434,6 +768,10 @@ static struct platform_driver hisi_hha_pmu_driver = {
 	.driver = {
 		.name = "hisi_hha_pmu",
 		.acpi_match_table = ACPI_PTR(hisi_hha_pmu_acpi_match),
+<<<<<<< HEAD
+=======
+		.suppress_bind_attrs = true,
+>>>>>>> upstream/android-13
 	},
 	.probe = hisi_hha_pmu_probe,
 	.remove = hisi_hha_pmu_remove,

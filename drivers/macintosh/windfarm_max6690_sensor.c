@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Windfarm PowerMac thermal control.  MAX6690 sensor.
  *
  * Copyright (C) 2005 Paul Mackerras, IBM Corp. <paulus@samba.org>
+<<<<<<< HEAD
  *
  * Use and redistribute under the terms of the GNU GPL v2.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/types.h>
 #include <linux/errno.h>

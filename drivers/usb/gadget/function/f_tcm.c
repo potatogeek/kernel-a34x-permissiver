@@ -392,12 +392,20 @@ static void bot_set_alt(struct f_uas *fu)
 
 	fu->flags = USBG_IS_BOT;
 
+<<<<<<< HEAD
 	config_ep_by_speed(gadget, f, fu->ep_in);
+=======
+	config_ep_by_speed_and_alt(gadget, f, fu->ep_in, USB_G_ALT_INT_BBB);
+>>>>>>> upstream/android-13
 	ret = usb_ep_enable(fu->ep_in);
 	if (ret)
 		goto err_b_in;
 
+<<<<<<< HEAD
 	config_ep_by_speed(gadget, f, fu->ep_out);
+=======
+	config_ep_by_speed_and_alt(gadget, f, fu->ep_out, USB_G_ALT_INT_BBB);
+>>>>>>> upstream/android-13
 	ret = usb_ep_enable(fu->ep_out);
 	if (ret)
 		goto err_b_out;
@@ -531,6 +539,10 @@ static int uasp_prepare_r_request(struct usbg_cmd *cmd)
 		stream->req_in->sg = se_cmd->t_data_sg;
 	}
 
+<<<<<<< HEAD
+=======
+	stream->req_in->is_last = 1;
+>>>>>>> upstream/android-13
 	stream->req_in->complete = uasp_status_data_cmpl;
 	stream->req_in->length = se_cmd->data_length;
 	stream->req_in->context = cmd;
@@ -554,6 +566,10 @@ static void uasp_prepare_status(struct usbg_cmd *cmd)
 	 */
 	iu->len = cpu_to_be16(se_cmd->scsi_sense_length);
 	iu->status = se_cmd->scsi_status;
+<<<<<<< HEAD
+=======
+	stream->req_status->is_last = 1;
+>>>>>>> upstream/android-13
 	stream->req_status->context = cmd;
 	stream->req_status->length = se_cmd->scsi_sense_length + 16;
 	stream->req_status->buf = iu;
@@ -847,24 +863,43 @@ static void uasp_set_alt(struct f_uas *fu)
 
 	fu->flags = USBG_IS_UAS;
 
+<<<<<<< HEAD
 	if (gadget->speed == USB_SPEED_SUPER)
 		fu->flags |= USBG_USE_STREAMS;
 
 	config_ep_by_speed(gadget, f, fu->ep_in);
+=======
+	if (gadget->speed >= USB_SPEED_SUPER)
+		fu->flags |= USBG_USE_STREAMS;
+
+	config_ep_by_speed_and_alt(gadget, f, fu->ep_in, USB_G_ALT_INT_UAS);
+>>>>>>> upstream/android-13
 	ret = usb_ep_enable(fu->ep_in);
 	if (ret)
 		goto err_b_in;
 
+<<<<<<< HEAD
 	config_ep_by_speed(gadget, f, fu->ep_out);
+=======
+	config_ep_by_speed_and_alt(gadget, f, fu->ep_out, USB_G_ALT_INT_UAS);
+>>>>>>> upstream/android-13
 	ret = usb_ep_enable(fu->ep_out);
 	if (ret)
 		goto err_b_out;
 
+<<<<<<< HEAD
 	config_ep_by_speed(gadget, f, fu->ep_cmd);
 	ret = usb_ep_enable(fu->ep_cmd);
 	if (ret)
 		goto err_cmd;
 	config_ep_by_speed(gadget, f, fu->ep_status);
+=======
+	config_ep_by_speed_and_alt(gadget, f, fu->ep_cmd, USB_G_ALT_INT_UAS);
+	ret = usb_ep_enable(fu->ep_cmd);
+	if (ret)
+		goto err_cmd;
+	config_ep_by_speed_and_alt(gadget, f, fu->ep_status, USB_G_ALT_INT_UAS);
+>>>>>>> upstream/android-13
 	ret = usb_ep_enable(fu->ep_status);
 	if (ret)
 		goto err_status;
@@ -992,6 +1027,10 @@ static int usbg_prepare_w_request(struct usbg_cmd *cmd, struct usb_request *req)
 		req->sg = se_cmd->t_data_sg;
 	}
 
+<<<<<<< HEAD
+=======
+	req->is_last = 1;
+>>>>>>> upstream/android-13
 	req->complete = usbg_data_write_cmpl;
 	req->length = se_cmd->data_length;
 	req->context = cmd;
@@ -1047,6 +1086,7 @@ static void usbg_cmd_work(struct work_struct *work)
 	tv_nexus = tpg->tpg_nexus;
 	dir = get_cmd_dir(cmd->cmd_buf);
 	if (dir < 0) {
+<<<<<<< HEAD
 		transport_init_se_cmd(se_cmd,
 				tv_nexus->tvn_se_sess->se_tpg->se_tpg_tfo,
 				tv_nexus->tvn_se_sess, cmd->data_len, DMA_NONE,
@@ -1059,6 +1099,19 @@ static void usbg_cmd_work(struct work_struct *work)
 			      cmd->prio_attr, dir, flags) < 0)
 		goto out;
 
+=======
+		__target_init_cmd(se_cmd,
+				  tv_nexus->tvn_se_sess->se_tpg->se_tpg_tfo,
+				  tv_nexus->tvn_se_sess, cmd->data_len, DMA_NONE,
+				  cmd->prio_attr, cmd->sense_iu.sense,
+				  cmd->unpacked_lun);
+		goto out;
+	}
+
+	target_submit_cmd(se_cmd, tv_nexus->tvn_se_sess, cmd->cmd_buf,
+			  cmd->sense_iu.sense, cmd->unpacked_lun, 0,
+			  cmd->prio_attr, dir, flags);
+>>>>>>> upstream/android-13
 	return;
 
 out:
@@ -1147,7 +1200,11 @@ static int usbg_submit_command(struct f_uas *fu,
 	default:
 		pr_debug_once("Unsupported prio_attr: %02x.\n",
 				cmd_iu->prio_attr);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case UAS_SIMPLE_TAG:
 		cmd->prio_attr = TCM_SIMPLE_TAG;
 		break;
@@ -1177,6 +1234,7 @@ static void bot_cmd_work(struct work_struct *work)
 	tv_nexus = tpg->tpg_nexus;
 	dir = get_cmd_dir(cmd->cmd_buf);
 	if (dir < 0) {
+<<<<<<< HEAD
 		transport_init_se_cmd(se_cmd,
 				tv_nexus->tvn_se_sess->se_tpg->se_tpg_tfo,
 				tv_nexus->tvn_se_sess, cmd->data_len, DMA_NONE,
@@ -1189,6 +1247,19 @@ static void bot_cmd_work(struct work_struct *work)
 			cmd->data_len, cmd->prio_attr, dir, 0) < 0)
 		goto out;
 
+=======
+		__target_init_cmd(se_cmd,
+				  tv_nexus->tvn_se_sess->se_tpg->se_tpg_tfo,
+				  tv_nexus->tvn_se_sess, cmd->data_len, DMA_NONE,
+				  cmd->prio_attr, cmd->sense_iu.sense,
+				  cmd->unpacked_lun);
+		goto out;
+	}
+
+	target_submit_cmd(se_cmd, tv_nexus->tvn_se_sess,
+			  cmd->cmd_buf, cmd->sense_iu.sense, cmd->unpacked_lun,
+			  cmd->data_len, cmd->prio_attr, dir, 0);
+>>>>>>> upstream/android-13
 	return;
 
 out:
@@ -1257,11 +1328,14 @@ static int usbg_check_false(struct se_portal_group *se_tpg)
 	return 0;
 }
 
+<<<<<<< HEAD
 static char *usbg_get_fabric_name(void)
 {
 	return "usb_gadget";
 }
 
+=======
+>>>>>>> upstream/android-13
 static char *usbg_get_fabric_wwn(struct se_portal_group *se_tpg)
 {
 	struct usbg_tpg *tpg = container_of(se_tpg,
@@ -1298,6 +1372,7 @@ static u32 usbg_sess_get_index(struct se_session *se_sess)
 	return 0;
 }
 
+<<<<<<< HEAD
 /*
  * XXX Error recovery: return != 0 if we expect writes. Dunno when that could be
  */
@@ -1306,6 +1381,8 @@ static int usbg_write_pending_status(struct se_cmd *se_cmd)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void usbg_set_default_node_attrs(struct se_node_acl *nacl)
 {
 }
@@ -1719,8 +1796,12 @@ static int usbg_check_stop_free(struct se_cmd *se_cmd)
 
 static const struct target_core_fabric_ops usbg_ops = {
 	.module				= THIS_MODULE,
+<<<<<<< HEAD
 	.name				= "usb_gadget",
 	.get_fabric_name		= usbg_get_fabric_name,
+=======
+	.fabric_name			= "usb_gadget",
+>>>>>>> upstream/android-13
 	.tpg_get_wwn			= usbg_get_fabric_wwn,
 	.tpg_get_tag			= usbg_get_tag,
 	.tpg_check_demo_mode		= usbg_check_true,
@@ -1732,7 +1813,10 @@ static const struct target_core_fabric_ops usbg_ops = {
 	.sess_get_index			= usbg_sess_get_index,
 	.sess_get_initiator_sid		= NULL,
 	.write_pending			= usbg_send_write_request,
+<<<<<<< HEAD
 	.write_pending_status		= usbg_write_pending_status,
+=======
+>>>>>>> upstream/android-13
 	.set_default_node_attributes	= usbg_set_default_node_attrs,
 	.get_cmd_state			= usbg_get_cmd_state,
 	.queue_data_in			= usbg_send_read_response,
@@ -2071,7 +2155,12 @@ static int tcm_bind(struct usb_configuration *c, struct usb_function *f)
 	uasp_fs_cmd_desc.bEndpointAddress = uasp_ss_cmd_desc.bEndpointAddress;
 
 	ret = usb_assign_descriptors(f, uasp_fs_function_desc,
+<<<<<<< HEAD
 			uasp_hs_function_desc, uasp_ss_function_desc, NULL);
+=======
+			uasp_hs_function_desc, uasp_ss_function_desc,
+			uasp_ss_function_desc);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto ep_fail;
 
@@ -2109,6 +2198,19 @@ static void tcm_delayed_set_alt(struct work_struct *wq)
 	usb_composite_setup_continue(fu->function.config->cdev);
 }
 
+<<<<<<< HEAD
+=======
+static int tcm_get_alt(struct usb_function *f, unsigned intf)
+{
+	if (intf == bot_intf_desc.bInterfaceNumber)
+		return USB_G_ALT_INT_BBB;
+	if (intf == uasp_intf_desc.bInterfaceNumber)
+		return USB_G_ALT_INT_UAS;
+
+	return -EOPNOTSUPP;
+}
+
+>>>>>>> upstream/android-13
 static int tcm_set_alt(struct usb_function *f, unsigned intf, unsigned alt)
 {
 	struct f_uas *fu = to_f_uas(f);
@@ -2316,6 +2418,10 @@ static struct usb_function *tcm_alloc(struct usb_function_instance *fi)
 	fu->function.bind = tcm_bind;
 	fu->function.unbind = tcm_unbind;
 	fu->function.set_alt = tcm_set_alt;
+<<<<<<< HEAD
+=======
+	fu->function.get_alt = tcm_get_alt;
+>>>>>>> upstream/android-13
 	fu->function.setup = tcm_setup;
 	fu->function.disable = tcm_disable;
 	fu->function.free_func = tcm_free;

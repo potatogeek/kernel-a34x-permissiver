@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Floating-point, VMX/Altivec and VSX loads and stores
  * for use in instruction emulation.
  *
  * Copyright 2010 Paul Mackerras, IBM Corp. <paulus@au1.ibm.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version
  *  2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <asm/processor.h>
@@ -18,8 +25,11 @@
 #include <asm/asm-compat.h>
 #include <linux/errno.h>
 
+<<<<<<< HEAD
 #ifdef CONFIG_PPC_FPU
 
+=======
+>>>>>>> upstream/android-13
 #define STKFRM	(PPC_MIN_STKFRM + 16)
 
 /* Get the contents of frN into *p; N is in r3 and p is in r4. */
@@ -241,5 +251,8 @@ _GLOBAL(conv_dp_to_sp)
 	MTMSRD(r6)
 	isync
 	blr
+<<<<<<< HEAD
 
 #endif	/* CONFIG_PPC_FPU */
+=======
+>>>>>>> upstream/android-13

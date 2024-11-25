@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * OMAP7xx SPI 100k controller driver
  * Author: Fabrice Crohas <fcrohas@gmail.com>
@@ -5,6 +9,7 @@
  *
  * Copyright (C) 2005, 2006 Nokia Corporation
  * Author:      Samuel Ortiz <samuel.ortiz@nokia.com> and
+<<<<<<< HEAD
  *              Juha Yrj�l� <juha.yrjola@nokia.com>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -16,6 +21,9 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+ *              Juha Yrjola <juha.yrjola@nokia.com>
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/init.h>
@@ -28,7 +36,10 @@
 #include <linux/err.h>
 #include <linux/clk.h>
 #include <linux/io.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 
 #include <linux/spi/spi.h>
@@ -120,7 +131,11 @@ static void spi100k_write_data(struct spi_master *master, int len, int data)
 	}
 
 	spi100k_enable_clock(master);
+<<<<<<< HEAD
 	writew(data , spi100k->base + SPI_TX_MSB);
+=======
+	writew(data, spi100k->base + SPI_TX_MSB);
+>>>>>>> upstream/android-13
 
 	writew(SPI_CTRL_SEN(0) |
 	       SPI_CTRL_WORD_SIZE(len) |
@@ -137,7 +152,11 @@ static void spi100k_write_data(struct spi_master *master, int len, int data)
 
 static int spi100k_read_data(struct spi_master *master, int len)
 {
+<<<<<<< HEAD
 	int dataH, dataL;
+=======
+	int dataL;
+>>>>>>> upstream/android-13
 	struct omap1_spi100k *spi100k = spi_master_get_devdata(master);
 
 	/* Always do at least 16 bits */
@@ -155,7 +174,11 @@ static int spi100k_read_data(struct spi_master *master, int len)
 	udelay(1000);
 
 	dataL = readw(spi100k->base + SPI_RX_LSB);
+<<<<<<< HEAD
 	dataH = readw(spi100k->base + SPI_RX_MSB);
+=======
+	readw(spi100k->base + SPI_RX_MSB);
+>>>>>>> upstream/android-13
 	spi100k_disable_clock(master);
 
 	return dataL;
@@ -251,14 +274,24 @@ static int omap1_spi100k_setup_transfer(struct spi_device *spi,
 	else
 		word_len = spi->bits_per_word;
 
+<<<<<<< HEAD
 	if (spi->bits_per_word > 32)
+=======
+	if (word_len > 32)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	cs->word_len = word_len;
 
 	/* SPI init before transfer */
+<<<<<<< HEAD
 	writew(0x3e , spi100k->base + SPI_SETUP1);
 	writew(0x00 , spi100k->base + SPI_STATUS);
 	writew(0x3e , spi100k->base + SPI_CTRL);
+=======
+	writew(0x3e, spi100k->base + SPI_SETUP1);
+	writew(0x00, spi100k->base + SPI_STATUS);
+	writew(0x3e, spi100k->base + SPI_CTRL);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -306,7 +339,10 @@ static int omap1_spi100k_transfer_one_message(struct spi_master *master,
 
 	list_for_each_entry(t, &m->transfers, transfer_list) {
 		if (t->tx_buf == NULL && t->rx_buf == NULL && t->len) {
+<<<<<<< HEAD
 			status = -EINVAL;
+=======
+>>>>>>> upstream/android-13
 			break;
 		}
 		status = omap1_spi100k_setup_transfer(spi, t);
@@ -325,13 +361,20 @@ static int omap1_spi100k_transfer_one_message(struct spi_master *master,
 			m->actual_length += count;
 
 			if (count != t->len) {
+<<<<<<< HEAD
 				status = -EIO;
+=======
+>>>>>>> upstream/android-13
 				break;
 			}
 		}
 
+<<<<<<< HEAD
 		if (t->delay_usecs)
 			udelay(t->delay_usecs);
+=======
+		spi_transfer_delay_exec(t);
+>>>>>>> upstream/android-13
 
 		/* ignore the "leave it on after last xfer" hint */
 

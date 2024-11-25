@@ -6,12 +6,16 @@
  * Copyright (C) 2017 Christoph Hellwig.
  */
 
+<<<<<<< HEAD
 #include <linux/acpi.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/device.h>
 #include <linux/kernel.h>
 #include <linux/export.h>
 #include <linux/pci.h>
 
+<<<<<<< HEAD
 static void pci_note_irq_problem(struct pci_dev *pdev, const char *reason)
 {
 	struct pci_dev *parent = to_pci_dev(pdev->dev.parent);
@@ -61,6 +65,8 @@ enum pci_lost_interrupt_reason pci_lost_interrupt(struct pci_dev *pdev)
 }
 EXPORT_SYMBOL(pci_lost_interrupt);
 
+=======
+>>>>>>> upstream/android-13
 /**
  * pci_request_irq - allocate an interrupt line for a PCI device
  * @dev:	PCI device to operate on

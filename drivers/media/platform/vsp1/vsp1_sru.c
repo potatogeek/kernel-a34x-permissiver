@@ -106,7 +106,11 @@ static const struct v4l2_ctrl_config sru_intensity_control = {
  */
 
 static int sru_enum_mbus_code(struct v4l2_subdev *subdev,
+<<<<<<< HEAD
 			      struct v4l2_subdev_pad_config *cfg,
+=======
+			      struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			      struct v4l2_subdev_mbus_code_enum *code)
 {
 	static const unsigned int codes[] = {
@@ -114,11 +118,16 @@ static int sru_enum_mbus_code(struct v4l2_subdev *subdev,
 		MEDIA_BUS_FMT_AYUV8_1X32,
 	};
 
+<<<<<<< HEAD
 	return vsp1_subdev_enum_mbus_code(subdev, cfg, code, codes,
+=======
+	return vsp1_subdev_enum_mbus_code(subdev, sd_state, code, codes,
+>>>>>>> upstream/android-13
 					  ARRAY_SIZE(codes));
 }
 
 static int sru_enum_frame_size(struct v4l2_subdev *subdev,
+<<<<<<< HEAD
 			       struct v4l2_subdev_pad_config *cfg,
 			       struct v4l2_subdev_frame_size_enum *fse)
 {
@@ -128,6 +137,18 @@ static int sru_enum_frame_size(struct v4l2_subdev *subdev,
 	int ret = 0;
 
 	config = vsp1_entity_get_pad_config(&sru->entity, cfg, fse->which);
+=======
+			       struct v4l2_subdev_state *sd_state,
+			       struct v4l2_subdev_frame_size_enum *fse)
+{
+	struct vsp1_sru *sru = to_sru(subdev);
+	struct v4l2_subdev_state *config;
+	struct v4l2_mbus_framefmt *format;
+	int ret = 0;
+
+	config = vsp1_entity_get_pad_config(&sru->entity, sd_state,
+					    fse->which);
+>>>>>>> upstream/android-13
 	if (!config)
 		return -EINVAL;
 
@@ -164,7 +185,11 @@ done:
 }
 
 static void sru_try_format(struct vsp1_sru *sru,
+<<<<<<< HEAD
 			   struct v4l2_subdev_pad_config *config,
+=======
+			   struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			   unsigned int pad, struct v4l2_mbus_framefmt *fmt)
 {
 	struct v4l2_mbus_framefmt *format;
@@ -184,7 +209,11 @@ static void sru_try_format(struct vsp1_sru *sru,
 
 	case SRU_PAD_SOURCE:
 		/* The SRU can't perform format conversion. */
+<<<<<<< HEAD
 		format = vsp1_entity_get_pad_format(&sru->entity, config,
+=======
+		format = vsp1_entity_get_pad_format(&sru->entity, sd_state,
+>>>>>>> upstream/android-13
 						    SRU_PAD_SINK);
 		fmt->code = format->code;
 
@@ -216,17 +245,30 @@ static void sru_try_format(struct vsp1_sru *sru,
 }
 
 static int sru_set_format(struct v4l2_subdev *subdev,
+<<<<<<< HEAD
 			  struct v4l2_subdev_pad_config *cfg,
 			  struct v4l2_subdev_format *fmt)
 {
 	struct vsp1_sru *sru = to_sru(subdev);
 	struct v4l2_subdev_pad_config *config;
+=======
+			  struct v4l2_subdev_state *sd_state,
+			  struct v4l2_subdev_format *fmt)
+{
+	struct vsp1_sru *sru = to_sru(subdev);
+	struct v4l2_subdev_state *config;
+>>>>>>> upstream/android-13
 	struct v4l2_mbus_framefmt *format;
 	int ret = 0;
 
 	mutex_lock(&sru->entity.lock);
 
+<<<<<<< HEAD
 	config = vsp1_entity_get_pad_config(&sru->entity, cfg, fmt->which);
+=======
+	config = vsp1_entity_get_pad_config(&sru->entity, sd_state,
+					    fmt->which);
+>>>>>>> upstream/android-13
 	if (!config) {
 		ret = -EINVAL;
 		goto done;
@@ -269,6 +311,10 @@ static const struct v4l2_subdev_ops sru_ops = {
 
 static void sru_configure_stream(struct vsp1_entity *entity,
 				 struct vsp1_pipeline *pipe,
+<<<<<<< HEAD
+=======
+				 struct vsp1_dl_list *dl,
+>>>>>>> upstream/android-13
 				 struct vsp1_dl_body *dlb)
 {
 	const struct vsp1_sru_param *param;
@@ -312,6 +358,14 @@ static unsigned int sru_max_width(struct vsp1_entity *entity,
 	output = vsp1_entity_get_pad_format(&sru->entity, sru->entity.config,
 					    SRU_PAD_SOURCE);
 
+<<<<<<< HEAD
+=======
+	/*
+	 * The maximum input width of the SRU is 288 input pixels, but 32
+	 * pixels are reserved to support overlapping partition windows when
+	 * scaling.
+	 */
+>>>>>>> upstream/android-13
 	if (input->width != output->width)
 		return 512;
 	else
@@ -333,7 +387,11 @@ static void sru_partition(struct vsp1_entity *entity,
 	output = vsp1_entity_get_pad_format(&sru->entity, sru->entity.config,
 					    SRU_PAD_SOURCE);
 
+<<<<<<< HEAD
 	/* Adapt if SRUx2 is enabled */
+=======
+	/* Adapt if SRUx2 is enabled. */
+>>>>>>> upstream/android-13
 	if (input->width != output->width) {
 		window->width /= 2;
 		window->left /= 2;

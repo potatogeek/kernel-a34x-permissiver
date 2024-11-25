@@ -21,6 +21,10 @@
 	};
 
 	memory {
+<<<<<<< HEAD
+=======
+		device_type = "memory";
+>>>>>>> upstream/android-13
 		reg = <0x00000000 0x2000000>; /* 32 MB */
 	};
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
  /* Driver for Virtio crypto device.
   *
   * Copyright 2016 HUAWEI TECHNOLOGIES CO., LTD.
@@ -14,6 +15,12 @@
   *
   * You should have received a copy of the GNU General Public License
   * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+ /* Driver for Virtio crypto device.
+  *
+  * Copyright 2016 HUAWEI TECHNOLOGIES CO., LTD.
+>>>>>>> upstream/android-13
   */
 
 #include <linux/err.h>
@@ -29,7 +36,11 @@ void
 virtcrypto_clear_request(struct virtio_crypto_request *vc_req)
 {
 	if (vc_req) {
+<<<<<<< HEAD
 		kzfree(vc_req->req_data);
+=======
+		kfree_sensitive(vc_req->req_data);
+>>>>>>> upstream/android-13
 		kfree(vc_req->sgs);
 	}
 }
@@ -199,9 +210,15 @@ static int virtcrypto_init_vqs(struct virtio_crypto *vi)
 	if (ret)
 		goto err_free;
 
+<<<<<<< HEAD
 	get_online_cpus();
 	virtcrypto_set_affinity(vi);
 	put_online_cpus();
+=======
+	cpus_read_lock();
+	virtcrypto_set_affinity(vi);
+	cpus_read_unlock();
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -216,8 +233,13 @@ static int virtcrypto_update_status(struct virtio_crypto *vcrypto)
 	u32 status;
 	int err;
 
+<<<<<<< HEAD
 	virtio_cread(vcrypto->vdev,
 	    struct virtio_crypto_config, status, &status);
+=======
+	virtio_cread_le(vcrypto->vdev,
+			struct virtio_crypto_config, status, &status);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Unknown status bits would be a host error and the driver
@@ -335,11 +357,16 @@ static int virtcrypto_probe(struct virtio_device *vdev)
 	if (!vcrypto)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	virtio_cread(vdev, struct virtio_crypto_config,
+=======
+	virtio_cread_le(vdev, struct virtio_crypto_config,
+>>>>>>> upstream/android-13
 			max_dataqueues, &max_data_queues);
 	if (max_data_queues < 1)
 		max_data_queues = 1;
 
+<<<<<<< HEAD
 	virtio_cread(vdev, struct virtio_crypto_config,
 		max_cipher_key_len, &max_cipher_key_len);
 	virtio_cread(vdev, struct virtio_crypto_config,
@@ -360,6 +387,28 @@ static int virtcrypto_probe(struct virtio_device *vdev)
 		mac_algo_h, &mac_algo_h);
 	virtio_cread(vdev, struct virtio_crypto_config,
 		aead_algo, &aead_algo);
+=======
+	virtio_cread_le(vdev, struct virtio_crypto_config,
+			max_cipher_key_len, &max_cipher_key_len);
+	virtio_cread_le(vdev, struct virtio_crypto_config,
+			max_auth_key_len, &max_auth_key_len);
+	virtio_cread_le(vdev, struct virtio_crypto_config,
+			max_size, &max_size);
+	virtio_cread_le(vdev, struct virtio_crypto_config,
+			crypto_services, &crypto_services);
+	virtio_cread_le(vdev, struct virtio_crypto_config,
+			cipher_algo_l, &cipher_algo_l);
+	virtio_cread_le(vdev, struct virtio_crypto_config,
+			cipher_algo_h, &cipher_algo_h);
+	virtio_cread_le(vdev, struct virtio_crypto_config,
+			hash_algo, &hash_algo);
+	virtio_cread_le(vdev, struct virtio_crypto_config,
+			mac_algo_l, &mac_algo_l);
+	virtio_cread_le(vdev, struct virtio_crypto_config,
+			mac_algo_h, &mac_algo_h);
+	virtio_cread_le(vdev, struct virtio_crypto_config,
+			aead_algo, &aead_algo);
+>>>>>>> upstream/android-13
 
 	/* Add virtio crypto device to global table */
 	err = virtcrypto_devmgr_add_dev(vcrypto);
@@ -510,11 +559,19 @@ free_vqs:
 }
 #endif
 
+<<<<<<< HEAD
 static unsigned int features[] = {
 	/* none */
 };
 
 static struct virtio_device_id id_table[] = {
+=======
+static const unsigned int features[] = {
+	/* none */
+};
+
+static const struct virtio_device_id id_table[] = {
+>>>>>>> upstream/android-13
 	{ VIRTIO_ID_CRYPTO, VIRTIO_DEV_ANY_ID },
 	{ 0 },
 };

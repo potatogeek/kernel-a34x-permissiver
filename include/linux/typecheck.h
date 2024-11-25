@@ -22,4 +22,16 @@
 	(void)__tmp; \
 })
 
+<<<<<<< HEAD
+=======
+/*
+ * Check at compile time that something is a pointer type.
+ */
+#define typecheck_pointer(x) \
+({	typeof(x) __dummy; \
+	(void)sizeof(*__dummy); \
+	1; \
+})
+
+>>>>>>> upstream/android-13
 #endif		/* TYPECHECK_H_INCLUDED */

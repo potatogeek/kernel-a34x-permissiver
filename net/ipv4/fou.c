@@ -1,8 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/errno.h>
 #include <linux/socket.h>
 #include <linux/skbuff.h>
 #include <linux/ip.h>
+<<<<<<< HEAD
+=======
+#include <linux/icmp.h>
+>>>>>>> upstream/android-13
 #include <linux/udp.h>
 #include <linux/types.h>
 #include <linux/kernel.h>
@@ -136,7 +144,11 @@ static int gue_udp_recv(struct sock *sk, struct sk_buff *skb)
 		break;
 
 	case 1: {
+<<<<<<< HEAD
 		/* Direct encasulation of IPv4 or IPv6 */
+=======
+		/* Direct encapsulation of IPv4 or IPv6 */
+>>>>>>> upstream/android-13
 
 		int prot;
 
@@ -170,9 +182,13 @@ static int gue_udp_recv(struct sock *sk, struct sk_buff *skb)
 	/* guehdr may change after pull */
 	guehdr = (struct guehdr *)&udp_hdr(skb)[1];
 
+<<<<<<< HEAD
 	hdrlen = sizeof(struct guehdr) + optlen;
 
 	if (guehdr->version != 0 || validate_gue_flags(guehdr, optlen))
+=======
+	if (validate_gue_flags(guehdr, optlen))
+>>>>>>> upstream/android-13
 		goto drop;
 
 	hdrlen = sizeof(struct guehdr) + optlen;
@@ -230,14 +246,23 @@ static struct sk_buff *fou_gro_receive(struct sock *sk,
 				       struct list_head *head,
 				       struct sk_buff *skb)
 {
+<<<<<<< HEAD
 	u8 proto = fou_from_sock(sk)->protocol;
 	const struct net_offload **offloads;
+=======
+	const struct net_offload __rcu **offloads;
+	u8 proto = fou_from_sock(sk)->protocol;
+>>>>>>> upstream/android-13
 	const struct net_offload *ops;
 	struct sk_buff *pp = NULL;
 
 	/* We can clear the encap_mark for FOU as we are essentially doing
 	 * one of two possible things.  We are either adding an L4 tunnel
+<<<<<<< HEAD
 	 * header to the outer L3 tunnel header, or we are are simply
+=======
+	 * header to the outer L3 tunnel header, or we are simply
+>>>>>>> upstream/android-13
 	 * treating the GRE tunnel header as though it is a UDP protocol
 	 * specific header such as VXLAN or GENEVE.
 	 */
@@ -263,10 +288,17 @@ out_unlock:
 static int fou_gro_complete(struct sock *sk, struct sk_buff *skb,
 			    int nhoff)
 {
+<<<<<<< HEAD
 	const struct net_offload *ops;
 	u8 proto = fou_from_sock(sk)->protocol;
 	int err = -ENOSYS;
 	const struct net_offload **offloads;
+=======
+	const struct net_offload __rcu **offloads;
+	u8 proto = fou_from_sock(sk)->protocol;
+	const struct net_offload *ops;
+	int err = -ENOSYS;
+>>>>>>> upstream/android-13
 
 	rcu_read_lock();
 	offloads = NAPI_GRO_CB(skb)->is_ipv6 ? inet6_offloads : inet_offloads;
@@ -311,7 +343,11 @@ static struct sk_buff *gue_gro_receive(struct sock *sk,
 				       struct list_head *head,
 				       struct sk_buff *skb)
 {
+<<<<<<< HEAD
 	const struct net_offload **offloads;
+=======
+	const struct net_offload __rcu **offloads;
+>>>>>>> upstream/android-13
 	const struct net_offload *ops;
 	struct sk_buff *pp = NULL;
 	struct sk_buff *p;
@@ -429,7 +465,11 @@ next_proto:
 
 	/* We can clear the encap_mark for GUE as we are essentially doing
 	 * one of two possible things.  We are either adding an L4 tunnel
+<<<<<<< HEAD
 	 * header to the outer L3 tunnel header, or we are are simply
+=======
+	 * header to the outer L3 tunnel header, or we are simply
+>>>>>>> upstream/android-13
 	 * treating the GRE tunnel header as though it is a UDP protocol
 	 * specific header such as VXLAN or GENEVE.
 	 */
@@ -457,8 +497,13 @@ out:
 
 static int gue_gro_complete(struct sock *sk, struct sk_buff *skb, int nhoff)
 {
+<<<<<<< HEAD
 	const struct net_offload **offloads;
 	struct guehdr *guehdr = (struct guehdr *)(skb->data + nhoff);
+=======
+	struct guehdr *guehdr = (struct guehdr *)(skb->data + nhoff);
+	const struct net_offload __rcu **offloads;
+>>>>>>> upstream/android-13
 	const struct net_offload *ops;
 	unsigned int guehlen = 0;
 	u8 proto;
@@ -500,15 +545,54 @@ out_unlock:
 	return err;
 }
 
+<<<<<<< HEAD
 static int fou_add_to_port_list(struct net *net, struct fou *fou)
+=======
+static bool fou_cfg_cmp(struct fou *fou, struct fou_cfg *cfg)
+{
+	struct sock *sk = fou->sock->sk;
+	struct udp_port_cfg *udp_cfg = &cfg->udp_config;
+
+	if (fou->family != udp_cfg->family ||
+	    fou->port != udp_cfg->local_udp_port ||
+	    sk->sk_dport != udp_cfg->peer_udp_port ||
+	    sk->sk_bound_dev_if != udp_cfg->bind_ifindex)
+		return false;
+
+	if (fou->family == AF_INET) {
+		if (sk->sk_rcv_saddr != udp_cfg->local_ip.s_addr ||
+		    sk->sk_daddr != udp_cfg->peer_ip.s_addr)
+			return false;
+		else
+			return true;
+#if IS_ENABLED(CONFIG_IPV6)
+	} else {
+		if (ipv6_addr_cmp(&sk->sk_v6_rcv_saddr, &udp_cfg->local_ip6) ||
+		    ipv6_addr_cmp(&sk->sk_v6_daddr, &udp_cfg->peer_ip6))
+			return false;
+		else
+			return true;
+#endif
+	}
+
+	return false;
+}
+
+static int fou_add_to_port_list(struct net *net, struct fou *fou,
+				struct fou_cfg *cfg)
+>>>>>>> upstream/android-13
 {
 	struct fou_net *fn = net_generic(net, fou_net_id);
 	struct fou *fout;
 
 	mutex_lock(&fn->fou_lock);
 	list_for_each_entry(fout, &fn->fou_list, list) {
+<<<<<<< HEAD
 		if (fou->port == fout->port &&
 		    fou->family == fout->family) {
+=======
+		if (fou_cfg_cmp(fout, cfg)) {
+>>>>>>> upstream/android-13
 			mutex_unlock(&fn->fou_lock);
 			return -EALREADY;
 		}
@@ -586,7 +670,11 @@ static int fou_create(struct net *net, struct fou_cfg *cfg,
 
 	sk->sk_allocation = GFP_ATOMIC;
 
+<<<<<<< HEAD
 	err = fou_add_to_port_list(net, fou);
+=======
+	err = fou_add_to_port_list(net, fou, cfg);
+>>>>>>> upstream/android-13
 	if (err)
 		goto error;
 
@@ -606,14 +694,21 @@ error:
 static int fou_destroy(struct net *net, struct fou_cfg *cfg)
 {
 	struct fou_net *fn = net_generic(net, fou_net_id);
+<<<<<<< HEAD
 	__be16 port = cfg->udp_config.local_udp_port;
 	u8 family = cfg->udp_config.family;
+=======
+>>>>>>> upstream/android-13
 	int err = -EINVAL;
 	struct fou *fou;
 
 	mutex_lock(&fn->fou_lock);
 	list_for_each_entry(fou, &fn->fou_list, list) {
+<<<<<<< HEAD
 		if (fou->port == port && fou->family == family) {
+=======
+		if (fou_cfg_cmp(fou, cfg)) {
+>>>>>>> upstream/android-13
 			fou_release(fou);
 			err = 0;
 			break;
@@ -627,16 +722,38 @@ static int fou_destroy(struct net *net, struct fou_cfg *cfg)
 static struct genl_family fou_nl_family;
 
 static const struct nla_policy fou_nl_policy[FOU_ATTR_MAX + 1] = {
+<<<<<<< HEAD
 	[FOU_ATTR_PORT] = { .type = NLA_U16, },
 	[FOU_ATTR_AF] = { .type = NLA_U8, },
 	[FOU_ATTR_IPPROTO] = { .type = NLA_U8, },
 	[FOU_ATTR_TYPE] = { .type = NLA_U8, },
 	[FOU_ATTR_REMCSUM_NOPARTIAL] = { .type = NLA_FLAG, },
+=======
+	[FOU_ATTR_PORT]			= { .type = NLA_U16, },
+	[FOU_ATTR_AF]			= { .type = NLA_U8, },
+	[FOU_ATTR_IPPROTO]		= { .type = NLA_U8, },
+	[FOU_ATTR_TYPE]			= { .type = NLA_U8, },
+	[FOU_ATTR_REMCSUM_NOPARTIAL]	= { .type = NLA_FLAG, },
+	[FOU_ATTR_LOCAL_V4]		= { .type = NLA_U32, },
+	[FOU_ATTR_PEER_V4]		= { .type = NLA_U32, },
+	[FOU_ATTR_LOCAL_V6]		= { .len = sizeof(struct in6_addr), },
+	[FOU_ATTR_PEER_V6]		= { .len = sizeof(struct in6_addr), },
+	[FOU_ATTR_PEER_PORT]		= { .type = NLA_U16, },
+	[FOU_ATTR_IFINDEX]		= { .type = NLA_S32, },
+>>>>>>> upstream/android-13
 };
 
 static int parse_nl_config(struct genl_info *info,
 			   struct fou_cfg *cfg)
 {
+<<<<<<< HEAD
+=======
+	bool has_local = false, has_peer = false;
+	struct nlattr *attr;
+	int ifindex;
+	__be16 port;
+
+>>>>>>> upstream/android-13
 	memset(cfg, 0, sizeof(*cfg));
 
 	cfg->udp_config.family = AF_INET;
@@ -658,8 +775,12 @@ static int parse_nl_config(struct genl_info *info,
 	}
 
 	if (info->attrs[FOU_ATTR_PORT]) {
+<<<<<<< HEAD
 		__be16 port = nla_get_be16(info->attrs[FOU_ATTR_PORT]);
 
+=======
+		port = nla_get_be16(info->attrs[FOU_ATTR_PORT]);
+>>>>>>> upstream/android-13
 		cfg->udp_config.local_udp_port = port;
 	}
 
@@ -672,6 +793,55 @@ static int parse_nl_config(struct genl_info *info,
 	if (info->attrs[FOU_ATTR_REMCSUM_NOPARTIAL])
 		cfg->flags |= FOU_F_REMCSUM_NOPARTIAL;
 
+<<<<<<< HEAD
+=======
+	if (cfg->udp_config.family == AF_INET) {
+		if (info->attrs[FOU_ATTR_LOCAL_V4]) {
+			attr = info->attrs[FOU_ATTR_LOCAL_V4];
+			cfg->udp_config.local_ip.s_addr = nla_get_in_addr(attr);
+			has_local = true;
+		}
+
+		if (info->attrs[FOU_ATTR_PEER_V4]) {
+			attr = info->attrs[FOU_ATTR_PEER_V4];
+			cfg->udp_config.peer_ip.s_addr = nla_get_in_addr(attr);
+			has_peer = true;
+		}
+#if IS_ENABLED(CONFIG_IPV6)
+	} else {
+		if (info->attrs[FOU_ATTR_LOCAL_V6]) {
+			attr = info->attrs[FOU_ATTR_LOCAL_V6];
+			cfg->udp_config.local_ip6 = nla_get_in6_addr(attr);
+			has_local = true;
+		}
+
+		if (info->attrs[FOU_ATTR_PEER_V6]) {
+			attr = info->attrs[FOU_ATTR_PEER_V6];
+			cfg->udp_config.peer_ip6 = nla_get_in6_addr(attr);
+			has_peer = true;
+		}
+#endif
+	}
+
+	if (has_peer) {
+		if (info->attrs[FOU_ATTR_PEER_PORT]) {
+			port = nla_get_be16(info->attrs[FOU_ATTR_PEER_PORT]);
+			cfg->udp_config.peer_udp_port = port;
+		} else {
+			return -EINVAL;
+		}
+	}
+
+	if (info->attrs[FOU_ATTR_IFINDEX]) {
+		if (!has_local)
+			return -EINVAL;
+
+		ifindex = nla_get_s32(info->attrs[FOU_ATTR_IFINDEX]);
+
+		cfg->udp_config.bind_ifindex = ifindex;
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -703,15 +873,47 @@ static int fou_nl_cmd_rm_port(struct sk_buff *skb, struct genl_info *info)
 
 static int fou_fill_info(struct fou *fou, struct sk_buff *msg)
 {
+<<<<<<< HEAD
 	if (nla_put_u8(msg, FOU_ATTR_AF, fou->sock->sk->sk_family) ||
 	    nla_put_be16(msg, FOU_ATTR_PORT, fou->port) ||
 	    nla_put_u8(msg, FOU_ATTR_IPPROTO, fou->protocol) ||
 	    nla_put_u8(msg, FOU_ATTR_TYPE, fou->type))
+=======
+	struct sock *sk = fou->sock->sk;
+
+	if (nla_put_u8(msg, FOU_ATTR_AF, fou->sock->sk->sk_family) ||
+	    nla_put_be16(msg, FOU_ATTR_PORT, fou->port) ||
+	    nla_put_be16(msg, FOU_ATTR_PEER_PORT, sk->sk_dport) ||
+	    nla_put_u8(msg, FOU_ATTR_IPPROTO, fou->protocol) ||
+	    nla_put_u8(msg, FOU_ATTR_TYPE, fou->type) ||
+	    nla_put_s32(msg, FOU_ATTR_IFINDEX, sk->sk_bound_dev_if))
+>>>>>>> upstream/android-13
 		return -1;
 
 	if (fou->flags & FOU_F_REMCSUM_NOPARTIAL)
 		if (nla_put_flag(msg, FOU_ATTR_REMCSUM_NOPARTIAL))
 			return -1;
+<<<<<<< HEAD
+=======
+
+	if (fou->sock->sk->sk_family == AF_INET) {
+		if (nla_put_in_addr(msg, FOU_ATTR_LOCAL_V4, sk->sk_rcv_saddr))
+			return -1;
+
+		if (nla_put_in_addr(msg, FOU_ATTR_PEER_V4, sk->sk_daddr))
+			return -1;
+#if IS_ENABLED(CONFIG_IPV6)
+	} else {
+		if (nla_put_in6_addr(msg, FOU_ATTR_LOCAL_V6,
+				     &sk->sk_v6_rcv_saddr))
+			return -1;
+
+		if (nla_put_in6_addr(msg, FOU_ATTR_PEER_V6, &sk->sk_v6_daddr))
+			return -1;
+#endif
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -764,7 +966,11 @@ static int fou_nl_cmd_get_port(struct sk_buff *skb, struct genl_info *info)
 	ret = -ESRCH;
 	mutex_lock(&fn->fou_lock);
 	list_for_each_entry(fout, &fn->fou_list, list) {
+<<<<<<< HEAD
 		if (port == fout->port && family == fout->family) {
+=======
+		if (fou_cfg_cmp(fout, &cfg)) {
+>>>>>>> upstream/android-13
 			ret = fou_dump_info(fout, info->snd_portid,
 					    info->snd_seq, 0, msg,
 					    info->genlhdr->cmd);
@@ -805,24 +1011,43 @@ static int fou_nl_dump(struct sk_buff *skb, struct netlink_callback *cb)
 	return skb->len;
 }
 
+<<<<<<< HEAD
 static const struct genl_ops fou_nl_ops[] = {
 	{
 		.cmd = FOU_CMD_ADD,
 		.doit = fou_nl_cmd_add_port,
 		.policy = fou_nl_policy,
+=======
+static const struct genl_small_ops fou_nl_ops[] = {
+	{
+		.cmd = FOU_CMD_ADD,
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = fou_nl_cmd_add_port,
+>>>>>>> upstream/android-13
 		.flags = GENL_ADMIN_PERM,
 	},
 	{
 		.cmd = FOU_CMD_DEL,
+<<<<<<< HEAD
 		.doit = fou_nl_cmd_rm_port,
 		.policy = fou_nl_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = fou_nl_cmd_rm_port,
+>>>>>>> upstream/android-13
 		.flags = GENL_ADMIN_PERM,
 	},
 	{
 		.cmd = FOU_CMD_GET,
+<<<<<<< HEAD
 		.doit = fou_nl_cmd_get_port,
 		.dumpit = fou_nl_dump,
 		.policy = fou_nl_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = fou_nl_cmd_get_port,
+		.dumpit = fou_nl_dump,
+>>>>>>> upstream/android-13
 	},
 };
 
@@ -831,10 +1056,18 @@ static struct genl_family fou_nl_family __ro_after_init = {
 	.name		= FOU_GENL_NAME,
 	.version	= FOU_GENL_VERSION,
 	.maxattr	= FOU_ATTR_MAX,
+<<<<<<< HEAD
 	.netnsok	= true,
 	.module		= THIS_MODULE,
 	.ops		= fou_nl_ops,
 	.n_ops		= ARRAY_SIZE(fou_nl_ops),
+=======
+	.policy = fou_nl_policy,
+	.netnsok	= true,
+	.module		= THIS_MODULE,
+	.small_ops	= fou_nl_ops,
+	.n_small_ops	= ARRAY_SIZE(fou_nl_ops),
+>>>>>>> upstream/android-13
 };
 
 size_t fou_encap_hlen(struct ip_tunnel_encap *e)
@@ -1005,15 +1238,104 @@ static int gue_build_header(struct sk_buff *skb, struct ip_tunnel_encap *e,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int gue_err_proto_handler(int proto, struct sk_buff *skb, u32 info)
+{
+	const struct net_protocol *ipprot = rcu_dereference(inet_protos[proto]);
+
+	if (ipprot && ipprot->err_handler) {
+		if (!ipprot->err_handler(skb, info))
+			return 0;
+	}
+
+	return -ENOENT;
+}
+
+static int gue_err(struct sk_buff *skb, u32 info)
+{
+	int transport_offset = skb_transport_offset(skb);
+	struct guehdr *guehdr;
+	size_t len, optlen;
+	int ret;
+
+	len = sizeof(struct udphdr) + sizeof(struct guehdr);
+	if (!pskb_may_pull(skb, transport_offset + len))
+		return -EINVAL;
+
+	guehdr = (struct guehdr *)&udp_hdr(skb)[1];
+
+	switch (guehdr->version) {
+	case 0: /* Full GUE header present */
+		break;
+	case 1: {
+		/* Direct encapsulation of IPv4 or IPv6 */
+		skb_set_transport_header(skb, -(int)sizeof(struct icmphdr));
+
+		switch (((struct iphdr *)guehdr)->version) {
+		case 4:
+			ret = gue_err_proto_handler(IPPROTO_IPIP, skb, info);
+			goto out;
+#if IS_ENABLED(CONFIG_IPV6)
+		case 6:
+			ret = gue_err_proto_handler(IPPROTO_IPV6, skb, info);
+			goto out;
+#endif
+		default:
+			ret = -EOPNOTSUPP;
+			goto out;
+		}
+	}
+	default: /* Undefined version */
+		return -EOPNOTSUPP;
+	}
+
+	if (guehdr->control)
+		return -ENOENT;
+
+	optlen = guehdr->hlen << 2;
+
+	if (!pskb_may_pull(skb, transport_offset + len + optlen))
+		return -EINVAL;
+
+	guehdr = (struct guehdr *)&udp_hdr(skb)[1];
+	if (validate_gue_flags(guehdr, optlen))
+		return -EINVAL;
+
+	/* Handling exceptions for direct UDP encapsulation in GUE would lead to
+	 * recursion. Besides, this kind of encapsulation can't even be
+	 * configured currently. Discard this.
+	 */
+	if (guehdr->proto_ctype == IPPROTO_UDP ||
+	    guehdr->proto_ctype == IPPROTO_UDPLITE)
+		return -EOPNOTSUPP;
+
+	skb_set_transport_header(skb, -(int)sizeof(struct icmphdr));
+	ret = gue_err_proto_handler(guehdr->proto_ctype, skb, info);
+
+out:
+	skb_set_transport_header(skb, transport_offset);
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 
 static const struct ip_tunnel_encap_ops fou_iptun_ops = {
 	.encap_hlen = fou_encap_hlen,
 	.build_header = fou_build_header,
+<<<<<<< HEAD
+=======
+	.err_handler = gue_err,
+>>>>>>> upstream/android-13
 };
 
 static const struct ip_tunnel_encap_ops gue_iptun_ops = {
 	.encap_hlen = gue_encap_hlen,
 	.build_header = gue_build_header,
+<<<<<<< HEAD
+=======
+	.err_handler = gue_err,
+>>>>>>> upstream/android-13
 };
 
 static int ip_tunnel_encap_add_fou_ops(void)
@@ -1117,3 +1439,7 @@ module_init(fou_init);
 module_exit(fou_fini);
 MODULE_AUTHOR("Tom Herbert <therbert@google.com>");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_DESCRIPTION("Foo over UDP");
+>>>>>>> upstream/android-13

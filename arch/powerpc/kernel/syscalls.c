@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Implementation of various system calls for Linux/PowerPC
  *
@@ -11,12 +15,15 @@
  * This file contains various random system calls that
  * have a non-standard calling sequence on the Linux/PPC
  * platform.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version
  *  2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/errno.h>
@@ -46,6 +53,7 @@ static inline long do_mmap2(unsigned long addr, size_t len,
 			unsigned long prot, unsigned long flags,
 			unsigned long fd, unsigned long off, int shift)
 {
+<<<<<<< HEAD
 	long ret = -EINVAL;
 
 	if (!arch_validate_prot(prot, addr))
@@ -60,6 +68,15 @@ static inline long do_mmap2(unsigned long addr, size_t len,
 	ret = ksys_mmap_pgoff(addr, len, prot, flags, fd, off);
 out:
 	return ret;
+=======
+	if (!arch_validate_prot(prot, addr))
+		return -EINVAL;
+
+	if (!IS_ALIGNED(off, 1 << shift))
+		return -EINVAL;
+
+	return ksys_mmap_pgoff(addr, len, prot, flags, fd, off >> shift);
+>>>>>>> upstream/android-13
 }
 
 SYSCALL_DEFINE6(mmap2, unsigned long, addr, size_t, len,
@@ -84,6 +101,7 @@ SYSCALL_DEFINE6(mmap, unsigned long, addr, size_t, len,
  * sys_select() with the appropriate args. -- Cort
  */
 int
+<<<<<<< HEAD
 ppc_select(int n, fd_set __user *inp, fd_set __user *outp, fd_set __user *exp, struct timeval __user *tvp)
 {
 	if ( (unsigned long)n >= 4096 )
@@ -97,6 +115,13 @@ ppc_select(int n, fd_set __user *inp, fd_set __user *outp, fd_set __user *exp, s
 		    || __get_user(tvp, ((struct timeval  __user * __user *)(buffer+4))))
 			return -EFAULT;
 	}
+=======
+ppc_select(int n, fd_set __user *inp, fd_set __user *outp, fd_set __user *exp, struct __kernel_old_timeval __user *tvp)
+{
+	if ( (unsigned long)n >= 4096 )
+		return sys_old_select((void __user *)n);
+
+>>>>>>> upstream/android-13
 	return sys_select(n, inp, outp, exp, tvp);
 }
 #endif
@@ -123,11 +148,20 @@ long ppc_fadvise64_64(int fd, int advice, u32 offset_high, u32 offset_low,
 				 (u64)len_high << 32 | len_low, advice);
 }
 
+<<<<<<< HEAD
 long sys_switch_endian(void)
 {
 	struct thread_info *ti;
 
 	current->thread.regs->msr ^= MSR_LE;
+=======
+SYSCALL_DEFINE0(switch_endian)
+{
+	struct thread_info *ti;
+
+	regs_set_return_msr(current->thread.regs,
+				current->thread.regs->msr ^ MSR_LE);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Set TIF_RESTOREALL so that r3 isn't clobbered on return to

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: (GPL-2.0 OR CDDL-1.0) */
+=======
+/* SPDX-License-Identifier: ((GPL-2.0 WITH Linux-syscall-note) OR CDDL-1.0) */
+>>>>>>> upstream/android-13
 /*
  * VBoxGuest - VirtualBox Guest Additions Driver Interface.
  *
@@ -257,6 +261,33 @@ VMMDEV_ASSERT_SIZE(vbg_ioctl_change_filter, 24 + 8);
 	_IOWR('V', 12, struct vbg_ioctl_change_filter)
 
 
+<<<<<<< HEAD
+=======
+/** VBG_IOCTL_ACQUIRE_GUEST_CAPABILITIES data structure. */
+struct vbg_ioctl_acquire_guest_caps {
+	/** The header. */
+	struct vbg_ioctl_hdr hdr;
+	union {
+		struct {
+			/** Flags (VBGL_IOC_AGC_FLAGS_XXX). */
+			__u32 flags;
+			/** Capabilities to set (VMMDEV_GUEST_SUPPORTS_XXX). */
+			__u32 or_mask;
+			/** Capabilities to drop (VMMDEV_GUEST_SUPPORTS_XXX). */
+			__u32 not_mask;
+		} in;
+	} u;
+};
+VMMDEV_ASSERT_SIZE(vbg_ioctl_acquire_guest_caps, 24 + 12);
+
+#define VBGL_IOC_AGC_FLAGS_CONFIG_ACQUIRE_MODE		0x00000001
+#define VBGL_IOC_AGC_FLAGS_VALID_MASK			0x00000001
+
+#define VBG_IOCTL_ACQUIRE_GUEST_CAPABILITIES \
+	_IOWR('V', 13, struct vbg_ioctl_acquire_guest_caps)
+
+
+>>>>>>> upstream/android-13
 /** VBG_IOCTL_CHANGE_GUEST_CAPABILITIES data structure. */
 struct vbg_ioctl_set_guest_caps {
 	/** The header. */

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
 * Common Header File for the Elan Digital Systems U132 adapter
 * this file should be included by both the "ftdi-u132" and

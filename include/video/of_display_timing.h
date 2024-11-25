@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright 2012 Steffen Trumtrar <s.trumtrar@pengutronix.de>
  *
  * display timings of helpers
+<<<<<<< HEAD
  *
  * This file is released under the GPLv2
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __LINUX_OF_DISPLAY_TIMING_H

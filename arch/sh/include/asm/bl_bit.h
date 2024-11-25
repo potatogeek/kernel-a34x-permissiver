@@ -1,4 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0 */
+<<<<<<< HEAD
 #ifndef __ASM_SH_BL_BIT_H
 #define __ASM_SH_BL_BIT_H
 
@@ -9,3 +10,6 @@
 #endif
 
 #endif /* __ASM_SH_BL_BIT_H */
+=======
+#include <asm/bl_bit_32.h>
+>>>>>>> upstream/android-13

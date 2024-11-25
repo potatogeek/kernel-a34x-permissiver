@@ -36,8 +36,15 @@ gm107_ce = {
 };
 
 int
+<<<<<<< HEAD
 gm107_ce_new(struct nvkm_device *device, int index,
 	     struct nvkm_engine **pengine)
 {
 	return nvkm_engine_new_(&gm107_ce, device, index, true, pengine);
+=======
+gm107_ce_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+	     struct nvkm_engine **pengine)
+{
+	return nvkm_engine_new_(&gm107_ce, device, type, inst, true, pengine);
+>>>>>>> upstream/android-13
 }

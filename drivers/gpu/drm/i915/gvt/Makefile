@@ -5,6 +5,11 @@ GVT_SOURCE := gvt.o aperture_gm.o handlers.o vgpu.o trace_points.o firmware.o \
 	execlist.o scheduler.o sched_policy.o mmio_context.o cmd_parser.o debugfs.o \
 	fb_decoder.o dmabuf.o page_track.o
 
+<<<<<<< HEAD
 ccflags-y				+= -I$(src) -I$(src)/$(GVT_DIR)
 i915-y					+= $(addprefix $(GVT_DIR)/, $(GVT_SOURCE))
 obj-$(CONFIG_DRM_I915_GVT_KVMGT)	+= $(GVT_DIR)/kvmgt.o
+=======
+ccflags-y				+= -I $(srctree)/$(src) -I $(srctree)/$(src)/$(GVT_DIR)/
+i915-y					+= $(addprefix $(GVT_DIR)/, $(GVT_SOURCE))
+>>>>>>> upstream/android-13

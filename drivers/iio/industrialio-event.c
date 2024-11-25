@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* Industrial I/O event handling
  *
  * Copyright (c) 2008 Jonathan Cameron
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Based on elements of hwmon and input subsystems.
  */
 
@@ -21,6 +28,10 @@
 #include <linux/uaccess.h>
 #include <linux/wait.h>
 #include <linux/iio/iio.h>
+<<<<<<< HEAD
+=======
+#include <linux/iio/iio-opaque.h>
+>>>>>>> upstream/android-13
 #include "iio_core.h"
 #include <linux/iio/sysfs.h>
 #include <linux/iio/events.h>
@@ -33,6 +44,10 @@
  * @flags:		file operations related flags including busy flag.
  * @group:		event interface sysfs attribute group
  * @read_lock:		lock to protect kfifo read operations
+<<<<<<< HEAD
+=======
+ * @ioctl_handler:	handler for event ioctl() calls
+>>>>>>> upstream/android-13
  */
 struct iio_event_interface {
 	wait_queue_head_t	wait;
@@ -42,6 +57,10 @@ struct iio_event_interface {
 	unsigned long		flags;
 	struct attribute_group	group;
 	struct mutex		read_lock;
+<<<<<<< HEAD
+=======
+	struct iio_ioctl_handler	ioctl_handler;
+>>>>>>> upstream/android-13
 };
 
 bool iio_event_enabled(const struct iio_event_interface *ev_int)
@@ -65,7 +84,12 @@ bool iio_event_enabled(const struct iio_event_interface *ev_int)
  **/
 int iio_push_event(struct iio_dev *indio_dev, u64 ev_code, s64 timestamp)
 {
+<<<<<<< HEAD
 	struct iio_event_interface *ev_int = indio_dev->event_interface;
+=======
+	struct iio_dev_opaque *iio_dev_opaque = to_iio_dev_opaque(indio_dev);
+	struct iio_event_interface *ev_int = iio_dev_opaque->event_interface;
+>>>>>>> upstream/android-13
 	struct iio_event_data ev;
 	int copied;
 
@@ -99,7 +123,12 @@ static __poll_t iio_event_poll(struct file *filep,
 			     struct poll_table_struct *wait)
 {
 	struct iio_dev *indio_dev = filep->private_data;
+<<<<<<< HEAD
 	struct iio_event_interface *ev_int = indio_dev->event_interface;
+=======
+	struct iio_dev_opaque *iio_dev_opaque = to_iio_dev_opaque(indio_dev);
+	struct iio_event_interface *ev_int = iio_dev_opaque->event_interface;
+>>>>>>> upstream/android-13
 	__poll_t events = 0;
 
 	if (!indio_dev->info)
@@ -119,7 +148,12 @@ static ssize_t iio_event_chrdev_read(struct file *filep,
 				     loff_t *f_ps)
 {
 	struct iio_dev *indio_dev = filep->private_data;
+<<<<<<< HEAD
 	struct iio_event_interface *ev_int = indio_dev->event_interface;
+=======
+	struct iio_dev_opaque *iio_dev_opaque = to_iio_dev_opaque(indio_dev);
+	struct iio_event_interface *ev_int = iio_dev_opaque->event_interface;
+>>>>>>> upstream/android-13
 	unsigned int copied;
 	int ret;
 
@@ -168,7 +202,12 @@ static ssize_t iio_event_chrdev_read(struct file *filep,
 static int iio_event_chrdev_release(struct inode *inode, struct file *filep)
 {
 	struct iio_dev *indio_dev = filep->private_data;
+<<<<<<< HEAD
 	struct iio_event_interface *ev_int = indio_dev->event_interface;
+=======
+	struct iio_dev_opaque *iio_dev_opaque = to_iio_dev_opaque(indio_dev);
+	struct iio_event_interface *ev_int = iio_dev_opaque->event_interface;
+>>>>>>> upstream/android-13
 
 	clear_bit(IIO_BUSY_BIT_POS, &ev_int->flags);
 
@@ -185,9 +224,16 @@ static const struct file_operations iio_event_chrdev_fileops = {
 	.llseek = noop_llseek,
 };
 
+<<<<<<< HEAD
 int iio_event_getfd(struct iio_dev *indio_dev)
 {
 	struct iio_event_interface *ev_int = indio_dev->event_interface;
+=======
+static int iio_event_getfd(struct iio_dev *indio_dev)
+{
+	struct iio_dev_opaque *iio_dev_opaque = to_iio_dev_opaque(indio_dev);
+	struct iio_event_interface *ev_int = iio_dev_opaque->event_interface;
+>>>>>>> upstream/android-13
 	int fd;
 
 	if (ev_int == NULL)
@@ -240,6 +286,10 @@ static const char * const iio_ev_info_text[] = {
 	[IIO_EV_INFO_PERIOD] = "period",
 	[IIO_EV_INFO_HIGH_PASS_FILTER_3DB] = "high_pass_filter_3db",
 	[IIO_EV_INFO_LOW_PASS_FILTER_3DB] = "low_pass_filter_3db",
+<<<<<<< HEAD
+=======
+	[IIO_EV_INFO_TIMEOUT] = "timeout",
+>>>>>>> upstream/android-13
 };
 
 static enum iio_event_direction iio_ev_attr_dir(struct iio_dev_attr *attr)
@@ -292,7 +342,11 @@ static ssize_t iio_ev_state_show(struct device *dev,
 	if (val < 0)
 		return val;
 	else
+<<<<<<< HEAD
 		return sprintf(buf, "%d\n", val);
+=======
+		return sysfs_emit(buf, "%d\n", val);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t iio_ev_value_show(struct device *dev,
@@ -346,6 +400,10 @@ static int iio_device_add_event(struct iio_dev *indio_dev,
 	enum iio_event_type type, enum iio_event_direction dir,
 	enum iio_shared_by shared_by, const unsigned long *mask)
 {
+<<<<<<< HEAD
+=======
+	struct iio_dev_opaque *iio_dev_opaque = to_iio_dev_opaque(indio_dev);
+>>>>>>> upstream/android-13
 	ssize_t (*show)(struct device *, struct device_attribute *, char *);
 	ssize_t (*store)(struct device *, struct device_attribute *,
 		const char *, size_t);
@@ -379,7 +437,12 @@ static int iio_device_add_event(struct iio_dev *indio_dev,
 
 		ret = __iio_add_chan_devattr(postfix, chan, show, store,
 			 (i << 16) | spec_index, shared_by, &indio_dev->dev,
+<<<<<<< HEAD
 			&indio_dev->event_interface->dev_attr_list);
+=======
+			 NULL,
+			&iio_dev_opaque->event_interface->dev_attr_list);
+>>>>>>> upstream/android-13
 		kfree(postfix);
 
 		if ((ret == -EBUSY) && (shared_by != IIO_SEPARATE))
@@ -469,9 +532,35 @@ static void iio_setup_ev_int(struct iio_event_interface *ev_int)
 	mutex_init(&ev_int->read_lock);
 }
 
+<<<<<<< HEAD
 static const char *iio_event_group_name = "events";
 int iio_device_register_eventset(struct iio_dev *indio_dev)
 {
+=======
+static long iio_event_ioctl(struct iio_dev *indio_dev, struct file *filp,
+			    unsigned int cmd, unsigned long arg)
+{
+	int __user *ip = (int __user *)arg;
+	int fd;
+
+	if (cmd == IIO_GET_EVENT_FD_IOCTL) {
+		fd = iio_event_getfd(indio_dev);
+		if (fd < 0)
+			return fd;
+		if (copy_to_user(ip, &fd, sizeof(fd)))
+			return -EFAULT;
+		return 0;
+	}
+
+	return IIO_IOCTL_UNHANDLED;
+}
+
+static const char *iio_event_group_name = "events";
+int iio_device_register_eventset(struct iio_dev *indio_dev)
+{
+	struct iio_dev_opaque *iio_dev_opaque = to_iio_dev_opaque(indio_dev);
+	struct iio_event_interface *ev_int;
+>>>>>>> upstream/android-13
 	struct iio_dev_attr *p;
 	int ret = 0, attrcount_orig = 0, attrcount, attrn;
 	struct attribute **attr;
@@ -480,6 +569,7 @@ int iio_device_register_eventset(struct iio_dev *indio_dev)
 	      iio_check_for_dynamic_events(indio_dev)))
 		return 0;
 
+<<<<<<< HEAD
 	indio_dev->event_interface =
 		kzalloc(sizeof(struct iio_event_interface), GFP_KERNEL);
 	if (indio_dev->event_interface == NULL)
@@ -488,6 +578,17 @@ int iio_device_register_eventset(struct iio_dev *indio_dev)
 	INIT_LIST_HEAD(&indio_dev->event_interface->dev_attr_list);
 
 	iio_setup_ev_int(indio_dev->event_interface);
+=======
+	ev_int = kzalloc(sizeof(struct iio_event_interface), GFP_KERNEL);
+	if (ev_int == NULL)
+		return -ENOMEM;
+
+	iio_dev_opaque->event_interface = ev_int;
+
+	INIT_LIST_HEAD(&ev_int->dev_attr_list);
+
+	iio_setup_ev_int(ev_int);
+>>>>>>> upstream/android-13
 	if (indio_dev->info->event_attrs != NULL) {
 		attr = indio_dev->info->event_attrs->attrs;
 		while (*attr++ != NULL)
@@ -501,15 +602,24 @@ int iio_device_register_eventset(struct iio_dev *indio_dev)
 		attrcount += ret;
 	}
 
+<<<<<<< HEAD
 	indio_dev->event_interface->group.name = iio_event_group_name;
 	indio_dev->event_interface->group.attrs = kcalloc(attrcount + 1,
 							  sizeof(indio_dev->event_interface->group.attrs[0]),
 							  GFP_KERNEL);
 	if (indio_dev->event_interface->group.attrs == NULL) {
+=======
+	ev_int->group.name = iio_event_group_name;
+	ev_int->group.attrs = kcalloc(attrcount + 1,
+				      sizeof(ev_int->group.attrs[0]),
+				      GFP_KERNEL);
+	if (ev_int->group.attrs == NULL) {
+>>>>>>> upstream/android-13
 		ret = -ENOMEM;
 		goto error_free_setup_event_lines;
 	}
 	if (indio_dev->info->event_attrs)
+<<<<<<< HEAD
 		memcpy(indio_dev->event_interface->group.attrs,
 		       indio_dev->info->event_attrs->attrs,
 		       sizeof(indio_dev->event_interface->group.attrs[0])
@@ -523,13 +633,36 @@ int iio_device_register_eventset(struct iio_dev *indio_dev)
 			&p->dev_attr.attr;
 	indio_dev->groups[indio_dev->groupcounter++] =
 		&indio_dev->event_interface->group;
+=======
+		memcpy(ev_int->group.attrs,
+		       indio_dev->info->event_attrs->attrs,
+		       sizeof(ev_int->group.attrs[0]) * attrcount_orig);
+	attrn = attrcount_orig;
+	/* Add all elements from the list. */
+	list_for_each_entry(p, &ev_int->dev_attr_list, l)
+		ev_int->group.attrs[attrn++] = &p->dev_attr.attr;
+
+	ret = iio_device_register_sysfs_group(indio_dev, &ev_int->group);
+	if (ret)
+		goto error_free_setup_event_lines;
+
+	ev_int->ioctl_handler.ioctl = iio_event_ioctl;
+	iio_device_ioctl_handler_register(&iio_dev_opaque->indio_dev,
+					  &ev_int->ioctl_handler);
+>>>>>>> upstream/android-13
 
 	return 0;
 
 error_free_setup_event_lines:
+<<<<<<< HEAD
 	iio_free_chan_devattr_list(&indio_dev->event_interface->dev_attr_list);
 	kfree(indio_dev->event_interface);
 	indio_dev->event_interface = NULL;
+=======
+	iio_free_chan_devattr_list(&ev_int->dev_attr_list);
+	kfree(ev_int);
+	iio_dev_opaque->event_interface = NULL;
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -542,16 +675,38 @@ error_free_setup_event_lines:
  */
 void iio_device_wakeup_eventset(struct iio_dev *indio_dev)
 {
+<<<<<<< HEAD
 	if (indio_dev->event_interface == NULL)
 		return;
 	wake_up(&indio_dev->event_interface->wait);
+=======
+	struct iio_dev_opaque *iio_dev_opaque = to_iio_dev_opaque(indio_dev);
+
+	if (iio_dev_opaque->event_interface == NULL)
+		return;
+	wake_up(&iio_dev_opaque->event_interface->wait);
+>>>>>>> upstream/android-13
 }
 
 void iio_device_unregister_eventset(struct iio_dev *indio_dev)
 {
+<<<<<<< HEAD
 	if (indio_dev->event_interface == NULL)
 		return;
 	iio_free_chan_devattr_list(&indio_dev->event_interface->dev_attr_list);
 	kfree(indio_dev->event_interface->group.attrs);
 	kfree(indio_dev->event_interface);
+=======
+	struct iio_dev_opaque *iio_dev_opaque = to_iio_dev_opaque(indio_dev);
+	struct iio_event_interface *ev_int = iio_dev_opaque->event_interface;
+
+	if (ev_int == NULL)
+		return;
+
+	iio_device_ioctl_handler_unregister(&ev_int->ioctl_handler);
+	iio_free_chan_devattr_list(&ev_int->dev_attr_list);
+	kfree(ev_int->group.attrs);
+	kfree(ev_int);
+	iio_dev_opaque->event_interface = NULL;
+>>>>>>> upstream/android-13
 }

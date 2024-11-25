@@ -22,7 +22,10 @@
 struct rcar_fcp_device {
 	struct list_head list;
 	struct device *dev;
+<<<<<<< HEAD
 	struct device_dma_parameters dma_parms;
+=======
+>>>>>>> upstream/android-13
 };
 
 static LIST_HEAD(fcp_devices);
@@ -97,6 +100,7 @@ EXPORT_SYMBOL_GPL(rcar_fcp_get_device);
  */
 int rcar_fcp_enable(struct rcar_fcp_device *fcp)
 {
+<<<<<<< HEAD
 	int ret;
 
 	if (!fcp)
@@ -109,6 +113,12 @@ int rcar_fcp_enable(struct rcar_fcp_device *fcp)
 	}
 
 	return 0;
+=======
+	if (!fcp)
+		return 0;
+
+	return pm_runtime_resume_and_get(fcp->dev);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(rcar_fcp_enable);
 
@@ -140,8 +150,12 @@ static int rcar_fcp_probe(struct platform_device *pdev)
 
 	fcp->dev = &pdev->dev;
 
+<<<<<<< HEAD
 	fcp->dev->dma_parms = &fcp->dma_parms;
 	dma_set_max_seg_size(fcp->dev, DMA_BIT_MASK(32));
+=======
+	dma_set_max_seg_size(fcp->dev, UINT_MAX);
+>>>>>>> upstream/android-13
 
 	pm_runtime_enable(&pdev->dev);
 

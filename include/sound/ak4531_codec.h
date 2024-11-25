@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef __SOUND_AK4531_CODEC_H
 #define __SOUND_AK4531_CODEC_H
 
@@ -7,6 +11,7 @@
  *
  *  For more details look to AC '97 component specification revision 2.1
  *  by Intel Corporation (http://developer.intel.com).
+<<<<<<< HEAD
  *
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -23,6 +28,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <sound/info.h>

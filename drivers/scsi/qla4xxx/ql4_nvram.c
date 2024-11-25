@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 /*
  * QLogic iSCSI HBA Driver
  * Copyright (c)  2003-2013 QLogic Corporation
  *
  * See LICENSE.qla4xxx for copyright and licensing details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * QLogic iSCSI HBA Driver
+ * Copyright (c)  2003-2013 QLogic Corporation
+>>>>>>> upstream/android-13
  */
 
 #include "ql4_def.h"

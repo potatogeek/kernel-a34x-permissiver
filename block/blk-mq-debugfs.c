@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2017 Facebook
  *
@@ -12,6 +13,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2017 Facebook
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -23,11 +29,19 @@
 #include "blk-mq.h"
 #include "blk-mq-debugfs.h"
 #include "blk-mq-tag.h"
+<<<<<<< HEAD
+=======
+#include "blk-rq-qos.h"
+>>>>>>> upstream/android-13
 
 static void print_stat(struct seq_file *m, struct blk_rq_stat *stat)
 {
 	if (stat->nr_samples) {
+<<<<<<< HEAD
 		seq_printf(m, "samples=%d, mean=%lld, min=%llu, max=%llu",
+=======
+		seq_printf(m, "samples=%d, mean=%llu, min=%llu, max=%llu",
+>>>>>>> upstream/android-13
 			   stat->nr_samples, stat->mean, stat->min, stat->max);
 	} else {
 		seq_puts(m, "samples=0");
@@ -39,6 +53,7 @@ static int queue_poll_stat_show(void *data, struct seq_file *m)
 	struct request_queue *q = data;
 	int bucket;
 
+<<<<<<< HEAD
 	for (bucket = 0; bucket < BLK_MQ_POLL_STATS_BKTS/2; bucket++) {
 		seq_printf(m, "read  (%d Bytes): ", 1 << (9+bucket));
 		print_stat(m, &q->poll_stat[2*bucket]);
@@ -46,6 +61,15 @@ static int queue_poll_stat_show(void *data, struct seq_file *m)
 
 		seq_printf(m, "write (%d Bytes): ",  1 << (9+bucket));
 		print_stat(m, &q->poll_stat[2*bucket+1]);
+=======
+	for (bucket = 0; bucket < (BLK_MQ_POLL_STATS_BKTS / 2); bucket++) {
+		seq_printf(m, "read  (%d Bytes): ", 1 << (9 + bucket));
+		print_stat(m, &q->poll_stat[2 * bucket]);
+		seq_puts(m, "\n");
+
+		seq_printf(m, "write (%d Bytes): ",  1 << (9 + bucket));
+		print_stat(m, &q->poll_stat[2 * bucket + 1]);
+>>>>>>> upstream/android-13
 		seq_puts(m, "\n");
 	}
 	return 0;
@@ -112,11 +136,16 @@ static int queue_pm_only_show(void *data, struct seq_file *m)
 
 #define QUEUE_FLAG_NAME(name) [QUEUE_FLAG_##name] = #name
 static const char *const blk_queue_flag_name[] = {
+<<<<<<< HEAD
 	QUEUE_FLAG_NAME(QUEUED),
 	QUEUE_FLAG_NAME(STOPPED),
 	QUEUE_FLAG_NAME(DYING),
 	QUEUE_FLAG_NAME(BYPASS),
 	QUEUE_FLAG_NAME(BIDI),
+=======
+	QUEUE_FLAG_NAME(STOPPED),
+	QUEUE_FLAG_NAME(DYING),
+>>>>>>> upstream/android-13
 	QUEUE_FLAG_NAME(NOMERGES),
 	QUEUE_FLAG_NAME(SAME_COMP),
 	QUEUE_FLAG_NAME(FAIL_IO),
@@ -129,17 +158,32 @@ static const char *const blk_queue_flag_name[] = {
 	QUEUE_FLAG_NAME(SAME_FORCE),
 	QUEUE_FLAG_NAME(DEAD),
 	QUEUE_FLAG_NAME(INIT_DONE),
+<<<<<<< HEAD
 	QUEUE_FLAG_NAME(NO_SG_MERGE),
 	QUEUE_FLAG_NAME(POLL),
 	QUEUE_FLAG_NAME(WC),
 	QUEUE_FLAG_NAME(FUA),
 	QUEUE_FLAG_NAME(FLUSH_NQ),
+=======
+	QUEUE_FLAG_NAME(STABLE_WRITES),
+	QUEUE_FLAG_NAME(POLL),
+	QUEUE_FLAG_NAME(WC),
+	QUEUE_FLAG_NAME(FUA),
+>>>>>>> upstream/android-13
 	QUEUE_FLAG_NAME(DAX),
 	QUEUE_FLAG_NAME(STATS),
 	QUEUE_FLAG_NAME(POLL_STATS),
 	QUEUE_FLAG_NAME(REGISTERED),
 	QUEUE_FLAG_NAME(SCSI_PASSTHROUGH),
 	QUEUE_FLAG_NAME(QUIESCED),
+<<<<<<< HEAD
+=======
+	QUEUE_FLAG_NAME(PCI_P2PDMA),
+	QUEUE_FLAG_NAME(ZONE_RESETALL),
+	QUEUE_FLAG_NAME(RQ_ALLOC_TIME),
+	QUEUE_FLAG_NAME(HCTX_ACTIVE),
+	QUEUE_FLAG_NAME(NOWAIT),
+>>>>>>> upstream/android-13
 };
 #undef QUEUE_FLAG_NAME
 
@@ -228,6 +272,10 @@ static const char *const hctx_state_name[] = {
 	HCTX_STATE_NAME(STOPPED),
 	HCTX_STATE_NAME(TAG_ACTIVE),
 	HCTX_STATE_NAME(SCHED_RESTART),
+<<<<<<< HEAD
+=======
+	HCTX_STATE_NAME(INACTIVE),
+>>>>>>> upstream/android-13
 };
 #undef HCTX_STATE_NAME
 
@@ -251,10 +299,18 @@ static const char *const alloc_policy_name[] = {
 #define HCTX_FLAG_NAME(name) [ilog2(BLK_MQ_F_##name)] = #name
 static const char *const hctx_flag_name[] = {
 	HCTX_FLAG_NAME(SHOULD_MERGE),
+<<<<<<< HEAD
 	HCTX_FLAG_NAME(TAG_SHARED),
 	HCTX_FLAG_NAME(SG_MERGE),
 	HCTX_FLAG_NAME(BLOCKING),
 	HCTX_FLAG_NAME(NO_SCHED),
+=======
+	HCTX_FLAG_NAME(TAG_QUEUE_SHARED),
+	HCTX_FLAG_NAME(BLOCKING),
+	HCTX_FLAG_NAME(NO_SCHED),
+	HCTX_FLAG_NAME(STACKING),
+	HCTX_FLAG_NAME(TAG_HCTX_SHARED),
+>>>>>>> upstream/android-13
 };
 #undef HCTX_FLAG_NAME
 
@@ -277,6 +333,7 @@ static int hctx_flags_show(void *data, struct seq_file *m)
 	return 0;
 }
 
+<<<<<<< HEAD
 #define REQ_OP_NAME(name) [REQ_OP_##name] = #name
 static const char *const op_name[] = {
 	REQ_OP_NAME(READ),
@@ -295,6 +352,8 @@ static const char *const op_name[] = {
 };
 #undef REQ_OP_NAME
 
+=======
+>>>>>>> upstream/android-13
 #define CMD_FLAG_NAME(name) [__REQ_##name] = #name
 static const char *const cmd_flag_name[] = {
 	CMD_FLAG_NAME(FAILFAST_DEV),
@@ -310,28 +369,44 @@ static const char *const cmd_flag_name[] = {
 	CMD_FLAG_NAME(PREFLUSH),
 	CMD_FLAG_NAME(RAHEAD),
 	CMD_FLAG_NAME(BACKGROUND),
+<<<<<<< HEAD
 	CMD_FLAG_NAME(NOUNMAP),
 	CMD_FLAG_NAME(NOWAIT),
+=======
+	CMD_FLAG_NAME(NOWAIT),
+	CMD_FLAG_NAME(NOUNMAP),
+	CMD_FLAG_NAME(HIPRI),
+>>>>>>> upstream/android-13
 };
 #undef CMD_FLAG_NAME
 
 #define RQF_NAME(name) [ilog2((__force u32)RQF_##name)] = #name
 static const char *const rqf_name[] = {
+<<<<<<< HEAD
 	RQF_NAME(SORTED),
 	RQF_NAME(STARTED),
 	RQF_NAME(QUEUED),
+=======
+	RQF_NAME(STARTED),
+>>>>>>> upstream/android-13
 	RQF_NAME(SOFTBARRIER),
 	RQF_NAME(FLUSH_SEQ),
 	RQF_NAME(MIXED_MERGE),
 	RQF_NAME(MQ_INFLIGHT),
 	RQF_NAME(DONTPREP),
+<<<<<<< HEAD
 	RQF_NAME(PREEMPT),
 	RQF_NAME(COPY_USER),
+=======
+>>>>>>> upstream/android-13
 	RQF_NAME(FAILED),
 	RQF_NAME(QUIET),
 	RQF_NAME(ELVPRIV),
 	RQF_NAME(IO_STAT),
+<<<<<<< HEAD
 	RQF_NAME(ALLOCED),
+=======
+>>>>>>> upstream/android-13
 	RQF_NAME(PM),
 	RQF_NAME(HASHED),
 	RQF_NAME(STATS),
@@ -358,6 +433,7 @@ static const char *blk_mq_rq_state_name(enum mq_rq_state rq_state)
 int __blk_mq_debugfs_rq_show(struct seq_file *m, struct request *rq)
 {
 	const struct blk_mq_ops *const mq_ops = rq->q->mq_ops;
+<<<<<<< HEAD
 	const unsigned int op = rq->cmd_flags & REQ_OP_MASK;
 
 	seq_printf(m, "%p {.op=", rq);
@@ -365,6 +441,16 @@ int __blk_mq_debugfs_rq_show(struct seq_file *m, struct request *rq)
 		seq_printf(m, "%s", op_name[op]);
 	else
 		seq_printf(m, "%d", op);
+=======
+	const unsigned int op = req_op(rq);
+	const char *op_str = blk_op_str(op);
+
+	seq_printf(m, "%p {.op=", rq);
+	if (strcmp(op_str, "UNKNOWN") == 0)
+		seq_printf(m, "%u", op);
+	else
+		seq_printf(m, "%s", op_str);
+>>>>>>> upstream/android-13
 	seq_puts(m, ", .cmd_flags=");
 	blk_flags_show(m, rq->cmd_flags & ~REQ_OP_MASK, cmd_flag_name,
 		       ARRAY_SIZE(cmd_flag_name));
@@ -425,6 +511,7 @@ struct show_busy_params {
 
 /*
  * Note: the state of a request may change while this function is in progress,
+<<<<<<< HEAD
  * e.g. due to a concurrent blk_mq_finish_request() call.
  */
 static void hctx_show_busy_rq(struct request *rq, void *data, bool reserved)
@@ -435,6 +522,19 @@ static void hctx_show_busy_rq(struct request *rq, void *data, bool reserved)
 	    blk_mq_rq_state(rq) != MQ_RQ_IDLE)
 		__blk_mq_debugfs_rq_show(params->m,
 					 list_entry_rq(&rq->queuelist));
+=======
+ * e.g. due to a concurrent blk_mq_finish_request() call. Returns true to
+ * keep iterating requests.
+ */
+static bool hctx_show_busy_rq(struct request *rq, void *data, bool reserved)
+{
+	const struct show_busy_params *params = data;
+
+	if (rq->mq_hctx == params->hctx)
+		__blk_mq_debugfs_rq_show(params->m, rq);
+
+	return true;
+>>>>>>> upstream/android-13
 }
 
 static int hctx_busy_show(void *data, struct seq_file *m)
@@ -448,6 +548,24 @@ static int hctx_busy_show(void *data, struct seq_file *m)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static const char *const hctx_types[] = {
+	[HCTX_TYPE_DEFAULT]	= "default",
+	[HCTX_TYPE_READ]	= "read",
+	[HCTX_TYPE_POLL]	= "poll",
+};
+
+static int hctx_type_show(void *data, struct seq_file *m)
+{
+	struct blk_mq_hw_ctx *hctx = data;
+
+	BUILD_BUG_ON(ARRAY_SIZE(hctx_types) != HCTX_MAX_TYPES);
+	seq_printf(m, "%s\n", hctx_types[hctx->type]);
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int hctx_ctx_map_show(void *data, struct seq_file *m)
 {
 	struct blk_mq_hw_ctx *hctx = data;
@@ -465,11 +583,19 @@ static void blk_mq_debugfs_tags_show(struct seq_file *m,
 		   atomic_read(&tags->active_queues));
 
 	seq_puts(m, "\nbitmap_tags:\n");
+<<<<<<< HEAD
 	sbitmap_queue_show(&tags->bitmap_tags, m);
 
 	if (tags->nr_reserved_tags) {
 		seq_puts(m, "\nbreserved_tags:\n");
 		sbitmap_queue_show(&tags->breserved_tags, m);
+=======
+	sbitmap_queue_show(tags->bitmap_tags, m);
+
+	if (tags->nr_reserved_tags) {
+		seq_puts(m, "\nbreserved_tags:\n");
+		sbitmap_queue_show(tags->breserved_tags, m);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -500,7 +626,11 @@ static int hctx_tags_bitmap_show(void *data, struct seq_file *m)
 	if (res)
 		goto out;
 	if (hctx->tags)
+<<<<<<< HEAD
 		sbitmap_bitmap_show(&hctx->tags->bitmap_tags.sb, m);
+=======
+		sbitmap_bitmap_show(&hctx->tags->bitmap_tags->sb, m);
+>>>>>>> upstream/android-13
 	mutex_unlock(&q->sysfs_lock);
 
 out:
@@ -534,7 +664,11 @@ static int hctx_sched_tags_bitmap_show(void *data, struct seq_file *m)
 	if (res)
 		goto out;
 	if (hctx->sched_tags)
+<<<<<<< HEAD
 		sbitmap_bitmap_show(&hctx->sched_tags->bitmap_tags.sb, m);
+=======
+		sbitmap_bitmap_show(&hctx->sched_tags->bitmap_tags->sb, m);
+>>>>>>> upstream/android-13
 	mutex_unlock(&q->sysfs_lock);
 
 out:
@@ -638,6 +772,7 @@ static int hctx_dispatch_busy_show(void *data, struct seq_file *m)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void *ctx_rq_list_start(struct seq_file *m, loff_t *pos)
 	__acquires(&ctx->lock)
 {
@@ -668,6 +803,45 @@ static const struct seq_operations ctx_rq_list_seq_ops = {
 	.stop	= ctx_rq_list_stop,
 	.show	= blk_mq_debugfs_rq_show,
 };
+=======
+#define CTX_RQ_SEQ_OPS(name, type)					\
+static void *ctx_##name##_rq_list_start(struct seq_file *m, loff_t *pos) \
+	__acquires(&ctx->lock)						\
+{									\
+	struct blk_mq_ctx *ctx = m->private;				\
+									\
+	spin_lock(&ctx->lock);						\
+	return seq_list_start(&ctx->rq_lists[type], *pos);		\
+}									\
+									\
+static void *ctx_##name##_rq_list_next(struct seq_file *m, void *v,	\
+				     loff_t *pos)			\
+{									\
+	struct blk_mq_ctx *ctx = m->private;				\
+									\
+	return seq_list_next(v, &ctx->rq_lists[type], pos);		\
+}									\
+									\
+static void ctx_##name##_rq_list_stop(struct seq_file *m, void *v)	\
+	__releases(&ctx->lock)						\
+{									\
+	struct blk_mq_ctx *ctx = m->private;				\
+									\
+	spin_unlock(&ctx->lock);					\
+}									\
+									\
+static const struct seq_operations ctx_##name##_rq_list_seq_ops = {	\
+	.start	= ctx_##name##_rq_list_start,				\
+	.next	= ctx_##name##_rq_list_next,				\
+	.stop	= ctx_##name##_rq_list_stop,				\
+	.show	= blk_mq_debugfs_rq_show,				\
+}
+
+CTX_RQ_SEQ_OPS(default, HCTX_TYPE_DEFAULT);
+CTX_RQ_SEQ_OPS(read, HCTX_TYPE_READ);
+CTX_RQ_SEQ_OPS(poll, HCTX_TYPE_POLL);
+
+>>>>>>> upstream/android-13
 static int ctx_dispatched_show(void *data, struct seq_file *m)
 {
 	struct blk_mq_ctx *ctx = data;
@@ -772,8 +946,13 @@ static int blk_mq_debugfs_release(struct inode *inode, struct file *file)
 
 	if (attr->show)
 		return single_release(inode, file);
+<<<<<<< HEAD
 	else
 		return seq_release(inode, file);
+=======
+
+	return seq_release(inode, file);
+>>>>>>> upstream/android-13
 }
 
 static const struct file_operations blk_mq_debugfs_fops = {
@@ -800,17 +979,28 @@ static const struct blk_mq_debugfs_attr blk_mq_debugfs_hctx_attrs[] = {
 	{"run", 0600, hctx_run_show, hctx_run_write},
 	{"active", 0400, hctx_active_show},
 	{"dispatch_busy", 0400, hctx_dispatch_busy_show},
+<<<<<<< HEAD
+=======
+	{"type", 0400, hctx_type_show},
+>>>>>>> upstream/android-13
 	{},
 };
 
 static const struct blk_mq_debugfs_attr blk_mq_debugfs_ctx_attrs[] = {
+<<<<<<< HEAD
 	{"rq_list", 0400, .seq_ops = &ctx_rq_list_seq_ops},
+=======
+	{"default_rq_list", 0400, .seq_ops = &ctx_default_rq_list_seq_ops},
+	{"read_rq_list", 0400, .seq_ops = &ctx_read_rq_list_seq_ops},
+	{"poll_rq_list", 0400, .seq_ops = &ctx_poll_rq_list_seq_ops},
+>>>>>>> upstream/android-13
 	{"dispatched", 0600, ctx_dispatched_show, ctx_dispatched_write},
 	{"merged", 0600, ctx_merged_show, ctx_merged_write},
 	{"completed", 0600, ctx_completed_show, ctx_completed_write},
 	{},
 };
 
+<<<<<<< HEAD
 static bool debugfs_create_files(struct dentry *parent, void *data,
 				 const struct blk_mq_debugfs_attr *attr)
 {
@@ -825,10 +1015,27 @@ static bool debugfs_create_files(struct dentry *parent, void *data,
 }
 
 int blk_mq_debugfs_register(struct request_queue *q)
+=======
+static void debugfs_create_files(struct dentry *parent, void *data,
+				 const struct blk_mq_debugfs_attr *attr)
+{
+	if (IS_ERR_OR_NULL(parent))
+		return;
+
+	d_inode(parent)->i_private = data;
+
+	for (; attr->name; attr++)
+		debugfs_create_file(attr->name, attr->mode, parent,
+				    (void *)attr, &blk_mq_debugfs_fops);
+}
+
+void blk_mq_debugfs_register(struct request_queue *q)
+>>>>>>> upstream/android-13
 {
 	struct blk_mq_hw_ctx *hctx;
 	int i;
 
+<<<<<<< HEAD
 	if (!blk_debugfs_root)
 		return -ENOENT;
 
@@ -840,6 +1047,9 @@ int blk_mq_debugfs_register(struct request_queue *q)
 	if (!debugfs_create_files(q->debugfs_dir, q,
 				  blk_mq_debugfs_queue_attrs))
 		goto err;
+=======
+	debugfs_create_files(q->debugfs_dir, q, blk_mq_debugfs_queue_attrs);
+>>>>>>> upstream/android-13
 
 	/*
 	 * blk_mq_init_sched() attempted to do this already, but q->debugfs_dir
@@ -851,6 +1061,7 @@ int blk_mq_debugfs_register(struct request_queue *q)
 
 	/* Similarly, blk_mq_init_hctx() couldn't do this previously. */
 	queue_for_each_hw_ctx(q, hctx, i) {
+<<<<<<< HEAD
 		if (!hctx->debugfs_dir && blk_mq_debugfs_register_hctx(q, hctx))
 			goto err;
 		if (q->elevator && !hctx->sched_debugfs_dir &&
@@ -863,10 +1074,27 @@ int blk_mq_debugfs_register(struct request_queue *q)
 err:
 	blk_mq_debugfs_unregister(q);
 	return -ENOMEM;
+=======
+		if (!hctx->debugfs_dir)
+			blk_mq_debugfs_register_hctx(q, hctx);
+		if (q->elevator && !hctx->sched_debugfs_dir)
+			blk_mq_debugfs_register_sched_hctx(q, hctx);
+	}
+
+	if (q->rq_qos) {
+		struct rq_qos *rqos = q->rq_qos;
+
+		while (rqos) {
+			blk_mq_debugfs_register_rqos(rqos);
+			rqos = rqos->next;
+		}
+	}
+>>>>>>> upstream/android-13
 }
 
 void blk_mq_debugfs_unregister(struct request_queue *q)
 {
+<<<<<<< HEAD
 	debugfs_remove_recursive(q->debugfs_dir);
 	q->sched_debugfs_dir = NULL;
 	q->debugfs_dir = NULL;
@@ -874,12 +1102,20 @@ void blk_mq_debugfs_unregister(struct request_queue *q)
 
 static int blk_mq_debugfs_register_ctx(struct blk_mq_hw_ctx *hctx,
 				       struct blk_mq_ctx *ctx)
+=======
+	q->sched_debugfs_dir = NULL;
+}
+
+static void blk_mq_debugfs_register_ctx(struct blk_mq_hw_ctx *hctx,
+					struct blk_mq_ctx *ctx)
+>>>>>>> upstream/android-13
 {
 	struct dentry *ctx_dir;
 	char name[20];
 
 	snprintf(name, sizeof(name), "cpu%u", ctx->cpu);
 	ctx_dir = debugfs_create_dir(name, hctx->debugfs_dir);
+<<<<<<< HEAD
 	if (!ctx_dir)
 		return -ENOMEM;
 
@@ -891,11 +1127,20 @@ static int blk_mq_debugfs_register_ctx(struct blk_mq_hw_ctx *hctx,
 
 int blk_mq_debugfs_register_hctx(struct request_queue *q,
 				 struct blk_mq_hw_ctx *hctx)
+=======
+
+	debugfs_create_files(ctx_dir, ctx, blk_mq_debugfs_ctx_attrs);
+}
+
+void blk_mq_debugfs_register_hctx(struct request_queue *q,
+				  struct blk_mq_hw_ctx *hctx)
+>>>>>>> upstream/android-13
 {
 	struct blk_mq_ctx *ctx;
 	char name[20];
 	int i;
 
+<<<<<<< HEAD
 	if (!q->debugfs_dir)
 		return -ENOENT;
 
@@ -918,6 +1163,15 @@ int blk_mq_debugfs_register_hctx(struct request_queue *q,
 err:
 	blk_mq_debugfs_unregister_hctx(hctx);
 	return -ENOMEM;
+=======
+	snprintf(name, sizeof(name), "hctx%u", hctx->queue_num);
+	hctx->debugfs_dir = debugfs_create_dir(name, q->debugfs_dir);
+
+	debugfs_create_files(hctx->debugfs_dir, hctx, blk_mq_debugfs_hctx_attrs);
+
+	hctx_for_each_ctx(hctx, ctx, i)
+		blk_mq_debugfs_register_ctx(hctx, ctx);
+>>>>>>> upstream/android-13
 }
 
 void blk_mq_debugfs_unregister_hctx(struct blk_mq_hw_ctx *hctx)
@@ -927,17 +1181,26 @@ void blk_mq_debugfs_unregister_hctx(struct blk_mq_hw_ctx *hctx)
 	hctx->debugfs_dir = NULL;
 }
 
+<<<<<<< HEAD
 int blk_mq_debugfs_register_hctxs(struct request_queue *q)
+=======
+void blk_mq_debugfs_register_hctxs(struct request_queue *q)
+>>>>>>> upstream/android-13
 {
 	struct blk_mq_hw_ctx *hctx;
 	int i;
 
+<<<<<<< HEAD
 	queue_for_each_hw_ctx(q, hctx, i) {
 		if (blk_mq_debugfs_register_hctx(q, hctx))
 			return -ENOMEM;
 	}
 
 	return 0;
+=======
+	queue_for_each_hw_ctx(q, hctx, i)
+		blk_mq_debugfs_register_hctx(q, hctx);
+>>>>>>> upstream/android-13
 }
 
 void blk_mq_debugfs_unregister_hctxs(struct request_queue *q)
@@ -949,6 +1212,7 @@ void blk_mq_debugfs_unregister_hctxs(struct request_queue *q)
 		blk_mq_debugfs_unregister_hctx(hctx);
 }
 
+<<<<<<< HEAD
 int blk_mq_debugfs_register_sched(struct request_queue *q)
 {
 	struct elevator_type *e = q->elevator->type;
@@ -972,6 +1236,25 @@ int blk_mq_debugfs_register_sched(struct request_queue *q)
 err:
 	blk_mq_debugfs_unregister_sched(q);
 	return -ENOMEM;
+=======
+void blk_mq_debugfs_register_sched(struct request_queue *q)
+{
+	struct elevator_type *e = q->elevator->type;
+
+	/*
+	 * If the parent directory has not been created yet, return, we will be
+	 * called again later on and the directory/files will be created then.
+	 */
+	if (!q->debugfs_dir)
+		return;
+
+	if (!e->queue_debugfs_attrs)
+		return;
+
+	q->sched_debugfs_dir = debugfs_create_dir("sched", q->debugfs_dir);
+
+	debugfs_create_files(q->sched_debugfs_dir, q, e->queue_debugfs_attrs);
+>>>>>>> upstream/android-13
 }
 
 void blk_mq_debugfs_unregister_sched(struct request_queue *q)
@@ -980,6 +1263,7 @@ void blk_mq_debugfs_unregister_sched(struct request_queue *q)
 	q->sched_debugfs_dir = NULL;
 }
 
+<<<<<<< HEAD
 int blk_mq_debugfs_register_sched_hctx(struct request_queue *q,
 				       struct blk_mq_hw_ctx *hctx)
 {
@@ -1001,6 +1285,73 @@ int blk_mq_debugfs_register_sched_hctx(struct request_queue *q,
 		return -ENOMEM;
 
 	return 0;
+=======
+static const char *rq_qos_id_to_name(enum rq_qos_id id)
+{
+	switch (id) {
+	case RQ_QOS_WBT:
+		return "wbt";
+	case RQ_QOS_LATENCY:
+		return "latency";
+	case RQ_QOS_COST:
+		return "cost";
+	case RQ_QOS_IOPRIO:
+		return "ioprio";
+	}
+	return "unknown";
+}
+
+void blk_mq_debugfs_unregister_rqos(struct rq_qos *rqos)
+{
+	debugfs_remove_recursive(rqos->debugfs_dir);
+	rqos->debugfs_dir = NULL;
+}
+
+void blk_mq_debugfs_register_rqos(struct rq_qos *rqos)
+{
+	struct request_queue *q = rqos->q;
+	const char *dir_name = rq_qos_id_to_name(rqos->id);
+
+	if (rqos->debugfs_dir || !rqos->ops->debugfs_attrs)
+		return;
+
+	if (!q->rqos_debugfs_dir)
+		q->rqos_debugfs_dir = debugfs_create_dir("rqos",
+							 q->debugfs_dir);
+
+	rqos->debugfs_dir = debugfs_create_dir(dir_name,
+					       rqos->q->rqos_debugfs_dir);
+
+	debugfs_create_files(rqos->debugfs_dir, rqos, rqos->ops->debugfs_attrs);
+}
+
+void blk_mq_debugfs_unregister_queue_rqos(struct request_queue *q)
+{
+	debugfs_remove_recursive(q->rqos_debugfs_dir);
+	q->rqos_debugfs_dir = NULL;
+}
+
+void blk_mq_debugfs_register_sched_hctx(struct request_queue *q,
+					struct blk_mq_hw_ctx *hctx)
+{
+	struct elevator_type *e = q->elevator->type;
+
+	/*
+	 * If the parent debugfs directory has not been created yet, return;
+	 * We will be called again later on with appropriate parent debugfs
+	 * directory from blk_register_queue()
+	 */
+	if (!hctx->debugfs_dir)
+		return;
+
+	if (!e->hctx_debugfs_attrs)
+		return;
+
+	hctx->sched_debugfs_dir = debugfs_create_dir("sched",
+						     hctx->debugfs_dir);
+	debugfs_create_files(hctx->sched_debugfs_dir, hctx,
+			     e->hctx_debugfs_attrs);
+>>>>>>> upstream/android-13
 }
 
 void blk_mq_debugfs_unregister_sched_hctx(struct blk_mq_hw_ctx *hctx)

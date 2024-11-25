@@ -34,6 +34,10 @@ enum {
 	IFA_MULTICAST,
 	IFA_FLAGS,
 	IFA_RT_PRIORITY,  /* u32, priority/metric for prefix route */
+<<<<<<< HEAD
+=======
+	IFA_TARGET_NETNSID,
+>>>>>>> upstream/android-13
 	__IFA_MAX,
 };
 

@@ -34,4 +34,9 @@ int orangefs_bufmap_copy_to_iovec(struct iov_iter *iter,
 			      int buffer_index,
 			      size_t size);
 
+<<<<<<< HEAD
+=======
+void orangefs_bufmap_page_fill(void *kaddr, int buffer_index, int slot_index);
+
+>>>>>>> upstream/android-13
 #endif /* __ORANGEFS_BUFMAP_H */

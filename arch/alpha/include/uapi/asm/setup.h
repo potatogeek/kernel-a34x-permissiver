@@ -1,4 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
+<<<<<<< HEAD
 #ifndef __ALPHA_SETUP_H
 #define __ALPHA_SETUP_H
 
@@ -41,3 +42,11 @@
 #define INITRD_SIZE		(*(unsigned long *) (PARAM+0x108))
 
 #endif
+=======
+#ifndef _UAPI__ALPHA_SETUP_H
+#define _UAPI__ALPHA_SETUP_H
+
+#define COMMAND_LINE_SIZE	256
+
+#endif /* _UAPI__ALPHA_SETUP_H */
+>>>>>>> upstream/android-13

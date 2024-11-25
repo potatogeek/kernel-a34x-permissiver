@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2013 ARM Ltd.
  *
@@ -12,6 +13,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2013 ARM Ltd.
+>>>>>>> upstream/android-13
  */
 #ifndef __ASM_WORD_AT_A_TIME_H
 #define __ASM_WORD_AT_A_TIME_H
@@ -66,6 +72,11 @@ static inline unsigned long load_unaligned_zeropad(const void *addr)
 {
 	unsigned long ret, tmp;
 
+<<<<<<< HEAD
+=======
+	__uaccess_enable_tco_async();
+
+>>>>>>> upstream/android-13
 	/* Load word from unaligned pointer addr */
 	asm(
 	"1:	ldr	%0, %3\n"
@@ -87,6 +98,11 @@ static inline unsigned long load_unaligned_zeropad(const void *addr)
 	: "=&r" (ret), "=&r" (tmp)
 	: "r" (addr), "Q" (*(unsigned long *)addr));
 
+<<<<<<< HEAD
+=======
+	__uaccess_disable_tco_async();
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 

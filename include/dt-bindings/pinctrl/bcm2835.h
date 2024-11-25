@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * Header providing constants for bcm2835 pinctrl bindings.
  *
  * Copyright (C) 2015 Stefan Wahren <stefan.wahren@i2se.com>
+<<<<<<< HEAD
  *
  * The code contained herein is licensed under the GNU General Public
  * License. You may obtain a copy of the GNU General Public License
@@ -9,6 +14,8 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __DT_BINDINGS_PINCTRL_BCM2835_H__

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* ir-sony-decoder.c - handle Sony IR Pulse/Space protocol
  *
  * Copyright (C) 2010 by David Härdeman <david@hardeman.nu>
@@ -10,13 +11,23 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* ir-sony-decoder.c - handle Sony IR Pulse/Space protocol
+ *
+ * Copyright (C) 2010 by David Härdeman <david@hardeman.nu>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitrev.h>
 #include <linux/module.h>
 #include "rc-core-priv.h"
 
+<<<<<<< HEAD
 #define SONY_UNIT		600000 /* ns */
+=======
+#define SONY_UNIT		600 /* us */
+>>>>>>> upstream/android-13
 #define SONY_HEADER_PULSE	(4 * SONY_UNIT)
 #define	SONY_HEADER_SPACE	(1 * SONY_UNIT)
 #define SONY_BIT_0_PULSE	(1 * SONY_UNIT)
@@ -56,7 +67,11 @@ static int ir_sony_decode(struct rc_dev *dev, struct ir_raw_event ev)
 		goto out;
 
 	dev_dbg(&dev->dev, "Sony decode started at state %d (%uus %s)\n",
+<<<<<<< HEAD
 		data->state, TO_US(ev.duration), TO_STR(ev.pulse));
+=======
+		data->state, ev.duration, TO_STR(ev.pulse));
+>>>>>>> upstream/android-13
 
 	switch (data->state) {
 
@@ -110,7 +125,11 @@ static int ir_sony_decode(struct rc_dev *dev, struct ir_raw_event ev)
 		}
 
 		data->state = STATE_FINISHED;
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case STATE_FINISHED:
 		if (ev.pulse)
@@ -162,7 +181,11 @@ static int ir_sony_decode(struct rc_dev *dev, struct ir_raw_event ev)
 
 out:
 	dev_dbg(&dev->dev, "Sony decode failed at state %d (%uus %s)\n",
+<<<<<<< HEAD
 		data->state, TO_US(ev.duration), TO_STR(ev.pulse));
+=======
+		data->state, ev.duration, TO_STR(ev.pulse));
+>>>>>>> upstream/android-13
 	data->state = STATE_INACTIVE;
 	return -EINVAL;
 

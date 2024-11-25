@@ -1,4 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
+=======
+/*
+ * Portions
+ * Copyright (C) 2022 Intel Corporation
+ */
+>>>>>>> upstream/android-13
 #include <linux/ieee80211.h>
 #include <linux/export.h>
 #include <net/cfg80211.h>
@@ -78,6 +85,10 @@ const struct mesh_config default_mesh_config = {
 	.power_mode = NL80211_MESH_POWER_ACTIVE,
 	.dot11MeshAwakeWindowDuration = MESH_DEFAULT_AWAKE_WINDOW,
 	.plink_timeout = MESH_DEFAULT_PLINK_TIMEOUT,
+<<<<<<< HEAD
+=======
+	.dot11MeshNolearn = false,
+>>>>>>> upstream/android-13
 };
 
 const struct mesh_setup default_mesh_setup = {
@@ -113,7 +124,11 @@ int __cfg80211_join_mesh(struct cfg80211_registered_device *rdev,
 	      setup->is_secure)
 		return -EOPNOTSUPP;
 
+<<<<<<< HEAD
 	if (wdev->mesh_id_len)
+=======
+	if (wdev->u.mesh.id_len)
+>>>>>>> upstream/android-13
 		return -EALREADY;
 
 	if (!setup->mesh_id_len)
@@ -124,7 +139,11 @@ int __cfg80211_join_mesh(struct cfg80211_registered_device *rdev,
 
 	if (!setup->chandef.chan) {
 		/* if no channel explicitly given, use preset channel */
+<<<<<<< HEAD
 		setup->chandef = wdev->preset_chandef;
+=======
+		setup->chandef = wdev->u.mesh.preset_chandef;
+>>>>>>> upstream/android-13
 	}
 
 	if (!setup->chandef.chan) {
@@ -208,10 +227,17 @@ int __cfg80211_join_mesh(struct cfg80211_registered_device *rdev,
 
 	err = rdev_join_mesh(rdev, dev, conf, setup);
 	if (!err) {
+<<<<<<< HEAD
 		memcpy(wdev->ssid, setup->mesh_id, setup->mesh_id_len);
 		wdev->mesh_id_len = setup->mesh_id_len;
 		wdev->chandef = setup->chandef;
 		wdev->beacon_interval = setup->beacon_interval;
+=======
+		memcpy(wdev->u.mesh.id, setup->mesh_id, setup->mesh_id_len);
+		wdev->u.mesh.id_len = setup->mesh_id_len;
+		wdev->u.mesh.chandef = setup->chandef;
+		wdev->u.mesh.beacon_interval = setup->beacon_interval;
+>>>>>>> upstream/android-13
 	}
 
 	return err;
@@ -240,15 +266,26 @@ int cfg80211_set_mesh_channel(struct cfg80211_registered_device *rdev,
 		err = rdev_libertas_set_mesh_channel(rdev, wdev->netdev,
 						     chandef->chan);
 		if (!err)
+<<<<<<< HEAD
 			wdev->chandef = *chandef;
+=======
+			wdev->u.mesh.chandef = *chandef;
+>>>>>>> upstream/android-13
 
 		return err;
 	}
 
+<<<<<<< HEAD
 	if (wdev->mesh_id_len)
 		return -EBUSY;
 
 	wdev->preset_chandef = *chandef;
+=======
+	if (wdev->u.mesh.id_len)
+		return -EBUSY;
+
+	wdev->u.mesh.preset_chandef = *chandef;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -266,15 +303,26 @@ int __cfg80211_leave_mesh(struct cfg80211_registered_device *rdev,
 	if (!rdev->ops->leave_mesh)
 		return -EOPNOTSUPP;
 
+<<<<<<< HEAD
 	if (!wdev->mesh_id_len)
+=======
+	if (!wdev->u.mesh.id_len)
+>>>>>>> upstream/android-13
 		return -ENOTCONN;
 
 	err = rdev_leave_mesh(rdev, dev);
 	if (!err) {
 		wdev->conn_owner_nlportid = 0;
+<<<<<<< HEAD
 		wdev->mesh_id_len = 0;
 		wdev->beacon_interval = 0;
 		memset(&wdev->chandef, 0, sizeof(wdev->chandef));
+=======
+		wdev->u.mesh.id_len = 0;
+		wdev->u.mesh.beacon_interval = 0;
+		memset(&wdev->u.mesh.chandef, 0,
+		       sizeof(wdev->u.mesh.chandef));
+>>>>>>> upstream/android-13
 		rdev_set_qos_map(rdev, dev, NULL);
 		cfg80211_sched_dfs_chan_update(rdev);
 	}

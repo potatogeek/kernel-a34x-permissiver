@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * STMicroelectronics accelerometers driver
  *
@@ -5,7 +9,10 @@
  *
  * Denis Ciocca <denis.ciocca@st.com>
  * v. 1.0.0
+<<<<<<< HEAD
  * Licensed under the GPL-2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef ST_ACCEL_H
@@ -34,6 +41,11 @@ enum st_accel_type {
 	LIS3LV02DL,
 	LIS2DW12,
 	LIS3DHH,
+<<<<<<< HEAD
+=======
+	LIS2DE12,
+	LIS2HH12,
+>>>>>>> upstream/android-13
 	ST_ACCEL_MAX,
 };
 
@@ -56,6 +68,7 @@ enum st_accel_type {
 #define LNG2DM_ACCEL_DEV_NAME		"lng2dm"
 #define LIS2DW12_ACCEL_DEV_NAME		"lis2dw12"
 #define LIS3DHH_ACCEL_DEV_NAME		"lis3dhh"
+<<<<<<< HEAD
 
 /**
 * struct st_sensors_platform_data - default accel platform data
@@ -71,6 +84,14 @@ void st_accel_common_remove(struct iio_dev *indio_dev);
 #ifdef CONFIG_IIO_BUFFER
 int st_accel_allocate_ring(struct iio_dev *indio_dev);
 void st_accel_deallocate_ring(struct iio_dev *indio_dev);
+=======
+#define LIS3DE_ACCEL_DEV_NAME		"lis3de"
+#define LIS2DE12_ACCEL_DEV_NAME		"lis2de12"
+#define LIS2HH12_ACCEL_DEV_NAME		"lis2hh12"
+
+#ifdef CONFIG_IIO_BUFFER
+int st_accel_allocate_ring(struct iio_dev *indio_dev);
+>>>>>>> upstream/android-13
 int st_accel_trig_set_state(struct iio_trigger *trig, bool state);
 #define ST_ACCEL_TRIGGER_SET_STATE (&st_accel_trig_set_state)
 #else /* CONFIG_IIO_BUFFER */
@@ -78,9 +99,12 @@ static inline int st_accel_allocate_ring(struct iio_dev *indio_dev)
 {
 	return 0;
 }
+<<<<<<< HEAD
 static inline void st_accel_deallocate_ring(struct iio_dev *indio_dev)
 {
 }
+=======
+>>>>>>> upstream/android-13
 #define ST_ACCEL_TRIGGER_SET_STATE NULL
 #endif /* CONFIG_IIO_BUFFER */
 

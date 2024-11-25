@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * tsys01.c - Support for Measurement-Specialties tsys01 temperature sensor
  *
  * Copyright (c) 2015 Measurement-Specialties
  *
+<<<<<<< HEAD
  * Licensed under the GPL-2.
  *
+=======
+>>>>>>> upstream/android-13
  * Datasheet:
  *  http://www.meas-spec.com/downloads/TSYS01_Digital_Temperature_Sensor.pdf
  */
@@ -14,6 +21,10 @@
 #include <linux/device.h>
 #include <linux/mutex.h>
 #include <linux/module.h>
+<<<<<<< HEAD
+=======
+#include <linux/mod_devicetable.h>
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/stat.h>
@@ -161,7 +172,10 @@ static int tsys01_probe(struct iio_dev *indio_dev, struct device *dev)
 
 	indio_dev->info = &tsys01_info;
 	indio_dev->name = dev->driver->name;
+<<<<<<< HEAD
 	indio_dev->dev.parent = dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->channels = tsys01_channels;
 	indio_dev->num_channels = ARRAY_SIZE(tsys01_channels);
@@ -224,7 +238,11 @@ static struct i2c_driver tsys01_driver = {
 	.id_table = tsys01_id,
 	.driver = {
 		   .name = "tsys01",
+<<<<<<< HEAD
 		   .of_match_table = of_match_ptr(tsys01_of_match),
+=======
+		   .of_match_table = tsys01_of_match,
+>>>>>>> upstream/android-13
 		   },
 };
 

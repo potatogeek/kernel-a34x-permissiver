@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015 Rockchip Electronics Co. Ltd.
  * Author: Jeffy Chen <jeffy.chen@rock-chips.com>
@@ -11,6 +12,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (c) 2015 Rockchip Electronics Co. Ltd.
+ * Author: Jeffy Chen <jeffy.chen@rock-chips.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef _DT_BINDINGS_CLK_ROCKCHIP_RK3228_H
@@ -73,6 +80,10 @@
 #define SCLK_WIFI		141
 #define SCLK_OTGPHY0		142
 #define SCLK_OTGPHY1		143
+<<<<<<< HEAD
+=======
+#define SCLK_HDMI_PHY		144
+>>>>>>> upstream/android-13
 
 /* dclk gates */
 #define DCLK_VOP		190

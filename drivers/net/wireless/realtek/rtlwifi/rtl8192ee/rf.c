@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2014  Realtek Corporation.
@@ -22,6 +23,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+// SPDX-License-Identifier: GPL-2.0
+/* Copyright(c) 2009-2014  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #include "../wifi.h"
 #include "reg.h"
@@ -140,12 +145,21 @@ static bool _rtl92ee_phy_rf6052_config_parafile(struct ieee80211_hw *hw)
 		}
 
 		if (!rtstatus) {
+<<<<<<< HEAD
 			RT_TRACE(rtlpriv, COMP_INIT, DBG_TRACE,
 				 "Radio[%d] Fail!!\n", rfpath);
+=======
+			rtl_dbg(rtlpriv, COMP_INIT, DBG_TRACE,
+				"Radio[%d] Fail!!\n", rfpath);
+>>>>>>> upstream/android-13
 			return false;
 		}
 	}
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_TRACE, "\n");
+=======
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_TRACE, "\n");
+>>>>>>> upstream/android-13
 	return rtstatus;
 }

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
     dmx3191d.c - driver for the Domex DMX3191D SCSI card.
     Copyright (C) 2000 by Massimo Piccioni <dafastidio@libero.it>
@@ -5,6 +9,7 @@
 
     Based on the generic NCR5380 driver by Drew Eckhardt et al.
 
+<<<<<<< HEAD
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -18,6 +23,8 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
 */
 
 #include <linux/init.h>
@@ -63,7 +70,11 @@ static struct scsi_host_template dmx3191d_driver_template = {
 	.this_id		= 7,
 	.sg_tablesize		= SG_ALL,
 	.cmd_per_lun		= 2,
+<<<<<<< HEAD
 	.use_clustering		= DISABLE_CLUSTERING,
+=======
+	.dma_boundary		= PAGE_SIZE - 1,
+>>>>>>> upstream/android-13
 	.cmd_size		= NCR5380_CMD_SIZE,
 };
 

@@ -28,9 +28,14 @@
 
 #include <drm/ttm/ttm_placement.h>
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include "vmwgfx_drv.h"
 #include "drm/ttm/ttm_object.h"
+=======
+#include "vmwgfx_drv.h"
+#include "ttm_object.h"
+>>>>>>> upstream/android-13
 
 
 /**
@@ -97,18 +102,26 @@ int vmw_bo_pin_in_placement(struct vmw_private *dev_priv,
 	int ret;
 	uint32_t new_flags;
 
+<<<<<<< HEAD
 	ret = ttm_write_lock(&dev_priv->reservation_sem, interruptible);
 	if (unlikely(ret != 0))
 		return ret;
 
+=======
+>>>>>>> upstream/android-13
 	vmw_execbuf_release_pinned_bo(dev_priv);
 
 	ret = ttm_bo_reserve(bo, interruptible, false, NULL);
 	if (unlikely(ret != 0))
 		goto err;
 
+<<<<<<< HEAD
 	if (buf->pin_count > 0)
 		ret = ttm_bo_mem_compat(placement, &bo->mem,
+=======
+	if (buf->base.pin_count > 0)
+		ret = ttm_bo_mem_compat(placement, bo->resource,
+>>>>>>> upstream/android-13
 					&new_flags) == true ? 0 : -EINVAL;
 	else
 		ret = ttm_bo_validate(bo, placement, &ctx);
@@ -117,9 +130,13 @@ int vmw_bo_pin_in_placement(struct vmw_private *dev_priv,
 		vmw_bo_pin_reserved(buf, true);
 
 	ttm_bo_unreserve(bo);
+<<<<<<< HEAD
 
 err:
 	ttm_write_unlock(&dev_priv->reservation_sem);
+=======
+err:
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -132,7 +149,10 @@ err:
  *
  * @dev_priv:  Driver private.
  * @buf:  DMA buffer to move.
+<<<<<<< HEAD
  * @pin:  Pin buffer if true.
+=======
+>>>>>>> upstream/android-13
  * @interruptible:  Use interruptible wait.
  * Return: Zero on success, Negative error code on failure. In particular
  * -ERESTARTSYS if interrupted by a signal
@@ -146,18 +166,26 @@ int vmw_bo_pin_in_vram_or_gmr(struct vmw_private *dev_priv,
 	int ret;
 	uint32_t new_flags;
 
+<<<<<<< HEAD
 	ret = ttm_write_lock(&dev_priv->reservation_sem, interruptible);
 	if (unlikely(ret != 0))
 		return ret;
 
+=======
+>>>>>>> upstream/android-13
 	vmw_execbuf_release_pinned_bo(dev_priv);
 
 	ret = ttm_bo_reserve(bo, interruptible, false, NULL);
 	if (unlikely(ret != 0))
 		goto err;
 
+<<<<<<< HEAD
 	if (buf->pin_count > 0) {
 		ret = ttm_bo_mem_compat(&vmw_vram_gmr_placement, &bo->mem,
+=======
+	if (buf->base.pin_count > 0) {
+		ret = ttm_bo_mem_compat(&vmw_vram_gmr_placement, bo->resource,
+>>>>>>> upstream/android-13
 					&new_flags) == true ? 0 : -EINVAL;
 		goto out_unreserve;
 	}
@@ -174,7 +202,10 @@ out_unreserve:
 
 	ttm_bo_unreserve(bo);
 err:
+<<<<<<< HEAD
 	ttm_write_unlock(&dev_priv->reservation_sem);
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -224,16 +255,23 @@ int vmw_bo_pin_in_start_of_vram(struct vmw_private *dev_priv,
 	uint32_t new_flags;
 
 	place = vmw_vram_placement.placement[0];
+<<<<<<< HEAD
 	place.lpfn = bo->num_pages;
+=======
+	place.lpfn = bo->resource->num_pages;
+>>>>>>> upstream/android-13
 	placement.num_placement = 1;
 	placement.placement = &place;
 	placement.num_busy_placement = 1;
 	placement.busy_placement = &place;
 
+<<<<<<< HEAD
 	ret = ttm_write_lock(&dev_priv->reservation_sem, interruptible);
 	if (unlikely(ret != 0))
 		return ret;
 
+=======
+>>>>>>> upstream/android-13
 	vmw_execbuf_release_pinned_bo(dev_priv);
 	ret = ttm_bo_reserve(bo, interruptible, false, NULL);
 	if (unlikely(ret != 0))
@@ -244,28 +282,47 @@ int vmw_bo_pin_in_start_of_vram(struct vmw_private *dev_priv,
 	 * In that case, evict it first because TTM isn't good at handling
 	 * that situation.
 	 */
+<<<<<<< HEAD
 	if (bo->mem.mem_type == TTM_PL_VRAM &&
 	    bo->mem.start < bo->num_pages &&
 	    bo->mem.start > 0 &&
 	    buf->pin_count == 0) {
+=======
+	if (bo->resource->mem_type == TTM_PL_VRAM &&
+	    bo->resource->start < bo->resource->num_pages &&
+	    bo->resource->start > 0 &&
+	    buf->base.pin_count == 0) {
+>>>>>>> upstream/android-13
 		ctx.interruptible = false;
 		(void) ttm_bo_validate(bo, &vmw_sys_placement, &ctx);
 	}
 
+<<<<<<< HEAD
 	if (buf->pin_count > 0)
 		ret = ttm_bo_mem_compat(&placement, &bo->mem,
+=======
+	if (buf->base.pin_count > 0)
+		ret = ttm_bo_mem_compat(&placement, bo->resource,
+>>>>>>> upstream/android-13
 					&new_flags) == true ? 0 : -EINVAL;
 	else
 		ret = ttm_bo_validate(bo, &placement, &ctx);
 
 	/* For some reason we didn't end up at the start of vram */
+<<<<<<< HEAD
 	WARN_ON(ret == 0 && bo->offset != 0);
+=======
+	WARN_ON(ret == 0 && bo->resource->start != 0);
+>>>>>>> upstream/android-13
 	if (!ret)
 		vmw_bo_pin_reserved(buf, true);
 
 	ttm_bo_unreserve(bo);
 err_unlock:
+<<<<<<< HEAD
 	ttm_write_unlock(&dev_priv->reservation_sem);
+=======
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -289,10 +346,13 @@ int vmw_bo_unpin(struct vmw_private *dev_priv,
 	struct ttm_buffer_object *bo = &buf->base;
 	int ret;
 
+<<<<<<< HEAD
 	ret = ttm_read_lock(&dev_priv->reservation_sem, interruptible);
 	if (unlikely(ret != 0))
 		return ret;
 
+=======
+>>>>>>> upstream/android-13
 	ret = ttm_bo_reserve(bo, interruptible, false, NULL);
 	if (unlikely(ret != 0))
 		goto err;
@@ -302,7 +362,10 @@ int vmw_bo_unpin(struct vmw_private *dev_priv,
 	ttm_bo_unreserve(bo);
 
 err:
+<<<<<<< HEAD
 	ttm_read_unlock(&dev_priv->reservation_sem);
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -316,11 +379,19 @@ err:
 void vmw_bo_get_guest_ptr(const struct ttm_buffer_object *bo,
 			  SVGAGuestPtr *ptr)
 {
+<<<<<<< HEAD
 	if (bo->mem.mem_type == TTM_PL_VRAM) {
 		ptr->gmrId = SVGA_GMR_FRAMEBUFFER;
 		ptr->offset = bo->offset;
 	} else {
 		ptr->gmrId = bo->mem.start;
+=======
+	if (bo->resource->mem_type == TTM_PL_VRAM) {
+		ptr->gmrId = SVGA_GMR_FRAMEBUFFER;
+		ptr->offset = bo->resource->start << PAGE_SHIFT;
+	} else {
+		ptr->gmrId = bo->resource->start;
+>>>>>>> upstream/android-13
 		ptr->offset = 0;
 	}
 }
@@ -339,6 +410,7 @@ void vmw_bo_pin_reserved(struct vmw_buffer_object *vbo, bool pin)
 	struct ttm_place pl;
 	struct ttm_placement placement;
 	struct ttm_buffer_object *bo = &vbo->base;
+<<<<<<< HEAD
 	uint32_t old_mem_type = bo->mem.mem_type;
 	int ret;
 
@@ -359,6 +431,20 @@ void vmw_bo_pin_reserved(struct vmw_buffer_object *vbo, bool pin)
 		| TTM_PL_FLAG_SYSTEM | TTM_PL_FLAG_CACHED;
 	if (pin)
 		pl.flags |= TTM_PL_FLAG_NO_EVICT;
+=======
+	uint32_t old_mem_type = bo->resource->mem_type;
+	int ret;
+
+	dma_resv_assert_held(bo->base.resv);
+
+	if (pin == !!bo->pin_count)
+		return;
+
+	pl.fpfn = 0;
+	pl.lpfn = 0;
+	pl.mem_type = bo->resource->mem_type;
+	pl.flags = bo->resource->placement;
+>>>>>>> upstream/android-13
 
 	memset(&placement, 0, sizeof(placement));
 	placement.num_placement = 1;
@@ -366,9 +452,19 @@ void vmw_bo_pin_reserved(struct vmw_buffer_object *vbo, bool pin)
 
 	ret = ttm_bo_validate(bo, &placement, &ctx);
 
+<<<<<<< HEAD
 	BUG_ON(ret != 0 || bo->mem.mem_type != old_mem_type);
 }
 
+=======
+	BUG_ON(ret != 0 || bo->resource->mem_type != old_mem_type);
+
+	if (pin)
+		ttm_bo_pin(bo);
+	else
+		ttm_bo_unpin(bo);
+}
+>>>>>>> upstream/android-13
 
 /**
  * vmw_bo_map_and_cache - Map a buffer object and cache the map
@@ -396,7 +492,11 @@ void *vmw_bo_map_and_cache(struct vmw_buffer_object *vbo)
 	if (virtual)
 		return virtual;
 
+<<<<<<< HEAD
 	ret = ttm_bo_kmap(bo, 0, bo->num_pages, &vbo->map);
+=======
+	ret = ttm_bo_kmap(bo, 0, bo->resource->num_pages, &vbo->map);
+>>>>>>> upstream/android-13
 	if (ret)
 		DRM_ERROR("Buffer object map failed: %d.\n", ret);
 
@@ -432,7 +532,11 @@ static size_t vmw_bo_acc_size(struct vmw_private *dev_priv, size_t size,
 			      bool user)
 {
 	static size_t struct_size, user_struct_size;
+<<<<<<< HEAD
 	size_t num_pages = PAGE_ALIGN(size) >> PAGE_SHIFT;
+=======
+	size_t num_pages = PFN_UP(size);
+>>>>>>> upstream/android-13
 	size_t page_array_size = ttm_round_pot(num_pages * sizeof(void *));
 
 	if (unlikely(struct_size == 0)) {
@@ -441,7 +545,12 @@ static size_t vmw_bo_acc_size(struct vmw_private *dev_priv, size_t size,
 		struct_size = backend_size +
 			ttm_round_pot(sizeof(struct vmw_buffer_object));
 		user_struct_size = backend_size +
+<<<<<<< HEAD
 			ttm_round_pot(sizeof(struct vmw_user_buffer_object));
+=======
+		  ttm_round_pot(sizeof(struct vmw_user_buffer_object)) +
+				      TTM_OBJ_EXTRA_SIZE;
+>>>>>>> upstream/android-13
 	}
 
 	if (dev_priv->map_mode == vmw_dma_alloc_coherent)
@@ -462,7 +571,14 @@ void vmw_bo_bo_free(struct ttm_buffer_object *bo)
 {
 	struct vmw_buffer_object *vmw_bo = vmw_buffer_object(bo);
 
+<<<<<<< HEAD
 	vmw_bo_unmap(vmw_bo);
+=======
+	WARN_ON(vmw_bo->dirty);
+	WARN_ON(!RB_EMPTY_ROOT(&vmw_bo->res_tree));
+	vmw_bo_unmap(vmw_bo);
+	dma_resv_fini(&bo->base._resv);
+>>>>>>> upstream/android-13
 	kfree(vmw_bo);
 }
 
@@ -475,11 +591,77 @@ void vmw_bo_bo_free(struct ttm_buffer_object *bo)
 static void vmw_user_bo_destroy(struct ttm_buffer_object *bo)
 {
 	struct vmw_user_buffer_object *vmw_user_bo = vmw_user_buffer_object(bo);
+<<<<<<< HEAD
 
 	vmw_bo_unmap(&vmw_user_bo->vbo);
 	ttm_prime_object_kfree(vmw_user_bo, prime);
 }
 
+=======
+	struct vmw_buffer_object *vbo = &vmw_user_bo->vbo;
+
+	WARN_ON(vbo->dirty);
+	WARN_ON(!RB_EMPTY_ROOT(&vbo->res_tree));
+	vmw_bo_unmap(vbo);
+	ttm_prime_object_kfree(vmw_user_bo, prime);
+}
+
+/**
+ * vmw_bo_create_kernel - Create a pinned BO for internal kernel use.
+ *
+ * @dev_priv: Pointer to the device private struct
+ * @size: size of the BO we need
+ * @placement: where to put it
+ * @p_bo: resulting BO
+ *
+ * Creates and pin a simple BO for in kernel use.
+ */
+int vmw_bo_create_kernel(struct vmw_private *dev_priv, unsigned long size,
+			 struct ttm_placement *placement,
+			 struct ttm_buffer_object **p_bo)
+{
+	struct ttm_operation_ctx ctx = { false, false };
+	struct ttm_buffer_object *bo;
+	size_t acc_size;
+	int ret;
+
+	bo = kzalloc(sizeof(*bo), GFP_KERNEL);
+	if (unlikely(!bo))
+		return -ENOMEM;
+
+	acc_size = ttm_round_pot(sizeof(*bo));
+	acc_size += ttm_round_pot(PFN_UP(size) * sizeof(void *));
+	acc_size += ttm_round_pot(sizeof(struct ttm_tt));
+
+	ret = ttm_mem_global_alloc(&ttm_mem_glob, acc_size, &ctx);
+	if (unlikely(ret))
+		goto error_free;
+
+
+	bo->base.size = size;
+	dma_resv_init(&bo->base._resv);
+	drm_vma_node_reset(&bo->base.vma_node);
+
+	ret = ttm_bo_init_reserved(&dev_priv->bdev, bo, size,
+				   ttm_bo_type_device, placement, 0,
+				   &ctx, NULL, NULL, NULL);
+	if (unlikely(ret))
+		goto error_account;
+
+	ttm_bo_pin(bo);
+	ttm_bo_unreserve(bo);
+	*p_bo = bo;
+
+	return 0;
+
+error_account:
+	ttm_mem_global_free(&ttm_mem_glob, acc_size);
+
+error_free:
+	kfree(bo);
+	return ret;
+}
+>>>>>>> upstream/android-13
 
 /**
  * vmw_bo_init - Initialize a vmw buffer object
@@ -489,6 +671,10 @@ static void vmw_user_bo_destroy(struct ttm_buffer_object *bo)
  * @size: Buffer object size in bytes.
  * @placement: Initial placement.
  * @interruptible: Whether waits should be performed interruptible.
+<<<<<<< HEAD
+=======
+ * @pin: If the BO should be created pinned at a fixed location.
+>>>>>>> upstream/android-13
  * @bo_free: The buffer object destructor.
  * Returns: Zero on success, negative error code on error.
  *
@@ -497,10 +683,18 @@ static void vmw_user_bo_destroy(struct ttm_buffer_object *bo)
 int vmw_bo_init(struct vmw_private *dev_priv,
 		struct vmw_buffer_object *vmw_bo,
 		size_t size, struct ttm_placement *placement,
+<<<<<<< HEAD
 		bool interruptible,
 		void (*bo_free)(struct ttm_buffer_object *bo))
 {
 	struct ttm_bo_device *bdev = &dev_priv->bdev;
+=======
+		bool interruptible, bool pin,
+		void (*bo_free)(struct ttm_buffer_object *bo))
+{
+	struct ttm_operation_ctx ctx = { interruptible, false };
+	struct ttm_device *bdev = &dev_priv->bdev;
+>>>>>>> upstream/android-13
 	size_t acc_size;
 	int ret;
 	bool user = (bo_free == &vmw_user_bo_destroy);
@@ -509,6 +703,7 @@ int vmw_bo_init(struct vmw_private *dev_priv,
 
 	acc_size = vmw_bo_acc_size(dev_priv, size, user);
 	memset(vmw_bo, 0, sizeof(*vmw_bo));
+<<<<<<< HEAD
 
 	INIT_LIST_HEAD(&vmw_bo->res_list);
 
@@ -517,6 +712,32 @@ int vmw_bo_init(struct vmw_private *dev_priv,
 			  0, interruptible, acc_size,
 			  NULL, NULL, bo_free);
 	return ret;
+=======
+	BUILD_BUG_ON(TTM_MAX_BO_PRIORITY <= 3);
+	vmw_bo->base.priority = 3;
+	vmw_bo->res_tree = RB_ROOT;
+
+	ret = ttm_mem_global_alloc(&ttm_mem_glob, acc_size, &ctx);
+	if (unlikely(ret))
+		return ret;
+
+	vmw_bo->base.base.size = size;
+	dma_resv_init(&vmw_bo->base.base._resv);
+	drm_vma_node_reset(&vmw_bo->base.base.vma_node);
+
+	ret = ttm_bo_init_reserved(bdev, &vmw_bo->base, size,
+				   ttm_bo_type_device, placement,
+				   0, &ctx, NULL, NULL, bo_free);
+	if (unlikely(ret)) {
+		ttm_mem_global_free(&ttm_mem_glob, acc_size);
+		return ret;
+	}
+
+	if (pin)
+		ttm_bo_pin(&vmw_bo->base);
+	ttm_bo_unreserve(&vmw_bo->base);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 
@@ -533,7 +754,10 @@ static void vmw_user_bo_release(struct ttm_base_object **p_base)
 {
 	struct vmw_user_buffer_object *vmw_user_bo;
 	struct ttm_base_object *base = *p_base;
+<<<<<<< HEAD
 	struct ttm_buffer_object *bo;
+=======
+>>>>>>> upstream/android-13
 
 	*p_base = NULL;
 
@@ -542,13 +766,21 @@ static void vmw_user_bo_release(struct ttm_base_object **p_base)
 
 	vmw_user_bo = container_of(base, struct vmw_user_buffer_object,
 				   prime.base);
+<<<<<<< HEAD
 	bo = &vmw_user_bo->vbo.base;
 	ttm_bo_unref(&bo);
+=======
+	ttm_bo_put(&vmw_user_bo->vbo.base);
+>>>>>>> upstream/android-13
 }
 
 
 /**
+<<<<<<< HEAD
  * vmw_user_bo_ref_obj-release - TTM synccpu reference object release callback
+=======
+ * vmw_user_bo_ref_obj_release - TTM synccpu reference object release callback
+>>>>>>> upstream/android-13
  * for vmw user buffer objects
  *
  * @base: Pointer to the TTM base object
@@ -566,7 +798,11 @@ static void vmw_user_bo_ref_obj_release(struct ttm_base_object *base,
 
 	switch (ref_type) {
 	case TTM_REF_SYNCCPU_WRITE:
+<<<<<<< HEAD
 		ttm_bo_synccpu_write_release(&user_bo->vbo.base);
+=======
+		atomic_dec(&user_bo->vbo.cpu_writers);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		WARN_ONCE(true, "Undefined buffer object reference release.\n");
@@ -585,6 +821,10 @@ static void vmw_user_bo_ref_obj_release(struct ttm_base_object *base,
  * @handle: Pointer to where the handle value should be assigned.
  * @p_vbo: Pointer to where the refcounted struct vmw_buffer_object pointer
  * should be assigned.
+<<<<<<< HEAD
+=======
+ * @p_base: The TTM base object pointer about to be allocated.
+>>>>>>> upstream/android-13
  * Return: Zero on success, negative error code on error.
  */
 int vmw_user_bo_alloc(struct vmw_private *dev_priv,
@@ -596,7 +836,10 @@ int vmw_user_bo_alloc(struct vmw_private *dev_priv,
 		      struct ttm_base_object **p_base)
 {
 	struct vmw_user_buffer_object *user_bo;
+<<<<<<< HEAD
 	struct ttm_buffer_object *tmp;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	user_bo = kzalloc(sizeof(*user_bo), GFP_KERNEL);
@@ -608,12 +851,20 @@ int vmw_user_bo_alloc(struct vmw_private *dev_priv,
 	ret = vmw_bo_init(dev_priv, &user_bo->vbo, size,
 			  (dev_priv->has_mob) ?
 			  &vmw_sys_placement :
+<<<<<<< HEAD
 			  &vmw_vram_sys_placement, true,
+=======
+			  &vmw_vram_sys_placement, true, false,
+>>>>>>> upstream/android-13
 			  &vmw_user_bo_destroy);
 	if (unlikely(ret != 0))
 		return ret;
 
+<<<<<<< HEAD
 	tmp = ttm_bo_reference(&user_bo->vbo.base);
+=======
+	ttm_bo_get(&user_bo->vbo.base);
+>>>>>>> upstream/android-13
 	ret = ttm_prime_object_init(tfile,
 				    size,
 				    &user_bo->prime,
@@ -622,7 +873,11 @@ int vmw_user_bo_alloc(struct vmw_private *dev_priv,
 				    &vmw_user_bo_release,
 				    &vmw_user_bo_ref_obj_release);
 	if (unlikely(ret != 0)) {
+<<<<<<< HEAD
 		ttm_bo_unref(&tmp);
+=======
+		ttm_bo_put(&user_bo->vbo.base);
+>>>>>>> upstream/android-13
 		goto out_no_base_object;
 	}
 
@@ -631,7 +886,11 @@ int vmw_user_bo_alloc(struct vmw_private *dev_priv,
 		*p_base = &user_bo->prime.base;
 		kref_get(&(*p_base)->refcount);
 	}
+<<<<<<< HEAD
 	*handle = user_bo->prime.base.hash.key;
+=======
+	*handle = user_bo->prime.base.handle;
+>>>>>>> upstream/android-13
 
 out_no_base_object:
 	return ret;
@@ -683,17 +942,29 @@ static int vmw_user_bo_synccpu_grab(struct vmw_user_buffer_object *user_bo,
 				    struct ttm_object_file *tfile,
 				    uint32_t flags)
 {
+<<<<<<< HEAD
+=======
+	bool nonblock = !!(flags & drm_vmw_synccpu_dontblock);
+>>>>>>> upstream/android-13
 	struct ttm_buffer_object *bo = &user_bo->vbo.base;
 	bool existed;
 	int ret;
 
 	if (flags & drm_vmw_synccpu_allow_cs) {
+<<<<<<< HEAD
 		bool nonblock = !!(flags & drm_vmw_synccpu_dontblock);
 		long lret;
 
 		lret = reservation_object_wait_timeout_rcu
 			(bo->resv, true, true,
 			 nonblock ? 0 : MAX_SCHEDULE_TIMEOUT);
+=======
+		long lret;
+
+		lret = dma_resv_wait_timeout(bo->base.resv, true, true,
+					     nonblock ? 0 :
+					     MAX_SCHEDULE_TIMEOUT);
+>>>>>>> upstream/android-13
 		if (!lret)
 			return -EBUSY;
 		else if (lret < 0)
@@ -701,15 +972,31 @@ static int vmw_user_bo_synccpu_grab(struct vmw_user_buffer_object *user_bo,
 		return 0;
 	}
 
+<<<<<<< HEAD
 	ret = ttm_bo_synccpu_write_grab
 		(bo, !!(flags & drm_vmw_synccpu_dontblock));
+=======
+	ret = ttm_bo_reserve(bo, true, nonblock, NULL);
+	if (unlikely(ret != 0))
+		return ret;
+
+	ret = ttm_bo_wait(bo, true, nonblock);
+	if (likely(ret == 0))
+		atomic_inc(&user_bo->vbo.cpu_writers);
+
+	ttm_bo_unreserve(bo);
+>>>>>>> upstream/android-13
 	if (unlikely(ret != 0))
 		return ret;
 
 	ret = ttm_ref_object_add(tfile, &user_bo->prime.base,
 				 TTM_REF_SYNCCPU_WRITE, &existed, false);
 	if (ret != 0 || existed)
+<<<<<<< HEAD
 		ttm_bo_synccpu_write_release(&user_bo->vbo.base);
+=======
+		atomic_dec(&user_bo->vbo.cpu_writers);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -826,10 +1113,13 @@ int vmw_bo_alloc_ioctl(struct drm_device *dev, void *data,
 	uint32_t handle;
 	int ret;
 
+<<<<<<< HEAD
 	ret = ttm_read_lock(&dev_priv->reservation_sem, true);
 	if (unlikely(ret != 0))
 		return ret;
 
+=======
+>>>>>>> upstream/android-13
 	ret = vmw_user_bo_alloc(dev_priv, vmw_fpriv(file_priv)->tfile,
 				req->size, false, &handle, &vbo,
 				NULL);
@@ -837,14 +1127,21 @@ int vmw_bo_alloc_ioctl(struct drm_device *dev, void *data,
 		goto out_no_bo;
 
 	rep->handle = handle;
+<<<<<<< HEAD
 	rep->map_handle = drm_vma_node_offset_addr(&vbo->base.vma_node);
+=======
+	rep->map_handle = drm_vma_node_offset_addr(&vbo->base.base.vma_node);
+>>>>>>> upstream/android-13
 	rep->cur_gmr_id = handle;
 	rep->cur_gmr_offset = 0;
 
 	vmw_bo_unreference(&vbo);
 
 out_no_bo:
+<<<<<<< HEAD
 	ttm_read_unlock(&dev_priv->reservation_sem);
+=======
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -910,7 +1207,11 @@ int vmw_user_bo_lookup(struct ttm_object_file *tfile,
 
 	vmw_user_bo = container_of(base, struct vmw_user_buffer_object,
 				   prime.base);
+<<<<<<< HEAD
 	(void)ttm_bo_reference(&vmw_user_bo->vbo.base);
+=======
+	ttm_bo_get(&vmw_user_bo->vbo.base);
+>>>>>>> upstream/android-13
 	if (p_base)
 		*p_base = base;
 	else
@@ -920,6 +1221,50 @@ int vmw_user_bo_lookup(struct ttm_object_file *tfile,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * vmw_user_bo_noref_lookup - Look up a vmw user buffer object without reference
+ * @tfile: The TTM object file the handle is registered with.
+ * @handle: The user buffer object handle.
+ *
+ * This function looks up a struct vmw_user_bo and returns a pointer to the
+ * struct vmw_buffer_object it derives from without refcounting the pointer.
+ * The returned pointer is only valid until vmw_user_bo_noref_release() is
+ * called, and the object pointed to by the returned pointer may be doomed.
+ * Any persistent usage of the object requires a refcount to be taken using
+ * ttm_bo_reference_unless_doomed(). Iff this function returns successfully it
+ * needs to be paired with vmw_user_bo_noref_release() and no sleeping-
+ * or scheduling functions may be called inbetween these function calls.
+ *
+ * Return: A struct vmw_buffer_object pointer if successful or negative
+ * error pointer on failure.
+ */
+struct vmw_buffer_object *
+vmw_user_bo_noref_lookup(struct ttm_object_file *tfile, u32 handle)
+{
+	struct vmw_user_buffer_object *vmw_user_bo;
+	struct ttm_base_object *base;
+
+	base = ttm_base_object_noref_lookup(tfile, handle);
+	if (!base) {
+		DRM_ERROR("Invalid buffer object handle 0x%08lx.\n",
+			  (unsigned long)handle);
+		return ERR_PTR(-ESRCH);
+	}
+
+	if (unlikely(ttm_base_object_type(base) != ttm_buffer_type)) {
+		ttm_base_object_noref_release();
+		DRM_ERROR("Invalid buffer object handle 0x%08lx.\n",
+			  (unsigned long)handle);
+		return ERR_PTR(-EINVAL);
+	}
+
+	vmw_user_bo = container_of(base, struct vmw_user_buffer_object,
+				   prime.base);
+	return &vmw_user_bo->vbo;
+}
+>>>>>>> upstream/android-13
 
 /**
  * vmw_user_bo_reference - Open a handle to a vmw user buffer object.
@@ -940,7 +1285,11 @@ int vmw_user_bo_reference(struct ttm_object_file *tfile,
 
 	user_bo = container_of(vbo, struct vmw_user_buffer_object, vbo);
 
+<<<<<<< HEAD
 	*handle = user_bo->prime.base.hash.key;
+=======
+	*handle = user_bo->prime.base.handle;
+>>>>>>> upstream/android-13
 	return ttm_ref_object_add(tfile, &user_bo->prime.base,
 				  TTM_REF_USAGE, NULL, false);
 }
@@ -961,17 +1310,28 @@ int vmw_user_bo_reference(struct ttm_object_file *tfile,
 void vmw_bo_fence_single(struct ttm_buffer_object *bo,
 			 struct vmw_fence_obj *fence)
 {
+<<<<<<< HEAD
 	struct ttm_bo_device *bdev = bo->bdev;
+=======
+	struct ttm_device *bdev = bo->bdev;
+>>>>>>> upstream/android-13
 
 	struct vmw_private *dev_priv =
 		container_of(bdev, struct vmw_private, bdev);
 
 	if (fence == NULL) {
 		vmw_execbuf_fence_commands(NULL, dev_priv, &fence, NULL);
+<<<<<<< HEAD
 		reservation_object_add_excl_fence(bo->resv, &fence->base);
 		dma_fence_put(&fence->base);
 	} else
 		reservation_object_add_excl_fence(bo->resv, &fence->base);
+=======
+		dma_resv_add_excl_fence(bo->base.resv, &fence->base);
+		dma_fence_put(&fence->base);
+	} else
+		dma_resv_add_excl_fence(bo->base.resv, &fence->base);
+>>>>>>> upstream/android-13
 }
 
 
@@ -998,10 +1358,13 @@ int vmw_dumb_create(struct drm_file *file_priv,
 	args->pitch = args->width * ((args->bpp + 7) / 8);
 	args->size = args->pitch * args->height;
 
+<<<<<<< HEAD
 	ret = ttm_read_lock(&dev_priv->reservation_sem, true);
 	if (unlikely(ret != 0))
 		return ret;
 
+=======
+>>>>>>> upstream/android-13
 	ret = vmw_user_bo_alloc(dev_priv, vmw_fpriv(file_priv)->tfile,
 				    args->size, false, &args->handle,
 				    &vbo, NULL);
@@ -1010,7 +1373,10 @@ int vmw_dumb_create(struct drm_file *file_priv,
 
 	vmw_bo_unreference(&vbo);
 out_no_bo:
+<<<<<<< HEAD
 	ttm_read_unlock(&dev_priv->reservation_sem);
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -1038,7 +1404,11 @@ int vmw_dumb_map_offset(struct drm_file *file_priv,
 	if (ret != 0)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	*offset = drm_vma_node_offset_addr(&out_buf->base.vma_node);
+=======
+	*offset = drm_vma_node_offset_addr(&out_buf->base.base.vma_node);
+>>>>>>> upstream/android-13
 	vmw_bo_unreference(&out_buf);
 	return 0;
 }
@@ -1084,13 +1454,18 @@ void vmw_bo_swap_notify(struct ttm_buffer_object *bo)
  * vmw_bo_move_notify - TTM move_notify_callback
  *
  * @bo: The TTM buffer object about to move.
+<<<<<<< HEAD
  * @mem: The struct ttm_mem_reg indicating to what memory
+=======
+ * @mem: The struct ttm_resource indicating to what memory
+>>>>>>> upstream/android-13
  *       region the move is taking place.
  *
  * Detaches cached maps and device bindings that require that the
  * buffer doesn't move.
  */
 void vmw_bo_move_notify(struct ttm_buffer_object *bo,
+<<<<<<< HEAD
 			struct ttm_mem_reg *mem)
 {
 	struct vmw_buffer_object *vbo;
@@ -1098,6 +1473,12 @@ void vmw_bo_move_notify(struct ttm_buffer_object *bo,
 	if (mem == NULL)
 		return;
 
+=======
+			struct ttm_resource *mem)
+{
+	struct vmw_buffer_object *vbo;
+
+>>>>>>> upstream/android-13
 	/* Make sure @bo is embedded in a struct vmw_buffer_object? */
 	if (bo->destroy != vmw_bo_bo_free &&
 	    bo->destroy != vmw_user_bo_destroy)
@@ -1110,7 +1491,11 @@ void vmw_bo_move_notify(struct ttm_buffer_object *bo,
 	 * With other types of moves, the underlying pages stay the same,
 	 * and the map can be kept.
 	 */
+<<<<<<< HEAD
 	if (mem->mem_type == TTM_PL_VRAM || bo->mem.mem_type == TTM_PL_VRAM)
+=======
+	if (mem->mem_type == TTM_PL_VRAM || bo->resource->mem_type == TTM_PL_VRAM)
+>>>>>>> upstream/android-13
 		vmw_bo_unmap(vbo);
 
 	/*
@@ -1118,6 +1503,10 @@ void vmw_bo_move_notify(struct ttm_buffer_object *bo,
 	 * read back all resource content first, and unbind the MOB from
 	 * the resource.
 	 */
+<<<<<<< HEAD
 	if (mem->mem_type != VMW_PL_MOB && bo->mem.mem_type == VMW_PL_MOB)
+=======
+	if (mem->mem_type != VMW_PL_MOB && bo->resource->mem_type == VMW_PL_MOB)
+>>>>>>> upstream/android-13
 		vmw_resource_unbind_list(vbo);
 }

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * mdio-boardinfo - Collect pre-declarations for MDIO devices
  *
@@ -5,6 +6,11 @@
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * mdio-boardinfo - Collect pre-declarations for MDIO devices
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -21,7 +27,12 @@ static DEFINE_MUTEX(mdio_board_lock);
 /**
  * mdiobus_setup_mdiodev_from_board_info - create and setup MDIO devices
  * from pre-collected board specific MDIO information
+<<<<<<< HEAD
  * @mdiodev: MDIO device pointer
+=======
+ * @bus: Bus the board_info belongs to
+ * @cb: Callback to create device on bus
+>>>>>>> upstream/android-13
  * Context: can sleep
  */
 void mdiobus_setup_mdiodev_from_board_info(struct mii_bus *bus,
@@ -53,7 +64,11 @@ void mdiobus_setup_mdiodev_from_board_info(struct mii_bus *bus,
 EXPORT_SYMBOL(mdiobus_setup_mdiodev_from_board_info);
 
 /**
+<<<<<<< HEAD
  * mdio_register_board_info - register MDIO devices for a given board
+=======
+ * mdiobus_register_board_info - register MDIO devices for a given board
+>>>>>>> upstream/android-13
  * @info: array of devices descriptors
  * @n: number of descriptors provided
  * Context: can sleep

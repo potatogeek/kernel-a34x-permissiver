@@ -23,7 +23,10 @@
 
 #include <asm/machvec.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/io.h>
 #include <asm/hd64461.h>
 #include <cpu/dac.h>
@@ -311,7 +314,11 @@ static int hitfb_set_par(struct fb_info *info)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct fb_ops hitfb_ops = {
+=======
+static const struct fb_ops hitfb_ops = {
+>>>>>>> upstream/android-13
 	.owner		= THIS_MODULE,
 	.fb_check_var	= hitfb_check_var,
 	.fb_set_par		= hitfb_set_par,

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /**
  * aops.c - NTFS kernel address space operations and page cache handling.
  *
  * Copyright (c) 2001-2014 Anton Altaparmakov and Tuxera Inc.
  * Copyright (c) 2002 Richard Russon
+<<<<<<< HEAD
  *
  * This program/include file is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
@@ -18,6 +23,8 @@
  * along with this program (in the main directory of the Linux-NTFS
  * distribution in the file COPYING); if not, write to the Free Software
  * Foundation,Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/errno.h>
@@ -106,8 +113,12 @@ static void ntfs_end_buffer_async_read(struct buffer_head *bh, int uptodate)
 				"0x%llx.", (unsigned long long)bh->b_blocknr);
 	}
 	first = page_buffers(page);
+<<<<<<< HEAD
 	local_irq_save(flags);
 	bit_spin_lock(BH_Uptodate_Lock, &first->b_state);
+=======
+	spin_lock_irqsave(&first->b_uptodate_lock, flags);
+>>>>>>> upstream/android-13
 	clear_buffer_async_read(bh);
 	unlock_buffer(bh);
 	tmp = bh;
@@ -122,8 +133,12 @@ static void ntfs_end_buffer_async_read(struct buffer_head *bh, int uptodate)
 		}
 		tmp = tmp->b_this_page;
 	} while (tmp != bh);
+<<<<<<< HEAD
 	bit_spin_unlock(BH_Uptodate_Lock, &first->b_state);
 	local_irq_restore(flags);
+=======
+	spin_unlock_irqrestore(&first->b_uptodate_lock, flags);
+>>>>>>> upstream/android-13
 	/*
 	 * If none of the buffers had errors then we can set the page uptodate,
 	 * but we first have to perform the post read mst fixups, if the
@@ -156,8 +171,12 @@ static void ntfs_end_buffer_async_read(struct buffer_head *bh, int uptodate)
 	unlock_page(page);
 	return;
 still_busy:
+<<<<<<< HEAD
 	bit_spin_unlock(BH_Uptodate_Lock, &first->b_state);
 	local_irq_restore(flags);
+=======
+	spin_unlock_irqrestore(&first->b_uptodate_lock, flags);
+>>>>>>> upstream/android-13
 	return;
 }
 
@@ -1749,7 +1768,11 @@ void mark_ntfs_record_dirty(struct page *page, const unsigned int ofs) {
 				bh = bh->b_this_page;
 			} while (bh);
 			tail->b_this_page = head;
+<<<<<<< HEAD
 			attach_page_buffers(page, head);
+=======
+			attach_page_private(page, head);
+>>>>>>> upstream/android-13
 		} else
 			buffers_to_free = bh;
 	}

@@ -401,6 +401,7 @@ static inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
 	return pte;
 }
 
+<<<<<<< HEAD
 #define pmd_page_vaddr(pmd)	((unsigned long)pmd_val(pmd))
 #define pmd_page(pmd)		(virt_to_page(pmd_val(pmd)))
 
@@ -424,6 +425,15 @@ static inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
 #define pte_offset_map(dir, address)		pte_offset_kernel(dir, address)
 #define pte_unmap(pte)		do { } while (0)
 
+=======
+static inline unsigned long pmd_page_vaddr(pmd_t pmd)
+{
+	return (unsigned long)pmd_val(pmd);
+}
+
+#define pmd_page(pmd)		(virt_to_page(pmd_val(pmd)))
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_X2TLB
 #define pte_ERROR(e) \
 	printk("%s:%d: bad pte %p(%08lx%08lx).\n", __FILE__, __LINE__, \

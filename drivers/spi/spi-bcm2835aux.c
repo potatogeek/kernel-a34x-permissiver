@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for Broadcom BCM2835 auxiliary SPI Controllers
  *
@@ -7,6 +11,7 @@
  * Based on: spi-bcm2835.c
  *
  * Copyright (C) 2015 Martin Sperl
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +22,16 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
 #include <linux/completion.h>
+<<<<<<< HEAD
+=======
+#include <linux/debugfs.h>
+>>>>>>> upstream/android-13
 #include <linux/delay.h>
 #include <linux/err.h>
 #include <linux/interrupt.h>
@@ -36,6 +47,15 @@
 #include <linux/spi/spi.h>
 #include <linux/spinlock.h>
 
+<<<<<<< HEAD
+=======
+/* define polling limits */
+static unsigned int polling_limit_us = 30;
+module_param(polling_limit_us, uint, 0664);
+MODULE_PARM_DESC(polling_limit_us,
+		 "time in us to run a transfer in polling mode - if zero no polling is used\n");
+
+>>>>>>> upstream/android-13
 /*
  * spi register defines
  *
@@ -88,10 +108,13 @@
 #define BCM2835_AUX_SPI_STAT_BUSY	0x00000040
 #define BCM2835_AUX_SPI_STAT_BITCOUNT	0x0000003F
 
+<<<<<<< HEAD
 /* timeout values */
 #define BCM2835_AUX_SPI_POLLING_LIMIT_US	30
 #define BCM2835_AUX_SPI_POLLING_JIFFIES		2
 
+=======
+>>>>>>> upstream/android-13
 struct bcm2835aux_spi {
 	void __iomem *regs;
 	struct clk *clk;
@@ -102,14 +125,69 @@ struct bcm2835aux_spi {
 	int tx_len;
 	int rx_len;
 	int pending;
+<<<<<<< HEAD
 };
 
 static inline u32 bcm2835aux_rd(struct bcm2835aux_spi *bs, unsigned reg)
+=======
+
+	u64 count_transfer_polling;
+	u64 count_transfer_irq;
+	u64 count_transfer_irq_after_poll;
+
+	struct dentry *debugfs_dir;
+};
+
+#if defined(CONFIG_DEBUG_FS)
+static void bcm2835aux_debugfs_create(struct bcm2835aux_spi *bs,
+				      const char *dname)
+{
+	char name[64];
+	struct dentry *dir;
+
+	/* get full name */
+	snprintf(name, sizeof(name), "spi-bcm2835aux-%s", dname);
+
+	/* the base directory */
+	dir = debugfs_create_dir(name, NULL);
+	bs->debugfs_dir = dir;
+
+	/* the counters */
+	debugfs_create_u64("count_transfer_polling", 0444, dir,
+			   &bs->count_transfer_polling);
+	debugfs_create_u64("count_transfer_irq", 0444, dir,
+			   &bs->count_transfer_irq);
+	debugfs_create_u64("count_transfer_irq_after_poll", 0444, dir,
+			   &bs->count_transfer_irq_after_poll);
+}
+
+static void bcm2835aux_debugfs_remove(struct bcm2835aux_spi *bs)
+{
+	debugfs_remove_recursive(bs->debugfs_dir);
+	bs->debugfs_dir = NULL;
+}
+#else
+static void bcm2835aux_debugfs_create(struct bcm2835aux_spi *bs,
+				      const char *dname)
+{
+}
+
+static void bcm2835aux_debugfs_remove(struct bcm2835aux_spi *bs)
+{
+}
+#endif /* CONFIG_DEBUG_FS */
+
+static inline u32 bcm2835aux_rd(struct bcm2835aux_spi *bs, unsigned int reg)
+>>>>>>> upstream/android-13
 {
 	return readl(bs->regs + reg);
 }
 
+<<<<<<< HEAD
 static inline void bcm2835aux_wr(struct bcm2835aux_spi *bs, unsigned reg,
+=======
+static inline void bcm2835aux_wr(struct bcm2835aux_spi *bs, unsigned int reg,
+>>>>>>> upstream/android-13
 				 u32 val)
 {
 	writel(val, bs->regs + reg);
@@ -123,6 +201,7 @@ static inline void bcm2835aux_rd_fifo(struct bcm2835aux_spi *bs)
 	data = bcm2835aux_rd(bs, BCM2835_AUX_SPI_IO);
 	if (bs->rx_buf) {
 		switch (count) {
+<<<<<<< HEAD
 		case 4:
 			*bs->rx_buf++ = (data >> 24) & 0xff;
 			/* fallthrough */
@@ -132,6 +211,14 @@ static inline void bcm2835aux_rd_fifo(struct bcm2835aux_spi *bs)
 		case 2:
 			*bs->rx_buf++ = (data >> 8) & 0xff;
 			/* fallthrough */
+=======
+		case 3:
+			*bs->rx_buf++ = (data >> 16) & 0xff;
+			fallthrough;
+		case 2:
+			*bs->rx_buf++ = (data >> 8) & 0xff;
+			fallthrough;
+>>>>>>> upstream/android-13
 		case 1:
 			*bs->rx_buf++ = (data >> 0) & 0xff;
 			/* fallthrough - no default */
@@ -218,7 +305,11 @@ static irqreturn_t bcm2835aux_spi_interrupt(int irq, void *dev_id)
 	/* and if rx_len is 0 then disable interrupts and wake up completion */
 	if (!bs->rx_len) {
 		bcm2835aux_wr(bs, BCM2835_AUX_SPI_CNTL1, bs->cntl[1]);
+<<<<<<< HEAD
 		complete(&master->xfer_completion);
+=======
+		spi_finalize_current_transfer(master);
+>>>>>>> upstream/android-13
 	}
 
 	return IRQ_HANDLED;
@@ -245,6 +336,12 @@ static int bcm2835aux_spi_transfer_one_irq(struct spi_master *master,
 {
 	struct bcm2835aux_spi *bs = spi_master_get_devdata(master);
 
+<<<<<<< HEAD
+=======
+	/* update statistics */
+	bs->count_transfer_irq++;
+
+>>>>>>> upstream/android-13
 	/* fill in registers and fifos before enabling interrupts */
 	bcm2835aux_wr(bs, BCM2835_AUX_SPI_CNTL1, bs->cntl[1]);
 	bcm2835aux_wr(bs, BCM2835_AUX_SPI_CNTL0, bs->cntl[0]);
@@ -268,12 +365,23 @@ static int bcm2835aux_spi_transfer_one_poll(struct spi_master *master,
 	struct bcm2835aux_spi *bs = spi_master_get_devdata(master);
 	unsigned long timeout;
 
+<<<<<<< HEAD
+=======
+	/* update statistics */
+	bs->count_transfer_polling++;
+
+>>>>>>> upstream/android-13
 	/* configure spi */
 	bcm2835aux_wr(bs, BCM2835_AUX_SPI_CNTL1, bs->cntl[1]);
 	bcm2835aux_wr(bs, BCM2835_AUX_SPI_CNTL0, bs->cntl[0]);
 
+<<<<<<< HEAD
 	/* set the timeout */
 	timeout = jiffies + BCM2835_AUX_SPI_POLLING_JIFFIES;
+=======
+	/* set the timeout to at least 2 jiffies */
+	timeout = jiffies + 2 + HZ * polling_limit_us / 1000000;
+>>>>>>> upstream/android-13
 
 	/* loop until finished the transfer */
 	while (bs->rx_len) {
@@ -288,6 +396,10 @@ static int bcm2835aux_spi_transfer_one_poll(struct spi_master *master,
 					    jiffies - timeout,
 					    bs->tx_len, bs->rx_len);
 			/* forward to interrupt handler */
+<<<<<<< HEAD
+=======
+			bs->count_transfer_irq_after_poll++;
+>>>>>>> upstream/android-13
 			return __bcm2835aux_spi_transfer_one_irq(master,
 							       spi, tfr);
 		}
@@ -303,7 +415,11 @@ static int bcm2835aux_spi_transfer_one(struct spi_master *master,
 {
 	struct bcm2835aux_spi *bs = spi_master_get_devdata(master);
 	unsigned long spi_hz, clk_hz, speed;
+<<<<<<< HEAD
 	unsigned long spi_used_hz;
+=======
+	unsigned long hz_per_byte, byte_limit;
+>>>>>>> upstream/android-13
 
 	/* calculate the registers to handle
 	 *
@@ -331,7 +447,11 @@ static int bcm2835aux_spi_transfer_one(struct spi_master *master,
 	/* set the new speed */
 	bs->cntl[0] |= speed << BCM2835_AUX_SPI_CNTL0_SPEED_SHIFT;
 
+<<<<<<< HEAD
 	spi_used_hz = clk_hz / (2 * (speed + 1));
+=======
+	tfr->effective_speed_hz = clk_hz / (2 * (speed + 1));
+>>>>>>> upstream/android-13
 
 	/* set transmit buffers and length */
 	bs->tx_buf = tfr->tx_buf;
@@ -341,20 +461,35 @@ static int bcm2835aux_spi_transfer_one(struct spi_master *master,
 	bs->pending = 0;
 
 	/* Calculate the estimated time in us the transfer runs.  Note that
+<<<<<<< HEAD
 	 * there are are 2 idle clocks cycles after each chunk getting
+=======
+	 * there are 2 idle clocks cycles after each chunk getting
+>>>>>>> upstream/android-13
 	 * transferred - in our case the chunk size is 3 bytes, so we
 	 * approximate this by 9 cycles/byte.  This is used to find the number
 	 * of Hz per byte per polling limit.  E.g., we can transfer 1 byte in
 	 * 30 µs per 300,000 Hz of bus clock.
 	 */
+<<<<<<< HEAD
 #define HZ_PER_BYTE ((9 * 1000000) / BCM2835_AUX_SPI_POLLING_LIMIT_US)
 	/* run in polling mode for short transfers */
 	if (tfr->len < spi_used_hz / HZ_PER_BYTE)
+=======
+	hz_per_byte = polling_limit_us ? (9 * 1000000) / polling_limit_us : 0;
+	byte_limit = hz_per_byte ? tfr->effective_speed_hz / hz_per_byte : 1;
+
+	/* run in polling mode for short transfers */
+	if (tfr->len < byte_limit)
+>>>>>>> upstream/android-13
 		return bcm2835aux_spi_transfer_one_poll(master, spi, tfr);
 
 	/* run in interrupt mode for all others */
 	return bcm2835aux_spi_transfer_one_irq(master, spi, tfr);
+<<<<<<< HEAD
 #undef HZ_PER_BYTE
+=======
+>>>>>>> upstream/android-13
 }
 
 static int bcm2835aux_spi_prepare_message(struct spi_master *master,
@@ -399,19 +534,74 @@ static void bcm2835aux_spi_handle_err(struct spi_master *master,
 	bcm2835aux_spi_reset_hw(bs);
 }
 
+<<<<<<< HEAD
+=======
+static int bcm2835aux_spi_setup(struct spi_device *spi)
+{
+	int ret;
+
+	/* sanity check for native cs */
+	if (spi->mode & SPI_NO_CS)
+		return 0;
+	if (gpio_is_valid(spi->cs_gpio)) {
+		/* with gpio-cs set the GPIO to the correct level
+		 * and as output (in case the dt has the gpio not configured
+		 * as output but native cs)
+		 */
+		ret = gpio_direction_output(spi->cs_gpio,
+					    (spi->mode & SPI_CS_HIGH) ? 0 : 1);
+		if (ret)
+			dev_err(&spi->dev,
+				"could not set gpio %i as output: %i\n",
+				spi->cs_gpio, ret);
+
+		return ret;
+	}
+
+	/* for dt-backwards compatibility: only support native on CS0
+	 * known things not supported with broken native CS:
+	 * * multiple chip-selects: cs0-cs2 are all
+	 *     simultaniously asserted whenever there is a transfer
+	 *     this even includes SPI_NO_CS
+	 * * SPI_CS_HIGH: cs are always asserted low
+	 * * cs_change: cs is deasserted after each spi_transfer
+	 * * cs_delay_usec: cs is always deasserted one SCK cycle
+	 *     after the last transfer
+	 * probably more...
+	 */
+	dev_warn(&spi->dev,
+		 "Native CS is not supported - please configure cs-gpio in device-tree\n");
+
+	if (spi->chip_select == 0)
+		return 0;
+
+	dev_warn(&spi->dev, "Native CS is not working for cs > 0\n");
+
+	return -EINVAL;
+}
+
+>>>>>>> upstream/android-13
 static int bcm2835aux_spi_probe(struct platform_device *pdev)
 {
 	struct spi_master *master;
 	struct bcm2835aux_spi *bs;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	unsigned long clk_hz;
 	int err;
 
 	master = devm_spi_alloc_master(&pdev->dev, sizeof(*bs));
+<<<<<<< HEAD
 	if (!master) {
 		dev_err(&pdev->dev, "spi_alloc_master() failed\n");
 		return -ENOMEM;
 	}
+=======
+	if (!master)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	platform_set_drvdata(pdev, master);
 	master->mode_bits = (SPI_CPOL | SPI_CS_HIGH | SPI_NO_CS);
@@ -428,6 +618,10 @@ static int bcm2835aux_spi_probe(struct platform_device *pdev)
 	 *     a spi_transfer
 	 */
 	master->num_chipselect = 1;
+<<<<<<< HEAD
+=======
+	master->setup = bcm2835aux_spi_setup;
+>>>>>>> upstream/android-13
 	master->transfer_one = bcm2835aux_spi_transfer_one;
 	master->handle_err = bcm2835aux_spi_handle_err;
 	master->prepare_message = bcm2835aux_spi_prepare_message;
@@ -437,23 +631,36 @@ static int bcm2835aux_spi_probe(struct platform_device *pdev)
 	bs = spi_master_get_devdata(master);
 
 	/* the main area */
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	bs->regs = devm_ioremap_resource(&pdev->dev, res);
+=======
+	bs->regs = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(bs->regs))
 		return PTR_ERR(bs->regs);
 
 	bs->clk = devm_clk_get(&pdev->dev, NULL);
+<<<<<<< HEAD
 	if ((!bs->clk) || (IS_ERR(bs->clk))) {
+=======
+	if (IS_ERR(bs->clk)) {
+>>>>>>> upstream/android-13
 		err = PTR_ERR(bs->clk);
 		dev_err(&pdev->dev, "could not get clk: %d\n", err);
 		return err;
 	}
 
 	bs->irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (bs->irq <= 0) {
 		dev_err(&pdev->dev, "could not get IRQ: %d\n", bs->irq);
 		return bs->irq ? bs->irq : -ENODEV;
 	}
+=======
+	if (bs->irq <= 0)
+		return bs->irq ? bs->irq : -ENODEV;
+>>>>>>> upstream/android-13
 
 	/* this also enables the HW block */
 	err = clk_prepare_enable(bs->clk);
@@ -488,6 +695,11 @@ static int bcm2835aux_spi_probe(struct platform_device *pdev)
 		goto out_clk_disable;
 	}
 
+<<<<<<< HEAD
+=======
+	bcm2835aux_debugfs_create(bs, dev_name(&pdev->dev));
+
+>>>>>>> upstream/android-13
 	return 0;
 
 out_clk_disable:
@@ -500,6 +712,11 @@ static int bcm2835aux_spi_remove(struct platform_device *pdev)
 	struct spi_master *master = platform_get_drvdata(pdev);
 	struct bcm2835aux_spi *bs = spi_master_get_devdata(master);
 
+<<<<<<< HEAD
+=======
+	bcm2835aux_debugfs_remove(bs);
+
+>>>>>>> upstream/android-13
 	spi_unregister_master(master);
 
 	bcm2835aux_spi_reset_hw(bs);
@@ -528,4 +745,8 @@ module_platform_driver(bcm2835aux_spi_driver);
 
 MODULE_DESCRIPTION("SPI controller driver for Broadcom BCM2835 aux");
 MODULE_AUTHOR("Martin Sperl <kernel@martin.sperl.org>");
+<<<<<<< HEAD
 MODULE_LICENSE("GPL v2");
+=======
+MODULE_LICENSE("GPL");
+>>>>>>> upstream/android-13

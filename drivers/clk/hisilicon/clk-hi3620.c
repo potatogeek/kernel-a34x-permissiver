@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Hisilicon Hi3620 clock driver
  *
@@ -6,6 +10,7 @@
  *
  * Author: Haojian Zhuang <haojian.zhuang@linaro.org>
  *	   Xin Li <li.xin@linaro.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +26,8 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -427,7 +434,11 @@ static struct clk *hisi_register_clk_mmc(struct hisi_mmc_clock *mmc_clk,
 {
 	struct clk_mmc *mclk;
 	struct clk *clk;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 
 	mclk = kzalloc(sizeof(*mclk), GFP_KERNEL);
 	if (!mclk)
@@ -435,7 +446,11 @@ static struct clk *hisi_register_clk_mmc(struct hisi_mmc_clock *mmc_clk,
 
 	init.name = mmc_clk->name;
 	init.ops = &clk_mmc_ops;
+<<<<<<< HEAD
 	init.flags = mmc_clk->flags | CLK_IS_BASIC;
+=======
+	init.flags = mmc_clk->flags;
+>>>>>>> upstream/android-13
 	init.parent_names = (mmc_clk->parent_name ? &mmc_clk->parent_name : NULL);
 	init.num_parents = (mmc_clk->parent_name ? 1 : 0);
 	mclk->hw.init = &init;

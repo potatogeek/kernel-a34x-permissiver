@@ -5,6 +5,13 @@ through an Ethernet OF device node.
 
 Optional properties:
 
+<<<<<<< HEAD
+=======
+- clocks:
+  The clock used as phy reference clock and is connected to phy
+  pin XTAL1/CLKIN.
+
+>>>>>>> upstream/android-13
 - smsc,disable-energy-detect:
   If set, do not enable energy detect mode for the SMSC phy.
   default: enable energy detect mode

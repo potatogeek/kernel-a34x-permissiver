@@ -9,5 +9,15 @@ void syscall_defines(void)
 	COMMENT("Linux system call numbers.");
 	SYSNR(__NR_write);
 	SYSNR(__NR_read);
+<<<<<<< HEAD
 	SYSNR(__NR_mmap);
+=======
+#ifdef __NR_mmap2
+	SYSNR(__NR_mmap2);
+#endif
+#ifdef __NR_mmap
+	SYSNR(__NR_mmap);
+#endif
+
+>>>>>>> upstream/android-13
 }

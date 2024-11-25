@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Marvell 88SE64xx hardware specific
  *
  * Copyright 2007 Red Hat, Inc.
  * Copyright 2008 Marvell. <kewei@marvell.com>
  * Copyright 2009-2011 Marvell. <yuxiangl@marvell.com>
+<<<<<<< HEAD
  *
  * This file is licensed under GPLv2.
  *
@@ -21,6 +26,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA
+=======
+>>>>>>> upstream/android-13
 */
 
 #include "mv_sas.h"
@@ -678,7 +685,12 @@ static u32 mvs_64xx_spi_read_data(struct mvs_info *mvi)
 static void mvs_64xx_spi_write_data(struct mvs_info *mvi, u32 data)
 {
 	void __iomem *regs = mvi->regs_ex;
+<<<<<<< HEAD
 	 iow32(SPI_DATA_REG_64XX, data);
+=======
+
+	iow32(SPI_DATA_REG_64XX, data);
+>>>>>>> upstream/android-13
 }
 
 

@@ -110,7 +110,10 @@ struct raw3270_request {
 };
 
 struct raw3270_request *raw3270_request_alloc(size_t size);
+<<<<<<< HEAD
 struct raw3270_request *raw3270_request_alloc_bootmem(size_t size);
+=======
+>>>>>>> upstream/android-13
 void raw3270_request_free(struct raw3270_request *);
 void raw3270_request_reset(struct raw3270_request *);
 void raw3270_request_set_cmd(struct raw3270_request *, u8 cmd);
@@ -200,7 +203,10 @@ struct raw3270_notifier {
 
 int raw3270_register_notifier(struct raw3270_notifier *);
 void raw3270_unregister_notifier(struct raw3270_notifier *);
+<<<<<<< HEAD
 void raw3270_pm_unfreeze(struct raw3270_view *);
+=======
+>>>>>>> upstream/android-13
 
 /*
  * Little memory allocator for string objects. 
@@ -211,7 +217,11 @@ struct string
 	struct list_head update;
 	unsigned long size;
 	unsigned long len;
+<<<<<<< HEAD
 	char string[0];
+=======
+	char string[];
+>>>>>>> upstream/android-13
 } __attribute__ ((aligned(8)));
 
 static inline struct string *

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**
  * Freescale P1022DS ALSA SoC Machine driver
  *
@@ -9,6 +10,15 @@
  * version 2.  This program is licensed "as is" without any warranty of any
  * kind, whether express or implied.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0
+//
+// Freescale P1022DS ALSA SoC Machine driver
+//
+// Author: Timur Tabi <timur@freescale.com>
+//
+// Copyright 2010 Freescale Semiconductor, Inc.
+>>>>>>> upstream/android-13
 
 #include <linux/module.h>
 #include <linux/fsl/guts.h>
@@ -125,14 +135,22 @@ static int p1022_ds_machine_probe(struct snd_soc_card *card)
  */
 static int p1022_ds_startup(struct snd_pcm_substream *substream)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+>>>>>>> upstream/android-13
 	struct machine_data *mdata =
 		container_of(rtd->card, struct machine_data, card);
 	struct device *dev = rtd->card->dev;
 	int ret = 0;
 
 	/* Tell the codec driver what the serial protocol is. */
+<<<<<<< HEAD
 	ret = snd_soc_dai_set_fmt(rtd->codec_dai, mdata->dai_format);
+=======
+	ret = snd_soc_dai_set_fmt(asoc_rtd_to_codec(rtd, 0), mdata->dai_format);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(dev, "could not set codec driver audio format\n");
 		return ret;
@@ -142,7 +160,11 @@ static int p1022_ds_startup(struct snd_pcm_substream *substream)
 	 * Tell the codec driver what the MCLK frequency is, and whether it's
 	 * a slave or master.
 	 */
+<<<<<<< HEAD
 	ret = snd_soc_dai_set_sysclk(rtd->codec_dai, 0, mdata->clk_frequency,
+=======
+	ret = snd_soc_dai_set_sysclk(asoc_rtd_to_codec(rtd, 0), 0, mdata->clk_frequency,
+>>>>>>> upstream/android-13
 				     mdata->codec_clk_direction);
 	if (ret < 0) {
 		dev_err(dev, "could not set codec driver clock params\n");
@@ -203,7 +225,12 @@ static int p1022_ds_probe(struct platform_device *pdev)
 	struct device_node *np = ssi_pdev->dev.of_node;
 	struct device_node *codec_np = NULL;
 	struct machine_data *mdata;
+<<<<<<< HEAD
 	int ret = -ENODEV;
+=======
+	struct snd_soc_dai_link_component *comp;
+	int ret;
+>>>>>>> upstream/android-13
 	const char *sprop;
 	const u32 *iprop;
 
@@ -220,11 +247,42 @@ static int p1022_ds_probe(struct platform_device *pdev)
 		goto error_put;
 	}
 
+<<<<<<< HEAD
 	mdata->dai[0].cpu_dai_name = dev_name(&ssi_pdev->dev);
 	mdata->dai[0].ops = &p1022_ds_ops;
 
 	/* ASoC core can match codec with device node */
 	mdata->dai[0].codec_of_node = codec_np;
+=======
+	comp = devm_kzalloc(&pdev->dev, 6 * sizeof(*comp), GFP_KERNEL);
+	if (!comp) {
+		ret = -ENOMEM;
+		goto error_put;
+	}
+
+	mdata->dai[0].cpus	= &comp[0];
+	mdata->dai[0].codecs	= &comp[1];
+	mdata->dai[0].platforms	= &comp[2];
+
+	mdata->dai[0].num_cpus		= 1;
+	mdata->dai[0].num_codecs	= 1;
+	mdata->dai[0].num_platforms	= 1;
+
+	mdata->dai[1].cpus	= &comp[3];
+	mdata->dai[1].codecs	= &comp[4];
+	mdata->dai[1].platforms	= &comp[5];
+
+	mdata->dai[1].num_cpus		= 1;
+	mdata->dai[1].num_codecs	= 1;
+	mdata->dai[1].num_platforms	= 1;
+
+
+	mdata->dai[0].cpus->dai_name = dev_name(&ssi_pdev->dev);
+	mdata->dai[0].ops = &p1022_ds_ops;
+
+	/* ASoC core can match codec with device node */
+	mdata->dai[0].codecs->of_node = codec_np;
+>>>>>>> upstream/android-13
 
 	/* We register two DAIs per SSI, one for playback and the other for
 	 * capture.  We support codecs that have separate DAIs for both playback
@@ -233,8 +291,13 @@ static int p1022_ds_probe(struct platform_device *pdev)
 	memcpy(&mdata->dai[1], &mdata->dai[0], sizeof(struct snd_soc_dai_link));
 
 	/* The DAI names from the codec (snd_soc_dai_driver.name) */
+<<<<<<< HEAD
 	mdata->dai[0].codec_dai_name = "wm8776-hifi-playback";
 	mdata->dai[1].codec_dai_name = "wm8776-hifi-capture";
+=======
+	mdata->dai[0].codecs->dai_name = "wm8776-hifi-playback";
+	mdata->dai[1].codecs->dai_name = "wm8776-hifi-capture";
+>>>>>>> upstream/android-13
 
 	/* Get the device ID */
 	iprop = of_get_property(np, "cell-index", NULL);
@@ -320,7 +383,11 @@ static int p1022_ds_probe(struct platform_device *pdev)
 	}
 
 	/* Find the playback DMA channel to use. */
+<<<<<<< HEAD
 	mdata->dai[0].platform_name = mdata->platform_name[0];
+=======
+	mdata->dai[0].platforms->name = mdata->platform_name[0];
+>>>>>>> upstream/android-13
 	ret = fsl_asoc_get_dma_channel(np, "fsl,playback-dma", &mdata->dai[0],
 				       &mdata->dma_channel_id[0],
 				       &mdata->dma_id[0]);
@@ -330,7 +397,11 @@ static int p1022_ds_probe(struct platform_device *pdev)
 	}
 
 	/* Find the capture DMA channel to use. */
+<<<<<<< HEAD
 	mdata->dai[1].platform_name = mdata->platform_name[1];
+=======
+	mdata->dai[1].platforms->name = mdata->platform_name[1];
+>>>>>>> upstream/android-13
 	ret = fsl_asoc_get_dma_channel(np, "fsl,capture-dma", &mdata->dai[1],
 				       &mdata->dma_channel_id[1],
 				       &mdata->dma_id[1]);

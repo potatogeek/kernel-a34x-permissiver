@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2013 Broadcom Corporation
  *
@@ -12,6 +13,11 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2013 Broadcom Corporation
+>>>>>>> upstream/android-13
  */
 #ifndef BRCMFMAC_PROTO_H
 #define BRCMFMAC_PROTO_H
@@ -43,7 +49,11 @@ struct brcmf_proto {
 			    u8 peer[ETH_ALEN]);
 	void (*add_tdls_peer)(struct brcmf_pub *drvr, int ifidx,
 			      u8 peer[ETH_ALEN]);
+<<<<<<< HEAD
 	void (*rxreorder)(struct brcmf_if *ifp, struct sk_buff *skb);
+=======
+	void (*rxreorder)(struct brcmf_if *ifp, struct sk_buff *skb, bool inirq);
+>>>>>>> upstream/android-13
 	void (*add_if)(struct brcmf_if *ifp);
 	void (*del_if)(struct brcmf_if *ifp);
 	void (*reset_if)(struct brcmf_if *ifp);
@@ -54,8 +64,12 @@ struct brcmf_proto {
 
 
 int brcmf_proto_attach(struct brcmf_pub *drvr);
+<<<<<<< HEAD
 void brcmf_proto_detach_pre_delif(struct brcmf_pub *drvr);
 void brcmf_proto_detach_post_delif(struct brcmf_pub *drvr);
+=======
+void brcmf_proto_detach(struct brcmf_pub *drvr);
+>>>>>>> upstream/android-13
 
 static inline int brcmf_proto_hdrpull(struct brcmf_pub *drvr, bool do_fws,
 				      struct sk_buff *skb,
@@ -121,9 +135,15 @@ static inline bool brcmf_proto_is_reorder_skb(struct sk_buff *skb)
 }
 
 static inline void
+<<<<<<< HEAD
 brcmf_proto_rxreorder(struct brcmf_if *ifp, struct sk_buff *skb)
 {
 	ifp->drvr->proto->rxreorder(ifp, skb);
+=======
+brcmf_proto_rxreorder(struct brcmf_if *ifp, struct sk_buff *skb, bool inirq)
+{
+	ifp->drvr->proto->rxreorder(ifp, skb, inirq);
+>>>>>>> upstream/android-13
 }
 
 static inline void

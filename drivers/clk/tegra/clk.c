@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2012, NVIDIA CORPORATION.  All rights reserved.
  *
@@ -12,12 +13,21 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2012, NVIDIA CORPORATION.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clkdev.h>
 #include <linux/clk.h>
 #include <linux/clk-provider.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/of.h>
 #include <linux/clk/tegra.h>
 #include <linux/reset-controller.h>
@@ -26,6 +36,7 @@
 
 #include "clk.h"
 
+<<<<<<< HEAD
 #define CLK_OUT_ENB_L			0x010
 #define CLK_OUT_ENB_H			0x014
 #define CLK_OUT_ENB_U			0x018
@@ -70,12 +81,18 @@
 #define RST_DEVICES_SET_Y		0x2a8
 #define RST_DEVICES_CLR_Y		0x2ac
 
+=======
+>>>>>>> upstream/android-13
 /* Global data of Tegra CPU CAR ops */
 static struct tegra_cpu_car_ops dummy_car_ops;
 struct tegra_cpu_car_ops *tegra_cpu_car_ops = &dummy_car_ops;
 
 int *periph_clk_enb_refcnt;
 static int periph_banks;
+<<<<<<< HEAD
+=======
+static u32 *periph_state_ctx;
+>>>>>>> upstream/android-13
 static struct clk **clks;
 static int clk_num;
 static struct clk_onecell_data clk_data;
@@ -209,6 +226,68 @@ const struct tegra_clk_periph_regs *get_reg_bank(int clkid)
 	}
 }
 
+<<<<<<< HEAD
+=======
+void tegra_clk_set_pllp_out_cpu(bool enable)
+{
+	u32 val;
+
+	val = readl_relaxed(clk_base + CLK_OUT_ENB_Y);
+	if (enable)
+		val |= CLK_ENB_PLLP_OUT_CPU;
+	else
+		val &= ~CLK_ENB_PLLP_OUT_CPU;
+
+	writel_relaxed(val, clk_base + CLK_OUT_ENB_Y);
+}
+
+void tegra_clk_periph_suspend(void)
+{
+	unsigned int i, idx;
+
+	idx = 0;
+	for (i = 0; i < periph_banks; i++, idx++)
+		periph_state_ctx[idx] =
+			readl_relaxed(clk_base + periph_regs[i].enb_reg);
+
+	for (i = 0; i < periph_banks; i++, idx++)
+		periph_state_ctx[idx] =
+			readl_relaxed(clk_base + periph_regs[i].rst_reg);
+}
+
+void tegra_clk_periph_resume(void)
+{
+	unsigned int i, idx;
+
+	idx = 0;
+	for (i = 0; i < periph_banks; i++, idx++)
+		writel_relaxed(periph_state_ctx[idx],
+			       clk_base + periph_regs[i].enb_reg);
+	/*
+	 * All non-boot peripherals will be in reset state on resume.
+	 * Wait for 5us of reset propagation delay before de-asserting
+	 * the peripherals based on the saved context.
+	 */
+	fence_udelay(5, clk_base);
+
+	for (i = 0; i < periph_banks; i++, idx++)
+		writel_relaxed(periph_state_ctx[idx],
+			       clk_base + periph_regs[i].rst_reg);
+
+	fence_udelay(2, clk_base);
+}
+
+static int tegra_clk_periph_ctx_init(int banks)
+{
+	periph_state_ctx = kcalloc(2 * banks, sizeof(*periph_state_ctx),
+				   GFP_KERNEL);
+	if (!periph_state_ctx)
+		return -ENOMEM;
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 struct clk ** __init tegra_clk_init(void __iomem *regs, int num, int banks)
 {
 	clk_base = regs;
@@ -225,11 +304,29 @@ struct clk ** __init tegra_clk_init(void __iomem *regs, int num, int banks)
 	periph_banks = banks;
 
 	clks = kcalloc(num, sizeof(struct clk *), GFP_KERNEL);
+<<<<<<< HEAD
 	if (!clks)
 		kfree(periph_clk_enb_refcnt);
 
 	clk_num = num;
 
+=======
+	if (!clks) {
+		kfree(periph_clk_enb_refcnt);
+		return NULL;
+	}
+
+	clk_num = num;
+
+	if (IS_ENABLED(CONFIG_PM_SLEEP)) {
+		if (tegra_clk_periph_ctx_init(banks)) {
+			kfree(periph_clk_enb_refcnt);
+			kfree(clks);
+			return NULL;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	return clks;
 }
 

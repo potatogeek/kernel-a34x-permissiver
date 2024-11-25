@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* audit.c -- Auditing support
  * Gateway between the kernel (e.g., selinux) and the user-space audit daemon.
  * System-call specific features have moved to auditsc.c
@@ -5,6 +9,7 @@
  * Copyright 2003-2007 Red Hat Inc., Durham, North Carolina.
  * All Rights Reserved.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -19,6 +24,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
+=======
+>>>>>>> upstream/android-13
  * Written by Rickard E. (Rik) Faith <faith@redhat.com>
  *
  * Goals: 1) Integrate fully with Security Modules.
@@ -60,7 +67,10 @@
 #include <linux/mutex.h>
 #include <linux/gfp.h>
 #include <linux/pid.h>
+<<<<<<< HEAD
 #include <linux/slab.h>
+=======
+>>>>>>> upstream/android-13
 
 #include <linux/audit.h>
 
@@ -75,31 +85,45 @@
 #include <net/netns/generic.h>
 
 #include "audit.h"
+<<<<<<< HEAD
 // [ SEC_SELINUX_PORTING_COMMON
 #ifdef CONFIG_PROC_AVC
 #include <linux/proc_avc.h>
 #endif
 // ] SEC_SELINUX_PORTING_COMMON
+=======
+>>>>>>> upstream/android-13
 
 /* No auditing will take place until audit_initialized == AUDIT_INITIALIZED.
  * (Initialization happens after skb_init is called.) */
 #define AUDIT_DISABLED		-1
 #define AUDIT_UNINITIALIZED	0
 #define AUDIT_INITIALIZED	1
+<<<<<<< HEAD
 static int	audit_initialized;
 
 // [ SEC_SELINUX_PORTING_COMMON
 u32		audit_enabled = AUDIT_ON;
 bool		audit_ever_enabled = !!AUDIT_ON;
 // [ SEC_SELINUX_PORTING_COMMON
+=======
+static int	audit_initialized = AUDIT_UNINITIALIZED;
+
+u32		audit_enabled = AUDIT_OFF;
+bool		audit_ever_enabled = !!AUDIT_OFF;
+>>>>>>> upstream/android-13
 
 EXPORT_SYMBOL_GPL(audit_enabled);
 
 /* Default state when kernel boots without any parameters. */
+<<<<<<< HEAD
 // [ SEC_SELINUX_PORTING_COMMON
 // Samsung Change Value from AUDIT_OFF to AUDIT_ON
 static u32	audit_default = AUDIT_ON;
 // ] SEC_SELINUX_PORTING_COMMON
+=======
+static u32	audit_default = AUDIT_OFF;
+>>>>>>> upstream/android-13
 
 /* If auditing cannot proceed, audit_failure selects what happens. */
 static u32	audit_failure = AUDIT_FAIL_PRINTK;
@@ -126,12 +150,21 @@ struct audit_net {
  * This struct is RCU protected; you must either hold the RCU lock for reading
  * or the associated spinlock for writing.
  */
+<<<<<<< HEAD
 static struct auditd_connection {
+=======
+struct auditd_connection {
+>>>>>>> upstream/android-13
 	struct pid *pid;
 	u32 portid;
 	struct net *net;
 	struct rcu_head rcu;
+<<<<<<< HEAD
 } *auditd_conn = NULL;
+=======
+};
+static struct auditd_connection __rcu *auditd_conn;
+>>>>>>> upstream/android-13
 static DEFINE_SPINLOCK(auditd_conn_lock);
 
 /* If audit_rate_limit is non-zero, limit the rate of sending audit records
@@ -146,9 +179,15 @@ static u32	audit_backlog_limit = 64;
 static u32	audit_backlog_wait_time = AUDIT_BACKLOG_WAIT_TIME;
 
 /* The identity of the user shutting down the audit system. */
+<<<<<<< HEAD
 kuid_t		audit_sig_uid = INVALID_UID;
 pid_t		audit_sig_pid = -1;
 u32		audit_sig_sid = 0;
+=======
+static kuid_t		audit_sig_uid = INVALID_UID;
+static pid_t		audit_sig_pid = -1;
+static u32		audit_sig_sid;
+>>>>>>> upstream/android-13
 
 /* Records can be lost in several ways:
    0) [suppressed in audit_alloc]
@@ -159,6 +198,14 @@ u32		audit_sig_sid = 0;
 */
 static atomic_t	audit_lost = ATOMIC_INIT(0);
 
+<<<<<<< HEAD
+=======
+/* Monotonically increasing sum of time the kernel has spent
+ * waiting while the backlog limit is exceeded.
+ */
+static atomic_t audit_backlog_wait_time_actual = ATOMIC_INIT(0);
+
+>>>>>>> upstream/android-13
 /* Hash for inode-based rules */
 struct list_head audit_inode_hash[AUDIT_INODE_BUCKETS];
 
@@ -407,10 +454,17 @@ static int audit_log_config_change(char *function_name, u32 new, u32 old,
 	struct audit_buffer *ab;
 	int rc = 0;
 
+<<<<<<< HEAD
 	ab = audit_log_start(NULL, GFP_KERNEL, AUDIT_CONFIG_CHANGE);
 	if (unlikely(!ab))
 		return rc;
 	audit_log_format(ab, "%s=%u old=%u", function_name, new, old);
+=======
+	ab = audit_log_start(audit_context(), GFP_KERNEL, AUDIT_CONFIG_CHANGE);
+	if (unlikely(!ab))
+		return rc;
+	audit_log_format(ab, "op=set %s=%u old=%u ", function_name, new, old);
+>>>>>>> upstream/android-13
 	audit_log_session_info(ab);
 	rc = audit_log_task_context(ab);
 	if (rc)
@@ -541,7 +595,11 @@ static int auditd_set(struct pid *pid, u32 portid, struct net *net)
 }
 
 /**
+<<<<<<< HEAD
  * kauditd_print_skb - Print the audit record to the ring buffer
+=======
+ * kauditd_printk_skb - Print the audit record to the ring buffer
+>>>>>>> upstream/android-13
  * @skb: audit record
  *
  * Whatever the reason, this packet may not make it to the auditd connection
@@ -551,6 +609,7 @@ static void kauditd_printk_skb(struct sk_buff *skb)
 {
 	struct nlmsghdr *nlh = nlmsg_hdr(skb);
 	char *data = nlmsg_data(nlh);
+<<<<<<< HEAD
 // [ SEC_SELINUX_PORTING_COMMON
 #ifdef CONFIG_PROC_AVC
 	if (nlh->nlmsg_type != AUDIT_EOE && nlh->nlmsg_type != AUDIT_NETFILTER_CFG)
@@ -577,20 +636,42 @@ struct sk_buff *audit_get_skb(struct audit_buffer *ab)
 /**
  * kauditd_rehold_skb - Handle a audit record send failure in the hold queue
  * @skb: audit record
+=======
+
+	if (nlh->nlmsg_type != AUDIT_EOE && printk_ratelimit())
+		pr_notice("type=%d %s\n", nlh->nlmsg_type, data);
+}
+
+/**
+ * kauditd_rehold_skb - Handle a audit record send failure in the hold queue
+ * @skb: audit record
+ * @error: error code (unused)
+>>>>>>> upstream/android-13
  *
  * Description:
  * This should only be used by the kauditd_thread when it fails to flush the
  * hold queue.
  */
+<<<<<<< HEAD
 static void kauditd_rehold_skb(struct sk_buff *skb)
 {
 	/* put the record back in the queue at the same place */
 	skb_queue_head(&audit_hold_queue, skb);
+=======
+static void kauditd_rehold_skb(struct sk_buff *skb, __always_unused int error)
+{
+	/* put the record back in the queue */
+	skb_queue_tail(&audit_hold_queue, skb);
+>>>>>>> upstream/android-13
 }
 
 /**
  * kauditd_hold_skb - Queue an audit record, waiting for auditd
  * @skb: audit record
+<<<<<<< HEAD
+=======
+ * @error: error code
+>>>>>>> upstream/android-13
  *
  * Description:
  * Queue the audit record, waiting for an instance of auditd.  When this
@@ -600,19 +681,44 @@ static void kauditd_rehold_skb(struct sk_buff *skb)
  * and queue it, if we have room.  If we want to hold on to the record, but we
  * don't have room, record a record lost message.
  */
+<<<<<<< HEAD
 static void kauditd_hold_skb(struct sk_buff *skb)
+=======
+static void kauditd_hold_skb(struct sk_buff *skb, int error)
+>>>>>>> upstream/android-13
 {
 	/* at this point it is uncertain if we will ever send this to auditd so
 	 * try to send the message via printk before we go any further */
 	kauditd_printk_skb(skb);
 
 	/* can we just silently drop the message? */
+<<<<<<< HEAD
 	if (!audit_default) {
 		kfree_skb(skb);
 		return;
 	}
 
 	/* if we have room, queue the message */
+=======
+	if (!audit_default)
+		goto drop;
+
+	/* the hold queue is only for when the daemon goes away completely,
+	 * not -EAGAIN failures; if we are in a -EAGAIN state requeue the
+	 * record on the retry queue unless it's full, in which case drop it
+	 */
+	if (error == -EAGAIN) {
+		if (!audit_backlog_limit ||
+		    skb_queue_len(&audit_retry_queue) < audit_backlog_limit) {
+			skb_queue_tail(&audit_retry_queue, skb);
+			return;
+		}
+		audit_log_lost("kauditd retry queue overflow");
+		goto drop;
+	}
+
+	/* if we have room in the hold queue, queue the message */
+>>>>>>> upstream/android-13
 	if (!audit_backlog_limit ||
 	    skb_queue_len(&audit_hold_queue) < audit_backlog_limit) {
 		skb_queue_tail(&audit_hold_queue, skb);
@@ -621,24 +727,47 @@ static void kauditd_hold_skb(struct sk_buff *skb)
 
 	/* we have no other options - drop the message */
 	audit_log_lost("kauditd hold queue overflow");
+<<<<<<< HEAD
+=======
+drop:
+>>>>>>> upstream/android-13
 	kfree_skb(skb);
 }
 
 /**
  * kauditd_retry_skb - Queue an audit record, attempt to send again to auditd
  * @skb: audit record
+<<<<<<< HEAD
+=======
+ * @error: error code (unused)
+>>>>>>> upstream/android-13
  *
  * Description:
  * Not as serious as kauditd_hold_skb() as we still have a connected auditd,
  * but for some reason we are having problems sending it audit records so
  * queue the given record and attempt to resend.
  */
+<<<<<<< HEAD
 static void kauditd_retry_skb(struct sk_buff *skb)
 {
 	/* NOTE: because records should only live in the retry queue for a
 	 * short period of time, before either being sent or moved to the hold
 	 * queue, we don't currently enforce a limit on this queue */
 	skb_queue_tail(&audit_retry_queue, skb);
+=======
+static void kauditd_retry_skb(struct sk_buff *skb, __always_unused int error)
+{
+	if (!audit_backlog_limit ||
+	    skb_queue_len(&audit_retry_queue) < audit_backlog_limit) {
+		skb_queue_tail(&audit_retry_queue, skb);
+		return;
+	}
+
+	/* we have to drop the record, send it via printk as a last effort */
+	kauditd_printk_skb(skb);
+	audit_log_lost("kauditd retry queue overflow");
+	kfree_skb(skb);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -676,7 +805,11 @@ static void auditd_reset(const struct auditd_connection *ac)
 	/* flush the retry queue to the hold queue, but don't touch the main
 	 * queue since we need to process that normally for multicast */
 	while ((skb = skb_dequeue(&audit_retry_queue)))
+<<<<<<< HEAD
 		kauditd_hold_skb(skb);
+=======
+		kauditd_hold_skb(skb, -ECONNREFUSED);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -750,16 +883,30 @@ static int kauditd_send_queue(struct sock *sk, u32 portid,
 			      struct sk_buff_head *queue,
 			      unsigned int retry_limit,
 			      void (*skb_hook)(struct sk_buff *skb),
+<<<<<<< HEAD
 			      void (*err_hook)(struct sk_buff *skb))
 {
 	int rc = 0;
 	struct sk_buff *skb;
 	static unsigned int failed = 0;
+=======
+			      void (*err_hook)(struct sk_buff *skb, int error))
+{
+	int rc = 0;
+	struct sk_buff *skb = NULL;
+	struct sk_buff *skb_tail;
+	unsigned int failed = 0;
+>>>>>>> upstream/android-13
 
 	/* NOTE: kauditd_thread takes care of all our locking, we just use
 	 *       the netlink info passed to us (e.g. sk and portid) */
 
+<<<<<<< HEAD
 	while ((skb = skb_dequeue(queue))) {
+=======
+	skb_tail = skb_peek_tail(queue);
+	while ((skb != skb_tail) && (skb = skb_dequeue(queue))) {
+>>>>>>> upstream/android-13
 		/* call the skb_hook for each skb we touch */
 		if (skb_hook)
 			(*skb_hook)(skb);
@@ -767,14 +914,23 @@ static int kauditd_send_queue(struct sock *sk, u32 portid,
 		/* can we send to anyone via unicast? */
 		if (!sk) {
 			if (err_hook)
+<<<<<<< HEAD
 				(*err_hook)(skb);
 			continue;
 		}
 
+=======
+				(*err_hook)(skb, -ECONNREFUSED);
+			continue;
+		}
+
+retry:
+>>>>>>> upstream/android-13
 		/* grab an extra skb reference in case of error */
 		skb_get(skb);
 		rc = netlink_unicast(sk, skb, portid, 0);
 		if (rc < 0) {
+<<<<<<< HEAD
 			/* fatal failure for our queue flush attempt? */
 			if (++failed >= retry_limit ||
 			    rc == -ECONNREFUSED || rc == -EPERM) {
@@ -799,12 +955,31 @@ static int kauditd_send_queue(struct sock *sk, u32 portid,
 #endif
 // ] SEC_SELINUX_PORTING_COMMON
 			/* it worked - drop the extra reference and continue */
+=======
+			/* send failed - try a few times unless fatal error */
+			if (++failed >= retry_limit ||
+			    rc == -ECONNREFUSED || rc == -EPERM) {
+				sk = NULL;
+				if (err_hook)
+					(*err_hook)(skb, rc);
+				if (rc == -EAGAIN)
+					rc = 0;
+				/* continue to drain the queue */
+				continue;
+			} else
+				goto retry;
+		} else {
+			/* skb sent - drop the extra reference and continue */
+>>>>>>> upstream/android-13
 			consume_skb(skb);
 			failed = 0;
 		}
 	}
 
+<<<<<<< HEAD
 out:
+=======
+>>>>>>> upstream/android-13
 	return (rc >= 0 ? 0 : rc);
 }
 
@@ -880,7 +1055,11 @@ static int kauditd_thread(void *dummy)
 		rc = kauditd_send_queue(sk, portid,
 					&audit_hold_queue, UNICAST_RETRIES,
 					NULL, kauditd_rehold_skb);
+<<<<<<< HEAD
 		if (ac && rc < 0) {
+=======
+		if (rc < 0) {
+>>>>>>> upstream/android-13
 			sk = NULL;
 			auditd_reset(ac);
 			goto main_queue;
@@ -890,7 +1069,11 @@ static int kauditd_thread(void *dummy)
 		rc = kauditd_send_queue(sk, portid,
 					&audit_retry_queue, UNICAST_RETRIES,
 					NULL, kauditd_hold_skb);
+<<<<<<< HEAD
 		if (ac && rc < 0) {
+=======
+		if (rc < 0) {
+>>>>>>> upstream/android-13
 			sk = NULL;
 			auditd_reset(ac);
 			goto main_queue;
@@ -978,8 +1161,12 @@ static void audit_free_reply(struct audit_reply *reply)
 	if (!reply)
 		return;
 
+<<<<<<< HEAD
 	if (reply->skb)
 		kfree_skb(reply->skb);
+=======
+	kfree_skb(reply->skb);
+>>>>>>> upstream/android-13
 	if (reply->net)
 		put_net(reply->net);
 	kfree(reply);
@@ -1098,7 +1285,12 @@ static int audit_netlink_ok(struct sk_buff *skb, u16 msg_type)
 	return err;
 }
 
+<<<<<<< HEAD
 static void audit_log_common_recv_msg(struct audit_buffer **ab, u16 msg_type)
+=======
+static void audit_log_common_recv_msg(struct audit_context *context,
+					struct audit_buffer **ab, u16 msg_type)
+>>>>>>> upstream/android-13
 {
 	uid_t uid = from_kuid(&init_user_ns, current_uid());
 	pid_t pid = task_tgid_nr(current);
@@ -1108,14 +1300,30 @@ static void audit_log_common_recv_msg(struct audit_buffer **ab, u16 msg_type)
 		return;
 	}
 
+<<<<<<< HEAD
 	*ab = audit_log_start(NULL, GFP_KERNEL, msg_type);
 	if (unlikely(!*ab))
 		return;
 	audit_log_format(*ab, "pid=%d uid=%u", pid, uid);
+=======
+	*ab = audit_log_start(context, GFP_KERNEL, msg_type);
+	if (unlikely(!*ab))
+		return;
+	audit_log_format(*ab, "pid=%d uid=%u ", pid, uid);
+>>>>>>> upstream/android-13
 	audit_log_session_info(*ab);
 	audit_log_task_context(*ab);
 }
 
+<<<<<<< HEAD
+=======
+static inline void audit_log_user_recv_msg(struct audit_buffer **ab,
+					   u16 msg_type)
+{
+	audit_log_common_recv_msg(NULL, ab, msg_type);
+}
+
+>>>>>>> upstream/android-13
 int is_audit_feature_set(int i)
 {
 	return af.features & AUDIT_FEATURE_TO_MASK(i);
@@ -1140,10 +1348,18 @@ static void audit_log_feature_change(int which, u32 old_feature, u32 new_feature
 
 	if (audit_enabled == AUDIT_OFF)
 		return;
+<<<<<<< HEAD
 	ab = audit_log_start(audit_context(), GFP_KERNEL, AUDIT_FEATURE_CHANGE);
 	if (!ab)
 		return;
 	audit_log_task_info(ab, current);
+=======
+
+	ab = audit_log_start(audit_context(), GFP_KERNEL, AUDIT_FEATURE_CHANGE);
+	if (!ab)
+		return;
+	audit_log_task_info(ab);
+>>>>>>> upstream/android-13
 	audit_log_format(ab, " feature=%s old=%u new=%u old_lock=%u new_lock=%u res=%d",
 			 audit_feature_names[which], !!old_feature, !!new_feature,
 			 !!old_lock, !!new_lock, res);
@@ -1242,6 +1458,7 @@ static int audit_receive_msg(struct sk_buff *skb, struct nlmsghdr *nlh)
 	case AUDIT_GET: {
 		struct audit_status	s;
 		memset(&s, 0, sizeof(s));
+<<<<<<< HEAD
 		s.enabled		= audit_enabled;
 		s.failure		= audit_failure;
 		/* NOTE: use pid_vnr() so the PID is relative to the current
@@ -1253,6 +1470,20 @@ static int audit_receive_msg(struct sk_buff *skb, struct nlmsghdr *nlh)
 		s.backlog		= skb_queue_len(&audit_queue);
 		s.feature_bitmap	= AUDIT_FEATURE_BITMAP_ALL;
 		s.backlog_wait_time	= audit_backlog_wait_time;
+=======
+		s.enabled		   = audit_enabled;
+		s.failure		   = audit_failure;
+		/* NOTE: use pid_vnr() so the PID is relative to the current
+		 *       namespace */
+		s.pid			   = auditd_pid_vnr();
+		s.rate_limit		   = audit_rate_limit;
+		s.backlog_limit		   = audit_backlog_limit;
+		s.lost			   = atomic_read(&audit_lost);
+		s.backlog		   = skb_queue_len(&audit_queue);
+		s.feature_bitmap	   = AUDIT_FEATURE_BITMAP_ALL;
+		s.backlog_wait_time	   = audit_backlog_wait_time;
+		s.backlog_wait_time_actual = atomic_read(&audit_backlog_wait_time_actual);
+>>>>>>> upstream/android-13
 		audit_send_reply(skb, seq, AUDIT_GET, 0, 0, &s, sizeof(s));
 		break;
 	}
@@ -1356,6 +1587,15 @@ static int audit_receive_msg(struct sk_buff *skb, struct nlmsghdr *nlh)
 			audit_log_config_change("lost", 0, lost, 1);
 			return lost;
 		}
+<<<<<<< HEAD
+=======
+		if (s.mask == AUDIT_STATUS_BACKLOG_WAIT_TIME_ACTUAL) {
+			u32 actual = atomic_xchg(&audit_backlog_wait_time_actual, 0);
+
+			audit_log_config_change("backlog_wait_time_actual", 0, actual, 1);
+			return actual;
+		}
+>>>>>>> upstream/android-13
 		break;
 	}
 	case AUDIT_GET_FEATURE:
@@ -1389,7 +1629,11 @@ static int audit_receive_msg(struct sk_buff *skb, struct nlmsghdr *nlh)
 				if (err)
 					break;
 			}
+<<<<<<< HEAD
 			audit_log_common_recv_msg(&ab, msg_type);
+=======
+			audit_log_user_recv_msg(&ab, msg_type);
+>>>>>>> upstream/android-13
 			if (msg_type != AUDIT_USER_TTY) {
 				/* ensure NULL termination */
 				str[data_len - 1] = '\0';
@@ -1410,8 +1654,17 @@ static int audit_receive_msg(struct sk_buff *skb, struct nlmsghdr *nlh)
 		if (data_len < sizeof(struct audit_rule_data))
 			return -EINVAL;
 		if (audit_enabled == AUDIT_LOCKED) {
+<<<<<<< HEAD
 			audit_log_common_recv_msg(&ab, AUDIT_CONFIG_CHANGE);
 			audit_log_format(ab, " audit_enabled=%d res=0", audit_enabled);
+=======
+			audit_log_common_recv_msg(audit_context(), &ab,
+						  AUDIT_CONFIG_CHANGE);
+			audit_log_format(ab, " op=%s audit_enabled=%d res=0",
+					 msg_type == AUDIT_ADD_RULE ?
+						"add_rule" : "remove_rule",
+					 audit_enabled);
+>>>>>>> upstream/android-13
 			audit_log_end(ab);
 			return -EPERM;
 		}
@@ -1422,7 +1675,12 @@ static int audit_receive_msg(struct sk_buff *skb, struct nlmsghdr *nlh)
 		break;
 	case AUDIT_TRIM:
 		audit_trim_trees();
+<<<<<<< HEAD
 		audit_log_common_recv_msg(&ab, AUDIT_CONFIG_CHANGE);
+=======
+		audit_log_common_recv_msg(audit_context(), &ab,
+					  AUDIT_CONFIG_CHANGE);
+>>>>>>> upstream/android-13
 		audit_log_format(ab, " op=trim res=1");
 		audit_log_end(ab);
 		break;
@@ -1452,8 +1710,13 @@ static int audit_receive_msg(struct sk_buff *skb, struct nlmsghdr *nlh)
 		/* OK, here comes... */
 		err = audit_tag_tree(old, new);
 
+<<<<<<< HEAD
 		audit_log_common_recv_msg(&ab, AUDIT_CONFIG_CHANGE);
 
+=======
+		audit_log_common_recv_msg(audit_context(), &ab,
+					  AUDIT_CONFIG_CHANGE);
+>>>>>>> upstream/android-13
 		audit_log_format(ab, " op=make_equiv old=");
 		audit_log_untrustedstring(ab, old);
 		audit_log_format(ab, " new=");
@@ -1520,7 +1783,12 @@ static int audit_receive_msg(struct sk_buff *skb, struct nlmsghdr *nlh)
 		old.enabled = t & AUDIT_TTY_ENABLE;
 		old.log_passwd = !!(t & AUDIT_TTY_LOG_PASSWD);
 
+<<<<<<< HEAD
 		audit_log_common_recv_msg(&ab, AUDIT_CONFIG_CHANGE);
+=======
+		audit_log_common_recv_msg(audit_context(), &ab,
+					  AUDIT_CONFIG_CHANGE);
+>>>>>>> upstream/android-13
 		audit_log_format(ab, " op=tty_set old-enabled=%d new-enabled=%d"
 				 " old-log_passwd=%d new-log_passwd=%d res=%d",
 				 old.enabled, s.enabled, old.log_passwd,
@@ -1566,6 +1834,7 @@ static void audit_receive(struct sk_buff  *skb)
 		nlh = nlmsg_next(nlh, &len);
 	}
 	audit_ctl_unlock();
+<<<<<<< HEAD
 }
 
 /* Run custom bind function on netlink socket group connect or bind requests. */
@@ -1575,13 +1844,82 @@ static int audit_bind(struct net *net, int group)
 		return -EPERM;
 
 	return 0;
+=======
+
+	/* can't block with the ctrl lock, so penalize the sender now */
+	if (audit_backlog_limit &&
+	    (skb_queue_len(&audit_queue) > audit_backlog_limit)) {
+		DECLARE_WAITQUEUE(wait, current);
+
+		/* wake kauditd to try and flush the queue */
+		wake_up_interruptible(&kauditd_wait);
+
+		add_wait_queue_exclusive(&audit_backlog_wait, &wait);
+		set_current_state(TASK_UNINTERRUPTIBLE);
+		schedule_timeout(audit_backlog_wait_time);
+		remove_wait_queue(&audit_backlog_wait, &wait);
+	}
+}
+
+/* Log information about who is connecting to the audit multicast socket */
+static void audit_log_multicast(int group, const char *op, int err)
+{
+	const struct cred *cred;
+	struct tty_struct *tty;
+	char comm[sizeof(current->comm)];
+	struct audit_buffer *ab;
+
+	if (!audit_enabled)
+		return;
+
+	ab = audit_log_start(audit_context(), GFP_KERNEL, AUDIT_EVENT_LISTENER);
+	if (!ab)
+		return;
+
+	cred = current_cred();
+	tty = audit_get_tty();
+	audit_log_format(ab, "pid=%u uid=%u auid=%u tty=%s ses=%u",
+			 task_pid_nr(current),
+			 from_kuid(&init_user_ns, cred->uid),
+			 from_kuid(&init_user_ns, audit_get_loginuid(current)),
+			 tty ? tty_name(tty) : "(none)",
+			 audit_get_sessionid(current));
+	audit_put_tty(tty);
+	audit_log_task_context(ab); /* subj= */
+	audit_log_format(ab, " comm=");
+	audit_log_untrustedstring(ab, get_task_comm(comm, current));
+	audit_log_d_path_exe(ab, current->mm); /* exe= */
+	audit_log_format(ab, " nl-mcgrp=%d op=%s res=%d", group, op, !err);
+	audit_log_end(ab);
+}
+
+/* Run custom bind function on netlink socket group connect or bind requests. */
+static int audit_multicast_bind(struct net *net, int group)
+{
+	int err = 0;
+
+	if (!capable(CAP_AUDIT_READ))
+		err = -EPERM;
+	audit_log_multicast(group, "connect", err);
+	return err;
+}
+
+static void audit_multicast_unbind(struct net *net, int group)
+{
+	audit_log_multicast(group, "disconnect", 0);
+>>>>>>> upstream/android-13
 }
 
 static int __net_init audit_net_init(struct net *net)
 {
 	struct netlink_kernel_cfg cfg = {
 		.input	= audit_receive,
+<<<<<<< HEAD
 		.bind	= audit_bind,
+=======
+		.bind	= audit_multicast_bind,
+		.unbind	= audit_multicast_unbind,
+>>>>>>> upstream/android-13
 		.flags	= NL_CFG_F_NONROOT_RECV,
 		.groups	= AUDIT_NLGRP_MAX,
 	};
@@ -1593,7 +1931,12 @@ static int __net_init audit_net_init(struct net *net)
 		audit_panic("cannot initialize netlink socket in namespace");
 		return -ENOMEM;
 	}
+<<<<<<< HEAD
 	aunet->sk->sk_sndtimeo = MAX_SCHEDULE_TIMEOUT;
+=======
+	/* limit the timeout in case auditd is blocked/stopped */
+	aunet->sk->sk_sndtimeo = HZ / 10;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1763,7 +2106,11 @@ unsigned int audit_serial(void)
 {
 	static atomic_t serial = ATOMIC_INIT(0);
 
+<<<<<<< HEAD
 	return atomic_add_return(1, &serial);
+=======
+	return atomic_inc_return(&serial);
+>>>>>>> upstream/android-13
 }
 
 static inline void audit_get_stamp(struct audit_context *ctx,
@@ -1795,7 +2142,11 @@ struct audit_buffer *audit_log_start(struct audit_context *ctx, gfp_t gfp_mask,
 {
 	struct audit_buffer *ab;
 	struct timespec64 t;
+<<<<<<< HEAD
 	unsigned int uninitialized_var(serial);
+=======
+	unsigned int serial;
+>>>>>>> upstream/android-13
 
 	if (audit_initialized != AUDIT_INITIALIZED)
 		return NULL;
@@ -1809,7 +2160,13 @@ struct audit_buffer *audit_log_start(struct audit_context *ctx, gfp_t gfp_mask,
 	 *    task_tgid_vnr() since auditd_pid is set in audit_receive_msg()
 	 *    using a PID anchored in the caller's namespace
 	 * 2. generator holding the audit_cmd_mutex - we don't want to block
+<<<<<<< HEAD
 	 *    while holding the mutex */
+=======
+	 *    while holding the mutex, although we do penalize the sender
+	 *    later in audit_receive() when it is safe to block
+	 */
+>>>>>>> upstream/android-13
 	if (!(auditd_test_task(current) || audit_ctl_owner_current())) {
 		long stime = audit_backlog_wait_time;
 
@@ -1821,12 +2178,22 @@ struct audit_buffer *audit_log_start(struct audit_context *ctx, gfp_t gfp_mask,
 			/* sleep if we are allowed and we haven't exhausted our
 			 * backlog wait limit */
 			if (gfpflags_allow_blocking(gfp_mask) && (stime > 0)) {
+<<<<<<< HEAD
+=======
+				long rtime = stime;
+
+>>>>>>> upstream/android-13
 				DECLARE_WAITQUEUE(wait, current);
 
 				add_wait_queue_exclusive(&audit_backlog_wait,
 							 &wait);
 				set_current_state(TASK_UNINTERRUPTIBLE);
+<<<<<<< HEAD
 				stime = schedule_timeout(stime);
+=======
+				stime = schedule_timeout(rtime);
+				atomic_add(rtime - stime, &audit_backlog_wait_time_actual);
+>>>>>>> upstream/android-13
 				remove_wait_queue(&audit_backlog_wait, &wait);
 			} else {
 				if (audit_rate_check() && printk_ratelimit())
@@ -1846,6 +2213,12 @@ struct audit_buffer *audit_log_start(struct audit_context *ctx, gfp_t gfp_mask,
 	}
 
 	audit_get_stamp(ab->ctx, &t, &serial);
+<<<<<<< HEAD
+=======
+	/* cancel dummy context to enable supporting records */
+	if (ctx)
+		ctx->dummy = 0;
+>>>>>>> upstream/android-13
 	audit_log_format(ab, "audit(%llu.%03lu:%u): ",
 			 (unsigned long long)t.tv_sec, t.tv_nsec/1000000, serial);
 
@@ -2074,13 +2447,21 @@ void audit_log_d_path(struct audit_buffer *ab, const char *prefix,
 	/* We will allow 11 spaces for ' (deleted)' to be appended */
 	pathname = kmalloc(PATH_MAX+11, ab->gfp_mask);
 	if (!pathname) {
+<<<<<<< HEAD
 		audit_log_string(ab, "<no_memory>");
+=======
+		audit_log_format(ab, "\"<no_memory>\"");
+>>>>>>> upstream/android-13
 		return;
 	}
 	p = d_path(path, pathname, PATH_MAX+11);
 	if (IS_ERR(p)) { /* Should never happen since we send PATH_MAX */
 		/* FIXME: can we save some information here? */
+<<<<<<< HEAD
 		audit_log_string(ab, "<too_long>");
+=======
+		audit_log_format(ab, "\"<too_long>\"");
+>>>>>>> upstream/android-13
 	} else
 		audit_log_untrustedstring(ab, p);
 	kfree(pathname);
@@ -2091,7 +2472,11 @@ void audit_log_session_info(struct audit_buffer *ab)
 	unsigned int sessionid = audit_get_sessionid(current);
 	uid_t auid = from_kuid(&init_user_ns, audit_get_loginuid(current));
 
+<<<<<<< HEAD
 	audit_log_format(ab, " auid=%u ses=%u", auid, sessionid);
+=======
+	audit_log_format(ab, "auid=%u ses=%u", auid, sessionid);
+>>>>>>> upstream/android-13
 }
 
 void audit_log_key(struct audit_buffer *ab, char *key)
@@ -2103,6 +2488,7 @@ void audit_log_key(struct audit_buffer *ab, char *key)
 		audit_log_format(ab, "(null)");
 }
 
+<<<<<<< HEAD
 void audit_log_cap(struct audit_buffer *ab, char *prefix, kernel_cap_t *cap)
 {
 	int i;
@@ -2249,6 +2635,8 @@ void audit_log_name(struct audit_context *context, struct audit_names *n,
 	audit_log_end(ab);
 }
 
+=======
+>>>>>>> upstream/android-13
 int audit_log_task_context(struct audit_buffer *ab)
 {
 	char *ctx = NULL;
@@ -2256,7 +2644,11 @@ int audit_log_task_context(struct audit_buffer *ab)
 	int error;
 	u32 sid;
 
+<<<<<<< HEAD
 	security_task_getsecid(current, &sid);
+=======
+	security_task_getsecid_subj(current, &sid);
+>>>>>>> upstream/android-13
 	if (!sid)
 		return 0;
 
@@ -2296,15 +2688,26 @@ out_null:
 	audit_log_format(ab, " exe=(null)");
 }
 
+<<<<<<< HEAD
 struct tty_struct *audit_get_tty(struct task_struct *tsk)
+=======
+struct tty_struct *audit_get_tty(void)
+>>>>>>> upstream/android-13
 {
 	struct tty_struct *tty = NULL;
 	unsigned long flags;
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&tsk->sighand->siglock, flags);
 	if (tsk->signal)
 		tty = tty_kref_get(tsk->signal->tty);
 	spin_unlock_irqrestore(&tsk->sighand->siglock, flags);
+=======
+	spin_lock_irqsave(&current->sighand->siglock, flags);
+	if (current->signal)
+		tty = tty_kref_get(current->signal->tty);
+	spin_unlock_irqrestore(&current->sighand->siglock, flags);
+>>>>>>> upstream/android-13
 	return tty;
 }
 
@@ -2313,25 +2716,43 @@ void audit_put_tty(struct tty_struct *tty)
 	tty_kref_put(tty);
 }
 
+<<<<<<< HEAD
 void audit_log_task_info(struct audit_buffer *ab, struct task_struct *tsk)
 {
 	const struct cred *cred;
 	char comm[sizeof(tsk->comm)];
+=======
+void audit_log_task_info(struct audit_buffer *ab)
+{
+	const struct cred *cred;
+	char comm[sizeof(current->comm)];
+>>>>>>> upstream/android-13
 	struct tty_struct *tty;
 
 	if (!ab)
 		return;
 
+<<<<<<< HEAD
 	/* tsk == current */
 	cred = current_cred();
 	tty = audit_get_tty(tsk);
+=======
+	cred = current_cred();
+	tty = audit_get_tty();
+>>>>>>> upstream/android-13
 	audit_log_format(ab,
 			 " ppid=%d pid=%d auid=%u uid=%u gid=%u"
 			 " euid=%u suid=%u fsuid=%u"
 			 " egid=%u sgid=%u fsgid=%u tty=%s ses=%u",
+<<<<<<< HEAD
 			 task_ppid_nr(tsk),
 			 task_tgid_nr(tsk),
 			 from_kuid(&init_user_ns, audit_get_loginuid(tsk)),
+=======
+			 task_ppid_nr(current),
+			 task_tgid_nr(current),
+			 from_kuid(&init_user_ns, audit_get_loginuid(current)),
+>>>>>>> upstream/android-13
 			 from_kuid(&init_user_ns, cred->uid),
 			 from_kgid(&init_user_ns, cred->gid),
 			 from_kuid(&init_user_ns, cred->euid),
@@ -2341,43 +2762,187 @@ void audit_log_task_info(struct audit_buffer *ab, struct task_struct *tsk)
 			 from_kgid(&init_user_ns, cred->sgid),
 			 from_kgid(&init_user_ns, cred->fsgid),
 			 tty ? tty_name(tty) : "(none)",
+<<<<<<< HEAD
 			 audit_get_sessionid(tsk));
 	audit_put_tty(tty);
 	audit_log_format(ab, " comm=");
 	audit_log_untrustedstring(ab, get_task_comm(comm, tsk));
 	audit_log_d_path_exe(ab, tsk->mm);
+=======
+			 audit_get_sessionid(current));
+	audit_put_tty(tty);
+	audit_log_format(ab, " comm=");
+	audit_log_untrustedstring(ab, get_task_comm(comm, current));
+	audit_log_d_path_exe(ab, current->mm);
+>>>>>>> upstream/android-13
 	audit_log_task_context(ab);
 }
 EXPORT_SYMBOL(audit_log_task_info);
 
 /**
+<<<<<<< HEAD
  * audit_log_link_denied - report a link restriction denial
  * @operation: specific link operation
  */
 void audit_log_link_denied(const char *operation)
+=======
+ * audit_log_path_denied - report a path restriction denial
+ * @type: audit message type (AUDIT_ANOM_LINK, AUDIT_ANOM_CREAT, etc)
+ * @operation: specific operation name
+ */
+void audit_log_path_denied(int type, const char *operation)
+>>>>>>> upstream/android-13
 {
 	struct audit_buffer *ab;
 
 	if (!audit_enabled || audit_dummy_context())
 		return;
 
+<<<<<<< HEAD
 	/* Generate AUDIT_ANOM_LINK with subject, operation, outcome. */
 	ab = audit_log_start(audit_context(), GFP_KERNEL, AUDIT_ANOM_LINK);
 	if (!ab)
 		return;
 	audit_log_format(ab, "op=%s", operation);
 	audit_log_task_info(ab, current);
+=======
+	/* Generate log with subject, operation, outcome. */
+	ab = audit_log_start(audit_context(), GFP_KERNEL, type);
+	if (!ab)
+		return;
+	audit_log_format(ab, "op=%s", operation);
+	audit_log_task_info(ab);
+>>>>>>> upstream/android-13
 	audit_log_format(ab, " res=0");
 	audit_log_end(ab);
 }
 
+<<<<<<< HEAD
+=======
+/* global counter which is incremented every time something logs in */
+static atomic_t session_id = ATOMIC_INIT(0);
+
+static int audit_set_loginuid_perm(kuid_t loginuid)
+{
+	/* if we are unset, we don't need privs */
+	if (!audit_loginuid_set(current))
+		return 0;
+	/* if AUDIT_FEATURE_LOGINUID_IMMUTABLE means never ever allow a change*/
+	if (is_audit_feature_set(AUDIT_FEATURE_LOGINUID_IMMUTABLE))
+		return -EPERM;
+	/* it is set, you need permission */
+	if (!capable(CAP_AUDIT_CONTROL))
+		return -EPERM;
+	/* reject if this is not an unset and we don't allow that */
+	if (is_audit_feature_set(AUDIT_FEATURE_ONLY_UNSET_LOGINUID)
+				 && uid_valid(loginuid))
+		return -EPERM;
+	return 0;
+}
+
+static void audit_log_set_loginuid(kuid_t koldloginuid, kuid_t kloginuid,
+				   unsigned int oldsessionid,
+				   unsigned int sessionid, int rc)
+{
+	struct audit_buffer *ab;
+	uid_t uid, oldloginuid, loginuid;
+	struct tty_struct *tty;
+
+	if (!audit_enabled)
+		return;
+
+	ab = audit_log_start(audit_context(), GFP_KERNEL, AUDIT_LOGIN);
+	if (!ab)
+		return;
+
+	uid = from_kuid(&init_user_ns, task_uid(current));
+	oldloginuid = from_kuid(&init_user_ns, koldloginuid);
+	loginuid = from_kuid(&init_user_ns, kloginuid);
+	tty = audit_get_tty();
+
+	audit_log_format(ab, "pid=%d uid=%u", task_tgid_nr(current), uid);
+	audit_log_task_context(ab);
+	audit_log_format(ab, " old-auid=%u auid=%u tty=%s old-ses=%u ses=%u res=%d",
+			 oldloginuid, loginuid, tty ? tty_name(tty) : "(none)",
+			 oldsessionid, sessionid, !rc);
+	audit_put_tty(tty);
+	audit_log_end(ab);
+}
+
+/**
+ * audit_set_loginuid - set current task's loginuid
+ * @loginuid: loginuid value
+ *
+ * Returns 0.
+ *
+ * Called (set) from fs/proc/base.c::proc_loginuid_write().
+ */
+int audit_set_loginuid(kuid_t loginuid)
+{
+	unsigned int oldsessionid, sessionid = AUDIT_SID_UNSET;
+	kuid_t oldloginuid;
+	int rc;
+
+	oldloginuid = audit_get_loginuid(current);
+	oldsessionid = audit_get_sessionid(current);
+
+	rc = audit_set_loginuid_perm(loginuid);
+	if (rc)
+		goto out;
+
+	/* are we setting or clearing? */
+	if (uid_valid(loginuid)) {
+		sessionid = (unsigned int)atomic_inc_return(&session_id);
+		if (unlikely(sessionid == AUDIT_SID_UNSET))
+			sessionid = (unsigned int)atomic_inc_return(&session_id);
+	}
+
+	current->sessionid = sessionid;
+	current->loginuid = loginuid;
+out:
+	audit_log_set_loginuid(oldloginuid, loginuid, oldsessionid, sessionid, rc);
+	return rc;
+}
+
+/**
+ * audit_signal_info - record signal info for shutting down audit subsystem
+ * @sig: signal value
+ * @t: task being signaled
+ *
+ * If the audit subsystem is being terminated, record the task (pid)
+ * and uid that is doing that.
+ */
+int audit_signal_info(int sig, struct task_struct *t)
+{
+	kuid_t uid = current_uid(), auid;
+
+	if (auditd_test_task(t) &&
+	    (sig == SIGTERM || sig == SIGHUP ||
+	     sig == SIGUSR1 || sig == SIGUSR2)) {
+		audit_sig_pid = task_tgid_nr(current);
+		auid = audit_get_loginuid(current);
+		if (uid_valid(auid))
+			audit_sig_uid = auid;
+		else
+			audit_sig_uid = uid;
+		security_task_getsecid_subj(current, &audit_sig_sid);
+	}
+
+	return audit_signal_info_syscall(t);
+}
+
+>>>>>>> upstream/android-13
 /**
  * audit_log_end - end one audit record
  * @ab: the audit_buffer
  *
  * We can not do a netlink send inside an irq context because it blocks (last
  * arg, flags, is not set to MSG_DONTWAIT), so the audit buffer is placed on a
+<<<<<<< HEAD
  * queue and a tasklet is scheduled to remove them from the queue outside the
+=======
+ * queue and a kthread is scheduled to remove them from the queue outside the
+>>>>>>> upstream/android-13
  * irq context.  May be called in any context.
  */
 void audit_log_end(struct audit_buffer *ab)

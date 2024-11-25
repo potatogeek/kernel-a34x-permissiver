@@ -3,8 +3,11 @@
  * Copyright (c) 1996, 2003 VIA Networking Technologies, Inc.
  * All rights reserved.
  *
+<<<<<<< HEAD
  * File: channel.c
  *
+=======
+>>>>>>> upstream/android-13
  * Purpose: Channel number mapping
  *
  * Author: Lucas Lin
@@ -145,7 +148,11 @@ void vnt_init_bands(struct vnt_private *priv)
 
 		priv->hw->wiphy->bands[NL80211_BAND_5GHZ] =
 						&vnt_supported_5ghz_band;
+<<<<<<< HEAD
 	/* fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case RF_AL2230:
 	case RF_AL2230S:
 	case RF_VT3226:

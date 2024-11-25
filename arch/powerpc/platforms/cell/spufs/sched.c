@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* sched.c - SPU scheduler.
  *
  * Copyright (C) IBM 2005
  * Author: Mark Nutter <mnutter@us.ibm.com>
  *
  * 2006-03-31	NUMA domains added.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #undef DEBUG
@@ -85,7 +92,11 @@ static struct timer_list spuloadavg_timer;
 #define DEF_SPU_TIMESLICE	(100 * HZ / (1000 * SPUSCHED_TICK))
 
 #define SCALE_PRIO(x, prio) \
+<<<<<<< HEAD
 	max(x * (MAX_PRIO - prio) / (MAX_USER_PRIO / 2), MIN_SPU_TIMESLICE)
+=======
+	max(x * (MAX_PRIO - prio) / (NICE_WIDTH / 2), MIN_SPU_TIMESLICE)
+>>>>>>> upstream/android-13
 
 /*
  * scale user-nice values [ -20 ... 0 ... 19 ] to time slice values:
@@ -141,7 +152,11 @@ void __spu_update_sched_info(struct spu_context *ctx)
 	 * runqueue. The context will be rescheduled on the proper node
 	 * if it is timesliced or preempted.
 	 */
+<<<<<<< HEAD
 	cpumask_copy(&ctx->cpus_allowed, &current->cpus_allowed);
+=======
+	cpumask_copy(&ctx->cpus_allowed, current->cpus_ptr);
+>>>>>>> upstream/android-13
 
 	/* Save the current cpu id for spu interrupt routing. */
 	ctx->last_ran = raw_smp_processor_id();
@@ -194,9 +209,12 @@ void do_notify_spus_active(void)
 
 	/*
 	 * Wake up the active spu_contexts.
+<<<<<<< HEAD
 	 *
 	 * When the awakened processes see their "notify_active" flag is set,
 	 * they will call spu_switch_notify().
+=======
+>>>>>>> upstream/android-13
 	 */
 	for_each_online_node(node) {
 		struct spu *spu;
@@ -252,7 +270,10 @@ static void spu_bind_context(struct spu *spu, struct spu_context *ctx)
 	spu_switch_log_notify(spu, ctx, SWITCH_LOG_START, 0);
 	spu_restore(&ctx->csa, spu);
 	spu->timestamp = jiffies;
+<<<<<<< HEAD
 	spu_switch_notify(spu, ctx);
+=======
+>>>>>>> upstream/android-13
 	ctx->state = SPU_STATE_RUNNABLE;
 
 	spuctx_switch_state(ctx, SPU_UTIL_USER);
@@ -453,7 +474,10 @@ static void spu_unbind_context(struct spu *spu, struct spu_context *ctx)
 		 */
 		atomic_dec_if_positive(&ctx->gang->aff_sched_count);
 
+<<<<<<< HEAD
 	spu_switch_notify(spu, NULL);
+=======
+>>>>>>> upstream/android-13
 	spu_unmap_mappings(ctx);
 	spu_save(&ctx->csa, spu);
 	spu_switch_log_notify(spu, ctx, SWITCH_LOG_STOP, 0);

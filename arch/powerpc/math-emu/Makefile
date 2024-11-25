@@ -17,4 +17,8 @@ obj-$(CONFIG_SPE)		+= math_efp.o
 CFLAGS_fabs.o = -fno-builtin-fabs
 CFLAGS_math.o = -fno-builtin-fabs
 
+<<<<<<< HEAD
 ccflags-y = -I. -Iinclude/math-emu -w
+=======
+ccflags-y = -w
+>>>>>>> upstream/android-13

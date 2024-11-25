@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014 Alexander Shiyan <shc_work@mail.ru>
  *
@@ -5,6 +6,11 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (C) 2014 Alexander Shiyan <shc_work@mail.ru>
+>>>>>>> upstream/android-13
  */
 
 #ifndef CONFIG_DEBUG_CLPS711X_UART2
@@ -24,7 +30,14 @@
 	ldr	\rp, =CLPS711X_UART_PADDR
 	.endm
 
+<<<<<<< HEAD
 	.macro	waituart,rd,rx
+=======
+	.macro	waituartcts,rd,rx
+	.endm
+
+	.macro	waituarttxrdy,rd,rx
+>>>>>>> upstream/android-13
 	.endm
 
 	.macro	senduart,rd,rx

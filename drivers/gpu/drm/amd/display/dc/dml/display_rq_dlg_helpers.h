@@ -26,7 +26,10 @@
 #ifndef __DISPLAY_RQ_DLG_HELPERS_H__
 #define __DISPLAY_RQ_DLG_HELPERS_H__
 
+<<<<<<< HEAD
 #include "dml_common_defs.h"
+=======
+>>>>>>> upstream/android-13
 #include "display_mode_lib.h"
 
 /* Function: Printer functions

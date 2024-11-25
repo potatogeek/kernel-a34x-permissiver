@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  s2255drv.c - a driver for the Sensoray 2255 USB video capture device
  *
@@ -20,6 +24,7 @@
  * -half size, color mode YUYV or YUV422P: all 4 channels at once
  * -full size, color mode YUYV or YUV422P 1/2 frame rate: all 4 channels
  *  at once.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +35,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -282,7 +289,10 @@ static inline struct s2255_dev *to_s2255_dev(struct v4l2_device *v4l2_dev)
 }
 
 struct s2255_fmt {
+<<<<<<< HEAD
 	char *name;
+=======
+>>>>>>> upstream/android-13
 	u32 fourcc;
 	int depth;
 };
@@ -394,20 +404,30 @@ MODULE_DEVICE_TABLE(usb, s2255_table);
 /* JPEG formats must be defined last to support jpeg_enable parameter */
 static const struct s2255_fmt formats[] = {
 	{
+<<<<<<< HEAD
 		.name = "4:2:2, packed, YUYV",
+=======
+>>>>>>> upstream/android-13
 		.fourcc = V4L2_PIX_FMT_YUYV,
 		.depth = 16
 
 	}, {
+<<<<<<< HEAD
 		.name = "4:2:2, packed, UYVY",
 		.fourcc = V4L2_PIX_FMT_UYVY,
 		.depth = 16
 	}, {
 		.name = "4:2:2, planar, YUV422P",
+=======
+		.fourcc = V4L2_PIX_FMT_UYVY,
+		.depth = 16
+	}, {
+>>>>>>> upstream/android-13
 		.fourcc = V4L2_PIX_FMT_YUV422P,
 		.depth = 16
 
 	}, {
+<<<<<<< HEAD
 		.name = "8bpp GREY",
 		.fourcc = V4L2_PIX_FMT_GREY,
 		.depth = 8
@@ -417,6 +437,14 @@ static const struct s2255_fmt formats[] = {
 		.depth = 24
 	}, {
 		.name = "MJPG",
+=======
+		.fourcc = V4L2_PIX_FMT_GREY,
+		.depth = 8
+	}, {
+		.fourcc = V4L2_PIX_FMT_JPEG,
+		.depth = 24
+	}, {
+>>>>>>> upstream/android-13
 		.fourcc = V4L2_PIX_FMT_MJPEG,
 		.depth = 24
 	}
@@ -730,12 +758,18 @@ static int vidioc_querycap(struct file *file, void *priv,
 	struct s2255_vc *vc = video_drvdata(file);
 	struct s2255_dev *dev = vc->dev;
 
+<<<<<<< HEAD
 	strlcpy(cap->driver, "s2255", sizeof(cap->driver));
 	strlcpy(cap->card, "s2255", sizeof(cap->card));
 	usb_make_path(dev->udev, cap->bus_info, sizeof(cap->bus_info));
 	cap->device_caps = V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_STREAMING |
 		V4L2_CAP_READWRITE;
 	cap->capabilities = cap->device_caps | V4L2_CAP_DEVICE_CAPS;
+=======
+	strscpy(cap->driver, "s2255", sizeof(cap->driver));
+	strscpy(cap->card, "s2255", sizeof(cap->card));
+	usb_make_path(dev->udev, cap->bus_info, sizeof(cap->bus_info));
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -749,7 +783,10 @@ static int vidioc_enum_fmt_vid_cap(struct file *file, void *priv,
 	if (!jpeg_enable && ((formats[index].fourcc == V4L2_PIX_FMT_JPEG) ||
 			(formats[index].fourcc == V4L2_PIX_FMT_MJPEG)))
 		return -EINVAL;
+<<<<<<< HEAD
 	strlcpy(f->description, formats[index].name, sizeof(f->description));
+=======
+>>>>>>> upstream/android-13
 	f->pixelformat = formats[index].fourcc;
 	return 0;
 }
@@ -771,7 +808,10 @@ static int vidioc_g_fmt_vid_cap(struct file *file, void *priv,
 	f->fmt.pix.bytesperline = f->fmt.pix.width * (vc->fmt->depth >> 3);
 	f->fmt.pix.sizeimage = f->fmt.pix.height * f->fmt.pix.bytesperline;
 	f->fmt.pix.colorspace = V4L2_COLORSPACE_SMPTE170M;
+<<<<<<< HEAD
 	f->fmt.pix.priv = 0;
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -788,8 +828,11 @@ static int vidioc_try_fmt_vid_cap(struct file *file, void *priv,
 	if (fmt == NULL)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	field = f->fmt.pix.field;
 
+=======
+>>>>>>> upstream/android-13
 	dprintk(vc->dev, 50, "%s NTSC: %d suggested width: %d, height: %d\n",
 		__func__, is_ntsc, f->fmt.pix.width, f->fmt.pix.height);
 	if (is_ntsc) {
@@ -823,7 +866,10 @@ static int vidioc_try_fmt_vid_cap(struct file *file, void *priv,
 	f->fmt.pix.bytesperline = (f->fmt.pix.width * fmt->depth) >> 3;
 	f->fmt.pix.sizeimage = f->fmt.pix.height * f->fmt.pix.bytesperline;
 	f->fmt.pix.colorspace = V4L2_COLORSPACE_SMPTE170M;
+<<<<<<< HEAD
 	f->fmt.pix.priv = 0;
+=======
+>>>>>>> upstream/android-13
 	dprintk(vc->dev, 50, "%s: set width %d height %d field %d\n", __func__,
 		f->fmt.pix.width, f->fmt.pix.height, f->fmt.pix.field);
 	return 0;
@@ -1195,10 +1241,17 @@ static int vidioc_enum_input(struct file *file, void *priv,
 	switch (dev->pid) {
 	case 0x2255:
 	default:
+<<<<<<< HEAD
 		strlcpy(inp->name, "Composite", sizeof(inp->name));
 		break;
 	case 0x2257:
 		strlcpy(inp->name, (vc->idx < 2) ? "Composite" : "S-Video",
+=======
+		strscpy(inp->name, "Composite", sizeof(inp->name));
+		break;
+	case 0x2257:
+		strscpy(inp->name, (vc->idx < 2) ? "Composite" : "S-Video",
+>>>>>>> upstream/android-13
 			sizeof(inp->name));
 		break;
 	}
@@ -1666,6 +1719,7 @@ static int s2255_probe_v4l(struct s2255_dev *dev)
 		vc->vdev.ctrl_handler = &vc->hdl;
 		vc->vdev.lock = &dev->lock;
 		vc->vdev.v4l2_dev = &dev->v4l2_dev;
+<<<<<<< HEAD
 		video_set_drvdata(&vc->vdev, vc);
 		if (video_nr == -1)
 			ret = video_register_device(&vc->vdev,
@@ -1674,6 +1728,18 @@ static int s2255_probe_v4l(struct s2255_dev *dev)
 		else
 			ret = video_register_device(&vc->vdev,
 						    VFL_TYPE_GRABBER,
+=======
+		vc->vdev.device_caps = V4L2_CAP_VIDEO_CAPTURE |
+				       V4L2_CAP_STREAMING | V4L2_CAP_READWRITE;
+		video_set_drvdata(&vc->vdev, vc);
+		if (video_nr == -1)
+			ret = video_register_device(&vc->vdev,
+						    VFL_TYPE_VIDEO,
+						    video_nr);
+		else
+			ret = video_register_device(&vc->vdev,
+						    VFL_TYPE_VIDEO,
+>>>>>>> upstream/android-13
 						    cur_nr + i);
 
 		if (ret) {
@@ -1904,7 +1970,11 @@ static long s2255_vendor_req(struct s2255_dev *dev, unsigned char Request,
 				    USB_TYPE_VENDOR | USB_RECIP_DEVICE |
 				    USB_DIR_IN,
 				    Value, Index, buf,
+<<<<<<< HEAD
 				    TransferBufferLength, HZ * 5);
+=======
+				    TransferBufferLength, USB_CTRL_SET_TIMEOUT);
+>>>>>>> upstream/android-13
 
 		if (r >= 0)
 			memcpy(TransferBuffer, buf, TransferBufferLength);
@@ -1913,7 +1983,11 @@ static long s2255_vendor_req(struct s2255_dev *dev, unsigned char Request,
 		r = usb_control_msg(dev->udev, usb_sndctrlpipe(dev->udev, 0),
 				    Request, USB_TYPE_VENDOR | USB_RECIP_DEVICE,
 				    Value, Index, buf,
+<<<<<<< HEAD
 				    TransferBufferLength, HZ * 5);
+=======
+				    TransferBufferLength, USB_CTRL_SET_TIMEOUT);
+>>>>>>> upstream/android-13
 	}
 	kfree(buf);
 	return r;

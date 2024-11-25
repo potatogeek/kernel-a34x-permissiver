@@ -25,7 +25,11 @@
 #include "dm_services.h"
 #include "dc.h"
 #include "core_types.h"
+<<<<<<< HEAD
 #include "hw_sequencer.h"
+=======
+#include "clk_mgr.h"
+>>>>>>> upstream/android-13
 #include "dce100_hw_sequencer.h"
 #include "resource.h"
 
@@ -105,6 +109,7 @@ bool dce100_enable_display_power_gating(
 		return false;
 }
 
+<<<<<<< HEAD
 static void dce100_pplib_apply_display_requirements(
 	struct dc *dc,
 	struct dc_state *context)
@@ -172,6 +177,31 @@ void dce100_set_bandwidth(
 	dce100_pplib_apply_display_requirements(dc, context);
 }
 
+=======
+void dce100_prepare_bandwidth(
+		struct dc *dc,
+		struct dc_state *context)
+{
+	dce110_set_safe_displaymarks(&context->res_ctx, dc->res_pool);
+
+	dc->clk_mgr->funcs->update_clocks(
+			dc->clk_mgr,
+			context,
+			false);
+}
+
+void dce100_optimize_bandwidth(
+		struct dc *dc,
+		struct dc_state *context)
+{
+	dce110_set_safe_displaymarks(&context->res_ctx, dc->res_pool);
+
+	dc->clk_mgr->funcs->update_clocks(
+			dc->clk_mgr,
+			context,
+			true);
+}
+>>>>>>> upstream/android-13
 
 /**************************************************************************/
 
@@ -179,9 +209,15 @@ void dce100_hw_sequencer_construct(struct dc *dc)
 {
 	dce110_hw_sequencer_construct(dc);
 
+<<<<<<< HEAD
 	dc->hwss.enable_display_power_gating = dce100_enable_display_power_gating;
 	dc->hwss.set_bandwidth = dce100_set_bandwidth;
 	dc->hwss.pplib_apply_display_requirements =
 			dce100_pplib_apply_display_requirements;
+=======
+	dc->hwseq->funcs.enable_display_power_gating = dce100_enable_display_power_gating;
+	dc->hwss.prepare_bandwidth = dce100_prepare_bandwidth;
+	dc->hwss.optimize_bandwidth = dce100_optimize_bandwidth;
+>>>>>>> upstream/android-13
 }
 

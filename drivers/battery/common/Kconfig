@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 config DIRECT_CHARGING
 	tristate "support for direct charging"
 	help
@@ -7,6 +8,8 @@ config DIRECT_CHARGING
 	 it include some charging scenario for direct charging models.
 
 
+=======
+>>>>>>> upstream/android-13
 menu "Samsung Battery Common drivers"
 
 config BATTERY_SAMSUNG
@@ -353,6 +356,7 @@ config BATTERY_SAMSUNG_REBOOT
 	 This options for only ARCH_EXYNOS.
 	 If this is Y, checking reboot when power off.
 
+<<<<<<< HEAD
 config SBP_FG
 	bool "SBP FUELGAUGE"
 	default n
@@ -360,4 +364,6 @@ config SBP_FG
 	  Say Y here to enable
 	  Support for SBP FUELGAUGE.
 
+=======
+>>>>>>> upstream/android-13
 endmenu

@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * fixmap.h: compile-time virtual memory allocation
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0
+ *
+ * fixmap.h: compile-time virtual memory allocation
+>>>>>>> upstream/android-13
  *
  * Copyright (C) 1998 Ingo Molnar
  *
@@ -16,9 +22,12 @@
 #include <linux/kernel.h>
 #include <linux/threads.h>
 #include <asm/page.h>
+<<<<<<< HEAD
 #ifdef CONFIG_HIGHMEM
 #include <asm/kmap_types.h>
 #endif
+=======
+>>>>>>> upstream/android-13
 
 /*
  * Here we define all the compile-time 'special' virtual
@@ -56,11 +65,14 @@ enum fixed_addresses {
 	FIX_CMAP_BEGIN,
 	FIX_CMAP_END = FIX_CMAP_BEGIN + (FIX_N_COLOURS * NR_CPUS) - 1,
 
+<<<<<<< HEAD
 #ifdef CONFIG_HIGHMEM
 	FIX_KMAP_BEGIN,	/* reserved pte's for temporary kernel mappings */
 	FIX_KMAP_END = FIX_KMAP_BEGIN + (KM_TYPE_NR * NR_CPUS) - 1,
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_IOREMAP_FIXED
 	/*
 	 * FIX_IOREMAP entries are useful for mapping physical address
@@ -86,11 +98,15 @@ extern void __clear_fixmap(enum fixed_addresses idx, pgprot_t flags);
  * the start of the fixmap, and leave one page empty
  * at the top of mem..
  */
+<<<<<<< HEAD
 #ifdef CONFIG_SUPERH32
 #define FIXADDR_TOP	(P4SEG - PAGE_SIZE)
 #else
 #define FIXADDR_TOP	((unsigned long)(-PAGE_SIZE))
 #endif
+=======
+#define FIXADDR_TOP	(P4SEG - PAGE_SIZE)
+>>>>>>> upstream/android-13
 #define FIXADDR_SIZE	(__end_of_fixed_addresses << PAGE_SHIFT)
 #define FIXADDR_START	(FIXADDR_TOP - FIXADDR_SIZE)
 

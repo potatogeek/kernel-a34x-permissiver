@@ -4,9 +4,16 @@
 #
 #
 
+<<<<<<< HEAD
 # Common objects
 obj-y 					:= time.o serial.o usb.o \
 					   common.o sram.o
+=======
+ccflags-$(CONFIG_ARCH_MULTIPLATFORM) := -I$(srctree)/$(src)/include
+
+# Common objects
+obj-y 					:= serial.o usb.o common.o sram.o
+>>>>>>> upstream/android-13
 
 obj-$(CONFIG_DAVINCI_MUX)		+= mux.o
 
@@ -18,9 +25,12 @@ obj-$(CONFIG_ARCH_DAVINCI_DM365)	+= dm365.o devices.o
 obj-$(CONFIG_ARCH_DAVINCI_DA830)	+= da830.o devices-da8xx.o usb-da8xx.o
 obj-$(CONFIG_ARCH_DAVINCI_DA850)	+= da850.o devices-da8xx.o usb-da8xx.o
 
+<<<<<<< HEAD
 obj-$(CONFIG_AINTC)			+= irq.o
 obj-$(CONFIG_CP_INTC)			+= cp_intc.o
 
+=======
+>>>>>>> upstream/android-13
 # Board specific
 obj-$(CONFIG_MACH_DA8XX_DT)		+= da8xx-dt.o pdata-quirks.o
 obj-$(CONFIG_MACH_DAVINCI_EVM)  	+= board-dm644x-evm.o

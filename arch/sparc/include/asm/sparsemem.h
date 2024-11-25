@@ -7,7 +7,10 @@
 #include <asm/page.h>
 
 #define SECTION_SIZE_BITS       30
+<<<<<<< HEAD
 #define MAX_PHYSADDR_BITS       MAX_PHYS_ADDRESS_BITS
+=======
+>>>>>>> upstream/android-13
 #define MAX_PHYSMEM_BITS        MAX_PHYS_ADDRESS_BITS
 
 #endif /* !(__KERNEL__) */

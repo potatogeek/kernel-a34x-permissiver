@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Samsung S5P/EXYNOS SoC series MIPI CSIS/DSIM DPHY driver
  *
@@ -7,6 +8,14 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Samsung S5P/Exynos SoC series MIPI CSIS/DSIM DPHY driver
+ *
+ * Copyright (C) 2013,2016 Samsung Electronics Co., Ltd.
+ * Author: Sylwester Nawrocki <s.nawrocki@samsung.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -362,10 +371,18 @@ static struct platform_driver exynos_mipi_video_phy_driver = {
 	.driver = {
 		.of_match_table	= exynos_mipi_video_phy_of_match,
 		.name  = "exynos-mipi-video-phy",
+<<<<<<< HEAD
+=======
+		.suppress_bind_attrs = true,
+>>>>>>> upstream/android-13
 	}
 };
 module_platform_driver(exynos_mipi_video_phy_driver);
 
+<<<<<<< HEAD
 MODULE_DESCRIPTION("Samsung S5P/EXYNOS SoC MIPI CSI-2/DSI PHY driver");
+=======
+MODULE_DESCRIPTION("Samsung S5P/Exynos SoC MIPI CSI-2/DSI PHY driver");
+>>>>>>> upstream/android-13
 MODULE_AUTHOR("Sylwester Nawrocki <s.nawrocki@samsung.com>");
 MODULE_LICENSE("GPL v2");

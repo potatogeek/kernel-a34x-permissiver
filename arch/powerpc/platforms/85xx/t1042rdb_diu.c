@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * T1042 platform DIU operation
  *
  * Copyright 2014 Freescale Semiconductor Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -39,7 +46,11 @@ struct device_node *cpld_node;
  */
 static void t1042rdb_set_monitor_port(enum fsl_diu_monitor_port port)
 {
+<<<<<<< HEAD
 	static void __iomem *cpld_base;
+=======
+	void __iomem *cpld_base;
+>>>>>>> upstream/android-13
 
 	cpld_base = of_iomap(cpld_node, 0);
 	if (!cpld_base) {

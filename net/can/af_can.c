@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 /*
  * af_can.c - Protocol family CAN core module
+=======
+// SPDX-License-Identifier: (GPL-2.0 OR BSD-3-Clause)
+/* af_can.c - Protocol family CAN core module
+>>>>>>> upstream/android-13
  *            (used by different CAN protocol modules)
  *
  * Copyright (c) 2002-2017 Volkswagen Group Electronic Research
@@ -58,6 +63,10 @@
 #include <linux/can.h>
 #include <linux/can/core.h>
 #include <linux/can/skb.h>
+<<<<<<< HEAD
+=======
+#include <linux/can/can-ml.h>
+>>>>>>> upstream/android-13
 #include <linux/ratelimit.h>
 #include <net/net_namespace.h>
 #include <net/sock.h>
@@ -83,6 +92,7 @@ static DEFINE_MUTEX(proto_tab_lock);
 
 static atomic_t skbcounter = ATOMIC_INIT(0);
 
+<<<<<<< HEAD
 /*
  * af_can socket functions
  */
@@ -103,10 +113,19 @@ int can_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
 EXPORT_SYMBOL(can_ioctl);
 
 static void can_sock_destruct(struct sock *sk)
+=======
+/* af_can socket functions */
+
+void can_sock_destruct(struct sock *sk)
+>>>>>>> upstream/android-13
 {
 	skb_queue_purge(&sk->sk_receive_queue);
 	skb_queue_purge(&sk->sk_error_queue);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL(can_sock_destruct);
+>>>>>>> upstream/android-13
 
 static const struct can_proto *can_get_proto(int protocol)
 {
@@ -146,14 +165,23 @@ static int can_create(struct net *net, struct socket *sock, int protocol,
 
 		err = request_module("can-proto-%d", protocol);
 
+<<<<<<< HEAD
 		/*
 		 * In case of error we only print a message but don't
+=======
+		/* In case of error we only print a message but don't
+>>>>>>> upstream/android-13
 		 * return the error code immediately.  Below we will
 		 * return -EPROTONOSUPPORT
 		 */
 		if (err)
+<<<<<<< HEAD
 			printk_ratelimited(KERN_ERR "can: request_module "
 			       "(can-proto-%d) failed.\n", protocol);
+=======
+			pr_err_ratelimited("can: request_module (can-proto-%d) failed.\n",
+					   protocol);
+>>>>>>> upstream/android-13
 
 		cp = can_get_proto(protocol);
 	}
@@ -194,9 +222,13 @@ static int can_create(struct net *net, struct socket *sock, int protocol,
 	return err;
 }
 
+<<<<<<< HEAD
 /*
  * af_can tx path
  */
+=======
+/* af_can tx path */
+>>>>>>> upstream/android-13
 
 /**
  * can_send - transmit a CAN frame (optional with local loopback)
@@ -218,7 +250,11 @@ int can_send(struct sk_buff *skb, int loop)
 {
 	struct sk_buff *newskb = NULL;
 	struct canfd_frame *cfd = (struct canfd_frame *)skb->data;
+<<<<<<< HEAD
 	struct s_stats *can_stats = dev_net(skb->dev)->can.can_stats;
+=======
+	struct can_pkg_stats *pkg_stats = dev_net(skb->dev)->can.pkg_stats;
+>>>>>>> upstream/android-13
 	int err = -EINVAL;
 
 	if (skb->len == CAN_MTU) {
@@ -229,11 +265,19 @@ int can_send(struct sk_buff *skb, int loop)
 		skb->protocol = htons(ETH_P_CANFD);
 		if (unlikely(cfd->len > CANFD_MAX_DLEN))
 			goto inval_skb;
+<<<<<<< HEAD
 	} else
 		goto inval_skb;
 
 	/*
 	 * Make sure the CAN frame can pass the selected CAN netdevice.
+=======
+	} else {
+		goto inval_skb;
+	}
+
+	/* Make sure the CAN frame can pass the selected CAN netdevice.
+>>>>>>> upstream/android-13
 	 * As structs can_frame and canfd_frame are similar, we can provide
 	 * CAN FD frames to legacy CAN drivers as long as the length is <= 8
 	 */
@@ -264,8 +308,12 @@ int can_send(struct sk_buff *skb, int loop)
 		/* indication for the CAN driver: do loopback */
 		skb->pkt_type = PACKET_LOOPBACK;
 
+<<<<<<< HEAD
 		/*
 		 * The reference to the originating sock may be required
+=======
+		/* The reference to the originating sock may be required
+>>>>>>> upstream/android-13
 		 * by the receiving socket to check whether the frame is
 		 * its own. Example: can_raw sockopt CAN_RAW_RECV_OWN_MSGS
 		 * Therefore we have to ensure that skb->sk remains the
@@ -274,8 +322,12 @@ int can_send(struct sk_buff *skb, int loop)
 		 */
 
 		if (!(skb->dev->flags & IFF_ECHO)) {
+<<<<<<< HEAD
 			/*
 			 * If the interface is not capable to do loopback
+=======
+			/* If the interface is not capable to do loopback
+>>>>>>> upstream/android-13
 			 * itself, we do it here.
 			 */
 			newskb = skb_clone(skb, GFP_ATOMIC);
@@ -307,8 +359,13 @@ int can_send(struct sk_buff *skb, int loop)
 		netif_rx_ni(newskb);
 
 	/* update statistics */
+<<<<<<< HEAD
 	can_stats->tx_frames++;
 	can_stats->tx_frames_delta++;
+=======
+	pkg_stats->tx_frames++;
+	pkg_stats->tx_frames_delta++;
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -318,6 +375,7 @@ inval_skb:
 }
 EXPORT_SYMBOL(can_send);
 
+<<<<<<< HEAD
 /*
  * af_can rx path
  */
@@ -329,6 +387,19 @@ static struct can_dev_rcv_lists *find_dev_rcv_lists(struct net *net,
 		return net->can.can_rx_alldev_list;
 	else
 		return (struct can_dev_rcv_lists *)dev->ml_priv;
+=======
+/* af_can rx path */
+
+static struct can_dev_rcv_lists *can_dev_rcv_lists_find(struct net *net,
+							struct net_device *dev)
+{
+	if (dev) {
+		struct can_ml_priv *can_ml = can_get_ml_priv(dev);
+		return &can_ml->dev_rcv_lists;
+	} else {
+		return net->can.rx_alldev_list;
+	}
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -355,10 +426,17 @@ static unsigned int effhash(canid_t can_id)
 }
 
 /**
+<<<<<<< HEAD
  * find_rcv_list - determine optimal filterlist inside device filter struct
  * @can_id: pointer to CAN identifier of a given can_filter
  * @mask: pointer to CAN mask of a given can_filter
  * @d: pointer to the device filter struct
+=======
+ * can_rcv_list_find - determine optimal filterlist inside device filter struct
+ * @can_id: pointer to CAN identifier of a given can_filter
+ * @mask: pointer to CAN mask of a given can_filter
+ * @dev_rcv_lists: pointer to the device filter struct
+>>>>>>> upstream/android-13
  *
  * Description:
  *  Returns the optimal filterlist to reduce the filter handling in the
@@ -378,11 +456,19 @@ static unsigned int effhash(canid_t can_id)
  *
  * Return:
  *  Pointer to optimal filterlist for the given can_id/mask pair.
+<<<<<<< HEAD
  *  Constistency checked mask.
  *  Reduced can_id to have a preprocessed filter compare value.
  */
 static struct hlist_head *find_rcv_list(canid_t *can_id, canid_t *mask,
 					struct can_dev_rcv_lists *d)
+=======
+ *  Consistency checked mask.
+ *  Reduced can_id to have a preprocessed filter compare value.
+ */
+static struct hlist_head *can_rcv_list_find(canid_t *can_id, canid_t *mask,
+					    struct can_dev_rcv_lists *dev_rcv_lists)
+>>>>>>> upstream/android-13
 {
 	canid_t inv = *can_id & CAN_INV_FILTER; /* save flag before masking */
 
@@ -390,7 +476,11 @@ static struct hlist_head *find_rcv_list(canid_t *can_id, canid_t *mask,
 	if (*mask & CAN_ERR_FLAG) {
 		/* clear CAN_ERR_FLAG in filter entry */
 		*mask &= CAN_ERR_MASK;
+<<<<<<< HEAD
 		return &d->rx[RX_ERR];
+=======
+		return &dev_rcv_lists->rx[RX_ERR];
+>>>>>>> upstream/android-13
 	}
 
 	/* with cleared CAN_ERR_FLAG we have a simple mask/value filterpair */
@@ -406,15 +496,24 @@ static struct hlist_head *find_rcv_list(canid_t *can_id, canid_t *mask,
 
 	/* inverse can_id/can_mask filter */
 	if (inv)
+<<<<<<< HEAD
 		return &d->rx[RX_INV];
 
 	/* mask == 0 => no condition testing at receive time */
 	if (!(*mask))
 		return &d->rx[RX_ALL];
+=======
+		return &dev_rcv_lists->rx[RX_INV];
+
+	/* mask == 0 => no condition testing at receive time */
+	if (!(*mask))
+		return &dev_rcv_lists->rx[RX_ALL];
+>>>>>>> upstream/android-13
 
 	/* extra filterlists for the subscription of a single non-RTR can_id */
 	if (((*mask & CAN_EFF_RTR_FLAGS) == CAN_EFF_RTR_FLAGS) &&
 	    !(*can_id & CAN_RTR_FLAG)) {
+<<<<<<< HEAD
 
 		if (*can_id & CAN_EFF_FLAG) {
 			if (*mask == (CAN_EFF_MASK | CAN_EFF_RTR_FLAGS))
@@ -422,16 +521,33 @@ static struct hlist_head *find_rcv_list(canid_t *can_id, canid_t *mask,
 		} else {
 			if (*mask == (CAN_SFF_MASK | CAN_EFF_RTR_FLAGS))
 				return &d->rx_sff[*can_id];
+=======
+		if (*can_id & CAN_EFF_FLAG) {
+			if (*mask == (CAN_EFF_MASK | CAN_EFF_RTR_FLAGS))
+				return &dev_rcv_lists->rx_eff[effhash(*can_id)];
+		} else {
+			if (*mask == (CAN_SFF_MASK | CAN_EFF_RTR_FLAGS))
+				return &dev_rcv_lists->rx_sff[*can_id];
+>>>>>>> upstream/android-13
 		}
 	}
 
 	/* default: filter via can_id/can_mask */
+<<<<<<< HEAD
 	return &d->rx[RX_FIL];
+=======
+	return &dev_rcv_lists->rx[RX_FIL];
+>>>>>>> upstream/android-13
 }
 
 /**
  * can_rx_register - subscribe CAN frames from a specific interface
+<<<<<<< HEAD
  * @dev: pointer to netdevice (NULL => subcribe from 'all' CAN devices list)
+=======
+ * @net: the applicable net namespace
+ * @dev: pointer to netdevice (NULL => subscribe from 'all' CAN devices list)
+>>>>>>> upstream/android-13
  * @can_id: CAN identifier (see description)
  * @mask: CAN mask (see description)
  * @func: callback function on filter match
@@ -463,10 +579,17 @@ int can_rx_register(struct net *net, struct net_device *dev, canid_t can_id,
 		    canid_t mask, void (*func)(struct sk_buff *, void *),
 		    void *data, char *ident, struct sock *sk)
 {
+<<<<<<< HEAD
 	struct receiver *r;
 	struct hlist_head *rl;
 	struct can_dev_rcv_lists *d;
 	struct s_pstats *can_pstats = net->can.can_pstats;
+=======
+	struct receiver *rcv;
+	struct hlist_head *rcv_list;
+	struct can_dev_rcv_lists *dev_rcv_lists;
+	struct can_rcv_lists_stats *rcv_lists_stats = net->can.rcv_lists_stats;
+>>>>>>> upstream/android-13
 	int err = 0;
 
 	/* insert new receiver  (dev,canid,mask) -> (func,data) */
@@ -477,6 +600,7 @@ int can_rx_register(struct net *net, struct net_device *dev, canid_t can_id,
 	if (dev && !net_eq(net, dev_net(dev)))
 		return -ENODEV;
 
+<<<<<<< HEAD
 	r = kmem_cache_alloc(rcv_cache, GFP_KERNEL);
 	if (!r)
 		return -ENOMEM;
@@ -507,11 +631,38 @@ int can_rx_register(struct net *net, struct net_device *dev, canid_t can_id,
 	}
 
 	spin_unlock(&net->can.can_rcvlists_lock);
+=======
+	rcv = kmem_cache_alloc(rcv_cache, GFP_KERNEL);
+	if (!rcv)
+		return -ENOMEM;
+
+	spin_lock_bh(&net->can.rcvlists_lock);
+
+	dev_rcv_lists = can_dev_rcv_lists_find(net, dev);
+	rcv_list = can_rcv_list_find(&can_id, &mask, dev_rcv_lists);
+
+	rcv->can_id = can_id;
+	rcv->mask = mask;
+	rcv->matches = 0;
+	rcv->func = func;
+	rcv->data = data;
+	rcv->ident = ident;
+	rcv->sk = sk;
+
+	hlist_add_head_rcu(&rcv->list, rcv_list);
+	dev_rcv_lists->entries++;
+
+	rcv_lists_stats->rcv_entries++;
+	rcv_lists_stats->rcv_entries_max = max(rcv_lists_stats->rcv_entries_max,
+					       rcv_lists_stats->rcv_entries);
+	spin_unlock_bh(&net->can.rcvlists_lock);
+>>>>>>> upstream/android-13
 
 	return err;
 }
 EXPORT_SYMBOL(can_rx_register);
 
+<<<<<<< HEAD
 /*
  * can_rx_delete_receiver - rcu callback for single receiver entry removal
  */
@@ -521,12 +672,25 @@ static void can_rx_delete_receiver(struct rcu_head *rp)
 	struct sock *sk = r->sk;
 
 	kmem_cache_free(rcv_cache, r);
+=======
+/* can_rx_delete_receiver - rcu callback for single receiver entry removal */
+static void can_rx_delete_receiver(struct rcu_head *rp)
+{
+	struct receiver *rcv = container_of(rp, struct receiver, rcu);
+	struct sock *sk = rcv->sk;
+
+	kmem_cache_free(rcv_cache, rcv);
+>>>>>>> upstream/android-13
 	if (sk)
 		sock_put(sk);
 }
 
 /**
  * can_rx_unregister - unsubscribe CAN frames from a specific interface
+<<<<<<< HEAD
+=======
+ * @net: the applicable net namespace
+>>>>>>> upstream/android-13
  * @dev: pointer to netdevice (NULL => unsubscribe from 'all' CAN devices list)
  * @can_id: CAN identifier
  * @mask: CAN mask
@@ -540,10 +704,17 @@ void can_rx_unregister(struct net *net, struct net_device *dev, canid_t can_id,
 		       canid_t mask, void (*func)(struct sk_buff *, void *),
 		       void *data)
 {
+<<<<<<< HEAD
 	struct receiver *r = NULL;
 	struct hlist_head *rl;
 	struct s_pstats *can_pstats = net->can.can_pstats;
 	struct can_dev_rcv_lists *d;
+=======
+	struct receiver *rcv = NULL;
+	struct hlist_head *rcv_list;
+	struct can_rcv_lists_stats *rcv_lists_stats = net->can.rcv_lists_stats;
+	struct can_dev_rcv_lists *dev_rcv_lists;
+>>>>>>> upstream/android-13
 
 	if (dev && dev->type != ARPHRD_CAN)
 		return;
@@ -551,6 +722,7 @@ void can_rx_unregister(struct net *net, struct net_device *dev, canid_t can_id,
 	if (dev && !net_eq(net, dev_net(dev)))
 		return;
 
+<<<<<<< HEAD
 	spin_lock(&net->can.can_rcvlists_lock);
 
 	d = find_dev_rcv_lists(net, dev);
@@ -606,10 +778,54 @@ void can_rx_unregister(struct net *net, struct net_device *dev, canid_t can_id,
 		if (r->sk)
 			sock_hold(r->sk);
 		call_rcu(&r->rcu, can_rx_delete_receiver);
+=======
+	spin_lock_bh(&net->can.rcvlists_lock);
+
+	dev_rcv_lists = can_dev_rcv_lists_find(net, dev);
+	rcv_list = can_rcv_list_find(&can_id, &mask, dev_rcv_lists);
+
+	/* Search the receiver list for the item to delete.  This should
+	 * exist, since no receiver may be unregistered that hasn't
+	 * been registered before.
+	 */
+	hlist_for_each_entry_rcu(rcv, rcv_list, list) {
+		if (rcv->can_id == can_id && rcv->mask == mask &&
+		    rcv->func == func && rcv->data == data)
+			break;
+	}
+
+	/* Check for bugs in CAN protocol implementations using af_can.c:
+	 * 'rcv' will be NULL if no matching list item was found for removal.
+	 * As this case may potentially happen when closing a socket while
+	 * the notifier for removing the CAN netdev is running we just print
+	 * a warning here.
+	 */
+	if (!rcv) {
+		pr_warn("can: receive list entry not found for dev %s, id %03X, mask %03X\n",
+			DNAME(dev), can_id, mask);
+		goto out;
+	}
+
+	hlist_del_rcu(&rcv->list);
+	dev_rcv_lists->entries--;
+
+	if (rcv_lists_stats->rcv_entries > 0)
+		rcv_lists_stats->rcv_entries--;
+
+ out:
+	spin_unlock_bh(&net->can.rcvlists_lock);
+
+	/* schedule the receiver item for deletion */
+	if (rcv) {
+		if (rcv->sk)
+			sock_hold(rcv->sk);
+		call_rcu(&rcv->rcu, can_rx_delete_receiver);
+>>>>>>> upstream/android-13
 	}
 }
 EXPORT_SYMBOL(can_rx_unregister);
 
+<<<<<<< HEAD
 static inline void deliver(struct sk_buff *skb, struct receiver *r)
 {
 	r->func(skb, r->data);
@@ -619,18 +835,39 @@ static inline void deliver(struct sk_buff *skb, struct receiver *r)
 static int can_rcv_filter(struct can_dev_rcv_lists *d, struct sk_buff *skb)
 {
 	struct receiver *r;
+=======
+static inline void deliver(struct sk_buff *skb, struct receiver *rcv)
+{
+	rcv->func(skb, rcv->data);
+	rcv->matches++;
+}
+
+static int can_rcv_filter(struct can_dev_rcv_lists *dev_rcv_lists, struct sk_buff *skb)
+{
+	struct receiver *rcv;
+>>>>>>> upstream/android-13
 	int matches = 0;
 	struct can_frame *cf = (struct can_frame *)skb->data;
 	canid_t can_id = cf->can_id;
 
+<<<<<<< HEAD
 	if (d->entries == 0)
+=======
+	if (dev_rcv_lists->entries == 0)
+>>>>>>> upstream/android-13
 		return 0;
 
 	if (can_id & CAN_ERR_FLAG) {
 		/* check for error message frame entries only */
+<<<<<<< HEAD
 		hlist_for_each_entry_rcu(r, &d->rx[RX_ERR], list) {
 			if (can_id & r->mask) {
 				deliver(skb, r);
+=======
+		hlist_for_each_entry_rcu(rcv, &dev_rcv_lists->rx[RX_ERR], list) {
+			if (can_id & rcv->mask) {
+				deliver(skb, rcv);
+>>>>>>> upstream/android-13
 				matches++;
 			}
 		}
@@ -638,23 +875,40 @@ static int can_rcv_filter(struct can_dev_rcv_lists *d, struct sk_buff *skb)
 	}
 
 	/* check for unfiltered entries */
+<<<<<<< HEAD
 	hlist_for_each_entry_rcu(r, &d->rx[RX_ALL], list) {
 		deliver(skb, r);
+=======
+	hlist_for_each_entry_rcu(rcv, &dev_rcv_lists->rx[RX_ALL], list) {
+		deliver(skb, rcv);
+>>>>>>> upstream/android-13
 		matches++;
 	}
 
 	/* check for can_id/mask entries */
+<<<<<<< HEAD
 	hlist_for_each_entry_rcu(r, &d->rx[RX_FIL], list) {
 		if ((can_id & r->mask) == r->can_id) {
 			deliver(skb, r);
+=======
+	hlist_for_each_entry_rcu(rcv, &dev_rcv_lists->rx[RX_FIL], list) {
+		if ((can_id & rcv->mask) == rcv->can_id) {
+			deliver(skb, rcv);
+>>>>>>> upstream/android-13
 			matches++;
 		}
 	}
 
 	/* check for inverted can_id/mask entries */
+<<<<<<< HEAD
 	hlist_for_each_entry_rcu(r, &d->rx[RX_INV], list) {
 		if ((can_id & r->mask) != r->can_id) {
 			deliver(skb, r);
+=======
+	hlist_for_each_entry_rcu(rcv, &dev_rcv_lists->rx[RX_INV], list) {
+		if ((can_id & rcv->mask) != rcv->can_id) {
+			deliver(skb, rcv);
+>>>>>>> upstream/android-13
 			matches++;
 		}
 	}
@@ -664,16 +918,27 @@ static int can_rcv_filter(struct can_dev_rcv_lists *d, struct sk_buff *skb)
 		return matches;
 
 	if (can_id & CAN_EFF_FLAG) {
+<<<<<<< HEAD
 		hlist_for_each_entry_rcu(r, &d->rx_eff[effhash(can_id)], list) {
 			if (r->can_id == can_id) {
 				deliver(skb, r);
+=======
+		hlist_for_each_entry_rcu(rcv, &dev_rcv_lists->rx_eff[effhash(can_id)], list) {
+			if (rcv->can_id == can_id) {
+				deliver(skb, rcv);
+>>>>>>> upstream/android-13
 				matches++;
 			}
 		}
 	} else {
 		can_id &= CAN_SFF_MASK;
+<<<<<<< HEAD
 		hlist_for_each_entry_rcu(r, &d->rx_sff[can_id], list) {
 			deliver(skb, r);
+=======
+		hlist_for_each_entry_rcu(rcv, &dev_rcv_lists->rx_sff[can_id], list) {
+			deliver(skb, rcv);
+>>>>>>> upstream/android-13
 			matches++;
 		}
 	}
@@ -683,6 +948,7 @@ static int can_rcv_filter(struct can_dev_rcv_lists *d, struct sk_buff *skb)
 
 static void can_receive(struct sk_buff *skb, struct net_device *dev)
 {
+<<<<<<< HEAD
 	struct can_dev_rcv_lists *d;
 	struct net *net = dev_net(dev);
 	struct s_stats *can_stats = net->can.can_stats;
@@ -691,6 +957,16 @@ static void can_receive(struct sk_buff *skb, struct net_device *dev)
 	/* update statistics */
 	can_stats->rx_frames++;
 	can_stats->rx_frames_delta++;
+=======
+	struct can_dev_rcv_lists *dev_rcv_lists;
+	struct net *net = dev_net(dev);
+	struct can_pkg_stats *pkg_stats = net->can.pkg_stats;
+	int matches;
+
+	/* update statistics */
+	pkg_stats->rx_frames++;
+	pkg_stats->rx_frames_delta++;
+>>>>>>> upstream/android-13
 
 	/* create non-zero unique skb identifier together with *skb */
 	while (!(can_skb_prv(skb)->skbcnt))
@@ -699,12 +975,20 @@ static void can_receive(struct sk_buff *skb, struct net_device *dev)
 	rcu_read_lock();
 
 	/* deliver the packet to sockets listening on all devices */
+<<<<<<< HEAD
 	matches = can_rcv_filter(net->can.can_rx_alldev_list, skb);
 
 	/* find receive list for this device */
 	d = find_dev_rcv_lists(net, dev);
 	if (d)
 		matches += can_rcv_filter(d, skb);
+=======
+	matches = can_rcv_filter(net->can.rx_alldev_list, skb);
+
+	/* find receive list for this device */
+	dev_rcv_lists = can_dev_rcv_lists_find(net, dev);
+	matches += can_rcv_filter(dev_rcv_lists, skb);
+>>>>>>> upstream/android-13
 
 	rcu_read_unlock();
 
@@ -712,8 +996,13 @@ static void can_receive(struct sk_buff *skb, struct net_device *dev)
 	consume_skb(skb);
 
 	if (matches > 0) {
+<<<<<<< HEAD
 		can_stats->matches++;
 		can_stats->matches_delta++;
+=======
+		pkg_stats->matches++;
+		pkg_stats->matches_delta++;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -744,7 +1033,11 @@ free_skb:
 }
 
 static int canfd_rcv(struct sk_buff *skb, struct net_device *dev,
+<<<<<<< HEAD
 		   struct packet_type *pt, struct net_device *orig_dev)
+=======
+		     struct packet_type *pt, struct net_device *orig_dev)
+>>>>>>> upstream/android-13
 {
 	struct canfd_frame *cfd = (struct canfd_frame *)skb->data;
 
@@ -769,9 +1062,13 @@ free_skb:
 	return NET_RX_DROP;
 }
 
+<<<<<<< HEAD
 /*
  * af_can protocol functions
  */
+=======
+/* af_can protocol functions */
+>>>>>>> upstream/android-13
 
 /**
  * can_proto_register - register CAN transport protocol
@@ -802,8 +1099,14 @@ int can_proto_register(const struct can_proto *cp)
 	if (rcu_access_pointer(proto_tab[proto])) {
 		pr_err("can: protocol %d already registered\n", proto);
 		err = -EBUSY;
+<<<<<<< HEAD
 	} else
 		RCU_INIT_POINTER(proto_tab[proto], cp);
+=======
+	} else {
+		RCU_INIT_POINTER(proto_tab[proto], cp);
+	}
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&proto_tab_lock);
 
@@ -833,6 +1136,7 @@ void can_proto_unregister(const struct can_proto *cp)
 }
 EXPORT_SYMBOL(can_proto_unregister);
 
+<<<<<<< HEAD
 /*
  * af_can notifier to create/remove CAN netdevice specific structs
  */
@@ -894,31 +1198,63 @@ static int can_pernet_init(struct net *net)
 	net->can.can_pstats = kzalloc(sizeof(struct s_pstats), GFP_KERNEL);
 	if (!net->can.can_pstats)
 		goto out_free_can_stats;
+=======
+static int can_pernet_init(struct net *net)
+{
+	spin_lock_init(&net->can.rcvlists_lock);
+	net->can.rx_alldev_list =
+		kzalloc(sizeof(*net->can.rx_alldev_list), GFP_KERNEL);
+	if (!net->can.rx_alldev_list)
+		goto out;
+	net->can.pkg_stats = kzalloc(sizeof(*net->can.pkg_stats), GFP_KERNEL);
+	if (!net->can.pkg_stats)
+		goto out_free_rx_alldev_list;
+	net->can.rcv_lists_stats = kzalloc(sizeof(*net->can.rcv_lists_stats), GFP_KERNEL);
+	if (!net->can.rcv_lists_stats)
+		goto out_free_pkg_stats;
+>>>>>>> upstream/android-13
 
 	if (IS_ENABLED(CONFIG_PROC_FS)) {
 		/* the statistics are updated every second (timer triggered) */
 		if (stats_timer) {
+<<<<<<< HEAD
 			timer_setup(&net->can.can_stattimer, can_stat_update,
 				    0);
 			mod_timer(&net->can.can_stattimer,
 				  round_jiffies(jiffies + HZ));
 		}
 		net->can.can_stats->jiffies_init = jiffies;
+=======
+			timer_setup(&net->can.stattimer, can_stat_update,
+				    0);
+			mod_timer(&net->can.stattimer,
+				  round_jiffies(jiffies + HZ));
+		}
+		net->can.pkg_stats->jiffies_init = jiffies;
+>>>>>>> upstream/android-13
 		can_init_proc(net);
 	}
 
 	return 0;
 
+<<<<<<< HEAD
  out_free_can_stats:
 	kfree(net->can.can_stats);
  out_free_alldev_list:
 	kfree(net->can.can_rx_alldev_list);
+=======
+ out_free_pkg_stats:
+	kfree(net->can.pkg_stats);
+ out_free_rx_alldev_list:
+	kfree(net->can.rx_alldev_list);
+>>>>>>> upstream/android-13
  out:
 	return -ENOMEM;
 }
 
 static void can_pernet_exit(struct net *net)
 {
+<<<<<<< HEAD
 	struct net_device *dev;
 
 	if (IS_ENABLED(CONFIG_PROC_FS)) {
@@ -948,6 +1284,20 @@ static void can_pernet_exit(struct net *net)
 /*
  * af_can module init/exit functions
  */
+=======
+	if (IS_ENABLED(CONFIG_PROC_FS)) {
+		can_remove_proc(net);
+		if (stats_timer)
+			del_timer_sync(&net->can.stattimer);
+	}
+
+	kfree(net->can.rx_alldev_list);
+	kfree(net->can.pkg_stats);
+	kfree(net->can.rcv_lists_stats);
+}
+
+/* af_can module init/exit functions */
+>>>>>>> upstream/android-13
 
 static struct packet_type can_packet __read_mostly = {
 	.type = cpu_to_be16(ETH_P_CAN),
@@ -965,11 +1315,14 @@ static const struct net_proto_family can_family_ops = {
 	.owner  = THIS_MODULE,
 };
 
+<<<<<<< HEAD
 /* notifier block for netdevice event */
 static struct notifier_block can_netdev_notifier __read_mostly = {
 	.notifier_call = can_notifier,
 };
 
+=======
+>>>>>>> upstream/android-13
 static struct pernet_operations can_pernet_ops __read_mostly = {
 	.init = can_pernet_init,
 	.exit = can_pernet_exit,
@@ -980,12 +1333,20 @@ static __init int can_init(void)
 	int err;
 
 	/* check for correct padding to be able to use the structs similarly */
+<<<<<<< HEAD
 	BUILD_BUG_ON(offsetof(struct can_frame, can_dlc) !=
+=======
+	BUILD_BUG_ON(offsetof(struct can_frame, len) !=
+>>>>>>> upstream/android-13
 		     offsetof(struct canfd_frame, len) ||
 		     offsetof(struct can_frame, data) !=
 		     offsetof(struct canfd_frame, data));
 
+<<<<<<< HEAD
 	pr_info("can: controller area network core (" CAN_VERSION_STRING ")\n");
+=======
+	pr_info("can: controller area network core\n");
+>>>>>>> upstream/android-13
 
 	rcv_cache = kmem_cache_create("can_receiver", sizeof(struct receiver),
 				      0, 0, NULL);
@@ -1000,17 +1361,23 @@ static __init int can_init(void)
 	err = sock_register(&can_family_ops);
 	if (err)
 		goto out_sock;
+<<<<<<< HEAD
 	err = register_netdevice_notifier(&can_netdev_notifier);
 	if (err)
 		goto out_notifier;
+=======
+>>>>>>> upstream/android-13
 
 	dev_add_pack(&can_packet);
 	dev_add_pack(&canfd_packet);
 
 	return 0;
 
+<<<<<<< HEAD
 out_notifier:
 	sock_unregister(PF_CAN);
+=======
+>>>>>>> upstream/android-13
 out_sock:
 	unregister_pernet_subsys(&can_pernet_ops);
 out_pernet:
@@ -1024,7 +1391,10 @@ static __exit void can_exit(void)
 	/* protocol unregister */
 	dev_remove_pack(&canfd_packet);
 	dev_remove_pack(&can_packet);
+<<<<<<< HEAD
 	unregister_netdevice_notifier(&can_netdev_notifier);
+=======
+>>>>>>> upstream/android-13
 	sock_unregister(PF_CAN);
 
 	unregister_pernet_subsys(&can_pernet_ops);

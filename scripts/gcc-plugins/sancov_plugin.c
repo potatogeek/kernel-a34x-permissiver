@@ -11,7 +11,11 @@
  *
  * You can read about it more here:
  *  https://gcc.gnu.org/viewcvs/gcc?limit_changes=0&view=revision&revision=231296
+<<<<<<< HEAD
  *  http://lwn.net/Articles/674854/
+=======
+ *  https://lwn.net/Articles/674854/
+>>>>>>> upstream/android-13
  *  https://github.com/google/syzkaller
  *  https://lwn.net/Articles/677764/
  *
@@ -80,10 +84,15 @@ static void sancov_start_unit(void __unused *gcc_data, void __unused *user_data)
 	nothrow_attr = tree_cons(get_identifier("nothrow"), NULL, NULL);
 	decl_attributes(&sancov_fndecl, nothrow_attr, 0);
 	gcc_assert(TREE_NOTHROW(sancov_fndecl));
+<<<<<<< HEAD
 #if BUILDING_GCC_VERSION > 4005
 	leaf_attr = tree_cons(get_identifier("leaf"), NULL, NULL);
 	decl_attributes(&sancov_fndecl, leaf_attr, 0);
 #endif
+=======
+	leaf_attr = tree_cons(get_identifier("leaf"), NULL, NULL);
+	decl_attributes(&sancov_fndecl, leaf_attr, 0);
+>>>>>>> upstream/android-13
 }
 
 __visible int plugin_init(struct plugin_name_args *plugin_info, struct plugin_gcc_version *version)
@@ -106,11 +115,15 @@ __visible int plugin_init(struct plugin_name_args *plugin_info, struct plugin_gc
 	};
 
 	/* BBs can be split afterwards?? */
+<<<<<<< HEAD
 #if BUILDING_GCC_VERSION >= 4009
 	PASS_INFO(sancov, "asan", 0, PASS_POS_INSERT_BEFORE);
 #else
 	PASS_INFO(sancov, "nrv", 1, PASS_POS_INSERT_BEFORE);
 #endif
+=======
+	PASS_INFO(sancov, "asan", 0, PASS_POS_INSERT_BEFORE);
+>>>>>>> upstream/android-13
 
 	if (!plugin_default_version_check(version, &gcc_version)) {
 		error(G_("incompatible gcc/plugin versions"));

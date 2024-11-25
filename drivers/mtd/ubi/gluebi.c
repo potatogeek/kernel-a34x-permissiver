@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) International Business Machines Corp., 2006
  *
@@ -15,6 +16,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) International Business Machines Corp., 2006
+ *
+>>>>>>> upstream/android-13
  * Author: Artem Bityutskiy (Битюцкий Артём), Joern Engel
  */
 
@@ -452,7 +459,11 @@ static int gluebi_resized(struct ubi_volume_info *vi)
  * gluebi_notify - UBI notification handler.
  * @nb: registered notifier block
  * @l: notification type
+<<<<<<< HEAD
  * @ptr: pointer to the &struct ubi_notification object
+=======
+ * @ns_ptr: pointer to the &struct ubi_notification object
+>>>>>>> upstream/android-13
  */
 static int gluebi_notify(struct notifier_block *nb, unsigned long l,
 			 void *ns_ptr)

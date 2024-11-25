@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 
   Driver for the Marvell 8385 based compact flash WLAN cards.
 
   (C) 2007 by Holger Schurig <hs4233@mail.mn-solutions.de>
 
+<<<<<<< HEAD
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 2 of the License, or
@@ -18,6 +23,8 @@
   along with this program; see the file COPYING.  If not, write to
   the Free Software Foundation, Inc., 51 Franklin Steet, Fifth Floor,
   Boston, MA 02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
 
 */
 
@@ -900,8 +907,13 @@ static int if_cs_probe(struct pcmcia_device *p_dev)
 
 	/* Make this card known to the libertas driver */
 	priv = lbs_add_card(card, &p_dev->dev);
+<<<<<<< HEAD
 	if (!priv) {
 		ret = -ENOMEM;
+=======
+	if (IS_ERR(priv)) {
+		ret = PTR_ERR(priv);
+>>>>>>> upstream/android-13
 		goto out2;
 	}
 

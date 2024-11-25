@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  PowerPC version derived from arch/arm/mm/consistent.c
  *    Copyright (C) 2001 Dan Malek (dmalek@jlc.net)
  *
  *  Copyright (C) 2000 Russell King
+<<<<<<< HEAD
  *
  * Consistent memory allocators.  Used for DMA devices that want to
  * share uncached memory with the processor core.  The function return
@@ -31,10 +36,21 @@
 #include <linux/highmem.h>
 #include <linux/dma-mapping.h>
 #include <linux/export.h>
+=======
+ */
+
+#include <linux/kernel.h>
+#include <linux/errno.h>
+#include <linux/types.h>
+#include <linux/highmem.h>
+#include <linux/dma-direct.h>
+#include <linux/dma-map-ops.h>
+>>>>>>> upstream/android-13
 
 #include <asm/tlbflush.h>
 #include <asm/dma.h>
 
+<<<<<<< HEAD
 #include "mmu_decl.h"
 
 /*
@@ -315,6 +331,12 @@ EXPORT_SYMBOL(__dma_free_coherent);
  * make an area consistent.
  */
 void __dma_sync(void *vaddr, size_t size, int direction)
+=======
+/*
+ * make an area consistent.
+ */
+static void __dma_sync(void *vaddr, size_t size, int direction)
+>>>>>>> upstream/android-13
 {
 	unsigned long start = (unsigned long)vaddr;
 	unsigned long end   = start + size;
@@ -340,7 +362,10 @@ void __dma_sync(void *vaddr, size_t size, int direction)
 		break;
 	}
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(__dma_sync);
+=======
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_HIGHMEM
 /*
@@ -387,6 +412,7 @@ static inline void __dma_sync_page_highmem(struct page *page,
  * __dma_sync_page makes memory consistent. identical to __dma_sync, but
  * takes a struct page instead of a virtual address
  */
+<<<<<<< HEAD
 void __dma_sync_page(struct page *page, unsigned long offset,
 	size_t size, int direction)
 {
@@ -417,4 +443,36 @@ unsigned long __dma_get_coherent_pfn(unsigned long cpu_addr)
 	if (pte_none(*ptep) || !pte_present(*ptep))
 		return 0;
 	return pte_pfn(*ptep);
+=======
+static void __dma_sync_page(phys_addr_t paddr, size_t size, int dir)
+{
+	struct page *page = pfn_to_page(paddr >> PAGE_SHIFT);
+	unsigned offset = paddr & ~PAGE_MASK;
+
+#ifdef CONFIG_HIGHMEM
+	__dma_sync_page_highmem(page, offset, size, dir);
+#else
+	unsigned long start = (unsigned long)page_address(page) + offset;
+	__dma_sync((void *)start, size, dir);
+#endif
+}
+
+void arch_sync_dma_for_device(phys_addr_t paddr, size_t size,
+		enum dma_data_direction dir)
+{
+	__dma_sync_page(paddr, size, dir);
+}
+
+void arch_sync_dma_for_cpu(phys_addr_t paddr, size_t size,
+		enum dma_data_direction dir)
+{
+	__dma_sync_page(paddr, size, dir);
+}
+
+void arch_dma_prep_coherent(struct page *page, size_t size)
+{
+	unsigned long kaddr = (unsigned long)page_address(page);
+
+	flush_dcache_range(kaddr, kaddr + size);
+>>>>>>> upstream/android-13
 }

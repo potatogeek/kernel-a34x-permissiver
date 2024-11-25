@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2010-2014, The Linux Foundation. All rights reserved.
  *
@@ -9,13 +10,23 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2010-2014, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _SHA_H_
 #define _SHA_H_
 
 #include <crypto/scatterwalk.h>
+<<<<<<< HEAD
 #include <crypto/sha.h>
+=======
+#include <crypto/sha1.h>
+#include <crypto/sha2.h>
+>>>>>>> upstream/android-13
 
 #include "common.h"
 #include "core.h"

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  libata-eh.c - libata error handling
  *
@@ -24,12 +25,23 @@
  *  USA.
  *
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  libata-eh.c - libata error handling
+ *
+ *  Copyright 2006 Tejun Heo <htejun@gmail.com>
+ *
+>>>>>>> upstream/android-13
  *  libata documentation is available via 'make {ps|pdf}docs',
  *  as Documentation/driver-api/libata.rst
  *
  *  Hardware documentation available from http://www.t13.org/ and
  *  http://www.sata-io.org/
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -114,6 +126,15 @@ static const unsigned long ata_eh_identify_timeouts[] = {
 	ULONG_MAX,
 };
 
+<<<<<<< HEAD
+=======
+static const unsigned long ata_eh_revalidate_timeouts[] = {
+	15000,	/* Some drives are slow to read log pages when waking-up */
+	15000,  /* combined time till here is enough even for media access */
+	ULONG_MAX,
+};
+
+>>>>>>> upstream/android-13
 static const unsigned long ata_eh_flush_timeouts[] = {
 	15000,	/* be generous with flush */
 	15000,  /* ditto */
@@ -150,6 +171,11 @@ static const struct ata_eh_cmd_timeout_ent
 ata_eh_cmd_timeout_table[ATA_EH_CMD_TIMEOUT_TABLE_SIZE] = {
 	{ .commands = CMDS(ATA_CMD_ID_ATA, ATA_CMD_ID_ATAPI),
 	  .timeouts = ata_eh_identify_timeouts, },
+<<<<<<< HEAD
+=======
+	{ .commands = CMDS(ATA_CMD_READ_LOG_EXT, ATA_CMD_READ_LOG_DMA_EXT),
+	  .timeouts = ata_eh_revalidate_timeouts, },
+>>>>>>> upstream/android-13
 	{ .commands = CMDS(ATA_CMD_READ_NATIVE_MAX, ATA_CMD_READ_NATIVE_MAX_EXT),
 	  .timeouts = ata_eh_other_timeouts, },
 	{ .commands = CMDS(ATA_CMD_SET_MAX, ATA_CMD_SET_MAX_EXT),
@@ -201,6 +227,10 @@ void __ata_ehi_push_desc(struct ata_eh_info *ehi, const char *fmt, ...)
 	__ata_ehi_pushv_desc(ehi, fmt, args);
 	va_end(args);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(__ata_ehi_push_desc);
+>>>>>>> upstream/android-13
 
 /**
  *	ata_ehi_push_desc - push error description with separator
@@ -224,6 +254,10 @@ void ata_ehi_push_desc(struct ata_eh_info *ehi, const char *fmt, ...)
 	__ata_ehi_pushv_desc(ehi, fmt, args);
 	va_end(args);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_ehi_push_desc);
+>>>>>>> upstream/android-13
 
 /**
  *	ata_ehi_clear_desc - clean error description
@@ -239,6 +273,10 @@ void ata_ehi_clear_desc(struct ata_eh_info *ehi)
 	ehi->desc[0] = '\0';
 	ehi->desc_len = 0;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_ehi_clear_desc);
+>>>>>>> upstream/android-13
 
 /**
  *	ata_port_desc - append port description
@@ -266,9 +304,15 @@ void ata_port_desc(struct ata_port *ap, const char *fmt, ...)
 	__ata_ehi_pushv_desc(&ap->link.eh_info, fmt, args);
 	va_end(args);
 }
+<<<<<<< HEAD
 
 #ifdef CONFIG_PCI
 
+=======
+EXPORT_SYMBOL_GPL(ata_port_desc);
+
+#ifdef CONFIG_PCI
+>>>>>>> upstream/android-13
 /**
  *	ata_port_pbar_desc - append PCI BAR description
  *	@ap: target ATA port
@@ -305,7 +349,11 @@ void ata_port_pbar_desc(struct ata_port *ap, int bar, ssize_t offset,
 		ata_port_desc(ap, "%s 0x%llx", name,
 				start + (unsigned long long)offset);
 }
+<<<<<<< HEAD
 
+=======
+EXPORT_SYMBOL_GPL(ata_port_pbar_desc);
+>>>>>>> upstream/android-13
 #endif /* CONFIG_PCI */
 
 static int ata_lookup_timeout_table(u8 cmd)
@@ -919,8 +967,11 @@ static void ata_eh_set_pending(struct ata_port *ap, int fastdrain)
 void ata_qc_schedule_eh(struct ata_queued_cmd *qc)
 {
 	struct ata_port *ap = qc->ap;
+<<<<<<< HEAD
 	struct request_queue *q = qc->scsicmd->device->request_queue;
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 
 	WARN_ON(!ap->ops->error_handler);
 
@@ -932,9 +983,13 @@ void ata_qc_schedule_eh(struct ata_queued_cmd *qc)
 	 * Note that ATA_QCFLAG_FAILED is unconditionally set after
 	 * this function completes.
 	 */
+<<<<<<< HEAD
 	spin_lock_irqsave(q->queue_lock, flags);
 	blk_abort_request(qc->scsicmd->request);
 	spin_unlock_irqrestore(q->queue_lock, flags);
+=======
+	blk_abort_request(scsi_cmd_to_rq(qc->scsicmd));
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -994,6 +1049,10 @@ void ata_port_schedule_eh(struct ata_port *ap)
 	/* see: ata_std_sched_eh, unless you know better */
 	ap->ops->sched_eh(ap);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_port_schedule_eh);
+>>>>>>> upstream/android-13
 
 static int ata_do_link_abort(struct ata_port *ap, struct ata_link *link)
 {
@@ -1036,6 +1095,10 @@ int ata_link_abort(struct ata_link *link)
 {
 	return ata_do_link_abort(link->ap, link);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_link_abort);
+>>>>>>> upstream/android-13
 
 /**
  *	ata_port_abort - abort all qc's on the port
@@ -1053,6 +1116,10 @@ int ata_port_abort(struct ata_port *ap)
 {
 	return ata_do_link_abort(ap, NULL);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_port_abort);
+>>>>>>> upstream/android-13
 
 /**
  *	__ata_port_freeze - freeze port
@@ -1109,6 +1176,7 @@ int ata_port_freeze(struct ata_port *ap)
 
 	return nr_aborted;
 }
+<<<<<<< HEAD
 
 /**
  *	sata_async_notification - SATA async notification handler
@@ -1182,6 +1250,9 @@ int sata_async_notification(struct ata_port *ap)
 		return 0;
 	}
 }
+=======
+EXPORT_SYMBOL_GPL(ata_port_freeze);
+>>>>>>> upstream/android-13
 
 /**
  *	ata_eh_freeze_port - EH helper to freeze port
@@ -1203,9 +1274,16 @@ void ata_eh_freeze_port(struct ata_port *ap)
 	__ata_port_freeze(ap);
 	spin_unlock_irqrestore(ap->lock, flags);
 }
+<<<<<<< HEAD
 
 /**
  *	ata_port_thaw_port - EH helper to thaw port
+=======
+EXPORT_SYMBOL_GPL(ata_eh_freeze_port);
+
+/**
+ *	ata_eh_thaw_port - EH helper to thaw port
+>>>>>>> upstream/android-13
  *	@ap: ATA port to thaw
  *
  *	Thaw frozen port @ap.
@@ -1310,6 +1388,10 @@ void ata_dev_disable(struct ata_device *dev)
 	 */
 	ata_ering_clear(&dev->ering);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_dev_disable);
+>>>>>>> upstream/android-13
 
 /**
  *	ata_eh_detach_dev - detach ATA device
@@ -1441,6 +1523,7 @@ static const char *ata_err_string(unsigned int err_mask)
 }
 
 /**
+<<<<<<< HEAD
  *	ata_eh_read_log_10h - Read log page 10h for NCQ error details
  *	@dev: Device to read log page 10h from
  *	@tag: Resulting tag of the failed command
@@ -1497,6 +1580,8 @@ static int ata_eh_read_log_10h(struct ata_device *dev,
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  *	atapi_eh_tur - perform ATAPI TEST_UNIT_READY
  *	@dev: target ATAPI device
  *	@r_sense_key: out parameter for sense_key
@@ -1680,6 +1765,7 @@ static void ata_eh_analyze_serror(struct ata_link *link)
 }
 
 /**
+<<<<<<< HEAD
  *	ata_eh_analyze_ncq_error - analyze NCQ error
  *	@link: ATA link to analyze NCQ error for
  *
@@ -1754,6 +1840,8 @@ void ata_eh_analyze_ncq_error(struct ata_link *link)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  *	ata_eh_analyze_tf - analyze taskfile of a failed qc
  *	@qc: qc to analyze
  *	@tf: Taskfile registers to analyze
@@ -1795,7 +1883,11 @@ static unsigned int ata_eh_analyze_tf(struct ata_queued_cmd *qc,
 	case ATA_DEV_ZAC:
 		if (stat & ATA_SENSE)
 			ata_eh_request_sense(qc, qc->scsicmd);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ATA_DEV_ATA:
 		if (err & ATA_ICRC)
 			qc->err_mask |= AC_ERR_ATA_BUS;
@@ -1818,7 +1910,11 @@ static unsigned int ata_eh_analyze_tf(struct ata_queued_cmd *qc,
 	}
 
 	if (qc->flags & ATA_QCFLAG_SENSE_VALID) {
+<<<<<<< HEAD
 		int ret = scsi_check_sense(qc->scsicmd);
+=======
+		enum scsi_disposition ret = scsi_check_sense(qc->scsicmd);
+>>>>>>> upstream/android-13
 		/*
 		 * SUCCESS here means that the sense code could be
 		 * evaluated and should be passed to the upper layers
@@ -2112,8 +2208,12 @@ static inline int ata_eh_worth_retry(struct ata_queued_cmd *qc)
  */
 static inline bool ata_eh_quiet(struct ata_queued_cmd *qc)
 {
+<<<<<<< HEAD
 	if (qc->scsicmd &&
 	    qc->scsicmd->request->rq_flags & RQF_QUIET)
+=======
+	if (qc->scsicmd && scsi_cmd_to_rq(qc->scsicmd)->rq_flags & RQF_QUIET)
+>>>>>>> upstream/android-13
 		qc->flags |= ATA_QCFLAG_QUIET;
 	return qc->flags & ATA_QCFLAG_QUIET;
 }
@@ -2832,6 +2932,10 @@ int ata_eh_reset(struct ata_link *link, int classify,
 			switch (tmp) {
 			case -EAGAIN:
 				rc = -EAGAIN;
+<<<<<<< HEAD
+=======
+				break;
+>>>>>>> upstream/android-13
 			case 0:
 				break;
 			default:
@@ -3457,7 +3561,12 @@ static int ata_eh_set_lpm(struct ata_link *link, enum ata_lpm_policy policy,
 	int rc;
 
 	/* if the link or host doesn't do LPM, noop */
+<<<<<<< HEAD
 	if ((link->flags & ATA_LFLAG_NO_LPM) || (ap && !ap->ops->set_lpm))
+=======
+	if (!IS_ENABLED(CONFIG_SATA_HOST) ||
+	    (link->flags & ATA_LFLAG_NO_LPM) || (ap && !ap->ops->set_lpm))
+>>>>>>> upstream/android-13
 		return 0;
 
 	/*
@@ -3691,11 +3800,19 @@ static int ata_eh_handle_dev_fail(struct ata_device *dev, int err)
 	case -ENODEV:
 		/* device missing or wrong IDENTIFY data, schedule probing */
 		ehc->i.probe_mask |= (1 << dev->devno);
+<<<<<<< HEAD
 		/* fall through */
 	case -EINVAL:
 		/* give it just one more chance */
 		ehc->tries[dev->devno] = min(ehc->tries[dev->devno], 1);
 		/* fall through */
+=======
+		fallthrough;
+	case -EINVAL:
+		/* give it just one more chance */
+		ehc->tries[dev->devno] = min(ehc->tries[dev->devno], 1);
+		fallthrough;
+>>>>>>> upstream/android-13
 	case -EIO:
 		if (ehc->tries[dev->devno] == 1) {
 			/* This is the last chance, better to slow
@@ -4073,6 +4190,10 @@ void ata_std_error_handler(struct ata_port *ap)
 
 	ata_do_eh(ap, ops->prereset, ops->softreset, hardreset, ops->postreset);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_std_error_handler);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PM
 /**

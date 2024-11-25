@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0
+#
+>>>>>>> upstream/android-13
 # For MTK USB3.0 IP
 
 config USB_MTU3

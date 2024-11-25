@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0-only
 
+<<<<<<< HEAD
 config MEDIATEK_CQDMA
         tristate "MediaTek Command-Queue DMA controller support"
         select DMA_ENGINE
@@ -12,12 +13,18 @@ config MEDIATEK_CQDMA
           This controller provides the channels which is dedicated to
           memory-to-memory transfer to offload from CPU.
 
+=======
+>>>>>>> upstream/android-13
 config MTK_HSDMA
 	tristate "MediaTek High-Speed DMA controller support"
 	depends on ARCH_MEDIATEK || COMPILE_TEST
 	select DMA_ENGINE
 	select DMA_VIRTUAL_CHANNELS
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  Enable support for High-Speed DMA controller on MediaTek
 	  SoCs.
 
@@ -25,6 +32,22 @@ config MTK_HSDMA
 	  memory-to-memory transfer to offload from CPU through ring-
 	  based descriptor management.
 
+<<<<<<< HEAD
+=======
+config MTK_CQDMA
+	tristate "MediaTek Command-Queue DMA controller support"
+	depends on ARCH_MEDIATEK || COMPILE_TEST
+	select DMA_ENGINE
+	select DMA_VIRTUAL_CHANNELS
+	select ASYNC_TX_ENABLE_CHANNEL_SWITCH
+	help
+	  Enable support for Command-Queue DMA controller on MediaTek
+	  SoCs.
+
+	  This controller provides the channels which is dedicated to
+	  memory-to-memory transfer to offload from CPU.
+
+>>>>>>> upstream/android-13
 config MTK_UART_APDMA
 	tristate "MediaTek SoCs APDMA support for UART"
 	depends on OF && SERIAL_8250_MT6577

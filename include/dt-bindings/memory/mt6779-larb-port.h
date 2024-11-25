@@ -4,6 +4,7 @@
  * Author: Chao Hao <chao.hao@mediatek.com>
  */
 
+<<<<<<< HEAD
 #ifndef _DTS_IOMMU_PORT_MT6779_H_
 #define _DTS_IOMMU_PORT_MT6779_H_
 
@@ -15,6 +16,12 @@
 #define MTK_M4U_TO_PORT(id)		 ((id) & 0x1f)
 
 #define MTK_IOMMU_LARB_NR		 11
+=======
+#ifndef _DT_BINDINGS_MEMORY_MT6779_LARB_PORT_H_
+#define _DT_BINDINGS_MEMORY_MT6779_LARB_PORT_H_
+
+#include <dt-bindings/memory/mtk-memory-port.h>
+>>>>>>> upstream/android-13
 
 #define M4U_LARB0_ID			 0
 #define M4U_LARB1_ID			 1
@@ -28,8 +35,11 @@
 #define M4U_LARB9_ID			 9
 #define M4U_LARB10_ID			 10
 #define M4U_LARB11_ID			 11
+<<<<<<< HEAD
 #define M4U_LARB12_ID			 12
 #define M4U_LARB13_ID			 13
+=======
+>>>>>>> upstream/android-13
 
 /* larb0 */
 #define M4U_PORT_DISP_POSTMASK0		 MTK_M4U_ID(M4U_LARB0_ID, 0)
@@ -72,7 +82,11 @@
 #define M4U_PORT_HW_VDEC_UFO_ENC_EXT     MTK_M4U_ID(M4U_LARB2_ID, 10)
 #define M4U_PORT_HW_VDEC_RG_CTRL_DMA_EXT MTK_M4U_ID(M4U_LARB2_ID, 11)
 
+<<<<<<< HEAD
 /*larb3-VENC*/
+=======
+/* larb3-VENC */
+>>>>>>> upstream/android-13
 #define M4U_PORT_VENC_RCPU		 MTK_M4U_ID(M4U_LARB3_ID, 0)
 #define M4U_PORT_VENC_REC		 MTK_M4U_ID(M4U_LARB3_ID, 1)
 #define M4U_PORT_VENC_BSDMA		 MTK_M4U_ID(M4U_LARB3_ID, 2)
@@ -93,9 +107,15 @@
 #define M4U_PORT_VENC_REF_LUMA		 MTK_M4U_ID(M4U_LARB3_ID, 17)
 #define M4U_PORT_VENC_REF_CHROMA	 MTK_M4U_ID(M4U_LARB3_ID, 18)
 
+<<<<<<< HEAD
 /*larb4-dummy*/
 
 /*larb5-IMG*/
+=======
+/* larb4-dummy */
+
+/* larb5-IMG */
+>>>>>>> upstream/android-13
 #define M4U_PORT_IMGI_D1		 MTK_M4U_ID(M4U_LARB5_ID, 0)
 #define M4U_PORT_IMGBI_D1		 MTK_M4U_ID(M4U_LARB5_ID, 1)
 #define M4U_PORT_DMGI_D1		 MTK_M4U_ID(M4U_LARB5_ID, 2)
@@ -123,18 +143,30 @@
 #define M4U_PORT_RESERVE5		 MTK_M4U_ID(M4U_LARB5_ID, 24)
 #define M4U_PORT_RESERVE6		 MTK_M4U_ID(M4U_LARB5_ID, 25)
 
+<<<<<<< HEAD
 /*larb6-IMG*/
+=======
+/* larb6-IMG-VPU */
+>>>>>>> upstream/android-13
 #define M4U_PORT_IMG_IPUO		 MTK_M4U_ID(M4U_LARB6_ID, 0)
 #define M4U_PORT_IMG_IPU3O		 MTK_M4U_ID(M4U_LARB6_ID, 1)
 #define M4U_PORT_IMG_IPUI		 MTK_M4U_ID(M4U_LARB6_ID, 2)
 
+<<<<<<< HEAD
 /*larb7-DVS*/
+=======
+/* larb7-DVS */
+>>>>>>> upstream/android-13
 #define M4U_PORT_DVS_RDMA		 MTK_M4U_ID(M4U_LARB7_ID, 0)
 #define M4U_PORT_DVS_WDMA		 MTK_M4U_ID(M4U_LARB7_ID, 1)
 #define M4U_PORT_DVP_RDMA		 MTK_M4U_ID(M4U_LARB7_ID, 2)
 #define M4U_PORT_DVP_WDMA		 MTK_M4U_ID(M4U_LARB7_ID, 3)
 
+<<<<<<< HEAD
 /*larb8-IPESYS*/
+=======
+/* larb8-IPESYS */
+>>>>>>> upstream/android-13
 #define M4U_PORT_FDVT_RDA		 MTK_M4U_ID(M4U_LARB8_ID, 0)
 #define M4U_PORT_FDVT_RDB		 MTK_M4U_ID(M4U_LARB8_ID, 1)
 #define M4U_PORT_FDVT_WRA		 MTK_M4U_ID(M4U_LARB8_ID, 2)
@@ -146,7 +178,11 @@
 #define M4U_PORT_RSC_RDMA0		 MTK_M4U_ID(M4U_LARB8_ID, 8)
 #define M4U_PORT_RSC_WDMA		 MTK_M4U_ID(M4U_LARB8_ID, 9)
 
+<<<<<<< HEAD
 /*larb9-CAM*/
+=======
+/* larb9-CAM */
+>>>>>>> upstream/android-13
 #define M4U_PORT_CAM_IMGO_R1_C		 MTK_M4U_ID(M4U_LARB9_ID, 0)
 #define M4U_PORT_CAM_RRZO_R1_C		 MTK_M4U_ID(M4U_LARB9_ID, 1)
 #define M4U_PORT_CAM_LSCI_R1_C		 MTK_M4U_ID(M4U_LARB9_ID, 2)
@@ -172,7 +208,11 @@
 #define M4U_PORT_CAM_CCUO		 MTK_M4U_ID(M4U_LARB9_ID, 22)
 #define M4U_PORT_CAM_FAKE		 MTK_M4U_ID(M4U_LARB9_ID, 23)
 
+<<<<<<< HEAD
 /*larb10-CAM_A*/
+=======
+/* larb10-CAM_A */
+>>>>>>> upstream/android-13
 #define M4U_PORT_CAM_IMGO_R1_A		 MTK_M4U_ID(M4U_LARB10_ID, 0)
 #define M4U_PORT_CAM_RRZO_R1_A		 MTK_M4U_ID(M4U_LARB10_ID, 1)
 #define M4U_PORT_CAM_LSCI_R1_A		 MTK_M4U_ID(M4U_LARB10_ID, 2)
@@ -205,13 +245,18 @@
 #define M4U_PORT_CAM_LTMSO_R1_B		 MTK_M4U_ID(M4U_LARB10_ID, 29)
 #define M4U_PORT_CAM_RSSO_R1_B		 MTK_M4U_ID(M4U_LARB10_ID, 30)
 
+<<<<<<< HEAD
 /*larb11-CAM-IPU*/
+=======
+/* larb11-CAM-VPU */
+>>>>>>> upstream/android-13
 #define M4U_PORT_CAM_IPUO		 MTK_M4U_ID(M4U_LARB11_ID, 0)
 #define M4U_PORT_CAM_IPU2O		 MTK_M4U_ID(M4U_LARB11_ID, 1)
 #define M4U_PORT_CAM_IPU3O		 MTK_M4U_ID(M4U_LARB11_ID, 2)
 #define M4U_PORT_CAM_IPUI		 MTK_M4U_ID(M4U_LARB11_ID, 3)
 #define M4U_PORT_CAM_IPU2I		 MTK_M4U_ID(M4U_LARB11_ID, 4)
 
+<<<<<<< HEAD
 #define M4U_PORT_CCU0			 MTK_M4U_ID(M4U_LARB12_ID, 0)
 #define M4U_PORT_CCU1			 MTK_M4U_ID(M4U_LARB12_ID, 1)
 
@@ -220,4 +265,6 @@
 
 #define M4U_PORT_UNKNOWN		 (M4U_PORT_MDLA + 1)
 
+=======
+>>>>>>> upstream/android-13
 #endif

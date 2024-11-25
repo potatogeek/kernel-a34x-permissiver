@@ -27,4 +27,8 @@ NG4clear_user_page:	/* %o0=dest, %o1=vaddr */
 	retl
 	 nop
 	.size		NG4clear_page,.-NG4clear_page
+<<<<<<< HEAD
 	.size		NG4clear_user_page,.-NG4clear_user_page
+=======
+	.size		NG4clear_user_page,.-NG4clear_user_page
+>>>>>>> upstream/android-13

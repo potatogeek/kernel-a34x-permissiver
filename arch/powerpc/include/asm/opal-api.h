@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * OPAL API definitions.
  *
  * Copyright 2011-2015 IBM Corp.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __OPAL_API_H
@@ -186,8 +193,13 @@
 #define OPAL_XIVE_FREE_IRQ			140
 #define OPAL_XIVE_SYNC				141
 #define OPAL_XIVE_DUMP				142
+<<<<<<< HEAD
 #define OPAL_XIVE_RESERVED3			143
 #define OPAL_XIVE_RESERVED4			144
+=======
+#define OPAL_XIVE_GET_QUEUE_STATE		143
+#define OPAL_XIVE_SET_QUEUE_STATE		144
+>>>>>>> upstream/android-13
 #define OPAL_SIGNAL_SYSTEM_RESET		145
 #define OPAL_NPU_INIT_CONTEXT			146
 #define OPAL_NPU_DESTROY_CONTEXT		147
@@ -209,8 +221,21 @@
 #define OPAL_SENSOR_GROUP_ENABLE		163
 #define OPAL_PCI_GET_PBCQ_TUNNEL_BAR		164
 #define OPAL_PCI_SET_PBCQ_TUNNEL_BAR		165
+<<<<<<< HEAD
 #define	OPAL_NX_COPROC_INIT			167
 #define OPAL_LAST				167
+=======
+#define OPAL_HANDLE_HMI2			166
+#define	OPAL_NX_COPROC_INIT			167
+#define OPAL_XIVE_GET_VP_STATE			170
+#define OPAL_MPIPL_UPDATE			173
+#define OPAL_MPIPL_REGISTER_TAG			174
+#define OPAL_MPIPL_QUERY_TAG			175
+#define OPAL_SECVAR_GET				176
+#define OPAL_SECVAR_GET_NEXT			177
+#define OPAL_SECVAR_ENQUEUE_UPDATE		178
+#define OPAL_LAST				178
+>>>>>>> upstream/android-13
 
 #define QUIESCE_HOLD			1 /* Spin all calls at entry */
 #define QUIESCE_REJECT			2 /* Fail all calls with OPAL_BUSY */
@@ -455,6 +480,10 @@ enum opal_msg_type {
 	OPAL_MSG_DPO		= 5,
 	OPAL_MSG_PRD		= 6,
 	OPAL_MSG_OCC		= 7,
+<<<<<<< HEAD
+=======
+	OPAL_MSG_PRD2		= 8,
+>>>>>>> upstream/android-13
 	OPAL_MSG_TYPE_MAX,
 };
 
@@ -566,6 +595,10 @@ enum OpalHMI_XstopType {
 	CHECKSTOP_TYPE_UNKNOWN	=	0,
 	CHECKSTOP_TYPE_CORE	=	1,
 	CHECKSTOP_TYPE_NX	=	2,
+<<<<<<< HEAD
+=======
+	CHECKSTOP_TYPE_NPU	=	3
+>>>>>>> upstream/android-13
 };
 
 enum OpalHMI_CoreXstopReason {
@@ -634,6 +667,18 @@ struct OpalHMIEvent {
 	} u;
 };
 
+<<<<<<< HEAD
+=======
+/* OPAL_HANDLE_HMI2 out_flags */
+enum {
+	OPAL_HMI_FLAGS_TB_RESYNC	= (1ull << 0), /* Timebase has been resynced */
+	OPAL_HMI_FLAGS_DEC_LOST		= (1ull << 1), /* DEC lost, needs to be reprogrammed */
+	OPAL_HMI_FLAGS_HDEC_LOST	= (1ull << 2), /* HDEC lost, needs to be reprogrammed */
+	OPAL_HMI_FLAGS_TOD_TB_FAIL	= (1ull << 3), /* TOD/TB recovery failed. */
+	OPAL_HMI_FLAGS_NEW_EVENT	= (1ull << 63), /* An event has been created */
+};
+
+>>>>>>> upstream/android-13
 enum {
 	OPAL_P7IOC_DIAG_TYPE_NONE	= 0,
 	OPAL_P7IOC_DIAG_TYPE_RGC	= 1,
@@ -1050,6 +1095,12 @@ enum OpalSysCooling {
 enum {
 	OPAL_REBOOT_NORMAL		= 0,
 	OPAL_REBOOT_PLATFORM_ERROR	= 1,
+<<<<<<< HEAD
+=======
+	OPAL_REBOOT_FULL_IPL		= 2,
+	OPAL_REBOOT_MPIPL		= 3,
+	OPAL_REBOOT_FAST		= 4,
+>>>>>>> upstream/android-13
 };
 
 /* Argument to OPAL_PCI_TCE_KILL */
@@ -1073,9 +1124,15 @@ enum {
 	OPAL_XIVE_IRQ_TRIGGER_PAGE	= 0x00000001,
 	OPAL_XIVE_IRQ_STORE_EOI		= 0x00000002,
 	OPAL_XIVE_IRQ_LSI		= 0x00000004,
+<<<<<<< HEAD
 	OPAL_XIVE_IRQ_SHIFT_BUG		= 0x00000008,
 	OPAL_XIVE_IRQ_MASK_VIA_FW	= 0x00000010,
 	OPAL_XIVE_IRQ_EOI_VIA_FW	= 0x00000020,
+=======
+	OPAL_XIVE_IRQ_SHIFT_BUG		= 0x00000008, /* P9 DD1.0 workaround */
+	OPAL_XIVE_IRQ_MASK_VIA_FW	= 0x00000010, /* P9 DD1.0 workaround */
+	OPAL_XIVE_IRQ_EOI_VIA_FW	= 0x00000020, /* P9 DD1.0 workaround */
+>>>>>>> upstream/android-13
 };
 
 /* Flags for OPAL_XIVE_GET/SET_QUEUE_INFO */
@@ -1117,6 +1174,10 @@ enum {
 enum {
 	OPAL_IMC_COUNTERS_NEST = 1,
 	OPAL_IMC_COUNTERS_CORE = 2,
+<<<<<<< HEAD
+=======
+	OPAL_IMC_COUNTERS_TRACE = 3,
+>>>>>>> upstream/android-13
 };
 
 
@@ -1125,6 +1186,47 @@ enum {
 #define OPAL_PCI_P2P_LOAD		0x2
 #define OPAL_PCI_P2P_STORE		0x4
 
+<<<<<<< HEAD
+=======
+/* MPIPL update operations */
+enum opal_mpipl_ops {
+	OPAL_MPIPL_ADD_RANGE			= 0,
+	OPAL_MPIPL_REMOVE_RANGE			= 1,
+	OPAL_MPIPL_REMOVE_ALL			= 2,
+	OPAL_MPIPL_FREE_PRESERVED_MEMORY	= 3,
+};
+
+/* Tag will point to various metadata area. Kernel will
+ * use tag to get metadata value.
+ */
+enum opal_mpipl_tags {
+	OPAL_MPIPL_TAG_CPU	= 0,
+	OPAL_MPIPL_TAG_OPAL	= 1,
+	OPAL_MPIPL_TAG_KERNEL	= 2,
+	OPAL_MPIPL_TAG_BOOT_MEM	= 3,
+};
+
+/* Preserved memory details */
+struct opal_mpipl_region {
+	__be64	src;
+	__be64	dest;
+	__be64	size;
+};
+
+/* Structure version */
+#define OPAL_MPIPL_VERSION		0x01
+
+struct opal_mpipl_fadump {
+	u8	version;
+	u8	reserved[7];
+	__be32	crashing_pir;	/* OPAL crashing CPU PIR */
+	__be32	cpu_data_version;
+	__be32	cpu_data_size;
+	__be32	region_cnt;
+	struct	opal_mpipl_region region[];
+} __packed;
+
+>>>>>>> upstream/android-13
 #endif /* __ASSEMBLY__ */
 
 #endif /* __OPAL_API_H */

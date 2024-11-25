@@ -33,7 +33,11 @@
 #include <linux/vfs.h>
 
 #include <linux/coda.h>
+<<<<<<< HEAD
 #include <linux/coda_psdev.h>
+=======
+#include "coda_psdev.h"
+>>>>>>> upstream/android-13
 #include "coda_linux.h"
 #include "coda_cache.h"
 
@@ -46,7 +50,11 @@ static void *alloc_upcall(int opcode, int size)
 {
 	union inputArgs *inp;
 
+<<<<<<< HEAD
 	CODA_ALLOC(inp, union inputArgs *, size);
+=======
+	inp = kvzalloc(size, GFP_KERNEL);
+>>>>>>> upstream/android-13
         if (!inp)
 		return ERR_PTR(-ENOMEM);
 
@@ -85,7 +93,11 @@ int venus_rootfid(struct super_block *sb, struct CodaFid *fidp)
 	if (!error)
 		*fidp = outp->coda_root.VFid;
 
+<<<<<<< HEAD
 	CODA_FREE(inp, insize);
+=======
+	kvfree(inp);
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -104,7 +116,11 @@ int venus_getattr(struct super_block *sb, struct CodaFid *fid,
 	if (!error)
 		*attr = outp->coda_getattr.attr;
 
+<<<<<<< HEAD
 	CODA_FREE(inp, insize);
+=======
+	kvfree(inp);
+>>>>>>> upstream/android-13
         return error;
 }
 
@@ -123,7 +139,11 @@ int venus_setattr(struct super_block *sb, struct CodaFid *fid,
 
 	error = coda_upcall(coda_vcp(sb), insize, &outsize, inp);
 
+<<<<<<< HEAD
         CODA_FREE(inp, insize);
+=======
+	kvfree(inp);
+>>>>>>> upstream/android-13
         return error;
 }
 
@@ -153,7 +173,11 @@ int venus_lookup(struct super_block *sb, struct CodaFid *fid,
 		*type = outp->coda_lookup.vtype;
 	}
 
+<<<<<<< HEAD
 	CODA_FREE(inp, insize);
+=======
+	kvfree(inp);
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -173,7 +197,11 @@ int venus_close(struct super_block *sb, struct CodaFid *fid, int flags,
 
 	error = coda_upcall(coda_vcp(sb), insize, &outsize, inp);
 
+<<<<<<< HEAD
 	CODA_FREE(inp, insize);
+=======
+	kvfree(inp);
+>>>>>>> upstream/android-13
         return error;
 }
 
@@ -194,7 +222,11 @@ int venus_open(struct super_block *sb, struct CodaFid *fid,
 	if (!error)
 		*fh = outp->coda_open_by_fd.fh;
 
+<<<<<<< HEAD
 	CODA_FREE(inp, insize);
+=======
+	kvfree(inp);
+>>>>>>> upstream/android-13
 	return error;
 }	
 
@@ -224,7 +256,11 @@ int venus_mkdir(struct super_block *sb, struct CodaFid *dirfid,
 		*newfid = outp->coda_mkdir.VFid;
 	}
 
+<<<<<<< HEAD
 	CODA_FREE(inp, insize);
+=======
+	kvfree(inp);
+>>>>>>> upstream/android-13
 	return error;        
 }
 
@@ -262,7 +298,11 @@ int venus_rename(struct super_block *sb, struct CodaFid *old_fid,
 
 	error = coda_upcall(coda_vcp(sb), insize, &outsize, inp);
 
+<<<<<<< HEAD
 	CODA_FREE(inp, insize);
+=======
+	kvfree(inp);
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -295,7 +335,11 @@ int venus_create(struct super_block *sb, struct CodaFid *dirfid,
 		*newfid = outp->coda_create.VFid;
 	}
 
+<<<<<<< HEAD
 	CODA_FREE(inp, insize);
+=======
+	kvfree(inp);
+>>>>>>> upstream/android-13
 	return error;        
 }
 
@@ -318,7 +362,11 @@ int venus_rmdir(struct super_block *sb, struct CodaFid *dirfid,
 
 	error = coda_upcall(coda_vcp(sb), insize, &outsize, inp);
 
+<<<<<<< HEAD
 	CODA_FREE(inp, insize);
+=======
+	kvfree(inp);
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -340,7 +388,11 @@ int venus_remove(struct super_block *sb, struct CodaFid *dirfid,
 
 	error = coda_upcall(coda_vcp(sb), insize, &outsize, inp);
 
+<<<<<<< HEAD
 	CODA_FREE(inp, insize);
+=======
+	kvfree(inp);
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -370,7 +422,11 @@ int venus_readlink(struct super_block *sb, struct CodaFid *fid,
 		*(buffer + retlen) = '\0';
 	}
 
+<<<<<<< HEAD
         CODA_FREE(inp, insize);
+=======
+	kvfree(inp);
+>>>>>>> upstream/android-13
         return error;
 }
 
@@ -398,7 +454,11 @@ int venus_link(struct super_block *sb, struct CodaFid *fid,
 
 	error = coda_upcall(coda_vcp(sb), insize, &outsize, inp);
 
+<<<<<<< HEAD
 	CODA_FREE(inp, insize);
+=======
+	kvfree(inp);
+>>>>>>> upstream/android-13
         return error;
 }
 
@@ -433,7 +493,11 @@ int venus_symlink(struct super_block *sb, struct CodaFid *fid,
 
 	error = coda_upcall(coda_vcp(sb), insize, &outsize, inp);
 
+<<<<<<< HEAD
 	CODA_FREE(inp, insize);
+=======
+	kvfree(inp);
+>>>>>>> upstream/android-13
         return error;
 }
 
@@ -449,7 +513,11 @@ int venus_fsync(struct super_block *sb, struct CodaFid *fid)
 	inp->coda_fsync.VFid = *fid;
 	error = coda_upcall(coda_vcp(sb), insize, &outsize, inp);
 
+<<<<<<< HEAD
 	CODA_FREE(inp, insize);
+=======
+	kvfree(inp);
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -467,7 +535,11 @@ int venus_access(struct super_block *sb, struct CodaFid *fid, int mask)
 
 	error = coda_upcall(coda_vcp(sb), insize, &outsize, inp);
 
+<<<<<<< HEAD
 	CODA_FREE(inp, insize);
+=======
+	kvfree(inp);
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -543,7 +615,11 @@ int venus_pioctl(struct super_block *sb, struct CodaFid *fid,
 	}
 
  exit:
+<<<<<<< HEAD
 	CODA_FREE(inp, insize);
+=======
+	kvfree(inp);
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -553,7 +629,11 @@ int venus_statfs(struct dentry *dentry, struct kstatfs *sfs)
         union outputArgs *outp;
         int insize, outsize, error;
         
+<<<<<<< HEAD
 	insize = max_t(unsigned int, INSIZE(statfs), OUTSIZE(statfs));
+=======
+	insize = SIZE(statfs);
+>>>>>>> upstream/android-13
 	UPARG(CODA_STATFS);
 
 	error = coda_upcall(coda_vcp(dentry->d_sb), insize, &outsize, inp);
@@ -565,10 +645,58 @@ int venus_statfs(struct dentry *dentry, struct kstatfs *sfs)
 		sfs->f_ffree  = outp->coda_statfs.stat.f_ffree;
 	}
 
+<<<<<<< HEAD
         CODA_FREE(inp, insize);
         return error;
 }
 
+=======
+	kvfree(inp);
+        return error;
+}
+
+int venus_access_intent(struct super_block *sb, struct CodaFid *fid,
+			bool *access_intent_supported,
+			size_t count, loff_t ppos, int type)
+{
+	union inputArgs *inp;
+	union outputArgs *outp;
+	int insize, outsize, error;
+	bool finalizer =
+		type == CODA_ACCESS_TYPE_READ_FINISH ||
+		type == CODA_ACCESS_TYPE_WRITE_FINISH;
+
+	if (!*access_intent_supported && !finalizer)
+		return 0;
+
+	insize = SIZE(access_intent);
+	UPARG(CODA_ACCESS_INTENT);
+
+	inp->coda_access_intent.VFid = *fid;
+	inp->coda_access_intent.count = count;
+	inp->coda_access_intent.pos = ppos;
+	inp->coda_access_intent.type = type;
+
+	error = coda_upcall(coda_vcp(sb), insize,
+			    finalizer ? NULL : &outsize, inp);
+
+	/*
+	 * we have to free the request buffer for synchronous upcalls
+	 * or when asynchronous upcalls fail, but not when asynchronous
+	 * upcalls succeed
+	 */
+	if (!finalizer || error)
+		kvfree(inp);
+
+	/* Chunked access is not supported or an old Coda client */
+	if (error == -EOPNOTSUPP) {
+		*access_intent_supported = false;
+		error = 0;
+	}
+	return error;
+}
+
+>>>>>>> upstream/android-13
 /*
  * coda_upcall and coda_downcall routines.
  */
@@ -598,10 +726,18 @@ static void coda_unblock_signals(sigset_t *old)
  * has seen them,
  * - CODA_CLOSE or CODA_RELEASE upcall  (to avoid reference count problems)
  * - CODA_STORE				(to avoid data loss)
+<<<<<<< HEAD
+=======
+ * - CODA_ACCESS_INTENT                 (to avoid reference count problems)
+>>>>>>> upstream/android-13
  */
 #define CODA_INTERRUPTIBLE(r) (!coda_hard && \
 			       (((r)->uc_opcode != CODA_CLOSE && \
 				 (r)->uc_opcode != CODA_STORE && \
+<<<<<<< HEAD
+=======
+				 (r)->uc_opcode != CODA_ACCESS_INTENT && \
+>>>>>>> upstream/android-13
 				 (r)->uc_opcode != CODA_RELEASE) || \
 				(r)->uc_flags & CODA_REQ_READ))
 
@@ -687,6 +823,7 @@ static int coda_upcall(struct venus_comm *vcp,
 		goto exit;
 	}
 
+<<<<<<< HEAD
 	req->uc_data = (void *)buffer;
 	req->uc_flags = 0;
 	req->uc_inSize = inSize;
@@ -702,6 +839,27 @@ static int coda_upcall(struct venus_comm *vcp,
 	list_add_tail(&req->uc_chain, &vcp->vc_pending);
 
 	wake_up_interruptible(&vcp->vc_waitq);
+=======
+	buffer->ih.unique = ++vcp->vc_seq;
+
+	req->uc_data = (void *)buffer;
+	req->uc_flags = outSize ? 0 : CODA_REQ_ASYNC;
+	req->uc_inSize = inSize;
+	req->uc_outSize = (outSize && *outSize) ? *outSize : inSize;
+	req->uc_opcode = buffer->ih.opcode;
+	req->uc_unique = buffer->ih.unique;
+	init_waitqueue_head(&req->uc_sleep);
+
+	/* Append msg to pending queue and poke Venus. */
+	list_add_tail(&req->uc_chain, &vcp->vc_pending);
+	wake_up_interruptible(&vcp->vc_waitq);
+
+	if (req->uc_flags & CODA_REQ_ASYNC) {
+		mutex_unlock(&vcp->vc_mutex);
+		return 0;
+	}
+
+>>>>>>> upstream/android-13
 	/* We can be interrupted while we wait for Venus to process
 	 * our request.  If the interrupt occurs before Venus has read
 	 * the request, we dequeue and return. If it occurs after the
@@ -743,20 +901,32 @@ static int coda_upcall(struct venus_comm *vcp,
 	sig_req = kmalloc(sizeof(struct upc_req), GFP_KERNEL);
 	if (!sig_req) goto exit;
 
+<<<<<<< HEAD
 	CODA_ALLOC((sig_req->uc_data), char *, sizeof(struct coda_in_hdr));
 	if (!sig_req->uc_data) {
+=======
+	sig_inputArgs = kvzalloc(sizeof(struct coda_in_hdr), GFP_KERNEL);
+	if (!sig_inputArgs) {
+>>>>>>> upstream/android-13
 		kfree(sig_req);
 		goto exit;
 	}
 
 	error = -EINTR;
+<<<<<<< HEAD
 	sig_inputArgs = (union inputArgs *)sig_req->uc_data;
+=======
+>>>>>>> upstream/android-13
 	sig_inputArgs->ih.opcode = CODA_SIGNAL;
 	sig_inputArgs->ih.unique = req->uc_unique;
 
 	sig_req->uc_flags = CODA_REQ_ASYNC;
 	sig_req->uc_opcode = sig_inputArgs->ih.opcode;
 	sig_req->uc_unique = sig_inputArgs->ih.unique;
+<<<<<<< HEAD
+=======
+	sig_req->uc_data = (void *)sig_inputArgs;
+>>>>>>> upstream/android-13
 	sig_req->uc_inSize = sizeof(struct coda_in_hdr);
 	sig_req->uc_outSize = sizeof(struct coda_in_hdr);
 
@@ -804,12 +974,51 @@ exit:
  *
  * CODA_REPLACE -- replace one CodaFid with another throughout the name cache */
 
+<<<<<<< HEAD
 int coda_downcall(struct venus_comm *vcp, int opcode, union outputArgs *out)
+=======
+int coda_downcall(struct venus_comm *vcp, int opcode, union outputArgs *out,
+		  size_t nbytes)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode = NULL;
 	struct CodaFid *fid = NULL, *newfid;
 	struct super_block *sb;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Make sure we have received enough data from the cache
+	 * manager to populate the necessary fields in the buffer
+	 */
+	switch (opcode) {
+	case CODA_PURGEUSER:
+		if (nbytes < sizeof(struct coda_purgeuser_out))
+			return -EINVAL;
+		break;
+
+	case CODA_ZAPDIR:
+		if (nbytes < sizeof(struct coda_zapdir_out))
+			return -EINVAL;
+		break;
+
+	case CODA_ZAPFILE:
+		if (nbytes < sizeof(struct coda_zapfile_out))
+			return -EINVAL;
+		break;
+
+	case CODA_PURGEFID:
+		if (nbytes < sizeof(struct coda_purgefid_out))
+			return -EINVAL;
+		break;
+
+	case CODA_REPLACE:
+		if (nbytes < sizeof(struct coda_replace_out))
+			return -EINVAL;
+		break;
+	}
+
+>>>>>>> upstream/android-13
 	/* Handle invalidation requests. */
 	mutex_lock(&vcp->vc_mutex);
 	sb = vcp->vc_sb;
@@ -879,4 +1088,7 @@ unlock_out:
 	iput(inode);
 	return 0;
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13

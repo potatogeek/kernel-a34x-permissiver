@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2011 Freescale Semiconductor, Inc.
  * Copyright 2011 Linaro Ltd.
@@ -9,6 +10,12 @@
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
  */
+=======
+// SPDX-License-Identifier: GPL-2.0+
+//
+// Copyright 2011 Freescale Semiconductor, Inc.
+// Copyright 2011 Linaro Ltd.
+>>>>>>> upstream/android-13
 
 #include "imx53-pinfunc.h"
 #include <dt-bindings/clock/imx5-clock.h>
@@ -38,6 +45,10 @@
 		i2c0 = &i2c1;
 		i2c1 = &i2c2;
 		i2c2 = &i2c3;
+<<<<<<< HEAD
+=======
+		ipu0 = &ipu;
+>>>>>>> upstream/android-13
 		mmc0 = &esdhc1;
 		mmc1 = &esdhc2;
 		mmc2 = &esdhc3;
@@ -78,6 +89,14 @@
 		ports = <&ipu_di0>, <&ipu_di1>;
 	};
 
+<<<<<<< HEAD
+=======
+	capture_subsystem {
+		compatible = "fsl,imx-capture-subsystem";
+		ports = <&ipu_csi0>, <&ipu_csi1>;
+	};
+
+>>>>>>> upstream/android-13
 	tzic: tz-interrupt-controller@fffc000 {
 		compatible = "fsl,imx53-tzic", "fsl,tzic";
 		interrupt-controller;
@@ -165,10 +184,22 @@
 
 			ipu_csi0: port@0 {
 				reg = <0>;
+<<<<<<< HEAD
+=======
+
+				ipu_csi0_from_parallel_sensor: endpoint {
+				};
+>>>>>>> upstream/android-13
 			};
 
 			ipu_csi1: port@1 {
 				reg = <1>;
+<<<<<<< HEAD
+=======
+
+				ipu_csi1_from_parallel_sensor: endpoint {
+				};
+>>>>>>> upstream/android-13
 			};
 
 			ipu_di0: port@2 {
@@ -207,7 +238,21 @@
 			};
 		};
 
+<<<<<<< HEAD
 		aips@50000000 { /* AIPS1 */
+=======
+		gpu: gpu@30000000 {
+			compatible = "amd,imageon-200.0", "amd,imageon";
+			reg = <0x30000000 0x20000>;
+			reg-names = "kgsl_3d0_reg_memory";
+			interrupts = <12>;
+			interrupt-names = "kgsl_3d0_irq";
+			clocks = <&clks IMX5_CLK_GPU3D_GATE>, <&clks IMX5_CLK_GARB_GATE>;
+			clock-names = "core_clk", "mem_iface_clk";
+		};
+
+		bus@50000000 { /* AIPS1 */
+>>>>>>> upstream/android-13
 			compatible = "fsl,aips-bus", "simple-bus";
 			#address-cells = <1>;
 			#size-cells = <1>;
@@ -221,7 +266,11 @@
 				reg = <0x50000000 0x40000>;
 				ranges;
 
+<<<<<<< HEAD
 				esdhc1: esdhc@50004000 {
+=======
+				esdhc1: mmc@50004000 {
+>>>>>>> upstream/android-13
 					compatible = "fsl,imx53-esdhc";
 					reg = <0x50004000 0x4000>;
 					interrupts = <1>;
@@ -233,7 +282,11 @@
 					status = "disabled";
 				};
 
+<<<<<<< HEAD
 				esdhc2: esdhc@50008000 {
+=======
+				esdhc2: mmc@50008000 {
+>>>>>>> upstream/android-13
 					compatible = "fsl,imx53-esdhc";
 					reg = <0x50008000 0x4000>;
 					interrupts = <2>;
@@ -257,7 +310,11 @@
 					status = "disabled";
 				};
 
+<<<<<<< HEAD
 				ecspi1: ecspi@50010000 {
+=======
+				ecspi1: spi@50010000 {
+>>>>>>> upstream/android-13
 					#address-cells = <1>;
 					#size-cells = <0>;
 					compatible = "fsl,imx53-ecspi", "fsl,imx51-ecspi";
@@ -286,7 +343,11 @@
 					status = "disabled";
 				};
 
+<<<<<<< HEAD
 				esdhc3: esdhc@50020000 {
+=======
+				esdhc3: mmc@50020000 {
+>>>>>>> upstream/android-13
 					compatible = "fsl,imx53-esdhc";
 					reg = <0x50020000 0x4000>;
 					interrupts = <3>;
@@ -298,7 +359,11 @@
 					status = "disabled";
 				};
 
+<<<<<<< HEAD
 				esdhc4: esdhc@50024000 {
+=======
+				esdhc4: mmc@50024000 {
+>>>>>>> upstream/android-13
 					compatible = "fsl,imx53-esdhc";
 					reg = <0x50024000 0x4000>;
 					interrupts = <4>;
@@ -412,14 +477,22 @@
 				status = "disabled";
 			};
 
+<<<<<<< HEAD
 			wdog1: wdog@53f98000 {
+=======
+			wdog1: watchdog@53f98000 {
+>>>>>>> upstream/android-13
 				compatible = "fsl,imx53-wdt", "fsl,imx21-wdt";
 				reg = <0x53f98000 0x4000>;
 				interrupts = <58>;
 				clocks = <&clks IMX5_CLK_DUMMY>;
 			};
 
+<<<<<<< HEAD
 			wdog2: wdog@53f9c000 {
+=======
+			wdog2: watchdog@53f9c000 {
+>>>>>>> upstream/android-13
 				compatible = "fsl,imx53-wdt", "fsl,imx21-wdt";
 				reg = <0x53f9c000 0x4000>;
 				interrupts = <59>;
@@ -510,7 +583,11 @@
 			};
 
 			pwm1: pwm@53fb4000 {
+<<<<<<< HEAD
 				#pwm-cells = <2>;
+=======
+				#pwm-cells = <3>;
+>>>>>>> upstream/android-13
 				compatible = "fsl,imx53-pwm", "fsl,imx27-pwm";
 				reg = <0x53fb4000 0x4000>;
 				clocks = <&clks IMX5_CLK_PWM1_IPG_GATE>,
@@ -520,7 +597,11 @@
 			};
 
 			pwm2: pwm@53fb8000 {
+<<<<<<< HEAD
 				#pwm-cells = <2>;
+=======
+				#pwm-cells = <3>;
+>>>>>>> upstream/android-13
 				compatible = "fsl,imx53-pwm", "fsl,imx27-pwm";
 				reg = <0x53fb8000 0x4000>;
 				clocks = <&clks IMX5_CLK_PWM2_IPG_GATE>,
@@ -573,9 +654,16 @@
 				status = "disabled";
 			};
 
+<<<<<<< HEAD
 			src: src@53fd0000 {
 				compatible = "fsl,imx53-src", "fsl,imx51-src";
 				reg = <0x53fd0000 0x4000>;
+=======
+			src: reset-controller@53fd0000 {
+				compatible = "fsl,imx53-src", "fsl,imx51-src";
+				reg = <0x53fd0000 0x4000>;
+				interrupts = <75>;
+>>>>>>> upstream/android-13
 				#reset-cells = <1>;
 			};
 
@@ -639,7 +727,11 @@
 			};
 		};
 
+<<<<<<< HEAD
 		aips@60000000 {	/* AIPS2 */
+=======
+		bus@60000000 {	/* AIPS2 */
+>>>>>>> upstream/android-13
 			compatible = "fsl,aips-bus", "simple-bus";
 			#address-cells = <1>;
 			#size-cells = <1>;
@@ -651,8 +743,13 @@
 				reg = <0x63f00000 0x60>;
 			};
 
+<<<<<<< HEAD
 			iim: iim@63f98000 {
 				compatible = "fsl,imx53-iim", "fsl,imx27-iim";
+=======
+			iim: efuse@63f98000 {
+				compatible = "fsl,imx53-iim", "fsl,imx27-iim", "syscon";
+>>>>>>> upstream/android-13
 				reg = <0x63f98000 0x4000>;
 				interrupts = <69>;
 				clocks = <&clks IMX5_CLK_IIM_GATE>;
@@ -682,7 +779,11 @@
 				status = "disabled";
 			};
 
+<<<<<<< HEAD
 			ecspi2: ecspi@63fac000 {
+=======
+			ecspi2: spi@63fac000 {
+>>>>>>> upstream/android-13
 				#address-cells = <1>;
 				#size-cells = <0>;
 				compatible = "fsl,imx53-ecspi", "fsl,imx51-ecspi";
@@ -705,7 +806,11 @@
 				fsl,sdma-ram-script-name = "imx/sdma/sdma-imx53.bin";
 			};
 
+<<<<<<< HEAD
 			cspi: cspi@63fc0000 {
+=======
+			cspi: spi@63fc0000 {
+>>>>>>> upstream/android-13
 				#address-cells = <1>;
 				#size-cells = <0>;
 				compatible = "fsl,imx53-cspi", "fsl,imx35-cspi";

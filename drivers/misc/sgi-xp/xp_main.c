@@ -3,6 +3,10 @@
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
  *
+<<<<<<< HEAD
+=======
+ * (C) Copyright 2020 Hewlett Packard Enterprise Development LP
+>>>>>>> upstream/android-13
  * Copyright (c) 2004-2008 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
@@ -20,11 +24,19 @@
 
 /* define the XP debug device structures to be used with dev_dbg() et al */
 
+<<<<<<< HEAD
 struct device_driver xp_dbg_name = {
 	.name = "xp"
 };
 
 struct device xp_dbg_subname = {
+=======
+static struct device_driver xp_dbg_name = {
+	.name = "xp"
+};
+
+static struct device xp_dbg_subname = {
+>>>>>>> upstream/android-13
 	.init_name = "",		/* set to "" */
 	.driver = &xp_dbg_name
 };
@@ -223,7 +235,11 @@ xpc_disconnect(int ch_number)
 }
 EXPORT_SYMBOL_GPL(xpc_disconnect);
 
+<<<<<<< HEAD
 int __init
+=======
+static int __init
+>>>>>>> upstream/android-13
 xp_init(void)
 {
 	enum xp_retval ret;
@@ -233,9 +249,13 @@ xp_init(void)
 	for (ch_number = 0; ch_number < XPC_MAX_NCHANNELS; ch_number++)
 		mutex_init(&xpc_registrations[ch_number].mutex);
 
+<<<<<<< HEAD
 	if (is_shub())
 		ret = xp_init_sn2();
 	else if (is_uv())
+=======
+	if (is_uv_system())
+>>>>>>> upstream/android-13
 		ret = xp_init_uv();
 	else
 		ret = 0;
@@ -248,12 +268,19 @@ xp_init(void)
 
 module_init(xp_init);
 
+<<<<<<< HEAD
 void __exit
 xp_exit(void)
 {
 	if (is_shub())
 		xp_exit_sn2();
 	else if (is_uv())
+=======
+static void __exit
+xp_exit(void)
+{
+	if (is_uv_system())
+>>>>>>> upstream/android-13
 		xp_exit_uv();
 }
 

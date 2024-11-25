@@ -5,9 +5,13 @@
  * Copyright 2015-2016 Google Inc.
  */
 
+<<<<<<< HEAD
 #include "greybus.h"
 #include "greybus_protocols.h"
 #include "operation.h"
+=======
+#include <linux/greybus.h>
+>>>>>>> upstream/android-13
 #include "audio_codec.h"
 
 /* TODO: Split into separate calls */

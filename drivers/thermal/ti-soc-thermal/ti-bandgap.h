@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * OMAP4 Bandgap temperature sensor driver
  *
  * Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/
  * Contact:
  *   Eduardo Valentin <eduardo.valentin@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,6 +24,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __TI_BANDGAP_H
 #define __TI_BANDGAP_H
@@ -26,6 +33,15 @@
 #include <linux/spinlock.h>
 #include <linux/types.h>
 #include <linux/err.h>
+<<<<<<< HEAD
+=======
+#include <linux/cpu_pm.h>
+#include <linux/device.h>
+#include <linux/pm_runtime.h>
+#include <linux/pm.h>
+
+struct gpio_desc;
+>>>>>>> upstream/android-13
 
 /**
  * DOC: bandgap driver data structure
@@ -213,8 +229,15 @@ struct ti_bandgap {
 	struct clk			*div_clk;
 	spinlock_t			lock; /* shields this struct */
 	int				irq;
+<<<<<<< HEAD
 	int				tshut_gpio;
 	u32				clk_rate;
+=======
+	struct gpio_desc		*tshut_gpiod;
+	u32				clk_rate;
+	struct notifier_block		nb;
+	unsigned int is_suspended:1;
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -286,6 +309,10 @@ struct ti_temp_sensor {
  *	has Errata 814
  * TI_BANDGAP_FEATURE_UNRELIABLE - used when the sensor readings are too
  *	inaccurate.
+<<<<<<< HEAD
+=======
+ * TI_BANDGAP_FEATURE_CONT_MODE_ONLY - used when single mode hangs the sensor
+>>>>>>> upstream/android-13
  * TI_BANDGAP_HAS(b, f) - macro to check if a bandgap device is capable of a
  *      specific feature (above) or not. Return non-zero, if yes.
  */
@@ -301,6 +328,10 @@ struct ti_temp_sensor {
 #define TI_BANDGAP_FEATURE_HISTORY_BUFFER	BIT(9)
 #define TI_BANDGAP_FEATURE_ERRATA_814		BIT(10)
 #define TI_BANDGAP_FEATURE_UNRELIABLE		BIT(11)
+<<<<<<< HEAD
+=======
+#define TI_BANDGAP_FEATURE_CONT_MODE_ONLY	BIT(12)
+>>>>>>> upstream/android-13
 #define TI_BANDGAP_HAS(b, f)			\
 			((b)->conf->features & TI_BANDGAP_FEATURE_ ## f)
 

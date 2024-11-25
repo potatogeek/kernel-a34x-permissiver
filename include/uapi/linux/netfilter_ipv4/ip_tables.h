@@ -222,7 +222,11 @@ struct ipt_get_entries {
 static __inline__ struct xt_entry_target *
 ipt_get_target(struct ipt_entry *e)
 {
+<<<<<<< HEAD
 	return (void *)e + e->target_offset;
+=======
+	return (struct xt_entry_target *)((char *)e + e->target_offset);
+>>>>>>> upstream/android-13
 }
 
 /*

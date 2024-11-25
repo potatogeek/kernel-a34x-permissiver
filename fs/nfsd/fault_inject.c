@@ -127,13 +127,18 @@ static struct nfsd_fault_inject_op inject_ops[] = {
 	},
 };
 
+<<<<<<< HEAD
 int nfsd_fault_inject_init(void)
+=======
+void nfsd_fault_inject_init(void)
+>>>>>>> upstream/android-13
 {
 	unsigned int i;
 	struct nfsd_fault_inject_op *op;
 	umode_t mode = S_IFREG | S_IRUSR | S_IWUSR;
 
 	debug_dir = debugfs_create_dir("nfsd", NULL);
+<<<<<<< HEAD
 	if (!debug_dir)
 		goto fail;
 
@@ -147,4 +152,11 @@ int nfsd_fault_inject_init(void)
 fail:
 	nfsd_fault_inject_cleanup();
 	return -ENOMEM;
+=======
+
+	for (i = 0; i < ARRAY_SIZE(inject_ops); i++) {
+		op = &inject_ops[i];
+		debugfs_create_file(op->file, mode, debug_dir, op, &fops_nfsd);
+	}
+>>>>>>> upstream/android-13
 }

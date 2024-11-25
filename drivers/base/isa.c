@@ -46,14 +46,22 @@ static int isa_bus_probe(struct device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int isa_bus_remove(struct device *dev)
+=======
+static void isa_bus_remove(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct isa_driver *isa_driver = dev->platform_data;
 
 	if (isa_driver && isa_driver->remove)
+<<<<<<< HEAD
 		return isa_driver->remove(dev, to_isa_dev(dev)->id);
 
 	return 0;
+=======
+		isa_driver->remove(dev, to_isa_dev(dev)->id);
+>>>>>>> upstream/android-13
 }
 
 static void isa_bus_shutdown(struct device *dev)

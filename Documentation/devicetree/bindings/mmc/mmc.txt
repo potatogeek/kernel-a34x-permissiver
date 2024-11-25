@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 These properties are common to multiple MMC host controllers. Any host
 that requires the respective functionality should implement them using
 these definitions.
@@ -175,3 +176,6 @@ mmc3: mmc@1c12000 {
 		interrupt-names = "host-wake";
 	};
 };
+=======
+This file has moved to mmc-controller.yaml.
+>>>>>>> upstream/android-13

@@ -29,4 +29,11 @@ void qrtr_endpoint_unregister(struct qrtr_endpoint *ep);
 
 int qrtr_endpoint_post(struct qrtr_endpoint *ep, const void *data, size_t len);
 
+<<<<<<< HEAD
+=======
+int qrtr_ns_init(void);
+
+void qrtr_ns_remove(void);
+
+>>>>>>> upstream/android-13
 #endif

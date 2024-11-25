@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * APM X-Gene SoC PMU (Performance Monitor Unit)
  *
  * Copyright (c) 2016, Applied Micro Circuits Corporation
  * Author: Hoan Tran <hotran@apm.com>
  *         Tai Nguyen <ttnguyen@apm.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
@@ -17,10 +22,16 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/acpi.h>
 #include <linux/clk.h>
+<<<<<<< HEAD
+=======
+#include <linux/cpuhotplug.h>
+>>>>>>> upstream/android-13
 #include <linux/cpumask.h>
 #include <linux/interrupt.h>
 #include <linux/io.h>
@@ -130,12 +141,20 @@ struct xgene_pmu_ops {
 
 struct xgene_pmu {
 	struct device *dev;
+<<<<<<< HEAD
+=======
+	struct hlist_node node;
+>>>>>>> upstream/android-13
 	int version;
 	void __iomem *pcppmu_csr;
 	u32 mcb_active_mask;
 	u32 mc_active_mask;
 	u32 l3c_active_mask;
 	cpumask_t cpu;
+<<<<<<< HEAD
+=======
+	int irq;
+>>>>>>> upstream/android-13
 	raw_spinlock_t lock;
 	const struct xgene_pmu_ops *ops;
 	struct list_head l3cpmus;
@@ -179,7 +198,11 @@ static ssize_t xgene_pmu_format_show(struct device *dev,
 	struct dev_ext_attribute *eattr;
 
 	eattr = container_of(attr, struct dev_ext_attribute, attr);
+<<<<<<< HEAD
 	return sprintf(buf, "%s\n", (char *) eattr->var);
+=======
+	return sysfs_emit(buf, "%s\n", (char *) eattr->var);
+>>>>>>> upstream/android-13
 }
 
 #define XGENE_PMU_FORMAT_ATTR(_name, _config)		\
@@ -287,6 +310,7 @@ static const struct attribute_group mc_pmu_v3_format_attr_group = {
 static ssize_t xgene_pmu_event_show(struct device *dev,
 				    struct device_attribute *attr, char *buf)
 {
+<<<<<<< HEAD
 	struct dev_ext_attribute *eattr;
 
 	eattr = container_of(attr, struct dev_ext_attribute, attr);
@@ -298,6 +322,16 @@ static ssize_t xgene_pmu_event_show(struct device *dev,
 		{ .attr = __ATTR(_name, S_IRUGO, xgene_pmu_event_show, NULL), \
 		  .var = (void *) _config, }		\
 	 })[0].attr.attr)
+=======
+	struct perf_pmu_events_attr *pmu_attr =
+		container_of(attr, struct perf_pmu_events_attr, attr);
+
+	return sysfs_emit(buf, "config=0x%llx\n", pmu_attr->id);
+}
+
+#define XGENE_PMU_EVENT_ATTR(_name, _config)		\
+	PMU_EVENT_ATTR_ID(_name, xgene_pmu_event_show, _config)
+>>>>>>> upstream/android-13
 
 static struct attribute *l3c_pmu_events_attrs[] = {
 	XGENE_PMU_EVENT_ATTR(cycle-count,			0x00),
@@ -613,15 +647,24 @@ static const struct attribute_group mc_pmu_v3_events_attr_group = {
 /*
  * sysfs cpumask attributes
  */
+<<<<<<< HEAD
 static ssize_t xgene_pmu_cpumask_show(struct device *dev,
 				      struct device_attribute *attr, char *buf)
+=======
+static ssize_t cpumask_show(struct device *dev,
+			    struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct xgene_pmu_dev *pmu_dev = to_pmu_dev(dev_get_drvdata(dev));
 
 	return cpumap_print_to_pagebuf(true, buf, &pmu_dev->parent->cpu);
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(cpumask, S_IRUGO, xgene_pmu_cpumask_show, NULL);
+=======
+static DEVICE_ATTR_RO(cpumask);
+>>>>>>> upstream/android-13
 
 static struct attribute *xgene_pmu_cpumask_attrs[] = {
 	&dev_attr_cpumask.attr,
@@ -914,11 +957,14 @@ static int xgene_perf_event_init(struct perf_event *event)
 	if (is_sampling_event(event) || event->attach_state & PERF_ATTACH_TASK)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	/* SOC counters do not have usr/os/guest/host bits */
 	if (event->attr.exclude_user || event->attr.exclude_kernel ||
 	    event->attr.exclude_host || event->attr.exclude_guest)
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	if (event->cpu < 0)
 		return -EINVAL;
 	/*
@@ -1054,7 +1100,10 @@ static void xgene_perf_start(struct perf_event *event, int flags)
 static void xgene_perf_stop(struct perf_event *event, int flags)
 {
 	struct hw_perf_event *hw = &event->hw;
+<<<<<<< HEAD
 	u64 config;
+=======
+>>>>>>> upstream/android-13
 
 	if (hw->state & PERF_HES_UPTODATE)
 		return;
@@ -1066,7 +1115,10 @@ static void xgene_perf_stop(struct perf_event *event, int flags)
 	if (hw->state & PERF_HES_UPTODATE)
 		return;
 
+<<<<<<< HEAD
 	config = hw->config;
+=======
+>>>>>>> upstream/android-13
 	xgene_perf_read(event);
 	hw->state |= PERF_HES_UPTODATE;
 }
@@ -1133,6 +1185,10 @@ static int xgene_init_perf(struct xgene_pmu_dev *pmu_dev, char *name)
 		.start		= xgene_perf_start,
 		.stop		= xgene_perf_stop,
 		.read		= xgene_perf_read,
+<<<<<<< HEAD
+=======
+		.capabilities	= PERF_PMU_CAP_NO_EXCLUDE,
+>>>>>>> upstream/android-13
 	};
 
 	/* Hardware counter init */
@@ -1249,10 +1305,16 @@ static irqreturn_t xgene_pmu_isr(int irq, void *dev_id)
 	u32 intr_mcu, intr_mcb, intr_l3c, intr_iob;
 	struct xgene_pmu_dev_ctx *ctx;
 	struct xgene_pmu *xgene_pmu = dev_id;
+<<<<<<< HEAD
 	unsigned long flags;
 	u32 val;
 
 	raw_spin_lock_irqsave(&xgene_pmu->lock, flags);
+=======
+	u32 val;
+
+	raw_spin_lock(&xgene_pmu->lock);
+>>>>>>> upstream/android-13
 
 	/* Get Interrupt PMU source */
 	val = readl(xgene_pmu->pcppmu_csr + PCPPMU_INTSTATUS_REG);
@@ -1288,7 +1350,11 @@ static irqreturn_t xgene_pmu_isr(int irq, void *dev_id)
 		}
 	}
 
+<<<<<<< HEAD
 	raw_spin_unlock_irqrestore(&xgene_pmu->lock, flags);
+=======
+	raw_spin_unlock(&xgene_pmu->lock);
+>>>>>>> upstream/android-13
 
 	return IRQ_HANDLED;
 }
@@ -1297,25 +1363,39 @@ static int acpi_pmu_probe_active_mcb_mcu_l3c(struct xgene_pmu *xgene_pmu,
 					     struct platform_device *pdev)
 {
 	void __iomem *csw_csr, *mcba_csr, *mcbb_csr;
+<<<<<<< HEAD
 	struct resource *res;
 	unsigned int reg;
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
 	csw_csr = devm_ioremap_resource(&pdev->dev, res);
+=======
+	unsigned int reg;
+
+	csw_csr = devm_platform_ioremap_resource(pdev, 1);
+>>>>>>> upstream/android-13
 	if (IS_ERR(csw_csr)) {
 		dev_err(&pdev->dev, "ioremap failed for CSW CSR resource\n");
 		return PTR_ERR(csw_csr);
 	}
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 2);
 	mcba_csr = devm_ioremap_resource(&pdev->dev, res);
+=======
+	mcba_csr = devm_platform_ioremap_resource(pdev, 2);
+>>>>>>> upstream/android-13
 	if (IS_ERR(mcba_csr)) {
 		dev_err(&pdev->dev, "ioremap failed for MCBA CSR resource\n");
 		return PTR_ERR(mcba_csr);
 	}
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 3);
 	mcbb_csr = devm_ioremap_resource(&pdev->dev, res);
+=======
+	mcbb_csr = devm_platform_ioremap_resource(pdev, 3);
+>>>>>>> upstream/android-13
 	if (IS_ERR(mcbb_csr)) {
 		dev_err(&pdev->dev, "ioremap failed for MCBB CSR resource\n");
 		return PTR_ERR(mcbb_csr);
@@ -1347,13 +1427,20 @@ static int acpi_pmu_v3_probe_active_mcb_mcu_l3c(struct xgene_pmu *xgene_pmu,
 						struct platform_device *pdev)
 {
 	void __iomem *csw_csr;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	unsigned int reg;
 	u32 mcb0routing;
 	u32 mcb1routing;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
 	csw_csr = devm_ioremap_resource(&pdev->dev, res);
+=======
+	csw_csr = devm_platform_ioremap_resource(pdev, 1);
+>>>>>>> upstream/android-13
 	if (IS_ERR(csw_csr)) {
 		dev_err(&pdev->dev, "ioremap failed for CSW CSR resource\n");
 		return PTR_ERR(csw_csr);
@@ -1808,6 +1895,56 @@ static const struct acpi_device_id xgene_pmu_acpi_match[] = {
 MODULE_DEVICE_TABLE(acpi, xgene_pmu_acpi_match);
 #endif
 
+<<<<<<< HEAD
+=======
+static int xgene_pmu_online_cpu(unsigned int cpu, struct hlist_node *node)
+{
+	struct xgene_pmu *xgene_pmu = hlist_entry_safe(node, struct xgene_pmu,
+						       node);
+
+	if (cpumask_empty(&xgene_pmu->cpu))
+		cpumask_set_cpu(cpu, &xgene_pmu->cpu);
+
+	/* Overflow interrupt also should use the same CPU */
+	WARN_ON(irq_set_affinity(xgene_pmu->irq, &xgene_pmu->cpu));
+
+	return 0;
+}
+
+static int xgene_pmu_offline_cpu(unsigned int cpu, struct hlist_node *node)
+{
+	struct xgene_pmu *xgene_pmu = hlist_entry_safe(node, struct xgene_pmu,
+						       node);
+	struct xgene_pmu_dev_ctx *ctx;
+	unsigned int target;
+
+	if (!cpumask_test_and_clear_cpu(cpu, &xgene_pmu->cpu))
+		return 0;
+	target = cpumask_any_but(cpu_online_mask, cpu);
+	if (target >= nr_cpu_ids)
+		return 0;
+
+	list_for_each_entry(ctx, &xgene_pmu->mcpmus, next) {
+		perf_pmu_migrate_context(&ctx->pmu_dev->pmu, cpu, target);
+	}
+	list_for_each_entry(ctx, &xgene_pmu->mcbpmus, next) {
+		perf_pmu_migrate_context(&ctx->pmu_dev->pmu, cpu, target);
+	}
+	list_for_each_entry(ctx, &xgene_pmu->l3cpmus, next) {
+		perf_pmu_migrate_context(&ctx->pmu_dev->pmu, cpu, target);
+	}
+	list_for_each_entry(ctx, &xgene_pmu->iobpmus, next) {
+		perf_pmu_migrate_context(&ctx->pmu_dev->pmu, cpu, target);
+	}
+
+	cpumask_set_cpu(target, &xgene_pmu->cpu);
+	/* Overflow interrupt also should use the same CPU */
+	WARN_ON(irq_set_affinity(xgene_pmu->irq, &xgene_pmu->cpu));
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int xgene_pmu_probe(struct platform_device *pdev)
 {
 	const struct xgene_pmu_data *dev_data;
@@ -1817,6 +1954,17 @@ static int xgene_pmu_probe(struct platform_device *pdev)
 	int irq, rc;
 	int version;
 
+<<<<<<< HEAD
+=======
+	/* Install a hook to update the reader CPU in case it goes offline */
+	rc = cpuhp_setup_state_multi(CPUHP_AP_PERF_ARM_APM_XGENE_ONLINE,
+				      "CPUHP_AP_PERF_ARM_APM_XGENE_ONLINE",
+				      xgene_pmu_online_cpu,
+				      xgene_pmu_offline_cpu);
+	if (rc)
+		return rc;
+
+>>>>>>> upstream/android-13
 	xgene_pmu = devm_kzalloc(&pdev->dev, sizeof(*xgene_pmu), GFP_KERNEL);
 	if (!xgene_pmu)
 		return -ENOMEM;
@@ -1863,10 +2011,16 @@ static int xgene_pmu_probe(struct platform_device *pdev)
 	}
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(&pdev->dev, "No IRQ resource\n");
 		return -EINVAL;
 	}
+=======
+	if (irq < 0)
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	rc = devm_request_irq(&pdev->dev, irq, xgene_pmu_isr,
 				IRQF_NOBALANCING | IRQF_NO_THREAD,
 				dev_name(&pdev->dev), xgene_pmu);
@@ -1875,6 +2029,11 @@ static int xgene_pmu_probe(struct platform_device *pdev)
 		return rc;
 	}
 
+<<<<<<< HEAD
+=======
+	xgene_pmu->irq = irq;
+
+>>>>>>> upstream/android-13
 	raw_spin_lock_init(&xgene_pmu->lock);
 
 	/* Check for active MCBs and MCUs */
@@ -1885,6 +2044,7 @@ static int xgene_pmu_probe(struct platform_device *pdev)
 		xgene_pmu->mc_active_mask = 0x1;
 	}
 
+<<<<<<< HEAD
 	/* Pick one core to use for cpumask attributes */
 	cpumask_set_cpu(smp_processor_id(), &xgene_pmu->cpu);
 
@@ -1892,6 +2052,13 @@ static int xgene_pmu_probe(struct platform_device *pdev)
 	rc = irq_set_affinity(irq, &xgene_pmu->cpu);
 	if (rc) {
 		dev_err(&pdev->dev, "Failed to set interrupt affinity!\n");
+=======
+	/* Add this instance to the list used by the hotplug callback */
+	rc = cpuhp_state_add_instance(CPUHP_AP_PERF_ARM_APM_XGENE_ONLINE,
+				      &xgene_pmu->node);
+	if (rc) {
+		dev_err(&pdev->dev, "Error %d registering hotplug", rc);
+>>>>>>> upstream/android-13
 		return rc;
 	}
 
@@ -1899,13 +2066,25 @@ static int xgene_pmu_probe(struct platform_device *pdev)
 	rc = xgene_pmu_probe_pmu_dev(xgene_pmu, pdev);
 	if (rc) {
 		dev_err(&pdev->dev, "No PMU perf devices found!\n");
+<<<<<<< HEAD
 		return rc;
+=======
+		goto out_unregister;
+>>>>>>> upstream/android-13
 	}
 
 	/* Enable interrupt */
 	xgene_pmu->ops->unmask_int(xgene_pmu);
 
 	return 0;
+<<<<<<< HEAD
+=======
+
+out_unregister:
+	cpuhp_state_remove_instance(CPUHP_AP_PERF_ARM_APM_XGENE_ONLINE,
+				    &xgene_pmu->node);
+	return rc;
+>>>>>>> upstream/android-13
 }
 
 static void
@@ -1926,6 +2105,11 @@ static int xgene_pmu_remove(struct platform_device *pdev)
 	xgene_pmu_dev_cleanup(xgene_pmu, &xgene_pmu->iobpmus);
 	xgene_pmu_dev_cleanup(xgene_pmu, &xgene_pmu->mcbpmus);
 	xgene_pmu_dev_cleanup(xgene_pmu, &xgene_pmu->mcpmus);
+<<<<<<< HEAD
+=======
+	cpuhp_state_remove_instance(CPUHP_AP_PERF_ARM_APM_XGENE_ONLINE,
+				    &xgene_pmu->node);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1937,6 +2121,10 @@ static struct platform_driver xgene_pmu_driver = {
 		.name		= "xgene-pmu",
 		.of_match_table = xgene_pmu_of_match,
 		.acpi_match_table = ACPI_PTR(xgene_pmu_acpi_match),
+<<<<<<< HEAD
+=======
+		.suppress_bind_attrs = true,
+>>>>>>> upstream/android-13
 	},
 };
 

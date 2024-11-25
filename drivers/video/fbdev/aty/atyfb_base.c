@@ -48,7 +48,11 @@
 
 ******************************************************************************/
 
+<<<<<<< HEAD
 
+=======
+#include <linux/compat.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/moduleparam.h>
 #include <linux/kernel.h>
@@ -126,14 +130,23 @@
 #ifdef DEBUG
 #define DPRINTK(fmt, args...)	printk(KERN_DEBUG "atyfb: " fmt, ## args)
 #else
+<<<<<<< HEAD
 #define DPRINTK(fmt, args...)
+=======
+#define DPRINTK(fmt, args...)	no_printk(fmt, ##args)
+>>>>>>> upstream/android-13
 #endif
 
 #define PRINTKI(fmt, args...)	printk(KERN_INFO "atyfb: " fmt, ## args)
 #define PRINTKE(fmt, args...)	printk(KERN_ERR "atyfb: " fmt, ## args)
 
+<<<<<<< HEAD
 #if defined(CONFIG_PM) || defined(CONFIG_PMAC_BACKLIGHT) || \
 defined (CONFIG_FB_ATY_GENERIC_LCD) || defined(CONFIG_FB_ATY_BACKLIGHT)
+=======
+#if defined(CONFIG_PMAC_BACKLIGHT) || defined(CONFIG_FB_ATY_GENERIC_LCD) || \
+defined(CONFIG_FB_ATY_BACKLIGHT) || defined (CONFIG_PPC_PMAC)
+>>>>>>> upstream/android-13
 static const u32 lt_lcd_regs[] = {
 	CNFG_PANEL_LG,
 	LCD_GEN_CNTL_LG,
@@ -175,7 +188,21 @@ u32 aty_ld_lcd(int index, const struct atyfb_par *par)
 		return aty_ld_le32(LCD_DATA, par);
 	}
 }
+<<<<<<< HEAD
 #endif /* defined(CONFIG_PM) || defined(CONFIG_PMAC_BACKLIGHT) || defined (CONFIG_FB_ATY_GENERIC_LCD) */
+=======
+#else /* defined(CONFIG_PMAC_BACKLIGHT) || defined(CONFIG_FB_ATY_BACKLIGHT) ||
+	 defined(CONFIG_FB_ATY_GENERIC_LCD) || defined(CONFIG_PPC_PMAC) */
+void aty_st_lcd(int index, u32 val, const struct atyfb_par *par)
+{ }
+
+u32 aty_ld_lcd(int index, const struct atyfb_par *par)
+{
+	return 0;
+}
+#endif /* defined(CONFIG_PMAC_BACKLIGHT) || defined(CONFIG_FB_ATY_BACKLIGHT) ||
+	  defined (CONFIG_FB_ATY_GENERIC_LCD) || defined(CONFIG_PPC_PMAC) */
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_FB_ATY_GENERIC_LCD
 /*
@@ -235,6 +262,16 @@ static int atyfb_pan_display(struct fb_var_screeninfo *var,
 			     struct fb_info *info);
 static int atyfb_blank(int blank, struct fb_info *info);
 static int atyfb_ioctl(struct fb_info *info, u_int cmd, u_long arg);
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_COMPAT
+static int atyfb_compat_ioctl(struct fb_info *info, u_int cmd, u_long arg)
+{
+	return atyfb_ioctl(info, cmd, (u_long)compat_ptr(arg));
+}
+#endif
+
+>>>>>>> upstream/android-13
 #ifdef __sparc__
 static int atyfb_mmap(struct fb_info *info, struct vm_area_struct *vma);
 #endif
@@ -290,6 +327,12 @@ static struct fb_ops atyfb_ops = {
 	.fb_pan_display	= atyfb_pan_display,
 	.fb_blank	= atyfb_blank,
 	.fb_ioctl	= atyfb_ioctl,
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_COMPAT
+	.fb_compat_ioctl = atyfb_compat_ioctl,
+#endif
+>>>>>>> upstream/android-13
 	.fb_fillrect	= atyfb_fillrect,
 	.fb_copyarea	= atyfb_copyarea,
 	.fb_imageblit	= atyfb_imageblit,
@@ -307,12 +350,16 @@ static int mclk;
 static int xclk;
 static int comp_sync = -1;
 static char *mode;
+<<<<<<< HEAD
 
 #ifdef CONFIG_PMAC_BACKLIGHT
 static int backlight = 1;
 #else
 static int backlight = 0;
 #endif
+=======
+static int backlight = IS_BUILTIN(CONFIG_PMAC_BACKLIGHT);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PPC
 static int default_vmode = VMODE_CHOOSE;
@@ -1188,6 +1235,7 @@ static int aty_crtc_to_var(const struct crtc *crtc,
 		(c_sync ? FB_SYNC_COMP_HIGH_ACT : 0);
 
 	switch (pix_width) {
+<<<<<<< HEAD
 #if 0
 	case CRTC_PIX_WIDTH_4BPP:
 		bpp = 4;
@@ -1201,6 +1249,8 @@ static int aty_crtc_to_var(const struct crtc *crtc,
 		var->transp.length = 0;
 		break;
 #endif
+=======
+>>>>>>> upstream/android-13
 	case CRTC_PIX_WIDTH_8BPP:
 		bpp = 8;
 		var->red.offset = 0;
@@ -1329,10 +1379,17 @@ static int atyfb_set_par(struct fb_info *info)
 	par->accel_flags = var->accel_flags; /* hack */
 
 	if (var->accel_flags) {
+<<<<<<< HEAD
 		info->fbops->fb_sync = atyfb_sync;
 		info->flags &= ~FBINFO_HWACCEL_DISABLED;
 	} else {
 		info->fbops->fb_sync = NULL;
+=======
+		atyfb_ops.fb_sync = atyfb_sync;
+		info->flags &= ~FBINFO_HWACCEL_DISABLED;
+	} else {
+		atyfb_ops.fb_sync = NULL;
+>>>>>>> upstream/android-13
 		info->flags |= FBINFO_HWACCEL_DISABLED;
 	}
 
@@ -1466,11 +1523,14 @@ static int atyfb_set_par(struct fb_info *info)
 		var->bits_per_pixel,
 		par->crtc.vxres * var->bits_per_pixel / 8);
 #endif /* CONFIG_BOOTX_TEXT */
+<<<<<<< HEAD
 #if 0
 	/* switch to accelerator mode */
 	if (!(par->crtc.gen_cntl & CRTC_EXT_DISP_EN))
 		aty_st_le32(CRTC_GEN_CNTL, par->crtc.gen_cntl | CRTC_EXT_DISP_EN, par);
 #endif
+=======
+>>>>>>> upstream/android-13
 #ifdef DEBUG
 {
 	/* dump non shadow CRTC, pll, LCD registers */
@@ -1480,17 +1540,28 @@ static int atyfb_set_par(struct fb_info *info)
 	base = 0x2000;
 	printk("debug atyfb: Mach64 non-shadow register values:");
 	for (i = 0; i < 256; i = i+4) {
+<<<<<<< HEAD
 		if (i % 16 == 0)
 			printk("\ndebug atyfb: 0x%04X: ", base + i);
 		printk(" %08X", aty_ld_le32(i, par));
 	}
 	printk("\n\n");
+=======
+		if (i % 16 == 0) {
+			pr_cont("\n");
+			printk("debug atyfb: 0x%04X: ", base + i);
+		}
+		pr_cont(" %08X", aty_ld_le32(i, par));
+	}
+	pr_cont("\n\n");
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_FB_ATY_CT
 	/* PLL registers */
 	base = 0x00;
 	printk("debug atyfb: Mach64 PLL register values:");
 	for (i = 0; i < 64; i++) {
+<<<<<<< HEAD
 		if (i % 16 == 0)
 			printk("\ndebug atyfb: 0x%02X: ", base + i);
 		if (i % 4 == 0)
@@ -1498,6 +1569,17 @@ static int atyfb_set_par(struct fb_info *info)
 		printk("%02X", aty_ld_pll_ct(i, par));
 	}
 	printk("\n\n");
+=======
+		if (i % 16 == 0) {
+			pr_cont("\n");
+			printk("debug atyfb: 0x%02X: ", base + i);
+		}
+		if (i % 4 == 0)
+			pr_cont(" ");
+		pr_cont("%02X", aty_ld_pll_ct(i, par));
+	}
+	pr_cont("\n\n");
+>>>>>>> upstream/android-13
 #endif	/* CONFIG_FB_ATY_CT */
 
 #ifdef CONFIG_FB_ATY_GENERIC_LCD
@@ -1509,19 +1591,34 @@ static int atyfb_set_par(struct fb_info *info)
 			for (i = 0; i <= POWER_MANAGEMENT; i++) {
 				if (i == EXT_VERT_STRETCH)
 					continue;
+<<<<<<< HEAD
 				printk("\ndebug atyfb: 0x%04X: ",
 				       lt_lcd_regs[i]);
 				printk(" %08X", aty_ld_lcd(i, par));
+=======
+				pr_cont("\ndebug atyfb: 0x%04X: ",
+				       lt_lcd_regs[i]);
+				pr_cont(" %08X", aty_ld_lcd(i, par));
+>>>>>>> upstream/android-13
 			}
 		} else {
 			for (i = 0; i < 64; i++) {
 				if (i % 4 == 0)
+<<<<<<< HEAD
 					printk("\ndebug atyfb: 0x%02X: ",
 					       base + i);
 				printk(" %08X", aty_ld_lcd(i, par));
 			}
 		}
 		printk("\n\n");
+=======
+					pr_cont("\ndebug atyfb: 0x%02X: ",
+					       base + i);
+				pr_cont(" %08X", aty_ld_lcd(i, par));
+			}
+		}
+		pr_cont("\n\n");
+>>>>>>> upstream/android-13
 	}
 #endif /* CONFIG_FB_ATY_GENERIC_LCD */
 }
@@ -1998,7 +2095,11 @@ static int atyfb_mmap(struct fb_info *info, struct vm_area_struct *vma)
 
 
 
+<<<<<<< HEAD
 #if defined(CONFIG_PM) && defined(CONFIG_PCI)
+=======
+#if defined(CONFIG_PCI)
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PPC_PMAC
 /* Power management routines. Those are used for PowerBook sleep.
@@ -2059,8 +2160,14 @@ static int aty_power_mgmt(int sleep, struct atyfb_par *par)
 }
 #endif /* CONFIG_PPC_PMAC */
 
+<<<<<<< HEAD
 static int atyfb_pci_suspend(struct pci_dev *pdev, pm_message_t state)
 {
+=======
+static int atyfb_pci_suspend_late(struct device *dev, pm_message_t state)
+{
+	struct pci_dev *pdev = to_pci_dev(dev);
+>>>>>>> upstream/android-13
 	struct fb_info *info = pci_get_drvdata(pdev);
 	struct atyfb_par *par = (struct atyfb_par *) info->par;
 
@@ -2086,7 +2193,10 @@ static int atyfb_pci_suspend(struct pci_dev *pdev, pm_message_t state)
 	 * first save the config space content so the core can
 	 * restore it properly on resume.
 	 */
+<<<<<<< HEAD
 	pci_save_state(pdev);
+=======
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PPC_PMAC
 	/* Set chip to "suspend" mode */
@@ -2098,8 +2208,11 @@ static int atyfb_pci_suspend(struct pci_dev *pdev, pm_message_t state)
 		console_unlock();
 		return -EIO;
 	}
+<<<<<<< HEAD
 #else
 	pci_set_power_state(pdev, pci_choose_state(pdev, state));
+=======
+>>>>>>> upstream/android-13
 #endif
 
 	console_unlock();
@@ -2109,6 +2222,24 @@ static int atyfb_pci_suspend(struct pci_dev *pdev, pm_message_t state)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int __maybe_unused atyfb_pci_suspend(struct device *dev)
+{
+	return atyfb_pci_suspend_late(dev, PMSG_SUSPEND);
+}
+
+static int __maybe_unused atyfb_pci_hibernate(struct device *dev)
+{
+	return atyfb_pci_suspend_late(dev, PMSG_HIBERNATE);
+}
+
+static int __maybe_unused atyfb_pci_freeze(struct device *dev)
+{
+	return atyfb_pci_suspend_late(dev, PMSG_FREEZE);
+}
+
+>>>>>>> upstream/android-13
 static void aty_resume_chip(struct fb_info *info)
 {
 	struct atyfb_par *par = info->par;
@@ -2123,8 +2254,14 @@ static void aty_resume_chip(struct fb_info *info)
 			aty_ld_le32(BUS_CNTL, par) | BUS_APER_REG_DIS, par);
 }
 
+<<<<<<< HEAD
 static int atyfb_pci_resume(struct pci_dev *pdev)
 {
+=======
+static int __maybe_unused atyfb_pci_resume(struct device *dev)
+{
+	struct pci_dev *pdev = to_pci_dev(dev);
+>>>>>>> upstream/android-13
 	struct fb_info *info = pci_get_drvdata(pdev);
 	struct atyfb_par *par = (struct atyfb_par *) info->par;
 
@@ -2166,7 +2303,22 @@ static int atyfb_pci_resume(struct pci_dev *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 #endif /*  defined(CONFIG_PM) && defined(CONFIG_PCI) */
+=======
+static const struct dev_pm_ops atyfb_pci_pm_ops = {
+#ifdef CONFIG_PM_SLEEP
+	.suspend	= atyfb_pci_suspend,
+	.resume		= atyfb_pci_resume,
+	.freeze		= atyfb_pci_freeze,
+	.thaw		= atyfb_pci_resume,
+	.poweroff	= atyfb_pci_hibernate,
+	.restore	= atyfb_pci_resume,
+#endif /* CONFIG_PM_SLEEP */
+};
+
+#endif /*  defined(CONFIG_PCI) */
+>>>>>>> upstream/android-13
 
 /* Backlight */
 #ifdef CONFIG_FB_ATY_BACKLIGHT
@@ -2337,6 +2489,12 @@ static int aty_init(struct fb_info *info)
 	int gtb_memsize, has_var = 0;
 	struct fb_var_screeninfo var;
 	int ret;
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_ATARI
+	u8 dac_type;
+#endif
+>>>>>>> upstream/android-13
 
 	init_waitqueue_head(&par->vblank.wait);
 	spin_lock_init(&par->int_lock);
@@ -2344,13 +2502,20 @@ static int aty_init(struct fb_info *info)
 #ifdef CONFIG_FB_ATY_GX
 	if (!M64_HAS(INTEGRATED)) {
 		u32 stat0;
+<<<<<<< HEAD
 		u8 dac_type, dac_subtype, clk_type;
+=======
+		u8 dac_subtype, clk_type;
+>>>>>>> upstream/android-13
 		stat0 = aty_ld_le32(CNFG_STAT0, par);
 		par->bus_type = (stat0 >> 0) & 0x07;
 		par->ram_type = (stat0 >> 3) & 0x07;
 		ramname = aty_gx_ram[par->ram_type];
 		/* FIXME: clockchip/RAMDAC probing? */
+<<<<<<< HEAD
 		dac_type = (aty_ld_le32(DAC_CNTL, par) >> 16) & 0x07;
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_ATARI
 		clk_type = CLK_ATI18818_1;
 		dac_type = (stat0 >> 9) & 0x07;
@@ -2359,7 +2524,10 @@ static int aty_init(struct fb_info *info)
 		else
 			dac_subtype = (aty_ld_8(SCRATCH_REG1 + 1, par) & 0xF0) | dac_type;
 #else
+<<<<<<< HEAD
 		dac_type = DAC_IBMRGB514;
+=======
+>>>>>>> upstream/android-13
 		dac_subtype = DAC_IBMRGB514;
 		clk_type = CLK_IBMRGB514;
 #endif
@@ -2392,6 +2560,7 @@ static int aty_init(struct fb_info *info)
 			par->pll_ops = &aty_pll_ibm514;
 			break;
 #endif
+<<<<<<< HEAD
 #if 0 /* dead code */
 		case CLK_STG1703:
 			par->pll_ops = &aty_pll_stg1703;
@@ -2403,6 +2572,8 @@ static int aty_init(struct fb_info *info)
 			par->pll_ops = &aty_pll_att20c408;
 			break;
 #endif
+=======
+>>>>>>> upstream/android-13
 		default:
 			PRINTKI("aty_init: CLK type not implemented yet!");
 			par->pll_ops = &aty_pll_unsupported;
@@ -2597,8 +2768,13 @@ static int aty_init(struct fb_info *info)
 		       aty_ld_le32(DSP_ON_OFF, par),
 		       aty_ld_le32(CLOCK_CNTL, par));
 		for (i = 0; i < 40; i++)
+<<<<<<< HEAD
 			printk(" %02x", aty_ld_pll_ct(i, par));
 		printk("\n");
+=======
+			pr_cont(" %02x", aty_ld_pll_ct(i, par));
+		pr_cont("\n");
+>>>>>>> upstream/android-13
 	}
 #endif
 	if (par->pll_ops->init_pll)
@@ -2727,7 +2903,11 @@ static int aty_init(struct fb_info *info)
 
 #ifdef CONFIG_FB_ATY_CT
 	if (!noaccel && M64_HAS(INTEGRATED))
+<<<<<<< HEAD
 		aty_init_cursor(info);
+=======
+		aty_init_cursor(info, &atyfb_ops);
+>>>>>>> upstream/android-13
 #endif /* CONFIG_FB_ATY_CT */
 	info->var = var;
 
@@ -3057,7 +3237,10 @@ static int atyfb_setup_sparc(struct pci_dev *pdev, struct fb_info *info,
 	if (dp == of_console_device) {
 		struct fb_var_screeninfo *var = &default_var;
 		unsigned int N, P, Q, M, T, R;
+<<<<<<< HEAD
 		u32 v_total, h_total;
+=======
+>>>>>>> upstream/android-13
 		struct crtc crtc;
 		u8 pll_regs[16];
 		u8 clock_cntl;
@@ -3073,9 +3256,12 @@ static int atyfb_setup_sparc(struct pci_dev *pdev, struct fb_info *info,
 		crtc.gen_cntl = aty_ld_le32(CRTC_GEN_CNTL, par);
 		aty_crtc_to_var(&crtc, var);
 
+<<<<<<< HEAD
 		h_total = var->xres + var->right_margin + var->hsync_len + var->left_margin;
 		v_total = var->yres + var->lower_margin + var->vsync_len + var->upper_margin;
 
+=======
+>>>>>>> upstream/android-13
 		/*
 		 * Read the PLL to figure actual Refresh Rate.
 		 */
@@ -3546,10 +3732,16 @@ static int atyfb_pci_probe(struct pci_dev *pdev,
 
 	/* Allocate framebuffer */
 	info = framebuffer_alloc(sizeof(struct atyfb_par), &pdev->dev);
+<<<<<<< HEAD
 	if (!info) {
 		PRINTKE("atyfb_pci_probe() can't alloc fb_info\n");
 		return -ENOMEM;
 	}
+=======
+	if (!info)
+		return -ENOMEM;
+
+>>>>>>> upstream/android-13
 	par = info->par;
 	par->bus_type = PCI;
 	info->fix = atyfb_fix;
@@ -3639,10 +3831,16 @@ static int __init atyfb_atari_probe(void)
 		}
 
 		info = framebuffer_alloc(sizeof(struct atyfb_par), NULL);
+<<<<<<< HEAD
 		if (!info) {
 			PRINTKE("atyfb_atari_probe() can't alloc fb_info\n");
 			return -ENOMEM;
 		}
+=======
+		if (!info)
+			return -ENOMEM;
+
+>>>>>>> upstream/android-13
 		par = info->par;
 
 		info->fix = atyfb_fix;
@@ -3818,10 +4016,14 @@ static struct pci_driver atyfb_driver = {
 	.id_table	= atyfb_pci_tbl,
 	.probe		= atyfb_pci_probe,
 	.remove		= atyfb_pci_remove,
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 	.suspend	= atyfb_pci_suspend,
 	.resume		= atyfb_pci_resume,
 #endif /* CONFIG_PM */
+=======
+	.driver.pm	= &atyfb_pci_pm_ops,
+>>>>>>> upstream/android-13
 };
 
 #endif /* CONFIG_PCI */
@@ -3836,9 +4038,15 @@ static int __init atyfb_setup(char *options)
 
 	while ((this_opt = strsep(&options, ",")) != NULL) {
 		if (!strncmp(this_opt, "noaccel", 7)) {
+<<<<<<< HEAD
 			noaccel = 1;
 		} else if (!strncmp(this_opt, "nomtrr", 6)) {
 			nomtrr = 1;
+=======
+			noaccel = true;
+		} else if (!strncmp(this_opt, "nomtrr", 6)) {
+			nomtrr = true;
+>>>>>>> upstream/android-13
 		} else if (!strncmp(this_opt, "vram:", 5))
 			vram = simple_strtoul(this_opt + 5, NULL, 0);
 		else if (!strncmp(this_opt, "pll:", 4))
@@ -3912,8 +4120,12 @@ static int atyfb_reboot_notify(struct notifier_block *nb,
 	if (!reboot_info)
 		goto out;
 
+<<<<<<< HEAD
 	if (!lock_fb_info(reboot_info))
 		goto out;
+=======
+	lock_fb_info(reboot_info);
+>>>>>>> upstream/android-13
 
 	par = reboot_info->par;
 

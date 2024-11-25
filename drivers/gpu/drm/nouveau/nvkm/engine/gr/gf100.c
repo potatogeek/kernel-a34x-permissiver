@@ -26,9 +26,15 @@
 #include "fuc/os.h"
 
 #include <core/client.h>
+<<<<<<< HEAD
 #include <core/option.h>
 #include <core/firmware.h>
 #include <subdev/secboot.h>
+=======
+#include <core/firmware.h>
+#include <core/option.h>
+#include <subdev/acr.h>
+>>>>>>> upstream/android-13
 #include <subdev/fb.h>
 #include <subdev/mc.h>
 #include <subdev/pmu.h>
@@ -715,6 +721,214 @@ gf100_gr_pack_mmio[] = {
  * PGRAPH engine/subdev functions
  ******************************************************************************/
 
+<<<<<<< HEAD
+=======
+static u32
+gf100_gr_ctxsw_inst(struct nvkm_gr *gr)
+{
+	return nvkm_rd32(gr->engine.subdev.device, 0x409b00);
+}
+
+static int
+gf100_gr_fecs_ctrl_ctxsw(struct gf100_gr *gr, u32 mthd)
+{
+	struct nvkm_device *device = gr->base.engine.subdev.device;
+
+	nvkm_wr32(device, 0x409804, 0xffffffff);
+	nvkm_wr32(device, 0x409840, 0xffffffff);
+	nvkm_wr32(device, 0x409500, 0xffffffff);
+	nvkm_wr32(device, 0x409504, mthd);
+	nvkm_msec(device, 2000,
+		u32 stat = nvkm_rd32(device, 0x409804);
+		if (stat == 0x00000002)
+			return -EIO;
+		if (stat == 0x00000001)
+			return 0;
+	);
+
+	return -ETIMEDOUT;
+}
+
+static int
+gf100_gr_fecs_start_ctxsw(struct nvkm_gr *base)
+{
+	struct gf100_gr *gr = gf100_gr(base);
+	int ret = 0;
+
+	mutex_lock(&gr->fecs.mutex);
+	if (!--gr->fecs.disable) {
+		if (WARN_ON(ret = gf100_gr_fecs_ctrl_ctxsw(gr, 0x39)))
+			gr->fecs.disable++;
+	}
+	mutex_unlock(&gr->fecs.mutex);
+	return ret;
+}
+
+static int
+gf100_gr_fecs_stop_ctxsw(struct nvkm_gr *base)
+{
+	struct gf100_gr *gr = gf100_gr(base);
+	int ret = 0;
+
+	mutex_lock(&gr->fecs.mutex);
+	if (!gr->fecs.disable++) {
+		if (WARN_ON(ret = gf100_gr_fecs_ctrl_ctxsw(gr, 0x38)))
+			gr->fecs.disable--;
+	}
+	mutex_unlock(&gr->fecs.mutex);
+	return ret;
+}
+
+int
+gf100_gr_fecs_bind_pointer(struct gf100_gr *gr, u32 inst)
+{
+	struct nvkm_device *device = gr->base.engine.subdev.device;
+
+	nvkm_wr32(device, 0x409840, 0x00000030);
+	nvkm_wr32(device, 0x409500, inst);
+	nvkm_wr32(device, 0x409504, 0x00000003);
+	nvkm_msec(device, 2000,
+		u32 stat = nvkm_rd32(device, 0x409800);
+		if (stat & 0x00000020)
+			return -EIO;
+		if (stat & 0x00000010)
+			return 0;
+	);
+
+	return -ETIMEDOUT;
+}
+
+static int
+gf100_gr_fecs_set_reglist_virtual_address(struct gf100_gr *gr, u64 addr)
+{
+	struct nvkm_device *device = gr->base.engine.subdev.device;
+
+	nvkm_wr32(device, 0x409810, addr >> 8);
+	nvkm_wr32(device, 0x409800, 0x00000000);
+	nvkm_wr32(device, 0x409500, 0x00000001);
+	nvkm_wr32(device, 0x409504, 0x00000032);
+	nvkm_msec(device, 2000,
+		if (nvkm_rd32(device, 0x409800) == 0x00000001)
+			return 0;
+	);
+
+	return -ETIMEDOUT;
+}
+
+static int
+gf100_gr_fecs_set_reglist_bind_instance(struct gf100_gr *gr, u32 inst)
+{
+	struct nvkm_device *device = gr->base.engine.subdev.device;
+
+	nvkm_wr32(device, 0x409810, inst);
+	nvkm_wr32(device, 0x409800, 0x00000000);
+	nvkm_wr32(device, 0x409500, 0x00000001);
+	nvkm_wr32(device, 0x409504, 0x00000031);
+	nvkm_msec(device, 2000,
+		if (nvkm_rd32(device, 0x409800) == 0x00000001)
+			return 0;
+	);
+
+	return -ETIMEDOUT;
+}
+
+static int
+gf100_gr_fecs_discover_reglist_image_size(struct gf100_gr *gr, u32 *psize)
+{
+	struct nvkm_device *device = gr->base.engine.subdev.device;
+
+	nvkm_wr32(device, 0x409800, 0x00000000);
+	nvkm_wr32(device, 0x409500, 0x00000001);
+	nvkm_wr32(device, 0x409504, 0x00000030);
+	nvkm_msec(device, 2000,
+		if ((*psize = nvkm_rd32(device, 0x409800)))
+			return 0;
+	);
+
+	return -ETIMEDOUT;
+}
+
+static int
+gf100_gr_fecs_elpg_bind(struct gf100_gr *gr)
+{
+	u32 size;
+	int ret;
+
+	ret = gf100_gr_fecs_discover_reglist_image_size(gr, &size);
+	if (ret)
+		return ret;
+
+	/*XXX: We need to allocate + map the above into PMU's inst block,
+	 *     which which means we probably need a proper PMU before we
+	 *     even bother.
+	 */
+
+	ret = gf100_gr_fecs_set_reglist_bind_instance(gr, 0);
+	if (ret)
+		return ret;
+
+	return gf100_gr_fecs_set_reglist_virtual_address(gr, 0);
+}
+
+static int
+gf100_gr_fecs_discover_pm_image_size(struct gf100_gr *gr, u32 *psize)
+{
+	struct nvkm_device *device = gr->base.engine.subdev.device;
+
+	nvkm_wr32(device, 0x409840, 0xffffffff);
+	nvkm_wr32(device, 0x409500, 0x00000000);
+	nvkm_wr32(device, 0x409504, 0x00000025);
+	nvkm_msec(device, 2000,
+		if ((*psize = nvkm_rd32(device, 0x409800)))
+			return 0;
+	);
+
+	return -ETIMEDOUT;
+}
+
+static int
+gf100_gr_fecs_discover_zcull_image_size(struct gf100_gr *gr, u32 *psize)
+{
+	struct nvkm_device *device = gr->base.engine.subdev.device;
+
+	nvkm_wr32(device, 0x409840, 0xffffffff);
+	nvkm_wr32(device, 0x409500, 0x00000000);
+	nvkm_wr32(device, 0x409504, 0x00000016);
+	nvkm_msec(device, 2000,
+		if ((*psize = nvkm_rd32(device, 0x409800)))
+			return 0;
+	);
+
+	return -ETIMEDOUT;
+}
+
+static int
+gf100_gr_fecs_discover_image_size(struct gf100_gr *gr, u32 *psize)
+{
+	struct nvkm_device *device = gr->base.engine.subdev.device;
+
+	nvkm_wr32(device, 0x409840, 0xffffffff);
+	nvkm_wr32(device, 0x409500, 0x00000000);
+	nvkm_wr32(device, 0x409504, 0x00000010);
+	nvkm_msec(device, 2000,
+		if ((*psize = nvkm_rd32(device, 0x409800)))
+			return 0;
+	);
+
+	return -ETIMEDOUT;
+}
+
+static void
+gf100_gr_fecs_set_watchdog_timeout(struct gf100_gr *gr, u32 timeout)
+{
+	struct nvkm_device *device = gr->base.engine.subdev.device;
+
+	nvkm_wr32(device, 0x409840, 0xffffffff);
+	nvkm_wr32(device, 0x409500, timeout);
+	nvkm_wr32(device, 0x409504, 0x00000021);
+}
+
+>>>>>>> upstream/android-13
 static bool
 gf100_gr_chsw_load(struct nvkm_gr *base)
 {
@@ -1431,7 +1645,11 @@ gf100_gr_intr(struct nvkm_gr *base)
 
 static void
 gf100_gr_init_fw(struct nvkm_falcon *falcon,
+<<<<<<< HEAD
 		 struct gf100_gr_fuc *code, struct gf100_gr_fuc *data)
+=======
+		 struct nvkm_blob *code, struct nvkm_blob *data)
+>>>>>>> upstream/android-13
 {
 	nvkm_falcon_load_dmem(falcon, data->data, 0x0, data->size, 0);
 	nvkm_falcon_load_imem(falcon, code->data, 0x0, code->size, 0, 0, false);
@@ -1485,13 +1703,19 @@ gf100_gr_init_ctxctl_ext(struct gf100_gr *gr)
 {
 	struct nvkm_subdev *subdev = &gr->base.engine.subdev;
 	struct nvkm_device *device = subdev->device;
+<<<<<<< HEAD
 	struct nvkm_secboot *sb = device->secboot;
 	u32 secboot_mask = 0;
+=======
+	u32 lsf_mask = 0;
+	int ret;
+>>>>>>> upstream/android-13
 
 	/* load fuc microcode */
 	nvkm_mc_unk260(device, 0);
 
 	/* securely-managed falcons must be reset using secure boot */
+<<<<<<< HEAD
 	if (nvkm_secboot_is_managed(sb, NVKM_SECBOOT_FALCON_FECS))
 		secboot_mask |= BIT(NVKM_SECBOOT_FALCON_FECS);
 	else
@@ -1504,6 +1728,25 @@ gf100_gr_init_ctxctl_ext(struct gf100_gr *gr)
 
 	if (secboot_mask != 0) {
 		int ret = nvkm_secboot_reset(sb, secboot_mask);
+=======
+
+	if (!nvkm_acr_managed_falcon(device, NVKM_ACR_LSF_FECS)) {
+		gf100_gr_init_fw(&gr->fecs.falcon, &gr->fecs.inst,
+						   &gr->fecs.data);
+	} else {
+		lsf_mask |= BIT(NVKM_ACR_LSF_FECS);
+	}
+
+	if (!nvkm_acr_managed_falcon(device, NVKM_ACR_LSF_GPCCS)) {
+		gf100_gr_init_fw(&gr->gpccs.falcon, &gr->gpccs.inst,
+						    &gr->gpccs.data);
+	} else {
+		lsf_mask |= BIT(NVKM_ACR_LSF_GPCCS);
+	}
+
+	if (lsf_mask) {
+		ret = nvkm_acr_bootstrap_falcons(device, lsf_mask);
+>>>>>>> upstream/android-13
 		if (ret)
 			return ret;
 	}
@@ -1515,8 +1758,13 @@ gf100_gr_init_ctxctl_ext(struct gf100_gr *gr)
 	nvkm_wr32(device, 0x41a10c, 0x00000000);
 	nvkm_wr32(device, 0x40910c, 0x00000000);
 
+<<<<<<< HEAD
 	nvkm_falcon_start(gr->gpccs);
 	nvkm_falcon_start(gr->fecs);
+=======
+	nvkm_falcon_start(&gr->gpccs.falcon);
+	nvkm_falcon_start(&gr->fecs.falcon);
+>>>>>>> upstream/android-13
 
 	if (nvkm_msec(device, 2000,
 		if (nvkm_rd32(device, 0x409800) & 0x00000001)
@@ -1524,6 +1772,7 @@ gf100_gr_init_ctxctl_ext(struct gf100_gr *gr)
 	) < 0)
 		return -EBUSY;
 
+<<<<<<< HEAD
 	nvkm_wr32(device, 0x409840, 0xffffffff);
 	nvkm_wr32(device, 0x409500, 0x7fffffff);
 	nvkm_wr32(device, 0x409504, 0x00000021);
@@ -1590,6 +1839,38 @@ gf100_gr_init_ctxctl_ext(struct gf100_gr *gr)
 		nvkm_wr32(device, 0x40802c, 0x00000001);
 	}
 
+=======
+	gf100_gr_fecs_set_watchdog_timeout(gr, 0x7fffffff);
+
+	/* Determine how much memory is required to store main context image. */
+	ret = gf100_gr_fecs_discover_image_size(gr, &gr->size);
+	if (ret)
+		return ret;
+
+	/* Determine how much memory is required to store ZCULL image. */
+	ret = gf100_gr_fecs_discover_zcull_image_size(gr, &gr->size_zcull);
+	if (ret)
+		return ret;
+
+	/* Determine how much memory is required to store PerfMon image. */
+	ret = gf100_gr_fecs_discover_pm_image_size(gr, &gr->size_pm);
+	if (ret)
+		return ret;
+
+	/*XXX: We (likely) require PMU support to even bother with this.
+	 *
+	 *     Also, it seems like not all GPUs support ELPG.  Traces I
+	 *     have here show RM enabling it on Kepler/Turing, but none
+	 *     of the GPUs between those.  NVGPU decides this by PCIID.
+	 */
+	if (0) {
+		ret = gf100_gr_fecs_elpg_bind(gr);
+		if (ret)
+			return ret;
+	}
+
+	/* Generate golden context image. */
+>>>>>>> upstream/android-13
 	if (gr->data == NULL) {
 		int ret = gf100_grctx_generate(gr);
 		if (ret) {
@@ -1614,6 +1895,7 @@ gf100_gr_init_ctxctl_int(struct gf100_gr *gr)
 
 	/* load HUB microcode */
 	nvkm_mc_unk260(device, 0);
+<<<<<<< HEAD
 	nvkm_falcon_load_dmem(gr->fecs, gr->func->fecs.ucode->data.data, 0x0,
 			      gr->func->fecs.ucode->data.size, 0);
 	nvkm_falcon_load_imem(gr->fecs, gr->func->fecs.ucode->code.data, 0x0,
@@ -1623,6 +1905,21 @@ gf100_gr_init_ctxctl_int(struct gf100_gr *gr)
 	nvkm_falcon_load_dmem(gr->gpccs, gr->func->gpccs.ucode->data.data, 0x0,
 			      gr->func->gpccs.ucode->data.size, 0);
 	nvkm_falcon_load_imem(gr->gpccs, gr->func->gpccs.ucode->code.data, 0x0,
+=======
+	nvkm_falcon_load_dmem(&gr->fecs.falcon,
+			      gr->func->fecs.ucode->data.data, 0x0,
+			      gr->func->fecs.ucode->data.size, 0);
+	nvkm_falcon_load_imem(&gr->fecs.falcon,
+			      gr->func->fecs.ucode->code.data, 0x0,
+			      gr->func->fecs.ucode->code.size, 0, 0, false);
+
+	/* load GPC microcode */
+	nvkm_falcon_load_dmem(&gr->gpccs.falcon,
+			      gr->func->gpccs.ucode->data.data, 0x0,
+			      gr->func->gpccs.ucode->data.size, 0);
+	nvkm_falcon_load_imem(&gr->gpccs.falcon,
+			      gr->func->gpccs.ucode->code.data, 0x0,
+>>>>>>> upstream/android-13
 			      gr->func->gpccs.ucode->code.size, 0, 0, false);
 	nvkm_mc_unk260(device, 1);
 
@@ -1767,6 +2064,7 @@ gf100_gr_oneinit(struct nvkm_gr *base)
 	struct nvkm_subdev *subdev = &gr->base.engine.subdev;
 	struct nvkm_device *device = subdev->device;
 	int i, j;
+<<<<<<< HEAD
 	int ret;
 
 	ret = nvkm_falcon_v1_new(subdev, "FECS", 0x409000, &gr->fecs);
@@ -1776,6 +2074,8 @@ gf100_gr_oneinit(struct nvkm_gr *base)
 	ret = nvkm_falcon_v1_new(subdev, "GPCCS", 0x41a000, &gr->gpccs);
 	if (ret)
 		return ret;
+=======
+>>>>>>> upstream/android-13
 
 	nvkm_pmu_pgob(device->pmu, false);
 
@@ -1812,6 +2112,7 @@ gf100_gr_init_(struct nvkm_gr *base)
 {
 	struct gf100_gr *gr = gf100_gr(base);
 	struct nvkm_subdev *subdev = &base->engine.subdev;
+<<<<<<< HEAD
 	u32 ret;
 
 	nvkm_pmu_pgob(gr->base.engine.subdev.device->pmu, false);
@@ -1821,6 +2122,43 @@ gf100_gr_init_(struct nvkm_gr *base)
 		return ret;
 
 	ret = nvkm_falcon_get(gr->gpccs, subdev);
+=======
+	struct nvkm_device *device = subdev->device;
+	bool reset = device->chipset == 0x137 || device->chipset == 0x138;
+	u32 ret;
+
+	/* On certain GP107/GP108 boards, we trigger a weird issue where
+	 * GR will stop responding to PRI accesses after we've asked the
+	 * SEC2 RTOS to boot the GR falcons.  This happens with far more
+	 * frequency when cold-booting a board (ie. returning from D3).
+	 *
+	 * The root cause for this is not known and has proven difficult
+	 * to isolate, with many avenues being dead-ends.
+	 *
+	 * A workaround was discovered by Karol, whereby putting GR into
+	 * reset for an extended period right before initialisation
+	 * prevents the problem from occuring.
+	 *
+	 * XXX: As RM does not require any such workaround, this is more
+	 *      of a hack than a true fix.
+	 */
+	reset = nvkm_boolopt(device->cfgopt, "NvGrResetWar", reset);
+	if (reset) {
+		nvkm_mask(device, 0x000200, 0x00001000, 0x00000000);
+		nvkm_rd32(device, 0x000200);
+		msleep(50);
+		nvkm_mask(device, 0x000200, 0x00001000, 0x00001000);
+		nvkm_rd32(device, 0x000200);
+	}
+
+	nvkm_pmu_pgob(gr->base.engine.subdev.device->pmu, false);
+
+	ret = nvkm_falcon_get(&gr->fecs.falcon, subdev);
+	if (ret)
+		return ret;
+
+	ret = nvkm_falcon_get(&gr->gpccs.falcon, subdev);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -1828,6 +2166,7 @@ gf100_gr_init_(struct nvkm_gr *base)
 }
 
 static int
+<<<<<<< HEAD
 gf100_gr_fini_(struct nvkm_gr *base, bool suspend)
 {
 	struct gf100_gr *gr = gf100_gr(base);
@@ -1851,10 +2190,23 @@ gf100_gr_dtor_init(struct gf100_gr_pack *pack)
 }
 
 void *
+=======
+gf100_gr_fini(struct nvkm_gr *base, bool suspend)
+{
+	struct gf100_gr *gr = gf100_gr(base);
+	struct nvkm_subdev *subdev = &gr->base.engine.subdev;
+	nvkm_falcon_put(&gr->gpccs.falcon, subdev);
+	nvkm_falcon_put(&gr->fecs.falcon, subdev);
+	return 0;
+}
+
+static void *
+>>>>>>> upstream/android-13
 gf100_gr_dtor(struct nvkm_gr *base)
 {
 	struct gf100_gr *gr = gf100_gr(base);
 
+<<<<<<< HEAD
 	if (gr->func->dtor)
 		gr->func->dtor(gr);
 	kfree(gr->data);
@@ -1871,6 +2223,22 @@ gf100_gr_dtor(struct nvkm_gr *base)
 	gf100_gr_dtor_init(gr->fuc_method);
 	gf100_gr_dtor_init(gr->fuc_sw_ctx);
 	gf100_gr_dtor_init(gr->fuc_sw_nonctx);
+=======
+	kfree(gr->data);
+
+	nvkm_falcon_dtor(&gr->gpccs.falcon);
+	nvkm_falcon_dtor(&gr->fecs.falcon);
+
+	nvkm_blob_dtor(&gr->fecs.inst);
+	nvkm_blob_dtor(&gr->fecs.data);
+	nvkm_blob_dtor(&gr->gpccs.inst);
+	nvkm_blob_dtor(&gr->gpccs.data);
+
+	vfree(gr->bundle);
+	vfree(gr->method);
+	vfree(gr->sw_ctx);
+	vfree(gr->sw_nonctx);
+>>>>>>> upstream/android-13
 
 	return gr;
 }
@@ -1880,12 +2248,17 @@ gf100_gr_ = {
 	.dtor = gf100_gr_dtor,
 	.oneinit = gf100_gr_oneinit,
 	.init = gf100_gr_init_,
+<<<<<<< HEAD
 	.fini = gf100_gr_fini_,
+=======
+	.fini = gf100_gr_fini,
+>>>>>>> upstream/android-13
 	.intr = gf100_gr_intr,
 	.units = gf100_gr_units,
 	.chan_new = gf100_gr_chan_new,
 	.object_get = gf100_gr_object_get,
 	.chsw_load = gf100_gr_chsw_load,
+<<<<<<< HEAD
 };
 
 int
@@ -1971,6 +2344,31 @@ gf100_gr_ctor(const struct gf100_gr_func *func, struct nvkm_device *device,
 int
 gf100_gr_new_(const struct gf100_gr_func *func, struct nvkm_device *device,
 	      int index, struct nvkm_gr **pgr)
+=======
+	.ctxsw.pause = gf100_gr_fecs_stop_ctxsw,
+	.ctxsw.resume = gf100_gr_fecs_start_ctxsw,
+	.ctxsw.inst = gf100_gr_ctxsw_inst,
+};
+
+static const struct nvkm_falcon_func
+gf100_gr_flcn = {
+	.fbif = 0x600,
+	.load_imem = nvkm_falcon_v1_load_imem,
+	.load_dmem = nvkm_falcon_v1_load_dmem,
+	.read_dmem = nvkm_falcon_v1_read_dmem,
+	.bind_context = nvkm_falcon_v1_bind_context,
+	.wait_for_halt = nvkm_falcon_v1_wait_for_halt,
+	.clear_interrupt = nvkm_falcon_v1_clear_interrupt,
+	.set_start_addr = nvkm_falcon_v1_set_start_addr,
+	.start = nvkm_falcon_v1_start,
+	.enable = nvkm_falcon_v1_enable,
+	.disable = nvkm_falcon_v1_disable,
+};
+
+int
+gf100_gr_new_(const struct gf100_gr_fwif *fwif, struct nvkm_device *device,
+	      enum nvkm_subdev_type type, int inst, struct nvkm_gr **pgr)
+>>>>>>> upstream/android-13
 {
 	struct gf100_gr *gr;
 	int ret;
@@ -1979,6 +2377,7 @@ gf100_gr_new_(const struct gf100_gr_func *func, struct nvkm_device *device,
 		return -ENOMEM;
 	*pgr = &gr->base;
 
+<<<<<<< HEAD
 	ret = gf100_gr_ctor(func, device, index, gr);
 	if (ret)
 		return ret;
@@ -1990,11 +2389,54 @@ gf100_gr_new_(const struct gf100_gr_func *func, struct nvkm_device *device,
 		    gf100_gr_ctor_fw(gr, "gpccs_data", &gr->fuc41ad))
 			return -ENODEV;
 	}
+=======
+	ret = nvkm_gr_ctor(&gf100_gr_, device, type, inst, true, &gr->base);
+	if (ret)
+		return ret;
+
+	fwif = nvkm_firmware_load(&gr->base.engine.subdev, fwif, "Gr", gr);
+	if (IS_ERR(fwif))
+		return PTR_ERR(fwif);
+
+	gr->func = fwif->func;
+
+	ret = nvkm_falcon_ctor(&gf100_gr_flcn, &gr->base.engine.subdev,
+			       "fecs", 0x409000, &gr->fecs.falcon);
+	if (ret)
+		return ret;
+
+	mutex_init(&gr->fecs.mutex);
+
+	ret = nvkm_falcon_ctor(&gf100_gr_flcn, &gr->base.engine.subdev,
+			       "gpccs", 0x41a000, &gr->gpccs.falcon);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 void
+<<<<<<< HEAD
+=======
+gf100_gr_init_num_tpc_per_gpc(struct gf100_gr *gr, bool pd, bool ds)
+{
+	struct nvkm_device *device = gr->base.engine.subdev.device;
+	int gpc, i, j;
+	u32 data;
+
+	for (gpc = 0, i = 0; i < 4; i++) {
+		for (data = 0, j = 0; j < 8 && gpc < gr->gpc_nr; j++, gpc++)
+			data |= gr->tpc_nr[gpc] << (j * 4);
+		if (pd)
+			nvkm_wr32(device, 0x406028 + (i * 4), data);
+		if (ds)
+			nvkm_wr32(device, 0x405870 + (i * 4), data);
+	}
+}
+
+void
+>>>>>>> upstream/android-13
 gf100_gr_init_400054(struct gf100_gr *gr)
 {
 	nvkm_wr32(gr->base.engine.subdev.device, 0x400054, 0x34ce3464);
@@ -2118,8 +2560,13 @@ gf100_gr_init(struct gf100_gr *gr)
 
 	gr->func->init_gpc_mmu(gr);
 
+<<<<<<< HEAD
 	if (gr->fuc_sw_nonctx)
 		gf100_gr_mmio(gr, gr->fuc_sw_nonctx);
+=======
+	if (gr->sw_nonctx)
+		gf100_gr_mmio(gr, gr->sw_nonctx);
+>>>>>>> upstream/android-13
 	else
 		gf100_gr_mmio(gr, gr->func->mmio);
 
@@ -2143,6 +2590,11 @@ gf100_gr_init(struct gf100_gr *gr)
 		gr->func->init_bios_2(gr);
 	if (gr->func->init_swdx_pes_mask)
 		gr->func->init_swdx_pes_mask(gr);
+<<<<<<< HEAD
+=======
+	if (gr->func->init_fs)
+		gr->func->init_fs(gr);
+>>>>>>> upstream/android-13
 
 	nvkm_wr32(device, 0x400500, 0x00010001);
 
@@ -2161,8 +2613,13 @@ gf100_gr_init(struct gf100_gr *gr)
 	if (gr->func->init_40601c)
 		gr->func->init_40601c(gr);
 
+<<<<<<< HEAD
 	nvkm_wr32(device, 0x404490, 0xc0000000);
 	nvkm_wr32(device, 0x406018, 0xc0000000);
+=======
+	nvkm_wr32(device, 0x406018, 0xc0000000);
+	nvkm_wr32(device, 0x404490, 0xc0000000);
+>>>>>>> upstream/android-13
 
 	if (gr->func->init_sked_hww_esr)
 		gr->func->init_sked_hww_esr(gr);
@@ -2277,7 +2734,72 @@ gf100_gr = {
 };
 
 int
+<<<<<<< HEAD
 gf100_gr_new(struct nvkm_device *device, int index, struct nvkm_gr **pgr)
 {
 	return gf100_gr_new_(&gf100_gr, device, index, pgr);
+=======
+gf100_gr_nofw(struct gf100_gr *gr, int ver, const struct gf100_gr_fwif *fwif)
+{
+	gr->firmware = false;
+	return 0;
+}
+
+static int
+gf100_gr_load_fw(struct gf100_gr *gr, const char *name,
+		 struct nvkm_blob *blob)
+{
+	struct nvkm_subdev *subdev = &gr->base.engine.subdev;
+	struct nvkm_device *device = subdev->device;
+	const struct firmware *fw;
+	char f[32];
+	int ret;
+
+	snprintf(f, sizeof(f), "nouveau/nv%02x_%s", device->chipset, name);
+	ret = request_firmware(&fw, f, device->dev);
+	if (ret) {
+		snprintf(f, sizeof(f), "nouveau/%s", name);
+		ret = request_firmware(&fw, f, device->dev);
+		if (ret) {
+			nvkm_error(subdev, "failed to load %s\n", name);
+			return ret;
+		}
+	}
+
+	blob->size = fw->size;
+	blob->data = kmemdup(fw->data, blob->size, GFP_KERNEL);
+	release_firmware(fw);
+	return (blob->data != NULL) ? 0 : -ENOMEM;
+}
+
+int
+gf100_gr_load(struct gf100_gr *gr, int ver, const struct gf100_gr_fwif *fwif)
+{
+	struct nvkm_device *device = gr->base.engine.subdev.device;
+
+	if (!nvkm_boolopt(device->cfgopt, "NvGrUseFW", false))
+		return -EINVAL;
+
+	if (gf100_gr_load_fw(gr, "fuc409c", &gr->fecs.inst) ||
+	    gf100_gr_load_fw(gr, "fuc409d", &gr->fecs.data) ||
+	    gf100_gr_load_fw(gr, "fuc41ac", &gr->gpccs.inst) ||
+	    gf100_gr_load_fw(gr, "fuc41ad", &gr->gpccs.data))
+		return -ENOENT;
+
+	gr->firmware = true;
+	return 0;
+}
+
+static const struct gf100_gr_fwif
+gf100_gr_fwif[] = {
+	{ -1, gf100_gr_load, &gf100_gr },
+	{ -1, gf100_gr_nofw, &gf100_gr },
+	{}
+};
+
+int
+gf100_gr_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst, struct nvkm_gr **pgr)
+{
+	return gf100_gr_new_(gf100_gr_fwif, device, type, inst, pgr);
+>>>>>>> upstream/android-13
 }

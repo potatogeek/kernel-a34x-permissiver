@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2010,2012 Freescale Semiconductor, Inc. All rights reserved.
  *
@@ -6,10 +10,13 @@
  * Description:
  * This file is derived from arch/powerpc/kvm/e500.c,
  * by Yu Liu <yu.liu@freescale.com>.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kvm_host.h>
@@ -304,6 +311,7 @@ static int kvmppc_set_one_reg_e500mc(struct kvm_vcpu *vcpu, u64 id,
 	return r;
 }
 
+<<<<<<< HEAD
 static struct kvm_vcpu *kvmppc_core_vcpu_create_e500mc(struct kvm *kvm,
 						       unsigned int id)
 {
@@ -317,10 +325,20 @@ static struct kvm_vcpu *kvmppc_core_vcpu_create_e500mc(struct kvm *kvm,
 		goto out;
 	}
 	vcpu = &vcpu_e500->vcpu;
+=======
+static int kvmppc_core_vcpu_create_e500mc(struct kvm_vcpu *vcpu)
+{
+	struct kvmppc_vcpu_e500 *vcpu_e500;
+	int err;
+
+	BUILD_BUG_ON(offsetof(struct kvmppc_vcpu_e500, vcpu) != 0);
+	vcpu_e500 = to_e500(vcpu);
+>>>>>>> upstream/android-13
 
 	/* Invalid PIR value -- this LPID dosn't have valid state on any cpu */
 	vcpu->arch.oldpir = 0xffffffff;
 
+<<<<<<< HEAD
 	err = kvm_vcpu_init(vcpu, kvm, id);
 	if (err)
 		goto free_vcpu;
@@ -328,6 +346,11 @@ static struct kvm_vcpu *kvmppc_core_vcpu_create_e500mc(struct kvm *kvm,
 	err = kvmppc_e500_tlb_init(vcpu_e500);
 	if (err)
 		goto uninit_vcpu;
+=======
+	err = kvmppc_e500_tlb_init(vcpu_e500);
+	if (err)
+		return err;
+>>>>>>> upstream/android-13
 
 	vcpu->arch.shared = (void *)__get_free_page(GFP_KERNEL | __GFP_ZERO);
 	if (!vcpu->arch.shared) {
@@ -335,6 +358,7 @@ static struct kvm_vcpu *kvmppc_core_vcpu_create_e500mc(struct kvm *kvm,
 		goto uninit_tlb;
 	}
 
+<<<<<<< HEAD
 	return vcpu;
 
 uninit_tlb:
@@ -346,6 +370,13 @@ free_vcpu:
 	kmem_cache_free(kvm_vcpu_cache, vcpu_e500);
 out:
 	return ERR_PTR(err);
+=======
+	return 0;
+
+uninit_tlb:
+	kvmppc_e500_tlb_uninit(vcpu_e500);
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static void kvmppc_core_vcpu_free_e500mc(struct kvm_vcpu *vcpu)
@@ -354,8 +385,11 @@ static void kvmppc_core_vcpu_free_e500mc(struct kvm_vcpu *vcpu)
 
 	free_page((unsigned long)vcpu->arch.shared);
 	kvmppc_e500_tlb_uninit(vcpu_e500);
+<<<<<<< HEAD
 	kvm_vcpu_uninit(vcpu);
 	kmem_cache_free(kvm_vcpu_cache, vcpu_e500);
+=======
+>>>>>>> upstream/android-13
 }
 
 static int kvmppc_core_init_vm_e500mc(struct kvm *kvm)
@@ -397,7 +431,10 @@ static struct kvmppc_ops kvm_ops_e500mc = {
 	.vcpu_put    = kvmppc_core_vcpu_put_e500mc,
 	.vcpu_create = kvmppc_core_vcpu_create_e500mc,
 	.vcpu_free   = kvmppc_core_vcpu_free_e500mc,
+<<<<<<< HEAD
 	.mmu_destroy  = kvmppc_mmu_destroy_e500,
+=======
+>>>>>>> upstream/android-13
 	.init_vm = kvmppc_core_init_vm_e500mc,
 	.destroy_vm = kvmppc_core_destroy_vm_e500mc,
 	.emulate_op = kvmppc_core_emulate_op_e500,

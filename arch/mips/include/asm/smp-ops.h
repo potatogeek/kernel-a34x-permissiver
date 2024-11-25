@@ -29,10 +29,20 @@ struct plat_smp_ops {
 	int (*boot_secondary)(int cpu, struct task_struct *idle);
 	void (*smp_setup)(void);
 	void (*prepare_cpus)(unsigned int max_cpus);
+<<<<<<< HEAD
+=======
+	void (*prepare_boot_cpu)(void);
+>>>>>>> upstream/android-13
 #ifdef CONFIG_HOTPLUG_CPU
 	int (*cpu_disable)(void);
 	void (*cpu_die)(unsigned int cpu);
 #endif
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_KEXEC
+	void (*kexec_nonboot_cpu)(void);
+#endif
+>>>>>>> upstream/android-13
 };
 
 extern void register_smp_ops(const struct plat_smp_ops *ops);

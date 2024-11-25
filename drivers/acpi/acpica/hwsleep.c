@@ -4,7 +4,11 @@
  * Name: hwsleep.c - ACPI Hardware Sleep/Wake Support functions for the
  *                   original/legacy sleep/PM registers.
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -110,7 +114,13 @@ acpi_status acpi_hw_legacy_sleep(u8 sleep_state)
 
 	/* Flush caches, as per ACPI specification */
 
+<<<<<<< HEAD
 	ACPI_FLUSH_CPU_CACHE();
+=======
+	if (sleep_state < ACPI_STATE_S4) {
+		ACPI_FLUSH_CPU_CACHE();
+	}
+>>>>>>> upstream/android-13
 
 	status = acpi_os_enter_sleep(sleep_state, pm1a_control, pm1b_control);
 	if (status == AE_CTRL_TERMINATE) {
@@ -179,7 +189,11 @@ acpi_status acpi_hw_legacy_sleep(u8 sleep_state)
 
 acpi_status acpi_hw_legacy_wake_prep(u8 sleep_state)
 {
+<<<<<<< HEAD
 	acpi_status status;
+=======
+	acpi_status status = AE_OK;
+>>>>>>> upstream/android-13
 	struct acpi_bit_register_info *sleep_type_reg_info;
 	struct acpi_bit_register_info *sleep_enable_reg_info;
 	u32 pm1a_control;
@@ -192,10 +206,14 @@ acpi_status acpi_hw_legacy_wake_prep(u8 sleep_state)
 	 * This is unclear from the ACPI Spec, but it is required
 	 * by some machines.
 	 */
+<<<<<<< HEAD
 	status = acpi_get_sleep_type_data(ACPI_STATE_S0,
 					  &acpi_gbl_sleep_type_a,
 					  &acpi_gbl_sleep_type_b);
 	if (ACPI_SUCCESS(status)) {
+=======
+	if (acpi_gbl_sleep_type_a_s0 != ACPI_SLEEP_TYPE_INVALID) {
+>>>>>>> upstream/android-13
 		sleep_type_reg_info =
 		    acpi_hw_get_bit_register_info(ACPI_BITREG_SLEEP_TYPE);
 		sleep_enable_reg_info =
@@ -216,9 +234,15 @@ acpi_status acpi_hw_legacy_wake_prep(u8 sleep_state)
 
 			/* Insert the SLP_TYP bits */
 
+<<<<<<< HEAD
 			pm1a_control |= (acpi_gbl_sleep_type_a <<
 					 sleep_type_reg_info->bit_position);
 			pm1b_control |= (acpi_gbl_sleep_type_b <<
+=======
+			pm1a_control |= (acpi_gbl_sleep_type_a_s0 <<
+					 sleep_type_reg_info->bit_position);
+			pm1b_control |= (acpi_gbl_sleep_type_b_s0 <<
+>>>>>>> upstream/android-13
 					 sleep_type_reg_info->bit_position);
 
 			/* Write the control registers and ignore any errors */
@@ -300,6 +324,21 @@ acpi_status acpi_hw_legacy_wake(u8 sleep_state)
 				    [ACPI_EVENT_POWER_BUTTON].
 				    status_register_id, ACPI_CLEAR_STATUS);
 
+<<<<<<< HEAD
+=======
+	/* Enable sleep button */
+
+	(void)
+	    acpi_write_bit_register(acpi_gbl_fixed_event_info
+				    [ACPI_EVENT_SLEEP_BUTTON].
+				    enable_register_id, ACPI_ENABLE_EVENT);
+
+	(void)
+	    acpi_write_bit_register(acpi_gbl_fixed_event_info
+				    [ACPI_EVENT_SLEEP_BUTTON].
+				    status_register_id, ACPI_CLEAR_STATUS);
+
+>>>>>>> upstream/android-13
 	acpi_hw_execute_sleep_method(METHOD_PATHNAME__SST, ACPI_SST_WORKING);
 	return_ACPI_STATUS(status);
 }

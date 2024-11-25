@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,6 +13,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright (c) 2005 Linas Vepstas <linas@linas.org>
  */
@@ -35,7 +40,11 @@
  */
 
 static DEFINE_SPINLOCK(eeh_eventlist_lock);
+<<<<<<< HEAD
 static struct semaphore eeh_eventlist_sem;
+=======
+static DECLARE_COMPLETION(eeh_eventlist_event);
+>>>>>>> upstream/android-13
 static LIST_HEAD(eeh_eventlist);
 
 /**
@@ -52,10 +61,16 @@ static int eeh_event_handler(void * dummy)
 {
 	unsigned long flags;
 	struct eeh_event *event;
+<<<<<<< HEAD
 	struct eeh_pe *pe;
 
 	while (!kthread_should_stop()) {
 		if (down_interruptible(&eeh_eventlist_sem))
+=======
+
+	while (!kthread_should_stop()) {
+		if (wait_for_completion_interruptible(&eeh_eventlist_event))
+>>>>>>> upstream/android-13
 			break;
 
 		/* Fetch EEH event from the queue */
@@ -71,6 +86,7 @@ static int eeh_event_handler(void * dummy)
 			continue;
 
 		/* We might have event without binding PE */
+<<<<<<< HEAD
 		pe = event->pe;
 		if (pe) {
 			if (pe->type & EEH_PE_PHB)
@@ -84,6 +100,12 @@ static int eeh_event_handler(void * dummy)
 		} else {
 			eeh_handle_special_event();
 		}
+=======
+		if (event->pe)
+			eeh_handle_normal_event(event->pe);
+		else
+			eeh_handle_special_event();
+>>>>>>> upstream/android-13
 
 		kfree(event);
 	}
@@ -102,9 +124,12 @@ int eeh_event_init(void)
 	struct task_struct *t;
 	int ret = 0;
 
+<<<<<<< HEAD
 	/* Initialize semaphore */
 	sema_init(&eeh_eventlist_sem, 0);
 
+=======
+>>>>>>> upstream/android-13
 	t = kthread_run(eeh_event_handler, NULL, "eehd");
 	if (IS_ERR(t)) {
 		ret = PTR_ERR(t);
@@ -124,7 +149,11 @@ int eeh_event_init(void)
  * the actual event will be delivered in a normal context
  * (from a workqueue).
  */
+<<<<<<< HEAD
 int eeh_send_failure_event(struct eeh_pe *pe)
+=======
+int __eeh_send_failure_event(struct eeh_pe *pe)
+>>>>>>> upstream/android-13
 {
 	unsigned long flags;
 	struct eeh_event *event;
@@ -136,17 +165,59 @@ int eeh_send_failure_event(struct eeh_pe *pe)
 	}
 	event->pe = pe;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Mark the PE as recovering before inserting it in the queue.
+	 * This prevents the PE from being free()ed by a hotplug driver
+	 * while the PE is sitting in the event queue.
+	 */
+	if (pe) {
+#ifdef CONFIG_STACKTRACE
+		/*
+		 * Save the current stack trace so we can dump it from the
+		 * event handler thread.
+		 */
+		pe->trace_entries = stack_trace_save(pe->stack_trace,
+					 ARRAY_SIZE(pe->stack_trace), 0);
+#endif /* CONFIG_STACKTRACE */
+
+		eeh_pe_state_mark(pe, EEH_PE_RECOVERING);
+	}
+
+>>>>>>> upstream/android-13
 	/* We may or may not be called in an interrupt context */
 	spin_lock_irqsave(&eeh_eventlist_lock, flags);
 	list_add(&event->list, &eeh_eventlist);
 	spin_unlock_irqrestore(&eeh_eventlist_lock, flags);
 
 	/* For EEH deamon to knick in */
+<<<<<<< HEAD
 	up(&eeh_eventlist_sem);
+=======
+	complete(&eeh_eventlist_event);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+int eeh_send_failure_event(struct eeh_pe *pe)
+{
+	/*
+	 * If we've manually supressed recovery events via debugfs
+	 * then just drop it on the floor.
+	 */
+	if (eeh_debugfs_no_recover) {
+		pr_err("EEH: Event dropped due to no_recover setting\n");
+		return 0;
+	}
+
+	return __eeh_send_failure_event(pe);
+}
+
+>>>>>>> upstream/android-13
 /**
  * eeh_remove_event - Remove EEH event from the queue
  * @pe: Event binding to the PE

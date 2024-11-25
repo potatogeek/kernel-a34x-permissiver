@@ -6,6 +6,10 @@
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+<<<<<<< HEAD
+=======
+#define dev_fmt pr_fmt
+>>>>>>> upstream/android-13
 
 #include <linux/module.h>
 #include <linux/init.h>
@@ -304,6 +308,11 @@ void pcistub_put_pci_dev(struct pci_dev *dev)
 	xen_pcibk_config_reset_dev(dev);
 	xen_pcibk_config_free_dyn_fields(dev);
 
+<<<<<<< HEAD
+=======
+	dev_data->allow_interrupt_control = 0;
+
+>>>>>>> upstream/android-13
 	xen_unregister_device_domain_owner(dev);
 
 	spin_lock_irqsave(&found_psdev->lock, flags);
@@ -624,11 +633,19 @@ static void pcistub_remove(struct pci_dev *dev)
 		if (found_psdev->pdev) {
 			int domid = xen_find_device_domain_owner(dev);
 
+<<<<<<< HEAD
 			pr_warn("****** removing device %s while still in-use by domain %d! ******\n",
 			       pci_name(found_psdev->dev), domid);
 			pr_warn("****** driver domain may still access this device's i/o resources!\n");
 			pr_warn("****** shutdown driver domain before binding device\n");
 			pr_warn("****** to other drivers or domains\n");
+=======
+			dev_warn(&dev->dev, "****** removing device %s while still in-use by domain %d! ******\n",
+			       pci_name(found_psdev->dev), domid);
+			dev_warn(&dev->dev, "****** driver domain may still access this device's i/o resources!\n");
+			dev_warn(&dev->dev, "****** shutdown driver domain before binding device\n");
+			dev_warn(&dev->dev, "****** to other drivers or domains\n");
+>>>>>>> upstream/android-13
 
 			/* N.B. This ends up calling pcistub_put_pci_dev which ends up
 			 * doing the FLR. */
@@ -709,14 +726,22 @@ static pci_ers_result_t common_process(struct pcistub_device *psdev,
 	ret = xen_pcibk_get_pcifront_dev(psdev->dev, psdev->pdev,
 		&aer_op->domain, &aer_op->bus, &aer_op->devfn);
 	if (!ret) {
+<<<<<<< HEAD
 		dev_err(&psdev->dev->dev,
 			DRV_NAME ": failed to get pcifront device\n");
+=======
+		dev_err(&psdev->dev->dev, "failed to get pcifront device\n");
+>>>>>>> upstream/android-13
 		return PCI_ERS_RESULT_NONE;
 	}
 	wmb();
 
+<<<<<<< HEAD
 	dev_dbg(&psdev->dev->dev,
 			DRV_NAME ": aer_op %x dom %x bus %x devfn %x\n",
+=======
+	dev_dbg(&psdev->dev->dev, "aer_op %x dom %x bus %x devfn %x\n",
+>>>>>>> upstream/android-13
 			aer_cmd, aer_op->domain, aer_op->bus, aer_op->devfn);
 	/*local flag to mark there's aer request, xen_pcibk callback will use
 	* this flag to judge whether we need to check pci-front give aer
@@ -784,13 +809,21 @@ static pci_ers_result_t xen_pcibk_slot_reset(struct pci_dev *dev)
 				PCI_FUNC(dev->devfn));
 
 	if (!psdev || !psdev->pdev) {
+<<<<<<< HEAD
 		dev_err(&dev->dev,
 			DRV_NAME " device is not found/assigned\n");
+=======
+		dev_err(&dev->dev, "device is not found/assigned\n");
+>>>>>>> upstream/android-13
 		goto end;
 	}
 
 	if (!psdev->pdev->sh_info) {
+<<<<<<< HEAD
 		dev_err(&dev->dev, DRV_NAME " device is not connected or owned"
+=======
+		dev_err(&dev->dev, "device is not connected or owned"
+>>>>>>> upstream/android-13
 			" by HVM, kill it\n");
 		kill_domain_by_device(psdev);
 		goto end;
@@ -802,7 +835,11 @@ static pci_ers_result_t xen_pcibk_slot_reset(struct pci_dev *dev)
 			"guest with no AER driver should have been killed\n");
 		goto end;
 	}
+<<<<<<< HEAD
 	result = common_process(psdev, 1, XEN_PCI_OP_aer_slotreset, result);
+=======
+	result = common_process(psdev, pci_channel_io_normal, XEN_PCI_OP_aer_slotreset, result);
+>>>>>>> upstream/android-13
 
 	if (result == PCI_ERS_RESULT_NONE ||
 		result == PCI_ERS_RESULT_DISCONNECT) {
@@ -842,13 +879,21 @@ static pci_ers_result_t xen_pcibk_mmio_enabled(struct pci_dev *dev)
 				PCI_FUNC(dev->devfn));
 
 	if (!psdev || !psdev->pdev) {
+<<<<<<< HEAD
 		dev_err(&dev->dev,
 			DRV_NAME " device is not found/assigned\n");
+=======
+		dev_err(&dev->dev, "device is not found/assigned\n");
+>>>>>>> upstream/android-13
 		goto end;
 	}
 
 	if (!psdev->pdev->sh_info) {
+<<<<<<< HEAD
 		dev_err(&dev->dev, DRV_NAME " device is not connected or owned"
+=======
+		dev_err(&dev->dev, "device is not connected or owned"
+>>>>>>> upstream/android-13
 			" by HVM, kill it\n");
 		kill_domain_by_device(psdev);
 		goto end;
@@ -860,7 +905,11 @@ static pci_ers_result_t xen_pcibk_mmio_enabled(struct pci_dev *dev)
 			"guest with no AER driver should have been killed\n");
 		goto end;
 	}
+<<<<<<< HEAD
 	result = common_process(psdev, 1, XEN_PCI_OP_aer_mmio, result);
+=======
+	result = common_process(psdev, pci_channel_io_normal, XEN_PCI_OP_aer_mmio, result);
+>>>>>>> upstream/android-13
 
 	if (result == PCI_ERS_RESULT_NONE ||
 		result == PCI_ERS_RESULT_DISCONNECT) {
@@ -900,13 +949,21 @@ static pci_ers_result_t xen_pcibk_error_detected(struct pci_dev *dev,
 				PCI_FUNC(dev->devfn));
 
 	if (!psdev || !psdev->pdev) {
+<<<<<<< HEAD
 		dev_err(&dev->dev,
 			DRV_NAME " device is not found/assigned\n");
+=======
+		dev_err(&dev->dev, "device is not found/assigned\n");
+>>>>>>> upstream/android-13
 		goto end;
 	}
 
 	if (!psdev->pdev->sh_info) {
+<<<<<<< HEAD
 		dev_err(&dev->dev, DRV_NAME " device is not connected or owned"
+=======
+		dev_err(&dev->dev, "device is not connected or owned"
+>>>>>>> upstream/android-13
 			" by HVM, kill it\n");
 		kill_domain_by_device(psdev);
 		goto end;
@@ -954,13 +1011,21 @@ static void xen_pcibk_error_resume(struct pci_dev *dev)
 				PCI_FUNC(dev->devfn));
 
 	if (!psdev || !psdev->pdev) {
+<<<<<<< HEAD
 		dev_err(&dev->dev,
 			DRV_NAME " device is not found/assigned\n");
+=======
+		dev_err(&dev->dev, "device is not found/assigned\n");
+>>>>>>> upstream/android-13
 		goto end;
 	}
 
 	if (!psdev->pdev->sh_info) {
+<<<<<<< HEAD
 		dev_err(&dev->dev, DRV_NAME " device is not connected or owned"
+=======
+		dev_err(&dev->dev, "device is not connected or owned"
+>>>>>>> upstream/android-13
 			" by HVM, kill it\n");
 		kill_domain_by_device(psdev);
 		goto end;
@@ -973,7 +1038,11 @@ static void xen_pcibk_error_resume(struct pci_dev *dev)
 		kill_domain_by_device(psdev);
 		goto end;
 	}
+<<<<<<< HEAD
 	common_process(psdev, 1, XEN_PCI_OP_aer_resume,
+=======
+	common_process(psdev, pci_channel_io_normal, XEN_PCI_OP_aer_resume,
+>>>>>>> upstream/android-13
 		       PCI_ERS_RESULT_RECOVERED);
 end:
 	if (psdev)
@@ -1431,6 +1500,68 @@ static ssize_t permissive_show(struct device_driver *drv, char *buf)
 }
 static DRIVER_ATTR_RW(permissive);
 
+<<<<<<< HEAD
+=======
+static ssize_t allow_interrupt_control_store(struct device_driver *drv,
+					     const char *buf, size_t count)
+{
+	int domain, bus, slot, func;
+	int err;
+	struct pcistub_device *psdev;
+	struct xen_pcibk_dev_data *dev_data;
+
+	err = str_to_slot(buf, &domain, &bus, &slot, &func);
+	if (err)
+		goto out;
+
+	psdev = pcistub_device_find(domain, bus, slot, func);
+	if (!psdev) {
+		err = -ENODEV;
+		goto out;
+	}
+
+	dev_data = pci_get_drvdata(psdev->dev);
+	/* the driver data for a device should never be null at this point */
+	if (!dev_data) {
+		err = -ENXIO;
+		goto release;
+	}
+	dev_data->allow_interrupt_control = 1;
+release:
+	pcistub_device_put(psdev);
+out:
+	if (!err)
+		err = count;
+	return err;
+}
+
+static ssize_t allow_interrupt_control_show(struct device_driver *drv,
+					    char *buf)
+{
+	struct pcistub_device *psdev;
+	struct xen_pcibk_dev_data *dev_data;
+	size_t count = 0;
+	unsigned long flags;
+
+	spin_lock_irqsave(&pcistub_devices_lock, flags);
+	list_for_each_entry(psdev, &pcistub_devices, dev_list) {
+		if (count >= PAGE_SIZE)
+			break;
+		if (!psdev->dev)
+			continue;
+		dev_data = pci_get_drvdata(psdev->dev);
+		if (!dev_data || !dev_data->allow_interrupt_control)
+			continue;
+		count +=
+		    scnprintf(buf + count, PAGE_SIZE - count, "%s\n",
+			      pci_name(psdev->dev));
+	}
+	spin_unlock_irqrestore(&pcistub_devices_lock, flags);
+	return count;
+}
+static DRIVER_ATTR_RW(allow_interrupt_control);
+
+>>>>>>> upstream/android-13
 static void pcistub_exit(void)
 {
 	driver_remove_file(&xen_pcibk_pci_driver.driver, &driver_attr_new_slot);
@@ -1441,6 +1572,11 @@ static void pcistub_exit(void)
 	driver_remove_file(&xen_pcibk_pci_driver.driver,
 			   &driver_attr_permissive);
 	driver_remove_file(&xen_pcibk_pci_driver.driver,
+<<<<<<< HEAD
+=======
+			   &driver_attr_allow_interrupt_control);
+	driver_remove_file(&xen_pcibk_pci_driver.driver,
+>>>>>>> upstream/android-13
 			   &driver_attr_irq_handlers);
 	driver_remove_file(&xen_pcibk_pci_driver.driver,
 			   &driver_attr_irq_handler_state);
@@ -1530,6 +1666,12 @@ static int __init pcistub_init(void)
 	if (!err)
 		err = driver_create_file(&xen_pcibk_pci_driver.driver,
 					 &driver_attr_permissive);
+<<<<<<< HEAD
+=======
+	if (!err)
+		err = driver_create_file(&xen_pcibk_pci_driver.driver,
+					 &driver_attr_allow_interrupt_control);
+>>>>>>> upstream/android-13
 
 	if (!err)
 		err = driver_create_file(&xen_pcibk_pci_driver.driver,

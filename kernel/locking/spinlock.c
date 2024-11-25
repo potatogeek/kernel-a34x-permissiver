@@ -22,6 +22,16 @@
 #include <linux/debug_locks.h>
 #include <linux/export.h>
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_MMIOWB
+#ifndef arch_mmiowb_state
+DEFINE_PER_CPU(struct mmiowb_state, __mmiowb_state);
+EXPORT_PER_CPU_SYMBOL(__mmiowb_state);
+#endif
+#endif
+
+>>>>>>> upstream/android-13
 /*
  * If lockdep is enabled then we use the non-preemption spin-ops
  * even on CONFIG_PREEMPT, because lockdep assumes that interrupts are
@@ -51,10 +61,17 @@
 /*
  * We build the __lock_function inlines here. They are too large for
  * inlining all over the place, but here is only one user per function
+<<<<<<< HEAD
  * which embedds them into the calling _lock_function below.
  *
  * This could be a long-held lock. We both prepare to spin for a long
  * time (making _this_ CPU preemptable if possible), and we also signal
+=======
+ * which embeds them into the calling _lock_function below.
+ *
+ * This could be a long-held lock. We both prepare to spin for a long
+ * time (making _this_ CPU preemptible if possible), and we also signal
+>>>>>>> upstream/android-13
  * towards that other CPU that it should break the lock ASAP.
  */
 #define BUILD_LOCK_OPS(op, locktype)					\
@@ -117,8 +134,16 @@ void __lockfunc __raw_##op##_lock_bh(locktype##_t *lock)		\
  *         __[spin|read|write]_lock_bh()
  */
 BUILD_LOCK_OPS(spin, raw_spinlock);
+<<<<<<< HEAD
 BUILD_LOCK_OPS(read, rwlock);
 BUILD_LOCK_OPS(write, rwlock);
+=======
+
+#ifndef CONFIG_PREEMPT_RT
+BUILD_LOCK_OPS(read, rwlock);
+BUILD_LOCK_OPS(write, rwlock);
+#endif
+>>>>>>> upstream/android-13
 
 #endif
 
@@ -202,6 +227,11 @@ void __lockfunc _raw_spin_unlock_bh(raw_spinlock_t *lock)
 EXPORT_SYMBOL(_raw_spin_unlock_bh);
 #endif
 
+<<<<<<< HEAD
+=======
+#ifndef CONFIG_PREEMPT_RT
+
+>>>>>>> upstream/android-13
 #ifndef CONFIG_INLINE_READ_TRYLOCK
 int __lockfunc _raw_read_trylock(rwlock_t *lock)
 {
@@ -346,6 +376,11 @@ void __lockfunc _raw_write_unlock_bh(rwlock_t *lock)
 EXPORT_SYMBOL(_raw_write_unlock_bh);
 #endif
 
+<<<<<<< HEAD
+=======
+#endif /* !CONFIG_PREEMPT_RT */
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_DEBUG_LOCK_ALLOC
 
 void __lockfunc _raw_spin_lock_nested(raw_spinlock_t *lock, int subclass)

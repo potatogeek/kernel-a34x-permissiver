@@ -18,12 +18,18 @@
 #include <linux/platform_device.h>
 #include <linux/mmc/host.h>
 #include <linux/io.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/clk.h>
 #include <linux/regulator/consumer.h>
 #include <linux/of.h>
 #include <linux/of_device.h>
+<<<<<<< HEAD
 #include <linux/of_gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/mmc/slot-gpio.h>
 
 #include "sdhci-pltfm.h"
@@ -326,6 +332,10 @@ err_pltfm_free:
 static struct platform_driver sdhci_bcm_kona_driver = {
 	.driver		= {
 		.name	= "sdhci-kona",
+<<<<<<< HEAD
+=======
+		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
+>>>>>>> upstream/android-13
 		.pm	= &sdhci_pltfm_pmops,
 		.of_match_table = sdhci_bcm_kona_of_match,
 	},

@@ -17,7 +17,11 @@
  * The "ascii-art picture" below (in comments, first row
  * is the keycode in hex, and subsequent row(s) shows
  * the button labels (several variants when appropriate)
+<<<<<<< HEAD
  * helps to descide which keycodes to assign to the buttons.
+=======
+ * helps to decide which keycodes to assign to the buttons.
+>>>>>>> upstream/android-13
  */
 
 static struct rc_map_table behold[] = {
@@ -37,6 +41,7 @@ static struct rc_map_table behold[] = {
 	 *  0x07    0x08    0x09  *
 	 *   7       8       9    *
 	 *                        */
+<<<<<<< HEAD
 	{ 0x866b01, KEY_1 },
 	{ 0x866b02, KEY_2 },
 	{ 0x866b03, KEY_3 },
@@ -46,12 +51,27 @@ static struct rc_map_table behold[] = {
 	{ 0x866b07, KEY_7 },
 	{ 0x866b08, KEY_8 },
 	{ 0x866b09, KEY_9 },
+=======
+	{ 0x866b01, KEY_NUMERIC_1 },
+	{ 0x866b02, KEY_NUMERIC_2 },
+	{ 0x866b03, KEY_NUMERIC_3 },
+	{ 0x866b04, KEY_NUMERIC_4 },
+	{ 0x866b05, KEY_NUMERIC_5 },
+	{ 0x866b06, KEY_NUMERIC_6 },
+	{ 0x866b07, KEY_NUMERIC_7 },
+	{ 0x866b08, KEY_NUMERIC_8 },
+	{ 0x866b09, KEY_NUMERIC_9 },
+>>>>>>> upstream/android-13
 
 	/*  0x0a    0x00    0x17  *
 	 * RECALL    0      MODE  *
 	 *                        */
 	{ 0x866b0a, KEY_AGAIN },
+<<<<<<< HEAD
 	{ 0x866b00, KEY_0 },
+=======
+	{ 0x866b00, KEY_NUMERIC_0 },
+>>>>>>> upstream/android-13
 	{ 0x866b17, KEY_MODE },
 
 	/*  0x14          0x10    *
@@ -115,7 +135,11 @@ static struct rc_map_list behold_map = {
 	.map = {
 		.scan     = behold,
 		.size     = ARRAY_SIZE(behold),
+<<<<<<< HEAD
 		.rc_proto = RC_PROTO_NEC,
+=======
+		.rc_proto = RC_PROTO_NECX,
+>>>>>>> upstream/android-13
 		.name     = RC_MAP_BEHOLD,
 	}
 };

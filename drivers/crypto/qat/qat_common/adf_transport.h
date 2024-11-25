@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
   This file is provided under a dual BSD/GPLv2 license.  When using or
   redistributing this file, you may do so under either license.
@@ -44,6 +45,10 @@
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+=======
+/* SPDX-License-Identifier: (BSD-3-Clause OR GPL-2.0-only) */
+/* Copyright(c) 2014 - 2020 Intel Corporation */
+>>>>>>> upstream/android-13
 #ifndef ADF_TRANSPORT_H
 #define ADF_TRANSPORT_H
 
@@ -54,10 +59,18 @@ struct adf_etr_ring_data;
 typedef void (*adf_callback_fn)(void *resp_msg);
 
 int adf_create_ring(struct adf_accel_dev *accel_dev, const char *section,
+<<<<<<< HEAD
 		    uint32_t bank_num, uint32_t num_mgs, uint32_t msg_size,
 		    const char *ring_name, adf_callback_fn callback,
 		    int poll_mode, struct adf_etr_ring_data **ring_ptr);
 
 int adf_send_message(struct adf_etr_ring_data *ring, uint32_t *msg);
+=======
+		    u32 bank_num, u32 num_mgs, u32 msg_size,
+		    const char *ring_name, adf_callback_fn callback,
+		    int poll_mode, struct adf_etr_ring_data **ring_ptr);
+
+int adf_send_message(struct adf_etr_ring_data *ring, u32 *msg);
+>>>>>>> upstream/android-13
 void adf_remove_ring(struct adf_etr_ring_data *ring);
 #endif

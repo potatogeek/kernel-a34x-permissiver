@@ -8,10 +8,17 @@
  * Author: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
  */
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 
 #include <linux/device.h>
 
+=======
+#include <linux/device.h>
+
+#include <drm/drm_print.h>
+
+>>>>>>> upstream/android-13
 #include <xen/interface/io/displif.h>
 #include <xen/xenbus.h>
 

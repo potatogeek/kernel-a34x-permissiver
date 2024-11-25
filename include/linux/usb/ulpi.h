@@ -55,12 +55,29 @@
 #if IS_ENABLED(CONFIG_USB_ULPI)
 struct usb_phy *otg_ulpi_create(struct usb_phy_io_ops *ops,
 					unsigned int flags);
+<<<<<<< HEAD
+=======
+
+struct usb_phy *devm_otg_ulpi_create(struct device *dev,
+				     struct usb_phy_io_ops *ops,
+				     unsigned int flags);
+>>>>>>> upstream/android-13
 #else
 static inline struct usb_phy *otg_ulpi_create(struct usb_phy_io_ops *ops,
 					      unsigned int flags)
 {
 	return NULL;
 }
+<<<<<<< HEAD
+=======
+
+static inline struct usb_phy *devm_otg_ulpi_create(struct device *dev,
+						   struct usb_phy_io_ops *ops,
+						   unsigned int flags)
+{
+	return NULL;
+}
+>>>>>>> upstream/android-13
 #endif
 
 #ifdef CONFIG_USB_ULPI_VIEWPORT

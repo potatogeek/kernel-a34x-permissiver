@@ -1,24 +1,38 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * snappercl15.c -- SoC audio for Bluewater Systems Snapper CL15 module
  *
  * Copyright (C) 2008 Bluewater Systems Ltd
  * Author: Ryan Mallon
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute  it and/or modify it
  *  under  the terms of  the GNU General  Public License as published by the
  *  Free Software Foundation;  either version 2 of the  License, or (at your
  *  option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/platform_device.h>
 #include <linux/module.h>
+<<<<<<< HEAD
+=======
+#include <linux/soc/cirrus/ep93xx.h>
+>>>>>>> upstream/android-13
 #include <sound/core.h>
 #include <sound/pcm.h>
 #include <sound/soc.h>
 
 #include <asm/mach-types.h>
+<<<<<<< HEAD
 #include <mach/hardware.h>
+=======
+>>>>>>> upstream/android-13
 
 #include "../codecs/tlv320aic23.h"
 
@@ -27,9 +41,15 @@
 static int snappercl15_hw_params(struct snd_pcm_substream *substream,
 				 struct snd_pcm_hw_params *params)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct snd_soc_dai *codec_dai = rtd->codec_dai;
 	struct snd_soc_dai *cpu_dai = rtd->cpu_dai;
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct snd_soc_dai *codec_dai = asoc_rtd_to_codec(rtd, 0);
+	struct snd_soc_dai *cpu_dai = asoc_rtd_to_cpu(rtd, 0);
+>>>>>>> upstream/android-13
 	int err;
 
 	err = snd_soc_dai_set_sysclk(codec_dai, 0, CODEC_CLOCK, 
@@ -65,6 +85,7 @@ static const struct snd_soc_dapm_route audio_map[] = {
 	{"MICIN", NULL, "Mic Jack"},
 };
 
+<<<<<<< HEAD
 static struct snd_soc_dai_link snappercl15_dai = {
 	.name		= "tlv320aic23",
 	.stream_name	= "AIC23",
@@ -75,6 +96,21 @@ static struct snd_soc_dai_link snappercl15_dai = {
 	.dai_fmt	= SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
 			  SND_SOC_DAIFMT_CBS_CFS,
 	.ops		= &snappercl15_ops,
+=======
+SND_SOC_DAILINK_DEFS(aic23,
+	DAILINK_COMP_ARRAY(COMP_CPU("ep93xx-i2s")),
+	DAILINK_COMP_ARRAY(COMP_CODEC("tlv320aic23-codec.0-001a",
+				      "tlv320aic23-hifi")),
+	DAILINK_COMP_ARRAY(COMP_PLATFORM("ep93xx-i2s")));
+
+static struct snd_soc_dai_link snappercl15_dai = {
+	.name		= "tlv320aic23",
+	.stream_name	= "AIC23",
+	.dai_fmt	= SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
+			  SND_SOC_DAIFMT_CBS_CFS,
+	.ops		= &snappercl15_ops,
+	SND_SOC_DAILINK_REG(aic23),
+>>>>>>> upstream/android-13
 };
 
 static struct snd_soc_card snd_soc_snappercl15 = {

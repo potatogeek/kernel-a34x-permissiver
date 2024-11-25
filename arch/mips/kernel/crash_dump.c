@@ -1,11 +1,15 @@
 // SPDX-License-Identifier: GPL-2.0
 #include <linux/highmem.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
 #include <linux/crash_dump.h>
 #include <linux/uaccess.h>
 #include <linux/slab.h>
 
 static void *kdump_buf_page;
+=======
+#include <linux/crash_dump.h>
+>>>>>>> upstream/android-13
 
 /**
  * copy_oldmem_page - copy one page from "oldmem"
@@ -19,10 +23,13 @@ static void *kdump_buf_page;
  *
  * Copy a page from "oldmem". For this page, there is no pte mapped
  * in the current kernel.
+<<<<<<< HEAD
  *
  * Calling copy_to_user() in atomic context is not desirable. Hence first
  * copying the data to a pre-allocated kernel page and then copying to user
  * space in non-atomic context.
+=======
+>>>>>>> upstream/android-13
  */
 ssize_t copy_oldmem_page(unsigned long pfn, char *buf,
 			 size_t csize, unsigned long offset, int userbuf)
@@ -32,6 +39,7 @@ ssize_t copy_oldmem_page(unsigned long pfn, char *buf,
 	if (!csize)
 		return 0;
 
+<<<<<<< HEAD
 	vaddr = kmap_atomic_pfn(pfn);
 
 	if (!userbuf) {
@@ -65,3 +73,18 @@ static int __init kdump_buf_page_init(void)
 	return ret;
 }
 arch_initcall(kdump_buf_page_init);
+=======
+	vaddr = kmap_local_pfn(pfn);
+
+	if (!userbuf) {
+		memcpy(buf, vaddr + offset, csize);
+	} else {
+		if (copy_to_user(buf, vaddr + offset, csize))
+			csize = -EFAULT;
+	}
+
+	kunmap_local(vaddr);
+
+	return csize;
+}
+>>>>>>> upstream/android-13

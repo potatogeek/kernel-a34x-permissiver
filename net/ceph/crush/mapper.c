@@ -298,7 +298,11 @@ static __u64 crush_ln(unsigned int xin)
  *
  * for reference, see:
  *
+<<<<<<< HEAD
  * http://en.wikipedia.org/wiki/Exponential_distribution#Distribution_of_the_minimum_of_exponential_random_variables
+=======
+ * https://en.wikipedia.org/wiki/Exponential_distribution#Distribution_of_the_minimum_of_exponential_random_variables
+>>>>>>> upstream/android-13
  *
  */
 
@@ -987,7 +991,11 @@ int crush_do_rule(const struct crush_map *map,
 		case CRUSH_RULE_CHOOSELEAF_FIRSTN:
 		case CRUSH_RULE_CHOOSE_FIRSTN:
 			firstn = 1;
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case CRUSH_RULE_CHOOSELEAF_INDEP:
 		case CRUSH_RULE_CHOOSE_INDEP:
 			if (wsize == 0)

@@ -24,7 +24,13 @@
  */
 
 #include <linux/firmware.h>
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+#include <linux/module.h>
+#include <linux/pci.h>
+
+>>>>>>> upstream/android-13
 #include "amdgpu.h"
 #include "amdgpu_psp.h"
 #include "amdgpu_ucode.h"
@@ -37,16 +43,26 @@
 #include "sdma0/sdma0_4_0_offset.h"
 #include "nbio/nbio_6_1_offset.h"
 
+<<<<<<< HEAD
+=======
+#include "oss/osssys_4_0_offset.h"
+#include "oss/osssys_4_0_sh_mask.h"
+
+>>>>>>> upstream/android-13
 MODULE_FIRMWARE("amdgpu/vega10_sos.bin");
 MODULE_FIRMWARE("amdgpu/vega10_asd.bin");
 MODULE_FIRMWARE("amdgpu/vega12_sos.bin");
 MODULE_FIRMWARE("amdgpu/vega12_asd.bin");
+<<<<<<< HEAD
 MODULE_FIRMWARE("amdgpu/vega20_sos.bin");
 MODULE_FIRMWARE("amdgpu/vega20_asd.bin");
+=======
+>>>>>>> upstream/android-13
 
 
 #define smnMP1_FIRMWARE_FLAGS 0x3010028
 
+<<<<<<< HEAD
 static uint32_t sos_old_versions[] = {1517616, 1510592, 1448594, 1446554};
 
 static int
@@ -99,14 +115,22 @@ psp_v3_1_get_fw_type(struct amdgpu_firmware_info *ucode, enum psp_gfx_fw_type *t
 
 	return 0;
 }
+=======
+static int psp_v3_1_ring_stop(struct psp_context *psp,
+			      enum psp_ring_type ring_type);
+>>>>>>> upstream/android-13
 
 static int psp_v3_1_init_microcode(struct psp_context *psp)
 {
 	struct amdgpu_device *adev = psp->adev;
 	const char *chip_name;
+<<<<<<< HEAD
 	char fw_name[30];
 	int err = 0;
 	const struct psp_firmware_header_v1_0 *hdr;
+=======
+	int err = 0;
+>>>>>>> upstream/android-13
 
 	DRM_DEBUG("\n");
 
@@ -120,6 +144,7 @@ static int psp_v3_1_init_microcode(struct psp_context *psp)
 	default: BUG();
 	}
 
+<<<<<<< HEAD
 	snprintf(fw_name, sizeof(fw_name), "amdgpu/%s_sos.bin", chip_name);
 	err = request_firmware(&adev->psp.sos_fw, fw_name, adev->dev);
 	if (err)
@@ -169,6 +194,17 @@ out:
 	}
 
 	return err;
+=======
+	err = psp_init_sos_microcode(psp, chip_name);
+	if (err)
+		return err;
+
+	err = psp_init_asd_microcode(psp, chip_name);
+	if (err)
+		return err;
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int psp_v3_1_bootloader_load_sysdrv(struct psp_context *psp)
@@ -191,6 +227,7 @@ static int psp_v3_1_bootloader_load_sysdrv(struct psp_context *psp)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	memset(psp->fw_pri_buf, 0, PSP_1_MEG);
 
 	/* Copy PSP System Driver binary to memory */
@@ -200,6 +237,15 @@ static int psp_v3_1_bootloader_load_sysdrv(struct psp_context *psp)
 	WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_36,
 	       (uint32_t)(psp->fw_pri_mc_addr >> 20));
 	psp_gfxdrv_command_reg = 1 << 16;
+=======
+	/* Copy PSP System Driver binary to memory */
+	psp_copy_fw(psp, psp->sys.start_addr, psp->sys.size_bytes);
+
+	/* Provide the sys driver to bootloader */
+	WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_36,
+	       (uint32_t)(psp->fw_pri_mc_addr >> 20));
+	psp_gfxdrv_command_reg = PSP_BL__LOAD_SYSDRV;
+>>>>>>> upstream/android-13
 	WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_35,
 	       psp_gfxdrv_command_reg);
 
@@ -212,6 +258,7 @@ static int psp_v3_1_bootloader_load_sysdrv(struct psp_context *psp)
 	return ret;
 }
 
+<<<<<<< HEAD
 static bool psp_v3_1_match_version(struct amdgpu_device *adev, uint32_t ver)
 {
 	int i;
@@ -231,12 +278,18 @@ static bool psp_v3_1_match_version(struct amdgpu_device *adev, uint32_t ver)
 	return false;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int psp_v3_1_bootloader_load_sos(struct psp_context *psp)
 {
 	int ret;
 	unsigned int psp_gfxdrv_command_reg = 0;
 	struct amdgpu_device *adev = psp->adev;
+<<<<<<< HEAD
 	uint32_t sol_reg, ver;
+=======
+	uint32_t sol_reg;
+>>>>>>> upstream/android-13
 
 	/* Check sOS sign of life register to confirm sys driver and sOS
 	 * are already been loaded.
@@ -251,6 +304,7 @@ static int psp_v3_1_bootloader_load_sos(struct psp_context *psp)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	memset(psp->fw_pri_buf, 0, PSP_1_MEG);
 
 	/* Copy Secure OS binary to PSP memory */
@@ -260,6 +314,15 @@ static int psp_v3_1_bootloader_load_sos(struct psp_context *psp)
 	WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_36,
 	       (uint32_t)(psp->fw_pri_mc_addr >> 20));
 	psp_gfxdrv_command_reg = 2 << 16;
+=======
+	/* Copy Secure OS binary to PSP memory */
+	psp_copy_fw(psp, psp->sos.start_addr, psp->sos.size_bytes);
+
+	/* Provide the PSP secure OS to bootloader */
+	WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_36,
+	       (uint32_t)(psp->fw_pri_mc_addr >> 20));
+	psp_gfxdrv_command_reg = PSP_BL__LOAD_SOSDRV;
+>>>>>>> upstream/android-13
 	WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_35,
 	       psp_gfxdrv_command_reg);
 
@@ -268,6 +331,7 @@ static int psp_v3_1_bootloader_load_sos(struct psp_context *psp)
 	ret = psp_wait_for(psp, SOC15_REG_OFFSET(MP0, 0, mmMP0_SMN_C2PMSG_81),
 			   RREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_81),
 			   0, true);
+<<<<<<< HEAD
 
 	ver = RREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_58);
 	if (!psp_v3_1_match_version(adev, ver))
@@ -293,6 +357,8 @@ static int psp_v3_1_prep_cmd_buf(struct amdgpu_firmware_info *ucode,
 	if (ret)
 		DRM_ERROR("Unknown firmware type\n");
 
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -322,6 +388,40 @@ static int psp_v3_1_ring_init(struct psp_context *psp,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void psp_v3_1_reroute_ih(struct psp_context *psp)
+{
+	struct amdgpu_device *adev = psp->adev;
+	uint32_t tmp;
+
+	/* Change IH ring for VMC */
+	tmp = REG_SET_FIELD(0, IH_CLIENT_CFG_DATA, CREDIT_RETURN_ADDR, 0x1244b);
+	tmp = REG_SET_FIELD(tmp, IH_CLIENT_CFG_DATA, CLIENT_TYPE, 1);
+	tmp = REG_SET_FIELD(tmp, IH_CLIENT_CFG_DATA, RING_ID, 1);
+
+	WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_69, 3);
+	WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_70, tmp);
+	WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_64, GFX_CTRL_CMD_ID_GBR_IH_SET);
+
+	mdelay(20);
+	psp_wait_for(psp, SOC15_REG_OFFSET(MP0, 0, mmMP0_SMN_C2PMSG_64),
+		     0x80000000, 0x8000FFFF, false);
+
+	/* Change IH ring for UMC */
+	tmp = REG_SET_FIELD(0, IH_CLIENT_CFG_DATA, CREDIT_RETURN_ADDR, 0x1216b);
+	tmp = REG_SET_FIELD(tmp, IH_CLIENT_CFG_DATA, RING_ID, 1);
+
+	WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_69, 4);
+	WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_70, tmp);
+	WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_64, GFX_CTRL_CMD_ID_GBR_IH_SET);
+
+	mdelay(20);
+	psp_wait_for(psp, SOC15_REG_OFFSET(MP0, 0, mmMP0_SMN_C2PMSG_64),
+		     0x80000000, 0x8000FFFF, false);
+}
+
+>>>>>>> upstream/android-13
 static int psp_v3_1_ring_create(struct psp_context *psp,
 				enum psp_ring_type ring_type)
 {
@@ -330,6 +430,7 @@ static int psp_v3_1_ring_create(struct psp_context *psp,
 	struct psp_ring *ring = &psp->km_ring;
 	struct amdgpu_device *adev = psp->adev;
 
+<<<<<<< HEAD
 	/* Write low address of the ring to C2PMSG_69 */
 	psp_ring_reg = lower_32_bits(ring->ring_mem_mc_addr);
 	WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_69, psp_ring_reg);
@@ -351,6 +452,62 @@ static int psp_v3_1_ring_create(struct psp_context *psp,
 	ret = psp_wait_for(psp, SOC15_REG_OFFSET(MP0, 0, mmMP0_SMN_C2PMSG_64),
 			   0x80000000, 0x8000FFFF, false);
 
+=======
+	psp_v3_1_reroute_ih(psp);
+
+	if (amdgpu_sriov_vf(adev)) {
+		ring->ring_wptr = 0;
+		ret = psp_v3_1_ring_stop(psp, ring_type);
+		if (ret) {
+			DRM_ERROR("psp_v3_1_ring_stop_sriov failed!\n");
+			return ret;
+		}
+
+		/* Write low address of the ring to C2PMSG_102 */
+		psp_ring_reg = lower_32_bits(ring->ring_mem_mc_addr);
+		WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_102, psp_ring_reg);
+		/* Write high address of the ring to C2PMSG_103 */
+		psp_ring_reg = upper_32_bits(ring->ring_mem_mc_addr);
+		WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_103, psp_ring_reg);
+		/* No size initialization for sriov  */
+		/* Write the ring initialization command to C2PMSG_101 */
+		psp_ring_reg = ring_type;
+		psp_ring_reg = psp_ring_reg << 16;
+		WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_101, psp_ring_reg);
+
+		/* there might be hardware handshake issue which needs delay */
+		mdelay(20);
+
+		/* Wait for response flag (bit 31) in C2PMSG_101 */
+		ret = psp_wait_for(psp, SOC15_REG_OFFSET(MP0, 0,
+					mmMP0_SMN_C2PMSG_101), 0x80000000,
+					0x8000FFFF, false);
+	} else {
+
+		/* Write low address of the ring to C2PMSG_69 */
+		psp_ring_reg = lower_32_bits(ring->ring_mem_mc_addr);
+		WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_69, psp_ring_reg);
+		/* Write high address of the ring to C2PMSG_70 */
+		psp_ring_reg = upper_32_bits(ring->ring_mem_mc_addr);
+		WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_70, psp_ring_reg);
+		/* Write size of ring to C2PMSG_71 */
+		psp_ring_reg = ring->ring_size;
+		WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_71, psp_ring_reg);
+		/* Write the ring initialization command to C2PMSG_64 */
+		psp_ring_reg = ring_type;
+		psp_ring_reg = psp_ring_reg << 16;
+		WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_64, psp_ring_reg);
+
+		/* there might be hardware handshake issue which needs delay */
+		mdelay(20);
+
+		/* Wait for response flag (bit 31) in C2PMSG_64 */
+		ret = psp_wait_for(psp, SOC15_REG_OFFSET(MP0, 0,
+					mmMP0_SMN_C2PMSG_64), 0x80000000,
+					0x8000FFFF, false);
+
+	}
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -358,6 +515,7 @@ static int psp_v3_1_ring_stop(struct psp_context *psp,
 			      enum psp_ring_type ring_type)
 {
 	int ret = 0;
+<<<<<<< HEAD
 	struct psp_ring *ring;
 	unsigned int psp_ring_reg = 0;
 	struct amdgpu_device *adev = psp->adev;
@@ -367,13 +525,34 @@ static int psp_v3_1_ring_stop(struct psp_context *psp,
 	/* Write the ring destroy command to C2PMSG_64 */
 	psp_ring_reg = 3 << 16;
 	WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_64, psp_ring_reg);
+=======
+	struct amdgpu_device *adev = psp->adev;
+
+	/* Write the ring destroy command*/
+	if (amdgpu_sriov_vf(adev))
+		WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_101,
+				     GFX_CTRL_CMD_ID_DESTROY_GPCOM_RING);
+	else
+		WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_64,
+				     GFX_CTRL_CMD_ID_DESTROY_RINGS);
+>>>>>>> upstream/android-13
 
 	/* there might be handshake issue with hardware which needs delay */
 	mdelay(20);
 
+<<<<<<< HEAD
 	/* Wait for response flag (bit 31) in C2PMSG_64 */
 	ret = psp_wait_for(psp, SOC15_REG_OFFSET(MP0, 0, mmMP0_SMN_C2PMSG_64),
 			   0x80000000, 0x80000000, false);
+=======
+	/* Wait for response flag (bit 31) */
+	if (amdgpu_sriov_vf(adev))
+		ret = psp_wait_for(psp, SOC15_REG_OFFSET(MP0, 0, mmMP0_SMN_C2PMSG_101),
+				   0x80000000, 0x80000000, false);
+	else
+		ret = psp_wait_for(psp, SOC15_REG_OFFSET(MP0, 0, mmMP0_SMN_C2PMSG_64),
+				   0x80000000, 0x80000000, false);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -396,6 +575,7 @@ static int psp_v3_1_ring_destroy(struct psp_context *psp,
 	return ret;
 }
 
+<<<<<<< HEAD
 static int psp_v3_1_cmd_submit(struct psp_context *psp,
 			       struct amdgpu_firmware_info *ucode,
 			       uint64_t cmd_buf_mc_addr, uint64_t fence_mc_addr,
@@ -568,14 +748,20 @@ static bool psp_v3_1_compare_sram_data(struct psp_context *psp,
 	return true;
 }
 
+=======
+>>>>>>> upstream/android-13
 static bool psp_v3_1_smu_reload_quirk(struct psp_context *psp)
 {
 	struct amdgpu_device *adev = psp->adev;
 	uint32_t reg;
 
+<<<<<<< HEAD
 	reg = smnMP1_FIRMWARE_FLAGS | 0x03b00000;
 	WREG32_SOC15(NBIO, 0, mmPCIE_INDEX2, reg);
 	reg = RREG32_SOC15(NBIO, 0, mmPCIE_DATA2);
+=======
+	reg = RREG32_PCIE(smnMP1_FIRMWARE_FLAGS | 0x03b00000);
+>>>>>>> upstream/android-13
 	return (reg & MP1_FIRMWARE_FLAGS__INTERRUPTS_ENABLED_MASK) ? true : false;
 }
 
@@ -595,9 +781,15 @@ static int psp_v3_1_mode1_reset(struct psp_context *psp)
 	}
 
 	/*send the mode 1 reset command*/
+<<<<<<< HEAD
 	WREG32(offset, 0x70000);
 
 	mdelay(1000);
+=======
+	WREG32(offset, GFX_CTRL_CMD_ID_MODE1_RST);
+
+	msleep(500);
+>>>>>>> upstream/android-13
 
 	offset = SOC15_REG_OFFSET(MP0, 0, mmMP0_SMN_C2PMSG_33);
 
@@ -613,19 +805,58 @@ static int psp_v3_1_mode1_reset(struct psp_context *psp)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static uint32_t psp_v3_1_ring_get_wptr(struct psp_context *psp)
+{
+	uint32_t data;
+	struct amdgpu_device *adev = psp->adev;
+
+	if (amdgpu_sriov_vf(adev))
+		data = psp->km_ring.ring_wptr;
+	else
+		data = RREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_67);
+	return data;
+}
+
+static void psp_v3_1_ring_set_wptr(struct psp_context *psp, uint32_t value)
+{
+	struct amdgpu_device *adev = psp->adev;
+
+	if (amdgpu_sriov_vf(adev)) {
+		WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_102, value);
+		/* send interrupt to PSP for SRIOV ring write pointer update */
+		WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_101,
+			GFX_CTRL_CMD_ID_CONSUME_CMD);
+		psp->km_ring.ring_wptr = value;
+	} else
+		WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_67, value);
+}
+
+>>>>>>> upstream/android-13
 static const struct psp_funcs psp_v3_1_funcs = {
 	.init_microcode = psp_v3_1_init_microcode,
 	.bootloader_load_sysdrv = psp_v3_1_bootloader_load_sysdrv,
 	.bootloader_load_sos = psp_v3_1_bootloader_load_sos,
+<<<<<<< HEAD
 	.prep_cmd_buf = psp_v3_1_prep_cmd_buf,
+=======
+>>>>>>> upstream/android-13
 	.ring_init = psp_v3_1_ring_init,
 	.ring_create = psp_v3_1_ring_create,
 	.ring_stop = psp_v3_1_ring_stop,
 	.ring_destroy = psp_v3_1_ring_destroy,
+<<<<<<< HEAD
 	.cmd_submit = psp_v3_1_cmd_submit,
 	.compare_sram_data = psp_v3_1_compare_sram_data,
 	.smu_reload_quirk = psp_v3_1_smu_reload_quirk,
 	.mode1_reset = psp_v3_1_mode1_reset,
+=======
+	.smu_reload_quirk = psp_v3_1_smu_reload_quirk,
+	.mode1_reset = psp_v3_1_mode1_reset,
+	.ring_get_wptr = psp_v3_1_ring_get_wptr,
+	.ring_set_wptr = psp_v3_1_ring_set_wptr,
+>>>>>>> upstream/android-13
 };
 
 void psp_v3_1_set_psp_funcs(struct psp_context *psp)

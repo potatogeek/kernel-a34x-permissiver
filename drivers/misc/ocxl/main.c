@@ -2,12 +2,22 @@
 // Copyright 2017 IBM Corp.
 #include <linux/module.h>
 #include <linux/pci.h>
+<<<<<<< HEAD
+=======
+#include <asm/mmu.h>
+>>>>>>> upstream/android-13
 #include "ocxl_internal.h"
 
 static int __init init_ocxl(void)
 {
 	int rc = 0;
 
+<<<<<<< HEAD
+=======
+	if (!tlbie_capable)
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	rc = ocxl_file_init();
 	if (rc)
 		return rc;

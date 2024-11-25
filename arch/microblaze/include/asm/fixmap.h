@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * fixmap.h: compile-time virtual memory allocation
  *
@@ -5,6 +6,12 @@
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * fixmap.h: compile-time virtual memory allocation
+ *
+>>>>>>> upstream/android-13
  * Copyright (C) 1998 Ingo Molnar
  *
  * Copyright 2008 Freescale Semiconductor Inc.
@@ -23,7 +30,11 @@
 #include <asm/page.h>
 #ifdef CONFIG_HIGHMEM
 #include <linux/threads.h>
+<<<<<<< HEAD
 #include <asm/kmap_types.h>
+=======
+#include <asm/kmap_size.h>
+>>>>>>> upstream/android-13
 #endif
 
 #define FIXADDR_TOP	((unsigned long)(-PAGE_SIZE))
@@ -50,7 +61,11 @@ enum fixed_addresses {
 	FIX_HOLE,
 #ifdef CONFIG_HIGHMEM
 	FIX_KMAP_BEGIN,	/* reserved pte's for temporary kernel mappings */
+<<<<<<< HEAD
 	FIX_KMAP_END = FIX_KMAP_BEGIN + (KM_TYPE_NR * num_possible_cpus()) - 1,
+=======
+	FIX_KMAP_END = FIX_KMAP_BEGIN + (KM_MAX_IDX * num_possible_cpus()) - 1,
+>>>>>>> upstream/android-13
 #endif
 	__end_of_fixed_addresses
 };

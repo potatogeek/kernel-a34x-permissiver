@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+.. _typec:
+>>>>>>> upstream/android-13
 
 USB Type-C connector class
 ==========================

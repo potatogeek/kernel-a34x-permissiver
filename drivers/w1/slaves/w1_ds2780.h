@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * 1-Wire implementation for the ds2780 chip
  *
@@ -6,11 +10,14 @@
  * Author: Clifton Barnes <cabarnes@indesign-llc.com>
  *
  * Based on w1-ds2760 driver
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _W1_DS2780_H

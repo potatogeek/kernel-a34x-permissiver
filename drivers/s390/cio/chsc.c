@@ -24,6 +24,10 @@
 #include <asm/crw.h>
 #include <asm/isc.h>
 #include <asm/ebcdic.h>
+<<<<<<< HEAD
+=======
+#include <asm/ap.h>
+>>>>>>> upstream/android-13
 
 #include "css.h"
 #include "cio.h"
@@ -36,6 +40,12 @@ static void *sei_page;
 static void *chsc_page;
 static DEFINE_SPINLOCK(chsc_page_lock);
 
+<<<<<<< HEAD
+=======
+#define SEI_VF_FLA	0xc0 /* VF flag for Full Link Address */
+#define SEI_RS_CHPID	0x4  /* 4 in RS field indicates CHPID */
+
+>>>>>>> upstream/android-13
 /**
  * chsc_error_from_response() - convert a chsc response to an error
  * @response: chsc response code
@@ -56,6 +66,10 @@ int chsc_error_from_response(int response)
 	case 0x0104:
 		return -EINVAL;
 	case 0x0004:
+<<<<<<< HEAD
+=======
+	case 0x0106:		/* "Wrong Channel Parm" for the op 0x003d */
+>>>>>>> upstream/android-13
 		return -EOPNOTSUPP;
 	case 0x000b:
 	case 0x0107:		/* "Channel busy" for the op 0x003d */
@@ -63,6 +77,11 @@ int chsc_error_from_response(int response)
 	case 0x0100:
 	case 0x0102:
 		return -ENOMEM;
+<<<<<<< HEAD
+=======
+	case 0x0108:		/* "HW limit exceeded" for the op 0x003d */
+		return -EUSERS;
+>>>>>>> upstream/android-13
 	default:
 		return -EIO;
 	}
@@ -179,11 +198,19 @@ EXPORT_SYMBOL_GPL(chsc_ssqd);
  * @scssc: request and response block for SADC
  * @summary_indicator_addr: summary indicator address
  * @subchannel_indicator_addr: subchannel indicator address
+<<<<<<< HEAD
+=======
+ * @isc: Interruption Subclass for this subchannel
+>>>>>>> upstream/android-13
  *
  * Returns 0 on success.
  */
 int chsc_sadc(struct subchannel_id schid, struct chsc_scssc_area *scssc,
+<<<<<<< HEAD
 	      u64 summary_indicator_addr, u64 subchannel_indicator_addr)
+=======
+	      u64 summary_indicator_addr, u64 subchannel_indicator_addr, u8 isc)
+>>>>>>> upstream/android-13
 {
 	memset(scssc, 0, sizeof(*scssc));
 	scssc->request.length = 0x0fe0;
@@ -195,7 +222,11 @@ int chsc_sadc(struct subchannel_id schid, struct chsc_scssc_area *scssc,
 
 	scssc->ks = PAGE_DEFAULT_KEY >> 4;
 	scssc->kc = PAGE_DEFAULT_KEY >> 4;
+<<<<<<< HEAD
 	scssc->isc = QDIO_AIRQ_ISC;
+=======
+	scssc->isc = isc;
+>>>>>>> upstream/android-13
 	scssc->schid = schid;
 
 	/* enable the time delay disablement facility */
@@ -282,6 +313,18 @@ static void s390_process_res_acc(struct chp_link *link)
 	css_schedule_reprobe();
 }
 
+<<<<<<< HEAD
+=======
+static int process_fces_event(struct subchannel *sch, void *data)
+{
+	spin_lock_irq(sch->lock);
+	if (sch->driver && sch->driver->chp_event)
+		sch->driver->chp_event(sch, data, CHP_FCES_EVENT);
+	spin_unlock_irq(sch->lock);
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 struct chsc_sei_nt0_area {
 	u8  flags;
 	u8  vf;				/* validity flags */
@@ -322,6 +365,7 @@ struct chsc_sei {
 } __packed __aligned(PAGE_SIZE);
 
 /*
+<<<<<<< HEAD
  * Node Descriptor as defined in SA22-7204, "Common I/O-Device Commands"
  */
 
@@ -352,6 +396,8 @@ struct node_descriptor {
 } __packed;
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Link Incident Record as defined in SA22-7202, "ESCON I/O Interface"
  */
 
@@ -389,6 +435,19 @@ static char *store_ebcdic(char *dest, const char *src, unsigned long len,
 	return dest + len;
 }
 
+<<<<<<< HEAD
+=======
+static void chsc_link_from_sei(struct chp_link *link,
+				struct chsc_sei_nt0_area *sei_area)
+{
+	if ((sei_area->vf & SEI_VF_FLA) != 0) {
+		link->fla	= sei_area->fla;
+		link->fla_mask	= ((sei_area->vf & SEI_VF_FLA) == SEI_VF_FLA) ?
+							0xffff : 0xff00;
+	}
+}
+
+>>>>>>> upstream/android-13
 /* Format node ID and parameters for output in LIR log message. */
 static void format_node_data(char *params, char *id, struct node_descriptor *nd)
 {
@@ -478,6 +537,7 @@ static void chsc_process_sei_res_acc(struct chsc_sei_nt0_area *sei_area)
 	}
 	memset(&link, 0, sizeof(struct chp_link));
 	link.chpid = chpid;
+<<<<<<< HEAD
 	if ((sei_area->vf & 0xc0) != 0) {
 		link.fla = sei_area->fla;
 		if ((sei_area->vf & 0xc0) == 0xc0)
@@ -487,6 +547,9 @@ static void chsc_process_sei_res_acc(struct chsc_sei_nt0_area *sei_area)
 			/* link address */
 			link.fla_mask = 0xff00;
 	}
+=======
+	chsc_link_from_sei(&link, sei_area);
+>>>>>>> upstream/android-13
 	s390_process_res_acc(&link);
 }
 
@@ -586,6 +649,45 @@ static void chsc_process_sei_scm_avail(struct chsc_sei_nt0_area *sei_area)
 			      " failed (rc=%d).\n", ret);
 }
 
+<<<<<<< HEAD
+=======
+static void chsc_process_sei_ap_cfg_chg(struct chsc_sei_nt0_area *sei_area)
+{
+	CIO_CRW_EVENT(3, "chsc: ap config changed\n");
+	if (sei_area->rs != 5)
+		return;
+
+	ap_bus_cfg_chg();
+}
+
+static void chsc_process_sei_fces_event(struct chsc_sei_nt0_area *sei_area)
+{
+	struct chp_link link;
+	struct chp_id chpid;
+	struct channel_path *chp;
+
+	CIO_CRW_EVENT(4,
+	"chsc: FCES status notification (rs=%02x, rs_id=%04x, FCES-status=%x)\n",
+		sei_area->rs, sei_area->rsid, sei_area->ccdf[0]);
+
+	if (sei_area->rs != SEI_RS_CHPID)
+		return;
+	chp_id_init(&chpid);
+	chpid.id = sei_area->rsid;
+
+	/* Ignore the event on unknown/invalid chp */
+	chp = chpid_to_chp(chpid);
+	if (!chp)
+		return;
+
+	memset(&link, 0, sizeof(struct chp_link));
+	link.chpid = chpid;
+	chsc_link_from_sei(&link, sei_area);
+
+	for_each_subchannel_staged(process_fces_event, NULL, &link);
+}
+
+>>>>>>> upstream/android-13
 static void chsc_process_sei_nt2(struct chsc_sei_nt2_area *sei_area)
 {
 	switch (sei_area->cc) {
@@ -612,6 +714,12 @@ static void chsc_process_sei_nt0(struct chsc_sei_nt0_area *sei_area)
 	case 2: /* i/o resource accessibility */
 		chsc_process_sei_res_acc(sei_area);
 		break;
+<<<<<<< HEAD
+=======
+	case 3: /* ap config changed */
+		chsc_process_sei_ap_cfg_chg(sei_area);
+		break;
+>>>>>>> upstream/android-13
 	case 7: /* channel-path-availability information */
 		chsc_process_sei_chp_avail(sei_area);
 		break;
@@ -624,6 +732,12 @@ static void chsc_process_sei_nt0(struct chsc_sei_nt0_area *sei_area)
 	case 14: /* scm available notification */
 		chsc_process_sei_scm_avail(sei_area);
 		break;
+<<<<<<< HEAD
+=======
+	case 15: /* FCES event notification */
+		chsc_process_sei_fces_event(sei_area);
+		break;
+>>>>>>> upstream/android-13
 	default: /* other stuff */
 		CIO_CRW_EVENT(2, "chsc: sei nt0 unhandled cc=%d\n",
 			      sei_area->cc);
@@ -770,8 +884,11 @@ int chsc_chp_vary(struct chp_id chpid, int on)
 {
 	struct channel_path *chp = chpid_to_chp(chpid);
 
+<<<<<<< HEAD
 	/* Wait until previous actions have settled. */
 	css_wait_for_slow_path();
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Redo PathVerification on the devices the chpid connects to
 	 */
@@ -1129,7 +1246,11 @@ int chsc_enable_facility(int operation_code)
 	return ret;
 }
 
+<<<<<<< HEAD
 int __init chsc_get_cssid(int idx)
+=======
+int __init chsc_get_cssid_iid(int idx, u8 *cssid, u8 *iid)
+>>>>>>> upstream/android-13
 {
 	struct {
 		struct chsc_header request;
@@ -1140,7 +1261,12 @@ int __init chsc_get_cssid(int idx)
 		u32 reserved2[3];
 		struct {
 			u8 cssid;
+<<<<<<< HEAD
 			u32 : 24;
+=======
+			u8 iid;
+			u32 : 16;
+>>>>>>> upstream/android-13
 		} list[0];
 	} *sdcal_area;
 	int ret;
@@ -1166,8 +1292,15 @@ int __init chsc_get_cssid(int idx)
 	}
 
 	if ((addr_t) &sdcal_area->list[idx] <
+<<<<<<< HEAD
 	    (addr_t) &sdcal_area->response + sdcal_area->response.length)
 		ret = sdcal_area->list[idx].cssid;
+=======
+	    (addr_t) &sdcal_area->response + sdcal_area->response.length) {
+		*cssid = sdcal_area->list[idx].cssid;
+		*iid = sdcal_area->list[idx].iid;
+	}
+>>>>>>> upstream/android-13
 	else
 		ret = -ENODEV;
 exit:
@@ -1275,6 +1408,30 @@ int chsc_sstpi(void *page, void *result, size_t size)
 	return (rr->response.code == 0x0001) ? 0 : -EIO;
 }
 
+<<<<<<< HEAD
+=======
+int chsc_stzi(void *page, void *result, size_t size)
+{
+	struct {
+		struct chsc_header request;
+		unsigned int rsvd0[3];
+		struct chsc_header response;
+		char data[];
+	} *rr;
+	int rc;
+
+	memset(page, 0, PAGE_SIZE);
+	rr = page;
+	rr->request.length = 0x0010;
+	rr->request.code = 0x003e;
+	rc = chsc(rr);
+	if (rc)
+		return -EIO;
+	memcpy(result, &rr->data, size);
+	return (rr->response.code == 0x0001) ? 0 : -EIO;
+}
+
+>>>>>>> upstream/android-13
 int chsc_siosl(struct subchannel_id schid)
 {
 	struct {
@@ -1352,6 +1509,7 @@ out:
 EXPORT_SYMBOL_GPL(chsc_scm_info);
 
 /**
+<<<<<<< HEAD
  * chsc_pnso_brinfo() - Perform Network-Subchannel Operation, Bridge Info.
  * @schid:		id of the subchannel on which PNSO is performed
  * @brinfo_area:	request and response block for the operation
@@ -1382,3 +1540,153 @@ int chsc_pnso_brinfo(struct subchannel_id schid,
 	return chsc_error_from_response(brinfo_area->response.code);
 }
 EXPORT_SYMBOL_GPL(chsc_pnso_brinfo);
+=======
+ * chsc_pnso() - Perform Network-Subchannel Operation
+ * @schid:		id of the subchannel on which PNSO is performed
+ * @pnso_area:		request and response block for the operation
+ * @oc:			Operation Code
+ * @resume_token:	resume token for multiblock response
+ * @cnc:		Boolean change-notification control
+ *
+ * pnso_area must be allocated by the caller with get_zeroed_page(GFP_KERNEL)
+ *
+ * Returns 0 on success.
+ */
+int chsc_pnso(struct subchannel_id schid, struct chsc_pnso_area *pnso_area,
+	      u8 oc, struct chsc_pnso_resume_token resume_token, int cnc)
+{
+	memset(pnso_area, 0, sizeof(*pnso_area));
+	pnso_area->request.length = 0x0030;
+	pnso_area->request.code = 0x003d; /* network-subchannel operation */
+	pnso_area->m	   = schid.m;
+	pnso_area->ssid  = schid.ssid;
+	pnso_area->sch	 = schid.sch_no;
+	pnso_area->cssid = schid.cssid;
+	pnso_area->oc	 = oc;
+	pnso_area->resume_token = resume_token;
+	pnso_area->n	   = (cnc != 0);
+	if (chsc(pnso_area))
+		return -EIO;
+	return chsc_error_from_response(pnso_area->response.code);
+}
+
+int chsc_sgib(u32 origin)
+{
+	struct {
+		struct chsc_header request;
+		u16 op;
+		u8  reserved01[2];
+		u8  reserved02:4;
+		u8  fmt:4;
+		u8  reserved03[7];
+		/* operation data area begin */
+		u8  reserved04[4];
+		u32 gib_origin;
+		u8  reserved05[10];
+		u8  aix;
+		u8  reserved06[4029];
+		struct chsc_header response;
+		u8  reserved07[4];
+	} *sgib_area;
+	int ret;
+
+	spin_lock_irq(&chsc_page_lock);
+	memset(chsc_page, 0, PAGE_SIZE);
+	sgib_area = chsc_page;
+	sgib_area->request.length = 0x0fe0;
+	sgib_area->request.code = 0x0021;
+	sgib_area->op = 0x1;
+	sgib_area->gib_origin = origin;
+
+	ret = chsc(sgib_area);
+	if (ret == 0)
+		ret = chsc_error_from_response(sgib_area->response.code);
+	spin_unlock_irq(&chsc_page_lock);
+
+	return ret;
+}
+EXPORT_SYMBOL_GPL(chsc_sgib);
+
+#define SCUD_REQ_LEN	0x10 /* SCUD request block length */
+#define SCUD_REQ_CMD	0x4b /* SCUD Command Code */
+
+struct chse_cudb {
+	u16 flags:8;
+	u16 chp_valid:8;
+	u16 cu;
+	u32 esm_valid:8;
+	u32:24;
+	u8 chpid[8];
+	u32:32;
+	u32:32;
+	u8 esm[8];
+	u32 efla[8];
+} __packed;
+
+struct chsc_scud {
+	struct chsc_header request;
+	u16:4;
+	u16 fmt:4;
+	u16 cssid:8;
+	u16 first_cu;
+	u16:16;
+	u16 last_cu;
+	u32:32;
+	struct chsc_header response;
+	u16:4;
+	u16 fmt_resp:4;
+	u32:24;
+	struct chse_cudb cudb[];
+} __packed;
+
+/**
+ * chsc_scud() - Store control-unit description.
+ * @cu:		number of the control-unit
+ * @esm:	8 1-byte endpoint security mode values
+ * @esm_valid:	validity mask for @esm
+ *
+ * Interface to retrieve information about the endpoint security
+ * modes for up to 8 paths of a control unit.
+ *
+ * Returns 0 on success.
+ */
+int chsc_scud(u16 cu, u64 *esm, u8 *esm_valid)
+{
+	struct chsc_scud *scud = chsc_page;
+	int ret;
+
+	spin_lock_irq(&chsc_page_lock);
+	memset(chsc_page, 0, PAGE_SIZE);
+	scud->request.length = SCUD_REQ_LEN;
+	scud->request.code = SCUD_REQ_CMD;
+	scud->fmt = 0;
+	scud->cssid = 0;
+	scud->first_cu = cu;
+	scud->last_cu = cu;
+
+	ret = chsc(scud);
+	if (!ret)
+		ret = chsc_error_from_response(scud->response.code);
+
+	if (!ret && (scud->response.length <= 8 || scud->fmt_resp != 0
+			|| !(scud->cudb[0].flags & 0x80)
+			|| scud->cudb[0].cu != cu)) {
+
+		CIO_MSG_EVENT(2, "chsc: scud failed rc=%04x, L2=%04x "
+			"FMT=%04x, cudb.flags=%02x, cudb.cu=%04x",
+			scud->response.code, scud->response.length,
+			scud->fmt_resp, scud->cudb[0].flags, scud->cudb[0].cu);
+		ret = -EINVAL;
+	}
+
+	if (ret)
+		goto out;
+
+	memcpy(esm, scud->cudb[0].esm, sizeof(*esm));
+	*esm_valid = scud->cudb[0].esm_valid;
+out:
+	spin_unlock_irq(&chsc_page_lock);
+	return ret;
+}
+EXPORT_SYMBOL_GPL(chsc_scud);
+>>>>>>> upstream/android-13

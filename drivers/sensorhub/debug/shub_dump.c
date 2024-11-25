@@ -51,7 +51,11 @@ static int create_dump_bin_file(void)
 
 	shub_infof();
 
+<<<<<<< HEAD
 	sensorhub_dump = vzalloc(sensorhub_dump_size);
+=======
+	sensorhub_dump = kvzalloc(sensorhub_dump_size, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (ZERO_OR_NULL_PTR(sensorhub_dump)) {
 		shub_infof("fail to alloc memory");
 		return -EINVAL;

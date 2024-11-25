@@ -9,6 +9,7 @@
 /* REVISIT: omap1 legacy drivers still rely on this */
 #include <mach/soc.h>
 
+<<<<<<< HEAD
 /*
  * Bus address is physical address, except for OMAP-1510 Local Bus.
  * OMAP-1510 bus address is translated into a Local Bus address if the
@@ -52,4 +53,6 @@
 
 #endif	/* CONFIG_ARCH_OMAP15XX */
 
+=======
+>>>>>>> upstream/android-13
 #endif

@@ -1,16 +1,32 @@
+<<<<<<< HEAD
 /*
  * Copyright 2015, Michael Ellerman, IBM Corp.
  * Licensed under GPLv2.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright 2015, Michael Ellerman, IBM Corp.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _SELFTESTS_POWERPC_TM_TM_H
 #define _SELFTESTS_POWERPC_TM_TM_H
 
+<<<<<<< HEAD
 #include <asm/tm.h>
 #include <asm/cputable.h>
 #include <stdbool.h>
 
 #include "utils.h"
+=======
+#include <stdbool.h>
+#include <asm/tm.h>
+
+#include "utils.h"
+#include "reg.h"
+
+#define TM_RETRIES 100
+>>>>>>> upstream/android-13
 
 static inline bool have_htm(void)
 {
@@ -32,6 +48,42 @@ static inline bool have_htm_nosc(void)
 #endif
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * Transactional Memory was removed in ISA 3.1. A synthetic TM implementation
+ * is provided on P10 for threads running in P8/P9 compatibility  mode. The
+ * synthetic implementation immediately fails after tbegin. This failure sets
+ * Bit 7 (Failure Persistent) and Bit 15 (Implementation-specific).
+ */
+static inline bool htm_is_synthetic(void)
+{
+	int i;
+
+	/*
+	 * Per the ISA, the Failure Persistent bit may be incorrect. Try a few
+	 * times in case we got an Implementation-specific failure on a non ISA
+	 * v3.1 system. On these systems the Implementation-specific failure
+	 * should not be persistent.
+	 */
+	for (i = 0; i < TM_RETRIES; i++) {
+		asm volatile(
+		"tbegin.;"
+		"beq 1f;"
+		"tend.;"
+		"1:"
+		:
+		:
+		: "memory");
+
+		if ((__builtin_get_texasr() & (TEXASR_FP | TEXASR_IC)) !=
+		    (TEXASR_FP | TEXASR_IC))
+			break;
+	}
+	return i == TM_RETRIES;
+}
+
+>>>>>>> upstream/android-13
 static inline long failure_code(void)
 {
 	return __builtin_get_texasru() >> 24;
@@ -55,7 +107,12 @@ static inline bool failure_is_unavailable(void)
 static inline bool failure_is_reschedule(void)
 {
 	if ((failure_code() & TM_CAUSE_RESCHED) == TM_CAUSE_RESCHED ||
+<<<<<<< HEAD
 	    (failure_code() & TM_CAUSE_KVM_RESCHED) == TM_CAUSE_KVM_RESCHED)
+=======
+	    (failure_code() & TM_CAUSE_KVM_RESCHED) == TM_CAUSE_KVM_RESCHED ||
+	    (failure_code() & TM_CAUSE_KVM_FAC_UNAV) == TM_CAUSE_KVM_FAC_UNAV)
+>>>>>>> upstream/android-13
 		return true;
 
 	return false;

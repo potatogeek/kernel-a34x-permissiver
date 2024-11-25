@@ -1261,11 +1261,19 @@ static int usblog_proc_open(struct inode *inode, struct file *file)
 	return single_open(file, usblog_proc_show, NULL);
 }
 
+<<<<<<< HEAD
 static const struct file_operations usblog_proc_fops = {
 	.open		= usblog_proc_open,
 	.read		= seq_read,
 	.llseek		= seq_lseek,
 	.release	= single_release,
+=======
+static const struct proc_ops usblog_proc_fops = {
+	.proc_open        = usblog_proc_open,
+	.proc_read        = seq_read,
+	.proc_lseek        = seq_lseek,
+	.proc_release    = single_release,
+>>>>>>> upstream/android-13
 };
 
 void ccic_store_usblog_notify(int type, uint64_t *param1)

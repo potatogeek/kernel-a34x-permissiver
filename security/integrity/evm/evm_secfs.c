@@ -1,23 +1,36 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2010 IBM Corporation
  *
  * Authors:
  * Mimi Zohar <zohar@us.ibm.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, version 2 of the License.
  *
+=======
+>>>>>>> upstream/android-13
  * File: evm_secfs.c
  *	- Used to signal when key is on keyring
  *	- Get the key and enable EVM
  */
 
+<<<<<<< HEAD
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
 #include <linux/audit.h>
 #include <linux/uaccess.h>
 #include <linux/module.h>
+=======
+#include <linux/audit.h>
+#include <linux/uaccess.h>
+#include <linux/init.h>
+>>>>>>> upstream/android-13
 #include <linux/mutex.h>
 #include "evm.h"
 
@@ -71,12 +84,21 @@ static ssize_t evm_read_key(struct file *filp, char __user *buf,
 static ssize_t evm_write_key(struct file *file, const char __user *buf,
 			     size_t count, loff_t *ppos)
 {
+<<<<<<< HEAD
 	int i, ret;
+=======
+	unsigned int i;
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (!capable(CAP_SYS_ADMIN) || (evm_initialized & EVM_SETUP_COMPLETE))
 		return -EPERM;
 
+<<<<<<< HEAD
 	ret = kstrtoint_from_user(buf, count, 0, &i);
+=======
+	ret = kstrtouint_from_user(buf, count, 0, &i);
+>>>>>>> upstream/android-13
 
 	if (ret)
 		return ret;
@@ -85,12 +107,21 @@ static ssize_t evm_write_key(struct file *file, const char __user *buf,
 	if (!i || (i & ~EVM_INIT_MASK) != 0)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	/* Don't allow a request to freshly enable metadata writes if
 	 * keys are loaded.
 	 */
 	if ((i & EVM_ALLOW_METADATA_WRITES) &&
 	    ((evm_initialized & EVM_KEY_MASK) != 0) &&
 	    !(evm_initialized & EVM_ALLOW_METADATA_WRITES))
+=======
+	/*
+	 * Don't allow a request to enable metadata writes if
+	 * an HMAC key is loaded.
+	 */
+	if ((i & EVM_ALLOW_METADATA_WRITES) &&
+	    (evm_initialized & EVM_INIT_HMAC) != 0)
+>>>>>>> upstream/android-13
 		return -EPERM;
 
 	if (i & EVM_INIT_HMAC) {
@@ -143,8 +174,17 @@ static ssize_t evm_read_xattrs(struct file *filp, char __user *buf,
 	if (rc)
 		return -ERESTARTSYS;
 
+<<<<<<< HEAD
 	list_for_each_entry(xattr, &evm_config_xattrnames, list)
 		size += strlen(xattr->name) + 1;
+=======
+	list_for_each_entry(xattr, &evm_config_xattrnames, list) {
+		if (!xattr->enabled)
+			continue;
+
+		size += strlen(xattr->name) + 1;
+	}
+>>>>>>> upstream/android-13
 
 	temp = kmalloc(size + 1, GFP_KERNEL);
 	if (!temp) {
@@ -153,6 +193,12 @@ static ssize_t evm_read_xattrs(struct file *filp, char __user *buf,
 	}
 
 	list_for_each_entry(xattr, &evm_config_xattrnames, list) {
+<<<<<<< HEAD
+=======
+		if (!xattr->enabled)
+			continue;
+
+>>>>>>> upstream/android-13
 		sprintf(temp + offset, "%s\n", xattr->name);
 		offset += strlen(xattr->name) + 1;
 	}
@@ -192,8 +238,14 @@ static ssize_t evm_write_xattrs(struct file *file, const char __user *buf,
 	if (count > XATTR_NAME_MAX)
 		return -E2BIG;
 
+<<<<<<< HEAD
 	ab = audit_log_start(NULL, GFP_KERNEL, AUDIT_INTEGRITY_EVM_XATTR);
 	if (!ab)
+=======
+	ab = audit_log_start(audit_context(), GFP_KERNEL,
+			     AUDIT_INTEGRITY_EVM_XATTR);
+	if (!ab && IS_ENABLED(CONFIG_AUDIT))
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 
 	xattr = kmalloc(sizeof(struct xattr_list), GFP_KERNEL);
@@ -202,6 +254,10 @@ static ssize_t evm_write_xattrs(struct file *file, const char __user *buf,
 		goto out;
 	}
 
+<<<<<<< HEAD
+=======
+	xattr->enabled = true;
+>>>>>>> upstream/android-13
 	xattr->name = memdup_user_nul(buf, count);
 	if (IS_ERR(xattr->name)) {
 		err = PTR_ERR(xattr->name);
@@ -214,23 +270,37 @@ static ssize_t evm_write_xattrs(struct file *file, const char __user *buf,
 	if (len && xattr->name[len-1] == '\n')
 		xattr->name[len-1] = '\0';
 
+<<<<<<< HEAD
+=======
+	audit_log_format(ab, "xattr=");
+	audit_log_untrustedstring(ab, xattr->name);
+
+>>>>>>> upstream/android-13
 	if (strcmp(xattr->name, ".") == 0) {
 		evm_xattrs_locked = 1;
 		newattrs.ia_mode = S_IFREG | 0440;
 		newattrs.ia_valid = ATTR_MODE;
 		inode = evm_xattrs->d_inode;
 		inode_lock(inode);
+<<<<<<< HEAD
 		err = simple_setattr(evm_xattrs, &newattrs);
 		inode_unlock(inode);
 		audit_log_format(ab, "locked");
+=======
+		err = simple_setattr(&init_user_ns, evm_xattrs, &newattrs);
+		inode_unlock(inode);
+>>>>>>> upstream/android-13
 		if (!err)
 			err = count;
 		goto out;
 	}
 
+<<<<<<< HEAD
 	audit_log_format(ab, "xattr=");
 	audit_log_untrustedstring(ab, xattr->name);
 
+=======
+>>>>>>> upstream/android-13
 	if (strncmp(xattr->name, XATTR_SECURITY_PREFIX,
 		    XATTR_SECURITY_PREFIX_LEN) != 0) {
 		err = -EINVAL;
@@ -249,6 +319,13 @@ static ssize_t evm_write_xattrs(struct file *file, const char __user *buf,
 	list_for_each_entry(tmp, &evm_config_xattrnames, list) {
 		if (strcmp(xattr->name, tmp->name) == 0) {
 			err = -EEXIST;
+<<<<<<< HEAD
+=======
+			if (!tmp->enabled) {
+				tmp->enabled = true;
+				err = count;
+			}
+>>>>>>> upstream/android-13
 			mutex_unlock(&xattr_list_mutex);
 			goto out;
 		}
@@ -260,7 +337,11 @@ static ssize_t evm_write_xattrs(struct file *file, const char __user *buf,
 	audit_log_end(ab);
 	return count;
 out:
+<<<<<<< HEAD
 	audit_log_format(ab, " res=%d", err);
+=======
+	audit_log_format(ab, " res=%d", (err < 0) ? err : 0);
+>>>>>>> upstream/android-13
 	audit_log_end(ab);
 	if (xattr) {
 		kfree(xattr->name);

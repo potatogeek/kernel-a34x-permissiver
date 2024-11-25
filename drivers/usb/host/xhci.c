@@ -20,10 +20,22 @@
 
 #include "xhci.h"
 #include "xhci-trace.h"
+<<<<<<< HEAD
 #include "xhci-mtk.h"
 #include "xhci-debugfs.h"
 #include "xhci-dbgcap.h"
 
+=======
+#include "xhci-debugfs.h"
+#include "xhci-dbgcap.h"
+
+#ifdef CONFIG_SND_EXYNOS_USB_AUDIO_GIC
+#include "../../../sound/usb/exynos_usb_audio.h"
+#include "xhci-exynos-audio.h"
+extern struct hcd_hw_info *g_hwinfo;
+#endif
+
+>>>>>>> upstream/android-13
 #define DRIVER_AUTHOR "Sarah Sharp"
 #define DRIVER_DESC "'eXtensible' Host Controller (xHC) Driver"
 
@@ -66,7 +78,11 @@ static bool td_on_ring(struct xhci_td *td, struct xhci_ring *ring)
  * handshake done).  There are two failure modes:  "usec" have passed (major
  * hardware flakeout), or the register reads as all-ones (hardware removed).
  */
+<<<<<<< HEAD
 int xhci_handshake(void __iomem *ptr, u32 mask, u32 done, int usec)
+=======
+int xhci_handshake(void __iomem *ptr, u32 mask, u32 done, u64 timeout_us)
+>>>>>>> upstream/android-13
 {
 	u32	result;
 	int	ret;
@@ -74,13 +90,18 @@ int xhci_handshake(void __iomem *ptr, u32 mask, u32 done, int usec)
 	ret = readl_poll_timeout_atomic(ptr, result,
 					(result & mask) == done ||
 					result == U32_MAX,
+<<<<<<< HEAD
 					1, usec);
+=======
+					1, timeout_us);
+>>>>>>> upstream/android-13
 	if (result == U32_MAX)		/* card removed */
 		return -ENODEV;
 
 	return ret;
 }
 
+<<<<<<< HEAD
 int xhci_handshake_check_state(struct xhci_hcd *xhci,
 		void __iomem *ptr, u32 mask, u32 done, int usec)
 {
@@ -99,6 +120,8 @@ int xhci_handshake_check_state(struct xhci_hcd *xhci,
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Disable interrupts and begin the xHCI halting process.
  */
@@ -129,9 +152,12 @@ void xhci_quiesce(struct xhci_hcd *xhci)
 int xhci_halt(struct xhci_hcd *xhci)
 {
 	int ret;
+<<<<<<< HEAD
 #if defined(CONFIG_USB_HOST_SAMSUNG_FEATURE)
 	int i, retry = 5;
 #endif
+=======
+>>>>>>> upstream/android-13
 	xhci_dbg_trace(xhci, trace_xhci_dbg_init, "// Halt the HC");
 #ifdef CONFIG_USB_DEBUG_DETAILED_LOG
 	xhci_info(xhci, "%s\n", __func__);
@@ -139,6 +165,7 @@ int xhci_halt(struct xhci_hcd *xhci)
 	xhci_quiesce(xhci);
 
 	ret = xhci_handshake(&xhci->op_regs->status,
+<<<<<<< HEAD
 			STS_HALT, STS_HALT, 2 * XHCI_MAX_HALT_USEC);
 	if (ret) {
 		xhci_warn(xhci, "Host halt failed, %d\n", ret);
@@ -162,6 +189,13 @@ int xhci_halt(struct xhci_hcd *xhci)
 #if defined(CONFIG_USB_HOST_SAMSUNG_FEATURE)
 out:
 #endif
+=======
+			STS_HALT, STS_HALT, XHCI_MAX_HALT_USEC);
+	if (ret) {
+		xhci_warn(xhci, "Host halt failed, %d\n", ret);
+		return ret;
+	}
+>>>>>>> upstream/android-13
 	xhci->xhc_state |= XHCI_STATE_HALTED;
 	xhci->cmd_ring_state = CMD_RING_STATE_STOPPED;
 	return ret;
@@ -205,11 +239,19 @@ int xhci_start(struct xhci_hcd *xhci)
  * Transactions will be terminated immediately, and operational registers
  * will be set to their defaults.
  */
+<<<<<<< HEAD
 int xhci_reset(struct xhci_hcd *xhci)
 {
 	u32 command;
 	u32 state;
 	int ret, i;
+=======
+int xhci_reset(struct xhci_hcd *xhci, u64 timeout_us)
+{
+	u32 command;
+	u32 state;
+	int ret;
+>>>>>>> upstream/android-13
 
 	state = readl(&xhci->op_regs->status);
 
@@ -238,6 +280,7 @@ int xhci_reset(struct xhci_hcd *xhci)
 	if (xhci->quirks & XHCI_INTEL_HOST)
 		udelay(1000);
 
+<<<<<<< HEAD
 	ret = xhci_handshake_check_state(xhci, &xhci->op_regs->command,
 			CMD_RESET, 0, 1000 * 1000);
 	if (ret) {
@@ -246,6 +289,11 @@ int xhci_reset(struct xhci_hcd *xhci)
 #endif
 		return ret;
 	}
+=======
+	ret = xhci_handshake(&xhci->op_regs->command, CMD_RESET, 0, timeout_us);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	if (xhci->quirks & XHCI_ASMEDIA_MODIFY_FLOWCONTROL)
 		usb_asmedia_modifyflowcontrol(to_pci_dev(xhci_to_hcd(xhci)->self.controller));
@@ -256,6 +304,7 @@ int xhci_reset(struct xhci_hcd *xhci)
 	 * xHCI cannot write to any doorbells or operational registers other
 	 * than status until the "Controller Not Ready" flag is cleared.
 	 */
+<<<<<<< HEAD
 	ret = xhci_handshake(&xhci->op_regs->status,
 			STS_CNR, 0, 1000 * 1000);
 #if defined(CONFIG_USB_HOST_SAMSUNG_FEATURE)
@@ -267,6 +316,16 @@ int xhci_reset(struct xhci_hcd *xhci)
 		xhci->bus_state[i].suspended_ports = 0;
 		xhci->bus_state[i].resuming_ports = 0;
 	}
+=======
+	ret = xhci_handshake(&xhci->op_regs->status, STS_CNR, 0, timeout_us);
+
+	xhci->usb2_rhub.bus_state.port_c_suspend = 0;
+	xhci->usb2_rhub.bus_state.suspended_ports = 0;
+	xhci->usb2_rhub.bus_state.resuming_ports = 0;
+	xhci->usb3_rhub.bus_state.port_c_suspend = 0;
+	xhci->usb3_rhub.bus_state.suspended_ports = 0;
+	xhci->usb3_rhub.bus_state.resuming_ports = 0;
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -292,7 +351,11 @@ static void xhci_zero_64b_regs(struct xhci_hcd *xhci)
 	 * an iommu. Doing anything when there is no iommu is definitely
 	 * unsafe...
 	 */
+<<<<<<< HEAD
 	if (!(xhci->quirks & XHCI_ZERO_64B_REGS) || !dev->iommu_group)
+=======
+	if (!(xhci->quirks & XHCI_ZERO_64B_REGS) || !device_iommu_mapped(dev))
+>>>>>>> upstream/android-13
 		return;
 
 	xhci_info(xhci, "Zeroing 64bit base registers, expecting fault\n");
@@ -780,7 +843,11 @@ static void xhci_stop(struct usb_hcd *hcd)
 	xhci->xhc_state |= XHCI_STATE_HALTED;
 	xhci->cmd_ring_state = CMD_RING_STATE_STOPPED;
 	xhci_halt(xhci);
+<<<<<<< HEAD
 	xhci_reset(xhci);
+=======
+	xhci_reset(xhci, XHCI_RESET_SHORT_USEC);
+>>>>>>> upstream/android-13
 	spin_unlock_irq(&xhci->lock);
 
 	xhci_cleanup_msix(xhci);
@@ -829,11 +896,29 @@ void xhci_shutdown(struct usb_hcd *hcd)
 	if (xhci->quirks & XHCI_SPURIOUS_REBOOT)
 		usb_disable_xhci_ports(to_pci_dev(hcd->self.sysdev));
 
+<<<<<<< HEAD
+=======
+	/* Don't poll the roothubs after shutdown. */
+	xhci_dbg(xhci, "%s: stopping usb%d port polling.\n",
+			__func__, hcd->self.busnum);
+	clear_bit(HCD_FLAG_POLL_RH, &hcd->flags);
+	del_timer_sync(&hcd->rh_timer);
+
+	if (xhci->shared_hcd) {
+		clear_bit(HCD_FLAG_POLL_RH, &xhci->shared_hcd->flags);
+		del_timer_sync(&xhci->shared_hcd->rh_timer);
+	}
+
+>>>>>>> upstream/android-13
 	spin_lock_irq(&xhci->lock);
 	xhci_halt(xhci);
 	/* Workaround for spurious wakeups at shutdown with HSW */
 	if (xhci->quirks & XHCI_SPURIOUS_WAKEUP)
+<<<<<<< HEAD
 		xhci_reset(xhci);
+=======
+		xhci_reset(xhci, XHCI_RESET_SHORT_USEC);
+>>>>>>> upstream/android-13
 	spin_unlock_irq(&xhci->lock);
 
 	xhci_cleanup_msix(xhci);
@@ -935,6 +1020,7 @@ static void xhci_clear_command_ring(struct xhci_hcd *xhci)
 	xhci_set_cmd_ring_deq(xhci);
 }
 
+<<<<<<< HEAD
 static void xhci_disable_port_wake_on_bits(struct xhci_hcd *xhci)
 {
 	struct xhci_port **ports;
@@ -966,6 +1052,46 @@ static void xhci_disable_port_wake_on_bits(struct xhci_hcd *xhci)
 			writel(t2, ports[port_index]->addr);
 	}
 
+=======
+/*
+ * Disable port wake bits if do_wakeup is not set.
+ *
+ * Also clear a possible internal port wake state left hanging for ports that
+ * detected termination but never successfully enumerated (trained to 0U).
+ * Internal wake causes immediate xHCI wake after suspend. PORT_CSC write done
+ * at enumeration clears this wake, force one here as well for unconnected ports
+ */
+
+static void xhci_disable_hub_port_wake(struct xhci_hcd *xhci,
+				       struct xhci_hub *rhub,
+				       bool do_wakeup)
+{
+	unsigned long flags;
+	u32 t1, t2, portsc;
+	int i;
+
+	spin_lock_irqsave(&xhci->lock, flags);
+
+	for (i = 0; i < rhub->num_ports; i++) {
+		portsc = readl(rhub->ports[i]->addr);
+		t1 = xhci_port_state_to_neutral(portsc);
+		t2 = t1;
+
+		/* clear wake bits if do_wake is not set */
+		if (!do_wakeup)
+			t2 &= ~PORT_WAKE_BITS;
+
+		/* Don't touch csc bit if connected or connect change is set */
+		if (!(portsc & (PORT_CSC | PORT_CONNECT)))
+			t2 |= PORT_CSC;
+
+		if (t1 != t2) {
+			writel(t2, rhub->ports[i]->addr);
+			xhci_dbg(xhci, "config port %d-%d wake bits, portsc: 0x%x, write: 0x%x\n",
+				 rhub->hcd->self.busnum, i + 1, portsc, t2);
+		}
+	}
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&xhci->lock, flags);
 }
 
@@ -1026,8 +1152,13 @@ int xhci_suspend(struct xhci_hcd *xhci, bool do_wakeup)
 		return -EINVAL;
 
 	/* Clear root port wake on bits if wakeup not allowed. */
+<<<<<<< HEAD
 	if (!do_wakeup)
 		xhci_disable_port_wake_on_bits(xhci);
+=======
+	xhci_disable_hub_port_wake(xhci, &xhci->usb3_rhub, do_wakeup);
+	xhci_disable_hub_port_wake(xhci, &xhci->usb2_rhub, do_wakeup);
+>>>>>>> upstream/android-13
 
 	if (!HCD_HW_ACCESSIBLE(hcd))
 		return 0;
@@ -1035,10 +1166,15 @@ int xhci_suspend(struct xhci_hcd *xhci, bool do_wakeup)
 	xhci_dbc_suspend(xhci);
 
 	/* Don't poll the roothubs on bus suspend. */
+<<<<<<< HEAD
 #if defined(CONFIG_USB_HOST_SAMSUNG_FEATURE)
 	xhci_dbg(xhci, "%s: stopping usb%d port polling.\n",
 		 __func__, hcd->self.busnum);
 #endif
+=======
+	xhci_dbg(xhci, "%s: stopping usb%d port polling.\n",
+		 __func__, hcd->self.busnum);
+>>>>>>> upstream/android-13
 	clear_bit(HCD_FLAG_POLL_RH, &hcd->flags);
 	del_timer_sync(&hcd->rh_timer);
 	clear_bit(HCD_FLAG_POLL_RH, &xhci->shared_hcd->flags);
@@ -1135,6 +1271,10 @@ int xhci_resume(struct xhci_hcd *xhci, bool hibernated)
 	int			retval = 0;
 	bool			comp_timer_running = false;
 	bool			pending_portevent = false;
+<<<<<<< HEAD
+=======
+	bool			reinit_xhc = false;
+>>>>>>> upstream/android-13
 
 	if (!hcd->state)
 		return 0;
@@ -1142,19 +1282,33 @@ int xhci_resume(struct xhci_hcd *xhci, bool hibernated)
 	/* Wait a bit if either of the roothubs need to settle from the
 	 * transition into bus suspend.
 	 */
+<<<<<<< HEAD
 	if (time_before(jiffies, xhci->bus_state[0].next_statechange) ||
 			time_before(jiffies,
 				xhci->bus_state[1].next_statechange))
+=======
+
+	if (time_before(jiffies, xhci->usb2_rhub.bus_state.next_statechange) ||
+	    time_before(jiffies, xhci->usb3_rhub.bus_state.next_statechange))
+>>>>>>> upstream/android-13
 		msleep(100);
 
 	set_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
 	set_bit(HCD_FLAG_HW_ACCESSIBLE, &xhci->shared_hcd->flags);
 
 	spin_lock_irq(&xhci->lock);
+<<<<<<< HEAD
 	if ((xhci->quirks & XHCI_RESET_ON_RESUME) || xhci->broken_suspend)
 		hibernated = true;
 
 	if (!hibernated) {
+=======
+
+	if (hibernated || xhci->quirks & XHCI_RESET_ON_RESUME || xhci->broken_suspend)
+		reinit_xhc = true;
+
+	if (!reinit_xhc) {
+>>>>>>> upstream/android-13
 		/*
 		 * Some controllers might lose power during suspend, so wait
 		 * for controller not ready bit to clear, just as in xHC init.
@@ -1187,12 +1341,26 @@ int xhci_resume(struct xhci_hcd *xhci, bool hibernated)
 			spin_unlock_irq(&xhci->lock);
 			return -ETIMEDOUT;
 		}
+<<<<<<< HEAD
 		temp = readl(&xhci->op_regs->status);
 	}
 
 	/* If restore operation fails, re-initialize the HC during resume */
 	if ((temp & STS_SRE) || hibernated) {
 
+=======
+	}
+
+	temp = readl(&xhci->op_regs->status);
+
+	/* re-initialize the HC on Restore Error, or Host Controller Error */
+	if (temp & (STS_SRE | STS_HCE)) {
+		reinit_xhc = true;
+		xhci_warn(xhci, "xHC error in resume, USBSTS 0x%x, Reinit\n", temp);
+	}
+
+	if (reinit_xhc) {
+>>>>>>> upstream/android-13
 		if ((xhci->quirks & XHCI_COMP_MODE_QUIRK) &&
 				!(xhci_all_ports_seen_u0(xhci))) {
 			del_timer_sync(&xhci->comp_mode_recovery_timer);
@@ -1207,7 +1375,11 @@ int xhci_resume(struct xhci_hcd *xhci, bool hibernated)
 		xhci_dbg(xhci, "Stop HCD\n");
 		xhci_halt(xhci);
 		xhci_zero_64b_regs(xhci);
+<<<<<<< HEAD
 		retval = xhci_reset(xhci);
+=======
+		retval = xhci_reset(xhci, XHCI_RESET_LONG_USEC);
+>>>>>>> upstream/android-13
 		spin_unlock_irq(&xhci->lock);
 		if (retval)
 			return retval;
@@ -1302,10 +1474,15 @@ int xhci_resume(struct xhci_hcd *xhci, bool hibernated)
 		usb_asmedia_modifyflowcontrol(to_pci_dev(hcd->self.controller));
 
 	/* Re-enable port polling. */
+<<<<<<< HEAD
 #if defined(CONFIG_USB_HOST_SAMSUNG_FEATURE)
 	xhci_dbg(xhci, "%s: starting usb%d port polling.\n",
 		 __func__, hcd->self.busnum);
 #endif
+=======
+	xhci_dbg(xhci, "%s: starting usb%d port polling.\n",
+		 __func__, hcd->self.busnum);
+>>>>>>> upstream/android-13
 	set_bit(HCD_FLAG_POLL_RH, &xhci->shared_hcd->flags);
 	usb_hcd_poll_rh_status(xhci->shared_hcd);
 	set_bit(HCD_FLAG_POLL_RH, &hcd->flags);
@@ -1318,6 +1495,155 @@ EXPORT_SYMBOL_GPL(xhci_resume);
 
 /*-------------------------------------------------------------------------*/
 
+<<<<<<< HEAD
+=======
+static int xhci_map_temp_buffer(struct usb_hcd *hcd, struct urb *urb)
+{
+	void *temp;
+	int ret = 0;
+	unsigned int buf_len;
+	enum dma_data_direction dir;
+
+	dir = usb_urb_dir_in(urb) ? DMA_FROM_DEVICE : DMA_TO_DEVICE;
+	buf_len = urb->transfer_buffer_length;
+
+	temp = kzalloc_node(buf_len, GFP_ATOMIC,
+			    dev_to_node(hcd->self.sysdev));
+
+	if (usb_urb_dir_out(urb))
+		sg_pcopy_to_buffer(urb->sg, urb->num_sgs,
+				   temp, buf_len, 0);
+
+	urb->transfer_buffer = temp;
+	urb->transfer_dma = dma_map_single(hcd->self.sysdev,
+					   urb->transfer_buffer,
+					   urb->transfer_buffer_length,
+					   dir);
+
+	if (dma_mapping_error(hcd->self.sysdev,
+			      urb->transfer_dma)) {
+		ret = -EAGAIN;
+		kfree(temp);
+	} else {
+		urb->transfer_flags |= URB_DMA_MAP_SINGLE;
+	}
+
+	return ret;
+}
+
+static bool xhci_urb_temp_buffer_required(struct usb_hcd *hcd,
+					  struct urb *urb)
+{
+	bool ret = false;
+	unsigned int i;
+	unsigned int len = 0;
+	unsigned int trb_size;
+	unsigned int max_pkt;
+	struct scatterlist *sg;
+	struct scatterlist *tail_sg;
+
+	tail_sg = urb->sg;
+	max_pkt = usb_endpoint_maxp(&urb->ep->desc);
+
+	if (!urb->num_sgs)
+		return ret;
+
+	if (urb->dev->speed >= USB_SPEED_SUPER)
+		trb_size = TRB_CACHE_SIZE_SS;
+	else
+		trb_size = TRB_CACHE_SIZE_HS;
+
+	if (urb->transfer_buffer_length != 0 &&
+	    !(urb->transfer_flags & URB_NO_TRANSFER_DMA_MAP)) {
+		for_each_sg(urb->sg, sg, urb->num_sgs, i) {
+			len = len + sg->length;
+			if (i > trb_size - 2) {
+				len = len - tail_sg->length;
+				if (len < max_pkt) {
+					ret = true;
+					break;
+				}
+
+				tail_sg = sg_next(tail_sg);
+			}
+		}
+	}
+	return ret;
+}
+
+static void xhci_unmap_temp_buf(struct usb_hcd *hcd, struct urb *urb)
+{
+	unsigned int len;
+	unsigned int buf_len;
+	enum dma_data_direction dir;
+
+	dir = usb_urb_dir_in(urb) ? DMA_FROM_DEVICE : DMA_TO_DEVICE;
+
+	buf_len = urb->transfer_buffer_length;
+
+	if (IS_ENABLED(CONFIG_HAS_DMA) &&
+	    (urb->transfer_flags & URB_DMA_MAP_SINGLE))
+		dma_unmap_single(hcd->self.sysdev,
+				 urb->transfer_dma,
+				 urb->transfer_buffer_length,
+				 dir);
+
+	if (usb_urb_dir_in(urb)) {
+		len = sg_pcopy_from_buffer(urb->sg, urb->num_sgs,
+					   urb->transfer_buffer,
+					   buf_len,
+					   0);
+		if (len != buf_len) {
+			xhci_dbg(hcd_to_xhci(hcd),
+				 "Copy from tmp buf to urb sg list failed\n");
+			urb->actual_length = len;
+		}
+	}
+	urb->transfer_flags &= ~URB_DMA_MAP_SINGLE;
+	kfree(urb->transfer_buffer);
+	urb->transfer_buffer = NULL;
+}
+
+/*
+ * Bypass the DMA mapping if URB is suitable for Immediate Transfer (IDT),
+ * we'll copy the actual data into the TRB address register. This is limited to
+ * transfers up to 8 bytes on output endpoints of any kind with wMaxPacketSize
+ * >= 8 bytes. If suitable for IDT only one Transfer TRB per TD is allowed.
+ */
+static int xhci_map_urb_for_dma(struct usb_hcd *hcd, struct urb *urb,
+				gfp_t mem_flags)
+{
+	struct xhci_hcd *xhci;
+
+	xhci = hcd_to_xhci(hcd);
+
+	if (xhci_urb_suitable_for_idt(urb))
+		return 0;
+
+	if (xhci->quirks & XHCI_SG_TRB_CACHE_SIZE_QUIRK) {
+		if (xhci_urb_temp_buffer_required(hcd, urb))
+			return xhci_map_temp_buffer(hcd, urb);
+	}
+	return usb_hcd_map_urb_for_dma(hcd, urb, mem_flags);
+}
+
+static void xhci_unmap_urb_for_dma(struct usb_hcd *hcd, struct urb *urb)
+{
+	struct xhci_hcd *xhci;
+	bool unmap_temp_buf = false;
+
+	xhci = hcd_to_xhci(hcd);
+
+	if (urb->num_sgs && (urb->transfer_flags & URB_DMA_MAP_SINGLE))
+		unmap_temp_buf = true;
+
+	if ((xhci->quirks & XHCI_SG_TRB_CACHE_SIZE_QUIRK) && unmap_temp_buf)
+		xhci_unmap_temp_buf(hcd, urb);
+	else
+		usb_hcd_unmap_urb_for_dma(hcd, urb);
+}
+
+>>>>>>> upstream/android-13
 /**
  * xhci_get_endpoint_index - Used for passing endpoint bitmasks between the core and
  * HCDs.  Find the index for an endpoint given its descriptor.  Use the return
@@ -1338,6 +1664,10 @@ unsigned int xhci_get_endpoint_index(struct usb_endpoint_descriptor *desc)
 			(usb_endpoint_dir_in(desc) ? 1 : 0) - 1;
 	return index;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(xhci_get_endpoint_index);
+>>>>>>> upstream/android-13
 
 /* The reverse operation to xhci_get_endpoint_index. Calculate the USB endpoint
  * address from the XHCI endpoint index.
@@ -1358,6 +1688,7 @@ static unsigned int xhci_get_endpoint_flag(struct usb_endpoint_descriptor *desc)
 	return 1 << (xhci_get_endpoint_index(desc) + 1);
 }
 
+<<<<<<< HEAD
 /* Find the flag for this endpoint (for use in the control context).  Use the
  * endpoint index to create a bitmask.  The slot context is bit 0, endpoint 0 is
  * bit 1, etc.
@@ -1367,6 +1698,8 @@ static unsigned int xhci_get_endpoint_flag_from_index(unsigned int ep_index)
 	return 1 << (ep_index + 1);
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Compute the last valid endpoint context index.  Basically, this is the
  * endpoint index plus one.  For slot contexts with more than valid endpoint,
  * we find the most significant bit set in the added contexts flags.
@@ -1512,24 +1845,40 @@ static int xhci_urb_enqueue(struct usb_hcd *hcd, struct urb *urb, gfp_t mem_flag
 	struct urb_priv	*urb_priv;
 	int num_tds;
 
+<<<<<<< HEAD
 	if (!urb || xhci_check_args(hcd, urb->dev, urb->ep,
 					true, true, __func__) <= 0)
 		return -EINVAL;
+=======
+	if (!urb)
+		return -EINVAL;
+	ret = xhci_check_args(hcd, urb->dev, urb->ep,
+					true, true, __func__);
+	if (ret <= 0)
+		return ret ? ret : -EINVAL;
+>>>>>>> upstream/android-13
 
 	slot_id = urb->dev->slot_id;
 	ep_index = xhci_get_endpoint_index(&urb->ep->desc);
 	ep_state = &xhci->devs[slot_id]->eps[ep_index].ep_state;
 
+<<<<<<< HEAD
 	if (!HCD_HW_ACCESSIBLE(hcd)) {
 		if (!in_interrupt())
 			xhci_dbg(xhci, "urb submitted during PCI suspend\n");
 		return -ESHUTDOWN;
 	}
+=======
+	if (!HCD_HW_ACCESSIBLE(hcd))
+		return -ESHUTDOWN;
+
+>>>>>>> upstream/android-13
 	if (xhci->devs[slot_id]->flags & VDEV_PORT_ERROR) {
 		xhci_dbg(xhci, "Can't queue urb, port error, link inactive\n");
 		return -ENODEV;
 	}
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTK_USB_OFFLOAD)
 	if (xhci_vendor_usb_offload_skip_urb(xhci, urb)) {
 		xhci_dbg(xhci, "skip urb for usb offload\n");
@@ -1537,6 +1886,8 @@ static int xhci_urb_enqueue(struct usb_hcd *hcd, struct urb *urb, gfp_t mem_flag
 	}
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	if (usb_endpoint_xfer_isoc(&urb->ep->desc))
 		num_tds = urb->number_of_packets;
 	else if (usb_endpoint_is_bulk_out(&urb->ep->desc) &&
@@ -1547,8 +1898,12 @@ static int xhci_urb_enqueue(struct usb_hcd *hcd, struct urb *urb, gfp_t mem_flag
 	else
 		num_tds = 1;
 
+<<<<<<< HEAD
 	urb_priv = kzalloc(sizeof(struct urb_priv) +
 			   num_tds * sizeof(struct xhci_td), mem_flags);
+=======
+	urb_priv = kzalloc(struct_size(urb_priv, td, num_tds), mem_flags);
+>>>>>>> upstream/android-13
 	if (!urb_priv)
 		return -ENOMEM;
 
@@ -1673,8 +2028,15 @@ static int xhci_urb_dequeue(struct usb_hcd *hcd, struct urb *urb, int status)
 
 	/* Make sure the URB hasn't completed or been unlinked already */
 	ret = usb_hcd_check_unlink_urb(hcd, urb, status);
+<<<<<<< HEAD
 	if (ret)
 		goto done;
+=======
+	if (ret) {
+		xhci_info(xhci, "%s check unlink ret=%d\n", __func__, ret);
+		goto done;
+	}
+>>>>>>> upstream/android-13
 
 	/* give back URB now if we can't queue it for cancel */
 	vdev = xhci->devs[urb->dev->slot_id];
@@ -1736,14 +2098,33 @@ static int xhci_urb_dequeue(struct usb_hcd *hcd, struct urb *urb, int status)
 					urb_priv->td[i].start_seg,
 					urb_priv->td[i].first_trb));
 
+<<<<<<< HEAD
 	for (; i < urb_priv->num_tds; i++) {
 		td = &urb_priv->td[i];
 		list_add_tail(&td->cancelled_td_list, &ep->cancelled_td_list);
+=======
+	xhci_info(xhci, "%s num_tds %d : num_tds_done %d\n", __func__,
+		urb_priv->num_tds, urb_priv->num_tds_done);
+
+	for (; i < urb_priv->num_tds; i++) {
+		td = &urb_priv->td[i];
+		/* TD can already be on cancelled list if ep halted on it */
+		if (list_empty(&td->cancelled_td_list)) {
+			td->cancel_status = TD_DIRTY;
+			list_add_tail(&td->cancelled_td_list,
+				      &ep->cancelled_td_list);
+		}
+>>>>>>> upstream/android-13
 	}
 
 	/* Queue a stop endpoint command, but only if this is
 	 * the first cancellation to be handled.
 	 */
+<<<<<<< HEAD
+=======
+
+	xhci_info(xhci, "%s ep_state=%d\n", __func__, ep->ep_state);
+>>>>>>> upstream/android-13
 	if (!(ep->ep_state & EP_STOP_CMD_PENDING)) {
 		command = xhci_alloc_command(xhci, false, GFP_ATOMIC);
 		if (!command) {
@@ -1751,6 +2132,7 @@ static int xhci_urb_dequeue(struct usb_hcd *hcd, struct urb *urb, int status)
 			goto done;
 		}
 		ep->ep_state |= EP_STOP_CMD_PENDING;
+<<<<<<< HEAD
 #if !IS_ENABLED(CONFIG_USB_HOST_SAMSUNG_FEATURE)
 		ep->stop_cmd_timer.expires = jiffies +
 			XHCI_STOP_EP_CMD_TIMEOUT * HZ;
@@ -1765,6 +2147,10 @@ static int xhci_urb_dequeue(struct usb_hcd *hcd, struct urb *urb, int status)
 			xhci_info(xhci, "stop_cmd_timer: 5 sec\n");
 		}
 #endif
+=======
+		ep->stop_cmd_timer.expires = jiffies +
+			XHCI_STOP_EP_CMD_TIMEOUT * HZ;
+>>>>>>> upstream/android-13
 		add_timer(&ep->stop_cmd_timer);
 		xhci_queue_stop_endpoint(xhci, command, urb->dev->slot_id,
 					 ep_index, 0);
@@ -1796,8 +2182,13 @@ err_giveback:
  * disabled, so there's no need for mutual exclusion to protect
  * the xhci->devs[slot_id] structure.
  */
+<<<<<<< HEAD
 static int xhci_drop_endpoint(struct usb_hcd *hcd, struct usb_device *udev,
 		struct usb_host_endpoint *ep)
+=======
+int xhci_drop_endpoint(struct usb_hcd *hcd, struct usb_device *udev,
+		       struct usb_host_endpoint *ep)
+>>>>>>> upstream/android-13
 {
 	struct xhci_hcd *xhci;
 	struct xhci_container_ctx *in_ctx, *out_ctx;
@@ -1857,9 +2248,12 @@ static int xhci_drop_endpoint(struct usb_hcd *hcd, struct usb_device *udev,
 
 	xhci_endpoint_zero(xhci, xhci->devs[udev->slot_id], ep);
 
+<<<<<<< HEAD
 	if (xhci->quirks & XHCI_MTK_HOST)
 		xhci_mtk_drop_ep_quirk(hcd, udev, ep);
 
+=======
+>>>>>>> upstream/android-13
 	xhci_dbg(xhci, "drop ep 0x%x, slot id %d, new drop flags = %#x, new add flags = %#x\n",
 			(unsigned int) ep->desc.bEndpointAddress,
 			udev->slot_id,
@@ -1867,6 +2261,10 @@ static int xhci_drop_endpoint(struct usb_hcd *hcd, struct usb_device *udev,
 			(unsigned int) new_add_flags);
 	return 0;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(xhci_drop_endpoint);
+>>>>>>> upstream/android-13
 
 /* Add an endpoint to a new possible bandwidth configuration for this device.
  * Only one call to this function is allowed per endpoint before
@@ -1881,17 +2279,52 @@ static int xhci_drop_endpoint(struct usb_hcd *hcd, struct usb_device *udev,
  * configuration or alt setting is installed in the device, so there's no need
  * for mutual exclusion to protect the xhci->devs[slot_id] structure.
  */
+<<<<<<< HEAD
 static int xhci_add_endpoint(struct usb_hcd *hcd, struct usb_device *udev,
 		struct usb_host_endpoint *ep)
+=======
+int xhci_add_endpoint(struct usb_hcd *hcd, struct usb_device *udev,
+		      struct usb_host_endpoint *ep)
+>>>>>>> upstream/android-13
 {
 	struct xhci_hcd *xhci;
 	struct xhci_container_ctx *in_ctx;
 	unsigned int ep_index;
 	struct xhci_input_control_ctx *ctrl_ctx;
+<<<<<<< HEAD
+=======
+	struct xhci_ep_ctx *ep_ctx;
+>>>>>>> upstream/android-13
 	u32 added_ctxs;
 	u32 new_add_flags, new_drop_flags;
 	struct xhci_virt_device *virt_dev;
 	int ret = 0;
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_SND_EXYNOS_USB_AUDIO_GIC
+	struct usb_endpoint_descriptor *d = &ep->desc;
+
+	/* Check Feedback Endpoint */
+	if ((d->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK) == USB_ENDPOINT_XFER_ISOC) {
+		if ((d->bmAttributes & USB_ENDPOINT_USAGE_MASK) == USB_ENDPOINT_USAGE_FEEDBACK) {
+			/* Only Feedback endpoint(Not implict feedback data endpoint) */
+			if (d->bEndpointAddress & USB_ENDPOINT_DIR_MASK) {
+				g_hwinfo->fb_in_ep = d->bEndpointAddress;
+				pr_info("Feedback IN EP used #0%x 0x%x\n", d->bEndpointAddress, d->bSynchAddress);
+			} else {
+				g_hwinfo->fb_out_ep = d->bEndpointAddress;
+				pr_info("Feedback OUT EP used #0%x 0x%x\n", d->bEndpointAddress, d->bSynchAddress);
+			}
+		}
+	}
+
+	/* Check Feedback EP is already allocated */
+	if (g_hwinfo->fb_in_ep == d->bEndpointAddress || g_hwinfo->fb_out_ep == d->bEndpointAddress)
+		g_hwinfo->feedback = 1;
+	else
+		g_hwinfo->feedback = 0;
+#endif
+>>>>>>> upstream/android-13
 
 	ret = xhci_check_args(hcd, udev, ep, 1, true, __func__);
 	if (ret <= 0) {
@@ -1920,7 +2353,11 @@ static int xhci_add_endpoint(struct usb_hcd *hcd, struct usb_device *udev,
 	if (!ctrl_ctx) {
 		xhci_warn(xhci, "%s: Could not get input context, bad type.\n",
 				__func__);
+<<<<<<< HEAD
 		return 0;
+=======
+		goto ret_check;
+>>>>>>> upstream/android-13
 	}
 
 	ep_index = xhci_get_endpoint_index(&ep->desc);
@@ -1941,7 +2378,11 @@ static int xhci_add_endpoint(struct usb_hcd *hcd, struct usb_device *udev,
 	if (le32_to_cpu(ctrl_ctx->add_flags) & added_ctxs) {
 		xhci_warn(xhci, "xHCI %s called with enabled ep %p\n",
 				__func__, ep);
+<<<<<<< HEAD
 		return 0;
+=======
+		goto ret_check;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -1955,6 +2396,7 @@ static int xhci_add_endpoint(struct usb_hcd *hcd, struct usb_device *udev,
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	if (xhci->quirks & XHCI_MTK_HOST) {
 		ret = xhci_mtk_add_ep_quirk(hcd, udev, ep);
 		if (ret < 0) {
@@ -1964,6 +2406,8 @@ static int xhci_add_endpoint(struct usb_hcd *hcd, struct usb_device *udev,
 		}
 	}
 
+=======
+>>>>>>> upstream/android-13
 	ctrl_ctx->add_flags |= cpu_to_le32(added_ctxs);
 	new_add_flags = le32_to_cpu(ctrl_ctx->add_flags);
 
@@ -1978,15 +2422,35 @@ static int xhci_add_endpoint(struct usb_hcd *hcd, struct usb_device *udev,
 	/* Store the usb_device pointer for later use */
 	ep->hcpriv = udev;
 
+<<<<<<< HEAD
 	xhci_debugfs_create_endpoint(xhci, virt_dev, ep_index);
+=======
+	ep_ctx = xhci_get_ep_ctx(xhci, virt_dev->in_ctx, ep_index);
+	trace_xhci_add_endpoint(ep_ctx);
+>>>>>>> upstream/android-13
 
 	xhci_dbg(xhci, "add ep 0x%x, slot id %d, new drop flags = %#x, new add flags = %#x\n",
 			(unsigned int) ep->desc.bEndpointAddress,
 			udev->slot_id,
 			(unsigned int) new_drop_flags,
 			(unsigned int) new_add_flags);
+<<<<<<< HEAD
 	return 0;
 }
+=======
+
+ret_check:
+#ifdef CONFIG_USB_XHCI_EXYNOS_AUDIO
+	if (udev->slot_id)
+		xhci_exynos_parse_endpoint(xhci, udev, &ep->desc, virt_dev->out_ctx);
+
+	pr_debug("%s ---", __func__);
+#endif
+
+	return 0;
+}
+EXPORT_SYMBOL_GPL(xhci_add_endpoint);
+>>>>>>> upstream/android-13
 
 static void xhci_zero_in_ctx(struct xhci_hcd *xhci, struct xhci_virt_device *virt_dev)
 {
@@ -2852,6 +3316,11 @@ static int xhci_configure_endpoint(struct xhci_hcd *xhci,
 	}
 
 	slot_ctx = xhci_get_slot_ctx(xhci, command->in_ctx);
+<<<<<<< HEAD
+=======
+
+	trace_xhci_configure_endpoint_ctrl_ctx(ctrl_ctx);
+>>>>>>> upstream/android-13
 	trace_xhci_configure_endpoint(slot_ctx);
 
 	if (!ctx_change)
@@ -2894,16 +3363,27 @@ static int xhci_configure_endpoint(struct xhci_hcd *xhci,
 			xhci_finish_resource_reservation(xhci, ctrl_ctx);
 		spin_unlock_irqrestore(&xhci->lock, flags);
 	}
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTK_USB_OFFLOAD)
 	if (ret)
 		goto failed;
 
 	ret = xhci_vendor_sync_dev_ctx(xhci, udev->slot_id);
+=======
+	if (ret)
+		goto failed;
+
+	ret = xhci_exynos_sync_dev_ctx(xhci, udev->slot_id);
+>>>>>>> upstream/android-13
 	if (ret)
 		xhci_warn(xhci, "sync device context failed, ret=%d", ret);
 
 failed:
+<<<<<<< HEAD
 #endif
+=======
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -2931,7 +3411,11 @@ static void xhci_check_bw_drop_ep_streams(struct xhci_hcd *xhci,
  * else should be touching the xhci->devs[slot_id] structure, so we
  * don't need to take the xhci->lock for manipulating that.
  */
+<<<<<<< HEAD
 static int xhci_check_bandwidth(struct usb_hcd *hcd, struct usb_device *udev)
+=======
+int xhci_check_bandwidth(struct usb_hcd *hcd, struct usb_device *udev)
+>>>>>>> upstream/android-13
 {
 	int i;
 	int ret = 0;
@@ -3020,6 +3504,10 @@ static int xhci_check_bandwidth(struct usb_hcd *hcd, struct usb_device *udev)
 		xhci_check_bw_drop_ep_streams(xhci, virt_dev, i);
 		virt_dev->eps[i].ring = virt_dev->eps[i].new_ring;
 		virt_dev->eps[i].new_ring = NULL;
+<<<<<<< HEAD
+=======
+		xhci_debugfs_create_endpoint(xhci, virt_dev, i);
+>>>>>>> upstream/android-13
 	}
 command_cleanup:
 	kfree(command->completion);
@@ -3027,8 +3515,14 @@ command_cleanup:
 
 	return ret;
 }
+<<<<<<< HEAD
 
 static void xhci_reset_bandwidth(struct usb_hcd *hcd, struct usb_device *udev)
+=======
+EXPORT_SYMBOL_GPL(xhci_check_bandwidth);
+
+void xhci_reset_bandwidth(struct usb_hcd *hcd, struct usb_device *udev)
+>>>>>>> upstream/android-13
 {
 	struct xhci_hcd *xhci;
 	struct xhci_virt_device	*virt_dev;
@@ -3045,6 +3539,7 @@ static void xhci_reset_bandwidth(struct usb_hcd *hcd, struct usb_device *udev)
 	for (i = 0; i < 31; i++) {
 		if (virt_dev->eps[i].new_ring) {
 			xhci_debugfs_remove_endpoint(xhci, virt_dev, i);
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTK_USB_OFFLOAD)
 			if (xhci_vendor_is_usb_offload_enabled(xhci, virt_dev, i))
 				xhci_vendor_free_transfer_ring(xhci, virt_dev, i);
@@ -3053,11 +3548,18 @@ static void xhci_reset_bandwidth(struct usb_hcd *hcd, struct usb_device *udev)
 #else
 			xhci_ring_free(xhci, virt_dev->eps[i].new_ring);
 #endif
+=======
+			xhci_ring_free(xhci, virt_dev->eps[i].new_ring);
+>>>>>>> upstream/android-13
 			virt_dev->eps[i].new_ring = NULL;
 		}
 	}
 	xhci_zero_in_ctx(xhci, virt_dev);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(xhci_reset_bandwidth);
+>>>>>>> upstream/android-13
 
 static void xhci_setup_input_ctx_for_config_ep(struct xhci_hcd *xhci,
 		struct xhci_container_ctx *in_ctx,
@@ -3071,6 +3573,7 @@ static void xhci_setup_input_ctx_for_config_ep(struct xhci_hcd *xhci,
 	ctrl_ctx->add_flags |= cpu_to_le32(SLOT_FLAG);
 }
 
+<<<<<<< HEAD
 static void xhci_setup_input_ctx_for_quirk(struct xhci_hcd *xhci,
 		unsigned int slot_id, unsigned int ep_index,
 		struct xhci_dequeue_state *deq_state)
@@ -3147,6 +3650,48 @@ void xhci_cleanup_stalled_ring(struct xhci_hcd *xhci, unsigned int ep_index,
 		xhci_setup_input_ctx_for_quirk(xhci, udev->slot_id,
 				ep_index, &deq_state);
 	}
+=======
+static void xhci_endpoint_disable(struct usb_hcd *hcd,
+				  struct usb_host_endpoint *host_ep)
+{
+	struct xhci_hcd		*xhci;
+	struct xhci_virt_device	*vdev;
+	struct xhci_virt_ep	*ep;
+	struct usb_device	*udev;
+	unsigned long		flags;
+	unsigned int		ep_index;
+
+	xhci = hcd_to_xhci(hcd);
+rescan:
+	spin_lock_irqsave(&xhci->lock, flags);
+
+	udev = (struct usb_device *)host_ep->hcpriv;
+	if (!udev || !udev->slot_id)
+		goto done;
+
+	vdev = xhci->devs[udev->slot_id];
+	if (!vdev)
+		goto done;
+
+	ep_index = xhci_get_endpoint_index(&host_ep->desc);
+	ep = &vdev->eps[ep_index];
+	if (!ep)
+		goto done;
+
+	/* wait for hub_tt_work to finish clearing hub TT */
+	if (ep->ep_state & EP_CLEARING_TT) {
+		spin_unlock_irqrestore(&xhci->lock, flags);
+		schedule_timeout_uninterruptible(1);
+		goto rescan;
+	}
+
+	if (ep->ep_state)
+		xhci_dbg(xhci, "endpoint disable with ep_state 0x%x\n",
+			 ep->ep_state);
+done:
+	host_ep->hcpriv = NULL;
+	spin_unlock_irqrestore(&xhci->lock, flags);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -3180,6 +3725,7 @@ static void xhci_endpoint_reset(struct usb_hcd *hcd,
 		return;
 	udev = (struct usb_device *) host_ep->hcpriv;
 	vdev = xhci->devs[udev->slot_id];
+<<<<<<< HEAD
 	ep_index = xhci_get_endpoint_index(&host_ep->desc);
 	ep = &vdev->eps[ep_index];
 
@@ -3188,6 +3734,29 @@ static void xhci_endpoint_reset(struct usb_hcd *hcd,
 		ep->ep_state &= ~EP_HARD_CLEAR_TOGGLE;
 		return;
 	}
+=======
+
+	/*
+	 * vdev may be lost due to xHC restore error and re-initialization
+	 * during S3/S4 resume. A new vdev will be allocated later by
+	 * xhci_discover_or_reset_device()
+	 */
+	if (!udev->slot_id || !vdev)
+		return;
+	ep_index = xhci_get_endpoint_index(&host_ep->desc);
+	ep = &vdev->eps[ep_index];
+	if (!ep)
+		return;
+
+	/* Bail out if toggle is already being cleared by a endpoint reset */
+	spin_lock_irqsave(&xhci->lock, flags);
+	if (ep->ep_state & EP_HARD_CLEAR_TOGGLE) {
+		ep->ep_state &= ~EP_HARD_CLEAR_TOGGLE;
+		spin_unlock_irqrestore(&xhci->lock, flags);
+		return;
+	}
+	spin_unlock_irqrestore(&xhci->lock, flags);
+>>>>>>> upstream/android-13
 	/* Only interrupt and bulk ep's use data toggle, USB2 spec 5.5.4-> */
 	if (usb_endpoint_xfer_control(&host_ep->desc) ||
 	    usb_endpoint_xfer_isoc(&host_ep->desc))
@@ -3239,14 +3808,21 @@ static void xhci_endpoint_reset(struct usb_hcd *hcd,
 
 	wait_for_completion(stop_cmd->completion);
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTK_USB_OFFLOAD)
 	err = xhci_vendor_sync_dev_ctx(xhci, udev->slot_id);
+=======
+	err = xhci_exynos_sync_dev_ctx(xhci, udev->slot_id);
+>>>>>>> upstream/android-13
 	if (err) {
 		xhci_warn(xhci, "%s: Failed to sync device context failed, err=%d",
 			  __func__, err);
 		goto cleanup;
 	}
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&xhci->lock, flags);
 
@@ -3279,18 +3855,32 @@ static void xhci_endpoint_reset(struct usb_hcd *hcd,
 
 	wait_for_completion(cfg_cmd->completion);
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTK_USB_OFFLOAD)
 	err = xhci_vendor_sync_dev_ctx(xhci, udev->slot_id);
 	if (err)
 		xhci_warn(xhci, "%s: Failed to sync device context failed, err=%d",
 			  __func__, err);
 #endif
+=======
+	err = xhci_exynos_sync_dev_ctx(xhci, udev->slot_id);
+	if (err)
+		xhci_warn(xhci, "%s: Failed to sync device context failed, err=%d",
+			  __func__, err);
+>>>>>>> upstream/android-13
 
 	xhci_free_command(xhci, cfg_cmd);
 cleanup:
 	xhci_free_command(xhci, stop_cmd);
+<<<<<<< HEAD
 	if (ep->ep_state & EP_SOFT_CLEAR_TOGGLE)
 		ep->ep_state &= ~EP_SOFT_CLEAR_TOGGLE;
+=======
+	spin_lock_irqsave(&xhci->lock, flags);
+	if (ep->ep_state & EP_SOFT_CLEAR_TOGGLE)
+		ep->ep_state &= ~EP_SOFT_CLEAR_TOGGLE;
+	spin_unlock_irqrestore(&xhci->lock, flags);
+>>>>>>> upstream/android-13
 }
 
 static int xhci_check_streams_endpoint(struct xhci_hcd *xhci,
@@ -3305,7 +3895,11 @@ static int xhci_check_streams_endpoint(struct xhci_hcd *xhci,
 		return -EINVAL;
 	ret = xhci_check_args(xhci_to_hcd(xhci), udev, ep, 1, true, __func__);
 	if (ret <= 0)
+<<<<<<< HEAD
 		return -EINVAL;
+=======
+		return ret ? ret : -EINVAL;
+>>>>>>> upstream/android-13
 	if (usb_ss_max_streams(&ep->ss_ep_comp) == 0) {
 		xhci_warn(xhci, "WARN: SuperSpeed Endpoint Companion"
 				" descriptor for ep 0x%x does not support streams\n",
@@ -3585,6 +4179,13 @@ static int xhci_alloc_streams(struct usb_hcd *hcd, struct usb_device *udev,
 	xhci_free_command(xhci, config_cmd);
 	spin_unlock_irqrestore(&xhci->lock, flags);
 
+<<<<<<< HEAD
+=======
+	for (i = 0; i < num_eps; i++) {
+		ep_index = xhci_get_endpoint_index(&eps[i]->desc);
+		xhci_debugfs_create_stream_files(xhci, vdev, ep_index);
+	}
+>>>>>>> upstream/android-13
 	/* Subtract 1 for stream 0, which drivers can't use */
 	return num_streams - 1;
 
@@ -3825,14 +4426,21 @@ static int xhci_discover_or_reset_device(struct usb_hcd *hcd,
 	/* Wait for the Reset Device command to finish */
 	wait_for_completion(reset_device_cmd->completion);
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTK_USB_OFFLOAD)
 	ret = xhci_vendor_sync_dev_ctx(xhci, slot_id);
+=======
+	ret = xhci_exynos_sync_dev_ctx(xhci, slot_id);
+>>>>>>> upstream/android-13
 	if (ret) {
 		xhci_warn(xhci, "%s: Failed to sync device context failed, err=%d",
 			  __func__, ret);
 		goto command_cleanup;
 	}
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	/* The Reset Device command can't fail, according to the 0.95/0.96 spec,
 	 * unless we tried to reset a slot ID that wasn't enabled,
@@ -3921,7 +4529,10 @@ static void xhci_free_dev(struct usb_hcd *hcd, struct usb_device *udev)
 	struct xhci_slot_ctx *slot_ctx;
 	int i, ret;
 
+<<<<<<< HEAD
 #ifndef CONFIG_USB_DEFAULT_PERSIST
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * We called pm_runtime_get_noresume when the device was attached.
 	 * Decrement the counter here to allow controller to runtime suspend
@@ -3929,7 +4540,10 @@ static void xhci_free_dev(struct usb_hcd *hcd, struct usb_device *udev)
 	 */
 	if (xhci->quirks & XHCI_RESET_ON_RESUME)
 		pm_runtime_put_noidle(hcd->self.controller);
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	ret = xhci_check_args(hcd, udev, NULL, 0, true, __func__);
 	/* If the host is halted due to driver unload, we still need to free the
@@ -3947,11 +4561,17 @@ static void xhci_free_dev(struct usb_hcd *hcd, struct usb_device *udev)
 		virt_dev->eps[i].ep_state &= ~EP_STOP_CMD_PENDING;
 		del_timer_sync(&virt_dev->eps[i].stop_cmd_timer);
 	}
+<<<<<<< HEAD
 	xhci_debugfs_remove_slot(xhci, udev->slot_id);
 	virt_dev->udev = NULL;
 	ret = xhci_disable_slot(xhci, udev->slot_id);
 	if (ret)
 		xhci_free_virt_device(xhci, udev->slot_id);
+=======
+	virt_dev->udev = NULL;
+	xhci_disable_slot(xhci, udev->slot_id);
+	xhci_free_virt_device(xhci, udev->slot_id);
+>>>>>>> upstream/android-13
 }
 
 int xhci_disable_slot(struct xhci_hcd *xhci, u32 slot_id)
@@ -3961,10 +4581,19 @@ int xhci_disable_slot(struct xhci_hcd *xhci, u32 slot_id)
 	u32 state;
 	int ret = 0;
 
+<<<<<<< HEAD
 	command = xhci_alloc_command(xhci, false, GFP_KERNEL);
 	if (!command)
 		return -ENOMEM;
 
+=======
+	command = xhci_alloc_command(xhci, true, GFP_KERNEL);
+	if (!command)
+		return -ENOMEM;
+
+	xhci_debugfs_remove_slot(xhci, slot_id);
+
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&xhci->lock, flags);
 	/* Don't disable the slot if the host controller is dead. */
 	state = readl(&xhci->op_regs->status);
@@ -3984,6 +4613,18 @@ int xhci_disable_slot(struct xhci_hcd *xhci, u32 slot_id)
 	}
 	xhci_ring_cmd_db(xhci);
 	spin_unlock_irqrestore(&xhci->lock, flags);
+<<<<<<< HEAD
+=======
+
+	wait_for_completion(command->completion);
+
+	if (command->status != COMP_SUCCESS)
+		xhci_warn(xhci, "Unsuccessful disable slot %u command, status %d\n",
+			  slot_id, command->status);
+
+	xhci_free_command(xhci, command);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -4073,14 +4714,21 @@ int xhci_alloc_dev(struct usb_hcd *hcd, struct usb_device *udev)
 		goto disable_slot;
 	}
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTK_USB_OFFLOAD)
 	ret = xhci_vendor_sync_dev_ctx(xhci, slot_id);
+=======
+	ret = xhci_exynos_sync_dev_ctx(xhci, slot_id);
+>>>>>>> upstream/android-13
 	if (ret) {
 		xhci_warn(xhci, "%s: Failed to sync device context failed, err=%d",
 			  __func__, ret);
 		goto disable_slot;
 	}
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	vdev = xhci->devs[slot_id];
 	slot_ctx = xhci_get_slot_ctx(xhci, vdev->out_ctx);
@@ -4090,23 +4738,34 @@ int xhci_alloc_dev(struct usb_hcd *hcd, struct usb_device *udev)
 
 	xhci_debugfs_create_slot(xhci, slot_id);
 
+<<<<<<< HEAD
 #ifndef CONFIG_USB_DEFAULT_PERSIST
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * If resetting upon resume, we can't put the controller into runtime
 	 * suspend if there is a device attached.
 	 */
 	if (xhci->quirks & XHCI_RESET_ON_RESUME)
 		pm_runtime_get_noresume(hcd->self.controller);
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	/* Is this a LS or FS device under a HS hub? */
 	/* Hub or peripherial? */
 	return 1;
 
 disable_slot:
+<<<<<<< HEAD
 	ret = xhci_disable_slot(xhci, udev->slot_id);
 	if (ret)
 		xhci_free_virt_device(xhci, udev->slot_id);
+=======
+	xhci_disable_slot(xhci, udev->slot_id);
+	xhci_free_virt_device(xhci, udev->slot_id);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -4198,6 +4857,10 @@ static int xhci_setup_device(struct usb_hcd *hcd, struct usb_device *udev,
 	trace_xhci_address_ctx(xhci, virt_dev->in_ctx,
 				le32_to_cpu(slot_ctx->dev_info) >> 27);
 
+<<<<<<< HEAD
+=======
+	trace_xhci_address_ctrl_ctx(ctrl_ctx);
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&xhci->lock, flags);
 	trace_xhci_setup_device(virt_dev);
 	ret = xhci_queue_address_device(xhci, command, virt_dev->in_ctx->dma,
@@ -4214,14 +4877,21 @@ static int xhci_setup_device(struct usb_hcd *hcd, struct usb_device *udev,
 	/* ctrl tx can take up to 5 sec; XXX: need more time for xHC? */
 	wait_for_completion(command->completion);
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTK_USB_OFFLOAD)
 	ret = xhci_vendor_sync_dev_ctx(xhci, udev->slot_id);
+=======
+	ret = xhci_exynos_sync_dev_ctx(xhci, udev->slot_id);
+>>>>>>> upstream/android-13
 	if (ret) {
 		xhci_warn(xhci, "%s: Failed to sync device context failed, err=%d",
 			  __func__, ret);
 		goto out;
 	}
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	/* FIXME: From section 4.3.4: "Software shall be responsible for timing
 	 * the SetAddress() "recovery interval" required by USB and aborting the
@@ -4244,6 +4914,10 @@ static int xhci_setup_device(struct usb_hcd *hcd, struct usb_device *udev,
 
 		mutex_unlock(&xhci->mutex);
 		ret = xhci_disable_slot(xhci, udev->slot_id);
+<<<<<<< HEAD
+=======
+		xhci_free_virt_device(xhci, udev->slot_id);
+>>>>>>> upstream/android-13
 		if (!ret)
 			xhci_alloc_dev(hcd, udev);
 		kfree(command->completion);
@@ -4291,6 +4965,11 @@ static int xhci_setup_device(struct usb_hcd *hcd, struct usb_device *udev,
 	/* Zero the input context control for later use */
 	ctrl_ctx->add_flags = 0;
 	ctrl_ctx->drop_flags = 0;
+<<<<<<< HEAD
+=======
+	slot_ctx = xhci_get_slot_ctx(xhci, virt_dev->out_ctx);
+	udev->devaddr = (u8)(le32_to_cpu(slot_ctx->dev_state) & DEV_ADDR_MASK);
+>>>>>>> upstream/android-13
 
 	xhci_dbg_trace(xhci, trace_xhci_dbg_address,
 		       "Internal device address = %d",
@@ -4304,10 +4983,32 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int xhci_address_device(struct usb_hcd *hcd, struct usb_device *udev)
 {
 	return xhci_setup_device(hcd, udev, SETUP_CONTEXT_ADDRESS);
 }
+=======
+int xhci_address_device(struct usb_hcd *hcd, struct usb_device *udev)
+{
+#ifdef CONFIG_SND_EXYNOS_USB_AUDIO_GIC
+	struct xhci_hcd *xhci;
+	int ret;
+
+	pr_debug("%s +++", __func__);
+	ret = xhci_setup_device(hcd, udev, SETUP_CONTEXT_ADDRESS);
+	xhci = hcd_to_xhci(hcd);
+
+	xhci_exynos_usb_offload_store_hw_info(xhci, hcd, udev);
+
+	pr_debug("%s ---", __func__);
+	return ret;
+#else
+	return xhci_setup_device(hcd, udev, SETUP_CONTEXT_ADDRESS);
+#endif
+}
+EXPORT_SYMBOL_GPL(xhci_address_device);
+>>>>>>> upstream/android-13
 
 static int xhci_enable_device(struct usb_hcd *hcd, struct usb_device *udev)
 {
@@ -4367,15 +5068,22 @@ static int __maybe_unused xhci_change_max_exit_latency(struct xhci_hcd *xhci,
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTK_USB_OFFLOAD)
 	ret = xhci_vendor_sync_dev_ctx(xhci, udev->slot_id);
+=======
+	ret = xhci_exynos_sync_dev_ctx(xhci, udev->slot_id);
+>>>>>>> upstream/android-13
 	if (ret) {
 		spin_unlock_irqrestore(&xhci->lock, flags);
 		xhci_warn(xhci, "%s: Failed to sync device context failed, err=%d",
 			  __func__, ret);
 		return ret;
 	}
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	xhci_slot_copy(xhci, command->in_ctx, virt_dev->out_ctx);
 	spin_unlock_irqrestore(&xhci->lock, flags);
@@ -4401,6 +5109,7 @@ static int __maybe_unused xhci_change_max_exit_latency(struct xhci_hcd *xhci,
 	return ret;
 }
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTK_USB_OFFLOAD)
 struct xhci_vendor_ops *xhci_vendor_get_ops(struct xhci_hcd *xhci)
 {
@@ -4427,6 +5136,8 @@ bool xhci_vendor_usb_offload_skip_urb(struct xhci_hcd *xhci, struct urb *urb)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM
 
 /* BESL to HIRD Encoding array for USB2 LPM */
@@ -4625,8 +5336,12 @@ static int xhci_update_device(struct usb_hcd *hcd, struct usb_device *udev)
 	struct xhci_hcd	*xhci = hcd_to_xhci(hcd);
 	int		portnum = udev->portnum - 1;
 
+<<<<<<< HEAD
 	if (hcd->speed >= HCD_USB3 || !xhci->sw_lpm_support ||
 			!udev->lpm_capable)
+=======
+	if (hcd->speed >= HCD_USB3 || !udev->lpm_capable)
+>>>>>>> upstream/android-13
 		return 0;
 
 	/* we only support lpm for non-hub device connected to root hub yet */
@@ -4730,7 +5445,11 @@ static unsigned long long xhci_calculate_intel_u1_timeout(
 			break;
 		}
 		/* Otherwise the calculation is the same as isoc eps */
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case USB_ENDPOINT_XFER_ISOC:
 		timeout_ns = xhci_service_interval_to_ns(desc);
 		timeout_ns = DIV_ROUND_UP_ULL(timeout_ns * 105, 100);
@@ -4751,6 +5470,7 @@ static u16 xhci_calculate_u1_timeout(struct xhci_hcd *xhci,
 {
 	unsigned long long timeout_ns;
 
+<<<<<<< HEAD
 	if (xhci->quirks & XHCI_INTEL_HOST)
 		timeout_ns = xhci_calculate_intel_u1_timeout(udev, desc);
 	else
@@ -4759,11 +5479,24 @@ static u16 xhci_calculate_u1_timeout(struct xhci_hcd *xhci,
 	/* Prevent U1 if service interval is shorter than U1 exit latency */
 	if (usb_endpoint_xfer_int(desc) || usb_endpoint_xfer_isoc(desc)) {
 		if (xhci_service_interval_to_ns(desc) <= timeout_ns) {
+=======
+	/* Prevent U1 if service interval is shorter than U1 exit latency */
+	if (usb_endpoint_xfer_int(desc) || usb_endpoint_xfer_isoc(desc)) {
+		if (xhci_service_interval_to_ns(desc) <= udev->u1_params.mel) {
+>>>>>>> upstream/android-13
 			dev_dbg(&udev->dev, "Disable U1, ESIT shorter than exit latency\n");
 			return USB3_LPM_DISABLED;
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	if (xhci->quirks & XHCI_INTEL_HOST)
+		timeout_ns = xhci_calculate_intel_u1_timeout(udev, desc);
+	else
+		timeout_ns = udev->u1_params.sel;
+
+>>>>>>> upstream/android-13
 	/* The U1 timeout is encoded in 1us intervals.
 	 * Don't return a timeout of zero, because that's USB3_LPM_DISABLED.
 	 */
@@ -4815,6 +5548,7 @@ static u16 xhci_calculate_u2_timeout(struct xhci_hcd *xhci,
 {
 	unsigned long long timeout_ns;
 
+<<<<<<< HEAD
 	if (xhci->quirks & XHCI_INTEL_HOST)
 		timeout_ns = xhci_calculate_intel_u2_timeout(udev, desc);
 	else
@@ -4823,11 +5557,24 @@ static u16 xhci_calculate_u2_timeout(struct xhci_hcd *xhci,
 	/* Prevent U2 if service interval is shorter than U2 exit latency */
 	if (usb_endpoint_xfer_int(desc) || usb_endpoint_xfer_isoc(desc)) {
 		if (xhci_service_interval_to_ns(desc) <= timeout_ns) {
+=======
+	/* Prevent U2 if service interval is shorter than U2 exit latency */
+	if (usb_endpoint_xfer_int(desc) || usb_endpoint_xfer_isoc(desc)) {
+		if (xhci_service_interval_to_ns(desc) <= udev->u2_params.mel) {
+>>>>>>> upstream/android-13
 			dev_dbg(&udev->dev, "Disable U2, ESIT shorter than exit latency\n");
 			return USB3_LPM_DISABLED;
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	if (xhci->quirks & XHCI_INTEL_HOST)
+		timeout_ns = xhci_calculate_intel_u2_timeout(udev, desc);
+	else
+		timeout_ns = udev->u2_params.sel;
+
+>>>>>>> upstream/android-13
 	/* The U2 timeout is encoded in 256us intervals */
 	timeout_ns = DIV_ROUND_UP_ULL(timeout_ns, 256 * 1000);
 	/* If the necessary timeout value is bigger than what we can set in the
@@ -4891,7 +5638,10 @@ static int xhci_update_timeout_for_interface(struct xhci_hcd *xhci,
 		if (xhci_update_timeout_for_endpoint(xhci, udev,
 					&alt->endpoint[j].desc, state, timeout))
 			return -E2BIG;
+<<<<<<< HEAD
 		continue;
+=======
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
@@ -5167,8 +5917,12 @@ static int xhci_update_hub_device(struct usb_hcd *hcd, struct usb_device *hdev,
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTK_USB_OFFLOAD)
 	ret = xhci_vendor_sync_dev_ctx(xhci, hdev->slot_id);
+=======
+	ret = xhci_exynos_sync_dev_ctx(xhci, hdev->slot_id);
+>>>>>>> upstream/android-13
 	if (ret) {
 		xhci_warn(xhci, "%s: Failed to sync device context failed, err=%d",
 			  __func__, ret);
@@ -5176,7 +5930,10 @@ static int xhci_update_hub_device(struct usb_hcd *hcd, struct usb_device *hdev,
 		spin_unlock_irqrestore(&xhci->lock, flags);
 		return ret;
 	}
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	xhci_slot_copy(xhci, config_cmd->in_ctx, vdev->out_ctx);
 	ctrl_ctx->add_flags |= cpu_to_le32(SLOT_FLAG);
@@ -5300,10 +6057,18 @@ int xhci_gen_setup(struct usb_hcd *hcd, xhci_get_quirks_t get_quirks)
 			hcd->self.root_hub->speed = USB_SPEED_SUPER_PLUS;
 			hcd->self.root_hub->rx_lanes = 2;
 			hcd->self.root_hub->tx_lanes = 2;
+<<<<<<< HEAD
+=======
+			hcd->self.root_hub->ssp_rate = USB_SSP_GEN_2x2;
+>>>>>>> upstream/android-13
 			break;
 		case 1:
 			hcd->speed = HCD_USB31;
 			hcd->self.root_hub->speed = USB_SPEED_SUPER_PLUS;
+<<<<<<< HEAD
+=======
+			hcd->self.root_hub->ssp_rate = USB_SSP_GEN_2x1;
+>>>>>>> upstream/android-13
 			break;
 		}
 		xhci_info(xhci, "Host supports USB 3.%x %sSuperSpeed\n",
@@ -5353,7 +6118,11 @@ int xhci_gen_setup(struct usb_hcd *hcd, xhci_get_quirks_t get_quirks)
 
 	xhci_dbg(xhci, "Resetting HCD\n");
 	/* Reset the internal HC memory state and registers. */
+<<<<<<< HEAD
 	retval = xhci_reset(xhci);
+=======
+	retval = xhci_reset(xhci, XHCI_RESET_LONG_USEC);
+>>>>>>> upstream/android-13
 	if (retval)
 		return retval;
 	xhci_dbg(xhci, "Reset complete\n");
@@ -5400,6 +6169,7 @@ int xhci_gen_setup(struct usb_hcd *hcd, xhci_get_quirks_t get_quirks)
 }
 EXPORT_SYMBOL_GPL(xhci_gen_setup);
 
+<<<<<<< HEAD
 static phys_addr_t xhci_get_sec_event_ring_phys_addr(struct usb_hcd *hcd,
 	unsigned int intr_num, dma_addr_t *dma)
 {
@@ -5528,6 +6298,27 @@ err:
 free_cmd:
 	xhci_free_command(xhci, cmd);
 	return ret;
+=======
+static void xhci_clear_tt_buffer_complete(struct usb_hcd *hcd,
+		struct usb_host_endpoint *ep)
+{
+	struct xhci_hcd *xhci;
+	struct usb_device *udev;
+	unsigned int slot_id;
+	unsigned int ep_index;
+	unsigned long flags;
+
+	xhci = hcd_to_xhci(hcd);
+
+	spin_lock_irqsave(&xhci->lock, flags);
+	udev = (struct usb_device *)ep->hcpriv;
+	slot_id = udev->slot_id;
+	ep_index = xhci_get_endpoint_index(&ep->desc);
+
+	xhci->devs[slot_id]->eps[ep_index].ep_state &= ~EP_CLEARING_TT;
+	xhci_ring_doorbell_for_active_rings(xhci, slot_id, ep_index);
+	spin_unlock_irqrestore(&xhci->lock, flags);
+>>>>>>> upstream/android-13
 }
 
 static const struct hc_driver xhci_hc_driver = {
@@ -5539,7 +6330,12 @@ static const struct hc_driver xhci_hc_driver = {
 	 * generic hardware linkage
 	 */
 	.irq =			xhci_irq,
+<<<<<<< HEAD
 	.flags =		HCD_MEMORY | HCD_USB3 | HCD_SHARED,
+=======
+	.flags =		HCD_MEMORY | HCD_DMA | HCD_USB3 | HCD_SHARED |
+				HCD_BH,
+>>>>>>> upstream/android-13
 
 	/*
 	 * basic lifecycle operations
@@ -5552,6 +6348,11 @@ static const struct hc_driver xhci_hc_driver = {
 	/*
 	 * managing i/o requests and associated device resources
 	 */
+<<<<<<< HEAD
+=======
+	.map_urb_for_dma =      xhci_map_urb_for_dma,
+	.unmap_urb_for_dma =    xhci_unmap_urb_for_dma,
+>>>>>>> upstream/android-13
 	.urb_enqueue =		xhci_urb_enqueue,
 	.urb_dequeue =		xhci_urb_dequeue,
 	.alloc_dev =		xhci_alloc_dev,
@@ -5560,6 +6361,10 @@ static const struct hc_driver xhci_hc_driver = {
 	.free_streams =		xhci_free_streams,
 	.add_endpoint =		xhci_add_endpoint,
 	.drop_endpoint =	xhci_drop_endpoint,
+<<<<<<< HEAD
+=======
+	.endpoint_disable =	xhci_endpoint_disable,
+>>>>>>> upstream/android-13
 	.endpoint_reset =	xhci_endpoint_reset,
 	.check_bandwidth =	xhci_check_bandwidth,
 	.reset_bandwidth =	xhci_reset_bandwidth,
@@ -5590,11 +6395,15 @@ static const struct hc_driver xhci_hc_driver = {
 	.enable_usb3_lpm_timeout =	xhci_enable_usb3_lpm_timeout,
 	.disable_usb3_lpm_timeout =	xhci_disable_usb3_lpm_timeout,
 	.find_raw_port_number =	xhci_find_raw_port_number,
+<<<<<<< HEAD
 	.sec_event_ring_setup =		xhci_sec_event_ring_setup,
 	.sec_event_ring_cleanup =	xhci_sec_event_ring_cleanup,
 	.get_sec_event_ring_phys_addr =	xhci_get_sec_event_ring_phys_addr,
 	.get_xfer_ring_phys_addr =	xhci_get_xfer_ring_phys_addr,
 	.stop_endpoint =		xhci_stop_endpoint,
+=======
+	.clear_tt_buffer_complete = xhci_clear_tt_buffer_complete,
+>>>>>>> upstream/android-13
 };
 
 void xhci_init_driver(struct hc_driver *drv,
@@ -5611,6 +6420,7 @@ void xhci_init_driver(struct hc_driver *drv,
 			drv->reset = over->reset;
 		if (over->start)
 			drv->start = over->start;
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTK_USB_OFFLOAD)
 		if (over->address_device)
 			drv->address_device = over->address_device;
@@ -5619,6 +6429,16 @@ void xhci_init_driver(struct hc_driver *drv,
 		if (over->bus_resume)
 			drv->bus_resume = over->bus_resume;
 #endif
+=======
+		if (over->add_endpoint)
+			drv->add_endpoint = over->add_endpoint;
+		if (over->drop_endpoint)
+			drv->drop_endpoint = over->drop_endpoint;
+		if (over->check_bandwidth)
+			drv->check_bandwidth = over->check_bandwidth;
+		if (over->reset_bandwidth)
+			drv->reset_bandwidth = over->reset_bandwidth;
+>>>>>>> upstream/android-13
 	}
 }
 EXPORT_SYMBOL_GPL(xhci_init_driver);

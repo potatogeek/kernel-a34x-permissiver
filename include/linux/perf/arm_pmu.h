@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/include/asm/pmu.h
  *
  *  Copyright (C) 2009 picoChip Designs Ltd, Jamie Iles
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __ARM_PMU_H__
@@ -77,6 +84,10 @@ enum armpmu_attr_groups {
 	ARMPMU_ATTR_GROUP_COMMON,
 	ARMPMU_ATTR_GROUP_EVENTS,
 	ARMPMU_ATTR_GROUP_FORMATS,
+<<<<<<< HEAD
+=======
+	ARMPMU_ATTR_GROUP_CAPS,
+>>>>>>> upstream/android-13
 	ARMPMU_NR_ATTR_GROUPS
 };
 
@@ -84,6 +95,10 @@ struct arm_pmu {
 	struct pmu	pmu;
 	cpumask_t	supported_cpus;
 	char		*name;
+<<<<<<< HEAD
+=======
+	int		pmuver;
+>>>>>>> upstream/android-13
 	irqreturn_t	(*handle_irq)(struct arm_pmu *pmu);
 	void		(*enable)(struct perf_event *event);
 	void		(*disable)(struct perf_event *event);
@@ -102,14 +117,26 @@ struct arm_pmu {
 	int		(*filter_match)(struct perf_event *event);
 	int		num_events;
 	bool		secure_access; /* 32-bit ARM only */
+<<<<<<< HEAD
 #define ARMV8_PMUV3_MAX_COMMON_EVENTS 0x40
 	DECLARE_BITMAP(pmceid_bitmap, ARMV8_PMUV3_MAX_COMMON_EVENTS);
+=======
+#define ARMV8_PMUV3_MAX_COMMON_EVENTS		0x40
+	DECLARE_BITMAP(pmceid_bitmap, ARMV8_PMUV3_MAX_COMMON_EVENTS);
+#define ARMV8_PMUV3_EXT_COMMON_EVENT_BASE	0x4000
+	DECLARE_BITMAP(pmceid_ext_bitmap, ARMV8_PMUV3_MAX_COMMON_EVENTS);
+>>>>>>> upstream/android-13
 	struct platform_device	*plat_device;
 	struct pmu_hw_events	__percpu *hw_events;
 	struct hlist_node	node;
 	struct notifier_block	cpu_pm_nb;
 	/* the attr_groups array must be NULL-terminated */
 	const struct attribute_group *attr_groups[ARMPMU_NR_ATTR_GROUPS + 1];
+<<<<<<< HEAD
+=======
+	/* store the PMMIR_EL1 to expose slots */
+	u64		reg_pmmir;
+>>>>>>> upstream/android-13
 
 	/* Only to be used by ACPI probing code */
 	unsigned long acpi_cpuid;
@@ -161,6 +188,15 @@ int arm_pmu_acpi_probe(armpmu_init_fn init_fn);
 static inline int arm_pmu_acpi_probe(armpmu_init_fn init_fn) { return 0; }
 #endif
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_KVM
+void kvm_host_pmu_init(struct arm_pmu *pmu);
+#else
+#define kvm_host_pmu_init(x)	do { } while(0)
+#endif
+
+>>>>>>> upstream/android-13
 /* Internal functions only for core arm_pmu code */
 struct arm_pmu *armpmu_alloc(void);
 struct arm_pmu *armpmu_alloc_atomic(void);
@@ -173,4 +209,9 @@ void armpmu_free_irq(int irq, int cpu);
 
 #endif /* CONFIG_ARM_PMU */
 
+<<<<<<< HEAD
+=======
+#define ARMV8_SPE_PDEV_NAME "arm,spe-v1"
+
+>>>>>>> upstream/android-13
 #endif /* __ARM_PMU_H__ */

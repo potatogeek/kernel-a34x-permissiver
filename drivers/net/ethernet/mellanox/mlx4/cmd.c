@@ -281,7 +281,10 @@ static int mlx4_comm_cmd_post(struct mlx4_dev *dev, u8 cmd, u16 param)
 	val = param | (cmd << 16) | (priv->cmd.comm_toggle << 31);
 	__raw_writel((__force u32) cpu_to_be32(val),
 		     &priv->mfunc.comm->slave_write);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	mutex_unlock(&dev->persist->device_state_mutex);
 	return 0;
 }
@@ -496,12 +499,15 @@ static int mlx4_cmd_post(struct mlx4_dev *dev, u64 in_param, u64 out_param,
 					       (op_modifier << HCR_OPMOD_SHIFT) |
 					       op), hcr + 6);
 
+<<<<<<< HEAD
 	/*
 	 * Make sure that our HCR writes don't get mixed in with
 	 * writes from another CPU starting a FW command.
 	 */
 	mmiowb();
 
+=======
+>>>>>>> upstream/android-13
 	cmd->toggle = cmd->toggle ^ 1;
 
 	ret = 0;
@@ -2206,7 +2212,10 @@ static void mlx4_master_do_cmd(struct mlx4_dev *dev, int slave, u8 cmd,
 	}
 	__raw_writel((__force u32) cpu_to_be32(reply),
 		     &priv->mfunc.comm[slave].slave_read);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 
 	return;
 
@@ -2249,15 +2258,25 @@ void mlx4_master_comm_channel(struct work_struct *work)
 	struct mlx4_priv *priv =
 		container_of(mfunc, struct mlx4_priv, mfunc);
 	struct mlx4_dev *dev = &priv->dev;
+<<<<<<< HEAD
 	__be32 *bit_vec;
 	u32 comm_cmd;
 	u32 vec;
 	int i, j, slave;
 	int toggle;
+=======
+	u32 lbit_vec[COMM_CHANNEL_BIT_ARRAY_SIZE];
+	u32 nmbr_bits;
+	u32 comm_cmd;
+	int i, slave;
+	int toggle;
+	bool first = true;
+>>>>>>> upstream/android-13
 	int served = 0;
 	int reported = 0;
 	u32 slt;
 
+<<<<<<< HEAD
 	bit_vec = master->comm_arm_bit_vector;
 	for (i = 0; i < COMM_CHANNEL_BIT_ARRAY_SIZE; i++) {
 		vec = be32_to_cpu(bit_vec[i]);
@@ -2286,6 +2305,44 @@ void mlx4_master_comm_channel(struct work_struct *work)
 				++served;
 			}
 		}
+=======
+	for (i = 0; i < COMM_CHANNEL_BIT_ARRAY_SIZE; i++)
+		lbit_vec[i] = be32_to_cpu(master->comm_arm_bit_vector[i]);
+	nmbr_bits = dev->persist->num_vfs + 1;
+	if (++master->next_slave >= nmbr_bits)
+		master->next_slave = 0;
+	slave = master->next_slave;
+	while (true) {
+		slave = find_next_bit((const unsigned long *)&lbit_vec, nmbr_bits, slave);
+		if  (!first && slave >= master->next_slave)
+			break;
+		if (slave == nmbr_bits) {
+			if (!first)
+				break;
+			first = false;
+			slave = 0;
+			continue;
+		}
+		++reported;
+		comm_cmd = swab32(readl(&mfunc->comm[slave].slave_write));
+		slt = swab32(readl(&mfunc->comm[slave].slave_read)) >> 31;
+		toggle = comm_cmd >> 31;
+		if (toggle != slt) {
+			if (master->slave_state[slave].comm_toggle
+			    != slt) {
+				pr_info("slave %d out of sync. read toggle %d, state toggle %d. Resynching.\n",
+					slave, slt,
+					master->slave_state[slave].comm_toggle);
+				master->slave_state[slave].comm_toggle =
+					slt;
+			}
+			mlx4_master_do_cmd(dev, slave,
+					   comm_cmd >> 16 & 0xff,
+					   comm_cmd & 0xffff, toggle);
+			++served;
+		}
+		slave++;
+>>>>>>> upstream/android-13
 	}
 
 	if (reported && reported != served)
@@ -2397,6 +2454,11 @@ int mlx4_multi_func_init(struct mlx4_dev *dev)
 		if (!priv->mfunc.master.vf_oper)
 			goto err_comm_oper;
 
+<<<<<<< HEAD
+=======
+		priv->mfunc.master.next_slave = 0;
+
+>>>>>>> upstream/android-13
 		for (i = 0; i < dev->num_slaves; ++i) {
 			vf_admin = &priv->mfunc.master.vf_admin[i];
 			vf_oper = &priv->mfunc.master.vf_oper[i];
@@ -2410,7 +2472,10 @@ int mlx4_multi_func_init(struct mlx4_dev *dev)
 				     &priv->mfunc.comm[i].slave_write);
 			__raw_writel((__force u32) 0,
 				     &priv->mfunc.comm[i].slave_read);
+<<<<<<< HEAD
 			mmiowb();
+=======
+>>>>>>> upstream/android-13
 			for (port = 1; port <= MLX4_MAX_PORTS; port++) {
 				struct mlx4_vport_state *admin_vport;
 				struct mlx4_vport_state *oper_vport;
@@ -2576,10 +2641,13 @@ void mlx4_report_internal_err_comm_event(struct mlx4_dev *dev)
 		slave_read |= (u32)COMM_CHAN_EVENT_INTERNAL_ERR;
 		__raw_writel((__force u32)cpu_to_be32(slave_read),
 			     &priv->mfunc.comm[slave].slave_read);
+<<<<<<< HEAD
 		/* Make sure that our comm channel write doesn't
 		 * get mixed in with writes from another CPU.
 		 */
 		mmiowb();
+=======
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -3283,7 +3351,11 @@ int mlx4_set_vf_link_state(struct mlx4_dev *dev, int port, int vf, int link_stat
 		mlx4_warn(dev, "unknown value for link_state %02x on slave %d port %d\n",
 			  link_state, slave, port);
 		return -EINVAL;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 	s_info = &priv->mfunc.master.vf_admin[slave].vport[port];
 	s_info->link_state = link_state;
 

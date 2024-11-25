@@ -29,8 +29,13 @@
 #include <linux/slab.h>
 #include <linux/spinlock.h>
 #include <linux/sys_soc.h>
+<<<<<<< HEAD
 
 #include <asm/div64.h>
+=======
+#include <linux/reset.h>
+#include <linux/math64.h>
+>>>>>>> upstream/android-13
 
 #include "ravb.h"
 
@@ -109,11 +114,21 @@ static void ravb_set_buffer_align(struct sk_buff *skb)
  * Ethernet AVB device doesn't have ROM for MAC address.
  * This function gets the MAC address that was used by a bootloader.
  */
+<<<<<<< HEAD
 static void ravb_read_mac_address(struct net_device *ndev, const u8 *mac)
 {
 	if (mac) {
 		ether_addr_copy(ndev->dev_addr, mac);
 	} else {
+=======
+static void ravb_read_mac_address(struct device_node *np,
+				  struct net_device *ndev)
+{
+	int ret;
+
+	ret = of_get_mac_address(np, ndev->dev_addr);
+	if (ret) {
+>>>>>>> upstream/android-13
 		u32 mahr = ravb_read(ndev, MAHR);
 		u32 malr = ravb_read(ndev, MALR);
 
@@ -162,7 +177,11 @@ static int ravb_get_mdio_data(struct mdiobb_ctrl *ctrl)
 }
 
 /* MDIO bus control struct */
+<<<<<<< HEAD
 static struct mdiobb_ops bb_ops = {
+=======
+static const struct mdiobb_ops bb_ops = {
+>>>>>>> upstream/android-13
 	.owner = THIS_MODULE,
 	.set_mdc = ravb_set_mdc,
 	.set_mdio_dir = ravb_set_mdio_dir,
@@ -175,16 +194,27 @@ static int ravb_tx_free(struct net_device *ndev, int q, bool free_txed_only)
 {
 	struct ravb_private *priv = netdev_priv(ndev);
 	struct net_device_stats *stats = &priv->stats[q];
+<<<<<<< HEAD
 	struct ravb_tx_desc *desc;
 	int free_num = 0;
 	int entry;
+=======
+	unsigned int num_tx_desc = priv->num_tx_desc;
+	struct ravb_tx_desc *desc;
+	unsigned int entry;
+	int free_num = 0;
+>>>>>>> upstream/android-13
 	u32 size;
 
 	for (; priv->cur_tx[q] - priv->dirty_tx[q] > 0; priv->dirty_tx[q]++) {
 		bool txed;
 
 		entry = priv->dirty_tx[q] % (priv->num_tx_ring[q] *
+<<<<<<< HEAD
 					     NUM_TX_DESC);
+=======
+					     num_tx_desc);
+>>>>>>> upstream/android-13
 		desc = &priv->tx_ring[q][entry];
 		txed = desc->die_dt == DT_FEMPTY;
 		if (free_txed_only && !txed)
@@ -193,12 +223,21 @@ static int ravb_tx_free(struct net_device *ndev, int q, bool free_txed_only)
 		dma_rmb();
 		size = le16_to_cpu(desc->ds_tagl) & TX_DS;
 		/* Free the original skb. */
+<<<<<<< HEAD
 		if (priv->tx_skb[q][entry / NUM_TX_DESC]) {
 			dma_unmap_single(ndev->dev.parent, le32_to_cpu(desc->dptr),
 					 size, DMA_TO_DEVICE);
 			/* Last packet descriptor? */
 			if (entry % NUM_TX_DESC == NUM_TX_DESC - 1) {
 				entry /= NUM_TX_DESC;
+=======
+		if (priv->tx_skb[q][entry / num_tx_desc]) {
+			dma_unmap_single(ndev->dev.parent, le32_to_cpu(desc->dptr),
+					 size, DMA_TO_DEVICE);
+			/* Last packet descriptor? */
+			if (entry % num_tx_desc == num_tx_desc - 1) {
+				entry /= num_tx_desc;
+>>>>>>> upstream/android-13
 				dev_kfree_skb_any(priv->tx_skb[q][entry]);
 				priv->tx_skb[q][entry] = NULL;
 				if (txed)
@@ -213,10 +252,40 @@ static int ravb_tx_free(struct net_device *ndev, int q, bool free_txed_only)
 	return free_num;
 }
 
+<<<<<<< HEAD
+=======
+static void ravb_rx_ring_free(struct net_device *ndev, int q)
+{
+	struct ravb_private *priv = netdev_priv(ndev);
+	unsigned int ring_size;
+	unsigned int i;
+
+	if (!priv->rx_ring[q])
+		return;
+
+	for (i = 0; i < priv->num_rx_ring[q]; i++) {
+		struct ravb_ex_rx_desc *desc = &priv->rx_ring[q][i];
+
+		if (!dma_mapping_error(ndev->dev.parent,
+				       le32_to_cpu(desc->dptr)))
+			dma_unmap_single(ndev->dev.parent,
+					 le32_to_cpu(desc->dptr),
+					 RX_BUF_SZ,
+					 DMA_FROM_DEVICE);
+	}
+	ring_size = sizeof(struct ravb_ex_rx_desc) *
+		    (priv->num_rx_ring[q] + 1);
+	dma_free_coherent(ndev->dev.parent, ring_size, priv->rx_ring[q],
+			  priv->rx_desc_dma[q]);
+	priv->rx_ring[q] = NULL;
+}
+
+>>>>>>> upstream/android-13
 /* Free skb's and DMA buffers for Ethernet AVB */
 static void ravb_ring_free(struct net_device *ndev, int q)
 {
 	struct ravb_private *priv = netdev_priv(ndev);
+<<<<<<< HEAD
 	int ring_size;
 	int i;
 
@@ -237,12 +306,24 @@ static void ravb_ring_free(struct net_device *ndev, int q)
 				  priv->rx_desc_dma[q]);
 		priv->rx_ring[q] = NULL;
 	}
+=======
+	const struct ravb_hw_info *info = priv->info;
+	unsigned int num_tx_desc = priv->num_tx_desc;
+	unsigned int ring_size;
+	unsigned int i;
+
+	info->rx_ring_free(ndev, q);
+>>>>>>> upstream/android-13
 
 	if (priv->tx_ring[q]) {
 		ravb_tx_free(ndev, q, false);
 
 		ring_size = sizeof(struct ravb_tx_desc) *
+<<<<<<< HEAD
 			    (priv->num_tx_ring[q] * NUM_TX_DESC + 1);
+=======
+			    (priv->num_tx_ring[q] * num_tx_desc + 1);
+>>>>>>> upstream/android-13
 		dma_free_coherent(ndev->dev.parent, ring_size, priv->tx_ring[q],
 				  priv->tx_desc_dma[q]);
 		priv->tx_ring[q] = NULL;
@@ -267,6 +348,7 @@ static void ravb_ring_free(struct net_device *ndev, int q)
 	priv->tx_skb[q] = NULL;
 }
 
+<<<<<<< HEAD
 /* Format skb and descriptor buffer for Ethernet AVB */
 static void ravb_ring_format(struct net_device *ndev, int q)
 {
@@ -284,15 +366,30 @@ static void ravb_ring_format(struct net_device *ndev, int q)
 	priv->cur_tx[q] = 0;
 	priv->dirty_rx[q] = 0;
 	priv->dirty_tx[q] = 0;
+=======
+static void ravb_rx_ring_format(struct net_device *ndev, int q)
+{
+	struct ravb_private *priv = netdev_priv(ndev);
+	struct ravb_ex_rx_desc *rx_desc;
+	unsigned int rx_ring_size = sizeof(*rx_desc) * priv->num_rx_ring[q];
+	dma_addr_t dma_addr;
+	unsigned int i;
+>>>>>>> upstream/android-13
 
 	memset(priv->rx_ring[q], 0, rx_ring_size);
 	/* Build RX ring buffer */
 	for (i = 0; i < priv->num_rx_ring[q]; i++) {
 		/* RX descriptor */
 		rx_desc = &priv->rx_ring[q][i];
+<<<<<<< HEAD
 		rx_desc->ds_cc = cpu_to_le16(priv->rx_buf_sz);
 		dma_addr = dma_map_single(ndev->dev.parent, priv->rx_skb[q][i]->data,
 					  priv->rx_buf_sz,
+=======
+		rx_desc->ds_cc = cpu_to_le16(RX_BUF_SZ);
+		dma_addr = dma_map_single(ndev->dev.parent, priv->rx_skb[q][i]->data,
+					  RX_BUF_SZ,
+>>>>>>> upstream/android-13
 					  DMA_FROM_DEVICE);
 		/* We just set the data size to 0 for a failed mapping which
 		 * should prevent DMA from happening...
@@ -305,14 +402,44 @@ static void ravb_ring_format(struct net_device *ndev, int q)
 	rx_desc = &priv->rx_ring[q][i];
 	rx_desc->dptr = cpu_to_le32((u32)priv->rx_desc_dma[q]);
 	rx_desc->die_dt = DT_LINKFIX; /* type */
+<<<<<<< HEAD
+=======
+}
+
+/* Format skb and descriptor buffer for Ethernet AVB */
+static void ravb_ring_format(struct net_device *ndev, int q)
+{
+	struct ravb_private *priv = netdev_priv(ndev);
+	const struct ravb_hw_info *info = priv->info;
+	unsigned int num_tx_desc = priv->num_tx_desc;
+	struct ravb_tx_desc *tx_desc;
+	struct ravb_desc *desc;
+	unsigned int tx_ring_size = sizeof(*tx_desc) * priv->num_tx_ring[q] *
+				    num_tx_desc;
+	unsigned int i;
+
+	priv->cur_rx[q] = 0;
+	priv->cur_tx[q] = 0;
+	priv->dirty_rx[q] = 0;
+	priv->dirty_tx[q] = 0;
+
+	info->rx_ring_format(ndev, q);
+>>>>>>> upstream/android-13
 
 	memset(priv->tx_ring[q], 0, tx_ring_size);
 	/* Build TX ring buffer */
 	for (i = 0, tx_desc = priv->tx_ring[q]; i < priv->num_tx_ring[q];
 	     i++, tx_desc++) {
 		tx_desc->die_dt = DT_EEMPTY;
+<<<<<<< HEAD
 		tx_desc++;
 		tx_desc->die_dt = DT_EEMPTY;
+=======
+		if (num_tx_desc > 1) {
+			tx_desc++;
+			tx_desc->die_dt = DT_EEMPTY;
+		}
+>>>>>>> upstream/android-13
 	}
 	tx_desc->dptr = cpu_to_le32((u32)priv->tx_desc_dma[q]);
 	tx_desc->die_dt = DT_LINKFIX; /* type */
@@ -328,16 +455,40 @@ static void ravb_ring_format(struct net_device *ndev, int q)
 	desc->dptr = cpu_to_le32((u32)priv->tx_desc_dma[q]);
 }
 
+<<<<<<< HEAD
+=======
+static void *ravb_alloc_rx_desc(struct net_device *ndev, int q)
+{
+	struct ravb_private *priv = netdev_priv(ndev);
+	unsigned int ring_size;
+
+	ring_size = sizeof(struct ravb_ex_rx_desc) * (priv->num_rx_ring[q] + 1);
+
+	priv->rx_ring[q] = dma_alloc_coherent(ndev->dev.parent, ring_size,
+					      &priv->rx_desc_dma[q],
+					      GFP_KERNEL);
+	return priv->rx_ring[q];
+}
+
+>>>>>>> upstream/android-13
 /* Init skb and descriptor buffer for Ethernet AVB */
 static int ravb_ring_init(struct net_device *ndev, int q)
 {
 	struct ravb_private *priv = netdev_priv(ndev);
+<<<<<<< HEAD
 	struct sk_buff *skb;
 	int ring_size;
 	int i;
 
 	priv->rx_buf_sz = (ndev->mtu <= 1492 ? PKT_BUF_SZ : ndev->mtu) +
 		ETH_HLEN + VLAN_HLEN + sizeof(__sum16);
+=======
+	const struct ravb_hw_info *info = priv->info;
+	unsigned int num_tx_desc = priv->num_tx_desc;
+	unsigned int ring_size;
+	struct sk_buff *skb;
+	unsigned int i;
+>>>>>>> upstream/android-13
 
 	/* Allocate RX and TX skb rings */
 	priv->rx_skb[q] = kcalloc(priv->num_rx_ring[q],
@@ -348,13 +499,18 @@ static int ravb_ring_init(struct net_device *ndev, int q)
 		goto error;
 
 	for (i = 0; i < priv->num_rx_ring[q]; i++) {
+<<<<<<< HEAD
 		skb = netdev_alloc_skb(ndev, priv->rx_buf_sz + RAVB_ALIGN - 1);
+=======
+		skb = netdev_alloc_skb(ndev, info->max_rx_len);
+>>>>>>> upstream/android-13
 		if (!skb)
 			goto error;
 		ravb_set_buffer_align(skb);
 		priv->rx_skb[q][i] = skb;
 	}
 
+<<<<<<< HEAD
 	/* Allocate rings for the aligned buffers */
 	priv->tx_align[q] = kmalloc(DPTR_ALIGN * priv->num_tx_ring[q] +
 				    DPTR_ALIGN - 1, GFP_KERNEL);
@@ -367,13 +523,29 @@ static int ravb_ring_init(struct net_device *ndev, int q)
 					      &priv->rx_desc_dma[q],
 					      GFP_KERNEL);
 	if (!priv->rx_ring[q])
+=======
+	if (num_tx_desc > 1) {
+		/* Allocate rings for the aligned buffers */
+		priv->tx_align[q] = kmalloc(DPTR_ALIGN * priv->num_tx_ring[q] +
+					    DPTR_ALIGN - 1, GFP_KERNEL);
+		if (!priv->tx_align[q])
+			goto error;
+	}
+
+	/* Allocate all RX descriptors. */
+	if (!info->alloc_rx_desc(ndev, q))
+>>>>>>> upstream/android-13
 		goto error;
 
 	priv->dirty_rx[q] = 0;
 
 	/* Allocate all TX descriptors. */
 	ring_size = sizeof(struct ravb_tx_desc) *
+<<<<<<< HEAD
 		    (priv->num_tx_ring[q] * NUM_TX_DESC + 1);
+=======
+		    (priv->num_tx_ring[q] * num_tx_desc + 1);
+>>>>>>> upstream/android-13
 	priv->tx_ring[q] = dma_alloc_coherent(ndev->dev.parent, ring_size,
 					      &priv->tx_desc_dma[q],
 					      GFP_KERNEL);
@@ -388,8 +560,12 @@ error:
 	return -ENOMEM;
 }
 
+<<<<<<< HEAD
 /* E-MAC init function */
 static void ravb_emac_init(struct net_device *ndev)
+=======
+static void ravb_rcar_emac_init(struct net_device *ndev)
+>>>>>>> upstream/android-13
 {
 	/* Receive frame limit set register */
 	ravb_write(ndev, ndev->mtu + ETH_HLEN + VLAN_HLEN + ETH_FCS_LEN, RFLR);
@@ -415,10 +591,58 @@ static void ravb_emac_init(struct net_device *ndev)
 	ravb_write(ndev, ECSIPR_ICDIP | ECSIPR_MPDIP | ECSIPR_LCHNGIP, ECSIPR);
 }
 
+<<<<<<< HEAD
+=======
+/* E-MAC init function */
+static void ravb_emac_init(struct net_device *ndev)
+{
+	struct ravb_private *priv = netdev_priv(ndev);
+	const struct ravb_hw_info *info = priv->info;
+
+	info->emac_init(ndev);
+}
+
+static void ravb_rcar_dmac_init(struct net_device *ndev)
+{
+	struct ravb_private *priv = netdev_priv(ndev);
+	const struct ravb_hw_info *info = priv->info;
+
+	/* Set AVB RX */
+	ravb_write(ndev,
+		   RCR_EFFS | RCR_ENCF | RCR_ETS0 | RCR_ESF | 0x18000000, RCR);
+
+	/* Set FIFO size */
+	ravb_write(ndev, TGC_TQP_AVBMODE1 | 0x00112200, TGC);
+
+	/* Timestamp enable */
+	ravb_write(ndev, TCCR_TFEN, TCCR);
+
+	/* Interrupt init: */
+	if (info->multi_irqs) {
+		/* Clear DIL.DPLx */
+		ravb_write(ndev, 0, DIL);
+		/* Set queue specific interrupt */
+		ravb_write(ndev, CIE_CRIE | CIE_CTIE | CIE_CL0M, CIE);
+	}
+	/* Frame receive */
+	ravb_write(ndev, RIC0_FRE0 | RIC0_FRE1, RIC0);
+	/* Disable FIFO full warning */
+	ravb_write(ndev, 0, RIC1);
+	/* Receive FIFO full error, descriptor empty */
+	ravb_write(ndev, RIC2_QFE0 | RIC2_QFE1 | RIC2_RFFE, RIC2);
+	/* Frame transmitted, timestamp FIFO updated */
+	ravb_write(ndev, TIC_FTE0 | TIC_FTE1 | TIC_TFUE, TIC);
+}
+
+>>>>>>> upstream/android-13
 /* Device init function for Ethernet AVB */
 static int ravb_dmac_init(struct net_device *ndev)
 {
 	struct ravb_private *priv = netdev_priv(ndev);
+<<<<<<< HEAD
+=======
+	const struct ravb_hw_info *info = priv->info;
+>>>>>>> upstream/android-13
 	int error;
 
 	/* Set CONFIG mode */
@@ -439,6 +663,7 @@ static int ravb_dmac_init(struct net_device *ndev)
 	ravb_ring_format(ndev, RAVB_BE);
 	ravb_ring_format(ndev, RAVB_NC);
 
+<<<<<<< HEAD
 #if defined(__LITTLE_ENDIAN)
 	ravb_modify(ndev, CCC, CCC_BOC, 0);
 #else
@@ -470,6 +695,9 @@ static int ravb_dmac_init(struct net_device *ndev)
 	ravb_write(ndev, RIC2_QFE0 | RIC2_QFE1 | RIC2_RFFE, RIC2);
 	/* Frame transmitted, timestamp FIFO updated */
 	ravb_write(ndev, TIC_FTE0 | TIC_FTE1 | TIC_TFUE, TIC);
+=======
+	info->dmac_init(ndev);
+>>>>>>> upstream/android-13
 
 	/* Setting the control will start the AVB-DMAC process. */
 	ravb_modify(ndev, CCC, CCC_OPC, CCC_OPC_OPERATION);
@@ -530,10 +758,17 @@ static void ravb_rx_csum(struct sk_buff *skb)
 	skb_trim(skb, skb->len - sizeof(__sum16));
 }
 
+<<<<<<< HEAD
 /* Packet receive function for Ethernet AVB */
 static bool ravb_rx(struct net_device *ndev, int *quota, int q)
 {
 	struct ravb_private *priv = netdev_priv(ndev);
+=======
+static bool ravb_rcar_rx(struct net_device *ndev, int *quota, int q)
+{
+	struct ravb_private *priv = netdev_priv(ndev);
+	const struct ravb_hw_info *info = priv->info;
+>>>>>>> upstream/android-13
 	int entry = priv->cur_rx[q] % priv->num_rx_ring[q];
 	int boguscnt = (priv->dirty_rx[q] + priv->num_rx_ring[q]) -
 			priv->cur_rx[q];
@@ -582,7 +817,11 @@ static bool ravb_rx(struct net_device *ndev, int *quota, int q)
 			skb = priv->rx_skb[q][entry];
 			priv->rx_skb[q][entry] = NULL;
 			dma_unmap_single(ndev->dev.parent, le32_to_cpu(desc->dptr),
+<<<<<<< HEAD
 					 priv->rx_buf_sz,
+=======
+					 RX_BUF_SZ,
+>>>>>>> upstream/android-13
 					 DMA_FROM_DEVICE);
 			get_ts &= (q == RAVB_NC) ?
 					RAVB_RXTSTAMP_TYPE_V2_L2_EVENT :
@@ -615,12 +854,19 @@ static bool ravb_rx(struct net_device *ndev, int *quota, int q)
 	for (; priv->cur_rx[q] - priv->dirty_rx[q] > 0; priv->dirty_rx[q]++) {
 		entry = priv->dirty_rx[q] % priv->num_rx_ring[q];
 		desc = &priv->rx_ring[q][entry];
+<<<<<<< HEAD
 		desc->ds_cc = cpu_to_le16(priv->rx_buf_sz);
 
 		if (!priv->rx_skb[q][entry]) {
 			skb = netdev_alloc_skb(ndev,
 					       priv->rx_buf_sz +
 					       RAVB_ALIGN - 1);
+=======
+		desc->ds_cc = cpu_to_le16(RX_BUF_SZ);
+
+		if (!priv->rx_skb[q][entry]) {
+			skb = netdev_alloc_skb(ndev, info->max_rx_len);
+>>>>>>> upstream/android-13
 			if (!skb)
 				break;	/* Better luck next round. */
 			ravb_set_buffer_align(skb);
@@ -646,6 +892,18 @@ static bool ravb_rx(struct net_device *ndev, int *quota, int q)
 	return boguscnt <= 0;
 }
 
+<<<<<<< HEAD
+=======
+/* Packet receive function for Ethernet AVB */
+static bool ravb_rx(struct net_device *ndev, int *quota, int q)
+{
+	struct ravb_private *priv = netdev_priv(ndev);
+	const struct ravb_hw_info *info = priv->info;
+
+	return info->receive(ndev, quota, q);
+}
+
+>>>>>>> upstream/android-13
 static void ravb_rcv_snd_disable(struct net_device *ndev)
 {
 	/* Disable TX and RX */
@@ -723,7 +981,10 @@ static irqreturn_t ravb_emac_interrupt(int irq, void *dev_id)
 
 	spin_lock(&priv->lock);
 	ravb_emac_interrupt_unlocked(ndev);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	spin_unlock(&priv->lock);
 	return IRQ_HANDLED;
 }
@@ -758,6 +1019,10 @@ static void ravb_error_interrupt(struct net_device *ndev)
 static bool ravb_queue_interrupt(struct net_device *ndev, int q)
 {
 	struct ravb_private *priv = netdev_priv(ndev);
+<<<<<<< HEAD
+=======
+	const struct ravb_hw_info *info = priv->info;
+>>>>>>> upstream/android-13
 	u32 ris0 = ravb_read(ndev, RIS0);
 	u32 ric0 = ravb_read(ndev, RIC0);
 	u32 tis  = ravb_read(ndev, TIS);
@@ -766,7 +1031,11 @@ static bool ravb_queue_interrupt(struct net_device *ndev, int q)
 	if (((ris0 & ric0) & BIT(q)) || ((tis  & tic)  & BIT(q))) {
 		if (napi_schedule_prep(&priv->napi[q])) {
 			/* Mask RX and TX interrupts */
+<<<<<<< HEAD
 			if (priv->chip_id == RCAR_GEN2) {
+=======
+			if (!info->multi_irqs) {
+>>>>>>> upstream/android-13
 				ravb_write(ndev, ric0 & ~BIT(q), RIC0);
 				ravb_write(ndev, tic & ~BIT(q), TIC);
 			} else {
@@ -843,7 +1112,10 @@ static irqreturn_t ravb_interrupt(int irq, void *dev_id)
 		result = IRQ_HANDLED;
 	}
 
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	spin_unlock(&priv->lock);
 	return result;
 }
@@ -876,7 +1148,10 @@ static irqreturn_t ravb_multi_interrupt(int irq, void *dev_id)
 		result = IRQ_HANDLED;
 	}
 
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	spin_unlock(&priv->lock);
 	return result;
 }
@@ -893,7 +1168,10 @@ static irqreturn_t ravb_dma_interrupt(int irq, void *dev_id, int q)
 	if (ravb_queue_interrupt(ndev, q))
 		result = IRQ_HANDLED;
 
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	spin_unlock(&priv->lock);
 	return result;
 }
@@ -912,10 +1190,15 @@ static int ravb_poll(struct napi_struct *napi, int budget)
 {
 	struct net_device *ndev = napi->dev;
 	struct ravb_private *priv = netdev_priv(ndev);
+<<<<<<< HEAD
+=======
+	const struct ravb_hw_info *info = priv->info;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	int q = napi - priv->napi;
 	int mask = BIT(q);
 	int quota = budget;
+<<<<<<< HEAD
 	u32 ris0, tis;
 
 	for (;;) {
@@ -942,19 +1225,42 @@ static int ravb_poll(struct napi_struct *napi, int budget)
 			spin_unlock_irqrestore(&priv->lock, flags);
 		}
 	}
+=======
+
+	/* Processing RX Descriptor Ring */
+	/* Clear RX interrupt */
+	ravb_write(ndev, ~(mask | RIS0_RESERVED), RIS0);
+	if (ravb_rx(ndev, &quota, q))
+		goto out;
+
+	/* Processing TX Descriptor Ring */
+	spin_lock_irqsave(&priv->lock, flags);
+	/* Clear TX interrupt */
+	ravb_write(ndev, ~(mask | TIS_RESERVED), TIS);
+	ravb_tx_free(ndev, q, true);
+	netif_wake_subqueue(ndev, q);
+	spin_unlock_irqrestore(&priv->lock, flags);
+>>>>>>> upstream/android-13
 
 	napi_complete(napi);
 
 	/* Re-enable RX/TX interrupts */
 	spin_lock_irqsave(&priv->lock, flags);
+<<<<<<< HEAD
 	if (priv->chip_id == RCAR_GEN2) {
+=======
+	if (!info->multi_irqs) {
+>>>>>>> upstream/android-13
 		ravb_modify(ndev, RIC0, mask, mask);
 		ravb_modify(ndev, TIC,  mask, mask);
 	} else {
 		ravb_write(ndev, mask, RIE0);
 		ravb_write(ndev, mask, TIE);
 	}
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&priv->lock, flags);
 
 	/* Receive error message handling */
@@ -972,6 +1278,10 @@ out:
 static void ravb_adjust_link(struct net_device *ndev)
 {
 	struct ravb_private *priv = netdev_priv(ndev);
+<<<<<<< HEAD
+=======
+	const struct ravb_hw_info *info = priv->info;
+>>>>>>> upstream/android-13
 	struct phy_device *phydev = ndev->phydev;
 	bool new_state = false;
 	unsigned long flags;
@@ -986,7 +1296,11 @@ static void ravb_adjust_link(struct net_device *ndev)
 		if (phydev->speed != priv->speed) {
 			new_state = true;
 			priv->speed = phydev->speed;
+<<<<<<< HEAD
 			ravb_set_rate(ndev);
+=======
+			info->set_rate(ndev);
+>>>>>>> upstream/android-13
 		}
 		if (!priv->link) {
 			ravb_modify(ndev, ECMR, ECMR_TXF, 0);
@@ -1003,7 +1317,10 @@ static void ravb_adjust_link(struct net_device *ndev)
 	if (priv->no_avb_link && phydev->link)
 		ravb_rcv_snd_enable(ndev);
 
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&priv->lock, flags);
 
 	if (new_state && netif_msg_link(priv))
@@ -1022,6 +1339,10 @@ static int ravb_phy_init(struct net_device *ndev)
 	struct ravb_private *priv = netdev_priv(ndev);
 	struct phy_device *phydev;
 	struct device_node *pn;
+<<<<<<< HEAD
+=======
+	phy_interface_t iface;
+>>>>>>> upstream/android-13
 	int err;
 
 	priv->link = 0;
@@ -1040,8 +1361,15 @@ static int ravb_phy_init(struct net_device *ndev)
 		}
 		pn = of_node_get(np);
 	}
+<<<<<<< HEAD
 	phydev = of_phy_connect(ndev, pn, ravb_adjust_link, 0,
 				priv->phy_interface);
+=======
+
+	iface = priv->rgmii_override ? PHY_INTERFACE_MODE_RGMII
+				     : priv->phy_interface;
+	phydev = of_phy_connect(ndev, pn, ravb_adjust_link, 0, iface);
+>>>>>>> upstream/android-13
 	of_node_put(pn);
 	if (!phydev) {
 		netdev_err(ndev, "failed to connect PHY\n");
@@ -1062,8 +1390,20 @@ static int ravb_phy_init(struct net_device *ndev)
 		netdev_info(ndev, "limited PHY to 100Mbit/s\n");
 	}
 
+<<<<<<< HEAD
 	/* 10BASE is not supported */
 	phydev->supported &= ~PHY_10BT_FEATURES;
+=======
+	/* 10BASE, Pause and Asym Pause is not supported */
+	phy_remove_link_mode(phydev, ETHTOOL_LINK_MODE_10baseT_Half_BIT);
+	phy_remove_link_mode(phydev, ETHTOOL_LINK_MODE_10baseT_Full_BIT);
+	phy_remove_link_mode(phydev, ETHTOOL_LINK_MODE_Pause_BIT);
+	phy_remove_link_mode(phydev, ETHTOOL_LINK_MODE_Asym_Pause_BIT);
+
+	/* Half Duplex is not supported */
+	phy_remove_link_mode(phydev, ETHTOOL_LINK_MODE_1000baseT_Half_BIT);
+	phy_remove_link_mode(phydev, ETHTOOL_LINK_MODE_100baseT_Half_BIT);
+>>>>>>> upstream/android-13
 
 	phy_attached_info(phydev);
 
@@ -1140,6 +1480,7 @@ static const char ravb_gstrings_stats[][ETH_GSTRING_LEN] = {
 	"rx_queue_1_over_errors",
 };
 
+<<<<<<< HEAD
 #define RAVB_STATS_LEN	ARRAY_SIZE(ravb_gstrings_stats)
 
 static int ravb_get_sset_count(struct net_device *netdev, int sset)
@@ -1147,6 +1488,16 @@ static int ravb_get_sset_count(struct net_device *netdev, int sset)
 	switch (sset) {
 	case ETH_SS_STATS:
 		return RAVB_STATS_LEN;
+=======
+static int ravb_get_sset_count(struct net_device *netdev, int sset)
+{
+	struct ravb_private *priv = netdev_priv(netdev);
+	const struct ravb_hw_info *info = priv->info;
+
+	switch (sset) {
+	case ETH_SS_STATS:
+		return info->stats_len;
+>>>>>>> upstream/android-13
 	default:
 		return -EOPNOTSUPP;
 	}
@@ -1183,9 +1534,18 @@ static void ravb_get_ethtool_stats(struct net_device *ndev,
 
 static void ravb_get_strings(struct net_device *ndev, u32 stringset, u8 *data)
 {
+<<<<<<< HEAD
 	switch (stringset) {
 	case ETH_SS_STATS:
 		memcpy(data, ravb_gstrings_stats, sizeof(ravb_gstrings_stats));
+=======
+	struct ravb_private *priv = netdev_priv(ndev);
+	const struct ravb_hw_info *info = priv->info;
+
+	switch (stringset) {
+	case ETH_SS_STATS:
+		memcpy(data, info->gstrings_stats, info->gstrings_size);
+>>>>>>> upstream/android-13
 		break;
 	}
 }
@@ -1205,6 +1565,10 @@ static int ravb_set_ringparam(struct net_device *ndev,
 			      struct ethtool_ringparam *ring)
 {
 	struct ravb_private *priv = netdev_priv(ndev);
+<<<<<<< HEAD
+=======
+	const struct ravb_hw_info *info = priv->info;
+>>>>>>> upstream/android-13
 	int error;
 
 	if (ring->tx_pending > BE_TX_RING_MAX ||
@@ -1218,7 +1582,11 @@ static int ravb_set_ringparam(struct net_device *ndev,
 	if (netif_running(ndev)) {
 		netif_device_detach(ndev);
 		/* Stop PTP Clock driver */
+<<<<<<< HEAD
 		if (priv->chip_id == RCAR_GEN2)
+=======
+		if (info->no_ptp_cfg_active)
+>>>>>>> upstream/android-13
 			ravb_ptp_stop(ndev);
 		/* Wait for DMA stopping */
 		error = ravb_stop_dma(ndev);
@@ -1250,7 +1618,11 @@ static int ravb_set_ringparam(struct net_device *ndev,
 		ravb_emac_init(ndev);
 
 		/* Initialise PTP Clock driver */
+<<<<<<< HEAD
 		if (priv->chip_id == RCAR_GEN2)
+=======
+		if (info->no_ptp_cfg_active)
+>>>>>>> upstream/android-13
 			ravb_ptp_init(ndev, priv->pdev);
 
 		netif_device_attach(ndev);
@@ -1341,6 +1713,10 @@ static inline int ravb_hook_irq(unsigned int irq, irq_handler_t handler,
 static int ravb_open(struct net_device *ndev)
 {
 	struct ravb_private *priv = netdev_priv(ndev);
+<<<<<<< HEAD
+=======
+	const struct ravb_hw_info *info = priv->info;
+>>>>>>> upstream/android-13
 	struct platform_device *pdev = priv->pdev;
 	struct device *dev = &pdev->dev;
 	int error;
@@ -1348,7 +1724,11 @@ static int ravb_open(struct net_device *ndev)
 	napi_enable(&priv->napi[RAVB_BE]);
 	napi_enable(&priv->napi[RAVB_NC]);
 
+<<<<<<< HEAD
 	if (priv->chip_id == RCAR_GEN2) {
+=======
+	if (!info->multi_irqs) {
+>>>>>>> upstream/android-13
 		error = request_irq(ndev->irq, ravb_interrupt, IRQF_SHARED,
 				    ndev->name, ndev);
 		if (error) {
@@ -1389,7 +1769,11 @@ static int ravb_open(struct net_device *ndev)
 	ravb_emac_init(ndev);
 
 	/* Initialise PTP Clock driver */
+<<<<<<< HEAD
 	if (priv->chip_id == RCAR_GEN2)
+=======
+	if (info->no_ptp_cfg_active)
+>>>>>>> upstream/android-13
 		ravb_ptp_init(ndev, priv->pdev);
 
 	netif_tx_start_all_queues(ndev);
@@ -1403,10 +1787,17 @@ static int ravb_open(struct net_device *ndev)
 
 out_ptp_stop:
 	/* Stop PTP Clock driver */
+<<<<<<< HEAD
 	if (priv->chip_id == RCAR_GEN2)
 		ravb_ptp_stop(ndev);
 out_free_irq_nc_tx:
 	if (priv->chip_id == RCAR_GEN2)
+=======
+	if (info->no_ptp_cfg_active)
+		ravb_ptp_stop(ndev);
+out_free_irq_nc_tx:
+	if (!info->multi_irqs)
+>>>>>>> upstream/android-13
 		goto out_free_irq;
 	free_irq(priv->tx_irqs[RAVB_NC], ndev);
 out_free_irq_nc_rx:
@@ -1426,7 +1817,11 @@ out_napi_off:
 }
 
 /* Timeout function for Ethernet AVB */
+<<<<<<< HEAD
 static void ravb_tx_timeout(struct net_device *ndev)
+=======
+static void ravb_tx_timeout(struct net_device *ndev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct ravb_private *priv = netdev_priv(ndev);
 
@@ -1444,13 +1839,21 @@ static void ravb_tx_timeout_work(struct work_struct *work)
 {
 	struct ravb_private *priv = container_of(work, struct ravb_private,
 						 work);
+<<<<<<< HEAD
+=======
+	const struct ravb_hw_info *info = priv->info;
+>>>>>>> upstream/android-13
 	struct net_device *ndev = priv->ndev;
 	int error;
 
 	netif_tx_stop_all_queues(ndev);
 
 	/* Stop PTP Clock driver */
+<<<<<<< HEAD
 	if (priv->chip_id == RCAR_GEN2)
+=======
+	if (info->no_ptp_cfg_active)
+>>>>>>> upstream/android-13
 		ravb_ptp_stop(ndev);
 
 	/* Wait for DMA stopping */
@@ -1485,7 +1888,11 @@ static void ravb_tx_timeout_work(struct work_struct *work)
 
 out:
 	/* Initialise PTP Clock driver */
+<<<<<<< HEAD
 	if (priv->chip_id == RCAR_GEN2)
+=======
+	if (info->no_ptp_cfg_active)
+>>>>>>> upstream/android-13
 		ravb_ptp_init(ndev, priv->pdev);
 
 	netif_tx_start_all_queues(ndev);
@@ -1495,6 +1902,10 @@ out:
 static netdev_tx_t ravb_start_xmit(struct sk_buff *skb, struct net_device *ndev)
 {
 	struct ravb_private *priv = netdev_priv(ndev);
+<<<<<<< HEAD
+=======
+	unsigned int num_tx_desc = priv->num_tx_desc;
+>>>>>>> upstream/android-13
 	u16 q = skb_get_queue_mapping(skb);
 	struct ravb_tstamp_skb *ts_skb;
 	struct ravb_tx_desc *desc;
@@ -1506,7 +1917,11 @@ static netdev_tx_t ravb_start_xmit(struct sk_buff *skb, struct net_device *ndev)
 
 	spin_lock_irqsave(&priv->lock, flags);
 	if (priv->cur_tx[q] - priv->dirty_tx[q] > (priv->num_tx_ring[q] - 1) *
+<<<<<<< HEAD
 	    NUM_TX_DESC) {
+=======
+	    num_tx_desc) {
+>>>>>>> upstream/android-13
 		netif_err(priv, tx_queued, ndev,
 			  "still transmitting with the full ring!\n");
 		netif_stop_subqueue(ndev, q);
@@ -1517,6 +1932,7 @@ static netdev_tx_t ravb_start_xmit(struct sk_buff *skb, struct net_device *ndev)
 	if (skb_put_padto(skb, ETH_ZLEN))
 		goto exit;
 
+<<<<<<< HEAD
 	entry = priv->cur_tx[q] % (priv->num_tx_ring[q] * NUM_TX_DESC);
 	priv->tx_skb[q][entry / NUM_TX_DESC] = skb;
 
@@ -1552,6 +1968,57 @@ static netdev_tx_t ravb_start_xmit(struct sk_buff *skb, struct net_device *ndev)
 		goto unmap;
 
 	desc++;
+=======
+	entry = priv->cur_tx[q] % (priv->num_tx_ring[q] * num_tx_desc);
+	priv->tx_skb[q][entry / num_tx_desc] = skb;
+
+	if (num_tx_desc > 1) {
+		buffer = PTR_ALIGN(priv->tx_align[q], DPTR_ALIGN) +
+			 entry / num_tx_desc * DPTR_ALIGN;
+		len = PTR_ALIGN(skb->data, DPTR_ALIGN) - skb->data;
+
+		/* Zero length DMA descriptors are problematic as they seem
+		 * to terminate DMA transfers. Avoid them by simply using a
+		 * length of DPTR_ALIGN (4) when skb data is aligned to
+		 * DPTR_ALIGN.
+		 *
+		 * As skb is guaranteed to have at least ETH_ZLEN (60)
+		 * bytes of data by the call to skb_put_padto() above this
+		 * is safe with respect to both the length of the first DMA
+		 * descriptor (len) overflowing the available data and the
+		 * length of the second DMA descriptor (skb->len - len)
+		 * being negative.
+		 */
+		if (len == 0)
+			len = DPTR_ALIGN;
+
+		memcpy(buffer, skb->data, len);
+		dma_addr = dma_map_single(ndev->dev.parent, buffer, len,
+					  DMA_TO_DEVICE);
+		if (dma_mapping_error(ndev->dev.parent, dma_addr))
+			goto drop;
+
+		desc = &priv->tx_ring[q][entry];
+		desc->ds_tagl = cpu_to_le16(len);
+		desc->dptr = cpu_to_le32(dma_addr);
+
+		buffer = skb->data + len;
+		len = skb->len - len;
+		dma_addr = dma_map_single(ndev->dev.parent, buffer, len,
+					  DMA_TO_DEVICE);
+		if (dma_mapping_error(ndev->dev.parent, dma_addr))
+			goto unmap;
+
+		desc++;
+	} else {
+		desc = &priv->tx_ring[q][entry];
+		len = skb->len;
+		dma_addr = dma_map_single(ndev->dev.parent, skb->data, skb->len,
+					  DMA_TO_DEVICE);
+		if (dma_mapping_error(ndev->dev.parent, dma_addr))
+			goto drop;
+	}
+>>>>>>> upstream/android-13
 	desc->ds_tagl = cpu_to_le16(len);
 	desc->dptr = cpu_to_le32(dma_addr);
 
@@ -1559,9 +2026,17 @@ static netdev_tx_t ravb_start_xmit(struct sk_buff *skb, struct net_device *ndev)
 	if (q == RAVB_NC) {
 		ts_skb = kmalloc(sizeof(*ts_skb), GFP_ATOMIC);
 		if (!ts_skb) {
+<<<<<<< HEAD
 			desc--;
 			dma_unmap_single(ndev->dev.parent, dma_addr, len,
 					 DMA_TO_DEVICE);
+=======
+			if (num_tx_desc > 1) {
+				desc--;
+				dma_unmap_single(ndev->dev.parent, dma_addr,
+						 len, DMA_TO_DEVICE);
+			}
+>>>>>>> upstream/android-13
 			goto unmap;
 		}
 		ts_skb->skb = skb_get(skb);
@@ -1578,6 +2053,7 @@ static netdev_tx_t ravb_start_xmit(struct sk_buff *skb, struct net_device *ndev)
 	skb_tx_timestamp(skb);
 	/* Descriptor type must be set after all the above writes */
 	dma_wmb();
+<<<<<<< HEAD
 	desc->die_dt = DT_FEND;
 	desc--;
 	desc->die_dt = DT_FSTART;
@@ -1587,11 +2063,28 @@ static netdev_tx_t ravb_start_xmit(struct sk_buff *skb, struct net_device *ndev)
 	priv->cur_tx[q] += NUM_TX_DESC;
 	if (priv->cur_tx[q] - priv->dirty_tx[q] >
 	    (priv->num_tx_ring[q] - 1) * NUM_TX_DESC &&
+=======
+	if (num_tx_desc > 1) {
+		desc->die_dt = DT_FEND;
+		desc--;
+		desc->die_dt = DT_FSTART;
+	} else {
+		desc->die_dt = DT_FSINGLE;
+	}
+	ravb_modify(ndev, TCCR, TCCR_TSRQ0 << q, TCCR_TSRQ0 << q);
+
+	priv->cur_tx[q] += num_tx_desc;
+	if (priv->cur_tx[q] - priv->dirty_tx[q] >
+	    (priv->num_tx_ring[q] - 1) * num_tx_desc &&
+>>>>>>> upstream/android-13
 	    !ravb_tx_free(ndev, q, true))
 		netif_stop_subqueue(ndev, q);
 
 exit:
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&priv->lock, flags);
 	return NETDEV_TX_OK;
 
@@ -1600,13 +2093,21 @@ unmap:
 			 le16_to_cpu(desc->ds_tagl), DMA_TO_DEVICE);
 drop:
 	dev_kfree_skb_any(skb);
+<<<<<<< HEAD
 	priv->tx_skb[q][entry / NUM_TX_DESC] = NULL;
+=======
+	priv->tx_skb[q][entry / num_tx_desc] = NULL;
+>>>>>>> upstream/android-13
 	goto exit;
 }
 
 static u16 ravb_select_queue(struct net_device *ndev, struct sk_buff *skb,
+<<<<<<< HEAD
 			     struct net_device *sb_dev,
 			     select_queue_fallback_t fallback)
+=======
+			     struct net_device *sb_dev)
+>>>>>>> upstream/android-13
 {
 	/* If skb needs TX timestamp, it is handled in network control queue */
 	return (skb_shinfo(skb)->tx_flags & SKBTX_HW_TSTAMP) ? RAVB_NC :
@@ -1617,12 +2118,17 @@ static u16 ravb_select_queue(struct net_device *ndev, struct sk_buff *skb,
 static struct net_device_stats *ravb_get_stats(struct net_device *ndev)
 {
 	struct ravb_private *priv = netdev_priv(ndev);
+<<<<<<< HEAD
+=======
+	const struct ravb_hw_info *info = priv->info;
+>>>>>>> upstream/android-13
 	struct net_device_stats *nstats, *stats0, *stats1;
 
 	nstats = &ndev->stats;
 	stats0 = &priv->stats[RAVB_BE];
 	stats1 = &priv->stats[RAVB_NC];
 
+<<<<<<< HEAD
 	nstats->tx_dropped += ravb_read(ndev, TROCR);
 	ravb_write(ndev, 0, TROCR);	/* (write clear) */
 	nstats->collisions += ravb_read(ndev, CDCR);
@@ -1634,6 +2140,12 @@ static struct net_device_stats *ravb_get_stats(struct net_device *ndev)
 	ravb_write(ndev, 0, CERCR);	/* (write clear) */
 	nstats->tx_carrier_errors += ravb_read(ndev, CEECR);
 	ravb_write(ndev, 0, CEECR);	/* (write clear) */
+=======
+	if (info->tx_counters) {
+		nstats->tx_dropped += ravb_read(ndev, TROCR);
+		ravb_write(ndev, 0, TROCR);	/* (write clear) */
+	}
+>>>>>>> upstream/android-13
 
 	nstats->rx_packets = stats0->rx_packets + stats1->rx_packets;
 	nstats->tx_packets = stats0->tx_packets + stats1->tx_packets;
@@ -1663,7 +2175,10 @@ static void ravb_set_rx_mode(struct net_device *ndev)
 	spin_lock_irqsave(&priv->lock, flags);
 	ravb_modify(ndev, ECMR, ECMR_PRM,
 		    ndev->flags & IFF_PROMISC ? ECMR_PRM : 0);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&priv->lock, flags);
 }
 
@@ -1672,6 +2187,10 @@ static int ravb_close(struct net_device *ndev)
 {
 	struct device_node *np = ndev->dev.parent->of_node;
 	struct ravb_private *priv = netdev_priv(ndev);
+<<<<<<< HEAD
+=======
+	const struct ravb_hw_info *info = priv->info;
+>>>>>>> upstream/android-13
 	struct ravb_tstamp_skb *ts_skb, *ts_skb2;
 
 	netif_tx_stop_all_queues(ndev);
@@ -1682,7 +2201,11 @@ static int ravb_close(struct net_device *ndev)
 	ravb_write(ndev, 0, TIC);
 
 	/* Stop PTP Clock driver */
+<<<<<<< HEAD
 	if (priv->chip_id == RCAR_GEN2)
+=======
+	if (info->no_ptp_cfg_active)
+>>>>>>> upstream/android-13
 		ravb_ptp_stop(ndev);
 
 	/* Set the config mode to stop the AVB-DMAC's processes */
@@ -1705,7 +2228,11 @@ static int ravb_close(struct net_device *ndev)
 			of_phy_deregister_fixed_link(np);
 	}
 
+<<<<<<< HEAD
 	if (priv->chip_id != RCAR_GEN2) {
+=======
+	if (info->multi_irqs) {
+>>>>>>> upstream/android-13
 		free_irq(priv->tx_irqs[RAVB_NC], ndev);
 		free_irq(priv->rx_irqs[RAVB_NC], ndev);
 		free_irq(priv->tx_irqs[RAVB_BE], ndev);
@@ -1815,10 +2342,22 @@ static int ravb_do_ioctl(struct net_device *ndev, struct ifreq *req, int cmd)
 
 static int ravb_change_mtu(struct net_device *ndev, int new_mtu)
 {
+<<<<<<< HEAD
 	if (netif_running(ndev))
 		return -EBUSY;
 
 	ndev->mtu = new_mtu;
+=======
+	struct ravb_private *priv = netdev_priv(ndev);
+
+	ndev->mtu = new_mtu;
+
+	if (netif_running(ndev)) {
+		synchronize_irq(priv->emac_irq);
+		ravb_emac_init(ndev);
+	}
+
+>>>>>>> upstream/android-13
 	netdev_update_features(ndev);
 
 	return 0;
@@ -1843,8 +2382,13 @@ static void ravb_set_rx_csum(struct net_device *ndev, bool enable)
 	spin_unlock_irqrestore(&priv->lock, flags);
 }
 
+<<<<<<< HEAD
 static int ravb_set_features(struct net_device *ndev,
 			     netdev_features_t features)
+=======
+static int ravb_set_features_rx_csum(struct net_device *ndev,
+				     netdev_features_t features)
+>>>>>>> upstream/android-13
 {
 	netdev_features_t changed = ndev->features ^ features;
 
@@ -1856,6 +2400,18 @@ static int ravb_set_features(struct net_device *ndev,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int ravb_set_features(struct net_device *ndev,
+			     netdev_features_t features)
+{
+	struct ravb_private *priv = netdev_priv(ndev);
+	const struct ravb_hw_info *info = priv->info;
+
+	return info->set_rx_csum_feature(ndev, features);
+}
+
+>>>>>>> upstream/android-13
 static const struct net_device_ops ravb_netdev_ops = {
 	.ndo_open		= ravb_open,
 	.ndo_stop		= ravb_close,
@@ -1864,7 +2420,11 @@ static const struct net_device_ops ravb_netdev_ops = {
 	.ndo_get_stats		= ravb_get_stats,
 	.ndo_set_rx_mode	= ravb_set_rx_mode,
 	.ndo_tx_timeout		= ravb_tx_timeout,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= ravb_do_ioctl,
+=======
+	.ndo_eth_ioctl		= ravb_do_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_change_mtu		= ravb_change_mtu,
 	.ndo_validate_addr	= eth_validate_addr,
 	.ndo_set_mac_address	= eth_mac_addr,
@@ -1916,12 +2476,61 @@ static int ravb_mdio_release(struct ravb_private *priv)
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct of_device_id ravb_match_table[] = {
 	{ .compatible = "renesas,etheravb-r8a7790", .data = (void *)RCAR_GEN2 },
 	{ .compatible = "renesas,etheravb-r8a7794", .data = (void *)RCAR_GEN2 },
 	{ .compatible = "renesas,etheravb-rcar-gen2", .data = (void *)RCAR_GEN2 },
 	{ .compatible = "renesas,etheravb-r8a7795", .data = (void *)RCAR_GEN3 },
 	{ .compatible = "renesas,etheravb-rcar-gen3", .data = (void *)RCAR_GEN3 },
+=======
+static const struct ravb_hw_info ravb_gen3_hw_info = {
+	.rx_ring_free = ravb_rx_ring_free,
+	.rx_ring_format = ravb_rx_ring_format,
+	.alloc_rx_desc = ravb_alloc_rx_desc,
+	.receive = ravb_rcar_rx,
+	.set_rate = ravb_set_rate,
+	.set_rx_csum_feature = ravb_set_features_rx_csum,
+	.dmac_init = ravb_rcar_dmac_init,
+	.emac_init = ravb_rcar_emac_init,
+	.gstrings_stats = ravb_gstrings_stats,
+	.gstrings_size = sizeof(ravb_gstrings_stats),
+	.net_hw_features = NETIF_F_RXCSUM,
+	.net_features = NETIF_F_RXCSUM,
+	.stats_len = ARRAY_SIZE(ravb_gstrings_stats),
+	.max_rx_len = RX_BUF_SZ + RAVB_ALIGN - 1,
+	.internal_delay = 1,
+	.tx_counters = 1,
+	.multi_irqs = 1,
+	.ptp_cfg_active = 1,
+};
+
+static const struct ravb_hw_info ravb_gen2_hw_info = {
+	.rx_ring_free = ravb_rx_ring_free,
+	.rx_ring_format = ravb_rx_ring_format,
+	.alloc_rx_desc = ravb_alloc_rx_desc,
+	.receive = ravb_rcar_rx,
+	.set_rate = ravb_set_rate,
+	.set_rx_csum_feature = ravb_set_features_rx_csum,
+	.dmac_init = ravb_rcar_dmac_init,
+	.emac_init = ravb_rcar_emac_init,
+	.gstrings_stats = ravb_gstrings_stats,
+	.gstrings_size = sizeof(ravb_gstrings_stats),
+	.net_hw_features = NETIF_F_RXCSUM,
+	.net_features = NETIF_F_RXCSUM,
+	.stats_len = ARRAY_SIZE(ravb_gstrings_stats),
+	.max_rx_len = RX_BUF_SZ + RAVB_ALIGN - 1,
+	.aligned_tx = 1,
+	.no_ptp_cfg_active = 1,
+};
+
+static const struct of_device_id ravb_match_table[] = {
+	{ .compatible = "renesas,etheravb-r8a7790", .data = &ravb_gen2_hw_info },
+	{ .compatible = "renesas,etheravb-r8a7794", .data = &ravb_gen2_hw_info },
+	{ .compatible = "renesas,etheravb-rcar-gen2", .data = &ravb_gen2_hw_info },
+	{ .compatible = "renesas,etheravb-r8a7795", .data = &ravb_gen3_hw_info },
+	{ .compatible = "renesas,etheravb-rcar-gen3", .data = &ravb_gen3_hw_info },
+>>>>>>> upstream/android-13
 	{ }
 };
 MODULE_DEVICE_TABLE(of, ravb_match_table);
@@ -1937,8 +2546,12 @@ static int ravb_set_gti(struct net_device *ndev)
 	if (!rate)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	inc = 1000000000ULL << 20;
 	do_div(inc, rate);
+=======
+	inc = div64_ul(1000000000ULL << 20, rate);
+>>>>>>> upstream/android-13
 
 	if (inc < GTI_TIV_MIN || inc > GTI_TIV_MAX) {
 		dev_err(dev, "gti.tiv increment 0x%llx is outside the range 0x%x - 0x%x\n",
@@ -1954,8 +2567,14 @@ static int ravb_set_gti(struct net_device *ndev)
 static void ravb_set_config_mode(struct net_device *ndev)
 {
 	struct ravb_private *priv = netdev_priv(ndev);
+<<<<<<< HEAD
 
 	if (priv->chip_id == RCAR_GEN2) {
+=======
+	const struct ravb_hw_info *info = priv->info;
+
+	if (info->no_ptp_cfg_active) {
+>>>>>>> upstream/android-13
 		ravb_modify(ndev, CCC, CCC_OPC, CCC_OPC_CONFIG);
 		/* Set CSEL value */
 		ravb_modify(ndev, CCC, CCC_CSEL, CCC_CSEL_HPB);
@@ -1966,6 +2585,7 @@ static void ravb_set_config_mode(struct net_device *ndev)
 }
 
 /* Set tx and rx clock internal delay modes */
+<<<<<<< HEAD
 static void ravb_set_delay_mode(struct net_device *ndev)
 {
 	struct ravb_private *priv = netdev_priv(ndev);
@@ -1980,13 +2600,65 @@ static void ravb_set_delay_mode(struct net_device *ndev)
 		set |= APSR_DM_TDM;
 
 	ravb_modify(ndev, APSR, APSR_DM, set);
+=======
+static void ravb_parse_delay_mode(struct device_node *np, struct net_device *ndev)
+{
+	struct ravb_private *priv = netdev_priv(ndev);
+	bool explicit_delay = false;
+	u32 delay;
+
+	if (!of_property_read_u32(np, "rx-internal-delay-ps", &delay)) {
+		/* Valid values are 0 and 1800, according to DT bindings */
+		priv->rxcidm = !!delay;
+		explicit_delay = true;
+	}
+	if (!of_property_read_u32(np, "tx-internal-delay-ps", &delay)) {
+		/* Valid values are 0 and 2000, according to DT bindings */
+		priv->txcidm = !!delay;
+		explicit_delay = true;
+	}
+
+	if (explicit_delay)
+		return;
+
+	/* Fall back to legacy rgmii-*id behavior */
+	if (priv->phy_interface == PHY_INTERFACE_MODE_RGMII_ID ||
+	    priv->phy_interface == PHY_INTERFACE_MODE_RGMII_RXID) {
+		priv->rxcidm = 1;
+		priv->rgmii_override = 1;
+	}
+
+	if (priv->phy_interface == PHY_INTERFACE_MODE_RGMII_ID ||
+	    priv->phy_interface == PHY_INTERFACE_MODE_RGMII_TXID) {
+		priv->txcidm = 1;
+		priv->rgmii_override = 1;
+	}
+}
+
+static void ravb_set_delay_mode(struct net_device *ndev)
+{
+	struct ravb_private *priv = netdev_priv(ndev);
+	u32 set = 0;
+
+	if (priv->rxcidm)
+		set |= APSR_RDM;
+	if (priv->txcidm)
+		set |= APSR_TDM;
+	ravb_modify(ndev, APSR, APSR_RDM | APSR_TDM, set);
+>>>>>>> upstream/android-13
 }
 
 static int ravb_probe(struct platform_device *pdev)
 {
 	struct device_node *np = pdev->dev.of_node;
+<<<<<<< HEAD
 	struct ravb_private *priv;
 	enum ravb_chip_id chip_id;
+=======
+	const struct ravb_hw_info *info;
+	struct reset_control *rstc;
+	struct ravb_private *priv;
+>>>>>>> upstream/android-13
 	struct net_device *ndev;
 	int error, irq, q;
 	struct resource *res;
@@ -1998,18 +2670,26 @@ static int ravb_probe(struct platform_device *pdev)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	/* Get base address */
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	if (!res) {
 		dev_err(&pdev->dev, "invalid resource\n");
 		return -EINVAL;
 	}
+=======
+	rstc = devm_reset_control_get_optional_exclusive(&pdev->dev, NULL);
+	if (IS_ERR(rstc))
+		return dev_err_probe(&pdev->dev, PTR_ERR(rstc),
+				     "failed to get cpg reset\n");
+>>>>>>> upstream/android-13
 
 	ndev = alloc_etherdev_mqs(sizeof(struct ravb_private),
 				  NUM_TX_QUEUE, NUM_RX_QUEUE);
 	if (!ndev)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	ndev->features = NETIF_F_RXCSUM;
 	ndev->hw_features = NETIF_F_RXCSUM;
 
@@ -2022,6 +2702,18 @@ static int ravb_probe(struct platform_device *pdev)
 	chip_id = (enum ravb_chip_id)of_device_get_match_data(&pdev->dev);
 
 	if (chip_id == RCAR_GEN3)
+=======
+	info = of_device_get_match_data(&pdev->dev);
+
+	ndev->features = info->net_features;
+	ndev->hw_features = info->net_hw_features;
+
+	reset_control_deassert(rstc);
+	pm_runtime_enable(&pdev->dev);
+	pm_runtime_get_sync(&pdev->dev);
+
+	if (info->multi_irqs)
+>>>>>>> upstream/android-13
 		irq = platform_get_irq_byname(pdev, "ch22");
 	else
 		irq = platform_get_irq(pdev, 0);
@@ -2034,28 +2726,53 @@ static int ravb_probe(struct platform_device *pdev)
 	SET_NETDEV_DEV(ndev, &pdev->dev);
 
 	priv = netdev_priv(ndev);
+<<<<<<< HEAD
+=======
+	priv->info = info;
+	priv->rstc = rstc;
+>>>>>>> upstream/android-13
 	priv->ndev = ndev;
 	priv->pdev = pdev;
 	priv->num_tx_ring[RAVB_BE] = BE_TX_RING_SIZE;
 	priv->num_rx_ring[RAVB_BE] = BE_RX_RING_SIZE;
 	priv->num_tx_ring[RAVB_NC] = NC_TX_RING_SIZE;
 	priv->num_rx_ring[RAVB_NC] = NC_RX_RING_SIZE;
+<<<<<<< HEAD
 	priv->addr = devm_ioremap_resource(&pdev->dev, res);
+=======
+	priv->addr = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
+>>>>>>> upstream/android-13
 	if (IS_ERR(priv->addr)) {
 		error = PTR_ERR(priv->addr);
 		goto out_release;
 	}
 
+<<<<<<< HEAD
 	spin_lock_init(&priv->lock);
 	INIT_WORK(&priv->work, ravb_tx_timeout_work);
 
 	priv->phy_interface = of_get_phy_mode(np);
+=======
+	/* The Ether-specific entries in the device structure. */
+	ndev->base_addr = res->start;
+
+	spin_lock_init(&priv->lock);
+	INIT_WORK(&priv->work, ravb_tx_timeout_work);
+
+	error = of_get_phy_mode(np, &priv->phy_interface);
+	if (error && error != -ENODEV)
+		goto out_release;
+>>>>>>> upstream/android-13
 
 	priv->no_avb_link = of_property_read_bool(np, "renesas,no-ether-link");
 	priv->avb_link_active_low =
 		of_property_read_bool(np, "renesas,ether-link-active-low");
 
+<<<<<<< HEAD
 	if (chip_id == RCAR_GEN3) {
+=======
+	if (info->multi_irqs) {
+>>>>>>> upstream/android-13
 		irq = platform_get_irq_byname(pdev, "ch24");
 		if (irq < 0) {
 			error = irq;
@@ -2080,17 +2797,40 @@ static int ravb_probe(struct platform_device *pdev)
 		}
 	}
 
+<<<<<<< HEAD
 	priv->chip_id = chip_id;
 
+=======
+>>>>>>> upstream/android-13
 	priv->clk = devm_clk_get(&pdev->dev, NULL);
 	if (IS_ERR(priv->clk)) {
 		error = PTR_ERR(priv->clk);
 		goto out_release;
 	}
 
+<<<<<<< HEAD
 	ndev->max_mtu = 2048 - (ETH_HLEN + VLAN_HLEN + ETH_FCS_LEN);
 	ndev->min_mtu = ETH_MIN_MTU;
 
+=======
+	priv->refclk = devm_clk_get_optional(&pdev->dev, "refclk");
+	if (IS_ERR(priv->refclk)) {
+		error = PTR_ERR(priv->refclk);
+		goto out_release;
+	}
+	clk_prepare_enable(priv->refclk);
+
+	ndev->max_mtu = 2048 - (ETH_HLEN + VLAN_HLEN + ETH_FCS_LEN);
+	ndev->min_mtu = ETH_MIN_MTU;
+
+	/* FIXME: R-Car Gen2 has 4byte alignment restriction for tx buffer
+	 * Use two descriptor to handle such situation. First descriptor to
+	 * handle aligned data buffer and second descriptor to handle the
+	 * overflow data because of alignment.
+	 */
+	priv->num_tx_desc = info->aligned_tx ? 2 : 1;
+
+>>>>>>> upstream/android-13
 	/* Set function */
 	ndev->netdev_ops = &ravb_netdev_ops;
 	ndev->ethtool_ops = &ravb_ethtool_ops;
@@ -2101,13 +2841,24 @@ static int ravb_probe(struct platform_device *pdev)
 	/* Set GTI value */
 	error = ravb_set_gti(ndev);
 	if (error)
+<<<<<<< HEAD
 		goto out_release;
+=======
+		goto out_disable_refclk;
+>>>>>>> upstream/android-13
 
 	/* Request GTI loading */
 	ravb_modify(ndev, GCCR, GCCR_LTI, GCCR_LTI);
 
+<<<<<<< HEAD
 	if (priv->chip_id != RCAR_GEN2)
 		ravb_set_delay_mode(ndev);
+=======
+	if (info->internal_delay) {
+		ravb_parse_delay_mode(np, ndev);
+		ravb_set_delay_mode(ndev);
+	}
+>>>>>>> upstream/android-13
 
 	/* Allocate descriptor base address table */
 	priv->desc_bat_size = sizeof(struct ravb_desc) * DBAT_ENTRY_NUM;
@@ -2118,7 +2869,11 @@ static int ravb_probe(struct platform_device *pdev)
 			"Cannot allocate desc base address table (size %d bytes)\n",
 			priv->desc_bat_size);
 		error = -ENOMEM;
+<<<<<<< HEAD
 		goto out_release;
+=======
+		goto out_disable_refclk;
+>>>>>>> upstream/android-13
 	}
 	for (q = RAVB_BE; q < DBAT_ENTRY_NUM; q++)
 		priv->desc_bat[q].die_dt = DT_EOS;
@@ -2128,14 +2883,22 @@ static int ravb_probe(struct platform_device *pdev)
 	INIT_LIST_HEAD(&priv->ts_skb_list);
 
 	/* Initialise PTP Clock driver */
+<<<<<<< HEAD
 	if (chip_id != RCAR_GEN2)
+=======
+	if (info->ptp_cfg_active)
+>>>>>>> upstream/android-13
 		ravb_ptp_init(ndev, pdev);
 
 	/* Debug message level */
 	priv->msg_enable = RAVB_DEF_MSG_ENABLE;
 
 	/* Read and set MAC address */
+<<<<<<< HEAD
 	ravb_read_mac_address(ndev, of_get_mac_address(np));
+=======
+	ravb_read_mac_address(np, ndev);
+>>>>>>> upstream/android-13
 	if (!is_valid_ether_addr(ndev->dev_addr)) {
 		dev_warn(&pdev->dev,
 			 "no valid MAC address supplied, using a random one\n");
@@ -2176,13 +2939,24 @@ out_dma_free:
 			  priv->desc_bat_dma);
 
 	/* Stop PTP Clock driver */
+<<<<<<< HEAD
 	if (chip_id != RCAR_GEN2)
 		ravb_ptp_stop(ndev);
+=======
+	if (info->ptp_cfg_active)
+		ravb_ptp_stop(ndev);
+out_disable_refclk:
+	clk_disable_unprepare(priv->refclk);
+>>>>>>> upstream/android-13
 out_release:
 	free_netdev(ndev);
 
 	pm_runtime_put(&pdev->dev);
 	pm_runtime_disable(&pdev->dev);
+<<<<<<< HEAD
+=======
+	reset_control_assert(rstc);
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -2190,11 +2964,22 @@ static int ravb_remove(struct platform_device *pdev)
 {
 	struct net_device *ndev = platform_get_drvdata(pdev);
 	struct ravb_private *priv = netdev_priv(ndev);
+<<<<<<< HEAD
 
 	/* Stop PTP Clock driver */
 	if (priv->chip_id != RCAR_GEN2)
 		ravb_ptp_stop(ndev);
 
+=======
+	const struct ravb_hw_info *info = priv->info;
+
+	/* Stop PTP Clock driver */
+	if (info->ptp_cfg_active)
+		ravb_ptp_stop(ndev);
+
+	clk_disable_unprepare(priv->refclk);
+
+>>>>>>> upstream/android-13
 	dma_free_coherent(ndev->dev.parent, priv->desc_bat_size, priv->desc_bat,
 			  priv->desc_bat_dma);
 	/* Set reset mode */
@@ -2205,6 +2990,10 @@ static int ravb_remove(struct platform_device *pdev)
 	netif_napi_del(&priv->napi[RAVB_BE]);
 	ravb_mdio_release(priv);
 	pm_runtime_disable(&pdev->dev);
+<<<<<<< HEAD
+=======
+	reset_control_assert(priv->rstc);
+>>>>>>> upstream/android-13
 	free_netdev(ndev);
 	platform_set_drvdata(pdev, NULL);
 
@@ -2273,6 +3062,10 @@ static int __maybe_unused ravb_resume(struct device *dev)
 {
 	struct net_device *ndev = dev_get_drvdata(dev);
 	struct ravb_private *priv = netdev_priv(ndev);
+<<<<<<< HEAD
+=======
+	const struct ravb_hw_info *info = priv->info;
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 	/* If WoL is enabled set reset mode to rearm the WoL logic */
@@ -2295,7 +3088,11 @@ static int __maybe_unused ravb_resume(struct device *dev)
 	/* Request GTI loading */
 	ravb_modify(ndev, GCCR, GCCR_LTI, GCCR_LTI);
 
+<<<<<<< HEAD
 	if (priv->chip_id != RCAR_GEN2)
+=======
+	if (info->internal_delay)
+>>>>>>> upstream/android-13
 		ravb_set_delay_mode(ndev);
 
 	/* Restore descriptor base address table */

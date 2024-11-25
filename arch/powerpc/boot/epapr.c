@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Bootwrapper for ePAPR compliant firmwares
  *
@@ -8,10 +12,13 @@
  *   and
  * Scott Wood <scottwood@freescale.com>
  * Copyright (c) 2007 Freescale Semiconductor, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "ops.h"

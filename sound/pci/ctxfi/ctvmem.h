@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**
  * Copyright (C) 2008, Creative Technology Ltd. All Rights Reserved.
  *
@@ -5,6 +6,12 @@
  * See the COPYING file included in the main directory of this source
  * distribution for the license terms and conditions.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2008, Creative Technology Ltd. All Rights Reserved.
+ *
+>>>>>>> upstream/android-13
  * @File    ctvmem.h
  *
  * @Brief

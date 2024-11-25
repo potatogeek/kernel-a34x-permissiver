@@ -183,13 +183,20 @@ int reiserfs_convert_objectid_map_v1(struct super_block *s)
 	int new_size = (s->s_blocksize - SB_SIZE) / sizeof(__u32) / 2 * 2;
 	int old_max = sb_oid_maxsize(disk_sb);
 	struct reiserfs_super_block_v1 *disk_sb_v1;
+<<<<<<< HEAD
 	__le32 *objectid_map, *new_objectid_map;
+=======
+	__le32 *objectid_map;
+>>>>>>> upstream/android-13
 	int i;
 
 	disk_sb_v1 =
 	    (struct reiserfs_super_block_v1 *)(SB_BUFFER_WITH_SB(s)->b_data);
 	objectid_map = (__le32 *) (disk_sb_v1 + 1);
+<<<<<<< HEAD
 	new_objectid_map = (__le32 *) (disk_sb + 1);
+=======
+>>>>>>> upstream/android-13
 
 	if (cur_size > new_size) {
 		/*

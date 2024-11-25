@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * soundbus
  *
  * Copyright 2006 Johannes Berg <johannes@sipsolutions.net>
+<<<<<<< HEAD
  *
  * GPL v2, can be found in COPYING.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -74,11 +81,19 @@ static int soundbus_uevent(struct device *dev, struct kobj_uevent_env *env)
 	of = &soundbus_dev->ofdev;
 
 	/* stuff we want to pass to /sbin/hotplug */
+<<<<<<< HEAD
 	retval = add_uevent_var(env, "OF_NAME=%s", of->dev.of_node->name);
 	if (retval)
 		return retval;
 
 	retval = add_uevent_var(env, "OF_TYPE=%s", of->dev.of_node->type);
+=======
+	retval = add_uevent_var(env, "OF_NAME=%pOFn", of->dev.of_node);
+	if (retval)
+		return retval;
+
+	retval = add_uevent_var(env, "OF_TYPE=%s", of_node_get_device_type(of->dev.of_node));
+>>>>>>> upstream/android-13
 	if (retval)
 		return retval;
 
@@ -105,7 +120,11 @@ static int soundbus_uevent(struct device *dev, struct kobj_uevent_env *env)
 	return retval;
 }
 
+<<<<<<< HEAD
 static int soundbus_device_remove(struct device *dev)
+=======
+static void soundbus_device_remove(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct soundbus_dev * soundbus_dev = to_soundbus_device(dev);
 	struct soundbus_driver * drv = to_soundbus_driver(dev->driver);
@@ -113,8 +132,11 @@ static int soundbus_device_remove(struct device *dev)
 	if (dev->driver && drv->remove)
 		drv->remove(soundbus_dev);
 	soundbus_dev_put(soundbus_dev);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static void soundbus_device_shutdown(struct device *dev)

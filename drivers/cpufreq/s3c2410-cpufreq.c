@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2006-2008 Simtec Electronics
  *	http://armlinux.simtec.co.uk/
  *	Ben Dooks <ben@simtec.co.uk>
  *
  * S3C2410 CPU Frequency scaling
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
 */
 
 #include <linux/init.h>
@@ -19,14 +26,24 @@
 #include <linux/clk.h>
 #include <linux/err.h>
 #include <linux/io.h>
+<<<<<<< HEAD
+=======
+#include <linux/soc/samsung/s3c-cpufreq-core.h>
+#include <linux/soc/samsung/s3c-pm.h>
+>>>>>>> upstream/android-13
 
 #include <asm/mach/arch.h>
 #include <asm/mach/map.h>
 
+<<<<<<< HEAD
 #include <mach/regs-clock.h>
 
 #include <plat/cpu.h>
 #include <plat/cpu-freq-core.h>
+=======
+#define S3C2410_CLKDIVN_PDIVN	     (1<<0)
+#define S3C2410_CLKDIVN_HDIVN	     (1<<1)
+>>>>>>> upstream/android-13
 
 /* Note, 2410A has an extra mode for 1:4:4 ratio, bit 2 of CLKDIV */
 
@@ -40,7 +57,11 @@ static void s3c2410_cpufreq_setdivs(struct s3c_cpufreq_config *cfg)
 	if (cfg->divs.p_divisor != cfg->divs.h_divisor)
 		clkdiv |= S3C2410_CLKDIVN_PDIVN;
 
+<<<<<<< HEAD
 	__raw_writel(clkdiv, S3C2410_CLKDIVN);
+=======
+	s3c24xx_write_clkdivn(clkdiv);
+>>>>>>> upstream/android-13
 }
 
 static int s3c2410_cpufreq_calcdivs(struct s3c_cpufreq_config *cfg)

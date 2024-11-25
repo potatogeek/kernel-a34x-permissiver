@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *
  * Copyright (C) 2015 Numascale AS. All rights reserved.
@@ -11,6 +12,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *
+ * Copyright (C) 2015 Numascale AS. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clockchips.h>

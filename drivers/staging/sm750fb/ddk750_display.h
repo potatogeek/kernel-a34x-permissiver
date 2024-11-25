@@ -102,6 +102,10 @@ enum disp_output {
 	do_CRT_SEC = CRT_2_SEC | SEC_TP_ON | DPMS_ON | DAC_ON,
 };
 
+<<<<<<< HEAD
 void ddk750_setLogicalDispOut(enum disp_output output);
+=======
+void ddk750_set_logical_disp_out(enum disp_output output);
+>>>>>>> upstream/android-13
 
 #endif

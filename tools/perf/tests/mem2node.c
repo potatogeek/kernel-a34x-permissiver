@@ -1,6 +1,18 @@
+<<<<<<< HEAD
 #include <linux/compiler.h>
 #include <linux/bitmap.h>
 #include "cpumap.h"
+=======
+// SPDX-License-Identifier: GPL-2.0
+#include <linux/compiler.h>
+#include <linux/bitmap.h>
+#include <linux/kernel.h>
+#include <linux/zalloc.h>
+#include <perf/cpumap.h>
+#include <internal/cpumap.h>
+#include "debug.h"
+#include "env.h"
+>>>>>>> upstream/android-13
 #include "mem2node.h"
 #include "tests.h"
 
@@ -17,11 +29,19 @@ static struct node {
 
 static unsigned long *get_bitmap(const char *str, int nbits)
 {
+<<<<<<< HEAD
 	struct cpu_map *map = cpu_map__new(str);
 	unsigned long *bm = NULL;
 	int i;
 
 	bm = bitmap_alloc(nbits);
+=======
+	struct perf_cpu_map *map = perf_cpu_map__new(str);
+	unsigned long *bm = NULL;
+	int i;
+
+	bm = bitmap_zalloc(nbits);
+>>>>>>> upstream/android-13
 
 	if (map && bm) {
 		for (i = 0; i < map->nr; i++) {
@@ -30,7 +50,11 @@ static unsigned long *get_bitmap(const char *str, int nbits)
 	}
 
 	if (map)
+<<<<<<< HEAD
 		cpu_map__put(map);
+=======
+		perf_cpu_map__put(map);
+>>>>>>> upstream/android-13
 	else
 		free(bm);
 
@@ -66,7 +90,11 @@ int test__mem2node(struct test *t __maybe_unused, int subtest __maybe_unused)
 	T("failed: mem2node__node", -1 == mem2node__node(&map, 0x1050));
 
 	for (i = 0; i < ARRAY_SIZE(nodes); i++)
+<<<<<<< HEAD
 		free(nodes[i].set);
+=======
+		zfree(&nodes[i].set);
+>>>>>>> upstream/android-13
 
 	mem2node__exit(&map);
 	return 0;

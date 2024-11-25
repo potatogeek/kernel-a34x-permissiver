@@ -1,6 +1,10 @@
 SECTIONS
 {
+<<<<<<< HEAD
   .rodata..compressed : {
+=======
+  .rodata..compressed : ALIGN(8) {
+>>>>>>> upstream/android-13
 	input_len = .;
 	LONG(input_data_end - input_data) input_data = .;
 	*(.data)

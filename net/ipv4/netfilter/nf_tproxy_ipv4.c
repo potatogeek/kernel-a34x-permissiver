@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2007-2008 BalaBit IT Ltd.
  * Author: Krisztian Kovacs
@@ -6,6 +7,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2007-2008 BalaBit IT Ltd.
+ * Author: Krisztian Kovacs
+>>>>>>> upstream/android-13
  */
 
 #include <net/netfilter/nf_tproxy.h>
@@ -53,6 +60,10 @@ EXPORT_SYMBOL_GPL(nf_tproxy_handle_time_wait4);
 
 __be32 nf_tproxy_laddr4(struct sk_buff *skb, __be32 user_laddr, __be32 daddr)
 {
+<<<<<<< HEAD
+=======
+	const struct in_ifaddr *ifa;
+>>>>>>> upstream/android-13
 	struct in_device *indev;
 	__be32 laddr;
 
@@ -61,10 +72,21 @@ __be32 nf_tproxy_laddr4(struct sk_buff *skb, __be32 user_laddr, __be32 daddr)
 
 	laddr = 0;
 	indev = __in_dev_get_rcu(skb->dev);
+<<<<<<< HEAD
 	for_primary_ifa(indev) {
 		laddr = ifa->ifa_local;
 		break;
 	} endfor_ifa(indev);
+=======
+
+	in_dev_for_each_ifa_rcu(ifa, indev) {
+		if (ifa->ifa_flags & IFA_F_SECONDARY)
+			continue;
+
+		laddr = ifa->ifa_local;
+		break;
+	}
+>>>>>>> upstream/android-13
 
 	return laddr ? laddr : daddr;
 }

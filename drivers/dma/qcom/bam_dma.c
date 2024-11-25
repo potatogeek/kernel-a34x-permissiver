@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2013-2014, The Linux Foundation. All rights reserved.
  *
@@ -10,6 +11,11 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2013-2014, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 /*
  * QCOM BAM DMA engine driver
@@ -83,7 +89,11 @@ struct bam_async_desc {
 	struct list_head desc_node;
 	enum dma_transfer_direction dir;
 	size_t length;
+<<<<<<< HEAD
 	struct bam_desc_hw desc[0];
+=======
+	struct bam_desc_hw desc[];
+>>>>>>> upstream/android-13
 };
 
 enum bam_reg {
@@ -390,7 +400,10 @@ struct bam_device {
 	void __iomem *regs;
 	struct device *dev;
 	struct dma_device common;
+<<<<<<< HEAD
 	struct device_dma_parameters dma_parms;
+=======
+>>>>>>> upstream/android-13
 	struct bam_chan *channels;
 	u32 num_channels;
 	u32 num_ees;
@@ -636,11 +649,19 @@ static struct dma_async_tx_descriptor *bam_prep_slave_sg(struct dma_chan *chan,
 		num_alloc += DIV_ROUND_UP(sg_dma_len(sg), BAM_FIFO_SIZE);
 
 	/* allocate enough room to accomodate the number of entries */
+<<<<<<< HEAD
 	async_desc = kzalloc(sizeof(*async_desc) +
 			(num_alloc * sizeof(struct bam_desc_hw)), GFP_NOWAIT);
 
 	if (!async_desc)
 		goto err_out;
+=======
+	async_desc = kzalloc(struct_size(async_desc, desc, num_alloc),
+			     GFP_NOWAIT);
+
+	if (!async_desc)
+		return NULL;
+>>>>>>> upstream/android-13
 
 	if (flags & DMA_PREP_FENCE)
 		async_desc->flags |= DESC_FLAG_NWD;
@@ -680,10 +701,13 @@ static struct dma_async_tx_descriptor *bam_prep_slave_sg(struct dma_chan *chan,
 	}
 
 	return vchan_tx_prep(&bchan->vc, &async_desc->vd, flags);
+<<<<<<< HEAD
 
 err_out:
 	kfree(async_desc);
 	return NULL;
+=======
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -885,7 +909,11 @@ static irqreturn_t bam_dma_irq(int irq, void *data)
 
 	ret = bam_pm_runtime_get_sync(bdev->dev);
 	if (ret < 0)
+<<<<<<< HEAD
 		return ret;
+=======
+		return IRQ_NONE;
+>>>>>>> upstream/android-13
 
 	if (srcs & BAM_IRQ) {
 		clr_mask = readl_relaxed(bam_addr(bdev, 0, BAM_IRQ_STTS));
@@ -1080,6 +1108,7 @@ static void bam_start_dma(struct bam_chan *bchan)
 
 /**
  * dma_tasklet - DMA IRQ tasklet
+<<<<<<< HEAD
  * @data: tasklet argument (bam controller structure)
  *
  * Sets up next DMA operation and then processes all completed transactions
@@ -1087,6 +1116,15 @@ static void bam_start_dma(struct bam_chan *bchan)
 static void dma_tasklet(unsigned long data)
 {
 	struct bam_device *bdev = (struct bam_device *)data;
+=======
+ * @t: tasklet argument (bam controller structure)
+ *
+ * Sets up next DMA operation and then processes all completed transactions
+ */
+static void dma_tasklet(struct tasklet_struct *t)
+{
+	struct bam_device *bdev = from_tasklet(bdev, t, task);
+>>>>>>> upstream/android-13
 	struct bam_chan *bchan;
 	unsigned long flags;
 	unsigned int i;
@@ -1284,6 +1322,7 @@ static int bam_dma_probe(struct platform_device *pdev)
 			dev_err(bdev->dev, "num-ees unspecified in dt\n");
 	}
 
+<<<<<<< HEAD
 	bdev->bamclk = devm_clk_get(bdev->dev, "bam_clk");
 	if (IS_ERR(bdev->bamclk)) {
 		if (!bdev->controlled_remotely)
@@ -1291,6 +1330,15 @@ static int bam_dma_probe(struct platform_device *pdev)
 
 		bdev->bamclk = NULL;
 	}
+=======
+	if (bdev->controlled_remotely)
+		bdev->bamclk = devm_clk_get_optional(bdev->dev, "bam_clk");
+	else
+		bdev->bamclk = devm_clk_get(bdev->dev, "bam_clk");
+
+	if (IS_ERR(bdev->bamclk))
+		return PTR_ERR(bdev->bamclk);
+>>>>>>> upstream/android-13
 
 	ret = clk_prepare_enable(bdev->bamclk);
 	if (ret) {
@@ -1302,7 +1350,11 @@ static int bam_dma_probe(struct platform_device *pdev)
 	if (ret)
 		goto err_disable_clk;
 
+<<<<<<< HEAD
 	tasklet_init(&bdev->task, dma_tasklet, (unsigned long)bdev);
+=======
+	tasklet_setup(&bdev->task, dma_tasklet);
+>>>>>>> upstream/android-13
 
 	bdev->channels = devm_kcalloc(bdev->dev, bdev->num_channels,
 				sizeof(*bdev->channels), GFP_KERNEL);
@@ -1325,7 +1377,10 @@ static int bam_dma_probe(struct platform_device *pdev)
 
 	/* set max dma segment size */
 	bdev->common.dev = bdev->dev;
+<<<<<<< HEAD
 	bdev->common.dev->dma_parms = &bdev->dma_parms;
+=======
+>>>>>>> upstream/android-13
 	ret = dma_set_max_seg_size(bdev->common.dev, BAM_FIFO_SIZE);
 	if (ret) {
 		dev_err(bdev->dev, "cannot set maximum segment size\n");
@@ -1365,7 +1420,11 @@ static int bam_dma_probe(struct platform_device *pdev)
 	if (ret)
 		goto err_unregister_dma;
 
+<<<<<<< HEAD
 	if (bdev->controlled_remotely) {
+=======
+	if (!bdev->bamclk) {
+>>>>>>> upstream/android-13
 		pm_runtime_disable(&pdev->dev);
 		return 0;
 	}
@@ -1453,10 +1512,17 @@ static int __maybe_unused bam_dma_suspend(struct device *dev)
 {
 	struct bam_device *bdev = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	if (!bdev->controlled_remotely)
 		pm_runtime_force_suspend(dev);
 
 	clk_unprepare(bdev->bamclk);
+=======
+	if (bdev->bamclk) {
+		pm_runtime_force_suspend(dev);
+		clk_unprepare(bdev->bamclk);
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1466,12 +1532,22 @@ static int __maybe_unused bam_dma_resume(struct device *dev)
 	struct bam_device *bdev = dev_get_drvdata(dev);
 	int ret;
 
+<<<<<<< HEAD
 	ret = clk_prepare(bdev->bamclk);
 	if (ret)
 		return ret;
 
 	if (!bdev->controlled_remotely)
 		pm_runtime_force_resume(dev);
+=======
+	if (bdev->bamclk) {
+		ret = clk_prepare(bdev->bamclk);
+		if (ret)
+			return ret;
+
+		pm_runtime_force_resume(dev);
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }

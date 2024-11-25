@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * omap_device implementation
  *
@@ -9,10 +13,13 @@
  * Pandita, Sakari Poussa, Anand Sawant, Santosh Shilimkar, Richard
  * Woodruff
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * This code provides a consistent interface for OMAP device drivers
  * to control power management and interconnect properties of their
  * devices.
@@ -20,8 +27,11 @@
  * In the medium- to long-term, this code should be implemented as a
  * proper omap_bus/omap_device in Linux, no more platform_data func
  * pointers
+<<<<<<< HEAD
  *
  *
+=======
+>>>>>>> upstream/android-13
  */
 #undef DEBUG
 
@@ -124,11 +134,15 @@ static void _add_hwmod_clocks_clkdev(struct omap_device *od,
 
 /**
  * omap_device_build_from_dt - build an omap_device with multiple hwmods
+<<<<<<< HEAD
  * @pdev_name: name of the platform_device driver to use
  * @pdev_id: this platform_device's connection ID
  * @oh: ptr to the single omap_hwmod that backs this omap_device
  * @pdata: platform_data ptr to associate with the platform_device
  * @pdata_len: amount of memory pointed to by @pdata
+=======
+ * @pdev: The platform device to update.
+>>>>>>> upstream/android-13
  *
  * Function for building an omap_device already registered from device-tree
  *
@@ -251,7 +265,11 @@ static int _omap_device_notifier_call(struct notifier_block *nb,
 		if (pdev->dev.of_node)
 			omap_device_build_from_dt(pdev);
 		omap_auxdata_legacy_init(dev);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		od = to_omap_device(pdev);
 		if (od)
@@ -299,7 +317,11 @@ static int _omap_device_idle_hwmods(struct omap_device *od)
 
 /**
  * omap_device_get_context_loss_count - get lost context count
+<<<<<<< HEAD
  * @od: struct omap_device *
+=======
+ * @pdev: The platform device to update.
+>>>>>>> upstream/android-13
  *
  * Using the primary hwmod, query the context loss count for this
  * device.
@@ -328,9 +350,14 @@ int omap_device_get_context_loss_count(struct platform_device *pdev)
 /**
  * omap_device_alloc - allocate an omap_device
  * @pdev: platform_device that will be included in this omap_device
+<<<<<<< HEAD
  * @oh: ptr to the single omap_hwmod that backs this omap_device
  * @pdata: platform_data ptr to associate with the platform_device
  * @pdata_len: amount of memory pointed to by @pdata
+=======
+ * @ohs: ptr to the omap_hwmod for this omap_device
+ * @oh_cnt: the size of the ohs list
+>>>>>>> upstream/android-13
  *
  * Convenience function for allocating an omap_device structure and filling
  * hwmods, and resources.
@@ -346,10 +373,16 @@ struct omap_device *omap_device_alloc(struct platform_device *pdev,
 	struct omap_hwmod **hwmods;
 
 	od = kzalloc(sizeof(struct omap_device), GFP_KERNEL);
+<<<<<<< HEAD
 	if (!od) {
 		ret = -ENOMEM;
 		goto oda_exit1;
 	}
+=======
+	if (!od)
+		goto oda_exit1;
+
+>>>>>>> upstream/android-13
 	od->hwmods_cnt = oh_cnt;
 
 	hwmods = kmemdup(ohs, sizeof(struct omap_hwmod *) * oh_cnt, GFP_KERNEL);
@@ -385,6 +418,7 @@ void omap_device_delete(struct omap_device *od)
 	kfree(od);
 }
 
+<<<<<<< HEAD
 /**
  * omap_device_copy_resources - Add legacy IO and IRQ resources
  * @oh: interconnect target module
@@ -555,6 +589,8 @@ odbs_exit:
 	return ERR_PTR(ret);
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM
 static int _od_runtime_suspend(struct device *dev)
 {
@@ -656,7 +692,11 @@ struct dev_pm_domain omap_device_pm_domain = {
 
 /**
  * omap_device_register - register an omap_device with one omap_hwmod
+<<<<<<< HEAD
  * @od: struct omap_device * to register
+=======
+ * @pdev: the platform device (omap_device) to register.
+>>>>>>> upstream/android-13
  *
  * Register the omap_device structure.  This currently just calls
  * platform_device_register() on the underlying platform_device.
@@ -675,7 +715,11 @@ int omap_device_register(struct platform_device *pdev)
 
 /**
  * omap_device_enable - fully activate an omap_device
+<<<<<<< HEAD
  * @od: struct omap_device * to activate
+=======
+ * @pdev: the platform device to activate
+>>>>>>> upstream/android-13
  *
  * Do whatever is necessary for the hwmods underlying omap_device @od
  * to be accessible and ready to operate.  This generally involves
@@ -709,7 +753,11 @@ int omap_device_enable(struct platform_device *pdev)
 
 /**
  * omap_device_idle - idle an omap_device
+<<<<<<< HEAD
  * @od: struct omap_device * to idle
+=======
+ * @pdev: The platform_device (omap_device) to idle
+>>>>>>> upstream/android-13
  *
  * Idle omap_device @od.  Device drivers call this function indirectly
  * via pm_runtime_put*().  Returns -EINVAL if the omap_device is not

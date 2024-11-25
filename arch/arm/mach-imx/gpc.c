@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2011-2013 Freescale Semiconductor, Inc.
  * Copyright 2011 Linaro Ltd.
@@ -8,6 +9,12 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2011-2013 Freescale Semiconductor, Inc.
+ * Copyright 2011 Linaro Ltd.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/io.h>
@@ -16,7 +23,11 @@
 #include <linux/of.h>
 #include <linux/of_address.h>
 #include <linux/of_irq.h>
+<<<<<<< HEAD
 #include <linux/irqchip/arm-gic.h>
+=======
+
+>>>>>>> upstream/android-13
 #include "common.h"
 #include "hardware.h"
 
@@ -117,7 +128,10 @@ void imx_gpc_mask_all(void)
 		gpc_saved_imrs[i] = readl_relaxed(reg_imr1 + i * 4);
 		writel_relaxed(~0, reg_imr1 + i * 4);
 	}
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 }
 
 void imx_gpc_restore_all(void)
@@ -288,4 +302,8 @@ void __init imx_gpc_check_dt(void)
 		/* map GPC, so that at least CPUidle and WARs keep working */
 		gpc_base = of_iomap(np, 0);
 	}
+<<<<<<< HEAD
+=======
+	of_node_put(np);
+>>>>>>> upstream/android-13
 }

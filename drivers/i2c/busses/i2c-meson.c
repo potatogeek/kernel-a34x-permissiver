@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * I2C bus driver for Amlogic Meson SoCs
  *
  * Copyright (C) 2014 Beniamino Galvani <b.galvani@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitfield.h>
@@ -14,6 +21,10 @@
 #include <linux/i2c.h>
 #include <linux/interrupt.h>
 #include <linux/io.h>
+<<<<<<< HEAD
+=======
+#include <linux/iopoll.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/of.h>
@@ -227,6 +238,33 @@ static void meson_i2c_prepare_xfer(struct meson_i2c *i2c)
 	writel(i2c->tokens[1], i2c->regs + REG_TOK_LIST1);
 }
 
+<<<<<<< HEAD
+=======
+static void meson_i2c_transfer_complete(struct meson_i2c *i2c, u32 ctrl)
+{
+	if (ctrl & REG_CTRL_ERROR) {
+		/*
+		 * The bit is set when the IGNORE_NAK bit is cleared
+		 * and the device didn't respond. In this case, the
+		 * I2C controller automatically generates a STOP
+		 * condition.
+		 */
+		dev_dbg(i2c->dev, "error bit set\n");
+		i2c->error = -ENXIO;
+		i2c->state = STATE_IDLE;
+	} else {
+		if (i2c->state == STATE_READ && i2c->count)
+			meson_i2c_get_data(i2c, i2c->msg->buf + i2c->pos,
+					   i2c->count);
+
+		i2c->pos += i2c->count;
+
+		if (i2c->pos >= i2c->msg->len)
+			i2c->state = STATE_IDLE;
+	}
+}
+
+>>>>>>> upstream/android-13
 static irqreturn_t meson_i2c_irq(int irqno, void *dev_id)
 {
 	struct meson_i2c *i2c = dev_id;
@@ -246,6 +284,7 @@ static irqreturn_t meson_i2c_irq(int irqno, void *dev_id)
 		return IRQ_NONE;
 	}
 
+<<<<<<< HEAD
 	if (ctrl & REG_CTRL_ERROR) {
 		/*
 		 * The bit is set when the IGNORE_NAK bit is cleared
@@ -267,6 +306,11 @@ static irqreturn_t meson_i2c_irq(int irqno, void *dev_id)
 
 	if (i2c->pos >= i2c->msg->len) {
 		i2c->state = STATE_IDLE;
+=======
+	meson_i2c_transfer_complete(i2c, ctrl);
+
+	if (i2c->state == STATE_IDLE) {
+>>>>>>> upstream/android-13
 		complete(&i2c->done);
 		goto out;
 	}
@@ -296,10 +340,18 @@ static void meson_i2c_do_start(struct meson_i2c *i2c, struct i2c_msg *msg)
 }
 
 static int meson_i2c_xfer_msg(struct meson_i2c *i2c, struct i2c_msg *msg,
+<<<<<<< HEAD
 			      int last)
 {
 	unsigned long time_left, flags;
 	int ret = 0;
+=======
+			      int last, bool atomic)
+{
+	unsigned long time_left, flags;
+	int ret = 0;
+	u32 ctrl;
+>>>>>>> upstream/android-13
 
 	i2c->msg = msg;
 	i2c->last = last;
@@ -317,13 +369,33 @@ static int meson_i2c_xfer_msg(struct meson_i2c *i2c, struct i2c_msg *msg,
 
 	i2c->state = (msg->flags & I2C_M_RD) ? STATE_READ : STATE_WRITE;
 	meson_i2c_prepare_xfer(i2c);
+<<<<<<< HEAD
 	reinit_completion(&i2c->done);
+=======
+
+	if (!atomic)
+		reinit_completion(&i2c->done);
+>>>>>>> upstream/android-13
 
 	/* Start the transfer */
 	meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_START, REG_CTRL_START);
 
+<<<<<<< HEAD
 	time_left = msecs_to_jiffies(I2C_TIMEOUT_MS);
 	time_left = wait_for_completion_timeout(&i2c->done, time_left);
+=======
+	if (atomic) {
+		ret = readl_poll_timeout_atomic(i2c->regs + REG_CTRL, ctrl,
+						!(ctrl & REG_CTRL_STATUS),
+						10, I2C_TIMEOUT_MS * 1000);
+	} else {
+		time_left = msecs_to_jiffies(I2C_TIMEOUT_MS);
+		time_left = wait_for_completion_timeout(&i2c->done, time_left);
+
+		if (!time_left)
+			ret = -ETIMEDOUT;
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * Protect access to i2c struct and registers from interrupt
@@ -332,6 +404,7 @@ static int meson_i2c_xfer_msg(struct meson_i2c *i2c, struct i2c_msg *msg,
 	 */
 	spin_lock_irqsave(&i2c->lock, flags);
 
+<<<<<<< HEAD
 	/* Abort any active operation */
 	meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_START, 0);
 
@@ -339,6 +412,16 @@ static int meson_i2c_xfer_msg(struct meson_i2c *i2c, struct i2c_msg *msg,
 		i2c->state = STATE_IDLE;
 		ret = -ETIMEDOUT;
 	}
+=======
+	if (atomic && !ret)
+		meson_i2c_transfer_complete(i2c, ctrl);
+
+	/* Abort any active operation */
+	meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_START, 0);
+
+	if (ret)
+		i2c->state = STATE_IDLE;
+>>>>>>> upstream/android-13
 
 	if (i2c->error)
 		ret = i2c->error;
@@ -348,40 +431,77 @@ static int meson_i2c_xfer_msg(struct meson_i2c *i2c, struct i2c_msg *msg,
 	return ret;
 }
 
+<<<<<<< HEAD
 static int meson_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
 			  int num)
+=======
+static int meson_i2c_xfer_messages(struct i2c_adapter *adap,
+				   struct i2c_msg *msgs, int num, bool atomic)
+>>>>>>> upstream/android-13
 {
 	struct meson_i2c *i2c = adap->algo_data;
 	int i, ret = 0;
 
+<<<<<<< HEAD
 	clk_enable(i2c->clk);
 
 	for (i = 0; i < num; i++) {
 		ret = meson_i2c_xfer_msg(i2c, msgs + i, i == num - 1);
+=======
+	for (i = 0; i < num; i++) {
+		ret = meson_i2c_xfer_msg(i2c, msgs + i, i == num - 1, atomic);
+>>>>>>> upstream/android-13
 		if (ret)
 			break;
 	}
 
+<<<<<<< HEAD
 	clk_disable(i2c->clk);
 
 	return ret ?: i;
 }
 
+=======
+	return ret ?: i;
+}
+
+static int meson_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+			  int num)
+{
+	return meson_i2c_xfer_messages(adap, msgs, num, false);
+}
+
+static int meson_i2c_xfer_atomic(struct i2c_adapter *adap,
+				 struct i2c_msg *msgs, int num)
+{
+	return meson_i2c_xfer_messages(adap, msgs, num, true);
+}
+
+>>>>>>> upstream/android-13
 static u32 meson_i2c_func(struct i2c_adapter *adap)
 {
 	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
 }
 
 static const struct i2c_algorithm meson_i2c_algorithm = {
+<<<<<<< HEAD
 	.master_xfer	= meson_i2c_xfer,
 	.functionality	= meson_i2c_func,
+=======
+	.master_xfer = meson_i2c_xfer,
+	.master_xfer_atomic = meson_i2c_xfer_atomic,
+	.functionality = meson_i2c_func,
+>>>>>>> upstream/android-13
 };
 
 static int meson_i2c_probe(struct platform_device *pdev)
 {
 	struct device_node *np = pdev->dev.of_node;
 	struct meson_i2c *i2c;
+<<<<<<< HEAD
 	struct resource *mem;
+=======
+>>>>>>> upstream/android-13
 	struct i2c_timings timings;
 	int irq, ret = 0;
 
@@ -406,16 +526,25 @@ static int meson_i2c_probe(struct platform_device *pdev)
 		return PTR_ERR(i2c->clk);
 	}
 
+<<<<<<< HEAD
 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	i2c->regs = devm_ioremap_resource(&pdev->dev, mem);
+=======
+	i2c->regs = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(i2c->regs))
 		return PTR_ERR(i2c->regs);
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(&pdev->dev, "can't find IRQ\n");
 		return irq;
 	}
+=======
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 
 	ret = devm_request_irq(&pdev->dev, irq, meson_i2c_irq, 0, NULL, i2c);
 	if (ret < 0) {
@@ -423,7 +552,11 @@ static int meson_i2c_probe(struct platform_device *pdev)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	ret = clk_prepare(i2c->clk);
+=======
+	ret = clk_prepare_enable(i2c->clk);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(&pdev->dev, "can't prepare clock\n");
 		return ret;
@@ -443,18 +576,30 @@ static int meson_i2c_probe(struct platform_device *pdev)
 	 */
 	meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_START, 0);
 
+<<<<<<< HEAD
 	ret = i2c_add_adapter(&i2c->adap);
 	if (ret < 0) {
 		clk_unprepare(i2c->clk);
 		return ret;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/* Disable filtering */
 	meson_i2c_set_mask(i2c, REG_SLAVE_ADDR,
 			   REG_SLV_SDA_FILTER | REG_SLV_SCL_FILTER, 0);
 
 	meson_i2c_set_clk_div(i2c, timings.bus_freq_hz);
 
+<<<<<<< HEAD
+=======
+	ret = i2c_add_adapter(&i2c->adap);
+	if (ret < 0) {
+		clk_disable_unprepare(i2c->clk);
+		return ret;
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -463,7 +608,11 @@ static int meson_i2c_remove(struct platform_device *pdev)
 	struct meson_i2c *i2c = platform_get_drvdata(pdev);
 
 	i2c_del_adapter(&i2c->adap);
+<<<<<<< HEAD
 	clk_unprepare(i2c->clk);
+=======
+	clk_disable_unprepare(i2c->clk);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

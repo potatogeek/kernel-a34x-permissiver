@@ -12,7 +12,10 @@
 #include <linux/string.h>
 #include <linux/nodemask.h>
 #include <linux/memblock.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+>>>>>>> upstream/android-13
 
 #include <asm/io.h>
 #include <linux/pci_ids.h>

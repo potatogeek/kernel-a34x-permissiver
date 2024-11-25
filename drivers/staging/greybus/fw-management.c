@@ -13,10 +13,17 @@
 #include <linux/idr.h>
 #include <linux/ioctl.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
 
 #include "firmware.h"
 #include "greybus_firmware.h"
 #include "greybus.h"
+=======
+#include <linux/greybus.h>
+
+#include "firmware.h"
+#include "greybus_firmware.h"
+>>>>>>> upstream/android-13
 
 #define FW_MGMT_TIMEOUT_MS		1000
 

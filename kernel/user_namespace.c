@@ -1,9 +1,13 @@
+<<<<<<< HEAD
 /*
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License as
  *  published by the Free Software Foundation, version 2 of the
  *  License.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 
 #include <linux/export.h>
 #include <linux/nsproxy.h>
@@ -63,6 +67,21 @@ static void set_cred_user_ns(struct cred *cred, struct user_namespace *user_ns)
 	cred->user_ns = user_ns;
 }
 
+<<<<<<< HEAD
+=======
+static unsigned long enforced_nproc_rlimit(void)
+{
+	unsigned long limit = RLIM_INFINITY;
+
+	/* Is RLIMIT_NPROC currently enforced? */
+	if (!uid_eq(current_uid(), GLOBAL_ROOT_UID) ||
+	    (current_user_ns() != &init_user_ns))
+		limit = rlimit(RLIMIT_NPROC);
+
+	return limit;
+}
+
+>>>>>>> upstream/android-13
 /*
  * Create a new user namespace, deriving the creator from the user in the
  * passed credentials, and replacing that user with the new root user for the
@@ -90,7 +109,11 @@ int create_user_ns(struct cred *new)
 	/*
 	 * Verify that we can not violate the policy of which files
 	 * may be accessed that is specified by the root directory,
+<<<<<<< HEAD
 	 * by verifing that the root directory is at the root of the
+=======
+	 * by verifying that the root directory is at the root of the
+>>>>>>> upstream/android-13
 	 * mount namespace which allows all files to be accessed.
 	 */
 	ret = -EPERM;
@@ -111,21 +134,39 @@ int create_user_ns(struct cred *new)
 	if (!ns)
 		goto fail_dec;
 
+<<<<<<< HEAD
+=======
+	ns->parent_could_setfcap = cap_raised(new->cap_effective, CAP_SETFCAP);
+>>>>>>> upstream/android-13
 	ret = ns_alloc_inum(&ns->ns);
 	if (ret)
 		goto fail_free;
 	ns->ns.ops = &userns_operations;
 
+<<<<<<< HEAD
 	atomic_set(&ns->count, 1);
+=======
+	refcount_set(&ns->ns.count, 1);
+>>>>>>> upstream/android-13
 	/* Leave the new->user_ns reference with the new user namespace. */
 	ns->parent = parent_ns;
 	ns->level = parent_ns->level + 1;
 	ns->owner = owner;
 	ns->group = group;
 	INIT_WORK(&ns->work, free_user_ns);
+<<<<<<< HEAD
 	for (i = 0; i < UCOUNT_COUNTS; i++) {
 		ns->ucount_max[i] = INT_MAX;
 	}
+=======
+	for (i = 0; i < MAX_PER_NAMESPACE_UCOUNTS; i++) {
+		ns->ucount_max[i] = INT_MAX;
+	}
+	set_rlimit_ucount_max(ns, UCOUNT_RLIMIT_NPROC, enforced_nproc_rlimit());
+	set_rlimit_ucount_max(ns, UCOUNT_RLIMIT_MSGQUEUE, rlimit(RLIMIT_MSGQUEUE));
+	set_rlimit_ucount_max(ns, UCOUNT_RLIMIT_SIGPENDING, rlimit(RLIMIT_SIGPENDING));
+	set_rlimit_ucount_max(ns, UCOUNT_RLIMIT_MEMLOCK, rlimit(RLIMIT_MEMLOCK));
+>>>>>>> upstream/android-13
 	ns->ucounts = ucounts;
 
 	/* Inherit USERNS_SETGROUPS_ALLOWED from our parent */
@@ -133,8 +174,14 @@ int create_user_ns(struct cred *new)
 	ns->flags = parent_ns->flags;
 	mutex_unlock(&userns_state_mutex);
 
+<<<<<<< HEAD
 #ifdef CONFIG_PERSISTENT_KEYRINGS
 	init_rwsem(&ns->persistent_keyring_register_sem);
+=======
+#ifdef CONFIG_KEYS
+	INIT_LIST_HEAD(&ns->keyring_name_list);
+	init_rwsem(&ns->keyring_sem);
+>>>>>>> upstream/android-13
 #endif
 	ret = -ENOMEM;
 	if (!setup_userns_sysctls(ns))
@@ -196,14 +243,22 @@ static void free_user_ns(struct work_struct *work)
 			kfree(ns->projid_map.reverse);
 		}
 		retire_userns_sysctls(ns);
+<<<<<<< HEAD
 #ifdef CONFIG_PERSISTENT_KEYRINGS
 		key_put(ns->persistent_keyring_register);
 #endif
+=======
+		key_free_user_ns(ns);
+>>>>>>> upstream/android-13
 		ns_free_inum(&ns->ns);
 		kmem_cache_free(user_ns_cachep, ns);
 		dec_user_namespaces(ucounts);
 		ns = parent;
+<<<<<<< HEAD
 	} while (atomic_dec_and_test(&parent->count));
+=======
+	} while (refcount_dec_and_test(&parent->ns.count));
+>>>>>>> upstream/android-13
 }
 
 void __put_user_ns(struct user_namespace *ns)
@@ -521,7 +576,11 @@ EXPORT_SYMBOL(from_kgid_munged);
  *
  *	When there is no mapping defined for the user-namespace projid
  *	pair INVALID_PROJID is returned.  Callers are expected to test
+<<<<<<< HEAD
  *	for and handle handle INVALID_PROJID being returned.  INVALID_PROJID
+=======
+ *	for and handle INVALID_PROJID being returned.  INVALID_PROJID
+>>>>>>> upstream/android-13
  *	may be tested for using projid_valid().
  */
 kprojid_t make_kprojid(struct user_namespace *ns, projid_t projid)
@@ -847,6 +906,63 @@ static int sort_idmaps(struct uid_gid_map *map)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * verify_root_map() - check the uid 0 mapping
+ * @file: idmapping file
+ * @map_ns: user namespace of the target process
+ * @new_map: requested idmap
+ *
+ * If a process requests mapping parent uid 0 into the new ns, verify that the
+ * process writing the map had the CAP_SETFCAP capability as the target process
+ * will be able to write fscaps that are valid in ancestor user namespaces.
+ *
+ * Return: true if the mapping is allowed, false if not.
+ */
+static bool verify_root_map(const struct file *file,
+			    struct user_namespace *map_ns,
+			    struct uid_gid_map *new_map)
+{
+	int idx;
+	const struct user_namespace *file_ns = file->f_cred->user_ns;
+	struct uid_gid_extent *extent0 = NULL;
+
+	for (idx = 0; idx < new_map->nr_extents; idx++) {
+		if (new_map->nr_extents <= UID_GID_MAP_MAX_BASE_EXTENTS)
+			extent0 = &new_map->extent[idx];
+		else
+			extent0 = &new_map->forward[idx];
+		if (extent0->lower_first == 0)
+			break;
+
+		extent0 = NULL;
+	}
+
+	if (!extent0)
+		return true;
+
+	if (map_ns == file_ns) {
+		/* The process unshared its ns and is writing to its own
+		 * /proc/self/uid_map.  User already has full capabilites in
+		 * the new namespace.  Verify that the parent had CAP_SETFCAP
+		 * when it unshared.
+		 * */
+		if (!file_ns->parent_could_setfcap)
+			return false;
+	} else {
+		/* Process p1 is writing to uid_map of p2, who is in a child
+		 * user namespace to p1's.  Verify that the opener of the map
+		 * file has CAP_SETFCAP against the parent of the new map
+		 * namespace */
+		if (!file_ns_capable(file, map_ns->parent, CAP_SETFCAP))
+			return false;
+	}
+
+	return true;
+}
+
+>>>>>>> upstream/android-13
 static ssize_t map_write(struct file *file, const char __user *buf,
 			 size_t count, loff_t *ppos,
 			 int cap_setid,
@@ -854,7 +970,11 @@ static ssize_t map_write(struct file *file, const char __user *buf,
 			 struct uid_gid_map *parent_map)
 {
 	struct seq_file *seq = file->private_data;
+<<<<<<< HEAD
 	struct user_namespace *ns = seq->private;
+=======
+	struct user_namespace *map_ns = seq->private;
+>>>>>>> upstream/android-13
 	struct uid_gid_map new_map;
 	unsigned idx;
 	struct uid_gid_extent extent;
@@ -901,7 +1021,11 @@ static ssize_t map_write(struct file *file, const char __user *buf,
 	/*
 	 * Adjusting namespace settings requires capabilities on the target.
 	 */
+<<<<<<< HEAD
 	if (cap_valid(cap_setid) && !file_ns_capable(file, ns, CAP_SYS_ADMIN))
+=======
+	if (cap_valid(cap_setid) && !file_ns_capable(file, map_ns, CAP_SYS_ADMIN))
+>>>>>>> upstream/android-13
 		goto out;
 
 	/* Parse the user data */
@@ -965,13 +1089,21 @@ static ssize_t map_write(struct file *file, const char __user *buf,
 			goto out;
 		ret = -EINVAL;
 	}
+<<<<<<< HEAD
 	/* Be very certaint the new map actually exists */
+=======
+	/* Be very certain the new map actually exists */
+>>>>>>> upstream/android-13
 	if (new_map.nr_extents == 0)
 		goto out;
 
 	ret = -EPERM;
 	/* Validate the user is allowed to use user id's mapped to. */
+<<<<<<< HEAD
 	if (!new_idmap_permitted(file, ns, cap_setid, &new_map))
+=======
+	if (!new_idmap_permitted(file, map_ns, cap_setid, &new_map))
+>>>>>>> upstream/android-13
 		goto out;
 
 	ret = -EPERM;
@@ -1092,6 +1224,13 @@ static bool new_idmap_permitted(const struct file *file,
 				struct uid_gid_map *new_map)
 {
 	const struct cred *cred = file->f_cred;
+<<<<<<< HEAD
+=======
+
+	if (cap_setid == CAP_SETUID && !verify_root_map(file, ns, new_map))
+		return false;
+
+>>>>>>> upstream/android-13
 	/* Don't allow mappings that would allow anything that wouldn't
 	 * be allowed without the establishment of unprivileged mappings.
 	 */
@@ -1116,7 +1255,11 @@ static bool new_idmap_permitted(const struct file *file,
 
 	/* Allow the specified ids if we have the appropriate capability
 	 * (CAP_SETUID or CAP_SETGID) over the parent user namespace.
+<<<<<<< HEAD
 	 * And the opener of the id file also had the approprpiate capability.
+=======
+	 * And the opener of the id file also has the appropriate capability.
+>>>>>>> upstream/android-13
 	 */
 	if (ns_capable(ns->parent, cap_setid) &&
 	    file_ns_capable(file, ns->parent, cap_setid))
@@ -1259,7 +1402,11 @@ static void userns_put(struct ns_common *ns)
 	put_user_ns(to_user_ns(ns));
 }
 
+<<<<<<< HEAD
 static int userns_install(struct nsproxy *nsproxy, struct ns_common *ns)
+=======
+static int userns_install(struct nsset *nsset, struct ns_common *ns)
+>>>>>>> upstream/android-13
 {
 	struct user_namespace *user_ns = to_user_ns(ns);
 	struct cred *cred;
@@ -1280,14 +1427,27 @@ static int userns_install(struct nsproxy *nsproxy, struct ns_common *ns)
 	if (!ns_capable(user_ns, CAP_SYS_ADMIN))
 		return -EPERM;
 
+<<<<<<< HEAD
 	cred = prepare_creds();
 	if (!cred)
 		return -ENOMEM;
+=======
+	cred = nsset_cred(nsset);
+	if (!cred)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	put_user_ns(cred->user_ns);
 	set_cred_user_ns(cred, get_user_ns(user_ns));
 
+<<<<<<< HEAD
 	return commit_creds(cred);
+=======
+	if (set_cred_ucounts(cred) < 0)
+		return -EINVAL;
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 struct ns_common *ns_get_owner(struct ns_common *ns)
@@ -1325,7 +1485,11 @@ const struct proc_ns_operations userns_operations = {
 
 static __init int user_namespaces_init(void)
 {
+<<<<<<< HEAD
 	user_ns_cachep = KMEM_CACHE(user_namespace, SLAB_PANIC);
+=======
+	user_ns_cachep = KMEM_CACHE(user_namespace, SLAB_PANIC | SLAB_ACCOUNT);
+>>>>>>> upstream/android-13
 	return 0;
 }
 subsys_initcall(user_namespaces_init);

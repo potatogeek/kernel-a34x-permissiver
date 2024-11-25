@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015-2017 Socionext Inc.
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
@@ -12,6 +13,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0+
+//
+// Copyright (C) 2015-2017 Socionext Inc.
+//   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
+>>>>>>> upstream/android-13
 
 #include <linux/kernel.h>
 #include <linux/init.h>
@@ -523,8 +530,15 @@ static const unsigned system_bus_cs5_pins[] = {13};
 static const int system_bus_cs5_muxvals[] = {1};
 static const unsigned uart0_pins[] = {70, 71};
 static const int uart0_muxvals[] = {3, 3};
+<<<<<<< HEAD
 static const unsigned uart0_ctsrts_pins[] = {72, 73, 74};
 static const int uart0_ctsrts_muxvals[] = {3, 3, 3};
+=======
+static const unsigned uart0_ctsrts_pins[] = {72, 74};
+static const int uart0_ctsrts_muxvals[] = {3, 3};
+static const unsigned uart0_modem_pins[] = {73};
+static const int uart0_modem_muxvals[] = {3};
+>>>>>>> upstream/android-13
 static const unsigned uart1_pins[] = {114, 115};
 static const int uart1_muxvals[] = {0, 0};
 static const unsigned uart2_pins[] = {112, 113};
@@ -582,6 +596,10 @@ static const struct uniphier_pinctrl_group uniphier_sld8_groups[] = {
 	UNIPHIER_PINCTRL_GROUP(system_bus_cs5),
 	UNIPHIER_PINCTRL_GROUP(uart0),
 	UNIPHIER_PINCTRL_GROUP(uart0_ctsrts),
+<<<<<<< HEAD
+=======
+	UNIPHIER_PINCTRL_GROUP(uart0_modem),
+>>>>>>> upstream/android-13
 	UNIPHIER_PINCTRL_GROUP(uart1),
 	UNIPHIER_PINCTRL_GROUP(uart2),
 	UNIPHIER_PINCTRL_GROUP(uart3),
@@ -609,7 +627,12 @@ static const char * const system_bus_groups[] = {"system_bus",
 						 "system_bus_cs3",
 						 "system_bus_cs4",
 						 "system_bus_cs5"};
+<<<<<<< HEAD
 static const char * const uart0_groups[] = {"uart0", "uart0_ctsrts"};
+=======
+static const char * const uart0_groups[] = {"uart0", "uart0_ctsrts",
+					    "uart0_modem"};
+>>>>>>> upstream/android-13
 static const char * const uart1_groups[] = {"uart1"};
 static const char * const uart2_groups[] = {"uart2"};
 static const char * const uart3_groups[] = {"uart3"};
@@ -652,7 +675,11 @@ static int uniphier_sld8_get_gpio_muxval(unsigned int pin,
 	}
 }
 
+<<<<<<< HEAD
 static struct uniphier_pinctrl_socdata uniphier_sld8_pindata = {
+=======
+static const struct uniphier_pinctrl_socdata uniphier_sld8_pindata = {
+>>>>>>> upstream/android-13
 	.pins = uniphier_sld8_pins,
 	.npins = ARRAY_SIZE(uniphier_sld8_pins),
 	.groups = uniphier_sld8_groups,

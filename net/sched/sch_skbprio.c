@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * net/sched/sch_skbprio.c  SKB Priority Queue.
  *
@@ -6,6 +7,12 @@
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * net/sched/sch_skbprio.c  SKB Priority Queue.
+ *
+>>>>>>> upstream/android-13
  * Authors:	Nishanth Devarajan, <ndev2021@gmail.com>
  *		Cody Doucette, <doucette@bu.edu>
  *	        original idea by Michel Machado, Cody Doucette, and Qiaobin Fu

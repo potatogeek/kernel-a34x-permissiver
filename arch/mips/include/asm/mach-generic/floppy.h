@@ -21,11 +21,15 @@
 #include <asm/floppy.h>
 #include <asm/io.h>
 #include <asm/irq.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 
 /*
  * How to access the FDC's registers.
  */
+<<<<<<< HEAD
 static inline unsigned char fd_inb(unsigned int port)
 {
 	return inb_p(port);
@@ -34,6 +38,16 @@ static inline unsigned char fd_inb(unsigned int port)
 static inline void fd_outb(unsigned char value, unsigned int port)
 {
 	outb_p(value, port);
+=======
+static inline unsigned char fd_inb(unsigned int base, unsigned int reg)
+{
+	return inb_p(base + reg);
+}
+
+static inline void fd_outb(unsigned char value, unsigned int base, unsigned int reg)
+{
+	outb_p(value, base + reg);
+>>>>>>> upstream/android-13
 }
 
 /*

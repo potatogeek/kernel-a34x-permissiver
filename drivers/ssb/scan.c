@@ -228,7 +228,11 @@ static void __iomem *ssb_ioremap(struct ssb_bus *bus,
 	switch (bus->bustype) {
 	case SSB_BUSTYPE_SSB:
 		/* Only map the first core for now. */
+<<<<<<< HEAD
 		/* fallthrough... */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SSB_BUSTYPE_PCMCIA:
 		mmio = ioremap(baseaddr, SSB_CORE_SIZE);
 		break;
@@ -325,6 +329,10 @@ int ssb_bus_scan(struct ssb_bus *bus,
 	if (bus->nr_devices > ARRAY_SIZE(bus->devices)) {
 		pr_err("More than %d ssb cores found (%d)\n",
 		       SSB_MAX_NR_CORES, bus->nr_devices);
+<<<<<<< HEAD
+=======
+		err = -EINVAL;
+>>>>>>> upstream/android-13
 		goto err_unmap;
 	}
 	if (bus->bustype == SSB_BUSTYPE_SSB) {
@@ -400,7 +408,12 @@ int ssb_bus_scan(struct ssb_bus *bus,
 #ifdef CONFIG_SSB_DRIVER_PCICORE
 			if (bus->bustype == SSB_BUSTYPE_PCI) {
 				/* Ignore PCI cores on PCI-E cards.
+<<<<<<< HEAD
 				 * Ignore PCI-E cores on PCI cards. */
+=======
+				 * Ignore PCI-E cores on PCI cards.
+				 */
+>>>>>>> upstream/android-13
 				if (dev->id.coreid == SSB_DEV_PCI) {
 					if (pci_is_pcie(bus->host_pci))
 						continue;
@@ -421,7 +434,12 @@ int ssb_bus_scan(struct ssb_bus *bus,
 				if (bus->host_pci->vendor == PCI_VENDOR_ID_BROADCOM &&
 				    (bus->host_pci->device & 0xFF00) == 0x4300) {
 					/* This is a dangling ethernet core on a
+<<<<<<< HEAD
 					 * wireless device. Ignore it. */
+=======
+					 * wireless device. Ignore it.
+					 */
+>>>>>>> upstream/android-13
 					continue;
 				}
 			}

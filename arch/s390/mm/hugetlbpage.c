@@ -189,7 +189,11 @@ pte_t huge_ptep_get_and_clear(struct mm_struct *mm,
 	return pte;
 }
 
+<<<<<<< HEAD
 pte_t *huge_pte_alloc(struct mm_struct *mm,
+=======
+pte_t *huge_pte_alloc(struct mm_struct *mm, struct vm_area_struct *vma,
+>>>>>>> upstream/android-13
 			unsigned long addr, unsigned long sz)
 {
 	pgd_t *pgdp;
@@ -254,6 +258,7 @@ follow_huge_pud(struct mm_struct *mm, unsigned long address,
 	return pud_page(*pud) + ((address & ~PUD_MASK) >> PAGE_SHIFT);
 }
 
+<<<<<<< HEAD
 static __init int setup_hugepagesz(char *opt)
 {
 	unsigned long size;
@@ -273,6 +278,17 @@ static __init int setup_hugepagesz(char *opt)
 	return 1;
 }
 __setup("hugepagesz=", setup_hugepagesz);
+=======
+bool __init arch_hugetlb_valid_size(unsigned long size)
+{
+	if (MACHINE_HAS_EDAT1 && size == PMD_SIZE)
+		return true;
+	else if (MACHINE_HAS_EDAT2 && size == PUD_SIZE)
+		return true;
+	else
+		return false;
+}
+>>>>>>> upstream/android-13
 
 static unsigned long hugetlb_get_unmapped_area_bottomup(struct file *file,
 		unsigned long addr, unsigned long len,
@@ -329,7 +345,10 @@ unsigned long hugetlb_get_unmapped_area(struct file *file, unsigned long addr,
 	struct hstate *h = hstate_file(file);
 	struct mm_struct *mm = current->mm;
 	struct vm_area_struct *vma;
+<<<<<<< HEAD
 	int rc;
+=======
+>>>>>>> upstream/android-13
 
 	if (len & ~huge_page_mask(h))
 		return -EINVAL;
@@ -356,6 +375,7 @@ unsigned long hugetlb_get_unmapped_area(struct file *file, unsigned long addr,
 	else
 		addr = hugetlb_get_unmapped_area_topdown(file, addr, len,
 				pgoff, flags);
+<<<<<<< HEAD
 	if (addr & ~PAGE_MASK)
 		return addr;
 
@@ -367,4 +387,11 @@ check_asce_limit:
 			return (unsigned long) rc;
 	}
 	return addr;
+=======
+	if (offset_in_page(addr))
+		return addr;
+
+check_asce_limit:
+	return check_asce_limit(mm, addr, len);
+>>>>>>> upstream/android-13
 }

@@ -1,8 +1,14 @@
+<<<<<<< HEAD
 /**
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  * AES XCBC routines supporting the Power 7+ Nest Accelerators driver
  *
  * Copyright (C) 2011-2012 International Business Machines Inc.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 only.
@@ -16,6 +22,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  * Author: Kent Yoder <yoder1@us.ibm.com>
  */
 
@@ -105,8 +113,12 @@ static int nx_xcbc_empty(struct shash_desc *desc, u8 *out)
 	nx_ctx->op.inlen = (nx_ctx->in_sg - in_sg) * sizeof(struct nx_sg);
 	nx_ctx->op.outlen = (nx_ctx->out_sg - out_sg) * sizeof(struct nx_sg);
 
+<<<<<<< HEAD
 	rc = nx_hcall_sync(nx_ctx, &nx_ctx->op,
 			   desc->flags & CRYPTO_TFM_REQ_MAY_SLEEP);
+=======
+	rc = nx_hcall_sync(nx_ctx, &nx_ctx->op, 0);
+>>>>>>> upstream/android-13
 	if (rc)
 		goto out;
 	atomic_inc(&(nx_ctx->stats->aes_ops));
@@ -134,8 +146,12 @@ static int nx_xcbc_empty(struct shash_desc *desc, u8 *out)
 	nx_ctx->op.inlen = (nx_ctx->in_sg - in_sg) * sizeof(struct nx_sg);
 	nx_ctx->op.outlen = (nx_ctx->out_sg - out_sg) * sizeof(struct nx_sg);
 
+<<<<<<< HEAD
 	rc = nx_hcall_sync(nx_ctx, &nx_ctx->op,
 			   desc->flags & CRYPTO_TFM_REQ_MAY_SLEEP);
+=======
+	rc = nx_hcall_sync(nx_ctx, &nx_ctx->op, 0);
+>>>>>>> upstream/android-13
 	if (rc)
 		goto out;
 	atomic_inc(&(nx_ctx->stats->aes_ops));
@@ -279,8 +295,12 @@ static int nx_xcbc_update(struct shash_desc *desc,
 			goto out;
 		}
 
+<<<<<<< HEAD
 		rc = nx_hcall_sync(nx_ctx, &nx_ctx->op,
 			   desc->flags & CRYPTO_TFM_REQ_MAY_SLEEP);
+=======
+		rc = nx_hcall_sync(nx_ctx, &nx_ctx->op, 0);
+>>>>>>> upstream/android-13
 		if (rc)
 			goto out;
 
@@ -361,8 +381,12 @@ static int nx_xcbc_final(struct shash_desc *desc, u8 *out)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	rc = nx_hcall_sync(nx_ctx, &nx_ctx->op,
 			   desc->flags & CRYPTO_TFM_REQ_MAY_SLEEP);
+=======
+	rc = nx_hcall_sync(nx_ctx, &nx_ctx->op, 0);
+>>>>>>> upstream/android-13
 	if (rc)
 		goto out;
 

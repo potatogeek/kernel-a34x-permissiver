@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Register map access API - W1 (1-Wire) support
  *
@@ -8,6 +9,14 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation
  */
+=======
+// SPDX-License-Identifier: GPL-2.0
+//
+// Register map access API - W1 (1-Wire) support
+//
+// Copyright (c) 2017 Radioavionica Corporation
+// Author: Alex A. Mihaylov <minimumlaw@rambler.ru>
+>>>>>>> upstream/android-13
 
 #include <linux/regmap.h>
 #include <linux/module.h>
@@ -219,8 +228,11 @@ struct regmap *__regmap_init_w1(struct device *w1_dev,
 
 	return __regmap_init(w1_dev, bus, w1_dev, config,
 			 lock_key, lock_name);
+<<<<<<< HEAD
 
 	return NULL;
+=======
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(__regmap_init_w1);
 
@@ -237,8 +249,11 @@ struct regmap *__devm_regmap_init_w1(struct device *w1_dev,
 
 	return __devm_regmap_init(w1_dev, bus, w1_dev, config,
 				 lock_key, lock_name);
+<<<<<<< HEAD
 
 	return NULL;
+=======
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(__devm_regmap_init_w1);
 

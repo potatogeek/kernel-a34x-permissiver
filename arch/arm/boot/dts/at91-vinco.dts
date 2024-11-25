@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+>>>>>>> upstream/android-13
 /*
  * Device Tree file for VInCo platform
  *
  *  Copyright (C) 2014 Atmel,
  *                2014 Nicolas Ferre <nicolas.ferre@atmel.com>
  *   2015 Gregory CLEMENT <gregory.clement@free-electrons.com>
+<<<<<<< HEAD
  *
  * This file is dual-licensed: you can use it either under the terms
  * of the GPL or the X11 license, at your option. Note that this dual
@@ -42,6 +47,8 @@
  *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *     OTHER DEALINGS IN THE SOFTWARE.
+=======
+>>>>>>> upstream/android-13
  */
 /dts-v1/;
 #include "sama5d4.dtsi"
@@ -54,7 +61,11 @@
 		stdout-path = "serial0:115200n8";
 	};
 
+<<<<<<< HEAD
 	memory {
+=======
+	memory@20000000 {
+>>>>>>> upstream/android-13
 		reg = <0x20000000 0x4000000>;
 	};
 

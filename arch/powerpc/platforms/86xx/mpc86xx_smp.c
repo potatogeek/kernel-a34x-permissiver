@@ -1,19 +1,27 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Author: Xianghua Xiao <x.xiao@freescale.com>
  *         Zhang Wei <wei.zhang@freescale.com>
  *
  * Copyright 2006 Freescale Semiconductor Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/stddef.h>
 #include <linux/kernel.h>
 #include <linux/init.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
 
 #include <asm/code-patching.h>
 #include <asm/page.h>
@@ -21,6 +29,16 @@
 #include <asm/pci-bridge.h>
 #include <asm/mpic.h>
 #include <asm/cacheflush.h>
+=======
+#include <linux/pgtable.h>
+
+#include <asm/code-patching.h>
+#include <asm/page.h>
+#include <asm/pci-bridge.h>
+#include <asm/mpic.h>
+#include <asm/cacheflush.h>
+#include <asm/inst.h>
+>>>>>>> upstream/android-13
 
 #include <sysdev/fsl_soc.h>
 
@@ -86,8 +104,12 @@ smp_86xx_kick_cpu(int nr)
 		mdelay(1);
 
 	/* Restore the exception vector */
+<<<<<<< HEAD
 	*vector = save_vector;
 	flush_icache_range((unsigned long) vector, (unsigned long) vector + 4);
+=======
+	patch_instruction(vector, ppc_inst(save_vector));
+>>>>>>> upstream/android-13
 
 	local_irq_restore(flags);
 

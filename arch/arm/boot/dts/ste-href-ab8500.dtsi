@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2014 Linaro Ltd.
  *
@@ -9,11 +10,24 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2014 Linaro Ltd.
+ */
+
+#include "ste-ab8500.dtsi"
+
+>>>>>>> upstream/android-13
 / {
 	soc {
 		prcmu@80157000 {
 			ab8500 {
+<<<<<<< HEAD
 				ab8500-gpio {
+=======
+				ab8500-gpiocontroller {
+>>>>>>> upstream/android-13
 					/* Hog a few default settings */
 					pinctrl-names = "default";
 					pinctrl-0 = <&gpio2_default_mode>,

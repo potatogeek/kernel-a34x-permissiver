@@ -127,6 +127,10 @@ static const struct v4l2_ctrl_config hgt_hue_areas = {
 
 static void hgt_configure_stream(struct vsp1_entity *entity,
 				 struct vsp1_pipeline *pipe,
+<<<<<<< HEAD
+=======
+				 struct vsp1_dl_list *dl,
+>>>>>>> upstream/android-13
 				 struct vsp1_dl_body *dlb)
 {
 	struct vsp1_hgt *hgt = to_hgt(&entity->subdev);

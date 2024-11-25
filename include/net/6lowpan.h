@@ -138,7 +138,11 @@ struct lowpan_dev {
 	struct lowpan_iphc_ctx_table ctx;
 
 	/* must be last */
+<<<<<<< HEAD
 	u8 priv[0] __aligned(sizeof(void *));
+=======
+	u8 priv[] __aligned(sizeof(void *));
+>>>>>>> upstream/android-13
 };
 
 struct lowpan_802154_neigh {

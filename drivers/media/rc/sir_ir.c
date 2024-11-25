@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * IR SIR driver, (C) 2000 Milan Pikula <www@fornax.sk>
  *
  * sir_ir - Device driver for use with SIR (serial infra red)
  * mode of IrDA on many notebooks.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -96,7 +103,11 @@ static int sir_tx_ir(struct rc_dev *dev, unsigned int *tx_buf,
 
 static void add_read_queue(int flag, unsigned long val)
 {
+<<<<<<< HEAD
 	DEFINE_IR_RAW_EVENT(ev);
+=======
+	struct ir_raw_event ev = {};
+>>>>>>> upstream/android-13
 
 	pr_debug("add flag %d with val %lu\n", flag, val);
 
@@ -114,7 +125,11 @@ static void add_read_queue(int flag, unsigned long val)
 	} else {
 		val += TIME_CONST / 2;
 	}
+<<<<<<< HEAD
 	ev.duration = US_TO_NS(val);
+=======
+	ev.duration = val;
+>>>>>>> upstream/android-13
 
 	ir_raw_event_store_with_filter(rcdev, &ev);
 }

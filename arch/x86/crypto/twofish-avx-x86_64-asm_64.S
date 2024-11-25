@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Twofish Cipher 8-way parallel algorithm (AVX/x86_64)
  *
@@ -5,6 +9,7 @@
  *     <Johannes.Goetzfried@informatik.stud.uni-erlangen.de>
  *
  * Copyright © 2012-2013 Jussi Kivilinna <jussi.kivilinna@iki.fi>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +26,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
  * USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
@@ -34,11 +41,14 @@
 .Lbswap128_mask:
 	.byte 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0
 
+<<<<<<< HEAD
 .section	.rodata.cst16.xts_gf128mul_and_shl1_mask, "aM", @progbits, 16
 .align 16
 .Lxts_gf128mul_and_shl1_mask:
 	.byte 0x87, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0
 
+=======
+>>>>>>> upstream/android-13
 .text
 
 /* structure of crypto context */
@@ -249,7 +259,11 @@
 	vpxor		x3, wkey, x3;
 
 .align 8
+<<<<<<< HEAD
 __twofish_enc_blk8:
+=======
+SYM_FUNC_START_LOCAL(__twofish_enc_blk8)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	%rdi: ctx, CTX
 	 *	RA1, RB1, RC1, RD1, RA2, RB2, RC2, RD2: blocks
@@ -287,11 +301,19 @@ __twofish_enc_blk8:
 	outunpack_blocks(RC1, RD1, RA1, RB1, RK1, RX0, RY0, RK2);
 	outunpack_blocks(RC2, RD2, RA2, RB2, RK1, RX0, RY0, RK2);
 
+<<<<<<< HEAD
 	ret;
 ENDPROC(__twofish_enc_blk8)
 
 .align 8
 __twofish_dec_blk8:
+=======
+	RET;
+SYM_FUNC_END(__twofish_enc_blk8)
+
+.align 8
+SYM_FUNC_START_LOCAL(__twofish_dec_blk8)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	%rdi: ctx, CTX
 	 *	RC1, RD1, RA1, RB1, RC2, RD2, RA2, RB2: encrypted blocks
@@ -327,10 +349,17 @@ __twofish_dec_blk8:
 	outunpack_blocks(RA1, RB1, RC1, RD1, RK1, RX0, RY0, RK2);
 	outunpack_blocks(RA2, RB2, RC2, RD2, RK1, RX0, RY0, RK2);
 
+<<<<<<< HEAD
 	ret;
 ENDPROC(__twofish_dec_blk8)
 
 ENTRY(twofish_ecb_enc_8way)
+=======
+	RET;
+SYM_FUNC_END(__twofish_dec_blk8)
+
+SYM_FUNC_START(twofish_ecb_enc_8way)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	%rdi: ctx, CTX
 	 *	%rsi: dst
@@ -347,10 +376,17 @@ ENTRY(twofish_ecb_enc_8way)
 	store_8way(%r11, RC1, RD1, RA1, RB1, RC2, RD2, RA2, RB2);
 
 	FRAME_END
+<<<<<<< HEAD
 	ret;
 ENDPROC(twofish_ecb_enc_8way)
 
 ENTRY(twofish_ecb_dec_8way)
+=======
+	RET;
+SYM_FUNC_END(twofish_ecb_enc_8way)
+
+SYM_FUNC_START(twofish_ecb_dec_8way)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	%rdi: ctx, CTX
 	 *	%rsi: dst
@@ -367,10 +403,17 @@ ENTRY(twofish_ecb_dec_8way)
 	store_8way(%r11, RA1, RB1, RC1, RD1, RA2, RB2, RC2, RD2);
 
 	FRAME_END
+<<<<<<< HEAD
 	ret;
 ENDPROC(twofish_ecb_dec_8way)
 
 ENTRY(twofish_cbc_dec_8way)
+=======
+	RET;
+SYM_FUNC_END(twofish_ecb_dec_8way)
+
+SYM_FUNC_START(twofish_cbc_dec_8way)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	%rdi: ctx, CTX
 	 *	%rsi: dst
@@ -392,6 +435,7 @@ ENTRY(twofish_cbc_dec_8way)
 	popq %r12;
 
 	FRAME_END
+<<<<<<< HEAD
 	ret;
 ENDPROC(twofish_cbc_dec_8way)
 
@@ -469,3 +513,7 @@ ENTRY(twofish_xts_dec_8way)
 	FRAME_END
 	ret;
 ENDPROC(twofish_xts_dec_8way)
+=======
+	RET;
+SYM_FUNC_END(twofish_cbc_dec_8way)
+>>>>>>> upstream/android-13

@@ -23,7 +23,10 @@
  *          Alon Levy
  */
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 #ifndef QXL_DRV_H
 #define QXL_DRV_H
 
@@ -31,6 +34,7 @@
  * Definitions taken from spice-protocol, plus kernel driver specific bits.
  */
 
+<<<<<<< HEAD
 #include <linux/dma-fence.h>
 #include <linux/workqueue.h>
 #include <linux/firmware.h>
@@ -50,6 +54,30 @@
 
 #include "qxl_dev.h"
 
+=======
+#include <linux/dma-buf-map.h>
+#include <linux/dma-fence.h>
+#include <linux/firmware.h>
+#include <linux/platform_device.h>
+#include <linux/workqueue.h>
+
+#include <drm/drm_crtc.h>
+#include <drm/drm_encoder.h>
+#include <drm/drm_fb_helper.h>
+#include <drm/drm_gem_ttm_helper.h>
+#include <drm/drm_ioctl.h>
+#include <drm/drm_gem.h>
+#include <drm/qxl_drm.h>
+#include <drm/ttm/ttm_bo_api.h>
+#include <drm/ttm/ttm_bo_driver.h>
+#include <drm/ttm/ttm_execbuf_util.h>
+#include <drm/ttm/ttm_placement.h>
+
+#include "qxl_dev.h"
+
+struct dma_buf_map;
+
+>>>>>>> upstream/android-13
 #define DRIVER_AUTHOR		"Dave Airlie"
 
 #define DRIVER_NAME		"qxl"
@@ -65,9 +93,12 @@
 extern int qxl_num_crtc;
 extern int qxl_max_ioctls;
 
+<<<<<<< HEAD
 #define DRM_FILE_OFFSET 0x100000000ULL
 #define DRM_FILE_PAGE_OFFSET (DRM_FILE_OFFSET >> PAGE_SHIFT)
 
+=======
+>>>>>>> upstream/android-13
 #define QXL_INTERRUPT_MASK (\
 	QXL_INTERRUPT_DISPLAY |\
 	QXL_INTERRUPT_CURSOR |\
@@ -75,11 +106,17 @@ extern int qxl_max_ioctls;
 	QXL_INTERRUPT_CLIENT_MONITORS_CONFIG)
 
 struct qxl_bo {
+<<<<<<< HEAD
+=======
+	struct ttm_buffer_object	tbo;
+
+>>>>>>> upstream/android-13
 	/* Protected by gem.mutex */
 	struct list_head		list;
 	/* Protected by tbo.reserved */
 	struct ttm_place		placements[3];
 	struct ttm_placement		placement;
+<<<<<<< HEAD
 	struct ttm_buffer_object	tbo;
 	struct ttm_bo_kmap_obj		kmap;
 	unsigned			pin_count;
@@ -92,11 +129,27 @@ struct qxl_bo {
 	bool is_dumb;
 	struct qxl_bo *shadow;
 	bool hw_surf_alloc;
+=======
+	struct dma_buf_map		map;
+	void				*kptr;
+	unsigned int                    map_count;
+	int                             type;
+
+	/* Constant after initialization */
+	unsigned int is_primary:1; /* is this now a primary surface */
+	unsigned int is_dumb:1;
+	struct qxl_bo *shadow;
+	unsigned int hw_surf_alloc:1;
+>>>>>>> upstream/android-13
 	struct qxl_surface surf;
 	uint32_t surface_id;
 	struct qxl_release *surf_create;
 };
+<<<<<<< HEAD
 #define gem_to_qxl_bo(gobj) container_of((gobj), struct qxl_bo, gem_base)
+=======
+#define gem_to_qxl_bo(gobj) container_of((gobj), struct qxl_bo, tbo.base)
+>>>>>>> upstream/android-13
 #define to_qxl_bo(tobj) container_of((tobj), struct qxl_bo, tbo)
 
 struct qxl_gem {
@@ -121,6 +174,7 @@ struct qxl_output {
 	struct drm_encoder enc;
 };
 
+<<<<<<< HEAD
 struct qxl_framebuffer {
 	struct drm_framebuffer base;
 	struct drm_gem_object *obj;
@@ -150,6 +204,22 @@ struct qxl_memslot {
 	uint8_t		generation;
 	uint64_t	start_phys_addr;
 	uint64_t	end_phys_addr;
+=======
+#define to_qxl_crtc(x) container_of(x, struct qxl_crtc, base)
+#define drm_connector_to_qxl_output(x) container_of(x, struct qxl_output, base)
+#define drm_encoder_to_qxl_output(x) container_of(x, struct qxl_output, enc)
+
+struct qxl_mman {
+	struct ttm_device		bdev;
+};
+
+struct qxl_memslot {
+	int             index;
+	const char      *name;
+	uint8_t		generation;
+	uint64_t	start_phys_addr;
+	uint64_t	size;
+>>>>>>> upstream/android-13
 	uint64_t	high_bits;
 };
 
@@ -184,6 +254,7 @@ struct qxl_drm_image {
 	struct list_head chunk_list;
 };
 
+<<<<<<< HEAD
 struct qxl_fb_image {
 	struct qxl_device *qdev;
 	uint32_t pseudo_palette[16];
@@ -198,11 +269,14 @@ struct qxl_draw_fill {
 	uint16_t rop;
 };
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Debugfs
  */
 struct qxl_debugfs {
 	struct drm_info_list	*files;
+<<<<<<< HEAD
 	unsigned		num_files;
 };
 
@@ -213,6 +287,11 @@ int qxl_debugfs_fence_init(struct qxl_device *rdev);
 
 struct qxl_device;
 
+=======
+	unsigned int num_files;
+};
+
+>>>>>>> upstream/android-13
 struct qxl_device {
 	struct drm_device ddev;
 
@@ -232,10 +311,14 @@ struct qxl_device {
 	void *ram;
 	struct qxl_mman		mman;
 	struct qxl_gem		gem;
+<<<<<<< HEAD
 	struct qxl_mode_info mode_info;
 
 	struct fb_info			*fbdev_info;
 	struct qxl_framebuffer	*fbdev_qfb;
+=======
+
+>>>>>>> upstream/android-13
 	void *ram_physical;
 
 	struct qxl_ring *release_ring;
@@ -244,6 +327,7 @@ struct qxl_device {
 
 	struct qxl_ram_header *ram_header;
 
+<<<<<<< HEAD
 	bool primary_created;
 
 	struct qxl_memslot	*mem_slots;
@@ -254,10 +338,23 @@ struct qxl_device {
 	uint8_t		slot_id_bits;
 	uint8_t		slot_gen_bits;
 	uint64_t	va_slot_mask;
+=======
+	struct qxl_bo *primary_bo;
+	struct qxl_bo *dumb_shadow_bo;
+	struct qxl_head *dumb_heads;
+
+	struct qxl_memslot main_slot;
+	struct qxl_memslot surfaces_slot;
+>>>>>>> upstream/android-13
 
 	spinlock_t	release_lock;
 	struct idr	release_idr;
 	uint32_t	release_seqno;
+<<<<<<< HEAD
+=======
+	atomic_t	release_count;
+	wait_queue_head_t release_event;
+>>>>>>> upstream/android-13
 	spinlock_t release_idr_lock;
 	struct mutex	async_io_mutex;
 	unsigned int last_sent_io_cmd;
@@ -267,7 +364,11 @@ struct qxl_device {
 	atomic_t irq_received_display;
 	atomic_t irq_received_cursor;
 	atomic_t irq_received_io_cmd;
+<<<<<<< HEAD
 	unsigned irq_received_error;
+=======
+	unsigned int irq_received_error;
+>>>>>>> upstream/android-13
 	wait_queue_head_t display_event;
 	wait_queue_head_t cursor_event;
 	wait_queue_head_t io_cmd_event;
@@ -275,7 +376,11 @@ struct qxl_device {
 
 	/* debugfs */
 	struct qxl_debugfs	debugfs[QXL_DEBUGFS_MAX_COMPONENTS];
+<<<<<<< HEAD
 	unsigned		debugfs_count;
+=======
+	unsigned int debugfs_count;
+>>>>>>> upstream/android-13
 
 	struct mutex		update_area_mutex;
 
@@ -299,11 +404,22 @@ struct qxl_device {
 	int monitors_config_height;
 };
 
+<<<<<<< HEAD
 extern const struct drm_ioctl_desc qxl_ioctls[];
 extern int qxl_max_ioctl;
 
 int qxl_device_init(struct qxl_device *qdev, struct drm_driver *drv,
 		    struct pci_dev *pdev);
+=======
+#define to_qxl(dev) container_of(dev, struct qxl_device, ddev)
+
+int qxl_debugfs_fence_init(struct qxl_device *rdev);
+
+extern const struct drm_ioctl_desc qxl_ioctls[];
+extern int qxl_max_ioctl;
+
+int qxl_device_init(struct qxl_device *qdev, struct pci_dev *pdev);
+>>>>>>> upstream/android-13
 void qxl_device_fini(struct qxl_device *qdev);
 
 int qxl_modeset_init(struct qxl_device *qdev);
@@ -326,6 +442,7 @@ void qxl_ring_free(struct qxl_ring *ring);
 void qxl_ring_init_hdr(struct qxl_ring *ring);
 int qxl_check_idle(struct qxl_ring *ring);
 
+<<<<<<< HEAD
 static inline void *
 qxl_fb_virtual_address(struct qxl_device *qdev, unsigned long physical)
 {
@@ -333,10 +450,13 @@ qxl_fb_virtual_address(struct qxl_device *qdev, unsigned long physical)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline uint64_t
 qxl_bo_physical_address(struct qxl_device *qdev, struct qxl_bo *bo,
 			unsigned long offset)
 {
+<<<<<<< HEAD
 	int slot_id = bo->type == QXL_GEM_DOMAIN_VRAM ? qdev->main_mem_slot : qdev->surfaces_mem_slot;
 	struct qxl_memslot *slot = &(qdev->mem_slots[slot_id]);
 
@@ -362,6 +482,18 @@ qxl_framebuffer_init(struct drm_device *dev,
 		     const struct drm_mode_fb_cmd2 *mode_cmd,
 		     struct drm_gem_object *obj,
 		     const struct drm_framebuffer_funcs *funcs);
+=======
+	struct qxl_memslot *slot =
+		(bo->tbo.resource->mem_type == TTM_PL_VRAM)
+		? &qdev->main_slot : &qdev->surfaces_slot;
+
+       /* TODO - need to hold one of the locks to read bo->tbo.resource->start */
+
+	return slot->high_bits | ((bo->tbo.resource->start << PAGE_SHIFT) + offset);
+}
+
+/* qxl_display.c */
+>>>>>>> upstream/android-13
 void qxl_display_read_client_monitors_config(struct qxl_device *qdev);
 int qxl_create_monitors_object(struct qxl_device *qdev);
 int qxl_destroy_monitors_object(struct qxl_device *qdev);
@@ -386,21 +518,32 @@ int qxl_gem_object_open(struct drm_gem_object *obj, struct drm_file *file_priv);
 void qxl_gem_object_close(struct drm_gem_object *obj,
 			  struct drm_file *file_priv);
 void qxl_bo_force_delete(struct qxl_device *qdev);
+<<<<<<< HEAD
 int qxl_bo_kmap(struct qxl_bo *bo, void **ptr);
+=======
+>>>>>>> upstream/android-13
 
 /* qxl_dumb.c */
 int qxl_mode_dumb_create(struct drm_file *file_priv,
 			 struct drm_device *dev,
 			 struct drm_mode_create_dumb *args);
+<<<<<<< HEAD
 int qxl_mode_dumb_mmap(struct drm_file *filp,
 		       struct drm_device *dev,
 		       uint32_t handle, uint64_t *offset_p);
 
+=======
+>>>>>>> upstream/android-13
 
 /* qxl ttm */
 int qxl_ttm_init(struct qxl_device *qdev);
 void qxl_ttm_fini(struct qxl_device *qdev);
+<<<<<<< HEAD
 int qxl_mmap(struct file *filp, struct vm_area_struct *vma);
+=======
+int qxl_ttm_io_mem_reserve(struct ttm_device *bdev,
+			   struct ttm_resource *mem);
+>>>>>>> upstream/android-13
 
 /* qxl image */
 
@@ -422,7 +565,10 @@ void qxl_update_screen(struct qxl_device *qxl);
 /* qxl io operations (qxl_cmd.c) */
 
 void qxl_io_create_primary(struct qxl_device *qdev,
+<<<<<<< HEAD
 			   unsigned offset,
+=======
+>>>>>>> upstream/android-13
 			   struct qxl_bo *bo);
 void qxl_io_destroy_primary(struct qxl_device *qdev);
 void qxl_io_memslot_add(struct qxl_device *qdev, uint8_t id);
@@ -467,6 +613,7 @@ int qxl_alloc_bo_reserved(struct qxl_device *qdev,
 			  struct qxl_bo **_bo);
 /* qxl drawing commands */
 
+<<<<<<< HEAD
 void qxl_draw_opaque_fb(const struct qxl_fb_image *qxl_fb_image,
 			int stride /* filled in if 0 */);
 
@@ -483,6 +630,15 @@ void qxl_draw_copyarea(struct qxl_device *qdev,
 		       u32 width, u32 height,
 		       u32 sx, u32 sy,
 		       u32 dx, u32 dy);
+=======
+void qxl_draw_dirty_fb(struct qxl_device *qdev,
+		       struct drm_framebuffer *fb,
+		       struct qxl_bo *bo,
+		       unsigned int flags, unsigned int color,
+		       struct drm_clip_rect *clips,
+		       unsigned int num_clips, int inc,
+		       uint32_t dumb_shadow_offset);
+>>>>>>> upstream/android-13
 
 void qxl_release_free(struct qxl_device *qdev,
 		      struct qxl_release *release);
@@ -496,8 +652,13 @@ int qxl_garbage_collect(struct qxl_device *qdev);
 
 /* debugfs */
 
+<<<<<<< HEAD
 int qxl_debugfs_init(struct drm_minor *minor);
 int qxl_ttm_debugfs_init(struct qxl_device *qdev);
+=======
+void qxl_debugfs_init(struct drm_minor *minor);
+void qxl_ttm_debugfs_init(struct qxl_device *qdev);
+>>>>>>> upstream/android-13
 
 /* qxl_prime.c */
 int qxl_gem_prime_pin(struct drm_gem_object *obj);
@@ -506,6 +667,7 @@ struct sg_table *qxl_gem_prime_get_sg_table(struct drm_gem_object *obj);
 struct drm_gem_object *qxl_gem_prime_import_sg_table(
 	struct drm_device *dev, struct dma_buf_attachment *attach,
 	struct sg_table *sgt);
+<<<<<<< HEAD
 void *qxl_gem_prime_vmap(struct drm_gem_object *obj);
 void qxl_gem_prime_vunmap(struct drm_gem_object *obj, void *vaddr);
 int qxl_gem_prime_mmap(struct drm_gem_object *obj,
@@ -521,14 +683,30 @@ bool qxl_fbdev_qobj_is_fb(struct qxl_device *qdev, struct qxl_bo *qobj);
 int qxl_debugfs_add_files(struct qxl_device *qdev,
 			  struct drm_info_list *files,
 			  unsigned nfiles);
+=======
+int qxl_gem_prime_vmap(struct drm_gem_object *obj, struct dma_buf_map *map);
+void qxl_gem_prime_vunmap(struct drm_gem_object *obj,
+			  struct dma_buf_map *map);
+
+/* qxl_irq.c */
+int qxl_irq_init(struct qxl_device *qdev);
+
+void qxl_debugfs_add_files(struct qxl_device *qdev,
+			   struct drm_info_list *files,
+			   unsigned int nfiles);
+>>>>>>> upstream/android-13
 
 int qxl_surface_id_alloc(struct qxl_device *qdev,
 			 struct qxl_bo *surf);
 void qxl_surface_id_dealloc(struct qxl_device *qdev,
 			    uint32_t surface_id);
 int qxl_hw_surface_alloc(struct qxl_device *qdev,
+<<<<<<< HEAD
 			 struct qxl_bo *surf,
 			 struct ttm_mem_reg *mem);
+=======
+			 struct qxl_bo *surf);
+>>>>>>> upstream/android-13
 int qxl_hw_surface_dealloc(struct qxl_device *qdev,
 			   struct qxl_bo *surf);
 

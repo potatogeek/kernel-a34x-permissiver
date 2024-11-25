@@ -26,7 +26,11 @@
 #include <linux/moduleloader.h>
 #include <linux/interrupt.h>
 #include <linux/poll.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <asm/mipsregs.h>
 #include <asm/mipsmtregs.h>
 #include <asm/cacheflush.h>
@@ -746,6 +750,7 @@ static int vpe_elfload(struct vpe *v)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int getcwd(char *buff, int size)
 {
 	mm_segment_t old_fs;
@@ -761,13 +766,18 @@ static int getcwd(char *buff, int size)
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 /* checks VPE is unused and gets ready to load program	*/
 static int vpe_open(struct inode *inode, struct file *filp)
 {
 	enum vpe_state state;
 	struct vpe_notifications *notifier;
 	struct vpe *v;
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 
 	if (VPE_MODULE_MINOR != iminor(inode)) {
 		/* assume only 1 device at the moment. */
@@ -803,12 +813,15 @@ static int vpe_open(struct inode *inode, struct file *filp)
 	v->plen = P_SIZE;
 	v->load_addr = NULL;
 	v->len = 0;
+<<<<<<< HEAD
 
 	v->cwd[0] = 0;
 	ret = getcwd(v->cwd, VPE_PATH_MAX);
 	if (ret < 0)
 		pr_warn("VPE loader: open, getcwd returned %d\n", ret);
 
+=======
+>>>>>>> upstream/android-13
 	v->shared_ptr = NULL;
 	v->__start = 0;
 
@@ -915,6 +928,7 @@ int vpe_notify(int index, struct vpe_notifications *notify)
 }
 EXPORT_SYMBOL(vpe_notify);
 
+<<<<<<< HEAD
 char *vpe_getcwd(int index)
 {
 	struct vpe *v = get_vpe(index);
@@ -926,6 +940,8 @@ char *vpe_getcwd(int index)
 }
 EXPORT_SYMBOL(vpe_getcwd);
 
+=======
+>>>>>>> upstream/android-13
 module_init(vpe_module_init);
 module_exit(vpe_module_exit);
 MODULE_DESCRIPTION("MIPS VPE Loader");

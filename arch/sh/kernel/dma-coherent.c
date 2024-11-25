@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2004 - 2007  Paul Mundt
  *
@@ -64,6 +65,24 @@ void arch_dma_free(struct device *dev, size_t size, void *vaddr,
 
 void arch_sync_dma_for_device(struct device *dev, phys_addr_t paddr,
 		size_t size, enum dma_data_direction dir)
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2004 - 2007  Paul Mundt
+ */
+#include <linux/mm.h>
+#include <linux/dma-map-ops.h>
+#include <asm/cacheflush.h>
+#include <asm/addrspace.h>
+
+void arch_dma_prep_coherent(struct page *page, size_t size)
+{
+	__flush_purge_region(page_address(page), size);
+}
+
+void arch_sync_dma_for_device(phys_addr_t paddr, size_t size,
+		enum dma_data_direction dir)
+>>>>>>> upstream/android-13
 {
 	void *addr = sh_cacheop_vaddr(phys_to_virt(paddr));
 

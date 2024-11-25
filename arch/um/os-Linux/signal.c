@@ -1,15 +1,26 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2015 Anton Ivanov (aivanov@{brocade.com,kot-begemot.co.uk})
  * Copyright (C) 2015 Thomas Meyer (thomas@m3y3r.de)
  * Copyright (C) 2004 PathScale, Inc
  * Copyright (C) 2004 - 2007 Jeff Dike (jdike@{addtoit,linux.intel}.com)
+<<<<<<< HEAD
  * Licensed under the GPL
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <stdlib.h>
 #include <stdarg.h>
 #include <errno.h>
 #include <signal.h>
+<<<<<<< HEAD
+=======
+#include <string.h>
+>>>>>>> upstream/android-13
 #include <strings.h>
 #include <as-layout.h>
 #include <kern_util.h>
@@ -17,6 +28,10 @@
 #include <sysdep/mcontext.h>
 #include <um_malloc.h>
 #include <sys/ucontext.h>
+<<<<<<< HEAD
+=======
+#include <timetravel.h>
+>>>>>>> upstream/android-13
 
 void (*sig_info[NSIG])(int, struct siginfo *, struct uml_pt_regs *) = {
 	[SIGTRAP]	= relay_signal,
@@ -26,11 +41,15 @@ void (*sig_info[NSIG])(int, struct siginfo *, struct uml_pt_regs *) = {
 	[SIGBUS]	= bus_handler,
 	[SIGSEGV]	= segv_handler,
 	[SIGIO]		= sigio_handler,
+<<<<<<< HEAD
 	[SIGALRM]	= timer_handler
+=======
+>>>>>>> upstream/android-13
 };
 
 static void sig_handler_common(int sig, struct siginfo *si, mcontext_t *mc)
 {
+<<<<<<< HEAD
 	struct uml_pt_regs *r;
 	int save_errno = errno;
 
@@ -54,6 +73,25 @@ static void sig_handler_common(int sig, struct siginfo *si, mcontext_t *mc)
 	errno = save_errno;
 
 	free(r);
+=======
+	struct uml_pt_regs r;
+	int save_errno = errno;
+
+	r.is_user = 0;
+	if (sig == SIGSEGV) {
+		/* For segfaults, we want the data from the sigcontext. */
+		get_regs_from_mc(&r, mc);
+		GET_FAULTINFO_FROM_MC(r.faultinfo, mc);
+	}
+
+	/* enable signals if sig isn't IRQ signal */
+	if ((sig != SIGIO) && (sig != SIGWINCH))
+		unblock_signals_trace();
+
+	(*sig_info[sig])(sig, si, &r);
+
+	errno = save_errno;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -68,12 +106,22 @@ static void sig_handler_common(int sig, struct siginfo *si, mcontext_t *mc)
 #define SIGALRM_BIT 1
 #define SIGALRM_MASK (1 << SIGALRM_BIT)
 
+<<<<<<< HEAD
 static int signals_enabled;
+=======
+int signals_enabled;
+#ifdef UML_CONFIG_UML_TIME_TRAVEL_SUPPORT
+static int signals_blocked;
+#else
+#define signals_blocked 0
+#endif
+>>>>>>> upstream/android-13
 static unsigned int signals_pending;
 static unsigned int signals_active = 0;
 
 void sig_handler(int sig, struct siginfo *si, mcontext_t *mc)
 {
+<<<<<<< HEAD
 	int enabled;
 
 	enabled = signals_enabled;
@@ -87,10 +135,34 @@ void sig_handler(int sig, struct siginfo *si, mcontext_t *mc)
 	sig_handler_common(sig, si, mc);
 
 	set_signals(enabled);
+=======
+	int enabled = signals_enabled;
+
+	if ((signals_blocked || !enabled) && (sig == SIGIO)) {
+		/*
+		 * In TT_MODE_EXTERNAL, need to still call time-travel
+		 * handlers unless signals are also blocked for the
+		 * external time message processing. This will mark
+		 * signals_pending by itself (only if necessary.)
+		 */
+		if (!signals_blocked && time_travel_mode == TT_MODE_EXTERNAL)
+			sigio_run_timetravel_handlers();
+		else
+			signals_pending |= SIGIO_MASK;
+		return;
+	}
+
+	block_signals_trace();
+
+	sig_handler_common(sig, si, mc);
+
+	um_set_signals_trace(enabled);
+>>>>>>> upstream/android-13
 }
 
 static void timer_real_alarm_handler(mcontext_t *mc)
 {
+<<<<<<< HEAD
 	struct uml_pt_regs *regs;
 
 	regs = uml_kmalloc(sizeof(struct uml_pt_regs), UM_GFP_ATOMIC);
@@ -102,6 +174,15 @@ static void timer_real_alarm_handler(mcontext_t *mc)
 	timer_handler(SIGALRM, NULL, regs);
 
 	free(regs);
+=======
+	struct uml_pt_regs regs;
+
+	if (mc != NULL)
+		get_regs_from_mc(&regs, mc);
+	else
+		memset(&regs, 0, sizeof(regs));
+	timer_handler(SIGALRM, NULL, &regs);
+>>>>>>> upstream/android-13
 }
 
 void timer_alarm_handler(int sig, struct siginfo *unused_si, mcontext_t *mc)
@@ -114,7 +195,11 @@ void timer_alarm_handler(int sig, struct siginfo *unused_si, mcontext_t *mc)
 		return;
 	}
 
+<<<<<<< HEAD
 	block_signals();
+=======
+	block_signals_trace();
+>>>>>>> upstream/android-13
 
 	signals_active |= SIGALRM_MASK;
 
@@ -122,7 +207,11 @@ void timer_alarm_handler(int sig, struct siginfo *unused_si, mcontext_t *mc)
 
 	signals_active &= ~SIGALRM_MASK;
 
+<<<<<<< HEAD
 	set_signals(enabled);
+=======
+	um_set_signals_trace(enabled);
+>>>>>>> upstream/android-13
 }
 
 void deliver_alarm(void) {
@@ -139,13 +228,30 @@ void set_sigstack(void *sig_stack, int size)
 	stack_t stack = {
 		.ss_flags = 0,
 		.ss_sp = sig_stack,
+<<<<<<< HEAD
 		.ss_size = size - sizeof(void *)
+=======
+		.ss_size = size
+>>>>>>> upstream/android-13
 	};
 
 	if (sigaltstack(&stack, NULL) != 0)
 		panic("enabling signal stack failed, errno = %d\n", errno);
 }
 
+<<<<<<< HEAD
+=======
+static void sigusr1_handler(int sig, struct siginfo *unused_si, mcontext_t *mc)
+{
+	uml_pm_wake();
+}
+
+void register_pm_wake_signal(void)
+{
+	set_handler(SIGUSR1);
+}
+
+>>>>>>> upstream/android-13
 static void (*handlers[_NSIG])(int sig, struct siginfo *si, mcontext_t *mc) = {
 	[SIGSEGV] = sig_handler,
 	[SIGBUS] = sig_handler,
@@ -155,7 +261,13 @@ static void (*handlers[_NSIG])(int sig, struct siginfo *si, mcontext_t *mc) = {
 
 	[SIGIO] = sig_handler,
 	[SIGWINCH] = sig_handler,
+<<<<<<< HEAD
 	[SIGALRM] = timer_alarm_handler
+=======
+	[SIGALRM] = timer_alarm_handler,
+
+	[SIGUSR1] = sigusr1_handler,
+>>>>>>> upstream/android-13
 };
 
 static void hard_handler(int sig, siginfo_t *si, void *p)
@@ -232,6 +344,14 @@ void set_handler(int sig)
 		panic("sigprocmask failed - errno = %d\n", errno);
 }
 
+<<<<<<< HEAD
+=======
+void send_sigio_to_self(void)
+{
+	kill(os_getpid(), SIGIO);
+}
+
+>>>>>>> upstream/android-13
 int change_sig(int signal, int on)
 {
 	sigset_t sigset;
@@ -263,6 +383,14 @@ void unblock_signals(void)
 	if (signals_enabled == 1)
 		return;
 
+<<<<<<< HEAD
+=======
+	signals_enabled = 1;
+#ifdef UML_CONFIG_UML_TIME_TRAVEL_SUPPORT
+	deliver_time_travel_irqs();
+#endif
+
+>>>>>>> upstream/android-13
 	/*
 	 * We loop because the IRQ handler returns with interrupts off.  So,
 	 * interrupts may have arrived and we need to re-enable them and
@@ -272,12 +400,18 @@ void unblock_signals(void)
 		/*
 		 * Save and reset save_pending after enabling signals.  This
 		 * way, signals_pending won't be changed while we're reading it.
+<<<<<<< HEAD
 		 */
 		signals_enabled = 1;
 
 		/*
 		 * Setting signals_enabled and reading signals_pending must
 		 * happen in this order.
+=======
+		 *
+		 * Setting signals_enabled and reading signals_pending must
+		 * happen in this order, so have the barrier here.
+>>>>>>> upstream/android-13
 		 */
 		barrier();
 
@@ -290,10 +424,20 @@ void unblock_signals(void)
 		/*
 		 * We have pending interrupts, so disable signals, as the
 		 * handlers expect them off when they are called.  They will
+<<<<<<< HEAD
 		 * be enabled again above.
 		 */
 
 		signals_enabled = 0;
+=======
+		 * be enabled again above. We need to trace this, as we're
+		 * expected to be enabling interrupts already, but any more
+		 * tracing that happens inside the handlers we call for the
+		 * pending signals will mess up the tracing state.
+		 */
+		signals_enabled = 0;
+		um_trace_signals_off();
+>>>>>>> upstream/android-13
 
 		/*
 		 * Deal with SIGIO first because the alarm handler might
@@ -316,6 +460,7 @@ void unblock_signals(void)
 		if (!(signals_pending & SIGIO_MASK) && (signals_active & SIGALRM_MASK))
 			return;
 
+<<<<<<< HEAD
 	}
 }
 
@@ -325,6 +470,15 @@ int get_signals(void)
 }
 
 int set_signals(int enable)
+=======
+		/* Re-enable signals and trace that we're doing so. */
+		um_trace_signals_on();
+		signals_enabled = 1;
+	}
+}
+
+int um_set_signals(int enable)
+>>>>>>> upstream/android-13
 {
 	int ret;
 	if (signals_enabled == enable)
@@ -338,6 +492,57 @@ int set_signals(int enable)
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+int um_set_signals_trace(int enable)
+{
+	int ret;
+	if (signals_enabled == enable)
+		return enable;
+
+	ret = signals_enabled;
+	if (enable)
+		unblock_signals_trace();
+	else
+		block_signals_trace();
+
+	return ret;
+}
+
+#ifdef UML_CONFIG_UML_TIME_TRAVEL_SUPPORT
+void mark_sigio_pending(void)
+{
+	signals_pending |= SIGIO_MASK;
+}
+
+void block_signals_hard(void)
+{
+	if (signals_blocked)
+		return;
+	signals_blocked = 1;
+	barrier();
+}
+
+void unblock_signals_hard(void)
+{
+	if (!signals_blocked)
+		return;
+	/* Must be set to 0 before we check the pending bits etc. */
+	signals_blocked = 0;
+	barrier();
+
+	if (signals_pending && signals_enabled) {
+		/* this is a bit inefficient, but that's not really important */
+		block_signals();
+		unblock_signals();
+	} else if (signals_pending & SIGIO_MASK) {
+		/* we need to run time-travel handlers even if not enabled */
+		sigio_run_timetravel_handlers();
+	}
+}
+#endif
+
+>>>>>>> upstream/android-13
 int os_is_signal_stack(void)
 {
 	stack_t ss;

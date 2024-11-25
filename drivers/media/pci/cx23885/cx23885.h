@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  Driver for the Conexant CX23885 PCIe bridge
  *
  *  Copyright (c) 2006 Steven Toth <stoth@linuxtv.org>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -138,7 +145,10 @@
 	V4L2_STD_PAL_60 |  V4L2_STD_SECAM_L   |  V4L2_STD_SECAM_DK)
 
 struct cx23885_fmt {
+<<<<<<< HEAD
 	char  *name;
+=======
+>>>>>>> upstream/android-13
 	u32   fourcc;          /* v4l2 format id */
 	int   depth;
 	int   flags;
@@ -247,7 +257,11 @@ struct cx23885_i2c {
 	struct i2c_client          i2c_client;
 	u32                        i2c_rc;
 
+<<<<<<< HEAD
 	/* 885 registers used for raw addess */
+=======
+	/* 885 registers used for raw address */
+>>>>>>> upstream/android-13
 	u32                        i2c_period;
 	u32                        reg_ctrl;
 	u32                        reg_stat;
@@ -336,8 +350,13 @@ struct cx23885_audio_buffer {
 	struct cx23885_riscmem	risc;
 	void			*vaddr;
 	struct scatterlist	*sglist;
+<<<<<<< HEAD
 	int                     sglen;
 	int                     nr_pages;
+=======
+	int			sglen;
+	unsigned long		nr_pages;
+>>>>>>> upstream/android-13
 };
 
 struct cx23885_audio_dev {

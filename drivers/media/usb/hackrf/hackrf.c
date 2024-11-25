@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * HackRF driver
  *
  * Copyright (C) 2014 Antti Palosaari <crope@iki.fi>
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -905,6 +912,7 @@ static int hackrf_querycap(struct file *file, void *fh,
 {
 	struct hackrf_dev *dev = video_drvdata(file);
 	struct usb_interface *intf = dev->intf;
+<<<<<<< HEAD
 	struct video_device *vdev = video_devdata(file);
 
 	dev_dbg(&intf->dev, "\n");
@@ -920,6 +928,17 @@ static int hackrf_querycap(struct file *file, void *fh,
 			    V4L2_CAP_DEVICE_CAPS | cap->device_caps;
 	strlcpy(cap->driver, KBUILD_MODNAME, sizeof(cap->driver));
 	strlcpy(cap->card, dev->rx_vdev.name, sizeof(cap->card));
+=======
+
+	dev_dbg(&intf->dev, "\n");
+
+	cap->capabilities = V4L2_CAP_SDR_CAPTURE | V4L2_CAP_TUNER |
+			    V4L2_CAP_SDR_OUTPUT | V4L2_CAP_MODULATOR |
+			    V4L2_CAP_STREAMING | V4L2_CAP_READWRITE |
+			    V4L2_CAP_DEVICE_CAPS;
+	strscpy(cap->driver, KBUILD_MODNAME, sizeof(cap->driver));
+	strscpy(cap->card, dev->rx_vdev.name, sizeof(cap->card));
+>>>>>>> upstream/android-13
 	usb_make_path(dev->udev, cap->bus_info, sizeof(cap->bus_info));
 
 	return 0;
@@ -944,7 +963,10 @@ static int hackrf_s_fmt_sdr(struct file *file, void *priv,
 	if (vb2_is_busy(q))
 		return -EBUSY;
 
+<<<<<<< HEAD
 	memset(f->fmt.sdr.reserved, 0, sizeof(f->fmt.sdr.reserved));
+=======
+>>>>>>> upstream/android-13
 	for (i = 0; i < NUM_FORMATS; i++) {
 		if (f->fmt.sdr.pixelformat == formats[i].pixelformat) {
 			dev->pixelformat = formats[i].pixelformat;
@@ -970,7 +992,10 @@ static int hackrf_g_fmt_sdr(struct file *file, void *priv,
 	dev_dbg(dev->dev, "pixelformat fourcc %4.4s\n",
 			(char *)&dev->pixelformat);
 
+<<<<<<< HEAD
 	memset(f->fmt.sdr.reserved, 0, sizeof(f->fmt.sdr.reserved));
+=======
+>>>>>>> upstream/android-13
 	f->fmt.sdr.pixelformat = dev->pixelformat;
 	f->fmt.sdr.buffersize = dev->buffersize;
 
@@ -986,7 +1011,10 @@ static int hackrf_try_fmt_sdr(struct file *file, void *priv,
 	dev_dbg(dev->dev, "pixelformat fourcc %4.4s\n",
 			(char *)&f->fmt.sdr.pixelformat);
 
+<<<<<<< HEAD
 	memset(f->fmt.sdr.reserved, 0, sizeof(f->fmt.sdr.reserved));
+=======
+>>>>>>> upstream/android-13
 	for (i = 0; i < NUM_FORMATS; i++) {
 		if (formats[i].pixelformat == f->fmt.sdr.pixelformat) {
 			f->fmt.sdr.buffersize = formats[i].buffersize;
@@ -1041,14 +1069,22 @@ static int hackrf_g_tuner(struct file *file, void *priv, struct v4l2_tuner *v)
 	dev_dbg(dev->dev, "index=%d\n", v->index);
 
 	if (v->index == 0) {
+<<<<<<< HEAD
 		strlcpy(v->name, "HackRF ADC", sizeof(v->name));
+=======
+		strscpy(v->name, "HackRF ADC", sizeof(v->name));
+>>>>>>> upstream/android-13
 		v->type = V4L2_TUNER_SDR;
 		v->capability = V4L2_TUNER_CAP_1HZ | V4L2_TUNER_CAP_FREQ_BANDS;
 		v->rangelow  = bands_adc_dac[0].rangelow;
 		v->rangehigh = bands_adc_dac[0].rangehigh;
 		ret = 0;
 	} else if (v->index == 1) {
+<<<<<<< HEAD
 		strlcpy(v->name, "HackRF RF", sizeof(v->name));
+=======
+		strscpy(v->name, "HackRF RF", sizeof(v->name));
+>>>>>>> upstream/android-13
 		v->type = V4L2_TUNER_RF;
 		v->capability = V4L2_TUNER_CAP_1HZ | V4L2_TUNER_CAP_FREQ_BANDS;
 		v->rangelow  = bands_rx_tx[0].rangelow;
@@ -1080,14 +1116,22 @@ static int hackrf_g_modulator(struct file *file, void *fh,
 	dev_dbg(dev->dev, "index=%d\n", a->index);
 
 	if (a->index == 0) {
+<<<<<<< HEAD
 		strlcpy(a->name, "HackRF DAC", sizeof(a->name));
+=======
+		strscpy(a->name, "HackRF DAC", sizeof(a->name));
+>>>>>>> upstream/android-13
 		a->type = V4L2_TUNER_SDR;
 		a->capability = V4L2_TUNER_CAP_1HZ | V4L2_TUNER_CAP_FREQ_BANDS;
 		a->rangelow  = bands_adc_dac[0].rangelow;
 		a->rangehigh = bands_adc_dac[0].rangehigh;
 		ret = 0;
 	} else if (a->index == 1) {
+<<<<<<< HEAD
 		strlcpy(a->name, "HackRF RF", sizeof(a->name));
+=======
+		strscpy(a->name, "HackRF RF", sizeof(a->name));
+>>>>>>> upstream/android-13
 		a->type = V4L2_TUNER_RF;
 		a->capability = V4L2_TUNER_CAP_1HZ | V4L2_TUNER_CAP_FREQ_BANDS;
 		a->rangelow  = bands_rx_tx[0].rangelow;
@@ -1496,6 +1540,11 @@ static int hackrf_probe(struct usb_interface *intf,
 	dev->rx_vdev.ctrl_handler = &dev->rx_ctrl_handler;
 	dev->rx_vdev.lock = &dev->v4l2_lock;
 	dev->rx_vdev.vfl_dir = VFL_DIR_RX;
+<<<<<<< HEAD
+=======
+	dev->rx_vdev.device_caps = V4L2_CAP_STREAMING | V4L2_CAP_READWRITE |
+				   V4L2_CAP_SDR_CAPTURE | V4L2_CAP_TUNER;
+>>>>>>> upstream/android-13
 	video_set_drvdata(&dev->rx_vdev, dev);
 	ret = video_register_device(&dev->rx_vdev, VFL_TYPE_SDR, -1);
 	if (ret) {
@@ -1514,6 +1563,11 @@ static int hackrf_probe(struct usb_interface *intf,
 	dev->tx_vdev.ctrl_handler = &dev->tx_ctrl_handler;
 	dev->tx_vdev.lock = &dev->v4l2_lock;
 	dev->tx_vdev.vfl_dir = VFL_DIR_TX;
+<<<<<<< HEAD
+=======
+	dev->tx_vdev.device_caps = V4L2_CAP_STREAMING | V4L2_CAP_READWRITE |
+				   V4L2_CAP_SDR_OUTPUT | V4L2_CAP_MODULATOR;
+>>>>>>> upstream/android-13
 	video_set_drvdata(&dev->tx_vdev, dev);
 	ret = video_register_device(&dev->tx_vdev, VFL_TYPE_SDR, -1);
 	if (ret) {

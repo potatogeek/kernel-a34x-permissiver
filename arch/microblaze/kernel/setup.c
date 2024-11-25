@@ -9,7 +9,11 @@
  */
 
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <linux/clk-provider.h>
+=======
+#include <linux/of_clk.h>
+>>>>>>> upstream/android-13
 #include <linux/clocksource.h>
 #include <linux/string.h>
 #include <linux/seq_file.h>
@@ -18,6 +22,10 @@
 #include <linux/console.h>
 #include <linux/debugfs.h>
 #include <linux/of_fdt.h>
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 #include <asm/setup.h>
 #include <asm/sections.h>
@@ -33,7 +41,10 @@
 #include <asm/entry.h>
 #include <asm/cpuinfo.h>
 
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 
 DEFINE_PER_CPU(unsigned int, KSP);	/* Saved kernel stack pointer */
 DEFINE_PER_CPU(unsigned int, KM);	/* Kernel/user mode */
@@ -41,20 +52,30 @@ DEFINE_PER_CPU(unsigned int, ENTRY_SP);	/* Saved SP on kernel entry */
 DEFINE_PER_CPU(unsigned int, R11_SAVE);	/* Temp variable for entry */
 DEFINE_PER_CPU(unsigned int, CURRENT_SAVE);	/* Saved current pointer */
 
+<<<<<<< HEAD
 unsigned int boot_cpuid;
+=======
+>>>>>>> upstream/android-13
 /*
  * Placed cmd_line to .data section because can be initialized from
  * ASM code. Default position is BSS section which is cleared
  * in machine_early_init().
  */
+<<<<<<< HEAD
 char cmd_line[COMMAND_LINE_SIZE] __attribute__ ((section(".data")));
+=======
+char cmd_line[COMMAND_LINE_SIZE] __section(".data");
+>>>>>>> upstream/android-13
 
 void __init setup_arch(char **cmdline_p)
 {
 	*cmdline_p = boot_command_line;
 
 	setup_memory();
+<<<<<<< HEAD
 	parse_early_param();
+=======
+>>>>>>> upstream/android-13
 
 	console_verbose();
 
@@ -65,10 +86,13 @@ void __init setup_arch(char **cmdline_p)
 	microblaze_cache_init();
 
 	xilinx_pci_init();
+<<<<<<< HEAD
 
 #if defined(CONFIG_DUMMY_CONSOLE)
 	conswitchp = &dummy_con;
 #endif
+=======
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_MTD_UCLINUX
@@ -192,6 +216,7 @@ struct dentry *of_debugfs_root;
 static int microblaze_debugfs_init(void)
 {
 	of_debugfs_root = debugfs_create_dir("microblaze", NULL);
+<<<<<<< HEAD
 
 	return of_debugfs_root == NULL;
 }
@@ -213,4 +238,16 @@ static int __init debugfs_tlb(void)
 }
 device_initcall(debugfs_tlb);
 # endif
+=======
+	return 0;
+}
+arch_initcall(microblaze_debugfs_init);
+
+static int __init debugfs_tlb(void)
+{
+	debugfs_create_u32("tlb_skip", S_IRUGO, of_debugfs_root, &tlb_skip);
+	return 0;
+}
+device_initcall(debugfs_tlb);
+>>>>>>> upstream/android-13
 #endif

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 2008 Red Hat, Inc., Eric Paris <eparis@redhat.com>
  *
@@ -14,6 +15,11 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; see the file COPYING.  If not, write to
  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Copyright (C) 2008 Red Hat, Inc., Eric Paris <eparis@redhat.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/list.h>
@@ -38,6 +44,10 @@ static void fsnotify_final_destroy_group(struct fsnotify_group *group)
 		group->ops->free_group_priv(group);
 
 	mem_cgroup_put(group->memcg);
+<<<<<<< HEAD
+=======
+	mutex_destroy(&group->mark_mutex);
+>>>>>>> upstream/android-13
 
 	kfree(group);
 }
@@ -121,6 +131,7 @@ void fsnotify_put_group(struct fsnotify_group *group)
 	if (refcount_dec_and_test(&group->refcnt))
 		fsnotify_final_destroy_group(group);
 }
+<<<<<<< HEAD
 
 /*
  * Create a new fsnotify_group and hold a reference for the group returned.
@@ -130,12 +141,25 @@ struct fsnotify_group *fsnotify_alloc_group(const struct fsnotify_ops *ops)
 	struct fsnotify_group *group;
 
 	group = kzalloc(sizeof(struct fsnotify_group), GFP_KERNEL);
+=======
+EXPORT_SYMBOL_GPL(fsnotify_put_group);
+
+static struct fsnotify_group *__fsnotify_alloc_group(
+				const struct fsnotify_ops *ops, gfp_t gfp)
+{
+	struct fsnotify_group *group;
+
+	group = kzalloc(sizeof(struct fsnotify_group), gfp);
+>>>>>>> upstream/android-13
 	if (!group)
 		return ERR_PTR(-ENOMEM);
 
 	/* set to 0 when there a no external references to this group */
 	refcount_set(&group->refcnt, 1);
+<<<<<<< HEAD
 	atomic_set(&group->num_marks, 0);
+=======
+>>>>>>> upstream/android-13
 	atomic_set(&group->user_waits, 0);
 
 	spin_lock_init(&group->notification_lock);
@@ -151,6 +175,27 @@ struct fsnotify_group *fsnotify_alloc_group(const struct fsnotify_ops *ops)
 	return group;
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * Create a new fsnotify_group and hold a reference for the group returned.
+ */
+struct fsnotify_group *fsnotify_alloc_group(const struct fsnotify_ops *ops)
+{
+	return __fsnotify_alloc_group(ops, GFP_KERNEL);
+}
+EXPORT_SYMBOL_GPL(fsnotify_alloc_group);
+
+/*
+ * Create a new fsnotify_group and hold a reference for the group returned.
+ */
+struct fsnotify_group *fsnotify_alloc_user_group(const struct fsnotify_ops *ops)
+{
+	return __fsnotify_alloc_group(ops, GFP_KERNEL_ACCOUNT);
+}
+EXPORT_SYMBOL_GPL(fsnotify_alloc_user_group);
+
+>>>>>>> upstream/android-13
 int fsnotify_fasync(int fd, struct file *file, int on)
 {
 	struct fsnotify_group *group = file->private_data;

@@ -104,7 +104,11 @@ NOTE: Only ONE of the three must be enabled
 					 *
 					 * 31:14 Base Addr of 16K memory-mapped
 					 *	configuration space
+<<<<<<< HEAD
 					 * 13:1  reserverd
+=======
+					 * 13:1  reserved
+>>>>>>> upstream/android-13
 					 *  0    mem-mapped config space enable
 					 */
 
@@ -330,7 +334,10 @@ static void i82975x_check(struct mem_ctl_info *mci)
 {
 	struct i82975x_error_info info;
 
+<<<<<<< HEAD
 	edac_dbg(1, "MC%d\n", mci->mc_idx);
+=======
+>>>>>>> upstream/android-13
 	i82975x_get_error_info(mci, &info);
 	i82975x_process_error_info(mci, &info, 1);
 }
@@ -358,6 +365,7 @@ static int dual_channel_active(void __iomem *mch_window)
 	return dualch;
 }
 
+<<<<<<< HEAD
 static enum dev_type i82975x_dram_type(void __iomem *mch_window, int rank)
 {
 	/*
@@ -366,6 +374,8 @@ static enum dev_type i82975x_dram_type(void __iomem *mch_window, int rank)
 	return DEV_X8;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void i82975x_init_csrows(struct mem_ctl_info *mci,
 		struct pci_dev *pdev, void __iomem *mch_window)
 {
@@ -375,7 +385,10 @@ static void i82975x_init_csrows(struct mem_ctl_info *mci,
 	u32 cumul_size, nr_pages;
 	int index, chan;
 	struct dimm_info *dimm;
+<<<<<<< HEAD
 	enum dev_type dtype;
+=======
+>>>>>>> upstream/android-13
 
 	last_cumul_size = 0;
 
@@ -413,7 +426,10 @@ static void i82975x_init_csrows(struct mem_ctl_info *mci,
 		 *   [0-7] for single-channel; i.e. csrow->nr_channels = 1
 		 *   [0-3] for dual-channel; i.e. csrow->nr_channels = 2
 		 */
+<<<<<<< HEAD
 		dtype = i82975x_dram_type(mch_window, index);
+=======
+>>>>>>> upstream/android-13
 		for (chan = 0; chan < csrow->nr_channels; chan++) {
 			dimm = mci->csrows[index]->channels[chan]->dimm;
 
@@ -423,7 +439,14 @@ static void i82975x_init_csrows(struct mem_ctl_info *mci,
 				 (chan == 0) ? 'A' : 'B',
 				 index);
 			dimm->grain = 1 << 7;	/* 128Byte cache-line resolution */
+<<<<<<< HEAD
 			dimm->dtype = i82975x_dram_type(mch_window, index);
+=======
+
+			/* ECC is possible on i92975x ONLY with DEV_X8.  */
+			dimm->dtype = DEV_X8;
+
+>>>>>>> upstream/android-13
 			dimm->mtype = MEM_DDR2; /* I82975x supports only DDR2 */
 			dimm->edac_mode = EDAC_SECDED; /* only supported */
 		}
@@ -492,7 +515,11 @@ static int i82975x_probe1(struct pci_dev *pdev, int dev_idx)
 		goto fail0;
 	}
 	mchbar &= 0xffffc000;	/* bits 31:14 used for 16K window */
+<<<<<<< HEAD
 	mch_window = ioremap_nocache(mchbar, 0x1000);
+=======
+	mch_window = ioremap(mchbar, 0x1000);
+>>>>>>> upstream/android-13
 	if (!mch_window) {
 		edac_dbg(3, "error ioremapping MCHBAR!\n");
 		goto fail0;
@@ -655,8 +682,13 @@ static int __init i82975x_init(void)
 
 	edac_dbg(3, "\n");
 
+<<<<<<< HEAD
        /* Ensure that the OPSTATE is set correctly for POLL or NMI */
        opstate_init();
+=======
+	/* Ensure that the OPSTATE is set correctly for POLL or NMI */
+	opstate_init();
+>>>>>>> upstream/android-13
 
 	pci_rc = pci_register_driver(&i82975x_driver);
 	if (pci_rc < 0)

@@ -158,6 +158,10 @@ int ipoib_transport_dev_init(struct net_device *dev, struct ib_device *ca)
 
 	int ret, size, req_vec;
 	int i;
+<<<<<<< HEAD
+=======
+	static atomic_t counter;
+>>>>>>> upstream/android-13
 
 	size = ipoib_recvq_size + 1;
 	ret = ipoib_cm_dev_init(dev);
@@ -171,8 +175,12 @@ int ipoib_transport_dev_init(struct net_device *dev, struct ib_device *ca)
 		if (ret != -EOPNOTSUPP)
 			return ret;
 
+<<<<<<< HEAD
 	req_vec = (priv->port - 1) * 2;
 
+=======
+	req_vec = atomic_inc_return(&counter) * 2;
+>>>>>>> upstream/android-13
 	cq_attr.cqe = size;
 	cq_attr.comp_vector = req_vec % priv->ca->num_comp_vectors;
 	priv->recv_cq = ib_create_cq(priv->ca, ipoib_ib_rx_completion, NULL,
@@ -206,6 +214,12 @@ int ipoib_transport_dev_init(struct net_device *dev, struct ib_device *ca)
 	if (priv->hca_caps & IB_DEVICE_MANAGED_FLOW_STEERING)
 		init_attr.create_flags |= IB_QP_CREATE_NETIF_QP;
 
+<<<<<<< HEAD
+=======
+	if (priv->hca_caps & IB_DEVICE_RDMA_NETDEV_OPA)
+		init_attr.create_flags |= IB_QP_CREATE_NETDEV_USE;
+
+>>>>>>> upstream/android-13
 	priv->qp = ib_create_qp(priv->pd, &init_attr);
 	if (IS_ERR(priv->qp)) {
 		pr_warn("%s: failed to create QP\n", ca->name);
@@ -260,11 +274,16 @@ void ipoib_transport_dev_cleanup(struct net_device *dev)
 		priv->qp = NULL;
 	}
 
+<<<<<<< HEAD
 	if (ib_destroy_cq(priv->send_cq))
 		ipoib_warn(priv, "ib_cq_destroy (send) failed\n");
 
 	if (ib_destroy_cq(priv->recv_cq))
 		ipoib_warn(priv, "ib_cq_destroy (recv) failed\n");
+=======
+	ib_destroy_cq(priv->send_cq);
+	ib_destroy_cq(priv->recv_cq);
+>>>>>>> upstream/android-13
 }
 
 void ipoib_event(struct ib_event_handler *handler,
@@ -277,10 +296,16 @@ void ipoib_event(struct ib_event_handler *handler,
 		return;
 
 	ipoib_dbg(priv, "Event %d on device %s port %d\n", record->event,
+<<<<<<< HEAD
 		  record->device->name, record->element.port_num);
 
 	if (record->event == IB_EVENT_SM_CHANGE ||
 	    record->event == IB_EVENT_CLIENT_REREGISTER) {
+=======
+		  dev_name(&record->device->dev), record->element.port_num);
+
+	if (record->event == IB_EVENT_CLIENT_REREGISTER) {
+>>>>>>> upstream/android-13
 		queue_work(ipoib_workqueue, &priv->flush_light);
 	} else if (record->event == IB_EVENT_PORT_ERR ||
 		   record->event == IB_EVENT_PORT_ACTIVE ||

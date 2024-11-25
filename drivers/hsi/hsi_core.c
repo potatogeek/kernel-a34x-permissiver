@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * HSI core.
  *
  * Copyright (C) 2010 Nokia Corporation. All rights reserved.
  *
  * Contact: Carlos Chinea <carlos.chinea@nokia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,6 +23,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/hsi/hsi.h>
 #include <linux/compiler.h>
@@ -115,6 +122,10 @@ struct hsi_client *hsi_new_client(struct hsi_port *port,
 	if (device_register(&cl->device) < 0) {
 		pr_err("hsi: failed to register client: %s\n", info->name);
 		put_device(&cl->device);
+<<<<<<< HEAD
+=======
+		goto err;
+>>>>>>> upstream/android-13
 	}
 
 	return cl;
@@ -364,7 +375,11 @@ static void hsi_port_release(struct device *dev)
 }
 
 /**
+<<<<<<< HEAD
  * hsi_unregister_port - Unregister an HSI port
+=======
+ * hsi_port_unregister_clients - Unregister an HSI port
+>>>>>>> upstream/android-13
  * @port: The HSI port to unregister
  */
 void hsi_port_unregister_clients(struct hsi_port *port)

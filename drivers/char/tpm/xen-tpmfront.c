@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Implementation of the Xen vTPM device frontend
  *
  * Author:  Daniel De Graaf <dgdegra@tycho.nsa.gov>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
  * as published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/errno.h>
 #include <linux/err.h>
@@ -163,7 +170,11 @@ static int vtpm_send(struct tpm_chip *chip, u8 *buf, size_t count)
 	wmb();
 	notify_remote_via_evtchn(priv->evtchn);
 
+<<<<<<< HEAD
 	ordinal = be32_to_cpu(((struct tpm_input_header*)buf)->ordinal);
+=======
+	ordinal = be32_to_cpu(((struct tpm_header *)buf)->ordinal);
+>>>>>>> upstream/android-13
 	duration = tpm_calc_ordinal_duration(chip, ordinal);
 
 	if (wait_for_tpm_stat(chip, VTPM_STATUS_IDLE, duration,

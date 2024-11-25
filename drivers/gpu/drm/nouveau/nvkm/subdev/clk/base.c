@@ -90,6 +90,10 @@ nvkm_cstate_valid(struct nvkm_clk *clk, struct nvkm_cstate *cstate,
 			case NVKM_CLK_BOOST_NONE:
 				if (clk->base_khz && freq > clk->base_khz)
 					return false;
+<<<<<<< HEAD
+=======
+				fallthrough;
+>>>>>>> upstream/android-13
 			case NVKM_CLK_BOOST_BIOS:
 				if (clk->boost_khz && freq > clk->boost_khz)
 					return false;
@@ -648,7 +652,11 @@ nvkm_clk = {
 
 int
 nvkm_clk_ctor(const struct nvkm_clk_func *func, struct nvkm_device *device,
+<<<<<<< HEAD
 	      int index, bool allow_reclock, struct nvkm_clk *clk)
+=======
+	      enum nvkm_subdev_type type, int inst, bool allow_reclock, struct nvkm_clk *clk)
+>>>>>>> upstream/android-13
 {
 	struct nvkm_subdev *subdev = &clk->subdev;
 	struct nvkm_bios *bios = device->bios;
@@ -656,7 +664,11 @@ nvkm_clk_ctor(const struct nvkm_clk_func *func, struct nvkm_device *device,
 	const char *mode;
 	struct nvbios_vpstate_header h;
 
+<<<<<<< HEAD
 	nvkm_subdev_ctor(&nvkm_clk, device, index, subdev);
+=======
+	nvkm_subdev_ctor(&nvkm_clk, device, type, inst, subdev);
+>>>>>>> upstream/android-13
 
 	if (bios && !nvbios_vpstate_parse(bios, &h)) {
 		struct nvbios_vpstate_entry base, boost;
@@ -715,9 +727,17 @@ nvkm_clk_ctor(const struct nvkm_clk_func *func, struct nvkm_device *device,
 
 int
 nvkm_clk_new_(const struct nvkm_clk_func *func, struct nvkm_device *device,
+<<<<<<< HEAD
 	      int index, bool allow_reclock, struct nvkm_clk **pclk)
 {
 	if (!(*pclk = kzalloc(sizeof(**pclk), GFP_KERNEL)))
 		return -ENOMEM;
 	return nvkm_clk_ctor(func, device, index, allow_reclock, *pclk);
+=======
+	      enum nvkm_subdev_type type, int inst, bool allow_reclock, struct nvkm_clk **pclk)
+{
+	if (!(*pclk = kzalloc(sizeof(**pclk), GFP_KERNEL)))
+		return -ENOMEM;
+	return nvkm_clk_ctor(func, device, type, inst, allow_reclock, *pclk);
+>>>>>>> upstream/android-13
 }

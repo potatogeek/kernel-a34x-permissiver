@@ -25,6 +25,10 @@ int fbtft_gamma_parse_str(struct fbtft_par *par, u32 *curves,
 	unsigned long val = 0;
 	int ret = 0;
 	int curve_counter, value_counter;
+<<<<<<< HEAD
+=======
+	int _count;
+>>>>>>> upstream/android-13
 
 	fbtft_par_dbg(DEBUG_SYSFS, par, "%s() str=\n", __func__);
 
@@ -68,7 +72,14 @@ int fbtft_gamma_parse_str(struct fbtft_par *par, u32 *curves,
 			ret = get_next_ulong(&curve_p, &val, " ", 16);
 			if (ret)
 				goto out;
+<<<<<<< HEAD
 			curves[curve_counter * par->gamma.num_values + value_counter] = val;
+=======
+
+			_count = curve_counter * par->gamma.num_values +
+				 value_counter;
+			curves[_count] = val;
+>>>>>>> upstream/android-13
 			value_counter++;
 		}
 		if (value_counter != par->gamma.num_values) {
@@ -195,7 +206,11 @@ static ssize_t show_debug(struct device *device,
 	struct fb_info *fb_info = dev_get_drvdata(device);
 	struct fbtft_par *par = fb_info->par;
 
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%lu\n", par->debug);
+=======
+	return sysfs_emit(buf, "%lu\n", par->debug);
+>>>>>>> upstream/android-13
 }
 
 static struct device_attribute debug_device_attr =

@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2008-2009 Michal Simek <monstr@monstr.eu>
  * Copyright (C) 2008-2009 PetaLogix
  * Copyright (C) 2006 Atmark Techno, Inc.
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License. See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_MICROBLAZE_PROCESSOR_H
@@ -34,6 +41,7 @@ extern void ret_from_kernel_thread(void);
 
 # endif /* __ASSEMBLY__ */
 
+<<<<<<< HEAD
 # ifndef CONFIG_MMU
 /*
  * User space process size: memory size
@@ -76,6 +84,8 @@ extern unsigned long get_wchan(struct task_struct *p);
 
 # else /* CONFIG_MMU */
 
+=======
+>>>>>>> upstream/android-13
 /*
  * This is used to define STACK_TOP, and with MMU it must be below
  * kernel base to select the correct PGD when handling MMU exceptions.
@@ -92,12 +102,15 @@ extern unsigned long get_wchan(struct task_struct *p);
 
 #  ifndef __ASSEMBLY__
 
+<<<<<<< HEAD
 /*
  * Default implementation of macro that returns current
  * instruction pointer ("program counter").
  */
 #  define current_text_addr()	({ __label__ _l; _l: &&_l; })
 
+=======
+>>>>>>> upstream/android-13
 /* If you change this, you must change the associated assembly-languages
  * constants defined below, THREAD_*.
  */
@@ -137,9 +150,12 @@ unsigned long get_wchan(struct task_struct *p);
 #  define KSTK_EIP(task)	(task_pc(task))
 #  define KSTK_ESP(task)	(task_sp(task))
 
+<<<<<<< HEAD
 /* FIXME */
 #  define deactivate_mm(tsk, mm)	do { } while (0)
 
+=======
+>>>>>>> upstream/android-13
 #  define STACK_TOP	TASK_SIZE
 #  define STACK_TOP_MAX	STACK_TOP
 
@@ -148,5 +164,8 @@ extern struct dentry *of_debugfs_root;
 #endif
 
 #  endif /* __ASSEMBLY__ */
+<<<<<<< HEAD
 # endif /* CONFIG_MMU */
+=======
+>>>>>>> upstream/android-13
 #endif /* _ASM_MICROBLAZE_PROCESSOR_H */

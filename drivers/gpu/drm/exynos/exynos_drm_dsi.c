@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Samsung SoC MIPI DSI Master driver.
  *
  * Copyright (c) 2014 Samsung Electronics Co., Ltd
  *
  * Contacts: Tomasz Figa <t.figa@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -19,6 +24,13 @@
 #include <drm/drm_atomic_helper.h>
 
 #include <linux/clk.h>
+=======
+*/
+
+#include <linux/clk.h>
+#include <linux/delay.h>
+#include <linux/component.h>
+>>>>>>> upstream/android-13
 #include <linux/gpio/consumer.h>
 #include <linux/irq.h>
 #include <linux/of_device.h>
@@ -26,11 +38,28 @@
 #include <linux/of_graph.h>
 #include <linux/phy/phy.h>
 #include <linux/regulator/consumer.h>
+<<<<<<< HEAD
 #include <linux/component.h>
+=======
+
+#include <asm/unaligned.h>
+>>>>>>> upstream/android-13
 
 #include <video/mipi_display.h>
 #include <video/videomode.h>
 
+<<<<<<< HEAD
+=======
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_bridge.h>
+#include <drm/drm_fb_helper.h>
+#include <drm/drm_mipi_dsi.h>
+#include <drm/drm_panel.h>
+#include <drm/drm_print.h>
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_simple_kms_helper.h>
+
+>>>>>>> upstream/android-13
 #include "exynos_drm_crtc.h"
 #include "exynos_drm_drv.h"
 
@@ -211,7 +240,11 @@
 
 #define OLD_SCLK_MIPI_CLK_NAME "pll_clk"
 
+<<<<<<< HEAD
 static char *clk_names[5] = { "bus_clk", "sclk_mipi",
+=======
+static const char *const clk_names[5] = { "bus_clk", "sclk_mipi",
+>>>>>>> upstream/android-13
 	"phyclk_mipidphy0_bitclkdiv8", "phyclk_mipidphy0_rxclkesc0",
 	"sclk_rgb_vclk_to_dsim0" };
 
@@ -255,6 +288,11 @@ struct exynos_dsi {
 	struct mipi_dsi_host dsi_host;
 	struct drm_connector connector;
 	struct drm_panel *panel;
+<<<<<<< HEAD
+=======
+	struct list_head bridge_chain;
+	struct drm_bridge *out_bridge;
+>>>>>>> upstream/android-13
 	struct device *dev;
 
 	void __iomem *reg_base;
@@ -279,7 +317,10 @@ struct exynos_dsi {
 	struct list_head transfer_list;
 
 	const struct exynos_dsi_driver_data *driver_data;
+<<<<<<< HEAD
 	struct device_node *bridge_node;
+=======
+>>>>>>> upstream/android-13
 };
 
 #define host_to_dsi(host) container_of(host, struct exynos_dsi, dsi_host)
@@ -544,9 +585,15 @@ static unsigned long exynos_dsi_pll_find_pms(struct exynos_dsi *dsi,
 	unsigned long best_freq = 0;
 	u32 min_delta = 0xffffffff;
 	u8 p_min, p_max;
+<<<<<<< HEAD
 	u8 _p, uninitialized_var(best_p);
 	u16 _m, uninitialized_var(best_m);
 	u8 _s, uninitialized_var(best_s);
+=======
+	u8 _p, best_p;
+	u16 _m, best_m;
+	u8 _s, best_s;
+>>>>>>> upstream/android-13
 
 	p_min = DIV_ROUND_UP(fin, (12 * MHZ));
 	p_max = fin / (6 * MHZ);
@@ -807,6 +854,7 @@ static int exynos_dsi_init_link(struct exynos_dsi *dsi)
 			reg |= DSIM_AUTO_MODE;
 		if (dsi->mode_flags & MIPI_DSI_MODE_VIDEO_HSE)
 			reg |= DSIM_HSE_MODE;
+<<<<<<< HEAD
 		if (!(dsi->mode_flags & MIPI_DSI_MODE_VIDEO_HFP))
 			reg |= DSIM_HFP_MODE;
 		if (!(dsi->mode_flags & MIPI_DSI_MODE_VIDEO_HBP))
@@ -816,6 +864,17 @@ static int exynos_dsi_init_link(struct exynos_dsi *dsi)
 	}
 
 	if (!(dsi->mode_flags & MIPI_DSI_MODE_EOT_PACKET))
+=======
+		if (!(dsi->mode_flags & MIPI_DSI_MODE_VIDEO_NO_HFP))
+			reg |= DSIM_HFP_MODE;
+		if (!(dsi->mode_flags & MIPI_DSI_MODE_VIDEO_NO_HBP))
+			reg |= DSIM_HBP_MODE;
+		if (!(dsi->mode_flags & MIPI_DSI_MODE_VIDEO_NO_HSA))
+			reg |= DSIM_HSA_MODE;
+	}
+
+	if (!(dsi->mode_flags & MIPI_DSI_MODE_NO_EOT_PACKET))
+>>>>>>> upstream/android-13
 		reg |= DSIM_EOT_DISABLE;
 
 	switch (dsi->format) {
@@ -984,10 +1043,17 @@ static void exynos_dsi_send_to_fifo(struct exynos_dsi *dsi,
 	switch (length) {
 	case 3:
 		reg |= payload[2] << 16;
+<<<<<<< HEAD
 		/* Fall through */
 	case 2:
 		reg |= payload[1] << 8;
 		/* Fall through */
+=======
+		fallthrough;
+	case 2:
+		reg |= payload[1] << 8;
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 1:
 		reg |= payload[0];
 		exynos_dsi_write(dsi, DSIM_PAYLOAD_REG, reg);
@@ -1035,7 +1101,11 @@ static void exynos_dsi_read_from_fifo(struct exynos_dsi *dsi,
 				payload[1] = reg >> 16;
 				++xfer->rx_done;
 			}
+<<<<<<< HEAD
 			/* Fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case MIPI_DSI_RX_GENERIC_SHORT_READ_RESPONSE_1BYTE:
 		case MIPI_DSI_RX_DCS_SHORT_READ_RESPONSE_1BYTE:
 			payload[0] = reg >> 8;
@@ -1079,10 +1149,17 @@ static void exynos_dsi_read_from_fifo(struct exynos_dsi *dsi,
 		switch (length) {
 		case 3:
 			payload[2] = (reg >> 16) & 0xff;
+<<<<<<< HEAD
 			/* Fall through */
 		case 2:
 			payload[1] = (reg >> 8) & 0xff;
 			/* Fall through */
+=======
+			fallthrough;
+		case 2:
+			payload[1] = (reg >> 8) & 0xff;
+			fallthrough;
+>>>>>>> upstream/android-13
 		case 1:
 			payload[0] = reg & 0xff;
 		}
@@ -1350,10 +1427,16 @@ static int exynos_dsi_register_te_irq(struct exynos_dsi *dsi,
 	}
 
 	te_gpio_irq = gpio_to_irq(dsi->te_gpio);
+<<<<<<< HEAD
 	irq_set_status_flags(te_gpio_irq, IRQ_NOAUTOEN);
 
 	ret = request_threaded_irq(te_gpio_irq, exynos_dsi_te_irq_handler, NULL,
 					IRQF_TRIGGER_RISING, "TE", dsi);
+=======
+
+	ret = request_threaded_irq(te_gpio_irq, exynos_dsi_te_irq_handler, NULL,
+				   IRQF_TRIGGER_RISING | IRQF_NO_AUTOEN, "TE", dsi);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(dsi->dev, "request interrupt failed with %d\n", ret);
 		gpio_free(dsi->te_gpio);
@@ -1376,11 +1459,16 @@ static void exynos_dsi_unregister_te_irq(struct exynos_dsi *dsi)
 static void exynos_dsi_enable(struct drm_encoder *encoder)
 {
 	struct exynos_dsi *dsi = encoder_to_dsi(encoder);
+<<<<<<< HEAD
+=======
+	struct drm_bridge *iter;
+>>>>>>> upstream/android-13
 	int ret;
 
 	if (dsi->state & DSIM_STATE_ENABLED)
 		return;
 
+<<<<<<< HEAD
 	pm_runtime_get_sync(dsi->dev);
 
 	dsi->state |= DSIM_STATE_ENABLED;
@@ -1390,11 +1478,32 @@ static void exynos_dsi_enable(struct drm_encoder *encoder)
 		dsi->state &= ~DSIM_STATE_ENABLED;
 		pm_runtime_put_sync(dsi->dev);
 		return;
+=======
+	ret = pm_runtime_resume_and_get(dsi->dev);
+	if (ret < 0) {
+		dev_err(dsi->dev, "failed to enable DSI device.\n");
+		return;
+	}
+
+	dsi->state |= DSIM_STATE_ENABLED;
+
+	if (dsi->panel) {
+		ret = drm_panel_prepare(dsi->panel);
+		if (ret < 0)
+			goto err_put_sync;
+	} else {
+		list_for_each_entry_reverse(iter, &dsi->bridge_chain,
+					    chain_node) {
+			if (iter->funcs->pre_enable)
+				iter->funcs->pre_enable(iter);
+		}
+>>>>>>> upstream/android-13
 	}
 
 	exynos_dsi_set_display_mode(dsi);
 	exynos_dsi_set_display_enable(dsi, true);
 
+<<<<<<< HEAD
 	ret = drm_panel_enable(dsi->panel);
 	if (ret < 0) {
 		dsi->state &= ~DSIM_STATE_ENABLED;
@@ -1405,11 +1514,38 @@ static void exynos_dsi_enable(struct drm_encoder *encoder)
 	}
 
 	dsi->state |= DSIM_STATE_VIDOUT_AVAILABLE;
+=======
+	if (dsi->panel) {
+		ret = drm_panel_enable(dsi->panel);
+		if (ret < 0)
+			goto err_display_disable;
+	} else {
+		list_for_each_entry(iter, &dsi->bridge_chain, chain_node) {
+			if (iter->funcs->enable)
+				iter->funcs->enable(iter);
+		}
+	}
+
+	dsi->state |= DSIM_STATE_VIDOUT_AVAILABLE;
+	return;
+
+err_display_disable:
+	exynos_dsi_set_display_enable(dsi, false);
+	drm_panel_unprepare(dsi->panel);
+
+err_put_sync:
+	dsi->state &= ~DSIM_STATE_ENABLED;
+	pm_runtime_put(dsi->dev);
+>>>>>>> upstream/android-13
 }
 
 static void exynos_dsi_disable(struct drm_encoder *encoder)
 {
 	struct exynos_dsi *dsi = encoder_to_dsi(encoder);
+<<<<<<< HEAD
+=======
+	struct drm_bridge *iter;
+>>>>>>> upstream/android-13
 
 	if (!(dsi->state & DSIM_STATE_ENABLED))
 		return;
@@ -1417,11 +1553,29 @@ static void exynos_dsi_disable(struct drm_encoder *encoder)
 	dsi->state &= ~DSIM_STATE_VIDOUT_AVAILABLE;
 
 	drm_panel_disable(dsi->panel);
+<<<<<<< HEAD
 	exynos_dsi_set_display_enable(dsi, false);
 	drm_panel_unprepare(dsi->panel);
 
 	dsi->state &= ~DSIM_STATE_ENABLED;
 
+=======
+
+	list_for_each_entry_reverse(iter, &dsi->bridge_chain, chain_node) {
+		if (iter->funcs->disable)
+			iter->funcs->disable(iter);
+	}
+
+	exynos_dsi_set_display_enable(dsi, false);
+	drm_panel_unprepare(dsi->panel);
+
+	list_for_each_entry(iter, &dsi->bridge_chain, chain_node) {
+		if (iter->funcs->post_disable)
+			iter->funcs->post_disable(iter);
+	}
+
+	dsi->state &= ~DSIM_STATE_ENABLED;
+>>>>>>> upstream/android-13
 	pm_runtime_put_sync(dsi->dev);
 }
 
@@ -1452,7 +1606,11 @@ static int exynos_dsi_get_modes(struct drm_connector *connector)
 	struct exynos_dsi *dsi = connector_to_dsi(connector);
 
 	if (dsi->panel)
+<<<<<<< HEAD
 		return dsi->panel->funcs->get_modes(dsi->panel);
+=======
+		return drm_panel_get_modes(dsi->panel, connector);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1465,22 +1623,42 @@ static int exynos_dsi_create_connector(struct drm_encoder *encoder)
 {
 	struct exynos_dsi *dsi = encoder_to_dsi(encoder);
 	struct drm_connector *connector = &dsi->connector;
+<<<<<<< HEAD
+=======
+	struct drm_device *drm = encoder->dev;
+>>>>>>> upstream/android-13
 	int ret;
 
 	connector->polled = DRM_CONNECTOR_POLL_HPD;
 
+<<<<<<< HEAD
 	ret = drm_connector_init(encoder->dev, connector,
 				 &exynos_dsi_connector_funcs,
 				 DRM_MODE_CONNECTOR_DSI);
 	if (ret) {
 		DRM_ERROR("Failed to initialize connector with drm\n");
+=======
+	ret = drm_connector_init(drm, connector, &exynos_dsi_connector_funcs,
+				 DRM_MODE_CONNECTOR_DSI);
+	if (ret) {
+		DRM_DEV_ERROR(dsi->dev,
+			      "Failed to initialize connector with drm\n");
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
 	connector->status = connector_status_disconnected;
 	drm_connector_helper_add(connector, &exynos_dsi_connector_helper_funcs);
 	drm_connector_attach_encoder(connector, encoder);
+<<<<<<< HEAD
 
+=======
+	if (!drm->registered)
+		return 0;
+
+	connector->funcs->reset(connector);
+	drm_connector_register(connector);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1489,17 +1667,49 @@ static const struct drm_encoder_helper_funcs exynos_dsi_encoder_helper_funcs = {
 	.disable = exynos_dsi_disable,
 };
 
+<<<<<<< HEAD
 static const struct drm_encoder_funcs exynos_dsi_encoder_funcs = {
 	.destroy = drm_encoder_cleanup,
 };
 
+=======
+>>>>>>> upstream/android-13
 MODULE_DEVICE_TABLE(of, exynos_dsi_of_match);
 
 static int exynos_dsi_host_attach(struct mipi_dsi_host *host,
 				  struct mipi_dsi_device *device)
 {
 	struct exynos_dsi *dsi = host_to_dsi(host);
+<<<<<<< HEAD
 	struct drm_device *drm = dsi->connector.dev;
+=======
+	struct drm_encoder *encoder = &dsi->encoder;
+	struct drm_device *drm = encoder->dev;
+	struct drm_bridge *out_bridge;
+
+	out_bridge  = of_drm_find_bridge(device->dev.of_node);
+	if (out_bridge) {
+		drm_bridge_attach(encoder, out_bridge, NULL, 0);
+		dsi->out_bridge = out_bridge;
+		list_splice_init(&encoder->bridge_chain, &dsi->bridge_chain);
+	} else {
+		int ret = exynos_dsi_create_connector(encoder);
+
+		if (ret) {
+			DRM_DEV_ERROR(dsi->dev,
+				      "failed to create connector ret = %d\n",
+				      ret);
+			drm_encoder_cleanup(encoder);
+			return ret;
+		}
+
+		dsi->panel = of_drm_find_panel(device->dev.of_node);
+		if (IS_ERR(dsi->panel))
+			dsi->panel = NULL;
+		else
+			dsi->connector.status = connector_status_connected;
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * This is a temporary solution and should be made by more generic way.
@@ -1518,6 +1728,7 @@ static int exynos_dsi_host_attach(struct mipi_dsi_host *host,
 	dsi->lanes = device->lanes;
 	dsi->format = device->format;
 	dsi->mode_flags = device->mode_flags;
+<<<<<<< HEAD
 	dsi->panel = of_drm_find_panel(device->dev.of_node);
 	if (IS_ERR(dsi->panel))
 		dsi->panel = NULL;
@@ -1526,6 +1737,8 @@ static int exynos_dsi_host_attach(struct mipi_dsi_host *host,
 		drm_panel_attach(dsi->panel, &dsi->connector);
 		dsi->connector.status = connector_status_connected;
 	}
+=======
+>>>>>>> upstream/android-13
 	exynos_drm_crtc_get_by_type(drm, EXYNOS_DISPLAY_TYPE_LCD)->i80_mode =
 			!(dsi->mode_flags & MIPI_DSI_MODE_VIDEO);
 
@@ -1541,6 +1754,7 @@ static int exynos_dsi_host_detach(struct mipi_dsi_host *host,
 				  struct mipi_dsi_device *device)
 {
 	struct exynos_dsi *dsi = host_to_dsi(host);
+<<<<<<< HEAD
 	struct drm_device *drm = dsi->connector.dev;
 
 	mutex_lock(&drm->mode_config.mutex);
@@ -1554,6 +1768,23 @@ static int exynos_dsi_host_detach(struct mipi_dsi_host *host,
 
 	mutex_unlock(&drm->mode_config.mutex);
 
+=======
+	struct drm_device *drm = dsi->encoder.dev;
+
+	if (dsi->panel) {
+		mutex_lock(&drm->mode_config.mutex);
+		exynos_dsi_disable(&dsi->encoder);
+		dsi->panel = NULL;
+		dsi->connector.status = connector_status_disconnected;
+		mutex_unlock(&drm->mode_config.mutex);
+	} else {
+		if (dsi->out_bridge->funcs->detach)
+			dsi->out_bridge->funcs->detach(dsi->out_bridge);
+		dsi->out_bridge = NULL;
+		INIT_LIST_HEAD(&dsi->bridge_chain);
+	}
+
+>>>>>>> upstream/android-13
 	if (drm->mode_config.poll_enabled)
 		drm_kms_helper_hotplug_event(drm);
 
@@ -1634,14 +1865,18 @@ static int exynos_dsi_parse_dt(struct exynos_dsi *dsi)
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	dsi->bridge_node = of_graph_get_remote_node(node, DSI_PORT_IN, 0);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int exynos_dsi_bind(struct device *dev, struct device *master,
 				void *data)
 {
+<<<<<<< HEAD
 	struct drm_encoder *encoder = dev_get_drvdata(dev);
 	struct exynos_dsi *dsi = encoder_to_dsi(encoder);
 	struct drm_device *drm_dev = data;
@@ -1650,6 +1885,16 @@ static int exynos_dsi_bind(struct device *dev, struct device *master,
 
 	drm_encoder_init(drm_dev, encoder, &exynos_dsi_encoder_funcs,
 			 DRM_MODE_ENCODER_TMDS, NULL);
+=======
+	struct exynos_dsi *dsi = dev_get_drvdata(dev);
+	struct drm_encoder *encoder = &dsi->encoder;
+	struct drm_device *drm_dev = data;
+	struct device_node *in_bridge_node;
+	struct drm_bridge *in_bridge;
+	int ret;
+
+	drm_simple_encoder_init(drm_dev, encoder, DRM_MODE_ENCODER_TMDS);
+>>>>>>> upstream/android-13
 
 	drm_encoder_helper_add(encoder, &exynos_dsi_encoder_helper_funcs);
 
@@ -1657,6 +1902,7 @@ static int exynos_dsi_bind(struct device *dev, struct device *master,
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	ret = exynos_dsi_create_connector(encoder);
 	if (ret) {
 		DRM_ERROR("failed to create connector ret = %d\n", ret);
@@ -1668,6 +1914,14 @@ static int exynos_dsi_bind(struct device *dev, struct device *master,
 		bridge = of_drm_find_bridge(dsi->bridge_node);
 		if (bridge)
 			drm_bridge_attach(encoder, bridge, NULL);
+=======
+	in_bridge_node = of_graph_get_remote_node(dev->of_node, DSI_PORT_IN, 0);
+	if (in_bridge_node) {
+		in_bridge = of_drm_find_bridge(in_bridge_node);
+		if (in_bridge)
+			drm_bridge_attach(encoder, in_bridge, NULL, 0);
+		of_node_put(in_bridge_node);
+>>>>>>> upstream/android-13
 	}
 
 	return mipi_dsi_host_register(&dsi->dsi_host);
@@ -1676,8 +1930,13 @@ static int exynos_dsi_bind(struct device *dev, struct device *master,
 static void exynos_dsi_unbind(struct device *dev, struct device *master,
 				void *data)
 {
+<<<<<<< HEAD
 	struct drm_encoder *encoder = dev_get_drvdata(dev);
 	struct exynos_dsi *dsi = encoder_to_dsi(encoder);
+=======
+	struct exynos_dsi *dsi = dev_get_drvdata(dev);
+	struct drm_encoder *encoder = &dsi->encoder;
+>>>>>>> upstream/android-13
 
 	exynos_dsi_disable(encoder);
 
@@ -1692,7 +1951,10 @@ static const struct component_ops exynos_dsi_component_ops = {
 static int exynos_dsi_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	struct exynos_dsi *dsi;
 	int ret, i;
 
@@ -1706,6 +1968,10 @@ static int exynos_dsi_probe(struct platform_device *pdev)
 	init_completion(&dsi->completed);
 	spin_lock_init(&dsi->transfer_lock);
 	INIT_LIST_HEAD(&dsi->transfer_list);
+<<<<<<< HEAD
+=======
+	INIT_LIST_HEAD(&dsi->bridge_chain);
+>>>>>>> upstream/android-13
 
 	dsi->dsi_host.ops = &exynos_dsi_ops;
 	dsi->dsi_host.dev = dev;
@@ -1713,19 +1979,27 @@ static int exynos_dsi_probe(struct platform_device *pdev)
 	dsi->dev = dev;
 	dsi->driver_data = of_device_get_match_data(dev);
 
+<<<<<<< HEAD
 	ret = exynos_dsi_parse_dt(dsi);
 	if (ret)
 		return ret;
 
+=======
+>>>>>>> upstream/android-13
 	dsi->supplies[0].supply = "vddcore";
 	dsi->supplies[1].supply = "vddio";
 	ret = devm_regulator_bulk_get(dev, ARRAY_SIZE(dsi->supplies),
 				      dsi->supplies);
+<<<<<<< HEAD
 	if (ret) {
 		if (ret != -EPROBE_DEFER)
 			dev_info(dev, "failed to get regulators: %d\n", ret);
 		return ret;
 	}
+=======
+	if (ret)
+		return dev_err_probe(dev, ret, "failed to get regulators\n");
+>>>>>>> upstream/android-13
 
 	dsi->clks = devm_kcalloc(dev,
 			dsi->driver_data->num_clks, sizeof(*dsi->clks),
@@ -1749,12 +2023,18 @@ static int exynos_dsi_probe(struct platform_device *pdev)
 		}
 	}
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	dsi->reg_base = devm_ioremap_resource(dev, res);
 	if (IS_ERR(dsi->reg_base)) {
 		dev_err(dev, "failed to remap io region\n");
 		return PTR_ERR(dsi->reg_base);
 	}
+=======
+	dsi->reg_base = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(dsi->reg_base))
+		return PTR_ERR(dsi->reg_base);
+>>>>>>> upstream/android-13
 
 	dsi->phy = devm_phy_get(dev, "dsim");
 	if (IS_ERR(dsi->phy)) {
@@ -1763,6 +2043,7 @@ static int exynos_dsi_probe(struct platform_device *pdev)
 	}
 
 	dsi->irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (dsi->irq < 0) {
 		dev_err(dev, "failed to request dsi irq resource\n");
 		return dsi->irq;
@@ -1771,25 +2052,57 @@ static int exynos_dsi_probe(struct platform_device *pdev)
 	irq_set_status_flags(dsi->irq, IRQ_NOAUTOEN);
 	ret = devm_request_threaded_irq(dev, dsi->irq, NULL,
 					exynos_dsi_irq, IRQF_ONESHOT,
+=======
+	if (dsi->irq < 0)
+		return dsi->irq;
+
+	ret = devm_request_threaded_irq(dev, dsi->irq, NULL,
+					exynos_dsi_irq,
+					IRQF_ONESHOT | IRQF_NO_AUTOEN,
+>>>>>>> upstream/android-13
 					dev_name(dev), dsi);
 	if (ret) {
 		dev_err(dev, "failed to request dsi irq\n");
 		return ret;
 	}
 
+<<<<<<< HEAD
 	platform_set_drvdata(pdev, &dsi->encoder);
 
 	pm_runtime_enable(dev);
 
 	return component_add(dev, &exynos_dsi_component_ops);
+=======
+	ret = exynos_dsi_parse_dt(dsi);
+	if (ret)
+		return ret;
+
+	platform_set_drvdata(pdev, dsi);
+
+	pm_runtime_enable(dev);
+
+	ret = component_add(dev, &exynos_dsi_component_ops);
+	if (ret)
+		goto err_disable_runtime;
+
+	return 0;
+
+err_disable_runtime:
+	pm_runtime_disable(dev);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int exynos_dsi_remove(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct exynos_dsi *dsi = platform_get_drvdata(pdev);
 
 	of_node_put(dsi->bridge_node);
 
+=======
+>>>>>>> upstream/android-13
 	pm_runtime_disable(&pdev->dev);
 
 	component_del(&pdev->dev, &exynos_dsi_component_ops);
@@ -1799,8 +2112,12 @@ static int exynos_dsi_remove(struct platform_device *pdev)
 
 static int __maybe_unused exynos_dsi_suspend(struct device *dev)
 {
+<<<<<<< HEAD
 	struct drm_encoder *encoder = dev_get_drvdata(dev);
 	struct exynos_dsi *dsi = encoder_to_dsi(encoder);
+=======
+	struct exynos_dsi *dsi = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	const struct exynos_dsi_driver_data *driver_data = dsi->driver_data;
 	int ret, i;
 
@@ -1830,8 +2147,12 @@ static int __maybe_unused exynos_dsi_suspend(struct device *dev)
 
 static int __maybe_unused exynos_dsi_resume(struct device *dev)
 {
+<<<<<<< HEAD
 	struct drm_encoder *encoder = dev_get_drvdata(dev);
 	struct exynos_dsi *dsi = encoder_to_dsi(encoder);
+=======
+	struct exynos_dsi *dsi = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	const struct exynos_dsi_driver_data *driver_data = dsi->driver_data;
 	int ret, i;
 

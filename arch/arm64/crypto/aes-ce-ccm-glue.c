@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * aes-ccm-glue.c - AES-CCM transform for ARMv8 with Crypto Extensions
  *
  * Copyright (C) 2013 - 2017 Linaro Ltd <ard.biesheuvel@linaro.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <asm/neon.h>
@@ -14,6 +21,10 @@
 #include <crypto/aes.h>
 #include <crypto/scatterwalk.h>
 #include <crypto/internal/aead.h>
+<<<<<<< HEAD
+=======
+#include <crypto/internal/simd.h>
+>>>>>>> upstream/android-13
 #include <crypto/internal/skcipher.h>
 #include <linux/module.h>
 
@@ -45,12 +56,16 @@ asmlinkage void ce_aes_ccm_decrypt(u8 out[], u8 const in[], u32 cbytes,
 asmlinkage void ce_aes_ccm_final(u8 mac[], u8 const ctr[], u32 const rk[],
 				 u32 rounds);
 
+<<<<<<< HEAD
 asmlinkage void __aes_arm64_encrypt(u32 *rk, u8 *out, const u8 *in, int rounds);
 
+=======
+>>>>>>> upstream/android-13
 static int ccm_setkey(struct crypto_aead *tfm, const u8 *in_key,
 		      unsigned int key_len)
 {
 	struct crypto_aes_ctx *ctx = crypto_aead_ctx(tfm);
+<<<<<<< HEAD
 	int ret;
 
 	ret = ce_aes_expandkey(ctx, in_key, key_len);
@@ -59,6 +74,10 @@ static int ccm_setkey(struct crypto_aead *tfm, const u8 *in_key,
 
 	tfm->base.crt_flags |= CRYPTO_TFM_RES_BAD_KEY_LEN;
 	return -EINVAL;
+=======
+
+	return ce_aes_expandkey(ctx, in_key, key_len);
+>>>>>>> upstream/android-13
 }
 
 static int ccm_setauthsize(struct crypto_aead *tfm, unsigned int authsize)
@@ -109,7 +128,11 @@ static int ccm_init_mac(struct aead_request *req, u8 maciv[], u32 msglen)
 static void ccm_update_mac(struct crypto_aes_ctx *key, u8 mac[], u8 const in[],
 			   u32 abytes, u32 *macp)
 {
+<<<<<<< HEAD
 	if (may_use_simd()) {
+=======
+	if (crypto_simd_usable()) {
+>>>>>>> upstream/android-13
 		kernel_neon_begin();
 		ce_aes_ccm_auth_data(mac, in, abytes, macp, key->key_enc,
 				     num_rounds(key));
@@ -126,8 +149,12 @@ static void ccm_update_mac(struct crypto_aes_ctx *key, u8 mac[], u8 const in[],
 		}
 
 		while (abytes >= AES_BLOCK_SIZE) {
+<<<<<<< HEAD
 			__aes_arm64_encrypt(key->key_enc, mac, mac,
 					    num_rounds(key));
+=======
+			aes_encrypt(key, mac, mac);
+>>>>>>> upstream/android-13
 			crypto_xor(mac, in, AES_BLOCK_SIZE);
 
 			in += AES_BLOCK_SIZE;
@@ -135,8 +162,12 @@ static void ccm_update_mac(struct crypto_aes_ctx *key, u8 mac[], u8 const in[],
 		}
 
 		if (abytes > 0) {
+<<<<<<< HEAD
 			__aes_arm64_encrypt(key->key_enc, mac, mac,
 					    num_rounds(key));
+=======
+			aes_encrypt(key, mac, mac);
+>>>>>>> upstream/android-13
 			crypto_xor(mac, in, abytes);
 			*macp = abytes;
 		}
@@ -208,10 +239,15 @@ static int ccm_crypt_fallback(struct skcipher_walk *walk, u8 mac[], u8 iv0[],
 				bsize = nbytes;
 
 			crypto_inc(walk->iv, AES_BLOCK_SIZE);
+<<<<<<< HEAD
 			__aes_arm64_encrypt(ctx->key_enc, buf, walk->iv,
 					    num_rounds(ctx));
 			__aes_arm64_encrypt(ctx->key_enc, mac, mac,
 					    num_rounds(ctx));
+=======
+			aes_encrypt(ctx, buf, walk->iv);
+			aes_encrypt(ctx, mac, mac);
+>>>>>>> upstream/android-13
 			if (enc)
 				crypto_xor(mac, src, bsize);
 			crypto_xor_cpy(dst, src, buf, bsize);
@@ -226,8 +262,13 @@ static int ccm_crypt_fallback(struct skcipher_walk *walk, u8 mac[], u8 iv0[],
 	}
 
 	if (!err) {
+<<<<<<< HEAD
 		__aes_arm64_encrypt(ctx->key_enc, buf, iv0, num_rounds(ctx));
 		__aes_arm64_encrypt(ctx->key_enc, mac, mac, num_rounds(ctx));
+=======
+		aes_encrypt(ctx, buf, iv0);
+		aes_encrypt(ctx, mac, mac);
+>>>>>>> upstream/android-13
 		crypto_xor(mac, buf, AES_BLOCK_SIZE);
 	}
 	return err;
@@ -253,9 +294,15 @@ static int ccm_encrypt(struct aead_request *req)
 	/* preserve the original iv for the final round */
 	memcpy(buf, req->iv, AES_BLOCK_SIZE);
 
+<<<<<<< HEAD
 	err = skcipher_walk_aead_encrypt(&walk, req, true);
 
 	if (may_use_simd()) {
+=======
+	err = skcipher_walk_aead_encrypt(&walk, req, false);
+
+	if (crypto_simd_usable()) {
+>>>>>>> upstream/android-13
 		while (walk.nbytes) {
 			u32 tail = walk.nbytes % AES_BLOCK_SIZE;
 
@@ -311,9 +358,15 @@ static int ccm_decrypt(struct aead_request *req)
 	/* preserve the original iv for the final round */
 	memcpy(buf, req->iv, AES_BLOCK_SIZE);
 
+<<<<<<< HEAD
 	err = skcipher_walk_aead_decrypt(&walk, req, true);
 
 	if (may_use_simd()) {
+=======
+	err = skcipher_walk_aead_decrypt(&walk, req, false);
+
+	if (crypto_simd_usable()) {
+>>>>>>> upstream/android-13
 		while (walk.nbytes) {
 			u32 tail = walk.nbytes % AES_BLOCK_SIZE;
 
@@ -372,7 +425,11 @@ static struct aead_alg ccm_aes_alg = {
 
 static int __init aes_mod_init(void)
 {
+<<<<<<< HEAD
 	if (!(elf_hwcap & HWCAP_AES))
+=======
+	if (!cpu_have_named_feature(AES))
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	return crypto_register_aead(&ccm_aes_alg);
 }

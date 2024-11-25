@@ -39,8 +39,13 @@
 #include <linux/highmem.h>
 #include <linux/string.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 #include <asm/tlbflush.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+#include <asm/tlbflush.h>
+>>>>>>> upstream/android-13
 #include <linux/cpumask.h>
 #include <linux/cpu.h>
 #include <linux/vmalloc.h>
@@ -52,6 +57,10 @@
 #include <linux/zsmalloc.h>
 #include <linux/zpool.h>
 #include <linux/mount.h>
+<<<<<<< HEAD
+=======
+#include <linux/pseudo_fs.h>
+>>>>>>> upstream/android-13
 #include <linux/migrate.h>
 #include <linux/wait.h>
 #include <linux/pagemap.h>
@@ -62,7 +71,11 @@
 #define ZSPAGE_MAGIC	0x58
 
 /*
+<<<<<<< HEAD
  * This must be power of 2 and greater than of equal to sizeof(link_free).
+=======
+ * This must be power of 2 and greater than or equal to sizeof(link_free).
+>>>>>>> upstream/android-13
  * These two conditions ensure that any 'struct link_free' itself doesn't
  * span more than 1 page which avoids complex case of mapping 2 pages simply
  * to restore link_free pointer values.
@@ -80,7 +93,11 @@
 
 /*
  * Object location (<PFN>, <obj_idx>) is encoded as
+<<<<<<< HEAD
  * as single (unsigned long) handle value.
+=======
+ * a single (unsigned long) handle value.
+>>>>>>> upstream/android-13
  *
  * Note that object index <obj_idx> starts from 0.
  *
@@ -294,11 +311,15 @@ struct zspage {
 };
 
 struct mapping_area {
+<<<<<<< HEAD
 #ifdef CONFIG_PGTABLE_MAPPING
 	struct vm_struct *vm; /* vm area for mapping object that span pages */
 #else
 	char *vm_buf; /* copy buffer for objects that span pages */
 #endif
+=======
+	char *vm_buf; /* copy buffer for objects that span pages */
+>>>>>>> upstream/android-13
 	char *vm_addr; /* address of kmap_atomic()'ed pages */
 	enum zs_mapmode vm_mm; /* mapping mode */
 };
@@ -362,7 +383,11 @@ static void cache_free_handle(struct zs_pool *pool, unsigned long handle)
 
 static struct zspage *cache_alloc_zspage(struct zs_pool *pool, gfp_t flags)
 {
+<<<<<<< HEAD
 	return kmem_cache_alloc(pool->zspage_cachep,
+=======
+	return kmem_cache_zalloc(pool->zspage_cachep,
+>>>>>>> upstream/android-13
 			flags & ~(__GFP_HIGHMEM|__GFP_MOVABLE|__GFP_CMA));
 }
 
@@ -425,7 +450,11 @@ static void *zs_zpool_map(void *pool, unsigned long handle,
 	case ZPOOL_MM_WO:
 		zs_mm = ZS_MM_WO;
 		break;
+<<<<<<< HEAD
 	case ZPOOL_MM_RW: /* fallthru */
+=======
+	case ZPOOL_MM_RW:
+>>>>>>> upstream/android-13
 	default:
 		zs_mm = ZS_MM_RW;
 		break;
@@ -444,6 +473,7 @@ static u64 zs_zpool_total_size(void *pool)
 }
 
 static struct zpool_driver zs_zpool_driver = {
+<<<<<<< HEAD
 	.type =		"zsmalloc",
 	.owner =	THIS_MODULE,
 	.create =	zs_zpool_create,
@@ -453,6 +483,18 @@ static struct zpool_driver zs_zpool_driver = {
 	.map =		zs_zpool_map,
 	.unmap =	zs_zpool_unmap,
 	.total_size =	zs_zpool_total_size,
+=======
+	.type =			  "zsmalloc",
+	.owner =		  THIS_MODULE,
+	.create =		  zs_zpool_create,
+	.destroy =		  zs_zpool_destroy,
+	.malloc_support_movable = true,
+	.malloc =		  zs_zpool_malloc,
+	.free =			  zs_zpool_free,
+	.map =			  zs_zpool_map,
+	.unmap =		  zs_zpool_unmap,
+	.total_size =		  zs_zpool_total_size,
+>>>>>>> upstream/android-13
 };
 
 MODULE_ALIAS("zpool-zsmalloc");
@@ -477,10 +519,13 @@ static inline int get_zspage_inuse(struct zspage *zspage)
 	return zspage->inuse;
 }
 
+<<<<<<< HEAD
 static inline void set_zspage_inuse(struct zspage *zspage, int val)
 {
 	zspage->inuse = val;
 }
+=======
+>>>>>>> upstream/android-13
 
 static inline void mod_zspage_inuse(struct zspage *zspage, int val)
 {
@@ -538,7 +583,11 @@ static void set_zspage_mapping(struct zspage *zspage,
  * class maintains a list of zspages where each zspage is divided
  * into equal sized chunks. Each allocation falls into one of these
  * classes depending on its size. This function returns index of the
+<<<<<<< HEAD
  * size class which has chunk size big enough to hold the give size.
+=======
+ * size class which has chunk size big enough to hold the given size.
+>>>>>>> upstream/android-13
  */
 static int get_size_class_index(int size)
 {
@@ -582,8 +631,11 @@ static void __init zs_stat_init(void)
 	}
 
 	zs_stat_root = debugfs_create_dir("zsmalloc", NULL);
+<<<<<<< HEAD
 	if (!zs_stat_root)
 		pr_warn("debugfs 'zsmalloc' stat dir creation failed\n");
+=======
+>>>>>>> upstream/android-13
 }
 
 static void __exit zs_stat_exit(void)
@@ -654,13 +706,17 @@ DEFINE_SHOW_ATTRIBUTE(zs_stats_size);
 
 static void zs_pool_stat_create(struct zs_pool *pool, const char *name)
 {
+<<<<<<< HEAD
 	struct dentry *entry;
 
+=======
+>>>>>>> upstream/android-13
 	if (!zs_stat_root) {
 		pr_warn("no root stat dir, not creating <%s> stat dir\n", name);
 		return;
 	}
 
+<<<<<<< HEAD
 	entry = debugfs_create_dir(name, zs_stat_root);
 	if (!entry) {
 		pr_warn("debugfs dir <%s> creation failed\n", name);
@@ -677,6 +733,12 @@ static void zs_pool_stat_create(struct zs_pool *pool, const char *name)
 		debugfs_remove_recursive(pool->stat_dentry);
 		pool->stat_dentry = NULL;
 	}
+=======
+	pool->stat_dentry = debugfs_create_dir(name, zs_stat_root);
+
+	debugfs_create_file("classes", S_IFREG | 0444, pool->stat_dentry, pool,
+			    &zs_stats_size_fops);
+>>>>>>> upstream/android-13
 }
 
 static void zs_pool_stat_destroy(struct zs_pool *pool)
@@ -750,6 +812,7 @@ static void insert_zspage(struct size_class *class,
 	 * We want to see more ZS_FULL pages and less almost empty/full.
 	 * Put pages with higher ->inuse first.
 	 */
+<<<<<<< HEAD
 	if (head) {
 		if (get_zspage_inuse(zspage) < get_zspage_inuse(head)) {
 			list_add(&zspage->list, &head->list);
@@ -757,6 +820,12 @@ static void insert_zspage(struct size_class *class,
 		}
 	}
 	list_add(&zspage->list, &class->fullness_list[fullness]);
+=======
+	if (head && get_zspage_inuse(zspage) < get_zspage_inuse(head))
+		list_add(&zspage->list, &head->list);
+	else
+		list_add(&zspage->list, &class->fullness_list[fullness]);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -843,7 +912,11 @@ static int get_pages_per_zspage(int class_size)
 
 static struct zspage *get_zspage(struct page *page)
 {
+<<<<<<< HEAD
 	struct zspage *zspage = (struct zspage *)page->private;
+=======
+	struct zspage *zspage = (struct zspage *)page_private(page);
+>>>>>>> upstream/android-13
 
 	BUG_ON(zspage->magic != ZSPAGE_MAGIC);
 	return zspage;
@@ -911,12 +984,20 @@ static inline int trypin_tag(unsigned long handle)
 	return bit_spin_trylock(HANDLE_PIN_BIT, (unsigned long *)handle);
 }
 
+<<<<<<< HEAD
 static void pin_tag(unsigned long handle)
+=======
+static void pin_tag(unsigned long handle) __acquires(bitlock)
+>>>>>>> upstream/android-13
 {
 	bit_spin_lock(HANDLE_PIN_BIT, (unsigned long *)handle);
 }
 
+<<<<<<< HEAD
 static void unpin_tag(unsigned long handle)
+=======
+static void unpin_tag(unsigned long handle) __releases(bitlock)
+>>>>>>> upstream/android-13
 {
 	bit_spin_unlock(HANDLE_PIN_BIT, (unsigned long *)handle);
 }
@@ -1091,7 +1172,10 @@ static struct zspage *alloc_zspage(struct zs_pool *pool,
 	if (!zspage)
 		return NULL;
 
+<<<<<<< HEAD
 	memset(zspage, 0, sizeof(struct zspage));
+=======
+>>>>>>> upstream/android-13
 	zspage->magic = ZSPAGE_MAGIC;
 	migrate_lock_init(zspage);
 
@@ -1133,6 +1217,7 @@ static struct zspage *find_get_zspage(struct size_class *class)
 	return zspage;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PGTABLE_MAPPING
 static inline int __zs_cpu_up(struct mapping_area *area)
 {
@@ -1173,6 +1258,8 @@ static inline void __zs_unmap_object(struct mapping_area *area,
 
 #else /* CONFIG_PGTABLE_MAPPING */
 
+=======
+>>>>>>> upstream/android-13
 static inline int __zs_cpu_up(struct mapping_area *area)
 {
 	/*
@@ -1253,8 +1340,11 @@ out:
 	pagefault_enable();
 }
 
+<<<<<<< HEAD
 #endif /* CONFIG_PGTABLE_MAPPING */
 
+=======
+>>>>>>> upstream/android-13
 static int zs_cpu_prepare(unsigned int cpu)
 {
 	struct mapping_area *area;
@@ -1297,7 +1387,11 @@ EXPORT_SYMBOL_GPL(zs_get_total_pages);
  * zs_map_object - get address of allocated object from handle.
  * @pool: pool from which the object was allocated
  * @handle: handle returned from zs_malloc
+<<<<<<< HEAD
  * @mm: maping mode to use
+=======
+ * @mm: mapping mode to use
+>>>>>>> upstream/android-13
  *
  * Before using an object allocated from zs_malloc, it must be mapped using
  * this function. When done with the object, it must be unmapped using
@@ -1541,7 +1635,10 @@ static void obj_free(struct size_class *class, unsigned long obj)
 	unsigned int f_objidx;
 	void *vaddr;
 
+<<<<<<< HEAD
 	obj &= ~OBJ_ALLOCATED_TAG;
+=======
+>>>>>>> upstream/android-13
 	obj_to_location(obj, &f_page, &f_objidx);
 	f_offset = (class->size * f_objidx) & ~PAGE_MASK;
 	zspage = get_zspage(f_page);
@@ -1821,6 +1918,7 @@ static void lock_zspage(struct zspage *zspage)
 	} while ((page = get_next_page(page)) != NULL);
 }
 
+<<<<<<< HEAD
 static struct dentry *zs_mount(struct file_system_type *fs_type,
 				int flags, const char *dev_name, void *data)
 {
@@ -1829,11 +1927,20 @@ static struct dentry *zs_mount(struct file_system_type *fs_type,
 	};
 
 	return mount_pseudo(fs_type, "zsmalloc:", NULL, &ops, ZSMALLOC_MAGIC);
+=======
+static int zs_init_fs_context(struct fs_context *fc)
+{
+	return init_pseudo(fc, ZSMALLOC_MAGIC) ? 0 : -ENOMEM;
+>>>>>>> upstream/android-13
 }
 
 static struct file_system_type zsmalloc_fs = {
 	.name		= "zsmalloc",
+<<<<<<< HEAD
 	.mount		= zs_mount,
+=======
+	.init_fs_context = zs_init_fs_context,
+>>>>>>> upstream/android-13
 	.kill_sb	= kill_anon_super,
 };
 
@@ -1858,12 +1965,20 @@ static void migrate_lock_init(struct zspage *zspage)
 	rwlock_init(&zspage->lock);
 }
 
+<<<<<<< HEAD
 static void migrate_read_lock(struct zspage *zspage)
+=======
+static void migrate_read_lock(struct zspage *zspage) __acquires(&zspage->lock)
+>>>>>>> upstream/android-13
 {
 	read_lock(&zspage->lock);
 }
 
+<<<<<<< HEAD
 static void migrate_read_unlock(struct zspage *zspage)
+=======
+static void migrate_read_unlock(struct zspage *zspage) __releases(&zspage->lock)
+>>>>>>> upstream/android-13
 {
 	read_unlock(&zspage->lock);
 }
@@ -1906,10 +2021,18 @@ static inline void zs_pool_dec_isolated(struct zs_pool *pool)
 	VM_BUG_ON(atomic_long_read(&pool->isolated_pages) <= 0);
 	atomic_long_dec(&pool->isolated_pages);
 	/*
+<<<<<<< HEAD
 	 * There's no possibility of racing, since wait_for_isolated_drain()
 	 * checks the isolated count under &class->lock after enqueuing
 	 * on migration_wait.
 	 */
+=======
+	 * Checking pool->destroying must happen after atomic_long_dec()
+	 * for pool->isolated_pages above. Paired with the smp_mb() in
+	 * zs_unregister_migration().
+	 */
+	smp_mb__after_atomic();
+>>>>>>> upstream/android-13
 	if (atomic_long_read(&pool->isolated_pages) == 0 && pool->destroying)
 		wake_up_all(&pool->migration_wait);
 }
@@ -2062,8 +2185,12 @@ static int zs_page_migrate(struct address_space *mapping, struct page *newpage,
 		head = obj_to_head(page, addr);
 		if (head & OBJ_ALLOCATED_TAG) {
 			handle = head & ~OBJ_ALLOCATED_TAG;
+<<<<<<< HEAD
 			if (!testpin_tag(handle))
 				BUG();
+=======
+			BUG_ON(!testpin_tag(handle));
+>>>>>>> upstream/android-13
 
 			old_obj = handle_to_obj(handle);
 			obj_to_location(old_obj, &dummy, &obj_idx);
@@ -2110,8 +2237,12 @@ unpin_objects:
 		head = obj_to_head(page, addr);
 		if (head & OBJ_ALLOCATED_TAG) {
 			handle = head & ~OBJ_ALLOCATED_TAG;
+<<<<<<< HEAD
 			if (!testpin_tag(handle))
 				BUG();
+=======
+			BUG_ON(!testpin_tag(handle));
+>>>>>>> upstream/android-13
 			unpin_tag(handle);
 		}
 	}
@@ -2240,7 +2371,11 @@ static void async_free_zspage(struct work_struct *work)
 		VM_BUG_ON(fullness != ZS_EMPTY);
 		class = pool->size_class[class_idx];
 		spin_lock(&class->lock);
+<<<<<<< HEAD
 		__free_zspage(pool, pool->size_class[class_idx], zspage);
+=======
+		__free_zspage(pool, class, zspage);
+>>>>>>> upstream/android-13
 		spin_unlock(&class->lock);
 	}
 };
@@ -2430,6 +2565,7 @@ static int zs_register_shrinker(struct zs_pool *pool)
 	return register_shrinker(&pool->shrinker);
 }
 
+<<<<<<< HEAD
 #define ZS_COMPACT_THRESHOLD	1024
 #define ZS_COMPACT_INTERVAL	1
 
@@ -2478,6 +2614,8 @@ void try_schedule_zs_compact()
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * zs_create_pool - Creates an allocation pool to work from.
  * @name: pool name to be created
@@ -2588,11 +2726,14 @@ struct zs_pool *zs_create_pool(const char *name)
 	if (zs_register_migration(pool))
 		goto err;
 
+<<<<<<< HEAD
 	if (!g_pool)
 		g_pool = pool;
 
 	register_on_app_mmput_callback(try_schedule_zs_compact);
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Not critical since shrinker is only used to trigger internal
 	 * defragmentation of the pool which is pretty optional thing.  If

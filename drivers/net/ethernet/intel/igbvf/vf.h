@@ -35,12 +35,18 @@ struct e1000_hw;
 /* Receive Descriptor - Advanced */
 union e1000_adv_rx_desc {
 	struct {
+<<<<<<< HEAD
 		u64 pkt_addr; /* Packet buffer address */
 		u64 hdr_addr; /* Header buffer address */
+=======
+		__le64 pkt_addr; /* Packet buffer address */
+		__le64 hdr_addr; /* Header buffer address */
+>>>>>>> upstream/android-13
 	} read;
 	struct {
 		struct {
 			union {
+<<<<<<< HEAD
 				u32 data;
 				struct {
 					u16 pkt_info; /* RSS/Packet type */
@@ -53,13 +59,33 @@ union e1000_adv_rx_desc {
 				struct {
 					u16 ip_id; /* IP id */
 					u16 csum;  /* Packet Checksum */
+=======
+				__le32 data;
+				struct {
+					__le16 pkt_info; /* RSS/Packet type */
+					/* Split Header, hdr buffer length */
+					__le16 hdr_info;
+				} hs_rss;
+			} lo_dword;
+			union {
+				__le32 rss; /* RSS Hash */
+				struct {
+					__le16 ip_id; /* IP id */
+					__le16 csum;  /* Packet Checksum */
+>>>>>>> upstream/android-13
 				} csum_ip;
 			} hi_dword;
 		} lower;
 		struct {
+<<<<<<< HEAD
 			u32 status_error; /* ext status/error */
 			u16 length; /* Packet length */
 			u16 vlan;   /* VLAN tag */
+=======
+			__le32 status_error; /* ext status/error */
+			__le16 length; /* Packet length */
+			__le16 vlan; /* VLAN tag */
+>>>>>>> upstream/android-13
 		} upper;
 	} wb;  /* writeback */
 };
@@ -70,6 +96,7 @@ union e1000_adv_rx_desc {
 /* Transmit Descriptor - Advanced */
 union e1000_adv_tx_desc {
 	struct {
+<<<<<<< HEAD
 		u64 buffer_addr; /* Address of descriptor's data buf */
 		u32 cmd_type_len;
 		u32 olinfo_status;
@@ -78,6 +105,16 @@ union e1000_adv_tx_desc {
 		u64 rsvd; /* Reserved */
 		u32 nxtseq_seed;
 		u32 status;
+=======
+		__le64 buffer_addr; /* Address of descriptor's data buf */
+		__le32 cmd_type_len;
+		__le32 olinfo_status;
+	} read;
+	struct {
+		__le64 rsvd; /* Reserved */
+		__le32 nxtseq_seed;
+		__le32 status;
+>>>>>>> upstream/android-13
 	} wb;
 };
 
@@ -94,10 +131,17 @@ union e1000_adv_tx_desc {
 
 /* Context descriptors */
 struct e1000_adv_tx_context_desc {
+<<<<<<< HEAD
 	u32 vlan_macip_lens;
 	u32 seqnum_seed;
 	u32 type_tucmd_mlhl;
 	u32 mss_l4len_idx;
+=======
+	__le32 vlan_macip_lens;
+	__le32 seqnum_seed;
+	__le32 type_tucmd_mlhl;
+	__le32 mss_l4len_idx;
+>>>>>>> upstream/android-13
 };
 
 #define E1000_ADVTXD_MACLEN_SHIFT	9  /* Adv ctxt desc mac len shift */

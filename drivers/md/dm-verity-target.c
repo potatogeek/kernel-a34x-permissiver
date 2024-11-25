@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2012 Red Hat, Inc.
  *
@@ -5,8 +9,11 @@
  *
  * Based on Chromium dm-verity driver (C) 2011 The Chromium OS Authors
  *
+<<<<<<< HEAD
  * This file is released under the GPLv2.
  *
+=======
+>>>>>>> upstream/android-13
  * In the file "/sys/module/dm_verity/parameters/prefetch_cluster" you can set
  * default prefetch value. Data are read in "prefetch_cluster" chunks from the
  * hash device. Setting this greatly improves performance when data and hash
@@ -16,8 +23,13 @@
 
 #include "dm-verity.h"
 #include "dm-verity-fec.h"
+<<<<<<< HEAD
 #include "dm-verity-debug.h"
 
+=======
+#include "dm-verity-verify-sig.h"
+#include "dm-verity-debug.h"
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/reboot.h>
 
@@ -32,10 +44,19 @@
 
 #define DM_VERITY_OPT_LOGGING		"ignore_corruption"
 #define DM_VERITY_OPT_RESTART		"restart_on_corruption"
+<<<<<<< HEAD
 #define DM_VERITY_OPT_IGN_ZEROES	"ignore_zero_blocks"
 #define DM_VERITY_OPT_AT_MOST_ONCE	"check_at_most_once"
 
 #define DM_VERITY_OPTS_MAX		(3 + DM_VERITY_OPTS_FEC)
+=======
+#define DM_VERITY_OPT_PANIC		"panic_on_corruption"
+#define DM_VERITY_OPT_IGN_ZEROES	"ignore_zero_blocks"
+#define DM_VERITY_OPT_AT_MOST_ONCE	"check_at_most_once"
+
+#define DM_VERITY_OPTS_MAX		(3 + DM_VERITY_OPTS_FEC + \
+					 DM_VERITY_ROOT_HASH_VERIFICATION_OPTS)
+>>>>>>> upstream/android-13
 
 static unsigned dm_verity_prefetch_cluster = DM_VERITY_DEFAULT_PREFETCH_SIZE;
 
@@ -253,12 +274,20 @@ out:
 	if (v->mode == DM_VERITY_MODE_LOGGING)
 		return 0;
 
+<<<<<<< HEAD
 	if (v->mode == DM_VERITY_MODE_RESTART) {
 #ifdef CONFIG_DM_VERITY_AVB
 		dm_verity_avb_error_handler();
 #endif
 		kernel_restart("dm-verity device corrupted");
 	}
+=======
+	if (v->mode == DM_VERITY_MODE_RESTART)
+		kernel_restart("dm-verity device corrupted");
+
+	if (v->mode == DM_VERITY_MODE_PANIC)
+		panic("dm-verity device corrupted");
+>>>>>>> upstream/android-13
 
 	return 1;
 }
@@ -497,8 +526,12 @@ static int verity_verify_io(struct dm_verity_io *io)
 		sector_t cur_block = io->block + b;
 		struct ahash_request *req = verity_io_hash_req(v, io);
 
+<<<<<<< HEAD
 		/* verify data block if bio->bi_status != BLK_STS_OK */
 		if (v->validated_blocks && bio->bi_status == BLK_STS_OK &&
+=======
+		if (v->validated_blocks &&
+>>>>>>> upstream/android-13
 		    likely(test_bit(cur_block, v->validated_blocks))) {
 			verity_bv_skip_block(v, io, &io->iter);
 #ifdef SEC_HEX_DEBUG
@@ -613,10 +646,15 @@ static void verity_end_io(struct bio *bio)
 {
 	struct dm_verity_io *io = bio->bi_private;
 
+<<<<<<< HEAD
 	/* SEC: Do not verify RAHEAD bio if status is not OK */
 	if (bio->bi_status &&
 	    (!verity_fec_is_enabled(io->v) || (bio->bi_opf & REQ_RAHEAD) ||
 	     verity_is_system_shutting_down())) {
+=======
+	if (bio->bi_status &&
+	    (!verity_fec_is_enabled(io->v) || verity_is_system_shutting_down())) {
+>>>>>>> upstream/android-13
 		verity_finish_io(io, bio->bi_status);
 		return;
 	}
@@ -677,7 +715,11 @@ static void verity_submit_prefetch(struct dm_verity *v, struct dm_verity_io *io)
 			n_blocks--;
 		}
 		while (n_blocks && test_bit(block + n_blocks - 1,
+<<<<<<< HEAD
 					v->validated_blocks))
+=======
+					    v->validated_blocks))
+>>>>>>> upstream/android-13
 			n_blocks--;
 		if (!n_blocks)
 			return;
@@ -746,7 +788,11 @@ static int verity_map(struct dm_target *ti, struct bio *bio)
 
 	verity_submit_prefetch(v, io);
 
+<<<<<<< HEAD
 	generic_make_request(bio);
+=======
+	submit_bio_noacct(bio);
+>>>>>>> upstream/android-13
 
 	return DM_MAPIO_SUBMITTED;
 }
@@ -793,6 +839,11 @@ static void verity_status(struct dm_target *ti, status_type_t type,
 			args++;
 		if (v->validated_blocks)
 			args++;
+<<<<<<< HEAD
+=======
+		if (v->signature_key_desc)
+			args += DM_VERITY_ROOT_HASH_VERIFICATION_OPTS;
+>>>>>>> upstream/android-13
 		if (!args)
 			return;
 		DMEMIT(" %u", args);
@@ -805,6 +856,12 @@ static void verity_status(struct dm_target *ti, status_type_t type,
 			case DM_VERITY_MODE_RESTART:
 				DMEMIT(DM_VERITY_OPT_RESTART);
 				break;
+<<<<<<< HEAD
+=======
+			case DM_VERITY_MODE_PANIC:
+				DMEMIT(DM_VERITY_OPT_PANIC);
+				break;
+>>>>>>> upstream/android-13
 			default:
 				BUG();
 			}
@@ -814,6 +871,55 @@ static void verity_status(struct dm_target *ti, status_type_t type,
 		if (v->validated_blocks)
 			DMEMIT(" " DM_VERITY_OPT_AT_MOST_ONCE);
 		sz = verity_fec_status_table(v, sz, result, maxlen);
+<<<<<<< HEAD
+=======
+		if (v->signature_key_desc)
+			DMEMIT(" " DM_VERITY_ROOT_HASH_VERIFICATION_OPT_SIG_KEY
+				" %s", v->signature_key_desc);
+		break;
+
+	case STATUSTYPE_IMA:
+		DMEMIT_TARGET_NAME_VERSION(ti->type);
+		DMEMIT(",hash_failed=%c", v->hash_failed ? 'C' : 'V');
+		DMEMIT(",verity_version=%u", v->version);
+		DMEMIT(",data_device_name=%s", v->data_dev->name);
+		DMEMIT(",hash_device_name=%s", v->hash_dev->name);
+		DMEMIT(",verity_algorithm=%s", v->alg_name);
+
+		DMEMIT(",root_digest=");
+		for (x = 0; x < v->digest_size; x++)
+			DMEMIT("%02x", v->root_digest[x]);
+
+		DMEMIT(",salt=");
+		if (!v->salt_size)
+			DMEMIT("-");
+		else
+			for (x = 0; x < v->salt_size; x++)
+				DMEMIT("%02x", v->salt[x]);
+
+		DMEMIT(",ignore_zero_blocks=%c", v->zero_digest ? 'y' : 'n');
+		DMEMIT(",check_at_most_once=%c", v->validated_blocks ? 'y' : 'n');
+		if (v->signature_key_desc)
+			DMEMIT(",root_hash_sig_key_desc=%s", v->signature_key_desc);
+
+		if (v->mode != DM_VERITY_MODE_EIO) {
+			DMEMIT(",verity_mode=");
+			switch (v->mode) {
+			case DM_VERITY_MODE_LOGGING:
+				DMEMIT(DM_VERITY_OPT_LOGGING);
+				break;
+			case DM_VERITY_MODE_RESTART:
+				DMEMIT(DM_VERITY_OPT_RESTART);
+				break;
+			case DM_VERITY_MODE_PANIC:
+				DMEMIT(DM_VERITY_OPT_PANIC);
+				break;
+			default:
+				DMEMIT("invalid");
+			}
+		}
+		DMEMIT(";");
+>>>>>>> upstream/android-13
 		break;
 	}
 }
@@ -879,6 +985,11 @@ static void verity_dtr(struct dm_target *ti)
 
 	verity_fec_dtr(v);
 
+<<<<<<< HEAD
+=======
+	kfree(v->signature_key_desc);
+
+>>>>>>> upstream/android-13
 	kfree(v);
 }
 
@@ -934,7 +1045,34 @@ out:
 	return r;
 }
 
+<<<<<<< HEAD
 static int verity_parse_opt_args(struct dm_arg_set *as, struct dm_verity *v)
+=======
+static inline bool verity_is_verity_mode(const char *arg_name)
+{
+	return (!strcasecmp(arg_name, DM_VERITY_OPT_LOGGING) ||
+		!strcasecmp(arg_name, DM_VERITY_OPT_RESTART) ||
+		!strcasecmp(arg_name, DM_VERITY_OPT_PANIC));
+}
+
+static int verity_parse_verity_mode(struct dm_verity *v, const char *arg_name)
+{
+	if (v->mode)
+		return -EINVAL;
+
+	if (!strcasecmp(arg_name, DM_VERITY_OPT_LOGGING))
+		v->mode = DM_VERITY_MODE_LOGGING;
+	else if (!strcasecmp(arg_name, DM_VERITY_OPT_RESTART))
+		v->mode = DM_VERITY_MODE_RESTART;
+	else if (!strcasecmp(arg_name, DM_VERITY_OPT_PANIC))
+		v->mode = DM_VERITY_MODE_PANIC;
+
+	return 0;
+}
+
+static int verity_parse_opt_args(struct dm_arg_set *as, struct dm_verity *v,
+				 struct dm_verity_sig_opts *verify_args)
+>>>>>>> upstream/android-13
 {
 	int r;
 	unsigned argc;
@@ -956,12 +1094,21 @@ static int verity_parse_opt_args(struct dm_arg_set *as, struct dm_verity *v)
 		arg_name = dm_shift_arg(as);
 		argc--;
 
+<<<<<<< HEAD
 		if (!strcasecmp(arg_name, DM_VERITY_OPT_LOGGING)) {
 			v->mode = DM_VERITY_MODE_LOGGING;
 			continue;
 
 		} else if (!strcasecmp(arg_name, DM_VERITY_OPT_RESTART)) {
 			v->mode = DM_VERITY_MODE_RESTART;
+=======
+		if (verity_is_verity_mode(arg_name)) {
+			r = verity_parse_verity_mode(v, arg_name);
+			if (r) {
+				ti->error = "Conflicting error handling parameters";
+				return r;
+			}
+>>>>>>> upstream/android-13
 			continue;
 
 		} else if (!strcasecmp(arg_name, DM_VERITY_OPT_IGN_ZEROES)) {
@@ -983,6 +1130,17 @@ static int verity_parse_opt_args(struct dm_arg_set *as, struct dm_verity *v)
 			if (r)
 				return r;
 			continue;
+<<<<<<< HEAD
+=======
+		} else if (verity_verify_is_sig_opt_arg(arg_name)) {
+			r = verity_verify_sig_parse_opt_args(as, v,
+							     verify_args,
+							     &argc, arg_name);
+			if (r)
+				return r;
+			continue;
+
+>>>>>>> upstream/android-13
 		}
 
 		ti->error = "Unrecognized verity feature request";
@@ -1009,6 +1167,10 @@ static int verity_parse_opt_args(struct dm_arg_set *as, struct dm_verity *v)
 static int verity_ctr(struct dm_target *ti, unsigned argc, char **argv)
 {
 	struct dm_verity *v;
+<<<<<<< HEAD
+=======
+	struct dm_verity_sig_opts verify_args = {0};
+>>>>>>> upstream/android-13
 	struct dm_arg_set as;
 	unsigned int num;
 	unsigned long long num_ll;
@@ -1016,6 +1178,10 @@ static int verity_ctr(struct dm_target *ti, unsigned argc, char **argv)
 	int i;
 	sector_t hash_position;
 	char dummy;
+<<<<<<< HEAD
+=======
+	char *root_hash_digest_to_validate;
+>>>>>>> upstream/android-13
 
 	v = kzalloc(sizeof(struct dm_verity), GFP_KERNEL);
 	if (!v) {
@@ -1149,6 +1315,10 @@ static int verity_ctr(struct dm_target *ti, unsigned argc, char **argv)
 		r = -EINVAL;
 		goto bad;
 	}
+<<<<<<< HEAD
+=======
+	root_hash_digest_to_validate = argv[8];
+>>>>>>> upstream/android-13
 
 	if (strcmp(argv[9], "-")) {
 		v->salt_size = strlen(argv[9]) / 2;
@@ -1174,7 +1344,11 @@ static int verity_ctr(struct dm_target *ti, unsigned argc, char **argv)
 		as.argc = argc;
 		as.argv = argv;
 
+<<<<<<< HEAD
 		r = verity_parse_opt_args(&as, v);
+=======
+		r = verity_parse_opt_args(&as, v, &verify_args);
+>>>>>>> upstream/android-13
 		if (r < 0)
 			goto bad;
 	}
@@ -1182,15 +1356,32 @@ static int verity_ctr(struct dm_target *ti, unsigned argc, char **argv)
 #ifdef SEC_HEX_DEBUG
 	get_b_info(v->data_dev->name);
 #endif
+<<<<<<< HEAD
 
 #ifdef CONFIG_DM_ANDROID_VERITY_AT_MOST_ONCE_DEFAULT_ENABLED
+=======
+	/* Set check_at_most_once as default */
+>>>>>>> upstream/android-13
 	if (!v->validated_blocks) {
 		r = verity_alloc_most_once(v);
 		if (r)
 			goto bad;
 	}
+<<<<<<< HEAD
 #endif
 
+=======
+
+	/* Root hash signature is  a optional parameter*/
+	r = verity_verify_root_hash(root_hash_digest_to_validate,
+				    strlen(root_hash_digest_to_validate),
+				    verify_args.sig,
+				    verify_args.sig_size);
+	if (r < 0) {
+		ti->error = "Root hash verification failed";
+		goto bad;
+	}
+>>>>>>> upstream/android-13
 	v->hash_per_block_bits =
 		__fls((1 << v->hash_dev_block_bits) / v->digest_size);
 
@@ -1261,6 +1452,11 @@ static int verity_ctr(struct dm_target *ti, unsigned argc, char **argv)
 		add_fec_off_cnt(v->data_dev->name);
 #endif
 
+<<<<<<< HEAD
+=======
+	verity_verify_sig_opts_cleanup(&verify_args);
+
+>>>>>>> upstream/android-13
 	return 0;
 
 bad:
@@ -1269,6 +1465,10 @@ bad:
 	add_fec_off_cnt("bad");
 #endif
 
+<<<<<<< HEAD
+=======
+	verity_verify_sig_opts_cleanup(&verify_args);
+>>>>>>> upstream/android-13
 	verity_dtr(ti);
 
 	return r;
@@ -1276,7 +1476,11 @@ bad:
 
 static struct target_type verity_target = {
 	.name		= "verity",
+<<<<<<< HEAD
 	.version	= {1, 4, 0},
+=======
+	.version	= {1, 8, 0},
+>>>>>>> upstream/android-13
 	.module		= THIS_MODULE,
 	.ctr		= verity_ctr,
 	.dtr		= verity_dtr,

@@ -25,7 +25,11 @@
  *          Alex Deucher
  *          Jerome Glisse
  */
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+
+>>>>>>> upstream/android-13
 #include <drm/radeon_drm.h>
 #include "radeon.h"
 #include "radeon_trace.h"
@@ -41,7 +45,11 @@
  * (uncached system pages).
  * Each VM has an ID associated with it and there is a page table
  * associated with each VMID.  When execting a command buffer,
+<<<<<<< HEAD
  * the kernel tells the the ring what VMID to use for that command
+=======
+ * the kernel tells the ring what VMID to use for that command
+>>>>>>> upstream/android-13
  * buffer.  VMIDs are allocated dynamically as commands are submitted.
  * The userspace drivers maintain their own address space and the kernel
  * sets up their pages tables accordingly when they submit their
@@ -51,7 +59,11 @@
  */
 
 /**
+<<<<<<< HEAD
  * radeon_vm_num_pde - return the number of page directory entries
+=======
+ * radeon_vm_num_pdes - return the number of page directory entries
+>>>>>>> upstream/android-13
  *
  * @rdev: radeon_device pointer
  *
@@ -119,6 +131,10 @@ void radeon_vm_manager_fini(struct radeon_device *rdev)
 /**
  * radeon_vm_get_bos - add the vm BOs to a validation list
  *
+<<<<<<< HEAD
+=======
+ * @rdev: radeon_device pointer
+>>>>>>> upstream/android-13
  * @vm: vm providing the BOs
  * @head: head of validation list
  *
@@ -142,7 +158,11 @@ struct radeon_bo_list *radeon_vm_get_bos(struct radeon_device *rdev,
 	list[0].preferred_domains = RADEON_GEM_DOMAIN_VRAM;
 	list[0].allowed_domains = RADEON_GEM_DOMAIN_VRAM;
 	list[0].tv.bo = &vm->page_directory->tbo;
+<<<<<<< HEAD
 	list[0].tv.shared = true;
+=======
+	list[0].tv.num_shared = 1;
+>>>>>>> upstream/android-13
 	list[0].tiling_flags = 0;
 	list_add(&list[0].tv.head, head);
 
@@ -154,7 +174,11 @@ struct radeon_bo_list *radeon_vm_get_bos(struct radeon_device *rdev,
 		list[idx].preferred_domains = RADEON_GEM_DOMAIN_VRAM;
 		list[idx].allowed_domains = RADEON_GEM_DOMAIN_VRAM;
 		list[idx].tv.bo = &list[idx].robj->tbo;
+<<<<<<< HEAD
 		list[idx].tv.shared = true;
+=======
+		list[idx].tv.num_shared = 1;
+>>>>>>> upstream/android-13
 		list[idx].tiling_flags = 0;
 		list_add(&list[idx++].tv.head, head);
 	}
@@ -188,7 +212,11 @@ struct radeon_fence *radeon_vm_grab_id(struct radeon_device *rdev,
 	    vm_id->last_id_use == rdev->vm_manager.active[vm_id->id])
 		return NULL;
 
+<<<<<<< HEAD
 	/* we definately need to flush */
+=======
+	/* we definitely need to flush */
+>>>>>>> upstream/android-13
 	vm_id->pd_gpu_addr = ~0ll;
 
 	/* skip over VMID 0, since it is the system VM */
@@ -296,9 +324,15 @@ struct radeon_bo_va *radeon_vm_bo_find(struct radeon_vm *vm,
 	struct radeon_bo_va *bo_va;
 
 	list_for_each_entry(bo_va, &bo->va, bo_list) {
+<<<<<<< HEAD
 		if (bo_va->vm == vm) {
 			return bo_va;
 		}
+=======
+		if (bo_va->vm == vm)
+			return bo_va;
+
+>>>>>>> upstream/android-13
 	}
 	return NULL;
 }
@@ -323,9 +357,15 @@ struct radeon_bo_va *radeon_vm_bo_add(struct radeon_device *rdev,
 	struct radeon_bo_va *bo_va;
 
 	bo_va = kzalloc(sizeof(struct radeon_bo_va), GFP_KERNEL);
+<<<<<<< HEAD
 	if (bo_va == NULL) {
 		return NULL;
 	}
+=======
+	if (bo_va == NULL)
+		return NULL;
+
+>>>>>>> upstream/android-13
 	bo_va->vm = vm;
 	bo_va->bo = bo;
 	bo_va->it.start = 0;
@@ -625,12 +665,19 @@ static uint32_t radeon_vm_page_flags(uint32_t flags)
 }
 
 /**
+<<<<<<< HEAD
  * radeon_vm_update_pdes - make sure that page directory is valid
  *
  * @rdev: radeon_device pointer
  * @vm: requested vm
  * @start: start of GPU address range
  * @end: end of GPU address range
+=======
+ * radeon_vm_update_page_directory - make sure that page directory is valid
+ *
+ * @rdev: radeon_device pointer
+ * @vm: requested vm
+>>>>>>> upstream/android-13
  *
  * Allocates new page tables if necessary
  * and updates the page directory (cayman+).
@@ -702,7 +749,11 @@ int radeon_vm_update_page_directory(struct radeon_device *rdev,
 	if (ib.length_dw != 0) {
 		radeon_asic_vm_pad_ib(rdev, &ib);
 
+<<<<<<< HEAD
 		radeon_sync_resv(rdev, &ib.sync, pd->tbo.resv, true);
+=======
+		radeon_sync_resv(rdev, &ib.sync, pd->tbo.base.resv, true);
+>>>>>>> upstream/android-13
 		WARN_ON(ib.length_dw > ndw);
 		r = radeon_ib_schedule(rdev, &ib, NULL, false);
 		if (r) {
@@ -802,6 +853,10 @@ static void radeon_vm_frag_ptes(struct radeon_device *rdev,
  *
  * @rdev: radeon_device pointer
  * @vm: requested vm
+<<<<<<< HEAD
+=======
+ * @ib: indirect buffer to use for the update
+>>>>>>> upstream/android-13
  * @start: start of GPU address range
  * @end: end of GPU address range
  * @dst: destination address to map to
@@ -830,8 +885,13 @@ static int radeon_vm_update_ptes(struct radeon_device *rdev,
 		uint64_t pte;
 		int r;
 
+<<<<<<< HEAD
 		radeon_sync_resv(rdev, &ib->sync, pt->tbo.resv, true);
 		r = reservation_object_reserve_shared(pt->tbo.resv);
+=======
+		radeon_sync_resv(rdev, &ib->sync, pt->tbo.base.resv, true);
+		r = dma_resv_reserve_shared(pt->tbo.base.resv, 1);
+>>>>>>> upstream/android-13
 		if (r)
 			return r;
 
@@ -900,8 +960,12 @@ static void radeon_vm_fence_pts(struct radeon_vm *vm,
  * radeon_vm_bo_update - map a bo into the vm page table
  *
  * @rdev: radeon_device pointer
+<<<<<<< HEAD
  * @vm: requested vm
  * @bo: radeon buffer object
+=======
+ * @bo_va: radeon buffer virtual address object
+>>>>>>> upstream/android-13
  * @mem: ttm mem
  *
  * Fill in the page table entries for @bo (cayman+).
@@ -911,7 +975,11 @@ static void radeon_vm_fence_pts(struct radeon_vm *vm,
  */
 int radeon_vm_bo_update(struct radeon_device *rdev,
 			struct radeon_bo_va *bo_va,
+<<<<<<< HEAD
 			struct ttm_mem_reg *mem)
+=======
+			struct ttm_resource *mem)
+>>>>>>> upstream/android-13
 {
 	struct radeon_vm *vm = bo_va->vm;
 	struct radeon_ib ib;
@@ -942,6 +1010,7 @@ int radeon_vm_bo_update(struct radeon_device *rdev,
 	bo_va->flags &= ~RADEON_VM_PAGE_VALID;
 	bo_va->flags &= ~RADEON_VM_PAGE_SYSTEM;
 	bo_va->flags &= ~RADEON_VM_PAGE_SNOOPED;
+<<<<<<< HEAD
 	if (bo_va->bo && radeon_ttm_tt_is_readonly(bo_va->bo->tbo.ttm))
 		bo_va->flags &= ~RADEON_VM_PAGE_WRITEABLE;
 
@@ -950,6 +1019,16 @@ int radeon_vm_bo_update(struct radeon_device *rdev,
 		if (mem->mem_type != TTM_PL_SYSTEM) {
 			bo_va->flags |= RADEON_VM_PAGE_VALID;
 		}
+=======
+	if (bo_va->bo && radeon_ttm_tt_is_readonly(rdev, bo_va->bo->tbo.ttm))
+		bo_va->flags &= ~RADEON_VM_PAGE_WRITEABLE;
+
+	if (mem) {
+		addr = (u64)mem->start << PAGE_SHIFT;
+		if (mem->mem_type != TTM_PL_SYSTEM)
+			bo_va->flags |= RADEON_VM_PAGE_VALID;
+
+>>>>>>> upstream/android-13
 		if (mem->mem_type == TTM_PL_TT) {
 			bo_va->flags |= RADEON_VM_PAGE_SYSTEM;
 			if (!(bo_va->bo->flags & (RADEON_GEM_GTT_WC | RADEON_GEM_GTT_UC)))
@@ -1145,7 +1224,10 @@ void radeon_vm_bo_rmv(struct radeon_device *rdev,
  * radeon_vm_bo_invalidate - mark the bo as invalid
  *
  * @rdev: radeon_device pointer
+<<<<<<< HEAD
  * @vm: requested vm
+=======
+>>>>>>> upstream/android-13
  * @bo: radeon buffer object
  *
  * Mark @bo as invalid (cayman+).
@@ -1233,9 +1315,15 @@ void radeon_vm_fini(struct radeon_device *rdev, struct radeon_vm *vm)
 	struct radeon_bo_va *bo_va, *tmp;
 	int i, r;
 
+<<<<<<< HEAD
 	if (!RB_EMPTY_ROOT(&vm->va.rb_root)) {
 		dev_err(rdev->dev, "still active bo inside vm\n");
 	}
+=======
+	if (!RB_EMPTY_ROOT(&vm->va.rb_root))
+		dev_err(rdev->dev, "still active bo inside vm\n");
+
+>>>>>>> upstream/android-13
 	rbtree_postorder_for_each_entry_safe(bo_va, tmp,
 					     &vm->va.rb_root, it.rb) {
 		interval_tree_remove(&bo_va->it, &vm->va);

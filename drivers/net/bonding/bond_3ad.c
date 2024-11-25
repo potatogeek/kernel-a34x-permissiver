@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 1999 - 2004 Intel Corporation. All rights reserved.
  *
@@ -18,6 +19,11 @@
  * The full GNU General Public License is included in this distribution in the
  * file called LICENSE.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright(c) 1999 - 2004 Intel Corporation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/skbuff.h>
@@ -31,6 +37,10 @@
 #include <net/net_namespace.h>
 #include <net/bonding.h>
 #include <net/bond_3ad.h>
+<<<<<<< HEAD
+=======
+#include <net/netlink.h>
+>>>>>>> upstream/android-13
 
 /* General definitions */
 #define AD_SHORT_TIMEOUT           1
@@ -47,6 +57,7 @@
 #define AD_CHURN_DETECTION_TIME    60
 #define AD_AGGREGATE_WAIT_TIME     2
 
+<<<<<<< HEAD
 /* Port state definitions (43.4.2.2 in the 802.3ad standard) */
 #define AD_STATE_LACP_ACTIVITY   0x1
 #define AD_STATE_LACP_TIMEOUT    0x2
@@ -57,6 +68,8 @@
 #define AD_STATE_DEFAULTED       0x40
 #define AD_STATE_EXPIRED         0x80
 
+=======
+>>>>>>> upstream/android-13
 /* Port Variables definitions used by the State Machines (43.4.7 in the
  * 802.3ad standard)
  */
@@ -99,6 +112,11 @@ enum ad_link_speed_type {
 	AD_LINK_SPEED_50000MBPS,
 	AD_LINK_SPEED_56000MBPS,
 	AD_LINK_SPEED_100000MBPS,
+<<<<<<< HEAD
+=======
+	AD_LINK_SPEED_200000MBPS,
+	AD_LINK_SPEED_400000MBPS,
+>>>>>>> upstream/android-13
 };
 
 /* compare MAC addresses */
@@ -120,7 +138,11 @@ static int ad_marker_send(struct port *port, struct bond_marker *marker);
 static void ad_mux_machine(struct port *port, bool *update_slave_arr);
 static void ad_rx_machine(struct lacpdu *lacpdu, struct port *port);
 static void ad_tx_machine(struct port *port);
+<<<<<<< HEAD
 static void ad_periodic_machine(struct port *port);
+=======
+static void ad_periodic_machine(struct port *port, struct bond_params *bond_params);
+>>>>>>> upstream/android-13
 static void ad_port_selection_logic(struct port *port, bool *update_slave_arr);
 static void ad_agg_selection_logic(struct aggregator *aggregator,
 				   bool *update_slave_arr);
@@ -156,7 +178,11 @@ static inline struct bonding *__get_bond_by_port(struct port *port)
 
 /**
  * __get_first_agg - get the first aggregator in the bond
+<<<<<<< HEAD
  * @bond: the bond we're looking at
+=======
+ * @port: the port we're looking at
+>>>>>>> upstream/android-13
  *
  * Return the aggregator of the first slave in @bond, or %NULL if it can't be
  * found.
@@ -249,7 +275,11 @@ static inline int __check_agg_selection_timer(struct port *port)
 	if (bond == NULL)
 		return 0;
 
+<<<<<<< HEAD
 	return BOND_AD_INFO(bond).agg_select_timer ? 1 : 0;
+=======
+	return atomic_read(&BOND_AD_INFO(bond).agg_select_timer) ? 1 : 0;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -271,6 +301,11 @@ static inline int __check_agg_selection_timer(struct port *port)
  *     %AD_LINK_SPEED_50000MBPS
  *     %AD_LINK_SPEED_56000MBPS
  *     %AD_LINK_SPEED_100000MBPS
+<<<<<<< HEAD
+=======
+ *     %AD_LINK_SPEED_200000MBPS
+ *     %AD_LINK_SPEED_400000MBPS
+>>>>>>> upstream/android-13
  */
 static u16 __get_link_speed(struct port *port)
 {
@@ -338,6 +373,7 @@ static u16 __get_link_speed(struct port *port)
 			speed = AD_LINK_SPEED_100000MBPS;
 			break;
 
+<<<<<<< HEAD
 		default:
 			/* unknown speed value from ethtool. shouldn't happen */
 			if (slave->speed != SPEED_UNKNOWN)
@@ -345,13 +381,35 @@ static u16 __get_link_speed(struct port *port)
 					     slave->bond->dev->name,
 					     slave->speed,
 					     port->actor_port_number);
+=======
+		case SPEED_200000:
+			speed = AD_LINK_SPEED_200000MBPS;
+			break;
+
+		case SPEED_400000:
+			speed = AD_LINK_SPEED_400000MBPS;
+			break;
+
+		default:
+			/* unknown speed value from ethtool. shouldn't happen */
+			if (slave->speed != SPEED_UNKNOWN)
+				pr_err_once("%s: (slave %s): unknown ethtool speed (%d) for port %d (set it to 0)\n",
+					    slave->bond->dev->name,
+					    slave->dev->name, slave->speed,
+					    port->actor_port_number);
+>>>>>>> upstream/android-13
 			speed = 0;
 			break;
 		}
 	}
 
+<<<<<<< HEAD
 	netdev_dbg(slave->bond->dev, "Port %d Received link speed %d update from adapter\n",
 		   port->actor_port_number, speed);
+=======
+	slave_dbg(slave->bond->dev, slave->dev, "Port %d Received link speed %d update from adapter\n",
+		  port->actor_port_number, speed);
+>>>>>>> upstream/android-13
 	return speed;
 }
 
@@ -375,14 +433,24 @@ static u8 __get_duplex(struct port *port)
 		switch (slave->duplex) {
 		case DUPLEX_FULL:
 			retval = 0x1;
+<<<<<<< HEAD
 			netdev_dbg(slave->bond->dev, "Port %d Received status full duplex update from adapter\n",
 				   port->actor_port_number);
+=======
+			slave_dbg(slave->bond->dev, slave->dev, "Port %d Received status full duplex update from adapter\n",
+				  port->actor_port_number);
+>>>>>>> upstream/android-13
 			break;
 		case DUPLEX_HALF:
 		default:
 			retval = 0x0;
+<<<<<<< HEAD
 			netdev_dbg(slave->bond->dev, "Port %d Received status NOT full duplex update from adapter\n",
 				   port->actor_port_number);
+=======
+			slave_dbg(slave->bond->dev, slave->dev, "Port %d Received status NOT full duplex update from adapter\n",
+				  port->actor_port_number);
+>>>>>>> upstream/android-13
 			break;
 		}
 	}
@@ -473,8 +541,13 @@ static void __choose_matched(struct lacpdu *lacpdu, struct port *port)
 	     MAC_ADDRESS_EQUAL(&(lacpdu->partner_system), &(port->actor_system)) &&
 	     (ntohs(lacpdu->partner_system_priority) == port->actor_system_priority) &&
 	     (ntohs(lacpdu->partner_key) == port->actor_oper_port_key) &&
+<<<<<<< HEAD
 	     ((lacpdu->partner_state & AD_STATE_AGGREGATION) == (port->actor_oper_port_state & AD_STATE_AGGREGATION))) ||
 	    ((lacpdu->actor_state & AD_STATE_AGGREGATION) == 0)
+=======
+	     ((lacpdu->partner_state & LACP_STATE_AGGREGATION) == (port->actor_oper_port_state & LACP_STATE_AGGREGATION))) ||
+	    ((lacpdu->actor_state & LACP_STATE_AGGREGATION) == 0)
+>>>>>>> upstream/android-13
 		) {
 		port->sm_vars |= AD_PORT_MATCHED;
 	} else {
@@ -508,18 +581,33 @@ static void __record_pdu(struct lacpdu *lacpdu, struct port *port)
 		partner->port_state = lacpdu->actor_state;
 
 		/* set actor_oper_port_state.defaulted to FALSE */
+<<<<<<< HEAD
 		port->actor_oper_port_state &= ~AD_STATE_DEFAULTED;
+=======
+		port->actor_oper_port_state &= ~LACP_STATE_DEFAULTED;
+>>>>>>> upstream/android-13
 
 		/* set the partner sync. to on if the partner is sync,
 		 * and the port is matched
 		 */
 		if ((port->sm_vars & AD_PORT_MATCHED) &&
+<<<<<<< HEAD
 		    (lacpdu->actor_state & AD_STATE_SYNCHRONIZATION)) {
 			partner->port_state |= AD_STATE_SYNCHRONIZATION;
 			pr_debug("%s partner sync=1\n", port->slave->dev->name);
 		} else {
 			partner->port_state &= ~AD_STATE_SYNCHRONIZATION;
 			pr_debug("%s partner sync=0\n", port->slave->dev->name);
+=======
+		    (lacpdu->actor_state & LACP_STATE_SYNCHRONIZATION)) {
+			partner->port_state |= LACP_STATE_SYNCHRONIZATION;
+			slave_dbg(port->slave->bond->dev, port->slave->dev,
+				  "partner sync=1\n");
+		} else {
+			partner->port_state &= ~LACP_STATE_SYNCHRONIZATION;
+			slave_dbg(port->slave->bond->dev, port->slave->dev,
+				  "partner sync=0\n");
+>>>>>>> upstream/android-13
 		}
 	}
 }
@@ -540,7 +628,11 @@ static void __record_default(struct port *port)
 		       sizeof(struct port_params));
 
 		/* set actor_oper_port_state.defaulted to true */
+<<<<<<< HEAD
 		port->actor_oper_port_state |= AD_STATE_DEFAULTED;
+=======
+		port->actor_oper_port_state |= LACP_STATE_DEFAULTED;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -570,7 +662,11 @@ static void __update_selected(struct lacpdu *lacpdu, struct port *port)
 		    !MAC_ADDRESS_EQUAL(&lacpdu->actor_system, &partner->system) ||
 		    ntohs(lacpdu->actor_system_priority) != partner->system_priority ||
 		    ntohs(lacpdu->actor_key) != partner->key ||
+<<<<<<< HEAD
 		    (lacpdu->actor_state & AD_STATE_AGGREGATION) != (partner->port_state & AD_STATE_AGGREGATION)) {
+=======
+		    (lacpdu->actor_state & LACP_STATE_AGGREGATION) != (partner->port_state & LACP_STATE_AGGREGATION)) {
+>>>>>>> upstream/android-13
 			port->sm_vars &= ~AD_PORT_SELECTED;
 		}
 	}
@@ -602,8 +698,13 @@ static void __update_default_selected(struct port *port)
 		    !MAC_ADDRESS_EQUAL(&admin->system, &oper->system) ||
 		    admin->system_priority != oper->system_priority ||
 		    admin->key != oper->key ||
+<<<<<<< HEAD
 		    (admin->port_state & AD_STATE_AGGREGATION)
 			!= (oper->port_state & AD_STATE_AGGREGATION)) {
+=======
+		    (admin->port_state & LACP_STATE_AGGREGATION)
+			!= (oper->port_state & LACP_STATE_AGGREGATION)) {
+>>>>>>> upstream/android-13
 			port->sm_vars &= ~AD_PORT_SELECTED;
 		}
 	}
@@ -633,10 +734,17 @@ static void __update_ntt(struct lacpdu *lacpdu, struct port *port)
 		    !MAC_ADDRESS_EQUAL(&(lacpdu->partner_system), &(port->actor_system)) ||
 		    (ntohs(lacpdu->partner_system_priority) != port->actor_system_priority) ||
 		    (ntohs(lacpdu->partner_key) != port->actor_oper_port_key) ||
+<<<<<<< HEAD
 		    ((lacpdu->partner_state & AD_STATE_LACP_ACTIVITY) != (port->actor_oper_port_state & AD_STATE_LACP_ACTIVITY)) ||
 		    ((lacpdu->partner_state & AD_STATE_LACP_TIMEOUT) != (port->actor_oper_port_state & AD_STATE_LACP_TIMEOUT)) ||
 		    ((lacpdu->partner_state & AD_STATE_SYNCHRONIZATION) != (port->actor_oper_port_state & AD_STATE_SYNCHRONIZATION)) ||
 		    ((lacpdu->partner_state & AD_STATE_AGGREGATION) != (port->actor_oper_port_state & AD_STATE_AGGREGATION))
+=======
+		    ((lacpdu->partner_state & LACP_STATE_LACP_ACTIVITY) != (port->actor_oper_port_state & LACP_STATE_LACP_ACTIVITY)) ||
+		    ((lacpdu->partner_state & LACP_STATE_LACP_TIMEOUT) != (port->actor_oper_port_state & LACP_STATE_LACP_TIMEOUT)) ||
+		    ((lacpdu->partner_state & LACP_STATE_SYNCHRONIZATION) != (port->actor_oper_port_state & LACP_STATE_SYNCHRONIZATION)) ||
+		    ((lacpdu->partner_state & LACP_STATE_AGGREGATION) != (port->actor_oper_port_state & LACP_STATE_AGGREGATION))
+>>>>>>> upstream/android-13
 		   ) {
 			port->ntt = true;
 		}
@@ -757,6 +865,15 @@ static u32 __get_agg_bandwidth(struct aggregator *aggregator)
 		case AD_LINK_SPEED_100000MBPS:
 			bandwidth = nports * 100000;
 			break;
+<<<<<<< HEAD
+=======
+		case AD_LINK_SPEED_200000MBPS:
+			bandwidth = nports * 200000;
+			break;
+		case AD_LINK_SPEED_400000MBPS:
+			bandwidth = nports * 400000;
+			break;
+>>>>>>> upstream/android-13
 		default:
 			bandwidth = 0; /* to silence the compiler */
 		}
@@ -805,8 +922,14 @@ static inline void __update_lacpdu_from_port(struct port *port)
 	lacpdu->actor_port_priority = htons(port->actor_port_priority);
 	lacpdu->actor_port = htons(port->actor_port_number);
 	lacpdu->actor_state = port->actor_oper_port_state;
+<<<<<<< HEAD
 	pr_debug("update lacpdu: %s, actor port state %x\n",
 		 port->slave->dev->name, port->actor_oper_port_state);
+=======
+	slave_dbg(port->slave->bond->dev, port->slave->dev,
+		  "update lacpdu: actor port state %x\n",
+		  port->actor_oper_port_state);
+>>>>>>> upstream/android-13
 
 	/* lacpdu->reserved_3_1              initialized
 	 * lacpdu->tlv_type_partner_info     initialized
@@ -851,6 +974,12 @@ static int ad_lacpdu_send(struct port *port)
 	if (!skb)
 		return -ENOMEM;
 
+<<<<<<< HEAD
+=======
+	atomic64_inc(&SLAVE_AD_INFO(slave)->stats.lacpdu_tx);
+	atomic64_inc(&BOND_AD_INFO(slave->bond).stats.lacpdu_tx);
+
+>>>>>>> upstream/android-13
 	skb->dev = slave->dev;
 	skb_reset_mac_header(skb);
 	skb->network_header = skb->mac_header + ETH_HLEN;
@@ -892,6 +1021,20 @@ static int ad_marker_send(struct port *port, struct bond_marker *marker)
 	if (!skb)
 		return -ENOMEM;
 
+<<<<<<< HEAD
+=======
+	switch (marker->tlv_type) {
+	case AD_MARKER_INFORMATION_SUBTYPE:
+		atomic64_inc(&SLAVE_AD_INFO(slave)->stats.marker_tx);
+		atomic64_inc(&BOND_AD_INFO(slave->bond).stats.marker_tx);
+		break;
+	case AD_MARKER_RESPONSE_SUBTYPE:
+		atomic64_inc(&SLAVE_AD_INFO(slave)->stats.marker_resp_tx);
+		atomic64_inc(&BOND_AD_INFO(slave->bond).stats.marker_resp_tx);
+		break;
+	}
+
+>>>>>>> upstream/android-13
 	skb_reserve(skb, 16);
 
 	skb->dev = slave->dev;
@@ -977,7 +1120,11 @@ static void ad_mux_machine(struct port *port, bool *update_slave_arr)
 			 * edable port will take place only after this timer)
 			 */
 			if ((port->sm_vars & AD_PORT_SELECTED) &&
+<<<<<<< HEAD
 			    (port->partner_oper.port_state & AD_STATE_SYNCHRONIZATION) &&
+=======
+			    (port->partner_oper.port_state & LACP_STATE_SYNCHRONIZATION) &&
+>>>>>>> upstream/android-13
 			    !__check_agg_selection_timer(port)) {
 				if (port->aggregator->is_active)
 					port->sm_mux_state =
@@ -995,14 +1142,23 @@ static void ad_mux_machine(struct port *port, bool *update_slave_arr)
 				port->sm_mux_state = AD_MUX_DETACHED;
 			} else if (port->aggregator->is_active) {
 				port->actor_oper_port_state |=
+<<<<<<< HEAD
 				    AD_STATE_SYNCHRONIZATION;
+=======
+				    LACP_STATE_SYNCHRONIZATION;
+>>>>>>> upstream/android-13
 			}
 			break;
 		case AD_MUX_COLLECTING_DISTRIBUTING:
 			if (!(port->sm_vars & AD_PORT_SELECTED) ||
 			    (port->sm_vars & AD_PORT_STANDBY) ||
+<<<<<<< HEAD
 			    !(port->partner_oper.port_state & AD_STATE_SYNCHRONIZATION) ||
 			    !(port->actor_oper_port_state & AD_STATE_SYNCHRONIZATION)) {
+=======
+			    !(port->partner_oper.port_state & LACP_STATE_SYNCHRONIZATION) ||
+			    !(port->actor_oper_port_state & LACP_STATE_SYNCHRONIZATION)) {
+>>>>>>> upstream/android-13
 				port->sm_mux_state = AD_MUX_ATTACHED;
 			} else {
 				/* if port state hasn't changed make
@@ -1012,8 +1168,13 @@ static void ad_mux_machine(struct port *port, bool *update_slave_arr)
 				if (port->aggregator &&
 				    port->aggregator->is_active &&
 				    !__port_is_enabled(port)) {
+<<<<<<< HEAD
 
 					__enable_port(port);
+=======
+					__enable_port(port);
+					*update_slave_arr = true;
+>>>>>>> upstream/android-13
 				}
 			}
 			break;
@@ -1024,6 +1185,7 @@ static void ad_mux_machine(struct port *port, bool *update_slave_arr)
 
 	/* check if the state machine was changed */
 	if (port->sm_mux_state != last_state) {
+<<<<<<< HEAD
 		pr_debug("Mux Machine: Port=%d (%s), Last State=%d, Curr State=%d\n",
 			 port->actor_port_number,
 			 port->slave->dev->name,
@@ -1036,6 +1198,20 @@ static void ad_mux_machine(struct port *port, bool *update_slave_arr)
 							   update_slave_arr);
 			port->actor_oper_port_state &= ~AD_STATE_COLLECTING;
 			port->actor_oper_port_state &= ~AD_STATE_DISTRIBUTING;
+=======
+		slave_dbg(port->slave->bond->dev, port->slave->dev,
+			  "Mux Machine: Port=%d, Last State=%d, Curr State=%d\n",
+			  port->actor_port_number,
+			  last_state,
+			  port->sm_mux_state);
+		switch (port->sm_mux_state) {
+		case AD_MUX_DETACHED:
+			port->actor_oper_port_state &= ~LACP_STATE_SYNCHRONIZATION;
+			ad_disable_collecting_distributing(port,
+							   update_slave_arr);
+			port->actor_oper_port_state &= ~LACP_STATE_COLLECTING;
+			port->actor_oper_port_state &= ~LACP_STATE_DISTRIBUTING;
+>>>>>>> upstream/android-13
 			port->ntt = true;
 			break;
 		case AD_MUX_WAITING:
@@ -1044,20 +1220,35 @@ static void ad_mux_machine(struct port *port, bool *update_slave_arr)
 		case AD_MUX_ATTACHED:
 			if (port->aggregator->is_active)
 				port->actor_oper_port_state |=
+<<<<<<< HEAD
 				    AD_STATE_SYNCHRONIZATION;
 			else
 				port->actor_oper_port_state &=
 				    ~AD_STATE_SYNCHRONIZATION;
 			port->actor_oper_port_state &= ~AD_STATE_COLLECTING;
 			port->actor_oper_port_state &= ~AD_STATE_DISTRIBUTING;
+=======
+				    LACP_STATE_SYNCHRONIZATION;
+			else
+				port->actor_oper_port_state &=
+				    ~LACP_STATE_SYNCHRONIZATION;
+			port->actor_oper_port_state &= ~LACP_STATE_COLLECTING;
+			port->actor_oper_port_state &= ~LACP_STATE_DISTRIBUTING;
+>>>>>>> upstream/android-13
 			ad_disable_collecting_distributing(port,
 							   update_slave_arr);
 			port->ntt = true;
 			break;
 		case AD_MUX_COLLECTING_DISTRIBUTING:
+<<<<<<< HEAD
 			port->actor_oper_port_state |= AD_STATE_COLLECTING;
 			port->actor_oper_port_state |= AD_STATE_DISTRIBUTING;
 			port->actor_oper_port_state |= AD_STATE_SYNCHRONIZATION;
+=======
+			port->actor_oper_port_state |= LACP_STATE_COLLECTING;
+			port->actor_oper_port_state |= LACP_STATE_DISTRIBUTING;
+			port->actor_oper_port_state |= LACP_STATE_SYNCHRONIZATION;
+>>>>>>> upstream/android-13
 			ad_enable_collecting_distributing(port,
 							  update_slave_arr);
 			port->ntt = true;
@@ -1086,6 +1277,13 @@ static void ad_rx_machine(struct lacpdu *lacpdu, struct port *port)
 	 */
 	last_state = port->sm_rx_state;
 
+<<<<<<< HEAD
+=======
+	if (lacpdu) {
+		atomic64_inc(&SLAVE_AD_INFO(port->slave)->stats.lacpdu_rx);
+		atomic64_inc(&BOND_AD_INFO(port->slave->bond).stats.lacpdu_rx);
+	}
+>>>>>>> upstream/android-13
 	/* check if state machine should change state */
 
 	/* first, check if port was reinitialized */
@@ -1138,11 +1336,19 @@ static void ad_rx_machine(struct lacpdu *lacpdu, struct port *port)
 
 	/* check if the State machine was changed or new lacpdu arrived */
 	if ((port->sm_rx_state != last_state) || (lacpdu)) {
+<<<<<<< HEAD
 		pr_debug("Rx Machine: Port=%d (%s), Last State=%d, Curr State=%d\n",
 			 port->actor_port_number,
 			 port->slave->dev->name,
 			 last_state,
 			 port->sm_rx_state);
+=======
+		slave_dbg(port->slave->bond->dev, port->slave->dev,
+			  "Rx Machine: Port=%d, Last State=%d, Curr State=%d\n",
+			  port->actor_port_number,
+			  last_state,
+			  port->sm_rx_state);
+>>>>>>> upstream/android-13
 		switch (port->sm_rx_state) {
 		case AD_RX_INITIALIZE:
 			if (!(port->actor_oper_port_key & AD_DUPLEX_KEY_MASKS))
@@ -1151,19 +1357,32 @@ static void ad_rx_machine(struct lacpdu *lacpdu, struct port *port)
 				port->sm_vars |= AD_PORT_LACP_ENABLED;
 			port->sm_vars &= ~AD_PORT_SELECTED;
 			__record_default(port);
+<<<<<<< HEAD
 			port->actor_oper_port_state &= ~AD_STATE_EXPIRED;
 			port->sm_rx_state = AD_RX_PORT_DISABLED;
 
 			/* Fall Through */
+=======
+			port->actor_oper_port_state &= ~LACP_STATE_EXPIRED;
+			port->sm_rx_state = AD_RX_PORT_DISABLED;
+
+			fallthrough;
+>>>>>>> upstream/android-13
 		case AD_RX_PORT_DISABLED:
 			port->sm_vars &= ~AD_PORT_MATCHED;
 			break;
 		case AD_RX_LACP_DISABLED:
 			port->sm_vars &= ~AD_PORT_SELECTED;
 			__record_default(port);
+<<<<<<< HEAD
 			port->partner_oper.port_state &= ~AD_STATE_AGGREGATION;
 			port->sm_vars |= AD_PORT_MATCHED;
 			port->actor_oper_port_state &= ~AD_STATE_EXPIRED;
+=======
+			port->partner_oper.port_state &= ~LACP_STATE_AGGREGATION;
+			port->sm_vars |= AD_PORT_MATCHED;
+			port->actor_oper_port_state &= ~LACP_STATE_EXPIRED;
+>>>>>>> upstream/android-13
 			break;
 		case AD_RX_EXPIRED:
 			/* Reset of the Synchronization flag (Standard 43.4.12)
@@ -1172,34 +1391,57 @@ static void ad_rx_machine(struct lacpdu *lacpdu, struct port *port)
 			 * case of EXPIRED even if LINK_DOWN didn't arrive for
 			 * the port.
 			 */
+<<<<<<< HEAD
 			port->partner_oper.port_state &= ~AD_STATE_SYNCHRONIZATION;
 			port->sm_vars &= ~AD_PORT_MATCHED;
 			port->partner_oper.port_state |= AD_STATE_LACP_TIMEOUT;
 			port->partner_oper.port_state |= AD_STATE_LACP_ACTIVITY;
 			port->sm_rx_timer_counter = __ad_timer_to_ticks(AD_CURRENT_WHILE_TIMER, (u16)(AD_SHORT_TIMEOUT));
 			port->actor_oper_port_state |= AD_STATE_EXPIRED;
+=======
+			port->partner_oper.port_state &= ~LACP_STATE_SYNCHRONIZATION;
+			port->sm_vars &= ~AD_PORT_MATCHED;
+			port->partner_oper.port_state |= LACP_STATE_LACP_TIMEOUT;
+			port->partner_oper.port_state |= LACP_STATE_LACP_ACTIVITY;
+			port->sm_rx_timer_counter = __ad_timer_to_ticks(AD_CURRENT_WHILE_TIMER, (u16)(AD_SHORT_TIMEOUT));
+			port->actor_oper_port_state |= LACP_STATE_EXPIRED;
+>>>>>>> upstream/android-13
 			port->sm_vars |= AD_PORT_CHURNED;
 			break;
 		case AD_RX_DEFAULTED:
 			__update_default_selected(port);
 			__record_default(port);
 			port->sm_vars |= AD_PORT_MATCHED;
+<<<<<<< HEAD
 			port->actor_oper_port_state &= ~AD_STATE_EXPIRED;
+=======
+			port->actor_oper_port_state &= ~LACP_STATE_EXPIRED;
+>>>>>>> upstream/android-13
 			break;
 		case AD_RX_CURRENT:
 			/* detect loopback situation */
 			if (MAC_ADDRESS_EQUAL(&(lacpdu->actor_system),
 					      &(port->actor_system))) {
+<<<<<<< HEAD
 				netdev_err(port->slave->bond->dev, "An illegal loopback occurred on adapter (%s)\n"
 				       "Check the configuration to verify that all adapters are connected to 802.3ad compliant switch ports\n",
 				       port->slave->dev->name);
+=======
+				slave_err(port->slave->bond->dev, port->slave->dev, "An illegal loopback occurred on slave\n"
+					  "Check the configuration to verify that all adapters are connected to 802.3ad compliant switch ports\n");
+>>>>>>> upstream/android-13
 				return;
 			}
 			__update_selected(lacpdu, port);
 			__update_ntt(lacpdu, port);
 			__record_pdu(lacpdu, port);
+<<<<<<< HEAD
 			port->sm_rx_timer_counter = __ad_timer_to_ticks(AD_CURRENT_WHILE_TIMER, (u16)(port->actor_oper_port_state & AD_STATE_LACP_TIMEOUT));
 			port->actor_oper_port_state &= ~AD_STATE_EXPIRED;
+=======
+			port->sm_rx_timer_counter = __ad_timer_to_ticks(AD_CURRENT_WHILE_TIMER, (u16)(port->actor_oper_port_state & LACP_STATE_LACP_TIMEOUT));
+			port->actor_oper_port_state &= ~LACP_STATE_EXPIRED;
+>>>>>>> upstream/android-13
 			break;
 		default:
 			break;
@@ -1220,14 +1462,22 @@ static void ad_churn_machine(struct port *port)
 		port->sm_churn_partner_state = AD_CHURN_MONITOR;
 		port->sm_churn_actor_timer_counter =
 			__ad_timer_to_ticks(AD_ACTOR_CHURN_TIMER, 0);
+<<<<<<< HEAD
 		 port->sm_churn_partner_timer_counter =
+=======
+		port->sm_churn_partner_timer_counter =
+>>>>>>> upstream/android-13
 			 __ad_timer_to_ticks(AD_PARTNER_CHURN_TIMER, 0);
 		return;
 	}
 	if (port->sm_churn_actor_timer_counter &&
 	    !(--port->sm_churn_actor_timer_counter) &&
 	    port->sm_churn_actor_state == AD_CHURN_MONITOR) {
+<<<<<<< HEAD
 		if (port->actor_oper_port_state & AD_STATE_SYNCHRONIZATION) {
+=======
+		if (port->actor_oper_port_state & LACP_STATE_SYNCHRONIZATION) {
+>>>>>>> upstream/android-13
 			port->sm_churn_actor_state = AD_NO_CHURN;
 		} else {
 			port->churn_actor_count++;
@@ -1237,7 +1487,11 @@ static void ad_churn_machine(struct port *port)
 	if (port->sm_churn_partner_timer_counter &&
 	    !(--port->sm_churn_partner_timer_counter) &&
 	    port->sm_churn_partner_state == AD_CHURN_MONITOR) {
+<<<<<<< HEAD
 		if (port->partner_oper.port_state & AD_STATE_SYNCHRONIZATION) {
+=======
+		if (port->partner_oper.port_state & LACP_STATE_SYNCHRONIZATION) {
+>>>>>>> upstream/android-13
 			port->sm_churn_partner_state = AD_NO_CHURN;
 		} else {
 			port->churn_partner_count++;
@@ -1261,8 +1515,15 @@ static void ad_tx_machine(struct port *port)
 			__update_lacpdu_from_port(port);
 
 			if (ad_lacpdu_send(port) >= 0) {
+<<<<<<< HEAD
 				pr_debug("Sent LACPDU on port %d\n",
 					 port->actor_port_number);
+=======
+				slave_dbg(port->slave->bond->dev,
+					  port->slave->dev,
+					  "Sent LACPDU on port %d\n",
+					  port->actor_port_number);
+>>>>>>> upstream/android-13
 
 				/* mark ntt as false, so it will not be sent
 				 * again until demanded
@@ -1280,10 +1541,18 @@ static void ad_tx_machine(struct port *port)
 /**
  * ad_periodic_machine - handle a port's periodic state machine
  * @port: the port we're looking at
+<<<<<<< HEAD
  *
  * Turn ntt flag on priodically to perform periodic transmission of lacpdu's.
  */
 static void ad_periodic_machine(struct port *port)
+=======
+ * @bond_params: bond parameters we will use
+ *
+ * Turn ntt flag on priodically to perform periodic transmission of lacpdu's.
+ */
+static void ad_periodic_machine(struct port *port, struct bond_params *bond_params)
+>>>>>>> upstream/android-13
 {
 	periodic_states_t last_state;
 
@@ -1292,8 +1561,13 @@ static void ad_periodic_machine(struct port *port)
 
 	/* check if port was reinitialized */
 	if (((port->sm_vars & AD_PORT_BEGIN) || !(port->sm_vars & AD_PORT_LACP_ENABLED) || !port->is_enabled) ||
+<<<<<<< HEAD
 	    (!(port->actor_oper_port_state & AD_STATE_LACP_ACTIVITY) && !(port->partner_oper.port_state & AD_STATE_LACP_ACTIVITY))
 	   ) {
+=======
+	    (!(port->actor_oper_port_state & LACP_STATE_LACP_ACTIVITY) && !(port->partner_oper.port_state & LACP_STATE_LACP_ACTIVITY)) ||
+	    !bond_params->lacp_active) {
+>>>>>>> upstream/android-13
 		port->sm_periodic_state = AD_NO_PERIODIC;
 	}
 	/* check if state machine should change state */
@@ -1309,11 +1583,19 @@ static void ad_periodic_machine(struct port *port)
 			switch (port->sm_periodic_state) {
 			case AD_FAST_PERIODIC:
 				if (!(port->partner_oper.port_state
+<<<<<<< HEAD
 				      & AD_STATE_LACP_TIMEOUT))
 					port->sm_periodic_state = AD_SLOW_PERIODIC;
 				break;
 			case AD_SLOW_PERIODIC:
 				if ((port->partner_oper.port_state & AD_STATE_LACP_TIMEOUT)) {
+=======
+				      & LACP_STATE_LACP_TIMEOUT))
+					port->sm_periodic_state = AD_SLOW_PERIODIC;
+				break;
+			case AD_SLOW_PERIODIC:
+				if ((port->partner_oper.port_state & LACP_STATE_LACP_TIMEOUT)) {
+>>>>>>> upstream/android-13
 					port->sm_periodic_timer_counter = 0;
 					port->sm_periodic_state = AD_PERIODIC_TX;
 				}
@@ -1329,7 +1611,11 @@ static void ad_periodic_machine(struct port *port)
 			break;
 		case AD_PERIODIC_TX:
 			if (!(port->partner_oper.port_state &
+<<<<<<< HEAD
 			    AD_STATE_LACP_TIMEOUT))
+=======
+			    LACP_STATE_LACP_TIMEOUT))
+>>>>>>> upstream/android-13
 				port->sm_periodic_state = AD_SLOW_PERIODIC;
 			else
 				port->sm_periodic_state = AD_FAST_PERIODIC;
@@ -1341,9 +1627,16 @@ static void ad_periodic_machine(struct port *port)
 
 	/* check if the state machine was changed */
 	if (port->sm_periodic_state != last_state) {
+<<<<<<< HEAD
 		pr_debug("Periodic Machine: Port=%d, Last State=%d, Curr State=%d\n",
 			 port->actor_port_number, last_state,
 			 port->sm_periodic_state);
+=======
+		slave_dbg(port->slave->bond->dev, port->slave->dev,
+			  "Periodic Machine: Port=%d, Last State=%d, Curr State=%d\n",
+			  port->actor_port_number, last_state,
+			  port->sm_periodic_state);
+>>>>>>> upstream/android-13
 		switch (port->sm_periodic_state) {
 		case AD_NO_PERIODIC:
 			port->sm_periodic_timer_counter = 0;
@@ -1419,9 +1712,15 @@ static void ad_port_selection_logic(struct port *port, bool *update_slave_arr)
 				port->next_port_in_aggregator = NULL;
 				port->actor_port_aggregator_identifier = 0;
 
+<<<<<<< HEAD
 				netdev_dbg(bond->dev, "Port %d left LAG %d\n",
 					   port->actor_port_number,
 					   temp_aggregator->aggregator_identifier);
+=======
+				slave_dbg(bond->dev, port->slave->dev, "Port %d left LAG %d\n",
+					  port->actor_port_number,
+					  temp_aggregator->aggregator_identifier);
+>>>>>>> upstream/android-13
 				/* if the aggregator is empty, clear its
 				 * parameters, and set it ready to be attached
 				 */
@@ -1434,10 +1733,17 @@ static void ad_port_selection_logic(struct port *port, bool *update_slave_arr)
 			/* meaning: the port was related to an aggregator
 			 * but was not on the aggregator port list
 			 */
+<<<<<<< HEAD
 			net_warn_ratelimited("%s: Warning: Port %d (on %s) was related to aggregator %d but was not on its port list\n",
 					     port->slave->bond->dev->name,
 					     port->actor_port_number,
 					     port->slave->dev->name,
+=======
+			net_warn_ratelimited("%s: (slave %s): Warning: Port %d was related to aggregator %d but was not on its port list\n",
+					     port->slave->bond->dev->name,
+					     port->slave->dev->name,
+					     port->actor_port_number,
+>>>>>>> upstream/android-13
 					     port->aggregator->aggregator_identifier);
 		}
 	}
@@ -1468,9 +1774,15 @@ static void ad_port_selection_logic(struct port *port, bool *update_slave_arr)
 			port->next_port_in_aggregator = aggregator->lag_ports;
 			port->aggregator->num_of_ports++;
 			aggregator->lag_ports = port;
+<<<<<<< HEAD
 			netdev_dbg(bond->dev, "Port %d joined LAG %d(existing LAG)\n",
 				   port->actor_port_number,
 				   port->aggregator->aggregator_identifier);
+=======
+			slave_dbg(bond->dev, slave->dev, "Port %d joined LAG %d (existing LAG)\n",
+				  port->actor_port_number,
+				  port->aggregator->aggregator_identifier);
+>>>>>>> upstream/android-13
 
 			/* mark this port as selected */
 			port->sm_vars |= AD_PORT_SELECTED;
@@ -1515,12 +1827,22 @@ static void ad_port_selection_logic(struct port *port, bool *update_slave_arr)
 			/* mark this port as selected */
 			port->sm_vars |= AD_PORT_SELECTED;
 
+<<<<<<< HEAD
 			netdev_dbg(bond->dev, "Port %d joined LAG %d(new LAG)\n",
 				   port->actor_port_number,
 				   port->aggregator->aggregator_identifier);
 		} else {
 			netdev_err(bond->dev, "Port %d (on %s) did not find a suitable aggregator\n",
 			       port->actor_port_number, port->slave->dev->name);
+=======
+			slave_dbg(bond->dev, port->slave->dev, "Port %d joined LAG %d (new LAG)\n",
+				  port->actor_port_number,
+				  port->aggregator->aggregator_identifier);
+		} else {
+			slave_err(bond->dev, port->slave->dev,
+				  "Port %d did not find a suitable aggregator\n",
+				  port->actor_port_number);
+>>>>>>> upstream/android-13
 		}
 	}
 	/* if all aggregator's ports are READY_N == TRUE, set ready=TRUE
@@ -1534,7 +1856,11 @@ static void ad_port_selection_logic(struct port *port, bool *update_slave_arr)
 	ad_agg_selection_logic(aggregator, update_slave_arr);
 
 	if (!port->aggregator->is_active)
+<<<<<<< HEAD
 		port->actor_oper_port_state &= ~AD_STATE_SYNCHRONIZATION;
+=======
+		port->actor_oper_port_state &= ~LACP_STATE_SYNCHRONIZATION;
+>>>>>>> upstream/android-13
 }
 
 /* Decide if "agg" is a better choice for the new active aggregator that
@@ -1590,7 +1916,11 @@ static struct aggregator *ad_agg_selection_test(struct aggregator *best,
 		if (__agg_active_ports(curr) < __agg_active_ports(best))
 			return best;
 
+<<<<<<< HEAD
 		/*FALLTHROUGH*/
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case BOND_AD_STABLE:
 	case BOND_AD_BANDWIDTH:
 		if (__get_agg_bandwidth(curr) > __get_agg_bandwidth(best))
@@ -1599,8 +1929,14 @@ static struct aggregator *ad_agg_selection_test(struct aggregator *best,
 		break;
 
 	default:
+<<<<<<< HEAD
 		net_warn_ratelimited("%s: Impossible agg select mode %d\n",
 				     curr->slave->bond->dev->name,
+=======
+		net_warn_ratelimited("%s: (slave %s): Impossible agg select mode %d\n",
+				     curr->slave->bond->dev->name,
+				     curr->slave->dev->name,
+>>>>>>> upstream/android-13
 				     __get_agg_selection_mode(curr->lag_ports));
 		break;
 	}
@@ -1627,7 +1963,11 @@ static int agg_device_up(const struct aggregator *agg)
 
 /**
  * ad_agg_selection_logic - select an aggregation group for a team
+<<<<<<< HEAD
  * @aggregator: the aggregator we're looking at
+=======
+ * @agg: the aggregator we're looking at
+>>>>>>> upstream/android-13
  * @update_slave_arr: Does slave array need update?
  *
  * It is assumed that only one aggregator may be selected for a team.
@@ -1701,18 +2041,30 @@ static void ad_agg_selection_logic(struct aggregator *agg,
 
 	/* if there is new best aggregator, activate it */
 	if (best) {
+<<<<<<< HEAD
 		netdev_dbg(bond->dev, "best Agg=%d; P=%d; a k=%d; p k=%d; Ind=%d; Act=%d\n",
+=======
+		netdev_dbg(bond->dev, "(slave %s): best Agg=%d; P=%d; a k=%d; p k=%d; Ind=%d; Act=%d\n",
+			   best->slave ? best->slave->dev->name : "NULL",
+>>>>>>> upstream/android-13
 			   best->aggregator_identifier, best->num_of_ports,
 			   best->actor_oper_aggregator_key,
 			   best->partner_oper_aggregator_key,
 			   best->is_individual, best->is_active);
+<<<<<<< HEAD
 		netdev_dbg(bond->dev, "best ports %p slave %p %s\n",
 			   best->lag_ports, best->slave,
 			   best->slave ? best->slave->dev->name : "NULL");
+=======
+		netdev_dbg(bond->dev, "(slave %s): best ports %p slave %p\n",
+			   best->slave ? best->slave->dev->name : "NULL",
+			   best->lag_ports, best->slave);
+>>>>>>> upstream/android-13
 
 		bond_for_each_slave_rcu(bond, slave, iter) {
 			agg = &(SLAVE_AD_INFO(slave)->aggregator);
 
+<<<<<<< HEAD
 			netdev_dbg(bond->dev, "Agg=%d; P=%d; a k=%d; p k=%d; Ind=%d; Act=%d\n",
 				   agg->aggregator_identifier, agg->num_of_ports,
 				   agg->actor_oper_aggregator_key,
@@ -1731,6 +2083,26 @@ static void ad_agg_selection_logic(struct aggregator *agg,
 		netdev_dbg(bond->dev, "LAG %d chosen as the active LAG\n",
 			   best->aggregator_identifier);
 		netdev_dbg(bond->dev, "Agg=%d; P=%d; a k=%d; p k=%d; Ind=%d; Act=%d\n",
+=======
+			slave_dbg(bond->dev, slave->dev, "Agg=%d; P=%d; a k=%d; p k=%d; Ind=%d; Act=%d\n",
+				  agg->aggregator_identifier, agg->num_of_ports,
+				  agg->actor_oper_aggregator_key,
+				  agg->partner_oper_aggregator_key,
+				  agg->is_individual, agg->is_active);
+		}
+
+		/* check if any partner replies */
+		if (best->is_individual)
+			net_warn_ratelimited("%s: Warning: No 802.3ad response from the link partner for any adapters in the bond\n",
+					     bond->dev->name);
+
+		best->is_active = 1;
+		netdev_dbg(bond->dev, "(slave %s): LAG %d chosen as the active LAG\n",
+			   best->slave ? best->slave->dev->name : "NULL",
+			   best->aggregator_identifier);
+		netdev_dbg(bond->dev, "(slave %s): Agg=%d; P=%d; a k=%d; p k=%d; Ind=%d; Act=%d\n",
+			   best->slave ? best->slave->dev->name : "NULL",
+>>>>>>> upstream/android-13
 			   best->aggregator_identifier, best->num_of_ports,
 			   best->actor_oper_aggregator_key,
 			   best->partner_oper_aggregator_key,
@@ -1760,6 +2132,10 @@ static void ad_agg_selection_logic(struct aggregator *agg,
 			     port = port->next_port_in_aggregator) {
 				__enable_port(port);
 			}
+<<<<<<< HEAD
+=======
+			*update_slave_arr = true;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -1786,7 +2162,13 @@ static void ad_clear_agg(struct aggregator *aggregator)
 		aggregator->lag_ports = NULL;
 		aggregator->is_active = 0;
 		aggregator->num_of_ports = 0;
+<<<<<<< HEAD
 		pr_debug("LAG %d was cleared\n",
+=======
+		pr_debug("%s: LAG %d was cleared\n",
+			 aggregator->slave ?
+			 aggregator->slave->dev->name : "NULL",
+>>>>>>> upstream/android-13
 			 aggregator->aggregator_identifier);
 	}
 }
@@ -1808,7 +2190,11 @@ static void ad_initialize_agg(struct aggregator *aggregator)
 
 /**
  * ad_initialize_port - initialize a given port's parameters
+<<<<<<< HEAD
  * @aggregator: the aggregator we're looking at
+=======
+ * @port: the port we're looking at
+>>>>>>> upstream/android-13
  * @lacp_fast: boolean. whether fast periodic should be used
  */
 static void ad_initialize_port(struct port *port, int lacp_fast)
@@ -1836,6 +2222,7 @@ static void ad_initialize_port(struct port *port, int lacp_fast)
 		port->actor_port_priority = 0xff;
 		port->actor_port_aggregator_identifier = 0;
 		port->ntt = false;
+<<<<<<< HEAD
 		port->actor_admin_port_state = AD_STATE_AGGREGATION |
 					       AD_STATE_LACP_ACTIVITY;
 		port->actor_oper_port_state  = AD_STATE_AGGREGATION |
@@ -1843,6 +2230,15 @@ static void ad_initialize_port(struct port *port, int lacp_fast)
 
 		if (lacp_fast)
 			port->actor_oper_port_state |= AD_STATE_LACP_TIMEOUT;
+=======
+		port->actor_admin_port_state = LACP_STATE_AGGREGATION |
+					       LACP_STATE_LACP_ACTIVITY;
+		port->actor_oper_port_state  = LACP_STATE_AGGREGATION |
+					       LACP_STATE_LACP_ACTIVITY;
+
+		if (lacp_fast)
+			port->actor_oper_port_state |= LACP_STATE_LACP_TIMEOUT;
+>>>>>>> upstream/android-13
 
 		memcpy(&port->partner_admin, &tmpl, sizeof(tmpl));
 		memcpy(&port->partner_oper, &tmpl, sizeof(tmpl));
@@ -1883,9 +2279,16 @@ static void ad_enable_collecting_distributing(struct port *port,
 					      bool *update_slave_arr)
 {
 	if (port->aggregator->is_active) {
+<<<<<<< HEAD
 		pr_debug("Enabling port %d(LAG %d)\n",
 			 port->actor_port_number,
 			 port->aggregator->aggregator_identifier);
+=======
+		slave_dbg(port->slave->bond->dev, port->slave->dev,
+			  "Enabling port %d (LAG %d)\n",
+			  port->actor_port_number,
+			  port->aggregator->aggregator_identifier);
+>>>>>>> upstream/android-13
 		__enable_port(port);
 		/* Slave array needs update */
 		*update_slave_arr = true;
@@ -1903,9 +2306,16 @@ static void ad_disable_collecting_distributing(struct port *port,
 	if (port->aggregator &&
 	    !MAC_ADDRESS_EQUAL(&(port->aggregator->partner_system),
 			       &(null_mac_addr))) {
+<<<<<<< HEAD
 		pr_debug("Disabling port %d(LAG %d)\n",
 			 port->actor_port_number,
 			 port->aggregator->aggregator_identifier);
+=======
+		slave_dbg(port->slave->bond->dev, port->slave->dev,
+			  "Disabling port %d (LAG %d)\n",
+			  port->actor_port_number,
+			  port->aggregator->aggregator_identifier);
+>>>>>>> upstream/android-13
 		__disable_port(port);
 		/* Slave array needs an update */
 		*update_slave_arr = true;
@@ -1918,20 +2328,37 @@ static void ad_disable_collecting_distributing(struct port *port,
  * @port: the port we're looking at
  */
 static void ad_marker_info_received(struct bond_marker *marker_info,
+<<<<<<< HEAD
 	struct port *port)
 {
 	struct bond_marker marker;
 
+=======
+				    struct port *port)
+{
+	struct bond_marker marker;
+
+	atomic64_inc(&SLAVE_AD_INFO(port->slave)->stats.marker_rx);
+	atomic64_inc(&BOND_AD_INFO(port->slave->bond).stats.marker_rx);
+
+>>>>>>> upstream/android-13
 	/* copy the received marker data to the response marker */
 	memcpy(&marker, marker_info, sizeof(struct bond_marker));
 	/* change the marker subtype to marker response */
 	marker.tlv_type = AD_MARKER_RESPONSE_SUBTYPE;
 
 	/* send the marker response */
+<<<<<<< HEAD
 	if (ad_marker_send(port, &marker) >= 0) {
 		pr_debug("Sent Marker Response on port %d\n",
 			 port->actor_port_number);
 	}
+=======
+	if (ad_marker_send(port, &marker) >= 0)
+		slave_dbg(port->slave->bond->dev, port->slave->dev,
+			  "Sent Marker Response on port %d\n",
+			  port->actor_port_number);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1946,6 +2373,12 @@ static void ad_marker_info_received(struct bond_marker *marker_info,
 static void ad_marker_response_received(struct bond_marker *marker,
 					struct port *port)
 {
+<<<<<<< HEAD
+=======
+	atomic64_inc(&SLAVE_AD_INFO(port->slave)->stats.marker_resp_rx);
+	atomic64_inc(&BOND_AD_INFO(port->slave->bond).stats.marker_resp_rx);
+
+>>>>>>> upstream/android-13
 	/* DO NOTHING, SINCE WE DECIDED NOT TO IMPLEMENT THIS FEATURE FOR NOW */
 }
 
@@ -1957,6 +2390,10 @@ static void ad_marker_response_received(struct bond_marker *marker,
 /**
  * bond_3ad_initiate_agg_selection - initate aggregator selection
  * @bond: bonding struct
+<<<<<<< HEAD
+=======
+ * @timeout: timeout value to set
+>>>>>>> upstream/android-13
  *
  * Set the aggregation selection timer, to initiate an agg selection in
  * the very near future.  Called during first initialization, and during
@@ -1964,7 +2401,11 @@ static void ad_marker_response_received(struct bond_marker *marker,
  */
 void bond_3ad_initiate_agg_selection(struct bonding *bond, int timeout)
 {
+<<<<<<< HEAD
 	BOND_AD_INFO(bond).agg_select_timer = timeout;
+=======
+	atomic_set(&BOND_AD_INFO(bond).agg_select_timer, timeout);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -2077,6 +2518,7 @@ void bond_3ad_unbind_slave(struct slave *slave)
 
 	/* if slave is null, the whole port is not initialized */
 	if (!port->slave) {
+<<<<<<< HEAD
 		netdev_warn(bond->dev, "Trying to unbind an uninitialized port on %s\n",
 			    slave->dev->name);
 		goto out;
@@ -2090,6 +2532,20 @@ void bond_3ad_unbind_slave(struct slave *slave)
 	port->actor_oper_port_state &= ~AD_STATE_COLLECTING;
 	port->actor_oper_port_state &= ~AD_STATE_DISTRIBUTING;
 	port->actor_oper_port_state &= ~AD_STATE_AGGREGATION;
+=======
+		slave_warn(bond->dev, slave->dev, "Trying to unbind an uninitialized port\n");
+		goto out;
+	}
+
+	slave_dbg(bond->dev, slave->dev, "Unbinding Link Aggregation Group %d\n",
+		  aggregator->aggregator_identifier);
+
+	/* Tell the partner that this port is not suitable for aggregation */
+	port->actor_oper_port_state &= ~LACP_STATE_SYNCHRONIZATION;
+	port->actor_oper_port_state &= ~LACP_STATE_COLLECTING;
+	port->actor_oper_port_state &= ~LACP_STATE_DISTRIBUTING;
+	port->actor_oper_port_state &= ~LACP_STATE_AGGREGATION;
+>>>>>>> upstream/android-13
 	__update_lacpdu_from_port(port);
 	ad_lacpdu_send(port);
 
@@ -2121,6 +2577,7 @@ void bond_3ad_unbind_slave(struct slave *slave)
 			 * new aggregator
 			 */
 			if ((new_aggregator) && ((!new_aggregator->lag_ports) || ((new_aggregator->lag_ports == port) && !new_aggregator->lag_ports->next_port_in_aggregator))) {
+<<<<<<< HEAD
 				netdev_dbg(bond->dev, "Some port(s) related to LAG %d - replacing with LAG %d\n",
 					   aggregator->aggregator_identifier,
 					   new_aggregator->aggregator_identifier);
@@ -2129,6 +2586,16 @@ void bond_3ad_unbind_slave(struct slave *slave)
 				    new_aggregator->is_active) {
 					netdev_info(bond->dev, "Removing an active aggregator\n");
 					 select_new_active_agg = 1;
+=======
+				slave_dbg(bond->dev, slave->dev, "Some port(s) related to LAG %d - replacing with LAG %d\n",
+					  aggregator->aggregator_identifier,
+					  new_aggregator->aggregator_identifier);
+
+				if ((new_aggregator->lag_ports == port) &&
+				    new_aggregator->is_active) {
+					slave_info(bond->dev, slave->dev, "Removing an active aggregator\n");
+					select_new_active_agg = 1;
+>>>>>>> upstream/android-13
 				}
 
 				new_aggregator->is_individual = aggregator->is_individual;
@@ -2158,7 +2625,11 @@ void bond_3ad_unbind_slave(struct slave *slave)
 					ad_agg_selection_logic(__get_first_agg(port),
 							       &dummy_slave_update);
 			} else {
+<<<<<<< HEAD
 				netdev_warn(bond->dev, "unbinding aggregator, and could not find a new aggregator for its ports\n");
+=======
+				slave_warn(bond->dev, slave->dev, "unbinding aggregator, and could not find a new aggregator for its ports\n");
+>>>>>>> upstream/android-13
 			}
 		} else {
 			/* in case that the only port related to this
@@ -2167,7 +2638,11 @@ void bond_3ad_unbind_slave(struct slave *slave)
 			select_new_active_agg = aggregator->is_active;
 			ad_clear_agg(aggregator);
 			if (select_new_active_agg) {
+<<<<<<< HEAD
 				netdev_info(bond->dev, "Removing an active aggregator\n");
+=======
+				slave_info(bond->dev, slave->dev, "Removing an active aggregator\n");
+>>>>>>> upstream/android-13
 				/* select new active aggregator */
 				temp_aggregator = __get_first_agg(port);
 				if (temp_aggregator)
@@ -2177,7 +2652,11 @@ void bond_3ad_unbind_slave(struct slave *slave)
 		}
 	}
 
+<<<<<<< HEAD
 	netdev_dbg(bond->dev, "Unbinding port %d\n", port->actor_port_number);
+=======
+	slave_dbg(bond->dev, slave->dev, "Unbinding port %d\n", port->actor_port_number);
+>>>>>>> upstream/android-13
 
 	/* find the aggregator that this port is connected to */
 	bond_for_each_slave(bond, slave_iter, iter) {
@@ -2200,7 +2679,11 @@ void bond_3ad_unbind_slave(struct slave *slave)
 					select_new_active_agg = temp_aggregator->is_active;
 					ad_clear_agg(temp_aggregator);
 					if (select_new_active_agg) {
+<<<<<<< HEAD
 						netdev_info(bond->dev, "Removing an active aggregator\n");
+=======
+						slave_info(bond->dev, slave->dev, "Removing an active aggregator\n");
+>>>>>>> upstream/android-13
 						/* select new active aggregator */
 						ad_agg_selection_logic(__get_first_agg(port),
 							               &dummy_slave_update);
@@ -2249,8 +2732,35 @@ void bond_3ad_update_ad_actor_settings(struct bonding *bond)
 }
 
 /**
+<<<<<<< HEAD
  * bond_3ad_state_machine_handler - handle state machines timeout
  * @bond: bonding struct to work on
+=======
+ * bond_agg_timer_advance - advance agg_select_timer
+ * @bond:  bonding structure
+ *
+ * Return true when agg_select_timer reaches 0.
+ */
+static bool bond_agg_timer_advance(struct bonding *bond)
+{
+	int val, nval;
+
+	while (1) {
+		val = atomic_read(&BOND_AD_INFO(bond).agg_select_timer);
+		if (!val)
+			return false;
+		nval = val - 1;
+		if (atomic_cmpxchg(&BOND_AD_INFO(bond).agg_select_timer,
+				   val, nval) == val)
+			break;
+	}
+	return nval == 0;
+}
+
+/**
+ * bond_3ad_state_machine_handler - handle state machines timeout
+ * @work: work context to fetch bonding struct to work on from
+>>>>>>> upstream/android-13
  *
  * The state machine handling concept in this module is to check every tick
  * which state machine should operate any function. The execution order is
@@ -2283,9 +2793,13 @@ void bond_3ad_state_machine_handler(struct work_struct *work)
 	if (!bond_has_slaves(bond))
 		goto re_arm;
 
+<<<<<<< HEAD
 	/* check if agg_select_timer timer after initialize is timed out */
 	if (BOND_AD_INFO(bond).agg_select_timer &&
 	    !(--BOND_AD_INFO(bond).agg_select_timer)) {
+=======
+	if (bond_agg_timer_advance(bond)) {
+>>>>>>> upstream/android-13
 		slave = bond_first_slave_rcu(bond);
 		port = slave ? &(SLAVE_AD_INFO(slave)->port) : NULL;
 
@@ -2313,7 +2827,11 @@ void bond_3ad_state_machine_handler(struct work_struct *work)
 		}
 
 		ad_rx_machine(NULL, port);
+<<<<<<< HEAD
 		ad_periodic_machine(port);
+=======
+		ad_periodic_machine(port, &bond->params);
+>>>>>>> upstream/android-13
 		ad_port_selection_logic(port, &update_slave_arr);
 		ad_mux_machine(port, &update_slave_arr);
 		ad_tx_machine(port);
@@ -2348,12 +2866,16 @@ re_arm:
  * bond_3ad_rx_indication - handle a received frame
  * @lacpdu: received lacpdu
  * @slave: slave struct to work on
+<<<<<<< HEAD
  * @length: length of the data received
+=======
+>>>>>>> upstream/android-13
  *
  * It is assumed that frames that were sent on this NIC don't returned as new
  * received frames (loopback). Since only the payload is given to this
  * function, it check for loopback.
  */
+<<<<<<< HEAD
 static int bond_3ad_rx_indication(struct lacpdu *lacpdu, struct slave *slave,
 				  u16 length)
 {
@@ -2408,6 +2930,65 @@ static int bond_3ad_rx_indication(struct lacpdu *lacpdu, struct slave *slave,
 			}
 		}
 	}
+=======
+static int bond_3ad_rx_indication(struct lacpdu *lacpdu, struct slave *slave)
+{
+	struct bonding *bond = slave->bond;
+	int ret = RX_HANDLER_ANOTHER;
+	struct bond_marker *marker;
+	struct port *port;
+	atomic64_t *stat;
+
+	port = &(SLAVE_AD_INFO(slave)->port);
+	if (!port->slave) {
+		net_warn_ratelimited("%s: Warning: port of slave %s is uninitialized\n",
+				     slave->dev->name, slave->bond->dev->name);
+		return ret;
+	}
+
+	switch (lacpdu->subtype) {
+	case AD_TYPE_LACPDU:
+		ret = RX_HANDLER_CONSUMED;
+		slave_dbg(slave->bond->dev, slave->dev,
+			  "Received LACPDU on port %d\n",
+			  port->actor_port_number);
+		/* Protect against concurrent state machines */
+		spin_lock(&slave->bond->mode_lock);
+		ad_rx_machine(lacpdu, port);
+		spin_unlock(&slave->bond->mode_lock);
+		break;
+	case AD_TYPE_MARKER:
+		ret = RX_HANDLER_CONSUMED;
+		/* No need to convert fields to Little Endian since we
+		 * don't use the marker's fields.
+		 */
+		marker = (struct bond_marker *)lacpdu;
+		switch (marker->tlv_type) {
+		case AD_MARKER_INFORMATION_SUBTYPE:
+			slave_dbg(slave->bond->dev, slave->dev, "Received Marker Information on port %d\n",
+				  port->actor_port_number);
+			ad_marker_info_received(marker, port);
+			break;
+		case AD_MARKER_RESPONSE_SUBTYPE:
+			slave_dbg(slave->bond->dev, slave->dev, "Received Marker Response on port %d\n",
+				  port->actor_port_number);
+			ad_marker_response_received(marker, port);
+			break;
+		default:
+			slave_dbg(slave->bond->dev, slave->dev, "Received an unknown Marker subtype on port %d\n",
+				  port->actor_port_number);
+			stat = &SLAVE_AD_INFO(slave)->stats.marker_unknown_rx;
+			atomic64_inc(stat);
+			stat = &BOND_AD_INFO(bond).stats.marker_unknown_rx;
+			atomic64_inc(stat);
+		}
+		break;
+	default:
+		atomic64_inc(&SLAVE_AD_INFO(slave)->stats.lacpdu_unknown_rx);
+		atomic64_inc(&BOND_AD_INFO(bond).stats.lacpdu_unknown_rx);
+	}
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -2446,9 +3027,16 @@ static void ad_update_actor_keys(struct port *port, bool reset)
 
 		if (!reset) {
 			if (!speed) {
+<<<<<<< HEAD
 				netdev_err(port->slave->dev,
 					   "speed changed to 0 for port %s",
 					   port->slave->dev->name);
+=======
+				slave_err(port->slave->bond->dev,
+					  port->slave->dev,
+					  "speed changed to 0 on port %d\n",
+					  port->actor_port_number);
+>>>>>>> upstream/android-13
 			} else if (duplex && ospeed != speed) {
 				/* Speed change restarts LACP state-machine */
 				port->sm_vars |= AD_PORT_BEGIN;
@@ -2473,23 +3061,37 @@ void bond_3ad_adapter_speed_duplex_changed(struct slave *slave)
 
 	/* if slave is null, the whole port is not initialized */
 	if (!port->slave) {
+<<<<<<< HEAD
 		netdev_warn(slave->bond->dev,
 			    "speed/duplex changed for uninitialized port %s\n",
 			    slave->dev->name);
+=======
+		slave_warn(slave->bond->dev, slave->dev,
+			   "speed/duplex changed for uninitialized port\n");
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	spin_lock_bh(&slave->bond->mode_lock);
 	ad_update_actor_keys(port, false);
 	spin_unlock_bh(&slave->bond->mode_lock);
+<<<<<<< HEAD
 	netdev_dbg(slave->bond->dev, "Port %d slave %s changed speed/duplex\n",
 		   port->actor_port_number, slave->dev->name);
+=======
+	slave_dbg(slave->bond->dev, slave->dev, "Port %d changed speed/duplex\n",
+		  port->actor_port_number);
+>>>>>>> upstream/android-13
 }
 
 /**
  * bond_3ad_handle_link_change - handle a slave's link status change indication
  * @slave: slave struct to work on
+<<<<<<< HEAD
  * @status: whether the link is now up or down
+=======
+ * @link: whether the link is now up or down
+>>>>>>> upstream/android-13
  *
  * Handle reselection of aggregator (if needed) for this port.
  */
@@ -2503,8 +3105,12 @@ void bond_3ad_handle_link_change(struct slave *slave, char link)
 
 	/* if slave is null, the whole port is not initialized */
 	if (!port->slave) {
+<<<<<<< HEAD
 		netdev_warn(slave->bond->dev, "link status changed for uninitialized port on %s\n",
 			    slave->dev->name);
+=======
+		slave_warn(slave->bond->dev, slave->dev, "link status changed for uninitialized port\n");
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -2529,9 +3135,15 @@ void bond_3ad_handle_link_change(struct slave *slave, char link)
 
 	spin_unlock_bh(&slave->bond->mode_lock);
 
+<<<<<<< HEAD
 	netdev_dbg(slave->bond->dev, "Port %d changed link status to %s\n",
 		   port->actor_port_number,
 		   link == BOND_LINK_UP ? "UP" : "DOWN");
+=======
+	slave_dbg(slave->bond->dev, slave->dev, "Port %d changed link status to %s\n",
+		  port->actor_port_number,
+		  link == BOND_LINK_UP ? "UP" : "DOWN");
+>>>>>>> upstream/android-13
 
 	/* RTNL is held and mode_lock is released so it's safe
 	 * to update slave_array here.
@@ -2541,7 +3153,11 @@ void bond_3ad_handle_link_change(struct slave *slave, char link)
 
 /**
  * bond_3ad_set_carrier - set link state for bonding master
+<<<<<<< HEAD
  * @bond - bonding structure
+=======
+ * @bond: bonding structure
+>>>>>>> upstream/android-13
  *
  * if we have an active aggregator, we're up, if not, we're down.
  * Presumes that we cannot have an active aggregator if there are
@@ -2643,15 +3259,29 @@ int bond_3ad_lacpdu_recv(const struct sk_buff *skb, struct bonding *bond,
 		return RX_HANDLER_ANOTHER;
 
 	lacpdu = skb_header_pointer(skb, 0, sizeof(_lacpdu), &_lacpdu);
+<<<<<<< HEAD
 	if (!lacpdu)
 		return RX_HANDLER_ANOTHER;
 
 	return bond_3ad_rx_indication(lacpdu, slave, skb->len);
+=======
+	if (!lacpdu) {
+		atomic64_inc(&SLAVE_AD_INFO(slave)->stats.lacpdu_illegal_rx);
+		atomic64_inc(&BOND_AD_INFO(bond).stats.lacpdu_illegal_rx);
+		return RX_HANDLER_ANOTHER;
+	}
+
+	return bond_3ad_rx_indication(lacpdu, slave);
+>>>>>>> upstream/android-13
 }
 
 /**
  * bond_3ad_update_lacp_rate - change the lacp rate
+<<<<<<< HEAD
  * @bond - bonding struct
+=======
+ * @bond: bonding struct
+>>>>>>> upstream/android-13
  *
  * When modify lacp_rate parameter via sysfs,
  * update actor_oper_port_state of each port.
@@ -2672,9 +3302,76 @@ void bond_3ad_update_lacp_rate(struct bonding *bond)
 	bond_for_each_slave(bond, slave, iter) {
 		port = &(SLAVE_AD_INFO(slave)->port);
 		if (lacp_fast)
+<<<<<<< HEAD
 			port->actor_oper_port_state |= AD_STATE_LACP_TIMEOUT;
 		else
 			port->actor_oper_port_state &= ~AD_STATE_LACP_TIMEOUT;
 	}
 	spin_unlock_bh(&bond->mode_lock);
 }
+=======
+			port->actor_oper_port_state |= LACP_STATE_LACP_TIMEOUT;
+		else
+			port->actor_oper_port_state &= ~LACP_STATE_LACP_TIMEOUT;
+	}
+	spin_unlock_bh(&bond->mode_lock);
+}
+
+size_t bond_3ad_stats_size(void)
+{
+	return nla_total_size_64bit(sizeof(u64)) + /* BOND_3AD_STAT_LACPDU_RX */
+	       nla_total_size_64bit(sizeof(u64)) + /* BOND_3AD_STAT_LACPDU_TX */
+	       nla_total_size_64bit(sizeof(u64)) + /* BOND_3AD_STAT_LACPDU_UNKNOWN_RX */
+	       nla_total_size_64bit(sizeof(u64)) + /* BOND_3AD_STAT_LACPDU_ILLEGAL_RX */
+	       nla_total_size_64bit(sizeof(u64)) + /* BOND_3AD_STAT_MARKER_RX */
+	       nla_total_size_64bit(sizeof(u64)) + /* BOND_3AD_STAT_MARKER_TX */
+	       nla_total_size_64bit(sizeof(u64)) + /* BOND_3AD_STAT_MARKER_RESP_RX */
+	       nla_total_size_64bit(sizeof(u64)) + /* BOND_3AD_STAT_MARKER_RESP_TX */
+	       nla_total_size_64bit(sizeof(u64)); /* BOND_3AD_STAT_MARKER_UNKNOWN_RX */
+}
+
+int bond_3ad_stats_fill(struct sk_buff *skb, struct bond_3ad_stats *stats)
+{
+	u64 val;
+
+	val = atomic64_read(&stats->lacpdu_rx);
+	if (nla_put_u64_64bit(skb, BOND_3AD_STAT_LACPDU_RX, val,
+			      BOND_3AD_STAT_PAD))
+		return -EMSGSIZE;
+	val = atomic64_read(&stats->lacpdu_tx);
+	if (nla_put_u64_64bit(skb, BOND_3AD_STAT_LACPDU_TX, val,
+			      BOND_3AD_STAT_PAD))
+		return -EMSGSIZE;
+	val = atomic64_read(&stats->lacpdu_unknown_rx);
+	if (nla_put_u64_64bit(skb, BOND_3AD_STAT_LACPDU_UNKNOWN_RX, val,
+			      BOND_3AD_STAT_PAD))
+		return -EMSGSIZE;
+	val = atomic64_read(&stats->lacpdu_illegal_rx);
+	if (nla_put_u64_64bit(skb, BOND_3AD_STAT_LACPDU_ILLEGAL_RX, val,
+			      BOND_3AD_STAT_PAD))
+		return -EMSGSIZE;
+
+	val = atomic64_read(&stats->marker_rx);
+	if (nla_put_u64_64bit(skb, BOND_3AD_STAT_MARKER_RX, val,
+			      BOND_3AD_STAT_PAD))
+		return -EMSGSIZE;
+	val = atomic64_read(&stats->marker_tx);
+	if (nla_put_u64_64bit(skb, BOND_3AD_STAT_MARKER_TX, val,
+			      BOND_3AD_STAT_PAD))
+		return -EMSGSIZE;
+	val = atomic64_read(&stats->marker_resp_rx);
+	if (nla_put_u64_64bit(skb, BOND_3AD_STAT_MARKER_RESP_RX, val,
+			      BOND_3AD_STAT_PAD))
+		return -EMSGSIZE;
+	val = atomic64_read(&stats->marker_resp_tx);
+	if (nla_put_u64_64bit(skb, BOND_3AD_STAT_MARKER_RESP_TX, val,
+			      BOND_3AD_STAT_PAD))
+		return -EMSGSIZE;
+	val = atomic64_read(&stats->marker_unknown_rx);
+	if (nla_put_u64_64bit(skb, BOND_3AD_STAT_MARKER_UNKNOWN_RX, val,
+			      BOND_3AD_STAT_PAD))
+		return -EMSGSIZE;
+
+	return 0;
+}
+>>>>>>> upstream/android-13

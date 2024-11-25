@@ -325,4 +325,8 @@ const struct file_operations hpfs_dir_ops =
 	.release	= hpfs_dir_release,
 	.fsync		= hpfs_file_fsync,
 	.unlocked_ioctl	= hpfs_ioctl,
+<<<<<<< HEAD
+=======
+	.compat_ioctl	= compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 };

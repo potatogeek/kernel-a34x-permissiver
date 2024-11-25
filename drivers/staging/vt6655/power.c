@@ -3,8 +3,11 @@
  * Copyright (c) 1996, 2003 VIA Networking Technologies, Inc.
  * All rights reserved.
  *
+<<<<<<< HEAD
  * File: power.c
  *
+=======
+>>>>>>> upstream/android-13
  * Purpose: Handles 802.11 power management  functions
  *
  * Author: Lyndon Chen
@@ -48,11 +51,16 @@
  *
  */
 
+<<<<<<< HEAD
 void
 PSvEnablePowerSaving(
 	struct vnt_private *priv,
 	unsigned short wListenInterval
 )
+=======
+void PSvEnablePowerSaving(struct vnt_private *priv,
+			  unsigned short wListenInterval)
+>>>>>>> upstream/android-13
 {
 	u16 wAID = priv->current_aid | BIT(14) | BIT(15);
 
@@ -61,6 +69,7 @@ PSvEnablePowerSaving(
 	if (priv->op_mode != NL80211_IFTYPE_ADHOC) {
 		/* set AID */
 		VNSvOutPortW(priv->PortOffset + MAC_REG_AIDATIM, wAID);
+<<<<<<< HEAD
 	} else {
 		/* set ATIM Window */
 #if 0 /* TODO atim window */
@@ -69,6 +78,13 @@ PSvEnablePowerSaving(
 	}
 	/* Set AutoSleep */
 	MACvRegBitsOn(priv->PortOffset, MAC_REG_PSCFG, PSCFG_AUTOSLEEP);
+=======
+	}
+
+	/* Set AutoSleep */
+	MACvRegBitsOn(priv->PortOffset, MAC_REG_PSCFG, PSCFG_AUTOSLEEP);
+
+>>>>>>> upstream/android-13
 	/* Set HWUTSF */
 	MACvRegBitsOn(priv->PortOffset, MAC_REG_TFTCTL, TFTCTL_HWUTSF);
 
@@ -100,6 +116,7 @@ PSvEnablePowerSaving(
  *
  */
 
+<<<<<<< HEAD
 void
 PSvDisablePowerSaving(
 	struct vnt_private *priv
@@ -111,6 +128,19 @@ PSvDisablePowerSaving(
 	MACvRegBitsOff(priv->PortOffset, MAC_REG_PSCFG, PSCFG_AUTOSLEEP);
 	/* clear HWUTSF */
 	MACvRegBitsOff(priv->PortOffset, MAC_REG_TFTCTL, TFTCTL_HWUTSF);
+=======
+void PSvDisablePowerSaving(struct vnt_private *priv)
+{
+	/* disable power saving hw function */
+	MACbPSWakeup(priv);
+
+	/* clear AutoSleep */
+	MACvRegBitsOff(priv->PortOffset, MAC_REG_PSCFG, PSCFG_AUTOSLEEP);
+
+	/* clear HWUTSF */
+	MACvRegBitsOff(priv->PortOffset, MAC_REG_TFTCTL, TFTCTL_HWUTSF);
+
+>>>>>>> upstream/android-13
 	/* set always listen beacon */
 	MACvRegBitsOn(priv->PortOffset, MAC_REG_PSCTL, PSCTL_ALBCN);
 
@@ -129,10 +159,14 @@ PSvDisablePowerSaving(
  *
  */
 
+<<<<<<< HEAD
 bool
 PSbIsNextTBTTWakeUp(
 	struct vnt_private *priv
 )
+=======
+bool PSbIsNextTBTTWakeUp(struct vnt_private *priv)
+>>>>>>> upstream/android-13
 {
 	struct ieee80211_hw *hw = priv->hw;
 	struct ieee80211_conf *conf = &hw->conf;

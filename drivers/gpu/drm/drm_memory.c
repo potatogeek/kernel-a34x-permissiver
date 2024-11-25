@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * \file drm_memory.c
  * Memory management wrappers for DRM
  *
@@ -33,9 +37,20 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
+<<<<<<< HEAD
 #include <linux/highmem.h>
 #include <linux/export.h>
 #include <drm/drmP.h>
+=======
+#include <linux/export.h>
+#include <linux/highmem.h>
+#include <linux/pci.h>
+#include <linux/vmalloc.h>
+
+#include <drm/drm_cache.h>
+#include <drm/drm_device.h>
+
+>>>>>>> upstream/android-13
 #include "drm_legacy.h"
 
 #if IS_ENABLED(CONFIG_AGP)
@@ -51,7 +66,11 @@
 #endif
 
 static void *agp_remap(unsigned long offset, unsigned long size,
+<<<<<<< HEAD
 		       struct drm_device * dev)
+=======
+		       struct drm_device *dev)
+>>>>>>> upstream/android-13
 {
 	unsigned long i, num_pages =
 	    PAGE_ALIGN(size) / PAGE_SIZE;
@@ -93,6 +112,7 @@ static void *agp_remap(unsigned long offset, unsigned long size,
 	return addr;
 }
 
+<<<<<<< HEAD
 /** Wrapper around agp_free_memory() */
 void drm_free_agp(struct agp_memory * handle, int pages)
 {
@@ -114,6 +134,11 @@ int drm_unbind_agp(struct agp_memory * handle)
 #else /*  CONFIG_AGP  */
 static inline void *agp_remap(unsigned long offset, unsigned long size,
 			      struct drm_device * dev)
+=======
+#else /*  CONFIG_AGP  */
+static inline void *agp_remap(unsigned long offset, unsigned long size,
+			      struct drm_device *dev)
+>>>>>>> upstream/android-13
 {
 	return NULL;
 }
@@ -149,6 +174,7 @@ void drm_legacy_ioremapfree(struct drm_local_map *map, struct drm_device *dev)
 		iounmap(map->handle);
 }
 EXPORT_SYMBOL(drm_legacy_ioremapfree);
+<<<<<<< HEAD
 
 u64 drm_get_max_iomem(void)
 {
@@ -162,3 +188,5 @@ u64 drm_get_max_iomem(void)
 	return max_iomem;
 }
 EXPORT_SYMBOL(drm_get_max_iomem);
+=======
+>>>>>>> upstream/android-13

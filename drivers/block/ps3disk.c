@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * PS3 Disk Storage Driver
  *
  * Copyright (C) 2007 Sony Computer Entertainment Inc.
  * Copyright 2007 Sony Corp.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published
@@ -20,6 +25,12 @@
 
 #include <linux/ata.h>
 #include <linux/blkdev.h>
+=======
+ */
+
+#include <linux/ata.h>
+#include <linux/blk-mq.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/module.h>
 
@@ -41,7 +52,11 @@
 
 struct ps3disk_private {
 	spinlock_t lock;		/* Request queue spinlock */
+<<<<<<< HEAD
 	struct request_queue *queue;
+=======
+	struct blk_mq_tag_set tag_set;
+>>>>>>> upstream/android-13
 	struct gendisk *gendisk;
 	unsigned int blocking_factor;
 	struct request *req;
@@ -95,6 +110,7 @@ static void ps3disk_scatter_gather(struct ps3_storage_device *dev,
 	unsigned int offset = 0;
 	struct req_iterator iter;
 	struct bio_vec bvec;
+<<<<<<< HEAD
 	unsigned int i = 0;
 	size_t size;
 	void *buf;
@@ -120,6 +136,19 @@ static void ps3disk_scatter_gather(struct ps3_storage_device *dev,
 
 static int ps3disk_submit_request_sg(struct ps3_storage_device *dev,
 				     struct request *req)
+=======
+
+	rq_for_each_segment(bvec, req, iter) {
+		if (gather)
+			memcpy_from_bvec(dev->bounce_buf + offset, &bvec);
+		else
+			memcpy_to_bvec(&bvec, dev->bounce_buf + offset);
+	}
+}
+
+static blk_status_t ps3disk_submit_request_sg(struct ps3_storage_device *dev,
+					      struct request *req)
+>>>>>>> upstream/android-13
 {
 	struct ps3disk_private *priv = ps3_system_bus_get_drvdata(&dev->sbd);
 	int write = rq_data_dir(req), res;
@@ -158,6 +187,7 @@ static int ps3disk_submit_request_sg(struct ps3_storage_device *dev,
 	if (res) {
 		dev_err(&dev->sbd.core, "%s:%u: %s failed %d\n", __func__,
 			__LINE__, op, res);
+<<<<<<< HEAD
 		__blk_end_request_all(req, BLK_STS_IOERR);
 		return 0;
 	}
@@ -168,6 +198,17 @@ static int ps3disk_submit_request_sg(struct ps3_storage_device *dev,
 
 static int ps3disk_submit_flush_request(struct ps3_storage_device *dev,
 					struct request *req)
+=======
+		return BLK_STS_IOERR;
+	}
+
+	priv->req = req;
+	return BLK_STS_OK;
+}
+
+static blk_status_t ps3disk_submit_flush_request(struct ps3_storage_device *dev,
+						 struct request *req)
+>>>>>>> upstream/android-13
 {
 	struct ps3disk_private *priv = ps3_system_bus_get_drvdata(&dev->sbd);
 	u64 res;
@@ -180,6 +221,7 @@ static int ps3disk_submit_flush_request(struct ps3_storage_device *dev,
 	if (res) {
 		dev_err(&dev->sbd.core, "%s:%u: sync cache failed 0x%llx\n",
 			__func__, __LINE__, res);
+<<<<<<< HEAD
 		__blk_end_request_all(req, BLK_STS_IOERR);
 		return 0;
 	}
@@ -224,6 +266,47 @@ static void ps3disk_request(struct request_queue *q)
 	}
 
 	ps3disk_do_request(dev, q);
+=======
+		return BLK_STS_IOERR;
+	}
+
+	priv->req = req;
+	return BLK_STS_OK;
+}
+
+static blk_status_t ps3disk_do_request(struct ps3_storage_device *dev,
+				       struct request *req)
+{
+	dev_dbg(&dev->sbd.core, "%s:%u\n", __func__, __LINE__);
+
+	switch (req_op(req)) {
+	case REQ_OP_FLUSH:
+		return ps3disk_submit_flush_request(dev, req);
+	case REQ_OP_READ:
+	case REQ_OP_WRITE:
+		return ps3disk_submit_request_sg(dev, req);
+	default:
+		blk_dump_rq_flags(req, DEVICE_NAME " bad request");
+		return BLK_STS_IOERR;
+	}
+}
+
+static blk_status_t ps3disk_queue_rq(struct blk_mq_hw_ctx *hctx,
+				     const struct blk_mq_queue_data *bd)
+{
+	struct request_queue *q = hctx->queue;
+	struct ps3_storage_device *dev = q->queuedata;
+	struct ps3disk_private *priv = ps3_system_bus_get_drvdata(&dev->sbd);
+	blk_status_t ret;
+
+	blk_mq_start_request(bd->rq);
+
+	spin_lock_irq(&priv->lock);
+	ret = ps3disk_do_request(dev, bd->rq);
+	spin_unlock_irq(&priv->lock);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static irqreturn_t ps3disk_interrupt(int irq, void *data)
@@ -280,11 +363,19 @@ static irqreturn_t ps3disk_interrupt(int irq, void *data)
 	}
 
 	spin_lock(&priv->lock);
+<<<<<<< HEAD
 	__blk_end_request_all(req, error);
 	priv->req = NULL;
 	ps3disk_do_request(dev, priv->queue);
 	spin_unlock(&priv->lock);
 
+=======
+	priv->req = NULL;
+	blk_mq_end_request(req, error);
+	spin_unlock(&priv->lock);
+
+	blk_mq_run_hw_queues(priv->gendisk->queue, true);
+>>>>>>> upstream/android-13
 	return IRQ_HANDLED;
 }
 
@@ -404,6 +495,13 @@ static unsigned long ps3disk_mask;
 
 static DEFINE_MUTEX(ps3disk_mask_mutex);
 
+<<<<<<< HEAD
+=======
+static const struct blk_mq_ops ps3disk_mq_ops = {
+	.queue_rq	= ps3disk_queue_rq,
+};
+
+>>>>>>> upstream/android-13
 static int ps3disk_probe(struct ps3_system_bus_device *_dev)
 {
 	struct ps3_storage_device *dev = to_ps3_storage_device(&_dev->core);
@@ -454,6 +552,7 @@ static int ps3disk_probe(struct ps3_system_bus_device *_dev)
 
 	ps3disk_identify(dev);
 
+<<<<<<< HEAD
 	queue = blk_init_queue(ps3disk_request, &priv->lock);
 	if (!queue) {
 		dev_err(&dev->sbd.core, "%s:%u: blk_init_queue failed\n",
@@ -464,6 +563,22 @@ static int ps3disk_probe(struct ps3_system_bus_device *_dev)
 
 	priv->queue = queue;
 	queue->queuedata = dev;
+=======
+	error = blk_mq_alloc_sq_tag_set(&priv->tag_set, &ps3disk_mq_ops, 1,
+					BLK_MQ_F_SHOULD_MERGE);
+	if (error)
+		goto fail_teardown;
+
+	gendisk = blk_mq_alloc_disk(&priv->tag_set, dev);
+	if (IS_ERR(gendisk)) {
+		dev_err(&dev->sbd.core, "%s:%u: blk_mq_alloc_disk failed\n",
+			__func__, __LINE__);
+		error = PTR_ERR(gendisk);
+		goto fail_free_tag_set;
+	}
+
+	queue = gendisk->queue;
+>>>>>>> upstream/android-13
 
 	blk_queue_max_hw_sectors(queue, dev->bounce_size >> 9);
 	blk_queue_dma_alignment(queue, dev->blk_size-1);
@@ -474,6 +589,7 @@ static int ps3disk_probe(struct ps3_system_bus_device *_dev)
 	blk_queue_max_segments(queue, -1);
 	blk_queue_max_segment_size(queue, dev->bounce_size);
 
+<<<<<<< HEAD
 	gendisk = alloc_disk(PS3DISK_MINORS);
 	if (!gendisk) {
 		dev_err(&dev->sbd.core, "%s:%u: alloc_disk failed\n", __func__,
@@ -487,6 +603,13 @@ static int ps3disk_probe(struct ps3_system_bus_device *_dev)
 	gendisk->first_minor = devidx * PS3DISK_MINORS;
 	gendisk->fops = &ps3disk_fops;
 	gendisk->queue = queue;
+=======
+	priv->gendisk = gendisk;
+	gendisk->major = ps3disk_major;
+	gendisk->first_minor = devidx * PS3DISK_MINORS;
+	gendisk->minors = PS3DISK_MINORS;
+	gendisk->fops = &ps3disk_fops;
+>>>>>>> upstream/android-13
 	gendisk->private_data = dev;
 	snprintf(gendisk->disk_name, sizeof(gendisk->disk_name), PS3DISK_NAME,
 		 devidx+'a');
@@ -495,6 +618,7 @@ static int ps3disk_probe(struct ps3_system_bus_device *_dev)
 		     dev->regions[dev->region_idx].size*priv->blocking_factor);
 
 	dev_info(&dev->sbd.core,
+<<<<<<< HEAD
 		 "%s is a %s (%llu MiB total, %lu MiB for OtherOS)\n",
 		 gendisk->disk_name, priv->model, priv->raw_capacity >> 11,
 		 get_capacity(gendisk) >> 11);
@@ -504,6 +628,17 @@ static int ps3disk_probe(struct ps3_system_bus_device *_dev)
 
 fail_cleanup_queue:
 	blk_cleanup_queue(queue);
+=======
+		 "%s is a %s (%llu MiB total, %llu MiB for OtherOS)\n",
+		 gendisk->disk_name, priv->model, priv->raw_capacity >> 11,
+		 get_capacity(gendisk) >> 11);
+
+	device_add_disk(&dev->sbd.core, gendisk, NULL);
+	return 0;
+
+fail_free_tag_set:
+	blk_mq_free_tag_set(&priv->tag_set);
+>>>>>>> upstream/android-13
 fail_teardown:
 	ps3stor_teardown(dev);
 fail_free_bounce:
@@ -518,7 +653,11 @@ fail:
 	return error;
 }
 
+<<<<<<< HEAD
 static int ps3disk_remove(struct ps3_system_bus_device *_dev)
+=======
+static void ps3disk_remove(struct ps3_system_bus_device *_dev)
+>>>>>>> upstream/android-13
 {
 	struct ps3_storage_device *dev = to_ps3_storage_device(&_dev->core);
 	struct ps3disk_private *priv = ps3_system_bus_get_drvdata(&dev->sbd);
@@ -528,15 +667,23 @@ static int ps3disk_remove(struct ps3_system_bus_device *_dev)
 		    &ps3disk_mask);
 	mutex_unlock(&ps3disk_mask_mutex);
 	del_gendisk(priv->gendisk);
+<<<<<<< HEAD
 	blk_cleanup_queue(priv->queue);
 	put_disk(priv->gendisk);
+=======
+	blk_cleanup_disk(priv->gendisk);
+	blk_mq_free_tag_set(&priv->tag_set);
+>>>>>>> upstream/android-13
 	dev_notice(&dev->sbd.core, "Synchronizing disk cache\n");
 	ps3disk_sync_cache(dev);
 	ps3stor_teardown(dev);
 	kfree(dev->bounce_buf);
 	kfree(priv);
 	ps3_system_bus_set_drvdata(_dev, NULL);
+<<<<<<< HEAD
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static struct ps3_system_bus_driver ps3disk = {

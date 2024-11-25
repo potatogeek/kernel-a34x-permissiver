@@ -1,9 +1,16 @@
+<<<<<<< HEAD
 /*
  *   fs/cifs/cache.c - CIFS filesystem cache index structure definitions
+=======
+// SPDX-License-Identifier: LGPL-2.1
+/*
+ *   CIFS filesystem cache index structure definitions
+>>>>>>> upstream/android-13
  *
  *   Copyright (c) 2010 Novell, Inc.
  *   Authors(s): Suresh Jayaraman (sjayaraman@suse.de>
  *
+<<<<<<< HEAD
  *   This library is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU Lesser General Public License as published
  *   by the Free Software Foundation; either version 2.1 of the License, or
@@ -17,6 +24,8 @@
  *   You should have received a copy of the GNU Lesser General Public License
  *   along with this library; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 #include "fscache.h"
 #include "cifs_debug.h"
@@ -53,6 +62,7 @@ const struct fscache_cookie_def cifs_fscache_server_index_def = {
 	.type = FSCACHE_COOKIE_TYPE_INDEX,
 };
 
+<<<<<<< HEAD
 /*
  * Auxiliary data attached to CIFS superblock within the cache
  */
@@ -84,6 +94,8 @@ char *extract_sharename(const char *treename)
 	return dst;
 }
 
+=======
+>>>>>>> upstream/android-13
 static enum
 fscache_checkaux cifs_fscache_super_check_aux(void *cookie_netfs_data,
 					      const void *data,
@@ -98,6 +110,11 @@ fscache_checkaux cifs_fscache_super_check_aux(void *cookie_netfs_data,
 
 	memset(&auxdata, 0, sizeof(auxdata));
 	auxdata.resource_id = tcon->resource_id;
+<<<<<<< HEAD
+=======
+	auxdata.vol_create_time = tcon->vol_create_time;
+	auxdata.vol_serial_number = tcon->vol_serial_number;
+>>>>>>> upstream/android-13
 
 	if (memcmp(data, &auxdata, datalen) != 0)
 		return FSCACHE_CHECKAUX_OBSOLETE;

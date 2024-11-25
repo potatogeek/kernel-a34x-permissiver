@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2004 PathScale, Inc
  * Copyright (C) 2004 - 2007 Jeff Dike (jdike@{addtoit,linux.intel}.com)
  * Licensed under the GPL
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2004 PathScale, Inc
+ * Copyright (C) 2004 - 2007 Jeff Dike (jdike@{addtoit,linux.intel}.com)
+>>>>>>> upstream/android-13
  */
 
 #include <errno.h>
@@ -21,7 +28,11 @@ int save_registers(int pid, struct uml_pt_regs *regs)
 	return 0;
 }
 
+<<<<<<< HEAD
 int restore_registers(int pid, struct uml_pt_regs *regs)
+=======
+int restore_pid_registers(int pid, struct uml_pt_regs *regs)
+>>>>>>> upstream/android-13
 {
 	int err;
 
@@ -36,7 +47,11 @@ int restore_registers(int pid, struct uml_pt_regs *regs)
 static unsigned long exec_regs[MAX_REG_NR];
 static unsigned long exec_fp_regs[FP_SIZE];
 
+<<<<<<< HEAD
 int init_registers(int pid)
+=======
+int init_pid_registers(int pid)
+>>>>>>> upstream/android-13
 {
 	int err;
 

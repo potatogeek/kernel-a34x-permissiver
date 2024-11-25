@@ -32,10 +32,18 @@
 #include "../hw_gpio.h"
 #include "../hw_ddc.h"
 #include "../hw_hpd.h"
+<<<<<<< HEAD
+=======
+#include "../hw_generic.h"
+>>>>>>> upstream/android-13
 
 #include "dce/dce_8_0_d.h"
 #include "dce/dce_8_0_sh_mask.h"
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 #define REG(reg_name)\
 		mm ## reg_name
 
@@ -147,12 +155,21 @@ static void define_hpd_registers(struct hw_gpio_pin *pin, uint32_t en)
 }
 
 static const struct hw_factory_funcs funcs = {
+<<<<<<< HEAD
 	.create_ddc_data = dal_hw_ddc_create,
 	.create_ddc_clock = dal_hw_ddc_create,
 	.create_generic = NULL,
 	.create_hpd = dal_hw_hpd_create,
 	.create_sync = NULL,
 	.create_gsl = NULL,
+=======
+	.init_ddc_data = dal_hw_ddc_init,
+	.init_generic = NULL,
+	.init_hpd = dal_hw_hpd_init,
+	.get_ddc_pin = dal_hw_ddc_get_pin,
+	.get_hpd_pin = dal_hw_hpd_get_pin,
+	.get_generic_pin = NULL,
+>>>>>>> upstream/android-13
 	.define_hpd_registers = define_hpd_registers,
 	.define_ddc_registers = define_ddc_registers
 };

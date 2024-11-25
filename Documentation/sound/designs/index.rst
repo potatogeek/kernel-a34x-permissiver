@@ -14,3 +14,7 @@ Designs and Implementations
    powersave
    oss-emulation
    seq-oss
+<<<<<<< HEAD
+=======
+   jack-injection
+>>>>>>> upstream/android-13

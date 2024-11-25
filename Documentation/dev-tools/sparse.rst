@@ -9,6 +9,11 @@ Sparse is a semantic checker for C programs; it can be used to find a
 number of potential problems with kernel code.  See
 https://lwn.net/Articles/689907/ for an overview of sparse; this document
 contains some kernel-specific sparse information.
+<<<<<<< HEAD
+=======
+More information on sparse, mainly about its internals, can be found in
+its official pages at https://sparse.docs.kernel.org.
+>>>>>>> upstream/android-13
 
 
 Using sparse for typechecking
@@ -73,19 +78,27 @@ sparse would otherwise report a context imbalance.
 Getting sparse
 --------------
 
+<<<<<<< HEAD
 You can get latest released versions from the Sparse homepage at
 https://sparse.wiki.kernel.org/index.php/Main_Page
+=======
+You can get tarballs of the latest released versions from:
+https://www.kernel.org/pub/software/devel/sparse/dist/
+>>>>>>> upstream/android-13
 
 Alternatively, you can get snapshots of the latest development version
 of sparse using git to clone::
 
         git://git.kernel.org/pub/scm/devel/sparse/sparse.git
 
+<<<<<<< HEAD
 DaveJ has hourly generated tarballs of the git tree available at::
 
         http://www.codemonkey.org.uk/projects/git-snapshots/sparse/
 
 
+=======
+>>>>>>> upstream/android-13
 Once you have it, just do::
 
         make

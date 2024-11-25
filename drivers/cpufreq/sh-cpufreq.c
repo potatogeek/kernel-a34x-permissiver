@@ -23,7 +23,10 @@
 #include <linux/cpumask.h>
 #include <linux/cpu.h>
 #include <linux/smp.h>
+<<<<<<< HEAD
 #include <linux/sched.h>	/* set_cpus_allowed() */
+=======
+>>>>>>> upstream/android-13
 #include <linux/clk.h>
 #include <linux/percpu.h>
 #include <linux/sh_clk.h>
@@ -87,7 +90,11 @@ static int sh_cpufreq_target(struct cpufreq_policy *policy,
 	return work_on_cpu(policy->cpu, __sh_cpufreq_target, &data);
 }
 
+<<<<<<< HEAD
 static int sh_cpufreq_verify(struct cpufreq_policy *policy)
+=======
+static int sh_cpufreq_verify(struct cpufreq_policy_data *policy)
+>>>>>>> upstream/android-13
 {
 	struct clk *cpuclk = &per_cpu(sh_cpuclk, policy->cpu);
 	struct cpufreq_frequency_table *freq_table;
@@ -146,6 +153,7 @@ static int sh_cpufreq_cpu_exit(struct cpufreq_policy *policy)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void sh_cpufreq_cpu_ready(struct cpufreq_policy *policy)
 {
 	struct device *dev = get_cpu_device(policy->cpu);
@@ -156,6 +164,8 @@ static void sh_cpufreq_cpu_ready(struct cpufreq_policy *policy)
 	       policy->max / 1000, policy->max % 1000);
 }
 
+=======
+>>>>>>> upstream/android-13
 static struct cpufreq_driver sh_cpufreq_driver = {
 	.name		= "sh",
 	.flags		= CPUFREQ_NO_AUTO_DYNAMIC_SWITCHING,
@@ -164,7 +174,10 @@ static struct cpufreq_driver sh_cpufreq_driver = {
 	.verify		= sh_cpufreq_verify,
 	.init		= sh_cpufreq_cpu_init,
 	.exit		= sh_cpufreq_cpu_exit,
+<<<<<<< HEAD
 	.ready		= sh_cpufreq_cpu_ready,
+=======
+>>>>>>> upstream/android-13
 	.attr		= cpufreq_generic_attr,
 };
 

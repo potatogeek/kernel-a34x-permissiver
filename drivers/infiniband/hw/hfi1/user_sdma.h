@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #ifndef _HFI1_USER_SDMA_H
 #define _HFI1_USER_SDMA_H
 /*
@@ -46,12 +47,26 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
+=======
+/* SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause */
+/*
+ * Copyright(c) 2020 - Cornelis Networks, Inc.
+ * Copyright(c) 2015 - 2018 Intel Corporation.
+ */
+#ifndef _HFI1_USER_SDMA_H
+#define _HFI1_USER_SDMA_H
+
+>>>>>>> upstream/android-13
 #include <linux/device.h>
 #include <linux/wait.h>
 
 #include "common.h"
 #include "iowait.h"
 #include "user_exp_rcv.h"
+<<<<<<< HEAD
+=======
+#include "mmu_rb.h"
+>>>>>>> upstream/android-13
 
 /* The maximum number of Data io vectors per message/request */
 #define MAX_VECTORS_PER_REQ 8
@@ -110,12 +125,15 @@ enum pkt_q_sdma_state {
 	SDMA_PKT_Q_DEFERRED,
 };
 
+<<<<<<< HEAD
 /*
  * Maximum retry attempts to submit a TX request
  * before putting the process to sleep.
  */
 #define MAX_DEFER_RETRY_COUNT 1
 
+=======
+>>>>>>> upstream/android-13
 #define SDMA_IOWAIT_TIMEOUT 1000 /* in milliseconds */
 
 #define SDMA_DBG(req, fmt, ...)				     \
@@ -139,7 +157,10 @@ struct hfi1_user_sdma_pkt_q {
 	unsigned long unpinned;
 	struct mmu_rb_handler *handler;
 	atomic_t n_locked;
+<<<<<<< HEAD
 	struct mm_struct *mm;
+=======
+>>>>>>> upstream/android-13
 };
 
 struct hfi1_user_sdma_comp_q {
@@ -204,12 +225,21 @@ struct user_sdma_request {
 	s8 ahg_idx;
 
 	/* Writeable fields shared with interrupt */
+<<<<<<< HEAD
 	u64 seqcomp ____cacheline_aligned_in_smp;
 	u64 seqsubmitted;
 
 	/* Send side fields */
 	struct list_head txps ____cacheline_aligned_in_smp;
 	u64 seqnum;
+=======
+	u16 seqcomp ____cacheline_aligned_in_smp;
+	u16 seqsubmitted;
+
+	/* Send side fields */
+	struct list_head txps ____cacheline_aligned_in_smp;
+	u16 seqnum;
+>>>>>>> upstream/android-13
 	/*
 	 * KDETH.OFFSET (TID) field
 	 * The offset can cover multiple packets, depending on the
@@ -245,7 +275,11 @@ struct user_sdma_txreq {
 	struct list_head list;
 	struct user_sdma_request *req;
 	u16 flags;
+<<<<<<< HEAD
 	u64 seqnum;
+=======
+	u16 seqnum;
+>>>>>>> upstream/android-13
 };
 
 int hfi1_user_sdma_alloc_queues(struct hfi1_ctxtdata *uctxt,
@@ -256,4 +290,12 @@ int hfi1_user_sdma_process_request(struct hfi1_filedata *fd,
 				   struct iovec *iovec, unsigned long dim,
 				   unsigned long *count);
 
+<<<<<<< HEAD
+=======
+static inline struct mm_struct *mm_from_sdma_node(struct sdma_mmu_node *node)
+{
+	return node->rb.handler->mn.mm;
+}
+
+>>>>>>> upstream/android-13
 #endif /* _HFI1_USER_SDMA_H */

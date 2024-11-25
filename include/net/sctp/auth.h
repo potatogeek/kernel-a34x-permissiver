@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /* SCTP kernel implementation
  * (C) Copyright 2007 Hewlett-Packard Development Company, L.P.
  *
  * This file is part of the SCTP kernel implementation
  *
+<<<<<<< HEAD
  * This SCTP implementation is free software;
  * you can redistribute it and/or modify it under the terms of
  * the GNU General Public License as published by
@@ -19,6 +24,8 @@
  * along with GNU CC; see the file COPYING.  If not, see
  * <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  * Please send any bug reports or fixes you make to the
  * email address(es):
  *    lksctp developers <linux-sctp@vger.kernel.org>
@@ -122,5 +129,10 @@ int sctp_auth_del_key_id(struct sctp_endpoint *ep,
 			 struct sctp_association *asoc, __u16 key_id);
 int sctp_auth_deact_key_id(struct sctp_endpoint *ep,
 			   struct sctp_association *asoc, __u16 key_id);
+<<<<<<< HEAD
+=======
+int sctp_auth_init(struct sctp_endpoint *ep, gfp_t gfp);
+void sctp_auth_free(struct sctp_endpoint *ep);
+>>>>>>> upstream/android-13
 
 #endif

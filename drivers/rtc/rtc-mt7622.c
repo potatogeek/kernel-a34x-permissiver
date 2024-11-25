@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for MediaTek SoC based RTC
  *
  * Copyright (C) 2017 Sean Wang <sean.wang@mediatek.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -312,7 +319,10 @@ MODULE_DEVICE_TABLE(of, mtk_rtc_match);
 static int mtk_rtc_probe(struct platform_device *pdev)
 {
 	struct mtk_rtc *hw;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	hw = devm_kzalloc(&pdev->dev, sizeof(*hw), GFP_KERNEL);
@@ -321,8 +331,12 @@ static int mtk_rtc_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, hw);
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	hw->base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	hw->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(hw->base))
 		return PTR_ERR(hw->base);
 
@@ -338,7 +352,10 @@ static int mtk_rtc_probe(struct platform_device *pdev)
 
 	hw->irq = platform_get_irq(pdev, 0);
 	if (hw->irq < 0) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "No IRQ resource\n");
+=======
+>>>>>>> upstream/android-13
 		ret = hw->irq;
 		goto err;
 	}

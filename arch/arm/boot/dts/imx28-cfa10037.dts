@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2012 Free Electrons
  *
@@ -7,6 +8,11 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2012 Free Electrons
+>>>>>>> upstream/android-13
  */
 
 /*

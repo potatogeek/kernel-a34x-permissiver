@@ -5,7 +5,12 @@
 #include <net/act_api.h>
 #include <linux/etherdevice.h>
 #include <linux/rtnetlink.h>
+<<<<<<< HEAD
 #include <linux/module.h>
+=======
+
+struct module;
+>>>>>>> upstream/android-13
 
 struct tcf_ife_params {
 	u8 eth_dst[ETH_ALEN];

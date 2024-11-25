@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Driver for Amlogic Meson SPI flash controller (SPIFC)
  *
@@ -10,6 +11,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0+
+//
+// Driver for Amlogic Meson SPI flash controller (SPIFC)
+//
+// Copyright (C) 2014 Beniamino Galvani <b.galvani@gmail.com>
+//
+>>>>>>> upstream/android-13
 
 #include <linux/clk.h>
 #include <linux/delay.h>
@@ -76,7 +85,11 @@
  * @master:	the SPI master
  * @regmap:	regmap for device registers
  * @clk:	input clock of the built-in baud rate generator
+<<<<<<< HEAD
  * @device:	the device structure
+=======
+ * @dev:	the device structure
+>>>>>>> upstream/android-13
  */
 struct meson_spifc {
 	struct spi_master *master;
@@ -292,7 +305,10 @@ static int meson_spifc_probe(struct platform_device *pdev)
 {
 	struct spi_master *master;
 	struct meson_spifc *spifc;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	void __iomem *base;
 	unsigned int rate;
 	int ret = 0;
@@ -306,8 +322,12 @@ static int meson_spifc_probe(struct platform_device *pdev)
 	spifc = spi_master_get_devdata(master);
 	spifc->dev = &pdev->dev;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	base = devm_ioremap_resource(spifc->dev, res);
+=======
+	base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(base)) {
 		ret = PTR_ERR(base);
 		goto out_err;
@@ -357,6 +377,10 @@ static int meson_spifc_probe(struct platform_device *pdev)
 	return 0;
 out_clk:
 	clk_disable_unprepare(spifc->clk);
+<<<<<<< HEAD
+=======
+	pm_runtime_disable(spifc->dev);
+>>>>>>> upstream/android-13
 out_err:
 	spi_master_put(master);
 	return ret;

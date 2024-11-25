@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * 	NetWinder Button Driver-
  *	Copyright (C) Alex Holden <alex@linuxhacker.org> 1998, 1999.

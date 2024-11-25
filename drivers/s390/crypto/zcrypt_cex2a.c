@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
+<<<<<<< HEAD
  *  zcrypt 2.1.0
  *
+=======
+>>>>>>> upstream/android-13
  *  Copyright IBM Corp. 2001, 2012
  *  Author(s): Robert Burroughs
  *	       Eric Rossman (edrossma@us.ibm.com)
@@ -43,8 +46,13 @@
 #define CEX3A_CLEANUP_TIME	CEX2A_CLEANUP_TIME
 
 MODULE_AUTHOR("IBM Corporation");
+<<<<<<< HEAD
 MODULE_DESCRIPTION("CEX2A Cryptographic Coprocessor device driver, " \
 		   "Copyright IBM Corp. 2001, 2012");
+=======
+MODULE_DESCRIPTION("CEX2A/CEX3A Cryptographic Coprocessor device driver, " \
+		   "Copyright IBM Corp. 2001, 2018");
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");
 
 static struct ap_device_id zcrypt_cex2a_card_ids[] = {
@@ -67,7 +75,11 @@ static struct ap_device_id zcrypt_cex2a_queue_ids[] = {
 
 MODULE_DEVICE_TABLE(ap, zcrypt_cex2a_queue_ids);
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Probe function for CEX2A card devices. It always accepts the AP device
  * since the bus_match already checked the card type.
  * @ap_dev: pointer to the AP device.
@@ -91,13 +103,21 @@ static int zcrypt_cex2a_card_probe(struct ap_device *ap_dev)
 	if (!zc)
 		return -ENOMEM;
 	zc->card = ac;
+<<<<<<< HEAD
 	ac->private = zc;
+=======
+	dev_set_drvdata(&ap_dev->device, zc);
+>>>>>>> upstream/android-13
 
 	if (ac->ap_dev.device_type == AP_DEVICE_TYPE_CEX2A) {
 		zc->min_mod_size = CEX2A_MIN_MOD_SIZE;
 		zc->max_mod_size = CEX2A_MAX_MOD_SIZE;
+<<<<<<< HEAD
 		memcpy(zc->speed_rating, CEX2A_SPEED_IDX,
 		       sizeof(CEX2A_SPEED_IDX));
+=======
+		zc->speed_rating = CEX2A_SPEED_IDX;
+>>>>>>> upstream/android-13
 		zc->max_exp_bit_length = CEX2A_MAX_MOD_SIZE;
 		zc->type_string = "CEX2A";
 		zc->user_space_type = ZCRYPT_CEX2A;
@@ -110,8 +130,12 @@ static int zcrypt_cex2a_card_probe(struct ap_device *ap_dev)
 			zc->max_mod_size = CEX3A_MAX_MOD_SIZE;
 			zc->max_exp_bit_length = CEX3A_MAX_MOD_SIZE;
 		}
+<<<<<<< HEAD
 		memcpy(zc->speed_rating, CEX3A_SPEED_IDX,
 		       sizeof(CEX3A_SPEED_IDX));
+=======
+		zc->speed_rating = CEX3A_SPEED_IDX;
+>>>>>>> upstream/android-13
 		zc->type_string = "CEX3A";
 		zc->user_space_type = ZCRYPT_CEX3A;
 	} else {
@@ -122,23 +146,36 @@ static int zcrypt_cex2a_card_probe(struct ap_device *ap_dev)
 
 	rc = zcrypt_card_register(zc);
 	if (rc) {
+<<<<<<< HEAD
 		ac->private = NULL;
+=======
+>>>>>>> upstream/android-13
 		zcrypt_card_free(zc);
 	}
 
 	return rc;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * This is called to remove the CEX2A card driver information
  * if an AP card device is removed.
  */
 static void zcrypt_cex2a_card_remove(struct ap_device *ap_dev)
 {
+<<<<<<< HEAD
 	struct zcrypt_card *zc = to_ap_card(&ap_dev->device)->private;
 
 	if (zc)
 		zcrypt_card_unregister(zc);
+=======
+	struct zcrypt_card *zc = dev_get_drvdata(&ap_dev->device);
+
+	zcrypt_card_unregister(zc);
+>>>>>>> upstream/android-13
 }
 
 static struct ap_driver zcrypt_cex2a_card_driver = {
@@ -148,7 +185,11 @@ static struct ap_driver zcrypt_cex2a_card_driver = {
 	.flags = AP_DRIVER_FLAG_DEFAULT,
 };
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Probe function for CEX2A queue devices. It always accepts the AP device
  * since the bus_match already checked the queue type.
  * @ap_dev: pointer to the AP device.
@@ -177,36 +218,58 @@ static int zcrypt_cex2a_queue_probe(struct ap_device *ap_dev)
 	zq->queue = aq;
 	zq->online = 1;
 	atomic_set(&zq->load, 0);
+<<<<<<< HEAD
 	ap_queue_init_reply(aq, &zq->reply);
 	aq->request_timeout = CEX2A_CLEANUP_TIME,
 	aq->private = zq;
 	rc = zcrypt_queue_register(zq);
 	if (rc) {
 		aq->private = NULL;
+=======
+	ap_queue_init_state(aq);
+	ap_queue_init_reply(aq, &zq->reply);
+	aq->request_timeout = CEX2A_CLEANUP_TIME;
+	dev_set_drvdata(&ap_dev->device, zq);
+	rc = zcrypt_queue_register(zq);
+	if (rc) {
+>>>>>>> upstream/android-13
 		zcrypt_queue_free(zq);
 	}
 
 	return rc;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * This is called to remove the CEX2A queue driver information
  * if an AP queue device is removed.
  */
 static void zcrypt_cex2a_queue_remove(struct ap_device *ap_dev)
 {
+<<<<<<< HEAD
 	struct ap_queue *aq = to_ap_queue(&ap_dev->device);
 	struct zcrypt_queue *zq = aq->private;
 
 	if (zq)
 		zcrypt_queue_unregister(zq);
+=======
+	struct zcrypt_queue *zq = dev_get_drvdata(&ap_dev->device);
+
+	zcrypt_queue_unregister(zq);
+>>>>>>> upstream/android-13
 }
 
 static struct ap_driver zcrypt_cex2a_queue_driver = {
 	.probe = zcrypt_cex2a_queue_probe,
 	.remove = zcrypt_cex2a_queue_remove,
+<<<<<<< HEAD
 	.suspend = ap_queue_suspend,
 	.resume = ap_queue_resume,
+=======
+>>>>>>> upstream/android-13
 	.ids = zcrypt_cex2a_queue_ids,
 	.flags = AP_DRIVER_FLAG_DEFAULT,
 };

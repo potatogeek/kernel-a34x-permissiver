@@ -24,11 +24,22 @@ enum bq27xxx_chip {
 	BQ27546,
 	BQ27742,
 	BQ27545, /* bq27545 */
+<<<<<<< HEAD
+=======
+	BQ27411,
+>>>>>>> upstream/android-13
 	BQ27421, /* bq27421, bq27441, bq27621 */
 	BQ27425,
 	BQ27426,
 	BQ27441,
 	BQ27621,
+<<<<<<< HEAD
+=======
+	BQ27Z561,
+	BQ28Z610,
+	BQ34Z100,
+	BQ78Z100,
+>>>>>>> upstream/android-13
 };
 
 struct bq27xxx_device_info;

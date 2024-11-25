@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**
  * Copyright (C) 2008, Creative Technology Ltd. All Rights Reserved.
  *
@@ -5,6 +6,12 @@
  * See the COPYING file included in the main directory of this source
  * distribution for the license terms and conditions.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2008, Creative Technology Ltd. All Rights Reserved.
+ *
+>>>>>>> upstream/android-13
  * @File	ctpcm.c
  *
  * @Brief
@@ -12,7 +19,10 @@
  *
  * @Author	Liu Chun
  * @Date 	Apr 2 2008
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "ctpcm.h"
@@ -182,6 +192,7 @@ static int ct_pcm_hw_params(struct snd_pcm_substream *substream,
 {
 	struct ct_atc *atc = snd_pcm_substream_chip(substream);
 	struct ct_atc_pcm *apcm = substream->runtime->private_data;
+<<<<<<< HEAD
 	int err;
 
 	err = snd_pcm_lib_malloc_pages(substream,
@@ -191,6 +202,12 @@ static int ct_pcm_hw_params(struct snd_pcm_substream *substream,
 	/* clear previous resources */
 	atc->pcm_release_resources(atc, apcm);
 	return err;
+=======
+
+	/* clear previous resources */
+	atc->pcm_release_resources(atc, apcm);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int ct_pcm_hw_free(struct snd_pcm_substream *substream)
@@ -200,8 +217,12 @@ static int ct_pcm_hw_free(struct snd_pcm_substream *substream)
 
 	/* clear previous resources */
 	atc->pcm_release_resources(atc, apcm);
+<<<<<<< HEAD
 	/* Free snd-allocated pages */
 	return snd_pcm_lib_free_pages(substream);
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 
@@ -377,26 +398,38 @@ ct_pcm_capture_pointer(struct snd_pcm_substream *substream)
 static const struct snd_pcm_ops ct_pcm_playback_ops = {
 	.open	 	= ct_pcm_playback_open,
 	.close		= ct_pcm_playback_close,
+<<<<<<< HEAD
 	.ioctl		= snd_pcm_lib_ioctl,
+=======
+>>>>>>> upstream/android-13
 	.hw_params	= ct_pcm_hw_params,
 	.hw_free	= ct_pcm_hw_free,
 	.prepare	= ct_pcm_playback_prepare,
 	.trigger	= ct_pcm_playback_trigger,
 	.pointer	= ct_pcm_playback_pointer,
+<<<<<<< HEAD
 	.page		= snd_pcm_sgbuf_ops_page,
+=======
+>>>>>>> upstream/android-13
 };
 
 /* PCM operators for capture */
 static const struct snd_pcm_ops ct_pcm_capture_ops = {
 	.open	 	= ct_pcm_capture_open,
 	.close		= ct_pcm_capture_close,
+<<<<<<< HEAD
 	.ioctl		= snd_pcm_lib_ioctl,
+=======
+>>>>>>> upstream/android-13
 	.hw_params	= ct_pcm_hw_params,
 	.hw_free	= ct_pcm_hw_free,
 	.prepare	= ct_pcm_capture_prepare,
 	.trigger	= ct_pcm_capture_trigger,
 	.pointer	= ct_pcm_capture_pointer,
+<<<<<<< HEAD
 	.page		= snd_pcm_sgbuf_ops_page,
+=======
+>>>>>>> upstream/android-13
 };
 
 static const struct snd_pcm_chmap_elem surround_map[] = {
@@ -447,7 +480,11 @@ int ct_alsa_pcm_create(struct ct_atc *atc,
 	pcm->private_data = atc;
 	pcm->info_flags = 0;
 	pcm->dev_subclass = SNDRV_PCM_SUBCLASS_GENERIC_MIX;
+<<<<<<< HEAD
 	strlcpy(pcm->name, device_name, sizeof(pcm->name));
+=======
+	strscpy(pcm->name, device_name, sizeof(pcm->name));
+>>>>>>> upstream/android-13
 
 	snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_PLAYBACK, &ct_pcm_playback_ops);
 
@@ -455,8 +492,13 @@ int ct_alsa_pcm_create(struct ct_atc *atc,
 		snd_pcm_set_ops(pcm,
 				SNDRV_PCM_STREAM_CAPTURE, &ct_pcm_capture_ops);
 
+<<<<<<< HEAD
 	snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_DEV_SG,
 			snd_dma_pci_data(atc->pci), 128*1024, 128*1024);
+=======
+	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_DEV_SG,
+				       &atc->pci->dev, 128*1024, 128*1024);
+>>>>>>> upstream/android-13
 
 	chs = 2;
 	switch (device) {

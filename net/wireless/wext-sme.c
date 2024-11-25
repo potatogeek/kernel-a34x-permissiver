@@ -3,7 +3,11 @@
  * cfg80211 wext compat for managed mode.
  *
  * Copyright 2009	Johannes Berg <johannes@sipsolutions.net>
+<<<<<<< HEAD
  * Copyright (C) 2009   Intel Corporation. All rights reserved.
+=======
+ * Copyright (C) 2009, 2020-2022 Intel Corporation
+>>>>>>> upstream/android-13
  */
 
 #include <linux/export.h>
@@ -57,7 +61,11 @@ int cfg80211_mgd_wext_connect(struct cfg80211_registered_device *rdev,
 	err = cfg80211_connect(rdev, wdev->netdev,
 			       &wdev->wext.connect, ck, prev_bssid);
 	if (err)
+<<<<<<< HEAD
 		kzfree(ck);
+=======
+		kfree_sensitive(ck);
+>>>>>>> upstream/android-13
 
 	return err;
 }
@@ -124,9 +132,18 @@ int cfg80211_mgd_wext_giwfreq(struct net_device *dev,
 	if (WARN_ON(wdev->iftype != NL80211_IFTYPE_STATION))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	wdev_lock(wdev);
 	if (wdev->current_bss)
 		chan = wdev->current_bss->pub.channel;
+=======
+	if (wdev->valid_links)
+		return -EOPNOTSUPP;
+
+	wdev_lock(wdev);
+	if (wdev->links[0].client.current_bss)
+		chan = wdev->links[0].client.current_bss->pub.channel;
+>>>>>>> upstream/android-13
 	else if (wdev->wext.connect.channel)
 		chan = wdev->wext.connect.channel;
 	wdev_unlock(wdev);
@@ -208,6 +225,7 @@ int cfg80211_mgd_wext_giwessid(struct net_device *dev,
 	if (WARN_ON(wdev->iftype != NL80211_IFTYPE_STATION))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	data->flags = 0;
 
 	wdev_lock(wdev);
@@ -224,6 +242,28 @@ int cfg80211_mgd_wext_giwessid(struct net_device *dev,
 				ret = -EINVAL;
 			else
 				memcpy(ssid, ie + 2, data->length);
+=======
+	if (wdev->valid_links)
+		return -EINVAL;
+
+	data->flags = 0;
+
+	wdev_lock(wdev);
+	if (wdev->links[0].client.current_bss) {
+		const struct element *ssid_elem;
+
+		rcu_read_lock();
+		ssid_elem = ieee80211_bss_get_elem(
+				&wdev->links[0].client.current_bss->pub,
+				WLAN_EID_SSID);
+		if (ssid_elem) {
+			data->flags = 1;
+			data->length = ssid_elem->datalen;
+			if (data->length > IW_ESSID_MAX_SIZE)
+				ret = -EINVAL;
+			else
+				memcpy(ssid, ssid_elem->data, data->length);
+>>>>>>> upstream/android-13
 		}
 		rcu_read_unlock();
 	} else if (wdev->wext.connect.ssid && wdev->wext.connect.ssid_len) {
@@ -300,8 +340,19 @@ int cfg80211_mgd_wext_giwap(struct net_device *dev,
 	ap_addr->sa_family = ARPHRD_ETHER;
 
 	wdev_lock(wdev);
+<<<<<<< HEAD
 	if (wdev->current_bss)
 		memcpy(ap_addr->sa_data, wdev->current_bss->pub.bssid, ETH_ALEN);
+=======
+	if (wdev->valid_links) {
+		wdev_unlock(wdev);
+		return -EOPNOTSUPP;
+	}
+	if (wdev->links[0].client.current_bss)
+		memcpy(ap_addr->sa_data,
+		       wdev->links[0].client.current_bss->pub.bssid,
+		       ETH_ALEN);
+>>>>>>> upstream/android-13
 	else
 		eth_zero_addr(ap_addr->sa_data);
 	wdev_unlock(wdev);
@@ -379,6 +430,10 @@ int cfg80211_wext_siwmlme(struct net_device *dev,
 	if (mlme->addr.sa_family != ARPHRD_ETHER)
 		return -EINVAL;
 
+<<<<<<< HEAD
+=======
+	wiphy_lock(&rdev->wiphy);
+>>>>>>> upstream/android-13
 	wdev_lock(wdev);
 	switch (mlme->cmd) {
 	case IW_MLME_DEAUTH:
@@ -390,6 +445,10 @@ int cfg80211_wext_siwmlme(struct net_device *dev,
 		break;
 	}
 	wdev_unlock(wdev);
+<<<<<<< HEAD
+=======
+	wiphy_unlock(&rdev->wiphy);
+>>>>>>> upstream/android-13
 
 	return err;
 }

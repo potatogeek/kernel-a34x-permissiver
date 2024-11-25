@@ -15,6 +15,7 @@
 #define DWARF_EH_FRAME
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_SUPERH64
 #define EXTRA_TEXT		\
 	*(.text64)		\
@@ -23,4 +24,6 @@
 #define EXTRA_TEXT
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #endif /* __ASM_SH_VMLINUX_LDS_H */

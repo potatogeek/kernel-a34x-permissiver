@@ -1,5 +1,6 @@
 * Broadcom Starfighter 2 integrated swich
 
+<<<<<<< HEAD
 Required properties:
 
 - compatible: should be one of
@@ -13,11 +14,17 @@ Required properties:
 - #size-cells: must be 0, see dsa/dsa.txt
 
 Deprecated binding required properties:
+=======
+See dsa/brcm,bcm7445-switch-v4.0.yaml for the documentation.
+
+*Deprecated* binding required properties:
+>>>>>>> upstream/android-13
 
 - dsa,mii-bus: phandle to the MDIO bus controller, see dsa/dsa.txt
 - dsa,ethernet: phandle to the CPU network interface controller, see dsa/dsa.txt
 - #address-cells: must be 2, see dsa/dsa.txt
 
+<<<<<<< HEAD
 Subnodes:
 
 The integrated switch subnode should be specified according to the binding
@@ -90,6 +97,8 @@ switch_top@f0b00000 {
 	};
 };
 
+=======
+>>>>>>> upstream/android-13
 Example using the old DSA DeviceTree binding:
 
 switch_top@f0b00000 {
@@ -119,7 +128,11 @@ switch_top@f0b00000 {
 		switch@0 {
 			reg = <0 0>;
 			#size-cells = <0>;
+<<<<<<< HEAD
 			#address-cells <1>;
+=======
+			#address-cells = <1>;
+>>>>>>> upstream/android-13
 
 			port@0 {
 				label = "gphy";

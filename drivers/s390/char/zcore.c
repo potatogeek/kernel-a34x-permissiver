@@ -1,10 +1,16 @@
 // SPDX-License-Identifier: GPL-1.0+
 /*
  * zcore module to export memory content and register sets for creating system
+<<<<<<< HEAD
  * dumps on SCSI disks (zfcpdump). The "zcore/mem" debugfs file shows the same
  * dump format as s390 standalone dumps.
  *
  * For more information please refer to Documentation/s390/zfcpdump.txt
+=======
+ * dumps on SCSI/NVMe disks (zfcp/nvme dump).
+ *
+ * For more information please refer to Documentation/s390/zfcpdump.rst
+>>>>>>> upstream/android-13
  *
  * Copyright IBM Corp. 2003, 2008
  * Author(s): Michael Holzheu
@@ -16,7 +22,12 @@
 #include <linux/init.h>
 #include <linux/slab.h>
 #include <linux/debugfs.h>
+<<<<<<< HEAD
 #include <linux/memblock.h>
+=======
+#include <linux/panic_notifier.h>
+#include <linux/reboot.h>
+>>>>>>> upstream/android-13
 
 #include <asm/asm-offsets.h>
 #include <asm/ipl.h>
@@ -33,8 +44,11 @@
 
 #define TRACE(x...) debug_sprintf_event(zcore_dbf, 1, x)
 
+<<<<<<< HEAD
 #define CHUNK_INFO_SIZE	34 /* 2 16-byte char, each followed by blank */
 
+=======
+>>>>>>> upstream/android-13
 enum arch_id {
 	ARCH_S390	= 0,
 	ARCH_S390X	= 1,
@@ -48,10 +62,16 @@ struct ipib_info {
 static struct debug_info *zcore_dbf;
 static int hsa_available;
 static struct dentry *zcore_dir;
+<<<<<<< HEAD
 static struct dentry *zcore_memmap_file;
 static struct dentry *zcore_reipl_file;
 static struct dentry *zcore_hsa_file;
 static struct ipl_parameter_block *ipl_block;
+=======
+static struct dentry *zcore_reipl_file;
+static struct dentry *zcore_hsa_file;
+static struct ipl_parameter_block *zcore_ipl_block;
+>>>>>>> upstream/android-13
 
 static char hsa_buf[PAGE_SIZE] __aligned(PAGE_SIZE);
 
@@ -139,6 +159,7 @@ static void release_hsa(void)
 	hsa_available = 0;
 }
 
+<<<<<<< HEAD
 static ssize_t zcore_memmap_read(struct file *filp, char __user *buf,
 				 size_t count, loff_t *ppos)
 {
@@ -184,6 +205,13 @@ static ssize_t zcore_reipl_write(struct file *filp, const char __user *buf,
 {
 	if (ipl_block) {
 		diag308(DIAG308_SET, ipl_block);
+=======
+static ssize_t zcore_reipl_write(struct file *filp, const char __user *buf,
+				 size_t count, loff_t *ppos)
+{
+	if (zcore_ipl_block) {
+		diag308(DIAG308_SET, zcore_ipl_block);
+>>>>>>> upstream/android-13
 		diag308(DIAG308_LOAD_CLEAR, NULL);
 	}
 	return count;
@@ -191,7 +219,11 @@ static ssize_t zcore_reipl_write(struct file *filp, const char __user *buf,
 
 static int zcore_reipl_open(struct inode *inode, struct file *filp)
 {
+<<<<<<< HEAD
 	return nonseekable_open(inode, filp);
+=======
+	return stream_open(inode, filp);
+>>>>>>> upstream/android-13
 }
 
 static int zcore_reipl_release(struct inode *inode, struct file *filp)
@@ -265,6 +297,7 @@ static int __init zcore_reipl_init(void)
 		return rc;
 	if (ipib_info.ipib == 0)
 		return 0;
+<<<<<<< HEAD
 	ipl_block = (void *) __get_free_page(GFP_KERNEL);
 	if (!ipl_block)
 		return -ENOMEM;
@@ -277,27 +310,87 @@ static int __init zcore_reipl_init(void)
 		TRACE("Checksum does not match\n");
 		free_page((unsigned long) ipl_block);
 		ipl_block = NULL;
+=======
+	zcore_ipl_block = (void *) __get_free_page(GFP_KERNEL);
+	if (!zcore_ipl_block)
+		return -ENOMEM;
+	if (ipib_info.ipib < sclp.hsa_size)
+		rc = memcpy_hsa_kernel(zcore_ipl_block, ipib_info.ipib,
+				       PAGE_SIZE);
+	else
+		rc = memcpy_real(zcore_ipl_block, (void *) ipib_info.ipib,
+				 PAGE_SIZE);
+	if (rc || (__force u32)csum_partial(zcore_ipl_block, zcore_ipl_block->hdr.len, 0) !=
+	    ipib_info.checksum) {
+		TRACE("Checksum does not match\n");
+		free_page((unsigned long) zcore_ipl_block);
+		zcore_ipl_block = NULL;
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int zcore_reboot_and_on_panic_handler(struct notifier_block *self,
+					     unsigned long	   event,
+					     void		   *data)
+{
+	if (hsa_available)
+		release_hsa();
+
+	return NOTIFY_OK;
+}
+
+static struct notifier_block zcore_reboot_notifier = {
+	.notifier_call	= zcore_reboot_and_on_panic_handler,
+	/* we need to be notified before reipl and kdump */
+	.priority	= INT_MAX,
+};
+
+static struct notifier_block zcore_on_panic_notifier = {
+	.notifier_call	= zcore_reboot_and_on_panic_handler,
+	/* we need to be notified before reipl and kdump */
+	.priority	= INT_MAX,
+};
+
+>>>>>>> upstream/android-13
 static int __init zcore_init(void)
 {
 	unsigned char arch;
 	int rc;
 
+<<<<<<< HEAD
 	if (ipl_info.type != IPL_TYPE_FCP_DUMP)
 		return -ENODATA;
 	if (OLDMEM_BASE)
+=======
+	if (!is_ipl_type_dump())
+		return -ENODATA;
+	if (oldmem_data.start)
+>>>>>>> upstream/android-13
 		return -ENODATA;
 
 	zcore_dbf = debug_register("zcore", 4, 1, 4 * sizeof(long));
 	debug_register_view(zcore_dbf, &debug_sprintf_view);
 	debug_set_level(zcore_dbf, 6);
 
+<<<<<<< HEAD
 	TRACE("devno:  %x\n", ipl_info.data.fcp.dev_id.devno);
 	TRACE("wwpn:   %llx\n", (unsigned long long) ipl_info.data.fcp.wwpn);
 	TRACE("lun:    %llx\n", (unsigned long long) ipl_info.data.fcp.lun);
+=======
+	if (ipl_info.type == IPL_TYPE_FCP_DUMP) {
+		TRACE("type:   fcp\n");
+		TRACE("devno:  %x\n", ipl_info.data.fcp.dev_id.devno);
+		TRACE("wwpn:   %llx\n", (unsigned long long) ipl_info.data.fcp.wwpn);
+		TRACE("lun:    %llx\n", (unsigned long long) ipl_info.data.fcp.lun);
+	} else if (ipl_info.type == IPL_TYPE_NVME_DUMP) {
+		TRACE("type:   nvme\n");
+		TRACE("fid:    %x\n", ipl_info.data.nvme.fid);
+		TRACE("nsid:   %x\n", ipl_info.data.nvme.nsid);
+	}
+>>>>>>> upstream/android-13
 
 	rc = sclp_sdias_init();
 	if (rc)
@@ -329,6 +422,7 @@ static int __init zcore_init(void)
 		goto fail;
 
 	zcore_dir = debugfs_create_dir("zcore" , NULL);
+<<<<<<< HEAD
 	if (!zcore_dir) {
 		rc = -ENOMEM;
 		goto fail;
@@ -359,6 +453,17 @@ fail_memmap_file:
 	debugfs_remove(zcore_memmap_file);
 fail_dir:
 	debugfs_remove(zcore_dir);
+=======
+	zcore_reipl_file = debugfs_create_file("reipl", S_IRUSR, zcore_dir,
+						NULL, &zcore_reipl_fops);
+	zcore_hsa_file = debugfs_create_file("hsa", S_IRUSR|S_IWUSR, zcore_dir,
+					     NULL, &zcore_hsa_fops);
+
+	register_reboot_notifier(&zcore_reboot_notifier);
+	atomic_notifier_chain_register(&panic_notifier_list, &zcore_on_panic_notifier);
+
+	return 0;
+>>>>>>> upstream/android-13
 fail:
 	diag308(DIAG308_REL_HSA, NULL);
 	return rc;

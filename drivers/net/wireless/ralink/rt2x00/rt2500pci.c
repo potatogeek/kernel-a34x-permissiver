@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 	Copyright (C) 2004 - 2009 Ivo van Doorn <IvDoorn@gmail.com>
 	<http://rt2x00.serialmonkey.com>
 
+<<<<<<< HEAD
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation; either version 2 of the License, or
@@ -14,6 +19,8 @@
 
 	You should have received a copy of the GNU General Public License
 	along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -1430,7 +1437,11 @@ static void rt2500pci_txdone(struct rt2x00_dev *rt2x00dev,
 			break;
 		case 2: /* Failure, excessive retries */
 			__set_bit(TXDONE_EXCESSIVE_RETRY, &txdesc.flags);
+<<<<<<< HEAD
 			/* Don't break, this is a failed frame! */
+=======
+			fallthrough;	/* this is a failed frame! */
+>>>>>>> upstream/android-13
 		default: /* Failure */
 			__set_bit(TXDONE_FAILURE, &txdesc.flags);
 		}
@@ -1458,9 +1469,16 @@ static inline void rt2500pci_enable_interrupt(struct rt2x00_dev *rt2x00dev,
 	spin_unlock_irq(&rt2x00dev->irqmask_lock);
 }
 
+<<<<<<< HEAD
 static void rt2500pci_txstatus_tasklet(unsigned long data)
 {
 	struct rt2x00_dev *rt2x00dev = (struct rt2x00_dev *)data;
+=======
+static void rt2500pci_txstatus_tasklet(struct tasklet_struct *t)
+{
+	struct rt2x00_dev *rt2x00dev = from_tasklet(rt2x00dev, t,
+						    txstatus_tasklet);
+>>>>>>> upstream/android-13
 	u32 reg;
 
 	/*
@@ -1486,17 +1504,30 @@ static void rt2500pci_txstatus_tasklet(unsigned long data)
 	}
 }
 
+<<<<<<< HEAD
 static void rt2500pci_tbtt_tasklet(unsigned long data)
 {
 	struct rt2x00_dev *rt2x00dev = (struct rt2x00_dev *)data;
+=======
+static void rt2500pci_tbtt_tasklet(struct tasklet_struct *t)
+{
+	struct rt2x00_dev *rt2x00dev = from_tasklet(rt2x00dev, t, tbtt_tasklet);
+>>>>>>> upstream/android-13
 	rt2x00lib_beacondone(rt2x00dev);
 	if (test_bit(DEVICE_STATE_ENABLED_RADIO, &rt2x00dev->flags))
 		rt2500pci_enable_interrupt(rt2x00dev, CSR8_TBCN_EXPIRE);
 }
 
+<<<<<<< HEAD
 static void rt2500pci_rxdone_tasklet(unsigned long data)
 {
 	struct rt2x00_dev *rt2x00dev = (struct rt2x00_dev *)data;
+=======
+static void rt2500pci_rxdone_tasklet(struct tasklet_struct *t)
+{
+	struct rt2x00_dev *rt2x00dev = from_tasklet(rt2x00dev, t,
+						    rxdone_tasklet);
+>>>>>>> upstream/android-13
 	if (rt2x00mmio_rxdone(rt2x00dev))
 		tasklet_schedule(&rt2x00dev->rxdone_tasklet);
 	else if (test_bit(DEVICE_STATE_ENABLED_RADIO, &rt2x00dev->flags))
@@ -2128,7 +2159,10 @@ static const struct pci_device_id rt2500pci_device_table[] = {
 MODULE_AUTHOR(DRV_PROJECT);
 MODULE_VERSION(DRV_VERSION);
 MODULE_DESCRIPTION("Ralink RT2500 PCI & PCMCIA Wireless LAN driver.");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("Ralink RT2560 PCI & PCMCIA chipset based cards");
+=======
+>>>>>>> upstream/android-13
 MODULE_DEVICE_TABLE(pci, rt2500pci_device_table);
 MODULE_LICENSE("GPL");
 
@@ -2143,8 +2177,12 @@ static struct pci_driver rt2500pci_driver = {
 	.id_table	= rt2500pci_device_table,
 	.probe		= rt2500pci_probe,
 	.remove		= rt2x00pci_remove,
+<<<<<<< HEAD
 	.suspend	= rt2x00pci_suspend,
 	.resume		= rt2x00pci_resume,
+=======
+	.driver.pm	= &rt2x00pci_pm_ops,
+>>>>>>> upstream/android-13
 };
 
 module_pci_driver(rt2500pci_driver);

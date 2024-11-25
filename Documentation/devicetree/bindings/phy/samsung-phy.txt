@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 Samsung S5P/EXYNOS SoC series MIPI CSIS/DSIM DPHY
+=======
+Samsung S5P/Exynos SoC series MIPI CSIS/DSIM DPHY
+>>>>>>> upstream/android-13
 -------------------------------------------------
 
 Required properties:
@@ -27,7 +31,11 @@ the PHY specifier identifies the PHY and its meaning is as follows:
 supports additional fifth PHY:
   4 - MIPI CSIS 2.
 
+<<<<<<< HEAD
 Samsung EXYNOS SoC series Display Port PHY
+=======
+Samsung Exynos SoC series Display Port PHY
+>>>>>>> upstream/android-13
 -------------------------------------------------
 
 Required properties:
@@ -38,7 +46,11 @@ Required properties:
 		      control pmu registers for power isolation.
 - #phy-cells : from the generic PHY bindings, must be 0;
 
+<<<<<<< HEAD
 Samsung S5P/EXYNOS SoC series USB PHY
+=======
+Samsung S5P/Exynos SoC series USB PHY
+>>>>>>> upstream/android-13
 -------------------------------------------------
 
 Required properties:
@@ -47,6 +59,10 @@ Required properties:
 	- "samsung,exynos4210-usb2-phy"
 	- "samsung,exynos4x12-usb2-phy"
 	- "samsung,exynos5250-usb2-phy"
+<<<<<<< HEAD
+=======
+	- "samsung,exynos5420-usb2-phy"
+>>>>>>> upstream/android-13
 	- "samsung,s5pv210-usb2-phy"
 - reg : a list of registers used by phy driver
 	- first and obligatory is the location of phy modules registers

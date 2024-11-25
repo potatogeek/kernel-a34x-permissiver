@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 /*
  * QLogic Fibre Channel HBA Driver
  * Copyright (c)  2003-2014 QLogic Corporation
  *
  * See LICENSE.qla2xxx for copyright and licensing details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * QLogic Fibre Channel HBA Driver
+ * Copyright (c)  2003-2014 QLogic Corporation
+>>>>>>> upstream/android-13
  */
 #ifndef __QLA_DEF_H
 #define __QLA_DEF_H
@@ -34,7 +41,50 @@
 #include <scsi/scsi_transport_fc.h>
 #include <scsi/scsi_bsg_fc.h>
 
+<<<<<<< HEAD
 #include "qla_bsg.h"
+=======
+#include <uapi/scsi/fc/fc_els.h>
+
+/* Big endian Fibre Channel S_ID (source ID) or D_ID (destination ID). */
+typedef struct {
+	uint8_t domain;
+	uint8_t area;
+	uint8_t al_pa;
+} be_id_t;
+
+/* Little endian Fibre Channel S_ID (source ID) or D_ID (destination ID). */
+typedef struct {
+	uint8_t al_pa;
+	uint8_t area;
+	uint8_t domain;
+} le_id_t;
+
+/*
+ * 24 bit port ID type definition.
+ */
+typedef union {
+	uint32_t b24 : 24;
+	struct {
+#ifdef __BIG_ENDIAN
+		uint8_t domain;
+		uint8_t area;
+		uint8_t al_pa;
+#elif defined(__LITTLE_ENDIAN)
+		uint8_t al_pa;
+		uint8_t area;
+		uint8_t domain;
+#else
+#error "__BIG_ENDIAN or __LITTLE_ENDIAN must be defined!"
+#endif
+		uint8_t rsvd_1;
+	} b;
+} port_id_t;
+#define INVALID_PORT_ID	0xFFFFFF
+
+#include "qla_bsg.h"
+#include "qla_dsd.h"
+>>>>>>> upstream/android-13
 #include "qla_nx.h"
 #include "qla_nx2.h"
 #include "qla_nvme.h"
@@ -104,12 +154,20 @@
 #define LSD(x)	((uint32_t)((uint64_t)(x)))
 #define MSD(x)	((uint32_t)((((uint64_t)(x)) >> 16) >> 16))
 
+<<<<<<< HEAD
 #define MAKE_HANDLE(x, y) ((uint32_t)((((uint32_t)(x)) << 16) | (uint32_t)(y)))
+=======
+static inline uint32_t make_handle(uint16_t x, uint16_t y)
+{
+	return ((uint32_t)x << 16) | y;
+}
+>>>>>>> upstream/android-13
 
 /*
  * I/O register
 */
 
+<<<<<<< HEAD
 #define RD_REG_BYTE(addr)		readb(addr)
 #define RD_REG_WORD(addr)		readw(addr)
 #define RD_REG_DWORD(addr)		readl(addr)
@@ -119,6 +177,52 @@
 #define WRT_REG_BYTE(addr, data)	writeb(data,addr)
 #define WRT_REG_WORD(addr, data)	writew(data,addr)
 #define WRT_REG_DWORD(addr, data)	writel(data,addr)
+=======
+static inline u8 rd_reg_byte(const volatile u8 __iomem *addr)
+{
+	return readb(addr);
+}
+
+static inline u16 rd_reg_word(const volatile __le16 __iomem *addr)
+{
+	return readw(addr);
+}
+
+static inline u32 rd_reg_dword(const volatile __le32 __iomem *addr)
+{
+	return readl(addr);
+}
+
+static inline u8 rd_reg_byte_relaxed(const volatile u8 __iomem *addr)
+{
+	return readb_relaxed(addr);
+}
+
+static inline u16 rd_reg_word_relaxed(const volatile __le16 __iomem *addr)
+{
+	return readw_relaxed(addr);
+}
+
+static inline u32 rd_reg_dword_relaxed(const volatile __le32 __iomem *addr)
+{
+	return readl_relaxed(addr);
+}
+
+static inline void wrt_reg_byte(volatile u8 __iomem *addr, u8 data)
+{
+	return writeb(data, addr);
+}
+
+static inline void wrt_reg_word(volatile __le16 __iomem *addr, u16 data)
+{
+	return writew(data, addr);
+}
+
+static inline void wrt_reg_dword(volatile __le32 __iomem *addr, u32 data)
+{
+	return writel(data, addr);
+}
+>>>>>>> upstream/android-13
 
 /*
  * ISP83XX specific remote register addresses
@@ -206,7 +310,11 @@
  * 133Mhz slot.
  */
 #define RD_REG_WORD_PIO(addr)		(inw((unsigned long)addr))
+<<<<<<< HEAD
 #define WRT_REG_WORD_PIO(addr, data)	(outw(data,(unsigned long)addr))
+=======
+#define WRT_REG_WORD_PIO(addr, data)	(outw(data, (unsigned long)addr))
+>>>>>>> upstream/android-13
 
 /*
  * Fibre Channel device definitions.
@@ -265,6 +373,16 @@ struct name_list_extended {
 	u32			size;
 	u8			sent;
 };
+<<<<<<< HEAD
+=======
+
+struct els_reject {
+	struct fc_els_ls_rjt *c;
+	dma_addr_t  cdma;
+	u16 size;
+};
+
+>>>>>>> upstream/android-13
 /*
  * Timeout timer counts in seconds
  */
@@ -291,6 +409,11 @@ struct name_list_extended {
 #define FW_MAX_EXCHANGES_CNT (32 * 1024)
 #define REDUCE_EXCHANGES_CNT  (8 * 1024)
 
+<<<<<<< HEAD
+=======
+#define SET_DID_STATUS(stat_var, status) (stat_var = status << 16)
+
+>>>>>>> upstream/android-13
 struct req_que;
 struct qla_tgt_sess;
 
@@ -302,7 +425,12 @@ struct srb_cmd {
 	uint32_t request_sense_length;
 	uint32_t fw_sense_length;
 	uint8_t *request_sense_ptr;
+<<<<<<< HEAD
 	void *ctx;
+=======
+	struct ct6_dsd *ct6_ctx;
+	struct crc_context *crc_ctx;
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -314,6 +442,7 @@ struct srb_cmd {
 #define SRB_CRC_PROT_DMA_VALID		BIT_4	/* DIF: prot DMA valid */
 #define SRB_CRC_CTX_DSD_VALID		BIT_5	/* DIF: dsd_list valid */
 #define SRB_WAKEUP_ON_COMP		BIT_6
+<<<<<<< HEAD
 
 /* To identify if a srb is of T10-CRC type. @sp => srb_t pointer */
 #define IS_PROT_IO(sp)	(sp->flags & SRB_CRC_CTX_DSD_VALID)
@@ -340,6 +469,59 @@ typedef union {
 	} b;
 } port_id_t;
 #define INVALID_PORT_ID	0xFFFFFF
+=======
+#define SRB_DIF_BUNDL_DMA_VALID		BIT_7   /* DIF: DMA list valid */
+#define SRB_EDIF_CLEANUP_DELETE		BIT_9
+
+/* To identify if a srb is of T10-CRC type. @sp => srb_t pointer */
+#define IS_PROT_IO(sp)	(sp->flags & SRB_CRC_CTX_DSD_VALID)
+#define ISP_REG16_DISCONNECT 0xFFFF
+
+static inline le_id_t be_id_to_le(be_id_t id)
+{
+	le_id_t res;
+
+	res.domain = id.domain;
+	res.area   = id.area;
+	res.al_pa  = id.al_pa;
+
+	return res;
+}
+
+static inline be_id_t le_id_to_be(le_id_t id)
+{
+	be_id_t res;
+
+	res.domain = id.domain;
+	res.area   = id.area;
+	res.al_pa  = id.al_pa;
+
+	return res;
+}
+
+static inline port_id_t be_to_port_id(be_id_t id)
+{
+	port_id_t res;
+
+	res.b.domain = id.domain;
+	res.b.area   = id.area;
+	res.b.al_pa  = id.al_pa;
+	res.b.rsvd_1 = 0;
+
+	return res;
+}
+
+static inline be_id_t port_id_to_be_id(port_id_t port_id)
+{
+	be_id_t res;
+
+	res.domain = port_id.b.domain;
+	res.area   = port_id.b.area;
+	res.al_pa  = port_id.b.al_pa;
+
+	return res;
+}
+>>>>>>> upstream/android-13
 
 struct els_logo_payload {
 	uint8_t opcode;
@@ -352,7 +534,11 @@ struct els_logo_payload {
 struct els_plogi_payload {
 	uint8_t opcode;
 	uint8_t rsvd[3];
+<<<<<<< HEAD
 	uint8_t data[112];
+=======
+	__be32	data[112 / 4];
+>>>>>>> upstream/android-13
 };
 
 struct ct_arg {
@@ -381,6 +567,10 @@ struct srb_iocb {
 #define SRB_LOGIN_SKIP_PRLI	BIT_2
 #define SRB_LOGIN_NVME_PRLI	BIT_3
 #define SRB_LOGIN_PRLI_ONLY	BIT_4
+<<<<<<< HEAD
+=======
+#define SRB_LOGIN_FCSP		BIT_5
+>>>>>>> upstream/android-13
 			uint16_t data[2];
 			u32 iop[2];
 		} logio;
@@ -393,7 +583,11 @@ struct srb_iocb {
 			struct els_logo_payload *els_logo_pyld;
 			dma_addr_t els_logo_pyld_dma;
 		} els_logo;
+<<<<<<< HEAD
 		struct {
+=======
+		struct els_plogi {
+>>>>>>> upstream/android-13
 #define ELS_DCMD_PLOGI 0x3
 			uint32_t flags;
 			uint32_t els_cmd;
@@ -404,7 +598,11 @@ struct srb_iocb {
 			u32 rx_size;
 			dma_addr_t els_plogi_pyld_dma;
 			dma_addr_t els_resp_pyld_dma;
+<<<<<<< HEAD
 			uint32_t	fw_status[3];
+=======
+			__le32	fw_status[3];
+>>>>>>> upstream/android-13
 			__le16	comp_status;
 			__le16	len;
 		} els_plogi;
@@ -455,8 +653,13 @@ struct srb_iocb {
 #define MAX_IOCB_MB_REG 28
 #define SIZEOF_IOCB_MB_REG (MAX_IOCB_MB_REG * sizeof(uint16_t))
 		struct {
+<<<<<<< HEAD
 			__le16 in_mb[MAX_IOCB_MB_REG];	/* from FW */
 			__le16 out_mb[MAX_IOCB_MB_REG];	/* to FW */
+=======
+			u16 in_mb[MAX_IOCB_MB_REG];	/* from FW */
+			u16 out_mb[MAX_IOCB_MB_REG];	/* to FW */
+>>>>>>> upstream/android-13
 			void *out, *in;
 			dma_addr_t out_dma, in_dma;
 			struct completion comp;
@@ -467,7 +670,11 @@ struct srb_iocb {
 		} nack;
 		struct {
 			__le16 comp_status;
+<<<<<<< HEAD
 			uint16_t rsp_pyld_len;
+=======
+			__le16 rsp_pyld_len;
+>>>>>>> upstream/android-13
 			uint8_t	aen_op;
 			void *desc;
 
@@ -485,6 +692,13 @@ struct srb_iocb {
 			u16 cmd;
 			u16 vp_index;
 		} ctrlvp;
+<<<<<<< HEAD
+=======
+		struct {
+			struct edif_sa_ctl	*sa_ctl;
+			struct qla_sa_update_frame sa_frame;
+		} sa_update;
+>>>>>>> upstream/android-13
 	} u;
 
 	struct timer_list timer;
@@ -515,10 +729,45 @@ struct srb_iocb {
 #define SRB_PRLI_CMD	21
 #define SRB_CTRL_VP	22
 #define SRB_PRLO_CMD	23
+<<<<<<< HEAD
+=======
+#define SRB_SA_UPDATE	25
+#define SRB_ELS_CMD_HST_NOLOGIN 26
+#define SRB_SA_REPLACE	27
+
+struct qla_els_pt_arg {
+	u8 els_opcode;
+	u8 vp_idx;
+	__le16 nport_handle;
+	u16 control_flags;
+	__le32 rx_xchg_address;
+	port_id_t did;
+	u32 tx_len, tx_byte_count, rx_len, rx_byte_count;
+	dma_addr_t tx_addr, rx_addr;
+
+};
+>>>>>>> upstream/android-13
 
 enum {
 	TYPE_SRB,
 	TYPE_TGT_CMD,
+<<<<<<< HEAD
+=======
+	TYPE_TGT_TMCMD,		/* task management */
+};
+
+struct iocb_resource {
+	u8 res_type;
+	u8 pad;
+	u16 iocb_cnt;
+};
+
+struct bsg_cmd {
+	struct bsg_job *bsg_job;
+	union {
+		struct qla_els_pt_arg els_arg;
+	} u;
+>>>>>>> upstream/android-13
 };
 
 typedef struct srb {
@@ -528,26 +777,46 @@ typedef struct srb {
 	 */
 	uint8_t cmd_type;
 	uint8_t pad[3];
+<<<<<<< HEAD
 	atomic_t ref_count;
 	wait_queue_head_t nvme_ls_waitq;
 	struct fc_port *fcport;
 	struct scsi_qla_host *vha;
+=======
+	struct iocb_resource iores;
+	struct kref cmd_kref;	/* need to migrate ref_count over to this */
+	void *priv;
+	wait_queue_head_t nvme_ls_waitq;
+	struct fc_port *fcport;
+	struct scsi_qla_host *vha;
+	unsigned int start_timer:1;
+
+>>>>>>> upstream/android-13
 	uint32_t handle;
 	uint16_t flags;
 	uint16_t type;
 	const char *name;
 	int iocbs;
 	struct qla_qpair *qpair;
+<<<<<<< HEAD
+=======
+	struct srb *cmd_sp;
+>>>>>>> upstream/android-13
 	struct list_head elem;
 	u32 gen1;	/* scratch */
 	u32 gen2;	/* scratch */
 	int rc;
 	int retry_count;
+<<<<<<< HEAD
 	struct completion comp;
+=======
+	struct completion *comp;
+>>>>>>> upstream/android-13
 	union {
 		struct srb_iocb iocb_cmd;
 		struct bsg_job *bsg_job;
 		struct srb_cmd scmd;
+<<<<<<< HEAD
 	} u;
 	void (*done)(void *, int);
 	void (*free)(void *);
@@ -556,6 +825,44 @@ typedef struct srb {
 #define GET_CMD_SP(sp) (sp->u.scmd.cmd)
 #define SET_CMD_SP(sp, cmd) (sp->u.scmd.cmd = cmd)
 #define GET_CMD_CTX_SP(sp) (sp->u.scmd.ctx)
+=======
+		struct bsg_cmd bsg_cmd;
+	} u;
+	struct {
+		bool remapped;
+		struct {
+			dma_addr_t dma;
+			void *buf;
+			uint len;
+		} req;
+		struct {
+			dma_addr_t dma;
+			void *buf;
+			uint len;
+		} rsp;
+	} remap;
+	/*
+	 * Report completion status @res and call sp_put(@sp). @res is
+	 * an NVMe status code, a SCSI result (e.g. DID_OK << 16) or a
+	 * QLA_* status value.
+	 */
+	void (*done)(struct srb *sp, int res);
+	/* Stop the timer and free @sp. Only used by the FCP code. */
+	void (*free)(struct srb *sp);
+	/*
+	 * Call nvme_private->fd->done() and free @sp. Only used by the NVMe
+	 * code.
+	 */
+	void (*put_fn)(struct kref *kref);
+
+	/*
+	 * Report completion for asynchronous commands.
+	 */
+	void (*async_done)(struct srb *sp, int res);
+} srb_t;
+
+#define GET_CMD_SP(sp) (sp->u.scmd.cmd)
+>>>>>>> upstream/android-13
 
 #define GET_CMD_SENSE_LEN(sp) \
 	(sp->u.scmd.request_sense_length)
@@ -584,14 +891,22 @@ struct msg_echo_lb {
  * ISP I/O Register Set structure definitions.
  */
 struct device_reg_2xxx {
+<<<<<<< HEAD
 	uint16_t flash_address; 	/* Flash BIOS address */
 	uint16_t flash_data;		/* Flash BIOS data */
 	uint16_t unused_1[1];		/* Gap */
 	uint16_t ctrl_status;		/* Control/Status */
+=======
+	__le16	flash_address; 	/* Flash BIOS address */
+	__le16	flash_data;		/* Flash BIOS data */
+	__le16	unused_1[1];		/* Gap */
+	__le16	ctrl_status;		/* Control/Status */
+>>>>>>> upstream/android-13
 #define CSR_FLASH_64K_BANK	BIT_3	/* Flash upper 64K bank select */
 #define CSR_FLASH_ENABLE	BIT_1	/* Flash BIOS Read/Write enable */
 #define CSR_ISP_SOFT_RESET	BIT_0	/* ISP soft reset */
 
+<<<<<<< HEAD
 	uint16_t ictrl;			/* Interrupt control */
 #define ICR_EN_INT		BIT_15	/* ISP enable interrupts. */
 #define ICR_EN_RISC		BIT_3	/* ISP enable RISC interrupts. */
@@ -601,6 +916,17 @@ struct device_reg_2xxx {
 
 	uint16_t semaphore;		/* Semaphore */
 	uint16_t nvram;			/* NVRAM register. */
+=======
+	__le16	ictrl;			/* Interrupt control */
+#define ICR_EN_INT		BIT_15	/* ISP enable interrupts. */
+#define ICR_EN_RISC		BIT_3	/* ISP enable RISC interrupts. */
+
+	__le16	istatus;		/* Interrupt status */
+#define ISR_RISC_INT		BIT_3	/* RISC interrupt */
+
+	__le16	semaphore;		/* Semaphore */
+	__le16	nvram;			/* NVRAM register. */
+>>>>>>> upstream/android-13
 #define NVR_DESELECT		0
 #define NVR_BUSY		BIT_15
 #define NVR_WRT_ENABLE		BIT_14	/* Write enable */
@@ -614,6 +940,7 @@ struct device_reg_2xxx {
 
 	union {
 		struct {
+<<<<<<< HEAD
 			uint16_t mailbox0;
 			uint16_t mailbox1;
 			uint16_t mailbox2;
@@ -634,10 +961,33 @@ struct device_reg_2xxx {
 
 						/* RISC to Host Status */
 			uint32_t host_status;
+=======
+			__le16	mailbox0;
+			__le16	mailbox1;
+			__le16	mailbox2;
+			__le16	mailbox3;
+			__le16	mailbox4;
+			__le16	mailbox5;
+			__le16	mailbox6;
+			__le16	mailbox7;
+			__le16	unused_2[59];	/* Gap */
+		} __attribute__((packed)) isp2100;
+		struct {
+						/* Request Queue */
+			__le16	req_q_in;	/*  In-Pointer */
+			__le16	req_q_out;	/*  Out-Pointer */
+						/* Response Queue */
+			__le16	rsp_q_in;	/*  In-Pointer */
+			__le16	rsp_q_out;	/*  Out-Pointer */
+
+						/* RISC to Host Status */
+			__le32	host_status;
+>>>>>>> upstream/android-13
 #define HSR_RISC_INT		BIT_15	/* RISC interrupt */
 #define HSR_RISC_PAUSED		BIT_8	/* RISC Paused */
 
 					/* Host to Host Semaphore */
+<<<<<<< HEAD
 			uint16_t host_semaphore;
 			uint16_t unused_3[17];	/* Gap */
 			uint16_t mailbox0;
@@ -688,6 +1038,58 @@ struct device_reg_2xxx {
 	uint16_t fb_cmd_2100;		/* Unused on 23XX */
 	uint16_t unused_8[0x3];		/* Gap */
 	uint16_t hccr;			/* Host command & control register. */
+=======
+			__le16	host_semaphore;
+			__le16	unused_3[17];	/* Gap */
+			__le16	mailbox0;
+			__le16	mailbox1;
+			__le16	mailbox2;
+			__le16	mailbox3;
+			__le16	mailbox4;
+			__le16	mailbox5;
+			__le16	mailbox6;
+			__le16	mailbox7;
+			__le16	mailbox8;
+			__le16	mailbox9;
+			__le16	mailbox10;
+			__le16	mailbox11;
+			__le16	mailbox12;
+			__le16	mailbox13;
+			__le16	mailbox14;
+			__le16	mailbox15;
+			__le16	mailbox16;
+			__le16	mailbox17;
+			__le16	mailbox18;
+			__le16	mailbox19;
+			__le16	mailbox20;
+			__le16	mailbox21;
+			__le16	mailbox22;
+			__le16	mailbox23;
+			__le16	mailbox24;
+			__le16	mailbox25;
+			__le16	mailbox26;
+			__le16	mailbox27;
+			__le16	mailbox28;
+			__le16	mailbox29;
+			__le16	mailbox30;
+			__le16	mailbox31;
+			__le16	fb_cmd;
+			__le16	unused_4[10];	/* Gap */
+		} __attribute__((packed)) isp2300;
+	} u;
+
+	__le16	fpm_diag_config;
+	__le16	unused_5[0x4];		/* Gap */
+	__le16	risc_hw;
+	__le16	unused_5_1;		/* Gap */
+	__le16	pcr;			/* Processor Control Register. */
+	__le16	unused_6[0x5];		/* Gap */
+	__le16	mctr;			/* Memory Configuration and Timing. */
+	__le16	unused_7[0x3];		/* Gap */
+	__le16	fb_cmd_2100;		/* Unused on 23XX */
+	__le16	unused_8[0x3];		/* Gap */
+	__le16	hccr;			/* Host command & control register. */
+>>>>>>> upstream/android-13
 #define HCCR_HOST_INT		BIT_7	/* Host interrupt bit */
 #define HCCR_RISC_PAUSE		BIT_5	/* Pause mode bit */
 					/* HCCR commands */
@@ -700,9 +1102,15 @@ struct device_reg_2xxx {
 #define	HCCR_DISABLE_PARITY_PAUSE 0x4001 /* Disable parity error RISC pause. */
 #define HCCR_ENABLE_PARITY	0xA000	/* Enable PARITY interrupt */
 
+<<<<<<< HEAD
 	uint16_t unused_9[5];		/* Gap */
 	uint16_t gpiod;			/* GPIO Data register. */
 	uint16_t gpioe;			/* GPIO Enable register. */
+=======
+	__le16	unused_9[5];		/* Gap */
+	__le16	gpiod;			/* GPIO Data register. */
+	__le16	gpioe;			/* GPIO Enable register. */
+>>>>>>> upstream/android-13
 #define GPIO_LED_MASK			0x00C0
 #define GPIO_LED_GREEN_OFF_AMBER_OFF	0x0000
 #define GPIO_LED_GREEN_ON_AMBER_OFF	0x0040
@@ -714,6 +1122,7 @@ struct device_reg_2xxx {
 
 	union {
 		struct {
+<<<<<<< HEAD
 			uint16_t unused_10[8];	/* Gap */
 			uint16_t mailbox8;
 			uint16_t mailbox9;
@@ -731,21 +1140,50 @@ struct device_reg_2xxx {
 			uint16_t mailbox21;
 			uint16_t mailbox22;
 			uint16_t mailbox23;	/* Also probe reg. */
+=======
+			__le16	unused_10[8];	/* Gap */
+			__le16	mailbox8;
+			__le16	mailbox9;
+			__le16	mailbox10;
+			__le16	mailbox11;
+			__le16	mailbox12;
+			__le16	mailbox13;
+			__le16	mailbox14;
+			__le16	mailbox15;
+			__le16	mailbox16;
+			__le16	mailbox17;
+			__le16	mailbox18;
+			__le16	mailbox19;
+			__le16	mailbox20;
+			__le16	mailbox21;
+			__le16	mailbox22;
+			__le16	mailbox23;	/* Also probe reg. */
+>>>>>>> upstream/android-13
 		} __attribute__((packed)) isp2200;
 	} u_end;
 };
 
 struct device_reg_25xxmq {
+<<<<<<< HEAD
 	uint32_t req_q_in;
 	uint32_t req_q_out;
 	uint32_t rsp_q_in;
 	uint32_t rsp_q_out;
 	uint32_t atio_q_in;
 	uint32_t atio_q_out;
+=======
+	__le32	req_q_in;
+	__le32	req_q_out;
+	__le32	rsp_q_in;
+	__le32	rsp_q_out;
+	__le32	atio_q_in;
+	__le32	atio_q_out;
+>>>>>>> upstream/android-13
 };
 
 
 struct device_reg_fx00 {
+<<<<<<< HEAD
 	uint32_t mailbox0;		/* 00 */
 	uint32_t mailbox1;		/* 04 */
 	uint32_t mailbox2;		/* 08 */
@@ -803,6 +1241,65 @@ struct device_reg_fx00 {
 	uint32_t initval7;		/* CC */
 	uint32_t fwheartbeat;		/* D0 */
 	uint32_t pseudoaen;		/* D4 */
+=======
+	__le32	mailbox0;		/* 00 */
+	__le32	mailbox1;		/* 04 */
+	__le32	mailbox2;		/* 08 */
+	__le32	mailbox3;		/* 0C */
+	__le32	mailbox4;		/* 10 */
+	__le32	mailbox5;		/* 14 */
+	__le32	mailbox6;		/* 18 */
+	__le32	mailbox7;		/* 1C */
+	__le32	mailbox8;		/* 20 */
+	__le32	mailbox9;		/* 24 */
+	__le32	mailbox10;		/* 28 */
+	__le32	mailbox11;
+	__le32	mailbox12;
+	__le32	mailbox13;
+	__le32	mailbox14;
+	__le32	mailbox15;
+	__le32	mailbox16;
+	__le32	mailbox17;
+	__le32	mailbox18;
+	__le32	mailbox19;
+	__le32	mailbox20;
+	__le32	mailbox21;
+	__le32	mailbox22;
+	__le32	mailbox23;
+	__le32	mailbox24;
+	__le32	mailbox25;
+	__le32	mailbox26;
+	__le32	mailbox27;
+	__le32	mailbox28;
+	__le32	mailbox29;
+	__le32	mailbox30;
+	__le32	mailbox31;
+	__le32	aenmailbox0;
+	__le32	aenmailbox1;
+	__le32	aenmailbox2;
+	__le32	aenmailbox3;
+	__le32	aenmailbox4;
+	__le32	aenmailbox5;
+	__le32	aenmailbox6;
+	__le32	aenmailbox7;
+	/* Request Queue. */
+	__le32	req_q_in;		/* A0 - Request Queue In-Pointer */
+	__le32	req_q_out;		/* A4 - Request Queue Out-Pointer */
+	/* Response Queue. */
+	__le32	rsp_q_in;		/* A8 - Response Queue In-Pointer */
+	__le32	rsp_q_out;		/* AC - Response Queue Out-Pointer */
+	/* Init values shadowed on FW Up Event */
+	__le32	initval0;		/* B0 */
+	__le32	initval1;		/* B4 */
+	__le32	initval2;		/* B8 */
+	__le32	initval3;		/* BC */
+	__le32	initval4;		/* C0 */
+	__le32	initval5;		/* C4 */
+	__le32	initval6;		/* C8 */
+	__le32	initval7;		/* CC */
+	__le32	fwheartbeat;		/* D0 */
+	__le32	pseudoaen;		/* D4 */
+>>>>>>> upstream/android-13
 };
 
 
@@ -842,18 +1339,30 @@ typedef union {
 	  &(reg)->u_end.isp2200.mailbox8 + (num) - 8) : \
 	 &(reg)->u.isp2300.mailbox0 + (num))
 #define RD_MAILBOX_REG(ha, reg, num) \
+<<<<<<< HEAD
 	RD_REG_WORD(MAILBOX_REG(ha, reg, num))
 #define WRT_MAILBOX_REG(ha, reg, num, data) \
 	WRT_REG_WORD(MAILBOX_REG(ha, reg, num), data)
+=======
+	rd_reg_word(MAILBOX_REG(ha, reg, num))
+#define WRT_MAILBOX_REG(ha, reg, num, data) \
+	wrt_reg_word(MAILBOX_REG(ha, reg, num), data)
+>>>>>>> upstream/android-13
 
 #define FB_CMD_REG(ha, reg) \
 	(IS_QLA2100(ha) || IS_QLA2200(ha) ? \
 	 &(reg)->fb_cmd_2100 : \
 	 &(reg)->u.isp2300.fb_cmd)
 #define RD_FB_CMD_REG(ha, reg) \
+<<<<<<< HEAD
 	RD_REG_WORD(FB_CMD_REG(ha, reg))
 #define WRT_FB_CMD_REG(ha, reg, data) \
 	WRT_REG_WORD(FB_CMD_REG(ha, reg), data)
+=======
+	rd_reg_word(FB_CMD_REG(ha, reg))
+#define WRT_FB_CMD_REG(ha, reg, data) \
+	wrt_reg_word(FB_CMD_REG(ha, reg), data)
+>>>>>>> upstream/android-13
 
 typedef struct {
 	uint32_t	out_mb;		/* outbound from driver */
@@ -915,6 +1424,14 @@ struct mbx_cmd_32 {
 #define MBS_LINK_DOWN_ERROR		0x400B
 #define MBS_DIAG_ECHO_TEST_ERROR	0x400C
 
+<<<<<<< HEAD
+=======
+static inline bool qla2xxx_is_valid_mbs(unsigned int mbs)
+{
+	return MBS_COMMAND_COMPLETE <= mbs && mbs <= MBS_DIAG_ECHO_TEST_ERROR;
+}
+
+>>>>>>> upstream/android-13
 /*
  * ISP mailbox asynchronous event status codes
  */
@@ -934,6 +1451,10 @@ struct mbx_cmd_32 {
 #define MBA_LIP_F8		0x8016	/* Received a LIP F8. */
 #define MBA_LOOP_INIT_ERR	0x8017	/* Loop Initialization Error. */
 #define MBA_FABRIC_AUTH_REQ	0x801b	/* Fabric Authentication Required. */
+<<<<<<< HEAD
+=======
+#define MBA_CONGN_NOTI_RECV	0x801e	/* Congestion Notification Received */
+>>>>>>> upstream/android-13
 #define MBA_SCSI_COMPLETION	0x8020	/* SCSI Command Complete. */
 #define MBA_CTIO_COMPLETION	0x8021	/* CTIO Complete. */
 #define MBA_IP_COMPLETION	0x8022	/* IP Transmit Command Complete. */
@@ -965,6 +1486,10 @@ struct mbx_cmd_32 {
 #define MBA_TEMPERATURE_ALERT	0x8070	/* Temperature Alert */
 #define MBA_DPORT_DIAGNOSTICS	0x8080	/* D-port Diagnostics */
 #define MBA_TRANS_INSERT	0x8130	/* Transceiver Insertion */
+<<<<<<< HEAD
+=======
+#define MBA_TRANS_REMOVE	0x8131	/* Transceiver Removal */
+>>>>>>> upstream/android-13
 #define MBA_FW_INIT_FAILURE	0x8401	/* Firmware initialization failure */
 #define MBA_MIRROR_LUN_CHANGE	0x8402	/* Mirror LUN State Change
 					   Notification */
@@ -1031,6 +1556,10 @@ struct mbx_cmd_32 {
 #define MBC_GET_FIRMWARE_VERSION	8	/* Get firmware revision. */
 #define MBC_LOAD_RISC_RAM		9	/* Load RAM command. */
 #define MBC_DUMP_RISC_RAM		0xa	/* Dump RAM command. */
+<<<<<<< HEAD
+=======
+#define MBC_SECURE_FLASH_UPDATE		0xa	/* Secure Flash Update(28xx) */
+>>>>>>> upstream/android-13
 #define MBC_LOAD_RISC_RAM_EXTENDED	0xb	/* Load RAM extended. */
 #define MBC_DUMP_RISC_RAM_EXTENDED	0xc	/* Dump RAM extended. */
 #define MBC_WRITE_RAM_WORD_EXTENDED	0xd	/* Write RAM word extended */
@@ -1049,6 +1578,10 @@ struct mbx_cmd_32 {
 #define MBC_GET_FIRMWARE_OPTION		0x28	/* Get Firmware Options. */
 #define MBC_GET_MEM_OFFLOAD_CNTRL_STAT	0x34	/* Memory Offload ctrl/Stat*/
 #define MBC_SET_FIRMWARE_OPTION		0x38	/* Set Firmware Options. */
+<<<<<<< HEAD
+=======
+#define MBC_SET_GET_FC_LED_CONFIG	0x3b	/* Set/Get FC LED config */
+>>>>>>> upstream/android-13
 #define MBC_LOOP_PORT_BYPASS		0x40	/* Loop Port Bypass. */
 #define MBC_LOOP_PORT_ENABLE		0x41	/* Loop Port Enable. */
 #define MBC_GET_RESOURCE_COUNTS		0x42	/* Get Resource Counts. */
@@ -1175,10 +1708,21 @@ struct mbx_cmd_32 {
 #define	MBX_1		BIT_1
 #define	MBX_0		BIT_0
 
+<<<<<<< HEAD
 #define RNID_TYPE_PORT_LOGIN	0x7
 #define RNID_TYPE_SET_VERSION	0x9
 #define RNID_TYPE_ASIC_TEMP	0xC
 
+=======
+#define RNID_TYPE_ELS_CMD	0x5
+#define RNID_TYPE_PORT_LOGIN	0x7
+#define RNID_BUFFER_CREDITS	0x8
+#define RNID_TYPE_SET_VERSION	0x9
+#define RNID_TYPE_ASIC_TEMP	0xC
+
+#define ELS_CMD_MAP_SIZE	32
+
+>>>>>>> upstream/android-13
 /*
  * Firmware state codes from get firmware state mailbox command
  */
@@ -1201,6 +1745,13 @@ struct mbx_cmd_32 {
 #define QLA27XX_IMG_STATUS_VER_MAJOR   0x01
 #define QLA27XX_IMG_STATUS_VER_MINOR    0x00
 #define QLA27XX_IMG_STATUS_SIGN   0xFACEFADE
+<<<<<<< HEAD
+=======
+#define QLA28XX_IMG_STATUS_SIGN    0xFACEFADF
+#define QLA28XX_IMG_STATUS_SIGN		0xFACEFADF
+#define QLA28XX_AUX_IMG_STATUS_SIGN	0xFACEFAED
+#define QLA27XX_DEFAULT_IMAGE		0
+>>>>>>> upstream/android-13
 #define QLA27XX_PRIMARY_IMAGE  1
 #define QLA27XX_SECONDARY_IMAGE    2
 
@@ -1220,7 +1771,11 @@ typedef struct {
 	uint8_t port_id[4];
 	uint8_t node_name[WWN_SIZE];
 	uint8_t port_name[WWN_SIZE];
+<<<<<<< HEAD
 	uint16_t execution_throttle;
+=======
+	__le16	execution_throttle;
+>>>>>>> upstream/android-13
 	uint16_t execution_count;
 	uint8_t reset_count;
 	uint8_t reserved_2;
@@ -1306,9 +1861,15 @@ typedef struct {
 	 */
 	uint8_t  firmware_options[2];
 
+<<<<<<< HEAD
 	uint16_t frame_payload_size;
 	uint16_t max_iocb_allocation;
 	uint16_t execution_throttle;
+=======
+	__le16	frame_payload_size;
+	__le16	max_iocb_allocation;
+	__le16	execution_throttle;
+>>>>>>> upstream/android-13
 	uint8_t  retry_count;
 	uint8_t	 retry_delay;			/* unused */
 	uint8_t	 port_name[WWN_SIZE];		/* Big endian. */
@@ -1317,6 +1878,7 @@ typedef struct {
 	uint8_t	 login_timeout;
 	uint8_t	 node_name[WWN_SIZE];		/* Big endian. */
 
+<<<<<<< HEAD
 	uint16_t request_q_outpointer;
 	uint16_t response_q_inpointer;
 	uint16_t request_q_length;
@@ -1328,6 +1890,19 @@ typedef struct {
 	uint8_t  command_resource_count;
 	uint8_t  immediate_notify_resource_count;
 	uint16_t timeout;
+=======
+	__le16	request_q_outpointer;
+	__le16	response_q_inpointer;
+	__le16	request_q_length;
+	__le16	response_q_length;
+	__le64  request_q_address __packed;
+	__le64  response_q_address __packed;
+
+	__le16	lun_enables;
+	uint8_t  command_resource_count;
+	uint8_t  immediate_notify_resource_count;
+	__le16	timeout;
+>>>>>>> upstream/android-13
 	uint8_t  reserved_2[2];
 
 	/*
@@ -1378,6 +1953,28 @@ typedef struct {
 	uint8_t  reserved_3[26];
 } init_cb_t;
 
+<<<<<<< HEAD
+=======
+/* Special Features Control Block */
+struct init_sf_cb {
+	uint8_t	format;
+	uint8_t	reserved0;
+	/*
+	 * BIT 15-14 = Reserved
+	 * BIT_13 = SAN Congestion Management (1 - Enabled, 0 - Disabled)
+	 * BIT_12 = Remote Write Optimization (1 - Enabled, 0 - Disabled)
+	 * BIT 11-0 = Reserved
+	 */
+	__le16	flags;
+	uint8_t	reserved1[32];
+	uint16_t discard_OHRB_timeout_value;
+	uint16_t remote_write_opt_queue_num;
+	uint8_t	reserved2[40];
+	uint8_t scm_related_parameter[16];
+	uint8_t reserved3[32];
+};
+
+>>>>>>> upstream/android-13
 /*
  * Get Link Status mailbox command return buffer.
  */
@@ -1385,6 +1982,7 @@ typedef struct {
 #define GLSO_USE_DID	BIT_3
 
 struct link_statistics {
+<<<<<<< HEAD
 	uint32_t link_fail_cnt;
 	uint32_t loss_sync_cnt;
 	uint32_t loss_sig_cnt;
@@ -1426,6 +2024,46 @@ struct link_statistics {
 	uint32_t fpm_disc_word_cnt_hi;
 	uint32_t fpm_xmit_word_cnt_lo;
 	uint32_t fpm_xmit_word_cnt_hi;
+=======
+	__le32 link_fail_cnt;
+	__le32 loss_sync_cnt;
+	__le32 loss_sig_cnt;
+	__le32 prim_seq_err_cnt;
+	__le32 inval_xmit_word_cnt;
+	__le32 inval_crc_cnt;
+	__le32 lip_cnt;
+	__le32 link_up_cnt;
+	__le32 link_down_loop_init_tmo;
+	__le32 link_down_los;
+	__le32 link_down_loss_rcv_clk;
+	uint32_t reserved0[5];
+	__le32 port_cfg_chg;
+	uint32_t reserved1[11];
+	__le32 rsp_q_full;
+	__le32 atio_q_full;
+	__le32 drop_ae;
+	__le32 els_proto_err;
+	__le32 reserved2;
+	__le32 tx_frames;
+	__le32 rx_frames;
+	__le32 discarded_frames;
+	__le32 dropped_frames;
+	uint32_t reserved3;
+	__le32 nos_rcvd;
+	uint32_t reserved4[4];
+	__le32 tx_prjt;
+	__le32 rcv_exfail;
+	__le32 rcv_abts;
+	__le32 seq_frm_miss;
+	__le32 corr_err;
+	__le32 mb_rqst;
+	__le32 nport_full;
+	__le32 eofa;
+	uint32_t reserved5;
+	__le64 fpm_recv_word_cnt;
+	__le64 fpm_disc_word_cnt;
+	__le64 fpm_xmit_word_cnt;
+>>>>>>> upstream/android-13
 	uint32_t reserved6[70];
 };
 
@@ -1477,9 +2115,15 @@ typedef struct {
 	 */
 	uint8_t	 firmware_options[2];
 
+<<<<<<< HEAD
 	uint16_t frame_payload_size;
 	uint16_t max_iocb_allocation;
 	uint16_t execution_throttle;
+=======
+	__le16	frame_payload_size;
+	__le16	max_iocb_allocation;
+	__le16	execution_throttle;
+>>>>>>> upstream/android-13
 	uint8_t	 retry_count;
 	uint8_t	 retry_delay;			/* unused */
 	uint8_t	 port_name[WWN_SIZE];		/* Big endian. */
@@ -1603,7 +2247,11 @@ typedef struct {
 	uint8_t reset_delay;
 	uint8_t port_down_retry_count;
 	uint8_t boot_id_number;
+<<<<<<< HEAD
 	uint16_t max_luns_per_target;
+=======
+	__le16	max_luns_per_target;
+>>>>>>> upstream/android-13
 	uint8_t fcode_boot_port_name[WWN_SIZE];
 	uint8_t alternate_port_name[WWN_SIZE];
 	uint8_t alternate_node_name[WWN_SIZE];
@@ -1709,7 +2357,11 @@ struct atio {
 };
 
 typedef union {
+<<<<<<< HEAD
 	uint16_t extended;
+=======
+	__le16	extended;
+>>>>>>> upstream/android-13
 	struct {
 		uint8_t reserved;
 		uint8_t standard;
@@ -1735,14 +2387,20 @@ typedef struct {
 	uint8_t entry_status;		/* Entry Status. */
 	uint32_t handle;		/* System handle. */
 	target_id_t target;		/* SCSI ID */
+<<<<<<< HEAD
 	uint16_t lun;			/* SCSI LUN */
 	uint16_t control_flags;		/* Control flags. */
+=======
+	__le16	lun;			/* SCSI LUN */
+	__le16	control_flags;		/* Control flags. */
+>>>>>>> upstream/android-13
 #define CF_WRITE	BIT_6
 #define CF_READ		BIT_5
 #define CF_SIMPLE_TAG	BIT_3
 #define CF_ORDERED_TAG	BIT_2
 #define CF_HEAD_TAG	BIT_1
 	uint16_t reserved_1;
+<<<<<<< HEAD
 	uint16_t timeout;		/* Command timeout. */
 	uint16_t dseg_count;		/* Data segment count. */
 	uint8_t scsi_cdb[MAX_CMDSZ]; 	/* SCSI command words. */
@@ -1753,6 +2411,16 @@ typedef struct {
 	uint32_t dseg_1_length;		/* Data segment 1 length. */
 	uint32_t dseg_2_address;	/* Data segment 2 address. */
 	uint32_t dseg_2_length;		/* Data segment 2 length. */
+=======
+	__le16	timeout;		/* Command timeout. */
+	__le16	dseg_count;		/* Data segment count. */
+	uint8_t scsi_cdb[MAX_CMDSZ]; 	/* SCSI command words. */
+	__le32	byte_count;		/* Total byte count. */
+	union {
+		struct dsd32 dsd32[3];
+		struct dsd64 dsd64[2];
+	};
+>>>>>>> upstream/android-13
 } cmd_entry_t;
 
 /*
@@ -1766,6 +2434,7 @@ typedef struct {
 	uint8_t entry_status;		/* Entry Status. */
 	uint32_t handle;		/* System handle. */
 	target_id_t target;		/* SCSI ID */
+<<<<<<< HEAD
 	uint16_t lun;			/* SCSI LUN */
 	uint16_t control_flags;		/* Control flags. */
 	uint16_t reserved_1;
@@ -1777,6 +2446,16 @@ typedef struct {
 	uint32_t dseg_0_length;		/* Data segment 0 length. */
 	uint32_t dseg_1_address[2];	/* Data segment 1 address. */
 	uint32_t dseg_1_length;		/* Data segment 1 length. */
+=======
+	__le16	lun;			/* SCSI LUN */
+	__le16	control_flags;		/* Control flags. */
+	uint16_t reserved_1;
+	__le16	timeout;		/* Command timeout. */
+	__le16	dseg_count;		/* Data segment count. */
+	uint8_t scsi_cdb[MAX_CMDSZ];	/* SCSI command words. */
+	uint32_t byte_count;		/* Total byte count. */
+	struct dsd64 dsd[2];
+>>>>>>> upstream/android-13
 } cmd_a64_entry_t, request_t;
 
 /*
@@ -1789,6 +2468,7 @@ typedef struct {
 	uint8_t sys_define;		/* System defined. */
 	uint8_t entry_status;		/* Entry Status. */
 	uint32_t reserved;
+<<<<<<< HEAD
 	uint32_t dseg_0_address;	/* Data segment 0 address. */
 	uint32_t dseg_0_length;		/* Data segment 0 length. */
 	uint32_t dseg_1_address;	/* Data segment 1 address. */
@@ -1803,6 +2483,9 @@ typedef struct {
 	uint32_t dseg_5_length;		/* Data segment 5 length. */
 	uint32_t dseg_6_address;	/* Data segment 6 address. */
 	uint32_t dseg_6_length;		/* Data segment 6 length. */
+=======
+	struct dsd32 dsd[7];
+>>>>>>> upstream/android-13
 } cont_entry_t;
 
 /*
@@ -1814,6 +2497,7 @@ typedef struct {
 	uint8_t entry_count;		/* Entry count. */
 	uint8_t sys_define;		/* System defined. */
 	uint8_t entry_status;		/* Entry Status. */
+<<<<<<< HEAD
 	uint32_t dseg_0_address[2];	/* Data segment 0 address. */
 	uint32_t dseg_0_length;		/* Data segment 0 length. */
 	uint32_t dseg_1_address[2];	/* Data segment 1 address. */
@@ -1824,6 +2508,9 @@ typedef struct {
 	uint32_t dseg_3_length;		/* Data segment 3 length. */
 	uint32_t dseg_4_address[2];	/* Data segment 4 address. */
 	uint32_t dseg_4_length;		/* Data segment 4 length. */
+=======
+	struct dsd64 dsd[5];
+>>>>>>> upstream/android-13
 } cont_a64_entry_t;
 
 #define PO_MODE_DIF_INSERT	0
@@ -1857,7 +2544,11 @@ struct crc_context {
 	__le16 guard_seed;		/* Initial Guard Seed */
 	__le16 prot_opts;		/* Requested Data Protection Mode */
 	__le16 blk_size;		/* Data size in bytes */
+<<<<<<< HEAD
 	uint16_t runt_blk_guard;	/* Guard value for runt block (tape
+=======
+	__le16	runt_blk_guard;	/* Guard value for runt block (tape
+>>>>>>> upstream/android-13
 					 * only) */
 	__le32 byte_count;		/* Total byte count/ total data
 					 * transfer count */
@@ -1867,8 +2558,12 @@ struct crc_context {
 			uint16_t	reserved_2;
 			uint16_t	reserved_3;
 			uint32_t	reserved_4;
+<<<<<<< HEAD
 			uint32_t	data_address[2];
 			uint32_t	data_length;
+=======
+			struct dsd64	data_dsd[1];
+>>>>>>> upstream/android-13
 			uint32_t	reserved_5[2];
 			uint32_t	reserved_6;
 		} nobundling;
@@ -1878,11 +2573,16 @@ struct crc_context {
 			uint16_t	reserved_1;
 			__le16	dseg_count;	/* Data segment count */
 			uint32_t	reserved_2;
+<<<<<<< HEAD
 			uint32_t	data_address[2];
 			uint32_t	data_length;
 			uint32_t	dif_address[2];
 			uint32_t	dif_length;	/* Data segment 0
 							 * length */
+=======
+			struct dsd64	data_dsd[1];
+			struct dsd64	dif_dsd;
+>>>>>>> upstream/android-13
 		} bundling;
 	} u;
 
@@ -1891,6 +2591,16 @@ struct crc_context {
 	/* List of DMA context transfers */
 	struct list_head dsd_list;
 
+<<<<<<< HEAD
+=======
+	/* List of DIF Bundling context DMA address */
+	struct list_head ldif_dsd_list;
+	u8 no_ldif_dsd;
+
+	struct list_head ldif_dma_hndl_list;
+	u32 dif_bundl_len;
+	u8 no_dif_bundl;
+>>>>>>> upstream/android-13
 	/* This structure should not exceed 512 bytes */
 };
 
@@ -1907,6 +2617,7 @@ typedef struct {
 	uint8_t sys_define;		/* System defined. */
 	uint8_t entry_status;		/* Entry Status. */
 	uint32_t handle;		/* System handle. */
+<<<<<<< HEAD
 	uint16_t scsi_status;		/* SCSI status. */
 	uint16_t comp_status;		/* Completion status. */
 	uint16_t state_flags;		/* State flags. */
@@ -1914,6 +2625,15 @@ typedef struct {
 	uint16_t rsp_info_len;		/* Response Info Length. */
 	uint16_t req_sense_length;	/* Request sense data length. */
 	uint32_t residual_length;	/* Residual transfer length. */
+=======
+	__le16	scsi_status;		/* SCSI status. */
+	__le16	comp_status;		/* Completion status. */
+	__le16	state_flags;		/* State flags. */
+	__le16	status_flags;		/* Status flags. */
+	__le16	rsp_info_len;		/* Response Info Length. */
+	__le16	req_sense_length;	/* Request sense data length. */
+	__le32	residual_length;	/* Residual transfer length. */
+>>>>>>> upstream/android-13
 	uint8_t rsp_info[8];		/* FCP response information. */
 	uint8_t req_sense_data[32];	/* Request sense data. */
 } sts_entry_t;
@@ -1970,6 +2690,10 @@ typedef struct {
 #define CS_COMPLETE_CHKCOND	0x30	/* Error? */
 #define CS_IOCB_ERROR		0x31	/* Generic error for IOCB request
 					   failure */
+<<<<<<< HEAD
+=======
+#define CS_REJECT_RECEIVED	0x4E	/* Reject received */
+>>>>>>> upstream/android-13
 #define CS_BAD_PAYLOAD		0x80	/* Driver defined */
 #define CS_UNKNOWN		0x81	/* Driver defined */
 #define CS_RETRY		0x82	/* Driver defined */
@@ -2045,8 +2769,13 @@ typedef struct {
 					/* clear port changed, */
 					/* use sequence number. */
 	uint8_t reserved_1;
+<<<<<<< HEAD
 	uint16_t sequence_number;	/* Sequence number of event */
 	uint16_t lun;			/* SCSI LUN */
+=======
+	__le16	sequence_number;	/* Sequence number of event */
+	__le16	lun;			/* SCSI LUN */
+>>>>>>> upstream/android-13
 	uint8_t reserved_2[48];
 } mrk_entry_t;
 
@@ -2061,6 +2790,7 @@ typedef struct {
 	uint8_t entry_status;		/* Entry Status. */
 	uint32_t handle1;		/* System handle. */
 	target_id_t loop_id;
+<<<<<<< HEAD
 	uint16_t status;
 	uint16_t control_flags;		/* Control flags. */
 	uint16_t reserved2;
@@ -2080,6 +2810,27 @@ typedef struct {
 	uint32_t dseg_rsp_length;	/* Data segment 1 length. */
 } ms_iocb_entry_t;
 
+=======
+	__le16	status;
+	__le16	control_flags;		/* Control flags. */
+	uint16_t reserved2;
+	__le16	timeout;
+	__le16	cmd_dsd_count;
+	__le16	total_dsd_count;
+	uint8_t type;
+	uint8_t r_ctl;
+	__le16	rx_id;
+	uint16_t reserved3;
+	uint32_t handle2;
+	__le32	rsp_bytecount;
+	__le32	req_bytecount;
+	struct dsd64 req_dsd;
+	struct dsd64 rsp_dsd;
+} ms_iocb_entry_t;
+
+#define SCM_EDC_ACC_RECEIVED		BIT_6
+#define SCM_RDF_ACC_RECEIVED		BIT_7
+>>>>>>> upstream/android-13
 
 /*
  * ISP queue - Mailbox Command entry structure definition.
@@ -2103,6 +2854,7 @@ struct mbx_entry {
 	uint32_t handle;
 	target_id_t loop_id;
 
+<<<<<<< HEAD
 	uint16_t status;
 	uint16_t state_flags;
 	uint16_t status_flags;
@@ -2117,6 +2869,22 @@ struct mbx_entry {
 	uint16_t mb7;
 	uint16_t mb9;
 	uint16_t mb10;
+=======
+	__le16	status;
+	__le16	state_flags;
+	__le16	status_flags;
+
+	uint32_t sys_define2[2];
+
+	__le16	mb0;
+	__le16	mb1;
+	__le16	mb2;
+	__le16	mb3;
+	__le16	mb6;
+	__le16	mb7;
+	__le16	mb9;
+	__le16	mb10;
+>>>>>>> upstream/android-13
 	uint32_t reserved_2[2];
 	uint8_t node_name[WWN_SIZE];
 	uint8_t port_name[WWN_SIZE];
@@ -2138,6 +2906,7 @@ struct imm_ntfy_from_isp {
 	uint8_t	 entry_status;		    /* Entry Status. */
 	union {
 		struct {
+<<<<<<< HEAD
 			uint32_t sys_define_2; /* System defined. */
 			target_id_t target;
 			uint16_t lun;
@@ -2154,10 +2923,29 @@ struct imm_ntfy_from_isp {
 #define SRR_IU_DATA_OUT	0x5
 #define SRR_IU_STATUS	0x7
 			uint16_t srr_ox_id;
+=======
+			__le32	sys_define_2; /* System defined. */
+			target_id_t target;
+			__le16	lun;
+			uint8_t  target_id;
+			uint8_t  reserved_1;
+			__le16	status_modifier;
+			__le16	status;
+			__le16	task_flags;
+			__le16	seq_id;
+			__le16	srr_rx_id;
+			__le32	srr_rel_offs;
+			__le16	srr_ui;
+#define SRR_IU_DATA_IN	0x1
+#define SRR_IU_DATA_OUT	0x5
+#define SRR_IU_STATUS	0x7
+			__le16	srr_ox_id;
+>>>>>>> upstream/android-13
 			uint8_t reserved_2[28];
 		} isp2x;
 		struct {
 			uint32_t reserved;
+<<<<<<< HEAD
 			uint16_t nport_handle;
 			uint16_t reserved_2;
 			uint16_t flags;
@@ -2171,19 +2959,43 @@ struct imm_ntfy_from_isp {
 			uint32_t srr_rel_offs;
 			uint16_t srr_ui;
 			uint16_t srr_ox_id;
+=======
+			__le16	nport_handle;
+			uint16_t reserved_2;
+			__le16	flags;
+#define NOTIFY24XX_FLAGS_FCSP		BIT_5
+#define NOTIFY24XX_FLAGS_GLOBAL_TPRLO   BIT_1
+#define NOTIFY24XX_FLAGS_PUREX_IOCB     BIT_0
+			__le16	srr_rx_id;
+			__le16	status;
+			uint8_t  status_subcode;
+			uint8_t  fw_handle;
+			__le32	exchange_address;
+			__le32	srr_rel_offs;
+			__le16	srr_ui;
+			__le16	srr_ox_id;
+>>>>>>> upstream/android-13
 			union {
 				struct {
 					uint8_t node_name[8];
 				} plogi; /* PLOGI/ADISC/PDISC */
 				struct {
 					/* PRLI word 3 bit 0-15 */
+<<<<<<< HEAD
 					uint16_t wd3_lo;
+=======
+					__le16	wd3_lo;
+>>>>>>> upstream/android-13
 					uint8_t resv0[6];
 				} prli;
 				struct {
 					uint8_t port_id[3];
 					uint8_t resv1;
+<<<<<<< HEAD
 					uint16_t nport_handle;
+=======
+					__le16	nport_handle;
+>>>>>>> upstream/android-13
 					uint16_t resv2;
 				} req_els;
 			} u;
@@ -2196,7 +3008,11 @@ struct imm_ntfy_from_isp {
 		} isp24;
 	} u;
 	uint16_t reserved_7;
+<<<<<<< HEAD
 	uint16_t ox_id;
+=======
+	__le16	ox_id;
+>>>>>>> upstream/android-13
 } __packed;
 #endif
 
@@ -2218,7 +3034,11 @@ typedef struct {
 	uint8_t fabric_port_name[WWN_SIZE];
 	uint16_t fp_speed;
 	uint8_t fc4_type;
+<<<<<<< HEAD
 	uint8_t fc4f_nvme;	/* nvme fc4 feature bits */
+=======
+	uint8_t fc4_features;
+>>>>>>> upstream/android-13
 } sw_info_t;
 
 /* FCP-4 types */
@@ -2244,12 +3064,22 @@ struct mbx_24xx_entry {
  */
 typedef enum {
 	FCT_UNKNOWN,
+<<<<<<< HEAD
 	FCT_RSCN,
 	FCT_SWITCH,
 	FCT_BROADCAST,
 	FCT_INITIATOR,
 	FCT_TARGET,
 	FCT_NVME
+=======
+	FCT_BROADCAST = 0x01,
+	FCT_INITIATOR = 0x02,
+	FCT_TARGET    = 0x04,
+	FCT_NVME_INITIATOR = 0x10,
+	FCT_NVME_TARGET = 0x20,
+	FCT_NVME_DISCOVERY = 0x40,
+	FCT_NVME = 0xf0,
+>>>>>>> upstream/android-13
 } fc_port_type_t;
 
 enum qla_sess_deletion {
@@ -2280,7 +3110,10 @@ struct ct_sns_desc {
 enum discovery_state {
 	DSC_DELETED,
 	DSC_GNN_ID,
+<<<<<<< HEAD
 	DSC_GID_PN,
+=======
+>>>>>>> upstream/android-13
 	DSC_GNL,
 	DSC_LOGIN_PEND,
 	DSC_LOGIN_FAILED,
@@ -2289,6 +3122,10 @@ enum discovery_state {
 	DSC_LOGIN_COMPLETE,
 	DSC_ADISC,
 	DSC_DELETE_PEND,
+<<<<<<< HEAD
+=======
+	DSC_LOGIN_AUTH_PEND,
+>>>>>>> upstream/android-13
 };
 
 enum login_state {	/* FW control Target side */
@@ -2302,6 +3139,7 @@ enum login_state {	/* FW control Target side */
 	DSC_LS_LOGO_PEND,
 };
 
+<<<<<<< HEAD
 enum fcport_mgt_event {
 	FCME_RELOGIN = 1,
 	FCME_RSCN,
@@ -2319,6 +3157,8 @@ enum fcport_mgt_event {
 	FCME_ELS_PLOGI_DONE,
 };
 
+=======
+>>>>>>> upstream/android-13
 enum rscn_addr_format {
 	RSCN_PORT_ADDR,
 	RSCN_AREA_ADDR,
@@ -2333,12 +3173,15 @@ typedef struct fc_port {
 	struct list_head list;
 	struct scsi_qla_host *vha;
 
+<<<<<<< HEAD
 	uint8_t node_name[WWN_SIZE];
 	uint8_t port_name[WWN_SIZE];
 	port_id_t d_id;
 	uint16_t loop_id;
 	uint16_t old_loop_id;
 
+=======
+>>>>>>> upstream/android-13
 	unsigned int conf_compl_supported:1;
 	unsigned int deleted:2;
 	unsigned int free_pending:1;
@@ -2352,15 +3195,41 @@ typedef struct fc_port {
 	unsigned int query:1;
 	unsigned int id_changed:1;
 	unsigned int scan_needed:1;
+<<<<<<< HEAD
 
 	struct work_struct nvme_del_work;
 	struct completion nvme_del_done;
 	uint32_t nvme_prli_service_param;
+=======
+	unsigned int n2n_flag:1;
+	unsigned int explicit_logout:1;
+	unsigned int prli_pend_timer:1;
+	unsigned int do_prli_nvme:1;
+
+	uint8_t nvme_flag;
+
+	uint8_t node_name[WWN_SIZE];
+	uint8_t port_name[WWN_SIZE];
+	port_id_t d_id;
+	uint16_t loop_id;
+	uint16_t old_loop_id;
+
+	struct completion nvme_del_done;
+	uint32_t nvme_prli_service_param;
+#define NVME_PRLI_SP_PI_CTRL	BIT_9
+#define NVME_PRLI_SP_SLER	BIT_8
+>>>>>>> upstream/android-13
 #define NVME_PRLI_SP_CONF       BIT_7
 #define NVME_PRLI_SP_INITIATOR  BIT_5
 #define NVME_PRLI_SP_TARGET     BIT_4
 #define NVME_PRLI_SP_DISCOVERY  BIT_3
+<<<<<<< HEAD
 	uint8_t nvme_flag;
+=======
+#define NVME_PRLI_SP_FIRST_BURST	BIT_0
+
+	uint32_t nvme_first_burst_size;
+>>>>>>> upstream/android-13
 #define NVME_FLAG_REGISTERED 4
 #define NVME_FLAG_DELETING 2
 #define NVME_FLAG_RESETTING 1
@@ -2370,6 +3239,11 @@ typedef struct fc_port {
 	int generation;
 
 	struct se_session *se_sess;
+<<<<<<< HEAD
+=======
+	struct list_head sess_cmd_list;
+	spinlock_t sess_cmd_lock;
+>>>>>>> upstream/android-13
 	struct kref sess_kref;
 	struct qla_tgt *tgt;
 	unsigned long expires;
@@ -2377,6 +3251,10 @@ typedef struct fc_port {
 	struct work_struct free_work;
 	struct work_struct reg_work;
 	uint64_t jiffies_at_registration;
+<<<<<<< HEAD
+=======
+	unsigned long prli_expired;
+>>>>>>> upstream/android-13
 	struct qlt_plogi_ack_t *plogi_link[QLT_PLOGI_LINK_MAX];
 
 	uint16_t tgt_id;
@@ -2399,9 +3277,14 @@ typedef struct fc_port {
 	u32 supported_classes;
 
 	uint8_t fc4_type;
+<<<<<<< HEAD
 	uint8_t	fc4f_nvme;
 	uint8_t scan_state;
 	uint8_t n2n_flag;
+=======
+	uint8_t fc4_features;
+	uint8_t scan_state;
+>>>>>>> upstream/android-13
 
 	unsigned long last_queue_full;
 	unsigned long last_ramp_up;
@@ -2414,6 +3297,10 @@ typedef struct fc_port {
 	struct qla_tgt_sess *tgt_session;
 	struct ct_sns_desc ct_desc;
 	enum discovery_state disc_state;
+<<<<<<< HEAD
+=======
+	atomic_t shadow_disc_state;
+>>>>>>> upstream/android-13
 	enum discovery_state next_disc_state;
 	enum login_state fw_login_state;
 	unsigned long dm_login_expire;
@@ -2429,13 +3316,59 @@ typedef struct fc_port {
 	u8 last_login_state;
 	u16 n2n_link_reset_cnt;
 	u16 n2n_chip_reset;
+<<<<<<< HEAD
 } fc_port_t;
 
+=======
+
+	struct dentry *dfs_rport_dir;
+
+	u64 tgt_short_link_down_cnt;
+	u64 tgt_link_down_time;
+	u64 dev_loss_tmo;
+	/*
+	 * EDIF parameters for encryption.
+	 */
+	struct {
+		uint32_t	enable:1;	/* device is edif enabled/req'd */
+		uint32_t	app_stop:2;
+		uint32_t	app_started:1;
+		uint32_t	aes_gmac:1;
+		uint32_t	app_sess_online:1;
+		uint32_t	tx_sa_set:1;
+		uint32_t	rx_sa_set:1;
+		uint32_t	tx_sa_pending:1;
+		uint32_t	rx_sa_pending:1;
+		uint32_t	tx_rekey_cnt;
+		uint32_t	rx_rekey_cnt;
+		uint64_t	tx_bytes;
+		uint64_t	rx_bytes;
+		uint8_t		auth_state;
+		uint16_t	authok:1;
+		uint16_t	rekey_cnt;
+		struct list_head edif_indx_list;
+		spinlock_t  indx_list_lock;
+
+		struct list_head tx_sa_list;
+		struct list_head rx_sa_list;
+		spinlock_t	sa_list_lock;
+	} edif;
+} fc_port_t;
+
+enum {
+	FC4_PRIORITY_NVME = 1,
+	FC4_PRIORITY_FCP  = 2,
+};
+
+>>>>>>> upstream/android-13
 #define QLA_FCPORT_SCAN		1
 #define QLA_FCPORT_FOUND	2
 
 struct event_arg {
+<<<<<<< HEAD
 	enum fcport_mgt_event	event;
+=======
+>>>>>>> upstream/android-13
 	fc_port_t		*fcport;
 	srb_t			*sp;
 	port_id_t		id;
@@ -2454,12 +3387,29 @@ struct event_arg {
 #define FCS_DEVICE_LOST		3
 #define FCS_ONLINE		4
 
+<<<<<<< HEAD
 static const char * const port_state_str[] = {
 	"Unknown",
 	"UNCONFIGURED",
 	"DEAD",
 	"LOST",
 	"ONLINE"
+=======
+extern const char *const port_state_str[5];
+
+static const char * const port_dstate_str[] = {
+	"DELETED",
+	"GNN_ID",
+	"GNL",
+	"LOGIN_PEND",
+	"LOGIN_FAILED",
+	"GPDB",
+	"UPD_FCPORT",
+	"LOGIN_COMPLETE",
+	"ADISC",
+	"DELETE_PEND",
+	"LOGIN_AUTH_PEND",
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -2471,6 +3421,11 @@ static const char * const port_state_str[] = {
 #define FCF_ASYNC_SENT		BIT_3
 #define FCF_CONF_COMP_SUPPORTED BIT_4
 #define FCF_ASYNC_ACTIVE	BIT_5
+<<<<<<< HEAD
+=======
+#define FCF_FCSP_DEVICE		BIT_6
+#define FCF_EDIF_DELETE		BIT_7
+>>>>>>> upstream/android-13
 
 /* No loop ID flag. */
 #define FC_NO_LOOP_ID		0x1000
@@ -2560,10 +3515,18 @@ static const char * const port_state_str[] = {
 #define GFF_ID_RSP_SIZE (16 + 128)
 
 /*
+<<<<<<< HEAD
  * HBA attribute types.
  */
 #define FDMI_HBA_ATTR_COUNT			9
 #define FDMIV2_HBA_ATTR_COUNT			17
+=======
+ * FDMI HBA attribute types.
+ */
+#define FDMI1_HBA_ATTR_COUNT			10
+#define FDMI2_HBA_ATTR_COUNT			17
+
+>>>>>>> upstream/android-13
 #define FDMI_HBA_NODE_NAME			0x1
 #define FDMI_HBA_MANUFACTURER			0x2
 #define FDMI_HBA_SERIAL_NUMBER			0x3
@@ -2575,6 +3538,7 @@ static const char * const port_state_str[] = {
 #define FDMI_HBA_FIRMWARE_VERSION		0x9
 #define FDMI_HBA_OS_NAME_AND_VERSION		0xa
 #define FDMI_HBA_MAXIMUM_CT_PAYLOAD_LENGTH	0xb
+<<<<<<< HEAD
 #define FDMI_HBA_NODE_SYMBOLIC_NAME		0xc
 #define FDMI_HBA_VENDOR_ID			0xd
 #define FDMI_HBA_NUM_PORTS			0xe
@@ -2585,6 +3549,19 @@ static const char * const port_state_str[] = {
 struct ct_fdmi_hba_attr {
 	uint16_t type;
 	uint16_t len;
+=======
+
+#define FDMI_HBA_NODE_SYMBOLIC_NAME		0xc
+#define FDMI_HBA_VENDOR_SPECIFIC_INFO		0xd
+#define FDMI_HBA_NUM_PORTS			0xe
+#define FDMI_HBA_FABRIC_NAME			0xf
+#define FDMI_HBA_BOOT_BIOS_NAME			0x10
+#define FDMI_HBA_VENDOR_IDENTIFIER		0xe0
+
+struct ct_fdmi_hba_attr {
+	__be16	type;
+	__be16	len;
+>>>>>>> upstream/android-13
 	union {
 		uint8_t node_name[WWN_SIZE];
 		uint8_t manufacturer[64];
@@ -2596,6 +3573,7 @@ struct ct_fdmi_hba_attr {
 		uint8_t orom_version[16];
 		uint8_t fw_version[32];
 		uint8_t os_version[128];
+<<<<<<< HEAD
 		uint32_t max_ct_len;
 	} a;
 };
@@ -2623,12 +3601,20 @@ struct ct_fdmiv2_hba_attr {
 		uint8_t sym_name[256];
 		uint32_t vendor_id;
 		uint32_t num_ports;
+=======
+		__be32	 max_ct_len;
+
+		uint8_t sym_name[256];
+		__be32	 vendor_specific_info;
+		__be32	 num_ports;
+>>>>>>> upstream/android-13
 		uint8_t fabric_name[WWN_SIZE];
 		uint8_t bios_name[32];
 		uint8_t vendor_identifier[8];
 	} a;
 };
 
+<<<<<<< HEAD
 struct ct_fdmiv2_hba_attributes {
 	uint32_t count;
 	struct ct_fdmiv2_hba_attr entry[FDMIV2_HBA_ATTR_COUNT];
@@ -2639,12 +3625,35 @@ struct ct_fdmiv2_hba_attributes {
  */
 #define FDMI_PORT_ATTR_COUNT		6
 #define FDMIV2_PORT_ATTR_COUNT		16
+=======
+struct ct_fdmi1_hba_attributes {
+	__be32	count;
+	struct ct_fdmi_hba_attr entry[FDMI1_HBA_ATTR_COUNT];
+};
+
+struct ct_fdmi2_hba_attributes {
+	__be32	count;
+	struct ct_fdmi_hba_attr entry[FDMI2_HBA_ATTR_COUNT];
+};
+
+/*
+ * FDMI Port attribute types.
+ */
+#define FDMI1_PORT_ATTR_COUNT		6
+#define FDMI2_PORT_ATTR_COUNT		16
+#define FDMI2_SMARTSAN_PORT_ATTR_COUNT	23
+
+>>>>>>> upstream/android-13
 #define FDMI_PORT_FC4_TYPES		0x1
 #define FDMI_PORT_SUPPORT_SPEED		0x2
 #define FDMI_PORT_CURRENT_SPEED		0x3
 #define FDMI_PORT_MAX_FRAME_SIZE	0x4
 #define FDMI_PORT_OS_DEVICE_NAME	0x5
 #define FDMI_PORT_HOST_NAME		0x6
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 #define FDMI_PORT_NODE_NAME		0x7
 #define FDMI_PORT_NAME			0x8
 #define FDMI_PORT_SYM_NAME		0x9
@@ -2654,7 +3663,19 @@ struct ct_fdmiv2_hba_attributes {
 #define FDMI_PORT_FC4_TYPE		0xd
 #define FDMI_PORT_STATE			0x101
 #define FDMI_PORT_COUNT			0x102
+<<<<<<< HEAD
 #define FDMI_PORT_ID			0x103
+=======
+#define FDMI_PORT_IDENTIFIER		0x103
+
+#define FDMI_SMARTSAN_SERVICE		0xF100
+#define FDMI_SMARTSAN_GUID		0xF101
+#define FDMI_SMARTSAN_VERSION		0xF102
+#define FDMI_SMARTSAN_PROD_NAME		0xF103
+#define FDMI_SMARTSAN_PORT_INFO		0xF104
+#define FDMI_SMARTSAN_QOS_SUPPORT	0xF105
+#define FDMI_SMARTSAN_SECURITY_SUPPORT	0xF106
+>>>>>>> upstream/android-13
 
 #define FDMI_PORT_SPEED_1GB		0x1
 #define FDMI_PORT_SPEED_2GB		0x2
@@ -2663,12 +3684,21 @@ struct ct_fdmiv2_hba_attributes {
 #define FDMI_PORT_SPEED_8GB		0x10
 #define FDMI_PORT_SPEED_16GB		0x20
 #define FDMI_PORT_SPEED_32GB		0x40
+<<<<<<< HEAD
+=======
+#define FDMI_PORT_SPEED_20GB		0x80
+#define FDMI_PORT_SPEED_40GB		0x100
+#define FDMI_PORT_SPEED_128GB		0x200
+#define FDMI_PORT_SPEED_64GB		0x400
+#define FDMI_PORT_SPEED_256GB		0x800
+>>>>>>> upstream/android-13
 #define FDMI_PORT_SPEED_UNKNOWN		0x8000
 
 #define FC_CLASS_2	0x04
 #define FC_CLASS_3	0x08
 #define FC_CLASS_2_3	0x0C
 
+<<<<<<< HEAD
 struct ct_fdmiv2_port_attr {
 	uint16_t type;
 	uint16_t len;
@@ -2717,6 +3747,60 @@ struct ct_fdmi_port_attributes {
 	uint32_t count;
 	struct ct_fdmi_port_attr entry[FDMI_PORT_ATTR_COUNT];
 };
+=======
+struct ct_fdmi_port_attr {
+	__be16	type;
+	__be16	len;
+	union {
+		uint8_t fc4_types[32];
+		__be32	sup_speed;
+		__be32	cur_speed;
+		__be32	max_frame_size;
+		uint8_t os_dev_name[32];
+		uint8_t host_name[256];
+
+		uint8_t node_name[WWN_SIZE];
+		uint8_t port_name[WWN_SIZE];
+		uint8_t port_sym_name[128];
+		__be32	port_type;
+		__be32	port_supported_cos;
+		uint8_t fabric_name[WWN_SIZE];
+		uint8_t port_fc4_type[32];
+		__be32	 port_state;
+		__be32	 num_ports;
+		__be32	 port_id;
+
+		uint8_t smartsan_service[24];
+		uint8_t smartsan_guid[16];
+		uint8_t smartsan_version[24];
+		uint8_t smartsan_prod_name[16];
+		__be32	 smartsan_port_info;
+		__be32	 smartsan_qos_support;
+		__be32	 smartsan_security_support;
+	} a;
+};
+
+struct ct_fdmi1_port_attributes {
+	__be32	 count;
+	struct ct_fdmi_port_attr entry[FDMI1_PORT_ATTR_COUNT];
+};
+
+struct ct_fdmi2_port_attributes {
+	__be32	count;
+	struct ct_fdmi_port_attr entry[FDMI2_PORT_ATTR_COUNT];
+};
+
+#define FDMI_ATTR_TYPELEN(obj) \
+	(sizeof((obj)->type) + sizeof((obj)->len))
+
+#define FDMI_ATTR_ALIGNMENT(len) \
+	(4 - ((len) & 3))
+
+/* FDMI register call options */
+#define CALLOPT_FDMI1		0
+#define CALLOPT_FDMI2		1
+#define CALLOPT_FDMI2_SMARTSAN	2
+>>>>>>> upstream/android-13
 
 /* FDMI definitions. */
 #define GRHL_CMD	0x100
@@ -2728,10 +3812,20 @@ struct ct_fdmi_port_attributes {
 #define RHBA_RSP_SIZE	16
 
 #define RHAT_CMD	0x201
+<<<<<<< HEAD
 #define RPRT_CMD	0x210
 
 #define RPA_CMD		0x211
 #define RPA_RSP_SIZE	16
+=======
+
+#define RPRT_CMD	0x210
+#define RPRT_RSP_SIZE	24
+
+#define RPA_CMD		0x211
+#define RPA_RSP_SIZE	16
+#define SMARTSAN_RPA_RSP_SIZE	24
+>>>>>>> upstream/android-13
 
 #define DHBA_CMD	0x300
 #define DHBA_REQ_SIZE	(16 + 8)
@@ -2754,8 +3848,13 @@ struct ct_cmd_hdr {
 /* CT command request */
 struct ct_sns_req {
 	struct ct_cmd_hdr header;
+<<<<<<< HEAD
 	uint16_t command;
 	uint16_t max_rsp_size;
+=======
+	__be16	command;
+	__be16	max_rsp_size;
+>>>>>>> upstream/android-13
 	uint8_t fragment_id;
 	uint8_t reserved[3];
 
@@ -2763,7 +3862,11 @@ struct ct_sns_req {
 		/* GA_NXT, GPN_ID, GNN_ID, GFT_ID, GFPN_ID */
 		struct {
 			uint8_t reserved;
+<<<<<<< HEAD
 			uint8_t port_id[3];
+=======
+			be_id_t port_id;
+>>>>>>> upstream/android-13
 		} port_id;
 
 		struct {
@@ -2782,13 +3885,21 @@ struct ct_sns_req {
 
 		struct {
 			uint8_t reserved;
+<<<<<<< HEAD
 			uint8_t port_id[3];
+=======
+			be_id_t port_id;
+>>>>>>> upstream/android-13
 			uint8_t fc4_types[32];
 		} rft_id;
 
 		struct {
 			uint8_t reserved;
+<<<<<<< HEAD
 			uint8_t port_id[3];
+=======
+			be_id_t port_id;
+>>>>>>> upstream/android-13
 			uint16_t reserved2;
 			uint8_t fc4_feature;
 			uint8_t fc4_type;
@@ -2796,7 +3907,11 @@ struct ct_sns_req {
 
 		struct {
 			uint8_t reserved;
+<<<<<<< HEAD
 			uint8_t port_id[3];
+=======
+			be_id_t port_id;
+>>>>>>> upstream/android-13
 			uint8_t node_name[8];
 		} rnn_id;
 
@@ -2812,13 +3927,20 @@ struct ct_sns_req {
 
 		struct {
 			uint8_t hba_identifier[8];
+<<<<<<< HEAD
 			uint32_t entry_count;
 			uint8_t port_name[8];
 			struct ct_fdmi_hba_attributes attrs;
+=======
+			__be32	entry_count;
+			uint8_t port_name[8];
+			struct ct_fdmi2_hba_attributes attrs;
+>>>>>>> upstream/android-13
 		} rhba;
 
 		struct {
 			uint8_t hba_identifier[8];
+<<<<<<< HEAD
 			uint32_t entry_count;
 			uint8_t port_name[8];
 			struct ct_fdmiv2_hba_attributes attrs;
@@ -2827,10 +3949,14 @@ struct ct_sns_req {
 		struct {
 			uint8_t hba_identifier[8];
 			struct ct_fdmi_hba_attributes attrs;
+=======
+			struct ct_fdmi1_hba_attributes attrs;
+>>>>>>> upstream/android-13
 		} rhat;
 
 		struct {
 			uint8_t port_name[8];
+<<<<<<< HEAD
 			struct ct_fdmi_port_attributes attrs;
 		} rpa;
 
@@ -2838,6 +3964,16 @@ struct ct_sns_req {
 			uint8_t port_name[8];
 			struct ct_fdmiv2_port_attributes attrs;
 		} rpa2;
+=======
+			struct ct_fdmi2_port_attributes attrs;
+		} rpa;
+
+		struct {
+			uint8_t hba_identifier[8];
+			uint8_t port_name[8];
+			struct ct_fdmi2_port_attributes attrs;
+		} rprt;
+>>>>>>> upstream/android-13
 
 		struct {
 			uint8_t port_name[8];
@@ -2873,7 +4009,11 @@ struct ct_sns_req {
 /* CT command response header */
 struct ct_rsp_hdr {
 	struct ct_cmd_hdr header;
+<<<<<<< HEAD
 	uint16_t response;
+=======
+	__be16	response;
+>>>>>>> upstream/android-13
 	uint16_t residual;
 	uint8_t fragment_id;
 	uint8_t reason_code;
@@ -2883,7 +4023,11 @@ struct ct_rsp_hdr {
 
 struct ct_sns_gid_pt_data {
 	uint8_t control_byte;
+<<<<<<< HEAD
 	uint8_t port_id[3];
+=======
+	be_id_t port_id;
+>>>>>>> upstream/android-13
 };
 
 /* It's the same for both GPN_FT and GNN_FT */
@@ -2913,7 +4057,11 @@ struct ct_sns_rsp {
 	union {
 		struct {
 			uint8_t port_type;
+<<<<<<< HEAD
 			uint8_t port_id[3];
+=======
+			be_id_t port_id;
+>>>>>>> upstream/android-13
 			uint8_t port_name[8];
 			uint8_t sym_port_name_len;
 			uint8_t sym_port_name[255];
@@ -2951,7 +4099,11 @@ struct ct_sns_rsp {
 		struct {
 			uint32_t entry_count;
 			uint8_t port_name[8];
+<<<<<<< HEAD
 			struct ct_fdmi_hba_attributes attrs;
+=======
+			struct ct_fdmi1_hba_attributes attrs;
+>>>>>>> upstream/android-13
 		} ghat;
 
 		struct {
@@ -2959,8 +4111,13 @@ struct ct_sns_rsp {
 		} gfpn_id;
 
 		struct {
+<<<<<<< HEAD
 			uint16_t speeds;
 			uint16_t speed;
+=======
+			__be16	speeds;
+			__be16	speed;
+>>>>>>> upstream/android-13
 		} gpsc;
 
 #define GFF_FCP_SCSI_OFFSET	7
@@ -2997,6 +4154,10 @@ enum scan_flags_t {
 enum fc4type_t {
 	FS_FC4TYPE_FCP	= BIT_0,
 	FS_FC4TYPE_NVME	= BIT_1,
+<<<<<<< HEAD
+=======
+	FS_FCP_IS_N2N = BIT_7,
+>>>>>>> upstream/android-13
 };
 
 struct fab_scan_rp {
@@ -3049,6 +4210,7 @@ struct fab_scan {
 struct sns_cmd_pkt {
 	union {
 		struct {
+<<<<<<< HEAD
 			uint16_t buffer_length;
 			uint16_t reserved_1;
 			uint32_t buffer_address[2];
@@ -3056,6 +4218,15 @@ struct sns_cmd_pkt {
 			uint16_t reserved_2;
 			uint16_t subcommand;
 			uint16_t size;
+=======
+			__le16	buffer_length;
+			__le16	reserved_1;
+			__le64	buffer_address __packed;
+			__le16	subcommand_length;
+			__le16	reserved_2;
+			__le16	subcommand;
+			__le16	size;
+>>>>>>> upstream/android-13
 			uint32_t reserved_3;
 			uint8_t param[36];
 		} cmd;
@@ -3081,7 +4252,11 @@ struct gid_list_info {
 	uint8_t	area;
 	uint8_t	domain;
 	uint8_t	loop_id_2100;	/* ISP2100/ISP2200 -- 4 bytes. */
+<<<<<<< HEAD
 	uint16_t loop_id;	/* ISP23XX         -- 6 bytes. */
+=======
+	__le16	loop_id;	/* ISP23XX         -- 6 bytes. */
+>>>>>>> upstream/android-13
 	uint16_t reserved_1;	/* ISP24XX         -- 8 bytes. */
 };
 
@@ -3121,15 +4296,26 @@ struct rsp_que;
 struct isp_operations {
 
 	int (*pci_config) (struct scsi_qla_host *);
+<<<<<<< HEAD
 	void (*reset_chip) (struct scsi_qla_host *);
 	int (*chip_diag) (struct scsi_qla_host *);
 	void (*config_rings) (struct scsi_qla_host *);
 	void (*reset_adapter) (struct scsi_qla_host *);
+=======
+	int (*reset_chip)(struct scsi_qla_host *);
+	int (*chip_diag) (struct scsi_qla_host *);
+	void (*config_rings) (struct scsi_qla_host *);
+	int (*reset_adapter)(struct scsi_qla_host *);
+>>>>>>> upstream/android-13
 	int (*nvram_config) (struct scsi_qla_host *);
 	void (*update_fw_options) (struct scsi_qla_host *);
 	int (*load_risc) (struct scsi_qla_host *, uint32_t *);
 
+<<<<<<< HEAD
 	char * (*pci_info_str) (struct scsi_qla_host *, char *);
+=======
+	char * (*pci_info_str)(struct scsi_qla_host *, char *, size_t);
+>>>>>>> upstream/android-13
 	char * (*fw_version_str)(struct scsi_qla_host *, char *, size_t);
 
 	irq_handler_t intr_handler;
@@ -3150,6 +4336,7 @@ struct isp_operations {
 	void *(*prep_ms_fdmi_iocb) (struct scsi_qla_host *, uint32_t,
 	    uint32_t);
 
+<<<<<<< HEAD
 	uint8_t *(*read_nvram) (struct scsi_qla_host *, uint8_t *,
 		uint32_t, uint32_t);
 	int (*write_nvram) (struct scsi_qla_host *, uint8_t *, uint32_t,
@@ -3164,13 +4351,40 @@ struct isp_operations {
 	uint8_t * (*read_optrom) (struct scsi_qla_host *, uint8_t *,
 		uint32_t, uint32_t);
 	int (*write_optrom) (struct scsi_qla_host *, uint8_t *, uint32_t,
+=======
+	uint8_t *(*read_nvram)(struct scsi_qla_host *, void *,
+		uint32_t, uint32_t);
+	int (*write_nvram)(struct scsi_qla_host *, void *, uint32_t,
+		uint32_t);
+
+	void (*fw_dump)(struct scsi_qla_host *vha);
+	void (*mpi_fw_dump)(struct scsi_qla_host *, int);
+
+	/* Context: task, might sleep */
+	int (*beacon_on) (struct scsi_qla_host *);
+	int (*beacon_off) (struct scsi_qla_host *);
+
+	void (*beacon_blink) (struct scsi_qla_host *);
+
+	void *(*read_optrom)(struct scsi_qla_host *, void *,
+		uint32_t, uint32_t);
+	int (*write_optrom)(struct scsi_qla_host *, void *, uint32_t,
+>>>>>>> upstream/android-13
 		uint32_t);
 
 	int (*get_flash_version) (struct scsi_qla_host *, void *);
 	int (*start_scsi) (srb_t *);
 	int (*start_scsi_mq) (srb_t *);
+<<<<<<< HEAD
 	int (*abort_isp) (struct scsi_qla_host *);
 	int (*iospace_config)(struct qla_hw_data*);
+=======
+
+	/* Context: task, might sleep */
+	int (*abort_isp) (struct scsi_qla_host *);
+
+	int (*iospace_config)(struct qla_hw_data *);
+>>>>>>> upstream/android-13
 	int (*initialize_adapter)(struct scsi_qla_host *);
 };
 
@@ -3184,6 +4398,10 @@ struct isp_operations {
 #define QLA_MSIX_RSP_Q			0x01
 #define QLA_ATIO_VECTOR		0x02
 #define QLA_MSIX_QPAIR_MULTIQ_RSP_Q	0x03
+<<<<<<< HEAD
+=======
+#define QLA_MSIX_QPAIR_MULTIQ_RSP_Q_HS	0x04
+>>>>>>> upstream/android-13
 
 #define QLA_MIDX_DEFAULT	0
 #define QLA_MIDX_RSP_Q		1
@@ -3213,12 +4431,18 @@ enum qla_work_type {
 	QLA_EVT_IDC_ACK,
 	QLA_EVT_ASYNC_LOGIN,
 	QLA_EVT_ASYNC_LOGOUT,
+<<<<<<< HEAD
 	QLA_EVT_ASYNC_LOGOUT_DONE,
 	QLA_EVT_ASYNC_ADISC,
 	QLA_EVT_ASYNC_ADISC_DONE,
 	QLA_EVT_UEVENT,
 	QLA_EVT_AENFX,
 	QLA_EVT_GIDPN,
+=======
+	QLA_EVT_ASYNC_ADISC,
+	QLA_EVT_UEVENT,
+	QLA_EVT_AENFX,
+>>>>>>> upstream/android-13
 	QLA_EVT_GPNID,
 	QLA_EVT_UNMAP,
 	QLA_EVT_NEW_SESS,
@@ -3238,6 +4462,10 @@ enum qla_work_type {
 	QLA_EVT_SP_RETRY,
 	QLA_EVT_IIDMA,
 	QLA_EVT_ELS_PLOGI,
+<<<<<<< HEAD
+=======
+	QLA_EVT_SA_REPLACE,
+>>>>>>> upstream/android-13
 };
 
 
@@ -3296,6 +4524,14 @@ struct qla_work_evt {
 			u8 fc4_type;
 			srb_t *sp;
 		} gpnft;
+<<<<<<< HEAD
+=======
+		struct {
+			struct edif_sa_ctl	*sa_ctl;
+			fc_port_t *fcport;
+			uint16_t nport_handle;
+		} sa_update;
+>>>>>>> upstream/android-13
 	 } u;
 };
 
@@ -3361,7 +4597,12 @@ struct qla_tc_param {
 #define QLA_MQ_SIZE 32
 #define QLA_MAX_QUEUES 256
 #define ISP_QUE_REG(ha, id) \
+<<<<<<< HEAD
 	((ha->mqenable || IS_QLA83XX(ha) || IS_QLA27XX(ha)) ? \
+=======
+	((ha->mqenable || IS_QLA83XX(ha) || \
+	  IS_QLA27XX(ha) || IS_QLA28XX(ha)) ? \
+>>>>>>> upstream/android-13
 	 ((void __iomem *)ha->mqiobase + (QLA_QUE_PAGE * id)) :\
 	 ((void __iomem *)ha->iobase))
 #define QLA_REQ_QUE_ID(tag) \
@@ -3383,6 +4624,17 @@ struct qla_tgt_counters {
 	uint64_t num_term_xchg_sent;
 };
 
+<<<<<<< HEAD
+=======
+struct qla_counters {
+	uint64_t input_bytes;
+	uint64_t input_requests;
+	uint64_t output_bytes;
+	uint64_t output_requests;
+
+};
+
+>>>>>>> upstream/android-13
 struct qla_qpair;
 
 /* Response queue data structure */
@@ -3390,8 +4642,13 @@ struct rsp_que {
 	dma_addr_t  dma;
 	response_t *ring;
 	response_t *ring_ptr;
+<<<<<<< HEAD
 	uint32_t __iomem *rsp_q_in;	/* FWI2-capable only. */
 	uint32_t __iomem *rsp_q_out;
+=======
+	__le32	__iomem *rsp_q_in;	/* FWI2-capable only. */
+	__le32	__iomem *rsp_q_out;
+>>>>>>> upstream/android-13
 	uint16_t  ring_index;
 	uint16_t  out_ptr;
 	uint16_t  *in_ptr;		/* queue shadow in index */
@@ -3417,8 +4674,13 @@ struct req_que {
 	dma_addr_t  dma;
 	request_t *ring;
 	request_t *ring_ptr;
+<<<<<<< HEAD
 	uint32_t __iomem *req_q_in;	/* FWI2-capable only. */
 	uint32_t __iomem *req_q_out;
+=======
+	__le32	__iomem *req_q_in;	/* FWI2-capable only. */
+	__le32	__iomem *req_q_out;
+>>>>>>> upstream/android-13
 	uint16_t  ring_index;
 	uint16_t  in_ptr;
 	uint16_t  *out_ptr;		/* queue shadow out index */
@@ -3441,6 +4703,18 @@ struct req_que {
 	uint8_t req_pkt[REQUEST_ENTRY_SIZE];
 };
 
+<<<<<<< HEAD
+=======
+struct qla_fw_resources {
+	u16 iocbs_total;
+	u16 iocbs_limit;
+	u16 iocbs_qp_limit;
+	u16 iocbs_used;
+};
+
+#define QLA_IOCB_PCT_LIMIT 95
+
+>>>>>>> upstream/android-13
 /*Queue pair data structure */
 struct qla_qpair {
 	spinlock_t qp_lock;
@@ -3467,6 +4741,10 @@ struct qla_qpair {
 	uint32_t enable_class_2:1;
 	uint32_t enable_explicit_conf:1;
 	uint32_t use_shadow_reg:1;
+<<<<<<< HEAD
+=======
+	uint32_t rcv_intr:1;
+>>>>>>> upstream/android-13
 
 	uint16_t id;			/* qp number used with FW */
 	uint16_t vp_idx;		/* vport ID */
@@ -3482,10 +4760,26 @@ struct qla_qpair {
 	struct qla_msix_entry *msix; /* point to &ha->msix_entries[x] */
 	struct qla_hw_data *hw;
 	struct work_struct q_work;
+<<<<<<< HEAD
 	struct list_head qp_list_elem; /* vha->qp_list */
 	struct list_head hints_list;
 	uint16_t cpuid;
 	struct qla_tgt_counters tgt_counters;
+=======
+	struct qla_counters counters;
+
+	struct list_head qp_list_elem; /* vha->qp_list */
+	struct list_head hints_list;
+
+	uint16_t retry_term_cnt;
+	__le32	retry_term_exchg_addr;
+	uint64_t retry_term_jiff;
+	struct qla_tgt_counters tgt_counters;
+	uint16_t cpuid;
+	struct qla_fw_resources fwres ____cacheline_aligned;
+	u32	cmd_cnt;
+	u32	cmd_completion_cnt;
+>>>>>>> upstream/android-13
 };
 
 /* Place holder for FW buffer parameters */
@@ -3495,6 +4789,137 @@ struct qlfc_fw {
 	uint32_t len;
 };
 
+<<<<<<< HEAD
+=======
+struct rdp_req_payload {
+	uint32_t	els_request;
+	uint32_t	desc_list_len;
+
+	/* NPIV descriptor */
+	struct {
+		uint32_t desc_tag;
+		uint32_t desc_len;
+		uint8_t  reserved;
+		uint8_t  nport_id[3];
+	} npiv_desc;
+};
+
+struct rdp_rsp_payload {
+	struct {
+		__be32	cmd;
+		__be32	len;
+	} hdr;
+
+	/* LS Request Info descriptor */
+	struct {
+		__be32	desc_tag;
+		__be32	desc_len;
+		__be32	req_payload_word_0;
+	} ls_req_info_desc;
+
+	/* LS Request Info descriptor */
+	struct {
+		__be32	desc_tag;
+		__be32	desc_len;
+		__be32	req_payload_word_0;
+	} ls_req_info_desc2;
+
+	/* SFP diagnostic param descriptor */
+	struct {
+		__be32	desc_tag;
+		__be32	desc_len;
+		__be16	temperature;
+		__be16	vcc;
+		__be16	tx_bias;
+		__be16	tx_power;
+		__be16	rx_power;
+		__be16	sfp_flags;
+	} sfp_diag_desc;
+
+	/* Port Speed Descriptor */
+	struct {
+		__be32	desc_tag;
+		__be32	desc_len;
+		__be16	speed_capab;
+		__be16	operating_speed;
+	} port_speed_desc;
+
+	/* Link Error Status Descriptor */
+	struct {
+		__be32	desc_tag;
+		__be32	desc_len;
+		__be32	link_fail_cnt;
+		__be32	loss_sync_cnt;
+		__be32	loss_sig_cnt;
+		__be32	prim_seq_err_cnt;
+		__be32	inval_xmit_word_cnt;
+		__be32	inval_crc_cnt;
+		uint8_t  pn_port_phy_type;
+		uint8_t  reserved[3];
+	} ls_err_desc;
+
+	/* Port name description with diag param */
+	struct {
+		__be32	desc_tag;
+		__be32	desc_len;
+		uint8_t WWNN[WWN_SIZE];
+		uint8_t WWPN[WWN_SIZE];
+	} port_name_diag_desc;
+
+	/* Port Name desc for Direct attached Fx_Port or Nx_Port */
+	struct {
+		__be32	desc_tag;
+		__be32	desc_len;
+		uint8_t WWNN[WWN_SIZE];
+		uint8_t WWPN[WWN_SIZE];
+	} port_name_direct_desc;
+
+	/* Buffer Credit descriptor */
+	struct {
+		__be32	desc_tag;
+		__be32	desc_len;
+		__be32	fcport_b2b;
+		__be32	attached_fcport_b2b;
+		__be32	fcport_rtt;
+	} buffer_credit_desc;
+
+	/* Optical Element Data Descriptor */
+	struct {
+		__be32	desc_tag;
+		__be32	desc_len;
+		__be16	high_alarm;
+		__be16	low_alarm;
+		__be16	high_warn;
+		__be16	low_warn;
+		__be32	element_flags;
+	} optical_elmt_desc[5];
+
+	/* Optical Product Data Descriptor */
+	struct {
+		__be32	desc_tag;
+		__be32	desc_len;
+		uint8_t  vendor_name[16];
+		uint8_t  part_number[16];
+		uint8_t  serial_number[16];
+		uint8_t  revision[4];
+		uint8_t  date[8];
+	} optical_prod_desc;
+};
+
+#define RDP_DESC_LEN(obj) \
+	(sizeof(obj) - sizeof((obj).desc_tag) - sizeof((obj).desc_len))
+
+#define RDP_PORT_SPEED_1GB		BIT_15
+#define RDP_PORT_SPEED_2GB		BIT_14
+#define RDP_PORT_SPEED_4GB		BIT_13
+#define RDP_PORT_SPEED_10GB		BIT_12
+#define RDP_PORT_SPEED_8GB		BIT_11
+#define RDP_PORT_SPEED_16GB		BIT_10
+#define RDP_PORT_SPEED_32GB		BIT_9
+#define RDP_PORT_SPEED_64GB             BIT_8
+#define RDP_PORT_SPEED_UNKNOWN		BIT_0
+
+>>>>>>> upstream/android-13
 struct scsi_qlt_host {
 	void *target_lport_ptr;
 	struct mutex tgt_mutex;
@@ -3511,6 +4936,7 @@ struct qlt_hw_data {
 	struct atio *atio_ring_ptr;	/* Current address. */
 	uint16_t atio_ring_index; /* Current index. */
 	uint16_t atio_q_length;
+<<<<<<< HEAD
 	uint32_t __iomem *atio_q_in;
 	uint32_t __iomem *atio_q_out;
 
@@ -3522,6 +4948,19 @@ struct qlt_hw_data {
 	uint32_t saved_firmware_options_1;
 	uint32_t saved_firmware_options_2;
 	uint32_t saved_firmware_options_3;
+=======
+	__le32 __iomem *atio_q_in;
+	__le32 __iomem *atio_q_out;
+
+	const struct qla_tgt_func_tmpl *tgt_ops;
+	struct qla_tgt_vp_map *tgt_vp_map;
+
+	int saved_set;
+	__le16	saved_exchange_count;
+	__le32	saved_firmware_options_1;
+	__le32	saved_firmware_options_2;
+	__le32	saved_firmware_options_3;
+>>>>>>> upstream/android-13
 	uint8_t saved_firmware_options[2];
 	uint8_t saved_add_firmware_options[2];
 
@@ -3541,7 +4980,10 @@ struct qlt_hw_data {
 	int num_act_qpairs;
 #define DEFAULT_NAQP 2
 	spinlock_t atio_lock ____cacheline_aligned;
+<<<<<<< HEAD
 	struct btree_head32 host_map;
+=======
+>>>>>>> upstream/android-13
 };
 
 #define MAX_QFULL_CMDS_ALLOC	8192
@@ -3551,6 +4993,21 @@ struct qlt_hw_data {
 
 #define LEAK_EXCHG_THRESH_HOLD_PERCENT 75	/* 75 percent */
 
+<<<<<<< HEAD
+=======
+struct qla_hw_data_stat {
+	u32 num_fw_dump;
+	u32 num_mpi_reset;
+};
+
+/* refer to pcie_do_recovery reference */
+typedef enum {
+	QLA_PCI_RESUME,
+	QLA_PCI_ERR_DETECTED,
+	QLA_PCI_MMIO_ENABLED,
+	QLA_PCI_SLOT_RESET,
+} pci_error_state_t;
+>>>>>>> upstream/android-13
 /*
  * Qlogic host adapter specific data structure.
 */
@@ -3606,6 +5063,7 @@ struct qla_hw_data {
 		uint32_t	fw_started:1;
 		uint32_t	fw_init_done:1;
 
+<<<<<<< HEAD
 		uint32_t	detected_lr_sfp:1;
 		uint32_t	using_lr_setting:1;
 		uint32_t	rida_fmt2:1;
@@ -3615,6 +5073,30 @@ struct qla_hw_data {
 
 	uint16_t max_exchg;
 	uint16_t long_range_distance;	/* 32G & above */
+=======
+		uint32_t	lr_detected:1;
+
+		uint32_t	rida_fmt2:1;
+		uint32_t	purge_mbox:1;
+		uint32_t        n2n_bigger:1;
+		uint32_t	secure_adapter:1;
+		uint32_t	secure_fw:1;
+				/* Supported by Adapter */
+		uint32_t	scm_supported_a:1;
+				/* Supported by Firmware */
+		uint32_t	scm_supported_f:1;
+				/* Enabled in Driver */
+		uint32_t	scm_enabled:1;
+		uint32_t	edif_hw:1;
+		uint32_t	edif_enabled:1;
+		uint32_t	n2n_fw_acc_sec:1;
+		uint32_t	plogi_template_valid:1;
+		uint32_t	port_isolated:1;
+	} flags;
+
+	uint16_t max_exchg;
+	uint16_t lr_distance;	/* 32G & above */
+>>>>>>> upstream/android-13
 #define LR_DISTANCE_5K  1
 #define LR_DISTANCE_10K 0
 
@@ -3688,12 +5170,23 @@ struct qla_hw_data {
 #define PORT_SPEED_UNKNOWN 0xFFFF
 #define PORT_SPEED_1GB  0x00
 #define PORT_SPEED_2GB  0x01
+<<<<<<< HEAD
+=======
+#define PORT_SPEED_AUTO 0x02
+>>>>>>> upstream/android-13
 #define PORT_SPEED_4GB  0x03
 #define PORT_SPEED_8GB  0x04
 #define PORT_SPEED_16GB 0x05
 #define PORT_SPEED_32GB 0x06
+<<<<<<< HEAD
 #define PORT_SPEED_10GB	0x13
 	uint16_t	link_data_rate;         /* F/W operating speed */
+=======
+#define PORT_SPEED_64GB 0x07
+#define PORT_SPEED_10GB	0x13
+	uint16_t	link_data_rate;         /* F/W operating speed */
+	uint16_t	set_data_rate;		/* Set by user */
+>>>>>>> upstream/android-13
 
 	uint8_t		current_topology;
 	uint8_t		prev_topology;
@@ -3717,6 +5210,14 @@ struct qla_hw_data {
 #define PCI_DEVICE_ID_QLOGIC_ISP2071	0x2071
 #define PCI_DEVICE_ID_QLOGIC_ISP2271	0x2271
 #define PCI_DEVICE_ID_QLOGIC_ISP2261	0x2261
+<<<<<<< HEAD
+=======
+#define PCI_DEVICE_ID_QLOGIC_ISP2061	0x2061
+#define PCI_DEVICE_ID_QLOGIC_ISP2081	0x2081
+#define PCI_DEVICE_ID_QLOGIC_ISP2089	0x2089
+#define PCI_DEVICE_ID_QLOGIC_ISP2281	0x2281
+#define PCI_DEVICE_ID_QLOGIC_ISP2289	0x2289
+>>>>>>> upstream/android-13
 
 	uint32_t	isp_type;
 #define DT_ISP2100                      BIT_0
@@ -3741,7 +5242,16 @@ struct qla_hw_data {
 #define DT_ISP2071			BIT_19
 #define DT_ISP2271			BIT_20
 #define DT_ISP2261			BIT_21
+<<<<<<< HEAD
 #define DT_ISP_LAST			(DT_ISP2261 << 1)
+=======
+#define DT_ISP2061			BIT_22
+#define DT_ISP2081			BIT_23
+#define DT_ISP2089			BIT_24
+#define DT_ISP2281			BIT_25
+#define DT_ISP2289			BIT_26
+#define DT_ISP_LAST			(DT_ISP2289 << 1)
+>>>>>>> upstream/android-13
 
 	uint32_t	device_type;
 #define DT_T10_PI                       BIT_25
@@ -3776,6 +5286,11 @@ struct qla_hw_data {
 #define IS_QLA2071(ha)	(DT_MASK(ha) & DT_ISP2071)
 #define IS_QLA2271(ha)	(DT_MASK(ha) & DT_ISP2271)
 #define IS_QLA2261(ha)	(DT_MASK(ha) & DT_ISP2261)
+<<<<<<< HEAD
+=======
+#define IS_QLA2081(ha)	(DT_MASK(ha) & DT_ISP2081)
+#define IS_QLA2281(ha)	(DT_MASK(ha) & DT_ISP2281)
+>>>>>>> upstream/android-13
 
 #define IS_QLA23XX(ha)  (IS_QLA2300(ha) || IS_QLA2312(ha) || IS_QLA2322(ha) || \
 			IS_QLA6312(ha) || IS_QLA6322(ha))
@@ -3785,6 +5300,10 @@ struct qla_hw_data {
 #define IS_QLA83XX(ha)	(IS_QLA2031(ha) || IS_QLA8031(ha))
 #define IS_QLA84XX(ha)  (IS_QLA8432(ha))
 #define IS_QLA27XX(ha)  (IS_QLA2071(ha) || IS_QLA2271(ha) || IS_QLA2261(ha))
+<<<<<<< HEAD
+=======
+#define IS_QLA28XX(ha)	(IS_QLA2081(ha) || IS_QLA2281(ha))
+>>>>>>> upstream/android-13
 #define IS_QLA24XX_TYPE(ha)     (IS_QLA24XX(ha) || IS_QLA54XX(ha) || \
 				IS_QLA84XX(ha))
 #define IS_CNA_CAPABLE(ha)	(IS_QLA81XX(ha) || IS_QLA82XX(ha) || \
@@ -3793,6 +5312,7 @@ struct qla_hw_data {
 #define IS_QLA2XXX_MIDTYPE(ha)	(IS_QLA24XX(ha) || IS_QLA84XX(ha) || \
 				IS_QLA25XX(ha) || IS_QLA81XX(ha) || \
 				IS_QLA82XX(ha) || IS_QLA83XX(ha) || \
+<<<<<<< HEAD
 				IS_QLA8044(ha) || IS_QLA27XX(ha))
 #define IS_MSIX_NACK_CAPABLE(ha) (IS_QLA81XX(ha) || IS_QLA83XX(ha) || \
 				IS_QLA27XX(ha))
@@ -3801,6 +5321,17 @@ struct qla_hw_data {
 				IS_QLA27XX(ha))
 #define IS_NOCACHE_VPD_TYPE(ha)	(IS_QLA81XX(ha) || IS_QLA83XX(ha) || \
 				IS_QLA27XX(ha))
+=======
+				IS_QLA8044(ha) || IS_QLA27XX(ha) || \
+				IS_QLA28XX(ha))
+#define IS_MSIX_NACK_CAPABLE(ha) (IS_QLA81XX(ha) || IS_QLA83XX(ha) || \
+				IS_QLA27XX(ha) || IS_QLA28XX(ha))
+#define IS_NOPOLLING_TYPE(ha)	(IS_QLA81XX(ha) && (ha)->flags.msix_enabled)
+#define IS_FAC_REQUIRED(ha)	(IS_QLA81XX(ha) || IS_QLA83XX(ha) || \
+				IS_QLA27XX(ha) || IS_QLA28XX(ha))
+#define IS_NOCACHE_VPD_TYPE(ha)	(IS_QLA81XX(ha) || IS_QLA83XX(ha) || \
+				IS_QLA27XX(ha) || IS_QLA28XX(ha))
+>>>>>>> upstream/android-13
 #define IS_ALOGIO_CAPABLE(ha)	(IS_QLA23XX(ha) || IS_FWI2_CAPABLE(ha))
 
 #define IS_T10_PI_CAPABLE(ha)   ((ha)->device_type & DT_T10_PI)
@@ -3811,6 +5342,7 @@ struct qla_hw_data {
 #define HAS_EXTENDED_IDS(ha)    ((ha)->device_type & DT_EXTENDED_IDS)
 #define IS_CT6_SUPPORTED(ha)	((ha)->device_type & DT_CT6_SUPPORTED)
 #define IS_MQUE_CAPABLE(ha)	((ha)->mqenable || IS_QLA83XX(ha) || \
+<<<<<<< HEAD
 				IS_QLA27XX(ha))
 #define IS_BIDI_CAPABLE(ha)	((IS_QLA25XX(ha) || IS_QLA2031(ha)))
 /* Bit 21 of fw_attributes decides the MCTP capabilities */
@@ -3833,6 +5365,53 @@ struct qla_hw_data {
 	(IS_QLA25XX(ha) || IS_QLA81XX(ha) || IS_QLA83XX(ha) || IS_QLA27XX(ha))
 #define USE_ASYNC_SCAN(ha) (IS_QLA25XX(ha) || IS_QLA81XX(ha) ||\
 	IS_QLA83XX(ha) || IS_QLA27XX(ha))
+=======
+				IS_QLA27XX(ha) || IS_QLA28XX(ha))
+#define IS_BIDI_CAPABLE(ha) \
+    (IS_QLA25XX(ha) || IS_QLA2031(ha) || IS_QLA27XX(ha) || IS_QLA28XX(ha))
+/* Bit 21 of fw_attributes decides the MCTP capabilities */
+#define IS_MCTP_CAPABLE(ha)	(IS_QLA2031(ha) && \
+				((ha)->fw_attributes_ext[0] & BIT_0))
+#define QLA_ABTS_FW_ENABLED(_ha)       ((_ha)->fw_attributes_ext[0] & BIT_14)
+#define QLA_SRB_NVME_LS(_sp) ((_sp)->type == SRB_NVME_LS)
+#define QLA_SRB_NVME_CMD(_sp) ((_sp)->type == SRB_NVME_CMD)
+#define QLA_NVME_IOS(_sp) (QLA_SRB_NVME_CMD(_sp) || QLA_SRB_NVME_LS(_sp))
+#define QLA_LS_ABTS_WAIT_ENABLED(_sp) \
+	(QLA_SRB_NVME_LS(_sp) && QLA_ABTS_FW_ENABLED(_sp->fcport->vha->hw))
+#define QLA_CMD_ABTS_WAIT_ENABLED(_sp) \
+	(QLA_SRB_NVME_CMD(_sp) && QLA_ABTS_FW_ENABLED(_sp->fcport->vha->hw))
+#define QLA_ABTS_WAIT_ENABLED(_sp) \
+	(QLA_NVME_IOS(_sp) && QLA_ABTS_FW_ENABLED(_sp->fcport->vha->hw))
+
+#define IS_PI_UNINIT_CAPABLE(ha)	(IS_QLA83XX(ha) || IS_QLA27XX(ha) || \
+					 IS_QLA28XX(ha))
+#define IS_PI_IPGUARD_CAPABLE(ha)	(IS_QLA83XX(ha) || IS_QLA27XX(ha) || \
+					 IS_QLA28XX(ha))
+#define IS_PI_DIFB_DIX0_CAPABLE(ha)	(0)
+#define IS_PI_SPLIT_DET_CAPABLE_HBA(ha)	(IS_QLA83XX(ha) || IS_QLA27XX(ha) || \
+					IS_QLA28XX(ha))
+#define IS_PI_SPLIT_DET_CAPABLE(ha)	(IS_PI_SPLIT_DET_CAPABLE_HBA(ha) && \
+    (((ha)->fw_attributes_h << 16 | (ha)->fw_attributes) & BIT_22))
+#define IS_ATIO_MSIX_CAPABLE(ha) (IS_QLA83XX(ha) || IS_QLA27XX(ha) || \
+				IS_QLA28XX(ha))
+#define IS_TGT_MODE_CAPABLE(ha)	(ha->tgt.atio_q_length)
+#define IS_SHADOW_REG_CAPABLE(ha)  (IS_QLA27XX(ha) || IS_QLA28XX(ha))
+#define IS_DPORT_CAPABLE(ha)  (IS_QLA83XX(ha) || IS_QLA27XX(ha) || \
+				IS_QLA28XX(ha))
+#define IS_FAWWN_CAPABLE(ha)	(IS_QLA83XX(ha) || IS_QLA27XX(ha) || \
+				IS_QLA28XX(ha))
+#define IS_EXCHG_OFFLD_CAPABLE(ha) \
+	(IS_QLA81XX(ha) || IS_QLA83XX(ha) || IS_QLA27XX(ha) || IS_QLA28XX(ha))
+#define IS_EXLOGIN_OFFLD_CAPABLE(ha) \
+	(IS_QLA25XX(ha) || IS_QLA81XX(ha) || IS_QLA83XX(ha) || \
+	 IS_QLA27XX(ha) || IS_QLA28XX(ha))
+#define USE_ASYNC_SCAN(ha) (IS_QLA25XX(ha) || IS_QLA81XX(ha) ||\
+	IS_QLA83XX(ha) || IS_QLA27XX(ha) || IS_QLA28XX(ha))
+
+#define IS_ZIO_THRESHOLD_CAPABLE(ha) \
+	((IS_QLA83XX(ha) || IS_QLA27XX(ha) || IS_QLA28XX(ha)) &&\
+	 (ha->zio_mode == QLA_ZIO_MODE_6))
+>>>>>>> upstream/android-13
 
 	/* HBA serial number */
 	uint8_t		serial0;
@@ -3841,7 +5420,11 @@ struct qla_hw_data {
 
 	/* NVRAM configuration data */
 #define MAX_NVRAM_SIZE  4096
+<<<<<<< HEAD
 #define VPD_OFFSET      MAX_NVRAM_SIZE / 2
+=======
+#define VPD_OFFSET      (MAX_NVRAM_SIZE / 2)
+>>>>>>> upstream/android-13
 	uint16_t	nvram_size;
 	uint16_t	nvram_base;
 	void		*nvram;
@@ -3873,9 +5456,20 @@ struct qla_hw_data {
 
 #define SFP_DEV_SIZE    512
 #define SFP_BLOCK_SIZE  64
+<<<<<<< HEAD
 	void		*sfp_data;
 	dma_addr_t	sfp_data_dma;
 
+=======
+#define SFP_RTDI_LEN	SFP_BLOCK_SIZE
+
+	void		*sfp_data;
+	dma_addr_t	sfp_data_dma;
+
+	struct qla_flt_header *flt;
+	dma_addr_t	flt_dma;
+
+>>>>>>> upstream/android-13
 #define XGMAC_DATA_SIZE	4096
 	void		*xgmac_data;
 	dma_addr_t	xgmac_data_dma;
@@ -3900,6 +5494,16 @@ struct qla_hw_data {
 	int		init_cb_size;
 	dma_addr_t	ex_init_cb_dma;
 	struct ex_init_cb_81xx *ex_init_cb;
+<<<<<<< HEAD
+=======
+	dma_addr_t	sf_init_cb_dma;
+	struct init_sf_cb *sf_init_cb;
+
+	void		*scm_fpin_els_buff;
+	uint64_t	scm_fpin_els_buff_size;
+	bool		scm_fpin_valid;
+	bool		scm_fpin_payload_size;
+>>>>>>> upstream/android-13
 
 	void		*async_pd;
 	dma_addr_t	async_pd_dma;
@@ -3909,7 +5513,11 @@ struct qla_hw_data {
 	/* Extended Logins  */
 	void		*exlogin_buf;
 	dma_addr_t	exlogin_buf_dma;
+<<<<<<< HEAD
 	int		exlogin_size;
+=======
+	uint32_t	exlogin_size;
+>>>>>>> upstream/android-13
 
 #define ENABLE_EXCHANGE_OFFLD	BIT_2
 
@@ -3920,7 +5528,12 @@ struct qla_hw_data {
 	int 		exchoffld_count;
 
 	/* n2n */
+<<<<<<< HEAD
 	struct els_plogi_payload plogi_els_payld;
+=======
+	struct fc_els_flogi plogi_els_payld;
+#define LOGIN_TEMPLATE_SIZE (sizeof(struct fc_els_flogi) - 4)
+>>>>>>> upstream/android-13
 
 	void            *swl;
 
@@ -3958,6 +5571,21 @@ struct qla_hw_data {
 	uint16_t	fw_subminor_version;
 	uint16_t	fw_attributes;
 	uint16_t	fw_attributes_h;
+<<<<<<< HEAD
+=======
+#define FW_ATTR_H_NVME_FBURST 	BIT_1
+#define FW_ATTR_H_NVME		BIT_10
+#define FW_ATTR_H_NVME_UPDATED  BIT_14
+
+	/* About firmware SCM support */
+#define FW_ATTR_EXT0_SCM_SUPPORTED	BIT_12
+	/* Brocade fabric attached */
+#define FW_ATTR_EXT0_SCM_BROCADE	0x00001000
+	/* Cisco fabric attached */
+#define FW_ATTR_EXT0_SCM_CISCO		0x00002000
+#define FW_ATTR_EXT0_NVME2	BIT_13
+#define FW_ATTR_EXT0_EDIF	BIT_5
+>>>>>>> upstream/android-13
 	uint16_t	fw_attributes_ext[2];
 	uint32_t	fw_memory_size;
 	uint32_t	fw_transfer_size;
@@ -3981,20 +5609,38 @@ struct qla_hw_data {
 
 	uint16_t	fw_options[16];         /* slots: 1,2,3,10,11 */
 	uint8_t		fw_seriallink_options[4];
+<<<<<<< HEAD
 	uint16_t	fw_seriallink_options24[4];
 
+=======
+	__le16		fw_seriallink_options24[4];
+
+	uint8_t		serdes_version[3];
+>>>>>>> upstream/android-13
 	uint8_t		mpi_version[3];
 	uint32_t	mpi_capabilities;
 	uint8_t		phy_version[3];
 	uint8_t		pep_version[3];
 
 	/* Firmware dump template */
+<<<<<<< HEAD
 	void		*fw_dump_template;
 	uint32_t	fw_dump_template_len;
 	/* Firmware dump information. */
 	struct qla2xxx_fw_dump *fw_dump;
 	uint32_t	fw_dump_len;
 	int		fw_dumped;
+=======
+	struct fwdt {
+		void *template;
+		ulong length;
+		ulong dump_size;
+	} fwdt[2];
+	struct qla2xxx_fw_dump *fw_dump;
+	uint32_t	fw_dump_len;
+	u32		fw_dump_alloc_len;
+	bool		fw_dumped;
+>>>>>>> upstream/android-13
 	unsigned long	fw_dump_cap_flags;
 #define RISC_PAUSE_CMPL		0
 #define DMA_SHUTDOWN_CMPL	1
@@ -4005,6 +5651,13 @@ struct qla_hw_data {
 #define ISP_MBX_RDY		6
 #define ISP_SOFT_RESET_CMPL	7
 	int		fw_dump_reading;
+<<<<<<< HEAD
+=======
+	void		*mpi_fw_dump;
+	u32		mpi_fw_dump_len;
+	unsigned int	mpi_fw_dump_reading:1;
+	unsigned int	mpi_fw_dumped:1;
+>>>>>>> upstream/android-13
 	int		prev_minidump_failed;
 	dma_addr_t	eft_dma;
 	void		*eft;
@@ -4033,7 +5686,10 @@ struct qla_hw_data {
 	uint16_t	product_id[4];
 
 	uint8_t		model_number[16+1];
+<<<<<<< HEAD
 #define BINZERO		"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+=======
+>>>>>>> upstream/android-13
 	char		model_desc[80];
 	uint8_t		adapter_id[16+1];
 
@@ -4073,6 +5729,7 @@ struct qla_hw_data {
 	uint32_t	fdt_protect_sec_cmd;
 	uint32_t	fdt_wrt_sts_reg_cmd;
 
+<<<<<<< HEAD
 	uint32_t        flt_region_flt;
 	uint32_t        flt_region_fdt;
 	uint32_t        flt_region_boot;
@@ -4089,6 +5746,30 @@ struct qla_hw_data {
 	uint32_t	flt_region_bootload;
 	uint32_t	flt_region_img_status_pri;
 	uint32_t	flt_region_img_status_sec;
+=======
+	struct {
+		uint32_t	flt_region_flt;
+		uint32_t	flt_region_fdt;
+		uint32_t	flt_region_boot;
+		uint32_t	flt_region_boot_sec;
+		uint32_t	flt_region_fw;
+		uint32_t	flt_region_fw_sec;
+		uint32_t	flt_region_vpd_nvram;
+		uint32_t	flt_region_vpd_nvram_sec;
+		uint32_t	flt_region_vpd;
+		uint32_t	flt_region_vpd_sec;
+		uint32_t	flt_region_nvram;
+		uint32_t	flt_region_nvram_sec;
+		uint32_t	flt_region_npiv_conf;
+		uint32_t	flt_region_gold_fw;
+		uint32_t	flt_region_fcp_prio;
+		uint32_t	flt_region_bootload;
+		uint32_t	flt_region_img_status_pri;
+		uint32_t	flt_region_img_status_sec;
+		uint32_t	flt_region_aux_img_status_pri;
+		uint32_t	flt_region_aux_img_status_sec;
+	};
+>>>>>>> upstream/android-13
 	uint8_t         active_image;
 
 	/* Needed for BEACON */
@@ -4151,7 +5832,11 @@ struct qla_hw_data {
 #define NUM_DSD_CHAIN 4096
 
 	uint8_t fw_type;
+<<<<<<< HEAD
 	__le32 file_prd_off;	/* File firmware product offset */
+=======
+	uint32_t file_prd_off;	/* File firmware product offset */
+>>>>>>> upstream/android-13
 
 	uint32_t	md_template_size;
 	void		*md_tmplt_hdr;
@@ -4181,11 +5866,76 @@ struct qla_hw_data {
 	struct qlt_hw_data tgt;
 	int	allow_cna_fw_dump;
 	uint32_t fw_ability_mask;
+<<<<<<< HEAD
 	uint16_t min_link_speed;
 	uint16_t max_speed_sup;
 
 	atomic_t        nvme_active_aen_cnt;
 	uint16_t        nvme_last_rptd_aen;             /* Last recorded aen count */
+=======
+	uint16_t min_supported_speed;
+	uint16_t max_supported_speed;
+
+	/* DMA pool for the DIF bundling buffers */
+	struct dma_pool *dif_bundl_pool;
+	#define DIF_BUNDLING_DMA_POOL_SIZE  1024
+	struct {
+		struct {
+			struct list_head head;
+			uint count;
+		} good;
+		struct {
+			struct list_head head;
+			uint count;
+		} unusable;
+	} pool;
+
+	unsigned long long dif_bundle_crossed_pages;
+	unsigned long long dif_bundle_reads;
+	unsigned long long dif_bundle_writes;
+	unsigned long long dif_bundle_kallocs;
+	unsigned long long dif_bundle_dma_allocs;
+
+	atomic_t        nvme_active_aen_cnt;
+	uint16_t        nvme_last_rptd_aen;             /* Last recorded aen count */
+
+	uint8_t fc4_type_priority;
+
+	atomic_t zio_threshold;
+	uint16_t last_zio_threshold;
+
+#define DEFAULT_ZIO_THRESHOLD 5
+
+	struct qla_hw_data_stat stat;
+	pci_error_state_t pci_error_state;
+	u64 prev_cmd_cnt;
+	struct dma_pool *purex_dma_pool;
+	struct btree_head32 host_map;
+
+#define EDIF_NUM_SA_INDEX	512
+#define EDIF_TX_SA_INDEX_BASE	EDIF_NUM_SA_INDEX
+	void *edif_rx_sa_id_map;
+	void *edif_tx_sa_id_map;
+	spinlock_t sadb_fp_lock;
+
+	struct list_head sadb_tx_index_list;
+	struct list_head sadb_rx_index_list;
+	spinlock_t sadb_lock;	/* protects list */
+	struct els_reject elsrej;
+	u8 edif_post_stop_cnt_down;
+};
+
+#define RX_ELS_SIZE (roundup(sizeof(struct enode) + ELS_MAX_PAYLOAD, SMP_CACHE_BYTES))
+
+struct active_regions {
+	uint8_t global;
+	struct {
+		uint8_t board_config;
+		uint8_t vpd_nvram;
+		uint8_t npiv_config_0_1;
+		uint8_t npiv_config_2_3;
+	} aux;
+>>>>>>> upstream/android-13
 };
 
 #define FW_ABILITY_MAX_SPEED_MASK	0xFUL
@@ -4194,6 +5944,40 @@ struct qla_hw_data {
 #define FW_ABILITY_MAX_SPEED(ha)	\
 	(ha->fw_ability_mask & FW_ABILITY_MAX_SPEED_MASK)
 
+<<<<<<< HEAD
+=======
+#define QLA_GET_DATA_RATE	0
+#define QLA_SET_DATA_RATE_NOLR	1
+#define QLA_SET_DATA_RATE_LR	2 /* Set speed and initiate LR */
+
+#define QLA_DEFAULT_PAYLOAD_SIZE	64
+/*
+ * This item might be allocated with a size > sizeof(struct purex_item).
+ * The "size" variable gives the size of the payload (which
+ * is variable) starting at "iocb".
+ */
+struct purex_item {
+	struct list_head list;
+	struct scsi_qla_host *vha;
+	void (*process_item)(struct scsi_qla_host *vha,
+			     struct purex_item *pkt);
+	atomic_t in_use;
+	uint16_t size;
+	struct {
+		uint8_t iocb[64];
+	} iocb;
+};
+
+#include "qla_edif.h"
+
+#define SCM_FLAG_RDF_REJECT		0x00
+#define SCM_FLAG_RDF_COMPLETED		0x01
+
+#define QLA_CON_PRIMITIVE_RECEIVED	0x1
+#define QLA_CONGESTION_ARB_WARNING	0x1
+#define QLA_CONGESTION_ARB_ALARM	0X2
+
+>>>>>>> upstream/android-13
 /*
  * Qlogic scsi host structure
  */
@@ -4225,6 +6009,11 @@ typedef struct scsi_qla_host {
 		uint32_t	qpairs_req_created:1;
 		uint32_t	qpairs_rsp_created:1;
 		uint32_t	nvme_enabled:1;
+<<<<<<< HEAD
+=======
+		uint32_t        nvme_first_burst:1;
+		uint32_t        nvme2_enabled:1;
+>>>>>>> upstream/android-13
 	} flags;
 
 	atomic_t	loop_state;
@@ -4265,10 +6054,23 @@ typedef struct scsi_qla_host {
 #define FX00_CRITEMP_RECOVERY	25
 #define FX00_HOST_INFO_RESEND	26
 #define QPAIR_ONLINE_CHECK_NEEDED	27
+<<<<<<< HEAD
 #define SET_ZIO_THRESHOLD_NEEDED	28
 #define DETECT_SFP_CHANGE	29
 #define N2N_LOGIN_NEEDED	30
 #define IOCB_WORK_ACTIVE	31
+=======
+#define DO_EEH_RECOVERY		28
+#define DETECT_SFP_CHANGE	29
+#define N2N_LOGIN_NEEDED	30
+#define IOCB_WORK_ACTIVE	31
+#define SET_ZIO_THRESHOLD_NEEDED 32
+#define ISP_ABORT_TO_ROM	33
+#define VPORT_DELETE		34
+#define HEARTBEAT_CHK		38
+
+#define PROCESS_PUREX_IOCB	63
+>>>>>>> upstream/android-13
 
 	unsigned long	pci_flags;
 #define PFLG_DISCONNECTED	0	/* PCI device removed */
@@ -4307,10 +6109,17 @@ typedef struct scsi_qla_host {
 	uint8_t		node_name[WWN_SIZE];
 	uint8_t		port_name[WWN_SIZE];
 	uint8_t		fabric_node_name[WWN_SIZE];
+<<<<<<< HEAD
 
 	struct		nvme_fc_local_port *nvme_local_port;
 	struct completion nvme_del_done;
 	struct list_head nvme_rport_list;
+=======
+	uint8_t		fabric_port_name[WWN_SIZE];
+
+	struct		nvme_fc_local_port *nvme_local_port;
+	struct completion nvme_del_done;
+>>>>>>> upstream/android-13
 
 	uint16_t	fcoe_vlan_id;
 	uint16_t	fcoe_fcf_idx;
@@ -4371,21 +6180,62 @@ typedef struct scsi_qla_host {
 	atomic_t	vref_count;
 	struct qla8044_reset_template reset_tmplt;
 	uint16_t	bbcr;
+<<<<<<< HEAD
+=======
+
+	uint16_t u_ql2xexchoffld;
+	uint16_t u_ql2xiniexchg;
+	uint16_t qlini_mode;
+	uint16_t ql2xexchoffld;
+	uint16_t ql2xiniexchg;
+
+	struct dentry *dfs_rport_root;
+
+	struct purex_list {
+		struct list_head head;
+		spinlock_t lock;
+	} purex_list;
+	struct purex_item default_item;
+
+>>>>>>> upstream/android-13
 	struct name_list_extended gnl;
 	/* Count of active session/fcport */
 	int fcport_count;
 	wait_queue_head_t fcport_waitQ;
 	wait_queue_head_t vref_waitq;
+<<<<<<< HEAD
 	uint8_t min_link_speed_feat;
 	uint8_t n2n_node_name[WWN_SIZE];
 	uint8_t n2n_port_name[WWN_SIZE];
 	uint16_t	n2n_id;
 	struct list_head gpnid_list;
 	struct fab_scan scan;
+=======
+	uint8_t min_supported_speed;
+	uint8_t n2n_node_name[WWN_SIZE];
+	uint8_t n2n_port_name[WWN_SIZE];
+	uint16_t	n2n_id;
+	__le16 dport_data[4];
+	struct list_head gpnid_list;
+	struct fab_scan scan;
+	uint8_t	scm_fabric_connection_flags;
+
+	unsigned int irq_offset;
+
+	u64 hw_err_cnt;
+	u64 interface_err_cnt;
+	u64 cmd_timeout_cnt;
+	u64 reset_cmd_err_cnt;
+	u64 link_down_time;
+	u64 short_link_down_cnt;
+	struct edif_dbell e_dbell;
+	struct pur_core pur_cinfo;
+>>>>>>> upstream/android-13
 } scsi_qla_host_t;
 
 struct qla27xx_image_status {
 	uint8_t image_status_mask;
+<<<<<<< HEAD
 	uint16_t generation_number;
 	uint8_t reserved[3];
 	uint8_t ver_minor;
@@ -4394,6 +6244,23 @@ struct qla27xx_image_status {
 	uint32_t signature;
 } __packed;
 
+=======
+	__le16	generation;
+	uint8_t ver_major;
+	uint8_t ver_minor;
+	uint8_t bitmap;		/* 28xx only */
+	uint8_t reserved[2];
+	__le32	checksum;
+	__le32	signature;
+} __packed;
+
+/* 28xx aux image status bimap values */
+#define QLA28XX_AUX_IMG_BOARD_CONFIG		BIT_0
+#define QLA28XX_AUX_IMG_VPD_NVRAM		BIT_1
+#define QLA28XX_AUX_IMG_NPIV_CONFIG_0_1		BIT_2
+#define QLA28XX_AUX_IMG_NPIV_CONFIG_2_3		BIT_3
+
+>>>>>>> upstream/android-13
 #define SET_VP_IDX	1
 #define SET_AL_PA	2
 #define RESET_VP_IDX	3
@@ -4440,6 +6307,27 @@ struct qla2_sgx {
 	}					\
 }
 
+<<<<<<< HEAD
+=======
+
+#define SFUB_CHECKSUM_SIZE	4
+
+struct secure_flash_update_block {
+	uint32_t	block_info;
+	uint32_t	signature_lo;
+	uint32_t	signature_hi;
+	uint32_t	signature_upper[0x3e];
+};
+
+struct secure_flash_update_block_pk {
+	uint32_t	block_info;
+	uint32_t	signature_lo;
+	uint32_t	signature_hi;
+	uint32_t	signature_upper[0x3e];
+	uint32_t	public_key[0x41];
+};
+
+>>>>>>> upstream/android-13
 /*
  * Macros to help code, maintain, etc.
  */
@@ -4481,8 +6369,12 @@ struct qla2_sgx {
 } while (0)
 
 #define QLA_QPAIR_MARK_NOT_BUSY(__qpair)		\
+<<<<<<< HEAD
 	atomic_dec(&__qpair->ref_count);		\
 
+=======
+	atomic_dec(&__qpair->ref_count)
+>>>>>>> upstream/android-13
 
 #define QLA_ENA_CONF(_ha) {\
     int i;\
@@ -4527,6 +6419,13 @@ struct qla2_sgx {
 #define QLA_SUSPENDED			0x106
 #define QLA_BUSY			0x107
 #define QLA_ALREADY_REGISTERED		0x109
+<<<<<<< HEAD
+=======
+#define QLA_OS_TIMER_EXPIRED		0x10a
+#define QLA_ERR_NO_QPAIR		0x10b
+#define QLA_ERR_NOT_FOUND		0x10c
+#define QLA_ERR_FROM_FW			0x10d
+>>>>>>> upstream/android-13
 
 #define NVRAM_DELAY()		udelay(10)
 
@@ -4540,6 +6439,10 @@ struct qla2_sgx {
 #define OPTROM_SIZE_81XX	0x400000
 #define OPTROM_SIZE_82XX	0x800000
 #define OPTROM_SIZE_83XX	0x1000000
+<<<<<<< HEAD
+=======
+#define OPTROM_SIZE_28XX	0x2000000
+>>>>>>> upstream/android-13
 
 #define OPTROM_BURST_SIZE	0x1000
 #define OPTROM_BURST_DWORDS	(OPTROM_BURST_SIZE / 4)
@@ -4556,6 +6459,46 @@ enum nexus_wait_type {
 	WAIT_LUN,
 };
 
+<<<<<<< HEAD
+=======
+#define INVALID_EDIF_SA_INDEX	0xffff
+#define RX_DELETE_NO_EDIF_SA_INDEX	0xfffe
+
+#define QLA_SKIP_HANDLE QLA_TGT_SKIP_HANDLE
+
+/* edif hash element */
+struct edif_list_entry {
+	uint16_t handle;			/* nport_handle */
+	uint32_t update_sa_index;
+	uint32_t delete_sa_index;
+	uint32_t count;				/* counter for filtering sa_index */
+#define EDIF_ENTRY_FLAGS_CLEANUP	0x01	/* this index is being cleaned up */
+	uint32_t flags;				/* used by sadb cleanup code */
+	fc_port_t *fcport;			/* needed by rx delay timer function */
+	struct timer_list timer;		/* rx delay timer */
+	struct list_head next;
+};
+
+#define EDIF_TX_INDX_BASE 512
+#define EDIF_RX_INDX_BASE 0
+#define EDIF_RX_DELETE_FILTER_COUNT 3	/* delay queuing rx delete until this many */
+
+/* entry in the sa_index free pool */
+
+struct sa_index_pair {
+	uint16_t sa_index;
+	uint32_t spi;
+};
+
+/* edif sa_index data structure */
+struct edif_sa_index_entry {
+	struct sa_index_pair sa_pair[2];
+	fc_port_t *fcport;
+	uint16_t handle;
+	struct list_head next;
+};
+
+>>>>>>> upstream/android-13
 /* Refer to SNIA SFF 8247 */
 struct sff_8247_a0 {
 	u8 txid;	/* transceiver id */
@@ -4633,6 +6576,7 @@ struct sff_8247_a0 {
 	u8 resv2[128];
 };
 
+<<<<<<< HEAD
 #define AUTO_DETECT_SFP_SUPPORT(_vha)\
 	(ql2xautodetectsfp && !_vha->vp_idx &&		\
 	(IS_QLA25XX(_vha->hw) || IS_QLA81XX(_vha->hw) ||\
@@ -4640,6 +6584,21 @@ struct sff_8247_a0 {
 
 #define USER_CTRL_IRQ(_ha) (ql2xuctrlirq && QLA_TGT_MODE_ENABLED() && \
 	(IS_QLA27XX(_ha) || IS_QLA83XX(_ha)))
+=======
+/* BPM -- Buffer Plus Management support. */
+#define IS_BPM_CAPABLE(ha) \
+	(IS_QLA25XX(ha) || IS_QLA81XX(ha) || IS_QLA83XX(ha) || \
+	 IS_QLA27XX(ha) || IS_QLA28XX(ha))
+#define IS_BPM_RANGE_CAPABLE(ha) \
+	(IS_QLA83XX(ha) || IS_QLA27XX(ha) || IS_QLA28XX(ha))
+#define IS_BPM_ENABLED(vha) \
+	(ql2xautodetectsfp && !vha->vp_idx && IS_BPM_CAPABLE(vha->hw))
+
+#define FLASH_SEMAPHORE_REGISTER_ADDR   0x00101016
+
+#define USER_CTRL_IRQ(_ha) (ql2xuctrlirq && QLA_TGT_MODE_ENABLED() && \
+	(IS_QLA27XX(_ha) || IS_QLA28XX(_ha) || IS_QLA83XX(_ha)))
+>>>>>>> upstream/android-13
 
 #define SAVE_TOPO(_ha) { \
 	if (_ha->current_topology)				\
@@ -4651,8 +6610,102 @@ struct sff_8247_a0 {
 	 ha->current_topology == ISP_CFG_N || \
 	 !ha->current_topology)
 
+<<<<<<< HEAD
+=======
+#define QLA_N2N_WAIT_TIME	5 /* 2 * ra_tov(n2n) + 1 */
+
+#define NVME_TYPE(fcport) \
+	(fcport->fc4_type & FS_FC4TYPE_NVME) \
+
+#define FCP_TYPE(fcport) \
+	(fcport->fc4_type & FS_FC4TYPE_FCP) \
+
+#define NVME_ONLY_TARGET(fcport) \
+	(NVME_TYPE(fcport) && !FCP_TYPE(fcport))  \
+
+#define NVME_FCP_TARGET(fcport) \
+	(FCP_TYPE(fcport) && NVME_TYPE(fcport)) \
+
+#define NVME_PRIORITY(ha, fcport) \
+	(NVME_FCP_TARGET(fcport) && \
+	 (ha->fc4_type_priority == FC4_PRIORITY_NVME))
+
+#define NVME_TARGET(ha, fcport) \
+	(fcport->do_prli_nvme || \
+	NVME_ONLY_TARGET(fcport)) \
+
+#define PRLI_PHASE(_cls) \
+	((_cls == DSC_LS_PRLI_PEND) || (_cls == DSC_LS_PRLI_COMP))
+
+enum ql_vnd_host_stat_action {
+	QLA_STOP = 0,
+	QLA_START,
+	QLA_CLEAR,
+};
+
+struct ql_vnd_mng_host_stats_param {
+	u32 stat_type;
+	enum ql_vnd_host_stat_action action;
+} __packed;
+
+struct ql_vnd_mng_host_stats_resp {
+	u32 status;
+} __packed;
+
+struct ql_vnd_stats_param {
+	u32 stat_type;
+} __packed;
+
+struct ql_vnd_tgt_stats_param {
+	s32 tgt_id;
+	u32 stat_type;
+} __packed;
+
+enum ql_vnd_host_port_action {
+	QLA_ENABLE = 0,
+	QLA_DISABLE,
+};
+
+struct ql_vnd_mng_host_port_param {
+	enum ql_vnd_host_port_action action;
+} __packed;
+
+struct ql_vnd_mng_host_port_resp {
+	u32 status;
+} __packed;
+
+struct ql_vnd_stat_entry {
+	u32 stat_type;	/* Failure type */
+	u32 tgt_num;	/* Target Num */
+	u64 cnt;	/* Counter value */
+} __packed;
+
+struct ql_vnd_stats {
+	u64 entry_count; /* Num of entries */
+	u64 rservd;
+	struct ql_vnd_stat_entry entry[0]; /* Place holder of entries */
+} __packed;
+
+struct ql_vnd_host_stats_resp {
+	u32 status;
+	struct ql_vnd_stats stats;
+} __packed;
+
+struct ql_vnd_tgt_stats_resp {
+	u32 status;
+	struct ql_vnd_stats stats;
+} __packed;
+
+>>>>>>> upstream/android-13
 #include "qla_target.h"
 #include "qla_gbl.h"
 #include "qla_dbg.h"
 #include "qla_inline.h"
+<<<<<<< HEAD
+=======
+
+#define IS_SESSION_DELETED(_fcport) (_fcport->disc_state == DSC_DELETE_PEND || \
+				      _fcport->disc_state == DSC_DELETED)
+
+>>>>>>> upstream/android-13
 #endif

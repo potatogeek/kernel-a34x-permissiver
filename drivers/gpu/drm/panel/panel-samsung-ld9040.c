@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ld9040 AMOLED LCD drm_panel driver.
  *
@@ -5,6 +9,7 @@
  * Derived from drivers/video/backlight/ld9040.c
  *
  * Andrzej Hajda <a.hajda@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -15,6 +20,14 @@
 #include <drm/drm_panel.h>
 
 #include <linux/gpio/consumer.h>
+=======
+*/
+
+#include <linux/delay.h>
+#include <linux/gpio/consumer.h>
+#include <linux/module.h>
+#include <linux/of.h>
+>>>>>>> upstream/android-13
 #include <linux/regulator/consumer.h>
 #include <linux/spi/spi.h>
 
@@ -22,6 +35,12 @@
 #include <video/of_videomode.h>
 #include <video/videomode.h>
 
+<<<<<<< HEAD
+=======
+#include <drm/drm_modes.h>
+#include <drm/drm_panel.h>
+
+>>>>>>> upstream/android-13
 /* Manufacturer Command Set */
 #define MCS_MANPWR		0xb0
 #define MCS_ELVSS_ON		0xb1
@@ -260,15 +279,25 @@ static int ld9040_enable(struct drm_panel *panel)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int ld9040_get_modes(struct drm_panel *panel)
 {
 	struct drm_connector *connector = panel->connector;
+=======
+static int ld9040_get_modes(struct drm_panel *panel,
+			    struct drm_connector *connector)
+{
+>>>>>>> upstream/android-13
 	struct ld9040 *ctx = panel_to_ld9040(panel);
 	struct drm_display_mode *mode;
 
 	mode = drm_mode_create(connector->dev);
 	if (!mode) {
+<<<<<<< HEAD
 		DRM_ERROR("failed to create a new display mode\n");
+=======
+		dev_err(panel->dev, "failed to create a new display mode\n");
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
@@ -350,11 +379,20 @@ static int ld9040_probe(struct spi_device *spi)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	drm_panel_init(&ctx->panel);
 	ctx->panel.dev = dev;
 	ctx->panel.funcs = &ld9040_drm_funcs;
 
 	return drm_panel_add(&ctx->panel);
+=======
+	drm_panel_init(&ctx->panel, dev, &ld9040_drm_funcs,
+		       DRM_MODE_CONNECTOR_DPI);
+
+	drm_panel_add(&ctx->panel);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int ld9040_remove(struct spi_device *spi)
@@ -373,9 +411,22 @@ static const struct of_device_id ld9040_of_match[] = {
 };
 MODULE_DEVICE_TABLE(of, ld9040_of_match);
 
+<<<<<<< HEAD
 static struct spi_driver ld9040_driver = {
 	.probe = ld9040_probe,
 	.remove = ld9040_remove,
+=======
+static const struct spi_device_id ld9040_ids[] = {
+	{ "ld9040", },
+	{ /* sentinel */ }
+};
+MODULE_DEVICE_TABLE(spi, ld9040_ids);
+
+static struct spi_driver ld9040_driver = {
+	.probe = ld9040_probe,
+	.remove = ld9040_remove,
+	.id_table = ld9040_ids,
+>>>>>>> upstream/android-13
 	.driver = {
 		.name = "panel-samsung-ld9040",
 		.of_match_table = ld9040_of_match,

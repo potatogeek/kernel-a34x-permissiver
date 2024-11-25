@@ -5,5 +5,8 @@
 # for more details.
 
 obj-y := fskeleton.o iskeleton.o os.o
+<<<<<<< HEAD
 
 EXTRA_LDFLAGS := -x
+=======
+>>>>>>> upstream/android-13

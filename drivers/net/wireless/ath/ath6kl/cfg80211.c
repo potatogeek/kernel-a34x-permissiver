@@ -291,7 +291,11 @@ static bool ath6kl_cfg80211_ready(struct ath6kl_vif *vif)
 	}
 
 	if (!test_bit(WLAN_ENABLED, &vif->flags)) {
+<<<<<<< HEAD
 		ath6kl_err("wlan disabled\n");
+=======
+		ath6kl_dbg(ATH6KL_DBG_WLAN_CFG, "wlan disabled\n");
+>>>>>>> upstream/android-13
 		return false;
 	}
 
@@ -807,7 +811,11 @@ void ath6kl_cfg80211_connect_event(struct ath6kl_vif *vif, u16 channel,
 		cfg80211_put_bss(ar->wiphy, bss);
 	} else if (vif->sme_state == SME_CONNECTED) {
 		struct cfg80211_roam_info roam_info = {
+<<<<<<< HEAD
 			.bss = bss,
+=======
+			.links[0].bss = bss,
+>>>>>>> upstream/android-13
 			.req_ie = assoc_req_ie,
 			.req_ie_len = assoc_req_len,
 			.resp_ie = assoc_resp_ie,
@@ -1119,12 +1127,20 @@ void ath6kl_cfg80211_ch_switch_notify(struct ath6kl_vif *vif, int freq,
 					NL80211_CHAN_HT20 : NL80211_CHAN_NO_HT);
 
 	mutex_lock(&vif->wdev.mtx);
+<<<<<<< HEAD
 	cfg80211_ch_switch_notify(vif->ndev, &chandef);
+=======
+	cfg80211_ch_switch_notify(vif->ndev, &chandef, 0);
+>>>>>>> upstream/android-13
 	mutex_unlock(&vif->wdev.mtx);
 }
 
 static int ath6kl_cfg80211_add_key(struct wiphy *wiphy, struct net_device *ndev,
+<<<<<<< HEAD
 				   u8 key_index, bool pairwise,
+=======
+				   int link_id, u8 key_index, bool pairwise,
+>>>>>>> upstream/android-13
 				   const u8 *mac_addr,
 				   struct key_params *params)
 {
@@ -1249,7 +1265,11 @@ static int ath6kl_cfg80211_add_key(struct wiphy *wiphy, struct net_device *ndev,
 }
 
 static int ath6kl_cfg80211_del_key(struct wiphy *wiphy, struct net_device *ndev,
+<<<<<<< HEAD
 				   u8 key_index, bool pairwise,
+=======
+				   int link_id, u8 key_index, bool pairwise,
+>>>>>>> upstream/android-13
 				   const u8 *mac_addr)
 {
 	struct ath6kl *ar = ath6kl_priv(ndev);
@@ -1279,7 +1299,11 @@ static int ath6kl_cfg80211_del_key(struct wiphy *wiphy, struct net_device *ndev,
 }
 
 static int ath6kl_cfg80211_get_key(struct wiphy *wiphy, struct net_device *ndev,
+<<<<<<< HEAD
 				   u8 key_index, bool pairwise,
+=======
+				   int link_id, u8 key_index, bool pairwise,
+>>>>>>> upstream/android-13
 				   const u8 *mac_addr, void *cookie,
 				   void (*callback) (void *cookie,
 						     struct key_params *))
@@ -1314,7 +1338,11 @@ static int ath6kl_cfg80211_get_key(struct wiphy *wiphy, struct net_device *ndev,
 }
 
 static int ath6kl_cfg80211_set_default_key(struct wiphy *wiphy,
+<<<<<<< HEAD
 					   struct net_device *ndev,
+=======
+					   struct net_device *ndev, int link_id,
+>>>>>>> upstream/android-13
 					   u8 key_index, bool unicast,
 					   bool multicast)
 {
@@ -1322,7 +1350,11 @@ static int ath6kl_cfg80211_set_default_key(struct wiphy *wiphy,
 	struct ath6kl_vif *vif = netdev_priv(ndev);
 	struct ath6kl_key *key = NULL;
 	u8 key_usage;
+<<<<<<< HEAD
 	enum crypto_type key_type = NONE_CRYPT;
+=======
+	enum ath6kl_crypto_type key_type = NONE_CRYPT;
+>>>>>>> upstream/android-13
 
 	ath6kl_dbg(ATH6KL_DBG_WLAN_CFG, "%s: index %d\n", __func__, key_index);
 
@@ -2194,13 +2226,21 @@ static int ath6kl_wow_suspend_vif(struct ath6kl_vif *vif,
 	if (!in_dev)
 		return 0;
 
+<<<<<<< HEAD
 	ifa = in_dev->ifa_list;
+=======
+	ifa = rtnl_dereference(in_dev->ifa_list);
+>>>>>>> upstream/android-13
 	memset(&ips, 0, sizeof(ips));
 
 	/* Configure IP addr only if IP address count < MAX_IP_ADDRS */
 	while (index < MAX_IP_ADDRS && ifa) {
 		ips[index] = ifa->ifa_local;
+<<<<<<< HEAD
 		ifa = ifa->ifa_next;
+=======
+		ifa = rtnl_dereference(ifa->ifa_next);
+>>>>>>> upstream/android-13
 		index++;
 	}
 
@@ -2967,7 +3007,12 @@ static int ath6kl_change_beacon(struct wiphy *wiphy, struct net_device *dev,
 	return ath6kl_set_ies(vif, beacon);
 }
 
+<<<<<<< HEAD
 static int ath6kl_stop_ap(struct wiphy *wiphy, struct net_device *dev)
+=======
+static int ath6kl_stop_ap(struct wiphy *wiphy, struct net_device *dev,
+			  unsigned int link_id)
+>>>>>>> upstream/android-13
 {
 	struct ath6kl *ar = ath6kl_priv(dev);
 	struct ath6kl_vif *vif = netdev_priv(dev);
@@ -3249,6 +3294,7 @@ static int ath6kl_get_antenna(struct wiphy *wiphy,
 	return 0;
 }
 
+<<<<<<< HEAD
 static void ath6kl_mgmt_frame_register(struct wiphy *wiphy,
 				       struct wireless_dev *wdev,
 				       u16 frame_type, bool reg)
@@ -3265,6 +3311,21 @@ static void ath6kl_mgmt_frame_register(struct wiphy *wiphy,
 		 */
 		vif->probe_req_report = reg;
 	}
+=======
+static void ath6kl_update_mgmt_frame_registrations(struct wiphy *wiphy,
+						   struct wireless_dev *wdev,
+						   struct mgmt_frame_regs *upd)
+{
+	struct ath6kl_vif *vif = ath6kl_vif_from_wdev(wdev);
+
+	/*
+	 * FIXME: send WMI_PROBE_REQ_REPORT_CMD here instead of hardcoding
+	 *	  the reporting in the target all the time, this callback
+	 *	  *is* allowed to sleep after all.
+	 */
+	vif->probe_req_report =
+		upd->interface_stypes & BIT(IEEE80211_STYPE_PROBE_REQ >> 4);
+>>>>>>> upstream/android-13
 }
 
 static int ath6kl_cfg80211_sscan_start(struct wiphy *wiphy,
@@ -3306,8 +3367,13 @@ static int ath6kl_cfg80211_sscan_start(struct wiphy *wiphy,
 		if (ret < 0)
 			return ret;
 	} else {
+<<<<<<< HEAD
 		 ret = ath6kl_wmi_bssfilter_cmd(ar->wmi, vif->fw_vif_idx,
 						MATCHED_SSID_FILTER, 0);
+=======
+		ret = ath6kl_wmi_bssfilter_cmd(ar->wmi, vif->fw_vif_idx,
+					       MATCHED_SSID_FILTER, 0);
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			return ret;
 	}
@@ -3371,6 +3437,10 @@ static int ath6kl_cfg80211_sscan_stop(struct wiphy *wiphy,
 
 static int ath6kl_cfg80211_set_bitrate(struct wiphy *wiphy,
 				       struct net_device *dev,
+<<<<<<< HEAD
+=======
+				       unsigned int link_id,
+>>>>>>> upstream/android-13
 				       const u8 *addr,
 				       const struct cfg80211_bitrate_mask *mask)
 {
@@ -3464,7 +3534,12 @@ static struct cfg80211_ops ath6kl_cfg80211_ops = {
 	.remain_on_channel = ath6kl_remain_on_channel,
 	.cancel_remain_on_channel = ath6kl_cancel_remain_on_channel,
 	.mgmt_tx = ath6kl_mgmt_tx,
+<<<<<<< HEAD
 	.mgmt_frame_register = ath6kl_mgmt_frame_register,
+=======
+	.update_mgmt_frame_registrations =
+		ath6kl_update_mgmt_frame_registrations,
+>>>>>>> upstream/android-13
 	.get_antenna = ath6kl_get_antenna,
 	.sched_scan_start = ath6kl_cfg80211_sscan_start,
 	.sched_scan_stop = ath6kl_cfg80211_sscan_stop,
@@ -3650,7 +3725,11 @@ void ath6kl_cfg80211_vif_cleanup(struct ath6kl_vif *vif)
 		kfree(mc_filter);
 	}
 
+<<<<<<< HEAD
 	unregister_netdevice(vif->ndev);
+=======
+	cfg80211_unregister_netdevice(vif->ndev);
+>>>>>>> upstream/android-13
 
 	ar->num_vif--;
 }
@@ -3823,7 +3902,11 @@ struct wireless_dev *ath6kl_interface_add(struct ath6kl *ar, const char *name,
 
 	netdev_set_default_ethtool_ops(ndev, &ath6kl_ethtool_ops);
 
+<<<<<<< HEAD
 	if (register_netdevice(ndev))
+=======
+	if (cfg80211_register_netdevice(ndev))
+>>>>>>> upstream/android-13
 		goto err;
 
 	ar->avail_idx_map &= ~BIT(fw_vif_idx);
@@ -3899,19 +3982,31 @@ int ath6kl_cfg80211_init(struct ath6kl *ar)
 	switch (ar->hw.cap) {
 	case WMI_11AN_CAP:
 		ht = true;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case WMI_11A_CAP:
 		band_5gig = true;
 		break;
 	case WMI_11GN_CAP:
 		ht = true;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case WMI_11G_CAP:
 		band_2gig = true;
 		break;
 	case WMI_11AGN_CAP:
 		ht = true;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case WMI_11AG_CAP:
 		band_2gig = true;
 		band_5gig = true;

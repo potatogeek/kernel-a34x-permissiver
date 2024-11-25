@@ -361,7 +361,11 @@ static u8 ixgbe_dcbnl_set_all(struct net_device *netdev)
 	}
 
 #ifdef IXGBE_FCOE
+<<<<<<< HEAD
 	/* Reprogam FCoE hardware offloads when the traffic class
+=======
+	/* Reprogram FCoE hardware offloads when the traffic class
+>>>>>>> upstream/android-13
 	 * FCoE is using changes. This happens if the APP info
 	 * changes or the up2tc mapping is updated.
 	 */

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2014 Free Electrons
  * Copyright (C) 2014 Atmel
  *
  * Author: Boris BREZILLON <boris.brezillon@free-electrons.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
@@ -15,6 +20,8 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -50,7 +57,11 @@ static inline struct atmel_hlcdc_pwm *to_atmel_hlcdc_pwm(struct pwm_chip *chip)
 }
 
 static int atmel_hlcdc_pwm_apply(struct pwm_chip *c, struct pwm_device *pwm,
+<<<<<<< HEAD
 				 struct pwm_state *state)
+=======
+				 const struct pwm_state *state)
+>>>>>>> upstream/android-13
 {
 	struct atmel_hlcdc_pwm *chip = to_atmel_hlcdc_pwm(c);
 	struct atmel_hlcdc *hlcdc = chip->hlcdc;
@@ -246,6 +257,10 @@ static const struct of_device_id atmel_hlcdc_dt_ids[] = {
 		.compatible = "atmel,sama5d4-hlcdc",
 		.data = &atmel_hlcdc_pwm_sama5d3_errata,
 	},
+<<<<<<< HEAD
+=======
+	{	.compatible = "microchip,sam9x60-hlcdc", },
+>>>>>>> upstream/android-13
 	{ /* sentinel */ },
 };
 MODULE_DEVICE_TABLE(of, atmel_hlcdc_dt_ids);
@@ -275,12 +290,18 @@ static int atmel_hlcdc_pwm_probe(struct platform_device *pdev)
 	chip->hlcdc = hlcdc;
 	chip->chip.ops = &atmel_hlcdc_pwm_ops;
 	chip->chip.dev = dev;
+<<<<<<< HEAD
 	chip->chip.base = -1;
 	chip->chip.npwm = 1;
 	chip->chip.of_xlate = of_pwm_xlate_with_flags;
 	chip->chip.of_pwm_n_cells = 3;
 
 	ret = pwmchip_add_with_polarity(&chip->chip, PWM_POLARITY_INVERSED);
+=======
+	chip->chip.npwm = 1;
+
+	ret = pwmchip_add(&chip->chip);
+>>>>>>> upstream/android-13
 	if (ret) {
 		clk_disable_unprepare(hlcdc->periph_clk);
 		return ret;
@@ -294,11 +315,16 @@ static int atmel_hlcdc_pwm_probe(struct platform_device *pdev)
 static int atmel_hlcdc_pwm_remove(struct platform_device *pdev)
 {
 	struct atmel_hlcdc_pwm *chip = platform_get_drvdata(pdev);
+<<<<<<< HEAD
 	int ret;
 
 	ret = pwmchip_remove(&chip->chip);
 	if (ret)
 		return ret;
+=======
+
+	pwmchip_remove(&chip->chip);
+>>>>>>> upstream/android-13
 
 	clk_disable_unprepare(chip->hlcdc->periph_clk);
 

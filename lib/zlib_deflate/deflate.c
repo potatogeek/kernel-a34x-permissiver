@@ -52,16 +52,31 @@
 #include <linux/zutil.h>
 #include "defutil.h"
 
+<<<<<<< HEAD
+=======
+/* architecture-specific bits */
+#ifdef CONFIG_ZLIB_DFLTCC
+#  include "../zlib_dfltcc/dfltcc.h"
+#else
+#define DEFLATE_RESET_HOOK(strm) do {} while (0)
+#define DEFLATE_HOOK(strm, flush, bstate) 0
+#define DEFLATE_NEED_CHECKSUM(strm) 1
+#define DEFLATE_DFLTCC_ENABLED() 0
+#endif
+>>>>>>> upstream/android-13
 
 /* ===========================================================================
  *  Function prototypes.
  */
+<<<<<<< HEAD
 typedef enum {
     need_more,      /* block not completed, need more input or more output */
     block_done,     /* block flush performed */
     finish_started, /* finish started, need only more output at next deflate */
     finish_done     /* finish done, accept no more input or output */
 } block_state;
+=======
+>>>>>>> upstream/android-13
 
 typedef block_state (*compress_func) (deflate_state *s, int flush);
 /* Compression function. Returns the block state after the call. */
@@ -72,7 +87,10 @@ static block_state deflate_fast   (deflate_state *s, int flush);
 static block_state deflate_slow   (deflate_state *s, int flush);
 static void lm_init        (deflate_state *s);
 static void putShortMSB    (deflate_state *s, uInt b);
+<<<<<<< HEAD
 static void flush_pending  (z_streamp strm);
+=======
+>>>>>>> upstream/android-13
 static int read_buf        (z_streamp strm, Byte *buf, unsigned size);
 static uInt longest_match  (deflate_state *s, IPos cur_match);
 
@@ -98,6 +116,28 @@ static  void check_match (deflate_state *s, IPos start, IPos match,
  * See deflate.c for comments about the MIN_MATCH+1.
  */
 
+<<<<<<< HEAD
+=======
+/* Workspace to be allocated for deflate processing */
+typedef struct deflate_workspace {
+    /* State memory for the deflator */
+    deflate_state deflate_memory;
+#ifdef CONFIG_ZLIB_DFLTCC
+    /* State memory for s390 hardware deflate */
+    struct dfltcc_state dfltcc_memory;
+#endif
+    Byte *window_memory;
+    Pos *prev_memory;
+    Pos *head_memory;
+    char *overlay_memory;
+} deflate_workspace;
+
+#ifdef CONFIG_ZLIB_DFLTCC
+/* dfltcc_state must be doubleword aligned for DFLTCC call */
+static_assert(offsetof(struct deflate_workspace, dfltcc_memory) % 8 == 0);
+#endif
+
+>>>>>>> upstream/android-13
 /* Values for max_lazy_match, good_match and max_chain_length, depending on
  * the desired pack level (0..9). The values given below have been tuned to
  * exclude worst case performance for pathological files. Better values may be
@@ -207,7 +247,19 @@ int zlib_deflateInit2(
      */
     next = (char *) mem;
     next += sizeof(*mem);
+<<<<<<< HEAD
     mem->window_memory = (Byte *) next;
+=======
+#ifdef CONFIG_ZLIB_DFLTCC
+    /*
+     *  DFLTCC requires the window to be page aligned.
+     *  Thus, we overallocate and take the aligned portion of the buffer.
+     */
+    mem->window_memory = (Byte *) PTR_ALIGN(next, PAGE_SIZE);
+#else
+    mem->window_memory = (Byte *) next;
+#endif
+>>>>>>> upstream/android-13
     next += zlib_deflate_window_memsize(windowBits);
     mem->prev_memory = (Pos *) next;
     next += zlib_deflate_prev_memsize(windowBits);
@@ -277,6 +329,11 @@ int zlib_deflateReset(
     zlib_tr_init(s);
     lm_init(s);
 
+<<<<<<< HEAD
+=======
+    DEFLATE_RESET_HOOK(strm);
+
+>>>>>>> upstream/android-13
     return Z_OK;
 }
 
@@ -294,6 +351,7 @@ static void putShortMSB(
     put_byte(s, (Byte)(b & 0xff));
 }   
 
+<<<<<<< HEAD
 /* =========================================================================
  * Flush as much pending output as possible. All deflate() output goes
  * through this function so some applications may wish to modify it
@@ -323,6 +381,8 @@ static void flush_pending(
     }
 }
 
+=======
+>>>>>>> upstream/android-13
 /* ========================================================================= */
 int zlib_deflate(
 	z_streamp strm,
@@ -404,7 +464,12 @@ int zlib_deflate(
         (flush != Z_NO_FLUSH && s->status != FINISH_STATE)) {
         block_state bstate;
 
+<<<<<<< HEAD
 	bstate = (*(configuration_table[s->level].func))(s, flush);
+=======
+	bstate = DEFLATE_HOOK(strm, flush, &bstate) ? bstate :
+		 (*(configuration_table[s->level].func))(s, flush);
+>>>>>>> upstream/android-13
 
         if (bstate == finish_started || bstate == finish_done) {
             s->status = FINISH_STATE;
@@ -503,7 +568,12 @@ static int read_buf(
 
     strm->avail_in  -= len;
 
+<<<<<<< HEAD
     if (!((deflate_state *)(strm->state))->noheader) {
+=======
+    if (!DEFLATE_NEED_CHECKSUM(strm)) {}
+    else if (!((deflate_state *)(strm->state))->noheader) {
+>>>>>>> upstream/android-13
         strm->adler = zlib_adler32(strm->adler, strm->next_in, len);
     }
     memcpy(buf, strm->next_in, len);
@@ -1135,3 +1205,11 @@ int zlib_deflate_workspacesize(int windowBits, int memLevel)
         + zlib_deflate_head_memsize(memLevel)
         + zlib_deflate_overlay_memsize(memLevel);
 }
+<<<<<<< HEAD
+=======
+
+int zlib_deflate_dfltcc_enabled(void)
+{
+	return DEFLATE_DFLTCC_ENABLED();
+}
+>>>>>>> upstream/android-13

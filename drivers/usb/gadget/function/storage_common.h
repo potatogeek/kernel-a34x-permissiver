@@ -66,11 +66,14 @@ do {									\
 
 #endif /* DUMP_MSGS */
 
+<<<<<<< HEAD
 #ifdef CONFIG_USB_ANDROID_SAMSUNG_COMPOSITE
 /* SCSI commands that we recognize */
 #define READ_CD					0xbe
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /* Length of a SCSI Command Data Block */
 #define MAX_COMMAND_SIZE	16
 
@@ -138,10 +141,13 @@ static inline bool fsg_lun_is_open(struct fsg_lun *curlun)
 /* Maximal number of LUNs supported in mass storage function */
 #define FSG_MAX_LUNS	16
 
+<<<<<<< HEAD
 #ifdef CONFIG_USB_CONFIGFS_MTK_FASTMETA
 #define LUN_NAME_LEN	8
 #endif
 
+=======
+>>>>>>> upstream/android-13
 enum fsg_buffer_state {
 	BUF_STATE_SENDING = -2,
 	BUF_STATE_RECEIVING,
@@ -181,11 +187,14 @@ enum data_direction {
 	DATA_DIR_NONE
 };
 
+<<<<<<< HEAD
 static inline u32 get_unaligned_be24(u8 *buf)
 {
 	return 0xffffff & (u32) get_unaligned_be32(buf - 1);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline struct fsg_lun *fsg_lun_from_dev(struct device *dev)
 {
 	return container_of(dev, struct fsg_lun, dev);
@@ -235,4 +244,7 @@ ssize_t fsg_store_inquiry_string(struct fsg_lun *curlun, const char *buf,
 				 size_t count);
 
 #endif /* USB_STORAGE_COMMON_H */
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13

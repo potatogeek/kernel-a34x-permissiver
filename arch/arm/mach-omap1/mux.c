@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * linux/arch/arm/mach-omap1/mux.c
  *
@@ -6,6 +10,7 @@
  * Copyright (C) 2003 - 2008 Nokia Corporation
  *
  * Written by Tony Lindgren
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +26,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/init.h>

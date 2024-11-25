@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 ARM Ltd.
  *
@@ -12,6 +13,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2012 ARM Ltd.
+>>>>>>> upstream/android-13
  */
 #ifndef __ASM_SYSCALL_H
 #define __ASM_SYSCALL_H
@@ -40,24 +46,44 @@ static inline void syscall_rollback(struct task_struct *task,
 	regs->regs[0] = regs->orig_x0;
 }
 
+<<<<<<< HEAD
+=======
+static inline long syscall_get_return_value(struct task_struct *task,
+					    struct pt_regs *regs)
+{
+	unsigned long val = regs->regs[0];
+
+	if (is_compat_thread(task_thread_info(task)))
+		val = sign_extend64(val, 31);
+
+	return val;
+}
+>>>>>>> upstream/android-13
 
 static inline long syscall_get_error(struct task_struct *task,
 				     struct pt_regs *regs)
 {
+<<<<<<< HEAD
 	unsigned long error = regs->regs[0];
 
 	if (is_compat_thread(task_thread_info(task)))
 		error = sign_extend64(error, 31);
+=======
+	unsigned long error = syscall_get_return_value(task, regs);
+>>>>>>> upstream/android-13
 
 	return IS_ERR_VALUE(error) ? error : 0;
 }
 
+<<<<<<< HEAD
 static inline long syscall_get_return_value(struct task_struct *task,
 					    struct pt_regs *regs)
 {
 	return regs->regs[0];
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void syscall_set_return_value(struct task_struct *task,
 					    struct pt_regs *regs,
 					    int error, long val)
@@ -75,6 +101,7 @@ static inline void syscall_set_return_value(struct task_struct *task,
 
 static inline void syscall_get_arguments(struct task_struct *task,
 					 struct pt_regs *regs,
+<<<<<<< HEAD
 					 unsigned int i, unsigned int n,
 					 unsigned long *args)
 {
@@ -97,10 +124,19 @@ static inline void syscall_get_arguments(struct task_struct *task,
 	}
 
 	memcpy(args, &regs->regs[i], n * sizeof(args[0]));
+=======
+					 unsigned long *args)
+{
+	args[0] = regs->orig_x0;
+	args++;
+
+	memcpy(args, &regs->regs[1], 5 * sizeof(args[0]));
+>>>>>>> upstream/android-13
 }
 
 static inline void syscall_set_arguments(struct task_struct *task,
 					 struct pt_regs *regs,
+<<<<<<< HEAD
 					 unsigned int i, unsigned int n,
 					 const unsigned long *args)
 {
@@ -121,15 +157,29 @@ static inline void syscall_set_arguments(struct task_struct *task,
 	}
 
 	memcpy(&regs->regs[i], args, n * sizeof(args[0]));
+=======
+					 const unsigned long *args)
+{
+	regs->orig_x0 = args[0];
+	args++;
+
+	memcpy(&regs->regs[1], args, 5 * sizeof(args[0]));
+>>>>>>> upstream/android-13
 }
 
 /*
  * We don't care about endianness (__AUDIT_ARCH_LE bit) here because
  * AArch64 has the same system calls both on little- and big- endian.
  */
+<<<<<<< HEAD
 static inline int syscall_get_arch(void)
 {
 	if (is_compat_task())
+=======
+static inline int syscall_get_arch(struct task_struct *task)
+{
+	if (is_compat_thread(task_thread_info(task)))
+>>>>>>> upstream/android-13
 		return AUDIT_ARCH_ARM;
 
 	return AUDIT_ARCH_AARCH64;

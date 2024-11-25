@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * ad1980.c  --  ALSA Soc AD1980 codec support
  *
@@ -9,6 +10,15 @@
  *  under  the terms of  the GNU General  Public License as published by the
  *  Free Software Foundation;  either version 2 of the  License, or (at your
  *  option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * ad1980.c  --  ALSA Soc AD1980 codec support
+ *
+ * Copyright:	Analog Devices Inc.
+ * Author:	Roy Huang <roy.huang@analog.com>
+ * 		Cliff Cai <cliff.cai@analog.com>
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -260,7 +270,11 @@ static int ad1980_soc_probe(struct snd_soc_component *component)
 	if (ret < 0)
 		goto reset_err;
 
+<<<<<<< HEAD
 	vendor_id2 = snd_soc_component_read32(component, AC97_VENDOR_ID2);
+=======
+	vendor_id2 = snd_soc_component_read(component, AC97_VENDOR_ID2);
+>>>>>>> upstream/android-13
 	if (vendor_id2 == 0x5374) {
 		dev_warn(component->dev,
 			"Found AD1981 - only 2/2 IN/OUT Channels supported\n");
@@ -274,7 +288,11 @@ static int ad1980_soc_probe(struct snd_soc_component *component)
 	snd_soc_component_write(component, AC97_SURROUND_MASTER, 0x0000);
 
 	/*power on LFE/CENTER/Surround DACs*/
+<<<<<<< HEAD
 	ext_status = snd_soc_component_read32(component, AC97_EXTENDED_STATUS);
+=======
+	ext_status = snd_soc_component_read(component, AC97_EXTENDED_STATUS);
+>>>>>>> upstream/android-13
 	snd_soc_component_write(component, AC97_EXTENDED_STATUS, ext_status&~0x3800);
 
 	return 0;

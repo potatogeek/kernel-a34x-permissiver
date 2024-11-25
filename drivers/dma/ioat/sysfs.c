@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Intel I/OAT DMA Linux driver
  * Copyright(c) 2004 - 2015 Intel Corporation.
@@ -14,6 +15,12 @@
  * The full GNU General Public License is included in this distribution in
  * the file called "COPYING".
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Intel I/OAT DMA Linux driver
+ * Copyright(c) 2004 - 2015 Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>

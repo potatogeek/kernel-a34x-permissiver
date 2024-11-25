@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * OpenRISC head.S
  *
@@ -8,11 +12,14 @@
  * Modifications for the OpenRISC architecture:
  * Copyright (C) 2003 Matjaz Breskvar <phoenix@bsemi.com>
  * Copyright (C) 2010-2011 Jonas Bonn <jonas@southpole.se>
+<<<<<<< HEAD
  *
  *      This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
@@ -20,10 +27,17 @@
 #include <linux/errno.h>
 #include <linux/init.h>
 #include <linux/serial_reg.h>
+<<<<<<< HEAD
 #include <asm/processor.h>
 #include <asm/page.h>
 #include <asm/mmu.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+#include <asm/processor.h>
+#include <asm/page.h>
+#include <asm/mmu.h>
+>>>>>>> upstream/android-13
 #include <asm/thread_info.h>
 #include <asm/cache.h>
 #include <asm/spr_defs.h>
@@ -603,7 +617,11 @@ flush_tlb:
 	l.jal	_flush_tlb
 	 l.nop
 
+<<<<<<< HEAD
 /* The MMU needs to be enabled before or32_early_setup is called */
+=======
+/* The MMU needs to be enabled before or1k_early_setup is called */
+>>>>>>> upstream/android-13
 
 enable_mmu:
 	/*
@@ -645,9 +663,15 @@ enable_mmu:
 	/* magic number mismatch, set fdt pointer to null */
 	l.or	r25,r0,r0
 _fdt_found:
+<<<<<<< HEAD
 	/* pass fdt pointer to or32_early_setup in r3 */
 	l.or	r3,r0,r25
 	LOAD_SYMBOL_2_GPR(r24, or32_early_setup)
+=======
+	/* pass fdt pointer to or1k_early_setup in r3 */
+	l.or	r3,r0,r25
+	LOAD_SYMBOL_2_GPR(r24, or1k_early_setup)
+>>>>>>> upstream/android-13
 	l.jalr r24
 	 l.nop
 

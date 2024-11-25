@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Copyright (C) 2012-2019 Samsung Electronics, Inc.
+=======
+ * Copyright (c) 2012 Samsung Electronics Co., Ltd All Rights Reserved
+>>>>>>> upstream/android-13
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -24,6 +28,7 @@
 #include "core/subsystem.h"
 #include "extensions/hotplug.h"
 
+<<<<<<< HEAD
 #if CONFIG_TZDEV_BOOST_CLUSTER == 1
 
 /* cluster 1 is a high performance cluster */
@@ -50,6 +55,21 @@
 
 static int tz_boost_users = 0;
 static struct pm_qos_request tz_boost_qos;
+=======
+#if defined(CONFIG_TZDEV_BOOST_CLUSTER_0)
+static struct pm_qos_request tz_boost_qos_0;
+#endif /* CONFIG_TZDEV_BOOST_CLUSTER_0 */
+
+#if defined(CONFIG_TZDEV_BOOST_CLUSTER_1)
+static struct pm_qos_request tz_boost_qos_1;
+#endif /* CONFIG_TZDEV_BOOST_CLUSTER_1 */
+
+#if defined(CONFIG_TZDEV_BOOST_CLUSTER_2)
+static struct pm_qos_request tz_boost_qos_2;
+#endif /* CONFIG_TZDEV_BOOST_CLUSTER_2 */
+
+static int tz_boost_users = 0;
+>>>>>>> upstream/android-13
 static unsigned int cpu_boost_mask;
 static DEFINE_MUTEX(tz_boost_lock);
 
@@ -63,6 +83,7 @@ static int tz_boost_init_call(struct notifier_block *cb, unsigned long code, voi
 	(void)unused;
 
 	swd_sysconf = &tzdev_sysconf()->swd_sysconf;
+<<<<<<< HEAD
 
 	for (i = 0; i < CPU_CLUSTER_MAX; ++i) {
 		if (swd_sysconf->cluster_info[i].type == CPU_CLUSTER_BIG) {
@@ -75,6 +96,23 @@ static int tz_boost_init_call(struct notifier_block *cb, unsigned long code, voi
 	log_error(tzdev_boost, "Failed to get CPU boost mask\n");
 
 	return NOTIFY_BAD;
+=======
+	cpu_boost_mask = 0;
+
+	for (i = 0; i < CPU_CLUSTER_MAX; ++i) {
+		if (swd_sysconf->cluster_info[i].type == CPU_CLUSTER_BIG ||
+				swd_sysconf->cluster_info[i].type == CPU_CLUSTER_MIDDLE)
+			cpu_boost_mask |= swd_sysconf->cluster_info[i].mask;
+	}
+
+	if (!cpu_boost_mask) {
+		log_error(tzdev_boost, "Failed to get CPU boost mask\n");
+		return NOTIFY_BAD;
+	}
+
+	log_info(tzdev_boost, "Booster initialization done\n");
+	return NOTIFY_DONE;
+>>>>>>> upstream/android-13
 }
 
 static struct notifier_block tz_boost_init_notifier = {
@@ -103,8 +141,26 @@ void tz_boost_enable(void)
 
 	if (!tz_boost_users) {
 		tz_hotplug_update_nwd_cpu_mask(cpu_boost_mask);
+<<<<<<< HEAD
 		pm_qos_add_request(&tz_boost_qos, TZ_BOOST_CPU_FREQ_MIN,
 				TZ_BOOST_CPU_FREQ_MAX_DEFAULT_VALUE);
+=======
+
+#if defined(CONFIG_TZDEV_BOOST_CLUSTER_0)
+		pm_qos_add_request(&tz_boost_qos_0, PM_QOS_CLUSTER0_FREQ_MIN,
+				PM_QOS_CLUSTER0_FREQ_MAX_DEFAULT_VALUE);
+#endif /* CONFIG_TZDEV_BOOST_CLUSTER_0 */
+
+#if defined(CONFIG_TZDEV_BOOST_CLUSTER_1)
+		pm_qos_add_request(&tz_boost_qos_1, PM_QOS_CLUSTER1_FREQ_MIN,
+				PM_QOS_CLUSTER1_FREQ_MAX_DEFAULT_VALUE);
+#endif /* CONFIG_TZDEV_BOOST_CLUSTER_1 */
+
+#if defined(CONFIG_TZDEV_BOOST_CLUSTER_2)
+		pm_qos_add_request(&tz_boost_qos_2, PM_QOS_CLUSTER2_FREQ_MIN,
+				PM_QOS_CLUSTER2_FREQ_MAX_DEFAULT_VALUE);
+#endif /* CONFIG_TZDEV_BOOST_CLUSTER_2 */
+>>>>>>> upstream/android-13
 	}
 
 	tz_boost_users++;
@@ -120,7 +176,22 @@ void tz_boost_disable(void)
 	BUG_ON(tz_boost_users < 0);
 
 	if (!tz_boost_users) {
+<<<<<<< HEAD
 		pm_qos_remove_request(&tz_boost_qos);
+=======
+#if defined(CONFIG_TZDEV_BOOST_CLUSTER_0)
+		pm_qos_remove_request(&tz_boost_qos_0);
+#endif /* CONFIG_TZDEV_BOOST_CLUSTER_0 */
+
+#if defined(CONFIG_TZDEV_BOOST_CLUSTER_1)
+		pm_qos_remove_request(&tz_boost_qos_1);
+#endif /* CONFIG_TZDEV_BOOST_CLUSTER_1 */
+
+#if defined(CONFIG_TZDEV_BOOST_CLUSTER_2)
+		pm_qos_remove_request(&tz_boost_qos_2);
+#endif /* CONFIG_TZDEV_BOOST_CLUSTER_2 */
+
+>>>>>>> upstream/android-13
 		tz_hotplug_update_nwd_cpu_mask(0x0);
 	}
 

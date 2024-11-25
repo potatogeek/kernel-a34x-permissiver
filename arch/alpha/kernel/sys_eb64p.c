@@ -22,7 +22,10 @@
 #include <asm/irq.h>
 #include <asm/mmu_context.h>
 #include <asm/io.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/core_apecs.h>
 #include <asm/core_lca.h>
 #include <asm/hwrpb.h>
@@ -123,7 +126,12 @@ eb64p_init_irq(void)
 	}
 
 	common_init_isa_dma();
+<<<<<<< HEAD
 	setup_irq(16+5, &isa_cascade_irqaction);
+=======
+	if (request_irq(16 + 5, no_action, 0, "isa-cascade", NULL))
+		pr_err("Failed to register isa-cascade interrupt\n");
+>>>>>>> upstream/android-13
 }
 
 /*

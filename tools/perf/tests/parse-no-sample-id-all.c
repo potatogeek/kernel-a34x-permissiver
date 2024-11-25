@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/types.h>
 #include <stddef.h>
@@ -8,10 +11,16 @@
 #include "event.h"
 #include "evlist.h"
 #include "header.h"
+<<<<<<< HEAD
 #include "util.h"
 #include "debug.h"
 
 static int process_event(struct perf_evlist **pevlist, union perf_event *event)
+=======
+#include "debug.h"
+
+static int process_event(struct evlist **pevlist, union perf_event *event)
+>>>>>>> upstream/android-13
 {
 	struct perf_sample sample;
 
@@ -29,8 +38,13 @@ static int process_event(struct perf_evlist **pevlist, union perf_event *event)
 	if (!*pevlist)
 		return -1;
 
+<<<<<<< HEAD
 	if (perf_evlist__parse_sample(*pevlist, event, &sample)) {
 		pr_debug("perf_evlist__parse_sample failed\n");
+=======
+	if (evlist__parse_sample(*pevlist, event, &sample)) {
+		pr_debug("evlist__parse_sample failed\n");
+>>>>>>> upstream/android-13
 		return -1;
 	}
 
@@ -39,14 +53,22 @@ static int process_event(struct perf_evlist **pevlist, union perf_event *event)
 
 static int process_events(union perf_event **events, size_t count)
 {
+<<<<<<< HEAD
 	struct perf_evlist *evlist = NULL;
+=======
+	struct evlist *evlist = NULL;
+>>>>>>> upstream/android-13
 	int err = 0;
 	size_t i;
 
 	for (i = 0; i < count && !err; i++)
 		err = process_event(&evlist, events[i]);
 
+<<<<<<< HEAD
 	perf_evlist__delete(evlist);
+=======
+	evlist__delete(evlist);
+>>>>>>> upstream/android-13
 
 	return err;
 }
@@ -87,10 +109,17 @@ int test__parse_no_sample_id_all(struct test *test __maybe_unused, int subtest _
 		},
 		.id = 2,
 	};
+<<<<<<< HEAD
 	struct mmap_event event3 = {
 		.header = {
 			.type = PERF_RECORD_MMAP,
 			.size = sizeof(struct mmap_event),
+=======
+	struct perf_record_mmap event3 = {
+		.header = {
+			.type = PERF_RECORD_MMAP,
+			.size = sizeof(struct perf_record_mmap),
+>>>>>>> upstream/android-13
 		},
 	};
 	union perf_event *events[] = {

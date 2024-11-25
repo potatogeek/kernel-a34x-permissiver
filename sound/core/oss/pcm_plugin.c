@@ -59,9 +59,19 @@ static int snd_pcm_plugin_alloc(struct snd_pcm_plugin *plugin, snd_pcm_uframes_t
 	} else {
 		format = &plugin->dst_format;
 	}
+<<<<<<< HEAD
 	if ((width = snd_pcm_format_physical_width(format->format)) < 0)
 		return width;
 	size = frames * format->channels * width;
+=======
+	width = snd_pcm_format_physical_width(format->format);
+	if (width < 0)
+		return width;
+	size = array3_size(frames, format->channels, width);
+	/* check for too large period size once again */
+	if (size > 1024 * 1024)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 	if (snd_BUG_ON(size % 8))
 		return -ENXIO;
 	size /= 8;
@@ -196,6 +206,7 @@ int snd_pcm_plugin_free(struct snd_pcm_plugin *plugin)
 	return 0;
 }
 
+<<<<<<< HEAD
 static snd_pcm_sframes_t plug_client_size(struct snd_pcm_substream *plug,
 					  snd_pcm_uframes_t drv_frames,
 					  bool check_size)
@@ -292,6 +303,80 @@ snd_pcm_sframes_t snd_pcm_plug_slave_size(struct snd_pcm_substream *plug,
 					  snd_pcm_uframes_t clt_frames)
 {
 	return plug_slave_size(plug, clt_frames, false);
+=======
+static snd_pcm_sframes_t calc_dst_frames(struct snd_pcm_substream *plug,
+					 snd_pcm_sframes_t frames,
+					 bool check_size)
+{
+	struct snd_pcm_plugin *plugin, *plugin_next;
+
+	plugin = snd_pcm_plug_first(plug);
+	while (plugin && frames > 0) {
+		plugin_next = plugin->next;
+		if (check_size && plugin->buf_frames &&
+		    frames > plugin->buf_frames)
+			frames = plugin->buf_frames;
+		if (plugin->dst_frames) {
+			frames = plugin->dst_frames(plugin, frames);
+			if (frames < 0)
+				return frames;
+		}
+		plugin = plugin_next;
+	}
+	return frames;
+}
+
+static snd_pcm_sframes_t calc_src_frames(struct snd_pcm_substream *plug,
+					 snd_pcm_sframes_t frames,
+					 bool check_size)
+{
+	struct snd_pcm_plugin *plugin, *plugin_prev;
+
+	plugin = snd_pcm_plug_last(plug);
+	while (plugin && frames > 0) {
+		plugin_prev = plugin->prev;
+		if (plugin->src_frames) {
+			frames = plugin->src_frames(plugin, frames);
+			if (frames < 0)
+				return frames;
+		}
+		if (check_size && plugin->buf_frames &&
+		    frames > plugin->buf_frames)
+			frames = plugin->buf_frames;
+		plugin = plugin_prev;
+	}
+	return frames;
+}
+
+snd_pcm_sframes_t snd_pcm_plug_client_size(struct snd_pcm_substream *plug, snd_pcm_uframes_t drv_frames)
+{
+	if (snd_BUG_ON(!plug))
+		return -ENXIO;
+	switch (snd_pcm_plug_stream(plug)) {
+	case SNDRV_PCM_STREAM_PLAYBACK:
+		return calc_src_frames(plug, drv_frames, false);
+	case SNDRV_PCM_STREAM_CAPTURE:
+		return calc_dst_frames(plug, drv_frames, false);
+	default:
+		snd_BUG();
+		return -EINVAL;
+	}
+}
+
+snd_pcm_sframes_t snd_pcm_plug_slave_size(struct snd_pcm_substream *plug, snd_pcm_uframes_t clt_frames)
+{
+	if (snd_BUG_ON(!plug))
+		return -ENXIO;
+	switch (snd_pcm_plug_stream(plug)) {
+	case SNDRV_PCM_STREAM_PLAYBACK:
+		return calc_dst_frames(plug, clt_frames, false);
+	case SNDRV_PCM_STREAM_CAPTURE:
+		return calc_src_frames(plug, clt_frames, false);
+	default:
+		snd_BUG();
+		return -EINVAL;
+	}
+>>>>>>> upstream/android-13
 }
 
 static int snd_pcm_plug_formats(const struct snd_mask *mask,
@@ -316,7 +401,11 @@ static int snd_pcm_plug_formats(const struct snd_mask *mask,
 	return snd_mask_test(&formats, (__force int)format);
 }
 
+<<<<<<< HEAD
 static snd_pcm_format_t preferred_formats[] = {
+=======
+static const snd_pcm_format_t preferred_formats[] = {
+>>>>>>> upstream/android-13
 	SNDRV_PCM_FORMAT_S16_LE,
 	SNDRV_PCM_FORMAT_S16_BE,
 	SNDRV_PCM_FORMAT_U16_LE,
@@ -381,7 +470,11 @@ snd_pcm_format_t snd_pcm_plug_slave_format(snd_pcm_format_t format,
 				if (snd_mask_test(format_mask, (__force int)format1))
 					return format1;
 			}
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		default:
 			return (__force snd_pcm_format_t)-EINVAL;
 		}
@@ -596,7 +689,12 @@ snd_pcm_sframes_t snd_pcm_plug_client_channels_buf(struct snd_pcm_substream *plu
 	}
 	v = plugin->buf_channels;
 	*channels = v;
+<<<<<<< HEAD
 	if ((width = snd_pcm_format_physical_width(format->format)) < 0)
+=======
+	width = snd_pcm_format_physical_width(format->format);
+	if (width < 0)
+>>>>>>> upstream/android-13
 		return width;
 	nchannels = format->channels;
 	if (snd_BUG_ON(plugin->access != SNDRV_PCM_ACCESS_RW_INTERLEAVED &&
@@ -624,16 +722,27 @@ snd_pcm_sframes_t snd_pcm_plug_write_transfer(struct snd_pcm_substream *plug, st
 	while (plugin) {
 		if (frames <= 0)
 			return frames;
+<<<<<<< HEAD
 		if ((next = plugin->next) != NULL) {
+=======
+		next = plugin->next;
+		if (next) {
+>>>>>>> upstream/android-13
 			snd_pcm_sframes_t frames1 = frames;
 			if (plugin->dst_frames) {
 				frames1 = plugin->dst_frames(plugin, frames);
 				if (frames1 <= 0)
 					return frames1;
 			}
+<<<<<<< HEAD
 			if ((err = next->client_channels(next, frames1, &dst_channels)) < 0) {
 				return err;
 			}
+=======
+			err = next->client_channels(next, frames1, &dst_channels);
+			if (err < 0)
+				return err;
+>>>>>>> upstream/android-13
 			if (err != frames1) {
 				frames = err;
 				if (plugin->src_frames) {
@@ -645,12 +754,21 @@ snd_pcm_sframes_t snd_pcm_plug_write_transfer(struct snd_pcm_substream *plug, st
 		} else
 			dst_channels = NULL;
 		pdprintf("write plugin: %s, %li\n", plugin->name, frames);
+<<<<<<< HEAD
 		if ((frames = plugin->transfer(plugin, src_channels, dst_channels, frames)) < 0)
+=======
+		frames = plugin->transfer(plugin, src_channels, dst_channels, frames);
+		if (frames < 0)
+>>>>>>> upstream/android-13
 			return frames;
 		src_channels = dst_channels;
 		plugin = next;
 	}
+<<<<<<< HEAD
 	return plug_client_size(plug, frames, true);
+=======
+	return calc_src_frames(plug, frames, true);
+>>>>>>> upstream/android-13
 }
 
 snd_pcm_sframes_t snd_pcm_plug_read_transfer(struct snd_pcm_substream *plug, struct snd_pcm_plugin_channel *dst_channels_final, snd_pcm_uframes_t size)
@@ -660,23 +778,40 @@ snd_pcm_sframes_t snd_pcm_plug_read_transfer(struct snd_pcm_substream *plug, str
 	snd_pcm_sframes_t frames = size;
 	int err;
 
+<<<<<<< HEAD
 	frames = plug_slave_size(plug, frames, true);
+=======
+	frames = calc_src_frames(plug, frames, true);
+>>>>>>> upstream/android-13
 	if (frames < 0)
 		return frames;
 
 	src_channels = NULL;
 	plugin = snd_pcm_plug_first(plug);
 	while (plugin && frames > 0) {
+<<<<<<< HEAD
 		if ((next = plugin->next) != NULL) {
 			if ((err = plugin->client_channels(plugin, frames, &dst_channels)) < 0) {
 				return err;
 			}
+=======
+		next = plugin->next;
+		if (next) {
+			err = plugin->client_channels(plugin, frames, &dst_channels);
+			if (err < 0)
+				return err;
+>>>>>>> upstream/android-13
 			frames = err;
 		} else {
 			dst_channels = dst_channels_final;
 		}
 		pdprintf("read plugin: %s, %li\n", plugin->name, frames);
+<<<<<<< HEAD
 		if ((frames = plugin->transfer(plugin, src_channels, dst_channels, frames)) < 0)
+=======
+		frames = plugin->transfer(plugin, src_channels, dst_channels, frames);
+		if (frames < 0)
+>>>>>>> upstream/android-13
 			return frames;
 		plugin = next;
 		src_channels = dst_channels;

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
     A Davicom DM9102/DM9102A/DM9102A+DM9801/DM9102A+DM9802 NIC fast
     ethernet driver for Linux.
     Copyright (C) 1997  Sten Wang
 
+<<<<<<< HEAD
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
     as published by the Free Software Foundation; either version 2
@@ -12,6 +17,8 @@
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
 
     DAVICOM Web-Site: www.davicom.com.tw
 
@@ -64,8 +71,11 @@
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
 #define DRV_NAME	"dmfe"
+<<<<<<< HEAD
 #define DRV_VERSION	"1.36.4"
 #define DRV_RELDATE	"2002-01-17"
+=======
+>>>>>>> upstream/android-13
 
 #include <linux/module.h>
 #include <linux/kernel.h>
@@ -288,10 +298,13 @@ enum dmfe_CR6_bits {
 };
 
 /* Global variable declaration ----------------------------- */
+<<<<<<< HEAD
 static int printed_version;
 static const char version[] =
 	"Davicom DM9xxx net driver, version " DRV_VERSION " (" DRV_RELDATE ")";
 
+=======
+>>>>>>> upstream/android-13
 static int dmfe_debug;
 static unsigned char dmfe_media_mode = DMFE_AUTO;
 static u32 dmfe_cr6_user_set;
@@ -372,9 +385,12 @@ static int dmfe_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 
 	DMFE_DBUG(0, "dmfe_init_one()", 0);
 
+<<<<<<< HEAD
 	if (!printed_version++)
 		pr_info("%s\n", version);
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 *	SPARC on-board DM910x chips should be handled by the main
 	 *	tulip driver, except for early DM9100s.
@@ -397,7 +413,11 @@ static int dmfe_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 		return -ENOMEM;
 	SET_NETDEV_DEV(dev, &pdev->dev);
 
+<<<<<<< HEAD
 	if (pci_set_dma_mask(pdev, DMA_BIT_MASK(32))) {
+=======
+	if (dma_set_mask(&pdev->dev, DMA_BIT_MASK(32))) {
+>>>>>>> upstream/android-13
 		pr_warn("32-bit PCI DMA not available\n");
 		err = -ENODEV;
 		goto err_out_free;
@@ -439,15 +459,27 @@ static int dmfe_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 	db = netdev_priv(dev);
 
 	/* Allocate Tx/Rx descriptor memory */
+<<<<<<< HEAD
 	db->desc_pool_ptr = pci_alloc_consistent(pdev, sizeof(struct tx_desc) *
 			DESC_ALL_CNT + 0x20, &db->desc_pool_dma_ptr);
+=======
+	db->desc_pool_ptr = dma_alloc_coherent(&pdev->dev,
+					       sizeof(struct tx_desc) * DESC_ALL_CNT + 0x20,
+					       &db->desc_pool_dma_ptr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!db->desc_pool_ptr) {
 		err = -ENOMEM;
 		goto err_out_res;
 	}
 
+<<<<<<< HEAD
 	db->buf_pool_ptr = pci_alloc_consistent(pdev, TX_BUF_ALLOC *
 			TX_DESC_CNT + 4, &db->buf_pool_dma_ptr);
+=======
+	db->buf_pool_ptr = dma_alloc_coherent(&pdev->dev,
+					      TX_BUF_ALLOC * TX_DESC_CNT + 4,
+					      &db->buf_pool_dma_ptr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!db->buf_pool_ptr) {
 		err = -ENOMEM;
 		goto err_out_free_desc;
@@ -509,11 +541,20 @@ static int dmfe_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 err_out_unmap:
 	pci_iounmap(pdev, db->ioaddr);
 err_out_free_buf:
+<<<<<<< HEAD
 	pci_free_consistent(pdev, TX_BUF_ALLOC * TX_DESC_CNT + 4,
 			    db->buf_pool_ptr, db->buf_pool_dma_ptr);
 err_out_free_desc:
 	pci_free_consistent(pdev, sizeof(struct tx_desc) * DESC_ALL_CNT + 0x20,
 			    db->desc_pool_ptr, db->desc_pool_dma_ptr);
+=======
+	dma_free_coherent(&pdev->dev, TX_BUF_ALLOC * TX_DESC_CNT + 4,
+			  db->buf_pool_ptr, db->buf_pool_dma_ptr);
+err_out_free_desc:
+	dma_free_coherent(&pdev->dev,
+			  sizeof(struct tx_desc) * DESC_ALL_CNT + 0x20,
+			  db->desc_pool_ptr, db->desc_pool_dma_ptr);
+>>>>>>> upstream/android-13
 err_out_res:
 	pci_release_regions(pdev);
 err_out_disable:
@@ -532,6 +573,7 @@ static void dmfe_remove_one(struct pci_dev *pdev)
 
 	DMFE_DBUG(0, "dmfe_remove_one()", 0);
 
+<<<<<<< HEAD
  	if (dev) {
 
 		unregister_netdev(dev);
@@ -541,6 +583,18 @@ static void dmfe_remove_one(struct pci_dev *pdev)
  					db->desc_pool_dma_ptr);
 		pci_free_consistent(db->pdev, TX_BUF_ALLOC * TX_DESC_CNT + 4,
 					db->buf_pool_ptr, db->buf_pool_dma_ptr);
+=======
+	if (dev) {
+
+		unregister_netdev(dev);
+		pci_iounmap(db->pdev, db->ioaddr);
+		dma_free_coherent(&db->pdev->dev,
+				  sizeof(struct tx_desc) * DESC_ALL_CNT + 0x20,
+				  db->desc_pool_ptr, db->desc_pool_dma_ptr);
+		dma_free_coherent(&db->pdev->dev,
+				  TX_BUF_ALLOC * TX_DESC_CNT + 4,
+				  db->buf_pool_ptr, db->buf_pool_dma_ptr);
+>>>>>>> upstream/android-13
 		pci_release_regions(pdev);
 		free_netdev(dev);	/* free board information */
 	}
@@ -580,10 +634,17 @@ static int dmfe_open(struct net_device *dev)
 	/* CR6 operation mode decision */
 	if ( !chkmode || (db->chip_id == PCI_DM9132_ID) ||
 		(db->chip_revision >= 0x30) ) {
+<<<<<<< HEAD
     		db->cr6_data |= DMFE_TXTH_256;
 		db->cr0_data = CR0_DEFAULT;
 		db->dm910x_chk_mode=4;		/* Enter the normal mode */
  	} else {
+=======
+		db->cr6_data |= DMFE_TXTH_256;
+		db->cr0_data = CR0_DEFAULT;
+		db->dm910x_chk_mode=4;		/* Enter the normal mode */
+	} else {
+>>>>>>> upstream/android-13
 		db->cr6_data |= CR6_SFT;	/* Store & Forward mode */
 		db->cr0_data = 0;
 		db->dm910x_chk_mode = 1;	/* Enter the check mode */
@@ -916,7 +977,11 @@ static void dmfe_free_tx_pkt(struct net_device *dev, struct dmfe_board_info *db)
 			}
 		}
 
+<<<<<<< HEAD
     		txptr = txptr->next_tx_desc;
+=======
+		txptr = txptr->next_tx_desc;
+>>>>>>> upstream/android-13
 	}/* End of while */
 
 	/* Update TX remove pointer to next */
@@ -972,8 +1037,13 @@ static void dmfe_rx_packet(struct net_device *dev, struct dmfe_board_info *db)
 		db->rx_avail_cnt--;
 		db->interval_rx_cnt++;
 
+<<<<<<< HEAD
 		pci_unmap_single(db->pdev, le32_to_cpu(rxptr->rdes2),
 				 RX_ALLOC_SIZE, PCI_DMA_FROMDEVICE);
+=======
+		dma_unmap_single(&db->pdev->dev, le32_to_cpu(rxptr->rdes2),
+				 RX_ALLOC_SIZE, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 
 		if ( (rdes0 & 0x300) != 0x300) {
 			/* A packet without First/Last flag */
@@ -1089,7 +1159,10 @@ static void dmfe_ethtool_get_drvinfo(struct net_device *dev,
 	struct dmfe_board_info *np = netdev_priv(dev);
 
 	strlcpy(info->driver, DRV_NAME, sizeof(info->driver));
+<<<<<<< HEAD
 	strlcpy(info->version, DRV_VERSION, sizeof(info->version));
+=======
+>>>>>>> upstream/android-13
 	strlcpy(info->bus_info, pci_name(np->pdev), sizeof(info->bus_info));
 }
 
@@ -1135,7 +1208,11 @@ static void dmfe_timer(struct timer_list *t)
 	void __iomem *ioaddr = db->ioaddr;
 	u32 tmp_cr8;
 	unsigned char tmp_cr12;
+<<<<<<< HEAD
  	unsigned long flags;
+=======
+	unsigned long flags;
+>>>>>>> upstream/android-13
 
 	int link_ok, link_ok_phy;
 
@@ -1231,7 +1308,11 @@ static void dmfe_timer(struct timer_list *t)
 	if (link_ok_phy != link_ok) {
 		DMFE_DBUG (0, "PHY and chip report different link status", 0);
 		link_ok = link_ok | link_ok_phy;
+<<<<<<< HEAD
  	}
+=======
+	}
+>>>>>>> upstream/android-13
 
 	if ( !link_ok && netif_carrier_ok(dev)) {
 		/* Link Failed */
@@ -1347,8 +1428,13 @@ static void dmfe_reuse_skb(struct dmfe_board_info *db, struct sk_buff * skb)
 
 	if (!(rxptr->rdes0 & cpu_to_le32(0x80000000))) {
 		rxptr->rx_skb_ptr = skb;
+<<<<<<< HEAD
 		rxptr->rdes2 = cpu_to_le32( pci_map_single(db->pdev,
 			    skb->data, RX_ALLOC_SIZE, PCI_DMA_FROMDEVICE) );
+=======
+		rxptr->rdes2 = cpu_to_le32(dma_map_single(&db->pdev->dev, skb->data,
+							  RX_ALLOC_SIZE, DMA_FROM_DEVICE));
+>>>>>>> upstream/android-13
 		wmb();
 		rxptr->rdes0 = cpu_to_le32(0x80000000);
 		db->rx_avail_cnt++;
@@ -1562,8 +1648,13 @@ static void allocate_rx_buffer(struct net_device *dev)
 		if ( ( skb = netdev_alloc_skb(dev, RX_ALLOC_SIZE) ) == NULL )
 			break;
 		rxptr->rx_skb_ptr = skb; /* FIXME (?) */
+<<<<<<< HEAD
 		rxptr->rdes2 = cpu_to_le32( pci_map_single(db->pdev, skb->data,
 				    RX_ALLOC_SIZE, PCI_DMA_FROMDEVICE) );
+=======
+		rxptr->rdes2 = cpu_to_le32(dma_map_single(&db->pdev->dev, skb->data,
+							  RX_ALLOC_SIZE, DMA_FROM_DEVICE));
+>>>>>>> upstream/android-13
 		wmb();
 		rxptr->rdes0 = cpu_to_le32(0x80000000);
 		rxptr = rxptr->next_rx_desc;
@@ -1713,14 +1804,22 @@ static void dmfe_set_phyxcer(struct dmfe_board_info *db)
 		if (db->chip_id == PCI_DM9009_ID) phy_reg &= 0x61;
 	}
 
+<<<<<<< HEAD
   	/* Write new capability to Phyxcer Reg4 */
+=======
+	/* Write new capability to Phyxcer Reg4 */
+>>>>>>> upstream/android-13
 	if ( !(phy_reg & 0x01e0)) {
 		phy_reg|=db->PHY_reg4;
 		db->media_mode|=DMFE_AUTO;
 	}
 	dmfe_phy_write(db->ioaddr, db->phy_addr, 4, phy_reg, db->chip_id);
 
+<<<<<<< HEAD
  	/* Restart Auto-Negotiation */
+=======
+	/* Restart Auto-Negotiation */
+>>>>>>> upstream/android-13
 	if ( db->chip_type && (db->chip_id == PCI_DM9102_ID) )
 		dmfe_phy_write(db->ioaddr, db->phy_addr, 0, 0x1800, db->chip_id);
 	if ( !db->chip_type )
@@ -1768,7 +1867,11 @@ static void dmfe_process_mode(struct dmfe_board_info *db)
 			}
 			dmfe_phy_write(db->ioaddr,
 				       db->phy_addr, 0, phy_reg, db->chip_id);
+<<<<<<< HEAD
        			if ( db->chip_type && (db->chip_id == PCI_DM9102_ID) )
+=======
+			if ( db->chip_type && (db->chip_id == PCI_DM9102_ID) )
+>>>>>>> upstream/android-13
 				mdelay(20);
 			dmfe_phy_write(db->ioaddr,
 				       db->phy_addr, 0, phy_reg, db->chip_id);
@@ -2099,6 +2202,7 @@ static const struct pci_device_id dmfe_pci_tbl[] = {
 };
 MODULE_DEVICE_TABLE(pci, dmfe_pci_tbl);
 
+<<<<<<< HEAD
 
 #ifdef CONFIG_PM
 static int dmfe_suspend(struct pci_dev *pci_dev, pm_message_t state)
@@ -2107,6 +2211,13 @@ static int dmfe_suspend(struct pci_dev *pci_dev, pm_message_t state)
 	struct dmfe_board_info *db = netdev_priv(dev);
 	void __iomem *ioaddr = db->ioaddr;
 	u32 tmp;
+=======
+static int __maybe_unused dmfe_suspend(struct device *dev_d)
+{
+	struct net_device *dev = dev_get_drvdata(dev_d);
+	struct dmfe_board_info *db = netdev_priv(dev);
+	void __iomem *ioaddr = db->ioaddr;
+>>>>>>> upstream/android-13
 
 	/* Disable upper layer interface */
 	netif_device_detach(dev);
@@ -2123,6 +2234,7 @@ static int dmfe_suspend(struct pci_dev *pci_dev, pm_message_t state)
 	dmfe_free_rxbuffer(db);
 
 	/* Enable WOL */
+<<<<<<< HEAD
 	pci_read_config_dword(pci_dev, 0x40, &tmp);
 	tmp &= ~(DMFE_WOL_LINKCHANGE|DMFE_WOL_MAGICPACKET);
 
@@ -2139,10 +2251,14 @@ static int dmfe_suspend(struct pci_dev *pci_dev, pm_message_t state)
 	/* Power down device*/
 	pci_save_state(pci_dev);
 	pci_set_power_state(pci_dev, pci_choose_state (pci_dev, state));
+=======
+	device_wakeup_enable(dev_d);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int dmfe_resume(struct pci_dev *pci_dev)
 {
 	struct net_device *dev = pci_get_drvdata(pci_dev);
@@ -2150,11 +2266,17 @@ static int dmfe_resume(struct pci_dev *pci_dev)
 
 	pci_set_power_state(pci_dev, PCI_D0);
 	pci_restore_state(pci_dev);
+=======
+static int __maybe_unused dmfe_resume(struct device *dev_d)
+{
+	struct net_device *dev = dev_get_drvdata(dev_d);
+>>>>>>> upstream/android-13
 
 	/* Re-initialize DM910X board */
 	dmfe_init_dm910x(dev);
 
 	/* Disable WOL */
+<<<<<<< HEAD
 	pci_read_config_dword(pci_dev, 0x40, &tmp);
 
 	tmp &= ~(DMFE_WOL_LINKCHANGE | DMFE_WOL_MAGICPACKET);
@@ -2162,30 +2284,45 @@ static int dmfe_resume(struct pci_dev *pci_dev)
 
 	pci_enable_wake(pci_dev, PCI_D3hot, 0);
 	pci_enable_wake(pci_dev, PCI_D3cold, 0);
+=======
+	device_wakeup_disable(dev_d);
+>>>>>>> upstream/android-13
 
 	/* Restart upper layer interface */
 	netif_device_attach(dev);
 
 	return 0;
 }
+<<<<<<< HEAD
 #else
 #define dmfe_suspend NULL
 #define dmfe_resume NULL
 #endif
+=======
+
+static SIMPLE_DEV_PM_OPS(dmfe_pm_ops, dmfe_suspend, dmfe_resume);
+>>>>>>> upstream/android-13
 
 static struct pci_driver dmfe_driver = {
 	.name		= "dmfe",
 	.id_table	= dmfe_pci_tbl,
 	.probe		= dmfe_init_one,
 	.remove		= dmfe_remove_one,
+<<<<<<< HEAD
 	.suspend        = dmfe_suspend,
 	.resume         = dmfe_resume
+=======
+	.driver.pm	= &dmfe_pm_ops,
+>>>>>>> upstream/android-13
 };
 
 MODULE_AUTHOR("Sten Wang, sten_wang@davicom.com.tw");
 MODULE_DESCRIPTION("Davicom DM910X fast ethernet driver");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_VERSION(DRV_VERSION);
+=======
+>>>>>>> upstream/android-13
 
 module_param(debug, int, 0);
 module_param(mode, byte, 0);
@@ -2212,9 +2349,12 @@ static int __init dmfe_init_module(void)
 {
 	int rc;
 
+<<<<<<< HEAD
 	pr_info("%s\n", version);
 	printed_version = 1;
 
+=======
+>>>>>>> upstream/android-13
 	DMFE_DBUG(0, "init_module() ", debug);
 
 	if (debug)

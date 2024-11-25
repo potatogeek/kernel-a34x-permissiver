@@ -2,8 +2,11 @@
 #ifndef __ASM_SH_BITOPS_H
 #define __ASM_SH_BITOPS_H
 
+<<<<<<< HEAD
 #ifdef __KERNEL__
 
+=======
+>>>>>>> upstream/android-13
 #ifndef _LINUX_BITOPS_H
 #error only <linux/bitops.h> can be included directly
 #endif
@@ -26,7 +29,10 @@
 #include <asm-generic/bitops/non-atomic.h>
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_SUPERH32
+=======
+>>>>>>> upstream/android-13
 static inline unsigned long ffz(unsigned long word)
 {
 	unsigned long result;
@@ -60,6 +66,7 @@ static inline unsigned long __ffs(unsigned long word)
 		: "t");
 	return result;
 }
+<<<<<<< HEAD
 #else
 static inline unsigned long ffz(unsigned long word)
 {
@@ -87,16 +94,27 @@ static inline unsigned long ffz(unsigned long word)
 #endif
 
 #include <asm-generic/bitops/find.h>
+=======
+
+>>>>>>> upstream/android-13
 #include <asm-generic/bitops/ffs.h>
 #include <asm-generic/bitops/hweight.h>
 #include <asm-generic/bitops/lock.h>
 #include <asm-generic/bitops/sched.h>
+<<<<<<< HEAD
 #include <asm-generic/bitops/le.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm-generic/bitops/ext2-atomic.h>
 #include <asm-generic/bitops/fls.h>
 #include <asm-generic/bitops/__fls.h>
 #include <asm-generic/bitops/fls64.h>
 
+<<<<<<< HEAD
 #endif /* __KERNEL__ */
+=======
+#include <asm-generic/bitops/le.h>
+#include <asm-generic/bitops/find.h>
+>>>>>>> upstream/android-13
 
 #endif /* __ASM_SH_BITOPS_H */

@@ -25,12 +25,27 @@
  */
 
 #include <dt-bindings/interrupt-controller/arm-gic.h>
+<<<<<<< HEAD
 #include "skeleton64.dtsi"
 
 / {
 	/* SOC compatibility */
 	compatible = "al,alpine";
 
+=======
+
+/ {
+	#address-cells = <2>;
+	#size-cells = <2>;
+	/* SOC compatibility */
+	compatible = "al,alpine";
+
+	memory {
+		device_type = "memory";
+		reg = <0 0 0 0>;
+	};
+
+>>>>>>> upstream/android-13
 	/* CPU Configuration */
 	cpus {
 		#address-cells = <1>;
@@ -85,7 +100,11 @@
 		};
 
 		/* Interrupt Controller */
+<<<<<<< HEAD
 		gic: gic@fb001000 {
+=======
+		gic: interrupt-controller@fb001000 {
+>>>>>>> upstream/android-13
 			compatible = "arm,cortex-a15-gic";
 			#interrupt-cells = <3>;
 			#size-cells = <0>;

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * (C) 2015 Red Hat GmbH
  * Author: Florian Westphal <fw@strlen.de>
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * (C) 2015 Red Hat GmbH
+ * Author: Florian Westphal <fw@strlen.de>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -116,17 +123,28 @@ static int nf_trace_fill_pkt_info(struct sk_buff *nlskb,
 	int off = skb_network_offset(skb);
 	unsigned int len, nh_end;
 
+<<<<<<< HEAD
 	nh_end = pkt->tprot_set ? pkt->xt.thoff : skb->len;
+=======
+	nh_end = pkt->tprot_set ? nft_thoff(pkt) : skb->len;
+>>>>>>> upstream/android-13
 	len = min_t(unsigned int, nh_end - skb_network_offset(skb),
 		    NFT_TRACETYPE_NETWORK_HSIZE);
 	if (trace_fill_header(nlskb, NFTA_TRACE_NETWORK_HEADER, skb, off, len))
 		return -1;
 
 	if (pkt->tprot_set) {
+<<<<<<< HEAD
 		len = min_t(unsigned int, skb->len - pkt->xt.thoff,
 			    NFT_TRACETYPE_TRANSPORT_HSIZE);
 		if (trace_fill_header(nlskb, NFTA_TRACE_TRANSPORT_HEADER, skb,
 				      pkt->xt.thoff, len))
+=======
+		len = min_t(unsigned int, skb->len - nft_thoff(pkt),
+			    NFT_TRACETYPE_TRANSPORT_HSIZE);
+		if (trace_fill_header(nlskb, NFTA_TRACE_TRANSPORT_HEADER, skb,
+				      nft_thoff(pkt), len))
+>>>>>>> upstream/android-13
 			return -1;
 	}
 
@@ -186,7 +204,10 @@ static bool nft_trace_have_verdict_chain(struct nft_traceinfo *info)
 void nft_trace_notify(struct nft_traceinfo *info)
 {
 	const struct nft_pktinfo *pkt = info->pkt;
+<<<<<<< HEAD
 	struct nfgenmsg *nfmsg;
+=======
+>>>>>>> upstream/android-13
 	struct nlmsghdr *nlh;
 	struct sk_buff *skb;
 	unsigned int size;
@@ -222,6 +243,7 @@ void nft_trace_notify(struct nft_traceinfo *info)
 		return;
 
 	event = nfnl_msg_type(NFNL_SUBSYS_NFTABLES, NFT_MSG_TRACE);
+<<<<<<< HEAD
 	nlh = nlmsg_put(skb, 0, 0, event, sizeof(struct nfgenmsg), 0);
 	if (!nlh)
 		goto nla_put_failure;
@@ -231,6 +253,13 @@ void nft_trace_notify(struct nft_traceinfo *info)
 	nfmsg->version		= NFNETLINK_V0;
 	nfmsg->res_id		= 0;
 
+=======
+	nlh = nfnl_msg_put(skb, 0, 0, event, 0, info->basechain->type->family,
+			   NFNETLINK_V0, 0);
+	if (!nlh)
+		goto nla_put_failure;
+
+>>>>>>> upstream/android-13
 	if (nla_put_be32(skb, NFTA_TRACE_NFPROTO, htonl(nft_pf(pkt))))
 		goto nla_put_failure;
 

@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/drivers/misc/xillybus_of.c
  *
  * Copyright 2011 Xillybus Ltd, http://xillybus.com
  *
  * Driver for the Xillybus FPGA/host framework using Open Firmware.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the smems of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -20,7 +27,10 @@
 
 MODULE_DESCRIPTION("Xillybus driver for Open Firmware");
 MODULE_AUTHOR("Eli Billauer, Xillybus Ltd.");
+<<<<<<< HEAD
 MODULE_VERSION("1.06");
+=======
+>>>>>>> upstream/android-13
 MODULE_ALIAS("xillybus_of");
 MODULE_LICENSE("GPL v2");
 
@@ -119,7 +129,10 @@ static int xilly_drv_probe(struct platform_device *op)
 	struct xilly_endpoint *endpoint;
 	int rc;
 	int irq;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	struct xilly_endpoint_hardware *ephw = &of_hw;
 
 	if (of_property_read_bool(dev->of_node, "dma-coherent"))
@@ -132,9 +145,13 @@ static int xilly_drv_probe(struct platform_device *op)
 
 	dev_set_drvdata(dev, endpoint);
 
+<<<<<<< HEAD
 	res = platform_get_resource(op, IORESOURCE_MEM, 0);
 	endpoint->registers = devm_ioremap_resource(dev, res);
 
+=======
+	endpoint->registers = devm_platform_ioremap_resource(op, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(endpoint->registers))
 		return PTR_ERR(endpoint->registers);
 

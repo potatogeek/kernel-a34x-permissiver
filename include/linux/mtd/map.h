@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright © 2000-2010 David Woodhouse <dwmw2@infradead.org> et al.
  *
@@ -15,6 +16,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright © 2000-2010 David Woodhouse <dwmw2@infradead.org> et al.
+>>>>>>> upstream/android-13
  */
 
 /* Overhauled routines for dealing with different mmap regions of flash */

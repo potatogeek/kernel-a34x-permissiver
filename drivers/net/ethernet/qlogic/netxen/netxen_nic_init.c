@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2003 - 2009 NetXen, Inc.
  * Copyright (C) 2009 - QLogic Corporation.
  * All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,6 +24,8 @@
  * The full GNU General Public License is included in this distribution
  * in the file called "COPYING".
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/netdevice.h>
@@ -118,10 +125,15 @@ void netxen_release_rx_buffers(struct netxen_adapter *adapter)
 			rx_buf = &(rds_ring->rx_buf_arr[i]);
 			if (rx_buf->state == NETXEN_BUFFER_FREE)
 				continue;
+<<<<<<< HEAD
 			pci_unmap_single(adapter->pdev,
 					rx_buf->dma,
 					rds_ring->dma_size,
 					PCI_DMA_FROMDEVICE);
+=======
+			dma_unmap_single(&adapter->pdev->dev, rx_buf->dma,
+					 rds_ring->dma_size, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 			if (rx_buf->skb != NULL)
 				dev_kfree_skb_any(rx_buf->skb);
 		}
@@ -140,16 +152,27 @@ void netxen_release_tx_buffers(struct netxen_adapter *adapter)
 	for (i = 0; i < tx_ring->num_desc; i++) {
 		buffrag = cmd_buf->frag_array;
 		if (buffrag->dma) {
+<<<<<<< HEAD
 			pci_unmap_single(adapter->pdev, buffrag->dma,
 					 buffrag->length, PCI_DMA_TODEVICE);
+=======
+			dma_unmap_single(&adapter->pdev->dev, buffrag->dma,
+					 buffrag->length, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 			buffrag->dma = 0ULL;
 		}
 		for (j = 1; j < cmd_buf->frag_count; j++) {
 			buffrag++;
 			if (buffrag->dma) {
+<<<<<<< HEAD
 				pci_unmap_page(adapter->pdev, buffrag->dma,
 					       buffrag->length,
 					       PCI_DMA_TODEVICE);
+=======
+				dma_unmap_page(&adapter->pdev->dev,
+					       buffrag->dma, buffrag->length,
+					       DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 				buffrag->dma = 0ULL;
 			}
 		}
@@ -1266,9 +1289,16 @@ int netxen_init_dummy_dma(struct netxen_adapter *adapter)
 	if (!NX_IS_REVISION_P2(adapter->ahw.revision_id))
 		return 0;
 
+<<<<<<< HEAD
 	adapter->dummy_dma.addr = pci_alloc_consistent(adapter->pdev,
 				 NETXEN_HOST_DUMMY_DMA_SIZE,
 				 &adapter->dummy_dma.phys_addr);
+=======
+	adapter->dummy_dma.addr = dma_alloc_coherent(&adapter->pdev->dev,
+						     NETXEN_HOST_DUMMY_DMA_SIZE,
+						     &adapter->dummy_dma.phys_addr,
+						     GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (adapter->dummy_dma.addr == NULL) {
 		dev_err(&adapter->pdev->dev,
 			"ERROR: Could not allocate dummy DMA memory\n");
@@ -1320,10 +1350,17 @@ void netxen_free_dummy_dma(struct netxen_adapter *adapter)
 	}
 
 	if (i) {
+<<<<<<< HEAD
 		pci_free_consistent(adapter->pdev,
 			    NETXEN_HOST_DUMMY_DMA_SIZE,
 			    adapter->dummy_dma.addr,
 			    adapter->dummy_dma.phys_addr);
+=======
+		dma_free_coherent(&adapter->pdev->dev,
+				  NETXEN_HOST_DUMMY_DMA_SIZE,
+				  adapter->dummy_dma.addr,
+				  adapter->dummy_dma.phys_addr);
+>>>>>>> upstream/android-13
 		adapter->dummy_dma.addr = NULL;
 	} else
 		dev_err(&adapter->pdev->dev, "dma_watchdog_shutdown failed\n");
@@ -1483,10 +1520,17 @@ netxen_alloc_rx_skb(struct netxen_adapter *adapter,
 	if (!adapter->ahw.cut_through)
 		skb_reserve(skb, 2);
 
+<<<<<<< HEAD
 	dma = pci_map_single(pdev, skb->data,
 			rds_ring->dma_size, PCI_DMA_FROMDEVICE);
 
 	if (pci_dma_mapping_error(pdev, dma)) {
+=======
+	dma = dma_map_single(&pdev->dev, skb->data, rds_ring->dma_size,
+			     DMA_FROM_DEVICE);
+
+	if (dma_mapping_error(&pdev->dev, dma)) {
+>>>>>>> upstream/android-13
 		dev_kfree_skb_any(skb);
 		buffer->skb = NULL;
 		return 1;
@@ -1507,8 +1551,13 @@ static struct sk_buff *netxen_process_rxbuf(struct netxen_adapter *adapter,
 
 	buffer = &rds_ring->rx_buf_arr[index];
 
+<<<<<<< HEAD
 	pci_unmap_single(adapter->pdev, buffer->dma, rds_ring->dma_size,
 			PCI_DMA_FROMDEVICE);
+=======
+	dma_unmap_single(&adapter->pdev->dev, buffer->dma, rds_ring->dma_size,
+			 DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 
 	skb = buffer->skb;
 	if (!skb)
@@ -1702,6 +1751,10 @@ netxen_process_rcv_ring(struct nx_host_sds_ring *sds_ring, int max)
 			break;
 		case NETXEN_NIC_RESPONSE_DESC:
 			netxen_handle_fw_message(desc_cnt, consumer, sds_ring);
+<<<<<<< HEAD
+=======
+			goto skip;
+>>>>>>> upstream/android-13
 		default:
 			goto skip;
 		}
@@ -1770,6 +1823,7 @@ int netxen_process_cmd_ring(struct netxen_adapter *adapter)
 		buffer = &tx_ring->cmd_buf_arr[sw_consumer];
 		if (buffer->skb) {
 			frag = &buffer->frag_array[0];
+<<<<<<< HEAD
 			pci_unmap_single(pdev, frag->dma, frag->length,
 					 PCI_DMA_TODEVICE);
 			frag->dma = 0ULL;
@@ -1777,6 +1831,15 @@ int netxen_process_cmd_ring(struct netxen_adapter *adapter)
 				frag++;	/* Get the next frag */
 				pci_unmap_page(pdev, frag->dma, frag->length,
 					       PCI_DMA_TODEVICE);
+=======
+			dma_unmap_single(&pdev->dev, frag->dma, frag->length,
+					 DMA_TO_DEVICE);
+			frag->dma = 0ULL;
+			for (i = 1; i < buffer->frag_count; i++) {
+				frag++;	/* Get the next frag */
+				dma_unmap_page(&pdev->dev, frag->dma,
+					       frag->length, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 				frag->dma = 0ULL;
 			}
 

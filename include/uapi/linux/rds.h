@@ -64,10 +64,25 @@
 
 /* supported values for SO_RDS_TRANSPORT */
 #define	RDS_TRANS_IB	0
+<<<<<<< HEAD
 #define	RDS_TRANS_IWARP	1
 #define	RDS_TRANS_TCP	2
 #define RDS_TRANS_COUNT	3
 #define	RDS_TRANS_NONE	(~0)
+=======
+#define	RDS_TRANS_GAP	1
+#define	RDS_TRANS_TCP	2
+#define RDS_TRANS_COUNT	3
+#define	RDS_TRANS_NONE	(~0)
+/* don't use RDS_TRANS_IWARP - it is deprecated */
+#define RDS_TRANS_IWARP RDS_TRANS_GAP
+
+/* IOCTLS commands for SOL_RDS */
+#define SIOCRDSSETTOS		(SIOCPROTOPRIVATE)
+#define SIOCRDSGETTOS		(SIOCPROTOPRIVATE + 1)
+
+typedef __u8	rds_tos_t;
+>>>>>>> upstream/android-13
 
 /*
  * Control message types for SOL_RDS.
@@ -149,6 +164,10 @@ struct rds_info_connection {
 	__be32		faddr;
 	__u8		transport[TRANSNAMSIZ];		/* null term ascii */
 	__u8		flags;
+<<<<<<< HEAD
+=======
+	__u8		tos;
+>>>>>>> upstream/android-13
 } __attribute__((packed));
 
 struct rds6_info_connection {
@@ -171,6 +190,10 @@ struct rds_info_message {
 	__be16		lport;
 	__be16		fport;
 	__u8		flags;
+<<<<<<< HEAD
+=======
+	__u8		tos;
+>>>>>>> upstream/android-13
 } __attribute__((packed));
 
 struct rds6_info_message {
@@ -214,6 +237,10 @@ struct rds_info_tcp_socket {
 	__u32           last_sent_nxt;
 	__u32           last_expected_una;
 	__u32           last_seen_una;
+<<<<<<< HEAD
+=======
+	__u8		tos;
+>>>>>>> upstream/android-13
 } __attribute__((packed));
 
 struct rds6_info_tcp_socket {
@@ -240,6 +267,12 @@ struct rds_info_rdma_connection {
 	__u32		max_send_sge;
 	__u32		rdma_mr_max;
 	__u32		rdma_mr_size;
+<<<<<<< HEAD
+=======
+	__u8		tos;
+	__u8		sl;
+	__u32		cache_allocs;
+>>>>>>> upstream/android-13
 };
 
 struct rds6_info_rdma_connection {
@@ -253,6 +286,12 @@ struct rds6_info_rdma_connection {
 	__u32		max_send_sge;
 	__u32		rdma_mr_max;
 	__u32		rdma_mr_size;
+<<<<<<< HEAD
+=======
+	__u8		tos;
+	__u8		sl;
+	__u32		cache_allocs;
+>>>>>>> upstream/android-13
 };
 
 /* RDS message Receive Path Latency points */

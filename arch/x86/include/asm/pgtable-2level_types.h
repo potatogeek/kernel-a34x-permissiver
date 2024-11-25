@@ -20,6 +20,11 @@ typedef union {
 
 #define SHARED_KERNEL_PMD	0
 
+<<<<<<< HEAD
+=======
+#define ARCH_PAGE_TABLE_SYNC_MASK	PGTBL_PMD_MODIFIED
+
+>>>>>>> upstream/android-13
 /*
  * traditional i386 two-level paging structure:
  */

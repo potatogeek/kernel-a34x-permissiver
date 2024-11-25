@@ -186,8 +186,12 @@ static int p2wi_probe(struct platform_device *pdev)
 	struct device_node *np = dev->of_node;
 	struct device_node *childnp;
 	unsigned long parent_clk_freq;
+<<<<<<< HEAD
 	u32 clk_freq = 100000;
 	struct resource *r;
+=======
+	u32 clk_freq = I2C_MAX_STANDARD_MODE_FREQ;
+>>>>>>> upstream/android-13
 	struct p2wi *p2wi;
 	u32 slave_addr;
 	int clk_div;
@@ -231,6 +235,7 @@ static int p2wi_probe(struct platform_device *pdev)
 		p2wi->slave_addr = slave_addr;
 	}
 
+<<<<<<< HEAD
 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	p2wi->regs = devm_ioremap_resource(dev, r);
 	if (IS_ERR(p2wi->regs))
@@ -242,6 +247,16 @@ static int p2wi_probe(struct platform_device *pdev)
 		dev_err(dev, "failed to retrieve irq: %d\n", irq);
 		return irq;
 	}
+=======
+	p2wi->regs = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(p2wi->regs))
+		return PTR_ERR(p2wi->regs);
+
+	strscpy(p2wi->adapter.name, pdev->name, sizeof(p2wi->adapter.name));
+	irq = platform_get_irq(pdev, 0);
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 
 	p2wi->clk = devm_clk_get(dev, NULL);
 	if (IS_ERR(p2wi->clk)) {

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * genelf.c
  * Copyright (C) 2014, Google, Inc
  *
  * Contributed by:
  * 	Stephane Eranian <eranian@gmail.com>
+<<<<<<< HEAD
  *
  * Released under the GPL v2. (and only v2, not any later version)
  */
@@ -11,28 +16,47 @@
 #include <sys/types.h>
 #include <stdio.h>
 #include <getopt.h>
+=======
+ */
+
+#include <sys/types.h>
+>>>>>>> upstream/android-13
 #include <stddef.h>
 #include <libelf.h>
 #include <string.h>
 #include <stdlib.h>
+<<<<<<< HEAD
 #include <inttypes.h>
 #include <limits.h>
+=======
+#include <unistd.h>
+#include <inttypes.h>
+>>>>>>> upstream/android-13
 #include <fcntl.h>
 #include <err.h>
 #ifdef HAVE_DWARF_SUPPORT
 #include <dwarf.h>
 #endif
 
+<<<<<<< HEAD
 #include "perf.h"
 #include "genelf.h"
 #include "../util/jitdump.h"
+=======
+#include "genelf.h"
+#include "../util/jitdump.h"
+#include <linux/compiler.h>
+>>>>>>> upstream/android-13
 
 #ifndef NT_GNU_BUILD_ID
 #define NT_GNU_BUILD_ID 3
 #endif
 
+<<<<<<< HEAD
 #define JVMTI
 
+=======
+>>>>>>> upstream/android-13
 #define BUILD_ID_URANDOM /* different uuid for each run */
 
 #ifdef HAVE_LIBCRYPTO
@@ -511,6 +535,7 @@ error:
 
 	return retval;
 }
+<<<<<<< HEAD
 
 #ifndef JVMTI
 
@@ -552,3 +577,5 @@ int main(int argc, char **argv)
 	return ret;
 }
 #endif
+=======
+>>>>>>> upstream/android-13

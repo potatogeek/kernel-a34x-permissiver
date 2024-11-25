@@ -3,6 +3,7 @@
  * Copyright (c) 2000-2005 Silicon Graphics, Inc.
  * All Rights Reserved.
  */
+<<<<<<< HEAD
 #include <linux/mm.h>
 #include <linux/sched/mm.h>
 #include <linux/highmem.h>
@@ -12,6 +13,12 @@
 #include <linux/backing-dev.h>
 #include "kmem.h"
 #include "xfs_message.h"
+=======
+#include "xfs.h"
+#include <linux/backing-dev.h>
+#include "xfs_message.h"
+#include "xfs_trace.h"
+>>>>>>> upstream/android-13
 
 void *
 kmem_alloc(size_t size, xfs_km_flags_t flags)
@@ -20,9 +27,17 @@ kmem_alloc(size_t size, xfs_km_flags_t flags)
 	gfp_t	lflags = kmem_flags_convert(flags);
 	void	*ptr;
 
+<<<<<<< HEAD
 	do {
 		ptr = kmalloc(size, lflags);
 		if (ptr || (flags & (KM_MAYFAIL|KM_NOSLEEP)))
+=======
+	trace_kmem_alloc(size, flags, _RET_IP_);
+
+	do {
+		ptr = kmalloc(size, lflags);
+		if (ptr || (flags & KM_MAYFAIL))
+>>>>>>> upstream/android-13
 			return ptr;
 		if (!(++retries % 100))
 			xfs_err(NULL,
@@ -32,6 +47,7 @@ kmem_alloc(size_t size, xfs_km_flags_t flags)
 		congestion_wait(BLK_RW_ASYNC, HZ/50);
 	} while (1);
 }
+<<<<<<< HEAD
 
 void *
 kmem_alloc_large(size_t size, xfs_km_flags_t flags)
@@ -102,3 +118,5 @@ kmem_zone_alloc(kmem_zone_t *zone, xfs_km_flags_t flags)
 		congestion_wait(BLK_RW_ASYNC, HZ/50);
 	} while (1);
 }
+=======
+>>>>>>> upstream/android-13

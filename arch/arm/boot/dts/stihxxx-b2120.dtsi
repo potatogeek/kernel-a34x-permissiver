@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014 STMicroelectronics (R&D) Limited.
  * Author: Giuseppe Cavallaro <peppe.cavallaro@st.com>
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2014 STMicroelectronics (R&D) Limited.
+ * Author: Giuseppe Cavallaro <peppe.cavallaro@st.com>
+>>>>>>> upstream/android-13
  */
 #include <dt-bindings/clock/stih407-clks.h>
 #include <dt-bindings/gpio/gpio.h>
@@ -27,8 +34,16 @@
 		compatible = "simple-audio-card";
 		simple-audio-card,name = "STI-B2120";
 		status = "okay";
+<<<<<<< HEAD
 
 		simple-audio-card,dai-link0 {
+=======
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		simple-audio-card,dai-link@0 {
+			reg = <0>;
+>>>>>>> upstream/android-13
 			/* HDMI */
 			format = "i2s";
 			mclk-fs = <128>;
@@ -41,7 +56,12 @@
 			};
 		};
 
+<<<<<<< HEAD
 		simple-audio-card,dai-link1 {
+=======
+		simple-audio-card,dai-link@1 {
+			reg = <1>;
+>>>>>>> upstream/android-13
 			/* DAC */
 			format = "i2s";
 			mclk-fs = <256>;
@@ -55,7 +75,12 @@
 			};
 		};
 
+<<<<<<< HEAD
 		simple-audio-card,dai-link2 {
+=======
+		simple-audio-card,dai-link@2 {
+			reg = <2>;
+>>>>>>> upstream/android-13
 			/* SPDIF */
 			format = "left_j";
 			mclk-fs = <128>;

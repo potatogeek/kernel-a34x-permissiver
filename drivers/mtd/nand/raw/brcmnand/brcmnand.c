@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright © 2010-2015 Broadcom Corporation
  *
@@ -13,6 +14,14 @@
 
 #include <linux/clk.h>
 #include <linux/version.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright © 2010-2015 Broadcom Corporation
+ */
+
+#include <linux/clk.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/delay.h>
@@ -92,6 +101,15 @@ struct brcm_nand_dma_desc {
 #define FLASH_DMA_ECC_ERROR	(1 << 8)
 #define FLASH_DMA_CORR_ERROR	(1 << 9)
 
+<<<<<<< HEAD
+=======
+/* Bitfields for DMA_MODE */
+#define FLASH_DMA_MODE_STOP_ON_ERROR	BIT(1) /* stop in Uncorr ECC error */
+#define FLASH_DMA_MODE_MODE		BIT(0) /* link list */
+#define FLASH_DMA_MODE_MASK		(FLASH_DMA_MODE_STOP_ON_ERROR |	\
+						FLASH_DMA_MODE_MODE)
+
+>>>>>>> upstream/android-13
 /* 512B flash cache in the NAND controller HW */
 #define FC_SHIFT		9U
 #define FC_BYTES		512U
@@ -104,6 +122,105 @@ struct brcm_nand_dma_desc {
 #define NAND_CTRL_RDY			(INTFC_CTLR_READY | INTFC_FLASH_READY)
 #define NAND_POLL_STATUS_TIMEOUT_MS	100
 
+<<<<<<< HEAD
+=======
+#define EDU_CMD_WRITE          0x00
+#define EDU_CMD_READ           0x01
+#define EDU_STATUS_ACTIVE      BIT(0)
+#define EDU_ERR_STATUS_ERRACK  BIT(0)
+#define EDU_DONE_MASK		GENMASK(1, 0)
+
+#define EDU_CONFIG_MODE_NAND   BIT(0)
+#define EDU_CONFIG_SWAP_BYTE   BIT(1)
+#ifdef CONFIG_CPU_BIG_ENDIAN
+#define EDU_CONFIG_SWAP_CFG     EDU_CONFIG_SWAP_BYTE
+#else
+#define EDU_CONFIG_SWAP_CFG     0
+#endif
+
+/* edu registers */
+enum edu_reg {
+	EDU_CONFIG = 0,
+	EDU_DRAM_ADDR,
+	EDU_EXT_ADDR,
+	EDU_LENGTH,
+	EDU_CMD,
+	EDU_STOP,
+	EDU_STATUS,
+	EDU_DONE,
+	EDU_ERR_STATUS,
+};
+
+static const u16  edu_regs[] = {
+	[EDU_CONFIG] = 0x00,
+	[EDU_DRAM_ADDR] = 0x04,
+	[EDU_EXT_ADDR] = 0x08,
+	[EDU_LENGTH] = 0x0c,
+	[EDU_CMD] = 0x10,
+	[EDU_STOP] = 0x14,
+	[EDU_STATUS] = 0x18,
+	[EDU_DONE] = 0x1c,
+	[EDU_ERR_STATUS] = 0x20,
+};
+
+/* flash_dma registers */
+enum flash_dma_reg {
+	FLASH_DMA_REVISION = 0,
+	FLASH_DMA_FIRST_DESC,
+	FLASH_DMA_FIRST_DESC_EXT,
+	FLASH_DMA_CTRL,
+	FLASH_DMA_MODE,
+	FLASH_DMA_STATUS,
+	FLASH_DMA_INTERRUPT_DESC,
+	FLASH_DMA_INTERRUPT_DESC_EXT,
+	FLASH_DMA_ERROR_STATUS,
+	FLASH_DMA_CURRENT_DESC,
+	FLASH_DMA_CURRENT_DESC_EXT,
+};
+
+/* flash_dma registers v0*/
+static const u16 flash_dma_regs_v0[] = {
+	[FLASH_DMA_REVISION]		= 0x00,
+	[FLASH_DMA_FIRST_DESC]		= 0x04,
+	[FLASH_DMA_CTRL]		= 0x08,
+	[FLASH_DMA_MODE]		= 0x0c,
+	[FLASH_DMA_STATUS]		= 0x10,
+	[FLASH_DMA_INTERRUPT_DESC]	= 0x14,
+	[FLASH_DMA_ERROR_STATUS]	= 0x18,
+	[FLASH_DMA_CURRENT_DESC]	= 0x1c,
+};
+
+/* flash_dma registers v1*/
+static const u16 flash_dma_regs_v1[] = {
+	[FLASH_DMA_REVISION]		= 0x00,
+	[FLASH_DMA_FIRST_DESC]		= 0x04,
+	[FLASH_DMA_FIRST_DESC_EXT]	= 0x08,
+	[FLASH_DMA_CTRL]		= 0x0c,
+	[FLASH_DMA_MODE]		= 0x10,
+	[FLASH_DMA_STATUS]		= 0x14,
+	[FLASH_DMA_INTERRUPT_DESC]	= 0x18,
+	[FLASH_DMA_INTERRUPT_DESC_EXT]	= 0x1c,
+	[FLASH_DMA_ERROR_STATUS]	= 0x20,
+	[FLASH_DMA_CURRENT_DESC]	= 0x24,
+	[FLASH_DMA_CURRENT_DESC_EXT]	= 0x28,
+};
+
+/* flash_dma registers v4 */
+static const u16 flash_dma_regs_v4[] = {
+	[FLASH_DMA_REVISION]		= 0x00,
+	[FLASH_DMA_FIRST_DESC]		= 0x08,
+	[FLASH_DMA_FIRST_DESC_EXT]	= 0x0c,
+	[FLASH_DMA_CTRL]		= 0x10,
+	[FLASH_DMA_MODE]		= 0x14,
+	[FLASH_DMA_STATUS]		= 0x18,
+	[FLASH_DMA_INTERRUPT_DESC]	= 0x20,
+	[FLASH_DMA_INTERRUPT_DESC_EXT]	= 0x24,
+	[FLASH_DMA_ERROR_STATUS]	= 0x28,
+	[FLASH_DMA_CURRENT_DESC]	= 0x30,
+	[FLASH_DMA_CURRENT_DESC_EXT]	= 0x34,
+};
+
+>>>>>>> upstream/android-13
 /* Controller feature flags */
 enum {
 	BRCMNAND_HAS_1K_SECTORS			= BIT(0),
@@ -112,6 +229,11 @@ enum {
 	BRCMNAND_HAS_WP				= BIT(3),
 };
 
+<<<<<<< HEAD
+=======
+struct brcmnand_host;
+
+>>>>>>> upstream/android-13
 struct brcmnand_controller {
 	struct device		*dev;
 	struct nand_controller	controller;
@@ -130,15 +252,46 @@ struct brcmnand_controller {
 
 	int			cmd_pending;
 	bool			dma_pending;
+<<<<<<< HEAD
 	struct completion	done;
 	struct completion	dma_done;
+=======
+	bool                    edu_pending;
+	struct completion	done;
+	struct completion	dma_done;
+	struct completion       edu_done;
+>>>>>>> upstream/android-13
 
 	/* List of NAND hosts (one for each chip-select) */
 	struct list_head host_list;
 
+<<<<<<< HEAD
 	struct brcm_nand_dma_desc *dma_desc;
 	dma_addr_t		dma_pa;
 
+=======
+	/* EDU info, per-transaction */
+	const u16               *edu_offsets;
+	void __iomem            *edu_base;
+	int			edu_irq;
+	int                     edu_count;
+	u64                     edu_dram_addr;
+	u32                     edu_ext_addr;
+	u32                     edu_cmd;
+	u32                     edu_config;
+	int			sas; /* spare area size, per flash cache */
+	int			sector_size_1k;
+	u8			*oob;
+
+	/* flash_dma reg */
+	const u16		*flash_dma_offsets;
+	struct brcm_nand_dma_desc *dma_desc;
+	dma_addr_t		dma_pa;
+
+	int (*dma_trans)(struct brcmnand_host *host, u64 addr, u32 *buf,
+			 u8 *oob, u32 len, u8 dma_cmd);
+
+>>>>>>> upstream/android-13
 	/* in-memory cache of the FLASH_CACHE, used only for some commands */
 	u8			flash_cache[FC_BYTES];
 
@@ -151,6 +304,10 @@ struct brcmnand_controller {
 	const unsigned int	*block_sizes;
 	unsigned int		max_page_size;
 	const unsigned int	*page_sizes;
+<<<<<<< HEAD
+=======
+	unsigned int		page_size_shift;
+>>>>>>> upstream/android-13
 	unsigned int		max_oob;
 	u32			features;
 
@@ -159,6 +316,11 @@ struct brcmnand_controller {
 	u32			nand_cs_nand_xor;
 	u32			corr_stat_threshold;
 	u32			flash_dma_mode;
+<<<<<<< HEAD
+=======
+	u32                     flash_edu_mode;
+	bool			pio_poll_mode;
+>>>>>>> upstream/android-13
 };
 
 struct brcmnand_cfg {
@@ -223,8 +385,43 @@ enum brcmnand_reg {
 	BRCMNAND_FC_BASE,
 };
 
+<<<<<<< HEAD
 /* BRCMNAND v4.0 */
 static const u16 brcmnand_regs_v40[] = {
+=======
+/* BRCMNAND v2.1-v2.2 */
+static const u16 brcmnand_regs_v21[] = {
+	[BRCMNAND_CMD_START]		=  0x04,
+	[BRCMNAND_CMD_EXT_ADDRESS]	=  0x08,
+	[BRCMNAND_CMD_ADDRESS]		=  0x0c,
+	[BRCMNAND_INTFC_STATUS]		=  0x5c,
+	[BRCMNAND_CS_SELECT]		=  0x14,
+	[BRCMNAND_CS_XOR]		=  0x18,
+	[BRCMNAND_LL_OP]		=     0,
+	[BRCMNAND_CS0_BASE]		=  0x40,
+	[BRCMNAND_CS1_BASE]		=     0,
+	[BRCMNAND_CORR_THRESHOLD]	=     0,
+	[BRCMNAND_CORR_THRESHOLD_EXT]	=     0,
+	[BRCMNAND_UNCORR_COUNT]		=     0,
+	[BRCMNAND_CORR_COUNT]		=     0,
+	[BRCMNAND_CORR_EXT_ADDR]	=  0x60,
+	[BRCMNAND_CORR_ADDR]		=  0x64,
+	[BRCMNAND_UNCORR_EXT_ADDR]	=  0x68,
+	[BRCMNAND_UNCORR_ADDR]		=  0x6c,
+	[BRCMNAND_SEMAPHORE]		=  0x50,
+	[BRCMNAND_ID]			=  0x54,
+	[BRCMNAND_ID_EXT]		=     0,
+	[BRCMNAND_LL_RDATA]		=     0,
+	[BRCMNAND_OOB_READ_BASE]	=  0x20,
+	[BRCMNAND_OOB_READ_10_BASE]	=     0,
+	[BRCMNAND_OOB_WRITE_BASE]	=  0x30,
+	[BRCMNAND_OOB_WRITE_10_BASE]	=     0,
+	[BRCMNAND_FC_BASE]		= 0x200,
+};
+
+/* BRCMNAND v3.3-v4.0 */
+static const u16 brcmnand_regs_v33[] = {
+>>>>>>> upstream/android-13
 	[BRCMNAND_CMD_START]		=  0x04,
 	[BRCMNAND_CMD_EXT_ADDRESS]	=  0x08,
 	[BRCMNAND_CMD_ADDRESS]		=  0x0c,
@@ -421,6 +618,12 @@ enum {
 	CFG_BUS_WIDTH			= BIT(CFG_BUS_WIDTH_SHIFT),
 	CFG_DEVICE_SIZE_SHIFT		= 24,
 
+<<<<<<< HEAD
+=======
+	/* Only for v2.1 */
+	CFG_PAGE_SIZE_SHIFT_v2_1	= 30,
+
+>>>>>>> upstream/android-13
 	/* Only for pre-v7.1 (with no CFG_EXT register) */
 	CFG_PAGE_SIZE_SHIFT		= 20,
 	CFG_BLK_SIZE_SHIFT		= 28,
@@ -456,12 +659,25 @@ static int brcmnand_revision_init(struct brcmnand_controller *ctrl)
 {
 	static const unsigned int block_sizes_v6[] = { 8, 16, 128, 256, 512, 1024, 2048, 0 };
 	static const unsigned int block_sizes_v4[] = { 16, 128, 8, 512, 256, 1024, 2048, 0 };
+<<<<<<< HEAD
 	static const unsigned int page_sizes[] = { 512, 2048, 4096, 8192, 0 };
 
 	ctrl->nand_version = nand_readreg(ctrl, 0) & 0xffff;
 
 	/* Only support v4.0+? */
 	if (ctrl->nand_version < 0x0400) {
+=======
+	static const unsigned int block_sizes_v2_2[] = { 16, 128, 8, 512, 256, 0 };
+	static const unsigned int block_sizes_v2_1[] = { 16, 128, 8, 512, 0 };
+	static const unsigned int page_sizes_v3_4[] = { 512, 2048, 4096, 8192, 0 };
+	static const unsigned int page_sizes_v2_2[] = { 512, 2048, 4096, 0 };
+	static const unsigned int page_sizes_v2_1[] = { 512, 2048, 0 };
+
+	ctrl->nand_version = nand_readreg(ctrl, 0) & 0xffff;
+
+	/* Only support v2.1+ */
+	if (ctrl->nand_version < 0x0201) {
+>>>>>>> upstream/android-13
 		dev_err(ctrl->dev, "version %#x not supported\n",
 			ctrl->nand_version);
 		return -ENODEV;
@@ -470,14 +686,25 @@ static int brcmnand_revision_init(struct brcmnand_controller *ctrl)
 	/* Register offsets */
 	if (ctrl->nand_version >= 0x0702)
 		ctrl->reg_offsets = brcmnand_regs_v72;
+<<<<<<< HEAD
 	else if (ctrl->nand_version >= 0x0701)
+=======
+	else if (ctrl->nand_version == 0x0701)
+>>>>>>> upstream/android-13
 		ctrl->reg_offsets = brcmnand_regs_v71;
 	else if (ctrl->nand_version >= 0x0600)
 		ctrl->reg_offsets = brcmnand_regs_v60;
 	else if (ctrl->nand_version >= 0x0500)
 		ctrl->reg_offsets = brcmnand_regs_v50;
+<<<<<<< HEAD
 	else if (ctrl->nand_version >= 0x0400)
 		ctrl->reg_offsets = brcmnand_regs_v40;
+=======
+	else if (ctrl->nand_version >= 0x0303)
+		ctrl->reg_offsets = brcmnand_regs_v33;
+	else if (ctrl->nand_version >= 0x0201)
+		ctrl->reg_offsets = brcmnand_regs_v21;
+>>>>>>> upstream/android-13
 
 	/* Chip-select stride */
 	if (ctrl->nand_version >= 0x0701)
@@ -503,6 +730,7 @@ static int brcmnand_revision_init(struct brcmnand_controller *ctrl)
 		ctrl->max_page_size = 16 * 1024;
 		ctrl->max_block_size = 2 * 1024 * 1024;
 	} else {
+<<<<<<< HEAD
 		ctrl->page_sizes = page_sizes;
 		if (ctrl->nand_version >= 0x0600)
 			ctrl->block_sizes = block_sizes_v6;
@@ -511,12 +739,44 @@ static int brcmnand_revision_init(struct brcmnand_controller *ctrl)
 
 		if (ctrl->nand_version < 0x0400) {
 			ctrl->max_page_size = 4096;
+=======
+		if (ctrl->nand_version >= 0x0304)
+			ctrl->page_sizes = page_sizes_v3_4;
+		else if (ctrl->nand_version >= 0x0202)
+			ctrl->page_sizes = page_sizes_v2_2;
+		else
+			ctrl->page_sizes = page_sizes_v2_1;
+
+		if (ctrl->nand_version >= 0x0202)
+			ctrl->page_size_shift = CFG_PAGE_SIZE_SHIFT;
+		else
+			ctrl->page_size_shift = CFG_PAGE_SIZE_SHIFT_v2_1;
+
+		if (ctrl->nand_version >= 0x0600)
+			ctrl->block_sizes = block_sizes_v6;
+		else if (ctrl->nand_version >= 0x0400)
+			ctrl->block_sizes = block_sizes_v4;
+		else if (ctrl->nand_version >= 0x0202)
+			ctrl->block_sizes = block_sizes_v2_2;
+		else
+			ctrl->block_sizes = block_sizes_v2_1;
+
+		if (ctrl->nand_version < 0x0400) {
+			if (ctrl->nand_version < 0x0202)
+				ctrl->max_page_size = 2048;
+			else
+				ctrl->max_page_size = 4096;
+>>>>>>> upstream/android-13
 			ctrl->max_block_size = 512 * 1024;
 		}
 	}
 
 	/* Maximum spare area sector size (per 512B) */
+<<<<<<< HEAD
 	if (ctrl->nand_version >= 0x0702)
+=======
+	if (ctrl->nand_version == 0x0702)
+>>>>>>> upstream/android-13
 		ctrl->max_oob = 128;
 	else if (ctrl->nand_version >= 0x0600)
 		ctrl->max_oob = 64;
@@ -547,6 +807,20 @@ static int brcmnand_revision_init(struct brcmnand_controller *ctrl)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void brcmnand_flash_dma_revision_init(struct brcmnand_controller *ctrl)
+{
+	/* flash_dma register offsets */
+	if (ctrl->nand_version >= 0x0703)
+		ctrl->flash_dma_offsets = flash_dma_regs_v4;
+	else if (ctrl->nand_version == 0x0602)
+		ctrl->flash_dma_offsets = flash_dma_regs_v0;
+	else
+		ctrl->flash_dma_offsets = flash_dma_regs_v1;
+}
+
+>>>>>>> upstream/android-13
 static inline u32 brcmnand_read_reg(struct brcmnand_controller *ctrl,
 		enum brcmnand_reg reg)
 {
@@ -589,6 +863,73 @@ static inline void brcmnand_write_fc(struct brcmnand_controller *ctrl,
 	__raw_writel(val, ctrl->nand_fc + word * 4);
 }
 
+<<<<<<< HEAD
+=======
+static inline void edu_writel(struct brcmnand_controller *ctrl,
+			      enum edu_reg reg, u32 val)
+{
+	u16 offs = ctrl->edu_offsets[reg];
+
+	brcmnand_writel(val, ctrl->edu_base + offs);
+}
+
+static inline u32 edu_readl(struct brcmnand_controller *ctrl,
+			    enum edu_reg reg)
+{
+	u16 offs = ctrl->edu_offsets[reg];
+
+	return brcmnand_readl(ctrl->edu_base + offs);
+}
+
+static void brcmnand_clear_ecc_addr(struct brcmnand_controller *ctrl)
+{
+
+	/* Clear error addresses */
+	brcmnand_write_reg(ctrl, BRCMNAND_UNCORR_ADDR, 0);
+	brcmnand_write_reg(ctrl, BRCMNAND_CORR_ADDR, 0);
+	brcmnand_write_reg(ctrl, BRCMNAND_UNCORR_EXT_ADDR, 0);
+	brcmnand_write_reg(ctrl, BRCMNAND_CORR_EXT_ADDR, 0);
+}
+
+static u64 brcmnand_get_uncorrecc_addr(struct brcmnand_controller *ctrl)
+{
+	u64 err_addr;
+
+	err_addr = brcmnand_read_reg(ctrl, BRCMNAND_UNCORR_ADDR);
+	err_addr |= ((u64)(brcmnand_read_reg(ctrl,
+					     BRCMNAND_UNCORR_EXT_ADDR)
+					     & 0xffff) << 32);
+
+	return err_addr;
+}
+
+static u64 brcmnand_get_correcc_addr(struct brcmnand_controller *ctrl)
+{
+	u64 err_addr;
+
+	err_addr = brcmnand_read_reg(ctrl, BRCMNAND_CORR_ADDR);
+	err_addr |= ((u64)(brcmnand_read_reg(ctrl,
+					     BRCMNAND_CORR_EXT_ADDR)
+					     & 0xffff) << 32);
+
+	return err_addr;
+}
+
+static void brcmnand_set_cmd_addr(struct mtd_info *mtd, u64 addr)
+{
+	struct nand_chip *chip =  mtd_to_nand(mtd);
+	struct brcmnand_host *host = nand_get_controller_data(chip);
+	struct brcmnand_controller *ctrl = host->ctrl;
+
+	brcmnand_write_reg(ctrl, BRCMNAND_CMD_EXT_ADDRESS,
+			   (host->cs << 16) | ((addr >> 32) & 0xffff));
+	(void)brcmnand_read_reg(ctrl, BRCMNAND_CMD_EXT_ADDRESS);
+	brcmnand_write_reg(ctrl, BRCMNAND_CMD_ADDRESS,
+			   lower_32_bits(addr));
+	(void)brcmnand_read_reg(ctrl, BRCMNAND_CMD_ADDRESS);
+}
+
+>>>>>>> upstream/android-13
 static inline u16 brcmnand_cs_offset(struct brcmnand_controller *ctrl, int cs,
 				     enum brcmnand_cs_reg reg)
 {
@@ -621,7 +962,14 @@ static void brcmnand_wr_corr_thresh(struct brcmnand_host *host, u8 val)
 	enum brcmnand_reg reg = BRCMNAND_CORR_THRESHOLD;
 	int cs = host->cs;
 
+<<<<<<< HEAD
 	if (ctrl->nand_version >= 0x0702)
+=======
+	if (!ctrl->reg_offsets[reg])
+		return;
+
+	if (ctrl->nand_version == 0x0702)
+>>>>>>> upstream/android-13
 		bits = 7;
 	else if (ctrl->nand_version >= 0x0600)
 		bits = 6;
@@ -675,12 +1023,23 @@ enum {
 
 static inline u32 brcmnand_spare_area_mask(struct brcmnand_controller *ctrl)
 {
+<<<<<<< HEAD
 	if (ctrl->nand_version >= 0x0702)
 		return GENMASK(7, 0);
 	else if (ctrl->nand_version >= 0x0600)
 		return GENMASK(6, 0);
 	else
 		return GENMASK(5, 0);
+=======
+	if (ctrl->nand_version == 0x0702)
+		return GENMASK(7, 0);
+	else if (ctrl->nand_version >= 0x0600)
+		return GENMASK(6, 0);
+	else if (ctrl->nand_version >= 0x0303)
+		return GENMASK(5, 0);
+	else
+		return GENMASK(4, 0);
+>>>>>>> upstream/android-13
 }
 
 #define NAND_ACC_CONTROL_ECC_SHIFT	16
@@ -805,6 +1164,7 @@ static inline void brcmnand_set_wp(struct brcmnand_controller *ctrl, bool en)
  * Flash DMA
  ***********************************************************************/
 
+<<<<<<< HEAD
 enum flash_dma_reg {
 	FLASH_DMA_REVISION		= 0x00,
 	FLASH_DMA_FIRST_DESC		= 0x04,
@@ -819,17 +1179,47 @@ enum flash_dma_reg {
 	FLASH_DMA_CURRENT_DESC_EXT	= 0x28,
 };
 
+=======
+>>>>>>> upstream/android-13
 static inline bool has_flash_dma(struct brcmnand_controller *ctrl)
 {
 	return ctrl->flash_dma_base;
 }
 
+<<<<<<< HEAD
+=======
+static inline bool has_edu(struct brcmnand_controller *ctrl)
+{
+	return ctrl->edu_base;
+}
+
+static inline bool use_dma(struct brcmnand_controller *ctrl)
+{
+	return has_flash_dma(ctrl) || has_edu(ctrl);
+}
+
+static inline void disable_ctrl_irqs(struct brcmnand_controller *ctrl)
+{
+	if (ctrl->pio_poll_mode)
+		return;
+
+	if (has_flash_dma(ctrl)) {
+		ctrl->flash_dma_base = NULL;
+		disable_irq(ctrl->dma_irq);
+	}
+
+	disable_irq(ctrl->irq);
+	ctrl->pio_poll_mode = true;
+}
+
+>>>>>>> upstream/android-13
 static inline bool flash_dma_buf_ok(const void *buf)
 {
 	return buf && !is_vmalloc_addr(buf) &&
 		likely(IS_ALIGNED((uintptr_t)buf, 4));
 }
 
+<<<<<<< HEAD
 static inline void flash_dma_writel(struct brcmnand_controller *ctrl, u8 offs,
 				    u32 val)
 {
@@ -838,6 +1228,21 @@ static inline void flash_dma_writel(struct brcmnand_controller *ctrl, u8 offs,
 
 static inline u32 flash_dma_readl(struct brcmnand_controller *ctrl, u8 offs)
 {
+=======
+static inline void flash_dma_writel(struct brcmnand_controller *ctrl,
+				    enum flash_dma_reg dma_reg, u32 val)
+{
+	u16 offs = ctrl->flash_dma_offsets[dma_reg];
+
+	brcmnand_writel(val, ctrl->flash_dma_base + offs);
+}
+
+static inline u32 flash_dma_readl(struct brcmnand_controller *ctrl,
+				  enum flash_dma_reg dma_reg)
+{
+	u16 offs = ctrl->flash_dma_offsets[dma_reg];
+
+>>>>>>> upstream/android-13
 	return brcmnand_readl(ctrl->flash_dma_base + offs);
 }
 
@@ -896,6 +1301,7 @@ static int brcmnand_hamming_ooblayout_free(struct mtd_info *mtd, int section,
 	struct brcmnand_cfg *cfg = &host->hwcfg;
 	int sas = cfg->spare_area_size << cfg->sector_size_1k;
 	int sectors = cfg->page_size / (512 << cfg->sector_size_1k);
+<<<<<<< HEAD
 
 	if (section >= sectors * 2)
 		return -ERANGE;
@@ -923,6 +1329,32 @@ static int brcmnand_hamming_ooblayout_free(struct mtd_info *mtd, int section,
 		}
 	}
 
+=======
+	u32 next;
+
+	if (section > sectors)
+		return -ERANGE;
+
+	next = (section * sas);
+	if (section < sectors)
+		next += 6;
+
+	if (section) {
+		oobregion->offset = ((section - 1) * sas) + 9;
+	} else {
+		if (cfg->page_size > 512) {
+			/* Large page NAND uses first 2 bytes for BBI */
+			oobregion->offset = 2;
+		} else {
+			/* Small page NAND uses last byte before ECC for BBI */
+			oobregion->offset = 0;
+			next--;
+		}
+	}
+
+	oobregion->length = next - oobregion->offset;
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -943,7 +1375,11 @@ static int brcmnand_bch_ooblayout_ecc(struct mtd_info *mtd, int section,
 	if (section >= sectors)
 		return -ERANGE;
 
+<<<<<<< HEAD
 	oobregion->offset = (section * (sas + 1)) - chip->ecc.bytes;
+=======
+	oobregion->offset = ((section + 1) * sas) - chip->ecc.bytes;
+>>>>>>> upstream/android-13
 	oobregion->length = chip->ecc.bytes;
 
 	return 0;
@@ -1181,6 +1617,72 @@ static int write_oob_to_regs(struct brcmnand_controller *ctrl, int i,
 	return tbytes;
 }
 
+<<<<<<< HEAD
+=======
+static void brcmnand_edu_init(struct brcmnand_controller *ctrl)
+{
+	/* initialize edu */
+	edu_writel(ctrl, EDU_ERR_STATUS, 0);
+	edu_readl(ctrl, EDU_ERR_STATUS);
+	edu_writel(ctrl, EDU_DONE, 0);
+	edu_writel(ctrl, EDU_DONE, 0);
+	edu_writel(ctrl, EDU_DONE, 0);
+	edu_writel(ctrl, EDU_DONE, 0);
+	edu_readl(ctrl, EDU_DONE);
+}
+
+/* edu irq */
+static irqreturn_t brcmnand_edu_irq(int irq, void *data)
+{
+	struct brcmnand_controller *ctrl = data;
+
+	if (ctrl->edu_count) {
+		ctrl->edu_count--;
+		while (!(edu_readl(ctrl, EDU_DONE) & EDU_DONE_MASK))
+			udelay(1);
+		edu_writel(ctrl, EDU_DONE, 0);
+		edu_readl(ctrl, EDU_DONE);
+	}
+
+	if (ctrl->edu_count) {
+		ctrl->edu_dram_addr += FC_BYTES;
+		ctrl->edu_ext_addr += FC_BYTES;
+
+		edu_writel(ctrl, EDU_DRAM_ADDR, (u32)ctrl->edu_dram_addr);
+		edu_readl(ctrl, EDU_DRAM_ADDR);
+		edu_writel(ctrl, EDU_EXT_ADDR, ctrl->edu_ext_addr);
+		edu_readl(ctrl, EDU_EXT_ADDR);
+
+		if (ctrl->oob) {
+			if (ctrl->edu_cmd == EDU_CMD_READ) {
+				ctrl->oob += read_oob_from_regs(ctrl,
+							ctrl->edu_count + 1,
+							ctrl->oob, ctrl->sas,
+							ctrl->sector_size_1k);
+			} else {
+				brcmnand_write_reg(ctrl, BRCMNAND_CMD_ADDRESS,
+						   ctrl->edu_ext_addr);
+				brcmnand_read_reg(ctrl, BRCMNAND_CMD_ADDRESS);
+				ctrl->oob += write_oob_to_regs(ctrl,
+							       ctrl->edu_count,
+							       ctrl->oob, ctrl->sas,
+							       ctrl->sector_size_1k);
+			}
+		}
+
+		mb(); /* flush previous writes */
+		edu_writel(ctrl, EDU_CMD, ctrl->edu_cmd);
+		edu_readl(ctrl, EDU_CMD);
+
+		return IRQ_HANDLED;
+	}
+
+	complete(&ctrl->edu_done);
+
+	return IRQ_HANDLED;
+}
+
+>>>>>>> upstream/android-13
 static irqreturn_t brcmnand_ctlrdy_irq(int irq, void *data)
 {
 	struct brcmnand_controller *ctrl = data;
@@ -1189,6 +1691,19 @@ static irqreturn_t brcmnand_ctlrdy_irq(int irq, void *data)
 	if (ctrl->dma_pending)
 		return IRQ_HANDLED;
 
+<<<<<<< HEAD
+=======
+	/* check if you need to piggy back on the ctrlrdy irq */
+	if (ctrl->edu_pending) {
+		if (irq == ctrl->irq && ((int)ctrl->edu_irq >= 0))
+	/* Discard interrupts while using dedicated edu irq */
+			return IRQ_HANDLED;
+
+	/* no registered edu irq, call handler */
+		return brcmnand_edu_irq(irq, data);
+	}
+
+>>>>>>> upstream/android-13
 	complete(&ctrl->done);
 	return IRQ_HANDLED;
 }
@@ -1217,9 +1732,18 @@ static void brcmnand_send_cmd(struct brcmnand_host *host, int cmd)
 {
 	struct brcmnand_controller *ctrl = host->ctrl;
 	int ret;
+<<<<<<< HEAD
 
 	dev_dbg(ctrl->dev, "send native cmd %d addr_lo 0x%x\n", cmd,
 		brcmnand_read_reg(ctrl, BRCMNAND_CMD_ADDRESS));
+=======
+	u64 cmd_addr;
+
+	cmd_addr = brcmnand_read_reg(ctrl, BRCMNAND_CMD_ADDRESS);
+
+	dev_dbg(ctrl->dev, "send native cmd %d addr 0x%llx\n", cmd, cmd_addr);
+
+>>>>>>> upstream/android-13
 	BUG_ON(ctrl->cmd_pending != 0);
 	ctrl->cmd_pending = cmd;
 
@@ -1235,12 +1759,18 @@ static void brcmnand_send_cmd(struct brcmnand_host *host, int cmd)
  * NAND MTD API: read/program/erase
  ***********************************************************************/
 
+<<<<<<< HEAD
 static void brcmnand_cmd_ctrl(struct mtd_info *mtd, int dat,
 	unsigned int ctrl)
+=======
+static void brcmnand_cmd_ctrl(struct nand_chip *chip, int dat,
+			      unsigned int ctrl)
+>>>>>>> upstream/android-13
 {
 	/* intentionally left blank */
 }
 
+<<<<<<< HEAD
 static int brcmnand_waitfunc(struct mtd_info *mtd, struct nand_chip *this)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
@@ -1251,6 +1781,44 @@ static int brcmnand_waitfunc(struct mtd_info *mtd, struct nand_chip *this)
 	dev_dbg(ctrl->dev, "wait on native cmd %d\n", ctrl->cmd_pending);
 	if (ctrl->cmd_pending &&
 			wait_for_completion_timeout(&ctrl->done, timeo) <= 0) {
+=======
+static bool brcmstb_nand_wait_for_completion(struct nand_chip *chip)
+{
+	struct brcmnand_host *host = nand_get_controller_data(chip);
+	struct brcmnand_controller *ctrl = host->ctrl;
+	struct mtd_info *mtd = nand_to_mtd(chip);
+	bool err = false;
+	int sts;
+
+	if (mtd->oops_panic_write) {
+		/* switch to interrupt polling and PIO mode */
+		disable_ctrl_irqs(ctrl);
+		sts = bcmnand_ctrl_poll_status(ctrl, NAND_CTRL_RDY,
+					       NAND_CTRL_RDY, 0);
+		err = (sts < 0) ? true : false;
+	} else {
+		unsigned long timeo = msecs_to_jiffies(
+						NAND_POLL_STATUS_TIMEOUT_MS);
+		/* wait for completion interrupt */
+		sts = wait_for_completion_timeout(&ctrl->done, timeo);
+		err = (sts <= 0) ? true : false;
+	}
+
+	return err;
+}
+
+static int brcmnand_waitfunc(struct nand_chip *chip)
+{
+	struct brcmnand_host *host = nand_get_controller_data(chip);
+	struct brcmnand_controller *ctrl = host->ctrl;
+	bool err = false;
+
+	dev_dbg(ctrl->dev, "wait on native cmd %d\n", ctrl->cmd_pending);
+	if (ctrl->cmd_pending)
+		err = brcmstb_nand_wait_for_completion(chip);
+
+	if (err) {
+>>>>>>> upstream/android-13
 		u32 cmd = brcmnand_read_reg(ctrl, BRCMNAND_CMD_START)
 					>> brcmnand_cmd_shift(ctrl);
 
@@ -1278,7 +1846,10 @@ static int brcmnand_low_level_op(struct brcmnand_host *host,
 				 enum brcmnand_llop_type type, u32 data,
 				 bool last_op)
 {
+<<<<<<< HEAD
 	struct mtd_info *mtd = nand_to_mtd(&host->chip);
+=======
+>>>>>>> upstream/android-13
 	struct nand_chip *chip = &host->chip;
 	struct brcmnand_controller *ctrl = host->ctrl;
 	u32 tmp;
@@ -1311,6 +1882,7 @@ static int brcmnand_low_level_op(struct brcmnand_host *host,
 	(void)brcmnand_read_reg(ctrl, BRCMNAND_LL_OP);
 
 	brcmnand_send_cmd(host, CMD_LOW_LEVEL_OP);
+<<<<<<< HEAD
 	return brcmnand_waitfunc(mtd, chip);
 }
 
@@ -1318,6 +1890,15 @@ static void brcmnand_cmdfunc(struct mtd_info *mtd, unsigned command,
 			     int column, int page_addr)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
+=======
+	return brcmnand_waitfunc(chip);
+}
+
+static void brcmnand_cmdfunc(struct nand_chip *chip, unsigned command,
+			     int column, int page_addr)
+{
+	struct mtd_info *mtd = nand_to_mtd(chip);
+>>>>>>> upstream/android-13
 	struct brcmnand_host *host = nand_get_controller_data(chip);
 	struct brcmnand_controller *ctrl = host->ctrl;
 	u64 addr = (u64)page_addr << chip->page_shift;
@@ -1380,6 +1961,7 @@ static void brcmnand_cmdfunc(struct mtd_info *mtd, unsigned command,
 	if (!native_cmd)
 		return;
 
+<<<<<<< HEAD
 	brcmnand_write_reg(ctrl, BRCMNAND_CMD_EXT_ADDRESS,
 		(host->cs << 16) | ((addr >> 32) & 0xffff));
 	(void)brcmnand_read_reg(ctrl, BRCMNAND_CMD_EXT_ADDRESS);
@@ -1388,6 +1970,11 @@ static void brcmnand_cmdfunc(struct mtd_info *mtd, unsigned command,
 
 	brcmnand_send_cmd(host, native_cmd);
 	brcmnand_waitfunc(mtd, chip);
+=======
+	brcmnand_set_cmd_addr(mtd, addr);
+	brcmnand_send_cmd(host, native_cmd);
+	brcmnand_waitfunc(chip);
+>>>>>>> upstream/android-13
 
 	if (native_cmd == CMD_PARAMETER_READ ||
 			native_cmd == CMD_PARAMETER_CHANGE_COL) {
@@ -1421,9 +2008,14 @@ static void brcmnand_cmdfunc(struct mtd_info *mtd, unsigned command,
 		brcmnand_wp(mtd, 1);
 }
 
+<<<<<<< HEAD
 static uint8_t brcmnand_read_byte(struct mtd_info *mtd)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
+=======
+static uint8_t brcmnand_read_byte(struct nand_chip *chip)
+{
+>>>>>>> upstream/android-13
 	struct brcmnand_host *host = nand_get_controller_data(chip);
 	struct brcmnand_controller *ctrl = host->ctrl;
 	uint8_t ret = 0;
@@ -1478,11 +2070,16 @@ static uint8_t brcmnand_read_byte(struct mtd_info *mtd)
 	return ret;
 }
 
+<<<<<<< HEAD
 static void brcmnand_read_buf(struct mtd_info *mtd, uint8_t *buf, int len)
+=======
+static void brcmnand_read_buf(struct nand_chip *chip, uint8_t *buf, int len)
+>>>>>>> upstream/android-13
 {
 	int i;
 
 	for (i = 0; i < len; i++, buf++)
+<<<<<<< HEAD
 		*buf = brcmnand_read_byte(mtd);
 }
 
@@ -1491,6 +2088,15 @@ static void brcmnand_write_buf(struct mtd_info *mtd, const uint8_t *buf,
 {
 	int i;
 	struct nand_chip *chip = mtd_to_nand(mtd);
+=======
+		*buf = brcmnand_read_byte(chip);
+}
+
+static void brcmnand_write_buf(struct nand_chip *chip, const uint8_t *buf,
+			       int len)
+{
+	int i;
+>>>>>>> upstream/android-13
 	struct brcmnand_host *host = nand_get_controller_data(chip);
 
 	switch (host->last_cmd) {
@@ -1505,7 +2111,126 @@ static void brcmnand_write_buf(struct mtd_info *mtd, const uint8_t *buf,
 	}
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+ *  Kick EDU engine
+ */
+static int brcmnand_edu_trans(struct brcmnand_host *host, u64 addr, u32 *buf,
+			      u8 *oob, u32 len, u8 cmd)
+{
+	struct brcmnand_controller *ctrl = host->ctrl;
+	struct brcmnand_cfg *cfg = &host->hwcfg;
+	unsigned long timeo = msecs_to_jiffies(200);
+	int ret = 0;
+	int dir = (cmd == CMD_PAGE_READ ? DMA_FROM_DEVICE : DMA_TO_DEVICE);
+	u8 edu_cmd = (cmd == CMD_PAGE_READ ? EDU_CMD_READ : EDU_CMD_WRITE);
+	unsigned int trans = len >> FC_SHIFT;
+	dma_addr_t pa;
+
+	dev_dbg(ctrl->dev, "EDU %s %p:%p\n", ((edu_cmd == EDU_CMD_READ) ?
+					      "read" : "write"), buf, oob);
+
+	pa = dma_map_single(ctrl->dev, buf, len, dir);
+	if (dma_mapping_error(ctrl->dev, pa)) {
+		dev_err(ctrl->dev, "unable to map buffer for EDU DMA\n");
+		return -ENOMEM;
+	}
+
+	ctrl->edu_pending = true;
+	ctrl->edu_dram_addr = pa;
+	ctrl->edu_ext_addr = addr;
+	ctrl->edu_cmd = edu_cmd;
+	ctrl->edu_count = trans;
+	ctrl->sas = cfg->spare_area_size;
+	ctrl->oob = oob;
+
+	edu_writel(ctrl, EDU_DRAM_ADDR, (u32)ctrl->edu_dram_addr);
+	edu_readl(ctrl,  EDU_DRAM_ADDR);
+	edu_writel(ctrl, EDU_EXT_ADDR, ctrl->edu_ext_addr);
+	edu_readl(ctrl, EDU_EXT_ADDR);
+	edu_writel(ctrl, EDU_LENGTH, FC_BYTES);
+	edu_readl(ctrl, EDU_LENGTH);
+
+	if (ctrl->oob && (ctrl->edu_cmd == EDU_CMD_WRITE)) {
+		brcmnand_write_reg(ctrl, BRCMNAND_CMD_ADDRESS,
+				   ctrl->edu_ext_addr);
+		brcmnand_read_reg(ctrl, BRCMNAND_CMD_ADDRESS);
+		ctrl->oob += write_oob_to_regs(ctrl,
+					       1,
+					       ctrl->oob, ctrl->sas,
+					       ctrl->sector_size_1k);
+	}
+
+	/* Start edu engine */
+	mb(); /* flush previous writes */
+	edu_writel(ctrl, EDU_CMD, ctrl->edu_cmd);
+	edu_readl(ctrl, EDU_CMD);
+
+	if (wait_for_completion_timeout(&ctrl->edu_done, timeo) <= 0) {
+		dev_err(ctrl->dev,
+			"timeout waiting for EDU; status %#x, error status %#x\n",
+			edu_readl(ctrl, EDU_STATUS),
+			edu_readl(ctrl, EDU_ERR_STATUS));
+	}
+
+	dma_unmap_single(ctrl->dev, pa, len, dir);
+
+	/* read last subpage oob */
+	if (ctrl->oob && (ctrl->edu_cmd == EDU_CMD_READ)) {
+		ctrl->oob += read_oob_from_regs(ctrl,
+						1,
+						ctrl->oob, ctrl->sas,
+						ctrl->sector_size_1k);
+	}
+
+	/* for program page check NAND status */
+	if (((brcmnand_read_reg(ctrl, BRCMNAND_INTFC_STATUS) &
+	      INTFC_FLASH_STATUS) & NAND_STATUS_FAIL) &&
+	    edu_cmd == EDU_CMD_WRITE) {
+		dev_info(ctrl->dev, "program failed at %llx\n",
+			 (unsigned long long)addr);
+		ret = -EIO;
+	}
+
+	/* Make sure the EDU status is clean */
+	if (edu_readl(ctrl, EDU_STATUS) & EDU_STATUS_ACTIVE)
+		dev_warn(ctrl->dev, "EDU still active: %#x\n",
+			 edu_readl(ctrl, EDU_STATUS));
+
+	if (unlikely(edu_readl(ctrl, EDU_ERR_STATUS) & EDU_ERR_STATUS_ERRACK)) {
+		dev_warn(ctrl->dev, "EDU RBUS error at addr %llx\n",
+			 (unsigned long long)addr);
+		ret = -EIO;
+	}
+
+	ctrl->edu_pending = false;
+	brcmnand_edu_init(ctrl);
+	edu_writel(ctrl, EDU_STOP, 0); /* force stop */
+	edu_readl(ctrl, EDU_STOP);
+
+	if (!ret && edu_cmd == EDU_CMD_READ) {
+		u64 err_addr = 0;
+
+		/*
+		 * check for ECC errors here, subpage ECC errors are
+		 * retained in ECC error address register
+		 */
+		err_addr = brcmnand_get_uncorrecc_addr(ctrl);
+		if (!err_addr) {
+			err_addr = brcmnand_get_correcc_addr(ctrl);
+			if (err_addr)
+				ret = -EUCLEAN;
+		} else
+			ret = -EBADMSG;
+	}
+
+	return ret;
+}
+
+/*
+>>>>>>> upstream/android-13
  * Construct a FLASH_DMA descriptor as part of a linked list. You must know the
  * following ahead of time:
  *  - Is this descriptor the beginning or end of a linked list?
@@ -1538,7 +2263,11 @@ static int brcmnand_fill_dma_desc(struct brcmnand_host *host,
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Kick the FLASH_DMA engine, with a given DMA descriptor
  */
 static void brcmnand_dma_run(struct brcmnand_host *host, dma_addr_t desc)
@@ -1548,8 +2277,16 @@ static void brcmnand_dma_run(struct brcmnand_host *host, dma_addr_t desc)
 
 	flash_dma_writel(ctrl, FLASH_DMA_FIRST_DESC, lower_32_bits(desc));
 	(void)flash_dma_readl(ctrl, FLASH_DMA_FIRST_DESC);
+<<<<<<< HEAD
 	flash_dma_writel(ctrl, FLASH_DMA_FIRST_DESC_EXT, upper_32_bits(desc));
 	(void)flash_dma_readl(ctrl, FLASH_DMA_FIRST_DESC_EXT);
+=======
+	if (ctrl->nand_version > 0x0602) {
+		flash_dma_writel(ctrl, FLASH_DMA_FIRST_DESC_EXT,
+				 upper_32_bits(desc));
+		(void)flash_dma_readl(ctrl, FLASH_DMA_FIRST_DESC_EXT);
+	}
+>>>>>>> upstream/android-13
 
 	/* Start FLASH_DMA engine */
 	ctrl->dma_pending = true;
@@ -1567,7 +2304,11 @@ static void brcmnand_dma_run(struct brcmnand_host *host, dma_addr_t desc)
 }
 
 static int brcmnand_dma_trans(struct brcmnand_host *host, u64 addr, u32 *buf,
+<<<<<<< HEAD
 			      u32 len, u8 dma_cmd)
+=======
+			      u8 *oob, u32 len, u8 dma_cmd)
+>>>>>>> upstream/android-13
 {
 	struct brcmnand_controller *ctrl = host->ctrl;
 	dma_addr_t buf_pa;
@@ -1605,6 +2346,7 @@ static int brcmnand_read_by_pio(struct mtd_info *mtd, struct nand_chip *chip,
 	struct brcmnand_controller *ctrl = host->ctrl;
 	int i, j, ret = 0;
 
+<<<<<<< HEAD
 	/* Clear error addresses */
 	brcmnand_write_reg(ctrl, BRCMNAND_UNCORR_ADDR, 0);
 	brcmnand_write_reg(ctrl, BRCMNAND_CORR_ADDR, 0);
@@ -1622,6 +2364,15 @@ static int brcmnand_read_by_pio(struct mtd_info *mtd, struct nand_chip *chip,
 		/* SPARE_AREA_READ does not use ECC, so just use PAGE_READ */
 		brcmnand_send_cmd(host, CMD_PAGE_READ);
 		brcmnand_waitfunc(mtd, chip);
+=======
+	brcmnand_clear_ecc_addr(ctrl);
+
+	for (i = 0; i < trans; i++, addr += FC_BYTES) {
+		brcmnand_set_cmd_addr(mtd, addr);
+		/* SPARE_AREA_READ does not use ECC, so just use PAGE_READ */
+		brcmnand_send_cmd(host, CMD_PAGE_READ);
+		brcmnand_waitfunc(chip);
+>>>>>>> upstream/android-13
 
 		if (likely(buf)) {
 			brcmnand_soc_data_bus_prepare(ctrl->soc, false);
@@ -1637,22 +2388,33 @@ static int brcmnand_read_by_pio(struct mtd_info *mtd, struct nand_chip *chip,
 					mtd->oobsize / trans,
 					host->hwcfg.sector_size_1k);
 
+<<<<<<< HEAD
 		if (!ret) {
 			*err_addr = brcmnand_read_reg(ctrl,
 					BRCMNAND_UNCORR_ADDR) |
 				((u64)(brcmnand_read_reg(ctrl,
 						BRCMNAND_UNCORR_EXT_ADDR)
 					& 0xffff) << 32);
+=======
+		if (ret != -EBADMSG) {
+			*err_addr = brcmnand_get_uncorrecc_addr(ctrl);
+
+>>>>>>> upstream/android-13
 			if (*err_addr)
 				ret = -EBADMSG;
 		}
 
 		if (!ret) {
+<<<<<<< HEAD
 			*err_addr = brcmnand_read_reg(ctrl,
 					BRCMNAND_CORR_ADDR) |
 				((u64)(brcmnand_read_reg(ctrl,
 						BRCMNAND_CORR_EXT_ADDR)
 					& 0xffff) << 32);
+=======
+			*err_addr = brcmnand_get_correcc_addr(ctrl);
+
+>>>>>>> upstream/android-13
 			if (*err_addr)
 				ret = -EUCLEAN;
 		}
@@ -1678,6 +2440,7 @@ static int brcmnand_read_by_pio(struct mtd_info *mtd, struct nand_chip *chip,
 static int brcmstb_nand_verify_erased_page(struct mtd_info *mtd,
 		  struct nand_chip *chip, void *buf, u64 addr)
 {
+<<<<<<< HEAD
 	int i, sas;
 	void *oob = chip->oob_poi;
 	int bitflips = 0;
@@ -1700,6 +2463,33 @@ static int brcmstb_nand_verify_erased_page(struct mtd_info *mtd,
 	for (i = 0; i < chip->ecc.steps; i++, oob += sas) {
 		ret = nand_check_erased_ecc_chunk(buf, chip->ecc.size,
 						  oob, sas, NULL, 0,
+=======
+	struct mtd_oob_region ecc;
+	int i;
+	int bitflips = 0;
+	int page = addr >> chip->page_shift;
+	int ret;
+	void *ecc_bytes;
+	void *ecc_chunk;
+
+	if (!buf)
+		buf = nand_get_data_buf(chip);
+
+	/* read without ecc for verification */
+	ret = chip->ecc.read_page_raw(chip, buf, true, page);
+	if (ret)
+		return ret;
+
+	for (i = 0; i < chip->ecc.steps; i++) {
+		ecc_chunk = buf + chip->ecc.size * i;
+
+		mtd_ooblayout_ecc(mtd, i, &ecc);
+		ecc_bytes = chip->oob_poi + ecc.offset;
+
+		ret = nand_check_erased_ecc_chunk(ecc_chunk, chip->ecc.size,
+						  ecc_bytes, ecc.length,
+						  NULL, 0,
+>>>>>>> upstream/android-13
 						  chip->ecc.strength);
 		if (ret < 0)
 			return ret;
@@ -1718,21 +2508,43 @@ static int brcmnand_read(struct mtd_info *mtd, struct nand_chip *chip,
 	u64 err_addr = 0;
 	int err;
 	bool retry = true;
+<<<<<<< HEAD
+=======
+	bool edu_err = false;
+>>>>>>> upstream/android-13
 
 	dev_dbg(ctrl->dev, "read %llx -> %p\n", (unsigned long long)addr, buf);
 
 try_dmaread:
+<<<<<<< HEAD
 	brcmnand_write_reg(ctrl, BRCMNAND_UNCORR_COUNT, 0);
 
 	if (has_flash_dma(ctrl) && !oob && flash_dma_buf_ok(buf)) {
 		err = brcmnand_dma_trans(host, addr, buf, trans * FC_BYTES,
 					     CMD_PAGE_READ);
+=======
+	brcmnand_clear_ecc_addr(ctrl);
+
+	if (ctrl->dma_trans && (has_edu(ctrl) || !oob) &&
+	    flash_dma_buf_ok(buf)) {
+		err = ctrl->dma_trans(host, addr, buf, oob,
+				      trans * FC_BYTES,
+				      CMD_PAGE_READ);
+
+>>>>>>> upstream/android-13
 		if (err) {
 			if (mtd_is_bitflip_or_eccerr(err))
 				err_addr = addr;
 			else
 				return -EIO;
 		}
+<<<<<<< HEAD
+=======
+
+		if (has_edu(ctrl) && err_addr)
+			edu_err = true;
+
+>>>>>>> upstream/android-13
 	} else {
 		if (oob)
 			memset(oob, 0x99, mtd->oobsize);
@@ -1780,6 +2592,14 @@ try_dmaread:
 	if (mtd_is_bitflip(err)) {
 		unsigned int corrected = brcmnand_count_corrected(ctrl);
 
+<<<<<<< HEAD
+=======
+		/* in case of EDU correctable error we read again using PIO */
+		if (edu_err)
+			err = brcmnand_read_by_pio(mtd, chip, addr, trans, buf,
+						   oob, &err_addr);
+
+>>>>>>> upstream/android-13
 		dev_dbg(ctrl->dev, "corrected error at 0x%llx\n",
 			(unsigned long long)err_addr);
 		mtd->ecc_stats.corrected += corrected;
@@ -1790,9 +2610,16 @@ try_dmaread:
 	return 0;
 }
 
+<<<<<<< HEAD
 static int brcmnand_read_page(struct mtd_info *mtd, struct nand_chip *chip,
 			      uint8_t *buf, int oob_required, int page)
 {
+=======
+static int brcmnand_read_page(struct nand_chip *chip, uint8_t *buf,
+			      int oob_required, int page)
+{
+	struct mtd_info *mtd = nand_to_mtd(chip);
+>>>>>>> upstream/android-13
 	struct brcmnand_host *host = nand_get_controller_data(chip);
 	u8 *oob = oob_required ? (u8 *)chip->oob_poi : NULL;
 
@@ -1802,10 +2629,18 @@ static int brcmnand_read_page(struct mtd_info *mtd, struct nand_chip *chip,
 			mtd->writesize >> FC_SHIFT, (u32 *)buf, oob);
 }
 
+<<<<<<< HEAD
 static int brcmnand_read_page_raw(struct mtd_info *mtd, struct nand_chip *chip,
 				  uint8_t *buf, int oob_required, int page)
 {
 	struct brcmnand_host *host = nand_get_controller_data(chip);
+=======
+static int brcmnand_read_page_raw(struct nand_chip *chip, uint8_t *buf,
+				  int oob_required, int page)
+{
+	struct brcmnand_host *host = nand_get_controller_data(chip);
+	struct mtd_info *mtd = nand_to_mtd(chip);
+>>>>>>> upstream/android-13
 	u8 *oob = oob_required ? (u8 *)chip->oob_poi : NULL;
 	int ret;
 
@@ -1818,17 +2653,30 @@ static int brcmnand_read_page_raw(struct mtd_info *mtd, struct nand_chip *chip,
 	return ret;
 }
 
+<<<<<<< HEAD
 static int brcmnand_read_oob(struct mtd_info *mtd, struct nand_chip *chip,
 			     int page)
 {
+=======
+static int brcmnand_read_oob(struct nand_chip *chip, int page)
+{
+	struct mtd_info *mtd = nand_to_mtd(chip);
+
+>>>>>>> upstream/android-13
 	return brcmnand_read(mtd, chip, (u64)page << chip->page_shift,
 			mtd->writesize >> FC_SHIFT,
 			NULL, (u8 *)chip->oob_poi);
 }
 
+<<<<<<< HEAD
 static int brcmnand_read_oob_raw(struct mtd_info *mtd, struct nand_chip *chip,
 				 int page)
 {
+=======
+static int brcmnand_read_oob_raw(struct nand_chip *chip, int page)
+{
+	struct mtd_info *mtd = nand_to_mtd(chip);
+>>>>>>> upstream/android-13
 	struct brcmnand_host *host = nand_get_controller_data(chip);
 
 	brcmnand_set_ecc_enabled(host, 0);
@@ -1859,6 +2707,7 @@ static int brcmnand_write(struct mtd_info *mtd, struct nand_chip *chip,
 	for (i = 0; i < ctrl->max_oob; i += 4)
 		oob_reg_write(ctrl, i, 0xffffffff);
 
+<<<<<<< HEAD
 	if (has_flash_dma(ctrl) && !oob && flash_dma_buf_ok(buf)) {
 		if (brcmnand_dma_trans(host, addr, (u32 *)buf,
 					mtd->writesize, CMD_PROGRAM_PAGE))
@@ -1875,6 +2724,24 @@ static int brcmnand_write(struct mtd_info *mtd, struct nand_chip *chip,
 		brcmnand_write_reg(ctrl, BRCMNAND_CMD_ADDRESS,
 				   lower_32_bits(addr));
 		(void)brcmnand_read_reg(ctrl, BRCMNAND_CMD_ADDRESS);
+=======
+	if (mtd->oops_panic_write)
+		/* switch to interrupt polling and PIO mode */
+		disable_ctrl_irqs(ctrl);
+
+	if (use_dma(ctrl) && (has_edu(ctrl) || !oob) && flash_dma_buf_ok(buf)) {
+		if (ctrl->dma_trans(host, addr, (u32 *)buf, oob, mtd->writesize,
+				    CMD_PROGRAM_PAGE))
+
+			ret = -EIO;
+
+		goto out;
+	}
+
+	for (i = 0; i < trans; i++, addr += FC_BYTES) {
+		/* full address MUST be set before populating FC */
+		brcmnand_set_cmd_addr(mtd, addr);
+>>>>>>> upstream/android-13
 
 		if (buf) {
 			brcmnand_soc_data_bus_prepare(ctrl->soc, false);
@@ -1896,7 +2763,11 @@ static int brcmnand_write(struct mtd_info *mtd, struct nand_chip *chip,
 
 		/* we cannot use SPARE_AREA_PROGRAM when PARTIAL_PAGE_EN=0 */
 		brcmnand_send_cmd(host, CMD_PROGRAM_PAGE);
+<<<<<<< HEAD
 		status = brcmnand_waitfunc(mtd, chip);
+=======
+		status = brcmnand_waitfunc(chip);
+>>>>>>> upstream/android-13
 
 		if (status & NAND_STATUS_FAIL) {
 			dev_info(ctrl->dev, "program failed at %llx\n",
@@ -1910,9 +2781,16 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int brcmnand_write_page(struct mtd_info *mtd, struct nand_chip *chip,
 			       const uint8_t *buf, int oob_required, int page)
 {
+=======
+static int brcmnand_write_page(struct nand_chip *chip, const uint8_t *buf,
+			       int oob_required, int page)
+{
+	struct mtd_info *mtd = nand_to_mtd(chip);
+>>>>>>> upstream/android-13
 	struct brcmnand_host *host = nand_get_controller_data(chip);
 	void *oob = oob_required ? chip->oob_poi : NULL;
 
@@ -1922,10 +2800,17 @@ static int brcmnand_write_page(struct mtd_info *mtd, struct nand_chip *chip,
 	return nand_prog_page_end_op(chip);
 }
 
+<<<<<<< HEAD
 static int brcmnand_write_page_raw(struct mtd_info *mtd,
 				   struct nand_chip *chip, const uint8_t *buf,
 				   int oob_required, int page)
 {
+=======
+static int brcmnand_write_page_raw(struct nand_chip *chip, const uint8_t *buf,
+				   int oob_required, int page)
+{
+	struct mtd_info *mtd = nand_to_mtd(chip);
+>>>>>>> upstream/android-13
 	struct brcmnand_host *host = nand_get_controller_data(chip);
 	void *oob = oob_required ? chip->oob_poi : NULL;
 
@@ -1937,6 +2822,7 @@ static int brcmnand_write_page_raw(struct mtd_info *mtd,
 	return nand_prog_page_end_op(chip);
 }
 
+<<<<<<< HEAD
 static int brcmnand_write_oob(struct mtd_info *mtd, struct nand_chip *chip,
 				  int page)
 {
@@ -1947,6 +2833,18 @@ static int brcmnand_write_oob(struct mtd_info *mtd, struct nand_chip *chip,
 static int brcmnand_write_oob_raw(struct mtd_info *mtd, struct nand_chip *chip,
 				  int page)
 {
+=======
+static int brcmnand_write_oob(struct nand_chip *chip, int page)
+{
+	return brcmnand_write(nand_to_mtd(chip), chip,
+			      (u64)page << chip->page_shift, NULL,
+			      chip->oob_poi);
+}
+
+static int brcmnand_write_oob_raw(struct nand_chip *chip, int page)
+{
+	struct mtd_info *mtd = nand_to_mtd(chip);
+>>>>>>> upstream/android-13
 	struct brcmnand_host *host = nand_get_controller_data(chip);
 	int ret;
 
@@ -2035,7 +2933,11 @@ static int brcmnand_set_cfg(struct brcmnand_host *host,
 		(!!(cfg->device_width == 16) << CFG_BUS_WIDTH_SHIFT) |
 		(device_size << CFG_DEVICE_SIZE_SHIFT);
 	if (cfg_offs == cfg_ext_offs) {
+<<<<<<< HEAD
 		tmp |= (page_size << CFG_PAGE_SIZE_SHIFT) |
+=======
+		tmp |= (page_size << ctrl->page_size_shift) |
+>>>>>>> upstream/android-13
 		       (block_size << CFG_BLK_SIZE_SHIFT);
 		nand_writereg(ctrl, cfg_offs, tmp);
 	} else {
@@ -2047,9 +2949,17 @@ static int brcmnand_set_cfg(struct brcmnand_host *host,
 
 	tmp = nand_readreg(ctrl, acc_control_offs);
 	tmp &= ~brcmnand_ecc_level_mask(ctrl);
+<<<<<<< HEAD
 	tmp |= cfg->ecc_level << NAND_ACC_CONTROL_ECC_SHIFT;
 	tmp &= ~brcmnand_spare_area_mask(ctrl);
 	tmp |= cfg->spare_area_size;
+=======
+	tmp &= ~brcmnand_spare_area_mask(ctrl);
+	if (ctrl->nand_version >= 0x0302) {
+		tmp |= cfg->ecc_level << NAND_ACC_CONTROL_ECC_SHIFT;
+		tmp |= cfg->spare_area_size;
+	}
+>>>>>>> upstream/android-13
 	nand_writereg(ctrl, acc_control_offs, tmp);
 
 	brcmnand_set_sector_size_1k(host, cfg->sector_size_1k);
@@ -2096,6 +3006,11 @@ static int brcmnand_setup_dev(struct brcmnand_host *host)
 {
 	struct mtd_info *mtd = nand_to_mtd(&host->chip);
 	struct nand_chip *chip = &host->chip;
+<<<<<<< HEAD
+=======
+	const struct nand_ecc_props *requirements =
+		nanddev_get_ecc_requirements(&chip->base);
+>>>>>>> upstream/android-13
 	struct brcmnand_controller *ctrl = host->ctrl;
 	struct brcmnand_cfg *cfg = &host->hwcfg;
 	char msg[128];
@@ -2129,6 +3044,7 @@ static int brcmnand_setup_dev(struct brcmnand_host *host)
 	cfg->col_adr_bytes = 2;
 	cfg->blk_adr_bytes = get_blk_adr_bytes(mtd->size, mtd->writesize);
 
+<<<<<<< HEAD
 	if (chip->ecc.mode != NAND_ECC_HW) {
 		dev_err(ctrl->dev, "only HW ECC supported; selected: %d\n",
 			chip->ecc.mode);
@@ -2146,14 +3062,50 @@ static int brcmnand_setup_dev(struct brcmnand_host *host)
 
 	if (chip->ecc.algo == NAND_ECC_HAMMING && (chip->ecc.strength != 1 ||
 						   chip->ecc.size != 512)) {
+=======
+	if (chip->ecc.engine_type != NAND_ECC_ENGINE_TYPE_ON_HOST) {
+		dev_err(ctrl->dev, "only HW ECC supported; selected: %d\n",
+			chip->ecc.engine_type);
+		return -EINVAL;
+	}
+
+	if (chip->ecc.algo == NAND_ECC_ALGO_UNKNOWN) {
+		if (chip->ecc.strength == 1 && chip->ecc.size == 512)
+			/* Default to Hamming for 1-bit ECC, if unspecified */
+			chip->ecc.algo = NAND_ECC_ALGO_HAMMING;
+		else
+			/* Otherwise, BCH */
+			chip->ecc.algo = NAND_ECC_ALGO_BCH;
+	}
+
+	if (chip->ecc.algo == NAND_ECC_ALGO_HAMMING &&
+	    (chip->ecc.strength != 1 || chip->ecc.size != 512)) {
+>>>>>>> upstream/android-13
 		dev_err(ctrl->dev, "invalid Hamming params: %d bits per %d bytes\n",
 			chip->ecc.strength, chip->ecc.size);
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	switch (chip->ecc.size) {
 	case 512:
 		if (chip->ecc.algo == NAND_ECC_HAMMING)
+=======
+	if (chip->ecc.engine_type != NAND_ECC_ENGINE_TYPE_NONE &&
+	    (!chip->ecc.size || !chip->ecc.strength)) {
+		if (requirements->step_size && requirements->strength) {
+			/* use detected ECC parameters */
+			chip->ecc.size = requirements->step_size;
+			chip->ecc.strength = requirements->strength;
+			dev_info(ctrl->dev, "Using ECC step-size %d, strength %d\n",
+				chip->ecc.size, chip->ecc.strength);
+		}
+	}
+
+	switch (chip->ecc.size) {
+	case 512:
+		if (chip->ecc.algo == NAND_ECC_ALGO_HAMMING)
+>>>>>>> upstream/android-13
 			cfg->ecc_level = 15;
 		else
 			cfg->ecc_level = chip->ecc.strength;
@@ -2224,7 +3176,11 @@ static int brcmnand_attach_chip(struct nand_chip *chip)
 	 * to/from, and have nand_base pass us a bounce buffer instead, as
 	 * needed.
 	 */
+<<<<<<< HEAD
 	chip->options |= NAND_USE_BOUNCE_BUFFER;
+=======
+	chip->options |= NAND_USES_DMA;
+>>>>>>> upstream/android-13
 
 	if (chip->bbt_options & NAND_BBT_USE_FLASH)
 		chip->bbt_options |= NAND_BBT_NO_OOB;
@@ -2280,6 +3236,7 @@ static int brcmnand_init_cs(struct brcmnand_host *host, struct device_node *dn)
 	mtd->owner = THIS_MODULE;
 	mtd->dev.parent = &pdev->dev;
 
+<<<<<<< HEAD
 	chip->IO_ADDR_R = (void __iomem *)0xdeadbeef;
 	chip->IO_ADDR_W = (void __iomem *)0xdeadbeef;
 
@@ -2291,6 +3248,16 @@ static int brcmnand_init_cs(struct brcmnand_host *host, struct device_node *dn)
 	chip->write_buf = brcmnand_write_buf;
 
 	chip->ecc.mode = NAND_ECC_HW;
+=======
+	chip->legacy.cmd_ctrl = brcmnand_cmd_ctrl;
+	chip->legacy.cmdfunc = brcmnand_cmdfunc;
+	chip->legacy.waitfunc = brcmnand_waitfunc;
+	chip->legacy.read_byte = brcmnand_read_byte;
+	chip->legacy.read_buf = brcmnand_read_buf;
+	chip->legacy.write_buf = brcmnand_write_buf;
+
+	chip->ecc.engine_type = NAND_ECC_ENGINE_TYPE_ON_HOST;
+>>>>>>> upstream/android-13
 	chip->ecc.read_page = brcmnand_read_page;
 	chip->ecc.write_page = brcmnand_write_page;
 	chip->ecc.read_page_raw = brcmnand_read_page_raw;
@@ -2368,6 +3335,11 @@ static int brcmnand_suspend(struct device *dev)
 
 	if (has_flash_dma(ctrl))
 		ctrl->flash_dma_mode = flash_dma_readl(ctrl, FLASH_DMA_MODE);
+<<<<<<< HEAD
+=======
+	else if (has_edu(ctrl))
+		ctrl->edu_config = edu_readl(ctrl, EDU_CONFIG);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -2382,6 +3354,16 @@ static int brcmnand_resume(struct device *dev)
 		flash_dma_writel(ctrl, FLASH_DMA_ERROR_STATUS, 0);
 	}
 
+<<<<<<< HEAD
+=======
+	if (has_edu(ctrl)) {
+		ctrl->edu_config = edu_readl(ctrl, EDU_CONFIG);
+		edu_writel(ctrl, EDU_CONFIG, ctrl->edu_config);
+		edu_readl(ctrl, EDU_CONFIG);
+		brcmnand_edu_init(ctrl);
+	}
+
+>>>>>>> upstream/android-13
 	brcmnand_write_reg(ctrl, BRCMNAND_CS_SELECT, ctrl->nand_cs_nand_select);
 	brcmnand_write_reg(ctrl, BRCMNAND_CS_XOR, ctrl->nand_cs_nand_xor);
 	brcmnand_write_reg(ctrl, BRCMNAND_CORR_THRESHOLD,
@@ -2411,6 +3393,11 @@ const struct dev_pm_ops brcmnand_pm_ops = {
 EXPORT_SYMBOL_GPL(brcmnand_pm_ops);
 
 static const struct of_device_id brcmnand_of_match[] = {
+<<<<<<< HEAD
+=======
+	{ .compatible = "brcm,brcmnand-v2.1" },
+	{ .compatible = "brcm,brcmnand-v2.2" },
+>>>>>>> upstream/android-13
 	{ .compatible = "brcm,brcmnand-v4.0" },
 	{ .compatible = "brcm,brcmnand-v5.0" },
 	{ .compatible = "brcm,brcmnand-v6.0" },
@@ -2419,6 +3406,10 @@ static const struct of_device_id brcmnand_of_match[] = {
 	{ .compatible = "brcm,brcmnand-v7.0" },
 	{ .compatible = "brcm,brcmnand-v7.1" },
 	{ .compatible = "brcm,brcmnand-v7.2" },
+<<<<<<< HEAD
+=======
+	{ .compatible = "brcm,brcmnand-v7.3" },
+>>>>>>> upstream/android-13
 	{},
 };
 MODULE_DEVICE_TABLE(of, brcmnand_of_match);
@@ -2426,6 +3417,52 @@ MODULE_DEVICE_TABLE(of, brcmnand_of_match);
 /***********************************************************************
  * Platform driver setup (per controller)
  ***********************************************************************/
+<<<<<<< HEAD
+=======
+static int brcmnand_edu_setup(struct platform_device *pdev)
+{
+	struct device *dev = &pdev->dev;
+	struct brcmnand_controller *ctrl = dev_get_drvdata(&pdev->dev);
+	struct resource *res;
+	int ret;
+
+	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "flash-edu");
+	if (res) {
+		ctrl->edu_base = devm_ioremap_resource(dev, res);
+		if (IS_ERR(ctrl->edu_base))
+			return PTR_ERR(ctrl->edu_base);
+
+		ctrl->edu_offsets = edu_regs;
+
+		edu_writel(ctrl, EDU_CONFIG, EDU_CONFIG_MODE_NAND |
+			   EDU_CONFIG_SWAP_CFG);
+		edu_readl(ctrl, EDU_CONFIG);
+
+		/* initialize edu */
+		brcmnand_edu_init(ctrl);
+
+		ctrl->edu_irq = platform_get_irq_optional(pdev, 1);
+		if (ctrl->edu_irq < 0) {
+			dev_warn(dev,
+				 "FLASH EDU enabled, using ctlrdy irq\n");
+		} else {
+			ret = devm_request_irq(dev, ctrl->edu_irq,
+					       brcmnand_edu_irq, 0,
+					       "brcmnand-edu", ctrl);
+			if (ret < 0) {
+				dev_err(ctrl->dev, "can't allocate IRQ %d: error %d\n",
+					ctrl->edu_irq, ret);
+				return ret;
+			}
+
+			dev_info(dev, "FLASH EDU enabled using irq %u\n",
+				 ctrl->edu_irq);
+		}
+	}
+
+	return 0;
+}
+>>>>>>> upstream/android-13
 
 int brcmnand_probe(struct platform_device *pdev, struct brcmnand_soc *soc)
 {
@@ -2451,6 +3488,10 @@ int brcmnand_probe(struct platform_device *pdev, struct brcmnand_soc *soc)
 
 	init_completion(&ctrl->done);
 	init_completion(&ctrl->dma_done);
+<<<<<<< HEAD
+=======
+	init_completion(&ctrl->edu_done);
+>>>>>>> upstream/android-13
 	nand_controller_init(&ctrl->controller);
 	ctrl->controller.ops = &brcmnand_controller_ops;
 	INIT_LIST_HEAD(&ctrl->host_list);
@@ -2505,7 +3546,25 @@ int brcmnand_probe(struct platform_device *pdev, struct brcmnand_soc *soc)
 			goto err;
 		}
 
+<<<<<<< HEAD
 		flash_dma_writel(ctrl, FLASH_DMA_MODE, 1); /* linked-list */
+=======
+		/* initialize the dma version */
+		brcmnand_flash_dma_revision_init(ctrl);
+
+		ret = -EIO;
+		if (ctrl->nand_version >= 0x0700)
+			ret = dma_set_mask_and_coherent(&pdev->dev,
+							DMA_BIT_MASK(40));
+		if (ret)
+			ret = dma_set_mask_and_coherent(&pdev->dev,
+							DMA_BIT_MASK(32));
+		if (ret)
+			goto err;
+
+		/* linked-list and stop on error */
+		flash_dma_writel(ctrl, FLASH_DMA_MODE, FLASH_DMA_MODE_MASK);
+>>>>>>> upstream/android-13
 		flash_dma_writel(ctrl, FLASH_DMA_ERROR_STATUS, 0);
 
 		/* Allocate descriptor(s) */
@@ -2534,6 +3593,19 @@ int brcmnand_probe(struct platform_device *pdev, struct brcmnand_soc *soc)
 		}
 
 		dev_info(dev, "enabling FLASH_DMA\n");
+<<<<<<< HEAD
+=======
+		/* set flash dma transfer function to call */
+		ctrl->dma_trans = brcmnand_dma_trans;
+	} else	{
+		ret = brcmnand_edu_setup(pdev);
+		if (ret < 0)
+			goto err;
+
+		if (has_edu(ctrl))
+			/* set edu transfer function to call */
+			ctrl->dma_trans = brcmnand_edu_trans;
+>>>>>>> upstream/android-13
 	}
 
 	/* Disable automatic device ID config, direct addressing */
@@ -2624,9 +3696,21 @@ int brcmnand_remove(struct platform_device *pdev)
 {
 	struct brcmnand_controller *ctrl = dev_get_drvdata(&pdev->dev);
 	struct brcmnand_host *host;
+<<<<<<< HEAD
 
 	list_for_each_entry(host, &ctrl->host_list, node)
 		nand_release(&host->chip);
+=======
+	struct nand_chip *chip;
+	int ret;
+
+	list_for_each_entry(host, &ctrl->host_list, node) {
+		chip = &host->chip;
+		ret = mtd_device_unregister(nand_to_mtd(chip));
+		WARN_ON(ret);
+		nand_cleanup(chip);
+	}
+>>>>>>> upstream/android-13
 
 	clk_disable_unprepare(ctrl->clk);
 

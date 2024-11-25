@@ -237,6 +237,11 @@ static void seq_print_peer_request_flags(struct seq_file *m, struct drbd_peer_re
 	seq_print_rq_state_bit(m, f & EE_CALL_AL_COMPLETE_IO, &sep, "in-AL");
 	seq_print_rq_state_bit(m, f & EE_SEND_WRITE_ACK, &sep, "C");
 	seq_print_rq_state_bit(m, f & EE_MAY_SET_IN_SYNC, &sep, "set-in-sync");
+<<<<<<< HEAD
+=======
+	seq_print_rq_state_bit(m, f & EE_TRIM, &sep, "trim");
+	seq_print_rq_state_bit(m, f & EE_ZEROOUT, &sep, "zero-out");
+>>>>>>> upstream/android-13
 	seq_print_rq_state_bit(m, f & EE_WRITE_SAME, &sep, "write-same");
 	seq_putc(m, '\n');
 }
@@ -463,6 +468,7 @@ static const struct file_operations in_flight_summary_fops = {
 void drbd_debugfs_resource_add(struct drbd_resource *resource)
 {
 	struct dentry *dentry;
+<<<<<<< HEAD
 	if (!drbd_debugfs_resources)
 		return;
 
@@ -479,11 +485,22 @@ void drbd_debugfs_resource_add(struct drbd_resource *resource)
 	dentry = debugfs_create_dir("connections", resource->debugfs_res);
 	if (IS_ERR_OR_NULL(dentry))
 		goto fail;
+=======
+
+	dentry = debugfs_create_dir(resource->name, drbd_debugfs_resources);
+	resource->debugfs_res = dentry;
+
+	dentry = debugfs_create_dir("volumes", resource->debugfs_res);
+	resource->debugfs_res_volumes = dentry;
+
+	dentry = debugfs_create_dir("connections", resource->debugfs_res);
+>>>>>>> upstream/android-13
 	resource->debugfs_res_connections = dentry;
 
 	dentry = debugfs_create_file("in_flight_summary", 0440,
 				     resource->debugfs_res, resource,
 				     &in_flight_summary_fops);
+<<<<<<< HEAD
 	if (IS_ERR_OR_NULL(dentry))
 		goto fail;
 	resource->debugfs_res_in_flight_summary = dentry;
@@ -492,6 +509,9 @@ void drbd_debugfs_resource_add(struct drbd_resource *resource)
 fail:
 	drbd_debugfs_resource_cleanup(resource);
 	drbd_err(resource, "failed to create debugfs dentry\n");
+=======
+	resource->debugfs_res_in_flight_summary = dentry;
+>>>>>>> upstream/android-13
 }
 
 static void drbd_debugfs_remove(struct dentry **dp)
@@ -634,27 +654,37 @@ void drbd_debugfs_connection_add(struct drbd_connection *connection)
 {
 	struct dentry *conns_dir = connection->resource->debugfs_res_connections;
 	struct dentry *dentry;
+<<<<<<< HEAD
 	if (!conns_dir)
 		return;
+=======
+>>>>>>> upstream/android-13
 
 	/* Once we enable mutliple peers,
 	 * these connections will have descriptive names.
 	 * For now, it is just the one connection to the (only) "peer". */
 	dentry = debugfs_create_dir("peer", conns_dir);
+<<<<<<< HEAD
 	if (IS_ERR_OR_NULL(dentry))
 		goto fail;
+=======
+>>>>>>> upstream/android-13
 	connection->debugfs_conn = dentry;
 
 	dentry = debugfs_create_file("callback_history", 0440,
 				     connection->debugfs_conn, connection,
 				     &connection_callback_history_fops);
+<<<<<<< HEAD
 	if (IS_ERR_OR_NULL(dentry))
 		goto fail;
+=======
+>>>>>>> upstream/android-13
 	connection->debugfs_conn_callback_history = dentry;
 
 	dentry = debugfs_create_file("oldest_requests", 0440,
 				     connection->debugfs_conn, connection,
 				     &connection_oldest_requests_fops);
+<<<<<<< HEAD
 	if (IS_ERR_OR_NULL(dentry))
 		goto fail;
 	connection->debugfs_conn_oldest_requests = dentry;
@@ -663,6 +693,9 @@ void drbd_debugfs_connection_add(struct drbd_connection *connection)
 fail:
 	drbd_debugfs_connection_cleanup(connection);
 	drbd_err(connection, "failed to create debugfs dentry\n");
+=======
+	connection->debugfs_conn_oldest_requests = dentry;
+>>>>>>> upstream/android-13
 }
 
 void drbd_debugfs_connection_cleanup(struct drbd_connection *connection)
@@ -807,8 +840,11 @@ void drbd_debugfs_device_add(struct drbd_device *device)
 
 	snprintf(vnr_buf, sizeof(vnr_buf), "%u", device->vnr);
 	dentry = debugfs_create_dir(vnr_buf, vols_dir);
+<<<<<<< HEAD
 	if (IS_ERR_OR_NULL(dentry))
 		goto fail;
+=======
+>>>>>>> upstream/android-13
 	device->debugfs_vol = dentry;
 
 	snprintf(minor_buf, sizeof(minor_buf), "%u", device->minor);
@@ -817,18 +853,27 @@ void drbd_debugfs_device_add(struct drbd_device *device)
 	if (!slink_name)
 		goto fail;
 	dentry = debugfs_create_symlink(minor_buf, drbd_debugfs_minors, slink_name);
+<<<<<<< HEAD
 	kfree(slink_name);
 	slink_name = NULL;
 	if (IS_ERR_OR_NULL(dentry))
 		goto fail;
 	device->debugfs_minor = dentry;
+=======
+	device->debugfs_minor = dentry;
+	kfree(slink_name);
+	slink_name = NULL;
+>>>>>>> upstream/android-13
 
 #define DCF(name)	do {					\
 	dentry = debugfs_create_file(#name, 0440,	\
 			device->debugfs_vol, device,		\
 			&device_ ## name ## _fops);		\
+<<<<<<< HEAD
 	if (IS_ERR_OR_NULL(dentry))				\
 		goto fail;					\
+=======
+>>>>>>> upstream/android-13
 	device->debugfs_vol_ ## name = dentry;			\
 	} while (0)
 
@@ -862,6 +907,7 @@ void drbd_debugfs_peer_device_add(struct drbd_peer_device *peer_device)
 	struct dentry *dentry;
 	char vnr_buf[8];
 
+<<<<<<< HEAD
 	if (!conn_dir)
 		return;
 
@@ -875,6 +921,11 @@ void drbd_debugfs_peer_device_add(struct drbd_peer_device *peer_device)
 fail:
 	drbd_debugfs_peer_device_cleanup(peer_device);
 	drbd_err(peer_device, "failed to create debugfs entries\n");
+=======
+	snprintf(vnr_buf, sizeof(vnr_buf), "%u", peer_device->device->vnr);
+	dentry = debugfs_create_dir(vnr_buf, conn_dir);
+	peer_device->debugfs_peer_dev = dentry;
+>>>>>>> upstream/android-13
 }
 
 void drbd_debugfs_peer_device_cleanup(struct drbd_peer_device *peer_device)
@@ -915,11 +966,16 @@ void drbd_debugfs_cleanup(void)
 	drbd_debugfs_remove(&drbd_debugfs_root);
 }
 
+<<<<<<< HEAD
 int __init drbd_debugfs_init(void)
+=======
+void __init drbd_debugfs_init(void)
+>>>>>>> upstream/android-13
 {
 	struct dentry *dentry;
 
 	dentry = debugfs_create_dir("drbd", NULL);
+<<<<<<< HEAD
 	if (IS_ERR_OR_NULL(dentry))
 		goto fail;
 	drbd_debugfs_root = dentry;
@@ -946,4 +1002,16 @@ fail:
 		return PTR_ERR(dentry);
 	else
 		return -EINVAL;
+=======
+	drbd_debugfs_root = dentry;
+
+	dentry = debugfs_create_file("version", 0444, drbd_debugfs_root, NULL, &drbd_version_fops);
+	drbd_debugfs_version = dentry;
+
+	dentry = debugfs_create_dir("resources", drbd_debugfs_root);
+	drbd_debugfs_resources = dentry;
+
+	dentry = debugfs_create_dir("minors", drbd_debugfs_root);
+	drbd_debugfs_minors = dentry;
+>>>>>>> upstream/android-13
 }

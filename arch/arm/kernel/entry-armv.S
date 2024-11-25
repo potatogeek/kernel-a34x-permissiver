@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/kernel/entry-armv.S
  *
@@ -5,10 +9,13 @@
  *  ARM700 fix by Matthew Godbolt (linux-user@willothewisp.demon.co.uk)
  *  nommu support by Hyok S. Choi (hyok.choi@samsung.com)
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  *  Low-level vector interface routines
  *
  *  Note:  there is a StrongARM bug in the STMIA rn, {regs}^ instruction
@@ -207,7 +214,11 @@ __irq_svc:
 	svc_entry
 	irq_handler
 
+<<<<<<< HEAD
 #ifdef CONFIG_PREEMPT
+=======
+#ifdef CONFIG_PREEMPTION
+>>>>>>> upstream/android-13
 	ldr	r8, [tsk, #TI_PREEMPT]		@ get preempt count
 	ldr	r0, [tsk, #TI_FLAGS]		@ get flags
 	teq	r8, #0				@ if preempt count != 0
@@ -222,7 +233,11 @@ ENDPROC(__irq_svc)
 
 	.ltorg
 
+<<<<<<< HEAD
 #ifdef CONFIG_PREEMPT
+=======
+#ifdef CONFIG_PREEMPTION
+>>>>>>> upstream/android-13
 svc_preempt:
 	mov	r8, lr
 1:	bl	preempt_schedule_irq		@ irq en/disable is done inside
@@ -255,6 +270,7 @@ __und_svc:
 #else
 	svc_entry
 #endif
+<<<<<<< HEAD
 	@
 	@ call emulation code, which returns using r9 if it has emulated
 	@ the instruction, or the more conventional lr if we are to treat
@@ -280,6 +296,12 @@ __und_svc:
 
 	mov	r1, #4				@ PC correction to apply
 __und_svc_fault:
+=======
+
+	mov	r1, #4				@ PC correction to apply
+ THUMB(	tst	r5, #PSR_T_BIT		)	@ exception taken in Thumb mode?
+ THUMB(	movne	r1, #2			)	@ if so, fix up PC correction
+>>>>>>> upstream/android-13
 	mov	r0, sp				@ struct pt_regs *regs
 	bl	__und_fault
 
@@ -430,7 +452,12 @@ ENDPROC(__fiq_abt)
 	@ if it was interrupted in a critical region.  Here we
 	@ perform a quick test inline since it should be false
 	@ 99.9999% of the time.  The rest is done out of line.
+<<<<<<< HEAD
 	cmp	r4, #TASK_SIZE
+=======
+	ldr	r0, =TASK_SIZE
+	cmp	r4, r0
+>>>>>>> upstream/android-13
 	blhs	kuser_cmpxchg64_fixup
 #endif
 #endif
@@ -620,20 +647,34 @@ call_fpe:
 	tstne	r0, #0x04000000			@ bit 26 set on both ARM and Thumb-2
 	reteq	lr
 	and	r8, r0, #0x00000f00		@ mask out CP number
+<<<<<<< HEAD
  THUMB(	lsr	r8, r8, #8		)
 	mov	r7, #1
 	add	r6, r10, #TI_USED_CP
  ARM(	strb	r7, [r6, r8, lsr #8]	)	@ set appropriate used_cp[]
  THUMB(	strb	r7, [r6, r8]		)	@ set appropriate used_cp[]
+=======
+	mov	r7, #1
+	add	r6, r10, r8, lsr #8		@ add used_cp[] array offset first
+	strb	r7, [r6, #TI_USED_CP]		@ set appropriate used_cp[]
+>>>>>>> upstream/android-13
 #ifdef CONFIG_IWMMXT
 	@ Test if we need to give access to iWMMXt coprocessors
 	ldr	r5, [r10, #TI_FLAGS]
 	rsbs	r7, r8, #(1 << 8)		@ CP 0 or 1 only
+<<<<<<< HEAD
 	movcss	r7, r5, lsr #(TIF_USING_IWMMXT + 1)
 	bcs	iwmmxt_task_enable
 #endif
  ARM(	add	pc, pc, r8, lsr #6	)
  THUMB(	lsl	r8, r8, #2		)
+=======
+	movscs	r7, r5, lsr #(TIF_USING_IWMMXT + 1)
+	bcs	iwmmxt_task_enable
+#endif
+ ARM(	add	pc, pc, r8, lsr #6	)
+ THUMB(	lsr	r8, r8, #6		)
+>>>>>>> upstream/android-13
  THUMB(	add	pc, r8			)
 	nop
 
@@ -641,6 +682,7 @@ call_fpe:
 	W(b)	do_fpe				@ CP#1 (FPE)
 	W(b)	do_fpe				@ CP#2 (FPE)
 	ret.w	lr				@ CP#3
+<<<<<<< HEAD
 #ifdef CONFIG_CRUNCH
 	b	crunch_task_enable		@ CP#4 (MaverickCrunch)
 	b	crunch_task_enable		@ CP#5 (MaverickCrunch)
@@ -650,6 +692,11 @@ call_fpe:
 	ret.w	lr				@ CP#5
 	ret.w	lr				@ CP#6
 #endif
+=======
+	ret.w	lr				@ CP#4
+	ret.w	lr				@ CP#5
+	ret.w	lr				@ CP#6
+>>>>>>> upstream/android-13
 	ret.w	lr				@ CP#7
 	ret.w	lr				@ CP#8
 	ret.w	lr				@ CP#9
@@ -822,7 +869,11 @@ ENDPROC(__switch_to)
  * existing ones.  This mechanism should be used only for things that are
  * really small and justified, and not be abused freely.
  *
+<<<<<<< HEAD
  * See Documentation/arm/kernel_user_helpers.txt for formal definitions.
+=======
+ * See Documentation/arm/kernel_user_helpers.rst for formal definitions.
+>>>>>>> upstream/android-13
  */
  THUMB(	.arm	)
 
@@ -865,7 +916,11 @@ __kuser_cmpxchg64:				@ 0xffff0f60
 	smp_dmb	arm
 1:	ldrexd	r0, r1, [r2]			@ load current val
 	eors	r3, r0, r4			@ compare with oldval (1)
+<<<<<<< HEAD
 	eoreqs	r3, r1, r5			@ compare with oldval (2)
+=======
+	eorseq	r3, r1, r5			@ compare with oldval (2)
+>>>>>>> upstream/android-13
 	strexdeq r3, r6, r7, [r2]		@ store newval if eq
 	teqeq	r3, #1				@ success?
 	beq	1b				@ if no then retry
@@ -889,8 +944,13 @@ __kuser_cmpxchg64:				@ 0xffff0f60
 	ldmia	r1, {r6, lr}			@ load new val
 1:	ldmia	r2, {r0, r1}			@ load current val
 	eors	r3, r0, r4			@ compare with oldval (1)
+<<<<<<< HEAD
 	eoreqs	r3, r1, r5			@ compare with oldval (2)
 2:	stmeqia	r2, {r6, lr}			@ store newval if eq
+=======
+	eorseq	r3, r1, r5			@ compare with oldval (2)
+2:	stmiaeq	r2, {r6, lr}			@ store newval if eq
+>>>>>>> upstream/android-13
 	rsbs	r0, r3, #0			@ set return val and C flag
 	ldmfd	sp!, {r4, r5, r6, pc}
 
@@ -904,7 +964,11 @@ kuser_cmpxchg64_fixup:
 	mov	r7, #0xffff0fff
 	sub	r7, r7, #(0xffff0fff - (0xffff0f60 + (1b - __kuser_cmpxchg64)))
 	subs	r8, r4, r7
+<<<<<<< HEAD
 	rsbcss	r8, r8, #(2b - 1b)
+=======
+	rsbscs	r8, r8, #(2b - 1b)
+>>>>>>> upstream/android-13
 	strcs	r7, [sp, #S_PC]
 #if __LINUX_ARM_ARCH__ < 6
 	bcc	kuser_cmpxchg32_fixup
@@ -962,7 +1026,11 @@ kuser_cmpxchg32_fixup:
 	mov	r7, #0xffff0fff
 	sub	r7, r7, #(0xffff0fff - (0xffff0fc0 + (1b - __kuser_cmpxchg)))
 	subs	r8, r4, r7
+<<<<<<< HEAD
 	rsbcss	r8, r8, #(2b - 1b)
+=======
+	rsbscs	r8, r8, #(2b - 1b)
+>>>>>>> upstream/android-13
 	strcs	r7, [sp, #S_PC]
 	ret	lr
 	.previous
@@ -1031,12 +1099,20 @@ vector_\name:
 	sub	lr, lr, #\correction
 	.endif
 
+<<<<<<< HEAD
 	@
 	@ Save r0, lr_<exception> (parent PC) and spsr_<exception>
 	@ (parent CPSR)
 	@
 	stmia	sp, {r0, lr}		@ save r0, lr
 	mrs	lr, spsr
+=======
+	@ Save r0, lr_<exception> (parent PC)
+	stmia	sp, {r0, lr}		@ save r0, lr
+
+	@ Save spsr_<exception> (parent CPSR)
+2:	mrs	lr, spsr
+>>>>>>> upstream/android-13
 	str	lr, [sp, #8]		@ save spsr
 
 	@
@@ -1057,6 +1133,47 @@ vector_\name:
 	movs	pc, lr			@ branch to handler in SVC mode
 ENDPROC(vector_\name)
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_HARDEN_BRANCH_HISTORY
+	.subsection 1
+	.align 5
+vector_bhb_loop8_\name:
+	.if \correction
+	sub	lr, lr, #\correction
+	.endif
+
+	@ Save r0, lr_<exception> (parent PC)
+	stmia	sp, {r0, lr}
+
+	@ bhb workaround
+	mov	r0, #8
+3:	b	. + 4
+	subs	r0, r0, #1
+	bne	3b
+	dsb
+	isb
+	b	2b
+ENDPROC(vector_bhb_loop8_\name)
+
+vector_bhb_bpiall_\name:
+	.if \correction
+	sub	lr, lr, #\correction
+	.endif
+
+	@ Save r0, lr_<exception> (parent PC)
+	stmia	sp, {r0, lr}
+
+	@ bhb workaround
+	mcr	p15, 0, r0, c7, c5, 6	@ BPIALL
+	@ isb not needed due to "movs pc, lr" in the vector stub
+	@ which gives a "context synchronisation".
+	b	2b
+ENDPROC(vector_bhb_bpiall_\name)
+	.previous
+#endif
+
+>>>>>>> upstream/android-13
 	.align	2
 	@ handler addresses follow this label
 1:
@@ -1065,6 +1182,13 @@ ENDPROC(vector_\name)
 	.section .stubs, "ax", %progbits
 	@ This must be the first word
 	.word	vector_swi
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_HARDEN_BRANCH_HISTORY
+	.word	vector_bhb_loop8_swi
+	.word	vector_bhb_bpiall_swi
+#endif
+>>>>>>> upstream/android-13
 
 vector_rst:
  ARM(	swi	SYS_ERROR0	)
@@ -1179,8 +1303,15 @@ vector_addrexcptn:
  * FIQ "NMI" handler
  *-----------------------------------------------------------------------------
  * Handle a FIQ using the SVC stack allowing FIQ act like NMI on x86
+<<<<<<< HEAD
  * systems.
  */
+=======
+ * systems. This must be the last vector stub, so lets place it in its own
+ * subsection.
+ */
+	.subsection 2
+>>>>>>> upstream/android-13
 	vector_stub	fiq, FIQ_MODE, 4
 
 	.long	__fiq_usr			@  0  (USR_26 / USR_32)
@@ -1213,6 +1344,33 @@ vector_addrexcptn:
 	W(b)	vector_irq
 	W(b)	vector_fiq
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_HARDEN_BRANCH_HISTORY
+	.section .vectors.bhb.loop8, "ax", %progbits
+.L__vectors_bhb_loop8_start:
+	W(b)	vector_rst
+	W(b)	vector_bhb_loop8_und
+	W(ldr)	pc, .L__vectors_bhb_loop8_start + 0x1004
+	W(b)	vector_bhb_loop8_pabt
+	W(b)	vector_bhb_loop8_dabt
+	W(b)	vector_addrexcptn
+	W(b)	vector_bhb_loop8_irq
+	W(b)	vector_bhb_loop8_fiq
+
+	.section .vectors.bhb.bpiall, "ax", %progbits
+.L__vectors_bhb_bpiall_start:
+	W(b)	vector_rst
+	W(b)	vector_bhb_bpiall_und
+	W(ldr)	pc, .L__vectors_bhb_bpiall_start + 0x1008
+	W(b)	vector_bhb_bpiall_pabt
+	W(b)	vector_bhb_bpiall_dabt
+	W(b)	vector_addrexcptn
+	W(b)	vector_bhb_bpiall_irq
+	W(b)	vector_bhb_bpiall_fiq
+#endif
+
+>>>>>>> upstream/android-13
 	.data
 	.align	2
 

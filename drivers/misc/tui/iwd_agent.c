@@ -15,7 +15,10 @@
 #include "stui_ioctl.h"
 #include "tuill_defs.h"
 
+<<<<<<< HEAD
 #include <linux/atomic.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/completion.h>
 #include <linux/delay.h>
 #include <linux/kthread.h>
@@ -36,12 +39,20 @@ struct iwd_functions {
 
 extern void register_iwd_functions(struct iwd_functions *f);
 extern void unregister_iwd_functions(void);
+<<<<<<< HEAD
 extern unsigned int tzdev_is_up(void);
 
 static atomic_t reboot_flag = ATOMIC_INIT(0);
 static atomic_t thread_flag = ATOMIC_INIT(0);
 static struct sock_desc *sd = NULL;
 static struct task_struct *iwd_kthread = NULL;
+=======
+
+static bool reboot_flag = false;
+static struct sock_desc *sd = NULL;
+static struct task_struct *iwd_kthread = NULL;
+static bool thread_flag = false;
+>>>>>>> upstream/android-13
 static struct completion finished;
 static int reboot_notif_registered = 0;
 static int tzdev_notif_registered = 0;
@@ -69,24 +80,39 @@ static struct notifier_block reboot_notif = {
 static int notifier_callback(struct notifier_block *self, unsigned long event, void *data)
 {
 	(void) data;
+<<<<<<< HEAD
 	pr_info(TUIHW_LOG_TAG " %s >> event=%lu\n", __func__, event);
 	if (atomic_cmpxchg(&reboot_flag, 1, 1)) {
+=======
+	pr_debug(TUIHW_LOG_TAG " %s >> event=%lu\n", __func__, event);
+	if (reboot_flag) {
+>>>>>>> upstream/android-13
 		pr_info(TUIHW_LOG_TAG " reboot_flag is true\n");
 		return NOTIFY_OK;
 	}
 	stui_cancel_session();
 	if (self == &tzdev_notif && event == TZDEV_FINI_NOTIFIER) {
+<<<<<<< HEAD
 		pr_info(TUIHW_LOG_TAG " %s TZDEV_FINI_NOTIFIER\n", __func__);
 	}
 	pr_info(TUIHW_LOG_TAG " %s <<\n", __func__);
+=======
+		pr_debug(TUIHW_LOG_TAG " %s TZDEV_FINI_NOTIFIER\n", __func__);
+	}
+	pr_debug(TUIHW_LOG_TAG " %s <<\n", __func__);
+>>>>>>> upstream/android-13
 	return NOTIFY_OK;
 }
 
 static void iwd_register_callbacks(void)
 {
 	int ret = 0;
+<<<<<<< HEAD
 
 	pr_info(TUIHW_LOG_TAG " %s >>\n", __func__);
+=======
+	pr_debug(TUIHW_LOG_TAG " %s >>\n", __func__);
+>>>>>>> upstream/android-13
 	if (reboot_notif_registered == 0) {
 		ret = register_reboot_notifier(&reboot_notif);
 		if (ret != 0) {
@@ -96,7 +122,11 @@ static void iwd_register_callbacks(void)
 
 		reboot_notif_registered = 1;
 	}
+<<<<<<< HEAD
 	pr_info(TUIHW_LOG_TAG " %s <<\n", __func__);
+=======
+	pr_debug(TUIHW_LOG_TAG " %s <<\n", __func__);
+>>>>>>> upstream/android-13
 }
 
 static void iwd_unregister_callbacks(void)
@@ -114,10 +144,16 @@ static void iwd_unregister_callbacks(void)
 
 static int get_display_info(GetDisplayInfo_cmd_t *cmd, GetDisplayInfo_rsp_t *rsp)
 {
+<<<<<<< HEAD
 	int i;
 	struct tui_hw_buffer buffer;
 	(void)cmd;
 	pr_info(TUIHW_LOG_TAG " %s >>\n", __func__);
+=======
+	struct tui_hw_buffer buffer;
+	(void)cmd;
+	pr_debug(TUIHW_LOG_TAG " %s >>\n", __func__);
+>>>>>>> upstream/android-13
 	memset(&buffer, 0, sizeof(struct tui_hw_buffer));
 	if (stui_get_resolution(&buffer)) {
 		pr_err(TUIHW_LOG_TAG " stui_get_resolution failed\n");
@@ -136,6 +172,7 @@ static int get_display_info(GetDisplayInfo_cmd_t *cmd, GetDisplayInfo_rsp_t *rsp
 	rsp->num_periph   = 1;
 	rsp->associatedPeripherals[0] = TUILL_TOUCH_DRV;
 	memcpy(rsp->lcd_info, buffer.lcd_info, sizeof(uint64_t) * STUI_DISPLAY_INFO_SIZE);
+<<<<<<< HEAD
 
 	pr_info(TUIHW_LOG_TAG " rsp->physical_width  =%d\n", rsp->physical_width);
 	pr_info(TUIHW_LOG_TAG " rsp->physical_height =%d\n", rsp->physical_height);
@@ -150,6 +187,9 @@ static int get_display_info(GetDisplayInfo_cmd_t *cmd, GetDisplayInfo_rsp_t *rsp
 	pr_info(TUIHW_LOG_TAG " rsp->disp_if         =%d\n", rsp->disp_if);
 
 	pr_info(TUIHW_LOG_TAG " %s <<\n", __func__);
+=======
+	pr_debug(TUIHW_LOG_TAG " %s <<\n", __func__);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -160,6 +200,7 @@ static int open_driver(OpenPeripheral_cmd_t *cmd, OpenPeripheral_rsp_t *rsp)
 	int i;
 	int j;
 	struct tui_hw_buffer buffer;
+<<<<<<< HEAD
 
 	pr_info(TUIHW_LOG_TAG " %s >>  cmd->flags=%X, cmd->num=%d size=%zu\n",
 			__func__, cmd->flags, cmd->num, sizeof(OpenPeripheral_cmd_t));
@@ -170,6 +211,17 @@ static int open_driver(OpenPeripheral_cmd_t *cmd, OpenPeripheral_rsp_t *rsp)
 		switch (cmd->peripheral_id[i]) {
 		case TUILL_TOUCH_DRV:
 			pr_info(TUIHW_LOG_TAG " opening TUILL_TOUCH_DRV\n");
+=======
+	pr_debug(TUIHW_LOG_TAG " %s >>  cmd->flags=%X, cmd->num=%d size=%zu\n",
+			__func__, cmd->flags, cmd->num, sizeof(OpenPeripheral_cmd_t));
+	for (i = 0; i < cmd->num; i++)
+		pr_debug(TUIHW_LOG_TAG " cmd->peripheral_id[i]=%d\n", cmd->peripheral_id[i]);
+
+	for (i = 0; i < cmd->num; i++) {
+		switch(cmd->peripheral_id[i]) {
+		case TUILL_TOUCH_DRV:
+			pr_debug(TUIHW_LOG_TAG " opening TUILL_TOUCH_DRV\n");
+>>>>>>> upstream/android-13
 			ret = stui_open_touch();
 			if (ret < 0) {
 				pr_err(TUIHW_LOG_TAG " ret=%X\n", ret);
@@ -177,7 +229,11 @@ static int open_driver(OpenPeripheral_cmd_t *cmd, OpenPeripheral_rsp_t *rsp)
 			}
 			break;
 		case TUILL_DISPLAY_DRV:
+<<<<<<< HEAD
 			pr_info(TUIHW_LOG_TAG " opening TUILL_DISPLAY_DRV\n");
+=======
+			pr_debug(TUIHW_LOG_TAG " opening TUILL_DISPLAY_DRV\n");
+>>>>>>> upstream/android-13
 			ret = stui_open_display(&buffer);
 			if (ret < 0) {
 				pr_err(TUIHW_LOG_TAG " ret=%X\n", ret);
@@ -204,11 +260,16 @@ static int open_driver(OpenPeripheral_cmd_t *cmd, OpenPeripheral_rsp_t *rsp)
 			break;
 		}
 	}
+<<<<<<< HEAD
 	pr_info(TUIHW_LOG_TAG " %s <<\n", __func__);
+=======
+	pr_debug(TUIHW_LOG_TAG " %s <<\n", __func__);
+>>>>>>> upstream/android-13
 	stui_set_tui_version(TUI_LL);
 	return 0;
 lbl_rollback:
 	for (j = 0; j < i; j++) {
+<<<<<<< HEAD
 		switch (cmd->peripheral_id[j]) {
 		case TUILL_TOUCH_DRV:
 			pr_info(TUIHW_LOG_TAG " closing TUILL_TOUCH_DRV\n");
@@ -216,6 +277,15 @@ lbl_rollback:
 			break;
 		case TUILL_DISPLAY_DRV:
 			pr_info(TUIHW_LOG_TAG " closing TUILL_DISPLAY_DRV\n");
+=======
+		switch(cmd->peripheral_id[j]) {
+		case TUILL_TOUCH_DRV:
+			pr_debug(TUIHW_LOG_TAG " closing TUILL_TOUCH_DRV\n");
+			stui_close_touch();
+			break;
+		case TUILL_DISPLAY_DRV:
+			pr_debug(TUIHW_LOG_TAG " closing TUILL_DISPLAY_DRV\n");
+>>>>>>> upstream/android-13
 			stui_close_display();
 			break;
 		}
@@ -227,6 +297,7 @@ lbl_rollback:
 static int close_driver(ClosePeripheral_cmd_t *cmd)
 {
 	int i = 0;
+<<<<<<< HEAD
 
 	pr_info(TUIHW_LOG_TAG " %s >>\n", __func__);
 	for (i = 0; i < cmd->num; i++) {
@@ -237,26 +308,54 @@ static int close_driver(ClosePeripheral_cmd_t *cmd)
 			break;
 		case TUILL_DISPLAY_DRV:
 			pr_info(TUIHW_LOG_TAG " closing TUILL_DISPLAY_DRV\n");
+=======
+	pr_debug(TUIHW_LOG_TAG " %s >>\n", __func__);
+	for (i = 0; i < cmd->num; i++) {
+		switch(cmd->peripheral_id[i]) {
+		case TUILL_TOUCH_DRV:
+			pr_debug(TUIHW_LOG_TAG " closing TUILL_TOUCH_DRV\n");
+			stui_close_touch();
+			break;
+		case TUILL_DISPLAY_DRV:
+			pr_debug(TUIHW_LOG_TAG " closing TUILL_DISPLAY_DRV\n");
+>>>>>>> upstream/android-13
 			stui_close_display();
 			break;
 		}
 	}
+<<<<<<< HEAD
 	pr_info(TUIHW_LOG_TAG " %s <<\n", __func__);
+=======
+	pr_debug(TUIHW_LOG_TAG " %s <<\n", __func__);
+>>>>>>> upstream/android-13
 	stui_set_tui_version(TUI_NOPE);
 	return 0;
 }
 
 static void reboot_phone()
 {
+<<<<<<< HEAD
 	pr_info(TUIHW_LOG_TAG " %s >>\n", __func__);
 	atomic_set(&reboot_flag, 1);
 	panic("tuihw: Trusted User Interface was not unlocked.");
 	atomic_set(&reboot_flag, 0);
 	pr_info(TUIHW_LOG_TAG " %s <<\n", __func__);
+=======
+	/**
+	 *	kernel_restart - reboot the system
+	 *	@cmd: pointer to buffer containing command to execute for restart or %NULL
+	 */
+	pr_debug(TUIHW_LOG_TAG " %s >>\n", __func__);
+	reboot_flag = true;
+	kernel_restart(NULL); // -> To restart the system
+	reboot_flag = false;
+	pr_debug(TUIHW_LOG_TAG " %s <<\n", __func__);
+>>>>>>> upstream/android-13
 }
 
 static int connecting_thread(void *data)
 {
+<<<<<<< HEAD
 	unsigned int tzd_up;
 	int ret = 0;
 	tuill_internal_command_t cmd = {};
@@ -267,6 +366,15 @@ static int connecting_thread(void *data)
 	pr_info(TUIHW_LOG_TAG " %s >>\n", __func__);
 	while (atomic_cmpxchg(&thread_flag, 1, 1) == 1
 		&& atomic_cmpxchg(&reboot_flag, 0, 0) == 0) {
+=======
+	int ret = 0;
+	tuill_internal_command_t cmd;
+	tuill_internal_command_t rsp;
+	char serv_name[100];
+	sprintf(serv_name, TUILL_SERVER_TEMPLATE, OS_IWD_SOCKET_NAME);
+	pr_debug(TUIHW_LOG_TAG " %s >>\n", __func__);
+	while (thread_flag) {
+>>>>>>> upstream/android-13
 		/**
 		 *	EPOLLHUP signal propagation to peripheral drivers when OS service panicked
 		 *	takes 20-50 ms. Also we need to wait some time until peripheral drivers clear HAL.
@@ -275,12 +383,15 @@ static int connecting_thread(void *data)
 		 */
 		usleep_range(500000, 500001);//0.5 s
 
+<<<<<<< HEAD
 		tzd_up = tzdev_is_up();
 		if (!tzd_up) {
 			pr_info(TUIHW_LOG_TAG " %s tzdev is not ready\n", __func__);
 			continue;
 		}
 
+=======
+>>>>>>> upstream/android-13
 		sd = tz_iwsock_socket(1, TZ_NON_INTERRUPTIBLE);
 
 		if (IS_ERR(sd)) {
@@ -306,9 +417,14 @@ static int connecting_thread(void *data)
 		ret = tz_iwsock_write(sd, &cmd, sizeof(cmd), 0);
 
 		while (ret >= 0) {
+<<<<<<< HEAD
 			if (atomic_cmpxchg(&thread_flag, 0, 0) == 0
 				|| atomic_cmpxchg(&reboot_flag, 1, 1) == 1) {
 				pr_info(TUIHW_LOG_TAG " thread was stopped\n");
+=======
+			if (!thread_flag) {
+				pr_debug(TUIHW_LOG_TAG " thread was stopped\n");
+>>>>>>> upstream/android-13
 				break;
 			}
 			ret = tz_iwsock_read(sd, &cmd, sizeof(cmd), 0);
@@ -317,8 +433,11 @@ static int connecting_thread(void *data)
 				continue;
 			} else if (ret == 0) {
 				pr_err(TUIHW_LOG_TAG " connection was reset by peer\n");
+<<<<<<< HEAD
 				tz_iwsock_release(sd);
 				sd = NULL;
+=======
+>>>>>>> upstream/android-13
 				break;
 			} else if (ret < 0) {
 				pr_err(TUIHW_LOG_TAG " tz_iwsock_read returned %d\n", ret);
@@ -327,14 +446,21 @@ static int connecting_thread(void *data)
 			rsp.cmd        = cmd.cmd + RESPONSE_FLAG;
 			rsp.task_state = cmd.task_state;
 			rsp.task_id    = cmd.task_id;
+<<<<<<< HEAD
 			pr_info(TUIHW_LOG_TAG " cmd.ret_code=0x%X\n", cmd.ret_code);
 			if (cmd.ret_code & INJECT_ERR_FLAG) {
 				pr_info(TUIHW_LOG_TAG " error injection\n");
+=======
+			pr_debug(TUIHW_LOG_TAG " cmd.ret_code=0x%X\n", cmd.ret_code);
+			if (cmd.ret_code & INJECT_ERR_FLAG) {
+				pr_debug(TUIHW_LOG_TAG " error injection\n");
+>>>>>>> upstream/android-13
 				rsp.ret_code = -1;
 				ret = tz_iwsock_write(sd, &rsp, sizeof(rsp), 0);
 				continue;
 			}
 			if (cmd.ret_code & MAKE_TIMEOUT_FLAG) {
+<<<<<<< HEAD
 				pr_info(TUIHW_LOG_TAG " timeout injection\n");
 				continue;
 			}
@@ -359,6 +485,29 @@ static int connecting_thread(void *data)
 				goto exit;
 			}
 			pr_info(TUIHW_LOG_TAG " sending reply: %zu\n", sizeof(rsp));
+=======
+				pr_debug(TUIHW_LOG_TAG " timeout injection\n");
+				continue;
+			}
+			switch(cmd.cmd) {
+			case TUILL_ICMD_GET_DISPLAY_INFO:
+				pr_debug(TUIHW_LOG_TAG " received TUILL_ICMD_GET_DISPLAY_INFO\n");
+				rsp.ret_code = get_display_info(&cmd.GetDisplayInfo_cmd, &rsp.GetDisplayInfo_rsp);
+				break;
+			case TUILL_ICMD_OPEN_DRIVER:
+				pr_debug(TUIHW_LOG_TAG " received TUILL_ICMD_OPEN_DRIVER\n");
+				rsp.ret_code = open_driver(&cmd.OpenPeripheral_cmd, &rsp.OpenPeripheral_rsp);
+				break;
+			case TUILL_ICMD_CLOSE_DRIVER:
+				pr_debug(TUIHW_LOG_TAG " received TUILL_ICMD_CLOSE_DRIVER\n");
+				rsp.ret_code = close_driver(&cmd.ClosePeripheral_cmd);
+				break;
+			case TUILL_ICMD_REBOOT_PHONE:
+				pr_debug(TUIHW_LOG_TAG " received TUILL_ICMD_REBOOT_PHONE\n");
+				reboot_phone();
+				break;
+			}
+>>>>>>> upstream/android-13
 			ret = tz_iwsock_write(sd, &rsp, sizeof(rsp), 0);
 		}
 		if (sd) {
@@ -366,8 +515,12 @@ static int connecting_thread(void *data)
 			sd = NULL;
 		}
 	}
+<<<<<<< HEAD
 exit:
 	pr_info(TUIHW_LOG_TAG " %s << ret=%d\n", __func__, ret);
+=======
+	pr_debug(TUIHW_LOG_TAG " %s << ret=%d\n", __func__, ret);
+>>>>>>> upstream/android-13
 	complete(&finished);
 	return 0;
 }
@@ -377,38 +530,62 @@ int iwd_cancel_session(void)
 	//TODO: check atomicity of tz_iwsock_write
 	tuill_internal_command_t cmd;
 	int ret = 0;
+<<<<<<< HEAD
 
 	pr_info(TUIHW_LOG_TAG " %s >>\n", __func__);
+=======
+	pr_debug(TUIHW_LOG_TAG " %s >>\n", __func__);
+>>>>>>> upstream/android-13
 	cmd.cmd = TUILL_ICMD_CANCEL_TUI;
 	cmd.version = TUILL_API_VERSION;
 	cmd.CancelTUI_cmd.event = TEE_EVENT_TUI_REE_CANCEL;
 	ret = tz_iwsock_write(sd, &cmd, sizeof(cmd), 0);
 
+<<<<<<< HEAD
 	pr_info(TUIHW_LOG_TAG " tz_iwsock_write returned %d\n", ret);
+=======
+	pr_debug(TUIHW_LOG_TAG " tz_iwsock_write returned %d\n", ret);
+>>>>>>> upstream/android-13
 	if (ret != sizeof(cmd)) {
 		pr_err(TUIHW_LOG_TAG " %s <<\n", __func__);
 		return -1;
 	}
+<<<<<<< HEAD
 	pr_info(TUIHW_LOG_TAG " %s <<\n", __func__);
+=======
+	pr_debug(TUIHW_LOG_TAG " %s <<\n", __func__);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 int init_iwd_agent(void)
 {
 	struct iwd_functions iwdf;
+<<<<<<< HEAD
 
 	pr_info(TUIHW_LOG_TAG " %s >>\n", __func__);
+=======
+	pr_debug(TUIHW_LOG_TAG " %s >>\n", __func__);
+>>>>>>> upstream/android-13
 	init_completion(&finished);
 	iwd_register_callbacks();
 	iwdf.cancel_session = iwd_cancel_session;
 	register_iwd_functions(&iwdf);
+<<<<<<< HEAD
 	pr_info(TUIHW_LOG_TAG " %s <<\n", __func__);
+=======
+	pr_debug(TUIHW_LOG_TAG " %s <<\n", __func__);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 void uninit_iwd_agent(void)
 {
+<<<<<<< HEAD
 	pr_info(TUIHW_LOG_TAG " %s >>\n", __func__);
+=======
+	pr_debug(TUIHW_LOG_TAG " %s >>\n", __func__);
+>>>>>>> upstream/android-13
 	unregister_iwd_functions();
 	iwd_unregister_callbacks();
 }
@@ -416,8 +593,13 @@ void uninit_iwd_agent(void)
 int __init __init_iwd_agent(void)
 {
 	int ret = 0;
+<<<<<<< HEAD
 
 	pr_info(TUIHW_LOG_TAG " %s >>\n", __func__);
+=======
+	pr_debug(TUIHW_LOG_TAG " %s >>\n", __func__);
+
+>>>>>>> upstream/android-13
 	ret = tzdev_blocking_notifier_register(TZDEV_FINI_NOTIFIER, &tzdev_notif);
 
 	if (ret) {
@@ -426,23 +608,40 @@ int __init __init_iwd_agent(void)
 	}
 
 	tzdev_notif_registered = 1;
+<<<<<<< HEAD
 	atomic_set(&thread_flag, 1);
+=======
+	thread_flag = true;
+>>>>>>> upstream/android-13
 	reinit_completion(&finished);
 	iwd_kthread = kthread_run(connecting_thread, NULL, "connecting_thread");
 	if (IS_ERR(iwd_kthread)) {
 		pr_err(TUIHW_LOG_TAG " kthread_run failedn");
+<<<<<<< HEAD
 		atomic_set(&thread_flag, 0);
 		return -EFAULT;
 	}
 
 	pr_info(TUIHW_LOG_TAG " %s <<\n", __func__);
+=======
+		thread_flag = false;
+		return -EFAULT;
+	}
+
+	pr_debug(TUIHW_LOG_TAG " %s <<\n", __func__);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 void __uninit_iwd_agent(void)
 {
+<<<<<<< HEAD
 	pr_info(TUIHW_LOG_TAG " %s >>\n", __func__);
 	atomic_set(&thread_flag, 0);
+=======
+	pr_debug(TUIHW_LOG_TAG " %s >>\n", __func__);
+	thread_flag = false;
+>>>>>>> upstream/android-13
 	if (sd) {
 		tz_iwsock_release(sd);//to breake reading
 		sd = NULL;
@@ -450,3 +649,12 @@ void __uninit_iwd_agent(void)
 	wait_for_completion(&finished);
 }
 
+<<<<<<< HEAD
+=======
+bool get_tui_reboot_flag(void)
+{
+	return reboot_flag;
+}
+EXPORT_SYMBOL(get_tui_reboot_flag);
+
+>>>>>>> upstream/android-13

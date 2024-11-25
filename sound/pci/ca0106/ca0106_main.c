@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Copyright (c) 2004 James Courtier-Dutton <James@superbug.demon.co.uk>
  *  Driver CA0106 chips. e.g. Sound Blaster Audigy LS and Live 24bit
@@ -119,6 +123,7 @@
  *
  *  This code was initially based on code from ALSA's emu10k1x.c which is:
  *  Copyright (c) by Francisco Moraes <fmoraes@nc.rr.com>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -134,6 +139,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/delay.h>
 #include <linux/init.h>
@@ -151,7 +158,10 @@
 MODULE_AUTHOR("James Courtier-Dutton <James@superbug.demon.co.uk>");
 MODULE_DESCRIPTION("CA0106");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{{Creative,SB CA0106 chip}}");
+=======
+>>>>>>> upstream/android-13
 
 // module parameters (see "Module Parameters")
 static int index[SNDRV_CARDS] = SNDRV_DEFAULT_IDX;
@@ -170,7 +180,11 @@ MODULE_PARM_DESC(subsystem, "Force card subsystem model.");
 
 #include "ca0106.h"
 
+<<<<<<< HEAD
 static struct snd_ca0106_details ca0106_chip_details[] = {
+=======
+static const struct snd_ca0106_details ca0106_chip_details[] = {
+>>>>>>> upstream/android-13
 	 /* Sound Blaster X-Fi Extreme Audio. This does not have an AC97. 53SB079000000 */
 	 /* It is really just a normal SB Live 24bit. */
 	 /* Tested:
@@ -517,7 +531,11 @@ static void restore_spdif_bits(struct snd_ca0106 *chip, int idx)
 }
 
 static int snd_ca0106_channel_dac(struct snd_ca0106 *chip,
+<<<<<<< HEAD
 				  struct snd_ca0106_details *details,
+=======
+				  const struct snd_ca0106_details *details,
+>>>>>>> upstream/android-13
 				  int channel_id)
 {
 	switch (channel_id) {
@@ -590,9 +608,17 @@ static int snd_ca0106_pcm_open_playback_channel(struct snd_pcm_substream *substr
 	*/
         //channel->interrupt = snd_ca0106_pcm_channel_interrupt;
 	channel->epcm = epcm;
+<<<<<<< HEAD
 	if ((err = snd_pcm_hw_constraint_integer(runtime, SNDRV_PCM_HW_PARAM_PERIODS)) < 0)
                 return err;
 	if ((err = snd_pcm_hw_constraint_step(runtime, 0, SNDRV_PCM_HW_PARAM_PERIOD_BYTES, 64)) < 0)
+=======
+	err = snd_pcm_hw_constraint_integer(runtime, SNDRV_PCM_HW_PARAM_PERIODS);
+	if (err < 0)
+                return err;
+	err = snd_pcm_hw_constraint_step(runtime, 0, SNDRV_PCM_HW_PARAM_PERIOD_BYTES, 64);
+	if (err < 0)
+>>>>>>> upstream/android-13
                 return err;
 	snd_pcm_set_sync(substream);
 
@@ -683,10 +709,19 @@ static int snd_ca0106_pcm_open_capture_channel(struct snd_pcm_substream *substre
 	*/
         //channel->interrupt = snd_ca0106_pcm_channel_interrupt;
         channel->epcm = epcm;
+<<<<<<< HEAD
 	if ((err = snd_pcm_hw_constraint_integer(runtime, SNDRV_PCM_HW_PARAM_PERIODS)) < 0)
                 return err;
 	//snd_pcm_hw_constraint_list(runtime, 0, SNDRV_PCM_HW_PARAM_PERIOD_SIZE, &hw_constraints_capture_period_sizes);
 	if ((err = snd_pcm_hw_constraint_step(runtime, 0, SNDRV_PCM_HW_PARAM_PERIOD_BYTES, 64)) < 0)
+=======
+	err = snd_pcm_hw_constraint_integer(runtime, SNDRV_PCM_HW_PARAM_PERIODS);
+	if (err < 0)
+                return err;
+	//snd_pcm_hw_constraint_list(runtime, 0, SNDRV_PCM_HW_PARAM_PERIOD_SIZE, &hw_constraints_capture_period_sizes);
+	err = snd_pcm_hw_constraint_step(runtime, 0, SNDRV_PCM_HW_PARAM_PERIOD_BYTES, 64);
+	if (err < 0)
+>>>>>>> upstream/android-13
                 return err;
 	return 0;
 }
@@ -722,6 +757,7 @@ static int snd_ca0106_pcm_open_3_capture(struct snd_pcm_substream *substream)
 	return snd_ca0106_pcm_open_capture_channel(substream, 3);
 }
 
+<<<<<<< HEAD
 /* hw_params callback */
 static int snd_ca0106_pcm_hw_params_playback(struct snd_pcm_substream *substream,
 				      struct snd_pcm_hw_params *hw_params)
@@ -750,6 +786,8 @@ static int snd_ca0106_pcm_hw_free_capture(struct snd_pcm_substream *substream)
 	return snd_pcm_lib_free_pages(substream);
 }
 
+=======
+>>>>>>> upstream/android-13
 /* prepare playback callback */
 static int snd_ca0106_pcm_prepare_playback(struct snd_pcm_substream *substream)
 {
@@ -757,7 +795,11 @@ static int snd_ca0106_pcm_prepare_playback(struct snd_pcm_substream *substream)
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct snd_ca0106_pcm *epcm = runtime->private_data;
 	int channel = epcm->channel_id;
+<<<<<<< HEAD
 	u32 *table_base = (u32 *)(emu->buffer.area+(8*16*channel));
+=======
+	u32 *table_base = (u32 *)(emu->buffer->area+(8*16*channel));
+>>>>>>> upstream/android-13
 	u32 period_size_bytes = frames_to_bytes(runtime, runtime->period_size);
 	u32 hcfg_mask = HCFG_PLAYBACK_S32_LE;
 	u32 hcfg_set = 0x00000000;
@@ -785,7 +827,11 @@ static int snd_ca0106_pcm_prepare_playback(struct snd_pcm_substream *substream)
 		   runtime->dma_addr, runtime->dma_area, table_base);
 	dev_dbg(emu->card->dev,
 		"dma_addr=%x, dma_area=%p, dma_bytes(size)=%x\n",
+<<<<<<< HEAD
 		   emu->buffer.addr, emu->buffer.area, emu->buffer.bytes);
+=======
+		   emu->buffer->addr, emu->buffer->area, emu->buffer->bytes);
+>>>>>>> upstream/android-13
 #endif /* debug */
 	/* Rate can be set per channel. */
 	/* reg40 control host to fifo */
@@ -835,13 +881,21 @@ static int snd_ca0106_pcm_prepare_playback(struct snd_pcm_substream *substream)
 	reg71 = (reg71 & ~reg71_mask) | reg71_set;
 	snd_ca0106_ptr_write(emu, 0x71, 0, reg71);
 
+<<<<<<< HEAD
 	/* FIXME: Check emu->buffer.size before actually writing to it. */
+=======
+	/* FIXME: Check emu->buffer->size before actually writing to it. */
+>>>>>>> upstream/android-13
         for(i=0; i < runtime->periods; i++) {
 		table_base[i*2] = runtime->dma_addr + (i * period_size_bytes);
 		table_base[i*2+1] = period_size_bytes << 16;
 	}
  
+<<<<<<< HEAD
 	snd_ca0106_ptr_write(emu, PLAYBACK_LIST_ADDR, channel, emu->buffer.addr+(8*16*channel));
+=======
+	snd_ca0106_ptr_write(emu, PLAYBACK_LIST_ADDR, channel, emu->buffer->addr+(8*16*channel));
+>>>>>>> upstream/android-13
 	snd_ca0106_ptr_write(emu, PLAYBACK_LIST_SIZE, channel, (runtime->periods - 1) << 19);
 	snd_ca0106_ptr_write(emu, PLAYBACK_LIST_PTR, channel, 0);
 	snd_ca0106_ptr_write(emu, PLAYBACK_DMA_ADDR, channel, runtime->dma_addr);
@@ -892,7 +946,11 @@ static int snd_ca0106_pcm_prepare_capture(struct snd_pcm_substream *substream)
 		   runtime->dma_addr, runtime->dma_area, table_base);
 	dev_dbg(emu->card->dev,
 		"dma_addr=%x, dma_area=%p, dma_bytes(size)=%x\n",
+<<<<<<< HEAD
 		   emu->buffer.addr, emu->buffer.area, emu->buffer.bytes);
+=======
+		   emu->buffer->addr, emu->buffer->area, emu->buffer->bytes);
+>>>>>>> upstream/android-13
 #endif /* debug */
 	/* reg71 controls ADC rate. */
 	switch (runtime->rate) {
@@ -1111,9 +1169,12 @@ snd_ca0106_pcm_pointer_capture(struct snd_pcm_substream *substream)
 static const struct snd_pcm_ops snd_ca0106_playback_front_ops = {
 	.open =        snd_ca0106_pcm_open_playback_front,
 	.close =       snd_ca0106_pcm_close_playback,
+<<<<<<< HEAD
 	.ioctl =       snd_pcm_lib_ioctl,
 	.hw_params =   snd_ca0106_pcm_hw_params_playback,
 	.hw_free =     snd_ca0106_pcm_hw_free_playback,
+=======
+>>>>>>> upstream/android-13
 	.prepare =     snd_ca0106_pcm_prepare_playback,
 	.trigger =     snd_ca0106_pcm_trigger_playback,
 	.pointer =     snd_ca0106_pcm_pointer_playback,
@@ -1122,9 +1183,12 @@ static const struct snd_pcm_ops snd_ca0106_playback_front_ops = {
 static const struct snd_pcm_ops snd_ca0106_capture_0_ops = {
 	.open =        snd_ca0106_pcm_open_0_capture,
 	.close =       snd_ca0106_pcm_close_capture,
+<<<<<<< HEAD
 	.ioctl =       snd_pcm_lib_ioctl,
 	.hw_params =   snd_ca0106_pcm_hw_params_capture,
 	.hw_free =     snd_ca0106_pcm_hw_free_capture,
+=======
+>>>>>>> upstream/android-13
 	.prepare =     snd_ca0106_pcm_prepare_capture,
 	.trigger =     snd_ca0106_pcm_trigger_capture,
 	.pointer =     snd_ca0106_pcm_pointer_capture,
@@ -1133,9 +1197,12 @@ static const struct snd_pcm_ops snd_ca0106_capture_0_ops = {
 static const struct snd_pcm_ops snd_ca0106_capture_1_ops = {
 	.open =        snd_ca0106_pcm_open_1_capture,
 	.close =       snd_ca0106_pcm_close_capture,
+<<<<<<< HEAD
 	.ioctl =       snd_pcm_lib_ioctl,
 	.hw_params =   snd_ca0106_pcm_hw_params_capture,
 	.hw_free =     snd_ca0106_pcm_hw_free_capture,
+=======
+>>>>>>> upstream/android-13
 	.prepare =     snd_ca0106_pcm_prepare_capture,
 	.trigger =     snd_ca0106_pcm_trigger_capture,
 	.pointer =     snd_ca0106_pcm_pointer_capture,
@@ -1144,9 +1211,12 @@ static const struct snd_pcm_ops snd_ca0106_capture_1_ops = {
 static const struct snd_pcm_ops snd_ca0106_capture_2_ops = {
 	.open =        snd_ca0106_pcm_open_2_capture,
 	.close =       snd_ca0106_pcm_close_capture,
+<<<<<<< HEAD
 	.ioctl =       snd_pcm_lib_ioctl,
 	.hw_params =   snd_ca0106_pcm_hw_params_capture,
 	.hw_free =     snd_ca0106_pcm_hw_free_capture,
+=======
+>>>>>>> upstream/android-13
 	.prepare =     snd_ca0106_pcm_prepare_capture,
 	.trigger =     snd_ca0106_pcm_trigger_capture,
 	.pointer =     snd_ca0106_pcm_pointer_capture,
@@ -1155,9 +1225,12 @@ static const struct snd_pcm_ops snd_ca0106_capture_2_ops = {
 static const struct snd_pcm_ops snd_ca0106_capture_3_ops = {
 	.open =        snd_ca0106_pcm_open_3_capture,
 	.close =       snd_ca0106_pcm_close_capture,
+<<<<<<< HEAD
 	.ioctl =       snd_pcm_lib_ioctl,
 	.hw_params =   snd_ca0106_pcm_hw_params_capture,
 	.hw_free =     snd_ca0106_pcm_hw_free_capture,
+=======
+>>>>>>> upstream/android-13
 	.prepare =     snd_ca0106_pcm_prepare_capture,
 	.trigger =     snd_ca0106_pcm_trigger_capture,
 	.pointer =     snd_ca0106_pcm_pointer_capture,
@@ -1166,9 +1239,12 @@ static const struct snd_pcm_ops snd_ca0106_capture_3_ops = {
 static const struct snd_pcm_ops snd_ca0106_playback_center_lfe_ops = {
         .open =         snd_ca0106_pcm_open_playback_center_lfe,
         .close =        snd_ca0106_pcm_close_playback,
+<<<<<<< HEAD
         .ioctl =        snd_pcm_lib_ioctl,
         .hw_params =    snd_ca0106_pcm_hw_params_playback,
         .hw_free =      snd_ca0106_pcm_hw_free_playback,
+=======
+>>>>>>> upstream/android-13
         .prepare =      snd_ca0106_pcm_prepare_playback,     
         .trigger =      snd_ca0106_pcm_trigger_playback,  
         .pointer =      snd_ca0106_pcm_pointer_playback, 
@@ -1177,9 +1253,12 @@ static const struct snd_pcm_ops snd_ca0106_playback_center_lfe_ops = {
 static const struct snd_pcm_ops snd_ca0106_playback_unknown_ops = {
         .open =         snd_ca0106_pcm_open_playback_unknown,
         .close =        snd_ca0106_pcm_close_playback,
+<<<<<<< HEAD
         .ioctl =        snd_pcm_lib_ioctl,
         .hw_params =    snd_ca0106_pcm_hw_params_playback,
         .hw_free =      snd_ca0106_pcm_hw_free_playback,
+=======
+>>>>>>> upstream/android-13
         .prepare =      snd_ca0106_pcm_prepare_playback,     
         .trigger =      snd_ca0106_pcm_trigger_playback,  
         .pointer =      snd_ca0106_pcm_pointer_playback, 
@@ -1188,9 +1267,12 @@ static const struct snd_pcm_ops snd_ca0106_playback_unknown_ops = {
 static const struct snd_pcm_ops snd_ca0106_playback_rear_ops = {
         .open =         snd_ca0106_pcm_open_playback_rear,
         .close =        snd_ca0106_pcm_close_playback,
+<<<<<<< HEAD
         .ioctl =        snd_pcm_lib_ioctl,
         .hw_params =    snd_ca0106_pcm_hw_params_playback,
 		.hw_free =      snd_ca0106_pcm_hw_free_playback,
+=======
+>>>>>>> upstream/android-13
         .prepare =      snd_ca0106_pcm_prepare_playback,     
         .trigger =      snd_ca0106_pcm_trigger_playback,  
         .pointer =      snd_ca0106_pcm_pointer_playback, 
@@ -1228,12 +1310,21 @@ static int snd_ca0106_ac97(struct snd_ca0106 *chip)
 	struct snd_ac97_bus *pbus;
 	struct snd_ac97_template ac97;
 	int err;
+<<<<<<< HEAD
 	static struct snd_ac97_bus_ops ops = {
+=======
+	static const struct snd_ac97_bus_ops ops = {
+>>>>>>> upstream/android-13
 		.write = snd_ca0106_ac97_write,
 		.read = snd_ca0106_ac97_read,
 	};
   
+<<<<<<< HEAD
 	if ((err = snd_ac97_bus(chip->card, 0, &ops, NULL, &pbus)) < 0)
+=======
+	err = snd_ac97_bus(chip->card, 0, &ops, NULL, &pbus);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 	pbus->no_vra = 1; /* we don't need VRA */
 
@@ -1245,6 +1336,7 @@ static int snd_ca0106_ac97(struct snd_ca0106 *chip)
 
 static void ca0106_stop_chip(struct snd_ca0106 *chip);
 
+<<<<<<< HEAD
 static int snd_ca0106_free(struct snd_ca0106 *chip)
 {
 	if (chip->res_port != NULL) {
@@ -1271,6 +1363,13 @@ static int snd_ca0106_dev_free(struct snd_device *device)
 {
 	struct snd_ca0106 *chip = device->device_data;
 	return snd_ca0106_free(chip);
+=======
+static void snd_ca0106_free(struct snd_card *card)
+{
+	struct snd_ca0106 *chip = card->private_data;
+
+	ca0106_stop_chip(chip);
+>>>>>>> upstream/android-13
 }
 
 static irqreturn_t snd_ca0106_interrupt(int irq, void *dev_id)
@@ -1403,21 +1502,33 @@ static int snd_ca0106_pcm(struct snd_ca0106 *emu, int device)
 	for(substream = pcm->streams[SNDRV_PCM_STREAM_PLAYBACK].substream; 
 	    substream; 
 	    substream = substream->next) {
+<<<<<<< HEAD
 		if ((err = snd_pcm_lib_preallocate_pages(substream, 
 							 SNDRV_DMA_TYPE_DEV, 
 							 snd_dma_pci_data(emu->pci), 
 							 64*1024, 64*1024)) < 0) /* FIXME: 32*1024 for sound buffer, between 32and64 for Periods table. */
 			return err;
+=======
+		snd_pcm_set_managed_buffer(substream, SNDRV_DMA_TYPE_DEV,
+					   &emu->pci->dev,
+					   64*1024, 64*1024);
+>>>>>>> upstream/android-13
 	}
 
 	for (substream = pcm->streams[SNDRV_PCM_STREAM_CAPTURE].substream; 
 	      substream; 
 	      substream = substream->next) {
+<<<<<<< HEAD
  		if ((err = snd_pcm_lib_preallocate_pages(substream, 
 	                                           SNDRV_DMA_TYPE_DEV, 
 	                                           snd_dma_pci_data(emu->pci), 
 	                                           64*1024, 64*1024)) < 0)
 			return err;
+=======
+		snd_pcm_set_managed_buffer(substream, SNDRV_DMA_TYPE_DEV,
+					   &emu->pci->dev,
+					   64*1024, 64*1024);
+>>>>>>> upstream/android-13
 	}
   
 	err = snd_pcm_add_chmap_ctls(pcm, SNDRV_PCM_STREAM_PLAYBACK, map, 2,
@@ -1431,7 +1542,11 @@ static int snd_ca0106_pcm(struct snd_ca0106 *emu, int device)
 }
 
 #define SPI_REG(reg, value)	(((reg) << SPI_REG_SHIFT) | (value))
+<<<<<<< HEAD
 static unsigned int spi_dac_init[] = {
+=======
+static const unsigned int spi_dac_init[] = {
+>>>>>>> upstream/android-13
 	SPI_REG(SPI_LDA1_REG,	SPI_DA_BIT_0dB), /* 0dB dig. attenuation */
 	SPI_REG(SPI_RDA1_REG,	SPI_DA_BIT_0dB),
 	SPI_REG(SPI_PL_REG,	SPI_PL_BIT_L_L | SPI_PL_BIT_R_R | SPI_IZD_BIT),
@@ -1449,7 +1564,11 @@ static unsigned int spi_dac_init[] = {
 	SPI_REG(SPI_DACD4_REG,	SPI_DACD4_BIT),
 };
 
+<<<<<<< HEAD
 static unsigned int i2c_adc_init[][2] = {
+=======
+static const unsigned int i2c_adc_init[][2] = {
+>>>>>>> upstream/android-13
 	{ 0x17, 0x00 }, /* Reset */
 	{ 0x07, 0x00 }, /* Timeout */
 	{ 0x0b, 0x22 },  /* Interface control */
@@ -1660,6 +1779,7 @@ static void ca0106_stop_chip(struct snd_ca0106 *chip)
 }
 
 static int snd_ca0106_create(int dev, struct snd_card *card,
+<<<<<<< HEAD
 					 struct pci_dev *pci,
 					 struct snd_ca0106 **rchip)
 {
@@ -1688,12 +1808,29 @@ static int snd_ca0106_create(int dev, struct snd_card *card,
 		return -ENOMEM;
 	}
 
+=======
+			     struct pci_dev *pci)
+{
+	struct snd_ca0106 *chip = card->private_data;
+	const struct snd_ca0106_details *c;
+	int err;
+
+	err = pcim_enable_device(pci);
+	if (err < 0)
+		return err;
+	if (dma_set_mask_and_coherent(&pci->dev, DMA_BIT_MASK(32))) {
+		dev_err(card->dev, "error to set 32bit mask DMA\n");
+		return -ENXIO;
+	}
+
+>>>>>>> upstream/android-13
 	chip->card = card;
 	chip->pci = pci;
 	chip->irq = -1;
 
 	spin_lock_init(&chip->emu_lock);
 
+<<<<<<< HEAD
 	chip->port = pci_resource_start(pci, 0);
 	chip->res_port = request_region(chip->port, 0x20, "snd_ca0106");
 	if (!chip->res_port) {
@@ -1705,10 +1842,20 @@ static int snd_ca0106_create(int dev, struct snd_card *card,
 	if (request_irq(pci->irq, snd_ca0106_interrupt,
 			IRQF_SHARED, KBUILD_MODNAME, chip)) {
 		snd_ca0106_free(chip);
+=======
+	err = pci_request_regions(pci, "snd_ca0106");
+	if (err < 0)
+		return err;
+	chip->port = pci_resource_start(pci, 0);
+
+	if (devm_request_irq(&pci->dev, pci->irq, snd_ca0106_interrupt,
+			     IRQF_SHARED, KBUILD_MODNAME, chip)) {
+>>>>>>> upstream/android-13
 		dev_err(card->dev, "cannot grab irq\n");
 		return -EBUSY;
 	}
 	chip->irq = pci->irq;
+<<<<<<< HEAD
 
 	/* This stores the periods table. */
 	if (snd_dma_alloc_pages(SNDRV_DMA_TYPE_DEV, snd_dma_pci_data(pci),
@@ -1716,6 +1863,14 @@ static int snd_ca0106_create(int dev, struct snd_card *card,
 		snd_ca0106_free(chip);
 		return -ENOMEM;
 	}
+=======
+	card->sync_irq = chip->irq;
+
+	/* This stores the periods table. */
+	chip->buffer = snd_devm_alloc_pages(&pci->dev, SNDRV_DMA_TYPE_DEV, 1024);
+	if (!chip->buffer)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	pci_set_master(pci);
 	/* read serial */
@@ -1744,6 +1899,7 @@ static int snd_ca0106_create(int dev, struct snd_card *card,
 		c->name, chip->port, chip->irq);
 
 	ca0106_init_chip(chip, 0);
+<<<<<<< HEAD
 
 	err = snd_device_new(card, SNDRV_DEV_LOWLEVEL, chip, &ops);
 	if (err < 0) {
@@ -1751,6 +1907,8 @@ static int snd_ca0106_create(int dev, struct snd_card *card,
 		return err;
 	}
 	*rchip = chip;
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1830,15 +1988,25 @@ static int snd_ca0106_midi(struct snd_ca0106 *chip, unsigned int channel)
 
 	midi->dev_id = chip;
 	
+<<<<<<< HEAD
 	if ((err = ca_midi_init(chip, midi, 0, name)) < 0)
+=======
+	err = ca_midi_init(chip, midi, 0, name);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 
 	return 0;
 }
 
 
+<<<<<<< HEAD
 static int snd_ca0106_probe(struct pci_dev *pci,
 					const struct pci_device_id *pci_id)
+=======
+static int __snd_ca0106_probe(struct pci_dev *pci,
+			      const struct pci_device_id *pci_id)
+>>>>>>> upstream/android-13
 {
 	static int dev;
 	struct snd_card *card;
@@ -1852,6 +2020,7 @@ static int snd_ca0106_probe(struct pci_dev *pci,
 		return -ENOENT;
 	}
 
+<<<<<<< HEAD
 	err = snd_card_new(&pci->dev, index[dev], id[dev], THIS_MODULE,
 			   0, &card);
 	if (err < 0)
@@ -1861,27 +2030,55 @@ static int snd_ca0106_probe(struct pci_dev *pci,
 	if (err < 0)
 		goto error;
 	card->private_data = chip;
+=======
+	err = snd_devm_card_new(&pci->dev, index[dev], id[dev], THIS_MODULE,
+				sizeof(*chip), &card);
+	if (err < 0)
+		return err;
+	chip = card->private_data;
+
+	err = snd_ca0106_create(dev, card, pci);
+	if (err < 0)
+		return err;
+	card->private_free = snd_ca0106_free;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < 4; i++) {
 		err = snd_ca0106_pcm(chip, i);
 		if (err < 0)
+<<<<<<< HEAD
 			goto error;
+=======
+			return err;
+>>>>>>> upstream/android-13
 	}
 
 	if (chip->details->ac97 == 1) {
 		/* The SB0410 and SB0413 do not have an AC97 chip. */
 		err = snd_ca0106_ac97(chip);
 		if (err < 0)
+<<<<<<< HEAD
 			goto error;
 	}
 	err = snd_ca0106_mixer(chip);
 	if (err < 0)
 		goto error;
+=======
+			return err;
+	}
+	err = snd_ca0106_mixer(chip);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 
 	dev_dbg(card->dev, "probe for MIDI channel A ...");
 	err = snd_ca0106_midi(chip, CA0106_MIDI_CHAN_A);
 	if (err < 0)
+<<<<<<< HEAD
 		goto error;
+=======
+		return err;
+>>>>>>> upstream/android-13
 	dev_dbg(card->dev, " done.\n");
 
 #ifdef CONFIG_SND_PROC_FS
@@ -1890,11 +2087,16 @@ static int snd_ca0106_probe(struct pci_dev *pci,
 
 	err = snd_card_register(card);
 	if (err < 0)
+<<<<<<< HEAD
 		goto error;
+=======
+		return err;
+>>>>>>> upstream/android-13
 
 	pci_set_drvdata(pci, card);
 	dev++;
 	return 0;
+<<<<<<< HEAD
 
  error:
 	snd_card_free(card);
@@ -1904,6 +2106,14 @@ static int snd_ca0106_probe(struct pci_dev *pci,
 static void snd_ca0106_remove(struct pci_dev *pci)
 {
 	snd_card_free(pci_get_drvdata(pci));
+=======
+}
+
+static int snd_ca0106_probe(struct pci_dev *pci,
+			    const struct pci_device_id *pci_id)
+{
+	return snd_card_free_on_error(&pci->dev, __snd_ca0106_probe(pci, pci_id));
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_PM_SLEEP
@@ -1911,11 +2121,16 @@ static int snd_ca0106_suspend(struct device *dev)
 {
 	struct snd_card *card = dev_get_drvdata(dev);
 	struct snd_ca0106 *chip = card->private_data;
+<<<<<<< HEAD
 	int i;
 
 	snd_power_change_state(card, SNDRV_CTL_POWER_D3hot);
 	for (i = 0; i < 4; i++)
 		snd_pcm_suspend_all(chip->pcm[i]);
+=======
+
+	snd_power_change_state(card, SNDRV_CTL_POWER_D3hot);
+>>>>>>> upstream/android-13
 	if (chip->details->ac97)
 		snd_ac97_suspend(chip->ac97);
 	snd_ca0106_mixer_suspend(chip);
@@ -1962,7 +2177,10 @@ static struct pci_driver ca0106_driver = {
 	.name = KBUILD_MODNAME,
 	.id_table = snd_ca0106_ids,
 	.probe = snd_ca0106_probe,
+<<<<<<< HEAD
 	.remove = snd_ca0106_remove,
+=======
+>>>>>>> upstream/android-13
 	.driver = {
 		.pm = SND_CA0106_PM_OPS,
 	},

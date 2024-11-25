@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	connector.c
  *
  * 2004+ Copyright (c) Evgeniy Polyakov <zbr@ioremap.net>
  * All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/compiler.h>
@@ -206,21 +213,32 @@ static void cn_rx_skb(struct sk_buff *skb)
  *
  * May sleep.
  */
+<<<<<<< HEAD
 int cn_add_callback(struct cb_id *id, const char *name,
 		    void (*callback)(struct cn_msg *,
 				     struct netlink_skb_parms *))
 {
 	int err;
+=======
+int cn_add_callback(const struct cb_id *id, const char *name,
+		    void (*callback)(struct cn_msg *,
+				     struct netlink_skb_parms *))
+{
+>>>>>>> upstream/android-13
 	struct cn_dev *dev = &cdev;
 
 	if (!cn_already_initialized)
 		return -EAGAIN;
 
+<<<<<<< HEAD
 	err = cn_queue_add_callback(dev->cbdev, name, id, callback);
 	if (err)
 		return err;
 
 	return 0;
+=======
+	return cn_queue_add_callback(dev->cbdev, name, id, callback);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(cn_add_callback);
 
@@ -232,7 +250,11 @@ EXPORT_SYMBOL_GPL(cn_add_callback);
  *
  * May sleep while waiting for reference counter to become zero.
  */
+<<<<<<< HEAD
 void cn_del_callback(struct cb_id *id)
+=======
+void cn_del_callback(const struct cb_id *id)
+>>>>>>> upstream/android-13
 {
 	struct cn_dev *dev = &cdev;
 
@@ -261,16 +283,23 @@ static int __maybe_unused cn_proc_show(struct seq_file *m, void *v)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct cn_dev cdev = {
 	.input   = cn_rx_skb,
 };
 
+=======
+>>>>>>> upstream/android-13
 static int cn_init(void)
 {
 	struct cn_dev *dev = &cdev;
 	struct netlink_kernel_cfg cfg = {
 		.groups	= CN_NETLINK_USERS + 0xf,
+<<<<<<< HEAD
 		.input	= dev->input,
+=======
+		.input	= cn_rx_skb,
+>>>>>>> upstream/android-13
 	};
 
 	dev->nls = netlink_kernel_create(&init_net, NETLINK_CONNECTOR, &cfg);

@@ -24,8 +24,15 @@
 #include "priv.h"
 
 int
+<<<<<<< HEAD
 gf100_iccsense_new(struct nvkm_device *device, int index,
 		   struct nvkm_iccsense **piccsense)
 {
 	return nvkm_iccsense_new_(device, index, piccsense);
+=======
+gf100_iccsense_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+		   struct nvkm_iccsense **piccsense)
+{
+	return nvkm_iccsense_new_(device, type, inst, piccsense);
+>>>>>>> upstream/android-13
 }

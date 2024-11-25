@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Based on arch/arm/include/asm/traps.h
  *
  * Copyright (C) 2012 ARM Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -14,6 +19,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __ASM_TRAP_H
 #define __ASM_TRAP_H
@@ -35,6 +42,7 @@ struct undef_hook {
 
 void register_undef_hook(struct undef_hook *hook);
 void unregister_undef_hook(struct undef_hook *hook);
+<<<<<<< HEAD
 void force_signal_inject(int signal, int code, unsigned long address);
 void arm64_notify_segfault(unsigned long addr);
 void arm64_force_sig_info(struct siginfo *info, const char *str,
@@ -45,6 +53,13 @@ void arm64_force_sig_info(struct siginfo *info, const char *str,
  * is executed.
  */
 void arm64_skip_faulting_instruction(struct pt_regs *regs, unsigned long size);
+=======
+void force_signal_inject(int signal, int code, unsigned long address, unsigned int err);
+void arm64_notify_segfault(unsigned long addr);
+void arm64_force_sig_fault(int signo, int code, unsigned long far, const char *str);
+void arm64_force_sig_mceerr(int code, unsigned long far, short lsb, const char *str);
+void arm64_force_sig_ptrace_errno_trap(int errno, unsigned long far, const char *str);
+>>>>>>> upstream/android-13
 
 /*
  * Move regs->pc to next instruction and do necessary setup before it
@@ -58,6 +73,7 @@ static inline int __in_irqentry_text(unsigned long ptr)
 	       ptr < (unsigned long)&__irqentry_text_end;
 }
 
+<<<<<<< HEAD
 static inline int in_exception_text(unsigned long ptr)
 {
 	int in;
@@ -68,6 +84,8 @@ static inline int in_exception_text(unsigned long ptr)
 	return in ? : __in_irqentry_text(ptr);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline int in_entry_text(unsigned long ptr)
 {
 	return ptr >= (unsigned long)&__entry_text_start &&
@@ -126,6 +144,7 @@ static inline u32 arm64_ras_serror_get_severity(u32 esr)
 
 bool arm64_is_fatal_ras_serror(struct pt_regs *regs, unsigned int esr);
 void __noreturn arm64_serror_panic(struct pt_regs *regs, u32 esr);
+<<<<<<< HEAD
 
 extern int (*do_tlb_conf_fault_cb)(unsigned long addr,
 				   unsigned int esr,
@@ -134,4 +153,6 @@ extern int do_tlb_conf_fault(unsigned long addr,
 			     unsigned int esr,
 			     struct pt_regs *regs);
 
+=======
+>>>>>>> upstream/android-13
 #endif

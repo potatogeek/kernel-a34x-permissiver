@@ -33,6 +33,7 @@ struct max8998_data {
 	unsigned int		buck2_idx;
 };
 
+<<<<<<< HEAD
 struct voltage_map_desc {
 	int min;
 	int max;
@@ -97,6 +98,10 @@ static const struct voltage_map_desc *ldo_voltage_map[] = {
 	&buck12_voltage_map_desc,	/* BUCK2 */
 	&buck3_voltage_map_desc,	/* BUCK3 */
 	&buck4_voltage_map_desc,	/* BUCK4 */
+=======
+static const unsigned int charger_current_table[] = {
+	90000, 380000, 475000, 550000, 570000, 600000, 700000, 800000,
+>>>>>>> upstream/android-13
 };
 
 static int max8998_get_enable_register(struct regulator_dev *rdev,
@@ -129,6 +134,13 @@ static int max8998_get_enable_register(struct regulator_dev *rdev,
 		*reg = MAX8998_REG_CHGR2;
 		*shift = 7 - (ldo - MAX8998_ESAFEOUT1);
 		break;
+<<<<<<< HEAD
+=======
+	case MAX8998_CHARGER:
+		*reg = MAX8998_REG_CHGR2;
+		*shift = 0;
+		break;
+>>>>>>> upstream/android-13
 	default:
 		return -EINVAL;
 	}
@@ -154,6 +166,14 @@ static int max8998_ldo_is_enabled(struct regulator_dev *rdev)
 	return val & (1 << shift);
 }
 
+<<<<<<< HEAD
+=======
+static int max8998_ldo_is_enabled_inverted(struct regulator_dev *rdev)
+{
+	return (!max8998_ldo_is_enabled(rdev));
+}
+
+>>>>>>> upstream/android-13
 static int max8998_ldo_enable(struct regulator_dev *rdev)
 {
 	struct max8998_data *max8998 = rdev_get_drvdata(rdev);
@@ -400,7 +420,10 @@ static int max8998_set_voltage_buck_time_sel(struct regulator_dev *rdev,
 {
 	struct max8998_data *max8998 = rdev_get_drvdata(rdev);
 	struct i2c_client *i2c = max8998->iodev->i2c;
+<<<<<<< HEAD
 	const struct voltage_map_desc *desc;
+=======
+>>>>>>> upstream/android-13
 	int buck = rdev_get_id(rdev);
 	u8 val = 0;
 	int difference, ret;
@@ -408,8 +431,11 @@ static int max8998_set_voltage_buck_time_sel(struct regulator_dev *rdev,
 	if (buck < MAX8998_BUCK1 || buck > MAX8998_BUCK4)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	desc = ldo_voltage_map[buck];
 
+=======
+>>>>>>> upstream/android-13
 	/* Voltage stabilization */
 	ret = max8998_read_reg(i2c, MAX8998_REG_ONOFF4, &val);
 	if (ret)
@@ -420,14 +446,90 @@ static int max8998_set_voltage_buck_time_sel(struct regulator_dev *rdev,
 	if (max8998->iodev->type == TYPE_MAX8998 && !(val & MAX8998_ENRAMP))
 		return 0;
 
+<<<<<<< HEAD
 	difference = (new_selector - old_selector) * desc->step / 1000;
+=======
+	difference = (new_selector - old_selector) * rdev->desc->uV_step / 1000;
+>>>>>>> upstream/android-13
 	if (difference > 0)
 		return DIV_ROUND_UP(difference, (val & 0x0f) + 1);
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct regulator_ops max8998_ldo_ops = {
+=======
+static int max8998_set_current_limit(struct regulator_dev *rdev,
+				     int min_uA, int max_uA)
+{
+	struct max8998_data *max8998 = rdev_get_drvdata(rdev);
+	struct i2c_client *i2c = max8998->iodev->i2c;
+	unsigned int n_currents = rdev->desc->n_current_limits;
+	int i, sel = -1;
+
+	if (n_currents == 0)
+		return -EINVAL;
+
+	if (rdev->desc->curr_table) {
+		const unsigned int *curr_table = rdev->desc->curr_table;
+		bool ascend = curr_table[n_currents - 1] > curr_table[0];
+
+		/* search for closest to maximum */
+		if (ascend) {
+			for (i = n_currents - 1; i >= 0; i--) {
+				if (min_uA <= curr_table[i] &&
+				    curr_table[i] <= max_uA) {
+					sel = i;
+					break;
+				}
+			}
+		} else {
+			for (i = 0; i < n_currents; i++) {
+				if (min_uA <= curr_table[i] &&
+				    curr_table[i] <= max_uA) {
+					sel = i;
+					break;
+				}
+			}
+		}
+	}
+
+	if (sel < 0)
+		return -EINVAL;
+
+	sel <<= ffs(rdev->desc->csel_mask) - 1;
+
+	return max8998_update_reg(i2c, rdev->desc->csel_reg,
+				  sel, rdev->desc->csel_mask);
+}
+
+static int max8998_get_current_limit(struct regulator_dev *rdev)
+{
+	struct max8998_data *max8998 = rdev_get_drvdata(rdev);
+	struct i2c_client *i2c = max8998->iodev->i2c;
+	u8 val;
+	int ret;
+
+	ret = max8998_read_reg(i2c, rdev->desc->csel_reg, &val);
+	if (ret != 0)
+		return ret;
+
+	val &= rdev->desc->csel_mask;
+	val >>= ffs(rdev->desc->csel_mask) - 1;
+
+	if (rdev->desc->curr_table) {
+		if (val >= rdev->desc->n_current_limits)
+			return -EINVAL;
+
+		return rdev->desc->curr_table[val];
+	}
+
+	return -EINVAL;
+}
+
+static const struct regulator_ops max8998_ldo_ops = {
+>>>>>>> upstream/android-13
 	.list_voltage		= regulator_list_voltage_linear,
 	.map_voltage		= regulator_map_voltage_linear,
 	.is_enabled		= max8998_ldo_is_enabled,
@@ -437,7 +539,11 @@ static struct regulator_ops max8998_ldo_ops = {
 	.set_voltage_sel	= max8998_set_voltage_ldo_sel,
 };
 
+<<<<<<< HEAD
 static struct regulator_ops max8998_buck_ops = {
+=======
+static const struct regulator_ops max8998_buck_ops = {
+>>>>>>> upstream/android-13
 	.list_voltage		= regulator_list_voltage_linear,
 	.map_voltage		= regulator_map_voltage_linear,
 	.is_enabled		= max8998_ldo_is_enabled,
@@ -448,12 +554,26 @@ static struct regulator_ops max8998_buck_ops = {
 	.set_voltage_time_sel	= max8998_set_voltage_buck_time_sel,
 };
 
+<<<<<<< HEAD
 static struct regulator_ops max8998_others_ops = {
+=======
+static const struct regulator_ops max8998_charger_ops = {
+	.set_current_limit	= max8998_set_current_limit,
+	.get_current_limit	= max8998_get_current_limit,
+	.is_enabled		= max8998_ldo_is_enabled_inverted,
+	/* Swapped as register is inverted */
+	.enable			= max8998_ldo_disable,
+	.disable		= max8998_ldo_enable,
+};
+
+static const struct regulator_ops max8998_others_ops = {
+>>>>>>> upstream/android-13
 	.is_enabled		= max8998_ldo_is_enabled,
 	.enable			= max8998_ldo_enable,
 	.disable		= max8998_ldo_disable,
 };
 
+<<<<<<< HEAD
 static struct regulator_desc regulators[] = {
 	{
 		.name		= "LDO2",
@@ -606,6 +726,70 @@ static struct regulator_desc regulators[] = {
 		.type		= REGULATOR_VOLTAGE,
 		.owner		= THIS_MODULE,
 	}
+=======
+#define MAX8998_LINEAR_REG(_name, _ops, _min, _step, _max) \
+	{ \
+		.name = #_name, \
+		.id = MAX8998_##_name, \
+		.ops = _ops, \
+		.min_uV = (_min), \
+		.uV_step = (_step), \
+		.n_voltages = ((_max) - (_min)) / (_step) + 1, \
+		.type = REGULATOR_VOLTAGE, \
+		.owner = THIS_MODULE, \
+	}
+
+#define MAX8998_CURRENT_REG(_name, _ops, _table, _reg, _mask) \
+	{ \
+		.name = #_name, \
+		.id = MAX8998_##_name, \
+		.ops = _ops, \
+		.curr_table = _table, \
+		.n_current_limits = ARRAY_SIZE(_table), \
+		.csel_reg = _reg, \
+		.csel_mask = _mask, \
+		.type = REGULATOR_CURRENT, \
+		.owner = THIS_MODULE, \
+	}
+
+#define MAX8998_OTHERS_REG(_name, _id) \
+	{ \
+		.name = #_name, \
+		.id = _id, \
+		.ops = &max8998_others_ops, \
+		.type = REGULATOR_VOLTAGE, \
+		.owner = THIS_MODULE, \
+	}
+
+static const struct regulator_desc regulators[] = {
+	MAX8998_LINEAR_REG(LDO2, &max8998_ldo_ops, 800000, 50000, 1300000),
+	MAX8998_LINEAR_REG(LDO3, &max8998_ldo_ops, 800000, 50000, 1300000),
+	MAX8998_LINEAR_REG(LDO4, &max8998_ldo_ops, 1600000, 100000, 3600000),
+	MAX8998_LINEAR_REG(LDO5, &max8998_ldo_ops, 1600000, 100000, 3600000),
+	MAX8998_LINEAR_REG(LDO6, &max8998_ldo_ops, 1600000, 100000, 3600000),
+	MAX8998_LINEAR_REG(LDO7, &max8998_ldo_ops, 1600000, 100000, 3600000),
+	MAX8998_LINEAR_REG(LDO8, &max8998_ldo_ops, 3000000, 100000, 3600000),
+	MAX8998_LINEAR_REG(LDO9, &max8998_ldo_ops, 2800000, 100000, 3100000),
+	MAX8998_LINEAR_REG(LDO10, &max8998_ldo_ops, 950000, 50000, 1300000),
+	MAX8998_LINEAR_REG(LDO11, &max8998_ldo_ops, 1600000, 100000, 3600000),
+	MAX8998_LINEAR_REG(LDO12, &max8998_ldo_ops, 800000, 100000, 3300000),
+	MAX8998_LINEAR_REG(LDO13, &max8998_ldo_ops, 800000, 100000, 3300000),
+	MAX8998_LINEAR_REG(LDO14, &max8998_ldo_ops, 1200000, 100000, 3300000),
+	MAX8998_LINEAR_REG(LDO15, &max8998_ldo_ops, 1200000, 100000, 3300000),
+	MAX8998_LINEAR_REG(LDO16, &max8998_ldo_ops, 1600000, 100000, 3600000),
+	MAX8998_LINEAR_REG(LDO17, &max8998_ldo_ops, 1600000, 100000, 3600000),
+	MAX8998_LINEAR_REG(BUCK1, &max8998_buck_ops, 750000, 25000, 1525000),
+	MAX8998_LINEAR_REG(BUCK2, &max8998_buck_ops, 750000, 25000, 1525000),
+	MAX8998_LINEAR_REG(BUCK3, &max8998_buck_ops, 1600000, 100000, 3600000),
+	MAX8998_LINEAR_REG(BUCK4, &max8998_buck_ops, 800000, 100000, 2300000),
+	MAX8998_OTHERS_REG(EN32KHz-AP, MAX8998_EN32KHZ_AP),
+	MAX8998_OTHERS_REG(EN32KHz-CP, MAX8998_EN32KHZ_CP),
+	MAX8998_OTHERS_REG(ENVICHG, MAX8998_ENVICHG),
+	MAX8998_OTHERS_REG(ESAFEOUT1, MAX8998_ESAFEOUT1),
+	MAX8998_OTHERS_REG(ESAFEOUT2, MAX8998_ESAFEOUT2),
+	MAX8998_CURRENT_REG(CHARGER, &max8998_charger_ops,
+			    charger_current_table, MAX8998_REG_CHGR1, 0x7),
+>>>>>>> upstream/android-13
 };
 
 static int max8998_pmic_dt_parse_dvs_gpio(struct max8998_dev *iodev,
@@ -796,9 +980,17 @@ static int max8998_pmic_probe(struct platform_device *pdev)
 
 		/* Set predefined values for BUCK1 registers */
 		for (v = 0; v < ARRAY_SIZE(pdata->buck1_voltage); ++v) {
+<<<<<<< HEAD
 			i = 0;
 			while (buck12_voltage_map_desc.min +
 			       buck12_voltage_map_desc.step*i
+=======
+			int index = MAX8998_BUCK1 - MAX8998_LDO2;
+
+			i = 0;
+			while (regulators[index].min_uV +
+			       regulators[index].uV_step * i
+>>>>>>> upstream/android-13
 			       < pdata->buck1_voltage[v])
 				i++;
 
@@ -824,9 +1016,17 @@ static int max8998_pmic_probe(struct platform_device *pdev)
 
 		/* Set predefined values for BUCK2 registers */
 		for (v = 0; v < ARRAY_SIZE(pdata->buck2_voltage); ++v) {
+<<<<<<< HEAD
 			i = 0;
 			while (buck12_voltage_map_desc.min +
 			       buck12_voltage_map_desc.step*i
+=======
+			int index = MAX8998_BUCK2 - MAX8998_LDO2;
+
+			i = 0;
+			while (regulators[index].min_uV +
+			       regulators[index].uV_step * i
+>>>>>>> upstream/android-13
 			       < pdata->buck2_voltage[v])
 				i++;
 
@@ -839,6 +1039,7 @@ static int max8998_pmic_probe(struct platform_device *pdev)
 	}
 
 	for (i = 0; i < pdata->num_regulators; i++) {
+<<<<<<< HEAD
 		const struct voltage_map_desc *desc;
 		int id = pdata->regulators[i].id;
 		int index = id - MAX8998_LDO2;
@@ -851,6 +1052,9 @@ static int max8998_pmic_probe(struct platform_device *pdev)
 			regulators[index].min_uV = desc->min;
 			regulators[index].uV_step = desc->step;
 		}
+=======
+		int index = pdata->regulators[i].id - MAX8998_LDO2;
+>>>>>>> upstream/android-13
 
 		config.dev = max8998->dev;
 		config.of_node = pdata->regulators[i].reg_node;
@@ -867,7 +1071,10 @@ static int max8998_pmic_probe(struct platform_device *pdev)
 		}
 	}
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 

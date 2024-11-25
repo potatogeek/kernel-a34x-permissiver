@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: BSD-3-Clause OR GPL-2.0
 /* Copyright (c) 2017-2018 Mellanox Technologies. All rights reserved */
 
+<<<<<<< HEAD
+=======
+#include <linux/mutex.h>
+>>>>>>> upstream/android-13
 #include <linux/rhashtable.h>
 #include <net/ipv6.h>
 
@@ -12,8 +16,14 @@ struct mlxsw_sp_mr {
 	void *catchall_route_priv;
 	struct delayed_work stats_update_dw;
 	struct list_head table_list;
+<<<<<<< HEAD
 #define MLXSW_SP_MR_ROUTES_COUNTER_UPDATE_INTERVAL 5000 /* ms */
 	unsigned long priv[0];
+=======
+	struct mutex table_list_lock; /* Protects table_list */
+#define MLXSW_SP_MR_ROUTES_COUNTER_UPDATE_INTERVAL 5000 /* ms */
+	unsigned long priv[];
+>>>>>>> upstream/android-13
 	/* priv has to be always the last item */
 };
 
@@ -66,9 +76,16 @@ struct mlxsw_sp_mr_table {
 	u32 vr_id;
 	struct mlxsw_sp_mr_vif vifs[MAXVIFS];
 	struct list_head route_list;
+<<<<<<< HEAD
 	struct rhashtable route_ht;
 	const struct mlxsw_sp_mr_table_ops *ops;
 	char catchall_route_priv[0];
+=======
+	struct mutex route_list_lock; /* Protects route_list */
+	struct rhashtable route_ht;
+	const struct mlxsw_sp_mr_table_ops *ops;
+	char catchall_route_priv[];
+>>>>>>> upstream/android-13
 	/* catchall_route_priv has to be always the last item */
 };
 
@@ -370,11 +387,21 @@ static void mlxsw_sp_mr_mfc_offload_update(struct mlxsw_sp_mr_route *mr_route)
 static void __mlxsw_sp_mr_route_del(struct mlxsw_sp_mr_table *mr_table,
 				    struct mlxsw_sp_mr_route *mr_route)
 {
+<<<<<<< HEAD
 	mlxsw_sp_mr_mfc_offload_set(mr_route, false);
 	mlxsw_sp_mr_route_erase(mr_table, mr_route);
 	rhashtable_remove_fast(&mr_table->route_ht, &mr_route->ht_node,
 			       mlxsw_sp_mr_route_ht_params);
 	list_del(&mr_route->node);
+=======
+	WARN_ON_ONCE(!mutex_is_locked(&mr_table->route_list_lock));
+
+	mlxsw_sp_mr_mfc_offload_set(mr_route, false);
+	rhashtable_remove_fast(&mr_table->route_ht, &mr_route->ht_node,
+			       mlxsw_sp_mr_route_ht_params);
+	list_del(&mr_route->node);
+	mlxsw_sp_mr_route_erase(mr_table, mr_route);
+>>>>>>> upstream/android-13
 	mlxsw_sp_mr_route_destroy(mr_table, mr_route);
 }
 
@@ -415,19 +442,34 @@ int mlxsw_sp_mr_route_add(struct mlxsw_sp_mr_table *mr_table,
 		goto err_duplicate_route;
 	}
 
+<<<<<<< HEAD
 	/* Put it in the table data-structures */
 	list_add_tail(&mr_route->node, &mr_table->route_list);
+=======
+	/* Write the route to the hardware */
+	err = mlxsw_sp_mr_route_write(mr_table, mr_route, replace);
+	if (err)
+		goto err_mr_route_write;
+
+	/* Put it in the table data-structures */
+	mutex_lock(&mr_table->route_list_lock);
+	list_add_tail(&mr_route->node, &mr_table->route_list);
+	mutex_unlock(&mr_table->route_list_lock);
+>>>>>>> upstream/android-13
 	err = rhashtable_insert_fast(&mr_table->route_ht,
 				     &mr_route->ht_node,
 				     mlxsw_sp_mr_route_ht_params);
 	if (err)
 		goto err_rhashtable_insert;
 
+<<<<<<< HEAD
 	/* Write the route to the hardware */
 	err = mlxsw_sp_mr_route_write(mr_table, mr_route, replace);
 	if (err)
 		goto err_mr_route_write;
 
+=======
+>>>>>>> upstream/android-13
 	/* Destroy the original route */
 	if (replace) {
 		rhashtable_remove_fast(&mr_table->route_ht,
@@ -440,11 +482,20 @@ int mlxsw_sp_mr_route_add(struct mlxsw_sp_mr_table *mr_table,
 	mlxsw_sp_mr_mfc_offload_update(mr_route);
 	return 0;
 
+<<<<<<< HEAD
 err_mr_route_write:
 	rhashtable_remove_fast(&mr_table->route_ht, &mr_route->ht_node,
 			       mlxsw_sp_mr_route_ht_params);
 err_rhashtable_insert:
 	list_del(&mr_route->node);
+=======
+err_rhashtable_insert:
+	mutex_lock(&mr_table->route_list_lock);
+	list_del(&mr_route->node);
+	mutex_unlock(&mr_table->route_list_lock);
+	mlxsw_sp_mr_route_erase(mr_table, mr_route);
+err_mr_route_write:
+>>>>>>> upstream/android-13
 err_no_orig_route:
 err_duplicate_route:
 	mlxsw_sp_mr_route_destroy(mr_table, mr_route);
@@ -460,8 +511,16 @@ void mlxsw_sp_mr_route_del(struct mlxsw_sp_mr_table *mr_table,
 	mr_table->ops->key_create(mr_table, &key, mfc);
 	mr_route = rhashtable_lookup_fast(&mr_table->route_ht, &key,
 					  mlxsw_sp_mr_route_ht_params);
+<<<<<<< HEAD
 	if (mr_route)
 		__mlxsw_sp_mr_route_del(mr_table, mr_route);
+=======
+	if (mr_route) {
+		mutex_lock(&mr_table->route_list_lock);
+		__mlxsw_sp_mr_route_del(mr_table, mr_route);
+		mutex_unlock(&mr_table->route_list_lock);
+	}
+>>>>>>> upstream/android-13
 }
 
 /* Should be called after the VIF struct is updated */
@@ -910,6 +969,10 @@ struct mlxsw_sp_mr_table *mlxsw_sp_mr_table_create(struct mlxsw_sp *mlxsw_sp,
 	mr_table->proto = proto;
 	mr_table->ops = &mlxsw_sp_mr_table_ops_arr[proto];
 	INIT_LIST_HEAD(&mr_table->route_list);
+<<<<<<< HEAD
+=======
+	mutex_init(&mr_table->route_list_lock);
+>>>>>>> upstream/android-13
 
 	err = rhashtable_init(&mr_table->route_ht,
 			      &mlxsw_sp_mr_route_ht_params);
@@ -927,12 +990,22 @@ struct mlxsw_sp_mr_table *mlxsw_sp_mr_table_create(struct mlxsw_sp *mlxsw_sp,
 				       &catchall_route_params);
 	if (err)
 		goto err_ops_route_create;
+<<<<<<< HEAD
 	list_add_tail(&mr_table->node, &mr->table_list);
+=======
+	mutex_lock(&mr->table_list_lock);
+	list_add_tail(&mr_table->node, &mr->table_list);
+	mutex_unlock(&mr->table_list_lock);
+>>>>>>> upstream/android-13
 	return mr_table;
 
 err_ops_route_create:
 	rhashtable_destroy(&mr_table->route_ht);
 err_route_rhashtable_init:
+<<<<<<< HEAD
+=======
+	mutex_destroy(&mr_table->route_list_lock);
+>>>>>>> upstream/android-13
 	kfree(mr_table);
 	return ERR_PTR(err);
 }
@@ -943,10 +1016,20 @@ void mlxsw_sp_mr_table_destroy(struct mlxsw_sp_mr_table *mr_table)
 	struct mlxsw_sp_mr *mr = mlxsw_sp->mr;
 
 	WARN_ON(!mlxsw_sp_mr_table_empty(mr_table));
+<<<<<<< HEAD
 	list_del(&mr_table->node);
 	mr->mr_ops->route_destroy(mlxsw_sp, mr->priv,
 				  &mr_table->catchall_route_priv);
 	rhashtable_destroy(&mr_table->route_ht);
+=======
+	mutex_lock(&mr->table_list_lock);
+	list_del(&mr_table->node);
+	mutex_unlock(&mr->table_list_lock);
+	mr->mr_ops->route_destroy(mlxsw_sp, mr->priv,
+				  &mr_table->catchall_route_priv);
+	rhashtable_destroy(&mr_table->route_ht);
+	mutex_destroy(&mr_table->route_list_lock);
+>>>>>>> upstream/android-13
 	kfree(mr_table);
 }
 
@@ -955,8 +1038,15 @@ void mlxsw_sp_mr_table_flush(struct mlxsw_sp_mr_table *mr_table)
 	struct mlxsw_sp_mr_route *mr_route, *tmp;
 	int i;
 
+<<<<<<< HEAD
 	list_for_each_entry_safe(mr_route, tmp, &mr_table->route_list, node)
 		__mlxsw_sp_mr_route_del(mr_table, mr_route);
+=======
+	mutex_lock(&mr_table->route_list_lock);
+	list_for_each_entry_safe(mr_route, tmp, &mr_table->route_list, node)
+		__mlxsw_sp_mr_route_del(mr_table, mr_route);
+	mutex_unlock(&mr_table->route_list_lock);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < MAXVIFS; i++) {
 		mr_table->vifs[i].dev = NULL;
@@ -1000,12 +1090,24 @@ static void mlxsw_sp_mr_stats_update(struct work_struct *work)
 	struct mlxsw_sp_mr_route *mr_route;
 	unsigned long interval;
 
+<<<<<<< HEAD
 	rtnl_lock();
 	list_for_each_entry(mr_table, &mr->table_list, node)
 		list_for_each_entry(mr_route, &mr_table->route_list, node)
 			mlxsw_sp_mr_route_stats_update(mr_table->mlxsw_sp,
 						       mr_route);
 	rtnl_unlock();
+=======
+	mutex_lock(&mr->table_list_lock);
+	list_for_each_entry(mr_table, &mr->table_list, node) {
+		mutex_lock(&mr_table->route_list_lock);
+		list_for_each_entry(mr_route, &mr_table->route_list, node)
+			mlxsw_sp_mr_route_stats_update(mr_table->mlxsw_sp,
+						       mr_route);
+		mutex_unlock(&mr_table->route_list_lock);
+	}
+	mutex_unlock(&mr->table_list_lock);
+>>>>>>> upstream/android-13
 
 	interval = msecs_to_jiffies(MLXSW_SP_MR_ROUTES_COUNTER_UPDATE_INTERVAL);
 	mlxsw_core_schedule_dw(&mr->stats_update_dw, interval);
@@ -1024,6 +1126,10 @@ int mlxsw_sp_mr_init(struct mlxsw_sp *mlxsw_sp,
 	mr->mr_ops = mr_ops;
 	mlxsw_sp->mr = mr;
 	INIT_LIST_HEAD(&mr->table_list);
+<<<<<<< HEAD
+=======
+	mutex_init(&mr->table_list_lock);
+>>>>>>> upstream/android-13
 
 	err = mr_ops->init(mlxsw_sp, mr->priv);
 	if (err)
@@ -1035,6 +1141,10 @@ int mlxsw_sp_mr_init(struct mlxsw_sp *mlxsw_sp,
 	mlxsw_core_schedule_dw(&mr->stats_update_dw, interval);
 	return 0;
 err:
+<<<<<<< HEAD
+=======
+	mutex_destroy(&mr->table_list_lock);
+>>>>>>> upstream/android-13
 	kfree(mr);
 	return err;
 }
@@ -1045,5 +1155,9 @@ void mlxsw_sp_mr_fini(struct mlxsw_sp *mlxsw_sp)
 
 	cancel_delayed_work_sync(&mr->stats_update_dw);
 	mr->mr_ops->fini(mlxsw_sp, mr->priv);
+<<<<<<< HEAD
+=======
+	mutex_destroy(&mr->table_list_lock);
+>>>>>>> upstream/android-13
 	kfree(mr);
 }

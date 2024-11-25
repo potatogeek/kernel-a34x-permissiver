@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Registration for chip drivers
  *
@@ -30,14 +34,21 @@ void unregister_mtd_chip_driver(struct mtd_chip_driver *drv)
 
 static struct mtd_chip_driver *get_mtd_chip_driver (const char *name)
 {
+<<<<<<< HEAD
 	struct list_head *pos;
+=======
+>>>>>>> upstream/android-13
 	struct mtd_chip_driver *ret = NULL, *this;
 
 	spin_lock(&chip_drvs_lock);
 
+<<<<<<< HEAD
 	list_for_each(pos, &chip_drvs_list) {
 		this = list_entry(pos, typeof(*this), list);
 
+=======
+	list_for_each_entry(this, &chip_drvs_list, list) {
+>>>>>>> upstream/android-13
 		if (!strcmp(this->name, name)) {
 			ret = this;
 			break;

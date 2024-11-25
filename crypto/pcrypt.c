@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * pcrypt - Parallel crypto wrapper.
  *
  * Copyright (C) 2009 secunet Security Networks AG
  * Copyright (C) 2009 Steffen Klassert <steffen.klassert@secunet.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <crypto/algapi.h>
@@ -25,11 +32,15 @@
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 #include <linux/notifier.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/kobject.h>
 #include <linux/cpu.h>
 #include <crypto/pcrypt.h>
 
+<<<<<<< HEAD
 struct padata_pcrypt {
 	struct padata_instance *pinst;
 	struct workqueue_struct *wq;
@@ -58,10 +69,19 @@ struct padata_pcrypt {
 
 static struct padata_pcrypt pencrypt;
 static struct padata_pcrypt pdecrypt;
+=======
+static struct padata_instance *pencrypt;
+static struct padata_instance *pdecrypt;
+>>>>>>> upstream/android-13
 static struct kset           *pcrypt_kset;
 
 struct pcrypt_instance_ctx {
 	struct crypto_aead_spawn spawn;
+<<<<<<< HEAD
+=======
+	struct padata_shell *psenc;
+	struct padata_shell *psdec;
+>>>>>>> upstream/android-13
 	atomic_t tfm_count;
 };
 
@@ -70,6 +90,7 @@ struct pcrypt_aead_ctx {
 	unsigned int cb_cpu;
 };
 
+<<<<<<< HEAD
 static int pcrypt_do_parallel(struct padata_priv *padata, unsigned int *cb_cpu,
 			      struct padata_pcrypt *pcrypt)
 {
@@ -97,6 +118,12 @@ static int pcrypt_do_parallel(struct padata_priv *padata, unsigned int *cb_cpu,
 out:
 	rcu_read_unlock_bh();
 	return padata_do_parallel(pcrypt->pinst, padata, cpu);
+=======
+static inline struct pcrypt_instance_ctx *pcrypt_tfm_ictx(
+	struct crypto_aead *tfm)
+{
+	return aead_instance_ctx(aead_alg_instance(tfm));
+>>>>>>> upstream/android-13
 }
 
 static int pcrypt_aead_setkey(struct crypto_aead *parent,
@@ -138,12 +165,23 @@ static void pcrypt_aead_enc(struct padata_priv *padata)
 {
 	struct pcrypt_request *preq = pcrypt_padata_request(padata);
 	struct aead_request *req = pcrypt_request_ctx(preq);
+<<<<<<< HEAD
 
 	padata->info = crypto_aead_encrypt(req);
 
 	if (padata->info == -EINPROGRESS)
 		return;
 
+=======
+	int ret;
+
+	ret = crypto_aead_encrypt(req);
+
+	if (ret == -EINPROGRESS)
+		return;
+
+	padata->info = ret;
+>>>>>>> upstream/android-13
 	padata_do_serial(padata);
 }
 
@@ -156,6 +194,12 @@ static int pcrypt_aead_encrypt(struct aead_request *req)
 	struct crypto_aead *aead = crypto_aead_reqtfm(req);
 	struct pcrypt_aead_ctx *ctx = crypto_aead_ctx(aead);
 	u32 flags = aead_request_flags(req);
+<<<<<<< HEAD
+=======
+	struct pcrypt_instance_ctx *ictx;
+
+	ictx = pcrypt_tfm_ictx(aead);
+>>>>>>> upstream/android-13
 
 	memset(padata, 0, sizeof(struct padata_priv));
 
@@ -169,7 +213,11 @@ static int pcrypt_aead_encrypt(struct aead_request *req)
 			       req->cryptlen, req->iv);
 	aead_request_set_ad(creq, req->assoclen);
 
+<<<<<<< HEAD
 	err = pcrypt_do_parallel(padata, &ctx->cb_cpu, &pencrypt);
+=======
+	err = padata_do_parallel(ictx->psenc, padata, &ctx->cb_cpu);
+>>>>>>> upstream/android-13
 	if (!err)
 		return -EINPROGRESS;
 
@@ -180,12 +228,23 @@ static void pcrypt_aead_dec(struct padata_priv *padata)
 {
 	struct pcrypt_request *preq = pcrypt_padata_request(padata);
 	struct aead_request *req = pcrypt_request_ctx(preq);
+<<<<<<< HEAD
 
 	padata->info = crypto_aead_decrypt(req);
 
 	if (padata->info == -EINPROGRESS)
 		return;
 
+=======
+	int ret;
+
+	ret = crypto_aead_decrypt(req);
+
+	if (ret == -EINPROGRESS)
+		return;
+
+	padata->info = ret;
+>>>>>>> upstream/android-13
 	padata_do_serial(padata);
 }
 
@@ -198,6 +257,12 @@ static int pcrypt_aead_decrypt(struct aead_request *req)
 	struct crypto_aead *aead = crypto_aead_reqtfm(req);
 	struct pcrypt_aead_ctx *ctx = crypto_aead_ctx(aead);
 	u32 flags = aead_request_flags(req);
+<<<<<<< HEAD
+=======
+	struct pcrypt_instance_ctx *ictx;
+
+	ictx = pcrypt_tfm_ictx(aead);
+>>>>>>> upstream/android-13
 
 	memset(padata, 0, sizeof(struct padata_priv));
 
@@ -211,7 +276,11 @@ static int pcrypt_aead_decrypt(struct aead_request *req)
 			       req->cryptlen, req->iv);
 	aead_request_set_ad(creq, req->assoclen);
 
+<<<<<<< HEAD
 	err = pcrypt_do_parallel(padata, &ctx->cb_cpu, &pdecrypt);
+=======
+	err = padata_do_parallel(ictx->psdec, padata, &ctx->cb_cpu);
+>>>>>>> upstream/android-13
 	if (!err)
 		return -EINPROGRESS;
 
@@ -258,6 +327,11 @@ static void pcrypt_free(struct aead_instance *inst)
 	struct pcrypt_instance_ctx *ctx = aead_instance_ctx(inst);
 
 	crypto_drop_aead(&ctx->spawn);
+<<<<<<< HEAD
+=======
+	padata_free_shell(ctx->psdec);
+	padata_free_shell(ctx->psenc);
+>>>>>>> upstream/android-13
 	kfree(inst);
 }
 
@@ -278,6 +352,7 @@ static int pcrypt_init_instance(struct crypto_instance *inst,
 }
 
 static int pcrypt_create_aead(struct crypto_template *tmpl, struct rtattr **tb,
+<<<<<<< HEAD
 			      u32 type, u32 mask)
 {
 	struct pcrypt_instance_ctx *ctx;
@@ -295,23 +370,57 @@ static int pcrypt_create_aead(struct crypto_template *tmpl, struct rtattr **tb,
 	if (IS_ERR(name))
 		return PTR_ERR(name);
 
+=======
+			      struct crypto_attr_type *algt)
+{
+	struct pcrypt_instance_ctx *ctx;
+	struct aead_instance *inst;
+	struct aead_alg *alg;
+	u32 mask = crypto_algt_inherited_mask(algt);
+	int err;
+
+>>>>>>> upstream/android-13
 	inst = kzalloc(sizeof(*inst) + sizeof(*ctx), GFP_KERNEL);
 	if (!inst)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	ctx = aead_instance_ctx(inst);
 	crypto_set_aead_spawn(&ctx->spawn, aead_crypto_instance(inst));
 
 	err = crypto_grab_aead(&ctx->spawn, name, 0, 0);
 	if (err)
 		goto out_free_inst;
+=======
+	err = -ENOMEM;
+
+	ctx = aead_instance_ctx(inst);
+	ctx->psenc = padata_alloc_shell(pencrypt);
+	if (!ctx->psenc)
+		goto err_free_inst;
+
+	ctx->psdec = padata_alloc_shell(pdecrypt);
+	if (!ctx->psdec)
+		goto err_free_inst;
+
+	err = crypto_grab_aead(&ctx->spawn, aead_crypto_instance(inst),
+			       crypto_attr_alg_name(tb[1]), 0, mask);
+	if (err)
+		goto err_free_inst;
+>>>>>>> upstream/android-13
 
 	alg = crypto_spawn_aead_alg(&ctx->spawn);
 	err = pcrypt_init_instance(aead_crypto_instance(inst), &alg->base);
 	if (err)
+<<<<<<< HEAD
 		goto out_drop_aead;
 
 	inst->alg.base.cra_flags = CRYPTO_ALG_ASYNC;
+=======
+		goto err_free_inst;
+
+	inst->alg.base.cra_flags |= CRYPTO_ALG_ASYNC;
+>>>>>>> upstream/android-13
 
 	inst->alg.ivsize = crypto_aead_alg_ivsize(alg);
 	inst->alg.maxauthsize = crypto_aead_alg_maxauthsize(alg);
@@ -329,6 +438,7 @@ static int pcrypt_create_aead(struct crypto_template *tmpl, struct rtattr **tb,
 	inst->free = pcrypt_free;
 
 	err = aead_register_instance(tmpl, inst);
+<<<<<<< HEAD
 	if (err)
 		goto out_drop_aead;
 
@@ -340,6 +450,13 @@ out_drop_aead:
 out_free_inst:
 	kfree(inst);
 	goto out;
+=======
+	if (err) {
+err_free_inst:
+		pcrypt_free(inst);
+	}
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static int pcrypt_create(struct crypto_template *tmpl, struct rtattr **tb)
@@ -352,12 +469,17 @@ static int pcrypt_create(struct crypto_template *tmpl, struct rtattr **tb)
 
 	switch (algt->type & algt->mask & CRYPTO_ALG_TYPE_MASK) {
 	case CRYPTO_ALG_TYPE_AEAD:
+<<<<<<< HEAD
 		return pcrypt_create_aead(tmpl, tb, algt->type, algt->mask);
+=======
+		return pcrypt_create_aead(tmpl, tb, algt);
+>>>>>>> upstream/android-13
 	}
 
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 static int pcrypt_cpumask_change_notify(struct notifier_block *self,
 					unsigned long val, void *data)
 {
@@ -388,6 +510,8 @@ static int pcrypt_cpumask_change_notify(struct notifier_block *self,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int pcrypt_sysfs_add(struct padata_instance *pinst, const char *name)
 {
 	int ret;
@@ -400,6 +524,7 @@ static int pcrypt_sysfs_add(struct padata_instance *pinst, const char *name)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int pcrypt_init_padata(struct padata_pcrypt *pcrypt,
 			      const char *name)
 {
@@ -465,6 +590,21 @@ static void pcrypt_fini_padata(struct padata_pcrypt *pcrypt)
 	padata_unregister_cpumask_notifier(pcrypt->pinst, &pcrypt->nblock);
 	destroy_workqueue(pcrypt->wq);
 	padata_free(pcrypt->pinst);
+=======
+static int pcrypt_init_padata(struct padata_instance **pinst, const char *name)
+{
+	int ret = -ENOMEM;
+
+	*pinst = padata_alloc(name);
+	if (!*pinst)
+		return ret;
+
+	ret = pcrypt_sysfs_add(*pinst, name);
+	if (ret)
+		padata_free(*pinst);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static struct crypto_template pcrypt_tmpl = {
@@ -489,6 +629,7 @@ static int __init pcrypt_init(void)
 	if (err)
 		goto err_deinit_pencrypt;
 
+<<<<<<< HEAD
 	padata_start(pencrypt.pinst);
 	padata_start(pdecrypt.pinst);
 
@@ -496,6 +637,12 @@ static int __init pcrypt_init(void)
 
 err_deinit_pencrypt:
 	pcrypt_fini_padata(&pencrypt);
+=======
+	return crypto_register_template(&pcrypt_tmpl);
+
+err_deinit_pencrypt:
+	padata_free(pencrypt);
+>>>>>>> upstream/android-13
 err_unreg_kset:
 	kset_unregister(pcrypt_kset);
 err:
@@ -506,13 +653,22 @@ static void __exit pcrypt_exit(void)
 {
 	crypto_unregister_template(&pcrypt_tmpl);
 
+<<<<<<< HEAD
 	pcrypt_fini_padata(&pencrypt);
 	pcrypt_fini_padata(&pdecrypt);
+=======
+	padata_free(pencrypt);
+	padata_free(pdecrypt);
+>>>>>>> upstream/android-13
 
 	kset_unregister(pcrypt_kset);
 }
 
+<<<<<<< HEAD
 module_init(pcrypt_init);
+=======
+subsys_initcall(pcrypt_init);
+>>>>>>> upstream/android-13
 module_exit(pcrypt_exit);
 
 MODULE_LICENSE("GPL");

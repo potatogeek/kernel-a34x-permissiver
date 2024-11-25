@@ -53,6 +53,10 @@ nvif_driver_init(const char *drv, const char *cfg, const char *dbg,
 	}
 
 	if (ret == 0)
+<<<<<<< HEAD
 		ret = nvif_client_init(client, name, device, client);
+=======
+		ret = nvif_client_ctor(client, name, device, client);
+>>>>>>> upstream/android-13
 	return ret;
 }

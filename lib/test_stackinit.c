@@ -1,8 +1,21 @@
+<<<<<<< HEAD
 // SPDX-Licenses: GPLv2
 /*
  * Test cases for compiler-based stack variable zeroing via future
  * compiler flags or CONFIG_GCC_PLUGIN_STRUCTLEAK*.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Test cases for compiler-based stack variable zeroing via
+ * -ftrivial-auto-var-init={zero,pattern} or CONFIG_GCC_PLUGIN_STRUCTLEAK*.
+ *
+ * External build example:
+ *	clang -O2 -Wall -ftrivial-auto-var-init=pattern \
+ *		-o test_stackinit test_stackinit.c
+ */
+#ifdef __KERNEL__
+>>>>>>> upstream/android-13
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
 #include <linux/init.h>
@@ -10,6 +23,66 @@
 #include <linux/module.h>
 #include <linux/string.h>
 
+<<<<<<< HEAD
+=======
+#else
+
+/* Userspace headers. */
+#include <stdio.h>
+#include <stdint.h>
+#include <string.h>
+#include <stdbool.h>
+#include <errno.h>
+#include <sys/types.h>
+
+/* Linux kernel-ism stubs for stand-alone userspace build. */
+#define KBUILD_MODNAME		"stackinit"
+#define pr_fmt(fmt)		KBUILD_MODNAME ": " fmt
+#define pr_err(fmt, ...)	fprintf(stderr, pr_fmt(fmt), ##__VA_ARGS__)
+#define pr_warn(fmt, ...)	fprintf(stderr, pr_fmt(fmt), ##__VA_ARGS__)
+#define pr_info(fmt, ...)	fprintf(stdout, pr_fmt(fmt), ##__VA_ARGS__)
+#define __init			/**/
+#define __exit			/**/
+#define __user			/**/
+#define noinline		__attribute__((__noinline__))
+#define __aligned(x)		__attribute__((__aligned__(x)))
+#ifdef __clang__
+# define __compiletime_error(message) /**/
+#else
+# define __compiletime_error(message) __attribute__((__error__(message)))
+#endif
+#define __compiletime_assert(condition, msg, prefix, suffix)		\
+	do {								\
+		extern void prefix ## suffix(void) __compiletime_error(msg); \
+		if (!(condition))					\
+			prefix ## suffix();				\
+	} while (0)
+#define _compiletime_assert(condition, msg, prefix, suffix) \
+	__compiletime_assert(condition, msg, prefix, suffix)
+#define compiletime_assert(condition, msg) \
+	_compiletime_assert(condition, msg, __compiletime_assert_, __COUNTER__)
+#define BUILD_BUG_ON_MSG(cond, msg) compiletime_assert(!(cond), msg)
+#define BUILD_BUG_ON(condition) \
+	BUILD_BUG_ON_MSG(condition, "BUILD_BUG_ON failed: " #condition)
+typedef uint8_t			u8;
+typedef uint16_t		u16;
+typedef uint32_t		u32;
+typedef uint64_t		u64;
+
+#define module_init(func)	static int (*do_init)(void) = func
+#define module_exit(func)	static void (*do_exit)(void) = func
+#define MODULE_LICENSE(str)	int main(void) {		\
+					int rc;			\
+					/* License: str */	\
+					rc = do_init();		\
+					if (rc == 0)		\
+						do_exit();	\
+					return rc;		\
+				}
+
+#endif /* __KERNEL__ */
+
+>>>>>>> upstream/android-13
 /* Exfiltration buffer. */
 #define MAX_VAR_SIZE	128
 static u8 check_buf[MAX_VAR_SIZE];
@@ -33,6 +106,13 @@ static bool range_contains(char *haystack_start, size_t haystack_size,
 	return false;
 }
 
+<<<<<<< HEAD
+=======
+/* Whether the test is expected to fail. */
+#define WANT_SUCCESS				0
+#define XFAIL					1
+
+>>>>>>> upstream/android-13
 #define DO_NOTHING_TYPE_SCALAR(var_type)	var_type
 #define DO_NOTHING_TYPE_STRING(var_type)	void
 #define DO_NOTHING_TYPE_STRUCT(var_type)	void
@@ -58,6 +138,7 @@ static bool range_contains(char *haystack_start, size_t haystack_size,
 #define INIT_CLONE_STRING		[FILL_SIZE_STRING]
 #define INIT_CLONE_STRUCT		/**/
 
+<<<<<<< HEAD
 #define INIT_SCALAR_none		/**/
 #define INIT_SCALAR_zero		= 0
 
@@ -86,6 +167,75 @@ static bool range_contains(char *haystack_start, size_t haystack_size,
 					var.three = 0;			\
 					memset(&var.four, 0,		\
 					       sizeof(var.four))
+=======
+#define ZERO_CLONE_SCALAR(zero)		memset(&(zero), 0x00, sizeof(zero))
+#define ZERO_CLONE_STRING(zero)		memset(&(zero), 0x00, sizeof(zero))
+/*
+ * For the struct, intentionally poison padding to see if it gets
+ * copied out in direct assignments.
+ * */
+#define ZERO_CLONE_STRUCT(zero)				\
+	do {						\
+		memset(&(zero), 0xFF, sizeof(zero));	\
+		zero.one = 0;				\
+		zero.two = 0;				\
+		zero.three = 0;				\
+		zero.four = 0;				\
+	} while (0)
+
+#define INIT_SCALAR_none(var_type)	/**/
+#define INIT_SCALAR_zero(var_type)	= 0
+
+#define INIT_STRING_none(var_type)	[FILL_SIZE_STRING] /**/
+#define INIT_STRING_zero(var_type)	[FILL_SIZE_STRING] = { }
+
+#define INIT_STRUCT_none(var_type)	/**/
+#define INIT_STRUCT_zero(var_type)	= { }
+
+
+#define __static_partial		{ .two = 0, }
+#define __static_all			{ .one = 0,			\
+					  .two = 0,			\
+					  .three = 0,			\
+					  .four = 0,			\
+					}
+#define __dynamic_partial		{ .two = arg->two, }
+#define __dynamic_all			{ .one = arg->one,		\
+					  .two = arg->two,		\
+					  .three = arg->three,		\
+					  .four = arg->four,		\
+					}
+#define __runtime_partial		var.two = 0
+#define __runtime_all			var.one = 0;			\
+					var.two = 0;			\
+					var.three = 0;			\
+					var.four = 0
+
+#define INIT_STRUCT_static_partial(var_type)				\
+					= __static_partial
+#define INIT_STRUCT_static_all(var_type)				\
+					= __static_all
+#define INIT_STRUCT_dynamic_partial(var_type)				\
+					= __dynamic_partial
+#define INIT_STRUCT_dynamic_all(var_type)				\
+					= __dynamic_all
+#define INIT_STRUCT_runtime_partial(var_type)				\
+					; __runtime_partial
+#define INIT_STRUCT_runtime_all(var_type)				\
+					; __runtime_all
+
+#define INIT_STRUCT_assigned_static_partial(var_type)			\
+					; var = (var_type)__static_partial
+#define INIT_STRUCT_assigned_static_all(var_type)			\
+					; var = (var_type)__static_all
+#define INIT_STRUCT_assigned_dynamic_partial(var_type)			\
+					; var = (var_type)__dynamic_partial
+#define INIT_STRUCT_assigned_dynamic_all(var_type)			\
+					; var = (var_type)__dynamic_all
+
+#define INIT_STRUCT_assigned_copy(var_type)				\
+					; var = *(arg)
+>>>>>>> upstream/android-13
 
 /*
  * @name: unique string name for the test
@@ -106,7 +256,11 @@ static noinline __init int test_ ## name (void)			\
 	BUILD_BUG_ON(sizeof(zero) > MAX_VAR_SIZE);		\
 								\
 	/* Fill clone type with zero for per-field init. */	\
+<<<<<<< HEAD
 	memset(&zero, 0x00, sizeof(zero));			\
+=======
+	ZERO_CLONE_ ## which(zero);				\
+>>>>>>> upstream/android-13
 	/* Clear entire check buffer for 0xFF overlap test. */	\
 	memset(check_buf, 0x00, sizeof(check_buf));		\
 	/* Fill stack with 0xFF. */				\
@@ -149,7 +303,11 @@ static noinline __init int test_ ## name (void)			\
 		return (xfail) ? 0 : 1;				\
 	}							\
 }
+<<<<<<< HEAD
 #define DEFINE_TEST(name, var_type, which, init_level)		\
+=======
+#define DEFINE_TEST(name, var_type, which, init_level, xfail)	\
+>>>>>>> upstream/android-13
 /* no-op to force compiler into ignoring "uninitialized" vars */\
 static noinline __init DO_NOTHING_TYPE_ ## which(var_type)	\
 do_nothing_ ## name(var_type *ptr)				\
@@ -165,7 +323,12 @@ static noinline __init int leaf_ ## name(unsigned long sp,	\
 					 var_type *arg)		\
 {								\
 	char buf[VAR_BUFFER];					\
+<<<<<<< HEAD
 	var_type var INIT_ ## which ## _ ## init_level;		\
+=======
+	var_type var						\
+		INIT_ ## which ## _ ## init_level(var_type);	\
+>>>>>>> upstream/android-13
 								\
 	target_start = &var;					\
 	target_size = sizeof(var);				\
@@ -191,7 +354,11 @@ static noinline __init int leaf_ ## name(unsigned long sp,	\
 								\
 	return (int)buf[0] | (int)buf[sizeof(buf) - 1];		\
 }								\
+<<<<<<< HEAD
 DEFINE_TEST_DRIVER(name, var_type, which, 0)
+=======
+DEFINE_TEST_DRIVER(name, var_type, which, xfail)
+>>>>>>> upstream/android-13
 
 /* Structure with no padding. */
 struct test_packed {
@@ -210,18 +377,26 @@ struct test_small_hole {
 	unsigned long four;
 };
 
+<<<<<<< HEAD
 /* Try to trigger unhandled padding in a structure. */
 struct test_aligned {
 	u32 internal1;
 	u64 internal2;
 } __aligned(64);
 
+=======
+/* Trigger unhandled padding in a structure. */
+>>>>>>> upstream/android-13
 struct test_big_hole {
 	u8 one;
 	u8 two;
 	u8 three;
 	/* 61 byte padding hole here. */
+<<<<<<< HEAD
 	struct test_aligned four;
+=======
+	u8 four __aligned(64);
+>>>>>>> upstream/android-13
 } __aligned(64);
 
 struct test_trailing_hole {
@@ -240,6 +415,7 @@ struct test_user {
 	unsigned long four;
 };
 
+<<<<<<< HEAD
 #define DEFINE_SCALAR_TEST(name, init)				\
 		DEFINE_TEST(name ## _ ## init, name, SCALAR, init)
 
@@ -276,6 +452,52 @@ DEFINE_STRUCT_TESTS(runtime_all);
 DEFINE_SCALAR_TESTS(none);
 DEFINE_STRUCT_TESTS(none);
 DEFINE_TEST(user, struct test_user, STRUCT, none);
+=======
+#define DEFINE_SCALAR_TEST(name, init, xfail)			\
+		DEFINE_TEST(name ## _ ## init, name, SCALAR,	\
+			    init, xfail)
+
+#define DEFINE_SCALAR_TESTS(init, xfail)			\
+		DEFINE_SCALAR_TEST(u8, init, xfail);		\
+		DEFINE_SCALAR_TEST(u16, init, xfail);		\
+		DEFINE_SCALAR_TEST(u32, init, xfail);		\
+		DEFINE_SCALAR_TEST(u64, init, xfail);		\
+		DEFINE_TEST(char_array_ ## init, unsigned char,	\
+			    STRING, init, xfail)
+
+#define DEFINE_STRUCT_TEST(name, init, xfail)			\
+		DEFINE_TEST(name ## _ ## init,			\
+			    struct test_ ## name, STRUCT, init, \
+			    xfail)
+
+#define DEFINE_STRUCT_TESTS(init, xfail)			\
+		DEFINE_STRUCT_TEST(small_hole, init, xfail);	\
+		DEFINE_STRUCT_TEST(big_hole, init, xfail);	\
+		DEFINE_STRUCT_TEST(trailing_hole, init, xfail);	\
+		DEFINE_STRUCT_TEST(packed, init, xfail)
+
+#define DEFINE_STRUCT_INITIALIZER_TESTS(base)			\
+		DEFINE_STRUCT_TESTS(base ## _ ## partial,	\
+				    WANT_SUCCESS);		\
+		DEFINE_STRUCT_TESTS(base ## _ ## all,		\
+				    WANT_SUCCESS)
+
+/* These should be fully initialized all the time! */
+DEFINE_SCALAR_TESTS(zero, WANT_SUCCESS);
+DEFINE_STRUCT_TESTS(zero, WANT_SUCCESS);
+/* Struct initializers: padding may be left uninitialized. */
+DEFINE_STRUCT_INITIALIZER_TESTS(static);
+DEFINE_STRUCT_INITIALIZER_TESTS(dynamic);
+DEFINE_STRUCT_INITIALIZER_TESTS(runtime);
+DEFINE_STRUCT_INITIALIZER_TESTS(assigned_static);
+DEFINE_STRUCT_INITIALIZER_TESTS(assigned_dynamic);
+DEFINE_STRUCT_TESTS(assigned_copy, XFAIL);
+/* No initialization without compiler instrumentation. */
+DEFINE_SCALAR_TESTS(none, WANT_SUCCESS);
+DEFINE_STRUCT_TESTS(none, WANT_SUCCESS);
+/* Initialization of members with __user attribute. */
+DEFINE_TEST(user, struct test_user, STRUCT, none, WANT_SUCCESS);
+>>>>>>> upstream/android-13
 
 /*
  * Check two uses through a variable declaration outside either path,
@@ -285,6 +507,13 @@ DEFINE_TEST(user, struct test_user, STRUCT, none);
 static int noinline __leaf_switch_none(int path, bool fill)
 {
 	switch (path) {
+<<<<<<< HEAD
+=======
+		/*
+		 * This is intentionally unreachable. To silence the
+		 * warning, build with -Wno-switch-unreachable
+		 */
+>>>>>>> upstream/android-13
 		uint64_t var;
 
 	case 1:
@@ -334,8 +563,13 @@ static noinline __init int leaf_switch_2_none(unsigned long sp, bool fill,
  * non-code areas (i.e. in a switch statement before the first "case").
  * https://bugs.llvm.org/show_bug.cgi?id=44916
  */
+<<<<<<< HEAD
 DEFINE_TEST_DRIVER(switch_1_none, uint64_t, SCALAR, 1);
 DEFINE_TEST_DRIVER(switch_2_none, uint64_t, SCALAR, 1);
+=======
+DEFINE_TEST_DRIVER(switch_1_none, uint64_t, SCALAR, XFAIL);
+DEFINE_TEST_DRIVER(switch_2_none, uint64_t, SCALAR, XFAIL);
+>>>>>>> upstream/android-13
 
 static int __init test_stackinit_init(void)
 {
@@ -361,12 +595,24 @@ static int __init test_stackinit_init(void)
 	test_structs(zero);
 	/* Padding here appears to be accidentally always initialized? */
 	test_structs(dynamic_partial);
+<<<<<<< HEAD
+=======
+	test_structs(assigned_dynamic_partial);
+>>>>>>> upstream/android-13
 	/* Padding initialization depends on compiler behaviors. */
 	test_structs(static_partial);
 	test_structs(static_all);
 	test_structs(dynamic_all);
 	test_structs(runtime_partial);
 	test_structs(runtime_all);
+<<<<<<< HEAD
+=======
+	test_structs(assigned_static_partial);
+	test_structs(assigned_static_all);
+	test_structs(assigned_dynamic_all);
+	/* Everything fails this since it effectively performs a memcpy(). */
+	test_structs(assigned_copy);
+>>>>>>> upstream/android-13
 
 	/* STRUCTLEAK_BYREF_ALL should cover everything from here down. */
 	test_scalars(none);

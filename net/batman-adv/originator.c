@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 /* Copyright (C) 2009-2018  B.A.T.M.A.N. contributors:
  *
  * Marek Lindner, Simon Wunderlich
@@ -14,6 +15,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+/* Copyright (C) B.A.T.M.A.N. contributors:
+ *
+ * Marek Lindner, Simon Wunderlich
+>>>>>>> upstream/android-13
  */
 
 #include "originator.h"
@@ -32,13 +38,20 @@
 #include <linux/netlink.h>
 #include <linux/rculist.h>
 #include <linux/rcupdate.h>
+<<<<<<< HEAD
 #include <linux/seq_file.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/skbuff.h>
 #include <linux/slab.h>
 #include <linux/spinlock.h>
 #include <linux/stddef.h>
 #include <linux/workqueue.h>
 #include <net/sock.h>
+<<<<<<< HEAD
+=======
+#include <uapi/linux/batadv_packet.h>
+>>>>>>> upstream/android-13
 #include <uapi/linux/batman_adv.h>
 
 #include "bat_algo.h"
@@ -189,7 +202,11 @@ out:
  *  and queue for free after rcu grace period
  * @ref: kref pointer of the originator-vlan object
  */
+<<<<<<< HEAD
 static void batadv_orig_node_vlan_release(struct kref *ref)
+=======
+void batadv_orig_node_vlan_release(struct kref *ref)
+>>>>>>> upstream/android-13
 {
 	struct batadv_orig_node_vlan *orig_vlan;
 
@@ -199,6 +216,7 @@ static void batadv_orig_node_vlan_release(struct kref *ref)
 }
 
 /**
+<<<<<<< HEAD
  * batadv_orig_node_vlan_put() - decrement the refcounter and possibly release
  *  the originator-vlan object
  * @orig_vlan: the originator-vlan object to release
@@ -209,6 +227,8 @@ void batadv_orig_node_vlan_put(struct batadv_orig_node_vlan *orig_vlan)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * batadv_originator_init() - Initialize all originator structures
  * @bat_priv: the bat priv with all the soft interface information
  *
@@ -243,7 +263,11 @@ err:
  *  free after rcu grace period
  * @ref: kref pointer of the neigh_ifinfo
  */
+<<<<<<< HEAD
 static void batadv_neigh_ifinfo_release(struct kref *ref)
+=======
+void batadv_neigh_ifinfo_release(struct kref *ref)
+>>>>>>> upstream/android-13
 {
 	struct batadv_neigh_ifinfo *neigh_ifinfo;
 
@@ -256,6 +280,7 @@ static void batadv_neigh_ifinfo_release(struct kref *ref)
 }
 
 /**
+<<<<<<< HEAD
  * batadv_neigh_ifinfo_put() - decrement the refcounter and possibly release
  *  the neigh_ifinfo
  * @neigh_ifinfo: the neigh_ifinfo object to release
@@ -266,11 +291,17 @@ void batadv_neigh_ifinfo_put(struct batadv_neigh_ifinfo *neigh_ifinfo)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * batadv_hardif_neigh_release() - release hardif neigh node from lists and
  *  queue for free after rcu grace period
  * @ref: kref pointer of the neigh_node
  */
+<<<<<<< HEAD
 static void batadv_hardif_neigh_release(struct kref *ref)
+=======
+void batadv_hardif_neigh_release(struct kref *ref)
+>>>>>>> upstream/android-13
 {
 	struct batadv_hardif_neigh_node *hardif_neigh;
 
@@ -286,6 +317,7 @@ static void batadv_hardif_neigh_release(struct kref *ref)
 }
 
 /**
+<<<<<<< HEAD
  * batadv_hardif_neigh_put() - decrement the hardif neighbors refcounter
  *  and possibly release it
  * @hardif_neigh: hardif neigh neighbor to free
@@ -296,11 +328,17 @@ void batadv_hardif_neigh_put(struct batadv_hardif_neigh_node *hardif_neigh)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * batadv_neigh_node_release() - release neigh_node from lists and queue for
  *  free after rcu grace period
  * @ref: kref pointer of the neigh_node
  */
+<<<<<<< HEAD
 static void batadv_neigh_node_release(struct kref *ref)
+=======
+void batadv_neigh_node_release(struct kref *ref)
+>>>>>>> upstream/android-13
 {
 	struct hlist_node *node_tmp;
 	struct batadv_neigh_node *neigh_node;
@@ -321,6 +359,7 @@ static void batadv_neigh_node_release(struct kref *ref)
 }
 
 /**
+<<<<<<< HEAD
  * batadv_neigh_node_put() - decrement the neighbors refcounter and possibly
  *  release it
  * @neigh_node: neigh neighbor to free
@@ -331,12 +370,18 @@ void batadv_neigh_node_put(struct batadv_neigh_node *neigh_node)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * batadv_orig_router_get() - router to the originator depending on iface
  * @orig_node: the orig node for the router
  * @if_outgoing: the interface where the payload packet has been received or
  *  the OGM should be sent to
  *
+<<<<<<< HEAD
  * Return: the neighbor which should be router for this orig_node/iface.
+=======
+ * Return: the neighbor which should be the router for this orig_node/iface.
+>>>>>>> upstream/android-13
  *
  * The object is returned with refcounter increased by 1.
  */
@@ -526,7 +571,11 @@ out:
  * Looks for and possibly returns a neighbour belonging to this originator list
  * which is connected through the provided hard interface.
  *
+<<<<<<< HEAD
  * Return: neighbor when found. Othwerwise NULL
+=======
+ * Return: neighbor when found. Otherwise NULL
+>>>>>>> upstream/android-13
  */
 static struct batadv_neigh_node *
 batadv_neigh_node_get(const struct batadv_orig_node *orig_node,
@@ -631,7 +680,11 @@ batadv_hardif_neigh_get_or_create(struct batadv_hard_iface *hard_iface,
  *
  * Looks for and possibly returns a neighbour belonging to this hard interface.
  *
+<<<<<<< HEAD
  * Return: neighbor when found. Othwerwise NULL
+=======
+ * Return: neighbor when found. Otherwise NULL
+>>>>>>> upstream/android-13
  */
 struct batadv_hardif_neigh_node *
 batadv_hardif_neigh_get(const struct batadv_hard_iface *hard_iface,
@@ -716,8 +769,12 @@ batadv_neigh_node_create(struct batadv_orig_node *orig_node,
 out:
 	spin_unlock_bh(&orig_node->neigh_list_lock);
 
+<<<<<<< HEAD
 	if (hardif_neigh)
 		batadv_hardif_neigh_put(hardif_neigh);
+=======
+	batadv_hardif_neigh_put(hardif_neigh);
+>>>>>>> upstream/android-13
 	return neigh_node;
 }
 
@@ -744,6 +801,7 @@ batadv_neigh_node_get_or_create(struct batadv_orig_node *orig_node,
 	return batadv_neigh_node_create(orig_node, hard_iface, neigh_addr);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_BATMAN_ADV_DEBUGFS
 /**
  * batadv_hardif_neigh_seq_print_text() - print the single hop neighbour list
@@ -780,6 +838,8 @@ int batadv_hardif_neigh_seq_print_text(struct seq_file *seq, void *offset)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /**
  * batadv_hardif_neigh_dump() - Dump to netlink the neighbor infos for a
  *  specific outgoing interface
@@ -845,6 +905,7 @@ int batadv_hardif_neigh_dump(struct sk_buff *msg, struct netlink_callback *cb)
 	ret = msg->len;
 
  out:
+<<<<<<< HEAD
 	if (hardif)
 		batadv_hardif_put(hardif);
 	if (hard_iface)
@@ -853,6 +914,12 @@ int batadv_hardif_neigh_dump(struct sk_buff *msg, struct netlink_callback *cb)
 		batadv_hardif_put(primary_if);
 	if (soft_iface)
 		dev_put(soft_iface);
+=======
+	batadv_hardif_put(hardif);
+	dev_put(hard_iface);
+	batadv_hardif_put(primary_if);
+	dev_put(soft_iface);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -862,7 +929,11 @@ int batadv_hardif_neigh_dump(struct sk_buff *msg, struct netlink_callback *cb)
  *  free after rcu grace period
  * @ref: kref pointer of the orig_ifinfo
  */
+<<<<<<< HEAD
 static void batadv_orig_ifinfo_release(struct kref *ref)
+=======
+void batadv_orig_ifinfo_release(struct kref *ref)
+>>>>>>> upstream/android-13
 {
 	struct batadv_orig_ifinfo *orig_ifinfo;
 	struct batadv_neigh_node *router;
@@ -874,13 +945,18 @@ static void batadv_orig_ifinfo_release(struct kref *ref)
 
 	/* this is the last reference to this object */
 	router = rcu_dereference_protected(orig_ifinfo->router, true);
+<<<<<<< HEAD
 	if (router)
 		batadv_neigh_node_put(router);
+=======
+	batadv_neigh_node_put(router);
+>>>>>>> upstream/android-13
 
 	kfree_rcu(orig_ifinfo, rcu);
 }
 
 /**
+<<<<<<< HEAD
  * batadv_orig_ifinfo_put() - decrement the refcounter and possibly release
  *  the orig_ifinfo
  * @orig_ifinfo: the orig_ifinfo object to release
@@ -891,6 +967,8 @@ void batadv_orig_ifinfo_put(struct batadv_orig_ifinfo *orig_ifinfo)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * batadv_orig_node_free_rcu() - free the orig_node
  * @rcu: rcu pointer of the orig_node
  */
@@ -904,9 +982,12 @@ static void batadv_orig_node_free_rcu(struct rcu_head *rcu)
 
 	batadv_frag_purge_orig(orig_node, NULL);
 
+<<<<<<< HEAD
 	if (orig_node->bat_priv->algo_ops->orig.free)
 		orig_node->bat_priv->algo_ops->orig.free(orig_node);
 
+=======
+>>>>>>> upstream/android-13
 	kfree(orig_node->tt_buff);
 	kfree(orig_node);
 }
@@ -916,7 +997,11 @@ static void batadv_orig_node_free_rcu(struct rcu_head *rcu)
  *  free after rcu grace period
  * @ref: kref pointer of the orig_node
  */
+<<<<<<< HEAD
 static void batadv_orig_node_release(struct kref *ref)
+=======
+void batadv_orig_node_release(struct kref *ref)
+>>>>>>> upstream/android-13
 {
 	struct hlist_node *node_tmp;
 	struct batadv_neigh_node *neigh_node;
@@ -946,8 +1031,12 @@ static void batadv_orig_node_release(struct kref *ref)
 	orig_node->last_bonding_candidate = NULL;
 	spin_unlock_bh(&orig_node->neigh_list_lock);
 
+<<<<<<< HEAD
 	if (last_candidate)
 		batadv_orig_ifinfo_put(last_candidate);
+=======
+	batadv_orig_ifinfo_put(last_candidate);
+>>>>>>> upstream/android-13
 
 	spin_lock_bh(&orig_node->vlan_list_lock);
 	hlist_for_each_entry_safe(vlan, node_tmp, &orig_node->vlan_list, list) {
@@ -963,6 +1052,7 @@ static void batadv_orig_node_release(struct kref *ref)
 }
 
 /**
+<<<<<<< HEAD
  * batadv_orig_node_put() - decrement the orig node refcounter and possibly
  *  release it
  * @orig_node: the orig node to free
@@ -973,6 +1063,8 @@ void batadv_orig_node_put(struct batadv_orig_node *orig_node)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * batadv_originator_free() - Free all originator structures
  * @bat_priv: the bat priv with all the soft interface information
  */
@@ -1013,7 +1105,11 @@ void batadv_originator_free(struct batadv_priv *bat_priv)
  * @bat_priv: the bat priv with all the soft interface information
  * @addr: the mac address of the originator
  *
+<<<<<<< HEAD
  * Creates a new originator object and initialise all the generic fields.
+=======
+ * Creates a new originator object and initialises all the generic fields.
+>>>>>>> upstream/android-13
  * The new object is not added to the originator list.
  *
  * Return: the newly created object or NULL on failure.
@@ -1058,7 +1154,12 @@ struct batadv_orig_node *batadv_orig_node_new(struct batadv_priv *bat_priv,
 	orig_node->bcast_seqno_reset = reset_time;
 
 #ifdef CONFIG_BATMAN_ADV_MCAST
+<<<<<<< HEAD
 	orig_node->mcast_flags = BATADV_NO_FLAGS;
+=======
+	orig_node->mcast_flags = BATADV_MCAST_WANT_NO_RTR4;
+	orig_node->mcast_flags |= BATADV_MCAST_WANT_NO_RTR6;
+>>>>>>> upstream/android-13
 	INIT_HLIST_NODE(&orig_node->mcast_want_all_unsnoopables_node);
 	INIT_HLIST_NODE(&orig_node->mcast_want_all_ipv4_node);
 	INIT_HLIST_NODE(&orig_node->mcast_want_all_ipv6_node);
@@ -1263,8 +1364,12 @@ batadv_find_best_neighbor(struct batadv_priv *bat_priv,
 		if (!kref_get_unless_zero(&neigh->refcount))
 			continue;
 
+<<<<<<< HEAD
 		if (best)
 			batadv_neigh_node_put(best);
+=======
+		batadv_neigh_node_put(best);
+>>>>>>> upstream/android-13
 
 		best = neigh;
 	}
@@ -1309,8 +1414,12 @@ static bool batadv_purge_orig_node(struct batadv_priv *bat_priv,
 						    BATADV_IF_DEFAULT);
 	batadv_update_route(bat_priv, orig_node, BATADV_IF_DEFAULT,
 			    best_neigh_node);
+<<<<<<< HEAD
 	if (best_neigh_node)
 		batadv_neigh_node_put(best_neigh_node);
+=======
+	batadv_neigh_node_put(best_neigh_node);
+>>>>>>> upstream/android-13
 
 	/* ... then for all other interfaces. */
 	rcu_read_lock();
@@ -1329,8 +1438,12 @@ static bool batadv_purge_orig_node(struct batadv_priv *bat_priv,
 							    hard_iface);
 		batadv_update_route(bat_priv, orig_node, hard_iface,
 				    best_neigh_node);
+<<<<<<< HEAD
 		if (best_neigh_node)
 			batadv_neigh_node_put(best_neigh_node);
+=======
+		batadv_neigh_node_put(best_neigh_node);
+>>>>>>> upstream/android-13
 
 		batadv_hardif_put(hard_iface);
 	}
@@ -1395,6 +1508,7 @@ static void batadv_purge_orig(struct work_struct *work)
 			   msecs_to_jiffies(BATADV_ORIG_WORK_PERIOD));
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_BATMAN_ADV_DEBUGFS
 
 /**
@@ -1479,6 +1593,8 @@ out:
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /**
  * batadv_orig_dump() - Dump to netlink the originator infos for a specific
  *  outgoing interface
@@ -1544,6 +1660,7 @@ int batadv_orig_dump(struct sk_buff *msg, struct netlink_callback *cb)
 	ret = msg->len;
 
  out:
+<<<<<<< HEAD
 	if (hardif)
 		batadv_hardif_put(hardif);
 	if (hard_iface)
@@ -1659,3 +1776,12 @@ err:
 	rcu_read_unlock();
 	return -ENOMEM;
 }
+=======
+	batadv_hardif_put(hardif);
+	dev_put(hard_iface);
+	batadv_hardif_put(primary_if);
+	dev_put(soft_iface);
+
+	return ret;
+}
+>>>>>>> upstream/android-13

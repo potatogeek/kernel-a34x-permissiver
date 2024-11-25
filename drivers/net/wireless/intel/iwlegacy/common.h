@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /******************************************************************************
  *
  * Copyright(c) 2003 - 2011 Intel Corporation. All rights reserved.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -18,6 +23,8 @@
  * The full GNU General Public License is included in this distribution in the
  * file called LICENSE.
  *
+=======
+>>>>>>> upstream/android-13
  * Contact Information:
  *  Intel Linux Wireless <ilw@linux.intel.com>
  * Intel Corporation, 5200 N.E. Elam Young Parkway, Hillsboro, OR 97124-6497
@@ -794,9 +801,12 @@ struct il_sensitivity_ranges {
 	u16 nrg_th_cca;
 };
 
+<<<<<<< HEAD
 #define KELVIN_TO_CELSIUS(x) ((x)-273)
 #define CELSIUS_TO_KELVIN(x) ((x)+273)
 
+=======
+>>>>>>> upstream/android-13
 /**
  * struct il_hw_params
  * @bcast_id: f/w broadcast station ID
@@ -2030,6 +2040,7 @@ static inline void
 _il_release_nic_access(struct il_priv *il)
 {
 	_il_clear_bit(il, CSR_GP_CNTRL, CSR_GP_CNTRL_REG_FLAG_MAC_ACCESS_REQ);
+<<<<<<< HEAD
 	/*
 	 * In above we are reading CSR_GP_CNTRL register, what will flush any
 	 * previous writes, but still want write, which clear MAC_ACCESS_REQ
@@ -2037,6 +2048,8 @@ _il_release_nic_access(struct il_priv *il)
 	 * different CPUs (after we drop reg_lock).
 	 */
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 }
 
 static inline u32
@@ -2829,10 +2842,13 @@ struct il_lq_sta {
 	struct il_traffic_load load[TID_MAX_LOAD_COUNT];
 	u8 tx_agg_tid_en;
 #ifdef CONFIG_MAC80211_DEBUGFS
+<<<<<<< HEAD
 	struct dentry *rs_sta_dbgfs_scale_table_file;
 	struct dentry *rs_sta_dbgfs_stats_table_file;
 	struct dentry *rs_sta_dbgfs_rate_scale_data_file;
 	struct dentry *rs_sta_dbgfs_tx_agg_tid_en_file;
+=======
+>>>>>>> upstream/android-13
 	u32 dbg_fixed_rate;
 #endif
 	struct il_priv *drv;
@@ -2954,8 +2970,13 @@ do {									\
 #define IL_DBG(level, fmt, args...)					\
 do {									\
 	if (il_get_debug_level(il) & level)				\
+<<<<<<< HEAD
 		dev_err(&il->hw->wiphy->dev, "%c %s " fmt,		\
 			in_interrupt() ? 'I' : 'U', __func__ , ##args); \
+=======
+		dev_err(&il->hw->wiphy->dev, "%s " fmt, __func__,	\
+			 ##args);					\
+>>>>>>> upstream/android-13
 } while (0)
 
 #define il_print_hex_dump(il, level, p, len)				\
@@ -2966,7 +2987,11 @@ do {									\
 } while (0)
 
 #else
+<<<<<<< HEAD
 #define IL_DBG(level, fmt, args...)
+=======
+#define IL_DBG(level, fmt, args...) no_printk(fmt, ##args)
+>>>>>>> upstream/android-13
 static inline void
 il_print_hex_dump(struct il_priv *il, int level, const void *p, u32 len)
 {
@@ -2974,6 +2999,7 @@ il_print_hex_dump(struct il_priv *il, int level, const void *p, u32 len)
 #endif /* CONFIG_IWLEGACY_DEBUG */
 
 #ifdef CONFIG_IWLEGACY_DEBUGFS
+<<<<<<< HEAD
 int il_dbgfs_register(struct il_priv *il, const char *name);
 void il_dbgfs_unregister(struct il_priv *il);
 #else
@@ -2981,6 +3007,13 @@ static inline int
 il_dbgfs_register(struct il_priv *il, const char *name)
 {
 	return 0;
+=======
+void il_dbgfs_register(struct il_priv *il, const char *name);
+void il_dbgfs_unregister(struct il_priv *il);
+#else
+static inline void il_dbgfs_register(struct il_priv *il, const char *name)
+{
+>>>>>>> upstream/android-13
 }
 
 static inline void

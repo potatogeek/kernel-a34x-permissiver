@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2017 Broadcom
  *
@@ -9,6 +10,11 @@
  * kind, whether express or implied; without even the implied warranty
  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2017 Broadcom
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -23,7 +29,11 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 
+<<<<<<< HEAD
 #include "vfio_platform_private.h"
+=======
+#include "../vfio_platform_private.h"
+>>>>>>> upstream/android-13
 
 /* FlexRM configuration */
 #define RING_REGS_SIZE					0x10000
@@ -82,7 +92,11 @@ static int vfio_platform_bcmflexrm_reset(struct vfio_platform_device *vdev)
 
 	/* Map FlexRM ring registers if not mapped */
 	if (!reg->ioaddr) {
+<<<<<<< HEAD
 		reg->ioaddr = ioremap_nocache(reg->addr, reg->size);
+=======
+		reg->ioaddr = ioremap(reg->addr, reg->size);
+>>>>>>> upstream/android-13
 		if (!reg->ioaddr)
 			return -ENOMEM;
 	}

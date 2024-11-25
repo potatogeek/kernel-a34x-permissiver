@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * HWSIM IEEE 802.15.4 interface
  *
  * (C) 2018 Mojatau, Alexander Aring <aring@mojatau.com>
  * Copyright 2007-2012 Siemens AG
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * as published by the Free Software Foundation.
@@ -13,6 +18,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * Based on fakelb, original Written by:
  * Sergey Lapin <slapin@ossfans.org>
  * Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
@@ -37,8 +44,11 @@ MODULE_LICENSE("GPL");
 static LIST_HEAD(hwsim_phys);
 static DEFINE_MUTEX(hwsim_phys_lock);
 
+<<<<<<< HEAD
 static LIST_HEAD(hwsim_ifup_phys);
 
+=======
+>>>>>>> upstream/android-13
 static struct platform_device *mac802154hwsim_dev;
 
 /* MAC802154_HWSIM netlink family */
@@ -85,7 +95,10 @@ struct hwsim_phy {
 	struct list_head edges;
 
 	struct list_head list;
+<<<<<<< HEAD
 	struct list_head list_ifup;
+=======
+>>>>>>> upstream/android-13
 };
 
 static int hwsim_add_one(struct genl_info *info, struct device *dev,
@@ -159,9 +172,12 @@ static int hwsim_hw_start(struct ieee802154_hw *hw)
 	struct hwsim_phy *phy = hw->priv;
 
 	phy->suspended = false;
+<<<<<<< HEAD
 	list_add_rcu(&phy->list_ifup, &hwsim_ifup_phys);
 	synchronize_rcu();
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -170,8 +186,11 @@ static void hwsim_hw_stop(struct ieee802154_hw *hw)
 	struct hwsim_phy *phy = hw->priv;
 
 	phy->suspended = true;
+<<<<<<< HEAD
 	list_del_rcu(&phy->list_ifup);
 	synchronize_rcu();
+=======
+>>>>>>> upstream/android-13
 }
 
 static int
@@ -235,14 +254,24 @@ static int append_radio_msg(struct sk_buff *skb, struct hwsim_phy *phy)
 		return 0;
 	}
 
+<<<<<<< HEAD
 	nl_edges = nla_nest_start(skb, MAC802154_HWSIM_ATTR_RADIO_EDGES);
+=======
+	nl_edges = nla_nest_start_noflag(skb,
+					 MAC802154_HWSIM_ATTR_RADIO_EDGES);
+>>>>>>> upstream/android-13
 	if (!nl_edges) {
 		rcu_read_unlock();
 		return -ENOBUFS;
 	}
 
 	list_for_each_entry_rcu(e, &phy->edges, list) {
+<<<<<<< HEAD
 		nl_edge = nla_nest_start(skb, MAC802154_HWSIM_ATTR_RADIO_EDGE);
+=======
+		nl_edge = nla_nest_start_noflag(skb,
+						MAC802154_HWSIM_ATTR_RADIO_EDGE);
+>>>>>>> upstream/android-13
 		if (!nl_edge) {
 			rcu_read_unlock();
 			nla_nest_cancel(skb, nl_edges);
@@ -282,7 +311,11 @@ static int hwsim_get_radio(struct sk_buff *skb, struct hwsim_phy *phy,
 			   struct netlink_callback *cb, int flags)
 {
 	void *hdr;
+<<<<<<< HEAD
 	int res = -EMSGSIZE;
+=======
+	int res;
+>>>>>>> upstream/android-13
 
 	hdr = genlmsg_put(skb, portid, seq, &hwsim_genl_family, flags,
 			  MAC802154_HWSIM_CMD_GET_RADIO);
@@ -432,6 +465,7 @@ static int hwsim_new_edge_nl(struct sk_buff *msg, struct genl_info *info)
 	struct hwsim_edge *e;
 	u32 v0, v1;
 
+<<<<<<< HEAD
 	if (!info->attrs[MAC802154_HWSIM_ATTR_RADIO_ID] &&
 	    !info->attrs[MAC802154_HWSIM_ATTR_RADIO_EDGE])
 		return -EINVAL;
@@ -439,6 +473,13 @@ static int hwsim_new_edge_nl(struct sk_buff *msg, struct genl_info *info)
 	if (nla_parse_nested(edge_attrs, MAC802154_HWSIM_EDGE_ATTR_MAX,
 			     info->attrs[MAC802154_HWSIM_ATTR_RADIO_EDGE],
 			     hwsim_edge_policy, NULL))
+=======
+	if (!info->attrs[MAC802154_HWSIM_ATTR_RADIO_ID] ||
+	    !info->attrs[MAC802154_HWSIM_ATTR_RADIO_EDGE])
+		return -EINVAL;
+
+	if (nla_parse_nested_deprecated(edge_attrs, MAC802154_HWSIM_EDGE_ATTR_MAX, info->attrs[MAC802154_HWSIM_ATTR_RADIO_EDGE], hwsim_edge_policy, NULL))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	if (!edge_attrs[MAC802154_HWSIM_EDGE_ATTR_ENDPOINT_ID])
@@ -496,6 +537,7 @@ static int hwsim_del_edge_nl(struct sk_buff *msg, struct genl_info *info)
 	struct hwsim_edge *e;
 	u32 v0, v1;
 
+<<<<<<< HEAD
 	if (!info->attrs[MAC802154_HWSIM_ATTR_RADIO_ID] &&
 	    !info->attrs[MAC802154_HWSIM_ATTR_RADIO_EDGE])
 		return -EINVAL;
@@ -503,6 +545,13 @@ static int hwsim_del_edge_nl(struct sk_buff *msg, struct genl_info *info)
 	if (nla_parse_nested(edge_attrs, MAC802154_HWSIM_EDGE_ATTR_MAX,
 			     info->attrs[MAC802154_HWSIM_ATTR_RADIO_EDGE],
 			     hwsim_edge_policy, NULL))
+=======
+	if (!info->attrs[MAC802154_HWSIM_ATTR_RADIO_ID] ||
+	    !info->attrs[MAC802154_HWSIM_ATTR_RADIO_EDGE])
+		return -EINVAL;
+
+	if (nla_parse_nested_deprecated(edge_attrs, MAC802154_HWSIM_EDGE_ATTR_MAX, info->attrs[MAC802154_HWSIM_ATTR_RADIO_EDGE], hwsim_edge_policy, NULL))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	if (!edge_attrs[MAC802154_HWSIM_EDGE_ATTR_ENDPOINT_ID])
@@ -546,6 +595,7 @@ static int hwsim_set_edge_lqi(struct sk_buff *msg, struct genl_info *info)
 	u32 v0, v1;
 	u8 lqi;
 
+<<<<<<< HEAD
 	if (!info->attrs[MAC802154_HWSIM_ATTR_RADIO_ID] &&
 	    !info->attrs[MAC802154_HWSIM_ATTR_RADIO_EDGE])
 		return -EINVAL;
@@ -556,6 +606,16 @@ static int hwsim_set_edge_lqi(struct sk_buff *msg, struct genl_info *info)
 		return -EINVAL;
 
 	if (!edge_attrs[MAC802154_HWSIM_EDGE_ATTR_ENDPOINT_ID] &&
+=======
+	if (!info->attrs[MAC802154_HWSIM_ATTR_RADIO_ID] ||
+	    !info->attrs[MAC802154_HWSIM_ATTR_RADIO_EDGE])
+		return -EINVAL;
+
+	if (nla_parse_nested_deprecated(edge_attrs, MAC802154_HWSIM_EDGE_ATTR_MAX, info->attrs[MAC802154_HWSIM_ATTR_RADIO_EDGE], hwsim_edge_policy, NULL))
+		return -EINVAL;
+
+	if (!edge_attrs[MAC802154_HWSIM_EDGE_ATTR_ENDPOINT_ID] ||
+>>>>>>> upstream/android-13
 	    !edge_attrs[MAC802154_HWSIM_EDGE_ATTR_LQI])
 		return -EINVAL;
 
@@ -603,40 +663,67 @@ static const struct nla_policy hwsim_genl_policy[MAC802154_HWSIM_ATTR_MAX + 1] =
 };
 
 /* Generic Netlink operations array */
+<<<<<<< HEAD
 static const struct genl_ops hwsim_nl_ops[] = {
 	{
 		.cmd = MAC802154_HWSIM_CMD_NEW_RADIO,
 		.policy = hwsim_genl_policy,
+=======
+static const struct genl_small_ops hwsim_nl_ops[] = {
+	{
+		.cmd = MAC802154_HWSIM_CMD_NEW_RADIO,
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+>>>>>>> upstream/android-13
 		.doit = hwsim_new_radio_nl,
 		.flags = GENL_UNS_ADMIN_PERM,
 	},
 	{
 		.cmd = MAC802154_HWSIM_CMD_DEL_RADIO,
+<<<<<<< HEAD
 		.policy = hwsim_genl_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+>>>>>>> upstream/android-13
 		.doit = hwsim_del_radio_nl,
 		.flags = GENL_UNS_ADMIN_PERM,
 	},
 	{
 		.cmd = MAC802154_HWSIM_CMD_GET_RADIO,
+<<<<<<< HEAD
 		.policy = hwsim_genl_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+>>>>>>> upstream/android-13
 		.doit = hwsim_get_radio_nl,
 		.dumpit = hwsim_dump_radio_nl,
 	},
 	{
 		.cmd = MAC802154_HWSIM_CMD_NEW_EDGE,
+<<<<<<< HEAD
 		.policy = hwsim_genl_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+>>>>>>> upstream/android-13
 		.doit = hwsim_new_edge_nl,
 		.flags = GENL_UNS_ADMIN_PERM,
 	},
 	{
 		.cmd = MAC802154_HWSIM_CMD_DEL_EDGE,
+<<<<<<< HEAD
 		.policy = hwsim_genl_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+>>>>>>> upstream/android-13
 		.doit = hwsim_del_edge_nl,
 		.flags = GENL_UNS_ADMIN_PERM,
 	},
 	{
 		.cmd = MAC802154_HWSIM_CMD_SET_EDGE,
+<<<<<<< HEAD
 		.policy = hwsim_genl_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+>>>>>>> upstream/android-13
 		.doit = hwsim_set_edge_lqi,
 		.flags = GENL_UNS_ADMIN_PERM,
 	},
@@ -646,9 +733,16 @@ static struct genl_family hwsim_genl_family __ro_after_init = {
 	.name = "MAC802154_HWSIM",
 	.version = 1,
 	.maxattr = MAC802154_HWSIM_ATTR_MAX,
+<<<<<<< HEAD
 	.module = THIS_MODULE,
 	.ops = hwsim_nl_ops,
 	.n_ops = ARRAY_SIZE(hwsim_nl_ops),
+=======
+	.policy = hwsim_genl_policy,
+	.module = THIS_MODULE,
+	.small_ops = hwsim_nl_ops,
+	.n_small_ops = ARRAY_SIZE(hwsim_nl_ops),
+>>>>>>> upstream/android-13
 	.mcgrps = hwsim_mcgrps,
 	.n_mcgrps = ARRAY_SIZE(hwsim_mcgrps),
 };
@@ -734,6 +828,11 @@ static int hwsim_subscribe_all_others(struct hwsim_phy *phy)
 
 	return 0;
 
+<<<<<<< HEAD
+=======
+sub_fail:
+	hwsim_edge_unsubscribe_me(phy);
+>>>>>>> upstream/android-13
 me_fail:
 	rcu_read_lock();
 	list_for_each_entry_rcu(e, &phy->edges, list) {
@@ -741,8 +840,11 @@ me_fail:
 		hwsim_free_edge(e);
 	}
 	rcu_read_unlock();
+<<<<<<< HEAD
 sub_fail:
 	hwsim_edge_unsubscribe_me(phy);
+=======
+>>>>>>> upstream/android-13
 	return -ENOMEM;
 }
 
@@ -805,6 +907,10 @@ static int hwsim_add_one(struct genl_info *info, struct device *dev,
 		goto err_pib;
 	}
 
+<<<<<<< HEAD
+=======
+	pib->channel = 13;
+>>>>>>> upstream/android-13
 	rcu_assign_pointer(phy->pib, pib);
 	phy->idx = idx;
 	INIT_LIST_HEAD(&phy->edges);
@@ -843,12 +949,23 @@ err_pib:
 static void hwsim_del(struct hwsim_phy *phy)
 {
 	struct hwsim_pib *pib;
+<<<<<<< HEAD
+=======
+	struct hwsim_edge *e;
+>>>>>>> upstream/android-13
 
 	hwsim_edge_unsubscribe_me(phy);
 
 	list_del(&phy->list);
 
 	rcu_read_lock();
+<<<<<<< HEAD
+=======
+	list_for_each_entry_rcu(e, &phy->edges, list) {
+		list_del_rcu(&e->list);
+		hwsim_free_edge(e);
+	}
+>>>>>>> upstream/android-13
 	pib = rcu_dereference(phy->pib);
 	rcu_read_unlock();
 

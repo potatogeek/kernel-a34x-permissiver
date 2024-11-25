@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * IBM PowerPC Virtual I/O Infrastructure Support.
  *
@@ -7,11 +11,14 @@
  *     Hollis Blanchard <hollisb@us.ibm.com>
  *     Stephen Rothwell
  *     Robert Jennings <rcjenn@us.ibm.com>
+<<<<<<< HEAD
  *
  *      This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/cpu.h>
@@ -24,8 +31,14 @@
 #include <linux/console.h>
 #include <linux/export.h>
 #include <linux/mm.h>
+<<<<<<< HEAD
 #include <linux/dma-mapping.h>
 #include <linux/kobject.h>
+=======
+#include <linux/dma-map-ops.h>
+#include <linux/kobject.h>
+#include <linux/kexec.h>
+>>>>>>> upstream/android-13
 
 #include <asm/iommu.h>
 #include <asm/dma.h>
@@ -35,6 +48,10 @@
 #include <asm/tce.h>
 #include <asm/page.h>
 #include <asm/hvcall.h>
+<<<<<<< HEAD
+=======
+#include <asm/machdep.h>
+>>>>>>> upstream/android-13
 
 static struct vio_dev vio_bus_device  = { /* fake "parent" device */
 	.name = "vio",
@@ -492,7 +509,13 @@ static void *vio_dma_iommu_alloc_coherent(struct device *dev, size_t size,
 		return NULL;
 	}
 
+<<<<<<< HEAD
 	ret = dma_iommu_ops.alloc(dev, size, dma_handle, flag, attrs);
+=======
+	ret = iommu_alloc_coherent(dev, get_iommu_table_base(dev), size,
+				    dma_handle, dev->coherent_dma_mask, flag,
+				    dev_to_node(dev));
+>>>>>>> upstream/android-13
 	if (unlikely(ret == NULL)) {
 		vio_cmo_dealloc(viodev, roundup(size, PAGE_SIZE));
 		atomic_inc(&viodev->cmo.allocs_failed);
@@ -507,8 +530,12 @@ static void vio_dma_iommu_free_coherent(struct device *dev, size_t size,
 {
 	struct vio_dev *viodev = to_vio_dev(dev);
 
+<<<<<<< HEAD
 	dma_iommu_ops.free(dev, size, vaddr, dma_handle, attrs);
 
+=======
+	iommu_free_coherent(get_iommu_table_base(dev), size, vaddr, dma_handle);
+>>>>>>> upstream/android-13
 	vio_cmo_dealloc(viodev, roundup(size, PAGE_SIZE));
 }
 
@@ -518,6 +545,7 @@ static dma_addr_t vio_dma_iommu_map_page(struct device *dev, struct page *page,
                                          unsigned long attrs)
 {
 	struct vio_dev *viodev = to_vio_dev(dev);
+<<<<<<< HEAD
 	struct iommu_table *tbl;
 	dma_addr_t ret = IOMMU_MAPPING_ERROR;
 
@@ -534,6 +562,24 @@ static dma_addr_t vio_dma_iommu_map_page(struct device *dev, struct page *page,
 	}
 
 	return ret;
+=======
+	struct iommu_table *tbl = get_iommu_table_base(dev);
+	dma_addr_t ret = DMA_MAPPING_ERROR;
+
+	if (vio_cmo_alloc(viodev, roundup(size, IOMMU_PAGE_SIZE(tbl))))
+		goto out_fail;
+	ret = iommu_map_page(dev, tbl, page, offset, size, dma_get_mask(dev),
+			direction, attrs);
+	if (unlikely(ret == DMA_MAPPING_ERROR))
+		goto out_deallocate;
+	return ret;
+
+out_deallocate:
+	vio_cmo_dealloc(viodev, roundup(size, IOMMU_PAGE_SIZE(tbl)));
+out_fail:
+	atomic_inc(&viodev->cmo.allocs_failed);
+	return DMA_MAPPING_ERROR;
+>>>>>>> upstream/android-13
 }
 
 static void vio_dma_iommu_unmap_page(struct device *dev, dma_addr_t dma_handle,
@@ -542,11 +588,17 @@ static void vio_dma_iommu_unmap_page(struct device *dev, dma_addr_t dma_handle,
 				     unsigned long attrs)
 {
 	struct vio_dev *viodev = to_vio_dev(dev);
+<<<<<<< HEAD
 	struct iommu_table *tbl;
 
 	tbl = get_iommu_table_base(dev);
 	dma_iommu_ops.unmap_page(dev, dma_handle, size, direction, attrs);
 
+=======
+	struct iommu_table *tbl = get_iommu_table_base(dev);
+
+	iommu_unmap_page(tbl, dma_handle, size, direction, attrs);
+>>>>>>> upstream/android-13
 	vio_cmo_dealloc(viodev, roundup(size, IOMMU_PAGE_SIZE(tbl)));
 }
 
@@ -555,11 +607,16 @@ static int vio_dma_iommu_map_sg(struct device *dev, struct scatterlist *sglist,
                                 unsigned long attrs)
 {
 	struct vio_dev *viodev = to_vio_dev(dev);
+<<<<<<< HEAD
 	struct iommu_table *tbl;
+=======
+	struct iommu_table *tbl = get_iommu_table_base(dev);
+>>>>>>> upstream/android-13
 	struct scatterlist *sgl;
 	int ret, count;
 	size_t alloc_size = 0;
 
+<<<<<<< HEAD
 	tbl = get_iommu_table_base(dev);
 	for_each_sg(sglist, sgl, nelems, count)
 		alloc_size += roundup(sgl->length, IOMMU_PAGE_SIZE(tbl));
@@ -576,12 +633,33 @@ static int vio_dma_iommu_map_sg(struct device *dev, struct scatterlist *sglist,
 		atomic_inc(&viodev->cmo.allocs_failed);
 		return ret;
 	}
+=======
+	for_each_sg(sglist, sgl, nelems, count)
+		alloc_size += roundup(sgl->length, IOMMU_PAGE_SIZE(tbl));
+
+	ret = vio_cmo_alloc(viodev, alloc_size);
+	if (ret)
+		goto out_fail;
+	ret = ppc_iommu_map_sg(dev, tbl, sglist, nelems, dma_get_mask(dev),
+			direction, attrs);
+	if (unlikely(!ret))
+		goto out_deallocate;
+>>>>>>> upstream/android-13
 
 	for_each_sg(sglist, sgl, ret, count)
 		alloc_size -= roundup(sgl->dma_length, IOMMU_PAGE_SIZE(tbl));
 	if (alloc_size)
 		vio_cmo_dealloc(viodev, alloc_size);
+<<<<<<< HEAD
 
+=======
+	return ret;
+
+out_deallocate:
+	vio_cmo_dealloc(viodev, alloc_size);
+out_fail:
+	atomic_inc(&viodev->cmo.allocs_failed);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -591,11 +669,16 @@ static void vio_dma_iommu_unmap_sg(struct device *dev,
 		unsigned long attrs)
 {
 	struct vio_dev *viodev = to_vio_dev(dev);
+<<<<<<< HEAD
 	struct iommu_table *tbl;
+=======
+	struct iommu_table *tbl = get_iommu_table_base(dev);
+>>>>>>> upstream/android-13
 	struct scatterlist *sgl;
 	size_t alloc_size = 0;
 	int count;
 
+<<<<<<< HEAD
 	tbl = get_iommu_table_base(dev);
 	for_each_sg(sglist, sgl, nelems, count)
 		alloc_size += roundup(sgl->dma_length, IOMMU_PAGE_SIZE(tbl));
@@ -619,13 +702,34 @@ static const struct dma_map_ops vio_dma_mapping_ops = {
 	.alloc             = vio_dma_iommu_alloc_coherent,
 	.free              = vio_dma_iommu_free_coherent,
 	.mmap		   = dma_nommu_mmap_coherent,
+=======
+	for_each_sg(sglist, sgl, nelems, count)
+		alloc_size += roundup(sgl->dma_length, IOMMU_PAGE_SIZE(tbl));
+
+	ppc_iommu_unmap_sg(tbl, sglist, nelems, direction, attrs);
+	vio_cmo_dealloc(viodev, alloc_size);
+}
+
+static const struct dma_map_ops vio_dma_mapping_ops = {
+	.alloc             = vio_dma_iommu_alloc_coherent,
+	.free              = vio_dma_iommu_free_coherent,
+>>>>>>> upstream/android-13
 	.map_sg            = vio_dma_iommu_map_sg,
 	.unmap_sg          = vio_dma_iommu_unmap_sg,
 	.map_page          = vio_dma_iommu_map_page,
 	.unmap_page        = vio_dma_iommu_unmap_page,
+<<<<<<< HEAD
 	.dma_supported     = vio_dma_iommu_dma_supported,
 	.get_required_mask = vio_dma_get_required_mask,
 	.mapping_error	   = dma_iommu_mapping_error,
+=======
+	.dma_supported     = dma_iommu_dma_supported,
+	.get_required_mask = dma_iommu_get_required_mask,
+	.mmap		   = dma_common_mmap,
+	.get_sgtable	   = dma_common_get_sgtable,
+	.alloc_pages	   = dma_common_alloc_pages,
+	.free_pages	   = dma_common_free_pages,
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -1214,7 +1318,11 @@ static struct iommu_table *vio_build_iommu_table(struct vio_dev *dev)
 	else
 		tbl->it_ops = &iommu_table_pseries_ops;
 
+<<<<<<< HEAD
 	return iommu_init_table(tbl, -1);
+=======
+	return iommu_init_table(tbl, -1, 0, 0);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1272,12 +1380,19 @@ static int vio_bus_probe(struct device *dev)
 }
 
 /* convert from struct device to struct vio_dev and pass to driver. */
+<<<<<<< HEAD
 static int vio_bus_remove(struct device *dev)
+=======
+static void vio_bus_remove(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct vio_dev *viodev = to_vio_dev(dev);
 	struct vio_driver *viodrv = to_vio_driver(dev->driver);
 	struct device *devptr;
+<<<<<<< HEAD
 	int ret = 1;
+=======
+>>>>>>> upstream/android-13
 
 	/*
 	 * Hold a reference to the device after the remove function is called
@@ -1286,6 +1401,7 @@ static int vio_bus_remove(struct device *dev)
 	devptr = get_device(dev);
 
 	if (viodrv->remove)
+<<<<<<< HEAD
 		ret = viodrv->remove(viodev);
 
 	if (!ret && firmware_has_feature(FW_FEATURE_CMO))
@@ -1293,6 +1409,28 @@ static int vio_bus_remove(struct device *dev)
 
 	put_device(devptr);
 	return ret;
+=======
+		viodrv->remove(viodev);
+
+	if (firmware_has_feature(FW_FEATURE_CMO))
+		vio_cmo_bus_remove(viodev);
+
+	put_device(devptr);
+}
+
+static void vio_bus_shutdown(struct device *dev)
+{
+	struct vio_dev *viodev = to_vio_dev(dev);
+	struct vio_driver *viodrv;
+
+	if (dev->driver) {
+		viodrv = to_vio_driver(dev->driver);
+		if (viodrv->shutdown)
+			viodrv->shutdown(viodev);
+		else if (kexec_in_progress)
+			vio_bus_remove(dev);
+	}
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1302,6 +1440,13 @@ static int vio_bus_remove(struct device *dev)
 int __vio_register_driver(struct vio_driver *viodrv, struct module *owner,
 			  const char *mod_name)
 {
+<<<<<<< HEAD
+=======
+	// vio_bus_type is only initialised for pseries
+	if (!machine_is(pseries))
+		return -ENODEV;
+
+>>>>>>> upstream/android-13
 	pr_debug("%s: driver %s registering\n", __func__, viodrv->name);
 
 	/* fill in 'struct driver' fields */
@@ -1351,7 +1496,10 @@ struct vio_dev *vio_register_device_node(struct device_node *of_node)
 	struct device_node *parent_node;
 	const __be32 *prop;
 	enum vio_dev_family family;
+<<<<<<< HEAD
 	const char *of_node_name = of_node->name ? of_node->name : "<unknown>";
+=======
+>>>>>>> upstream/android-13
 
 	/*
 	 * Determine if this node is a under the /vdevice node or under the
@@ -1359,6 +1507,7 @@ struct vio_dev *vio_register_device_node(struct device_node *of_node)
 	 */
 	parent_node = of_get_parent(of_node);
 	if (parent_node) {
+<<<<<<< HEAD
 		if (!strcmp(parent_node->type, "ibm,platform-facilities"))
 			family = PFO;
 		else if (!strcmp(parent_node->type, "vdevice"))
@@ -1368,20 +1517,41 @@ struct vio_dev *vio_register_device_node(struct device_node *of_node)
 					__func__,
 					parent_node,
 					of_node_name);
+=======
+		if (of_node_is_type(parent_node, "ibm,platform-facilities"))
+			family = PFO;
+		else if (of_node_is_type(parent_node, "vdevice"))
+			family = VDEVICE;
+		else {
+			pr_warn("%s: parent(%pOF) of %pOFn not recognized.\n",
+					__func__,
+					parent_node,
+					of_node);
+>>>>>>> upstream/android-13
 			of_node_put(parent_node);
 			return NULL;
 		}
 		of_node_put(parent_node);
 	} else {
+<<<<<<< HEAD
 		pr_warn("%s: could not determine the parent of node %s.\n",
 				__func__, of_node_name);
+=======
+		pr_warn("%s: could not determine the parent of node %pOFn.\n",
+				__func__, of_node);
+>>>>>>> upstream/android-13
 		return NULL;
 	}
 
 	if (family == PFO) {
 		if (of_get_property(of_node, "interrupt-controller", NULL)) {
+<<<<<<< HEAD
 			pr_debug("%s: Skipping the interrupt controller %s.\n",
 					__func__, of_node_name);
+=======
+			pr_debug("%s: Skipping the interrupt controller %pOFn.\n",
+					__func__, of_node);
+>>>>>>> upstream/android-13
 			return NULL;
 		}
 	}
@@ -1398,18 +1568,30 @@ struct vio_dev *vio_register_device_node(struct device_node *of_node)
 	if (viodev->family == VDEVICE) {
 		unsigned int unit_address;
 
+<<<<<<< HEAD
 		if (of_node->type != NULL)
 			viodev->type = of_node->type;
 		else {
 			pr_warn("%s: node %s is missing the 'device_type' "
 					"property.\n", __func__, of_node_name);
+=======
+		viodev->type = of_node_get_device_type(of_node);
+		if (!viodev->type) {
+			pr_warn("%s: node %pOFn is missing the 'device_type' "
+					"property.\n", __func__, of_node);
+>>>>>>> upstream/android-13
 			goto out;
 		}
 
 		prop = of_get_property(of_node, "reg", NULL);
 		if (prop == NULL) {
+<<<<<<< HEAD
 			pr_warn("%s: node %s missing 'reg'\n",
 					__func__, of_node_name);
+=======
+			pr_warn("%s: node %pOFn missing 'reg'\n",
+					__func__, of_node);
+>>>>>>> upstream/android-13
 			goto out;
 		}
 		unit_address = of_read_number(prop, 1);
@@ -1424,8 +1606,13 @@ struct vio_dev *vio_register_device_node(struct device_node *of_node)
 		if (prop != NULL)
 			viodev->resource_id = of_read_number(prop, 1);
 
+<<<<<<< HEAD
 		dev_set_name(&viodev->dev, "%s", of_node_name);
 		viodev->type = of_node_name;
+=======
+		dev_set_name(&viodev->dev, "%pOFn", of_node);
+		viodev->type = dev_name(&viodev->dev);
+>>>>>>> upstream/android-13
 		viodev->irq = 0;
 	}
 
@@ -1534,7 +1721,11 @@ static int __init vio_bus_init(void)
 
 	return 0;
 }
+<<<<<<< HEAD
 postcore_initcall(vio_bus_init);
+=======
+machine_postcore_initcall(pseries, vio_bus_init);
+>>>>>>> upstream/android-13
 
 static int __init vio_device_init(void)
 {
@@ -1543,7 +1734,11 @@ static int __init vio_device_init(void)
 
 	return 0;
 }
+<<<<<<< HEAD
 device_initcall(vio_device_init);
+=======
+machine_device_initcall(pseries, vio_device_init);
+>>>>>>> upstream/android-13
 
 static ssize_t name_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
@@ -1632,6 +1827,10 @@ struct bus_type vio_bus_type = {
 	.match = vio_bus_match,
 	.probe = vio_bus_probe,
 	.remove = vio_bus_remove,
+<<<<<<< HEAD
+=======
+	.shutdown = vio_bus_shutdown,
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -1649,7 +1848,10 @@ const void *vio_get_attribute(struct vio_dev *vdev, char *which, int *length)
 }
 EXPORT_SYMBOL(vio_get_attribute);
 
+<<<<<<< HEAD
 #ifdef CONFIG_PPC_PSERIES
+=======
+>>>>>>> upstream/android-13
 /* vio_find_name() - internal because only vio.c knows how we formatted the
  * kobject name
  */
@@ -1675,12 +1877,16 @@ struct vio_dev *vio_find_node(struct device_node *vnode)
 {
 	char kobj_name[20];
 	struct device_node *vnode_parent;
+<<<<<<< HEAD
 	const char *dev_type;
+=======
+>>>>>>> upstream/android-13
 
 	vnode_parent = of_get_parent(vnode);
 	if (!vnode_parent)
 		return NULL;
 
+<<<<<<< HEAD
 	dev_type = of_get_property(vnode_parent, "device_type", NULL);
 	of_node_put(vnode_parent);
 	if (!dev_type)
@@ -1688,10 +1894,15 @@ struct vio_dev *vio_find_node(struct device_node *vnode)
 
 	/* construct the kobject name from the device node */
 	if (!strcmp(dev_type, "vdevice")) {
+=======
+	/* construct the kobject name from the device node */
+	if (of_node_is_type(vnode_parent, "vdevice")) {
+>>>>>>> upstream/android-13
 		const __be32 *prop;
 		
 		prop = of_get_property(vnode, "reg", NULL);
 		if (!prop)
+<<<<<<< HEAD
 			return NULL;
 		snprintf(kobj_name, sizeof(kobj_name), "%x",
 			 (uint32_t)of_read_number(prop, 1));
@@ -1701,6 +1912,21 @@ struct vio_dev *vio_find_node(struct device_node *vnode)
 		return NULL;
 
 	return vio_find_name(kobj_name);
+=======
+			goto out;
+		snprintf(kobj_name, sizeof(kobj_name), "%x",
+			 (uint32_t)of_read_number(prop, 1));
+	} else if (of_node_is_type(vnode_parent, "ibm,platform-facilities"))
+		snprintf(kobj_name, sizeof(kobj_name), "%pOFn", vnode);
+	else
+		goto out;
+
+	of_node_put(vnode_parent);
+	return vio_find_name(kobj_name);
+out:
+	of_node_put(vnode_parent);
+	return NULL;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(vio_find_node);
 
@@ -1721,4 +1947,14 @@ int vio_disable_interrupts(struct vio_dev *dev)
 	return rc;
 }
 EXPORT_SYMBOL(vio_disable_interrupts);
+<<<<<<< HEAD
 #endif /* CONFIG_PPC_PSERIES */
+=======
+
+static int __init vio_init(void)
+{
+	dma_debug_add_bus(&vio_bus_type);
+	return 0;
+}
+machine_fs_initcall(pseries, vio_init);
+>>>>>>> upstream/android-13

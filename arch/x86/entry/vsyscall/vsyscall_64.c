@@ -42,9 +42,17 @@
 #define CREATE_TRACE_POINTS
 #include "vsyscall_trace.h"
 
+<<<<<<< HEAD
 static enum { EMULATE, NONE } vsyscall_mode =
 #ifdef CONFIG_LEGACY_VSYSCALL_NONE
 	NONE;
+=======
+static enum { EMULATE, XONLY, NONE } vsyscall_mode __ro_after_init =
+#ifdef CONFIG_LEGACY_VSYSCALL_NONE
+	NONE;
+#elif defined(CONFIG_LEGACY_VSYSCALL_XONLY)
+	XONLY;
+>>>>>>> upstream/android-13
 #else
 	EMULATE;
 #endif
@@ -54,6 +62,11 @@ static int __init vsyscall_setup(char *str)
 	if (str) {
 		if (!strcmp("emulate", str))
 			vsyscall_mode = EMULATE;
+<<<<<<< HEAD
+=======
+		else if (!strcmp("xonly", str))
+			vsyscall_mode = XONLY;
+>>>>>>> upstream/android-13
 		else if (!strcmp("none", str))
 			vsyscall_mode = NONE;
 		else
@@ -99,6 +112,7 @@ static bool write_ok_or_segv(unsigned long ptr, size_t size)
 	 * sig_on_uaccess_err, this could go away.
 	 */
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, (void __user *)ptr, size)) {
 		siginfo_t info;
 		struct thread_struct *thread = &current->thread;
@@ -114,13 +128,28 @@ static bool write_ok_or_segv(unsigned long ptr, size_t size)
 		info.si_addr		= (void __user *)ptr;
 
 		force_sig_info(SIGSEGV, &info, current);
+=======
+	if (!access_ok((void __user *)ptr, size)) {
+		struct thread_struct *thread = &current->thread;
+
+		thread->error_code	= X86_PF_USER | X86_PF_WRITE;
+		thread->cr2		= ptr;
+		thread->trap_nr		= X86_TRAP_PF;
+
+		force_sig_fault(SIGSEGV, SEGV_MAPERR, (void __user *)ptr);
+>>>>>>> upstream/android-13
 		return false;
 	} else {
 		return true;
 	}
 }
 
+<<<<<<< HEAD
 bool emulate_vsyscall(struct pt_regs *regs, unsigned long address)
+=======
+bool emulate_vsyscall(unsigned long error_code,
+		      struct pt_regs *regs, unsigned long address)
+>>>>>>> upstream/android-13
 {
 	struct task_struct *tsk;
 	unsigned long caller;
@@ -129,6 +158,25 @@ bool emulate_vsyscall(struct pt_regs *regs, unsigned long address)
 	long ret;
 	unsigned long orig_dx;
 
+<<<<<<< HEAD
+=======
+	/* Write faults or kernel-privilege faults never get fixed up. */
+	if ((error_code & (X86_PF_WRITE | X86_PF_USER)) != X86_PF_USER)
+		return false;
+
+	if (!(error_code & X86_PF_INSTR)) {
+		/* Failed vsyscall read */
+		if (vsyscall_mode == EMULATE)
+			return false;
+
+		/*
+		 * User code tried and failed to read the vsyscall page.
+		 */
+		warn_bad_vsyscall(KERN_INFO, regs, "vsyscall read attempt denied -- look up the vsyscall kernel parameter if you need a workaround");
+		return false;
+	}
+
+>>>>>>> upstream/android-13
 	/*
 	 * No point in checking CS -- the only way to get here is a user mode
 	 * trap to a high address, which means that we're in 64-bit user code.
@@ -170,7 +218,11 @@ bool emulate_vsyscall(struct pt_regs *regs, unsigned long address)
 	 */
 	switch (vsyscall_nr) {
 	case 0:
+<<<<<<< HEAD
 		if (!write_ok_or_segv(regs->di, sizeof(struct timeval)) ||
+=======
+		if (!write_ok_or_segv(regs->di, sizeof(struct __kernel_old_timeval)) ||
+>>>>>>> upstream/android-13
 		    !write_ok_or_segv(regs->si, sizeof(struct timezone))) {
 			ret = -EFAULT;
 			goto check_fault;
@@ -180,7 +232,11 @@ bool emulate_vsyscall(struct pt_regs *regs, unsigned long address)
 		break;
 
 	case 1:
+<<<<<<< HEAD
 		if (!write_ok_or_segv(regs->di, sizeof(time_t))) {
+=======
+		if (!write_ok_or_segv(regs->di, sizeof(__kernel_old_time_t))) {
+>>>>>>> upstream/android-13
 			ret = -EFAULT;
 			goto check_fault;
 		}
@@ -208,11 +264,20 @@ bool emulate_vsyscall(struct pt_regs *regs, unsigned long address)
 	 */
 	regs->orig_ax = syscall_nr;
 	regs->ax = -ENOSYS;
+<<<<<<< HEAD
 	tmp = secure_computing(NULL);
 	if ((!tmp && regs->orig_ax != syscall_nr) || regs->ip != address) {
 		warn_bad_vsyscall(KERN_DEBUG, regs,
 				  "seccomp tried to change syscall nr or ip");
 		do_exit(SIGSYS);
+=======
+	tmp = secure_computing();
+	if ((!tmp && regs->orig_ax != syscall_nr) || regs->ip != address) {
+		warn_bad_vsyscall(KERN_DEBUG, regs,
+				  "seccomp tried to change syscall nr or ip");
+		force_exit_sig(SIGSYS);
+		return true;
+>>>>>>> upstream/android-13
 	}
 	regs->orig_ax = -1;
 	if (tmp)
@@ -275,7 +340,11 @@ do_ret:
 	return true;
 
 sigsegv:
+<<<<<<< HEAD
 	force_sig(SIGSEGV, current);
+=======
+	force_sig(SIGSEGV);
+>>>>>>> upstream/android-13
 	return true;
 }
 
@@ -291,7 +360,11 @@ static const char *gate_vma_name(struct vm_area_struct *vma)
 static const struct vm_operations_struct gate_vma_ops = {
 	.name = gate_vma_name,
 };
+<<<<<<< HEAD
 static struct vm_area_struct gate_vma = {
+=======
+static struct vm_area_struct gate_vma __ro_after_init = {
+>>>>>>> upstream/android-13
 	.vm_start	= VSYSCALL_ADDR,
 	.vm_end		= VSYSCALL_ADDR + PAGE_SIZE,
 	.vm_page_prot	= PAGE_READONLY_EXEC,
@@ -302,7 +375,11 @@ static struct vm_area_struct gate_vma = {
 struct vm_area_struct *get_gate_vma(struct mm_struct *mm)
 {
 #ifdef CONFIG_COMPAT
+<<<<<<< HEAD
 	if (!mm || mm->context.ia32_compat)
+=======
+	if (!mm || !(mm->context.flags & MM_CONTEXT_HAS_VSYSCALL))
+>>>>>>> upstream/android-13
 		return NULL;
 #endif
 	if (vsyscall_mode == NONE)
@@ -364,12 +441,27 @@ void __init map_vsyscall(void)
 	extern char __vsyscall_page;
 	unsigned long physaddr_vsyscall = __pa_symbol(&__vsyscall_page);
 
+<<<<<<< HEAD
 	if (vsyscall_mode != NONE) {
+=======
+	/*
+	 * For full emulation, the page needs to exist for real.  In
+	 * execute-only mode, there is no PTE at all backing the vsyscall
+	 * page.
+	 */
+	if (vsyscall_mode == EMULATE) {
+>>>>>>> upstream/android-13
 		__set_fixmap(VSYSCALL_PAGE, physaddr_vsyscall,
 			     PAGE_KERNEL_VVAR);
 		set_vsyscall_pgtable_user_bits(swapper_pg_dir);
 	}
 
+<<<<<<< HEAD
+=======
+	if (vsyscall_mode == XONLY)
+		gate_vma.vm_flags = VM_EXEC;
+
+>>>>>>> upstream/android-13
 	BUILD_BUG_ON((unsigned long)__fix_to_virt(VSYSCALL_PAGE) !=
 		     (unsigned long)VSYSCALL_ADDR);
 }

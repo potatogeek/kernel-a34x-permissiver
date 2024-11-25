@@ -9,3 +9,8 @@ struct rt_sigframe {
 	struct siginfo info;
 	struct sigframe sig;
 };
+<<<<<<< HEAD
+=======
+
+extern struct page *get_signal_page(void);
+>>>>>>> upstream/android-13

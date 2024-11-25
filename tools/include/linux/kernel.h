@@ -5,6 +5,10 @@
 #include <stdarg.h>
 #include <stddef.h>
 #include <assert.h>
+<<<<<<< HEAD
+=======
+#include <linux/build_bug.h>
+>>>>>>> upstream/android-13
 #include <linux/compiler.h>
 #include <endian.h>
 #include <byteswap.h>
@@ -35,9 +39,12 @@
 	(type *)((char *)__mptr - offsetof(type, member)); })
 #endif
 
+<<<<<<< HEAD
 #define BUILD_BUG_ON(condition) ((void)sizeof(char[1 - 2*!!(condition)]))
 #define BUILD_BUG_ON_ZERO(e) (sizeof(struct { int:-!!(e); }))
 
+=======
+>>>>>>> upstream/android-13
 #ifndef max
 #define max(x, y) ({				\
 	typeof(x) _max1 = (x);			\
@@ -70,6 +77,10 @@
 #define BUG_ON(cond) assert(!(cond))
 #endif
 #endif
+<<<<<<< HEAD
+=======
+#define BUG()	BUG_ON(1)
+>>>>>>> upstream/android-13
 
 #if __BYTE_ORDER == __BIG_ENDIAN
 #define cpu_to_le16 bswap_16
@@ -101,6 +112,10 @@
 
 int vscnprintf(char *buf, size_t size, const char *fmt, va_list args);
 int scnprintf(char * buf, size_t size, const char * fmt, ...);
+<<<<<<< HEAD
+=======
+int scnprintf_pad(char * buf, size_t size, const char * fmt, ...);
+>>>>>>> upstream/android-13
 
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]) + __must_be_array(arr))
 
@@ -115,6 +130,10 @@ int scnprintf(char * buf, size_t size, const char * fmt, ...);
 #define round_down(x, y) ((x) & ~__round_mask(x, y))
 
 #define current_gfp_context(k) 0
+<<<<<<< HEAD
 #define synchronize_sched()
+=======
+#define synchronize_rcu()
+>>>>>>> upstream/android-13
 
 #endif

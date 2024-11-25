@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *   Fujitu mb86a20s ISDB-T/ISDB-Tsb Module driver
  *
  *   Copyright (C) 2010-2013 Mauro Carvalho Chehab
  *   Copyright (C) 2009-2010 Douglas Landgraf <dougsland@redhat.com>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU General Public License as
@@ -12,6 +17,8 @@
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *   General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -525,7 +532,11 @@ static void mb86a20s_reset_frontend_cache(struct dvb_frontend *fe)
  * Estimates the bit rate using the per-segment bit rate given by
  * ABNT/NBR 15601 spec (table 4).
  */
+<<<<<<< HEAD
 static u32 isdbt_rate[3][5][4] = {
+=======
+static const u32 isdbt_rate[3][5][4] = {
+>>>>>>> upstream/android-13
 	{	/* DQPSK/QPSK */
 		{  280850,  312060,  330420,  340430 },	/* 1/2 */
 		{  374470,  416080,  440560,  453910 },	/* 2/3 */
@@ -547,6 +558,7 @@ static u32 isdbt_rate[3][5][4] = {
 	}
 };
 
+<<<<<<< HEAD
 static void mb86a20s_layer_bitrate(struct dvb_frontend *fe, u32 layer,
 				   u32 modulation, u32 forward_error_correction,
 				   u32 guard_interval,
@@ -554,6 +566,11 @@ static void mb86a20s_layer_bitrate(struct dvb_frontend *fe, u32 layer,
 {
 	struct mb86a20s_state *state = fe->demodulator_priv;
 	u32 rate;
+=======
+static u32 isdbt_layer_min_bitrate(struct dtv_frontend_properties *c,
+				   u32 layer)
+{
+>>>>>>> upstream/android-13
 	int mod, fec, guard;
 
 	/*
@@ -561,7 +578,11 @@ static void mb86a20s_layer_bitrate(struct dvb_frontend *fe, u32 layer,
 	 * to consider the lowest bit rate, to avoid taking too long time
 	 * to get BER.
 	 */
+<<<<<<< HEAD
 	switch (modulation) {
+=======
+	switch (c->layer[layer].modulation) {
+>>>>>>> upstream/android-13
 	case DQPSK:
 	case QPSK:
 	default:
@@ -575,7 +596,11 @@ static void mb86a20s_layer_bitrate(struct dvb_frontend *fe, u32 layer,
 		break;
 	}
 
+<<<<<<< HEAD
 	switch (forward_error_correction) {
+=======
+	switch (c->layer[layer].fec) {
+>>>>>>> upstream/android-13
 	default:
 	case FEC_1_2:
 	case FEC_AUTO:
@@ -595,7 +620,11 @@ static void mb86a20s_layer_bitrate(struct dvb_frontend *fe, u32 layer,
 		break;
 	}
 
+<<<<<<< HEAD
 	switch (guard_interval) {
+=======
+	switch (c->guard_interval) {
+>>>>>>> upstream/android-13
 	default:
 	case GUARD_INTERVAL_1_4:
 		guard = 0;
@@ -611,6 +640,7 @@ static void mb86a20s_layer_bitrate(struct dvb_frontend *fe, u32 layer,
 		break;
 	}
 
+<<<<<<< HEAD
 	/* Samples BER at BER_SAMPLING_RATE seconds */
 	rate = isdbt_rate[mod][fec][guard] * segment * BER_SAMPLING_RATE;
 
@@ -627,13 +657,20 @@ static void mb86a20s_layer_bitrate(struct dvb_frontend *fe, u32 layer,
 		rate, rate);
 
 	state->estimated_rate[layer] = rate;
+=======
+	return isdbt_rate[mod][fec][guard] * c->layer[layer].segment_count;
+>>>>>>> upstream/android-13
 }
 
 static int mb86a20s_get_frontend(struct dvb_frontend *fe)
 {
 	struct mb86a20s_state *state = fe->demodulator_priv;
 	struct dtv_frontend_properties *c = &fe->dtv_property_cache;
+<<<<<<< HEAD
 	int layer, rc;
+=======
+	int layer, rc, rate, counter;
+>>>>>>> upstream/android-13
 
 	dev_dbg(&state->i2c->dev, "%s called.\n", __func__);
 
@@ -684,10 +721,28 @@ static int mb86a20s_get_frontend(struct dvb_frontend *fe)
 		dev_dbg(&state->i2c->dev, "%s: interleaving %d.\n",
 			__func__, rc);
 		c->layer[layer].interleaving = rc;
+<<<<<<< HEAD
 		mb86a20s_layer_bitrate(fe, layer, c->layer[layer].modulation,
 				       c->layer[layer].fec,
 				       c->guard_interval,
 				       c->layer[layer].segment_count);
+=======
+
+		rate = isdbt_layer_min_bitrate(c, layer);
+		counter = rate * BER_SAMPLING_RATE;
+
+		/* Avoids sampling too quickly or to overflow the register */
+		if (counter < 256)
+			counter = 256;
+		else if (counter > (1 << 24) - 1)
+			counter = (1 << 24) - 1;
+
+		dev_dbg(&state->i2c->dev,
+			"%s: layer %c bitrate: %d kbps; counter = %d (0x%06x)\n",
+			__func__, 'A' + layer, rate / 1000, counter, counter);
+
+		state->estimated_rate[layer] = counter;
+>>>>>>> upstream/android-13
 	}
 
 	rc = mb86a20s_writereg(state, 0x6d, 0x84);

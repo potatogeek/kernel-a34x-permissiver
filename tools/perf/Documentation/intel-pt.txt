@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Intel Processor Trace
 =====================
 
@@ -889,3 +890,6 @@ amended to take the number of elements as a parameter.
 
 Note there is currently no advantage to using Intel PT instead of LBR, but
 that may change in the future if greater use is made of the data.
+=======
+Documentation for support for Intel Processor Trace within perf tools' has moved to file perf-intel-pt.txt
+>>>>>>> upstream/android-13

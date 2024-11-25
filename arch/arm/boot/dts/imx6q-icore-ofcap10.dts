@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016 Amarula Solutions B.V.
  * Copyright (C) 2016 Engicam S.r.l.
@@ -38,6 +39,12 @@
  *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *     OTHER DEALINGS IN THE SOFTWARE.
+=======
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (C) 2016 Amarula Solutions B.V.
+ * Copyright (C) 2016 Engicam S.r.l.
+>>>>>>> upstream/android-13
  */
 
 /dts-v1/;
@@ -48,6 +55,20 @@
 / {
 	model = "Engicam i.CoreM6 Quad/Dual OpenFrame Capacitive touch 10.1 Kit";
 	compatible = "engicam,imx6-icore", "fsl,imx6q";
+<<<<<<< HEAD
+=======
+
+	panel {
+		compatible = "ampire,am-1280800n3tzqw-t00h";
+		backlight = <&backlight_lvds>;
+
+		port {
+			panel_in: endpoint {
+				remote-endpoint = <&lvds0_out>;
+			};
+		};
+	};
+>>>>>>> upstream/android-13
 };
 
 &ldb {
@@ -58,6 +79,7 @@
 		fsl,data-width = <24>;
 		status = "okay";
 
+<<<<<<< HEAD
 		display-timings {
 			native-mode = <&timing0>;
 			timing0: timing0 {
@@ -70,6 +92,13 @@
 				vfront-porch = <3>;
 				hsync-len = <80>;
 				vsync-len = <10>;
+=======
+		port@4 {
+			reg = <4>;
+
+			lvds0_out: endpoint {
+				remote-endpoint = <&panel_in>;
+>>>>>>> upstream/android-13
 			};
 		};
 	};

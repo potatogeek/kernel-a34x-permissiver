@@ -31,8 +31,13 @@ struct proca_identity {
 
 int init_proca_identity(struct proca_identity *identity,
 			struct file *file,
+<<<<<<< HEAD
 			char **cert_value,
 			const size_t cert_size,
+=======
+			char *xattr_value,
+			const size_t xattr_size,
+>>>>>>> upstream/android-13
 			struct proca_certificate *parsed_cert);
 
 void deinit_proca_identity(struct proca_identity *identity);

@@ -345,7 +345,12 @@ do {									\
 } while (0)
 
 /**
+<<<<<<< HEAD
  * closure_return - finish execution of a closure, with destructor
+=======
+ * closure_return_with_destructor - finish execution of a closure,
+ *				    with destructor
+>>>>>>> upstream/android-13
  *
  * Works like closure_return(), except @destructor will be called when all
  * outstanding refs on @cl have been dropped; @destructor may be used to safely

@@ -54,6 +54,23 @@ typedef int (*open_index_fn)(struct ll_disk *ll);
 typedef dm_block_t (*max_index_entries_fn)(struct ll_disk *ll);
 typedef int (*commit_fn)(struct ll_disk *ll);
 
+<<<<<<< HEAD
+=======
+/*
+ * A lot of time can be wasted reading and writing the same
+ * index entry.  So we cache a few entries.
+ */
+#define IE_CACHE_SIZE 64
+#define IE_CACHE_MASK (IE_CACHE_SIZE - 1)
+
+struct ie_cache {
+	bool valid;
+	bool dirty;
+	dm_block_t index;
+	struct disk_index_entry ie;
+};
+
+>>>>>>> upstream/android-13
 struct ll_disk {
 	struct dm_transaction_manager *tm;
 	struct dm_btree_info bitmap_info;
@@ -79,6 +96,11 @@ struct ll_disk {
 	max_index_entries_fn max_entries;
 	commit_fn commit;
 	bool bitmap_index_changed:1;
+<<<<<<< HEAD
+=======
+
+	struct ie_cache ie_cache[IE_CACHE_SIZE];
+>>>>>>> upstream/android-13
 };
 
 struct disk_sm_root {
@@ -96,12 +118,15 @@ struct disk_bitmap_header {
 	__le64 blocknr;
 } __attribute__ ((packed, aligned(8)));
 
+<<<<<<< HEAD
 enum allocation_event {
 	SM_NONE,
 	SM_ALLOC,
 	SM_FREE,
 };
 
+=======
+>>>>>>> upstream/android-13
 /*----------------------------------------------------------------*/
 
 int sm_ll_extend(struct ll_disk *ll, dm_block_t extra_blocks);
@@ -111,9 +136,21 @@ int sm_ll_find_free_block(struct ll_disk *ll, dm_block_t begin,
 			  dm_block_t end, dm_block_t *result);
 int sm_ll_find_common_free_block(struct ll_disk *old_ll, struct ll_disk *new_ll,
 	                         dm_block_t begin, dm_block_t end, dm_block_t *result);
+<<<<<<< HEAD
 int sm_ll_insert(struct ll_disk *ll, dm_block_t b, uint32_t ref_count, enum allocation_event *ev);
 int sm_ll_inc(struct ll_disk *ll, dm_block_t b, enum allocation_event *ev);
 int sm_ll_dec(struct ll_disk *ll, dm_block_t b, enum allocation_event *ev);
+=======
+
+/*
+ * The next three functions return (via nr_allocations) the net number of
+ * allocations that were made.  This number may be negative if there were
+ * more frees than allocs.
+ */
+int sm_ll_insert(struct ll_disk *ll, dm_block_t b, uint32_t ref_count, int32_t *nr_allocations);
+int sm_ll_inc(struct ll_disk *ll, dm_block_t b, dm_block_t e, int32_t *nr_allocations);
+int sm_ll_dec(struct ll_disk *ll, dm_block_t b, dm_block_t e, int32_t *nr_allocations);
+>>>>>>> upstream/android-13
 int sm_ll_commit(struct ll_disk *ll);
 
 int sm_ll_new_metadata(struct ll_disk *ll, struct dm_transaction_manager *tm);

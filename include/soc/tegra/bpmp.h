@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016, NVIDIA CORPORATION.  All rights reserved.
  *
@@ -9,6 +10,11 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2016, NVIDIA CORPORATION.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __SOC_TEGRA_BPMP_H
@@ -23,6 +29,10 @@
 #include <soc/tegra/bpmp-abi.h>
 
 struct tegra_bpmp_clk;
+<<<<<<< HEAD
+=======
+struct tegra_bpmp_ops;
+>>>>>>> upstream/android-13
 
 struct tegra_bpmp_soc {
 	struct {
@@ -32,6 +42,11 @@ struct tegra_bpmp_soc {
 			unsigned int timeout;
 		} cpu_tx, thread, cpu_rx;
 	} channels;
+<<<<<<< HEAD
+=======
+
+	const struct tegra_bpmp_ops *ops;
+>>>>>>> upstream/android-13
 	unsigned int num_resets;
 };
 
@@ -47,6 +62,10 @@ struct tegra_bpmp_channel {
 	struct tegra_bpmp_mb_data *ob;
 	struct completion completion;
 	struct tegra_ivc *ivc;
+<<<<<<< HEAD
+=======
+	unsigned int index;
+>>>>>>> upstream/android-13
 };
 
 typedef void (*tegra_bpmp_mrq_handler_t)(unsigned int mrq,
@@ -63,12 +82,16 @@ struct tegra_bpmp_mrq {
 struct tegra_bpmp {
 	const struct tegra_bpmp_soc *soc;
 	struct device *dev;
+<<<<<<< HEAD
 
 	struct {
 		struct gen_pool *pool;
 		dma_addr_t phys;
 		void *virt;
 	} tx, rx;
+=======
+	void *priv;
+>>>>>>> upstream/android-13
 
 	struct {
 		struct mbox_client client;
@@ -129,6 +152,10 @@ int tegra_bpmp_request_mrq(struct tegra_bpmp *bpmp, unsigned int mrq,
 			   tegra_bpmp_mrq_handler_t handler, void *data);
 void tegra_bpmp_free_mrq(struct tegra_bpmp *bpmp, unsigned int mrq,
 			 void *data);
+<<<<<<< HEAD
+=======
+bool tegra_bpmp_mrq_is_supported(struct tegra_bpmp *bpmp, unsigned int mrq);
+>>>>>>> upstream/android-13
 #else
 static inline struct tegra_bpmp *tegra_bpmp_get(struct device *dev)
 {
@@ -164,8 +191,21 @@ static inline void tegra_bpmp_free_mrq(struct tegra_bpmp *bpmp,
 				       unsigned int mrq, void *data)
 {
 }
+<<<<<<< HEAD
 #endif
 
+=======
+
+static inline bool tegra_bpmp_mrq_is_supported(struct tegra_bpmp *bpmp,
+					      unsigned int mrq)
+{
+	return false;
+}
+#endif
+
+void tegra_bpmp_handle_rx(struct tegra_bpmp *bpmp);
+
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_CLK_TEGRA_BPMP)
 int tegra_bpmp_init_clocks(struct tegra_bpmp *bpmp);
 #else

@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 /*
  *  (C) 2010,2011       Thomas Renninger <trenn@suse.de>, Novell Inc.
  *
  *  Licensed under the terms of the GNU GPL License version 2.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *  (C) 2010,2011       Thomas Renninger <trenn@suse.de>, Novell Inc.
+ *
+>>>>>>> upstream/android-13
  *  Based on Len Brown's <lenb@kernel.org> turbostat tool.
  */
 
@@ -78,7 +85,11 @@ static int snb_get_count(enum intel_snb_id id, unsigned long long *val,
 		break;
 	default:
 		return -1;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 	if (read_msr(cpu, msr, val))
 		return -1;
 	return 0;
@@ -193,7 +204,11 @@ struct cpuidle_monitor intel_snb_monitor = {
 	.stop			= snb_stop,
 	.do_register		= snb_register,
 	.unregister		= snb_unregister,
+<<<<<<< HEAD
 	.needs_root		= 1,
+=======
+	.flags.needs_root	= 1,
+>>>>>>> upstream/android-13
 	.overflow_s		= 922000000 /* 922337203 seconds TSC overflow
 					       at 20GHz */
 };

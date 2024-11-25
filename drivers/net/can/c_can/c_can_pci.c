@@ -31,6 +31,11 @@ enum c_can_pci_reg_align {
 struct c_can_pci_data {
 	/* Specify if is C_CAN or D_CAN */
 	enum c_can_dev_id type;
+<<<<<<< HEAD
+=======
+	/* Number of message objects */
+	unsigned int msg_obj_num;
+>>>>>>> upstream/android-13
 	/* Set the register alignment in the memory */
 	enum c_can_pci_reg_align reg_align;
 	/* Set the frequency */
@@ -41,32 +46,52 @@ struct c_can_pci_data {
 	void (*init)(const struct c_can_priv *priv, bool enable);
 };
 
+<<<<<<< HEAD
 /*
  * 16-bit c_can registers can be arranged differently in the memory
+=======
+/* 16-bit c_can registers can be arranged differently in the memory
+>>>>>>> upstream/android-13
  * architecture of different implementations. For example: 16-bit
  * registers can be aligned to a 16-bit boundary or 32-bit boundary etc.
  * Handle the same by providing a common read/write interface.
  */
 static u16 c_can_pci_read_reg_aligned_to_16bit(const struct c_can_priv *priv,
+<<<<<<< HEAD
 						enum reg index)
+=======
+					       enum reg index)
+>>>>>>> upstream/android-13
 {
 	return readw(priv->base + priv->regs[index]);
 }
 
 static void c_can_pci_write_reg_aligned_to_16bit(const struct c_can_priv *priv,
+<<<<<<< HEAD
 						enum reg index, u16 val)
+=======
+						 enum reg index, u16 val)
+>>>>>>> upstream/android-13
 {
 	writew(val, priv->base + priv->regs[index]);
 }
 
 static u16 c_can_pci_read_reg_aligned_to_32bit(const struct c_can_priv *priv,
+<<<<<<< HEAD
 						enum reg index)
+=======
+					       enum reg index)
+>>>>>>> upstream/android-13
 {
 	return readw(priv->base + 2 * priv->regs[index]);
 }
 
 static void c_can_pci_write_reg_aligned_to_32bit(const struct c_can_priv *priv,
+<<<<<<< HEAD
 						enum reg index, u16 val)
+=======
+						 enum reg index, u16 val)
+>>>>>>> upstream/android-13
 {
 	writew(val, priv->base + 2 * priv->regs[index]);
 }
@@ -88,13 +113,21 @@ static u32 c_can_pci_read_reg32(const struct c_can_priv *priv, enum reg index)
 	u32 val;
 
 	val = priv->read_reg(priv, index);
+<<<<<<< HEAD
 	val |= ((u32) priv->read_reg(priv, index + 1)) << 16;
+=======
+	val |= ((u32)priv->read_reg(priv, index + 1)) << 16;
+>>>>>>> upstream/android-13
 
 	return val;
 }
 
 static void c_can_pci_write_reg32(const struct c_can_priv *priv, enum reg index,
+<<<<<<< HEAD
 		u32 val)
+=======
+				  u32 val)
+>>>>>>> upstream/android-13
 {
 	priv->write_reg(priv, index + 1, val >> 16);
 	priv->write_reg(priv, index, val);
@@ -142,14 +175,22 @@ static int c_can_pci_probe(struct pci_dev *pdev,
 			 pci_resource_len(pdev, c_can_pci_data->bar));
 	if (!addr) {
 		dev_err(&pdev->dev,
+<<<<<<< HEAD
 			"device has no PCI memory resources, "
 			"failing adapter\n");
+=======
+			"device has no PCI memory resources, failing adapter\n");
+>>>>>>> upstream/android-13
 		ret = -ENOMEM;
 		goto out_release_regions;
 	}
 
 	/* allocate the c_can device */
+<<<<<<< HEAD
 	dev = alloc_c_can_dev();
+=======
+	dev = alloc_c_can_dev(c_can_pci_data->msg_obj_num);
+>>>>>>> upstream/android-13
 	if (!dev) {
 		ret = -ENOMEM;
 		goto out_iounmap;
@@ -217,7 +258,11 @@ static int c_can_pci_probe(struct pci_dev *pdev,
 	}
 
 	dev_dbg(&pdev->dev, "%s device registered (regs=%p, irq=%d)\n",
+<<<<<<< HEAD
 		 KBUILD_MODNAME, priv->regs, dev->irq);
+=======
+		KBUILD_MODNAME, priv->regs, dev->irq);
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -252,8 +297,14 @@ static void c_can_pci_remove(struct pci_dev *pdev)
 	pci_disable_device(pdev);
 }
 
+<<<<<<< HEAD
 static const struct c_can_pci_data c_can_sta2x11= {
 	.type = BOSCH_C_CAN,
+=======
+static const struct c_can_pci_data c_can_sta2x11 = {
+	.type = BOSCH_C_CAN,
+	.msg_obj_num = 32,
+>>>>>>> upstream/android-13
 	.reg_align = C_CAN_REG_ALIGN_32,
 	.freq = 52000000, /* 52 Mhz */
 	.bar = 0,
@@ -261,6 +312,10 @@ static const struct c_can_pci_data c_can_sta2x11= {
 
 static const struct c_can_pci_data c_can_pch = {
 	.type = BOSCH_C_CAN,
+<<<<<<< HEAD
+=======
+	.msg_obj_num = 32,
+>>>>>>> upstream/android-13
 	.reg_align = C_CAN_REG_32,
 	.freq = 50000000, /* 50 MHz */
 	.init = c_can_pci_reset_pch,
@@ -269,7 +324,11 @@ static const struct c_can_pci_data c_can_pch = {
 
 #define C_CAN_ID(_vend, _dev, _driverdata) {		\
 	PCI_DEVICE(_vend, _dev),			\
+<<<<<<< HEAD
 	.driver_data = (unsigned long)&_driverdata,	\
+=======
+	.driver_data = (unsigned long)&(_driverdata),	\
+>>>>>>> upstream/android-13
 }
 
 static const struct pci_device_id c_can_pci_tbl[] = {
@@ -279,6 +338,10 @@ static const struct pci_device_id c_can_pci_tbl[] = {
 		 c_can_pch),
 	{},
 };
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 static struct pci_driver c_can_pci_driver = {
 	.name = KBUILD_MODNAME,
 	.id_table = c_can_pci_tbl,

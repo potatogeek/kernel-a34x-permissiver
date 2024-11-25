@@ -20,11 +20,24 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  *
  */
+<<<<<<< HEAD
 #include <linux/kernel.h>
 #include <linux/firmware.h>
 #include <drm/drmP.h>
 #include "amdgpu.h"
 #include "amdgpu_gfx.h"
+=======
+
+#include <linux/delay.h>
+#include <linux/kernel.h>
+#include <linux/firmware.h>
+#include <linux/module.h>
+#include <linux/pci.h>
+
+#include "amdgpu.h"
+#include "amdgpu_gfx.h"
+#include "amdgpu_ring.h"
+>>>>>>> upstream/android-13
 #include "vi.h"
 #include "vi_structs.h"
 #include "vid.h"
@@ -44,7 +57,10 @@
 #include "gca/gfx_8_0_d.h"
 #include "gca/gfx_8_0_enum.h"
 #include "gca/gfx_8_0_sh_mask.h"
+<<<<<<< HEAD
 #include "gca/gfx_8_0_enum.h"
+=======
+>>>>>>> upstream/android-13
 
 #include "dce/dce_10_0_d.h"
 #include "dce/dce_10_0_sh_mask.h"
@@ -54,7 +70,11 @@
 #include "ivsrcid/ivsrcid_vislands30.h"
 
 #define GFX8_NUM_GFX_RINGS     1
+<<<<<<< HEAD
 #define GFX8_MEC_HPD_SIZE 2048
+=======
+#define GFX8_MEC_HPD_SIZE 4096
+>>>>>>> upstream/android-13
 
 #define TOPAZ_GB_ADDR_CONFIG_GOLDEN 0x22010001
 #define CARRIZO_GB_ADDR_CONFIG_GOLDEN 0x22010001
@@ -726,8 +746,18 @@ static void gfx_v8_0_get_cu_info(struct amdgpu_device *adev);
 static void gfx_v8_0_ring_emit_ce_meta(struct amdgpu_ring *ring);
 static void gfx_v8_0_ring_emit_de_meta(struct amdgpu_ring *ring);
 
+<<<<<<< HEAD
 static void gfx_v8_0_init_golden_registers(struct amdgpu_device *adev)
 {
+=======
+#define CG_ACLK_CNTL__ACLK_DIVIDER_MASK                    0x0000007fL
+#define CG_ACLK_CNTL__ACLK_DIVIDER__SHIFT                  0x00000000L
+
+static void gfx_v8_0_init_golden_registers(struct amdgpu_device *adev)
+{
+	uint32_t data;
+
+>>>>>>> upstream/android-13
 	switch (adev->asic_type) {
 	case CHIP_TOPAZ:
 		amdgpu_device_program_register_sequence(adev,
@@ -787,11 +817,22 @@ static void gfx_v8_0_init_golden_registers(struct amdgpu_device *adev)
 		amdgpu_device_program_register_sequence(adev,
 							polaris10_golden_common_all,
 							ARRAY_SIZE(polaris10_golden_common_all));
+<<<<<<< HEAD
 		WREG32_SMC(ixCG_ACLK_CNTL, 0x0000001C);
 		if (adev->pdev->revision == 0xc7 &&
 		    ((adev->pdev->subsystem_device == 0xb37 && adev->pdev->subsystem_vendor == 0x1002) ||
 		     (adev->pdev->subsystem_device == 0x4a8 && adev->pdev->subsystem_vendor == 0x1043) ||
 		     (adev->pdev->subsystem_device == 0x9480 && adev->pdev->subsystem_vendor == 0x1682))) {
+=======
+		data = RREG32_SMC(ixCG_ACLK_CNTL);
+		data &= ~CG_ACLK_CNTL__ACLK_DIVIDER_MASK;
+		data |= 0x18 << CG_ACLK_CNTL__ACLK_DIVIDER__SHIFT;
+		WREG32_SMC(ixCG_ACLK_CNTL, data);
+		if ((adev->pdev->device == 0x67DF) && (adev->pdev->revision == 0xc7) &&
+		    ((adev->pdev->subsystem_device == 0xb37 && adev->pdev->subsystem_vendor == 0x1002) ||
+		     (adev->pdev->subsystem_device == 0x4a8 && adev->pdev->subsystem_vendor == 0x1043) ||
+		     (adev->pdev->subsystem_device == 0x9480 && adev->pdev->subsystem_vendor == 0x1680))) {
+>>>>>>> upstream/android-13
 			amdgpu_atombios_i2c_channel_trans(adev, 0x10, 0x96, 0x1E, 0xDD);
 			amdgpu_atombios_i2c_channel_trans(adev, 0x10, 0x96, 0x1F, 0xD0);
 		}
@@ -839,6 +880,7 @@ static int gfx_v8_0_ring_test_ring(struct amdgpu_ring *ring)
 	int r;
 
 	r = amdgpu_gfx_scratch_get(adev, &scratch);
+<<<<<<< HEAD
 	if (r) {
 		DRM_ERROR("amdgpu: cp failed to get scratch reg (%d).\n", r);
 		return r;
@@ -851,6 +893,16 @@ static int gfx_v8_0_ring_test_ring(struct amdgpu_ring *ring)
 		amdgpu_gfx_scratch_free(adev, scratch);
 		return r;
 	}
+=======
+	if (r)
+		return r;
+
+	WREG32(scratch, 0xCAFEDEAD);
+	r = amdgpu_ring_alloc(ring, 3);
+	if (r)
+		goto error_free_scratch;
+
+>>>>>>> upstream/android-13
 	amdgpu_ring_write(ring, PACKET3(PACKET3_SET_UCONFIG_REG, 1));
 	amdgpu_ring_write(ring, (scratch - PACKET3_SET_UCONFIG_REG_START));
 	amdgpu_ring_write(ring, 0xDEADBEEF);
@@ -860,6 +912,7 @@ static int gfx_v8_0_ring_test_ring(struct amdgpu_ring *ring)
 		tmp = RREG32(scratch);
 		if (tmp == 0xDEADBEEF)
 			break;
+<<<<<<< HEAD
 		DRM_UDELAY(1);
 	}
 	if (i < adev->usec_timeout) {
@@ -870,6 +923,15 @@ static int gfx_v8_0_ring_test_ring(struct amdgpu_ring *ring)
 			  ring->idx, scratch, tmp);
 		r = -EINVAL;
 	}
+=======
+		udelay(1);
+	}
+
+	if (i >= adev->usec_timeout)
+		r = -ETIMEDOUT;
+
+error_free_scratch:
+>>>>>>> upstream/android-13
 	amdgpu_gfx_scratch_free(adev, scratch);
 	return r;
 }
@@ -886,19 +948,32 @@ static int gfx_v8_0_ring_test_ib(struct amdgpu_ring *ring, long timeout)
 	long r;
 
 	r = amdgpu_device_wb_get(adev, &index);
+<<<<<<< HEAD
 	if (r) {
 		dev_err(adev->dev, "(%ld) failed to allocate wb slot\n", r);
 		return r;
 	}
+=======
+	if (r)
+		return r;
+>>>>>>> upstream/android-13
 
 	gpu_addr = adev->wb.gpu_addr + (index * 4);
 	adev->wb.wb[index] = cpu_to_le32(0xCAFEDEAD);
 	memset(&ib, 0, sizeof(ib));
+<<<<<<< HEAD
 	r = amdgpu_ib_get(adev, NULL, 16, &ib);
 	if (r) {
 		DRM_ERROR("amdgpu: failed to get ib (%ld).\n", r);
 		goto err1;
 	}
+=======
+	r = amdgpu_ib_get(adev, NULL, 16,
+					AMDGPU_IB_POOL_DIRECT, &ib);
+	if (r)
+		goto err1;
+
+>>>>>>> upstream/android-13
 	ib.ptr[0] = PACKET3(PACKET3_WRITE_DATA, 3);
 	ib.ptr[1] = WRITE_DATA_DST_SEL(5) | WR_CONFIRM;
 	ib.ptr[2] = lower_32_bits(gpu_addr);
@@ -912,15 +987,22 @@ static int gfx_v8_0_ring_test_ib(struct amdgpu_ring *ring, long timeout)
 
 	r = dma_fence_wait_timeout(f, false, timeout);
 	if (r == 0) {
+<<<<<<< HEAD
 		DRM_ERROR("amdgpu: IB test timed out.\n");
 		r = -ETIMEDOUT;
 		goto err2;
 	} else if (r < 0) {
 		DRM_ERROR("amdgpu: fence wait failed (%ld).\n", r);
+=======
+		r = -ETIMEDOUT;
+		goto err2;
+	} else if (r < 0) {
+>>>>>>> upstream/android-13
 		goto err2;
 	}
 
 	tmp = adev->wb.wb[index];
+<<<<<<< HEAD
 	if (tmp == 0xDEADBEEF) {
 		DRM_DEBUG("ib test on ring %d succeeded\n", ring->idx);
 		r = 0;
@@ -928,6 +1010,12 @@ static int gfx_v8_0_ring_test_ib(struct amdgpu_ring *ring, long timeout)
 		DRM_ERROR("ib test on ring %d failed\n", ring->idx);
 		r = -EINVAL;
 	}
+=======
+	if (tmp == 0xDEADBEEF)
+		r = 0;
+	else
+		r = -EINVAL;
+>>>>>>> upstream/android-13
 
 err2:
 	amdgpu_ib_free(adev, &ib, NULL);
@@ -1114,14 +1202,22 @@ static int gfx_v8_0_init_microcode(struct amdgpu_device *adev)
 
 	tmp = (unsigned int *)((uintptr_t)rlc_hdr +
 			le32_to_cpu(rlc_hdr->reg_list_format_array_offset_bytes));
+<<<<<<< HEAD
 	for (i = 0 ; i < (rlc_hdr->reg_list_format_size_bytes >> 2); i++)
+=======
+	for (i = 0 ; i < (adev->gfx.rlc.reg_list_format_size_bytes >> 2); i++)
+>>>>>>> upstream/android-13
 		adev->gfx.rlc.register_list_format[i] =	le32_to_cpu(tmp[i]);
 
 	adev->gfx.rlc.register_restore = adev->gfx.rlc.register_list_format + i;
 
 	tmp = (unsigned int *)((uintptr_t)rlc_hdr +
 			le32_to_cpu(rlc_hdr->reg_list_array_offset_bytes));
+<<<<<<< HEAD
 	for (i = 0 ; i < (rlc_hdr->reg_list_size_bytes >> 2); i++)
+=======
+	for (i = 0 ; i < (adev->gfx.rlc.reg_list_size_bytes >> 2); i++)
+>>>>>>> upstream/android-13
 		adev->gfx.rlc.register_restore[i] = le32_to_cpu(tmp[i]);
 
 	if (adev->asic_type >= CHIP_POLARIS10 && adev->asic_type <= CHIP_POLARIS12) {
@@ -1173,6 +1269,7 @@ static int gfx_v8_0_init_microcode(struct amdgpu_device *adev)
 		}
 	}
 
+<<<<<<< HEAD
 	if (adev->firmware.load_type == AMDGPU_FW_LOAD_SMU) {
 		info = &adev->firmware.ucode[AMDGPU_UCODE_ID_CP_PFP];
 		info->ucode_id = AMDGPU_UCODE_ID_CP_PFP;
@@ -1231,6 +1328,63 @@ static int gfx_v8_0_init_microcode(struct amdgpu_device *adev)
 				ALIGN(le32_to_cpu(header->ucode_size_bytes), PAGE_SIZE);
 		}
 
+=======
+	info = &adev->firmware.ucode[AMDGPU_UCODE_ID_CP_PFP];
+	info->ucode_id = AMDGPU_UCODE_ID_CP_PFP;
+	info->fw = adev->gfx.pfp_fw;
+	header = (const struct common_firmware_header *)info->fw->data;
+	adev->firmware.fw_size +=
+		ALIGN(le32_to_cpu(header->ucode_size_bytes), PAGE_SIZE);
+
+	info = &adev->firmware.ucode[AMDGPU_UCODE_ID_CP_ME];
+	info->ucode_id = AMDGPU_UCODE_ID_CP_ME;
+	info->fw = adev->gfx.me_fw;
+	header = (const struct common_firmware_header *)info->fw->data;
+	adev->firmware.fw_size +=
+		ALIGN(le32_to_cpu(header->ucode_size_bytes), PAGE_SIZE);
+
+	info = &adev->firmware.ucode[AMDGPU_UCODE_ID_CP_CE];
+	info->ucode_id = AMDGPU_UCODE_ID_CP_CE;
+	info->fw = adev->gfx.ce_fw;
+	header = (const struct common_firmware_header *)info->fw->data;
+	adev->firmware.fw_size +=
+		ALIGN(le32_to_cpu(header->ucode_size_bytes), PAGE_SIZE);
+
+	info = &adev->firmware.ucode[AMDGPU_UCODE_ID_RLC_G];
+	info->ucode_id = AMDGPU_UCODE_ID_RLC_G;
+	info->fw = adev->gfx.rlc_fw;
+	header = (const struct common_firmware_header *)info->fw->data;
+	adev->firmware.fw_size +=
+		ALIGN(le32_to_cpu(header->ucode_size_bytes), PAGE_SIZE);
+
+	info = &adev->firmware.ucode[AMDGPU_UCODE_ID_CP_MEC1];
+	info->ucode_id = AMDGPU_UCODE_ID_CP_MEC1;
+	info->fw = adev->gfx.mec_fw;
+	header = (const struct common_firmware_header *)info->fw->data;
+	adev->firmware.fw_size +=
+		ALIGN(le32_to_cpu(header->ucode_size_bytes), PAGE_SIZE);
+
+	/* we need account JT in */
+	cp_hdr = (const struct gfx_firmware_header_v1_0 *)adev->gfx.mec_fw->data;
+	adev->firmware.fw_size +=
+		ALIGN(le32_to_cpu(cp_hdr->jt_size) << 2, PAGE_SIZE);
+
+	if (amdgpu_sriov_vf(adev)) {
+		info = &adev->firmware.ucode[AMDGPU_UCODE_ID_STORAGE];
+		info->ucode_id = AMDGPU_UCODE_ID_STORAGE;
+		info->fw = adev->gfx.mec_fw;
+		adev->firmware.fw_size +=
+			ALIGN(le32_to_cpu(64 * PAGE_SIZE), PAGE_SIZE);
+	}
+
+	if (adev->gfx.mec2_fw) {
+		info = &adev->firmware.ucode[AMDGPU_UCODE_ID_CP_MEC2];
+		info->ucode_id = AMDGPU_UCODE_ID_CP_MEC2;
+		info->fw = adev->gfx.mec2_fw;
+		header = (const struct common_firmware_header *)info->fw->data;
+		adev->firmware.fw_size +=
+			ALIGN(le32_to_cpu(header->ucode_size_bytes), PAGE_SIZE);
+>>>>>>> upstream/android-13
 	}
 
 out:
@@ -1301,6 +1455,7 @@ static void gfx_v8_0_get_csb_buffer(struct amdgpu_device *adev,
 	buffer[count++] = cpu_to_le32(0);
 }
 
+<<<<<<< HEAD
 static void cz_init_cp_jump_table(struct amdgpu_device *adev)
 {
 	const __le32 *fw_data;
@@ -1370,12 +1525,23 @@ static void gfx_v8_0_rlc_fini(struct amdgpu_device *adev)
 {
 	amdgpu_bo_free_kernel(&adev->gfx.rlc.clear_state_obj, NULL, NULL);
 	amdgpu_bo_free_kernel(&adev->gfx.rlc.cp_table_obj, NULL, NULL);
+=======
+static int gfx_v8_0_cp_jump_table_num(struct amdgpu_device *adev)
+{
+	if (adev->asic_type == CHIP_CARRIZO)
+		return 5;
+	else
+		return 4;
+>>>>>>> upstream/android-13
 }
 
 static int gfx_v8_0_rlc_init(struct amdgpu_device *adev)
 {
+<<<<<<< HEAD
 	volatile u32 *dst_ptr;
 	u32 dws;
+=======
+>>>>>>> upstream/android-13
 	const struct cs_section_def *cs_data;
 	int r;
 
@@ -1384,6 +1550,7 @@ static int gfx_v8_0_rlc_init(struct amdgpu_device *adev)
 	cs_data = adev->gfx.rlc.cs_data;
 
 	if (cs_data) {
+<<<<<<< HEAD
 		/* clear state block */
 		adev->gfx.rlc.clear_state_size = dws = gfx_v8_0_get_csb_size(adev);
 
@@ -1403,11 +1570,18 @@ static int gfx_v8_0_rlc_init(struct amdgpu_device *adev)
 		gfx_v8_0_get_csb_buffer(adev, dst_ptr);
 		amdgpu_bo_kunmap(adev->gfx.rlc.clear_state_obj);
 		amdgpu_bo_unreserve(adev->gfx.rlc.clear_state_obj);
+=======
+		/* init clear state block */
+		r = amdgpu_gfx_rlc_init_csb(adev);
+		if (r)
+			return r;
+>>>>>>> upstream/android-13
 	}
 
 	if ((adev->asic_type == CHIP_CARRIZO) ||
 	    (adev->asic_type == CHIP_STONEY)) {
 		adev->gfx.rlc.cp_table_size = ALIGN(96 * 5 * 4, 2048) + (64 * 1024); /* JT + GDS */
+<<<<<<< HEAD
 		r = amdgpu_bo_create_reserved(adev, adev->gfx.rlc.cp_table_size,
 					      PAGE_SIZE, AMDGPU_GEM_DOMAIN_VRAM,
 					      &adev->gfx.rlc.cp_table_obj,
@@ -1424,6 +1598,17 @@ static int gfx_v8_0_rlc_init(struct amdgpu_device *adev)
 		amdgpu_bo_unreserve(adev->gfx.rlc.cp_table_obj);
 	}
 
+=======
+		r = amdgpu_gfx_rlc_init_cpt(adev);
+		if (r)
+			return r;
+	}
+
+	/* init spm vmid with 0xf */
+	if (adev->gfx.rlc.funcs->update_spm_vmid)
+		adev->gfx.rlc.funcs->update_spm_vmid(adev, 0xf);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1444,6 +1629,7 @@ static int gfx_v8_0_mec_init(struct amdgpu_device *adev)
 	amdgpu_gfx_compute_queue_acquire(adev);
 
 	mec_hpd_size = adev->gfx.num_compute_rings * GFX8_MEC_HPD_SIZE;
+<<<<<<< HEAD
 
 	r = amdgpu_bo_create_reserved(adev, mec_hpd_size, PAGE_SIZE,
 				      AMDGPU_GEM_DOMAIN_GTT,
@@ -1460,6 +1646,25 @@ static int gfx_v8_0_mec_init(struct amdgpu_device *adev)
 	amdgpu_bo_kunmap(adev->gfx.mec.hpd_eop_obj);
 	amdgpu_bo_unreserve(adev->gfx.mec.hpd_eop_obj);
 
+=======
+	if (mec_hpd_size) {
+		r = amdgpu_bo_create_reserved(adev, mec_hpd_size, PAGE_SIZE,
+					      AMDGPU_GEM_DOMAIN_VRAM,
+					      &adev->gfx.mec.hpd_eop_obj,
+					      &adev->gfx.mec.hpd_eop_gpu_addr,
+					      (void **)&hpd);
+		if (r) {
+			dev_warn(adev->dev, "(%d) create HDP EOP bo failed\n", r);
+			return r;
+		}
+
+		memset(hpd, 0, mec_hpd_size);
+
+		amdgpu_bo_kunmap(adev->gfx.mec.hpd_eop_obj);
+		amdgpu_bo_unreserve(adev->gfx.mec.hpd_eop_obj);
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1632,7 +1837,11 @@ static int gfx_v8_0_do_edc_gpr_workarounds(struct amdgpu_device *adev)
 		return 0;
 
 	/* bail if the compute ring is not ready */
+<<<<<<< HEAD
 	if (!ring->ready)
+=======
+	if (!ring->sched.ready)
+>>>>>>> upstream/android-13
 		return 0;
 
 	tmp = RREG32(mmGB_EDC_MODE);
@@ -1652,7 +1861,12 @@ static int gfx_v8_0_do_edc_gpr_workarounds(struct amdgpu_device *adev)
 
 	/* allocate an indirect buffer to put the commands in */
 	memset(&ib, 0, sizeof(ib));
+<<<<<<< HEAD
 	r = amdgpu_ib_get(adev, NULL, total_size, &ib);
+=======
+	r = amdgpu_ib_get(adev, NULL, total_size,
+					AMDGPU_IB_POOL_DIRECT, &ib);
+>>>>>>> upstream/android-13
 	if (r) {
 		DRM_ERROR("amdgpu: failed to get ib (%d).\n", r);
 		return r;
@@ -1783,7 +1997,11 @@ fail:
 static int gfx_v8_0_gpu_early_init(struct amdgpu_device *adev)
 {
 	u32 gb_addr_config;
+<<<<<<< HEAD
 	u32 mc_shared_chmap, mc_arb_ramcfg;
+=======
+	u32 mc_arb_ramcfg;
+>>>>>>> upstream/android-13
 	u32 dimm00_addr_map, dimm01_addr_map, dimm10_addr_map, dimm11_addr_map;
 	u32 tmp;
 	int ret;
@@ -1923,10 +2141,21 @@ static int gfx_v8_0_gpu_early_init(struct amdgpu_device *adev)
 		break;
 	}
 
+<<<<<<< HEAD
 	mc_shared_chmap = RREG32(mmMC_SHARED_CHMAP);
 	adev->gfx.config.mc_arb_ramcfg = RREG32(mmMC_ARB_RAMCFG);
 	mc_arb_ramcfg = adev->gfx.config.mc_arb_ramcfg;
 
+=======
+	adev->gfx.config.mc_arb_ramcfg = RREG32(mmMC_ARB_RAMCFG);
+	mc_arb_ramcfg = adev->gfx.config.mc_arb_ramcfg;
+
+	adev->gfx.config.num_banks = REG_GET_FIELD(mc_arb_ramcfg,
+				MC_ARB_RAMCFG, NOOFBANK);
+	adev->gfx.config.num_ranks = REG_GET_FIELD(mc_arb_ramcfg,
+				MC_ARB_RAMCFG, NOOFRANKS);
+
+>>>>>>> upstream/android-13
 	adev->gfx.config.num_tile_pipes = adev->gfx.config.max_tile_pipes;
 	adev->gfx.config.mem_max_burst_length_bytes = 256;
 	if (adev->flags & AMD_IS_APU) {
@@ -1990,6 +2219,10 @@ static int gfx_v8_0_compute_ring_init(struct amdgpu_device *adev, int ring_id,
 	int r;
 	unsigned irq_type;
 	struct amdgpu_ring *ring = &adev->gfx.compute_ring[ring_id];
+<<<<<<< HEAD
+=======
+	unsigned int hw_prio;
+>>>>>>> upstream/android-13
 
 	ring = &adev->gfx.compute_ring[ring_id];
 
@@ -2000,7 +2233,11 @@ static int gfx_v8_0_compute_ring_init(struct amdgpu_device *adev, int ring_id,
 
 	ring->ring_obj = NULL;
 	ring->use_doorbell = true;
+<<<<<<< HEAD
 	ring->doorbell_index = AMDGPU_DOORBELL_MEC_RING0 + ring_id;
+=======
+	ring->doorbell_index = adev->doorbell_index.mec_ring0 + ring_id;
+>>>>>>> upstream/android-13
 	ring->eop_gpu_addr = adev->gfx.mec.hpd_eop_gpu_addr
 				+ (ring_id * GFX8_MEC_HPD_SIZE);
 	sprintf(ring->name, "comp_%d.%d.%d", ring->me, ring->pipe, ring->queue);
@@ -2009,9 +2246,17 @@ static int gfx_v8_0_compute_ring_init(struct amdgpu_device *adev, int ring_id,
 		+ ((ring->me - 1) * adev->gfx.mec.num_pipe_per_mec)
 		+ ring->pipe;
 
+<<<<<<< HEAD
 	/* type-2 packets are deprecated on MEC, use type-3 instead */
 	r = amdgpu_ring_init(adev, ring, 1024,
 			&adev->gfx.eop_irq, irq_type);
+=======
+	hw_prio = amdgpu_gfx_is_high_priority_compute_queue(adev, ring) ?
+			AMDGPU_GFX_PIPE_PRIO_HIGH : AMDGPU_RING_PRIO_DEFAULT;
+	/* type-2 packets are deprecated on MEC, use type-3 instead */
+	r = amdgpu_ring_init(adev, ring, 1024, &adev->gfx.eop_irq, irq_type,
+			     hw_prio, NULL);
+>>>>>>> upstream/android-13
 	if (r)
 		return r;
 
@@ -2048,6 +2293,7 @@ static int gfx_v8_0_sw_init(void *handle)
 	adev->gfx.mec.num_pipe_per_mec = 4;
 	adev->gfx.mec.num_queue_per_pipe = 8;
 
+<<<<<<< HEAD
 	/* KIQ event */
 	r = amdgpu_irq_add_id(adev, AMDGPU_IH_CLIENTID_LEGACY, VISLANDS30_IV_SRCID_CP_INT_IB2, &adev->gfx.kiq.irq);
 	if (r)
@@ -2055,29 +2301,49 @@ static int gfx_v8_0_sw_init(void *handle)
 
 	/* EOP Event */
 	r = amdgpu_irq_add_id(adev, AMDGPU_IH_CLIENTID_LEGACY, VISLANDS30_IV_SRCID_CP_END_OF_PIPE, &adev->gfx.eop_irq);
+=======
+	/* EOP Event */
+	r = amdgpu_irq_add_id(adev, AMDGPU_IRQ_CLIENTID_LEGACY, VISLANDS30_IV_SRCID_CP_END_OF_PIPE, &adev->gfx.eop_irq);
+>>>>>>> upstream/android-13
 	if (r)
 		return r;
 
 	/* Privileged reg */
+<<<<<<< HEAD
 	r = amdgpu_irq_add_id(adev, AMDGPU_IH_CLIENTID_LEGACY, VISLANDS30_IV_SRCID_CP_PRIV_REG_FAULT,
+=======
+	r = amdgpu_irq_add_id(adev, AMDGPU_IRQ_CLIENTID_LEGACY, VISLANDS30_IV_SRCID_CP_PRIV_REG_FAULT,
+>>>>>>> upstream/android-13
 			      &adev->gfx.priv_reg_irq);
 	if (r)
 		return r;
 
 	/* Privileged inst */
+<<<<<<< HEAD
 	r = amdgpu_irq_add_id(adev, AMDGPU_IH_CLIENTID_LEGACY, VISLANDS30_IV_SRCID_CP_PRIV_INSTR_FAULT,
+=======
+	r = amdgpu_irq_add_id(adev, AMDGPU_IRQ_CLIENTID_LEGACY, VISLANDS30_IV_SRCID_CP_PRIV_INSTR_FAULT,
+>>>>>>> upstream/android-13
 			      &adev->gfx.priv_inst_irq);
 	if (r)
 		return r;
 
 	/* Add CP EDC/ECC irq  */
+<<<<<<< HEAD
 	r = amdgpu_irq_add_id(adev, AMDGPU_IH_CLIENTID_LEGACY, VISLANDS30_IV_SRCID_CP_ECC_ERROR,
+=======
+	r = amdgpu_irq_add_id(adev, AMDGPU_IRQ_CLIENTID_LEGACY, VISLANDS30_IV_SRCID_CP_ECC_ERROR,
+>>>>>>> upstream/android-13
 			      &adev->gfx.cp_ecc_error_irq);
 	if (r)
 		return r;
 
 	/* SQ interrupts. */
+<<<<<<< HEAD
 	r = amdgpu_irq_add_id(adev, AMDGPU_IH_CLIENTID_LEGACY, VISLANDS30_IV_SRCID_SQ_INTERRUPT_MSG,
+=======
+	r = amdgpu_irq_add_id(adev, AMDGPU_IRQ_CLIENTID_LEGACY, VISLANDS30_IV_SRCID_SQ_INTERRUPT_MSG,
+>>>>>>> upstream/android-13
 			      &adev->gfx.sq_irq);
 	if (r) {
 		DRM_ERROR("amdgpu_irq_add() for SQ failed: %d\n", r);
@@ -2096,7 +2362,11 @@ static int gfx_v8_0_sw_init(void *handle)
 		return r;
 	}
 
+<<<<<<< HEAD
 	r = gfx_v8_0_rlc_init(adev);
+=======
+	r = adev->gfx.rlc.funcs->init(adev);
+>>>>>>> upstream/android-13
 	if (r) {
 		DRM_ERROR("Failed to init rlc BOs!\n");
 		return r;
@@ -2116,11 +2386,20 @@ static int gfx_v8_0_sw_init(void *handle)
 		/* no gfx doorbells on iceland */
 		if (adev->asic_type != CHIP_TOPAZ) {
 			ring->use_doorbell = true;
+<<<<<<< HEAD
 			ring->doorbell_index = AMDGPU_DOORBELL_GFX_RING0;
 		}
 
 		r = amdgpu_ring_init(adev, ring, 1024, &adev->gfx.eop_irq,
 				     AMDGPU_CP_IRQ_GFX_EOP);
+=======
+			ring->doorbell_index = adev->doorbell_index.gfx_ring0;
+		}
+
+		r = amdgpu_ring_init(adev, ring, 1024, &adev->gfx.eop_irq,
+				     AMDGPU_CP_IRQ_GFX_ME0_PIPE0_EOP,
+				     AMDGPU_RING_PRIO_DEFAULT, NULL);
+>>>>>>> upstream/android-13
 		if (r)
 			return r;
 	}
@@ -2157,6 +2436,7 @@ static int gfx_v8_0_sw_init(void *handle)
 		return r;
 
 	/* create MQD for all compute queues as well as KIQ for SRIOV case */
+<<<<<<< HEAD
 	r = amdgpu_gfx_compute_mqd_sw_init(adev, sizeof(struct vi_mqd_allocation));
 	if (r)
 		return r;
@@ -2177,6 +2457,9 @@ static int gfx_v8_0_sw_init(void *handle)
 	r = amdgpu_bo_create_kernel(adev, adev->gds.oa.gfx_partition_size,
 				    PAGE_SIZE, AMDGPU_GEM_DOMAIN_OA,
 				    &adev->gds.oa_gfx_bo, NULL, NULL);
+=======
+	r = amdgpu_gfx_mqd_sw_init(adev, sizeof(struct vi_mqd_allocation));
+>>>>>>> upstream/android-13
 	if (r)
 		return r;
 
@@ -2191,24 +2474,38 @@ static int gfx_v8_0_sw_init(void *handle)
 
 static int gfx_v8_0_sw_fini(void *handle)
 {
+<<<<<<< HEAD
 	int i;
 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
 
 	amdgpu_bo_free_kernel(&adev->gds.oa_gfx_bo, NULL, NULL);
 	amdgpu_bo_free_kernel(&adev->gds.gws_gfx_bo, NULL, NULL);
 	amdgpu_bo_free_kernel(&adev->gds.gds_gfx_bo, NULL, NULL);
+=======
+	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+	int i;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < adev->gfx.num_gfx_rings; i++)
 		amdgpu_ring_fini(&adev->gfx.gfx_ring[i]);
 	for (i = 0; i < adev->gfx.num_compute_rings; i++)
 		amdgpu_ring_fini(&adev->gfx.compute_ring[i]);
 
+<<<<<<< HEAD
 	amdgpu_gfx_compute_mqd_sw_fini(adev);
 	amdgpu_gfx_kiq_free_ring(&adev->gfx.kiq.ring, &adev->gfx.kiq.irq);
 	amdgpu_gfx_kiq_fini(adev);
 
 	gfx_v8_0_mec_fini(adev);
 	gfx_v8_0_rlc_fini(adev);
+=======
+	amdgpu_gfx_mqd_sw_fini(adev);
+	amdgpu_gfx_kiq_free_ring(&adev->gfx.kiq.ring);
+	amdgpu_gfx_kiq_fini(adev);
+
+	gfx_v8_0_mec_fini(adev);
+	amdgpu_gfx_rlc_fini(adev);
+>>>>>>> upstream/android-13
 	amdgpu_bo_free_kernel(&adev->gfx.rlc.clear_state_obj,
 				&adev->gfx.rlc.clear_state_gpu_addr,
 				(void **)&adev->gfx.rlc.cs_ptr);
@@ -3370,6 +3667,10 @@ static void gfx_v8_0_tiling_mode_table_init(struct amdgpu_device *adev)
 		dev_warn(adev->dev,
 			 "Unknown chip type (%d) in function gfx_v8_0_tiling_mode_table_init() falling through to CHIP_CARRIZO\n",
 			 adev->asic_type);
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case CHIP_CARRIZO:
 		modearray[0] = (ARRAY_MODE(ARRAY_2D_TILED_THIN1) |
@@ -3569,9 +3870,15 @@ static void gfx_v8_0_select_se_sh(struct amdgpu_device *adev,
 }
 
 static void gfx_v8_0_select_me_pipe_q(struct amdgpu_device *adev,
+<<<<<<< HEAD
 				  u32 me, u32 pipe, u32 q)
 {
 	vi_srbm_select(adev, me, pipe, q, 0);
+=======
+				  u32 me, u32 pipe, u32 q, u32 vm)
+{
+	vi_srbm_select(adev, me, pipe, q, vm);
+>>>>>>> upstream/android-13
 }
 
 static u32 gfx_v8_0_get_rb_active_bitmap(struct amdgpu_device *adev)
@@ -3796,6 +4103,10 @@ static void gfx_v8_0_setup_rb(struct amdgpu_device *adev)
 	mutex_unlock(&adev->grbm_idx_mutex);
 }
 
+<<<<<<< HEAD
+=======
+#define DEFAULT_SH_MEM_BASES	(0x6000)
+>>>>>>> upstream/android-13
 /**
  * gfx_v8_0_init_compute_vmid - gart enable
  *
@@ -3804,9 +4115,12 @@ static void gfx_v8_0_setup_rb(struct amdgpu_device *adev)
  * Initialize compute vmid sh_mem registers
  *
  */
+<<<<<<< HEAD
 #define DEFAULT_SH_MEM_BASES	(0x6000)
 #define FIRST_COMPUTE_VMID	(8)
 #define LAST_COMPUTE_VMID	(16)
+=======
+>>>>>>> upstream/android-13
 static void gfx_v8_0_init_compute_vmid(struct amdgpu_device *adev)
 {
 	int i;
@@ -3829,7 +4143,11 @@ static void gfx_v8_0_init_compute_vmid(struct amdgpu_device *adev)
 			SH_MEM_CONFIG__PRIVATE_ATC_MASK;
 
 	mutex_lock(&adev->srbm_mutex);
+<<<<<<< HEAD
 	for (i = FIRST_COMPUTE_VMID; i < LAST_COMPUTE_VMID; i++) {
+=======
+	for (i = adev->vm_manager.first_kfd_vmid; i < AMDGPU_NUM_VMID; i++) {
+>>>>>>> upstream/android-13
 		vi_srbm_select(adev, 0, 0, 0, i);
 		/* CP and shaders */
 		WREG32(mmSH_MEM_CONFIG, sh_mem_config);
@@ -3839,6 +4157,36 @@ static void gfx_v8_0_init_compute_vmid(struct amdgpu_device *adev)
 	}
 	vi_srbm_select(adev, 0, 0, 0, 0);
 	mutex_unlock(&adev->srbm_mutex);
+<<<<<<< HEAD
+=======
+
+	/* Initialize all compute VMIDs to have no GDS, GWS, or OA
+	   acccess. These should be enabled by FW for target VMIDs. */
+	for (i = adev->vm_manager.first_kfd_vmid; i < AMDGPU_NUM_VMID; i++) {
+		WREG32(amdgpu_gds_reg_offset[i].mem_base, 0);
+		WREG32(amdgpu_gds_reg_offset[i].mem_size, 0);
+		WREG32(amdgpu_gds_reg_offset[i].gws, 0);
+		WREG32(amdgpu_gds_reg_offset[i].oa, 0);
+	}
+}
+
+static void gfx_v8_0_init_gds_vmid(struct amdgpu_device *adev)
+{
+	int vmid;
+
+	/*
+	 * Initialize all compute and user-gfx VMIDs to have no GDS, GWS, or OA
+	 * access. Compute VMIDs should be enabled by FW for target VMIDs,
+	 * the driver can enable them for graphics. VMID0 should maintain
+	 * access so that HWS firmware can save/restore entries.
+	 */
+	for (vmid = 1; vmid < AMDGPU_NUM_VMID; vmid++) {
+		WREG32(amdgpu_gds_reg_offset[vmid].mem_base, 0);
+		WREG32(amdgpu_gds_reg_offset[vmid].mem_size, 0);
+		WREG32(amdgpu_gds_reg_offset[vmid].gws, 0);
+		WREG32(amdgpu_gds_reg_offset[vmid].oa, 0);
+	}
+>>>>>>> upstream/android-13
 }
 
 static void gfx_v8_0_config_init(struct amdgpu_device *adev)
@@ -3854,7 +4202,11 @@ static void gfx_v8_0_config_init(struct amdgpu_device *adev)
 	}
 }
 
+<<<<<<< HEAD
 static void gfx_v8_0_gpu_init(struct amdgpu_device *adev)
+=======
+static void gfx_v8_0_constants_init(struct amdgpu_device *adev)
+>>>>>>> upstream/android-13
 {
 	u32 tmp, sh_static_mem_cfg;
 	int i;
@@ -3907,6 +4259,10 @@ static void gfx_v8_0_gpu_init(struct amdgpu_device *adev)
 	mutex_unlock(&adev->srbm_mutex);
 
 	gfx_v8_0_init_compute_vmid(adev);
+<<<<<<< HEAD
+=======
+	gfx_v8_0_init_gds_vmid(adev);
+>>>>>>> upstream/android-13
 
 	mutex_lock(&adev->grbm_idx_mutex);
 	/*
@@ -3989,6 +4345,10 @@ static void gfx_v8_0_enable_gui_idle_interrupt(struct amdgpu_device *adev,
 
 static void gfx_v8_0_init_csb(struct amdgpu_device *adev)
 {
+<<<<<<< HEAD
+=======
+	adev->gfx.rlc.funcs->get_csb_buffer(adev, adev->gfx.rlc.cs_ptr);
+>>>>>>> upstream/android-13
 	/* csib */
 	WREG32(mmRLC_CSIB_ADDR_HI,
 			adev->gfx.rlc.clear_state_gpu_addr >> 32);
@@ -4058,11 +4418,18 @@ static int gfx_v8_0_init_save_restore_list(struct amdgpu_device *adev)
 
 	int list_size;
 	unsigned int *register_list_format =
+<<<<<<< HEAD
 		kmalloc(adev->gfx.rlc.reg_list_format_size_bytes, GFP_KERNEL);
 	if (!register_list_format)
 		return -ENOMEM;
 	memcpy(register_list_format, adev->gfx.rlc.register_list_format,
 			adev->gfx.rlc.reg_list_format_size_bytes);
+=======
+		kmemdup(adev->gfx.rlc.register_list_format,
+			adev->gfx.rlc.reg_list_format_size_bytes, GFP_KERNEL);
+	if (!register_list_format)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	gfx_v8_0_parse_ind_reg_list(register_list_format,
 				RLC_FormatDirectRegListLength,
@@ -4200,6 +4567,7 @@ static void gfx_v8_0_rlc_start(struct amdgpu_device *adev)
 	udelay(50);
 }
 
+<<<<<<< HEAD
 static int gfx_v8_0_rlc_load_microcode(struct amdgpu_device *adev)
 {
 	const struct rlc_firmware_header_v2_0 *hdr;
@@ -4260,13 +4628,29 @@ static int gfx_v8_0_rlc_resume(struct amdgpu_device *adev)
 	}
 
 	gfx_v8_0_rlc_start(adev);
+=======
+static int gfx_v8_0_rlc_resume(struct amdgpu_device *adev)
+{
+	if (amdgpu_sriov_vf(adev)) {
+		gfx_v8_0_init_csb(adev);
+		return 0;
+	}
+
+	adev->gfx.rlc.funcs->stop(adev);
+	adev->gfx.rlc.funcs->reset(adev);
+	gfx_v8_0_init_pg(adev);
+	adev->gfx.rlc.funcs->start(adev);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static void gfx_v8_0_cp_gfx_enable(struct amdgpu_device *adev, bool enable)
 {
+<<<<<<< HEAD
 	int i;
+=======
+>>>>>>> upstream/android-13
 	u32 tmp = RREG32(mmCP_ME_CNTL);
 
 	if (enable) {
@@ -4277,13 +4661,17 @@ static void gfx_v8_0_cp_gfx_enable(struct amdgpu_device *adev, bool enable)
 		tmp = REG_SET_FIELD(tmp, CP_ME_CNTL, ME_HALT, 1);
 		tmp = REG_SET_FIELD(tmp, CP_ME_CNTL, PFP_HALT, 1);
 		tmp = REG_SET_FIELD(tmp, CP_ME_CNTL, CE_HALT, 1);
+<<<<<<< HEAD
 		for (i = 0; i < adev->gfx.num_gfx_rings; i++)
 			adev->gfx.gfx_ring[i].ready = false;
+=======
+>>>>>>> upstream/android-13
 	}
 	WREG32(mmCP_ME_CNTL, tmp);
 	udelay(50);
 }
 
+<<<<<<< HEAD
 static int gfx_v8_0_cp_gfx_load_microcode(struct amdgpu_device *adev)
 {
 	const struct gfx_firmware_header_v1_0 *pfp_hdr;
@@ -4341,6 +4729,8 @@ static int gfx_v8_0_cp_gfx_load_microcode(struct amdgpu_device *adev)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static u32 gfx_v8_0_get_csb_size(struct amdgpu_device *adev)
 {
 	u32 count = 0;
@@ -4460,7 +4850,11 @@ static void gfx_v8_0_set_cpg_door_bell(struct amdgpu_device *adev, struct amdgpu
 
 	tmp = REG_SET_FIELD(0, CP_RB_DOORBELL_RANGE_LOWER,
 					DOORBELL_RANGE_LOWER,
+<<<<<<< HEAD
 					AMDGPU_DOORBELL_GFX_RING0);
+=======
+					adev->doorbell_index.gfx_ring0);
+>>>>>>> upstream/android-13
 	WREG32(mmCP_RB_DOORBELL_RANGE_LOWER, tmp);
 
 	WREG32(mmCP_RB_DOORBELL_RANGE_UPPER,
@@ -4473,7 +4867,10 @@ static int gfx_v8_0_cp_gfx_resume(struct amdgpu_device *adev)
 	u32 tmp;
 	u32 rb_bufsz;
 	u64 rb_addr, rptr_addr, wptr_gpu_addr;
+<<<<<<< HEAD
 	int r;
+=======
+>>>>>>> upstream/android-13
 
 	/* Set the write pointer delay */
 	WREG32(mmCP_RB_WPTR_DELAY, 0);
@@ -4517,29 +4914,43 @@ static int gfx_v8_0_cp_gfx_resume(struct amdgpu_device *adev)
 	/* start the ring */
 	amdgpu_ring_clear_ring(ring);
 	gfx_v8_0_cp_gfx_start(adev);
+<<<<<<< HEAD
 	ring->ready = true;
 	r = amdgpu_ring_test_ring(ring);
 	if (r)
 		ring->ready = false;
 
 	return r;
+=======
+	ring->sched.ready = true;
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void gfx_v8_0_cp_compute_enable(struct amdgpu_device *adev, bool enable)
 {
+<<<<<<< HEAD
 	int i;
 
+=======
+>>>>>>> upstream/android-13
 	if (enable) {
 		WREG32(mmCP_MEC_CNTL, 0);
 	} else {
 		WREG32(mmCP_MEC_CNTL, (CP_MEC_CNTL__MEC_ME1_HALT_MASK | CP_MEC_CNTL__MEC_ME2_HALT_MASK));
+<<<<<<< HEAD
 		for (i = 0; i < adev->gfx.num_compute_rings; i++)
 			adev->gfx.compute_ring[i].ready = false;
 		adev->gfx.kiq.ring.ready = false;
+=======
+		adev->gfx.kiq.ring.sched.ready = false;
+>>>>>>> upstream/android-13
 	}
 	udelay(50);
 }
 
+<<<<<<< HEAD
 static int gfx_v8_0_cp_compute_load_microcode(struct amdgpu_device *adev)
 {
 	const struct gfx_firmware_header_v1_0 *mec_hdr;
@@ -4586,6 +4997,8 @@ static int gfx_v8_0_cp_compute_load_microcode(struct amdgpu_device *adev)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 /* KIQ functions */
 static void gfx_v8_0_kiq_setting(struct amdgpu_ring *ring)
 {
@@ -4604,7 +5017,10 @@ static void gfx_v8_0_kiq_setting(struct amdgpu_ring *ring)
 static int gfx_v8_0_kiq_kcq_enable(struct amdgpu_device *adev)
 {
 	struct amdgpu_ring *kiq_ring = &adev->gfx.kiq.ring;
+<<<<<<< HEAD
 	uint32_t scratch, tmp = 0;
+=======
+>>>>>>> upstream/android-13
 	uint64_t queue_mask = 0;
 	int r, i;
 
@@ -4623,6 +5039,7 @@ static int gfx_v8_0_kiq_kcq_enable(struct amdgpu_device *adev)
 		queue_mask |= (1ull << i);
 	}
 
+<<<<<<< HEAD
 	r = amdgpu_gfx_scratch_get(adev, &scratch);
 	if (r) {
 		DRM_ERROR("Failed to get scratch reg (%d).\n", r);
@@ -4634,6 +5051,11 @@ static int gfx_v8_0_kiq_kcq_enable(struct amdgpu_device *adev)
 	if (r) {
 		DRM_ERROR("Failed to lock KIQ (%d).\n", r);
 		amdgpu_gfx_scratch_free(adev, scratch);
+=======
+	r = amdgpu_ring_alloc(kiq_ring, (8 * adev->gfx.num_compute_rings) + 8);
+	if (r) {
+		DRM_ERROR("Failed to lock KIQ (%d).\n", r);
+>>>>>>> upstream/android-13
 		return r;
 	}
 	/* set resources */
@@ -4665,6 +5087,7 @@ static int gfx_v8_0_kiq_kcq_enable(struct amdgpu_device *adev)
 		amdgpu_ring_write(kiq_ring, lower_32_bits(wptr_addr));
 		amdgpu_ring_write(kiq_ring, upper_32_bits(wptr_addr));
 	}
+<<<<<<< HEAD
 	/* write to scratch for completion */
 	amdgpu_ring_write(kiq_ring, PACKET3(PACKET3_SET_UCONFIG_REG, 1));
 	amdgpu_ring_write(kiq_ring, (scratch - PACKET3_SET_UCONFIG_REG_START));
@@ -4685,6 +5108,12 @@ static int gfx_v8_0_kiq_kcq_enable(struct amdgpu_device *adev)
 	amdgpu_gfx_scratch_free(adev, scratch);
 
 	return r;
+=======
+
+	amdgpu_ring_commit(kiq_ring);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int gfx_v8_0_deactivate_hqd(struct amdgpu_device *adev, u32 req)
@@ -4708,6 +5137,22 @@ static int gfx_v8_0_deactivate_hqd(struct amdgpu_device *adev, u32 req)
 	return r;
 }
 
+<<<<<<< HEAD
+=======
+static void gfx_v8_0_mqd_set_priority(struct amdgpu_ring *ring, struct vi_mqd *mqd)
+{
+	struct amdgpu_device *adev = ring->adev;
+
+	if (ring->funcs->type == AMDGPU_RING_TYPE_COMPUTE) {
+		if (amdgpu_gfx_is_high_priority_compute_queue(adev, ring)) {
+			mqd->cp_hqd_pipe_priority = AMDGPU_GFX_PIPE_PRIO_HIGH;
+			mqd->cp_hqd_queue_priority =
+				AMDGPU_GFX_QUEUE_PRIORITY_MAXIMUM;
+		}
+	}
+}
+
+>>>>>>> upstream/android-13
 static int gfx_v8_0_mqd_init(struct amdgpu_ring *ring)
 {
 	struct amdgpu_device *adev = ring->adev;
@@ -4831,9 +5276,12 @@ static int gfx_v8_0_mqd_init(struct amdgpu_ring *ring)
 	/* defaults */
 	mqd->cp_hqd_eop_rptr = RREG32(mmCP_HQD_EOP_RPTR);
 	mqd->cp_hqd_eop_wptr = RREG32(mmCP_HQD_EOP_WPTR);
+<<<<<<< HEAD
 	mqd->cp_hqd_pipe_priority = RREG32(mmCP_HQD_PIPE_PRIORITY);
 	mqd->cp_hqd_queue_priority = RREG32(mmCP_HQD_QUEUE_PRIORITY);
 	mqd->cp_hqd_quantum = RREG32(mmCP_HQD_QUANTUM);
+=======
+>>>>>>> upstream/android-13
 	mqd->cp_hqd_ctx_save_base_addr_lo = RREG32(mmCP_HQD_CTX_SAVE_BASE_ADDR_LO);
 	mqd->cp_hqd_ctx_save_base_addr_hi = RREG32(mmCP_HQD_CTX_SAVE_BASE_ADDR_HI);
 	mqd->cp_hqd_cntl_stack_offset = RREG32(mmCP_HQD_CNTL_STACK_OFFSET);
@@ -4845,13 +5293,29 @@ static int gfx_v8_0_mqd_init(struct amdgpu_ring *ring)
 	mqd->cp_hqd_eop_wptr_mem = RREG32(mmCP_HQD_EOP_WPTR_MEM);
 	mqd->cp_hqd_eop_dones = RREG32(mmCP_HQD_EOP_DONES);
 
+<<<<<<< HEAD
 	/* activate the queue */
 	mqd->cp_hqd_active = 1;
+=======
+	/* set static priority for a queue/ring */
+	gfx_v8_0_mqd_set_priority(ring, mqd);
+	mqd->cp_hqd_quantum = RREG32(mmCP_HQD_QUANTUM);
+
+	/* map_queues packet doesn't need activate the queue,
+	 * so only kiq need set this field.
+	 */
+	if (ring->funcs->type == AMDGPU_RING_TYPE_KIQ)
+		mqd->cp_hqd_active = 1;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 int gfx_v8_0_mqd_commit(struct amdgpu_device *adev,
+=======
+static int gfx_v8_0_mqd_commit(struct amdgpu_device *adev,
+>>>>>>> upstream/android-13
 			struct vi_mqd *mqd)
 {
 	uint32_t mqd_reg;
@@ -4896,7 +5360,11 @@ static int gfx_v8_0_kiq_init_queue(struct amdgpu_ring *ring)
 
 	gfx_v8_0_kiq_setting(ring);
 
+<<<<<<< HEAD
 	if (adev->in_gpu_reset) { /* for GPU_RESET case */
+=======
+	if (amdgpu_in_reset(adev)) { /* for GPU_RESET case */
+>>>>>>> upstream/android-13
 		/* reset MQD to a clean status */
 		if (adev->gfx.mec.mqd_backup[mqd_idx])
 			memcpy(mqd, adev->gfx.mec.mqd_backup[mqd_idx], sizeof(struct vi_mqd_allocation));
@@ -4933,7 +5401,11 @@ static int gfx_v8_0_kcq_init_queue(struct amdgpu_ring *ring)
 	struct vi_mqd *mqd = ring->mqd_ptr;
 	int mqd_idx = ring - &adev->gfx.compute_ring[0];
 
+<<<<<<< HEAD
 	if (!adev->in_gpu_reset && !adev->gfx.in_suspend) {
+=======
+	if (!amdgpu_in_reset(adev) && !adev->in_suspend) {
+>>>>>>> upstream/android-13
 		memset((void *)mqd, 0, sizeof(struct vi_mqd_allocation));
 		((struct vi_mqd_allocation *)mqd)->dynamic_cu_mask = 0xFFFFFFFF;
 		((struct vi_mqd_allocation *)mqd)->dynamic_rb_mask = 0xFFFFFFFF;
@@ -4945,7 +5417,11 @@ static int gfx_v8_0_kcq_init_queue(struct amdgpu_ring *ring)
 
 		if (adev->gfx.mec.mqd_backup[mqd_idx])
 			memcpy(adev->gfx.mec.mqd_backup[mqd_idx], mqd, sizeof(struct vi_mqd_allocation));
+<<<<<<< HEAD
 	} else if (adev->in_gpu_reset) { /* for GPU_RESET case */
+=======
+	} else if (amdgpu_in_reset(adev)) { /* for GPU_RESET case */
+>>>>>>> upstream/android-13
 		/* reset MQD to a clean status */
 		if (adev->gfx.mec.mqd_backup[mqd_idx])
 			memcpy(mqd, adev->gfx.mec.mqd_backup[mqd_idx], sizeof(struct vi_mqd_allocation));
@@ -4961,8 +5437,13 @@ static int gfx_v8_0_kcq_init_queue(struct amdgpu_ring *ring)
 static void gfx_v8_0_set_mec_doorbell_range(struct amdgpu_device *adev)
 {
 	if (adev->asic_type > CHIP_TONGA) {
+<<<<<<< HEAD
 		WREG32(mmCP_MEC_DOORBELL_RANGE_LOWER, AMDGPU_DOORBELL_KIQ << 2);
 		WREG32(mmCP_MEC_DOORBELL_RANGE_UPPER, AMDGPU_DOORBELL_MEC_RING7 << 2);
+=======
+		WREG32(mmCP_MEC_DOORBELL_RANGE_LOWER, adev->doorbell_index.kiq << 2);
+		WREG32(mmCP_MEC_DOORBELL_RANGE_UPPER, adev->doorbell_index.mec_ring7 << 2);
+>>>>>>> upstream/android-13
 	}
 	/* enable doorbells */
 	WREG32_FIELD(CP_PQ_STATUS, DOORBELL_ENABLE, 1);
@@ -4970,15 +5451,21 @@ static void gfx_v8_0_set_mec_doorbell_range(struct amdgpu_device *adev)
 
 static int gfx_v8_0_kiq_resume(struct amdgpu_device *adev)
 {
+<<<<<<< HEAD
 	struct amdgpu_ring *ring = NULL;
 	int r = 0, i;
 
 	gfx_v8_0_cp_compute_enable(adev, true);
+=======
+	struct amdgpu_ring *ring;
+	int r;
+>>>>>>> upstream/android-13
 
 	ring = &adev->gfx.kiq.ring;
 
 	r = amdgpu_bo_reserve(ring->mqd_obj, false);
 	if (unlikely(r != 0))
+<<<<<<< HEAD
 		goto done;
 
 	r = amdgpu_bo_kmap(ring->mqd_obj, &ring->mqd_ptr);
@@ -4990,6 +5477,28 @@ static int gfx_v8_0_kiq_resume(struct amdgpu_device *adev)
 	amdgpu_bo_unreserve(ring->mqd_obj);
 	if (r)
 		goto done;
+=======
+		return r;
+
+	r = amdgpu_bo_kmap(ring->mqd_obj, &ring->mqd_ptr);
+	if (unlikely(r != 0))
+		return r;
+
+	gfx_v8_0_kiq_init_queue(ring);
+	amdgpu_bo_kunmap(ring->mqd_obj);
+	ring->mqd_ptr = NULL;
+	amdgpu_bo_unreserve(ring->mqd_obj);
+	ring->sched.ready = true;
+	return 0;
+}
+
+static int gfx_v8_0_kcq_resume(struct amdgpu_device *adev)
+{
+	struct amdgpu_ring *ring = NULL;
+	int r = 0, i;
+
+	gfx_v8_0_cp_compute_enable(adev, true);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < adev->gfx.num_compute_rings; i++) {
 		ring = &adev->gfx.compute_ring[i];
@@ -5014,6 +5523,7 @@ static int gfx_v8_0_kiq_resume(struct amdgpu_device *adev)
 	if (r)
 		goto done;
 
+<<<<<<< HEAD
 	/* Test KIQ */
 	ring = &adev->gfx.kiq.ring;
 	ring->ready = true;
@@ -5032,10 +5542,39 @@ static int gfx_v8_0_kiq_resume(struct amdgpu_device *adev)
 			ring->ready = false;
 	}
 
+=======
+>>>>>>> upstream/android-13
 done:
 	return r;
 }
 
+<<<<<<< HEAD
+=======
+static int gfx_v8_0_cp_test_all_rings(struct amdgpu_device *adev)
+{
+	int r, i;
+	struct amdgpu_ring *ring;
+
+	/* collect all the ring_tests here, gfx, kiq, compute */
+	ring = &adev->gfx.gfx_ring[0];
+	r = amdgpu_ring_test_helper(ring);
+	if (r)
+		return r;
+
+	ring = &adev->gfx.kiq.ring;
+	r = amdgpu_ring_test_helper(ring);
+	if (r)
+		return r;
+
+	for (i = 0; i < adev->gfx.num_compute_rings; i++) {
+		ring = &adev->gfx.compute_ring[i];
+		amdgpu_ring_test_helper(ring);
+	}
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int gfx_v8_0_cp_resume(struct amdgpu_device *adev)
 {
 	int r;
@@ -5043,6 +5582,7 @@ static int gfx_v8_0_cp_resume(struct amdgpu_device *adev)
 	if (!(adev->flags & AMD_IS_APU))
 		gfx_v8_0_enable_gui_idle_interrupt(adev, false);
 
+<<<<<<< HEAD
 	if (adev->firmware.load_type == AMDGPU_FW_LOAD_DIRECT) {
 			/* legacy firmware loading */
 		r = gfx_v8_0_cp_gfx_load_microcode(adev);
@@ -5053,12 +5593,25 @@ static int gfx_v8_0_cp_resume(struct amdgpu_device *adev)
 		if (r)
 			return r;
 	}
+=======
+	r = gfx_v8_0_kiq_resume(adev);
+	if (r)
+		return r;
+>>>>>>> upstream/android-13
 
 	r = gfx_v8_0_cp_gfx_resume(adev);
 	if (r)
 		return r;
 
+<<<<<<< HEAD
 	r = gfx_v8_0_kiq_resume(adev);
+=======
+	r = gfx_v8_0_kcq_resume(adev);
+	if (r)
+		return r;
+
+	r = gfx_v8_0_cp_test_all_rings(adev);
+>>>>>>> upstream/android-13
 	if (r)
 		return r;
 
@@ -5079,9 +5632,15 @@ static int gfx_v8_0_hw_init(void *handle)
 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
 
 	gfx_v8_0_init_golden_registers(adev);
+<<<<<<< HEAD
 	gfx_v8_0_gpu_init(adev);
 
 	r = gfx_v8_0_rlc_resume(adev);
+=======
+	gfx_v8_0_constants_init(adev);
+
+	r = adev->gfx.rlc.funcs->resume(adev);
+>>>>>>> upstream/android-13
 	if (r)
 		return r;
 
@@ -5090,6 +5649,7 @@ static int gfx_v8_0_hw_init(void *handle)
 	return r;
 }
 
+<<<<<<< HEAD
 static int gfx_v8_0_kcq_disable(struct amdgpu_ring *kiq_ring,struct amdgpu_ring *ring)
 {
 	struct amdgpu_device *adev = kiq_ring->adev;
@@ -5113,10 +5673,27 @@ static int gfx_v8_0_kcq_disable(struct amdgpu_ring *kiq_ring,struct amdgpu_ring 
 	/* unmap queues */
 	amdgpu_ring_write(kiq_ring, PACKET3(PACKET3_UNMAP_QUEUES, 4));
 	amdgpu_ring_write(kiq_ring, /* Q_sel: 0, vmid: 0, engine: 0, num_Q: 1 */
+=======
+static int gfx_v8_0_kcq_disable(struct amdgpu_device *adev)
+{
+	int r, i;
+	struct amdgpu_ring *kiq_ring = &adev->gfx.kiq.ring;
+
+	r = amdgpu_ring_alloc(kiq_ring, 6 * adev->gfx.num_compute_rings);
+	if (r)
+		DRM_ERROR("Failed to lock KIQ (%d).\n", r);
+
+	for (i = 0; i < adev->gfx.num_compute_rings; i++) {
+		struct amdgpu_ring *ring = &adev->gfx.compute_ring[i];
+
+		amdgpu_ring_write(kiq_ring, PACKET3(PACKET3_UNMAP_QUEUES, 4));
+		amdgpu_ring_write(kiq_ring, /* Q_sel: 0, vmid: 0, engine: 0, num_Q: 1 */
+>>>>>>> upstream/android-13
 						PACKET3_UNMAP_QUEUES_ACTION(1) | /* RESET_QUEUES */
 						PACKET3_UNMAP_QUEUES_QUEUE_SEL(0) |
 						PACKET3_UNMAP_QUEUES_ENGINE_SEL(0) |
 						PACKET3_UNMAP_QUEUES_NUM_QUEUES(1));
+<<<<<<< HEAD
 	amdgpu_ring_write(kiq_ring, PACKET3_UNMAP_QUEUES_DOORBELL_OFFSET0(ring->doorbell_index));
 	amdgpu_ring_write(kiq_ring, 0);
 	amdgpu_ring_write(kiq_ring, 0);
@@ -5185,6 +5762,17 @@ static int gfx_v8_0_resume(void *handle)
 
 	r = gfx_v8_0_hw_init(adev);
 	adev->gfx.in_suspend = false;
+=======
+		amdgpu_ring_write(kiq_ring, PACKET3_UNMAP_QUEUES_DOORBELL_OFFSET0(ring->doorbell_index));
+		amdgpu_ring_write(kiq_ring, 0);
+		amdgpu_ring_write(kiq_ring, 0);
+		amdgpu_ring_write(kiq_ring, 0);
+	}
+	r = amdgpu_ring_test_helper(kiq_ring);
+	if (r)
+		DRM_ERROR("KCQ disable failed\n");
+
+>>>>>>> upstream/android-13
 	return r;
 }
 
@@ -5192,15 +5780,50 @@ static bool gfx_v8_0_is_idle(void *handle)
 {
 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
 
+<<<<<<< HEAD
 	if (REG_GET_FIELD(RREG32(mmGRBM_STATUS), GRBM_STATUS, GUI_ACTIVE))
+=======
+	if (REG_GET_FIELD(RREG32(mmGRBM_STATUS), GRBM_STATUS, GUI_ACTIVE)
+		|| RREG32(mmGRBM_STATUS2) != 0x8)
+>>>>>>> upstream/android-13
 		return false;
 	else
 		return true;
 }
 
+<<<<<<< HEAD
 static int gfx_v8_0_wait_for_idle(void *handle)
 {
 	unsigned i;
+=======
+static bool gfx_v8_0_rlc_is_idle(void *handle)
+{
+	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+
+	if (RREG32(mmGRBM_STATUS2) != 0x8)
+		return false;
+	else
+		return true;
+}
+
+static int gfx_v8_0_wait_for_rlc_idle(void *handle)
+{
+	unsigned int i;
+	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+
+	for (i = 0; i < adev->usec_timeout; i++) {
+		if (gfx_v8_0_rlc_is_idle(handle))
+			return 0;
+
+		udelay(1);
+	}
+	return -ETIMEDOUT;
+}
+
+static int gfx_v8_0_wait_for_idle(void *handle)
+{
+	unsigned int i;
+>>>>>>> upstream/android-13
 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
 
 	for (i = 0; i < adev->usec_timeout; i++) {
@@ -5212,6 +5835,51 @@ static int gfx_v8_0_wait_for_idle(void *handle)
 	return -ETIMEDOUT;
 }
 
+<<<<<<< HEAD
+=======
+static int gfx_v8_0_hw_fini(void *handle)
+{
+	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+
+	amdgpu_irq_put(adev, &adev->gfx.priv_reg_irq, 0);
+	amdgpu_irq_put(adev, &adev->gfx.priv_inst_irq, 0);
+
+	amdgpu_irq_put(adev, &adev->gfx.cp_ecc_error_irq, 0);
+
+	amdgpu_irq_put(adev, &adev->gfx.sq_irq, 0);
+
+	/* disable KCQ to avoid CPC touch memory not valid anymore */
+	gfx_v8_0_kcq_disable(adev);
+
+	if (amdgpu_sriov_vf(adev)) {
+		pr_debug("For SRIOV client, shouldn't do anything.\n");
+		return 0;
+	}
+	amdgpu_gfx_rlc_enter_safe_mode(adev);
+	if (!gfx_v8_0_wait_for_idle(adev))
+		gfx_v8_0_cp_enable(adev, false);
+	else
+		pr_err("cp is busy, skip halt cp\n");
+	if (!gfx_v8_0_wait_for_rlc_idle(adev))
+		adev->gfx.rlc.funcs->stop(adev);
+	else
+		pr_err("rlc is busy, skip halt rlc\n");
+	amdgpu_gfx_rlc_exit_safe_mode(adev);
+
+	return 0;
+}
+
+static int gfx_v8_0_suspend(void *handle)
+{
+	return gfx_v8_0_hw_fini(handle);
+}
+
+static int gfx_v8_0_resume(void *handle)
+{
+	return gfx_v8_0_hw_init(handle);
+}
+
+>>>>>>> upstream/android-13
 static bool gfx_v8_0_check_soft_reset(void *handle)
 {
 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
@@ -5277,17 +5945,27 @@ static bool gfx_v8_0_check_soft_reset(void *handle)
 static int gfx_v8_0_pre_soft_reset(void *handle)
 {
 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+<<<<<<< HEAD
 	u32 grbm_soft_reset = 0, srbm_soft_reset = 0;
+=======
+	u32 grbm_soft_reset = 0;
+>>>>>>> upstream/android-13
 
 	if ((!adev->gfx.grbm_soft_reset) &&
 	    (!adev->gfx.srbm_soft_reset))
 		return 0;
 
 	grbm_soft_reset = adev->gfx.grbm_soft_reset;
+<<<<<<< HEAD
 	srbm_soft_reset = adev->gfx.srbm_soft_reset;
 
 	/* stop the rlc */
 	gfx_v8_0_rlc_stop(adev);
+=======
+
+	/* stop the rlc */
+	adev->gfx.rlc.funcs->stop(adev);
+>>>>>>> upstream/android-13
 
 	if (REG_GET_FIELD(grbm_soft_reset, GRBM_SOFT_RESET, SOFT_RESET_CP) ||
 	    REG_GET_FIELD(grbm_soft_reset, GRBM_SOFT_RESET, SOFT_RESET_GFX))
@@ -5313,7 +5991,11 @@ static int gfx_v8_0_pre_soft_reset(void *handle)
 		gfx_v8_0_cp_compute_enable(adev, false);
 	}
 
+<<<<<<< HEAD
        return 0;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int gfx_v8_0_soft_reset(void *handle)
@@ -5381,18 +6063,25 @@ static int gfx_v8_0_soft_reset(void *handle)
 static int gfx_v8_0_post_soft_reset(void *handle)
 {
 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+<<<<<<< HEAD
 	u32 grbm_soft_reset = 0, srbm_soft_reset = 0;
+=======
+	u32 grbm_soft_reset = 0;
+>>>>>>> upstream/android-13
 
 	if ((!adev->gfx.grbm_soft_reset) &&
 	    (!adev->gfx.srbm_soft_reset))
 		return 0;
 
 	grbm_soft_reset = adev->gfx.grbm_soft_reset;
+<<<<<<< HEAD
 	srbm_soft_reset = adev->gfx.srbm_soft_reset;
 
 	if (REG_GET_FIELD(grbm_soft_reset, GRBM_SOFT_RESET, SOFT_RESET_CP) ||
 	    REG_GET_FIELD(grbm_soft_reset, GRBM_SOFT_RESET, SOFT_RESET_GFX))
 		gfx_v8_0_cp_gfx_resume(adev);
+=======
+>>>>>>> upstream/android-13
 
 	if (REG_GET_FIELD(grbm_soft_reset, GRBM_SOFT_RESET, SOFT_RESET_CP) ||
 	    REG_GET_FIELD(grbm_soft_reset, GRBM_SOFT_RESET, SOFT_RESET_CPF) ||
@@ -5410,8 +6099,21 @@ static int gfx_v8_0_post_soft_reset(void *handle)
 			mutex_unlock(&adev->srbm_mutex);
 		}
 		gfx_v8_0_kiq_resume(adev);
+<<<<<<< HEAD
 	}
 	gfx_v8_0_rlc_start(adev);
+=======
+		gfx_v8_0_kcq_resume(adev);
+	}
+
+	if (REG_GET_FIELD(grbm_soft_reset, GRBM_SOFT_RESET, SOFT_RESET_CP) ||
+	    REG_GET_FIELD(grbm_soft_reset, GRBM_SOFT_RESET, SOFT_RESET_GFX))
+		gfx_v8_0_cp_gfx_resume(adev);
+
+	gfx_v8_0_cp_test_all_rings(adev);
+
+	adev->gfx.rlc.funcs->start(adev);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -5442,6 +6144,7 @@ static void gfx_v8_0_ring_emit_gds_switch(struct amdgpu_ring *ring,
 					  uint32_t gws_base, uint32_t gws_size,
 					  uint32_t oa_base, uint32_t oa_size)
 {
+<<<<<<< HEAD
 	gds_base = gds_base >> AMDGPU_GDS_SHIFT;
 	gds_size = gds_size >> AMDGPU_GDS_SHIFT;
 
@@ -5451,6 +6154,8 @@ static void gfx_v8_0_ring_emit_gds_switch(struct amdgpu_ring *ring,
 	oa_base = oa_base >> AMDGPU_OA_SHIFT;
 	oa_size = oa_size >> AMDGPU_OA_SHIFT;
 
+=======
+>>>>>>> upstream/android-13
 	/* GDS Base */
 	amdgpu_ring_write(ring, PACKET3(PACKET3_WRITE_DATA, 3));
 	amdgpu_ring_write(ring, (WRITE_DATA_ENGINE_SEL(0) |
@@ -5531,6 +6236,10 @@ static void gfx_v8_0_read_wave_data(struct amdgpu_device *adev, uint32_t simd, u
 	dst[(*no_fields)++] = wave_read_ind(adev, simd, wave, ixSQ_WAVE_TMA_HI);
 	dst[(*no_fields)++] = wave_read_ind(adev, simd, wave, ixSQ_WAVE_IB_DBG0);
 	dst[(*no_fields)++] = wave_read_ind(adev, simd, wave, ixSQ_WAVE_M0);
+<<<<<<< HEAD
+=======
+	dst[(*no_fields)++] = wave_read_ind(adev, simd, wave, ixSQ_WAVE_MODE);
+>>>>>>> upstream/android-13
 }
 
 static void gfx_v8_0_read_wave_sgprs(struct amdgpu_device *adev, uint32_t simd,
@@ -5556,7 +6265,12 @@ static int gfx_v8_0_early_init(void *handle)
 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
 
 	adev->gfx.num_gfx_rings = GFX8_NUM_GFX_RINGS;
+<<<<<<< HEAD
 	adev->gfx.num_compute_rings = AMDGPU_MAX_COMPUTE_RINGS;
+=======
+	adev->gfx.num_compute_rings = min(amdgpu_gfx_get_num_kcq(adev),
+					  AMDGPU_MAX_COMPUTE_RINGS);
+>>>>>>> upstream/android-13
 	adev->gfx.funcs = &gfx_v8_0_gfx_funcs;
 	gfx_v8_0_set_ring_funcs(adev);
 	gfx_v8_0_set_irq_funcs(adev);
@@ -5604,10 +6318,16 @@ static int gfx_v8_0_late_init(void *handle)
 static void gfx_v8_0_enable_gfx_static_mg_power_gating(struct amdgpu_device *adev,
 						       bool enable)
 {
+<<<<<<< HEAD
 	if (((adev->asic_type == CHIP_POLARIS11) ||
 	    (adev->asic_type == CHIP_POLARIS12) ||
 	    (adev->asic_type == CHIP_VEGAM)) &&
 	    adev->powerplay.pp_funcs->set_powergating_by_smu)
+=======
+	if ((adev->asic_type == CHIP_POLARIS11) ||
+	    (adev->asic_type == CHIP_POLARIS12) ||
+	    (adev->asic_type == CHIP_VEGAM))
+>>>>>>> upstream/android-13
 		/* Send msg to SMU via Powerplay */
 		amdgpu_dpm_set_powergating_by_smu(adev, AMD_IP_BLOCK_TYPE_GFX, enable);
 
@@ -5668,7 +6388,11 @@ static int gfx_v8_0_set_powergating_state(void *handle,
 				AMD_PG_SUPPORT_RLC_SMU_HS |
 				AMD_PG_SUPPORT_CP |
 				AMD_PG_SUPPORT_GFX_DMG))
+<<<<<<< HEAD
 		adev->gfx.rlc.funcs->enter_safe_mode(adev);
+=======
+		amdgpu_gfx_rlc_enter_safe_mode(adev);
+>>>>>>> upstream/android-13
 	switch (adev->asic_type) {
 	case CHIP_CARRIZO:
 	case CHIP_STONEY:
@@ -5722,7 +6446,11 @@ static int gfx_v8_0_set_powergating_state(void *handle,
 				AMD_PG_SUPPORT_RLC_SMU_HS |
 				AMD_PG_SUPPORT_CP |
 				AMD_PG_SUPPORT_GFX_DMG))
+<<<<<<< HEAD
 		adev->gfx.rlc.funcs->exit_safe_mode(adev);
+=======
+		amdgpu_gfx_rlc_exit_safe_mode(adev);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -5816,6 +6544,7 @@ static void gfx_v8_0_send_serdes_cmd(struct amdgpu_device *adev,
 #define RLC_GPR_REG2__MESSAGE__SHIFT 0x00000001
 #define RLC_GPR_REG2__MESSAGE_MASK 0x0000001e
 
+<<<<<<< HEAD
 static void iceland_enter_rlc_safe_mode(struct amdgpu_device *adev)
 {
 	u32 data;
@@ -5867,6 +6596,55 @@ static void iceland_exit_rlc_safe_mode(struct amdgpu_device *adev)
 			adev->gfx.rlc.in_safe_mode = false;
 		}
 	}
+=======
+static bool gfx_v8_0_is_rlc_enabled(struct amdgpu_device *adev)
+{
+	uint32_t rlc_setting;
+
+	rlc_setting = RREG32(mmRLC_CNTL);
+	if (!(rlc_setting & RLC_CNTL__RLC_ENABLE_F32_MASK))
+		return false;
+
+	return true;
+}
+
+static void gfx_v8_0_set_safe_mode(struct amdgpu_device *adev)
+{
+	uint32_t data;
+	unsigned i;
+	data = RREG32(mmRLC_CNTL);
+	data |= RLC_SAFE_MODE__CMD_MASK;
+	data &= ~RLC_SAFE_MODE__MESSAGE_MASK;
+	data |= (1 << RLC_SAFE_MODE__MESSAGE__SHIFT);
+	WREG32(mmRLC_SAFE_MODE, data);
+
+	/* wait for RLC_SAFE_MODE */
+	for (i = 0; i < adev->usec_timeout; i++) {
+		if ((RREG32(mmRLC_GPM_STAT) &
+		     (RLC_GPM_STAT__GFX_CLOCK_STATUS_MASK |
+		      RLC_GPM_STAT__GFX_POWER_STATUS_MASK)) ==
+		    (RLC_GPM_STAT__GFX_CLOCK_STATUS_MASK |
+		     RLC_GPM_STAT__GFX_POWER_STATUS_MASK))
+			break;
+		udelay(1);
+	}
+	for (i = 0; i < adev->usec_timeout; i++) {
+		if (!REG_GET_FIELD(RREG32(mmRLC_SAFE_MODE), RLC_SAFE_MODE, CMD))
+			break;
+		udelay(1);
+	}
+}
+
+static void gfx_v8_0_unset_safe_mode(struct amdgpu_device *adev)
+{
+	uint32_t data;
+	unsigned i;
+
+	data = RREG32(mmRLC_CNTL);
+	data |= RLC_SAFE_MODE__CMD_MASK;
+	data &= ~RLC_SAFE_MODE__MESSAGE_MASK;
+	WREG32(mmRLC_SAFE_MODE, data);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < adev->usec_timeout; i++) {
 		if (!REG_GET_FIELD(RREG32(mmRLC_SAFE_MODE), RLC_SAFE_MODE, CMD))
@@ -5875,9 +6653,43 @@ static void iceland_exit_rlc_safe_mode(struct amdgpu_device *adev)
 	}
 }
 
+<<<<<<< HEAD
 static const struct amdgpu_rlc_funcs iceland_rlc_funcs = {
 	.enter_safe_mode = iceland_enter_rlc_safe_mode,
 	.exit_safe_mode = iceland_exit_rlc_safe_mode
+=======
+static void gfx_v8_0_update_spm_vmid(struct amdgpu_device *adev, unsigned vmid)
+{
+	u32 data;
+
+	if (amdgpu_sriov_is_pp_one_vf(adev))
+		data = RREG32_NO_KIQ(mmRLC_SPM_VMID);
+	else
+		data = RREG32(mmRLC_SPM_VMID);
+
+	data &= ~RLC_SPM_VMID__RLC_SPM_VMID_MASK;
+	data |= (vmid & RLC_SPM_VMID__RLC_SPM_VMID_MASK) << RLC_SPM_VMID__RLC_SPM_VMID__SHIFT;
+
+	if (amdgpu_sriov_is_pp_one_vf(adev))
+		WREG32_NO_KIQ(mmRLC_SPM_VMID, data);
+	else
+		WREG32(mmRLC_SPM_VMID, data);
+}
+
+static const struct amdgpu_rlc_funcs iceland_rlc_funcs = {
+	.is_rlc_enabled = gfx_v8_0_is_rlc_enabled,
+	.set_safe_mode = gfx_v8_0_set_safe_mode,
+	.unset_safe_mode = gfx_v8_0_unset_safe_mode,
+	.init = gfx_v8_0_rlc_init,
+	.get_csb_size = gfx_v8_0_get_csb_size,
+	.get_csb_buffer = gfx_v8_0_get_csb_buffer,
+	.get_cp_table_num = gfx_v8_0_cp_jump_table_num,
+	.resume = gfx_v8_0_rlc_resume,
+	.stop = gfx_v8_0_rlc_stop,
+	.reset = gfx_v8_0_rlc_reset,
+	.start = gfx_v8_0_rlc_start,
+	.update_spm_vmid = gfx_v8_0_update_spm_vmid
+>>>>>>> upstream/android-13
 };
 
 static void gfx_v8_0_update_medium_grain_clock_gating(struct amdgpu_device *adev,
@@ -5885,7 +6697,11 @@ static void gfx_v8_0_update_medium_grain_clock_gating(struct amdgpu_device *adev
 {
 	uint32_t temp, data;
 
+<<<<<<< HEAD
 	adev->gfx.rlc.funcs->enter_safe_mode(adev);
+=======
+	amdgpu_gfx_rlc_enter_safe_mode(adev);
+>>>>>>> upstream/android-13
 
 	/* It is disabled by HW by default */
 	if (enable && (adev->cg_flags & AMD_CG_SUPPORT_GFX_MGCG)) {
@@ -5981,7 +6797,11 @@ static void gfx_v8_0_update_medium_grain_clock_gating(struct amdgpu_device *adev
 		gfx_v8_0_wait_for_rlc_serdes(adev);
 	}
 
+<<<<<<< HEAD
 	adev->gfx.rlc.funcs->exit_safe_mode(adev);
+=======
+	amdgpu_gfx_rlc_exit_safe_mode(adev);
+>>>>>>> upstream/android-13
 }
 
 static void gfx_v8_0_update_coarse_grain_clock_gating(struct amdgpu_device *adev,
@@ -5991,7 +6811,11 @@ static void gfx_v8_0_update_coarse_grain_clock_gating(struct amdgpu_device *adev
 
 	temp = data = RREG32(mmRLC_CGCG_CGLS_CTRL);
 
+<<<<<<< HEAD
 	adev->gfx.rlc.funcs->enter_safe_mode(adev);
+=======
+	amdgpu_gfx_rlc_enter_safe_mode(adev);
+>>>>>>> upstream/android-13
 
 	if (enable && (adev->cg_flags & AMD_CG_SUPPORT_GFX_CGCG)) {
 		temp1 = data1 =	RREG32(mmRLC_CGTT_MGCG_OVERRIDE);
@@ -6074,7 +6898,11 @@ static void gfx_v8_0_update_coarse_grain_clock_gating(struct amdgpu_device *adev
 
 	gfx_v8_0_wait_for_rlc_serdes(adev);
 
+<<<<<<< HEAD
 	adev->gfx.rlc.funcs->exit_safe_mode(adev);
+=======
+	amdgpu_gfx_rlc_exit_safe_mode(adev);
+>>>>>>> upstream/android-13
 }
 static int gfx_v8_0_update_gfx_clock_gating(struct amdgpu_device *adev,
 					    bool enable)
@@ -6117,8 +6945,12 @@ static int gfx_v8_0_tonga_update_gfx_clock_gating(struct amdgpu_device *adev,
 				PP_BLOCK_GFX_CG,
 				pp_support_state,
 				pp_state);
+<<<<<<< HEAD
 		if (adev->powerplay.pp_funcs->set_clockgating_by_smu)
 			amdgpu_dpm_set_clockgating_by_smu(adev, msg_id);
+=======
+		amdgpu_dpm_set_clockgating_by_smu(adev, msg_id);
+>>>>>>> upstream/android-13
 	}
 
 	if (adev->cg_flags & (AMD_CG_SUPPORT_GFX_MGCG | AMD_CG_SUPPORT_GFX_MGLS)) {
@@ -6139,8 +6971,12 @@ static int gfx_v8_0_tonga_update_gfx_clock_gating(struct amdgpu_device *adev,
 				PP_BLOCK_GFX_MG,
 				pp_support_state,
 				pp_state);
+<<<<<<< HEAD
 		if (adev->powerplay.pp_funcs->set_clockgating_by_smu)
 			amdgpu_dpm_set_clockgating_by_smu(adev, msg_id);
+=======
+		amdgpu_dpm_set_clockgating_by_smu(adev, msg_id);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -6169,8 +7005,12 @@ static int gfx_v8_0_polaris_update_gfx_clock_gating(struct amdgpu_device *adev,
 				PP_BLOCK_GFX_CG,
 				pp_support_state,
 				pp_state);
+<<<<<<< HEAD
 		if (adev->powerplay.pp_funcs->set_clockgating_by_smu)
 			amdgpu_dpm_set_clockgating_by_smu(adev, msg_id);
+=======
+		amdgpu_dpm_set_clockgating_by_smu(adev, msg_id);
+>>>>>>> upstream/android-13
 	}
 
 	if (adev->cg_flags & (AMD_CG_SUPPORT_GFX_3D_CGCG | AMD_CG_SUPPORT_GFX_3D_CGLS)) {
@@ -6189,8 +7029,12 @@ static int gfx_v8_0_polaris_update_gfx_clock_gating(struct amdgpu_device *adev,
 				PP_BLOCK_GFX_3D,
 				pp_support_state,
 				pp_state);
+<<<<<<< HEAD
 		if (adev->powerplay.pp_funcs->set_clockgating_by_smu)
 			amdgpu_dpm_set_clockgating_by_smu(adev, msg_id);
+=======
+		amdgpu_dpm_set_clockgating_by_smu(adev, msg_id);
+>>>>>>> upstream/android-13
 	}
 
 	if (adev->cg_flags & (AMD_CG_SUPPORT_GFX_MGCG | AMD_CG_SUPPORT_GFX_MGLS)) {
@@ -6211,8 +7055,12 @@ static int gfx_v8_0_polaris_update_gfx_clock_gating(struct amdgpu_device *adev,
 				PP_BLOCK_GFX_MG,
 				pp_support_state,
 				pp_state);
+<<<<<<< HEAD
 		if (adev->powerplay.pp_funcs->set_clockgating_by_smu)
 			amdgpu_dpm_set_clockgating_by_smu(adev, msg_id);
+=======
+		amdgpu_dpm_set_clockgating_by_smu(adev, msg_id);
+>>>>>>> upstream/android-13
 	}
 
 	if (adev->cg_flags & AMD_CG_SUPPORT_GFX_RLC_LS) {
@@ -6227,8 +7075,12 @@ static int gfx_v8_0_polaris_update_gfx_clock_gating(struct amdgpu_device *adev,
 				PP_BLOCK_GFX_RLC,
 				pp_support_state,
 				pp_state);
+<<<<<<< HEAD
 		if (adev->powerplay.pp_funcs->set_clockgating_by_smu)
 			amdgpu_dpm_set_clockgating_by_smu(adev, msg_id);
+=======
+		amdgpu_dpm_set_clockgating_by_smu(adev, msg_id);
+>>>>>>> upstream/android-13
 	}
 
 	if (adev->cg_flags & AMD_CG_SUPPORT_GFX_CP_LS) {
@@ -6242,8 +7094,12 @@ static int gfx_v8_0_polaris_update_gfx_clock_gating(struct amdgpu_device *adev,
 			PP_BLOCK_GFX_CP,
 			pp_support_state,
 			pp_state);
+<<<<<<< HEAD
 		if (adev->powerplay.pp_funcs->set_clockgating_by_smu)
 			amdgpu_dpm_set_clockgating_by_smu(adev, msg_id);
+=======
+		amdgpu_dpm_set_clockgating_by_smu(adev, msg_id);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -6354,9 +7210,17 @@ static void gfx_v8_0_ring_emit_vgt_flush(struct amdgpu_ring *ring)
 }
 
 static void gfx_v8_0_ring_emit_ib_gfx(struct amdgpu_ring *ring,
+<<<<<<< HEAD
 				      struct amdgpu_ib *ib,
 				      unsigned vmid, bool ctx_switch)
 {
+=======
+					struct amdgpu_job *job,
+					struct amdgpu_ib *ib,
+					uint32_t flags)
+{
+	unsigned vmid = AMDGPU_JOB_GET_VMID(job);
+>>>>>>> upstream/android-13
 	u32 header, control = 0;
 
 	if (ib->flags & AMDGPU_IB_FLAG_CE)
@@ -6369,7 +7233,11 @@ static void gfx_v8_0_ring_emit_ib_gfx(struct amdgpu_ring *ring,
 	if (amdgpu_sriov_vf(ring->adev) && (ib->flags & AMDGPU_IB_FLAG_PREEMPT)) {
 		control |= INDIRECT_BUFFER_PRE_ENB(1);
 
+<<<<<<< HEAD
 		if (!(ib->flags & AMDGPU_IB_FLAG_CE))
+=======
+		if (!(ib->flags & AMDGPU_IB_FLAG_CE) && vmid)
+>>>>>>> upstream/android-13
 			gfx_v8_0_ring_emit_de_meta(ring);
 	}
 
@@ -6384,11 +7252,37 @@ static void gfx_v8_0_ring_emit_ib_gfx(struct amdgpu_ring *ring,
 }
 
 static void gfx_v8_0_ring_emit_ib_compute(struct amdgpu_ring *ring,
+<<<<<<< HEAD
 					  struct amdgpu_ib *ib,
 					  unsigned vmid, bool ctx_switch)
 {
 	u32 control = INDIRECT_BUFFER_VALID | ib->length_dw | (vmid << 24);
 
+=======
+					  struct amdgpu_job *job,
+					  struct amdgpu_ib *ib,
+					  uint32_t flags)
+{
+	unsigned vmid = AMDGPU_JOB_GET_VMID(job);
+	u32 control = INDIRECT_BUFFER_VALID | ib->length_dw | (vmid << 24);
+
+	/* Currently, there is a high possibility to get wave ID mismatch
+	 * between ME and GDS, leading to a hw deadlock, because ME generates
+	 * different wave IDs than the GDS expects. This situation happens
+	 * randomly when at least 5 compute pipes use GDS ordered append.
+	 * The wave IDs generated by ME are also wrong after suspend/resume.
+	 * Those are probably bugs somewhere else in the kernel driver.
+	 *
+	 * Writing GDS_COMPUTE_MAX_WAVE_ID resets wave ID counters in ME and
+	 * GDS to 0 for this ring (me/pipe).
+	 */
+	if (ib->flags & AMDGPU_IB_FLAG_RESET_GDS_MAX_WAVE_ID) {
+		amdgpu_ring_write(ring, PACKET3(PACKET3_SET_CONFIG_REG, 1));
+		amdgpu_ring_write(ring, mmGDS_COMPUTE_MAX_WAVE_ID - PACKET3_SET_CONFIG_REG_START);
+		amdgpu_ring_write(ring, ring->adev->gds.gds_compute_max_wave_id);
+	}
+
+>>>>>>> upstream/android-13
 	amdgpu_ring_write(ring, PACKET3(PACKET3_INDIRECT_BUFFER, 2));
 	amdgpu_ring_write(ring,
 #ifdef __BIG_ENDIAN
@@ -6493,6 +7387,7 @@ static void gfx_v8_0_ring_set_wptr_compute(struct amdgpu_ring *ring)
 	WDOORBELL32(ring->doorbell_index, lower_32_bits(ring->wptr));
 }
 
+<<<<<<< HEAD
 static void gfx_v8_0_ring_set_pipe_percent(struct amdgpu_ring *ring,
 					   bool acquire)
 {
@@ -6591,6 +7486,8 @@ static void gfx_v8_0_ring_set_priority_compute(struct amdgpu_ring *ring,
 	gfx_v8_0_pipe_reserve_resources(adev, ring, acquire);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void gfx_v8_0_ring_emit_fence_compute(struct amdgpu_ring *ring,
 					     u64 addr, u64 seq,
 					     unsigned flags)
@@ -6703,7 +7600,12 @@ static void gfx_v8_0_ring_emit_patch_cond_exec(struct amdgpu_ring *ring, unsigne
 		ring->ring[offset] = (ring->ring_size >> 2) - offset + cur;
 }
 
+<<<<<<< HEAD
 static void gfx_v8_0_ring_emit_rreg(struct amdgpu_ring *ring, uint32_t reg)
+=======
+static void gfx_v8_0_ring_emit_rreg(struct amdgpu_ring *ring, uint32_t reg,
+				    uint32_t reg_val_offs)
+>>>>>>> upstream/android-13
 {
 	struct amdgpu_device *adev = ring->adev;
 
@@ -6714,9 +7616,15 @@ static void gfx_v8_0_ring_emit_rreg(struct amdgpu_ring *ring, uint32_t reg)
 	amdgpu_ring_write(ring, reg);
 	amdgpu_ring_write(ring, 0);
 	amdgpu_ring_write(ring, lower_32_bits(adev->wb.gpu_addr +
+<<<<<<< HEAD
 				adev->virt.reg_val_offs * 4));
 	amdgpu_ring_write(ring, upper_32_bits(adev->wb.gpu_addr +
 				adev->virt.reg_val_offs * 4));
+=======
+				reg_val_offs * 4));
+	amdgpu_ring_write(ring, upper_32_bits(adev->wb.gpu_addr +
+				reg_val_offs * 4));
+>>>>>>> upstream/android-13
 }
 
 static void gfx_v8_0_ring_emit_wreg(struct amdgpu_ring *ring, uint32_t reg,
@@ -6743,6 +7651,21 @@ static void gfx_v8_0_ring_emit_wreg(struct amdgpu_ring *ring, uint32_t reg,
 	amdgpu_ring_write(ring, val);
 }
 
+<<<<<<< HEAD
+=======
+static void gfx_v8_0_ring_soft_recovery(struct amdgpu_ring *ring, unsigned vmid)
+{
+	struct amdgpu_device *adev = ring->adev;
+	uint32_t value = 0;
+
+	value = REG_SET_FIELD(value, SQ_CMD, CMD, 0x03);
+	value = REG_SET_FIELD(value, SQ_CMD, MODE, 0x01);
+	value = REG_SET_FIELD(value, SQ_CMD, CHECK_VMID, 1);
+	value = REG_SET_FIELD(value, SQ_CMD, VM_ID, vmid);
+	WREG32(mmSQ_CMD, value);
+}
+
+>>>>>>> upstream/android-13
 static void gfx_v8_0_set_gfx_eop_interrupt_state(struct amdgpu_device *adev,
 						 enum amdgpu_interrupt_state state)
 {
@@ -6829,7 +7752,11 @@ static int gfx_v8_0_set_eop_interrupt_state(struct amdgpu_device *adev,
 					    enum amdgpu_interrupt_state state)
 {
 	switch (type) {
+<<<<<<< HEAD
 	case AMDGPU_CP_IRQ_GFX_EOP:
+=======
+	case AMDGPU_CP_IRQ_GFX_ME0_PIPE0_EOP:
+>>>>>>> upstream/android-13
 		gfx_v8_0_set_gfx_eop_interrupt_state(adev, state);
 		break;
 	case AMDGPU_CP_IRQ_COMPUTE_MEC1_PIPE0_EOP:
@@ -6965,12 +7892,46 @@ static int gfx_v8_0_eop_irq(struct amdgpu_device *adev,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void gfx_v8_0_fault(struct amdgpu_device *adev,
+			   struct amdgpu_iv_entry *entry)
+{
+	u8 me_id, pipe_id, queue_id;
+	struct amdgpu_ring *ring;
+	int i;
+
+	me_id = (entry->ring_id & 0x0c) >> 2;
+	pipe_id = (entry->ring_id & 0x03) >> 0;
+	queue_id = (entry->ring_id & 0x70) >> 4;
+
+	switch (me_id) {
+	case 0:
+		drm_sched_fault(&adev->gfx.gfx_ring[0].sched);
+		break;
+	case 1:
+	case 2:
+		for (i = 0; i < adev->gfx.num_compute_rings; i++) {
+			ring = &adev->gfx.compute_ring[i];
+			if (ring->me == me_id && ring->pipe == pipe_id &&
+			    ring->queue == queue_id)
+				drm_sched_fault(&ring->sched);
+		}
+		break;
+	}
+}
+
+>>>>>>> upstream/android-13
 static int gfx_v8_0_priv_reg_irq(struct amdgpu_device *adev,
 				 struct amdgpu_irq_src *source,
 				 struct amdgpu_iv_entry *entry)
 {
 	DRM_ERROR("Illegal register access in command stream\n");
+<<<<<<< HEAD
 	schedule_work(&adev->reset_work);
+=======
+	gfx_v8_0_fault(adev, entry);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -6979,7 +7940,11 @@ static int gfx_v8_0_priv_inst_irq(struct amdgpu_device *adev,
 				  struct amdgpu_iv_entry *entry)
 {
 	DRM_ERROR("Illegal instruction in command stream\n");
+<<<<<<< HEAD
 	schedule_work(&adev->reset_work);
+=======
+	gfx_v8_0_fault(adev, entry);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -6991,7 +7956,12 @@ static int gfx_v8_0_cp_ecc_error_irq(struct amdgpu_device *adev,
 	return 0;
 }
 
+<<<<<<< HEAD
 static void gfx_v8_0_parse_sq_irq(struct amdgpu_device *adev, unsigned ih_data)
+=======
+static void gfx_v8_0_parse_sq_irq(struct amdgpu_device *adev, unsigned ih_data,
+				  bool from_wq)
+>>>>>>> upstream/android-13
 {
 	u32 enc, se_id, sh_id, cu_id;
 	char type[20];
@@ -7029,7 +7999,11 @@ static void gfx_v8_0_parse_sq_irq(struct amdgpu_device *adev, unsigned ih_data)
 			 * or from BH in which case we can access SQ_EDC_INFO
 			 * instance
 			 */
+<<<<<<< HEAD
 			if (in_task()) {
+=======
+			if (from_wq) {
+>>>>>>> upstream/android-13
 				mutex_lock(&adev->grbm_idx_mutex);
 				gfx_v8_0_select_se_sh(adev, se_id, sh_id, cu_id);
 
@@ -7067,7 +8041,11 @@ static void gfx_v8_0_sq_irq_work_func(struct work_struct *work)
 	struct amdgpu_device *adev = container_of(work, struct amdgpu_device, gfx.sq_work.work);
 	struct sq_work *sq_work = container_of(work, struct sq_work, work);
 
+<<<<<<< HEAD
 	gfx_v8_0_parse_sq_irq(adev, sq_work->ih_data);
+=======
+	gfx_v8_0_parse_sq_irq(adev, sq_work->ih_data, true);
+>>>>>>> upstream/android-13
 }
 
 static int gfx_v8_0_sq_irq(struct amdgpu_device *adev,
@@ -7082,7 +8060,11 @@ static int gfx_v8_0_sq_irq(struct amdgpu_device *adev,
 	 * just print whatever info is possible directly from the ISR.
 	 */
 	if (work_pending(&adev->gfx.sq_work.work)) {
+<<<<<<< HEAD
 		gfx_v8_0_parse_sq_irq(adev, ih_data);
+=======
+		gfx_v8_0_parse_sq_irq(adev, ih_data, false);
+>>>>>>> upstream/android-13
 	} else {
 		adev->gfx.sq_work.ih_data = ih_data;
 		schedule_work(&adev->gfx.sq_work.work);
@@ -7091,6 +8073,7 @@ static int gfx_v8_0_sq_irq(struct amdgpu_device *adev,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int gfx_v8_0_kiq_set_interrupt_state(struct amdgpu_device *adev,
 					    struct amdgpu_irq_src *src,
 					    unsigned int type,
@@ -7135,6 +8118,94 @@ static int gfx_v8_0_kiq_irq(struct amdgpu_device *adev,
 
 	amdgpu_fence_process(ring);
 	return 0;
+=======
+static void gfx_v8_0_emit_mem_sync(struct amdgpu_ring *ring)
+{
+	amdgpu_ring_write(ring, PACKET3(PACKET3_SURFACE_SYNC, 3));
+	amdgpu_ring_write(ring, PACKET3_TCL1_ACTION_ENA |
+			  PACKET3_TC_ACTION_ENA |
+			  PACKET3_SH_KCACHE_ACTION_ENA |
+			  PACKET3_SH_ICACHE_ACTION_ENA |
+			  PACKET3_TC_WB_ACTION_ENA);  /* CP_COHER_CNTL */
+	amdgpu_ring_write(ring, 0xffffffff);  /* CP_COHER_SIZE */
+	amdgpu_ring_write(ring, 0);  /* CP_COHER_BASE */
+	amdgpu_ring_write(ring, 0x0000000A); /* poll interval */
+}
+
+static void gfx_v8_0_emit_mem_sync_compute(struct amdgpu_ring *ring)
+{
+	amdgpu_ring_write(ring, PACKET3(PACKET3_ACQUIRE_MEM, 5));
+	amdgpu_ring_write(ring, PACKET3_TCL1_ACTION_ENA |
+			  PACKET3_TC_ACTION_ENA |
+			  PACKET3_SH_KCACHE_ACTION_ENA |
+			  PACKET3_SH_ICACHE_ACTION_ENA |
+			  PACKET3_TC_WB_ACTION_ENA);  /* CP_COHER_CNTL */
+	amdgpu_ring_write(ring, 0xffffffff);	/* CP_COHER_SIZE */
+	amdgpu_ring_write(ring, 0xff);		/* CP_COHER_SIZE_HI */
+	amdgpu_ring_write(ring, 0);		/* CP_COHER_BASE */
+	amdgpu_ring_write(ring, 0);		/* CP_COHER_BASE_HI */
+	amdgpu_ring_write(ring, 0x0000000A);	/* poll interval */
+}
+
+
+/* mmSPI_WCL_PIPE_PERCENT_CS[0-7]_DEFAULT values are same */
+#define mmSPI_WCL_PIPE_PERCENT_CS_DEFAULT	0x0000007f
+static void gfx_v8_0_emit_wave_limit_cs(struct amdgpu_ring *ring,
+					uint32_t pipe, bool enable)
+{
+	uint32_t val;
+	uint32_t wcl_cs_reg;
+
+	val = enable ? 0x1 : mmSPI_WCL_PIPE_PERCENT_CS_DEFAULT;
+
+	switch (pipe) {
+	case 0:
+		wcl_cs_reg = mmSPI_WCL_PIPE_PERCENT_CS0;
+		break;
+	case 1:
+		wcl_cs_reg = mmSPI_WCL_PIPE_PERCENT_CS1;
+		break;
+	case 2:
+		wcl_cs_reg = mmSPI_WCL_PIPE_PERCENT_CS2;
+		break;
+	case 3:
+		wcl_cs_reg = mmSPI_WCL_PIPE_PERCENT_CS3;
+		break;
+	default:
+		DRM_DEBUG("invalid pipe %d\n", pipe);
+		return;
+	}
+
+	amdgpu_ring_emit_wreg(ring, wcl_cs_reg, val);
+
+}
+
+#define mmSPI_WCL_PIPE_PERCENT_GFX_DEFAULT	0x07ffffff
+static void gfx_v8_0_emit_wave_limit(struct amdgpu_ring *ring, bool enable)
+{
+	struct amdgpu_device *adev = ring->adev;
+	uint32_t val;
+	int i;
+
+	/* mmSPI_WCL_PIPE_PERCENT_GFX is 7 bit multiplier register to limit
+	 * number of gfx waves. Setting 5 bit will make sure gfx only gets
+	 * around 25% of gpu resources.
+	 */
+	val = enable ? 0x1f : mmSPI_WCL_PIPE_PERCENT_GFX_DEFAULT;
+	amdgpu_ring_emit_wreg(ring, mmSPI_WCL_PIPE_PERCENT_GFX, val);
+
+	/* Restrict waves for normal/low priority compute queues as well
+	 * to get best QoS for high priority compute jobs.
+	 *
+	 * amdgpu controls only 1st ME(0-3 CS pipes).
+	 */
+	for (i = 0; i < adev->gfx.mec.num_pipe_per_mec; i++) {
+		if (i != ring->pipe)
+			gfx_v8_0_emit_wave_limit_cs(ring, i, enable);
+
+	}
+
+>>>>>>> upstream/android-13
 }
 
 static const struct amd_ip_funcs gfx_v8_0_ip_funcs = {
@@ -7183,7 +8254,12 @@ static const struct amdgpu_ring_funcs gfx_v8_0_ring_funcs_gfx = {
 		3 + /* CNTX_CTRL */
 		5 + /* HDP_INVL */
 		12 + 12 + /* FENCE x2 */
+<<<<<<< HEAD
 		2, /* SWITCH_BUFFER */
+=======
+		2 + /* SWITCH_BUFFER */
+		5, /* SURFACE_SYNC */
+>>>>>>> upstream/android-13
 	.emit_ib_size =	4, /* gfx_v8_0_ring_emit_ib_gfx */
 	.emit_ib = gfx_v8_0_ring_emit_ib_gfx,
 	.emit_fence = gfx_v8_0_ring_emit_fence_gfx,
@@ -7200,6 +8276,11 @@ static const struct amdgpu_ring_funcs gfx_v8_0_ring_funcs_gfx = {
 	.init_cond_exec = gfx_v8_0_ring_emit_init_cond_exec,
 	.patch_cond_exec = gfx_v8_0_ring_emit_patch_cond_exec,
 	.emit_wreg = gfx_v8_0_ring_emit_wreg,
+<<<<<<< HEAD
+=======
+	.soft_recovery = gfx_v8_0_ring_soft_recovery,
+	.emit_mem_sync = gfx_v8_0_emit_mem_sync,
+>>>>>>> upstream/android-13
 };
 
 static const struct amdgpu_ring_funcs gfx_v8_0_ring_funcs_compute = {
@@ -7216,8 +8297,16 @@ static const struct amdgpu_ring_funcs gfx_v8_0_ring_funcs_compute = {
 		5 + /* hdp_invalidate */
 		7 + /* gfx_v8_0_ring_emit_pipeline_sync */
 		VI_FLUSH_GPU_TLB_NUM_WREG * 5 + 7 + /* gfx_v8_0_ring_emit_vm_flush */
+<<<<<<< HEAD
 		7 + 7 + 7, /* gfx_v8_0_ring_emit_fence_compute x3 for user fence, vm fence */
 	.emit_ib_size =	4, /* gfx_v8_0_ring_emit_ib_compute */
+=======
+		7 + 7 + 7 + /* gfx_v8_0_ring_emit_fence_compute x3 for user fence, vm fence */
+		7 + /* gfx_v8_0_emit_mem_sync_compute */
+		5 + /* gfx_v8_0_emit_wave_limit for updating mmSPI_WCL_PIPE_PERCENT_GFX register */
+		15, /* for updating 3 mmSPI_WCL_PIPE_PERCENT_CS registers */
+	.emit_ib_size =	7, /* gfx_v8_0_ring_emit_ib_compute */
+>>>>>>> upstream/android-13
 	.emit_ib = gfx_v8_0_ring_emit_ib_compute,
 	.emit_fence = gfx_v8_0_ring_emit_fence_compute,
 	.emit_pipeline_sync = gfx_v8_0_ring_emit_pipeline_sync,
@@ -7228,8 +8317,14 @@ static const struct amdgpu_ring_funcs gfx_v8_0_ring_funcs_compute = {
 	.test_ib = gfx_v8_0_ring_test_ib,
 	.insert_nop = amdgpu_ring_insert_nop,
 	.pad_ib = amdgpu_ring_generic_pad_ib,
+<<<<<<< HEAD
 	.set_priority = gfx_v8_0_ring_set_priority_compute,
 	.emit_wreg = gfx_v8_0_ring_emit_wreg,
+=======
+	.emit_wreg = gfx_v8_0_ring_emit_wreg,
+	.emit_mem_sync = gfx_v8_0_emit_mem_sync_compute,
+	.emit_wave_limit = gfx_v8_0_emit_wave_limit,
+>>>>>>> upstream/android-13
 };
 
 static const struct amdgpu_ring_funcs gfx_v8_0_ring_funcs_kiq = {
@@ -7247,11 +8342,17 @@ static const struct amdgpu_ring_funcs gfx_v8_0_ring_funcs_kiq = {
 		7 + /* gfx_v8_0_ring_emit_pipeline_sync */
 		17 + /* gfx_v8_0_ring_emit_vm_flush */
 		7 + 7 + 7, /* gfx_v8_0_ring_emit_fence_kiq x3 for user fence, vm fence */
+<<<<<<< HEAD
 	.emit_ib_size =	4, /* gfx_v8_0_ring_emit_ib_compute */
 	.emit_ib = gfx_v8_0_ring_emit_ib_compute,
 	.emit_fence = gfx_v8_0_ring_emit_fence_kiq,
 	.test_ring = gfx_v8_0_ring_test_ring,
 	.test_ib = gfx_v8_0_ring_test_ib,
+=======
+	.emit_ib_size =	7, /* gfx_v8_0_ring_emit_ib_compute */
+	.emit_fence = gfx_v8_0_ring_emit_fence_kiq,
+	.test_ring = gfx_v8_0_ring_test_ring,
+>>>>>>> upstream/android-13
 	.insert_nop = amdgpu_ring_insert_nop,
 	.pad_ib = amdgpu_ring_generic_pad_ib,
 	.emit_rreg = gfx_v8_0_ring_emit_rreg,
@@ -7286,11 +8387,14 @@ static const struct amdgpu_irq_src_funcs gfx_v8_0_priv_inst_irq_funcs = {
 	.process = gfx_v8_0_priv_inst_irq,
 };
 
+<<<<<<< HEAD
 static const struct amdgpu_irq_src_funcs gfx_v8_0_kiq_irq_funcs = {
 	.set = gfx_v8_0_kiq_set_interrupt_state,
 	.process = gfx_v8_0_kiq_irq,
 };
 
+=======
+>>>>>>> upstream/android-13
 static const struct amdgpu_irq_src_funcs gfx_v8_0_cp_ecc_error_irq_funcs = {
 	.set = gfx_v8_0_set_cp_ecc_int_state,
 	.process = gfx_v8_0_cp_ecc_error_irq,
@@ -7312,9 +8416,12 @@ static void gfx_v8_0_set_irq_funcs(struct amdgpu_device *adev)
 	adev->gfx.priv_inst_irq.num_types = 1;
 	adev->gfx.priv_inst_irq.funcs = &gfx_v8_0_priv_inst_irq_funcs;
 
+<<<<<<< HEAD
 	adev->gfx.kiq.irq.num_types = AMDGPU_CP_KIQ_IRQ_LAST;
 	adev->gfx.kiq.irq.funcs = &gfx_v8_0_kiq_irq_funcs;
 
+=======
+>>>>>>> upstream/android-13
 	adev->gfx.cp_ecc_error_irq.num_types = 1;
 	adev->gfx.cp_ecc_error_irq.funcs = &gfx_v8_0_cp_ecc_error_irq_funcs;
 
@@ -7330,6 +8437,7 @@ static void gfx_v8_0_set_rlc_funcs(struct amdgpu_device *adev)
 static void gfx_v8_0_set_gds_init(struct amdgpu_device *adev)
 {
 	/* init asci gds info */
+<<<<<<< HEAD
 	adev->gds.mem.total_size = RREG32(mmGDS_VMID0_SIZE);
 	adev->gds.gws.total_size = 64;
 	adev->gds.oa.total_size = 16;
@@ -7353,6 +8461,12 @@ static void gfx_v8_0_set_gds_init(struct amdgpu_device *adev)
 		adev->gds.oa.gfx_partition_size = 4;
 		adev->gds.oa.cs_partition_size = 4;
 	}
+=======
+	adev->gds.gds_size = RREG32(mmGDS_VMID0_SIZE);
+	adev->gds.gws_size = 64;
+	adev->gds.oa_size = 16;
+	adev->gds.gds_compute_max_wave_id = RREG32(mmGDS_COMPUTE_MAX_WAVE_ID);
+>>>>>>> upstream/android-13
 }
 
 static void gfx_v8_0_set_user_cu_inactive_bitmap(struct amdgpu_device *adev,

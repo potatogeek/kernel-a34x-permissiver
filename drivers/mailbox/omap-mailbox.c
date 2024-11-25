@@ -3,7 +3,11 @@
  * OMAP mailbox driver
  *
  * Copyright (C) 2006-2009 Nokia Corporation. All rights reserved.
+<<<<<<< HEAD
  * Copyright (C) 2013-2016 Texas Instruments Incorporated - http://www.ti.com
+=======
+ * Copyright (C) 2013-2021 Texas Instruments Incorporated - https://www.ti.com
+>>>>>>> upstream/android-13
  *
  * Contact: Hiroshi DOYU <Hiroshi.DOYU@nokia.com>
  *          Suman Anna <s-anna@ti.com>
@@ -141,6 +145,7 @@ void mbox_write_reg(struct omap_mbox_device *mdev, u32 val, size_t ofs)
 }
 
 /* Mailbox FIFO handle functions */
+<<<<<<< HEAD
 static mbox_msg_t mbox_fifo_read(struct omap_mbox *mbox)
 {
 	struct omap_mbox_fifo *fifo = &mbox->rx_fifo;
@@ -149,6 +154,16 @@ static mbox_msg_t mbox_fifo_read(struct omap_mbox *mbox)
 }
 
 static void mbox_fifo_write(struct omap_mbox *mbox, mbox_msg_t msg)
+=======
+static u32 mbox_fifo_read(struct omap_mbox *mbox)
+{
+	struct omap_mbox_fifo *fifo = &mbox->rx_fifo;
+
+	return mbox_read_reg(mbox->parent, fifo->msg);
+}
+
+static void mbox_fifo_write(struct omap_mbox *mbox, u32 msg)
+>>>>>>> upstream/android-13
 {
 	struct omap_mbox_fifo *fifo = &mbox->tx_fifo;
 
@@ -256,14 +271,25 @@ static void mbox_rx_work(struct work_struct *work)
 {
 	struct omap_mbox_queue *mq =
 			container_of(work, struct omap_mbox_queue, work);
+<<<<<<< HEAD
 	mbox_msg_t msg;
+=======
+	mbox_msg_t data;
+	u32 msg;
+>>>>>>> upstream/android-13
 	int len;
 
 	while (kfifo_len(&mq->fifo) >= sizeof(msg)) {
 		len = kfifo_out(&mq->fifo, (unsigned char *)&msg, sizeof(msg));
 		WARN_ON(len != sizeof(msg));
+<<<<<<< HEAD
 
 		mbox_chan_received_data(mq->mbox->chan, (void *)msg);
+=======
+		data = msg;
+
+		mbox_chan_received_data(mq->mbox->chan, (void *)data);
+>>>>>>> upstream/android-13
 		spin_lock_irq(&mq->lock);
 		if (mq->full) {
 			mq->full = false;
@@ -286,7 +312,11 @@ static void __mbox_tx_interrupt(struct omap_mbox *mbox)
 static void __mbox_rx_interrupt(struct omap_mbox *mbox)
 {
 	struct omap_mbox_queue *mq = mbox->rxq;
+<<<<<<< HEAD
 	mbox_msg_t msg;
+=======
+	u32 msg;
+>>>>>>> upstream/android-13
 	int len;
 
 	while (!mbox_fifo_empty(mbox)) {
@@ -486,7 +516,11 @@ static int omap_mbox_register(struct omap_mbox_device *mdev)
 	list_add(&mdev->elem, &omap_mbox_devices);
 	mutex_unlock(&omap_mbox_devices_lock);
 
+<<<<<<< HEAD
 	ret = mbox_controller_register(&mdev->controller);
+=======
+	ret = devm_mbox_controller_register(mdev->dev, &mdev->controller);
+>>>>>>> upstream/android-13
 
 err_out:
 	if (ret) {
@@ -508,8 +542,11 @@ static int omap_mbox_unregister(struct omap_mbox_device *mdev)
 	list_del(&mdev->elem);
 	mutex_unlock(&omap_mbox_devices_lock);
 
+<<<<<<< HEAD
 	mbox_controller_unregister(&mdev->controller);
 
+=======
+>>>>>>> upstream/android-13
 	mboxes = mdev->mboxes;
 	for (i = 0; mboxes[i]; i++)
 		device_unregister(mboxes[i]->dev);
@@ -542,13 +579,21 @@ static void omap_mbox_chan_shutdown(struct mbox_chan *chan)
 	mutex_unlock(&mdev->cfg_lock);
 }
 
+<<<<<<< HEAD
 static int omap_mbox_chan_send_noirq(struct omap_mbox *mbox, void *data)
+=======
+static int omap_mbox_chan_send_noirq(struct omap_mbox *mbox, u32 msg)
+>>>>>>> upstream/android-13
 {
 	int ret = -EBUSY;
 
 	if (!mbox_fifo_full(mbox)) {
 		_omap_mbox_enable_irq(mbox, IRQ_RX);
+<<<<<<< HEAD
 		mbox_fifo_write(mbox, (mbox_msg_t)data);
+=======
+		mbox_fifo_write(mbox, msg);
+>>>>>>> upstream/android-13
 		ret = 0;
 		_omap_mbox_disable_irq(mbox, IRQ_RX);
 
@@ -560,12 +605,20 @@ static int omap_mbox_chan_send_noirq(struct omap_mbox *mbox, void *data)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int omap_mbox_chan_send(struct omap_mbox *mbox, void *data)
+=======
+static int omap_mbox_chan_send(struct omap_mbox *mbox, u32 msg)
+>>>>>>> upstream/android-13
 {
 	int ret = -EBUSY;
 
 	if (!mbox_fifo_full(mbox)) {
+<<<<<<< HEAD
 		mbox_fifo_write(mbox, (mbox_msg_t)data);
+=======
+		mbox_fifo_write(mbox, msg);
+>>>>>>> upstream/android-13
 		ret = 0;
 	}
 
@@ -578,14 +631,24 @@ static int omap_mbox_chan_send_data(struct mbox_chan *chan, void *data)
 {
 	struct omap_mbox *mbox = mbox_chan_to_omap_mbox(chan);
 	int ret;
+<<<<<<< HEAD
+=======
+	u32 msg = omap_mbox_message(data);
+>>>>>>> upstream/android-13
 
 	if (!mbox)
 		return -EINVAL;
 
 	if (mbox->send_no_irq)
+<<<<<<< HEAD
 		ret = omap_mbox_chan_send_noirq(mbox, data);
 	else
 		ret = omap_mbox_chan_send(mbox, data);
+=======
+		ret = omap_mbox_chan_send_noirq(mbox, msg);
+	else
+		ret = omap_mbox_chan_send(mbox, msg);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -659,6 +722,17 @@ static const struct of_device_id omap_mailbox_of_match[] = {
 		.data		= &omap4_data,
 	},
 	{
+<<<<<<< HEAD
+=======
+		.compatible	= "ti,am654-mailbox",
+		.data		= &omap4_data,
+	},
+	{
+		.compatible	= "ti,am64-mailbox",
+		.data		= &omap4_data,
+	},
+	{
+>>>>>>> upstream/android-13
 		/* end */
 	},
 };
@@ -832,7 +906,14 @@ static int omap_mbox_probe(struct platform_device *pdev)
 	mdev->intr_type = intr_type;
 	mdev->mboxes = list;
 
+<<<<<<< HEAD
 	/* OMAP does not have a Tx-Done IRQ, but rather a Tx-Ready IRQ */
+=======
+	/*
+	 * OMAP/K3 Mailbox IP does not have a Tx-Done IRQ, but rather a Tx-Ready
+	 * IRQ and is needed to run the Tx state machine
+	 */
+>>>>>>> upstream/android-13
 	mdev->controller.txdone_irq = true;
 	mdev->controller.dev = mdev->dev;
 	mdev->controller.ops = &omap_mbox_chan_ops;
@@ -860,7 +941,11 @@ static int omap_mbox_probe(struct platform_device *pdev)
 	dev_info(mdev->dev, "omap mailbox rev 0x%x\n", l);
 
 	ret = pm_runtime_put_sync(mdev->dev);
+<<<<<<< HEAD
 	if (ret < 0)
+=======
+	if (ret < 0 && ret != -ENOSYS)
+>>>>>>> upstream/android-13
 		goto unregister;
 
 	devm_kfree(&pdev->dev, finfoblk);
@@ -901,9 +986,14 @@ static int __init omap_mbox_init(void)
 		return err;
 
 	/* kfifo size sanity check: alignment and minimal size */
+<<<<<<< HEAD
 	mbox_kfifo_size = ALIGN(mbox_kfifo_size, sizeof(mbox_msg_t));
 	mbox_kfifo_size = max_t(unsigned int, mbox_kfifo_size,
 							sizeof(mbox_msg_t));
+=======
+	mbox_kfifo_size = ALIGN(mbox_kfifo_size, sizeof(u32));
+	mbox_kfifo_size = max_t(unsigned int, mbox_kfifo_size, sizeof(u32));
+>>>>>>> upstream/android-13
 
 	err = platform_driver_register(&omap_mbox_driver);
 	if (err)

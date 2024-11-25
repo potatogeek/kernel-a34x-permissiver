@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * I2C Link Layer for ST NCI NFC controller familly based Driver
  * Copyright (C) 2014-2015 STMicroelectronics SAS. All rights reserved.
@@ -13,6 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * I2C Link Layer for ST NCI NFC controller familly based Driver
+ * Copyright (C) 2014-2015 STMicroelectronics SAS. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -83,7 +90,11 @@ static void st_nci_i2c_disable(void *phy_id)
  */
 static int st_nci_i2c_write(void *phy_id, struct sk_buff *skb)
 {
+<<<<<<< HEAD
 	int r = -1;
+=======
+	int r;
+>>>>>>> upstream/android-13
 	struct st_nci_i2c_phy *phy = phy_id;
 	struct i2c_client *client = phy->i2c_dev;
 
@@ -197,7 +208,11 @@ static irqreturn_t st_nci_irq_thread_fn(int irq, void *phy_id)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static struct nfc_phy_ops i2c_phy_ops = {
+=======
+static const struct nfc_phy_ops i2c_phy_ops = {
+>>>>>>> upstream/android-13
 	.write = st_nci_i2c_write,
 	.enable = st_nci_i2c_enable,
 	.disable = st_nci_i2c_disable,
@@ -217,9 +232,12 @@ static int st_nci_i2c_probe(struct i2c_client *client,
 	struct st_nci_i2c_phy *phy;
 	int r;
 
+<<<<<<< HEAD
 	dev_dbg(&client->dev, "%s\n", __func__);
 	dev_dbg(&client->dev, "IRQ: %d\n", client->irq);
 
+=======
+>>>>>>> upstream/android-13
 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
 		nfc_err(&client->dev, "Need I2C_FUNC_I2C\n");
 		return -ENODEV;
@@ -272,8 +290,11 @@ static int st_nci_i2c_remove(struct i2c_client *client)
 {
 	struct st_nci_i2c_phy *phy = i2c_get_clientdata(client);
 
+<<<<<<< HEAD
 	dev_dbg(&client->dev, "%s\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 	ndlc_remove(phy->ndlc);
 
 	return 0;
@@ -285,14 +306,22 @@ static const struct i2c_device_id st_nci_i2c_id_table[] = {
 };
 MODULE_DEVICE_TABLE(i2c, st_nci_i2c_id_table);
 
+<<<<<<< HEAD
 static const struct acpi_device_id st_nci_i2c_acpi_match[] = {
+=======
+static const struct acpi_device_id st_nci_i2c_acpi_match[] __maybe_unused = {
+>>>>>>> upstream/android-13
 	{"SMO2101"},
 	{"SMO2102"},
 	{}
 };
 MODULE_DEVICE_TABLE(acpi, st_nci_i2c_acpi_match);
 
+<<<<<<< HEAD
 static const struct of_device_id of_st_nci_i2c_match[] = {
+=======
+static const struct of_device_id of_st_nci_i2c_match[] __maybe_unused = {
+>>>>>>> upstream/android-13
 	{ .compatible = "st,st21nfcb-i2c", },
 	{ .compatible = "st,st21nfcb_i2c", },
 	{ .compatible = "st,st21nfcc-i2c", },

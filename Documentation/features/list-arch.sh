@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 #
 # Small script that visualizes the kernel feature support status
 # of an architecture.
@@ -7,6 +11,7 @@
 
 ARCH=${1:-$(uname -m | sed 's/x86_64/x86/' | sed 's/i386/x86/')}
 
+<<<<<<< HEAD
 cd $(dirname $0)
 echo "#"
 echo "# Kernel feature support matrix of the '$ARCH' architecture:"
@@ -22,3 +27,6 @@ for F in */*/arch-support.txt; do
   printf "%10s/%-22s:%s| %35s # %s\n" "$SUBSYS" "$N" "$S" "$C" "$D"
 done
 
+=======
+$(dirname $0)/../../scripts/get_feat.pl list --arch $ARCH
+>>>>>>> upstream/android-13

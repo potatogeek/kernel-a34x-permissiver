@@ -60,6 +60,10 @@ struct nlm_lookup_host_info {
 	const size_t		hostname_len;	/* it's length */
 	const int		noresvport;	/* use non-priv port */
 	struct net		*net;		/* network namespace to bind */
+<<<<<<< HEAD
+=======
+	const struct cred	*cred;
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -162,6 +166,10 @@ static struct nlm_host *nlm_alloc_host(struct nlm_lookup_host_info *ni,
 	host->h_nsmhandle  = nsm;
 	host->h_addrbuf    = nsm->sm_addrbuf;
 	host->net	   = ni->net;
+<<<<<<< HEAD
+=======
+	host->h_cred	   = get_cred(ni->cred);
+>>>>>>> upstream/android-13
 	strlcpy(host->nodename, utsname()->nodename, sizeof(host->nodename));
 
 out:
@@ -188,6 +196,10 @@ static void nlm_destroy_host_locked(struct nlm_host *host)
 	clnt = host->h_rpcclnt;
 	if (clnt != NULL)
 		rpc_shutdown_client(clnt);
+<<<<<<< HEAD
+=======
+	put_cred(host->h_cred);
+>>>>>>> upstream/android-13
 	kfree(host);
 
 	ln->nrhosts--;
@@ -202,6 +214,11 @@ static void nlm_destroy_host_locked(struct nlm_host *host)
  * @version: NLM protocol version
  * @hostname: '\0'-terminated hostname of server
  * @noresvport: 1 if non-privileged port should be used
+<<<<<<< HEAD
+=======
+ * @net: pointer to net namespace
+ * @cred: pointer to cred
+>>>>>>> upstream/android-13
  *
  * Returns an nlm_host structure that matches the passed-in
  * [server address, transport protocol, NLM version, server hostname].
@@ -214,7 +231,12 @@ struct nlm_host *nlmclnt_lookup_host(const struct sockaddr *sap,
 				     const u32 version,
 				     const char *hostname,
 				     int noresvport,
+<<<<<<< HEAD
 				     struct net *net)
+=======
+				     struct net *net,
+				     const struct cred *cred)
+>>>>>>> upstream/android-13
 {
 	struct nlm_lookup_host_info ni = {
 		.server		= 0,
@@ -226,6 +248,10 @@ struct nlm_host *nlmclnt_lookup_host(const struct sockaddr *sap,
 		.hostname_len	= strlen(hostname),
 		.noresvport	= noresvport,
 		.net		= net,
+<<<<<<< HEAD
+=======
+		.cred		= cred,
+>>>>>>> upstream/android-13
 	};
 	struct hlist_head *chain;
 	struct nlm_host	*host;
@@ -452,7 +478,13 @@ nlm_bind_host(struct nlm_host *host)
 			.version	= host->h_version,
 			.authflavor	= RPC_AUTH_UNIX,
 			.flags		= (RPC_CLNT_CREATE_NOPING |
+<<<<<<< HEAD
 					   RPC_CLNT_CREATE_AUTOBIND),
+=======
+					   RPC_CLNT_CREATE_AUTOBIND |
+					   RPC_CLNT_CREATE_REUSEPORT),
+			.cred		= host->h_cred,
+>>>>>>> upstream/android-13
 		};
 
 		/*

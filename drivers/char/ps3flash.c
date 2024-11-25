@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * PS3 FLASH ROM Storage Driver
  *
  * Copyright (C) 2007 Sony Computer Entertainment Inc.
  * Copyright 2007 Sony Corp.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/fs.h>
@@ -415,7 +422,11 @@ fail:
 	return error;
 }
 
+<<<<<<< HEAD
 static int ps3flash_remove(struct ps3_system_bus_device *_dev)
+=======
+static void ps3flash_remove(struct ps3_system_bus_device *_dev)
+>>>>>>> upstream/android-13
 {
 	struct ps3_storage_device *dev = to_ps3_storage_device(&_dev->core);
 
@@ -425,7 +436,10 @@ static int ps3flash_remove(struct ps3_system_bus_device *_dev)
 	kfree(ps3_system_bus_get_drvdata(&dev->sbd));
 	ps3_system_bus_set_drvdata(&dev->sbd, NULL);
 	ps3flash_dev = NULL;
+<<<<<<< HEAD
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 

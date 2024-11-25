@@ -11,7 +11,10 @@
 
 #include <asm/hwrpb.h>
 #include <asm/io.h>
+<<<<<<< HEAD
 #include <asm/segment.h>
+=======
+>>>>>>> upstream/android-13
 
 #define SMC_DEBUG 0
 

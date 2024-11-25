@@ -25,15 +25,25 @@
 
 	.text
 	.code64
+<<<<<<< HEAD
 ENTRY(efi64_thunk)
+=======
+SYM_CODE_START(__efi64_thunk)
+>>>>>>> upstream/android-13
 	push	%rbp
 	push	%rbx
 
 	/*
 	 * Switch to 1:1 mapped 32-bit stack pointer.
 	 */
+<<<<<<< HEAD
 	movq	%rsp, efi_saved_sp(%rip)
 	movq	efi_scratch(%rip), %rsp
+=======
+	movq	%rsp, %rax
+	movq	efi_mixed_mode_stack_pa(%rip), %rsp
+	push	%rax
+>>>>>>> upstream/android-13
 
 	/*
 	 * Calculate the physical address of the kernel text.
@@ -41,6 +51,7 @@ ENTRY(efi64_thunk)
 	movq	$__START_KERNEL_map, %rax
 	subq	phys_base(%rip), %rax
 
+<<<<<<< HEAD
 	/*
 	 * Push some physical addresses onto the stack. This is easier
 	 * to do now in a code64 section while the assembler can address
@@ -151,3 +162,37 @@ ENDPROC(efi_enter32)
 	.balign	8
 func_rt_ptr:		.quad 0
 efi_saved_sp:		.quad 0
+=======
+	leaq	1f(%rip), %rbp
+	leaq	2f(%rip), %rbx
+	subq	%rax, %rbp
+	subq	%rax, %rbx
+
+	subq	$28, %rsp
+	movl	%ebx, 0x0(%rsp)		/* return address */
+	movl	%esi, 0x4(%rsp)
+	movl	%edx, 0x8(%rsp)
+	movl	%ecx, 0xc(%rsp)
+	movl	%r8d, 0x10(%rsp)
+	movl	%r9d, 0x14(%rsp)
+
+	/* Switch to 32-bit descriptor */
+	pushq	$__KERNEL32_CS
+	pushq	%rdi			/* EFI runtime service address */
+	lretq
+
+1:	movq	24(%rsp), %rsp
+	pop	%rbx
+	pop	%rbp
+	RET
+
+	.code32
+2:	pushl	$__KERNEL_CS
+	pushl	%ebp
+	lret
+SYM_CODE_END(__efi64_thunk)
+
+	.bss
+	.balign 8
+SYM_DATA(efi_mixed_mode_stack_pa, .quad 0)
+>>>>>>> upstream/android-13

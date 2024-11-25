@@ -48,9 +48,15 @@ static notrace int vdso_read_retry(const struct vdso_data *vdata, u32 start)
 }
 
 static notrace long clock_gettime_fallback(clockid_t _clkid,
+<<<<<<< HEAD
 					   struct timespec *_ts)
 {
 	register struct timespec *ts asm("$r1") = _ts;
+=======
+					   struct __kernel_old_timespec *_ts)
+{
+	register struct __kernel_old_timespec *ts asm("$r1") = _ts;
+>>>>>>> upstream/android-13
 	register clockid_t clkid asm("$r0") = _clkid;
 	register long ret asm("$r0");
 
@@ -63,7 +69,11 @@ static notrace long clock_gettime_fallback(clockid_t _clkid,
 	return ret;
 }
 
+<<<<<<< HEAD
 static notrace int do_realtime_coarse(struct timespec *ts,
+=======
+static notrace int do_realtime_coarse(struct __kernel_old_timespec *ts,
+>>>>>>> upstream/android-13
 				      struct vdso_data *vdata)
 {
 	u32 seq;
@@ -78,15 +88,24 @@ static notrace int do_realtime_coarse(struct timespec *ts,
 	return 0;
 }
 
+<<<<<<< HEAD
 static notrace int do_monotonic_coarse(struct timespec *ts,
 				       struct vdso_data *vdata)
 {
 	struct timespec tomono;
 	u32 seq;
+=======
+static notrace int do_monotonic_coarse(struct __kernel_old_timespec *ts,
+				       struct vdso_data *vdata)
+{
+	u32 seq;
+	u64 ns;
+>>>>>>> upstream/android-13
 
 	do {
 		seq = vdso_read_begin(vdata);
 
+<<<<<<< HEAD
 		ts->tv_sec = vdata->xtime_coarse_sec;
 		ts->tv_nsec = vdata->xtime_coarse_nsec;
 
@@ -97,6 +116,16 @@ static notrace int do_monotonic_coarse(struct timespec *ts,
 
 	ts->tv_sec += tomono.tv_sec;
 	timespec_add_ns(ts, tomono.tv_nsec);
+=======
+		ts->tv_sec = vdata->xtime_coarse_sec + vdata->wtm_clock_sec;
+		ns = vdata->xtime_coarse_nsec + vdata->wtm_clock_nsec;
+
+	} while (vdso_read_retry(vdata, seq));
+
+	ts->tv_sec += __iter_div_u64_rem(ns, NSEC_PER_SEC, &ns);
+	ts->tv_nsec = ns;
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -115,7 +144,11 @@ static notrace inline u64 vgetsns(struct vdso_data *vdso)
 	return ((u64) cycle_delta & vdso->cs_mask) * vdso->cs_mult;
 }
 
+<<<<<<< HEAD
 static notrace int do_realtime(struct timespec *ts, struct vdso_data *vdata)
+=======
+static notrace int do_realtime(struct __kernel_old_timespec *ts, struct vdso_data *vdata)
+>>>>>>> upstream/android-13
 {
 	unsigned count;
 	u64 ns;
@@ -133,16 +166,23 @@ static notrace int do_realtime(struct timespec *ts, struct vdso_data *vdata)
 	return 0;
 }
 
+<<<<<<< HEAD
 static notrace int do_monotonic(struct timespec *ts, struct vdso_data *vdata)
 {
 	struct timespec tomono;
 	u64 nsecs;
+=======
+static notrace int do_monotonic(struct __kernel_old_timespec *ts, struct vdso_data *vdata)
+{
+	u64 ns;
+>>>>>>> upstream/android-13
 	u32 seq;
 
 	do {
 		seq = vdso_read_begin(vdata);
 
 		ts->tv_sec = vdata->xtime_clock_sec;
+<<<<<<< HEAD
 		nsecs = vdata->xtime_clock_nsec;
 		nsecs += vgetsns(vdata);
 		nsecs >>= vdata->cs_shift;
@@ -159,6 +199,24 @@ static notrace int do_monotonic(struct timespec *ts, struct vdso_data *vdata)
 }
 
 notrace int __vdso_clock_gettime(clockid_t clkid, struct timespec *ts)
+=======
+		ns = vdata->xtime_clock_nsec;
+		ns += vgetsns(vdata);
+		ns >>= vdata->cs_shift;
+
+		ts->tv_sec += vdata->wtm_clock_sec;
+		ns += vdata->wtm_clock_nsec;
+
+	} while (vdso_read_retry(vdata, seq));
+
+	ts->tv_sec += __iter_div_u64_rem(ns, NSEC_PER_SEC, &ns);
+	ts->tv_nsec = ns;
+
+	return 0;
+}
+
+notrace int __vdso_clock_gettime(clockid_t clkid, struct __kernel_old_timespec *ts)
+>>>>>>> upstream/android-13
 {
 	struct vdso_data *vdata;
 	int ret = -1;
@@ -191,10 +249,17 @@ notrace int __vdso_clock_gettime(clockid_t clkid, struct timespec *ts)
 }
 
 static notrace int clock_getres_fallback(clockid_t _clk_id,
+<<<<<<< HEAD
 					  struct timespec *_res)
 {
 	register clockid_t clk_id asm("$r0") = _clk_id;
 	register struct timespec *res asm("$r1") = _res;
+=======
+					  struct __kernel_old_timespec *_res)
+{
+	register clockid_t clk_id asm("$r0") = _clk_id;
+	register struct __kernel_old_timespec *res asm("$r1") = _res;
+>>>>>>> upstream/android-13
 	register int ret asm("$r0");
 
 	asm volatile ("movi	$r15, %3\n"
@@ -206,7 +271,11 @@ static notrace int clock_getres_fallback(clockid_t _clk_id,
 	return ret;
 }
 
+<<<<<<< HEAD
 notrace int __vdso_clock_getres(clockid_t clk_id, struct timespec *res)
+=======
+notrace int __vdso_clock_getres(clockid_t clk_id, struct __kernel_old_timespec *res)
+>>>>>>> upstream/android-13
 {
 	struct vdso_data *vdata = __get_datapage();
 
@@ -230,10 +299,17 @@ notrace int __vdso_clock_getres(clockid_t clk_id, struct timespec *res)
 	return 0;
 }
 
+<<<<<<< HEAD
 static notrace inline int gettimeofday_fallback(struct timeval *_tv,
 						struct timezone *_tz)
 {
 	register struct timeval *tv asm("$r0") = _tv;
+=======
+static notrace inline int gettimeofday_fallback(struct __kernel_old_timeval *_tv,
+						struct timezone *_tz)
+{
+	register struct __kernel_old_timeval *tv asm("$r0") = _tv;
+>>>>>>> upstream/android-13
 	register struct timezone *tz asm("$r1") = _tz;
 	register int ret asm("$r0");
 
@@ -246,9 +322,15 @@ static notrace inline int gettimeofday_fallback(struct timeval *_tv,
 	return ret;
 }
 
+<<<<<<< HEAD
 notrace int __vdso_gettimeofday(struct timeval *tv, struct timezone *tz)
 {
 	struct timespec ts;
+=======
+notrace int __vdso_gettimeofday(struct __kernel_old_timeval *tv, struct timezone *tz)
+{
+	struct __kernel_old_timespec ts;
+>>>>>>> upstream/android-13
 	struct vdso_data *vdata;
 	int ret;
 

@@ -23,7 +23,10 @@
 
 #include <linux/uaccess.h>
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/processor.h>
 
 /*

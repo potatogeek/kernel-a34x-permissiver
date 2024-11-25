@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * INET		An implementation of the TCP/IP protocol suite for the LINUX
  *		operating system.  INET is implemented using the BSD Socket
  *		interface as the means of communication with the user level.
  *
  * Authors:	Lotsa people, from code originally in tcp
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _INET_HASHTABLES_H
@@ -79,6 +86,10 @@ struct inet_ehash_bucket {
 
 struct inet_bind_bucket {
 	possible_net_t		ib_net;
+<<<<<<< HEAD
+=======
+	int			l3mdev;
+>>>>>>> upstream/android-13
 	unsigned short		port;
 	signed char		fastreuse;
 	signed char		fastreuseport;
@@ -163,6 +174,15 @@ struct inet_hashinfo {
 					____cacheline_aligned_in_smp;
 };
 
+<<<<<<< HEAD
+=======
+#define inet_lhash2_for_each_icsk_continue(__icsk) \
+	hlist_for_each_entry_continue(__icsk, icsk_listen_portaddr_node)
+
+#define inet_lhash2_for_each_icsk(__icsk, list) \
+	hlist_for_each_entry(__icsk, list, icsk_listen_portaddr_node)
+
+>>>>>>> upstream/android-13
 #define inet_lhash2_for_each_icsk_rcu(__icsk, list) \
 	hlist_for_each_entry_rcu(__icsk, list, icsk_listen_portaddr_node)
 
@@ -188,16 +208,43 @@ static inline spinlock_t *inet_ehash_lockp(
 
 int inet_ehash_locks_alloc(struct inet_hashinfo *hashinfo);
 
+<<<<<<< HEAD
+=======
+static inline void inet_hashinfo2_free_mod(struct inet_hashinfo *h)
+{
+	kfree(h->lhash2);
+	h->lhash2 = NULL;
+}
+
+>>>>>>> upstream/android-13
 static inline void inet_ehash_locks_free(struct inet_hashinfo *hashinfo)
 {
 	kvfree(hashinfo->ehash_locks);
 	hashinfo->ehash_locks = NULL;
 }
 
+<<<<<<< HEAD
 struct inet_bind_bucket *
 inet_bind_bucket_create(struct kmem_cache *cachep, struct net *net,
 			struct inet_bind_hashbucket *head,
 			const unsigned short snum);
+=======
+static inline bool inet_sk_bound_dev_eq(struct net *net, int bound_dev_if,
+					int dif, int sdif)
+{
+#if IS_ENABLED(CONFIG_NET_L3_MASTER_DEV)
+	return inet_bound_dev_eq(!!net->ipv4.sysctl_tcp_l3mdev_accept,
+				 bound_dev_if, dif, sdif);
+#else
+	return inet_bound_dev_eq(true, bound_dev_if, dif, sdif);
+#endif
+}
+
+struct inet_bind_bucket *
+inet_bind_bucket_create(struct kmem_cache *cachep, struct net *net,
+			struct inet_bind_hashbucket *head,
+			const unsigned short snum, int l3mdev);
+>>>>>>> upstream/android-13
 void inet_bind_bucket_destroy(struct kmem_cache *cachep,
 			      struct inet_bind_bucket *tb);
 
@@ -231,9 +278,17 @@ void inet_hashinfo2_init(struct inet_hashinfo *h, const char *name,
 			 unsigned long numentries, int scale,
 			 unsigned long low_limit,
 			 unsigned long high_limit);
+<<<<<<< HEAD
 
 bool inet_ehash_insert(struct sock *sk, struct sock *osk);
 bool inet_ehash_nolisten(struct sock *sk, struct sock *osk);
+=======
+int inet_hashinfo2_init_mod(struct inet_hashinfo *h);
+
+bool inet_ehash_insert(struct sock *sk, struct sock *osk, bool *found_dup_sk);
+bool inet_ehash_nolisten(struct sock *sk, struct sock *osk,
+			 bool *found_dup_sk);
+>>>>>>> upstream/android-13
 int __inet_hash(struct sock *sk, struct sock *osk);
 int inet_hash(struct sock *sk);
 void inet_unhash(struct sock *sk);
@@ -288,9 +343,14 @@ static inline struct sock *inet_lookup_listener(struct net *net,
 #define INET_MATCH(__sk, __net, __cookie, __saddr, __daddr, __ports, __dif, __sdif) \
 	(((__sk)->sk_portpair == (__ports))			&&	\
 	 ((__sk)->sk_addrpair == (__cookie))			&&	\
+<<<<<<< HEAD
 	 (!(__sk)->sk_bound_dev_if	||				\
 	   ((__sk)->sk_bound_dev_if == (__dif))			||	\
 	   ((__sk)->sk_bound_dev_if == (__sdif)))		&&	\
+=======
+	 (((__sk)->sk_bound_dev_if == (__dif))			||	\
+	  ((__sk)->sk_bound_dev_if == (__sdif)))		&&	\
+>>>>>>> upstream/android-13
 	 net_eq(sock_net(__sk), (__net)))
 #else /* 32-bit arch */
 #define INET_ADDR_COOKIE(__name, __saddr, __daddr) \
@@ -300,9 +360,14 @@ static inline struct sock *inet_lookup_listener(struct net *net,
 	(((__sk)->sk_portpair == (__ports))		&&		\
 	 ((__sk)->sk_daddr	== (__saddr))		&&		\
 	 ((__sk)->sk_rcv_saddr	== (__daddr))		&&		\
+<<<<<<< HEAD
 	 (!(__sk)->sk_bound_dev_if	||				\
 	   ((__sk)->sk_bound_dev_if == (__dif))		||		\
 	   ((__sk)->sk_bound_dev_if == (__sdif)))	&&		\
+=======
+	 (((__sk)->sk_bound_dev_if == (__dif))		||		\
+	  ((__sk)->sk_bound_dev_if == (__sdif)))	&&		\
+>>>>>>> upstream/android-13
 	 net_eq(sock_net(__sk), (__net)))
 #endif /* 64-bit arch */
 
@@ -372,10 +437,16 @@ static inline struct sock *__inet_lookup_skb(struct inet_hashinfo *hashinfo,
 					     const int sdif,
 					     bool *refcounted)
 {
+<<<<<<< HEAD
 	struct sock *sk = skb_steal_sock(skb);
 	const struct iphdr *iph = ip_hdr(skb);
 
 	*refcounted = true;
+=======
+	struct sock *sk = skb_steal_sock(skb, refcounted);
+	const struct iphdr *iph = ip_hdr(skb);
+
+>>>>>>> upstream/android-13
 	if (sk)
 		return sk;
 
@@ -406,7 +477,11 @@ static inline void sk_rcv_saddr_set(struct sock *sk, __be32 addr)
 }
 
 int __inet_hash_connect(struct inet_timewait_death_row *death_row,
+<<<<<<< HEAD
 			struct sock *sk, u32 port_offset,
+=======
+			struct sock *sk, u64 port_offset,
+>>>>>>> upstream/android-13
 			int (*check_established)(struct inet_timewait_death_row *,
 						 struct sock *, __u16,
 						 struct inet_timewait_sock **));

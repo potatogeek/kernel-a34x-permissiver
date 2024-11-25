@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 2008 Red Hat, Inc., Eric Paris <eparis@redhat.com>
  *
@@ -14,6 +15,11 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; see the file COPYING.  If not, write to
  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Copyright (C) 2008 Red Hat, Inc., Eric Paris <eparis@redhat.com>
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -60,6 +66,7 @@ u32 fsnotify_get_cookie(void)
 }
 EXPORT_SYMBOL_GPL(fsnotify_get_cookie);
 
+<<<<<<< HEAD
 /* return true if the notify queue is empty, false otherwise */
 bool fsnotify_notify_queue_is_empty(struct fsnotify_group *group)
 {
@@ -67,11 +74,17 @@ bool fsnotify_notify_queue_is_empty(struct fsnotify_group *group)
 	return list_empty(&group->notification_list) ? true : false;
 }
 
+=======
+>>>>>>> upstream/android-13
 void fsnotify_destroy_event(struct fsnotify_group *group,
 			    struct fsnotify_event *event)
 {
 	/* Overflow events are per-group and we don't want to free them */
+<<<<<<< HEAD
 	if (!event || event->mask == FS_Q_OVERFLOW)
+=======
+	if (!event || event == group->overflow_event)
+>>>>>>> upstream/android-13
 		return;
 	/*
 	 * If the event is still queued, we have a problem... Do an unreliable
@@ -88,6 +101,7 @@ void fsnotify_destroy_event(struct fsnotify_group *group,
 }
 
 /*
+<<<<<<< HEAD
  * Add an event to the group notification queue.  The group can later pull this
  * event off the queue to deal with.  The function returns 0 if the event was
  * added to the queue, 1 if the event was merged with some other queued event,
@@ -98,6 +112,24 @@ int fsnotify_add_event(struct fsnotify_group *group,
 		       struct fsnotify_event *event,
 		       int (*merge)(struct list_head *,
 				    struct fsnotify_event *))
+=======
+ * Try to add an event to the notification queue.
+ * The group can later pull this event off the queue to deal with.
+ * The group can use the @merge hook to merge the event with a queued event.
+ * The group can use the @insert hook to insert the event into hash table.
+ * The function returns:
+ * 0 if the event was added to a queue
+ * 1 if the event was merged with some other queued event
+ * 2 if the event was not queued - either the queue of events has overflown
+ *   or the group is shutting down.
+ */
+int fsnotify_add_event(struct fsnotify_group *group,
+		       struct fsnotify_event *event,
+		       int (*merge)(struct fsnotify_group *,
+				    struct fsnotify_event *),
+		       void (*insert)(struct fsnotify_group *,
+				      struct fsnotify_event *))
+>>>>>>> upstream/android-13
 {
 	int ret = 0;
 	struct list_head *list = &group->notification_list;
@@ -124,7 +156,11 @@ int fsnotify_add_event(struct fsnotify_group *group,
 	}
 
 	if (!list_empty(list) && merge) {
+<<<<<<< HEAD
 		ret = merge(list, event);
+=======
+		ret = merge(group, event);
+>>>>>>> upstream/android-13
 		if (ret) {
 			spin_unlock(&group->notification_lock);
 			return ret;
@@ -134,6 +170,11 @@ int fsnotify_add_event(struct fsnotify_group *group,
 queue:
 	group->q_len++;
 	list_add_tail(&event->list, list);
+<<<<<<< HEAD
+=======
+	if (insert)
+		insert(group, event);
+>>>>>>> upstream/android-13
 	spin_unlock(&group->notification_lock);
 
 	wake_up(&group->notification_waitq);
@@ -141,12 +182,43 @@ queue:
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+void fsnotify_remove_queued_event(struct fsnotify_group *group,
+				  struct fsnotify_event *event)
+{
+	assert_spin_locked(&group->notification_lock);
+	/*
+	 * We need to init list head for the case of overflow event so that
+	 * check in fsnotify_add_event() works
+	 */
+	list_del_init(&event->list);
+	group->q_len--;
+}
+
+/*
+ * Return the first event on the notification list without removing it.
+ * Returns NULL if the list is empty.
+ */
+struct fsnotify_event *fsnotify_peek_first_event(struct fsnotify_group *group)
+{
+	assert_spin_locked(&group->notification_lock);
+
+	if (fsnotify_notify_queue_is_empty(group))
+		return NULL;
+
+	return list_first_entry(&group->notification_list,
+				struct fsnotify_event, list);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Remove and return the first event from the notification list.  It is the
  * responsibility of the caller to destroy the obtained event
  */
 struct fsnotify_event *fsnotify_remove_first_event(struct fsnotify_group *group)
 {
+<<<<<<< HEAD
 	struct fsnotify_event *event;
 
 	assert_spin_locked(&group->notification_lock);
@@ -161,11 +233,22 @@ struct fsnotify_event *fsnotify_remove_first_event(struct fsnotify_group *group)
 	 */
 	list_del_init(&event->list);
 	group->q_len--;
+=======
+	struct fsnotify_event *event = fsnotify_peek_first_event(group);
+
+	if (!event)
+		return NULL;
+
+	pr_debug("%s: group=%p event=%p\n", __func__, group, event);
+
+	fsnotify_remove_queued_event(group, event);
+>>>>>>> upstream/android-13
 
 	return event;
 }
 
 /*
+<<<<<<< HEAD
  * This will not remove the event, that must be done with
  * fsnotify_remove_first_event()
  */
@@ -178,6 +261,8 @@ struct fsnotify_event *fsnotify_peek_first_event(struct fsnotify_group *group)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Called when a group is being torn down to clean up any outstanding
  * event notifications.
  */
@@ -194,6 +279,7 @@ void fsnotify_flush_notify(struct fsnotify_group *group)
 	}
 	spin_unlock(&group->notification_lock);
 }
+<<<<<<< HEAD
 
 /*
  * fsnotify_create_event - Allocate a new event which will be sent to each
@@ -214,3 +300,5 @@ void fsnotify_init_event(struct fsnotify_event *event, struct inode *inode,
 	event->inode = inode;
 	event->mask = mask;
 }
+=======
+>>>>>>> upstream/android-13

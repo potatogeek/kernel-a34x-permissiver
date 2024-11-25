@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * WSM host interface (HI) implementation for
  * ST-Ericsson CW1200 mac80211 drivers.
  *
  * Copyright (c) 2010, ST-Ericsson
  * Author: Dmitry Tarnyagin <dmitry.tarnyagin@lockless.no>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/skbuff.h>
@@ -1031,6 +1038,7 @@ static int wsm_find_complete_indication(struct cw1200_common *priv,
 static int wsm_ba_timeout_indication(struct cw1200_common *priv,
 				     struct wsm_buf *buf)
 {
+<<<<<<< HEAD
 	u32 dummy;
 	u8 tid;
 	u8 dummy2;
@@ -1039,6 +1047,14 @@ static int wsm_ba_timeout_indication(struct cw1200_common *priv,
 	dummy = WSM_GET32(buf);
 	tid = WSM_GET8(buf);
 	dummy2 = WSM_GET8(buf);
+=======
+	u8 tid;
+	u8 addr[ETH_ALEN];
+
+	WSM_GET32(buf);
+	tid = WSM_GET8(buf);
+	WSM_GET8(buf);
+>>>>>>> upstream/android-13
 	WSM_GET(buf, addr, ETH_ALEN);
 
 	pr_info("BlockACK timeout, tid %d, addr %pM\n",
@@ -1144,7 +1160,11 @@ static int wsm_cmd_send(struct cw1200_common *priv,
 			pr_err("Outstanding outgoing frames:  %d\n", priv->hw_bufs_used);
 
 			/* Kill BH thread to report the error to the top layer. */
+<<<<<<< HEAD
 			atomic_add(1, &priv->bh_term);
+=======
+			atomic_inc(&priv->bh_term);
+>>>>>>> upstream/android-13
 			wake_up(&priv->bh_wq);
 			ret = -ETIMEDOUT;
 		}
@@ -1165,7 +1185,11 @@ done:
 void wsm_lock_tx(struct cw1200_common *priv)
 {
 	wsm_cmd_lock(priv);
+<<<<<<< HEAD
 	if (atomic_add_return(1, &priv->tx_lock) == 1) {
+=======
+	if (atomic_inc_return(&priv->tx_lock) == 1) {
+>>>>>>> upstream/android-13
 		if (wsm_flush_tx(priv))
 			pr_debug("[WSM] TX is locked.\n");
 	}
@@ -1174,7 +1198,11 @@ void wsm_lock_tx(struct cw1200_common *priv)
 
 void wsm_lock_tx_async(struct cw1200_common *priv)
 {
+<<<<<<< HEAD
 	if (atomic_add_return(1, &priv->tx_lock) == 1)
+=======
+	if (atomic_inc_return(&priv->tx_lock) == 1)
+>>>>>>> upstream/android-13
 		pr_debug("[WSM] TX is locked (async).\n");
 }
 
@@ -1228,7 +1256,11 @@ bool wsm_flush_tx(struct cw1200_common *priv)
 void wsm_unlock_tx(struct cw1200_common *priv)
 {
 	int tx_lock;
+<<<<<<< HEAD
 	tx_lock = atomic_sub_return(1, &priv->tx_lock);
+=======
+	tx_lock = atomic_dec_return(&priv->tx_lock);
+>>>>>>> upstream/android-13
 	BUG_ON(tx_lock < 0);
 
 	if (tx_lock == 0) {

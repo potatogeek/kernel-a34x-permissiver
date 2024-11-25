@@ -354,6 +354,7 @@
 /include/ "qoriq-clockgen1.dtsi"
 	global-utilities@e1000 {
 		compatible = "fsl,p3041-clockgen", "fsl,qoriq-clockgen-1.0";
+<<<<<<< HEAD
 
 		mux2: mux2@40 {
 			#clock-cells = <0>;
@@ -372,6 +373,8 @@
 			clock-names = "pll0", "pll0-div2", "pll1", "pll1-div2";
 			clock-output-names = "cmux3";
 		};
+=======
+>>>>>>> upstream/android-13
 	};
 
 	rcpm: global-utilities@e2000 {

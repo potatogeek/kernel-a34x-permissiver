@@ -1,5 +1,9 @@
 #ifndef _XT_QUOTA_H
 #define _XT_QUOTA_H
+<<<<<<< HEAD
+=======
+#include <linux/types.h>
+>>>>>>> upstream/android-13
 
 enum xt_quota_flags {
 	XT_QUOTA_INVERT    = 1 << 0,

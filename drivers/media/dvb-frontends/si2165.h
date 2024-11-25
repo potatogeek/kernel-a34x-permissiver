@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Driver for Silicon Labs SI2165 DVB-C/-T Demodulator
  *
  * Copyright (C) 2013-2017 Matthias Schwarzott <zzam@gentoo.org>
  *
+<<<<<<< HEAD
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
  *   the Free Software Foundation; either version 2 of the License, or
@@ -16,6 +21,10 @@
  * References:
  *   http://www.silabs.com/Support%20Documents/TechnicalDocs/Si2165-short.pdf
  *
+=======
+ * References:
+ *   https://www.silabs.com/Support%20Documents/TechnicalDocs/Si2165-short.pdf
+>>>>>>> upstream/android-13
  */
 
 #ifndef _DVB_SI2165_H

@@ -79,7 +79,11 @@ bl_resolve_deviceid(struct nfs_server *server, struct pnfs_block_volume *b,
 		goto out_free_data;
 
 	bl_msg = msg->data;
+<<<<<<< HEAD
 	bl_msg->type = BL_DEVICE_MOUNT,
+=======
+	bl_msg->type = BL_DEVICE_MOUNT;
+>>>>>>> upstream/android-13
 	bl_msg->totallen = b->simple.len;
 	nfs4_encode_simple(msg->data + sizeof(*bl_msg), b);
 

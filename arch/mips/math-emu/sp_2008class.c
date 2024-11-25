@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * IEEE754 floating point arithmetic
  * single precision: CLASS.f
@@ -6,10 +10,13 @@
  * MIPS floating point support
  * Copyright (C) 2015 Imagination Technologies, Ltd.
  * Author: Markos Chandras <markos.chandras@imgtec.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can distribute it and/or modify it
  *  under the terms of the GNU General Public License as published by the
  *  Free Software Foundation; version 2 of the License.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "ieee754sp.h"

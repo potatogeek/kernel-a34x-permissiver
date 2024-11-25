@@ -33,11 +33,14 @@
 	REG_RULE(2467 - 10, 2472 + 10, 40, 0, 20,	\
 	NL80211_RRF_PASSIVE_SCAN)
 
+<<<<<<< HEAD
 /* 2G chan 14, PASSIVS SCAN, NO OFDM (B only) */
 #define RTW_2GHZ_CH14	\
 	REG_RULE(2484 - 10, 2484 + 10, 40, 0, 20,	\
 	NL80211_RRF_PASSIVE_SCAN | NL80211_RRF_NO_OFDM)
 
+=======
+>>>>>>> upstream/android-13
 static const struct ieee80211_regdomain rtw_regdom_rd = {
 	.n_reg_rules = 2,
 	.alpha2 = "99",
@@ -49,10 +52,13 @@ static const struct ieee80211_regdomain rtw_regdom_rd = {
 
 static int rtw_ieee80211_channel_to_frequency(int chan, int band)
 {
+<<<<<<< HEAD
 	/* see 802.11 17.3.8.3.2 and Annex J
 	 * there are overlapping channel numbers in 5GHz and 2GHz bands
 	 */
 
+=======
+>>>>>>> upstream/android-13
 	/* NL80211_BAND_2GHZ */
 	if (chan == 14)
 		return 2484;
@@ -66,7 +72,11 @@ static void _rtw_reg_apply_flags(struct wiphy *wiphy)
 {
 	struct adapter *padapter = wiphy_to_adapter(wiphy);
 	struct mlme_ext_priv *pmlmeext = &padapter->mlmeextpriv;
+<<<<<<< HEAD
 	RT_CHANNEL_INFO *channel_set = pmlmeext->channel_set;
+=======
+	struct rt_channel_info *channel_set = pmlmeext->channel_set;
+>>>>>>> upstream/android-13
 	u8 max_chan_nums = pmlmeext->max_chan_nums;
 
 	struct ieee80211_supported_band *sband;
@@ -144,6 +154,7 @@ static void _rtw_regd_init_wiphy(struct rtw_regulatory *reg,
 	_rtw_reg_apply_flags(wiphy);
 }
 
+<<<<<<< HEAD
 int rtw_regd_init(struct adapter *padapter,
 		  void (*reg_notifier)(struct wiphy *wiphy,
 				       struct regulatory_request *request))
@@ -153,13 +164,23 @@ int rtw_regd_init(struct adapter *padapter,
 	_rtw_regd_init_wiphy(NULL, wiphy, reg_notifier);
 
 	return 0;
+=======
+void rtw_regd_init(struct wiphy *wiphy,
+		   void (*reg_notifier)(struct wiphy *wiphy,
+					struct regulatory_request *request))
+{
+	_rtw_regd_init_wiphy(NULL, wiphy, reg_notifier);
+>>>>>>> upstream/android-13
 }
 
 void rtw_reg_notifier(struct wiphy *wiphy, struct regulatory_request *request)
 {
 	struct rtw_regulatory *reg = NULL;
 
+<<<<<<< HEAD
 	DBG_8192C("%s\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 	_rtw_reg_notifier_apply(wiphy, request, reg);
 }

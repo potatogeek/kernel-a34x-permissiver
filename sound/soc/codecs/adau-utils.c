@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Shared helper functions for devices from the ADAU family
  *
  * Copyright 2011-2016 Analog Devices Inc.
  * Author: Lars-Peter Clausen <lars@metafoo.de>
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2 or later.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/gcd.h>

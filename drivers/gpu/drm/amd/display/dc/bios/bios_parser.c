@@ -23,6 +23,11 @@
  *
  */
 
+<<<<<<< HEAD
+=======
+#include <linux/slab.h>
+
+>>>>>>> upstream/android-13
 #include "dm_services.h"
 
 #include "atom.h"
@@ -42,7 +47,11 @@
 #include "bios_parser_interface.h"
 
 #include "bios_parser_common.h"
+<<<<<<< HEAD
 /* TODO remove - only needed for default i2c speed */
+=======
+
+>>>>>>> upstream/android-13
 #include "dc.h"
 
 #define THREE_PERCENT_OF_10000 300
@@ -52,6 +61,7 @@
 #define DC_LOGGER \
 	bp->base.ctx->logger
 
+<<<<<<< HEAD
 /* GUID to validate external display connection info table (aka OPM module) */
 static const uint8_t ext_display_connection_guid[NUMBER_OF_UCHAR_FOR_GUID] = {
 	0x91, 0x6E, 0x57, 0x09,
@@ -59,17 +69,24 @@ static const uint8_t ext_display_connection_guid[NUMBER_OF_UCHAR_FOR_GUID] = {
 	0x39, 0x8E, 0x00, 0xA0,
 	0xC9, 0x69, 0x72, 0x3B};
 
+=======
+>>>>>>> upstream/android-13
 #define DATA_TABLES(table) (bp->master_data_tbl->ListOfDataTables.table)
 
 static void get_atom_data_table_revision(
 	ATOM_COMMON_TABLE_HEADER *atom_data_tbl,
 	struct atom_data_revision *tbl_revision);
+<<<<<<< HEAD
 static uint32_t get_dst_number_from_object(struct bios_parser *bp,
 	ATOM_OBJECT *object);
 static uint32_t get_src_obj_list(struct bios_parser *bp, ATOM_OBJECT *object,
 	uint16_t **id_list);
 static uint32_t get_dest_obj_list(struct bios_parser *bp,
 	ATOM_OBJECT *object, uint16_t **id_list);
+=======
+static uint32_t get_src_obj_list(struct bios_parser *bp, ATOM_OBJECT *object,
+	uint16_t **id_list);
+>>>>>>> upstream/android-13
 static ATOM_OBJECT *get_bios_object(struct bios_parser *bp,
 	struct graphics_object_id id);
 static enum bp_result get_gpio_i2c_info(struct bios_parser *bp,
@@ -120,7 +137,11 @@ struct dc_bios *bios_parser_create(
 	return NULL;
 }
 
+<<<<<<< HEAD
 static void destruct(struct bios_parser *bp)
+=======
+static void bios_parser_destruct(struct bios_parser *bp)
+>>>>>>> upstream/android-13
 {
 	kfree(bp->base.bios_local_image);
 	kfree(bp->base.integrated_info);
@@ -135,7 +156,11 @@ static void bios_parser_destroy(struct dc_bios **dcb)
 		return;
 	}
 
+<<<<<<< HEAD
 	destruct(bp);
+=======
+	bios_parser_destruct(bp);
+>>>>>>> upstream/android-13
 
 	kfree(bp);
 	*dcb = NULL;
@@ -163,6 +188,7 @@ static uint8_t bios_parser_get_connectors_number(struct dc_bios *dcb)
 		le16_to_cpu(bp->object_info_tbl.v1_1->usConnectorObjectTableOffset));
 }
 
+<<<<<<< HEAD
 static struct graphics_object_id bios_parser_get_encoder_id(
 	struct dc_bios *dcb,
 	uint32_t i)
@@ -186,6 +212,8 @@ static struct graphics_object_id bios_parser_get_encoder_id(
 	return object_id;
 }
 
+=======
+>>>>>>> upstream/android-13
 static struct graphics_object_id bios_parser_get_connector_id(
 	struct dc_bios *dcb,
 	uint8_t i)
@@ -217,6 +245,7 @@ static struct graphics_object_id bios_parser_get_connector_id(
 	return object_id;
 }
 
+<<<<<<< HEAD
 static uint32_t bios_parser_get_dst_number(struct dc_bios *dcb,
 	struct graphics_object_id id)
 {
@@ -226,6 +255,8 @@ static uint32_t bios_parser_get_dst_number(struct dc_bios *dcb,
 	return get_dst_number_from_object(bp, object);
 }
 
+=======
+>>>>>>> upstream/android-13
 static enum bp_result bios_parser_get_src_obj(struct dc_bios *dcb,
 	struct graphics_object_id object_id, uint32_t index,
 	struct graphics_object_id *src_object_id)
@@ -255,6 +286,7 @@ static enum bp_result bios_parser_get_src_obj(struct dc_bios *dcb,
 	return BP_RESULT_OK;
 }
 
+<<<<<<< HEAD
 static enum bp_result bios_parser_get_dst_obj(struct dc_bios *dcb,
 	struct graphics_object_id object_id, uint32_t index,
 	struct graphics_object_id *dest_object_id)
@@ -279,6 +311,8 @@ static enum bp_result bios_parser_get_dst_obj(struct dc_bios *dcb,
 	return BP_RESULT_OK;
 }
 
+=======
+>>>>>>> upstream/android-13
 static enum bp_result bios_parser_get_i2c_info(struct dc_bios *dcb,
 	struct graphics_object_id id,
 	struct graphics_object_i2c_info *info)
@@ -325,6 +359,7 @@ static enum bp_result bios_parser_get_i2c_info(struct dc_bios *dcb,
 	return BP_RESULT_NORECORD;
 }
 
+<<<<<<< HEAD
 static enum bp_result get_voltage_ddc_info_v1(uint8_t *i2c_line,
 	ATOM_COMMON_TABLE_HEADER *header,
 	uint8_t *address)
@@ -515,6 +550,8 @@ static enum bp_result bios_parser_get_ddc_info_for_i2c_line(
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static enum bp_result bios_parser_get_hpd_info(struct dc_bios *dcb,
 	struct graphics_object_id id,
 	struct graphics_object_hpd_info *info)
@@ -1092,6 +1129,7 @@ static enum bp_result bios_parser_enable_crtc(
 	return bp->cmd_tbl.enable_crtc(bp, id, enable);
 }
 
+<<<<<<< HEAD
 static enum bp_result bios_parser_crtc_source_select(
 	struct dc_bios *dcb,
 	struct bp_crtc_source_select *bp_params)
@@ -1104,6 +1142,8 @@ static enum bp_result bios_parser_crtc_source_select(
 	return bp->cmd_tbl.select_crtc_source(bp, bp_params);
 }
 
+=======
+>>>>>>> upstream/android-13
 static enum bp_result bios_parser_enable_disp_power_gating(
 	struct dc_bios *dcb,
 	enum controller_id controller_id,
@@ -1129,6 +1169,7 @@ static bool bios_parser_is_device_id_supported(
 	return (le16_to_cpu(bp->object_info_tbl.v1_1->usDeviceSupport) & mask) != 0;
 }
 
+<<<<<<< HEAD
 static enum bp_result bios_parser_crt_control(
 	struct dc_bios *dcb,
 	enum engine_id engine_id,
@@ -1185,6 +1226,8 @@ static enum bp_result bios_parser_crt_control(
 	return BP_RESULT_OK;
 }
 
+=======
+>>>>>>> upstream/android-13
 static ATOM_HPD_INT_RECORD *get_hpd_record(struct bios_parser *bp,
 	ATOM_OBJECT *object)
 {
@@ -1219,6 +1262,7 @@ static ATOM_HPD_INT_RECORD *get_hpd_record(struct bios_parser *bp,
 	return NULL;
 }
 
+<<<<<<< HEAD
 /**
  * Get I2C information of input object id
  *
@@ -1262,6 +1306,8 @@ static ATOM_I2C_RECORD *get_i2c_record(
 	return NULL;
 }
 
+=======
+>>>>>>> upstream/android-13
 static enum bp_result get_ss_info_from_ss_info_table(
 	struct bios_parser *bp,
 	uint32_t id,
@@ -1277,11 +1323,19 @@ static enum bp_result get_ss_info_from_tbl(
  * ver 2.1 can co-exist with SS_Info table. Expect ASIC_InternalSS_Info ver 3.1,
  * there is only one entry for each signal /ss id.  However, there is
  * no planning of supporting multiple spread Sprectum entry for EverGreen
+<<<<<<< HEAD
  * @param [in] this
  * @param [in] signal, ASSignalType to be converted to info index
  * @param [in] index, number of entries that match the converted info index
  * @param [out] ss_info, sprectrum information structure,
  * @return Bios parser result code
+=======
+ * @dcb:     pointer to the DC BIOS
+ * @signal:  ASSignalType to be converted to info index
+ * @index:   number of entries that match the converted info index
+ * @ss_info: sprectrum information structure,
+ * return:   Bios parser result code
+>>>>>>> upstream/android-13
  */
 static enum bp_result bios_parser_get_spread_spectrum_info(
 	struct dc_bios *dcb,
@@ -1345,16 +1399,27 @@ static enum bp_result get_ss_info_from_internal_ss_info_tbl_V2_1(
 	struct spread_spectrum_info *info);
 
 /**
+<<<<<<< HEAD
  * get_ss_info_from_table
+=======
+ * get_ss_info_from_tbl
+>>>>>>> upstream/android-13
  * Get spread sprectrum information from the ASIC_InternalSS_Info Ver 2.1 or
  * SS_Info table from the VBIOS
  * There can not be more than 1 entry for  ASIC_InternalSS_Info Ver 2.1 or
  * SS_Info.
  *
+<<<<<<< HEAD
  * @param this
  * @param id, spread sprectrum info index
  * @param pSSinfo, sprectrum information structure,
  * @return Bios parser result code
+=======
+ * @bp:      pointer to the BIOS parser
+ * @id:      spread sprectrum info index
+ * @ss_info: sprectrum information structure,
+ * return:   BIOS parser result code
+>>>>>>> upstream/android-13
  */
 static enum bp_result get_ss_info_from_tbl(
 	struct bios_parser *bp,
@@ -1377,9 +1442,16 @@ static enum bp_result get_ss_info_from_tbl(
  * from the VBIOS
  * There will not be multiple entry for Ver 2.1
  *
+<<<<<<< HEAD
  * @param id, spread sprectrum info index
  * @param pSSinfo, sprectrum information structure,
  * @return Bios parser result code
+=======
+ * @bp:    pointer to the Bios parser
+ * @id:    spread sprectrum info index
+ * @info:  sprectrum information structure,
+ * return: Bios parser result code
+>>>>>>> upstream/android-13
  */
 static enum bp_result get_ss_info_from_internal_ss_info_tbl_V2_1(
 	struct bios_parser *bp,
@@ -1442,9 +1514,16 @@ static enum bp_result get_ss_info_from_internal_ss_info_tbl_V2_1(
  * of entries that matches the id
  * for, the SS_Info table, there should not be more than 1 entry match.
  *
+<<<<<<< HEAD
  * @param [in] id, spread sprectrum id
  * @param [out] pSSinfo, sprectrum information structure,
  * @return Bios parser result code
+=======
+ * @bp:      pointer to the Bios parser
+ * @id:      spread sprectrum id
+ * @ss_info: sprectrum information structure,
+ * return:   Bios parser result code
+>>>>>>> upstream/android-13
  */
 static enum bp_result get_ss_info_from_ss_info_table(
 	struct bios_parser *bp,
@@ -1564,6 +1643,10 @@ static enum bp_result bios_parser_get_embedded_panel_info(
 		default:
 			break;
 		}
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
@@ -1816,6 +1899,7 @@ static enum bp_result get_embedded_panel_info_v1_3(
 }
 
 /**
+<<<<<<< HEAD
  * bios_parser_get_encoder_cap_info
  *
  * @brief
@@ -1826,6 +1910,16 @@ static enum bp_result get_embedded_panel_info_v1_3(
  *
  * @return Bios parser result code
  *
+=======
+ * bios_parser_get_encoder_cap_info - get encoder capability
+ *                                    information of input object id
+ *
+ * @dcb:       pointer to the DC BIOS
+ * @object_id: object id
+ * @info:      encoder cap information structure
+ *
+ * return: Bios parser result code
+>>>>>>> upstream/android-13
  */
 static enum bp_result bios_parser_get_encoder_cap_info(
 	struct dc_bios *dcb,
@@ -1855,6 +1949,7 @@ static enum bp_result bios_parser_get_encoder_cap_info(
 }
 
 /**
+<<<<<<< HEAD
  * get_encoder_cap_record
  *
  * @brief
@@ -1866,6 +1961,14 @@ static enum bp_result bios_parser_get_encoder_cap_info(
  *
  * @note
  *  search all records to find the ATOM_ENCODER_CAP_RECORD_V2 record
+=======
+ * get_encoder_cap_record - Get encoder cap record for the object
+ *
+ * @bp:      pointer to the BIOS parser
+ * @object:  ATOM object
+ * return:   atom encoder cap record
+ * note:     search all records to find the ATOM_ENCODER_CAP_RECORD_V2 record
+>>>>>>> upstream/android-13
  */
 static ATOM_ENCODER_CAP_RECORD_V2 *get_encoder_cap_record(
 	struct bios_parser *bp,
@@ -1918,12 +2021,22 @@ static uint32_t get_ss_entry_number_from_ss_info_tbl(
 	uint32_t id);
 
 /**
+<<<<<<< HEAD
  * BiosParserObject::GetNumberofSpreadSpectrumEntry
  * Get Number of SpreadSpectrum Entry from the ASIC_InternalSS_Info table from
  * the VBIOS that match the SSid (to be converted from signal)
  *
  * @param[in] signal, ASSignalType to be converted to SSid
  * @return number of SS Entry that match the signal
+=======
+ * bios_parser_get_ss_entry_number
+ * Get Number of SpreadSpectrum Entry from the ASIC_InternalSS_Info table from
+ * the VBIOS that match the SSid (to be converted from signal)
+ *
+ * @dcb:    pointer to the DC BIOS
+ * @signal: ASSignalType to be converted to SSid
+ * return: number of SS Entry that match the signal
+>>>>>>> upstream/android-13
  */
 static uint32_t bios_parser_get_ss_entry_number(
 	struct dc_bios *dcb,
@@ -1973,10 +2086,17 @@ static uint32_t bios_parser_get_ss_entry_number(
  * get_ss_entry_number_from_ss_info_tbl
  * Get Number of spread spectrum entry from the SS_Info table from the VBIOS.
  *
+<<<<<<< HEAD
  * @note There can only be one entry for each id for SS_Info Table
  *
  * @param [in] id, spread spectrum id
  * @return number of SS Entry that match the id
+=======
+ * @bp:  pointer to the BIOS parser
+ * @id:  spread spectrum id
+ * return: number of SS Entry that match the id
+ * note: There can only be one entry for each id for SS_Info Table
+>>>>>>> upstream/android-13
  */
 static uint32_t get_ss_entry_number_from_ss_info_tbl(
 	struct bios_parser *bp,
@@ -2044,8 +2164,14 @@ static uint32_t get_ss_entry_number_from_ss_info_tbl(
  * There can not be more than 1 entry for  ASIC_InternalSS_Info Ver 2.1 or
  * SS_Info.
  *
+<<<<<<< HEAD
  * @param id, spread sprectrum info index
  * @return Bios parser result code
+=======
+ * @bp:    pointer to the BIOS parser
+ * @id:    spread sprectrum info index
+ * return: Bios parser result code
+>>>>>>> upstream/android-13
  */
 static uint32_t get_ss_entry_number(struct bios_parser *bp, uint32_t id)
 {
@@ -2061,8 +2187,14 @@ static uint32_t get_ss_entry_number(struct bios_parser *bp, uint32_t id)
  * Ver 2.1 from the VBIOS
  * There will not be multiple entry for Ver 2.1
  *
+<<<<<<< HEAD
  * @param id, spread sprectrum info index
  * @return number of SS Entry that match the id
+=======
+ * @bp:    pointer to the BIOS parser
+ * @id:    spread sprectrum info index
+ * return: number of SS Entry that match the id
+>>>>>>> upstream/android-13
  */
 static uint32_t get_ss_entry_number_from_internal_ss_info_tbl_v2_1(
 	struct bios_parser *bp,
@@ -2092,12 +2224,22 @@ static uint32_t get_ss_entry_number_from_internal_ss_info_tbl_v2_1(
 	return 0;
 }
 /**
+<<<<<<< HEAD
  * get_ss_entry_number_from_internal_ss_info_table_V3_1
  * Get Number of SpreadSpectrum Entry from the ASIC_InternalSS_Info table of
  * the VBIOS that matches id
  *
  * @param[in]  id, spread sprectrum id
  * @return number of SS Entry that match the id
+=======
+ * get_ss_entry_number_from_internal_ss_info_tbl_V3_1
+ * Get Number of SpreadSpectrum Entry from the ASIC_InternalSS_Info table of
+ * the VBIOS that matches id
+ *
+ * @bp:    pointer to the BIOS parser
+ * @id:    spread sprectrum id
+ * return: number of SS Entry that match the id
+>>>>>>> upstream/android-13
  */
 static uint32_t get_ss_entry_number_from_internal_ss_info_tbl_V3_1(
 	struct bios_parser *bp,
@@ -2132,10 +2274,18 @@ static uint32_t get_ss_entry_number_from_internal_ss_info_tbl_V3_1(
  * bios_parser_get_gpio_pin_info
  * Get GpioPin information of input gpio id
  *
+<<<<<<< HEAD
  * @param gpio_id, GPIO ID
  * @param info, GpioPin information structure
  * @return Bios parser result code
  * @note
+=======
+ * @dcb:     pointer to the DC BIOS
+ * @gpio_id: GPIO ID
+ * @info:    GpioPin information structure
+ * return:   Bios parser result code
+ * note:
+>>>>>>> upstream/android-13
  *  to get the GPIO PIN INFO, we need:
  *  1. get the GPIO_ID from other object table, see GetHPDInfo()
  *  2. in DATA_TABLE.GPIO_Pin_LUT, search all records, to get the registerA
@@ -2356,6 +2506,7 @@ static ATOM_OBJECT *get_bios_object(struct bios_parser *bp,
 	return NULL;
 }
 
+<<<<<<< HEAD
 static uint32_t get_dest_obj_list(struct bios_parser *bp,
 	ATOM_OBJECT *object, uint16_t **id_list)
 {
@@ -2390,6 +2541,8 @@ static uint32_t get_dest_obj_list(struct bios_parser *bp,
 	return *number;
 }
 
+=======
+>>>>>>> upstream/android-13
 static uint32_t get_src_obj_list(struct bios_parser *bp, ATOM_OBJECT *object,
 	uint16_t **id_list)
 {
@@ -2417,6 +2570,7 @@ static uint32_t get_src_obj_list(struct bios_parser *bp, ATOM_OBJECT *object,
 	return *number;
 }
 
+<<<<<<< HEAD
 static uint32_t get_dst_number_from_object(struct bios_parser *bp,
 	ATOM_OBJECT *object)
 {
@@ -2450,6 +2604,12 @@ static struct device_id device_type_from_device_id(uint16_t device_id)
 {
 
 	struct device_id result_device_id;
+=======
+static struct device_id device_type_from_device_id(uint16_t device_id)
+{
+
+	struct device_id result_device_id = {0};
+>>>>>>> upstream/android-13
 
 	switch (device_id) {
 	case ATOM_DEVICE_LCD1_SUPPORT:
@@ -2618,13 +2778,18 @@ static uint32_t get_support_mask_for_device_id(struct device_id device_id)
 		break;
 	default:
 		break;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 
 	/* Unidentified device ID, return empty support mask. */
 	return 0;
 }
 
 /**
+<<<<<<< HEAD
  *  HwContext interface for writing MM registers
  */
 
@@ -3378,6 +3543,12 @@ static void bios_parser_post_init(struct dc_bios *dcb)
  *
  * @param
  *  bool - to set or reset state
+=======
+ * bios_parser_set_scratch_critical_state - update critical state
+ *                                          bit in VBIOS scratch register
+ * @dcb:    pointer to the DC BIOS
+ * @state:  set or reset state
+>>>>>>> upstream/android-13
  */
 static void bios_parser_set_scratch_critical_state(
 	struct dc_bios *dcb,
@@ -3396,7 +3567,11 @@ static void bios_parser_set_scratch_critical_state(
  * bios_parser *bp - [in]BIOS parser handler to get master data table
  * integrated_info *info - [out] store and output integrated info
  *
+<<<<<<< HEAD
  * @return
+=======
+ * return:
+>>>>>>> upstream/android-13
  * enum bp_result - BP_RESULT_OK if information is available,
  *                  BP_RESULT_BADBIOSTABLE otherwise.
  */
@@ -3546,7 +3721,11 @@ static enum bp_result get_integrated_info_v8(
  * bios_parser *bp - [in]BIOS parser handler to get master data table
  * integrated_info *info - [out] store and output integrated info
  *
+<<<<<<< HEAD
  * @return
+=======
+ * return:
+>>>>>>> upstream/android-13
  * enum bp_result - BP_RESULT_OK if information is available,
  *                  BP_RESULT_BADBIOSTABLE otherwise.
  */
@@ -3683,7 +3862,11 @@ static enum bp_result get_integrated_info_v9(
  * bios_parser *bp - [in]BIOS parser handler to get master data table
  * integrated_info *info - [out] store and output integrated info
  *
+<<<<<<< HEAD
  * @return
+=======
+ * return:
+>>>>>>> upstream/android-13
  * enum bp_result - BP_RESULT_OK if information is available,
  *                  BP_RESULT_BADBIOSTABLE otherwise.
  */
@@ -3718,7 +3901,10 @@ static enum bp_result construct_integrated_info(
 
 	/* Sort voltage table from low to high*/
 	if (result == BP_RESULT_OK) {
+<<<<<<< HEAD
 		struct clock_voltage_caps temp = {0, 0};
+=======
+>>>>>>> upstream/android-13
 		uint32_t i;
 		uint32_t j;
 
@@ -3728,10 +3914,15 @@ static enum bp_result construct_integrated_info(
 						info->disp_clk_voltage[j].max_supported_clk <
 						info->disp_clk_voltage[j-1].max_supported_clk) {
 					/* swap j and j - 1*/
+<<<<<<< HEAD
 					temp = info->disp_clk_voltage[j-1];
 					info->disp_clk_voltage[j-1] =
 							info->disp_clk_voltage[j];
 					info->disp_clk_voltage[j] = temp;
+=======
+					swap(info->disp_clk_voltage[j - 1],
+					     info->disp_clk_voltage[j]);
+>>>>>>> upstream/android-13
 				}
 			}
 		}
@@ -3762,7 +3953,11 @@ static struct integrated_info *bios_parser_create_integrated_info(
 	return NULL;
 }
 
+<<<<<<< HEAD
 enum bp_result update_slot_layout_info(
+=======
+static enum bp_result update_slot_layout_info(
+>>>>>>> upstream/android-13
 	struct dc_bios *dcb,
 	unsigned int i,
 	struct slot_layout_info *slot_layout_info,
@@ -3866,7 +4061,11 @@ enum bp_result update_slot_layout_info(
 }
 
 
+<<<<<<< HEAD
 enum bp_result get_bracket_layout_record(
+=======
+static enum bp_result get_bracket_layout_record(
+>>>>>>> upstream/android-13
 	struct dc_bios *dcb,
 	unsigned int bracket_layout_id,
 	struct slot_layout_info *slot_layout_info)
@@ -3917,7 +4116,10 @@ static enum bp_result bios_get_board_layout_info(
 	struct board_layout_info *board_layout_info)
 {
 	unsigned int i;
+<<<<<<< HEAD
 	struct bios_parser *bp;
+=======
+>>>>>>> upstream/android-13
 	enum bp_result record_result;
 
 	const unsigned int slot_index_to_vbios_id[MAX_BOARD_SLOTS] = {
@@ -3926,7 +4128,10 @@ static enum bp_result bios_get_board_layout_info(
 		0, 0
 	};
 
+<<<<<<< HEAD
 	bp = BP_FROM_DCB(dcb);
+=======
+>>>>>>> upstream/android-13
 	if (board_layout_info == NULL) {
 		DC_LOG_DETECTION_EDID_PARSER("Invalid board_layout_info\n");
 		return BP_RESULT_BADINPUT;
@@ -3961,6 +4166,7 @@ static enum bp_result bios_get_board_layout_info(
 static const struct dc_vbios_funcs vbios_funcs = {
 	.get_connectors_number = bios_parser_get_connectors_number,
 
+<<<<<<< HEAD
 	.get_encoder_id = bios_parser_get_encoder_id,
 
 	.get_connector_id = bios_parser_get_connector_id,
@@ -3977,12 +4183,23 @@ static const struct dc_vbios_funcs vbios_funcs = {
 
 	.get_thermal_ddc_info = bios_parser_get_thermal_ddc_info,
 
+=======
+	.get_connector_id = bios_parser_get_connector_id,
+
+	.get_src_obj = bios_parser_get_src_obj,
+
+	.get_i2c_info = bios_parser_get_i2c_info,
+
+>>>>>>> upstream/android-13
 	.get_hpd_info = bios_parser_get_hpd_info,
 
 	.get_device_tag = bios_parser_get_device_tag,
 
+<<<<<<< HEAD
 	.get_firmware_info = bios_parser_get_firmware_info,
 
+=======
+>>>>>>> upstream/android-13
 	.get_spread_spectrum_info = bios_parser_get_spread_spectrum_info,
 
 	.get_ss_entry_number = bios_parser_get_ss_entry_number,
@@ -3995,7 +4212,10 @@ static const struct dc_vbios_funcs vbios_funcs = {
 
 	/* bios scratch register communication */
 	.is_accelerated_mode = bios_is_accelerated_mode,
+<<<<<<< HEAD
 	.get_vga_enabled_displays = bios_get_vga_enabled_displays,
+=======
+>>>>>>> upstream/android-13
 
 	.set_scratch_critical_state = bios_parser_set_scratch_critical_state,
 
@@ -4006,8 +4226,11 @@ static const struct dc_vbios_funcs vbios_funcs = {
 
 	.transmitter_control = bios_parser_transmitter_control,
 
+<<<<<<< HEAD
 	.crt_control = bios_parser_crt_control,  /* not used in DAL3.  keep for now in case we need to support VGA on Bonaire */
 
+=======
+>>>>>>> upstream/android-13
 	.enable_crtc = bios_parser_enable_crtc,
 
 	.adjust_pixel_clock = bios_parser_adjust_pixel_clock,
@@ -4020,18 +4243,29 @@ static const struct dc_vbios_funcs vbios_funcs = {
 
 	.program_crtc_timing = bios_parser_program_crtc_timing, /* still use.  should probably retire and program directly */
 
+<<<<<<< HEAD
 	.crtc_source_select = bios_parser_crtc_source_select,  /* still use.  should probably retire and program directly */
 
+=======
+>>>>>>> upstream/android-13
 	.program_display_engine_pll = bios_parser_program_display_engine_pll,
 
 	.enable_disp_power_gating = bios_parser_enable_disp_power_gating,
 
 	/* SW init and patch */
+<<<<<<< HEAD
 	.post_init = bios_parser_post_init,  /* patch vbios table for mxm module by reading i2c */
+=======
+>>>>>>> upstream/android-13
 
 	.bios_parser_destroy = bios_parser_destroy,
 
 	.get_board_layout_info = bios_get_board_layout_info,
+<<<<<<< HEAD
+=======
+
+	.get_atom_dc_golden_table = NULL
+>>>>>>> upstream/android-13
 };
 
 static bool bios_parser_construct(
@@ -4113,6 +4347,10 @@ static bool bios_parser_construct(
 	dal_bios_parser_init_cmd_tbl_helper(&bp->cmd_helper, dce_version);
 
 	bp->base.integrated_info = bios_parser_create_integrated_info(&bp->base);
+<<<<<<< HEAD
+=======
+	bp->base.fw_info_valid = bios_parser_get_firmware_info(&bp->base, &bp->base.fw_info) == BP_RESULT_OK;
+>>>>>>> upstream/android-13
 
 	return true;
 }

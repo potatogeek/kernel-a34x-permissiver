@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ALSA SoC TLV320AIC23 codec driver
  *
@@ -6,10 +10,13 @@
  *
  * Based on sound/soc/codecs/wm8731.c by Richard Purdie
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Notes:
  *  The AIC23 is a driver for a low power stereo audio
  *  codec tlv320aic23
@@ -70,8 +77,11 @@ static SOC_ENUM_SINGLE_DECL(rec_src_enum,
 static const struct snd_kcontrol_new tlv320aic23_rec_src_mux_controls =
 SOC_DAPM_ENUM("Input Select", rec_src_enum);
 
+<<<<<<< HEAD
 static SOC_ENUM_SINGLE_DECL(tlv320aic23_rec_src,
 			    TLV320AIC23_ANLG, 2, rec_src_text);
+=======
+>>>>>>> upstream/android-13
 static SOC_ENUM_SINGLE_DECL(tlv320aic23_deemph,
 			    TLV320AIC23_DIGT, 1, deemph_text);
 
@@ -96,7 +106,11 @@ static int snd_soc_tlv320aic23_put_volsw(struct snd_kcontrol *kcontrol,
 	*/
 	val = (val >= 4) ? 4  : (3 - val);
 
+<<<<<<< HEAD
 	reg = snd_soc_component_read32(component, TLV320AIC23_ANLG) & (~0x1C0);
+=======
+	reg = snd_soc_component_read(component, TLV320AIC23_ANLG) & (~0x1C0);
+>>>>>>> upstream/android-13
 	snd_soc_component_write(component, TLV320AIC23_ANLG, reg | (val << 6));
 
 	return 0;
@@ -108,7 +122,11 @@ static int snd_soc_tlv320aic23_get_volsw(struct snd_kcontrol *kcontrol,
 	struct snd_soc_component *component = snd_soc_kcontrol_component(kcontrol);
 	u16 val;
 
+<<<<<<< HEAD
 	val = snd_soc_component_read32(component, TLV320AIC23_ANLG) & (0x1C0);
+=======
+	val = snd_soc_component_read(component, TLV320AIC23_ANLG) & (0x1C0);
+>>>>>>> upstream/android-13
 	val = val >> 6;
 	val = (val >= 4) ? 4  : (3 -  val);
 	ucontrol->value.integer.value[0] = val;
@@ -299,7 +317,11 @@ static int find_rate(int mclk, u32 need_adc, u32 need_dac)
 static void get_current_sample_rates(struct snd_soc_component *component, int mclk,
 		u32 *sample_rate_adc, u32 *sample_rate_dac)
 {
+<<<<<<< HEAD
 	int src = snd_soc_component_read32(component, TLV320AIC23_SRATE);
+=======
+	int src = snd_soc_component_read(component, TLV320AIC23_SRATE);
+>>>>>>> upstream/android-13
 	int sr = (src >> 2) & 0x0f;
 	int val = (mclk / bosr_usb_divisor_table[src & 3]);
 	int adc = (val * sr_adc_mult_table[sr]) / SR_MULT;
@@ -361,7 +383,11 @@ static int tlv320aic23_hw_params(struct snd_pcm_substream *substream,
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	iface_reg = snd_soc_component_read32(component, TLV320AIC23_DIGT_FMT) & ~(0x03 << 2);
+=======
+	iface_reg = snd_soc_component_read(component, TLV320AIC23_DIGT_FMT) & ~(0x03 << 2);
+>>>>>>> upstream/android-13
 
 	switch (params_width(params)) {
 	case 16:
@@ -399,7 +425,11 @@ static void tlv320aic23_shutdown(struct snd_pcm_substream *substream,
 	struct aic23 *aic23 = snd_soc_component_get_drvdata(component);
 
 	/* deactivate */
+<<<<<<< HEAD
 	if (!snd_soc_component_is_active(component)) {
+=======
+	if (!snd_soc_component_active(component)) {
+>>>>>>> upstream/android-13
 		udelay(50);
 		snd_soc_component_write(component, TLV320AIC23_ACTIVE, 0x0);
 	}
@@ -409,12 +439,20 @@ static void tlv320aic23_shutdown(struct snd_pcm_substream *substream,
 		aic23->requested_adc = 0;
 }
 
+<<<<<<< HEAD
 static int tlv320aic23_mute(struct snd_soc_dai *dai, int mute)
+=======
+static int tlv320aic23_mute(struct snd_soc_dai *dai, int mute, int direction)
+>>>>>>> upstream/android-13
 {
 	struct snd_soc_component *component = dai->component;
 	u16 reg;
 
+<<<<<<< HEAD
 	reg = snd_soc_component_read32(component, TLV320AIC23_DIGT);
+=======
+	reg = snd_soc_component_read(component, TLV320AIC23_DIGT);
+>>>>>>> upstream/android-13
 	if (mute)
 		reg |= TLV320AIC23_DACM_MUTE;
 
@@ -432,7 +470,11 @@ static int tlv320aic23_set_dai_fmt(struct snd_soc_dai *codec_dai,
 	struct snd_soc_component *component = codec_dai->component;
 	u16 iface_reg;
 
+<<<<<<< HEAD
 	iface_reg = snd_soc_component_read32(component, TLV320AIC23_DIGT_FMT) & (~0x03);
+=======
+	iface_reg = snd_soc_component_read(component, TLV320AIC23_DIGT_FMT) & (~0x03);
+>>>>>>> upstream/android-13
 
 	/* set master/slave audio interface */
 	switch (fmt & SND_SOC_DAIFMT_MASTER_MASK) {
@@ -454,7 +496,11 @@ static int tlv320aic23_set_dai_fmt(struct snd_soc_dai *codec_dai,
 		break;
 	case SND_SOC_DAIFMT_DSP_A:
 		iface_reg |= TLV320AIC23_LRP_ON;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SND_SOC_DAIFMT_DSP_B:
 		iface_reg |= TLV320AIC23_FOR_DSP;
 		break;
@@ -484,7 +530,11 @@ static int tlv320aic23_set_dai_sysclk(struct snd_soc_dai *codec_dai,
 static int tlv320aic23_set_bias_level(struct snd_soc_component *component,
 				      enum snd_soc_bias_level level)
 {
+<<<<<<< HEAD
 	u16 reg = snd_soc_component_read32(component, TLV320AIC23_PWR) & 0x17f;
+=======
+	u16 reg = snd_soc_component_read(component, TLV320AIC23_PWR) & 0x17f;
+>>>>>>> upstream/android-13
 
 	switch (level) {
 	case SND_SOC_BIAS_ON:
@@ -517,9 +567,16 @@ static const struct snd_soc_dai_ops tlv320aic23_dai_ops = {
 	.prepare	= tlv320aic23_pcm_prepare,
 	.hw_params	= tlv320aic23_hw_params,
 	.shutdown	= tlv320aic23_shutdown,
+<<<<<<< HEAD
 	.digital_mute	= tlv320aic23_mute,
 	.set_fmt	= tlv320aic23_set_dai_fmt,
 	.set_sysclk	= tlv320aic23_set_dai_sysclk,
+=======
+	.mute_stream	= tlv320aic23_mute,
+	.set_fmt	= tlv320aic23_set_dai_fmt,
+	.set_sysclk	= tlv320aic23_set_dai_sysclk,
+	.no_capture_mute = 1,
+>>>>>>> upstream/android-13
 };
 
 static struct snd_soc_dai_driver tlv320aic23_dai = {

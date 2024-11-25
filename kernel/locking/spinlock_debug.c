@@ -12,6 +12,7 @@
 #include <linux/debug_locks.h>
 #include <linux/delay.h>
 #include <linux/export.h>
+<<<<<<< HEAD
 #ifdef CONFIG_SEC_DEBUG
 #include <linux/sec_debug.h>
 #endif
@@ -21,13 +22,22 @@
 
 void __raw_spin_lock_init(raw_spinlock_t *lock, const char *name,
 			  struct lock_class_key *key)
+=======
+
+void __raw_spin_lock_init(raw_spinlock_t *lock, const char *name,
+			  struct lock_class_key *key, short inner)
+>>>>>>> upstream/android-13
 {
 #ifdef CONFIG_DEBUG_LOCK_ALLOC
 	/*
 	 * Make sure we are not reinitializing a held lock:
 	 */
 	debug_check_no_locks_freed((void *)lock, sizeof(*lock));
+<<<<<<< HEAD
 	lockdep_init_map(&lock->dep_map, name, key, 0);
+=======
+	lockdep_init_map_wait(&lock->dep_map, name, key, 0, inner);
+>>>>>>> upstream/android-13
 #endif
 	lock->raw_lock = (arch_spinlock_t)__ARCH_SPIN_LOCK_UNLOCKED;
 	lock->magic = SPINLOCK_MAGIC;
@@ -37,6 +47,10 @@ void __raw_spin_lock_init(raw_spinlock_t *lock, const char *name,
 
 EXPORT_SYMBOL(__raw_spin_lock_init);
 
+<<<<<<< HEAD
+=======
+#ifndef CONFIG_PREEMPT_RT
+>>>>>>> upstream/android-13
 void __rwlock_init(rwlock_t *lock, const char *name,
 		   struct lock_class_key *key)
 {
@@ -45,7 +59,11 @@ void __rwlock_init(rwlock_t *lock, const char *name,
 	 * Make sure we are not reinitializing a held lock:
 	 */
 	debug_check_no_locks_freed((void *)lock, sizeof(*lock));
+<<<<<<< HEAD
 	lockdep_init_map(&lock->dep_map, name, key, 0);
+=======
+	lockdep_init_map_wait(&lock->dep_map, name, key, 0, LD_WAIT_CONFIG);
+>>>>>>> upstream/android-13
 #endif
 	lock->raw_lock = (arch_rwlock_t) __ARCH_RW_LOCK_UNLOCKED;
 	lock->magic = RWLOCK_MAGIC;
@@ -54,6 +72,7 @@ void __rwlock_init(rwlock_t *lock, const char *name,
 }
 
 EXPORT_SYMBOL(__rwlock_init);
+<<<<<<< HEAD
 
 static void spin_dump(raw_spinlock_t *lock, const char *msg)
 {
@@ -83,6 +102,29 @@ static void spin_dump(raw_spinlock_t *lock, const char *msg)
 		lock->owner_cpu);
 #endif
 	dump_stack();
+=======
+#endif
+
+static void spin_dump(raw_spinlock_t *lock, const char *msg)
+{
+	struct task_struct *owner = READ_ONCE(lock->owner);
+
+	if (owner == SPINLOCK_OWNER_INIT)
+		owner = NULL;
+	pr_auto(ASL8, "BUG: spinlock %s on CPU#%d, %s/%d\n",
+		msg, raw_smp_processor_id(),
+		current->comm, task_pid_nr(current));
+	pr_auto(ASL8, " lock: %pS, .magic: %08x, .owner: %s/%d, "
+			".owner_cpu: %d\n",
+		lock, READ_ONCE(lock->magic),
+		owner ? owner->comm : "<none>",
+		owner ? task_pid_nr(owner) : -1,
+		READ_ONCE(lock->owner_cpu));
+	dump_stack();
+#ifdef CONFIG_SEC_DEBUG_SPINBUG_PANIC
+	BUG();
+#endif
+>>>>>>> upstream/android-13
 }
 
 static void spin_bug(raw_spinlock_t *lock, const char *msg)
@@ -91,7 +133,10 @@ static void spin_bug(raw_spinlock_t *lock, const char *msg)
 		return;
 
 	spin_dump(lock, msg);
+<<<<<<< HEAD
 	spin_aee(msg, lock);
+=======
+>>>>>>> upstream/android-13
 }
 
 #define SPIN_BUG_ON(cond, lock, msg) if (unlikely(cond)) spin_bug(lock, msg)
@@ -99,6 +144,7 @@ static void spin_bug(raw_spinlock_t *lock, const char *msg)
 static inline void
 debug_spin_lock_before(raw_spinlock_t *lock)
 {
+<<<<<<< HEAD
 	SPIN_BUG_ON(lock->magic != SPINLOCK_MAGIC, lock, "bad magic");
 	SPIN_BUG_ON(lock->owner == current, lock, "recursion");
 	SPIN_BUG_ON(lock->owner_cpu == raw_smp_processor_id(),
@@ -106,6 +152,14 @@ debug_spin_lock_before(raw_spinlock_t *lock)
 }
 
 #if !defined(MTK_DEBUG_SPINLOCK_V1) && !defined(MTK_DEBUG_SPINLOCK_V2)
+=======
+	SPIN_BUG_ON(READ_ONCE(lock->magic) != SPINLOCK_MAGIC, lock, "bad magic");
+	SPIN_BUG_ON(READ_ONCE(lock->owner) == current, lock, "recursion");
+	SPIN_BUG_ON(READ_ONCE(lock->owner_cpu) == raw_smp_processor_id(),
+							lock, "cpu recursion");
+}
+
+>>>>>>> upstream/android-13
 static inline void debug_spin_lock_after(raw_spinlock_t *lock)
 {
 	WRITE_ONCE(lock->owner_cpu, raw_smp_processor_id());
@@ -122,27 +176,46 @@ static inline void debug_spin_unlock(raw_spinlock_t *lock)
 	WRITE_ONCE(lock->owner, SPINLOCK_OWNER_INIT);
 	WRITE_ONCE(lock->owner_cpu, -1);
 }
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 /*
  * We are now relying on the NMI watchdog to detect lockup instead of doing
  * the detection here with an unfair lock which can cause problem of its own.
  */
+<<<<<<< HEAD
 #if !defined(MTK_DEBUG_SPINLOCK_V1) && !defined(MTK_DEBUG_SPINLOCK_V2)
+=======
+>>>>>>> upstream/android-13
 void do_raw_spin_lock(raw_spinlock_t *lock)
 {
 	debug_spin_lock_before(lock);
 	arch_spin_lock(&lock->raw_lock);
+<<<<<<< HEAD
 	debug_spin_lock_after(lock);
 }
 #endif
+=======
+	mmiowb_spin_lock();
+	debug_spin_lock_after(lock);
+}
+>>>>>>> upstream/android-13
 
 int do_raw_spin_trylock(raw_spinlock_t *lock)
 {
 	int ret = arch_spin_trylock(&lock->raw_lock);
 
+<<<<<<< HEAD
 	if (ret)
 		debug_spin_lock_after(lock);
+=======
+	if (ret) {
+		mmiowb_spin_lock();
+		debug_spin_lock_after(lock);
+	}
+>>>>>>> upstream/android-13
 #ifndef CONFIG_SMP
 	/*
 	 * Must not happen on UP:
@@ -154,19 +227,37 @@ int do_raw_spin_trylock(raw_spinlock_t *lock)
 
 void do_raw_spin_unlock(raw_spinlock_t *lock)
 {
+<<<<<<< HEAD
+=======
+	mmiowb_spin_unlock();
+>>>>>>> upstream/android-13
 	debug_spin_unlock(lock);
 	arch_spin_unlock(&lock->raw_lock);
 }
 
+<<<<<<< HEAD
+=======
+#ifndef CONFIG_PREEMPT_RT
+>>>>>>> upstream/android-13
 static void rwlock_bug(rwlock_t *lock, const char *msg)
 {
 	if (!debug_locks_off())
 		return;
 
+<<<<<<< HEAD
 	printk(KERN_EMERG "BUG: rwlock %s on CPU#%d, %s/%d, %p\n",
 		msg, raw_smp_processor_id(), current->comm,
 		task_pid_nr(current), lock);
 	dump_stack();
+=======
+	pr_auto(ASL8, "BUG: rwlock %s on CPU#%d, %s/%d, %p\n",
+		msg, raw_smp_processor_id(), current->comm,
+		task_pid_nr(current), lock);
+	dump_stack();
+#ifdef CONFIG_SEC_DEBUG_SPINBUG_PANIC
+	BUG();
+#endif
+>>>>>>> upstream/android-13
 }
 
 #define RWLOCK_BUG_ON(cond, lock, msg) if (unlikely(cond)) rwlock_bug(lock, msg)
@@ -206,8 +297,13 @@ static inline void debug_write_lock_before(rwlock_t *lock)
 
 static inline void debug_write_lock_after(rwlock_t *lock)
 {
+<<<<<<< HEAD
 	lock->owner_cpu = raw_smp_processor_id();
 	lock->owner = current;
+=======
+	WRITE_ONCE(lock->owner_cpu, raw_smp_processor_id());
+	WRITE_ONCE(lock->owner, current);
+>>>>>>> upstream/android-13
 }
 
 static inline void debug_write_unlock(rwlock_t *lock)
@@ -216,8 +312,13 @@ static inline void debug_write_unlock(rwlock_t *lock)
 	RWLOCK_BUG_ON(lock->owner != current, lock, "wrong owner");
 	RWLOCK_BUG_ON(lock->owner_cpu != raw_smp_processor_id(),
 							lock, "wrong CPU");
+<<<<<<< HEAD
 	lock->owner = SPINLOCK_OWNER_INIT;
 	lock->owner_cpu = -1;
+=======
+	WRITE_ONCE(lock->owner, SPINLOCK_OWNER_INIT);
+	WRITE_ONCE(lock->owner_cpu, -1);
+>>>>>>> upstream/android-13
 }
 
 void do_raw_write_lock(rwlock_t *lock)
@@ -248,6 +349,7 @@ void do_raw_write_unlock(rwlock_t *lock)
 	arch_write_unlock(&lock->raw_lock);
 }
 
+<<<<<<< HEAD
 #if defined(MTK_DEBUG_SPINLOCK_V1) || defined(MTK_DEBUG_SPINLOCK_V2)
 #include <linux/sched/clock.h>
 #include <linux/sched/debug.h>
@@ -593,3 +695,6 @@ static void spin_aee(const char *msg, raw_spinlock_t *lock)
 	}
 #endif
 }
+=======
+#endif /* !CONFIG_PREEMPT_RT */
+>>>>>>> upstream/android-13

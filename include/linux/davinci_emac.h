@@ -46,5 +46,8 @@ enum {
 	EMAC_VERSION_2,	/* DM646x */
 };
 
+<<<<<<< HEAD
 void davinci_get_mac_addr(struct nvmem_device *nvmem, void *context);
+=======
+>>>>>>> upstream/android-13
 #endif

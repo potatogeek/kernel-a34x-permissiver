@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016 Robert Jarzmik <robert.jarzmik@free.fr>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2016 Robert Jarzmik <robert.jarzmik@free.fr>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -276,7 +282,11 @@ static struct attribute *ac97_controller_device_attrs[] = {
 	NULL
 };
 
+<<<<<<< HEAD
 static struct attribute_group ac97_adapter_attr_group = {
+=======
+static const struct attribute_group ac97_adapter_attr_group = {
+>>>>>>> upstream/android-13
 	.name	= "ac97_operations",
 	.attrs	= ac97_controller_device_attrs,
 };
@@ -517,15 +527,25 @@ static int ac97_bus_probe(struct device *dev)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int ac97_bus_remove(struct device *dev)
+=======
+static void ac97_bus_remove(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct ac97_codec_device *adev = to_ac97_device(dev);
 	struct ac97_codec_driver *adrv = to_ac97_driver(dev->driver);
 	int ret;
 
+<<<<<<< HEAD
 	ret = pm_runtime_get_sync(dev);
 	if (ret < 0)
 		return ret;
+=======
+	ret = pm_runtime_resume_and_get(dev);
+	if (ret < 0)
+		return;
+>>>>>>> upstream/android-13
 
 	ret = adrv->remove(adev);
 	pm_runtime_put_noidle(dev);
@@ -533,8 +553,11 @@ static int ac97_bus_remove(struct device *dev)
 		ac97_put_disable_clk(adev);
 
 	pm_runtime_disable(dev);
+<<<<<<< HEAD
 
 	return ret;
+=======
+>>>>>>> upstream/android-13
 }
 
 static struct bus_type ac97_bus_type = {

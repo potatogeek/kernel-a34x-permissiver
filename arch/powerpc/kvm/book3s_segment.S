@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -11,6 +12,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright SUSE Linux Products GmbH 2010
  *
@@ -175,6 +180,7 @@ kvmppc_interrupt_pr:
 	/* 64-bit entry. Register usage at this point:
 	 *
 	 * SPRG_SCRATCH0   = guest R13
+<<<<<<< HEAD
 	 * R12             = (guest CR << 32) | exit handler id
 	 * R13             = PACA
 	 * HSTATE.SCRATCH0 = guest R12
@@ -188,6 +194,17 @@ kvmppc_interrupt_pr:
 	mtctr	r9
 	ld	r9, HSTATE_SCRATCH2(r13)
 #endif
+=======
+	 * R9              = HSTATE_IN_GUEST
+	 * R12             = (guest CR << 32) | exit handler id
+	 * R13             = PACA
+	 * HSTATE.SCRATCH0 = guest R12
+	 * HSTATE.SCRATCH2 = guest R9
+	 */
+#ifdef CONFIG_PPC64
+	/* Match 32-bit entry */
+	ld	r9,HSTATE_SCRATCH2(r13)
+>>>>>>> upstream/android-13
 	rotldi	r12, r12, 32		  /* Flip R12 halves for stw */
 	stw	r12, HSTATE_SCRATCH1(r13) /* CR is now in the low half */
 	srdi	r12, r12, 32		  /* shift trap into low half */

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2009, Microsoft Corporation.
  *
@@ -14,11 +15,20 @@
  * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
  * Place - Suite 330, Boston, MA 02111-1307 USA.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2009, Microsoft Corporation.
+ *
+>>>>>>> upstream/android-13
  * Authors:
  *   Haiyang Zhang <haiyangz@microsoft.com>
  *   Hank Janssen  <hjanssen@microsoft.com>
  *   K. Y. Srinivasan <kys@microsoft.com>
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
@@ -36,14 +46,25 @@
 #include <linux/cpu.h>
 #include <linux/sched/task_stack.h>
 
+<<<<<<< HEAD
 #include <asm/mshyperv.h>
 #include <linux/notifier.h>
+=======
+#include <linux/delay.h>
+#include <linux/notifier.h>
+#include <linux/panic_notifier.h>
+>>>>>>> upstream/android-13
 #include <linux/ptrace.h>
 #include <linux/screen_info.h>
 #include <linux/kdebug.h>
 #include <linux/efi.h>
 #include <linux/random.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
+=======
+#include <linux/syscore_ops.h>
+#include <clocksource/hyperv_timer.h>
+>>>>>>> upstream/android-13
 #include "hyperv_vmbus.h"
 
 struct vmbus_dynid {
@@ -59,10 +80,23 @@ static int hyperv_cpuhp_online;
 
 static void *hv_panic_page;
 
+<<<<<<< HEAD
 /*
  * Boolean to control whether to report panic messages over Hyper-V.
  *
  * It can be set via /proc/sys/kernel/hyperv/record_panic_msg
+=======
+static long __percpu *vmbus_evt;
+
+/* Values parsed from ACPI DSDT */
+int vmbus_irq;
+int vmbus_interrupt;
+
+/*
+ * Boolean to control whether to report panic messages over Hyper-V.
+ *
+ * It can be set via /proc/sys/kernel/hyperv_record_panic_msg
+>>>>>>> upstream/android-13
  */
 static int sysctl_record_panic_msg = 1;
 
@@ -80,8 +114,13 @@ static int hyperv_panic_event(struct notifier_block *nb, unsigned long val,
 
 	/*
 	 * Hyper-V should be notified only once about a panic.  If we will be
+<<<<<<< HEAD
 	 * doing hyperv_report_panic_msg() later with kmsg data, don't do
 	 * the notification here.
+=======
+	 * doing hv_kmsg_dump() with kmsg data later, don't do the notification
+	 * here.
+>>>>>>> upstream/android-13
 	 */
 	if (ms_hyperv.misc_features & HV_FEATURE_GUEST_CRASH_MSR_AVAILABLE
 	    && hyperv_report_reg()) {
@@ -94,6 +133,7 @@ static int hyperv_panic_event(struct notifier_block *nb, unsigned long val,
 static int hyperv_die_event(struct notifier_block *nb, unsigned long val,
 			    void *args)
 {
+<<<<<<< HEAD
 	struct die_args *die = (struct die_args *)args;
 	struct pt_regs *regs = die->regs;
 
@@ -101,6 +141,19 @@ static int hyperv_die_event(struct notifier_block *nb, unsigned long val,
 	 * Hyper-V should be notified only once about a panic.  If we will be
 	 * doing hyperv_report_panic_msg() later with kmsg data, don't do
 	 * the notification here.
+=======
+	struct die_args *die = args;
+	struct pt_regs *regs = die->regs;
+
+	/* Don't notify Hyper-V if the die event is other than oops */
+	if (val != DIE_OOPS)
+		return NOTIFY_DONE;
+
+	/*
+	 * Hyper-V should be notified only once about a panic.  If we will be
+	 * doing hv_kmsg_dump() with kmsg data later, don't do the notification
+	 * here.
+>>>>>>> upstream/android-13
 	 */
 	if (hyperv_report_reg())
 		hyperv_report_panic(regs, val, true);
@@ -117,7 +170,11 @@ static struct notifier_block hyperv_panic_block = {
 static const char *fb_mmio_name = "fb_range";
 static struct resource *fb_mmio;
 static struct resource *hyperv_mmio;
+<<<<<<< HEAD
 static DEFINE_SEMAPHORE(hyperv_mmio_lock);
+=======
+static DEFINE_MUTEX(hyperv_mmio_lock);
+>>>>>>> upstream/android-13
 
 static int vmbus_exists(void)
 {
@@ -127,6 +184,7 @@ static int vmbus_exists(void)
 	return 0;
 }
 
+<<<<<<< HEAD
 #define VMBUS_ALIAS_LEN ((sizeof((struct hv_vmbus_device_id *)0)->guid) * 2)
 static void print_alias_name(struct hv_device *hv_dev, char *alias_name)
 {
@@ -135,6 +193,8 @@ static void print_alias_name(struct hv_device *hv_dev, char *alias_name)
 		sprintf(&alias_name[i], "%02x", hv_dev->dev_type.b[i/2]);
 }
 
+=======
+>>>>>>> upstream/android-13
 static u8 channel_monitor_group(const struct vmbus_channel *channel)
 {
 	return (u8)channel->offermsg.monitorid / 32;
@@ -167,6 +227,10 @@ static u32 channel_conn_id(struct vmbus_channel *channel,
 {
 	u8 monitor_group = channel_monitor_group(channel);
 	u8 monitor_offset = channel_monitor_offset(channel);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	return monitor_page->parameter[monitor_group][monitor_offset].connectionid.u.id;
 }
 
@@ -211,7 +275,11 @@ static ssize_t class_id_show(struct device *dev,
 	if (!hv_dev->channel)
 		return -ENODEV;
 	return sprintf(buf, "{%pUl}\n",
+<<<<<<< HEAD
 		       hv_dev->channel->offermsg.offer.if_type.b);
+=======
+		       &hv_dev->channel->offermsg.offer.if_type);
+>>>>>>> upstream/android-13
 }
 static DEVICE_ATTR_RO(class_id);
 
@@ -223,7 +291,11 @@ static ssize_t device_id_show(struct device *dev,
 	if (!hv_dev->channel)
 		return -ENODEV;
 	return sprintf(buf, "{%pUl}\n",
+<<<<<<< HEAD
 		       hv_dev->channel->offermsg.offer.if_instance.b);
+=======
+		       &hv_dev->channel->offermsg.offer.if_instance);
+>>>>>>> upstream/android-13
 }
 static DEVICE_ATTR_RO(device_id);
 
@@ -231,10 +303,15 @@ static ssize_t modalias_show(struct device *dev,
 			     struct device_attribute *dev_attr, char *buf)
 {
 	struct hv_device *hv_dev = device_to_hv_device(dev);
+<<<<<<< HEAD
 	char alias_name[VMBUS_ALIAS_LEN + 1];
 
 	print_alias_name(hv_dev, alias_name);
 	return sprintf(buf, "vmbus:%s\n", alias_name);
+=======
+
+	return sprintf(buf, "vmbus:%*phN\n", UUID_SIZE, &hv_dev->dev_type);
+>>>>>>> upstream/android-13
 }
 static DEVICE_ATTR_RO(modalias);
 
@@ -247,7 +324,11 @@ static ssize_t numa_node_show(struct device *dev,
 	if (!hv_dev->channel)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	return sprintf(buf, "%d\n", hv_dev->channel->numa_node);
+=======
+	return sprintf(buf, "%d\n", cpu_to_node(hv_dev->channel->target_cpu));
+>>>>>>> upstream/android-13
 }
 static DEVICE_ATTR_RO(numa_node);
 #endif
@@ -262,7 +343,11 @@ static ssize_t server_monitor_pending_show(struct device *dev,
 		return -ENODEV;
 	return sprintf(buf, "%d\n",
 		       channel_pending(hv_dev->channel,
+<<<<<<< HEAD
 				       vmbus_connection.monitor_pages[1]));
+=======
+				       vmbus_connection.monitor_pages[0]));
+>>>>>>> upstream/android-13
 }
 static DEVICE_ATTR_RO(server_monitor_pending);
 
@@ -528,18 +613,29 @@ static ssize_t channel_vp_mapping_show(struct device *dev,
 {
 	struct hv_device *hv_dev = device_to_hv_device(dev);
 	struct vmbus_channel *channel = hv_dev->channel, *cur_sc;
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 	int buf_size = PAGE_SIZE, n_written, tot_written;
 	struct list_head *cur;
 
 	if (!channel)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	tot_written = snprintf(buf, buf_size, "%u:%u\n",
 		channel->offermsg.child_relid, channel->target_cpu);
 
 	spin_lock_irqsave(&channel->lock, flags);
 
+=======
+	mutex_lock(&vmbus_connection.channel_mutex);
+
+	tot_written = snprintf(buf, buf_size, "%u:%u\n",
+		channel->offermsg.child_relid, channel->target_cpu);
+
+>>>>>>> upstream/android-13
 	list_for_each(cur, &channel->sc_list) {
 		if (tot_written >= buf_size - 1)
 			break;
@@ -553,7 +649,11 @@ static ssize_t channel_vp_mapping_show(struct device *dev,
 		tot_written += n_written;
 	}
 
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&channel->lock, flags);
+=======
+	mutex_unlock(&vmbus_connection.channel_mutex);
+>>>>>>> upstream/android-13
 
 	return tot_written;
 }
@@ -564,6 +664,10 @@ static ssize_t vendor_show(struct device *dev,
 			   char *buf)
 {
 	struct hv_device *hv_dev = device_to_hv_device(dev);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	return sprintf(buf, "0x%x\n", hv_dev->vendor_id);
 }
 static DEVICE_ATTR_RO(vendor);
@@ -573,10 +677,65 @@ static ssize_t device_show(struct device *dev,
 			   char *buf)
 {
 	struct hv_device *hv_dev = device_to_hv_device(dev);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	return sprintf(buf, "0x%x\n", hv_dev->device_id);
 }
 static DEVICE_ATTR_RO(device);
 
+<<<<<<< HEAD
+=======
+static ssize_t driver_override_store(struct device *dev,
+				     struct device_attribute *attr,
+				     const char *buf, size_t count)
+{
+	struct hv_device *hv_dev = device_to_hv_device(dev);
+	char *driver_override, *old, *cp;
+
+	/* We need to keep extra room for a newline */
+	if (count >= (PAGE_SIZE - 1))
+		return -EINVAL;
+
+	driver_override = kstrndup(buf, count, GFP_KERNEL);
+	if (!driver_override)
+		return -ENOMEM;
+
+	cp = strchr(driver_override, '\n');
+	if (cp)
+		*cp = '\0';
+
+	device_lock(dev);
+	old = hv_dev->driver_override;
+	if (strlen(driver_override)) {
+		hv_dev->driver_override = driver_override;
+	} else {
+		kfree(driver_override);
+		hv_dev->driver_override = NULL;
+	}
+	device_unlock(dev);
+
+	kfree(old);
+
+	return count;
+}
+
+static ssize_t driver_override_show(struct device *dev,
+				    struct device_attribute *attr, char *buf)
+{
+	struct hv_device *hv_dev = device_to_hv_device(dev);
+	ssize_t len;
+
+	device_lock(dev);
+	len = snprintf(buf, PAGE_SIZE, "%s\n", hv_dev->driver_override);
+	device_unlock(dev);
+
+	return len;
+}
+static DEVICE_ATTR_RW(driver_override);
+
+>>>>>>> upstream/android-13
 /* Set up per device attributes in /sys/bus/vmbus/devices/<bus device> */
 static struct attribute *vmbus_dev_attrs[] = {
 	&dev_attr_id.attr,
@@ -607,9 +766,62 @@ static struct attribute *vmbus_dev_attrs[] = {
 	&dev_attr_channel_vp_mapping.attr,
 	&dev_attr_vendor.attr,
 	&dev_attr_device.attr,
+<<<<<<< HEAD
 	NULL,
 };
 ATTRIBUTE_GROUPS(vmbus_dev);
+=======
+	&dev_attr_driver_override.attr,
+	NULL,
+};
+
+/*
+ * Device-level attribute_group callback function. Returns the permission for
+ * each attribute, and returns 0 if an attribute is not visible.
+ */
+static umode_t vmbus_dev_attr_is_visible(struct kobject *kobj,
+					 struct attribute *attr, int idx)
+{
+	struct device *dev = kobj_to_dev(kobj);
+	const struct hv_device *hv_dev = device_to_hv_device(dev);
+
+	/* Hide the monitor attributes if the monitor mechanism is not used. */
+	if (!hv_dev->channel->offermsg.monitor_allocated &&
+	    (attr == &dev_attr_monitor_id.attr ||
+	     attr == &dev_attr_server_monitor_pending.attr ||
+	     attr == &dev_attr_client_monitor_pending.attr ||
+	     attr == &dev_attr_server_monitor_latency.attr ||
+	     attr == &dev_attr_client_monitor_latency.attr ||
+	     attr == &dev_attr_server_monitor_conn_id.attr ||
+	     attr == &dev_attr_client_monitor_conn_id.attr))
+		return 0;
+
+	return attr->mode;
+}
+
+static const struct attribute_group vmbus_dev_group = {
+	.attrs = vmbus_dev_attrs,
+	.is_visible = vmbus_dev_attr_is_visible
+};
+__ATTRIBUTE_GROUPS(vmbus_dev);
+
+/* Set up the attribute for /sys/bus/vmbus/hibernation */
+static ssize_t hibernation_show(struct bus_type *bus, char *buf)
+{
+	return sprintf(buf, "%d\n", !!hv_is_hibernation_supported());
+}
+
+static BUS_ATTR_RO(hibernation);
+
+static struct attribute *vmbus_bus_attrs[] = {
+	&bus_attr_hibernation.attr,
+	NULL,
+};
+static const struct attribute_group vmbus_bus_group = {
+	.attrs = vmbus_bus_attrs,
+};
+__ATTRIBUTE_GROUPS(vmbus_bus);
+>>>>>>> upstream/android-13
 
 /*
  * vmbus_uevent - add uevent for our device
@@ -625,6 +837,7 @@ ATTRIBUTE_GROUPS(vmbus_dev);
 static int vmbus_uevent(struct device *device, struct kobj_uevent_env *env)
 {
 	struct hv_device *dev = device_to_hv_device(device);
+<<<<<<< HEAD
 	int ret;
 	char alias_name[VMBUS_ALIAS_LEN + 1];
 
@@ -648,20 +861,49 @@ static inline bool is_null_guid(const uuid_le *guid)
  */
 static const struct hv_vmbus_device_id *hv_vmbus_get_id(struct hv_driver *drv,
 					const uuid_le *guid)
+=======
+	const char *format = "MODALIAS=vmbus:%*phN";
+
+	return add_uevent_var(env, format, UUID_SIZE, &dev->dev_type);
+}
+
+static const struct hv_vmbus_device_id *
+hv_vmbus_dev_match(const struct hv_vmbus_device_id *id, const guid_t *guid)
+{
+	if (id == NULL)
+		return NULL; /* empty device table */
+
+	for (; !guid_is_null(&id->guid); id++)
+		if (guid_equal(&id->guid, guid))
+			return id;
+
+	return NULL;
+}
+
+static const struct hv_vmbus_device_id *
+hv_vmbus_dynid_match(struct hv_driver *drv, const guid_t *guid)
+>>>>>>> upstream/android-13
 {
 	const struct hv_vmbus_device_id *id = NULL;
 	struct vmbus_dynid *dynid;
 
+<<<<<<< HEAD
 	/* Look at the dynamic ids first, before the static ones */
 	spin_lock(&drv->dynids.lock);
 	list_for_each_entry(dynid, &drv->dynids.list, node) {
 		if (!uuid_le_cmp(dynid->id.guid, *guid)) {
+=======
+	spin_lock(&drv->dynids.lock);
+	list_for_each_entry(dynid, &drv->dynids.list, node) {
+		if (guid_equal(&dynid->id.guid, guid)) {
+>>>>>>> upstream/android-13
 			id = &dynid->id;
 			break;
 		}
 	}
 	spin_unlock(&drv->dynids.lock);
 
+<<<<<<< HEAD
 	if (id)
 		return id;
 
@@ -678,6 +920,41 @@ static const struct hv_vmbus_device_id *hv_vmbus_get_id(struct hv_driver *drv,
 
 /* vmbus_add_dynid - add a new device ID to this driver and re-probe devices */
 static int vmbus_add_dynid(struct hv_driver *drv, uuid_le *guid)
+=======
+	return id;
+}
+
+static const struct hv_vmbus_device_id vmbus_device_null;
+
+/*
+ * Return a matching hv_vmbus_device_id pointer.
+ * If there is no match, return NULL.
+ */
+static const struct hv_vmbus_device_id *hv_vmbus_get_id(struct hv_driver *drv,
+							struct hv_device *dev)
+{
+	const guid_t *guid = &dev->dev_type;
+	const struct hv_vmbus_device_id *id;
+
+	/* When driver_override is set, only bind to the matching driver */
+	if (dev->driver_override && strcmp(dev->driver_override, drv->name))
+		return NULL;
+
+	/* Look at the dynamic ids first, before the static ones */
+	id = hv_vmbus_dynid_match(drv, guid);
+	if (!id)
+		id = hv_vmbus_dev_match(drv->id_table, guid);
+
+	/* driver_override will always match, send a dummy id */
+	if (!id && dev->driver_override)
+		id = &vmbus_device_null;
+
+	return id;
+}
+
+/* vmbus_add_dynid - add a new device ID to this driver and re-probe devices */
+static int vmbus_add_dynid(struct hv_driver *drv, guid_t *guid)
+>>>>>>> upstream/android-13
 {
 	struct vmbus_dynid *dynid;
 
@@ -715,6 +992,7 @@ static ssize_t new_id_store(struct device_driver *driver, const char *buf,
 			    size_t count)
 {
 	struct hv_driver *drv = drv_to_hv_drv(driver);
+<<<<<<< HEAD
 	uuid_le guid;
 	ssize_t retval;
 
@@ -723,6 +1001,16 @@ static ssize_t new_id_store(struct device_driver *driver, const char *buf,
 		return retval;
 
 	if (hv_vmbus_get_id(drv, &guid))
+=======
+	guid_t guid;
+	ssize_t retval;
+
+	retval = guid_parse(buf, &guid);
+	if (retval)
+		return retval;
+
+	if (hv_vmbus_dynid_match(drv, &guid))
+>>>>>>> upstream/android-13
 		return -EEXIST;
 
 	retval = vmbus_add_dynid(drv, &guid);
@@ -742,10 +1030,17 @@ static ssize_t remove_id_store(struct device_driver *driver, const char *buf,
 {
 	struct hv_driver *drv = drv_to_hv_drv(driver);
 	struct vmbus_dynid *dynid, *n;
+<<<<<<< HEAD
 	uuid_le guid;
 	ssize_t retval;
 
 	retval = uuid_le_to_bin(buf, &guid);
+=======
+	guid_t guid;
+	ssize_t retval;
+
+	retval = guid_parse(buf, &guid);
+>>>>>>> upstream/android-13
 	if (retval)
 		return retval;
 
@@ -754,7 +1049,11 @@ static ssize_t remove_id_store(struct device_driver *driver, const char *buf,
 	list_for_each_entry_safe(dynid, n, &drv->dynids.list, node) {
 		struct hv_vmbus_device_id *id = &dynid->id;
 
+<<<<<<< HEAD
 		if (!uuid_le_cmp(id->guid, guid)) {
+=======
+		if (guid_equal(&id->guid, &guid)) {
+>>>>>>> upstream/android-13
 			list_del(&dynid->node);
 			kfree(dynid);
 			retval = count;
@@ -787,7 +1086,11 @@ static int vmbus_match(struct device *device, struct device_driver *driver)
 	if (is_hvsock_channel(hv_dev->channel))
 		return drv->hvsock;
 
+<<<<<<< HEAD
 	if (hv_vmbus_get_id(drv, &hv_dev->dev_type))
+=======
+	if (hv_vmbus_get_id(drv, hv_dev))
+>>>>>>> upstream/android-13
 		return 1;
 
 	return 0;
@@ -804,7 +1107,11 @@ static int vmbus_probe(struct device *child_device)
 	struct hv_device *dev = device_to_hv_device(child_device);
 	const struct hv_vmbus_device_id *dev_id;
 
+<<<<<<< HEAD
 	dev_id = hv_vmbus_get_id(drv, &dev->dev_type);
+=======
+	dev_id = hv_vmbus_get_id(drv, dev);
+>>>>>>> upstream/android-13
 	if (drv->probe) {
 		ret = drv->probe(dev, dev_id);
 		if (ret != 0)
@@ -822,7 +1129,11 @@ static int vmbus_probe(struct device *child_device)
 /*
  * vmbus_remove - Remove a vmbus device
  */
+<<<<<<< HEAD
 static int vmbus_remove(struct device *child_device)
+=======
+static void vmbus_remove(struct device *child_device)
+>>>>>>> upstream/android-13
 {
 	struct hv_driver *drv;
 	struct hv_device *dev = device_to_hv_device(child_device);
@@ -832,11 +1143,16 @@ static int vmbus_remove(struct device *child_device)
 		if (drv->remove)
 			drv->remove(dev);
 	}
+<<<<<<< HEAD
 
 	return 0;
 }
 
 
+=======
+}
+
+>>>>>>> upstream/android-13
 /*
  * vmbus_shutdown - Shutdown a vmbus device
  */
@@ -856,6 +1172,51 @@ static void vmbus_shutdown(struct device *child_device)
 		drv->shutdown(dev);
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PM_SLEEP
+/*
+ * vmbus_suspend - Suspend a vmbus device
+ */
+static int vmbus_suspend(struct device *child_device)
+{
+	struct hv_driver *drv;
+	struct hv_device *dev = device_to_hv_device(child_device);
+
+	/* The device may not be attached yet */
+	if (!child_device->driver)
+		return 0;
+
+	drv = drv_to_hv_drv(child_device->driver);
+	if (!drv->suspend)
+		return -EOPNOTSUPP;
+
+	return drv->suspend(dev);
+}
+
+/*
+ * vmbus_resume - Resume a vmbus device
+ */
+static int vmbus_resume(struct device *child_device)
+{
+	struct hv_driver *drv;
+	struct hv_device *dev = device_to_hv_device(child_device);
+
+	/* The device may not be attached yet */
+	if (!child_device->driver)
+		return 0;
+
+	drv = drv_to_hv_drv(child_device->driver);
+	if (!drv->resume)
+		return -EOPNOTSUPP;
+
+	return drv->resume(dev);
+}
+#else
+#define vmbus_suspend NULL
+#define vmbus_resume NULL
+#endif /* CONFIG_PM_SLEEP */
+>>>>>>> upstream/android-13
 
 /*
  * vmbus_device_release - Final callback release of the vmbus child device
@@ -865,6 +1226,7 @@ static void vmbus_device_release(struct device *device)
 	struct hv_device *hv_dev = device_to_hv_device(device);
 	struct vmbus_channel *channel = hv_dev->channel;
 
+<<<<<<< HEAD
 	mutex_lock(&vmbus_connection.channel_mutex);
 	hv_process_channel_removal(channel->offermsg.child_relid);
 	mutex_unlock(&vmbus_connection.channel_mutex);
@@ -872,6 +1234,35 @@ static void vmbus_device_release(struct device *device)
 
 }
 
+=======
+	hv_debug_rm_dev_dir(hv_dev);
+
+	mutex_lock(&vmbus_connection.channel_mutex);
+	hv_process_channel_removal(channel);
+	mutex_unlock(&vmbus_connection.channel_mutex);
+	kfree(hv_dev);
+}
+
+/*
+ * Note: we must use the "noirq" ops: see the comment before vmbus_bus_pm.
+ *
+ * suspend_noirq/resume_noirq are set to NULL to support Suspend-to-Idle: we
+ * shouldn't suspend the vmbus devices upon Suspend-to-Idle, otherwise there
+ * is no way to wake up a Generation-2 VM.
+ *
+ * The other 4 ops are for hibernation.
+ */
+
+static const struct dev_pm_ops vmbus_pm = {
+	.suspend_noirq	= NULL,
+	.resume_noirq	= NULL,
+	.freeze_noirq	= vmbus_suspend,
+	.thaw_noirq	= vmbus_resume,
+	.poweroff_noirq	= vmbus_suspend,
+	.restore_noirq	= vmbus_resume,
+};
+
+>>>>>>> upstream/android-13
 /* The one and only one */
 static struct bus_type  hv_bus = {
 	.name =		"vmbus",
@@ -882,11 +1273,23 @@ static struct bus_type  hv_bus = {
 	.uevent =		vmbus_uevent,
 	.dev_groups =		vmbus_dev_groups,
 	.drv_groups =		vmbus_drv_groups,
+<<<<<<< HEAD
+=======
+	.bus_groups =		vmbus_bus_groups,
+	.pm =			&vmbus_pm,
+>>>>>>> upstream/android-13
 };
 
 struct onmessage_work_context {
 	struct work_struct work;
+<<<<<<< HEAD
 	struct hv_message msg;
+=======
+	struct {
+		struct hv_message_header header;
+		u8 payload[];
+	} msg;
+>>>>>>> upstream/android-13
 };
 
 static void vmbus_onmessage_work(struct work_struct *work)
@@ -899,6 +1302,7 @@ static void vmbus_onmessage_work(struct work_struct *work)
 
 	ctx = container_of(work, struct onmessage_work_context,
 			   work);
+<<<<<<< HEAD
 	vmbus_onmessage(&ctx->msg);
 	kfree(ctx);
 }
@@ -914,10 +1318,18 @@ static void hv_process_timer_expiration(struct hv_message *msg,
 	vmbus_signal_eom(msg, HVMSG_TIMER_EXPIRED);
 }
 
+=======
+	vmbus_onmessage((struct vmbus_channel_message_header *)
+			&ctx->msg.payload);
+	kfree(ctx);
+}
+
+>>>>>>> upstream/android-13
 void vmbus_on_msg_dpc(unsigned long data)
 {
 	struct hv_per_cpu_context *hv_cpu = (void *)data;
 	void *page_addr = hv_cpu->synic_message_page;
+<<<<<<< HEAD
 	struct hv_message *msg = (struct hv_message *)page_addr +
 				  VMBUS_MESSAGE_SINT;
 	struct vmbus_channel_message_header *hdr;
@@ -925,10 +1337,38 @@ void vmbus_on_msg_dpc(unsigned long data)
 	struct onmessage_work_context *ctx;
 	u32 message_type = msg->header.message_type;
 
+=======
+	struct hv_message msg_copy, *msg = (struct hv_message *)page_addr +
+				  VMBUS_MESSAGE_SINT;
+	struct vmbus_channel_message_header *hdr;
+	enum vmbus_channel_message_type msgtype;
+	const struct vmbus_channel_message_table_entry *entry;
+	struct onmessage_work_context *ctx;
+	__u8 payload_size;
+	u32 message_type;
+
+	/*
+	 * 'enum vmbus_channel_message_type' is supposed to always be 'u32' as
+	 * it is being used in 'struct vmbus_channel_message_header' definition
+	 * which is supposed to match hypervisor ABI.
+	 */
+	BUILD_BUG_ON(sizeof(enum vmbus_channel_message_type) != sizeof(u32));
+
+	/*
+	 * Since the message is in memory shared with the host, an erroneous or
+	 * malicious Hyper-V could modify the message while vmbus_on_msg_dpc()
+	 * or individual message handlers are executing; to prevent this, copy
+	 * the message into private memory.
+	 */
+	memcpy(&msg_copy, msg, sizeof(struct hv_message));
+
+	message_type = msg_copy.header.message_type;
+>>>>>>> upstream/android-13
 	if (message_type == HVMSG_NONE)
 		/* no msg */
 		return;
 
+<<<<<<< HEAD
 	hdr = (struct vmbus_channel_message_header *)msg->u.payload;
 
 	trace_vmbus_on_msg_dpc(hdr);
@@ -939,29 +1379,71 @@ void vmbus_on_msg_dpc(unsigned long data)
 	}
 
 	entry = &channel_message_table[hdr->msgtype];
+=======
+	hdr = (struct vmbus_channel_message_header *)msg_copy.u.payload;
+	msgtype = hdr->msgtype;
+
+	trace_vmbus_on_msg_dpc(hdr);
+
+	if (msgtype >= CHANNELMSG_COUNT) {
+		WARN_ONCE(1, "unknown msgtype=%d\n", msgtype);
+		goto msg_handled;
+	}
+
+	payload_size = msg_copy.header.payload_size;
+	if (payload_size > HV_MESSAGE_PAYLOAD_BYTE_COUNT) {
+		WARN_ONCE(1, "payload size is too large (%d)\n", payload_size);
+		goto msg_handled;
+	}
+
+	entry = &channel_message_table[msgtype];
+>>>>>>> upstream/android-13
 
 	if (!entry->message_handler)
 		goto msg_handled;
 
+<<<<<<< HEAD
 	if (entry->handler_type	== VMHT_BLOCKING) {
 		ctx = kmalloc(sizeof(*ctx), GFP_ATOMIC);
+=======
+	if (payload_size < entry->min_payload_len) {
+		WARN_ONCE(1, "message too short: msgtype=%d len=%d\n", msgtype, payload_size);
+		goto msg_handled;
+	}
+
+	if (entry->handler_type	== VMHT_BLOCKING) {
+		ctx = kmalloc(sizeof(*ctx) + payload_size, GFP_ATOMIC);
+>>>>>>> upstream/android-13
 		if (ctx == NULL)
 			return;
 
 		INIT_WORK(&ctx->work, vmbus_onmessage_work);
+<<<<<<< HEAD
 		memcpy(&ctx->msg, msg, sizeof(*msg));
+=======
+		memcpy(&ctx->msg, &msg_copy, sizeof(msg->header) + payload_size);
+>>>>>>> upstream/android-13
 
 		/*
 		 * The host can generate a rescind message while we
 		 * may still be handling the original offer. We deal with
+<<<<<<< HEAD
 		 * this condition by ensuring the processing is done on the
 		 * same CPU.
 		 */
 		switch (hdr->msgtype) {
+=======
+		 * this condition by relying on the synchronization provided
+		 * by offer_in_progress and by channel_mutex.  See also the
+		 * inline comments in vmbus_onoffer_rescind().
+		 */
+		switch (msgtype) {
+>>>>>>> upstream/android-13
 		case CHANNELMSG_RESCIND_CHANNELOFFER:
 			/*
 			 * If we are handling the rescind message;
 			 * schedule the work on the global work queue.
+<<<<<<< HEAD
 			 */
 			schedule_work_on(vmbus_connection.connect_cpu,
 					 &ctx->work);
@@ -973,6 +1455,51 @@ void vmbus_on_msg_dpc(unsigned long data)
 				      vmbus_connection.work_queue,
 				      &ctx->work);
 			break;
+=======
+			 *
+			 * The OFFER message and the RESCIND message should
+			 * not be handled by the same serialized work queue,
+			 * because the OFFER handler may call vmbus_open(),
+			 * which tries to open the channel by sending an
+			 * OPEN_CHANNEL message to the host and waits for
+			 * the host's response; however, if the host has
+			 * rescinded the channel before it receives the
+			 * OPEN_CHANNEL message, the host just silently
+			 * ignores the OPEN_CHANNEL message; as a result,
+			 * the guest's OFFER handler hangs for ever, if we
+			 * handle the RESCIND message in the same serialized
+			 * work queue: the RESCIND handler can not start to
+			 * run before the OFFER handler finishes.
+			 */
+			schedule_work(&ctx->work);
+			break;
+
+		case CHANNELMSG_OFFERCHANNEL:
+			/*
+			 * The host sends the offer message of a given channel
+			 * before sending the rescind message of the same
+			 * channel.  These messages are sent to the guest's
+			 * connect CPU; the guest then starts processing them
+			 * in the tasklet handler on this CPU:
+			 *
+			 * VMBUS_CONNECT_CPU
+			 *
+			 * [vmbus_on_msg_dpc()]
+			 * atomic_inc()  // CHANNELMSG_OFFERCHANNEL
+			 * queue_work()
+			 * ...
+			 * [vmbus_on_msg_dpc()]
+			 * schedule_work()  // CHANNELMSG_RESCIND_CHANNELOFFER
+			 *
+			 * We rely on the memory-ordering properties of the
+			 * queue_work() and schedule_work() primitives, which
+			 * guarantee that the atomic increment will be visible
+			 * to the CPUs which will execute the offer & rescind
+			 * works by the time these works will start execution.
+			 */
+			atomic_inc(&vmbus_connection.offer_in_progress);
+			fallthrough;
+>>>>>>> upstream/android-13
 
 		default:
 			queue_work(vmbus_connection.work_queue, &ctx->work);
@@ -984,6 +1511,7 @@ msg_handled:
 	vmbus_signal_eom(msg, message_type);
 }
 
+<<<<<<< HEAD
 
 /*
  * Direct callback for channels using other deferred processing
@@ -996,6 +1524,44 @@ static void vmbus_channel_isr(struct vmbus_channel *channel)
 	if (likely(callback_fn != NULL))
 		(*callback_fn)(channel->channel_callback_context);
 }
+=======
+#ifdef CONFIG_PM_SLEEP
+/*
+ * Fake RESCIND_CHANNEL messages to clean up hv_sock channels by force for
+ * hibernation, because hv_sock connections can not persist across hibernation.
+ */
+static void vmbus_force_channel_rescinded(struct vmbus_channel *channel)
+{
+	struct onmessage_work_context *ctx;
+	struct vmbus_channel_rescind_offer *rescind;
+
+	WARN_ON(!is_hvsock_channel(channel));
+
+	/*
+	 * Allocation size is small and the allocation should really not fail,
+	 * otherwise the state of the hv_sock connections ends up in limbo.
+	 */
+	ctx = kzalloc(sizeof(*ctx) + sizeof(*rescind),
+		      GFP_KERNEL | __GFP_NOFAIL);
+
+	/*
+	 * So far, these are not really used by Linux. Just set them to the
+	 * reasonable values conforming to the definitions of the fields.
+	 */
+	ctx->msg.header.message_type = 1;
+	ctx->msg.header.payload_size = sizeof(*rescind);
+
+	/* These values are actually used by Linux. */
+	rescind = (struct vmbus_channel_rescind_offer *)ctx->msg.payload;
+	rescind->header.msgtype = CHANNELMSG_RESCIND_CHANNELOFFER;
+	rescind->child_relid = channel->offermsg.child_relid;
+
+	INIT_WORK(&ctx->work, vmbus_onmessage_work);
+
+	queue_work(vmbus_connection.work_queue, &ctx->work);
+}
+#endif /* CONFIG_PM_SLEEP */
+>>>>>>> upstream/android-13
 
 /*
  * Schedule all channels with events pending
@@ -1027,6 +1593,10 @@ static void vmbus_chan_sched(struct hv_per_cpu_context *hv_cpu)
 		return;
 
 	for_each_set_bit(relid, recv_int_page, maxbits) {
+<<<<<<< HEAD
+=======
+		void (*callback_fn)(void *context);
+>>>>>>> upstream/android-13
 		struct vmbus_channel *channel;
 
 		if (!sync_test_and_clear_bit(relid, recv_int_page))
@@ -1036,6 +1606,7 @@ static void vmbus_chan_sched(struct hv_per_cpu_context *hv_cpu)
 		if (relid == 0)
 			continue;
 
+<<<<<<< HEAD
 		rcu_read_lock();
 
 		/* Find channel based on relid */
@@ -1063,6 +1634,56 @@ static void vmbus_chan_sched(struct hv_per_cpu_context *hv_cpu)
 			}
 		}
 
+=======
+		/*
+		 * Pairs with the kfree_rcu() in vmbus_chan_release().
+		 * Guarantees that the channel data structure doesn't
+		 * get freed while the channel pointer below is being
+		 * dereferenced.
+		 */
+		rcu_read_lock();
+
+		/* Find channel based on relid */
+		channel = relid2channel(relid);
+		if (channel == NULL)
+			goto sched_unlock_rcu;
+
+		if (channel->rescind)
+			goto sched_unlock_rcu;
+
+		/*
+		 * Make sure that the ring buffer data structure doesn't get
+		 * freed while we dereference the ring buffer pointer.  Test
+		 * for the channel's onchannel_callback being NULL within a
+		 * sched_lock critical section.  See also the inline comments
+		 * in vmbus_reset_channel_cb().
+		 */
+		spin_lock(&channel->sched_lock);
+
+		callback_fn = channel->onchannel_callback;
+		if (unlikely(callback_fn == NULL))
+			goto sched_unlock;
+
+		trace_vmbus_chan_sched(channel);
+
+		++channel->interrupts;
+
+		switch (channel->callback_mode) {
+		case HV_CALL_ISR:
+			(*callback_fn)(channel->channel_callback_context);
+			break;
+
+		case HV_CALL_BATCHED:
+			hv_begin_read(&channel->inbound);
+			fallthrough;
+		case HV_CALL_DIRECT:
+			tasklet_schedule(&channel->callback_event);
+		}
+
+sched_unlock:
+		spin_unlock(&channel->sched_lock);
+sched_unlock_rcu:
+>>>>>>> upstream/android-13
 		rcu_read_unlock();
 	}
 }
@@ -1111,6 +1732,7 @@ static void vmbus_isr(void)
 
 	/* Check if there are actual msgs to be processed */
 	if (msg->header.message_type != HVMSG_NONE) {
+<<<<<<< HEAD
 		if (msg->header.message_type == HVMSG_TIMER_EXPIRED)
 			hv_process_timer_expiration(msg, hv_cpu);
 		else
@@ -1118,6 +1740,22 @@ static void vmbus_isr(void)
 	}
 
 	add_interrupt_randomness(HYPERVISOR_CALLBACK_VECTOR, 0);
+=======
+		if (msg->header.message_type == HVMSG_TIMER_EXPIRED) {
+			hv_stimer0_isr();
+			vmbus_signal_eom(msg, HVMSG_TIMER_EXPIRED);
+		} else
+			tasklet_schedule(&hv_cpu->msg_dpc);
+	}
+
+	add_interrupt_randomness(vmbus_interrupt, 0);
+}
+
+static irqreturn_t vmbus_percpu_isr(int irq, void *dev_id)
+{
+	vmbus_isr();
+	return IRQ_HANDLED;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1127,32 +1765,87 @@ static void vmbus_isr(void)
 static void hv_kmsg_dump(struct kmsg_dumper *dumper,
 			 enum kmsg_dump_reason reason)
 {
+<<<<<<< HEAD
 	size_t bytes_written;
 	phys_addr_t panic_pa;
+=======
+	struct kmsg_dump_iter iter;
+	size_t bytes_written;
+>>>>>>> upstream/android-13
 
 	/* We are only interested in panics. */
 	if ((reason != KMSG_DUMP_PANIC) || (!sysctl_record_panic_msg))
 		return;
 
+<<<<<<< HEAD
 	panic_pa = virt_to_phys(hv_panic_page);
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Write dump contents to the page. No need to synchronize; panic should
 	 * be single-threaded.
 	 */
+<<<<<<< HEAD
 	kmsg_dump_get_buffer(dumper, true, hv_panic_page, PAGE_SIZE,
 			     &bytes_written);
 	if (bytes_written)
 		hyperv_report_panic_msg(panic_pa, bytes_written);
+=======
+	kmsg_dump_rewind(&iter);
+	kmsg_dump_get_buffer(&iter, false, hv_panic_page, HV_HYP_PAGE_SIZE,
+			     &bytes_written);
+	if (!bytes_written)
+		return;
+	/*
+	 * P3 to contain the physical address of the panic page & P4 to
+	 * contain the size of the panic data in that page. Rest of the
+	 * registers are no-op when the NOTIFY_MSG flag is set.
+	 */
+	hv_set_register(HV_REGISTER_CRASH_P0, 0);
+	hv_set_register(HV_REGISTER_CRASH_P1, 0);
+	hv_set_register(HV_REGISTER_CRASH_P2, 0);
+	hv_set_register(HV_REGISTER_CRASH_P3, virt_to_phys(hv_panic_page));
+	hv_set_register(HV_REGISTER_CRASH_P4, bytes_written);
+
+	/*
+	 * Let Hyper-V know there is crash data available along with
+	 * the panic message.
+	 */
+	hv_set_register(HV_REGISTER_CRASH_CTL,
+	       (HV_CRASH_CTL_CRASH_NOTIFY | HV_CRASH_CTL_CRASH_NOTIFY_MSG));
+>>>>>>> upstream/android-13
 }
 
 static struct kmsg_dumper hv_kmsg_dumper = {
 	.dump = hv_kmsg_dump,
 };
 
+<<<<<<< HEAD
 static struct ctl_table_header *hv_ctl_table_hdr;
 static int zero;
 static int one = 1;
+=======
+static void hv_kmsg_dump_register(void)
+{
+	int ret;
+
+	hv_panic_page = hv_alloc_hyperv_zeroed_page();
+	if (!hv_panic_page) {
+		pr_err("Hyper-V: panic message page memory allocation failed\n");
+		return;
+	}
+
+	ret = kmsg_dump_register(&hv_kmsg_dumper);
+	if (ret) {
+		pr_err("Hyper-V: kmsg dump register error 0x%x\n", ret);
+		hv_free_hyperv_page((unsigned long)hv_panic_page);
+		hv_panic_page = NULL;
+	}
+}
+
+static struct ctl_table_header *hv_ctl_table_hdr;
+>>>>>>> upstream/android-13
 
 /*
  * sysctl option to allow the user to control whether kmsg data should be
@@ -1165,8 +1858,13 @@ static struct ctl_table hv_ctl_table[] = {
 		.maxlen         = sizeof(int),
 		.mode           = 0644,
 		.proc_handler   = proc_dointvec_minmax,
+<<<<<<< HEAD
 		.extra1		= &zero,
 		.extra2		= &one
+=======
+		.extra1		= SYSCTL_ZERO,
+		.extra2		= SYSCTL_ONE
+>>>>>>> upstream/android-13
 	},
 	{}
 };
@@ -1192,7 +1890,10 @@ static int vmbus_bus_init(void)
 {
 	int ret;
 
+<<<<<<< HEAD
 	/* Hypervisor initialization...setup hypercall page..etc */
+=======
+>>>>>>> upstream/android-13
 	ret = hv_init();
 	if (ret != 0) {
 		pr_err("Unable to initialize the hypervisor - 0x%x\n", ret);
@@ -1203,33 +1904,83 @@ static int vmbus_bus_init(void)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	hv_setup_vmbus_irq(vmbus_isr);
+=======
+	/*
+	 * VMbus interrupts are best modeled as per-cpu interrupts. If
+	 * on an architecture with support for per-cpu IRQs (e.g. ARM64),
+	 * allocate a per-cpu IRQ using standard Linux kernel functionality.
+	 * If not on such an architecture (e.g., x86/x64), then rely on
+	 * code in the arch-specific portion of the code tree to connect
+	 * the VMbus interrupt handler.
+	 */
+
+	if (vmbus_irq == -1) {
+		hv_setup_vmbus_handler(vmbus_isr);
+	} else {
+		vmbus_evt = alloc_percpu(long);
+		ret = request_percpu_irq(vmbus_irq, vmbus_percpu_isr,
+				"Hyper-V VMbus", vmbus_evt);
+		if (ret) {
+			pr_err("Can't request Hyper-V VMbus IRQ %d, Err %d",
+					vmbus_irq, ret);
+			free_percpu(vmbus_evt);
+			goto err_setup;
+		}
+	}
+>>>>>>> upstream/android-13
 
 	ret = hv_synic_alloc();
 	if (ret)
 		goto err_alloc;
+<<<<<<< HEAD
 	/*
 	 * Initialize the per-cpu interrupt state and
 	 * connect to the host.
+=======
+
+	/*
+	 * Initialize the per-cpu interrupt state and stimer state.
+	 * Then connect to the host.
+>>>>>>> upstream/android-13
 	 */
 	ret = cpuhp_setup_state(CPUHP_AP_ONLINE_DYN, "hyperv/vmbus:online",
 				hv_synic_init, hv_synic_cleanup);
 	if (ret < 0)
+<<<<<<< HEAD
 		goto err_alloc;
+=======
+		goto err_cpuhp;
+>>>>>>> upstream/android-13
 	hyperv_cpuhp_online = ret;
 
 	ret = vmbus_connect();
 	if (ret)
 		goto err_connect;
 
+<<<<<<< HEAD
+=======
+	if (hv_is_isolation_supported())
+		sysctl_record_panic_msg = 0;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Only register if the crash MSRs are available
 	 */
 	if (ms_hyperv.misc_features & HV_FEATURE_GUEST_CRASH_MSR_AVAILABLE) {
 		u64 hyperv_crash_ctl;
 		/*
+<<<<<<< HEAD
 		 * Sysctl registration is not fatal, since by default
 		 * reporting is enabled.
+=======
+		 * Panic message recording (sysctl_record_panic_msg)
+		 * is enabled by default in non-isolated guests and
+		 * disabled by default in isolated guests; the panic
+		 * message recording won't be available in isolated
+		 * guests should the following registration fail.
+>>>>>>> upstream/android-13
 		 */
 		hv_ctl_table_hdr = register_sysctl_table(hv_root_table);
 		if (!hv_ctl_table_hdr)
@@ -1239,6 +1990,7 @@ static int vmbus_bus_init(void)
 		 * Register for panic kmsg callback only if the right
 		 * capability is supported by the hypervisor.
 		 */
+<<<<<<< HEAD
 		hv_get_crash_ctl(hyperv_crash_ctl);
 		if (hyperv_crash_ctl & HV_CRASH_CTL_CRASH_NOTIFY_MSG) {
 			hv_panic_page = (void *)get_zeroed_page(GFP_KERNEL);
@@ -1255,6 +2007,11 @@ static int vmbus_bus_init(void)
 				pr_err("Hyper-V: panic message page memory "
 					"allocation failed");
 		}
+=======
+		hyperv_crash_ctl = hv_get_register(HV_REGISTER_CRASH_CTL);
+		if (hyperv_crash_ctl & HV_CRASH_CTL_CRASH_NOTIFY_MSG)
+			hv_kmsg_dump_register();
+>>>>>>> upstream/android-13
 
 		register_die_notifier(&hyperv_die_block);
 	}
@@ -1273,10 +2030,23 @@ static int vmbus_bus_init(void)
 
 err_connect:
 	cpuhp_remove_state(hyperv_cpuhp_online);
+<<<<<<< HEAD
 err_alloc:
 	hv_synic_free();
 	hv_remove_vmbus_irq();
 
+=======
+err_cpuhp:
+	hv_synic_free();
+err_alloc:
+	if (vmbus_irq == -1) {
+		hv_remove_vmbus_handler();
+	} else {
+		free_percpu_irq(vmbus_irq, vmbus_evt);
+		free_percpu(vmbus_evt);
+	}
+err_setup:
+>>>>>>> upstream/android-13
 	bus_unregister(&hv_bus);
 	unregister_sysctl_table(hv_ctl_table_hdr);
 	hv_ctl_table_hdr = NULL;
@@ -1351,7 +2121,11 @@ static void vmbus_chan_release(struct kobject *kobj)
 
 struct vmbus_chan_attribute {
 	struct attribute attr;
+<<<<<<< HEAD
 	ssize_t (*show)(const struct vmbus_channel *chan, char *buf);
+=======
+	ssize_t (*show)(struct vmbus_channel *chan, char *buf);
+>>>>>>> upstream/android-13
 	ssize_t (*store)(struct vmbus_channel *chan,
 			 const char *buf, size_t count);
 };
@@ -1370,12 +2144,17 @@ static ssize_t vmbus_chan_attr_show(struct kobject *kobj,
 {
 	const struct vmbus_chan_attribute *attribute
 		= container_of(attr, struct vmbus_chan_attribute, attr);
+<<<<<<< HEAD
 	const struct vmbus_channel *chan
+=======
+	struct vmbus_channel *chan
+>>>>>>> upstream/android-13
 		= container_of(kobj, struct vmbus_channel, kobj);
 
 	if (!attribute->show)
 		return -EIO;
 
+<<<<<<< HEAD
 	if (chan->state != CHANNEL_OPENED_STATE)
 		return -EINVAL;
 
@@ -1425,21 +2204,227 @@ static ssize_t show_target_cpu(const struct vmbus_channel *channel, char *buf)
 static VMBUS_CHAN_ATTR(cpu, S_IRUGO, show_target_cpu, NULL);
 
 static ssize_t channel_pending_show(const struct vmbus_channel *channel,
+=======
+	return attribute->show(chan, buf);
+}
+
+static ssize_t vmbus_chan_attr_store(struct kobject *kobj,
+				     struct attribute *attr, const char *buf,
+				     size_t count)
+{
+	const struct vmbus_chan_attribute *attribute
+		= container_of(attr, struct vmbus_chan_attribute, attr);
+	struct vmbus_channel *chan
+		= container_of(kobj, struct vmbus_channel, kobj);
+
+	if (!attribute->store)
+		return -EIO;
+
+	return attribute->store(chan, buf, count);
+}
+
+static const struct sysfs_ops vmbus_chan_sysfs_ops = {
+	.show = vmbus_chan_attr_show,
+	.store = vmbus_chan_attr_store,
+};
+
+static ssize_t out_mask_show(struct vmbus_channel *channel, char *buf)
+{
+	struct hv_ring_buffer_info *rbi = &channel->outbound;
+	ssize_t ret;
+
+	mutex_lock(&rbi->ring_buffer_mutex);
+	if (!rbi->ring_buffer) {
+		mutex_unlock(&rbi->ring_buffer_mutex);
+		return -EINVAL;
+	}
+
+	ret = sprintf(buf, "%u\n", rbi->ring_buffer->interrupt_mask);
+	mutex_unlock(&rbi->ring_buffer_mutex);
+	return ret;
+}
+static VMBUS_CHAN_ATTR_RO(out_mask);
+
+static ssize_t in_mask_show(struct vmbus_channel *channel, char *buf)
+{
+	struct hv_ring_buffer_info *rbi = &channel->inbound;
+	ssize_t ret;
+
+	mutex_lock(&rbi->ring_buffer_mutex);
+	if (!rbi->ring_buffer) {
+		mutex_unlock(&rbi->ring_buffer_mutex);
+		return -EINVAL;
+	}
+
+	ret = sprintf(buf, "%u\n", rbi->ring_buffer->interrupt_mask);
+	mutex_unlock(&rbi->ring_buffer_mutex);
+	return ret;
+}
+static VMBUS_CHAN_ATTR_RO(in_mask);
+
+static ssize_t read_avail_show(struct vmbus_channel *channel, char *buf)
+{
+	struct hv_ring_buffer_info *rbi = &channel->inbound;
+	ssize_t ret;
+
+	mutex_lock(&rbi->ring_buffer_mutex);
+	if (!rbi->ring_buffer) {
+		mutex_unlock(&rbi->ring_buffer_mutex);
+		return -EINVAL;
+	}
+
+	ret = sprintf(buf, "%u\n", hv_get_bytes_to_read(rbi));
+	mutex_unlock(&rbi->ring_buffer_mutex);
+	return ret;
+}
+static VMBUS_CHAN_ATTR_RO(read_avail);
+
+static ssize_t write_avail_show(struct vmbus_channel *channel, char *buf)
+{
+	struct hv_ring_buffer_info *rbi = &channel->outbound;
+	ssize_t ret;
+
+	mutex_lock(&rbi->ring_buffer_mutex);
+	if (!rbi->ring_buffer) {
+		mutex_unlock(&rbi->ring_buffer_mutex);
+		return -EINVAL;
+	}
+
+	ret = sprintf(buf, "%u\n", hv_get_bytes_to_write(rbi));
+	mutex_unlock(&rbi->ring_buffer_mutex);
+	return ret;
+}
+static VMBUS_CHAN_ATTR_RO(write_avail);
+
+static ssize_t target_cpu_show(struct vmbus_channel *channel, char *buf)
+{
+	return sprintf(buf, "%u\n", channel->target_cpu);
+}
+static ssize_t target_cpu_store(struct vmbus_channel *channel,
+				const char *buf, size_t count)
+{
+	u32 target_cpu, origin_cpu;
+	ssize_t ret = count;
+
+	if (vmbus_proto_version < VERSION_WIN10_V4_1)
+		return -EIO;
+
+	if (sscanf(buf, "%uu", &target_cpu) != 1)
+		return -EIO;
+
+	/* Validate target_cpu for the cpumask_test_cpu() operation below. */
+	if (target_cpu >= nr_cpumask_bits)
+		return -EINVAL;
+
+	/* No CPUs should come up or down during this. */
+	cpus_read_lock();
+
+	if (!cpu_online(target_cpu)) {
+		cpus_read_unlock();
+		return -EINVAL;
+	}
+
+	/*
+	 * Synchronizes target_cpu_store() and channel closure:
+	 *
+	 * { Initially: state = CHANNEL_OPENED }
+	 *
+	 * CPU1				CPU2
+	 *
+	 * [target_cpu_store()]		[vmbus_disconnect_ring()]
+	 *
+	 * LOCK channel_mutex		LOCK channel_mutex
+	 * LOAD r1 = state		LOAD r2 = state
+	 * IF (r1 == CHANNEL_OPENED)	IF (r2 == CHANNEL_OPENED)
+	 *   SEND MODIFYCHANNEL		  STORE state = CHANNEL_OPEN
+	 *   [...]			  SEND CLOSECHANNEL
+	 * UNLOCK channel_mutex		UNLOCK channel_mutex
+	 *
+	 * Forbids: r1 == r2 == CHANNEL_OPENED (i.e., CPU1's LOCK precedes
+	 * 		CPU2's LOCK) && CPU2's SEND precedes CPU1's SEND
+	 *
+	 * Note.  The host processes the channel messages "sequentially", in
+	 * the order in which they are received on a per-partition basis.
+	 */
+	mutex_lock(&vmbus_connection.channel_mutex);
+
+	/*
+	 * Hyper-V will ignore MODIFYCHANNEL messages for "non-open" channels;
+	 * avoid sending the message and fail here for such channels.
+	 */
+	if (channel->state != CHANNEL_OPENED_STATE) {
+		ret = -EIO;
+		goto cpu_store_unlock;
+	}
+
+	origin_cpu = channel->target_cpu;
+	if (target_cpu == origin_cpu)
+		goto cpu_store_unlock;
+
+	if (vmbus_send_modifychannel(channel,
+				     hv_cpu_number_to_vp_number(target_cpu))) {
+		ret = -EIO;
+		goto cpu_store_unlock;
+	}
+
+	/*
+	 * For version before VERSION_WIN10_V5_3, the following warning holds:
+	 *
+	 * Warning.  At this point, there is *no* guarantee that the host will
+	 * have successfully processed the vmbus_send_modifychannel() request.
+	 * See the header comment of vmbus_send_modifychannel() for more info.
+	 *
+	 * Lags in the processing of the above vmbus_send_modifychannel() can
+	 * result in missed interrupts if the "old" target CPU is taken offline
+	 * before Hyper-V starts sending interrupts to the "new" target CPU.
+	 * But apart from this offlining scenario, the code tolerates such
+	 * lags.  It will function correctly even if a channel interrupt comes
+	 * in on a CPU that is different from the channel target_cpu value.
+	 */
+
+	channel->target_cpu = target_cpu;
+
+	/* See init_vp_index(). */
+	if (hv_is_perf_channel(channel))
+		hv_update_alloced_cpus(origin_cpu, target_cpu);
+
+	/* Currently set only for storvsc channels. */
+	if (channel->change_target_cpu_callback) {
+		(*channel->change_target_cpu_callback)(channel,
+				origin_cpu, target_cpu);
+	}
+
+cpu_store_unlock:
+	mutex_unlock(&vmbus_connection.channel_mutex);
+	cpus_read_unlock();
+	return ret;
+}
+static VMBUS_CHAN_ATTR(cpu, 0644, target_cpu_show, target_cpu_store);
+
+static ssize_t channel_pending_show(struct vmbus_channel *channel,
+>>>>>>> upstream/android-13
 				    char *buf)
 {
 	return sprintf(buf, "%d\n",
 		       channel_pending(channel,
 				       vmbus_connection.monitor_pages[1]));
 }
+<<<<<<< HEAD
 static VMBUS_CHAN_ATTR(pending, S_IRUGO, channel_pending_show, NULL);
 
 static ssize_t channel_latency_show(const struct vmbus_channel *channel,
+=======
+static VMBUS_CHAN_ATTR(pending, 0444, channel_pending_show, NULL);
+
+static ssize_t channel_latency_show(struct vmbus_channel *channel,
+>>>>>>> upstream/android-13
 				    char *buf)
 {
 	return sprintf(buf, "%d\n",
 		       channel_latency(channel,
 				       vmbus_connection.monitor_pages[1]));
 }
+<<<<<<< HEAD
 static VMBUS_CHAN_ATTR(latency, S_IRUGO, channel_latency_show, NULL);
 
 static ssize_t channel_interrupts_show(const struct vmbus_channel *channel, char *buf)
@@ -1455,13 +2440,68 @@ static ssize_t channel_events_show(const struct vmbus_channel *channel, char *bu
 static VMBUS_CHAN_ATTR(events, S_IRUGO, channel_events_show, NULL);
 
 static ssize_t subchannel_monitor_id_show(const struct vmbus_channel *channel,
+=======
+static VMBUS_CHAN_ATTR(latency, 0444, channel_latency_show, NULL);
+
+static ssize_t channel_interrupts_show(struct vmbus_channel *channel, char *buf)
+{
+	return sprintf(buf, "%llu\n", channel->interrupts);
+}
+static VMBUS_CHAN_ATTR(interrupts, 0444, channel_interrupts_show, NULL);
+
+static ssize_t channel_events_show(struct vmbus_channel *channel, char *buf)
+{
+	return sprintf(buf, "%llu\n", channel->sig_events);
+}
+static VMBUS_CHAN_ATTR(events, 0444, channel_events_show, NULL);
+
+static ssize_t channel_intr_in_full_show(struct vmbus_channel *channel,
+					 char *buf)
+{
+	return sprintf(buf, "%llu\n",
+		       (unsigned long long)channel->intr_in_full);
+}
+static VMBUS_CHAN_ATTR(intr_in_full, 0444, channel_intr_in_full_show, NULL);
+
+static ssize_t channel_intr_out_empty_show(struct vmbus_channel *channel,
+					   char *buf)
+{
+	return sprintf(buf, "%llu\n",
+		       (unsigned long long)channel->intr_out_empty);
+}
+static VMBUS_CHAN_ATTR(intr_out_empty, 0444, channel_intr_out_empty_show, NULL);
+
+static ssize_t channel_out_full_first_show(struct vmbus_channel *channel,
+					   char *buf)
+{
+	return sprintf(buf, "%llu\n",
+		       (unsigned long long)channel->out_full_first);
+}
+static VMBUS_CHAN_ATTR(out_full_first, 0444, channel_out_full_first_show, NULL);
+
+static ssize_t channel_out_full_total_show(struct vmbus_channel *channel,
+					   char *buf)
+{
+	return sprintf(buf, "%llu\n",
+		       (unsigned long long)channel->out_full_total);
+}
+static VMBUS_CHAN_ATTR(out_full_total, 0444, channel_out_full_total_show, NULL);
+
+static ssize_t subchannel_monitor_id_show(struct vmbus_channel *channel,
+>>>>>>> upstream/android-13
 					  char *buf)
 {
 	return sprintf(buf, "%u\n", channel->offermsg.monitorid);
 }
+<<<<<<< HEAD
 static VMBUS_CHAN_ATTR(monitor_id, S_IRUGO, subchannel_monitor_id_show, NULL);
 
 static ssize_t subchannel_id_show(const struct vmbus_channel *channel,
+=======
+static VMBUS_CHAN_ATTR(monitor_id, 0444, subchannel_monitor_id_show, NULL);
+
+static ssize_t subchannel_id_show(struct vmbus_channel *channel,
+>>>>>>> upstream/android-13
 				  char *buf)
 {
 	return sprintf(buf, "%u\n",
@@ -1479,15 +2519,53 @@ static struct attribute *vmbus_chan_attrs[] = {
 	&chan_attr_latency.attr,
 	&chan_attr_interrupts.attr,
 	&chan_attr_events.attr,
+<<<<<<< HEAD
+=======
+	&chan_attr_intr_in_full.attr,
+	&chan_attr_intr_out_empty.attr,
+	&chan_attr_out_full_first.attr,
+	&chan_attr_out_full_total.attr,
+>>>>>>> upstream/android-13
 	&chan_attr_monitor_id.attr,
 	&chan_attr_subchannel_id.attr,
 	NULL
 };
 
+<<<<<<< HEAD
 static struct kobj_type vmbus_chan_ktype = {
 	.sysfs_ops = &vmbus_chan_sysfs_ops,
 	.release = vmbus_chan_release,
 	.default_attrs = vmbus_chan_attrs,
+=======
+/*
+ * Channel-level attribute_group callback function. Returns the permission for
+ * each attribute, and returns 0 if an attribute is not visible.
+ */
+static umode_t vmbus_chan_attr_is_visible(struct kobject *kobj,
+					  struct attribute *attr, int idx)
+{
+	const struct vmbus_channel *channel =
+		container_of(kobj, struct vmbus_channel, kobj);
+
+	/* Hide the monitor attributes if the monitor mechanism is not used. */
+	if (!channel->offermsg.monitor_allocated &&
+	    (attr == &chan_attr_pending.attr ||
+	     attr == &chan_attr_latency.attr ||
+	     attr == &chan_attr_monitor_id.attr))
+		return 0;
+
+	return attr->mode;
+}
+
+static struct attribute_group vmbus_chan_group = {
+	.attrs = vmbus_chan_attrs,
+	.is_visible = vmbus_chan_attr_is_visible
+};
+
+static struct kobj_type vmbus_chan_ktype = {
+	.sysfs_ops = &vmbus_chan_sysfs_ops,
+	.release = vmbus_chan_release,
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -1495,6 +2573,10 @@ static struct kobj_type vmbus_chan_ktype = {
  */
 int vmbus_add_channel_kobj(struct hv_device *dev, struct vmbus_channel *channel)
 {
+<<<<<<< HEAD
+=======
+	const struct device *device = &dev->device;
+>>>>>>> upstream/android-13
 	struct kobject *kobj = &channel->kobj;
 	u32 relid = channel->offermsg.child_relid;
 	int ret;
@@ -1502,8 +2584,27 @@ int vmbus_add_channel_kobj(struct hv_device *dev, struct vmbus_channel *channel)
 	kobj->kset = dev->channels_kset;
 	ret = kobject_init_and_add(kobj, &vmbus_chan_ktype, NULL,
 				   "%u", relid);
+<<<<<<< HEAD
 	if (ret)
 		return ret;
+=======
+	if (ret) {
+		kobject_put(kobj);
+		return ret;
+	}
+
+	ret = sysfs_create_group(kobj, &vmbus_chan_group);
+
+	if (ret) {
+		/*
+		 * The calling functions' error handling paths will cleanup the
+		 * empty channel directory.
+		 */
+		kobject_put(kobj);
+		dev_err(device, "Unable to set up channel sysfs files\n");
+		return ret;
+	}
+>>>>>>> upstream/android-13
 
 	kobject_uevent(kobj, KOBJ_ADD);
 
@@ -1511,11 +2612,27 @@ int vmbus_add_channel_kobj(struct hv_device *dev, struct vmbus_channel *channel)
 }
 
 /*
+<<<<<<< HEAD
  * vmbus_device_create - Creates and registers a new child device
  * on the vmbus.
  */
 struct hv_device *vmbus_device_create(const uuid_le *type,
 				      const uuid_le *instance,
+=======
+ * vmbus_remove_channel_attr_group - remove the channel's attribute group
+ */
+void vmbus_remove_channel_attr_group(struct vmbus_channel *channel)
+{
+	sysfs_remove_group(&channel->kobj, &vmbus_chan_group);
+}
+
+/*
+ * vmbus_device_create - Creates and registers a new child device
+ * on the vmbus.
+ */
+struct hv_device *vmbus_device_create(const guid_t *type,
+				      const guid_t *instance,
+>>>>>>> upstream/android-13
 				      struct vmbus_channel *channel)
 {
 	struct hv_device *child_device_obj;
@@ -1527,12 +2644,19 @@ struct hv_device *vmbus_device_create(const uuid_le *type,
 	}
 
 	child_device_obj->channel = channel;
+<<<<<<< HEAD
 	memcpy(&child_device_obj->dev_type, type, sizeof(uuid_le));
 	memcpy(&child_device_obj->dev_instance, instance,
 	       sizeof(uuid_le));
 	child_device_obj->vendor_id = 0x1414; /* MSFT vendor ID */
 
 
+=======
+	guid_copy(&child_device_obj->dev_type, type);
+	guid_copy(&child_device_obj->dev_instance, instance);
+	child_device_obj->vendor_id = 0x1414; /* MSFT vendor ID */
+
+>>>>>>> upstream/android-13
 	return child_device_obj;
 }
 
@@ -1545,7 +2669,11 @@ int vmbus_device_register(struct hv_device *child_device_obj)
 	int ret;
 
 	dev_set_name(&child_device_obj->device, "%pUl",
+<<<<<<< HEAD
 		     child_device_obj->channel->offermsg.offer.if_instance.b);
+=======
+		     &child_device_obj->channel->offermsg.offer.if_instance);
+>>>>>>> upstream/android-13
 
 	child_device_obj->device.bus = &hv_bus;
 	child_device_obj->device.parent = &hv_acpi_dev->dev;
@@ -1574,6 +2702,10 @@ int vmbus_device_register(struct hv_device *child_device_obj)
 		pr_err("Unable to register primary channeln");
 		goto err_kset_unregister;
 	}
+<<<<<<< HEAD
+=======
+	hv_debug_add_dev_dir(child_device_obj);
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -1616,6 +2748,10 @@ static acpi_status vmbus_walk_resources(struct acpi_resource *res, void *ctx)
 	struct resource *new_res;
 	struct resource **old_res = &hyperv_mmio;
 	struct resource **prev_res = NULL;
+<<<<<<< HEAD
+=======
+	struct resource r;
+>>>>>>> upstream/android-13
 
 	switch (res->type) {
 
@@ -1634,6 +2770,26 @@ static acpi_status vmbus_walk_resources(struct acpi_resource *res, void *ctx)
 		end = res->data.address64.address.maximum;
 		break;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * The IRQ information is needed only on ARM64, which Hyper-V
+	 * sets up in the extended format. IRQ information is present
+	 * on x86/x64 in the non-extended format but it is not used by
+	 * Linux. So don't bother checking for the non-extended format.
+	 */
+	case ACPI_RESOURCE_TYPE_EXTENDED_IRQ:
+		if (!acpi_dev_resource_interrupt(res, 0, &r)) {
+			pr_err("Unable to parse Hyper-V ACPI interrupt\n");
+			return AE_ERROR;
+		}
+		/* ARM64 INTID for VMbus */
+		vmbus_interrupt = res->data.extended_irq.interrupts[0];
+		/* Linux IRQ number */
+		vmbus_irq = r.start;
+		return AE_OK;
+
+>>>>>>> upstream/android-13
 	default:
 		/* Unused resource type */
 		return AE_OK;
@@ -1775,7 +2931,11 @@ int vmbus_allocate_mmio(struct resource **new, struct hv_device *device_obj,
 	int retval;
 
 	retval = -ENXIO;
+<<<<<<< HEAD
 	down(&hyperv_mmio_lock);
+=======
+	mutex_lock(&hyperv_mmio_lock);
+>>>>>>> upstream/android-13
 
 	/*
 	 * If overlaps with frame buffers are allowed, then first attempt to
@@ -1822,7 +2982,11 @@ int vmbus_allocate_mmio(struct resource **new, struct hv_device *device_obj,
 	}
 
 exit:
+<<<<<<< HEAD
 	up(&hyperv_mmio_lock);
+=======
+	mutex_unlock(&hyperv_mmio_lock);
+>>>>>>> upstream/android-13
 	return retval;
 }
 EXPORT_SYMBOL_GPL(vmbus_allocate_mmio);
@@ -1839,7 +3003,11 @@ void vmbus_free_mmio(resource_size_t start, resource_size_t size)
 {
 	struct resource *iter;
 
+<<<<<<< HEAD
 	down(&hyperv_mmio_lock);
+=======
+	mutex_lock(&hyperv_mmio_lock);
+>>>>>>> upstream/android-13
 	for (iter = hyperv_mmio; iter; iter = iter->sibling) {
 		if ((iter->start >= start + size) || (iter->end <= start))
 			continue;
@@ -1847,7 +3015,11 @@ void vmbus_free_mmio(resource_size_t start, resource_size_t size)
 		__release_region(iter, start, size);
 	}
 	release_mem_region(start, size);
+<<<<<<< HEAD
 	up(&hyperv_mmio_lock);
+=======
+	mutex_unlock(&hyperv_mmio_lock);
+>>>>>>> upstream/android-13
 
 }
 EXPORT_SYMBOL_GPL(vmbus_free_mmio);
@@ -1889,6 +3061,139 @@ acpi_walk_err:
 	return ret_val;
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PM_SLEEP
+static int vmbus_bus_suspend(struct device *dev)
+{
+	struct vmbus_channel *channel, *sc;
+
+	while (atomic_read(&vmbus_connection.offer_in_progress) != 0) {
+		/*
+		 * We wait here until the completion of any channel
+		 * offers that are currently in progress.
+		 */
+		usleep_range(1000, 2000);
+	}
+
+	mutex_lock(&vmbus_connection.channel_mutex);
+	list_for_each_entry(channel, &vmbus_connection.chn_list, listentry) {
+		if (!is_hvsock_channel(channel))
+			continue;
+
+		vmbus_force_channel_rescinded(channel);
+	}
+	mutex_unlock(&vmbus_connection.channel_mutex);
+
+	/*
+	 * Wait until all the sub-channels and hv_sock channels have been
+	 * cleaned up. Sub-channels should be destroyed upon suspend, otherwise
+	 * they would conflict with the new sub-channels that will be created
+	 * in the resume path. hv_sock channels should also be destroyed, but
+	 * a hv_sock channel of an established hv_sock connection can not be
+	 * really destroyed since it may still be referenced by the userspace
+	 * application, so we just force the hv_sock channel to be rescinded
+	 * by vmbus_force_channel_rescinded(), and the userspace application
+	 * will thoroughly destroy the channel after hibernation.
+	 *
+	 * Note: the counter nr_chan_close_on_suspend may never go above 0 if
+	 * the VM has no sub-channel and hv_sock channel, e.g. a 1-vCPU VM.
+	 */
+	if (atomic_read(&vmbus_connection.nr_chan_close_on_suspend) > 0)
+		wait_for_completion(&vmbus_connection.ready_for_suspend_event);
+
+	if (atomic_read(&vmbus_connection.nr_chan_fixup_on_resume) != 0) {
+		pr_err("Can not suspend due to a previous failed resuming\n");
+		return -EBUSY;
+	}
+
+	mutex_lock(&vmbus_connection.channel_mutex);
+
+	list_for_each_entry(channel, &vmbus_connection.chn_list, listentry) {
+		/*
+		 * Remove the channel from the array of channels and invalidate
+		 * the channel's relid.  Upon resume, vmbus_onoffer() will fix
+		 * up the relid (and other fields, if necessary) and add the
+		 * channel back to the array.
+		 */
+		vmbus_channel_unmap_relid(channel);
+		channel->offermsg.child_relid = INVALID_RELID;
+
+		if (is_hvsock_channel(channel)) {
+			if (!channel->rescind) {
+				pr_err("hv_sock channel not rescinded!\n");
+				WARN_ON_ONCE(1);
+			}
+			continue;
+		}
+
+		list_for_each_entry(sc, &channel->sc_list, sc_list) {
+			pr_err("Sub-channel not deleted!\n");
+			WARN_ON_ONCE(1);
+		}
+
+		atomic_inc(&vmbus_connection.nr_chan_fixup_on_resume);
+	}
+
+	mutex_unlock(&vmbus_connection.channel_mutex);
+
+	vmbus_initiate_unload(false);
+
+	/* Reset the event for the next resume. */
+	reinit_completion(&vmbus_connection.ready_for_resume_event);
+
+	return 0;
+}
+
+static int vmbus_bus_resume(struct device *dev)
+{
+	struct vmbus_channel_msginfo *msginfo;
+	size_t msgsize;
+	int ret;
+
+	/*
+	 * We only use the 'vmbus_proto_version', which was in use before
+	 * hibernation, to re-negotiate with the host.
+	 */
+	if (!vmbus_proto_version) {
+		pr_err("Invalid proto version = 0x%x\n", vmbus_proto_version);
+		return -EINVAL;
+	}
+
+	msgsize = sizeof(*msginfo) +
+		  sizeof(struct vmbus_channel_initiate_contact);
+
+	msginfo = kzalloc(msgsize, GFP_KERNEL);
+
+	if (msginfo == NULL)
+		return -ENOMEM;
+
+	ret = vmbus_negotiate_version(msginfo, vmbus_proto_version);
+
+	kfree(msginfo);
+
+	if (ret != 0)
+		return ret;
+
+	WARN_ON(atomic_read(&vmbus_connection.nr_chan_fixup_on_resume) == 0);
+
+	vmbus_request_offers();
+
+	if (wait_for_completion_timeout(
+		&vmbus_connection.ready_for_resume_event, 10 * HZ) == 0)
+		pr_err("Some vmbus device is missing after suspending?\n");
+
+	/* Reset the event for the next suspend. */
+	reinit_completion(&vmbus_connection.ready_for_suspend_event);
+
+	return 0;
+}
+#else
+#define vmbus_bus_suspend NULL
+#define vmbus_bus_resume NULL
+#endif /* CONFIG_PM_SLEEP */
+
+>>>>>>> upstream/android-13
 static const struct acpi_device_id vmbus_acpi_device_ids[] = {
 	{"VMBUS", 0},
 	{"VMBus", 0},
@@ -1896,6 +3201,30 @@ static const struct acpi_device_id vmbus_acpi_device_ids[] = {
 };
 MODULE_DEVICE_TABLE(acpi, vmbus_acpi_device_ids);
 
+<<<<<<< HEAD
+=======
+/*
+ * Note: we must use the "no_irq" ops, otherwise hibernation can not work with
+ * PCI device assignment, because "pci_dev_pm_ops" uses the "noirq" ops: in
+ * the resume path, the pci "noirq" restore op runs before "non-noirq" op (see
+ * resume_target_kernel() -> dpm_resume_start(), and hibernation_restore() ->
+ * dpm_resume_end()). This means vmbus_bus_resume() and the pci-hyperv's
+ * resume callback must also run via the "noirq" ops.
+ *
+ * Set suspend_noirq/resume_noirq to NULL for Suspend-to-Idle: see the comment
+ * earlier in this file before vmbus_pm.
+ */
+
+static const struct dev_pm_ops vmbus_bus_pm = {
+	.suspend_noirq	= NULL,
+	.resume_noirq	= NULL,
+	.freeze_noirq	= vmbus_bus_suspend,
+	.thaw_noirq	= vmbus_bus_resume,
+	.poweroff_noirq	= vmbus_bus_suspend,
+	.restore_noirq	= vmbus_bus_resume
+};
+
+>>>>>>> upstream/android-13
 static struct acpi_driver vmbus_acpi_driver = {
 	.name = "vmbus",
 	.ids = vmbus_acpi_device_ids,
@@ -1903,28 +3232,94 @@ static struct acpi_driver vmbus_acpi_driver = {
 		.add = vmbus_acpi_add,
 		.remove = vmbus_acpi_remove,
 	},
+<<<<<<< HEAD
+=======
+	.drv.pm = &vmbus_bus_pm,
+>>>>>>> upstream/android-13
 };
 
 static void hv_kexec_handler(void)
 {
+<<<<<<< HEAD
 	hv_synic_clockevents_cleanup();
+=======
+	hv_stimer_global_cleanup();
+>>>>>>> upstream/android-13
 	vmbus_initiate_unload(false);
 	/* Make sure conn_state is set as hv_synic_cleanup checks for it */
 	mb();
 	cpuhp_remove_state(hyperv_cpuhp_online);
+<<<<<<< HEAD
 	hyperv_cleanup();
+=======
+>>>>>>> upstream/android-13
 };
 
 static void hv_crash_handler(struct pt_regs *regs)
 {
+<<<<<<< HEAD
+=======
+	int cpu;
+
+>>>>>>> upstream/android-13
 	vmbus_initiate_unload(true);
 	/*
 	 * In crash handler we can't schedule synic cleanup for all CPUs,
 	 * doing the cleanup for current CPU only. This should be sufficient
 	 * for kdump.
 	 */
+<<<<<<< HEAD
 	hv_synic_cleanup(smp_processor_id());
 	hyperv_cleanup();
+=======
+	cpu = smp_processor_id();
+	hv_stimer_cleanup(cpu);
+	hv_synic_disable_regs(cpu);
+};
+
+static int hv_synic_suspend(void)
+{
+	/*
+	 * When we reach here, all the non-boot CPUs have been offlined.
+	 * If we're in a legacy configuration where stimer Direct Mode is
+	 * not enabled, the stimers on the non-boot CPUs have been unbound
+	 * in hv_synic_cleanup() -> hv_stimer_legacy_cleanup() ->
+	 * hv_stimer_cleanup() -> clockevents_unbind_device().
+	 *
+	 * hv_synic_suspend() only runs on CPU0 with interrupts disabled.
+	 * Here we do not call hv_stimer_legacy_cleanup() on CPU0 because:
+	 * 1) it's unnecessary as interrupts remain disabled between
+	 * syscore_suspend() and syscore_resume(): see create_image() and
+	 * resume_target_kernel()
+	 * 2) the stimer on CPU0 is automatically disabled later by
+	 * syscore_suspend() -> timekeeping_suspend() -> tick_suspend() -> ...
+	 * -> clockevents_shutdown() -> ... -> hv_ce_shutdown()
+	 * 3) a warning would be triggered if we call
+	 * clockevents_unbind_device(), which may sleep, in an
+	 * interrupts-disabled context.
+	 */
+
+	hv_synic_disable_regs(0);
+
+	return 0;
+}
+
+static void hv_synic_resume(void)
+{
+	hv_synic_enable_regs(0);
+
+	/*
+	 * Note: we don't need to call hv_stimer_init(0), because the timer
+	 * on CPU0 is not unbound in hv_synic_suspend(), and the timer is
+	 * automatically re-enabled in timekeeping_resume().
+	 */
+}
+
+/* The callbacks run only on CPU0, with irqs_disabled. */
+static struct syscore_ops hv_synic_syscore_ops = {
+	.suspend = hv_synic_suspend,
+	.resume = hv_synic_resume,
+>>>>>>> upstream/android-13
 };
 
 static int __init hv_acpi_init(void)
@@ -1934,6 +3329,12 @@ static int __init hv_acpi_init(void)
 	if (!hv_is_hyperv_initialized())
 		return -ENODEV;
 
+<<<<<<< HEAD
+=======
+	if (hv_root_partition)
+		return 0;
+
+>>>>>>> upstream/android-13
 	init_completion(&probe_event);
 
 	/*
@@ -1950,6 +3351,22 @@ static int __init hv_acpi_init(void)
 		goto cleanup;
 	}
 
+<<<<<<< HEAD
+=======
+	/*
+	 * If we're on an architecture with a hardcoded hypervisor
+	 * vector (i.e. x86/x64), override the VMbus interrupt found
+	 * in the ACPI tables. Ensure vmbus_irq is not set since the
+	 * normal Linux IRQ mechanism is not used in this case.
+	 */
+#ifdef HYPERVISOR_CALLBACK_VECTOR
+	vmbus_interrupt = HYPERVISOR_CALLBACK_VECTOR;
+	vmbus_irq = -1;
+#endif
+
+	hv_debug_init();
+
+>>>>>>> upstream/android-13
 	ret = vmbus_bus_init();
 	if (ret)
 		goto cleanup;
@@ -1957,6 +3374,11 @@ static int __init hv_acpi_init(void)
 	hv_setup_kexec_handler(hv_kexec_handler);
 	hv_setup_crash_handler(hv_crash_handler);
 
+<<<<<<< HEAD
+=======
+	register_syscore_ops(&hv_synic_syscore_ops);
+
+>>>>>>> upstream/android-13
 	return 0;
 
 cleanup:
@@ -1969,27 +3391,62 @@ static void __exit vmbus_exit(void)
 {
 	int cpu;
 
+<<<<<<< HEAD
 	hv_remove_kexec_handler();
 	hv_remove_crash_handler();
 	vmbus_connection.conn_state = DISCONNECTED;
 	hv_synic_clockevents_cleanup();
 	vmbus_disconnect();
 	hv_remove_vmbus_irq();
+=======
+	unregister_syscore_ops(&hv_synic_syscore_ops);
+
+	hv_remove_kexec_handler();
+	hv_remove_crash_handler();
+	vmbus_connection.conn_state = DISCONNECTED;
+	hv_stimer_global_cleanup();
+	vmbus_disconnect();
+	if (vmbus_irq == -1) {
+		hv_remove_vmbus_handler();
+	} else {
+		free_percpu_irq(vmbus_irq, vmbus_evt);
+		free_percpu(vmbus_evt);
+	}
+>>>>>>> upstream/android-13
 	for_each_online_cpu(cpu) {
 		struct hv_per_cpu_context *hv_cpu
 			= per_cpu_ptr(hv_context.cpu_context, cpu);
 
 		tasklet_kill(&hv_cpu->msg_dpc);
 	}
+<<<<<<< HEAD
 	vmbus_free_channels();
+=======
+	hv_debug_rm_all_dir();
+
+	vmbus_free_channels();
+	kfree(vmbus_connection.channels);
+>>>>>>> upstream/android-13
 
 	if (ms_hyperv.misc_features & HV_FEATURE_GUEST_CRASH_MSR_AVAILABLE) {
 		kmsg_dump_unregister(&hv_kmsg_dumper);
 		unregister_die_notifier(&hyperv_die_block);
+<<<<<<< HEAD
 		atomic_notifier_chain_unregister(&panic_notifier_list,
 						 &hyperv_panic_block);
 	}
 
+=======
+	}
+
+	/*
+	 * The panic notifier is always registered, hence we should
+	 * also unconditionally unregister it here as well.
+	 */
+	atomic_notifier_chain_unregister(&panic_notifier_list,
+					 &hyperv_panic_block);
+
+>>>>>>> upstream/android-13
 	free_page((unsigned long)hv_panic_page);
 	unregister_sysctl_table(hv_ctl_table_hdr);
 	hv_ctl_table_hdr = NULL;
@@ -2002,6 +3459,10 @@ static void __exit vmbus_exit(void)
 
 
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_DESCRIPTION("Microsoft Hyper-V VMBus Driver");
+>>>>>>> upstream/android-13
 
 subsys_initcall(hv_acpi_init);
 module_exit(vmbus_exit);

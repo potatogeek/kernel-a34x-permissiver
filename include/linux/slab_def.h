@@ -2,6 +2,10 @@
 #ifndef _LINUX_SLAB_DEF_H
 #define	_LINUX_SLAB_DEF_H
 
+<<<<<<< HEAD
+=======
+#include <linux/kfence.h>
+>>>>>>> upstream/android-13
 #include <linux/reciprocal_div.h>
 
 /*
@@ -61,9 +65,12 @@ struct kmem_cache {
 	atomic_t allocmiss;
 	atomic_t freehit;
 	atomic_t freemiss;
+<<<<<<< HEAD
 #ifdef CONFIG_DEBUG_SLAB_LEAK
 	atomic_t store_user_clean;
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	/*
 	 * If debugging is enabled, then the allocator can add additional
@@ -75,9 +82,12 @@ struct kmem_cache {
 	int obj_offset;
 #endif /* CONFIG_DEBUG_SLAB */
 
+<<<<<<< HEAD
 #ifdef CONFIG_MEMCG
 	struct memcg_cache_params memcg_params;
 #endif
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_KASAN
 	struct kasan_cache kasan_info;
 #endif
@@ -117,4 +127,15 @@ static inline unsigned int obj_to_index(const struct kmem_cache *cache,
 	return reciprocal_divide(offset, cache->reciprocal_buffer_size);
 }
 
+<<<<<<< HEAD
+=======
+static inline int objs_per_slab_page(const struct kmem_cache *cache,
+				     const struct page *page)
+{
+	if (is_kfence_address(page_address(page)))
+		return 1;
+	return cache->num;
+}
+
+>>>>>>> upstream/android-13
 #endif	/* _LINUX_SLAB_DEF_H */

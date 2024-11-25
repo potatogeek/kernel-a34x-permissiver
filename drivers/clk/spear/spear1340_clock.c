@@ -12,6 +12,10 @@
  */
 
 #include <linux/clkdev.h>
+<<<<<<< HEAD
+=======
+#include <linux/clk/spear.h>
+>>>>>>> upstream/android-13
 #include <linux/err.h>
 #include <linux/io.h>
 #include <linux/of_platform.h>
@@ -335,7 +339,11 @@ static const struct aux_clk_masks i2s_prs1_masks = {
 };
 
 /* i2s sclk (bit clock) syynthesizers masks */
+<<<<<<< HEAD
 static struct aux_clk_masks i2s_sclk_masks = {
+=======
+static const struct aux_clk_masks i2s_sclk_masks = {
+>>>>>>> upstream/android-13
 	.eq_sel_mask = AUX_EQ_SEL_MASK,
 	.eq_sel_shift = SPEAR1340_I2S_SCLK_EQ_SEL_SHIFT,
 	.eq1_mask = AUX_EQ1_SEL,

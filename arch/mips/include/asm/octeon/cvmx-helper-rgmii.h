@@ -74,7 +74,11 @@ extern int __cvmx_helper_rgmii_enable(int interface);
  *
  * Returns Link state
  */
+<<<<<<< HEAD
 extern cvmx_helper_link_info_t __cvmx_helper_rgmii_link_get(int ipd_port);
+=======
+extern union cvmx_helper_link_info __cvmx_helper_rgmii_link_get(int ipd_port);
+>>>>>>> upstream/android-13
 
 /**
  * Configure an IPD/PKO port for the specified link state. This
@@ -88,6 +92,7 @@ extern cvmx_helper_link_info_t __cvmx_helper_rgmii_link_get(int ipd_port);
  * Returns Zero on success, negative on failure
  */
 extern int __cvmx_helper_rgmii_link_set(int ipd_port,
+<<<<<<< HEAD
 					cvmx_helper_link_info_t link_info);
 
 /**
@@ -106,5 +111,8 @@ extern int __cvmx_helper_rgmii_link_set(int ipd_port,
 extern int __cvmx_helper_rgmii_configure_loopback(int ipd_port,
 						  int enable_internal,
 						  int enable_external);
+=======
+					union cvmx_helper_link_info link_info);
+>>>>>>> upstream/android-13
 
 #endif

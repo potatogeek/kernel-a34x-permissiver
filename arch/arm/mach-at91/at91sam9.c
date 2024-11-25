@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Setup code for AT91SAM9
  *
  *  Copyright (C) 2011 Atmel,
  *                2011 Nicolas Ferre <nicolas.ferre@atmel.com>
+<<<<<<< HEAD
  *
  * Licensed under GPLv2 or later.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/of.h>

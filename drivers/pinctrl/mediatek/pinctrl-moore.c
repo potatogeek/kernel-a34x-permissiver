@@ -514,8 +514,13 @@ static int mtk_build_gpiochip(struct mtk_pinctrl *hw, struct device_node *np)
 	chip->direction_output	= mtk_gpio_direction_output;
 	chip->get		= mtk_gpio_get;
 	chip->set		= mtk_gpio_set;
+<<<<<<< HEAD
 	chip->to_irq		= mtk_gpio_to_irq,
 	chip->set_config	= mtk_gpio_set_config,
+=======
+	chip->to_irq		= mtk_gpio_to_irq;
+	chip->set_config	= mtk_gpio_set_config;
+>>>>>>> upstream/android-13
 	chip->base		= -1;
 	chip->ngpio		= hw->soc->npins;
 	chip->of_node		= np;
@@ -589,7 +594,10 @@ int mtk_moore_pinctrl_probe(struct platform_device *pdev,
 			    const struct mtk_pin_soc *soc)
 {
 	struct pinctrl_pin_desc *pins;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	struct mtk_pinctrl *hw;
 	int err, i;
 
@@ -612,6 +620,7 @@ int mtk_moore_pinctrl_probe(struct platform_device *pdev,
 		return -ENOMEM;
 
 	for (i = 0; i < hw->soc->nbase_names; i++) {
+<<<<<<< HEAD
 		res = platform_get_resource_byname(pdev, IORESOURCE_MEM,
 						   hw->soc->base_names[i]);
 		if (!res) {
@@ -620,12 +629,21 @@ int mtk_moore_pinctrl_probe(struct platform_device *pdev,
 		}
 
 		hw->base[i] = devm_ioremap_resource(&pdev->dev, res);
+=======
+		hw->base[i] = devm_platform_ioremap_resource_byname(pdev,
+						hw->soc->base_names[i]);
+>>>>>>> upstream/android-13
 		if (IS_ERR(hw->base[i]))
 			return PTR_ERR(hw->base[i]);
 	}
 
 	hw->nbase = hw->soc->nbase_names;
 
+<<<<<<< HEAD
+=======
+	spin_lock_init(&hw->lock);
+
+>>>>>>> upstream/android-13
 	/* Copy from internal struct mtk_pin_desc to register to the core */
 	pins = devm_kmalloc_array(&pdev->dev, hw->soc->npins, sizeof(*pins),
 				  GFP_KERNEL);

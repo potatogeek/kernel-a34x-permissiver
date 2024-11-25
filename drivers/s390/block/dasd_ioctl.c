@@ -22,6 +22,10 @@
 #include <asm/schid.h>
 #include <asm/cmb.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
+=======
+#include <linux/dasd_mod.h>
+>>>>>>> upstream/android-13
 
 /* This is ugly... */
 #define PRINTK_HEADER "dasd_ioctl:"
@@ -53,11 +57,14 @@ dasd_ioctl_enable(struct block_device *bdev)
 		return -ENODEV;
 
 	dasd_enable_device(base);
+<<<<<<< HEAD
 	/* Formatting the dasd device can change the capacity. */
 	mutex_lock(&bdev->bd_mutex);
 	i_size_write(bdev->bd_inode,
 		     (loff_t)get_capacity(base->block->gdp) << 9);
 	mutex_unlock(&bdev->bd_mutex);
+=======
+>>>>>>> upstream/android-13
 	dasd_put_device(base);
 	return 0;
 }
@@ -90,9 +97,13 @@ dasd_ioctl_disable(struct block_device *bdev)
 	 * Set i_size to zero, since read, write, etc. check against this
 	 * value.
 	 */
+<<<<<<< HEAD
 	mutex_lock(&bdev->bd_mutex);
 	i_size_write(bdev->bd_inode, 0);
 	mutex_unlock(&bdev->bd_mutex);
+=======
+	set_capacity(bdev->bd_disk, 0);
+>>>>>>> upstream/android-13
 	dasd_put_device(base);
 	return 0;
 }
@@ -226,9 +237,14 @@ dasd_format(struct dasd_block *block, struct format_data_t *fdata)
 	 * enabling the device later.
 	 */
 	if (fdata->start_unit == 0) {
+<<<<<<< HEAD
 		struct block_device *bdev = bdget_disk(block->gdp, 0);
 		bdev->bd_inode->i_blkbits = blksize_bits(fdata->blksize);
 		bdput(bdev);
+=======
+		block->gdp->part0->bd_inode->i_blkbits =
+			blksize_bits(fdata->blksize);
+>>>>>>> upstream/android-13
 	}
 
 	rc = base->discipline->format_device(base, fdata, 1);
@@ -281,7 +297,11 @@ dasd_ioctl_format(struct block_device *bdev, void __user *argp)
 		dasd_put_device(base);
 		return -EFAULT;
 	}
+<<<<<<< HEAD
 	if (bdev != bdev->bd_contains) {
+=======
+	if (bdev_is_partition(bdev)) {
+>>>>>>> upstream/android-13
 		pr_warn("%s: The specified DASD is a partition and cannot be formatted\n",
 			dev_name(&base->cdev->dev));
 		dasd_put_device(base);
@@ -308,7 +328,11 @@ static int dasd_ioctl_check_format(struct block_device *bdev, void __user *argp)
 	base = dasd_device_from_gendisk(bdev->bd_disk);
 	if (!base)
 		return -ENODEV;
+<<<<<<< HEAD
 	if (bdev != bdev->bd_contains) {
+=======
+	if (bdev_is_partition(bdev)) {
+>>>>>>> upstream/android-13
 		pr_warn("%s: The specified DASD is a partition and cannot be checked\n",
 			dev_name(&base->cdev->dev));
 		rc = -EINVAL;
@@ -333,6 +357,62 @@ out_err:
 	return rc;
 }
 
+<<<<<<< HEAD
+=======
+static int dasd_release_space(struct dasd_device *device,
+			      struct format_data_t *rdata)
+{
+	if (!device->discipline->is_ese && !device->discipline->is_ese(device))
+		return -ENOTSUPP;
+	if (!device->discipline->release_space)
+		return -ENOTSUPP;
+
+	return device->discipline->release_space(device, rdata);
+}
+
+/*
+ * Release allocated space
+ */
+static int dasd_ioctl_release_space(struct block_device *bdev, void __user *argp)
+{
+	struct format_data_t rdata;
+	struct dasd_device *base;
+	int rc = 0;
+
+	if (!capable(CAP_SYS_ADMIN))
+		return -EACCES;
+	if (!argp)
+		return -EINVAL;
+
+	base = dasd_device_from_gendisk(bdev->bd_disk);
+	if (!base)
+		return -ENODEV;
+	if (base->features & DASD_FEATURE_READONLY ||
+	    test_bit(DASD_FLAG_DEVICE_RO, &base->flags)) {
+		rc = -EROFS;
+		goto out_err;
+	}
+	if (bdev_is_partition(bdev)) {
+		pr_warn("%s: The specified DASD is a partition and tracks cannot be released\n",
+			dev_name(&base->cdev->dev));
+		rc = -EINVAL;
+		goto out_err;
+	}
+
+	if (copy_from_user(&rdata, argp, sizeof(rdata))) {
+		rc = -EFAULT;
+		goto out_err;
+	}
+
+	rc = dasd_release_space(base, &rdata);
+
+out_err:
+	dasd_put_device(base);
+
+	return rc;
+}
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_DASD_PROFILE
 /*
  * Reset device profile information
@@ -404,14 +484,24 @@ static int dasd_ioctl_read_profile(struct dasd_block *block, void __user *argp)
 /*
  * Return dasd information. Used for BIODASDINFO and BIODASDINFO2.
  */
+<<<<<<< HEAD
 static int dasd_ioctl_information(struct dasd_block *block,
 				  unsigned int cmd, void __user *argp)
 {
 	struct dasd_information2_t *dasd_info;
+=======
+static int __dasd_ioctl_information(struct dasd_block *block,
+		struct dasd_information2_t *dasd_info)
+{
+>>>>>>> upstream/android-13
 	struct subchannel_id sch_id;
 	struct ccw_dev_id dev_id;
 	struct dasd_device *base;
 	struct ccw_device *cdev;
+<<<<<<< HEAD
+=======
+	struct list_head *l;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	int rc;
 
@@ -419,6 +509,7 @@ static int dasd_ioctl_information(struct dasd_block *block,
 	if (!base->discipline || !base->discipline->fill_info)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	dasd_info = kzalloc(sizeof(struct dasd_information2_t), GFP_KERNEL);
 	if (dasd_info == NULL)
 		return -ENOMEM;
@@ -428,6 +519,11 @@ static int dasd_ioctl_information(struct dasd_block *block,
 		kfree(dasd_info);
 		return rc;
 	}
+=======
+	rc = base->discipline->fill_info(base, dasd_info);
+	if (rc)
+		return rc;
+>>>>>>> upstream/android-13
 
 	cdev = base->cdev;
 	ccw_device_get_id(cdev, &dev_id);
@@ -462,6 +558,7 @@ static int dasd_ioctl_information(struct dasd_block *block,
 
 	memcpy(dasd_info->type, base->discipline->name, 4);
 
+<<<<<<< HEAD
 	if (block->request_queue->request_fn) {
 		struct list_head *l;
 #ifdef DASD_EXTENDED_PROFILING
@@ -488,11 +585,36 @@ static int dasd_ioctl_information(struct dasd_block *block,
 		rc = -EFAULT;
 	kfree(dasd_info);
 	return rc;
+=======
+	spin_lock_irqsave(&block->queue_lock, flags);
+	list_for_each(l, &base->ccw_queue)
+		dasd_info->chanq_len++;
+	spin_unlock_irqrestore(&block->queue_lock, flags);
+	return 0;
+}
+
+static int dasd_ioctl_information(struct dasd_block *block, void __user *argp,
+		size_t copy_size)
+{
+	struct dasd_information2_t *dasd_info;
+	int error;
+
+	dasd_info = kzalloc(sizeof(*dasd_info), GFP_KERNEL);
+	if (!dasd_info)
+		return -ENOMEM;
+
+	error = __dasd_ioctl_information(block, dasd_info);
+	if (!error && copy_to_user(argp, dasd_info, copy_size))
+		error = -EFAULT;
+	kfree(dasd_info);
+	return error;
+>>>>>>> upstream/android-13
 }
 
 /*
  * Set read only
  */
+<<<<<<< HEAD
 static int
 dasd_ioctl_set_ro(struct block_device *bdev, void __user *argp)
 {
@@ -515,6 +637,24 @@ dasd_ioctl_set_ro(struct block_device *bdev, void __user *argp)
 	}
 	set_disk_ro(bdev->bd_disk, intval);
 	rc = dasd_set_feature(base->cdev, DASD_FEATURE_READONLY, intval);
+=======
+int dasd_set_read_only(struct block_device *bdev, bool ro)
+{
+	struct dasd_device *base;
+	int rc;
+
+	/* do not manipulate hardware state for partitions */
+	if (bdev_is_partition(bdev))
+		return 0;
+
+	base = dasd_device_from_gendisk(bdev->bd_disk);
+	if (!base)
+		return -ENODEV;
+	if (!ro && test_bit(DASD_FLAG_DEVICE_RO, &base->flags))
+		rc = -EROFS;
+	else
+		rc = dasd_set_feature(base->cdev, DASD_FEATURE_READONLY, ro);
+>>>>>>> upstream/android-13
 	dasd_put_device(base);
 	return rc;
 }
@@ -545,10 +685,15 @@ int dasd_ioctl(struct block_device *bdev, fmode_t mode,
 	else
 		argp = (void __user *)arg;
 
+<<<<<<< HEAD
 	if ((_IOC_DIR(cmd) != _IOC_NONE) && !arg) {
 		PRINT_DEBUG("empty data ptr");
 		return -EINVAL;
 	}
+=======
+	if ((_IOC_DIR(cmd) != _IOC_NONE) && !arg)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	base = dasd_device_from_gendisk(bdev->bd_disk);
 	if (!base)
@@ -581,10 +726,19 @@ int dasd_ioctl(struct block_device *bdev, fmode_t mode,
 		rc = dasd_ioctl_check_format(bdev, argp);
 		break;
 	case BIODASDINFO:
+<<<<<<< HEAD
 		rc = dasd_ioctl_information(block, cmd, argp);
 		break;
 	case BIODASDINFO2:
 		rc = dasd_ioctl_information(block, cmd, argp);
+=======
+		rc = dasd_ioctl_information(block, argp,
+				sizeof(struct dasd_information_t));
+		break;
+	case BIODASDINFO2:
+		rc = dasd_ioctl_information(block, argp,
+				sizeof(struct dasd_information2_t));
+>>>>>>> upstream/android-13
 		break;
 	case BIODASDPRRD:
 		rc = dasd_ioctl_read_profile(block, argp);
@@ -592,9 +746,12 @@ int dasd_ioctl(struct block_device *bdev, fmode_t mode,
 	case BIODASDPRRST:
 		rc = dasd_ioctl_reset_profile(block);
 		break;
+<<<<<<< HEAD
 	case BLKROSET:
 		rc = dasd_ioctl_set_ro(bdev, argp);
 		break;
+=======
+>>>>>>> upstream/android-13
 	case DASDAPIVER:
 		rc = dasd_ioctl_api_version(argp);
 		break;
@@ -607,6 +764,12 @@ int dasd_ioctl(struct block_device *bdev, fmode_t mode,
 	case BIODASDREADALLCMB:
 		rc = dasd_ioctl_readall_cmb(block, cmd, argp);
 		break;
+<<<<<<< HEAD
+=======
+	case BIODASDRAS:
+		rc = dasd_ioctl_release_space(bdev, argp);
+		break;
+>>>>>>> upstream/android-13
 	default:
 		/* if the discipline has an ioctl method try it. */
 		rc = -ENOTTY;
@@ -616,3 +779,39 @@ int dasd_ioctl(struct block_device *bdev, fmode_t mode,
 	dasd_put_device(base);
 	return rc;
 }
+<<<<<<< HEAD
+=======
+
+
+/**
+ * dasd_biodasdinfo() - fill out the dasd information structure
+ * @disk [in]: pointer to gendisk structure that references a DASD
+ * @info [out]: pointer to the dasd_information2_t structure
+ *
+ * Provide access to DASD specific information.
+ * The gendisk structure is checked if it belongs to the DASD driver by
+ * comparing the gendisk->fops pointer.
+ * If it does not belong to the DASD driver -EINVAL is returned.
+ * Otherwise the provided dasd_information2_t structure is filled out.
+ *
+ * Returns:
+ *   %0 on success and a negative error value on failure.
+ */
+int dasd_biodasdinfo(struct gendisk *disk, struct dasd_information2_t *info)
+{
+	struct dasd_device *base;
+	int error;
+
+	if (disk->fops != &dasd_device_operations)
+		return -EINVAL;
+
+	base = dasd_device_from_gendisk(disk);
+	if (!base)
+		return -ENODEV;
+	error = __dasd_ioctl_information(base->block, info);
+	dasd_put_device(base);
+	return error;
+}
+/* export that symbol_get in partition detection is possible */
+EXPORT_SYMBOL_GPL(dasd_biodasdinfo);
+>>>>>>> upstream/android-13

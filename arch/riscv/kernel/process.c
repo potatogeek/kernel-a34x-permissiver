@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2009 Sunplus Core Technology Co., Ltd.
  *  Chen Liqin <liqin.chen@sunplusct.com>
  *  Lennox Wu <lennox.wu@sunplusct.com>
  * Copyright (C) 2012 Regents of the University of California
  * Copyright (C) 2017 SiFive
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +27,14 @@
 
 #include <linux/kernel.h>
 #include <linux/sched.h>
+=======
+ */
+
+#include <linux/cpu.h>
+#include <linux/kernel.h>
+#include <linux/sched.h>
+#include <linux/sched/debug.h>
+>>>>>>> upstream/android-13
 #include <linux/sched/task_stack.h>
 #include <linux/tick.h>
 #include <linux/ptrace.h>
@@ -30,8 +43,23 @@
 #include <asm/unistd.h>
 #include <asm/processor.h>
 #include <asm/csr.h>
+<<<<<<< HEAD
 #include <asm/string.h>
 #include <asm/switch_to.h>
+=======
+#include <asm/stacktrace.h>
+#include <asm/string.h>
+#include <asm/switch_to.h>
+#include <asm/thread_info.h>
+
+register unsigned long gp_in_global __asm__("gp");
+
+#if defined(CONFIG_STACKPROTECTOR) && !defined(CONFIG_STACKPROTECTOR_PER_TASK)
+#include <linux/stackprotector.h>
+unsigned long __stack_chk_guard __read_mostly;
+EXPORT_SYMBOL(__stack_chk_guard);
+#endif
+>>>>>>> upstream/android-13
 
 extern asmlinkage void ret_from_fork(void);
 extern asmlinkage void ret_from_kernel_thread(void);
@@ -39,6 +67,7 @@ extern asmlinkage void ret_from_kernel_thread(void);
 void arch_cpu_idle(void)
 {
 	wait_for_interrupt();
+<<<<<<< HEAD
 	local_irq_enable();
 }
 
@@ -48,6 +77,22 @@ void show_regs(struct pt_regs *regs)
 
 	pr_cont("sepc: " REG_FMT " ra : " REG_FMT " sp : " REG_FMT "\n",
 		regs->sepc, regs->ra, regs->sp);
+=======
+	raw_local_irq_enable();
+}
+
+void __show_regs(struct pt_regs *regs)
+{
+	show_regs_print_info(KERN_DEFAULT);
+
+	if (!user_mode(regs)) {
+		pr_cont("epc : %pS\n", (void *)regs->epc);
+		pr_cont(" ra : %pS\n", (void *)regs->ra);
+	}
+
+	pr_cont("epc : " REG_FMT " ra : " REG_FMT " sp : " REG_FMT "\n",
+		regs->epc, regs->ra, regs->sp);
+>>>>>>> upstream/android-13
 	pr_cont(" gp : " REG_FMT " tp : " REG_FMT " t0 : " REG_FMT "\n",
 		regs->gp, regs->tp, regs->t0);
 	pr_cont(" t1 : " REG_FMT " t2 : " REG_FMT " s0 : " REG_FMT "\n",
@@ -69,27 +114,64 @@ void show_regs(struct pt_regs *regs)
 	pr_cont(" t5 : " REG_FMT " t6 : " REG_FMT "\n",
 		regs->t5, regs->t6);
 
+<<<<<<< HEAD
 	pr_cont("sstatus: " REG_FMT " sbadaddr: " REG_FMT " scause: " REG_FMT "\n",
 		regs->sstatus, regs->sbadaddr, regs->scause);
+=======
+	pr_cont("status: " REG_FMT " badaddr: " REG_FMT " cause: " REG_FMT "\n",
+		regs->status, regs->badaddr, regs->cause);
+}
+void show_regs(struct pt_regs *regs)
+{
+	__show_regs(regs);
+	if (!user_mode(regs))
+		dump_backtrace(regs, NULL, KERN_DEFAULT);
+>>>>>>> upstream/android-13
 }
 
 void start_thread(struct pt_regs *regs, unsigned long pc,
 	unsigned long sp)
 {
+<<<<<<< HEAD
 	regs->sstatus = SR_SPIE /* User mode, irqs on */ | SR_FS_INITIAL;
 	regs->sepc = pc;
 	regs->sp = sp;
 	set_fs(USER_DS);
+=======
+	regs->status = SR_PIE;
+	if (has_fpu()) {
+		regs->status |= SR_FS_INITIAL;
+		/*
+		 * Restore the initial value to the FP register
+		 * before starting the user program.
+		 */
+		fstate_restore(current, regs);
+	}
+	regs->epc = pc;
+	regs->sp = sp;
+>>>>>>> upstream/android-13
 }
 
 void flush_thread(void)
 {
+<<<<<<< HEAD
 	/*
 	 * Reset FPU context
 	 *	frm: round to nearest, ties to even (IEEE default)
 	 *	fflags: accrued exceptions cleared
 	 */
 	memset(&current->thread.fstate, 0, sizeof(current->thread.fstate));
+=======
+#ifdef CONFIG_FPU
+	/*
+	 * Reset FPU state and context
+	 *	frm: round to nearest, ties to even (IEEE default)
+	 *	fflags: accrued exceptions cleared
+	 */
+	fstate_off(current, task_pt_regs(current));
+	memset(&current->thread.fstate, 0, sizeof(current->thread.fstate));
+#endif
+>>>>>>> upstream/android-13
 }
 
 int arch_dup_task_struct(struct task_struct *dst, struct task_struct *src)
@@ -99,18 +181,32 @@ int arch_dup_task_struct(struct task_struct *dst, struct task_struct *src)
 	return 0;
 }
 
+<<<<<<< HEAD
 int copy_thread(unsigned long clone_flags, unsigned long usp,
 	unsigned long arg, struct task_struct *p)
+=======
+int copy_thread(unsigned long clone_flags, unsigned long usp, unsigned long arg,
+		struct task_struct *p, unsigned long tls)
+>>>>>>> upstream/android-13
 {
 	struct pt_regs *childregs = task_pt_regs(p);
 
 	/* p->thread holds context to be restored by __switch_to() */
+<<<<<<< HEAD
 	if (unlikely(p->flags & PF_KTHREAD)) {
 		/* Kernel thread */
 		const register unsigned long gp __asm__ ("gp");
 		memset(childregs, 0, sizeof(struct pt_regs));
 		childregs->gp = gp;
 		childregs->sstatus = SR_SPP | SR_SPIE; /* Supervisor, irqs on */
+=======
+	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
+		/* Kernel thread */
+		memset(childregs, 0, sizeof(struct pt_regs));
+		childregs->gp = gp_in_global;
+		/* Supervisor/Machine, irqs on: */
+		childregs->status = SR_PP | SR_PIE;
+>>>>>>> upstream/android-13
 
 		p->thread.ra = (unsigned long)ret_from_kernel_thread;
 		p->thread.s[0] = usp; /* fn */
@@ -120,7 +216,11 @@ int copy_thread(unsigned long clone_flags, unsigned long usp,
 		if (usp) /* User fork */
 			childregs->sp = usp;
 		if (clone_flags & CLONE_SETTLS)
+<<<<<<< HEAD
 			childregs->tp = childregs->a5;
+=======
+			childregs->tp = tls;
+>>>>>>> upstream/android-13
 		childregs->a0 = 0; /* Return value of fork() */
 		p->thread.ra = (unsigned long)ret_from_fork;
 	}

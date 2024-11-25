@@ -49,6 +49,10 @@ static void display_openssl_errors(int l)
 	}
 }
 
+<<<<<<< HEAD
+=======
+#ifndef OPENSSL_IS_BORINGSSL
+>>>>>>> upstream/android-13
 static void drain_openssl_errors(void)
 {
 	const char *file;
@@ -58,6 +62,10 @@ static void drain_openssl_errors(void)
 		return;
 	while (ERR_get_error_line(&file, &line)) {}
 }
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 #define ERR(cond, fmt, ...)				\
 	do {						\
@@ -71,7 +79,11 @@ static void drain_openssl_errors(void)
 static const char *key_pass;
 static BIO *wb;
 static char *cert_dst;
+<<<<<<< HEAD
 int kbuild_verbose;
+=======
+static int kbuild_verbose;
+>>>>>>> upstream/android-13
 
 static void write_cert(X509 *x509)
 {
@@ -112,6 +124,13 @@ int main(int argc, char **argv)
 		fclose(f);
 		exit(0);
 	} else if (!strncmp(cert_src, "pkcs11:", 7)) {
+<<<<<<< HEAD
+=======
+#ifdef OPENSSL_IS_BORINGSSL
+		ERR(1, "BoringSSL does not support extracting from PKCS#11");
+		exit(1);
+#else
+>>>>>>> upstream/android-13
 		ENGINE *e;
 		struct {
 			const char *cert_id;
@@ -134,6 +153,10 @@ int main(int argc, char **argv)
 		ENGINE_ctrl_cmd(e, "LOAD_CERT_CTRL", 0, &parms, NULL, 1);
 		ERR(!parms.cert, "Get X.509 from PKCS#11");
 		write_cert(parms.cert);
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 	} else {
 		BIO *b;
 		X509 *x509;

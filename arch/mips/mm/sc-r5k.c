@@ -12,7 +12,10 @@
 #include <asm/bcache.h>
 #include <asm/cacheops.h>
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/mmu_context.h>
 #include <asm/r4kcache.h>
 

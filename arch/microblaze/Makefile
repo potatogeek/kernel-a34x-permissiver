@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0
 KBUILD_DEFCONFIG := mmu_defconfig
 
+<<<<<<< HEAD
 ifeq ($(CONFIG_MMU),y)
 UTS_SYSNAME = -DUTS_SYSNAME=\"Linux\"
 else
@@ -8,6 +9,11 @@ UTS_SYSNAME = -DUTS_SYSNAME=\"uClinux\"
 endif
 
 # What CPU vesion are we building for, and crack it open
+=======
+UTS_SYSNAME = -DUTS_SYSNAME=\"Linux\"
+
+# What CPU version are we building for, and crack it open
+>>>>>>> upstream/android-13
 # as major.minor.rev
 CPU_VER   := $(shell echo $(CONFIG_XILINX_MICROBLAZE0_HW_VER))
 CPU_MAJOR := $(shell echo $(CPU_VER) | cut -d '.' -f 1)
@@ -54,17 +60,21 @@ KBUILD_CFLAGS += -ffixed-r31 $(CPUFLAGS-y) $(CPUFLAGS-1) $(CPUFLAGS-2)
 
 head-y := arch/microblaze/kernel/head.o
 libs-y += arch/microblaze/lib/
+<<<<<<< HEAD
 core-y += arch/microblaze/kernel/
 core-y += arch/microblaze/mm/
 core-$(CONFIG_PCI) += arch/microblaze/pci/
 
 drivers-$(CONFIG_OPROFILE) += arch/microblaze/oprofile/
+=======
+>>>>>>> upstream/android-13
 
 boot := arch/microblaze/boot
 
 # Are we making a simpleImage.<boardname> target? If so, crack out the boardname
 DTB:=$(subst simpleImage.,,$(filter simpleImage.%, $(MAKECMDGOALS)))
 
+<<<<<<< HEAD
 ifneq ($(DTB),)
 	core-y	+= $(boot)/dts/
 endif
@@ -75,17 +85,35 @@ MMU := -nommu
 endif
 
 export MMU DTB
+=======
+export DTB
+>>>>>>> upstream/android-13
 
 all: linux.bin
 
 archclean:
 	$(Q)$(MAKE) $(clean)=$(boot)
 
+<<<<<<< HEAD
 linux.bin linux.bin.gz linux.bin.ub: vmlinux
 	$(Q)$(MAKE) $(build)=$(boot) $(boot)/$@
 	@echo 'Kernel: $(boot)/$@ is ready' ' (#'`cat .version`')'
 
 simpleImage.%: vmlinux
+=======
+archheaders:
+	$(Q)$(MAKE) $(build)=arch/microblaze/kernel/syscalls all
+
+PHONY += linux.bin linux.bin.gz linux.bin.ub
+linux.bin.ub linux.bin.gz: linux.bin
+linux.bin: vmlinux
+linux.bin linux.bin.gz linux.bin.ub:
+	$(Q)$(MAKE) $(build)=$(boot) $(boot)/$@
+	@echo 'Kernel: $(boot)/$@ is ready' ' (#'`cat .version`')'
+
+PHONY += simpleImage.$(DTB)
+simpleImage.$(DTB): vmlinux
+>>>>>>> upstream/android-13
 	$(Q)$(MAKE) $(build)=$(boot) $(addprefix $(boot)/$@., ub unstrip strip)
 	@echo 'Kernel: $(boot)/$@ is ready' ' (#'`cat .version`')'
 

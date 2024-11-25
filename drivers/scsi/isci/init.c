@@ -142,7 +142,11 @@ static ssize_t isci_show_id(struct device *dev, struct device_attribute *attr, c
 
 static DEVICE_ATTR(isci_id, S_IRUGO, isci_show_id, NULL);
 
+<<<<<<< HEAD
 struct device_attribute *isci_host_attrs[] = {
+=======
+static struct device_attribute *isci_host_attrs[] = {
+>>>>>>> upstream/android-13
 	&dev_attr_isci_id,
 	NULL
 };
@@ -153,6 +157,10 @@ static struct scsi_host_template isci_sht = {
 	.name				= DRV_NAME,
 	.proc_name			= DRV_NAME,
 	.queuecommand			= sas_queuecommand,
+<<<<<<< HEAD
+=======
+	.dma_need_drain			= ata_scsi_dma_need_drain,
+>>>>>>> upstream/android-13
 	.target_alloc			= sas_target_alloc,
 	.slave_configure		= sas_slave_configure,
 	.scan_finished			= isci_host_scan_finished,
@@ -163,12 +171,24 @@ static struct scsi_host_template isci_sht = {
 	.this_id			= -1,
 	.sg_tablesize			= SG_ALL,
 	.max_sectors			= SCSI_DEFAULT_MAX_SECTORS,
+<<<<<<< HEAD
 	.use_clustering			= ENABLE_CLUSTERING,
 	.eh_abort_handler		= sas_eh_abort_handler,
 	.eh_device_reset_handler        = sas_eh_device_reset_handler,
 	.eh_target_reset_handler        = sas_eh_target_reset_handler,
 	.target_destroy			= sas_target_destroy,
 	.ioctl				= sas_ioctl,
+=======
+	.eh_abort_handler		= sas_eh_abort_handler,
+	.eh_device_reset_handler        = sas_eh_device_reset_handler,
+	.eh_target_reset_handler        = sas_eh_target_reset_handler,
+	.slave_alloc			= sas_slave_alloc,
+	.target_destroy			= sas_target_destroy,
+	.ioctl				= sas_ioctl,
+#ifdef CONFIG_COMPAT
+	.compat_ioctl			= sas_ioctl,
+#endif
+>>>>>>> upstream/android-13
 	.shost_attrs			= isci_host_attrs,
 	.track_queue_depth		= 1,
 };
@@ -304,6 +324,7 @@ static int isci_pci_init(struct pci_dev *pdev)
 
 	pci_set_master(pdev);
 
+<<<<<<< HEAD
 	err = pci_set_dma_mask(pdev, DMA_BIT_MASK(64));
 	if (err) {
 		err = pci_set_dma_mask(pdev, DMA_BIT_MASK(32));
@@ -319,6 +340,12 @@ static int isci_pci_init(struct pci_dev *pdev)
 	}
 
 	return 0;
+=======
+	err = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
+	if (err)
+		err = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32));
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static int num_controllers(struct pci_dev *pdev)
@@ -630,7 +657,11 @@ static int isci_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 		return -ENOMEM;
 	pci_set_drvdata(pdev, pci_info);
 
+<<<<<<< HEAD
 	if (efi_enabled(EFI_RUNTIME_SERVICES))
+=======
+	if (efi_rt_services_supported(EFI_RT_SUPPORTED_GET_VARIABLE))
+>>>>>>> upstream/android-13
 		orom = isci_get_efi_var(pdev);
 
 	if (!orom)
@@ -723,10 +754,13 @@ static int isci_suspend(struct device *dev)
 		isci_host_deinit(ihost);
 	}
 
+<<<<<<< HEAD
 	pci_save_state(pdev);
 	pci_disable_device(pdev);
 	pci_set_power_state(pdev, PCI_D3hot);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -734,6 +768,7 @@ static int isci_resume(struct device *dev)
 {
 	struct pci_dev *pdev = to_pci_dev(dev);
 	struct isci_host *ihost;
+<<<<<<< HEAD
 	int rc, i;
 
 	pci_set_power_state(pdev, PCI_D0);
@@ -747,6 +782,9 @@ static int isci_resume(struct device *dev)
 	}
 
 	pci_set_master(pdev);
+=======
+	int i;
+>>>>>>> upstream/android-13
 
 	for_each_isci_host(i, ihost, pdev) {
 		sas_prep_resume_ha(&ihost->sas_ha);

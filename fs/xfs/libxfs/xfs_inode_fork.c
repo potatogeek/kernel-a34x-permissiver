@@ -3,10 +3,17 @@
  * Copyright (c) 2000-2006 Silicon Graphics, Inc.
  * All Rights Reserved.
  */
+<<<<<<< HEAD
 #include <linux/log2.h>
 
 #include "xfs.h"
 #include "xfs_fs.h"
+=======
+
+#include "xfs.h"
+#include "xfs_fs.h"
+#include "xfs_shared.h"
+>>>>>>> upstream/android-13
 #include "xfs_format.h"
 #include "xfs_log_format.h"
 #include "xfs_trans_resv.h"
@@ -19,11 +26,15 @@
 #include "xfs_bmap.h"
 #include "xfs_error.h"
 #include "xfs_trace.h"
+<<<<<<< HEAD
 #include "xfs_attr_sf.h"
+=======
+>>>>>>> upstream/android-13
 #include "xfs_da_format.h"
 #include "xfs_da_btree.h"
 #include "xfs_dir2_priv.h"
 #include "xfs_attr_leaf.h"
+<<<<<<< HEAD
 #include "xfs_shared.h"
 
 kmem_zone_t *xfs_ifork_zone;
@@ -126,12 +137,23 @@ xfs_iformat_fork(
 	return error;
 }
 
+=======
+#include "xfs_types.h"
+#include "xfs_errortag.h"
+
+kmem_zone_t *xfs_ifork_zone;
+
+>>>>>>> upstream/android-13
 void
 xfs_init_local_fork(
 	struct xfs_inode	*ip,
 	int			whichfork,
 	const void		*data,
+<<<<<<< HEAD
 	int			size)
+=======
+	int64_t			size)
+>>>>>>> upstream/android-13
 {
 	struct xfs_ifork	*ifp = XFS_IFORK_PTR(ip, whichfork);
 	int			mem_size = size, real_size = 0;
@@ -149,7 +171,11 @@ xfs_init_local_fork(
 
 	if (size) {
 		real_size = roundup(mem_size, 4);
+<<<<<<< HEAD
 		ifp->if_u1.if_data = kmem_alloc(real_size, KM_SLEEP | KM_NOFS);
+=======
+		ifp->if_u1.if_data = kmem_alloc(real_size, KM_NOFS);
+>>>>>>> upstream/android-13
 		memcpy(ifp->if_u1.if_data, data, size);
 		if (zero_terminate)
 			ifp->if_u1.if_data[size] = '\0';
@@ -158,8 +184,11 @@ xfs_init_local_fork(
 	}
 
 	ifp->if_bytes = size;
+<<<<<<< HEAD
 	ifp->if_flags &= ~(XFS_IFEXTENTS | XFS_IFBROOT);
 	ifp->if_flags |= XFS_IFINLINE;
+=======
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -179,7 +208,11 @@ xfs_iformat_local(
 	 */
 	if (unlikely(size > XFS_DFORK_SIZE(dip, ip->i_mount, whichfork))) {
 		xfs_warn(ip->i_mount,
+<<<<<<< HEAD
 	"corrupt inode %Lu (bad size %d for local fork, size = %d).",
+=======
+	"corrupt inode %Lu (bad size %d for local fork, size = %zd).",
+>>>>>>> upstream/android-13
 			(unsigned long long) ip->i_ino, size,
 			XFS_DFORK_SIZE(dip, ip->i_mount, whichfork));
 		xfs_inode_verifier_error(ip, -EFSCORRUPTED,
@@ -249,7 +282,10 @@ xfs_iformat_extents(
 			xfs_iext_next(ifp, &icur);
 		}
 	}
+<<<<<<< HEAD
 	ifp->if_flags |= XFS_IFEXTENTS;
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -288,6 +324,7 @@ xfs_iformat_btree(
 	 * or the number of extents is greater than the number of
 	 * blocks.
 	 */
+<<<<<<< HEAD
 	if (unlikely(XFS_IFORK_NEXTENTS(ip, whichfork) <=
 					XFS_IFORK_MAXEXT(ip, whichfork) ||
 		     nrecs == 0 ||
@@ -295,6 +332,14 @@ xfs_iformat_btree(
 					XFS_DFORK_SIZE(dip, mp, whichfork) ||
 		     XFS_IFORK_NEXTENTS(ip, whichfork) > ip->i_d.di_nblocks) ||
 		     level == 0 || level > XFS_BTREE_MAXLEVELS) {
+=======
+	if (unlikely(ifp->if_nextents <= XFS_IFORK_MAXEXT(ip, whichfork) ||
+		     nrecs == 0 ||
+		     XFS_BMDR_SPACE_CALC(nrecs) >
+					XFS_DFORK_SIZE(dip, mp, whichfork) ||
+		     ifp->if_nextents > ip->i_nblocks) ||
+		     level == 0 || level > XFS_BM_MAXLEVELS(mp, whichfork)) {
+>>>>>>> upstream/android-13
 		xfs_warn(mp, "corrupt inode %Lu (btree).",
 					(unsigned long long) ip->i_ino);
 		xfs_inode_verifier_error(ip, -EFSCORRUPTED,
@@ -304,7 +349,11 @@ xfs_iformat_btree(
 	}
 
 	ifp->if_broot_bytes = size;
+<<<<<<< HEAD
 	ifp->if_broot = kmem_alloc(size, KM_SLEEP | KM_NOFS);
+=======
+	ifp->if_broot = kmem_alloc(size, KM_NOFS);
+>>>>>>> upstream/android-13
 	ASSERT(ifp->if_broot != NULL);
 	/*
 	 * Copy and convert from the on-disk structure
@@ -312,8 +361,11 @@ xfs_iformat_btree(
 	 */
 	xfs_bmdr_to_bmbt(ip, dfp, XFS_DFORK_SIZE(dip, ip->i_mount, whichfork),
 			 ifp->if_broot, size);
+<<<<<<< HEAD
 	ifp->if_flags &= ~XFS_IFEXTENTS;
 	ifp->if_flags |= XFS_IFBROOT;
+=======
+>>>>>>> upstream/android-13
 
 	ifp->if_bytes = 0;
 	ifp->if_u1.if_root = NULL;
@@ -321,6 +373,123 @@ xfs_iformat_btree(
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+int
+xfs_iformat_data_fork(
+	struct xfs_inode	*ip,
+	struct xfs_dinode	*dip)
+{
+	struct inode		*inode = VFS_I(ip);
+	int			error;
+
+	/*
+	 * Initialize the extent count early, as the per-format routines may
+	 * depend on it.
+	 */
+	ip->i_df.if_format = dip->di_format;
+	ip->i_df.if_nextents = be32_to_cpu(dip->di_nextents);
+
+	switch (inode->i_mode & S_IFMT) {
+	case S_IFIFO:
+	case S_IFCHR:
+	case S_IFBLK:
+	case S_IFSOCK:
+		ip->i_disk_size = 0;
+		inode->i_rdev = xfs_to_linux_dev_t(xfs_dinode_get_rdev(dip));
+		return 0;
+	case S_IFREG:
+	case S_IFLNK:
+	case S_IFDIR:
+		switch (ip->i_df.if_format) {
+		case XFS_DINODE_FMT_LOCAL:
+			error = xfs_iformat_local(ip, dip, XFS_DATA_FORK,
+					be64_to_cpu(dip->di_size));
+			if (!error)
+				error = xfs_ifork_verify_local_data(ip);
+			return error;
+		case XFS_DINODE_FMT_EXTENTS:
+			return xfs_iformat_extents(ip, dip, XFS_DATA_FORK);
+		case XFS_DINODE_FMT_BTREE:
+			return xfs_iformat_btree(ip, dip, XFS_DATA_FORK);
+		default:
+			xfs_inode_verifier_error(ip, -EFSCORRUPTED, __func__,
+					dip, sizeof(*dip), __this_address);
+			return -EFSCORRUPTED;
+		}
+		break;
+	default:
+		xfs_inode_verifier_error(ip, -EFSCORRUPTED, __func__, dip,
+				sizeof(*dip), __this_address);
+		return -EFSCORRUPTED;
+	}
+}
+
+static uint16_t
+xfs_dfork_attr_shortform_size(
+	struct xfs_dinode		*dip)
+{
+	struct xfs_attr_shortform	*atp =
+		(struct xfs_attr_shortform *)XFS_DFORK_APTR(dip);
+
+	return be16_to_cpu(atp->hdr.totsize);
+}
+
+struct xfs_ifork *
+xfs_ifork_alloc(
+	enum xfs_dinode_fmt	format,
+	xfs_extnum_t		nextents)
+{
+	struct xfs_ifork	*ifp;
+
+	ifp = kmem_cache_zalloc(xfs_ifork_zone, GFP_NOFS | __GFP_NOFAIL);
+	ifp->if_format = format;
+	ifp->if_nextents = nextents;
+	return ifp;
+}
+
+int
+xfs_iformat_attr_fork(
+	struct xfs_inode	*ip,
+	struct xfs_dinode	*dip)
+{
+	int			error = 0;
+
+	/*
+	 * Initialize the extent count early, as the per-format routines may
+	 * depend on it.
+	 */
+	ip->i_afp = xfs_ifork_alloc(dip->di_aformat,
+				be16_to_cpu(dip->di_anextents));
+
+	switch (ip->i_afp->if_format) {
+	case XFS_DINODE_FMT_LOCAL:
+		error = xfs_iformat_local(ip, dip, XFS_ATTR_FORK,
+				xfs_dfork_attr_shortform_size(dip));
+		if (!error)
+			error = xfs_ifork_verify_local_attr(ip);
+		break;
+	case XFS_DINODE_FMT_EXTENTS:
+		error = xfs_iformat_extents(ip, dip, XFS_ATTR_FORK);
+		break;
+	case XFS_DINODE_FMT_BTREE:
+		error = xfs_iformat_btree(ip, dip, XFS_ATTR_FORK);
+		break;
+	default:
+		xfs_inode_verifier_error(ip, error, __func__, dip,
+				sizeof(*dip), __this_address);
+		error = -EFSCORRUPTED;
+		break;
+	}
+
+	if (error) {
+		kmem_cache_free(xfs_ifork_zone, ip->i_afp);
+		ip->i_afp = NULL;
+	}
+	return error;
+}
+
+>>>>>>> upstream/android-13
 /*
  * Reallocate the space for if_broot based on the number of records
  * being added or deleted as indicated in rec_diff.  Move the records
@@ -369,7 +538,11 @@ xfs_iroot_realloc(
 		 */
 		if (ifp->if_broot_bytes == 0) {
 			new_size = XFS_BMAP_BROOT_SPACE_CALC(mp, rec_diff);
+<<<<<<< HEAD
 			ifp->if_broot = kmem_alloc(new_size, KM_SLEEP | KM_NOFS);
+=======
+			ifp->if_broot = kmem_alloc(new_size, KM_NOFS);
+>>>>>>> upstream/android-13
 			ifp->if_broot_bytes = (int)new_size;
 			return;
 		}
@@ -383,8 +556,13 @@ xfs_iroot_realloc(
 		cur_max = xfs_bmbt_maxrecs(mp, ifp->if_broot_bytes, 0);
 		new_max = cur_max + rec_diff;
 		new_size = XFS_BMAP_BROOT_SPACE_CALC(mp, new_max);
+<<<<<<< HEAD
 		ifp->if_broot = kmem_realloc(ifp->if_broot, new_size,
 				KM_SLEEP | KM_NOFS);
+=======
+		ifp->if_broot = krealloc(ifp->if_broot, new_size,
+					 GFP_NOFS | __GFP_NOFAIL);
+>>>>>>> upstream/android-13
 		op = (char *)XFS_BMAP_BROOT_PTR_ADDR(mp, ifp->if_broot, 1,
 						     ifp->if_broot_bytes);
 		np = (char *)XFS_BMAP_BROOT_PTR_ADDR(mp, ifp->if_broot, 1,
@@ -410,7 +588,11 @@ xfs_iroot_realloc(
 	else
 		new_size = 0;
 	if (new_size > 0) {
+<<<<<<< HEAD
 		new_broot = kmem_alloc(new_size, KM_SLEEP | KM_NOFS);
+=======
+		new_broot = kmem_alloc(new_size, KM_NOFS);
+>>>>>>> upstream/android-13
 		/*
 		 * First copy over the btree block header.
 		 */
@@ -418,7 +600,10 @@ xfs_iroot_realloc(
 			XFS_BMBT_BLOCK_LEN(ip->i_mount));
 	} else {
 		new_broot = NULL;
+<<<<<<< HEAD
 		ifp->if_flags &= ~XFS_IFBROOT;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -469,11 +654,19 @@ xfs_iroot_realloc(
 void
 xfs_idata_realloc(
 	struct xfs_inode	*ip,
+<<<<<<< HEAD
 	int			byte_diff,
 	int			whichfork)
 {
 	struct xfs_ifork	*ifp = XFS_IFORK_PTR(ip, whichfork);
 	int			new_size = (int)ifp->if_bytes + byte_diff;
+=======
+	int64_t			byte_diff,
+	int			whichfork)
+{
+	struct xfs_ifork	*ifp = XFS_IFORK_PTR(ip, whichfork);
+	int64_t			new_size = ifp->if_bytes + byte_diff;
+>>>>>>> upstream/android-13
 
 	ASSERT(new_size >= 0);
 	ASSERT(new_size <= XFS_IFORK_SIZE(ip, whichfork));
@@ -493,24 +686,35 @@ xfs_idata_realloc(
 	 * in size so that it can be logged and stay on word boundaries.
 	 * We enforce that here.
 	 */
+<<<<<<< HEAD
 	ifp->if_u1.if_data = kmem_realloc(ifp->if_u1.if_data,
 			roundup(new_size, 4), KM_SLEEP | KM_NOFS);
+=======
+	ifp->if_u1.if_data = krealloc(ifp->if_u1.if_data, roundup(new_size, 4),
+				      GFP_NOFS | __GFP_NOFAIL);
+>>>>>>> upstream/android-13
 	ifp->if_bytes = new_size;
 }
 
 void
 xfs_idestroy_fork(
+<<<<<<< HEAD
 	xfs_inode_t	*ip,
 	int		whichfork)
 {
 	struct xfs_ifork	*ifp;
 
 	ifp = XFS_IFORK_PTR(ip, whichfork);
+=======
+	struct xfs_ifork	*ifp)
+{
+>>>>>>> upstream/android-13
 	if (ifp->if_broot != NULL) {
 		kmem_free(ifp->if_broot);
 		ifp->if_broot = NULL;
 	}
 
+<<<<<<< HEAD
 	/*
 	 * If the format is local, then we can't have an extents
 	 * array so just look for an inline data array.  If we're
@@ -532,6 +736,18 @@ xfs_idestroy_fork(
 	} else if (whichfork == XFS_COW_FORK) {
 		kmem_zone_free(xfs_ifork_zone, ip->i_cowfp);
 		ip->i_cowfp = NULL;
+=======
+	switch (ifp->if_format) {
+	case XFS_DINODE_FMT_LOCAL:
+		kmem_free(ifp->if_u1.if_data);
+		ifp->if_u1.if_data = NULL;
+		break;
+	case XFS_DINODE_FMT_EXTENTS:
+	case XFS_DINODE_FMT_BTREE:
+		if (ifp->if_height)
+			xfs_iext_destroy(ifp);
+		break;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -554,7 +770,11 @@ xfs_iextents_copy(
 	struct xfs_ifork	*ifp = XFS_IFORK_PTR(ip, whichfork);
 	struct xfs_iext_cursor	icur;
 	struct xfs_bmbt_irec	rec;
+<<<<<<< HEAD
 	int			copied = 0;
+=======
+	int64_t			copied = 0;
+>>>>>>> upstream/android-13
 
 	ASSERT(xfs_isilocked(ip, XFS_ILOCK_EXCL | XFS_ILOCK_SHARED));
 	ASSERT(ifp->if_bytes > 0);
@@ -588,7 +808,11 @@ void
 xfs_iflush_fork(
 	xfs_inode_t		*ip,
 	xfs_dinode_t		*dip,
+<<<<<<< HEAD
 	xfs_inode_log_item_t	*iip,
+=======
+	struct xfs_inode_log_item *iip,
+>>>>>>> upstream/android-13
 	int			whichfork)
 {
 	char			*cp;
@@ -614,7 +838,11 @@ xfs_iflush_fork(
 	}
 	cp = XFS_DFORK_PTR(dip, whichfork);
 	mp = ip->i_mount;
+<<<<<<< HEAD
 	switch (XFS_IFORK_FORMAT(ip, whichfork)) {
+=======
+	switch (ifp->if_format) {
+>>>>>>> upstream/android-13
 	case XFS_DINODE_FMT_LOCAL:
 		if ((iip->ili_fields & dataflag[whichfork]) &&
 		    (ifp->if_bytes > 0)) {
@@ -625,11 +853,17 @@ xfs_iflush_fork(
 		break;
 
 	case XFS_DINODE_FMT_EXTENTS:
+<<<<<<< HEAD
 		ASSERT((ifp->if_flags & XFS_IFEXTENTS) ||
 		       !(iip->ili_fields & extflag[whichfork]));
 		if ((iip->ili_fields & extflag[whichfork]) &&
 		    (ifp->if_bytes > 0)) {
 			ASSERT(XFS_IFORK_NEXTENTS(ip, whichfork) > 0);
+=======
+		if ((iip->ili_fields & extflag[whichfork]) &&
+		    (ifp->if_bytes > 0)) {
+			ASSERT(ifp->if_nextents > 0);
+>>>>>>> upstream/android-13
 			(void)xfs_iextents_copy(ip, (xfs_bmbt_rec_t *)cp,
 				whichfork);
 		}
@@ -684,6 +918,7 @@ xfs_ifork_init_cow(
 	if (ip->i_cowfp)
 		return;
 
+<<<<<<< HEAD
 	ip->i_cowfp = kmem_zone_zalloc(xfs_ifork_zone,
 				       KM_SLEEP | KM_NOFS);
 	ip->i_cowfp->if_flags = XFS_IFEXTENTS;
@@ -731,4 +966,84 @@ xfs_ifork_verify_attr(
 	if (!XFS_IFORK_PTR(ip, XFS_ATTR_FORK))
 		return __this_address;
 	return ops->verify_attr(ip);
+=======
+	ip->i_cowfp = kmem_cache_zalloc(xfs_ifork_zone,
+				       GFP_NOFS | __GFP_NOFAIL);
+	ip->i_cowfp->if_format = XFS_DINODE_FMT_EXTENTS;
+}
+
+/* Verify the inline contents of the data fork of an inode. */
+int
+xfs_ifork_verify_local_data(
+	struct xfs_inode	*ip)
+{
+	xfs_failaddr_t		fa = NULL;
+
+	switch (VFS_I(ip)->i_mode & S_IFMT) {
+	case S_IFDIR:
+		fa = xfs_dir2_sf_verify(ip);
+		break;
+	case S_IFLNK:
+		fa = xfs_symlink_shortform_verify(ip);
+		break;
+	default:
+		break;
+	}
+
+	if (fa) {
+		xfs_inode_verifier_error(ip, -EFSCORRUPTED, "data fork",
+				ip->i_df.if_u1.if_data, ip->i_df.if_bytes, fa);
+		return -EFSCORRUPTED;
+	}
+
+	return 0;
+}
+
+/* Verify the inline contents of the attr fork of an inode. */
+int
+xfs_ifork_verify_local_attr(
+	struct xfs_inode	*ip)
+{
+	struct xfs_ifork	*ifp = ip->i_afp;
+	xfs_failaddr_t		fa;
+
+	if (!ifp)
+		fa = __this_address;
+	else
+		fa = xfs_attr_shortform_verify(ip);
+
+	if (fa) {
+		xfs_inode_verifier_error(ip, -EFSCORRUPTED, "attr fork",
+				ifp ? ifp->if_u1.if_data : NULL,
+				ifp ? ifp->if_bytes : 0, fa);
+		return -EFSCORRUPTED;
+	}
+
+	return 0;
+}
+
+int
+xfs_iext_count_may_overflow(
+	struct xfs_inode	*ip,
+	int			whichfork,
+	int			nr_to_add)
+{
+	struct xfs_ifork	*ifp = XFS_IFORK_PTR(ip, whichfork);
+	uint64_t		max_exts;
+	uint64_t		nr_exts;
+
+	if (whichfork == XFS_COW_FORK)
+		return 0;
+
+	max_exts = (whichfork == XFS_ATTR_FORK) ? MAXAEXTNUM : MAXEXTNUM;
+
+	if (XFS_TEST_ERROR(false, ip->i_mount, XFS_ERRTAG_REDUCE_MAX_IEXTENTS))
+		max_exts = 10;
+
+	nr_exts = ifp->if_nextents + nr_to_add;
+	if (nr_exts < ifp->if_nextents || nr_exts > max_exts)
+		return -EFBIG;
+
+	return 0;
+>>>>>>> upstream/android-13
 }

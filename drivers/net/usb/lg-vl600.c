@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Ethernet interface part of the LG VL600 LTE modem (4G dongle)
  *
  * Copyright (C) 2011 Intel Corporation
  * Author: Andrzej Zaborowski <balrogg@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/etherdevice.h>
 #include <linux/ethtool.h>
@@ -43,7 +50,11 @@
  * Windows/Mac drivers do send a couple of such frames to the device
  * during initialisation, with protocol set to 0x0906 or 0x0b06 and (what
  * seems to be) a flag in the .dummy_flags.  This doesn't seem necessary
+<<<<<<< HEAD
  * for modem operation but can possibly be used for GPS or other funcitons.
+=======
+ * for modem operation but can possibly be used for GPS or other functions.
+>>>>>>> upstream/android-13
  */
 
 struct vl600_frame_hdr {
@@ -84,7 +95,11 @@ static int vl600_bind(struct usbnet *dev, struct usb_interface *intf)
 	/* ARP packets don't go through, but they're also of no use.  The
 	 * subnet has only two hosts anyway: us and the gateway / DHCP
 	 * server (probably simulated by modem firmware or network operator)
+<<<<<<< HEAD
 	 * whose address changes everytime we connect to the intarwebz and
+=======
+	 * whose address changes every time we connect to the intarwebz and
+>>>>>>> upstream/android-13
 	 * who doesn't bother answering ARP requests either.  So hardware
 	 * addresses have no meaning, the destination and the source of every
 	 * packet depend only on whether it is on the IN or OUT endpoint.  */
@@ -99,9 +114,13 @@ static void vl600_unbind(struct usbnet *dev, struct usb_interface *intf)
 {
 	struct vl600_state *s = dev->driver_priv;
 
+<<<<<<< HEAD
 	if (s->current_rx_buf)
 		dev_kfree_skb(s->current_rx_buf);
 
+=======
+	dev_kfree_skb(s->current_rx_buf);
+>>>>>>> upstream/android-13
 	kfree(s);
 
 	return usbnet_cdc_unbind(dev, intf);

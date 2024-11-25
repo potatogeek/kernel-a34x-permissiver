@@ -1,8 +1,13 @@
+<<<<<<< HEAD
 /* Copyright (c) 2017 Facebook
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of version 2 of the GNU General Public
  * License as published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* Copyright (c) 2017 Facebook
+>>>>>>> upstream/android-13
  */
 
 #include <stdio.h>
@@ -36,6 +41,7 @@ int main(int argc, char **argv)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	if (setup_cgroup_environment()) {
 		printf("Failed to load DEV_CGROUP program\n");
 		goto err;
@@ -51,6 +57,12 @@ int main(int argc, char **argv)
 	if (join_cgroup(TEST_CGROUP)) {
 		printf("Failed to join cgroup\n");
 		goto err;
+=======
+	cgroup_fd = cgroup_setup_and_join(TEST_CGROUP);
+	if (cgroup_fd < 0) {
+		printf("Failed to create test cgroup\n");
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	/* Attach bpf program */

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2013 Red Hat
  * Author: Rob Clark <robdclark@gmail.com>
@@ -15,19 +16,37 @@
  * this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2013 Red Hat
+ * Author: Rob Clark <robdclark@gmail.com>
+ */
+
+#include <linux/dma-map-ops.h>
+>>>>>>> upstream/android-13
 #include <linux/spinlock.h>
 #include <linux/shmem_fs.h>
 #include <linux/dma-buf.h>
 #include <linux/pfn_t.h>
 
+<<<<<<< HEAD
+=======
+#include <drm/drm_prime.h>
+
+>>>>>>> upstream/android-13
 #include "msm_drv.h"
 #include "msm_fence.h"
 #include "msm_gem.h"
 #include "msm_gpu.h"
 #include "msm_mmu.h"
 
+<<<<<<< HEAD
 static void msm_gem_vunmap_locked(struct drm_gem_object *obj);
 
+=======
+static void update_inactive(struct msm_gem_object *msm_obj);
+>>>>>>> upstream/android-13
 
 static dma_addr_t physaddr(struct drm_gem_object *obj)
 {
@@ -61,6 +80,7 @@ static void sync_for_device(struct msm_gem_object *msm_obj)
 {
 	struct device *dev = msm_obj->base.dev->dev;
 
+<<<<<<< HEAD
 	if (get_dma_ops(dev) && IS_ENABLED(CONFIG_ARM64)) {
 		dma_sync_sg_for_device(dev, msm_obj->sgt->sgl,
 			msm_obj->sgt->nents, DMA_BIDIRECTIONAL);
@@ -68,12 +88,16 @@ static void sync_for_device(struct msm_gem_object *msm_obj)
 		dma_map_sg(dev, msm_obj->sgt->sgl,
 			msm_obj->sgt->nents, DMA_BIDIRECTIONAL);
 	}
+=======
+	dma_map_sgtable(dev, msm_obj->sgt, DMA_BIDIRECTIONAL, 0);
+>>>>>>> upstream/android-13
 }
 
 static void sync_for_cpu(struct msm_gem_object *msm_obj)
 {
 	struct device *dev = msm_obj->base.dev->dev;
 
+<<<<<<< HEAD
 	if (get_dma_ops(dev) && IS_ENABLED(CONFIG_ARM64)) {
 		dma_sync_sg_for_cpu(dev, msm_obj->sgt->sgl,
 			msm_obj->sgt->nents, DMA_BIDIRECTIONAL);
@@ -81,6 +105,9 @@ static void sync_for_cpu(struct msm_gem_object *msm_obj)
 		dma_unmap_sg(dev, msm_obj->sgt->sgl,
 			msm_obj->sgt->nents, DMA_BIDIRECTIONAL);
 	}
+=======
+	dma_unmap_sgtable(dev, msm_obj->sgt, DMA_BIDIRECTIONAL, 0);
+>>>>>>> upstream/android-13
 }
 
 /* allocate pages from VRAM carveout, used when no IOMMU: */
@@ -117,6 +144,11 @@ static struct page **get_pages(struct drm_gem_object *obj)
 {
 	struct msm_gem_object *msm_obj = to_msm_bo(obj);
 
+<<<<<<< HEAD
+=======
+	GEM_WARN_ON(!msm_gem_is_locked(obj));
+
+>>>>>>> upstream/android-13
 	if (!msm_obj->pages) {
 		struct drm_device *dev = obj->dev;
 		struct page **p;
@@ -128,18 +160,30 @@ static struct page **get_pages(struct drm_gem_object *obj)
 			p = get_pages_vram(obj, npages);
 
 		if (IS_ERR(p)) {
+<<<<<<< HEAD
 			dev_err(dev->dev, "could not get pages: %ld\n",
+=======
+			DRM_DEV_ERROR(dev->dev, "could not get pages: %ld\n",
+>>>>>>> upstream/android-13
 					PTR_ERR(p));
 			return p;
 		}
 
 		msm_obj->pages = p;
 
+<<<<<<< HEAD
 		msm_obj->sgt = drm_prime_pages_to_sg(p, npages);
 		if (IS_ERR(msm_obj->sgt)) {
 			void *ptr = ERR_CAST(msm_obj->sgt);
 
 			dev_err(dev->dev, "failed to allocate sgt\n");
+=======
+		msm_obj->sgt = drm_prime_pages_to_sg(obj->dev, p, npages);
+		if (IS_ERR(msm_obj->sgt)) {
+			void *ptr = ERR_CAST(msm_obj->sgt);
+
+			DRM_DEV_ERROR(dev->dev, "failed to allocate sgt\n");
+>>>>>>> upstream/android-13
 			msm_obj->sgt = NULL;
 			return ptr;
 		}
@@ -149,6 +193,11 @@ static struct page **get_pages(struct drm_gem_object *obj)
 		 */
 		if (msm_obj->flags & (MSM_BO_WC|MSM_BO_UNCACHED))
 			sync_for_device(msm_obj);
+<<<<<<< HEAD
+=======
+
+		update_inactive(msm_obj);
+>>>>>>> upstream/android-13
 	}
 
 	return msm_obj->pages;
@@ -181,6 +230,10 @@ static void put_pages(struct drm_gem_object *obj)
 
 			sg_free_table(msm_obj->sgt);
 			kfree(msm_obj->sgt);
+<<<<<<< HEAD
+=======
+			msm_obj->sgt = NULL;
+>>>>>>> upstream/android-13
 		}
 
 		if (use_pages(obj))
@@ -197,20 +250,38 @@ struct page **msm_gem_get_pages(struct drm_gem_object *obj)
 	struct msm_gem_object *msm_obj = to_msm_bo(obj);
 	struct page **p;
 
+<<<<<<< HEAD
 	mutex_lock(&msm_obj->lock);
 
 	if (WARN_ON(msm_obj->madv != MSM_MADV_WILLNEED)) {
 		mutex_unlock(&msm_obj->lock);
+=======
+	msm_gem_lock(obj);
+
+	if (GEM_WARN_ON(msm_obj->madv != MSM_MADV_WILLNEED)) {
+		msm_gem_unlock(obj);
+>>>>>>> upstream/android-13
 		return ERR_PTR(-EBUSY);
 	}
 
 	p = get_pages(obj);
+<<<<<<< HEAD
 	mutex_unlock(&msm_obj->lock);
+=======
+
+	if (!IS_ERR(p)) {
+		msm_obj->pin_count++;
+		update_inactive(msm_obj);
+	}
+
+	msm_gem_unlock(obj);
+>>>>>>> upstream/android-13
 	return p;
 }
 
 void msm_gem_put_pages(struct drm_gem_object *obj)
 {
+<<<<<<< HEAD
 	/* when we start tracking the pin count, then do something here */
 }
 
@@ -257,6 +328,25 @@ int msm_gem_mmap(struct file *filp, struct vm_area_struct *vma)
 }
 
 vm_fault_t msm_gem_fault(struct vm_fault *vmf)
+=======
+	struct msm_gem_object *msm_obj = to_msm_bo(obj);
+
+	msm_gem_lock(obj);
+	msm_obj->pin_count--;
+	GEM_WARN_ON(msm_obj->pin_count < 0);
+	update_inactive(msm_obj);
+	msm_gem_unlock(obj);
+}
+
+static pgprot_t msm_gem_pgprot(struct msm_gem_object *msm_obj, pgprot_t prot)
+{
+	if (msm_obj->flags & (MSM_BO_WC|MSM_BO_UNCACHED))
+		return pgprot_writecombine(prot);
+	return prot;
+}
+
+static vm_fault_t msm_gem_fault(struct vm_fault *vmf)
+>>>>>>> upstream/android-13
 {
 	struct vm_area_struct *vma = vmf->vma;
 	struct drm_gem_object *obj = vma->vm_private_data;
@@ -271,14 +361,23 @@ vm_fault_t msm_gem_fault(struct vm_fault *vmf)
 	 * vm_ops.open/drm_gem_mmap_obj and close get and put
 	 * a reference on obj. So, we dont need to hold one here.
 	 */
+<<<<<<< HEAD
 	err = mutex_lock_interruptible(&msm_obj->lock);
+=======
+	err = msm_gem_lock_interruptible(obj);
+>>>>>>> upstream/android-13
 	if (err) {
 		ret = VM_FAULT_NOPAGE;
 		goto out;
 	}
 
+<<<<<<< HEAD
 	if (WARN_ON(msm_obj->madv != MSM_MADV_WILLNEED)) {
 		mutex_unlock(&msm_obj->lock);
+=======
+	if (GEM_WARN_ON(msm_obj->madv != MSM_MADV_WILLNEED)) {
+		msm_gem_unlock(obj);
+>>>>>>> upstream/android-13
 		return VM_FAULT_SIGBUS;
 	}
 
@@ -299,7 +398,11 @@ vm_fault_t msm_gem_fault(struct vm_fault *vmf)
 
 	ret = vmf_insert_mixed(vma, vmf->address, __pfn_to_pfn_t(pfn, PFN_DEV));
 out_unlock:
+<<<<<<< HEAD
 	mutex_unlock(&msm_obj->lock);
+=======
+	msm_gem_unlock(obj);
+>>>>>>> upstream/android-13
 out:
 	return ret;
 }
@@ -308,16 +411,26 @@ out:
 static uint64_t mmap_offset(struct drm_gem_object *obj)
 {
 	struct drm_device *dev = obj->dev;
+<<<<<<< HEAD
 	struct msm_gem_object *msm_obj = to_msm_bo(obj);
 	int ret;
 
 	WARN_ON(!mutex_is_locked(&msm_obj->lock));
+=======
+	int ret;
+
+	GEM_WARN_ON(!msm_gem_is_locked(obj));
+>>>>>>> upstream/android-13
 
 	/* Make it mmapable */
 	ret = drm_gem_create_mmap_offset(obj);
 
 	if (ret) {
+<<<<<<< HEAD
 		dev_err(dev->dev, "could not allocate mmap offset\n");
+=======
+		DRM_DEV_ERROR(dev->dev, "could not allocate mmap offset\n");
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
@@ -327,11 +440,18 @@ static uint64_t mmap_offset(struct drm_gem_object *obj)
 uint64_t msm_gem_mmap_offset(struct drm_gem_object *obj)
 {
 	uint64_t offset;
+<<<<<<< HEAD
 	struct msm_gem_object *msm_obj = to_msm_bo(obj);
 
 	mutex_lock(&msm_obj->lock);
 	offset = mmap_offset(obj);
 	mutex_unlock(&msm_obj->lock);
+=======
+
+	msm_gem_lock(obj);
+	offset = mmap_offset(obj);
+	msm_gem_unlock(obj);
+>>>>>>> upstream/android-13
 	return offset;
 }
 
@@ -341,7 +461,11 @@ static struct msm_gem_vma *add_vma(struct drm_gem_object *obj,
 	struct msm_gem_object *msm_obj = to_msm_bo(obj);
 	struct msm_gem_vma *vma;
 
+<<<<<<< HEAD
 	WARN_ON(!mutex_is_locked(&msm_obj->lock));
+=======
+	GEM_WARN_ON(!msm_gem_is_locked(obj));
+>>>>>>> upstream/android-13
 
 	vma = kzalloc(sizeof(*vma), GFP_KERNEL);
 	if (!vma)
@@ -360,7 +484,11 @@ static struct msm_gem_vma *lookup_vma(struct drm_gem_object *obj,
 	struct msm_gem_object *msm_obj = to_msm_bo(obj);
 	struct msm_gem_vma *vma;
 
+<<<<<<< HEAD
 	WARN_ON(!mutex_is_locked(&msm_obj->lock));
+=======
+	GEM_WARN_ON(!msm_gem_is_locked(obj));
+>>>>>>> upstream/android-13
 
 	list_for_each_entry(vma, &msm_obj->vmas, list) {
 		if (vma->aspace == aspace)
@@ -379,21 +507,57 @@ static void del_vma(struct msm_gem_vma *vma)
 	kfree(vma);
 }
 
+<<<<<<< HEAD
 /* Called with msm_obj->lock locked */
 static void
 put_iova(struct drm_gem_object *obj)
+=======
+/*
+ * If close is true, this also closes the VMA (releasing the allocated
+ * iova range) in addition to removing the iommu mapping.  In the eviction
+ * case (!close), we keep the iova allocated, but only remove the iommu
+ * mapping.
+ */
+static void
+put_iova_spaces(struct drm_gem_object *obj, bool close)
+{
+	struct msm_gem_object *msm_obj = to_msm_bo(obj);
+	struct msm_gem_vma *vma;
+
+	GEM_WARN_ON(!msm_gem_is_locked(obj));
+
+	list_for_each_entry(vma, &msm_obj->vmas, list) {
+		if (vma->aspace) {
+			msm_gem_purge_vma(vma->aspace, vma);
+			if (close)
+				msm_gem_close_vma(vma->aspace, vma);
+		}
+	}
+}
+
+/* Called with msm_obj locked */
+static void
+put_iova_vmas(struct drm_gem_object *obj)
+>>>>>>> upstream/android-13
 {
 	struct msm_gem_object *msm_obj = to_msm_bo(obj);
 	struct msm_gem_vma *vma, *tmp;
 
+<<<<<<< HEAD
 	WARN_ON(!mutex_is_locked(&msm_obj->lock));
 
 	list_for_each_entry_safe(vma, tmp, &msm_obj->vmas, list) {
 		msm_gem_unmap_vma(vma->aspace, vma, msm_obj->sgt);
+=======
+	GEM_WARN_ON(!msm_gem_is_locked(obj));
+
+	list_for_each_entry_safe(vma, tmp, &msm_obj->vmas, list) {
+>>>>>>> upstream/android-13
 		del_vma(vma);
 	}
 }
 
+<<<<<<< HEAD
 /* get iova, taking a reference.  Should have a matching put */
 int msm_gem_get_iova(struct drm_gem_object *obj,
 		struct msm_gem_address_space *aspace, uint64_t *iova)
@@ -408,10 +572,21 @@ int msm_gem_get_iova(struct drm_gem_object *obj,
 		mutex_unlock(&msm_obj->lock);
 		return -EBUSY;
 	}
+=======
+static int get_iova_locked(struct drm_gem_object *obj,
+		struct msm_gem_address_space *aspace, uint64_t *iova,
+		u64 range_start, u64 range_end)
+{
+	struct msm_gem_vma *vma;
+	int ret = 0;
+
+	GEM_WARN_ON(!msm_gem_is_locked(obj));
+>>>>>>> upstream/android-13
 
 	vma = lookup_vma(obj, aspace);
 
 	if (!vma) {
+<<<<<<< HEAD
 		struct page **pages;
 
 		vma = add_vma(obj, aspace);
@@ -441,15 +616,141 @@ fail:
 	del_vma(vma);
 unlock:
 	mutex_unlock(&msm_obj->lock);
+=======
+		vma = add_vma(obj, aspace);
+		if (IS_ERR(vma))
+			return PTR_ERR(vma);
+
+		ret = msm_gem_init_vma(aspace, vma, obj->size >> PAGE_SHIFT,
+			range_start, range_end);
+		if (ret) {
+			del_vma(vma);
+			return ret;
+		}
+	}
+
+	*iova = vma->iova;
+	return 0;
+}
+
+static int msm_gem_pin_iova(struct drm_gem_object *obj,
+		struct msm_gem_address_space *aspace)
+{
+	struct msm_gem_object *msm_obj = to_msm_bo(obj);
+	struct msm_gem_vma *vma;
+	struct page **pages;
+	int ret, prot = IOMMU_READ;
+
+	if (!(msm_obj->flags & MSM_BO_GPU_READONLY))
+		prot |= IOMMU_WRITE;
+
+	if (msm_obj->flags & MSM_BO_MAP_PRIV)
+		prot |= IOMMU_PRIV;
+
+	if (msm_obj->flags & MSM_BO_CACHED_COHERENT)
+		prot |= IOMMU_CACHE;
+
+	GEM_WARN_ON(!msm_gem_is_locked(obj));
+
+	if (GEM_WARN_ON(msm_obj->madv != MSM_MADV_WILLNEED))
+		return -EBUSY;
+
+	vma = lookup_vma(obj, aspace);
+	if (GEM_WARN_ON(!vma))
+		return -EINVAL;
+
+	pages = get_pages(obj);
+	if (IS_ERR(pages))
+		return PTR_ERR(pages);
+
+	ret = msm_gem_map_vma(aspace, vma, prot,
+			msm_obj->sgt, obj->size >> PAGE_SHIFT);
+
+	if (!ret)
+		msm_obj->pin_count++;
+
+	return ret;
+}
+
+static int get_and_pin_iova_range_locked(struct drm_gem_object *obj,
+		struct msm_gem_address_space *aspace, uint64_t *iova,
+		u64 range_start, u64 range_end)
+{
+	u64 local;
+	int ret;
+
+	GEM_WARN_ON(!msm_gem_is_locked(obj));
+
+	ret = get_iova_locked(obj, aspace, &local,
+		range_start, range_end);
+
+	if (!ret)
+		ret = msm_gem_pin_iova(obj, aspace);
+
+	if (!ret)
+		*iova = local;
+
+	return ret;
+}
+
+/*
+ * get iova and pin it. Should have a matching put
+ * limits iova to specified range (in pages)
+ */
+int msm_gem_get_and_pin_iova_range(struct drm_gem_object *obj,
+		struct msm_gem_address_space *aspace, uint64_t *iova,
+		u64 range_start, u64 range_end)
+{
+	int ret;
+
+	msm_gem_lock(obj);
+	ret = get_and_pin_iova_range_locked(obj, aspace, iova, range_start, range_end);
+	msm_gem_unlock(obj);
+
+	return ret;
+}
+
+int msm_gem_get_and_pin_iova_locked(struct drm_gem_object *obj,
+		struct msm_gem_address_space *aspace, uint64_t *iova)
+{
+	return get_and_pin_iova_range_locked(obj, aspace, iova, 0, U64_MAX);
+}
+
+/* get iova and pin it. Should have a matching put */
+int msm_gem_get_and_pin_iova(struct drm_gem_object *obj,
+		struct msm_gem_address_space *aspace, uint64_t *iova)
+{
+	return msm_gem_get_and_pin_iova_range(obj, aspace, iova, 0, U64_MAX);
+}
+
+/*
+ * Get an iova but don't pin it. Doesn't need a put because iovas are currently
+ * valid for the life of the object
+ */
+int msm_gem_get_iova(struct drm_gem_object *obj,
+		struct msm_gem_address_space *aspace, uint64_t *iova)
+{
+	int ret;
+
+	msm_gem_lock(obj);
+	ret = get_iova_locked(obj, aspace, iova, 0, U64_MAX);
+	msm_gem_unlock(obj);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 /* get iova without taking a reference, used in places where you have
+<<<<<<< HEAD
  * already done a 'msm_gem_get_iova()'.
+=======
+ * already done a 'msm_gem_get_and_pin_iova' or 'msm_gem_get_iova'
+>>>>>>> upstream/android-13
  */
 uint64_t msm_gem_iova(struct drm_gem_object *obj,
 		struct msm_gem_address_space *aspace)
 {
+<<<<<<< HEAD
 	struct msm_gem_object *msm_obj = to_msm_bo(obj);
 	struct msm_gem_vma *vma;
 
@@ -470,6 +771,52 @@ void msm_gem_put_iova(struct drm_gem_object *obj,
 	// unmapped (if the iova refcnt drops to zero), but then later
 	// if another _get_iova_locked() fails we can start unmapping
 	// things that are no longer needed..
+=======
+	struct msm_gem_vma *vma;
+
+	msm_gem_lock(obj);
+	vma = lookup_vma(obj, aspace);
+	msm_gem_unlock(obj);
+	GEM_WARN_ON(!vma);
+
+	return vma ? vma->iova : 0;
+}
+
+/*
+ * Locked variant of msm_gem_unpin_iova()
+ */
+void msm_gem_unpin_iova_locked(struct drm_gem_object *obj,
+		struct msm_gem_address_space *aspace)
+{
+	struct msm_gem_object *msm_obj = to_msm_bo(obj);
+	struct msm_gem_vma *vma;
+
+	GEM_WARN_ON(!msm_gem_is_locked(obj));
+
+	vma = lookup_vma(obj, aspace);
+
+	if (!GEM_WARN_ON(!vma)) {
+		msm_gem_unmap_vma(aspace, vma);
+
+		msm_obj->pin_count--;
+		GEM_WARN_ON(msm_obj->pin_count < 0);
+
+		update_inactive(msm_obj);
+	}
+}
+
+/*
+ * Unpin a iova by updating the reference counts. The memory isn't actually
+ * purged until something else (shrinker, mm_notifier, destroy, etc) decides
+ * to get rid of it
+ */
+void msm_gem_unpin_iova(struct drm_gem_object *obj,
+		struct msm_gem_address_space *aspace)
+{
+	msm_gem_lock(obj);
+	msm_gem_unpin_iova_locked(obj, aspace);
+	msm_gem_unlock(obj);
+>>>>>>> upstream/android-13
 }
 
 int msm_gem_dumb_create(struct drm_file *file, struct drm_device *dev,
@@ -478,7 +825,11 @@ int msm_gem_dumb_create(struct drm_file *file, struct drm_device *dev,
 	args->pitch = align_pitch(args->width, args->bpp);
 	args->size  = PAGE_ALIGN(args->pitch * args->height);
 	return msm_gem_new_handle(dev, file, args->size,
+<<<<<<< HEAD
 			MSM_BO_SCANOUT | MSM_BO_WC, &args->handle);
+=======
+			MSM_BO_SCANOUT | MSM_BO_WC, &args->handle, "dumb");
+>>>>>>> upstream/android-13
 }
 
 int msm_gem_dumb_map_offset(struct drm_file *file, struct drm_device *dev,
@@ -496,7 +847,11 @@ int msm_gem_dumb_map_offset(struct drm_file *file, struct drm_device *dev,
 
 	*offset = msm_gem_mmap_offset(obj);
 
+<<<<<<< HEAD
 	drm_gem_object_put_unlocked(obj);
+=======
+	drm_gem_object_put(obj);
+>>>>>>> upstream/android-13
 
 fail:
 	return ret;
@@ -507,20 +862,38 @@ static void *get_vaddr(struct drm_gem_object *obj, unsigned madv)
 	struct msm_gem_object *msm_obj = to_msm_bo(obj);
 	int ret = 0;
 
+<<<<<<< HEAD
 	mutex_lock(&msm_obj->lock);
 
 	if (WARN_ON(msm_obj->madv > madv)) {
 		dev_err(obj->dev->dev, "Invalid madv state: %u vs %u\n",
 			msm_obj->madv, madv);
 		mutex_unlock(&msm_obj->lock);
+=======
+	GEM_WARN_ON(!msm_gem_is_locked(obj));
+
+	if (obj->import_attach)
+		return ERR_PTR(-ENODEV);
+
+	if (GEM_WARN_ON(msm_obj->madv > madv)) {
+		DRM_DEV_ERROR(obj->dev->dev, "Invalid madv state: %u vs %u\n",
+			msm_obj->madv, madv);
+>>>>>>> upstream/android-13
 		return ERR_PTR(-EBUSY);
 	}
 
 	/* increment vmap_count *before* vmap() call, so shrinker can
+<<<<<<< HEAD
 	 * check vmap_count (is_vunmapable()) outside of msm_obj->lock.
 	 * This guarantees that we won't try to msm_gem_vunmap() this
 	 * same object from within the vmap() call (while we already
 	 * hold msm_obj->lock)
+=======
+	 * check vmap_count (is_vunmapable()) outside of msm_obj lock.
+	 * This guarantees that we won't try to msm_gem_vunmap() this
+	 * same object from within the vmap() call (while we already
+	 * hold msm_obj lock)
+>>>>>>> upstream/android-13
 	 */
 	msm_obj->vmap_count++;
 
@@ -531,18 +904,30 @@ static void *get_vaddr(struct drm_gem_object *obj, unsigned madv)
 			goto fail;
 		}
 		msm_obj->vaddr = vmap(pages, obj->size >> PAGE_SHIFT,
+<<<<<<< HEAD
 				VM_MAP, pgprot_writecombine(PAGE_KERNEL));
+=======
+				VM_MAP, msm_gem_pgprot(msm_obj, PAGE_KERNEL));
+>>>>>>> upstream/android-13
 		if (msm_obj->vaddr == NULL) {
 			ret = -ENOMEM;
 			goto fail;
 		}
+<<<<<<< HEAD
 	}
 
 	mutex_unlock(&msm_obj->lock);
+=======
+
+		update_inactive(msm_obj);
+	}
+
+>>>>>>> upstream/android-13
 	return msm_obj->vaddr;
 
 fail:
 	msm_obj->vmap_count--;
+<<<<<<< HEAD
 	mutex_unlock(&msm_obj->lock);
 	return ERR_PTR(ret);
 }
@@ -550,6 +935,25 @@ fail:
 void *msm_gem_get_vaddr(struct drm_gem_object *obj)
 {
 	return get_vaddr(obj, MSM_MADV_WILLNEED);
+=======
+	return ERR_PTR(ret);
+}
+
+void *msm_gem_get_vaddr_locked(struct drm_gem_object *obj)
+{
+	return get_vaddr(obj, MSM_MADV_WILLNEED);
+}
+
+void *msm_gem_get_vaddr(struct drm_gem_object *obj)
+{
+	void *ret;
+
+	msm_gem_lock(obj);
+	ret = msm_gem_get_vaddr_locked(obj);
+	msm_gem_unlock(obj);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -563,6 +967,7 @@ void *msm_gem_get_vaddr_active(struct drm_gem_object *obj)
 	return get_vaddr(obj, __MSM_MADV_PURGED);
 }
 
+<<<<<<< HEAD
 void msm_gem_put_vaddr(struct drm_gem_object *obj)
 {
 	struct msm_gem_object *msm_obj = to_msm_bo(obj);
@@ -571,6 +976,23 @@ void msm_gem_put_vaddr(struct drm_gem_object *obj)
 	WARN_ON(msm_obj->vmap_count < 1);
 	msm_obj->vmap_count--;
 	mutex_unlock(&msm_obj->lock);
+=======
+void msm_gem_put_vaddr_locked(struct drm_gem_object *obj)
+{
+	struct msm_gem_object *msm_obj = to_msm_bo(obj);
+
+	GEM_WARN_ON(!msm_gem_is_locked(obj));
+	GEM_WARN_ON(msm_obj->vmap_count < 1);
+
+	msm_obj->vmap_count--;
+}
+
+void msm_gem_put_vaddr(struct drm_gem_object *obj)
+{
+	msm_gem_lock(obj);
+	msm_gem_put_vaddr_locked(obj);
+	msm_gem_unlock(obj);
+>>>>>>> upstream/android-13
 }
 
 /* Update madvise status, returns true if not purged, else
@@ -580,25 +1002,44 @@ int msm_gem_madvise(struct drm_gem_object *obj, unsigned madv)
 {
 	struct msm_gem_object *msm_obj = to_msm_bo(obj);
 
+<<<<<<< HEAD
 	mutex_lock(&msm_obj->lock);
 
 	WARN_ON(!mutex_is_locked(&obj->dev->struct_mutex));
+=======
+	msm_gem_lock(obj);
+>>>>>>> upstream/android-13
 
 	if (msm_obj->madv != __MSM_MADV_PURGED)
 		msm_obj->madv = madv;
 
 	madv = msm_obj->madv;
 
+<<<<<<< HEAD
 	mutex_unlock(&msm_obj->lock);
+=======
+	/* If the obj is inactive, we might need to move it
+	 * between inactive lists
+	 */
+	if (msm_obj->active_count == 0)
+		update_inactive(msm_obj);
+
+	msm_gem_unlock(obj);
+>>>>>>> upstream/android-13
 
 	return (madv != __MSM_MADV_PURGED);
 }
 
+<<<<<<< HEAD
 void msm_gem_purge(struct drm_gem_object *obj, enum msm_gem_lock subclass)
+=======
+void msm_gem_purge(struct drm_gem_object *obj)
+>>>>>>> upstream/android-13
 {
 	struct drm_device *dev = obj->dev;
 	struct msm_gem_object *msm_obj = to_msm_bo(obj);
 
+<<<<<<< HEAD
 	WARN_ON(!mutex_is_locked(&dev->struct_mutex));
 	WARN_ON(!is_purgeable(msm_obj));
 	WARN_ON(obj->import_attach);
@@ -614,6 +1055,25 @@ void msm_gem_purge(struct drm_gem_object *obj, enum msm_gem_lock subclass)
 	msm_obj->madv = __MSM_MADV_PURGED;
 
 	drm_vma_node_unmap(&obj->vma_node, dev->anon_inode->i_mapping);
+=======
+	GEM_WARN_ON(!msm_gem_is_locked(obj));
+	GEM_WARN_ON(!is_purgeable(msm_obj));
+
+	/* Get rid of any iommu mapping(s): */
+	put_iova_spaces(obj, true);
+
+	msm_gem_vunmap(obj);
+
+	drm_vma_node_unmap(&obj->vma_node, dev->anon_inode->i_mapping);
+
+	put_pages(obj);
+
+	put_iova_vmas(obj);
+
+	msm_obj->madv = __MSM_MADV_PURGED;
+	update_inactive(msm_obj);
+
+>>>>>>> upstream/android-13
 	drm_gem_free_mmap_offset(obj);
 
 	/* Our goal here is to return as much of the memory as
@@ -625,6 +1085,7 @@ void msm_gem_purge(struct drm_gem_object *obj, enum msm_gem_lock subclass)
 
 	invalidate_mapping_pages(file_inode(obj->filp)->i_mapping,
 			0, (loff_t)-1);
+<<<<<<< HEAD
 
 	mutex_unlock(&msm_obj->lock);
 }
@@ -636,12 +1097,47 @@ static void msm_gem_vunmap_locked(struct drm_gem_object *obj)
 	WARN_ON(!mutex_is_locked(&msm_obj->lock));
 
 	if (!msm_obj->vaddr || WARN_ON(!is_vunmapable(msm_obj)))
+=======
+}
+
+/*
+ * Unpin the backing pages and make them available to be swapped out.
+ */
+void msm_gem_evict(struct drm_gem_object *obj)
+{
+	struct drm_device *dev = obj->dev;
+	struct msm_gem_object *msm_obj = to_msm_bo(obj);
+
+	GEM_WARN_ON(!msm_gem_is_locked(obj));
+	GEM_WARN_ON(is_unevictable(msm_obj));
+	GEM_WARN_ON(!msm_obj->evictable);
+	GEM_WARN_ON(msm_obj->active_count);
+
+	/* Get rid of any iommu mapping(s): */
+	put_iova_spaces(obj, false);
+
+	drm_vma_node_unmap(&obj->vma_node, dev->anon_inode->i_mapping);
+
+	put_pages(obj);
+
+	update_inactive(msm_obj);
+}
+
+void msm_gem_vunmap(struct drm_gem_object *obj)
+{
+	struct msm_gem_object *msm_obj = to_msm_bo(obj);
+
+	GEM_WARN_ON(!msm_gem_is_locked(obj));
+
+	if (!msm_obj->vaddr || GEM_WARN_ON(!is_vunmapable(msm_obj)))
+>>>>>>> upstream/android-13
 		return;
 
 	vunmap(msm_obj->vaddr);
 	msm_obj->vaddr = NULL;
 }
 
+<<<<<<< HEAD
 void msm_gem_vunmap(struct drm_gem_object *obj, enum msm_gem_lock subclass)
 {
 	struct msm_gem_object *msm_obj = to_msm_bo(obj);
@@ -712,18 +1208,87 @@ void msm_gem_move_to_inactive(struct drm_gem_object *obj)
 	msm_obj->gpu = NULL;
 	list_del_init(&msm_obj->mm_list);
 	list_add_tail(&msm_obj->mm_list, &priv->inactive_list);
+=======
+void msm_gem_active_get(struct drm_gem_object *obj, struct msm_gpu *gpu)
+{
+	struct msm_gem_object *msm_obj = to_msm_bo(obj);
+	struct msm_drm_private *priv = obj->dev->dev_private;
+
+	might_sleep();
+	GEM_WARN_ON(!msm_gem_is_locked(obj));
+	GEM_WARN_ON(msm_obj->madv != MSM_MADV_WILLNEED);
+	GEM_WARN_ON(msm_obj->dontneed);
+
+	if (msm_obj->active_count++ == 0) {
+		mutex_lock(&priv->mm_lock);
+		if (msm_obj->evictable)
+			mark_unevictable(msm_obj);
+		list_move_tail(&msm_obj->mm_list, &gpu->active_list);
+		mutex_unlock(&priv->mm_lock);
+	}
+}
+
+void msm_gem_active_put(struct drm_gem_object *obj)
+{
+	struct msm_gem_object *msm_obj = to_msm_bo(obj);
+
+	might_sleep();
+	GEM_WARN_ON(!msm_gem_is_locked(obj));
+
+	if (--msm_obj->active_count == 0) {
+		update_inactive(msm_obj);
+	}
+}
+
+static void update_inactive(struct msm_gem_object *msm_obj)
+{
+	struct msm_drm_private *priv = msm_obj->base.dev->dev_private;
+
+	GEM_WARN_ON(!msm_gem_is_locked(&msm_obj->base));
+
+	if (msm_obj->active_count != 0)
+		return;
+
+	mutex_lock(&priv->mm_lock);
+
+	if (msm_obj->dontneed)
+		mark_unpurgeable(msm_obj);
+	if (msm_obj->evictable)
+		mark_unevictable(msm_obj);
+
+	list_del(&msm_obj->mm_list);
+	if ((msm_obj->madv == MSM_MADV_WILLNEED) && msm_obj->sgt) {
+		list_add_tail(&msm_obj->mm_list, &priv->inactive_willneed);
+		mark_evictable(msm_obj);
+	} else if (msm_obj->madv == MSM_MADV_DONTNEED) {
+		list_add_tail(&msm_obj->mm_list, &priv->inactive_dontneed);
+		mark_purgeable(msm_obj);
+	} else {
+		GEM_WARN_ON((msm_obj->madv != __MSM_MADV_PURGED) && msm_obj->sgt);
+		list_add_tail(&msm_obj->mm_list, &priv->inactive_unpinned);
+	}
+
+	mutex_unlock(&priv->mm_lock);
+>>>>>>> upstream/android-13
 }
 
 int msm_gem_cpu_prep(struct drm_gem_object *obj, uint32_t op, ktime_t *timeout)
 {
+<<<<<<< HEAD
 	struct msm_gem_object *msm_obj = to_msm_bo(obj);
+=======
+>>>>>>> upstream/android-13
 	bool write = !!(op & MSM_PREP_WRITE);
 	unsigned long remain =
 		op & MSM_PREP_NOSYNC ? 0 : timeout_to_jiffies(timeout);
 	long ret;
 
+<<<<<<< HEAD
 	ret = reservation_object_wait_timeout_rcu(msm_obj->resv, write,
 						  true,  remain);
+=======
+	ret = dma_resv_wait_timeout(obj->resv, write, true,  remain);
+>>>>>>> upstream/android-13
 	if (ret == 0)
 		return remain == 0 ? -EBUSY : -ETIMEDOUT;
 	else if (ret < 0)
@@ -745,22 +1310,36 @@ static void describe_fence(struct dma_fence *fence, const char *type,
 		struct seq_file *m)
 {
 	if (!dma_fence_is_signaled(fence))
+<<<<<<< HEAD
 		seq_printf(m, "\t%9s: %s %s seq %u\n", type,
+=======
+		seq_printf(m, "\t%9s: %s %s seq %llu\n", type,
+>>>>>>> upstream/android-13
 				fence->ops->get_driver_name(fence),
 				fence->ops->get_timeline_name(fence),
 				fence->seqno);
 }
 
+<<<<<<< HEAD
 void msm_gem_describe(struct drm_gem_object *obj, struct seq_file *m)
 {
 	struct msm_gem_object *msm_obj = to_msm_bo(obj);
 	struct reservation_object *robj = msm_obj->resv;
 	struct reservation_object_list *fobj;
+=======
+void msm_gem_describe(struct drm_gem_object *obj, struct seq_file *m,
+		struct msm_gem_stats *stats)
+{
+	struct msm_gem_object *msm_obj = to_msm_bo(obj);
+	struct dma_resv *robj = obj->resv;
+	struct dma_resv_list *fobj;
+>>>>>>> upstream/android-13
 	struct dma_fence *fence;
 	struct msm_gem_vma *vma;
 	uint64_t off = drm_vma_node_start(&obj->vma_node);
 	const char *madv;
 
+<<<<<<< HEAD
 	mutex_lock(&msm_obj->lock);
 
 	switch (msm_obj->madv) {
@@ -768,6 +1347,32 @@ void msm_gem_describe(struct drm_gem_object *obj, struct seq_file *m)
 		madv = " purged";
 		break;
 	case MSM_MADV_DONTNEED:
+=======
+	msm_gem_lock(obj);
+
+	stats->all.count++;
+	stats->all.size += obj->size;
+
+	if (is_active(msm_obj)) {
+		stats->active.count++;
+		stats->active.size += obj->size;
+	}
+
+	if (msm_obj->pages) {
+		stats->resident.count++;
+		stats->resident.size += obj->size;
+	}
+
+	switch (msm_obj->madv) {
+	case __MSM_MADV_PURGED:
+		stats->purged.count++;
+		stats->purged.size += obj->size;
+		madv = " purged";
+		break;
+	case MSM_MADV_DONTNEED:
+		stats->purgeable.count++;
+		stats->purgeable.size += obj->size;
+>>>>>>> upstream/android-13
 		madv = " purgeable";
 		break;
 	case MSM_MADV_WILLNEED:
@@ -776,11 +1381,16 @@ void msm_gem_describe(struct drm_gem_object *obj, struct seq_file *m)
 		break;
 	}
 
+<<<<<<< HEAD
 	seq_printf(m, "%08x: %c %2d (%2d) %08llx %p\t",
+=======
+	seq_printf(m, "%08x: %c %2d (%2d) %08llx %p",
+>>>>>>> upstream/android-13
 			msm_obj->flags, is_active(msm_obj) ? 'A' : 'I',
 			obj->name, kref_read(&obj->refcount),
 			off, msm_obj->vaddr);
 
+<<<<<<< HEAD
 	/* FIXME: we need to print the address space here too */
 	list_for_each_entry(vma, &msm_obj->vmas, list)
 		seq_printf(m, " %08llx", vma->iova);
@@ -789,6 +1399,43 @@ void msm_gem_describe(struct drm_gem_object *obj, struct seq_file *m)
 
 	rcu_read_lock();
 	fobj = rcu_dereference(robj->fence);
+=======
+	seq_printf(m, " %08zu %9s %-32s\n", obj->size, madv, msm_obj->name);
+
+	if (!list_empty(&msm_obj->vmas)) {
+
+		seq_puts(m, "      vmas:");
+
+		list_for_each_entry(vma, &msm_obj->vmas, list) {
+			const char *name, *comm;
+			if (vma->aspace) {
+				struct msm_gem_address_space *aspace = vma->aspace;
+				struct task_struct *task =
+					get_pid_task(aspace->pid, PIDTYPE_PID);
+				if (task) {
+					comm = kstrdup(task->comm, GFP_KERNEL);
+					put_task_struct(task);
+				} else {
+					comm = NULL;
+				}
+				name = aspace->name;
+			} else {
+				name = comm = NULL;
+			}
+			seq_printf(m, " [%s%s%s: aspace=%p, %08llx,%s,inuse=%d]",
+				name, comm ? ":" : "", comm ? comm : "",
+				vma->aspace, vma->iova,
+				vma->mapped ? "mapped" : "unmapped",
+				vma->inuse);
+			kfree(comm);
+		}
+
+		seq_puts(m, "\n");
+	}
+
+	rcu_read_lock();
+	fobj = dma_resv_shared_list(robj);
+>>>>>>> upstream/android-13
 	if (fobj) {
 		unsigned int i, shared_count = fobj->shared_count;
 
@@ -798,16 +1445,25 @@ void msm_gem_describe(struct drm_gem_object *obj, struct seq_file *m)
 		}
 	}
 
+<<<<<<< HEAD
 	fence = rcu_dereference(robj->fence_excl);
+=======
+	fence = dma_resv_excl_fence(robj);
+>>>>>>> upstream/android-13
 	if (fence)
 		describe_fence(fence, "Exclusive", m);
 	rcu_read_unlock();
 
+<<<<<<< HEAD
 	mutex_unlock(&msm_obj->lock);
+=======
+	msm_gem_unlock(obj);
+>>>>>>> upstream/android-13
 }
 
 void msm_gem_describe_objects(struct list_head *list, struct seq_file *m)
 {
+<<<<<<< HEAD
 	struct msm_gem_object *msm_obj;
 	int count = 0;
 	size_t size = 0;
@@ -844,10 +1500,62 @@ void msm_gem_free_object(struct drm_gem_object *obj)
 	if (obj->import_attach) {
 		if (msm_obj->vaddr)
 			dma_buf_vunmap(obj->import_attach->dmabuf, msm_obj->vaddr);
+=======
+	struct msm_gem_stats stats = {};
+	struct msm_gem_object *msm_obj;
+
+	seq_puts(m, "   flags       id ref  offset   kaddr            size     madv      name\n");
+	list_for_each_entry(msm_obj, list, node) {
+		struct drm_gem_object *obj = &msm_obj->base;
+		seq_puts(m, "   ");
+		msm_gem_describe(obj, m, &stats);
+	}
+
+	seq_printf(m, "Total:     %4d objects, %9zu bytes\n",
+			stats.all.count, stats.all.size);
+	seq_printf(m, "Active:    %4d objects, %9zu bytes\n",
+			stats.active.count, stats.active.size);
+	seq_printf(m, "Resident:  %4d objects, %9zu bytes\n",
+			stats.resident.count, stats.resident.size);
+	seq_printf(m, "Purgeable: %4d objects, %9zu bytes\n",
+			stats.purgeable.count, stats.purgeable.size);
+	seq_printf(m, "Purged:    %4d objects, %9zu bytes\n",
+			stats.purged.count, stats.purged.size);
+}
+#endif
+
+/* don't call directly!  Use drm_gem_object_put() */
+void msm_gem_free_object(struct drm_gem_object *obj)
+{
+	struct msm_gem_object *msm_obj = to_msm_bo(obj);
+	struct drm_device *dev = obj->dev;
+	struct msm_drm_private *priv = dev->dev_private;
+
+	mutex_lock(&priv->obj_lock);
+	list_del(&msm_obj->node);
+	mutex_unlock(&priv->obj_lock);
+
+	mutex_lock(&priv->mm_lock);
+	if (msm_obj->dontneed)
+		mark_unpurgeable(msm_obj);
+	list_del(&msm_obj->mm_list);
+	mutex_unlock(&priv->mm_lock);
+
+	msm_gem_lock(obj);
+
+	/* object should not be on active list: */
+	GEM_WARN_ON(is_active(msm_obj));
+
+	put_iova_spaces(obj, true);
+
+	if (obj->import_attach) {
+		GEM_WARN_ON(msm_obj->vaddr);
+>>>>>>> upstream/android-13
 
 		/* Don't drop the pages for imported dmabuf, as they are not
 		 * ours, just free the array we allocated:
 		 */
+<<<<<<< HEAD
 		if (msm_obj->pages)
 			kvfree(msm_obj->pages);
 
@@ -869,6 +1577,44 @@ void msm_gem_free_object(struct drm_gem_object *obj)
 /* convenience method to construct a GEM buffer object, and userspace handle */
 int msm_gem_new_handle(struct drm_device *dev, struct drm_file *file,
 		uint32_t size, uint32_t flags, uint32_t *handle)
+=======
+		kvfree(msm_obj->pages);
+
+		put_iova_vmas(obj);
+
+		/* dma_buf_detach() grabs resv lock, so we need to unlock
+		 * prior to drm_prime_gem_destroy
+		 */
+		msm_gem_unlock(obj);
+
+		drm_prime_gem_destroy(obj, msm_obj->sgt);
+	} else {
+		msm_gem_vunmap(obj);
+		put_pages(obj);
+		put_iova_vmas(obj);
+		msm_gem_unlock(obj);
+	}
+
+	drm_gem_object_release(obj);
+
+	kfree(msm_obj);
+}
+
+static int msm_gem_object_mmap(struct drm_gem_object *obj, struct vm_area_struct *vma)
+{
+	struct msm_gem_object *msm_obj = to_msm_bo(obj);
+
+	vma->vm_flags |= VM_IO | VM_MIXEDMAP | VM_DONTEXPAND | VM_DONTDUMP;
+	vma->vm_page_prot = msm_gem_pgprot(msm_obj, vm_get_page_prot(vma->vm_flags));
+
+	return 0;
+}
+
+/* convenience method to construct a GEM buffer object, and userspace handle */
+int msm_gem_new_handle(struct drm_device *dev, struct drm_file *file,
+		uint32_t size, uint32_t flags, uint32_t *handle,
+		char *name)
+>>>>>>> upstream/android-13
 {
 	struct drm_gem_object *obj;
 	int ret;
@@ -878,19 +1624,52 @@ int msm_gem_new_handle(struct drm_device *dev, struct drm_file *file,
 	if (IS_ERR(obj))
 		return PTR_ERR(obj);
 
+<<<<<<< HEAD
 	ret = drm_gem_handle_create(file, obj, handle);
 
 	/* drop reference from allocate - handle holds it now */
 	drm_gem_object_put_unlocked(obj);
+=======
+	if (name)
+		msm_gem_object_set_name(obj, "%s", name);
+
+	ret = drm_gem_handle_create(file, obj, handle);
+
+	/* drop reference from allocate - handle holds it now */
+	drm_gem_object_put(obj);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
+<<<<<<< HEAD
 static int msm_gem_new_impl(struct drm_device *dev,
 		uint32_t size, uint32_t flags,
 		struct reservation_object *resv,
 		struct drm_gem_object **obj,
 		bool struct_mutex_locked)
+=======
+static const struct vm_operations_struct vm_ops = {
+	.fault = msm_gem_fault,
+	.open = drm_gem_vm_open,
+	.close = drm_gem_vm_close,
+};
+
+static const struct drm_gem_object_funcs msm_gem_object_funcs = {
+	.free = msm_gem_free_object,
+	.pin = msm_gem_prime_pin,
+	.unpin = msm_gem_prime_unpin,
+	.get_sg_table = msm_gem_prime_get_sg_table,
+	.vmap = msm_gem_prime_vmap,
+	.vunmap = msm_gem_prime_vunmap,
+	.mmap = msm_gem_object_mmap,
+	.vm_ops = &vm_ops,
+};
+
+static int msm_gem_new_impl(struct drm_device *dev,
+		uint32_t size, uint32_t flags,
+		struct drm_gem_object **obj)
+>>>>>>> upstream/android-13
 {
 	struct msm_drm_private *priv = dev->dev_private;
 	struct msm_gem_object *msm_obj;
@@ -900,8 +1679,17 @@ static int msm_gem_new_impl(struct drm_device *dev,
 	case MSM_BO_CACHED:
 	case MSM_BO_WC:
 		break;
+<<<<<<< HEAD
 	default:
 		dev_err(dev->dev, "invalid cache flag: %x\n",
+=======
+	case MSM_BO_CACHED_COHERENT:
+		if (priv->has_cached_coherent)
+			break;
+		fallthrough;
+	default:
+		DRM_DEV_ERROR(dev->dev, "invalid cache flag: %x\n",
+>>>>>>> upstream/android-13
 				(flags & MSM_BO_CACHE_MASK));
 		return -EINVAL;
 	}
@@ -910,6 +1698,7 @@ static int msm_gem_new_impl(struct drm_device *dev,
 	if (!msm_obj)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	mutex_init(&msm_obj->lock);
 
 	msm_obj->flags = flags;
@@ -935,26 +1724,52 @@ static int msm_gem_new_impl(struct drm_device *dev,
 	}
 
 	*obj = &msm_obj->base;
+=======
+	msm_obj->flags = flags;
+	msm_obj->madv = MSM_MADV_WILLNEED;
+
+	INIT_LIST_HEAD(&msm_obj->node);
+	INIT_LIST_HEAD(&msm_obj->vmas);
+
+	*obj = &msm_obj->base;
+	(*obj)->funcs = &msm_gem_object_funcs;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct drm_gem_object *_msm_gem_new(struct drm_device *dev,
 		uint32_t size, uint32_t flags, bool struct_mutex_locked)
 {
 	struct msm_drm_private *priv = dev->dev_private;
+=======
+struct drm_gem_object *msm_gem_new(struct drm_device *dev, uint32_t size, uint32_t flags)
+{
+	struct msm_drm_private *priv = dev->dev_private;
+	struct msm_gem_object *msm_obj;
+>>>>>>> upstream/android-13
 	struct drm_gem_object *obj = NULL;
 	bool use_vram = false;
 	int ret;
 
 	size = PAGE_ALIGN(size);
 
+<<<<<<< HEAD
 	if (!iommu_present(&platform_bus_type))
 		use_vram = true;
 	else if ((flags & MSM_BO_STOLEN) && priv->vram.size)
 		use_vram = true;
 
 	if (WARN_ON(use_vram && !priv->vram.size))
+=======
+	if (!msm_use_mmu(dev))
+		use_vram = true;
+	else if ((flags & (MSM_BO_STOLEN | MSM_BO_SCANOUT)) && priv->vram.size)
+		use_vram = true;
+
+	if (GEM_WARN_ON(use_vram && !priv->vram.size))
+>>>>>>> upstream/android-13
 		return ERR_PTR(-EINVAL);
 
 	/* Disallow zero sized objects as they make the underlying
@@ -963,19 +1778,37 @@ static struct drm_gem_object *_msm_gem_new(struct drm_device *dev,
 	if (size == 0)
 		return ERR_PTR(-EINVAL);
 
+<<<<<<< HEAD
 	ret = msm_gem_new_impl(dev, size, flags, NULL, &obj, struct_mutex_locked);
 	if (ret)
 		goto fail;
+=======
+	ret = msm_gem_new_impl(dev, size, flags, &obj);
+	if (ret)
+		return ERR_PTR(ret);
+
+	msm_obj = to_msm_bo(obj);
+>>>>>>> upstream/android-13
 
 	if (use_vram) {
 		struct msm_gem_vma *vma;
 		struct page **pages;
+<<<<<<< HEAD
 		struct msm_gem_object *msm_obj = to_msm_bo(obj);
 
 		mutex_lock(&msm_obj->lock);
 
 		vma = add_vma(obj, NULL);
 		mutex_unlock(&msm_obj->lock);
+=======
+
+		drm_gem_private_object_init(dev, obj, size);
+
+		msm_gem_lock(obj);
+
+		vma = add_vma(obj, NULL);
+		msm_gem_unlock(obj);
+>>>>>>> upstream/android-13
 		if (IS_ERR(vma)) {
 			ret = PTR_ERR(vma);
 			goto fail;
@@ -983,9 +1816,22 @@ static struct drm_gem_object *_msm_gem_new(struct drm_device *dev,
 
 		to_msm_bo(obj)->vram_node = &vma->node;
 
+<<<<<<< HEAD
 		drm_gem_private_object_init(dev, obj, size);
 
 		pages = get_pages(obj);
+=======
+		/* Call chain get_pages() -> update_inactive() tries to
+		 * access msm_obj->mm_list, but it is not initialized yet.
+		 * To avoid NULL pointer dereference error, initialize
+		 * mm_list to be empty.
+		 */
+		INIT_LIST_HEAD(&msm_obj->mm_list);
+
+		msm_gem_lock(obj);
+		pages = get_pages(obj);
+		msm_gem_unlock(obj);
+>>>>>>> upstream/android-13
 		if (IS_ERR(pages)) {
 			ret = PTR_ERR(pages);
 			goto fail;
@@ -996,6 +1842,7 @@ static struct drm_gem_object *_msm_gem_new(struct drm_device *dev,
 		ret = drm_gem_object_init(dev, obj, size);
 		if (ret)
 			goto fail;
+<<<<<<< HEAD
 	}
 
 	return obj;
@@ -1020,37 +1867,87 @@ struct drm_gem_object *msm_gem_new(struct drm_device *dev,
 struct drm_gem_object *msm_gem_import(struct drm_device *dev,
 		struct dma_buf *dmabuf, struct sg_table *sgt)
 {
+=======
+		/*
+		 * Our buffers are kept pinned, so allocating them from the
+		 * MOVABLE zone is a really bad idea, and conflicts with CMA.
+		 * See comments above new_inode() why this is required _and_
+		 * expected if you're going to pin these pages.
+		 */
+		mapping_set_gfp_mask(obj->filp->f_mapping, GFP_HIGHUSER);
+	}
+
+	mutex_lock(&priv->mm_lock);
+	list_add_tail(&msm_obj->mm_list, &priv->inactive_unpinned);
+	mutex_unlock(&priv->mm_lock);
+
+	mutex_lock(&priv->obj_lock);
+	list_add_tail(&msm_obj->node, &priv->objects);
+	mutex_unlock(&priv->obj_lock);
+
+	return obj;
+
+fail:
+	drm_gem_object_put(obj);
+	return ERR_PTR(ret);
+}
+
+struct drm_gem_object *msm_gem_import(struct drm_device *dev,
+		struct dma_buf *dmabuf, struct sg_table *sgt)
+{
+	struct msm_drm_private *priv = dev->dev_private;
+>>>>>>> upstream/android-13
 	struct msm_gem_object *msm_obj;
 	struct drm_gem_object *obj;
 	uint32_t size;
 	int ret, npages;
 
 	/* if we don't have IOMMU, don't bother pretending we can import: */
+<<<<<<< HEAD
 	if (!iommu_present(&platform_bus_type)) {
 		dev_err(dev->dev, "cannot import without IOMMU\n");
+=======
+	if (!msm_use_mmu(dev)) {
+		DRM_DEV_ERROR(dev->dev, "cannot import without IOMMU\n");
+>>>>>>> upstream/android-13
 		return ERR_PTR(-EINVAL);
 	}
 
 	size = PAGE_ALIGN(dmabuf->size);
 
+<<<<<<< HEAD
 	ret = msm_gem_new_impl(dev, size, MSM_BO_WC, dmabuf->resv, &obj, false);
 	if (ret)
 		goto fail;
+=======
+	ret = msm_gem_new_impl(dev, size, MSM_BO_WC, &obj);
+	if (ret)
+		return ERR_PTR(ret);
+>>>>>>> upstream/android-13
 
 	drm_gem_private_object_init(dev, obj, size);
 
 	npages = size / PAGE_SIZE;
 
 	msm_obj = to_msm_bo(obj);
+<<<<<<< HEAD
 	mutex_lock(&msm_obj->lock);
 	msm_obj->sgt = sgt;
 	msm_obj->pages = kvmalloc_array(npages, sizeof(struct page *), GFP_KERNEL);
 	if (!msm_obj->pages) {
 		mutex_unlock(&msm_obj->lock);
+=======
+	msm_gem_lock(obj);
+	msm_obj->sgt = sgt;
+	msm_obj->pages = kvmalloc_array(npages, sizeof(struct page *), GFP_KERNEL);
+	if (!msm_obj->pages) {
+		msm_gem_unlock(obj);
+>>>>>>> upstream/android-13
 		ret = -ENOMEM;
 		goto fail;
 	}
 
+<<<<<<< HEAD
 	ret = drm_prime_sg_to_page_addr_arrays(sgt, msm_obj->pages, NULL, npages);
 	if (ret) {
 		mutex_unlock(&msm_obj->lock);
@@ -1097,10 +1994,36 @@ static void *_msm_gem_kernel_new(struct drm_device *dev, uint32_t size,
 	return vaddr;
 }
 
+=======
+	ret = drm_prime_sg_to_page_array(sgt, msm_obj->pages, npages);
+	if (ret) {
+		msm_gem_unlock(obj);
+		goto fail;
+	}
+
+	msm_gem_unlock(obj);
+
+	mutex_lock(&priv->mm_lock);
+	list_add_tail(&msm_obj->mm_list, &priv->inactive_unpinned);
+	mutex_unlock(&priv->mm_lock);
+
+	mutex_lock(&priv->obj_lock);
+	list_add_tail(&msm_obj->node, &priv->objects);
+	mutex_unlock(&priv->obj_lock);
+
+	return obj;
+
+fail:
+	drm_gem_object_put(obj);
+	return ERR_PTR(ret);
+}
+
+>>>>>>> upstream/android-13
 void *msm_gem_kernel_new(struct drm_device *dev, uint32_t size,
 		uint32_t flags, struct msm_gem_address_space *aspace,
 		struct drm_gem_object **bo, uint64_t *iova)
 {
+<<<<<<< HEAD
 	return _msm_gem_kernel_new(dev, size, flags, aspace, bo, iova, false);
 }
 
@@ -1109,4 +2032,59 @@ void *msm_gem_kernel_new_locked(struct drm_device *dev, uint32_t size,
 		struct drm_gem_object **bo, uint64_t *iova)
 {
 	return _msm_gem_kernel_new(dev, size, flags, aspace, bo, iova, true);
+=======
+	void *vaddr;
+	struct drm_gem_object *obj = msm_gem_new(dev, size, flags);
+	int ret;
+
+	if (IS_ERR(obj))
+		return ERR_CAST(obj);
+
+	if (iova) {
+		ret = msm_gem_get_and_pin_iova(obj, aspace, iova);
+		if (ret)
+			goto err;
+	}
+
+	vaddr = msm_gem_get_vaddr(obj);
+	if (IS_ERR(vaddr)) {
+		msm_gem_unpin_iova(obj, aspace);
+		ret = PTR_ERR(vaddr);
+		goto err;
+	}
+
+	if (bo)
+		*bo = obj;
+
+	return vaddr;
+err:
+	drm_gem_object_put(obj);
+
+	return ERR_PTR(ret);
+
+}
+
+void msm_gem_kernel_put(struct drm_gem_object *bo,
+		struct msm_gem_address_space *aspace)
+{
+	if (IS_ERR_OR_NULL(bo))
+		return;
+
+	msm_gem_put_vaddr(bo);
+	msm_gem_unpin_iova(bo, aspace);
+	drm_gem_object_put(bo);
+}
+
+void msm_gem_object_set_name(struct drm_gem_object *bo, const char *fmt, ...)
+{
+	struct msm_gem_object *msm_obj = to_msm_bo(bo);
+	va_list ap;
+
+	if (!fmt)
+		return;
+
+	va_start(ap, fmt);
+	vsnprintf(msm_obj->name, sizeof(msm_obj->name), fmt, ap);
+	va_end(ap);
+>>>>>>> upstream/android-13
 }

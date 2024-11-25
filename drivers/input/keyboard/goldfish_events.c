@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2007 Google, Inc.
  * Copyright (C) 2012 Intel, Inc.
@@ -11,6 +12,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2007 Google, Inc.
+ * Copyright (C) 2012 Intel, Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -39,7 +46,11 @@ struct event_dev {
 	struct input_dev *input;
 	int irq;
 	void __iomem *addr;
+<<<<<<< HEAD
 	char name[0];
+=======
+	char name[];
+>>>>>>> upstream/android-13
 };
 
 static irqreturn_t events_interrupt(int irq, void *dev_id)

@@ -27,6 +27,7 @@ static inline int pfn_to_nid(unsigned long pfn)
 		return nid;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_IA64_DIG /* DIG systems are small */
 # define MAX_PHYSNODE_ID	8
 # define NR_NODE_MEMBLKS	(MAX_NUMNODES * 8)
@@ -39,4 +40,11 @@ static inline int pfn_to_nid(unsigned long pfn)
 # define NR_NODE_MEMBLKS	(MAX_NUMNODES * 4)
 #endif /* CONFIG_NUMA */
 
+=======
+#define MAX_PHYSNODE_ID		2048
+#endif /* CONFIG_NUMA */
+
+#define NR_NODE_MEMBLKS		(MAX_NUMNODES * 4)
+
+>>>>>>> upstream/android-13
 #endif /* _ASM_IA64_MMZONE_H */

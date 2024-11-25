@@ -13,8 +13,11 @@
 
 #include <linux/pkt_cls.h>
 
+<<<<<<< HEAD
 #define TCA_ACT_BPF 13
 
+=======
+>>>>>>> upstream/android-13
 struct tc_act_bpf {
 	tc_gen;
 };

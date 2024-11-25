@@ -9,7 +9,11 @@
 #define NULL_DIGEST_SIZE	0
 #define NULL_IV_SIZE		0
 
+<<<<<<< HEAD
 struct crypto_skcipher *crypto_get_default_null_skcipher(void);
+=======
+struct crypto_sync_skcipher *crypto_get_default_null_skcipher(void);
+>>>>>>> upstream/android-13
 void crypto_put_default_null_skcipher(void);
 
 #endif

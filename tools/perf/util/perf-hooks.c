@@ -8,10 +8,17 @@
 
 #include <errno.h>
 #include <stdlib.h>
+<<<<<<< HEAD
 #include <setjmp.h>
 #include <linux/err.h>
 #include <linux/kernel.h>
 #include "util/util.h"
+=======
+#include <string.h>
+#include <setjmp.h>
+#include <linux/err.h>
+#include <linux/kernel.h>
+>>>>>>> upstream/android-13
 #include "util/debug.h"
 #include "util/perf-hooks.h"
 

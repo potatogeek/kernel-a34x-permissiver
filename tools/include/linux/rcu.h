@@ -19,7 +19,12 @@ static inline bool rcu_is_watching(void)
 	return false;
 }
 
+<<<<<<< HEAD
 #define rcu_assign_pointer(p, v) ((p) = (v))
 #define RCU_INIT_POINTER(p, v) p=(v)
+=======
+#define rcu_assign_pointer(p, v)	do { (p) = (v); } while (0)
+#define RCU_INIT_POINTER(p, v)	do { (p) = (v); } while (0)
+>>>>>>> upstream/android-13
 
 #endif

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  PS3 platform setup routines.
  *
  *  Copyright (C) 2006 Sony Computer Entertainment Inc.
  *  Copyright 2006 Sony Corp.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -24,7 +31,11 @@
 #include <linux/root_dev.h>
 #include <linux/console.h>
 #include <linux/export.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 
 #include <asm/machdep.h>
 #include <asm/firmware.h>
@@ -48,6 +59,10 @@ DEFINE_MUTEX(ps3_gpu_mutex);
 EXPORT_SYMBOL_GPL(ps3_gpu_mutex);
 
 static union ps3_firmware_version ps3_firmware_version;
+<<<<<<< HEAD
+=======
+static char ps3_firmware_version_str[16];
+>>>>>>> upstream/android-13
 
 void ps3_get_firmware_version(union ps3_firmware_version *v)
 {
@@ -126,7 +141,14 @@ static void __init prealloc(struct ps3_prealloc *p)
 	if (!p->size)
 		return;
 
+<<<<<<< HEAD
 	p->address = memblock_virt_alloc(p->size, p->align);
+=======
+	p->address = memblock_alloc(p->size, p->align);
+	if (!p->address)
+		panic("%s: Failed to allocate %lu bytes align=0x%lx\n",
+		      __func__, p->size, p->align);
+>>>>>>> upstream/android-13
 
 	printk(KERN_INFO "%s: %lu bytes at %p\n", p->name, p->size,
 	       p->address);
@@ -147,7 +169,11 @@ static int __init early_parse_ps3fb(char *p)
 	if (!p)
 		return 1;
 
+<<<<<<< HEAD
 	ps3fb_videomemory.size = _ALIGN_UP(memparse(p, &p),
+=======
+	ps3fb_videomemory.size = ALIGN(memparse(p, &p),
+>>>>>>> upstream/android-13
 					   ps3fb_videomemory.align);
 	return 0;
 }
@@ -191,6 +217,43 @@ static int ps3_set_dabr(unsigned long dabr, unsigned long dabrx)
 	return lv1_set_dabr(dabr, dabrx) ? -1 : 0;
 }
 
+<<<<<<< HEAD
+=======
+static ssize_t ps3_fw_version_show(struct kobject *kobj,
+	struct kobj_attribute *attr, char *buf)
+{
+	return sprintf(buf, "%s", ps3_firmware_version_str);
+}
+
+static int __init ps3_setup_sysfs(void)
+{
+	static struct kobj_attribute attr = __ATTR(fw-version, S_IRUGO,
+		ps3_fw_version_show, NULL);
+	static struct kobject *kobj;
+	int result;
+
+	kobj = kobject_create_and_add("ps3", firmware_kobj);
+
+	if (!kobj) {
+		pr_warn("%s:%d: kobject_create_and_add failed.\n", __func__,
+			__LINE__);
+		return -ENOMEM;
+	}
+
+	result = sysfs_create_file(kobj, &attr.attr);
+
+	if (result) {
+		pr_warn("%s:%d: sysfs_create_file failed.\n", __func__,
+			__LINE__);
+		kobject_put(kobj);
+		return -ENOMEM;
+	}
+
+	return 0;
+}
+core_initcall(ps3_setup_sysfs);
+
+>>>>>>> upstream/android-13
 static void __init ps3_setup_arch(void)
 {
 	u64 tmp;
@@ -199,9 +262,17 @@ static void __init ps3_setup_arch(void)
 
 	lv1_get_version_info(&ps3_firmware_version.raw, &tmp);
 
+<<<<<<< HEAD
 	printk(KERN_INFO "PS3 firmware version %u.%u.%u\n",
 	       ps3_firmware_version.major, ps3_firmware_version.minor,
 	       ps3_firmware_version.rev);
+=======
+	snprintf(ps3_firmware_version_str, sizeof(ps3_firmware_version_str),
+		"%u.%u.%u", ps3_firmware_version.major,
+		ps3_firmware_version.minor, ps3_firmware_version.rev);
+
+	printk(KERN_INFO "PS3 firmware version %s\n", ps3_firmware_version_str);
+>>>>>>> upstream/android-13
 
 	ps3_spu_set_platform();
 
@@ -209,10 +280,13 @@ static void __init ps3_setup_arch(void)
 	smp_init_ps3();
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_DUMMY_CONSOLE
 	conswitchp = &dummy_con;
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	prealloc_ps3fb_videomemory();
 	prealloc_ps3flash_bounce_buffer();
 

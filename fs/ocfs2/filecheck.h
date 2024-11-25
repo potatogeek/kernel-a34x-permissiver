@@ -1,11 +1,17 @@
+<<<<<<< HEAD
 /* -*- mode: c; c-basic-offset: 8; -*-
  * vim: noexpandtab sw=8 ts=8 sts=0:
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+>>>>>>> upstream/android-13
  * filecheck.h
  *
  * Online file check.
  *
  * Copyright (C) 2016 SuSE.  All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -15,6 +21,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 

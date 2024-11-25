@@ -1,7 +1,11 @@
 /*
  * DM81xx hwmod data.
  *
+<<<<<<< HEAD
  * Copyright (C) 2010 Texas Instruments, Inc. - http://www.ti.com/
+=======
+ * Copyright (C) 2010 Texas Instruments, Inc. - https://www.ti.com/
+>>>>>>> upstream/android-13
  * Copyright (C) 2013 SKTB SKiT, http://www.skitlab.ru/
  *
  * This program is free software; you can redistribute it and/or
@@ -129,6 +133,7 @@ static struct omap_hwmod dm81xx_alwon_l3_med_hwmod = {
 	.flags		= HWMOD_NO_IDLEST,
 };
 
+<<<<<<< HEAD
 static struct omap_hwmod dm81xx_alwon_l3_fast_hwmod = {
 	.name		= "l3_fast",
 	.clkdm_name	= "alwon_l3_fast_clkdm",
@@ -136,6 +141,8 @@ static struct omap_hwmod dm81xx_alwon_l3_fast_hwmod = {
 	.flags		= HWMOD_NO_IDLEST,
 };
 
+=======
+>>>>>>> upstream/android-13
 /*
  * L4 standard peripherals, see TRM table 1-12 for devices using this.
  * See TRM table 1-73 for devices using the 125MHz SYSCLK6 clock.
@@ -432,6 +439,16 @@ static struct omap_hwmod dm81xx_i2c2_hwmod = {
 	.class		= &i2c_class,
 };
 
+<<<<<<< HEAD
+=======
+static struct omap_hwmod_ocp_if dm81xx_l4_ls__i2c2 = {
+	.master		= &dm81xx_l4_ls_hwmod,
+	.slave		= &dm81xx_i2c2_hwmod,
+	.clk		= "sysclk6_ck",
+	.user		= OCP_USER_MPU,
+};
+
+>>>>>>> upstream/android-13
 static struct omap_hwmod_class_sysconfig dm81xx_elm_sysc = {
 	.rev_offs	= 0x0000,
 	.sysc_offs	= 0x0010,
@@ -443,6 +460,7 @@ static struct omap_hwmod_class_sysconfig dm81xx_elm_sysc = {
 	.sysc_fields	= &omap_hwmod_sysc_type1,
 };
 
+<<<<<<< HEAD
 static struct omap_hwmod_ocp_if dm81xx_l4_ls__i2c2 = {
 	.master		= &dm81xx_l4_ls_hwmod,
 	.slave		= &dm81xx_i2c2_hwmod,
@@ -450,6 +468,8 @@ static struct omap_hwmod_ocp_if dm81xx_l4_ls__i2c2 = {
 	.user		= OCP_USER_MPU,
 };
 
+=======
+>>>>>>> upstream/android-13
 static struct omap_hwmod_class dm81xx_elm_hwmod_class = {
 	.name = "elm",
 	.sysc = &dm81xx_elm_sysc,
@@ -484,7 +504,10 @@ static struct omap_hwmod_class_sysconfig dm81xx_gpio_sysc = {
 static struct omap_hwmod_class dm81xx_gpio_hwmod_class = {
 	.name	= "gpio",
 	.sysc	= &dm81xx_gpio_sysc,
+<<<<<<< HEAD
 	.rev	= 2,
+=======
+>>>>>>> upstream/android-13
 };
 
 static struct omap_hwmod_opt_clk gpio1_opt_clks[] = {
@@ -539,6 +562,61 @@ static struct omap_hwmod_ocp_if dm81xx_l4_ls__gpio2 = {
 	.user		= OCP_USER_MPU,
 };
 
+<<<<<<< HEAD
+=======
+static struct omap_hwmod_opt_clk gpio3_opt_clks[] = {
+	{ .role = "dbclk", .clk = "sysclk18_ck" },
+};
+
+static struct omap_hwmod dm81xx_gpio3_hwmod = {
+	.name		= "gpio3",
+	.clkdm_name	= "alwon_l3s_clkdm",
+	.class		= &dm81xx_gpio_hwmod_class,
+	.main_clk	= "sysclk6_ck",
+	.prcm = {
+		.omap4 = {
+			.clkctrl_offs = DM81XX_CM_ALWON_GPIO_1_CLKCTRL,
+			.modulemode = MODULEMODE_SWCTRL,
+		},
+	},
+	.opt_clks	= gpio3_opt_clks,
+	.opt_clks_cnt	= ARRAY_SIZE(gpio3_opt_clks),
+};
+
+static struct omap_hwmod_ocp_if dm81xx_l4_ls__gpio3 = {
+	.master		= &dm81xx_l4_ls_hwmod,
+	.slave		= &dm81xx_gpio3_hwmod,
+	.clk		= "sysclk6_ck",
+	.user		= OCP_USER_MPU,
+};
+
+static struct omap_hwmod_opt_clk gpio4_opt_clks[] = {
+	{ .role = "dbclk", .clk = "sysclk18_ck" },
+};
+
+static struct omap_hwmod dm81xx_gpio4_hwmod = {
+	.name		= "gpio4",
+	.clkdm_name	= "alwon_l3s_clkdm",
+	.class		= &dm81xx_gpio_hwmod_class,
+	.main_clk	= "sysclk6_ck",
+	.prcm = {
+		.omap4 = {
+			.clkctrl_offs = DM81XX_CM_ALWON_GPIO_1_CLKCTRL,
+			.modulemode = MODULEMODE_SWCTRL,
+		},
+	},
+	.opt_clks	= gpio4_opt_clks,
+	.opt_clks_cnt	= ARRAY_SIZE(gpio4_opt_clks),
+};
+
+static struct omap_hwmod_ocp_if dm81xx_l4_ls__gpio4 = {
+	.master		= &dm81xx_l4_ls_hwmod,
+	.slave		= &dm81xx_gpio4_hwmod,
+	.clk		= "sysclk6_ck",
+	.user		= OCP_USER_MPU,
+};
+
+>>>>>>> upstream/android-13
 static struct omap_hwmod_class_sysconfig dm81xx_gpmc_sysc = {
 	.rev_offs	= 0x0,
 	.sysc_offs	= 0x10,
@@ -646,6 +724,7 @@ static struct omap_hwmod_class dm816x_timer_hwmod_class = {
 	.sysc = &dm816x_timer_sysc,
 };
 
+<<<<<<< HEAD
 static struct omap_hwmod dm814x_timer1_hwmod = {
 	.name		= "timer1",
 	.clkdm_name	= "alwon_l3s_clkdm",
@@ -716,6 +795,8 @@ static struct omap_hwmod_ocp_if dm816x_l4_ls__timer2 = {
 	.user		= OCP_USER_MPU,
 };
 
+=======
+>>>>>>> upstream/android-13
 static struct omap_hwmod dm816x_timer3_hwmod = {
 	.name		= "timer3",
 	.clkdm_name	= "alwon_l3s_clkdm",
@@ -816,6 +897,7 @@ static struct omap_hwmod_ocp_if dm816x_l4_ls__timer7 = {
 	.user		= OCP_USER_MPU,
 };
 
+<<<<<<< HEAD
 /* CPSW on dm814x */
 static struct omap_hwmod_class_sysconfig dm814x_cpgmac_sysc = {
 	.rev_offs	= 0x0,
@@ -872,6 +954,8 @@ static struct omap_hwmod_ocp_if dm814x_cpgmac0__mdio = {
 	.flags		= HWMOD_NO_IDLEST,
 };
 
+=======
+>>>>>>> upstream/android-13
 /* EMAC Ethernet */
 static struct omap_hwmod_class_sysconfig dm816x_emac_sysc = {
 	.rev_offs	= 0x0,
@@ -1133,6 +1217,48 @@ static struct omap_hwmod dm81xx_mcspi1_hwmod = {
 	.class		= &dm816x_mcspi_class,
 };
 
+<<<<<<< HEAD
+=======
+static struct omap_hwmod dm81xx_mcspi2_hwmod = {
+	.name		= "mcspi2",
+	.clkdm_name	= "alwon_l3s_clkdm",
+	.main_clk	= "sysclk10_ck",
+	.prcm		= {
+		.omap4 = {
+			.clkctrl_offs = DM81XX_CM_ALWON_SPI_CLKCTRL,
+			.modulemode = MODULEMODE_SWCTRL,
+		},
+	},
+	.class		= &dm816x_mcspi_class,
+};
+
+static struct omap_hwmod dm81xx_mcspi3_hwmod = {
+	.name		= "mcspi3",
+	.clkdm_name	= "alwon_l3s_clkdm",
+	.main_clk	= "sysclk10_ck",
+	.prcm		= {
+		.omap4 = {
+			.clkctrl_offs = DM81XX_CM_ALWON_SPI_CLKCTRL,
+			.modulemode = MODULEMODE_SWCTRL,
+		},
+	},
+	.class		= &dm816x_mcspi_class,
+};
+
+static struct omap_hwmod dm81xx_mcspi4_hwmod = {
+	.name		= "mcspi4",
+	.clkdm_name	= "alwon_l3s_clkdm",
+	.main_clk	= "sysclk10_ck",
+	.prcm		= {
+		.omap4 = {
+			.clkctrl_offs = DM81XX_CM_ALWON_SPI_CLKCTRL,
+			.modulemode = MODULEMODE_SWCTRL,
+		},
+	},
+	.class		= &dm816x_mcspi_class,
+};
+
+>>>>>>> upstream/android-13
 static struct omap_hwmod_ocp_if dm81xx_l4_ls__mcspi1 = {
 	.master		= &dm81xx_l4_ls_hwmod,
 	.slave		= &dm81xx_mcspi1_hwmod,
@@ -1140,6 +1266,30 @@ static struct omap_hwmod_ocp_if dm81xx_l4_ls__mcspi1 = {
 	.user		= OCP_USER_MPU,
 };
 
+<<<<<<< HEAD
+=======
+static struct omap_hwmod_ocp_if dm81xx_l4_ls__mcspi2 = {
+	.master		= &dm81xx_l4_ls_hwmod,
+	.slave		= &dm81xx_mcspi2_hwmod,
+	.clk		= "sysclk6_ck",
+	.user		= OCP_USER_MPU,
+};
+
+static struct omap_hwmod_ocp_if dm81xx_l4_ls__mcspi3 = {
+	.master		= &dm81xx_l4_ls_hwmod,
+	.slave		= &dm81xx_mcspi3_hwmod,
+	.clk		= "sysclk6_ck",
+	.user		= OCP_USER_MPU,
+};
+
+static struct omap_hwmod_ocp_if dm81xx_l4_ls__mcspi4 = {
+	.master		= &dm81xx_l4_ls_hwmod,
+	.slave		= &dm81xx_mcspi4_hwmod,
+	.clk		= "sysclk6_ck",
+	.user		= OCP_USER_MPU,
+};
+
+>>>>>>> upstream/android-13
 static struct omap_hwmod_class_sysconfig dm81xx_mailbox_sysc = {
 	.rev_offs	= 0x000,
 	.sysc_offs	= 0x010,
@@ -1210,6 +1360,7 @@ static struct omap_hwmod_ocp_if dm81xx_l4_ls__spinbox = {
 	.user		= OCP_USER_MPU,
 };
 
+<<<<<<< HEAD
 static struct omap_hwmod_class dm81xx_tpcc_hwmod_class = {
 	.name		= "tpcc",
 };
@@ -1358,6 +1509,8 @@ static struct omap_hwmod_ocp_if dm81xx_tptc3__alwon_l3_fast = {
 	.user		= OCP_USER_MPU,
 };
 
+=======
+>>>>>>> upstream/android-13
 /*
  * REVISIT: Test and enable the following once clocks work:
  * dm81xx_l4_ls__mailbox
@@ -1378,6 +1531,7 @@ static struct omap_hwmod_ocp_if *dm814x_hwmod_ocp_ifs[] __initdata = {
 	&dm81xx_l4_ls__i2c2,
 	&dm81xx_l4_ls__gpio1,
 	&dm81xx_l4_ls__gpio2,
+<<<<<<< HEAD
 	&dm81xx_l4_ls__elm,
 	&dm81xx_l4_ls__mcspi1,
 	&dm814x_l4_ls__mmc1,
@@ -1396,6 +1550,18 @@ static struct omap_hwmod_ocp_if *dm814x_hwmod_ocp_ifs[] __initdata = {
 	&dm814x_l4_ls__timer2,
 	&dm814x_l4_hs__cpgmac0,
 	&dm814x_cpgmac0__mdio,
+=======
+	&dm81xx_l4_ls__gpio3,
+	&dm81xx_l4_ls__gpio4,
+	&dm81xx_l4_ls__elm,
+	&dm81xx_l4_ls__mcspi1,
+	&dm81xx_l4_ls__mcspi2,
+	&dm81xx_l4_ls__mcspi3,
+	&dm81xx_l4_ls__mcspi4,
+	&dm814x_l4_ls__mmc1,
+	&dm814x_l4_ls__mmc2,
+	&ti81xx_l4_ls__rtc,
+>>>>>>> upstream/android-13
 	&dm81xx_alwon_l3_slow__gpmc,
 	&dm814x_default_l3_slow__usbss,
 	&dm814x_alwon_l3_med__mmc3,
@@ -1424,8 +1590,11 @@ static struct omap_hwmod_ocp_if *dm816x_hwmod_ocp_ifs[] __initdata = {
 	&dm81xx_l4_ls__elm,
 	&ti81xx_l4_ls__rtc,
 	&dm816x_l4_ls__mmc1,
+<<<<<<< HEAD
 	&dm816x_l4_ls__timer1,
 	&dm816x_l4_ls__timer2,
+=======
+>>>>>>> upstream/android-13
 	&dm816x_l4_ls__timer3,
 	&dm816x_l4_ls__timer4,
 	&dm816x_l4_ls__timer5,
@@ -1438,6 +1607,7 @@ static struct omap_hwmod_ocp_if *dm816x_hwmod_ocp_ifs[] __initdata = {
 	&dm81xx_emac0__mdio,
 	&dm816x_l4_hs__emac1,
 	&dm81xx_l4_hs__sata,
+<<<<<<< HEAD
 	&dm81xx_alwon_l3_fast__tpcc,
 	&dm81xx_alwon_l3_fast__tptc0,
 	&dm81xx_alwon_l3_fast__tptc1,
@@ -1447,6 +1617,8 @@ static struct omap_hwmod_ocp_if *dm816x_hwmod_ocp_ifs[] __initdata = {
 	&dm81xx_tptc1__alwon_l3_fast,
 	&dm81xx_tptc2__alwon_l3_fast,
 	&dm81xx_tptc3__alwon_l3_fast,
+=======
+>>>>>>> upstream/android-13
 	&dm81xx_alwon_l3_slow__gpmc,
 	&dm816x_default_l3_slow__usbss,
 	NULL,

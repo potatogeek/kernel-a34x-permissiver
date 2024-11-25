@@ -1,15 +1,28 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 menuconfig ARCH_MESON
 	bool "Amlogic Meson SoCs"
 	depends on ARCH_MULTI_V7
 	select GPIOLIB
 	select GENERIC_IRQ_CHIP
 	select ARM_GIC
+<<<<<<< HEAD
 	select CACHE_L2X0
 	select PINCTRL
 	select PINCTRL_MESON
 	select COMMON_CLK
 	select COMMON_CLK_AMLOGIC
 	select HAVE_ARM_SCU if SMP
+=======
+	select ARM_GLOBAL_TIMER
+	select CACHE_L2X0
+	select PINCTRL
+	select PINCTRL_MESON
+	select HAVE_ARM_SCU if SMP
+	select HAVE_ARM_TWD if SMP
+>>>>>>> upstream/android-13
 
 if ARCH_MESON
 

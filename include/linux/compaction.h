@@ -29,21 +29,32 @@ enum compact_result {
 	/* compaction didn't start as it was deferred due to past failures */
 	COMPACT_DEFERRED,
 
+<<<<<<< HEAD
 	/* compaction not active last round */
 	COMPACT_INACTIVE = COMPACT_DEFERRED,
 
+=======
+>>>>>>> upstream/android-13
 	/* For more detailed tracepoint output - internal to compaction */
 	COMPACT_NO_SUITABLE_PAGE,
 	/* compaction should continue to another pageblock */
 	COMPACT_CONTINUE,
 
 	/*
+<<<<<<< HEAD
 	 * The full zone was compacted scanned but wasn't successfull to compact
+=======
+	 * The full zone was compacted scanned but wasn't successful to compact
+>>>>>>> upstream/android-13
 	 * suitable pages.
 	 */
 	COMPACT_COMPLETE,
 	/*
+<<<<<<< HEAD
 	 * direct compaction has scanned part of the zone but wasn't successfull
+=======
+	 * direct compaction has scanned part of the zone but wasn't successful
+>>>>>>> upstream/android-13
 	 * to compact suitable pages.
 	 */
 	COMPACT_PARTIAL_SKIPPED,
@@ -84,6 +95,7 @@ static inline unsigned long compact_gap(unsigned int order)
 }
 
 #ifdef CONFIG_COMPACTION
+<<<<<<< HEAD
 extern int sysctl_compact_memory;
 extern int sysctl_compaction_handler(struct ctl_table *table, int write,
 			void __user *buffer, size_t *length, loff_t *ppos);
@@ -105,6 +117,28 @@ extern bool compaction_deferred(struct zone *zone, int order);
 extern void compaction_defer_reset(struct zone *zone, int order,
 				bool alloc_success);
 extern bool compaction_restarting(struct zone *zone, int order);
+=======
+extern unsigned int sysctl_compaction_proactiveness;
+extern int sysctl_compaction_handler(struct ctl_table *table, int write,
+			void *buffer, size_t *length, loff_t *ppos);
+extern int compaction_proactiveness_sysctl_handler(struct ctl_table *table,
+		int write, void *buffer, size_t *length, loff_t *ppos);
+extern int sysctl_extfrag_threshold;
+extern int sysctl_compact_unevictable_allowed;
+
+extern unsigned int extfrag_for_order(struct zone *zone, unsigned int order);
+extern int fragmentation_index(struct zone *zone, unsigned int order);
+extern enum compact_result try_to_compact_pages(gfp_t gfp_mask,
+		unsigned int order, unsigned int alloc_flags,
+		const struct alloc_context *ac, enum compact_priority prio,
+		struct page **page);
+extern void reset_isolation_suitable(pg_data_t *pgdat);
+extern enum compact_result compaction_suitable(struct zone *zone, int order,
+		unsigned int alloc_flags, int highest_zoneidx);
+
+extern void compaction_defer_reset(struct zone *zone, int order,
+				bool alloc_success);
+>>>>>>> upstream/android-13
 
 /* Compaction has made some progress and retrying makes sense */
 static inline bool compaction_made_progress(enum compact_result result)
@@ -130,11 +164,16 @@ static inline bool compaction_failed(enum compact_result result)
 	return false;
 }
 
+<<<<<<< HEAD
 /*
  * Compaction  has backed off for some reason. It might be throttling or
  * lock contention. Retrying is still worthwhile.
  */
 static inline bool compaction_withdrawn(enum compact_result result)
+=======
+/* Compaction needs reclaim to be performed first, so it can continue. */
+static inline bool compaction_needs_reclaim(enum compact_result result)
+>>>>>>> upstream/android-13
 {
 	/*
 	 * Compaction backed off due to watermark checks for order-0
@@ -143,6 +182,19 @@ static inline bool compaction_withdrawn(enum compact_result result)
 	if (result == COMPACT_SKIPPED)
 		return true;
 
+<<<<<<< HEAD
+=======
+	return false;
+}
+
+/*
+ * Compaction has backed off for some reason after doing some work or none
+ * at all. It might be throttling or lock contention. Retrying might be still
+ * worthwhile, but with a higher priority if allowed.
+ */
+static inline bool compaction_withdrawn(enum compact_result result)
+{
+>>>>>>> upstream/android-13
 	/*
 	 * If compaction is deferred for high-order allocations, it is
 	 * because sync compaction recently failed. If this is the case
@@ -176,7 +228,13 @@ bool compaction_zonelist_suitable(struct alloc_context *ac, int order,
 
 extern int kcompactd_run(int nid);
 extern void kcompactd_stop(int nid);
+<<<<<<< HEAD
 extern void wakeup_kcompactd(pg_data_t *pgdat, int order, int classzone_idx);
+=======
+extern void wakeup_kcompactd(pg_data_t *pgdat, int order, int highest_zoneidx);
+extern unsigned long isolate_and_split_free_page(struct page *page,
+				struct list_head *list);
+>>>>>>> upstream/android-13
 
 #else
 static inline void reset_isolation_suitable(pg_data_t *pgdat)
@@ -184,11 +242,16 @@ static inline void reset_isolation_suitable(pg_data_t *pgdat)
 }
 
 static inline enum compact_result compaction_suitable(struct zone *zone, int order,
+<<<<<<< HEAD
 					int alloc_flags, int classzone_idx)
+=======
+					int alloc_flags, int highest_zoneidx)
+>>>>>>> upstream/android-13
 {
 	return COMPACT_SKIPPED;
 }
 
+<<<<<<< HEAD
 static inline void defer_compaction(struct zone *zone, int order)
 {
 }
@@ -198,6 +261,8 @@ static inline bool compaction_deferred(struct zone *zone, int order)
 	return true;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline bool compaction_made_progress(enum compact_result result)
 {
 	return false;
@@ -208,6 +273,14 @@ static inline bool compaction_failed(enum compact_result result)
 	return false;
 }
 
+<<<<<<< HEAD
+=======
+static inline bool compaction_needs_reclaim(enum compact_result result)
+{
+	return false;
+}
+
+>>>>>>> upstream/android-13
 static inline bool compaction_withdrawn(enum compact_result result)
 {
 	return true;
@@ -221,6 +294,7 @@ static inline void kcompactd_stop(int nid)
 {
 }
 
+<<<<<<< HEAD
 static inline void wakeup_kcompactd(pg_data_t *pgdat, int order, int classzone_idx)
 {
 }
@@ -229,6 +303,23 @@ static inline void wakeup_kcompactd(pg_data_t *pgdat, int order, int classzone_i
 
 #if defined(CONFIG_COMPACTION) && defined(CONFIG_SYSFS) && defined(CONFIG_NUMA)
 struct node;
+=======
+static inline void wakeup_kcompactd(pg_data_t *pgdat,
+				int order, int highest_zoneidx)
+{
+}
+
+static inline unsigned long isolate_and_split_free_page(struct page *page,
+				struct list_head *list)
+{
+	return 0;
+}
+
+#endif /* CONFIG_COMPACTION */
+
+struct node;
+#if defined(CONFIG_COMPACTION) && defined(CONFIG_SYSFS) && defined(CONFIG_NUMA)
+>>>>>>> upstream/android-13
 extern int compaction_register_node(struct node *node);
 extern void compaction_unregister_node(struct node *node);
 

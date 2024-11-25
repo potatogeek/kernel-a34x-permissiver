@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * AD5415, AD5426, AD5429, AD5432, AD5439, AD5443, AD5449 Digital to Analog
  * Converter driver.
  *
  * Copyright 2012 Analog Devices Inc.
  *  Author: Lars-Peter Clausen <lars@metafoo.de>
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __LINUX_PLATFORM_DATA_AD5449_H__

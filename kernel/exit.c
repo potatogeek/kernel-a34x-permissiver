@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/kernel/exit.c
  *
@@ -62,6 +66,7 @@
 #include <linux/random.h>
 #include <linux/rcuwait.h>
 #include <linux/compat.h>
+<<<<<<< HEAD
 
 #include <linux/uaccess.h>
 #include <asm/unistd.h>
@@ -70,6 +75,17 @@
 
 #ifdef CONFIG_SECURITY_DEFEX
 #include <linux/defex.h>
+=======
+#include <linux/io_uring.h>
+
+#include <linux/uaccess.h>
+#include <asm/unistd.h>
+#include <asm/mmu_context.h>
+#include <trace/hooks/mm.h>
+
+#if defined(CONFIG_MEMORY_ZEROISATION)
+#include <trace/hooks/mz.h>
+>>>>>>> upstream/android-13
 #endif
 
 static void __unhash_process(struct task_struct *p, bool group_dead)
@@ -97,7 +113,11 @@ static void __exit_signal(struct task_struct *tsk)
 	struct signal_struct *sig = tsk->signal;
 	bool group_dead = thread_group_leader(tsk);
 	struct sighand_struct *sighand;
+<<<<<<< HEAD
 	struct tty_struct *uninitialized_var(tty);
+=======
+	struct tty_struct *tty;
+>>>>>>> upstream/android-13
 	u64 utime, stime;
 
 	sighand = rcu_dereference_check(tsk->sighand,
@@ -106,6 +126,7 @@ static void __exit_signal(struct task_struct *tsk)
 
 #ifdef CONFIG_POSIX_TIMERS
 	posix_cpu_timers_exit(tsk);
+<<<<<<< HEAD
 	if (group_dead) {
 		posix_cpu_timers_exit_group(tsk);
 	} else {
@@ -117,6 +138,10 @@ static void __exit_signal(struct task_struct *tsk)
 		if (unlikely(has_group_leader_pid(tsk)))
 			posix_cpu_timers_exit_group(tsk);
 	}
+=======
+	if (group_dead)
+		posix_cpu_timers_exit_group(tsk);
+>>>>>>> upstream/android-13
 #endif
 
 	if (group_dead) {
@@ -185,23 +210,45 @@ static void delayed_put_task_struct(struct rcu_head *rhp)
 	put_task_struct(tsk);
 }
 
+<<<<<<< HEAD
+=======
+void put_task_struct_rcu_user(struct task_struct *task)
+{
+	if (refcount_dec_and_test(&task->rcu_users))
+		call_rcu(&task->rcu, delayed_put_task_struct);
+}
+>>>>>>> upstream/android-13
 
 void release_task(struct task_struct *p)
 {
 	struct task_struct *leader;
+<<<<<<< HEAD
+=======
+	struct pid *thread_pid;
+>>>>>>> upstream/android-13
 	int zap_leader;
 repeat:
 	/* don't need to get the RCU readlock here - the process is dead and
 	 * can't be modifying its own credentials. But shut RCU-lockdep up */
 	rcu_read_lock();
+<<<<<<< HEAD
 	atomic_dec(&__task_cred(p)->user->processes);
 	rcu_read_unlock();
 
 	proc_flush_task(p);
+=======
+	dec_rlimit_ucounts(task_ucounts(p), UCOUNT_RLIMIT_NPROC, 1);
+	rcu_read_unlock();
+
+>>>>>>> upstream/android-13
 	cgroup_release(p);
 
 	write_lock_irq(&tasklist_lock);
 	ptrace_release_task(p);
+<<<<<<< HEAD
+=======
+	thread_pid = get_pid(p->thread_pid);
+>>>>>>> upstream/android-13
 	__exit_signal(p);
 
 	/*
@@ -224,14 +271,23 @@ repeat:
 	}
 
 	write_unlock_irq(&tasklist_lock);
+<<<<<<< HEAD
 	release_thread(p);
 	call_rcu(&p->rcu, delayed_put_task_struct);
+=======
+	seccomp_filter_release(p);
+	proc_flush_pid(thread_pid);
+	put_pid(thread_pid);
+	release_thread(p);
+	put_task_struct_rcu_user(p);
+>>>>>>> upstream/android-13
 
 	p = leader;
 	if (unlikely(zap_leader))
 		goto repeat;
 }
 
+<<<<<<< HEAD
 /*
  * Note that if this function returns a valid task_struct pointer (!NULL)
  * task->usage must remain >0 for the duration of the RCU critical section.
@@ -297,6 +353,11 @@ retry:
 
 void rcuwait_wake_up(struct rcuwait *w)
 {
+=======
+int rcuwait_wake_up(struct rcuwait *w)
+{
+	int ret = 0;
+>>>>>>> upstream/android-13
 	struct task_struct *task;
 
 	rcu_read_lock();
@@ -304,7 +365,11 @@ void rcuwait_wake_up(struct rcuwait *w)
 	/*
 	 * Order condition vs @task, such that everything prior to the load
 	 * of @task is visible. This is the condition as to why the user called
+<<<<<<< HEAD
 	 * rcuwait_trywake() in the first place. Pairs with set_current_state()
+=======
+	 * rcuwait_wake() in the first place. Pairs with set_current_state()
+>>>>>>> upstream/android-13
 	 * barrier (A) in rcuwait_wait_event().
 	 *
 	 *    WAIT                WAKE
@@ -314,6 +379,7 @@ void rcuwait_wake_up(struct rcuwait *w)
 	 */
 	smp_mb(); /* (B) */
 
+<<<<<<< HEAD
 	/*
 	 * Avoid using task_rcu_dereference() magic as long as we are careful,
 	 * see comment in rcuwait_wait_event() regarding ->exit_state.
@@ -323,6 +389,16 @@ void rcuwait_wake_up(struct rcuwait *w)
 		wake_up_process(task);
 	rcu_read_unlock();
 }
+=======
+	task = rcu_dereference(w->task);
+	if (task)
+		ret = wake_up_process(task);
+	rcu_read_unlock();
+
+	return ret;
+}
+EXPORT_SYMBOL_GPL(rcuwait_wake_up);
+>>>>>>> upstream/android-13
 
 /*
  * Determine if a process group is "orphaned", according to the POSIX
@@ -426,7 +502,11 @@ retry:
 	 * freed task structure.
 	 */
 	if (atomic_read(&mm->mm_users) <= 1) {
+<<<<<<< HEAD
 		mm->owner = NULL;
+=======
+		WRITE_ONCE(mm->owner, NULL);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -466,7 +546,11 @@ retry:
 	 * most likely racing with swapoff (try_to_unuse()) or /proc or
 	 * ptrace or page migration (get_task_mm()).  Mark owner as NULL.
 	 */
+<<<<<<< HEAD
 	mm->owner = NULL;
+=======
+	WRITE_ONCE(mm->owner, NULL);
+>>>>>>> upstream/android-13
 	return;
 
 assign_new_owner:
@@ -487,7 +571,12 @@ assign_new_owner:
 		put_task_struct(c);
 		goto retry;
 	}
+<<<<<<< HEAD
 	mm->owner = c;
+=======
+	WRITE_ONCE(mm->owner, c);
+	lru_gen_migrate_mm(mm);
+>>>>>>> upstream/android-13
 	task_unlock(c);
 	put_task_struct(c);
 }
@@ -508,17 +597,29 @@ static void exit_mm(void)
 	sync_mm_rss(mm);
 	/*
 	 * Serialize with any possible pending coredump.
+<<<<<<< HEAD
 	 * We must hold mmap_sem around checking core_state
+=======
+	 * We must hold mmap_lock around checking core_state
+>>>>>>> upstream/android-13
 	 * and clearing tsk->mm.  The core-inducing thread
 	 * will increment ->nr_threads for each thread in the
 	 * group with ->mm != NULL.
 	 */
+<<<<<<< HEAD
 	down_read(&mm->mmap_sem);
+=======
+	mmap_read_lock(mm);
+>>>>>>> upstream/android-13
 	core_state = mm->core_state;
 	if (core_state) {
 		struct core_thread self;
 
+<<<<<<< HEAD
 		up_read(&mm->mmap_sem);
+=======
+		mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 
 		self.task = current;
 		if (self.task->flags & PF_SIGNALED)
@@ -539,12 +640,17 @@ static void exit_mm(void)
 			freezable_schedule();
 		}
 		__set_current_state(TASK_RUNNING);
+<<<<<<< HEAD
 		down_read(&mm->mmap_sem);
+=======
+		mmap_read_lock(mm);
+>>>>>>> upstream/android-13
 	}
 	mmgrab(mm);
 	BUG_ON(mm != current->active_mm);
 	/* more a memory barrier than a real lock */
 	task_lock(current);
+<<<<<<< HEAD
 	current->mm = NULL;
 	up_read(&mm->mmap_sem);
 	enter_lazy_tlb(mm, current);
@@ -553,6 +659,35 @@ static void exit_mm(void)
 	mmput(mm);
 	if (test_thread_flag(TIF_MEMDIE))
 		exit_oom_victim();
+=======
+	/*
+	 * When a thread stops operating on an address space, the loop
+	 * in membarrier_private_expedited() may not observe that
+	 * tsk->mm, and the loop in membarrier_global_expedited() may
+	 * not observe a MEMBARRIER_STATE_GLOBAL_EXPEDITED
+	 * rq->membarrier_state, so those would not issue an IPI.
+	 * Membarrier requires a memory barrier after accessing
+	 * user-space memory, before clearing tsk->mm or the
+	 * rq->membarrier_state.
+	 */
+	smp_mb__after_spinlock();
+	local_irq_disable();
+	current->mm = NULL;
+	membarrier_update_current_mm(NULL);
+	enter_lazy_tlb(mm, current);
+	local_irq_enable();
+	task_unlock(current);
+	mmap_read_unlock(mm);
+	mm_update_next_owner(mm);
+	trace_android_vh_exit_mm(mm);
+	mmput(mm);
+	if (test_thread_flag(TIF_MEMDIE))
+		exit_oom_victim();
+
+#if defined(CONFIG_MEMORY_ZEROISATION)
+	trace_android_vh_mz_exit(current);
+#endif
+>>>>>>> upstream/android-13
 }
 
 static struct task_struct *find_alive_thread(struct task_struct *p)
@@ -687,8 +822,13 @@ static void forget_original_parent(struct task_struct *father,
 	reaper = find_new_reaper(father, reaper);
 	list_for_each_entry(p, &father->children, sibling) {
 		for_each_thread(p, t) {
+<<<<<<< HEAD
 			t->real_parent = reaper;
 			BUG_ON((!t->ptrace) != (t->parent == father));
+=======
+			RCU_INIT_POINTER(t->real_parent, reaper);
+			BUG_ON((!t->ptrace) != (rcu_access_pointer(t->parent) == father));
+>>>>>>> upstream/android-13
 			if (likely(!t->ptrace))
 				t->parent = t->real_parent;
 			if (t->pdeath_signal)
@@ -736,9 +876,16 @@ static void exit_notify(struct task_struct *tsk, int group_dead)
 		autoreap = true;
 	}
 
+<<<<<<< HEAD
 	tsk->exit_state = autoreap ? EXIT_DEAD : EXIT_ZOMBIE;
 	if (tsk->exit_state == EXIT_DEAD)
 		list_add(&tsk->ptrace_entry, &dead);
+=======
+	if (autoreap) {
+		tsk->exit_state = EXIT_DEAD;
+		list_add(&tsk->ptrace_entry, &dead);
+	}
+>>>>>>> upstream/android-13
 
 	/* mt-exec, de_thread() is waiting for group leader */
 	if (unlikely(tsk->signal->notify_count < 0))
@@ -787,10 +934,13 @@ void __noreturn do_exit(long code)
 	 * Then do everything else.
 	 */
 
+<<<<<<< HEAD
 #ifdef CONFIG_SECURITY_DEFEX
 	task_defex_zero_creds(current);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	WARN_ON(blk_needs_flush_plug(tsk));
 
 	if (unlikely(in_interrupt()))
@@ -805,7 +955,11 @@ void __noreturn do_exit(long code)
 	 * mm_release()->clear_child_tid() from writing to a user-controlled
 	 * kernel address.
 	 */
+<<<<<<< HEAD
 	set_fs(USER_DS);
+=======
+	force_uaccess_begin();
+>>>>>>> upstream/android-13
 
 	if (unlikely(in_atomic())) {
 		pr_info("note: %s[%d] exited with preempt_count %d\n",
@@ -832,6 +986,10 @@ void __noreturn do_exit(long code)
 		schedule();
 	}
 
+<<<<<<< HEAD
+=======
+	io_uring_files_cancel();
+>>>>>>> upstream/android-13
 	exit_signals(tsk);  /* sets PF_EXITING */
 
 	/* sync mm's RSS info before statistics gathering */
@@ -954,6 +1112,7 @@ do_group_exit(int exit_code)
 {
 	struct signal_struct *sig = current->signal;
 
+<<<<<<< HEAD
 #ifdef CONFIG_SEC_DEBUG_INIT_EXIT_PANIC
 	if (current->pid == 1) {
 		pr_err("[%s] trap before init(1) group exit, exit_code:%d\n",
@@ -962,6 +1121,8 @@ do_group_exit(int exit_code)
 	}
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	BUG_ON(exit_code & 0x80); /* core dumps don't get here */
 
 	if (signal_group_exit(sig))
@@ -1498,12 +1659,59 @@ static int child_wait_callback(wait_queue_entry_t *wait, unsigned mode,
 void __wake_up_parent(struct task_struct *p, struct task_struct *parent)
 {
 	__wake_up_sync_key(&parent->signal->wait_chldexit,
+<<<<<<< HEAD
 				TASK_INTERRUPTIBLE, 1, p);
+=======
+			   TASK_INTERRUPTIBLE, p);
+}
+
+static bool is_effectively_child(struct wait_opts *wo, bool ptrace,
+				 struct task_struct *target)
+{
+	struct task_struct *parent =
+		!ptrace ? target->real_parent : target->parent;
+
+	return current == parent || (!(wo->wo_flags & __WNOTHREAD) &&
+				     same_thread_group(current, parent));
+}
+
+/*
+ * Optimization for waiting on PIDTYPE_PID. No need to iterate through child
+ * and tracee lists to find the target task.
+ */
+static int do_wait_pid(struct wait_opts *wo)
+{
+	bool ptrace;
+	struct task_struct *target;
+	int retval;
+
+	ptrace = false;
+	target = pid_task(wo->wo_pid, PIDTYPE_TGID);
+	if (target && is_effectively_child(wo, ptrace, target)) {
+		retval = wait_consider_task(wo, ptrace, target);
+		if (retval)
+			return retval;
+	}
+
+	ptrace = true;
+	target = pid_task(wo->wo_pid, PIDTYPE_PID);
+	if (target && target->ptrace &&
+	    is_effectively_child(wo, ptrace, target)) {
+		retval = wait_consider_task(wo, ptrace, target);
+		if (retval)
+			return retval;
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static long do_wait(struct wait_opts *wo)
 {
+<<<<<<< HEAD
 	struct task_struct *tsk;
+=======
+>>>>>>> upstream/android-13
 	int retval;
 
 	trace_sched_process_wait(wo->wo_pid);
@@ -1520,11 +1728,16 @@ repeat:
 	 */
 	wo->notask_error = -ECHILD;
 	if ((wo->wo_type < PIDTYPE_MAX) &&
+<<<<<<< HEAD
 	   (!wo->wo_pid || hlist_empty(&wo->wo_pid->tasks[wo->wo_type])))
+=======
+	   (!wo->wo_pid || !pid_has_task(wo->wo_pid, wo->wo_type)))
+>>>>>>> upstream/android-13
 		goto notask;
 
 	set_current_state(TASK_INTERRUPTIBLE);
 	read_lock(&tasklist_lock);
+<<<<<<< HEAD
 	tsk = current;
 	do {
 		retval = do_wait_thread(wo, tsk);
@@ -1538,6 +1751,29 @@ repeat:
 		if (wo->wo_flags & __WNOTHREAD)
 			break;
 	} while_each_thread(current, tsk);
+=======
+
+	if (wo->wo_type == PIDTYPE_PID) {
+		retval = do_wait_pid(wo);
+		if (retval)
+			goto end;
+	} else {
+		struct task_struct *tsk = current;
+
+		do {
+			retval = do_wait_thread(wo, tsk);
+			if (retval)
+				goto end;
+
+			retval = ptrace_do_wait(wo, tsk);
+			if (retval)
+				goto end;
+
+			if (wo->wo_flags & __WNOTHREAD)
+				break;
+		} while_each_thread(current, tsk);
+	}
+>>>>>>> upstream/android-13
 	read_unlock(&tasklist_lock);
 
 notask:
@@ -1562,6 +1798,10 @@ static long kernel_waitid(int which, pid_t upid, struct waitid_info *infop,
 	struct pid *pid = NULL;
 	enum pid_type type;
 	long ret;
+<<<<<<< HEAD
+=======
+	unsigned int f_flags = 0;
+>>>>>>> upstream/android-13
 
 	if (options & ~(WNOHANG|WNOWAIT|WEXITED|WSTOPPED|WCONTINUED|
 			__WNOTHREAD|__WCLONE|__WALL))
@@ -1577,25 +1817,62 @@ static long kernel_waitid(int which, pid_t upid, struct waitid_info *infop,
 		type = PIDTYPE_PID;
 		if (upid <= 0)
 			return -EINVAL;
+<<<<<<< HEAD
 		break;
 	case P_PGID:
 		type = PIDTYPE_PGID;
 		if (upid <= 0)
 			return -EINVAL;
+=======
+
+		pid = find_get_pid(upid);
+		break;
+	case P_PGID:
+		type = PIDTYPE_PGID;
+		if (upid < 0)
+			return -EINVAL;
+
+		if (upid)
+			pid = find_get_pid(upid);
+		else
+			pid = get_task_pid(current, PIDTYPE_PGID);
+		break;
+	case P_PIDFD:
+		type = PIDTYPE_PID;
+		if (upid < 0)
+			return -EINVAL;
+
+		pid = pidfd_get_pid(upid, &f_flags);
+		if (IS_ERR(pid))
+			return PTR_ERR(pid);
+
+>>>>>>> upstream/android-13
 		break;
 	default:
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	if (type < PIDTYPE_MAX)
 		pid = find_get_pid(upid);
 
+=======
+>>>>>>> upstream/android-13
 	wo.wo_type	= type;
 	wo.wo_pid	= pid;
 	wo.wo_flags	= options;
 	wo.wo_info	= infop;
 	wo.wo_rusage	= ru;
+<<<<<<< HEAD
 	ret = do_wait(&wo);
+=======
+	if (f_flags & O_NONBLOCK)
+		wo.wo_flags |= WNOHANG;
+
+	ret = do_wait(&wo);
+	if (!ret && !(options & WNOHANG) && (f_flags & O_NONBLOCK))
+		ret = -EAGAIN;
+>>>>>>> upstream/android-13
 
 	put_pid(pid);
 	return ret;
@@ -1618,7 +1895,11 @@ SYSCALL_DEFINE5(waitid, int, which, pid_t, upid, struct siginfo __user *,
 	if (!infop)
 		return err;
 
+<<<<<<< HEAD
 	if (!user_access_begin(VERIFY_WRITE, infop, sizeof(*infop)))
+=======
+	if (!user_write_access_begin(infop, sizeof(*infop)))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	unsafe_put_user(signo, &infop->si_signo, Efault);
@@ -1627,10 +1908,17 @@ SYSCALL_DEFINE5(waitid, int, which, pid_t, upid, struct siginfo __user *,
 	unsafe_put_user(info.pid, &infop->si_pid, Efault);
 	unsafe_put_user(info.uid, &infop->si_uid, Efault);
 	unsafe_put_user(info.status, &infop->si_status, Efault);
+<<<<<<< HEAD
 	user_access_end();
 	return err;
 Efault:
 	user_access_end();
+=======
+	user_write_access_end();
+	return err;
+Efault:
+	user_write_access_end();
+>>>>>>> upstream/android-13
 	return -EFAULT;
 }
 
@@ -1677,6 +1965,25 @@ long kernel_wait4(pid_t upid, int __user *stat_addr, int options,
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+int kernel_wait(pid_t pid, int *stat)
+{
+	struct wait_opts wo = {
+		.wo_type	= PIDTYPE_PID,
+		.wo_pid		= find_get_pid(pid),
+		.wo_flags	= WEXITED,
+	};
+	int ret;
+
+	ret = do_wait(&wo);
+	if (ret > 0 && wo.wo_stat)
+		*stat = wo.wo_stat;
+	put_pid(wo.wo_pid);
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 SYSCALL_DEFINE4(wait4, pid_t, upid, int __user *, stat_addr,
 		int, options, struct rusage __user *, ru)
 {
@@ -1745,7 +2052,11 @@ COMPAT_SYSCALL_DEFINE5(waitid,
 	if (!infop)
 		return err;
 
+<<<<<<< HEAD
 	if (!user_access_begin(VERIFY_WRITE, infop, sizeof(*infop)))
+=======
+	if (!user_write_access_begin(infop, sizeof(*infop)))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	unsafe_put_user(signo, &infop->si_signo, Efault);
@@ -1754,14 +2065,48 @@ COMPAT_SYSCALL_DEFINE5(waitid,
 	unsafe_put_user(info.pid, &infop->si_pid, Efault);
 	unsafe_put_user(info.uid, &infop->si_uid, Efault);
 	unsafe_put_user(info.status, &infop->si_status, Efault);
+<<<<<<< HEAD
 	user_access_end();
 	return err;
 Efault:
 	user_access_end();
+=======
+	user_write_access_end();
+	return err;
+Efault:
+	user_write_access_end();
+>>>>>>> upstream/android-13
 	return -EFAULT;
 }
 #endif
 
+<<<<<<< HEAD
+=======
+/**
+ * thread_group_exited - check that a thread group has exited
+ * @pid: tgid of thread group to be checked.
+ *
+ * Test if the thread group represented by tgid has exited (all
+ * threads are zombies, dead or completely gone).
+ *
+ * Return: true if the thread group has exited. false otherwise.
+ */
+bool thread_group_exited(struct pid *pid)
+{
+	struct task_struct *task;
+	bool exited;
+
+	rcu_read_lock();
+	task = pid_task(pid, PIDTYPE_PID);
+	exited = !task ||
+		(READ_ONCE(task->exit_state) && thread_group_empty(task));
+	rcu_read_unlock();
+
+	return exited;
+}
+EXPORT_SYMBOL(thread_group_exited);
+
+>>>>>>> upstream/android-13
 __weak void abort(void)
 {
 	BUG();

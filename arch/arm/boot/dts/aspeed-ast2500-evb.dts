@@ -13,12 +13,32 @@
 
 	chosen {
 		stdout-path = &uart5;
+<<<<<<< HEAD
 		bootargs = "console=ttyS4,115200 earlyprintk";
+=======
+		bootargs = "console=tty0 console=ttyS4,115200 earlycon";
+>>>>>>> upstream/android-13
 	};
 
 	memory@80000000 {
 		reg = <0x80000000 0x20000000>;
 	};
+<<<<<<< HEAD
+=======
+
+	reserved-memory {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+
+		gfx_memory: framebuffer {
+			size = <0x01000000>;
+			alignment = <0x01000000>;
+			compatible = "shared-dma-pool";
+			reusable;
+		};
+	};
+>>>>>>> upstream/android-13
 };
 
 &fmc {
@@ -27,6 +47,11 @@
 		status = "okay";
 		m25p,fast-read;
 		label = "bmc";
+<<<<<<< HEAD
+=======
+		spi-max-frequency = <50000000>;
+#include "openbmc-flash-layout.dtsi"
+>>>>>>> upstream/android-13
 	};
 };
 
@@ -36,6 +61,10 @@
 		status = "okay";
 		m25p,fast-read;
 		label = "pnor";
+<<<<<<< HEAD
+=======
+		spi-max-frequency = <100000000>;
+>>>>>>> upstream/android-13
 	};
 };
 
@@ -80,6 +109,20 @@
 	};
 };
 
+<<<<<<< HEAD
+=======
+&sdmmc {
+	status = "okay";
+};
+
+&sdhci0 {
+	status = "okay";
+
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_sd1_default>;
+};
+
+>>>>>>> upstream/android-13
 /*
  * Enable port A as device (via the virtual hub) and port B as
  * host by default on the eval board. This can be easily changed
@@ -97,3 +140,15 @@
 &uhci {
 	status = "okay";
 };
+<<<<<<< HEAD
+=======
+
+&gfx {
+     status = "okay";
+     memory-region = <&gfx_memory>;
+};
+
+&rtc {
+	status = "okay";
+};
+>>>>>>> upstream/android-13

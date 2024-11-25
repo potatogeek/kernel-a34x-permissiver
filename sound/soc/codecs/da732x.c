@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * da732x.c --- Dialog DA732X ALSA SoC Audio Driver
  *
  * Copyright (C) 2012 Dialog Semiconductor GmbH
  *
  * Author: Michal Hajduk <Michal.Hajduk@diasemi.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -171,6 +178,7 @@ static const struct reg_default da732x_reg_cache[] = {
 static inline int da732x_get_input_div(struct snd_soc_component *component, int sysclk)
 {
 	int val;
+<<<<<<< HEAD
 	int ret;
 
 	if (sysclk < DA732X_MCLK_10MHZ) {
@@ -188,13 +196,31 @@ static inline int da732x_get_input_div(struct snd_soc_component *component, int 
 	    (sysclk <= DA732X_MCLK_54MHZ)) {
 		val = DA732X_MCLK_RET_40_54MHZ;
 		ret = DA732X_MCLK_VAL_40_54MHZ;
+=======
+
+	if (sysclk < DA732X_MCLK_10MHZ) {
+		val = DA732X_MCLK_VAL_0_10MHZ;
+	} else if ((sysclk >= DA732X_MCLK_10MHZ) &&
+	    (sysclk < DA732X_MCLK_20MHZ)) {
+		val = DA732X_MCLK_VAL_10_20MHZ;
+	} else if ((sysclk >= DA732X_MCLK_20MHZ) &&
+	    (sysclk < DA732X_MCLK_40MHZ)) {
+		val = DA732X_MCLK_VAL_20_40MHZ;
+	} else if ((sysclk >= DA732X_MCLK_40MHZ) &&
+	    (sysclk <= DA732X_MCLK_54MHZ)) {
+		val = DA732X_MCLK_VAL_40_54MHZ;
+>>>>>>> upstream/android-13
 	} else {
 		return -EINVAL;
 	}
 
 	snd_soc_component_write(component, DA732X_REG_PLL_CTRL, val);
 
+<<<<<<< HEAD
 	return ret;
+=======
+	return val;
+>>>>>>> upstream/android-13
 }
 
 static void da732x_set_charge_pump(struct snd_soc_component *component, int state)
@@ -364,7 +390,11 @@ static int da732x_hpf_get(struct snd_kcontrol *kcontrol,
 	unsigned int reg = enum_ctrl->reg;
 	int val;
 
+<<<<<<< HEAD
 	val = snd_soc_component_read32(component, reg) & DA732X_HPF_MASK;
+=======
+	val = snd_soc_component_read(component, reg) & DA732X_HPF_MASK;
+>>>>>>> upstream/android-13
 
 	switch (val) {
 	case DA732X_HPF_VOICE_EN:
@@ -1161,7 +1191,11 @@ static int da732x_set_dai_pll(struct snd_soc_component *component, int pll_id,
 	if (indiv < 0)
 		return indiv;
 
+<<<<<<< HEAD
 	fref = (da732x->sysclk / indiv);
+=======
+	fref = da732x->sysclk / BIT(indiv);
+>>>>>>> upstream/android-13
 	div_hi = freq_out / fref;
 	frac_div = (u64)(freq_out % fref) * 8192ULL;
 	do_div(frac_div, fref);
@@ -1290,9 +1324,15 @@ static void da732x_dac_offset_adjust(struct snd_soc_component *component)
 	msleep(DA732X_WAIT_FOR_STABILIZATION);
 
 	/* Check DAC offset sign */
+<<<<<<< HEAD
 	sign[DA732X_HPL_DAC] = (snd_soc_component_read32(component, DA732X_REG_HPL_DAC_OFF_CNTL) &
 				DA732X_HP_DAC_OFF_CNTL_COMPO);
 	sign[DA732X_HPR_DAC] = (snd_soc_component_read32(component, DA732X_REG_HPR_DAC_OFF_CNTL) &
+=======
+	sign[DA732X_HPL_DAC] = (snd_soc_component_read(component, DA732X_REG_HPL_DAC_OFF_CNTL) &
+				DA732X_HP_DAC_OFF_CNTL_COMPO);
+	sign[DA732X_HPR_DAC] = (snd_soc_component_read(component, DA732X_REG_HPR_DAC_OFF_CNTL) &
+>>>>>>> upstream/android-13
 				DA732X_HP_DAC_OFF_CNTL_COMPO);
 
 	/* Binary search DAC offset values (both channels at once) */
@@ -1309,10 +1349,17 @@ static void da732x_dac_offset_adjust(struct snd_soc_component *component)
 
 		msleep(DA732X_WAIT_FOR_STABILIZATION);
 
+<<<<<<< HEAD
 		if ((snd_soc_component_read32(component, DA732X_REG_HPL_DAC_OFF_CNTL) &
 		     DA732X_HP_DAC_OFF_CNTL_COMPO) ^ sign[DA732X_HPL_DAC])
 			offset[DA732X_HPL_DAC] &= ~step;
 		if ((snd_soc_component_read32(component, DA732X_REG_HPR_DAC_OFF_CNTL) &
+=======
+		if ((snd_soc_component_read(component, DA732X_REG_HPL_DAC_OFF_CNTL) &
+		     DA732X_HP_DAC_OFF_CNTL_COMPO) ^ sign[DA732X_HPL_DAC])
+			offset[DA732X_HPL_DAC] &= ~step;
+		if ((snd_soc_component_read(component, DA732X_REG_HPR_DAC_OFF_CNTL) &
+>>>>>>> upstream/android-13
 		     DA732X_HP_DAC_OFF_CNTL_COMPO) ^ sign[DA732X_HPR_DAC])
 			offset[DA732X_HPR_DAC] &= ~step;
 
@@ -1353,9 +1400,15 @@ static void da732x_output_offset_adjust(struct snd_soc_component *component)
 	msleep(DA732X_WAIT_FOR_STABILIZATION);
 
 	/* Check output offset sign */
+<<<<<<< HEAD
 	sign[DA732X_HPL_AMP] = snd_soc_component_read32(component, DA732X_REG_HPL) &
 			       DA732X_HP_OUT_COMPO;
 	sign[DA732X_HPR_AMP] = snd_soc_component_read32(component, DA732X_REG_HPR) &
+=======
+	sign[DA732X_HPL_AMP] = snd_soc_component_read(component, DA732X_REG_HPL) &
+			       DA732X_HP_OUT_COMPO;
+	sign[DA732X_HPR_AMP] = snd_soc_component_read(component, DA732X_REG_HPR) &
+>>>>>>> upstream/android-13
 			       DA732X_HP_OUT_COMPO;
 
 	snd_soc_component_write(component, DA732X_REG_HPL, DA732X_HP_OUT_COMP |
@@ -1376,10 +1429,17 @@ static void da732x_output_offset_adjust(struct snd_soc_component *component)
 
 		msleep(DA732X_WAIT_FOR_STABILIZATION);
 
+<<<<<<< HEAD
 		if ((snd_soc_component_read32(component, DA732X_REG_HPL) &
 		     DA732X_HP_OUT_COMPO) ^ sign[DA732X_HPL_AMP])
 			offset[DA732X_HPL_AMP] &= ~step;
 		if ((snd_soc_component_read32(component, DA732X_REG_HPR) &
+=======
+		if ((snd_soc_component_read(component, DA732X_REG_HPL) &
+		     DA732X_HP_OUT_COMPO) ^ sign[DA732X_HPL_AMP])
+			offset[DA732X_HPL_AMP] &= ~step;
+		if ((snd_soc_component_read(component, DA732X_REG_HPR) &
+>>>>>>> upstream/android-13
 		     DA732X_HP_OUT_COMPO) ^ sign[DA732X_HPR_AMP])
 			offset[DA732X_HPR_AMP] &= ~step;
 

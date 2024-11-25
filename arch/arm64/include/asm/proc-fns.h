@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Based on arch/arm/include/asm/proc-fns.h
  *
  * Copyright (C) 1997-1999 Russell King
  * Copyright (C) 2000 Deep Blue Solutions Ltd
  * Copyright (C) 2012 ARM Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -16,15 +21,21 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __ASM_PROCFNS_H
 #define __ASM_PROCFNS_H
 
+<<<<<<< HEAD
 #ifdef __KERNEL__
+=======
+>>>>>>> upstream/android-13
 #ifndef __ASSEMBLY__
 
 #include <asm/page.h>
 
+<<<<<<< HEAD
 struct mm_struct;
 struct cpu_suspend_ctx;
 
@@ -32,11 +43,19 @@ extern void cpu_cache_off(void);
 extern void cpu_do_idle(void);
 extern void cpu_do_switch_mm(unsigned long pgd_phys, struct mm_struct *mm);
 extern void cpu_reset(unsigned long addr) __attribute__((noreturn));
+=======
+struct cpu_suspend_ctx;
+
+extern void cpu_do_idle(void);
+>>>>>>> upstream/android-13
 extern void cpu_do_suspend(struct cpu_suspend_ctx *ptr);
 extern u64 cpu_do_resume(phys_addr_t ptr, u64 idmap_ttbr);
 
 #include <asm/memory.h>
 
 #endif /* __ASSEMBLY__ */
+<<<<<<< HEAD
 #endif /* __KERNEL__ */
+=======
+>>>>>>> upstream/android-13
 #endif /* __ASM_PROCFNS_H */

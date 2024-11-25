@@ -33,26 +33,44 @@
 #include <linux/sysfs.h>
 #include <linux/debugfs.h>
 #include <linux/cpuhotplug.h>
+<<<<<<< HEAD
 #include <linux/kthread.h>
 #include <linux/freezer.h>
 #include <linux/statfs.h>
 #include <linux/swap.h>
 #include <uapi/linux/falloc.h>
 #include <uapi/linux/sched/types.h>
+=======
+#include <linux/part_stat.h>
+#include <linux/kthread.h>
+#include <linux/jiffies.h>
+#include <linux/statfs.h>
+#include <linux/swap.h>
+#include <linux/swapops.h>
+#include <linux/compat.h>
+#include <uapi/linux/falloc.h>
+#include <uapi/linux/sched/types.h>
+#include <uapi/linux/magic.h>
+#include <trace/hooks/mm.h>
+>>>>>>> upstream/android-13
 
 #include "zram_drv.h"
 #include "../loop.h"
 
 #define NON_LRU_SWAPPINESS 99
 
+<<<<<<< HEAD
 /* Total bytes used by the compressed storage */
 static u64 zram_pool_total_size;
 
+=======
+>>>>>>> upstream/android-13
 static DEFINE_IDR(zram_index_idr);
 /* idr index must be protected */
 static DEFINE_MUTEX(zram_index_mutex);
 
 static int zram_major;
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_CRYPTO_LZ4)
 static const char *default_compressor = "lz4";
 #else
@@ -61,6 +79,9 @@ static const char *default_compressor = "lzo";
 
 static bool is_lzorle;
 static unsigned char lzo_marker[4] = {0x11, 0x00, 0x00};
+=======
+static const char *default_compressor = "lzo-rle";
+>>>>>>> upstream/android-13
 
 /* Module params (documentation at end) */
 static unsigned int num_devices = 1;
@@ -70,6 +91,12 @@ static unsigned int num_devices = 1;
  */
 static size_t huge_class_size;
 
+<<<<<<< HEAD
+=======
+static const struct block_device_operations zram_devops;
+static const struct block_device_operations zram_wb_devops;
+
+>>>>>>> upstream/android-13
 static void zram_free_page(struct zram *zram, size_t index);
 static int zram_bvec_read(struct zram *zram, struct bio_vec *bvec,
 				u32 index, int offset, struct bio *bio);
@@ -226,14 +253,27 @@ static inline void zram_fill_page(void *ptr, unsigned long len,
 
 static bool page_same_filled(void *ptr, unsigned long *element)
 {
+<<<<<<< HEAD
 	unsigned int pos;
 	unsigned long *page;
 	unsigned long val;
+=======
+	unsigned long *page;
+	unsigned long val;
+	unsigned int pos, last_pos = PAGE_SIZE / sizeof(*page) - 1;
+>>>>>>> upstream/android-13
 
 	page = (unsigned long *)ptr;
 	val = page[0];
 
+<<<<<<< HEAD
 	for (pos = 1; pos < PAGE_SIZE / sizeof(*page); pos++) {
+=======
+	if (val != page[last_pos])
+		return false;
+
+	for (pos = 1; pos < last_pos; pos++) {
+>>>>>>> upstream/android-13
 		if (val != page[pos])
 			return false;
 	}
@@ -309,6 +349,7 @@ static ssize_t idle_store(struct device *dev,
 	struct zram *zram = dev_to_zram(dev);
 	unsigned long nr_pages = zram->disksize >> PAGE_SHIFT;
 	int index;
+<<<<<<< HEAD
 	char mode_buf[8];
 	ssize_t sz;
 
@@ -321,6 +362,10 @@ static ssize_t idle_store(struct device *dev,
 		mode_buf[sz - 1] = 0x00;
 
 	if (strcmp(mode_buf, "all"))
+=======
+
+	if (!sysfs_streq(buf, "all"))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	down_read(&zram->init_lock);
@@ -348,12 +393,23 @@ static ssize_t idle_store(struct device *dev,
 
 #ifdef CONFIG_ZRAM_WRITEBACK
 #ifdef CONFIG_ZRAM_LRU_WRITEBACK
+<<<<<<< HEAD
 #define LRU_LIMIT_RATIO 3
+=======
+#define LRU_LIMIT_RATIO 5
+>>>>>>> upstream/android-13
 #define ZWBS_ALIGN_MASK (~(NR_ZWBS - 1))
 static int zram_wbd(void *);
 static struct zram *g_zram;
 static bool is_app_launch;
 
+<<<<<<< HEAD
+=======
+#define F2FS_IOCTL_MAGIC	0xf5
+#define F2FS_IOC_SET_PIN_FILE	_IOW(F2FS_IOCTL_MAGIC, 13, __u32)
+#define F2FS_SET_PIN_FILE	1
+
+>>>>>>> upstream/android-13
 static void fallocate_block(struct zram *zram, unsigned long blk_idx)
 {
 	struct block_device *bdev = zram->bdev;
@@ -409,11 +465,14 @@ static int init_lru_writeback(struct zram *zram)
 		ret = -ENOMEM;
 		goto out;
 	}
+<<<<<<< HEAD
 	zram->read_req_bitmap = kvzalloc(bitmap_sz, GFP_KERNEL);
 	if (!zram->read_req_bitmap) {
 		ret = -ENOMEM;
 		goto out;
 	}
+=======
+>>>>>>> upstream/android-13
 
 	zram->wbd = kthread_run(zram_wbd, zram, "%s_wbd", zram->disk->disk_name);
 	if (IS_ERR(zram->wbd)) {
@@ -421,16 +480,23 @@ static int init_lru_writeback(struct zram *zram)
 		goto out;
 	}
 
+<<<<<<< HEAD
+=======
+	g_zram = zram;
+>>>>>>> upstream/android-13
 	zram->wb_limit_enable = true;
 	sched_setscheduler(zram->wbd, SCHED_IDLE, &param);
 	zram->nr_lru_pages = (zram->nr_pages * LRU_LIMIT_RATIO / 10) & ZWBS_ALIGN_MASK;
 
 	return ret;
 out:
+<<<<<<< HEAD
 	if (zram->read_req_bitmap) {
 		kvfree(zram->read_req_bitmap);
 		zram->read_req_bitmap = NULL;
 	}
+=======
+>>>>>>> upstream/android-13
 	if (zram->chunk_bitmap) {
 		kvfree(zram->chunk_bitmap);
 		zram->chunk_bitmap = NULL;
@@ -447,6 +513,10 @@ out:
 static void stop_lru_writeback(struct zram *zram)
 {
 	if (!IS_ERR_OR_NULL(zram->wbd)) {
+<<<<<<< HEAD
+=======
+		g_zram = NULL;
+>>>>>>> upstream/android-13
 		kthread_stop(zram->wbd);
 		zram->wbd = NULL;
 	}
@@ -458,10 +528,13 @@ static void deinit_lru_writeback(struct zram *zram)
 	u8 *wb_table_tmp = zram->wb_table;
 
 	stop_lru_writeback(zram);
+<<<<<<< HEAD
 	if (zram->read_req_bitmap) {
 		kvfree(zram->read_req_bitmap);
 		zram->read_req_bitmap = NULL;
 	}
+=======
+>>>>>>> upstream/android-13
 	if (zram->chunk_bitmap) {
 		kvfree(zram->chunk_bitmap);
 		zram->chunk_bitmap = NULL;
@@ -471,8 +544,15 @@ static void deinit_lru_writeback(struct zram *zram)
 		zram->blk_bitmap = NULL;
 	}
 	spin_lock_irqsave(&zram->wb_table_lock, flags);
+<<<<<<< HEAD
 	zram->wb_table = NULL;
 	spin_unlock_irqrestore(&zram->wb_table_lock, flags);
+=======
+	if (zram->wb_table)
+		zram->wb_table = NULL;
+	spin_unlock_irqrestore(&zram->wb_table_lock, flags);
+
+>>>>>>> upstream/android-13
 	kvfree(wb_table_tmp);
 }
 #endif
@@ -555,16 +635,24 @@ static void reset_bdev(struct zram *zram)
 		return;
 
 	bdev = zram->bdev;
+<<<<<<< HEAD
 	if (zram->old_block_size)
 		set_blocksize(bdev, zram->old_block_size);
+=======
+>>>>>>> upstream/android-13
 	blkdev_put(bdev, FMODE_READ|FMODE_WRITE|FMODE_EXCL);
 	/* hope filp_close flush all of IO */
 	filp_close(zram->backing_dev, NULL);
 	zram->backing_dev = NULL;
+<<<<<<< HEAD
 	zram->old_block_size = 0;
 	zram->bdev = NULL;
 	zram->disk->queue->backing_dev_info->capabilities |=
 				BDI_CAP_SYNCHRONOUS_IO;
+=======
+	zram->bdev = NULL;
+	zram->disk->fops = &zram_devops;
+>>>>>>> upstream/android-13
 	kvfree(zram->bitmap);
 	zram->bitmap = NULL;
 #ifdef CONFIG_ZRAM_LRU_WRITEBACK
@@ -610,7 +698,11 @@ static ssize_t backing_dev_store(struct device *dev,
 	struct file *backing_dev = NULL;
 	struct inode *inode;
 	struct address_space *mapping;
+<<<<<<< HEAD
 	unsigned int bitmap_sz, old_block_size = 0;
+=======
+	unsigned int bitmap_sz;
+>>>>>>> upstream/android-13
 	unsigned long nr_pages, *bitmap = NULL;
 	struct block_device *bdev = NULL;
 	int err;
@@ -633,7 +725,11 @@ static ssize_t backing_dev_store(struct device *dev,
 	if (sz > 0 && file_name[sz - 1] == '\n')
 		file_name[sz - 1] = 0x00;
 
+<<<<<<< HEAD
 	backing_dev = filp_open(file_name, O_RDWR|O_LARGEFILE, 0);
+=======
+	backing_dev = filp_open_block(file_name, O_RDWR|O_LARGEFILE, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(backing_dev)) {
 		err = PTR_ERR(backing_dev);
 		backing_dev = NULL;
@@ -649,9 +745,16 @@ static ssize_t backing_dev_store(struct device *dev,
 		goto out;
 	}
 
+<<<<<<< HEAD
 	bdev = bdgrab(I_BDEV(inode));
 	err = blkdev_get(bdev, FMODE_READ | FMODE_WRITE | FMODE_EXCL, zram);
 	if (err < 0) {
+=======
+	bdev = blkdev_get_by_dev(inode->i_rdev,
+			FMODE_READ | FMODE_WRITE | FMODE_EXCL, zram);
+	if (IS_ERR(bdev)) {
+		err = PTR_ERR(bdev);
+>>>>>>> upstream/android-13
 		bdev = NULL;
 		goto out;
 	}
@@ -664,6 +767,7 @@ static ssize_t backing_dev_store(struct device *dev,
 		goto out;
 	}
 
+<<<<<<< HEAD
 	old_block_size = block_size(bdev);
 	err = set_blocksize(bdev, PAGE_SIZE);
 	if (err)
@@ -672,6 +776,10 @@ static ssize_t backing_dev_store(struct device *dev,
 	reset_bdev(zram);
 
 	zram->old_block_size = old_block_size;
+=======
+	reset_bdev(zram);
+
+>>>>>>> upstream/android-13
 	zram->bdev = bdev;
 	zram->backing_dev = backing_dev;
 	zram->bitmap = bitmap;
@@ -691,8 +799,12 @@ static ssize_t backing_dev_store(struct device *dev,
 	 * freely but in fact, IO is going on so finally could cause
 	 * use-after-free when the IO is really done.
 	 */
+<<<<<<< HEAD
 	zram->disk->queue->backing_dev_info->capabilities &=
 			~BDI_CAP_SYNCHRONOUS_IO;
+=======
+	zram->disk->fops = &zram_wb_devops;
+>>>>>>> upstream/android-13
 	up_write(&zram->init_lock);
 
 	pr_info("setup backing device %s\n", file_name);
@@ -701,15 +813,22 @@ static ssize_t backing_dev_store(struct device *dev,
 	return len;
 #ifdef CONFIG_ZRAM_LRU_WRITEBACK
 init_lru_writeback_fail:
+<<<<<<< HEAD
 	zram->old_block_size = 0;
+=======
+>>>>>>> upstream/android-13
 	zram->bdev = NULL;
 	zram->backing_dev = NULL;
 	zram->bitmap = NULL;
 	zram->nr_pages = 0;
 #endif
 out:
+<<<<<<< HEAD
 	if (bitmap)
 		kvfree(bitmap);
+=======
+	kvfree(bitmap);
+>>>>>>> upstream/android-13
 
 	if (bdev)
 		blkdev_put(bdev, FMODE_READ | FMODE_WRITE | FMODE_EXCL);
@@ -765,8 +884,11 @@ retry:
 		BUG_ON(test_and_set_bit(blk_idx + i, zram->bitmap));
 	spin_unlock_irqrestore(&zram->bitmap_lock, flags);
 	atomic64_add(NR_ZWBS, &zram->stats.bd_count);
+<<<<<<< HEAD
 	if (ppr)
 		atomic64_add(NR_ZWBS, &zram->stats.bd_ppr_count);
+=======
+>>>>>>> upstream/android-13
 	return blk_idx;
 }
 
@@ -791,6 +913,26 @@ retry:
 	return blk_idx;
 }
 
+<<<<<<< HEAD
+=======
+static unsigned long try_alloc_block_bdev(struct zram *zram, int *nr_pages, bool ppr)
+{
+	unsigned long blk_idx;
+
+	/* found free chunk, return blk_idx */
+	if (*nr_pages == NR_ZWBS) {
+		blk_idx = alloc_chunk_bdev(zram, ppr);
+		if (blk_idx)
+			return blk_idx;
+	}
+	/* ppr writeback does not support 4kb writeback */
+	if (ppr)
+		return 0;
+	*nr_pages = 1;
+	return alloc_block_bdev(zram);
+}
+
+>>>>>>> upstream/android-13
 static void free_chunk_bdev(struct zram *zram, unsigned long chunk_idx)
 {
 	unsigned long blk_idx;
@@ -834,6 +976,7 @@ out:
 		atomic64_dec(&zram->stats.bd_ppr_count);
 	free_chunk_bdev(zram, blk_to_chunk_idx(blk_idx));
 }
+<<<<<<< HEAD
 
 static void zram_inc_wb_table(struct zram *zram, unsigned long blk_idx)
 {
@@ -866,6 +1009,8 @@ static void zram_dec_wb_table(struct zram *zram, unsigned long blk_idx, bool ppr
 		atomic64_dec(&zram->stats.bd_ppr_count);
 	free_chunk_bdev(zram, blk_to_chunk_idx(blk_idx));
 }
+=======
+>>>>>>> upstream/android-13
 #else
 static unsigned long alloc_block_bdev(struct zram *zram)
 {
@@ -910,7 +1055,11 @@ static int read_from_bdev_async(struct zram *zram, struct bio_vec *bvec,
 {
 	struct bio *bio;
 
+<<<<<<< HEAD
 	bio = bio_alloc(GFP_NOIO, 1);
+=======
+	bio = bio_alloc(GFP_ATOMIC, 1);
+>>>>>>> upstream/android-13
 	if (!bio)
 		return -ENOMEM;
 
@@ -986,9 +1135,12 @@ static inline bool zram_throttle_writeback_size(struct zram *zram)
 
 static bool zram_wb_available(struct zram *zram)
 {
+<<<<<<< HEAD
 	if (!is_bdev_avail(zram))
 		return false;
 
+=======
+>>>>>>> upstream/android-13
 	if (!zram->wb_table)
 		return false;
 	spin_lock(&zram->wb_limit_lock);
@@ -1035,6 +1187,7 @@ static int zram_try_mark_page(struct zram *zram, u32 index)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void free_writeback_buffer(struct zram_writeback_buffer *buf)
 {
 	struct zwbs **zwbs;
@@ -1047,10 +1200,20 @@ static void free_writeback_buffer(struct zram_writeback_buffer *buf)
 	for (i = 0; i < NR_ZWBS; i++) {
 		if (!zwbs[i])
 			break;
+=======
+void free_zwbs(struct zwbs **zwbs)
+{
+	int i;
+
+	for (i = 0; i < NR_ZWBS; i++) {
+		if (!zwbs[i])
+			return;
+>>>>>>> upstream/android-13
 		if (zwbs[i]->page)
 			__free_page(zwbs[i]->page);
 		kfree(zwbs[i]);
 	}
+<<<<<<< HEAD
 	kfree(buf);
 }
 
@@ -1065,6 +1228,14 @@ static struct zram_writeback_buffer *alloc_writeback_buffer(void)
 		return NULL;
 
 	zwbs = buf->zwbs;
+=======
+}
+
+int alloc_zwbs(struct zwbs **zwbs)
+{
+	int i;
+
+>>>>>>> upstream/android-13
 	for (i = 0; i < NR_ZWBS; i++) {
 		zwbs[i] = kzalloc(sizeof(struct zwbs), GFP_KERNEL);
 		if (!zwbs[i])
@@ -1073,6 +1244,7 @@ static struct zram_writeback_buffer *alloc_writeback_buffer(void)
 		if (!zwbs[i]->page)
 			goto out;
 	}
+<<<<<<< HEAD
 	return buf;
 
 out:
@@ -1083,6 +1255,12 @@ out:
 bool zram_is_app_launch(void)
 {
 	return is_app_launch;
+=======
+	return 0;
+out:
+	free_zwbs(zwbs);
+	return -ENOMEM;
+>>>>>>> upstream/android-13
 }
 
 #define ZRAM_WBD_INTERVAL ((10)*(HZ))
@@ -1140,7 +1318,12 @@ static void try_wakeup_zram_wbd(struct zram *zram)
 
 	if (zram->backing_dev && !zram->wbd_running &&
 			zram_wb_available(zram) &&
+<<<<<<< HEAD
 			zram_should_writeback(zram, 0, true)) {
+=======
+			zram_should_writeback(zram, 0, true) &&
+			is_bdev_avail(zram)) {
+>>>>>>> upstream/android-13
 		bd_count = atomic64_read(&zram->stats.bd_count);
 		/* wakeup zram_wbd with enough free blocks */
 		if (zram->nr_pages - bd_count < NR_ZWBS)
@@ -1151,6 +1334,7 @@ static void try_wakeup_zram_wbd(struct zram *zram)
 	}
 }
 
+<<<<<<< HEAD
 static int zram_app_launch_notifier(struct notifier_block *nb,
 				unsigned long action, void *data)
 {
@@ -1166,6 +1350,16 @@ static struct notifier_block zram_app_launch_nb = {
 	.notifier_call = zram_app_launch_notifier,
 };
 
+=======
+static void zram_app_launch_notify(unsigned long val)
+{
+	is_app_launch = val ? true : false;
+
+	if (!is_app_launch && g_zram)
+		try_wakeup_zram_wbd(g_zram);
+}
+
+>>>>>>> upstream/android-13
 static void mark_end_of_page(struct zwbs *zwbs)
 {
 	struct zram_wb_header *zhdr;
@@ -1182,6 +1376,7 @@ static void mark_end_of_page(struct zwbs *zwbs)
 	}
 }
 
+<<<<<<< HEAD
 struct hex_dump_pages {
 	struct page **pages;
 	int nr_pages;
@@ -1275,6 +1470,17 @@ static int zram_writeback_fill_page(struct zram *zram, u32 index,
 	unsigned long handle;
 	void *src, *dst;
 	int size, sizes[2];
+=======
+static int zram_writeback_fill_page(struct zram *zram, u32 index,
+				struct zwbs *zwbs)
+{
+	struct zram_wb_header *zhdr;
+	struct page *page = zwbs->page;
+	int offset = zwbs->off;
+	unsigned long handle;
+	void *src, *dst;
+	int ret, size;
+>>>>>>> upstream/android-13
 	int header_sz = 0;
 
 	zram_slot_lock(zram, index);
@@ -1287,12 +1493,19 @@ static int zram_writeback_fill_page(struct zram *zram, u32 index,
 		return 0;
 	}
 	size = zram_get_obj_size(zram, index);
+<<<<<<< HEAD
 	if (ppr || size != PAGE_SIZE)
 		header_sz = sizeof(struct zram_wb_header);
 
 	if (((!ppr || idx == NR_ZWBS - 1) &&
 			offset + header_sz + size > PAGE_SIZE) ||
 			offset + header_sz > PAGE_SIZE) {
+=======
+	if (size != PAGE_SIZE)
+		header_sz = sizeof(struct zram_wb_header);
+
+	if (offset + header_sz + size > PAGE_SIZE) {
+>>>>>>> upstream/android-13
 		zram_slot_unlock(zram, index);
 		return -ENOSPC;
 	}
@@ -1313,12 +1526,17 @@ static int zram_writeback_fill_page(struct zram *zram, u32 index,
 	}
 	src = zs_map_object(zram->mem_pool, handle, ZS_MM_RO);
 	dst = kmap_atomic(page);
+<<<<<<< HEAD
 	if (header_sz) {
+=======
+	if (size != PAGE_SIZE) {
+>>>>>>> upstream/android-13
 		zhdr = (struct zram_wb_header *)(dst + offset);
 		zhdr->index = index;
 		zhdr->size = size;
 		dst = (u8 *)(zhdr + 1);
 	}
+<<<<<<< HEAD
 	if (offset + header_sz + size > PAGE_SIZE) {
 		sizes[0] = PAGE_SIZE - (offset + header_sz);
 		sizes[1] = size - sizes[0];
@@ -1368,6 +1586,45 @@ static void zram_writeback_clear_flags(struct zram *zram, struct zwbs **zwbs)
 	for (i = 0; i < NR_ZWBS; i++)
 		for (j = 0; j < zwbs[i]->cnt; j++)
 			zram_writeback_clear_flag(zram, zwbs[i]->entry[j].index);
+=======
+	memcpy(dst, src, size);
+	ret = size;
+	kunmap_atomic(dst);
+	zs_unmap_object(zram->mem_pool, handle);
+	zram_slot_unlock(zram, index);
+
+	return ret;
+}
+
+static void zram_writeback_clear_flag(struct zram *zram, struct zwbs *zwbs)
+{
+	struct zram_wb_entry *entry = zwbs->entry;
+	unsigned int count = zwbs->cnt;
+	unsigned long index;
+	unsigned long flags;
+	int i;
+
+	for (i = 0; i < count; i++) {
+		index = entry[i].index;
+		zram_slot_lock(zram, index);
+		if (zram_allocated(zram, index) &&
+				zram_test_flag(zram, index, ZRAM_IDLE)) {
+			/* putback halted entry to zram lru list */
+			spin_lock_irqsave(&zram->list_lock, flags);
+			if (!list_empty(&zram->table[index].lru_list))
+				list_move_tail(&zram->table[index].lru_list, &zram->list);
+			else
+				list_add_tail(&zram->table[index].lru_list, &zram->list);
+			spin_unlock_irqrestore(&zram->list_lock, flags);
+			zram_set_flag(zram, index, ZRAM_LRU);
+			atomic64_inc(&zram->stats.lru_pages);
+		}
+		zram_clear_flag(zram, index, ZRAM_UNDER_WB);
+		zram_clear_flag(zram, index, ZRAM_IDLE);
+		zram_clear_flag(zram, index, ZRAM_UNDER_PPR);
+		zram_slot_unlock(zram, index);
+	}
+>>>>>>> upstream/android-13
 }
 
 static void zram_update_max_stats(struct zram *zram)
@@ -1406,10 +1663,13 @@ static void zram_writeback_done(struct zram *zram,
 	int i;
 	unsigned long flags;
 
+<<<<<<< HEAD
 	if (!count) {
 		free_block_bdev(zram, blk_idx, ppr);
 		return;
 	}
+=======
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&zram->wb_table_lock, flags);
 	if (!zram->wb_table) {
 		spin_unlock_irqrestore(&zram->wb_table_lock, flags);
@@ -1464,6 +1724,7 @@ static void zram_writeback_done(struct zram *zram,
 	}
 }
 
+<<<<<<< HEAD
 static void zram_writeback_done_work(struct work_struct *work)
 {
 	struct zram_wb_work *zw = container_of(work, struct zram_wb_work, work);
@@ -1582,18 +1843,100 @@ retry:
 	i = tmpbuf->idx;
 
 	size = zram_writeback_fill_page(zram, index, zwbs, i, ppr);
+=======
+static int zram_writeback_page(struct zram *zram, struct zwbs **zwbs,
+			       int nr_to_write, bool ppr)
+{
+	struct bio bio;
+	struct bio_vec *bio_vec;
+	unsigned long blk_idx;
+	int ret = 0;
+	int i, idx = 0;
+	int nr_pages = nr_to_write;
+retry:
+	blk_idx = try_alloc_block_bdev(zram, &nr_pages, ppr);
+	if (!blk_idx) {
+		ret = -ENOSPC;
+		goto out;
+	}
+	/* fallocate 2MB block if not allocated yet */
+	fallocate_block(zram, blk_idx);
+	if (ppr)
+		atomic64_add(nr_pages, &zram->stats.bd_ppr_count);
+
+	bio_vec = kmalloc_array(nr_pages, sizeof(struct bio_vec), GFP_KERNEL);
+	if (!bio_vec) {
+		ret = -ENOSPC;
+		goto out;
+	}
+
+	bio_init(&bio, bio_vec, nr_pages);
+	bio_set_dev(&bio, zram->bdev);
+	bio.bi_iter.bi_sector = blk_idx * (PAGE_SIZE >> 9);
+	bio.bi_opf = REQ_OP_WRITE;
+	for (i = 0; i < nr_pages; i++)
+		bio_add_page(&bio, zwbs[idx + i]->page, PAGE_SIZE, 0);
+	ret = submit_bio_wait(&bio);
+	kfree(bio_vec);
+out:
+	if (!ret) {
+		for (i = 0; i < nr_pages; i++)
+			zram_writeback_done(zram, zwbs[idx + i], blk_idx + i, ppr);
+
+		zram_update_max_stats(zram);
+		atomic64_add(nr_pages, &zram->stats.bd_writes);
+		if (ppr)
+			atomic64_add(nr_pages, &zram->stats.bd_ppr_writes);
+		spin_lock(&zram->wb_limit_lock);
+		if (zram->wb_limit_enable) {
+			if (zram->bd_wb_limit > nr_pages)
+				zram->bd_wb_limit -= nr_pages;
+			else
+				zram->bd_wb_limit = 0;
+		}
+		spin_unlock(&zram->wb_limit_lock);
+
+		idx += nr_pages;
+		if (idx < nr_to_write)
+			goto retry;
+	} else {
+		if (blk_idx)
+			for (i = 0; i < nr_pages; i++)
+				free_block_bdev(zram, blk_idx + i, ppr);
+		/* free all remaining entries when error */
+		for (i = idx; i < nr_to_write; i++)
+			zram_writeback_clear_flag(zram, zwbs[i]);
+	}
+	return ret;
+}
+
+static int zram_comp_writeback_index(struct zram *zram, u32 index,
+			struct zwbs **zwbs, int *idx, bool ppr)
+{
+	int size, ret = 0;
+	int i = *idx, j;
+retry:
+	size = zram_writeback_fill_page(zram, index, zwbs[i]);
+>>>>>>> upstream/android-13
 	if (size > 0) {
 		struct zram_wb_entry *entry = zwbs[i]->entry;
 
 		entry[zwbs[i]->cnt].index = index;
 		entry[zwbs[i]->cnt].offset = zwbs[i]->off;
 		entry[zwbs[i]->cnt].size = size;
+<<<<<<< HEAD
 		zwbs[i]->off += (size + sizeof(struct zram_wb_header));
+=======
+		zwbs[i]->off += size;
+		if (size < PAGE_SIZE)
+			zwbs[i]->off += sizeof(struct zram_wb_header);
+>>>>>>> upstream/android-13
 		zwbs[i]->cnt++;
 	}
 	/* writeback if page is full/entry is full */
 	if (size == -ENOSPC || zwbs[i]->cnt == ZRAM_WB_THRESHOLD) {
 		mark_end_of_page(zwbs[i]);
+<<<<<<< HEAD
 		if (++tmpbuf->idx == NR_ZWBS) {
 			ret = zram_writeback_page(zram, tmpbuf, ppr);
 			tmpbuf = NULL;
@@ -1602,18 +1945,45 @@ retry:
 			goto retry;
 	}
 	*buf = tmpbuf;
+=======
+		i = (i + 1) % NR_ZWBS;
+		if (i > 0)
+			goto retry;
+		ret = zram_writeback_page(zram, zwbs, NR_ZWBS, ppr);
+		for (j = 0; j < NR_ZWBS; j++) {
+			zwbs[j]->cnt = 0;
+			zwbs[j]->off = 0;
+		}
+		if (ret == 0 && size == -ENOSPC)
+			goto retry;
+	}
+	*idx = i;
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 static void zram_comp_writeback(struct zram *zram)
 {
+<<<<<<< HEAD
 	struct zram_writeback_buffer *buf = NULL;
 	unsigned long nr_pages = zram->disksize >> PAGE_SHIFT;
 	unsigned long index;
+=======
+	struct zwbs *zwbs[NR_ZWBS];
+	unsigned long nr_pages = zram->disksize >> PAGE_SHIFT;
+	unsigned long index;
+	int idx = 0;
+
+	if (alloc_zwbs(zwbs)) {
+		pr_info("%s alloc_zwbs failed", __func__);
+		return;
+	}
+>>>>>>> upstream/android-13
 
 	for (index = 0; index < nr_pages; index++) {
 		if (!zram_wb_available(zram))
 			break;
+<<<<<<< HEAD
 		if (zram_writeback_index(zram, index, &buf, false))
 			break;
 	}
@@ -1621,6 +1991,12 @@ static void zram_comp_writeback(struct zram *zram)
 		mark_end_of_page(buf->zwbs[buf->idx]);
 		zram_writeback_page(zram, buf, false);
 	}
+=======
+		if (zram_comp_writeback_index(zram, index, zwbs, &idx, false))
+			break;
+	}
+	free_zwbs(zwbs);
+>>>>>>> upstream/android-13
 	pr_info("%s done", __func__);
 }
 
@@ -1628,26 +2004,52 @@ static int zram_wbd(void *p)
 {
 	struct zram *zram = (struct zram *)p;
 	struct zram_table_entry *zram_entry, *n;
+<<<<<<< HEAD
 	struct zram_writeback_buffer *buf = NULL;
 	u32 index;
 	int ret;
 
 	set_freezable();
+=======
+	struct zwbs *zwbs[NR_ZWBS];
+	u32 index;
+	int idx = 0;
+	int ret;
+
+	current->flags |= PF_NOFREEZE;
+
+	if (alloc_zwbs(zwbs)) {
+		pr_info("%s alloc_zwbs failed", __func__);
+		return 0;
+	}
+>>>>>>> upstream/android-13
 
 	while (!kthread_should_stop()) {
 		unsigned long nr_pages = 0;
 
+<<<<<<< HEAD
 		wait_event_freezable(zram->wbd_wait,
 				zram->wbd_running || kthread_should_stop());
 		list_for_each_entry_safe(zram_entry, n, &zram->list, lru_list) {
 			if (try_to_freeze() || kthread_should_stop())
+=======
+		wait_event(zram->wbd_wait,
+				zram->wbd_running || kthread_should_stop());
+		list_for_each_entry_safe(zram_entry, n, &zram->list, lru_list) {
+			if (kthread_should_stop())
+>>>>>>> upstream/android-13
 				break;
 			if (!zram_wb_available(zram))
 				break;
 			index = entry_to_index(zram, zram_entry);
 			ret = zram_try_mark_page(zram, index);
 			if (!ret) {
+<<<<<<< HEAD
 				if (zram_writeback_index(zram, index, &buf, false))
+=======
+				if (zram_comp_writeback_index(zram, index,
+						zwbs, &idx, false))
+>>>>>>> upstream/android-13
 					break;
 			} else if (ret == ABORT) {
 				n = list_first_entry(&zram->list,
@@ -1659,16 +2061,31 @@ static int zram_wbd(void *p)
 		zram->wbd_running = false;
 		pr_info("%s done", __func__);
 	}
+<<<<<<< HEAD
 	free_writeback_buffer(buf);
+=======
+	free_zwbs(zwbs);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 void zram_add_to_writeback_list(struct list_head *list, unsigned long index)
 {
 	struct zram *zram = g_zram;
 	unsigned long flags;
 
+=======
+static void zram_add_to_writeback_list(void *priv, unsigned long index)
+{
+	struct list_head *list = priv;
+	struct zram *zram = g_zram;
+	unsigned long flags;
+
+	if (!is_bdev_avail(zram))
+		return;
+>>>>>>> upstream/android-13
 	if (!zram_wb_available(zram))
 		return;
 	if (index >= (zram->disksize >> PAGE_SHIFT))
@@ -1680,6 +2097,10 @@ void zram_add_to_writeback_list(struct list_head *list, unsigned long index)
 			!zram_test_flag(zram, index, ZRAM_IDLE) &&
 			!zram_test_flag(zram, index, ZRAM_WB) &&
 			!zram_test_flag(zram, index, ZRAM_SAME) &&
+<<<<<<< HEAD
+=======
+			!zram_test_flag(zram, index, ZRAM_HUGE) &&
+>>>>>>> upstream/android-13
 			!zram_test_flag(zram, index, ZRAM_UNDER_WB) &&
 			!zram_test_flag(zram, index, ZRAM_UNDER_PPR)) {
 		zram_set_flag(zram, index, ZRAM_IDLE);
@@ -1697,21 +2118,37 @@ void zram_add_to_writeback_list(struct list_head *list, unsigned long index)
 	zram_slot_unlock(zram, index);
 }
 
+<<<<<<< HEAD
 int zram_writeback_list(struct list_head *list)
+=======
+static void zram_writeback_list(struct list_head *list,
+				struct zram_writeback_buffer *priv)
+>>>>>>> upstream/android-13
 {
 	struct zram *zram = g_zram;
 	struct zram_table_entry *entry;
 	u32 index;
 	unsigned long flags;
+<<<<<<< HEAD
+=======
+	bool skip = false;
+>>>>>>> upstream/android-13
 
 	while (!list_empty(list)) {
 		entry = list_first_entry(list, typeof(*entry), lru_list);
 		index = entry_to_index(zram, entry);
 		if (index >= (zram->disksize >> PAGE_SHIFT))
+<<<<<<< HEAD
 			return -EINVAL;
 		if (is_app_launch || !zram_wb_available(zram) ||
 		    zram_writeback_index(zram, index, &zram->buf, true))
 			return -EINVAL;
+=======
+			break;
+		if (!skip && (!zram_wb_available(zram) ||
+		    zram_comp_writeback_index(zram, index, priv->zwbs, &priv->idx, true)))
+			skip = true;
+>>>>>>> upstream/android-13
 		zram_slot_lock(zram, index);
 		zram_clear_flag(zram, index, ZRAM_UNDER_PPR);
 		spin_lock_irqsave(&zram->list_lock, flags);
@@ -1720,6 +2157,7 @@ int zram_writeback_list(struct list_head *list)
 		spin_unlock_irqrestore(&zram->list_lock, flags);
 		zram_slot_unlock(zram, index);
 	}
+<<<<<<< HEAD
 	return 0;
 }
 
@@ -1753,6 +2191,39 @@ void flush_writeback_buffer(struct list_head *list)
 }
 
 int zram_get_entry_type(unsigned long index)
+=======
+}
+
+static void free_writeback_buffer(void *priv)
+{
+	struct zram_writeback_buffer *buf = priv;
+	int i;
+
+	if (!buf)
+		return;
+	for (i = 0; i < NR_ZWBS; i++)
+		zram_writeback_clear_flag(g_zram, buf->zwbs[i]);
+	free_zwbs(buf->zwbs);
+	kfree(buf);
+}
+
+static int alloc_writeback_buffer(void **priv)
+{
+	struct zram_writeback_buffer *buf;
+
+	buf = kzalloc(sizeof(struct zram_writeback_buffer), GFP_KERNEL);
+	if (!buf)
+		return -ENOMEM;
+	if (alloc_zwbs(buf->zwbs)) {
+		kfree(buf);
+		return -ENOMEM;
+	}
+	*priv = buf;
+	return 0;
+}
+
+static int zram_is_writeback_entry(unsigned long index)
+>>>>>>> upstream/android-13
 {
 	struct zram *zram = g_zram;
 	int ret = 0;
@@ -1761,6 +2232,7 @@ int zram_get_entry_type(unsigned long index)
 		return ret;
 
 	zram_slot_lock(zram, index);
+<<<<<<< HEAD
 	if (zram_allocated(zram, index)) {
 		if (zram_test_flag(zram, index, ZRAM_WB))
 			ret = zram_get_element(zram, index) & (PAGE_SIZE - 1) ?
@@ -1770,11 +2242,17 @@ int zram_get_entry_type(unsigned long index)
 		else if (zram_test_flag(zram, index, ZRAM_HUGE))
 			ret = ZRAM_HUGE_TYPE;
 	}
+=======
+	if (zram_allocated(zram, index) &&
+			zram_test_flag(zram, index, ZRAM_WB))
+		ret = 1;
+>>>>>>> upstream/android-13
 	zram_slot_unlock(zram, index);
 
 	return ret;
 }
 
+<<<<<<< HEAD
 static int read_comp_from_bdev(struct zram *zram, struct bio_vec *bvec,
 			unsigned long handle, struct bio *parent, bool ppr);
 
@@ -1810,19 +2288,46 @@ int zram_prefetch_entry(unsigned long index)
 	if (read_comp_from_bdev(zram, NULL, handle, NULL, true) < 0)
 		zram_dec_wb_table(zram, blk_idx, true);
 	atomic64_inc(&zram->stats.bd_ppr_reads);
+=======
+static int zram_writeback_oem_func(int cmd, void *priv, unsigned long param)
+{
+	if (cmd == ZRAM_APP_LAUNCH_NOTIFY)
+		zram_app_launch_notify(param);
+	else if (cmd == ZRAM_ADD_TO_WRITEBACK_LIST)
+		zram_add_to_writeback_list(priv, param);
+	else if (cmd == ZRAM_WRITEBACK_LIST)
+		zram_writeback_list(priv, (struct zram_writeback_buffer *)param);
+	else if (cmd == ZRAM_ALLOC_WRITEBACK_BUFFER)
+		return alloc_writeback_buffer((void **)priv);
+	else if (cmd == ZRAM_FREE_WRITEBACK_BUFFER)
+		free_writeback_buffer(priv);
+	else if (cmd == ZRAM_IS_WRITEBACK_ENTRY)
+		return zram_is_writeback_entry(param);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 #endif
 
+<<<<<<< HEAD
 #define HUGE_WRITEBACK 1
 #define IDLE_WRITEBACK 2
 
+=======
+#define PAGE_WB_SIG "page_index="
+
+#define PAGE_WRITEBACK 0
+#define HUGE_WRITEBACK 1
+#define IDLE_WRITEBACK 2
+
+
+>>>>>>> upstream/android-13
 static ssize_t writeback_store(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t len)
 {
 	struct zram *zram = dev_to_zram(dev);
 	unsigned long nr_pages = zram->disksize >> PAGE_SHIFT;
+<<<<<<< HEAD
 	unsigned long index;
 	struct bio bio;
 	struct bio_vec bio_vec;
@@ -1847,6 +2352,31 @@ static ssize_t writeback_store(struct device *dev,
 
 	if (mode == -1)
 		return -EINVAL;
+=======
+	unsigned long index = 0;
+	struct bio bio;
+	struct bio_vec bio_vec;
+	struct page *page;
+	ssize_t ret = len;
+	int mode, err;
+	unsigned long blk_idx = 0;
+
+	if (sysfs_streq(buf, "idle"))
+		mode = IDLE_WRITEBACK;
+	else if (sysfs_streq(buf, "huge"))
+		mode = HUGE_WRITEBACK;
+	else {
+		if (strncmp(buf, PAGE_WB_SIG, sizeof(PAGE_WB_SIG) - 1))
+			return -EINVAL;
+
+		if (kstrtol(buf + sizeof(PAGE_WB_SIG) - 1, 10, &index) ||
+				index >= nr_pages)
+			return -EINVAL;
+
+		nr_pages = 1;
+		mode = PAGE_WRITEBACK;
+	}
+>>>>>>> upstream/android-13
 
 	down_read(&zram->init_lock);
 	if (!init_done(zram)) {
@@ -1859,12 +2389,25 @@ static ssize_t writeback_store(struct device *dev,
 		goto release_init_lock;
 	}
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_ZRAM_LRU_WRITEBACK
+	if (mode == IDLE_WRITEBACK) {
+		if (is_bdev_avail(zram))
+			zram_comp_writeback(zram);
+		ret = len;
+		goto release_init_lock;
+	}
+#endif
+
+>>>>>>> upstream/android-13
 	page = alloc_page(GFP_KERNEL);
 	if (!page) {
 		ret = -ENOMEM;
 		goto release_init_lock;
 	}
 
+<<<<<<< HEAD
 #ifdef CONFIG_ZRAM_LRU_WRITEBACK
 	if (mode == IDLE_WRITEBACK) {
 		if (zram_wb_available(zram))
@@ -1875,6 +2418,9 @@ static ssize_t writeback_store(struct device *dev,
 	}
 #endif
 	for (index = 0; index < nr_pages; index++) {
+=======
+	for (; nr_pages != 0; index++, nr_pages--) {
+>>>>>>> upstream/android-13
 		struct bio_vec bvec;
 
 		bvec.bv_page = page;
@@ -1939,12 +2485,25 @@ static ssize_t writeback_store(struct device *dev,
 		 * XXX: A single page IO would be inefficient for write
 		 * but it would be not bad as starter.
 		 */
+<<<<<<< HEAD
 		ret = submit_bio_wait(&bio);
 		if (ret) {
+=======
+		err = submit_bio_wait(&bio);
+		if (err) {
+>>>>>>> upstream/android-13
 			zram_slot_lock(zram, index);
 			zram_clear_flag(zram, index, ZRAM_UNDER_WB);
 			zram_clear_flag(zram, index, ZRAM_IDLE);
 			zram_slot_unlock(zram, index);
+<<<<<<< HEAD
+=======
+			/*
+			 * Return last IO error unless every IO were
+			 * not suceeded.
+			 */
+			ret = err;
+>>>>>>> upstream/android-13
 			continue;
 		}
 
@@ -1969,6 +2528,7 @@ static ssize_t writeback_store(struct device *dev,
 		zram_free_page(zram, index);
 		zram_clear_flag(zram, index, ZRAM_UNDER_WB);
 		zram_set_flag(zram, index, ZRAM_WB);
+<<<<<<< HEAD
 #ifdef CONFIG_ZRAM_LRU_WRITEBACK
 		zram_set_element(zram, index, blk_idx << (PAGE_SHIFT * 2));
 #else
@@ -1979,6 +2539,12 @@ static ssize_t writeback_store(struct device *dev,
 #ifdef CONFIG_ZRAM_LRU_WRITEBACK
 		atomic64_inc(&zram->stats.bd_objcnt);
 #endif
+=======
+		zram_set_element(zram, index, blk_idx << (PAGE_SHIFT * 2));
+		blk_idx = 0;
+		atomic64_inc(&zram->stats.pages_stored);
+		atomic64_inc(&zram->stats.bd_objcnt);
+>>>>>>> upstream/android-13
 		spin_lock(&zram->wb_limit_lock);
 		if (zram->wb_limit_enable && zram->bd_wb_limit > 0)
 			zram->bd_wb_limit -=  1UL << (PAGE_SHIFT - 12);
@@ -1988,12 +2554,16 @@ next:
 	}
 
 	if (blk_idx)
+<<<<<<< HEAD
 #ifdef CONFIG_ZRAM_LRU_WRITEBACK
 		free_block_bdev(zram, blk_idx, false);
 #else
 		free_block_bdev(zram, blk_idx);
 #endif
 	ret = len;
+=======
+		free_block_bdev(zram, blk_idx, false);
+>>>>>>> upstream/android-13
 	__free_page(page);
 release_init_lock:
 	up_read(&zram->init_lock);
@@ -2021,9 +2591,15 @@ static void zram_sync_read(struct work_struct *work)
 }
 
 /*
+<<<<<<< HEAD
  * Block layer want one ->make_request_fn to be active at a time
  * so if we use chained IO with parent IO in same context,
  * it's a deadlock. To avoid, it, it uses worker thread context.
+=======
+ * Block layer want one ->submit_bio to be active at a time, so if we use
+ * chained IO with parent IO in same context, it's a deadlock. To avoid that,
+ * use a worker thread context.
+>>>>>>> upstream/android-13
  */
 static int read_from_bdev_sync(struct zram *zram, struct bio_vec *bvec,
 				unsigned long entry, struct bio *bio)
@@ -2088,6 +2664,7 @@ static int alloc_zw_pages(struct zram_wb_work *zw)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void copy_to_buf(void *dst, struct page **pages,
 			unsigned int idx, unsigned int offset,
 			unsigned int size)
@@ -2112,11 +2689,16 @@ static void copy_to_buf(void *dst, struct page **pages,
 
 static void zram_handle_remain(struct zram *zram, struct page **pages,
 				unsigned int blk_idx, int nr_pages)
+=======
+static void zram_handle_remain(struct zram *zram, struct page *page,
+				unsigned int blk_idx)
+>>>>>>> upstream/android-13
 {
 	struct zram_wb_header *zhdr;
 	unsigned long alloced_pages;
 	unsigned long handle;
 	unsigned long flags;
+<<<<<<< HEAD
 	unsigned int idx = 0;
 	unsigned int offset = 0;
 	unsigned int size;
@@ -2137,6 +2719,22 @@ static void zram_handle_remain(struct zram *zram, struct page **pages,
 			index = -EINVAL;
 			goto next;
 		}
+=======
+	unsigned int offset = 0;
+	unsigned int size;
+	u32 index;
+	u8 *mem, *src, *dst;
+
+	mem = kmap_atomic(page);
+	while (offset + sizeof(struct zram_wb_header) < PAGE_SIZE) {
+		zhdr = (struct zram_wb_header *)(mem + offset);
+		index = zhdr->index;
+		size = zhdr->size;
+
+		/* invalid index or size, this means huge or corrupted page */
+		if (index >= (zram->disksize >> PAGE_SHIFT) || size > PAGE_SIZE)
+			break;
+>>>>>>> upstream/android-13
 
 		if (!zram_slot_trylock(zram, index))
 			goto next;
@@ -2148,10 +2746,16 @@ static void zram_handle_remain(struct zram *zram, struct page **pages,
 			goto next;
 		}
 		handle = zram_get_element(zram, index);
+<<<<<<< HEAD
 		if ((handle >> (PAGE_SHIFT * 2)) != blk_idx + idx ||
 			((handle >> PAGE_SHIFT) & (PAGE_SIZE - 1)) != offset ||
 			(size == PAGE_SIZE && (handle & (PAGE_SIZE - 1)) != 0) ||
 			(size != PAGE_SIZE && (handle & (PAGE_SIZE - 1)) != size)) {
+=======
+		if ((handle >> (PAGE_SHIFT * 2)) != blk_idx ||
+			((handle >> PAGE_SHIFT) & (PAGE_SIZE - 1)) != offset ||
+			(handle & (PAGE_SIZE - 1)) != size) {
+>>>>>>> upstream/android-13
 			zram_slot_unlock(zram, index);
 			goto next;
 		}
@@ -2161,8 +2765,12 @@ static void zram_handle_remain(struct zram *zram, struct page **pages,
 				__GFP_KSWAPD_RECLAIM |
 				__GFP_NOWARN |
 				__GFP_HIGHMEM |
+<<<<<<< HEAD
 				__GFP_MOVABLE |
 				__GFP_CMA);
+=======
+				__GFP_MOVABLE);
+>>>>>>> upstream/android-13
 		if (!handle) {
 			zram_slot_unlock(zram, index);
 			break;
@@ -2171,11 +2779,16 @@ static void zram_handle_remain(struct zram *zram, struct page **pages,
 		update_used_max(zram, alloced_pages);
 
 		dst = zs_map_object(zram->mem_pool, handle, ZS_MM_WO);
+<<<<<<< HEAD
 		copy_to_buf(dst, pages, idx, offset + header_sz, size);
 		hdp.pages = pages;
 		hdp.nr_pages = nr_pages;
 		hdp.idx = idx;
 		check_marker(dst, size, &hdp);
+=======
+		src = (u8 *)(zhdr + 1);
+		memcpy(dst, src, size);
+>>>>>>> upstream/android-13
 		zs_unmap_object(zram->mem_pool, handle);
 
 		atomic64_add(size, &zram->stats.compr_data_size);
@@ -2190,6 +2803,7 @@ static void zram_handle_remain(struct zram *zram, struct page **pages,
 		zram_slot_unlock(zram, index);
 		atomic64_inc(&zram->stats.pages_stored);
 next:
+<<<<<<< HEAD
 		offset += (size + header_sz);
 		if (offset + header_sz > PAGE_SIZE || index == -EINVAL) {
 			idx++;
@@ -2205,6 +2819,11 @@ next:
 			}
 		}
 	}
+=======
+		offset += (size + sizeof(struct zram_wb_header));
+	}
+	kunmap_atomic(mem);
+>>>>>>> upstream/android-13
 }
 
 static void zram_handle_comp_page(struct work_struct *work)
@@ -2216,10 +2835,15 @@ static void zram_handle_comp_page(struct work_struct *work)
 	struct page **src_page = zw->src_page;
 	struct page *dst_page = zw->dst_page;
 	struct bio *bio = zw->bio;
+<<<<<<< HEAD
+=======
+	unsigned long handle;
+>>>>>>> upstream/android-13
 	unsigned int blk_idx = zw->handle >> (PAGE_SHIFT * 2);
 	unsigned int offset = (zw->handle >> PAGE_SHIFT) & (PAGE_SIZE - 1);
 	unsigned int size = zw->handle & (PAGE_SIZE - 1);
 	unsigned int page_idx = 0;
+<<<<<<< HEAD
 	int header_sz = sizeof(struct zram_wb_header);
 	int ret = 0;
 	u32 index;
@@ -2227,12 +2851,19 @@ static void zram_handle_comp_page(struct work_struct *work)
 	bool spanned;
 
 	if (zw->ppr) {
+=======
+	int ret, i;
+	u8 *src, *dst;
+
+	if (zw->nr_pages == NR_ZWBS) {
+>>>>>>> upstream/android-13
 		page_idx = blk_idx & ~ZWBS_ALIGN_MASK;
 		blk_idx &= ZWBS_ALIGN_MASK;
 	}
 
 	src = kmap_atomic(src_page[page_idx]);
 	zhdr = (struct zram_wb_header *)(src + offset);
+<<<<<<< HEAD
 	index = zhdr->index;
 	if (size == 0)
 		size = PAGE_SIZE;
@@ -2283,10 +2914,34 @@ out_huge:
 	zram_slot_lock(zram, index);
 	zram_clear_flag(zram, index, ZRAM_READ_BDEV);
 	zram_slot_unlock(zram, index);
+=======
+	handle = zhdr->index;
+	BUG_ON(zhdr->size != size);
+
+	dst = kmap_atomic(dst_page);
+	zstrm = zcomp_stream_get(zram->comp);
+	ret = zcomp_decompress(zstrm,
+		src + offset + sizeof(struct zram_wb_header), size, dst);
+	zcomp_stream_put(zram->comp);
+	if (ret) {
+		pr_err("%s Decompression failed! err=%d offset=%u size=%u addr=%p\n",
+			__func__, ret, offset, size, src);
+		print_hex_dump(KERN_DEBUG, "", DUMP_PREFIX_OFFSET, 16, 1,
+				src, PAGE_SIZE, 1);
+		BUG_ON(ret);
+	}
+	kunmap_atomic(dst);
+	kunmap_atomic(src);
+
+	zram_slot_lock(zram, handle);
+	zram_clear_flag(zram, handle, ZRAM_READ_BDEV);
+	zram_slot_unlock(zram, handle);
+>>>>>>> upstream/android-13
 
 	if (zw->bio_chain)
 		bio_endio(zw->bio_chain);
 	else
+<<<<<<< HEAD
 		page_endio(dst_page, false, 0);
 out:
 	bio_put(bio);
@@ -2297,6 +2952,15 @@ out:
 		clear_bit(blk_to_chunk_idx(blk_idx), zram->read_req_bitmap);
 
 	zram_dec_wb_table(zram, blk_idx + page_idx, zw->ppr);
+=======
+		page_endio(dst_page, op_is_write(bio_op(bio)),
+				blk_status_to_errno(bio->bi_status));
+	bio_put(bio);
+
+	for (i = 0; i < zw->nr_pages; i++)
+		zram_handle_remain(zram, src_page[i], blk_idx + i);
+
+>>>>>>> upstream/android-13
 	free_zw_pages(zw);
 	kfree(zw);
 }
@@ -2305,10 +2969,14 @@ static void zram_comp_page_end_io(struct bio *bio)
 {
 	struct page *page = bio->bi_io_vec[0].bv_page;
 	struct zram_wb_work *zw = (struct zram_wb_work *)page_private(page);
+<<<<<<< HEAD
 	int errno = blk_status_to_errno(bio->bi_status);
 
 	if (errno)
 		pr_err("%s submit_bio errno %d\n", __func__, errno);
+=======
+
+>>>>>>> upstream/android-13
 	INIT_WORK(&zw->work, zram_handle_comp_page);
 	schedule_work(&zw->work);
 }
@@ -2346,11 +3014,18 @@ static int read_comp_from_bdev(struct zram *zram, struct bio_vec *bvec,
 		bio_put(bio);
 		return -ENOMEM;
 	}
+<<<<<<< HEAD
 	zw->dst_page = bvec ? bvec->bv_page : NULL;
 	zw->zram = zram;
 	zw->bio = bio;
 	zw->handle = handle;
 	zw->ppr = ppr;
+=======
+	zw->dst_page = bvec->bv_page;
+	zw->zram = zram;
+	zw->bio = bio;
+	zw->handle = handle;
+>>>>>>> upstream/android-13
 	set_page_private(zw->src_page[0], (unsigned long)zw);
 
 	bio->bi_iter.bi_sector = blk_idx * (PAGE_SIZE >> 9);
@@ -2451,7 +3126,11 @@ static ssize_t read_block_state(struct file *file, char __user *buf,
 			zram_test_flag(zram, index, ZRAM_HUGE) ? 'h' : '.',
 			zram_test_flag(zram, index, ZRAM_IDLE) ? 'i' : '.');
 
+<<<<<<< HEAD
 		if (count < copied) {
+=======
+		if (count <= copied) {
+>>>>>>> upstream/android-13
 			zram_slot_unlock(zram, index);
 			break;
 		}
@@ -2620,15 +3299,25 @@ static ssize_t mm_stat_show(struct device *dev,
 	max_used = atomic_long_read(&zram->stats.max_used_pages);
 
 	ret = scnprintf(buf, PAGE_SIZE,
+<<<<<<< HEAD
 			"%8llu %8llu %8llu %8lu %8ld %8llu %8lu %8llu\n",
+=======
+			"%8llu %8llu %8llu %8lu %8ld %8llu %8lu %8llu %8llu\n",
+>>>>>>> upstream/android-13
 			orig_size << PAGE_SHIFT,
 			(u64)atomic64_read(&zram->stats.compr_data_size),
 			mem_used << PAGE_SHIFT,
 			zram->limit_pages << PAGE_SHIFT,
 			max_used << PAGE_SHIFT,
 			(u64)atomic64_read(&zram->stats.same_pages),
+<<<<<<< HEAD
 			pool_stats.pages_compacted,
 			(u64)atomic64_read(&zram->stats.huge_pages));
+=======
+			atomic_long_read(&pool_stats.pages_compacted),
+			(u64)atomic64_read(&zram->stats.huge_pages),
+			(u64)atomic64_read(&zram->stats.huge_pages_since));
+>>>>>>> upstream/android-13
 	up_read(&zram->init_lock);
 
 	return ret;
@@ -2709,11 +3398,15 @@ static ssize_t debug_stat_show(struct device *dev,
 static DEVICE_ATTR_RO(io_stat);
 static DEVICE_ATTR_RO(mm_stat);
 #ifdef CONFIG_ZRAM_WRITEBACK
+<<<<<<< HEAD
 #ifdef CONFIG_ZRAM_LRU_WRITEBACK
 static DEVICE_ATTR_RW(bd_stat);
 #else
 static DEVICE_ATTR_RO(bd_stat);
 #endif
+=======
+static DEVICE_ATTR_RW(bd_stat);
+>>>>>>> upstream/android-13
 #endif
 static DEVICE_ATTR_RO(debug_stat);
 
@@ -2802,7 +3495,11 @@ static void zram_free_page(struct zram *zram, size_t index)
 		free_block_bdev(zram, handle >> (PAGE_SHIFT * 2), ppr);
 #else
 		zram_clear_flag(zram, index, ZRAM_WB);
+<<<<<<< HEAD
 		free_block_bdev(zram, zram_get_element(zram, index));
+=======
+		free_block_bdev(zram, zram_get_element(zram, index) >> (PAGE_SHIFT * 2));
+>>>>>>> upstream/android-13
 #endif
 		goto out;
 	}
@@ -2849,6 +3546,7 @@ out:
 static int __zram_bvec_read(struct zram *zram, struct page *page, u32 index,
 				struct bio *bio, bool partial_io)
 {
+<<<<<<< HEAD
 	int ret;
 	unsigned long handle;
 	unsigned int size;
@@ -2856,6 +3554,15 @@ static int __zram_bvec_read(struct zram *zram, struct page *page, u32 index,
 #ifdef CONFIG_ZRAM_LRU_WRITEBACK
 	unsigned long flags;
 	unsigned long blk_idx;
+=======
+	struct zcomp_strm *zstrm;
+	unsigned long handle;
+	unsigned int size;
+	void *src, *dst;
+	int ret;
+#ifdef CONFIG_ZRAM_LRU_WRITEBACK
+	unsigned long flags;
+>>>>>>> upstream/android-13
 	bool ppr;
 #endif
 
@@ -2875,6 +3582,7 @@ static int __zram_bvec_read(struct zram *zram, struct page *page, u32 index,
 			zram_set_flag(zram, index, ZRAM_EXPIRE);
 			atomic64_inc(&zram->stats.bd_expire);
 		}
+<<<<<<< HEAD
 		handle = zram_get_element(zram, index);
 		blk_idx = handle >> (PAGE_SHIFT * 2);
 		if (((handle & (PAGE_SIZE - 1)) != 0) || ppr) {
@@ -2894,6 +3602,19 @@ static int __zram_bvec_read(struct zram *zram, struct page *page, u32 index,
 				zram_get_element(zram, index),
 				bio, partial_io);
 #endif
+=======
+		if ((zram_get_element(zram, index) & (PAGE_SIZE - 1)) != 0) {
+			zram_set_flag(zram, index, ZRAM_READ_BDEV);
+			zram_slot_unlock(zram, index);
+			return read_comp_from_bdev(zram, &bvec,
+					zram_get_element(zram, index), bio, ppr);
+		}
+#endif
+		zram_slot_unlock(zram, index);
+		return read_from_bdev(zram, &bvec,
+				zram_get_element(zram, index) >> (PAGE_SHIFT * 2),
+				bio, partial_io);
+>>>>>>> upstream/android-13
 	}
 
 	handle = zram_get_handle(zram, index);
@@ -2911,6 +3632,12 @@ static int __zram_bvec_read(struct zram *zram, struct page *page, u32 index,
 
 	size = zram_get_obj_size(zram, index);
 
+<<<<<<< HEAD
+=======
+	if (size != PAGE_SIZE)
+		zstrm = zcomp_stream_get(zram->comp);
+
+>>>>>>> upstream/android-13
 	src = zs_map_object(zram->mem_pool, handle, ZS_MM_RO);
 	if (size == PAGE_SIZE) {
 		dst = kmap_atomic(page);
@@ -2918,8 +3645,11 @@ static int __zram_bvec_read(struct zram *zram, struct page *page, u32 index,
 		kunmap_atomic(dst);
 		ret = 0;
 	} else {
+<<<<<<< HEAD
 		struct zcomp_strm *zstrm = zcomp_stream_get(zram->comp);
 
+=======
+>>>>>>> upstream/android-13
 		dst = kmap_atomic(page);
 		ret = zcomp_decompress(zstrm, src, size, dst);
 		kunmap_atomic(dst);
@@ -2927,9 +3657,18 @@ static int __zram_bvec_read(struct zram *zram, struct page *page, u32 index,
 	}
 
 	/* Should NEVER happen. BUG() if it does. */
+<<<<<<< HEAD
 	if (unlikely(ret))
 		handle_decomp_fail(zram->compressor, ret, index, src, size,
 				   NULL);
+=======
+	if (unlikely(ret)) {
+		pr_err("%s Decompression failed! err=%d, page=%u, len=%u, vaddr=0x%px\n",
+		       zram->compressor, ret, index, size, src);
+		print_hex_dump(KERN_DEBUG, "", DUMP_PREFIX_OFFSET, 16, 1, src, size, 1);
+		BUG();
+	}
+>>>>>>> upstream/android-13
 
 	zs_unmap_object(zram->mem_pool, handle);
 #ifdef CONFIG_ZRAM_LRU_WRITEBACK
@@ -2997,6 +3736,10 @@ static int __zram_bvec_write(struct zram *zram, struct bio_vec *bvec,
 	enum zram_pageflags flags = 0;
 #ifdef CONFIG_ZRAM_LRU_WRITEBACK
 	unsigned long irq_flags;
+<<<<<<< HEAD
+=======
+	struct mem_cgroup *memcg;
+>>>>>>> upstream/android-13
 #endif
 
 	mem = kmap_atomic(page);
@@ -3056,7 +3799,10 @@ compress_again:
 	}
 
 	alloced_pages = zs_get_total_pages(zram->mem_pool);
+<<<<<<< HEAD
 	zram_pool_total_size = alloced_pages << PAGE_SHIFT;
+=======
+>>>>>>> upstream/android-13
 	update_used_max(zram, alloced_pages);
 
 	if (zram->limit_pages && alloced_pages > zram->limit_pages) {
@@ -3088,17 +3834,30 @@ out:
 	if (comp_len == PAGE_SIZE) {
 		zram_set_flag(zram, index, ZRAM_HUGE);
 		atomic64_inc(&zram->stats.huge_pages);
+<<<<<<< HEAD
+=======
+		atomic64_inc(&zram->stats.huge_pages_since);
+>>>>>>> upstream/android-13
 	}
 
 	if (flags) {
 		zram_set_flag(zram, index, flags);
 		zram_set_element(zram, index, element);
+<<<<<<< HEAD
 	} else {
 		zram_set_handle(zram, index, handle);
 		zram_set_obj_size(zram, index, comp_len);
 #ifdef CONFIG_ZRAM_LRU_WRITEBACK
 		if (!page->mem_cgroup ||
 		    page->mem_cgroup->swappiness != NON_LRU_SWAPPINESS) {
+=======
+	}  else {
+		zram_set_handle(zram, index, handle);
+		zram_set_obj_size(zram, index, comp_len);
+#ifdef CONFIG_ZRAM_LRU_WRITEBACK
+		memcg = page_memcg(page);
+		if (!memcg || memcg->swappiness != NON_LRU_SWAPPINESS) {
+>>>>>>> upstream/android-13
 			spin_lock_irqsave(&zram->list_lock, irq_flags);
 			list_add_tail(&zram->table[index].lru_list, &zram->list);
 			spin_unlock_irqrestore(&zram->list_lock, irq_flags);
@@ -3112,8 +3871,12 @@ out:
 	/* Update stats */
 	atomic64_inc(&zram->stats.pages_stored);
 #ifdef CONFIG_ZRAM_LRU_WRITEBACK
+<<<<<<< HEAD
 	if (!flags)
 		try_wakeup_zram_wbd(zram);
+=======
+	try_wakeup_zram_wbd(zram);
+>>>>>>> upstream/android-13
 #endif
 	return ret;
 }
@@ -3205,6 +3968,7 @@ static void zram_bio_discard(struct zram *zram, u32 index,
 static int zram_bvec_rw(struct zram *zram, struct bio_vec *bvec, u32 index,
 			int offset, unsigned int op, struct bio *bio)
 {
+<<<<<<< HEAD
 	unsigned long start_time = jiffies;
 	struct request_queue *q = zram->disk->queue;
 	int ret;
@@ -3212,6 +3976,10 @@ static int zram_bvec_rw(struct zram *zram, struct bio_vec *bvec, u32 index,
 	generic_start_io_acct(q, op, bvec->bv_len >> SECTOR_SHIFT,
 			&zram->disk->part0);
 
+=======
+	int ret;
+
+>>>>>>> upstream/android-13
 	if (!op_is_write(op)) {
 		atomic64_inc(&zram->stats.num_reads);
 		ret = zram_bvec_read(zram, bvec, index, offset, bio);
@@ -3221,8 +3989,11 @@ static int zram_bvec_rw(struct zram *zram, struct bio_vec *bvec, u32 index,
 		ret = zram_bvec_write(zram, bvec, index, offset, bio);
 	}
 
+<<<<<<< HEAD
 	generic_end_io_acct(q, op, &zram->disk->part0, start_time);
 
+=======
+>>>>>>> upstream/android-13
 	zram_slot_lock(zram, index);
 	zram_accessed(zram, index);
 	zram_slot_unlock(zram, index);
@@ -3243,6 +4014,10 @@ static void __zram_make_request(struct zram *zram, struct bio *bio)
 	u32 index;
 	struct bio_vec bvec;
 	struct bvec_iter iter;
+<<<<<<< HEAD
+=======
+	unsigned long start_time;
+>>>>>>> upstream/android-13
 
 	index = bio->bi_iter.bi_sector >> SECTORS_PER_PAGE_SHIFT;
 	offset = (bio->bi_iter.bi_sector &
@@ -3258,6 +4033,10 @@ static void __zram_make_request(struct zram *zram, struct bio *bio)
 		break;
 	}
 
+<<<<<<< HEAD
+=======
+	start_time = bio_start_io_acct(bio);
+>>>>>>> upstream/android-13
 	bio_for_each_segment(bvec, bio, iter) {
 		struct bio_vec bv = bvec;
 		unsigned int unwritten = bvec.bv_len;
@@ -3266,8 +4045,15 @@ static void __zram_make_request(struct zram *zram, struct bio *bio)
 			bv.bv_len = min_t(unsigned int, PAGE_SIZE - offset,
 							unwritten);
 			if (zram_bvec_rw(zram, &bv, index, offset,
+<<<<<<< HEAD
 					 bio_op(bio), bio) < 0)
 				goto out;
+=======
+					 bio_op(bio), bio) < 0) {
+				bio->bi_status = BLK_STS_IOERR;
+				break;
+			}
+>>>>>>> upstream/android-13
 
 			bv.bv_offset += bv.bv_len;
 			unwritten -= bv.bv_len;
@@ -3275,20 +4061,31 @@ static void __zram_make_request(struct zram *zram, struct bio *bio)
 			update_position(&index, &offset, &bv);
 		} while (unwritten);
 	}
+<<<<<<< HEAD
 
 	bio_endio(bio);
 	return;
 
 out:
 	bio_io_error(bio);
+=======
+	bio_end_io_acct(bio, start_time);
+	bio_endio(bio);
+>>>>>>> upstream/android-13
 }
 
 /*
  * Handler function for all zram I/O requests.
  */
+<<<<<<< HEAD
 static blk_qc_t zram_make_request(struct request_queue *queue, struct bio *bio)
 {
 	struct zram *zram = queue->queuedata;
+=======
+static blk_qc_t zram_submit_bio(struct bio *bio)
+{
+	struct zram *zram = bio->bi_bdev->bd_disk->private_data;
+>>>>>>> upstream/android-13
 
 	if (!valid_io_request(zram, bio->bi_iter.bi_sector,
 					bio->bi_iter.bi_size)) {
@@ -3328,6 +4125,10 @@ static int zram_rw_page(struct block_device *bdev, sector_t sector,
 	u32 index;
 	struct zram *zram;
 	struct bio_vec bv;
+<<<<<<< HEAD
+=======
+	unsigned long start_time;
+>>>>>>> upstream/android-13
 
 	if (PageTransHuge(page))
 		return -ENOTSUPP;
@@ -3346,7 +4147,13 @@ static int zram_rw_page(struct block_device *bdev, sector_t sector,
 	bv.bv_len = PAGE_SIZE;
 	bv.bv_offset = 0;
 
+<<<<<<< HEAD
 	ret = zram_bvec_rw(zram, &bv, index, offset, op, NULL);
+=======
+	start_time = disk_start_io_acct(bdev->bd_disk, SECTORS_PER_PAGE, op);
+	ret = zram_bvec_rw(zram, &bv, index, offset, op, NULL);
+	disk_end_io_acct(bdev->bd_disk, op, start_time);
+>>>>>>> upstream/android-13
 out:
 	/*
 	 * If I/O fails, just return error(ie, non-zero) without
@@ -3390,8 +4197,13 @@ static void zram_reset_device(struct zram *zram)
 	disksize = zram->disksize;
 	zram->disksize = 0;
 
+<<<<<<< HEAD
 	set_capacity(zram->disk, 0);
 	part_stat_set_all(&zram->disk->part0, 0);
+=======
+	set_capacity_and_notify(zram->disk, 0);
+	part_stat_set_all(zram->disk->part0, 0);
+>>>>>>> upstream/android-13
 
 	up_write(&zram->init_lock);
 	/* I/O operation under all of CPU are done so let's free */
@@ -3434,6 +4246,7 @@ static ssize_t disksize_store(struct device *dev,
 		goto out_free_meta;
 	}
 
+<<<<<<< HEAD
 	if (!strncmp(zram->compressor, "lzo-rle", 7))
 		is_lzorle = true;
 
@@ -3442,6 +4255,11 @@ static ssize_t disksize_store(struct device *dev,
 	set_capacity(zram->disk, zram->disksize >> SECTOR_SHIFT);
 
 	revalidate_disk(zram->disk);
+=======
+	zram->comp = comp;
+	zram->disksize = disksize;
+	set_capacity_and_notify(zram->disk, zram->disksize >> SECTOR_SHIFT);
+>>>>>>> upstream/android-13
 	up_write(&zram->init_lock);
 
 	return len;
@@ -3469,6 +4287,7 @@ static ssize_t reset_store(struct device *dev,
 		return -EINVAL;
 
 	zram = dev_to_zram(dev);
+<<<<<<< HEAD
 	bdev = bdget_disk(zram->disk, 0);
 	if (!bdev)
 		return -ENOMEM;
@@ -3478,11 +4297,20 @@ static ssize_t reset_store(struct device *dev,
 	if (bdev->bd_openers || zram->claim) {
 		mutex_unlock(&bdev->bd_mutex);
 		bdput(bdev);
+=======
+	bdev = zram->disk->part0;
+
+	mutex_lock(&bdev->bd_disk->open_mutex);
+	/* Do not reset an active device or claimed device */
+	if (bdev->bd_openers || zram->claim) {
+		mutex_unlock(&bdev->bd_disk->open_mutex);
+>>>>>>> upstream/android-13
 		return -EBUSY;
 	}
 
 	/* From now on, anyone can't open /dev/zram[0-9] */
 	zram->claim = true;
+<<<<<<< HEAD
 	mutex_unlock(&bdev->bd_mutex);
 #ifdef CONFIG_ZRAM_LRU_WRITEBACK
 	stop_lru_writeback(zram);
@@ -3496,6 +4324,20 @@ static ssize_t reset_store(struct device *dev,
 	mutex_lock(&bdev->bd_mutex);
 	zram->claim = false;
 	mutex_unlock(&bdev->bd_mutex);
+=======
+	mutex_unlock(&bdev->bd_disk->open_mutex);
+#ifdef CONFIG_ZRAM_LRU_WRITEBACK
+	stop_lru_writeback(zram);
+#endif
+
+	/* Make sure all the pending I/O are finished */
+	fsync_bdev(bdev);
+	zram_reset_device(zram);
+
+	mutex_lock(&bdev->bd_disk->open_mutex);
+	zram->claim = false;
+	mutex_unlock(&bdev->bd_disk->open_mutex);
+>>>>>>> upstream/android-13
 
 	return len;
 }
@@ -3505,7 +4347,11 @@ static int zram_open(struct block_device *bdev, fmode_t mode)
 	int ret = 0;
 	struct zram *zram;
 
+<<<<<<< HEAD
 	WARN_ON(!mutex_is_locked(&bdev->bd_mutex));
+=======
+	WARN_ON(!mutex_is_locked(&bdev->bd_disk->open_mutex));
+>>>>>>> upstream/android-13
 
 	zram = bdev->bd_disk->private_data;
 	/* zram was claimed to reset so open request fails */
@@ -3517,11 +4363,28 @@ static int zram_open(struct block_device *bdev, fmode_t mode)
 
 static const struct block_device_operations zram_devops = {
 	.open = zram_open,
+<<<<<<< HEAD
+=======
+	.submit_bio = zram_submit_bio,
+>>>>>>> upstream/android-13
 	.swap_slot_free_notify = zram_slot_free_notify,
 	.rw_page = zram_rw_page,
 	.owner = THIS_MODULE
 };
 
+<<<<<<< HEAD
+=======
+static const struct block_device_operations zram_wb_devops = {
+	.open = zram_open,
+	.submit_bio = zram_submit_bio,
+	.swap_slot_free_notify = zram_slot_free_notify,
+#ifdef CONFIG_ZRAM_LRU_WRITEBACK
+	.android_oem_data1 = (u64)zram_writeback_oem_func,
+#endif
+	.owner = THIS_MODULE
+};
+
+>>>>>>> upstream/android-13
 static DEVICE_ATTR_WO(compact);
 static DEVICE_ATTR_RW(disksize);
 static DEVICE_ATTR_RO(initstate);
@@ -3572,6 +4435,47 @@ static const struct attribute_group *zram_disk_attr_groups[] = {
 	NULL,
 };
 
+<<<<<<< HEAD
+=======
+static long get_zram_total_kbytes(struct zram *zram)
+{
+	unsigned long kbytes;
+
+	if (!zram || !down_read_trylock(&zram->init_lock))
+		return 0;
+
+	if (!init_done(zram) || !zram->mem_pool)
+		kbytes = 0;
+	else
+		kbytes = zs_get_total_pages(zram->mem_pool) << 2;
+	up_read(&zram->init_lock);
+
+	return kbytes;
+}
+
+static void zram_show_mem(void *data, unsigned int filter, nodemask_t *nodemask)
+{
+	struct zram *zram = (struct zram *)data;
+	long total_kbytes = get_zram_total_kbytes(zram);
+
+	if (total_kbytes == 0)
+		return;
+
+	pr_info("%s: %ld kB\n", zram->disk->disk_name, total_kbytes);
+}
+
+static void zram_meminfo(void *data, struct seq_file *m)
+{
+	struct zram *zram = (struct zram *)data;
+	long total_kbytes = get_zram_total_kbytes(zram);
+
+	if (total_kbytes == 0)
+		return;
+
+	show_val_meminfo(m, zram->disk->disk_name, total_kbytes);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Allocate and initialize new zram device. the function returns
  * '>= 0' device_id upon success, and negative value otherwise.
@@ -3579,7 +4483,10 @@ static const struct attribute_group *zram_disk_attr_groups[] = {
 static int zram_add(void)
 {
 	struct zram *zram;
+<<<<<<< HEAD
 	struct request_queue *queue;
+=======
+>>>>>>> upstream/android-13
 	int ret, device_id;
 
 	zram = kzalloc(sizeof(struct zram), GFP_KERNEL);
@@ -3595,6 +4502,10 @@ static int zram_add(void)
 #ifdef CONFIG_ZRAM_WRITEBACK
 	spin_lock_init(&zram->wb_limit_lock);
 #endif
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_ZRAM_LRU_WRITEBACK
 	INIT_LIST_HEAD(&zram->list);
 	spin_lock_init(&zram->list_lock);
@@ -3602,14 +4513,22 @@ static int zram_add(void)
 	spin_lock_init(&zram->bitmap_lock);
 	mutex_init(&zram->blk_bitmap_lock);
 #endif
+<<<<<<< HEAD
 	queue = blk_alloc_queue(GFP_KERNEL);
 	if (!queue) {
 		pr_err("Error allocating disk queue for device %d\n",
+=======
+	/* gendisk structure */
+	zram->disk = blk_alloc_disk(NUMA_NO_NODE);
+	if (!zram->disk) {
+		pr_err("Error allocating disk structure for device %d\n",
+>>>>>>> upstream/android-13
 			device_id);
 		ret = -ENOMEM;
 		goto out_free_idr;
 	}
 
+<<<<<<< HEAD
 	blk_queue_make_request(queue, zram_make_request);
 
 	/* gendisk structure */
@@ -3626,6 +4545,12 @@ static int zram_add(void)
 	zram->disk->fops = &zram_devops;
 	zram->disk->queue = queue;
 	zram->disk->queue->queuedata = zram;
+=======
+	zram->disk->major = zram_major;
+	zram->disk->first_minor = device_id;
+	zram->disk->minors = 1;
+	zram->disk->fops = &zram_devops;
+>>>>>>> upstream/android-13
 	zram->disk->private_data = zram;
 	snprintf(zram->disk->disk_name, 16, "zram%d", device_id);
 
@@ -3659,14 +4584,20 @@ static int zram_add(void)
 	if (ZRAM_LOGICAL_BLOCK_SIZE == PAGE_SIZE)
 		blk_queue_max_write_zeroes_sectors(zram->disk->queue, UINT_MAX);
 
+<<<<<<< HEAD
 	zram->disk->queue->backing_dev_info->capabilities |=
 			(BDI_CAP_STABLE_WRITES | BDI_CAP_SYNCHRONOUS_IO);
 	disk_to_dev(zram->disk)->groups = zram_disk_attr_groups;
 	add_disk(zram->disk);
+=======
+	blk_queue_flag_set(QUEUE_FLAG_STABLE_WRITES, zram->disk->queue);
+	device_add_disk(NULL, zram->disk, zram_disk_attr_groups);
+>>>>>>> upstream/android-13
 
 	strlcpy(zram->compressor, default_compressor, sizeof(zram->compressor));
 
 	zram_debugfs_register(zram);
+<<<<<<< HEAD
 #ifdef CONFIG_ZRAM_LRU_WRITEBACK
 	if (!g_zram)
 		g_zram = zram;
@@ -3676,6 +4607,14 @@ static int zram_add(void)
 
 out_free_queue:
 	blk_cleanup_queue(queue);
+=======
+	pr_info("Added device: %s\n", zram->disk->disk_name);
+
+	register_trace_android_vh_show_mem(zram_show_mem, zram);
+	register_trace_android_vh_meminfo_proc_show(zram_meminfo, zram);
+	return device_id;
+
+>>>>>>> upstream/android-13
 out_free_idr:
 	idr_remove(&zram_index_idr, device_id);
 out_free_dev:
@@ -3685,6 +4624,7 @@ out_free_dev:
 
 static int zram_remove(struct zram *zram)
 {
+<<<<<<< HEAD
 	struct block_device *bdev;
 
 	bdev = bdget_disk(zram->disk, 0);
@@ -3711,12 +4651,40 @@ static int zram_remove(struct zram *zram)
 	fsync_bdev(bdev);
 	zram_reset_device(zram);
 	bdput(bdev);
+=======
+	struct block_device *bdev = zram->disk->part0;
+
+	mutex_lock(&bdev->bd_disk->open_mutex);
+	if (bdev->bd_openers || zram->claim) {
+		mutex_unlock(&bdev->bd_disk->open_mutex);
+		return -EBUSY;
+	}
+
+	unregister_trace_android_vh_show_mem(zram_show_mem, zram);
+	unregister_trace_android_vh_meminfo_proc_show(zram_meminfo, zram);
+
+	zram->claim = true;
+	mutex_unlock(&bdev->bd_disk->open_mutex);
+
+#ifdef CONFIG_ZRAM_LRU_WRITEBACK
+	stop_lru_writeback(zram);
+#endif
+	zram_debugfs_unregister(zram);
+
+	/* Make sure all the pending I/O are finished */
+	fsync_bdev(bdev);
+	zram_reset_device(zram);
+>>>>>>> upstream/android-13
 
 	pr_info("Removed device: %s\n", zram->disk->disk_name);
 
 	del_gendisk(zram->disk);
+<<<<<<< HEAD
 	blk_cleanup_queue(zram->disk->queue);
 	put_disk(zram->disk);
+=======
+	blk_cleanup_disk(zram->disk);
+>>>>>>> upstream/android-13
 	kfree(zram);
 	return 0;
 }
@@ -3743,7 +4711,12 @@ static ssize_t hot_add_show(struct class *class,
 		return ret;
 	return scnprintf(buf, PAGE_SIZE, "%d\n", ret);
 }
+<<<<<<< HEAD
 static CLASS_ATTR_RO(hot_add);
+=======
+static struct class_attribute class_attr_hot_add =
+	__ATTR(hot_add, 0400, hot_add_show, NULL);
+>>>>>>> upstream/android-13
 
 static ssize_t hot_remove_store(struct class *class,
 			struct class_attribute *attr,
@@ -3805,6 +4778,7 @@ static void destroy_devices(void)
 	cpuhp_remove_multi_state(CPUHP_ZCOMP_PREPARE);
 }
 
+<<<<<<< HEAD
 static int zram_size_notifier(struct notifier_block *nb,
 			       unsigned long action, void *data)
 {
@@ -3824,6 +4798,8 @@ static struct notifier_block zram_size_nb = {
 	.notifier_call = zram_size_notifier,
 };
 
+=======
+>>>>>>> upstream/android-13
 static int __init zram_init(void)
 {
 	int ret;
@@ -3858,10 +4834,13 @@ static int __init zram_init(void)
 		num_devices--;
 	}
 
+<<<<<<< HEAD
 	show_mem_extra_notifier_register(&zram_size_nb);
 #ifdef CONFIG_ZRAM_LRU_WRITEBACK
 	am_app_launch_notifier_register(&zram_app_launch_nb);
 #endif
+=======
+>>>>>>> upstream/android-13
 	return 0;
 
 out_error:
@@ -3872,9 +4851,12 @@ out_error:
 static void __exit zram_exit(void)
 {
 	destroy_devices();
+<<<<<<< HEAD
 #ifdef CONFIG_ZRAM_LRU_WRITEBACK
 	am_app_launch_notifier_unregister(&zram_app_launch_nb);
 #endif
+=======
+>>>>>>> upstream/android-13
 }
 
 module_init(zram_init);

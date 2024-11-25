@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* Altera Triple-Speed Ethernet MAC driver
  * Copyright (C) 2008-2014 Altera Corporation. All rights reserved
  *
@@ -14,6 +18,7 @@
  *
  * Original driver contributed by SLS.
  * Major updates contributed by GlobalLogic
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -26,6 +31,8 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/atomic.h>
@@ -565,7 +572,11 @@ static irqreturn_t altera_isr(int irq, void *dev_id)
  * physically contiguous fragment starting at
  * skb->data, for length of skb_headlen(skb).
  */
+<<<<<<< HEAD
 static int tse_start_xmit(struct sk_buff *skb, struct net_device *dev)
+=======
+static netdev_tx_t tse_start_xmit(struct sk_buff *skb, struct net_device *dev)
+>>>>>>> upstream/android-13
 {
 	struct altera_tse_private *priv = netdev_priv(dev);
 	unsigned int txsize = priv->tx_ring_size;
@@ -573,7 +584,11 @@ static int tse_start_xmit(struct sk_buff *skb, struct net_device *dev)
 	struct tse_buffer *buffer = NULL;
 	int nfrags = skb_shinfo(skb)->nr_frags;
 	unsigned int nopaged_len = skb_headlen(skb);
+<<<<<<< HEAD
 	enum netdev_tx ret = NETDEV_TX_OK;
+=======
+	netdev_tx_t ret = NETDEV_TX_OK;
+>>>>>>> upstream/android-13
 	dma_addr_t dma_addr;
 
 	spin_lock_bh(&priv->tx_lock);
@@ -741,12 +756,21 @@ static int altera_tse_phy_get_addr_mdio_create(struct net_device *dev)
 {
 	struct altera_tse_private *priv = netdev_priv(dev);
 	struct device_node *np = priv->device->of_node;
+<<<<<<< HEAD
 	int ret = 0;
 
 	priv->phy_iface = of_get_phy_mode(np);
 
 	/* Avoid get phy addr and create mdio if no phy is present */
 	if (!priv->phy_iface)
+=======
+	int ret;
+
+	ret = of_get_phy_mode(np, &priv->phy_iface);
+
+	/* Avoid get phy addr and create mdio if no phy is present */
+	if (ret)
+>>>>>>> upstream/android-13
 		return 0;
 
 	/* try to get PHY address from device tree, use PHY autodetection if
@@ -837,6 +861,7 @@ static int init_phy(struct net_device *dev)
 	}
 
 	/* Stop Advertising 1000BASE Capability if interface is not GMII
+<<<<<<< HEAD
 	 * Note: Checkpatch throws CHECKs for the camel case defines below,
 	 * it's ok to ignore.
 	 */
@@ -844,6 +869,12 @@ static int init_phy(struct net_device *dev)
 	    (priv->phy_iface == PHY_INTERFACE_MODE_RMII))
 		phydev->advertising &= ~(SUPPORTED_1000baseT_Half |
 					 SUPPORTED_1000baseT_Full);
+=======
+	 */
+	if ((priv->phy_iface == PHY_INTERFACE_MODE_MII) ||
+	    (priv->phy_iface == PHY_INTERFACE_MODE_RMII))
+		phy_set_max_speed(phydev, SPEED_100);
+>>>>>>> upstream/android-13
 
 	/* Broken HW is sometimes missing the pull-up resistor on the
 	 * MDIO line, which results in reads to non-existent devices returning
@@ -1346,10 +1377,17 @@ static int request_and_map(struct platform_device *pdev, const char *name,
 		return -EBUSY;
 	}
 
+<<<<<<< HEAD
 	*ptr = devm_ioremap_nocache(device, region->start,
 				    resource_size(region));
 	if (*ptr == NULL) {
 		dev_err(device, "ioremap_nocache of %s failed!", name);
+=======
+	*ptr = devm_ioremap(device, region->start,
+				    resource_size(region));
+	if (*ptr == NULL) {
+		dev_err(device, "ioremap of %s failed!", name);
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 	}
 
@@ -1365,7 +1403,10 @@ static int altera_tse_probe(struct platform_device *pdev)
 	struct resource *control_port;
 	struct resource *dma_res;
 	struct altera_tse_private *priv;
+<<<<<<< HEAD
 	const unsigned char *macaddr;
+=======
+>>>>>>> upstream/android-13
 	void __iomem *descmap;
 	const struct of_device_id *of_id = NULL;
 
@@ -1445,6 +1486,7 @@ static int altera_tse_probe(struct platform_device *pdev)
 		priv->rxdescmem_busaddr = dma_res->start;
 
 	} else {
+<<<<<<< HEAD
 		goto err_free_netdev;
 	}
 
@@ -1455,6 +1497,21 @@ static int altera_tse_probe(struct platform_device *pdev)
 		dma_set_coherent_mask(priv->device, DMA_BIT_MASK(32));
 	else
 		goto err_free_netdev;
+=======
+		ret = -ENODEV;
+		goto err_free_netdev;
+	}
+
+	if (!dma_set_mask(priv->device, DMA_BIT_MASK(priv->dmaops->dmamask))) {
+		dma_set_coherent_mask(priv->device,
+				      DMA_BIT_MASK(priv->dmaops->dmamask));
+	} else if (!dma_set_mask(priv->device, DMA_BIT_MASK(32))) {
+		dma_set_coherent_mask(priv->device, DMA_BIT_MASK(32));
+	} else {
+		ret = -EIO;
+		goto err_free_netdev;
+	}
+>>>>>>> upstream/android-13
 
 	/* MAC address space */
 	ret = request_and_map(pdev, "control_port", &control_port,
@@ -1539,10 +1596,15 @@ static int altera_tse_probe(struct platform_device *pdev)
 	priv->rx_dma_buf_sz = ALTERA_RXDMABUFFER_SIZE;
 
 	/* get default MAC address from device tree */
+<<<<<<< HEAD
 	macaddr = of_get_mac_address(pdev->dev.of_node);
 	if (macaddr)
 		ether_addr_copy(ndev->dev_addr, macaddr);
 	else
+=======
+	ret = of_get_mac_address(pdev->dev.of_node, ndev->dev_addr);
+	if (ret)
+>>>>>>> upstream/android-13
 		eth_hw_addr_random(ndev);
 
 	/* get phy addr and create mdio */

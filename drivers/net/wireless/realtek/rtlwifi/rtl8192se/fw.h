@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2012  Realtek Corporation.
@@ -22,6 +23,11 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/* Copyright(c) 2009-2012  Realtek Corporation.*/
+
+>>>>>>> upstream/android-13
 #ifndef __REALTEK_FIRMWARE92S_H__
 #define __REALTEK_FIRMWARE92S_H__
 
@@ -297,7 +303,11 @@ enum fw_h2c_cmd {
 	H2C_JOINBSS_CMD,
 	H2C_DISCONNECT_CMD,				/*15*/
 	H2C_CREATEBSS_CMD,
+<<<<<<< HEAD
 	H2C_SETOPMode_CMD,
+=======
+	H2C_SETOPMODE_CMD,
+>>>>>>> upstream/android-13
 	H2C_SITESURVEY_CMD,
 	H2C_SETAUTH_CMD,
 	H2C_SETKEY_CMD,					/*20*/
@@ -336,10 +346,17 @@ enum fw_h2c_cmd {
 
 /* The following macros are used for FW
  * CMD map and parameter updated. */
+<<<<<<< HEAD
 #define FW_CMD_IO_CLR(rtlpriv, _Bit)				\
 	do {							\
 		udelay(1000);					\
 		rtlpriv->rtlhal.fwcmd_iomap &= (~_Bit);		\
+=======
+#define FW_CMD_IO_CLR(rtlpriv, _bit)				\
+	do {							\
+		udelay(1000);					\
+		rtlpriv->rtlhal.fwcmd_iomap &= (~_bit);		\
+>>>>>>> upstream/android-13
 	} while (0)
 
 #define FW_CMD_IO_UPDATE(rtlpriv, _val)				\

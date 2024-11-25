@@ -10,9 +10,17 @@
 #include <linux/hdmi.h>
 #include <linux/platform_device.h>
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <media/cec-notifier.h>
 
+=======
+#include <media/cec-notifier.h>
+
+#include <drm/drm_modes.h>
+#include <drm/drm_property.h>
+
+>>>>>>> upstream/android-13
 #define HDMI_STA           0x0010
 #define HDMI_STA_DLL_LCK   BIT(5)
 #define HDMI_STA_HOT_PLUG  BIT(4)
@@ -31,12 +39,15 @@ struct hdmi_audio_params {
 	struct hdmi_audio_infoframe cea;
 };
 
+<<<<<<< HEAD
 static const struct drm_prop_enum_list colorspace_mode_names[] = {
 	{ HDMI_COLORSPACE_RGB, "rgb" },
 	{ HDMI_COLORSPACE_YUV422, "yuv422" },
 	{ HDMI_COLORSPACE_YUV444, "yuv444" },
 };
 
+=======
+>>>>>>> upstream/android-13
 #define DEFAULT_COLORSPACE_MODE HDMI_COLORSPACE_RGB
 
 /**

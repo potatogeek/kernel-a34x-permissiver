@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* RSA asymmetric public-key algorithm [RFC3447]
  *
  * Copyright (c) 2015, Intel Corporation
  * Authors: Tadeusz Struk <tadeusz.struk@intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public Licence
  * as published by the Free Software Foundation; either version
  * 2 of the Licence, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -50,6 +57,7 @@ static int _rsa_dec(const struct rsa_mpi_key *key, MPI m, MPI c)
 	return mpi_powm(m, c, key->d, key->n);
 }
 
+<<<<<<< HEAD
 /*
  * RSASP1 function [RFC3447 sec 5.2.1]
  * s = m^d mod n
@@ -78,6 +86,8 @@ static int _rsa_verify(const struct rsa_mpi_key *key, MPI m, MPI s)
 	return mpi_powm(m, s, key->e, key->n);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline struct rsa_mpi_key *rsa_get_key(struct crypto_akcipher *tfm)
 {
 	return akcipher_tfm_ctx(tfm);
@@ -160,6 +170,7 @@ err_free_m:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int rsa_sign(struct akcipher_request *req)
 {
 	struct crypto_akcipher *tfm = crypto_akcipher_reqtfm(req);
@@ -239,6 +250,8 @@ err_free_m:
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void rsa_free_mpi_key(struct rsa_mpi_key *key)
 {
 	mpi_free(key->d);
@@ -353,8 +366,11 @@ static void rsa_exit_tfm(struct crypto_akcipher *tfm)
 static struct akcipher_alg rsa = {
 	.encrypt = rsa_enc,
 	.decrypt = rsa_dec,
+<<<<<<< HEAD
 	.sign = rsa_sign,
 	.verify = rsa_verify,
+=======
+>>>>>>> upstream/android-13
 	.set_priv_key = rsa_set_priv_key,
 	.set_pub_key = rsa_set_pub_key,
 	.max_size = rsa_max_size,
@@ -391,7 +407,11 @@ static void rsa_exit(void)
 	crypto_unregister_akcipher(&rsa);
 }
 
+<<<<<<< HEAD
 module_init(rsa_init);
+=======
+subsys_initcall(rsa_init);
+>>>>>>> upstream/android-13
 module_exit(rsa_exit);
 MODULE_ALIAS_CRYPTO("rsa");
 MODULE_LICENSE("GPL");

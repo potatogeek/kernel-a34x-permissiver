@@ -334,11 +334,22 @@ static void __init brcmstb_cpu_ctrl_setup(unsigned int max_cpus)
 
 	rc = setup_hifcpubiuctrl_regs(np);
 	if (rc)
+<<<<<<< HEAD
 		return;
 
 	rc = setup_hifcont_regs(np);
 	if (rc)
 		return;
+=======
+		goto out_put_node;
+
+	rc = setup_hifcont_regs(np);
+	if (rc)
+		goto out_put_node;
+
+out_put_node:
+	of_node_put(np);
+>>>>>>> upstream/android-13
 }
 
 static int brcmstb_boot_secondary(unsigned int cpu, struct task_struct *idle)

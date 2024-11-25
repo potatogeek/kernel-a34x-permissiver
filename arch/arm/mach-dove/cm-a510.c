@@ -22,8 +22,12 @@
 #include <asm/mach-types.h>
 #include <asm/mach/arch.h>
 
+<<<<<<< HEAD
 #include <mach/dove.h>
 
+=======
+#include "dove.h"
+>>>>>>> upstream/android-13
 #include "common.h"
 
 static struct mv643xx_eth_platform_data cm_a510_ge00_data = {

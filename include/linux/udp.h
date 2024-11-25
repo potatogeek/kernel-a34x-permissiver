@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * INET		An implementation of the TCP/IP protocol suite for the LINUX
  *		operating system.  INET is implemented using the  BSD Socket
@@ -8,11 +12,14 @@
  * Version:	@(#)udp.h	1.0.2	04/28/93
  *
  * Author:	Fred N. van Kempen, <waltje@uWalt.NL.Mugnet.ORG>
+<<<<<<< HEAD
  *
  *		This program is free software; you can redistribute it and/or
  *		modify it under the terms of the GNU General Public License
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _LINUX_UDP_H
 #define _LINUX_UDP_H
@@ -55,8 +62,14 @@ struct udp_sock {
 					   * different encapsulation layer set
 					   * this
 					   */
+<<<<<<< HEAD
 			 gro_enabled:1, /* Can accept GRO packets */
 			 gro_disabled:3; /* Disable udp gro for special socket case */
+=======
+			 gro_enabled:1,	/* Request GRO aggregation */
+			 accept_udp_l4:1,
+			 accept_udp_fraglist:1;
+>>>>>>> upstream/android-13
 	/*
 	 * Following member retains the information to create a UDP header
 	 * when the socket is uncorked.
@@ -78,6 +91,10 @@ struct udp_sock {
 	 * For encapsulation sockets.
 	 */
 	int (*encap_rcv)(struct sock *sk, struct sk_buff *skb);
+<<<<<<< HEAD
+=======
+	int (*encap_err_lookup)(struct sock *sk, struct sk_buff *skb);
+>>>>>>> upstream/android-13
 	void (*encap_destroy)(struct sock *sk);
 
 	/* GRO functions for UDP socket */
@@ -135,8 +152,27 @@ static inline void udp_cmsg_recv(struct msghdr *msg, struct sock *sk,
 
 static inline bool udp_unexpected_gso(struct sock *sk, struct sk_buff *skb)
 {
+<<<<<<< HEAD
 	return !udp_sk(sk)->gro_enabled && skb_is_gso(skb) &&
 	       skb_shinfo(skb)->gso_type & SKB_GSO_UDP_L4;
+=======
+	if (!skb_is_gso(skb))
+		return false;
+
+	if (skb_shinfo(skb)->gso_type & SKB_GSO_UDP_L4 && !udp_sk(sk)->accept_udp_l4)
+		return true;
+
+	if (skb_shinfo(skb)->gso_type & SKB_GSO_FRAGLIST && !udp_sk(sk)->accept_udp_fraglist)
+		return true;
+
+	return false;
+}
+
+static inline void udp_allow_gso(struct sock *sk)
+{
+	udp_sk(sk)->accept_udp_l4 = 1;
+	udp_sk(sk)->accept_udp_fraglist = 1;
+>>>>>>> upstream/android-13
 }
 
 #define udp_portaddr_for_each_entry(__sk, list) \

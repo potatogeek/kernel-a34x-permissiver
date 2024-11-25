@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Advanced  Micro Devices Inc. AMD8111E Linux Network Driver
  * Copyright (C) 2003 Advanced Micro Devices
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -14,6 +19,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
 
 Module Name:
 
@@ -21,14 +28,22 @@ Module Name:
 
 Abstract:
 
+<<<<<<< HEAD
  	 AMD8111 based 10/100 Ethernet Controller driver definitions.
+=======
+	 AMD8111 based 10/100 Ethernet Controller driver definitions.
+>>>>>>> upstream/android-13
 
 Environment:
 
 	Kernel Mode
 
 Revision History:
+<<<<<<< HEAD
  	3.0.0
+=======
+	3.0.0
+>>>>>>> upstream/android-13
 	   Initial Revision.
 	3.0.1
 */
@@ -703,7 +718,11 @@ enum coal_type{
 };
 
 enum coal_mode{
+<<<<<<< HEAD
        	RX_INTR_COAL,
+=======
+	RX_INTR_COAL,
+>>>>>>> upstream/android-13
 	TX_INTR_COAL,
 	DISABLE_COAL,
 	ENABLE_COAL,

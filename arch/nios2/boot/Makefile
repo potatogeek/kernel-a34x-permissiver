@@ -31,6 +31,7 @@ $(obj)/zImage: $(obj)/compressed/vmlinux FORCE
 $(obj)/compressed/vmlinux: $(obj)/vmlinux.gz FORCE
 	$(Q)$(MAKE) $(build)=$(obj)/compressed $@
 
+<<<<<<< HEAD
 # Rule to build device tree blobs
 DTB_SRC := $(patsubst "%",%,$(CONFIG_NIOS2_DTB_SOURCE))
 
@@ -53,5 +54,7 @@ $(obj)/%.dtb: $(src)/dts/%.dts FORCE
 
 $(obj)/dtbs: $(addprefix $(obj)/, $(dtb-y))
 
+=======
+>>>>>>> upstream/android-13
 install:
 	sh $(srctree)/$(src)/install.sh $(KERNELRELEASE) $(BOOTIMAGE) System.map "$(INSTALL_PATH)"

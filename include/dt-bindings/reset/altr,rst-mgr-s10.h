@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2016 Intel Corporation. All rights reserved
  * Copyright (C) 2016 Altera Corporation. All rights reserved
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms and conditions of the GNU General Public License,
  * version 2, as published by the Free Software Foundation.
@@ -14,6 +19,8 @@
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  * derived from Steffen Trumtrar's "altr,rst-mgr-a10.h"
  */
 

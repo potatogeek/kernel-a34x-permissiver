@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: ((GPL-2.0 WITH Linux-syscall-note) OR BSD-3-Clause) */
+=======
+/* SPDX-License-Identifier: ((GPL-2.0-only WITH Linux-syscall-note) OR BSD-3-Clause) */
+>>>>>>> upstream/android-13
 /*
  * linux/can/bcm.h
  *

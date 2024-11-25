@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 menuconfig ARCH_GEMINI
 	bool "Cortina Systems Gemini"
 	depends on ARCH_MULTI_V4

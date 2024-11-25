@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Netlink interface for IEEE 802.15.4 stack
  *
  * Copyright 2007, 2008 Siemens AG
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * as published by the Free Software Foundation.
@@ -12,6 +17,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * Written by:
  * Sergey Lapin <slapin@ossfans.org>
  * Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
@@ -157,7 +164,11 @@ static struct net_device *ieee802154_nl_get_dev(struct genl_info *info)
 	if (info->attrs[IEEE802154_ATTR_DEV_NAME]) {
 		char name[IFNAMSIZ + 1];
 
+<<<<<<< HEAD
 		nla_strlcpy(name, info->attrs[IEEE802154_ATTR_DEV_NAME],
+=======
+		nla_strscpy(name, info->attrs[IEEE802154_ATTR_DEV_NAME],
+>>>>>>> upstream/android-13
 			    sizeof(name));
 		dev = dev_get_by_name(&init_net, name);
 	} else if (info->attrs[IEEE802154_ATTR_DEV_INDEX]) {
@@ -688,8 +699,15 @@ int ieee802154_llsec_getparams(struct sk_buff *skb, struct genl_info *info)
 	    nla_put_u8(msg, IEEE802154_ATTR_LLSEC_SECLEVEL, params.out_level) ||
 	    nla_put_u32(msg, IEEE802154_ATTR_LLSEC_FRAME_COUNTER,
 			be32_to_cpu(params.frame_counter)) ||
+<<<<<<< HEAD
 	    ieee802154_llsec_fill_key_id(msg, &params.out_key))
 		goto out_free;
+=======
+	    ieee802154_llsec_fill_key_id(msg, &params.out_key)) {
+		rc = -ENOBUFS;
+		goto out_free;
+	}
+>>>>>>> upstream/android-13
 
 	dev_put(dev);
 
@@ -1192,7 +1210,11 @@ static int llsec_iter_devkeys(struct llsec_dump_data *data)
 {
 	struct ieee802154_llsec_device *dpos;
 	struct ieee802154_llsec_device_key *kpos;
+<<<<<<< HEAD
 	int rc = 0, idx = 0, idx2;
+=======
+	int idx = 0, idx2;
+>>>>>>> upstream/android-13
 
 	list_for_each_entry(dpos, &data->table->devices, list) {
 		if (idx++ < data->s_idx)
@@ -1208,7 +1230,11 @@ static int llsec_iter_devkeys(struct llsec_dump_data *data)
 						      data->nlmsg_seq,
 						      dpos->hwaddr, kpos,
 						      data->dev)) {
+<<<<<<< HEAD
 				return rc = -EMSGSIZE;
+=======
+				return -EMSGSIZE;
+>>>>>>> upstream/android-13
 			}
 
 			data->s_idx2++;
@@ -1217,7 +1243,11 @@ static int llsec_iter_devkeys(struct llsec_dump_data *data)
 		data->s_idx++;
 	}
 
+<<<<<<< HEAD
 	return rc;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 int ieee802154_llsec_dump_devkeys(struct sk_buff *skb,

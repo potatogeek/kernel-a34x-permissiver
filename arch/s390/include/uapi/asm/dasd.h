@@ -1,5 +1,9 @@
 /* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
+<<<<<<< HEAD
 /* 
+=======
+/*
+>>>>>>> upstream/android-13
  * Author(s)......: Holger Smolinski <Holger.Smolinski@de.ibm.com>
  * Bugreports.to..: <Linux390@de.ibm.com>
  * Copyright IBM Corp. 1999, 2000
@@ -21,12 +25,17 @@
 
 #define DASD_API_VERSION 6
 
+<<<<<<< HEAD
 /* 
+=======
+/*
+>>>>>>> upstream/android-13
  * struct dasd_information2_t
  * represents any data about the device, which is visible to userspace.
  *  including foramt and featueres.
  */
 typedef struct dasd_information2_t {
+<<<<<<< HEAD
         unsigned int devno;         /* S/390 devno */
         unsigned int real_devno;    /* for aliases */
         unsigned int schid;         /* S/390 subchannel identifier */
@@ -55,6 +64,36 @@ typedef struct dasd_information2_t {
         unsigned int reserved5;       /* reserved for further use ,...          */
         unsigned int reserved6;       /* reserved for further use ,...          */
         unsigned int reserved7;       /* reserved for further use ,...          */
+=======
+	unsigned int devno;	    /* S/390 devno */
+	unsigned int real_devno;    /* for aliases */
+	unsigned int schid;	    /* S/390 subchannel identifier */
+	unsigned int cu_type  : 16; /* from SenseID */
+	unsigned int cu_model :  8; /* from SenseID */
+	unsigned int dev_type : 16; /* from SenseID */
+	unsigned int dev_model : 8; /* from SenseID */
+	unsigned int open_count;
+	unsigned int req_queue_len;
+	unsigned int chanq_len;     /* length of chanq */
+	char type[4];		    /* from discipline.name, 'none' for unknown */
+	unsigned int status;	    /* current device level */
+	unsigned int label_block;   /* where to find the VOLSER */
+	unsigned int FBA_layout;    /* fixed block size (like AIXVOL) */
+	unsigned int characteristics_size;
+	unsigned int confdata_size;
+	char characteristics[64];   /* from read_device_characteristics */
+	char configuration_data[256]; /* from read_configuration_data */
+	unsigned int format;	      /* format info like formatted/cdl/ldl/... */
+	unsigned int features;	      /* dasd features like 'ro',...		*/
+	unsigned int reserved0;       /* reserved for further use ,...		*/
+	unsigned int reserved1;       /* reserved for further use ,...		*/
+	unsigned int reserved2;       /* reserved for further use ,...		*/
+	unsigned int reserved3;       /* reserved for further use ,...		*/
+	unsigned int reserved4;       /* reserved for further use ,...		*/
+	unsigned int reserved5;       /* reserved for further use ,...		*/
+	unsigned int reserved6;       /* reserved for further use ,...		*/
+	unsigned int reserved7;       /* reserved for further use ,...		*/
+>>>>>>> upstream/android-13
 } dasd_information2_t;
 
 /*
@@ -92,11 +131,16 @@ typedef struct dasd_information2_t {
 
 #define DASD_PARTN_BITS 2
 
+<<<<<<< HEAD
 /* 
+=======
+/*
+>>>>>>> upstream/android-13
  * struct dasd_information_t
  * represents any data about the data, which is visible to userspace
  */
 typedef struct dasd_information_t {
+<<<<<<< HEAD
         unsigned int devno;         /* S/390 devno */
         unsigned int real_devno;    /* for aliases */
         unsigned int schid;         /* S/390 subchannel identifier */
@@ -115,11 +159,35 @@ typedef struct dasd_information_t {
         unsigned int confdata_size;
         char characteristics[64];   /* from read_device_characteristics */
         char configuration_data[256]; /* from read_configuration_data */
+=======
+	unsigned int devno;	    /* S/390 devno */
+	unsigned int real_devno;    /* for aliases */
+	unsigned int schid;	    /* S/390 subchannel identifier */
+	unsigned int cu_type  : 16; /* from SenseID */
+	unsigned int cu_model :  8; /* from SenseID */
+	unsigned int dev_type : 16; /* from SenseID */
+	unsigned int dev_model : 8; /* from SenseID */
+	unsigned int open_count;
+	unsigned int req_queue_len;
+	unsigned int chanq_len;     /* length of chanq */
+	char type[4];		    /* from discipline.name, 'none' for unknown */
+	unsigned int status;	    /* current device level */
+	unsigned int label_block;   /* where to find the VOLSER */
+	unsigned int FBA_layout;    /* fixed block size (like AIXVOL) */
+	unsigned int characteristics_size;
+	unsigned int confdata_size;
+	char characteristics[64];   /* from read_device_characteristics */
+	char configuration_data[256]; /* from read_configuration_data */
+>>>>>>> upstream/android-13
 } dasd_information_t;
 
 /*
  * Read Subsystem Data - Performance Statistics
+<<<<<<< HEAD
  */ 
+=======
+ */
+>>>>>>> upstream/android-13
 typedef struct dasd_rssd_perf_stats_t {
 	unsigned char  invalid:1;
 	unsigned char  format:3;
@@ -154,6 +222,7 @@ typedef struct dasd_rssd_perf_stats_t {
 	unsigned char  reseved2[96];
 } __attribute__((packed)) dasd_rssd_perf_stats_t;
 
+<<<<<<< HEAD
 /* 
  * struct profile_info_t
  * holds the profinling information 
@@ -169,6 +238,23 @@ typedef struct dasd_profile_info_t {
         unsigned int dasd_io_time2ps[32]; /* histogram of time from start to irq */
         unsigned int dasd_io_time3[32];	 /* histogram of time from irq to end */
         unsigned int dasd_io_nr_req[32]; /* histogram of # of requests in chanq */
+=======
+/*
+ * struct profile_info_t
+ * holds the profinling information
+ */
+typedef struct dasd_profile_info_t {
+	unsigned int dasd_io_reqs;	 /* number of requests processed at all */
+	unsigned int dasd_io_sects;	 /* number of sectors processed at all */
+	unsigned int dasd_io_secs[32];	 /* histogram of request's sizes */
+	unsigned int dasd_io_times[32];	 /* histogram of requests's times */
+	unsigned int dasd_io_timps[32];	 /* histogram of requests's times per sector */
+	unsigned int dasd_io_time1[32];	 /* histogram of time from build to start */
+	unsigned int dasd_io_time2[32];	 /* histogram of time from start to irq */
+	unsigned int dasd_io_time2ps[32]; /* histogram of time from start to irq */
+	unsigned int dasd_io_time3[32];	 /* histogram of time from irq to end */
+	unsigned int dasd_io_nr_req[32]; /* histogram of # of requests in chanq */
+>>>>>>> upstream/android-13
 } dasd_profile_info_t;
 
 /*
@@ -189,10 +275,19 @@ typedef struct format_data_t {
  * 3/11: also write home address
  * 4/12: invalidate track
  */
+<<<<<<< HEAD
 #define DASD_FMT_INT_FMT_R0 1 /* write record zero */
 #define DASD_FMT_INT_FMT_HA 2 /* write home address, also set FMT_R0 ! */
 #define DASD_FMT_INT_INVAL  4 /* invalidate tracks */
 #define DASD_FMT_INT_COMPAT 8 /* use OS/390 compatible disk layout */
+=======
+#define DASD_FMT_INT_FMT_R0	1	/* write record zero */
+#define DASD_FMT_INT_FMT_HA	2	/* write home address, also set FMT_R0 ! */
+#define DASD_FMT_INT_INVAL	4	/* invalidate tracks */
+#define DASD_FMT_INT_COMPAT	8	/* use OS/390 compatible disk layout */
+#define DASD_FMT_INT_FMT_NOR0	16	/* remove permission to write record zero */
+#define DASD_FMT_INT_ESE_FULL	32	/* release space for entire volume */
+>>>>>>> upstream/android-13
 
 /*
  * struct format_check_t
@@ -225,7 +320,11 @@ typedef struct format_check_t {
 /* If key-length was != 0 */
 #define DASD_FMT_ERR_KEY_LENGTH		5
 
+<<<<<<< HEAD
 /* 
+=======
+/*
+>>>>>>> upstream/android-13
  * struct attrib_data_t
  * represents the operation (cache) bits for the device.
  * Used in DE to influence caching of the DASD.
@@ -281,6 +380,7 @@ struct dasd_snid_ioctl_data {
  * Here ist how the ioctl-nr should be used:
  *    0 -   31   DASD driver itself
  *   32 -  239   still open
+<<<<<<< HEAD
  *  240 -  255   reserved for EMC 
  *******************************************************************************/
 
@@ -288,6 +388,15 @@ struct dasd_snid_ioctl_data {
 #define BIODASDDISABLE _IO(DASD_IOCTL_LETTER,0) 
 /* Enable the volume (for Linux) */
 #define BIODASDENABLE  _IO(DASD_IOCTL_LETTER,1)  
+=======
+ *  240 -  255	 reserved for EMC
+ *******************************************************************************/
+
+/* Disable the volume (for Linux) */
+#define BIODASDDISABLE _IO(DASD_IOCTL_LETTER,0)
+/* Enable the volume (for Linux) */
+#define BIODASDENABLE  _IO(DASD_IOCTL_LETTER,1)
+>>>>>>> upstream/android-13
 /* Issue a reserve/release command, rsp. */
 #define BIODASDRSRV    _IO(DASD_IOCTL_LETTER,2) /* reserve */
 #define BIODASDRLSE    _IO(DASD_IOCTL_LETTER,3) /* release */
@@ -295,9 +404,15 @@ struct dasd_snid_ioctl_data {
 /* reset profiling information of a device */
 #define BIODASDPRRST   _IO(DASD_IOCTL_LETTER,5)
 /* Quiesce IO on device */
+<<<<<<< HEAD
 #define BIODASDQUIESCE _IO(DASD_IOCTL_LETTER,6) 
 /* Resume IO on device */
 #define BIODASDRESUME  _IO(DASD_IOCTL_LETTER,7) 
+=======
+#define BIODASDQUIESCE _IO(DASD_IOCTL_LETTER,6)
+/* Resume IO on device */
+#define BIODASDRESUME  _IO(DASD_IOCTL_LETTER,7)
+>>>>>>> upstream/android-13
 /* Abort all I/O on a device */
 #define BIODASDABORTIO _IO(DASD_IOCTL_LETTER, 240)
 /* Allow I/O on a device */
@@ -315,6 +430,7 @@ struct dasd_snid_ioctl_data {
 /* Performance Statistics Read */
 #define BIODASDPSRD    _IOR(DASD_IOCTL_LETTER,4,dasd_rssd_perf_stats_t)
 /* Get Attributes (cache operations) */
+<<<<<<< HEAD
 #define BIODASDGATTR   _IOR(DASD_IOCTL_LETTER,5,attrib_data_t) 
 
 
@@ -322,6 +438,17 @@ struct dasd_snid_ioctl_data {
 #define BIODASDFMT     _IOW(DASD_IOCTL_LETTER,1,format_data_t) 
 /* Set Attributes (cache operations) */
 #define BIODASDSATTR   _IOW(DASD_IOCTL_LETTER,2,attrib_data_t) 
+=======
+#define BIODASDGATTR   _IOR(DASD_IOCTL_LETTER,5,attrib_data_t)
+
+
+/* #define BIODASDFORMAT  _IOW(IOCTL_LETTER,0,format_data_t) , deprecated */
+#define BIODASDFMT     _IOW(DASD_IOCTL_LETTER,1,format_data_t)
+/* Set Attributes (cache operations) */
+#define BIODASDSATTR   _IOW(DASD_IOCTL_LETTER,2,attrib_data_t)
+/* Release Allocated Space */
+#define BIODASDRAS     _IOW(DASD_IOCTL_LETTER, 3, format_data_t)
+>>>>>>> upstream/android-13
 
 /* Get Sense Path Group ID (SNID) data */
 #define BIODASDSNID    _IOWR(DASD_IOCTL_LETTER, 1, struct dasd_snid_ioctl_data)

@@ -1,7 +1,13 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016 BayLibre, Inc.
  *
  * Licensed under GPLv2.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2016 BayLibre, Inc.
+>>>>>>> upstream/android-13
  */
 /dts-v1/;
 #include "da850.dtsi"
@@ -74,12 +80,24 @@
 		simple-audio-card,name = "DA850-OMAPL138 LCDK";
 		simple-audio-card,widgets =
 			"Line", "Line In",
+<<<<<<< HEAD
 			"Line", "Line Out";
+=======
+			"Line", "Line Out",
+			"Microphone", "Mic Jack";
+>>>>>>> upstream/android-13
 		simple-audio-card,routing =
 			"LINE1L", "Line In",
 			"LINE1R", "Line In",
 			"Line Out", "LLOUT",
+<<<<<<< HEAD
 			"Line Out", "RLOUT";
+=======
+			"Line Out", "RLOUT",
+			"MIC3L", "Mic Jack",
+			"MIC3R", "Mic Jack",
+			"Mic Jack", "Mic Bias";
+>>>>>>> upstream/android-13
 		simple-audio-card,format = "dsp_b";
 		simple-audio-card,bitclock-master = <&link0_codec>;
 		simple-audio-card,frame-master = <&link0_codec>;
@@ -151,12 +169,54 @@
 			};
 		};
 	};
+<<<<<<< HEAD
+=======
+
+	cvdd: regulator0 {
+		compatible = "regulator-fixed";
+		regulator-name = "cvdd";
+		regulator-min-microvolt = <1300000>;
+		regulator-max-microvolt = <1300000>;
+		regulator-always-on;
+		regulator-boot-on;
+	};
+>>>>>>> upstream/android-13
 };
 
 &ref_clk {
 	clock-frequency = <24000000>;
 };
 
+<<<<<<< HEAD
+=======
+&cpu {
+	cpu-supply = <&cvdd>;
+};
+
+/*
+ * LCDK has a fixed CVDD of 1.3V, so only operating points >= 300MHz are
+ * valid. Unfortunately due to a problem with the DA8XX OHCI controller, we
+ * can't enable more than one OPP by default, since the controller sometimes
+ * becomes unresponsive after a transition. Fix the frequency at 456 MHz.
+ */
+
+&opp_100 {
+	status = "disabled";
+};
+
+&opp_200 {
+	status = "disabled";
+};
+
+&opp_300 {
+	status = "disabled";
+};
+
+&opp_456 {
+	status = "okay";
+};
+
+>>>>>>> upstream/android-13
 &pmx_core {
 	status = "okay";
 
@@ -250,6 +310,11 @@
 		#sound-dai-cells = <0>;
 		compatible = "ti,tlv320aic3106";
 		reg = <0x18>;
+<<<<<<< HEAD
+=======
+		adc-settle-ms = <40>;
+		ai3x-micbias-vg = <1>;		/* 2.0V */
+>>>>>>> upstream/android-13
 		status = "okay";
 
 		/* Regulators */

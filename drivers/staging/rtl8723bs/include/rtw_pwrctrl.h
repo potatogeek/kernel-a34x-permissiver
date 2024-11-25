@@ -7,6 +7,10 @@
 #ifndef __RTW_PWRCTRL_H_
 #define __RTW_PWRCTRL_H_
 
+<<<<<<< HEAD
+=======
+#include <linux/mutex.h>
+>>>>>>> upstream/android-13
 
 #define FW_PWR0	0
 #define FW_PWR1		1
@@ -30,7 +34,11 @@
 #define BTCOEX_ALIVE	BIT(4)
 
 
+<<<<<<< HEAD
 enum Power_Mgnt {
+=======
+enum {
+>>>>>>> upstream/android-13
 	PS_MODE_ACTIVE	= 0,
 	PS_MODE_MIN,
 	PS_MODE_MAX,
@@ -45,11 +53,14 @@ enum Power_Mgnt {
 	PS_MODE_NUM,
 };
 
+<<<<<<< HEAD
 #ifdef CONFIG_PNO_SUPPORT
 #define MAX_PNO_LIST_COUNT 16
 #define MAX_SCAN_LIST_COUNT 14 /* 2.4G only */
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /*
 	BIT[2:0] = HW state
 	BIT[3] = Protocol PS state,   0: register active state , 1: register sleep state
@@ -93,11 +104,15 @@ struct reportpwrstate_parm {
 	unsigned short rsvd;
 };
 
+<<<<<<< HEAD
 
 typedef _sema _pwrlock;
 
 
 #define LPS_DELAY_TIME	1*HZ /*  1 sec */
+=======
+#define LPS_DELAY_TIME	(1 * HZ) /*  1 sec */
+>>>>>>> upstream/android-13
 
 #define EXE_PWR_NONE	0x01
 #define EXE_PWR_IPS		0x02
@@ -120,7 +135,11 @@ enum rt_rf_power_state {
 #define	RT_RF_OFF_LEVL_FREE_FW		BIT(4)	/*  FW free, re-download the FW */
 #define	RT_RF_OFF_LEVL_FW_32K		BIT(5)	/*  FW in 32k */
 #define	RT_RF_PS_LEVEL_ALWAYS_ASPM	BIT(6)	/*  Always enable ASPM and Clock Req in initialization. */
+<<<<<<< HEAD
 #define	RT_RF_LPS_DISALBE_2R			BIT(30)	/*  When LPS is on, disable 2R if no packet is received or transmittd. */
+=======
+#define	RT_RF_LPS_DISALBE_2R			BIT(30)	/*  When LPS is on, disable 2R if no packet is received or transmitted. */
+>>>>>>> upstream/android-13
 #define	RT_RF_LPS_LEVEL_ASPM			BIT(31)	/*  LPS with ASPM */
 
 #define	RT_IN_PS_LEVEL(ppsc, _PS_FLAG)		((ppsc->cur_ps_level & _PS_FLAG) ? true : false)
@@ -132,8 +151,12 @@ enum rt_rf_power_state {
 #define	RT_PCI_ASPM_OSC_ENABLE		BIT0 /*  PCI ASPM controlled by OS according to ACPI Spec 5.0 */
 #define	RT_PCI_ASPM_OSC_DISABLE		BIT1 /*  PCI ASPM controlled by driver or BIOS, i.e., force enable ASPM */
 
+<<<<<<< HEAD
 
 enum _PS_BBRegBackup_ {
+=======
+enum {
+>>>>>>> upstream/android-13
 	PSBBREG_RF0 = 0,
 	PSBBREG_RF1,
 	PSBBREG_RF2,
@@ -149,7 +172,11 @@ enum { /*  for ips_mode */
 };
 
 /*  Design for pwrctrl_priv.ips_deny, 32 bits for 32 reasons at most */
+<<<<<<< HEAD
 enum PS_DENY_REASON {
+=======
+enum ps_deny_reason {
+>>>>>>> upstream/android-13
 	PS_DENY_DRV_INITIAL = 0,
 	PS_DENY_SCAN,
 	PS_DENY_JOIN,
@@ -161,6 +188,7 @@ enum PS_DENY_REASON {
 	PS_DENY_OTHERS = 31
 };
 
+<<<<<<< HEAD
 #ifdef CONFIG_PNO_SUPPORT
 typedef struct pno_nlo_info
 {
@@ -209,6 +237,10 @@ struct pwrctrl_priv
 {
 	_pwrlock	lock;
 	_pwrlock	check_32k_lock;
+=======
+struct pwrctrl_priv {
+	struct mutex lock;
+>>>>>>> upstream/android-13
 	volatile u8 rpwm; /*  requested power state for fw */
 	volatile u8 cpwm; /*  fw current power state. updated when 1. read from HCPWM 2. driver lowers power level */
 	volatile u8 tog; /*  toggling */
@@ -220,10 +252,17 @@ struct pwrctrl_priv
 	u8 dtim;
 
 	u32 alives;
+<<<<<<< HEAD
 	_workitem cpwm_event;
 	u8 brpwmtimeout;
 	_workitem rpwmtimeoutwi;
 	_timer pwr_rpwm_timer;
+=======
+	struct work_struct cpwm_event;
+	u8 brpwmtimeout;
+	struct work_struct rpwmtimeoutwi;
+	struct timer_list pwr_rpwm_timer;
+>>>>>>> upstream/android-13
 	u8 bpower_saving; /* for LPS/IPS */
 
 	u8 b_hw_radio_off;
@@ -246,7 +285,11 @@ struct pwrctrl_priv
 	u8 pre_ips_type;/*  0: default flow, 1: carddisbale flow */
 
 	/*  ps_deny: if 0, power save is free to go; otherwise deny all kinds of power save. */
+<<<<<<< HEAD
 	/*  Use PS_DENY_REASON to decide reason. */
+=======
+	/*  Use enum ps_deny_reason to decide reason. */
+>>>>>>> upstream/android-13
 	/*  Don't access this variable directly without control function, */
 	/*  and this variable should be protected by lock. */
 	u32 ps_deny;
@@ -258,7 +301,11 @@ struct pwrctrl_priv
 	u8 LpsIdleCount;
 	u8 power_mgnt;
 	u8 org_power_mgnt;
+<<<<<<< HEAD
 	u8 bFwCurrentInPSMode;
+=======
+	bool fw_current_in_ps_mode;
+>>>>>>> upstream/android-13
 	unsigned long	DelayLPSLastTimeStamp;
 	s32		pnp_current_pwr_state;
 	u8 pnp_bstop_trx;
@@ -274,6 +321,7 @@ struct pwrctrl_priv
 	u8 wowlan_wake_reason;
 	u8 wowlan_ap_mode;
 	u8 wowlan_mode;
+<<<<<<< HEAD
 #ifdef CONFIG_WOWLAN
 	u8 wowlan_pattern;
 	u8 wowlan_magic;
@@ -291,6 +339,9 @@ struct pwrctrl_priv
 	u64		wowlan_fw_iv;
 #endif /*  CONFIG_WOWLAN */
 	_timer	pwr_state_check_timer;
+=======
+	struct timer_list	pwr_state_check_timer;
+>>>>>>> upstream/android-13
 	struct adapter *adapter;
 	int		pwr_state_check_interval;
 	u8 pwr_state_check_cnts;
@@ -308,17 +359,25 @@ struct pwrctrl_priv
 	unsigned long PS_BBRegBackup[PSBBREG_TOTALCNT];
 };
 
+<<<<<<< HEAD
 #define rtw_get_ips_mode_req(pwrctl) \
 	(pwrctl)->ips_mode_req
 
 #define rtw_ips_mode_req(pwrctl, ips_mode) \
 	(pwrctl)->ips_mode_req = (ips_mode)
+=======
+#define rtw_ips_mode_req(pwrctl, ips_mode) \
+	((pwrctl)->ips_mode_req = (ips_mode))
+>>>>>>> upstream/android-13
 
 #define RTW_PWR_STATE_CHK_INTERVAL 2000
 
 #define _rtw_set_pwr_state_check_timer(pwrctl, ms) \
 	do { \
+<<<<<<< HEAD
 		/*DBG_871X("%s _rtw_set_pwr_state_check_timer(%p, %d)\n", __func__, (pwrctl), (ms));*/ \
+=======
+>>>>>>> upstream/android-13
 		_set_timer(&(pwrctl)->pwr_state_check_timer, (ms)); \
 	} while (0)
 
@@ -326,7 +385,11 @@ struct pwrctrl_priv
 	_rtw_set_pwr_state_check_timer((pwrctl), (pwrctl)->pwr_state_check_interval)
 
 extern void rtw_init_pwrctrl_priv(struct adapter *adapter);
+<<<<<<< HEAD
 extern void rtw_free_pwrctrl_priv(struct adapter * adapter);
+=======
+extern void rtw_free_pwrctrl_priv(struct adapter *adapter);
+>>>>>>> upstream/android-13
 
 s32 rtw_register_task_alive(struct adapter *, u32 task);
 void rtw_unregister_task_alive(struct adapter *, u32 task);
@@ -337,8 +400,13 @@ extern void rtw_unregister_cmd_alive(struct adapter *padapter);
 extern void cpwm_int_hdl(struct adapter *padapter, struct reportpwrstate_parm *preportpwrstate);
 extern void LPS_Leave_check(struct adapter *padapter);
 
+<<<<<<< HEAD
 extern void LeaveAllPowerSaveMode(struct adapter * Adapter);
 extern void LeaveAllPowerSaveModeDirect(struct adapter * Adapter);
+=======
+extern void LeaveAllPowerSaveMode(struct adapter *Adapter);
+extern void LeaveAllPowerSaveModeDirect(struct adapter *Adapter);
+>>>>>>> upstream/android-13
 void _ips_enter(struct adapter *padapter);
 void ips_enter(struct adapter *padapter);
 int _ips_leave(struct adapter *padapter);
@@ -360,8 +428,13 @@ int _rtw_pwr_wakeup(struct adapter *padapter, u32 ips_deffer_ms, const char *cal
 int rtw_pm_set_ips(struct adapter *padapter, u8 mode);
 int rtw_pm_set_lps(struct adapter *padapter, u8 mode);
 
+<<<<<<< HEAD
 void rtw_ps_deny(struct adapter *padapter, enum PS_DENY_REASON reason);
 void rtw_ps_deny_cancel(struct adapter *padapter, enum PS_DENY_REASON reason);
+=======
+void rtw_ps_deny(struct adapter *padapter, enum ps_deny_reason reason);
+void rtw_ps_deny_cancel(struct adapter *padapter, enum ps_deny_reason reason);
+>>>>>>> upstream/android-13
 u32 rtw_ps_deny_get(struct adapter *padapter);
 
 #endif  /* __RTL871X_PWRCTRL_H_ */

@@ -1,7 +1,10 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /* fault_32.c - visible as they are called from assembler */
+<<<<<<< HEAD
 asmlinkage int lookup_fault(unsigned long pc, unsigned long ret_pc,
                             unsigned long address);
+=======
+>>>>>>> upstream/android-13
 asmlinkage void do_sparc_fault(struct pt_regs *regs, int text_fault, int write,
                                unsigned long address);
 
@@ -20,6 +23,9 @@ void __init srmmu_paging_init(void);
 
 /* iommu.c */
 void ld_mmu_iommu(void);
+<<<<<<< HEAD
 
 /* io-unit.c */
 void ld_mmu_iounit(void);
+=======
+>>>>>>> upstream/android-13

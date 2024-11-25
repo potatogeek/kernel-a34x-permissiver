@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Proprietary commands extension for STMicroelectronics NFC Chip
  *
  * Copyright (C) 2014-2015  STMicroelectronics SAS. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -14,6 +19,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <net/genetlink.h>
@@ -306,7 +313,11 @@ exit:
 	return r;
 }
 
+<<<<<<< HEAD
 static struct nfc_vendor_cmd st21nfca_vendor_cmds[] = {
+=======
+static const struct nfc_vendor_cmd st21nfca_vendor_cmds[] = {
+>>>>>>> upstream/android-13
 	{
 		.vendor_id = ST21NFCA_VENDOR_OUI,
 		.subcmd = FACTORY_MODE,

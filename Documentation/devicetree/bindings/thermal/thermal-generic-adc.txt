@@ -8,16 +8,33 @@ temperature using voltage-temperature lookup table.
 Required properties:
 ===================
 - compatible:		     Must be "generic-adc-thermal".
+<<<<<<< HEAD
+=======
+- #thermal-sensor-cells:     Should be 1. See Documentation/devicetree/bindings/thermal/thermal-sensor.yaml for a description
+		             of this property.
+Optional properties:
+===================
+>>>>>>> upstream/android-13
 - temperature-lookup-table:  Two dimensional array of Integer; lookup table
 			     to map the relation between ADC value and
 			     temperature. When ADC is read, the value is
 			     looked up on the table to get the equivalent
 			     temperature.
+<<<<<<< HEAD
 			     The first value of the each row of array is the
 			     temperature in milliCelsius and second value of
 			     the each row of array is the ADC read value.
 - #thermal-sensor-cells:     Should be 1. See ./thermal.txt for a description
 			     of this property.
+=======
+
+			     The first value of the each row of array is the
+			     temperature in milliCelsius and second value of
+			     the each row of array is the ADC read value.
+
+			     If not specified, driver assumes the ADC channel
+			     gives milliCelsius directly.
+>>>>>>> upstream/android-13
 
 Example :
 #include <dt-bindings/thermal/thermal.h>

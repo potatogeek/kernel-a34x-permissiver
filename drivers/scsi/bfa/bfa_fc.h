@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2005-2014 Brocade Communications Systems, Inc.
  * Copyright (c) 2014- QLogic Corporation.
@@ -5,6 +9,7 @@
  * www.qlogic.com
  *
  * Linux driver for QLogic BR-series Fibre Channel Host Bus Adapter.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License (GPL) Version 2 as
@@ -14,6 +19,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __BFA_FC_H__
@@ -41,6 +48,7 @@ struct scsi_cdb_s {
 	u8         scsi_cdb[SCSI_MAX_CDBLEN];
 };
 
+<<<<<<< HEAD
 /* ------------------------------------------------------------
  * SCSI status byte values
  * ------------------------------------------------------------
@@ -56,6 +64,8 @@ struct scsi_cdb_s {
 #define SCSI_STATUS_QUEUE_FULL             0x28
 #define SCSI_STATUS_ACA_ACTIVE             0x30
 
+=======
+>>>>>>> upstream/android-13
 #define SCSI_MAX_ALLOC_LEN      0xFF    /* maximum allocarion length */
 
 /*
@@ -1216,7 +1226,11 @@ enum {
 };
 
 /*
+<<<<<<< HEAD
  * defintions for CT reason code
+=======
+ * definitions for CT reason code
+>>>>>>> upstream/android-13
  */
 enum {
 	CT_RSN_INV_CMD		= 0x01,
@@ -1263,7 +1277,11 @@ enum {
 };
 
 /*
+<<<<<<< HEAD
  * defintions for the explanation code for all servers
+=======
+ * definitions for the explanation code for all servers
+>>>>>>> upstream/android-13
  */
 enum {
 	CT_EXP_AUTH_EXCEPTION		= 0xF1,

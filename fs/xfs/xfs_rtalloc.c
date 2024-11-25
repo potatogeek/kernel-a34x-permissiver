@@ -11,6 +11,7 @@
 #include "xfs_trans_resv.h"
 #include "xfs_bit.h"
 #include "xfs_mount.h"
+<<<<<<< HEAD
 #include "xfs_defer.h"
 #include "xfs_inode.h"
 #include "xfs_bmap.h"
@@ -25,6 +26,16 @@
 #include "xfs_icache.h"
 #include "xfs_rtalloc.h"
 
+=======
+#include "xfs_inode.h"
+#include "xfs_bmap.h"
+#include "xfs_bmap_btree.h"
+#include "xfs_trans.h"
+#include "xfs_trans_space.h"
+#include "xfs_icache.h"
+#include "xfs_rtalloc.h"
+#include "xfs_sb.h"
+>>>>>>> upstream/android-13
 
 /*
  * Read and return the summary information for a given extent size,
@@ -38,7 +49,11 @@ xfs_rtget_summary(
 	xfs_trans_t	*tp,		/* transaction pointer */
 	int		log,		/* log2 of extent size */
 	xfs_rtblock_t	bbno,		/* bitmap block number */
+<<<<<<< HEAD
 	xfs_buf_t	**rbpp,		/* in/out: summary block buffer */
+=======
+	struct xfs_buf	**rbpp,		/* in/out: summary block buffer */
+>>>>>>> upstream/android-13
 	xfs_fsblock_t	*rsb,		/* in/out: summary block number */
 	xfs_suminfo_t	*sum)		/* out: summary info for this block */
 {
@@ -56,7 +71,11 @@ xfs_rtany_summary(
 	int		low,		/* low log2 extent size */
 	int		high,		/* high log2 extent size */
 	xfs_rtblock_t	bbno,		/* bitmap block number */
+<<<<<<< HEAD
 	xfs_buf_t	**rbpp,		/* in/out: summary block buffer */
+=======
+	struct xfs_buf	**rbpp,		/* in/out: summary block buffer */
+>>>>>>> upstream/android-13
 	xfs_fsblock_t	*rsb,		/* in/out: summary block number */
 	int		*stat)		/* out: any good extents here? */
 {
@@ -64,8 +83,17 @@ xfs_rtany_summary(
 	int		log;		/* loop counter, log2 of ext. size */
 	xfs_suminfo_t	sum;		/* summary data */
 
+<<<<<<< HEAD
 	/*
 	 * Loop over logs of extent sizes.  Order is irrelevant.
+=======
+	/* There are no extents at levels < m_rsum_cache[bbno]. */
+	if (mp->m_rsum_cache && low < mp->m_rsum_cache[bbno])
+		low = mp->m_rsum_cache[bbno];
+
+	/*
+	 * Loop over logs of extent sizes.
+>>>>>>> upstream/android-13
 	 */
 	for (log = low; log <= high; log++) {
 		/*
@@ -80,13 +108,24 @@ xfs_rtany_summary(
 		 */
 		if (sum) {
 			*stat = 1;
+<<<<<<< HEAD
 			return 0;
+=======
+			goto out;
+>>>>>>> upstream/android-13
 		}
 	}
 	/*
 	 * Found nothing, return failure.
 	 */
 	*stat = 0;
+<<<<<<< HEAD
+=======
+out:
+	/* There were no extents at levels < log. */
+	if (mp->m_rsum_cache && log > mp->m_rsum_cache[bbno])
+		mp->m_rsum_cache[bbno] = log;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -102,7 +141,11 @@ xfs_rtcopy_summary(
 	xfs_trans_t	*tp)		/* transaction pointer */
 {
 	xfs_rtblock_t	bbno;		/* bitmap block number */
+<<<<<<< HEAD
 	xfs_buf_t	*bp;		/* summary buffer */
+=======
+	struct xfs_buf	*bp;		/* summary buffer */
+>>>>>>> upstream/android-13
 	int		error;		/* error return value */
 	int		log;		/* summary level number (log length) */
 	xfs_suminfo_t	sum;		/* summary data */
@@ -142,7 +185,11 @@ xfs_rtallocate_range(
 	xfs_trans_t	*tp,		/* transaction pointer */
 	xfs_rtblock_t	start,		/* start block to allocate */
 	xfs_extlen_t	len,		/* length to allocate */
+<<<<<<< HEAD
 	xfs_buf_t	**rbpp,		/* in/out: summary block buffer */
+=======
+	struct xfs_buf	**rbpp,		/* in/out: summary block buffer */
+>>>>>>> upstream/android-13
 	xfs_fsblock_t	*rsb)		/* in/out: summary block number */
 {
 	xfs_rtblock_t	end;		/* end of the allocated extent */
@@ -224,7 +271,11 @@ xfs_rtallocate_extent_block(
 	xfs_extlen_t	maxlen,		/* maximum length to allocate */
 	xfs_extlen_t	*len,		/* out: actual length allocated */
 	xfs_rtblock_t	*nextp,		/* out: next block to try */
+<<<<<<< HEAD
 	xfs_buf_t	**rbpp,		/* in/out: summary block buffer */
+=======
+	struct xfs_buf	**rbpp,		/* in/out: summary block buffer */
+>>>>>>> upstream/android-13
 	xfs_fsblock_t	*rsb,		/* in/out: summary block number */
 	xfs_extlen_t	prod,		/* extent product factor */
 	xfs_rtblock_t	*rtblock)	/* out: start block allocated */
@@ -343,7 +394,11 @@ xfs_rtallocate_extent_exact(
 	xfs_extlen_t	minlen,		/* minimum length to allocate */
 	xfs_extlen_t	maxlen,		/* maximum length to allocate */
 	xfs_extlen_t	*len,		/* out: actual length allocated */
+<<<<<<< HEAD
 	xfs_buf_t	**rbpp,		/* in/out: summary block buffer */
+=======
+	struct xfs_buf	**rbpp,		/* in/out: summary block buffer */
+>>>>>>> upstream/android-13
 	xfs_fsblock_t	*rsb,		/* in/out: summary block number */
 	xfs_extlen_t	prod,		/* extent product factor */
 	xfs_rtblock_t	*rtblock)	/* out: start block allocated */
@@ -422,7 +477,11 @@ xfs_rtallocate_extent_near(
 	xfs_extlen_t	minlen,		/* minimum length to allocate */
 	xfs_extlen_t	maxlen,		/* maximum length to allocate */
 	xfs_extlen_t	*len,		/* out: actual length allocated */
+<<<<<<< HEAD
 	xfs_buf_t	**rbpp,		/* in/out: summary block buffer */
+=======
+	struct xfs_buf	**rbpp,		/* in/out: summary block buffer */
+>>>>>>> upstream/android-13
 	xfs_fsblock_t	*rsb,		/* in/out: summary block number */
 	xfs_extlen_t	prod,		/* extent product factor */
 	xfs_rtblock_t	*rtblock)	/* out: start block allocated */
@@ -624,7 +683,11 @@ xfs_rtallocate_extent_size(
 	xfs_extlen_t	minlen,		/* minimum length to allocate */
 	xfs_extlen_t	maxlen,		/* maximum length to allocate */
 	xfs_extlen_t	*len,		/* out: actual length allocated */
+<<<<<<< HEAD
 	xfs_buf_t	**rbpp,		/* in/out: summary block buffer */
+=======
+	struct xfs_buf	**rbpp,		/* in/out: summary block buffer */
+>>>>>>> upstream/android-13
 	xfs_fsblock_t	*rsb,		/* in/out: summary block number */
 	xfs_extlen_t	prod,		/* extent product factor */
 	xfs_rtblock_t	*rtblock)	/* out: start block allocated */
@@ -776,8 +839,19 @@ xfs_growfs_rt_alloc(
 	struct xfs_bmbt_irec	map;		/* block map output */
 	int			nmap;		/* number of block maps */
 	int			resblks;	/* space reservation */
+<<<<<<< HEAD
 	struct xfs_trans	*tp;
 
+=======
+	enum xfs_blft		buf_type;
+	struct xfs_trans	*tp;
+
+	if (ip == mp->m_rsumip)
+		buf_type = XFS_BLFT_RTSUMMARY_BUF;
+	else
+		buf_type = XFS_BLFT_RTBITMAP_BUF;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Allocate space to the file, as necessary.
 	 */
@@ -796,13 +870,25 @@ xfs_growfs_rt_alloc(
 		xfs_ilock(ip, XFS_ILOCK_EXCL);
 		xfs_trans_ijoin(tp, ip, XFS_ILOCK_EXCL);
 
+<<<<<<< HEAD
+=======
+		error = xfs_iext_count_may_overflow(ip, XFS_DATA_FORK,
+				XFS_IEXT_ADD_NOSPLIT_CNT);
+		if (error)
+			goto out_trans_cancel;
+
+>>>>>>> upstream/android-13
 		/*
 		 * Allocate blocks to the bitmap file.
 		 */
 		nmap = 1;
 		error = xfs_bmapi_write(tp, ip, oblocks, nblocks - oblocks,
+<<<<<<< HEAD
 					XFS_BMAPI_METADATA, resblks, &map,
 					&nmap);
+=======
+					XFS_BMAPI_METADATA, 0, &map, &nmap);
+>>>>>>> upstream/android-13
 		if (!error && nmap < 1)
 			error = -ENOSPC;
 		if (error)
@@ -836,12 +922,22 @@ xfs_growfs_rt_alloc(
 			 * Get a buffer for the block.
 			 */
 			d = XFS_FSB_TO_DADDR(mp, fsbno);
+<<<<<<< HEAD
 			bp = xfs_trans_get_buf(tp, mp->m_ddev_targp, d,
 				mp->m_bsize, 0);
 			if (bp == NULL) {
 				error = -EIO;
 				goto out_trans_cancel;
 			}
+=======
+			error = xfs_trans_get_buf(tp, mp->m_ddev_targp, d,
+					mp->m_bsize, 0, &bp);
+			if (error)
+				goto out_trans_cancel;
+
+			xfs_trans_buf_set_type(tp, bp, buf_type);
+			bp->b_ops = &xfs_rtbuf_ops;
+>>>>>>> upstream/android-13
 			memset(bp->b_addr, 0, mp->m_sb.sb_blocksize);
 			xfs_trans_log_buf(tp, bp, 0, mp->m_sb.sb_blocksize - 1);
 			/*
@@ -864,6 +960,24 @@ out_trans_cancel:
 	return error;
 }
 
+<<<<<<< HEAD
+=======
+static void
+xfs_alloc_rsum_cache(
+	xfs_mount_t	*mp,		/* file system mount structure */
+	xfs_extlen_t	rbmblocks)	/* number of rt bitmap blocks */
+{
+	/*
+	 * The rsum cache is initialized to all zeroes, which is trivially a
+	 * lower bound on the minimum level with any free extents. We can
+	 * continue without the cache if it couldn't be allocated.
+	 */
+	mp->m_rsum_cache = kvzalloc(rbmblocks, GFP_KERNEL);
+	if (!mp->m_rsum_cache)
+		xfs_warn(mp, "could not allocate realtime summary cache");
+}
+
+>>>>>>> upstream/android-13
 /*
  * Visible (exported) functions.
  */
@@ -877,7 +991,11 @@ xfs_growfs_rt(
 	xfs_growfs_rt_t	*in)		/* growfs rt input struct */
 {
 	xfs_rtblock_t	bmbno;		/* bitmap block number */
+<<<<<<< HEAD
 	xfs_buf_t	*bp;		/* temporary buffer */
+=======
+	struct xfs_buf	*bp;		/* temporary buffer */
+>>>>>>> upstream/android-13
 	int		error;		/* error return value */
 	xfs_mount_t	*nmp;		/* new (fake) mount structure */
 	xfs_rfsblock_t	nrblocks;	/* new number of realtime blocks */
@@ -892,6 +1010,7 @@ xfs_growfs_rt(
 	xfs_extlen_t	rsumblocks;	/* current number of rt summary blks */
 	xfs_sb_t	*sbp;		/* old superblock */
 	xfs_fsblock_t	sumbno;		/* summary block number */
+<<<<<<< HEAD
 
 	sbp = &mp->m_sb;
 	/*
@@ -904,6 +1023,45 @@ xfs_growfs_rt(
 	    (sbp->sb_rblocks && (in->extsize != sbp->sb_rextsize)))
 		return -EINVAL;
 	if ((error = xfs_sb_validate_fsb_count(sbp, nrblocks)))
+=======
+	uint8_t		*rsum_cache;	/* old summary cache */
+
+	sbp = &mp->m_sb;
+
+	if (!capable(CAP_SYS_ADMIN))
+		return -EPERM;
+
+	/* Needs to have been mounted with an rt device. */
+	if (!XFS_IS_REALTIME_MOUNT(mp))
+		return -EINVAL;
+	/*
+	 * Mount should fail if the rt bitmap/summary files don't load, but
+	 * we'll check anyway.
+	 */
+	if (!mp->m_rbmip || !mp->m_rsumip)
+		return -EINVAL;
+
+	/* Shrink not supported. */
+	if (in->newblocks <= sbp->sb_rblocks)
+		return -EINVAL;
+
+	/* Can only change rt extent size when adding rt volume. */
+	if (sbp->sb_rblocks > 0 && in->extsize != sbp->sb_rextsize)
+		return -EINVAL;
+
+	/* Range check the extent size. */
+	if (XFS_FSB_TO_B(mp, in->extsize) > XFS_MAX_RTEXTSIZE ||
+	    XFS_FSB_TO_B(mp, in->extsize) < XFS_MIN_RTEXTSIZE)
+		return -EINVAL;
+
+	/* Unsupported realtime features. */
+	if (xfs_has_rmapbt(mp) || xfs_has_reflink(mp))
+		return -EOPNOTSUPP;
+
+	nrblocks = in->newblocks;
+	error = xfs_sb_validate_fsb_count(sbp, nrblocks);
+	if (error)
+>>>>>>> upstream/android-13
 		return error;
 	/*
 	 * Read in the last block of the device, make sure it exists.
@@ -937,8 +1095,13 @@ xfs_growfs_rt(
 	 * Get the old block counts for bitmap and summary inodes.
 	 * These can't change since other growfs callers are locked out.
 	 */
+<<<<<<< HEAD
 	rbmblocks = XFS_B_TO_FSB(mp, mp->m_rbmip->i_d.di_size);
 	rsumblocks = XFS_B_TO_FSB(mp, mp->m_rsumip->i_d.di_size);
+=======
+	rbmblocks = XFS_B_TO_FSB(mp, mp->m_rbmip->i_disk_size);
+	rsumblocks = XFS_B_TO_FSB(mp, mp->m_rsumip->i_disk_size);
+>>>>>>> upstream/android-13
 	/*
 	 * Allocate space to the bitmap and summary files, as necessary.
 	 */
@@ -948,10 +1111,22 @@ xfs_growfs_rt(
 	error = xfs_growfs_rt_alloc(mp, rsumblocks, nrsumblocks, mp->m_rsumip);
 	if (error)
 		return error;
+<<<<<<< HEAD
 	/*
 	 * Allocate a new (fake) mount/sb.
 	 */
 	nmp = kmem_alloc(sizeof(*nmp), KM_SLEEP);
+=======
+
+	rsum_cache = mp->m_rsum_cache;
+	if (nrbmblocks != sbp->sb_rbmblocks)
+		xfs_alloc_rsum_cache(mp, nrbmblocks);
+
+	/*
+	 * Allocate a new (fake) mount/sb.
+	 */
+	nmp = kmem_alloc(sizeof(*nmp), 0);
+>>>>>>> upstream/android-13
 	/*
 	 * Loop over the bitmap blocks.
 	 * We will do everything one bitmap block at a time.
@@ -962,7 +1137,12 @@ xfs_growfs_rt(
 		     ((sbp->sb_rextents & ((1 << mp->m_blkbit_log) - 1)) != 0);
 	     bmbno < nrbmblocks;
 	     bmbno++) {
+<<<<<<< HEAD
 		xfs_trans_t	*tp;
+=======
+		struct xfs_trans	*tp;
+		xfs_rfsblock_t		nrblocks_step;
+>>>>>>> upstream/android-13
 
 		*nmp = *mp;
 		nsbp = &nmp->m_sb;
@@ -971,10 +1151,16 @@ xfs_growfs_rt(
 		 */
 		nsbp->sb_rextsize = in->extsize;
 		nsbp->sb_rbmblocks = bmbno + 1;
+<<<<<<< HEAD
 		nsbp->sb_rblocks =
 			XFS_RTMIN(nrblocks,
 				  nsbp->sb_rbmblocks * NBBY *
 				  nsbp->sb_blocksize * nsbp->sb_rextsize);
+=======
+		nrblocks_step = (bmbno + 1) * NBBY * nsbp->sb_blocksize *
+				nsbp->sb_rextsize;
+		nsbp->sb_rblocks = min(nrblocks, nrblocks_step);
+>>>>>>> upstream/android-13
 		nsbp->sb_rextents = nsbp->sb_rblocks;
 		do_div(nsbp->sb_rextents, nsbp->sb_rextsize);
 		ASSERT(nsbp->sb_rextents != 0);
@@ -995,29 +1181,48 @@ xfs_growfs_rt(
 		/*
 		 * Lock out other callers by grabbing the bitmap inode lock.
 		 */
+<<<<<<< HEAD
 		xfs_ilock(mp->m_rbmip, XFS_ILOCK_EXCL);
+=======
+		xfs_ilock(mp->m_rbmip, XFS_ILOCK_EXCL | XFS_ILOCK_RTBITMAP);
+>>>>>>> upstream/android-13
 		xfs_trans_ijoin(tp, mp->m_rbmip, XFS_ILOCK_EXCL);
 		/*
 		 * Update the bitmap inode's size ondisk and incore.  We need
 		 * to update the incore size so that inode inactivation won't
 		 * punch what it thinks are "posteof" blocks.
 		 */
+<<<<<<< HEAD
 		mp->m_rbmip->i_d.di_size =
 			nsbp->sb_rbmblocks * nsbp->sb_blocksize;
 		i_size_write(VFS_I(mp->m_rbmip), mp->m_rbmip->i_d.di_size);
+=======
+		mp->m_rbmip->i_disk_size =
+			nsbp->sb_rbmblocks * nsbp->sb_blocksize;
+		i_size_write(VFS_I(mp->m_rbmip), mp->m_rbmip->i_disk_size);
+>>>>>>> upstream/android-13
 		xfs_trans_log_inode(tp, mp->m_rbmip, XFS_ILOG_CORE);
 		/*
 		 * Get the summary inode into the transaction.
 		 */
+<<<<<<< HEAD
 		xfs_ilock(mp->m_rsumip, XFS_ILOCK_EXCL);
+=======
+		xfs_ilock(mp->m_rsumip, XFS_ILOCK_EXCL | XFS_ILOCK_RTSUM);
+>>>>>>> upstream/android-13
 		xfs_trans_ijoin(tp, mp->m_rsumip, XFS_ILOCK_EXCL);
 		/*
 		 * Update the summary inode's size.  We need to update the
 		 * incore size so that inode inactivation won't punch what it
 		 * thinks are "posteof" blocks.
 		 */
+<<<<<<< HEAD
 		mp->m_rsumip->i_d.di_size = nmp->m_rsumsize;
 		i_size_write(VFS_I(mp->m_rsumip), mp->m_rsumip->i_d.di_size);
+=======
+		mp->m_rsumip->i_disk_size = nmp->m_rsumsize;
+		i_size_write(VFS_I(mp->m_rsumip), mp->m_rsumip->i_disk_size);
+>>>>>>> upstream/android-13
 		xfs_trans_log_inode(tp, mp->m_rsumip, XFS_ILOG_CORE);
 		/*
 		 * Copy summary data from old to new sizes.
@@ -1072,13 +1277,44 @@ error_cancel:
 		error = xfs_trans_commit(tp);
 		if (error)
 			break;
+<<<<<<< HEAD
 	}
 
+=======
+
+		/* Ensure the mount RT feature flag is now set. */
+		mp->m_features |= XFS_FEAT_REALTIME;
+	}
+	if (error)
+		goto out_free;
+
+	/* Update secondary superblocks now the physical grow has completed */
+	error = xfs_update_secondary_sbs(mp);
+
+out_free:
+>>>>>>> upstream/android-13
 	/*
 	 * Free the fake mp structure.
 	 */
 	kmem_free(nmp);
 
+<<<<<<< HEAD
+=======
+	/*
+	 * If we had to allocate a new rsum_cache, we either need to free the
+	 * old one (if we succeeded) or free the new one and restore the old one
+	 * (if there was an error).
+	 */
+	if (rsum_cache != mp->m_rsum_cache) {
+		if (error) {
+			kmem_free(mp->m_rsum_cache);
+			mp->m_rsum_cache = rsum_cache;
+		} else {
+			kmem_free(rsum_cache);
+		}
+	}
+
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -1102,7 +1338,11 @@ xfs_rtallocate_extent(
 	int		error;		/* error value */
 	xfs_rtblock_t	r;		/* result allocated block */
 	xfs_fsblock_t	sb;		/* summary file block number */
+<<<<<<< HEAD
 	xfs_buf_t	*sumbp;		/* summary file block buffer */
+=======
+	struct xfs_buf	*sumbp;		/* summary file block buffer */
+>>>>>>> upstream/android-13
 
 	ASSERT(xfs_isilocked(mp->m_rbmip, XFS_ILOCK_EXCL));
 	ASSERT(minlen > 0 && minlen <= maxlen);
@@ -1204,8 +1444,13 @@ xfs_rtmount_init(
 }
 
 /*
+<<<<<<< HEAD
  * Get the bitmap and summary inodes into the mount structure
  * at mount time.
+=======
+ * Get the bitmap and summary inodes and the summary cache into the mount
+ * structure at mount time.
+>>>>>>> upstream/android-13
  */
 int					/* error */
 xfs_rtmount_inodes(
@@ -1226,6 +1471,10 @@ xfs_rtmount_inodes(
 		return error;
 	}
 	ASSERT(mp->m_rsumip != NULL);
+<<<<<<< HEAD
+=======
+	xfs_alloc_rsum_cache(mp, sbp->sb_rbmblocks);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1233,6 +1482,10 @@ void
 xfs_rtunmount_inodes(
 	struct xfs_mount	*mp)
 {
+<<<<<<< HEAD
+=======
+	kmem_free(mp->m_rsum_cache);
+>>>>>>> upstream/android-13
 	if (mp->m_rbmip)
 		xfs_irele(mp->m_rbmip);
 	if (mp->m_rsumip)
@@ -1262,8 +1515,13 @@ xfs_rtpick_extent(
 	ASSERT(xfs_isilocked(mp->m_rbmip, XFS_ILOCK_EXCL));
 
 	seqp = (uint64_t *)&VFS_I(mp->m_rbmip)->i_atime;
+<<<<<<< HEAD
 	if (!(mp->m_rbmip->i_d.di_flags & XFS_DIFLAG_NEWRTBM)) {
 		mp->m_rbmip->i_d.di_flags |= XFS_DIFLAG_NEWRTBM;
+=======
+	if (!(mp->m_rbmip->i_diflags & XFS_DIFLAG_NEWRTBM)) {
+		mp->m_rbmip->i_diflags |= XFS_DIFLAG_NEWRTBM;
+>>>>>>> upstream/android-13
 		*seqp = 0;
 	}
 	seq = *seqp;

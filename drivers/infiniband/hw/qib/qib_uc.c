@@ -40,6 +40,10 @@
 /**
  * qib_make_uc_req - construct a request packet (SEND, RDMA write)
  * @qp: a pointer to the QP
+<<<<<<< HEAD
+=======
+ * @flags: unused
+>>>>>>> upstream/android-13
  *
  * Assumes the s_lock is held.
  *
@@ -68,7 +72,11 @@ int qib_make_uc_req(struct rvt_qp *qp, unsigned long *flags)
 			goto bail;
 		}
 		wqe = rvt_get_swqe_ptr(qp, qp->s_last);
+<<<<<<< HEAD
 		qib_send_complete(qp, wqe, IB_WC_WR_FLUSH_ERR);
+=======
+		rvt_send_complete(qp, wqe, IB_WC_WR_FLUSH_ERR);
+>>>>>>> upstream/android-13
 		goto done;
 	}
 
@@ -161,7 +169,11 @@ int qib_make_uc_req(struct rvt_qp *qp, unsigned long *flags)
 
 	case OP(SEND_FIRST):
 		qp->s_state = OP(SEND_MIDDLE);
+<<<<<<< HEAD
 		/* FALLTHROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case OP(SEND_MIDDLE):
 		len = qp->s_len;
 		if (len > pmtu) {
@@ -185,7 +197,11 @@ int qib_make_uc_req(struct rvt_qp *qp, unsigned long *flags)
 
 	case OP(RDMA_WRITE_FIRST):
 		qp->s_state = OP(RDMA_WRITE_MIDDLE);
+<<<<<<< HEAD
 		/* FALLTHROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case OP(RDMA_WRITE_MIDDLE):
 		len = qp->s_len;
 		if (len > pmtu) {
@@ -351,7 +367,11 @@ send_first:
 			goto no_immediate_data;
 		else if (opcode == OP(SEND_ONLY_WITH_IMMEDIATE))
 			goto send_last_imm;
+<<<<<<< HEAD
 		/* FALLTHROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case OP(SEND_MIDDLE):
 		/* Check for invalid length PMTU or posted rwqe len. */
 		if (unlikely(tlen != (hdrsize + pmtu + 4)))
@@ -359,7 +379,11 @@ send_first:
 		qp->r_rcv_len += pmtu;
 		if (unlikely(qp->r_rcv_len > qp->r_len))
 			goto rewind;
+<<<<<<< HEAD
 		qib_copy_sge(&qp->r_sge, data, pmtu, 0);
+=======
+		rvt_copy_sge(qp, &qp->r_sge, data, pmtu, false, false);
+>>>>>>> upstream/android-13
 		break;
 
 	case OP(SEND_LAST_WITH_IMMEDIATE):
@@ -385,7 +409,11 @@ send_last:
 		if (unlikely(wc.byte_len > qp->r_len))
 			goto rewind;
 		wc.opcode = IB_WC_RECV;
+<<<<<<< HEAD
 		qib_copy_sge(&qp->r_sge, data, tlen, 0);
+=======
+		rvt_copy_sge(qp, &qp->r_sge, data, tlen, false, false);
+>>>>>>> upstream/android-13
 		rvt_put_ss(&qp->s_rdma_read_sge);
 last_imm:
 		wc.wr_id = qp->r_wr_id;
@@ -400,8 +428,12 @@ last_imm:
 		wc.dlid_path_bits = 0;
 		wc.port_num = 0;
 		/* Signal completion event if the solicited bit is set. */
+<<<<<<< HEAD
 		rvt_cq_enter(ibcq_to_rvtcq(qp->ibqp.recv_cq), &wc,
 			     ib_bth_is_solicited(ohdr));
+=======
+		rvt_recv_cq(qp, &wc, ib_bth_is_solicited(ohdr));
+>>>>>>> upstream/android-13
 		break;
 
 	case OP(RDMA_WRITE_FIRST):
@@ -441,7 +473,11 @@ rdma_first:
 			wc.ex.imm_data = ohdr->u.rc.imm_data;
 			goto rdma_last_imm;
 		}
+<<<<<<< HEAD
 		/* FALLTHROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case OP(RDMA_WRITE_MIDDLE):
 		/* Check for invalid length PMTU or posted rwqe len. */
 		if (unlikely(tlen != (hdrsize + pmtu + 4)))
@@ -449,7 +485,11 @@ rdma_first:
 		qp->r_rcv_len += pmtu;
 		if (unlikely(qp->r_rcv_len > qp->r_len))
 			goto drop;
+<<<<<<< HEAD
 		qib_copy_sge(&qp->r_sge, data, pmtu, 1);
+=======
+		rvt_copy_sge(qp, &qp->r_sge, data, pmtu, true, false);
+>>>>>>> upstream/android-13
 		break;
 
 	case OP(RDMA_WRITE_LAST_WITH_IMMEDIATE):
@@ -479,7 +519,11 @@ rdma_last_imm:
 		}
 		wc.byte_len = qp->r_len;
 		wc.opcode = IB_WC_RECV_RDMA_WITH_IMM;
+<<<<<<< HEAD
 		qib_copy_sge(&qp->r_sge, data, tlen, 1);
+=======
+		rvt_copy_sge(qp, &qp->r_sge, data, tlen, true, false);
+>>>>>>> upstream/android-13
 		rvt_put_ss(&qp->r_sge);
 		goto last_imm;
 
@@ -495,7 +539,11 @@ rdma_last:
 		tlen -= (hdrsize + pad + 4);
 		if (unlikely(tlen + qp->r_rcv_len != qp->r_len))
 			goto drop;
+<<<<<<< HEAD
 		qib_copy_sge(&qp->r_sge, data, tlen, 1);
+=======
+		rvt_copy_sge(qp, &qp->r_sge, data, tlen, true, false);
+>>>>>>> upstream/android-13
 		rvt_put_ss(&qp->r_sge);
 		break;
 

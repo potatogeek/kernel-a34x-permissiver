@@ -6,8 +6,13 @@
 #include "xfs.h"
 #include "xfs_fs.h"
 #include "xfs_error.h"
+<<<<<<< HEAD
 #include "xfs_format.h"
 #include "xfs_log_format.h"
+=======
+#include "xfs_shared.h"
+#include "xfs_format.h"
+>>>>>>> upstream/android-13
 #include "xfs_trans_resv.h"
 #include "xfs_mount.h"
 
@@ -20,8 +25,13 @@ __xfs_printk(
 	const struct xfs_mount	*mp,
 	struct va_format	*vaf)
 {
+<<<<<<< HEAD
 	if (mp && mp->m_fsname) {
 		printk("%sXFS (%s): %pV\n", level, mp->m_fsname, vaf);
+=======
+	if (mp && mp->m_super) {
+		printk("%sXFS (%s): %pV\n", level, mp->m_super->s_id, vaf);
+>>>>>>> upstream/android-13
 		return;
 	}
 	printk("%sXFS: %pV\n", level, vaf);
@@ -86,17 +96,37 @@ xfs_alert_tag(
 }
 
 void
+<<<<<<< HEAD
 asswarn(char *expr, char *file, int line)
 {
 	xfs_warn(NULL, "Assertion failed: %s, file: %s, line: %d",
+=======
+asswarn(
+	struct xfs_mount	*mp,
+	char			*expr,
+	char			*file,
+	int			line)
+{
+	xfs_warn(mp, "Assertion failed: %s, file: %s, line: %d",
+>>>>>>> upstream/android-13
 		expr, file, line);
 	WARN_ON(1);
 }
 
 void
+<<<<<<< HEAD
 assfail(char *expr, char *file, int line)
 {
 	xfs_emerg(NULL, "Assertion failed: %s, file: %s, line: %d",
+=======
+assfail(
+	struct xfs_mount	*mp,
+	char			*expr,
+	char			*file,
+	int			line)
+{
+	xfs_emerg(mp, "Assertion failed: %s, file: %s, line: %d",
+>>>>>>> upstream/android-13
 		expr, file, line);
 	if (xfs_globals.bug_on_assert)
 		BUG();
@@ -105,7 +135,35 @@ assfail(char *expr, char *file, int line)
 }
 
 void
+<<<<<<< HEAD
 xfs_hex_dump(void *p, int length)
 {
 	print_hex_dump(KERN_ALERT, "", DUMP_PREFIX_ADDRESS, 16, 1, p, length, 1);
+=======
+xfs_hex_dump(const void *p, int length)
+{
+	print_hex_dump(KERN_ALERT, "", DUMP_PREFIX_OFFSET, 16, 1, p, length, 1);
+}
+
+void
+xfs_buf_alert_ratelimited(
+	struct xfs_buf		*bp,
+	const char		*rlmsg,
+	const char		*fmt,
+	...)
+{
+	struct xfs_mount	*mp = bp->b_mount;
+	struct va_format	vaf;
+	va_list			args;
+
+	/* use the more aggressive per-target rate limit for buffers */
+	if (!___ratelimit(&bp->b_target->bt_ioerror_rl, rlmsg))
+		return;
+
+	va_start(args, fmt);
+	vaf.fmt = fmt;
+	vaf.va = &args;
+	__xfs_printk(KERN_ALERT, mp, &vaf);
+	va_end(args);
+>>>>>>> upstream/android-13
 }

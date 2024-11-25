@@ -30,6 +30,7 @@
         "EventName": "MACHINE_CLEARS.MEMORY_ORDERING",
         "SampleAfterValue": "200003",
         "BriefDescription": "Machine clears due to memory ordering issue"
+<<<<<<< HEAD
     },
     {
         "CollectPEBSRecord": "1",
@@ -290,5 +291,7 @@
         "SampleAfterValue": "100007",
         "BriefDescription": "Counts demand cacheable data reads of full cache lines that miss the L2 cache and targets non-DRAM system address.",
         "Offcore": "1"
+=======
+>>>>>>> upstream/android-13
     }
 ]

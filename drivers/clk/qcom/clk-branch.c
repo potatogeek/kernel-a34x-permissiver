@@ -18,7 +18,11 @@ static bool clk_branch_in_hwcg_mode(const struct clk_branch *br)
 	u32 val;
 
 	if (!br->hwcg_reg)
+<<<<<<< HEAD
 		return 0;
+=======
+		return false;
+>>>>>>> upstream/android-13
 
 	regmap_read(br->clkr.regmap, br->hwcg_reg, &val);
 
@@ -146,6 +150,15 @@ const struct clk_ops clk_branch2_ops = {
 };
 EXPORT_SYMBOL_GPL(clk_branch2_ops);
 
+<<<<<<< HEAD
+=======
+const struct clk_ops clk_branch2_aon_ops = {
+	.enable = clk_branch2_enable,
+	.is_enabled = clk_is_enabled_regmap,
+};
+EXPORT_SYMBOL_GPL(clk_branch2_aon_ops);
+
+>>>>>>> upstream/android-13
 const struct clk_ops clk_branch_simple_ops = {
 	.enable = clk_enable_regmap,
 	.disable = clk_disable_regmap,

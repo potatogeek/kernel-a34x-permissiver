@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  *  GPIO interface for Intel Sodaville SoCs.
  *
  *  Copyright (c) 2010, 2011 Intel Corporation
  *
  *  Author: Hans J. Koch <hjk@linutronix.de>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License 2 as published
@@ -21,6 +26,20 @@
 #include <linux/platform_device.h>
 #include <linux/of_irq.h>
 #include <linux/gpio/driver.h>
+=======
+ */
+
+#include <linux/errno.h>
+#include <linux/gpio/driver.h>
+#include <linux/init.h>
+#include <linux/interrupt.h>
+#include <linux/io.h>
+#include <linux/irq.h>
+#include <linux/kernel.h>
+#include <linux/of_irq.h>
+#include <linux/pci.h>
+#include <linux/platform_device.h>
+>>>>>>> upstream/android-13
 
 #define DRV_NAME		"sdv_gpio"
 #define SDV_NUM_PUB_GPIOS	12
@@ -80,18 +99,28 @@ static int sdv_gpio_pub_set_type(struct irq_data *d, unsigned int type)
 static irqreturn_t sdv_gpio_pub_irq_handler(int irq, void *data)
 {
 	struct sdv_gpio_chip_data *sd = data;
+<<<<<<< HEAD
 	u32 irq_stat = readl(sd->gpio_pub_base + GPSTR);
+=======
+	unsigned long irq_stat = readl(sd->gpio_pub_base + GPSTR);
+	int irq_bit;
+>>>>>>> upstream/android-13
 
 	irq_stat &= readl(sd->gpio_pub_base + GPIO_INT);
 	if (!irq_stat)
 		return IRQ_NONE;
 
+<<<<<<< HEAD
 	while (irq_stat) {
 		u32 irq_bit = __fls(irq_stat);
 
 		irq_stat &= ~BIT(irq_bit);
 		generic_handle_irq(irq_find_mapping(sd->id, irq_bit));
 	}
+=======
+	for_each_set_bit(irq_bit, &irq_stat, 32)
+		generic_handle_domain_irq(sd->id, irq_bit);
+>>>>>>> upstream/android-13
 
 	return IRQ_HANDLED;
 }
@@ -155,8 +184,15 @@ static int sdv_register_irqsupport(struct sdv_gpio_chip_data *sd,
 	 * we unmask & ACK the IRQ before the source of the interrupt is gone
 	 * then the interrupt is active again.
 	 */
+<<<<<<< HEAD
 	sd->gc = irq_alloc_generic_chip("sdv-gpio", 1, sd->irq_base,
 			sd->gpio_pub_base, handle_fasteoi_irq);
+=======
+	sd->gc = devm_irq_alloc_generic_chip(&pdev->dev, "sdv-gpio", 1,
+					     sd->irq_base,
+					     sd->gpio_pub_base,
+					     handle_fasteoi_irq);
+>>>>>>> upstream/android-13
 	if (!sd->gc)
 		return -ENOMEM;
 
@@ -186,6 +222,7 @@ static int sdv_gpio_probe(struct pci_dev *pdev,
 					const struct pci_device_id *pci_id)
 {
 	struct sdv_gpio_chip_data *sd;
+<<<<<<< HEAD
 	unsigned long addr;
 	const void *prop;
 	int len;
@@ -219,11 +256,38 @@ static int sdv_gpio_probe(struct pci_dev *pdev,
 		mux_val = of_read_number(prop, 1);
 		writel(mux_val, sd->gpio_pub_base + GPMUXCTL);
 	}
+=======
+	int ret;
+	u32 mux_val;
+
+	sd = devm_kzalloc(&pdev->dev, sizeof(*sd), GFP_KERNEL);
+	if (!sd)
+		return -ENOMEM;
+
+	ret = pcim_enable_device(pdev);
+	if (ret) {
+		dev_err(&pdev->dev, "can't enable device.\n");
+		return ret;
+	}
+
+	ret = pcim_iomap_regions(pdev, 1 << GPIO_BAR, DRV_NAME);
+	if (ret) {
+		dev_err(&pdev->dev, "can't alloc PCI BAR #%d\n", GPIO_BAR);
+		return ret;
+	}
+
+	sd->gpio_pub_base = pcim_iomap_table(pdev)[GPIO_BAR];
+
+	ret = of_property_read_u32(pdev->dev.of_node, "intel,muxctl", &mux_val);
+	if (!ret)
+		writel(mux_val, sd->gpio_pub_base + GPMUXCTL);
+>>>>>>> upstream/android-13
 
 	ret = bgpio_init(&sd->chip, &pdev->dev, 4,
 			sd->gpio_pub_base + GPINR, sd->gpio_pub_base + GPOUTR,
 			NULL, sd->gpio_pub_base + GPOER, NULL, 0);
 	if (ret)
+<<<<<<< HEAD
 		goto unmap;
 	sd->chip.ngpio = SDV_NUM_PUB_GPIOS;
 
@@ -231,15 +295,30 @@ static int sdv_gpio_probe(struct pci_dev *pdev,
 	if (ret < 0) {
 		dev_err(&pdev->dev, "gpiochip_add() failed.\n");
 		goto unmap;
+=======
+		return ret;
+
+	sd->chip.ngpio = SDV_NUM_PUB_GPIOS;
+
+	ret = devm_gpiochip_add_data(&pdev->dev, &sd->chip, sd);
+	if (ret < 0) {
+		dev_err(&pdev->dev, "gpiochip_add() failed.\n");
+		return ret;
+>>>>>>> upstream/android-13
 	}
 
 	ret = sdv_register_irqsupport(sd, pdev);
 	if (ret)
+<<<<<<< HEAD
 		goto unmap;
+=======
+		return ret;
+>>>>>>> upstream/android-13
 
 	pci_set_drvdata(pdev, sd);
 	dev_info(&pdev->dev, "Sodaville GPIO driver registered.\n");
 	return 0;
+<<<<<<< HEAD
 
 unmap:
 	iounmap(sd->gpio_pub_base);
@@ -250,6 +329,8 @@ disable_pci:
 done:
 	kfree(sd);
 	return ret;
+=======
+>>>>>>> upstream/android-13
 }
 
 static const struct pci_device_id sdv_gpio_pci_ids[] = {

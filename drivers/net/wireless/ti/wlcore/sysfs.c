@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * This file is part of wlcore
  *
  * Copyright (C) 2013 Texas Instruments Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,6 +22,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/pm_runtime.h>
@@ -26,9 +33,15 @@
 #include "debug.h"
 #include "sysfs.h"
 
+<<<<<<< HEAD
 static ssize_t wl1271_sysfs_show_bt_coex_state(struct device *dev,
 					       struct device_attribute *attr,
 					       char *buf)
+=======
+static ssize_t bt_coex_state_show(struct device *dev,
+				  struct device_attribute *attr,
+				  char *buf)
+>>>>>>> upstream/android-13
 {
 	struct wl1271 *wl = dev_get_drvdata(dev);
 	ssize_t len;
@@ -44,9 +57,15 @@ static ssize_t wl1271_sysfs_show_bt_coex_state(struct device *dev,
 
 }
 
+<<<<<<< HEAD
 static ssize_t wl1271_sysfs_store_bt_coex_state(struct device *dev,
 						struct device_attribute *attr,
 						const char *buf, size_t count)
+=======
+static ssize_t bt_coex_state_store(struct device *dev,
+				   struct device_attribute *attr,
+				   const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct wl1271 *wl = dev_get_drvdata(dev);
 	unsigned long res;
@@ -85,6 +104,7 @@ static ssize_t wl1271_sysfs_store_bt_coex_state(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(bt_coex_state, 0644,
 		   wl1271_sysfs_show_bt_coex_state,
 		   wl1271_sysfs_store_bt_coex_state);
@@ -92,6 +112,13 @@ static DEVICE_ATTR(bt_coex_state, 0644,
 static ssize_t wl1271_sysfs_show_hw_pg_ver(struct device *dev,
 					   struct device_attribute *attr,
 					   char *buf)
+=======
+static DEVICE_ATTR_RW(bt_coex_state);
+
+static ssize_t hw_pg_ver_show(struct device *dev,
+			      struct device_attribute *attr,
+			      char *buf)
+>>>>>>> upstream/android-13
 {
 	struct wl1271 *wl = dev_get_drvdata(dev);
 	ssize_t len;
@@ -108,13 +135,21 @@ static ssize_t wl1271_sysfs_show_hw_pg_ver(struct device *dev,
 	return len;
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(hw_pg_ver, 0444, wl1271_sysfs_show_hw_pg_ver, NULL);
+=======
+static DEVICE_ATTR_RO(hw_pg_ver);
+>>>>>>> upstream/android-13
 
 static ssize_t wl1271_sysfs_read_fwlog(struct file *filp, struct kobject *kobj,
 				       struct bin_attribute *bin_attr,
 				       char *buffer, loff_t pos, size_t count)
 {
+<<<<<<< HEAD
 	struct device *dev = container_of(kobj, struct device, kobj);
+=======
+	struct device *dev = kobj_to_dev(kobj);
+>>>>>>> upstream/android-13
 	struct wl1271 *wl = dev_get_drvdata(dev);
 	ssize_t len;
 	int ret;

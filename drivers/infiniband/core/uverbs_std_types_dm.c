@@ -30,10 +30,15 @@
  * SOFTWARE.
  */
 
+<<<<<<< HEAD
+=======
+#include "rdma_core.h"
+>>>>>>> upstream/android-13
 #include "uverbs.h"
 #include <rdma/uverbs_std_types.h>
 
 static int uverbs_free_dm(struct ib_uobject *uobject,
+<<<<<<< HEAD
 			  enum rdma_remove_reason why)
 {
 	struct ib_dm *dm = uobject->object;
@@ -49,16 +54,39 @@ static int uverbs_free_dm(struct ib_uobject *uobject,
 static int
 UVERBS_HANDLER(UVERBS_METHOD_DM_ALLOC)(struct ib_uverbs_file *file,
 				       struct uverbs_attr_bundle *attrs)
+=======
+			  enum rdma_remove_reason why,
+			  struct uverbs_attr_bundle *attrs)
+{
+	struct ib_dm *dm = uobject->object;
+
+	if (atomic_read(&dm->usecnt))
+		return -EBUSY;
+
+	return dm->device->ops.dealloc_dm(dm, attrs);
+}
+
+static int UVERBS_HANDLER(UVERBS_METHOD_DM_ALLOC)(
+	struct uverbs_attr_bundle *attrs)
+>>>>>>> upstream/android-13
 {
 	struct ib_dm_alloc_attr attr = {};
 	struct ib_uobject *uobj =
 		uverbs_attr_get(attrs, UVERBS_ATTR_ALLOC_DM_HANDLE)
 			->obj_attr.uobject;
+<<<<<<< HEAD
 	struct ib_device *ib_dev = uobj->context->device;
 	struct ib_dm *dm;
 	int ret;
 
 	if (!ib_dev->alloc_dm)
+=======
+	struct ib_device *ib_dev = attrs->context->device;
+	struct ib_dm *dm;
+	int ret;
+
+	if (!ib_dev->ops.alloc_dm)
+>>>>>>> upstream/android-13
 		return -EOPNOTSUPP;
 
 	ret = uverbs_copy_from(&attr.length, attrs,
@@ -71,7 +99,11 @@ UVERBS_HANDLER(UVERBS_METHOD_DM_ALLOC)(struct ib_uverbs_file *file,
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	dm = ib_dev->alloc_dm(ib_dev, uobj->context, &attr, attrs);
+=======
+	dm = ib_dev->ops.alloc_dm(ib_dev, attrs->context, &attr, attrs);
+>>>>>>> upstream/android-13
 	if (IS_ERR(dm))
 		return PTR_ERR(dm);
 
@@ -109,3 +141,12 @@ DECLARE_UVERBS_NAMED_OBJECT(UVERBS_OBJECT_DM,
 			    UVERBS_TYPE_ALLOC_IDR(uverbs_free_dm),
 			    &UVERBS_METHOD(UVERBS_METHOD_DM_ALLOC),
 			    &UVERBS_METHOD(UVERBS_METHOD_DM_FREE));
+<<<<<<< HEAD
+=======
+
+const struct uapi_definition uverbs_def_obj_dm[] = {
+	UAPI_DEF_CHAIN_OBJ_TREE_NAMED(UVERBS_OBJECT_DM,
+				      UAPI_DEF_OBJ_NEEDS_FN(dealloc_dm)),
+	{}
+};
+>>>>>>> upstream/android-13

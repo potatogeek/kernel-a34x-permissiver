@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * OMAP3/4 Voltage Controller (VC) structure and macro definitions
  *
@@ -9,10 +13,13 @@
  * Copyright (C) 2008, 2011 Nokia Corporation
  * Kalle Jokiniemi
  * Paul Walmsley
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version
  * 2 as published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __ARCH_ARM_MACH_OMAP2_VC_H
 #define __ARCH_ARM_MACH_OMAP2_VC_H
@@ -120,7 +127,11 @@ extern struct omap_vc_param omap4_iva_vc_data;
 extern struct omap_vc_param omap4_core_vc_data;
 
 void omap3_vc_set_pmic_signaling(int core_next_state);
+<<<<<<< HEAD
 
+=======
+void omap4_vc_set_pmic_signaling(int core_next_state);
+>>>>>>> upstream/android-13
 
 void omap_vc_init_channel(struct voltagedomain *voltdm);
 int omap_vc_pre_scale(struct voltagedomain *voltdm,

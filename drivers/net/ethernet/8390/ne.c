@@ -710,7 +710,11 @@ static void ne_block_output(struct net_device *dev, int count,
 retry:
 #endif
 
+<<<<<<< HEAD
 #ifdef NE8390_RW_BUGFIX
+=======
+#ifdef NE_RW_BUGFIX
+>>>>>>> upstream/android-13
 	/* Handle the read-before-write bug the same way as the
 	   Crynwr packet driver -- the NatSemi method doesn't work.
 	   Actually this doesn't always work either, but if you have
@@ -922,6 +926,7 @@ static void __init ne_add_devices(void)
 	}
 }
 
+<<<<<<< HEAD
 #ifdef MODULE
 int __init init_module(void)
 {
@@ -929,6 +934,18 @@ int __init init_module(void)
 	ne_add_devices();
 	retval = platform_driver_probe(&ne_driver, ne_drv_probe);
 	if (retval) {
+=======
+static int __init ne_init(void)
+{
+	int retval;
+
+	if (IS_MODULE(CONFIG_NE2000))
+		ne_add_devices();
+
+	retval = platform_driver_probe(&ne_driver, ne_drv_probe);
+
+	if (IS_MODULE(CONFIG_NE2000) && retval) {
+>>>>>>> upstream/android-13
 		if (io[0] == 0)
 			pr_notice("ne.c: You must supply \"io=0xNNN\""
 			       " value(s) for ISA cards.\n");
@@ -940,6 +957,7 @@ int __init init_module(void)
 	ne_loop_rm_unreg(0);
 	return retval;
 }
+<<<<<<< HEAD
 #else /* MODULE */
 static int __init ne_init(void)
 {
@@ -951,6 +969,11 @@ static int __init ne_init(void)
 }
 module_init(ne_init);
 
+=======
+module_init(ne_init);
+
+#if !defined(MODULE) && defined(CONFIG_NETDEV_LEGACY_INIT)
+>>>>>>> upstream/android-13
 struct net_device * __init ne_probe(int unit)
 {
 	int this_dev;
@@ -991,7 +1014,11 @@ struct net_device * __init ne_probe(int unit)
 
 	return ERR_PTR(-ENODEV);
 }
+<<<<<<< HEAD
 #endif /* MODULE */
+=======
+#endif
+>>>>>>> upstream/android-13
 
 static void __exit ne_exit(void)
 {

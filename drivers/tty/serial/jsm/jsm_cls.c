@@ -397,10 +397,15 @@ static void cls_copy_data_from_uart_to_queue(struct jsm_channel *ch)
 		 * which in this case is the break signal.
 		 */
 		if (linestatus & error_mask)  {
+<<<<<<< HEAD
 			u8 discard;
 
 			linestatus = 0;
 			discard = readb(&ch->ch_cls_uart->txrx);
+=======
+			linestatus = 0;
+			readb(&ch->ch_cls_uart->txrx);
+>>>>>>> upstream/android-13
 			continue;
 		}
 

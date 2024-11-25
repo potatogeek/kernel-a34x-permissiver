@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	i6300esb:	Watchdog timer driver for Intel 6300ESB chipset
  *
  *	(c) Copyright 2004 Google Inc.
  *	(c) Copyright 2005 David Härdeman <david@2gen.com>
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *	based on i810-tco.c which is in turn based on softdog.c
  *
  *	The timer is implemented in the following I/O controller hubs:
@@ -311,10 +318,14 @@ static int esb_probe(struct pci_dev *pdev,
 	edev->wdd.min_timeout = ESB_HEARTBEAT_MIN;
 	edev->wdd.max_timeout = ESB_HEARTBEAT_MAX;
 	edev->wdd.timeout = ESB_HEARTBEAT_DEFAULT;
+<<<<<<< HEAD
 	if (watchdog_init_timeout(&edev->wdd, heartbeat, NULL))
 		dev_info(&pdev->dev,
 			"heartbeat value must be " ESB_HEARTBEAT_RANGE
 			", using %u\n", edev->wdd.timeout);
+=======
+	watchdog_init_timeout(&edev->wdd, heartbeat, NULL);
+>>>>>>> upstream/android-13
 	watchdog_set_nowayout(&edev->wdd, nowayout);
 	watchdog_stop_on_reboot(&edev->wdd);
 	watchdog_stop_on_unregister(&edev->wdd);
@@ -322,6 +333,7 @@ static int esb_probe(struct pci_dev *pdev,
 
 	/* Register the watchdog so that userspace has access to it */
 	ret = watchdog_register_device(&edev->wdd);
+<<<<<<< HEAD
 	if (ret != 0) {
 		dev_err(&pdev->dev,
 			"cannot register watchdog device (err=%d)\n", ret);
@@ -330,6 +342,13 @@ static int esb_probe(struct pci_dev *pdev,
 	dev_info(&pdev->dev,
 		"initialized (0x%p). heartbeat=%d sec (nowayout=%d)\n",
 		edev->base, edev->wdd.timeout, nowayout);
+=======
+	if (ret != 0)
+		goto err_unmap;
+	dev_info(&pdev->dev,
+		"initialized. heartbeat=%d sec (nowayout=%d)\n",
+		edev->wdd.timeout, nowayout);
+>>>>>>> upstream/android-13
 	return 0;
 
 err_unmap:

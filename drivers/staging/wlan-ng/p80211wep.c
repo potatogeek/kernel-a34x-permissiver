@@ -49,6 +49,10 @@
 /*================================================================*/
 /* System Includes */
 
+<<<<<<< HEAD
+=======
+#include <linux/crc32.h>
+>>>>>>> upstream/android-13
 #include <linux/netdevice.h>
 #include <linux/wireless.h>
 #include <linux/random.h>
@@ -61,6 +65,7 @@
 
 #define WEP_KEY(x)       (((x) & 0xC0) >> 6)
 
+<<<<<<< HEAD
 static const u32 wep_crc32_table[256] = {
 	0x00000000L, 0x77073096L, 0xee0e612cL, 0x990951baL, 0x076dc419L,
 	0x706af48fL, 0xe963a535L, 0x9e6495a3L, 0x0edb8832L, 0x79dcb8a4L,
@@ -116,6 +121,8 @@ static const u32 wep_crc32_table[256] = {
 	0x2d02ef8dL
 };
 
+=======
+>>>>>>> upstream/android-13
 /* keylen in bytes! */
 
 int wep_change_key(struct wlandevice *wlandev, int keynum, u8 *key, int keylen)
@@ -184,7 +191,10 @@ int wep_decrypt(struct wlandevice *wlandev, u8 *buf, u32 len, int key_override,
 	}
 
 	/* Apply the RC4 to the data, update the CRC32 */
+<<<<<<< HEAD
 	crc = ~0;
+=======
+>>>>>>> upstream/android-13
 	i = 0;
 	j = 0;
 	for (k = 0; k < len; k++) {
@@ -192,9 +202,14 @@ int wep_decrypt(struct wlandevice *wlandev, u8 *buf, u32 len, int key_override,
 		j = (j + s[i]) & 0xff;
 		swap(i, j);
 		buf[k] ^= s[(s[i] + s[j]) & 0xff];
+<<<<<<< HEAD
 		crc = wep_crc32_table[(crc ^ buf[k]) & 0xff] ^ (crc >> 8);
 	}
 	crc = ~crc;
+=======
+	}
+	crc = ~crc32_le(~0, buf, len);
+>>>>>>> upstream/android-13
 
 	/* now let's check the crc */
 	c_crc[0] = crc;
@@ -257,17 +272,27 @@ int wep_encrypt(struct wlandevice *wlandev, u8 *buf,
 	}
 
 	/* Update CRC32 then apply RC4 to the data */
+<<<<<<< HEAD
 	crc = ~0;
 	i = 0;
 	j = 0;
 	for (k = 0; k < len; k++) {
 		crc = wep_crc32_table[(crc ^ buf[k]) & 0xff] ^ (crc >> 8);
+=======
+	i = 0;
+	j = 0;
+	for (k = 0; k < len; k++) {
+>>>>>>> upstream/android-13
 		i = (i + 1) & 0xff;
 		j = (j + s[i]) & 0xff;
 		swap(i, j);
 		dst[k] = buf[k] ^ s[(s[i] + s[j]) & 0xff];
 	}
+<<<<<<< HEAD
 	crc = ~crc;
+=======
+	crc = ~crc32_le(~0, buf, len);
+>>>>>>> upstream/android-13
 
 	/* now let's encrypt the crc */
 	icv[0] = crc;

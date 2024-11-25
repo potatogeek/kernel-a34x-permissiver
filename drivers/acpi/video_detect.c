@@ -35,9 +35,12 @@
 #include <linux/workqueue.h>
 #include <acpi/video.h>
 
+<<<<<<< HEAD
 ACPI_MODULE_NAME("video");
 #define _COMPONENT		ACPI_VIDEO_COMPONENT
 
+=======
+>>>>>>> upstream/android-13
 void acpi_video_unregister_backlight(void);
 
 static bool backlight_notifier_registered;
@@ -112,7 +115,11 @@ static int video_detect_force_none(const struct dmi_system_id *d)
 static const struct dmi_system_id video_detect_dmi_table[] = {
 	/* On Samsung X360, the BIOS will set a flag (VDRV) if generic
 	 * ACPI backlight device is used. This flag will definitively break
+<<<<<<< HEAD
 	 * the backlight interface (even the vendor interface) untill next
+=======
+	 * the backlight interface (even the vendor interface) until next
+>>>>>>> upstream/android-13
 	 * reboot. It's why we should prevent video.ko from being used here
 	 * and we can't rely on a later call to acpi_video_unregister().
 	 */
@@ -141,6 +148,25 @@ static const struct dmi_system_id video_detect_dmi_table[] = {
 		DMI_MATCH(DMI_PRODUCT_NAME, "UL30A"),
 		},
 	},
+<<<<<<< HEAD
+=======
+	{
+	.callback = video_detect_force_vendor,
+	.ident = "GIGABYTE GB-BXBT-2807",
+	.matches = {
+		DMI_MATCH(DMI_SYS_VENDOR, "GIGABYTE"),
+		DMI_MATCH(DMI_PRODUCT_NAME, "GB-BXBT-2807"),
+		},
+	},
+	{
+	.callback = video_detect_force_vendor,
+	.ident = "Sony VPCEH3U1E",
+	.matches = {
+		DMI_MATCH(DMI_SYS_VENDOR, "Sony Corporation"),
+		DMI_MATCH(DMI_PRODUCT_NAME, "VPCEH3U1E"),
+		},
+	},
+>>>>>>> upstream/android-13
 
 	/*
 	 * These models have a working acpi_video backlight control, and using
@@ -173,6 +199,7 @@ static const struct dmi_system_id video_detect_dmi_table[] = {
 		DMI_MATCH(DMI_PRODUCT_VERSION, "ThinkPad X201s"),
 		},
 	},
+<<<<<<< HEAD
         {
          .callback = video_detect_force_video,
          .ident = "ThinkPad X201T",
@@ -181,6 +208,16 @@ static const struct dmi_system_id video_detect_dmi_table[] = {
                 DMI_MATCH(DMI_PRODUCT_VERSION, "ThinkPad X201T"),
                 },
         },
+=======
+	{
+	 .callback = video_detect_force_video,
+	 .ident = "ThinkPad X201T",
+	 .matches = {
+		DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
+		DMI_MATCH(DMI_PRODUCT_VERSION, "ThinkPad X201T"),
+		},
+	},
+>>>>>>> upstream/android-13
 
 	/* The native backlight controls do not work on some older machines */
 	{
@@ -304,6 +341,25 @@ static const struct dmi_system_id video_detect_dmi_table[] = {
 		},
 	},
 	{
+<<<<<<< HEAD
+=======
+	 .callback = video_detect_force_native,
+	 .ident = "Lenovo E41-25",
+	 .matches = {
+		DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
+		DMI_MATCH(DMI_PRODUCT_NAME, "81FS"),
+		},
+	},
+	{
+	 .callback = video_detect_force_native,
+	 .ident = "Lenovo E41-45",
+	 .matches = {
+		DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
+		DMI_MATCH(DMI_PRODUCT_NAME, "82BK"),
+		},
+	},
+	{
+>>>>>>> upstream/android-13
 	 /* https://bugzilla.redhat.com/show_bug.cgi?id=1217249 */
 	 .callback = video_detect_force_native,
 	 .ident = "Apple MacBook Pro 12,1",
@@ -356,6 +412,108 @@ static const struct dmi_system_id video_detect_dmi_table[] = {
 		DMI_MATCH(DMI_BOARD_NAME, "BA51_MV"),
 		},
 	},
+<<<<<<< HEAD
+=======
+	{
+	.callback = video_detect_force_native,
+	.ident = "ASUSTeK COMPUTER INC. GA401",
+	.matches = {
+		DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+		DMI_MATCH(DMI_PRODUCT_NAME, "GA401"),
+		},
+	},
+	{
+	.callback = video_detect_force_native,
+	.ident = "ASUSTeK COMPUTER INC. GA502",
+	.matches = {
+		DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+		DMI_MATCH(DMI_PRODUCT_NAME, "GA502"),
+		},
+	},
+	{
+	.callback = video_detect_force_native,
+	.ident = "ASUSTeK COMPUTER INC. GA503",
+	.matches = {
+		DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+		DMI_MATCH(DMI_PRODUCT_NAME, "GA503"),
+		},
+	},
+	/*
+	 * Clevo NL5xRU and NL5xNU/TUXEDO Aura 15 Gen1 and Gen2 have both a
+	 * working native and video interface. However the default detection
+	 * mechanism first registers the video interface before unregistering
+	 * it again and switching to the native interface during boot. This
+	 * results in a dangling SBIOS request for backlight change for some
+	 * reason, causing the backlight to switch to ~2% once per boot on the
+	 * first power cord connect or disconnect event. Setting the native
+	 * interface explicitly circumvents this buggy behaviour, by avoiding
+	 * the unregistering process.
+	 */
+	{
+	.callback = video_detect_force_native,
+	.ident = "Clevo NL5xRU",
+	.matches = {
+		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
+		DMI_MATCH(DMI_BOARD_NAME, "NL5xRU"),
+		},
+	},
+	{
+	.callback = video_detect_force_native,
+	.ident = "Clevo NL5xRU",
+	.matches = {
+		DMI_MATCH(DMI_SYS_VENDOR, "SchenkerTechnologiesGmbH"),
+		DMI_MATCH(DMI_BOARD_NAME, "NL5xRU"),
+		},
+	},
+	{
+	.callback = video_detect_force_native,
+	.ident = "Clevo NL5xRU",
+	.matches = {
+		DMI_MATCH(DMI_SYS_VENDOR, "Notebook"),
+		DMI_MATCH(DMI_BOARD_NAME, "NL5xRU"),
+		},
+	},
+	{
+	.callback = video_detect_force_native,
+	.ident = "Clevo NL5xRU",
+	.matches = {
+		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
+		DMI_MATCH(DMI_BOARD_NAME, "AURA1501"),
+		},
+	},
+	{
+	.callback = video_detect_force_native,
+	.ident = "Clevo NL5xRU",
+	.matches = {
+		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
+		DMI_MATCH(DMI_BOARD_NAME, "EDUBOOK1502"),
+		},
+	},
+	{
+	.callback = video_detect_force_native,
+	.ident = "Clevo NL5xNU",
+	.matches = {
+		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
+		DMI_MATCH(DMI_BOARD_NAME, "NL5xNU"),
+		},
+	},
+	{
+	.callback = video_detect_force_native,
+	.ident = "Clevo NL5xNU",
+	.matches = {
+		DMI_MATCH(DMI_SYS_VENDOR, "SchenkerTechnologiesGmbH"),
+		DMI_MATCH(DMI_BOARD_NAME, "NL5xNU"),
+		},
+	},
+	{
+	.callback = video_detect_force_native,
+	.ident = "Clevo NL5xNU",
+	.matches = {
+		DMI_MATCH(DMI_SYS_VENDOR, "Notebook"),
+		DMI_MATCH(DMI_BOARD_NAME, "NL5xNU"),
+		},
+	},
+>>>>>>> upstream/android-13
 
 	/*
 	 * Desktops which falsely report a backlight and which our heuristics

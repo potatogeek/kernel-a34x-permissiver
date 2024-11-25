@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Hardware monitoring driver for PMBus devices
  *
  * Copyright (c) 2010, 2011 Ericsson AB.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -28,6 +35,16 @@
 #include <linux/pmbus.h>
 #include "pmbus.h"
 
+<<<<<<< HEAD
+=======
+struct pmbus_device_info {
+	int pages;
+	u32 flags;
+};
+
+static const struct i2c_device_id pmbus_id[];
+
+>>>>>>> upstream/android-13
 /*
  * Find sensor groups and status registers on each page.
  */
@@ -110,10 +127,17 @@ static int pmbus_identify(struct i2c_client *client,
 			int page;
 
 			for (page = 1; page < PMBUS_PAGES; page++) {
+<<<<<<< HEAD
 				if (pmbus_set_page(client, page) < 0)
 					break;
 			}
 			pmbus_set_page(client, 0);
+=======
+				if (pmbus_set_page(client, page, 0xff) < 0)
+					break;
+			}
+			pmbus_set_page(client, 0, 0xff);
+>>>>>>> upstream/android-13
 			info->pages = page;
 		} else {
 			info->pages = 1;
@@ -123,7 +147,11 @@ static int pmbus_identify(struct i2c_client *client,
 	}
 
 	if (pmbus_check_byte_register(client, 0, PMBUS_VOUT_MODE)) {
+<<<<<<< HEAD
 		int vout_mode;
+=======
+		int vout_mode, i;
+>>>>>>> upstream/android-13
 
 		vout_mode = pmbus_read_byte_data(client, 0, PMBUS_VOUT_MODE);
 		if (vout_mode >= 0 && vout_mode != 0xff) {
@@ -132,7 +160,12 @@ static int pmbus_identify(struct i2c_client *client,
 				break;
 			case 1:
 				info->format[PSC_VOLTAGE_OUT] = vid;
+<<<<<<< HEAD
 				info->vrm_version = vr11;
+=======
+				for (i = 0; i < info->pages; i++)
+					info->vrm_version[i] = vr11;
+>>>>>>> upstream/android-13
 				break;
 			case 2:
 				info->format[PSC_VOLTAGE_OUT] = direct;
@@ -166,24 +199,38 @@ abort:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int pmbus_probe(struct i2c_client *client,
 		       const struct i2c_device_id *id)
+=======
+static int pmbus_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct pmbus_driver_info *info;
 	struct pmbus_platform_data *pdata = NULL;
 	struct device *dev = &client->dev;
+<<<<<<< HEAD
+=======
+	struct pmbus_device_info *device_info;
+>>>>>>> upstream/android-13
 
 	info = devm_kzalloc(dev, sizeof(struct pmbus_driver_info), GFP_KERNEL);
 	if (!info)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	if (!strcmp(id->name, "dps460") || !strcmp(id->name, "dps800") ||
 	    !strcmp(id->name, "sgd009")) {
+=======
+	device_info = (struct pmbus_device_info *)i2c_match_id(pmbus_id, client)->driver_data;
+	if (device_info->flags) {
+>>>>>>> upstream/android-13
 		pdata = devm_kzalloc(dev, sizeof(struct pmbus_platform_data),
 				     GFP_KERNEL);
 		if (!pdata)
 			return -ENOMEM;
 
+<<<<<<< HEAD
 		pdata->flags = PMBUS_SKIP_STATUS_CHECK;
 	}
 
@@ -194,10 +241,43 @@ static int pmbus_probe(struct i2c_client *client,
 	return pmbus_do_probe(client, id, info);
 }
 
+=======
+		pdata->flags = device_info->flags;
+	}
+
+	info->pages = device_info->pages;
+	info->identify = pmbus_identify;
+	dev->platform_data = pdata;
+
+	return pmbus_do_probe(client, info);
+}
+
+static const struct pmbus_device_info pmbus_info_one = {
+	.pages = 1,
+	.flags = 0
+};
+
+static const struct pmbus_device_info pmbus_info_zero = {
+	.pages = 0,
+	.flags = 0
+};
+
+static const struct pmbus_device_info pmbus_info_one_skip = {
+	.pages = 1,
+	.flags = PMBUS_SKIP_STATUS_CHECK
+};
+
+static const struct pmbus_device_info pmbus_info_one_status = {
+	.pages = 1,
+	.flags = PMBUS_READ_STATUS_AFTER_FAILED_CHECK
+};
+
+>>>>>>> upstream/android-13
 /*
  * Use driver_data to set the number of pages supported by the chip.
  */
 static const struct i2c_device_id pmbus_id[] = {
+<<<<<<< HEAD
 	{"adp4000", 1},
 	{"bmr453", 1},
 	{"bmr454", 1},
@@ -217,6 +297,37 @@ static const struct i2c_device_id pmbus_id[] = {
 	{"tps544c20", 1},
 	{"tps544c25", 1},
 	{"udt020", 1},
+=======
+	{"adp4000", (kernel_ulong_t)&pmbus_info_one},
+	{"bmr310", (kernel_ulong_t)&pmbus_info_one_status},
+	{"bmr453", (kernel_ulong_t)&pmbus_info_one},
+	{"bmr454", (kernel_ulong_t)&pmbus_info_one},
+	{"bmr456", (kernel_ulong_t)&pmbus_info_one},
+	{"bmr457", (kernel_ulong_t)&pmbus_info_one},
+	{"bmr458", (kernel_ulong_t)&pmbus_info_one_status},
+	{"bmr480", (kernel_ulong_t)&pmbus_info_one_status},
+	{"bmr490", (kernel_ulong_t)&pmbus_info_one_status},
+	{"bmr491", (kernel_ulong_t)&pmbus_info_one_status},
+	{"bmr492", (kernel_ulong_t)&pmbus_info_one},
+	{"dps460", (kernel_ulong_t)&pmbus_info_one_skip},
+	{"dps650ab", (kernel_ulong_t)&pmbus_info_one_skip},
+	{"dps800", (kernel_ulong_t)&pmbus_info_one_skip},
+	{"max20796", (kernel_ulong_t)&pmbus_info_one},
+	{"mdt040", (kernel_ulong_t)&pmbus_info_one},
+	{"ncp4200", (kernel_ulong_t)&pmbus_info_one},
+	{"ncp4208", (kernel_ulong_t)&pmbus_info_one},
+	{"pdt003", (kernel_ulong_t)&pmbus_info_one},
+	{"pdt006", (kernel_ulong_t)&pmbus_info_one},
+	{"pdt012", (kernel_ulong_t)&pmbus_info_one},
+	{"pmbus", (kernel_ulong_t)&pmbus_info_zero},
+	{"sgd009", (kernel_ulong_t)&pmbus_info_one_skip},
+	{"tps40400", (kernel_ulong_t)&pmbus_info_one},
+	{"tps544b20", (kernel_ulong_t)&pmbus_info_one},
+	{"tps544b25", (kernel_ulong_t)&pmbus_info_one},
+	{"tps544c20", (kernel_ulong_t)&pmbus_info_one},
+	{"tps544c25", (kernel_ulong_t)&pmbus_info_one},
+	{"udt020", (kernel_ulong_t)&pmbus_info_one},
+>>>>>>> upstream/android-13
 	{}
 };
 
@@ -227,8 +338,12 @@ static struct i2c_driver pmbus_driver = {
 	.driver = {
 		   .name = "pmbus",
 		   },
+<<<<<<< HEAD
 	.probe = pmbus_probe,
 	.remove = pmbus_do_remove,
+=======
+	.probe_new = pmbus_probe,
+>>>>>>> upstream/android-13
 	.id_table = pmbus_id,
 };
 
@@ -237,3 +352,7 @@ module_i2c_driver(pmbus_driver);
 MODULE_AUTHOR("Guenter Roeck");
 MODULE_DESCRIPTION("Generic PMBus driver");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(PMBUS);
+>>>>>>> upstream/android-13

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2008-2009 Patrick McHardy <kaber@trash.net>
  *
@@ -5,6 +6,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2008-2009 Patrick McHardy <kaber@trash.net>
+ *
+>>>>>>> upstream/android-13
  * Development of this code funded by Astaro AG (http://www.astaro.com/)
  */
 
@@ -19,16 +26,27 @@
 #include <net/netfilter/nf_tables.h>
 
 struct nft_byteorder {
+<<<<<<< HEAD
 	enum nft_registers	sreg:8;
 	enum nft_registers	dreg:8;
+=======
+	u8			sreg;
+	u8			dreg;
+>>>>>>> upstream/android-13
 	enum nft_byteorder_ops	op:8;
 	u8			len;
 	u8			size;
 };
 
+<<<<<<< HEAD
 static void nft_byteorder_eval(const struct nft_expr *expr,
 			       struct nft_regs *regs,
 			       const struct nft_pktinfo *pkt)
+=======
+void nft_byteorder_eval(const struct nft_expr *expr,
+			struct nft_regs *regs,
+			const struct nft_pktinfo *pkt)
+>>>>>>> upstream/android-13
 {
 	const struct nft_byteorder *priv = nft_expr_priv(expr);
 	u32 *src = &regs->data[priv->sreg];
@@ -46,14 +64,25 @@ static void nft_byteorder_eval(const struct nft_expr *expr,
 		switch (priv->op) {
 		case NFT_BYTEORDER_NTOH:
 			for (i = 0; i < priv->len / 8; i++) {
+<<<<<<< HEAD
 				src64 = get_unaligned((u64 *)&src[i]);
 				put_unaligned_be64(src64, &dst[i]);
+=======
+				src64 = nft_reg_load64(&src[i]);
+				nft_reg_store64(&dst[i], be64_to_cpu(src64));
+>>>>>>> upstream/android-13
 			}
 			break;
 		case NFT_BYTEORDER_HTON:
 			for (i = 0; i < priv->len / 8; i++) {
+<<<<<<< HEAD
 				src64 = get_unaligned_be64(&src[i]);
 				put_unaligned(src64, (u64 *)&dst[i]);
+=======
+				src64 = (__force __u64)
+					cpu_to_be64(nft_reg_load64(&src[i]));
+				nft_reg_store64(&dst[i], src64);
+>>>>>>> upstream/android-13
 			}
 			break;
 		}
@@ -133,13 +162,17 @@ static int nft_byteorder_init(const struct nft_ctx *ctx,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	priv->sreg = nft_parse_register(tb[NFTA_BYTEORDER_SREG]);
+=======
+>>>>>>> upstream/android-13
 	err = nft_parse_u32_check(tb[NFTA_BYTEORDER_LEN], U8_MAX, &len);
 	if (err < 0)
 		return err;
 
 	priv->len = len;
 
+<<<<<<< HEAD
 	err = nft_validate_register_load(priv->sreg, priv->len);
 	if (err < 0)
 		return err;
@@ -147,6 +180,16 @@ static int nft_byteorder_init(const struct nft_ctx *ctx,
 	priv->dreg = nft_parse_register(tb[NFTA_BYTEORDER_DREG]);
 	return nft_validate_register_store(ctx, priv->dreg, NULL,
 					   NFT_DATA_VALUE, priv->len);
+=======
+	err = nft_parse_register_load(tb[NFTA_BYTEORDER_SREG], &priv->sreg,
+				      priv->len);
+	if (err < 0)
+		return err;
+
+	return nft_parse_register_store(ctx, tb[NFTA_BYTEORDER_DREG],
+					&priv->dreg, NULL, NFT_DATA_VALUE,
+					priv->len);
+>>>>>>> upstream/android-13
 }
 
 static int nft_byteorder_dump(struct sk_buff *skb, const struct nft_expr *expr)

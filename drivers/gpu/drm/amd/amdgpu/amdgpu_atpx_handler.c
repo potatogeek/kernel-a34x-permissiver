@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2010 Red Hat Inc.
  * Author : Dave Airlie <airlied@redhat.com>
  *
+<<<<<<< HEAD
  * Licensed under GPLv2
  *
+=======
+>>>>>>> upstream/android-13
  * ATPX support for both Intel/ATI
  */
 #include <linux/vga_switcheroo.h>
@@ -617,7 +624,11 @@ static bool amdgpu_atpx_detect(void)
 	while ((pdev = pci_get_class(PCI_CLASS_DISPLAY_VGA << 8, pdev)) != NULL) {
 		vga_count++;
 
+<<<<<<< HEAD
 		has_atpx |= (amdgpu_atpx_pci_probe_handle(pdev) == true);
+=======
+		has_atpx |= amdgpu_atpx_pci_probe_handle(pdev);
+>>>>>>> upstream/android-13
 
 		parent_pdev = pci_upstream_bridge(pdev);
 		d3_supported |= parent_pdev && parent_pdev->bridge_d3;
@@ -627,7 +638,11 @@ static bool amdgpu_atpx_detect(void)
 	while ((pdev = pci_get_class(PCI_CLASS_DISPLAY_OTHER << 8, pdev)) != NULL) {
 		vga_count++;
 
+<<<<<<< HEAD
 		has_atpx |= (amdgpu_atpx_pci_probe_handle(pdev) == true);
+=======
+		has_atpx |= amdgpu_atpx_pci_probe_handle(pdev);
+>>>>>>> upstream/android-13
 
 		parent_pdev = pci_upstream_bridge(pdev);
 		d3_supported |= parent_pdev && parent_pdev->bridge_d3;

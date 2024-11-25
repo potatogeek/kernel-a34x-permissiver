@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  Texas Instruments' Bluetooth HCILL UART protocol
  *
@@ -11,6 +15,7 @@
  *  Acknowledgements:
  *  This file is based on hci_h4.c, which was written
  *  by Maxim Krasnyansky and Marcel Holtmann.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2
@@ -25,6 +30,8 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -141,6 +148,10 @@ static int ll_open(struct hci_uart *hu)
 
 	if (hu->serdev) {
 		struct ll_device *lldev = serdev_device_get_drvdata(hu->serdev);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		if (!IS_ERR(lldev->ext_clk))
 			clk_prepare_enable(lldev->ext_clk);
 	}
@@ -175,6 +186,10 @@ static int ll_close(struct hci_uart *hu)
 
 	if (hu->serdev) {
 		struct ll_device *lldev = serdev_device_get_drvdata(hu->serdev);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		gpiod_set_value_cansleep(lldev->enable_gpio, 0);
 
 		clk_disable_unprepare(lldev->ext_clk);
@@ -230,7 +245,11 @@ static void ll_device_want_to_wakeup(struct hci_uart *hu)
 		 * perfectly safe to always send one.
 		 */
 		BT_DBG("dual wake-up-indication");
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case HCILL_ASLEEP:
 		/* acknowledge device wake up */
 		if (send_hcill_cmd(HCILL_WAKE_UP_ACK, hu) < 0) {
@@ -240,7 +259,12 @@ static void ll_device_want_to_wakeup(struct hci_uart *hu)
 		break;
 	default:
 		/* any other state is illegal */
+<<<<<<< HEAD
 		BT_ERR("received HCILL_WAKE_UP_IND in state %ld", ll->hcill_state);
+=======
+		BT_ERR("received HCILL_WAKE_UP_IND in state %ld",
+		       ll->hcill_state);
+>>>>>>> upstream/android-13
 		break;
 	}
 
@@ -269,7 +293,12 @@ static void ll_device_want_to_sleep(struct hci_uart *hu)
 
 	/* sanity check */
 	if (ll->hcill_state != HCILL_AWAKE)
+<<<<<<< HEAD
 		BT_ERR("ERR: HCILL_GO_TO_SLEEP_IND in state %ld", ll->hcill_state);
+=======
+		BT_ERR("ERR: HCILL_GO_TO_SLEEP_IND in state %ld",
+		       ll->hcill_state);
+>>>>>>> upstream/android-13
 
 	/* acknowledge device sleep */
 	if (send_hcill_cmd(HCILL_GO_TO_SLEEP_ACK, hu) < 0) {
@@ -302,7 +331,12 @@ static void ll_device_woke_up(struct hci_uart *hu)
 
 	/* sanity check */
 	if (ll->hcill_state != HCILL_ASLEEP_TO_AWAKE)
+<<<<<<< HEAD
 		BT_ERR("received HCILL_WAKE_UP_ACK in state %ld", ll->hcill_state);
+=======
+		BT_ERR("received HCILL_WAKE_UP_ACK in state %ld",
+		       ll->hcill_state);
+>>>>>>> upstream/android-13
 
 	/* send pending packets and change state to HCILL_AWAKE */
 	__ll_do_awake(ll);
@@ -351,7 +385,12 @@ static int ll_enqueue(struct hci_uart *hu, struct sk_buff *skb)
 		skb_queue_tail(&ll->tx_wait_q, skb);
 		break;
 	default:
+<<<<<<< HEAD
 		BT_ERR("illegal hcill state: %ld (losing packet)", ll->hcill_state);
+=======
+		BT_ERR("illegal hcill state: %ld (losing packet)",
+		       ll->hcill_state);
+>>>>>>> upstream/android-13
 		kfree_skb(skb);
 		break;
 	}
@@ -451,6 +490,10 @@ static int ll_recv(struct hci_uart *hu, const void *data, int count)
 static struct sk_buff *ll_dequeue(struct hci_uart *hu)
 {
 	struct ll_struct *ll = hu->priv;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	return skb_dequeue(&ll->txq);
 }
 
@@ -462,7 +505,12 @@ static int read_local_version(struct hci_dev *hdev)
 	struct sk_buff *skb;
 	struct hci_rp_read_local_version *ver;
 
+<<<<<<< HEAD
 	skb = __hci_cmd_sync(hdev, HCI_OP_READ_LOCAL_VERSION, 0, NULL, HCI_INIT_TIMEOUT);
+=======
+	skb = __hci_cmd_sync(hdev, HCI_OP_READ_LOCAL_VERSION, 0, NULL,
+			     HCI_INIT_TIMEOUT);
+>>>>>>> upstream/android-13
 	if (IS_ERR(skb)) {
 		bt_dev_err(hdev, "Reading TI version information failed (%ld)",
 			   PTR_ERR(skb));
@@ -482,11 +530,45 @@ static int read_local_version(struct hci_dev *hdev)
 	version = le16_to_cpu(ver->lmp_subver);
 
 out:
+<<<<<<< HEAD
 	if (err) bt_dev_err(hdev, "Failed to read TI version info: %d", err);
+=======
+	if (err)
+		bt_dev_err(hdev, "Failed to read TI version info: %d", err);
+>>>>>>> upstream/android-13
 	kfree_skb(skb);
 	return err ? err : version;
 }
 
+<<<<<<< HEAD
+=======
+static int send_command_from_firmware(struct ll_device *lldev,
+				      struct hci_command *cmd)
+{
+	struct sk_buff *skb;
+
+	if (cmd->opcode == HCI_VS_UPDATE_UART_HCI_BAUDRATE) {
+		/* ignore remote change
+		 * baud rate HCI VS command
+		 */
+		bt_dev_warn(lldev->hu.hdev,
+			    "change remote baud rate command in firmware");
+		return 0;
+	}
+	if (cmd->prefix != 1)
+		bt_dev_dbg(lldev->hu.hdev, "command type %d", cmd->prefix);
+
+	skb = __hci_cmd_sync(lldev->hu.hdev, cmd->opcode, cmd->plen,
+			     &cmd->speed, HCI_INIT_TIMEOUT);
+	if (IS_ERR(skb)) {
+		bt_dev_err(lldev->hu.hdev, "send command failed");
+		return PTR_ERR(skb);
+	}
+	kfree_skb(skb);
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /**
  * download_firmware -
  *	internal function which parses through the .bts firmware
@@ -499,7 +581,10 @@ static int download_firmware(struct ll_device *lldev)
 	unsigned char *ptr, *action_ptr;
 	unsigned char bts_scr_name[40];	/* 40 char long bts scr name? */
 	const struct firmware *fw;
+<<<<<<< HEAD
 	struct sk_buff *skb;
+=======
+>>>>>>> upstream/android-13
 	struct hci_command *cmd;
 
 	version = read_local_version(lldev->hu.hdev);
@@ -541,6 +626,7 @@ static int download_firmware(struct ll_device *lldev)
 		case ACTION_SEND_COMMAND:	/* action send */
 			bt_dev_dbg(lldev->hu.hdev, "S");
 			cmd = (struct hci_command *)action_ptr;
+<<<<<<< HEAD
 			if (cmd->opcode == HCI_VS_UPDATE_UART_HCI_BAUDRATE) {
 				/* ignore remote change
 				 * baud rate HCI VS command
@@ -558,6 +644,11 @@ static int download_firmware(struct ll_device *lldev)
 				goto out_rel_fw;
 			}
 			kfree_skb(skb);
+=======
+			err = send_command_from_firmware(lldev, cmd);
+			if (err)
+				goto out_rel_fw;
+>>>>>>> upstream/android-13
 			break;
 		case ACTION_WAIT_EVENT:  /* wait */
 			/* no need to wait as command was synchronous */
@@ -619,6 +710,10 @@ static int ll_setup(struct hci_uart *hu)
 		gpiod_set_value_cansleep(lldev->enable_gpio, 0);
 		msleep(5);
 		gpiod_set_value_cansleep(lldev->enable_gpio, 1);
+<<<<<<< HEAD
+=======
+		mdelay(100);
+>>>>>>> upstream/android-13
 		err = serdev_device_wait_for_cts(serdev, true, 200);
 		if (err) {
 			bt_dev_err(hu->hdev, "Failed to get CTS");
@@ -689,7 +784,13 @@ static int hci_ti_probe(struct serdev_device *serdev)
 	serdev_device_set_drvdata(serdev, lldev);
 	lldev->serdev = hu->serdev = serdev;
 
+<<<<<<< HEAD
 	lldev->enable_gpio = devm_gpiod_get_optional(&serdev->dev, "enable", GPIOD_OUT_LOW);
+=======
+	lldev->enable_gpio = devm_gpiod_get_optional(&serdev->dev,
+						     "enable",
+						     GPIOD_OUT_LOW);
+>>>>>>> upstream/android-13
 	if (IS_ERR(lldev->enable_gpio))
 		return PTR_ERR(lldev->enable_gpio);
 

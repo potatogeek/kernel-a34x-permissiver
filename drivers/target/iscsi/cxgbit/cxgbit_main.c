@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016 Chelsio Communications, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2016 Chelsio Communications, Inc.
+>>>>>>> upstream/android-13
  */
 
 #define DRV_NAME "cxgbit"
@@ -447,7 +453,11 @@ cxgbit_uld_lro_rx_handler(void *hndl, const __be64 *rsp,
 	case CPL_RX_ISCSI_DDP:
 	case CPL_FW4_ACK:
 		lro_flush = false;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case CPL_ABORT_RPL_RSS:
 	case CPL_PASS_ESTABLISH:
 	case CPL_PEER_CLOSE:
@@ -592,7 +602,12 @@ static void cxgbit_dcb_workfn(struct work_struct *work)
 	iscsi_app = &dcb_work->dcb_app;
 
 	if (iscsi_app->dcbx & DCB_CAP_DCBX_VER_IEEE) {
+<<<<<<< HEAD
 		if (iscsi_app->app.selector != IEEE_8021QAZ_APP_SEL_ANY)
+=======
+		if ((iscsi_app->app.selector != IEEE_8021QAZ_APP_SEL_STREAM) &&
+		    (iscsi_app->app.selector != IEEE_8021QAZ_APP_SEL_ANY))
+>>>>>>> upstream/android-13
 			goto out;
 
 		priority = iscsi_app->app.priority;
@@ -678,7 +693,11 @@ static struct iscsit_transport cxgbit_transport = {
 	.iscsit_get_r2t_ttt	= cxgbit_get_r2t_ttt,
 	.iscsit_get_rx_pdu	= cxgbit_get_rx_pdu,
 	.iscsit_validate_params	= cxgbit_validate_params,
+<<<<<<< HEAD
 	.iscsit_release_cmd	= cxgbit_release_cmd,
+=======
+	.iscsit_unmap_cmd	= cxgbit_unmap_cmd,
+>>>>>>> upstream/android-13
 	.iscsit_aborted_task	= iscsit_aborted_task,
 	.iscsit_get_sup_prot_ops = cxgbit_get_sup_prot_ops,
 };
@@ -710,7 +729,11 @@ static int __init cxgbit_init(void)
 	pr_info("%s dcb enabled.\n", DRV_NAME);
 	register_dcbevent_notifier(&cxgbit_dcbevent_nb);
 #endif
+<<<<<<< HEAD
 	BUILD_BUG_ON(FIELD_SIZEOF(struct sk_buff, cb) <
+=======
+	BUILD_BUG_ON(sizeof_field(struct sk_buff, cb) <
+>>>>>>> upstream/android-13
 		     sizeof(union cxgbit_skb_cb));
 	return 0;
 }

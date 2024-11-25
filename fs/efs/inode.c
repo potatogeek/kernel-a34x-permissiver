@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * inode.c
  *
@@ -310,3 +314,7 @@ efs_block_t efs_map_block(struct inode *inode, efs_block_t block) {
 }  
 
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13

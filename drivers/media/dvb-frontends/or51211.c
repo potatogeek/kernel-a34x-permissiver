@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *    Support for OR51211 (pcHDTV HD-2000) - VSB
  *
@@ -5,6 +9,7 @@
  *
  *    Based on code from Jack Kelliher (kelliher@xmission.com)
  *                           Copyright (C) 2002 & pcHDTV, inc.
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
 */
 
 #define pr_fmt(fmt)	KBUILD_MODNAME ": %s: " fmt, __func__
@@ -59,7 +66,11 @@ struct or51211_state {
 
 	/* Demodulator private data */
 	u8 initialized:1;
+<<<<<<< HEAD
 	u32 snr; /* Result of last SNR claculation */
+=======
+	u32 snr; /* Result of last SNR calculation */
+>>>>>>> upstream/android-13
 
 	/* Tuner private data */
 	u32 current_frequency;

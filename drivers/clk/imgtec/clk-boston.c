@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016-2017 Imagination Technologies
  * Author: Paul Burton <paul.burton@mips.com>
@@ -6,6 +7,12 @@
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2016-2017 Imagination Technologies
+ * Author: Paul Burton <paul.burton@mips.com>
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "clk-boston: " fmt
@@ -62,8 +69,12 @@ static void __init clk_boston_setup(struct device_node *np)
 	cpu_div = ext_field(mmcmdiv, BOSTON_PLAT_MMCMDIV_CLK1DIV);
 	cpu_freq = mult_frac(in_freq, mul, cpu_div);
 
+<<<<<<< HEAD
 	onecell = kzalloc(sizeof(*onecell) +
 			  (BOSTON_CLK_COUNT * sizeof(struct clk_hw *)),
+=======
+	onecell = kzalloc(struct_size(onecell, hws, BOSTON_CLK_COUNT),
+>>>>>>> upstream/android-13
 			  GFP_KERNEL);
 	if (!onecell)
 		return;

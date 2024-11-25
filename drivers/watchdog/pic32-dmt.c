@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * PIC32 deadman timer driver
  *
  * Purna Chandra Mandal <purna.mandal@microchip.com>
  * Copyright (c) 2016, Microchip Technology Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/clk.h>
 #include <linux/device.h>
@@ -168,6 +175,7 @@ static struct watchdog_device pic32_dmt_wdd = {
 	.ops		= &pic32_dmt_fops,
 };
 
+<<<<<<< HEAD
 static int pic32_dmt_probe(struct platform_device *pdev)
 {
 	int ret;
@@ -187,12 +195,38 @@ static int pic32_dmt_probe(struct platform_device *pdev)
 	dmt->clk = devm_clk_get(&pdev->dev, NULL);
 	if (IS_ERR(dmt->clk)) {
 		dev_err(&pdev->dev, "clk not found\n");
+=======
+static void pic32_clk_disable_unprepare(void *data)
+{
+	clk_disable_unprepare(data);
+}
+
+static int pic32_dmt_probe(struct platform_device *pdev)
+{
+	struct device *dev = &pdev->dev;
+	int ret;
+	struct pic32_dmt *dmt;
+	struct watchdog_device *wdd = &pic32_dmt_wdd;
+
+	dmt = devm_kzalloc(dev, sizeof(*dmt), GFP_KERNEL);
+	if (!dmt)
+		return -ENOMEM;
+
+	dmt->regs = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(dmt->regs))
+		return PTR_ERR(dmt->regs);
+
+	dmt->clk = devm_clk_get(dev, NULL);
+	if (IS_ERR(dmt->clk)) {
+		dev_err(dev, "clk not found\n");
+>>>>>>> upstream/android-13
 		return PTR_ERR(dmt->clk);
 	}
 
 	ret = clk_prepare_enable(dmt->clk);
 	if (ret)
 		return ret;
+<<<<<<< HEAD
 
 	wdd->timeout = pic32_dmt_get_timeout_secs(dmt);
 	if (!wdd->timeout) {
@@ -203,12 +237,27 @@ static int pic32_dmt_probe(struct platform_device *pdev)
 	}
 
 	dev_info(&pdev->dev, "timeout %d\n", wdd->timeout);
+=======
+	ret = devm_add_action_or_reset(dev, pic32_clk_disable_unprepare,
+				       dmt->clk);
+	if (ret)
+		return ret;
+
+	wdd->timeout = pic32_dmt_get_timeout_secs(dmt);
+	if (!wdd->timeout) {
+		dev_err(dev, "failed to read watchdog register timeout\n");
+		return -EINVAL;
+	}
+
+	dev_info(dev, "timeout %d\n", wdd->timeout);
+>>>>>>> upstream/android-13
 
 	wdd->bootstatus = pic32_dmt_bootstatus(dmt) ? WDIOF_CARDRESET : 0;
 
 	watchdog_set_nowayout(wdd, WATCHDOG_NOWAYOUT);
 	watchdog_set_drvdata(wdd, dmt);
 
+<<<<<<< HEAD
 	ret = watchdog_register_device(wdd);
 	if (ret) {
 		dev_err(&pdev->dev, "watchdog register failed, err %d\n", ret);
@@ -232,6 +281,14 @@ static int pic32_dmt_remove(struct platform_device *pdev)
 	clk_disable_unprepare(dmt->clk);
 
 	return 0;
+=======
+	ret = devm_watchdog_register_device(dev, wdd);
+	if (ret)
+		return ret;
+
+	platform_set_drvdata(pdev, wdd);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static const struct of_device_id pic32_dmt_of_ids[] = {
@@ -242,7 +299,10 @@ MODULE_DEVICE_TABLE(of, pic32_dmt_of_ids);
 
 static struct platform_driver pic32_dmt_driver = {
 	.probe		= pic32_dmt_probe,
+<<<<<<< HEAD
 	.remove		= pic32_dmt_remove,
+=======
+>>>>>>> upstream/android-13
 	.driver		= {
 		.name		= "pic32-dmt",
 		.of_match_table = of_match_ptr(pic32_dmt_of_ids),

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * \file r128_ioc32.c
  *
  * 32-bit ioctl compatibility routines for the R128 DRM.
@@ -29,10 +33,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
+<<<<<<< HEAD
 #include <linux/compat.h>
 
 #include <drm/drmP.h>
 #include <drm/r128_drm.h>
+=======
+
+#include <linux/compat.h>
+
+#include <drm/r128_drm.h>
+
+>>>>>>> upstream/android-13
 #include "r128_drv.h"
 
 typedef struct drm_r128_init32 {
@@ -169,6 +181,7 @@ drm_ioctl_compat_t *r128_compat_ioctls[] = {
 };
 
 /**
+<<<<<<< HEAD
  * Called whenever a 32-bit process running under a 64-bit kernel
  * performs an ioctl on /dev/dri/card<n>.
  *
@@ -176,6 +189,15 @@ drm_ioctl_compat_t *r128_compat_ioctls[] = {
  * \param cmd command.
  * \param arg user argument.
  * \return zero on success or negative number on failure.
+=======
+ * r128_compat_ioctl - Called whenever a 32-bit process running under
+ *                     a 64-bit kernel performs an ioctl on /dev/dri/card<n>.
+ *
+ * @filp: file pointer.
+ * @cmd: command.
+ * @arg: user argument.
+ * return: zero on success or negative number on failure.
+>>>>>>> upstream/android-13
  */
 long r128_compat_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 {

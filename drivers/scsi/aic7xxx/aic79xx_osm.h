@@ -242,7 +242,11 @@ struct ahd_linux_device {
 	int			active;
 
 	/*
+<<<<<<< HEAD
 	 * The currently allowed number of 
+=======
+	 * The currently allowed number of
+>>>>>>> upstream/android-13
 	 * transactions that can be queued to
 	 * the device.  Must be signed for
 	 * conversion from tagged to untagged
@@ -256,7 +260,11 @@ struct ahd_linux_device {
 	 * device's queue is halted.
 	 */
 	u_int			qfrozen;
+<<<<<<< HEAD
 	
+=======
+
+>>>>>>> upstream/android-13
 	/*
 	 * Cumulative command counter.
 	 */
@@ -340,11 +348,19 @@ struct ahd_platform_data {
 	/*
 	 * Fields accessed from interrupt context.
 	 */
+<<<<<<< HEAD
 	struct scsi_target *starget[AHD_NUM_TARGETS]; 
 
 	spinlock_t		 spin_lock;
 	struct completion	*eh_done;
 	struct Scsi_Host        *host;		/* pointer to scsi host */
+=======
+	struct scsi_target *starget[AHD_NUM_TARGETS];
+
+	spinlock_t		 spin_lock;
+	struct completion	*eh_done;
+	struct Scsi_Host	*host;		/* pointer to scsi host */
+>>>>>>> upstream/android-13
 #define AHD_LINUX_NOIRQ	((uint32_t)~0)
 	uint32_t		 irq;		/* IRQ for this adapter */
 	uint32_t		 bios_address;
@@ -497,6 +513,7 @@ int	ahd_proc_write_seeprom(struct Scsi_Host *, char *, int);
 int	ahd_linux_show_info(struct seq_file *,struct Scsi_Host *);
 
 /*********************** Transaction Access Wrappers **************************/
+<<<<<<< HEAD
 static inline void ahd_cmd_set_transaction_status(struct scsi_cmnd *, uint32_t);
 static inline void ahd_set_transaction_status(struct scb *, uint32_t);
 static inline void ahd_cmd_set_scsi_status(struct scsi_cmnd *, uint32_t);
@@ -520,6 +537,8 @@ static inline void ahd_notify_xfer_settings_change(struct ahd_softc *,
 static inline void ahd_platform_scb_free(struct ahd_softc *ahd,
 					   struct scb *scb);
 static inline void ahd_freeze_scb(struct scb *scb);
+=======
+>>>>>>> upstream/android-13
 
 static inline
 void ahd_cmd_set_transaction_status(struct scsi_cmnd *cmd, uint32_t status)
@@ -655,9 +674,15 @@ static inline void
 ahd_freeze_scb(struct scb *scb)
 {
 	if ((scb->io_ctx->result & (CAM_DEV_QFRZN << 16)) == 0) {
+<<<<<<< HEAD
                 scb->io_ctx->result |= CAM_DEV_QFRZN << 16;
                 scb->platform_data->dev->qfrozen++;
         }
+=======
+		scb->io_ctx->result |= CAM_DEV_QFRZN << 16;
+		scb->platform_data->dev->qfrozen++;
+	}
+>>>>>>> upstream/android-13
 }
 
 void	ahd_platform_set_tags(struct ahd_softc *ahd, struct scsi_device *sdev,

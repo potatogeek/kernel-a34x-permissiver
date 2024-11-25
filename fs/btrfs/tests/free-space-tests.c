@@ -8,6 +8,10 @@
 #include "../ctree.h"
 #include "../disk-io.h"
 #include "../free-space-cache.h"
+<<<<<<< HEAD
+=======
+#include "../block-group.h"
+>>>>>>> upstream/android-13
 
 #define BITS_PER_BITMAP		(PAGE_SIZE * 8UL)
 
@@ -16,7 +20,11 @@
  * entry and remove space from either end and the middle, and make sure we can
  * remove space that covers adjacent extent entries.
  */
+<<<<<<< HEAD
 static int test_extents(struct btrfs_block_group_cache *cache)
+=======
+static int test_extents(struct btrfs_block_group *cache)
+>>>>>>> upstream/android-13
 {
 	int ret = 0;
 
@@ -86,8 +94,12 @@ static int test_extents(struct btrfs_block_group_cache *cache)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int test_bitmaps(struct btrfs_block_group_cache *cache,
 			u32 sectorsize)
+=======
+static int test_bitmaps(struct btrfs_block_group *cache, u32 sectorsize)
+>>>>>>> upstream/android-13
 {
 	u64 next_bitmap_offset;
 	int ret;
@@ -155,7 +167,11 @@ static int test_bitmaps(struct btrfs_block_group_cache *cache,
 }
 
 /* This is the high grade jackassery */
+<<<<<<< HEAD
 static int test_bitmaps_and_extents(struct btrfs_block_group_cache *cache,
+=======
+static int test_bitmaps_and_extents(struct btrfs_block_group *cache,
+>>>>>>> upstream/android-13
 				    u32 sectorsize)
 {
 	u64 bitmap_offset = (u64)(BITS_PER_BITMAP * sectorsize);
@@ -330,7 +346,11 @@ static bool test_use_bitmap(struct btrfs_free_space_ctl *ctl,
 
 /* Used by test_steal_space_from_bitmap_to_extent(). */
 static int
+<<<<<<< HEAD
 check_num_extents_and_bitmaps(const struct btrfs_block_group_cache *cache,
+=======
+check_num_extents_and_bitmaps(const struct btrfs_block_group *cache,
+>>>>>>> upstream/android-13
 			      const int num_extents,
 			      const int num_bitmaps)
 {
@@ -350,7 +370,11 @@ check_num_extents_and_bitmaps(const struct btrfs_block_group_cache *cache,
 }
 
 /* Used by test_steal_space_from_bitmap_to_extent(). */
+<<<<<<< HEAD
 static int check_cache_empty(struct btrfs_block_group_cache *cache)
+=======
+static int check_cache_empty(struct btrfs_block_group *cache)
+>>>>>>> upstream/android-13
 {
 	u64 offset;
 	u64 max_extent_size;
@@ -392,19 +416,30 @@ static int check_cache_empty(struct btrfs_block_group_cache *cache)
  * requests.
  */
 static int
+<<<<<<< HEAD
 test_steal_space_from_bitmap_to_extent(struct btrfs_block_group_cache *cache,
+=======
+test_steal_space_from_bitmap_to_extent(struct btrfs_block_group *cache,
+>>>>>>> upstream/android-13
 				       u32 sectorsize)
 {
 	int ret;
 	u64 offset;
 	u64 max_extent_size;
 	const struct btrfs_free_space_op test_free_space_ops = {
+<<<<<<< HEAD
 		.recalc_thresholds = cache->free_space_ctl->op->recalc_thresholds,
+=======
+>>>>>>> upstream/android-13
 		.use_bitmap = test_use_bitmap,
 	};
 	const struct btrfs_free_space_op *orig_free_space_ops;
 
+<<<<<<< HEAD
 	test_msg("running space stealing from bitmap to extent");
+=======
+	test_msg("running space stealing from bitmap to extent tests");
+>>>>>>> upstream/android-13
 
 	/*
 	 * For this test, we want to ensure we end up with an extent entry
@@ -828,15 +863,26 @@ test_steal_space_from_bitmap_to_extent(struct btrfs_block_group_cache *cache,
 int btrfs_test_free_space_cache(u32 sectorsize, u32 nodesize)
 {
 	struct btrfs_fs_info *fs_info;
+<<<<<<< HEAD
 	struct btrfs_block_group_cache *cache;
+=======
+	struct btrfs_block_group *cache;
+>>>>>>> upstream/android-13
 	struct btrfs_root *root = NULL;
 	int ret = -ENOMEM;
 
 	test_msg("running btrfs free space cache tests");
 	fs_info = btrfs_alloc_dummy_fs_info(nodesize, sectorsize);
+<<<<<<< HEAD
 	if (!fs_info)
 		return -ENOMEM;
 
+=======
+	if (!fs_info) {
+		test_std_err(TEST_ALLOC_FS_INFO);
+		return -ENOMEM;
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * For ppc64 (with 64k page size), bytes per bitmap might be
@@ -846,13 +892,21 @@ int btrfs_test_free_space_cache(u32 sectorsize, u32 nodesize)
 	cache = btrfs_alloc_dummy_block_group(fs_info,
 				      BITS_PER_BITMAP * sectorsize + PAGE_SIZE);
 	if (!cache) {
+<<<<<<< HEAD
 		test_err("couldn't run the tests");
+=======
+		test_std_err(TEST_ALLOC_BLOCK_GROUP);
+>>>>>>> upstream/android-13
 		btrfs_free_dummy_fs_info(fs_info);
 		return 0;
 	}
 
 	root = btrfs_alloc_dummy_root(fs_info);
 	if (IS_ERR(root)) {
+<<<<<<< HEAD
+=======
+		test_std_err(TEST_ALLOC_ROOT);
+>>>>>>> upstream/android-13
 		ret = PTR_ERR(root);
 		goto out;
 	}
@@ -874,6 +928,9 @@ out:
 	btrfs_free_dummy_block_group(cache);
 	btrfs_free_dummy_root(root);
 	btrfs_free_dummy_fs_info(fs_info);
+<<<<<<< HEAD
 	test_msg("free space cache tests finished");
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }

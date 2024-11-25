@@ -15,7 +15,11 @@ used by the apr service device.
 		   example "qcom,q6core-v2.0"
 
 = EXAMPLE
+<<<<<<< HEAD
 q6core@3 {
+=======
+apr-service@3 {
+>>>>>>> upstream/android-13
 	compatible = "qcom,q6core";
 	reg = <APR_SVC_ADSP_CORE>;
 };

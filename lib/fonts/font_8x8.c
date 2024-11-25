@@ -2578,6 +2578,10 @@ const struct font_desc font_vga_8x8 = {
 	.name	= "VGA8x8",
 	.width	= 8,
 	.height	= 8,
+<<<<<<< HEAD
+=======
+	.charcount = 256,
+>>>>>>> upstream/android-13
 	.data	= fontdata_8x8.data,
 	.pref	= 0,
 };

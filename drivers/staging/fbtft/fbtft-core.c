@@ -16,15 +16,25 @@
 #include <linux/slab.h>
 #include <linux/init.h>
 #include <linux/fb.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/spi/spi.h>
 #include <linux/delay.h>
 #include <linux/uaccess.h>
 #include <linux/backlight.h>
 #include <linux/platform_device.h>
+<<<<<<< HEAD
 #include <linux/spinlock.h>
 #include <linux/of.h>
 #include <linux/of_gpio.h>
+=======
+#include <linux/property.h>
+#include <linux/spinlock.h>
+
+>>>>>>> upstream/android-13
 #include <video/mipi_display.h>
 
 #include "fbtft.h"
@@ -38,8 +48,12 @@ int fbtft_write_buf_dc(struct fbtft_par *par, void *buf, size_t len, int dc)
 {
 	int ret;
 
+<<<<<<< HEAD
 	if (gpio_is_valid(par->gpio.dc))
 		gpio_set_value(par->gpio.dc, dc);
+=======
+	gpiod_set_value(par->gpio.dc, dc);
+>>>>>>> upstream/android-13
 
 	ret = par->fbtftops.write(par, buf, len);
 	if (ret < 0)
@@ -71,6 +85,7 @@ void fbtft_dbg_hex(const struct device *dev, int groupsize,
 }
 EXPORT_SYMBOL(fbtft_dbg_hex);
 
+<<<<<<< HEAD
 static unsigned long fbtft_request_gpios_match(struct fbtft_par *par,
 					       const struct fbtft_gpio *gpio)
 {
@@ -152,10 +167,26 @@ static int fbtft_request_gpios(struct fbtft_par *par)
 		}
 		gpio++;
 	}
+=======
+static int fbtft_request_one_gpio(struct fbtft_par *par,
+				  const char *name, int index,
+				  struct gpio_desc **gpiop)
+{
+	struct device *dev = par->info->device;
+
+	*gpiop = devm_gpiod_get_index_optional(dev, name, index,
+					       GPIOD_OUT_LOW);
+	if (IS_ERR(*gpiop))
+		return dev_err_probe(dev, PTR_ERR(*gpiop), "Failed to request %s GPIO\n", name);
+
+	fbtft_par_dbg(DEBUG_REQUEST_GPIOS, par, "%s: '%s' GPIO\n",
+		      __func__, name);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF
 static int fbtft_request_one_gpio(struct fbtft_par *par,
 				  const char *name, int index, int *gpiop)
@@ -198,10 +229,14 @@ static int fbtft_request_one_gpio(struct fbtft_par *par,
 }
 
 static int fbtft_request_gpios_dt(struct fbtft_par *par)
+=======
+static int fbtft_request_gpios(struct fbtft_par *par)
+>>>>>>> upstream/android-13
 {
 	int i;
 	int ret;
 
+<<<<<<< HEAD
 	if (!par->info->device->of_node)
 		return -EINVAL;
 
@@ -233,6 +268,36 @@ static int fbtft_request_gpios_dt(struct fbtft_par *par)
 		if (ret)
 			return ret;
 		ret = fbtft_request_one_gpio(par, "aux-gpios", i,
+=======
+	ret = fbtft_request_one_gpio(par, "reset", 0, &par->gpio.reset);
+	if (ret)
+		return ret;
+	ret = fbtft_request_one_gpio(par, "dc", 0, &par->gpio.dc);
+	if (ret)
+		return ret;
+	ret = fbtft_request_one_gpio(par, "rd", 0, &par->gpio.rd);
+	if (ret)
+		return ret;
+	ret = fbtft_request_one_gpio(par, "wr", 0, &par->gpio.wr);
+	if (ret)
+		return ret;
+	ret = fbtft_request_one_gpio(par, "cs", 0, &par->gpio.cs);
+	if (ret)
+		return ret;
+	ret = fbtft_request_one_gpio(par, "latch", 0, &par->gpio.latch);
+	if (ret)
+		return ret;
+	for (i = 0; i < 16; i++) {
+		ret = fbtft_request_one_gpio(par, "db", i,
+					     &par->gpio.db[i]);
+		if (ret)
+			return ret;
+		ret = fbtft_request_one_gpio(par, "led", i,
+					     &par->gpio.led[i]);
+		if (ret)
+			return ret;
+		ret = fbtft_request_one_gpio(par, "aux", i,
+>>>>>>> upstream/android-13
 					     &par->gpio.aux[i]);
 		if (ret)
 			return ret;
@@ -240,9 +305,13 @@ static int fbtft_request_gpios_dt(struct fbtft_par *par)
 
 	return 0;
 }
+<<<<<<< HEAD
 #endif
 
 #ifdef CONFIG_FB_BACKLIGHT
+=======
+
+>>>>>>> upstream/android-13
 static int fbtft_backlight_update_status(struct backlight_device *bd)
 {
 	struct fbtft_par *par = bl_get_data(bd);
@@ -254,9 +323,15 @@ static int fbtft_backlight_update_status(struct backlight_device *bd)
 
 	if ((bd->props.power == FB_BLANK_UNBLANK) &&
 	    (bd->props.fb_blank == FB_BLANK_UNBLANK))
+<<<<<<< HEAD
 		gpio_set_value(par->gpio.led[0], polarity);
 	else
 		gpio_set_value(par->gpio.led[0], !polarity);
+=======
+		gpiod_set_value(par->gpio.led[0], polarity);
+	else
+		gpiod_set_value(par->gpio.led[0], !polarity);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -275,6 +350,10 @@ void fbtft_unregister_backlight(struct fbtft_par *par)
 		par->info->bl_dev = NULL;
 	}
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL(fbtft_unregister_backlight);
+>>>>>>> upstream/android-13
 
 static const struct backlight_ops fbtft_bl_ops = {
 	.get_brightness	= fbtft_backlight_get_brightness,
@@ -286,7 +365,11 @@ void fbtft_register_backlight(struct fbtft_par *par)
 	struct backlight_device *bd;
 	struct backlight_properties bl_props = { 0, };
 
+<<<<<<< HEAD
 	if (par->gpio.led[0] == -1) {
+=======
+	if (!par->gpio.led[0]) {
+>>>>>>> upstream/android-13
 		fbtft_par_dbg(DEBUG_BACKLIGHT, par,
 			      "%s(): led pin not set, exiting.\n", __func__);
 		return;
@@ -295,7 +378,11 @@ void fbtft_register_backlight(struct fbtft_par *par)
 	bl_props.type = BACKLIGHT_RAW;
 	/* Assume backlight is off, get polarity from current state of pin */
 	bl_props.power = FB_BLANK_POWERDOWN;
+<<<<<<< HEAD
 	if (!gpio_get_value(par->gpio.led[0]))
+=======
+	if (!gpiod_get_value(par->gpio.led[0]))
+>>>>>>> upstream/android-13
 		par->polarity = true;
 
 	bd = backlight_device_register(dev_driver_string(par->info->device),
@@ -312,12 +399,16 @@ void fbtft_register_backlight(struct fbtft_par *par)
 	if (!par->fbtftops.unregister_backlight)
 		par->fbtftops.unregister_backlight = fbtft_unregister_backlight;
 }
+<<<<<<< HEAD
 #else
 void fbtft_register_backlight(struct fbtft_par *par) { };
 void fbtft_unregister_backlight(struct fbtft_par *par) { };
 #endif
 EXPORT_SYMBOL(fbtft_register_backlight);
 EXPORT_SYMBOL(fbtft_unregister_backlight);
+=======
+EXPORT_SYMBOL(fbtft_register_backlight);
+>>>>>>> upstream/android-13
 
 static void fbtft_set_addr_win(struct fbtft_par *par, int xs, int ys, int xe,
 			       int ye)
@@ -333,6 +424,7 @@ static void fbtft_set_addr_win(struct fbtft_par *par, int xs, int ys, int xe,
 
 static void fbtft_reset(struct fbtft_par *par)
 {
+<<<<<<< HEAD
 	if (par->gpio.reset == -1)
 		return;
 	fbtft_par_dbg(DEBUG_RESET, par, "%s()\n", __func__);
@@ -340,6 +432,19 @@ static void fbtft_reset(struct fbtft_par *par)
 	usleep_range(20, 40);
 	gpio_set_value_cansleep(par->gpio.reset, 1);
 	msleep(120);
+=======
+	if (!par->gpio.reset)
+		return;
+
+	fbtft_par_dbg(DEBUG_RESET, par, "%s()\n", __func__);
+
+	gpiod_set_value_cansleep(par->gpio.reset, 1);
+	usleep_range(20, 40);
+	gpiod_set_value_cansleep(par->gpio.reset, 0);
+	msleep(120);
+
+	gpiod_set_value_cansleep(par->gpio.cs, 1);  /* Activate chip */
+>>>>>>> upstream/android-13
 }
 
 static void fbtft_update_display(struct fbtft_par *par, unsigned int start_line,
@@ -422,7 +527,11 @@ static void fbtft_mkdirty(struct fb_info *info, int y, int height)
 	/* special case, needed ? */
 	if (y == -1) {
 		y = 0;
+<<<<<<< HEAD
 		height = info->var.yres - 1;
+=======
+		height = info->var.yres;
+>>>>>>> upstream/android-13
 	}
 
 	/* Mark display lines/area as dirty */
@@ -538,9 +647,15 @@ static unsigned int chan_to_field(unsigned int chan, struct fb_bitfield *bf)
 	return chan << bf->offset;
 }
 
+<<<<<<< HEAD
 static int fbtft_fb_setcolreg(unsigned int regno, unsigned int red, unsigned int green,
 			      unsigned int blue, unsigned int transp,
 			      struct fb_info *info)
+=======
+static int fbtft_fb_setcolreg(unsigned int regno, unsigned int red,
+			      unsigned int green, unsigned int blue,
+			      unsigned int transp, struct fb_info *info)
+>>>>>>> upstream/android-13
 {
 	unsigned int val;
 	int ret = 1;
@@ -634,6 +749,10 @@ static void fbtft_merge_fbtftops(struct fbtft_ops *dst, struct fbtft_ops *src)
  *
  * @display: pointer to structure describing the display
  * @dev: pointer to the device for this fb, this can be NULL
+<<<<<<< HEAD
+=======
+ * @pdata: platform data for the display in use
+>>>>>>> upstream/android-13
  *
  * Creates a new frame buffer info structure.
  *
@@ -663,7 +782,11 @@ struct fb_info *fbtft_framebuffer_alloc(struct fbtft_display *display,
 	int txbuflen = display->txbuflen;
 	unsigned int bpp = display->bpp;
 	unsigned int fps = display->fps;
+<<<<<<< HEAD
 	int vmem_size, i;
+=======
+	int vmem_size;
+>>>>>>> upstream/android-13
 	const s16 *init_sequence = display->init_sequence;
 	char *gamma = display->gamma;
 	u32 *gamma_curves = NULL;
@@ -841,6 +964,7 @@ struct fb_info *fbtft_framebuffer_alloc(struct fbtft_display *display,
 		par->txbuf.len = txbuflen;
 	}
 
+<<<<<<< HEAD
 	/* Initialize gpios to disabled */
 	par->gpio.reset = -1;
 	par->gpio.dc = -1;
@@ -854,6 +978,8 @@ struct fb_info *fbtft_framebuffer_alloc(struct fbtft_display *display,
 		par->gpio.aux[i] = -1;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/* default fbtft operations */
 	par->fbtftops.write = fbtft_write_spi;
 	par->fbtftops.read = fbtft_read_spi;
@@ -863,7 +989,10 @@ struct fb_info *fbtft_framebuffer_alloc(struct fbtft_display *display,
 	par->fbtftops.reset = fbtft_reset;
 	par->fbtftops.mkdirty = fbtft_mkdirty;
 	par->fbtftops.update_display = fbtft_update_display;
+<<<<<<< HEAD
 	par->fbtftops.request_gpios = fbtft_request_gpios;
+=======
+>>>>>>> upstream/android-13
 	if (display->backlight)
 		par->fbtftops.register_backlight = fbtft_register_backlight;
 
@@ -976,13 +1105,19 @@ int fbtft_register_framebuffer(struct fb_info *fb_info)
 		 fb_info->fix.smem_len >> 10, text1,
 		 HZ / fb_info->fbdefio->delay, text2);
 
+<<<<<<< HEAD
 #ifdef CONFIG_FB_BACKLIGHT
+=======
+>>>>>>> upstream/android-13
 	/* Turn on backlight if available */
 	if (fb_info->bl_dev) {
 		fb_info->bl_dev->props.power = FB_BLANK_UNBLANK;
 		fb_info->bl_dev->ops->update_status(fb_info->bl_dev);
 	}
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -1010,6 +1145,7 @@ int fbtft_unregister_framebuffer(struct fb_info *fb_info)
 	if (par->fbtftops.unregister_backlight)
 		par->fbtftops.unregister_backlight(par);
 	fbtft_sysfs_exit(par);
+<<<<<<< HEAD
 	return unregister_framebuffer(fb_info);
 }
 EXPORT_SYMBOL(fbtft_unregister_framebuffer);
@@ -1017,10 +1153,21 @@ EXPORT_SYMBOL(fbtft_unregister_framebuffer);
 #ifdef CONFIG_OF
 /**
  * fbtft_init_display_dt() - Device Tree init_display() function
+=======
+	unregister_framebuffer(fb_info);
+
+	return 0;
+}
+EXPORT_SYMBOL(fbtft_unregister_framebuffer);
+
+/**
+ * fbtft_init_display_from_property() - Device Tree init_display() function
+>>>>>>> upstream/android-13
  * @par: Driver data
  *
  * Return: 0 if successful, negative if error
  */
+<<<<<<< HEAD
 static int fbtft_init_display_dt(struct fbtft_par *par)
 {
 	struct device_node *node = par->info->device->of_node;
@@ -1054,6 +1201,48 @@ static int fbtft_init_display_dt(struct fbtft_par *par)
 				}
 				buf[i++] = val;
 				p = of_prop_next_u32(prop, p, &val);
+=======
+static int fbtft_init_display_from_property(struct fbtft_par *par)
+{
+	struct device *dev = par->info->device;
+	int buf[64], count, index, i, j, ret;
+	u32 *values;
+	u32 val;
+
+	count = device_property_count_u32(dev, "init");
+	if (count < 0)
+		return count;
+	if (count == 0)
+		return -EINVAL;
+
+	values = kmalloc_array(count + 1, sizeof(*values), GFP_KERNEL);
+	if (!values)
+		return -ENOMEM;
+
+	ret = device_property_read_u32_array(dev, "init", values, count);
+	if (ret)
+		goto out_free;
+
+	par->fbtftops.reset(par);
+
+	index = -1;
+	val = values[++index];
+
+	while (index < count) {
+		if (val & FBTFT_OF_INIT_CMD) {
+			val &= 0xFFFF;
+			i = 0;
+			while ((index < count) && !(val & 0xFFFF0000)) {
+				if (i > 63) {
+					dev_err(dev,
+						"%s: Maximum register values exceeded\n",
+						__func__);
+					ret = -EINVAL;
+					goto out_free;
+				}
+				buf[i++] = val;
+				val = values[++index];
+>>>>>>> upstream/android-13
 			}
 			/* make debug message */
 			fbtft_par_dbg(DEBUG_INIT_DISPLAY, par,
@@ -1083,6 +1272,7 @@ static int fbtft_init_display_dt(struct fbtft_par *par)
 			fbtft_par_dbg(DEBUG_INIT_DISPLAY, par,
 				      "init: msleep(%u)\n", val & 0xFFFF);
 			msleep(val & 0xFFFF);
+<<<<<<< HEAD
 			p = of_prop_next_u32(prop, p, &val);
 		} else {
 			dev_err(par->info->device, "illegal init value 0x%X\n",
@@ -1094,6 +1284,20 @@ static int fbtft_init_display_dt(struct fbtft_par *par)
 	return 0;
 }
 #endif
+=======
+			val = values[++index];
+		} else {
+			dev_err(dev, "illegal init value 0x%X\n", val);
+			ret = -EINVAL;
+			goto out_free;
+		}
+	}
+
+out_free:
+	kfree(values);
+	return ret;
+}
+>>>>>>> upstream/android-13
 
 /**
  * fbtft_init_display() - Generic init_display() function
@@ -1106,9 +1310,13 @@ static int fbtft_init_display_dt(struct fbtft_par *par)
 int fbtft_init_display(struct fbtft_par *par)
 {
 	int buf[64];
+<<<<<<< HEAD
 	char msg[128];
 	char str[16];
 	int i = 0;
+=======
+	int i;
+>>>>>>> upstream/android-13
 	int j;
 
 	/* sanity check */
@@ -1119,9 +1327,17 @@ int fbtft_init_display(struct fbtft_par *par)
 	}
 
 	/* make sure stop marker exists */
+<<<<<<< HEAD
 	for (i = 0; i < FBTFT_MAX_INIT_SEQUENCE; i++)
 		if (par->init_sequence[i] == -3)
 			break;
+=======
+	for (i = 0; i < FBTFT_MAX_INIT_SEQUENCE; i++) {
+		if (par->init_sequence[i] == -3)
+			break;
+	}
+
+>>>>>>> upstream/android-13
 	if (i == FBTFT_MAX_INIT_SEQUENCE) {
 		dev_err(par->info->device,
 			"missing stop marker at end of init sequence\n");
@@ -1129,8 +1345,11 @@ int fbtft_init_display(struct fbtft_par *par)
 	}
 
 	par->fbtftops.reset(par);
+<<<<<<< HEAD
 	if (par->gpio.cs != -1)
 		gpio_set_value(par->gpio.cs, 0);  /* Activate chip */
+=======
+>>>>>>> upstream/android-13
 
 	i = 0;
 	while (i < FBTFT_MAX_INIT_SEQUENCE) {
@@ -1152,6 +1371,7 @@ int fbtft_init_display(struct fbtft_par *par)
 		switch (par->init_sequence[i]) {
 		case -1:
 			i++;
+<<<<<<< HEAD
 			/* make debug message */
 			strcpy(msg, "");
 			j = i + 1;
@@ -1163,6 +1383,16 @@ int fbtft_init_display(struct fbtft_par *par)
 			fbtft_par_dbg(DEBUG_INIT_DISPLAY, par,
 				      "init: write(0x%02X) %s\n",
 				      par->init_sequence[i], msg);
+=======
+
+			/* make debug message */
+			for (j = 0; par->init_sequence[i + 1 + j] >= 0; j++);
+
+			fbtft_par_dbg(DEBUG_INIT_DISPLAY, par,
+				      "init: write(0x%02X) %*ph\n",
+				      par->init_sequence[i], j,
+				      &par->init_sequence[i + 1]);
+>>>>>>> upstream/android-13
 
 			/* Write */
 			j = 0;
@@ -1230,7 +1460,11 @@ static int fbtft_verify_gpios(struct fbtft_par *par)
 	fbtft_par_dbg(DEBUG_VERIFY_GPIOS, par, "%s()\n", __func__);
 
 	if (pdata->display.buswidth != 9 &&  par->startbyte == 0 &&
+<<<<<<< HEAD
 	    par->gpio.dc < 0) {
+=======
+	    !par->gpio.dc) {
+>>>>>>> upstream/android-13
 		dev_err(par->info->device,
 			"Missing info about 'dc' gpio. Aborting.\n");
 		return -EINVAL;
@@ -1239,12 +1473,20 @@ static int fbtft_verify_gpios(struct fbtft_par *par)
 	if (!par->pdev)
 		return 0;
 
+<<<<<<< HEAD
 	if (par->gpio.wr < 0) {
+=======
+	if (!par->gpio.wr) {
+>>>>>>> upstream/android-13
 		dev_err(par->info->device, "Missing 'wr' gpio. Aborting.\n");
 		return -EINVAL;
 	}
 	for (i = 0; i < pdata->display.buswidth; i++) {
+<<<<<<< HEAD
 		if (par->gpio.db[i] < 0) {
+=======
+		if (!par->gpio.db[i]) {
+>>>>>>> upstream/android-13
 			dev_err(par->info->device,
 				"Missing 'db%02d' gpio. Aborting.\n", i);
 			return -EINVAL;
@@ -1254,20 +1496,32 @@ static int fbtft_verify_gpios(struct fbtft_par *par)
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF
 /* returns 0 if the property is not present */
 static u32 fbtft_of_value(struct device_node *node, const char *propname)
+=======
+/* returns 0 if the property is not present */
+static u32 fbtft_property_value(struct device *dev, const char *propname)
+>>>>>>> upstream/android-13
 {
 	int ret;
 	u32 val = 0;
 
+<<<<<<< HEAD
 	ret = of_property_read_u32(node, propname, &val);
 	if (ret == 0)
 		pr_info("%s: %s = %u\n", __func__, propname, val);
+=======
+	ret = device_property_read_u32(dev, propname, &val);
+	if (ret == 0)
+		dev_info(dev, "%s: %s = %u\n", __func__, propname, val);
+>>>>>>> upstream/android-13
 
 	return val;
 }
 
+<<<<<<< HEAD
 static struct fbtft_platform_data *fbtft_probe_dt(struct device *dev)
 {
 	struct device_node *node = dev->of_node;
@@ -1275,6 +1529,14 @@ static struct fbtft_platform_data *fbtft_probe_dt(struct device *dev)
 
 	if (!node) {
 		dev_err(dev, "Missing platform data or DT\n");
+=======
+static struct fbtft_platform_data *fbtft_properties_read(struct device *dev)
+{
+	struct fbtft_platform_data *pdata;
+
+	if (!dev_fwnode(dev)) {
+		dev_err(dev, "Missing platform data or properties\n");
+>>>>>>> upstream/android-13
 		return ERR_PTR(-EINVAL);
 	}
 
@@ -1282,6 +1544,7 @@ static struct fbtft_platform_data *fbtft_probe_dt(struct device *dev)
 	if (!pdata)
 		return ERR_PTR(-ENOMEM);
 
+<<<<<<< HEAD
 	pdata->display.width = fbtft_of_value(node, "width");
 	pdata->display.height = fbtft_of_value(node, "height");
 	pdata->display.regwidth = fbtft_of_value(node, "regwidth");
@@ -1311,6 +1574,32 @@ static struct fbtft_platform_data *fbtft_probe_dt(struct device *dev)
 	return ERR_PTR(-EINVAL);
 }
 #endif
+=======
+	pdata->display.width = fbtft_property_value(dev, "width");
+	pdata->display.height = fbtft_property_value(dev, "height");
+	pdata->display.regwidth = fbtft_property_value(dev, "regwidth");
+	pdata->display.buswidth = fbtft_property_value(dev, "buswidth");
+	pdata->display.backlight = fbtft_property_value(dev, "backlight");
+	pdata->display.bpp = fbtft_property_value(dev, "bpp");
+	pdata->display.debug = fbtft_property_value(dev, "debug");
+	pdata->rotate = fbtft_property_value(dev, "rotate");
+	pdata->bgr = device_property_read_bool(dev, "bgr");
+	pdata->fps = fbtft_property_value(dev, "fps");
+	pdata->txbuflen = fbtft_property_value(dev, "txbuflen");
+	pdata->startbyte = fbtft_property_value(dev, "startbyte");
+	device_property_read_string(dev, "gamma", (const char **)&pdata->gamma);
+
+	if (device_property_present(dev, "led-gpios"))
+		pdata->display.backlight = 1;
+	if (device_property_present(dev, "init"))
+		pdata->display.fbtftops.init_display =
+			fbtft_init_display_from_property;
+
+	pdata->display.fbtftops.request_gpios = fbtft_request_gpios;
+
+	return pdata;
+}
+>>>>>>> upstream/android-13
 
 /**
  * fbtft_probe_common() - Generic device probe() helper function
@@ -1344,7 +1633,11 @@ int fbtft_probe_common(struct fbtft_display *display,
 
 	pdata = dev->platform_data;
 	if (!pdata) {
+<<<<<<< HEAD
 		pdata = fbtft_probe_dt(dev);
+=======
+		pdata = fbtft_properties_read(dev);
+>>>>>>> upstream/android-13
 		if (IS_ERR(pdata))
 			return PTR_ERR(pdata);
 	}

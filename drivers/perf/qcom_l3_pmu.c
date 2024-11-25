@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver for the L3 cache PMUs in Qualcomm Technologies chips.
  *
@@ -7,6 +11,7 @@
  * the slices. User space needs to aggregate to individual counts to provide
  * a global picture.
  *
+<<<<<<< HEAD
  * See Documentation/perf/qcom_l3_pmu.txt for more details.
  *
  * Copyright (c) 2015-2017, The Linux Foundation. All rights reserved.
@@ -19,6 +24,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+ * See Documentation/admin-guide/perf/qcom_l3_pmu.rst for more details.
+ *
+ * Copyright (c) 2015-2017, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/acpi.h>
@@ -495,6 +505,7 @@ static int qcom_l3_cache__event_init(struct perf_event *event)
 		return -ENOENT;
 
 	/*
+<<<<<<< HEAD
 	 * There are no per-counter mode filters in the PMU.
 	 */
 	if (event->attr.exclude_user || event->attr.exclude_kernel ||
@@ -502,6 +513,8 @@ static int qcom_l3_cache__event_init(struct perf_event *event)
 		return -EINVAL;
 
 	/*
+=======
+>>>>>>> upstream/android-13
 	 * Sampling not supported since these events are not core-attributable.
 	 */
 	if (hwc->sample_period)
@@ -630,7 +643,11 @@ static ssize_t l3cache_pmu_format_show(struct device *dev,
 	struct dev_ext_attribute *eattr;
 
 	eattr = container_of(attr, struct dev_ext_attribute, attr);
+<<<<<<< HEAD
 	return sprintf(buf, "%s\n", (char *) eattr->var);
+=======
+	return sysfs_emit(buf, "%s\n", (char *) eattr->var);
+>>>>>>> upstream/android-13
 }
 
 #define L3CACHE_PMU_FORMAT_ATTR(_name, _config)				      \
@@ -645,7 +662,11 @@ static struct attribute *qcom_l3_cache_pmu_formats[] = {
 	NULL,
 };
 
+<<<<<<< HEAD
 static struct attribute_group qcom_l3_cache_pmu_format_group = {
+=======
+static const struct attribute_group qcom_l3_cache_pmu_format_group = {
+>>>>>>> upstream/android-13
 	.name = "format",
 	.attrs = qcom_l3_cache_pmu_formats,
 };
@@ -658,6 +679,7 @@ static ssize_t l3cache_pmu_event_show(struct device *dev,
 	struct perf_pmu_events_attr *pmu_attr;
 
 	pmu_attr = container_of(attr, struct perf_pmu_events_attr, attr);
+<<<<<<< HEAD
 	return sprintf(page, "event=0x%02llx\n", pmu_attr->id);
 }
 
@@ -666,6 +688,13 @@ static ssize_t l3cache_pmu_event_show(struct device *dev,
 		{ .attr = __ATTR(_name, 0444, l3cache_pmu_event_show, NULL), \
 		  .id = _id, }						     \
 	})[0].attr.attr)
+=======
+	return sysfs_emit(page, "event=0x%02llx\n", pmu_attr->id);
+}
+
+#define L3CACHE_EVENT_ATTR(_name, _id)					     \
+	PMU_EVENT_ATTR_ID(_name, l3cache_pmu_event_show, _id)
+>>>>>>> upstream/android-13
 
 static struct attribute *qcom_l3_cache_pmu_events[] = {
 	L3CACHE_EVENT_ATTR(cycles, L3_EVENT_CYCLES),
@@ -678,29 +707,46 @@ static struct attribute *qcom_l3_cache_pmu_events[] = {
 	NULL
 };
 
+<<<<<<< HEAD
 static struct attribute_group qcom_l3_cache_pmu_events_group = {
+=======
+static const struct attribute_group qcom_l3_cache_pmu_events_group = {
+>>>>>>> upstream/android-13
 	.name = "events",
 	.attrs = qcom_l3_cache_pmu_events,
 };
 
 /* cpumask */
 
+<<<<<<< HEAD
 static ssize_t qcom_l3_cache_pmu_cpumask_show(struct device *dev,
 				     struct device_attribute *attr, char *buf)
+=======
+static ssize_t cpumask_show(struct device *dev,
+			    struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct l3cache_pmu *l3pmu = to_l3cache_pmu(dev_get_drvdata(dev));
 
 	return cpumap_print_to_pagebuf(true, buf, &l3pmu->cpumask);
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(cpumask, 0444, qcom_l3_cache_pmu_cpumask_show, NULL);
+=======
+static DEVICE_ATTR_RO(cpumask);
+>>>>>>> upstream/android-13
 
 static struct attribute *qcom_l3_cache_pmu_cpumask_attrs[] = {
 	&dev_attr_cpumask.attr,
 	NULL,
 };
 
+<<<<<<< HEAD
 static struct attribute_group qcom_l3_cache_pmu_cpumask_attr_group = {
+=======
+static const struct attribute_group qcom_l3_cache_pmu_cpumask_attr_group = {
+>>>>>>> upstream/android-13
 	.attrs = qcom_l3_cache_pmu_cpumask_attrs,
 };
 
@@ -777,14 +823,23 @@ static int qcom_l3_cache_pmu_probe(struct platform_device *pdev)
 		.read		= qcom_l3_cache__event_read,
 
 		.attr_groups	= qcom_l3_cache_pmu_attr_grps,
+<<<<<<< HEAD
+=======
+		.capabilities	= PERF_PMU_CAP_NO_EXCLUDE,
+>>>>>>> upstream/android-13
 	};
 
 	memrc = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	l3pmu->regs = devm_ioremap_resource(&pdev->dev, memrc);
+<<<<<<< HEAD
 	if (IS_ERR(l3pmu->regs)) {
 		dev_err(&pdev->dev, "Can't map PMU @%pa\n", &memrc->start);
 		return PTR_ERR(l3pmu->regs);
 	}
+=======
+	if (IS_ERR(l3pmu->regs))
+		return PTR_ERR(l3pmu->regs);
+>>>>>>> upstream/android-13
 
 	qcom_l3_cache__init(l3pmu);
 
@@ -828,6 +883,10 @@ static struct platform_driver qcom_l3_cache_pmu_driver = {
 	.driver = {
 		.name = "qcom-l3cache-pmu",
 		.acpi_match_table = ACPI_PTR(qcom_l3_cache_pmu_acpi_match),
+<<<<<<< HEAD
+=======
+		.suppress_bind_attrs = true,
+>>>>>>> upstream/android-13
 	},
 	.probe = qcom_l3_cache_pmu_probe,
 };

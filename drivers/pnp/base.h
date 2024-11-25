@@ -6,7 +6,10 @@
 
 extern struct mutex pnp_lock;
 extern const struct attribute_group *pnp_dev_groups[];
+<<<<<<< HEAD
 void *pnp_alloc(long size);
+=======
+>>>>>>> upstream/android-13
 
 int pnp_register_protocol(struct pnp_protocol *protocol);
 void pnp_unregister_protocol(struct pnp_protocol *protocol);

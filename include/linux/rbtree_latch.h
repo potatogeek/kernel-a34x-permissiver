@@ -42,8 +42,13 @@ struct latch_tree_node {
 };
 
 struct latch_tree_root {
+<<<<<<< HEAD
 	seqcount_t	seq;
 	struct rb_root	tree[2];
+=======
+	seqcount_latch_t	seq;
+	struct rb_root		tree[2];
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -206,7 +211,11 @@ latch_tree_find(void *key, struct latch_tree_root *root,
 	do {
 		seq = raw_read_seqcount_latch(&root->seq);
 		node = __lt_find(key, root, seq & 1, ops->comp);
+<<<<<<< HEAD
 	} while (read_seqcount_retry(&root->seq, seq));
+=======
+	} while (read_seqcount_latch_retry(&root->seq, seq));
+>>>>>>> upstream/android-13
 
 	return node;
 }

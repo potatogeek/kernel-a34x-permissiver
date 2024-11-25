@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
  /*
     tea6420 - i2c-driver for the tea6420 by SGS Thomson
 
@@ -9,6 +13,7 @@
     It is cascadable, i.e. it can be found at the addresses 0x98
     and 0x9a on the i2c-bus.
 
+<<<<<<< HEAD
     For detailed informations download the specifications directly
     from SGS Thomson at http://www.st.com
 
@@ -25,6 +30,11 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+    For detailed information download the specifications directly
+    from SGS Thomson at http://www.st.com
+
+>>>>>>> upstream/android-13
   */
 
 

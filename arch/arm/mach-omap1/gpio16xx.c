@@ -1,7 +1,11 @@
 /*
  * OMAP16xx specific gpio init
  *
+<<<<<<< HEAD
  * Copyright (C) 2010 Texas Instruments Incorporated - http://www.ti.com/
+=======
+ * Copyright (C) 2010 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  *
  * Author:
  *	Charulatha V <charu@ti.com>

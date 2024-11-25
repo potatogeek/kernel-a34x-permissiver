@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 /*
  * QLogic qlcnic NIC Driver
  * Copyright (c) 2009-2013 QLogic Corporation
  *
  * See LICENSE.qlcnic for copyright and licensing details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * QLogic qlcnic NIC Driver
+ * Copyright (c) 2009-2013 QLogic Corporation
+>>>>>>> upstream/android-13
  */
 
 #include "qlcnic.h"
@@ -434,14 +441,24 @@ int qlcnic_82xx_fw_cmd_create_tx_ctx(struct qlcnic_adapter *adapter,
 	*(tx_ring->hw_consumer) = 0;
 
 	rq_size = SIZEOF_HOSTRQ_TX(struct qlcnic_hostrq_tx_ctx);
+<<<<<<< HEAD
 	rq_addr = dma_zalloc_coherent(&adapter->pdev->dev, rq_size,
 				      &rq_phys_addr, GFP_KERNEL);
+=======
+	rq_addr = dma_alloc_coherent(&adapter->pdev->dev, rq_size,
+				     &rq_phys_addr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!rq_addr)
 		return -ENOMEM;
 
 	rsp_size = SIZEOF_CARDRSP_TX(struct qlcnic_cardrsp_tx_ctx);
+<<<<<<< HEAD
 	rsp_addr = dma_zalloc_coherent(&adapter->pdev->dev, rsp_size,
 				       &rsp_phys_addr, GFP_KERNEL);
+=======
+	rsp_addr = dma_alloc_coherent(&adapter->pdev->dev, rsp_size,
+				      &rsp_phys_addr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!rsp_addr) {
 		err = -ENOMEM;
 		goto out_free_rq;
@@ -855,8 +872,13 @@ int qlcnic_82xx_get_nic_info(struct qlcnic_adapter *adapter,
 	struct qlcnic_cmd_args cmd;
 	size_t  nic_size = sizeof(struct qlcnic_info_le);
 
+<<<<<<< HEAD
 	nic_info_addr = dma_zalloc_coherent(&adapter->pdev->dev, nic_size,
 					    &nic_dma_t, GFP_KERNEL);
+=======
+	nic_info_addr = dma_alloc_coherent(&adapter->pdev->dev, nic_size,
+					   &nic_dma_t, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!nic_info_addr)
 		return -ENOMEM;
 
@@ -909,8 +931,13 @@ int qlcnic_82xx_set_nic_info(struct qlcnic_adapter *adapter,
 	if (adapter->ahw->op_mode != QLCNIC_MGMT_FUNC)
 		return err;
 
+<<<<<<< HEAD
 	nic_info_addr = dma_zalloc_coherent(&adapter->pdev->dev, nic_size,
 					    &nic_dma_t, GFP_KERNEL);
+=======
+	nic_info_addr = dma_alloc_coherent(&adapter->pdev->dev, nic_size,
+					   &nic_dma_t, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!nic_info_addr)
 		return -ENOMEM;
 
@@ -964,8 +991,13 @@ int qlcnic_82xx_get_pci_info(struct qlcnic_adapter *adapter,
 	void *pci_info_addr;
 	int err = 0, i;
 
+<<<<<<< HEAD
 	pci_info_addr = dma_zalloc_coherent(&adapter->pdev->dev, pci_size,
 					    &pci_info_dma_t, GFP_KERNEL);
+=======
+	pci_info_addr = dma_alloc_coherent(&adapter->pdev->dev, pci_size,
+					   &pci_info_dma_t, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!pci_info_addr)
 		return -ENOMEM;
 
@@ -1078,8 +1110,13 @@ int qlcnic_get_port_stats(struct qlcnic_adapter *adapter, const u8 func,
 		return -EIO;
 	}
 
+<<<<<<< HEAD
 	stats_addr = dma_zalloc_coherent(&adapter->pdev->dev, stats_size,
 					 &stats_dma_t, GFP_KERNEL);
+=======
+	stats_addr = dma_alloc_coherent(&adapter->pdev->dev, stats_size,
+					&stats_dma_t, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!stats_addr)
 		return -ENOMEM;
 
@@ -1134,8 +1171,13 @@ int qlcnic_get_mac_stats(struct qlcnic_adapter *adapter,
 	if (mac_stats == NULL)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	stats_addr = dma_zalloc_coherent(&adapter->pdev->dev, stats_size,
 					 &stats_dma_t, GFP_KERNEL);
+=======
+	stats_addr = dma_alloc_coherent(&adapter->pdev->dev, stats_size,
+					&stats_dma_t, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!stats_addr)
 		return -ENOMEM;
 

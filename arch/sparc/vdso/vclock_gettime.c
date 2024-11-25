@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright 2006 Andi Kleen, SUSE Labs.
  * Subject to the GNU Public License, v.2
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2006 Andi Kleen, SUSE Labs.
+>>>>>>> upstream/android-13
  *
  * Fast user context implementation of clock_gettime, gettimeofday, and time.
  *
@@ -12,11 +18,14 @@
  * Copyright (c) 2017 Oracle and/or its affiliates. All rights reserved.
  */
 
+<<<<<<< HEAD
 /* Disable profiling for userspace code: */
 #ifndef	DISABLE_BRANCH_PROFILING
 #define	DISABLE_BRANCH_PROFILING
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/time.h>
 #include <linux/string.h>
@@ -26,6 +35,7 @@
 #include <asm/clocksource.h>
 #include <asm/vvar.h>
 
+<<<<<<< HEAD
 #undef	TICK_PRIV_BIT
 #ifdef	CONFIG_SPARC64
 #define	TICK_PRIV_BIT	(1UL << 63)
@@ -33,6 +43,8 @@
 #define	TICK_PRIV_BIT	(1ULL << 63)
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #ifdef	CONFIG_SPARC64
 #define SYSCALL_STRING							\
 	"ta	0x6d;"							\
@@ -60,24 +72,39 @@
  * Compute the vvar page's address in the process address space, and return it
  * as a pointer to the vvar_data.
  */
+<<<<<<< HEAD
 static notrace noinline struct vvar_data *
 get_vvar_data(void)
+=======
+notrace static __always_inline struct vvar_data *get_vvar_data(void)
+>>>>>>> upstream/android-13
 {
 	unsigned long ret;
 
 	/*
+<<<<<<< HEAD
 	 * vdso data page is the first vDSO page so grab the return address
 	 * and move up a page to get to the data page.
 	 */
 	ret = (unsigned long)__builtin_return_address(0);
+=======
+	 * vdso data page is the first vDSO page so grab the PC
+	 * and move up a page to get to the data page.
+	 */
+	__asm__("rd %%pc, %0" : "=r" (ret));
+>>>>>>> upstream/android-13
 	ret &= ~(8192 - 1);
 	ret -= 8192;
 
 	return (struct vvar_data *) ret;
 }
 
+<<<<<<< HEAD
 static notrace long
 vdso_fallback_gettime(long clock, struct timespec *ts)
+=======
+notrace static long vdso_fallback_gettime(long clock, struct __kernel_old_timespec *ts)
+>>>>>>> upstream/android-13
 {
 	register long num __asm__("g1") = __NR_clock_gettime;
 	register long o0 __asm__("o0") = clock;
@@ -88,8 +115,12 @@ vdso_fallback_gettime(long clock, struct timespec *ts)
 	return o0;
 }
 
+<<<<<<< HEAD
 static notrace __always_inline long
 vdso_fallback_gettimeofday(struct timeval *tv, struct timezone *tz)
+=======
+notrace static long vdso_fallback_gettimeofday(struct __kernel_old_timeval *tv, struct timezone *tz)
+>>>>>>> upstream/android-13
 {
 	register long num __asm__("g1") = __NR_gettimeofday;
 	register long o0 __asm__("o0") = (long) tv;
@@ -101,6 +132,7 @@ vdso_fallback_gettimeofday(struct timeval *tv, struct timezone *tz)
 }
 
 #ifdef	CONFIG_SPARC64
+<<<<<<< HEAD
 static notrace noinline u64
 vread_tick(void) {
 	u64	ret;
@@ -133,6 +165,46 @@ vread_tick(void)
 
 static notrace inline u64
 vgetsns(struct vvar_data *vvar)
+=======
+notrace static __always_inline u64 vread_tick(void)
+{
+	u64	ret;
+
+	__asm__ __volatile__("rd %%tick, %0" : "=r" (ret));
+	return ret;
+}
+
+notrace static __always_inline u64 vread_tick_stick(void)
+{
+	u64	ret;
+
+	__asm__ __volatile__("rd %%asr24, %0" : "=r" (ret));
+	return ret;
+}
+#else
+notrace static __always_inline u64 vread_tick(void)
+{
+	register unsigned long long ret asm("o4");
+
+	__asm__ __volatile__("rd %%tick, %L0\n\t"
+			     "srlx %L0, 32, %H0"
+			     : "=r" (ret));
+	return ret;
+}
+
+notrace static __always_inline u64 vread_tick_stick(void)
+{
+	register unsigned long long ret asm("o4");
+
+	__asm__ __volatile__("rd %%asr24, %L0\n\t"
+			     "srlx %L0, 32, %H0"
+			     : "=r" (ret));
+	return ret;
+}
+#endif
+
+notrace static __always_inline u64 vgetsns(struct vvar_data *vvar)
+>>>>>>> upstream/android-13
 {
 	u64 v;
 	u64 cycles;
@@ -142,13 +214,31 @@ vgetsns(struct vvar_data *vvar)
 	return v * vvar->clock.mult;
 }
 
+<<<<<<< HEAD
 static notrace noinline int
 do_realtime(struct vvar_data *vvar, struct timespec *ts)
+=======
+notrace static __always_inline u64 vgetsns_stick(struct vvar_data *vvar)
+{
+	u64 v;
+	u64 cycles;
+
+	cycles = vread_tick_stick();
+	v = (cycles - vvar->clock.cycle_last) & vvar->clock.mask;
+	return v * vvar->clock.mult;
+}
+
+notrace static __always_inline int do_realtime(struct vvar_data *vvar,
+					       struct __kernel_old_timespec *ts)
+>>>>>>> upstream/android-13
 {
 	unsigned long seq;
 	u64 ns;
 
+<<<<<<< HEAD
 	ts->tv_nsec = 0;
+=======
+>>>>>>> upstream/android-13
 	do {
 		seq = vvar_read_begin(vvar);
 		ts->tv_sec = vvar->wall_time_sec;
@@ -157,18 +247,51 @@ do_realtime(struct vvar_data *vvar, struct timespec *ts)
 		ns >>= vvar->clock.shift;
 	} while (unlikely(vvar_read_retry(vvar, seq)));
 
+<<<<<<< HEAD
 	timespec_add_ns(ts, ns);
+=======
+	ts->tv_sec += __iter_div_u64_rem(ns, NSEC_PER_SEC, &ns);
+	ts->tv_nsec = ns;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static notrace noinline int
 do_monotonic(struct vvar_data *vvar, struct timespec *ts)
+=======
+notrace static __always_inline int do_realtime_stick(struct vvar_data *vvar,
+						     struct __kernel_old_timespec *ts)
 {
 	unsigned long seq;
 	u64 ns;
 
+	do {
+		seq = vvar_read_begin(vvar);
+		ts->tv_sec = vvar->wall_time_sec;
+		ns = vvar->wall_time_snsec;
+		ns += vgetsns_stick(vvar);
+		ns >>= vvar->clock.shift;
+	} while (unlikely(vvar_read_retry(vvar, seq)));
+
+	ts->tv_sec += __iter_div_u64_rem(ns, NSEC_PER_SEC, &ns);
+	ts->tv_nsec = ns;
+
+	return 0;
+}
+
+notrace static __always_inline int do_monotonic(struct vvar_data *vvar,
+						struct __kernel_old_timespec *ts)
+>>>>>>> upstream/android-13
+{
+	unsigned long seq;
+	u64 ns;
+
+<<<<<<< HEAD
 	ts->tv_nsec = 0;
+=======
+>>>>>>> upstream/android-13
 	do {
 		seq = vvar_read_begin(vvar);
 		ts->tv_sec = vvar->monotonic_time_sec;
@@ -177,13 +300,43 @@ do_monotonic(struct vvar_data *vvar, struct timespec *ts)
 		ns >>= vvar->clock.shift;
 	} while (unlikely(vvar_read_retry(vvar, seq)));
 
+<<<<<<< HEAD
 	timespec_add_ns(ts, ns);
+=======
+	ts->tv_sec += __iter_div_u64_rem(ns, NSEC_PER_SEC, &ns);
+	ts->tv_nsec = ns;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static notrace noinline int
 do_realtime_coarse(struct vvar_data *vvar, struct timespec *ts)
+=======
+notrace static __always_inline int do_monotonic_stick(struct vvar_data *vvar,
+						      struct __kernel_old_timespec *ts)
+{
+	unsigned long seq;
+	u64 ns;
+
+	do {
+		seq = vvar_read_begin(vvar);
+		ts->tv_sec = vvar->monotonic_time_sec;
+		ns = vvar->monotonic_time_snsec;
+		ns += vgetsns_stick(vvar);
+		ns >>= vvar->clock.shift;
+	} while (unlikely(vvar_read_retry(vvar, seq)));
+
+	ts->tv_sec += __iter_div_u64_rem(ns, NSEC_PER_SEC, &ns);
+	ts->tv_nsec = ns;
+
+	return 0;
+}
+
+notrace static int do_realtime_coarse(struct vvar_data *vvar,
+				      struct __kernel_old_timespec *ts)
+>>>>>>> upstream/android-13
 {
 	unsigned long seq;
 
@@ -195,8 +348,13 @@ do_realtime_coarse(struct vvar_data *vvar, struct timespec *ts)
 	return 0;
 }
 
+<<<<<<< HEAD
 static notrace noinline int
 do_monotonic_coarse(struct vvar_data *vvar, struct timespec *ts)
+=======
+notrace static int do_monotonic_coarse(struct vvar_data *vvar,
+				       struct __kernel_old_timespec *ts)
+>>>>>>> upstream/android-13
 {
 	unsigned long seq;
 
@@ -210,7 +368,11 @@ do_monotonic_coarse(struct vvar_data *vvar, struct timespec *ts)
 }
 
 notrace int
+<<<<<<< HEAD
 __vdso_clock_gettime(clockid_t clock, struct timespec *ts)
+=======
+__vdso_clock_gettime(clockid_t clock, struct __kernel_old_timespec *ts)
+>>>>>>> upstream/android-13
 {
 	struct vvar_data *vvd = get_vvar_data();
 
@@ -234,19 +396,57 @@ __vdso_clock_gettime(clockid_t clock, struct timespec *ts)
 	return vdso_fallback_gettime(clock, ts);
 }
 int
+<<<<<<< HEAD
 clock_gettime(clockid_t, struct timespec *)
 	__attribute__((weak, alias("__vdso_clock_gettime")));
 
 notrace int
 __vdso_gettimeofday(struct timeval *tv, struct timezone *tz)
+=======
+clock_gettime(clockid_t, struct __kernel_old_timespec *)
+	__attribute__((weak, alias("__vdso_clock_gettime")));
+
+notrace int
+__vdso_clock_gettime_stick(clockid_t clock, struct __kernel_old_timespec *ts)
+{
+	struct vvar_data *vvd = get_vvar_data();
+
+	switch (clock) {
+	case CLOCK_REALTIME:
+		if (unlikely(vvd->vclock_mode == VCLOCK_NONE))
+			break;
+		return do_realtime_stick(vvd, ts);
+	case CLOCK_MONOTONIC:
+		if (unlikely(vvd->vclock_mode == VCLOCK_NONE))
+			break;
+		return do_monotonic_stick(vvd, ts);
+	case CLOCK_REALTIME_COARSE:
+		return do_realtime_coarse(vvd, ts);
+	case CLOCK_MONOTONIC_COARSE:
+		return do_monotonic_coarse(vvd, ts);
+	}
+	/*
+	 * Unknown clock ID ? Fall back to the syscall.
+	 */
+	return vdso_fallback_gettime(clock, ts);
+}
+
+notrace int
+__vdso_gettimeofday(struct __kernel_old_timeval *tv, struct timezone *tz)
+>>>>>>> upstream/android-13
 {
 	struct vvar_data *vvd = get_vvar_data();
 
 	if (likely(vvd->vclock_mode != VCLOCK_NONE)) {
 		if (likely(tv != NULL)) {
 			union tstv_t {
+<<<<<<< HEAD
 				struct timespec ts;
 				struct timeval tv;
+=======
+				struct __kernel_old_timespec ts;
+				struct __kernel_old_timeval tv;
+>>>>>>> upstream/android-13
 			} *tstv = (union tstv_t *) tv;
 			do_realtime(vvd, &tstv->ts);
 			/*
@@ -270,5 +470,43 @@ __vdso_gettimeofday(struct timeval *tv, struct timezone *tz)
 	return vdso_fallback_gettimeofday(tv, tz);
 }
 int
+<<<<<<< HEAD
 gettimeofday(struct timeval *, struct timezone *)
 	__attribute__((weak, alias("__vdso_gettimeofday")));
+=======
+gettimeofday(struct __kernel_old_timeval *, struct timezone *)
+	__attribute__((weak, alias("__vdso_gettimeofday")));
+
+notrace int
+__vdso_gettimeofday_stick(struct __kernel_old_timeval *tv, struct timezone *tz)
+{
+	struct vvar_data *vvd = get_vvar_data();
+
+	if (likely(vvd->vclock_mode != VCLOCK_NONE)) {
+		if (likely(tv != NULL)) {
+			union tstv_t {
+				struct __kernel_old_timespec ts;
+				struct __kernel_old_timeval tv;
+			} *tstv = (union tstv_t *) tv;
+			do_realtime_stick(vvd, &tstv->ts);
+			/*
+			 * Assign before dividing to ensure that the division is
+			 * done in the type of tv_usec, not tv_nsec.
+			 *
+			 * There cannot be > 1 billion usec in a second:
+			 * do_realtime() has already distributed such overflow
+			 * into tv_sec.  So we can assign it to an int safely.
+			 */
+			tstv->tv.tv_usec = tstv->ts.tv_nsec;
+			tstv->tv.tv_usec /= 1000;
+		}
+		if (unlikely(tz != NULL)) {
+			/* Avoid memcpy. Some old compilers fail to inline it */
+			tz->tz_minuteswest = vvd->tz_minuteswest;
+			tz->tz_dsttime = vvd->tz_dsttime;
+		}
+		return 0;
+	}
+	return vdso_fallback_gettimeofday(tv, tz);
+}
+>>>>>>> upstream/android-13

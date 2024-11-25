@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*  Kernel module help for x86.
     Copyright (C) 2001 Rusty Russell.
 
@@ -14,6 +15,12 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*  Kernel module help for x86.
+    Copyright (C) 2001 Rusty Russell.
+
+>>>>>>> upstream/android-13
 */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -30,10 +37,17 @@
 #include <linux/gfp.h>
 #include <linux/jump_label.h>
 #include <linux/random.h>
+<<<<<<< HEAD
 
 #include <asm/text-patching.h>
 #include <asm/page.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/memory.h>
+
+#include <asm/text-patching.h>
+#include <asm/page.h>
+>>>>>>> upstream/android-13
 #include <asm/setup.h>
 #include <asm/unwind.h>
 
@@ -79,6 +93,10 @@ static unsigned long int get_module_load_offset(void)
 
 void *module_alloc(unsigned long size)
 {
+<<<<<<< HEAD
+=======
+	gfp_t gfp_mask = GFP_KERNEL;
+>>>>>>> upstream/android-13
 	void *p;
 
 	if (PAGE_ALIGN(size) > MODULES_LEN)
@@ -86,10 +104,17 @@ void *module_alloc(unsigned long size)
 
 	p = __vmalloc_node_range(size, MODULE_ALIGN,
 				    MODULES_VADDR + get_module_load_offset(),
+<<<<<<< HEAD
 				    MODULES_END, GFP_KERNEL,
 				    PAGE_KERNEL, 0, NUMA_NO_NODE,
 				    __builtin_return_address(0));
 	if (p && (kasan_module_alloc(p, size) < 0)) {
+=======
+				    MODULES_END, gfp_mask,
+				    PAGE_KERNEL, VM_DEFER_KMEMLEAK, NUMA_NO_NODE,
+				    __builtin_return_address(0));
+	if (p && (kasan_alloc_module_shadow(p, size, gfp_mask) < 0)) {
+>>>>>>> upstream/android-13
 		vfree(p);
 		return NULL;
 	}
@@ -139,11 +164,20 @@ int apply_relocate(Elf32_Shdr *sechdrs,
 	return 0;
 }
 #else /*X86_64*/
+<<<<<<< HEAD
 int apply_relocate_add(Elf64_Shdr *sechdrs,
 		   const char *strtab,
 		   unsigned int symindex,
 		   unsigned int relsec,
 		   struct module *me)
+=======
+static int __apply_relocate_add(Elf64_Shdr *sechdrs,
+		   const char *strtab,
+		   unsigned int symindex,
+		   unsigned int relsec,
+		   struct module *me,
+		   void *(*write)(void *dest, const void *src, size_t len))
+>>>>>>> upstream/android-13
 {
 	unsigned int i;
 	Elf64_Rela *rel = (void *)sechdrs[relsec].sh_addr;
@@ -175,19 +209,31 @@ int apply_relocate_add(Elf64_Shdr *sechdrs,
 		case R_X86_64_64:
 			if (*(u64 *)loc != 0)
 				goto invalid_relocation;
+<<<<<<< HEAD
 			*(u64 *)loc = val;
+=======
+			write(loc, &val, 8);
+>>>>>>> upstream/android-13
 			break;
 		case R_X86_64_32:
 			if (*(u32 *)loc != 0)
 				goto invalid_relocation;
+<<<<<<< HEAD
 			*(u32 *)loc = val;
+=======
+			write(loc, &val, 4);
+>>>>>>> upstream/android-13
 			if (val != *(u32 *)loc)
 				goto overflow;
 			break;
 		case R_X86_64_32S:
 			if (*(s32 *)loc != 0)
 				goto invalid_relocation;
+<<<<<<< HEAD
 			*(s32 *)loc = val;
+=======
+			write(loc, &val, 4);
+>>>>>>> upstream/android-13
 			if ((s64)val != *(s32 *)loc)
 				goto overflow;
 			break;
@@ -196,16 +242,29 @@ int apply_relocate_add(Elf64_Shdr *sechdrs,
 			if (*(u32 *)loc != 0)
 				goto invalid_relocation;
 			val -= (u64)loc;
+<<<<<<< HEAD
 			*(u32 *)loc = val;
+=======
+			write(loc, &val, 4);
+>>>>>>> upstream/android-13
 #if 0
 			if ((s64)val != *(s32 *)loc)
 				goto overflow;
 #endif
 			break;
+<<<<<<< HEAD
 		case R_X86_64_8:
 			if (!strncmp(strtab + sym->st_name, "__typeid__", 10))
 				break;
 			/* fallthrough */
+=======
+		case R_X86_64_PC64:
+			if (*(u64 *)loc != 0)
+				goto invalid_relocation;
+			val -= (u64)loc;
+			write(loc, &val, 8);
+			break;
+>>>>>>> upstream/android-13
 		default:
 			pr_err("%s: Unknown rela relocation: %llu\n",
 			       me->name, ELF64_R_TYPE(rel[i].r_info));
@@ -226,6 +285,36 @@ overflow:
 	       me->name);
 	return -ENOEXEC;
 }
+<<<<<<< HEAD
+=======
+
+int apply_relocate_add(Elf64_Shdr *sechdrs,
+		   const char *strtab,
+		   unsigned int symindex,
+		   unsigned int relsec,
+		   struct module *me)
+{
+	int ret;
+	bool early = me->state == MODULE_STATE_UNFORMED;
+	void *(*write)(void *, const void *, size_t) = memcpy;
+
+	if (!early) {
+		write = text_poke;
+		mutex_lock(&text_mutex);
+	}
+
+	ret = __apply_relocate_add(sechdrs, strtab, symindex, relsec, me,
+				   write);
+
+	if (!early) {
+		text_poke_sync();
+		mutex_unlock(&text_mutex);
+	}
+
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 #endif
 
 int module_finalize(const Elf_Ehdr *hdr,
@@ -251,6 +340,17 @@ int module_finalize(const Elf_Ehdr *hdr,
 			orc_ip = s;
 	}
 
+<<<<<<< HEAD
+=======
+	/*
+	 * See alternative_instructions() for the ordering rules between the
+	 * various patching types.
+	 */
+	if (para) {
+		void *pseg = (void *)para->sh_addr;
+		apply_paravirt(pseg, pseg + para->sh_size);
+	}
+>>>>>>> upstream/android-13
 	if (alt) {
 		/* patch .altinstructions */
 		void *aseg = (void *)alt->sh_addr;
@@ -264,11 +364,14 @@ int module_finalize(const Elf_Ehdr *hdr,
 					    tseg, tseg + text->sh_size);
 	}
 
+<<<<<<< HEAD
 	if (para) {
 		void *pseg = (void *)para->sh_addr;
 		apply_paravirt(pseg, pseg + para->sh_size);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/* make jump label nops */
 	jump_label_apply_nops(me);
 

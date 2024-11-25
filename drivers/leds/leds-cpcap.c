@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2017 Sebastian Reichel <sre@kernel.org>
  *
@@ -9,6 +10,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2017 Sebastian Reichel <sre@kernel.org>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/leds.h>
@@ -166,6 +172,7 @@ MODULE_DEVICE_TABLE(of, cpcap_led_of_match);
 
 static int cpcap_led_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	const struct of_device_id *match;
 	struct cpcap_led *led;
 	int err;
@@ -174,11 +181,20 @@ static int cpcap_led_probe(struct platform_device *pdev)
 	if (!match || !match->data)
 		return -EINVAL;
 
+=======
+	struct cpcap_led *led;
+	int err;
+
+>>>>>>> upstream/android-13
 	led = devm_kzalloc(&pdev->dev, sizeof(*led), GFP_KERNEL);
 	if (!led)
 		return -ENOMEM;
 	platform_set_drvdata(pdev, led);
+<<<<<<< HEAD
 	led->info = match->data;
+=======
+	led->info = device_get_match_data(&pdev->dev);
+>>>>>>> upstream/android-13
 	led->dev = &pdev->dev;
 
 	if (led->info->reg == 0x0000) {

@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
+<<<<<<< HEAD
  * SAMSUNG EXYNOS5420 SoC cpu device tree source
+=======
+ * Samsung Exynos5420 SoC cpu device tree source
+>>>>>>> upstream/android-13
  *
  * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *		http://www.samsung.com
@@ -22,6 +26,41 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 
+<<<<<<< HEAD
+=======
+		cpu-map {
+			cluster0 {
+				core0 {
+					cpu = <&cpu0>;
+				};
+				core1 {
+					cpu = <&cpu1>;
+				};
+				core2 {
+					cpu = <&cpu2>;
+				};
+				core3 {
+					cpu = <&cpu3>;
+				};
+			};
+
+			cluster1 {
+				core0 {
+					cpu = <&cpu4>;
+				};
+				core1 {
+					cpu = <&cpu5>;
+				};
+				core2 {
+					cpu = <&cpu6>;
+				};
+				core3 {
+					cpu = <&cpu7>;
+				};
+			};
+		};
+
+>>>>>>> upstream/android-13
 		cpu0: cpu@0 {
 			device_type = "cpu";
 			compatible = "arm,cortex-a15";

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 ARM Ltd.
  *
@@ -16,6 +17,20 @@
 #ifndef __ASM_COMPAT_H
 #define __ASM_COMPAT_H
 #ifdef __KERNEL__
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2012 ARM Ltd.
+ */
+#ifndef __ASM_COMPAT_H
+#define __ASM_COMPAT_H
+
+#define compat_mode_t compat_mode_t
+typedef u16		compat_mode_t;
+
+#include <asm-generic/compat.h>
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_COMPAT
 
 /*
@@ -32,14 +47,18 @@
 #define COMPAT_UTS_MACHINE	"armv8l\0\0"
 #endif
 
+<<<<<<< HEAD
 typedef u32		compat_size_t;
 typedef s32		compat_ssize_t;
 typedef s32		compat_clock_t;
 typedef s32		compat_pid_t;
+=======
+>>>>>>> upstream/android-13
 typedef u16		__compat_uid_t;
 typedef u16		__compat_gid_t;
 typedef u16		__compat_uid16_t;
 typedef u16		__compat_gid16_t;
+<<<<<<< HEAD
 typedef u32		__compat_uid32_t;
 typedef u32		__compat_gid32_t;
 typedef u16		compat_mode_t;
@@ -64,6 +83,12 @@ typedef u32		compat_uint_t;
 typedef u32		compat_ulong_t;
 typedef u64		compat_u64;
 typedef u32		compat_uptr_t;
+=======
+typedef u32		compat_dev_t;
+typedef s32		compat_nlink_t;
+typedef u16		compat_ipc_pid_t;
+typedef __kernel_fsid_t	compat_fsid_t;
+>>>>>>> upstream/android-13
 
 struct compat_stat {
 #ifdef __AARCH64EB__
@@ -86,11 +111,19 @@ struct compat_stat {
 	compat_off_t	st_size;
 	compat_off_t	st_blksize;
 	compat_off_t	st_blocks;
+<<<<<<< HEAD
 	compat_time_t	st_atime;
 	compat_ulong_t	st_atime_nsec;
 	compat_time_t	st_mtime;
 	compat_ulong_t	st_mtime_nsec;
 	compat_time_t	st_ctime;
+=======
+	old_time32_t	st_atime;
+	compat_ulong_t	st_atime_nsec;
+	old_time32_t	st_mtime;
+	compat_ulong_t	st_mtime_nsec;
+	old_time32_t	st_ctime;
+>>>>>>> upstream/android-13
 	compat_ulong_t	st_ctime_nsec;
 	compat_ulong_t	__unused4[2];
 };
@@ -132,6 +165,7 @@ struct compat_statfs {
 
 #define COMPAT_RLIM_INFINITY		0xffffffff
 
+<<<<<<< HEAD
 typedef u32		compat_old_sigset_t;
 
 #define _COMPAT_NSIG		64
@@ -166,6 +200,13 @@ static inline void __user *arch_compat_alloc_user_space(long len)
 	return (void __user *)compat_user_stack_pointer() - len;
 }
 
+=======
+#define COMPAT_OFF_T_MAX	0x7fffffff
+
+#define compat_user_stack_pointer() (user_stack_pointer(task_pt_regs(current)))
+#define COMPAT_MINSIGSTKSZ	2048
+
+>>>>>>> upstream/android-13
 struct compat_ipc64_perm {
 	compat_key_t key;
 	__compat_uid32_t uid;
@@ -242,5 +283,8 @@ static inline int is_compat_thread(struct thread_info *thread)
 }
 
 #endif /* CONFIG_COMPAT */
+<<<<<<< HEAD
 #endif /* __KERNEL__ */
+=======
+>>>>>>> upstream/android-13
 #endif /* __ASM_COMPAT_H */

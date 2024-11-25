@@ -250,8 +250,13 @@ static const struct ethtool_ops sr9700_ethtool_ops = {
 	.get_eeprom_len	= sr9700_get_eeprom_len,
 	.get_eeprom	= sr9700_get_eeprom,
 	.nway_reset	= usbnet_nway_reset,
+<<<<<<< HEAD
 	.get_link_ksettings	= usbnet_get_link_ksettings,
 	.set_link_ksettings	= usbnet_set_link_ksettings,
+=======
+	.get_link_ksettings	= usbnet_get_link_ksettings_mii,
+	.set_link_ksettings	= usbnet_set_link_ksettings_mii,
+>>>>>>> upstream/android-13
 };
 
 static void sr9700_set_multicast(struct net_device *netdev)
@@ -308,9 +313,15 @@ static const struct net_device_ops sr9700_netdev_ops = {
 	.ndo_start_xmit		= usbnet_start_xmit,
 	.ndo_tx_timeout		= usbnet_tx_timeout,
 	.ndo_change_mtu		= usbnet_change_mtu,
+<<<<<<< HEAD
 	.ndo_get_stats64	= usbnet_get_stats64,
 	.ndo_validate_addr	= eth_validate_addr,
 	.ndo_do_ioctl		= sr9700_ioctl,
+=======
+	.ndo_get_stats64	= dev_get_tstats64,
+	.ndo_validate_addr	= eth_validate_addr,
+	.ndo_eth_ioctl		= sr9700_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_set_rx_mode	= sr9700_set_multicast,
 	.ndo_set_mac_address	= sr9700_set_mac_address,
 };
@@ -410,7 +421,11 @@ static int sr9700_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
 		/* ignore the CRC length */
 		len = (skb->data[1] | (skb->data[2] << 8)) - 4;
 
+<<<<<<< HEAD
 		if (len > ETH_FRAME_LEN)
+=======
+		if (len > ETH_FRAME_LEN || len > skb->len)
+>>>>>>> upstream/android-13
 			return 0;
 
 		/* the last packet of current skb */
@@ -434,7 +449,11 @@ static int sr9700_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
 		usbnet_skb_return(dev, sr_skb);
 
 		skb_pull(skb, len + SR_RX_OVERHEAD);
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }

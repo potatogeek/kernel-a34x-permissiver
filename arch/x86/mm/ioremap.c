@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Re-map IO memory to kernel address space so that we can access it.
  * This is needed for high PCI addresses that aren't mapped in the
@@ -6,7 +10,11 @@
  * (C) Copyright 1995 1996 Linus Torvalds
  */
 
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/io.h>
 #include <linux/ioport.h>
@@ -15,6 +23,7 @@
 #include <linux/mmiotrace.h>
 #include <linux/mem_encrypt.h>
 #include <linux/efi.h>
+<<<<<<< HEAD
 
 #include <asm/set_memory.h>
 #include <asm/e820/api.h>
@@ -23,13 +32,32 @@
 #include <asm/tlbflush.h>
 #include <asm/pgalloc.h>
 #include <asm/pat.h>
+=======
+#include <linux/pgtable.h>
+
+#include <asm/set_memory.h>
+#include <asm/e820/api.h>
+#include <asm/efi.h>
+#include <asm/fixmap.h>
+#include <asm/tlbflush.h>
+#include <asm/pgalloc.h>
+#include <asm/memtype.h>
+>>>>>>> upstream/android-13
 #include <asm/setup.h>
 
 #include "physaddr.h"
 
+<<<<<<< HEAD
 struct ioremap_mem_flags {
 	bool system_ram;
 	bool desc_other;
+=======
+/*
+ * Descriptor controlling ioremap() behavior.
+ */
+struct ioremap_desc {
+	unsigned int flags;
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -61,13 +89,22 @@ int ioremap_change_attr(unsigned long vaddr, unsigned long size,
 	return err;
 }
 
+<<<<<<< HEAD
 static bool __ioremap_check_ram(struct resource *res)
+=======
+/* Does the range (or a subset of) contain normal RAM? */
+static unsigned int __ioremap_check_ram(struct resource *res)
+>>>>>>> upstream/android-13
 {
 	unsigned long start_pfn, stop_pfn;
 	unsigned long i;
 
 	if ((res->flags & IORESOURCE_SYSTEM_RAM) != IORESOURCE_SYSTEM_RAM)
+<<<<<<< HEAD
 		return false;
+=======
+		return 0;
+>>>>>>> upstream/android-13
 
 	start_pfn = (res->start + PAGE_SIZE - 1) >> PAGE_SHIFT;
 	stop_pfn = (res->end + 1) >> PAGE_SHIFT;
@@ -75,6 +112,7 @@ static bool __ioremap_check_ram(struct resource *res)
 		for (i = 0; i < (stop_pfn - start_pfn); ++i)
 			if (pfn_valid(start_pfn + i) &&
 			    !PageReserved(pfn_to_page(start_pfn + i)))
+<<<<<<< HEAD
 				return true;
 	}
 
@@ -97,23 +135,98 @@ static int __ioremap_res_check(struct resource *res, void *arg)
 		flags->desc_other = __ioremap_check_desc_other(res);
 
 	return flags->system_ram && flags->desc_other;
+=======
+				return IORES_MAP_SYSTEM_RAM;
+	}
+
+	return 0;
+}
+
+/*
+ * In a SEV guest, NONE and RESERVED should not be mapped encrypted because
+ * there the whole memory is already encrypted.
+ */
+static unsigned int __ioremap_check_encrypted(struct resource *res)
+{
+	if (!sev_active())
+		return 0;
+
+	switch (res->desc) {
+	case IORES_DESC_NONE:
+	case IORES_DESC_RESERVED:
+		break;
+	default:
+		return IORES_MAP_ENCRYPTED;
+	}
+
+	return 0;
+}
+
+/*
+ * The EFI runtime services data area is not covered by walk_mem_res(), but must
+ * be mapped encrypted when SEV is active.
+ */
+static void __ioremap_check_other(resource_size_t addr, struct ioremap_desc *desc)
+{
+	if (!sev_active())
+		return;
+
+	if (!IS_ENABLED(CONFIG_EFI))
+		return;
+
+	if (efi_mem_type(addr) == EFI_RUNTIME_SERVICES_DATA ||
+	    (efi_mem_type(addr) == EFI_BOOT_SERVICES_DATA &&
+	     efi_mem_attributes(addr) & EFI_MEMORY_RUNTIME))
+		desc->flags |= IORES_MAP_ENCRYPTED;
+}
+
+static int __ioremap_collect_map_flags(struct resource *res, void *arg)
+{
+	struct ioremap_desc *desc = arg;
+
+	if (!(desc->flags & IORES_MAP_SYSTEM_RAM))
+		desc->flags |= __ioremap_check_ram(res);
+
+	if (!(desc->flags & IORES_MAP_ENCRYPTED))
+		desc->flags |= __ioremap_check_encrypted(res);
+
+	return ((desc->flags & (IORES_MAP_SYSTEM_RAM | IORES_MAP_ENCRYPTED)) ==
+			       (IORES_MAP_SYSTEM_RAM | IORES_MAP_ENCRYPTED));
+>>>>>>> upstream/android-13
 }
 
 /*
  * To avoid multiple resource walks, this function walks resources marked as
  * IORESOURCE_MEM and IORESOURCE_BUSY and looking for system RAM and/or a
  * resource described not as IORES_DESC_NONE (e.g. IORES_DESC_ACPI_TABLES).
+<<<<<<< HEAD
  */
 static void __ioremap_check_mem(resource_size_t addr, unsigned long size,
 				struct ioremap_mem_flags *flags)
+=======
+ *
+ * After that, deal with misc other ranges in __ioremap_check_other() which do
+ * not fall into the above category.
+ */
+static void __ioremap_check_mem(resource_size_t addr, unsigned long size,
+				struct ioremap_desc *desc)
+>>>>>>> upstream/android-13
 {
 	u64 start, end;
 
 	start = (u64)addr;
 	end = start + size - 1;
+<<<<<<< HEAD
 	memset(flags, 0, sizeof(*flags));
 
 	walk_mem_res(start, end, flags, __ioremap_res_check);
+=======
+	memset(desc, 0, sizeof(struct ioremap_desc));
+
+	walk_mem_res(start, end, desc, __ioremap_collect_map_flags);
+
+	__ioremap_check_other(addr, desc);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -130,14 +243,24 @@ static void __ioremap_check_mem(resource_size_t addr, unsigned long size,
  * have to convert them into an offset in a page-aligned mapping, but the
  * caller shouldn't need to know that small detail.
  */
+<<<<<<< HEAD
 static void __iomem *__ioremap_caller(resource_size_t phys_addr,
 		unsigned long size, enum page_cache_mode pcm, void *caller)
+=======
+static void __iomem *
+__ioremap_caller(resource_size_t phys_addr, unsigned long size,
+		 enum page_cache_mode pcm, void *caller, bool encrypted)
+>>>>>>> upstream/android-13
 {
 	unsigned long offset, vaddr;
 	resource_size_t last_addr;
 	const resource_size_t unaligned_phys_addr = phys_addr;
 	const unsigned long unaligned_size = size;
+<<<<<<< HEAD
 	struct ioremap_mem_flags mem_flags;
+=======
+	struct ioremap_desc io_desc;
+>>>>>>> upstream/android-13
 	struct vm_struct *area;
 	enum page_cache_mode new_pcm;
 	pgprot_t prot;
@@ -156,12 +279,20 @@ static void __iomem *__ioremap_caller(resource_size_t phys_addr,
 		return NULL;
 	}
 
+<<<<<<< HEAD
 	__ioremap_check_mem(phys_addr, size, &mem_flags);
+=======
+	__ioremap_check_mem(phys_addr, size, &io_desc);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Don't allow anybody to remap normal RAM that we're using..
 	 */
+<<<<<<< HEAD
 	if (mem_flags.system_ram) {
+=======
+	if (io_desc.flags & IORES_MAP_SYSTEM_RAM) {
+>>>>>>> upstream/android-13
 		WARN_ONCE(1, "ioremap on RAM at %pa - %pa\n",
 			  &phys_addr, &last_addr);
 		return NULL;
@@ -174,10 +305,17 @@ static void __iomem *__ioremap_caller(resource_size_t phys_addr,
 	phys_addr &= PHYSICAL_PAGE_MASK;
 	size = PAGE_ALIGN(last_addr+1) - phys_addr;
 
+<<<<<<< HEAD
 	retval = reserve_memtype(phys_addr, (u64)phys_addr + size,
 						pcm, &new_pcm);
 	if (retval) {
 		printk(KERN_ERR "ioremap reserve_memtype failed %d\n", retval);
+=======
+	retval = memtype_reserve(phys_addr, (u64)phys_addr + size,
+						pcm, &new_pcm);
+	if (retval) {
+		printk(KERN_ERR "ioremap memtype_reserve failed %d\n", retval);
+>>>>>>> upstream/android-13
 		return NULL;
 	}
 
@@ -199,7 +337,11 @@ static void __iomem *__ioremap_caller(resource_size_t phys_addr,
 	 * resulting mapping.
 	 */
 	prot = PAGE_KERNEL_IO;
+<<<<<<< HEAD
 	if (sev_active() && mem_flags.desc_other)
+=======
+	if ((io_desc.flags & IORES_MAP_ENCRYPTED) || encrypted)
+>>>>>>> upstream/android-13
 		prot = pgprot_encrypted(prot);
 
 	switch (pcm) {
@@ -233,7 +375,11 @@ static void __iomem *__ioremap_caller(resource_size_t phys_addr,
 	area->phys_addr = phys_addr;
 	vaddr = (unsigned long) area->addr;
 
+<<<<<<< HEAD
 	if (kernel_map_sync_memtype(phys_addr, size, pcm))
+=======
+	if (memtype_kernel_map_sync(phys_addr, size, pcm))
+>>>>>>> upstream/android-13
 		goto err_free_area;
 
 	if (ioremap_page_range(vaddr, vaddr + size, phys_addr, prot))
@@ -253,16 +399,28 @@ static void __iomem *__ioremap_caller(resource_size_t phys_addr,
 err_free_area:
 	free_vm_area(area);
 err_free_memtype:
+<<<<<<< HEAD
 	free_memtype(phys_addr, phys_addr + size);
+=======
+	memtype_free(phys_addr, phys_addr + size);
+>>>>>>> upstream/android-13
 	return NULL;
 }
 
 /**
+<<<<<<< HEAD
  * ioremap_nocache     -   map bus memory into CPU space
  * @phys_addr:    bus address of the memory
  * @size:      size of the resource to map
  *
  * ioremap_nocache performs a platform specific sequence of operations to
+=======
+ * ioremap     -   map bus memory into CPU space
+ * @phys_addr:    bus address of the memory
+ * @size:      size of the resource to map
+ *
+ * ioremap performs a platform specific sequence of operations to
+>>>>>>> upstream/android-13
  * make bus memory CPU accessible via the readb/readw/readl/writeb/
  * writew/writel functions and the other mmio helpers. The returned
  * address is not guaranteed to be usable directly as a virtual
@@ -278,7 +436,11 @@ err_free_memtype:
  *
  * Must be freed with iounmap.
  */
+<<<<<<< HEAD
 void __iomem *ioremap_nocache(resource_size_t phys_addr, unsigned long size)
+=======
+void __iomem *ioremap(resource_size_t phys_addr, unsigned long size)
+>>>>>>> upstream/android-13
 {
 	/*
 	 * Ideally, this should be:
@@ -291,9 +453,15 @@ void __iomem *ioremap_nocache(resource_size_t phys_addr, unsigned long size)
 	enum page_cache_mode pcm = _PAGE_CACHE_MODE_UC_MINUS;
 
 	return __ioremap_caller(phys_addr, size, pcm,
+<<<<<<< HEAD
 				__builtin_return_address(0));
 }
 EXPORT_SYMBOL(ioremap_nocache);
+=======
+				__builtin_return_address(0), false);
+}
+EXPORT_SYMBOL(ioremap);
+>>>>>>> upstream/android-13
 
 /**
  * ioremap_uc     -   map bus memory into CPU space as strongly uncachable
@@ -324,7 +492,11 @@ void __iomem *ioremap_uc(resource_size_t phys_addr, unsigned long size)
 	enum page_cache_mode pcm = _PAGE_CACHE_MODE_UC;
 
 	return __ioremap_caller(phys_addr, size, pcm,
+<<<<<<< HEAD
 				__builtin_return_address(0));
+=======
+				__builtin_return_address(0), false);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(ioremap_uc);
 
@@ -341,7 +513,11 @@ EXPORT_SYMBOL_GPL(ioremap_uc);
 void __iomem *ioremap_wc(resource_size_t phys_addr, unsigned long size)
 {
 	return __ioremap_caller(phys_addr, size, _PAGE_CACHE_MODE_WC,
+<<<<<<< HEAD
 					__builtin_return_address(0));
+=======
+					__builtin_return_address(0), false);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(ioremap_wc);
 
@@ -358,6 +534,7 @@ EXPORT_SYMBOL(ioremap_wc);
 void __iomem *ioremap_wt(resource_size_t phys_addr, unsigned long size)
 {
 	return __ioremap_caller(phys_addr, size, _PAGE_CACHE_MODE_WT,
+<<<<<<< HEAD
 					__builtin_return_address(0));
 }
 EXPORT_SYMBOL(ioremap_wt);
@@ -366,6 +543,23 @@ void __iomem *ioremap_cache(resource_size_t phys_addr, unsigned long size)
 {
 	return __ioremap_caller(phys_addr, size, _PAGE_CACHE_MODE_WB,
 				__builtin_return_address(0));
+=======
+					__builtin_return_address(0), false);
+}
+EXPORT_SYMBOL(ioremap_wt);
+
+void __iomem *ioremap_encrypted(resource_size_t phys_addr, unsigned long size)
+{
+	return __ioremap_caller(phys_addr, size, _PAGE_CACHE_MODE_WB,
+				__builtin_return_address(0), true);
+}
+EXPORT_SYMBOL(ioremap_encrypted);
+
+void __iomem *ioremap_cache(resource_size_t phys_addr, unsigned long size)
+{
+	return __ioremap_caller(phys_addr, size, _PAGE_CACHE_MODE_WB,
+				__builtin_return_address(0), false);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(ioremap_cache);
 
@@ -374,7 +568,11 @@ void __iomem *ioremap_prot(resource_size_t phys_addr, unsigned long size,
 {
 	return __ioremap_caller(phys_addr, size,
 				pgprot2cachemode(__pgprot(prot_val)),
+<<<<<<< HEAD
 				__builtin_return_address(0));
+=======
+				__builtin_return_address(0), false);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(ioremap_prot);
 
@@ -422,7 +620,11 @@ void iounmap(volatile void __iomem *addr)
 		return;
 	}
 
+<<<<<<< HEAD
 	free_memtype(p->phys_addr, p->phys_addr + get_vm_area_size(p));
+=======
+	memtype_free(p->phys_addr, p->phys_addr + get_vm_area_size(p));
+>>>>>>> upstream/android-13
 
 	/* Finally remove it */
 	o = remove_vm_area((void __force *)addr);
@@ -431,6 +633,7 @@ void iounmap(volatile void __iomem *addr)
 }
 EXPORT_SYMBOL(iounmap);
 
+<<<<<<< HEAD
 int __init arch_ioremap_pud_supported(void)
 {
 #ifdef CONFIG_X86_64
@@ -445,6 +648,8 @@ int __init arch_ioremap_pmd_supported(void)
 	return boot_cpu_has(X86_FEATURE_PSE);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Convert a physical pointer to a virtual kernel pointer for /dev/mem
  * access
@@ -519,7 +724,11 @@ static bool memremap_should_map_decrypted(resource_size_t phys_addr,
 		/* For SEV, these areas are encrypted */
 		if (sev_active())
 			break;
+<<<<<<< HEAD
 		/* Fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case E820_TYPE_PRAM:
 		return true;
@@ -576,6 +785,10 @@ static bool memremap_is_efi_data(resource_size_t phys_addr,
 static bool memremap_is_setup_data(resource_size_t phys_addr,
 				   unsigned long size)
 {
+<<<<<<< HEAD
+=======
+	struct setup_indirect *indirect;
+>>>>>>> upstream/android-13
 	struct setup_data *data;
 	u64 paddr, paddr_next;
 
@@ -588,10 +801,42 @@ static bool memremap_is_setup_data(resource_size_t phys_addr,
 
 		data = memremap(paddr, sizeof(*data),
 				MEMREMAP_WB | MEMREMAP_DEC);
+<<<<<<< HEAD
+=======
+		if (!data) {
+			pr_warn("failed to memremap setup_data entry\n");
+			return false;
+		}
+>>>>>>> upstream/android-13
 
 		paddr_next = data->next;
 		len = data->len;
 
+<<<<<<< HEAD
+=======
+		if ((phys_addr > paddr) && (phys_addr < (paddr + len))) {
+			memunmap(data);
+			return true;
+		}
+
+		if (data->type == SETUP_INDIRECT) {
+			memunmap(data);
+			data = memremap(paddr, sizeof(*data) + len,
+					MEMREMAP_WB | MEMREMAP_DEC);
+			if (!data) {
+				pr_warn("failed to memremap indirect setup_data\n");
+				return false;
+			}
+
+			indirect = (struct setup_indirect *)data->data;
+
+			if (indirect->type != SETUP_INDIRECT) {
+				paddr = indirect->addr;
+				len = indirect->len;
+			}
+		}
+
+>>>>>>> upstream/android-13
 		memunmap(data);
 
 		if ((phys_addr > paddr) && (phys_addr < (paddr + len)))
@@ -610,22 +855,65 @@ static bool memremap_is_setup_data(resource_size_t phys_addr,
 static bool __init early_memremap_is_setup_data(resource_size_t phys_addr,
 						unsigned long size)
 {
+<<<<<<< HEAD
+=======
+	struct setup_indirect *indirect;
+>>>>>>> upstream/android-13
 	struct setup_data *data;
 	u64 paddr, paddr_next;
 
 	paddr = boot_params.hdr.setup_data;
 	while (paddr) {
+<<<<<<< HEAD
 		unsigned int len;
+=======
+		unsigned int len, size;
+>>>>>>> upstream/android-13
 
 		if (phys_addr == paddr)
 			return true;
 
 		data = early_memremap_decrypted(paddr, sizeof(*data));
+<<<<<<< HEAD
+=======
+		if (!data) {
+			pr_warn("failed to early memremap setup_data entry\n");
+			return false;
+		}
+
+		size = sizeof(*data);
+>>>>>>> upstream/android-13
 
 		paddr_next = data->next;
 		len = data->len;
 
+<<<<<<< HEAD
 		early_memunmap(data, sizeof(*data));
+=======
+		if ((phys_addr > paddr) && (phys_addr < (paddr + len))) {
+			early_memunmap(data, sizeof(*data));
+			return true;
+		}
+
+		if (data->type == SETUP_INDIRECT) {
+			size += len;
+			early_memunmap(data, sizeof(*data));
+			data = early_memremap_decrypted(paddr, size);
+			if (!data) {
+				pr_warn("failed to early memremap indirect setup_data\n");
+				return false;
+			}
+
+			indirect = (struct setup_indirect *)data->data;
+
+			if (indirect->type != SETUP_INDIRECT) {
+				paddr = indirect->addr;
+				len = indirect->len;
+			}
+		}
+
+		early_memunmap(data, size);
+>>>>>>> upstream/android-13
 
 		if ((phys_addr > paddr) && (phys_addr < (paddr + len)))
 			return true;
@@ -697,7 +985,11 @@ bool phys_mem_access_encrypted(unsigned long phys_addr, unsigned long size)
 	return arch_memremap_can_ram_remap(phys_addr, size, 0);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_ARCH_USE_MEMREMAP_PROT
+=======
+#ifdef CONFIG_AMD_MEM_ENCRYPT
+>>>>>>> upstream/android-13
 /* Remap memory with encryption */
 void __init *early_memremap_encrypted(resource_size_t phys_addr,
 				      unsigned long size)
@@ -712,10 +1004,15 @@ void __init *early_memremap_encrypted(resource_size_t phys_addr,
 void __init *early_memremap_encrypted_wp(resource_size_t phys_addr,
 					 unsigned long size)
 {
+<<<<<<< HEAD
 	/* Be sure the write-protect PAT entry is set for write-protect */
 	if (__pte2cachemode_tbl[_PAGE_CACHE_MODE_WP] != _PAGE_CACHE_MODE_WP)
 		return NULL;
 
+=======
+	if (!x86_has_pat_wp())
+		return NULL;
+>>>>>>> upstream/android-13
 	return early_memremap_prot(phys_addr, size, __PAGE_KERNEL_ENC_WP);
 }
 
@@ -733,6 +1030,7 @@ void __init *early_memremap_decrypted(resource_size_t phys_addr,
 void __init *early_memremap_decrypted_wp(resource_size_t phys_addr,
 					 unsigned long size)
 {
+<<<<<<< HEAD
 	/* Be sure the write-protect PAT entry is set for write-protect */
 	if (__pte2cachemode_tbl[_PAGE_CACHE_MODE_WP] != _PAGE_CACHE_MODE_WP)
 		return NULL;
@@ -740,6 +1038,13 @@ void __init *early_memremap_decrypted_wp(resource_size_t phys_addr,
 	return early_memremap_prot(phys_addr, size, __PAGE_KERNEL_NOENC_WP);
 }
 #endif	/* CONFIG_ARCH_USE_MEMREMAP_PROT */
+=======
+	if (!x86_has_pat_wp())
+		return NULL;
+	return early_memremap_prot(phys_addr, size, __PAGE_KERNEL_NOENC_WP);
+}
+#endif	/* CONFIG_AMD_MEM_ENCRYPT */
+>>>>>>> upstream/android-13
 
 static pte_t bm_pte[PAGE_SIZE/sizeof(pte_t)] __page_aligned_bss;
 
@@ -817,11 +1122,19 @@ void __init __early_set_fixmap(enum fixed_addresses idx,
 	pte = early_ioremap_pte(addr);
 
 	/* Sanitize 'prot' against any unsupported bits: */
+<<<<<<< HEAD
 	pgprot_val(flags) &= __default_kernel_pte_mask;
+=======
+	pgprot_val(flags) &= __supported_pte_mask;
+>>>>>>> upstream/android-13
 
 	if (pgprot_val(flags))
 		set_pte(pte, pfn_pte(phys >> PAGE_SHIFT, flags));
 	else
 		pte_clear(&init_mm, addr, pte);
+<<<<<<< HEAD
 	__flush_tlb_one_kernel(addr);
+=======
+	flush_tlb_one_kernel(addr);
+>>>>>>> upstream/android-13
 }

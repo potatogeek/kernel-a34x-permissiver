@@ -5,17 +5,33 @@
 
 #include <asm/thread_info.h>
 #include <asm/page.h>
+<<<<<<< HEAD
+=======
+#include <asm/ftrace.lds.h>
+>>>>>>> upstream/android-13
 
 /*
  * Put .bss..swapper_pg_dir as the first thing in .bss. This will
  * make sure it has 16k alignment.
  */
+<<<<<<< HEAD
 #define BSS_FIRST_SECTIONS *(.bss..swapper_pg_dir)
+=======
+#define BSS_FIRST_SECTIONS *(.bss..swapper_pg_dir) \
+			   *(.bss..invalid_pg_dir)
+>>>>>>> upstream/android-13
 
 /* Handle ro_after_init data on our own. */
 #define RO_AFTER_INIT_DATA
 
+<<<<<<< HEAD
 #include <asm-generic/vmlinux.lds.h>
+=======
+#define EMITS_PT_NOTE
+
+#include <asm-generic/vmlinux.lds.h>
+#include <asm/vmlinux.lds.h>
+>>>>>>> upstream/android-13
 
 OUTPUT_FORMAT("elf64-s390", "elf64-s390", "elf64-s390")
 OUTPUT_ARCH(s390:64-bit)
@@ -42,6 +58,10 @@ SECTIONS
 		KPROBES_TEXT
 		IRQENTRY_TEXT
 		SOFTIRQENTRY_TEXT
+<<<<<<< HEAD
+=======
+		FTRACE_HOTPATCH_TRAMPOLINES_TEXT
+>>>>>>> upstream/android-13
 		*(.text.*_indirect_*)
 		*(.fixup)
 		*(.gnu.warning)
@@ -49,11 +69,15 @@ SECTIONS
 		_etext = .;		/* End of text section */
 	} :text = 0x0700
 
+<<<<<<< HEAD
 	NOTES :text :note
 
 	.dummy : { *(.dummy) } :data
 
 	RO_DATA_SECTION(PAGE_SIZE)
+=======
+	RO_DATA(PAGE_SIZE)
+>>>>>>> upstream/android-13
 
 	. = ALIGN(PAGE_SIZE);
 	_sdata = .;		/* Start of data section */
@@ -62,12 +86,29 @@ SECTIONS
 	__start_ro_after_init = .;
 	.data..ro_after_init : {
 		 *(.data..ro_after_init)
+<<<<<<< HEAD
 	}
+=======
+		JUMP_TABLE_DATA
+	} :data
+>>>>>>> upstream/android-13
 	EXCEPTION_TABLE(16)
 	. = ALIGN(PAGE_SIZE);
 	__end_ro_after_init = .;
 
+<<<<<<< HEAD
 	RW_DATA_SECTION(0x100, PAGE_SIZE, THREAD_SIZE)
+=======
+	RW_DATA(0x100, PAGE_SIZE, THREAD_SIZE)
+	BOOT_DATA_PRESERVED
+
+	. = ALIGN(8);
+	.amode31.refs : {
+		_start_amode31_refs = .;
+		*(.amode31.refs)
+		_end_amode31_refs = .;
+	}
+>>>>>>> upstream/android-13
 
 	_edata = .;		/* End of data section */
 
@@ -132,11 +173,57 @@ SECTIONS
 		__nospec_return_end = . ;
 	}
 
+<<<<<<< HEAD
+=======
+	BOOT_DATA
+
+	/*
+	 * .amode31 section for code, data, ex_table that need to stay
+	 * below 2 GB, even when the kernel is relocated above 2 GB.
+	 */
+	. = ALIGN(PAGE_SIZE);
+	_samode31 = .;
+	.amode31.text : {
+		_stext_amode31 = .;
+		*(.amode31.text)
+		*(.amode31.text.*_indirect_*)
+		. = ALIGN(PAGE_SIZE);
+		_etext_amode31 = .;
+	}
+	. = ALIGN(16);
+	.amode31.ex_table : {
+		_start_amode31_ex_table = .;
+		KEEP(*(.amode31.ex_table))
+		_stop_amode31_ex_table = .;
+	}
+	. = ALIGN(PAGE_SIZE);
+	.amode31.data : {
+		*(.amode31.data)
+	}
+	. = ALIGN(PAGE_SIZE);
+	_eamode31 = .;
+
+>>>>>>> upstream/android-13
 	/* early.c uses stsi, which requires page aligned data. */
 	. = ALIGN(PAGE_SIZE);
 	INIT_DATA_SECTION(0x100)
 
 	PERCPU_SECTION(0x100)
+<<<<<<< HEAD
+=======
+
+	.dynsym ALIGN(8) : {
+		__dynsym_start = .;
+		*(.dynsym)
+		__dynsym_end = .;
+	}
+	.rela.dyn ALIGN(8) : {
+		__rela_dyn_start = .;
+		*(.rela*)
+		__rela_dyn_end = .;
+	}
+
+>>>>>>> upstream/android-13
 	. = ALIGN(PAGE_SIZE);
 	__init_end = .;		/* freed after init ends here */
 
@@ -144,9 +231,35 @@ SECTIONS
 
 	_end = . ;
 
+<<<<<<< HEAD
 	/* Debugging sections.	*/
 	STABS_DEBUG
 	DWARF_DEBUG
+=======
+	/*
+	 * uncompressed image info used by the decompressor
+	 * it should match struct vmlinux_info
+	 */
+	.vmlinux.info 0 (INFO) : {
+		QUAD(_stext)					/* default_lma */
+		QUAD(startup_continue)				/* entry */
+		QUAD(__bss_start - _stext)			/* image_size */
+		QUAD(__bss_stop - __bss_start)			/* bss_size */
+		QUAD(__boot_data_start)				/* bootdata_off */
+		QUAD(__boot_data_end - __boot_data_start)	/* bootdata_size */
+		QUAD(__boot_data_preserved_start)		/* bootdata_preserved_off */
+		QUAD(__boot_data_preserved_end -
+		     __boot_data_preserved_start)		/* bootdata_preserved_size */
+		QUAD(__dynsym_start)				/* dynsym_start */
+		QUAD(__rela_dyn_start)				/* rela_dyn_start */
+		QUAD(__rela_dyn_end)				/* rela_dyn_end */
+	} :NONE
+
+	/* Debugging sections.	*/
+	STABS_DEBUG
+	DWARF_DEBUG
+	ELF_DETAILS
+>>>>>>> upstream/android-13
 
 	/* Sections to be discarded */
 	DISCARDS

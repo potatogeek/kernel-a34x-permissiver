@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Driver for the Conexant CX23885 PCIe bridge
  *
  *  Copyright (c) 2006 Steven Toth <stoth@linuxtv.org>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -13,12 +18,17 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "cx23885.h"
 
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/moduleparam.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/delay.h>
 #include <asm/io.h>
@@ -317,7 +327,11 @@ int cx23885_i2c_register(struct cx23885_i2c *bus)
 	bus->i2c_client = cx23885_i2c_client_template;
 	bus->i2c_adap.dev.parent = &dev->pci->dev;
 
+<<<<<<< HEAD
 	strlcpy(bus->i2c_adap.name, bus->dev->name,
+=======
+	strscpy(bus->i2c_adap.name, bus->dev->name,
+>>>>>>> upstream/android-13
 		sizeof(bus->i2c_adap.name));
 
 	bus->i2c_adap.algo_data = bus;
@@ -340,16 +354,28 @@ int cx23885_i2c_register(struct cx23885_i2c *bus)
 	/* Instantiate the IR receiver device, if present */
 	if (0 == bus->i2c_rc) {
 		struct i2c_board_info info;
+<<<<<<< HEAD
 		const unsigned short addr_list[] = {
+=======
+		static const unsigned short addr_list[] = {
+>>>>>>> upstream/android-13
 			0x6b, I2C_CLIENT_END
 		};
 
 		memset(&info, 0, sizeof(struct i2c_board_info));
+<<<<<<< HEAD
 		strlcpy(info.type, "ir_video", I2C_NAME_SIZE);
 		/* Use quick read command for probe, some IR chips don't
 		 * support writes */
 		i2c_new_probed_device(&bus->i2c_adap, &info, addr_list,
 				      i2c_probe_func_quick_read);
+=======
+		strscpy(info.type, "ir_video", I2C_NAME_SIZE);
+		/* Use quick read command for probe, some IR chips don't
+		 * support writes */
+		i2c_new_scanned_device(&bus->i2c_adap, &info, addr_list,
+				       i2c_probe_func_quick_read);
+>>>>>>> upstream/android-13
 	}
 
 	return bus->i2c_rc;

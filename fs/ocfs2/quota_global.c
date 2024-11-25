@@ -337,7 +337,10 @@ void ocfs2_unlock_global_qf(struct ocfs2_mem_dqinfo *oinfo, int ex)
 /* Read information header from global quota file */
 int ocfs2_global_read_info(struct super_block *sb, int type)
 {
+<<<<<<< HEAD
 	struct inode *gqinode = NULL;
+=======
+>>>>>>> upstream/android-13
 	unsigned int ino[OCFS2_MAXQUOTAS] = { USER_QUOTA_SYSTEM_INODE,
 					      GROUP_QUOTA_SYSTEM_INODE };
 	struct ocfs2_global_disk_dqinfo dinfo;
@@ -346,6 +349,7 @@ int ocfs2_global_read_info(struct super_block *sb, int type)
 	u64 pcount;
 	int status;
 
+<<<<<<< HEAD
 	/* Read global header */
 	gqinode = ocfs2_get_system_file_inode(OCFS2_SB(sb), ino[type],
 			OCFS2_INVALID_SLOT);
@@ -355,6 +359,8 @@ int ocfs2_global_read_info(struct super_block *sb, int type)
 		status = -EINVAL;
 		goto out_err;
 	}
+=======
+>>>>>>> upstream/android-13
 	oinfo->dqi_gi.dqi_sb = sb;
 	oinfo->dqi_gi.dqi_type = type;
 	ocfs2_qinfo_lock_res_init(&oinfo->dqi_gqlock, oinfo);
@@ -362,14 +368,32 @@ int ocfs2_global_read_info(struct super_block *sb, int type)
 	oinfo->dqi_gi.dqi_ops = &ocfs2_global_ops;
 	oinfo->dqi_gqi_bh = NULL;
 	oinfo->dqi_gqi_count = 0;
+<<<<<<< HEAD
 	oinfo->dqi_gqinode = gqinode;
+=======
+
+	/* Read global header */
+	oinfo->dqi_gqinode = ocfs2_get_system_file_inode(OCFS2_SB(sb), ino[type],
+			OCFS2_INVALID_SLOT);
+	if (!oinfo->dqi_gqinode) {
+		mlog(ML_ERROR, "failed to get global quota inode (type=%d)\n",
+			type);
+		status = -EINVAL;
+		goto out_err;
+	}
+
+>>>>>>> upstream/android-13
 	status = ocfs2_lock_global_qf(oinfo, 0);
 	if (status < 0) {
 		mlog_errno(status);
 		goto out_err;
 	}
 
+<<<<<<< HEAD
 	status = ocfs2_extent_map_get_blocks(gqinode, 0, &oinfo->dqi_giblk,
+=======
+	status = ocfs2_extent_map_get_blocks(oinfo->dqi_gqinode, 0, &oinfo->dqi_giblk,
+>>>>>>> upstream/android-13
 					     &pcount, NULL);
 	if (status < 0)
 		goto out_unlock;

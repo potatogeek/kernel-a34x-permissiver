@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	GRE over IPv4 demultiplexer driver
  *
  *	Authors: Dmitry Kozlov (xeb@mail.ru)
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -90,7 +97,11 @@ int gre_parse_header(struct sk_buff *skb, struct tnl_ptk_info *tpi,
 	options = (__be32 *)(greh + 1);
 	if (greh->flags & GRE_CSUM) {
 		if (!skb_checksum_simple_validate(skb)) {
+<<<<<<< HEAD
 			skb_checksum_try_convert(skb, IPPROTO_GRE, 0,
+=======
+			skb_checksum_try_convert(skb, IPPROTO_GRE,
+>>>>>>> upstream/android-13
 						 null_compute_pseudo);
 		} else if (csum_err) {
 			*csum_err = true;
@@ -176,26 +187,48 @@ drop:
 	return NET_RX_DROP;
 }
 
+<<<<<<< HEAD
 static void gre_err(struct sk_buff *skb, u32 info)
+=======
+static int gre_err(struct sk_buff *skb, u32 info)
+>>>>>>> upstream/android-13
 {
 	const struct gre_protocol *proto;
 	const struct iphdr *iph = (const struct iphdr *)skb->data;
 	u8 ver = skb->data[(iph->ihl<<2) + 1]&0x7f;
+<<<<<<< HEAD
 
 	if (ver >= GREPROTO_MAX)
 		return;
+=======
+	int err = 0;
+
+	if (ver >= GREPROTO_MAX)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	rcu_read_lock();
 	proto = rcu_dereference(gre_proto[ver]);
 	if (proto && proto->err_handler)
 		proto->err_handler(skb, info);
+<<<<<<< HEAD
 	rcu_read_unlock();
+=======
+	else
+		err = -EPROTONOSUPPORT;
+	rcu_read_unlock();
+
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static const struct net_protocol net_gre_protocol = {
 	.handler     = gre_rcv,
 	.err_handler = gre_err,
+<<<<<<< HEAD
 	.netns_ok    = 1,
+=======
+>>>>>>> upstream/android-13
 };
 
 static int __init gre_init(void)

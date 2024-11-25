@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2012 Hans Verkuil <hverkuil@xs4all.nl>
  *
@@ -10,6 +11,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2012 Hans Verkuil <hverkuil@xs4all.nl>
+>>>>>>> upstream/android-13
  */
 
 /* kernel includes */
@@ -174,11 +180,17 @@ static int vidioc_querycap(struct file *file, void *priv,
 {
 	struct keene_device *radio = video_drvdata(file);
 
+<<<<<<< HEAD
 	strlcpy(v->driver, "radio-keene", sizeof(v->driver));
 	strlcpy(v->card, "Keene FM Transmitter", sizeof(v->card));
 	usb_make_path(radio->usbdev, v->bus_info, sizeof(v->bus_info));
 	v->device_caps = V4L2_CAP_RADIO | V4L2_CAP_MODULATOR;
 	v->capabilities = v->device_caps | V4L2_CAP_DEVICE_CAPS;
+=======
+	strscpy(v->driver, "radio-keene", sizeof(v->driver));
+	strscpy(v->card, "Keene FM Transmitter", sizeof(v->card));
+	usb_make_path(radio->usbdev, v->bus_info, sizeof(v->bus_info));
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -190,7 +202,11 @@ static int vidioc_g_modulator(struct file *file, void *priv,
 	if (v->index > 0)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	strlcpy(v->name, "FM", sizeof(v->name));
+=======
+	strscpy(v->name, "FM", sizeof(v->name));
+>>>>>>> upstream/android-13
 	v->rangelow = FREQ_MIN * FREQ_MUL;
 	v->rangehigh = FREQ_MAX * FREQ_MUL;
 	v->txsubchans = radio->stereo ? V4L2_TUNER_SUB_STEREO : V4L2_TUNER_SUB_MONO;
@@ -362,7 +378,11 @@ static int usb_keene_probe(struct usb_interface *intf,
 
 	radio->v4l2_dev.ctrl_handler = hdl;
 	radio->v4l2_dev.release = usb_keene_video_device_release;
+<<<<<<< HEAD
 	strlcpy(radio->vdev.name, radio->v4l2_dev.name,
+=======
+	strscpy(radio->vdev.name, radio->v4l2_dev.name,
+>>>>>>> upstream/android-13
 		sizeof(radio->vdev.name));
 	radio->vdev.v4l2_dev = &radio->v4l2_dev;
 	radio->vdev.fops = &usb_keene_fops;
@@ -370,6 +390,10 @@ static int usb_keene_probe(struct usb_interface *intf,
 	radio->vdev.lock = &radio->lock;
 	radio->vdev.release = video_device_release_empty;
 	radio->vdev.vfl_dir = VFL_DIR_TX;
+<<<<<<< HEAD
+=======
+	radio->vdev.device_caps = V4L2_CAP_RADIO | V4L2_CAP_MODULATOR;
+>>>>>>> upstream/android-13
 
 	radio->usbdev = interface_to_usbdev(intf);
 	radio->intf = intf;

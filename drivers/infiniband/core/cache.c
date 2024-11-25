@@ -46,14 +46,23 @@
 
 struct ib_pkey_cache {
 	int             table_len;
+<<<<<<< HEAD
 	u16             table[0];
+=======
+	u16             table[];
+>>>>>>> upstream/android-13
 };
 
 struct ib_update_work {
 	struct work_struct work;
+<<<<<<< HEAD
 	struct ib_device  *device;
 	u8                 port_num;
 	bool		   enforce_security;
+=======
+	struct ib_event event;
+	bool enforce_security;
+>>>>>>> upstream/android-13
 };
 
 union ib_gid zgid;
@@ -78,11 +87,28 @@ enum gid_table_entry_state {
 	GID_TABLE_ENTRY_PENDING_DEL	= 3,
 };
 
+<<<<<<< HEAD
+=======
+struct roce_gid_ndev_storage {
+	struct rcu_head rcu_head;
+	struct net_device *ndev;
+};
+
+>>>>>>> upstream/android-13
 struct ib_gid_table_entry {
 	struct kref			kref;
 	struct work_struct		del_work;
 	struct ib_gid_attr		attr;
 	void				*context;
+<<<<<<< HEAD
+=======
+	/* Store the ndev pointer to release reference later on in
+	 * call_rcu context because by that time gid_table_entry
+	 * and attr might be already freed. So keep a copy of it.
+	 * ndev_storage is freed by rcu callback.
+	 */
+	struct roce_gid_ndev_storage	*ndev_storage;
+>>>>>>> upstream/android-13
 	enum gid_table_entry_state	state;
 };
 
@@ -111,7 +137,11 @@ struct ib_gid_table {
 	u32				default_gid_indices;
 };
 
+<<<<<<< HEAD
 static void dispatch_gid_change_event(struct ib_device *ib_dev, u8 port)
+=======
+static void dispatch_gid_change_event(struct ib_device *ib_dev, u32 port)
+>>>>>>> upstream/android-13
 {
 	struct ib_event event;
 
@@ -119,11 +149,23 @@ static void dispatch_gid_change_event(struct ib_device *ib_dev, u8 port)
 	event.element.port_num	= port;
 	event.event		= IB_EVENT_GID_CHANGE;
 
+<<<<<<< HEAD
 	ib_dispatch_event(&event);
 }
 
 static const char * const gid_type_str[] = {
 	[IB_GID_TYPE_IB]	= "IB/RoCE v1",
+=======
+	ib_dispatch_event_clients(&event);
+}
+
+static const char * const gid_type_str[] = {
+	/* IB/RoCE v1 value is set for IB_GID_TYPE_IB and IB_GID_TYPE_ROCE for
+	 * user space compatibility reasons.
+	 */
+	[IB_GID_TYPE_IB]	= "IB/RoCE v1",
+	[IB_GID_TYPE_ROCE]	= "IB/RoCE v1",
+>>>>>>> upstream/android-13
 	[IB_GID_TYPE_ROCE_UDP_ENCAP]	= "RoCE v2",
 };
 
@@ -183,9 +225,15 @@ int ib_cache_gid_parse_type_str(const char *buf)
 }
 EXPORT_SYMBOL(ib_cache_gid_parse_type_str);
 
+<<<<<<< HEAD
 static struct ib_gid_table *rdma_gid_table(struct ib_device *device, u8 port)
 {
 	return device->cache.ports[port - rdma_start_port(device)].gid;
+=======
+static struct ib_gid_table *rdma_gid_table(struct ib_device *device, u32 port)
+{
+	return device->port_data[port].cache.gid;
+>>>>>>> upstream/android-13
 }
 
 static bool is_gid_entry_free(const struct ib_gid_table_entry *entry)
@@ -206,6 +254,7 @@ static void schedule_free_gid(struct kref *kref)
 	queue_work(ib_wq, &entry->del_work);
 }
 
+<<<<<<< HEAD
 static void free_gid_entry_locked(struct ib_gid_table_entry *entry)
 {
 	struct ib_device *device = entry->attr.device;
@@ -219,6 +268,30 @@ static void free_gid_entry_locked(struct ib_gid_table_entry *entry)
 	if (rdma_cap_roce_gid_table(device, port_num) &&
 	    entry->state != GID_TABLE_ENTRY_INVALID)
 		device->del_gid(&entry->attr, &entry->context);
+=======
+static void put_gid_ndev(struct rcu_head *head)
+{
+	struct roce_gid_ndev_storage *storage =
+		container_of(head, struct roce_gid_ndev_storage, rcu_head);
+
+	WARN_ON(!storage->ndev);
+	/* At this point its safe to release netdev reference,
+	 * as all callers working on gid_attr->ndev are done
+	 * using this netdev.
+	 */
+	dev_put(storage->ndev);
+	kfree(storage);
+}
+
+static void free_gid_entry_locked(struct ib_gid_table_entry *entry)
+{
+	struct ib_device *device = entry->attr.device;
+	u32 port_num = entry->attr.port_num;
+	struct ib_gid_table *table = rdma_gid_table(device, port_num);
+
+	dev_dbg(&device->dev, "%s port=%u index=%u gid %pI6\n", __func__,
+		port_num, entry->attr.index, entry->attr.gid.raw);
+>>>>>>> upstream/android-13
 
 	write_lock_irq(&table->rwlock);
 
@@ -233,8 +306,13 @@ static void free_gid_entry_locked(struct ib_gid_table_entry *entry)
 	/* Now this index is ready to be allocated */
 	write_unlock_irq(&table->rwlock);
 
+<<<<<<< HEAD
 	if (entry->attr.ndev)
 		dev_put(entry->attr.ndev);
+=======
+	if (entry->ndev_storage)
+		call_rcu(&entry->ndev_storage->rcu_head, put_gid_ndev);
+>>>>>>> upstream/android-13
 	kfree(entry);
 }
 
@@ -259,7 +337,11 @@ static void free_gid_work(struct work_struct *work)
 	struct ib_gid_table_entry *entry =
 		container_of(work, struct ib_gid_table_entry, del_work);
 	struct ib_device *device = entry->attr.device;
+<<<<<<< HEAD
 	u8 port_num = entry->attr.port_num;
+=======
+	u32 port_num = entry->attr.port_num;
+>>>>>>> upstream/android-13
 	struct ib_gid_table *table = rdma_gid_table(device, port_num);
 
 	mutex_lock(&table->lock);
@@ -271,14 +353,35 @@ static struct ib_gid_table_entry *
 alloc_gid_entry(const struct ib_gid_attr *attr)
 {
 	struct ib_gid_table_entry *entry;
+<<<<<<< HEAD
+=======
+	struct net_device *ndev;
+>>>>>>> upstream/android-13
 
 	entry = kzalloc(sizeof(*entry), GFP_KERNEL);
 	if (!entry)
 		return NULL;
+<<<<<<< HEAD
 	kref_init(&entry->kref);
 	memcpy(&entry->attr, attr, sizeof(*attr));
 	if (entry->attr.ndev)
 		dev_hold(entry->attr.ndev);
+=======
+
+	ndev = rcu_dereference_protected(attr->ndev, 1);
+	if (ndev) {
+		entry->ndev_storage = kzalloc(sizeof(*entry->ndev_storage),
+					      GFP_KERNEL);
+		if (!entry->ndev_storage) {
+			kfree(entry);
+			return NULL;
+		}
+		dev_hold(ndev);
+		entry->ndev_storage->ndev = ndev;
+	}
+	kref_init(&entry->kref);
+	memcpy(&entry->attr, attr, sizeof(*attr));
+>>>>>>> upstream/android-13
 	INIT_WORK(&entry->del_work, free_gid_work);
 	entry->state = GID_TABLE_ENTRY_INVALID;
 	return entry;
@@ -289,9 +392,15 @@ static void store_gid_entry(struct ib_gid_table *table,
 {
 	entry->state = GID_TABLE_ENTRY_VALID;
 
+<<<<<<< HEAD
 	pr_debug("%s device=%s port=%d index=%d gid %pI6\n", __func__,
 		 entry->attr.device->name, entry->attr.port_num,
 		 entry->attr.index, entry->attr.gid.raw);
+=======
+	dev_dbg(&entry->attr.device->dev, "%s port=%u index=%u gid %pI6\n",
+		__func__, entry->attr.port_num, entry->attr.index,
+		entry->attr.gid.raw);
+>>>>>>> upstream/android-13
 
 	lockdep_assert_held(&table->lock);
 	write_lock_irq(&table->rwlock);
@@ -320,6 +429,7 @@ static int add_roce_gid(struct ib_gid_table_entry *entry)
 	int ret;
 
 	if (!attr->ndev) {
+<<<<<<< HEAD
 		pr_err("%s NULL netdev device=%s port=%d index=%d\n",
 		       __func__, attr->device->name, attr->port_num,
 		       attr->index);
@@ -331,6 +441,18 @@ static int add_roce_gid(struct ib_gid_table_entry *entry)
 			pr_err("%s GID add failed device=%s port=%d index=%d\n",
 			       __func__, attr->device->name, attr->port_num,
 			       attr->index);
+=======
+		dev_err(&attr->device->dev, "%s NULL netdev port=%u index=%u\n",
+			__func__, attr->port_num, attr->index);
+		return -EINVAL;
+	}
+	if (rdma_cap_roce_gid_table(attr->device, attr->port_num)) {
+		ret = attr->device->ops.add_gid(attr, &entry->context);
+		if (ret) {
+			dev_err(&attr->device->dev,
+				"%s GID add failed port=%u index=%u\n",
+				__func__, attr->port_num, attr->index);
+>>>>>>> upstream/android-13
 			return ret;
 		}
 	}
@@ -346,16 +468,28 @@ static int add_roce_gid(struct ib_gid_table_entry *entry)
  * @ix:		GID entry index to delete
  *
  */
+<<<<<<< HEAD
 static void del_gid(struct ib_device *ib_dev, u8 port,
 		    struct ib_gid_table *table, int ix)
 {
+=======
+static void del_gid(struct ib_device *ib_dev, u32 port,
+		    struct ib_gid_table *table, int ix)
+{
+	struct roce_gid_ndev_storage *ndev_storage;
+>>>>>>> upstream/android-13
 	struct ib_gid_table_entry *entry;
 
 	lockdep_assert_held(&table->lock);
 
+<<<<<<< HEAD
 	pr_debug("%s device=%s port=%d index=%d gid %pI6\n", __func__,
 		 ib_dev->name, port, ix,
 		 table->data_vec[ix]->attr.gid.raw);
+=======
+	dev_dbg(&ib_dev->dev, "%s port=%u index=%d gid %pI6\n", __func__, port,
+		ix, table->data_vec[ix]->attr.gid.raw);
+>>>>>>> upstream/android-13
 
 	write_lock_irq(&table->rwlock);
 	entry = table->data_vec[ix];
@@ -367,6 +501,19 @@ static void del_gid(struct ib_device *ib_dev, u8 port,
 		table->data_vec[ix] = NULL;
 	write_unlock_irq(&table->rwlock);
 
+<<<<<<< HEAD
+=======
+	ndev_storage = entry->ndev_storage;
+	if (ndev_storage) {
+		entry->ndev_storage = NULL;
+		rcu_assign_pointer(entry->attr.ndev, NULL);
+		call_rcu(&ndev_storage->rcu_head, put_gid_ndev);
+	}
+
+	if (rdma_cap_roce_gid_table(ib_dev, port))
+		ib_dev->ops.del_gid(&entry->attr, &entry->context);
+
+>>>>>>> upstream/android-13
 	put_gid_entry_locked(entry);
 }
 
@@ -500,7 +647,11 @@ static void make_default_gid(struct  net_device *dev, union ib_gid *gid)
 	addrconf_ifid_eui48(&gid->raw[8], dev);
 }
 
+<<<<<<< HEAD
 static int __ib_cache_gid_add(struct ib_device *ib_dev, u8 port,
+=======
+static int __ib_cache_gid_add(struct ib_device *ib_dev, u32 port,
+>>>>>>> upstream/android-13
 			      union ib_gid *gid, struct ib_gid_attr *attr,
 			      unsigned long mask, bool default_gid)
 {
@@ -544,6 +695,7 @@ out_unlock:
 	return ret;
 }
 
+<<<<<<< HEAD
 int ib_cache_gid_add(struct ib_device *ib_dev, u8 port,
 		     union ib_gid *gid, struct ib_gid_attr *attr)
 {
@@ -577,6 +729,20 @@ int ib_cache_gid_add(struct ib_device *ib_dev, u8 port,
 
 static int
 _ib_cache_gid_del(struct ib_device *ib_dev, u8 port,
+=======
+int ib_cache_gid_add(struct ib_device *ib_dev, u32 port,
+		     union ib_gid *gid, struct ib_gid_attr *attr)
+{
+	unsigned long mask = GID_ATTR_FIND_MASK_GID |
+			     GID_ATTR_FIND_MASK_GID_TYPE |
+			     GID_ATTR_FIND_MASK_NETDEV;
+
+	return __ib_cache_gid_add(ib_dev, port, gid, attr, mask, false);
+}
+
+static int
+_ib_cache_gid_del(struct ib_device *ib_dev, u32 port,
+>>>>>>> upstream/android-13
 		  union ib_gid *gid, struct ib_gid_attr *attr,
 		  unsigned long mask, bool default_gid)
 {
@@ -605,7 +771,11 @@ out_unlock:
 	return ret;
 }
 
+<<<<<<< HEAD
 int ib_cache_gid_del(struct ib_device *ib_dev, u8 port,
+=======
+int ib_cache_gid_del(struct ib_device *ib_dev, u32 port,
+>>>>>>> upstream/android-13
 		     union ib_gid *gid, struct ib_gid_attr *attr)
 {
 	unsigned long mask = GID_ATTR_FIND_MASK_GID	  |
@@ -616,7 +786,11 @@ int ib_cache_gid_del(struct ib_device *ib_dev, u8 port,
 	return _ib_cache_gid_del(ib_dev, port, gid, attr, mask, false);
 }
 
+<<<<<<< HEAD
 int ib_cache_gid_del_all_netdev_gids(struct ib_device *ib_dev, u8 port,
+=======
+int ib_cache_gid_del_all_netdev_gids(struct ib_device *ib_dev, u32 port,
+>>>>>>> upstream/android-13
 				     struct net_device *ndev)
 {
 	struct ib_gid_table *table;
@@ -647,11 +821,18 @@ int ib_cache_gid_del_all_netdev_gids(struct ib_device *ib_dev, u8 port,
  * rdma_find_gid_by_port - Returns the GID entry attributes when it finds
  * a valid GID entry for given search parameters. It searches for the specified
  * GID value in the local software cache.
+<<<<<<< HEAD
  * @device: The device to query.
  * @gid: The GID value to search for.
  * @gid_type: The GID type to search for.
  * @port_num: The port number of the device where the GID value should be
  *   searched.
+=======
+ * @ib_dev: The device to query.
+ * @gid: The GID value to search for.
+ * @gid_type: The GID type to search for.
+ * @port: The port number of the device where the GID value should be searched.
+>>>>>>> upstream/android-13
  * @ndev: In RoCE, the net device of the device. NULL means ignore.
  *
  * Returns sgid attributes if the GID is found with valid reference or
@@ -662,7 +843,11 @@ const struct ib_gid_attr *
 rdma_find_gid_by_port(struct ib_device *ib_dev,
 		      const union ib_gid *gid,
 		      enum ib_gid_type gid_type,
+<<<<<<< HEAD
 		      u8 port, struct net_device *ndev)
+=======
+		      u32 port, struct net_device *ndev)
+>>>>>>> upstream/android-13
 {
 	int local_index;
 	struct ib_gid_table *table;
@@ -697,7 +882,11 @@ EXPORT_SYMBOL(rdma_find_gid_by_port);
 /**
  * rdma_find_gid_by_filter - Returns the GID table attribute where a
  * specified GID value occurs
+<<<<<<< HEAD
  * @device: The device to query.
+=======
+ * @ib_dev: The device to query.
+>>>>>>> upstream/android-13
  * @gid: The GID value to search for.
  * @port: The port number of the device where the GID value could be
  *   searched.
@@ -706,13 +895,21 @@ EXPORT_SYMBOL(rdma_find_gid_by_port);
  *   otherwise, we continue searching the GID table. It's guaranteed that
  *   while filter is executed, ndev field is valid and the structure won't
  *   change. filter is executed in an atomic context. filter must not be NULL.
+<<<<<<< HEAD
+=======
+ * @context: Private data to pass into the call-back.
+>>>>>>> upstream/android-13
  *
  * rdma_find_gid_by_filter() searches for the specified GID value
  * of which the filter function returns true in the port's GID table.
  *
  */
 const struct ib_gid_attr *rdma_find_gid_by_filter(
+<<<<<<< HEAD
 	struct ib_device *ib_dev, const union ib_gid *gid, u8 port,
+=======
+	struct ib_device *ib_dev, const union ib_gid *gid, u32 port,
+>>>>>>> upstream/android-13
 	bool (*filter)(const union ib_gid *gid, const struct ib_gid_attr *,
 		       void *),
 	void *context)
@@ -769,7 +966,11 @@ err_free_table:
 	return NULL;
 }
 
+<<<<<<< HEAD
 static void release_gid_table(struct ib_device *device, u8 port,
+=======
+static void release_gid_table(struct ib_device *device,
+>>>>>>> upstream/android-13
 			      struct ib_gid_table *table)
 {
 	bool leak = false;
@@ -782,30 +983,48 @@ static void release_gid_table(struct ib_device *device, u8 port,
 		if (is_gid_entry_free(table->data_vec[i]))
 			continue;
 		if (kref_read(&table->data_vec[i]->kref) > 1) {
+<<<<<<< HEAD
 			pr_err("GID entry ref leak for %s (index %d) ref=%d\n",
 			       device->name, i,
 			       kref_read(&table->data_vec[i]->kref));
+=======
+			dev_err(&device->dev,
+				"GID entry ref leak for index %d ref=%u\n", i,
+				kref_read(&table->data_vec[i]->kref));
+>>>>>>> upstream/android-13
 			leak = true;
 		}
 	}
 	if (leak)
 		return;
 
+<<<<<<< HEAD
+=======
+	mutex_destroy(&table->lock);
+>>>>>>> upstream/android-13
 	kfree(table->data_vec);
 	kfree(table);
 }
 
+<<<<<<< HEAD
 static void cleanup_gid_table_port(struct ib_device *ib_dev, u8 port,
 				   struct ib_gid_table *table)
 {
 	int i;
 	bool deleted = false;
+=======
+static void cleanup_gid_table_port(struct ib_device *ib_dev, u32 port,
+				   struct ib_gid_table *table)
+{
+	int i;
+>>>>>>> upstream/android-13
 
 	if (!table)
 		return;
 
 	mutex_lock(&table->lock);
 	for (i = 0; i < table->sz; ++i) {
+<<<<<<< HEAD
 		if (is_gid_entry_valid(table->data_vec[i])) {
 			del_gid(ib_dev, port, table, i);
 			deleted = true;
@@ -818,6 +1037,15 @@ static void cleanup_gid_table_port(struct ib_device *ib_dev, u8 port,
 }
 
 void ib_cache_gid_set_default_gid(struct ib_device *ib_dev, u8 port,
+=======
+		if (is_gid_entry_valid(table->data_vec[i]))
+			del_gid(ib_dev, port, table, i);
+	}
+	mutex_unlock(&table->lock);
+}
+
+void ib_cache_gid_set_default_gid(struct ib_device *ib_dev, u32 port,
+>>>>>>> upstream/android-13
 				  struct net_device *ndev,
 				  unsigned long gid_type_mask,
 				  enum ib_cache_gid_default_mode mode)
@@ -850,7 +1078,11 @@ void ib_cache_gid_set_default_gid(struct ib_device *ib_dev, u8 port,
 	}
 }
 
+<<<<<<< HEAD
 static void gid_table_reserve_default(struct ib_device *ib_dev, u8 port,
+=======
+static void gid_table_reserve_default(struct ib_device *ib_dev, u32 port,
+>>>>>>> upstream/android-13
 				      struct ib_gid_table *table)
 {
 	unsigned int i;
@@ -867,6 +1099,7 @@ static void gid_table_reserve_default(struct ib_device *ib_dev, u8 port,
 
 static void gid_table_release_one(struct ib_device *ib_dev)
 {
+<<<<<<< HEAD
 	struct ib_gid_table *table;
 	u8 port;
 
@@ -874,11 +1107,19 @@ static void gid_table_release_one(struct ib_device *ib_dev)
 		table = ib_dev->cache.ports[port].gid;
 		release_gid_table(ib_dev, port, table);
 		ib_dev->cache.ports[port].gid = NULL;
+=======
+	u32 p;
+
+	rdma_for_each_port (ib_dev, p) {
+		release_gid_table(ib_dev, ib_dev->port_data[p].cache.gid);
+		ib_dev->port_data[p].cache.gid = NULL;
+>>>>>>> upstream/android-13
 	}
 }
 
 static int _gid_table_setup_one(struct ib_device *ib_dev)
 {
+<<<<<<< HEAD
 	u8 port;
 	struct ib_gid_table *table;
 
@@ -887,11 +1128,23 @@ static int _gid_table_setup_one(struct ib_device *ib_dev)
 
 		table =	alloc_gid_table(
 				ib_dev->port_immutable[rdma_port].gid_tbl_len);
+=======
+	struct ib_gid_table *table;
+	u32 rdma_port;
+
+	rdma_for_each_port (ib_dev, rdma_port) {
+		table = alloc_gid_table(
+			ib_dev->port_data[rdma_port].immutable.gid_tbl_len);
+>>>>>>> upstream/android-13
 		if (!table)
 			goto rollback_table_setup;
 
 		gid_table_reserve_default(ib_dev, rdma_port, table);
+<<<<<<< HEAD
 		ib_dev->cache.ports[port].gid = table;
+=======
+		ib_dev->port_data[rdma_port].cache.gid = table;
+>>>>>>> upstream/android-13
 	}
 	return 0;
 
@@ -902,6 +1155,7 @@ rollback_table_setup:
 
 static void gid_table_cleanup_one(struct ib_device *ib_dev)
 {
+<<<<<<< HEAD
 	struct ib_gid_table *table;
 	u8 port;
 
@@ -910,6 +1164,13 @@ static void gid_table_cleanup_one(struct ib_device *ib_dev)
 		cleanup_gid_table_port(ib_dev, port + rdma_start_port(ib_dev),
 				       table);
 	}
+=======
+	u32 p;
+
+	rdma_for_each_port (ib_dev, p)
+		cleanup_gid_table_port(ib_dev, p,
+				       ib_dev->port_data[p].cache.gid);
+>>>>>>> upstream/android-13
 }
 
 static int gid_table_setup_one(struct ib_device *ib_dev)
@@ -940,7 +1201,11 @@ static int gid_table_setup_one(struct ib_device *ib_dev)
  * Returns 0 on success or appropriate error code.
  *
  */
+<<<<<<< HEAD
 int rdma_query_gid(struct ib_device *device, u8 port_num,
+=======
+int rdma_query_gid(struct ib_device *device, u32 port_num,
+>>>>>>> upstream/android-13
 		   int index, union ib_gid *gid)
 {
 	struct ib_gid_table *table;
@@ -967,6 +1232,26 @@ done:
 EXPORT_SYMBOL(rdma_query_gid);
 
 /**
+<<<<<<< HEAD
+=======
+ * rdma_read_gid_hw_context - Read the HW GID context from GID attribute
+ * @attr:		Potinter to the GID attribute
+ *
+ * rdma_read_gid_hw_context() reads the drivers GID HW context corresponding
+ * to the SGID attr. Callers are required to already be holding the reference
+ * to an existing GID entry.
+ *
+ * Returns the HW GID context
+ *
+ */
+void *rdma_read_gid_hw_context(const struct ib_gid_attr *attr)
+{
+	return container_of(attr, struct ib_gid_table_entry, attr)->context;
+}
+EXPORT_SYMBOL(rdma_read_gid_hw_context);
+
+/**
+>>>>>>> upstream/android-13
  * rdma_find_gid - Returns SGID attributes if the matching GID is found.
  * @device: The device to query.
  * @gid: The GID value to search for.
@@ -987,17 +1272,29 @@ const struct ib_gid_attr *rdma_find_gid(struct ib_device *device,
 	unsigned long mask = GID_ATTR_FIND_MASK_GID |
 			     GID_ATTR_FIND_MASK_GID_TYPE;
 	struct ib_gid_attr gid_attr_val = {.ndev = ndev, .gid_type = gid_type};
+<<<<<<< HEAD
 	u8 p;
+=======
+	u32 p;
+>>>>>>> upstream/android-13
 
 	if (ndev)
 		mask |= GID_ATTR_FIND_MASK_NETDEV;
 
+<<<<<<< HEAD
 	for (p = 0; p < device->phys_port_cnt; p++) {
+=======
+	rdma_for_each_port(device, p) {
+>>>>>>> upstream/android-13
 		struct ib_gid_table *table;
 		unsigned long flags;
 		int index;
 
+<<<<<<< HEAD
 		table = device->cache.ports[p].gid;
+=======
+		table = device->port_data[p].cache.gid;
+>>>>>>> upstream/android-13
 		read_lock_irqsave(&table->rwlock, flags);
 		index = find_gid(table, gid, &gid_attr_val, false, mask, NULL);
 		if (index >= 0) {
@@ -1016,7 +1313,11 @@ const struct ib_gid_attr *rdma_find_gid(struct ib_device *device,
 EXPORT_SYMBOL(rdma_find_gid);
 
 int ib_get_cached_pkey(struct ib_device *device,
+<<<<<<< HEAD
 		       u8                port_num,
+=======
+		       u32               port_num,
+>>>>>>> upstream/android-13
 		       int               index,
 		       u16              *pkey)
 {
@@ -1027,21 +1328,34 @@ int ib_get_cached_pkey(struct ib_device *device,
 	if (!rdma_is_port_valid(device, port_num))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	read_lock_irqsave(&device->cache.lock, flags);
 
 	cache = device->cache.ports[port_num - rdma_start_port(device)].pkey;
 
 	if (index < 0 || index >= cache->table_len)
+=======
+	read_lock_irqsave(&device->cache_lock, flags);
+
+	cache = device->port_data[port_num].cache.pkey;
+
+	if (!cache || index < 0 || index >= cache->table_len)
+>>>>>>> upstream/android-13
 		ret = -EINVAL;
 	else
 		*pkey = cache->table[index];
 
+<<<<<<< HEAD
 	read_unlock_irqrestore(&device->cache.lock, flags);
+=======
+	read_unlock_irqrestore(&device->cache_lock, flags);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 EXPORT_SYMBOL(ib_get_cached_pkey);
 
+<<<<<<< HEAD
 int ib_get_cached_subnet_prefix(struct ib_device *device,
 				u8                port_num,
 				u64              *sn_pfx)
@@ -1065,6 +1379,21 @@ int ib_find_cached_pkey(struct ib_device *device,
 			u8                port_num,
 			u16               pkey,
 			u16              *index)
+=======
+void ib_get_cached_subnet_prefix(struct ib_device *device, u32 port_num,
+				u64 *sn_pfx)
+{
+	unsigned long flags;
+
+	read_lock_irqsave(&device->cache_lock, flags);
+	*sn_pfx = device->port_data[port_num].cache.subnet_prefix;
+	read_unlock_irqrestore(&device->cache_lock, flags);
+}
+EXPORT_SYMBOL(ib_get_cached_subnet_prefix);
+
+int ib_find_cached_pkey(struct ib_device *device, u32 port_num,
+			u16 pkey, u16 *index)
+>>>>>>> upstream/android-13
 {
 	struct ib_pkey_cache *cache;
 	unsigned long flags;
@@ -1075,9 +1404,19 @@ int ib_find_cached_pkey(struct ib_device *device,
 	if (!rdma_is_port_valid(device, port_num))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	read_lock_irqsave(&device->cache.lock, flags);
 
 	cache = device->cache.ports[port_num - rdma_start_port(device)].pkey;
+=======
+	read_lock_irqsave(&device->cache_lock, flags);
+
+	cache = device->port_data[port_num].cache.pkey;
+	if (!cache) {
+		ret = -EINVAL;
+		goto err;
+	}
+>>>>>>> upstream/android-13
 
 	*index = -1;
 
@@ -1087,8 +1426,14 @@ int ib_find_cached_pkey(struct ib_device *device,
 				*index = i;
 				ret = 0;
 				break;
+<<<<<<< HEAD
 			} else
 				partial_ix = i;
+=======
+			} else {
+				partial_ix = i;
+			}
+>>>>>>> upstream/android-13
 		}
 
 	if (ret && partial_ix >= 0) {
@@ -1096,16 +1441,26 @@ int ib_find_cached_pkey(struct ib_device *device,
 		ret = 0;
 	}
 
+<<<<<<< HEAD
 	read_unlock_irqrestore(&device->cache.lock, flags);
+=======
+err:
+	read_unlock_irqrestore(&device->cache_lock, flags);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 EXPORT_SYMBOL(ib_find_cached_pkey);
 
+<<<<<<< HEAD
 int ib_find_exact_cached_pkey(struct ib_device *device,
 			      u8                port_num,
 			      u16               pkey,
 			      u16              *index)
+=======
+int ib_find_exact_cached_pkey(struct ib_device *device, u32 port_num,
+			      u16 pkey, u16 *index)
+>>>>>>> upstream/android-13
 {
 	struct ib_pkey_cache *cache;
 	unsigned long flags;
@@ -1115,9 +1470,19 @@ int ib_find_exact_cached_pkey(struct ib_device *device,
 	if (!rdma_is_port_valid(device, port_num))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	read_lock_irqsave(&device->cache.lock, flags);
 
 	cache = device->cache.ports[port_num - rdma_start_port(device)].pkey;
+=======
+	read_lock_irqsave(&device->cache_lock, flags);
+
+	cache = device->port_data[port_num].cache.pkey;
+	if (!cache) {
+		ret = -EINVAL;
+		goto err;
+	}
+>>>>>>> upstream/android-13
 
 	*index = -1;
 
@@ -1128,15 +1493,24 @@ int ib_find_exact_cached_pkey(struct ib_device *device,
 			break;
 		}
 
+<<<<<<< HEAD
 	read_unlock_irqrestore(&device->cache.lock, flags);
+=======
+err:
+	read_unlock_irqrestore(&device->cache_lock, flags);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 EXPORT_SYMBOL(ib_find_exact_cached_pkey);
 
+<<<<<<< HEAD
 int ib_get_cached_lmc(struct ib_device *device,
 		      u8                port_num,
 		      u8                *lmc)
+=======
+int ib_get_cached_lmc(struct ib_device *device, u32 port_num, u8 *lmc)
+>>>>>>> upstream/android-13
 {
 	unsigned long flags;
 	int ret = 0;
@@ -1144,16 +1518,26 @@ int ib_get_cached_lmc(struct ib_device *device,
 	if (!rdma_is_port_valid(device, port_num))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	read_lock_irqsave(&device->cache.lock, flags);
 	*lmc = device->cache.ports[port_num - rdma_start_port(device)].lmc;
 	read_unlock_irqrestore(&device->cache.lock, flags);
+=======
+	read_lock_irqsave(&device->cache_lock, flags);
+	*lmc = device->port_data[port_num].cache.lmc;
+	read_unlock_irqrestore(&device->cache_lock, flags);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 EXPORT_SYMBOL(ib_get_cached_lmc);
 
+<<<<<<< HEAD
 int ib_get_cached_port_state(struct ib_device   *device,
 			     u8                  port_num,
+=======
+int ib_get_cached_port_state(struct ib_device *device, u32 port_num,
+>>>>>>> upstream/android-13
 			     enum ib_port_state *port_state)
 {
 	unsigned long flags;
@@ -1162,10 +1546,16 @@ int ib_get_cached_port_state(struct ib_device   *device,
 	if (!rdma_is_port_valid(device, port_num))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	read_lock_irqsave(&device->cache.lock, flags);
 	*port_state = device->cache.ports[port_num
 		- rdma_start_port(device)].port_state;
 	read_unlock_irqrestore(&device->cache.lock, flags);
+=======
+	read_lock_irqsave(&device->cache_lock, flags);
+	*port_state = device->port_data[port_num].cache.port_state;
+	read_unlock_irqrestore(&device->cache_lock, flags);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -1188,9 +1578,15 @@ EXPORT_SYMBOL(ib_get_cached_port_state);
  * code.
  */
 const struct ib_gid_attr *
+<<<<<<< HEAD
 rdma_get_gid_attr(struct ib_device *device, u8 port_num, int index)
 {
 	const struct ib_gid_attr *attr = ERR_PTR(-EINVAL);
+=======
+rdma_get_gid_attr(struct ib_device *device, u32 port_num, int index)
+{
+	const struct ib_gid_attr *attr = ERR_PTR(-ENODATA);
+>>>>>>> upstream/android-13
 	struct ib_gid_table *table;
 	unsigned long flags;
 
@@ -1214,6 +1610,66 @@ done:
 EXPORT_SYMBOL(rdma_get_gid_attr);
 
 /**
+<<<<<<< HEAD
+=======
+ * rdma_query_gid_table - Reads GID table entries of all the ports of a device up to max_entries.
+ * @device: The device to query.
+ * @entries: Entries where GID entries are returned.
+ * @max_entries: Maximum number of entries that can be returned.
+ * Entries array must be allocated to hold max_entries number of entries.
+ *
+ * Returns number of entries on success or appropriate error code.
+ */
+ssize_t rdma_query_gid_table(struct ib_device *device,
+			     struct ib_uverbs_gid_entry *entries,
+			     size_t max_entries)
+{
+	const struct ib_gid_attr *gid_attr;
+	ssize_t num_entries = 0, ret;
+	struct ib_gid_table *table;
+	u32 port_num, i;
+	struct net_device *ndev;
+	unsigned long flags;
+
+	rdma_for_each_port(device, port_num) {
+		table = rdma_gid_table(device, port_num);
+		read_lock_irqsave(&table->rwlock, flags);
+		for (i = 0; i < table->sz; i++) {
+			if (!is_gid_entry_valid(table->data_vec[i]))
+				continue;
+			if (num_entries >= max_entries) {
+				ret = -EINVAL;
+				goto err;
+			}
+
+			gid_attr = &table->data_vec[i]->attr;
+
+			memcpy(&entries->gid, &gid_attr->gid,
+			       sizeof(gid_attr->gid));
+			entries->gid_index = gid_attr->index;
+			entries->port_num = gid_attr->port_num;
+			entries->gid_type = gid_attr->gid_type;
+			ndev = rcu_dereference_protected(
+				gid_attr->ndev,
+				lockdep_is_held(&table->rwlock));
+			if (ndev)
+				entries->netdev_ifindex = ndev->ifindex;
+
+			num_entries++;
+			entries++;
+		}
+		read_unlock_irqrestore(&table->rwlock, flags);
+	}
+
+	return num_entries;
+err:
+	read_unlock_irqrestore(&table->rwlock, flags);
+	return ret;
+}
+EXPORT_SYMBOL(rdma_query_gid_table);
+
+/**
+>>>>>>> upstream/android-13
  * rdma_put_gid_attr - Release reference to the GID attribute
  * @attr:		Pointer to the GID attribute whose reference
  *			needs to be released.
@@ -1252,8 +1708,110 @@ void rdma_hold_gid_attr(const struct ib_gid_attr *attr)
 }
 EXPORT_SYMBOL(rdma_hold_gid_attr);
 
+<<<<<<< HEAD
 static int config_non_roce_gid_cache(struct ib_device *device,
 				     u8 port, int gid_tbl_len)
+=======
+/**
+ * rdma_read_gid_attr_ndev_rcu - Read GID attribute netdevice
+ * which must be in UP state.
+ *
+ * @attr:Pointer to the GID attribute
+ *
+ * Returns pointer to netdevice if the netdevice was attached to GID and
+ * netdevice is in UP state. Caller must hold RCU lock as this API
+ * reads the netdev flags which can change while netdevice migrates to
+ * different net namespace. Returns ERR_PTR with error code otherwise.
+ *
+ */
+struct net_device *rdma_read_gid_attr_ndev_rcu(const struct ib_gid_attr *attr)
+{
+	struct ib_gid_table_entry *entry =
+			container_of(attr, struct ib_gid_table_entry, attr);
+	struct ib_device *device = entry->attr.device;
+	struct net_device *ndev = ERR_PTR(-EINVAL);
+	u32 port_num = entry->attr.port_num;
+	struct ib_gid_table *table;
+	unsigned long flags;
+	bool valid;
+
+	table = rdma_gid_table(device, port_num);
+
+	read_lock_irqsave(&table->rwlock, flags);
+	valid = is_gid_entry_valid(table->data_vec[attr->index]);
+	if (valid) {
+		ndev = rcu_dereference(attr->ndev);
+		if (!ndev)
+			ndev = ERR_PTR(-ENODEV);
+	}
+	read_unlock_irqrestore(&table->rwlock, flags);
+	return ndev;
+}
+EXPORT_SYMBOL(rdma_read_gid_attr_ndev_rcu);
+
+static int get_lower_dev_vlan(struct net_device *lower_dev,
+			      struct netdev_nested_priv *priv)
+{
+	u16 *vlan_id = (u16 *)priv->data;
+
+	if (is_vlan_dev(lower_dev))
+		*vlan_id = vlan_dev_vlan_id(lower_dev);
+
+	/* We are interested only in first level vlan device, so
+	 * always return 1 to stop iterating over next level devices.
+	 */
+	return 1;
+}
+
+/**
+ * rdma_read_gid_l2_fields - Read the vlan ID and source MAC address
+ *			     of a GID entry.
+ *
+ * @attr:	GID attribute pointer whose L2 fields to be read
+ * @vlan_id:	Pointer to vlan id to fill up if the GID entry has
+ *		vlan id. It is optional.
+ * @smac:	Pointer to smac to fill up for a GID entry. It is optional.
+ *
+ * rdma_read_gid_l2_fields() returns 0 on success and returns vlan id
+ * (if gid entry has vlan) and source MAC, or returns error.
+ */
+int rdma_read_gid_l2_fields(const struct ib_gid_attr *attr,
+			    u16 *vlan_id, u8 *smac)
+{
+	struct netdev_nested_priv priv = {
+		.data = (void *)vlan_id,
+	};
+	struct net_device *ndev;
+
+	rcu_read_lock();
+	ndev = rcu_dereference(attr->ndev);
+	if (!ndev) {
+		rcu_read_unlock();
+		return -ENODEV;
+	}
+	if (smac)
+		ether_addr_copy(smac, ndev->dev_addr);
+	if (vlan_id) {
+		*vlan_id = 0xffff;
+		if (is_vlan_dev(ndev)) {
+			*vlan_id = vlan_dev_vlan_id(ndev);
+		} else {
+			/* If the netdev is upper device and if it's lower
+			 * device is vlan device, consider vlan id of the
+			 * the lower vlan device for this gid entry.
+			 */
+			netdev_walk_all_lower_dev_rcu(attr->ndev,
+					get_lower_dev_vlan, &priv);
+		}
+	}
+	rcu_read_unlock();
+	return 0;
+}
+EXPORT_SYMBOL(rdma_read_gid_l2_fields);
+
+static int config_non_roce_gid_cache(struct ib_device *device,
+				     u32 port, struct ib_port_attr *tprops)
+>>>>>>> upstream/android-13
 {
 	struct ib_gid_attr gid_attr = {};
 	struct ib_gid_table *table;
@@ -1265,6 +1823,7 @@ static int config_non_roce_gid_cache(struct ib_device *device,
 	table = rdma_gid_table(device, port);
 
 	mutex_lock(&table->lock);
+<<<<<<< HEAD
 	for (i = 0; i < gid_tbl_len; ++i) {
 		if (!device->query_gid)
 			continue;
@@ -1275,6 +1834,21 @@ static int config_non_roce_gid_cache(struct ib_device *device,
 			goto err;
 		}
 		gid_attr.index = i;
+=======
+	for (i = 0; i < tprops->gid_tbl_len; ++i) {
+		if (!device->ops.query_gid)
+			continue;
+		ret = device->ops.query_gid(device, port, i, &gid_attr.gid);
+		if (ret) {
+			dev_warn(&device->dev,
+				 "query_gid failed (%d) for index %d\n", ret,
+				 i);
+			goto err;
+		}
+		gid_attr.index = i;
+		tprops->subnet_prefix =
+			be64_to_cpu(gid_attr.gid.global.subnet_prefix);
+>>>>>>> upstream/android-13
 		add_modify_gid(table, &gid_attr);
 	}
 err:
@@ -1282,16 +1856,27 @@ err:
 	return ret;
 }
 
+<<<<<<< HEAD
 static void ib_cache_update(struct ib_device *device,
 			    u8                port,
 			    bool	      enforce_security)
 {
 	struct ib_port_attr       *tprops = NULL;
 	struct ib_pkey_cache      *pkey_cache = NULL, *old_pkey_cache;
+=======
+static int
+ib_cache_update(struct ib_device *device, u32 port, bool update_gids,
+		bool update_pkeys, bool enforce_security)
+{
+	struct ib_port_attr       *tprops = NULL;
+	struct ib_pkey_cache      *pkey_cache = NULL;
+	struct ib_pkey_cache      *old_pkey_cache = NULL;
+>>>>>>> upstream/android-13
 	int                        i;
 	int                        ret;
 
 	if (!rdma_is_port_valid(device, port))
+<<<<<<< HEAD
 		return;
 
 	tprops = kmalloc(sizeof *tprops, GFP_KERNEL);
@@ -1308,10 +1893,28 @@ static void ib_cache_update(struct ib_device *device,
 	if (!rdma_protocol_roce(device, port)) {
 		ret = config_non_roce_gid_cache(device, port,
 						tprops->gid_tbl_len);
+=======
+		return -EINVAL;
+
+	tprops = kmalloc(sizeof *tprops, GFP_KERNEL);
+	if (!tprops)
+		return -ENOMEM;
+
+	ret = ib_query_port(device, port, tprops);
+	if (ret) {
+		dev_warn(&device->dev, "ib_query_port failed (%d)\n", ret);
+		goto err;
+	}
+
+	if (!rdma_protocol_roce(device, port) && update_gids) {
+		ret = config_non_roce_gid_cache(device, port,
+						tprops);
+>>>>>>> upstream/android-13
 		if (ret)
 			goto err;
 	}
 
+<<<<<<< HEAD
 	pkey_cache = kmalloc(struct_size(pkey_cache, table,
 					 tprops->pkey_tbl_len),
 			     GFP_KERNEL);
@@ -1342,6 +1945,44 @@ static void ib_cache_update(struct ib_device *device,
 	device->cache.ports[port - rdma_start_port(device)].subnet_prefix =
 							tprops->subnet_prefix;
 	write_unlock_irq(&device->cache.lock);
+=======
+	update_pkeys &= !!tprops->pkey_tbl_len;
+
+	if (update_pkeys) {
+		pkey_cache = kmalloc(struct_size(pkey_cache, table,
+						 tprops->pkey_tbl_len),
+				     GFP_KERNEL);
+		if (!pkey_cache) {
+			ret = -ENOMEM;
+			goto err;
+		}
+
+		pkey_cache->table_len = tprops->pkey_tbl_len;
+
+		for (i = 0; i < pkey_cache->table_len; ++i) {
+			ret = ib_query_pkey(device, port, i,
+					    pkey_cache->table + i);
+			if (ret) {
+				dev_warn(&device->dev,
+					 "ib_query_pkey failed (%d) for index %d\n",
+					 ret, i);
+				goto err;
+			}
+		}
+	}
+
+	write_lock_irq(&device->cache_lock);
+
+	if (update_pkeys) {
+		old_pkey_cache = device->port_data[port].cache.pkey;
+		device->port_data[port].cache.pkey = pkey_cache;
+	}
+	device->port_data[port].cache.lmc = tprops->lmc;
+	device->port_data[port].cache.port_state = tprops->state;
+
+	device->port_data[port].cache.subnet_prefix = tprops->subnet_prefix;
+	write_unlock_irq(&device->cache_lock);
+>>>>>>> upstream/android-13
 
 	if (enforce_security)
 		ib_security_cache_change(device,
@@ -1350,18 +1991,54 @@ static void ib_cache_update(struct ib_device *device,
 
 	kfree(old_pkey_cache);
 	kfree(tprops);
+<<<<<<< HEAD
 	return;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 
 err:
 	kfree(pkey_cache);
 	kfree(tprops);
+<<<<<<< HEAD
 }
 
 static void ib_cache_task(struct work_struct *_work)
+=======
+	return ret;
+}
+
+static void ib_cache_event_task(struct work_struct *_work)
+{
+	struct ib_update_work *work =
+		container_of(_work, struct ib_update_work, work);
+	int ret;
+
+	/* Before distributing the cache update event, first sync
+	 * the cache.
+	 */
+	ret = ib_cache_update(work->event.device, work->event.element.port_num,
+			      work->event.event == IB_EVENT_GID_CHANGE,
+			      work->event.event == IB_EVENT_PKEY_CHANGE,
+			      work->enforce_security);
+
+	/* GID event is notified already for individual GID entries by
+	 * dispatch_gid_change_event(). Hence, notifiy for rest of the
+	 * events.
+	 */
+	if (!ret && work->event.event != IB_EVENT_GID_CHANGE)
+		ib_dispatch_event_clients(&work->event);
+
+	kfree(work);
+}
+
+static void ib_generic_event_task(struct work_struct *_work)
+>>>>>>> upstream/android-13
 {
 	struct ib_update_work *work =
 		container_of(_work, struct ib_update_work, work);
 
+<<<<<<< HEAD
 	ib_cache_update(work->device,
 			work->port_num,
 			work->enforce_security);
@@ -1423,12 +2100,77 @@ int ib_cache_setup_one(struct ib_device *device)
 	INIT_IB_EVENT_HANDLER(&device->cache.event_handler,
 			      device, ib_cache_event);
 	ib_register_event_handler(&device->cache.event_handler);
+=======
+	ib_dispatch_event_clients(&work->event);
+	kfree(work);
+}
+
+static bool is_cache_update_event(const struct ib_event *event)
+{
+	return (event->event == IB_EVENT_PORT_ERR    ||
+		event->event == IB_EVENT_PORT_ACTIVE ||
+		event->event == IB_EVENT_LID_CHANGE  ||
+		event->event == IB_EVENT_PKEY_CHANGE ||
+		event->event == IB_EVENT_CLIENT_REREGISTER ||
+		event->event == IB_EVENT_GID_CHANGE);
+}
+
+/**
+ * ib_dispatch_event - Dispatch an asynchronous event
+ * @event:Event to dispatch
+ *
+ * Low-level drivers must call ib_dispatch_event() to dispatch the
+ * event to all registered event handlers when an asynchronous event
+ * occurs.
+ */
+void ib_dispatch_event(const struct ib_event *event)
+{
+	struct ib_update_work *work;
+
+	work = kzalloc(sizeof(*work), GFP_ATOMIC);
+	if (!work)
+		return;
+
+	if (is_cache_update_event(event))
+		INIT_WORK(&work->work, ib_cache_event_task);
+	else
+		INIT_WORK(&work->work, ib_generic_event_task);
+
+	work->event = *event;
+	if (event->event == IB_EVENT_PKEY_CHANGE ||
+	    event->event == IB_EVENT_GID_CHANGE)
+		work->enforce_security = true;
+
+	queue_work(ib_wq, &work->work);
+}
+EXPORT_SYMBOL(ib_dispatch_event);
+
+int ib_cache_setup_one(struct ib_device *device)
+{
+	u32 p;
+	int err;
+
+	err = gid_table_setup_one(device);
+	if (err)
+		return err;
+
+	rdma_for_each_port (device, p) {
+		err = ib_cache_update(device, p, true, true, true);
+		if (err)
+			return err;
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 void ib_cache_release_one(struct ib_device *device)
 {
+<<<<<<< HEAD
 	int p;
+=======
+	u32 p;
+>>>>>>> upstream/android-13
 
 	/*
 	 * The release function frees all the cache elements.
@@ -1436,15 +2178,23 @@ void ib_cache_release_one(struct ib_device *device)
 	 * all the device's resources when the cache could no
 	 * longer be accessed.
 	 */
+<<<<<<< HEAD
 	for (p = 0; p <= rdma_end_port(device) - rdma_start_port(device); ++p)
 		kfree(device->cache.ports[p].pkey);
 
 	gid_table_release_one(device);
 	kfree(device->cache.ports);
+=======
+	rdma_for_each_port (device, p)
+		kfree(device->port_data[p].cache.pkey);
+
+	gid_table_release_one(device);
+>>>>>>> upstream/android-13
 }
 
 void ib_cache_cleanup_one(struct ib_device *device)
 {
+<<<<<<< HEAD
 	/* The cleanup function unregisters the event handler,
 	 * waits for all in-progress workqueue elements and cleans
 	 * up the GID cache. This function should be called after
@@ -1453,6 +2203,14 @@ void ib_cache_cleanup_one(struct ib_device *device)
 	 * non-functional and shouldn't be updated anymore.
 	 */
 	ib_unregister_event_handler(&device->cache.event_handler);
+=======
+	/* The cleanup function waits for all in-progress workqueue
+	 * elements and cleans up the GID cache. This function should be
+	 * called after the device was removed from the devices list and
+	 * all clients were removed, so the cache exists but is
+	 * non-functional and shouldn't be updated anymore.
+	 */
+>>>>>>> upstream/android-13
 	flush_workqueue(ib_wq);
 	gid_table_cleanup_one(device);
 

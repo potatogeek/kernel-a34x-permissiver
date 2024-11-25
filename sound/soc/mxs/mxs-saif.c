@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2011 Freescale Semiconductor, Inc.
  *
@@ -14,6 +15,11 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2011 Freescale Semiconductor, Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -26,6 +32,10 @@
 #include <linux/clk.h>
 #include <linux/clk-provider.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/time.h>
 #include <sound/core.h>
 #include <sound/pcm.h>
@@ -467,7 +477,14 @@ static int mxs_saif_hw_params(struct snd_pcm_substream *substream,
 		* basic clock which should be fast enough for the internal
 		* logic.
 		*/
+<<<<<<< HEAD
 		clk_enable(saif->clk);
+=======
+		ret = clk_enable(saif->clk);
+		if (ret)
+			return ret;
+
+>>>>>>> upstream/android-13
 		ret = clk_set_rate(saif->clk, 24000000);
 		clk_disable(saif->clk);
 		if (ret)
@@ -654,6 +671,7 @@ static const struct snd_soc_dai_ops mxs_saif_dai_ops = {
 	.set_fmt = mxs_saif_set_dai_fmt,
 };
 
+<<<<<<< HEAD
 static int mxs_saif_dai_probe(struct snd_soc_dai *dai)
 {
 	struct mxs_saif *saif = dev_get_drvdata(dai->dev);
@@ -666,6 +684,10 @@ static int mxs_saif_dai_probe(struct snd_soc_dai *dai)
 static struct snd_soc_dai_driver mxs_saif_dai = {
 	.name = "mxs-saif",
 	.probe = mxs_saif_dai_probe,
+=======
+static struct snd_soc_dai_driver mxs_saif_dai = {
+	.name = "mxs-saif",
+>>>>>>> upstream/android-13
 	.playback = {
 		.channels_min = 2,
 		.channels_max = 2,
@@ -744,6 +766,7 @@ static int mxs_saif_mclk_init(struct platform_device *pdev)
 static int mxs_saif_probe(struct platform_device *pdev)
 {
 	struct device_node *np = pdev->dev.of_node;
+<<<<<<< HEAD
 	struct resource *iores;
 	struct mxs_saif *saif;
 	int irq, ret = 0;
@@ -752,6 +775,12 @@ static int mxs_saif_probe(struct platform_device *pdev)
 	if (!np)
 		return -EINVAL;
 
+=======
+	struct mxs_saif *saif;
+	int irq, ret;
+	struct device_node *master;
+
+>>>>>>> upstream/android-13
 	saif = devm_kzalloc(&pdev->dev, sizeof(*saif), GFP_KERNEL);
 	if (!saif)
 		return -ENOMEM;
@@ -798,19 +827,28 @@ static int mxs_saif_probe(struct platform_device *pdev)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	iores = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 
 	saif->base = devm_ioremap_resource(&pdev->dev, iores);
+=======
+	saif->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(saif->base))
 		return PTR_ERR(saif->base);
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		ret = irq;
 		dev_err(&pdev->dev, "failed to get irq resource: %d\n",
 			ret);
 		return ret;
 	}
+=======
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 
 	saif->dev = &pdev->dev;
 	ret = devm_request_irq(&pdev->dev, irq, mxs_saif_irq, 0,

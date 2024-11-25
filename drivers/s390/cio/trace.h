@@ -168,10 +168,15 @@ TRACE_EVENT(s390_cio_tpi,
 			memset(&__entry->tpi_info, 0, sizeof(struct tpi_info));
 		else if (addr)
 			__entry->tpi_info = *addr;
+<<<<<<< HEAD
 		else {
 			memcpy(&__entry->tpi_info, &S390_lowcore.subchannel_id,
 			       sizeof(struct tpi_info));
 		}
+=======
+		else
+			__entry->tpi_info = S390_lowcore.tpi_info;
+>>>>>>> upstream/android-13
 		__entry->cssid = __entry->tpi_info.schid.cssid;
 		__entry->ssid = __entry->tpi_info.schid.ssid;
 		__entry->schno = __entry->tpi_info.schid.sch_no;
@@ -274,6 +279,7 @@ DEFINE_EVENT(s390_class_schid, s390_cio_rsch,
 	TP_ARGS(schid, cc)
 );
 
+<<<<<<< HEAD
 /**
  * s390_cio_rchp - Reset Channel Path (RCHP) instruction was performed
  * @chpid: Channel-Path Identifier
@@ -297,6 +303,8 @@ TRACE_EVENT(s390_cio_rchp,
 	)
 );
 
+=======
+>>>>>>> upstream/android-13
 #define CHSC_MAX_REQUEST_LEN		64
 #define CHSC_MAX_RESPONSE_LEN		64
 

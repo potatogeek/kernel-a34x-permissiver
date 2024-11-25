@@ -19,13 +19,21 @@
 #include <linux/kernel.h>
 #include <linux/slab.h>
 #include <linux/errno.h>
+<<<<<<< HEAD
+=======
+#include <linux/jhash.h>
+>>>>>>> upstream/android-13
 #include <net/netlabel.h>
 #include "ebitmap.h"
 #include "policydb.h"
 
 #define BITS_PER_U64	(sizeof(u64) * 8)
 
+<<<<<<< HEAD
 static struct kmem_cache *ebitmap_node_cachep;
+=======
+static struct kmem_cache *ebitmap_node_cachep __ro_after_init;
+>>>>>>> upstream/android-13
 
 int ebitmap_cmp(struct ebitmap *e1, struct ebitmap *e2)
 {
@@ -77,6 +85,27 @@ int ebitmap_cpy(struct ebitmap *dst, struct ebitmap *src)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+int ebitmap_and(struct ebitmap *dst, struct ebitmap *e1, struct ebitmap *e2)
+{
+	struct ebitmap_node *n;
+	int bit, rc;
+
+	ebitmap_init(dst);
+
+	ebitmap_for_each_positive_bit(e1, n, bit) {
+		if (ebitmap_get_bit(e2, bit)) {
+			rc = ebitmap_set_bit(dst, bit, 1);
+			if (rc < 0)
+				return rc;
+		}
+	}
+	return 0;
+}
+
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_NETLABEL
 /**
  * ebitmap_netlbl_export - Export an ebitmap into a NetLabel category bitmap
@@ -347,7 +376,13 @@ int ebitmap_read(struct ebitmap *e, void *fp)
 {
 	struct ebitmap_node *n = NULL;
 	u32 mapunit, count, startbit, index;
+<<<<<<< HEAD
 	u64 map;
+=======
+	__le32 ebitmap_start;
+	u64 map;
+	__le64 mapbits;
+>>>>>>> upstream/android-13
 	__le32 buf[3];
 	int rc, i;
 
@@ -381,12 +416,20 @@ int ebitmap_read(struct ebitmap *e, void *fp)
 		goto bad;
 
 	for (i = 0; i < count; i++) {
+<<<<<<< HEAD
 		rc = next_entry(&startbit, fp, sizeof(u32));
+=======
+		rc = next_entry(&ebitmap_start, fp, sizeof(u32));
+>>>>>>> upstream/android-13
 		if (rc < 0) {
 			pr_err("SELinux: ebitmap: truncated map\n");
 			goto bad;
 		}
+<<<<<<< HEAD
 		startbit = le32_to_cpu(startbit);
+=======
+		startbit = le32_to_cpu(ebitmap_start);
+>>>>>>> upstream/android-13
 
 		if (startbit & (mapunit - 1)) {
 			pr_err("SELinux: ebitmap start bit (%d) is "
@@ -423,12 +466,20 @@ int ebitmap_read(struct ebitmap *e, void *fp)
 			goto bad;
 		}
 
+<<<<<<< HEAD
 		rc = next_entry(&map, fp, sizeof(u64));
+=======
+		rc = next_entry(&mapbits, fp, sizeof(u64));
+>>>>>>> upstream/android-13
 		if (rc < 0) {
 			pr_err("SELinux: ebitmap: truncated map\n");
 			goto bad;
 		}
+<<<<<<< HEAD
 		map = le64_to_cpu(map);
+=======
+		map = le64_to_cpu(mapbits);
+>>>>>>> upstream/android-13
 
 		index = (startbit - n->startbit) / EBITMAP_UNIT_SIZE;
 		while (map) {
@@ -522,6 +573,22 @@ int ebitmap_write(struct ebitmap *e, void *fp)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+u32 ebitmap_hash(const struct ebitmap *e, u32 hash)
+{
+	struct ebitmap_node *node;
+
+	/* need to change hash even if ebitmap is empty */
+	hash = jhash_1word(e->highbit, hash);
+	for (node = e->node; node; node = node->next) {
+		hash = jhash_1word(node->startbit, hash);
+		hash = jhash(node->maps, sizeof(node->maps), hash);
+	}
+	return hash;
+}
+
+>>>>>>> upstream/android-13
 void __init ebitmap_cache_init(void)
 {
 	ebitmap_node_cachep = kmem_cache_create("ebitmap_node",

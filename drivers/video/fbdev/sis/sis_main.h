@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * SiS 300/305/540/630(S)/730(S),
  * SiS 315[E|PRO]/550/[M]65x/[M]66x[F|M|G]X/[M]74x[GX]/330/[M]76x[GX],
@@ -5,6 +9,7 @@
  * frame buffer driver for Linux kernels >=2.4.14 and >=2.6.3
  *
  * Copyright (C) 2001-2005 Thomas Winischhofer, Vienna, Austria.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +24,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _SISFB_MAIN

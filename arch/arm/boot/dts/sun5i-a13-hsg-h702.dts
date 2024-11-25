@@ -69,8 +69,11 @@
 };
 
 &i2c0 {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c0_pins_a>;
+=======
+>>>>>>> upstream/android-13
 	status = "okay";
 
 	axp209: pmic@34 {
@@ -80,8 +83,11 @@
 };
 
 &i2c1 {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c1_pins_a>;
+=======
+>>>>>>> upstream/android-13
 	status = "okay";
 
 	pcf8563: rtc@51 {
@@ -91,8 +97,11 @@
 };
 
 &i2c2 {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c2_pins_a>;
+=======
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
@@ -100,14 +109,22 @@
 	vref-supply = <&reg_ldo2>;
 	status = "okay";
 
+<<<<<<< HEAD
 	button@200 {
+=======
+	button-200 {
+>>>>>>> upstream/android-13
 		label = "Volume Up";
 		linux,code = <KEY_VOLUMEUP>;
 		channel = <0>;
 		voltage = <200000>;
 	};
 
+<<<<<<< HEAD
 	button@400 {
+=======
+	button-400 {
+>>>>>>> upstream/android-13
 		label = "Volume Down";
 		linux,code = <KEY_VOLUMEDOWN>;
 		channel = <0>;
@@ -116,8 +133,11 @@
 };
 
 &mmc0 {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&mmc0_pins_a>, <&mmc0_cd_pin_h702>;
+=======
+>>>>>>> upstream/android-13
 	vmmc-supply = <&reg_vcc3v3>;
 	bus-width = <4>;
 	cd-gpios = <&pio 6 0 GPIO_ACTIVE_LOW>; /* PG0 */
@@ -132,6 +152,7 @@
 	status = "okay";
 };
 
+<<<<<<< HEAD
 &pio {
 	mmc0_cd_pin_h702: mmc0_cd_pin@0 {
 		pins = "PG0";
@@ -151,6 +172,8 @@
 	};
 };
 
+=======
+>>>>>>> upstream/android-13
 #include "axp209.dtsi"
 
 &reg_dcdc2 {
@@ -191,7 +214,11 @@
 
 &uart1 {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&uart1_pins_b>;
+=======
+	pinctrl-0 = <&uart1_pg_pins>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
@@ -201,9 +228,13 @@
 };
 
 &usbphy {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&usb0_id_detect_pin>, <&usb0_vbus_detect_pin>;
 	usb0_id_det-gpios = <&pio 6 2 GPIO_ACTIVE_HIGH>; /* PG2 */
+=======
+	usb0_id_det-gpios = <&pio 6 2 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; /* PG2 */
+>>>>>>> upstream/android-13
 	usb0_vbus_det-gpios = <&pio 6 1 GPIO_ACTIVE_HIGH>; /* PG1 */
 	usb0_vbus-supply = <&reg_usb0_vbus>;
 	usb1_vbus-supply = <&reg_ldo3>;

@@ -11,6 +11,14 @@
 
 #include <linux/types.h>
 
+<<<<<<< HEAD
+=======
+#include <drm/drm_plane.h>
+
+struct drm_device;
+struct device;
+
+>>>>>>> upstream/android-13
 struct drm_plane *sti_gdp_create(struct drm_device *drm_dev,
 				 struct device *dev, int desc,
 				 void __iomem *baseaddr,

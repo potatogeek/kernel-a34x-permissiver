@@ -34,6 +34,7 @@
  * the same DMA mappings?
  */
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/via_drm.h>
 #include "via_drv.h"
@@ -41,6 +42,18 @@
 
 #include <linux/pagemap.h>
 #include <linux/slab.h>
+=======
+#include <linux/pagemap.h>
+#include <linux/pci.h>
+#include <linux/slab.h>
+#include <linux/vmalloc.h>
+
+#include <drm/drm_device.h>
+#include <drm/via_drm.h>
+
+#include "via_dmablit.h"
+#include "via_drv.h"
+>>>>>>> upstream/android-13
 
 #define VIA_PGDN(x)	     (((unsigned long)(x)) & PAGE_MASK)
 #define VIA_PGOFF(x)	    (((unsigned long)(x)) & ~PAGE_MASK)
@@ -171,18 +184,26 @@ via_map_blit_for_device(struct pci_dev *pdev,
 static void
 via_free_sg_info(struct pci_dev *pdev, drm_via_sg_info_t *vsg)
 {
+<<<<<<< HEAD
 	struct page *page;
+=======
+>>>>>>> upstream/android-13
 	int i;
 
 	switch (vsg->state) {
 	case dr_via_device_mapped:
 		via_unmap_blit_from_device(pdev, vsg);
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case dr_via_desc_pages_alloc:
 		for (i = 0; i < vsg->num_desc_pages; ++i) {
 			if (vsg->desc_pages[i] != NULL)
 				free_page((unsigned long)vsg->desc_pages[i]);
 		}
 		kfree(vsg->desc_pages);
+<<<<<<< HEAD
 	case dr_via_pages_locked:
 		for (i = 0; i < vsg->num_pages; ++i) {
 			if (NULL != (page = vsg->pages[i])) {
@@ -193,6 +214,16 @@ via_free_sg_info(struct pci_dev *pdev, drm_via_sg_info_t *vsg)
 		}
 	case dr_via_pages_alloc:
 		vfree(vsg->pages);
+=======
+		fallthrough;
+	case dr_via_pages_locked:
+		unpin_user_pages_dirty_lock(vsg->pages, vsg->num_pages,
+					   (vsg->direction == DMA_FROM_DEVICE));
+		fallthrough;
+	case dr_via_pages_alloc:
+		vfree(vsg->pages);
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		vsg->state = dr_via_sg_init;
 	}
@@ -210,6 +241,7 @@ via_fire_dmablit(struct drm_device *dev, drm_via_sg_info_t *vsg, int engine)
 {
 	drm_via_private_t *dev_priv = (drm_via_private_t *)dev->dev_private;
 
+<<<<<<< HEAD
 	VIA_WRITE(VIA_PCI_DMA_MAR0 + engine*0x10, 0);
 	VIA_WRITE(VIA_PCI_DMA_DAR0 + engine*0x10, 0);
 	VIA_WRITE(VIA_PCI_DMA_CSR0 + engine*0x04, VIA_DMA_CSR_DD | VIA_DMA_CSR_TD |
@@ -220,6 +252,18 @@ via_fire_dmablit(struct drm_device *dev, drm_via_sg_info_t *vsg, int engine)
 	wmb();
 	VIA_WRITE(VIA_PCI_DMA_CSR0 + engine*0x04, VIA_DMA_CSR_DE | VIA_DMA_CSR_TS);
 	VIA_READ(VIA_PCI_DMA_CSR0 + engine*0x04);
+=======
+	via_write(dev_priv, VIA_PCI_DMA_MAR0 + engine*0x10, 0);
+	via_write(dev_priv, VIA_PCI_DMA_DAR0 + engine*0x10, 0);
+	via_write(dev_priv, VIA_PCI_DMA_CSR0 + engine*0x04, VIA_DMA_CSR_DD | VIA_DMA_CSR_TD |
+		  VIA_DMA_CSR_DE);
+	via_write(dev_priv, VIA_PCI_DMA_MR0  + engine*0x04, VIA_DMA_MR_CM | VIA_DMA_MR_TDIE);
+	via_write(dev_priv, VIA_PCI_DMA_BCR0 + engine*0x10, 0);
+	via_write(dev_priv, VIA_PCI_DMA_DPR0 + engine*0x10, vsg->chain_start);
+	wmb();
+	via_write(dev_priv, VIA_PCI_DMA_CSR0 + engine*0x04, VIA_DMA_CSR_DE | VIA_DMA_CSR_TS);
+	via_read(dev_priv, VIA_PCI_DMA_CSR0 + engine*0x04);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -238,8 +282,14 @@ via_lock_all_dma_pages(drm_via_sg_info_t *vsg,  drm_via_dmablit_t *xfer)
 	vsg->pages = vzalloc(array_size(sizeof(struct page *), vsg->num_pages));
 	if (NULL == vsg->pages)
 		return -ENOMEM;
+<<<<<<< HEAD
 	ret = get_user_pages_fast((unsigned long)xfer->mem_addr,
 			vsg->num_pages, vsg->direction == DMA_FROM_DEVICE,
+=======
+	ret = pin_user_pages_fast((unsigned long)xfer->mem_addr,
+			vsg->num_pages,
+			vsg->direction == DMA_FROM_DEVICE ? FOLL_WRITE : 0,
+>>>>>>> upstream/android-13
 			vsg->pages);
 	if (ret != vsg->num_pages) {
 		if (ret < 0)
@@ -286,7 +336,11 @@ via_abort_dmablit(struct drm_device *dev, int engine)
 {
 	drm_via_private_t *dev_priv = (drm_via_private_t *)dev->dev_private;
 
+<<<<<<< HEAD
 	VIA_WRITE(VIA_PCI_DMA_CSR0 + engine*0x04, VIA_DMA_CSR_TA);
+=======
+	via_write(dev_priv, VIA_PCI_DMA_CSR0 + engine*0x04, VIA_DMA_CSR_TA);
+>>>>>>> upstream/android-13
 }
 
 static void
@@ -294,7 +348,11 @@ via_dmablit_engine_off(struct drm_device *dev, int engine)
 {
 	drm_via_private_t *dev_priv = (drm_via_private_t *)dev->dev_private;
 
+<<<<<<< HEAD
 	VIA_WRITE(VIA_PCI_DMA_CSR0 + engine*0x04, VIA_DMA_CSR_TD | VIA_DMA_CSR_DD);
+=======
+	via_write(dev_priv, VIA_PCI_DMA_CSR0 + engine*0x04, VIA_DMA_CSR_TD | VIA_DMA_CSR_DD);
+>>>>>>> upstream/android-13
 }
 
 
@@ -325,7 +383,11 @@ via_dmablit_handler(struct drm_device *dev, int engine, int from_irq)
 		spin_lock_irqsave(&blitq->blit_lock, irqsave);
 
 	done_transfer = blitq->is_active &&
+<<<<<<< HEAD
 	  ((status = VIA_READ(VIA_PCI_DMA_CSR0 + engine*0x04)) & VIA_DMA_CSR_TD);
+=======
+	  ((status = via_read(dev_priv, VIA_PCI_DMA_CSR0 + engine*0x04)) & VIA_DMA_CSR_TD);
+>>>>>>> upstream/android-13
 	done_transfer = done_transfer || (blitq->aborting && !(status & VIA_DMA_CSR_DE));
 
 	cur = blitq->cur;
@@ -344,7 +406,11 @@ via_dmablit_handler(struct drm_device *dev, int engine, int from_irq)
 		 * Clear transfer done flag.
 		 */
 
+<<<<<<< HEAD
 		VIA_WRITE(VIA_PCI_DMA_CSR0 + engine*0x04,  VIA_DMA_CSR_TD);
+=======
+		via_write(dev_priv, VIA_PCI_DMA_CSR0 + engine*0x04,  VIA_DMA_CSR_TD);
+>>>>>>> upstream/android-13
 
 		blitq->is_active = 0;
 		blitq->aborting = 0;
@@ -431,7 +497,11 @@ via_dmablit_sync(struct drm_device *dev, uint32_t handle, int engine)
 	int ret = 0;
 
 	if (via_dmablit_active(blitq, engine, handle, &queue)) {
+<<<<<<< HEAD
 		DRM_WAIT_ON(ret, *queue, 3 * HZ,
+=======
+		VIA_WAIT_ON(ret, *queue, 3 * HZ,
+>>>>>>> upstream/android-13
 			    !via_dmablit_active(blitq, engine, handle, NULL));
 	}
 	DRM_DEBUG("DMA blit sync handle 0x%x engine %d returned %d\n",
@@ -492,6 +562,10 @@ via_dmablit_workqueue(struct work_struct *work)
 {
 	drm_via_blitq_t *blitq = container_of(work, drm_via_blitq_t, wq);
 	struct drm_device *dev = blitq->dev;
+<<<<<<< HEAD
+=======
+	struct pci_dev *pdev = to_pci_dev(dev->dev);
+>>>>>>> upstream/android-13
 	unsigned long irqsave;
 	drm_via_sg_info_t *cur_sg;
 	int cur_released;
@@ -518,7 +592,11 @@ via_dmablit_workqueue(struct work_struct *work)
 
 		wake_up(&blitq->busy_queue);
 
+<<<<<<< HEAD
 		via_free_sg_info(dev->pdev, cur_sg);
+=======
+		via_free_sg_info(pdev, cur_sg);
+>>>>>>> upstream/android-13
 		kfree(cur_sg);
 
 		spin_lock_irqsave(&blitq->blit_lock, irqsave);
@@ -538,9 +616,16 @@ via_init_dmablit(struct drm_device *dev)
 {
 	int i, j;
 	drm_via_private_t *dev_priv = (drm_via_private_t *)dev->dev_private;
+<<<<<<< HEAD
 	drm_via_blitq_t *blitq;
 
 	pci_set_master(dev->pdev);
+=======
+	struct pci_dev *pdev = to_pci_dev(dev->dev);
+	drm_via_blitq_t *blitq;
+
+	pci_set_master(pdev);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < VIA_NUM_BLIT_ENGINES; ++i) {
 		blitq = dev_priv->blit_queues + i;
@@ -571,6 +656,10 @@ via_init_dmablit(struct drm_device *dev)
 static int
 via_build_sg_info(struct drm_device *dev, drm_via_sg_info_t *vsg, drm_via_dmablit_t *xfer)
 {
+<<<<<<< HEAD
+=======
+	struct pci_dev *pdev = to_pci_dev(dev->dev);
+>>>>>>> upstream/android-13
 	int draw = xfer->to_fb;
 	int ret = 0;
 
@@ -650,6 +739,7 @@ via_build_sg_info(struct drm_device *dev, drm_via_sg_info_t *vsg, drm_via_dmabli
 
 	if (0 != (ret = via_lock_all_dma_pages(vsg, xfer))) {
 		DRM_ERROR("Could not lock DMA pages.\n");
+<<<<<<< HEAD
 		via_free_sg_info(dev->pdev, vsg);
 		return ret;
 	}
@@ -661,6 +751,19 @@ via_build_sg_info(struct drm_device *dev, drm_via_sg_info_t *vsg, drm_via_dmabli
 		return ret;
 	}
 	via_map_blit_for_device(dev->pdev, xfer, vsg, 1);
+=======
+		via_free_sg_info(pdev, vsg);
+		return ret;
+	}
+
+	via_map_blit_for_device(pdev, xfer, vsg, 0);
+	if (0 != (ret = via_alloc_desc_pages(vsg))) {
+		DRM_ERROR("Could not allocate DMA descriptor pages.\n");
+		via_free_sg_info(pdev, vsg);
+		return ret;
+	}
+	via_map_blit_for_device(pdev, xfer, vsg, 1);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -682,7 +785,11 @@ via_dmablit_grab_slot(drm_via_blitq_t *blitq, int engine)
 	while (blitq->num_free == 0) {
 		spin_unlock_irqrestore(&blitq->blit_lock, irqsave);
 
+<<<<<<< HEAD
 		DRM_WAIT_ON(ret, blitq->busy_queue, HZ, blitq->num_free > 0);
+=======
+		VIA_WAIT_ON(ret, blitq->busy_queue, HZ, blitq->num_free > 0);
+>>>>>>> upstream/android-13
 		if (ret)
 			return (-EINTR == ret) ? -EAGAIN : ret;
 

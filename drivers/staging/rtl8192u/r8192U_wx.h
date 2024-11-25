@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 /*
  * This is part of rtl8180 OpenSource driver - v 0.3
  * Copyright (C) Andrea Merello 2004  <andrea.merello@gmail.com>
  * Released under the terms of GPL (General Public Licence)
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * This is part of rtl8180 OpenSource driver - v 0.3
+ * Copyright (C) Andrea Merello 2004  <andrea.merello@gmail.com>
+>>>>>>> upstream/android-13
  *
  * Parts of this driver are based on the GPL part of the official realtek driver
  * Parts of this driver are based on the rtl8180 driver skeleton from Patric

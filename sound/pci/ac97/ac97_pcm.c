@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
  *  Universal interface for Audio Codec '97
@@ -5,6 +9,7 @@
  *  For more details look to AC '97 component specification revision 2.2
  *  by Intel Corporation (http://developer.intel.com) and to datasheets
  *  for specific codecs.
+<<<<<<< HEAD
  *
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -21,6 +26,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -41,7 +48,11 @@
  *  PCM support
  */
 
+<<<<<<< HEAD
 static unsigned char rate_reg_tables[2][4][9] = {
+=======
+static const unsigned char rate_reg_tables[2][4][9] = {
+>>>>>>> upstream/android-13
 {
   /* standard rates */
   {
@@ -144,7 +155,11 @@ static unsigned char rate_reg_tables[2][4][9] = {
 }};
 
 /* FIXME: more various mappings for ADC? */
+<<<<<<< HEAD
 static unsigned char rate_cregs[9] = {
+=======
+static const unsigned char rate_cregs[9] = {
+>>>>>>> upstream/android-13
 	AC97_PCM_LR_ADC_RATE,	/* 3 */
 	AC97_PCM_LR_ADC_RATE,	/* 4 */
 	0xff,			/* 5 */

@@ -3,7 +3,11 @@
  *
  * Module Name: dsinit - Object initialization namespace walk
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -200,9 +204,15 @@ acpi_ds_initialize_objects(u32 table_index,
 
 	/* DSDT is always the first AML table */
 
+<<<<<<< HEAD
 	if (ACPI_COMPARE_NAME(table->signature, ACPI_SIG_DSDT)) {
 		ACPI_DEBUG_PRINT_RAW((ACPI_DB_INIT,
 				      "\nInitializing Namespace objects:\n"));
+=======
+	if (ACPI_COMPARE_NAMESEG(table->signature, ACPI_SIG_DSDT)) {
+		ACPI_DEBUG_PRINT_RAW((ACPI_DB_INIT,
+				      "\nACPI table initialization:\n"));
+>>>>>>> upstream/android-13
 	}
 
 	/* Summary of objects initialized */

@@ -11,6 +11,10 @@
 #include <linux/sched.h>
 #include <linux/mm.h>
 #include <linux/fs.h>
+<<<<<<< HEAD
+=======
+#include <linux/pagemap.h>
+>>>>>>> upstream/android-13
 
 #include <asm/cacheflush.h>
 #include <asm/cpuinfo.h>
@@ -198,12 +202,24 @@ void flush_dcache_page(struct page *page)
 EXPORT_SYMBOL(flush_dcache_page);
 
 void update_mmu_cache(struct vm_area_struct *vma,
+<<<<<<< HEAD
 		      unsigned long address, pte_t *pte)
 {
 	unsigned long pfn = pte_pfn(*pte);
 	struct page *page;
 	struct address_space *mapping;
 
+=======
+		      unsigned long address, pte_t *ptep)
+{
+	pte_t pte = *ptep;
+	unsigned long pfn = pte_pfn(pte);
+	struct page *page;
+	struct address_space *mapping;
+
+	reload_tlb_page(vma, address, pte);
+
+>>>>>>> upstream/android-13
 	if (!pfn_valid(pfn))
 		return;
 

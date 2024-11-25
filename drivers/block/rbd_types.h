@@ -18,6 +18,10 @@
 /* For format version 2, rbd image 'foo' consists of objects
  *   rbd_id.foo		- id of image
  *   rbd_header.<id>	- image metadata
+<<<<<<< HEAD
+=======
+ *   rbd_object_map.<id> - optional image object map
+>>>>>>> upstream/android-13
  *   rbd_data.<id>.0000000000000000
  *   rbd_data.<id>.0000000000000001
  *   ...		- data
@@ -25,6 +29,10 @@
  */
 
 #define RBD_HEADER_PREFIX      "rbd_header."
+<<<<<<< HEAD
+=======
+#define RBD_OBJECT_MAP_PREFIX  "rbd_object_map."
+>>>>>>> upstream/android-13
 #define RBD_ID_PREFIX          "rbd_id."
 #define RBD_V2_DATA_FORMAT     "%s.%016llx"
 
@@ -39,6 +47,17 @@ enum rbd_notify_op {
 	RBD_NOTIFY_OP_HEADER_UPDATE      = 3,
 };
 
+<<<<<<< HEAD
+=======
+#define OBJECT_NONEXISTENT	0
+#define OBJECT_EXISTS		1
+#define OBJECT_PENDING		2
+#define OBJECT_EXISTS_CLEAN	3
+
+#define RBD_FLAG_OBJECT_MAP_INVALID	(1ULL << 0)
+#define RBD_FLAG_FAST_DIFF_INVALID	(1ULL << 1)
+
+>>>>>>> upstream/android-13
 /*
  * For format version 1, rbd image 'foo' consists of objects
  *   foo.rbd		- image metadata
@@ -83,7 +102,11 @@ struct rbd_image_header_ondisk {
 	__le32 snap_count;
 	__le32 reserved;
 	__le64 snap_names_len;
+<<<<<<< HEAD
 	struct rbd_image_snap_ondisk snaps[0];
+=======
+	struct rbd_image_snap_ondisk snaps[];
+>>>>>>> upstream/android-13
 } __attribute__((packed));
 
 

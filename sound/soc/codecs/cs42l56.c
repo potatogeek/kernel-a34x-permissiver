@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * cs42l56.c -- CS42L56 ALSA SoC audio driver
  *
  * Copyright 2014 CirrusLogic, Inc.
  *
  * Author: Brian Austin <brian.austin@cirrus.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -203,6 +210,7 @@ static const struct soc_enum beep_bass_enum =
 	SOC_ENUM_SINGLE(CS42L56_BEEP_TONE_CFG, 1,
 			ARRAY_SIZE(beep_bass_text), beep_bass_text);
 
+<<<<<<< HEAD
 static const char * const adc_swap_text[] = {
 	"None", "A+B/2", "A-B/2", "Swap"
 };
@@ -211,6 +219,8 @@ static const struct soc_enum adc_swap_enum =
 	SOC_ENUM_SINGLE(CS42L56_MISC_ADC_CTL, 3,
 			ARRAY_SIZE(adc_swap_text), adc_swap_text);
 
+=======
+>>>>>>> upstream/android-13
 static const char * const pgaa_mux_text[] = {
 	"AIN1A", "AIN2A", "AIN3A"};
 
@@ -812,7 +822,11 @@ static int cs42l56_set_dai_fmt(struct snd_soc_dai *codec_dai, unsigned int fmt)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int cs42l56_digital_mute(struct snd_soc_dai *dai, int mute)
+=======
+static int cs42l56_mute(struct snd_soc_dai *dai, int mute, int direction)
+>>>>>>> upstream/android-13
 {
 	struct snd_soc_component *component = dai->component;
 
@@ -941,9 +955,16 @@ static int cs42l56_set_bias_level(struct snd_soc_component *component,
 
 static const struct snd_soc_dai_ops cs42l56_ops = {
 	.hw_params	= cs42l56_pcm_hw_params,
+<<<<<<< HEAD
 	.digital_mute	= cs42l56_digital_mute,
 	.set_fmt	= cs42l56_set_dai_fmt,
 	.set_sysclk	= cs42l56_set_sysclk,
+=======
+	.mute_stream	= cs42l56_mute,
+	.set_fmt	= cs42l56_set_dai_fmt,
+	.set_sysclk	= cs42l56_set_sysclk,
+	.no_capture_mute = 1,
+>>>>>>> upstream/android-13
 };
 
 static struct snd_soc_dai_driver cs42l56_dai = {
@@ -1019,6 +1040,10 @@ static int cs42l56_beep_event(struct input_dev *dev, unsigned int type,
 	case SND_BELL:
 		if (hz)
 			hz = 261;
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	case SND_TONE:
 		break;
 	default:
@@ -1031,9 +1056,14 @@ static int cs42l56_beep_event(struct input_dev *dev, unsigned int type,
 	return 0;
 }
 
+<<<<<<< HEAD
 static ssize_t cs42l56_beep_set(struct device *dev,
 			       struct device_attribute *attr,
 			       const char *buf, size_t count)
+=======
+static ssize_t beep_store(struct device *dev, struct device_attribute *attr,
+			  const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct cs42l56_private *cs42l56 = dev_get_drvdata(dev);
 	long int time;
@@ -1048,7 +1078,11 @@ static ssize_t cs42l56_beep_set(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(beep, 0200, NULL, cs42l56_beep_set);
+=======
+static DEVICE_ATTR_WO(beep);
+>>>>>>> upstream/android-13
 
 static void cs42l56_init_beep(struct snd_soc_component *component)
 {
@@ -1185,7 +1219,11 @@ static int cs42l56_i2c_probe(struct i2c_client *i2c_client,
 	struct cs42l56_platform_data *pdata =
 		dev_get_platdata(&i2c_client->dev);
 	int ret, i;
+<<<<<<< HEAD
 	unsigned int devid = 0;
+=======
+	unsigned int devid;
+>>>>>>> upstream/android-13
 	unsigned int alpha_rev, metal_rev;
 	unsigned int reg;
 
@@ -1255,6 +1293,14 @@ static int cs42l56_i2c_probe(struct i2c_client *i2c_client,
 	}
 
 	ret = regmap_read(cs42l56->regmap, CS42L56_CHIP_ID_1, &reg);
+<<<<<<< HEAD
+=======
+	if (ret) {
+		dev_err(&i2c_client->dev, "Failed to read chip ID: %d\n", ret);
+		return ret;
+	}
+
+>>>>>>> upstream/android-13
 	devid = reg & CS42L56_CHIP_ID_MASK;
 	if (devid != CS42L56_DEVID) {
 		dev_err(&i2c_client->dev,

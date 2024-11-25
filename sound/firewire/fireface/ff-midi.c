@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ff-midi.c - a part of driver for RME Fireface series
  *
  * Copyright (c) 2015-2017 Takashi Sakamoto
+<<<<<<< HEAD
  *
  * Licensed under the terms of the GNU General Public License, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "ff.h"
@@ -19,7 +26,11 @@ static int midi_playback_open(struct snd_rawmidi_substream *substream)
 	struct snd_ff *ff = substream->rmidi->private_data;
 
 	/* Initialize internal status. */
+<<<<<<< HEAD
 	ff->running_status[substream->number] = 0;
+=======
+	ff->on_sysex[substream->number] = 0;
+>>>>>>> upstream/android-13
 	ff->rx_midi_error[substream->number] = false;
 
 	WRITE_ONCE(ff->rx_midi_substreams[substream->number], substream);

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * wm8985.c  --  WM8985 / WM8758 ALSA SoC Audio driver
  *
@@ -8,10 +12,13 @@
  * Copyright: 2016 Barix AG
  * Author: Petr Kulhavy <petr@barix.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * TODO:
  *  o Add OUT3/OUT4 mixer controls.
  */
@@ -595,7 +602,11 @@ static int eqmode_get(struct snd_kcontrol *kcontrol,
 	struct snd_soc_component *component = snd_soc_kcontrol_component(kcontrol);
 	unsigned int reg;
 
+<<<<<<< HEAD
 	reg = snd_soc_component_read32(component, WM8985_EQ1_LOW_SHELF);
+=======
+	reg = snd_soc_component_read(component, WM8985_EQ1_LOW_SHELF);
+>>>>>>> upstream/android-13
 	if (reg & WM8985_EQ3DMODE)
 		ucontrol->value.enumerated.item[0] = 1;
 	else
@@ -615,7 +626,11 @@ static int eqmode_put(struct snd_kcontrol *kcontrol,
 			&& ucontrol->value.enumerated.item[0] != 1)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	reg_eq = snd_soc_component_read32(component, WM8985_EQ1_LOW_SHELF);
+=======
+	reg_eq = snd_soc_component_read(component, WM8985_EQ1_LOW_SHELF);
+>>>>>>> upstream/android-13
 	switch ((reg_eq & WM8985_EQ3DMODE) >> WM8985_EQ3DMODE_SHIFT) {
 	case 0:
 		if (!ucontrol->value.enumerated.item[0])
@@ -627,8 +642,13 @@ static int eqmode_put(struct snd_kcontrol *kcontrol,
 		break;
 	}
 
+<<<<<<< HEAD
 	regpwr2 = snd_soc_component_read32(component, WM8985_POWER_MANAGEMENT_2);
 	regpwr3 = snd_soc_component_read32(component, WM8985_POWER_MANAGEMENT_3);
+=======
+	regpwr2 = snd_soc_component_read(component, WM8985_POWER_MANAGEMENT_2);
+	regpwr3 = snd_soc_component_read(component, WM8985_POWER_MANAGEMENT_3);
+>>>>>>> upstream/android-13
 	/* disable the DACs and ADCs */
 	snd_soc_component_update_bits(component, WM8985_POWER_MANAGEMENT_2,
 			    WM8985_ADCENR_MASK | WM8985_ADCENL_MASK, 0);
@@ -652,7 +672,11 @@ static int wm8985_reset(struct snd_soc_component *component)
 	return snd_soc_component_write(component, WM8985_SOFTWARE_RESET, 0x0);
 }
 
+<<<<<<< HEAD
 static int wm8985_dac_mute(struct snd_soc_dai *dai, int mute)
+=======
+static int wm8985_dac_mute(struct snd_soc_dai *dai, int mute, int direction)
+>>>>>>> upstream/android-13
 {
 	struct snd_soc_component *component = dai->component;
 
@@ -1075,11 +1099,20 @@ err_reg_enable:
 }
 
 static const struct snd_soc_dai_ops wm8985_dai_ops = {
+<<<<<<< HEAD
 	.digital_mute = wm8985_dac_mute,
 	.hw_params = wm8985_hw_params,
 	.set_fmt = wm8985_set_fmt,
 	.set_sysclk = wm8985_set_sysclk,
 	.set_pll = wm8985_set_pll
+=======
+	.mute_stream = wm8985_dac_mute,
+	.hw_params = wm8985_hw_params,
+	.set_fmt = wm8985_set_fmt,
+	.set_sysclk = wm8985_set_sysclk,
+	.set_pll = wm8985_set_pll,
+	.no_capture_mute = 1,
+>>>>>>> upstream/android-13
 };
 
 #define WM8985_FORMATS (SNDRV_PCM_FMTBIT_S16_LE | SNDRV_PCM_FMTBIT_S20_3LE | \
@@ -1102,7 +1135,11 @@ static struct snd_soc_dai_driver wm8985_dai = {
 		.formats = WM8985_FORMATS,
 	},
 	.ops = &wm8985_dai_ops,
+<<<<<<< HEAD
 	.symmetric_rates = 1
+=======
+	.symmetric_rate = 1
+>>>>>>> upstream/android-13
 };
 
 static const struct snd_soc_component_driver soc_component_dev_wm8985 = {

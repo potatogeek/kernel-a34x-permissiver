@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * AD7879/AD7889 touchscreen (bus interfaces)
  *
  * Copyright (C) 2008-2010 Michael Hennerich, Analog Devices Inc.
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2 or later.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _AD7879_H_

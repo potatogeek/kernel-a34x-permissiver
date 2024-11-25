@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * GPIO driver for the WinSystems WS16C48
  * Copyright (C) 2016 William Breathitt Gray
@@ -10,6 +11,12 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * GPIO driver for the WinSystems WS16C48
+ * Copyright (C) 2016 William Breathitt Gray
+>>>>>>> upstream/android-13
  */
 #include <linux/bitmap.h>
 #include <linux/bitops.h>
@@ -64,7 +71,14 @@ static int ws16c48_gpio_get_direction(struct gpio_chip *chip, unsigned offset)
 	const unsigned port = offset / 8;
 	const unsigned mask = BIT(offset % 8);
 
+<<<<<<< HEAD
 	return !!(ws16c48gpio->io_state[port] & mask);
+=======
+	if (ws16c48gpio->io_state[port] & mask)
+		return GPIO_LINE_DIRECTION_IN;
+
+	return GPIO_LINE_DIRECTION_OUT;
+>>>>>>> upstream/android-13
 }
 
 static int ws16c48_gpio_direction_input(struct gpio_chip *chip, unsigned offset)
@@ -134,6 +148,7 @@ static int ws16c48_gpio_get_multiple(struct gpio_chip *chip,
 	unsigned long *mask, unsigned long *bits)
 {
 	struct ws16c48_gpio *const ws16c48gpio = gpiochip_get_data(chip);
+<<<<<<< HEAD
 	const unsigned int gpio_reg_size = 8;
 	size_t i;
 	const size_t num_ports = chip->ngpio / gpio_reg_size;
@@ -142,11 +157,17 @@ static int ws16c48_gpio_get_multiple(struct gpio_chip *chip,
 	unsigned int word_offset;
 	unsigned long word_mask;
 	const unsigned long port_mask = GENMASK(gpio_reg_size - 1, 0);
+=======
+	unsigned long offset;
+	unsigned long gpio_mask;
+	unsigned int port_addr;
+>>>>>>> upstream/android-13
 	unsigned long port_state;
 
 	/* clear bits array to a clean slate */
 	bitmap_zero(bits, chip->ngpio);
 
+<<<<<<< HEAD
 	/* get bits are evaluated a gpio port register at a time */
 	for (i = 0; i < num_ports; i++) {
 		/* gpio offset in bits array */
@@ -170,6 +191,13 @@ static int ws16c48_gpio_get_multiple(struct gpio_chip *chip,
 
 		/* store acquired bits at respective bits array offset */
 		bits[word_index] |= port_state << word_offset;
+=======
+	for_each_set_clump8(offset, gpio_mask, mask, chip->ngpio) {
+		port_addr = ws16c48gpio->base + offset / 8;
+		port_state = inb(port_addr) & gpio_mask;
+
+		bitmap_set_value8(bits, port_state, offset);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -203,6 +231,7 @@ static void ws16c48_gpio_set_multiple(struct gpio_chip *chip,
 	unsigned long *mask, unsigned long *bits)
 {
 	struct ws16c48_gpio *const ws16c48gpio = gpiochip_get_data(chip);
+<<<<<<< HEAD
 	unsigned int i;
 	const unsigned int gpio_reg_size = 8;
 	unsigned int port;
@@ -223,10 +252,27 @@ static void ws16c48_gpio_set_multiple(struct gpio_chip *chip,
 		/* mask out GPIO configured for input */
 		iomask = mask[BIT_WORD(i)] & ~ws16c48gpio->io_state[port];
 		bitmask = iomask & bits[BIT_WORD(i)];
+=======
+	unsigned long offset;
+	unsigned long gpio_mask;
+	size_t index;
+	unsigned int port_addr;
+	unsigned long bitmask;
+	unsigned long flags;
+
+	for_each_set_clump8(offset, gpio_mask, mask, chip->ngpio) {
+		index = offset / 8;
+		port_addr = ws16c48gpio->base + index;
+
+		/* mask out GPIO configured for input */
+		gpio_mask &= ~ws16c48gpio->io_state[index];
+		bitmask = bitmap_get_value8(bits, offset) & gpio_mask;
+>>>>>>> upstream/android-13
 
 		raw_spin_lock_irqsave(&ws16c48gpio->lock, flags);
 
 		/* update output state data and set device gpio register */
+<<<<<<< HEAD
 		ws16c48gpio->out_state[port] &= ~iomask;
 		ws16c48gpio->out_state[port] |= bitmask;
 		outb(ws16c48gpio->out_state[port], ws16c48gpio->base + port);
@@ -236,6 +282,13 @@ static void ws16c48_gpio_set_multiple(struct gpio_chip *chip,
 		/* prepare for next gpio register set */
 		mask[BIT_WORD(i)] >>= gpio_reg_size;
 		bits[BIT_WORD(i)] >>= gpio_reg_size;
+=======
+		ws16c48gpio->out_state[index] &= ~gpio_mask;
+		ws16c48gpio->out_state[index] |= bitmask;
+		outb(ws16c48gpio->out_state[index], port_addr);
+
+		raw_spin_unlock_irqrestore(&ws16c48gpio->lock, flags);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -377,8 +430,13 @@ static irqreturn_t ws16c48_irq_handler(int irq, void *dev_id)
 		for_each_set_bit(port, &int_pending, 3) {
 			int_id = inb(ws16c48gpio->base + 8 + port);
 			for_each_set_bit(gpio, &int_id, 8)
+<<<<<<< HEAD
 				generic_handle_irq(irq_find_mapping(
 					chip->irq.domain, gpio + 8*port));
+=======
+				generic_handle_domain_irq(chip->irq.domain,
+							  gpio + 8*port);
+>>>>>>> upstream/android-13
 		}
 
 		int_pending = inb(ws16c48gpio->base + 6) & 0x7;
@@ -403,10 +461,31 @@ static const char *ws16c48_names[WS16C48_NGPIO] = {
 	"Port 5 Bit 4", "Port 5 Bit 5", "Port 5 Bit 6", "Port 5 Bit 7"
 };
 
+<<<<<<< HEAD
+=======
+static int ws16c48_irq_init_hw(struct gpio_chip *gc)
+{
+	struct ws16c48_gpio *const ws16c48gpio = gpiochip_get_data(gc);
+
+	/* Disable IRQ by default */
+	outb(0x80, ws16c48gpio->base + 7);
+	outb(0, ws16c48gpio->base + 8);
+	outb(0, ws16c48gpio->base + 9);
+	outb(0, ws16c48gpio->base + 10);
+	outb(0xC0, ws16c48gpio->base + 7);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int ws16c48_probe(struct device *dev, unsigned int id)
 {
 	struct ws16c48_gpio *ws16c48gpio;
 	const char *const name = dev_name(dev);
+<<<<<<< HEAD
+=======
+	struct gpio_irq_chip *girq;
+>>>>>>> upstream/android-13
 	int err;
 
 	ws16c48gpio = devm_kzalloc(dev, sizeof(*ws16c48gpio), GFP_KERNEL);
@@ -434,6 +513,19 @@ static int ws16c48_probe(struct device *dev, unsigned int id)
 	ws16c48gpio->chip.set_multiple = ws16c48_gpio_set_multiple;
 	ws16c48gpio->base = base[id];
 
+<<<<<<< HEAD
+=======
+	girq = &ws16c48gpio->chip.irq;
+	girq->chip = &ws16c48_irqchip;
+	/* This will let us handle the parent IRQ in the driver */
+	girq->parent_handler = NULL;
+	girq->num_parents = 0;
+	girq->parents = NULL;
+	girq->default_type = IRQ_TYPE_NONE;
+	girq->handler = handle_edge_irq;
+	girq->init_hw = ws16c48_irq_init_hw;
+
+>>>>>>> upstream/android-13
 	raw_spin_lock_init(&ws16c48gpio->lock);
 
 	err = devm_gpiochip_add_data(dev, &ws16c48gpio->chip, ws16c48gpio);
@@ -442,6 +534,7 @@ static int ws16c48_probe(struct device *dev, unsigned int id)
 		return err;
 	}
 
+<<<<<<< HEAD
 	/* Disable IRQ by default */
 	outb(0x80, base[id] + 7);
 	outb(0, base[id] + 8);
@@ -456,6 +549,8 @@ static int ws16c48_probe(struct device *dev, unsigned int id)
 		return err;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	err = devm_request_irq(dev, irq[id], ws16c48_irq_handler, IRQF_SHARED,
 		name, ws16c48gpio);
 	if (err) {

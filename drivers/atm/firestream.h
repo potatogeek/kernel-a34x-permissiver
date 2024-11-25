@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /* drivers/atm/firestream.h - FireStream 155 (MB86697) and
  *                            FireStream  50 (MB86695) device driver 
  */
@@ -8,6 +12,7 @@
  */
 
 /*
+<<<<<<< HEAD
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 2 of the License, or
@@ -24,6 +29,8 @@
 
   The GNU GPL is contained in /usr/doc/copyright/GPL on a Debian
   system and in the file COPYING in the Linux kernel source.
+=======
+>>>>>>> upstream/android-13
 */
 
 

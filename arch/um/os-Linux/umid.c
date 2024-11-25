@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2002 - 2007 Jeff Dike (jdike@{addtoit,linux.intel}.com)
  * Licensed under the GPL
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2002 - 2007 Jeff Dike (jdike@{addtoit,linux.intel}.com)
+>>>>>>> upstream/android-13
  */
 
 #include <stdio.h>
@@ -97,7 +103,11 @@ static int remove_files_and_dir(char *dir)
 	while ((ent = readdir(directory)) != NULL) {
 		if (!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, ".."))
 			continue;
+<<<<<<< HEAD
 		len = strlen(dir) + sizeof("/") + strlen(ent->d_name) + 1;
+=======
+		len = strlen(dir) + strlen("/") + strlen(ent->d_name) + 1;
+>>>>>>> upstream/android-13
 		if (len > sizeof(file)) {
 			ret = -E2BIG;
 			goto out;
@@ -135,6 +145,7 @@ out:
  */
 static inline int is_umdir_used(char *dir)
 {
+<<<<<<< HEAD
 	char file[strlen(uml_dir) + UMID_LEN + sizeof("/pid\0")];
 	char pid[sizeof("nnnnn\0")], *end;
 	int dead, fd, p, n, err;
@@ -145,6 +156,17 @@ static inline int is_umdir_used(char *dir)
 		err = -E2BIG;
 		goto out;
 	}
+=======
+	char pid[sizeof("nnnnnnnnn")], *end, *file;
+	int dead, fd, p, n, err;
+	size_t filelen = strlen(dir) + sizeof("/pid") + 1;
+
+	file = malloc(filelen);
+	if (!file)
+		return -ENOMEM;
+
+	snprintf(file, filelen, "%s/pid", dir);
+>>>>>>> upstream/android-13
 
 	dead = 0;
 	fd = open(file, O_RDONLY);
@@ -185,6 +207,10 @@ static inline int is_umdir_used(char *dir)
 out_close:
 	close(fd);
 out:
+<<<<<<< HEAD
+=======
+	free(file);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -210,6 +236,7 @@ static int umdir_take_if_dead(char *dir)
 
 static void __init create_pid_file(void)
 {
+<<<<<<< HEAD
 	char file[strlen(uml_dir) + UMID_LEN + sizeof("/pid\0")];
 	char pid[sizeof("nnnnn\0")];
 	int fd, n;
@@ -217,11 +244,28 @@ static void __init create_pid_file(void)
 	if (umid_file_name("pid", file, sizeof(file)))
 		return;
 
+=======
+	char pid[sizeof("nnnnnnnnn")], *file;
+	int fd, n;
+
+	n = strlen(uml_dir) + UMID_LEN + sizeof("/pid");
+	file = malloc(n);
+	if (!file)
+		return;
+
+	if (umid_file_name("pid", file, n))
+		goto out;
+
+>>>>>>> upstream/android-13
 	fd = open(file, O_RDWR | O_CREAT | O_EXCL, 0644);
 	if (fd < 0) {
 		printk(UM_KERN_ERR "Open of machine pid file \"%s\" failed: "
 		       "%s\n", file, strerror(errno));
+<<<<<<< HEAD
 		return;
+=======
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	snprintf(pid, sizeof(pid), "%d\n", getpid());
@@ -231,6 +275,11 @@ static void __init create_pid_file(void)
 		       errno);
 
 	close(fd);
+<<<<<<< HEAD
+=======
+out:
+	free(file);
+>>>>>>> upstream/android-13
 }
 
 int __init set_umid(char *name)
@@ -385,13 +434,26 @@ __uml_setup("uml_dir=", set_uml_dir,
 
 static void remove_umid_dir(void)
 {
+<<<<<<< HEAD
 	char dir[strlen(uml_dir) + UMID_LEN + 1], err;
+=======
+	char *dir, err;
+
+	dir = malloc(strlen(uml_dir) + UMID_LEN + 1);
+	if (!dir)
+		return;
+>>>>>>> upstream/android-13
 
 	sprintf(dir, "%s%s", uml_dir, umid);
 	err = remove_files_and_dir(dir);
 	if (err)
 		os_warn("%s - remove_files_and_dir failed with err = %d\n",
 			__func__, err);
+<<<<<<< HEAD
+=======
+
+	free(dir);
+>>>>>>> upstream/android-13
 }
 
 __uml_exitcall(remove_umid_dir);

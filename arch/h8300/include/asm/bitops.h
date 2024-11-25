@@ -9,6 +9,13 @@
 
 #include <linux/compiler.h>
 
+<<<<<<< HEAD
+=======
+#include <asm-generic/bitops/fls.h>
+#include <asm-generic/bitops/__fls.h>
+#include <asm-generic/bitops/fls64.h>
+
+>>>>>>> upstream/android-13
 #ifdef __KERNEL__
 
 #ifndef _LINUX_BITOPS_H
@@ -51,12 +58,15 @@ static inline void FNAME(int nr, volatile unsigned long *addr)	\
 	}							\
 }
 
+<<<<<<< HEAD
 /*
  * clear_bit() doesn't provide any barrier for the compiler.
  */
 #define smp_mb__before_clear_bit()	barrier()
 #define smp_mb__after_clear_bit()	barrier()
 
+=======
+>>>>>>> upstream/android-13
 H8300_GEN_BITOP(set_bit,    "bset")
 H8300_GEN_BITOP(clear_bit,  "bclr")
 H8300_GEN_BITOP(change_bit, "bnot")
@@ -179,8 +189,11 @@ static inline unsigned long __ffs(unsigned long word)
 
 #endif /* __KERNEL__ */
 
+<<<<<<< HEAD
 #include <asm-generic/bitops/fls.h>
 #include <asm-generic/bitops/__fls.h>
 #include <asm-generic/bitops/fls64.h>
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _H8300_BITOPS_H */

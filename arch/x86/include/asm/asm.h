@@ -3,6 +3,7 @@
 #define _ASM_X86_ASM_H
 
 #ifdef __ASSEMBLY__
+<<<<<<< HEAD
 # define __ASM_FORM(x)	x
 # define __ASM_FORM_RAW(x)     x
 # define __ASM_FORM_COMMA(x) x,
@@ -20,6 +21,28 @@
 /* 64 bit */
 # define __ASM_SEL(a,b) __ASM_FORM(b)
 # define __ASM_SEL_RAW(a,b) __ASM_FORM_RAW(b)
+=======
+# define __ASM_FORM(x, ...)		x,## __VA_ARGS__
+# define __ASM_FORM_RAW(x, ...)		x,## __VA_ARGS__
+# define __ASM_FORM_COMMA(x, ...)	x,## __VA_ARGS__,
+#else
+#include <linux/stringify.h>
+# define __ASM_FORM(x, ...)		" " __stringify(x,##__VA_ARGS__) " "
+# define __ASM_FORM_RAW(x, ...)		    __stringify(x,##__VA_ARGS__)
+# define __ASM_FORM_COMMA(x, ...)	" " __stringify(x,##__VA_ARGS__) ","
+#endif
+
+#define _ASM_BYTES(x, ...)	__ASM_FORM(.byte x,##__VA_ARGS__ ;)
+
+#ifndef __x86_64__
+/* 32 bit */
+# define __ASM_SEL(a,b)		__ASM_FORM(a)
+# define __ASM_SEL_RAW(a,b)	__ASM_FORM_RAW(a)
+#else
+/* 64 bit */
+# define __ASM_SEL(a,b)		__ASM_FORM(b)
+# define __ASM_SEL_RAW(a,b)	__ASM_FORM_RAW(b)
+>>>>>>> upstream/android-13
 #endif
 
 #define __ASM_SIZE(inst, ...)	__ASM_SEL(inst##l##__VA_ARGS__, \
@@ -117,6 +140,11 @@
 # define CC_OUT(c) [_cc_ ## c] "=qm"
 #endif
 
+<<<<<<< HEAD
+=======
+#ifdef __KERNEL__
+
+>>>>>>> upstream/android-13
 /* Exception table entry */
 #ifdef __ASSEMBLY__
 # define _ASM_EXTABLE_HANDLE(from, to, handler)			\
@@ -130,6 +158,7 @@
 # define _ASM_EXTABLE(from, to)					\
 	_ASM_EXTABLE_HANDLE(from, to, ex_handler_default)
 
+<<<<<<< HEAD
 # define _ASM_EXTABLE_FAULT(from, to)				\
 	_ASM_EXTABLE_HANDLE(from, to, ex_handler_fault)
 
@@ -140,10 +169,24 @@
 	_ASM_EXTABLE_HANDLE(from, to, ex_handler_refcount)
 
 # define _ASM_NOKPROBE(entry)					\
+=======
+# define _ASM_EXTABLE_UA(from, to)				\
+	_ASM_EXTABLE_HANDLE(from, to, ex_handler_uaccess)
+
+# define _ASM_EXTABLE_CPY(from, to)				\
+	_ASM_EXTABLE_HANDLE(from, to, ex_handler_copy)
+
+# define _ASM_EXTABLE_FAULT(from, to)				\
+	_ASM_EXTABLE_HANDLE(from, to, ex_handler_fault)
+
+# ifdef CONFIG_KPROBES
+#  define _ASM_NOKPROBE(entry)					\
+>>>>>>> upstream/android-13
 	.pushsection "_kprobe_blacklist","aw" ;			\
 	_ASM_ALIGN ;						\
 	_ASM_PTR (entry);					\
 	.popsection
+<<<<<<< HEAD
 
 .macro ALIGN_DESTINATION
 	/* check for bad alignment of destination */
@@ -170,6 +213,13 @@
 	.endm
 
 #else
+=======
+# else
+#  define _ASM_NOKPROBE(entry)
+# endif
+
+#else /* ! __ASSEMBLY__ */
+>>>>>>> upstream/android-13
 # define _EXPAND_EXTABLE_HANDLE(x) #x
 # define _ASM_EXTABLE_HANDLE(from, to, handler)			\
 	" .pushsection \"__ex_table\",\"a\"\n"			\
@@ -182,6 +232,7 @@
 # define _ASM_EXTABLE(from, to)					\
 	_ASM_EXTABLE_HANDLE(from, to, ex_handler_default)
 
+<<<<<<< HEAD
 # define _ASM_EXTABLE_FAULT(from, to)				\
 	_ASM_EXTABLE_HANDLE(from, to, ex_handler_fault)
 
@@ -195,6 +246,19 @@
 #endif
 
 #ifndef __ASSEMBLY__
+=======
+# define _ASM_EXTABLE_UA(from, to)				\
+	_ASM_EXTABLE_HANDLE(from, to, ex_handler_uaccess)
+
+# define _ASM_EXTABLE_CPY(from, to)				\
+	_ASM_EXTABLE_HANDLE(from, to, ex_handler_copy)
+
+# define _ASM_EXTABLE_FAULT(from, to)				\
+	_ASM_EXTABLE_HANDLE(from, to, ex_handler_fault)
+
+/* For C file, we already have NOKPROBE_SYMBOL macro */
+
+>>>>>>> upstream/android-13
 /*
  * This output constraint should be used for any inline asm which has a "call"
  * instruction.  Otherwise the asm may be inserted before the frame pointer
@@ -203,6 +267,12 @@
  */
 register unsigned long current_stack_pointer asm(_ASM_SP);
 #define ASM_CALL_CONSTRAINT "+r" (current_stack_pointer)
+<<<<<<< HEAD
 #endif
+=======
+#endif /* __ASSEMBLY__ */
+
+#endif /* __KERNEL__ */
+>>>>>>> upstream/android-13
 
 #endif /* _ASM_X86_ASM_H */

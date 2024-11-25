@@ -139,7 +139,11 @@ struct _fpstate_32 {
  * The 64-bit FPU frame. (FXSAVE format and later)
  *
  * Note1: If sw_reserved.magic1 == FP_XSTATE_MAGIC1 then the structure is
+<<<<<<< HEAD
  *        larger: 'struct _xstate'. Note that 'struct _xstate' embedds
+=======
+ *        larger: 'struct _xstate'. Note that 'struct _xstate' embeds
+>>>>>>> upstream/android-13
  *        'struct _fpstate' so that you can always assume the _fpstate portion
  *        exists so that you can check the magic value.
  *

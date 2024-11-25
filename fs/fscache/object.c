@@ -1,14 +1,22 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* FS-Cache object state machine handler
  *
  * Copyright (C) 2007 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
  *
  * See Documentation/filesystems/caching/object.txt for a description of the
+=======
+ * See Documentation/filesystems/caching/object.rst for a description of the
+>>>>>>> upstream/android-13
  * object state machine and the in-kernel representations.
  */
 
@@ -81,7 +89,10 @@ static WORK_STATE(INIT_OBJECT,		"INIT", fscache_initialise_object);
 static WORK_STATE(PARENT_READY,		"PRDY", fscache_parent_ready);
 static WORK_STATE(ABORT_INIT,		"ABRT", fscache_abort_initialisation);
 static WORK_STATE(LOOK_UP_OBJECT,	"LOOK", fscache_look_up_object);
+<<<<<<< HEAD
 static WORK_STATE(CREATE_OBJECT,	"CRTO", fscache_look_up_object);
+=======
+>>>>>>> upstream/android-13
 static WORK_STATE(OBJECT_AVAILABLE,	"AVBL", fscache_object_available);
 static WORK_STATE(JUMPSTART_DEPS,	"JUMP", fscache_jumpstart_dependents);
 
@@ -281,6 +292,7 @@ static void fscache_object_work_func(struct work_struct *work)
 {
 	struct fscache_object *object =
 		container_of(work, struct fscache_object, work);
+<<<<<<< HEAD
 	unsigned long start;
 
 	_enter("{OBJ%x}", object->debug_id);
@@ -288,6 +300,12 @@ static void fscache_object_work_func(struct work_struct *work)
 	start = jiffies;
 	fscache_object_sm_dispatcher(object);
 	fscache_hist(fscache_objs_histogram, start);
+=======
+
+	_enter("{OBJ%x}", object->debug_id);
+
+	fscache_object_sm_dispatcher(object);
+>>>>>>> upstream/android-13
 	fscache_put_object(object, fscache_obj_put_work);
 }
 
@@ -299,7 +317,11 @@ static void fscache_object_work_func(struct work_struct *work)
  *
  * Initialise a cache object description to its basic values.
  *
+<<<<<<< HEAD
  * See Documentation/filesystems/caching/backend-api.txt for a complete
+=======
+ * See Documentation/filesystems/caching/backend-api.rst for a complete
+>>>>>>> upstream/android-13
  * description.
  */
 void fscache_object_init(struct fscache_object *object,
@@ -440,7 +462,10 @@ static const struct fscache_state *fscache_parent_ready(struct fscache_object *o
 	spin_lock(&parent->lock);
 	parent->n_ops++;
 	parent->n_obj_ops++;
+<<<<<<< HEAD
 	object->lookup_jif = jiffies;
+=======
+>>>>>>> upstream/android-13
 	spin_unlock(&parent->lock);
 
 	_leave("");
@@ -526,7 +551,10 @@ void fscache_object_lookup_negative(struct fscache_object *object)
 		set_bit(FSCACHE_COOKIE_NO_DATA_YET, &cookie->flags);
 		clear_bit(FSCACHE_COOKIE_UNAVAILABLE, &cookie->flags);
 
+<<<<<<< HEAD
 		_debug("wake up lookup %p", &cookie->flags);
+=======
+>>>>>>> upstream/android-13
 		clear_bit_unlock(FSCACHE_COOKIE_LOOKING_UP, &cookie->flags);
 		wake_up_bit(&cookie->flags, FSCACHE_COOKIE_LOOKING_UP);
 	}
@@ -600,7 +628,10 @@ static const struct fscache_state *fscache_object_available(struct fscache_objec
 	object->cache->ops->lookup_complete(object);
 	fscache_stat_d(&fscache_n_cop_lookup_complete);
 
+<<<<<<< HEAD
 	fscache_hist(fscache_obj_instantiate_histogram, object->lookup_jif);
+=======
+>>>>>>> upstream/android-13
 	fscache_stat(&fscache_n_object_avail);
 
 	_leave("");
@@ -803,8 +834,11 @@ static void fscache_put_object(struct fscache_object *object,
  */
 void fscache_object_destroy(struct fscache_object *object)
 {
+<<<<<<< HEAD
 	fscache_objlist_remove(object);
 
+=======
+>>>>>>> upstream/android-13
 	/* We can get rid of the cookie now */
 	fscache_cookie_put(object->cookie, fscache_cookie_put_object);
 	object->cookie = NULL;
@@ -919,6 +953,10 @@ static void fscache_dequeue_object(struct fscache_object *object)
  * @object: The object to ask about
  * @data: The auxiliary data for the object
  * @datalen: The size of the auxiliary data
+<<<<<<< HEAD
+=======
+ * @object_size: The size of the object according to the server.
+>>>>>>> upstream/android-13
  *
  * This function consults the netfs about the coherency state of an object.
  * The caller must be holding a ref on cookie->n_active (held by

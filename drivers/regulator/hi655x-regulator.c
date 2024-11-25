@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Device driver for regulators in Hi655x IC
  *
@@ -11,6 +12,17 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0
+//
+// Device driver for regulators in Hi655x IC
+//
+// Copyright (c) 2016 HiSilicon Ltd.
+//
+// Authors:
+// Chen Feng <puck.chen@hisilicon.com>
+// Fei  Wang <w.f@huawei.com>
+>>>>>>> upstream/android-13
 
 #include <linux/bitops.h>
 #include <linux/device.h>
@@ -28,8 +40,11 @@
 struct hi655x_regulator {
 	unsigned int disable_reg;
 	unsigned int status_reg;
+<<<<<<< HEAD
 	unsigned int ctrl_regs;
 	unsigned int ctrl_mask;
+=======
+>>>>>>> upstream/android-13
 	struct regulator_desc rdesc;
 };
 
@@ -78,15 +93,23 @@ enum hi655x_regulator_id {
 static int hi655x_is_enabled(struct regulator_dev *rdev)
 {
 	unsigned int value = 0;
+<<<<<<< HEAD
 
 	struct hi655x_regulator *regulator = rdev_get_drvdata(rdev);
 
 	regmap_read(rdev->regmap, regulator->status_reg, &value);
 	return (value & BIT(regulator->ctrl_mask));
+=======
+	const struct hi655x_regulator *regulator = rdev_get_drvdata(rdev);
+
+	regmap_read(rdev->regmap, regulator->status_reg, &value);
+	return (value & rdev->desc->enable_mask);
+>>>>>>> upstream/android-13
 }
 
 static int hi655x_disable(struct regulator_dev *rdev)
 {
+<<<<<<< HEAD
 	int ret = 0;
 
 	struct hi655x_regulator *regulator = rdev_get_drvdata(rdev);
@@ -94,6 +117,12 @@ static int hi655x_disable(struct regulator_dev *rdev)
 	ret = regmap_write(rdev->regmap, regulator->disable_reg,
 			   BIT(regulator->ctrl_mask));
 	return ret;
+=======
+	const struct hi655x_regulator *regulator = rdev_get_drvdata(rdev);
+
+	return regmap_write(rdev->regmap, regulator->disable_reg,
+			    rdev->desc->enable_mask);
+>>>>>>> upstream/android-13
 }
 
 static const struct regulator_ops hi655x_regulator_ops = {
@@ -133,7 +162,10 @@ static const struct regulator_ops hi655x_ldo_linear_ops = {
 	},                                                       \
 	.disable_reg = HI655X_BUS_ADDR(dreg),                    \
 	.status_reg = HI655X_BUS_ADDR(sreg),                     \
+<<<<<<< HEAD
 	.ctrl_mask = cmask,                                      \
+=======
+>>>>>>> upstream/android-13
 }
 
 #define HI655X_LDO_LINEAR(_ID, vreg, vmask, ereg, dreg,          \
@@ -156,10 +188,16 @@ static const struct regulator_ops hi655x_ldo_linear_ops = {
 	},                                                       \
 	.disable_reg = HI655X_BUS_ADDR(dreg),                    \
 	.status_reg = HI655X_BUS_ADDR(sreg),                     \
+<<<<<<< HEAD
 	.ctrl_mask = cmask,                                      \
 }
 
 static struct hi655x_regulator regulators[] = {
+=======
+}
+
+static const struct hi655x_regulator regulators[] = {
+>>>>>>> upstream/android-13
 	HI655X_LDO_LINEAR(LDO2, 0x72, 0x07, 0x29, 0x2a, 0x2b, 0x01,
 			  2500000, 8, 100000),
 	HI655X_LDO(LDO7, 0x78, 0x07, 0x29, 0x2a, 0x2b, 0x06, ldo7_voltages),
@@ -181,7 +219,10 @@ static struct hi655x_regulator regulators[] = {
 static int hi655x_regulator_probe(struct platform_device *pdev)
 {
 	unsigned int i;
+<<<<<<< HEAD
 	struct hi655x_regulator *regulator;
+=======
+>>>>>>> upstream/android-13
 	struct hi655x_pmic *pmic;
 	struct regulator_config config = { };
 	struct regulator_dev *rdev;
@@ -192,6 +233,7 @@ static int hi655x_regulator_probe(struct platform_device *pdev)
 		return -ENODEV;
 	}
 
+<<<<<<< HEAD
 	regulator = devm_kzalloc(&pdev->dev, sizeof(*regulator), GFP_KERNEL);
 	if (!regulator)
 		return -ENOMEM;
@@ -202,12 +244,23 @@ static int hi655x_regulator_probe(struct platform_device *pdev)
 	config.regmap = pmic->regmap;
 	config.driver_data = regulator;
 	for (i = 0; i < ARRAY_SIZE(regulators); i++) {
+=======
+	config.dev = pdev->dev.parent;
+	config.regmap = pmic->regmap;
+	for (i = 0; i < ARRAY_SIZE(regulators); i++) {
+		config.driver_data = (void *) &regulators[i];
+
+>>>>>>> upstream/android-13
 		rdev = devm_regulator_register(&pdev->dev,
 					       &regulators[i].rdesc,
 					       &config);
 		if (IS_ERR(rdev)) {
 			dev_err(&pdev->dev, "failed to register regulator %s\n",
+<<<<<<< HEAD
 				regulator->rdesc.name);
+=======
+				regulators[i].rdesc.name);
+>>>>>>> upstream/android-13
 			return PTR_ERR(rdev);
 		}
 	}

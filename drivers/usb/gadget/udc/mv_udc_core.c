@@ -53,7 +53,10 @@
 static DECLARE_COMPLETION(release_done);
 
 static const char driver_name[] = "mv_udc";
+<<<<<<< HEAD
 static const char driver_desc[] = DRIVER_DESC;
+=======
+>>>>>>> upstream/android-13
 
 static void nuke(struct mv_ep *ep, int status);
 static void stop_activity(struct mv_udc *udc, struct usb_gadget_driver *driver);
@@ -185,7 +188,11 @@ static int process_ep_req(struct mv_udc *udc, int index,
 	else
 		bit_pos = 1 << (16 + curr_req->ep->ep_num);
 
+<<<<<<< HEAD
 	while ((curr_dqh->curr_dtd_ptr == curr_dtd->td_dma)) {
+=======
+	while (curr_dqh->curr_dtd_ptr == curr_dtd->td_dma) {
+>>>>>>> upstream/android-13
 		if (curr_dtd->dtd_next == EP_QUEUE_HEAD_NEXT_TERMINATE) {
 			while (readl(&udc->op_regs->epstatus) & bit_pos)
 				udelay(1);
@@ -889,7 +896,11 @@ static int ep_is_stall(struct mv_udc *udc, u8 ep_num, u8 direction)
 static int mv_ep_set_halt_wedge(struct usb_ep *_ep, int halt, int wedge)
 {
 	struct mv_ep *ep;
+<<<<<<< HEAD
 	unsigned long flags = 0;
+=======
+	unsigned long flags;
+>>>>>>> upstream/android-13
 	int status = 0;
 	struct mv_udc *udc;
 
@@ -1502,7 +1513,11 @@ out:
 
 static void mv_udc_testmode(struct mv_udc *udc, u16 index)
 {
+<<<<<<< HEAD
 	if (index <= TEST_FORCE_EN) {
+=======
+	if (index <= USB_TEST_FORCE_ENABLE) {
+>>>>>>> upstream/android-13
 		udc->test_mode = index;
 		if (udc_prime_status(udc, EP_DIR_IN, 0, true))
 			ep0_stall(udc);

@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * klist.c - Routines for manipulating klists.
  *
  * Copyright (C) 2005 Patrick Mochel
  *
+<<<<<<< HEAD
  * This file is released under the GPL v2.
  *
+=======
+>>>>>>> upstream/android-13
  * This klist interface provides a couple of structures that wrap around
  * struct list_head to provide explicit list "head" (struct klist) and list
  * "node" (struct klist_node) objects. For struct klist, a spinlock is

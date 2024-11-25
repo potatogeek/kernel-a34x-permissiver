@@ -74,6 +74,7 @@ extern void hpet_disable(void);
 extern unsigned int hpet_readl(unsigned int a);
 extern void force_hpet_resume(void);
 
+<<<<<<< HEAD
 struct irq_data;
 struct hpet_dev;
 struct irq_domain;
@@ -86,6 +87,8 @@ extern struct irq_domain *hpet_create_irq_domain(int hpet_id);
 extern int hpet_assign_irq(struct irq_domain *domain,
 			   struct hpet_dev *dev, int dev_num);
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_HPET_EMULATE_RTC
 
 #include <linux/interrupt.h>

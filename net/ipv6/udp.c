@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	UDP over IPv6
  *	Linux INET6 implementation
@@ -14,11 +18,14 @@
  *					a single port at the same time.
  *      Kazunori MIYAZAWA @USAGI:       change process style to use ip6_append_data
  *      YOSHIFUJI Hideaki @USAGI:	convert /proc/net/udp6 to seq_file.
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/errno.h>
@@ -36,6 +43,10 @@
 #include <linux/skbuff.h>
 #include <linux/slab.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
+=======
+#include <linux/indirect_call_wrapper.h>
+>>>>>>> upstream/android-13
 
 #include <net/addrconf.h>
 #include <net/ndisc.h>
@@ -43,8 +54,15 @@
 #include <net/transp_v6.h>
 #include <net/ip6_route.h>
 #include <net/raw.h>
+<<<<<<< HEAD
 #include <net/tcp_states.h>
 #include <net/ip6_checksum.h>
+=======
+#include <net/seg6.h>
+#include <net/tcp_states.h>
+#include <net/ip6_checksum.h>
+#include <net/ip6_tunnel.h>
+>>>>>>> upstream/android-13
 #include <net/xfrm.h>
 #include <net/inet_hashtables.h>
 #include <net/inet6_hashtables.h>
@@ -56,6 +74,7 @@
 #include <trace/events/skb.h>
 #include "udp_impl.h"
 
+<<<<<<< HEAD
 static bool udp6_lib_exact_dif_match(struct net *net, struct sk_buff *skb)
 {
 #if defined(CONFIG_NET_L3_MASTER_DEV)
@@ -66,6 +85,8 @@ static bool udp6_lib_exact_dif_match(struct net *net, struct sk_buff *skb)
 	return false;
 }
 
+=======
+>>>>>>> upstream/android-13
 static u32 udp6_ehashfn(const struct net *net,
 			const struct in6_addr *laddr,
 			const u16 lport,
@@ -101,7 +122,11 @@ int udp_v6_get_port(struct sock *sk, unsigned short snum)
 	return udp_lib_get_port(sk, snum, hash2_nulladdr);
 }
 
+<<<<<<< HEAD
 static void udp_v6_rehash(struct sock *sk)
+=======
+void udp_v6_rehash(struct sock *sk)
+>>>>>>> upstream/android-13
 {
 	u16 new_hash = ipv6_portaddr_hash(sock_net(sk),
 					  &sk->sk_v6_rcv_saddr,
@@ -113,16 +138,30 @@ static void udp_v6_rehash(struct sock *sk)
 static int compute_score(struct sock *sk, struct net *net,
 			 const struct in6_addr *saddr, __be16 sport,
 			 const struct in6_addr *daddr, unsigned short hnum,
+<<<<<<< HEAD
 			 int dif, int sdif, bool exact_dif)
 {
 	int score;
 	struct inet_sock *inet;
+=======
+			 int dif, int sdif)
+{
+	int score;
+	struct inet_sock *inet;
+	bool dev_match;
+>>>>>>> upstream/android-13
 
 	if (!net_eq(sock_net(sk), net) ||
 	    udp_sk(sk)->udp_port_hash != hnum ||
 	    sk->sk_family != PF_INET6)
 		return -1;
 
+<<<<<<< HEAD
+=======
+	if (!ipv6_addr_equal(&sk->sk_v6_rcv_saddr, daddr))
+		return -1;
+
+>>>>>>> upstream/android-13
 	score = 0;
 	inet = inet_sk(sk);
 
@@ -132,18 +171,22 @@ static int compute_score(struct sock *sk, struct net *net,
 		score++;
 	}
 
+<<<<<<< HEAD
 	if (!ipv6_addr_any(&sk->sk_v6_rcv_saddr)) {
 		if (!ipv6_addr_equal(&sk->sk_v6_rcv_saddr, daddr))
 			return -1;
 		score++;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (!ipv6_addr_any(&sk->sk_v6_daddr)) {
 		if (!ipv6_addr_equal(&sk->sk_v6_daddr, saddr))
 			return -1;
 		score++;
 	}
 
+<<<<<<< HEAD
 	if (sk->sk_bound_dev_if || exact_dif) {
 		bool dev_match = (sk->sk_bound_dev_if == dif ||
 				  sk->sk_bound_dev_if == sdif);
@@ -153,6 +196,13 @@ static int compute_score(struct sock *sk, struct net *net,
 		if (sk->sk_bound_dev_if)
 			score++;
 	}
+=======
+	dev_match = udp_sk_bound_dev_eq(net, sk->sk_bound_dev_if, dif, sdif);
+	if (!dev_match)
+		return -1;
+	if (sk->sk_bound_dev_if)
+		score++;
+>>>>>>> upstream/android-13
 
 	if (READ_ONCE(sk->sk_incoming_cpu) == raw_smp_processor_id())
 		score++;
@@ -160,21 +210,51 @@ static int compute_score(struct sock *sk, struct net *net,
 	return score;
 }
 
+<<<<<<< HEAD
+=======
+static struct sock *lookup_reuseport(struct net *net, struct sock *sk,
+				     struct sk_buff *skb,
+				     const struct in6_addr *saddr,
+				     __be16 sport,
+				     const struct in6_addr *daddr,
+				     unsigned int hnum)
+{
+	struct sock *reuse_sk = NULL;
+	u32 hash;
+
+	if (sk->sk_reuseport && sk->sk_state != TCP_ESTABLISHED) {
+		hash = udp6_ehashfn(net, daddr, hnum, saddr, sport);
+		reuse_sk = reuseport_select_sock(sk, hash, skb,
+						 sizeof(struct udphdr));
+	}
+	return reuse_sk;
+}
+
+>>>>>>> upstream/android-13
 /* called with rcu_read_lock() */
 static struct sock *udp6_lib_lookup2(struct net *net,
 		const struct in6_addr *saddr, __be16 sport,
 		const struct in6_addr *daddr, unsigned int hnum,
+<<<<<<< HEAD
 		int dif, int sdif, bool exact_dif,
 		struct udp_hslot *hslot2, struct sk_buff *skb)
 {
 	struct sock *sk, *result, *reuseport_result;
 	int score, badness;
 	u32 hash = 0;
+=======
+		int dif, int sdif, struct udp_hslot *hslot2,
+		struct sk_buff *skb)
+{
+	struct sock *sk, *result;
+	int score, badness;
+>>>>>>> upstream/android-13
 
 	result = NULL;
 	badness = -1;
 	udp_portaddr_for_each_entry_rcu(sk, &hslot2->head) {
 		score = compute_score(sk, net, saddr, sport,
+<<<<<<< HEAD
 				      daddr, hnum, dif, sdif, exact_dif);
 		if (score > badness) {
 			reuseport_result = NULL;
@@ -191,12 +271,51 @@ static struct sock *udp6_lib_lookup2(struct net *net,
 			}
 
 			result = reuseport_result ? : sk;
+=======
+				      daddr, hnum, dif, sdif);
+		if (score > badness) {
+			result = lookup_reuseport(net, sk, skb,
+						  saddr, sport, daddr, hnum);
+			/* Fall back to scoring if group has connections */
+			if (result && !reuseport_has_conns(sk, false))
+				return result;
+
+			result = result ? : sk;
+>>>>>>> upstream/android-13
 			badness = score;
 		}
 	}
 	return result;
 }
 
+<<<<<<< HEAD
+=======
+static inline struct sock *udp6_lookup_run_bpf(struct net *net,
+					       struct udp_table *udptable,
+					       struct sk_buff *skb,
+					       const struct in6_addr *saddr,
+					       __be16 sport,
+					       const struct in6_addr *daddr,
+					       u16 hnum)
+{
+	struct sock *sk, *reuse_sk;
+	bool no_reuseport;
+
+	if (udptable != &udp_table)
+		return NULL; /* only UDP is supported */
+
+	no_reuseport = bpf_sk_lookup_run_v6(net, IPPROTO_UDP,
+					    saddr, sport, daddr, hnum, &sk);
+	if (no_reuseport || IS_ERR_OR_NULL(sk))
+		return sk;
+
+	reuse_sk = lookup_reuseport(net, sk, skb, saddr, sport, daddr, hnum);
+	if (reuse_sk)
+		sk = reuse_sk;
+	return sk;
+}
+
+>>>>>>> upstream/android-13
 /* rcu_read_lock() must be held */
 struct sock *__udp6_lib_lookup(struct net *net,
 			       const struct in6_addr *saddr, __be16 sport,
@@ -204,6 +323,7 @@ struct sock *__udp6_lib_lookup(struct net *net,
 			       int dif, int sdif, struct udp_table *udptable,
 			       struct sk_buff *skb)
 {
+<<<<<<< HEAD
 	struct sock *sk, *result;
 	unsigned short hnum = ntohs(dport);
 	unsigned int hash2, slot2, slot = udp_hashfn(net, hnum, udptable->mask);
@@ -264,6 +384,49 @@ begin:
 			badness = score;
 		}
 	}
+=======
+	unsigned short hnum = ntohs(dport);
+	unsigned int hash2, slot2;
+	struct udp_hslot *hslot2;
+	struct sock *result, *sk;
+
+	hash2 = ipv6_portaddr_hash(net, daddr, hnum);
+	slot2 = hash2 & udptable->mask;
+	hslot2 = &udptable->hash2[slot2];
+
+	/* Lookup connected or non-wildcard sockets */
+	result = udp6_lib_lookup2(net, saddr, sport,
+				  daddr, hnum, dif, sdif,
+				  hslot2, skb);
+	if (!IS_ERR_OR_NULL(result) && result->sk_state == TCP_ESTABLISHED)
+		goto done;
+
+	/* Lookup redirect from BPF */
+	if (static_branch_unlikely(&bpf_sk_lookup_enabled)) {
+		sk = udp6_lookup_run_bpf(net, udptable, skb,
+					 saddr, sport, daddr, hnum);
+		if (sk) {
+			result = sk;
+			goto done;
+		}
+	}
+
+	/* Got non-wildcard socket or error on first lookup */
+	if (result)
+		goto done;
+
+	/* Lookup wildcard sockets */
+	hash2 = ipv6_portaddr_hash(net, &in6addr_any, hnum);
+	slot2 = hash2 & udptable->mask;
+	hslot2 = &udptable->hash2[slot2];
+
+	result = udp6_lib_lookup2(net, saddr, sport,
+				  &in6addr_any, hnum, dif, sdif,
+				  hslot2, skb);
+done:
+	if (IS_ERR(result))
+		return NULL;
+>>>>>>> upstream/android-13
 	return result;
 }
 EXPORT_SYMBOL_GPL(__udp6_lib_lookup);
@@ -279,7 +442,11 @@ static struct sock *__udp6_lib_lookup_skb(struct sk_buff *skb,
 				 inet6_sdif(skb), udptable, skb);
 }
 
+<<<<<<< HEAD
 struct sock *udp6_lib_lookup_skb(struct sk_buff *skb,
+=======
+struct sock *udp6_lib_lookup_skb(const struct sk_buff *skb,
+>>>>>>> upstream/android-13
 				 __be16 sport, __be16 dport)
 {
 	const struct ipv6hdr *iph = ipv6_hdr(skb);
@@ -288,7 +455,10 @@ struct sock *udp6_lib_lookup_skb(struct sk_buff *skb,
 				 &iph->daddr, dport, inet6_iif(skb),
 				 inet6_sdif(skb), &udp_table, NULL);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(udp6_lib_lookup_skb);
+=======
+>>>>>>> upstream/android-13
 
 /* Must be called under rcu_read_lock().
  * Does increment socket refcount.
@@ -329,9 +499,15 @@ int udpv6_recvmsg(struct sock *sk, struct msghdr *msg, size_t len,
 	struct inet_sock *inet = inet_sk(sk);
 	struct sk_buff *skb;
 	unsigned int ulen, copied;
+<<<<<<< HEAD
 	int peeked, peeking, off;
 	int err;
 	int is_udplite = IS_UDPLITE(sk);
+=======
+	int off, err, peeking = flags & MSG_PEEK;
+	int is_udplite = IS_UDPLITE(sk);
+	struct udp_mib __percpu *mib;
+>>>>>>> upstream/android-13
 	bool checksum_valid = false;
 	int is_udp4;
 
@@ -342,9 +518,14 @@ int udpv6_recvmsg(struct sock *sk, struct msghdr *msg, size_t len,
 		return ipv6_recv_rxpmtu(sk, msg, len, addr_len);
 
 try_again:
+<<<<<<< HEAD
 	peeking = flags & MSG_PEEK;
 	off = sk_peek_offset(sk, flags);
 	skb = __skb_recv_udp(sk, flags, noblock, &peeked, &off, &err);
+=======
+	off = sk_peek_offset(sk, flags);
+	skb = __skb_recv_udp(sk, flags, noblock, &off, &err);
+>>>>>>> upstream/android-13
 	if (!skb)
 		return err;
 
@@ -356,6 +537,10 @@ try_again:
 		msg->msg_flags |= MSG_TRUNC;
 
 	is_udp4 = (skb->protocol == htons(ETH_P_IP));
+<<<<<<< HEAD
+=======
+	mib = __UDPX_MIB(sk, is_udp4);
+>>>>>>> upstream/android-13
 
 	/*
 	 * If checksum is needed at all, try to do it while copying the
@@ -382,6 +567,7 @@ try_again:
 			goto csum_copy_err;
 	}
 	if (unlikely(err)) {
+<<<<<<< HEAD
 		if (!peeked) {
 			atomic_inc(&sk->sk_drops);
 			if (is_udp4)
@@ -390,10 +576,16 @@ try_again:
 			else
 				UDP6_INC_STATS(sock_net(sk), UDP_MIB_INERRORS,
 					       is_udplite);
+=======
+		if (!peeking) {
+			atomic_inc(&sk->sk_drops);
+			SNMP_INC_STATS(mib, UDP_MIB_INERRORS);
+>>>>>>> upstream/android-13
 		}
 		kfree_skb(skb);
 		return err;
 	}
+<<<<<<< HEAD
 	if (!peeked) {
 		if (is_udp4)
 			UDP_INC_STATS(sock_net(sk), UDP_MIB_INDATAGRAMS,
@@ -402,6 +594,10 @@ try_again:
 			UDP6_INC_STATS(sock_net(sk), UDP_MIB_INDATAGRAMS,
 				       is_udplite);
 	}
+=======
+	if (!peeking)
+		SNMP_INC_STATS(mib, UDP_MIB_INDATAGRAMS);
+>>>>>>> upstream/android-13
 
 	sock_recv_ts_and_drops(msg, sk, skb);
 
@@ -424,9 +620,14 @@ try_again:
 		}
 		*addr_len = sizeof(*sin6);
 
+<<<<<<< HEAD
 		if (cgroup_bpf_enabled)
 			BPF_CGROUP_RUN_PROG_UDP6_RECVMSG_LOCK(sk,
 						(struct sockaddr *)sin6);
+=======
+		BPF_CGROUP_RUN_PROG_UDP6_RECVMSG_LOCK(sk,
+						      (struct sockaddr *)sin6);
+>>>>>>> upstream/android-13
 	}
 
 	if (udp_sk(sk)->gro_enabled)
@@ -454,6 +655,7 @@ try_again:
 csum_copy_err:
 	if (!__sk_queue_drop_skb(sk, &udp_sk(sk)->reader_queue, skb, flags,
 				 udp_skb_destructor)) {
+<<<<<<< HEAD
 		if (is_udp4) {
 			UDP_INC_STATS(sock_net(sk),
 				      UDP_MIB_CSUMERRORS, is_udplite);
@@ -465,6 +667,10 @@ csum_copy_err:
 			UDP6_INC_STATS(sock_net(sk),
 				       UDP_MIB_INERRORS, is_udplite);
 		}
+=======
+		SNMP_INC_STATS(mib, UDP_MIB_CSUMERRORS);
+		SNMP_INC_STATS(mib, UDP_MIB_INERRORS);
+>>>>>>> upstream/android-13
 	}
 	kfree_skb(skb);
 
@@ -474,26 +680,165 @@ csum_copy_err:
 	goto try_again;
 }
 
+<<<<<<< HEAD
 void __udp6_lib_err(struct sk_buff *skb, struct inet6_skb_parm *opt,
 		    u8 type, u8 code, int offset, __be32 info,
 		    struct udp_table *udptable)
+=======
+DEFINE_STATIC_KEY_FALSE(udpv6_encap_needed_key);
+void udpv6_encap_enable(void)
+{
+	static_branch_inc(&udpv6_encap_needed_key);
+}
+EXPORT_SYMBOL(udpv6_encap_enable);
+
+/* Handler for tunnels with arbitrary destination ports: no socket lookup, go
+ * through error handlers in encapsulations looking for a match.
+ */
+static int __udp6_lib_err_encap_no_sk(struct sk_buff *skb,
+				      struct inet6_skb_parm *opt,
+				      u8 type, u8 code, int offset, __be32 info)
+{
+	int i;
+
+	for (i = 0; i < MAX_IPTUN_ENCAP_OPS; i++) {
+		int (*handler)(struct sk_buff *skb, struct inet6_skb_parm *opt,
+			       u8 type, u8 code, int offset, __be32 info);
+		const struct ip6_tnl_encap_ops *encap;
+
+		encap = rcu_dereference(ip6tun_encaps[i]);
+		if (!encap)
+			continue;
+		handler = encap->err_handler;
+		if (handler && !handler(skb, opt, type, code, offset, info))
+			return 0;
+	}
+
+	return -ENOENT;
+}
+
+/* Try to match ICMP errors to UDP tunnels by looking up a socket without
+ * reversing source and destination port: this will match tunnels that force the
+ * same destination port on both endpoints (e.g. VXLAN, GENEVE). Note that
+ * lwtunnels might actually break this assumption by being configured with
+ * different destination ports on endpoints, in this case we won't be able to
+ * trace ICMP messages back to them.
+ *
+ * If this doesn't match any socket, probe tunnels with arbitrary destination
+ * ports (e.g. FoU, GUE): there, the receiving socket is useless, as the port
+ * we've sent packets to won't necessarily match the local destination port.
+ *
+ * Then ask the tunnel implementation to match the error against a valid
+ * association.
+ *
+ * Return an error if we can't find a match, the socket if we need further
+ * processing, zero otherwise.
+ */
+static struct sock *__udp6_lib_err_encap(struct net *net,
+					 const struct ipv6hdr *hdr, int offset,
+					 struct udphdr *uh,
+					 struct udp_table *udptable,
+					 struct sock *sk,
+					 struct sk_buff *skb,
+					 struct inet6_skb_parm *opt,
+					 u8 type, u8 code, __be32 info)
+{
+	int (*lookup)(struct sock *sk, struct sk_buff *skb);
+	int network_offset, transport_offset;
+	struct udp_sock *up;
+
+	network_offset = skb_network_offset(skb);
+	transport_offset = skb_transport_offset(skb);
+
+	/* Network header needs to point to the outer IPv6 header inside ICMP */
+	skb_reset_network_header(skb);
+
+	/* Transport header needs to point to the UDP header */
+	skb_set_transport_header(skb, offset);
+
+	if (sk) {
+		up = udp_sk(sk);
+
+		lookup = READ_ONCE(up->encap_err_lookup);
+		if (lookup && lookup(sk, skb))
+			sk = NULL;
+
+		goto out;
+	}
+
+	sk = __udp6_lib_lookup(net, &hdr->daddr, uh->source,
+			       &hdr->saddr, uh->dest,
+			       inet6_iif(skb), 0, udptable, skb);
+	if (sk) {
+		up = udp_sk(sk);
+
+		lookup = READ_ONCE(up->encap_err_lookup);
+		if (!lookup || lookup(sk, skb))
+			sk = NULL;
+	}
+
+out:
+	if (!sk) {
+		sk = ERR_PTR(__udp6_lib_err_encap_no_sk(skb, opt, type, code,
+							offset, info));
+	}
+
+	skb_set_transport_header(skb, transport_offset);
+	skb_set_network_header(skb, network_offset);
+
+	return sk;
+}
+
+int __udp6_lib_err(struct sk_buff *skb, struct inet6_skb_parm *opt,
+		   u8 type, u8 code, int offset, __be32 info,
+		   struct udp_table *udptable)
+>>>>>>> upstream/android-13
 {
 	struct ipv6_pinfo *np;
 	const struct ipv6hdr *hdr = (const struct ipv6hdr *)skb->data;
 	const struct in6_addr *saddr = &hdr->saddr;
+<<<<<<< HEAD
 	const struct in6_addr *daddr = &hdr->daddr;
 	struct udphdr *uh = (struct udphdr *)(skb->data+offset);
+=======
+	const struct in6_addr *daddr = seg6_get_daddr(skb, opt) ? : &hdr->daddr;
+	struct udphdr *uh = (struct udphdr *)(skb->data+offset);
+	bool tunnel = false;
+>>>>>>> upstream/android-13
 	struct sock *sk;
 	int harderr;
 	int err;
 	struct net *net = dev_net(skb->dev);
 
 	sk = __udp6_lib_lookup(net, daddr, uh->dest, saddr, uh->source,
+<<<<<<< HEAD
 			       inet6_iif(skb), 0, udptable, NULL);
 	if (!sk) {
 		__ICMP6_INC_STATS(net, __in6_dev_get(skb->dev),
 				  ICMP6_MIB_INERRORS);
 		return;
+=======
+			       inet6_iif(skb), inet6_sdif(skb), udptable, NULL);
+
+	if (!sk || udp_sk(sk)->encap_type) {
+		/* No socket for error: try tunnels before discarding */
+		if (static_branch_unlikely(&udpv6_encap_needed_key)) {
+			sk = __udp6_lib_err_encap(net, hdr, offset, uh,
+						  udptable, sk, skb,
+						  opt, type, code, info);
+			if (!sk)
+				return 0;
+		} else
+			sk = ERR_PTR(-ENOENT);
+
+		if (IS_ERR(sk)) {
+			__ICMP6_INC_STATS(net, __in6_dev_get(skb->dev),
+					  ICMP6_MIB_INERRORS);
+			return PTR_ERR(sk);
+		}
+
+		tunnel = true;
+>>>>>>> upstream/android-13
 	}
 
 	harderr = icmpv6_err_convert(type, code, &err);
@@ -507,10 +852,26 @@ void __udp6_lib_err(struct sk_buff *skb, struct inet6_skb_parm *opt,
 			harderr = 1;
 	}
 	if (type == NDISC_REDIRECT) {
+<<<<<<< HEAD
 		ip6_sk_redirect(skb, sk);
 		goto out;
 	}
 
+=======
+		if (tunnel) {
+			ip6_redirect(skb, sock_net(sk), inet6_iif(skb),
+				     sk->sk_mark, sk->sk_uid);
+		} else {
+			ip6_sk_redirect(skb, sk);
+		}
+		goto out;
+	}
+
+	/* Tunnels don't have an application socket: don't pass errors back */
+	if (tunnel)
+		goto out;
+
+>>>>>>> upstream/android-13
 	if (!np->recverr) {
 		if (!harderr || sk->sk_state != TCP_ESTABLISHED)
 			goto out;
@@ -519,9 +880,15 @@ void __udp6_lib_err(struct sk_buff *skb, struct inet6_skb_parm *opt,
 	}
 
 	sk->sk_err = err;
+<<<<<<< HEAD
 	sk->sk_error_report(sk);
 out:
 	return;
+=======
+	sk_error_report(sk);
+out:
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int __udpv6_queue_rcv_skb(struct sock *sk, struct sk_buff *skb)
@@ -544,6 +911,12 @@ static int __udpv6_queue_rcv_skb(struct sock *sk, struct sk_buff *skb)
 		if (rc == -ENOMEM)
 			UDP6_INC_STATS(sock_net(sk),
 					 UDP_MIB_RCVBUFERRORS, is_udplite);
+<<<<<<< HEAD
+=======
+		else
+			UDP6_INC_STATS(sock_net(sk),
+				       UDP_MIB_MEMERRORS, is_udplite);
+>>>>>>> upstream/android-13
 		UDP6_INC_STATS(sock_net(sk), UDP_MIB_INERRORS, is_udplite);
 		kfree_skb(skb);
 		return -1;
@@ -552,6 +925,7 @@ static int __udpv6_queue_rcv_skb(struct sock *sk, struct sk_buff *skb)
 	return 0;
 }
 
+<<<<<<< HEAD
 static __inline__ void udpv6_err(struct sk_buff *skb,
 				 struct inet6_skb_parm *opt, u8 type,
 				 u8 code, int offset, __be32 info)
@@ -566,6 +940,15 @@ void udpv6_encap_enable(void)
 }
 EXPORT_SYMBOL(udpv6_encap_enable);
 
+=======
+static __inline__ int udpv6_err(struct sk_buff *skb,
+				struct inet6_skb_parm *opt, u8 type,
+				u8 code, int offset, __be32 info)
+{
+	return __udp6_lib_err(skb, opt, type, code, offset, info, &udp_table);
+}
+
+>>>>>>> upstream/android-13
 static int udpv6_queue_rcv_one_skb(struct sock *sk, struct sk_buff *skb)
 {
 	struct udp_sock *up = udp_sk(sk);
@@ -659,10 +1042,17 @@ static int udpv6_queue_rcv_skb(struct sock *sk, struct sk_buff *skb)
 
 	__skb_push(skb, -skb_mac_offset(skb));
 	segs = udp_rcv_segment(sk, skb, false);
+<<<<<<< HEAD
 	for (skb = segs; skb; skb = next) {
 		next = skb->next;
 		__skb_pull(skb, skb_transport_offset(skb));
 
+=======
+	skb_list_walk_safe(segs, skb, next) {
+		__skb_pull(skb, skb_transport_offset(skb));
+
+		udp_post_segment_fix_csum(skb);
+>>>>>>> upstream/android-13
 		ret = udpv6_queue_rcv_one_skb(sk, skb);
 		if (ret > 0)
 			ip6_protocol_deliver_rcu(dev_net(skb->dev), skb, ret,
@@ -674,7 +1064,11 @@ static int udpv6_queue_rcv_skb(struct sock *sk, struct sk_buff *skb)
 static bool __udp_v6_is_mcast_sock(struct net *net, struct sock *sk,
 				   __be16 loc_port, const struct in6_addr *loc_addr,
 				   __be16 rmt_port, const struct in6_addr *rmt_addr,
+<<<<<<< HEAD
 				   int dif, unsigned short hnum)
+=======
+				   int dif, int sdif, unsigned short hnum)
+>>>>>>> upstream/android-13
 {
 	struct inet_sock *inet = inet_sk(sk);
 
@@ -686,7 +1080,11 @@ static bool __udp_v6_is_mcast_sock(struct net *net, struct sock *sk,
 	    (inet->inet_dport && inet->inet_dport != rmt_port) ||
 	    (!ipv6_addr_any(&sk->sk_v6_daddr) &&
 		    !ipv6_addr_equal(&sk->sk_v6_daddr, rmt_addr)) ||
+<<<<<<< HEAD
 	    (sk->sk_bound_dev_if && sk->sk_bound_dev_if != dif) ||
+=======
+	    !udp_sk_bound_dev_eq(net, sk->sk_bound_dev_if, dif, sdif) ||
+>>>>>>> upstream/android-13
 	    (!ipv6_addr_any(&sk->sk_v6_rcv_saddr) &&
 		    !ipv6_addr_equal(&sk->sk_v6_rcv_saddr, loc_addr)))
 		return false;
@@ -720,6 +1118,10 @@ static int __udp6_lib_mcast_deliver(struct net *net, struct sk_buff *skb,
 	unsigned int offset = offsetof(typeof(*sk), sk_node);
 	unsigned int hash2 = 0, hash2_any = 0, use_hash2 = (hslot->count > 10);
 	int dif = inet6_iif(skb);
+<<<<<<< HEAD
+=======
+	int sdif = inet6_sdif(skb);
+>>>>>>> upstream/android-13
 	struct hlist_node *node;
 	struct sk_buff *nskb;
 
@@ -734,7 +1136,12 @@ start_lookup:
 
 	sk_for_each_entry_offset_rcu(sk, node, &hslot->head, offset) {
 		if (!__udp_v6_is_mcast_sock(net, sk, uh->dest, daddr,
+<<<<<<< HEAD
 					    uh->source, saddr, dif, hnum))
+=======
+					    uh->source, saddr, dif, sdif,
+					    hnum))
+>>>>>>> upstream/android-13
 			continue;
 		/* If zero checksum and no_check is not on for
 		 * the socket then skip it.
@@ -781,7 +1188,11 @@ static void udp6_sk_rx_dst_set(struct sock *sk, struct dst_entry *dst)
 	if (udp_sk_rx_dst_set(sk, dst)) {
 		const struct rt6_info *rt = (const struct rt6_info *)dst;
 
+<<<<<<< HEAD
 		inet6_sk(sk)->rx_dst_cookie = rt6_get_cookie(rt);
+=======
+		sk->sk_rx_dst_cookie = rt6_get_cookie(rt);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -794,8 +1205,12 @@ static int udp6_unicast_rcv_skb(struct sock *sk, struct sk_buff *skb,
 	int ret;
 
 	if (inet_get_convert_csum(sk) && uh->check && !IS_UDPLITE(sk))
+<<<<<<< HEAD
 		skb_checksum_try_convert(skb, IPPROTO_UDP, uh->check,
 					 ip6_compute_pseudo);
+=======
+		skb_checksum_try_convert(skb, IPPROTO_UDP, ip6_compute_pseudo);
+>>>>>>> upstream/android-13
 
 	ret = udpv6_queue_rcv_skb(sk, skb);
 
@@ -812,6 +1227,10 @@ int __udp6_lib_rcv(struct sk_buff *skb, struct udp_table *udptable,
 	struct net *net = dev_net(skb->dev);
 	struct udphdr *uh;
 	struct sock *sk;
+<<<<<<< HEAD
+=======
+	bool refcounted;
+>>>>>>> upstream/android-13
 	u32 ulen = 0;
 
 	if (!pskb_may_pull(skb, sizeof(struct udphdr)))
@@ -848,21 +1267,39 @@ int __udp6_lib_rcv(struct sk_buff *skb, struct udp_table *udptable,
 		goto csum_error;
 
 	/* Check if the socket is already available, e.g. due to early demux */
+<<<<<<< HEAD
 	sk = skb_steal_sock(skb);
+=======
+	sk = skb_steal_sock(skb, &refcounted);
+>>>>>>> upstream/android-13
 	if (sk) {
 		struct dst_entry *dst = skb_dst(skb);
 		int ret;
 
+<<<<<<< HEAD
 		if (unlikely(sk->sk_rx_dst != dst))
 			udp6_sk_rx_dst_set(sk, dst);
 
 		if (!uh->check && !udp_sk(sk)->no_check6_rx) {
 			sock_put(sk);
+=======
+		if (unlikely(rcu_dereference(sk->sk_rx_dst) != dst))
+			udp6_sk_rx_dst_set(sk, dst);
+
+		if (!uh->check && !udp_sk(sk)->no_check6_rx) {
+			if (refcounted)
+				sock_put(sk);
+>>>>>>> upstream/android-13
 			goto report_csum_error;
 		}
 
 		ret = udp6_unicast_rcv_skb(sk, skb, uh);
+<<<<<<< HEAD
 		sock_put(sk);
+=======
+		if (refcounted)
+			sock_put(sk);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
@@ -937,7 +1374,11 @@ static struct sock *__udp6_lib_demux_lookup(struct net *net,
 	return NULL;
 }
 
+<<<<<<< HEAD
 static void udp_v6_early_demux(struct sk_buff *skb)
+=======
+INDIRECT_CALLABLE_SCOPE void udp_v6_early_demux(struct sk_buff *skb)
+>>>>>>> upstream/android-13
 {
 	struct net *net = dev_net(skb->dev);
 	const struct udphdr *uh;
@@ -965,10 +1406,17 @@ static void udp_v6_early_demux(struct sk_buff *skb)
 
 	skb->sk = sk;
 	skb->destructor = sock_efree;
+<<<<<<< HEAD
 	dst = READ_ONCE(sk->sk_rx_dst);
 
 	if (dst)
 		dst = dst_check(dst, inet6_sk(sk)->rx_dst_cookie);
+=======
+	dst = rcu_dereference(sk->sk_rx_dst);
+
+	if (dst)
+		dst = dst_check(dst, sk->sk_rx_dst_cookie);
+>>>>>>> upstream/android-13
 	if (dst) {
 		/* set noref for now.
 		 * any place which wants to hold dst has to call
@@ -978,7 +1426,11 @@ static void udp_v6_early_demux(struct sk_buff *skb)
 	}
 }
 
+<<<<<<< HEAD
 static __inline__ int udpv6_rcv(struct sk_buff *skb)
+=======
+INDIRECT_CALLABLE_SCOPE int udpv6_rcv(struct sk_buff *skb)
+>>>>>>> upstream/android-13
 {
 	return __udp6_lib_rcv(skb, &udp_table, IPPROTO_UDP);
 }
@@ -1002,6 +1454,11 @@ static void udp_v6_flush_pending_frames(struct sock *sk)
 static int udpv6_pre_connect(struct sock *sk, struct sockaddr *uaddr,
 			     int addr_len)
 {
+<<<<<<< HEAD
+=======
+	if (addr_len < offsetofend(struct sockaddr, sa_family))
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	/* The following checks are replicated from __ip6_datagram_connect()
 	 * and intended to prevent BPF program called below from accessing
 	 * bytes that are out of the bound specified by user in addr_len.
@@ -1023,6 +1480,12 @@ static int udpv6_pre_connect(struct sock *sk, struct sockaddr *uaddr,
  *	@sk:	socket we are sending on
  *	@skb:	sk_buff containing the filled-in UDP header
  *		(checksum field must be zeroed out)
+<<<<<<< HEAD
+=======
+ *	@saddr: source address
+ *	@daddr: destination address
+ *	@len:	length of packet
+>>>>>>> upstream/android-13
  */
 static void udp6_hwcsum_outgoing(struct sock *sk, struct sk_buff *skb,
 				 const struct in6_addr *saddr,
@@ -1094,7 +1557,11 @@ static int udp_v6_send_skb(struct sk_buff *skb, struct flowi6 *fl6,
 			kfree_skb(skb);
 			return -EINVAL;
 		}
+<<<<<<< HEAD
 		if (skb->len > cork->gso_size * UDP_MAX_SEGMENTS) {
+=======
+		if (datalen > cork->gso_size * UDP_MAX_SEGMENTS) {
+>>>>>>> upstream/android-13
 			kfree_skb(skb);
 			return -EINVAL;
 		}
@@ -1194,14 +1661,24 @@ int udpv6_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
 	int addr_len = msg->msg_namelen;
 	bool connected = false;
 	int ulen = len;
+<<<<<<< HEAD
 	int corkreq = up->corkflag || msg->msg_flags&MSG_MORE;
+=======
+	int corkreq = READ_ONCE(up->corkflag) || msg->msg_flags&MSG_MORE;
+>>>>>>> upstream/android-13
 	int err;
 	int is_udplite = IS_UDPLITE(sk);
 	int (*getfrag)(void *, char *, int, int, int, struct sk_buff *);
 
 	ipcm6_init(&ipc6);
+<<<<<<< HEAD
 	ipc6.gso_size = up->gso_size;
 	ipc6.sockc.tsflags = sk->sk_tsflags;
+=======
+	ipc6.gso_size = READ_ONCE(up->gso_size);
+	ipc6.sockc.tsflags = sk->sk_tsflags;
+	ipc6.sockc.mark = sk->sk_mark;
+>>>>>>> upstream/android-13
 
 	/* destination address check */
 	if (sin6) {
@@ -1291,7 +1768,11 @@ do_udp_sendmsg:
 			fl6.flowlabel = sin6->sin6_flowinfo&IPV6_FLOWINFO_MASK;
 			if (fl6.flowlabel&IPV6_FLOWLABEL_MASK) {
 				flowlabel = fl6_sock_lookup(sk, fl6.flowlabel);
+<<<<<<< HEAD
 				if (!flowlabel)
+=======
+				if (IS_ERR(flowlabel))
+>>>>>>> upstream/android-13
 					return -EINVAL;
 			}
 		}
@@ -1324,7 +1805,10 @@ do_udp_sendmsg:
 	if (!fl6.flowi6_oif)
 		fl6.flowi6_oif = np->sticky_pktinfo.ipi6_ifindex;
 
+<<<<<<< HEAD
 	fl6.flowi6_mark = sk->sk_mark;
+=======
+>>>>>>> upstream/android-13
 	fl6.flowi6_uid = sk->sk_uid;
 
 	if (msg->msg_controllen) {
@@ -1343,7 +1827,11 @@ do_udp_sendmsg:
 		}
 		if ((fl6.flowlabel&IPV6_FLOWLABEL_MASK) && !flowlabel) {
 			flowlabel = fl6_sock_lookup(sk, fl6.flowlabel);
+<<<<<<< HEAD
 			if (!flowlabel)
+=======
+			if (IS_ERR(flowlabel))
+>>>>>>> upstream/android-13
 				return -EINVAL;
 		}
 		if (!(opt->opt_nflen|opt->opt_flen))
@@ -1360,12 +1848,20 @@ do_udp_sendmsg:
 	ipc6.opt = opt;
 
 	fl6.flowi6_proto = sk->sk_protocol;
+<<<<<<< HEAD
+=======
+	fl6.flowi6_mark = ipc6.sockc.mark;
+>>>>>>> upstream/android-13
 	fl6.daddr = *daddr;
 	if (ipv6_addr_any(&fl6.saddr) && !ipv6_addr_any(&np->saddr))
 		fl6.saddr = np->saddr;
 	fl6.fl6_sport = inet->inet_sport;
 
+<<<<<<< HEAD
 	if (cgroup_bpf_enabled && !connected) {
+=======
+	if (cgroup_bpf_enabled(CGROUP_UDP6_SENDMSG) && !connected) {
+>>>>>>> upstream/android-13
 		err = BPF_CGROUP_RUN_PROG_UDP6_SENDMSG_LOCK(sk,
 					   (struct sockaddr *)sin6, &fl6.saddr);
 		if (err)
@@ -1401,7 +1897,11 @@ do_udp_sendmsg:
 	} else if (!fl6.flowi6_oif)
 		fl6.flowi6_oif = np->ucast_oif;
 
+<<<<<<< HEAD
 	security_sk_classify_flow(sk, flowi6_to_flowi(&fl6));
+=======
+	security_sk_classify_flow(sk, flowi6_to_flowi_common(&fl6));
+>>>>>>> upstream/android-13
 
 	if (ipc6.tclass < 0)
 		ipc6.tclass = np->tclass;
@@ -1501,6 +2001,7 @@ void udpv6_destroy_sock(struct sock *sk)
 {
 	struct udp_sock *up = udp_sk(sk);
 	lock_sock(sk);
+<<<<<<< HEAD
 	udp_v6_flush_pending_frames(sk);
 	release_sock(sk);
 
@@ -1509,6 +2010,25 @@ void udpv6_destroy_sock(struct sock *sk)
 		encap_destroy = READ_ONCE(up->encap_destroy);
 		if (encap_destroy)
 			encap_destroy(sk);
+=======
+
+	/* protects from races with udp_abort() */
+	sock_set_flag(sk, SOCK_DEAD);
+	udp_v6_flush_pending_frames(sk);
+	release_sock(sk);
+
+	if (static_branch_unlikely(&udpv6_encap_needed_key)) {
+		if (up->encap_type) {
+			void (*encap_destroy)(struct sock *sk);
+			encap_destroy = READ_ONCE(up->encap_destroy);
+			if (encap_destroy)
+				encap_destroy(sk);
+		}
+		if (up->encap_enabled) {
+			static_branch_dec(&udpv6_encap_needed_key);
+			udp_encap_disable();
+		}
+>>>>>>> upstream/android-13
 	}
 
 	inet6_destroy_sock(sk);
@@ -1517,15 +2037,25 @@ void udpv6_destroy_sock(struct sock *sk)
 /*
  *	Socket option code for UDP
  */
+<<<<<<< HEAD
 int udpv6_setsockopt(struct sock *sk, int level, int optname,
 		     char __user *optval, unsigned int optlen)
 {
 	if (level == SOL_UDP  ||  level == SOL_UDPLITE)
 		return udp_lib_setsockopt(sk, level, optname, optval, optlen,
+=======
+int udpv6_setsockopt(struct sock *sk, int level, int optname, sockptr_t optval,
+		     unsigned int optlen)
+{
+	if (level == SOL_UDP  ||  level == SOL_UDPLITE)
+		return udp_lib_setsockopt(sk, level, optname,
+					  optval, optlen,
+>>>>>>> upstream/android-13
 					  udp_v6_push_pending_frames);
 	return ipv6_setsockopt(sk, level, optname, optval, optlen);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 int compat_udpv6_setsockopt(struct sock *sk, int level, int optname,
 			    char __user *optval, unsigned int optlen)
@@ -1537,6 +2067,8 @@ int compat_udpv6_setsockopt(struct sock *sk, int level, int optname,
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 int udpv6_getsockopt(struct sock *sk, int level, int optname,
 		     char __user *optval, int __user *optlen)
 {
@@ -1545,6 +2077,7 @@ int udpv6_getsockopt(struct sock *sk, int level, int optname,
 	return ipv6_getsockopt(sk, level, optname, optval, optlen);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 int compat_udpv6_getsockopt(struct sock *sk, int level, int optname,
 			    char __user *optval, int __user *optlen)
@@ -1555,6 +2088,8 @@ int compat_udpv6_getsockopt(struct sock *sk, int level, int optname,
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /* thinking of making this const? Don't.
  * early_demux can change based on sysctl.
  */
@@ -1631,16 +2166,25 @@ struct proto udpv6_prot = {
 	.unhash			= udp_lib_unhash,
 	.rehash			= udp_v6_rehash,
 	.get_port		= udp_v6_get_port,
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_BPF_SYSCALL
+	.psock_update_sk_prot	= udp_bpf_update_proto,
+#endif
+>>>>>>> upstream/android-13
 	.memory_allocated	= &udp_memory_allocated,
 	.sysctl_mem		= sysctl_udp_mem,
 	.sysctl_wmem_offset     = offsetof(struct net, ipv4.sysctl_udp_wmem_min),
 	.sysctl_rmem_offset     = offsetof(struct net, ipv4.sysctl_udp_rmem_min),
 	.obj_size		= sizeof(struct udp6_sock),
 	.h.udp_table		= &udp_table,
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 	.compat_setsockopt	= compat_udpv6_setsockopt,
 	.compat_getsockopt	= compat_udpv6_getsockopt,
 #endif
+=======
+>>>>>>> upstream/android-13
 	.diag_destroy		= udp_abort,
 };
 

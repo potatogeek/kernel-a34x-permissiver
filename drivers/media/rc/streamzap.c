@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Streamzap Remote Control driver
  *
@@ -15,6 +19,7 @@
  *
  * This driver is based on the USB skeleton driver packaged with the
  * kernel; copyright (C) 2001-2003 Greg Kroah-Hartman (greg@kroah.com)
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -25,6 +30,8 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -130,7 +137,11 @@ static void sz_push(struct streamzap_ir *sz, struct ir_raw_event rawir)
 static void sz_push_full_pulse(struct streamzap_ir *sz,
 			       unsigned char value)
 {
+<<<<<<< HEAD
 	DEFINE_IR_RAW_EVENT(rawir);
+=======
+	struct ir_raw_event rawir = {};
+>>>>>>> upstream/android-13
 
 	if (sz->idle) {
 		int delta;
@@ -146,7 +157,10 @@ static void sz_push_full_pulse(struct streamzap_ir *sz,
 		} else {
 			rawir.duration = delta;
 			rawir.duration -= sz->sum;
+<<<<<<< HEAD
 			rawir.duration = US_TO_NS(rawir.duration);
+=======
+>>>>>>> upstream/android-13
 			rawir.duration = (rawir.duration > IR_MAX_DURATION) ?
 					 IR_MAX_DURATION : rawir.duration;
 		}
@@ -160,7 +174,10 @@ static void sz_push_full_pulse(struct streamzap_ir *sz,
 	rawir.duration = ((int) value) * SZ_RESOLUTION;
 	rawir.duration += SZ_RESOLUTION / 2;
 	sz->sum += rawir.duration;
+<<<<<<< HEAD
 	rawir.duration = US_TO_NS(rawir.duration);
+=======
+>>>>>>> upstream/android-13
 	rawir.duration = (rawir.duration > IR_MAX_DURATION) ?
 			 IR_MAX_DURATION : rawir.duration;
 	sz_push(sz, rawir);
@@ -175,13 +192,20 @@ static void sz_push_half_pulse(struct streamzap_ir *sz,
 static void sz_push_full_space(struct streamzap_ir *sz,
 			       unsigned char value)
 {
+<<<<<<< HEAD
 	DEFINE_IR_RAW_EVENT(rawir);
+=======
+	struct ir_raw_event rawir = {};
+>>>>>>> upstream/android-13
 
 	rawir.pulse = false;
 	rawir.duration = ((int) value) * SZ_RESOLUTION;
 	rawir.duration += SZ_RESOLUTION / 2;
 	sz->sum += rawir.duration;
+<<<<<<< HEAD
 	rawir.duration = US_TO_NS(rawir.duration);
+=======
+>>>>>>> upstream/android-13
 	sz_push(sz, rawir);
 }
 
@@ -249,10 +273,17 @@ static void streamzap_callback(struct urb *urb)
 			break;
 		case FullSpace:
 			if (sz->buf_in[i] == SZ_TIMEOUT) {
+<<<<<<< HEAD
 				DEFINE_IR_RAW_EVENT(rawir);
 
 				rawir.pulse = false;
 				rawir.duration = sz->rdev->timeout;
+=======
+				struct ir_raw_event rawir = {
+					.pulse = false,
+					.duration = sz->rdev->timeout
+				};
+>>>>>>> upstream/android-13
 				sz->idle = true;
 				if (sz->timeout_enabled)
 					sz_push(sz, rawir);
@@ -277,8 +308,11 @@ static void streamzap_callback(struct urb *urb)
 
 	ir_raw_event_handle(sz->rdev);
 	usb_submit_urb(urb, GFP_ATOMIC);
+<<<<<<< HEAD
 
 	return;
+=======
+>>>>>>> upstream/android-13
 }
 
 static struct rc_dev *streamzap_init_rc_dev(struct streamzap_ir *sz)
@@ -396,7 +430,11 @@ static int streamzap_probe(struct usb_interface *intf,
 	if (usbdev->descriptor.iManufacturer
 	    && usb_string(usbdev, usbdev->descriptor.iManufacturer,
 			  buf, sizeof(buf)) > 0)
+<<<<<<< HEAD
 		strlcpy(name, buf, sizeof(name));
+=======
+		strscpy(name, buf, sizeof(name));
+>>>>>>> upstream/android-13
 
 	if (usbdev->descriptor.iProduct
 	    && usb_string(usbdev, usbdev->descriptor.iProduct,
@@ -412,6 +450,7 @@ static int streamzap_probe(struct usb_interface *intf,
 	sz->decoder_state = PulseSpace;
 	/* FIXME: don't yet have a way to set this */
 	sz->timeout_enabled = true;
+<<<<<<< HEAD
 	sz->rdev->timeout = ((US_TO_NS(SZ_TIMEOUT * SZ_RESOLUTION) &
 				IR_MAX_DURATION) | 0x03000000);
 	#if 0
@@ -419,6 +458,14 @@ static int streamzap_probe(struct usb_interface *intf,
 	/* see also: LIRC_GET_REC_RESOLUTION and LIRC_SET_REC_TIMEOUT */
 	sz->min_timeout = US_TO_NS(SZ_TIMEOUT * SZ_RESOLUTION);
 	sz->max_timeout = US_TO_NS(SZ_TIMEOUT * SZ_RESOLUTION);
+=======
+	sz->rdev->timeout = SZ_TIMEOUT * SZ_RESOLUTION;
+	#if 0
+	/* not yet supported, depends on patches from maxim */
+	/* see also: LIRC_GET_REC_RESOLUTION and LIRC_SET_REC_TIMEOUT */
+	sz->min_timeout = SZ_TIMEOUT * SZ_RESOLUTION;
+	sz->max_timeout = SZ_TIMEOUT * SZ_RESOLUTION;
+>>>>>>> upstream/android-13
 	#endif
 
 	sz->signal_start = ktime_get_real();

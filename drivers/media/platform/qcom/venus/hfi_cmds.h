@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2012-2016, The Linux Foundation. All rights reserved.
  * Copyright (C) 2017 Linaro Ltd.
@@ -11,6 +12,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2012-2016, The Linux Foundation. All rights reserved.
+ * Copyright (C) 2017 Linaro Ltd.
+>>>>>>> upstream/android-13
  */
 #ifndef __VENUS_HFI_CMDS_H__
 #define __VENUS_HFI_CMDS_H__
@@ -77,7 +84,11 @@ struct hfi_sys_release_resource_pkt {
 struct hfi_sys_set_property_pkt {
 	struct hfi_pkt_hdr hdr;
 	u32 num_properties;
+<<<<<<< HEAD
 	u32 data[1];
+=======
+	u32 data[];
+>>>>>>> upstream/android-13
 };
 
 struct hfi_sys_get_property_pkt {
@@ -116,7 +127,11 @@ struct hfi_session_abort_pkt {
 struct hfi_session_set_property_pkt {
 	struct hfi_session_hdr_pkt shdr;
 	u32 num_properties;
+<<<<<<< HEAD
 	u32 data[0];
+=======
+	u32 data[];
+>>>>>>> upstream/android-13
 };
 
 struct hfi_session_set_buffers_pkt {

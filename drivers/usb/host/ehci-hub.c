@@ -643,7 +643,11 @@ ehci_hub_status_data (struct usb_hcd *hcd, char *buf)
 	 * always set, seem to clear PORT_OCC and PORT_CSC when writing to
 	 * PORT_POWER; that's surprising, but maybe within-spec.
 	 */
+<<<<<<< HEAD
 	if (!ignore_oc)
+=======
+	if (!ignore_oc && !ehci->spurious_oc)
+>>>>>>> upstream/android-13
 		mask = PORT_CSC | PORT_PEC | PORT_OCC;
 	else
 		mask = PORT_CSC | PORT_PEC;
@@ -727,6 +731,7 @@ ehci_hub_descriptor (
 }
 
 /*-------------------------------------------------------------------------*/
+<<<<<<< HEAD
 #ifdef CONFIG_USB_HCD_TEST_MODE
 
 #define EHSET_TEST_SINGLE_STEP_SET_FEATURE 0x06
@@ -866,6 +871,8 @@ cleanup:
 }
 #endif /* CONFIG_USB_HCD_TEST_MODE */
 /*-------------------------------------------------------------------------*/
+=======
+>>>>>>> upstream/android-13
 
 int ehci_hub_control(
 	struct usb_hcd	*hcd,
@@ -1013,7 +1020,11 @@ int ehci_hub_control(
 		if (temp & PORT_PEC)
 			status |= USB_PORT_STAT_C_ENABLE << 16;
 
+<<<<<<< HEAD
 		if ((temp & PORT_OCC) && !ignore_oc){
+=======
+		if ((temp & PORT_OCC) && (!ignore_oc && !ehci->spurious_oc)){
+>>>>>>> upstream/android-13
 			status |= USB_PORT_STAT_C_OVERCURRENT << 16;
 
 			/*

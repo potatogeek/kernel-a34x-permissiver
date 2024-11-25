@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 menuconfig SOUND
 	tristate "Sound card support"
 	depends on HAS_IOMEM
@@ -98,6 +102,11 @@ source "sound/synth/Kconfig"
 
 source "sound/xen/Kconfig"
 
+<<<<<<< HEAD
+=======
+source "sound/virtio/Kconfig"
+
+>>>>>>> upstream/android-13
 endif # SND
 
 endif # !UML

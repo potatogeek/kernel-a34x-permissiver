@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 /* Copyright(c) 2013 - 2018 Intel Corporation. */
+=======
+/* Copyright(c) 2013 - 2019 Intel Corporation. */
+>>>>>>> upstream/android-13
 
 #include "fm10k_common.h"
 
@@ -297,13 +301,21 @@ static u16 fm10k_mbx_validate_msg_size(struct fm10k_mbx_info *mbx, u16 len)
 {
 	struct fm10k_mbx_fifo *fifo = &mbx->rx;
 	u16 total_len = 0, msg_len;
+<<<<<<< HEAD
 	u32 *msg;
+=======
+>>>>>>> upstream/android-13
 
 	/* length should include previous amounts pushed */
 	len += mbx->pushed;
 
 	/* offset in message is based off of current message size */
 	do {
+<<<<<<< HEAD
+=======
+		u32 *msg;
+
+>>>>>>> upstream/android-13
 		msg = fifo->buffer + fm10k_fifo_tail_offset(fifo, total_len);
 		msg_len = FM10K_TLV_DWORD_LEN(*msg);
 		total_len += msg_len;
@@ -691,7 +703,11 @@ static bool fm10k_mbx_tx_complete(struct fm10k_mbx_info *mbx)
 }
 
 /**
+<<<<<<< HEAD
  *  fm10k_mbx_deqeueue_rx - Dequeues the message from the head in the Rx FIFO
+=======
+ *  fm10k_mbx_dequeue_rx - Dequeues the message from the head in the Rx FIFO
+>>>>>>> upstream/android-13
  *  @hw: pointer to hardware structure
  *  @mbx: pointer to mailbox
  *
@@ -966,7 +982,11 @@ static s32 fm10k_mbx_validate_msg_hdr(struct fm10k_mbx_info *mbx)
 		if (tail != mbx->head)
 			return FM10K_MBX_ERR_TAIL;
 
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case FM10K_MSG_DATA:
 		/* validate that head is moving correctly */
 		if (!head || (head == FM10K_MSG_HDR_MASK(HEAD)))
@@ -986,7 +1006,11 @@ static s32 fm10k_mbx_validate_msg_hdr(struct fm10k_mbx_info *mbx)
 		if ((size < FM10K_VFMBX_MSG_MTU) || (size & (size + 1)))
 			return FM10K_MBX_ERR_SIZE;
 
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case FM10K_MSG_ERROR:
 		if (!head || (head == FM10K_MSG_HDR_MASK(HEAD)))
 			return FM10K_MBX_ERR_HEAD;
@@ -1038,6 +1062,10 @@ static s32 fm10k_mbx_create_reply(struct fm10k_hw *hw,
 	case FM10K_STATE_CLOSED:
 		/* generate new header based on data */
 		fm10k_mbx_create_disconnect_hdr(mbx);
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
@@ -1569,7 +1597,11 @@ s32 fm10k_pfvf_mbx_init(struct fm10k_hw *hw, struct fm10k_mbx_info *mbx,
 			mbx->mbmem_reg = FM10K_MBMEM_VF(id, 0);
 			break;
 		}
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		return FM10K_MBX_ERR_NO_MBX;
 	}
@@ -1920,7 +1952,10 @@ static void fm10k_sm_mbx_transmit(struct fm10k_hw *hw,
 	/* reduce length by 1 to convert to a mask */
 	u16 mbmem_len = mbx->mbmem_len - 1;
 	u16 tail_len, len = 0;
+<<<<<<< HEAD
 	u32 *msg;
+=======
+>>>>>>> upstream/android-13
 
 	/* push head behind tail */
 	if (mbx->tail < head)
@@ -1930,6 +1965,11 @@ static void fm10k_sm_mbx_transmit(struct fm10k_hw *hw,
 
 	/* determine msg aligned offset for end of buffer */
 	do {
+<<<<<<< HEAD
+=======
+		u32 *msg;
+
+>>>>>>> upstream/android-13
 		msg = fifo->buffer + fm10k_fifo_head_offset(fifo, len);
 		tail_len = len;
 		len += FM10K_TLV_DWORD_LEN(*msg);
@@ -2015,6 +2055,10 @@ static s32 fm10k_sm_mbx_process_reset(struct fm10k_hw *hw,
 	case FM10K_STATE_CONNECT:
 		/* Update remote value to match local value */
 		mbx->remote = mbx->local;
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
@@ -2132,7 +2176,12 @@ fifo_err:
  *  DWORDs, not bytes.  Any invalid values will cause the mailbox to return
  *  error.
  **/
+<<<<<<< HEAD
 s32 fm10k_sm_mbx_init(struct fm10k_hw *hw, struct fm10k_mbx_info *mbx,
+=======
+s32 fm10k_sm_mbx_init(struct fm10k_hw __always_unused *hw,
+		      struct fm10k_mbx_info *mbx,
+>>>>>>> upstream/android-13
 		      const struct fm10k_msg_data *msg_data)
 {
 	mbx->mbx_reg = FM10K_GMBX;

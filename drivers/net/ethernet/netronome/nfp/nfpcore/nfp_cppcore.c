@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015-2017 Netronome Systems, Inc.
  *
@@ -30,6 +31,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+=======
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+/* Copyright (C) 2015-2018 Netronome Systems, Inc. */
+>>>>>>> upstream/android-13
 
 /*
  * nfp_cppcore.c
@@ -75,6 +80,10 @@ struct nfp_cpp_resource {
  * @interface:		chip interface id we are using to reach it
  * @serial:		chip serial number
  * @imb_cat_table:	CPP Mapping Table
+<<<<<<< HEAD
+=======
+ * @mu_locality_lsb:	MU access type bit offset
+>>>>>>> upstream/android-13
  *
  * Following fields use explicit locking:
  * @resource_list:	NFP CPP resource list
@@ -100,6 +109,10 @@ struct nfp_cpp {
 	wait_queue_head_t waitq;
 
 	u32 imb_cat_table[16];
+<<<<<<< HEAD
+=======
+	unsigned int mu_locality_lsb;
+>>>>>>> upstream/android-13
 
 	struct mutex area_cache_mutex;
 	struct list_head area_cache_list;
@@ -266,6 +279,37 @@ int nfp_cpp_serial(struct nfp_cpp *cpp, const u8 **serial)
 	return sizeof(cpp->serial);
 }
 
+<<<<<<< HEAD
+=======
+#define NFP_IMB_TGTADDRESSMODECFG_MODE_of(_x)		(((_x) >> 13) & 0x7)
+#define NFP_IMB_TGTADDRESSMODECFG_ADDRMODE		BIT(12)
+#define   NFP_IMB_TGTADDRESSMODECFG_ADDRMODE_32_BIT	0
+#define   NFP_IMB_TGTADDRESSMODECFG_ADDRMODE_40_BIT	BIT(12)
+
+static int nfp_cpp_set_mu_locality_lsb(struct nfp_cpp *cpp)
+{
+	unsigned int mode, addr40;
+	u32 imbcppat;
+	int res;
+
+	imbcppat = cpp->imb_cat_table[NFP_CPP_TARGET_MU];
+	mode = NFP_IMB_TGTADDRESSMODECFG_MODE_of(imbcppat);
+	addr40 = !!(imbcppat & NFP_IMB_TGTADDRESSMODECFG_ADDRMODE);
+
+	res = nfp_cppat_mu_locality_lsb(mode, addr40);
+	if (res < 0)
+		return res;
+	cpp->mu_locality_lsb = res;
+
+	return 0;
+}
+
+unsigned int nfp_cpp_mu_locality_lsb(struct nfp_cpp *cpp)
+{
+	return cpp->mu_locality_lsb;
+}
+
+>>>>>>> upstream/android-13
 /**
  * nfp_cpp_area_alloc_with_name() - allocate a new CPP area
  * @cpp:	CPP device handle
@@ -803,8 +847,15 @@ int nfp_cpp_area_cache_add(struct nfp_cpp *cpp, size_t size)
 		return -ENOMEM;
 
 	cache = kzalloc(sizeof(*cache), GFP_KERNEL);
+<<<<<<< HEAD
 	if (!cache)
 		return -ENOMEM;
+=======
+	if (!cache) {
+		nfp_cpp_area_free(area);
+		return -ENOMEM;
+	}
+>>>>>>> upstream/android-13
 
 	cache->id = 0;
 	cache->addr = 0;
@@ -905,8 +956,12 @@ area_cache_put(struct nfp_cpp *cpp, struct nfp_cpp_area_cache *cache)
 		return;
 
 	/* Move to front of LRU */
+<<<<<<< HEAD
 	list_del(&cache->entry);
 	list_add(&cache->entry, &cpp->area_cache_list);
+=======
+	list_move(&cache->entry, &cpp->area_cache_list);
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&cpp->area_cache_mutex);
 }
@@ -1241,6 +1296,15 @@ nfp_cpp_from_operations(const struct nfp_cpp_operations *ops,
 	nfp_cpp_readl(cpp, arm, NFP_ARM_GCSR + NFP_ARM_GCSR_SOFTMODEL3,
 		      &mask[1]);
 
+<<<<<<< HEAD
+=======
+	err = nfp_cpp_set_mu_locality_lsb(cpp);
+	if (err < 0) {
+		dev_err(parent,	"Can't calculate MU locality bit offset\n");
+		goto err_out;
+	}
+
+>>>>>>> upstream/android-13
 	dev_info(cpp->dev.parent, "Model: 0x%08x, SN: %pM, Ifc: 0x%04x\n",
 		 nfp_cpp_model(cpp), cpp->serial, nfp_cpp_interface(cpp));
 

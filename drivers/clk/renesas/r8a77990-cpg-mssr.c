@@ -2,7 +2,11 @@
 /*
  * r8a77990 Clock Pulse Generator / Module Standby and Software Reset
  *
+<<<<<<< HEAD
  * Copyright (C) 2018 Renesas Electronics Corp.
+=======
+ * Copyright (C) 2018-2019 Renesas Electronics Corp.
+>>>>>>> upstream/android-13
  *
  * Based on r8a7795-cpg-mssr.c
  *
@@ -44,6 +48,11 @@ enum clk_ids {
 	CLK_S2,
 	CLK_S3,
 	CLK_SDSRC,
+<<<<<<< HEAD
+=======
+	CLK_RINT,
+	CLK_OCO,
+>>>>>>> upstream/android-13
 
 	/* Module Clocks */
 	MOD_CLK_BASE
@@ -72,9 +81,20 @@ static const struct cpg_core_clk r8a77990_core_clks[] __initconst = {
 	DEF_FIXED(".s3",       CLK_S3,             CLK_PLL1,       6, 1),
 	DEF_FIXED(".sdsrc",    CLK_SDSRC,          CLK_PLL1,       2, 1),
 
+<<<<<<< HEAD
 	/* Core Clock Outputs */
 	DEF_FIXED("za2",       R8A77990_CLK_ZA2,   CLK_PLL0D24,    1, 1),
 	DEF_FIXED("za8",       R8A77990_CLK_ZA8,   CLK_PLL0D8,     1, 1),
+=======
+	DEF_DIV6_RO(".r",      CLK_RINT,           CLK_EXTAL, CPG_RCKCR, 32),
+
+	DEF_RATE(".oco",       CLK_OCO,            8 * 1000 * 1000),
+
+	/* Core Clock Outputs */
+	DEF_FIXED("za2",       R8A77990_CLK_ZA2,   CLK_PLL0D24,    1, 1),
+	DEF_FIXED("za8",       R8A77990_CLK_ZA8,   CLK_PLL0D8,     1, 1),
+	DEF_GEN3_Z("z2",       R8A77990_CLK_Z2,    CLK_TYPE_GEN3_Z, CLK_PLL0, 4, 8),
+>>>>>>> upstream/android-13
 	DEF_FIXED("ztr",       R8A77990_CLK_ZTR,   CLK_PLL1,       6, 1),
 	DEF_FIXED("zt",        R8A77990_CLK_ZT,    CLK_PLL1,       4, 1),
 	DEF_FIXED("zx",        R8A77990_CLK_ZX,    CLK_PLL1,       3, 1),
@@ -98,10 +118,18 @@ static const struct cpg_core_clk r8a77990_core_clks[] __initconst = {
 	DEF_GEN3_SD("sd3",     R8A77990_CLK_SD3,   CLK_SDSRC,	  0x026c),
 
 	DEF_FIXED("cl",        R8A77990_CLK_CL,    CLK_PLL1,      48, 1),
+<<<<<<< HEAD
 	DEF_FIXED("cp",        R8A77990_CLK_CP,    CLK_EXTAL,      2, 1),
 	DEF_FIXED("cpex",      R8A77990_CLK_CPEX,  CLK_EXTAL,      4, 1),
 	DEF_FIXED("osc",       R8A77990_CLK_OSC,   CLK_EXTAL,    384, 1),
 	DEF_FIXED("r",         R8A77990_CLK_R,     CLK_EXTAL,   1536, 1),
+=======
+	DEF_FIXED("cr",        R8A77990_CLK_CR,    CLK_PLL1D2,     2, 1),
+	DEF_FIXED("cp",        R8A77990_CLK_CP,    CLK_EXTAL,      2, 1),
+	DEF_FIXED("cpex",      R8A77990_CLK_CPEX,  CLK_EXTAL,      4, 1),
+
+	DEF_DIV6_RO("osc",     R8A77990_CLK_OSC,   CLK_EXTAL, CPG_RCKCR,  8),
+>>>>>>> upstream/android-13
 
 	DEF_GEN3_PE("s0d6c",   R8A77990_CLK_S0D6C, CLK_S0, 6, CLK_PE, 2),
 	DEF_GEN3_PE("s3d1c",   R8A77990_CLK_S3D1C, CLK_S3, 1, CLK_PE, 1),
@@ -111,9 +139,22 @@ static const struct cpg_core_clk r8a77990_core_clks[] __initconst = {
 	DEF_DIV6P1("canfd",    R8A77990_CLK_CANFD, CLK_PLL0D6, 0x244),
 	DEF_DIV6P1("csi0",     R8A77990_CLK_CSI0,  CLK_PLL1D2, 0x00c),
 	DEF_DIV6P1("mso",      R8A77990_CLK_MSO,   CLK_PLL1D2, 0x014),
+<<<<<<< HEAD
 };
 
 static const struct mssr_mod_clk r8a77990_mod_clks[] __initconst = {
+=======
+
+	DEF_GEN3_RCKSEL("r",   R8A77990_CLK_R, CLK_RINT, 1, CLK_OCO, 61 * 4),
+};
+
+static const struct mssr_mod_clk r8a77990_mod_clks[] __initconst = {
+	DEF_MOD("tmu4",			 121,	R8A77990_CLK_S0D6C),
+	DEF_MOD("tmu3",			 122,	R8A77990_CLK_S3D2C),
+	DEF_MOD("tmu2",			 123,	R8A77990_CLK_S3D2C),
+	DEF_MOD("tmu1",			 124,	R8A77990_CLK_S3D2C),
+	DEF_MOD("tmu0",			 125,	R8A77990_CLK_CP),
+>>>>>>> upstream/android-13
 	DEF_MOD("scif5",		 202,	R8A77990_CLK_S3D4C),
 	DEF_MOD("scif4",		 203,	R8A77990_CLK_S3D4C),
 	DEF_MOD("scif3",		 204,	R8A77990_CLK_S3D4C),
@@ -126,6 +167,10 @@ static const struct mssr_mod_clk r8a77990_mod_clks[] __initconst = {
 	DEF_MOD("sys-dmac2",		 217,	R8A77990_CLK_S3D1),
 	DEF_MOD("sys-dmac1",		 218,	R8A77990_CLK_S3D1),
 	DEF_MOD("sys-dmac0",		 219,	R8A77990_CLK_S3D1),
+<<<<<<< HEAD
+=======
+	DEF_MOD("sceg-pub",		 229,	R8A77990_CLK_CR),
+>>>>>>> upstream/android-13
 
 	DEF_MOD("cmt3",			 300,	R8A77990_CLK_R),
 	DEF_MOD("cmt2",			 301,	R8A77990_CLK_R),
@@ -144,6 +189,7 @@ static const struct mssr_mod_clk r8a77990_mod_clks[] __initconst = {
 	DEF_MOD("intc-ex",		 407,	R8A77990_CLK_CP),
 	DEF_MOD("intc-ap",		 408,	R8A77990_CLK_S0D3),
 
+<<<<<<< HEAD
 	DEF_MOD("audmac0",		 502,	R8A77990_CLK_S3D4),
 	DEF_MOD("drif7",		 508,	R8A77990_CLK_S3D2),
 	DEF_MOD("drif6",		 509,	R8A77990_CLK_S3D2),
@@ -153,6 +199,17 @@ static const struct mssr_mod_clk r8a77990_mod_clks[] __initconst = {
 	DEF_MOD("drif2",		 513,	R8A77990_CLK_S3D2),
 	DEF_MOD("drif1",		 514,	R8A77990_CLK_S3D2),
 	DEF_MOD("drif0",		 515,	R8A77990_CLK_S3D2),
+=======
+	DEF_MOD("audmac0",		 502,	R8A77990_CLK_S1D2),
+	DEF_MOD("drif31",		 508,	R8A77990_CLK_S3D2),
+	DEF_MOD("drif30",		 509,	R8A77990_CLK_S3D2),
+	DEF_MOD("drif21",		 510,	R8A77990_CLK_S3D2),
+	DEF_MOD("drif20",		 511,	R8A77990_CLK_S3D2),
+	DEF_MOD("drif11",		 512,	R8A77990_CLK_S3D2),
+	DEF_MOD("drif10",		 513,	R8A77990_CLK_S3D2),
+	DEF_MOD("drif01",		 514,	R8A77990_CLK_S3D2),
+	DEF_MOD("drif00",		 515,	R8A77990_CLK_S3D2),
+>>>>>>> upstream/android-13
 	DEF_MOD("hscif4",		 516,	R8A77990_CLK_S3D1C),
 	DEF_MOD("hscif3",		 517,	R8A77990_CLK_S3D1C),
 	DEF_MOD("hscif2",		 518,	R8A77990_CLK_S3D1C),
@@ -172,8 +229,15 @@ static const struct mssr_mod_clk r8a77990_mod_clks[] __initconst = {
 	DEF_MOD("vspb",			 626,	R8A77990_CLK_S0D1),
 	DEF_MOD("vspi0",		 631,	R8A77990_CLK_S0D1),
 
+<<<<<<< HEAD
 	DEF_MOD("ehci0",		 703,	R8A77990_CLK_S3D4),
 	DEF_MOD("hsusb",		 704,	R8A77990_CLK_S3D4),
+=======
+	DEF_MOD("ehci0",		 703,	R8A77990_CLK_S3D2),
+	DEF_MOD("hsusb",		 704,	R8A77990_CLK_S3D2),
+	DEF_MOD("cmm1",			 710,	R8A77990_CLK_S1D1),
+	DEF_MOD("cmm0",			 711,	R8A77990_CLK_S1D1),
+>>>>>>> upstream/android-13
 	DEF_MOD("csi40",		 716,	R8A77990_CLK_CSI0),
 	DEF_MOD("du1",			 723,	R8A77990_CLK_S1D1),
 	DEF_MOD("du0",			 724,	R8A77990_CLK_S1D1),
@@ -202,6 +266,10 @@ static const struct mssr_mod_clk r8a77990_mod_clks[] __initconst = {
 	DEF_MOD("i2c1",			 930,	R8A77990_CLK_S3D2),
 	DEF_MOD("i2c0",			 931,	R8A77990_CLK_S3D2),
 
+<<<<<<< HEAD
+=======
+	DEF_MOD("i2c7",			1003,	R8A77990_CLK_S3D2),
+>>>>>>> upstream/android-13
 	DEF_MOD("ssi-all",		1005,	R8A77990_CLK_S3D4),
 	DEF_MOD("ssi9",			1006,	MOD_CLK_ID(1005)),
 	DEF_MOD("ssi8",			1007,	MOD_CLK_ID(1005)),
@@ -213,6 +281,10 @@ static const struct mssr_mod_clk r8a77990_mod_clks[] __initconst = {
 	DEF_MOD("ssi2",			1013,	MOD_CLK_ID(1005)),
 	DEF_MOD("ssi1",			1014,	MOD_CLK_ID(1005)),
 	DEF_MOD("ssi0",			1015,	MOD_CLK_ID(1005)),
+<<<<<<< HEAD
+=======
+	DEF_MOD("dab",			1016,	R8A77990_CLK_S3D1),
+>>>>>>> upstream/android-13
 	DEF_MOD("scu-all",		1017,	R8A77990_CLK_S3D4),
 	DEF_MOD("scu-dvc1",		1018,	MOD_CLK_ID(1017)),
 	DEF_MOD("scu-dvc0",		1019,	MOD_CLK_ID(1017)),
@@ -231,6 +303,10 @@ static const struct mssr_mod_clk r8a77990_mod_clks[] __initconst = {
 };
 
 static const unsigned int r8a77990_crit_mod_clks[] __initconst = {
+<<<<<<< HEAD
+=======
+	MOD_CLK_ID(402),	/* RWDT */
+>>>>>>> upstream/android-13
 	MOD_CLK_ID(408),	/* INTC-AP (GIC) */
 };
 
@@ -241,8 +317,13 @@ static const unsigned int r8a77990_crit_mod_clks[] __initconst = {
 /*
  * MD19		EXTAL (MHz)	PLL0		PLL1		PLL3
  *--------------------------------------------------------------------
+<<<<<<< HEAD
  * 0		48 x 1		x100/4		x100/3		x100/3
  * 1		48 x 1		x100/4		x100/3		 x58/3
+=======
+ * 0		48 x 1		x100/1		x100/3		x100/3
+ * 1		48 x 1		x100/1		x100/3		 x58/3
+>>>>>>> upstream/android-13
  */
 #define CPG_PLL_CONFIG_INDEX(md)	(((md) & BIT(19)) >> 19)
 

@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * s3c24xx/s3c64xx SoC series Camera Interface (CAMIF) driver
  *
  * Copyright (C) 2012 Sylwester Nawrocki <sylvester.nawrocki@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
 */
 
 #ifndef MEDIA_S3C_CAMIF_
@@ -38,8 +45,11 @@ struct s3c_camif_plat_data {
 	int (*gpio_put)(void);
 };
 
+<<<<<<< HEAD
 /* Platform default helper functions */
 int s3c_camif_gpio_get(void);
 int s3c_camif_gpio_put(void);
 
+=======
+>>>>>>> upstream/android-13
 #endif /* MEDIA_S3C_CAMIF_ */

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016, Linaro Limited
  * Copyright (c) 2014, The Linux Foundation. All rights reserved.
@@ -10,6 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2016, Linaro Limited
+ * Copyright (c) 2014, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk-provider.h>
@@ -81,6 +88,7 @@
 		},							      \
 	}
 
+<<<<<<< HEAD
 #define DEFINE_CLK_RPM_PXO_BRANCH(_platform, _name, _active, r_id, r)	      \
 	static struct clk_rpm _platform##_##_active;			      \
 	static struct clk_rpm _platform##_##_name = {			      \
@@ -137,6 +145,8 @@
 		},							      \
 	}
 
+=======
+>>>>>>> upstream/android-13
 #define to_clk_rpm(_hw) container_of(_hw, struct clk_rpm, hw)
 
 struct rpm_cc;
@@ -458,6 +468,7 @@ static const struct clk_ops clk_rpm_ops = {
 	.recalc_rate	= clk_rpm_recalc_rate,
 };
 
+<<<<<<< HEAD
 static const struct clk_ops clk_rpm_branch_ops = {
 	.prepare	= clk_rpm_prepare,
 	.unprepare	= clk_rpm_unprepare,
@@ -465,6 +476,8 @@ static const struct clk_ops clk_rpm_branch_ops = {
 	.recalc_rate	= clk_rpm_recalc_rate,
 };
 
+=======
+>>>>>>> upstream/android-13
 /* MSM8660/APQ8060 */
 DEFINE_CLK_RPM(msm8660, afab_clk, afab_a_clk, QCOM_RPM_APPS_FABRIC_CLK);
 DEFINE_CLK_RPM(msm8660, sfab_clk, sfab_a_clk, QCOM_RPM_SYS_FABRIC_CLK);
@@ -551,10 +564,51 @@ static const struct rpm_clk_desc rpm_clk_apq8064 = {
 	.num_clks = ARRAY_SIZE(apq8064_clks),
 };
 
+<<<<<<< HEAD
+=======
+/* ipq806x */
+DEFINE_CLK_RPM(ipq806x, afab_clk, afab_a_clk, QCOM_RPM_APPS_FABRIC_CLK);
+DEFINE_CLK_RPM(ipq806x, cfpb_clk, cfpb_a_clk, QCOM_RPM_CFPB_CLK);
+DEFINE_CLK_RPM(ipq806x, daytona_clk, daytona_a_clk, QCOM_RPM_DAYTONA_FABRIC_CLK);
+DEFINE_CLK_RPM(ipq806x, ebi1_clk, ebi1_a_clk, QCOM_RPM_EBI1_CLK);
+DEFINE_CLK_RPM(ipq806x, sfab_clk, sfab_a_clk, QCOM_RPM_SYS_FABRIC_CLK);
+DEFINE_CLK_RPM(ipq806x, sfpb_clk, sfpb_a_clk, QCOM_RPM_SFPB_CLK);
+DEFINE_CLK_RPM(ipq806x, nss_fabric_0_clk, nss_fabric_0_a_clk, QCOM_RPM_NSS_FABRIC_0_CLK);
+DEFINE_CLK_RPM(ipq806x, nss_fabric_1_clk, nss_fabric_1_a_clk, QCOM_RPM_NSS_FABRIC_1_CLK);
+
+static struct clk_rpm *ipq806x_clks[] = {
+	[RPM_APPS_FABRIC_CLK] = &ipq806x_afab_clk,
+	[RPM_APPS_FABRIC_A_CLK] = &ipq806x_afab_a_clk,
+	[RPM_CFPB_CLK] = &ipq806x_cfpb_clk,
+	[RPM_CFPB_A_CLK] = &ipq806x_cfpb_a_clk,
+	[RPM_DAYTONA_FABRIC_CLK] = &ipq806x_daytona_clk,
+	[RPM_DAYTONA_FABRIC_A_CLK] = &ipq806x_daytona_a_clk,
+	[RPM_EBI1_CLK] = &ipq806x_ebi1_clk,
+	[RPM_EBI1_A_CLK] = &ipq806x_ebi1_a_clk,
+	[RPM_SYS_FABRIC_CLK] = &ipq806x_sfab_clk,
+	[RPM_SYS_FABRIC_A_CLK] = &ipq806x_sfab_a_clk,
+	[RPM_SFPB_CLK] = &ipq806x_sfpb_clk,
+	[RPM_SFPB_A_CLK] = &ipq806x_sfpb_a_clk,
+	[RPM_NSS_FABRIC_0_CLK] = &ipq806x_nss_fabric_0_clk,
+	[RPM_NSS_FABRIC_0_A_CLK] = &ipq806x_nss_fabric_0_a_clk,
+	[RPM_NSS_FABRIC_1_CLK] = &ipq806x_nss_fabric_1_clk,
+	[RPM_NSS_FABRIC_1_A_CLK] = &ipq806x_nss_fabric_1_a_clk,
+};
+
+static const struct rpm_clk_desc rpm_clk_ipq806x = {
+	.clks = ipq806x_clks,
+	.num_clks = ARRAY_SIZE(ipq806x_clks),
+};
+
+>>>>>>> upstream/android-13
 static const struct of_device_id rpm_clk_match_table[] = {
 	{ .compatible = "qcom,rpmcc-msm8660", .data = &rpm_clk_msm8660 },
 	{ .compatible = "qcom,rpmcc-apq8060", .data = &rpm_clk_msm8660 },
 	{ .compatible = "qcom,rpmcc-apq8064", .data = &rpm_clk_apq8064 },
+<<<<<<< HEAD
+=======
+	{ .compatible = "qcom,rpmcc-ipq806x", .data = &rpm_clk_ipq806x },
+>>>>>>> upstream/android-13
 	{ }
 };
 MODULE_DEVICE_TABLE(of, rpm_clk_match_table);

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * wm8900.c  --  WM8900 ALSA Soc Audio driver
  *
@@ -5,10 +9,13 @@
  *
  * Author: Mark Brown <broonie@opensource.wolfsonmicro.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * TODO:
  *  - Tristating.
  *  - TDM.
@@ -225,7 +232,11 @@ static int wm8900_hp_event(struct snd_soc_dapm_widget *w,
 			   struct snd_kcontrol *kcontrol, int event)
 {
 	struct snd_soc_component *component = snd_soc_dapm_to_component(w->dapm);
+<<<<<<< HEAD
 	u16 hpctl1 = snd_soc_component_read32(component, WM8900_REG_HPCTL1);
+=======
+	u16 hpctl1 = snd_soc_component_read(component, WM8900_REG_HPCTL1);
+>>>>>>> upstream/android-13
 
 	switch (event) {
 	case SND_SOC_DAPM_PRE_PMU:
@@ -446,12 +457,15 @@ SOC_SINGLE("LINEOUT2 LP -12dB", WM8900_REG_LOUTMIXCTL1,
 
 };
 
+<<<<<<< HEAD
 static const struct snd_kcontrol_new wm8900_dapm_loutput2_control =
 SOC_DAPM_SINGLE("LINEOUT2L Switch", WM8900_REG_POWER3, 6, 1, 0);
 
 static const struct snd_kcontrol_new wm8900_dapm_routput2_control =
 SOC_DAPM_SINGLE("LINEOUT2R Switch", WM8900_REG_POWER3, 5, 1, 0);
 
+=======
+>>>>>>> upstream/android-13
 static const struct snd_kcontrol_new wm8900_loutmix_controls[] = {
 SOC_DAPM_SINGLE("LINPUT3 Bypass Switch", WM8900_REG_LOUTMIXCTL1, 7, 1, 0),
 SOC_DAPM_SINGLE("AUX Bypass Switch", WM8900_REG_AUXOUT_CTL, 7, 1, 0),
@@ -638,7 +652,11 @@ static int wm8900_hw_params(struct snd_pcm_substream *substream,
 	struct snd_soc_component *component = dai->component;
 	u16 reg;
 
+<<<<<<< HEAD
 	reg = snd_soc_component_read32(component, WM8900_REG_AUDIO1) & ~0x60;
+=======
+	reg = snd_soc_component_read(component, WM8900_REG_AUDIO1) & ~0x60;
+>>>>>>> upstream/android-13
 
 	switch (params_width(params)) {
 	case 16:
@@ -659,7 +677,11 @@ static int wm8900_hw_params(struct snd_pcm_substream *substream,
 	snd_soc_component_write(component, WM8900_REG_AUDIO1, reg);
 
 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) {
+<<<<<<< HEAD
 		reg = snd_soc_component_read32(component, WM8900_REG_DACCTRL);
+=======
+		reg = snd_soc_component_read(component, WM8900_REG_DACCTRL);
+>>>>>>> upstream/android-13
 
 		if (params_rate(params) <= 24000)
 			reg |= WM8900_REG_DACCTRL_DAC_SB_FILT;
@@ -869,10 +891,17 @@ static int wm8900_set_dai_fmt(struct snd_soc_dai *codec_dai,
 	struct snd_soc_component *component = codec_dai->component;
 	unsigned int clocking1, aif1, aif3, aif4;
 
+<<<<<<< HEAD
 	clocking1 = snd_soc_component_read32(component, WM8900_REG_CLOCKING1);
 	aif1 = snd_soc_component_read32(component, WM8900_REG_AUDIO1);
 	aif3 = snd_soc_component_read32(component, WM8900_REG_AUDIO3);
 	aif4 = snd_soc_component_read32(component, WM8900_REG_AUDIO4);
+=======
+	clocking1 = snd_soc_component_read(component, WM8900_REG_CLOCKING1);
+	aif1 = snd_soc_component_read(component, WM8900_REG_AUDIO1);
+	aif3 = snd_soc_component_read(component, WM8900_REG_AUDIO3);
+	aif4 = snd_soc_component_read(component, WM8900_REG_AUDIO4);
+>>>>>>> upstream/android-13
 
 	/* set master/slave audio interface */
 	switch (fmt & SND_SOC_DAIFMT_MASTER_MASK) {
@@ -976,12 +1005,20 @@ static int wm8900_set_dai_fmt(struct snd_soc_dai *codec_dai,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int wm8900_digital_mute(struct snd_soc_dai *codec_dai, int mute)
+=======
+static int wm8900_mute(struct snd_soc_dai *codec_dai, int mute, int direction)
+>>>>>>> upstream/android-13
 {
 	struct snd_soc_component *component = codec_dai->component;
 	u16 reg;
 
+<<<<<<< HEAD
 	reg = snd_soc_component_read32(component, WM8900_REG_DACCTRL);
+=======
+	reg = snd_soc_component_read(component, WM8900_REG_DACCTRL);
+>>>>>>> upstream/android-13
 
 	if (mute)
 		reg |= WM8900_REG_DACCTRL_MUTE;
@@ -1006,7 +1043,12 @@ static const struct snd_soc_dai_ops wm8900_dai_ops = {
 	.set_clkdiv	= wm8900_set_dai_clkdiv,
 	.set_pll	= wm8900_set_dai_pll,
 	.set_fmt	= wm8900_set_dai_fmt,
+<<<<<<< HEAD
 	.digital_mute	= wm8900_digital_mute,
+=======
+	.mute_stream	= wm8900_mute,
+	.no_capture_mute = 1,
+>>>>>>> upstream/android-13
 };
 
 static struct snd_soc_dai_driver wm8900_dai = {
@@ -1077,7 +1119,11 @@ static int wm8900_set_bias_level(struct snd_soc_component *component,
 				     WM8900_REG_POWER1_BIAS_ENA | 0x1);
 		}
 
+<<<<<<< HEAD
 		reg = snd_soc_component_read32(component, WM8900_REG_POWER1);
+=======
+		reg = snd_soc_component_read(component, WM8900_REG_POWER1);
+>>>>>>> upstream/android-13
 		snd_soc_component_write(component, WM8900_REG_POWER1,
 			     (reg & WM8900_REG_POWER1_FLL_ENA) |
 			     WM8900_REG_POWER1_BIAS_ENA | 0x1);
@@ -1088,7 +1134,11 @@ static int wm8900_set_bias_level(struct snd_soc_component *component,
 
 	case SND_SOC_BIAS_OFF:
 		/* Startup bias enable */
+<<<<<<< HEAD
 		reg = snd_soc_component_read32(component, WM8900_REG_POWER1);
+=======
+		reg = snd_soc_component_read(component, WM8900_REG_POWER1);
+>>>>>>> upstream/android-13
 		snd_soc_component_write(component, WM8900_REG_POWER1,
 			     reg & WM8900_REG_POWER1_STARTUP_BIAS_ENA);
 		snd_soc_component_write(component, WM8900_REG_ADDCTL,
@@ -1179,7 +1229,11 @@ static int wm8900_probe(struct snd_soc_component *component)
 {
 	int reg;
 
+<<<<<<< HEAD
 	reg = snd_soc_component_read32(component, WM8900_REG_ID);
+=======
+	reg = snd_soc_component_read(component, WM8900_REG_ID);
+>>>>>>> upstream/android-13
 	if (reg != 0x8900) {
 		dev_err(component->dev, "Device is not a WM8900 - ID %x\n", reg);
 		return -ENODEV;

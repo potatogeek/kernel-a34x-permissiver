@@ -1,8 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0
 #include "misc.h"
 
+<<<<<<< HEAD
 #if CONFIG_EARLY_PRINTK || CONFIG_RANDOMIZE_BASE || CONFIG_X86_5LEVEL
 
+=======
+>>>>>>> upstream/android-13
 static unsigned long fs;
 static inline void set_fs(unsigned long seg)
 {
@@ -30,5 +33,8 @@ int cmdline_find_option_bool(const char *option)
 {
 	return __cmdline_find_option_bool(get_cmd_line_ptr(), option);
 }
+<<<<<<< HEAD
 
 #endif
+=======
+>>>>>>> upstream/android-13

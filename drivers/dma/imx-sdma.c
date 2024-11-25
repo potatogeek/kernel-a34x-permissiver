@@ -35,7 +35,10 @@
 #include <linux/workqueue.h>
 
 #include <asm/irq.h>
+<<<<<<< HEAD
 #include <linux/platform_data/dma-imx-sdma.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/platform_data/dma-imx.h>
 #include <linux/regmap.h>
 #include <linux/mfd/syscon.h>
@@ -181,6 +184,68 @@
 				 BIT(DMA_MEM_TO_DEV) | \
 				 BIT(DMA_DEV_TO_DEV))
 
+<<<<<<< HEAD
+=======
+/**
+ * struct sdma_script_start_addrs - SDMA script start pointers
+ *
+ * start addresses of the different functions in the physical
+ * address space of the SDMA engine.
+ */
+struct sdma_script_start_addrs {
+	s32 ap_2_ap_addr;
+	s32 ap_2_bp_addr;
+	s32 ap_2_ap_fixed_addr;
+	s32 bp_2_ap_addr;
+	s32 loopback_on_dsp_side_addr;
+	s32 mcu_interrupt_only_addr;
+	s32 firi_2_per_addr;
+	s32 firi_2_mcu_addr;
+	s32 per_2_firi_addr;
+	s32 mcu_2_firi_addr;
+	s32 uart_2_per_addr;
+	s32 uart_2_mcu_addr;
+	s32 per_2_app_addr;
+	s32 mcu_2_app_addr;
+	s32 per_2_per_addr;
+	s32 uartsh_2_per_addr;
+	s32 uartsh_2_mcu_addr;
+	s32 per_2_shp_addr;
+	s32 mcu_2_shp_addr;
+	s32 ata_2_mcu_addr;
+	s32 mcu_2_ata_addr;
+	s32 app_2_per_addr;
+	s32 app_2_mcu_addr;
+	s32 shp_2_per_addr;
+	s32 shp_2_mcu_addr;
+	s32 mshc_2_mcu_addr;
+	s32 mcu_2_mshc_addr;
+	s32 spdif_2_mcu_addr;
+	s32 mcu_2_spdif_addr;
+	s32 asrc_2_mcu_addr;
+	s32 ext_mem_2_ipu_addr;
+	s32 descrambler_addr;
+	s32 dptc_dvfs_addr;
+	s32 utra_addr;
+	s32 ram_code_start_addr;
+	/* End of v1 array */
+	s32 mcu_2_ssish_addr;
+	s32 ssish_2_mcu_addr;
+	s32 hdmi_dma_addr;
+	/* End of v2 array */
+	s32 zcanfd_2_mcu_addr;
+	s32 zqspi_2_mcu_addr;
+	s32 mcu_2_ecspi_addr;
+	s32 mcu_2_sai_addr;
+	s32 sai_2_mcu_addr;
+	s32 uart_2_mcu_rom_addr;
+	s32 uartsh_2_mcu_rom_addr;
+	/* End of v3 array */
+	s32 mcu_2_zqspi_addr;
+	/* End of v4 array */
+};
+
+>>>>>>> upstream/android-13
 /*
  * Mode/Count of data node descriptors - IPCv2
  */
@@ -335,7 +400,11 @@ struct sdma_desc {
  * @sdma:		pointer to the SDMA engine for this channel
  * @channel:		the channel number, matches dmaengine chan_id + 1
  * @direction:		transfer type. Needed for setting SDMA script
+<<<<<<< HEAD
  * @slave_config	Slave configuration
+=======
+ * @slave_config:	Slave configuration
+>>>>>>> upstream/android-13
  * @peripheral_type:	Peripheral type. Needed for setting SDMA script
  * @event_id0:		aka dma request line
  * @event_id1:		for channels that use 2 events
@@ -354,8 +423,15 @@ struct sdma_desc {
  * @shp_addr:		value for gReg[6]
  * @per_addr:		value for gReg[2]
  * @status:		status of dma channel
+<<<<<<< HEAD
  * @data:		specific sdma interface structure
  * @bd_pool:		dma_pool for bd
+=======
+ * @context_loaded:	ensure context is only loaded once
+ * @data:		specific sdma interface structure
+ * @bd_pool:		dma_pool for bd
+ * @terminate_worker:	used to call back into terminate work function
+>>>>>>> upstream/android-13
  */
 struct sdma_channel {
 	struct virt_dma_chan		vc;
@@ -379,6 +455,11 @@ struct sdma_channel {
 	enum dma_status			status;
 	struct imx_dma_data		data;
 	struct work_struct		terminate_worker;
+<<<<<<< HEAD
+=======
+	struct list_head                terminated;
+	bool				is_ram_script;
+>>>>>>> upstream/android-13
 };
 
 #define IMX_DMA_SG_LOOP		BIT(0)
@@ -418,11 +499,25 @@ struct sdma_driver_data {
 	int chnenbl0;
 	int num_events;
 	struct sdma_script_start_addrs	*script_addrs;
+<<<<<<< HEAD
+=======
+	bool check_ratio;
+	/*
+	 * ecspi ERR009165 fixed should be done in sdma script
+	 * and it has been fixed in soc from i.mx6ul.
+	 * please get more information from the below link:
+	 * https://www.nxp.com/docs/en/errata/IMX6DQCE.pdf
+	 */
+	bool ecspi_fixed;
+>>>>>>> upstream/android-13
 };
 
 struct sdma_engine {
 	struct device			*dev;
+<<<<<<< HEAD
 	struct device_dma_parameters	dma_parms;
+=======
+>>>>>>> upstream/android-13
 	struct sdma_channel		channel[MAX_DMA_CHANNELS];
 	struct sdma_channel_control	*channel_control;
 	void __iomem			*regs;
@@ -440,6 +535,12 @@ struct sdma_engine {
 	unsigned int			irq;
 	dma_addr_t			bd0_phys;
 	struct sdma_buffer_descriptor	*bd0;
+<<<<<<< HEAD
+=======
+	/* clock ratio for AHB:SDMA core. 1:1 is 1, 2:1 is 0*/
+	bool				clk_ratio;
+	bool                            fw_loaded;
+>>>>>>> upstream/android-13
 };
 
 static int sdma_config_write(struct dma_chan *chan,
@@ -536,6 +637,16 @@ static struct sdma_driver_data sdma_imx6q = {
 	.script_addrs = &sdma_script_imx6q,
 };
 
+<<<<<<< HEAD
+=======
+static struct sdma_driver_data sdma_imx6ul = {
+	.chnenbl0 = SDMA_CHNENBL0_IMX35,
+	.num_events = 48,
+	.script_addrs = &sdma_script_imx6q,
+	.ecspi_fixed = true,
+};
+
+>>>>>>> upstream/android-13
 static struct sdma_script_start_addrs sdma_script_imx7d = {
 	.ap_2_ap_addr = 644,
 	.uart_2_mcu_addr = 819,
@@ -554,6 +665,7 @@ static struct sdma_driver_data sdma_imx7d = {
 	.script_addrs = &sdma_script_imx7d,
 };
 
+<<<<<<< HEAD
 static const struct platform_device_id sdma_devtypes[] = {
 	{
 		.name = "imx25-sdma",
@@ -581,6 +693,14 @@ static const struct platform_device_id sdma_devtypes[] = {
 	}
 };
 MODULE_DEVICE_TABLE(platform, sdma_devtypes);
+=======
+static struct sdma_driver_data sdma_imx8mq = {
+	.chnenbl0 = SDMA_CHNENBL0_IMX35,
+	.num_events = 48,
+	.script_addrs = &sdma_script_imx7d,
+	.check_ratio = 1,
+};
+>>>>>>> upstream/android-13
 
 static const struct of_device_id sdma_dt_ids[] = {
 	{ .compatible = "fsl,imx6q-sdma", .data = &sdma_imx6q, },
@@ -590,6 +710,11 @@ static const struct of_device_id sdma_dt_ids[] = {
 	{ .compatible = "fsl,imx31-sdma", .data = &sdma_imx31, },
 	{ .compatible = "fsl,imx25-sdma", .data = &sdma_imx25, },
 	{ .compatible = "fsl,imx7d-sdma", .data = &sdma_imx7d, },
+<<<<<<< HEAD
+=======
+	{ .compatible = "fsl,imx6ul-sdma", .data = &sdma_imx6ul, },
+	{ .compatible = "fsl,imx8mq-sdma", .data = &sdma_imx8mq, },
+>>>>>>> upstream/android-13
 	{ /* sentinel */ }
 };
 MODULE_DEVICE_TABLE(of, sdma_dt_ids);
@@ -662,8 +787,16 @@ static int sdma_run_channel0(struct sdma_engine *sdma)
 		dev_err(sdma->dev, "Timeout waiting for CH0 ready\n");
 
 	/* Set bits of CONFIG register with dynamic context switching */
+<<<<<<< HEAD
 	if (readl(sdma->regs + SDMA_H_CONFIG) == 0)
 		writel_relaxed(SDMA_H_CONFIG_CSM, sdma->regs + SDMA_H_CONFIG);
+=======
+	reg = readl(sdma->regs + SDMA_H_CONFIG);
+	if ((reg & SDMA_H_CONFIG_CSM) == 0) {
+		reg |= SDMA_H_CONFIG_CSM;
+		writel_relaxed(reg, sdma->regs + SDMA_H_CONFIG);
+	}
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -677,9 +810,13 @@ static int sdma_load_script(struct sdma_engine *sdma, void *buf, int size,
 	int ret;
 	unsigned long flags;
 
+<<<<<<< HEAD
 	buf_virt = dma_alloc_coherent(NULL,
 			size,
 			&buf_phys, GFP_KERNEL);
+=======
+	buf_virt = dma_alloc_coherent(sdma->dev, size, &buf_phys, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!buf_virt) {
 		return -ENOMEM;
 	}
@@ -698,7 +835,11 @@ static int sdma_load_script(struct sdma_engine *sdma, void *buf, int size,
 
 	spin_unlock_irqrestore(&sdma->channel_0_lock, flags);
 
+<<<<<<< HEAD
 	dma_free_coherent(NULL, size, buf_virt, buf_phys);
+=======
+	dma_free_coherent(sdma->dev, size, buf_virt, buf_phys);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -744,12 +885,17 @@ static void sdma_start_desc(struct sdma_channel *sdmac)
 		return;
 	}
 	sdmac->desc = desc = to_sdma_desc(&vd->tx);
+<<<<<<< HEAD
 	/*
 	 * Do not delete the node in desc_issued list in cyclic mode, otherwise
 	 * the desc allocated will never be freed in vchan_dma_desc_free_list
 	 */
 	if (!(sdmac->flags & IMX_DMA_SG_LOOP))
 		list_del(&vd->node);
+=======
+
+	list_del(&vd->node);
+>>>>>>> upstream/android-13
 
 	sdma->channel_control[channel].base_bd_ptr = desc->bd_phys;
 	sdma->channel_control[channel].current_bd_ptr = desc->bd_phys;
@@ -883,6 +1029,10 @@ static void sdma_get_pc(struct sdma_channel *sdmac,
 	sdmac->pc_to_device = 0;
 	sdmac->device_to_device = 0;
 	sdmac->pc_to_pc = 0;
+<<<<<<< HEAD
+=======
+	sdmac->is_ram_script = false;
+>>>>>>> upstream/android-13
 
 	switch (peripheral_type) {
 	case IMX_DMATYPE_MEMORY:
@@ -909,6 +1059,20 @@ static void sdma_get_pc(struct sdma_channel *sdmac,
 		emi_2_per = sdma->script_addrs->mcu_2_ata_addr;
 		break;
 	case IMX_DMATYPE_CSPI:
+<<<<<<< HEAD
+=======
+		per_2_emi = sdma->script_addrs->app_2_mcu_addr;
+
+		/* Use rom script mcu_2_app if ERR009165 fixed */
+		if (sdmac->sdma->drvdata->ecspi_fixed) {
+			emi_2_per = sdma->script_addrs->mcu_2_app_addr;
+		} else {
+			emi_2_per = sdma->script_addrs->mcu_2_ecspi_addr;
+			sdmac->is_ram_script = true;
+		}
+
+		break;
+>>>>>>> upstream/android-13
 	case IMX_DMATYPE_EXT:
 	case IMX_DMATYPE_SSI:
 	case IMX_DMATYPE_SAI:
@@ -918,6 +1082,10 @@ static void sdma_get_pc(struct sdma_channel *sdmac,
 	case IMX_DMATYPE_SSI_DUAL:
 		per_2_emi = sdma->script_addrs->ssish_2_mcu_addr;
 		emi_2_per = sdma->script_addrs->mcu_2_ssish_addr;
+<<<<<<< HEAD
+=======
+		sdmac->is_ram_script = true;
+>>>>>>> upstream/android-13
 		break;
 	case IMX_DMATYPE_SSI_SP:
 	case IMX_DMATYPE_MMC:
@@ -932,6 +1100,10 @@ static void sdma_get_pc(struct sdma_channel *sdmac,
 		per_2_emi = sdma->script_addrs->asrc_2_mcu_addr;
 		emi_2_per = sdma->script_addrs->asrc_2_mcu_addr;
 		per_2_per = sdma->script_addrs->per_2_per_addr;
+<<<<<<< HEAD
+=======
+		sdmac->is_ram_script = true;
+>>>>>>> upstream/android-13
 		break;
 	case IMX_DMATYPE_ASRC_SP:
 		per_2_emi = sdma->script_addrs->shp_2_mcu_addr;
@@ -1037,9 +1209,12 @@ static void sdma_channel_terminate_work(struct work_struct *work)
 {
 	struct sdma_channel *sdmac = container_of(work, struct sdma_channel,
 						  terminate_worker);
+<<<<<<< HEAD
 	unsigned long flags;
 	LIST_HEAD(head);
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * According to NXP R&D team a delay of one BD SDMA cost time
 	 * (maximum is 1ms) should be added after disable of the channel
@@ -1048,6 +1223,7 @@ static void sdma_channel_terminate_work(struct work_struct *work)
 	 */
 	usleep_range(1000, 2000);
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&sdmac->vc.lock, flags);
 	vchan_get_all_descriptors(&sdmac->vc, &head);
 	sdmac->desc = NULL;
@@ -1063,6 +1239,34 @@ static int sdma_disable_channel_async(struct dma_chan *chan)
 
 	if (sdmac->desc)
 		schedule_work(&sdmac->terminate_worker);
+=======
+	vchan_dma_desc_free_list(&sdmac->vc, &sdmac->terminated);
+}
+
+static int sdma_terminate_all(struct dma_chan *chan)
+{
+	struct sdma_channel *sdmac = to_sdma_chan(chan);
+	unsigned long flags;
+
+	spin_lock_irqsave(&sdmac->vc.lock, flags);
+
+	sdma_disable_channel(chan);
+
+	if (sdmac->desc) {
+		vchan_terminate_vdesc(&sdmac->desc->vd);
+		/*
+		 * move out current descriptor into terminated list so that
+		 * it could be free in sdma_channel_terminate_work alone
+		 * later without potential involving next descriptor raised
+		 * up before the last descriptor terminated.
+		 */
+		vchan_get_all_descriptors(&sdmac->vc, &sdmac->terminated);
+		sdmac->desc = NULL;
+		schedule_work(&sdmac->terminate_worker);
+	}
+
+	spin_unlock_irqrestore(&sdmac->vc.lock, flags);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1119,7 +1323,10 @@ static void sdma_set_watermarklevel_for_p2p(struct sdma_channel *sdmac)
 static int sdma_config_channel(struct dma_chan *chan)
 {
 	struct sdma_channel *sdmac = to_sdma_chan(chan);
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 
 	sdma_disable_channel(chan);
 
@@ -1159,9 +1366,13 @@ static int sdma_config_channel(struct dma_chan *chan)
 		sdmac->watermark_level = 0; /* FIXME: M3_BASE_ADDRESS */
 	}
 
+<<<<<<< HEAD
 	ret = sdma_load_context(sdmac);
 
 	return ret;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int sdma_set_channel_priority(struct sdma_channel *sdmac,
@@ -1184,7 +1395,11 @@ static int sdma_request_channel0(struct sdma_engine *sdma)
 {
 	int ret = -EBUSY;
 
+<<<<<<< HEAD
 	sdma->bd0 = dma_zalloc_coherent(NULL, PAGE_SIZE, &sdma->bd0_phys,
+=======
+	sdma->bd0 = dma_alloc_coherent(sdma->dev, PAGE_SIZE, &sdma->bd0_phys,
+>>>>>>> upstream/android-13
 					GFP_NOWAIT);
 	if (!sdma->bd0) {
 		ret = -ENOMEM;
@@ -1207,8 +1422,13 @@ static int sdma_alloc_bd(struct sdma_desc *desc)
 	u32 bd_size = desc->num_bd * sizeof(struct sdma_buffer_descriptor);
 	int ret = 0;
 
+<<<<<<< HEAD
 	desc->bd = dma_zalloc_coherent(NULL, bd_size, &desc->bd_phys,
 					GFP_NOWAIT);
+=======
+	desc->bd = dma_alloc_coherent(desc->sdmac->sdma->dev, bd_size,
+				       &desc->bd_phys, GFP_NOWAIT);
+>>>>>>> upstream/android-13
 	if (!desc->bd) {
 		ret = -ENOMEM;
 		goto out;
@@ -1221,7 +1441,12 @@ static void sdma_free_bd(struct sdma_desc *desc)
 {
 	u32 bd_size = desc->num_bd * sizeof(struct sdma_buffer_descriptor);
 
+<<<<<<< HEAD
 	dma_free_coherent(NULL, bd_size, desc->bd, desc->bd_phys);
+=======
+	dma_free_coherent(desc->sdmac->sdma->dev, bd_size, desc->bd,
+			  desc->bd_phys);
+>>>>>>> upstream/android-13
 }
 
 static void sdma_desc_free(struct virt_dma_desc *vd)
@@ -1301,12 +1526,20 @@ static void sdma_free_chan_resources(struct dma_chan *chan)
 	struct sdma_channel *sdmac = to_sdma_chan(chan);
 	struct sdma_engine *sdma = sdmac->sdma;
 
+<<<<<<< HEAD
 	sdma_disable_channel_async(chan);
 
 	sdma_channel_synchronize(chan);
 
 	if (sdmac->event_id0)
 		sdma_event_disable(sdmac, sdmac->event_id0);
+=======
+	sdma_terminate_all(chan);
+
+	sdma_channel_synchronize(chan);
+
+	sdma_event_disable(sdmac, sdmac->event_id0);
+>>>>>>> upstream/android-13
 	if (sdmac->event_id1)
 		sdma_event_disable(sdmac, sdmac->event_id1);
 
@@ -1324,6 +1557,14 @@ static struct sdma_desc *sdma_transfer_init(struct sdma_channel *sdmac,
 {
 	struct sdma_desc *desc;
 
+<<<<<<< HEAD
+=======
+	if (!sdmac->sdma->fw_loaded && sdmac->is_ram_script) {
+		dev_warn_once(sdmac->sdma->dev, "sdma firmware not ready!\n");
+		goto err_out;
+	}
+
+>>>>>>> upstream/android-13
 	desc = kzalloc((sizeof(*desc)), GFP_NOWAIT);
 	if (!desc)
 		goto err_out;
@@ -1605,11 +1846,17 @@ static int sdma_config(struct dma_chan *chan,
 	memcpy(&sdmac->slave_config, dmaengine_cfg, sizeof(*dmaengine_cfg));
 
 	/* Set ENBLn earlier to make sure dma request triggered after that */
+<<<<<<< HEAD
 	if (sdmac->event_id0) {
 		if (sdmac->event_id0 >= sdmac->sdma->drvdata->num_events)
 			return -EINVAL;
 		sdma_event_enable(sdmac, sdmac->event_id0);
 	}
+=======
+	if (sdmac->event_id0 >= sdmac->sdma->drvdata->num_events)
+		return -EINVAL;
+	sdma_event_enable(sdmac, sdmac->event_id0);
+>>>>>>> upstream/android-13
 
 	if (sdmac->event_id1) {
 		if (sdmac->event_id1 >= sdmac->sdma->drvdata->num_events)
@@ -1625,7 +1872,11 @@ static enum dma_status sdma_tx_status(struct dma_chan *chan,
 				      struct dma_tx_state *txstate)
 {
 	struct sdma_channel *sdmac = to_sdma_chan(chan);
+<<<<<<< HEAD
 	struct sdma_desc *desc;
+=======
+	struct sdma_desc *desc = NULL;
+>>>>>>> upstream/android-13
 	u32 residue;
 	struct virt_dma_desc *vd;
 	enum dma_status ret;
@@ -1636,19 +1887,37 @@ static enum dma_status sdma_tx_status(struct dma_chan *chan,
 		return ret;
 
 	spin_lock_irqsave(&sdmac->vc.lock, flags);
+<<<<<<< HEAD
 	vd = vchan_find_desc(&sdmac->vc, cookie);
 	if (vd) {
 		desc = to_sdma_desc(&vd->tx);
+=======
+
+	vd = vchan_find_desc(&sdmac->vc, cookie);
+	if (vd)
+		desc = to_sdma_desc(&vd->tx);
+	else if (sdmac->desc && sdmac->desc->vd.tx.cookie == cookie)
+		desc = sdmac->desc;
+
+	if (desc) {
+>>>>>>> upstream/android-13
 		if (sdmac->flags & IMX_DMA_SG_LOOP)
 			residue = (desc->num_bd - desc->buf_ptail) *
 				desc->period_len - desc->chn_real_count;
 		else
 			residue = desc->chn_count - desc->chn_real_count;
+<<<<<<< HEAD
 	} else if (sdmac->desc && sdmac->desc->vd.tx.cookie == cookie) {
 		residue = sdmac->desc->chn_count - sdmac->desc->chn_real_count;
 	} else {
 		residue = 0;
 	}
+=======
+	} else {
+		residue = 0;
+	}
+
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&sdmac->vc.lock, flags);
 
 	dma_set_tx_state(txstate, chan->completed_cookie, chan->cookie,
@@ -1670,8 +1939,13 @@ static void sdma_issue_pending(struct dma_chan *chan)
 
 #define SDMA_SCRIPT_ADDRS_ARRAY_SIZE_V1	34
 #define SDMA_SCRIPT_ADDRS_ARRAY_SIZE_V2	38
+<<<<<<< HEAD
 #define SDMA_SCRIPT_ADDRS_ARRAY_SIZE_V3	41
 #define SDMA_SCRIPT_ADDRS_ARRAY_SIZE_V4	42
+=======
+#define SDMA_SCRIPT_ADDRS_ARRAY_SIZE_V3	45
+#define SDMA_SCRIPT_ADDRS_ARRAY_SIZE_V4	46
+>>>>>>> upstream/android-13
 
 static void sdma_add_scripts(struct sdma_engine *sdma,
 		const struct sdma_script_start_addrs *addr)
@@ -1695,6 +1969,22 @@ static void sdma_add_scripts(struct sdma_engine *sdma,
 	for (i = 0; i < sdma->script_number; i++)
 		if (addr_arr[i] > 0)
 			saddr_arr[i] = addr_arr[i];
+<<<<<<< HEAD
+=======
+
+	/*
+	 * For compatibility with NXP internal legacy kernel before 4.19 which
+	 * is based on uart ram script and mainline kernel based on uart rom
+	 * script, both uart ram/rom scripts are present in newer sdma
+	 * firmware. Use the rom versions if they are present (V3 or newer).
+	 */
+	if (sdma->script_number >= SDMA_SCRIPT_ADDRS_ARRAY_SIZE_V3) {
+		if (addr->uart_2_mcu_rom_addr)
+			sdma->script_addrs->uart_2_mcu_addr = addr->uart_2_mcu_rom_addr;
+		if (addr->uartsh_2_mcu_rom_addr)
+			sdma->script_addrs->uartsh_2_mcu_addr = addr->uartsh_2_mcu_rom_addr;
+	}
+>>>>>>> upstream/android-13
 }
 
 static void sdma_load_firmware(const struct firmware *fw, void *context)
@@ -1751,6 +2041,11 @@ static void sdma_load_firmware(const struct firmware *fw, void *context)
 
 	sdma_add_scripts(sdma, addr);
 
+<<<<<<< HEAD
+=======
+	sdma->fw_loaded = true;
+
+>>>>>>> upstream/android-13
 	dev_info(sdma->dev, "loaded firmware %d.%d\n",
 			header->version_major,
 			header->version_minor);
@@ -1771,7 +2066,11 @@ static int sdma_event_remap(struct sdma_engine *sdma)
 	u32 reg, val, shift, num_map, i;
 	int ret = 0;
 
+<<<<<<< HEAD
 	if (IS_ERR(np) || IS_ERR(gpr_np))
+=======
+	if (IS_ERR(np) || !gpr_np)
+>>>>>>> upstream/android-13
 		goto out;
 
 	event_remap = of_find_property(np, propname, NULL);
@@ -1819,7 +2118,11 @@ static int sdma_event_remap(struct sdma_engine *sdma)
 	}
 
 out:
+<<<<<<< HEAD
 	if (!IS_ERR(gpr_np))
+=======
+	if (gpr_np)
+>>>>>>> upstream/android-13
 		of_node_put(gpr_np);
 
 	return ret;
@@ -1831,7 +2134,11 @@ static int sdma_get_firmware(struct sdma_engine *sdma,
 	int ret;
 
 	ret = request_firmware_nowait(THIS_MODULE,
+<<<<<<< HEAD
 			FW_ACTION_HOTPLUG, fw_name, sdma->dev,
+=======
+			FW_ACTION_UEVENT, fw_name, sdma->dev,
+>>>>>>> upstream/android-13
 			GFP_KERNEL, sdma, sdma_load_firmware);
 
 	return ret;
@@ -1849,10 +2156,21 @@ static int sdma_init(struct sdma_engine *sdma)
 	if (ret)
 		goto disable_clk_ipg;
 
+<<<<<<< HEAD
 	/* Be sure SDMA has not started yet */
 	writel_relaxed(0, sdma->regs + SDMA_H_C0PTR);
 
 	sdma->channel_control = dma_alloc_coherent(NULL,
+=======
+	if (sdma->drvdata->check_ratio &&
+	    (clk_get_rate(sdma->clk_ahb) == clk_get_rate(sdma->clk_ipg)))
+		sdma->clk_ratio = 1;
+
+	/* Be sure SDMA has not started yet */
+	writel_relaxed(0, sdma->regs + SDMA_H_C0PTR);
+
+	sdma->channel_control = dma_alloc_coherent(sdma->dev,
+>>>>>>> upstream/android-13
 			MAX_DMA_CHANNELS * sizeof (struct sdma_channel_control) +
 			sizeof(struct sdma_context_data),
 			&ccb_phys, GFP_KERNEL);
@@ -1867,10 +2185,13 @@ static int sdma_init(struct sdma_engine *sdma)
 	sdma->context_phys = ccb_phys +
 		MAX_DMA_CHANNELS * sizeof (struct sdma_channel_control);
 
+<<<<<<< HEAD
 	/* Zero-out the CCB structures array just allocated */
 	memset(sdma->channel_control, 0,
 			MAX_DMA_CHANNELS * sizeof (struct sdma_channel_control));
 
+=======
+>>>>>>> upstream/android-13
 	/* disable all channels */
 	for (i = 0; i < sdma->drvdata->num_events; i++)
 		writel_relaxed(0, sdma->regs + chnenbl_ofs(sdma, i));
@@ -1889,8 +2210,15 @@ static int sdma_init(struct sdma_engine *sdma)
 	writel_relaxed(0x4050, sdma->regs + SDMA_CHN0ADDR);
 
 	/* Set bits of CONFIG register but with static context switching */
+<<<<<<< HEAD
 	/* FIXME: Check whether to set ACR bit depending on clock ratios */
 	writel_relaxed(0, sdma->regs + SDMA_H_CONFIG);
+=======
+	if (sdma->clk_ratio)
+		writel_relaxed(SDMA_H_CONFIG_ACR, sdma->regs + SDMA_H_CONFIG);
+	else
+		writel_relaxed(0, sdma->regs + SDMA_H_CONFIG);
+>>>>>>> upstream/android-13
 
 	writel_relaxed(ccb_phys, sdma->regs + SDMA_H_C0PTR);
 
@@ -1946,13 +2274,21 @@ static struct dma_chan *sdma_xlate(struct of_phandle_args *dma_spec,
 	 */
 	data.dma_request2 = 0;
 
+<<<<<<< HEAD
 	return dma_request_channel(mask, sdma_filter_fn, &data);
+=======
+	return __dma_request_channel(&mask, sdma_filter_fn, &data,
+				     ofdma->of_node);
+>>>>>>> upstream/android-13
 }
 
 static int sdma_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	const struct of_device_id *of_id =
 			of_match_device(sdma_dt_ids, &pdev->dev);
+=======
+>>>>>>> upstream/android-13
 	struct device_node *np = pdev->dev.of_node;
 	struct device_node *spba_bus;
 	const char *fw_name;
@@ -1960,6 +2296,7 @@ static int sdma_probe(struct platform_device *pdev)
 	int irq;
 	struct resource *iores;
 	struct resource spba_res;
+<<<<<<< HEAD
 	struct sdma_platform_data *pdata = dev_get_platdata(&pdev->dev);
 	int i;
 	struct sdma_engine *sdma;
@@ -1975,6 +2312,11 @@ static int sdma_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev, "unable to find driver data\n");
 		return -EINVAL;
 	}
+=======
+	int i;
+	struct sdma_engine *sdma;
+	s32 *saddr_arr;
+>>>>>>> upstream/android-13
 
 	ret = dma_coerce_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32));
 	if (ret)
@@ -1987,7 +2329,11 @@ static int sdma_probe(struct platform_device *pdev)
 	spin_lock_init(&sdma->channel_0_lock);
 
 	sdma->dev = &pdev->dev;
+<<<<<<< HEAD
 	sdma->drvdata = drvdata;
+=======
+	sdma->drvdata = of_device_get_match_data(sdma->dev);
+>>>>>>> upstream/android-13
 
 	irq = platform_get_irq(pdev, 0);
 	if (irq < 0)
@@ -2029,7 +2375,11 @@ static int sdma_probe(struct platform_device *pdev)
 
 	/* initially no scripts available */
 	saddr_arr = (s32 *)sdma->script_addrs;
+<<<<<<< HEAD
 	for (i = 0; i < SDMA_SCRIPT_ADDRS_ARRAY_SIZE_V1; i++)
+=======
+	for (i = 0; i < sizeof(*sdma->script_addrs) / sizeof(s32); i++)
+>>>>>>> upstream/android-13
 		saddr_arr[i] = -EINVAL;
 
 	dma_cap_set(DMA_SLAVE, sdma->dma_device.cap_mask);
@@ -2045,6 +2395,10 @@ static int sdma_probe(struct platform_device *pdev)
 
 		sdmac->channel = i;
 		sdmac->vc.desc_free = sdma_desc_free;
+<<<<<<< HEAD
+=======
+		INIT_LIST_HEAD(&sdmac->terminated);
+>>>>>>> upstream/android-13
 		INIT_WORK(&sdmac->terminate_worker,
 				sdma_channel_terminate_work);
 		/*
@@ -2066,8 +2420,11 @@ static int sdma_probe(struct platform_device *pdev)
 
 	if (sdma->drvdata->script_addrs)
 		sdma_add_scripts(sdma, sdma->drvdata->script_addrs);
+<<<<<<< HEAD
 	if (pdata && pdata->script_addrs)
 		sdma_add_scripts(sdma, pdata->script_addrs);
+=======
+>>>>>>> upstream/android-13
 
 	sdma->dma_device.dev = &pdev->dev;
 
@@ -2077,7 +2434,11 @@ static int sdma_probe(struct platform_device *pdev)
 	sdma->dma_device.device_prep_slave_sg = sdma_prep_slave_sg;
 	sdma->dma_device.device_prep_dma_cyclic = sdma_prep_dma_cyclic;
 	sdma->dma_device.device_config = sdma_config;
+<<<<<<< HEAD
 	sdma->dma_device.device_terminate_all = sdma_disable_channel_async;
+=======
+	sdma->dma_device.device_terminate_all = sdma_terminate_all;
+>>>>>>> upstream/android-13
 	sdma->dma_device.device_synchronize = sdma_channel_synchronize;
 	sdma->dma_device.src_addr_widths = SDMA_DMA_BUSWIDTHS;
 	sdma->dma_device.dst_addr_widths = SDMA_DMA_BUSWIDTHS;
@@ -2085,7 +2446,11 @@ static int sdma_probe(struct platform_device *pdev)
 	sdma->dma_device.residue_granularity = DMA_RESIDUE_GRANULARITY_SEGMENT;
 	sdma->dma_device.device_prep_dma_memcpy = sdma_prep_memcpy;
 	sdma->dma_device.device_issue_pending = sdma_issue_pending;
+<<<<<<< HEAD
 	sdma->dma_device.dev->dma_parms = &sdma->dma_parms;
+=======
+	sdma->dma_device.copy_align = 2;
+>>>>>>> upstream/android-13
 	dma_set_max_seg_size(sdma->dma_device.dev, SDMA_BD_MAX_CNT);
 
 	platform_set_drvdata(pdev, sdma);
@@ -2113,6 +2478,7 @@ static int sdma_probe(struct platform_device *pdev)
 	}
 
 	/*
+<<<<<<< HEAD
 	 * Kick off firmware loading as the very last step:
 	 * attempt to load firmware only if we're not on the error path, because
 	 * the firmware callback requires a fully functional and allocated sdma
@@ -2137,6 +2503,20 @@ static int sdma_probe(struct platform_device *pdev)
 			if (ret)
 				dev_warn(&pdev->dev, "failed to get firmware from device tree\n");
 		}
+=======
+	 * Because that device tree does not encode ROM script address,
+	 * the RAM script in firmware is mandatory for device tree
+	 * probe, otherwise it fails.
+	 */
+	ret = of_property_read_string(np, "fsl,sdma-ram-script-name",
+				      &fw_name);
+	if (ret) {
+		dev_warn(&pdev->dev, "failed to get firmware name\n");
+	} else {
+		ret = sdma_get_firmware(sdma, fw_name);
+		if (ret)
+			dev_warn(&pdev->dev, "failed to get firmware from device tree\n");
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -2179,7 +2559,10 @@ static struct platform_driver sdma_driver = {
 		.name	= "imx-sdma",
 		.of_match_table = sdma_dt_ids,
 	},
+<<<<<<< HEAD
 	.id_table	= sdma_devtypes,
+=======
+>>>>>>> upstream/android-13
 	.remove		= sdma_remove,
 	.probe		= sdma_probe,
 };

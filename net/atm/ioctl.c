@@ -56,6 +56,11 @@ static int do_vcc_ioctl(struct socket *sock, unsigned int cmd,
 	int error;
 	struct list_head *pos;
 	void __user *argp = (void __user *)arg;
+<<<<<<< HEAD
+=======
+	void __user *buf;
+	int __user *len;
+>>>>>>> upstream/android-13
 
 	vcc = ATM_SD(sock);
 	switch (cmd) {
@@ -81,6 +86,7 @@ static int do_vcc_ioctl(struct socket *sock, unsigned int cmd,
 				 (int __user *)argp) ? -EFAULT : 0;
 		goto done;
 	}
+<<<<<<< HEAD
 	case SIOCGSTAMP: /* borrowed from IP */
 #ifdef CONFIG_COMPAT
 		if (compat)
@@ -97,6 +103,8 @@ static int do_vcc_ioctl(struct socket *sock, unsigned int cmd,
 #endif
 			error = sock_get_timestampns(sk, argp);
 		goto done;
+=======
+>>>>>>> upstream/android-13
 	case ATM_SETSC:
 		net_warn_ratelimited("ATM_SETSC is obsolete; used by %s:%d\n",
 				     current->comm, task_pid_nr(current));
@@ -178,7 +186,53 @@ static int do_vcc_ioctl(struct socket *sock, unsigned int cmd,
 	if (error != -ENOIOCTLCMD)
 		goto done;
 
+<<<<<<< HEAD
 	error = atm_dev_ioctl(cmd, argp, compat);
+=======
+	if (cmd == ATM_GETNAMES) {
+		if (IS_ENABLED(CONFIG_COMPAT) && compat) {
+#ifdef CONFIG_COMPAT
+			struct compat_atm_iobuf __user *ciobuf = argp;
+			compat_uptr_t cbuf;
+			len = &ciobuf->length;
+			if (get_user(cbuf, &ciobuf->buffer))
+				return -EFAULT;
+			buf = compat_ptr(cbuf);
+#endif
+		} else {
+			struct atm_iobuf __user *iobuf = argp;
+			len = &iobuf->length;
+			if (get_user(buf, &iobuf->buffer))
+				return -EFAULT;
+		}
+		error = atm_getnames(buf, len);
+	} else {
+		int number;
+
+		if (IS_ENABLED(CONFIG_COMPAT) && compat) {
+#ifdef CONFIG_COMPAT
+			struct compat_atmif_sioc __user *csioc = argp;
+			compat_uptr_t carg;
+
+			len = &csioc->length;
+			if (get_user(carg, &csioc->arg))
+				return -EFAULT;
+			buf = compat_ptr(carg);
+			if (get_user(number, &csioc->number))
+				return -EFAULT;
+#endif
+		} else {
+			struct atmif_sioc __user *sioc = argp;
+
+			len = &sioc->length;
+			if (get_user(buf, &sioc->arg))
+				return -EFAULT;
+			if (get_user(number, &sioc->number))
+				return -EFAULT;
+		}
+		error = atm_dev_ioctl(cmd, buf, len, number, compat);
+	}
+>>>>>>> upstream/android-13
 
 done:
 	return error;
@@ -246,6 +300,7 @@ static struct {
 static int do_atm_iobuf(struct socket *sock, unsigned int cmd,
 			unsigned long arg)
 {
+<<<<<<< HEAD
 	struct atm_iobuf __user *iobuf;
 	struct compat_atm_iobuf __user *iobuf32;
 	u32 data;
@@ -272,11 +327,21 @@ static int do_atm_iobuf(struct socket *sock, unsigned int cmd,
 	}
 
 	return err;
+=======
+	struct compat_atm_iobuf __user *iobuf32 = compat_ptr(arg);
+	u32 data;
+
+	if (get_user(data, &iobuf32->buffer))
+		return -EFAULT;
+
+	return atm_getnames(&iobuf32->length, compat_ptr(data));
+>>>>>>> upstream/android-13
 }
 
 static int do_atmif_sioc(struct socket *sock, unsigned int cmd,
 			 unsigned long arg)
 {
+<<<<<<< HEAD
 	struct atmif_sioc __user *sioc;
 	struct compat_atmif_sioc __user *sioc32;
 	u32 data;
@@ -301,6 +366,15 @@ static int do_atmif_sioc(struct socket *sock, unsigned int cmd,
 			err = -EFAULT;
 	}
 	return err;
+=======
+	struct compat_atmif_sioc __user *sioc32 = compat_ptr(arg);
+	int number;
+	u32 data;
+
+	if (get_user(data, &sioc32->arg) || get_user(number, &sioc32->number))
+		return -EFAULT;
+	return atm_dev_ioctl(cmd, compat_ptr(data), &sioc32->length, number, 0);
+>>>>>>> upstream/android-13
 }
 
 static int do_atm_ioctl(struct socket *sock, unsigned int cmd32,

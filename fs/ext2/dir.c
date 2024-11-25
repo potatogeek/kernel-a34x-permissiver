@@ -66,12 +66,15 @@ static inline unsigned ext2_chunk_size(struct inode *inode)
 	return inode->i_sb->s_blocksize;
 }
 
+<<<<<<< HEAD
 static inline void ext2_put_page(struct page *page)
 {
 	kunmap(page);
 	put_page(page);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Return the offset into page `page_nr' of the last valid
  * byte in that page, plus one.
@@ -112,12 +115,19 @@ static int ext2_commit_chunk(struct page *page, loff_t pos, unsigned len)
 	return err;
 }
 
+<<<<<<< HEAD
 static bool ext2_check_page(struct page *page, int quiet)
+=======
+static bool ext2_check_page(struct page *page, int quiet, char *kaddr)
+>>>>>>> upstream/android-13
 {
 	struct inode *dir = page->mapping->host;
 	struct super_block *sb = dir->i_sb;
 	unsigned chunk_size = ext2_chunk_size(dir);
+<<<<<<< HEAD
 	char *kaddr = page_address(page);
+=======
+>>>>>>> upstream/android-13
 	u32 max_inumber = le32_to_cpu(EXT2_SB(sb)->s_es->s_inodes_count);
 	unsigned offs, rec_len;
 	unsigned limit = PAGE_SIZE;
@@ -196,22 +206,45 @@ fail:
 	return false;
 }
 
+<<<<<<< HEAD
 static struct page * ext2_get_page(struct inode *dir, unsigned long n,
 				   int quiet)
+=======
+/*
+ * Calls to ext2_get_page()/ext2_put_page() must be nested according to the
+ * rules documented in kmap_local_page()/kunmap_local().
+ *
+ * NOTE: ext2_find_entry() and ext2_dotdot() act as a call to ext2_get_page()
+ * and should be treated as a call to ext2_get_page() for nesting purposes.
+ */
+static struct page * ext2_get_page(struct inode *dir, unsigned long n,
+				   int quiet, void **page_addr)
+>>>>>>> upstream/android-13
 {
 	struct address_space *mapping = dir->i_mapping;
 	struct page *page = read_mapping_page(mapping, n, NULL);
 	if (!IS_ERR(page)) {
+<<<<<<< HEAD
 		kmap(page);
 		if (unlikely(!PageChecked(page))) {
 			if (PageError(page) || !ext2_check_page(page, quiet))
+=======
+		*page_addr = kmap_local_page(page);
+		if (unlikely(!PageChecked(page))) {
+			if (PageError(page) || !ext2_check_page(page, quiet,
+								*page_addr))
+>>>>>>> upstream/android-13
 				goto fail;
 		}
 	}
 	return page;
 
 fail:
+<<<<<<< HEAD
 	ext2_put_page(page);
+=======
+	ext2_put_page(page, *page_addr);
+>>>>>>> upstream/android-13
 	return ERR_PTR(-EIO);
 }
 
@@ -252,6 +285,7 @@ ext2_validate_entry(char *base, unsigned offset, unsigned mask)
 	return (char *)p - base;
 }
 
+<<<<<<< HEAD
 static unsigned char ext2_filetype_table[EXT2_FT_MAX] = {
 	[EXT2_FT_UNKNOWN]	= DT_UNKNOWN,
 	[EXT2_FT_REG_FILE]	= DT_REG,
@@ -279,6 +313,12 @@ static inline void ext2_set_de_type(ext2_dirent *de, struct inode *inode)
 	umode_t mode = inode->i_mode;
 	if (EXT2_HAS_INCOMPAT_FEATURE(inode->i_sb, EXT2_FEATURE_INCOMPAT_FILETYPE))
 		de->file_type = ext2_type_by_mode[(mode & S_IFMT)>>S_SHIFT];
+=======
+static inline void ext2_set_de_type(ext2_dirent *de, struct inode *inode)
+{
+	if (EXT2_HAS_INCOMPAT_FEATURE(inode->i_sb, EXT2_FEATURE_INCOMPAT_FILETYPE))
+		de->file_type = fs_umode_to_ftype(inode->i_mode);
+>>>>>>> upstream/android-13
 	else
 		de->file_type = 0;
 }
@@ -293,19 +333,33 @@ ext2_readdir(struct file *file, struct dir_context *ctx)
 	unsigned long n = pos >> PAGE_SHIFT;
 	unsigned long npages = dir_pages(inode);
 	unsigned chunk_mask = ~(ext2_chunk_size(inode)-1);
+<<<<<<< HEAD
 	unsigned char *types = NULL;
 	bool need_revalidate = !inode_eq_iversion(inode, file->f_version);
+=======
+	bool need_revalidate = !inode_eq_iversion(inode, file->f_version);
+	bool has_filetype;
+>>>>>>> upstream/android-13
 
 	if (pos > inode->i_size - EXT2_DIR_REC_LEN(1))
 		return 0;
 
+<<<<<<< HEAD
 	if (EXT2_HAS_INCOMPAT_FEATURE(sb, EXT2_FEATURE_INCOMPAT_FILETYPE))
 		types = ext2_filetype_table;
+=======
+	has_filetype =
+		EXT2_HAS_INCOMPAT_FEATURE(sb, EXT2_FEATURE_INCOMPAT_FILETYPE);
+>>>>>>> upstream/android-13
 
 	for ( ; n < npages; n++, offset = 0) {
 		char *kaddr, *limit;
 		ext2_dirent *de;
+<<<<<<< HEAD
 		struct page *page = ext2_get_page(inode, n, 0);
+=======
+		struct page *page = ext2_get_page(inode, n, 0, (void **)&kaddr);
+>>>>>>> upstream/android-13
 
 		if (IS_ERR(page)) {
 			ext2_error(sb, __func__,
@@ -314,7 +368,10 @@ ext2_readdir(struct file *file, struct dir_context *ctx)
 			ctx->pos += PAGE_SIZE - offset;
 			return PTR_ERR(page);
 		}
+<<<<<<< HEAD
 		kaddr = page_address(page);
+=======
+>>>>>>> upstream/android-13
 		if (unlikely(need_revalidate)) {
 			if (offset) {
 				offset = ext2_validate_entry(kaddr, offset, chunk_mask);
@@ -329,25 +386,42 @@ ext2_readdir(struct file *file, struct dir_context *ctx)
 			if (de->rec_len == 0) {
 				ext2_error(sb, __func__,
 					"zero-length directory entry");
+<<<<<<< HEAD
 				ext2_put_page(page);
+=======
+				ext2_put_page(page, kaddr);
+>>>>>>> upstream/android-13
 				return -EIO;
 			}
 			if (de->inode) {
 				unsigned char d_type = DT_UNKNOWN;
 
+<<<<<<< HEAD
 				if (types && de->file_type < EXT2_FT_MAX)
 					d_type = types[de->file_type];
+=======
+				if (has_filetype)
+					d_type = fs_ftype_to_dtype(de->file_type);
+>>>>>>> upstream/android-13
 
 				if (!dir_emit(ctx, de->name, de->name_len,
 						le32_to_cpu(de->inode),
 						d_type)) {
+<<<<<<< HEAD
 					ext2_put_page(page);
+=======
+					ext2_put_page(page, kaddr);
+>>>>>>> upstream/android-13
 					return 0;
 				}
 			}
 			ctx->pos += ext2_rec_len_from_disk(de->rec_len);
 		}
+<<<<<<< HEAD
 		ext2_put_page(page);
+=======
+		ext2_put_page(page, kaddr);
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
@@ -359,9 +433,24 @@ ext2_readdir(struct file *file, struct dir_context *ctx)
  * returns the page in which the entry was found (as a parameter - res_page),
  * and the entry itself. Page is returned mapped and unlocked.
  * Entry is guaranteed to be valid.
+<<<<<<< HEAD
  */
 struct ext2_dir_entry_2 *ext2_find_entry (struct inode *dir,
 			const struct qstr *child, struct page **res_page)
+=======
+ *
+ * On Success ext2_put_page() should be called on *res_page.
+ *
+ * NOTE: Calls to ext2_get_page()/ext2_put_page() must be nested according to
+ * the rules documented in kmap_local_page()/kunmap_local().
+ *
+ * ext2_find_entry() and ext2_dotdot() act as a call to ext2_get_page() and
+ * should be treated as a call to ext2_get_page() for nesting purposes.
+ */
+struct ext2_dir_entry_2 *ext2_find_entry (struct inode *dir,
+			const struct qstr *child, struct page **res_page,
+			void **res_page_addr)
+>>>>>>> upstream/android-13
 {
 	const char *name = child->name;
 	int namelen = child->len;
@@ -371,13 +460,21 @@ struct ext2_dir_entry_2 *ext2_find_entry (struct inode *dir,
 	struct page *page = NULL;
 	struct ext2_inode_info *ei = EXT2_I(dir);
 	ext2_dirent * de;
+<<<<<<< HEAD
 	int dir_has_error = 0;
+=======
+	void *page_addr;
+>>>>>>> upstream/android-13
 
 	if (npages == 0)
 		goto out;
 
 	/* OFFSET_CACHE */
 	*res_page = NULL;
+<<<<<<< HEAD
+=======
+	*res_page_addr = NULL;
+>>>>>>> upstream/android-13
 
 	start = ei->i_dir_start_lookup;
 	if (start >= npages)
@@ -385,6 +482,7 @@ struct ext2_dir_entry_2 *ext2_find_entry (struct inode *dir,
 	n = start;
 	do {
 		char *kaddr;
+<<<<<<< HEAD
 		page = ext2_get_page(dir, n, dir_has_error);
 		if (!IS_ERR(page)) {
 			kaddr = page_address(page);
@@ -404,6 +502,27 @@ struct ext2_dir_entry_2 *ext2_find_entry (struct inode *dir,
 			ext2_put_page(page);
 		} else
 			dir_has_error = 1;
+=======
+		page = ext2_get_page(dir, n, 0, &page_addr);
+		if (IS_ERR(page))
+			return ERR_CAST(page);
+
+		kaddr = page_addr;
+		de = (ext2_dirent *) kaddr;
+		kaddr += ext2_last_byte(dir, n) - reclen;
+		while ((char *) de <= kaddr) {
+			if (de->rec_len == 0) {
+				ext2_error(dir->i_sb, __func__,
+					"zero-length directory entry");
+				ext2_put_page(page, page_addr);
+				goto out;
+			}
+			if (ext2_match(namelen, name, de))
+				goto found;
+			de = ext2_next_entry(de);
+		}
+		ext2_put_page(page, page_addr);
+>>>>>>> upstream/android-13
 
 		if (++n >= npages)
 			n = 0;
@@ -417,14 +536,23 @@ struct ext2_dir_entry_2 *ext2_find_entry (struct inode *dir,
 		}
 	} while (n != start);
 out:
+<<<<<<< HEAD
 	return NULL;
 
 found:
 	*res_page = page;
+=======
+	return ERR_PTR(-ENOENT);
+
+found:
+	*res_page = page;
+	*res_page_addr = page_addr;
+>>>>>>> upstream/android-13
 	ei->i_dir_start_lookup = n;
 	return de;
 }
 
+<<<<<<< HEAD
 struct ext2_dir_entry_2 * ext2_dotdot (struct inode *dir, struct page **p)
 {
 	struct page *page = ext2_get_page(dir, 0, 0);
@@ -433,10 +561,36 @@ struct ext2_dir_entry_2 * ext2_dotdot (struct inode *dir, struct page **p)
 	if (!IS_ERR(page)) {
 		de = ext2_next_entry((ext2_dirent *) page_address(page));
 		*p = page;
+=======
+/**
+ * Return the '..' directory entry and the page in which the entry was found
+ * (as a parameter - p).
+ *
+ * On Success ext2_put_page() should be called on *p.
+ *
+ * NOTE: Calls to ext2_get_page()/ext2_put_page() must be nested according to
+ * the rules documented in kmap_local_page()/kunmap_local().
+ *
+ * ext2_find_entry() and ext2_dotdot() act as a call to ext2_get_page() and
+ * should be treated as a call to ext2_get_page() for nesting purposes.
+ */
+struct ext2_dir_entry_2 *ext2_dotdot(struct inode *dir, struct page **p,
+				     void **pa)
+{
+	void *page_addr;
+	struct page *page = ext2_get_page(dir, 0, 0, &page_addr);
+	ext2_dirent *de = NULL;
+
+	if (!IS_ERR(page)) {
+		de = ext2_next_entry((ext2_dirent *) page_addr);
+		*p = page;
+		*pa = page_addr;
+>>>>>>> upstream/android-13
 	}
 	return de;
 }
 
+<<<<<<< HEAD
 ino_t ext2_inode_by_name(struct inode *dir, const struct qstr *child)
 {
 	ino_t res = 0;
@@ -449,6 +603,21 @@ ino_t ext2_inode_by_name(struct inode *dir, const struct qstr *child)
 		ext2_put_page(page);
 	}
 	return res;
+=======
+int ext2_inode_by_name(struct inode *dir, const struct qstr *child, ino_t *ino)
+{
+	struct ext2_dir_entry_2 *de;
+	struct page *page;
+	void *page_addr;
+	
+	de = ext2_find_entry(dir, child, &page, &page_addr);
+	if (IS_ERR(de))
+		return PTR_ERR(de);
+
+	*ino = le32_to_cpu(de->inode);
+	ext2_put_page(page, page_addr);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int ext2_prepare_chunk(struct page *page, loff_t pos, unsigned len)
@@ -456,12 +625,21 @@ static int ext2_prepare_chunk(struct page *page, loff_t pos, unsigned len)
 	return __block_write_begin(page, pos, len, ext2_get_block);
 }
 
+<<<<<<< HEAD
 /* Releases the page */
 void ext2_set_link(struct inode *dir, struct ext2_dir_entry_2 *de,
 		   struct page *page, struct inode *inode, int update_times)
 {
 	loff_t pos = page_offset(page) +
 			(char *) de - (char *) page_address(page);
+=======
+void ext2_set_link(struct inode *dir, struct ext2_dir_entry_2 *de,
+		   struct page *page, void *page_addr, struct inode *inode,
+		   int update_times)
+{
+	loff_t pos = page_offset(page) +
+			(char *) de - (char *) page_addr;
+>>>>>>> upstream/android-13
 	unsigned len = ext2_rec_len_from_disk(de->rec_len);
 	int err;
 
@@ -471,7 +649,10 @@ void ext2_set_link(struct inode *dir, struct ext2_dir_entry_2 *de,
 	de->inode = cpu_to_le32(inode->i_ino);
 	ext2_set_de_type(de, inode);
 	err = ext2_commit_chunk(page, pos, len);
+<<<<<<< HEAD
 	ext2_put_page(page);
+=======
+>>>>>>> upstream/android-13
 	if (update_times)
 		dir->i_mtime = dir->i_ctime = current_time(dir);
 	EXT2_I(dir)->i_flags &= ~EXT2_BTREE_FL;
@@ -490,10 +671,17 @@ int ext2_add_link (struct dentry *dentry, struct inode *inode)
 	unsigned reclen = EXT2_DIR_REC_LEN(namelen);
 	unsigned short rec_len, name_len;
 	struct page *page = NULL;
+<<<<<<< HEAD
 	ext2_dirent * de;
 	unsigned long npages = dir_pages(dir);
 	unsigned long n;
 	char *kaddr;
+=======
+	void *page_addr = NULL;
+	ext2_dirent * de;
+	unsigned long npages = dir_pages(dir);
+	unsigned long n;
+>>>>>>> upstream/android-13
 	loff_t pos;
 	int err;
 
@@ -503,14 +691,25 @@ int ext2_add_link (struct dentry *dentry, struct inode *inode)
 	 * to protect that region.
 	 */
 	for (n = 0; n <= npages; n++) {
+<<<<<<< HEAD
 		char *dir_end;
 
 		page = ext2_get_page(dir, n, 0);
+=======
+		char *kaddr;
+		char *dir_end;
+
+		page = ext2_get_page(dir, n, 0, &page_addr);
+>>>>>>> upstream/android-13
 		err = PTR_ERR(page);
 		if (IS_ERR(page))
 			goto out;
 		lock_page(page);
+<<<<<<< HEAD
 		kaddr = page_address(page);
+=======
+		kaddr = page_addr;
+>>>>>>> upstream/android-13
 		dir_end = kaddr + ext2_last_byte(dir, n);
 		de = (ext2_dirent *)kaddr;
 		kaddr += PAGE_SIZE - reclen;
@@ -541,14 +740,22 @@ int ext2_add_link (struct dentry *dentry, struct inode *inode)
 			de = (ext2_dirent *) ((char *) de + rec_len);
 		}
 		unlock_page(page);
+<<<<<<< HEAD
 		ext2_put_page(page);
+=======
+		ext2_put_page(page, page_addr);
+>>>>>>> upstream/android-13
 	}
 	BUG();
 	return -EINVAL;
 
 got_it:
 	pos = page_offset(page) +
+<<<<<<< HEAD
 		(char*)de - (char*)page_address(page);
+=======
+		(char *)de - (char *)page_addr;
+>>>>>>> upstream/android-13
 	err = ext2_prepare_chunk(page, pos, rec_len);
 	if (err)
 		goto out_unlock;
@@ -568,7 +775,11 @@ got_it:
 	mark_inode_dirty(dir);
 	/* OFFSET_CACHE */
 out_put:
+<<<<<<< HEAD
 	ext2_put_page(page);
+=======
+	ext2_put_page(page, page_addr);
+>>>>>>> upstream/android-13
 out:
 	return err;
 out_unlock:
@@ -578,12 +789,21 @@ out_unlock:
 
 /*
  * ext2_delete_entry deletes a directory entry by merging it with the
+<<<<<<< HEAD
  * previous entry. Page is up-to-date. Releases the page.
  */
 int ext2_delete_entry (struct ext2_dir_entry_2 * dir, struct page * page )
 {
 	struct inode *inode = page->mapping->host;
 	char *kaddr = page_address(page);
+=======
+ * previous entry. Page is up-to-date.
+ */
+int ext2_delete_entry (struct ext2_dir_entry_2 *dir, struct page *page,
+			char *kaddr)
+{
+	struct inode *inode = page->mapping->host;
+>>>>>>> upstream/android-13
 	unsigned from = ((char*)dir - kaddr) & ~(ext2_chunk_size(inode)-1);
 	unsigned to = ((char *)dir - kaddr) +
 				ext2_rec_len_from_disk(dir->rec_len);
@@ -603,7 +823,11 @@ int ext2_delete_entry (struct ext2_dir_entry_2 * dir, struct page * page )
 		de = ext2_next_entry(de);
 	}
 	if (pde)
+<<<<<<< HEAD
 		from = (char*)pde - (char*)page_address(page);
+=======
+		from = (char *)pde - kaddr;
+>>>>>>> upstream/android-13
 	pos = page_offset(page) + from;
 	lock_page(page);
 	err = ext2_prepare_chunk(page, pos, to - from);
@@ -616,7 +840,10 @@ int ext2_delete_entry (struct ext2_dir_entry_2 * dir, struct page * page )
 	EXT2_I(inode)->i_flags &= ~EXT2_BTREE_FL;
 	mark_inode_dirty(inode);
 out:
+<<<<<<< HEAD
 	ext2_put_page(page);
+=======
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -666,6 +893,10 @@ fail:
  */
 int ext2_empty_dir (struct inode * inode)
 {
+<<<<<<< HEAD
+=======
+	void *page_addr = NULL;
+>>>>>>> upstream/android-13
 	struct page *page = NULL;
 	unsigned long i, npages = dir_pages(inode);
 	int dir_has_error = 0;
@@ -673,14 +904,22 @@ int ext2_empty_dir (struct inode * inode)
 	for (i = 0; i < npages; i++) {
 		char *kaddr;
 		ext2_dirent * de;
+<<<<<<< HEAD
 		page = ext2_get_page(inode, i, dir_has_error);
+=======
+		page = ext2_get_page(inode, i, dir_has_error, &page_addr);
+>>>>>>> upstream/android-13
 
 		if (IS_ERR(page)) {
 			dir_has_error = 1;
 			continue;
 		}
 
+<<<<<<< HEAD
 		kaddr = page_address(page);
+=======
+		kaddr = page_addr;
+>>>>>>> upstream/android-13
 		de = (ext2_dirent *)kaddr;
 		kaddr += ext2_last_byte(inode, i) - EXT2_DIR_REC_LEN(1);
 
@@ -706,12 +945,20 @@ int ext2_empty_dir (struct inode * inode)
 			}
 			de = ext2_next_entry(de);
 		}
+<<<<<<< HEAD
 		ext2_put_page(page);
+=======
+		ext2_put_page(page, page_addr);
+>>>>>>> upstream/android-13
 	}
 	return 1;
 
 not_empty:
+<<<<<<< HEAD
 	ext2_put_page(page);
+=======
+	ext2_put_page(page, page_addr);
+>>>>>>> upstream/android-13
 	return 0;
 }
 

@@ -7,10 +7,13 @@
  * Author: Robert Love <rlove@google.com>
  */
 
+<<<<<<< HEAD
 #if defined(CONFIG_SERIAL_VT8500_CONSOLE) && defined(CONFIG_MAGIC_SYSRQ)
 # define SUPPORT_SYSRQ
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/hrtimer.h>
 #include <linux/delay.h>
 #include <linux/io.h>
@@ -188,9 +191,13 @@ static void handle_rx(struct uart_port *port)
 			tty_insert_flip_char(tport, c, flag);
 	}
 
+<<<<<<< HEAD
 	spin_unlock(&port->lock);
 	tty_flip_buffer_push(tport);
 	spin_lock(&port->lock);
+=======
+	tty_flip_buffer_push(tport);
+>>>>>>> upstream/android-13
 }
 
 static void handle_tx(struct uart_port *port)
@@ -629,17 +636,27 @@ static int vt8500_serial_probe(struct platform_device *pdev)
 	struct vt8500_port *vt8500_port;
 	struct resource *mmres, *irqres;
 	struct device_node *np = pdev->dev.of_node;
+<<<<<<< HEAD
 	const struct of_device_id *match;
+=======
+>>>>>>> upstream/android-13
 	const unsigned int *flags;
 	int ret;
 	int port;
 
+<<<<<<< HEAD
 	match = of_match_device(wmt_dt_ids, &pdev->dev);
 	if (!match)
 		return -EINVAL;
 
 	flags = match->data;
 
+=======
+	flags = of_device_get_match_data(&pdev->dev);
+	if (!flags)
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	mmres = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	irqres = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
 	if (!mmres || !irqres)
@@ -703,6 +720,10 @@ static int vt8500_serial_probe(struct platform_device *pdev)
 	vt8500_port->uart.line = port;
 	vt8500_port->uart.dev = &pdev->dev;
 	vt8500_port->uart.flags = UPF_IOREMAP | UPF_BOOT_AUTOCONF;
+<<<<<<< HEAD
+=======
+	vt8500_port->uart.has_sysrq = IS_ENABLED(CONFIG_SERIAL_VT8500_CONSOLE);
+>>>>>>> upstream/android-13
 
 	/* Serial core uses the magic "16" everywhere - adjust for it */
 	vt8500_port->uart.uartclk = 16 * clk_get_rate(vt8500_port->clk) /

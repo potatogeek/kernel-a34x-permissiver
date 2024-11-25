@@ -72,6 +72,11 @@
 #define  BRDV_BAUD_MASK         0x3FF
 
 #define UART_OSAMP		0x14
+<<<<<<< HEAD
+=======
+#define  OSAMP_DEFAULT_DIVISOR	16
+#define  OSAMP_DIVISORS_MASK	0x3F3F3F3F
+>>>>>>> upstream/android-13
 
 #define MVEBU_NR_UARTS		2
 
@@ -126,7 +131,10 @@ struct mvebu_uart {
 	struct uart_port *port;
 	struct clk *clk;
 	int irq[UART_IRQ_COUNT];
+<<<<<<< HEAD
 	unsigned char __iomem *nb;
+=======
+>>>>>>> upstream/android-13
 	struct mvebu_uart_driver_data *data;
 #if defined(CONFIG_PM)
 	struct mvebu_uart_pm_regs pm_regs;
@@ -162,7 +170,11 @@ static unsigned int mvebu_uart_tx_empty(struct uart_port *port)
 	st = readl(port->membase + UART_STAT);
 	spin_unlock_irqrestore(&port->lock, flags);
 
+<<<<<<< HEAD
 	return (st & STAT_TX_FIFO_EMP) ? TIOCSER_TEMT : 0;
+=======
+	return (st & STAT_TX_EMP) ? TIOCSER_TEMT : 0;
+>>>>>>> upstream/android-13
 }
 
 static unsigned int mvebu_uart_get_mctrl(struct uart_port *port)
@@ -443,6 +455,7 @@ static void mvebu_uart_shutdown(struct uart_port *port)
 
 static int mvebu_uart_baud_rate_set(struct uart_port *port, unsigned int baud)
 {
+<<<<<<< HEAD
 	struct mvebu_uart *mvuart = to_mvuart(port);
 	unsigned int baud_rate_div;
 	u32 brdv;
@@ -463,6 +476,36 @@ static int mvebu_uart_baud_rate_set(struct uart_port *port, unsigned int baud)
 	brdv |= baud_rate_div;
 	writel(brdv, port->membase + UART_BRDV);
 
+=======
+	unsigned int d_divisor, m_divisor;
+	u32 brdv, osamp;
+
+	if (!port->uartclk)
+		return -EOPNOTSUPP;
+
+	/*
+	 * The baudrate is derived from the UART clock thanks to two divisors:
+	 *   > D ("baud generator"): can divide the clock from 2 to 2^10 - 1.
+	 *   > M ("fractional divisor"): allows a better accuracy for
+	 *     baudrates higher than 230400.
+	 *
+	 * As the derivation of M is rather complicated, the code sticks to its
+	 * default value (x16) when all the prescalers are zeroed, and only
+	 * makes use of D to configure the desired baudrate.
+	 */
+	m_divisor = OSAMP_DEFAULT_DIVISOR;
+	d_divisor = DIV_ROUND_CLOSEST(port->uartclk, baud * m_divisor);
+
+	brdv = readl(port->membase + UART_BRDV);
+	brdv &= ~BRDV_BAUD_MASK;
+	brdv |= d_divisor;
+	writel(brdv, port->membase + UART_BRDV);
+
+	osamp = readl(port->membase + UART_OSAMP);
+	osamp &= ~OSAMP_DIVISORS_MASK;
+	writel(osamp, port->membase + UART_OSAMP);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -471,7 +514,11 @@ static void mvebu_uart_set_termios(struct uart_port *port,
 				   struct ktermios *old)
 {
 	unsigned long flags;
+<<<<<<< HEAD
 	unsigned int baud;
+=======
+	unsigned int baud, min_baud, max_baud;
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&port->lock, flags);
 
@@ -490,16 +537,32 @@ static void mvebu_uart_set_termios(struct uart_port *port,
 		port->ignore_status_mask |= STAT_RX_RDY(port) | STAT_BRK_ERR;
 
 	/*
+<<<<<<< HEAD
+=======
+	 * Maximal divisor is 1023 * 16 when using default (x16) scheme.
+>>>>>>> upstream/android-13
 	 * Maximum achievable frequency with simple baudrate divisor is 230400.
 	 * Since the error per bit frame would be of more than 15%, achieving
 	 * higher frequencies would require to implement the fractional divisor
 	 * feature.
 	 */
+<<<<<<< HEAD
 	baud = uart_get_baud_rate(port, termios, old, 0, 230400);
 	if (mvebu_uart_baud_rate_set(port, baud)) {
 		/* No clock available, baudrate cannot be changed */
 		if (old)
 			baud = uart_get_baud_rate(port, old, NULL, 0, 230400);
+=======
+	min_baud = DIV_ROUND_UP(port->uartclk, 1023 * 16);
+	max_baud = 230400;
+
+	baud = uart_get_baud_rate(port, termios, old, min_baud, max_baud);
+	if (mvebu_uart_baud_rate_set(port, baud)) {
+		/* No clock available, baudrate cannot be changed */
+		if (old)
+			baud = uart_get_baud_rate(port, old, NULL,
+						  min_baud, max_baud);
+>>>>>>> upstream/android-13
 	} else {
 		tty_termios_encode_baud_rate(termios, baud, baud);
 		uart_update_timeout(port, termios->c_cflag, baud);
@@ -606,7 +669,11 @@ static void mvebu_uart_putc(struct uart_port *port, int c)
 
 static void mvebu_uart_putc_early_write(struct console *con,
 					const char *s,
+<<<<<<< HEAD
 					unsigned n)
+=======
+					unsigned int n)
+>>>>>>> upstream/android-13
 {
 	struct earlycon_device *dev = con->data;
 
@@ -800,16 +867,23 @@ static int mvebu_uart_probe(struct platform_device *pdev)
 							   &pdev->dev);
 	struct uart_port *port;
 	struct mvebu_uart *mvuart;
+<<<<<<< HEAD
 	int ret, id, irq;
+=======
+	int id, irq;
+>>>>>>> upstream/android-13
 
 	if (!reg) {
 		dev_err(&pdev->dev, "no registers defined\n");
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	if (!match)
 		return -ENODEV;
 
+=======
+>>>>>>> upstream/android-13
 	/* Assume that all UART ports have a DT alias or none has */
 	id = of_alias_get_id(pdev->dev.of_node, "serial");
 	if (!pdev->dev.of_node || id < 0)
@@ -881,10 +955,15 @@ static int mvebu_uart_probe(struct platform_device *pdev)
 	if (platform_irq_count(pdev) == 1) {
 		/* Old bindings: no name on the single unamed UART0 IRQ */
 		irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 		if (irq < 0) {
 			dev_err(&pdev->dev, "unable to get UART IRQ\n");
 			return irq;
 		}
+=======
+		if (irq < 0)
+			return irq;
+>>>>>>> upstream/android-13
 
 		mvuart->irq[UART_IRQ_SUM] = irq;
 	} else {
@@ -894,18 +973,28 @@ static int mvebu_uart_probe(struct platform_device *pdev)
 		 * uart-sum of UART0 port.
 		 */
 		irq = platform_get_irq_byname(pdev, "uart-rx");
+<<<<<<< HEAD
 		if (irq < 0) {
 			dev_err(&pdev->dev, "unable to get 'uart-rx' IRQ\n");
 			return irq;
 		}
+=======
+		if (irq < 0)
+			return irq;
+>>>>>>> upstream/android-13
 
 		mvuart->irq[UART_RX_IRQ] = irq;
 
 		irq = platform_get_irq_byname(pdev, "uart-tx");
+<<<<<<< HEAD
 		if (irq < 0) {
 			dev_err(&pdev->dev, "unable to get 'uart-tx' IRQ\n");
 			return irq;
 		}
+=======
+		if (irq < 0)
+			return irq;
+>>>>>>> upstream/android-13
 
 		mvuart->irq[UART_TX_IRQ] = irq;
 	}
@@ -915,10 +1004,14 @@ static int mvebu_uart_probe(struct platform_device *pdev)
 	udelay(1);
 	writel(0, port->membase + UART_CTRL(port));
 
+<<<<<<< HEAD
 	ret = uart_add_one_port(&mvebu_uart_driver, port);
 	if (ret)
 		return ret;
 	return 0;
+=======
+	return uart_add_one_port(&mvebu_uart_driver, port);
+>>>>>>> upstream/android-13
 }
 
 static struct mvebu_uart_driver_data uart_std_driver_data = {

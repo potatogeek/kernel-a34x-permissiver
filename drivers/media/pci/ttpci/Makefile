@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0
 #
 # Makefile for the kernel SAA7146 FULL TS DVB device driver
+<<<<<<< HEAD
 # and the AV7110 DVB device driver
 #
 
@@ -11,12 +12,23 @@ dvb-ttpci-objs += av7110_ir.o
 endif
 
 obj-$(CONFIG_TTPCI_EEPROM) += ttpci-eeprom.o
+=======
+#
+
+>>>>>>> upstream/android-13
 obj-$(CONFIG_DVB_BUDGET_CORE) += budget-core.o
 obj-$(CONFIG_DVB_BUDGET) += budget.o
 obj-$(CONFIG_DVB_BUDGET_AV) += budget-av.o
 obj-$(CONFIG_DVB_BUDGET_CI) += budget-ci.o
+<<<<<<< HEAD
 obj-$(CONFIG_DVB_BUDGET_PATCH) += budget-patch.o
 obj-$(CONFIG_DVB_AV7110) += dvb-ttpci.o
 
 ccflags-y += -Idrivers/media/dvb-frontends/
 ccflags-y += -Idrivers/media/tuners
+=======
+
+ccflags-y += -I $(srctree)/drivers/media/dvb-frontends/
+ccflags-y += -I $(srctree)/drivers/media/tuners
+ccflags-y += -I $(srctree)/drivers/media/common
+>>>>>>> upstream/android-13

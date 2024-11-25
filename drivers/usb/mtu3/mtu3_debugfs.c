@@ -1,7 +1,15 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
+<<<<<<< HEAD
  * Copyright (C) 2019 MediaTek Inc.
  * Author Chunfeng Yun <chunfeng.yun@mediatek.com>
+=======
+ * mtu3_debugfs.c - debugfs interface
+ *
+ * Copyright (C) 2019 MediaTek Inc.
+ *
+ * Author: Chunfeng Yun <chunfeng.yun@mediatek.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/uaccess.h>
@@ -27,6 +35,10 @@ static const struct debugfs_reg32 mtu3_ippc_regs[] = {
 	dump_register(SSUSB_IP_PW_CTRL1),
 	dump_register(SSUSB_IP_PW_CTRL2),
 	dump_register(SSUSB_IP_PW_CTRL3),
+<<<<<<< HEAD
+=======
+	dump_register(SSUSB_IP_PW_STS1),
+>>>>>>> upstream/android-13
 	dump_register(SSUSB_OTG_STS),
 	dump_register(SSUSB_IP_XHCI_CAP),
 	dump_register(SSUSB_IP_DEV_CAP),
@@ -124,7 +136,11 @@ static void mtu3_debugfs_regset(struct mtu3 *mtu, void __iomem *base,
 	struct debugfs_regset32 *regset;
 	struct mtu3_regset *mregs;
 
+<<<<<<< HEAD
 	mregs = devm_kzalloc(mtu->dev, sizeof(*regset), GFP_KERNEL);
+=======
+	mregs = devm_kzalloc(mtu->dev, sizeof(*mregs), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!mregs)
 		return;
 
@@ -273,7 +289,11 @@ static const struct file_operations mtu3_ep_fops = {
 	.release = single_release,
 };
 
+<<<<<<< HEAD
 static struct debugfs_reg32 mtu3_prb_regs[] = {
+=======
+static const struct debugfs_reg32 mtu3_prb_regs[] = {
+>>>>>>> upstream/android-13
 	dump_prb_reg("enable", U3D_SSUSB_PRB_CTRL0),
 	dump_prb_reg("byte-sell", U3D_SSUSB_PRB_CTRL1),
 	dump_prb_reg("byte-selh", U3D_SSUSB_PRB_CTRL2),
@@ -346,7 +366,11 @@ static const struct file_operations mtu3_probe_fops = {
 static void mtu3_debugfs_create_prb_files(struct mtu3 *mtu)
 {
 	struct ssusb_mtk *ssusb = mtu->ssusb;
+<<<<<<< HEAD
 	struct debugfs_reg32 *regs;
+=======
+	const struct debugfs_reg32 *regs;
+>>>>>>> upstream/android-13
 	struct dentry *dir_prb;
 	int i;
 

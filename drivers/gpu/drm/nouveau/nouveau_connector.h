@@ -29,14 +29,41 @@
 
 #include <nvif/notify.h>
 
+<<<<<<< HEAD
+=======
+#include <nvhw/class/cl507d.h>
+#include <nvhw/class/cl907d.h>
+#include <nvhw/drf.h>
+
+>>>>>>> upstream/android-13
 #include <drm/drm_crtc.h>
 #include <drm/drm_edid.h>
 #include <drm/drm_encoder.h>
 #include <drm/drm_dp_helper.h>
+<<<<<<< HEAD
+=======
+#include <drm/drm_util.h>
+
+>>>>>>> upstream/android-13
 #include "nouveau_crtc.h"
 #include "nouveau_encoder.h"
 
 struct nvkm_i2c_port;
+<<<<<<< HEAD
+=======
+struct dcb_output;
+
+#ifdef CONFIG_DRM_NOUVEAU_BACKLIGHT
+struct nouveau_backlight {
+	struct backlight_device *dev;
+
+	struct drm_edp_backlight_info edp_info;
+	bool uses_dpcd : 1;
+
+	int id;
+};
+#endif
+>>>>>>> upstream/android-13
 
 #define nouveau_conn_atom(p)                                                   \
 	container_of((p), struct nouveau_conn_atom, state)
@@ -49,6 +76,7 @@ struct nouveau_conn_atom {
 		 * hw values, and the code relies on this.
 		 */
 		enum {
+<<<<<<< HEAD
 			DITHERING_MODE_OFF = 0x00,
 			DITHERING_MODE_ON = 0x01,
 			DITHERING_MODE_DYNAMIC2X2 = 0x10 | DITHERING_MODE_ON,
@@ -59,6 +87,25 @@ struct nouveau_conn_atom {
 		enum {
 			DITHERING_DEPTH_6BPC = 0x00,
 			DITHERING_DEPTH_8BPC = 0x02,
+=======
+			DITHERING_MODE_OFF =
+				NVDEF(NV507D, HEAD_SET_DITHER_CONTROL, ENABLE, DISABLE),
+			DITHERING_MODE_ON =
+				NVDEF(NV507D, HEAD_SET_DITHER_CONTROL, ENABLE, ENABLE),
+			DITHERING_MODE_DYNAMIC2X2 = DITHERING_MODE_ON |
+				NVDEF(NV507D, HEAD_SET_DITHER_CONTROL, MODE, DYNAMIC_2X2),
+			DITHERING_MODE_STATIC2X2 = DITHERING_MODE_ON |
+				NVDEF(NV507D, HEAD_SET_DITHER_CONTROL, MODE, STATIC_2X2),
+			DITHERING_MODE_TEMPORAL = DITHERING_MODE_ON |
+				NVDEF(NV907D, HEAD_SET_DITHER_CONTROL, MODE, TEMPORAL),
+			DITHERING_MODE_AUTO
+		} mode;
+		enum {
+			DITHERING_DEPTH_6BPC =
+				NVDEF(NV507D, HEAD_SET_DITHER_CONTROL, BITS, DITHER_TO_6_BITS),
+			DITHERING_DEPTH_8BPC =
+				NVDEF(NV507D, HEAD_SET_DITHER_CONTROL, BITS, DITHER_TO_8_BITS),
+>>>>>>> upstream/android-13
 			DITHERING_DEPTH_AUTO
 		} depth;
 	} dither;
@@ -108,6 +155,18 @@ struct nouveau_connector {
 	struct nouveau_encoder *detected_encoder;
 	struct edid *edid;
 	struct drm_display_mode *native_mode;
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_DRM_NOUVEAU_BACKLIGHT
+	struct nouveau_backlight *backlight;
+#endif
+	/*
+	 * Our connector property code expects a nouveau_conn_atom struct
+	 * even on pre-nv50 where we do not support atomic. This embedded
+	 * version gets used in the non atomic modeset case.
+	 */
+	struct nouveau_conn_atom properties_state;
+>>>>>>> upstream/android-13
 };
 
 static inline struct nouveau_connector *nouveau_connector(
@@ -159,7 +218,12 @@ nouveau_crtc_connector_get(struct nouveau_crtc *nv_crtc)
 }
 
 struct drm_connector *
+<<<<<<< HEAD
 nouveau_connector_create(struct drm_device *, int index);
+=======
+nouveau_connector_create(struct drm_device *, const struct dcb_output *);
+void nouveau_connector_hpd(struct drm_connector *connector);
+>>>>>>> upstream/android-13
 
 extern int nouveau_tv_disable;
 extern int nouveau_ignorelid;
@@ -179,4 +243,38 @@ int nouveau_conn_atomic_get_property(struct drm_connector *,
 				     const struct drm_connector_state *,
 				     struct drm_property *, u64 *);
 struct drm_display_mode *nouveau_conn_native_mode(struct drm_connector *);
+<<<<<<< HEAD
+=======
+enum drm_mode_status
+nouveau_conn_mode_clock_valid(const struct drm_display_mode *,
+			      const unsigned min_clock,
+			      const unsigned max_clock,
+			      unsigned *clock);
+
+#ifdef CONFIG_DRM_NOUVEAU_BACKLIGHT
+extern int nouveau_backlight_init(struct drm_connector *);
+extern void nouveau_backlight_fini(struct drm_connector *);
+extern void nouveau_backlight_ctor(void);
+extern void nouveau_backlight_dtor(void);
+#else
+static inline int
+nouveau_backlight_init(struct drm_connector *connector)
+{
+	return 0;
+}
+
+static inline void
+nouveau_backlight_fini(struct drm_connector *connector) {
+}
+
+static inline void
+nouveau_backlight_ctor(void) {
+}
+
+static inline void
+nouveau_backlight_dtor(void) {
+}
+#endif
+
+>>>>>>> upstream/android-13
 #endif /* __NOUVEAU_CONNECTOR_H__ */

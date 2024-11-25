@@ -78,6 +78,11 @@ struct max77686_rtc_driver_data {
 	int			alarm_pending_status_reg;
 	/* RTC IRQ CHIP for regmap */
 	const struct regmap_irq_chip *rtc_irq_chip;
+<<<<<<< HEAD
+=======
+	/* regmap configuration for the chip */
+	const struct regmap_config *regmap_config;
+>>>>>>> upstream/android-13
 };
 
 struct max77686_rtc_info {
@@ -182,6 +187,14 @@ static const struct regmap_irq_chip max77686_rtc_irq_chip = {
 	.num_irqs	= ARRAY_SIZE(max77686_rtc_irqs),
 };
 
+<<<<<<< HEAD
+=======
+static const struct regmap_config max77686_rtc_regmap_config = {
+	.reg_bits = 8,
+	.val_bits = 8,
+};
+
+>>>>>>> upstream/android-13
 static const struct max77686_rtc_driver_data max77686_drv_data = {
 	.delay = 16000,
 	.mask  = 0x7f,
@@ -191,6 +204,16 @@ static const struct max77686_rtc_driver_data max77686_drv_data = {
 	.alarm_pending_status_reg = MAX77686_REG_STATUS2,
 	.rtc_i2c_addr = MAX77686_I2C_ADDR_RTC,
 	.rtc_irq_chip = &max77686_rtc_irq_chip,
+<<<<<<< HEAD
+=======
+	.regmap_config = &max77686_rtc_regmap_config,
+};
+
+static const struct regmap_config max77620_rtc_regmap_config = {
+	.reg_bits = 8,
+	.val_bits = 8,
+	.use_single_write = true,
+>>>>>>> upstream/android-13
 };
 
 static const struct max77686_rtc_driver_data max77620_drv_data = {
@@ -202,6 +225,10 @@ static const struct max77686_rtc_driver_data max77620_drv_data = {
 	.alarm_pending_status_reg = MAX77686_INVALID_REG,
 	.rtc_i2c_addr = MAX77620_I2C_ADDR_RTC,
 	.rtc_irq_chip = &max77686_rtc_irq_chip,
+<<<<<<< HEAD
+=======
+	.regmap_config = &max77620_rtc_regmap_config,
+>>>>>>> upstream/android-13
 };
 
 static const unsigned int max77802_map[REG_RTC_END] = {
@@ -658,11 +685,14 @@ static int max77686_rtc_init_reg(struct max77686_rtc_info *info)
 	return ret;
 }
 
+<<<<<<< HEAD
 static const struct regmap_config max77686_rtc_regmap_config = {
 	.reg_bits = 8,
 	.val_bits = 8,
 };
 
+=======
+>>>>>>> upstream/android-13
 static int max77686_init_rtc_regmap(struct max77686_rtc_info *info)
 {
 	struct device *parent = info->dev->parent;
@@ -673,11 +703,16 @@ static int max77686_init_rtc_regmap(struct max77686_rtc_info *info)
 		struct platform_device *pdev = to_platform_device(info->dev);
 
 		info->rtc_irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 		if (info->rtc_irq < 0) {
 			dev_err(info->dev, "Failed to get rtc interrupts: %d\n",
 				info->rtc_irq);
 			return info->rtc_irq;
 		}
+=======
+		if (info->rtc_irq < 0)
+			return info->rtc_irq;
+>>>>>>> upstream/android-13
 	} else {
 		info->rtc_irq =  parent_i2c->irq;
 	}
@@ -693,6 +728,7 @@ static int max77686_init_rtc_regmap(struct max77686_rtc_info *info)
 		goto add_rtc_irq;
 	}
 
+<<<<<<< HEAD
 	info->rtc = i2c_new_dummy(parent_i2c->adapter,
 				  info->drv_data->rtc_i2c_addr);
 	if (!info->rtc) {
@@ -706,10 +742,26 @@ static int max77686_init_rtc_regmap(struct max77686_rtc_info *info)
 		ret = PTR_ERR(info->rtc_regmap);
 		dev_err(info->dev, "Failed to allocate RTC regmap: %d\n", ret);
 		goto err_unregister_i2c;
+=======
+	info->rtc = devm_i2c_new_dummy_device(info->dev, parent_i2c->adapter,
+					      info->drv_data->rtc_i2c_addr);
+	if (IS_ERR(info->rtc)) {
+		dev_err(info->dev, "Failed to allocate I2C device for RTC\n");
+		return PTR_ERR(info->rtc);
+	}
+
+	info->rtc_regmap = devm_regmap_init_i2c(info->rtc,
+						info->drv_data->regmap_config);
+	if (IS_ERR(info->rtc_regmap)) {
+		ret = PTR_ERR(info->rtc_regmap);
+		dev_err(info->dev, "Failed to allocate RTC regmap: %d\n", ret);
+		return ret;
+>>>>>>> upstream/android-13
 	}
 
 add_rtc_irq:
 	ret = regmap_add_irq_chip(info->rtc_regmap, info->rtc_irq,
+<<<<<<< HEAD
 				  IRQF_TRIGGER_FALLING | IRQF_ONESHOT |
 				  IRQF_SHARED, 0, info->drv_data->rtc_irq_chip,
 				  &info->rtc_irq_data);
@@ -724,6 +776,17 @@ err_unregister_i2c:
 	if (info->rtc)
 		i2c_unregister_device(info->rtc);
 	return ret;
+=======
+				  IRQF_ONESHOT | IRQF_SHARED,
+				  0, info->drv_data->rtc_irq_chip,
+				  &info->rtc_irq_data);
+	if (ret < 0) {
+		dev_err(info->dev, "Failed to add RTC irq chip: %d\n", ret);
+		return ret;
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int max77686_rtc_probe(struct platform_device *pdev)
@@ -786,8 +849,11 @@ static int max77686_rtc_probe(struct platform_device *pdev)
 
 err_rtc:
 	regmap_del_irq_chip(info->rtc_irq, info->rtc_irq_data);
+<<<<<<< HEAD
 	if (info->rtc)
 		i2c_unregister_device(info->rtc);
+=======
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -798,8 +864,11 @@ static int max77686_rtc_remove(struct platform_device *pdev)
 
 	free_irq(info->virq, info);
 	regmap_del_irq_chip(info->rtc_irq, info->rtc_irq_data);
+<<<<<<< HEAD
 	if (info->rtc)
 		i2c_unregister_device(info->rtc);
+=======
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -807,6 +876,7 @@ static int max77686_rtc_remove(struct platform_device *pdev)
 #ifdef CONFIG_PM_SLEEP
 static int max77686_rtc_suspend(struct device *dev)
 {
+<<<<<<< HEAD
 	if (device_may_wakeup(dev)) {
 		struct max77686_rtc_info *info = dev_get_drvdata(dev);
 
@@ -814,10 +884,41 @@ static int max77686_rtc_suspend(struct device *dev)
 	}
 
 	return 0;
+=======
+	struct max77686_rtc_info *info = dev_get_drvdata(dev);
+	int ret = 0;
+
+	if (device_may_wakeup(dev)) {
+		struct max77686_rtc_info *info = dev_get_drvdata(dev);
+
+		ret = enable_irq_wake(info->virq);
+	}
+
+	/*
+	 * If the main IRQ (not virtual) is the parent IRQ, then it must be
+	 * disabled during suspend because if it happens while suspended it
+	 * will be handled before resuming I2C.
+	 *
+	 * Since Main IRQ is shared, all its users should disable it to be sure
+	 * it won't fire while one of them is still suspended.
+	 */
+	if (!info->drv_data->rtc_irq_from_platform)
+		disable_irq(info->rtc_irq);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int max77686_rtc_resume(struct device *dev)
 {
+<<<<<<< HEAD
+=======
+	struct max77686_rtc_info *info = dev_get_drvdata(dev);
+
+	if (!info->drv_data->rtc_irq_from_platform)
+		enable_irq(info->rtc_irq);
+
+>>>>>>> upstream/android-13
 	if (device_may_wakeup(dev)) {
 		struct max77686_rtc_info *info = dev_get_drvdata(dev);
 

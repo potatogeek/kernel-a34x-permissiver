@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver for the mt9m111 sensor
  *
@@ -9,11 +13,14 @@
  * Copyright (c) 2006 Willem Duinker
  * v4l2 interface modeled after the V4L2 driver
  * for SN9C10x PC Camera Controllers
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, version 2.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -199,7 +206,11 @@ static const struct v4l2_ctrl_config mt9m111_greenbal_cfg = {
 int mt9m111_probe(struct sd *sd)
 {
 	u8 data[2] = {0x00, 0x00};
+<<<<<<< HEAD
 	int i;
+=======
+	int i, err;
+>>>>>>> upstream/android-13
 	struct gspca_dev *gspca_dev = (struct gspca_dev *)sd;
 
 	if (force_sensor) {
@@ -217,6 +228,7 @@ int mt9m111_probe(struct sd *sd)
 	/* Do the preinit */
 	for (i = 0; i < ARRAY_SIZE(preinit_mt9m111); i++) {
 		if (preinit_mt9m111[i][0] == BRIDGE) {
+<<<<<<< HEAD
 			m5602_write_bridge(sd,
 				preinit_mt9m111[i][1],
 				preinit_mt9m111[i][2]);
@@ -226,6 +238,19 @@ int mt9m111_probe(struct sd *sd)
 			m5602_write_sensor(sd,
 				preinit_mt9m111[i][1], data, 2);
 		}
+=======
+			err = m5602_write_bridge(sd,
+					preinit_mt9m111[i][1],
+					preinit_mt9m111[i][2]);
+		} else {
+			data[0] = preinit_mt9m111[i][2];
+			data[1] = preinit_mt9m111[i][3];
+			err = m5602_write_sensor(sd,
+					preinit_mt9m111[i][1], data, 2);
+		}
+		if (err < 0)
+			return err;
+>>>>>>> upstream/android-13
 	}
 
 	if (m5602_read_sensor(sd, MT9M111_SC_CHIPVER, data, 2))

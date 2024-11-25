@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2013  Realtek Corporation.
@@ -24,6 +25,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+// SPDX-License-Identifier: GPL-2.0
+/* Copyright(c) 2009-2013  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #include "table.h"
 u32 RTL8188EEPHY_REG_1TARRAY[] = {

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  Kernel Probes (KProbes)
  *  include/asm-mips/kprobes.h
  *
  *  Copyright 2006 Sony Corp.
  *  Copyright 2010 Cavium Networks
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_KPROBES_H
@@ -53,6 +60,10 @@ do {									\
 #define kretprobe_blacklist_size 0
 
 void arch_remove_kprobe(struct kprobe *p);
+<<<<<<< HEAD
+=======
+int kprobe_fault_handler(struct pt_regs *regs, int trapnr);
+>>>>>>> upstream/android-13
 
 /* Architecture specific copy of original instruction*/
 struct arch_specific_insn {

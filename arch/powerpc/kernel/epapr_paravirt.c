@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * ePAPR para-virtualization support.
  *
@@ -14,6 +15,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * ePAPR para-virtualization support.
+ *
+>>>>>>> upstream/android-13
  * Copyright (C) 2012 Freescale Semiconductor, Inc.
  */
 
@@ -23,6 +30,10 @@
 #include <asm/cacheflush.h>
 #include <asm/code-patching.h>
 #include <asm/machdep.h>
+<<<<<<< HEAD
+=======
+#include <asm/inst.h>
+>>>>>>> upstream/android-13
 
 #if !defined(CONFIG_64BIT) || defined(CONFIG_PPC_BOOK3E_64)
 extern void epapr_ev_idle(void);
@@ -48,7 +59,11 @@ static int __init early_init_dt_scan_epapr(unsigned long node,
 		return -1;
 
 	for (i = 0; i < (len / 4); i++) {
+<<<<<<< HEAD
 		u32 inst = be32_to_cpu(insts[i]);
+=======
+		struct ppc_inst inst = ppc_inst(be32_to_cpu(insts[i]));
+>>>>>>> upstream/android-13
 		patch_instruction(epapr_hypercall_start + i, inst);
 #if !defined(CONFIG_64BIT) || defined(CONFIG_PPC_BOOK3E_64)
 		patch_instruction(epapr_ev_idle_start + i, inst);

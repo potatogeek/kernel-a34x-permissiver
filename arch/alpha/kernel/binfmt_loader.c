@@ -19,10 +19,13 @@ static int load_binary(struct linux_binprm *bprm)
 	if (bprm->loader)
 		return -ENOEXEC;
 
+<<<<<<< HEAD
 	allow_write_access(bprm->file);
 	fput(bprm->file);
 	bprm->file = NULL;
 
+=======
+>>>>>>> upstream/android-13
 	loader = bprm->vma->vm_end - sizeof(void *);
 
 	file = open_exec("/sbin/loader");
@@ -33,12 +36,18 @@ static int load_binary(struct linux_binprm *bprm)
 	/* Remember if the application is TASO.  */
 	bprm->taso = eh->ah.entry < 0x100000000UL;
 
+<<<<<<< HEAD
 	bprm->file = file;
 	bprm->loader = loader;
 	retval = prepare_binprm(bprm);
 	if (retval < 0)
 		return retval;
 	return search_binary_handler(bprm);
+=======
+	bprm->interpreter = file;
+	bprm->loader = loader;
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static struct linux_binfmt loader_format = {

@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/
+=======
+ * Copyright (C) 2011 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  * Author: Rob Clark <rob@ti.com>
  *         Andy Gross <andy.gross@ti.com>
  *
@@ -113,7 +117,11 @@ extern struct platform_driver omap_dmm_driver;
 /* GEM bo flags -> tiler fmt */
 static inline enum tiler_fmt gem2fmt(u32 flags)
 {
+<<<<<<< HEAD
 	switch (flags & OMAP_BO_TILED) {
+=======
+	switch (flags & OMAP_BO_TILED_MASK) {
+>>>>>>> upstream/android-13
 	case OMAP_BO_TILED_8:
 		return TILFMT_8BIT;
 	case OMAP_BO_TILED_16:

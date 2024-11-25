@@ -1,11 +1,20 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2004 Mellanox Technologies Ltd.  All rights reserved.
  * Copyright (c) 2004 Infinicon Corporation.  All rights reserved.
  * Copyright (c) 2004 Intel Corporation.  All rights reserved.
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB */
+/*
+ * Copyright (c) 2004 Mellanox Technologies Ltd.  All rights reserved.
+ * Copyright (c) 2004 Infinicon Corporation.  All rights reserved.
+ * Copyright (c) 2004, 2020 Intel Corporation.  All rights reserved.
+>>>>>>> upstream/android-13
  * Copyright (c) 2004 Topspin Corporation.  All rights reserved.
  * Copyright (c) 2004 Voltaire Corporation.  All rights reserved.
  * Copyright (c) 2005 Sun Microsystems, Inc. All rights reserved.
  * Copyright (c) 2005, 2006, 2007 Cisco Systems.  All rights reserved.
+<<<<<<< HEAD
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -42,13 +51,27 @@
 #include <linux/types.h>
 #include <linux/device.h>
 #include <linux/mm.h>
+=======
+ */
+
+#ifndef IB_VERBS_H
+#define IB_VERBS_H
+
+#include <linux/ethtool.h>
+#include <linux/types.h>
+#include <linux/device.h>
+>>>>>>> upstream/android-13
 #include <linux/dma-mapping.h>
 #include <linux/kref.h>
 #include <linux/list.h>
 #include <linux/rwsem.h>
+<<<<<<< HEAD
 #include <linux/scatterlist.h>
 #include <linux/workqueue.h>
 #include <linux/socket.h>
+=======
+#include <linux/workqueue.h>
+>>>>>>> upstream/android-13
 #include <linux/irq_poll.h>
 #include <uapi/linux/if_ether.h>
 #include <net/ipv6.h>
@@ -56,23 +79,124 @@
 #include <linux/string.h>
 #include <linux/slab.h>
 #include <linux/netdevice.h>
+<<<<<<< HEAD
 
+=======
+#include <linux/refcount.h>
+>>>>>>> upstream/android-13
 #include <linux/if_link.h>
 #include <linux/atomic.h>
 #include <linux/mmu_notifier.h>
 #include <linux/uaccess.h>
 #include <linux/cgroup_rdma.h>
+<<<<<<< HEAD
 #include <uapi/rdma/ib_user_verbs.h>
 #include <rdma/restrack.h>
+=======
+#include <linux/irqflags.h>
+#include <linux/preempt.h>
+#include <linux/dim.h>
+#include <uapi/rdma/ib_user_verbs.h>
+#include <rdma/rdma_counter.h>
+#include <rdma/restrack.h>
+#include <rdma/signature.h>
+>>>>>>> upstream/android-13
 #include <uapi/rdma/rdma_user_ioctl.h>
 #include <uapi/rdma/ib_user_ioctl_verbs.h>
 
 #define IB_FW_VERSION_NAME_MAX	ETHTOOL_FWVERS_LEN
 
+<<<<<<< HEAD
+=======
+struct ib_umem_odp;
+struct ib_uqp_object;
+struct ib_usrq_object;
+struct ib_uwq_object;
+struct rdma_cm_id;
+struct ib_port;
+struct hw_stats_device_data;
+
+>>>>>>> upstream/android-13
 extern struct workqueue_struct *ib_wq;
 extern struct workqueue_struct *ib_comp_wq;
 extern struct workqueue_struct *ib_comp_unbound_wq;
 
+<<<<<<< HEAD
+=======
+struct ib_ucq_object;
+
+__printf(3, 4) __cold
+void ibdev_printk(const char *level, const struct ib_device *ibdev,
+		  const char *format, ...);
+__printf(2, 3) __cold
+void ibdev_emerg(const struct ib_device *ibdev, const char *format, ...);
+__printf(2, 3) __cold
+void ibdev_alert(const struct ib_device *ibdev, const char *format, ...);
+__printf(2, 3) __cold
+void ibdev_crit(const struct ib_device *ibdev, const char *format, ...);
+__printf(2, 3) __cold
+void ibdev_err(const struct ib_device *ibdev, const char *format, ...);
+__printf(2, 3) __cold
+void ibdev_warn(const struct ib_device *ibdev, const char *format, ...);
+__printf(2, 3) __cold
+void ibdev_notice(const struct ib_device *ibdev, const char *format, ...);
+__printf(2, 3) __cold
+void ibdev_info(const struct ib_device *ibdev, const char *format, ...);
+
+#if defined(CONFIG_DYNAMIC_DEBUG) || \
+	(defined(CONFIG_DYNAMIC_DEBUG_CORE) && defined(DYNAMIC_DEBUG_MODULE))
+#define ibdev_dbg(__dev, format, args...)                       \
+	dynamic_ibdev_dbg(__dev, format, ##args)
+#else
+__printf(2, 3) __cold
+static inline
+void ibdev_dbg(const struct ib_device *ibdev, const char *format, ...) {}
+#endif
+
+#define ibdev_level_ratelimited(ibdev_level, ibdev, fmt, ...)           \
+do {                                                                    \
+	static DEFINE_RATELIMIT_STATE(_rs,                              \
+				      DEFAULT_RATELIMIT_INTERVAL,       \
+				      DEFAULT_RATELIMIT_BURST);         \
+	if (__ratelimit(&_rs))                                          \
+		ibdev_level(ibdev, fmt, ##__VA_ARGS__);                 \
+} while (0)
+
+#define ibdev_emerg_ratelimited(ibdev, fmt, ...) \
+	ibdev_level_ratelimited(ibdev_emerg, ibdev, fmt, ##__VA_ARGS__)
+#define ibdev_alert_ratelimited(ibdev, fmt, ...) \
+	ibdev_level_ratelimited(ibdev_alert, ibdev, fmt, ##__VA_ARGS__)
+#define ibdev_crit_ratelimited(ibdev, fmt, ...) \
+	ibdev_level_ratelimited(ibdev_crit, ibdev, fmt, ##__VA_ARGS__)
+#define ibdev_err_ratelimited(ibdev, fmt, ...) \
+	ibdev_level_ratelimited(ibdev_err, ibdev, fmt, ##__VA_ARGS__)
+#define ibdev_warn_ratelimited(ibdev, fmt, ...) \
+	ibdev_level_ratelimited(ibdev_warn, ibdev, fmt, ##__VA_ARGS__)
+#define ibdev_notice_ratelimited(ibdev, fmt, ...) \
+	ibdev_level_ratelimited(ibdev_notice, ibdev, fmt, ##__VA_ARGS__)
+#define ibdev_info_ratelimited(ibdev, fmt, ...) \
+	ibdev_level_ratelimited(ibdev_info, ibdev, fmt, ##__VA_ARGS__)
+
+#if defined(CONFIG_DYNAMIC_DEBUG) || \
+	(defined(CONFIG_DYNAMIC_DEBUG_CORE) && defined(DYNAMIC_DEBUG_MODULE))
+/* descriptor check is first to prevent flooding with "callbacks suppressed" */
+#define ibdev_dbg_ratelimited(ibdev, fmt, ...)                          \
+do {                                                                    \
+	static DEFINE_RATELIMIT_STATE(_rs,                              \
+				      DEFAULT_RATELIMIT_INTERVAL,       \
+				      DEFAULT_RATELIMIT_BURST);         \
+	DEFINE_DYNAMIC_DEBUG_METADATA(descriptor, fmt);                 \
+	if (DYNAMIC_DEBUG_BRANCH(descriptor) && __ratelimit(&_rs))      \
+		__dynamic_ibdev_dbg(&descriptor, ibdev, fmt,            \
+				    ##__VA_ARGS__);                     \
+} while (0)
+#else
+__printf(2, 3) __cold
+static inline
+void ibdev_dbg_ratelimited(const struct ib_device *ibdev, const char *format, ...) {}
+#endif
+
+>>>>>>> upstream/android-13
 union ib_gid {
 	u8	raw[16];
 	struct {
@@ -84,20 +208,31 @@ union ib_gid {
 extern union ib_gid zgid;
 
 enum ib_gid_type {
+<<<<<<< HEAD
 	/* If link layer is Ethernet, this is RoCE V1 */
 	IB_GID_TYPE_IB        = 0,
 	IB_GID_TYPE_ROCE      = 0,
 	IB_GID_TYPE_ROCE_UDP_ENCAP = 1,
+=======
+	IB_GID_TYPE_IB = IB_UVERBS_GID_TYPE_IB,
+	IB_GID_TYPE_ROCE = IB_UVERBS_GID_TYPE_ROCE_V1,
+	IB_GID_TYPE_ROCE_UDP_ENCAP = IB_UVERBS_GID_TYPE_ROCE_V2,
+>>>>>>> upstream/android-13
 	IB_GID_TYPE_SIZE
 };
 
 #define ROCE_V2_UDP_DPORT      4791
 struct ib_gid_attr {
+<<<<<<< HEAD
 	struct net_device	*ndev;
+=======
+	struct net_device __rcu	*ndev;
+>>>>>>> upstream/android-13
 	struct ib_device	*device;
 	union ib_gid		gid;
 	enum ib_gid_type	gid_type;
 	u16			index;
+<<<<<<< HEAD
 	u8			port_num;
 };
 
@@ -109,6 +244,9 @@ enum rdma_node_type {
 	RDMA_NODE_RNIC,
 	RDMA_NODE_USNIC,
 	RDMA_NODE_USNIC_UDP,
+=======
+	u32			port_num;
+>>>>>>> upstream/android-13
 };
 
 enum {
@@ -120,7 +258,12 @@ enum rdma_transport_type {
 	RDMA_TRANSPORT_IB,
 	RDMA_TRANSPORT_IWARP,
 	RDMA_TRANSPORT_USNIC,
+<<<<<<< HEAD
 	RDMA_TRANSPORT_USNIC_UDP
+=======
+	RDMA_TRANSPORT_USNIC_UDP,
+	RDMA_TRANSPORT_UNSPECIFIED,
+>>>>>>> upstream/android-13
 };
 
 enum rdma_protocol_type {
@@ -131,11 +274,19 @@ enum rdma_protocol_type {
 };
 
 __attribute_const__ enum rdma_transport_type
+<<<<<<< HEAD
 rdma_node_get_transport(enum rdma_node_type node_type);
 
 enum rdma_network_type {
 	RDMA_NETWORK_IB,
 	RDMA_NETWORK_ROCE_V1 = RDMA_NETWORK_IB,
+=======
+rdma_node_get_transport(unsigned int node_type);
+
+enum rdma_network_type {
+	RDMA_NETWORK_IB,
+	RDMA_NETWORK_ROCE_V1,
+>>>>>>> upstream/android-13
 	RDMA_NETWORK_IPV4,
 	RDMA_NETWORK_IPV6
 };
@@ -145,9 +296,16 @@ static inline enum ib_gid_type ib_network_to_gid_type(enum rdma_network_type net
 	if (network_type == RDMA_NETWORK_IPV4 ||
 	    network_type == RDMA_NETWORK_IPV6)
 		return IB_GID_TYPE_ROCE_UDP_ENCAP;
+<<<<<<< HEAD
 
 	/* IB_GID_TYPE_IB same as RDMA_NETWORK_ROCE_V1 */
 	return IB_GID_TYPE_IB;
+=======
+	else if (network_type == RDMA_NETWORK_ROCE_V1)
+		return IB_GID_TYPE_ROCE;
+	else
+		return IB_GID_TYPE_IB;
+>>>>>>> upstream/android-13
 }
 
 static inline enum rdma_network_type
@@ -156,6 +314,12 @@ rdma_gid_attr_network_type(const struct ib_gid_attr *attr)
 	if (attr->gid_type == IB_GID_TYPE_IB)
 		return RDMA_NETWORK_IB;
 
+<<<<<<< HEAD
+=======
+	if (attr->gid_type == IB_GID_TYPE_ROCE)
+		return RDMA_NETWORK_ROCE_V1;
+
+>>>>>>> upstream/android-13
 	if (ipv6_addr_v4mapped((struct in6_addr *)&attr->gid))
 		return RDMA_NETWORK_IPV4;
 	else
@@ -230,12 +394,17 @@ enum ib_device_cap_flags {
 	 */
 	IB_DEVICE_CROSS_CHANNEL			= (1 << 27),
 	IB_DEVICE_MANAGED_FLOW_STEERING		= (1 << 29),
+<<<<<<< HEAD
 	IB_DEVICE_SIGNATURE_HANDOVER		= (1 << 30),
+=======
+	IB_DEVICE_INTEGRITY_HANDOVER		= (1 << 30),
+>>>>>>> upstream/android-13
 	IB_DEVICE_ON_DEMAND_PAGING		= (1ULL << 31),
 	IB_DEVICE_SG_GAPS_REG			= (1ULL << 32),
 	IB_DEVICE_VIRTUAL_FUNCTION		= (1ULL << 33),
 	/* Deprecated. Please use IB_RAW_PACKET_CAP_SCATTER_FCS. */
 	IB_DEVICE_RAW_SCATTER_FCS		= (1ULL << 34),
+<<<<<<< HEAD
 	IB_DEVICE_RDMA_NETDEV_OPA_VNIC		= (1ULL << 35),
 	/* The device supports padding incoming writes to cacheline. */
 	IB_DEVICE_PCI_WRITE_END_PADDING		= (1ULL << 36),
@@ -250,6 +419,12 @@ enum ib_signature_prot_cap {
 enum ib_signature_guard_cap {
 	IB_GUARD_T10DIF_CRC	= 1,
 	IB_GUARD_T10DIF_CSUM	= 1 << 1,
+=======
+	IB_DEVICE_RDMA_NETDEV_OPA		= (1ULL << 35),
+	/* The device supports padding incoming writes to cacheline. */
+	IB_DEVICE_PCI_WRITE_END_PADDING		= (1ULL << 36),
+	IB_DEVICE_ALLOW_USER_UNREG		= (1ULL << 37),
+>>>>>>> upstream/android-13
 };
 
 enum ib_atomic_cap {
@@ -269,6 +444,10 @@ enum ib_odp_transport_cap_bits {
 	IB_ODP_SUPPORT_WRITE	= 1 << 2,
 	IB_ODP_SUPPORT_READ	= 1 << 3,
 	IB_ODP_SUPPORT_ATOMIC	= 1 << 4,
+<<<<<<< HEAD
+=======
+	IB_ODP_SUPPORT_SRQ_RECV	= 1 << 5,
+>>>>>>> upstream/android-13
 };
 
 struct ib_odp_caps {
@@ -277,6 +456,10 @@ struct ib_odp_caps {
 		uint32_t  rc_odp_caps;
 		uint32_t  uc_odp_caps;
 		uint32_t  ud_odp_caps;
+<<<<<<< HEAD
+=======
+		uint32_t  xrc_odp_caps;
+>>>>>>> upstream/android-13
 	} per_transport_caps;
 };
 
@@ -369,12 +552,19 @@ struct ib_device_attr {
 	int			max_mcast_qp_attach;
 	int			max_total_mcast_qp_attach;
 	int			max_ah;
+<<<<<<< HEAD
 	int			max_fmr;
 	int			max_map_per_fmr;
+=======
+>>>>>>> upstream/android-13
 	int			max_srq;
 	int			max_srq_wr;
 	int			max_srq_sge;
 	unsigned int		max_fast_reg_page_list_len;
+<<<<<<< HEAD
+=======
+	unsigned int		max_pi_fast_reg_page_list_len;
+>>>>>>> upstream/android-13
 	u16			max_pkeys;
 	u8			local_ca_ack_delay;
 	int			sig_prot_cap;
@@ -388,6 +578,11 @@ struct ib_device_attr {
 	struct ib_tm_caps	tm_caps;
 	struct ib_cq_caps       cq_caps;
 	u64			max_dm_size;
+<<<<<<< HEAD
+=======
+	/* Max entries for sgl for optimized performance per READ */
+	u32			max_sgl_rd;
+>>>>>>> upstream/android-13
 };
 
 enum ib_mtu {
@@ -398,6 +593,14 @@ enum ib_mtu {
 	IB_MTU_4096 = 5
 };
 
+<<<<<<< HEAD
+=======
+enum opa_mtu {
+	OPA_MTU_8192 = 6,
+	OPA_MTU_10240 = 7
+};
+
+>>>>>>> upstream/android-13
 static inline int ib_mtu_enum_to_int(enum ib_mtu mtu)
 {
 	switch (mtu) {
@@ -424,6 +627,31 @@ static inline enum ib_mtu ib_mtu_int_to_enum(int mtu)
 		return IB_MTU_256;
 }
 
+<<<<<<< HEAD
+=======
+static inline int opa_mtu_enum_to_int(enum opa_mtu mtu)
+{
+	switch (mtu) {
+	case OPA_MTU_8192:
+		return 8192;
+	case OPA_MTU_10240:
+		return 10240;
+	default:
+		return(ib_mtu_enum_to_int((enum ib_mtu)mtu));
+	}
+}
+
+static inline enum opa_mtu opa_mtu_int_to_enum(int mtu)
+{
+	if (mtu >= 10240)
+		return OPA_MTU_10240;
+	else if (mtu >= 8192)
+		return OPA_MTU_8192;
+	else
+		return ((enum opa_mtu)ib_mtu_int_to_enum(mtu));
+}
+
+>>>>>>> upstream/android-13
 enum ib_port_state {
 	IB_PORT_NOP		= 0,
 	IB_PORT_DOWN		= 1,
@@ -433,8 +661,24 @@ enum ib_port_state {
 	IB_PORT_ACTIVE_DEFER	= 5
 };
 
+<<<<<<< HEAD
 enum ib_port_width {
 	IB_WIDTH_1X	= 1,
+=======
+enum ib_port_phys_state {
+	IB_PORT_PHYS_STATE_SLEEP = 1,
+	IB_PORT_PHYS_STATE_POLLING = 2,
+	IB_PORT_PHYS_STATE_DISABLED = 3,
+	IB_PORT_PHYS_STATE_PORT_CONFIGURATION_TRAINING = 4,
+	IB_PORT_PHYS_STATE_LINK_UP = 5,
+	IB_PORT_PHYS_STATE_LINK_ERROR_RECOVERY = 6,
+	IB_PORT_PHYS_STATE_PHY_TEST = 7,
+};
+
+enum ib_port_width {
+	IB_WIDTH_1X	= 1,
+	IB_WIDTH_2X	= 16,
+>>>>>>> upstream/android-13
 	IB_WIDTH_4X	= 2,
 	IB_WIDTH_8X	= 4,
 	IB_WIDTH_12X	= 8
@@ -444,6 +688,10 @@ static inline int ib_width_enum_to_int(enum ib_port_width width)
 {
 	switch (width) {
 	case IB_WIDTH_1X:  return  1;
+<<<<<<< HEAD
+=======
+	case IB_WIDTH_2X:  return  2;
+>>>>>>> upstream/android-13
 	case IB_WIDTH_4X:  return  4;
 	case IB_WIDTH_8X:  return  8;
 	case IB_WIDTH_12X: return 12;
@@ -458,7 +706,12 @@ enum ib_port_speed {
 	IB_SPEED_FDR10	= 8,
 	IB_SPEED_FDR	= 16,
 	IB_SPEED_EDR	= 32,
+<<<<<<< HEAD
 	IB_SPEED_HDR	= 64
+=======
+	IB_SPEED_HDR	= 64,
+	IB_SPEED_NDR	= 128,
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -575,6 +828,10 @@ struct ib_port_attr {
 	enum ib_port_state	state;
 	enum ib_mtu		max_mtu;
 	enum ib_mtu		active_mtu;
+<<<<<<< HEAD
+=======
+	u32                     phys_mtu;
+>>>>>>> upstream/android-13
 	int			gid_tbl_len;
 	unsigned int		ip_gids:1;
 	/* This is the value from PortInfo CapabilityMask, defined by IBA */
@@ -591,8 +848,14 @@ struct ib_port_attr {
 	u8			subnet_timeout;
 	u8			init_type_reply;
 	u8			active_width;
+<<<<<<< HEAD
 	u8			active_speed;
 	u8                      phys_state;
+=======
+	u16			active_speed;
+	u8                      phys_state;
+	u16			port_cap_flags2;
+>>>>>>> upstream/android-13
 };
 
 enum ib_device_modify_flags {
@@ -652,7 +915,11 @@ struct ib_event {
 		struct ib_qp	*qp;
 		struct ib_srq	*srq;
 		struct ib_wq	*wq;
+<<<<<<< HEAD
 		u8		port_num;
+=======
+		u32		port_num;
+>>>>>>> upstream/android-13
 	} element;
 	enum ib_event_type	event;
 };
@@ -730,7 +997,15 @@ enum ib_rate {
 	IB_RATE_25_GBPS  = 15,
 	IB_RATE_100_GBPS = 16,
 	IB_RATE_200_GBPS = 17,
+<<<<<<< HEAD
 	IB_RATE_300_GBPS = 18
+=======
+	IB_RATE_300_GBPS = 18,
+	IB_RATE_28_GBPS  = 19,
+	IB_RATE_50_GBPS  = 20,
+	IB_RATE_400_GBPS = 21,
+	IB_RATE_600_GBPS = 22,
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -753,13 +1028,17 @@ __attribute_const__ int ib_rate_to_mbps(enum ib_rate rate);
  * enum ib_mr_type - memory region type
  * @IB_MR_TYPE_MEM_REG:       memory region that is used for
  *                            normal registration
+<<<<<<< HEAD
  * @IB_MR_TYPE_SIGNATURE:     memory region that is used for
  *                            signature operations (data-integrity
  *                            capable regions)
+=======
+>>>>>>> upstream/android-13
  * @IB_MR_TYPE_SG_GAPS:       memory region that is capable to
  *                            register any arbitrary sg lists (without
  *                            the normal mr constraints - see
  *                            ib_map_mr_sg)
+<<<<<<< HEAD
  */
 enum ib_mr_type {
 	IB_MR_TYPE_MEM_REG,
@@ -865,6 +1144,24 @@ struct ib_sig_err {
 	u32			actual;
 	u64			sig_err_offset;
 	u32			key;
+=======
+ * @IB_MR_TYPE_DM:            memory region that is used for device
+ *                            memory registration
+ * @IB_MR_TYPE_USER:          memory region that is used for the user-space
+ *                            application
+ * @IB_MR_TYPE_DMA:           memory region that is used for DMA operations
+ *                            without address translations (VA=PA)
+ * @IB_MR_TYPE_INTEGRITY:     memory region that is used for
+ *                            data integrity operations
+ */
+enum ib_mr_type {
+	IB_MR_TYPE_MEM_REG,
+	IB_MR_TYPE_SG_GAPS,
+	IB_MR_TYPE_DM,
+	IB_MR_TYPE_USER,
+	IB_MR_TYPE_DMA,
+	IB_MR_TYPE_INTEGRITY,
+>>>>>>> upstream/android-13
 };
 
 enum ib_mr_status_check {
@@ -891,6 +1188,15 @@ struct ib_mr_status {
  */
 __attribute_const__ enum ib_rate mult_to_ib_rate(int mult);
 
+<<<<<<< HEAD
+=======
+struct rdma_ah_init_attr {
+	struct rdma_ah_attr *ah_attr;
+	u32 flags;
+	struct net_device *xmit_slave;
+};
+
+>>>>>>> upstream/android-13
 enum rdma_ah_attr_type {
 	RDMA_AH_ATTR_TYPE_UNDEFINED,
 	RDMA_AH_ATTR_TYPE_IB,
@@ -917,7 +1223,11 @@ struct rdma_ah_attr {
 	struct ib_global_route	grh;
 	u8			sl;
 	u8			static_rate;
+<<<<<<< HEAD
 	u8			port_num;
+=======
+	u32			port_num;
+>>>>>>> upstream/android-13
 	u8			ah_flags;
 	enum rdma_ah_attr_type type;
 	union {
@@ -955,6 +1265,7 @@ enum ib_wc_status {
 const char *__attribute_const__ ib_wc_status_msg(enum ib_wc_status status);
 
 enum ib_wc_opcode {
+<<<<<<< HEAD
 	IB_WC_SEND,
 	IB_WC_RDMA_WRITE,
 	IB_WC_RDMA_READ,
@@ -962,6 +1273,16 @@ enum ib_wc_opcode {
 	IB_WC_FETCH_ADD,
 	IB_WC_LSO,
 	IB_WC_LOCAL_INV,
+=======
+	IB_WC_SEND = IB_UVERBS_WC_SEND,
+	IB_WC_RDMA_WRITE = IB_UVERBS_WC_RDMA_WRITE,
+	IB_WC_RDMA_READ = IB_UVERBS_WC_RDMA_READ,
+	IB_WC_COMP_SWAP = IB_UVERBS_WC_COMP_SWAP,
+	IB_WC_FETCH_ADD = IB_UVERBS_WC_FETCH_ADD,
+	IB_WC_BIND_MW = IB_UVERBS_WC_BIND_MW,
+	IB_WC_LOCAL_INV = IB_UVERBS_WC_LOCAL_INV,
+	IB_WC_LSO = IB_UVERBS_WC_TSO,
+>>>>>>> upstream/android-13
 	IB_WC_REG_MR,
 	IB_WC_MASKED_COMP_SWAP,
 	IB_WC_MASKED_FETCH_ADD,
@@ -1003,7 +1324,11 @@ struct ib_wc {
 	u16			pkey_index;
 	u8			sl;
 	u8			dlid_path_bits;
+<<<<<<< HEAD
 	u8			port_num;	/* valid only for DR SMPs on switches */
+=======
+	u32 port_num; /* valid only for DR SMPs on switches */
+>>>>>>> upstream/android-13
 	u8			smac[ETH_ALEN];
 	u16			vlan_id;
 	u8			network_hdr_type;
@@ -1017,9 +1342,15 @@ enum ib_cq_notify_flags {
 };
 
 enum ib_srq_type {
+<<<<<<< HEAD
 	IB_SRQT_BASIC,
 	IB_SRQT_XRC,
 	IB_SRQT_TM,
+=======
+	IB_SRQT_BASIC = IB_UVERBS_SRQT_BASIC,
+	IB_SRQT_XRC = IB_UVERBS_SRQT_XRC,
+	IB_SRQT_TM = IB_UVERBS_SRQT_TM,
+>>>>>>> upstream/android-13
 };
 
 static inline bool ib_srq_has_cq(enum ib_srq_type srq_type)
@@ -1088,6 +1419,7 @@ enum ib_qp_type {
 	IB_QPT_SMI,
 	IB_QPT_GSI,
 
+<<<<<<< HEAD
 	IB_QPT_RC,
 	IB_QPT_UC,
 	IB_QPT_UD,
@@ -1098,6 +1430,18 @@ enum ib_qp_type {
 	IB_QPT_XRC_TGT,
 	IB_QPT_MAX,
 	IB_QPT_DRIVER = 0xFF,
+=======
+	IB_QPT_RC = IB_UVERBS_QPT_RC,
+	IB_QPT_UC = IB_UVERBS_QPT_UC,
+	IB_QPT_UD = IB_UVERBS_QPT_UD,
+	IB_QPT_RAW_IPV6,
+	IB_QPT_RAW_ETHERTYPE,
+	IB_QPT_RAW_PACKET = IB_UVERBS_QPT_RAW_PACKET,
+	IB_QPT_XRC_INI = IB_UVERBS_QPT_XRC_INI,
+	IB_QPT_XRC_TGT = IB_UVERBS_QPT_XRC_TGT,
+	IB_QPT_MAX,
+	IB_QPT_DRIVER = IB_UVERBS_QPT_DRIVER,
+>>>>>>> upstream/android-13
 	/* Reserve a range for qp types internal to the low level driver.
 	 * These qp types will not be visible at the IB core layer, so the
 	 * IB_QPT_MAX usages should not be affected in the core layer
@@ -1116,17 +1460,34 @@ enum ib_qp_type {
 
 enum ib_qp_create_flags {
 	IB_QP_CREATE_IPOIB_UD_LSO		= 1 << 0,
+<<<<<<< HEAD
 	IB_QP_CREATE_BLOCK_MULTICAST_LOOPBACK	= 1 << 1,
+=======
+	IB_QP_CREATE_BLOCK_MULTICAST_LOOPBACK	=
+		IB_UVERBS_QP_CREATE_BLOCK_MULTICAST_LOOPBACK,
+>>>>>>> upstream/android-13
 	IB_QP_CREATE_CROSS_CHANNEL              = 1 << 2,
 	IB_QP_CREATE_MANAGED_SEND               = 1 << 3,
 	IB_QP_CREATE_MANAGED_RECV               = 1 << 4,
 	IB_QP_CREATE_NETIF_QP			= 1 << 5,
+<<<<<<< HEAD
 	IB_QP_CREATE_SIGNATURE_EN		= 1 << 6,
 	/* FREE					= 1 << 7, */
 	IB_QP_CREATE_SCATTER_FCS		= 1 << 8,
 	IB_QP_CREATE_CVLAN_STRIPPING		= 1 << 9,
 	IB_QP_CREATE_SOURCE_QPN			= 1 << 10,
 	IB_QP_CREATE_PCI_WRITE_END_PADDING	= 1 << 11,
+=======
+	IB_QP_CREATE_INTEGRITY_EN		= 1 << 6,
+	IB_QP_CREATE_NETDEV_USE			= 1 << 7,
+	IB_QP_CREATE_SCATTER_FCS		=
+		IB_UVERBS_QP_CREATE_SCATTER_FCS,
+	IB_QP_CREATE_CVLAN_STRIPPING		=
+		IB_UVERBS_QP_CREATE_CVLAN_STRIPPING,
+	IB_QP_CREATE_SOURCE_QPN			= 1 << 10,
+	IB_QP_CREATE_PCI_WRITE_END_PADDING	=
+		IB_UVERBS_QP_CREATE_PCI_WRITE_END_PADDING,
+>>>>>>> upstream/android-13
 	/* reserve bits 26-31 for low level drivers' internal use */
 	IB_QP_CREATE_RESERVED_START		= 1 << 26,
 	IB_QP_CREATE_RESERVED_END		= 1 << 31,
@@ -1138,7 +1499,13 @@ enum ib_qp_create_flags {
  */
 
 struct ib_qp_init_attr {
+<<<<<<< HEAD
 	void                  (*event_handler)(struct ib_event *, void *);
+=======
+	/* Consumer's event_handler callback must not block */
+	void                  (*event_handler)(struct ib_event *, void *);
+
+>>>>>>> upstream/android-13
 	void		       *qp_context;
 	struct ib_cq	       *send_cq;
 	struct ib_cq	       *recv_cq;
@@ -1152,7 +1519,11 @@ struct ib_qp_init_attr {
 	/*
 	 * Only needed for special QP types, or when using the RW API.
 	 */
+<<<<<<< HEAD
 	u8			port_num;
+=======
+	u32			port_num;
+>>>>>>> upstream/android-13
 	struct ib_rwq_ind_table *rwq_ind_tbl;
 	u32			source_qpn;
 };
@@ -1226,6 +1597,11 @@ enum ib_qp_attr_mask {
 	IB_QP_RESERVED3			= (1<<23),
 	IB_QP_RESERVED4			= (1<<24),
 	IB_QP_RATE_LIMIT		= (1<<25),
+<<<<<<< HEAD
+=======
+
+	IB_QP_ATTR_STANDARD_BITS = GENMASK(20, 0),
+>>>>>>> upstream/android-13
 };
 
 enum ib_qp_state {
@@ -1269,6 +1645,7 @@ struct ib_qp_attr {
 	u8			max_rd_atomic;
 	u8			max_dest_rd_atomic;
 	u8			min_rnr_timer;
+<<<<<<< HEAD
 	u8			port_num;
 	u8			timeout;
 	u8			retry_cnt;
@@ -1276,6 +1653,16 @@ struct ib_qp_attr {
 	u8			alt_port_num;
 	u8			alt_timeout;
 	u32			rate_limit;
+=======
+	u32			port_num;
+	u8			timeout;
+	u8			retry_cnt;
+	u8			rnr_retry;
+	u32			alt_port_num;
+	u8			alt_timeout;
+	u32			rate_limit;
+	struct net_device	*xmit_slave;
+>>>>>>> upstream/android-13
 };
 
 enum ib_wr_opcode {
@@ -1287,6 +1674,10 @@ enum ib_wr_opcode {
 	IB_WR_RDMA_READ = IB_UVERBS_WR_RDMA_READ,
 	IB_WR_ATOMIC_CMP_AND_SWP = IB_UVERBS_WR_ATOMIC_CMP_AND_SWP,
 	IB_WR_ATOMIC_FETCH_AND_ADD = IB_UVERBS_WR_ATOMIC_FETCH_AND_ADD,
+<<<<<<< HEAD
+=======
+	IB_WR_BIND_MW = IB_UVERBS_WR_BIND_MW,
+>>>>>>> upstream/android-13
 	IB_WR_LSO = IB_UVERBS_WR_TSO,
 	IB_WR_SEND_WITH_INV = IB_UVERBS_WR_SEND_WITH_INV,
 	IB_WR_RDMA_READ_WITH_INV = IB_UVERBS_WR_RDMA_READ_WITH_INV,
@@ -1298,7 +1689,11 @@ enum ib_wr_opcode {
 
 	/* These are kernel only and can not be issued by userspace */
 	IB_WR_REG_MR = 0x20,
+<<<<<<< HEAD
 	IB_WR_REG_SIG_MR,
+=======
+	IB_WR_REG_MR_INTEGRITY,
+>>>>>>> upstream/android-13
 
 	/* reserve values for low level drivers' internal use.
 	 * These values will not be used at all in the ib core layer.
@@ -1388,7 +1783,11 @@ struct ib_ud_wr {
 	u32			remote_qpn;
 	u32			remote_qkey;
 	u16			pkey_index; /* valid for GSI only */
+<<<<<<< HEAD
 	u8			port_num;   /* valid for DR SMPs on switch only */
+=======
+	u32			port_num; /* valid for DR SMPs on switch only */
+>>>>>>> upstream/android-13
 };
 
 static inline const struct ib_ud_wr *ud_wr(const struct ib_send_wr *wr)
@@ -1408,6 +1807,7 @@ static inline const struct ib_reg_wr *reg_wr(const struct ib_send_wr *wr)
 	return container_of(wr, struct ib_reg_wr, wr);
 }
 
+<<<<<<< HEAD
 struct ib_sig_handover_wr {
 	struct ib_send_wr	wr;
 	struct ib_sig_attrs    *sig_attrs;
@@ -1422,6 +1822,8 @@ sig_handover_wr(const struct ib_send_wr *wr)
 	return container_of(wr, struct ib_sig_handover_wr, wr);
 }
 
+=======
+>>>>>>> upstream/android-13
 struct ib_recv_wr {
 	struct ib_recv_wr      *next;
 	union {
@@ -1441,8 +1843,16 @@ enum ib_access_flags {
 	IB_ZERO_BASED = IB_UVERBS_ACCESS_ZERO_BASED,
 	IB_ACCESS_ON_DEMAND = IB_UVERBS_ACCESS_ON_DEMAND,
 	IB_ACCESS_HUGETLB = IB_UVERBS_ACCESS_HUGETLB,
+<<<<<<< HEAD
 
 	IB_ACCESS_SUPPORTED = ((IB_ACCESS_HUGETLB << 1) - 1)
+=======
+	IB_ACCESS_RELAXED_ORDERING = IB_UVERBS_ACCESS_RELAXED_ORDERING,
+
+	IB_ACCESS_OPTIONAL = IB_UVERBS_ACCESS_OPTIONAL_RANGE,
+	IB_ACCESS_SUPPORTED =
+		((IB_ACCESS_HUGETLB << 1) - 1) | IB_ACCESS_OPTIONAL,
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -1456,12 +1866,15 @@ enum ib_mr_rereg_flags {
 	IB_MR_REREG_SUPPORTED	= ((IB_MR_REREG_ACCESS << 1) - 1)
 };
 
+<<<<<<< HEAD
 struct ib_fmr_attr {
 	int	max_pages;
 	int	max_maps;
 	u8	page_shift;
 };
 
+=======
+>>>>>>> upstream/android-13
 struct ib_umem;
 
 enum rdma_remove_reason {
@@ -1476,6 +1889,11 @@ enum rdma_remove_reason {
 	RDMA_REMOVE_DRIVER_REMOVE,
 	/* uobj is being cleaned-up before being committed */
 	RDMA_REMOVE_ABORT,
+<<<<<<< HEAD
+=======
+	/* The driver failed to destroy the uobject and is being disconnected */
+	RDMA_REMOVE_DRIVER_FAILURE,
+>>>>>>> upstream/android-13
 };
 
 struct ib_rdmacg_object {
@@ -1487,6 +1905,7 @@ struct ib_rdmacg_object {
 struct ib_ucontext {
 	struct ib_device       *device;
 	struct ib_uverbs_file  *ufile;
+<<<<<<< HEAD
 	/*
 	 * 'closing' can be read by the driver only during a destroy callback,
 	 * it is set when we are closing the file descriptor and indicates
@@ -1515,6 +1934,15 @@ struct ib_ucontext {
 #endif
 
 	struct ib_rdmacg_object	cg_obj;
+=======
+
+	struct ib_rdmacg_object	cg_obj;
+	/*
+	 * Implementation details of the RDMA core, don't use in drivers:
+	 */
+	struct rdma_restrack_entry res;
+	struct xarray mmap_xa;
+>>>>>>> upstream/android-13
 };
 
 struct ib_uobject {
@@ -1561,9 +1989,14 @@ struct ib_xrcd {
 	struct ib_device       *device;
 	atomic_t		usecnt; /* count all exposed resources */
 	struct inode	       *inode;
+<<<<<<< HEAD
 
 	struct mutex		tgt_qp_mutex;
 	struct list_head	tgt_qp_list;
+=======
+	struct rw_semaphore	tgt_qps_rwsem;
+	struct xarray		tgt_qps;
+>>>>>>> upstream/android-13
 };
 
 struct ib_ah {
@@ -1577,27 +2010,59 @@ struct ib_ah {
 typedef void (*ib_comp_handler)(struct ib_cq *cq, void *cq_context);
 
 enum ib_poll_context {
+<<<<<<< HEAD
 	IB_POLL_DIRECT,		   /* caller context, no hw completions */
 	IB_POLL_SOFTIRQ,	   /* poll from softirq context */
 	IB_POLL_WORKQUEUE,	   /* poll from workqueue */
 	IB_POLL_UNBOUND_WORKQUEUE, /* poll from unbound workqueue */
+=======
+	IB_POLL_SOFTIRQ,	   /* poll from softirq context */
+	IB_POLL_WORKQUEUE,	   /* poll from workqueue */
+	IB_POLL_UNBOUND_WORKQUEUE, /* poll from unbound workqueue */
+	IB_POLL_LAST_POOL_TYPE = IB_POLL_UNBOUND_WORKQUEUE,
+
+	IB_POLL_DIRECT,		   /* caller context, no hw completions */
+>>>>>>> upstream/android-13
 };
 
 struct ib_cq {
 	struct ib_device       *device;
+<<<<<<< HEAD
 	struct ib_uobject      *uobject;
+=======
+	struct ib_ucq_object   *uobject;
+>>>>>>> upstream/android-13
 	ib_comp_handler   	comp_handler;
 	void                  (*event_handler)(struct ib_event *, void *);
 	void                   *cq_context;
 	int               	cqe;
+<<<<<<< HEAD
 	atomic_t          	usecnt; /* count number of work queues */
 	enum ib_poll_context	poll_ctx;
 	struct ib_wc		*wc;
+=======
+	unsigned int		cqe_used;
+	atomic_t          	usecnt; /* count number of work queues */
+	enum ib_poll_context	poll_ctx;
+	struct ib_wc		*wc;
+	struct list_head        pool_entry;
+>>>>>>> upstream/android-13
 	union {
 		struct irq_poll		iop;
 		struct work_struct	work;
 	};
 	struct workqueue_struct *comp_wq;
+<<<<<<< HEAD
+=======
+	struct dim *dim;
+
+	/* updated only by trace points */
+	ktime_t timestamp;
+	u8 interrupt:1;
+	u8 shared:1;
+	unsigned int comp_vector;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Implementation details of the RDMA core, don't use in drivers:
 	 */
@@ -1607,7 +2072,11 @@ struct ib_cq {
 struct ib_srq {
 	struct ib_device       *device;
 	struct ib_pd	       *pd;
+<<<<<<< HEAD
 	struct ib_uobject      *uobject;
+=======
+	struct ib_usrq_object  *uobject;
+>>>>>>> upstream/android-13
 	void		      (*event_handler)(struct ib_event *, void *);
 	void		       *srq_context;
 	enum ib_srq_type	srq_type;
@@ -1622,6 +2091,14 @@ struct ib_srq {
 			} xrc;
 		};
 	} ext;
+<<<<<<< HEAD
+=======
+
+	/*
+	 * Implementation details of the RDMA core, don't use in drivers:
+	 */
+	struct rdma_restrack_entry res;
+>>>>>>> upstream/android-13
 };
 
 enum ib_raw_packet_caps {
@@ -1641,7 +2118,11 @@ enum ib_raw_packet_caps {
 };
 
 enum ib_wq_type {
+<<<<<<< HEAD
 	IB_WQT_RQ
+=======
+	IB_WQT_RQ = IB_UVERBS_WQT_RQ,
+>>>>>>> upstream/android-13
 };
 
 enum ib_wq_state {
@@ -1652,7 +2133,11 @@ enum ib_wq_state {
 
 struct ib_wq {
 	struct ib_device       *device;
+<<<<<<< HEAD
 	struct ib_uobject      *uobject;
+=======
+	struct ib_uwq_object   *uobject;
+>>>>>>> upstream/android-13
 	void		    *wq_context;
 	void		    (*event_handler)(struct ib_event *, void *);
 	struct ib_pd	       *pd;
@@ -1664,10 +2149,18 @@ struct ib_wq {
 };
 
 enum ib_wq_flags {
+<<<<<<< HEAD
 	IB_WQ_FLAGS_CVLAN_STRIPPING	= 1 << 0,
 	IB_WQ_FLAGS_SCATTER_FCS		= 1 << 1,
 	IB_WQ_FLAGS_DELAY_DROP		= 1 << 2,
 	IB_WQ_FLAGS_PCI_WRITE_END_PADDING = 1 << 3,
+=======
+	IB_WQ_FLAGS_CVLAN_STRIPPING	= IB_UVERBS_WQ_FLAGS_CVLAN_STRIPPING,
+	IB_WQ_FLAGS_SCATTER_FCS		= IB_UVERBS_WQ_FLAGS_SCATTER_FCS,
+	IB_WQ_FLAGS_DELAY_DROP		= IB_UVERBS_WQ_FLAGS_DELAY_DROP,
+	IB_WQ_FLAGS_PCI_WRITE_END_PADDING =
+				IB_UVERBS_WQ_FLAGS_PCI_WRITE_END_PADDING,
+>>>>>>> upstream/android-13
 };
 
 struct ib_wq_init_attr {
@@ -1719,7 +2212,11 @@ struct ib_qp_security;
 struct ib_port_pkey {
 	enum port_pkey_state	state;
 	u16			pkey_index;
+<<<<<<< HEAD
 	u8			port_num;
+=======
+	u32			port_num;
+>>>>>>> upstream/android-13
 	struct list_head	qp_list;
 	struct list_head	to_error_list;
 	struct ib_qp_security  *sec;
@@ -1768,7 +2265,11 @@ struct ib_qp {
 	atomic_t		usecnt;
 	struct list_head	open_list;
 	struct ib_qp           *real_qp;
+<<<<<<< HEAD
 	struct ib_uobject      *uobject;
+=======
+	struct ib_uqp_object   *uobject;
+>>>>>>> upstream/android-13
 	void                  (*event_handler)(struct ib_event *, void *);
 	void		       *qp_context;
 	/* sgid_attrs associated with the AV's */
@@ -1780,12 +2281,24 @@ struct ib_qp {
 	enum ib_qp_type		qp_type;
 	struct ib_rwq_ind_table *rwq_ind_tbl;
 	struct ib_qp_security  *qp_sec;
+<<<<<<< HEAD
 	u8			port;
 
+=======
+	u32			port;
+
+	bool			integrity_en;
+>>>>>>> upstream/android-13
 	/*
 	 * Implementation details of the RDMA core, don't use in drivers:
 	 */
 	struct rdma_restrack_entry     res;
+<<<<<<< HEAD
+=======
+
+	/* The counter the qp is bind to */
+	struct rdma_counter    *counter;
+>>>>>>> upstream/android-13
 };
 
 struct ib_dm {
@@ -1804,6 +2317,10 @@ struct ib_mr {
 	u64		   iova;
 	u64		   length;
 	unsigned int	   page_size;
+<<<<<<< HEAD
+=======
+	enum ib_mr_type	   type;
+>>>>>>> upstream/android-13
 	bool		   need_inval;
 	union {
 		struct ib_uobject	*uobject;	/* user */
@@ -1811,7 +2328,11 @@ struct ib_mr {
 	};
 
 	struct ib_dm      *dm;
+<<<<<<< HEAD
 
+=======
+	struct ib_sig_attrs *sig_attrs; /* only for IB_MR_TYPE_INTEGRITY MRs */
+>>>>>>> upstream/android-13
 	/*
 	 * Implementation details of the RDMA core, don't use in drivers:
 	 */
@@ -1826,6 +2347,7 @@ struct ib_mw {
 	enum ib_mw_type         type;
 };
 
+<<<<<<< HEAD
 struct ib_fmr {
 	struct ib_device	*device;
 	struct ib_pd		*pd;
@@ -1834,6 +2356,8 @@ struct ib_fmr {
 	u32			rkey;
 };
 
+=======
+>>>>>>> upstream/android-13
 /* Supported steering options */
 enum ib_flow_attr_type {
 	/* steering according to rule specifications */
@@ -1875,6 +2399,7 @@ enum ib_flow_spec_type {
 #define IB_FLOW_SPEC_LAYER_MASK	0xF0
 #define IB_FLOW_SPEC_SUPPORT_LAYERS 10
 
+<<<<<<< HEAD
 /* Flow steering rule priority is set according to it's domain.
  * Lower domain value means higher priority.
  */
@@ -1886,6 +2411,8 @@ enum ib_flow_domain {
 	IB_FLOW_DOMAIN_NUM /* Must be last */
 };
 
+=======
+>>>>>>> upstream/android-13
 enum ib_flow_flags {
 	IB_FLOW_ATTR_FLAGS_DONT_TRAP = 1UL << 1, /* Continue match, no steal */
 	IB_FLOW_ATTR_FLAGS_EGRESS = 1UL << 2, /* Egress flow */
@@ -1898,7 +2425,11 @@ struct ib_flow_eth_filter {
 	__be16	ether_type;
 	__be16	vlan_tag;
 	/* Must be last */
+<<<<<<< HEAD
 	u8	real_sz[0];
+=======
+	u8	real_sz[];
+>>>>>>> upstream/android-13
 };
 
 struct ib_flow_spec_eth {
@@ -1912,7 +2443,11 @@ struct ib_flow_ib_filter {
 	__be16 dlid;
 	__u8   sl;
 	/* Must be last */
+<<<<<<< HEAD
 	u8	real_sz[0];
+=======
+	u8	real_sz[];
+>>>>>>> upstream/android-13
 };
 
 struct ib_flow_spec_ib {
@@ -1937,7 +2472,11 @@ struct ib_flow_ipv4_filter {
 	u8	ttl;
 	u8	flags;
 	/* Must be last */
+<<<<<<< HEAD
 	u8	real_sz[0];
+=======
+	u8	real_sz[];
+>>>>>>> upstream/android-13
 };
 
 struct ib_flow_spec_ipv4 {
@@ -1955,7 +2494,11 @@ struct ib_flow_ipv6_filter {
 	u8	traffic_class;
 	u8	hop_limit;
 	/* Must be last */
+<<<<<<< HEAD
 	u8	real_sz[0];
+=======
+	u8	real_sz[];
+>>>>>>> upstream/android-13
 };
 
 struct ib_flow_spec_ipv6 {
@@ -1969,7 +2512,11 @@ struct ib_flow_tcp_udp_filter {
 	__be16	dst_port;
 	__be16	src_port;
 	/* Must be last */
+<<<<<<< HEAD
 	u8	real_sz[0];
+=======
+	u8	real_sz[];
+>>>>>>> upstream/android-13
 };
 
 struct ib_flow_spec_tcp_udp {
@@ -1981,7 +2528,11 @@ struct ib_flow_spec_tcp_udp {
 
 struct ib_flow_tunnel_filter {
 	__be32	tunnel_id;
+<<<<<<< HEAD
 	u8	real_sz[0];
+=======
+	u8	real_sz[];
+>>>>>>> upstream/android-13
 };
 
 /* ib_flow_spec_tunnel describes the Vxlan tunnel
@@ -1998,7 +2549,11 @@ struct ib_flow_esp_filter {
 	__be32	spi;
 	__be32  seq;
 	/* Must be last */
+<<<<<<< HEAD
 	u8	real_sz[0];
+=======
+	u8	real_sz[];
+>>>>>>> upstream/android-13
 };
 
 struct ib_flow_spec_esp {
@@ -2013,7 +2568,11 @@ struct ib_flow_gre_filter {
 	__be16 protocol;
 	__be32 key;
 	/* Must be last */
+<<<<<<< HEAD
 	u8	real_sz[0];
+=======
+	u8	real_sz[];
+>>>>>>> upstream/android-13
 };
 
 struct ib_flow_spec_gre {
@@ -2026,7 +2585,11 @@ struct ib_flow_spec_gre {
 struct ib_flow_mpls_filter {
 	__be32 tag;
 	/* Must be last */
+<<<<<<< HEAD
 	u8	real_sz[0];
+=======
+	u8	real_sz[];
+>>>>>>> upstream/android-13
 };
 
 struct ib_flow_spec_mpls {
@@ -2090,7 +2653,11 @@ struct ib_flow_attr {
 	u16	     priority;
 	u32	     flags;
 	u8	     num_of_specs;
+<<<<<<< HEAD
 	u8	     port;
+=======
+	u32	     port;
+>>>>>>> upstream/android-13
 	union ib_flow_spec flows[];
 };
 
@@ -2158,8 +2725,12 @@ struct ib_flow_action {
 	atomic_t			usecnt;
 };
 
+<<<<<<< HEAD
 struct ib_mad_hdr;
 struct ib_grh;
+=======
+struct ib_mad;
+>>>>>>> upstream/android-13
 
 enum ib_process_mad_flags {
 	IB_MAD_IGNORE_MKEY	= 1,
@@ -2182,6 +2753,7 @@ struct ib_port_cache {
 	enum ib_port_state     port_state;
 };
 
+<<<<<<< HEAD
 struct ib_cache {
 	rwlock_t                lock;
 	struct ib_event_handler event_handler;
@@ -2190,6 +2762,8 @@ struct ib_cache {
 
 struct iw_cm_verbs;
 
+=======
+>>>>>>> upstream/android-13
 struct ib_port_immutable {
 	int                           pkey_tbl_len;
 	int                           gid_tbl_len;
@@ -2197,6 +2771,28 @@ struct ib_port_immutable {
 	u32                           max_mad_size;
 };
 
+<<<<<<< HEAD
+=======
+struct ib_port_data {
+	struct ib_device *ib_dev;
+
+	struct ib_port_immutable immutable;
+
+	spinlock_t pkey_list_lock;
+
+	spinlock_t netdev_lock;
+
+	struct list_head pkey_list;
+
+	struct ib_port_cache cache;
+
+	struct net_device __rcu *netdev;
+	struct hlist_node ndev_hash_link;
+	struct rdma_port_counter port_counter;
+	struct ib_port *sysfs;
+};
+
+>>>>>>> upstream/android-13
 /* rdma netdev type - specifies protocol type */
 enum rdma_netdev_t {
 	RDMA_NETDEV_OPA_VNIC,
@@ -2210,7 +2806,12 @@ enum rdma_netdev_t {
 struct rdma_netdev {
 	void              *clnt_priv;
 	struct ib_device  *hca;
+<<<<<<< HEAD
 	u8                 port_num;
+=======
+	u32		   port_num;
+	int                mtu;
+>>>>>>> upstream/android-13
 
 	/*
 	 * cleanup function must be specified.
@@ -2230,12 +2831,33 @@ struct rdma_netdev {
 			    int set_qkey, u32 qkey);
 	int (*detach_mcast)(struct net_device *dev, struct ib_device *hca,
 			    union ib_gid *gid, u16 mlid);
+<<<<<<< HEAD
 };
 
 struct ib_port_pkey_list {
 	/* Lock to hold while modifying the list. */
 	spinlock_t                    list_lock;
 	struct list_head              pkey_list;
+=======
+	/* timeout */
+	void (*tx_timeout)(struct net_device *dev, unsigned int txqueue);
+};
+
+struct rdma_netdev_alloc_params {
+	size_t sizeof_priv;
+	unsigned int txqs;
+	unsigned int rxqs;
+	void *param;
+
+	int (*initialize_rdma_netdev)(struct ib_device *device, u32 port_num,
+				      struct net_device *netdev, void *param);
+};
+
+struct ib_odp_counters {
+	atomic64_t faults;
+	atomic64_t invalidations;
+	atomic64_t prefetch;
+>>>>>>> upstream/android-13
 };
 
 struct ib_counters {
@@ -2252,6 +2874,7 @@ struct ib_counters_read_attr {
 };
 
 struct uverbs_attr_bundle;
+<<<<<<< HEAD
 
 struct ib_device {
 	/* Do not access @dma_device directly from ULP nor from HW drivers. */
@@ -2288,6 +2911,305 @@ struct ib_device {
 	 */
 	struct rdma_hw_stats      *(*alloc_hw_stats)(struct ib_device *device,
 						     u8 port_num);
+=======
+struct iw_cm_id;
+struct iw_cm_conn_param;
+
+#define INIT_RDMA_OBJ_SIZE(ib_struct, drv_struct, member)                      \
+	.size_##ib_struct =                                                    \
+		(sizeof(struct drv_struct) +                                   \
+		 BUILD_BUG_ON_ZERO(offsetof(struct drv_struct, member)) +      \
+		 BUILD_BUG_ON_ZERO(                                            \
+			 !__same_type(((struct drv_struct *)NULL)->member,     \
+				      struct ib_struct)))
+
+#define rdma_zalloc_drv_obj_gfp(ib_dev, ib_type, gfp)                          \
+	((struct ib_type *)rdma_zalloc_obj(ib_dev, ib_dev->ops.size_##ib_type, \
+					   gfp, false))
+
+#define rdma_zalloc_drv_obj_numa(ib_dev, ib_type)                              \
+	((struct ib_type *)rdma_zalloc_obj(ib_dev, ib_dev->ops.size_##ib_type, \
+					   GFP_KERNEL, true))
+
+#define rdma_zalloc_drv_obj(ib_dev, ib_type)                                   \
+	rdma_zalloc_drv_obj_gfp(ib_dev, ib_type, GFP_KERNEL)
+
+#define DECLARE_RDMA_OBJ_SIZE(ib_struct) size_t size_##ib_struct
+
+struct rdma_user_mmap_entry {
+	struct kref ref;
+	struct ib_ucontext *ucontext;
+	unsigned long start_pgoff;
+	size_t npages;
+	bool driver_removed;
+};
+
+/* Return the offset (in bytes) the user should pass to libc's mmap() */
+static inline u64
+rdma_user_mmap_get_offset(const struct rdma_user_mmap_entry *entry)
+{
+	return (u64)entry->start_pgoff << PAGE_SHIFT;
+}
+
+/**
+ * struct ib_device_ops - InfiniBand device operations
+ * This structure defines all the InfiniBand device operations, providers will
+ * need to define the supported operations, otherwise they will be set to null.
+ */
+struct ib_device_ops {
+	struct module *owner;
+	enum rdma_driver_id driver_id;
+	u32 uverbs_abi_ver;
+	unsigned int uverbs_no_driver_id_binding:1;
+
+	/*
+	 * NOTE: New drivers should not make use of device_group; instead new
+	 * device parameter should be exposed via netlink command. This
+	 * mechanism exists only for existing drivers.
+	 */
+	const struct attribute_group *device_group;
+	const struct attribute_group **port_groups;
+
+	int (*post_send)(struct ib_qp *qp, const struct ib_send_wr *send_wr,
+			 const struct ib_send_wr **bad_send_wr);
+	int (*post_recv)(struct ib_qp *qp, const struct ib_recv_wr *recv_wr,
+			 const struct ib_recv_wr **bad_recv_wr);
+	void (*drain_rq)(struct ib_qp *qp);
+	void (*drain_sq)(struct ib_qp *qp);
+	int (*poll_cq)(struct ib_cq *cq, int num_entries, struct ib_wc *wc);
+	int (*peek_cq)(struct ib_cq *cq, int wc_cnt);
+	int (*req_notify_cq)(struct ib_cq *cq, enum ib_cq_notify_flags flags);
+	int (*post_srq_recv)(struct ib_srq *srq,
+			     const struct ib_recv_wr *recv_wr,
+			     const struct ib_recv_wr **bad_recv_wr);
+	int (*process_mad)(struct ib_device *device, int process_mad_flags,
+			   u32 port_num, const struct ib_wc *in_wc,
+			   const struct ib_grh *in_grh,
+			   const struct ib_mad *in_mad, struct ib_mad *out_mad,
+			   size_t *out_mad_size, u16 *out_mad_pkey_index);
+	int (*query_device)(struct ib_device *device,
+			    struct ib_device_attr *device_attr,
+			    struct ib_udata *udata);
+	int (*modify_device)(struct ib_device *device, int device_modify_mask,
+			     struct ib_device_modify *device_modify);
+	void (*get_dev_fw_str)(struct ib_device *device, char *str);
+	const struct cpumask *(*get_vector_affinity)(struct ib_device *ibdev,
+						     int comp_vector);
+	int (*query_port)(struct ib_device *device, u32 port_num,
+			  struct ib_port_attr *port_attr);
+	int (*modify_port)(struct ib_device *device, u32 port_num,
+			   int port_modify_mask,
+			   struct ib_port_modify *port_modify);
+	/**
+	 * The following mandatory functions are used only at device
+	 * registration.  Keep functions such as these at the end of this
+	 * structure to avoid cache line misses when accessing struct ib_device
+	 * in fast paths.
+	 */
+	int (*get_port_immutable)(struct ib_device *device, u32 port_num,
+				  struct ib_port_immutable *immutable);
+	enum rdma_link_layer (*get_link_layer)(struct ib_device *device,
+					       u32 port_num);
+	/**
+	 * When calling get_netdev, the HW vendor's driver should return the
+	 * net device of device @device at port @port_num or NULL if such
+	 * a net device doesn't exist. The vendor driver should call dev_hold
+	 * on this net device. The HW vendor's device driver must guarantee
+	 * that this function returns NULL before the net device has finished
+	 * NETDEV_UNREGISTER state.
+	 */
+	struct net_device *(*get_netdev)(struct ib_device *device,
+					 u32 port_num);
+	/**
+	 * rdma netdev operation
+	 *
+	 * Driver implementing alloc_rdma_netdev or rdma_netdev_get_params
+	 * must return -EOPNOTSUPP if it doesn't support the specified type.
+	 */
+	struct net_device *(*alloc_rdma_netdev)(
+		struct ib_device *device, u32 port_num, enum rdma_netdev_t type,
+		const char *name, unsigned char name_assign_type,
+		void (*setup)(struct net_device *));
+
+	int (*rdma_netdev_get_params)(struct ib_device *device, u32 port_num,
+				      enum rdma_netdev_t type,
+				      struct rdma_netdev_alloc_params *params);
+	/**
+	 * query_gid should be return GID value for @device, when @port_num
+	 * link layer is either IB or iWarp. It is no-op if @port_num port
+	 * is RoCE link layer.
+	 */
+	int (*query_gid)(struct ib_device *device, u32 port_num, int index,
+			 union ib_gid *gid);
+	/**
+	 * When calling add_gid, the HW vendor's driver should add the gid
+	 * of device of port at gid index available at @attr. Meta-info of
+	 * that gid (for example, the network device related to this gid) is
+	 * available at @attr. @context allows the HW vendor driver to store
+	 * extra information together with a GID entry. The HW vendor driver may
+	 * allocate memory to contain this information and store it in @context
+	 * when a new GID entry is written to. Params are consistent until the
+	 * next call of add_gid or delete_gid. The function should return 0 on
+	 * success or error otherwise. The function could be called
+	 * concurrently for different ports. This function is only called when
+	 * roce_gid_table is used.
+	 */
+	int (*add_gid)(const struct ib_gid_attr *attr, void **context);
+	/**
+	 * When calling del_gid, the HW vendor's driver should delete the
+	 * gid of device @device at gid index gid_index of port port_num
+	 * available in @attr.
+	 * Upon the deletion of a GID entry, the HW vendor must free any
+	 * allocated memory. The caller will clear @context afterwards.
+	 * This function is only called when roce_gid_table is used.
+	 */
+	int (*del_gid)(const struct ib_gid_attr *attr, void **context);
+	int (*query_pkey)(struct ib_device *device, u32 port_num, u16 index,
+			  u16 *pkey);
+	int (*alloc_ucontext)(struct ib_ucontext *context,
+			      struct ib_udata *udata);
+	void (*dealloc_ucontext)(struct ib_ucontext *context);
+	int (*mmap)(struct ib_ucontext *context, struct vm_area_struct *vma);
+	/**
+	 * This will be called once refcount of an entry in mmap_xa reaches
+	 * zero. The type of the memory that was mapped may differ between
+	 * entries and is opaque to the rdma_user_mmap interface.
+	 * Therefore needs to be implemented by the driver in mmap_free.
+	 */
+	void (*mmap_free)(struct rdma_user_mmap_entry *entry);
+	void (*disassociate_ucontext)(struct ib_ucontext *ibcontext);
+	int (*alloc_pd)(struct ib_pd *pd, struct ib_udata *udata);
+	int (*dealloc_pd)(struct ib_pd *pd, struct ib_udata *udata);
+	int (*create_ah)(struct ib_ah *ah, struct rdma_ah_init_attr *attr,
+			 struct ib_udata *udata);
+	int (*create_user_ah)(struct ib_ah *ah, struct rdma_ah_init_attr *attr,
+			      struct ib_udata *udata);
+	int (*modify_ah)(struct ib_ah *ah, struct rdma_ah_attr *ah_attr);
+	int (*query_ah)(struct ib_ah *ah, struct rdma_ah_attr *ah_attr);
+	int (*destroy_ah)(struct ib_ah *ah, u32 flags);
+	int (*create_srq)(struct ib_srq *srq,
+			  struct ib_srq_init_attr *srq_init_attr,
+			  struct ib_udata *udata);
+	int (*modify_srq)(struct ib_srq *srq, struct ib_srq_attr *srq_attr,
+			  enum ib_srq_attr_mask srq_attr_mask,
+			  struct ib_udata *udata);
+	int (*query_srq)(struct ib_srq *srq, struct ib_srq_attr *srq_attr);
+	int (*destroy_srq)(struct ib_srq *srq, struct ib_udata *udata);
+	int (*create_qp)(struct ib_qp *qp, struct ib_qp_init_attr *qp_init_attr,
+			 struct ib_udata *udata);
+	int (*modify_qp)(struct ib_qp *qp, struct ib_qp_attr *qp_attr,
+			 int qp_attr_mask, struct ib_udata *udata);
+	int (*query_qp)(struct ib_qp *qp, struct ib_qp_attr *qp_attr,
+			int qp_attr_mask, struct ib_qp_init_attr *qp_init_attr);
+	int (*destroy_qp)(struct ib_qp *qp, struct ib_udata *udata);
+	int (*create_cq)(struct ib_cq *cq, const struct ib_cq_init_attr *attr,
+			 struct ib_udata *udata);
+	int (*modify_cq)(struct ib_cq *cq, u16 cq_count, u16 cq_period);
+	int (*destroy_cq)(struct ib_cq *cq, struct ib_udata *udata);
+	int (*resize_cq)(struct ib_cq *cq, int cqe, struct ib_udata *udata);
+	struct ib_mr *(*get_dma_mr)(struct ib_pd *pd, int mr_access_flags);
+	struct ib_mr *(*reg_user_mr)(struct ib_pd *pd, u64 start, u64 length,
+				     u64 virt_addr, int mr_access_flags,
+				     struct ib_udata *udata);
+	struct ib_mr *(*reg_user_mr_dmabuf)(struct ib_pd *pd, u64 offset,
+					    u64 length, u64 virt_addr, int fd,
+					    int mr_access_flags,
+					    struct ib_udata *udata);
+	struct ib_mr *(*rereg_user_mr)(struct ib_mr *mr, int flags, u64 start,
+				       u64 length, u64 virt_addr,
+				       int mr_access_flags, struct ib_pd *pd,
+				       struct ib_udata *udata);
+	int (*dereg_mr)(struct ib_mr *mr, struct ib_udata *udata);
+	struct ib_mr *(*alloc_mr)(struct ib_pd *pd, enum ib_mr_type mr_type,
+				  u32 max_num_sg);
+	struct ib_mr *(*alloc_mr_integrity)(struct ib_pd *pd,
+					    u32 max_num_data_sg,
+					    u32 max_num_meta_sg);
+	int (*advise_mr)(struct ib_pd *pd,
+			 enum ib_uverbs_advise_mr_advice advice, u32 flags,
+			 struct ib_sge *sg_list, u32 num_sge,
+			 struct uverbs_attr_bundle *attrs);
+
+	/*
+	 * Kernel users should universally support relaxed ordering (RO), as
+	 * they are designed to read data only after observing the CQE and use
+	 * the DMA API correctly.
+	 *
+	 * Some drivers implicitly enable RO if platform supports it.
+	 */
+	int (*map_mr_sg)(struct ib_mr *mr, struct scatterlist *sg, int sg_nents,
+			 unsigned int *sg_offset);
+	int (*check_mr_status)(struct ib_mr *mr, u32 check_mask,
+			       struct ib_mr_status *mr_status);
+	int (*alloc_mw)(struct ib_mw *mw, struct ib_udata *udata);
+	int (*dealloc_mw)(struct ib_mw *mw);
+	int (*attach_mcast)(struct ib_qp *qp, union ib_gid *gid, u16 lid);
+	int (*detach_mcast)(struct ib_qp *qp, union ib_gid *gid, u16 lid);
+	int (*alloc_xrcd)(struct ib_xrcd *xrcd, struct ib_udata *udata);
+	int (*dealloc_xrcd)(struct ib_xrcd *xrcd, struct ib_udata *udata);
+	struct ib_flow *(*create_flow)(struct ib_qp *qp,
+				       struct ib_flow_attr *flow_attr,
+				       struct ib_udata *udata);
+	int (*destroy_flow)(struct ib_flow *flow_id);
+	struct ib_flow_action *(*create_flow_action_esp)(
+		struct ib_device *device,
+		const struct ib_flow_action_attrs_esp *attr,
+		struct uverbs_attr_bundle *attrs);
+	int (*destroy_flow_action)(struct ib_flow_action *action);
+	int (*modify_flow_action_esp)(
+		struct ib_flow_action *action,
+		const struct ib_flow_action_attrs_esp *attr,
+		struct uverbs_attr_bundle *attrs);
+	int (*set_vf_link_state)(struct ib_device *device, int vf, u32 port,
+				 int state);
+	int (*get_vf_config)(struct ib_device *device, int vf, u32 port,
+			     struct ifla_vf_info *ivf);
+	int (*get_vf_stats)(struct ib_device *device, int vf, u32 port,
+			    struct ifla_vf_stats *stats);
+	int (*get_vf_guid)(struct ib_device *device, int vf, u32 port,
+			    struct ifla_vf_guid *node_guid,
+			    struct ifla_vf_guid *port_guid);
+	int (*set_vf_guid)(struct ib_device *device, int vf, u32 port, u64 guid,
+			   int type);
+	struct ib_wq *(*create_wq)(struct ib_pd *pd,
+				   struct ib_wq_init_attr *init_attr,
+				   struct ib_udata *udata);
+	int (*destroy_wq)(struct ib_wq *wq, struct ib_udata *udata);
+	int (*modify_wq)(struct ib_wq *wq, struct ib_wq_attr *attr,
+			 u32 wq_attr_mask, struct ib_udata *udata);
+	int (*create_rwq_ind_table)(struct ib_rwq_ind_table *ib_rwq_ind_table,
+				    struct ib_rwq_ind_table_init_attr *init_attr,
+				    struct ib_udata *udata);
+	int (*destroy_rwq_ind_table)(struct ib_rwq_ind_table *wq_ind_table);
+	struct ib_dm *(*alloc_dm)(struct ib_device *device,
+				  struct ib_ucontext *context,
+				  struct ib_dm_alloc_attr *attr,
+				  struct uverbs_attr_bundle *attrs);
+	int (*dealloc_dm)(struct ib_dm *dm, struct uverbs_attr_bundle *attrs);
+	struct ib_mr *(*reg_dm_mr)(struct ib_pd *pd, struct ib_dm *dm,
+				   struct ib_dm_mr_attr *attr,
+				   struct uverbs_attr_bundle *attrs);
+	int (*create_counters)(struct ib_counters *counters,
+			       struct uverbs_attr_bundle *attrs);
+	int (*destroy_counters)(struct ib_counters *counters);
+	int (*read_counters)(struct ib_counters *counters,
+			     struct ib_counters_read_attr *counters_read_attr,
+			     struct uverbs_attr_bundle *attrs);
+	int (*map_mr_sg_pi)(struct ib_mr *mr, struct scatterlist *data_sg,
+			    int data_sg_nents, unsigned int *data_sg_offset,
+			    struct scatterlist *meta_sg, int meta_sg_nents,
+			    unsigned int *meta_sg_offset);
+
+	/**
+	 * alloc_hw_[device,port]_stats - Allocate a struct rdma_hw_stats and
+	 *   fill in the driver initialized data.  The struct is kfree()'ed by
+	 *   the sysfs core when the device is removed.  A lifespan of -1 in the
+	 *   return struct tells the core to set a default lifespan.
+	 */
+	struct rdma_hw_stats *(*alloc_hw_device_stats)(struct ib_device *device);
+	struct rdma_hw_stats *(*alloc_hw_port_stats)(struct ib_device *device,
+						     u32 port_num);
+>>>>>>> upstream/android-13
 	/**
 	 * get_hw_stats - Fill in the counter value(s) in the stats struct.
 	 * @index - The index in the value array we wish to have updated, or
@@ -2300,6 +3222,7 @@ struct ib_device {
 	 * Drivers are allowed to update all counters in leiu of just the
 	 *   one given in index at their option
 	 */
+<<<<<<< HEAD
 	int		           (*get_hw_stats)(struct ib_device *device,
 						   struct rdma_hw_stats *stats,
 						   u8 port, int index);
@@ -2557,22 +3480,179 @@ struct ib_device {
 	int			     uverbs_abi_ver;
 	u64			     uverbs_cmd_mask;
 	u64			     uverbs_ex_cmd_mask;
+=======
+	int (*get_hw_stats)(struct ib_device *device,
+			    struct rdma_hw_stats *stats, u32 port, int index);
+
+	/**
+	 * Allows rdma drivers to add their own restrack attributes.
+	 */
+	int (*fill_res_mr_entry)(struct sk_buff *msg, struct ib_mr *ibmr);
+	int (*fill_res_mr_entry_raw)(struct sk_buff *msg, struct ib_mr *ibmr);
+	int (*fill_res_cq_entry)(struct sk_buff *msg, struct ib_cq *ibcq);
+	int (*fill_res_cq_entry_raw)(struct sk_buff *msg, struct ib_cq *ibcq);
+	int (*fill_res_qp_entry)(struct sk_buff *msg, struct ib_qp *ibqp);
+	int (*fill_res_qp_entry_raw)(struct sk_buff *msg, struct ib_qp *ibqp);
+	int (*fill_res_cm_id_entry)(struct sk_buff *msg, struct rdma_cm_id *id);
+
+	/* Device lifecycle callbacks */
+	/*
+	 * Called after the device becomes registered, before clients are
+	 * attached
+	 */
+	int (*enable_driver)(struct ib_device *dev);
+	/*
+	 * This is called as part of ib_dealloc_device().
+	 */
+	void (*dealloc_driver)(struct ib_device *dev);
+
+	/* iWarp CM callbacks */
+	void (*iw_add_ref)(struct ib_qp *qp);
+	void (*iw_rem_ref)(struct ib_qp *qp);
+	struct ib_qp *(*iw_get_qp)(struct ib_device *device, int qpn);
+	int (*iw_connect)(struct iw_cm_id *cm_id,
+			  struct iw_cm_conn_param *conn_param);
+	int (*iw_accept)(struct iw_cm_id *cm_id,
+			 struct iw_cm_conn_param *conn_param);
+	int (*iw_reject)(struct iw_cm_id *cm_id, const void *pdata,
+			 u8 pdata_len);
+	int (*iw_create_listen)(struct iw_cm_id *cm_id, int backlog);
+	int (*iw_destroy_listen)(struct iw_cm_id *cm_id);
+	/**
+	 * counter_bind_qp - Bind a QP to a counter.
+	 * @counter - The counter to be bound. If counter->id is zero then
+	 *   the driver needs to allocate a new counter and set counter->id
+	 */
+	int (*counter_bind_qp)(struct rdma_counter *counter, struct ib_qp *qp);
+	/**
+	 * counter_unbind_qp - Unbind the qp from the dynamically-allocated
+	 *   counter and bind it onto the default one
+	 */
+	int (*counter_unbind_qp)(struct ib_qp *qp);
+	/**
+	 * counter_dealloc -De-allocate the hw counter
+	 */
+	int (*counter_dealloc)(struct rdma_counter *counter);
+	/**
+	 * counter_alloc_stats - Allocate a struct rdma_hw_stats and fill in
+	 * the driver initialized data.
+	 */
+	struct rdma_hw_stats *(*counter_alloc_stats)(
+		struct rdma_counter *counter);
+	/**
+	 * counter_update_stats - Query the stats value of this counter
+	 */
+	int (*counter_update_stats)(struct rdma_counter *counter);
+
+	/**
+	 * Allows rdma drivers to add their own restrack attributes
+	 * dumped via 'rdma stat' iproute2 command.
+	 */
+	int (*fill_stat_mr_entry)(struct sk_buff *msg, struct ib_mr *ibmr);
+
+	/* query driver for its ucontext properties */
+	int (*query_ucontext)(struct ib_ucontext *context,
+			      struct uverbs_attr_bundle *attrs);
+
+	/*
+	 * Provide NUMA node. This API exists for rdmavt/hfi1 only.
+	 * Everyone else relies on Linux memory management model.
+	 */
+	int (*get_numa_node)(struct ib_device *dev);
+
+	DECLARE_RDMA_OBJ_SIZE(ib_ah);
+	DECLARE_RDMA_OBJ_SIZE(ib_counters);
+	DECLARE_RDMA_OBJ_SIZE(ib_cq);
+	DECLARE_RDMA_OBJ_SIZE(ib_mw);
+	DECLARE_RDMA_OBJ_SIZE(ib_pd);
+	DECLARE_RDMA_OBJ_SIZE(ib_qp);
+	DECLARE_RDMA_OBJ_SIZE(ib_rwq_ind_table);
+	DECLARE_RDMA_OBJ_SIZE(ib_srq);
+	DECLARE_RDMA_OBJ_SIZE(ib_ucontext);
+	DECLARE_RDMA_OBJ_SIZE(ib_xrcd);
+};
+
+struct ib_core_device {
+	/* device must be the first element in structure until,
+	 * union of ib_core_device and device exists in ib_device.
+	 */
+	struct device dev;
+	possible_net_t rdma_net;
+	struct kobject *ports_kobj;
+	struct list_head port_list;
+	struct ib_device *owner; /* reach back to owner ib_device */
+};
+
+struct rdma_restrack_root;
+struct ib_device {
+	/* Do not access @dma_device directly from ULP nor from HW drivers. */
+	struct device                *dma_device;
+	struct ib_device_ops	     ops;
+	char                          name[IB_DEVICE_NAME_MAX];
+	struct rcu_head rcu_head;
+
+	struct list_head              event_handler_list;
+	/* Protects event_handler_list */
+	struct rw_semaphore event_handler_rwsem;
+
+	/* Protects QP's event_handler calls and open_qp list */
+	spinlock_t qp_open_list_lock;
+
+	struct rw_semaphore	      client_data_rwsem;
+	struct xarray                 client_data;
+	struct mutex                  unregistration_lock;
+
+	/* Synchronize GID, Pkey cache entries, subnet prefix, LMC */
+	rwlock_t cache_lock;
+	/**
+	 * port_data is indexed by port number
+	 */
+	struct ib_port_data *port_data;
+
+	int			      num_comp_vectors;
+
+	union {
+		struct device		dev;
+		struct ib_core_device	coredev;
+	};
+
+	/* First group is for device attributes,
+	 * Second group is for driver provided attributes (optional).
+	 * Third group is for the hw_stats
+	 * It is a NULL terminated array.
+	 */
+	const struct attribute_group	*groups[4];
+
+	u64			     uverbs_cmd_mask;
+>>>>>>> upstream/android-13
 
 	char			     node_desc[IB_DEVICE_NODE_DESC_MAX];
 	__be64			     node_guid;
 	u32			     local_dma_lkey;
 	u16                          is_switch:1;
+<<<<<<< HEAD
 	u8                           node_type;
 	u8                           phys_port_cnt;
 	struct ib_device_attr        attrs;
 	struct attribute_group	     *hw_stats_ag;
 	struct rdma_hw_stats         *hw_stats;
+=======
+	/* Indicates kernel verbs support, should not be used in drivers */
+	u16                          kverbs_provider:1;
+	/* CQ adaptive moderation (RDMA DIM) */
+	u16                          use_cq_dim:1;
+	u8                           node_type;
+	u32			     phys_port_cnt;
+	struct ib_device_attr        attrs;
+	struct hw_stats_device_data *hw_stats_data;
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_CGROUP_RDMA
 	struct rdmacg_device         cg_device;
 #endif
 
 	u32                          index;
+<<<<<<< HEAD
 	/*
 	 * Implementation details of the RDMA core, don't use in drivers
 	 */
@@ -2597,6 +3677,55 @@ struct ib_client {
 	char  *name;
 	void (*add)   (struct ib_device *);
 	void (*remove)(struct ib_device *, void *client_data);
+=======
+
+	spinlock_t                   cq_pools_lock;
+	struct list_head             cq_pools[IB_POLL_LAST_POOL_TYPE + 1];
+
+	struct rdma_restrack_root *res;
+
+	const struct uapi_definition   *driver_def;
+
+	/*
+	 * Positive refcount indicates that the device is currently
+	 * registered and cannot be unregistered.
+	 */
+	refcount_t refcount;
+	struct completion unreg_completion;
+	struct work_struct unregistration_work;
+
+	const struct rdma_link_ops *link_ops;
+
+	/* Protects compat_devs xarray modifications */
+	struct mutex compat_devs_mutex;
+	/* Maintains compat devices for each net namespace */
+	struct xarray compat_devs;
+
+	/* Used by iWarp CM */
+	char iw_ifname[IFNAMSIZ];
+	u32 iw_driver_flags;
+	u32 lag_flags;
+};
+
+static inline void *rdma_zalloc_obj(struct ib_device *dev, size_t size,
+				    gfp_t gfp, bool is_numa_aware)
+{
+	if (is_numa_aware && dev->ops.get_numa_node)
+		return kzalloc_node(size, gfp, dev->ops.get_numa_node(dev));
+
+	return kzalloc(size, gfp);
+}
+
+struct ib_client_nl_info;
+struct ib_client {
+	const char *name;
+	int (*add)(struct ib_device *ibdev);
+	void (*remove)(struct ib_device *, void *client_data);
+	void (*rename)(struct ib_device *dev, void *client_data);
+	int (*get_nl_info)(struct ib_device *ibdev, void *client_data,
+			   struct ib_client_nl_info *res);
+	int (*get_global_nl_info)(struct ib_client_nl_info *res);
+>>>>>>> upstream/android-13
 
 	/* Returns the net_dev belonging to this ib_client and matching the
 	 * given parameters.
@@ -2615,30 +3744,152 @@ struct ib_client {
 	 * netdev. */
 	struct net_device *(*get_net_dev_by_params)(
 			struct ib_device *dev,
+<<<<<<< HEAD
 			u8 port,
+=======
+			u32 port,
+>>>>>>> upstream/android-13
 			u16 pkey,
 			const union ib_gid *gid,
 			const struct sockaddr *addr,
 			void *client_data);
+<<<<<<< HEAD
 	struct list_head list;
 };
 
 struct ib_device *ib_alloc_device(size_t size);
+=======
+
+	refcount_t uses;
+	struct completion uses_zero;
+	u32 client_id;
+
+	/* kverbs are not required by the client */
+	u8 no_kverbs_req:1;
+};
+
+/*
+ * IB block DMA iterator
+ *
+ * Iterates the DMA-mapped SGL in contiguous memory blocks aligned
+ * to a HW supported page size.
+ */
+struct ib_block_iter {
+	/* internal states */
+	struct scatterlist *__sg;	/* sg holding the current aligned block */
+	dma_addr_t __dma_addr;		/* unaligned DMA address of this block */
+	unsigned int __sg_nents;	/* number of SG entries */
+	unsigned int __sg_advance;	/* number of bytes to advance in sg in next step */
+	unsigned int __pg_bit;		/* alignment of current block */
+};
+
+struct ib_device *_ib_alloc_device(size_t size);
+#define ib_alloc_device(drv_struct, member)                                    \
+	container_of(_ib_alloc_device(sizeof(struct drv_struct) +              \
+				      BUILD_BUG_ON_ZERO(offsetof(              \
+					      struct drv_struct, member))),    \
+		     struct drv_struct, member)
+
+>>>>>>> upstream/android-13
 void ib_dealloc_device(struct ib_device *device);
 
 void ib_get_device_fw_str(struct ib_device *device, char *str);
 
+<<<<<<< HEAD
 int ib_register_device(struct ib_device *device,
 		       int (*port_callback)(struct ib_device *,
 					    u8, struct kobject *));
 void ib_unregister_device(struct ib_device *device);
+=======
+int ib_register_device(struct ib_device *device, const char *name,
+		       struct device *dma_device);
+void ib_unregister_device(struct ib_device *device);
+void ib_unregister_driver(enum rdma_driver_id driver_id);
+void ib_unregister_device_and_put(struct ib_device *device);
+void ib_unregister_device_queued(struct ib_device *ib_dev);
+>>>>>>> upstream/android-13
 
 int ib_register_client   (struct ib_client *client);
 void ib_unregister_client(struct ib_client *client);
 
+<<<<<<< HEAD
 void *ib_get_client_data(struct ib_device *device, struct ib_client *client);
 void  ib_set_client_data(struct ib_device *device, struct ib_client *client,
 			 void *data);
+=======
+void __rdma_block_iter_start(struct ib_block_iter *biter,
+			     struct scatterlist *sglist,
+			     unsigned int nents,
+			     unsigned long pgsz);
+bool __rdma_block_iter_next(struct ib_block_iter *biter);
+
+/**
+ * rdma_block_iter_dma_address - get the aligned dma address of the current
+ * block held by the block iterator.
+ * @biter: block iterator holding the memory block
+ */
+static inline dma_addr_t
+rdma_block_iter_dma_address(struct ib_block_iter *biter)
+{
+	return biter->__dma_addr & ~(BIT_ULL(biter->__pg_bit) - 1);
+}
+
+/**
+ * rdma_for_each_block - iterate over contiguous memory blocks of the sg list
+ * @sglist: sglist to iterate over
+ * @biter: block iterator holding the memory block
+ * @nents: maximum number of sg entries to iterate over
+ * @pgsz: best HW supported page size to use
+ *
+ * Callers may use rdma_block_iter_dma_address() to get each
+ * blocks aligned DMA address.
+ */
+#define rdma_for_each_block(sglist, biter, nents, pgsz)		\
+	for (__rdma_block_iter_start(biter, sglist, nents,	\
+				     pgsz);			\
+	     __rdma_block_iter_next(biter);)
+
+/**
+ * ib_get_client_data - Get IB client context
+ * @device:Device to get context for
+ * @client:Client to get context for
+ *
+ * ib_get_client_data() returns the client context data set with
+ * ib_set_client_data(). This can only be called while the client is
+ * registered to the device, once the ib_client remove() callback returns this
+ * cannot be called.
+ */
+static inline void *ib_get_client_data(struct ib_device *device,
+				       struct ib_client *client)
+{
+	return xa_load(&device->client_data, client->client_id);
+}
+void  ib_set_client_data(struct ib_device *device, struct ib_client *client,
+			 void *data);
+void ib_set_device_ops(struct ib_device *device,
+		       const struct ib_device_ops *ops);
+
+int rdma_user_mmap_io(struct ib_ucontext *ucontext, struct vm_area_struct *vma,
+		      unsigned long pfn, unsigned long size, pgprot_t prot,
+		      struct rdma_user_mmap_entry *entry);
+int rdma_user_mmap_entry_insert(struct ib_ucontext *ucontext,
+				struct rdma_user_mmap_entry *entry,
+				size_t length);
+int rdma_user_mmap_entry_insert_range(struct ib_ucontext *ucontext,
+				      struct rdma_user_mmap_entry *entry,
+				      size_t length, u32 min_pgoff,
+				      u32 max_pgoff);
+
+struct rdma_user_mmap_entry *
+rdma_user_mmap_entry_get_pgoff(struct ib_ucontext *ucontext,
+			       unsigned long pgoff);
+struct rdma_user_mmap_entry *
+rdma_user_mmap_entry_get(struct ib_ucontext *ucontext,
+			 struct vm_area_struct *vma);
+void rdma_user_mmap_entry_put(struct rdma_user_mmap_entry *entry);
+
+void rdma_user_mmap_entry_remove(struct rdma_user_mmap_entry *entry);
+>>>>>>> upstream/android-13
 
 static inline int ib_copy_from_udata(void *dest, struct ib_udata *udata, size_t len)
 {
@@ -2676,6 +3927,7 @@ static inline bool ib_is_udata_cleared(struct ib_udata *udata,
 }
 
 /**
+<<<<<<< HEAD
  * ib_is_destroy_retryable - Check whether the uobject destruction
  * is retryable.
  * @ret: The initial destruction return code
@@ -2716,6 +3968,8 @@ static inline int ib_destroy_usecnt(atomic_t *usecnt,
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * ib_modify_qp_is_ok - Check that the supplied attribute mask
  * contains all required attributes and no attributes not allowed for
  * the given QP state transition.
@@ -2723,7 +3977,10 @@ static inline int ib_destroy_usecnt(atomic_t *usecnt,
  * @next_state: Next QP state
  * @type: QP type
  * @mask: Mask of supplied QP attributes
+<<<<<<< HEAD
  * @ll : link layer of port
+=======
+>>>>>>> upstream/android-13
  *
  * This function is a helper function that a low-level driver's
  * modify_qp method can use to validate the consumer's input.  It
@@ -2732,6 +3989,7 @@ static inline int ib_destroy_usecnt(atomic_t *usecnt,
  * and that the attribute mask supplied is allowed for the transition.
  */
 bool ib_modify_qp_is_ok(enum ib_qp_state cur_state, enum ib_qp_state next_state,
+<<<<<<< HEAD
 			enum ib_qp_type type, enum ib_qp_attr_mask mask,
 			enum rdma_link_layer ll);
 
@@ -2744,6 +4002,19 @@ int ib_query_port(struct ib_device *device,
 
 enum rdma_link_layer rdma_port_get_link_layer(struct ib_device *device,
 					       u8 port_num);
+=======
+			enum ib_qp_type type, enum ib_qp_attr_mask mask);
+
+void ib_register_event_handler(struct ib_event_handler *event_handler);
+void ib_unregister_event_handler(struct ib_event_handler *event_handler);
+void ib_dispatch_event(const struct ib_event *event);
+
+int ib_query_port(struct ib_device *device,
+		  u32 port_num, struct ib_port_attr *port_attr);
+
+enum rdma_link_layer rdma_port_get_link_layer(struct ib_device *device,
+					       u32 port_num);
+>>>>>>> upstream/android-13
 
 /**
  * rdma_cap_ib_switch - Check if the device is IB switch
@@ -2767,12 +4038,30 @@ static inline bool rdma_cap_ib_switch(const struct ib_device *device)
  *
  * Return start port number
  */
+<<<<<<< HEAD
 static inline u8 rdma_start_port(const struct ib_device *device)
+=======
+static inline u32 rdma_start_port(const struct ib_device *device)
+>>>>>>> upstream/android-13
 {
 	return rdma_cap_ib_switch(device) ? 0 : 1;
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * rdma_for_each_port - Iterate over all valid port numbers of the IB device
+ * @device - The struct ib_device * to iterate over
+ * @iter - The unsigned int to store the port number
+ */
+#define rdma_for_each_port(device, iter)                                       \
+	for (iter = rdma_start_port(device +				       \
+				    BUILD_BUG_ON_ZERO(!__same_type(u32,	       \
+								   iter)));    \
+	     iter <= rdma_end_port(device); iter++)
+
+/**
+>>>>>>> upstream/android-13
  * rdma_end_port - Return the last valid port number for the device
  * specified
  *
@@ -2780,7 +4069,11 @@ static inline u8 rdma_start_port(const struct ib_device *device)
  *
  * Return last port number
  */
+<<<<<<< HEAD
 static inline u8 rdma_end_port(const struct ib_device *device)
+=======
+static inline u32 rdma_end_port(const struct ib_device *device)
+>>>>>>> upstream/android-13
 {
 	return rdma_cap_ib_switch(device) ? 0 : device->phys_port_cnt;
 }
@@ -2793,6 +4086,7 @@ static inline int rdma_is_port_valid(const struct ib_device *device,
 }
 
 static inline bool rdma_is_grh_required(const struct ib_device *device,
+<<<<<<< HEAD
 					u8 port_num)
 {
 	return device->port_immutable[port_num].core_cap_flags &
@@ -2826,11 +4120,57 @@ static inline bool rdma_protocol_iwarp(const struct ib_device *device, u8 port_n
 }
 
 static inline bool rdma_ib_or_roce(const struct ib_device *device, u8 port_num)
+=======
+					u32 port_num)
+{
+	return device->port_data[port_num].immutable.core_cap_flags &
+	       RDMA_CORE_PORT_IB_GRH_REQUIRED;
+}
+
+static inline bool rdma_protocol_ib(const struct ib_device *device,
+				    u32 port_num)
+{
+	return device->port_data[port_num].immutable.core_cap_flags &
+	       RDMA_CORE_CAP_PROT_IB;
+}
+
+static inline bool rdma_protocol_roce(const struct ib_device *device,
+				      u32 port_num)
+{
+	return device->port_data[port_num].immutable.core_cap_flags &
+	       (RDMA_CORE_CAP_PROT_ROCE | RDMA_CORE_CAP_PROT_ROCE_UDP_ENCAP);
+}
+
+static inline bool rdma_protocol_roce_udp_encap(const struct ib_device *device,
+						u32 port_num)
+{
+	return device->port_data[port_num].immutable.core_cap_flags &
+	       RDMA_CORE_CAP_PROT_ROCE_UDP_ENCAP;
+}
+
+static inline bool rdma_protocol_roce_eth_encap(const struct ib_device *device,
+						u32 port_num)
+{
+	return device->port_data[port_num].immutable.core_cap_flags &
+	       RDMA_CORE_CAP_PROT_ROCE;
+}
+
+static inline bool rdma_protocol_iwarp(const struct ib_device *device,
+				       u32 port_num)
+{
+	return device->port_data[port_num].immutable.core_cap_flags &
+	       RDMA_CORE_CAP_PROT_IWARP;
+}
+
+static inline bool rdma_ib_or_roce(const struct ib_device *device,
+				   u32 port_num)
+>>>>>>> upstream/android-13
 {
 	return rdma_protocol_ib(device, port_num) ||
 		rdma_protocol_roce(device, port_num);
 }
 
+<<<<<<< HEAD
 static inline bool rdma_protocol_raw_packet(const struct ib_device *device, u8 port_num)
 {
 	return device->port_immutable[port_num].core_cap_flags & RDMA_CORE_CAP_PROT_RAW_PACKET;
@@ -2839,6 +4179,20 @@ static inline bool rdma_protocol_raw_packet(const struct ib_device *device, u8 p
 static inline bool rdma_protocol_usnic(const struct ib_device *device, u8 port_num)
 {
 	return device->port_immutable[port_num].core_cap_flags & RDMA_CORE_CAP_PROT_USNIC;
+=======
+static inline bool rdma_protocol_raw_packet(const struct ib_device *device,
+					    u32 port_num)
+{
+	return device->port_data[port_num].immutable.core_cap_flags &
+	       RDMA_CORE_CAP_PROT_RAW_PACKET;
+}
+
+static inline bool rdma_protocol_usnic(const struct ib_device *device,
+				       u32 port_num)
+{
+	return device->port_data[port_num].immutable.core_cap_flags &
+	       RDMA_CORE_CAP_PROT_USNIC;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -2853,9 +4207,16 @@ static inline bool rdma_protocol_usnic(const struct ib_device *device, u8 port_n
  *
  * Return: true if the port supports sending/receiving of MAD packets.
  */
+<<<<<<< HEAD
 static inline bool rdma_cap_ib_mad(const struct ib_device *device, u8 port_num)
 {
 	return device->port_immutable[port_num].core_cap_flags & RDMA_CORE_CAP_IB_MAD;
+=======
+static inline bool rdma_cap_ib_mad(const struct ib_device *device, u32 port_num)
+{
+	return device->port_data[port_num].immutable.core_cap_flags &
+	       RDMA_CORE_CAP_IB_MAD;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -2877,10 +4238,17 @@ static inline bool rdma_cap_ib_mad(const struct ib_device *device, u8 port_num)
  *
  * Return: true if the port supports OPA MAD packet formats.
  */
+<<<<<<< HEAD
 static inline bool rdma_cap_opa_mad(struct ib_device *device, u8 port_num)
 {
 	return (device->port_immutable[port_num].core_cap_flags & RDMA_CORE_CAP_OPA_MAD)
 		== RDMA_CORE_CAP_OPA_MAD;
+=======
+static inline bool rdma_cap_opa_mad(struct ib_device *device, u32 port_num)
+{
+	return device->port_data[port_num].immutable.core_cap_flags &
+		RDMA_CORE_CAP_OPA_MAD;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -2903,9 +4271,16 @@ static inline bool rdma_cap_opa_mad(struct ib_device *device, u8 port_num)
  *
  * Return: true if the port provides an SMI.
  */
+<<<<<<< HEAD
 static inline bool rdma_cap_ib_smi(const struct ib_device *device, u8 port_num)
 {
 	return device->port_immutable[port_num].core_cap_flags & RDMA_CORE_CAP_IB_SMI;
+=======
+static inline bool rdma_cap_ib_smi(const struct ib_device *device, u32 port_num)
+{
+	return device->port_data[port_num].immutable.core_cap_flags &
+	       RDMA_CORE_CAP_IB_SMI;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -2923,9 +4298,16 @@ static inline bool rdma_cap_ib_smi(const struct ib_device *device, u8 port_num)
  * Return: true if the port supports an IB CM (this does not guarantee that
  * a CM is actually running however).
  */
+<<<<<<< HEAD
 static inline bool rdma_cap_ib_cm(const struct ib_device *device, u8 port_num)
 {
 	return device->port_immutable[port_num].core_cap_flags & RDMA_CORE_CAP_IB_CM;
+=======
+static inline bool rdma_cap_ib_cm(const struct ib_device *device, u32 port_num)
+{
+	return device->port_data[port_num].immutable.core_cap_flags &
+	       RDMA_CORE_CAP_IB_CM;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -2940,9 +4322,16 @@ static inline bool rdma_cap_ib_cm(const struct ib_device *device, u8 port_num)
  * Return: true if the port supports an iWARP CM (this does not guarantee that
  * a CM is actually running however).
  */
+<<<<<<< HEAD
 static inline bool rdma_cap_iw_cm(const struct ib_device *device, u8 port_num)
 {
 	return device->port_immutable[port_num].core_cap_flags & RDMA_CORE_CAP_IW_CM;
+=======
+static inline bool rdma_cap_iw_cm(const struct ib_device *device, u32 port_num)
+{
+	return device->port_data[port_num].immutable.core_cap_flags &
+	       RDMA_CORE_CAP_IW_CM;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -2960,9 +4349,16 @@ static inline bool rdma_cap_iw_cm(const struct ib_device *device, u8 port_num)
  * Administration interface.  This does not imply that the SA service is
  * running locally.
  */
+<<<<<<< HEAD
 static inline bool rdma_cap_ib_sa(const struct ib_device *device, u8 port_num)
 {
 	return device->port_immutable[port_num].core_cap_flags & RDMA_CORE_CAP_IB_SA;
+=======
+static inline bool rdma_cap_ib_sa(const struct ib_device *device, u32 port_num)
+{
+	return device->port_data[port_num].immutable.core_cap_flags &
+	       RDMA_CORE_CAP_IB_SA;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -2982,7 +4378,12 @@ static inline bool rdma_cap_ib_sa(const struct ib_device *device, u8 port_num)
  * overhead of registering/unregistering with the SM and tracking of the
  * total number of queue pairs attached to the multicast group.
  */
+<<<<<<< HEAD
 static inline bool rdma_cap_ib_mcast(const struct ib_device *device, u8 port_num)
+=======
+static inline bool rdma_cap_ib_mcast(const struct ib_device *device,
+				     u32 port_num)
+>>>>>>> upstream/android-13
 {
 	return rdma_cap_ib_sa(device, port_num);
 }
@@ -3000,9 +4401,16 @@ static inline bool rdma_cap_ib_mcast(const struct ib_device *device, u8 port_num
  * Return: true if the port uses a GID address to identify devices on the
  * network.
  */
+<<<<<<< HEAD
 static inline bool rdma_cap_af_ib(const struct ib_device *device, u8 port_num)
 {
 	return device->port_immutable[port_num].core_cap_flags & RDMA_CORE_CAP_AF_IB;
+=======
+static inline bool rdma_cap_af_ib(const struct ib_device *device, u32 port_num)
+{
+	return device->port_data[port_num].immutable.core_cap_flags &
+	       RDMA_CORE_CAP_AF_IB;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -3021,9 +4429,16 @@ static inline bool rdma_cap_af_ib(const struct ib_device *device, u8 port_num)
  * addition of a Global Route Header built from our Ethernet Address
  * Handle into our header list for connectionless packets.
  */
+<<<<<<< HEAD
 static inline bool rdma_cap_eth_ah(const struct ib_device *device, u8 port_num)
 {
 	return device->port_immutable[port_num].core_cap_flags & RDMA_CORE_CAP_ETH_AH;
+=======
+static inline bool rdma_cap_eth_ah(const struct ib_device *device, u32 port_num)
+{
+	return device->port_data[port_num].immutable.core_cap_flags &
+	       RDMA_CORE_CAP_ETH_AH;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -3035,9 +4450,15 @@ static inline bool rdma_cap_eth_ah(const struct ib_device *device, u8 port_num)
  * Return: true if we are running on an OPA device which supports
  * the extended OPA addressing.
  */
+<<<<<<< HEAD
 static inline bool rdma_cap_opa_ah(struct ib_device *device, u8 port_num)
 {
 	return (device->port_immutable[port_num].core_cap_flags &
+=======
+static inline bool rdma_cap_opa_ah(struct ib_device *device, u32 port_num)
+{
+	return (device->port_data[port_num].immutable.core_cap_flags &
+>>>>>>> upstream/android-13
 		RDMA_CORE_CAP_OPA_AH) == RDMA_CORE_CAP_OPA_AH;
 }
 
@@ -3053,9 +4474,16 @@ static inline bool rdma_cap_opa_ah(struct ib_device *device, u8 port_num)
  * Return the max MAD size required by the Port.  Will return 0 if the port
  * does not support MADs
  */
+<<<<<<< HEAD
 static inline size_t rdma_max_mad_size(const struct ib_device *device, u8 port_num)
 {
 	return device->port_immutable[port_num].max_mad_size;
+=======
+static inline size_t rdma_max_mad_size(const struct ib_device *device,
+				       u32 port_num)
+{
+	return device->port_data[port_num].immutable.max_mad_size;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -3072,10 +4500,17 @@ static inline size_t rdma_max_mad_size(const struct ib_device *device, u8 port_n
  * its GIDs.
  */
 static inline bool rdma_cap_roce_gid_table(const struct ib_device *device,
+<<<<<<< HEAD
 					   u8 port_num)
 {
 	return rdma_protocol_roce(device, port_num) &&
 		device->add_gid && device->del_gid;
+=======
+					   u32 port_num)
+{
+	return rdma_protocol_roce(device, port_num) &&
+		device->ops.add_gid && device->ops.del_gid;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -3090,6 +4525,7 @@ static inline bool rdma_cap_read_inv(struct ib_device *dev, u32 port_num)
 	return rdma_protocol_iwarp(dev, port_num);
 }
 
+<<<<<<< HEAD
 int ib_set_vf_link_state(struct ib_device *device, int vf, u8 port,
 			 int state);
 int ib_get_vf_config(struct ib_device *device, int vf, u8 port,
@@ -3101,12 +4537,78 @@ int ib_set_vf_guid(struct ib_device *device, int vf, u8 port, u64 guid,
 
 int ib_query_pkey(struct ib_device *device,
 		  u8 port_num, u16 index, u16 *pkey);
+=======
+/**
+ * rdma_core_cap_opa_port - Return whether the RDMA Port is OPA or not.
+ * @device: Device
+ * @port_num: 1 based Port number
+ *
+ * Return true if port is an Intel OPA port , false if not
+ */
+static inline bool rdma_core_cap_opa_port(struct ib_device *device,
+					  u32 port_num)
+{
+	return (device->port_data[port_num].immutable.core_cap_flags &
+		RDMA_CORE_PORT_INTEL_OPA) == RDMA_CORE_PORT_INTEL_OPA;
+}
+
+/**
+ * rdma_mtu_enum_to_int - Return the mtu of the port as an integer value.
+ * @device: Device
+ * @port_num: Port number
+ * @mtu: enum value of MTU
+ *
+ * Return the MTU size supported by the port as an integer value. Will return
+ * -1 if enum value of mtu is not supported.
+ */
+static inline int rdma_mtu_enum_to_int(struct ib_device *device, u32 port,
+				       int mtu)
+{
+	if (rdma_core_cap_opa_port(device, port))
+		return opa_mtu_enum_to_int((enum opa_mtu)mtu);
+	else
+		return ib_mtu_enum_to_int((enum ib_mtu)mtu);
+}
+
+/**
+ * rdma_mtu_from_attr - Return the mtu of the port from the port attribute.
+ * @device: Device
+ * @port_num: Port number
+ * @attr: port attribute
+ *
+ * Return the MTU size supported by the port as an integer value.
+ */
+static inline int rdma_mtu_from_attr(struct ib_device *device, u32 port,
+				     struct ib_port_attr *attr)
+{
+	if (rdma_core_cap_opa_port(device, port))
+		return attr->phys_mtu;
+	else
+		return ib_mtu_enum_to_int(attr->max_mtu);
+}
+
+int ib_set_vf_link_state(struct ib_device *device, int vf, u32 port,
+			 int state);
+int ib_get_vf_config(struct ib_device *device, int vf, u32 port,
+		     struct ifla_vf_info *info);
+int ib_get_vf_stats(struct ib_device *device, int vf, u32 port,
+		    struct ifla_vf_stats *stats);
+int ib_get_vf_guid(struct ib_device *device, int vf, u32 port,
+		    struct ifla_vf_guid *node_guid,
+		    struct ifla_vf_guid *port_guid);
+int ib_set_vf_guid(struct ib_device *device, int vf, u32 port, u64 guid,
+		   int type);
+
+int ib_query_pkey(struct ib_device *device,
+		  u32 port_num, u16 index, u16 *pkey);
+>>>>>>> upstream/android-13
 
 int ib_modify_device(struct ib_device *device,
 		     int device_modify_mask,
 		     struct ib_device_modify *device_modify);
 
 int ib_modify_port(struct ib_device *device,
+<<<<<<< HEAD
 		   u8 port_num, int port_modify_mask,
 		   struct ib_port_modify *port_modify);
 
@@ -3115,6 +4617,16 @@ int ib_find_gid(struct ib_device *device, union ib_gid *gid,
 
 int ib_find_pkey(struct ib_device *device,
 		 u8 port_num, u16 pkey, u16 *index);
+=======
+		   u32 port_num, int port_modify_mask,
+		   struct ib_port_modify *port_modify);
+
+int ib_find_gid(struct ib_device *device, union ib_gid *gid,
+		u32 *port_num, u16 *index);
+
+int ib_find_pkey(struct ib_device *device,
+		 u32 port_num, u16 pkey, u16 *index);
+>>>>>>> upstream/android-13
 
 enum ib_pd_flags {
 	/*
@@ -3131,19 +4643,65 @@ enum ib_pd_flags {
 
 struct ib_pd *__ib_alloc_pd(struct ib_device *device, unsigned int flags,
 		const char *caller);
+<<<<<<< HEAD
 #define ib_alloc_pd(device, flags) \
 	__ib_alloc_pd((device), (flags), KBUILD_MODNAME)
 void ib_dealloc_pd(struct ib_pd *pd);
+=======
+
+/**
+ * ib_alloc_pd - Allocates an unused protection domain.
+ * @device: The device on which to allocate the protection domain.
+ * @flags: protection domain flags
+ *
+ * A protection domain object provides an association between QPs, shared
+ * receive queues, address handles, memory regions, and memory windows.
+ *
+ * Every PD has a local_dma_lkey which can be used as the lkey value for local
+ * memory operations.
+ */
+#define ib_alloc_pd(device, flags) \
+	__ib_alloc_pd((device), (flags), KBUILD_MODNAME)
+
+int ib_dealloc_pd_user(struct ib_pd *pd, struct ib_udata *udata);
+
+/**
+ * ib_dealloc_pd - Deallocate kernel PD
+ * @pd: The protection domain
+ *
+ * NOTE: for user PD use ib_dealloc_pd_user with valid udata!
+ */
+static inline void ib_dealloc_pd(struct ib_pd *pd)
+{
+	int ret = ib_dealloc_pd_user(pd, NULL);
+
+	WARN_ONCE(ret, "Destroy of kernel PD shouldn't fail");
+}
+
+enum rdma_create_ah_flags {
+	/* In a sleepable context */
+	RDMA_CREATE_AH_SLEEPABLE = BIT(0),
+};
+>>>>>>> upstream/android-13
 
 /**
  * rdma_create_ah - Creates an address handle for the given address vector.
  * @pd: The protection domain associated with the address handle.
  * @ah_attr: The attributes of the address vector.
+<<<<<<< HEAD
+=======
+ * @flags: Create address handle flags (see enum rdma_create_ah_flags).
+>>>>>>> upstream/android-13
  *
  * The address handle is used to reference a local or global destination
  * in all UD QP post sends.
  */
+<<<<<<< HEAD
 struct ib_ah *rdma_create_ah(struct ib_pd *pd, struct rdma_ah_attr *ah_attr);
+=======
+struct ib_ah *rdma_create_ah(struct ib_pd *pd, struct rdma_ah_attr *ah_attr,
+			     u32 flags);
+>>>>>>> upstream/android-13
 
 /**
  * rdma_create_user_ah - Creates an address handle for the given address vector.
@@ -3196,7 +4754,11 @@ int ib_get_rdma_header_version(const union rdma_network_hdr *hdr);
  * attributes which are initialized using ib_init_ah_attr_from_wc().
  *
  */
+<<<<<<< HEAD
 int ib_init_ah_attr_from_wc(struct ib_device *device, u8 port_num,
+=======
+int ib_init_ah_attr_from_wc(struct ib_device *device, u32 port_num,
+>>>>>>> upstream/android-13
 			    const struct ib_wc *wc, const struct ib_grh *grh,
 			    struct rdma_ah_attr *ah_attr);
 
@@ -3213,7 +4775,11 @@ int ib_init_ah_attr_from_wc(struct ib_device *device, u8 port_num,
  * in all UD QP post sends.
  */
 struct ib_ah *ib_create_ah_from_wc(struct ib_pd *pd, const struct ib_wc *wc,
+<<<<<<< HEAD
 				   const struct ib_grh *grh, u8 port_num);
+=======
+				   const struct ib_grh *grh, u32 port_num);
+>>>>>>> upstream/android-13
 
 /**
  * rdma_modify_ah - Modifies the address vector associated with an address
@@ -3233,6 +4799,7 @@ int rdma_modify_ah(struct ib_ah *ah, struct rdma_ah_attr *ah_attr);
  */
 int rdma_query_ah(struct ib_ah *ah, struct rdma_ah_attr *ah_attr);
 
+<<<<<<< HEAD
 /**
  * rdma_destroy_ah - Destroys an address handle.
  * @ah: The address handle to destroy.
@@ -3254,6 +4821,47 @@ int rdma_destroy_ah(struct ib_ah *ah);
  */
 struct ib_srq *ib_create_srq(struct ib_pd *pd,
 			     struct ib_srq_init_attr *srq_init_attr);
+=======
+enum rdma_destroy_ah_flags {
+	/* In a sleepable context */
+	RDMA_DESTROY_AH_SLEEPABLE = BIT(0),
+};
+
+/**
+ * rdma_destroy_ah_user - Destroys an address handle.
+ * @ah: The address handle to destroy.
+ * @flags: Destroy address handle flags (see enum rdma_destroy_ah_flags).
+ * @udata: Valid user data or NULL for kernel objects
+ */
+int rdma_destroy_ah_user(struct ib_ah *ah, u32 flags, struct ib_udata *udata);
+
+/**
+ * rdma_destroy_ah - Destroys an kernel address handle.
+ * @ah: The address handle to destroy.
+ * @flags: Destroy address handle flags (see enum rdma_destroy_ah_flags).
+ *
+ * NOTE: for user ah use rdma_destroy_ah_user with valid udata!
+ */
+static inline void rdma_destroy_ah(struct ib_ah *ah, u32 flags)
+{
+	int ret = rdma_destroy_ah_user(ah, flags, NULL);
+
+	WARN_ONCE(ret, "Destroy of kernel AH shouldn't fail");
+}
+
+struct ib_srq *ib_create_srq_user(struct ib_pd *pd,
+				  struct ib_srq_init_attr *srq_init_attr,
+				  struct ib_usrq_object *uobject,
+				  struct ib_udata *udata);
+static inline struct ib_srq *
+ib_create_srq(struct ib_pd *pd, struct ib_srq_init_attr *srq_init_attr)
+{
+	if (!pd->device->ops.create_srq)
+		return ERR_PTR(-EOPNOTSUPP);
+
+	return ib_create_srq_user(pd, srq_init_attr, NULL, NULL);
+}
+>>>>>>> upstream/android-13
 
 /**
  * ib_modify_srq - Modifies the attributes for the specified SRQ.
@@ -3281,10 +4889,31 @@ int ib_query_srq(struct ib_srq *srq,
 		 struct ib_srq_attr *srq_attr);
 
 /**
+<<<<<<< HEAD
  * ib_destroy_srq - Destroys the specified SRQ.
  * @srq: The SRQ to destroy.
  */
 int ib_destroy_srq(struct ib_srq *srq);
+=======
+ * ib_destroy_srq_user - Destroys the specified SRQ.
+ * @srq: The SRQ to destroy.
+ * @udata: Valid user data or NULL for kernel objects
+ */
+int ib_destroy_srq_user(struct ib_srq *srq, struct ib_udata *udata);
+
+/**
+ * ib_destroy_srq - Destroys the specified kernel SRQ.
+ * @srq: The SRQ to destroy.
+ *
+ * NOTE: for user srq use ib_destroy_srq_user with valid udata!
+ */
+static inline void ib_destroy_srq(struct ib_srq *srq)
+{
+	int ret = ib_destroy_srq_user(srq, NULL);
+
+	WARN_ONCE(ret, "Destroy of kernel SRQ shouldn't fail");
+}
+>>>>>>> upstream/android-13
 
 /**
  * ib_post_srq_recv - Posts a list of work requests to the specified SRQ.
@@ -3299,6 +4928,7 @@ static inline int ib_post_srq_recv(struct ib_srq *srq,
 {
 	const struct ib_recv_wr *dummy;
 
+<<<<<<< HEAD
 	return srq->device->post_srq_recv(srq, recv_wr, bad_recv_wr ? : &dummy);
 }
 
@@ -3312,6 +4942,28 @@ static inline int ib_post_srq_recv(struct ib_srq *srq,
  */
 struct ib_qp *ib_create_qp(struct ib_pd *pd,
 			   struct ib_qp_init_attr *qp_init_attr);
+=======
+	return srq->device->ops.post_srq_recv(srq, recv_wr,
+					      bad_recv_wr ? : &dummy);
+}
+
+struct ib_qp *ib_create_qp_kernel(struct ib_pd *pd,
+				  struct ib_qp_init_attr *qp_init_attr,
+				  const char *caller);
+/**
+ * ib_create_qp - Creates a kernel QP associated with the specific protection
+ * domain.
+ * @pd: The protection domain associated with the QP.
+ * @init_attr: A list of initial attributes required to create the
+ *   QP.  If QP creation succeeds, then the attributes are updated to
+ *   the actual capabilities of the created QP.
+ */
+static inline struct ib_qp *ib_create_qp(struct ib_pd *pd,
+					 struct ib_qp_init_attr *init_attr)
+{
+	return ib_create_qp_kernel(pd, init_attr, KBUILD_MODNAME);
+}
+>>>>>>> upstream/android-13
 
 /**
  * ib_modify_qp_with_udata - Modifies the attributes for the specified QP.
@@ -3361,8 +5013,25 @@ int ib_query_qp(struct ib_qp *qp,
 /**
  * ib_destroy_qp - Destroys the specified QP.
  * @qp: The QP to destroy.
+<<<<<<< HEAD
  */
 int ib_destroy_qp(struct ib_qp *qp);
+=======
+ * @udata: Valid udata or NULL for kernel objects
+ */
+int ib_destroy_qp_user(struct ib_qp *qp, struct ib_udata *udata);
+
+/**
+ * ib_destroy_qp - Destroys the specified kernel QP.
+ * @qp: The QP to destroy.
+ *
+ * NOTE: for user qp use ib_destroy_qp_user with valid udata!
+ */
+static inline int ib_destroy_qp(struct ib_qp *qp)
+{
+	return ib_destroy_qp_user(qp, NULL);
+}
+>>>>>>> upstream/android-13
 
 /**
  * ib_open_qp - Obtain a reference to an existing sharable QP.
@@ -3402,7 +5071,11 @@ static inline int ib_post_send(struct ib_qp *qp,
 {
 	const struct ib_send_wr *dummy;
 
+<<<<<<< HEAD
 	return qp->device->post_send(qp, send_wr, bad_send_wr ? : &dummy);
+=======
+	return qp->device->ops.post_send(qp, send_wr, bad_send_wr ? : &dummy);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -3419,6 +5092,7 @@ static inline int ib_post_recv(struct ib_qp *qp,
 {
 	const struct ib_recv_wr *dummy;
 
+<<<<<<< HEAD
 	return qp->device->post_recv(qp, recv_wr, bad_recv_wr ? : &dummy);
 }
 
@@ -3427,6 +5101,40 @@ struct ib_cq *__ib_alloc_cq(struct ib_device *dev, void *private,
 			    enum ib_poll_context poll_ctx, const char *caller);
 #define ib_alloc_cq(device, priv, nr_cqe, comp_vect, poll_ctx) \
 	__ib_alloc_cq((device), (priv), (nr_cqe), (comp_vect), (poll_ctx), KBUILD_MODNAME)
+=======
+	return qp->device->ops.post_recv(qp, recv_wr, bad_recv_wr ? : &dummy);
+}
+
+struct ib_cq *__ib_alloc_cq(struct ib_device *dev, void *private, int nr_cqe,
+			    int comp_vector, enum ib_poll_context poll_ctx,
+			    const char *caller);
+static inline struct ib_cq *ib_alloc_cq(struct ib_device *dev, void *private,
+					int nr_cqe, int comp_vector,
+					enum ib_poll_context poll_ctx)
+{
+	return __ib_alloc_cq(dev, private, nr_cqe, comp_vector, poll_ctx,
+			     KBUILD_MODNAME);
+}
+
+struct ib_cq *__ib_alloc_cq_any(struct ib_device *dev, void *private,
+				int nr_cqe, enum ib_poll_context poll_ctx,
+				const char *caller);
+
+/**
+ * ib_alloc_cq_any: Allocate kernel CQ
+ * @dev: The IB device
+ * @private: Private data attached to the CQE
+ * @nr_cqe: Number of CQEs in the CQ
+ * @poll_ctx: Context used for polling the CQ
+ */
+static inline struct ib_cq *ib_alloc_cq_any(struct ib_device *dev,
+					    void *private, int nr_cqe,
+					    enum ib_poll_context poll_ctx)
+{
+	return __ib_alloc_cq_any(dev, private, nr_cqe, poll_ctx,
+				 KBUILD_MODNAME);
+}
+>>>>>>> upstream/android-13
 
 void ib_free_cq(struct ib_cq *cq);
 int ib_process_cq_direct(struct ib_cq *cq, int budget);
@@ -3472,10 +5180,31 @@ int ib_resize_cq(struct ib_cq *cq, int cqe);
 int rdma_set_cq_moderation(struct ib_cq *cq, u16 cq_count, u16 cq_period);
 
 /**
+<<<<<<< HEAD
  * ib_destroy_cq - Destroys the specified CQ.
  * @cq: The CQ to destroy.
  */
 int ib_destroy_cq(struct ib_cq *cq);
+=======
+ * ib_destroy_cq_user - Destroys the specified CQ.
+ * @cq: The CQ to destroy.
+ * @udata: Valid user data or NULL for kernel objects
+ */
+int ib_destroy_cq_user(struct ib_cq *cq, struct ib_udata *udata);
+
+/**
+ * ib_destroy_cq - Destroys the specified kernel CQ.
+ * @cq: The CQ to destroy.
+ *
+ * NOTE: for user cq use ib_destroy_cq_user with valid udata!
+ */
+static inline void ib_destroy_cq(struct ib_cq *cq)
+{
+	int ret = ib_destroy_cq_user(cq, NULL);
+
+	WARN_ONCE(ret, "Destroy of kernel CQ shouldn't fail");
+}
+>>>>>>> upstream/android-13
 
 /**
  * ib_poll_cq - poll a CQ for completion(s)
@@ -3492,7 +5221,11 @@ int ib_destroy_cq(struct ib_cq *cq);
 static inline int ib_poll_cq(struct ib_cq *cq, int num_entries,
 			     struct ib_wc *wc)
 {
+<<<<<<< HEAD
 	return cq->device->poll_cq(cq, num_entries, wc);
+=======
+	return cq->device->ops.poll_cq(cq, num_entries, wc);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -3525,6 +5258,7 @@ static inline int ib_poll_cq(struct ib_cq *cq, int num_entries,
 static inline int ib_req_notify_cq(struct ib_cq *cq,
 				   enum ib_cq_notify_flags flags)
 {
+<<<<<<< HEAD
 	return cq->device->req_notify_cq(cq, flags);
 }
 
@@ -3540,6 +5274,25 @@ static inline int ib_req_ncomp_notif(struct ib_cq *cq, int wc_cnt)
 	return cq->device->req_ncomp_notif ?
 		cq->device->req_ncomp_notif(cq, wc_cnt) :
 		-ENOSYS;
+=======
+	return cq->device->ops.req_notify_cq(cq, flags);
+}
+
+struct ib_cq *ib_cq_pool_get(struct ib_device *dev, unsigned int nr_cqe,
+			     int comp_vector_hint,
+			     enum ib_poll_context poll_ctx);
+
+void ib_cq_pool_put(struct ib_cq *cq, unsigned int nr_cqe);
+
+/*
+ * Drivers that don't need a DMA mapping at the RDMA layer, set dma_device to
+ * NULL. This causes the ib_dma* helpers to just stash the kernel virtual
+ * address into the dma address.
+ */
+static inline bool ib_uses_virt_dma(struct ib_device *dev)
+{
+	return IS_ENABLED(CONFIG_INFINIBAND_VIRT_DMA) && !dev->dma_device;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -3549,6 +5302,11 @@ static inline int ib_req_ncomp_notif(struct ib_cq *cq, int wc_cnt)
  */
 static inline int ib_dma_mapping_error(struct ib_device *dev, u64 dma_addr)
 {
+<<<<<<< HEAD
+=======
+	if (ib_uses_virt_dma(dev))
+		return 0;
+>>>>>>> upstream/android-13
 	return dma_mapping_error(dev->dma_device, dma_addr);
 }
 
@@ -3563,6 +5321,11 @@ static inline u64 ib_dma_map_single(struct ib_device *dev,
 				    void *cpu_addr, size_t size,
 				    enum dma_data_direction direction)
 {
+<<<<<<< HEAD
+=======
+	if (ib_uses_virt_dma(dev))
+		return (uintptr_t)cpu_addr;
+>>>>>>> upstream/android-13
 	return dma_map_single(dev->dma_device, cpu_addr, size, direction);
 }
 
@@ -3577,7 +5340,12 @@ static inline void ib_dma_unmap_single(struct ib_device *dev,
 				       u64 addr, size_t size,
 				       enum dma_data_direction direction)
 {
+<<<<<<< HEAD
 	dma_unmap_single(dev->dma_device, addr, size, direction);
+=======
+	if (!ib_uses_virt_dma(dev))
+		dma_unmap_single(dev->dma_device, addr, size, direction);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -3594,6 +5362,11 @@ static inline u64 ib_dma_map_page(struct ib_device *dev,
 				  size_t size,
 					 enum dma_data_direction direction)
 {
+<<<<<<< HEAD
+=======
+	if (ib_uses_virt_dma(dev))
+		return (uintptr_t)(page_address(page) + offset);
+>>>>>>> upstream/android-13
 	return dma_map_page(dev->dma_device, page, offset, size, direction);
 }
 
@@ -3608,7 +5381,67 @@ static inline void ib_dma_unmap_page(struct ib_device *dev,
 				     u64 addr, size_t size,
 				     enum dma_data_direction direction)
 {
+<<<<<<< HEAD
 	dma_unmap_page(dev->dma_device, addr, size, direction);
+=======
+	if (!ib_uses_virt_dma(dev))
+		dma_unmap_page(dev->dma_device, addr, size, direction);
+}
+
+int ib_dma_virt_map_sg(struct ib_device *dev, struct scatterlist *sg, int nents);
+static inline int ib_dma_map_sg_attrs(struct ib_device *dev,
+				      struct scatterlist *sg, int nents,
+				      enum dma_data_direction direction,
+				      unsigned long dma_attrs)
+{
+	if (ib_uses_virt_dma(dev))
+		return ib_dma_virt_map_sg(dev, sg, nents);
+	return dma_map_sg_attrs(dev->dma_device, sg, nents, direction,
+				dma_attrs);
+}
+
+static inline void ib_dma_unmap_sg_attrs(struct ib_device *dev,
+					 struct scatterlist *sg, int nents,
+					 enum dma_data_direction direction,
+					 unsigned long dma_attrs)
+{
+	if (!ib_uses_virt_dma(dev))
+		dma_unmap_sg_attrs(dev->dma_device, sg, nents, direction,
+				   dma_attrs);
+}
+
+/**
+ * ib_dma_map_sgtable_attrs - Map a scatter/gather table to DMA addresses
+ * @dev: The device for which the DMA addresses are to be created
+ * @sg: The sg_table object describing the buffer
+ * @direction: The direction of the DMA
+ * @attrs: Optional DMA attributes for the map operation
+ */
+static inline int ib_dma_map_sgtable_attrs(struct ib_device *dev,
+					   struct sg_table *sgt,
+					   enum dma_data_direction direction,
+					   unsigned long dma_attrs)
+{
+	int nents;
+
+	if (ib_uses_virt_dma(dev)) {
+		nents = ib_dma_virt_map_sg(dev, sgt->sgl, sgt->orig_nents);
+		if (!nents)
+			return -EIO;
+		sgt->nents = nents;
+		return 0;
+	}
+	return dma_map_sgtable(dev->dma_device, sgt, direction, dma_attrs);
+}
+
+static inline void ib_dma_unmap_sgtable_attrs(struct ib_device *dev,
+					      struct sg_table *sgt,
+					      enum dma_data_direction direction,
+					      unsigned long dma_attrs)
+{
+	if (!ib_uses_virt_dma(dev))
+		dma_unmap_sgtable(dev->dma_device, sgt, direction, dma_attrs);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -3622,7 +5455,11 @@ static inline int ib_dma_map_sg(struct ib_device *dev,
 				struct scatterlist *sg, int nents,
 				enum dma_data_direction direction)
 {
+<<<<<<< HEAD
 	return dma_map_sg(dev->dma_device, sg, nents, direction);
+=======
+	return ib_dma_map_sg_attrs(dev, sg, nents, direction, 0);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -3636,6 +5473,7 @@ static inline void ib_dma_unmap_sg(struct ib_device *dev,
 				   struct scatterlist *sg, int nents,
 				   enum dma_data_direction direction)
 {
+<<<<<<< HEAD
 	dma_unmap_sg(dev->dma_device, sg, nents, direction);
 }
 
@@ -3681,6 +5519,22 @@ static inline unsigned int ib_sg_dma_len(struct ib_device *dev,
 					 struct scatterlist *sg)
 {
 	return sg_dma_len(sg);
+=======
+	ib_dma_unmap_sg_attrs(dev, sg, nents, direction, 0);
+}
+
+/**
+ * ib_dma_max_seg_size - Return the size limit of a single DMA transfer
+ * @dev: The device to query
+ *
+ * The returned value represents a size in bytes.
+ */
+static inline unsigned int ib_dma_max_seg_size(struct ib_device *dev)
+{
+	if (ib_uses_virt_dma(dev))
+		return UINT_MAX;
+	return dma_get_max_seg_size(dev->dma_device);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -3695,7 +5549,12 @@ static inline void ib_dma_sync_single_for_cpu(struct ib_device *dev,
 					      size_t size,
 					      enum dma_data_direction dir)
 {
+<<<<<<< HEAD
 	dma_sync_single_for_cpu(dev->dma_device, addr, size, dir);
+=======
+	if (!ib_uses_virt_dma(dev))
+		dma_sync_single_for_cpu(dev->dma_device, addr, size, dir);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -3710,6 +5569,7 @@ static inline void ib_dma_sync_single_for_device(struct ib_device *dev,
 						 size_t size,
 						 enum dma_data_direction dir)
 {
+<<<<<<< HEAD
 	dma_sync_single_for_device(dev->dma_device, addr, size, dir);
 }
 
@@ -3744,10 +5604,38 @@ static inline void ib_dma_free_coherent(struct ib_device *dev,
 
 /**
  * ib_dereg_mr - Deregisters a memory region and removes it from the
+=======
+	if (!ib_uses_virt_dma(dev))
+		dma_sync_single_for_device(dev->dma_device, addr, size, dir);
+}
+
+/* ib_reg_user_mr - register a memory region for virtual addresses from kernel
+ * space. This function should be called when 'current' is the owning MM.
+ */
+struct ib_mr *ib_reg_user_mr(struct ib_pd *pd, u64 start, u64 length,
+			     u64 virt_addr, int mr_access_flags);
+
+/* ib_advise_mr -  give an advice about an address range in a memory region */
+int ib_advise_mr(struct ib_pd *pd, enum ib_uverbs_advise_mr_advice advice,
+		 u32 flags, struct ib_sge *sg_list, u32 num_sge);
+/**
+ * ib_dereg_mr_user - Deregisters a memory region and removes it from the
+ *   HCA translation table.
+ * @mr: The memory region to deregister.
+ * @udata: Valid user data or NULL for kernel object
+ *
+ * This function can fail, if the memory region has memory windows bound to it.
+ */
+int ib_dereg_mr_user(struct ib_mr *mr, struct ib_udata *udata);
+
+/**
+ * ib_dereg_mr - Deregisters a kernel memory region and removes it from the
+>>>>>>> upstream/android-13
  *   HCA translation table.
  * @mr: The memory region to deregister.
  *
  * This function can fail, if the memory region has memory windows bound to it.
+<<<<<<< HEAD
  */
 int ib_dereg_mr(struct ib_mr *mr);
 
@@ -3755,6 +5643,23 @@ struct ib_mr *ib_alloc_mr(struct ib_pd *pd,
 			  enum ib_mr_type mr_type,
 			  u32 max_num_sg);
 
+=======
+ *
+ * NOTE: for user mr use ib_dereg_mr_user with valid udata!
+ */
+static inline int ib_dereg_mr(struct ib_mr *mr)
+{
+	return ib_dereg_mr_user(mr, NULL);
+}
+
+struct ib_mr *ib_alloc_mr(struct ib_pd *pd, enum ib_mr_type mr_type,
+			  u32 max_num_sg);
+
+struct ib_mr *ib_alloc_mr_integrity(struct ib_pd *pd,
+				    u32 max_num_data_sg,
+				    u32 max_num_meta_sg);
+
+>>>>>>> upstream/android-13
 /**
  * ib_update_fast_reg_key - updates the key portion of the fast_reg MR
  *   R_Key and L_Key.
@@ -3779,6 +5684,7 @@ static inline u32 ib_inc_rkey(u32 rkey)
 }
 
 /**
+<<<<<<< HEAD
  * ib_alloc_fmr - Allocates a unmapped fast memory region.
  * @pd: The protection domain associated with the unmapped region.
  * @mr_access_flags: Specifies the memory access rights.
@@ -3818,6 +5724,8 @@ int ib_unmap_fmr(struct list_head *fmr_list);
 int ib_dealloc_fmr(struct ib_fmr *fmr);
 
 /**
+=======
+>>>>>>> upstream/android-13
  * ib_attach_mcast - Attaches the specified QP to a multicast group.
  * @qp: QP to attach to the multicast group.  The QP must be type
  *   IB_QPT_UD.
@@ -3839,6 +5747,7 @@ int ib_attach_mcast(struct ib_qp *qp, union ib_gid *gid, u16 lid);
  */
 int ib_detach_mcast(struct ib_qp *qp, union ib_gid *gid, u16 lid);
 
+<<<<<<< HEAD
 /**
  * ib_alloc_xrcd - Allocates an XRC domain.
  * @device: The device on which to allocate the XRC domain.
@@ -3855,6 +5764,14 @@ struct ib_xrcd *__ib_alloc_xrcd(struct ib_device *device, const char *caller);
 int ib_dealloc_xrcd(struct ib_xrcd *xrcd);
 
 static inline int ib_check_mr_access(int flags)
+=======
+struct ib_xrcd *ib_alloc_xrcd_user(struct ib_device *device,
+				   struct inode *inode, struct ib_udata *udata);
+int ib_dealloc_xrcd_user(struct ib_xrcd *xrcd, struct ib_udata *udata);
+
+static inline int ib_check_mr_access(struct ib_device *ib_dev,
+				     unsigned int flags)
+>>>>>>> upstream/android-13
 {
 	/*
 	 * Local write permission is required if remote write or
@@ -3867,6 +5784,12 @@ static inline int ib_check_mr_access(int flags)
 	if (flags & ~IB_ACCESS_SUPPORTED)
 		return -EINVAL;
 
+<<<<<<< HEAD
+=======
+	if (flags & IB_ACCESS_ON_DEMAND &&
+	    !(ib_dev->attrs.device_cap_flags & IB_DEVICE_ON_DEMAND_PAGING))
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -3899,6 +5822,7 @@ static inline bool ib_access_writable(int access_flags)
 int ib_check_mr_status(struct ib_mr *mr, u32 check_mask,
 		       struct ib_mr_status *mr_status);
 
+<<<<<<< HEAD
 struct net_device *ib_get_net_dev_by_params(struct ib_device *dev, u8 port,
 					    u16 pkey, const union ib_gid *gid,
 					    const struct sockaddr *addr);
@@ -3914,6 +5838,48 @@ int ib_destroy_rwq_ind_table(struct ib_rwq_ind_table *wq_ind_table);
 
 int ib_map_mr_sg(struct ib_mr *mr, struct scatterlist *sg, int sg_nents,
 		 unsigned int *sg_offset, unsigned int page_size);
+=======
+/**
+ * ib_device_try_get: Hold a registration lock
+ * device: The device to lock
+ *
+ * A device under an active registration lock cannot become unregistered. It
+ * is only possible to obtain a registration lock on a device that is fully
+ * registered, otherwise this function returns false.
+ *
+ * The registration lock is only necessary for actions which require the
+ * device to still be registered. Uses that only require the device pointer to
+ * be valid should use get_device(&ibdev->dev) to hold the memory.
+ *
+ */
+static inline bool ib_device_try_get(struct ib_device *dev)
+{
+	return refcount_inc_not_zero(&dev->refcount);
+}
+
+void ib_device_put(struct ib_device *device);
+struct ib_device *ib_device_get_by_netdev(struct net_device *ndev,
+					  enum rdma_driver_id driver_id);
+struct ib_device *ib_device_get_by_name(const char *name,
+					enum rdma_driver_id driver_id);
+struct net_device *ib_get_net_dev_by_params(struct ib_device *dev, u32 port,
+					    u16 pkey, const union ib_gid *gid,
+					    const struct sockaddr *addr);
+int ib_device_set_netdev(struct ib_device *ib_dev, struct net_device *ndev,
+			 unsigned int port);
+struct net_device *ib_device_netdev(struct ib_device *dev, u32 port);
+
+struct ib_wq *ib_create_wq(struct ib_pd *pd,
+			   struct ib_wq_init_attr *init_attr);
+int ib_destroy_wq_user(struct ib_wq *wq, struct ib_udata *udata);
+
+int ib_map_mr_sg(struct ib_mr *mr, struct scatterlist *sg, int sg_nents,
+		 unsigned int *sg_offset, unsigned int page_size);
+int ib_map_mr_sg_pi(struct ib_mr *mr, struct scatterlist *data_sg,
+		    int data_sg_nents, unsigned int *data_sg_offset,
+		    struct scatterlist *meta_sg, int meta_sg_nents,
+		    unsigned int *meta_sg_offset, unsigned int page_size);
+>>>>>>> upstream/android-13
 
 static inline int
 ib_map_mr_sg_zbva(struct ib_mr *mr, struct scatterlist *sg, int sg_nents,
@@ -3934,7 +5900,12 @@ void ib_drain_rq(struct ib_qp *qp);
 void ib_drain_sq(struct ib_qp *qp);
 void ib_drain_qp(struct ib_qp *qp);
 
+<<<<<<< HEAD
 int ib_get_eth_speed(struct ib_device *dev, u8 port_num, u8 *speed, u8 *width);
+=======
+int ib_get_eth_speed(struct ib_device *dev, u32 port_num, u16 *speed,
+		     u8 *width);
+>>>>>>> upstream/android-13
 
 static inline u8 *rdma_ah_retrieve_dmac(struct rdma_ah_attr *attr)
 {
@@ -4002,12 +5973,20 @@ static inline bool rdma_ah_get_make_grd(const struct rdma_ah_attr *attr)
 	return false;
 }
 
+<<<<<<< HEAD
 static inline void rdma_ah_set_port_num(struct rdma_ah_attr *attr, u8 port_num)
+=======
+static inline void rdma_ah_set_port_num(struct rdma_ah_attr *attr, u32 port_num)
+>>>>>>> upstream/android-13
 {
 	attr->port_num = port_num;
 }
 
+<<<<<<< HEAD
 static inline u8 rdma_ah_get_port_num(const struct rdma_ah_attr *attr)
+=======
+static inline u32 rdma_ah_get_port_num(const struct rdma_ah_attr *attr)
+>>>>>>> upstream/android-13
 {
 	return attr->port_num;
 }
@@ -4105,7 +6084,11 @@ void rdma_move_ah_attr(struct rdma_ah_attr *dest, struct rdma_ah_attr *src);
  * @port_num: Port number
  */
 static inline enum rdma_ah_attr_type rdma_ah_find_type(struct ib_device *dev,
+<<<<<<< HEAD
 						       u8 port_num)
+=======
+						       u32 port_num)
+>>>>>>> upstream/android-13
 {
 	if (rdma_protocol_roce(dev, port_num))
 		return RDMA_AH_ATTR_TYPE_ROCE;
@@ -4158,6 +6141,7 @@ static inline const struct cpumask *
 ib_get_vector_affinity(struct ib_device *device, int comp_vector)
 {
 	if (comp_vector < 0 || comp_vector >= device->num_comp_vectors ||
+<<<<<<< HEAD
 	    !device->get_vector_affinity)
 		return NULL;
 
@@ -4179,6 +6163,15 @@ static inline void ib_set_flow(struct ib_uobject *uobj, struct ib_flow *ibflow,
 	ibflow->device = device;
 }
 
+=======
+	    !device->ops.get_vector_affinity)
+		return NULL;
+
+	return device->ops.get_vector_affinity(device, comp_vector);
+
+}
+
+>>>>>>> upstream/android-13
 /**
  * rdma_roce_rescan_device - Rescan all of the network devices in the system
  * and add their gids, as needed, to the relevant RoCE devices.
@@ -4187,8 +6180,116 @@ static inline void ib_set_flow(struct ib_uobject *uobj, struct ib_flow *ibflow,
  */
 void rdma_roce_rescan_device(struct ib_device *ibdev);
 
+<<<<<<< HEAD
 struct ib_ucontext *ib_uverbs_get_ucontext(struct ib_uverbs_file *ufile);
 
 int uverbs_destroy_def_handler(struct ib_uverbs_file *file,
 			       struct uverbs_attr_bundle *attrs);
+=======
+struct ib_ucontext *ib_uverbs_get_ucontext_file(struct ib_uverbs_file *ufile);
+
+int uverbs_destroy_def_handler(struct uverbs_attr_bundle *attrs);
+
+struct net_device *rdma_alloc_netdev(struct ib_device *device, u32 port_num,
+				     enum rdma_netdev_t type, const char *name,
+				     unsigned char name_assign_type,
+				     void (*setup)(struct net_device *));
+
+int rdma_init_netdev(struct ib_device *device, u32 port_num,
+		     enum rdma_netdev_t type, const char *name,
+		     unsigned char name_assign_type,
+		     void (*setup)(struct net_device *),
+		     struct net_device *netdev);
+
+/**
+ * rdma_device_to_ibdev - Get ib_device pointer from device pointer
+ *
+ * @device:	device pointer for which ib_device pointer to retrieve
+ *
+ * rdma_device_to_ibdev() retrieves ib_device pointer from device.
+ *
+ */
+static inline struct ib_device *rdma_device_to_ibdev(struct device *device)
+{
+	struct ib_core_device *coredev =
+		container_of(device, struct ib_core_device, dev);
+
+	return coredev->owner;
+}
+
+/**
+ * ibdev_to_node - return the NUMA node for a given ib_device
+ * @dev:	device to get the NUMA node for.
+ */
+static inline int ibdev_to_node(struct ib_device *ibdev)
+{
+	struct device *parent = ibdev->dev.parent;
+
+	if (!parent)
+		return NUMA_NO_NODE;
+	return dev_to_node(parent);
+}
+
+/**
+ * rdma_device_to_drv_device - Helper macro to reach back to driver's
+ *			       ib_device holder structure from device pointer.
+ *
+ * NOTE: New drivers should not make use of this API; This API is only for
+ * existing drivers who have exposed sysfs entries using
+ * ops->device_group.
+ */
+#define rdma_device_to_drv_device(dev, drv_dev_struct, ibdev_member)           \
+	container_of(rdma_device_to_ibdev(dev), drv_dev_struct, ibdev_member)
+
+bool rdma_dev_access_netns(const struct ib_device *device,
+			   const struct net *net);
+
+#define IB_ROCE_UDP_ENCAP_VALID_PORT_MIN (0xC000)
+#define IB_ROCE_UDP_ENCAP_VALID_PORT_MAX (0xFFFF)
+#define IB_GRH_FLOWLABEL_MASK (0x000FFFFF)
+
+/**
+ * rdma_flow_label_to_udp_sport - generate a RoCE v2 UDP src port value based
+ *                               on the flow_label
+ *
+ * This function will convert the 20 bit flow_label input to a valid RoCE v2
+ * UDP src port 14 bit value. All RoCE V2 drivers should use this same
+ * convention.
+ */
+static inline u16 rdma_flow_label_to_udp_sport(u32 fl)
+{
+	u32 fl_low = fl & 0x03fff, fl_high = fl & 0xFC000;
+
+	fl_low ^= fl_high >> 14;
+	return (u16)(fl_low | IB_ROCE_UDP_ENCAP_VALID_PORT_MIN);
+}
+
+/**
+ * rdma_calc_flow_label - generate a RDMA symmetric flow label value based on
+ *                        local and remote qpn values
+ *
+ * This function folded the multiplication results of two qpns, 24 bit each,
+ * fields, and converts it to a 20 bit results.
+ *
+ * This function will create symmetric flow_label value based on the local
+ * and remote qpn values. this will allow both the requester and responder
+ * to calculate the same flow_label for a given connection.
+ *
+ * This helper function should be used by driver in case the upper layer
+ * provide a zero flow_label value. This is to improve entropy of RDMA
+ * traffic in the network.
+ */
+static inline u32 rdma_calc_flow_label(u32 lqpn, u32 rqpn)
+{
+	u64 v = (u64)lqpn * rqpn;
+
+	v ^= v >> 20;
+	v ^= v >> 40;
+
+	return (u32)(v & IB_GRH_FLOWLABEL_MASK);
+}
+
+const struct ib_port_immutable*
+ib_port_immutable_read(struct ib_device *dev, unsigned int port);
+>>>>>>> upstream/android-13
 #endif /* IB_VERBS_H */

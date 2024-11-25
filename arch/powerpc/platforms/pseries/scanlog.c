@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  c 2001 PPC 64 Team, IBM Corp
  *
@@ -6,6 +7,12 @@
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  c 2001 PPC 64 Team, IBM Corp
+ *
+>>>>>>> upstream/android-13
  * scan-log-data driver for PPC64  Todd Inglett <tinglett@vnet.ibm.com>
  *
  * When ppc64 hardware fails the service processor dumps internal state
@@ -63,7 +70,11 @@ static ssize_t scanlog_read(struct file *file, char __user *buf,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, buf, count))
+=======
+	if (!access_ok(buf, count))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	for (;;) {
@@ -156,6 +167,7 @@ static int scanlog_release(struct inode * inode, struct file * file)
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct file_operations scanlog_fops = {
 	.owner		= THIS_MODULE,
 	.read		= scanlog_read,
@@ -163,6 +175,14 @@ static const struct file_operations scanlog_fops = {
 	.open		= scanlog_open,
 	.release	= scanlog_release,
 	.llseek		= noop_llseek,
+=======
+static const struct proc_ops scanlog_proc_ops = {
+	.proc_read	= scanlog_read,
+	.proc_write	= scanlog_write,
+	.proc_open	= scanlog_open,
+	.proc_release	= scanlog_release,
+	.proc_lseek	= noop_llseek,
+>>>>>>> upstream/android-13
 };
 
 static int __init scanlog_init(void)
@@ -180,7 +200,11 @@ static int __init scanlog_init(void)
 		goto err;
 
 	ent = proc_create("powerpc/rtas/scan-log-dump", 0400, NULL,
+<<<<<<< HEAD
 			  &scanlog_fops);
+=======
+			  &scanlog_proc_ops);
+>>>>>>> upstream/android-13
 	if (!ent)
 		goto err;
 	return 0;

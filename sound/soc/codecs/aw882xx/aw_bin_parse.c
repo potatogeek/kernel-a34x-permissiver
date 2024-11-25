@@ -211,8 +211,13 @@ int aw_check_dsp_reg_num_v1(struct aw_bin *bin, int bin_num)
 
 int aw_check_soc_app_num_v1(struct aw_bin *bin, int bin_num)
 {
+<<<<<<< HEAD
 	unsigned int check_soc_app_num = 0;
 	unsigned int parse_soc_app_num = 0;
+=======
+	int check_soc_app_num = 0;
+	int parse_soc_app_num = 0;
+>>>>>>> upstream/android-13
 	char *p_check_sum = NULL;
 
 	DBG("enter\n");
@@ -237,7 +242,11 @@ int aw_check_soc_app_num_v1(struct aw_bin *bin, int bin_num)
 		DBG_ERR("aw_bin_parse bin_num=%d, parse_soc_app_num = 0x%x, check_soc_app_num = 0x%x\n", bin_num, parse_soc_app_num, check_soc_app_num);
 		return -7;
 	}
+<<<<<<< HEAD
 	bin->header_info[bin_num].reg_num = parse_soc_app_num;
+=======
+	bin->header_info[bin_num].reg_num = (unsigned int)parse_soc_app_num;
+>>>>>>> upstream/android-13
 	bin->header_info[bin_num].download_addr =
 	    GET_32_DATA(*(p_check_sum + 7), *(p_check_sum + 6),
 			*(p_check_sum + 5), *(p_check_sum + 4));

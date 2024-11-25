@@ -114,7 +114,11 @@ static inline unsigned long __xchg(unsigned long x, volatile void *ptr, int size
 	return ret;
 }
 
+<<<<<<< HEAD
 #define xchg_relaxed(ptr, x) ({						\
+=======
+#define arch_xchg_relaxed(ptr, x) ({					\
+>>>>>>> upstream/android-13
 	(__typeof__(*(ptr)))__xchg((unsigned long)(x), (ptr),		\
 				   sizeof(*(ptr)));			\
 })
@@ -128,20 +132,33 @@ static inline unsigned long __xchg(unsigned long x, volatile void *ptr, int size
 #error "SMP is not supported on this platform"
 #endif
 
+<<<<<<< HEAD
 #define xchg xchg_relaxed
+=======
+#define arch_xchg arch_xchg_relaxed
+>>>>>>> upstream/android-13
 
 /*
  * cmpxchg_local and cmpxchg64_local are atomic wrt current CPU. Always make
  * them available.
  */
+<<<<<<< HEAD
 #define cmpxchg_local(ptr, o, n) ({					\
 	(__typeof(*ptr))__cmpxchg_local_generic((ptr),			\
+=======
+#define arch_cmpxchg_local(ptr, o, n) ({				\
+	(__typeof(*ptr))__generic_cmpxchg_local((ptr),			\
+>>>>>>> upstream/android-13
 					        (unsigned long)(o),	\
 					        (unsigned long)(n),	\
 					        sizeof(*(ptr)));	\
 })
 
+<<<<<<< HEAD
 #define cmpxchg64_local(ptr, o, n) __cmpxchg64_local_generic((ptr), (o), (n))
+=======
+#define arch_cmpxchg64_local(ptr, o, n) __generic_cmpxchg64_local((ptr), (o), (n))
+>>>>>>> upstream/android-13
 
 #include <asm-generic/cmpxchg.h>
 
@@ -207,7 +224,11 @@ static inline unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
 	return oldval;
 }
 
+<<<<<<< HEAD
 #define cmpxchg_relaxed(ptr,o,n) ({					\
+=======
+#define arch_cmpxchg_relaxed(ptr,o,n) ({				\
+>>>>>>> upstream/android-13
 	(__typeof__(*(ptr)))__cmpxchg((ptr),				\
 				      (unsigned long)(o),		\
 				      (unsigned long)(n),		\
@@ -224,7 +245,11 @@ static inline unsigned long __cmpxchg_local(volatile void *ptr,
 #ifdef CONFIG_CPU_V6	/* min ARCH == ARMv6 */
 	case 1:
 	case 2:
+<<<<<<< HEAD
 		ret = __cmpxchg_local_generic(ptr, old, new, size);
+=======
+		ret = __generic_cmpxchg_local(ptr, old, new, size);
+>>>>>>> upstream/android-13
 		break;
 #endif
 	default:
@@ -234,7 +259,11 @@ static inline unsigned long __cmpxchg_local(volatile void *ptr,
 	return ret;
 }
 
+<<<<<<< HEAD
 #define cmpxchg_local(ptr, o, n) ({					\
+=======
+#define arch_cmpxchg_local(ptr, o, n) ({				\
+>>>>>>> upstream/android-13
 	(__typeof(*ptr))__cmpxchg_local((ptr),				\
 				        (unsigned long)(o),		\
 				        (unsigned long)(n),		\
@@ -266,13 +295,21 @@ static inline unsigned long long __cmpxchg64(unsigned long long *ptr,
 	return oldval;
 }
 
+<<<<<<< HEAD
 #define cmpxchg64_relaxed(ptr, o, n) ({					\
+=======
+#define arch_cmpxchg64_relaxed(ptr, o, n) ({				\
+>>>>>>> upstream/android-13
 	(__typeof__(*(ptr)))__cmpxchg64((ptr),				\
 					(unsigned long long)(o),	\
 					(unsigned long long)(n));	\
 })
 
+<<<<<<< HEAD
 #define cmpxchg64_local(ptr, o, n) cmpxchg64_relaxed((ptr), (o), (n))
+=======
+#define arch_cmpxchg64_local(ptr, o, n) arch_cmpxchg64_relaxed((ptr), (o), (n))
+>>>>>>> upstream/android-13
 
 #endif	/* __LINUX_ARM_ARCH__ >= 6 */
 

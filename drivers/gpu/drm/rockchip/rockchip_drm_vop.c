@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) Fuzhou Rockchip Electronics Co.Ltd
  * Author:Mark Yao <mark.yao@rock-chips.com>
@@ -19,10 +20,45 @@
 #include <drm/drm_crtc_helper.h>
 #include <drm/drm_flip_work.h>
 #include <drm/drm_plane_helper.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) Fuzhou Rockchip Electronics Co.Ltd
+ * Author:Mark Yao <mark.yao@rock-chips.com>
+ */
+
+#include <linux/clk.h>
+#include <linux/component.h>
+#include <linux/delay.h>
+#include <linux/iopoll.h>
+#include <linux/kernel.h>
+#include <linux/module.h>
+#include <linux/of.h>
+#include <linux/of_device.h>
+#include <linux/overflow.h>
+#include <linux/platform_device.h>
+#include <linux/pm_runtime.h>
+#include <linux/reset.h>
+
+#include <drm/drm.h>
+#include <drm/drm_atomic.h>
+#include <drm/drm_atomic_uapi.h>
+#include <drm/drm_crtc.h>
+#include <drm/drm_flip_work.h>
+#include <drm/drm_fourcc.h>
+#include <drm/drm_gem_atomic_helper.h>
+#include <drm/drm_gem_framebuffer_helper.h>
+#include <drm/drm_plane_helper.h>
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_self_refresh_helper.h>
+#include <drm/drm_vblank.h>
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_DRM_ANALOGIX_DP
 #include <drm/bridge/analogix_dp.h>
 #endif
 
+<<<<<<< HEAD
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/platform_device.h>
@@ -50,6 +86,34 @@
 		vop_reg_set(vop, &win->phy->scl->ext->name, \
 			    win->base, ~0, v, #name)
 
+=======
+#include "rockchip_drm_drv.h"
+#include "rockchip_drm_gem.h"
+#include "rockchip_drm_fb.h"
+#include "rockchip_drm_vop.h"
+#include "rockchip_rgb.h"
+
+#define VOP_WIN_SET(vop, win, name, v) \
+		vop_reg_set(vop, &win->phy->name, win->base, ~0, v, #name)
+#define VOP_SCL_SET(vop, win, name, v) \
+		vop_reg_set(vop, &win->phy->scl->name, win->base, ~0, v, #name)
+#define VOP_SCL_SET_EXT(vop, win, name, v) \
+		vop_reg_set(vop, &win->phy->scl->ext->name, \
+			    win->base, ~0, v, #name)
+
+#define VOP_WIN_YUV2YUV_SET(vop, win_yuv2yuv, name, v) \
+	do { \
+		if (win_yuv2yuv && win_yuv2yuv->name.mask) \
+			vop_reg_set(vop, &win_yuv2yuv->name, 0, ~0, v, #name); \
+	} while (0)
+
+#define VOP_WIN_YUV2YUV_COEFFICIENT_SET(vop, win_yuv2yuv, name, v) \
+	do { \
+		if (win_yuv2yuv && win_yuv2yuv->phy->name.mask) \
+			vop_reg_set(vop, &win_yuv2yuv->phy->name, win_yuv2yuv->base, ~0, v, #name); \
+	} while (0)
+
+>>>>>>> upstream/android-13
 #define VOP_INTR_SET_MASK(vop, name, mask, v) \
 		vop_reg_set(vop, &vop->data->intr->name, 0, mask, v, #name)
 
@@ -70,8 +134,16 @@
 #define VOP_INTR_GET_TYPE(vop, name, type) \
 		vop_get_intr_type(vop, &vop->data->intr->name, type)
 
+<<<<<<< HEAD
 #define VOP_WIN_GET(x, win, name) \
 		vop_read_reg(x, win->offset, win->phy->name)
+=======
+#define VOP_WIN_GET(vop, win, name) \
+		vop_read_reg(vop, win->base, &win->phy->name)
+
+#define VOP_WIN_HAS_REG(win, name) \
+	(!!(win->phy->name.mask))
+>>>>>>> upstream/android-13
 
 #define VOP_WIN_GET_YRGBADDR(vop, win) \
 		vop_readl(vop, win->base + win->phy->yrgb_mst.offset)
@@ -79,9 +151,40 @@
 #define VOP_WIN_TO_INDEX(vop_win) \
 	((vop_win) - (vop_win)->vop->win)
 
+<<<<<<< HEAD
 #define to_vop(x) container_of(x, struct vop, crtc)
 #define to_vop_win(x) container_of(x, struct vop_win, base)
 
+=======
+#define VOP_AFBC_SET(vop, name, v) \
+	do { \
+		if ((vop)->data->afbc) \
+			vop_reg_set((vop), &(vop)->data->afbc->name, \
+				    0, ~0, v, #name); \
+	} while (0)
+
+#define to_vop(x) container_of(x, struct vop, crtc)
+#define to_vop_win(x) container_of(x, struct vop_win, base)
+
+#define AFBC_FMT_RGB565		0x0
+#define AFBC_FMT_U8U8U8U8	0x5
+#define AFBC_FMT_U8U8U8		0x4
+
+#define AFBC_TILE_16x16		BIT(4)
+
+/*
+ * The coefficients of the following matrix are all fixed points.
+ * The format is S2.10 for the 3x3 part of the matrix, and S9.12 for the offsets.
+ * They are all represented in two's complement.
+ */
+static const uint32_t bt601_yuv2rgb[] = {
+	0x4A8, 0x0,    0x662,
+	0x4A8, 0x1E6F, 0x1CBF,
+	0x4A8, 0x812,  0x0,
+	0x321168, 0x0877CF, 0x2EB127
+};
+
+>>>>>>> upstream/android-13
 enum vop_pending {
 	VOP_PENDING_FB_UNREF,
 };
@@ -89,9 +192,17 @@ enum vop_pending {
 struct vop_win {
 	struct drm_plane base;
 	const struct vop_win_data *data;
+<<<<<<< HEAD
 	struct vop *vop;
 };
 
+=======
+	const struct vop_win_yuv2yuv_data *yuv2yuv_data;
+	struct vop *vop;
+};
+
+struct rockchip_rgb;
+>>>>>>> upstream/android-13
 struct vop {
 	struct drm_crtc crtc;
 	struct device *dev;
@@ -99,6 +210,10 @@ struct vop {
 	bool is_enabled;
 
 	struct completion dsp_hold_completion;
+<<<<<<< HEAD
+=======
+	unsigned int win_enabled;
+>>>>>>> upstream/android-13
 
 	/* protected by dev->event_lock */
 	struct drm_pending_vblank_event *event;
@@ -112,6 +227,10 @@ struct vop {
 
 	uint32_t *regsbak;
 	void __iomem *regs;
+<<<<<<< HEAD
+=======
+	void __iomem *lut_regs;
+>>>>>>> upstream/android-13
 
 	/* physical map length of vop register */
 	uint32_t len;
@@ -135,6 +254,12 @@ struct vop {
 	/* vop dclk reset */
 	struct reset_control *dclk_rst;
 
+<<<<<<< HEAD
+=======
+	/* optional internal rgb encoder */
+	struct rockchip_rgb *rgb;
+
+>>>>>>> upstream/android-13
 	struct vop_win win[];
 };
 
@@ -243,6 +368,32 @@ static enum vop_data_format vop_convert_format(uint32_t format)
 	}
 }
 
+<<<<<<< HEAD
+=======
+static int vop_convert_afbc_format(uint32_t format)
+{
+	switch (format) {
+	case DRM_FORMAT_XRGB8888:
+	case DRM_FORMAT_ARGB8888:
+	case DRM_FORMAT_XBGR8888:
+	case DRM_FORMAT_ABGR8888:
+		return AFBC_FMT_U8U8U8U8;
+	case DRM_FORMAT_RGB888:
+	case DRM_FORMAT_BGR888:
+		return AFBC_FMT_U8U8U8;
+	case DRM_FORMAT_RGB565:
+	case DRM_FORMAT_BGR565:
+		return AFBC_FMT_RGB565;
+	/* either of the below should not be reachable */
+	default:
+		DRM_WARN_ONCE("unsupported AFBC format[%08x]\n", format);
+		return -EINVAL;
+	}
+
+	return -EINVAL;
+}
+
+>>>>>>> upstream/android-13
 static uint16_t scl_vop_cal_scale(enum scale_mode mode, uint32_t src,
 				  uint32_t dst, bool is_horizontal,
 				  int vsu_mode, int *vskiplines)
@@ -279,24 +430,37 @@ static uint16_t scl_vop_cal_scale(enum scale_mode mode, uint32_t src,
 
 static void scl_vop_cal_scl_fac(struct vop *vop, const struct vop_win_data *win,
 			     uint32_t src_w, uint32_t src_h, uint32_t dst_w,
+<<<<<<< HEAD
 			     uint32_t dst_h, uint32_t pixel_format)
+=======
+			     uint32_t dst_h, const struct drm_format_info *info)
+>>>>>>> upstream/android-13
 {
 	uint16_t yrgb_hor_scl_mode, yrgb_ver_scl_mode;
 	uint16_t cbcr_hor_scl_mode = SCALE_NONE;
 	uint16_t cbcr_ver_scl_mode = SCALE_NONE;
+<<<<<<< HEAD
 	int hsub = drm_format_horz_chroma_subsampling(pixel_format);
 	int vsub = drm_format_vert_chroma_subsampling(pixel_format);
 	const struct drm_format_info *info;
 	bool is_yuv = false;
 	uint16_t cbcr_src_w = src_w / hsub;
 	uint16_t cbcr_src_h = src_h / vsub;
+=======
+	bool is_yuv = false;
+	uint16_t cbcr_src_w = src_w / info->hsub;
+	uint16_t cbcr_src_h = src_h / info->vsub;
+>>>>>>> upstream/android-13
 	uint16_t vsu_mode;
 	uint16_t lb_mode;
 	uint32_t val;
 	int vskiplines;
 
+<<<<<<< HEAD
 	info = drm_format_info(pixel_format);
 
+=======
+>>>>>>> upstream/android-13
 	if (info->is_yuv)
 		is_yuv = true;
 
@@ -505,8 +669,15 @@ static void vop_core_clks_disable(struct vop *vop)
 	clk_disable(vop->hclk);
 }
 
+<<<<<<< HEAD
 static void vop_win_disable(struct vop *vop, const struct vop_win_data *win)
 {
+=======
+static void vop_win_disable(struct vop *vop, const struct vop_win *vop_win)
+{
+	const struct vop_win_data *win = vop_win->data;
+
+>>>>>>> upstream/android-13
 	if (win->phy->scl && win->phy->scl->ext) {
 		VOP_SCL_SET_EXT(vop, win, yrgb_hor_scl_mode, SCALE_NONE);
 		VOP_SCL_SET_EXT(vop, win, yrgb_ver_scl_mode, SCALE_NONE);
@@ -515,9 +686,16 @@ static void vop_win_disable(struct vop *vop, const struct vop_win_data *win)
 	}
 
 	VOP_WIN_SET(vop, win, enable, 0);
+<<<<<<< HEAD
 }
 
 static int vop_enable(struct drm_crtc *crtc)
+=======
+	vop->win_enabled &= ~BIT(VOP_WIN_TO_INDEX(vop_win));
+}
+
+static int vop_enable(struct drm_crtc *crtc, struct drm_crtc_state *old_state)
+>>>>>>> upstream/android-13
 {
 	struct vop *vop = to_vop(crtc);
 	int ret, i;
@@ -557,6 +735,7 @@ static int vop_enable(struct drm_crtc *crtc)
 	 * We need to make sure that all windows are disabled before we
 	 * enable the crtc. Otherwise we might try to scan from a destroyed
 	 * buffer later.
+<<<<<<< HEAD
 	 */
 	for (i = 0; i < vop->data->win_size; i++) {
 		struct vop_win *vop_win = &vop->win[i];
@@ -568,6 +747,35 @@ static int vop_enable(struct drm_crtc *crtc)
 
 	vop_cfg_done(vop);
 
+=======
+	 *
+	 * In the case of enable-after-PSR, we don't need to worry about this
+	 * case since the buffer is guaranteed to be valid and disabling the
+	 * window will result in screen glitches on PSR exit.
+	 */
+	if (!old_state || !old_state->self_refresh_active) {
+		for (i = 0; i < vop->data->win_size; i++) {
+			struct vop_win *vop_win = &vop->win[i];
+
+			vop_win_disable(vop, vop_win);
+		}
+	}
+
+	if (vop->data->afbc) {
+		struct rockchip_crtc_state *s;
+		/*
+		 * Disable AFBC and forget there was a vop window with AFBC
+		 */
+		VOP_AFBC_SET(vop, enable, 0);
+		s = to_rockchip_crtc_state(crtc->state);
+		s->enable_afbc = false;
+	}
+
+	vop_cfg_done(vop);
+
+	spin_unlock(&vop->reg_lock);
+
+>>>>>>> upstream/android-13
 	/*
 	 * At here, vop clock & iommu is enable, R/W vop regs would be safe.
 	 */
@@ -592,16 +800,53 @@ err_put_pm_runtime:
 	return ret;
 }
 
+<<<<<<< HEAD
 static void vop_crtc_atomic_disable(struct drm_crtc *crtc,
 				    struct drm_crtc_state *old_state)
+=======
+static void rockchip_drm_set_win_enabled(struct drm_crtc *crtc, bool enabled)
+{
+        struct vop *vop = to_vop(crtc);
+        int i;
+
+        spin_lock(&vop->reg_lock);
+
+        for (i = 0; i < vop->data->win_size; i++) {
+                struct vop_win *vop_win = &vop->win[i];
+                const struct vop_win_data *win = vop_win->data;
+
+                VOP_WIN_SET(vop, win, enable,
+                            enabled && (vop->win_enabled & BIT(i)));
+        }
+        vop_cfg_done(vop);
+
+        spin_unlock(&vop->reg_lock);
+}
+
+static void vop_crtc_atomic_disable(struct drm_crtc *crtc,
+				    struct drm_atomic_state *state)
+>>>>>>> upstream/android-13
 {
 	struct vop *vop = to_vop(crtc);
 
 	WARN_ON(vop->event);
 
+<<<<<<< HEAD
 	mutex_lock(&vop->vop_lock);
 	drm_crtc_vblank_off(crtc);
 
+=======
+	if (crtc->state->self_refresh_active)
+		rockchip_drm_set_win_enabled(crtc, false);
+
+	mutex_lock(&vop->vop_lock);
+
+	drm_crtc_vblank_off(crtc);
+
+	if (crtc->state->self_refresh_active)
+		goto out;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Vop standby will take effect at end of current frame,
 	 * if dsp hold valid irq happen, it means standby complete.
@@ -632,6 +877,11 @@ static void vop_crtc_atomic_disable(struct drm_crtc *crtc,
 	clk_disable(vop->dclk);
 	vop_core_clks_disable(vop);
 	pm_runtime_put(vop->dev);
+<<<<<<< HEAD
+=======
+
+out:
+>>>>>>> upstream/android-13
 	mutex_unlock(&vop->vop_lock);
 
 	if (crtc->state->event && !crtc->state->active) {
@@ -648,12 +898,43 @@ static void vop_plane_destroy(struct drm_plane *plane)
 	drm_plane_cleanup(plane);
 }
 
+<<<<<<< HEAD
 static int vop_plane_atomic_check(struct drm_plane *plane,
 			   struct drm_plane_state *state)
 {
 	struct drm_crtc *crtc = state->crtc;
 	struct drm_crtc_state *crtc_state;
 	struct drm_framebuffer *fb = state->fb;
+=======
+static inline bool rockchip_afbc(u64 modifier)
+{
+	return modifier == ROCKCHIP_AFBC_MOD;
+}
+
+static bool rockchip_mod_supported(struct drm_plane *plane,
+				   u32 format, u64 modifier)
+{
+	if (modifier == DRM_FORMAT_MOD_LINEAR)
+		return true;
+
+	if (!rockchip_afbc(modifier)) {
+		DRM_DEBUG_KMS("Unsupported format modifier 0x%llx\n", modifier);
+
+		return false;
+	}
+
+	return vop_convert_afbc_format(format) >= 0;
+}
+
+static int vop_plane_atomic_check(struct drm_plane *plane,
+			   struct drm_atomic_state *state)
+{
+	struct drm_plane_state *new_plane_state = drm_atomic_get_new_plane_state(state,
+										 plane);
+	struct drm_crtc *crtc = new_plane_state->crtc;
+	struct drm_crtc_state *crtc_state;
+	struct drm_framebuffer *fb = new_plane_state->fb;
+>>>>>>> upstream/android-13
 	struct vop_win *vop_win = to_vop_win(plane);
 	const struct vop_win_data *win = vop_win->data;
 	int ret;
@@ -662,6 +943,7 @@ static int vop_plane_atomic_check(struct drm_plane *plane,
 	int max_scale = win->phy->scl ? FRAC_16_16(8, 1) :
 					DRM_PLANE_HELPER_NO_SCALING;
 
+<<<<<<< HEAD
 	if (!crtc || !fb)
 		return 0;
 
@@ -670,12 +952,27 @@ static int vop_plane_atomic_check(struct drm_plane *plane,
 		return -EINVAL;
 
 	ret = drm_atomic_helper_check_plane_state(state, crtc_state,
+=======
+	if (!crtc || WARN_ON(!fb))
+		return 0;
+
+	crtc_state = drm_atomic_get_existing_crtc_state(state,
+							crtc);
+	if (WARN_ON(!crtc_state))
+		return -EINVAL;
+
+	ret = drm_atomic_helper_check_plane_state(new_plane_state, crtc_state,
+>>>>>>> upstream/android-13
 						  min_scale, max_scale,
 						  true, true);
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	if (!state->visible)
+=======
+	if (!new_plane_state->visible)
+>>>>>>> upstream/android-13
 		return 0;
 
 	ret = vop_convert_format(fb->format->format);
@@ -686,19 +983,65 @@ static int vop_plane_atomic_check(struct drm_plane *plane,
 	 * Src.x1 can be odd when do clip, but yuv plane start point
 	 * need align with 2 pixel.
 	 */
+<<<<<<< HEAD
 	if (fb->format->is_yuv && ((state->src.x1 >> 16) % 2)) {
+=======
+	if (fb->format->is_yuv && ((new_plane_state->src.x1 >> 16) % 2)) {
+>>>>>>> upstream/android-13
 		DRM_ERROR("Invalid Source: Yuv format not support odd xpos\n");
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
+=======
+	if (fb->format->is_yuv && new_plane_state->rotation & DRM_MODE_REFLECT_Y) {
+		DRM_ERROR("Invalid Source: Yuv format does not support this rotation\n");
+		return -EINVAL;
+	}
+
+	if (rockchip_afbc(fb->modifier)) {
+		struct vop *vop = to_vop(crtc);
+
+		if (!vop->data->afbc) {
+			DRM_ERROR("vop does not support AFBC\n");
+			return -EINVAL;
+		}
+
+		ret = vop_convert_afbc_format(fb->format->format);
+		if (ret < 0)
+			return ret;
+
+		if (new_plane_state->src.x1 || new_plane_state->src.y1) {
+			DRM_ERROR("AFBC does not support offset display, xpos=%d, ypos=%d, offset=%d\n",
+				  new_plane_state->src.x1,
+				  new_plane_state->src.y1, fb->offsets[0]);
+			return -EINVAL;
+		}
+
+		if (new_plane_state->rotation && new_plane_state->rotation != DRM_MODE_ROTATE_0) {
+			DRM_ERROR("No rotation support in AFBC, rotation=%d\n",
+				  new_plane_state->rotation);
+			return -EINVAL;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static void vop_plane_atomic_disable(struct drm_plane *plane,
+<<<<<<< HEAD
 				     struct drm_plane_state *old_state)
 {
 	struct vop_win *vop_win = to_vop_win(plane);
 	const struct vop_win_data *win = vop_win->data;
+=======
+				     struct drm_atomic_state *state)
+{
+	struct drm_plane_state *old_state = drm_atomic_get_old_plane_state(state,
+									   plane);
+	struct vop_win *vop_win = to_vop_win(plane);
+>>>>>>> upstream/android-13
 	struct vop *vop = to_vop(old_state->crtc);
 
 	if (!old_state->crtc)
@@ -706,12 +1049,17 @@ static void vop_plane_atomic_disable(struct drm_plane *plane,
 
 	spin_lock(&vop->reg_lock);
 
+<<<<<<< HEAD
 	vop_win_disable(vop, win);
+=======
+	vop_win_disable(vop, vop_win);
+>>>>>>> upstream/android-13
 
 	spin_unlock(&vop->reg_lock);
 }
 
 static void vop_plane_atomic_update(struct drm_plane *plane,
+<<<<<<< HEAD
 		struct drm_plane_state *old_state)
 {
 	struct drm_plane_state *state = plane->state;
@@ -725,6 +1073,23 @@ static void vop_plane_atomic_update(struct drm_plane *plane,
 	uint32_t act_info, dsp_info, dsp_st;
 	struct drm_rect *src = &state->src;
 	struct drm_rect *dest = &state->dst;
+=======
+		struct drm_atomic_state *state)
+{
+	struct drm_plane_state *new_state = drm_atomic_get_new_plane_state(state,
+									   plane);
+	struct drm_crtc *crtc = new_state->crtc;
+	struct vop_win *vop_win = to_vop_win(plane);
+	const struct vop_win_data *win = vop_win->data;
+	const struct vop_win_yuv2yuv_data *win_yuv2yuv = vop_win->yuv2yuv_data;
+	struct vop *vop = to_vop(new_state->crtc);
+	struct drm_framebuffer *fb = new_state->fb;
+	unsigned int actual_w, actual_h;
+	unsigned int dsp_stx, dsp_sty;
+	uint32_t act_info, dsp_info, dsp_st;
+	struct drm_rect *src = &new_state->src;
+	struct drm_rect *dest = &new_state->dst;
+>>>>>>> upstream/android-13
 	struct drm_gem_object *obj, *uv_obj;
 	struct rockchip_gem_object *rk_obj, *rk_uv_obj;
 	unsigned long offset;
@@ -733,6 +1098,11 @@ static void vop_plane_atomic_update(struct drm_plane *plane,
 	bool rb_swap;
 	int win_index = VOP_WIN_TO_INDEX(vop_win);
 	int format;
+<<<<<<< HEAD
+=======
+	int is_yuv = fb->format->is_yuv;
+	int i;
+>>>>>>> upstream/android-13
 
 	/*
 	 * can't update plane when vop is disabled.
@@ -743,8 +1113,13 @@ static void vop_plane_atomic_update(struct drm_plane *plane,
 	if (WARN_ON(!vop->is_enabled))
 		return;
 
+<<<<<<< HEAD
 	if (!state->visible) {
 		vop_plane_atomic_disable(plane, old_state);
+=======
+	if (!new_state->visible) {
+		vop_plane_atomic_disable(plane, state);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -766,16 +1141,51 @@ static void vop_plane_atomic_update(struct drm_plane *plane,
 	offset += (src->y1 >> 16) * fb->pitches[0];
 	dma_addr = rk_obj->dma_addr + offset + fb->offsets[0];
 
+<<<<<<< HEAD
+=======
+	/*
+	 * For y-mirroring we need to move address
+	 * to the beginning of the last line.
+	 */
+	if (new_state->rotation & DRM_MODE_REFLECT_Y)
+		dma_addr += (actual_h - 1) * fb->pitches[0];
+
+>>>>>>> upstream/android-13
 	format = vop_convert_format(fb->format->format);
 
 	spin_lock(&vop->reg_lock);
 
+<<<<<<< HEAD
 	VOP_WIN_SET(vop, win, format, format);
 	VOP_WIN_SET(vop, win, yrgb_vir, DIV_ROUND_UP(fb->pitches[0], 4));
 	VOP_WIN_SET(vop, win, yrgb_mst, dma_addr);
 	if (fb->format->is_yuv) {
 		int hsub = drm_format_horz_chroma_subsampling(fb->format->format);
 		int vsub = drm_format_vert_chroma_subsampling(fb->format->format);
+=======
+	if (rockchip_afbc(fb->modifier)) {
+		int afbc_format = vop_convert_afbc_format(fb->format->format);
+
+		VOP_AFBC_SET(vop, format, afbc_format | AFBC_TILE_16x16);
+		VOP_AFBC_SET(vop, hreg_block_split, 0);
+		VOP_AFBC_SET(vop, win_sel, VOP_WIN_TO_INDEX(vop_win));
+		VOP_AFBC_SET(vop, hdr_ptr, dma_addr);
+		VOP_AFBC_SET(vop, pic_size, act_info);
+	}
+
+	VOP_WIN_SET(vop, win, format, format);
+	VOP_WIN_SET(vop, win, yrgb_vir, DIV_ROUND_UP(fb->pitches[0], 4));
+	VOP_WIN_SET(vop, win, yrgb_mst, dma_addr);
+	VOP_WIN_YUV2YUV_SET(vop, win_yuv2yuv, y2r_en, is_yuv);
+	VOP_WIN_SET(vop, win, y_mir_en,
+		    (new_state->rotation & DRM_MODE_REFLECT_Y) ? 1 : 0);
+	VOP_WIN_SET(vop, win, x_mir_en,
+		    (new_state->rotation & DRM_MODE_REFLECT_X) ? 1 : 0);
+
+	if (is_yuv) {
+		int hsub = fb->format->hsub;
+		int vsub = fb->format->vsub;
+>>>>>>> upstream/android-13
 		int bpp = fb->format->cpp[1];
 
 		uv_obj = fb->obj[1];
@@ -787,12 +1197,26 @@ static void vop_plane_atomic_update(struct drm_plane *plane,
 		dma_addr = rk_uv_obj->dma_addr + offset + fb->offsets[1];
 		VOP_WIN_SET(vop, win, uv_vir, DIV_ROUND_UP(fb->pitches[1], 4));
 		VOP_WIN_SET(vop, win, uv_mst, dma_addr);
+<<<<<<< HEAD
+=======
+
+		for (i = 0; i < NUM_YUV2YUV_COEFFICIENTS; i++) {
+			VOP_WIN_YUV2YUV_COEFFICIENT_SET(vop,
+							win_yuv2yuv,
+							y2r_coefficients[i],
+							bt601_yuv2rgb[i]);
+		}
+>>>>>>> upstream/android-13
 	}
 
 	if (win->phy->scl)
 		scl_vop_cal_scl_fac(vop, win, actual_w, actual_h,
 				    drm_rect_width(dest), drm_rect_height(dest),
+<<<<<<< HEAD
 				    fb->format->format);
+=======
+				    fb->format);
+>>>>>>> upstream/android-13
 
 	VOP_WIN_SET(vop, win, act_info, act_info);
 	VOP_WIN_SET(vop, win, dsp_info, dsp_info);
@@ -817,6 +1241,7 @@ static void vop_plane_atomic_update(struct drm_plane *plane,
 			SRC_ALPHA_CAL_M0(ALPHA_NO_SATURATION) |
 			SRC_FACTOR_M0(ALPHA_ONE);
 		VOP_WIN_SET(vop, win, src_alpha_ctl, val);
+<<<<<<< HEAD
 	} else {
 		VOP_WIN_SET(vop, win, src_alpha_ctl, SRC_ALPHA_EN(0));
 	}
@@ -825,10 +1250,105 @@ static void vop_plane_atomic_update(struct drm_plane *plane,
 	spin_unlock(&vop->reg_lock);
 }
 
+=======
+
+		VOP_WIN_SET(vop, win, alpha_pre_mul, ALPHA_SRC_PRE_MUL);
+		VOP_WIN_SET(vop, win, alpha_mode, ALPHA_PER_PIX);
+		VOP_WIN_SET(vop, win, alpha_en, 1);
+	} else {
+		VOP_WIN_SET(vop, win, src_alpha_ctl, SRC_ALPHA_EN(0));
+		VOP_WIN_SET(vop, win, alpha_en, 0);
+	}
+
+	VOP_WIN_SET(vop, win, enable, 1);
+	vop->win_enabled |= BIT(win_index);
+	spin_unlock(&vop->reg_lock);
+}
+
+static int vop_plane_atomic_async_check(struct drm_plane *plane,
+					struct drm_atomic_state *state)
+{
+	struct drm_plane_state *new_plane_state = drm_atomic_get_new_plane_state(state,
+										 plane);
+	struct vop_win *vop_win = to_vop_win(plane);
+	const struct vop_win_data *win = vop_win->data;
+	int min_scale = win->phy->scl ? FRAC_16_16(1, 8) :
+					DRM_PLANE_HELPER_NO_SCALING;
+	int max_scale = win->phy->scl ? FRAC_16_16(8, 1) :
+					DRM_PLANE_HELPER_NO_SCALING;
+	struct drm_crtc_state *crtc_state;
+
+	if (plane != new_plane_state->crtc->cursor)
+		return -EINVAL;
+
+	if (!plane->state)
+		return -EINVAL;
+
+	if (!plane->state->fb)
+		return -EINVAL;
+
+	if (state)
+		crtc_state = drm_atomic_get_existing_crtc_state(state,
+								new_plane_state->crtc);
+	else /* Special case for asynchronous cursor updates. */
+		crtc_state = plane->crtc->state;
+
+	return drm_atomic_helper_check_plane_state(plane->state, crtc_state,
+						   min_scale, max_scale,
+						   true, true);
+}
+
+static void vop_plane_atomic_async_update(struct drm_plane *plane,
+					  struct drm_atomic_state *state)
+{
+	struct drm_plane_state *new_state = drm_atomic_get_new_plane_state(state,
+									   plane);
+	struct vop *vop = to_vop(plane->state->crtc);
+	struct drm_framebuffer *old_fb = plane->state->fb;
+
+	plane->state->crtc_x = new_state->crtc_x;
+	plane->state->crtc_y = new_state->crtc_y;
+	plane->state->crtc_h = new_state->crtc_h;
+	plane->state->crtc_w = new_state->crtc_w;
+	plane->state->src_x = new_state->src_x;
+	plane->state->src_y = new_state->src_y;
+	plane->state->src_h = new_state->src_h;
+	plane->state->src_w = new_state->src_w;
+	swap(plane->state->fb, new_state->fb);
+
+	if (vop->is_enabled) {
+		vop_plane_atomic_update(plane, state);
+		spin_lock(&vop->reg_lock);
+		vop_cfg_done(vop);
+		spin_unlock(&vop->reg_lock);
+
+		/*
+		 * A scanout can still be occurring, so we can't drop the
+		 * reference to the old framebuffer. To solve this we get a
+		 * reference to old_fb and set a worker to release it later.
+		 * FIXME: if we perform 500 async_update calls before the
+		 * vblank, then we can have 500 different framebuffers waiting
+		 * to be released.
+		 */
+		if (old_fb && plane->state->fb != old_fb) {
+			drm_framebuffer_get(old_fb);
+			WARN_ON(drm_crtc_vblank_get(plane->state->crtc) != 0);
+			drm_flip_work_queue(&vop->fb_unref_work, old_fb);
+			set_bit(VOP_PENDING_FB_UNREF, &vop->pending);
+		}
+	}
+}
+
+>>>>>>> upstream/android-13
 static const struct drm_plane_helper_funcs plane_helper_funcs = {
 	.atomic_check = vop_plane_atomic_check,
 	.atomic_update = vop_plane_atomic_update,
 	.atomic_disable = vop_plane_atomic_disable,
+<<<<<<< HEAD
+=======
+	.atomic_async_check = vop_plane_atomic_async_check,
+	.atomic_async_update = vop_plane_atomic_async_update,
+>>>>>>> upstream/android-13
 };
 
 static const struct drm_plane_funcs vop_plane_funcs = {
@@ -838,6 +1358,10 @@ static const struct drm_plane_funcs vop_plane_funcs = {
 	.reset = drm_atomic_helper_plane_reset,
 	.atomic_duplicate_state = drm_atomic_helper_plane_duplicate_state,
 	.atomic_destroy_state = drm_atomic_helper_plane_destroy_state,
+<<<<<<< HEAD
+=======
+	.format_mod_supported = rockchip_mod_supported,
+>>>>>>> upstream/android-13
 };
 
 static int vop_crtc_enable_vblank(struct drm_crtc *crtc)
@@ -878,17 +1402,138 @@ static bool vop_crtc_mode_fixup(struct drm_crtc *crtc,
 				struct drm_display_mode *adjusted_mode)
 {
 	struct vop *vop = to_vop(crtc);
+<<<<<<< HEAD
 
 	adjusted_mode->clock =
 		DIV_ROUND_UP(clk_round_rate(vop->dclk, mode->clock * 1000),
 			     1000);
+=======
+	unsigned long rate;
+
+	/*
+	 * Clock craziness.
+	 *
+	 * Key points:
+	 *
+	 * - DRM works in in kHz.
+	 * - Clock framework works in Hz.
+	 * - Rockchip's clock driver picks the clock rate that is the
+	 *   same _OR LOWER_ than the one requested.
+	 *
+	 * Action plan:
+	 *
+	 * 1. Try to set the exact rate first, and confirm the clock framework
+	 *    can provide it.
+	 *
+	 * 2. If the clock framework cannot provide the exact rate, we should
+	 *    add 999 Hz to the requested rate.  That way if the clock we need
+	 *    is 60000001 Hz (~60 MHz) and DRM tells us to make 60000 kHz then
+	 *    the clock framework will actually give us the right clock.
+	 *
+	 * 3. Get the clock framework to round the rate for us to tell us
+	 *    what it will actually make.
+	 *
+	 * 4. Store the rounded up rate so that we don't need to worry about
+	 *    this in the actual clk_set_rate().
+	 */
+	rate = clk_round_rate(vop->dclk, adjusted_mode->clock * 1000);
+	if (rate / 1000 != adjusted_mode->clock)
+		rate = clk_round_rate(vop->dclk,
+				      adjusted_mode->clock * 1000 + 999);
+	adjusted_mode->clock = DIV_ROUND_UP(rate, 1000);
+>>>>>>> upstream/android-13
 
 	return true;
 }
 
+<<<<<<< HEAD
 static void vop_crtc_atomic_enable(struct drm_crtc *crtc,
 				   struct drm_crtc_state *old_state)
 {
+=======
+static bool vop_dsp_lut_is_enabled(struct vop *vop)
+{
+	return vop_read_reg(vop, 0, &vop->data->common->dsp_lut_en);
+}
+
+static void vop_crtc_write_gamma_lut(struct vop *vop, struct drm_crtc *crtc)
+{
+	struct drm_color_lut *lut = crtc->state->gamma_lut->data;
+	unsigned int i;
+
+	for (i = 0; i < crtc->gamma_size; i++) {
+		u32 word;
+
+		word = (drm_color_lut_extract(lut[i].red, 10) << 20) |
+		       (drm_color_lut_extract(lut[i].green, 10) << 10) |
+			drm_color_lut_extract(lut[i].blue, 10);
+		writel(word, vop->lut_regs + i * 4);
+	}
+}
+
+static void vop_crtc_gamma_set(struct vop *vop, struct drm_crtc *crtc,
+			       struct drm_crtc_state *old_state)
+{
+	struct drm_crtc_state *state = crtc->state;
+	unsigned int idle;
+	int ret;
+
+	if (!vop->lut_regs)
+		return;
+	/*
+	 * To disable gamma (gamma_lut is null) or to write
+	 * an update to the LUT, clear dsp_lut_en.
+	 */
+	spin_lock(&vop->reg_lock);
+	VOP_REG_SET(vop, common, dsp_lut_en, 0);
+	vop_cfg_done(vop);
+	spin_unlock(&vop->reg_lock);
+
+	/*
+	 * In order to write the LUT to the internal memory,
+	 * we need to first make sure the dsp_lut_en bit is cleared.
+	 */
+	ret = readx_poll_timeout(vop_dsp_lut_is_enabled, vop,
+				 idle, !idle, 5, 30 * 1000);
+	if (ret) {
+		DRM_DEV_ERROR(vop->dev, "display LUT RAM enable timeout!\n");
+		return;
+	}
+
+	if (!state->gamma_lut)
+		return;
+
+	spin_lock(&vop->reg_lock);
+	vop_crtc_write_gamma_lut(vop, crtc);
+	VOP_REG_SET(vop, common, dsp_lut_en, 1);
+	vop_cfg_done(vop);
+	spin_unlock(&vop->reg_lock);
+}
+
+static void vop_crtc_atomic_begin(struct drm_crtc *crtc,
+				  struct drm_atomic_state *state)
+{
+	struct drm_crtc_state *crtc_state = drm_atomic_get_new_crtc_state(state,
+									  crtc);
+	struct drm_crtc_state *old_crtc_state = drm_atomic_get_old_crtc_state(state,
+									      crtc);
+	struct vop *vop = to_vop(crtc);
+
+	/*
+	 * Only update GAMMA if the 'active' flag is not changed,
+	 * otherwise it's updated by .atomic_enable.
+	 */
+	if (crtc_state->color_mgmt_changed &&
+	    !crtc_state->active_changed)
+		vop_crtc_gamma_set(vop, crtc, old_crtc_state);
+}
+
+static void vop_crtc_atomic_enable(struct drm_crtc *crtc,
+				   struct drm_atomic_state *state)
+{
+	struct drm_crtc_state *old_state = drm_atomic_get_old_crtc_state(state,
+									 crtc);
+>>>>>>> upstream/android-13
 	struct vop *vop = to_vop(crtc);
 	const struct vop_data *vop_data = vop->data;
 	struct rockchip_crtc_state *s = to_rockchip_crtc_state(crtc->state);
@@ -904,25 +1549,54 @@ static void vop_crtc_atomic_enable(struct drm_crtc *crtc,
 	u16 vact_st = adjusted_mode->vtotal - adjusted_mode->vsync_start;
 	u16 vact_end = vact_st + vdisplay;
 	uint32_t pin_pol, val;
+<<<<<<< HEAD
 	int ret;
 
+=======
+	int dither_bpc = s->output_bpc ? s->output_bpc : 10;
+	int ret;
+
+	if (old_state && old_state->self_refresh_active) {
+		drm_crtc_vblank_on(crtc);
+		rockchip_drm_set_win_enabled(crtc, true);
+		return;
+	}
+
+	/*
+	 * If we have a GAMMA LUT in the state, then let's make sure
+	 * it's updated. We might be coming out of suspend,
+	 * which means the LUT internal memory needs to be re-written.
+	 */
+	if (crtc->state->gamma_lut)
+		vop_crtc_gamma_set(vop, crtc, old_state);
+
+>>>>>>> upstream/android-13
 	mutex_lock(&vop->vop_lock);
 
 	WARN_ON(vop->event);
 
+<<<<<<< HEAD
 	ret = vop_enable(crtc);
+=======
+	ret = vop_enable(crtc, old_state);
+>>>>>>> upstream/android-13
 	if (ret) {
 		mutex_unlock(&vop->vop_lock);
 		DRM_DEV_ERROR(vop->dev, "Failed to enable vop (%d)\n", ret);
 		return;
 	}
+<<<<<<< HEAD
 
 	pin_pol = BIT(DCLK_INVERT);
 	pin_pol |= (adjusted_mode->flags & DRM_MODE_FLAG_PHSYNC) ?
+=======
+	pin_pol = (adjusted_mode->flags & DRM_MODE_FLAG_PHSYNC) ?
+>>>>>>> upstream/android-13
 		   BIT(HSYNC_POSITIVE) : 0;
 	pin_pol |= (adjusted_mode->flags & DRM_MODE_FLAG_PVSYNC) ?
 		   BIT(VSYNC_POSITIVE) : 0;
 	VOP_REG_SET(vop, output, pin_pol, pin_pol);
+<<<<<<< HEAD
 
 	switch (s->output_type) {
 	case DRM_MODE_CONNECTOR_LVDS:
@@ -930,19 +1604,46 @@ static void vop_crtc_atomic_enable(struct drm_crtc *crtc,
 		VOP_REG_SET(vop, output, rgb_pin_pol, pin_pol);
 		break;
 	case DRM_MODE_CONNECTOR_eDP:
+=======
+	VOP_REG_SET(vop, output, mipi_dual_channel_en, 0);
+
+	switch (s->output_type) {
+	case DRM_MODE_CONNECTOR_LVDS:
+		VOP_REG_SET(vop, output, rgb_dclk_pol, 1);
+		VOP_REG_SET(vop, output, rgb_pin_pol, pin_pol);
+		VOP_REG_SET(vop, output, rgb_en, 1);
+		break;
+	case DRM_MODE_CONNECTOR_eDP:
+		VOP_REG_SET(vop, output, edp_dclk_pol, 1);
+>>>>>>> upstream/android-13
 		VOP_REG_SET(vop, output, edp_pin_pol, pin_pol);
 		VOP_REG_SET(vop, output, edp_en, 1);
 		break;
 	case DRM_MODE_CONNECTOR_HDMIA:
+<<<<<<< HEAD
+=======
+		VOP_REG_SET(vop, output, hdmi_dclk_pol, 1);
+>>>>>>> upstream/android-13
 		VOP_REG_SET(vop, output, hdmi_pin_pol, pin_pol);
 		VOP_REG_SET(vop, output, hdmi_en, 1);
 		break;
 	case DRM_MODE_CONNECTOR_DSI:
+<<<<<<< HEAD
 		VOP_REG_SET(vop, output, mipi_pin_pol, pin_pol);
 		VOP_REG_SET(vop, output, mipi_en, 1);
 		break;
 	case DRM_MODE_CONNECTOR_DisplayPort:
 		pin_pol &= ~BIT(DCLK_INVERT);
+=======
+		VOP_REG_SET(vop, output, mipi_dclk_pol, 1);
+		VOP_REG_SET(vop, output, mipi_pin_pol, pin_pol);
+		VOP_REG_SET(vop, output, mipi_en, 1);
+		VOP_REG_SET(vop, output, mipi_dual_channel_en,
+			    !!(s->output_flags & ROCKCHIP_OUTPUT_DSI_DUAL));
+		break;
+	case DRM_MODE_CONNECTOR_DisplayPort:
+		VOP_REG_SET(vop, output, dp_dclk_pol, 0);
+>>>>>>> upstream/android-13
 		VOP_REG_SET(vop, output, dp_pin_pol, pin_pol);
 		VOP_REG_SET(vop, output, dp_en, 1);
 		break;
@@ -958,11 +1659,26 @@ static void vop_crtc_atomic_enable(struct drm_crtc *crtc,
 	    !(vop_data->feature & VOP_FEATURE_OUTPUT_RGB10))
 		s->output_mode = ROCKCHIP_OUT_MODE_P888;
 
+<<<<<<< HEAD
 	if (s->output_mode == ROCKCHIP_OUT_MODE_AAAA && s->output_bpc == 8)
+=======
+	if (s->output_mode == ROCKCHIP_OUT_MODE_AAAA && dither_bpc <= 8)
+>>>>>>> upstream/android-13
 		VOP_REG_SET(vop, common, pre_dither_down, 1);
 	else
 		VOP_REG_SET(vop, common, pre_dither_down, 0);
 
+<<<<<<< HEAD
+=======
+	if (dither_bpc == 6) {
+		VOP_REG_SET(vop, common, dither_down_sel, DITHER_DOWN_ALLEGRO);
+		VOP_REG_SET(vop, common, dither_down_mode, RGB888_TO_RGB666);
+		VOP_REG_SET(vop, common, dither_down_en, 1);
+	} else {
+		VOP_REG_SET(vop, common, dither_down_en, 0);
+	}
+
+>>>>>>> upstream/android-13
 	VOP_REG_SET(vop, common, out_mode, s->output_mode);
 
 	VOP_REG_SET(vop, modeset, htotal_pw, (htotal << 16) | hsync_len);
@@ -1011,13 +1727,72 @@ static void vop_wait_for_irq_handler(struct vop *vop)
 	synchronize_irq(vop->irq);
 }
 
+<<<<<<< HEAD
 static void vop_crtc_atomic_flush(struct drm_crtc *crtc,
 				  struct drm_crtc_state *old_crtc_state)
 {
+=======
+static int vop_crtc_atomic_check(struct drm_crtc *crtc,
+				 struct drm_atomic_state *state)
+{
+	struct drm_crtc_state *crtc_state = drm_atomic_get_new_crtc_state(state,
+									  crtc);
+	struct vop *vop = to_vop(crtc);
+	struct drm_plane *plane;
+	struct drm_plane_state *plane_state;
+	struct rockchip_crtc_state *s;
+	int afbc_planes = 0;
+
+	if (vop->lut_regs && crtc_state->color_mgmt_changed &&
+	    crtc_state->gamma_lut) {
+		unsigned int len;
+
+		len = drm_color_lut_size(crtc_state->gamma_lut);
+		if (len != crtc->gamma_size) {
+			DRM_DEBUG_KMS("Invalid LUT size; got %d, expected %d\n",
+				      len, crtc->gamma_size);
+			return -EINVAL;
+		}
+	}
+
+	drm_atomic_crtc_state_for_each_plane(plane, crtc_state) {
+		plane_state =
+			drm_atomic_get_plane_state(crtc_state->state, plane);
+		if (IS_ERR(plane_state)) {
+			DRM_DEBUG_KMS("Cannot get plane state for plane %s\n",
+				      plane->name);
+			return PTR_ERR(plane_state);
+		}
+
+		if (drm_is_afbc(plane_state->fb->modifier))
+			++afbc_planes;
+	}
+
+	if (afbc_planes > 1) {
+		DRM_DEBUG_KMS("Invalid number of AFBC planes; got %d, expected at most 1\n", afbc_planes);
+		return -EINVAL;
+	}
+
+	s = to_rockchip_crtc_state(crtc_state);
+	s->enable_afbc = afbc_planes > 0;
+
+	return 0;
+}
+
+static void vop_crtc_atomic_flush(struct drm_crtc *crtc,
+				  struct drm_atomic_state *state)
+{
+	struct drm_crtc_state *old_crtc_state = drm_atomic_get_old_crtc_state(state,
+									      crtc);
+>>>>>>> upstream/android-13
 	struct drm_atomic_state *old_state = old_crtc_state->state;
 	struct drm_plane_state *old_plane_state, *new_plane_state;
 	struct vop *vop = to_vop(crtc);
 	struct drm_plane *plane;
+<<<<<<< HEAD
+=======
+	struct rockchip_crtc_state *s;
+>>>>>>> upstream/android-13
 	int i;
 
 	if (WARN_ON(!vop->is_enabled))
@@ -1025,6 +1800,12 @@ static void vop_crtc_atomic_flush(struct drm_crtc *crtc,
 
 	spin_lock(&vop->reg_lock);
 
+<<<<<<< HEAD
+=======
+	/* Enable AFBC if there is some AFBC window, disable otherwise. */
+	s = to_rockchip_crtc_state(crtc->state);
+	VOP_AFBC_SET(vop, enable, s->enable_afbc);
+>>>>>>> upstream/android-13
 	vop_cfg_done(vop);
 
 	spin_unlock(&vop->reg_lock);
@@ -1063,6 +1844,11 @@ static void vop_crtc_atomic_flush(struct drm_crtc *crtc,
 
 static const struct drm_crtc_helper_funcs vop_crtc_helper_funcs = {
 	.mode_fixup = vop_crtc_mode_fixup,
+<<<<<<< HEAD
+=======
+	.atomic_check = vop_crtc_atomic_check,
+	.atomic_begin = vop_crtc_atomic_begin,
+>>>>>>> upstream/android-13
 	.atomic_flush = vop_crtc_atomic_flush,
 	.atomic_enable = vop_crtc_atomic_enable,
 	.atomic_disable = vop_crtc_atomic_disable,
@@ -1073,6 +1859,7 @@ static void vop_crtc_destroy(struct drm_crtc *crtc)
 	drm_crtc_cleanup(crtc);
 }
 
+<<<<<<< HEAD
 static void vop_crtc_reset(struct drm_crtc *crtc)
 {
 	if (crtc->state)
@@ -1084,6 +1871,8 @@ static void vop_crtc_reset(struct drm_crtc *crtc)
 		crtc->state->crtc = crtc;
 }
 
+=======
+>>>>>>> upstream/android-13
 static struct drm_crtc_state *vop_crtc_duplicate_state(struct drm_crtc *crtc)
 {
 	struct rockchip_crtc_state *rockchip_state;
@@ -1105,6 +1894,20 @@ static void vop_crtc_destroy_state(struct drm_crtc *crtc,
 	kfree(s);
 }
 
+<<<<<<< HEAD
+=======
+static void vop_crtc_reset(struct drm_crtc *crtc)
+{
+	struct rockchip_crtc_state *crtc_state =
+		kzalloc(sizeof(*crtc_state), GFP_KERNEL);
+
+	if (crtc->state)
+		vop_crtc_destroy_state(crtc, crtc->state);
+
+	__drm_atomic_helper_crtc_reset(crtc, &crtc_state->base);
+}
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_DRM_ANALOGIX_DP
 static struct drm_connector *vop_get_edp_connector(struct vop *vop)
 {
@@ -1124,7 +1927,11 @@ static struct drm_connector *vop_get_edp_connector(struct vop *vop)
 }
 
 static int vop_crtc_set_crc_source(struct drm_crtc *crtc,
+<<<<<<< HEAD
 				   const char *source_name, size_t *values_cnt)
+=======
+				   const char *source_name)
+>>>>>>> upstream/android-13
 {
 	struct vop *vop = to_vop(crtc);
 	struct drm_connector *connector;
@@ -1134,8 +1941,11 @@ static int vop_crtc_set_crc_source(struct drm_crtc *crtc,
 	if (!connector)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	*values_cnt = 3;
 
+=======
+>>>>>>> upstream/android-13
 	if (source_name && strcmp(source_name, "auto") == 0)
 		ret = analogix_dp_start_crc(connector);
 	else if (!source_name)
@@ -1145,9 +1955,34 @@ static int vop_crtc_set_crc_source(struct drm_crtc *crtc,
 
 	return ret;
 }
+<<<<<<< HEAD
 #else
 static int vop_crtc_set_crc_source(struct drm_crtc *crtc,
 				   const char *source_name, size_t *values_cnt)
+=======
+
+static int
+vop_crtc_verify_crc_source(struct drm_crtc *crtc, const char *source_name,
+			   size_t *values_cnt)
+{
+	if (source_name && strcmp(source_name, "auto") != 0)
+		return -EINVAL;
+
+	*values_cnt = 3;
+	return 0;
+}
+
+#else
+static int vop_crtc_set_crc_source(struct drm_crtc *crtc,
+				   const char *source_name)
+{
+	return -ENODEV;
+}
+
+static int
+vop_crtc_verify_crc_source(struct drm_crtc *crtc, const char *source_name,
+			   size_t *values_cnt)
+>>>>>>> upstream/android-13
 {
 	return -ENODEV;
 }
@@ -1163,6 +1998,10 @@ static const struct drm_crtc_funcs vop_crtc_funcs = {
 	.enable_vblank = vop_crtc_enable_vblank,
 	.disable_vblank = vop_crtc_disable_vblank,
 	.set_crc_source = vop_crtc_set_crc_source,
+<<<<<<< HEAD
+=======
+	.verify_crc_source = vop_crtc_verify_crc_source,
+>>>>>>> upstream/android-13
 };
 
 static void vop_fb_unref_worker(struct drm_flip_work *work, void *val)
@@ -1258,6 +2097,21 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static void vop_plane_add_properties(struct drm_plane *plane,
+				     const struct vop_win_data *win_data)
+{
+	unsigned int flags = 0;
+
+	flags |= VOP_WIN_HAS_REG(win_data, x_mir_en) ? DRM_MODE_REFLECT_X : 0;
+	flags |= VOP_WIN_HAS_REG(win_data, y_mir_en) ? DRM_MODE_REFLECT_Y : 0;
+	if (flags)
+		drm_plane_create_rotation_property(plane, DRM_MODE_ROTATE_0,
+						   DRM_MODE_ROTATE_0 | flags);
+}
+
+>>>>>>> upstream/android-13
 static int vop_create_crtc(struct vop *vop)
 {
 	const struct vop_data *vop_data = vop->data;
@@ -1286,7 +2140,12 @@ static int vop_create_crtc(struct vop *vop)
 					       0, &vop_plane_funcs,
 					       win_data->phy->data_formats,
 					       win_data->phy->nformats,
+<<<<<<< HEAD
 					       NULL, win_data->type, NULL);
+=======
+					       win_data->phy->format_modifiers,
+					       win_data->type, NULL);
+>>>>>>> upstream/android-13
 		if (ret) {
 			DRM_DEV_ERROR(vop->dev, "failed to init plane %d\n",
 				      ret);
@@ -1295,6 +2154,10 @@ static int vop_create_crtc(struct vop *vop)
 
 		plane = &vop_win->base;
 		drm_plane_helper_add(plane, &plane_helper_funcs);
+<<<<<<< HEAD
+=======
+		vop_plane_add_properties(plane, win_data);
+>>>>>>> upstream/android-13
 		if (plane->type == DRM_PLANE_TYPE_PRIMARY)
 			primary = plane;
 		else if (plane->type == DRM_PLANE_TYPE_CURSOR)
@@ -1307,6 +2170,13 @@ static int vop_create_crtc(struct vop *vop)
 		goto err_cleanup_planes;
 
 	drm_crtc_helper_add(crtc, &vop_crtc_helper_funcs);
+<<<<<<< HEAD
+=======
+	if (vop->lut_regs) {
+		drm_mode_crtc_set_gamma_size(crtc, vop_data->lut_size);
+		drm_crtc_enable_color_mgmt(crtc, 0, false, vop_data->lut_size);
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * Create drm_planes for overlay windows with possible_crtcs restricted
@@ -1325,13 +2195,22 @@ static int vop_create_crtc(struct vop *vop)
 					       &vop_plane_funcs,
 					       win_data->phy->data_formats,
 					       win_data->phy->nformats,
+<<<<<<< HEAD
 					       NULL, win_data->type, NULL);
+=======
+					       win_data->phy->format_modifiers,
+					       win_data->type, NULL);
+>>>>>>> upstream/android-13
 		if (ret) {
 			DRM_DEV_ERROR(vop->dev, "failed to init overlay %d\n",
 				      ret);
 			goto err_cleanup_crtc;
 		}
 		drm_plane_helper_add(&vop_win->base, &plane_helper_funcs);
+<<<<<<< HEAD
+=======
+		vop_plane_add_properties(&vop_win->base, win_data);
+>>>>>>> upstream/android-13
 	}
 
 	port = of_get_child_by_name(dev->of_node, "port");
@@ -1349,6 +2228,15 @@ static int vop_create_crtc(struct vop *vop)
 	init_completion(&vop->line_flag_completion);
 	crtc->port = port;
 
+<<<<<<< HEAD
+=======
+	ret = drm_self_refresh_helper_init(crtc);
+	if (ret)
+		DRM_DEV_DEBUG_KMS(vop->dev,
+			"Failed to init %s with SR helpers %d, ignoring\n",
+			crtc->name, ret);
+
+>>>>>>> upstream/android-13
 	return 0;
 
 err_cleanup_crtc:
@@ -1366,6 +2254,11 @@ static void vop_destroy_crtc(struct vop *vop)
 	struct drm_device *drm_dev = vop->drm_dev;
 	struct drm_plane *plane, *tmp;
 
+<<<<<<< HEAD
+=======
+	drm_self_refresh_helper_cleanup(crtc);
+
+>>>>>>> upstream/android-13
 	of_node_put(crtc->port);
 
 	/*
@@ -1390,7 +2283,10 @@ static void vop_destroy_crtc(struct vop *vop)
 
 static int vop_initial(struct vop *vop)
 {
+<<<<<<< HEAD
 	const struct vop_data *vop_data = vop->data;
+=======
+>>>>>>> upstream/android-13
 	struct reset_control *ahb_rst;
 	int i, ret;
 
@@ -1457,12 +2353,22 @@ static int vop_initial(struct vop *vop)
 	VOP_REG_SET(vop, misc, global_regdone_en, 1);
 	VOP_REG_SET(vop, common, dsp_blank, 0);
 
+<<<<<<< HEAD
 	for (i = 0; i < vop_data->win_size; i++) {
 		const struct vop_win_data *win = &vop_data->win[i];
 		int channel = i * 2 + 1;
 
 		VOP_WIN_SET(vop, win, channel, (channel + 1) << 4 | channel);
 		vop_win_disable(vop, win);
+=======
+	for (i = 0; i < vop->data->win_size; i++) {
+		struct vop_win *vop_win = &vop->win[i];
+		const struct vop_win_data *win = vop_win->data;
+		int channel = i * 2 + 1;
+
+		VOP_WIN_SET(vop, win, channel, (channel + 1) << 4 | channel);
+		vop_win_disable(vop, vop_win);
+>>>>>>> upstream/android-13
 		VOP_WIN_SET(vop, win, gate, 1);
 	}
 
@@ -1515,6 +2421,12 @@ static void vop_win_init(struct vop *vop)
 
 		vop_win->data = win_data;
 		vop_win->vop = vop;
+<<<<<<< HEAD
+=======
+
+		if (vop_data->win_yuv2yuv)
+			vop_win->yuv2yuv_data = &vop_data->win_yuv2yuv[i];
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1574,7 +2486,10 @@ static int vop_bind(struct device *dev, struct device *master, void *data)
 	struct drm_device *drm_dev = data;
 	struct vop *vop;
 	struct resource *res;
+<<<<<<< HEAD
 	size_t alloc_size;
+=======
+>>>>>>> upstream/android-13
 	int ret, irq;
 
 	vop_data = of_device_get_match_data(dev);
@@ -1582,8 +2497,13 @@ static int vop_bind(struct device *dev, struct device *master, void *data)
 		return -ENODEV;
 
 	/* Allocate vop struct and its vop_win array */
+<<<<<<< HEAD
 	alloc_size = sizeof(*vop) + sizeof(*vop->win) * vop_data->win_size;
 	vop = devm_kzalloc(dev, alloc_size, GFP_KERNEL);
+=======
+	vop = devm_kzalloc(dev, struct_size(vop, win, vop_data->win_size),
+			   GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!vop)
 		return -ENOMEM;
 
@@ -1600,6 +2520,20 @@ static int vop_bind(struct device *dev, struct device *master, void *data)
 	if (IS_ERR(vop->regs))
 		return PTR_ERR(vop->regs);
 
+<<<<<<< HEAD
+=======
+	res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
+	if (res) {
+		if (!vop_data->lut_size) {
+			DRM_DEV_ERROR(dev, "no gamma LUT size defined\n");
+			return -EINVAL;
+		}
+		vop->lut_regs = devm_ioremap_resource(dev, res);
+		if (IS_ERR(vop->lut_regs))
+			return PTR_ERR(vop->lut_regs);
+	}
+
+>>>>>>> upstream/android-13
 	vop->regsbak = devm_kzalloc(dev, vop->len, GFP_KERNEL);
 	if (!vop->regsbak)
 		return -ENOMEM;
@@ -1633,6 +2567,17 @@ static int vop_bind(struct device *dev, struct device *master, void *data)
 	if (ret)
 		goto err_disable_pm_runtime;
 
+<<<<<<< HEAD
+=======
+	if (vop->data->feature & VOP_FEATURE_INTERNAL_RGB) {
+		vop->rgb = rockchip_rgb_init(dev, &vop->crtc, vop->drm_dev);
+		if (IS_ERR(vop->rgb)) {
+			ret = PTR_ERR(vop->rgb);
+			goto err_disable_pm_runtime;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 
 err_disable_pm_runtime:
@@ -1645,6 +2590,12 @@ static void vop_unbind(struct device *dev, struct device *master, void *data)
 {
 	struct vop *vop = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
+=======
+	if (vop->rgb)
+		rockchip_rgb_fini(vop->rgb);
+
+>>>>>>> upstream/android-13
 	pm_runtime_disable(dev);
 	vop_destroy_crtc(vop);
 

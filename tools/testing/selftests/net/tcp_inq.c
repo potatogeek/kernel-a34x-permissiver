@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright 2018 Google Inc.
  * Author: Soheil Hassas Yeganeh (soheil@google.com)
  *
  * Simple example on how to use TCP_INQ and TCP_CM_INQ.
+<<<<<<< HEAD
  *
  * License (GPLv2):
  *
@@ -14,6 +19,8 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. * See the GNU General Public License for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 #define _GNU_SOURCE
 

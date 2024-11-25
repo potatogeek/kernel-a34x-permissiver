@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016 Mellanox Technologies Ltd. All rights reserved.
  * Copyright (c) 2015 System Fabric Works, Inc. All rights reserved.
@@ -29,13 +30,23 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+// SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB
+/*
+ * Copyright (c) 2016 Mellanox Technologies Ltd. All rights reserved.
+ * Copyright (c) 2015 System Fabric Works, Inc. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
 #include <linux/vmalloc.h>
 #include <linux/mm.h>
 #include <linux/errno.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+#include <rdma/uverbs_ioctl.h>
+>>>>>>> upstream/android-13
 
 #include "rxe.h"
 #include "rxe_loc.h"
@@ -140,6 +151,7 @@ done:
 /*
  * Allocate information for rxe_mmap
  */
+<<<<<<< HEAD
 struct rxe_mmap_info *rxe_create_mmap_info(struct rxe_dev *rxe,
 					   u32 size,
 					   struct ib_ucontext *context,
@@ -150,6 +162,19 @@ struct rxe_mmap_info *rxe_create_mmap_info(struct rxe_dev *rxe,
 	ip = kmalloc(sizeof(*ip), GFP_KERNEL);
 	if (!ip)
 		return NULL;
+=======
+struct rxe_mmap_info *rxe_create_mmap_info(struct rxe_dev *rxe, u32 size,
+					   struct ib_udata *udata, void *obj)
+{
+	struct rxe_mmap_info *ip;
+
+	if (!udata)
+		return ERR_PTR(-EINVAL);
+
+	ip = kmalloc(sizeof(*ip), GFP_KERNEL);
+	if (!ip)
+		return ERR_PTR(-ENOMEM);
+>>>>>>> upstream/android-13
 
 	size = PAGE_ALIGN(size);
 
@@ -165,7 +190,13 @@ struct rxe_mmap_info *rxe_create_mmap_info(struct rxe_dev *rxe,
 
 	INIT_LIST_HEAD(&ip->pending_mmaps);
 	ip->info.size = size;
+<<<<<<< HEAD
 	ip->context = context;
+=======
+	ip->context =
+		container_of(udata, struct uverbs_attr_bundle, driver_udata)
+			->context;
+>>>>>>> upstream/android-13
 	ip->obj = obj;
 	kref_init(&ip->ref);
 

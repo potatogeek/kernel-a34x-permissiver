@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Purna Chandra Mandal,<purna.mandal@microchip.com>
  * Copyright (C) 2015 Microchip Technology Inc.  All rights reserved.
@@ -10,6 +11,12 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Purna Chandra Mandal,<purna.mandal@microchip.com>
+ * Copyright (C) 2015 Microchip Technology Inc.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _DT_BINDINGS_CLK_MICROCHIP_PIC32_H_

@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * Definitions used by low-level trap handlers
  *
  * Copyright (C) 2008-2009 Michal Simek <monstr@monstr.eu>
  * Copyright (C) 2007-2009 PetaLogix
  * Copyright (C) 2007 John Williams <john.williams@petalogix.com>
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General
  * Public License. See the file COPYING in the main directory of this
  * archive for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_MICROBLAZE_ENTRY_H

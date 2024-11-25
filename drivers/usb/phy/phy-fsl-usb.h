@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0+
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+>>>>>>> upstream/android-13
 /* Copyright (C) 2007,2008 Freescale Semiconductor, Inc. */
 
 #include <linux/usb/otg-fsm.h>
@@ -371,6 +375,7 @@ struct fsl_otg_config {
 	u8 otg_port;
 };
 
+<<<<<<< HEAD
 /* For SRP and HNP handle */
 #define FSL_OTG_MAJOR		240
 #define FSL_OTG_NAME		"fsl-usb2-otg"
@@ -386,6 +391,9 @@ struct fsl_otg_config {
 #define GET_A_BUS_DROP		_IOR(OTG_IOCTL_MAGIC, 7, int)
 #define GET_A_BUS_REQ		_IOR(OTG_IOCTL_MAGIC, 8, int)
 #define GET_B_BUS_REQ		_IOR(OTG_IOCTL_MAGIC, 9, int)
+=======
+#define FSL_OTG_NAME		"fsl-usb2-otg"
+>>>>>>> upstream/android-13
 
 void fsl_otg_add_timer(struct otg_fsm *fsm, void *timer);
 void fsl_otg_del_timer(struct otg_fsm *fsm, void *timer);

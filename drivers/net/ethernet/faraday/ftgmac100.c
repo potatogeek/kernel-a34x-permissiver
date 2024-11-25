@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Faraday FTGMAC100 Gigabit Ethernet
  *
  * (C) Copyright 2009-2011 Faraday Technology
  * Po-Yu Chuang <ratbert@faraday-tech.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt)	KBUILD_MODNAME ": " fmt
@@ -30,6 +37,10 @@
 #include <linux/module.h>
 #include <linux/netdevice.h>
 #include <linux/of.h>
+<<<<<<< HEAD
+=======
+#include <linux/of_mdio.h>
+>>>>>>> upstream/android-13
 #include <linux/phy.h>
 #include <linux/platform_device.h>
 #include <linux/property.h>
@@ -42,7 +53,10 @@
 #include "ftgmac100.h"
 
 #define DRV_NAME	"ftgmac100"
+<<<<<<< HEAD
 #define DRV_VERSION	"0.7"
+=======
+>>>>>>> upstream/android-13
 
 /* Arbitrary values, I am not sure the HW has limits */
 #define MAX_RX_QUEUE_ENTRIES	1024
@@ -102,6 +116,12 @@ struct ftgmac100 {
 	struct mii_bus *mii_bus;
 	struct clk *clk;
 
+<<<<<<< HEAD
+=======
+	/* AST2500/AST2600 RMII ref clock gate */
+	struct clk *rclk;
+
+>>>>>>> upstream/android-13
 	/* Link management */
 	int cur_speed;
 	int cur_duplex;
@@ -786,7 +806,11 @@ static netdev_tx_t ftgmac100_hard_start_xmit(struct sk_buff *skb,
 	for (i = 0; i < nfrags; i++) {
 		skb_frag_t *frag = &skb_shinfo(skb)->frags[i];
 
+<<<<<<< HEAD
 		len = frag->size;
+=======
+		len = skb_frag_size(frag);
+>>>>>>> upstream/android-13
 
 		/* Map it */
 		map = skb_frag_dma_map(priv->dev, frag, 0, len,
@@ -934,6 +958,7 @@ static int ftgmac100_alloc_rings(struct ftgmac100 *priv)
 		return -ENOMEM;
 
 	/* Allocate descriptors */
+<<<<<<< HEAD
 	priv->rxdes = dma_zalloc_coherent(priv->dev,
 					  MAX_RX_QUEUE_ENTRIES *
 					  sizeof(struct ftgmac100_rxdes),
@@ -944,6 +969,16 @@ static int ftgmac100_alloc_rings(struct ftgmac100 *priv)
 					  MAX_TX_QUEUE_ENTRIES *
 					  sizeof(struct ftgmac100_txdes),
 					  &priv->txdes_dma, GFP_KERNEL);
+=======
+	priv->rxdes = dma_alloc_coherent(priv->dev,
+					 MAX_RX_QUEUE_ENTRIES * sizeof(struct ftgmac100_rxdes),
+					 &priv->rxdes_dma, GFP_KERNEL);
+	if (!priv->rxdes)
+		return -ENOMEM;
+	priv->txdes = dma_alloc_coherent(priv->dev,
+					 MAX_TX_QUEUE_ENTRIES * sizeof(struct ftgmac100_txdes),
+					 &priv->txdes_dma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!priv->txdes)
 		return -ENOMEM;
 
@@ -1056,10 +1091,46 @@ static void ftgmac100_adjust_link(struct net_device *netdev)
 	schedule_work(&priv->reset_task);
 }
 
+<<<<<<< HEAD
 static int ftgmac100_mii_probe(struct ftgmac100 *priv, phy_interface_t intf)
 {
 	struct net_device *netdev = priv->netdev;
 	struct phy_device *phydev;
+=======
+static int ftgmac100_mii_probe(struct net_device *netdev)
+{
+	struct ftgmac100 *priv = netdev_priv(netdev);
+	struct platform_device *pdev = to_platform_device(priv->dev);
+	struct device_node *np = pdev->dev.of_node;
+	struct phy_device *phydev;
+	phy_interface_t phy_intf;
+	int err;
+
+	/* Default to RGMII. It's a gigabit part after all */
+	err = of_get_phy_mode(np, &phy_intf);
+	if (err)
+		phy_intf = PHY_INTERFACE_MODE_RGMII;
+
+	/* Aspeed only supports these. I don't know about other IP
+	 * block vendors so I'm going to just let them through for
+	 * now. Note that this is only a warning if for some obscure
+	 * reason the DT really means to lie about it or it's a newer
+	 * part we don't know about.
+	 *
+	 * On the Aspeed SoC there are additionally straps and SCU
+	 * control bits that could tell us what the interface is
+	 * (or allow us to configure it while the IP block is held
+	 * in reset). For now I chose to keep this driver away from
+	 * those SoC specific bits and assume the device-tree is
+	 * right and the SCU has been configured properly by pinmux
+	 * or the firmware.
+	 */
+	if (priv->is_aspeed && !(phy_interface_mode_is_rgmii(phy_intf))) {
+		netdev_warn(netdev,
+			    "Unsupported PHY mode %s !\n",
+			    phy_modes(phy_intf));
+	}
+>>>>>>> upstream/android-13
 
 	phydev = phy_find_first(priv->mii_bus);
 	if (!phydev) {
@@ -1068,7 +1139,11 @@ static int ftgmac100_mii_probe(struct ftgmac100 *priv, phy_interface_t intf)
 	}
 
 	phydev = phy_connect(netdev, phydev_name(phydev),
+<<<<<<< HEAD
 			     &ftgmac100_adjust_link, intf);
+=======
+			     &ftgmac100_adjust_link, phy_intf);
+>>>>>>> upstream/android-13
 
 	if (IS_ERR(phydev)) {
 		netdev_err(netdev, "%s: Could not attach to PHY\n", netdev->name);
@@ -1076,10 +1151,16 @@ static int ftgmac100_mii_probe(struct ftgmac100 *priv, phy_interface_t intf)
 	}
 
 	/* Indicate that we support PAUSE frames (see comment in
+<<<<<<< HEAD
 	 * Documentation/networking/phy.txt)
 	 */
 	phydev->supported |= SUPPORTED_Pause | SUPPORTED_Asym_Pause;
 	phydev->advertising = phydev->supported;
+=======
+	 * Documentation/networking/phy.rst)
+	 */
+	phy_support_asym_pause(phydev);
+>>>>>>> upstream/android-13
 
 	/* Display what we found */
 	phy_attached_info(phydev);
@@ -1162,7 +1243,10 @@ static void ftgmac100_get_drvinfo(struct net_device *netdev,
 				  struct ethtool_drvinfo *info)
 {
 	strlcpy(info->driver, DRV_NAME, sizeof(info->driver));
+<<<<<<< HEAD
 	strlcpy(info->version, DRV_VERSION, sizeof(info->version));
+=======
+>>>>>>> upstream/android-13
 	strlcpy(info->bus_info, dev_name(&netdev->dev), sizeof(info->bus_info));
 }
 
@@ -1219,6 +1303,7 @@ static int ftgmac100_set_pauseparam(struct net_device *netdev,
 	priv->tx_pause = pause->tx_pause;
 	priv->rx_pause = pause->rx_pause;
 
+<<<<<<< HEAD
 	if (phydev) {
 		phydev->advertising &= ~ADVERTISED_Pause;
 		phydev->advertising &= ~ADVERTISED_Asym_Pause;
@@ -1235,6 +1320,13 @@ static int ftgmac100_set_pauseparam(struct net_device *netdev,
 		if (phydev && priv->aneg_pause)
 			phy_start_aneg(phydev);
 		else
+=======
+	if (phydev)
+		phy_set_asym_pause(phydev, pause->rx_pause, pause->tx_pause);
+
+	if (netif_running(netdev)) {
+		if (!(phydev && priv->aneg_pause))
+>>>>>>> upstream/android-13
 			ftgmac100_config_pause(priv);
 	}
 
@@ -1560,6 +1652,7 @@ static int ftgmac100_stop(struct net_device *netdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 /* optional */
 static int ftgmac100_do_ioctl(struct net_device *netdev, struct ifreq *ifr, int cmd)
 {
@@ -1570,6 +1663,9 @@ static int ftgmac100_do_ioctl(struct net_device *netdev, struct ifreq *ifr, int 
 }
 
 static void ftgmac100_tx_timeout(struct net_device *netdev)
+=======
+static void ftgmac100_tx_timeout(struct net_device *netdev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct ftgmac100 *priv = netdev_priv(netdev);
 
@@ -1621,7 +1717,11 @@ static const struct net_device_ops ftgmac100_netdev_ops = {
 	.ndo_start_xmit		= ftgmac100_hard_start_xmit,
 	.ndo_set_mac_address	= ftgmac100_set_mac_addr,
 	.ndo_validate_addr	= eth_validate_addr,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= ftgmac100_do_ioctl,
+=======
+	.ndo_eth_ioctl		= phy_do_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_tx_timeout		= ftgmac100_tx_timeout,
 	.ndo_set_rx_mode	= ftgmac100_set_rx_mode,
 	.ndo_set_features	= ftgmac100_set_features,
@@ -1636,8 +1736,13 @@ static int ftgmac100_setup_mdio(struct net_device *netdev)
 {
 	struct ftgmac100 *priv = netdev_priv(netdev);
 	struct platform_device *pdev = to_platform_device(priv->dev);
+<<<<<<< HEAD
 	int phy_intf = PHY_INTERFACE_MODE_RGMII;
 	struct device_node *np = pdev->dev.of_node;
+=======
+	struct device_node *np = pdev->dev.of_node;
+	struct device_node *mdio_np;
+>>>>>>> upstream/android-13
 	int i, err = 0;
 	u32 reg;
 
@@ -1646,6 +1751,7 @@ static int ftgmac100_setup_mdio(struct net_device *netdev)
 	if (!priv->mii_bus)
 		return -EIO;
 
+<<<<<<< HEAD
 	if (priv->is_aspeed) {
 		/* This driver supports the old MDIO interface */
 		reg = ioread32(priv->base + FTGMAC100_OFFSET_REVR);
@@ -1684,6 +1790,18 @@ static int ftgmac100_setup_mdio(struct net_device *netdev)
 				   "Unsupported PHY mode %s !\n",
 				   phy_modes(phy_intf));
 		}
+=======
+	if (of_device_is_compatible(np, "aspeed,ast2400-mac") ||
+	    of_device_is_compatible(np, "aspeed,ast2500-mac")) {
+		/* The AST2600 has a separate MDIO controller */
+
+		/* For the AST2400 and AST2500 this driver only supports the
+		 * old MDIO interface
+		 */
+		reg = ioread32(priv->base + FTGMAC100_OFFSET_REVR);
+		reg &= ~FTGMAC100_REVR_NEW_MDIO_INTERFACE;
+		iowrite32(reg, priv->base + FTGMAC100_OFFSET_REVR);
+>>>>>>> upstream/android-13
 	}
 
 	priv->mii_bus->name = "ftgmac100_mdio";
@@ -1697,12 +1815,19 @@ static int ftgmac100_setup_mdio(struct net_device *netdev)
 	for (i = 0; i < PHY_MAX_ADDR; i++)
 		priv->mii_bus->irq[i] = PHY_POLL;
 
+<<<<<<< HEAD
 	err = mdiobus_register(priv->mii_bus);
+=======
+	mdio_np = of_get_child_by_name(np, "mdio");
+
+	err = of_mdiobus_register(priv->mii_bus, mdio_np);
+>>>>>>> upstream/android-13
 	if (err) {
 		dev_err(priv->dev, "Cannot register MDIO bus!\n");
 		goto err_register_mdiobus;
 	}
 
+<<<<<<< HEAD
 	err = ftgmac100_mii_probe(priv, phy_intf);
 	if (err) {
 		dev_err(priv->dev, "MII Probe failed!\n");
@@ -1713,19 +1838,42 @@ static int ftgmac100_setup_mdio(struct net_device *netdev)
 
 err_mii_probe:
 	mdiobus_unregister(priv->mii_bus);
+=======
+	of_node_put(mdio_np);
+
+	return 0;
+
+>>>>>>> upstream/android-13
 err_register_mdiobus:
 	mdiobus_free(priv->mii_bus);
 	return err;
 }
 
-static void ftgmac100_destroy_mdio(struct net_device *netdev)
+<<<<<<< HEAD
+=======
+static void ftgmac100_phy_disconnect(struct net_device *netdev)
 {
-	struct ftgmac100 *priv = netdev_priv(netdev);
-
 	if (!netdev->phydev)
 		return;
 
 	phy_disconnect(netdev->phydev);
+}
+
+>>>>>>> upstream/android-13
+static void ftgmac100_destroy_mdio(struct net_device *netdev)
+{
+	struct ftgmac100 *priv = netdev_priv(netdev);
+
+<<<<<<< HEAD
+	if (!netdev->phydev)
+		return;
+
+	phy_disconnect(netdev->phydev);
+=======
+	if (!priv->mii_bus)
+		return;
+
+>>>>>>> upstream/android-13
 	mdiobus_unregister(priv->mii_bus);
 	mdiobus_free(priv->mii_bus);
 }
@@ -1739,6 +1887,7 @@ static void ftgmac100_ncsi_handler(struct ncsi_dev *nd)
 		   nd->link_up ? "up" : "down");
 }
 
+<<<<<<< HEAD
 static void ftgmac100_setup_clk(struct ftgmac100 *priv)
 {
 	priv->clk = devm_clk_get(priv->dev, NULL);
@@ -1746,13 +1895,48 @@ static void ftgmac100_setup_clk(struct ftgmac100 *priv)
 		return;
 
 	clk_prepare_enable(priv->clk);
+=======
+static int ftgmac100_setup_clk(struct ftgmac100 *priv)
+{
+	struct clk *clk;
+	int rc;
+
+	clk = devm_clk_get(priv->dev, NULL /* MACCLK */);
+	if (IS_ERR(clk))
+		return PTR_ERR(clk);
+	priv->clk = clk;
+	rc = clk_prepare_enable(priv->clk);
+	if (rc)
+		return rc;
+>>>>>>> upstream/android-13
 
 	/* Aspeed specifies a 100MHz clock is required for up to
 	 * 1000Mbit link speeds. As NCSI is limited to 100Mbit, 25MHz
 	 * is sufficient
 	 */
+<<<<<<< HEAD
 	clk_set_rate(priv->clk, priv->use_ncsi ? FTGMAC_25MHZ :
 			FTGMAC_100MHZ);
+=======
+	rc = clk_set_rate(priv->clk, priv->use_ncsi ? FTGMAC_25MHZ :
+			  FTGMAC_100MHZ);
+	if (rc)
+		goto cleanup_clk;
+
+	/* RCLK is for RMII, typically used for NCSI. Optional because it's not
+	 * necessary if it's the AST2400 MAC, or the MAC is configured for
+	 * RGMII, or the controller is not an ASPEED-based controller.
+	 */
+	priv->rclk = devm_clk_get_optional(priv->dev, "RCLK");
+	rc = clk_prepare_enable(priv->rclk);
+	if (!rc)
+		return 0;
+
+cleanup_clk:
+	clk_disable_unprepare(priv->clk);
+
+	return rc;
+>>>>>>> upstream/android-13
 }
 
 static int ftgmac100_probe(struct platform_device *pdev)
@@ -1764,9 +1948,12 @@ static int ftgmac100_probe(struct platform_device *pdev)
 	struct device_node *np;
 	int err = 0;
 
+<<<<<<< HEAD
 	if (!pdev)
 		return -ENODEV;
 
+=======
+>>>>>>> upstream/android-13
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	if (!res)
 		return -ENXIO;
@@ -1824,7 +2011,12 @@ static int ftgmac100_probe(struct platform_device *pdev)
 
 	np = pdev->dev.of_node;
 	if (np && (of_device_is_compatible(np, "aspeed,ast2400-mac") ||
+<<<<<<< HEAD
 		   of_device_is_compatible(np, "aspeed,ast2500-mac"))) {
+=======
+		   of_device_is_compatible(np, "aspeed,ast2500-mac") ||
+		   of_device_is_compatible(np, "aspeed,ast2600-mac"))) {
+>>>>>>> upstream/android-13
 		priv->rxdes0_edorr_mask = BIT(30);
 		priv->txdes0_edotr_mask = BIT(30);
 		priv->is_aspeed = true;
@@ -1836,23 +2028,92 @@ static int ftgmac100_probe(struct platform_device *pdev)
 	if (np && of_get_property(np, "use-ncsi", NULL)) {
 		if (!IS_ENABLED(CONFIG_NET_NCSI)) {
 			dev_err(&pdev->dev, "NCSI stack not enabled\n");
+<<<<<<< HEAD
 			goto err_ncsi_dev;
+=======
+			err = -EINVAL;
+			goto err_phy_connect;
+>>>>>>> upstream/android-13
 		}
 
 		dev_info(&pdev->dev, "Using NCSI interface\n");
 		priv->use_ncsi = true;
 		priv->ndev = ncsi_register_dev(netdev, ftgmac100_ncsi_handler);
+<<<<<<< HEAD
 		if (!priv->ndev)
 			goto err_ncsi_dev;
 	} else {
+=======
+		if (!priv->ndev) {
+			err = -EINVAL;
+			goto err_phy_connect;
+		}
+	} else if (np && of_get_property(np, "phy-handle", NULL)) {
+		struct phy_device *phy;
+
+		/* Support "mdio"/"phy" child nodes for ast2400/2500 with
+		 * an embedded MDIO controller. Automatically scan the DTS for
+		 * available PHYs and register them.
+		 */
+		if (of_device_is_compatible(np, "aspeed,ast2400-mac") ||
+		    of_device_is_compatible(np, "aspeed,ast2500-mac")) {
+			err = ftgmac100_setup_mdio(netdev);
+			if (err)
+				goto err_setup_mdio;
+		}
+
+		phy = of_phy_get_and_connect(priv->netdev, np,
+					     &ftgmac100_adjust_link);
+		if (!phy) {
+			dev_err(&pdev->dev, "Failed to connect to phy\n");
+			err = -EINVAL;
+			goto err_phy_connect;
+		}
+
+		/* Indicate that we support PAUSE frames (see comment in
+		 * Documentation/networking/phy.rst)
+		 */
+		phy_support_asym_pause(phy);
+
+		/* Display what we found */
+		phy_attached_info(phy);
+	} else if (np && !of_get_child_by_name(np, "mdio")) {
+		/* Support legacy ASPEED devicetree descriptions that decribe a
+		 * MAC with an embedded MDIO controller but have no "mdio"
+		 * child node. Automatically scan the MDIO bus for available
+		 * PHYs.
+		 */
+>>>>>>> upstream/android-13
 		priv->use_ncsi = false;
 		err = ftgmac100_setup_mdio(netdev);
 		if (err)
 			goto err_setup_mdio;
+<<<<<<< HEAD
 	}
 
 	if (priv->is_aspeed)
 		ftgmac100_setup_clk(priv);
+=======
+
+		err = ftgmac100_mii_probe(netdev);
+		if (err) {
+			dev_err(priv->dev, "MII probe failed!\n");
+			goto err_ncsi_dev;
+		}
+
+	}
+
+	if (priv->is_aspeed) {
+		err = ftgmac100_setup_clk(priv);
+		if (err)
+			goto err_phy_connect;
+
+		/* Disable ast2600 problematic HW arbitration */
+		if (of_device_is_compatible(np, "aspeed,ast2600-mac"))
+			iowrite32(FTGMAC100_TM_DEFAULT,
+				  priv->base + FTGMAC100_OFFSET_TM);
+	}
+>>>>>>> upstream/android-13
 
 	/* Default ring sizes */
 	priv->rx_q_entries = priv->new_rx_q_entries = DEF_RX_QUEUE_ENTRIES;
@@ -1884,10 +2145,21 @@ static int ftgmac100_probe(struct platform_device *pdev)
 
 	return 0;
 
+<<<<<<< HEAD
 err_ncsi_dev:
 	if (priv->ndev)
 		ncsi_unregister_dev(priv->ndev);
 err_register_netdev:
+=======
+err_register_netdev:
+	clk_disable_unprepare(priv->rclk);
+	clk_disable_unprepare(priv->clk);
+err_phy_connect:
+	ftgmac100_phy_disconnect(netdev);
+err_ncsi_dev:
+	if (priv->ndev)
+		ncsi_unregister_dev(priv->ndev);
+>>>>>>> upstream/android-13
 	ftgmac100_destroy_mdio(netdev);
 err_setup_mdio:
 	iounmap(priv->base);
@@ -1911,6 +2183,10 @@ static int ftgmac100_remove(struct platform_device *pdev)
 		ncsi_unregister_dev(priv->ndev);
 	unregister_netdev(netdev);
 
+<<<<<<< HEAD
+=======
+	clk_disable_unprepare(priv->rclk);
+>>>>>>> upstream/android-13
 	clk_disable_unprepare(priv->clk);
 
 	/* There's a small chance the reset task will have been re-queued,
@@ -1918,6 +2194,10 @@ static int ftgmac100_remove(struct platform_device *pdev)
 	 */
 	cancel_work_sync(&priv->reset_task);
 
+<<<<<<< HEAD
+=======
+	ftgmac100_phy_disconnect(netdev);
+>>>>>>> upstream/android-13
 	ftgmac100_destroy_mdio(netdev);
 
 	iounmap(priv->base);

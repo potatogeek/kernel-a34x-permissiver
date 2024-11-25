@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2011 Broadcom Corporation
  *
@@ -12,6 +13,11 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2011 Broadcom Corporation
+>>>>>>> upstream/android-13
  */
 #ifndef BRCMFMAC_USB_H
 #define BRCMFMAC_USB_H
@@ -39,7 +45,11 @@ struct brcmf_usbdev {
 	int ntxq, nrxq, rxsize;
 	u32 bus_mtu;
 	int devid;
+<<<<<<< HEAD
 	int chiprev; /* chip revsion number */
+=======
+	int chiprev; /* chip revision number */
+>>>>>>> upstream/android-13
 };
 
 /* IO Request Block (IRB) */

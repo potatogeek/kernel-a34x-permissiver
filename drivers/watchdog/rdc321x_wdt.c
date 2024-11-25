@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * RDC321x watchdog driver
  *
  * Copyright (C) 2007-2010 Florian Fainelli <florian@openwrt.org>
  *
  * This driver is highly inspired from the cpu5_wdt driver
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +24,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -142,7 +149,11 @@ static int rdc321x_wdt_open(struct inode *inode, struct file *file)
 	if (test_and_set_bit(0, &rdc321x_wdt_device.inuse))
 		return -EBUSY;
 
+<<<<<<< HEAD
 	return nonseekable_open(inode, file);
+=======
+	return stream_open(inode, file);
+>>>>>>> upstream/android-13
 }
 
 static int rdc321x_wdt_release(struct inode *inode, struct file *file)
@@ -213,6 +224,10 @@ static const struct file_operations rdc321x_wdt_fops = {
 	.owner		= THIS_MODULE,
 	.llseek		= no_llseek,
 	.unlocked_ioctl	= rdc321x_wdt_ioctl,
+<<<<<<< HEAD
+=======
+	.compat_ioctl	= compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 	.open		= rdc321x_wdt_open,
 	.write		= rdc321x_wdt_write,
 	.release	= rdc321x_wdt_release,

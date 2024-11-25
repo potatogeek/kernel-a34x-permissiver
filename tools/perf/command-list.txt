@@ -14,6 +14,10 @@ perf-config			mainporcelain common
 perf-evlist			mainporcelain common
 perf-ftrace			mainporcelain common
 perf-inject			mainporcelain common
+<<<<<<< HEAD
+=======
+perf-iostat			mainporcelain common
+>>>>>>> upstream/android-13
 perf-kallsyms			mainporcelain common
 perf-kmem			mainporcelain common
 perf-kvm			mainporcelain common
@@ -30,3 +34,8 @@ perf-test			mainporcelain common
 perf-timechart			mainporcelain common
 perf-top			mainporcelain common
 perf-trace			mainporcelain audit
+<<<<<<< HEAD
+=======
+perf-version			mainporcelain common
+perf-daemon			mainporcelain common
+>>>>>>> upstream/android-13

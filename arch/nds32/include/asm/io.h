@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 // Copyright (C) 2005-2017 Andes Technology Corporation
 
 #ifndef __ASM_NDS32_IO_H
@@ -6,7 +10,10 @@
 
 #include <linux/types.h>
 
+<<<<<<< HEAD
 extern void iounmap(volatile void __iomem *addr);
+=======
+>>>>>>> upstream/android-13
 #define __raw_writeb __raw_writeb
 static inline void __raw_writeb(u8 val, volatile void __iomem *addr)
 {
@@ -55,8 +62,11 @@ static inline u32 __raw_readl(const volatile void __iomem *addr)
 #define __iormb()               rmb()
 #define __iowmb()               wmb()
 
+<<<<<<< HEAD
 #define mmiowb()        __asm__ __volatile__ ("msync all" : : : "memory");
 
+=======
+>>>>>>> upstream/android-13
 /*
  * {read,write}{b,w,l,q}_relaxed() are like the regular version, but
  * are not guaranteed to provide ordering against spinlocks or memory
@@ -81,5 +91,11 @@ static inline u32 __raw_readl(const volatile void __iomem *addr)
 #define writeb(v,c)	({ __iowmb(); writeb_relaxed((v),(c)); })
 #define writew(v,c)	({ __iowmb(); writew_relaxed((v),(c)); })
 #define writel(v,c)	({ __iowmb(); writel_relaxed((v),(c)); })
+<<<<<<< HEAD
 #include <asm-generic/io.h>
+=======
+
+#include <asm-generic/io.h>
+
+>>>>>>> upstream/android-13
 #endif /* __ASM_NDS32_IO_H */

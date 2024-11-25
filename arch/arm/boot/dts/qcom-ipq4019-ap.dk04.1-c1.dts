@@ -9,11 +9,19 @@
 
 	soc {
 		dma@7984000 {
+<<<<<<< HEAD
 			status = "ok";
 		};
 
 		qpic-nand@79b0000 {
 			status = "ok";
+=======
+			status = "okay";
+		};
+
+		qpic-nand@79b0000 {
+			status = "okay";
+>>>>>>> upstream/android-13
 		};
 	};
 };

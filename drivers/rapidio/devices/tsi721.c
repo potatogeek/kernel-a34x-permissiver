@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * RapidIO mport driver for Tsi721 PCIExpress-to-SRIO bridge
  *
  * Copyright 2011 Integrated Device Technology, Inc.
  * Alexandre Bounine <alexandre.bounine@idt.com>
  * Chul Kim <chul.kim@idt.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -18,6 +23,8 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 59
  * Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/io.h>
@@ -1382,9 +1389,15 @@ static int tsi721_doorbell_init(struct tsi721_device *priv)
 	INIT_WORK(&priv->idb_work, tsi721_db_dpc);
 
 	/* Allocate buffer for inbound doorbells queue */
+<<<<<<< HEAD
 	priv->idb_base = dma_zalloc_coherent(&priv->pdev->dev,
 				IDB_QSIZE * TSI721_IDB_ENTRY_SIZE,
 				&priv->idb_dma, GFP_KERNEL);
+=======
+	priv->idb_base = dma_alloc_coherent(&priv->pdev->dev,
+					    IDB_QSIZE * TSI721_IDB_ENTRY_SIZE,
+					    &priv->idb_dma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!priv->idb_base)
 		return -ENOMEM;
 
@@ -1447,9 +1460,15 @@ static int tsi721_bdma_maint_init(struct tsi721_device *priv)
 	regs = priv->regs + TSI721_DMAC_BASE(TSI721_DMACH_MAINT);
 
 	/* Allocate space for DMA descriptors */
+<<<<<<< HEAD
 	bd_ptr = dma_zalloc_coherent(&priv->pdev->dev,
 					bd_num * sizeof(struct tsi721_dma_desc),
 					&bd_phys, GFP_KERNEL);
+=======
+	bd_ptr = dma_alloc_coherent(&priv->pdev->dev,
+				    bd_num * sizeof(struct tsi721_dma_desc),
+				    &bd_phys, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!bd_ptr)
 		return -ENOMEM;
 
@@ -1464,7 +1483,11 @@ static int tsi721_bdma_maint_init(struct tsi721_device *priv)
 	sts_size = (bd_num >= TSI721_DMA_MINSTSSZ) ?
 					bd_num : TSI721_DMA_MINSTSSZ;
 	sts_size = roundup_pow_of_two(sts_size);
+<<<<<<< HEAD
 	sts_ptr = dma_zalloc_coherent(&priv->pdev->dev,
+=======
+	sts_ptr = dma_alloc_coherent(&priv->pdev->dev,
+>>>>>>> upstream/android-13
 				     sts_size * sizeof(struct tsi721_dma_sts),
 				     &sts_phys, GFP_KERNEL);
 	if (!sts_ptr) {
@@ -1939,10 +1962,17 @@ static int tsi721_open_outb_mbox(struct rio_mport *mport, void *dev_id,
 
 	/* Outbound message descriptor status FIFO allocation */
 	priv->omsg_ring[mbox].sts_size = roundup_pow_of_two(entries + 1);
+<<<<<<< HEAD
 	priv->omsg_ring[mbox].sts_base = dma_zalloc_coherent(&priv->pdev->dev,
 			priv->omsg_ring[mbox].sts_size *
 						sizeof(struct tsi721_dma_sts),
 			&priv->omsg_ring[mbox].sts_phys, GFP_KERNEL);
+=======
+	priv->omsg_ring[mbox].sts_base = dma_alloc_coherent(&priv->pdev->dev,
+							    priv->omsg_ring[mbox].sts_size * sizeof(struct tsi721_dma_sts),
+							    &priv->omsg_ring[mbox].sts_phys,
+							    GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (priv->omsg_ring[mbox].sts_base == NULL) {
 		tsi_debug(OMSG, &priv->pdev->dev,
 			"ENOMEM for OB_MSG_%d status FIFO", mbox);
@@ -2768,7 +2798,11 @@ static int tsi721_probe(struct pci_dev *pdev,
 	{
 		int i;
 
+<<<<<<< HEAD
 		for (i = 0; i <= PCI_STD_RESOURCE_END; i++) {
+=======
+		for (i = 0; i < PCI_STD_NUM_BARS; i++) {
+>>>>>>> upstream/android-13
 			tsi_debug(INIT, &pdev->dev, "res%d %pR",
 				  i, &pdev->resource[i]);
 		}

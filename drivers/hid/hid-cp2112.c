@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * hid-cp2112.c - Silicon Labs HID USB to SMBus master bridge
  * Copyright (c) 2013,2014 Uplogix, Inc.
  * David Barksdale <dbarksdale@uplogix.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -11,6 +16,8 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -19,12 +26,21 @@
  * host communicates with the CP2112 via raw HID reports.
  *
  * Data Sheet:
+<<<<<<< HEAD
  *   http://www.silabs.com/Support%20Documents/TechnicalDocs/CP2112.pdf
+=======
+ *   https://www.silabs.com/Support%20Documents/TechnicalDocs/CP2112.pdf
+>>>>>>> upstream/android-13
  * Programming Interface Specification:
  *   https://www.silabs.com/documents/public/application-notes/an495-cp2112-interface-specification.pdf
  */
 
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/consumer.h>
+#include <linux/gpio/machine.h>
+>>>>>>> upstream/android-13
 #include <linux/gpio/driver.h>
 #include <linux/hid.h>
 #include <linux/hidraw.h>
@@ -168,6 +184,10 @@ struct cp2112_device {
 	atomic_t read_avail;
 	atomic_t xfer_avail;
 	struct gpio_chip gc;
+<<<<<<< HEAD
+=======
+	struct irq_chip irq;
+>>>>>>> upstream/android-13
 	u8 *in_out_buffer;
 	struct mutex lock;
 
@@ -1182,6 +1202,7 @@ static int cp2112_gpio_irq_type(struct irq_data *d, unsigned int type)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct irq_chip cp2112_gpio_irqchip = {
 	.name = "cp2112-gpio",
 	.irq_startup = cp2112_gpio_irq_startup,
@@ -1192,6 +1213,8 @@ static struct irq_chip cp2112_gpio_irqchip = {
 	.irq_set_type = cp2112_gpio_irq_type,
 };
 
+=======
+>>>>>>> upstream/android-13
 static int __maybe_unused cp2112_allocate_irq(struct cp2112_device *dev,
 					      int pin)
 {
@@ -1201,7 +1224,13 @@ static int __maybe_unused cp2112_allocate_irq(struct cp2112_device *dev,
 		return -EINVAL;
 
 	dev->desc[pin] = gpiochip_request_own_desc(&dev->gc, pin,
+<<<<<<< HEAD
 						   "HID/I2C:Event");
+=======
+						   "HID/I2C:Event",
+						   GPIO_ACTIVE_HIGH,
+						   GPIOD_IN);
+>>>>>>> upstream/android-13
 	if (IS_ERR(dev->desc[pin])) {
 		dev_err(dev->gc.parent, "Failed to request GPIO\n");
 		return PTR_ERR(dev->desc[pin]);
@@ -1240,6 +1269,10 @@ static int cp2112_probe(struct hid_device *hdev, const struct hid_device_id *id)
 	struct cp2112_device *dev;
 	u8 buf[3];
 	struct cp2112_smbus_config_report config;
+<<<<<<< HEAD
+=======
+	struct gpio_irq_chip *girq;
+>>>>>>> upstream/android-13
 	int ret;
 
 	dev = devm_kzalloc(&hdev->dev, sizeof(*dev), GFP_KERNEL);
@@ -1343,6 +1376,27 @@ static int cp2112_probe(struct hid_device *hdev, const struct hid_device_id *id)
 	dev->gc.can_sleep		= 1;
 	dev->gc.parent			= &hdev->dev;
 
+<<<<<<< HEAD
+=======
+	dev->irq.name = "cp2112-gpio";
+	dev->irq.irq_startup = cp2112_gpio_irq_startup;
+	dev->irq.irq_shutdown = cp2112_gpio_irq_shutdown;
+	dev->irq.irq_ack = cp2112_gpio_irq_ack;
+	dev->irq.irq_mask = cp2112_gpio_irq_mask;
+	dev->irq.irq_unmask = cp2112_gpio_irq_unmask;
+	dev->irq.irq_set_type = cp2112_gpio_irq_type;
+	dev->irq.flags = IRQCHIP_MASK_ON_SUSPEND;
+
+	girq = &dev->gc.irq;
+	girq->chip = &dev->irq;
+	/* The event comes from the outside so no parent handler */
+	girq->parent_handler = NULL;
+	girq->num_parents = 0;
+	girq->parents = NULL;
+	girq->default_type = IRQ_TYPE_NONE;
+	girq->handler = handle_simple_irq;
+
+>>>>>>> upstream/android-13
 	ret = gpiochip_add_data(&dev->gc, dev);
 	if (ret < 0) {
 		hid_err(hdev, "error registering gpio chip\n");
@@ -1358,6 +1412,7 @@ static int cp2112_probe(struct hid_device *hdev, const struct hid_device_id *id)
 	chmod_sysfs_attrs(hdev);
 	hid_hw_power(hdev, PM_HINT_NORMAL);
 
+<<<<<<< HEAD
 	ret = gpiochip_irqchip_add(&dev->gc, &cp2112_gpio_irqchip, 0,
 				   handle_simple_irq, IRQ_TYPE_NONE);
 	if (ret) {
@@ -1369,6 +1424,10 @@ static int cp2112_probe(struct hid_device *hdev, const struct hid_device_id *id)
 
 err_sysfs_remove:
 	sysfs_remove_group(&hdev->dev.kobj, &cp2112_attr_group);
+=======
+	return ret;
+
+>>>>>>> upstream/android-13
 err_gpiochip_remove:
 	gpiochip_remove(&dev->gc);
 err_free_i2c:

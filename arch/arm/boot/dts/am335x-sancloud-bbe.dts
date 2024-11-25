@@ -1,15 +1,26 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2012 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  */
 /dts-v1/;
 
 #include "am33xx.dtsi"
 #include "am335x-bone-common.dtsi"
 #include "am335x-boneblack-common.dtsi"
+<<<<<<< HEAD
+=======
+#include "am335x-boneblack-hdmi.dtsi"
+#include "am335x-sancloud-bbe-common.dtsi"
+>>>>>>> upstream/android-13
 #include <dt-bindings/interrupt-controller/irq.h>
 
 / {
@@ -18,6 +29,7 @@
 };
 
 &am33xx_pinmux {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 
 	cpsw_default: cpsw_default {
@@ -81,16 +93,26 @@
 	mpu6050_pins: pinmux_mpu6050_pins {
 		pinctrl-single,pins = <
 			AM33XX_IOPAD(0x968, PIN_INPUT | MUX_MODE7)    /* uart0_ctsn.gpio1_8 */
+=======
+	mpu6050_pins: pinmux_mpu6050_pins {
+		pinctrl-single,pins = <
+			AM33XX_PADCONF(AM335X_PIN_UART0_CTSN, PIN_INPUT, MUX_MODE7)    /* uart0_ctsn.gpio1_8 */
+>>>>>>> upstream/android-13
 		>;
 	};
 
 	lps3331ap_pins: pinmux_lps3331ap_pins {
 		pinctrl-single,pins = <
+<<<<<<< HEAD
 			AM33XX_IOPAD(0x868, PIN_INPUT | MUX_MODE7)     /* gpmc_a10.gpio1_26 */
+=======
+			AM33XX_PADCONF(AM335X_PIN_GPMC_A10, PIN_INPUT, MUX_MODE7)     /* gpmc_a10.gpio1_26 */
+>>>>>>> upstream/android-13
 		>;
 	};
 };
 
+<<<<<<< HEAD
 &mac {
 	pinctrl-names = "default", "sleep";
 	pinctrl-0 = <&cpsw_default>;
@@ -112,6 +134,12 @@
 
 &i2c0 {
 	lps331ap: barometer@5c {
+=======
+&i2c0 {
+	lps331ap: barometer@5c {
+		pinctrl-names = "default";
+		pinctrl-0 = <&lps3331ap_pins>;
+>>>>>>> upstream/android-13
 		compatible = "st,lps331ap-press";
 		st,drdy-int-pin = <1>;
 		reg = <0x5c>;
@@ -120,12 +148,18 @@
 	};
 
 	mpu6050: accelerometer@68 {
+<<<<<<< HEAD
+=======
+		pinctrl-names = "default";
+		pinctrl-0 = <&mpu6050_pins>;
+>>>>>>> upstream/android-13
 		compatible = "invensense,mpu6050";
 		reg = <0x68>;
 		interrupt-parent = <&gpio0>;
 		interrupts = <2 IRQ_TYPE_EDGE_RISING>;
 		orientation = <0xff 0 0 0 1 0 0 0 0xff>;
 	};
+<<<<<<< HEAD
 
 	usb2512b: usb-hub@2c {
 		compatible = "microchip,usb2512b";
@@ -133,4 +167,6 @@
 		reset-gpios = <&gpio0 29 GPIO_ACTIVE_LOW>;
 		/* wifi on port 4 */
 	};
+=======
+>>>>>>> upstream/android-13
 };

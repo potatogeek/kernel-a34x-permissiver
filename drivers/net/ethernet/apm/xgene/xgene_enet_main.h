@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /* Applied Micro X-Gene SoC Ethernet Driver
  *
  * Copyright (c) 2014, Applied Micro Circuits Corporation
  * Authors: Iyappan Subramanian <isubramanian@apm.com>
  *	    Ravi Patel <rapatel@apm.com>
  *	    Keyur Chudgar <kchudgar@apm.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
@@ -17,6 +22,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __XGENE_ENET_MAIN_H__
@@ -30,6 +37,10 @@
 #include <linux/of_platform.h>
 #include <linux/of_net.h>
 #include <linux/of_mdio.h>
+<<<<<<< HEAD
+=======
+#include <linux/mdio/mdio-xgene.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <net/ip.h>
 #include <linux/prefetch.h>
@@ -38,9 +49,13 @@
 #include "xgene_enet_hw.h"
 #include "xgene_enet_cle.h"
 #include "xgene_enet_ring2.h"
+<<<<<<< HEAD
 #include "../../../phy/mdio-xgene.h"
 
 #define XGENE_DRV_VERSION	"v1.0"
+=======
+
+>>>>>>> upstream/android-13
 #define ETHER_MIN_PACKET	64
 #define ETHER_STD_PACKET	1518
 #define XGENE_ENET_STD_MTU	1536

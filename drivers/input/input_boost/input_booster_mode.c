@@ -69,7 +69,11 @@ void trigger_input_booster(struct work_struct *work)
 	struct t_ib_trigger *p_IbTrigger = container_of(work, struct t_ib_trigger, ib_trigger_work);
 
 	if (p_IbTrigger == NULL) {
+<<<<<<< HEAD
 		pr_err(ITAG" IB Trigger instance is null\n");
+=======
+		pr_err(ITAG" IB Trigger instance is null");
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -78,7 +82,11 @@ void trigger_input_booster(struct work_struct *work)
 	// Input booster On/Off handling
 	if (p_IbTrigger->event_type == BOOSTER_ON) {
 		if (find_release_ib(p_IbTrigger->dev_type, p_IbTrigger->key_id) != NULL) {
+<<<<<<< HEAD
 			pr_err(ITAG" IB Trigger :: ib already exist. Key(%d)\n", p_IbTrigger->key_id);
+=======
+			pr_err(ITAG" IB Trigger :: ib already exist. Key(%d)", p_IbTrigger->key_id);
+>>>>>>> upstream/android-13
 			mutex_unlock(&trigger_ib_lock);
 			return;
 		}
@@ -94,11 +102,19 @@ void trigger_input_booster(struct work_struct *work)
 		// Make ib instance with all needed factor.
 		ib = create_ib_instance(p_IbTrigger, uniq_id);
 
+<<<<<<< HEAD
 		pr_info(ITAG" IB Trigger Press :: IB Uniq Id(%d)\n", uniq_id);
 
 		if (ib == NULL || ib->ib_dt == NULL || ib->ib_dt->res == NULL) {
 			mutex_unlock(&trigger_ib_lock);
 			pr_err(ITAG" Creating ib object fail\n");
+=======
+		pr_info(ITAG" IB Trigger Press :: IB Uniq Id(%d)", uniq_id);
+
+		if (ib == NULL || ib->ib_dt == NULL || ib->ib_dt->res == NULL) {
+			mutex_unlock(&trigger_ib_lock);
+			pr_err(ITAG" Creating ib object fail");
+>>>>>>> upstream/android-13
 			return;
 		}
 
@@ -114,7 +130,11 @@ void trigger_input_booster(struct work_struct *work)
 		// When create ib instance, insert resource info in qos list with value 0.
 		for (res_type = 0; res_type < allowed_res_count; res_type++) {
 			if (allowed_resources[res_type] > max_resource_count) {
+<<<<<<< HEAD
 				pr_err(ITAG" allow res num(%d) exceeds over max res count\n",
+=======
+				pr_err(ITAG" allow res num(%d) exceeds over max res count",
+>>>>>>> upstream/android-13
 					allowed_resources[res_type]);
 				continue;
 			}
@@ -146,7 +166,11 @@ void trigger_input_booster(struct work_struct *work)
 
 		mutex_lock(&mem_lock);
 		if (ib == NULL) {
+<<<<<<< HEAD
 			pr_err(ITAG" IB is null on release\n");
+=======
+			pr_err(ITAG" IB is null on release");
+>>>>>>> upstream/android-13
 			mutex_unlock(&mem_lock);
 			mutex_unlock(&sip_rel_lock);
 			mutex_unlock(&trigger_ib_lock);
@@ -155,7 +179,11 @@ void trigger_input_booster(struct work_struct *work)
 		mutex_unlock(&mem_lock);
 
 		mutex_lock(&ib->lock);
+<<<<<<< HEAD
 		pr_info(ITAG" IB Trigger Release :: Uniq ID(%d)\n", ib->uniq_id);
+=======
+		pr_info(ITAG" IB Trigger Release :: Uniq ID(%d)", ib->uniq_id);
+>>>>>>> upstream/android-13
 		ib->rel_flag = FLAG_ON;
 		if(ib->ib_dt->tail_time == 0) {
 			pr_booster(" IB tail time is 0");
@@ -204,7 +232,11 @@ struct t_ib_info* create_ib_instance(struct t_ib_trigger* p_IbTrigger, int uniqI
 		pr_booster("Current Ib Mode(%d) is not allowed(Masking : %0.8x, Type : %d)",
 			u_ib_mode, ib_boost_modes[u_ib_mode].dt_mask, dev_type);
 		if (dev_type > ib_boost_modes[0].dt_count) {
+<<<<<<< HEAD
 			pr_err(ITAG" dev_type(%d) is over dt count(%d)\n", dev_type, ib_boost_modes[0].dt_count);
+=======
+			pr_err(ITAG" dev_type(%d) is over dt count(%d)", dev_type, ib_boost_modes[0].dt_count);
+>>>>>>> upstream/android-13
 			kfree(ib);
 			ib = NULL;
 			return NULL;
@@ -290,7 +322,11 @@ void press_state_func(struct work_struct* work)
 
 	struct t_ib_info* target_ib = container_of(work, struct t_ib_info, ib_state_work[IB_HEAD]);
 
+<<<<<<< HEAD
 	pr_info(ITAG" Press State Func :::: Unique_Id(%d) Head_Time(%d)\n",
+=======
+	pr_info(ITAG" Press State Func :::: Unique_Id(%d) Head_Time(%d)",
+>>>>>>> upstream/android-13
 		target_ib->uniq_id, target_ib->ib_dt->head_time);
 
 	// Get_Res_List(head) and update head value.
@@ -303,7 +339,11 @@ void press_state_func(struct work_struct* work)
 		tv = find_update_target(target_ib->uniq_id, res.res_id);
 
 		if (tv == NULL) {
+<<<<<<< HEAD
 			pr_err(ITAG"Press State Func :::: %d's tv(%d) is null T.T\n",
+=======
+			pr_err(ITAG"Press State Func :::: %d's tv(%d) is null T.T",
+>>>>>>> upstream/android-13
 				target_ib->uniq_id, res.res_id);
 			continue;
 		}
@@ -330,7 +370,11 @@ void press_timeout_func(struct work_struct* work)
 	if (!target_ib)
 		return;
 
+<<<<<<< HEAD
 	pr_info(ITAG" Press Timeout Func :::: Unique_Id(%d) Tail_Time(%d)\n",
+=======
+	pr_info(ITAG" Press Timeout Func :::: Unique_Id(%d) Tail_Time(%d)",
+>>>>>>> upstream/android-13
 		target_ib->uniq_id, target_ib->ib_dt->tail_time);
 
 	int res_type;
@@ -351,7 +395,11 @@ void press_timeout_func(struct work_struct* work)
 
 			tv = find_update_target(target_ib->uniq_id, res.res_id);
 			if (tv == NULL) {
+<<<<<<< HEAD
 				pr_err(ITAG" Press Timeout Func :::: %d's TV No Exist(%d)\n",
+=======
+				pr_err(ITAG" Press Timeout Func :::: %d's TV No Exist(%d)",
+>>>>>>> upstream/android-13
 					target_ib->uniq_id, res.res_id);
 				continue;
 			}
@@ -407,7 +455,11 @@ void release_state_func(struct work_struct* work)
 
 	target_ib->isHeadFinished = 1;
 
+<<<<<<< HEAD
 	pr_info(ITAG" Release State Func :::: Unique_Id(%d) Rel_Flag(%d)\n",
+=======
+	pr_info(ITAG" Release State Func :::: Unique_Id(%d) Rel_Flag(%d)",
+>>>>>>> upstream/android-13
 		target_ib->uniq_id, target_ib->rel_flag);
 
 	for (res_type = 0; res_type < allowed_res_count; res_type++) {
@@ -424,7 +476,11 @@ void release_state_func(struct work_struct* work)
 		spin_unlock(&write_qos_lock);
 
 		qos_values[res.res_id] = get_qos_value(res.res_id);
+<<<<<<< HEAD
 		pr_booster("Release State Func :::: Uniq(%d)'s Update Tail Val (%ld), Qos_Val(%ld)",
+=======
+		pr_booster("Release State Func :::: Uniq(%d)'s Update Tail Val (%d), Qos_Val(%ld)",
+>>>>>>> upstream/android-13
 			tv->uniq_id, tv->value, qos_values[res.res_id]);
 	}
 
@@ -437,7 +493,11 @@ void release_state_func(struct work_struct* work)
 				&(target_ib->ib_timeout_work[IB_TAIL]),
 				msecs_to_jiffies(target_ib->ib_dt->tail_time));
 		} else {
+<<<<<<< HEAD
 			pr_err(ITAG" Release State Func :: tail timeout start\n");
+=======
+			pr_err(ITAG" Release State Func :: tail timeout start");
+>>>>>>> upstream/android-13
 		}
 	} else {
 		queue_delayed_work(ib_handle_highwq,
@@ -460,19 +520,31 @@ void release_timeout_func(struct work_struct* work)
 	if(!target_ib)
 		return;
 
+<<<<<<< HEAD
 	pr_info(ITAG" Release Timeout Func :::: Unique_Id(%d)\n", target_ib->uniq_id);
+=======
+	pr_info(ITAG" Release Timeout Func :::: Unique_Id(%d)", target_ib->uniq_id);
+>>>>>>> upstream/android-13
 	mutex_lock(&sip_rel_lock);
 	for (res_type = 0; res_type < allowed_res_count; res_type++) {
 		res = target_ib->ib_dt->res[allowed_resources[res_type]];
 
 		tv = find_update_target(target_ib->uniq_id, res.res_id);
 		if (tv == NULL) {
+<<<<<<< HEAD
 			pr_err(ITAG" Release Timeout Func :::: %d's TV No Exist(%d)\n",
+=======
+			pr_err(ITAG" Release Timeout Func :::: %d's TV No Exist(%d)",
+>>>>>>> upstream/android-13
 				target_ib->uniq_id, res.res_id);
 			continue;
 		}
 
+<<<<<<< HEAD
 		pr_booster("Release Timeout Func :::: Delete Uniq(%d)'s TV Val (%ld)",
+=======
+		pr_booster("Release Timeout Func :::: Delete Uniq(%d)'s TV Val (%d)",
+>>>>>>> upstream/android-13
 			tv->uniq_id, tv->value);
 
 		spin_lock(&write_qos_lock);
@@ -564,12 +636,20 @@ void remove_ib_instance(struct t_ib_info* target_ib)
 
 	if (!ib_exist) {
 		spin_unlock(&write_ib_lock);
+<<<<<<< HEAD
 		pr_err(ITAG" Del Ib Fail Id : %d\n", target_ib->uniq_id);
+=======
+		pr_err(ITAG" Del Ib Fail Id : %d", target_ib->uniq_id);
+>>>>>>> upstream/android-13
 	} else {
 		list_del_rcu(&(target_ib->list));
 		spin_unlock(&write_ib_lock);
 		synchronize_rcu();
+<<<<<<< HEAD
 		pr_info(ITAG" Del Ib Instance's Id : %d\n", target_ib->uniq_id);
+=======
+		pr_info(ITAG" Del Ib Instance's Id : %d", target_ib->uniq_id);
+>>>>>>> upstream/android-13
 		mutex_lock(&mem_lock);
 		if (target_ib != NULL) {
 			kfree(target_ib);
@@ -618,12 +698,20 @@ void init_sysfs_device(struct class* sysfs_class, struct device* pdev, struct t_
 	sysfs_dev = device_create(sysfs_class, NULL, 0, ib_dt, "%s", ib_dt->label);
 	if (IS_ERR(sysfs_dev)) {
 		ret = IS_ERR(sysfs_dev);
+<<<<<<< HEAD
 		pr_err(ITAG" Failed to create %s sysfs device[%d]\n", ib_dt->label, ret);
+=======
+		pr_err(ITAG" Failed to create %s sysfs device[%d]n", ib_dt->label, ret);
+>>>>>>> upstream/android-13
 		return;
 	}
 	ret = sysfs_create_group(&sysfs_dev->kobj, &dvfs_attr_group);
 	if (ret) {
+<<<<<<< HEAD
 		pr_err(ITAG" Failed to create %s sysfs group\n", ib_dt->label);
+=======
+		pr_err(ITAG" Failed to create %s sysfs groupn", ib_dt->label);
+>>>>>>> upstream/android-13
 		return;
 	}
 }
@@ -641,7 +729,11 @@ int parse_dtsi_str(struct device_node *np, const char *target_node, void *target
 	const char *full_str = of_get_property(np, target_node, NULL);
 
 	if (full_str == NULL) {
+<<<<<<< HEAD
 		pr_err(ITAG" Target Node(%s) is null\n", target_node);
+=======
+		pr_err(ITAG" Target Node(%s) is null", target_node);
+>>>>>>> upstream/android-13
 		return -1;
 	}
 
@@ -655,12 +747,17 @@ int parse_dtsi_str(struct device_node *np, const char *target_node, void *target
 	token = strsep(&prop_pointer, ",");
 
 	while (token != NULL) {
+<<<<<<< HEAD
 		pr_info("%s %d's Type Value(%s)\n", target_node, iter, token);
+=======
+		pr_info("%s %d's Type Value(%s)", target_node, iter, token);
+>>>>>>> upstream/android-13
 
 		//Release Values inserted inside array
 		if (isIntType) {
 			copy_result = sscanf(token, "%d", &int_target_arr_ptr[iter]);
 			if (!copy_result) {
+<<<<<<< HEAD
 				pr_err(ITAG" DTSI string value parsing fail\n");
 				return -1;
 			}
@@ -669,6 +766,16 @@ int parse_dtsi_str(struct device_node *np, const char *target_node, void *target
 			copy_result = sscanf(token, "%s", &str_target_arr_ptr[iter]);
 			if (!copy_result) {
 				pr_err(ITAG" DTSI string value parsing fail\n");
+=======
+				pr_err(ITAG" DTSI string value parsing fail");
+				return -1;
+			}
+			pr_info("Target_arr[%d] : %d", iter, int_target_arr_ptr[iter]);
+		} else {
+			copy_result = sscanf(token, "%s", &str_target_arr_ptr[iter]);
+			if (!copy_result) {
+				pr_err(ITAG" DTSI string value parsing fail");
+>>>>>>> upstream/android-13
 				return -1;
 			}
 		}
@@ -724,11 +831,19 @@ int parse_device_info(struct device_node* np, struct t_ib_device_tree* ib_device
 
 		for_each_child_of_node(resource_node, child_resource_node) {
 			int result = parse_dtsi_str(child_resource_node, "resource,id", &res_id, 1);
+<<<<<<< HEAD
 			pr_info(ITAG" res_id(%d) result(%d)\n", res_id, result);
 			if (result == 0 || result == -1) continue;
 
 			if (!(allowed_mask & (1<<res_id))) {
 				pr_err(ITAG" res_id(%d) is not allowed res\n", res_id);
+=======
+			pr_info(ITAG" res_id(%d) result(%d)", res_id, result);
+			if (result == 0 || result == -1) continue;
+
+			if (!(allowed_mask & (1<<res_id))) {
+				pr_err(ITAG" res_id(%d) is not allowed res", res_id);
+>>>>>>> upstream/android-13
 				continue;
 			}
 
@@ -743,7 +858,11 @@ int parse_device_info(struct device_node* np, struct t_ib_device_tree* ib_device
 			}
 
 			if (inputbooster_size != 2) {
+<<<<<<< HEAD
 				pr_err(ITAG" inputbooster size must be 2!\n");
+=======
+				pr_err(ITAG" inputbooster size must be 2!");
+>>>>>>> upstream/android-13
 				return -1; // error
 			}
 
@@ -818,7 +937,11 @@ void input_booster_init(void)
 	ib_trigger = kzalloc(sizeof(struct t_ib_trigger) * MAX_IB_COUNT, GFP_KERNEL);
 
 	if (ib_trigger == NULL) {
+<<<<<<< HEAD
 		pr_err(ITAG" ib_trigger mem alloc fail\n");
+=======
+		pr_err(ITAG" ib_trigger mem alloc fail");
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
@@ -827,7 +950,11 @@ void input_booster_init(void)
 
 	np = of_find_compatible_node(NULL, NULL, "input_booster");
 	if (np == NULL) {
+<<<<<<< HEAD
 		pr_err(ITAG" Input Booster Compatible wasn't found in dtsi\n");
+=======
+		pr_err(ITAG" Input Booster Compatible wasn't found in dtsi");
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
@@ -836,14 +963,22 @@ void input_booster_init(void)
 
 	ib_device_trees = kzalloc(ib_dt_size * ndevice_in_dt, GFP_KERNEL);
 	if (ib_device_trees == NULL) {
+<<<<<<< HEAD
 		pr_err(ITAG" dt_infor mem alloc fail\n");
+=======
+		pr_err(ITAG" dt_infor mem alloc fail");
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
 // ib list mem alloc
 	ib_list = kzalloc(list_head_size * MAX_DEVICE_TYPE_NUM, GFP_KERNEL);
 	if (ib_list == NULL) {
+<<<<<<< HEAD
 		pr_err(ITAG" ib list mem alloc fail\n");
+=======
+		pr_err(ITAG" ib list mem alloc fail");
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
@@ -851,24 +986,40 @@ void input_booster_init(void)
 	result = sscanf((of_get_property(np, "max_resource_count",
 			NULL)), "%d", &max_resource_count);
 	if (!result) {
+<<<<<<< HEAD
 		pr_err(ITAG"max_resource_count value parsing fail\n");
+=======
+		pr_err(ITAG"max_resource_count value parsing fail");
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
 	result = sscanf((of_get_property(np, "max_cluster_count",
 			NULL)), "%d", &max_cluster_count);
 	if (!result) {
+<<<<<<< HEAD
 		pr_err(ITAG"max_cluster_count value parsing fail\n");
 		goto out;
 	}
 
 	pr_info(ITAG" resource size : %d, cluster count : %d\n",
+=======
+		pr_err(ITAG"max_cluster_count value parsing fail");
+		goto out;
+	}
+
+	pr_info(ITAG" resource size : %d, cluster count : %d",
+>>>>>>> upstream/android-13
 		max_resource_count, max_cluster_count);
 
 //qos list mem alloc
 	qos_list = kzalloc(list_head_size * max_resource_count, GFP_KERNEL);
 	if (qos_list == NULL) {
+<<<<<<< HEAD
 		pr_err(ITAG" ib list mem alloc fail\n");
+=======
+		pr_err(ITAG" ib list mem alloc fail");
+>>>>>>> upstream/android-13
 		goto out;
 	}
 	for (res_cnt = 0; res_cnt < max_resource_count; res_cnt++)
@@ -877,12 +1028,20 @@ void input_booster_init(void)
 //Init Cpu Cluster Value
 	cpu_cluster_policy = kzalloc(sizeof(int) * max_cluster_count, GFP_KERNEL);
 	if (cpu_cluster_policy == NULL) {
+<<<<<<< HEAD
 		pr_err(ITAG" cpu_cluster_policy mem alloc fail\n");
+=======
+		pr_err(ITAG" cpu_cluster_policy mem alloc fail");
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
 	result = parse_dtsi_str(np, "cpu_cluster_policy", cpu_cluster_policy, 1);
+<<<<<<< HEAD
 	pr_info(ITAG" Init:: Total Cpu Cluster Count : %d\n", result);
+=======
+	pr_info(ITAG" Init:: Total Cpu Cluster Count : %d", result);
+>>>>>>> upstream/android-13
 	if (result < 0)
 		goto out;
 
@@ -894,11 +1053,19 @@ void input_booster_init(void)
 //Allow Resource
 	allowed_resources = kzalloc(sizeof(int) * max_resource_count, GFP_KERNEL);
 	if (allowed_resources == NULL) {
+<<<<<<< HEAD
 		pr_err(ITAG" allowed_resources mem alloc fail\n");
 		goto out;
 	}
 	result = parse_dtsi_str(np, "allowed_resources", allowed_resources, 1);
 	pr_info(ITAG" Init:: Total Allow Resource Count: %d\n", result);
+=======
+		pr_err(ITAG" allowed_resources mem alloc fail");
+		goto out;
+	}
+	result = parse_dtsi_str(np, "allowed_resources", allowed_resources, 1);
+	pr_info(ITAG" Init:: Total Allow Resource Count: %d", result);
+>>>>>>> upstream/android-13
 	allowed_res_count = result;
 	if (result < 0)
 		goto out;
@@ -906,30 +1073,50 @@ void input_booster_init(void)
 	for (i = 0; i < result; i++) {
 		allowed_mask |= (1<<allowed_resources[i]);
 		if (allowed_resources[i] >= max_resource_count) {
+<<<<<<< HEAD
 			pr_err(ITAG" allow res index exceeds over max res count %d\n",
+=======
+			pr_err(ITAG" allow res index exceeds over max res count",
+>>>>>>> upstream/android-13
 				allowed_resources[i]);
 			goto out;
 		}
 	}
 
 	if (result > max_resource_count) {
+<<<<<<< HEAD
 		pr_err(ITAG" allow resources exceed over max resource count\n");
+=======
+		pr_err(ITAG" allow resources exceed over max resource count");
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
 //Init Resource Release Values
 	release_val = kzalloc(sizeof(int) * max_resource_count, GFP_KERNEL);
 	if (release_val == NULL) {
+<<<<<<< HEAD
 		pr_err(ITAG" release_val mem alloc fail\n");
 		goto out;
 	}
 	result = parse_dtsi_str(np, "ib_release_values", release_val, 1);
 	pr_info(ITAG" Init:: Total Release Value Count: %d\n", result);
+=======
+		pr_err(ITAG" release_val mem alloc fail");
+		goto out;
+	}
+	result = parse_dtsi_str(np, "ib_release_values", release_val, 1);
+	pr_info(ITAG" Init:: Total Release Value Count: %d", result);
+>>>>>>> upstream/android-13
 	if (result == 0)
 		goto out;
 
 	if (result > max_resource_count) {
+<<<<<<< HEAD
 		pr_err(ITAG" release value parse fail :: overceed max value\n");
+=======
+		pr_err(ITAG" release value parse fail :: overceed max value");
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
@@ -948,7 +1135,11 @@ void input_booster_init(void)
 		// Getting Mode Type
 		result = parse_dtsi_str(cnp, "booster,mode", &boost_mode, 1);
 		if (result == 0 || boost_mode < 0 || boost_mode >= num_of_mode) {
+<<<<<<< HEAD
 			pr_err(ITAG "Booster Mode(%d) exceeds max number of mode(%d)\n", boost_mode, num_of_mode);
+=======
+			pr_err(ITAG "Booster Mode(%d) exceeds max number of mode(%d)", boost_mode, num_of_mode);
+>>>>>>> upstream/android-13
 			continue;
 		}
 
@@ -978,7 +1169,11 @@ void input_booster_init(void)
 			ib_boost_modes[boost_mode].type_to_idx_table[(ib_dt + i)->type] = i;
 		}
 
+<<<<<<< HEAD
 		pr_info(ITAG"%s Total Input Device Count(%d)\n", ib_boost_modes[boost_mode].label, result);
+=======
+		pr_info(ITAG"%s Total Input Device Count(%d)", ib_boost_modes[boost_mode].label, result);
+>>>>>>> upstream/android-13
 	}
 
 	ib_init_succeed = is_ib_init_succeed();

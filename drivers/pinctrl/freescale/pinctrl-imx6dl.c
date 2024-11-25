@@ -473,6 +473,10 @@ static struct platform_driver imx6dl_pinctrl_driver = {
 	.driver = {
 		.name = "imx6dl-pinctrl",
 		.of_match_table = imx6dl_pinctrl_of_match,
+<<<<<<< HEAD
+=======
+		.suppress_bind_attrs = true,
+>>>>>>> upstream/android-13
 	},
 	.probe = imx6dl_pinctrl_probe,
 };

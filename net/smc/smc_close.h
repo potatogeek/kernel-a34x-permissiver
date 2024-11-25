@@ -23,5 +23,11 @@ void smc_close_wake_tx_prepared(struct smc_sock *smc);
 int smc_close_active(struct smc_sock *smc);
 int smc_close_shutdown_write(struct smc_sock *smc);
 void smc_close_init(struct smc_sock *smc);
+<<<<<<< HEAD
+=======
+void smc_clcsock_release(struct smc_sock *smc);
+int smc_close_abort(struct smc_connection *conn);
+void smc_close_active_abort(struct smc_sock *smc);
+>>>>>>> upstream/android-13
 
 #endif /* SMC_CLOSE_H */

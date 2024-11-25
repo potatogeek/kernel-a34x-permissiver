@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**
  * Cadence GEM PCI wrapper.
  *
@@ -17,6 +18,16 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * DOC: Cadence GEM PCI wrapper.
+ *
+ * Copyright (C) 2016 Cadence Design Systems - https://www.cadence.com
+ *
+ * Authors: Rafal Ozieblo <rafalo@cadence.com>
+ *	    Bartosz Folta <bfolta@cadence.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -24,7 +35,10 @@
 #include <linux/etherdevice.h>
 #include <linux/module.h>
 #include <linux/pci.h>
+<<<<<<< HEAD
 #include <linux/platform_data/macb.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include "macb.h"
 
@@ -123,9 +137,15 @@ static void macb_remove(struct pci_dev *pdev)
 	struct platform_device *plat_dev = pci_get_drvdata(pdev);
 	struct macb_platform_data *plat_data = dev_get_platdata(&plat_dev->dev);
 
+<<<<<<< HEAD
 	platform_device_unregister(plat_dev);
 	clk_unregister(plat_data->pclk);
 	clk_unregister(plat_data->hclk);
+=======
+	clk_unregister(plat_data->pclk);
+	clk_unregister(plat_data->hclk);
+	platform_device_unregister(plat_dev);
+>>>>>>> upstream/android-13
 }
 
 static const struct pci_device_id dev_id_table[] = {

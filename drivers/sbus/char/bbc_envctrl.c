@@ -571,9 +571,15 @@ int bbc_envctrl_init(struct bbc_i2c_bus *bp)
 	int devidx = 0;
 
 	while ((op = bbc_i2c_getdev(bp, devidx++)) != NULL) {
+<<<<<<< HEAD
 		if (!strcmp(op->dev.of_node->name, "temperature"))
 			attach_one_temp(bp, op, temp_index++);
 		if (!strcmp(op->dev.of_node->name, "fan-control"))
+=======
+		if (of_node_name_eq(op->dev.of_node, "temperature"))
+			attach_one_temp(bp, op, temp_index++);
+		if (of_node_name_eq(op->dev.of_node, "fan-control"))
+>>>>>>> upstream/android-13
 			attach_one_fan(bp, op, fan_index++);
 	}
 	if (temp_index != 0 && fan_index != 0) {

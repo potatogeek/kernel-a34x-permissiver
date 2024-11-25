@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * EFI capsule loader driver.
  *
  * Copyright 2015 Intel Corporation
+<<<<<<< HEAD
  *
  * This file is part of the Linux kernel, and is made available under
  * the terms of the GNU General Public License version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "efi: " fmt
@@ -13,6 +20,10 @@
 #include <linux/module.h>
 #include <linux/miscdevice.h>
 #include <linux/highmem.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/mutex.h>
 #include <linux/efi.h>
@@ -169,7 +180,11 @@ static ssize_t efi_capsule_submit_update(struct capsule_info *cap_info)
 static ssize_t efi_capsule_write(struct file *file, const char __user *buff,
 				 size_t count, loff_t *offp)
 {
+<<<<<<< HEAD
 	int ret = 0;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 	struct capsule_info *cap_info = file->private_data;
 	struct page *page;
 	void *kbuff = NULL;

@@ -4,6 +4,11 @@
 
 #include <linux/kernel.h>
 #include <linux/cpu.h>
+<<<<<<< HEAD
+=======
+#include <linux/cpufreq.h>
+#include <linux/pm_qos.h>
+>>>>>>> upstream/android-13
 #include <linux/thermal.h>
 #include <asm/acpi.h>
 
@@ -230,6 +235,11 @@ struct acpi_processor {
 	struct acpi_processor_limit limit;
 	struct thermal_cooling_device *cdev;
 	struct device *dev; /* Processor device. */
+<<<<<<< HEAD
+=======
+	struct freq_qos_request perflib_req;
+	struct freq_qos_request thermal_req;
+>>>>>>> upstream/android-13
 };
 
 struct acpi_processor_errata {
@@ -304,6 +314,7 @@ static inline int call_on_cpu(int cpu, long (*fn)(void *), void *arg,
 /* in processor_perflib.c */
 
 #ifdef CONFIG_CPU_FREQ
+<<<<<<< HEAD
 void acpi_processor_ppc_init(void);
 void acpi_processor_ppc_exit(void);
 void acpi_processor_ppc_has_changed(struct acpi_processor *pr, int event_flag);
@@ -314,6 +325,24 @@ static inline void acpi_processor_ppc_init(void)
 	return;
 }
 static inline void acpi_processor_ppc_exit(void)
+=======
+extern bool acpi_processor_cpufreq_init;
+void acpi_processor_ignore_ppc_init(void);
+void acpi_processor_ppc_init(struct cpufreq_policy *policy);
+void acpi_processor_ppc_exit(struct cpufreq_policy *policy);
+void acpi_processor_ppc_has_changed(struct acpi_processor *pr, int event_flag);
+extern int acpi_processor_get_bios_limit(int cpu, unsigned int *limit);
+#else
+static inline void acpi_processor_ignore_ppc_init(void)
+{
+	return;
+}
+static inline void acpi_processor_ppc_init(struct cpufreq_policy *policy)
+{
+	return;
+}
+static inline void acpi_processor_ppc_exit(struct cpufreq_policy *policy)
+>>>>>>> upstream/android-13
 {
 	return;
 }
@@ -429,6 +458,7 @@ static inline int acpi_processor_hotplug(struct acpi_processor *pr)
 int acpi_processor_get_limit_info(struct acpi_processor *pr);
 extern const struct thermal_cooling_device_ops processor_cooling_ops;
 #if defined(CONFIG_ACPI_CPU_FREQ_PSS) & defined(CONFIG_CPU_FREQ)
+<<<<<<< HEAD
 void acpi_thermal_cpufreq_init(void);
 void acpi_thermal_cpufreq_exit(void);
 #else
@@ -437,6 +467,16 @@ static inline void acpi_thermal_cpufreq_init(void)
 	return;
 }
 static inline void acpi_thermal_cpufreq_exit(void)
+=======
+void acpi_thermal_cpufreq_init(struct cpufreq_policy *policy);
+void acpi_thermal_cpufreq_exit(struct cpufreq_policy *policy);
+#else
+static inline void acpi_thermal_cpufreq_init(struct cpufreq_policy *policy)
+{
+	return;
+}
+static inline void acpi_thermal_cpufreq_exit(struct cpufreq_policy *policy)
+>>>>>>> upstream/android-13
 {
 	return;
 }

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* Glue code for SHA1 hashing optimized for sparc64 crypto opcodes.
  *
  * This is based largely upon arch/x86/crypto/sha1_ssse3_glue.c
@@ -14,9 +18,14 @@
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/mm.h>
+<<<<<<< HEAD
 #include <linux/cryptohash.h>
 #include <linux/types.h>
 #include <crypto/sha.h>
+=======
+#include <linux/types.h>
+#include <crypto/sha1.h>
+>>>>>>> upstream/android-13
 
 #include <asm/pstate.h>
 #include <asm/elf.h>

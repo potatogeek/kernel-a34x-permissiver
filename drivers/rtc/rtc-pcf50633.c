@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* NXP PCF50633 RTC Driver
  *
  * (C) 2006-2008 by Openmoko, Inc.
@@ -6,12 +10,15 @@
  *
  * Broken down from monstrous PCF50633 driver mainly by
  * Harald Welte, Andy Green and Werner Almesberger
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute  it and/or modify it
  *  under  the terms of  the GNU General  Public License as published by the
  *  Free Software Foundation;  either version 2 of the  License, or (at your
  *  option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -131,9 +138,13 @@ static int pcf50633_rtc_read_time(struct device *dev, struct rtc_time *tm)
 
 	pcf2rtc_time(tm, &pcf_tm);
 
+<<<<<<< HEAD
 	dev_dbg(dev, "RTC_TIME: %u.%u.%u %u:%u:%u\n",
 		tm->tm_mday, tm->tm_mon, tm->tm_year,
 		tm->tm_hour, tm->tm_min, tm->tm_sec);
+=======
+	dev_dbg(dev, "RTC_TIME: %ptRr\n", tm);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -146,9 +157,13 @@ static int pcf50633_rtc_set_time(struct device *dev, struct rtc_time *tm)
 
 	rtc = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	dev_dbg(dev, "RTC_TIME: %u.%u.%u %u:%u:%u\n",
 		tm->tm_mday, tm->tm_mon, tm->tm_year,
 		tm->tm_hour, tm->tm_min, tm->tm_sec);
+=======
+	dev_dbg(dev, "RTC_TIME: %ptRr\n", tm);
+>>>>>>> upstream/android-13
 
 	rtc2pcf_time(&pcf_tm, tm);
 

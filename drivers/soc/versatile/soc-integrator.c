@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2014 Linaro Ltd.
  *
  * Author: Linus Walleij <linus.walleij@linaro.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2, as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/init.h>
 #include <linux/io.h>
@@ -60,49 +67,93 @@ static const char *integrator_fpga_str(u32 id)
 	}
 }
 
+<<<<<<< HEAD
 static ssize_t integrator_get_manf(struct device *dev,
 			      struct device_attribute *attr,
 			      char *buf)
+=======
+static ssize_t
+manufacturer_show(struct device *dev, struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	return sprintf(buf, "%02x\n", integrator_coreid >> 24);
 }
 
+<<<<<<< HEAD
 static struct device_attribute integrator_manf_attr =
 	__ATTR(manufacturer,  S_IRUGO, integrator_get_manf,  NULL);
 
 static ssize_t integrator_get_arch(struct device *dev,
 			      struct device_attribute *attr,
 			      char *buf)
+=======
+static DEVICE_ATTR_RO(manufacturer);
+
+static ssize_t
+arch_show(struct device *dev, struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	return sprintf(buf, "%s\n", integrator_arch_str(integrator_coreid));
 }
 
+<<<<<<< HEAD
 static struct device_attribute integrator_arch_attr =
 	__ATTR(arch,  S_IRUGO, integrator_get_arch,  NULL);
 
 static ssize_t integrator_get_fpga(struct device *dev,
 			      struct device_attribute *attr,
 			      char *buf)
+=======
+static DEVICE_ATTR_RO(arch);
+
+static ssize_t
+fpga_show(struct device *dev, struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	return sprintf(buf, "%s\n", integrator_fpga_str(integrator_coreid));
 }
 
+<<<<<<< HEAD
 static struct device_attribute integrator_fpga_attr =
 	__ATTR(fpga,  S_IRUGO, integrator_get_fpga,  NULL);
 
 static ssize_t integrator_get_build(struct device *dev,
 			       struct device_attribute *attr,
 			       char *buf)
+=======
+static DEVICE_ATTR_RO(fpga);
+
+static ssize_t
+build_show(struct device *dev, struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	return sprintf(buf, "%02x\n", (integrator_coreid >> 4) & 0xFF);
 }
 
+<<<<<<< HEAD
 static struct device_attribute integrator_build_attr =
 	__ATTR(build,  S_IRUGO, integrator_get_build,  NULL);
 
 static int __init integrator_soc_init(void)
 {
 	static struct regmap *syscon_regmap;
+=======
+static DEVICE_ATTR_RO(build);
+
+static struct attribute *integrator_attrs[] = {
+	&dev_attr_manufacturer.attr,
+	&dev_attr_arch.attr,
+	&dev_attr_fpga.attr,
+	&dev_attr_build.attr,
+	NULL
+};
+
+ATTRIBUTE_GROUPS(integrator);
+
+static int __init integrator_soc_init(void)
+{
+	struct regmap *syscon_regmap;
+>>>>>>> upstream/android-13
 	struct soc_device *soc_dev;
 	struct soc_device_attribute *soc_dev_attr;
 	struct device_node *np;
@@ -131,6 +182,10 @@ static int __init integrator_soc_init(void)
 	soc_dev_attr->soc_id = "Integrator";
 	soc_dev_attr->machine = "Integrator";
 	soc_dev_attr->family = "Versatile";
+<<<<<<< HEAD
+=======
+	soc_dev_attr->custom_attr_group = integrator_groups[0];
+>>>>>>> upstream/android-13
 	soc_dev = soc_device_register(soc_dev_attr);
 	if (IS_ERR(soc_dev)) {
 		kfree(soc_dev_attr);
@@ -138,11 +193,14 @@ static int __init integrator_soc_init(void)
 	}
 	dev = soc_device_to_device(soc_dev);
 
+<<<<<<< HEAD
 	device_create_file(dev, &integrator_manf_attr);
 	device_create_file(dev, &integrator_arch_attr);
 	device_create_file(dev, &integrator_fpga_attr);
 	device_create_file(dev, &integrator_build_attr);
 
+=======
+>>>>>>> upstream/android-13
 	dev_info(dev, "Detected ARM core module:\n");
 	dev_info(dev, "    Manufacturer: %02x\n", (val >> 24));
 	dev_info(dev, "    Architecture: %s\n", integrator_arch_str(val));

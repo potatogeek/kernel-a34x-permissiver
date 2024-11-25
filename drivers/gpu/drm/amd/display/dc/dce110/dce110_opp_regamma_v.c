@@ -23,6 +23,11 @@
  *
  */
 
+<<<<<<< HEAD
+=======
+#include <linux/delay.h>
+
+>>>>>>> upstream/android-13
 #include "dm_services.h"
 
 /* include DCE11 register header files */

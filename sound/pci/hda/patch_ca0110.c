@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * HD audio interface patch for Creative X-Fi CA0110-IBG chip
  *
  * Copyright (c) 2008 Takashi Iwai <tiwai@suse.de>
+<<<<<<< HEAD
  *
  *  This driver is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -16,13 +21,19 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
 #include <linux/slab.h>
 #include <linux/module.h>
 #include <sound/core.h>
+<<<<<<< HEAD
 #include "hda_codec.h"
+=======
+#include <sound/hda_codec.h>
+>>>>>>> upstream/android-13
 #include "hda_local.h"
 #include "hda_auto_parser.h"
 #include "hda_jack.h"
@@ -66,7 +77,11 @@ static int patch_ca0110(struct hda_codec *codec)
 	codec->patch_ops = ca0110_patch_ops;
 
 	spec->multi_cap_vol = 1;
+<<<<<<< HEAD
 	codec->bus->needs_damn_long_delay = 1;
+=======
+	codec->bus->core.needs_damn_long_delay = 1;
+>>>>>>> upstream/android-13
 
 	err = ca0110_parse_auto_config(codec);
 	if (err < 0)

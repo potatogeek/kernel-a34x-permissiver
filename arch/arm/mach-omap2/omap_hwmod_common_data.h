@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * omap_hwmod_common_data.h - OMAP hwmod common macros and declarations
  *
@@ -5,10 +9,13 @@
  * Copyright (C) 2010-2012 Texas Instruments, Inc.
  * Paul Walmsley
  * Benoît Cousson
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __ARCH_ARM_MACH_OMAP2_OMAP_HWMOD_COMMON_DATA_H
 #define __ARCH_ARM_MACH_OMAP2_OMAP_HWMOD_COMMON_DATA_H
@@ -24,8 +31,11 @@ extern struct omap_hwmod omap2xxx_l4_core_hwmod;
 extern struct omap_hwmod omap2xxx_l4_wkup_hwmod;
 extern struct omap_hwmod omap2xxx_mpu_hwmod;
 extern struct omap_hwmod omap2xxx_iva_hwmod;
+<<<<<<< HEAD
 extern struct omap_hwmod omap2xxx_timer1_hwmod;
 extern struct omap_hwmod omap2xxx_timer2_hwmod;
+=======
+>>>>>>> upstream/android-13
 extern struct omap_hwmod omap2xxx_timer3_hwmod;
 extern struct omap_hwmod omap2xxx_timer4_hwmod;
 extern struct omap_hwmod omap2xxx_timer5_hwmod;
@@ -50,7 +60,10 @@ extern struct omap_hwmod omap2xxx_gpio3_hwmod;
 extern struct omap_hwmod omap2xxx_gpio4_hwmod;
 extern struct omap_hwmod omap2xxx_mcspi1_hwmod;
 extern struct omap_hwmod omap2xxx_mcspi2_hwmod;
+<<<<<<< HEAD
 extern struct omap_hwmod omap2xxx_counter_32k_hwmod;
+=======
+>>>>>>> upstream/android-13
 extern struct omap_hwmod omap2xxx_gpmc_hwmod;
 extern struct omap_hwmod omap2xxx_rng_hwmod;
 extern struct omap_hwmod omap2xxx_sham_hwmod;
@@ -101,7 +114,10 @@ extern struct omap_hwmod_class omap2_hdq1w_class;
 extern struct omap_hwmod_class omap2xxx_timer_hwmod_class;
 extern struct omap_hwmod_class omap2xxx_wd_timer_hwmod_class;
 extern struct omap_hwmod_class omap2xxx_gpio_hwmod_class;
+<<<<<<< HEAD
 extern struct omap_hwmod_class omap2xxx_dma_hwmod_class;
+=======
+>>>>>>> upstream/android-13
 extern struct omap_hwmod_class omap2xxx_mailbox_hwmod_class;
 extern struct omap_hwmod_class omap2xxx_mcspi_class;
 

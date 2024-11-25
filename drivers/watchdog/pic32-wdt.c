@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * PIC32 watchdog driver
  *
  * Joshua Henderson <joshua.henderson@microchip.com>
  * Copyright (c) 2016, Microchip Technology Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/clk.h>
 #include <linux/device.h>
@@ -166,6 +173,7 @@ static const struct of_device_id pic32_wdt_dt_ids[] = {
 };
 MODULE_DEVICE_TABLE(of, pic32_wdt_dt_ids);
 
+<<<<<<< HEAD
 static int pic32_wdt_drv_probe(struct platform_device *pdev)
 {
 	int ret;
@@ -189,11 +197,41 @@ static int pic32_wdt_drv_probe(struct platform_device *pdev)
 	wdt->clk = devm_clk_get(&pdev->dev, NULL);
 	if (IS_ERR(wdt->clk)) {
 		dev_err(&pdev->dev, "clk not found\n");
+=======
+static void pic32_clk_disable_unprepare(void *data)
+{
+	clk_disable_unprepare(data);
+}
+
+static int pic32_wdt_drv_probe(struct platform_device *pdev)
+{
+	struct device *dev = &pdev->dev;
+	int ret;
+	struct watchdog_device *wdd = &pic32_wdd;
+	struct pic32_wdt *wdt;
+
+	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
+	if (!wdt)
+		return -ENOMEM;
+
+	wdt->regs = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(wdt->regs))
+		return PTR_ERR(wdt->regs);
+
+	wdt->rst_base = devm_ioremap(dev, PIC32_BASE_RESET, 0x10);
+	if (!wdt->rst_base)
+		return -ENOMEM;
+
+	wdt->clk = devm_clk_get(dev, NULL);
+	if (IS_ERR(wdt->clk)) {
+		dev_err(dev, "clk not found\n");
+>>>>>>> upstream/android-13
 		return PTR_ERR(wdt->clk);
 	}
 
 	ret = clk_prepare_enable(wdt->clk);
 	if (ret) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "clk enable failed\n");
 		return ret;
 	}
@@ -213,21 +251,50 @@ static int pic32_wdt_drv_probe(struct platform_device *pdev)
 	}
 
 	dev_info(&pdev->dev, "timeout %d\n", wdd->timeout);
+=======
+		dev_err(dev, "clk enable failed\n");
+		return ret;
+	}
+	ret = devm_add_action_or_reset(dev, pic32_clk_disable_unprepare,
+				       wdt->clk);
+	if (ret)
+		return ret;
+
+	if (pic32_wdt_is_win_enabled(wdt)) {
+		dev_err(dev, "windowed-clear mode is not supported.\n");
+		return -ENODEV;
+	}
+
+	wdd->timeout = pic32_wdt_get_timeout_secs(wdt, dev);
+	if (!wdd->timeout) {
+		dev_err(dev, "failed to read watchdog register timeout\n");
+		return -EINVAL;
+	}
+
+	dev_info(dev, "timeout %d\n", wdd->timeout);
+>>>>>>> upstream/android-13
 
 	wdd->bootstatus = pic32_wdt_bootstatus(wdt) ? WDIOF_CARDRESET : 0;
 
 	watchdog_set_nowayout(wdd, WATCHDOG_NOWAYOUT);
 	watchdog_set_drvdata(wdd, wdt);
 
+<<<<<<< HEAD
 	ret = watchdog_register_device(wdd);
 	if (ret) {
 		dev_err(&pdev->dev, "watchdog register failed, err %d\n", ret);
 		goto out_disable_clk;
 	}
+=======
+	ret = devm_watchdog_register_device(dev, wdd);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	platform_set_drvdata(pdev, wdd);
 
 	return 0;
+<<<<<<< HEAD
 
 out_disable_clk:
 	clk_disable_unprepare(wdt->clk);
@@ -244,11 +311,16 @@ static int pic32_wdt_drv_remove(struct platform_device *pdev)
 	clk_disable_unprepare(wdt->clk);
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static struct platform_driver pic32_wdt_driver = {
 	.probe		= pic32_wdt_drv_probe,
+<<<<<<< HEAD
 	.remove		= pic32_wdt_drv_remove,
+=======
+>>>>>>> upstream/android-13
 	.driver		= {
 		.name		= "pic32-wdt",
 		.of_match_table = of_match_ptr(pic32_wdt_dt_ids),

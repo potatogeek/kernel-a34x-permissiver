@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright 2017, Michael Neuling, IBM Corp.
  * Licensed under GPLv2.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2017, Michael Neuling, IBM Corp.
+>>>>>>> upstream/android-13
  * Original: Breno Leitao <brenohl@br.ibm.com> &
  *           Gustavo Bueno Romero <gromero@br.ibm.com>
  * Edited: Michael Neuling
@@ -17,7 +23,10 @@
 #include <pthread.h>
 #include <sys/mman.h>
 #include <unistd.h>
+<<<<<<< HEAD
 #include <pthread.h>
+=======
+>>>>>>> upstream/android-13
 
 #include "tm.h"
 #include "utils.h"
@@ -92,6 +101,10 @@ int tm_vmx_unavail_test()
 	pthread_t *thread;
 
 	SKIP_IF(!have_htm());
+<<<<<<< HEAD
+=======
+	SKIP_IF(htm_is_synthetic());
+>>>>>>> upstream/android-13
 
 	passed = 1;
 

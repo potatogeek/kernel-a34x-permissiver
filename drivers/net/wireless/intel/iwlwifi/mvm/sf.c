@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -62,6 +63,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *****************************************************************************/
+=======
+// SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
+/*
+ * Copyright (C) 2013-2014, 2018-2019 Intel Corporation
+ * Copyright (C) 2013-2014 Intel Mobile Communications GmbH
+ */
+>>>>>>> upstream/android-13
 #include "mvm.h"
 
 /* For counting bound interfaces */
@@ -69,7 +77,11 @@ struct iwl_mvm_active_iface_iterator_data {
 	struct ieee80211_vif *ignore_vif;
 	u8 sta_vif_ap_sta_id;
 	enum iwl_sf_state sta_vif_state;
+<<<<<<< HEAD
 	int num_active_macs;
+=======
+	u32 num_active_macs;
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -165,7 +177,13 @@ static void iwl_mvm_fill_sf_command(struct iwl_mvm *mvm,
 	 * capabilities of the AP station, and choose the watermark accordingly.
 	 */
 	if (sta) {
+<<<<<<< HEAD
 		if (sta->ht_cap.ht_supported || sta->vht_cap.vht_supported) {
+=======
+		if (sta->ht_cap.ht_supported ||
+		    sta->vht_cap.vht_supported ||
+		    sta->he_cap.has_he) {
+>>>>>>> upstream/android-13
 			switch (sta->rx_nss) {
 			case 1:
 				watermark = SF_W_MARK_SISO;

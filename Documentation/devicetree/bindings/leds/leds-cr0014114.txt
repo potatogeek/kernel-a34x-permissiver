@@ -11,14 +11,28 @@ Property rules described in Documentation/devicetree/bindings/spi/spi-bus.txt
 apply. In particular, "reg" and "spi-max-frequency" properties must be given.
 
 LED sub-node properties:
+<<<<<<< HEAD
 - label :
 	see Documentation/devicetree/bindings/leds/common.txt
+=======
+- function :
+	see Documentation/devicetree/bindings/leds/common.txt
+- color :
+	see Documentation/devicetree/bindings/leds/common.txt
+- label :
+	see Documentation/devicetree/bindings/leds/common.txt (deprecated)
+>>>>>>> upstream/android-13
 - linux,default-trigger : (optional)
 	see Documentation/devicetree/bindings/leds/common.txt
 
 Example
 -------
 
+<<<<<<< HEAD
+=======
+#include <dt-bindings/leds/common.h>
+
+>>>>>>> upstream/android-13
 led-controller@0 {
 	compatible = "crane,cr0014114";
 	reg = <0>;
@@ -28,6 +42,7 @@ led-controller@0 {
 
 	led@0 {
 		reg = <0>;
+<<<<<<< HEAD
 		label = "red:coin";
 	};
 	led@1 {
@@ -49,6 +64,35 @@ led-controller@0 {
 	led@5 {
 		reg = <5>;
 		label = "blue:bill";
+=======
+		function = "coin";
+		color = <LED_COLOR_ID_RED>;
+	};
+	led@1 {
+		reg = <1>;
+		function = "coin";
+		color = <LED_COLOR_ID_GREEN>;
+	};
+	led@2 {
+		reg = <2>;
+		function = "coin";
+		color = <LED_COLOR_ID_BLUE>;
+	};
+	led@3 {
+		reg = <3>;
+		function = "bill";
+		color = <LED_COLOR_ID_RED>;
+	};
+	led@4 {
+		reg = <4>;
+		function = "bill";
+		color = <LED_COLOR_ID_GREEN>;
+	};
+	led@5 {
+		reg = <5>;
+		function = "bill";
+		color = <LED_COLOR_ID_BLUE>;
+>>>>>>> upstream/android-13
 	};
 	...
 };

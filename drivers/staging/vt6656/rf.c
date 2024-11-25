@@ -3,8 +3,11 @@
  * Copyright (c) 1996, 2003 VIA Networking Technologies, Inc.
  * All rights reserved.
  *
+<<<<<<< HEAD
  * File: rf.c
  *
+=======
+>>>>>>> upstream/android-13
  * Purpose: rf function code
  *
  * Author: Jerry Chen
@@ -21,12 +24,17 @@
  *
  */
 
+<<<<<<< HEAD
+=======
+#include <linux/errno.h>
+>>>>>>> upstream/android-13
 #include "mac.h"
 #include "rf.h"
 #include "baseband.h"
 #include "usbpipe.h"
 
 #define CB_AL2230_INIT_SEQ    15
+<<<<<<< HEAD
 #define AL2230_PWR_IDX_LEN    64
 
 #define CB_AL7230_INIT_SEQ    16
@@ -37,6 +45,11 @@
 
 #define CB_VT3342_INIT_SEQ    13
 #define VT3342_PWR_IDX_LEN    64
+=======
+#define CB_AL7230_INIT_SEQ    16
+#define CB_VT3226_INIT_SEQ    11
+#define CB_VT3342_INIT_SEQ    13
+>>>>>>> upstream/android-13
 
 static u8 al2230_init_table[CB_AL2230_INIT_SEQ][3] = {
 	{0x03, 0xf7, 0x90},
@@ -518,6 +531,7 @@ static u8 vt3342_channel_table1[CB_MAX_CHANNEL][3] = {
 	{0x03, 0x00, 0x04}
 };
 
+<<<<<<< HEAD
 /* Power Table */
 static const u32 al2230_power_table[AL2230_PWR_IDX_LEN] = {
 	0x04040900,
@@ -584,6 +598,47 @@ static const u32 al2230_power_table[AL2230_PWR_IDX_LEN] = {
 	0x0407d900,
 	0x0407e900,
 	0x0407f900
+=======
+enum {
+	VNT_TABLE_INIT = 0,
+	VNT_TABLE_INIT_2 = 0,
+	VNT_TABLE_0 = 1,
+	VNT_TABLE_1 = 2,
+	VNT_TABLE_2 = 1
+};
+
+struct vnt_table_info {
+	u8 *addr;
+	int length;
+};
+
+static const struct vnt_table_info vnt_table_seq[][3] = {
+	{	/* RF_AL2230, RF_AL2230S init table, channel table 0 and 1 */
+		{&al2230_init_table[0][0], CB_AL2230_INIT_SEQ * 3},
+		{&al2230_channel_table0[0][0], CB_MAX_CHANNEL_24G * 3},
+		{&al2230_channel_table1[0][0], CB_MAX_CHANNEL_24G * 3}
+	}, {	/* RF_AIROHA7230 init table, channel table 0 and 1 */
+		{&al7230_init_table[0][0], CB_AL7230_INIT_SEQ * 3},
+		{&al7230_channel_table0[0][0], CB_MAX_CHANNEL * 3},
+		{&al7230_channel_table1[0][0], CB_MAX_CHANNEL * 3}
+	}, {	/* RF_VT3226 init table, channel table 0 and 1 */
+		{&vt3226_init_table[0][0], CB_VT3226_INIT_SEQ * 3},
+		{&vt3226_channel_table0[0][0], CB_MAX_CHANNEL_24G * 3},
+		{&vt3226_channel_table1[0][0], CB_MAX_CHANNEL_24G * 3}
+	}, {	/* RF_VT3226D0 init table, channel table 0 and 1 */
+		{&vt3226d0_init_table[0][0], CB_VT3226_INIT_SEQ * 3},
+		{&vt3226_channel_table0[0][0], CB_MAX_CHANNEL_24G * 3},
+		{&vt3226_channel_table1[0][0], CB_MAX_CHANNEL_24G * 3}
+	}, {	/* RF_VT3342A0 init table, channel table 0 and 1 */
+		{&vt3342a0_init_table[0][0], CB_VT3342_INIT_SEQ * 3},
+		{&vt3342_channel_table0[0][0], CB_MAX_CHANNEL * 3},
+		{&vt3342_channel_table1[0][0], CB_MAX_CHANNEL * 3}
+	}, {	/* RF_AIROHA7230 init table 2 and channel table 2 */
+		{&al7230_init_table_amode[0][0], CB_AL7230_INIT_SEQ * 3},
+		{&al7230_channel_table2[0][0], CB_MAX_CHANNEL * 3},
+		{NULL, 0}
+	}
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -600,6 +655,7 @@ int vnt_rf_write_embedded(struct vnt_private *priv, u32 data)
 	reg_data[2] = (u8)(data >> 16);
 	reg_data[3] = (u8)(data >> 24);
 
+<<<<<<< HEAD
 	vnt_control_out(priv, MESSAGE_TYPE_WRITE_IFRF,
 			0, 0, ARRAY_SIZE(reg_data), reg_data);
 
@@ -640,15 +696,24 @@ int vnt_rf_setpower(struct vnt_private *priv, u32 rate, u32 channel)
 	}
 
 	return vnt_rf_set_txpower(priv, power, rate);
+=======
+	return vnt_control_out(priv, MESSAGE_TYPE_WRITE_IFRF, 0, 0,
+			       ARRAY_SIZE(reg_data), reg_data);
+>>>>>>> upstream/android-13
 }
 
 static u8 vnt_rf_addpower(struct vnt_private *priv)
 {
+<<<<<<< HEAD
+=======
+	int base;
+>>>>>>> upstream/android-13
 	s32 rssi = -priv->current_rssi;
 
 	if (!rssi)
 		return 7;
 
+<<<<<<< HEAD
 	if (priv->rf_type == RF_VT3226D0) {
 		if (rssi < -70)
 			return 9;
@@ -664,27 +729,49 @@ static u8 vnt_rf_addpower(struct vnt_private *priv)
 		else if (rssi < -70)
 			return 5;
 	}
+=======
+	if (priv->rf_type == RF_VT3226D0)
+		base = -60;
+	else
+		base = -70;
+
+	if (rssi < base)
+		return ((rssi - base + 1) / -5) * 2 + 5;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 /* Set Tx power by power level and rate */
+<<<<<<< HEAD
 int vnt_rf_set_txpower(struct vnt_private *priv, u8 power, u32 rate)
 {
 	u32 power_setting = 0;
 	int ret = true;
+=======
+static int vnt_rf_set_txpower(struct vnt_private *priv, u8 power,
+			      struct ieee80211_channel *ch)
+{
+	u32 power_setting = 0;
+	int ret = 0;
+>>>>>>> upstream/android-13
 
 	power += vnt_rf_addpower(priv);
 	if (power > VNT_RF_MAX_POWER)
 		power = VNT_RF_MAX_POWER;
 
 	if (priv->power == power)
+<<<<<<< HEAD
 		return true;
+=======
+		return 0;
+>>>>>>> upstream/android-13
 
 	priv->power = power;
 
 	switch (priv->rf_type) {
 	case RF_AL2230:
+<<<<<<< HEAD
 		if (power >= AL2230_PWR_IDX_LEN)
 			return false;
 
@@ -718,6 +805,51 @@ int vnt_rf_set_txpower(struct vnt_private *priv, u8 power, u32 rate)
 
 		if (power >= AL7230_PWR_IDX_LEN)
 			return false;
+=======
+		power_setting = 0x0404090 | (power << 12);
+
+		ret = vnt_rf_write_embedded(priv, power_setting);
+		if (ret)
+			return ret;
+
+		if (ch->flags & IEEE80211_CHAN_NO_OFDM)
+			ret = vnt_rf_write_embedded(priv, 0x0001b400);
+		else
+			ret = vnt_rf_write_embedded(priv, 0x0005a400);
+
+		break;
+	case RF_AL2230S:
+		power_setting = 0x0404090 | (power << 12);
+
+		ret = vnt_rf_write_embedded(priv, power_setting);
+		if (ret)
+			return ret;
+
+		if (ch->flags & IEEE80211_CHAN_NO_OFDM) {
+			ret = vnt_rf_write_embedded(priv, 0x040c1400);
+			if (ret)
+				return ret;
+
+			ret = vnt_rf_write_embedded(priv, 0x00299b00);
+		} else {
+			ret = vnt_rf_write_embedded(priv, 0x0005a400);
+			if (ret)
+				return ret;
+
+			ret = vnt_rf_write_embedded(priv, 0x00099b00);
+		}
+
+		break;
+
+	case RF_AIROHA7230:
+		if (ch->flags & IEEE80211_CHAN_NO_OFDM)
+			ret = vnt_rf_write_embedded(priv, 0x111bb900);
+		else
+			ret = vnt_rf_write_embedded(priv, 0x221bb900);
+
+		if (ret)
+			return ret;
+>>>>>>> upstream/android-13
 
 		/*
 		 * 0x080F1B00 for 3 wire control TxGain(D10)
@@ -725,6 +857,7 @@ int vnt_rf_set_txpower(struct vnt_private *priv, u8 power, u32 rate)
 		 */
 		power_setting = 0x080c0b00 | (power << 12);
 
+<<<<<<< HEAD
 		ret &= vnt_rf_write_embedded(priv, power_setting);
 
 		break;
@@ -748,23 +881,58 @@ int vnt_rf_set_txpower(struct vnt_private *priv, u8 power, u32 rate)
 
 			ret &= vnt_rf_write_embedded(priv, power_setting);
 			ret &= vnt_rf_write_embedded(priv, 0x03c6a200);
+=======
+		ret = vnt_rf_write_embedded(priv, power_setting);
+		break;
+
+	case RF_VT3226:
+		power_setting = ((0x3f - power) << 20) | (0x17 << 8);
+
+		ret = vnt_rf_write_embedded(priv, power_setting);
+		break;
+	case RF_VT3226D0:
+		if (ch->flags & IEEE80211_CHAN_NO_OFDM) {
+			u16 hw_value = ch->hw_value;
+
+			power_setting = ((0x3f - power) << 20) | (0xe07 << 8);
+
+			ret = vnt_rf_write_embedded(priv, power_setting);
+			if (ret)
+				return ret;
+
+			ret = vnt_rf_write_embedded(priv, 0x03c6a200);
+			if (ret)
+				return ret;
+>>>>>>> upstream/android-13
 
 			dev_dbg(&priv->usb->dev,
 				"%s 11b channel [%d]\n", __func__, hw_value);
 
 			hw_value--;
 
+<<<<<<< HEAD
 			if (hw_value < ARRAY_SIZE(vt3226d0_lo_current_table))
 				ret &= vnt_rf_write_embedded(priv,
 					vt3226d0_lo_current_table[hw_value]);
 
 			ret &= vnt_rf_write_embedded(priv, 0x015C0800);
+=======
+			if (hw_value < ARRAY_SIZE(vt3226d0_lo_current_table)) {
+				ret = vnt_rf_write_embedded(priv,
+							    vt3226d0_lo_current_table[hw_value]);
+				if (ret)
+					return ret;
+			}
+
+			ret = vnt_rf_write_embedded(priv, 0x015C0800);
+>>>>>>> upstream/android-13
 		} else {
 			dev_dbg(&priv->usb->dev,
 				"@@@@ %s> 11G mode\n", __func__);
 
 			power_setting = ((0x3f - power) << 20) | (0x7 << 8);
 
+<<<<<<< HEAD
 			ret &= vnt_rf_write_embedded(priv, power_setting);
 			ret &= vnt_rf_write_embedded(priv, 0x00C6A200);
 			ret &= vnt_rf_write_embedded(priv, 0x016BC600);
@@ -780,6 +948,29 @@ int vnt_rf_set_txpower(struct vnt_private *priv, u8 power, u32 rate)
 
 		ret &= vnt_rf_write_embedded(priv, power_setting);
 
+=======
+			ret = vnt_rf_write_embedded(priv, power_setting);
+			if (ret)
+				return ret;
+
+			ret = vnt_rf_write_embedded(priv, 0x00C6A200);
+			if (ret)
+				return ret;
+
+			ret = vnt_rf_write_embedded(priv, 0x016BC600);
+			if (ret)
+				return ret;
+
+			ret = vnt_rf_write_embedded(priv, 0x00900800);
+		}
+
+		break;
+
+	case RF_VT3342A0:
+		power_setting =  ((0x3f - power) << 20) | (0x27 << 8);
+
+		ret = vnt_rf_write_embedded(priv, power_setting);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		break;
@@ -787,6 +978,39 @@ int vnt_rf_set_txpower(struct vnt_private *priv, u8 power, u32 rate)
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+/* Set Tx power by channel number type */
+int vnt_rf_setpower(struct vnt_private *priv,
+		    struct ieee80211_channel *ch)
+{
+	u16 channel;
+	u8 power = priv->cck_pwr;
+
+	if (!ch)
+		return -EINVAL;
+
+	/* set channel number to array number */
+	channel = ch->hw_value - 1;
+
+	if (ch->flags & IEEE80211_CHAN_NO_OFDM) {
+		if (channel < ARRAY_SIZE(priv->cck_pwr_tbl))
+			power = priv->cck_pwr_tbl[channel];
+	} else if (ch->band == NL80211_BAND_5GHZ) {
+		/* remove 14 channels to array size */
+		channel -= 14;
+
+		if (channel < ARRAY_SIZE(priv->ofdm_a_pwr_tbl))
+			power = priv->ofdm_a_pwr_tbl[channel];
+	} else {
+		if (channel < ARRAY_SIZE(priv->ofdm_pwr_tbl))
+			power = priv->ofdm_pwr_tbl[channel];
+	}
+
+	return vnt_rf_set_txpower(priv, power, ch);
+}
+
+>>>>>>> upstream/android-13
 /* Convert rssi to dbm */
 void vnt_rf_rssi_to_dbm(struct vnt_private *priv, u8 rssi, long *dbm)
 {
@@ -811,16 +1035,25 @@ void vnt_rf_rssi_to_dbm(struct vnt_private *priv, u8 rssi, long *dbm)
 	*dbm = -1 * (a + b * 2);
 }
 
+<<<<<<< HEAD
 void vnt_rf_table_download(struct vnt_private *priv)
 {
 	u16 length1 = 0, length2 = 0, length3 = 0;
 	u8 *addr1 = NULL, *addr2 = NULL, *addr3 = NULL;
 	u16 length, value;
 	u8 array[256];
+=======
+int vnt_rf_table_download(struct vnt_private *priv)
+{
+	int ret;
+	int idx = -1;
+	const struct vnt_table_info *table_seq;
+>>>>>>> upstream/android-13
 
 	switch (priv->rf_type) {
 	case RF_AL2230:
 	case RF_AL2230S:
+<<<<<<< HEAD
 		length1 = CB_AL2230_INIT_SEQ * 3;
 		length2 = CB_MAX_CHANNEL_24G * 3;
 		length3 = CB_MAX_CHANNEL_24G * 3;
@@ -935,4 +1168,68 @@ void vnt_rf_table_download(struct vnt_private *priv)
 			addr2 += length;
 		}
 	}
+=======
+		idx = 0;
+		break;
+	case RF_AIROHA7230:
+		idx = 1;
+		break;
+	case RF_VT3226:
+		idx = 2;
+		break;
+	case RF_VT3226D0:
+		idx = 3;
+		break;
+	case RF_VT3342A0:
+		idx = 4;
+		break;
+	}
+
+	if (idx < 0)
+		return 0;
+
+	table_seq = &vnt_table_seq[idx][0];
+
+	/* Init Table */
+	ret = vnt_control_out(priv, MESSAGE_TYPE_WRITE, 0,
+			      MESSAGE_REQUEST_RF_INIT,
+			      table_seq[VNT_TABLE_INIT].length,
+			      table_seq[VNT_TABLE_INIT].addr);
+	if (ret)
+		return ret;
+
+	/* Channel Table 0 */
+	ret = vnt_control_out_blocks(priv, VNT_REG_BLOCK_SIZE,
+				     MESSAGE_REQUEST_RF_CH0,
+				     table_seq[VNT_TABLE_0].length,
+				     table_seq[VNT_TABLE_0].addr);
+	if (ret)
+		return ret;
+
+	/* Channel Table 1 */
+	ret = vnt_control_out_blocks(priv, VNT_REG_BLOCK_SIZE,
+				     MESSAGE_REQUEST_RF_CH1,
+				     table_seq[VNT_TABLE_1].length,
+				     table_seq[VNT_TABLE_1].addr);
+
+	if (priv->rf_type == RF_AIROHA7230) {
+		table_seq = &vnt_table_seq[5][0];
+
+		/* Init Table 2 */
+		ret = vnt_control_out(priv, MESSAGE_TYPE_WRITE, 0,
+				      MESSAGE_REQUEST_RF_INIT2,
+				      table_seq[VNT_TABLE_INIT_2].length,
+				      table_seq[VNT_TABLE_INIT_2].addr);
+		if (ret)
+			return ret;
+
+		/* Channel Table 2 */
+		ret = vnt_control_out_blocks(priv, VNT_REG_BLOCK_SIZE,
+					     MESSAGE_REQUEST_RF_CH2,
+					     table_seq[VNT_TABLE_2].length,
+					     table_seq[VNT_TABLE_2].addr);
+	}
+
+	return ret;
+>>>>>>> upstream/android-13
 }

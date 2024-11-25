@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * VMware vSockets Driver
  *
  * Copyright (C) 2009-2013 VMware, Inc. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -11,6 +16,8 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __VMCI_TRANSPORT_NOTIFY_H__
@@ -19,7 +26,10 @@
 #include <linux/types.h>
 #include <linux/vmw_vmci_defs.h>
 #include <linux/vmw_vmci_api.h>
+<<<<<<< HEAD
 #include <linux/vm_sockets.h>
+=======
+>>>>>>> upstream/android-13
 
 #include "vmci_transport.h"
 

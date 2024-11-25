@@ -21,6 +21,10 @@
 
 #include <linux/usb.h>
 #include <linux/usb/hcd.h>
+<<<<<<< HEAD
+=======
+#include <uapi/linux/usb/audio.h>
+>>>>>>> upstream/android-13
 #include "usb.h"
 
 static inline const char *plural(int n)
@@ -42,6 +46,7 @@ static int is_activesync(struct usb_interface_descriptor *desc)
 		&& desc->bInterfaceProtocol == 1;
 }
 
+<<<<<<< HEAD
 static int get_usb_audio_config(struct usb_host_bos *bos)
 {
 	unsigned int desc_cnt, num_cfg_desc, len = 0;
@@ -70,6 +75,16 @@ static int get_usb_audio_config(struct usb_host_bos *bos)
 
 done:
 	return -EINVAL;
+=======
+static bool is_audio(struct usb_interface_descriptor *desc)
+{
+	return desc->bInterfaceClass == USB_CLASS_AUDIO;
+}
+
+static bool is_uac3_config(struct usb_interface_descriptor *desc)
+{
+	return desc->bInterfaceProtocol == UAC_VERSION_3;
+>>>>>>> upstream/android-13
 }
 
 int usb_choose_configuration(struct usb_device *udev)
@@ -137,6 +152,34 @@ int usb_choose_configuration(struct usb_device *udev)
 			continue;
 		}
 
+<<<<<<< HEAD
+=======
+		/*
+		 * Select first configuration as default for audio so that
+		 * devices that don't comply with UAC3 protocol are supported.
+		 * But, still iterate through other configurations and
+		 * select UAC3 compliant config if present.
+		 */
+		if (desc && is_audio(desc)) {
+			/* Always prefer the first found UAC3 config */
+			if (is_uac3_config(desc)) {
+				best = c;
+				break;
+			}
+
+			/* If there is no UAC3 config, prefer the first config */
+			else if (i == 0)
+				best = c;
+
+			/* Unconditional continue, because the rest of the code
+			 * in the loop is irrelevant for audio devices, and
+			 * because it can reassign best, which for audio devices
+			 * we don't want.
+			 */
+			continue;
+		}
+
+>>>>>>> upstream/android-13
 		/* When the first config's first interface is one of Microsoft's
 		 * pet nonstandard Ethernet-over-USB protocols, ignore it unless
 		 * this kernel has enabled the necessary host side driver.
@@ -175,10 +218,14 @@ int usb_choose_configuration(struct usb_device *udev)
 			insufficient_power, plural(insufficient_power));
 
 	if (best) {
+<<<<<<< HEAD
 		/* choose device preferred config */
 		i = get_usb_audio_config(udev->bos);
 		if (i < 0)
 			i = best->desc.bConfigurationValue;
+=======
+		i = best->desc.bConfigurationValue;
+>>>>>>> upstream/android-13
 		dev_dbg(&udev->dev,
 			"configuration #%d chosen from %d choice%s\n",
 			i, num_configs, plural(num_configs));
@@ -192,7 +239,39 @@ int usb_choose_configuration(struct usb_device *udev)
 }
 EXPORT_SYMBOL_GPL(usb_choose_configuration);
 
+<<<<<<< HEAD
 static int generic_probe(struct usb_device *udev)
+=======
+static int __check_for_non_generic_match(struct device_driver *drv, void *data)
+{
+	struct usb_device *udev = data;
+	struct usb_device_driver *udrv;
+
+	if (!is_usb_device_driver(drv))
+		return 0;
+	udrv = to_usb_device_driver(drv);
+	if (udrv == &usb_generic_driver)
+		return 0;
+	return usb_driver_applicable(udev, udrv);
+}
+
+static bool usb_generic_driver_match(struct usb_device *udev)
+{
+	if (udev->use_generic_driver)
+		return true;
+
+	/*
+	 * If any other driver wants the device, leave the device to this other
+	 * driver.
+	 */
+	if (bus_for_each_drv(&usb_bus_type, NULL, udev, __check_for_non_generic_match))
+		return false;
+
+	return true;
+}
+
+int usb_generic_driver_probe(struct usb_device *udev)
+>>>>>>> upstream/android-13
 {
 	int err, c;
 
@@ -219,7 +298,11 @@ static int generic_probe(struct usb_device *udev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void generic_disconnect(struct usb_device *udev)
+=======
+void usb_generic_driver_disconnect(struct usb_device *udev)
+>>>>>>> upstream/android-13
 {
 	usb_notify_remove_device(udev);
 
@@ -231,7 +314,11 @@ static void generic_disconnect(struct usb_device *udev)
 
 #ifdef	CONFIG_PM
 
+<<<<<<< HEAD
 static int generic_suspend(struct usb_device *udev, pm_message_t msg)
+=======
+int usb_generic_driver_suspend(struct usb_device *udev, pm_message_t msg)
+>>>>>>> upstream/android-13
 {
 	int rc;
 
@@ -254,10 +341,19 @@ static int generic_suspend(struct usb_device *udev, pm_message_t msg)
 	else
 		rc = usb_port_suspend(udev, msg);
 
+<<<<<<< HEAD
 	return rc;
 }
 
 static int generic_resume(struct usb_device *udev, pm_message_t msg)
+=======
+	if (rc == 0)
+		usbfs_notify_suspend(udev);
+	return rc;
+}
+
+int usb_generic_driver_resume(struct usb_device *udev, pm_message_t msg)
+>>>>>>> upstream/android-13
 {
 	int rc;
 
@@ -270,6 +366,12 @@ static int generic_resume(struct usb_device *udev, pm_message_t msg)
 		rc = hcd_bus_resume(udev, msg);
 	else
 		rc = usb_port_resume(udev, msg);
+<<<<<<< HEAD
+=======
+
+	if (rc == 0)
+		usbfs_notify_resume(udev);
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -277,11 +379,20 @@ static int generic_resume(struct usb_device *udev, pm_message_t msg)
 
 struct usb_device_driver usb_generic_driver = {
 	.name =	"usb",
+<<<<<<< HEAD
 	.probe = generic_probe,
 	.disconnect = generic_disconnect,
 #ifdef	CONFIG_PM
 	.suspend = generic_suspend,
 	.resume = generic_resume,
+=======
+	.match = usb_generic_driver_match,
+	.probe = usb_generic_driver_probe,
+	.disconnect = usb_generic_driver_disconnect,
+#ifdef	CONFIG_PM
+	.suspend = usb_generic_driver_suspend,
+	.resume = usb_generic_driver_resume,
+>>>>>>> upstream/android-13
 #endif
 	.supports_autosuspend = 1,
 };

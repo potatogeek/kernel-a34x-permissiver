@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Huawei HiNIC PCI Express Linux driver
  * Copyright(c) 2017 Huawei Technologies Co., Ltd
@@ -11,6 +12,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Huawei HiNIC PCI Express Linux driver
+ * Copyright(c) 2017 Huawei Technologies Co., Ltd
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -27,6 +34,10 @@
 #include <linux/dma-mapping.h>
 #include <linux/prefetch.h>
 #include <linux/cpumask.h>
+<<<<<<< HEAD
+=======
+#include <linux/if_vlan.h>
+>>>>>>> upstream/android-13
 #include <asm/barrier.h>
 
 #include "hinic_common.h"
@@ -43,6 +54,19 @@
 #define RX_IRQ_NO_LLI_TIMER             0
 #define RX_IRQ_NO_CREDIT                0
 #define RX_IRQ_NO_RESEND_TIMER          0
+<<<<<<< HEAD
+=======
+#define HINIC_RX_BUFFER_WRITE           16
+
+#define HINIC_RX_IPV6_PKT		7
+#define LRO_PKT_HDR_LEN_IPV4		66
+#define LRO_PKT_HDR_LEN_IPV6		86
+#define LRO_REPLENISH_THLD		256
+
+#define LRO_PKT_HDR_LEN(cqe)		\
+	(HINIC_GET_RX_PKT_TYPE(be32_to_cpu((cqe)->offload_type)) == \
+	 HINIC_RX_IPV6_PKT ? LRO_PKT_HDR_LEN_IPV6 : LRO_PKT_HDR_LEN_IPV4)
+>>>>>>> upstream/android-13
 
 /**
  * hinic_rxq_clean_stats - Clean the statistics of specific queue
@@ -55,6 +79,12 @@ void hinic_rxq_clean_stats(struct hinic_rxq *rxq)
 	u64_stats_update_begin(&rxq_stats->syncp);
 	rxq_stats->pkts  = 0;
 	rxq_stats->bytes = 0;
+<<<<<<< HEAD
+=======
+	rxq_stats->errors = 0;
+	rxq_stats->csum_errors = 0;
+	rxq_stats->other_errors = 0;
+>>>>>>> upstream/android-13
 	u64_stats_update_end(&rxq_stats->syncp);
 }
 
@@ -73,6 +103,13 @@ void hinic_rxq_get_stats(struct hinic_rxq *rxq, struct hinic_rxq_stats *stats)
 		start = u64_stats_fetch_begin(&rxq_stats->syncp);
 		stats->pkts = rxq_stats->pkts;
 		stats->bytes = rxq_stats->bytes;
+<<<<<<< HEAD
+=======
+		stats->errors = rxq_stats->csum_errors +
+				rxq_stats->other_errors;
+		stats->csum_errors = rxq_stats->csum_errors;
+		stats->other_errors = rxq_stats->other_errors;
+>>>>>>> upstream/android-13
 	} while (u64_stats_fetch_retry(&rxq_stats->syncp, start));
 	u64_stats_update_end(&stats->syncp);
 }
@@ -89,6 +126,30 @@ static void rxq_stats_init(struct hinic_rxq *rxq)
 	hinic_rxq_clean_stats(rxq);
 }
 
+<<<<<<< HEAD
+=======
+static void rx_csum(struct hinic_rxq *rxq, u32 status,
+		    struct sk_buff *skb)
+{
+	struct net_device *netdev = rxq->netdev;
+	u32 csum_err;
+
+	csum_err = HINIC_RQ_CQE_STATUS_GET(status, CSUM_ERR);
+
+	if (!(netdev->features & NETIF_F_RXCSUM))
+		return;
+
+	if (!csum_err) {
+		skb->ip_summed = CHECKSUM_UNNECESSARY;
+	} else {
+		if (!(csum_err & (HINIC_RX_CSUM_HW_CHECK_NONE |
+			HINIC_RX_CSUM_IPSU_OTHER_ERR)))
+			rxq->rxq_stats.csum_errors++;
+		skb->ip_summed = CHECKSUM_NONE;
+	}
+}
+
+>>>>>>> upstream/android-13
 /**
  * rx_alloc_skb - allocate skb and map it to dma address
  * @rxq: rx queue
@@ -108,10 +169,15 @@ static struct sk_buff *rx_alloc_skb(struct hinic_rxq *rxq,
 	int err;
 
 	skb = netdev_alloc_skb_ip_align(rxq->netdev, rxq->rq->buf_sz);
+<<<<<<< HEAD
 	if (!skb) {
 		netdev_err(rxq->netdev, "Failed to allocate Rx SKB\n");
 		return NULL;
 	}
+=======
+	if (!skb)
+		return NULL;
+>>>>>>> upstream/android-13
 
 	addr = dma_map_single(&pdev->dev, skb->data, rxq->rq->buf_sz,
 			      DMA_FROM_DEVICE);
@@ -183,10 +249,15 @@ static int rx_alloc_pkts(struct hinic_rxq *rxq)
 
 	for (i = 0; i < free_wqebbs; i++) {
 		skb = rx_alloc_skb(rxq, &dma_addr);
+<<<<<<< HEAD
 		if (!skb) {
 			netdev_err(rxq->netdev, "Failed to alloc Rx skb\n");
 			goto skb_out;
 		}
+=======
+		if (!skb)
+			goto skb_out;
+>>>>>>> upstream/android-13
 
 		hinic_set_sge(&sge, dma_addr, skb->len);
 
@@ -207,7 +278,10 @@ skb_out:
 		wmb();  /* write all the wqes before update PI */
 
 		hinic_rq_update(rxq->rq, prod_idx);
+<<<<<<< HEAD
 		tasklet_schedule(&rxq->rx_task);
+=======
+>>>>>>> upstream/android-13
 	}
 
 	return i;
@@ -237,6 +311,7 @@ static void free_all_rx_skbs(struct hinic_rxq *rxq)
 }
 
 /**
+<<<<<<< HEAD
  * rx_alloc_task - tasklet for queue allocation
  * @data: rx queue
  **/
@@ -248,6 +323,8 @@ static void rx_alloc_task(unsigned long data)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * rx_recv_jumbo_pkt - Rx handler for jumbo pkt
  * @rxq: rx queue
  * @head_skb: the first skb in the list
@@ -299,6 +376,42 @@ static int rx_recv_jumbo_pkt(struct hinic_rxq *rxq, struct sk_buff *head_skb,
 	return num_wqes;
 }
 
+<<<<<<< HEAD
+=======
+static void hinic_copy_lp_data(struct hinic_dev *nic_dev,
+			       struct sk_buff *skb)
+{
+	struct net_device *netdev = nic_dev->netdev;
+	u8 *lb_buf = nic_dev->lb_test_rx_buf;
+	int lb_len = nic_dev->lb_pkt_len;
+	int pkt_offset, frag_len, i;
+	void *frag_data = NULL;
+
+	if (nic_dev->lb_test_rx_idx == LP_PKT_CNT) {
+		nic_dev->lb_test_rx_idx = 0;
+		netif_warn(nic_dev, drv, netdev, "Loopback test warning, receive too more test pkts\n");
+	}
+
+	if (skb->len != nic_dev->lb_pkt_len) {
+		netif_warn(nic_dev, drv, netdev, "Wrong packet length\n");
+		nic_dev->lb_test_rx_idx++;
+		return;
+	}
+
+	pkt_offset = nic_dev->lb_test_rx_idx * lb_len;
+	frag_len = (int)skb_headlen(skb);
+	memcpy(lb_buf + pkt_offset, skb->data, frag_len);
+	pkt_offset += frag_len;
+	for (i = 0; i < skb_shinfo(skb)->nr_frags; i++) {
+		frag_data = skb_frag_address(&skb_shinfo(skb)->frags[i]);
+		frag_len = (int)skb_frag_size(&skb_shinfo(skb)->frags[i]);
+		memcpy((lb_buf + pkt_offset), frag_data, frag_len);
+		pkt_offset += frag_len;
+	}
+	nic_dev->lb_test_rx_idx++;
+}
+
+>>>>>>> upstream/android-13
 /**
  * rxq_recv - Rx handler
  * @rxq: rx queue
@@ -309,12 +422,33 @@ static int rx_recv_jumbo_pkt(struct hinic_rxq *rxq, struct sk_buff *head_skb,
 static int rxq_recv(struct hinic_rxq *rxq, int budget)
 {
 	struct hinic_qp *qp = container_of(rxq->rq, struct hinic_qp, rq);
+<<<<<<< HEAD
 	u64 pkt_len = 0, rx_bytes = 0;
 	struct hinic_rq_wqe *rq_wqe;
 	int num_wqes, pkts = 0;
 	struct hinic_sge sge;
 	struct sk_buff *skb;
 	u16 ci;
+=======
+	struct net_device *netdev = rxq->netdev;
+	u64 pkt_len = 0, rx_bytes = 0;
+	struct hinic_rq *rq = rxq->rq;
+	struct hinic_rq_wqe *rq_wqe;
+	struct hinic_dev *nic_dev;
+	unsigned int free_wqebbs;
+	struct hinic_rq_cqe *cqe;
+	int num_wqes, pkts = 0;
+	struct hinic_sge sge;
+	unsigned int status;
+	struct sk_buff *skb;
+	u32 offload_type;
+	u16 ci, num_lro;
+	u16 num_wqe = 0;
+	u32 vlan_len;
+	u16 vid;
+
+	nic_dev = netdev_priv(netdev);
+>>>>>>> upstream/android-13
 
 	while (pkts < budget) {
 		num_wqes = 0;
@@ -324,10 +458,23 @@ static int rxq_recv(struct hinic_rxq *rxq, int budget)
 		if (!rq_wqe)
 			break;
 
+<<<<<<< HEAD
+=======
+		/* make sure we read rx_done before packet length */
+		dma_rmb();
+
+		cqe = rq->cqe[ci];
+		status =  be32_to_cpu(cqe->status);
+>>>>>>> upstream/android-13
 		hinic_rq_get_sge(rxq->rq, rq_wqe, ci, &sge);
 
 		rx_unmap_skb(rxq, hinic_sge_to_dma(&sge));
 
+<<<<<<< HEAD
+=======
+		rx_csum(rxq, status, skb);
+
+>>>>>>> upstream/android-13
 		prefetch(skb->data);
 
 		pkt_len = sge.len;
@@ -340,9 +487,26 @@ static int rxq_recv(struct hinic_rxq *rxq, int budget)
 						     HINIC_RX_BUF_SZ, ci);
 		}
 
+<<<<<<< HEAD
 		hinic_rq_put_wqe(rxq->rq, ci,
 				 (num_wqes + 1) * HINIC_RQ_WQE_SIZE);
 
+=======
+		hinic_rq_put_wqe(rq, ci,
+				 (num_wqes + 1) * HINIC_RQ_WQE_SIZE);
+
+		offload_type = be32_to_cpu(cqe->offload_type);
+		vlan_len = be32_to_cpu(cqe->len);
+		if ((netdev->features & NETIF_F_HW_VLAN_CTAG_RX) &&
+		    HINIC_GET_RX_VLAN_OFFLOAD_EN(offload_type)) {
+			vid = HINIC_GET_RX_VLAN_TAG(vlan_len);
+			__vlan_hwaccel_put_tag(skb, htons(ETH_P_8021Q), vid);
+		}
+
+		if (unlikely(nic_dev->flags & HINIC_LP_TEST))
+			hinic_copy_lp_data(nic_dev, skb);
+
+>>>>>>> upstream/android-13
 		skb_record_rx_queue(skb, qp->q_id);
 		skb->protocol = eth_type_trans(skb, rxq->netdev);
 
@@ -350,10 +514,33 @@ static int rxq_recv(struct hinic_rxq *rxq, int budget)
 
 		pkts++;
 		rx_bytes += pkt_len;
+<<<<<<< HEAD
 	}
 
 	if (pkts)
 		tasklet_schedule(&rxq->rx_task); /* rx_alloc_pkts */
+=======
+
+		num_lro = HINIC_GET_RX_NUM_LRO(status);
+		if (num_lro) {
+			rx_bytes += ((num_lro - 1) *
+				     LRO_PKT_HDR_LEN(cqe));
+
+			num_wqe +=
+			(u16)(pkt_len >> rxq->rx_buff_shift) +
+			((pkt_len & (rxq->buf_len - 1)) ? 1 : 0);
+		}
+
+		cqe->status = 0;
+
+		if (num_wqe >= LRO_REPLENISH_THLD)
+			break;
+	}
+
+	free_wqebbs = hinic_get_rq_free_wqebbs(rxq->rq);
+	if (free_wqebbs > HINIC_RX_BUFFER_WRITE)
+		rx_alloc_pkts(rxq);
+>>>>>>> upstream/android-13
 
 	u64_stats_update_begin(&rxq->rxq_stats.syncp);
 	rxq->rxq_stats.pkts += pkts;
@@ -366,6 +553,10 @@ static int rxq_recv(struct hinic_rxq *rxq, int budget)
 static int rx_poll(struct napi_struct *napi, int budget)
 {
 	struct hinic_rxq *rxq = container_of(napi, struct hinic_rxq, napi);
+<<<<<<< HEAD
+=======
+	struct hinic_dev *nic_dev = netdev_priv(rxq->netdev);
+>>>>>>> upstream/android-13
 	struct hinic_rq *rq = rxq->rq;
 	int pkts;
 
@@ -374,7 +565,16 @@ static int rx_poll(struct napi_struct *napi, int budget)
 		return budget;
 
 	napi_complete(napi);
+<<<<<<< HEAD
 	enable_irq(rq->irq);
+=======
+
+	if (!HINIC_IS_VF(nic_dev->hwdev->hwif))
+		hinic_hwdev_set_msix_state(nic_dev->hwdev,
+					   rq->msix_entry,
+					   HINIC_MSIX_ENABLE);
+
+>>>>>>> upstream/android-13
 	return pkts;
 }
 
@@ -399,7 +599,15 @@ static irqreturn_t rx_irq(int irq, void *data)
 	struct hinic_dev *nic_dev;
 
 	/* Disable the interrupt until napi will be completed */
+<<<<<<< HEAD
 	disable_irq_nosync(rq->irq);
+=======
+	nic_dev = netdev_priv(rxq->netdev);
+	if (!HINIC_IS_VF(nic_dev->hwdev->hwif))
+		hinic_hwdev_set_msix_state(nic_dev->hwdev,
+					   rq->msix_entry,
+					   HINIC_MSIX_DISABLE);
+>>>>>>> upstream/android-13
 
 	nic_dev = netdev_priv(rxq->netdev);
 	hinic_hwdev_msix_cnt_set(nic_dev->hwdev, rq->msix_entry);
@@ -411,11 +619,21 @@ static irqreturn_t rx_irq(int irq, void *data)
 static int rx_request_irq(struct hinic_rxq *rxq)
 {
 	struct hinic_dev *nic_dev = netdev_priv(rxq->netdev);
+<<<<<<< HEAD
+=======
+	struct hinic_msix_config interrupt_info = {0};
+	struct hinic_intr_coal_info *intr_coal = NULL;
+>>>>>>> upstream/android-13
 	struct hinic_hwdev *hwdev = nic_dev->hwdev;
 	struct hinic_rq *rq = rxq->rq;
 	struct hinic_qp *qp;
 	int err;
 
+<<<<<<< HEAD
+=======
+	qp = container_of(rq, struct hinic_qp, rq);
+
+>>>>>>> upstream/android-13
 	rx_add_napi(rxq);
 
 	hinic_hwdev_msix_set(hwdev, rq->msix_entry,
@@ -423,6 +641,7 @@ static int rx_request_irq(struct hinic_rxq *rxq)
 			     RX_IRQ_NO_LLI_TIMER, RX_IRQ_NO_CREDIT,
 			     RX_IRQ_NO_RESEND_TIMER);
 
+<<<<<<< HEAD
 	err = request_irq(rq->irq, rx_irq, 0, rxq->irq_name, rxq);
 	if (err) {
 		rx_del_napi(rxq);
@@ -432,6 +651,37 @@ static int rx_request_irq(struct hinic_rxq *rxq)
 	qp = container_of(rq, struct hinic_qp, rq);
 	cpumask_set_cpu(qp->q_id % num_online_cpus(), &rq->affinity_mask);
 	return irq_set_affinity_hint(rq->irq, &rq->affinity_mask);
+=======
+	intr_coal = &nic_dev->rx_intr_coalesce[qp->q_id];
+	interrupt_info.msix_index = rq->msix_entry;
+	interrupt_info.coalesce_timer_cnt = intr_coal->coalesce_timer_cfg;
+	interrupt_info.pending_cnt = intr_coal->pending_limt;
+	interrupt_info.resend_timer_cnt = intr_coal->resend_timer_cfg;
+
+	err = hinic_set_interrupt_cfg(hwdev, &interrupt_info);
+	if (err) {
+		netif_err(nic_dev, drv, rxq->netdev,
+			  "Failed to set RX interrupt coalescing attribute\n");
+		goto err_req_irq;
+	}
+
+	err = request_irq(rq->irq, rx_irq, 0, rxq->irq_name, rxq);
+	if (err)
+		goto err_req_irq;
+
+	cpumask_set_cpu(qp->q_id % num_online_cpus(), &rq->affinity_mask);
+	err = irq_set_affinity_hint(rq->irq, &rq->affinity_mask);
+	if (err)
+		goto err_irq_affinity;
+
+	return 0;
+
+err_irq_affinity:
+	free_irq(rq->irq, rxq);
+err_req_irq:
+	rx_del_napi(rxq);
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static void rx_free_irq(struct hinic_rxq *rxq)
@@ -455,6 +705,7 @@ int hinic_init_rxq(struct hinic_rxq *rxq, struct hinic_rq *rq,
 		   struct net_device *netdev)
 {
 	struct hinic_qp *qp = container_of(rq, struct hinic_qp, rq);
+<<<<<<< HEAD
 	int err, pkts, irqname_len;
 
 	rxq->netdev = netdev;
@@ -471,6 +722,22 @@ int hinic_init_rxq(struct hinic_rxq *rxq, struct hinic_rq *rq,
 
 	tasklet_init(&rxq->rx_task, rx_alloc_task, (unsigned long)rxq);
 
+=======
+	int err, pkts;
+
+	rxq->netdev = netdev;
+	rxq->rq = rq;
+	rxq->buf_len = HINIC_RX_BUF_SZ;
+	rxq->rx_buff_shift = ilog2(HINIC_RX_BUF_SZ);
+
+	rxq_stats_init(rxq);
+
+	rxq->irq_name = devm_kasprintf(&netdev->dev, GFP_KERNEL,
+				       "%s_rxq%d", netdev->name, qp->q_id);
+	if (!rxq->irq_name)
+		return -ENOMEM;
+
+>>>>>>> upstream/android-13
 	pkts = rx_alloc_pkts(rxq);
 	if (!pkts) {
 		err = -ENOMEM;
@@ -487,7 +754,10 @@ int hinic_init_rxq(struct hinic_rxq *rxq, struct hinic_rq *rq,
 
 err_req_rx_irq:
 err_rx_pkts:
+<<<<<<< HEAD
 	tasklet_kill(&rxq->rx_task);
+=======
+>>>>>>> upstream/android-13
 	free_all_rx_skbs(rxq);
 	devm_kfree(&netdev->dev, rxq->irq_name);
 	return err;
@@ -503,7 +773,10 @@ void hinic_clean_rxq(struct hinic_rxq *rxq)
 
 	rx_free_irq(rxq);
 
+<<<<<<< HEAD
 	tasklet_kill(&rxq->rx_task);
+=======
+>>>>>>> upstream/android-13
 	free_all_rx_skbs(rxq);
 	devm_kfree(&netdev->dev, rxq->irq_name);
 }

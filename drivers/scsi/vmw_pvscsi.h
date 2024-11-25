@@ -17,8 +17,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  *
+<<<<<<< HEAD
  * Maintained by: Jim Gill <jgill@vmware.com>
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _VMW_PVSCSI_H_

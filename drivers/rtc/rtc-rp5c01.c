@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  Ricoh RP5C01 RTC Driver
  *
@@ -250,16 +254,27 @@ static int __init rp5c01_rtc_probe(struct platform_device *dev)
 		return PTR_ERR(rtc);
 
 	rtc->ops = &rp5c01_rtc_ops;
+<<<<<<< HEAD
 	rtc->nvram_old_abi = true;
+=======
+>>>>>>> upstream/android-13
 
 	priv->rtc = rtc;
 
 	nvmem_cfg.priv = priv;
+<<<<<<< HEAD
 	error = rtc_nvmem_register(rtc, &nvmem_cfg);
 	if (error)
 		return error;
 
 	return rtc_register_device(rtc);
+=======
+	error = devm_rtc_nvmem_register(rtc, &nvmem_cfg);
+	if (error)
+		return error;
+
+	return devm_rtc_register_device(rtc);
+>>>>>>> upstream/android-13
 }
 
 static struct platform_driver rp5c01_rtc_driver = {

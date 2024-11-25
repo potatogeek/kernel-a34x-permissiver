@@ -28,8 +28,11 @@
  *
  */
 
+<<<<<<< HEAD
 #include "trace.h"
 
+=======
+>>>>>>> upstream/android-13
 #ifndef __CHECKER__
 #define CREATE_TRACE_POINTS
 #include "trace.h"

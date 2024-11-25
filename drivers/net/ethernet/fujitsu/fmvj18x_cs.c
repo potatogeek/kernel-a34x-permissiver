@@ -93,7 +93,11 @@ static irqreturn_t fjn_interrupt(int irq, void *dev_id);
 static void fjn_rx(struct net_device *dev);
 static void fjn_reset(struct net_device *dev);
 static void set_rx_mode(struct net_device *dev);
+<<<<<<< HEAD
 static void fjn_tx_timeout(struct net_device *dev);
+=======
+static void fjn_tx_timeout(struct net_device *dev, unsigned int txqueue);
+>>>>>>> upstream/android-13
 static const struct ethtool_ops netdev_ethtool_ops;
 
 /*
@@ -547,6 +551,14 @@ static int fmvj18x_get_hwinfo(struct pcmcia_device *link, u_char *node_id)
 	return -1;
 
     base = ioremap(link->resource[2]->start, resource_size(link->resource[2]));
+<<<<<<< HEAD
+=======
+    if (!base) {
+	pcmcia_release_window(link, link->resource[2]);
+	return -1;
+    }
+
+>>>>>>> upstream/android-13
     pcmcia_map_mem_page(link, link->resource[2], 0);
 
     /*
@@ -769,7 +781,11 @@ static irqreturn_t fjn_interrupt(int dummy, void *dev_id)
 
 /*====================================================================*/
 
+<<<<<<< HEAD
 static void fjn_tx_timeout(struct net_device *dev)
+=======
+static void fjn_tx_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
     struct local_info *lp = netdev_priv(dev);
     unsigned int ioaddr = dev->base_addr;
@@ -807,9 +823,15 @@ static netdev_tx_t fjn_start_xmit(struct sk_buff *skb,
     
     if (length < ETH_ZLEN)
     {
+<<<<<<< HEAD
     	if (skb_padto(skb, ETH_ZLEN))
     		return NETDEV_TX_OK;
     	length = ETH_ZLEN;
+=======
+	if (skb_padto(skb, ETH_ZLEN))
+		return NETDEV_TX_OK;
+	length = ETH_ZLEN;
+>>>>>>> upstream/android-13
     }
 
     netif_stop_queue(dev);

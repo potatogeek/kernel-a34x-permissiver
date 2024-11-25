@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Bosch BMC150 three-axis magnetic field sensor driver
  *
@@ -6,6 +10,7 @@
  * This code is based on bmm050_api.c authored by contact@bosch.sensortec.com:
  *
  * (C) Copyright 2011~2014 Bosch Sensortec GmbH All Rights Reserved
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -15,6 +20,8 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -33,6 +40,10 @@
 #include <linux/iio/trigger_consumer.h>
 #include <linux/iio/triggered_buffer.h>
 #include <linux/regmap.h>
+<<<<<<< HEAD
+=======
+#include <linux/regulator/consumer.h>
+>>>>>>> upstream/android-13
 
 #include "bmc150_magn.h"
 
@@ -143,8 +154,18 @@ struct bmc150_magn_data {
 	 */
 	struct mutex mutex;
 	struct regmap *regmap;
+<<<<<<< HEAD
 	/* 4 x 32 bits for x, y z, 4 bytes align, 64 bits timestamp */
 	s32 buffer[6];
+=======
+	struct regulator_bulk_data regulators[2];
+	struct iio_mount_matrix orientation;
+	/* Ensure timestamp is naturally aligned */
+	struct {
+		s32 chans[3];
+		s64 timestamp __aligned(8);
+	} scan;
+>>>>>>> upstream/android-13
 	struct iio_trigger *dready_trig;
 	bool dready_trigger_on;
 	int max_odr;
@@ -197,7 +218,11 @@ static bool bmc150_magn_is_writeable_reg(struct device *dev, unsigned int reg)
 		return true;
 	default:
 		return false;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 }
 
 static bool bmc150_magn_is_volatile_reg(struct device *dev, unsigned int reg)
@@ -267,7 +292,11 @@ static int bmc150_magn_set_power_state(struct bmc150_magn_data *data, bool on)
 	int ret;
 
 	if (on) {
+<<<<<<< HEAD
 		ret = pm_runtime_get_sync(data->dev);
+=======
+		ret = pm_runtime_resume_and_get(data->dev);
+>>>>>>> upstream/android-13
 	} else {
 		pm_runtime_mark_last_busy(data->dev);
 		ret = pm_runtime_put_autosuspend(data->dev);
@@ -276,9 +305,12 @@ static int bmc150_magn_set_power_state(struct bmc150_magn_data *data, bool on)
 	if (ret < 0) {
 		dev_err(data->dev,
 			"failed to change power state to %d\n", on);
+<<<<<<< HEAD
 		if (on)
 			pm_runtime_put_noidle(data->dev);
 
+=======
+>>>>>>> upstream/android-13
 		return ret;
 	}
 #endif
@@ -612,6 +644,23 @@ static ssize_t bmc150_magn_show_samp_freq_avail(struct device *dev,
 	return len;
 }
 
+<<<<<<< HEAD
+=======
+static const struct iio_mount_matrix *
+bmc150_magn_get_mount_matrix(const struct iio_dev *indio_dev,
+			      const struct iio_chan_spec *chan)
+{
+	struct bmc150_magn_data *data = iio_priv(indio_dev);
+
+	return &data->orientation;
+}
+
+static const struct iio_chan_spec_ext_info bmc150_magn_ext_info[] = {
+	IIO_MOUNT_MATRIX(IIO_SHARED_BY_DIR, bmc150_magn_get_mount_matrix),
+	{ }
+};
+
+>>>>>>> upstream/android-13
 static IIO_DEV_ATTR_SAMP_FREQ_AVAIL(bmc150_magn_show_samp_freq_avail);
 
 static struct attribute *bmc150_magn_attributes[] = {
@@ -638,6 +687,10 @@ static const struct attribute_group bmc150_magn_attrs_group = {
 		.storagebits = 32,					\
 		.endianness = IIO_LE					\
 	},								\
+<<<<<<< HEAD
+=======
+	.ext_info = bmc150_magn_ext_info,				\
+>>>>>>> upstream/android-13
 }
 
 static const struct iio_chan_spec bmc150_magn_channels[] = {
@@ -665,11 +718,19 @@ static irqreturn_t bmc150_magn_trigger_handler(int irq, void *p)
 	int ret;
 
 	mutex_lock(&data->mutex);
+<<<<<<< HEAD
 	ret = bmc150_magn_read_xyz(data, data->buffer);
 	if (ret < 0)
 		goto err;
 
 	iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
+=======
+	ret = bmc150_magn_read_xyz(data, data->scan.chans);
+	if (ret < 0)
+		goto err;
+
+	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
+>>>>>>> upstream/android-13
 					   pf->timestamp);
 
 err:
@@ -684,12 +745,31 @@ static int bmc150_magn_init(struct bmc150_magn_data *data)
 	int ret, chip_id;
 	struct bmc150_magn_preset preset;
 
+<<<<<<< HEAD
+=======
+	ret = regulator_bulk_enable(ARRAY_SIZE(data->regulators),
+				    data->regulators);
+	if (ret < 0) {
+		dev_err(data->dev, "Failed to enable regulators: %d\n", ret);
+		return ret;
+	}
+	/*
+	 * 3ms power-on time according to datasheet, let's better
+	 * be safe than sorry and set this delay to 5ms.
+	 */
+	msleep(5);
+
+>>>>>>> upstream/android-13
 	ret = bmc150_magn_set_power_mode(data, BMC150_MAGN_POWER_MODE_SUSPEND,
 					 false);
 	if (ret < 0) {
 		dev_err(data->dev,
 			"Failed to bring up device from suspend mode\n");
+<<<<<<< HEAD
 		return ret;
+=======
+		goto err_regulator_disable;
+>>>>>>> upstream/android-13
 	}
 
 	ret = regmap_read(data->regmap, BMC150_MAGN_REG_CHIP_ID, &chip_id);
@@ -744,6 +824,11 @@ static int bmc150_magn_init(struct bmc150_magn_data *data)
 
 err_poweroff:
 	bmc150_magn_set_power_mode(data, BMC150_MAGN_POWER_MODE_SUSPEND, true);
+<<<<<<< HEAD
+=======
+err_regulator_disable:
+	regulator_bulk_disable(ARRAY_SIZE(data->regulators), data->regulators);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -758,20 +843,33 @@ static int bmc150_magn_reset_intr(struct bmc150_magn_data *data)
 	return regmap_read(data->regmap, BMC150_MAGN_REG_X_L, &tmp);
 }
 
+<<<<<<< HEAD
 static int bmc150_magn_trig_try_reen(struct iio_trigger *trig)
+=======
+static void bmc150_magn_trig_reen(struct iio_trigger *trig)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *indio_dev = iio_trigger_get_drvdata(trig);
 	struct bmc150_magn_data *data = iio_priv(indio_dev);
 	int ret;
 
 	if (!data->dready_trigger_on)
+<<<<<<< HEAD
 		return 0;
+=======
+		return;
+>>>>>>> upstream/android-13
 
 	mutex_lock(&data->mutex);
 	ret = bmc150_magn_reset_intr(data);
 	mutex_unlock(&data->mutex);
+<<<<<<< HEAD
 
 	return ret;
+=======
+	if (ret)
+		dev_err(data->dev, "Failed to reset interrupt\n");
+>>>>>>> upstream/android-13
 }
 
 static int bmc150_magn_data_rdy_trigger_set_state(struct iio_trigger *trig,
@@ -809,7 +907,11 @@ err_unlock:
 
 static const struct iio_trigger_ops bmc150_magn_trigger_ops = {
 	.set_trigger_state = bmc150_magn_data_rdy_trigger_set_state,
+<<<<<<< HEAD
 	.try_reenable = bmc150_magn_trig_try_reen,
+=======
+	.reenable = bmc150_magn_trig_reen,
+>>>>>>> upstream/android-13
 };
 
 static int bmc150_magn_buffer_preenable(struct iio_dev *indio_dev)
@@ -828,8 +930,11 @@ static int bmc150_magn_buffer_postdisable(struct iio_dev *indio_dev)
 
 static const struct iio_buffer_setup_ops bmc150_magn_buffer_setup_ops = {
 	.preenable = bmc150_magn_buffer_preenable,
+<<<<<<< HEAD
 	.postenable = iio_triggered_buffer_postenable,
 	.predisable = iio_triggered_buffer_predisable,
+=======
+>>>>>>> upstream/android-13
 	.postdisable = bmc150_magn_buffer_postdisable,
 };
 
@@ -861,6 +966,20 @@ int bmc150_magn_probe(struct device *dev, struct regmap *regmap,
 	data->irq = irq;
 	data->dev = dev;
 
+<<<<<<< HEAD
+=======
+	data->regulators[0].supply = "vdd";
+	data->regulators[1].supply = "vddio";
+	ret = devm_regulator_bulk_get(dev, ARRAY_SIZE(data->regulators),
+				      data->regulators);
+	if (ret)
+		return dev_err_probe(dev, ret, "failed to get regulators\n");
+
+	ret = iio_read_mount_matrix(dev, &data->orientation);
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	if (!name && ACPI_HANDLE(dev))
 		name = bmc150_magn_match_acpi_device(dev);
 
@@ -870,7 +989,10 @@ int bmc150_magn_probe(struct device *dev, struct regmap *regmap,
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->channels = bmc150_magn_channels;
 	indio_dev->num_channels = ARRAY_SIZE(bmc150_magn_channels);
 	indio_dev->available_scan_masks = bmc150_magn_scan_masks;
@@ -882,14 +1004,21 @@ int bmc150_magn_probe(struct device *dev, struct regmap *regmap,
 		data->dready_trig = devm_iio_trigger_alloc(dev,
 							   "%s-dev%d",
 							   indio_dev->name,
+<<<<<<< HEAD
 							   indio_dev->id);
+=======
+							   iio_device_id(indio_dev));
+>>>>>>> upstream/android-13
 		if (!data->dready_trig) {
 			ret = -ENOMEM;
 			dev_err(dev, "iio trigger alloc failed\n");
 			goto err_poweroff;
 		}
 
+<<<<<<< HEAD
 		data->dready_trig->dev.parent = dev;
+=======
+>>>>>>> upstream/android-13
 		data->dready_trig->ops = &bmc150_magn_trigger_ops;
 		iio_trigger_set_drvdata(data->dready_trig, indio_dev);
 		ret = iio_trigger_register(data->dready_trig);
@@ -931,12 +1060,22 @@ int bmc150_magn_probe(struct device *dev, struct regmap *regmap,
 	ret = iio_device_register(indio_dev);
 	if (ret < 0) {
 		dev_err(dev, "unable to register iio device\n");
+<<<<<<< HEAD
 		goto err_buffer_cleanup;
+=======
+		goto err_pm_cleanup;
+>>>>>>> upstream/android-13
 	}
 
 	dev_dbg(dev, "Registered device %s\n", name);
 	return 0;
 
+<<<<<<< HEAD
+=======
+err_pm_cleanup:
+	pm_runtime_dont_use_autosuspend(dev);
+	pm_runtime_disable(dev);
+>>>>>>> upstream/android-13
 err_buffer_cleanup:
 	iio_triggered_buffer_cleanup(indio_dev);
 err_free_irq:
@@ -960,7 +1099,10 @@ int bmc150_magn_remove(struct device *dev)
 
 	pm_runtime_disable(dev);
 	pm_runtime_set_suspended(dev);
+<<<<<<< HEAD
 	pm_runtime_put_noidle(dev);
+=======
+>>>>>>> upstream/android-13
 
 	iio_triggered_buffer_cleanup(indio_dev);
 
@@ -974,6 +1116,10 @@ int bmc150_magn_remove(struct device *dev)
 	bmc150_magn_set_power_mode(data, BMC150_MAGN_POWER_MODE_SUSPEND, true);
 	mutex_unlock(&data->mutex);
 
+<<<<<<< HEAD
+=======
+	regulator_bulk_disable(ARRAY_SIZE(data->regulators), data->regulators);
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL(bmc150_magn_remove);

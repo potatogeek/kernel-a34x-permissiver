@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 menu "Self-contained MTD device drivers"
 	depends on MTD!=n
 	depends on HAS_IOMEM
@@ -47,7 +51,11 @@ config MTD_MS02NV
 
 	  If you want to compile this driver as a module ( = code which can be
 	  inserted in and removed from the running kernel whenever you want),
+<<<<<<< HEAD
 	  say M here and read <file:Documentation/kbuild/modules.txt>.
+=======
+	  say M here and read <file:Documentation/kbuild/modules.rst>.
+>>>>>>> upstream/android-13
 	  The module will be called ms02-nv.
 
 config MTD_DATAFLASH
@@ -78,6 +86,7 @@ config MTD_DATAFLASH_OTP
 	  other key product data.  The second half is programmed with a
 	  unique-to-each-chip bit pattern at the factory.
 
+<<<<<<< HEAD
 config MTD_M25P80
 	tristate "Support most SPI Flash chips (AT26DF, M25P, W25X, ...)"
 	depends on SPI_MASTER && MTD_SPI_NOR
@@ -96,6 +105,8 @@ config MTD_M25P80
 	  if you want to specify device partitioning or to use a device which
 	  doesn't support the JEDEC ID instruction.
 
+=======
+>>>>>>> upstream/android-13
 config MTD_MCHP23K256
 	tristate "Microchip 23K256 SRAM"
 	depends on SPI_MASTER
@@ -106,9 +117,21 @@ config MTD_MCHP23K256
 	  platform data, or a device tree description if you want to
 	  specify device partitioning
 
+<<<<<<< HEAD
 config MTD_SPEAR_SMI
 	tristate "SPEAR MTD NOR Support through SMI controller"
 	depends on PLAT_SPEAR
+=======
+config MTD_MCHP48L640
+	tristate "Microchip 48L640 EERAM"
+	depends on SPI_MASTER
+	help
+	  This enables access to Microchip 48L640 EERAM chips, using SPI.
+
+config MTD_SPEAR_SMI
+	tristate "SPEAR MTD NOR Support through SMI controller"
+	depends on PLAT_SPEAR || COMPILE_TEST
+>>>>>>> upstream/android-13
 	default y
 	help
 	  This enable SNOR support on SPEAR platforms using SMI controller
@@ -207,7 +230,11 @@ comment "Disk-On-Chip Device Drivers"
 config MTD_DOCG3
 	tristate "M-Systems Disk-On-Chip G3"
 	select BCH
+<<<<<<< HEAD
 	select BCH_CONST_PARAMS if !MTD_NAND_BCH
+=======
+	select BCH_CONST_PARAMS if !MTD_NAND_ECC_SW_BCH
+>>>>>>> upstream/android-13
 	select BITREVERSE
 	help
 	  This provides an MTD device driver for the M-Systems DiskOnChip

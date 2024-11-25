@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /****************************************************************************
  * Driver for Solarflare network controllers and boards
  * Copyright 2007-2013 Solarflare Communications Inc.
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation, incorporated herein by reference.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/****************************************************************************
+ * Driver for Solarflare network controllers and boards
+ * Copyright 2007-2013 Solarflare Communications Inc.
+>>>>>>> upstream/android-13
  */
 
 #ifndef EFX_ENUM_H
@@ -81,7 +88,10 @@ enum efx_loopback_mode {
 			    (1 << LOOPBACK_XAUI) |		\
 			    (1 << LOOPBACK_GMII) |		\
 			    (1 << LOOPBACK_SGMII) |		\
+<<<<<<< HEAD
 			    (1 << LOOPBACK_SGMII) |		\
+=======
+>>>>>>> upstream/android-13
 			    (1 << LOOPBACK_XGBR) |		\
 			    (1 << LOOPBACK_XFI) |		\
 			    (1 << LOOPBACK_XAUI_FAR) |		\

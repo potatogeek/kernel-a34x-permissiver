@@ -24,6 +24,7 @@
  *	Eric Anholt <eric@anholt.net>
  */
 
+<<<<<<< HEAD
 #include <linux/i2c.h>
 #include <drm/drmP.h>
 
@@ -34,6 +35,20 @@
 #include "power.h"
 #include "cdv_device.h"
 #include <linux/pm_runtime.h>
+=======
+#include <linux/delay.h>
+#include <linux/i2c.h>
+#include <linux/pm_runtime.h>
+
+#include <drm/drm_simple_kms_helper.h>
+
+#include "cdv_device.h"
+#include "intel_bios.h"
+#include "power.h"
+#include "psb_drv.h"
+#include "psb_intel_drv.h"
+#include "psb_intel_reg.h"
+>>>>>>> upstream/android-13
 
 
 static void cdv_intel_crt_dpms(struct drm_encoder *encoder, int mode)
@@ -125,7 +140,11 @@ static void cdv_intel_crt_mode_set(struct drm_encoder *encoder,
 }
 
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Uses CRT_HOTPLUG_EN and CRT_HOTPLUG_STAT to detect CRT presence.
  *
  * \return true if CRT is connected.
@@ -237,6 +256,7 @@ static const struct drm_connector_helper_funcs
 	.best_encoder = gma_best_encoder,
 };
 
+<<<<<<< HEAD
 static void cdv_intel_crt_enc_destroy(struct drm_encoder *encoder)
 {
 	drm_encoder_cleanup(encoder);
@@ -246,6 +266,8 @@ static const struct drm_encoder_funcs cdv_intel_crt_enc_funcs = {
 	.destroy = cdv_intel_crt_enc_destroy,
 };
 
+=======
+>>>>>>> upstream/android-13
 void cdv_intel_crt_init(struct drm_device *dev,
 			struct psb_intel_mode_device *mode_dev)
 {
@@ -255,8 +277,11 @@ void cdv_intel_crt_init(struct drm_device *dev,
 	struct drm_connector *connector;
 	struct drm_encoder *encoder;
 
+<<<<<<< HEAD
 	u32 i2c_reg;
 
+=======
+>>>>>>> upstream/android-13
 	gma_encoder = kzalloc(sizeof(struct gma_encoder), GFP_KERNEL);
 	if (!gma_encoder)
 		return;
@@ -271,12 +296,17 @@ void cdv_intel_crt_init(struct drm_device *dev,
 		&cdv_intel_crt_connector_funcs, DRM_MODE_CONNECTOR_VGA);
 
 	encoder = &gma_encoder->base;
+<<<<<<< HEAD
 	drm_encoder_init(dev, encoder,
 		&cdv_intel_crt_enc_funcs, DRM_MODE_ENCODER_DAC, NULL);
+=======
+	drm_simple_encoder_init(dev, encoder, DRM_MODE_ENCODER_DAC);
+>>>>>>> upstream/android-13
 
 	gma_connector_attach_encoder(gma_connector, gma_encoder);
 
 	/* Set up the DDC bus. */
+<<<<<<< HEAD
 	i2c_reg = GPIOA;
 	/* Remove the following code for CDV */
 	/*
@@ -288,14 +318,22 @@ void cdv_intel_crt_init(struct drm_device *dev,
 	if (!gma_encoder->ddc_bus) {
 		dev_printk(KERN_ERR, &dev->pdev->dev, "DDC bus registration "
 			   "failed.\n");
+=======
+	gma_encoder->ddc_bus = psb_intel_i2c_create(dev, GPIOA, "CRTDDC_A");
+	if (!gma_encoder->ddc_bus) {
+		dev_printk(KERN_ERR, dev->dev, "DDC bus registration failed.\n");
+>>>>>>> upstream/android-13
 		goto failed_ddc;
 	}
 
 	gma_encoder->type = INTEL_OUTPUT_ANALOG;
+<<<<<<< HEAD
 	/*
 	psb_intel_output->clone_mask = (1 << INTEL_ANALOG_CLONE_BIT);
 	psb_intel_output->crtc_mask = (1 << 0) | (1 << 1);
 	*/
+=======
+>>>>>>> upstream/android-13
 	connector->interlace_allowed = 0;
 	connector->doublescan_allowed = 0;
 

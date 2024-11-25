@@ -1,10 +1,18 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
+<<<<<<< HEAD
  * USB ZyXEL omni.net LCD PLUS driver
  *
  * Copyright (C) 2013,2017 Johan Hovold <johan@kernel.org>
  *
  * See Documentation/usb/usb-serial.txt for more information on using this
+=======
+ * USB ZyXEL omni.net driver
+ *
+ * Copyright (C) 2013,2017 Johan Hovold <johan@kernel.org>
+ *
+ * See Documentation/usb/usb-serial.rst for more information on using this
+>>>>>>> upstream/android-13
  * driver
  *
  * Please report both successes and troubles to the author at omninet@kroah.com
@@ -22,10 +30,18 @@
 #include <linux/usb/serial.h>
 
 #define DRIVER_AUTHOR "Alessandro Zummo"
+<<<<<<< HEAD
 #define DRIVER_DESC "USB ZyXEL omni.net LCD PLUS Driver"
 
 #define ZYXEL_VENDOR_ID		0x0586
 #define ZYXEL_OMNINET_ID	0x1000
+=======
+#define DRIVER_DESC "USB ZyXEL omni.net Driver"
+
+#define ZYXEL_VENDOR_ID		0x0586
+#define ZYXEL_OMNINET_ID	0x1000
+#define ZYXEL_OMNI_56K_PLUS_ID	0x1500
+>>>>>>> upstream/android-13
 /* This one seems to be a re-branded ZyXEL device */
 #define BT_IGNITIONPRO_ID	0x2000
 
@@ -36,10 +52,18 @@ static int omninet_prepare_write_buffer(struct usb_serial_port *port,
 static int omninet_calc_num_ports(struct usb_serial *serial,
 				struct usb_serial_endpoints *epds);
 static int omninet_port_probe(struct usb_serial_port *port);
+<<<<<<< HEAD
 static int omninet_port_remove(struct usb_serial_port *port);
 
 static const struct usb_device_id id_table[] = {
 	{ USB_DEVICE(ZYXEL_VENDOR_ID, ZYXEL_OMNINET_ID) },
+=======
+static void omninet_port_remove(struct usb_serial_port *port);
+
+static const struct usb_device_id id_table[] = {
+	{ USB_DEVICE(ZYXEL_VENDOR_ID, ZYXEL_OMNINET_ID) },
+	{ USB_DEVICE(ZYXEL_VENDOR_ID, ZYXEL_OMNI_56K_PLUS_ID) },
+>>>>>>> upstream/android-13
 	{ USB_DEVICE(ZYXEL_VENDOR_ID, BT_IGNITIONPRO_ID) },
 	{ }						/* Terminating entry */
 };
@@ -50,7 +74,11 @@ static struct usb_serial_driver zyxel_omninet_device = {
 		.owner =	THIS_MODULE,
 		.name =		"omninet",
 	},
+<<<<<<< HEAD
 	.description =		"ZyXEL - omni.net lcd plus usb",
+=======
+	.description =		"ZyXEL - omni.net usb",
+>>>>>>> upstream/android-13
 	.id_table =		id_table,
 	.num_bulk_out =		2,
 	.calc_num_ports =	omninet_calc_num_ports,
@@ -121,14 +149,21 @@ static int omninet_port_probe(struct usb_serial_port *port)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int omninet_port_remove(struct usb_serial_port *port)
+=======
+static void omninet_port_remove(struct usb_serial_port *port)
+>>>>>>> upstream/android-13
 {
 	struct omninet_data *od;
 
 	od = usb_get_serial_port_data(port);
 	kfree(od);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 #define OMNINET_HEADERLEN	4

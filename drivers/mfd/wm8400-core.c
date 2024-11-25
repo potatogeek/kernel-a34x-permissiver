@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Core driver for WM8400.
  *
  * Copyright 2008 Wolfson Microelectronics PLC.
  *
  * Author: Mark Brown <broonie@opensource.wolfsonmicro.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -13,6 +18,11 @@
  */
 
 #include <linux/module.h>
+=======
+ */
+
+#include <linux/init.h>
+>>>>>>> upstream/android-13
 #include <linux/bug.h>
 #include <linux/err.h>
 #include <linux/i2c.h>
@@ -35,12 +45,15 @@ static bool wm8400_volatile(struct device *dev, unsigned int reg)
 	}
 }
 
+<<<<<<< HEAD
 int wm8400_block_read(struct wm8400 *wm8400, u8 reg, int count, u16 *data)
 {
 	return regmap_bulk_read(wm8400->regmap, reg, data, count);
 }
 EXPORT_SYMBOL_GPL(wm8400_block_read);
 
+=======
+>>>>>>> upstream/android-13
 static int wm8400_register_codec(struct wm8400 *wm8400)
 {
 	const struct mfd_cell cell = {
@@ -119,6 +132,11 @@ static const struct regmap_config wm8400_regmap_config = {
 /**
  * wm8400_reset_codec_reg_cache - Reset cached codec registers to
  * their default values.
+<<<<<<< HEAD
+=======
+ *
+ * @wm8400: pointer to local driver data structure
+>>>>>>> upstream/android-13
  */
 void wm8400_reset_codec_reg_cache(struct wm8400 *wm8400)
 {
@@ -150,7 +168,10 @@ static const struct i2c_device_id wm8400_i2c_id[] = {
        { "wm8400", 0 },
        { }
 };
+<<<<<<< HEAD
 MODULE_DEVICE_TABLE(i2c, wm8400_i2c_id);
+=======
+>>>>>>> upstream/android-13
 
 static struct i2c_driver wm8400_i2c_driver = {
 	.driver = {
@@ -161,7 +182,11 @@ static struct i2c_driver wm8400_i2c_driver = {
 };
 #endif
 
+<<<<<<< HEAD
 static int __init wm8400_module_init(void)
+=======
+static int __init wm8400_driver_init(void)
+>>>>>>> upstream/android-13
 {
 	int ret = -ENODEV;
 
@@ -173,6 +198,7 @@ static int __init wm8400_module_init(void)
 
 	return ret;
 }
+<<<<<<< HEAD
 subsys_initcall(wm8400_module_init);
 
 static void __exit wm8400_module_exit(void)
@@ -185,3 +211,6 @@ module_exit(wm8400_module_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Mark Brown <broonie@opensource.wolfsonmicro.com>");
+=======
+subsys_initcall(wm8400_driver_init);
+>>>>>>> upstream/android-13

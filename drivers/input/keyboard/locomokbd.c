@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * LoCoMo keyboard driver for Linux-based ARM PDAs:
  * 	- SHARP Zaurus Collie (SL-5500)
@@ -5,6 +9,7 @@
  *
  * Copyright (c) 2005 John Lenz
  * Based on from xtkbd.c
+<<<<<<< HEAD
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -21,6 +26,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -319,7 +326,11 @@ static int locomokbd_probe(struct locomo_dev *dev)
 	return err;
 }
 
+<<<<<<< HEAD
 static int locomokbd_remove(struct locomo_dev *dev)
+=======
+static void locomokbd_remove(struct locomo_dev *dev)
+>>>>>>> upstream/android-13
 {
 	struct locomokbd *locomokbd = locomo_get_drvdata(dev);
 
@@ -333,8 +344,11 @@ static int locomokbd_remove(struct locomo_dev *dev)
 	release_mem_region((unsigned long) dev->mapbase, dev->length);
 
 	kfree(locomokbd);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static struct locomo_driver keyboard_driver = {

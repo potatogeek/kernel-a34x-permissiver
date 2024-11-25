@@ -40,6 +40,7 @@
 #include <xen/xen.h>
 #include <linux/acpi.h>
 
+<<<<<<< HEAD
 #define ACPI_MEMORY_DEVICE_CLASS        "memory"
 #define ACPI_MEMORY_DEVICE_HID          "PNP0C80"
 #define ACPI_MEMORY_DEVICE_NAME         "Hotplug Mem Device"
@@ -75,6 +76,8 @@ static inline int xen_acpi_get_pxm(acpi_handle h)
 	return -ENXIO;
 }
 
+=======
+>>>>>>> upstream/android-13
 int xen_acpi_notify_hypervisor_sleep(u8 sleep_state,
 				     u32 pm1a_cnt, u32 pm1b_cnd);
 int xen_acpi_notify_hypervisor_extended_sleep(u8 sleep_state,

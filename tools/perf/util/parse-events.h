@@ -12,11 +12,20 @@
 #include <string.h>
 
 struct list_head;
+<<<<<<< HEAD
 struct perf_evsel;
 struct perf_evlist;
 struct parse_events_error;
 
 struct option;
+=======
+struct evsel;
+struct evlist;
+struct parse_events_error;
+
+struct option;
+struct perf_pmu;
+>>>>>>> upstream/android-13
 
 struct tracepoint_path {
 	char *system;
@@ -31,8 +40,21 @@ bool have_tracepoints(struct list_head *evlist);
 const char *event_type(int type);
 
 int parse_events_option(const struct option *opt, const char *str, int unset);
+<<<<<<< HEAD
 int parse_events(struct perf_evlist *evlist, const char *str,
 		 struct parse_events_error *error);
+=======
+int parse_events_option_new_evlist(const struct option *opt, const char *str, int unset);
+int __parse_events(struct evlist *evlist, const char *str, struct parse_events_error *error,
+		   struct perf_pmu *fake_pmu);
+
+static inline int parse_events(struct evlist *evlist, const char *str,
+			       struct parse_events_error *err)
+{
+	return __parse_events(evlist, str, err, NULL);
+}
+
+>>>>>>> upstream/android-13
 int parse_events_terms(struct list_head *terms, const char *str);
 int parse_filter(const struct option *opt, const char *str, int unset);
 int exclude_perf(const struct option *opt, const char *arg, int unset);
@@ -71,9 +93,19 @@ enum {
 	PARSE_EVENTS__TERM_TYPE_NOINHERIT,
 	PARSE_EVENTS__TERM_TYPE_INHERIT,
 	PARSE_EVENTS__TERM_TYPE_MAX_STACK,
+<<<<<<< HEAD
 	PARSE_EVENTS__TERM_TYPE_NOOVERWRITE,
 	PARSE_EVENTS__TERM_TYPE_OVERWRITE,
 	PARSE_EVENTS__TERM_TYPE_DRV_CFG,
+=======
+	PARSE_EVENTS__TERM_TYPE_MAX_EVENTS,
+	PARSE_EVENTS__TERM_TYPE_NOOVERWRITE,
+	PARSE_EVENTS__TERM_TYPE_OVERWRITE,
+	PARSE_EVENTS__TERM_TYPE_DRV_CFG,
+	PARSE_EVENTS__TERM_TYPE_PERCORE,
+	PARSE_EVENTS__TERM_TYPE_AUX_OUTPUT,
+	PARSE_EVENTS__TERM_TYPE_AUX_SAMPLE_SIZE,
+>>>>>>> upstream/android-13
 	__PARSE_EVENTS__TERM_TYPE_NR,
 };
 
@@ -107,9 +139,19 @@ struct parse_events_term {
 };
 
 struct parse_events_error {
+<<<<<<< HEAD
 	int   idx;	/* index in the parsed string */
 	char *str;      /* string to display at the index */
 	char *help;	/* optional help string */
+=======
+	int   num_errors;       /* number of errors encountered */
+	int   idx;	/* index in the parsed string */
+	char *str;      /* string to display at the index */
+	char *help;	/* optional help string */
+	int   first_idx;/* as above, but for the first encountered error */
+	char *first_str;
+	char *first_help;
+>>>>>>> upstream/android-13
 };
 
 struct parse_events_state {
@@ -117,10 +159,22 @@ struct parse_events_state {
 	int			   idx;
 	int			   nr_groups;
 	struct parse_events_error *error;
+<<<<<<< HEAD
 	struct perf_evlist	  *evlist;
 	struct list_head	  *terms;
 };
 
+=======
+	struct evlist		  *evlist;
+	struct list_head	  *terms;
+	int			   stoken;
+	struct perf_pmu		  *fake_pmu;
+	char			  *hybrid_pmu_name;
+};
+
+void parse_events__handle_error(struct parse_events_error *err, int idx,
+				char *str, char *help);
+>>>>>>> upstream/android-13
 void parse_events__shrink_config_terms(void);
 int parse_events__is_hardcoded_term(struct parse_events_term *term);
 int parse_events_term__num(struct parse_events_term **term,
@@ -134,6 +188,10 @@ int parse_events_term__sym_hw(struct parse_events_term **term,
 			      char *config, unsigned idx);
 int parse_events_term__clone(struct parse_events_term **new,
 			     struct parse_events_term *term);
+<<<<<<< HEAD
+=======
+void parse_events_term__delete(struct parse_events_term *term);
+>>>>>>> upstream/android-13
 void parse_events_terms__delete(struct list_head *terms);
 void parse_events_terms__purge(struct list_head *terms);
 void parse_events__clear_array(struct parse_events_array *a);
@@ -159,18 +217,38 @@ int parse_events_add_numeric(struct parse_events_state *parse_state,
 			     struct list_head *list,
 			     u32 type, u64 config,
 			     struct list_head *head_config);
+<<<<<<< HEAD
 int parse_events_add_cache(struct list_head *list, int *idx,
 			   char *type, char *op_result1, char *op_result2,
 			   struct parse_events_error *error,
 			   struct list_head *head_config);
 int parse_events_add_breakpoint(struct list_head *list, int *idx,
 				void *ptr, char *type, u64 len);
+=======
+enum perf_tool_event;
+int parse_events_add_tool(struct parse_events_state *parse_state,
+			  struct list_head *list,
+			  enum perf_tool_event tool_event);
+int parse_events_add_cache(struct list_head *list, int *idx,
+			   char *type, char *op_result1, char *op_result2,
+			   struct parse_events_error *error,
+			   struct list_head *head_config,
+			   struct parse_events_state *parse_state);
+int parse_events_add_breakpoint(struct list_head *list, int *idx,
+				u64 addr, char *type, u64 len);
+>>>>>>> upstream/android-13
 int parse_events_add_pmu(struct parse_events_state *parse_state,
 			 struct list_head *list, char *name,
 			 struct list_head *head_config,
 			 bool auto_merge_stats,
 			 bool use_alias);
 
+<<<<<<< HEAD
+=======
+struct evsel *parse_events__add_event(int idx, struct perf_event_attr *attr,
+					char *name, struct perf_pmu *pmu);
+
+>>>>>>> upstream/android-13
 int parse_events_multi_pmu_add(struct parse_events_state *parse_state,
 			       char *str,
 			       struct list_head **listp);
@@ -188,7 +266,11 @@ void parse_events_evlist_error(struct parse_events_state *parse_state,
 			       int idx, const char *str);
 
 void print_events(const char *event_glob, bool name_only, bool quiet,
+<<<<<<< HEAD
 		  bool long_desc, bool details_flag);
+=======
+		  bool long_desc, bool details_flag, bool deprecated);
+>>>>>>> upstream/android-13
 
 struct event_symbol {
 	const char	*symbol;
@@ -199,6 +281,10 @@ extern struct event_symbol event_symbols_sw[];
 void print_symbol_events(const char *event_glob, unsigned type,
 				struct event_symbol *syms, unsigned max,
 				bool name_only);
+<<<<<<< HEAD
+=======
+void print_tool_events(const char *event_glob, bool name_only);
+>>>>>>> upstream/android-13
 void print_tracepoint_events(const char *subsys_glob, const char *event_glob,
 			     bool name_only);
 int print_hwcache_events(const char *event_glob, bool name_only);
@@ -231,4 +317,14 @@ static inline bool is_sdt_event(char *str __maybe_unused)
 }
 #endif /* HAVE_LIBELF_SUPPORT */
 
+<<<<<<< HEAD
+=======
+int perf_pmu__test_parse_init(void);
+
+struct evsel *parse_events__add_event_hybrid(struct list_head *list, int *idx,
+					     struct perf_event_attr *attr,
+					     char *name, struct perf_pmu *pmu,
+					     struct list_head *config_terms);
+
+>>>>>>> upstream/android-13
 #endif /* __PERF_PARSE_EVENTS_H */

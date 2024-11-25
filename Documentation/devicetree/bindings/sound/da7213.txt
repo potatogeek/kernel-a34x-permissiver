@@ -1,9 +1,17 @@
+<<<<<<< HEAD
 Dialog Semiconductor DA7213 Audio Codec bindings
+=======
+Dialog Semiconductor DA7212/DA7213 Audio Codec bindings
+>>>>>>> upstream/android-13
 
 ======
 
 Required properties:
+<<<<<<< HEAD
 - compatible : Should be "dlg,da7213"
+=======
+- compatible : Should be "dlg,da7212" or "dlg,da7213"
+>>>>>>> upstream/android-13
 - reg: Specifies the I2C slave address
 
 Optional properties:
@@ -21,6 +29,13 @@ Optional properties:
 - dlg,dmic-clkrate : DMIC clock frequency (Hz).
 	[<1500000>, <3000000>]
 
+<<<<<<< HEAD
+=======
+ - VDDA-supply : Regulator phandle for Analogue power supply
+ - VDDMIC-supply : Regulator phandle for Mic Bias
+ - VDDIO-supply : Regulator phandle for I/O power supply
+
+>>>>>>> upstream/android-13
 ======
 
 Example:

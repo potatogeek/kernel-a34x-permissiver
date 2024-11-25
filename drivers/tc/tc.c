@@ -47,7 +47,11 @@ static void __init tc_bus_add_devices(struct tc_bus *tbus)
 	for (slot = 0; slot < tbus->num_tcslots; slot++) {
 		slotaddr = tbus->slot_base + slot * slotsize;
 		extslotaddr = tbus->ext_slot_base + slot * extslotsize;
+<<<<<<< HEAD
 		module = ioremap_nocache(slotaddr, slotsize);
+=======
+		module = ioremap(slotaddr, slotsize);
+>>>>>>> upstream/android-13
 		BUG_ON(!module);
 
 		offset = TC_OLDCARD;

@@ -1,4 +1,10 @@
+<<<<<<< HEAD
 if PCI && MEDIA_SUPPORT
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+
+if PCI
+>>>>>>> upstream/android-13
 
 menuconfig MEDIA_PCI_SUPPORT
 	bool "Media PCI Adapters"
@@ -55,5 +61,19 @@ endif
 
 source "drivers/media/pci/intel/ipu3/Kconfig"
 
+<<<<<<< HEAD
+=======
+config VIDEO_PCI_SKELETON
+	tristate "Skeleton PCI V4L2 driver"
+	depends on SAMPLES
+	depends on MEDIA_TEST_SUPPORT
+	depends on PCI && VIDEO_V4L2
+	select VIDEOBUF2_MEMOPS
+	select VIDEOBUF2_DMA_CONTIG
+	help
+	  Enable build of the skeleton PCI driver, used as a reference
+	  when developing new drivers.
+
+>>>>>>> upstream/android-13
 endif #MEDIA_PCI_SUPPORT
 endif #PCI

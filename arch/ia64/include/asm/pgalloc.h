@@ -19,22 +19,32 @@
 #include <linux/mm.h>
 #include <linux/page-flags.h>
 #include <linux/threads.h>
+<<<<<<< HEAD
 #include <linux/quicklist.h>
+=======
+
+#include <asm-generic/pgalloc.h>
+>>>>>>> upstream/android-13
 
 #include <asm/mmu_context.h>
 
 static inline pgd_t *pgd_alloc(struct mm_struct *mm)
 {
+<<<<<<< HEAD
 	return quicklist_alloc(0, GFP_KERNEL, NULL);
 }
 
 static inline void pgd_free(struct mm_struct *mm, pgd_t *pgd)
 {
 	quicklist_free(0, NULL, pgd);
+=======
+	return (pgd_t *)__get_free_page(GFP_KERNEL | __GFP_ZERO);
+>>>>>>> upstream/android-13
 }
 
 #if CONFIG_PGTABLE_LEVELS == 4
 static inline void
+<<<<<<< HEAD
 pgd_populate(struct mm_struct *mm, pgd_t * pgd_entry, pud_t * pud)
 {
 	pgd_val(*pgd_entry) = __pa(pud);
@@ -49,6 +59,13 @@ static inline void pud_free(struct mm_struct *mm, pud_t *pud)
 {
 	quicklist_free(0, NULL, pud);
 }
+=======
+p4d_populate(struct mm_struct *mm, p4d_t * p4d_entry, pud_t * pud)
+{
+	p4d_val(*p4d_entry) = __pa(pud);
+}
+
+>>>>>>> upstream/android-13
 #define __pud_free_tlb(tlb, pud, address)	pud_free((tlb)->mm, pud)
 #endif /* CONFIG_PGTABLE_LEVELS == 4 */
 
@@ -58,6 +75,7 @@ pud_populate(struct mm_struct *mm, pud_t * pud_entry, pmd_t * pmd)
 	pud_val(*pud_entry) = __pa(pmd);
 }
 
+<<<<<<< HEAD
 static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long addr)
 {
 	return quicklist_alloc(0, GFP_KERNEL, NULL);
@@ -68,6 +86,8 @@ static inline void pmd_free(struct mm_struct *mm, pmd_t *pmd)
 	quicklist_free(0, NULL, pmd);
 }
 
+=======
+>>>>>>> upstream/android-13
 #define __pmd_free_tlb(tlb, pmd, address)	pmd_free((tlb)->mm, pmd)
 
 static inline void
@@ -75,7 +95,10 @@ pmd_populate(struct mm_struct *mm, pmd_t * pmd_entry, pgtable_t pte)
 {
 	pmd_val(*pmd_entry) = page_to_phys(pte);
 }
+<<<<<<< HEAD
 #define pmd_pgtable(pmd) pmd_page(pmd)
+=======
+>>>>>>> upstream/android-13
 
 static inline void
 pmd_populate_kernel(struct mm_struct *mm, pmd_t * pmd_entry, pte_t * pte)
@@ -83,6 +106,7 @@ pmd_populate_kernel(struct mm_struct *mm, pmd_t * pmd_entry, pte_t * pte)
 	pmd_val(*pmd_entry) = __pa(pte);
 }
 
+<<<<<<< HEAD
 static inline pgtable_t pte_alloc_one(struct mm_struct *mm, unsigned long addr)
 {
 	struct page *page;
@@ -121,6 +145,8 @@ static inline void check_pgt_cache(void)
 	quicklist_trim(0, NULL, 25, 16);
 }
 
+=======
+>>>>>>> upstream/android-13
 #define __pte_free_tlb(tlb, pte, address)	pte_free((tlb)->mm, pte)
 
 #endif				/* _ASM_IA64_PGALLOC_H */

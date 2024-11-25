@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * STMicroelectronics hts221 i2c driver
  *
  * Copyright 2016 STMicroelectronics Inc.
  *
  * Lorenzo Bianconi <lorenzo.bianconi@st.com>
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -33,8 +40,13 @@ static int hts221_i2c_probe(struct i2c_client *client,
 
 	regmap = devm_regmap_init_i2c(client, &hts221_i2c_regmap_config);
 	if (IS_ERR(regmap)) {
+<<<<<<< HEAD
 		dev_err(&client->dev, "Failed to register i2c regmap %d\n",
 			(int)PTR_ERR(regmap));
+=======
+		dev_err(&client->dev, "Failed to register i2c regmap %ld\n",
+			PTR_ERR(regmap));
+>>>>>>> upstream/android-13
 		return PTR_ERR(regmap);
 	}
 
@@ -64,7 +76,11 @@ static struct i2c_driver hts221_driver = {
 	.driver = {
 		.name = "hts221_i2c",
 		.pm = &hts221_pm_ops,
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(hts221_i2c_of_match),
+=======
+		.of_match_table = hts221_i2c_of_match,
+>>>>>>> upstream/android-13
 		.acpi_match_table = ACPI_PTR(hts221_acpi_match),
 	},
 	.probe = hts221_i2c_probe,

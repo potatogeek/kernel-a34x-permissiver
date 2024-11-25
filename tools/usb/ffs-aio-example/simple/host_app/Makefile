@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 CC = gcc
 LIBUSB_CFLAGS = $(shell pkg-config --cflags libusb-1.0)
 LIBUSB_LIBS = $(shell pkg-config --libs libusb-1.0)

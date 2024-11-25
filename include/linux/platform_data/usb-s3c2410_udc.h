@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /* arch/arm/plat-samsung/include/plat/udc.h
  *
  * Copyright (c) 2005 Arnaud Patard <arnaud.patard@rtp-net.org>
  *
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
  *
+=======
+>>>>>>> upstream/android-13
  *  Changelog:
  *	14-Mar-2005	RTP	Created file
  *	02-Aug-2005	RTP	File rename

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2015 Linaro, Ltd.
  * Rob Herring <robh@kernel.org>
@@ -5,6 +9,7 @@
  * Based on vendor driver:
  * Copyright (C) 2013 Marvell Inc.
  * Author: Chao Xie <xiechao.mail@gmail.com>
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -15,12 +20,18 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
 #include <linux/slab.h>
 #include <linux/of.h>
 #include <linux/io.h>
+<<<<<<< HEAD
+=======
+#include <linux/iopoll.h>
+>>>>>>> upstream/android-13
 #include <linux/err.h>
 #include <linux/clk.h>
 #include <linux/module.h>
@@ -53,6 +64,7 @@ struct mv_hsic_phy {
 	struct clk		*clk;
 };
 
+<<<<<<< HEAD
 static bool wait_for_reg(void __iomem *reg, u32 mask, unsigned long timeout)
 {
 	timeout += jiffies;
@@ -62,6 +74,14 @@ static bool wait_for_reg(void __iomem *reg, u32 mask, unsigned long timeout)
 		msleep(1);
 	}
 	return false;
+=======
+static int wait_for_reg(void __iomem *reg, u32 mask, u32 ms)
+{
+	u32 val;
+
+	return readl_poll_timeout(reg, val, ((val & mask) == mask),
+				  1000, 1000 * ms);
+>>>>>>> upstream/android-13
 }
 
 static int mv_hsic_phy_init(struct phy *phy)
@@ -69,6 +89,10 @@ static int mv_hsic_phy_init(struct phy *phy)
 	struct mv_hsic_phy *mv_phy = phy_get_drvdata(phy);
 	struct platform_device *pdev = mv_phy->pdev;
 	void __iomem *base = mv_phy->base;
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	clk_prepare_enable(mv_phy->clk);
 
@@ -84,6 +108,7 @@ static int mv_hsic_phy_init(struct phy *phy)
 		base + PHY_28NM_HSIC_PLL_CTRL2);
 
 	/* Make sure PHY PLL is locked */
+<<<<<<< HEAD
 	if (!wait_for_reg(base + PHY_28NM_HSIC_PLL_CTRL2,
 	    PHY_28NM_HSIC_H2S_PLL_LOCK, HZ / 10)) {
 		dev_err(&pdev->dev, "HSIC PHY PLL not locked after 100mS.");
@@ -92,6 +117,16 @@ static int mv_hsic_phy_init(struct phy *phy)
 	}
 
 	return 0;
+=======
+	ret = wait_for_reg(base + PHY_28NM_HSIC_PLL_CTRL2,
+			   PHY_28NM_HSIC_H2S_PLL_LOCK, 100);
+	if (ret) {
+		dev_err(&pdev->dev, "HSIC PHY PLL not locked after 100mS.");
+		clk_disable_unprepare(mv_phy->clk);
+	}
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int mv_hsic_phy_power_on(struct phy *phy)
@@ -100,6 +135,10 @@ static int mv_hsic_phy_power_on(struct phy *phy)
 	struct platform_device *pdev = mv_phy->pdev;
 	void __iomem *base = mv_phy->base;
 	u32 reg;
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	reg = readl(base + PHY_28NM_HSIC_CTRL);
 	/* Avoid SE0 state when resume for some device will take it as reset */
@@ -117,6 +156,7 @@ static int mv_hsic_phy_power_on(struct phy *phy)
 	 */
 
 	/* Make sure PHY Calibration is ready */
+<<<<<<< HEAD
 	if (!wait_for_reg(base + PHY_28NM_HSIC_IMPCAL_CAL,
 	    PHY_28NM_HSIC_H2S_IMPCAL_DONE, HZ / 10)) {
 		dev_warn(&pdev->dev, "HSIC PHY READY not set after 100mS.");
@@ -131,6 +171,22 @@ static int mv_hsic_phy_power_on(struct phy *phy)
 	}
 
 	return 0;
+=======
+	ret = wait_for_reg(base + PHY_28NM_HSIC_IMPCAL_CAL,
+			   PHY_28NM_HSIC_H2S_IMPCAL_DONE, 100);
+	if (ret) {
+		dev_warn(&pdev->dev, "HSIC PHY READY not set after 100mS.");
+		return ret;
+	}
+
+	/* Waiting for HSIC connect int*/
+	ret = wait_for_reg(base + PHY_28NM_HSIC_INT,
+			   PHY_28NM_HSIC_CONNECT_INT, 200);
+	if (ret)
+		dev_warn(&pdev->dev, "HSIC wait for connect interrupt timeout.");
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int mv_hsic_phy_power_off(struct phy *phy)
@@ -171,7 +227,10 @@ static int mv_hsic_phy_probe(struct platform_device *pdev)
 {
 	struct phy_provider *phy_provider;
 	struct mv_hsic_phy *mv_phy;
+<<<<<<< HEAD
 	struct resource *r;
+=======
+>>>>>>> upstream/android-13
 
 	mv_phy = devm_kzalloc(&pdev->dev, sizeof(*mv_phy), GFP_KERNEL);
 	if (!mv_phy)
@@ -185,8 +244,12 @@ static int mv_hsic_phy_probe(struct platform_device *pdev)
 		return PTR_ERR(mv_phy->clk);
 	}
 
+<<<<<<< HEAD
 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	mv_phy->base = devm_ioremap_resource(&pdev->dev, r);
+=======
+	mv_phy->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(mv_phy->base))
 		return PTR_ERR(mv_phy->base);
 

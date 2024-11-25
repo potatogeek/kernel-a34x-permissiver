@@ -1,7 +1,13 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016 Rafał Miłecki <rafal@milecki.pl>
  *
  * Licensed under the ISC license.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
+/*
+ * Copyright (C) 2016 Rafał Miłecki <rafal@milecki.pl>
+>>>>>>> upstream/android-13
  */
 
 /dts-v1/;
@@ -16,7 +22,12 @@
 		bootargs = "console=ttyS0,115200 earlycon";
 	};
 
+<<<<<<< HEAD
 	memory {
+=======
+	memory@0 {
+		device_type = "memory";
+>>>>>>> upstream/android-13
 		reg = <0x00000000 0x08000000>;
 	};
 
@@ -58,8 +69,11 @@
 
 	gpio-keys {
 		compatible = "gpio-keys";
+<<<<<<< HEAD
 		#address-cells = <1>;
 		#size-cells = <0>;
+=======
+>>>>>>> upstream/android-13
 
 		rfkill {
 			label = "WiFi";

@@ -21,12 +21,15 @@
 #include <linux/version.h>
 #include <linux/magic.h>
 
+<<<<<<< HEAD
 /* fallthrough is defined since v5.4.0 */
 #ifndef fallthrough
 #define fallthrough                    do {} while (0)  /* fallthrough */
 #endif
 
 
+=======
+>>>>>>> upstream/android-13
 /* OVERLAYFS_SUPER_MAGIC is defined since v4.5.0 */
 #ifndef OVERLAYFS_SUPER_MAGIC
 #define OVERLAYFS_SUPER_MAGIC 0x794c7630
@@ -115,9 +118,14 @@ static inline ssize_t __vfs_getxattr(struct dentry *dentry, struct inode *inode,
 }
 #endif
 
+<<<<<<< HEAD
 #if (defined(CONFIG_ANDROID) && (LINUX_VERSION_CODE < KERNEL_VERSION(5, 4, 0) || \
 				LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0))) || \
 				LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0)
+=======
+#if defined(CONFIG_ANDROID) && (LINUX_VERSION_CODE < KERNEL_VERSION(5, 4, 0)   \
+			    ||  LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0))
+>>>>>>> upstream/android-13
 /*
  * __vfs_getxattr was changed in Android Kernel v5.4
  * https://android.googlesource.com/kernel/common/+/3484eba91d6b529cc606486a2db79513f3db6c67
@@ -251,6 +259,7 @@ static inline struct inode *d_real_inode(struct dentry *dentry)
 	return d_backing_inode(d_real_comp(dentry));
 }
 #endif
+<<<<<<< HEAD
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 19, 0)
 #include "drivers/md/dm-core.h"
 #include "uapi/linux/major.h"
@@ -295,4 +304,7 @@ struct loop_device {
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 0, 0)
 #define dm_table_get_num_targets(t) t->num_targets
 #endif
+=======
+
+>>>>>>> upstream/android-13
 #endif /* __LINUX_FIVE_PORTING_H */

@@ -1,8 +1,11 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
  * A tagged pointer implementation
+<<<<<<< HEAD
  *
  * Copyright (C) 2018 Gao Xiang <gaoxiang25@huawei.com>
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __EROFS_FS_TAGPTR_H
 #define __EROFS_FS_TAGPTR_H
@@ -107,4 +110,7 @@ tagptr_init(o, cmpxchg(&ptptr->v, o.v, n.v)); })
 *ptptr; })
 
 #endif	/* __EROFS_FS_TAGPTR_H */
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13

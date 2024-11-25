@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * wm0010.c  --  WM0010 DSP Driver
  *
@@ -6,10 +10,13 @@
  * Authors: Mark Brown <broonie@opensource.wolfsonmicro.com>
  *          Dimitris Papastamos <dp@opensource.wolfsonmicro.com>
  *          Scott Ling <sl@opensource.wolfsonmicro.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -46,7 +53,11 @@ struct dfw_binrec {
 	u8 command;
 	u32 length:24;
 	u32 address;
+<<<<<<< HEAD
 	uint8_t data[0];
+=======
+	uint8_t data[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct dfw_inforec {
@@ -349,7 +360,11 @@ static int wm0010_firmware_load(const char *name, struct snd_soc_component *comp
 	struct list_head xfer_list;
 	struct wm0010_boot_xfer *xfer;
 	int ret;
+<<<<<<< HEAD
 	struct completion done;
+=======
+	DECLARE_COMPLETION_ONSTACK(done);
+>>>>>>> upstream/android-13
 	const struct firmware *fw;
 	const struct dfw_binrec *rec;
 	const struct dfw_inforec *inforec;
@@ -373,7 +388,10 @@ static int wm0010_firmware_load(const char *name, struct snd_soc_component *comp
 	wm0010->boot_failed = false;
 	if (WARN_ON(!list_empty(&xfer_list)))
 		return -EINVAL;
+<<<<<<< HEAD
 	init_completion(&done);
+=======
+>>>>>>> upstream/android-13
 
 	/* First record should be INFO */
 	if (rec->command != DFW_CMD_INFO) {
@@ -518,7 +536,11 @@ static int wm0010_stage2_load(struct snd_soc_component *component)
 	dev_dbg(component->dev, "Downloading %zu byte stage 2 loader\n", fw->size);
 
 	/* Copy to local buffer first as vmalloc causes problems for dma */
+<<<<<<< HEAD
 	img = kzalloc(fw->size, GFP_KERNEL | GFP_DMA);
+=======
+	img = kmemdup(&fw->data[0], fw->size, GFP_KERNEL | GFP_DMA);
+>>>>>>> upstream/android-13
 	if (!img) {
 		ret = -ENOMEM;
 		goto abort2;
@@ -530,8 +552,11 @@ static int wm0010_stage2_load(struct snd_soc_component *component)
 		goto abort1;
 	}
 
+<<<<<<< HEAD
 	memcpy(img, &fw->data[0], fw->size);
 
+=======
+>>>>>>> upstream/android-13
 	spi_message_init(&m);
 	memset(&t, 0, sizeof(t));
 	t.rx_buf = out;

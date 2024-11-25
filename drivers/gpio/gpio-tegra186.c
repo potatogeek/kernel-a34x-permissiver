@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2016-2017 NVIDIA Corporation
  *
  * Author: Thierry Reding <treding@nvidia.com>
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
  * may be copied, distributed, and modified under those terms.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/gpio/driver.h>
@@ -18,6 +25,17 @@
 #include <dt-bindings/gpio/tegra186-gpio.h>
 #include <dt-bindings/gpio/tegra194-gpio.h>
 
+<<<<<<< HEAD
+=======
+/* security registers */
+#define TEGRA186_GPIO_CTL_SCR 0x0c
+#define  TEGRA186_GPIO_CTL_SCR_SEC_WEN BIT(28)
+#define  TEGRA186_GPIO_CTL_SCR_SEC_REN BIT(27)
+
+#define TEGRA186_GPIO_INT_ROUTE_MAPPING(p, x) (0x14 + (p) * 0x20 + (x) * 4)
+
+/* control registers */
+>>>>>>> upstream/android-13
 #define TEGRA186_GPIO_ENABLE_CONFIG 0x00
 #define  TEGRA186_GPIO_ENABLE_CONFIG_ENABLE BIT(0)
 #define  TEGRA186_GPIO_ENABLE_CONFIG_OUT BIT(1)
@@ -27,6 +45,10 @@
 #define  TEGRA186_GPIO_ENABLE_CONFIG_TRIGGER_TYPE_DOUBLE_EDGE (0x3 << 2)
 #define  TEGRA186_GPIO_ENABLE_CONFIG_TRIGGER_TYPE_MASK (0x3 << 2)
 #define  TEGRA186_GPIO_ENABLE_CONFIG_TRIGGER_LEVEL BIT(4)
+<<<<<<< HEAD
+=======
+#define  TEGRA186_GPIO_ENABLE_CONFIG_DEBOUNCE BIT(5)
+>>>>>>> upstream/android-13
 #define  TEGRA186_GPIO_ENABLE_CONFIG_INTERRUPT BIT(6)
 
 #define TEGRA186_GPIO_DEBOUNCE_CONTROL 0x04
@@ -47,15 +69,34 @@
 
 struct tegra_gpio_port {
 	const char *name;
+<<<<<<< HEAD
 	unsigned int offset;
 	unsigned int pins;
 	unsigned int irq;
+=======
+	unsigned int bank;
+	unsigned int port;
+	unsigned int pins;
+};
+
+struct tegra186_pin_range {
+	unsigned int offset;
+	const char *group;
+>>>>>>> upstream/android-13
 };
 
 struct tegra_gpio_soc {
 	const struct tegra_gpio_port *ports;
 	unsigned int num_ports;
 	const char *name;
+<<<<<<< HEAD
+=======
+	unsigned int instance;
+
+	const struct tegra186_pin_range *pin_ranges;
+	unsigned int num_pin_ranges;
+	const char *pinmux;
+>>>>>>> upstream/android-13
 };
 
 struct tegra_gpio {
@@ -66,6 +107,10 @@ struct tegra_gpio {
 
 	const struct tegra_gpio_soc *soc;
 
+<<<<<<< HEAD
+=======
+	void __iomem *secure;
+>>>>>>> upstream/android-13
 	void __iomem *base;
 };
 
@@ -92,12 +137,22 @@ static void __iomem *tegra186_gpio_get_base(struct tegra_gpio *gpio,
 					    unsigned int pin)
 {
 	const struct tegra_gpio_port *port;
+<<<<<<< HEAD
+=======
+	unsigned int offset;
+>>>>>>> upstream/android-13
 
 	port = tegra186_gpio_get_port(gpio, &pin);
 	if (!port)
 		return NULL;
 
+<<<<<<< HEAD
 	return gpio->base + port->offset + pin * 0x20;
+=======
+	offset = port->bank * 0x1000 + port->port * 0x200;
+
+	return gpio->base + offset + pin * 0x20;
+>>>>>>> upstream/android-13
 }
 
 static int tegra186_gpio_get_direction(struct gpio_chip *chip,
@@ -113,9 +168,15 @@ static int tegra186_gpio_get_direction(struct gpio_chip *chip,
 
 	value = readl(base + TEGRA186_GPIO_ENABLE_CONFIG);
 	if (value & TEGRA186_GPIO_ENABLE_CONFIG_OUT)
+<<<<<<< HEAD
 		return 0;
 
 	return 1;
+=======
+		return GPIO_LINE_DIRECTION_OUT;
+
+	return GPIO_LINE_DIRECTION_IN;
+>>>>>>> upstream/android-13
 }
 
 static int tegra186_gpio_direction_input(struct gpio_chip *chip,
@@ -207,6 +268,89 @@ static void tegra186_gpio_set(struct gpio_chip *chip, unsigned int offset,
 	writel(value, base + TEGRA186_GPIO_OUTPUT_VALUE);
 }
 
+<<<<<<< HEAD
+=======
+static int tegra186_gpio_set_config(struct gpio_chip *chip,
+				    unsigned int offset,
+				    unsigned long config)
+{
+	struct tegra_gpio *gpio = gpiochip_get_data(chip);
+	u32 debounce, value;
+	void __iomem *base;
+
+	base = tegra186_gpio_get_base(gpio, offset);
+	if (base == NULL)
+		return -ENXIO;
+
+	if (pinconf_to_config_param(config) != PIN_CONFIG_INPUT_DEBOUNCE)
+		return -ENOTSUPP;
+
+	debounce = pinconf_to_config_argument(config);
+
+	/*
+	 * The Tegra186 GPIO controller supports a maximum of 255 ms debounce
+	 * time.
+	 */
+	if (debounce > 255000)
+		return -EINVAL;
+
+	debounce = DIV_ROUND_UP(debounce, USEC_PER_MSEC);
+
+	value = TEGRA186_GPIO_DEBOUNCE_CONTROL_THRESHOLD(debounce);
+	writel(value, base + TEGRA186_GPIO_DEBOUNCE_CONTROL);
+
+	value = readl(base + TEGRA186_GPIO_ENABLE_CONFIG);
+	value |= TEGRA186_GPIO_ENABLE_CONFIG_DEBOUNCE;
+	writel(value, base + TEGRA186_GPIO_ENABLE_CONFIG);
+
+	return 0;
+}
+
+static int tegra186_gpio_add_pin_ranges(struct gpio_chip *chip)
+{
+	struct tegra_gpio *gpio = gpiochip_get_data(chip);
+	struct pinctrl_dev *pctldev;
+	struct device_node *np;
+	unsigned int i, j;
+	int err;
+
+	if (!gpio->soc->pinmux || gpio->soc->num_pin_ranges == 0)
+		return 0;
+
+	np = of_find_compatible_node(NULL, NULL, gpio->soc->pinmux);
+	if (!np)
+		return -ENODEV;
+
+	pctldev = of_pinctrl_get(np);
+	of_node_put(np);
+	if (!pctldev)
+		return -EPROBE_DEFER;
+
+	for (i = 0; i < gpio->soc->num_pin_ranges; i++) {
+		unsigned int pin = gpio->soc->pin_ranges[i].offset, port;
+		const char *group = gpio->soc->pin_ranges[i].group;
+
+		port = pin / 8;
+		pin = pin % 8;
+
+		if (port >= gpio->soc->num_ports) {
+			dev_warn(chip->parent, "invalid port %u for %s\n",
+				 port, group);
+			continue;
+		}
+
+		for (j = 0; j < port; j++)
+			pin += gpio->soc->ports[j].pins;
+
+		err = gpiochip_add_pingroup_range(chip, pctldev, pin, group);
+		if (err < 0)
+			return err;
+	}
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int tegra186_gpio_of_xlate(struct gpio_chip *chip,
 				  const struct of_phandle_args *spec,
 				  u32 *flags)
@@ -237,9 +381,18 @@ static int tegra186_gpio_of_xlate(struct gpio_chip *chip,
 	return offset + pin;
 }
 
+<<<<<<< HEAD
 static void tegra186_irq_ack(struct irq_data *data)
 {
 	struct tegra_gpio *gpio = irq_data_get_irq_chip_data(data);
+=======
+#define to_tegra_gpio(x) container_of((x), struct tegra_gpio, gpio)
+
+static void tegra186_irq_ack(struct irq_data *data)
+{
+	struct gpio_chip *gc = irq_data_get_irq_chip_data(data);
+	struct tegra_gpio *gpio = to_tegra_gpio(gc);
+>>>>>>> upstream/android-13
 	void __iomem *base;
 
 	base = tegra186_gpio_get_base(gpio, data->hwirq);
@@ -251,7 +404,12 @@ static void tegra186_irq_ack(struct irq_data *data)
 
 static void tegra186_irq_mask(struct irq_data *data)
 {
+<<<<<<< HEAD
 	struct tegra_gpio *gpio = irq_data_get_irq_chip_data(data);
+=======
+	struct gpio_chip *gc = irq_data_get_irq_chip_data(data);
+	struct tegra_gpio *gpio = to_tegra_gpio(gc);
+>>>>>>> upstream/android-13
 	void __iomem *base;
 	u32 value;
 
@@ -266,7 +424,12 @@ static void tegra186_irq_mask(struct irq_data *data)
 
 static void tegra186_irq_unmask(struct irq_data *data)
 {
+<<<<<<< HEAD
 	struct tegra_gpio *gpio = irq_data_get_irq_chip_data(data);
+=======
+	struct gpio_chip *gc = irq_data_get_irq_chip_data(data);
+	struct tegra_gpio *gpio = to_tegra_gpio(gc);
+>>>>>>> upstream/android-13
 	void __iomem *base;
 	u32 value;
 
@@ -279,9 +442,16 @@ static void tegra186_irq_unmask(struct irq_data *data)
 	writel(value, base + TEGRA186_GPIO_ENABLE_CONFIG);
 }
 
+<<<<<<< HEAD
 static int tegra186_irq_set_type(struct irq_data *data, unsigned int flow)
 {
 	struct tegra_gpio *gpio = irq_data_get_irq_chip_data(data);
+=======
+static int tegra186_irq_set_type(struct irq_data *data, unsigned int type)
+{
+	struct gpio_chip *gc = irq_data_get_irq_chip_data(data);
+	struct tegra_gpio *gpio = to_tegra_gpio(gc);
+>>>>>>> upstream/android-13
 	void __iomem *base;
 	u32 value;
 
@@ -293,7 +463,11 @@ static int tegra186_irq_set_type(struct irq_data *data, unsigned int flow)
 	value &= ~TEGRA186_GPIO_ENABLE_CONFIG_TRIGGER_TYPE_MASK;
 	value &= ~TEGRA186_GPIO_ENABLE_CONFIG_TRIGGER_LEVEL;
 
+<<<<<<< HEAD
 	switch (flow & IRQ_TYPE_SENSE_MASK) {
+=======
+	switch (type & IRQ_TYPE_SENSE_MASK) {
+>>>>>>> upstream/android-13
 	case IRQ_TYPE_NONE:
 		break;
 
@@ -325,11 +499,29 @@ static int tegra186_irq_set_type(struct irq_data *data, unsigned int flow)
 
 	writel(value, base + TEGRA186_GPIO_ENABLE_CONFIG);
 
+<<<<<<< HEAD
 	if ((flow & IRQ_TYPE_EDGE_BOTH) == 0)
+=======
+	if ((type & IRQ_TYPE_EDGE_BOTH) == 0)
+>>>>>>> upstream/android-13
 		irq_set_handler_locked(data, handle_level_irq);
 	else
 		irq_set_handler_locked(data, handle_edge_irq);
 
+<<<<<<< HEAD
+=======
+	if (data->parent_data)
+		return irq_chip_set_type_parent(data, type);
+
+	return 0;
+}
+
+static int tegra186_irq_set_wake(struct irq_data *data, unsigned int on)
+{
+	if (data->parent_data)
+		return irq_chip_set_wake_parent(data, on);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -345,22 +537,38 @@ static void tegra186_gpio_irq(struct irq_desc *desc)
 
 	for (i = 0; i < gpio->soc->num_ports; i++) {
 		const struct tegra_gpio_port *port = &gpio->soc->ports[i];
+<<<<<<< HEAD
 		void __iomem *base = gpio->base + port->offset;
 		unsigned int pin, irq;
 		unsigned long value;
 
 		/* skip ports that are not associated with this controller */
 		if (parent != gpio->irq[port->irq])
+=======
+		unsigned int pin;
+		unsigned long value;
+		void __iomem *base;
+
+		base = gpio->base + port->bank * 0x1000 + port->port * 0x200;
+
+		/* skip ports that are not associated with this bank */
+		if (parent != gpio->irq[port->bank])
+>>>>>>> upstream/android-13
 			goto skip;
 
 		value = readl(base + TEGRA186_GPIO_INTERRUPT_STATUS(1));
 
 		for_each_set_bit(pin, &value, port->pins) {
+<<<<<<< HEAD
 			irq = irq_find_mapping(domain, offset + pin);
 			if (WARN_ON(irq == 0))
 				continue;
 
 			generic_handle_irq(irq);
+=======
+			int ret = generic_handle_domain_irq(domain, offset + pin);
+			WARN_RATELIMIT(ret, "hwirq = %d", offset + pin);
+>>>>>>> upstream/android-13
 		}
 
 skip:
@@ -370,15 +578,23 @@ skip:
 	chained_irq_exit(chip, desc);
 }
 
+<<<<<<< HEAD
 static int tegra186_gpio_irq_domain_xlate(struct irq_domain *domain,
 					  struct device_node *np,
 					  const u32 *spec, unsigned int size,
 					  unsigned long *hwirq,
 					  unsigned int *type)
+=======
+static int tegra186_gpio_irq_domain_translate(struct irq_domain *domain,
+					      struct irq_fwspec *fwspec,
+					      unsigned long *hwirq,
+					      unsigned int *type)
+>>>>>>> upstream/android-13
 {
 	struct tegra_gpio *gpio = gpiochip_get_data(domain->host_data);
 	unsigned int port, pin, i, offset = 0;
 
+<<<<<<< HEAD
 	if (size < 2)
 		return -EINVAL;
 
@@ -389,28 +605,137 @@ static int tegra186_gpio_irq_domain_xlate(struct irq_domain *domain,
 		dev_err(gpio->gpio.parent, "invalid port number: %u\n", port);
 		return -EINVAL;
 	}
+=======
+	if (WARN_ON(gpio->gpio.of_gpio_n_cells < 2))
+		return -EINVAL;
+
+	if (WARN_ON(fwspec->param_count < gpio->gpio.of_gpio_n_cells))
+		return -EINVAL;
+
+	port = fwspec->param[0] / 8;
+	pin = fwspec->param[0] % 8;
+
+	if (port >= gpio->soc->num_ports)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < port; i++)
 		offset += gpio->soc->ports[i].pins;
 
+<<<<<<< HEAD
 	*type = spec[1] & IRQ_TYPE_SENSE_MASK;
+=======
+	*type = fwspec->param[1] & IRQ_TYPE_SENSE_MASK;
+>>>>>>> upstream/android-13
 	*hwirq = offset + pin;
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct irq_domain_ops tegra186_gpio_irq_domain_ops = {
 	.map = gpiochip_irq_map,
 	.unmap = gpiochip_irq_unmap,
 	.xlate = tegra186_gpio_irq_domain_xlate,
 };
 
+=======
+static void *tegra186_gpio_populate_parent_fwspec(struct gpio_chip *chip,
+						 unsigned int parent_hwirq,
+						 unsigned int parent_type)
+{
+	struct tegra_gpio *gpio = gpiochip_get_data(chip);
+	struct irq_fwspec *fwspec;
+
+	fwspec = kmalloc(sizeof(*fwspec), GFP_KERNEL);
+	if (!fwspec)
+		return NULL;
+
+	fwspec->fwnode = chip->irq.parent_domain->fwnode;
+	fwspec->param_count = 3;
+	fwspec->param[0] = gpio->soc->instance;
+	fwspec->param[1] = parent_hwirq;
+	fwspec->param[2] = parent_type;
+
+	return fwspec;
+}
+
+static int tegra186_gpio_child_to_parent_hwirq(struct gpio_chip *chip,
+					       unsigned int hwirq,
+					       unsigned int type,
+					       unsigned int *parent_hwirq,
+					       unsigned int *parent_type)
+{
+	*parent_hwirq = chip->irq.child_offset_to_irq(chip, hwirq);
+	*parent_type = type;
+
+	return 0;
+}
+
+static unsigned int tegra186_gpio_child_offset_to_irq(struct gpio_chip *chip,
+						      unsigned int offset)
+{
+	struct tegra_gpio *gpio = gpiochip_get_data(chip);
+	unsigned int i;
+
+	for (i = 0; i < gpio->soc->num_ports; i++) {
+		if (offset < gpio->soc->ports[i].pins)
+			break;
+
+		offset -= gpio->soc->ports[i].pins;
+	}
+
+	return offset + i * 8;
+}
+
+static const struct of_device_id tegra186_pmc_of_match[] = {
+	{ .compatible = "nvidia,tegra186-pmc" },
+	{ .compatible = "nvidia,tegra194-pmc" },
+	{ /* sentinel */ }
+};
+
+static void tegra186_gpio_init_route_mapping(struct tegra_gpio *gpio)
+{
+	unsigned int i, j;
+	u32 value;
+
+	for (i = 0; i < gpio->soc->num_ports; i++) {
+		const struct tegra_gpio_port *port = &gpio->soc->ports[i];
+		unsigned int offset, p = port->port;
+		void __iomem *base;
+
+		base = gpio->secure + port->bank * 0x1000 + 0x800;
+
+		value = readl(base + TEGRA186_GPIO_CTL_SCR);
+
+		/*
+		 * For controllers that haven't been locked down yet, make
+		 * sure to program the default interrupt route mapping.
+		 */
+		if ((value & TEGRA186_GPIO_CTL_SCR_SEC_REN) == 0 &&
+		    (value & TEGRA186_GPIO_CTL_SCR_SEC_WEN) == 0) {
+			for (j = 0; j < 8; j++) {
+				offset = TEGRA186_GPIO_INT_ROUTE_MAPPING(p, j);
+
+				value = readl(base + offset);
+				value = BIT(port->pins) - 1;
+				writel(value, base + offset);
+			}
+		}
+	}
+}
+
+>>>>>>> upstream/android-13
 static int tegra186_gpio_probe(struct platform_device *pdev)
 {
 	unsigned int i, j, offset;
 	struct gpio_irq_chip *irq;
 	struct tegra_gpio *gpio;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+	struct device_node *np;
+>>>>>>> upstream/android-13
 	char **names;
 	int err;
 
@@ -418,12 +743,30 @@ static int tegra186_gpio_probe(struct platform_device *pdev)
 	if (!gpio)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	gpio->soc = of_device_get_match_data(&pdev->dev);
 
 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "gpio");
 	gpio->base = devm_ioremap_resource(&pdev->dev, res);
 	if (IS_ERR(gpio->base))
 		return PTR_ERR(gpio->base);
+=======
+	gpio->soc = device_get_match_data(&pdev->dev);
+
+	gpio->secure = devm_platform_ioremap_resource_byname(pdev, "security");
+	if (IS_ERR(gpio->secure)) {
+		gpio->secure = devm_platform_ioremap_resource(pdev, 0);
+		if (IS_ERR(gpio->secure))
+			return PTR_ERR(gpio->secure);
+	}
+
+	gpio->base = devm_platform_ioremap_resource_byname(pdev, "gpio");
+	if (IS_ERR(gpio->base)) {
+		gpio->base = devm_platform_ioremap_resource(pdev, 1);
+		if (IS_ERR(gpio->base))
+			return PTR_ERR(gpio->base);
+	}
+>>>>>>> upstream/android-13
 
 	err = platform_irq_count(pdev);
 	if (err < 0)
@@ -447,11 +790,23 @@ static int tegra186_gpio_probe(struct platform_device *pdev)
 	gpio->gpio.label = gpio->soc->name;
 	gpio->gpio.parent = &pdev->dev;
 
+<<<<<<< HEAD
 	gpio->gpio.get_direction = tegra186_gpio_get_direction;
 	gpio->gpio.direction_input = tegra186_gpio_direction_input;
 	gpio->gpio.direction_output = tegra186_gpio_direction_output;
 	gpio->gpio.get = tegra186_gpio_get,
 	gpio->gpio.set = tegra186_gpio_set;
+=======
+	gpio->gpio.request = gpiochip_generic_request;
+	gpio->gpio.free = gpiochip_generic_free;
+	gpio->gpio.get_direction = tegra186_gpio_get_direction;
+	gpio->gpio.direction_input = tegra186_gpio_direction_input;
+	gpio->gpio.direction_output = tegra186_gpio_direction_output;
+	gpio->gpio.get = tegra186_gpio_get;
+	gpio->gpio.set = tegra186_gpio_set;
+	gpio->gpio.set_config = tegra186_gpio_set_config;
+	gpio->gpio.add_pin_ranges = tegra186_gpio_add_pin_ranges;
+>>>>>>> upstream/android-13
 
 	gpio->gpio.base = -1;
 
@@ -481,19 +836,41 @@ static int tegra186_gpio_probe(struct platform_device *pdev)
 
 	gpio->gpio.names = (const char * const *)names;
 
+<<<<<<< HEAD
 	gpio->gpio.of_node = pdev->dev.of_node;
 	gpio->gpio.of_gpio_n_cells = 2;
 	gpio->gpio.of_xlate = tegra186_gpio_of_xlate;
 
 	gpio->intc.name = pdev->dev.of_node->name;
+=======
+#if defined(CONFIG_OF_GPIO)
+	gpio->gpio.of_node = pdev->dev.of_node;
+	gpio->gpio.of_gpio_n_cells = 2;
+	gpio->gpio.of_xlate = tegra186_gpio_of_xlate;
+#endif /* CONFIG_OF_GPIO */
+
+	gpio->intc.name = dev_name(&pdev->dev);
+>>>>>>> upstream/android-13
 	gpio->intc.irq_ack = tegra186_irq_ack;
 	gpio->intc.irq_mask = tegra186_irq_mask;
 	gpio->intc.irq_unmask = tegra186_irq_unmask;
 	gpio->intc.irq_set_type = tegra186_irq_set_type;
+<<<<<<< HEAD
 
 	irq = &gpio->gpio.irq;
 	irq->chip = &gpio->intc;
 	irq->domain_ops = &tegra186_gpio_irq_domain_ops;
+=======
+	gpio->intc.irq_set_wake = tegra186_irq_set_wake;
+
+	irq = &gpio->gpio.irq;
+	irq->chip = &gpio->intc;
+	irq->fwnode = of_node_to_fwnode(pdev->dev.of_node);
+	irq->child_to_parent_hwirq = tegra186_gpio_child_to_parent_hwirq;
+	irq->populate_parent_alloc_arg = tegra186_gpio_populate_parent_fwspec;
+	irq->child_offset_to_irq = tegra186_gpio_child_offset_to_irq;
+	irq->child_irq_domain_ops.translate = tegra186_gpio_irq_domain_translate;
+>>>>>>> upstream/android-13
 	irq->handler = handle_simple_irq;
 	irq->default_type = IRQ_TYPE_NONE;
 	irq->parent_handler = tegra186_gpio_irq;
@@ -501,6 +878,20 @@ static int tegra186_gpio_probe(struct platform_device *pdev)
 	irq->num_parents = gpio->num_irq;
 	irq->parents = gpio->irq;
 
+<<<<<<< HEAD
+=======
+	np = of_find_matching_node(NULL, tegra186_pmc_of_match);
+	if (np) {
+		irq->parent_domain = irq_find_host(np);
+		of_node_put(np);
+
+		if (!irq->parent_domain)
+			return -EPROBE_DEFER;
+	}
+
+	tegra186_gpio_init_route_mapping(gpio);
+
+>>>>>>> upstream/android-13
 	irq->map = devm_kcalloc(&pdev->dev, gpio->gpio.ngpio,
 				sizeof(*irq->map), GFP_KERNEL);
 	if (!irq->map)
@@ -510,11 +901,16 @@ static int tegra186_gpio_probe(struct platform_device *pdev)
 		const struct tegra_gpio_port *port = &gpio->soc->ports[i];
 
 		for (j = 0; j < port->pins; j++)
+<<<<<<< HEAD
 			irq->map[offset + j] = irq->parents[port->irq];
+=======
+			irq->map[offset + j] = irq->parents[port->bank];
+>>>>>>> upstream/android-13
 
 		offset += port->pins;
 	}
 
+<<<<<<< HEAD
 	platform_set_drvdata(pdev, gpio);
 
 	err = devm_gpiochip_add_data(&pdev->dev, &gpio->gpio, gpio);
@@ -561,12 +957,50 @@ static const struct tegra_gpio_port tegra186_main_ports[] = {
 	TEGRA_MAIN_GPIO_PORT( Y, 0x1600, 7, 1),
 	TEGRA_MAIN_GPIO_PORT(BB, 0x2600, 2, 2),
 	TEGRA_MAIN_GPIO_PORT(CC, 0x5400, 4, 5),
+=======
+	return devm_gpiochip_add_data(&pdev->dev, &gpio->gpio, gpio);
+}
+
+#define TEGRA186_MAIN_GPIO_PORT(_name, _bank, _port, _pins)	\
+	[TEGRA186_MAIN_GPIO_PORT_##_name] = {			\
+		.name = #_name,					\
+		.bank = _bank,					\
+		.port = _port,					\
+		.pins = _pins,					\
+	}
+
+static const struct tegra_gpio_port tegra186_main_ports[] = {
+	TEGRA186_MAIN_GPIO_PORT( A, 2, 0, 7),
+	TEGRA186_MAIN_GPIO_PORT( B, 3, 0, 7),
+	TEGRA186_MAIN_GPIO_PORT( C, 3, 1, 7),
+	TEGRA186_MAIN_GPIO_PORT( D, 3, 2, 6),
+	TEGRA186_MAIN_GPIO_PORT( E, 2, 1, 8),
+	TEGRA186_MAIN_GPIO_PORT( F, 2, 2, 6),
+	TEGRA186_MAIN_GPIO_PORT( G, 4, 1, 6),
+	TEGRA186_MAIN_GPIO_PORT( H, 1, 0, 7),
+	TEGRA186_MAIN_GPIO_PORT( I, 0, 4, 8),
+	TEGRA186_MAIN_GPIO_PORT( J, 5, 0, 8),
+	TEGRA186_MAIN_GPIO_PORT( K, 5, 1, 1),
+	TEGRA186_MAIN_GPIO_PORT( L, 1, 1, 8),
+	TEGRA186_MAIN_GPIO_PORT( M, 5, 3, 6),
+	TEGRA186_MAIN_GPIO_PORT( N, 0, 0, 7),
+	TEGRA186_MAIN_GPIO_PORT( O, 0, 1, 4),
+	TEGRA186_MAIN_GPIO_PORT( P, 4, 0, 7),
+	TEGRA186_MAIN_GPIO_PORT( Q, 0, 2, 6),
+	TEGRA186_MAIN_GPIO_PORT( R, 0, 5, 6),
+	TEGRA186_MAIN_GPIO_PORT( T, 0, 3, 4),
+	TEGRA186_MAIN_GPIO_PORT( X, 1, 2, 8),
+	TEGRA186_MAIN_GPIO_PORT( Y, 1, 3, 7),
+	TEGRA186_MAIN_GPIO_PORT(BB, 2, 3, 2),
+	TEGRA186_MAIN_GPIO_PORT(CC, 5, 2, 4),
+>>>>>>> upstream/android-13
 };
 
 static const struct tegra_gpio_soc tegra186_main_soc = {
 	.num_ports = ARRAY_SIZE(tegra186_main_ports),
 	.ports = tegra186_main_ports,
 	.name = "tegra186-gpio",
+<<<<<<< HEAD
 };
 
 #define TEGRA_AON_GPIO_PORT(port, base, count, controller)	\
@@ -586,12 +1020,35 @@ static const struct tegra_gpio_port tegra186_aon_ports[] = {
 	TEGRA_AON_GPIO_PORT(AA, 0x0c00, 8, 0),
 	TEGRA_AON_GPIO_PORT(EE, 0x0600, 3, 0),
 	TEGRA_AON_GPIO_PORT(FF, 0x0000, 5, 0),
+=======
+	.instance = 0,
+};
+
+#define TEGRA186_AON_GPIO_PORT(_name, _bank, _port, _pins)	\
+	[TEGRA186_AON_GPIO_PORT_##_name] = {			\
+		.name = #_name,					\
+		.bank = _bank,					\
+		.port = _port,					\
+		.pins = _pins,					\
+	}
+
+static const struct tegra_gpio_port tegra186_aon_ports[] = {
+	TEGRA186_AON_GPIO_PORT( S, 0, 1, 5),
+	TEGRA186_AON_GPIO_PORT( U, 0, 2, 6),
+	TEGRA186_AON_GPIO_PORT( V, 0, 4, 8),
+	TEGRA186_AON_GPIO_PORT( W, 0, 5, 8),
+	TEGRA186_AON_GPIO_PORT( Z, 0, 7, 4),
+	TEGRA186_AON_GPIO_PORT(AA, 0, 6, 8),
+	TEGRA186_AON_GPIO_PORT(EE, 0, 3, 3),
+	TEGRA186_AON_GPIO_PORT(FF, 0, 0, 5),
+>>>>>>> upstream/android-13
 };
 
 static const struct tegra_gpio_soc tegra186_aon_soc = {
 	.num_ports = ARRAY_SIZE(tegra186_aon_ports),
 	.ports = tegra186_aon_ports,
 	.name = "tegra186-gpio-aon",
+<<<<<<< HEAD
 };
 
 #define TEGRA194_MAIN_GPIO_PORT(port, base, count, controller)	\
@@ -631,12 +1088,60 @@ static const struct tegra_gpio_port tegra194_main_ports[] = {
 	TEGRA194_MAIN_GPIO_PORT( Z, 0x2400, 8, 2),
 	TEGRA194_MAIN_GPIO_PORT(FF, 0x3400, 2, 3),
 	TEGRA194_MAIN_GPIO_PORT(GG, 0x0000, 2, 0)
+=======
+	.instance = 1,
+};
+
+#define TEGRA194_MAIN_GPIO_PORT(_name, _bank, _port, _pins)	\
+	[TEGRA194_MAIN_GPIO_PORT_##_name] = {			\
+		.name = #_name,					\
+		.bank = _bank,					\
+		.port = _port,					\
+		.pins = _pins,					\
+	}
+
+static const struct tegra_gpio_port tegra194_main_ports[] = {
+	TEGRA194_MAIN_GPIO_PORT( A, 1, 2, 8),
+	TEGRA194_MAIN_GPIO_PORT( B, 4, 7, 2),
+	TEGRA194_MAIN_GPIO_PORT( C, 4, 3, 8),
+	TEGRA194_MAIN_GPIO_PORT( D, 4, 4, 4),
+	TEGRA194_MAIN_GPIO_PORT( E, 4, 5, 8),
+	TEGRA194_MAIN_GPIO_PORT( F, 4, 6, 6),
+	TEGRA194_MAIN_GPIO_PORT( G, 4, 0, 8),
+	TEGRA194_MAIN_GPIO_PORT( H, 4, 1, 8),
+	TEGRA194_MAIN_GPIO_PORT( I, 4, 2, 5),
+	TEGRA194_MAIN_GPIO_PORT( J, 5, 1, 6),
+	TEGRA194_MAIN_GPIO_PORT( K, 3, 0, 8),
+	TEGRA194_MAIN_GPIO_PORT( L, 3, 1, 4),
+	TEGRA194_MAIN_GPIO_PORT( M, 2, 3, 8),
+	TEGRA194_MAIN_GPIO_PORT( N, 2, 4, 3),
+	TEGRA194_MAIN_GPIO_PORT( O, 5, 0, 6),
+	TEGRA194_MAIN_GPIO_PORT( P, 2, 5, 8),
+	TEGRA194_MAIN_GPIO_PORT( Q, 2, 6, 8),
+	TEGRA194_MAIN_GPIO_PORT( R, 2, 7, 6),
+	TEGRA194_MAIN_GPIO_PORT( S, 3, 3, 8),
+	TEGRA194_MAIN_GPIO_PORT( T, 3, 4, 8),
+	TEGRA194_MAIN_GPIO_PORT( U, 3, 5, 1),
+	TEGRA194_MAIN_GPIO_PORT( V, 1, 0, 8),
+	TEGRA194_MAIN_GPIO_PORT( W, 1, 1, 2),
+	TEGRA194_MAIN_GPIO_PORT( X, 2, 0, 8),
+	TEGRA194_MAIN_GPIO_PORT( Y, 2, 1, 8),
+	TEGRA194_MAIN_GPIO_PORT( Z, 2, 2, 8),
+	TEGRA194_MAIN_GPIO_PORT(FF, 3, 2, 2),
+	TEGRA194_MAIN_GPIO_PORT(GG, 0, 0, 2)
+};
+
+static const struct tegra186_pin_range tegra194_main_pin_ranges[] = {
+	{ TEGRA194_MAIN_GPIO(GG, 0), "pex_l5_clkreq_n_pgg0" },
+	{ TEGRA194_MAIN_GPIO(GG, 1), "pex_l5_rst_n_pgg1" },
+>>>>>>> upstream/android-13
 };
 
 static const struct tegra_gpio_soc tegra194_main_soc = {
 	.num_ports = ARRAY_SIZE(tegra194_main_ports),
 	.ports = tegra194_main_ports,
 	.name = "tegra194-gpio",
+<<<<<<< HEAD
 };
 
 #define TEGRA194_AON_GPIO_PORT(port, base, count, controller)	\
@@ -653,12 +1158,38 @@ static const struct tegra_gpio_port tegra194_aon_ports[] = {
 	TEGRA194_AON_GPIO_PORT(CC, 0x0200, 8, 0),
 	TEGRA194_AON_GPIO_PORT(DD, 0x0400, 3, 0),
 	TEGRA194_AON_GPIO_PORT(EE, 0x0000, 7, 0)
+=======
+	.instance = 0,
+	.num_pin_ranges = ARRAY_SIZE(tegra194_main_pin_ranges),
+	.pin_ranges = tegra194_main_pin_ranges,
+	.pinmux = "nvidia,tegra194-pinmux",
+};
+
+#define TEGRA194_AON_GPIO_PORT(_name, _bank, _port, _pins)	\
+	[TEGRA194_AON_GPIO_PORT_##_name] = {			\
+		.name = #_name,					\
+		.bank = _bank,					\
+		.port = _port,					\
+		.pins = _pins,					\
+	}
+
+static const struct tegra_gpio_port tegra194_aon_ports[] = {
+	TEGRA194_AON_GPIO_PORT(AA, 0, 3, 8),
+	TEGRA194_AON_GPIO_PORT(BB, 0, 4, 4),
+	TEGRA194_AON_GPIO_PORT(CC, 0, 1, 8),
+	TEGRA194_AON_GPIO_PORT(DD, 0, 2, 3),
+	TEGRA194_AON_GPIO_PORT(EE, 0, 0, 7)
+>>>>>>> upstream/android-13
 };
 
 static const struct tegra_gpio_soc tegra194_aon_soc = {
 	.num_ports = ARRAY_SIZE(tegra194_aon_ports),
 	.ports = tegra194_aon_ports,
 	.name = "tegra194-gpio-aon",
+<<<<<<< HEAD
+=======
+	.instance = 1,
+>>>>>>> upstream/android-13
 };
 
 static const struct of_device_id tegra186_gpio_of_match[] = {
@@ -678,14 +1209,33 @@ static const struct of_device_id tegra186_gpio_of_match[] = {
 		/* sentinel */
 	}
 };
+<<<<<<< HEAD
+=======
+MODULE_DEVICE_TABLE(of, tegra186_gpio_of_match);
+
+static const struct acpi_device_id  tegra186_gpio_acpi_match[] = {
+	{ .id = "NVDA0108", .driver_data = (kernel_ulong_t)&tegra186_main_soc },
+	{ .id = "NVDA0208", .driver_data = (kernel_ulong_t)&tegra186_aon_soc },
+	{ .id = "NVDA0308", .driver_data = (kernel_ulong_t)&tegra194_main_soc },
+	{ .id = "NVDA0408", .driver_data = (kernel_ulong_t)&tegra194_aon_soc },
+	{}
+};
+MODULE_DEVICE_TABLE(acpi, tegra186_gpio_acpi_match);
+>>>>>>> upstream/android-13
 
 static struct platform_driver tegra186_gpio_driver = {
 	.driver = {
 		.name = "tegra186-gpio",
 		.of_match_table = tegra186_gpio_of_match,
+<<<<<<< HEAD
 	},
 	.probe = tegra186_gpio_probe,
 	.remove = tegra186_gpio_remove,
+=======
+		.acpi_match_table = tegra186_gpio_acpi_match,
+	},
+	.probe = tegra186_gpio_probe,
+>>>>>>> upstream/android-13
 };
 module_platform_driver(tegra186_gpio_driver);
 

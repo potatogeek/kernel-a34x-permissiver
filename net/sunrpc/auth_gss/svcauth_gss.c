@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Neil Brown <neilb@cse.unsw.edu.au>
  * J. Bruce Fields <bfields@umich.edu>
@@ -48,6 +52,7 @@
 #include <linux/sunrpc/svcauth.h>
 #include <linux/sunrpc/svcauth_gss.h>
 #include <linux/sunrpc/cache.h>
+<<<<<<< HEAD
 #include "gss_rpc_upcall.h"
 
 
@@ -55,6 +60,14 @@
 # define RPCDBG_FACILITY	RPCDBG_AUTH
 #endif
 
+=======
+
+#include <trace/events/rpcgss.h>
+
+#include "gss_rpc_upcall.h"
+
+
+>>>>>>> upstream/android-13
 /* The rpcsec_init cache is used for mapping RPCSEC_GSS_{,CONT_}INIT requests
  * into replies.
  *
@@ -76,6 +89,10 @@ struct rsi {
 	struct xdr_netobj	in_handle, in_token;
 	struct xdr_netobj	out_handle, out_token;
 	int			major_status, minor_status;
+<<<<<<< HEAD
+=======
+	struct rcu_head		rcu_head;
+>>>>>>> upstream/android-13
 };
 
 static struct rsi *rsi_update(struct cache_detail *cd, struct rsi *new, struct rsi *old);
@@ -89,11 +106,27 @@ static void rsi_free(struct rsi *rsii)
 	kfree(rsii->out_token.data);
 }
 
+<<<<<<< HEAD
 static void rsi_put(struct kref *ref)
 {
 	struct rsi *rsii = container_of(ref, struct rsi, h.ref);
 	rsi_free(rsii);
 	kfree(rsii);
+=======
+static void rsi_free_rcu(struct rcu_head *head)
+{
+	struct rsi *rsii = container_of(head, struct rsi, rcu_head);
+
+	rsi_free(rsii);
+	kfree(rsii);
+}
+
+static void rsi_put(struct kref *ref)
+{
+	struct rsi *rsii = container_of(ref, struct rsi, h.ref);
+
+	call_rcu(&rsii->rcu_head, rsi_free_rcu);
+>>>>>>> upstream/android-13
 }
 
 static inline int rsi_hash(struct rsi *item)
@@ -171,6 +204,14 @@ static struct cache_head *rsi_alloc(void)
 		return NULL;
 }
 
+<<<<<<< HEAD
+=======
+static int rsi_upcall(struct cache_detail *cd, struct cache_head *h)
+{
+	return sunrpc_cache_pipe_upcall_timeout(cd, h);
+}
+
+>>>>>>> upstream/android-13
 static void rsi_request(struct cache_detail *cd,
 		       struct cache_head *h,
 		       char **bpp, int *blen)
@@ -180,6 +221,11 @@ static void rsi_request(struct cache_detail *cd,
 	qword_addhex(bpp, blen, rsii->in_handle.data, rsii->in_handle.len);
 	qword_addhex(bpp, blen, rsii->in_token.data, rsii->in_token.len);
 	(*bpp)[-1] = '\n';
+<<<<<<< HEAD
+=======
+	WARN_ONCE(*blen < 0,
+		  "RPCSEC/GSS credential too large - please use gssproxy\n");
+>>>>>>> upstream/android-13
 }
 
 static int rsi_parse(struct cache_detail *cd,
@@ -190,7 +236,11 @@ static int rsi_parse(struct cache_detail *cd,
 	char *ep;
 	int len;
 	struct rsi rsii, *rsip = NULL;
+<<<<<<< HEAD
 	time_t expiry;
+=======
+	time64_t expiry;
+>>>>>>> upstream/android-13
 	int status = -EINVAL;
 
 	memset(&rsii, 0, sizeof(rsii));
@@ -269,6 +319,10 @@ static const struct cache_detail rsi_cache_template = {
 	.hash_size	= RSI_HASHMAX,
 	.name           = "auth.rpcsec.init",
 	.cache_put      = rsi_put,
+<<<<<<< HEAD
+=======
+	.cache_upcall	= rsi_upcall,
+>>>>>>> upstream/android-13
 	.cache_request  = rsi_request,
 	.cache_parse    = rsi_parse,
 	.match		= rsi_match,
@@ -282,7 +336,11 @@ static struct rsi *rsi_lookup(struct cache_detail *cd, struct rsi *item)
 	struct cache_head *ch;
 	int hash = rsi_hash(item);
 
+<<<<<<< HEAD
 	ch = sunrpc_cache_lookup(cd, &item->h, hash);
+=======
+	ch = sunrpc_cache_lookup_rcu(cd, &item->h, hash);
+>>>>>>> upstream/android-13
 	if (ch)
 		return container_of(ch, struct rsi, h);
 	else
@@ -317,7 +375,11 @@ static struct rsi *rsi_update(struct cache_detail *cd, struct rsi *new, struct r
 
 struct gss_svc_seq_data {
 	/* highest seq number seen so far: */
+<<<<<<< HEAD
 	int			sd_max;
+=======
+	u32			sd_max;
+>>>>>>> upstream/android-13
 	/* for i such that sd_max-GSS_SEQ_WIN < i <= sd_max, the i-th bit of
 	 * sd_win is nonzero iff sequence number i has been seen already: */
 	unsigned long		sd_win[GSS_SEQ_WIN/BITS_PER_LONG];
@@ -330,6 +392,10 @@ struct rsc {
 	struct svc_cred		cred;
 	struct gss_svc_seq_data	seqdata;
 	struct gss_ctx		*mechctx;
+<<<<<<< HEAD
+=======
+	struct rcu_head		rcu_head;
+>>>>>>> upstream/android-13
 };
 
 static struct rsc *rsc_update(struct cache_detail *cd, struct rsc *new, struct rsc *old);
@@ -343,12 +409,30 @@ static void rsc_free(struct rsc *rsci)
 	free_svc_cred(&rsci->cred);
 }
 
+<<<<<<< HEAD
+=======
+static void rsc_free_rcu(struct rcu_head *head)
+{
+	struct rsc *rsci = container_of(head, struct rsc, rcu_head);
+
+	kfree(rsci->handle.data);
+	kfree(rsci);
+}
+
+>>>>>>> upstream/android-13
 static void rsc_put(struct kref *ref)
 {
 	struct rsc *rsci = container_of(ref, struct rsc, h.ref);
 
+<<<<<<< HEAD
 	rsc_free(rsci);
 	kfree(rsci);
+=======
+	if (rsci->mechctx)
+		gss_delete_sec_context(&rsci->mechctx);
+	free_svc_cred(&rsci->cred);
+	call_rcu(&rsci->rcu_head, rsc_free_rcu);
+>>>>>>> upstream/android-13
 }
 
 static inline int
@@ -404,6 +488,14 @@ rsc_alloc(void)
 		return NULL;
 }
 
+<<<<<<< HEAD
+=======
+static int rsc_upcall(struct cache_detail *cd, struct cache_head *h)
+{
+	return -EINVAL;
+}
+
+>>>>>>> upstream/android-13
 static int rsc_parse(struct cache_detail *cd,
 		     char *mesg, int mlen)
 {
@@ -412,7 +504,11 @@ static int rsc_parse(struct cache_detail *cd,
 	int id;
 	int len, rv;
 	struct rsc rsci, *rscp = NULL;
+<<<<<<< HEAD
 	time_t expiry;
+=======
+	time64_t expiry;
+>>>>>>> upstream/android-13
 	int status = -EINVAL;
 	struct gss_api_mech *gm = NULL;
 
@@ -453,12 +549,20 @@ static int rsc_parse(struct cache_detail *cd,
 		 * treatment so are checked for validity here.)
 		 */
 		/* uid */
+<<<<<<< HEAD
 		rsci.cred.cr_uid = make_kuid(&init_user_ns, id);
+=======
+		rsci.cred.cr_uid = make_kuid(current_user_ns(), id);
+>>>>>>> upstream/android-13
 
 		/* gid */
 		if (get_int(&mesg, &id))
 			goto out;
+<<<<<<< HEAD
 		rsci.cred.cr_gid = make_kgid(&init_user_ns, id);
+=======
+		rsci.cred.cr_gid = make_kgid(current_user_ns(), id);
+>>>>>>> upstream/android-13
 
 		/* number of additional gid's */
 		if (get_int(&mesg, &N))
@@ -476,7 +580,11 @@ static int rsc_parse(struct cache_detail *cd,
 			kgid_t kgid;
 			if (get_int(&mesg, &id))
 				goto out;
+<<<<<<< HEAD
 			kgid = make_kgid(&init_user_ns, id);
+=======
+			kgid = make_kgid(current_user_ns(), id);
+>>>>>>> upstream/android-13
 			if (!gid_valid(kgid))
 				goto out;
 			rsci.cred.cr_group_info->gid[i] = kgid;
@@ -530,6 +638,10 @@ static const struct cache_detail rsc_cache_template = {
 	.hash_size	= RSC_HASHMAX,
 	.name		= "auth.rpcsec.context",
 	.cache_put	= rsc_put,
+<<<<<<< HEAD
+=======
+	.cache_upcall	= rsc_upcall,
+>>>>>>> upstream/android-13
 	.cache_parse	= rsc_parse,
 	.match		= rsc_match,
 	.init		= rsc_init,
@@ -542,7 +654,11 @@ static struct rsc *rsc_lookup(struct cache_detail *cd, struct rsc *item)
 	struct cache_head *ch;
 	int hash = rsc_hash(item);
 
+<<<<<<< HEAD
 	ch = sunrpc_cache_lookup(cd, &item->h, hash);
+=======
+	ch = sunrpc_cache_lookup_rcu(cd, &item->h, hash);
+>>>>>>> upstream/android-13
 	if (ch)
 		return container_of(ch, struct rsc, h);
 	else
@@ -581,16 +697,41 @@ gss_svc_searchbyctx(struct cache_detail *cd, struct xdr_netobj *handle)
 	return found;
 }
 
+<<<<<<< HEAD
 /* Implements sequence number algorithm as specified in RFC 2203. */
 static int
 gss_check_seq_num(struct rsc *rsci, int seq_num)
 {
 	struct gss_svc_seq_data *sd = &rsci->seqdata;
+=======
+/**
+ * gss_check_seq_num - GSS sequence number window check
+ * @rqstp: RPC Call to use when reporting errors
+ * @rsci: cached GSS context state (updated on return)
+ * @seq_num: sequence number to check
+ *
+ * Implements sequence number algorithm as specified in
+ * RFC 2203, Section 5.3.3.1. "Context Management".
+ *
+ * Return values:
+ *   %true: @rqstp's GSS sequence number is inside the window
+ *   %false: @rqstp's GSS sequence number is outside the window
+ */
+static bool gss_check_seq_num(const struct svc_rqst *rqstp, struct rsc *rsci,
+			      u32 seq_num)
+{
+	struct gss_svc_seq_data *sd = &rsci->seqdata;
+	bool result = false;
+>>>>>>> upstream/android-13
 
 	spin_lock(&sd->sd_lock);
 	if (seq_num > sd->sd_max) {
 		if (seq_num >= sd->sd_max + GSS_SEQ_WIN) {
+<<<<<<< HEAD
 			memset(sd->sd_win,0,sizeof(sd->sd_win));
+=======
+			memset(sd->sd_win, 0, sizeof(sd->sd_win));
+>>>>>>> upstream/android-13
 			sd->sd_max = seq_num;
 		} else while (sd->sd_max < seq_num) {
 			sd->sd_max++;
@@ -598,6 +739,7 @@ gss_check_seq_num(struct rsc *rsci, int seq_num)
 		}
 		__set_bit(seq_num % GSS_SEQ_WIN, sd->sd_win);
 		goto ok;
+<<<<<<< HEAD
 	} else if (seq_num <= sd->sd_max - GSS_SEQ_WIN) {
 		goto drop;
 	}
@@ -610,6 +752,28 @@ ok:
 drop:
 	spin_unlock(&sd->sd_lock);
 	return 0;
+=======
+	} else if (seq_num + GSS_SEQ_WIN <= sd->sd_max) {
+		goto toolow;
+	}
+	if (__test_and_set_bit(seq_num % GSS_SEQ_WIN, sd->sd_win))
+		goto alreadyseen;
+
+ok:
+	result = true;
+out:
+	spin_unlock(&sd->sd_lock);
+	return result;
+
+toolow:
+	trace_rpcgss_svc_seqno_low(rqstp, seq_num,
+				   sd->sd_max - GSS_SEQ_WIN,
+				   sd->sd_max);
+	goto out;
+alreadyseen:
+	trace_rpcgss_svc_seqno_seen(rqstp, seq_num);
+	goto out;
+>>>>>>> upstream/android-13
 }
 
 static inline u32 round_up_to_quad(u32 i)
@@ -654,11 +818,19 @@ svc_safe_putnetobj(struct kvec *resv, struct xdr_netobj *o)
 /*
  * Verify the checksum on the header and return SVC_OK on success.
  * Otherwise, return SVC_DROP (in the case of a bad sequence number)
+<<<<<<< HEAD
  * or return SVC_DENIED and indicate error in authp.
  */
 static int
 gss_verify_header(struct svc_rqst *rqstp, struct rsc *rsci,
 		  __be32 *rpcstart, struct rpc_gss_wire_cred *gc, __be32 *authp)
+=======
+ * or return SVC_DENIED and indicate error in rqstp->rq_auth_stat.
+ */
+static int
+gss_verify_header(struct svc_rqst *rqstp, struct rsc *rsci,
+		  __be32 *rpcstart, struct rpc_gss_wire_cred *gc)
+>>>>>>> upstream/android-13
 {
 	struct gss_ctx		*ctx_id = rsci->mechctx;
 	struct xdr_buf		rpchdr;
@@ -672,7 +844,11 @@ gss_verify_header(struct svc_rqst *rqstp, struct rsc *rsci,
 	iov.iov_len = (u8 *)argv->iov_base - (u8 *)rpcstart;
 	xdr_buf_from_iov(&iov, &rpchdr);
 
+<<<<<<< HEAD
 	*authp = rpc_autherr_badverf;
+=======
+	rqstp->rq_auth_stat = rpc_autherr_badverf;
+>>>>>>> upstream/android-13
 	if (argv->iov_len < 4)
 		return SVC_DENIED;
 	flavor = svc_getnl(argv);
@@ -684,11 +860,16 @@ gss_verify_header(struct svc_rqst *rqstp, struct rsc *rsci,
 	if (rqstp->rq_deferred) /* skip verification of revisited request */
 		return SVC_OK;
 	if (gss_verify_mic(ctx_id, &rpchdr, &checksum) != GSS_S_COMPLETE) {
+<<<<<<< HEAD
 		*authp = rpcsec_gsserr_credproblem;
+=======
+		rqstp->rq_auth_stat = rpcsec_gsserr_credproblem;
+>>>>>>> upstream/android-13
 		return SVC_DENIED;
 	}
 
 	if (gc->gc_seq > MAXSEQ) {
+<<<<<<< HEAD
 		dprintk("RPC:       svcauth_gss: discarding request with "
 				"large sequence number %d\n", gc->gc_seq);
 		*authp = rpcsec_gsserr_ctxproblem;
@@ -699,6 +880,14 @@ gss_verify_header(struct svc_rqst *rqstp, struct rsc *rsci,
 				"old sequence number %d\n", gc->gc_seq);
 		return SVC_DROP;
 	}
+=======
+		trace_rpcgss_svc_seqno_large(rqstp, gc->gc_seq);
+		rqstp->rq_auth_stat = rpcsec_gsserr_ctxproblem;
+		return SVC_DENIED;
+	}
+	if (!gss_check_seq_num(rqstp, rsci, gc->gc_seq))
+		return SVC_DROP;
+>>>>>>> upstream/android-13
 	return SVC_OK;
 }
 
@@ -836,11 +1025,21 @@ read_u32_from_xdr_buf(struct xdr_buf *buf, int base, u32 *obj)
 static int
 unwrap_integ_data(struct svc_rqst *rqstp, struct xdr_buf *buf, u32 seq, struct gss_ctx *ctx)
 {
+<<<<<<< HEAD
 	int stat = -EINVAL;
 	u32 integ_len, maj_stat;
 	struct xdr_netobj mic;
 	struct xdr_buf integ_buf;
 
+=======
+	u32 integ_len, rseqno, maj_stat;
+	int stat = -EINVAL;
+	struct xdr_netobj mic;
+	struct xdr_buf integ_buf;
+
+	mic.data = NULL;
+
+>>>>>>> upstream/android-13
 	/* NFS READ normally uses splice to send data in-place. However
 	 * the data in cache can change after the reply's MIC is computed
 	 * but before the RPC reply is sent. To prevent the client from
@@ -855,6 +1054,7 @@ unwrap_integ_data(struct svc_rqst *rqstp, struct xdr_buf *buf, u32 seq, struct g
 
 	integ_len = svc_getnl(&buf->head[0]);
 	if (integ_len & 3)
+<<<<<<< HEAD
 		return stat;
 	if (integ_len > buf->len)
 		return stat;
@@ -877,12 +1077,49 @@ unwrap_integ_data(struct svc_rqst *rqstp, struct xdr_buf *buf, u32 seq, struct g
 		goto out;
 	if (svc_getnl(&buf->head[0]) != seq)
 		goto out;
+=======
+		goto unwrap_failed;
+	if (integ_len > buf->len)
+		goto unwrap_failed;
+	if (xdr_buf_subsegment(buf, &integ_buf, 0, integ_len))
+		goto unwrap_failed;
+
+	/* copy out mic... */
+	if (read_u32_from_xdr_buf(buf, integ_len, &mic.len))
+		goto unwrap_failed;
+	if (mic.len > RPC_MAX_AUTH_SIZE)
+		goto unwrap_failed;
+	mic.data = kmalloc(mic.len, GFP_KERNEL);
+	if (!mic.data)
+		goto unwrap_failed;
+	if (read_bytes_from_xdr_buf(buf, integ_len + 4, mic.data, mic.len))
+		goto unwrap_failed;
+	maj_stat = gss_verify_mic(ctx, &integ_buf, &mic);
+	if (maj_stat != GSS_S_COMPLETE)
+		goto bad_mic;
+	rseqno = svc_getnl(&buf->head[0]);
+	if (rseqno != seq)
+		goto bad_seqno;
+>>>>>>> upstream/android-13
 	/* trim off the mic and padding at the end before returning */
 	xdr_buf_trim(buf, round_up_to_quad(mic.len) + 4);
 	stat = 0;
 out:
 	kfree(mic.data);
 	return stat;
+<<<<<<< HEAD
+=======
+
+unwrap_failed:
+	trace_rpcgss_svc_unwrap_failed(rqstp);
+	goto out;
+bad_seqno:
+	trace_rpcgss_svc_seqno_bad(rqstp, seq, rseqno);
+	goto out;
+bad_mic:
+	trace_rpcgss_svc_mic(rqstp, maj_stat);
+	goto out;
+>>>>>>> upstream/android-13
 }
 
 static inline int
@@ -906,7 +1143,12 @@ static int
 unwrap_priv_data(struct svc_rqst *rqstp, struct xdr_buf *buf, u32 seq, struct gss_ctx *ctx)
 {
 	u32 priv_len, maj_stat;
+<<<<<<< HEAD
 	int pad, saved_len, remaining_len, offset;
+=======
+	int pad, remaining_len, offset;
+	u32 rseqno;
+>>>>>>> upstream/android-13
 
 	clear_bit(RQ_SPLICE_OK, &rqstp->rq_flags);
 
@@ -921,11 +1163,16 @@ unwrap_priv_data(struct svc_rqst *rqstp, struct xdr_buf *buf, u32 seq, struct gs
 	 * not yet read from the head, so these two values are different: */
 	remaining_len = total_buf_len(buf);
 	if (priv_len > remaining_len)
+<<<<<<< HEAD
 		return -EINVAL;
+=======
+		goto unwrap_failed;
+>>>>>>> upstream/android-13
 	pad = remaining_len - priv_len;
 	buf->len -= pad;
 	fix_priv_head(buf, pad);
 
+<<<<<<< HEAD
 	/* Maybe it would be better to give gss_unwrap a length parameter: */
 	saved_len = buf->len;
 	buf->len = priv_len;
@@ -933,24 +1180,51 @@ unwrap_priv_data(struct svc_rqst *rqstp, struct xdr_buf *buf, u32 seq, struct gs
 	pad = priv_len - buf->len;
 	buf->len = saved_len;
 	buf->len -= pad;
+=======
+	maj_stat = gss_unwrap(ctx, 0, priv_len, buf);
+	pad = priv_len - buf->len;
+>>>>>>> upstream/android-13
 	/* The upper layers assume the buffer is aligned on 4-byte boundaries.
 	 * In the krb5p case, at least, the data ends up offset, so we need to
 	 * move it around. */
 	/* XXX: This is very inefficient.  It would be better to either do
 	 * this while we encrypt, or maybe in the receive code, if we can peak
 	 * ahead and work out the service and mechanism there. */
+<<<<<<< HEAD
 	offset = buf->head[0].iov_len % 4;
+=======
+	offset = xdr_pad_size(buf->head[0].iov_len);
+>>>>>>> upstream/android-13
 	if (offset) {
 		buf->buflen = RPCSVC_MAXPAYLOAD;
 		xdr_shift_buf(buf, offset);
 		fix_priv_head(buf, pad);
 	}
 	if (maj_stat != GSS_S_COMPLETE)
+<<<<<<< HEAD
 		return -EINVAL;
 out_seq:
 	if (svc_getnl(&buf->head[0]) != seq)
 		return -EINVAL;
 	return 0;
+=======
+		goto bad_unwrap;
+out_seq:
+	rseqno = svc_getnl(&buf->head[0]);
+	if (rseqno != seq)
+		goto bad_seqno;
+	return 0;
+
+unwrap_failed:
+	trace_rpcgss_svc_unwrap_failed(rqstp);
+	return -EINVAL;
+bad_seqno:
+	trace_rpcgss_svc_seqno_bad(rqstp, seq, rseqno);
+	return -EINVAL;
+bad_unwrap:
+	trace_rpcgss_svc_unwrap(rqstp, maj_stat);
+	return -EINVAL;
+>>>>>>> upstream/android-13
 }
 
 struct gss_svc_data {
@@ -970,6 +1244,11 @@ svcauth_gss_set_client(struct svc_rqst *rqstp)
 	struct rpc_gss_wire_cred *gc = &svcdata->clcred;
 	int stat;
 
+<<<<<<< HEAD
+=======
+	rqstp->rq_auth_stat = rpc_autherr_badcred;
+
+>>>>>>> upstream/android-13
 	/*
 	 * A gss export can be specified either by:
 	 * 	export	*(sec=krb5,rw)
@@ -985,6 +1264,11 @@ svcauth_gss_set_client(struct svc_rqst *rqstp)
 	stat = svcauth_unix_set_client(rqstp);
 	if (stat == SVC_DROP || stat == SVC_CLOSE)
 		return stat;
+<<<<<<< HEAD
+=======
+
+	rqstp->rq_auth_stat = rpc_auth_ok;
+>>>>>>> upstream/android-13
 	return SVC_OK;
 }
 
@@ -1074,7 +1358,11 @@ static void gss_free_in_token_pages(struct gssp_in_token *in_token)
 }
 
 static int gss_read_proxy_verf(struct svc_rqst *rqstp,
+<<<<<<< HEAD
 			       struct rpc_gss_wire_cred *gc, __be32 *authp,
+=======
+			       struct rpc_gss_wire_cred *gc,
+>>>>>>> upstream/android-13
 			       struct xdr_netobj *in_handle,
 			       struct gssp_in_token *in_token)
 {
@@ -1083,7 +1371,11 @@ static int gss_read_proxy_verf(struct svc_rqst *rqstp,
 	int pages, i, res, pgto, pgfrom;
 	size_t inlen, to_offs, from_offs;
 
+<<<<<<< HEAD
 	res = gss_read_common_verf(gc, argv, authp, in_handle);
+=======
+	res = gss_read_common_verf(gc, argv, &rqstp->rq_auth_stat, in_handle);
+>>>>>>> upstream/android-13
 	if (res)
 		return res;
 
@@ -1159,7 +1451,11 @@ gss_write_resv(struct kvec *resv, size_t size_limit,
  * Otherwise, drop the request pending an answer to the upcall.
  */
 static int svcauth_gss_legacy_init(struct svc_rqst *rqstp,
+<<<<<<< HEAD
 			struct rpc_gss_wire_cred *gc, __be32 *authp)
+=======
+				   struct rpc_gss_wire_cred *gc)
+>>>>>>> upstream/android-13
 {
 	struct kvec *argv = &rqstp->rq_arg.head[0];
 	struct kvec *resv = &rqstp->rq_res.head[0];
@@ -1168,7 +1464,11 @@ static int svcauth_gss_legacy_init(struct svc_rqst *rqstp,
 	struct sunrpc_net *sn = net_generic(SVC_NET(rqstp), sunrpc_net_id);
 
 	memset(&rsikey, 0, sizeof(rsikey));
+<<<<<<< HEAD
 	ret = gss_read_verf(gc, argv, authp,
+=======
+	ret = gss_read_verf(gc, argv, &rqstp->rq_auth_stat,
+>>>>>>> upstream/android-13
 			    &rsikey.in_handle, &rsikey.in_token);
 	if (ret)
 		return ret;
@@ -1206,8 +1506,13 @@ static int gss_proxy_save_rsc(struct cache_detail *cd,
 	static atomic64_t ctxhctr;
 	long long ctxh;
 	struct gss_api_mech *gm = NULL;
+<<<<<<< HEAD
 	time_t expiry;
 	int status = -EINVAL;
+=======
+	time64_t expiry;
+	int status;
+>>>>>>> upstream/android-13
 
 	memset(&rsci, 0, sizeof(rsci));
 	/* context handle */
@@ -1230,7 +1535,10 @@ static int gss_proxy_save_rsc(struct cache_detail *cd,
 	if (!ud->found_creds) {
 		/* userspace seem buggy, we should always get at least a
 		 * mapping to nobody */
+<<<<<<< HEAD
 		dprintk("RPC:       No creds found!\n");
+=======
+>>>>>>> upstream/android-13
 		goto out;
 	} else {
 		struct timespec64 boot;
@@ -1272,7 +1580,11 @@ out:
 }
 
 static int svcauth_gss_proxy_init(struct svc_rqst *rqstp,
+<<<<<<< HEAD
 			struct rpc_gss_wire_cred *gc, __be32 *authp)
+=======
+				  struct rpc_gss_wire_cred *gc)
+>>>>>>> upstream/android-13
 {
 	struct kvec *resv = &rqstp->rq_res.head[0];
 	struct xdr_netobj cli_handle;
@@ -1284,8 +1596,12 @@ static int svcauth_gss_proxy_init(struct svc_rqst *rqstp,
 	struct sunrpc_net *sn = net_generic(net, sunrpc_net_id);
 
 	memset(&ud, 0, sizeof(ud));
+<<<<<<< HEAD
 	ret = gss_read_proxy_verf(rqstp, gc, authp,
 				  &ud.in_handle, &ud.in_token);
+=======
+	ret = gss_read_proxy_verf(rqstp, gc, &ud.in_handle, &ud.in_token);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -1296,9 +1612,13 @@ static int svcauth_gss_proxy_init(struct svc_rqst *rqstp,
 	if (status)
 		goto out;
 
+<<<<<<< HEAD
 	dprintk("RPC:       svcauth_gss: gss major status = %d "
 			"minor status = %d\n",
 			ud.major_status, ud.minor_status);
+=======
+	trace_rpcgss_svc_accept_upcall(rqstp, ud.major_status, ud.minor_status);
+>>>>>>> upstream/android-13
 
 	switch (ud.major_status) {
 	case GSS_S_CONTINUE_NEEDED:
@@ -1306,21 +1626,30 @@ static int svcauth_gss_proxy_init(struct svc_rqst *rqstp,
 		break;
 	case GSS_S_COMPLETE:
 		status = gss_proxy_save_rsc(sn->rsc_cache, &ud, &handle);
+<<<<<<< HEAD
 		if (status) {
 			pr_info("%s: gss_proxy_save_rsc failed (%d)\n",
 				__func__, status);
 			goto out;
 		}
+=======
+		if (status)
+			goto out;
+>>>>>>> upstream/android-13
 		cli_handle.data = (u8 *)&handle;
 		cli_handle.len = sizeof(handle);
 		break;
 	default:
+<<<<<<< HEAD
 		ret = SVC_CLOSE;
+=======
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
 	/* Got an answer to the upcall; use it: */
 	if (gss_write_init_verf(sn->rsc_cache, rqstp,
+<<<<<<< HEAD
 				&cli_handle, &ud.major_status)) {
 		pr_info("%s: gss_write_init_verf failed\n", __func__);
 		goto out;
@@ -1331,6 +1660,14 @@ static int svcauth_gss_proxy_init(struct svc_rqst *rqstp,
 		pr_info("%s: gss_write_resv failed\n", __func__);
 		goto out;
 	}
+=======
+				&cli_handle, &ud.major_status))
+		goto out;
+	if (gss_write_resv(resv, PAGE_SIZE,
+			   &cli_handle, &ud.out_token,
+			   ud.major_status, ud.minor_status))
+		goto out;
+>>>>>>> upstream/android-13
 
 	ret = SVC_COMPLETE;
 out:
@@ -1418,10 +1755,17 @@ static ssize_t read_gssp(struct file *file, char __user *buf,
 	return len;
 }
 
+<<<<<<< HEAD
 static const struct file_operations use_gss_proxy_ops = {
 	.open = nonseekable_open,
 	.write = write_gssp,
 	.read = read_gssp,
+=======
+static const struct proc_ops use_gss_proxy_proc_ops = {
+	.proc_open	= nonseekable_open,
+	.proc_write	= write_gssp,
+	.proc_read	= read_gssp,
+>>>>>>> upstream/android-13
 };
 
 static int create_use_gss_proxy_proc_entry(struct net *net)
@@ -1432,7 +1776,11 @@ static int create_use_gss_proxy_proc_entry(struct net *net)
 	sn->use_gss_proxy = -1;
 	*p = proc_create_data("use-gss-proxy", S_IFREG | 0600,
 			      sn->proc_net_rpc,
+<<<<<<< HEAD
 			      &use_gss_proxy_ops, net);
+=======
+			      &use_gss_proxy_proc_ops, net);
+>>>>>>> upstream/android-13
 	if (!*p)
 		return -ENOMEM;
 	init_gssp_clnt(sn);
@@ -1468,7 +1816,11 @@ static void destroy_use_gss_proxy_proc_entry(struct net *net) {}
  * response here and return SVC_COMPLETE.
  */
 static int
+<<<<<<< HEAD
 svcauth_gss_accept(struct svc_rqst *rqstp, __be32 *authp)
+=======
+svcauth_gss_accept(struct svc_rqst *rqstp)
+>>>>>>> upstream/android-13
 {
 	struct kvec	*argv = &rqstp->rq_arg.head[0];
 	struct kvec	*resv = &rqstp->rq_res.head[0];
@@ -1481,10 +1833,14 @@ svcauth_gss_accept(struct svc_rqst *rqstp, __be32 *authp)
 	int		ret;
 	struct sunrpc_net *sn = net_generic(SVC_NET(rqstp), sunrpc_net_id);
 
+<<<<<<< HEAD
 	dprintk("RPC:       svcauth_gss: argv->iov_len = %zd\n",
 			argv->iov_len);
 
 	*authp = rpc_autherr_badcred;
+=======
+	rqstp->rq_auth_stat = rpc_autherr_badcred;
+>>>>>>> upstream/android-13
 	if (!svcdata)
 		svcdata = kmalloc(sizeof(*svcdata), GFP_KERNEL);
 	if (!svcdata)
@@ -1521,11 +1877,16 @@ svcauth_gss_accept(struct svc_rqst *rqstp, __be32 *authp)
 	if ((gc->gc_proc != RPC_GSS_PROC_DATA) && (rqstp->rq_proc != 0))
 		goto auth_err;
 
+<<<<<<< HEAD
 	*authp = rpc_autherr_badverf;
+=======
+	rqstp->rq_auth_stat = rpc_autherr_badverf;
+>>>>>>> upstream/android-13
 	switch (gc->gc_proc) {
 	case RPC_GSS_PROC_INIT:
 	case RPC_GSS_PROC_CONTINUE_INIT:
 		if (use_gss_proxy(SVC_NET(rqstp)))
+<<<<<<< HEAD
 			return svcauth_gss_proxy_init(rqstp, gc, authp);
 		else
 			return svcauth_gss_legacy_init(rqstp, gc, authp);
@@ -1537,6 +1898,19 @@ svcauth_gss_accept(struct svc_rqst *rqstp, __be32 *authp)
 		if (!rsci)
 			goto auth_err;
 		switch (gss_verify_header(rqstp, rsci, rpcstart, gc, authp)) {
+=======
+			return svcauth_gss_proxy_init(rqstp, gc);
+		else
+			return svcauth_gss_legacy_init(rqstp, gc);
+	case RPC_GSS_PROC_DATA:
+	case RPC_GSS_PROC_DESTROY:
+		/* Look up the context, and check the verifier: */
+		rqstp->rq_auth_stat = rpcsec_gsserr_credproblem;
+		rsci = gss_svc_searchbyctx(sn->rsc_cache, &gc->gc_ctx);
+		if (!rsci)
+			goto auth_err;
+		switch (gss_verify_header(rqstp, rsci, rpcstart, gc)) {
+>>>>>>> upstream/android-13
 		case SVC_OK:
 			break;
 		case SVC_DENIED:
@@ -1546,7 +1920,11 @@ svcauth_gss_accept(struct svc_rqst *rqstp, __be32 *authp)
 		}
 		break;
 	default:
+<<<<<<< HEAD
 		*authp = rpc_autherr_rejectedcred;
+=======
+		rqstp->rq_auth_stat = rpc_autherr_rejectedcred;
+>>>>>>> upstream/android-13
 		goto auth_err;
 	}
 
@@ -1562,13 +1940,21 @@ svcauth_gss_accept(struct svc_rqst *rqstp, __be32 *authp)
 		svc_putnl(resv, RPC_SUCCESS);
 		goto complete;
 	case RPC_GSS_PROC_DATA:
+<<<<<<< HEAD
 		*authp = rpcsec_gsserr_ctxproblem;
+=======
+		rqstp->rq_auth_stat = rpcsec_gsserr_ctxproblem;
+>>>>>>> upstream/android-13
 		svcdata->verf_start = resv->iov_base + resv->iov_len;
 		if (gss_write_verf(rqstp, rsci->mechctx, gc->gc_seq))
 			goto auth_err;
 		rqstp->rq_cred = rsci->cred;
 		get_group_info(rsci->cred.cr_group_info);
+<<<<<<< HEAD
 		*authp = rpc_autherr_badcred;
+=======
+		rqstp->rq_auth_stat = rpc_autherr_badcred;
+>>>>>>> upstream/android-13
 		switch (gc->gc_svc) {
 		case RPC_GSS_SVC_NONE:
 			break;
@@ -1600,6 +1986,10 @@ svcauth_gss_accept(struct svc_rqst *rqstp, __be32 *authp)
 					GSS_C_QOP_DEFAULT,
 					gc->gc_svc);
 		ret = SVC_OK;
+<<<<<<< HEAD
+=======
+		trace_rpcgss_svc_authenticate(rqstp, gc);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 garbage_args:
@@ -1666,7 +2056,12 @@ svcauth_gss_wrap_resp_integ(struct svc_rqst *rqstp)
 		goto out;
 	integ_offset = (u8 *)(p + 1) - (u8 *)resbuf->head[0].iov_base;
 	integ_len = resbuf->len - integ_offset;
+<<<<<<< HEAD
 	BUG_ON(integ_len % 4);
+=======
+	if (integ_len & 3)
+		goto out;
+>>>>>>> upstream/android-13
 	*p++ = htonl(integ_len);
 	*p++ = htonl(gc->gc_seq);
 	if (xdr_buf_subsegment(resbuf, &integ_buf, integ_offset, integ_len)) {
@@ -1690,7 +2085,12 @@ svcauth_gss_wrap_resp_integ(struct svc_rqst *rqstp)
 	resv->iov_len += XDR_QUADLEN(mic.len) << 2;
 	/* not strictly required: */
 	resbuf->len += XDR_QUADLEN(mic.len) << 2;
+<<<<<<< HEAD
 	BUG_ON(resv->iov_len > PAGE_SIZE);
+=======
+	if (resv->iov_len > PAGE_SIZE)
+		goto out_err;
+>>>>>>> upstream/android-13
 out:
 	stat = 0;
 out_err:
@@ -1726,9 +2126,17 @@ svcauth_gss_wrap_resp_priv(struct svc_rqst *rqstp)
 	 * both the head and tail.
 	 */
 	if (resbuf->tail[0].iov_base) {
+<<<<<<< HEAD
 		BUG_ON(resbuf->tail[0].iov_base >= resbuf->head[0].iov_base
 							+ PAGE_SIZE);
 		BUG_ON(resbuf->tail[0].iov_base < resbuf->head[0].iov_base);
+=======
+		if (resbuf->tail[0].iov_base >=
+			resbuf->head[0].iov_base + PAGE_SIZE)
+			return -EINVAL;
+		if (resbuf->tail[0].iov_base < resbuf->head[0].iov_base)
+			return -EINVAL;
+>>>>>>> upstream/android-13
 		if (resbuf->tail[0].iov_len + resbuf->head[0].iov_len
 				+ 2 * RPC_MAX_AUTH_SIZE > PAGE_SIZE)
 			return -ENOMEM;
@@ -1822,14 +2230,29 @@ out_err:
 }
 
 static void
+<<<<<<< HEAD
 svcauth_gss_domain_release(struct auth_domain *dom)
 {
+=======
+svcauth_gss_domain_release_rcu(struct rcu_head *head)
+{
+	struct auth_domain *dom = container_of(head, struct auth_domain, rcu_head);
+>>>>>>> upstream/android-13
 	struct gss_domain *gd = container_of(dom, struct gss_domain, h);
 
 	kfree(dom->name);
 	kfree(gd);
 }
 
+<<<<<<< HEAD
+=======
+static void
+svcauth_gss_domain_release(struct auth_domain *dom)
+{
+	call_rcu(&dom->rcu_head, svcauth_gss_domain_release_rcu);
+}
+
+>>>>>>> upstream/android-13
 static struct auth_ops svcauthops_gss = {
 	.name		= "rpcsec_gss",
 	.owner		= THIS_MODULE,
@@ -1914,7 +2337,11 @@ gss_svc_init_net(struct net *net)
 		goto out2;
 	return 0;
 out2:
+<<<<<<< HEAD
 	destroy_use_gss_proxy_proc_entry(net);
+=======
+	rsi_cache_destroy_net(net);
+>>>>>>> upstream/android-13
 out1:
 	rsc_cache_destroy_net(net);
 	return rv;

@@ -1,8 +1,15 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) ST-Ericsson SA 2010
  *
  * Author: Rabin Vincent <rabin.vincent@stericsson.com> for ST-Ericsson
+<<<<<<< HEAD
  * License terms: GNU General Public License (GPL) version 2
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -146,9 +153,14 @@ static const char * __init ux500_get_revision(void)
 	return kasprintf(GFP_KERNEL, "%s", "Unknown");
 }
 
+<<<<<<< HEAD
 static ssize_t ux500_get_process(struct device *dev,
 					struct device_attribute *attr,
 					char *buf)
+=======
+static ssize_t
+process_show(struct device *dev, struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	if (dbx500_id.process == 0x00)
 		return sprintf(buf, "Standard\n");
@@ -156,6 +168,18 @@ static ssize_t ux500_get_process(struct device *dev,
 	return sprintf(buf, "%02xnm\n", dbx500_id.process);
 }
 
+<<<<<<< HEAD
+=======
+static DEVICE_ATTR_RO(process);
+
+static struct attribute *ux500_soc_attrs[] = {
+	&dev_attr_process.attr,
+	NULL
+};
+
+ATTRIBUTE_GROUPS(ux500_soc);
+
+>>>>>>> upstream/android-13
 static const char *db8500_read_soc_id(struct device_node *backupram)
 {
 	void __iomem *base;
@@ -184,6 +208,7 @@ static void __init soc_info_populate(struct soc_device_attribute *soc_dev_attr,
 	soc_dev_attr->machine  = ux500_get_machine();
 	soc_dev_attr->family   = ux500_get_family();
 	soc_dev_attr->revision = ux500_get_revision();
+<<<<<<< HEAD
 }
 
 static const struct device_attribute ux500_soc_attr =
@@ -192,6 +217,13 @@ static const struct device_attribute ux500_soc_attr =
 static int __init ux500_soc_device_init(void)
 {
 	struct device *parent;
+=======
+	soc_dev_attr->custom_attr_group = ux500_soc_groups[0];
+}
+
+static int __init ux500_soc_device_init(void)
+{
+>>>>>>> upstream/android-13
 	struct soc_device *soc_dev;
 	struct soc_device_attribute *soc_dev_attr;
 	struct device_node *backupram;
@@ -203,10 +235,20 @@ static int __init ux500_soc_device_init(void)
 	ux500_setup_id();
 
 	soc_dev_attr = kzalloc(sizeof(*soc_dev_attr), GFP_KERNEL);
+<<<<<<< HEAD
 	if (!soc_dev_attr)
 		return -ENOMEM;
 
 	soc_info_populate(soc_dev_attr, backupram);
+=======
+	if (!soc_dev_attr) {
+		of_node_put(backupram);
+		return -ENOMEM;
+	}
+
+	soc_info_populate(soc_dev_attr, backupram);
+	of_node_put(backupram);
+>>>>>>> upstream/android-13
 
 	soc_dev = soc_device_register(soc_dev_attr);
 	if (IS_ERR(soc_dev)) {
@@ -214,9 +256,12 @@ static int __init ux500_soc_device_init(void)
 		return PTR_ERR(soc_dev);
 	}
 
+<<<<<<< HEAD
 	parent = soc_device_to_device(soc_dev);
 	device_create_file(parent, &ux500_soc_attr);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 subsys_initcall(ux500_soc_device_init);

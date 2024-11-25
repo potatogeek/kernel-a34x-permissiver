@@ -1,12 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /* z0194a.h Sharp z0194a tuner support
 *
 * Copyright (C) 2008 Igor M. Liplianin (liplianin@me.by)
 *
+<<<<<<< HEAD
 *	This program is free software; you can redistribute it and/or modify it
 *	under the terms of the GNU General Public License as published by the
 *	Free Software Foundation, version 2.
 *
 * see Documentation/media/dvb-drivers/dvb-usb.rst for more information
+=======
+* see Documentation/driver-api/media/drivers/dvb-usb.rst for more information
+>>>>>>> upstream/android-13
 */
 
 #ifndef Z0194A

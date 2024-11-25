@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * APM emulation for PMU-based machines
  *
  * Copyright 2001 Benjamin Herrenschmidt (benh@kernel.crashing.org)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -14,6 +19,8 @@
  * General Public License for more details.
  *
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>

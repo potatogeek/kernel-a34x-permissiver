@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * inet fragments management
  *
@@ -6,6 +7,12 @@
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * inet fragments management
+ *
+>>>>>>> upstream/android-13
  * 		Authors:	Pavel Emelyanov <xemul@openvz.org>
  *				Started as consolidation of ipv4/ip_fragment.c,
  *				ipv6/reassembly. and ipv6 nf conntrack reassembly
@@ -110,20 +117,33 @@ int inet_frags_init(struct inet_frags *f)
 	if (!f->frags_cachep)
 		return -ENOMEM;
 
+<<<<<<< HEAD
+=======
+	refcount_set(&f->refcnt, 1);
+	init_completion(&f->completion);
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL(inet_frags_init);
 
 void inet_frags_fini(struct inet_frags *f)
 {
+<<<<<<< HEAD
 	/* We must wait that all inet_frag_destroy_rcu() have completed. */
 	rcu_barrier();
+=======
+	if (refcount_dec_and_test(&f->refcnt))
+		complete(&f->completion);
+
+	wait_for_completion(&f->completion);
+>>>>>>> upstream/android-13
 
 	kmem_cache_destroy(f->frags_cachep);
 	f->frags_cachep = NULL;
 }
 EXPORT_SYMBOL(inet_frags_fini);
 
+<<<<<<< HEAD
 static void inet_frags_free_cb(void *ptr, void *arg)
 {
 	struct inet_frag_queue *fq = ptr;
@@ -134,10 +154,20 @@ static void inet_frags_free_cb(void *ptr, void *arg)
 	 */
 	if (!del_timer(&fq->timer))
 		return;
+=======
+/* called from rhashtable_free_and_destroy() at netns_frags dismantle */
+static void inet_frags_free_cb(void *ptr, void *arg)
+{
+	struct inet_frag_queue *fq = ptr;
+	int count;
+
+	count = del_timer_sync(&fq->timer) ? 1 : 0;
+>>>>>>> upstream/android-13
 
 	spin_lock_bh(&fq->lock);
 	if (!(fq->flags & INET_FRAG_COMPLETE)) {
 		fq->flags |= INET_FRAG_COMPLETE;
+<<<<<<< HEAD
 		refcount_dec(&fq->refcnt);
 	}
 	spin_unlock_bh(&fq->lock);
@@ -152,6 +182,94 @@ void inet_frags_exit_net(struct netns_frags *nf)
 	rhashtable_free_and_destroy(&nf->rhashtable, inet_frags_free_cb, NULL);
 }
 EXPORT_SYMBOL(inet_frags_exit_net);
+=======
+		count++;
+	} else if (fq->flags & INET_FRAG_HASH_DEAD) {
+		count++;
+	}
+	spin_unlock_bh(&fq->lock);
+
+	if (refcount_sub_and_test(count, &fq->refcnt))
+		inet_frag_destroy(fq);
+}
+
+static LLIST_HEAD(fqdir_free_list);
+
+static void fqdir_free_fn(struct work_struct *work)
+{
+	struct llist_node *kill_list;
+	struct fqdir *fqdir, *tmp;
+	struct inet_frags *f;
+
+	/* Atomically snapshot the list of fqdirs to free */
+	kill_list = llist_del_all(&fqdir_free_list);
+
+	/* We need to make sure all ongoing call_rcu(..., inet_frag_destroy_rcu)
+	 * have completed, since they need to dereference fqdir.
+	 * Would it not be nice to have kfree_rcu_barrier() ? :)
+	 */
+	rcu_barrier();
+
+	llist_for_each_entry_safe(fqdir, tmp, kill_list, free_list) {
+		f = fqdir->f;
+		if (refcount_dec_and_test(&f->refcnt))
+			complete(&f->completion);
+
+		kfree(fqdir);
+	}
+}
+
+static DECLARE_WORK(fqdir_free_work, fqdir_free_fn);
+
+static void fqdir_work_fn(struct work_struct *work)
+{
+	struct fqdir *fqdir = container_of(work, struct fqdir, destroy_work);
+
+	rhashtable_free_and_destroy(&fqdir->rhashtable, inet_frags_free_cb, NULL);
+
+	if (llist_add(&fqdir->free_list, &fqdir_free_list))
+		queue_work(system_wq, &fqdir_free_work);
+}
+
+int fqdir_init(struct fqdir **fqdirp, struct inet_frags *f, struct net *net)
+{
+	struct fqdir *fqdir = kzalloc(sizeof(*fqdir), GFP_KERNEL);
+	int res;
+
+	if (!fqdir)
+		return -ENOMEM;
+	fqdir->f = f;
+	fqdir->net = net;
+	res = rhashtable_init(&fqdir->rhashtable, &fqdir->f->rhash_params);
+	if (res < 0) {
+		kfree(fqdir);
+		return res;
+	}
+	refcount_inc(&f->refcnt);
+	*fqdirp = fqdir;
+	return 0;
+}
+EXPORT_SYMBOL(fqdir_init);
+
+static struct workqueue_struct *inet_frag_wq;
+
+static int __init inet_frag_wq_init(void)
+{
+	inet_frag_wq = create_workqueue("inet_frag_wq");
+	if (!inet_frag_wq)
+		panic("Could not create inet frag workq");
+	return 0;
+}
+
+pure_initcall(inet_frag_wq_init);
+
+void fqdir_exit(struct fqdir *fqdir)
+{
+	INIT_WORK(&fqdir->destroy_work, fqdir_work_fn);
+	queue_work(inet_frag_wq, &fqdir->destroy_work);
+}
+EXPORT_SYMBOL(fqdir_exit);
+>>>>>>> upstream/android-13
 
 void inet_frag_kill(struct inet_frag_queue *fq)
 {
@@ -159,11 +277,31 @@ void inet_frag_kill(struct inet_frag_queue *fq)
 		refcount_dec(&fq->refcnt);
 
 	if (!(fq->flags & INET_FRAG_COMPLETE)) {
+<<<<<<< HEAD
 		struct netns_frags *nf = fq->net;
 
 		fq->flags |= INET_FRAG_COMPLETE;
 		rhashtable_remove_fast(&nf->rhashtable, &fq->node, nf->f->rhash_params);
 		refcount_dec(&fq->refcnt);
+=======
+		struct fqdir *fqdir = fq->fqdir;
+
+		fq->flags |= INET_FRAG_COMPLETE;
+		rcu_read_lock();
+		/* The RCU read lock provides a memory barrier
+		 * guaranteeing that if fqdir->dead is false then
+		 * the hash table destruction will not start until
+		 * after we unlock.  Paired with fqdir_pre_exit().
+		 */
+		if (!READ_ONCE(fqdir->dead)) {
+			rhashtable_remove_fast(&fqdir->rhashtable, &fq->node,
+					       fqdir->f->rhash_params);
+			refcount_dec(&fq->refcnt);
+		} else {
+			fq->flags |= INET_FRAG_HASH_DEAD;
+		}
+		rcu_read_unlock();
+>>>>>>> upstream/android-13
 	}
 }
 EXPORT_SYMBOL(inet_frag_kill);
@@ -172,7 +310,11 @@ static void inet_frag_destroy_rcu(struct rcu_head *head)
 {
 	struct inet_frag_queue *q = container_of(head, struct inet_frag_queue,
 						 rcu);
+<<<<<<< HEAD
 	struct inet_frags *f = q->net->f;
+=======
+	struct inet_frags *f = q->fqdir->f;
+>>>>>>> upstream/android-13
 
 	if (f->destructor)
 		f->destructor(q);
@@ -203,8 +345,12 @@ EXPORT_SYMBOL(inet_frag_rbtree_purge);
 
 void inet_frag_destroy(struct inet_frag_queue *q)
 {
+<<<<<<< HEAD
 	struct sk_buff *fp;
 	struct netns_frags *nf;
+=======
+	struct fqdir *fqdir;
+>>>>>>> upstream/android-13
 	unsigned int sum, sum_truesize = 0;
 	struct inet_frags *f;
 
@@ -212,6 +358,7 @@ void inet_frag_destroy(struct inet_frag_queue *q)
 	WARN_ON(del_timer(&q->timer) != 0);
 
 	/* Release all fragment data. */
+<<<<<<< HEAD
 	fp = q->fragments;
 	nf = q->net;
 	f = nf->f;
@@ -226,15 +373,28 @@ void inet_frag_destroy(struct inet_frag_queue *q)
 	} else {
 		sum_truesize = inet_frag_rbtree_purge(&q->rb_fragments);
 	}
+=======
+	fqdir = q->fqdir;
+	f = fqdir->f;
+	sum_truesize = inet_frag_rbtree_purge(&q->rb_fragments);
+>>>>>>> upstream/android-13
 	sum = sum_truesize + f->qsize;
 
 	call_rcu(&q->rcu, inet_frag_destroy_rcu);
 
+<<<<<<< HEAD
 	sub_frag_mem_limit(nf, sum);
 }
 EXPORT_SYMBOL(inet_frag_destroy);
 
 static struct inet_frag_queue *inet_frag_alloc(struct netns_frags *nf,
+=======
+	sub_frag_mem_limit(fqdir, sum);
+}
+EXPORT_SYMBOL(inet_frag_destroy);
+
+static struct inet_frag_queue *inet_frag_alloc(struct fqdir *fqdir,
+>>>>>>> upstream/android-13
 					       struct inet_frags *f,
 					       void *arg)
 {
@@ -244,9 +404,15 @@ static struct inet_frag_queue *inet_frag_alloc(struct netns_frags *nf,
 	if (!q)
 		return NULL;
 
+<<<<<<< HEAD
 	q->net = nf;
 	f->constructor(q, arg);
 	add_frag_mem_limit(nf, f->qsize);
+=======
+	q->fqdir = fqdir;
+	f->constructor(q, arg);
+	add_frag_mem_limit(fqdir, f->qsize);
+>>>>>>> upstream/android-13
 
 	timer_setup(&q->timer, f->frag_expire, 0);
 	spin_lock_init(&q->lock);
@@ -255,6 +421,7 @@ static struct inet_frag_queue *inet_frag_alloc(struct netns_frags *nf,
 	return q;
 }
 
+<<<<<<< HEAD
 static struct inet_frag_queue *inet_frag_create(struct netns_frags *nf,
 						void *arg,
 						struct inet_frag_queue **prev)
@@ -263,13 +430,29 @@ static struct inet_frag_queue *inet_frag_create(struct netns_frags *nf,
 	struct inet_frag_queue *q;
 
 	q = inet_frag_alloc(nf, f, arg);
+=======
+static struct inet_frag_queue *inet_frag_create(struct fqdir *fqdir,
+						void *arg,
+						struct inet_frag_queue **prev)
+{
+	struct inet_frags *f = fqdir->f;
+	struct inet_frag_queue *q;
+
+	q = inet_frag_alloc(fqdir, f, arg);
+>>>>>>> upstream/android-13
 	if (!q) {
 		*prev = ERR_PTR(-ENOMEM);
 		return NULL;
 	}
+<<<<<<< HEAD
 	mod_timer(&q->timer, jiffies + nf->timeout);
 
 	*prev = rhashtable_lookup_get_insert_key(&nf->rhashtable, &q->key,
+=======
+	mod_timer(&q->timer, jiffies + fqdir->timeout);
+
+	*prev = rhashtable_lookup_get_insert_key(&fqdir->rhashtable, &q->key,
+>>>>>>> upstream/android-13
 						 &q->node, f->rhash_params);
 	if (*prev) {
 		q->flags |= INET_FRAG_COMPLETE;
@@ -281,19 +464,36 @@ static struct inet_frag_queue *inet_frag_create(struct netns_frags *nf,
 }
 
 /* TODO : call from rcu_read_lock() and no longer use refcount_inc_not_zero() */
+<<<<<<< HEAD
 struct inet_frag_queue *inet_frag_find(struct netns_frags *nf, void *key)
 {
 	struct inet_frag_queue *fq = NULL, *prev;
 
 	if (!nf->high_thresh || frag_mem_limit(nf) > nf->high_thresh)
+=======
+struct inet_frag_queue *inet_frag_find(struct fqdir *fqdir, void *key)
+{
+	/* This pairs with WRITE_ONCE() in fqdir_pre_exit(). */
+	long high_thresh = READ_ONCE(fqdir->high_thresh);
+	struct inet_frag_queue *fq = NULL, *prev;
+
+	if (!high_thresh || frag_mem_limit(fqdir) > high_thresh)
+>>>>>>> upstream/android-13
 		return NULL;
 
 	rcu_read_lock();
 
+<<<<<<< HEAD
 	prev = rhashtable_lookup(&nf->rhashtable, key, nf->f->rhash_params);
 	if (!prev)
 		fq = inet_frag_create(nf, key, &prev);
 	if (prev && !IS_ERR(prev)) {
+=======
+	prev = rhashtable_lookup(&fqdir->rhashtable, key, fqdir->f->rhash_params);
+	if (!prev)
+		fq = inet_frag_create(fqdir, key, &prev);
+	if (!IS_ERR_OR_NULL(prev)) {
+>>>>>>> upstream/android-13
 		fq = prev;
 		if (!refcount_inc_not_zero(&fq->refcnt))
 			fq = NULL;
@@ -403,7 +603,11 @@ void *inet_frag_reasm_prepare(struct inet_frag_queue *q, struct sk_buff *skb,
 
 	delta += head->truesize;
 	if (delta)
+<<<<<<< HEAD
 		add_frag_mem_limit(q->net, delta);
+=======
+		add_frag_mem_limit(q->fqdir, delta);
+>>>>>>> upstream/android-13
 
 	/* If the first fragment is fragmented itself, we split
 	 * it to two chunks: the first with data and paged part
@@ -425,7 +629,11 @@ void *inet_frag_reasm_prepare(struct inet_frag_queue *q, struct sk_buff *skb,
 		head->truesize += clone->truesize;
 		clone->csum = 0;
 		clone->ip_summed = head->ip_summed;
+<<<<<<< HEAD
 		add_frag_mem_limit(q->net, clone->truesize);
+=======
+		add_frag_mem_limit(q->fqdir, clone->truesize);
+>>>>>>> upstream/android-13
 		skb_shinfo(head)->frag_list = clone;
 		nextp = &clone->next;
 	} else {
@@ -437,11 +645,19 @@ void *inet_frag_reasm_prepare(struct inet_frag_queue *q, struct sk_buff *skb,
 EXPORT_SYMBOL(inet_frag_reasm_prepare);
 
 void inet_frag_reasm_finish(struct inet_frag_queue *q, struct sk_buff *head,
+<<<<<<< HEAD
 			    void *reasm_data)
+=======
+			    void *reasm_data, bool try_coalesce)
+>>>>>>> upstream/android-13
 {
 	struct sk_buff **nextp = (struct sk_buff **)reasm_data;
 	struct rb_node *rbn;
 	struct sk_buff *fp;
+<<<<<<< HEAD
+=======
+	int sum_truesize;
+>>>>>>> upstream/android-13
 
 	skb_push(head, head->data - skb_network_header(head));
 
@@ -449,12 +665,18 @@ void inet_frag_reasm_finish(struct inet_frag_queue *q, struct sk_buff *head,
 	fp = FRAG_CB(head)->next_frag;
 	rbn = rb_next(&head->rbnode);
 	rb_erase(&head->rbnode, &q->rb_fragments);
+<<<<<<< HEAD
+=======
+
+	sum_truesize = head->truesize;
+>>>>>>> upstream/android-13
 	while (rbn || fp) {
 		/* fp points to the next sk_buff in the current run;
 		 * rbn points to the next run.
 		 */
 		/* Go through the current run. */
 		while (fp) {
+<<<<<<< HEAD
 			*nextp = fp;
 			nextp = &fp->next;
 			fp->prev = NULL;
@@ -462,12 +684,40 @@ void inet_frag_reasm_finish(struct inet_frag_queue *q, struct sk_buff *head,
 			fp->sk = NULL;
 			head->data_len += fp->len;
 			head->len += fp->len;
+=======
+			struct sk_buff *next_frag = FRAG_CB(fp)->next_frag;
+			bool stolen;
+			int delta;
+
+			sum_truesize += fp->truesize;
+>>>>>>> upstream/android-13
 			if (head->ip_summed != fp->ip_summed)
 				head->ip_summed = CHECKSUM_NONE;
 			else if (head->ip_summed == CHECKSUM_COMPLETE)
 				head->csum = csum_add(head->csum, fp->csum);
+<<<<<<< HEAD
 			head->truesize += fp->truesize;
 			fp = FRAG_CB(fp)->next_frag;
+=======
+
+			if (try_coalesce && skb_try_coalesce(head, fp, &stolen,
+							     &delta)) {
+				kfree_skb_partial(fp, stolen);
+			} else {
+				fp->prev = NULL;
+				memset(&fp->rbnode, 0, sizeof(fp->rbnode));
+				fp->sk = NULL;
+
+				head->data_len += fp->len;
+				head->len += fp->len;
+				head->truesize += fp->truesize;
+
+				*nextp = fp;
+				nextp = &fp->next;
+			}
+
+			fp = next_frag;
+>>>>>>> upstream/android-13
 		}
 		/* Move to the next run. */
 		if (rbn) {
@@ -478,7 +728,11 @@ void inet_frag_reasm_finish(struct inet_frag_queue *q, struct sk_buff *head,
 			rbn = rbnext;
 		}
 	}
+<<<<<<< HEAD
 	sub_frag_mem_limit(q->net, head->truesize);
+=======
+	sub_frag_mem_limit(q->fqdir, sum_truesize);
+>>>>>>> upstream/android-13
 
 	*nextp = NULL;
 	skb_mark_not_on_list(head);
@@ -489,6 +743,7 @@ EXPORT_SYMBOL(inet_frag_reasm_finish);
 
 struct sk_buff *inet_frag_pull_head(struct inet_frag_queue *q)
 {
+<<<<<<< HEAD
 	struct sk_buff *head;
 
 	if (q->fragments) {
@@ -513,6 +768,26 @@ struct sk_buff *inet_frag_pull_head(struct inet_frag_queue *q)
 		q->fragments_tail = NULL;
 
 	sub_frag_mem_limit(q->net, head->truesize);
+=======
+	struct sk_buff *head, *skb;
+
+	head = skb_rb_first(&q->rb_fragments);
+	if (!head)
+		return NULL;
+	skb = FRAG_CB(head)->next_frag;
+	if (skb)
+		rb_replace_node(&head->rbnode, &skb->rbnode,
+				&q->rb_fragments);
+	else
+		rb_erase(&head->rbnode, &q->rb_fragments);
+	memset(&head->rbnode, 0, sizeof(head->rbnode));
+	barrier();
+
+	if (head == q->fragments_tail)
+		q->fragments_tail = NULL;
+
+	sub_frag_mem_limit(q->fqdir, head->truesize);
+>>>>>>> upstream/android-13
 
 	return head;
 }

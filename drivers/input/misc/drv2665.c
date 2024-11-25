@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * DRV2665 haptics driver family
  *
  * Author: Dan Murphy <dmurphy@ti.com>
  *
  * Copyright: (C) 2015 Texas Instruments, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -13,6 +18,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/i2c.h>
@@ -52,11 +59,19 @@
 
 /**
  * struct drv2665_data -
+<<<<<<< HEAD
  * @input_dev - Pointer to the input device
  * @client - Pointer to the I2C client
  * @regmap - Register map of the device
  * @work - Work item used to off load the enable/disable of the vibration
  * @regulator - Pointer to the regulator for the IC
+=======
+ * @input_dev: Pointer to the input device
+ * @client: Pointer to the I2C client
+ * @regmap: Register map of the device
+ * @work: Work item used to off load the enable/disable of the vibration
+ * @regulator: Pointer to the regulator for the IC
+>>>>>>> upstream/android-13
  */
 struct drv2665_data {
 	struct input_dev *input_dev;
@@ -238,7 +253,11 @@ static int __maybe_unused drv2665_suspend(struct device *dev)
 
 	mutex_lock(&haptics->input_dev->mutex);
 
+<<<<<<< HEAD
 	if (haptics->input_dev->users) {
+=======
+	if (input_device_enabled(haptics->input_dev)) {
+>>>>>>> upstream/android-13
 		ret = regmap_update_bits(haptics->regmap, DRV2665_CTRL_2,
 					 DRV2665_STANDBY, DRV2665_STANDBY);
 		if (ret) {
@@ -267,7 +286,11 @@ static int __maybe_unused drv2665_resume(struct device *dev)
 
 	mutex_lock(&haptics->input_dev->mutex);
 
+<<<<<<< HEAD
 	if (haptics->input_dev->users) {
+=======
+	if (input_device_enabled(haptics->input_dev)) {
+>>>>>>> upstream/android-13
 		ret = regulator_enable(haptics->regulator);
 		if (ret) {
 			dev_err(dev, "Failed to enable regulator\n");

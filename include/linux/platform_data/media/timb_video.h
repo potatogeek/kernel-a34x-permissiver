@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * timb_video.h Platform struct for the Timberdale video driver
  * Copyright (c) 2009-2010 Intel Corporation
@@ -14,6 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * timb_video.h Platform struct for the Timberdale video driver
+ * Copyright (c) 2009-2010 Intel Corporation
+>>>>>>> upstream/android-13
  */
 
 #ifndef _TIMB_VIDEO_

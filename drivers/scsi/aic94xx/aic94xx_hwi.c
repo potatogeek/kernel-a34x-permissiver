@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Aic94xx SAS/SATA driver hardware interface.
  *
  * Copyright (C) 2005 Adaptec, Inc.  All rights reserved.
  * Copyright (C) 2005 Luben Tuikov <luben_tuikov@adaptec.com>
+<<<<<<< HEAD
  *
  * This file is licensed under GPLv2.
  *
@@ -22,6 +27,8 @@
  * along with the aic94xx driver; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/pci.h>
@@ -593,7 +600,11 @@ static int asd_extend_cmdctx(struct asd_ha_struct *asd_ha)
 
 /**
  * asd_init_ctxmem -- initialize context memory
+<<<<<<< HEAD
  * asd_ha: pointer to host adapter structure
+=======
+ * @asd_ha: pointer to host adapter structure
+>>>>>>> upstream/android-13
  *
  * This function sets the maximum number of SCBs and
  * DDBs which can be used by the sequencer.  This is normally
@@ -921,7 +932,11 @@ static void asd_dch_sas_isr(struct asd_ha_struct *asd_ha)
 }
 
 /**
+<<<<<<< HEAD
  * ads_rbi_exsi_isr -- process external system interface interrupt (INITERR)
+=======
+ * asd_rbi_exsi_isr -- process external system interface interrupt (INITERR)
+>>>>>>> upstream/android-13
  * @asd_ha: pointer to host adapter structure
  */
 static void asd_rbi_exsi_isr(struct asd_ha_struct *asd_ha)
@@ -1057,14 +1072,21 @@ static struct asd_ascb *asd_ascb_alloc(struct asd_ha_struct *asd_ha,
 
 	if (ascb) {
 		ascb->dma_scb.size = sizeof(struct scb);
+<<<<<<< HEAD
 		ascb->dma_scb.vaddr = dma_pool_alloc(asd_ha->scb_pool,
+=======
+		ascb->dma_scb.vaddr = dma_pool_zalloc(asd_ha->scb_pool,
+>>>>>>> upstream/android-13
 						     gfp_flags,
 						    &ascb->dma_scb.dma_handle);
 		if (!ascb->dma_scb.vaddr) {
 			kmem_cache_free(asd_ascb_cache, ascb);
 			return NULL;
 		}
+<<<<<<< HEAD
 		memset(ascb->dma_scb.vaddr, 0, sizeof(struct scb));
+=======
+>>>>>>> upstream/android-13
 		asd_init_ascb(asd_ha, ascb);
 
 		spin_lock_irqsave(&seq->tc_index_lock, flags);
@@ -1163,9 +1185,14 @@ static void asd_swap_head_scb(struct asd_ha_struct *asd_ha,
 }
 
 /**
+<<<<<<< HEAD
  * asd_start_timers -- (add and) start timers of SCBs
  * @list: pointer to struct list_head of the scbs
  * @to: timeout in jiffies
+=======
+ * asd_start_scb_timers -- (add and) start timers of SCBs
+ * @list: pointer to struct list_head of the scbs
+>>>>>>> upstream/android-13
  *
  * If an SCB in the @list has no timer function, assign the default
  * one,  then start the timer of the SCB.  This function is

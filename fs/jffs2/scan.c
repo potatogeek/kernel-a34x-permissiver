@@ -136,7 +136,11 @@ int jffs2_scan_medium(struct jffs2_sb_info *c)
 		if (!s) {
 			JFFS2_WARNING("Can't allocate memory for summary\n");
 			ret = -ENOMEM;
+<<<<<<< HEAD
 			goto out;
+=======
+			goto out_buf;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -261,7 +265,12 @@ int jffs2_scan_medium(struct jffs2_sb_info *c)
 	}
 #endif
 	if (c->nr_erasing_blocks) {
+<<<<<<< HEAD
 		if ( !c->used_size && ((c->nr_free_blocks+empty_blocks+bad_blocks)!= c->nr_blocks || bad_blocks == c->nr_blocks) ) {
+=======
+		if (!c->used_size && !c->unchecked_size &&
+			((c->nr_free_blocks+empty_blocks+bad_blocks) != c->nr_blocks || bad_blocks == c->nr_blocks)) {
+>>>>>>> upstream/android-13
 			pr_notice("Cowardly refusing to erase blocks on filesystem with no valid JFFS2 nodes\n");
 			pr_notice("empty_blocks %d, bad_blocks %d, c->nr_blocks %d\n",
 				  empty_blocks, bad_blocks, c->nr_blocks);
@@ -274,13 +283,22 @@ int jffs2_scan_medium(struct jffs2_sb_info *c)
 	}
 	ret = 0;
  out:
+<<<<<<< HEAD
+=======
+	jffs2_sum_reset_collected(s);
+	kfree(s);
+ out_buf:
+>>>>>>> upstream/android-13
 	if (buf_size)
 		kfree(flashbuf);
 #ifndef __ECOS
 	else
 		mtd_unpoint(c->mtd, 0, c->mtd->size);
 #endif
+<<<<<<< HEAD
 	kfree(s);
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -527,8 +545,16 @@ static int jffs2_scan_eraseblock (struct jffs2_sb_info *c, struct jffs2_eraseblo
 					err = jffs2_fill_scan_buf(c, sumptr, 
 								  jeb->offset + c->sector_size - sumlen,
 								  sumlen - buf_len);				
+<<<<<<< HEAD
 					if (err)
 						return err;
+=======
+					if (err) {
+						if (sumlen > buf_size)
+							kfree(sumptr);
+						return err;
+					}
+>>>>>>> upstream/android-13
 				}
 			}
 

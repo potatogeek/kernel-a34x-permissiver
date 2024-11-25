@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
  * Copyright (C) 2004-2008 Red Hat, Inc.  All rights reserved.
@@ -5,6 +6,12 @@
  * This copyrighted material is made available to anyone wishing to use,
  * modify, copy, or redistribute it subject to the terms and conditions
  * of the GNU General Public License version 2.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
+ * Copyright (C) 2004-2008 Red Hat, Inc.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/sched.h>
@@ -80,11 +87,16 @@ static int gfs2_get_block_noalloc(struct inode *inode, sector_t lblock,
 	if (error)
 		return error;
 	if (!buffer_mapped(bh_result))
+<<<<<<< HEAD
 		return -EIO;
+=======
+		return -ENODATA;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 /**
+<<<<<<< HEAD
  * gfs2_writepage_common - Common bits of writepage
  * @page: The page to be written
  * @wbc: The writeback control
@@ -94,18 +106,30 @@ static int gfs2_get_block_noalloc(struct inode *inode, sector_t lblock,
 
 static int gfs2_writepage_common(struct page *page,
 				 struct writeback_control *wbc)
+=======
+ * gfs2_writepage - Write page for writeback mappings
+ * @page: The page
+ * @wbc: The writeback control
+ */
+static int gfs2_writepage(struct page *page, struct writeback_control *wbc)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode = page->mapping->host;
 	struct gfs2_inode *ip = GFS2_I(inode);
 	struct gfs2_sbd *sdp = GFS2_SB(inode);
+<<<<<<< HEAD
 	loff_t i_size = i_size_read(inode);
 	pgoff_t end_index = i_size >> PAGE_SHIFT;
 	unsigned offset;
+=======
+	struct iomap_writepage_ctx wpc = { };
+>>>>>>> upstream/android-13
 
 	if (gfs2_assert_withdraw(sdp, gfs2_glock_is_held_excl(ip->i_gl)))
 		goto out;
 	if (current->journal_info)
 		goto redirty;
+<<<<<<< HEAD
 	/* Is the page fully outside i_size? (truncate in progress) */
 	offset = i_size & (PAGE_SIZE-1);
 	if (page->index > end_index || (page->index == end_index && !offset)) {
@@ -113,6 +137,10 @@ static int gfs2_writepage_common(struct page *page,
 		goto out;
 	}
 	return 1;
+=======
+	return iomap_writepage(page, wbc, &wpc, &gfs2_writeback_ops);
+
+>>>>>>> upstream/android-13
 redirty:
 	redirty_page_for_writepage(wbc, page);
 out:
@@ -121,6 +149,7 @@ out:
 }
 
 /**
+<<<<<<< HEAD
  * gfs2_writepage - Write page for writeback mappings
  * @page: The page
  * @wbc: The writeback control
@@ -143,6 +172,17 @@ static int gfs2_writepage(struct page *page, struct writeback_control *wbc)
  */
 static int gfs2_write_full_page(struct page *page, get_block_t *get_block,
 				struct writeback_control *wbc)
+=======
+ * gfs2_write_jdata_page - gfs2 jdata-specific version of block_write_full_page
+ * @page: The page to write
+ * @wbc: The writeback control
+ *
+ * This is the same as calling block_write_full_page, but it also
+ * writes pages outside of i_size
+ */
+static int gfs2_write_jdata_page(struct page *page,
+				 struct writeback_control *wbc)
+>>>>>>> upstream/android-13
 {
 	struct inode * const inode = page->mapping->host;
 	loff_t i_size = i_size_read(inode);
@@ -156,11 +196,19 @@ static int gfs2_write_full_page(struct page *page, get_block_t *get_block,
 	 * the  page size, the remaining memory is zeroed when mapped, and
 	 * writes to that region are not written out to the file."
 	 */
+<<<<<<< HEAD
 	offset = i_size & (PAGE_SIZE-1);
 	if (page->index == end_index && offset)
 		zero_user_segment(page, offset, PAGE_SIZE);
 
 	return __block_write_full_page(inode, page, get_block, wbc,
+=======
+	offset = i_size & (PAGE_SIZE - 1);
+	if (page->index == end_index && offset)
+		zero_user_segment(page, offset, PAGE_SIZE);
+
+	return __block_write_full_page(inode, page, gfs2_get_block_noalloc, wbc,
+>>>>>>> upstream/android-13
 				       end_buffer_async_write);
 }
 
@@ -189,7 +237,11 @@ static int __gfs2_jdata_writepage(struct page *page, struct writeback_control *w
 		}
 		gfs2_page_add_databufs(ip, page, 0, sdp->sd_vfs->s_blocksize);
 	}
+<<<<<<< HEAD
 	return gfs2_write_full_page(page, gfs2_get_block_noalloc, wbc);
+=======
+	return gfs2_write_jdata_page(page, wbc);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -206,14 +258,21 @@ static int gfs2_jdata_writepage(struct page *page, struct writeback_control *wbc
 	struct inode *inode = page->mapping->host;
 	struct gfs2_inode *ip = GFS2_I(inode);
 	struct gfs2_sbd *sdp = GFS2_SB(inode);
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 
 	if (gfs2_assert_withdraw(sdp, gfs2_glock_is_held_excl(ip->i_gl)))
 		goto out;
 	if (PageChecked(page) || current->journal_info)
 		goto out_ignore;
+<<<<<<< HEAD
 	ret = __gfs2_jdata_writepage(page, wbc);
 	return ret;
+=======
+	return __gfs2_jdata_writepage(page, wbc);
+>>>>>>> upstream/android-13
 
 out_ignore:
 	redirty_page_for_writepage(wbc, page);
@@ -233,7 +292,12 @@ static int gfs2_writepages(struct address_space *mapping,
 			   struct writeback_control *wbc)
 {
 	struct gfs2_sbd *sdp = gfs2_mapping2sbd(mapping);
+<<<<<<< HEAD
 	int ret = mpage_writepages(mapping, wbc, gfs2_get_block_noalloc);
+=======
+	struct iomap_writepage_ctx wpc = { };
+	int ret;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Even if we didn't write any pages here, we might still be holding
@@ -241,9 +305,15 @@ static int gfs2_writepages(struct address_space *mapping,
 	 * want balance_dirty_pages() to loop indefinitely trying to write out
 	 * pages held in the ail that it can't find.
 	 */
+<<<<<<< HEAD
 	if (ret == 0)
 		set_bit(SDF_FORCE_AIL_FLUSH, &sdp->sd_flags);
 
+=======
+	ret = iomap_writepages(mapping, wbc, &wpc, &gfs2_writeback_ops);
+	if (ret == 0)
+		set_bit(SDF_FORCE_AIL_FLUSH, &sdp->sd_flags);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -266,7 +336,11 @@ static int gfs2_write_jdata_pagevec(struct address_space *mapping,
 {
 	struct inode *inode = mapping->host;
 	struct gfs2_sbd *sdp = GFS2_SB(inode);
+<<<<<<< HEAD
 	unsigned nrblocks = nr_pages * (PAGE_SIZE/inode->i_sb->s_blocksize);
+=======
+	unsigned nrblocks = nr_pages * (PAGE_SIZE >> inode->i_blkbits);
+>>>>>>> upstream/android-13
 	int i;
 	int ret;
 
@@ -360,13 +434,21 @@ static int gfs2_write_cache_jdata(struct address_space *mapping,
 	int done = 0;
 	struct pagevec pvec;
 	int nr_pages;
+<<<<<<< HEAD
 	pgoff_t uninitialized_var(writeback_index);
+=======
+	pgoff_t writeback_index;
+>>>>>>> upstream/android-13
 	pgoff_t index;
 	pgoff_t end;
 	pgoff_t done_index;
 	int cycled;
 	int range_whole = 0;
+<<<<<<< HEAD
 	int tag;
+=======
+	xa_mark_t tag;
+>>>>>>> upstream/android-13
 
 	pagevec_init(&pvec);
 	if (wbc->range_cyclic) {
@@ -457,8 +539,12 @@ static int gfs2_jdata_writepages(struct address_space *mapping,
  *
  * Returns: errno
  */
+<<<<<<< HEAD
 
 int stuffed_readpage(struct gfs2_inode *ip, struct page *page)
+=======
+static int stuffed_readpage(struct gfs2_inode *ip, struct page *page)
+>>>>>>> upstream/android-13
 {
 	struct buffer_head *dibh;
 	u64 dsize = i_size_read(&ip->i_inode);
@@ -494,6 +580,7 @@ int stuffed_readpage(struct gfs2_inode *ip, struct page *page)
 }
 
 
+<<<<<<< HEAD
 /**
  * __gfs2_readpage - readpage
  * @file: The file to read a page for
@@ -513,6 +600,17 @@ static int __gfs2_readpage(void *file, struct page *page)
 
 	if (i_blocksize(page->mapping->host) == PAGE_SIZE &&
 	    !page_has_buffers(page)) {
+=======
+static int __gfs2_readpage(void *file, struct page *page)
+{
+	struct inode *inode = page->mapping->host;
+	struct gfs2_inode *ip = GFS2_I(inode);
+	struct gfs2_sbd *sdp = GFS2_SB(inode);
+	int error;
+
+	if (!gfs2_is_jdata(ip) ||
+	    (i_blocksize(inode) == PAGE_SIZE && !page_has_buffers(page))) {
+>>>>>>> upstream/android-13
 		error = iomap_readpage(page, &gfs2_iomap_ops);
 	} else if (gfs2_is_stuffed(ip)) {
 		error = stuffed_readpage(ip, page);
@@ -521,7 +619,11 @@ static int __gfs2_readpage(void *file, struct page *page)
 		error = mpage_readpage(page, gfs2_block_map);
 	}
 
+<<<<<<< HEAD
 	if (unlikely(test_bit(SDF_SHUTDOWN, &sdp->sd_flags)))
+=======
+	if (unlikely(gfs2_withdrawn(sdp)))
+>>>>>>> upstream/android-13
 		return -EIO;
 
 	return error;
@@ -531,14 +633,18 @@ static int __gfs2_readpage(void *file, struct page *page)
  * gfs2_readpage - read a page of a file
  * @file: The file to read
  * @page: The page of the file
+<<<<<<< HEAD
  *
  * This deals with the locking required. We have to unlock and
  * relock the page in order to get the locking in the right
  * order.
+=======
+>>>>>>> upstream/android-13
  */
 
 static int gfs2_readpage(struct file *file, struct page *page)
 {
+<<<<<<< HEAD
 	struct address_space *mapping = page->mapping;
 	struct gfs2_inode *ip = GFS2_I(mapping->host);
 	struct gfs2_holder gh;
@@ -561,6 +667,9 @@ out:
 	if (error && error != AOP_TRUNCATED_PAGE)
 		lock_page(page);
 	return error;
+=======
+	return __gfs2_readpage(file, page);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -576,7 +685,11 @@ int gfs2_internal_read(struct gfs2_inode *ip, char *buf, loff_t *pos,
                        unsigned size)
 {
 	struct address_space *mapping = ip->i_inode.i_mapping;
+<<<<<<< HEAD
 	unsigned long index = *pos / PAGE_SIZE;
+=======
+	unsigned long index = *pos >> PAGE_SHIFT;
+>>>>>>> upstream/android-13
 	unsigned offset = *pos & (PAGE_SIZE - 1);
 	unsigned copied = 0;
 	unsigned amt;
@@ -603,11 +716,16 @@ int gfs2_internal_read(struct gfs2_inode *ip, char *buf, loff_t *pos,
 }
 
 /**
+<<<<<<< HEAD
  * gfs2_readpages - Read a bunch of pages at once
  * @file: The file to read from
  * @mapping: Address space info
  * @pages: List of pages to read
  * @nr_pages: Number of pages to read
+=======
+ * gfs2_readahead - Read a bunch of pages at once
+ * @rac: Read-ahead control structure
+>>>>>>> upstream/android-13
  *
  * Some notes:
  * 1. This is only for readahead, so we can simply ignore any things
@@ -616,6 +734,7 @@ int gfs2_internal_read(struct gfs2_inode *ip, char *buf, loff_t *pos,
  *    obviously not something we'd want to do on too regular a basis.
  *    Any I/O we ignore at this time will be done via readpage later.
  * 2. We don't handle stuffed files here we let readpage do the honours.
+<<<<<<< HEAD
  * 3. mpage_readpages() does most of the heavy lifting in the common case.
  * 4. gfs2_block_map() is relied upon to set BH_Boundary in the right places.
  */
@@ -641,6 +760,23 @@ out_uninit:
 	if (unlikely(test_bit(SDF_SHUTDOWN, &sdp->sd_flags)))
 		ret = -EIO;
 	return ret;
+=======
+ * 3. mpage_readahead() does most of the heavy lifting in the common case.
+ * 4. gfs2_block_map() is relied upon to set BH_Boundary in the right places.
+ */
+
+static void gfs2_readahead(struct readahead_control *rac)
+{
+	struct inode *inode = rac->mapping->host;
+	struct gfs2_inode *ip = GFS2_I(inode);
+
+	if (gfs2_is_stuffed(ip))
+		;
+	else if (gfs2_is_jdata(ip))
+		mpage_readahead(rac, gfs2_block_map);
+	else
+		iomap_readahead(rac, &gfs2_iomap_ops);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -649,6 +785,7 @@ out_uninit:
  */
 void adjust_fs_space(struct inode *inode)
 {
+<<<<<<< HEAD
 	struct gfs2_sbd *sdp = inode->i_sb->s_fs_info;
 	struct gfs2_inode *m_ip = GFS2_I(sdp->sd_statfs_inode);
 	struct gfs2_inode *l_ip = GFS2_I(sdp->sd_sc_inode);
@@ -661,6 +798,22 @@ void adjust_fs_space(struct inode *inode)
 	fs_total = gfs2_ri_total(sdp);
 	if (gfs2_meta_inode_buffer(m_ip, &m_bh) != 0)
 		return;
+=======
+	struct gfs2_sbd *sdp = GFS2_SB(inode);
+	struct gfs2_inode *m_ip = GFS2_I(sdp->sd_statfs_inode);
+	struct gfs2_statfs_change_host *m_sc = &sdp->sd_statfs_master;
+	struct gfs2_statfs_change_host *l_sc = &sdp->sd_statfs_local;
+	struct buffer_head *m_bh;
+	u64 fs_total, new_free;
+
+	if (gfs2_trans_begin(sdp, 2 * RES_STATFS, 0) != 0)
+		return;
+
+	/* Total up the file system space, according to the latest rindex. */
+	fs_total = gfs2_ri_total(sdp);
+	if (gfs2_meta_inode_buffer(m_ip, &m_bh) != 0)
+		goto out;
+>>>>>>> upstream/android-13
 
 	spin_lock(&sdp->sd_statfs_spin);
 	gfs2_statfs_change_in(m_sc, m_bh->b_data +
@@ -674,6 +827,7 @@ void adjust_fs_space(struct inode *inode)
 		(unsigned long long)new_free);
 	gfs2_statfs_change(sdp, new_free, new_free, 0);
 
+<<<<<<< HEAD
 	if (gfs2_meta_inode_buffer(l_ip, &l_bh) != 0)
 		goto out;
 	update_statfs(sdp, m_bh, l_bh);
@@ -721,6 +875,13 @@ int gfs2_stuffed_write_end(struct inode *inode, struct buffer_head *dibh,
 		mark_inode_dirty(inode);
 	}
 	return copied;
+=======
+	update_statfs(sdp, m_bh);
+	brelse(m_bh);
+out:
+	sdp->sd_rindex_uptodate = 0;
+	gfs2_trans_end(sdp);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -732,7 +893,12 @@ int gfs2_stuffed_write_end(struct inode *inode, struct buffer_head *dibh,
  
 static int jdata_set_page_dirty(struct page *page)
 {
+<<<<<<< HEAD
 	SetPageChecked(page);
+=======
+	if (current->journal_info)
+		SetPageChecked(page);
+>>>>>>> upstream/android-13
 	return __set_page_dirty_buffers(page);
 }
 
@@ -756,7 +922,11 @@ static sector_t gfs2_bmap(struct address_space *mapping, sector_t lblock)
 		return 0;
 
 	if (!gfs2_is_stuffed(ip))
+<<<<<<< HEAD
 		dblock = generic_block_bmap(mapping, lblock, gfs2_block_map);
+=======
+		dblock = iomap_bmap(mapping, lblock, &gfs2_iomap_ops);
+>>>>>>> upstream/android-13
 
 	gfs2_glock_dq_uninit(&i_gh);
 
@@ -774,8 +944,16 @@ static void gfs2_discard(struct gfs2_sbd *sdp, struct buffer_head *bh)
 	if (bd) {
 		if (!list_empty(&bd->bd_list) && !buffer_pinned(bh))
 			list_del_init(&bd->bd_list);
+<<<<<<< HEAD
 		else
 			gfs2_remove_from_journal(bh, REMOVE_JDATA);
+=======
+		else {
+			spin_lock(&sdp->sd_ail_lock);
+			gfs2_remove_from_journal(bh, REMOVE_JDATA);
+			spin_unlock(&sdp->sd_ail_lock);
+		}
+>>>>>>> upstream/android-13
 	}
 	bh->b_bdev = NULL;
 	clear_buffer_mapped(bh);
@@ -820,10 +998,17 @@ out:
  * @page: the page that's being released
  * @gfp_mask: passed from Linux VFS, ignored by us
  *
+<<<<<<< HEAD
  * Call try_to_free_buffers() if the buffers in this page can be
  * released.
  *
  * Returns: 0
+=======
+ * Calls try_to_free_buffers() to free the buffers and put the page if the
+ * buffers can be released.
+ *
+ * Returns: 1 if the page was put or else 0
+>>>>>>> upstream/android-13
  */
 
 int gfs2_releasepage(struct page *page, gfp_t gfp_mask)
@@ -847,7 +1032,10 @@ int gfs2_releasepage(struct page *page, gfp_t gfp_mask)
 	 */
 
 	gfs2_log_lock(sdp);
+<<<<<<< HEAD
 	spin_lock(&sdp->sd_ail_lock);
+=======
+>>>>>>> upstream/android-13
 	head = bh = page_buffers(page);
 	do {
 		if (atomic_read(&bh->b_count))
@@ -859,18 +1047,34 @@ int gfs2_releasepage(struct page *page, gfp_t gfp_mask)
 			goto cannot_release;
 		bh = bh->b_this_page;
 	} while(bh != head);
+<<<<<<< HEAD
 	spin_unlock(&sdp->sd_ail_lock);
+=======
+>>>>>>> upstream/android-13
 
 	head = bh = page_buffers(page);
 	do {
 		bd = bh->b_private;
 		if (bd) {
 			gfs2_assert_warn(sdp, bd->bd_bh == bh);
+<<<<<<< HEAD
 			if (!list_empty(&bd->bd_list))
 				list_del_init(&bd->bd_list);
 			bd->bd_bh = NULL;
 			bh->b_private = NULL;
 			kmem_cache_free(gfs2_bufdata_cachep, bd);
+=======
+			bd->bd_bh = NULL;
+			bh->b_private = NULL;
+			/*
+			 * The bd may still be queued as a revoke, in which
+			 * case we must not dequeue nor free it.
+			 */
+			if (!bd->bd_blkno && !list_empty(&bd->bd_list))
+				list_del_init(&bd->bd_list);
+			if (list_empty(&bd->bd_list))
+				kmem_cache_free(gfs2_bufdata_cachep, bd);
+>>>>>>> upstream/android-13
 		}
 
 		bh = bh->b_this_page;
@@ -880,11 +1084,15 @@ int gfs2_releasepage(struct page *page, gfp_t gfp_mask)
 	return try_to_free_buffers(page);
 
 cannot_release:
+<<<<<<< HEAD
 	spin_unlock(&sdp->sd_ail_lock);
+=======
+>>>>>>> upstream/android-13
 	gfs2_log_unlock(sdp);
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct address_space_operations gfs2_writeback_aops = {
 	.writepage = gfs2_writepage,
 	.writepages = gfs2_writepages,
@@ -911,6 +1119,20 @@ static const struct address_space_operations gfs2_ordered_aops = {
 	.direct_IO = noop_direct_IO,
 	.migratepage = buffer_migrate_page,
 	.is_partially_uptodate = block_is_partially_uptodate,
+=======
+static const struct address_space_operations gfs2_aops = {
+	.writepage = gfs2_writepage,
+	.writepages = gfs2_writepages,
+	.readpage = gfs2_readpage,
+	.readahead = gfs2_readahead,
+	.set_page_dirty = __set_page_dirty_nobuffers,
+	.releasepage = iomap_releasepage,
+	.invalidatepage = iomap_invalidatepage,
+	.bmap = gfs2_bmap,
+	.direct_IO = noop_direct_IO,
+	.migratepage = iomap_migrate_page,
+	.is_partially_uptodate = iomap_is_partially_uptodate,
+>>>>>>> upstream/android-13
 	.error_remove_page = generic_error_remove_page,
 };
 
@@ -918,7 +1140,11 @@ static const struct address_space_operations gfs2_jdata_aops = {
 	.writepage = gfs2_jdata_writepage,
 	.writepages = gfs2_jdata_writepages,
 	.readpage = gfs2_readpage,
+<<<<<<< HEAD
 	.readpages = gfs2_readpages,
+=======
+	.readahead = gfs2_readahead,
+>>>>>>> upstream/android-13
 	.set_page_dirty = jdata_set_page_dirty,
 	.bmap = gfs2_bmap,
 	.invalidatepage = gfs2_invalidatepage,
@@ -929,6 +1155,7 @@ static const struct address_space_operations gfs2_jdata_aops = {
 
 void gfs2_set_aops(struct inode *inode)
 {
+<<<<<<< HEAD
 	struct gfs2_inode *ip = GFS2_I(inode);
 
 	if (gfs2_is_writeback(ip))
@@ -941,3 +1168,10 @@ void gfs2_set_aops(struct inode *inode)
 		BUG();
 }
 
+=======
+	if (gfs2_is_jdata(GFS2_I(inode)))
+		inode->i_mapping->a_ops = &gfs2_jdata_aops;
+	else
+		inode->i_mapping->a_ops = &gfs2_aops;
+}
+>>>>>>> upstream/android-13

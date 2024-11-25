@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* Structure dynamic extension infrastructure
  * Copyright (C) 2004 Rusty Russell IBM Corporation
  * Copyright (C) 2007 Netfilter Core Team <coreteam@netfilter.org>
  * Copyright (C) 2007 USAGI/WIDE Project <http://www.linux-ipv6.org>
+<<<<<<< HEAD
  *
  *      This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/kmemleak.h>
@@ -38,21 +45,39 @@ void nf_ct_ext_destroy(struct nf_conn *ct)
 			t->destroy(ct);
 		rcu_read_unlock();
 	}
+<<<<<<< HEAD
 }
 EXPORT_SYMBOL(nf_ct_ext_destroy);
+=======
+
+	kfree(ct->ext);
+}
+>>>>>>> upstream/android-13
 
 void *nf_ct_ext_add(struct nf_conn *ct, enum nf_ct_ext_id id, gfp_t gfp)
 {
 	unsigned int newlen, newoff, oldlen, alloc;
+<<<<<<< HEAD
 	struct nf_ct_ext *old, *new;
 	struct nf_ct_ext_type *t;
+=======
+	struct nf_ct_ext_type *t;
+	struct nf_ct_ext *new;
+>>>>>>> upstream/android-13
 
 	/* Conntrack must not be confirmed to avoid races on reallocation. */
 	WARN_ON(nf_ct_is_confirmed(ct));
 
+<<<<<<< HEAD
 	old = ct->ext;
 
 	if (old) {
+=======
+
+	if (ct->ext) {
+		const struct nf_ct_ext *old = ct->ext;
+
+>>>>>>> upstream/android-13
 		if (__nf_ct_ext_exist(old, id))
 			return NULL;
 		oldlen = old->len;
@@ -72,6 +97,7 @@ void *nf_ct_ext_add(struct nf_conn *ct, enum nf_ct_ext_id id, gfp_t gfp)
 	rcu_read_unlock();
 
 	alloc = max(newlen, NF_CT_EXT_PREALLOC);
+<<<<<<< HEAD
 	kmemleak_not_leak(old);
 	new = __krealloc(old, alloc, gfp);
 	if (!new)
@@ -84,10 +110,23 @@ void *nf_ct_ext_add(struct nf_conn *ct, enum nf_ct_ext_id id, gfp_t gfp)
 		kfree_rcu(old, rcu);
 		rcu_assign_pointer(ct->ext, new);
 	}
+=======
+	new = krealloc(ct->ext, alloc, gfp);
+	if (!new)
+		return NULL;
+
+	if (!ct->ext)
+		memset(new->offset, 0, sizeof(new->offset));
+>>>>>>> upstream/android-13
 
 	new->offset[id] = newoff;
 	new->len = newlen;
 	memset((void *)new + newoff, 0, newlen - newoff);
+<<<<<<< HEAD
+=======
+
+	ct->ext = new;
+>>>>>>> upstream/android-13
 	return (void *)new + newoff;
 }
 EXPORT_SYMBOL(nf_ct_ext_add);

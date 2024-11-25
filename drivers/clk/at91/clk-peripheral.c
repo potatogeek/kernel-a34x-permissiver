@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 2013 Boris BREZILLON <b.brezillon@overkiz.com>
  *
@@ -8,6 +9,14 @@
  *
  */
 
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Copyright (C) 2013 Boris BREZILLON <b.brezillon@overkiz.com>
+ */
+
+#include <linux/bitops.h>
+>>>>>>> upstream/android-13
 #include <linux/clk-provider.h>
 #include <linux/clkdev.h>
 #include <linux/clk/at91_pmc.h>
@@ -19,18 +28,24 @@
 
 DEFINE_SPINLOCK(pmc_pcr_lock);
 
+<<<<<<< HEAD
 #define PERIPHERAL_MAX		64
 
 #define PERIPHERAL_AT91RM9200	0
 #define PERIPHERAL_AT91SAM9X5	1
 
+=======
+>>>>>>> upstream/android-13
 #define PERIPHERAL_ID_MIN	2
 #define PERIPHERAL_ID_MAX	31
 #define PERIPHERAL_MASK(id)	(1 << ((id) & PERIPHERAL_ID_MAX))
 
+<<<<<<< HEAD
 #define PERIPHERAL_RSHIFT_MASK	0x3
 #define PERIPHERAL_RSHIFT(val)	(((val) >> 16) & PERIPHERAL_RSHIFT_MASK)
 
+=======
+>>>>>>> upstream/android-13
 #define PERIPHERAL_MAX_SHIFT	3
 
 struct clk_peripheral {
@@ -48,7 +63,13 @@ struct clk_sam9x5_peripheral {
 	spinlock_t *lock;
 	u32 id;
 	u32 div;
+<<<<<<< HEAD
 	bool auto_div;
+=======
+	const struct clk_pcr_layout *layout;
+	bool auto_div;
+	int chg_pid;
+>>>>>>> upstream/android-13
 };
 
 #define to_clk_sam9x5_peripheral(hw) \
@@ -104,12 +125,20 @@ static const struct clk_ops peripheral_ops = {
 	.is_enabled = clk_peripheral_is_enabled,
 };
 
+<<<<<<< HEAD
 static struct clk_hw * __init
+=======
+struct clk_hw * __init
+>>>>>>> upstream/android-13
 at91_clk_register_peripheral(struct regmap *regmap, const char *name,
 			     const char *parent_name, u32 id)
 {
 	struct clk_peripheral *periph;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	struct clk_hw *hw;
 	int ret;
 
@@ -122,8 +151,13 @@ at91_clk_register_peripheral(struct regmap *regmap, const char *name,
 
 	init.name = name;
 	init.ops = &peripheral_ops;
+<<<<<<< HEAD
 	init.parent_names = (parent_name ? &parent_name : NULL);
 	init.num_parents = (parent_name ? 1 : 0);
+=======
+	init.parent_names = &parent_name;
+	init.num_parents = 1;
+>>>>>>> upstream/android-13
 	init.flags = 0;
 
 	periph->id = id;
@@ -174,6 +208,7 @@ static int clk_sam9x5_peripheral_enable(struct clk_hw *hw)
 		return 0;
 
 	spin_lock_irqsave(periph->lock, flags);
+<<<<<<< HEAD
 	regmap_write(periph->regmap, AT91_PMC_PCR,
 		     (periph->id & AT91_PMC_PCR_PID_MASK));
 	regmap_update_bits(periph->regmap, AT91_PMC_PCR,
@@ -181,6 +216,15 @@ static int clk_sam9x5_peripheral_enable(struct clk_hw *hw)
 			   AT91_PMC_PCR_EN,
 			   AT91_PMC_PCR_DIV(periph->div) |
 			   AT91_PMC_PCR_CMD |
+=======
+	regmap_write(periph->regmap, periph->layout->offset,
+		     (periph->id & periph->layout->pid_mask));
+	regmap_update_bits(periph->regmap, periph->layout->offset,
+			   periph->layout->div_mask | periph->layout->cmd |
+			   AT91_PMC_PCR_EN,
+			   field_prep(periph->layout->div_mask, periph->div) |
+			   periph->layout->cmd |
+>>>>>>> upstream/android-13
 			   AT91_PMC_PCR_EN);
 	spin_unlock_irqrestore(periph->lock, flags);
 
@@ -196,11 +240,19 @@ static void clk_sam9x5_peripheral_disable(struct clk_hw *hw)
 		return;
 
 	spin_lock_irqsave(periph->lock, flags);
+<<<<<<< HEAD
 	regmap_write(periph->regmap, AT91_PMC_PCR,
 		     (periph->id & AT91_PMC_PCR_PID_MASK));
 	regmap_update_bits(periph->regmap, AT91_PMC_PCR,
 			   AT91_PMC_PCR_EN | AT91_PMC_PCR_CMD,
 			   AT91_PMC_PCR_CMD);
+=======
+	regmap_write(periph->regmap, periph->layout->offset,
+		     (periph->id & periph->layout->pid_mask));
+	regmap_update_bits(periph->regmap, periph->layout->offset,
+			   AT91_PMC_PCR_EN | periph->layout->cmd,
+			   periph->layout->cmd);
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(periph->lock, flags);
 }
 
@@ -214,12 +266,21 @@ static int clk_sam9x5_peripheral_is_enabled(struct clk_hw *hw)
 		return 1;
 
 	spin_lock_irqsave(periph->lock, flags);
+<<<<<<< HEAD
 	regmap_write(periph->regmap, AT91_PMC_PCR,
 		     (periph->id & AT91_PMC_PCR_PID_MASK));
 	regmap_read(periph->regmap, AT91_PMC_PCR, &status);
 	spin_unlock_irqrestore(periph->lock, flags);
 
 	return status & AT91_PMC_PCR_EN ? 1 : 0;
+=======
+	regmap_write(periph->regmap, periph->layout->offset,
+		     (periph->id & periph->layout->pid_mask));
+	regmap_read(periph->regmap, periph->layout->offset, &status);
+	spin_unlock_irqrestore(periph->lock, flags);
+
+	return !!(status & AT91_PMC_PCR_EN);
+>>>>>>> upstream/android-13
 }
 
 static unsigned long
@@ -234,6 +295,7 @@ clk_sam9x5_peripheral_recalc_rate(struct clk_hw *hw,
 		return parent_rate;
 
 	spin_lock_irqsave(periph->lock, flags);
+<<<<<<< HEAD
 	regmap_write(periph->regmap, AT91_PMC_PCR,
 		     (periph->id & AT91_PMC_PCR_PID_MASK));
 	regmap_read(periph->regmap, AT91_PMC_PCR, &status);
@@ -241,6 +303,15 @@ clk_sam9x5_peripheral_recalc_rate(struct clk_hw *hw,
 
 	if (status & AT91_PMC_PCR_EN) {
 		periph->div = PERIPHERAL_RSHIFT(status);
+=======
+	regmap_write(periph->regmap, periph->layout->offset,
+		     (periph->id & periph->layout->pid_mask));
+	regmap_read(periph->regmap, periph->layout->offset, &status);
+	spin_unlock_irqrestore(periph->lock, flags);
+
+	if (status & AT91_PMC_PCR_EN) {
+		periph->div = field_get(periph->layout->div_mask, status);
+>>>>>>> upstream/android-13
 		periph->auto_div = false;
 	} else {
 		clk_sam9x5_peripheral_autodiv(periph);
@@ -249,6 +320,90 @@ clk_sam9x5_peripheral_recalc_rate(struct clk_hw *hw,
 	return parent_rate >> periph->div;
 }
 
+<<<<<<< HEAD
+=======
+static void clk_sam9x5_peripheral_best_diff(struct clk_rate_request *req,
+					    struct clk_hw *parent,
+					    unsigned long parent_rate,
+					    u32 shift, long *best_diff,
+					    long *best_rate)
+{
+	unsigned long tmp_rate = parent_rate >> shift;
+	unsigned long tmp_diff = abs(req->rate - tmp_rate);
+
+	if (*best_diff < 0 || *best_diff >= tmp_diff) {
+		*best_rate = tmp_rate;
+		*best_diff = tmp_diff;
+		req->best_parent_rate = parent_rate;
+		req->best_parent_hw = parent;
+	}
+}
+
+static int clk_sam9x5_peripheral_determine_rate(struct clk_hw *hw,
+						struct clk_rate_request *req)
+{
+	struct clk_sam9x5_peripheral *periph = to_clk_sam9x5_peripheral(hw);
+	struct clk_hw *parent = clk_hw_get_parent(hw);
+	struct clk_rate_request req_parent = *req;
+	unsigned long parent_rate = clk_hw_get_rate(parent);
+	unsigned long tmp_rate;
+	long best_rate = LONG_MIN;
+	long best_diff = LONG_MIN;
+	u32 shift;
+
+	if (periph->id < PERIPHERAL_ID_MIN || !periph->range.max)
+		return parent_rate;
+
+	/* Fist step: check the available dividers. */
+	for (shift = 0; shift <= PERIPHERAL_MAX_SHIFT; shift++) {
+		tmp_rate = parent_rate >> shift;
+
+		if (periph->range.max && tmp_rate > periph->range.max)
+			continue;
+
+		clk_sam9x5_peripheral_best_diff(req, parent, parent_rate,
+						shift, &best_diff, &best_rate);
+
+		if (!best_diff || best_rate <= req->rate)
+			break;
+	}
+
+	if (periph->chg_pid < 0)
+		goto end;
+
+	/* Step two: try to request rate from parent. */
+	parent = clk_hw_get_parent_by_index(hw, periph->chg_pid);
+	if (!parent)
+		goto end;
+
+	for (shift = 0; shift <= PERIPHERAL_MAX_SHIFT; shift++) {
+		req_parent.rate = req->rate << shift;
+
+		if (__clk_determine_rate(parent, &req_parent))
+			continue;
+
+		clk_sam9x5_peripheral_best_diff(req, parent, req_parent.rate,
+						shift, &best_diff, &best_rate);
+
+		if (!best_diff)
+			break;
+	}
+end:
+	if (best_rate < 0 ||
+	    (periph->range.max && best_rate > periph->range.max))
+		return -EINVAL;
+
+	pr_debug("PCK: %s, best_rate = %ld, parent clk: %s @ %ld\n",
+		 __func__, best_rate,
+		 __clk_get_name((req->best_parent_hw)->clk),
+		 req->best_parent_rate);
+
+	req->rate = best_rate;
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static long clk_sam9x5_peripheral_round_rate(struct clk_hw *hw,
 					     unsigned long rate,
 					     unsigned long *parent_rate)
@@ -331,6 +486,7 @@ static const struct clk_ops sam9x5_peripheral_ops = {
 	.set_rate = clk_sam9x5_peripheral_set_rate,
 };
 
+<<<<<<< HEAD
 static struct clk_hw * __init
 at91_clk_register_sam9x5_peripheral(struct regmap *regmap, spinlock_t *lock,
 				    const char *name, const char *parent_name,
@@ -338,6 +494,26 @@ at91_clk_register_sam9x5_peripheral(struct regmap *regmap, spinlock_t *lock,
 {
 	struct clk_sam9x5_peripheral *periph;
 	struct clk_init_data init = {};
+=======
+static const struct clk_ops sam9x5_peripheral_chg_ops = {
+	.enable = clk_sam9x5_peripheral_enable,
+	.disable = clk_sam9x5_peripheral_disable,
+	.is_enabled = clk_sam9x5_peripheral_is_enabled,
+	.recalc_rate = clk_sam9x5_peripheral_recalc_rate,
+	.determine_rate = clk_sam9x5_peripheral_determine_rate,
+	.set_rate = clk_sam9x5_peripheral_set_rate,
+};
+
+struct clk_hw * __init
+at91_clk_register_sam9x5_peripheral(struct regmap *regmap, spinlock_t *lock,
+				    const struct clk_pcr_layout *layout,
+				    const char *name, const char *parent_name,
+				    u32 id, const struct clk_range *range,
+				    int chg_pid)
+{
+	struct clk_sam9x5_peripheral *periph;
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	struct clk_hw *hw;
 	int ret;
 
@@ -349,18 +525,39 @@ at91_clk_register_sam9x5_peripheral(struct regmap *regmap, spinlock_t *lock,
 		return ERR_PTR(-ENOMEM);
 
 	init.name = name;
+<<<<<<< HEAD
 	init.ops = &sam9x5_peripheral_ops;
 	init.parent_names = (parent_name ? &parent_name : NULL);
 	init.num_parents = (parent_name ? 1 : 0);
 	init.flags = 0;
+=======
+	init.parent_names = &parent_name;
+	init.num_parents = 1;
+	if (chg_pid < 0) {
+		init.flags = 0;
+		init.ops = &sam9x5_peripheral_ops;
+	} else {
+		init.flags = CLK_SET_RATE_GATE | CLK_SET_PARENT_GATE |
+			     CLK_SET_RATE_PARENT;
+		init.ops = &sam9x5_peripheral_chg_ops;
+	}
+>>>>>>> upstream/android-13
 
 	periph->id = id;
 	periph->hw.init = &init;
 	periph->div = 0;
 	periph->regmap = regmap;
 	periph->lock = lock;
+<<<<<<< HEAD
 	periph->auto_div = true;
 	periph->range = *range;
+=======
+	if (layout->div_mask)
+		periph->auto_div = true;
+	periph->layout = layout;
+	periph->range = *range;
+	periph->chg_pid = chg_pid;
+>>>>>>> upstream/android-13
 
 	hw = &periph->hw;
 	ret = clk_hw_register(NULL, &periph->hw);
@@ -374,6 +571,7 @@ at91_clk_register_sam9x5_peripheral(struct regmap *regmap, spinlock_t *lock,
 
 	return hw;
 }
+<<<<<<< HEAD
 
 static void __init
 of_at91_clk_periph_setup(struct device_node *np, u8 type)
@@ -446,3 +644,5 @@ static void __init of_at91sam9x5_clk_periph_setup(struct device_node *np)
 CLK_OF_DECLARE(at91sam9x5_clk_periph, "atmel,at91sam9x5-clk-peripheral",
 	       of_at91sam9x5_clk_periph_setup);
 
+=======
+>>>>>>> upstream/android-13

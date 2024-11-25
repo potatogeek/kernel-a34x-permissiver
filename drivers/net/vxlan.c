@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * VXLAN: Virtual eXtensible Local Area Network
  *
  * Copyright (c) 2012-2013 Vyatta Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -20,6 +27,10 @@
 #include <linux/ethtool.h>
 #include <net/arp.h>
 #include <net/ndisc.h>
+<<<<<<< HEAD
+=======
+#include <net/ipv6_stubs.h>
+>>>>>>> upstream/android-13
 #include <net/ip.h>
 #include <net/icmp.h>
 #include <net/rtnetlink.h>
@@ -28,6 +39,10 @@
 #include <net/netns/generic.h>
 #include <net/tun_proto.h>
 #include <net/vxlan.h>
+<<<<<<< HEAD
+=======
+#include <net/nexthop.h>
+>>>>>>> upstream/android-13
 
 #if IS_ENABLED(CONFIG_IPV6)
 #include <net/ip6_tunnel.h>
@@ -67,6 +82,10 @@ struct vxlan_net {
 	struct list_head  vxlan_list;
 	struct hlist_head sock_list[PORT_HASH_SIZE];
 	spinlock_t	  sock_lock;
+<<<<<<< HEAD
+=======
+	struct notifier_block nexthop_notifier_block;
+>>>>>>> upstream/android-13
 };
 
 /* Forwarding table entry */
@@ -79,9 +98,20 @@ struct vxlan_fdb {
 	u8		  eth_addr[ETH_ALEN];
 	u16		  state;	/* see ndm_state */
 	__be32		  vni;
+<<<<<<< HEAD
 	u8		  flags;	/* see ndm_flags */
 };
 
+=======
+	u16		  flags;	/* see ndm_flags and below */
+	struct list_head  nh_list;
+	struct nexthop __rcu *nh;
+	struct vxlan_dev  __rcu *vdev;
+};
+
+#define NTF_VXLAN_ADDED_BY_USER 0x100
+
+>>>>>>> upstream/android-13
 /* salt for hash table */
 static u32 vxlan_salt __read_mostly;
 
@@ -103,6 +133,7 @@ bool vxlan_addr_equal(const union vxlan_addr *a, const union vxlan_addr *b)
 		return a->sin.sin_addr.s_addr == b->sin.sin_addr.s_addr;
 }
 
+<<<<<<< HEAD
 static inline bool vxlan_addr_any(const union vxlan_addr *ipa)
 {
 	if (ipa->sa.sa_family == AF_INET6)
@@ -119,6 +150,8 @@ static inline bool vxlan_addr_multicast(const union vxlan_addr *ipa)
 		return IN_MULTICAST(ntohl(ipa->sin.sin_addr.s_addr));
 }
 
+=======
+>>>>>>> upstream/android-13
 static int vxlan_nla_get_addr(union vxlan_addr *ip, struct nlattr *nla)
 {
 	if (nla_len(nla) >= sizeof(struct in6_addr)) {
@@ -151,6 +184,7 @@ bool vxlan_addr_equal(const union vxlan_addr *a, const union vxlan_addr *b)
 	return a->sin.sin_addr.s_addr == b->sin.sin_addr.s_addr;
 }
 
+<<<<<<< HEAD
 static inline bool vxlan_addr_any(const union vxlan_addr *ipa)
 {
 	return ipa->sin.sin_addr.s_addr == htonl(INADDR_ANY);
@@ -161,6 +195,8 @@ static inline bool vxlan_addr_multicast(const union vxlan_addr *ipa)
 	return IN_MULTICAST(ntohl(ipa->sin.sin_addr.s_addr));
 }
 
+=======
+>>>>>>> upstream/android-13
 static int vxlan_nla_get_addr(union vxlan_addr *ip, struct nlattr *nla)
 {
 	if (nla_len(nla) >= sizeof(struct in6_addr)) {
@@ -200,11 +236,17 @@ static inline struct hlist_head *vs_head(struct net *net, __be16 port)
  */
 static inline struct vxlan_rdst *first_remote_rcu(struct vxlan_fdb *fdb)
 {
+<<<<<<< HEAD
+=======
+	if (rcu_access_pointer(fdb->nh))
+		return NULL;
+>>>>>>> upstream/android-13
 	return list_entry_rcu(fdb->remotes.next, struct vxlan_rdst, list);
 }
 
 static inline struct vxlan_rdst *first_remote_rtnl(struct vxlan_fdb *fdb)
 {
+<<<<<<< HEAD
 	return list_first_entry(&fdb->remotes, struct vxlan_rdst, list);
 }
 
@@ -213,6 +255,19 @@ static inline struct vxlan_rdst *first_remote_rtnl(struct vxlan_fdb *fdb)
  */
 static struct vxlan_sock *vxlan_find_sock(struct net *net, sa_family_t family,
 					  __be16 port, u32 flags)
+=======
+	if (rcu_access_pointer(fdb->nh))
+		return NULL;
+	return list_first_entry(&fdb->remotes, struct vxlan_rdst, list);
+}
+
+/* Find VXLAN socket based on network namespace, address family, UDP port,
+ * enabled unshareable flags and socket device binding (see l3mdev with
+ * non-default VRF).
+ */
+static struct vxlan_sock *vxlan_find_sock(struct net *net, sa_family_t family,
+					  __be16 port, u32 flags, int ifindex)
+>>>>>>> upstream/android-13
 {
 	struct vxlan_sock *vs;
 
@@ -221,7 +276,12 @@ static struct vxlan_sock *vxlan_find_sock(struct net *net, sa_family_t family,
 	hlist_for_each_entry_rcu(vs, vs_head(net, port), hlist) {
 		if (inet_sk(vs->sock->sk)->inet_sport == port &&
 		    vxlan_get_sk_family(vs) == family &&
+<<<<<<< HEAD
 		    vs->flags == flags)
+=======
+		    vs->flags == flags &&
+		    vs->sock->sk->sk_bound_dev_if == ifindex)
+>>>>>>> upstream/android-13
 			return vs;
 	}
 	return NULL;
@@ -261,7 +321,11 @@ static struct vxlan_dev *vxlan_find_vni(struct net *net, int ifindex,
 {
 	struct vxlan_sock *vs;
 
+<<<<<<< HEAD
 	vs = vxlan_find_sock(net, family, port, flags);
+=======
+	vs = vxlan_find_sock(net, family, port, flags, ifindex);
+>>>>>>> upstream/android-13
 	if (!vs)
 		return NULL;
 
@@ -276,9 +340,18 @@ static int vxlan_fdb_info(struct sk_buff *skb, struct vxlan_dev *vxlan,
 {
 	unsigned long now = jiffies;
 	struct nda_cacheinfo ci;
+<<<<<<< HEAD
 	struct nlmsghdr *nlh;
 	struct ndmsg *ndm;
 	bool send_ip, send_eth;
+=======
+	bool send_ip, send_eth;
+	struct nlmsghdr *nlh;
+	struct nexthop *nh;
+	struct ndmsg *ndm;
+	int nh_family;
+	u32 nh_id;
+>>>>>>> upstream/android-13
 
 	nlh = nlmsg_put(skb, portid, seq, type, sizeof(*ndm), flags);
 	if (nlh == NULL)
@@ -289,15 +362,39 @@ static int vxlan_fdb_info(struct sk_buff *skb, struct vxlan_dev *vxlan,
 
 	send_eth = send_ip = true;
 
+<<<<<<< HEAD
 	if (type == RTM_GETNEIGH) {
 		send_ip = !vxlan_addr_any(&rdst->remote_ip);
 		send_eth = !is_zero_ether_addr(fdb->eth_addr);
 		ndm->ndm_family = send_ip ? rdst->remote_ip.sa.sa_family : AF_INET;
+=======
+	rcu_read_lock();
+	nh = rcu_dereference(fdb->nh);
+	if (nh) {
+		nh_family = nexthop_get_family(nh);
+		nh_id = nh->id;
+	}
+	rcu_read_unlock();
+
+	if (type == RTM_GETNEIGH) {
+		if (rdst) {
+			send_ip = !vxlan_addr_any(&rdst->remote_ip);
+			ndm->ndm_family = send_ip ? rdst->remote_ip.sa.sa_family : AF_INET;
+		} else if (nh) {
+			ndm->ndm_family = nh_family;
+		}
+		send_eth = !is_zero_ether_addr(fdb->eth_addr);
+>>>>>>> upstream/android-13
 	} else
 		ndm->ndm_family	= AF_BRIDGE;
 	ndm->ndm_state = fdb->state;
 	ndm->ndm_ifindex = vxlan->dev->ifindex;
 	ndm->ndm_flags = fdb->flags;
+<<<<<<< HEAD
+=======
+	if (rdst && rdst->offloaded)
+		ndm->ndm_flags |= NTF_OFFLOADED;
+>>>>>>> upstream/android-13
 	ndm->ndm_type = RTN_UNICAST;
 
 	if (!net_eq(dev_net(vxlan->dev), vxlan->net) &&
@@ -307,6 +404,7 @@ static int vxlan_fdb_info(struct sk_buff *skb, struct vxlan_dev *vxlan,
 
 	if (send_eth && nla_put(skb, NDA_LLADDR, ETH_ALEN, &fdb->eth_addr))
 		goto nla_put_failure;
+<<<<<<< HEAD
 
 	if (send_ip && vxlan_nla_put_addr(skb, NDA_DST, &rdst->remote_ip))
 		goto nla_put_failure;
@@ -317,13 +415,38 @@ static int vxlan_fdb_info(struct sk_buff *skb, struct vxlan_dev *vxlan,
 	if (rdst->remote_vni != vxlan->default_dst.remote_vni &&
 	    nla_put_u32(skb, NDA_VNI, be32_to_cpu(rdst->remote_vni)))
 		goto nla_put_failure;
+=======
+	if (nh) {
+		if (nla_put_u32(skb, NDA_NH_ID, nh_id))
+			goto nla_put_failure;
+	} else if (rdst) {
+		if (send_ip && vxlan_nla_put_addr(skb, NDA_DST,
+						  &rdst->remote_ip))
+			goto nla_put_failure;
+
+		if (rdst->remote_port &&
+		    rdst->remote_port != vxlan->cfg.dst_port &&
+		    nla_put_be16(skb, NDA_PORT, rdst->remote_port))
+			goto nla_put_failure;
+		if (rdst->remote_vni != vxlan->default_dst.remote_vni &&
+		    nla_put_u32(skb, NDA_VNI, be32_to_cpu(rdst->remote_vni)))
+			goto nla_put_failure;
+		if (rdst->remote_ifindex &&
+		    nla_put_u32(skb, NDA_IFINDEX, rdst->remote_ifindex))
+			goto nla_put_failure;
+	}
+
+>>>>>>> upstream/android-13
 	if ((vxlan->cfg.flags & VXLAN_F_COLLECT_METADATA) && fdb->vni &&
 	    nla_put_u32(skb, NDA_SRC_VNI,
 			be32_to_cpu(fdb->vni)))
 		goto nla_put_failure;
+<<<<<<< HEAD
 	if (rdst->remote_ifindex &&
 	    nla_put_u32(skb, NDA_IFINDEX, rdst->remote_ifindex))
 		goto nla_put_failure;
+=======
+>>>>>>> upstream/android-13
 
 	ci.ndm_used	 = jiffies_to_clock_t(now - fdb->used);
 	ci.ndm_confirmed = 0;
@@ -353,8 +476,13 @@ static inline size_t vxlan_nlmsg_size(void)
 		+ nla_total_size(sizeof(struct nda_cacheinfo));
 }
 
+<<<<<<< HEAD
 static void vxlan_fdb_notify(struct vxlan_dev *vxlan, struct vxlan_fdb *fdb,
 			     struct vxlan_rdst *rd, int type)
+=======
+static void __vxlan_fdb_notify(struct vxlan_dev *vxlan, struct vxlan_fdb *fdb,
+			       struct vxlan_rdst *rd, int type)
+>>>>>>> upstream/android-13
 {
 	struct net *net = dev_net(vxlan->dev);
 	struct sk_buff *skb;
@@ -379,6 +507,73 @@ errout:
 		rtnl_set_sk_err(net, RTNLGRP_NEIGH, err);
 }
 
+<<<<<<< HEAD
+=======
+static void vxlan_fdb_switchdev_notifier_info(const struct vxlan_dev *vxlan,
+			    const struct vxlan_fdb *fdb,
+			    const struct vxlan_rdst *rd,
+			    struct netlink_ext_ack *extack,
+			    struct switchdev_notifier_vxlan_fdb_info *fdb_info)
+{
+	fdb_info->info.dev = vxlan->dev;
+	fdb_info->info.extack = extack;
+	fdb_info->remote_ip = rd->remote_ip;
+	fdb_info->remote_port = rd->remote_port;
+	fdb_info->remote_vni = rd->remote_vni;
+	fdb_info->remote_ifindex = rd->remote_ifindex;
+	memcpy(fdb_info->eth_addr, fdb->eth_addr, ETH_ALEN);
+	fdb_info->vni = fdb->vni;
+	fdb_info->offloaded = rd->offloaded;
+	fdb_info->added_by_user = fdb->flags & NTF_VXLAN_ADDED_BY_USER;
+}
+
+static int vxlan_fdb_switchdev_call_notifiers(struct vxlan_dev *vxlan,
+					      struct vxlan_fdb *fdb,
+					      struct vxlan_rdst *rd,
+					      bool adding,
+					      struct netlink_ext_ack *extack)
+{
+	struct switchdev_notifier_vxlan_fdb_info info;
+	enum switchdev_notifier_type notifier_type;
+	int ret;
+
+	if (WARN_ON(!rd))
+		return 0;
+
+	notifier_type = adding ? SWITCHDEV_VXLAN_FDB_ADD_TO_DEVICE
+			       : SWITCHDEV_VXLAN_FDB_DEL_TO_DEVICE;
+	vxlan_fdb_switchdev_notifier_info(vxlan, fdb, rd, NULL, &info);
+	ret = call_switchdev_notifiers(notifier_type, vxlan->dev,
+				       &info.info, extack);
+	return notifier_to_errno(ret);
+}
+
+static int vxlan_fdb_notify(struct vxlan_dev *vxlan, struct vxlan_fdb *fdb,
+			    struct vxlan_rdst *rd, int type, bool swdev_notify,
+			    struct netlink_ext_ack *extack)
+{
+	int err;
+
+	if (swdev_notify && rd) {
+		switch (type) {
+		case RTM_NEWNEIGH:
+			err = vxlan_fdb_switchdev_call_notifiers(vxlan, fdb, rd,
+								 true, extack);
+			if (err)
+				return err;
+			break;
+		case RTM_DELNEIGH:
+			vxlan_fdb_switchdev_call_notifiers(vxlan, fdb, rd,
+							   false, extack);
+			break;
+		}
+	}
+
+	__vxlan_fdb_notify(vxlan, fdb, rd, type);
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static void vxlan_ip_miss(struct net_device *dev, union vxlan_addr *ipa)
 {
 	struct vxlan_dev *vxlan = netdev_priv(dev);
@@ -390,7 +585,11 @@ static void vxlan_ip_miss(struct net_device *dev, union vxlan_addr *ipa)
 		.remote_vni = cpu_to_be32(VXLAN_N_VID),
 	};
 
+<<<<<<< HEAD
 	vxlan_fdb_notify(vxlan, &f, &remote, RTM_GETNEIGH);
+=======
+	vxlan_fdb_notify(vxlan, &f, &remote, RTM_GETNEIGH, true, NULL);
+>>>>>>> upstream/android-13
 }
 
 static void vxlan_fdb_miss(struct vxlan_dev *vxlan, const u8 eth_addr[ETH_ALEN])
@@ -402,7 +601,11 @@ static void vxlan_fdb_miss(struct vxlan_dev *vxlan, const u8 eth_addr[ETH_ALEN])
 
 	memcpy(f.eth_addr, eth_addr, ETH_ALEN);
 
+<<<<<<< HEAD
 	vxlan_fdb_notify(vxlan, &f, &remote, RTM_GETNEIGH);
+=======
+	vxlan_fdb_notify(vxlan, &f, &remote, RTM_GETNEIGH, true, NULL);
+>>>>>>> upstream/android-13
 }
 
 /* Hash Ethernet address */
@@ -427,14 +630,29 @@ static u32 eth_vni_hash(const unsigned char *addr, __be32 vni)
 	return jhash_2words(key, vni, vxlan_salt) & (FDB_HASH_SIZE - 1);
 }
 
+<<<<<<< HEAD
+=======
+static u32 fdb_head_index(struct vxlan_dev *vxlan, const u8 *mac, __be32 vni)
+{
+	if (vxlan->cfg.flags & VXLAN_F_COLLECT_METADATA)
+		return eth_vni_hash(mac, vni);
+	else
+		return eth_hash(mac);
+}
+
+>>>>>>> upstream/android-13
 /* Hash chain to use given mac address */
 static inline struct hlist_head *vxlan_fdb_head(struct vxlan_dev *vxlan,
 						const u8 *mac, __be32 vni)
 {
+<<<<<<< HEAD
 	if (vxlan->cfg.flags & VXLAN_F_COLLECT_METADATA)
 		return &vxlan->fdb_head[eth_vni_hash(mac, vni)];
 	else
 		return &vxlan->fdb_head[eth_hash(mac)];
+=======
+	return &vxlan->fdb_head[fdb_head_index(vxlan, mac, vni)];
+>>>>>>> upstream/android-13
 }
 
 /* Look up Ethernet address in forwarding table */
@@ -464,7 +682,11 @@ static struct vxlan_fdb *vxlan_find_mac(struct vxlan_dev *vxlan,
 	struct vxlan_fdb *f;
 
 	f = __vxlan_find_mac(vxlan, mac, vni);
+<<<<<<< HEAD
 	if (f)
+=======
+	if (f && f->used != jiffies)
+>>>>>>> upstream/android-13
 		f->used = jiffies;
 
 	return f;
@@ -488,10 +710,124 @@ static struct vxlan_rdst *vxlan_fdb_find_rdst(struct vxlan_fdb *f,
 	return NULL;
 }
 
+<<<<<<< HEAD
 /* Replace destination of unicast mac */
 static int vxlan_fdb_replace(struct vxlan_fdb *f,
 			     union vxlan_addr *ip, __be16 port, __be32 vni,
 			     __u32 ifindex)
+=======
+int vxlan_fdb_find_uc(struct net_device *dev, const u8 *mac, __be32 vni,
+		      struct switchdev_notifier_vxlan_fdb_info *fdb_info)
+{
+	struct vxlan_dev *vxlan = netdev_priv(dev);
+	u8 eth_addr[ETH_ALEN + 2] = { 0 };
+	struct vxlan_rdst *rdst;
+	struct vxlan_fdb *f;
+	int rc = 0;
+
+	if (is_multicast_ether_addr(mac) ||
+	    is_zero_ether_addr(mac))
+		return -EINVAL;
+
+	ether_addr_copy(eth_addr, mac);
+
+	rcu_read_lock();
+
+	f = __vxlan_find_mac(vxlan, eth_addr, vni);
+	if (!f) {
+		rc = -ENOENT;
+		goto out;
+	}
+
+	rdst = first_remote_rcu(f);
+	vxlan_fdb_switchdev_notifier_info(vxlan, f, rdst, NULL, fdb_info);
+
+out:
+	rcu_read_unlock();
+	return rc;
+}
+EXPORT_SYMBOL_GPL(vxlan_fdb_find_uc);
+
+static int vxlan_fdb_notify_one(struct notifier_block *nb,
+				const struct vxlan_dev *vxlan,
+				const struct vxlan_fdb *f,
+				const struct vxlan_rdst *rdst,
+				struct netlink_ext_ack *extack)
+{
+	struct switchdev_notifier_vxlan_fdb_info fdb_info;
+	int rc;
+
+	vxlan_fdb_switchdev_notifier_info(vxlan, f, rdst, extack, &fdb_info);
+	rc = nb->notifier_call(nb, SWITCHDEV_VXLAN_FDB_ADD_TO_DEVICE,
+			       &fdb_info);
+	return notifier_to_errno(rc);
+}
+
+int vxlan_fdb_replay(const struct net_device *dev, __be32 vni,
+		     struct notifier_block *nb,
+		     struct netlink_ext_ack *extack)
+{
+	struct vxlan_dev *vxlan;
+	struct vxlan_rdst *rdst;
+	struct vxlan_fdb *f;
+	unsigned int h;
+	int rc = 0;
+
+	if (!netif_is_vxlan(dev))
+		return -EINVAL;
+	vxlan = netdev_priv(dev);
+
+	for (h = 0; h < FDB_HASH_SIZE; ++h) {
+		spin_lock_bh(&vxlan->hash_lock[h]);
+		hlist_for_each_entry(f, &vxlan->fdb_head[h], hlist) {
+			if (f->vni == vni) {
+				list_for_each_entry(rdst, &f->remotes, list) {
+					rc = vxlan_fdb_notify_one(nb, vxlan,
+								  f, rdst,
+								  extack);
+					if (rc)
+						goto unlock;
+				}
+			}
+		}
+		spin_unlock_bh(&vxlan->hash_lock[h]);
+	}
+	return 0;
+
+unlock:
+	spin_unlock_bh(&vxlan->hash_lock[h]);
+	return rc;
+}
+EXPORT_SYMBOL_GPL(vxlan_fdb_replay);
+
+void vxlan_fdb_clear_offload(const struct net_device *dev, __be32 vni)
+{
+	struct vxlan_dev *vxlan;
+	struct vxlan_rdst *rdst;
+	struct vxlan_fdb *f;
+	unsigned int h;
+
+	if (!netif_is_vxlan(dev))
+		return;
+	vxlan = netdev_priv(dev);
+
+	for (h = 0; h < FDB_HASH_SIZE; ++h) {
+		spin_lock_bh(&vxlan->hash_lock[h]);
+		hlist_for_each_entry(f, &vxlan->fdb_head[h], hlist)
+			if (f->vni == vni)
+				list_for_each_entry(rdst, &f->remotes, list)
+					rdst->offloaded = false;
+		spin_unlock_bh(&vxlan->hash_lock[h]);
+	}
+
+}
+EXPORT_SYMBOL_GPL(vxlan_fdb_clear_offload);
+
+/* Replace destination of unicast mac */
+static int vxlan_fdb_replace(struct vxlan_fdb *f,
+			     union vxlan_addr *ip, __be16 port, __be32 vni,
+			     __u32 ifindex, struct vxlan_rdst *oldrd)
+>>>>>>> upstream/android-13
 {
 	struct vxlan_rdst *rd;
 
@@ -503,11 +839,19 @@ static int vxlan_fdb_replace(struct vxlan_fdb *f,
 	if (!rd)
 		return 0;
 
+<<<<<<< HEAD
+=======
+	*oldrd = *rd;
+>>>>>>> upstream/android-13
 	dst_cache_reset(&rd->dst_cache);
 	rd->remote_ip = *ip;
 	rd->remote_port = port;
 	rd->remote_vni = vni;
 	rd->remote_ifindex = ifindex;
+<<<<<<< HEAD
+=======
+	rd->offloaded = false;
+>>>>>>> upstream/android-13
 	return 1;
 }
 
@@ -524,15 +868,27 @@ static int vxlan_fdb_append(struct vxlan_fdb *f,
 
 	rd = kmalloc(sizeof(*rd), GFP_ATOMIC);
 	if (rd == NULL)
+<<<<<<< HEAD
 		return -ENOBUFS;
 
 	if (dst_cache_init(&rd->dst_cache, GFP_ATOMIC)) {
 		kfree(rd);
 		return -ENOBUFS;
+=======
+		return -ENOMEM;
+
+	if (dst_cache_init(&rd->dst_cache, GFP_ATOMIC)) {
+		kfree(rd);
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 	}
 
 	rd->remote_ip = *ip;
 	rd->remote_port = port;
+<<<<<<< HEAD
+=======
+	rd->offloaded = false;
+>>>>>>> upstream/android-13
 	rd->remote_vni = vni;
 	rd->remote_ifindex = ifindex;
 
@@ -637,9 +993,15 @@ static int vxlan_gro_complete(struct sock *sk, struct sk_buff *skb, int nhoff)
 	return eth_gro_complete(skb, nhoff + sizeof(struct vxlanhdr));
 }
 
+<<<<<<< HEAD
 static struct vxlan_fdb *vxlan_fdb_alloc(struct vxlan_dev *vxlan,
 					 const u8 *mac, __u16 state,
 					 __be32 src_vni, __u8 ndm_flags)
+=======
+static struct vxlan_fdb *vxlan_fdb_alloc(struct vxlan_dev *vxlan, const u8 *mac,
+					 __u16 state, __be32 src_vni,
+					 __u16 ndm_flags)
+>>>>>>> upstream/android-13
 {
 	struct vxlan_fdb *f;
 
@@ -650,17 +1012,104 @@ static struct vxlan_fdb *vxlan_fdb_alloc(struct vxlan_dev *vxlan,
 	f->flags = ndm_flags;
 	f->updated = f->used = jiffies;
 	f->vni = src_vni;
+<<<<<<< HEAD
+=======
+	f->nh = NULL;
+	RCU_INIT_POINTER(f->vdev, vxlan);
+	INIT_LIST_HEAD(&f->nh_list);
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&f->remotes);
 	memcpy(f->eth_addr, mac, ETH_ALEN);
 
 	return f;
 }
 
+<<<<<<< HEAD
 static int vxlan_fdb_create(struct vxlan_dev *vxlan,
 			    const u8 *mac, union vxlan_addr *ip,
 			    __u16 state, __be16 port, __be32 src_vni,
 			    __be32 vni, __u32 ifindex, __u8 ndm_flags,
 			    struct vxlan_fdb **fdb)
+=======
+static void vxlan_fdb_insert(struct vxlan_dev *vxlan, const u8 *mac,
+			     __be32 src_vni, struct vxlan_fdb *f)
+{
+	++vxlan->addrcnt;
+	hlist_add_head_rcu(&f->hlist,
+			   vxlan_fdb_head(vxlan, mac, src_vni));
+}
+
+static int vxlan_fdb_nh_update(struct vxlan_dev *vxlan, struct vxlan_fdb *fdb,
+			       u32 nhid, struct netlink_ext_ack *extack)
+{
+	struct nexthop *old_nh = rtnl_dereference(fdb->nh);
+	struct nexthop *nh;
+	int err = -EINVAL;
+
+	if (old_nh && old_nh->id == nhid)
+		return 0;
+
+	nh = nexthop_find_by_id(vxlan->net, nhid);
+	if (!nh) {
+		NL_SET_ERR_MSG(extack, "Nexthop id does not exist");
+		goto err_inval;
+	}
+
+	if (nh) {
+		if (!nexthop_get(nh)) {
+			NL_SET_ERR_MSG(extack, "Nexthop has been deleted");
+			nh = NULL;
+			goto err_inval;
+		}
+		if (!nexthop_is_fdb(nh)) {
+			NL_SET_ERR_MSG(extack, "Nexthop is not a fdb nexthop");
+			goto err_inval;
+		}
+
+		if (!nexthop_is_multipath(nh)) {
+			NL_SET_ERR_MSG(extack, "Nexthop is not a multipath group");
+			goto err_inval;
+		}
+
+		/* check nexthop group family */
+		switch (vxlan->default_dst.remote_ip.sa.sa_family) {
+		case AF_INET:
+			if (!nexthop_has_v4(nh)) {
+				err = -EAFNOSUPPORT;
+				NL_SET_ERR_MSG(extack, "Nexthop group family not supported");
+				goto err_inval;
+			}
+			break;
+		case AF_INET6:
+			if (nexthop_has_v4(nh)) {
+				err = -EAFNOSUPPORT;
+				NL_SET_ERR_MSG(extack, "Nexthop group family not supported");
+				goto err_inval;
+			}
+		}
+	}
+
+	if (old_nh) {
+		list_del_rcu(&fdb->nh_list);
+		nexthop_put(old_nh);
+	}
+	rcu_assign_pointer(fdb->nh, nh);
+	list_add_tail_rcu(&fdb->nh_list, &nh->fdb_list);
+	return 1;
+
+err_inval:
+	if (nh)
+		nexthop_put(nh);
+	return err;
+}
+
+static int vxlan_fdb_create(struct vxlan_dev *vxlan,
+			    const u8 *mac, union vxlan_addr *ip,
+			    __u16 state, __be16 port, __be32 src_vni,
+			    __be32 vni, __u32 ifindex, __u16 ndm_flags,
+			    u32 nhid, struct vxlan_fdb **fdb,
+			    struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct vxlan_rdst *rd = NULL;
 	struct vxlan_fdb *f;
@@ -675,6 +1124,7 @@ static int vxlan_fdb_create(struct vxlan_dev *vxlan,
 	if (!f)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	rc = vxlan_fdb_append(f, ip, port, vni, ifindex, &rd);
 	if (rc < 0) {
 		kfree(f);
@@ -684,10 +1134,19 @@ static int vxlan_fdb_create(struct vxlan_dev *vxlan,
 	++vxlan->addrcnt;
 	hlist_add_head_rcu(&f->hlist,
 			   vxlan_fdb_head(vxlan, mac, src_vni));
+=======
+	if (nhid)
+		rc = vxlan_fdb_nh_update(vxlan, f, nhid, extack);
+	else
+		rc = vxlan_fdb_append(f, ip, port, vni, ifindex, &rd);
+	if (rc < 0)
+		goto errout;
+>>>>>>> upstream/android-13
 
 	*fdb = f;
 
 	return 0;
+<<<<<<< HEAD
 }
 
 /* Add new entry to forwarding table -- assumes lock held */
@@ -767,6 +1226,25 @@ static void vxlan_fdb_free(struct rcu_head *head)
 {
 	struct vxlan_fdb *f = container_of(head, struct vxlan_fdb, rcu);
 	struct vxlan_rdst *rd, *nd;
+=======
+
+errout:
+	kfree(f);
+	return rc;
+}
+
+static void __vxlan_fdb_free(struct vxlan_fdb *f)
+{
+	struct vxlan_rdst *rd, *nd;
+	struct nexthop *nh;
+
+	nh = rcu_dereference_raw(f->nh);
+	if (nh) {
+		rcu_assign_pointer(f->nh, NULL);
+		rcu_assign_pointer(f->vdev, NULL);
+		nexthop_put(nh);
+	}
+>>>>>>> upstream/android-13
 
 	list_for_each_entry_safe(rd, nd, &f->remotes, list) {
 		dst_cache_destroy(&rd->dst_cache);
@@ -775,6 +1253,7 @@ static void vxlan_fdb_free(struct rcu_head *head)
 	kfree(f);
 }
 
+<<<<<<< HEAD
 static void vxlan_fdb_destroy(struct vxlan_dev *vxlan, struct vxlan_fdb *f,
 			      bool do_notify)
 {
@@ -786,6 +1265,35 @@ static void vxlan_fdb_destroy(struct vxlan_dev *vxlan, struct vxlan_fdb *f,
 		vxlan_fdb_notify(vxlan, f, first_remote_rtnl(f), RTM_DELNEIGH);
 
 	hlist_del_rcu(&f->hlist);
+=======
+static void vxlan_fdb_free(struct rcu_head *head)
+{
+	struct vxlan_fdb *f = container_of(head, struct vxlan_fdb, rcu);
+
+	__vxlan_fdb_free(f);
+}
+
+static void vxlan_fdb_destroy(struct vxlan_dev *vxlan, struct vxlan_fdb *f,
+			      bool do_notify, bool swdev_notify)
+{
+	struct vxlan_rdst *rd;
+
+	netdev_dbg(vxlan->dev, "delete %pM\n", f->eth_addr);
+
+	--vxlan->addrcnt;
+	if (do_notify) {
+		if (rcu_access_pointer(f->nh))
+			vxlan_fdb_notify(vxlan, f, NULL, RTM_DELNEIGH,
+					 swdev_notify, NULL);
+		else
+			list_for_each_entry(rd, &f->remotes, list)
+				vxlan_fdb_notify(vxlan, f, rd, RTM_DELNEIGH,
+						 swdev_notify, NULL);
+	}
+
+	hlist_del_rcu(&f->hlist);
+	list_del_rcu(&f->nh_list);
+>>>>>>> upstream/android-13
 	call_rcu(&f->rcu, vxlan_fdb_free);
 }
 
@@ -797,27 +1305,219 @@ static void vxlan_dst_free(struct rcu_head *head)
 	kfree(rd);
 }
 
+<<<<<<< HEAD
 static void vxlan_fdb_dst_destroy(struct vxlan_dev *vxlan, struct vxlan_fdb *f,
 				  struct vxlan_rdst *rd)
 {
 	list_del_rcu(&rd->list);
 	vxlan_fdb_notify(vxlan, f, rd, RTM_DELNEIGH);
+=======
+static int vxlan_fdb_update_existing(struct vxlan_dev *vxlan,
+				     union vxlan_addr *ip,
+				     __u16 state, __u16 flags,
+				     __be16 port, __be32 vni,
+				     __u32 ifindex, __u16 ndm_flags,
+				     struct vxlan_fdb *f, u32 nhid,
+				     bool swdev_notify,
+				     struct netlink_ext_ack *extack)
+{
+	__u16 fdb_flags = (ndm_flags & ~NTF_USE);
+	struct vxlan_rdst *rd = NULL;
+	struct vxlan_rdst oldrd;
+	int notify = 0;
+	int rc = 0;
+	int err;
+
+	if (nhid && !rcu_access_pointer(f->nh)) {
+		NL_SET_ERR_MSG(extack,
+			       "Cannot replace an existing non nexthop fdb with a nexthop");
+		return -EOPNOTSUPP;
+	}
+
+	if (nhid && (flags & NLM_F_APPEND)) {
+		NL_SET_ERR_MSG(extack,
+			       "Cannot append to a nexthop fdb");
+		return -EOPNOTSUPP;
+	}
+
+	/* Do not allow an externally learned entry to take over an entry added
+	 * by the user.
+	 */
+	if (!(fdb_flags & NTF_EXT_LEARNED) ||
+	    !(f->flags & NTF_VXLAN_ADDED_BY_USER)) {
+		if (f->state != state) {
+			f->state = state;
+			f->updated = jiffies;
+			notify = 1;
+		}
+		if (f->flags != fdb_flags) {
+			f->flags = fdb_flags;
+			f->updated = jiffies;
+			notify = 1;
+		}
+	}
+
+	if ((flags & NLM_F_REPLACE)) {
+		/* Only change unicasts */
+		if (!(is_multicast_ether_addr(f->eth_addr) ||
+		      is_zero_ether_addr(f->eth_addr))) {
+			if (nhid) {
+				rc = vxlan_fdb_nh_update(vxlan, f, nhid, extack);
+				if (rc < 0)
+					return rc;
+			} else {
+				rc = vxlan_fdb_replace(f, ip, port, vni,
+						       ifindex, &oldrd);
+			}
+			notify |= rc;
+		} else {
+			NL_SET_ERR_MSG(extack, "Cannot replace non-unicast fdb entries");
+			return -EOPNOTSUPP;
+		}
+	}
+	if ((flags & NLM_F_APPEND) &&
+	    (is_multicast_ether_addr(f->eth_addr) ||
+	     is_zero_ether_addr(f->eth_addr))) {
+		rc = vxlan_fdb_append(f, ip, port, vni, ifindex, &rd);
+
+		if (rc < 0)
+			return rc;
+		notify |= rc;
+	}
+
+	if (ndm_flags & NTF_USE)
+		f->used = jiffies;
+
+	if (notify) {
+		if (rd == NULL)
+			rd = first_remote_rtnl(f);
+
+		err = vxlan_fdb_notify(vxlan, f, rd, RTM_NEWNEIGH,
+				       swdev_notify, extack);
+		if (err)
+			goto err_notify;
+	}
+
+	return 0;
+
+err_notify:
+	if (nhid)
+		return err;
+	if ((flags & NLM_F_REPLACE) && rc)
+		*rd = oldrd;
+	else if ((flags & NLM_F_APPEND) && rc) {
+		list_del_rcu(&rd->list);
+		call_rcu(&rd->rcu, vxlan_dst_free);
+	}
+	return err;
+}
+
+static int vxlan_fdb_update_create(struct vxlan_dev *vxlan,
+				   const u8 *mac, union vxlan_addr *ip,
+				   __u16 state, __u16 flags,
+				   __be16 port, __be32 src_vni, __be32 vni,
+				   __u32 ifindex, __u16 ndm_flags, u32 nhid,
+				   bool swdev_notify,
+				   struct netlink_ext_ack *extack)
+{
+	__u16 fdb_flags = (ndm_flags & ~NTF_USE);
+	struct vxlan_fdb *f;
+	int rc;
+
+	/* Disallow replace to add a multicast entry */
+	if ((flags & NLM_F_REPLACE) &&
+	    (is_multicast_ether_addr(mac) || is_zero_ether_addr(mac)))
+		return -EOPNOTSUPP;
+
+	netdev_dbg(vxlan->dev, "add %pM -> %pIS\n", mac, ip);
+	rc = vxlan_fdb_create(vxlan, mac, ip, state, port, src_vni,
+			      vni, ifindex, fdb_flags, nhid, &f, extack);
+	if (rc < 0)
+		return rc;
+
+	vxlan_fdb_insert(vxlan, mac, src_vni, f);
+	rc = vxlan_fdb_notify(vxlan, f, first_remote_rtnl(f), RTM_NEWNEIGH,
+			      swdev_notify, extack);
+	if (rc)
+		goto err_notify;
+
+	return 0;
+
+err_notify:
+	vxlan_fdb_destroy(vxlan, f, false, false);
+	return rc;
+}
+
+/* Add new entry to forwarding table -- assumes lock held */
+static int vxlan_fdb_update(struct vxlan_dev *vxlan,
+			    const u8 *mac, union vxlan_addr *ip,
+			    __u16 state, __u16 flags,
+			    __be16 port, __be32 src_vni, __be32 vni,
+			    __u32 ifindex, __u16 ndm_flags, u32 nhid,
+			    bool swdev_notify,
+			    struct netlink_ext_ack *extack)
+{
+	struct vxlan_fdb *f;
+
+	f = __vxlan_find_mac(vxlan, mac, src_vni);
+	if (f) {
+		if (flags & NLM_F_EXCL) {
+			netdev_dbg(vxlan->dev,
+				   "lost race to create %pM\n", mac);
+			return -EEXIST;
+		}
+
+		return vxlan_fdb_update_existing(vxlan, ip, state, flags, port,
+						 vni, ifindex, ndm_flags, f,
+						 nhid, swdev_notify, extack);
+	} else {
+		if (!(flags & NLM_F_CREATE))
+			return -ENOENT;
+
+		return vxlan_fdb_update_create(vxlan, mac, ip, state, flags,
+					       port, src_vni, vni, ifindex,
+					       ndm_flags, nhid, swdev_notify,
+					       extack);
+	}
+}
+
+static void vxlan_fdb_dst_destroy(struct vxlan_dev *vxlan, struct vxlan_fdb *f,
+				  struct vxlan_rdst *rd, bool swdev_notify)
+{
+	list_del_rcu(&rd->list);
+	vxlan_fdb_notify(vxlan, f, rd, RTM_DELNEIGH, swdev_notify, NULL);
+>>>>>>> upstream/android-13
 	call_rcu(&rd->rcu, vxlan_dst_free);
 }
 
 static int vxlan_fdb_parse(struct nlattr *tb[], struct vxlan_dev *vxlan,
 			   union vxlan_addr *ip, __be16 *port, __be32 *src_vni,
+<<<<<<< HEAD
 			   __be32 *vni, u32 *ifindex)
+=======
+			   __be32 *vni, u32 *ifindex, u32 *nhid)
+>>>>>>> upstream/android-13
 {
 	struct net *net = dev_net(vxlan->dev);
 	int err;
 
+<<<<<<< HEAD
+=======
+	if (tb[NDA_NH_ID] && (tb[NDA_DST] || tb[NDA_VNI] || tb[NDA_IFINDEX] ||
+	    tb[NDA_PORT]))
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	if (tb[NDA_DST]) {
 		err = vxlan_nla_get_addr(ip, tb[NDA_DST]);
 		if (err)
 			return err;
 	} else {
 		union vxlan_addr *remote = &vxlan->default_dst.remote_ip;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		if (remote->sa.sa_family == AF_INET) {
 			ip->sin.sin_addr.s_addr = htonl(INADDR_ANY);
 			ip->sa.sa_family = AF_INET;
@@ -866,20 +1566,38 @@ static int vxlan_fdb_parse(struct nlattr *tb[], struct vxlan_dev *vxlan,
 		*ifindex = 0;
 	}
 
+<<<<<<< HEAD
+=======
+	if (tb[NDA_NH_ID])
+		*nhid = nla_get_u32(tb[NDA_NH_ID]);
+	else
+		*nhid = 0;
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 /* Add static entry (via netlink) */
 static int vxlan_fdb_add(struct ndmsg *ndm, struct nlattr *tb[],
 			 struct net_device *dev,
+<<<<<<< HEAD
 			 const unsigned char *addr, u16 vid, u16 flags)
+=======
+			 const unsigned char *addr, u16 vid, u16 flags,
+			 struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct vxlan_dev *vxlan = netdev_priv(dev);
 	/* struct net *net = dev_net(vxlan->dev); */
 	union vxlan_addr ip;
 	__be16 port;
 	__be32 src_vni, vni;
+<<<<<<< HEAD
 	u32 ifindex;
+=======
+	u32 ifindex, nhid;
+	u32 hash_index;
+>>>>>>> upstream/android-13
 	int err;
 
 	if (!(ndm->ndm_state & (NUD_PERMANENT|NUD_REACHABLE))) {
@@ -888,20 +1606,38 @@ static int vxlan_fdb_add(struct ndmsg *ndm, struct nlattr *tb[],
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	if (tb[NDA_DST] == NULL)
 		return -EINVAL;
 
 	err = vxlan_fdb_parse(tb, vxlan, &ip, &port, &src_vni, &vni, &ifindex);
+=======
+	if (!tb || (!tb[NDA_DST] && !tb[NDA_NH_ID]))
+		return -EINVAL;
+
+	err = vxlan_fdb_parse(tb, vxlan, &ip, &port, &src_vni, &vni, &ifindex,
+			      &nhid);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
 	if (vxlan->default_dst.remote_ip.sa.sa_family != ip.sa.sa_family)
 		return -EAFNOSUPPORT;
 
+<<<<<<< HEAD
 	spin_lock_bh(&vxlan->hash_lock);
 	err = vxlan_fdb_update(vxlan, addr, &ip, ndm->ndm_state, flags,
 			       port, src_vni, vni, ifindex, ndm->ndm_flags);
 	spin_unlock_bh(&vxlan->hash_lock);
+=======
+	hash_index = fdb_head_index(vxlan, addr, src_vni);
+	spin_lock_bh(&vxlan->hash_lock[hash_index]);
+	err = vxlan_fdb_update(vxlan, addr, &ip, ndm->ndm_state, flags,
+			       port, src_vni, vni, ifindex,
+			       ndm->ndm_flags | NTF_VXLAN_ADDED_BY_USER,
+			       nhid, true, extack);
+	spin_unlock_bh(&vxlan->hash_lock[hash_index]);
+>>>>>>> upstream/android-13
 
 	return err;
 }
@@ -909,10 +1645,17 @@ static int vxlan_fdb_add(struct ndmsg *ndm, struct nlattr *tb[],
 static int __vxlan_fdb_delete(struct vxlan_dev *vxlan,
 			      const unsigned char *addr, union vxlan_addr ip,
 			      __be16 port, __be32 src_vni, __be32 vni,
+<<<<<<< HEAD
 			      u32 ifindex, u16 vid)
 {
 	struct vxlan_fdb *f;
 	struct vxlan_rdst *rd = NULL;
+=======
+			      u32 ifindex, bool swdev_notify)
+{
+	struct vxlan_rdst *rd = NULL;
+	struct vxlan_fdb *f;
+>>>>>>> upstream/android-13
 	int err = -ENOENT;
 
 	f = vxlan_find_mac(vxlan, addr, src_vni);
@@ -929,11 +1672,19 @@ static int __vxlan_fdb_delete(struct vxlan_dev *vxlan,
 	 * otherwise destroy the fdb entry
 	 */
 	if (rd && !list_is_singular(&f->remotes)) {
+<<<<<<< HEAD
 		vxlan_fdb_dst_destroy(vxlan, f, rd);
 		goto out;
 	}
 
 	vxlan_fdb_destroy(vxlan, f, true);
+=======
+		vxlan_fdb_dst_destroy(vxlan, f, rd, swdev_notify);
+		goto out;
+	}
+
+	vxlan_fdb_destroy(vxlan, f, true, swdev_notify);
+>>>>>>> upstream/android-13
 
 out:
 	return 0;
@@ -947,6 +1698,7 @@ static int vxlan_fdb_delete(struct ndmsg *ndm, struct nlattr *tb[],
 	struct vxlan_dev *vxlan = netdev_priv(dev);
 	union vxlan_addr ip;
 	__be32 src_vni, vni;
+<<<<<<< HEAD
 	__be16 port;
 	u32 ifindex;
 	int err;
@@ -959,6 +1711,23 @@ static int vxlan_fdb_delete(struct ndmsg *ndm, struct nlattr *tb[],
 	err = __vxlan_fdb_delete(vxlan, addr, ip, port, src_vni, vni, ifindex,
 				 vid);
 	spin_unlock_bh(&vxlan->hash_lock);
+=======
+	u32 ifindex, nhid;
+	u32 hash_index;
+	__be16 port;
+	int err;
+
+	err = vxlan_fdb_parse(tb, vxlan, &ip, &port, &src_vni, &vni, &ifindex,
+			      &nhid);
+	if (err)
+		return err;
+
+	hash_index = fdb_head_index(vxlan, addr, src_vni);
+	spin_lock_bh(&vxlan->hash_lock[hash_index]);
+	err = __vxlan_fdb_delete(vxlan, addr, ip, port, src_vni, vni, ifindex,
+				 true);
+	spin_unlock_bh(&vxlan->hash_lock[hash_index]);
+>>>>>>> upstream/android-13
 
 	return err;
 }
@@ -979,6 +1748,26 @@ static int vxlan_fdb_dump(struct sk_buff *skb, struct netlink_callback *cb,
 		hlist_for_each_entry_rcu(f, &vxlan->fdb_head[h], hlist) {
 			struct vxlan_rdst *rd;
 
+<<<<<<< HEAD
+=======
+			if (rcu_access_pointer(f->nh)) {
+				if (*idx < cb->args[2])
+					goto skip_nh;
+				err = vxlan_fdb_info(skb, vxlan, f,
+						     NETLINK_CB(cb->skb).portid,
+						     cb->nlh->nlmsg_seq,
+						     RTM_NEWNEIGH,
+						     NLM_F_MULTI, NULL);
+				if (err < 0) {
+					rcu_read_unlock();
+					goto out;
+				}
+skip_nh:
+				*idx += 1;
+				continue;
+			}
+
+>>>>>>> upstream/android-13
 			list_for_each_entry_rcu(rd, &f->remotes, list) {
 				if (*idx < cb->args[2])
 					goto skip;
@@ -1002,6 +1791,42 @@ out:
 	return err;
 }
 
+<<<<<<< HEAD
+=======
+static int vxlan_fdb_get(struct sk_buff *skb,
+			 struct nlattr *tb[],
+			 struct net_device *dev,
+			 const unsigned char *addr,
+			 u16 vid, u32 portid, u32 seq,
+			 struct netlink_ext_ack *extack)
+{
+	struct vxlan_dev *vxlan = netdev_priv(dev);
+	struct vxlan_fdb *f;
+	__be32 vni;
+	int err;
+
+	if (tb[NDA_VNI])
+		vni = cpu_to_be32(nla_get_u32(tb[NDA_VNI]));
+	else
+		vni = vxlan->default_dst.remote_vni;
+
+	rcu_read_lock();
+
+	f = __vxlan_find_mac(vxlan, addr, vni);
+	if (!f) {
+		NL_SET_ERR_MSG(extack, "Fdb entry not found");
+		err = -ENOENT;
+		goto errout;
+	}
+
+	err = vxlan_fdb_info(skb, vxlan, f, portid, seq,
+			     RTM_NEWNEIGH, 0, first_remote_rcu(f));
+errout:
+	rcu_read_unlock();
+	return err;
+}
+
+>>>>>>> upstream/android-13
 /* Watch incoming packets to learn mapping between Ethernet address
  * and Tunnel endpoint.
  * Return true if packet is bogus and should be dropped.
@@ -1032,6 +1857,13 @@ static bool vxlan_snoop(struct net_device *dev,
 		if (f->state & (NUD_PERMANENT | NUD_NOARP))
 			return true;
 
+<<<<<<< HEAD
+=======
+		/* Don't override an fdb with nexthop with a learnt entry */
+		if (rcu_access_pointer(f->nh))
+			return true;
+
+>>>>>>> upstream/android-13
 		if (net_ratelimit())
 			netdev_info(dev,
 				    "%pM migrated from %pIS to %pIS\n",
@@ -1039,10 +1871,19 @@ static bool vxlan_snoop(struct net_device *dev,
 
 		rdst->remote_ip = *src_ip;
 		f->updated = jiffies;
+<<<<<<< HEAD
 		vxlan_fdb_notify(vxlan, f, rdst, RTM_NEWNEIGH);
 	} else {
 		/* learned new entry */
 		spin_lock(&vxlan->hash_lock);
+=======
+		vxlan_fdb_notify(vxlan, f, rdst, RTM_NEWNEIGH, true, NULL);
+	} else {
+		u32 hash_index = fdb_head_index(vxlan, src_mac, vni);
+
+		/* learned new entry */
+		spin_lock(&vxlan->hash_lock[hash_index]);
+>>>>>>> upstream/android-13
 
 		/* close off race between vxlan_flush and incoming packets */
 		if (netif_running(dev))
@@ -1052,8 +1893,13 @@ static bool vxlan_snoop(struct net_device *dev,
 					 vxlan->cfg.dst_port,
 					 vni,
 					 vxlan->default_dst.remote_vni,
+<<<<<<< HEAD
 					 ifindex, NTF_SELF);
 		spin_unlock(&vxlan->hash_lock);
+=======
+					 ifindex, NTF_SELF, 0, true, NULL);
+		spin_unlock(&vxlan->hash_lock[hash_index]);
+>>>>>>> upstream/android-13
 	}
 
 	return false;
@@ -1368,7 +2214,10 @@ static bool vxlan_ecn_decapsulate(struct vxlan_sock *vs, void *oiph,
 /* Callback from net/ipv4/udp.c to receive packets */
 static int vxlan_rcv(struct sock *sk, struct sk_buff *skb)
 {
+<<<<<<< HEAD
 	struct pcpu_sw_netstats *stats;
+=======
+>>>>>>> upstream/android-13
 	struct vxlan_dev *vxlan;
 	struct vxlan_sock *vs;
 	struct vxlanhdr unparsed;
@@ -1416,6 +2265,13 @@ static int vxlan_rcv(struct sock *sk, struct sk_buff *skb)
 
 	if (__iptunnel_pull_header(skb, VXLAN_HLEN, protocol, raw_proto,
 				   !net_eq(vxlan->net, dev_net(vxlan->dev))))
+<<<<<<< HEAD
+=======
+		goto drop;
+
+	if (vs->flags & VXLAN_F_REMCSUM_RX)
+		if (unlikely(!vxlan_remcsum(&unparsed, skb, vs->flags)))
+>>>>>>> upstream/android-13
 			goto drop;
 
 	if (vxlan_collect_metadata(vs)) {
@@ -1434,9 +2290,12 @@ static int vxlan_rcv(struct sock *sk, struct sk_buff *skb)
 		memset(md, 0, sizeof(*md));
 	}
 
+<<<<<<< HEAD
 	if (vs->flags & VXLAN_F_REMCSUM_RX)
 		if (!vxlan_remcsum(&unparsed, skb, vs->flags))
 			goto drop;
+=======
+>>>>>>> upstream/android-13
 	if (vs->flags & VXLAN_F_GBP)
 		vxlan_parse_gbp_hdr(&unparsed, skb, vs->flags, md);
 	/* Note that GBP and GPE can never be active together. This is
@@ -1481,12 +2340,16 @@ static int vxlan_rcv(struct sock *sk, struct sk_buff *skb)
 		goto drop;
 	}
 
+<<<<<<< HEAD
 	stats = this_cpu_ptr(vxlan->dev->tstats);
 	u64_stats_update_begin(&stats->syncp);
 	stats->rx_packets++;
 	stats->rx_bytes += skb->len;
 	u64_stats_update_end(&stats->syncp);
 
+=======
+	dev_sw_netstats_rx_add(vxlan->dev, skb->len);
+>>>>>>> upstream/android-13
 	gro_cells_receive(&vxlan->gro_cells, skb);
 
 	rcu_read_unlock();
@@ -1499,6 +2362,37 @@ drop:
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+/* Callback from net/ipv{4,6}/udp.c to check that we have a VNI for errors */
+static int vxlan_err_lookup(struct sock *sk, struct sk_buff *skb)
+{
+	struct vxlan_dev *vxlan;
+	struct vxlan_sock *vs;
+	struct vxlanhdr *hdr;
+	__be32 vni;
+
+	if (!pskb_may_pull(skb, skb_transport_offset(skb) + VXLAN_HLEN))
+		return -EINVAL;
+
+	hdr = vxlan_hdr(skb);
+
+	if (!(hdr->vx_flags & VXLAN_HF_VNI))
+		return -EINVAL;
+
+	vs = rcu_dereference_sk_user_data(sk);
+	if (!vs)
+		return -ENOENT;
+
+	vni = vxlan_vni(hdr->vx_vni);
+	vxlan = vxlan_vs_find_vni(vs, skb->dev->ifindex, vni);
+	if (!vxlan)
+		return -ENOENT;
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int arp_reduce(struct net_device *dev, struct sk_buff *skb, __be32 vni)
 {
 	struct vxlan_dev *vxlan = netdev_priv(dev);
@@ -1682,6 +2576,10 @@ static int neigh_reduce(struct net_device *dev, struct sk_buff *skb, __be32 vni)
 	struct neighbour *n;
 	struct nd_msg *msg;
 
+<<<<<<< HEAD
+=======
+	rcu_read_lock();
+>>>>>>> upstream/android-13
 	in6_dev = __in6_dev_get(dev);
 	if (!in6_dev)
 		goto out;
@@ -1733,6 +2631,10 @@ static int neigh_reduce(struct net_device *dev, struct sk_buff *skb, __be32 vni)
 	}
 
 out:
+<<<<<<< HEAD
+=======
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 	consume_skb(skb);
 	return NETDEV_TX_OK;
 }
@@ -1939,7 +2841,11 @@ static struct rtable *vxlan_get_route(struct vxlan_dev *vxlan, struct net_device
 	fl4.fl4_sport = sport;
 
 	rt = ip_route_output_key(vxlan->net, &fl4);
+<<<<<<< HEAD
 	if (likely(!IS_ERR(rt))) {
+=======
+	if (!IS_ERR(rt)) {
+>>>>>>> upstream/android-13
 		if (rt->dst.dev == dev) {
 			netdev_dbg(dev, "circular route to %pI4\n", &daddr);
 			ip_rt_put(rt);
@@ -1995,7 +2901,11 @@ static struct dst_entry *vxlan6_get_route(struct vxlan_dev *vxlan,
 
 	ndst = ipv6_stub->ipv6_dst_lookup_flow(vxlan->net, sock6->sock->sk,
 					       &fl6, NULL);
+<<<<<<< HEAD
 	if (unlikely(IS_ERR(ndst))) {
+=======
+	if (IS_ERR(ndst)) {
+>>>>>>> upstream/android-13
 		netdev_dbg(dev, "no route to %pI6\n", daddr);
 		return ERR_PTR(-ENETUNREACH);
 	}
@@ -2015,7 +2925,12 @@ static struct dst_entry *vxlan6_get_route(struct vxlan_dev *vxlan,
 
 /* Bypass encapsulation if the destination is local */
 static void vxlan_encap_bypass(struct sk_buff *skb, struct vxlan_dev *src_vxlan,
+<<<<<<< HEAD
 			       struct vxlan_dev *dst_vxlan, __be32 vni)
+=======
+			       struct vxlan_dev *dst_vxlan, __be32 vni,
+			       bool snoop)
+>>>>>>> upstream/android-13
 {
 	struct pcpu_sw_netstats *tx_stats, *rx_stats;
 	union vxlan_addr loopback;
@@ -2047,7 +2962,11 @@ static void vxlan_encap_bypass(struct sk_buff *skb, struct vxlan_dev *src_vxlan,
 		goto drop;
 	}
 
+<<<<<<< HEAD
 	if (dst_vxlan->cfg.flags & VXLAN_F_LEARN)
+=======
+	if ((dst_vxlan->cfg.flags & VXLAN_F_LEARN) && snoop)
+>>>>>>> upstream/android-13
 		vxlan_snoop(dev, &loopback, eth_hdr(skb)->h_source, 0, vni);
 
 	u64_stats_update_begin(&tx_stats->syncp);
@@ -2096,7 +3015,11 @@ static int encap_bypass_if_local(struct sk_buff *skb, struct net_device *dev,
 
 			return -ENOENT;
 		}
+<<<<<<< HEAD
 		vxlan_encap_bypass(skb, vxlan, dst_vxlan, vni);
+=======
+		vxlan_encap_bypass(skb, vxlan, dst_vxlan, vni, true);
+>>>>>>> upstream/android-13
 		return 1;
 	}
 
@@ -2132,7 +3055,12 @@ static void vxlan_xmit_one(struct sk_buff *skb, struct net_device *dev,
 		if (vxlan_addr_any(dst)) {
 			if (did_rsc) {
 				/* short-circuited back to local bridge */
+<<<<<<< HEAD
 				vxlan_encap_bypass(skb, vxlan, vxlan, default_vni);
+=======
+				vxlan_encap_bypass(skb, vxlan, vxlan,
+						   default_vni, true);
+>>>>>>> upstream/android-13
 				return;
 			}
 			goto drop;
@@ -2199,6 +3127,12 @@ static void vxlan_xmit_one(struct sk_buff *skb, struct net_device *dev,
 		struct rtable *rt;
 		__be16 df = 0;
 
+<<<<<<< HEAD
+=======
+		if (!ifindex)
+			ifindex = sock4->sock->sk->sk_bound_dev_if;
+
+>>>>>>> upstream/android-13
 		rt = vxlan_get_route(vxlan, dev, sock4, skb, ifindex, tos,
 				     dst->sin.sin_addr.s_addr,
 				     &local_ip.sin.sin_addr.s_addr,
@@ -2209,19 +3143,63 @@ static void vxlan_xmit_one(struct sk_buff *skb, struct net_device *dev,
 			goto tx_error;
 		}
 
+<<<<<<< HEAD
 		/* Bypass encapsulation if the destination is local */
 		if (!info) {
+=======
+		if (!info) {
+			/* Bypass encapsulation if the destination is local */
+>>>>>>> upstream/android-13
 			err = encap_bypass_if_local(skb, dev, vxlan, dst,
 						    dst_port, ifindex, vni,
 						    &rt->dst, rt->rt_flags);
 			if (err)
 				goto out_unlock;
+<<<<<<< HEAD
+=======
+
+			if (vxlan->cfg.df == VXLAN_DF_SET) {
+				df = htons(IP_DF);
+			} else if (vxlan->cfg.df == VXLAN_DF_INHERIT) {
+				struct ethhdr *eth = eth_hdr(skb);
+
+				if (ntohs(eth->h_proto) == ETH_P_IPV6 ||
+				    (ntohs(eth->h_proto) == ETH_P_IP &&
+				     old_iph->frag_off & htons(IP_DF)))
+					df = htons(IP_DF);
+			}
+>>>>>>> upstream/android-13
 		} else if (info->key.tun_flags & TUNNEL_DONT_FRAGMENT) {
 			df = htons(IP_DF);
 		}
 
 		ndst = &rt->dst;
+<<<<<<< HEAD
 		skb_tunnel_check_pmtu(skb, ndst, VXLAN_HEADROOM);
+=======
+		err = skb_tunnel_check_pmtu(skb, ndst, VXLAN_HEADROOM,
+					    netif_is_any_bridge_port(dev));
+		if (err < 0) {
+			goto tx_error;
+		} else if (err) {
+			if (info) {
+				struct ip_tunnel_info *unclone;
+				struct in_addr src, dst;
+
+				unclone = skb_tunnel_info_unclone(skb);
+				if (unlikely(!unclone))
+					goto tx_error;
+
+				src = remote_ip.sin.sin_addr;
+				dst = local_ip.sin.sin_addr;
+				unclone->key.u.ipv4.src = src.s_addr;
+				unclone->key.u.ipv4.dst = dst.s_addr;
+			}
+			vxlan_encap_bypass(skb, vxlan, vxlan, vni, false);
+			dst_release(ndst);
+			goto out_unlock;
+		}
+>>>>>>> upstream/android-13
 
 		tos = ip_tunnel_ecn_encap(tos, old_iph, skb);
 		ttl = ttl ? : ip4_dst_hoplimit(&rt->dst);
@@ -2237,6 +3215,12 @@ static void vxlan_xmit_one(struct sk_buff *skb, struct net_device *dev,
 	} else {
 		struct vxlan_sock *sock6 = rcu_dereference(vxlan->vn6_sock);
 
+<<<<<<< HEAD
+=======
+		if (!ifindex)
+			ifindex = sock6->sock->sk->sk_bound_dev_if;
+
+>>>>>>> upstream/android-13
 		ndst = vxlan6_get_route(vxlan, dev, sock6, skb, ifindex, tos,
 					label, &dst->sin6.sin6_addr,
 					&local_ip.sin6.sin6_addr,
@@ -2258,7 +3242,33 @@ static void vxlan_xmit_one(struct sk_buff *skb, struct net_device *dev,
 				goto out_unlock;
 		}
 
+<<<<<<< HEAD
 		skb_tunnel_check_pmtu(skb, ndst, VXLAN6_HEADROOM);
+=======
+		err = skb_tunnel_check_pmtu(skb, ndst, VXLAN6_HEADROOM,
+					    netif_is_any_bridge_port(dev));
+		if (err < 0) {
+			goto tx_error;
+		} else if (err) {
+			if (info) {
+				struct ip_tunnel_info *unclone;
+				struct in6_addr src, dst;
+
+				unclone = skb_tunnel_info_unclone(skb);
+				if (unlikely(!unclone))
+					goto tx_error;
+
+				src = remote_ip.sin6.sin6_addr;
+				dst = local_ip.sin6.sin6_addr;
+				unclone->key.u.ipv6.src = src;
+				unclone->key.u.ipv6.dst = dst;
+			}
+
+			vxlan_encap_bypass(skb, vxlan, vxlan, vni, false);
+			dst_release(ndst);
+			goto out_unlock;
+		}
+>>>>>>> upstream/android-13
 
 		tos = ip_tunnel_ecn_encap(tos, old_iph, skb);
 		ttl = ttl ? : ip6_dst_hoplimit(ndst);
@@ -2294,6 +3304,41 @@ tx_error:
 	kfree_skb(skb);
 }
 
+<<<<<<< HEAD
+=======
+static void vxlan_xmit_nh(struct sk_buff *skb, struct net_device *dev,
+			  struct vxlan_fdb *f, __be32 vni, bool did_rsc)
+{
+	struct vxlan_rdst nh_rdst;
+	struct nexthop *nh;
+	bool do_xmit;
+	u32 hash;
+
+	memset(&nh_rdst, 0, sizeof(struct vxlan_rdst));
+	hash = skb_get_hash(skb);
+
+	rcu_read_lock();
+	nh = rcu_dereference(f->nh);
+	if (!nh) {
+		rcu_read_unlock();
+		goto drop;
+	}
+	do_xmit = vxlan_fdb_nh_path_select(nh, hash, &nh_rdst);
+	rcu_read_unlock();
+
+	if (likely(do_xmit))
+		vxlan_xmit_one(skb, dev, vni, &nh_rdst, did_rsc);
+	else
+		goto drop;
+
+	return;
+
+drop:
+	dev->stats.tx_dropped++;
+	dev_kfree_skb(skb);
+}
+
+>>>>>>> upstream/android-13
 /* Transmit local packets over Vxlan
  *
  * Outer IP header inherits ECN and DF from inner header.
@@ -2370,6 +3415,7 @@ static netdev_tx_t vxlan_xmit(struct sk_buff *skb, struct net_device *dev)
 		}
 	}
 
+<<<<<<< HEAD
 	list_for_each_entry_rcu(rdst, &f->remotes, list) {
 		struct sk_buff *skb1;
 
@@ -2386,6 +3432,29 @@ static netdev_tx_t vxlan_xmit(struct sk_buff *skb, struct net_device *dev)
 		vxlan_xmit_one(skb, dev, vni, fdst, did_rsc);
 	else
 		kfree_skb(skb);
+=======
+	if (rcu_access_pointer(f->nh)) {
+		vxlan_xmit_nh(skb, dev, f,
+			      (vni ? : vxlan->default_dst.remote_vni), did_rsc);
+	} else {
+		list_for_each_entry_rcu(rdst, &f->remotes, list) {
+			struct sk_buff *skb1;
+
+			if (!fdst) {
+				fdst = rdst;
+				continue;
+			}
+			skb1 = skb_clone(skb, GFP_ATOMIC);
+			if (skb1)
+				vxlan_xmit_one(skb1, dev, vni, rdst, did_rsc);
+		}
+		if (fdst)
+			vxlan_xmit_one(skb, dev, vni, fdst, did_rsc);
+		else
+			kfree_skb(skb);
+	}
+
+>>>>>>> upstream/android-13
 	return NETDEV_TX_OK;
 }
 
@@ -2402,7 +3471,11 @@ static void vxlan_cleanup(struct timer_list *t)
 	for (h = 0; h < FDB_HASH_SIZE; ++h) {
 		struct hlist_node *p, *n;
 
+<<<<<<< HEAD
 		spin_lock_bh(&vxlan->hash_lock);
+=======
+		spin_lock(&vxlan->hash_lock[h]);
+>>>>>>> upstream/android-13
 		hlist_for_each_safe(p, n, &vxlan->fdb_head[h]) {
 			struct vxlan_fdb *f
 				= container_of(p, struct vxlan_fdb, hlist);
@@ -2420,11 +3493,19 @@ static void vxlan_cleanup(struct timer_list *t)
 					   "garbage collect %pM\n",
 					   f->eth_addr);
 				f->state = NUD_STALE;
+<<<<<<< HEAD
 				vxlan_fdb_destroy(vxlan, f, true);
 			} else if (time_before(timeout, next_timer))
 				next_timer = timeout;
 		}
 		spin_unlock_bh(&vxlan->hash_lock);
+=======
+				vxlan_fdb_destroy(vxlan, f, true, true);
+			} else if (time_before(timeout, next_timer))
+				next_timer = timeout;
+		}
+		spin_unlock(&vxlan->hash_lock[h]);
+>>>>>>> upstream/android-13
 	}
 
 	mod_timer(&vxlan->age_timer, next_timer);
@@ -2476,12 +3557,22 @@ static int vxlan_init(struct net_device *dev)
 static void vxlan_fdb_delete_default(struct vxlan_dev *vxlan, __be32 vni)
 {
 	struct vxlan_fdb *f;
+<<<<<<< HEAD
 
 	spin_lock_bh(&vxlan->hash_lock);
 	f = __vxlan_find_mac(vxlan, all_zeros_mac, vni);
 	if (f)
 		vxlan_fdb_destroy(vxlan, f, true);
 	spin_unlock_bh(&vxlan->hash_lock);
+=======
+	u32 hash_index = fdb_head_index(vxlan, all_zeros_mac, vni);
+
+	spin_lock_bh(&vxlan->hash_lock[hash_index]);
+	f = __vxlan_find_mac(vxlan, all_zeros_mac, vni);
+	if (f)
+		vxlan_fdb_destroy(vxlan, f, true, true);
+	spin_unlock_bh(&vxlan->hash_lock[hash_index]);
+>>>>>>> upstream/android-13
 }
 
 static void vxlan_uninit(struct net_device *dev)
@@ -2526,20 +3617,37 @@ static void vxlan_flush(struct vxlan_dev *vxlan, bool do_all)
 {
 	unsigned int h;
 
+<<<<<<< HEAD
 	spin_lock_bh(&vxlan->hash_lock);
 	for (h = 0; h < FDB_HASH_SIZE; ++h) {
 		struct hlist_node *p, *n;
+=======
+	for (h = 0; h < FDB_HASH_SIZE; ++h) {
+		struct hlist_node *p, *n;
+
+		spin_lock_bh(&vxlan->hash_lock[h]);
+>>>>>>> upstream/android-13
 		hlist_for_each_safe(p, n, &vxlan->fdb_head[h]) {
 			struct vxlan_fdb *f
 				= container_of(p, struct vxlan_fdb, hlist);
 			if (!do_all && (f->state & (NUD_PERMANENT | NUD_NOARP)))
 				continue;
 			/* the all_zeros_mac entry is deleted at vxlan_uninit */
+<<<<<<< HEAD
 			if (!is_zero_ether_addr(f->eth_addr))
 				vxlan_fdb_destroy(vxlan, f, true);
 		}
 	}
 	spin_unlock_bh(&vxlan->hash_lock);
+=======
+			if (is_zero_ether_addr(f->eth_addr) &&
+			    f->vni == vxlan->cfg.vni)
+				continue;
+			vxlan_fdb_destroy(vxlan, f, true, true);
+		}
+		spin_unlock_bh(&vxlan->hash_lock[h]);
+	}
+>>>>>>> upstream/android-13
 }
 
 /* Cleanup timer and forwarding table on shutdown */
@@ -2636,7 +3744,11 @@ static const struct net_device_ops vxlan_netdev_ether_ops = {
 	.ndo_open		= vxlan_open,
 	.ndo_stop		= vxlan_stop,
 	.ndo_start_xmit		= vxlan_xmit,
+<<<<<<< HEAD
 	.ndo_get_stats64	= ip_tunnel_get_stats64,
+=======
+	.ndo_get_stats64	= dev_get_tstats64,
+>>>>>>> upstream/android-13
 	.ndo_set_rx_mode	= vxlan_set_multicast_list,
 	.ndo_change_mtu		= vxlan_change_mtu,
 	.ndo_validate_addr	= eth_validate_addr,
@@ -2644,7 +3756,13 @@ static const struct net_device_ops vxlan_netdev_ether_ops = {
 	.ndo_fdb_add		= vxlan_fdb_add,
 	.ndo_fdb_del		= vxlan_fdb_delete,
 	.ndo_fdb_dump		= vxlan_fdb_dump,
+<<<<<<< HEAD
 	.ndo_fill_metadata_dst	= vxlan_fill_metadata_dst,
+=======
+	.ndo_fdb_get		= vxlan_fdb_get,
+	.ndo_fill_metadata_dst	= vxlan_fill_metadata_dst,
+	.ndo_change_proto_down  = dev_change_proto_down_generic,
+>>>>>>> upstream/android-13
 };
 
 static const struct net_device_ops vxlan_netdev_raw_ops = {
@@ -2653,7 +3771,11 @@ static const struct net_device_ops vxlan_netdev_raw_ops = {
 	.ndo_open		= vxlan_open,
 	.ndo_stop		= vxlan_stop,
 	.ndo_start_xmit		= vxlan_xmit,
+<<<<<<< HEAD
 	.ndo_get_stats64	= ip_tunnel_get_stats64,
+=======
+	.ndo_get_stats64	= dev_get_tstats64,
+>>>>>>> upstream/android-13
 	.ndo_change_mtu		= vxlan_change_mtu,
 	.ndo_fill_metadata_dst	= vxlan_fill_metadata_dst,
 };
@@ -2706,12 +3828,21 @@ static void vxlan_setup(struct net_device *dev)
 	SET_NETDEV_DEVTYPE(dev, &vxlan_type);
 
 	dev->features	|= NETIF_F_LLTX;
+<<<<<<< HEAD
 	dev->features	|= NETIF_F_SG | NETIF_F_HW_CSUM;
+=======
+	dev->features	|= NETIF_F_SG | NETIF_F_HW_CSUM | NETIF_F_FRAGLIST;
+>>>>>>> upstream/android-13
 	dev->features   |= NETIF_F_RXCSUM;
 	dev->features   |= NETIF_F_GSO_SOFTWARE;
 
 	dev->vlan_features = dev->features;
+<<<<<<< HEAD
 	dev->hw_features |= NETIF_F_SG | NETIF_F_HW_CSUM | NETIF_F_RXCSUM;
+=======
+	dev->hw_features |= NETIF_F_SG | NETIF_F_HW_CSUM | NETIF_F_FRAGLIST;
+	dev->hw_features |= NETIF_F_RXCSUM;
+>>>>>>> upstream/android-13
 	dev->hw_features |= NETIF_F_GSO_SOFTWARE;
 	netif_keep_dst(dev);
 	dev->priv_flags |= IFF_NO_QUEUE;
@@ -2721,14 +3852,24 @@ static void vxlan_setup(struct net_device *dev)
 	dev->max_mtu = ETH_MAX_MTU;
 
 	INIT_LIST_HEAD(&vxlan->next);
+<<<<<<< HEAD
 	spin_lock_init(&vxlan->hash_lock);
+=======
+>>>>>>> upstream/android-13
 
 	timer_setup(&vxlan->age_timer, vxlan_cleanup, TIMER_DEFERRABLE);
 
 	vxlan->dev = dev;
 
+<<<<<<< HEAD
 	for (h = 0; h < FDB_HASH_SIZE; ++h)
 		INIT_HLIST_HEAD(&vxlan->fdb_head[h]);
+=======
+	for (h = 0; h < FDB_HASH_SIZE; ++h) {
+		spin_lock_init(&vxlan->hash_lock[h]);
+		INIT_HLIST_HEAD(&vxlan->fdb_head[h]);
+	}
+>>>>>>> upstream/android-13
 }
 
 static void vxlan_ether_setup(struct net_device *dev)
@@ -2750,10 +3891,17 @@ static void vxlan_raw_setup(struct net_device *dev)
 
 static const struct nla_policy vxlan_policy[IFLA_VXLAN_MAX + 1] = {
 	[IFLA_VXLAN_ID]		= { .type = NLA_U32 },
+<<<<<<< HEAD
 	[IFLA_VXLAN_GROUP]	= { .len = FIELD_SIZEOF(struct iphdr, daddr) },
 	[IFLA_VXLAN_GROUP6]	= { .len = sizeof(struct in6_addr) },
 	[IFLA_VXLAN_LINK]	= { .type = NLA_U32 },
 	[IFLA_VXLAN_LOCAL]	= { .len = FIELD_SIZEOF(struct iphdr, saddr) },
+=======
+	[IFLA_VXLAN_GROUP]	= { .len = sizeof_field(struct iphdr, daddr) },
+	[IFLA_VXLAN_GROUP6]	= { .len = sizeof(struct in6_addr) },
+	[IFLA_VXLAN_LINK]	= { .type = NLA_U32 },
+	[IFLA_VXLAN_LOCAL]	= { .len = sizeof_field(struct iphdr, saddr) },
+>>>>>>> upstream/android-13
 	[IFLA_VXLAN_LOCAL6]	= { .len = sizeof(struct in6_addr) },
 	[IFLA_VXLAN_TOS]	= { .type = NLA_U8 },
 	[IFLA_VXLAN_TTL]	= { .type = NLA_U8 },
@@ -2777,6 +3925,10 @@ static const struct nla_policy vxlan_policy[IFLA_VXLAN_MAX + 1] = {
 	[IFLA_VXLAN_GPE]	= { .type = NLA_FLAG, },
 	[IFLA_VXLAN_REMCSUM_NOPARTIAL]	= { .type = NLA_FLAG },
 	[IFLA_VXLAN_TTL_INHERIT]	= { .type = NLA_FLAG },
+<<<<<<< HEAD
+=======
+	[IFLA_VXLAN_DF]		= { .type = NLA_U8 },
+>>>>>>> upstream/android-13
 };
 
 static int vxlan_validate(struct nlattr *tb[], struct nlattr *data[],
@@ -2816,7 +3968,11 @@ static int vxlan_validate(struct nlattr *tb[], struct nlattr *data[],
 		u32 id = nla_get_u32(data[IFLA_VXLAN_ID]);
 
 		if (id >= VXLAN_N_VID) {
+<<<<<<< HEAD
 			NL_SET_ERR_MSG_ATTR(extack, tb[IFLA_VXLAN_ID],
+=======
+			NL_SET_ERR_MSG_ATTR(extack, data[IFLA_VXLAN_ID],
+>>>>>>> upstream/android-13
 					    "VXLAN ID must be lower than 16777216");
 			return -ERANGE;
 		}
@@ -2827,12 +3983,29 @@ static int vxlan_validate(struct nlattr *tb[], struct nlattr *data[],
 			= nla_data(data[IFLA_VXLAN_PORT_RANGE]);
 
 		if (ntohs(p->high) < ntohs(p->low)) {
+<<<<<<< HEAD
 			NL_SET_ERR_MSG_ATTR(extack, tb[IFLA_VXLAN_PORT_RANGE],
+=======
+			NL_SET_ERR_MSG_ATTR(extack, data[IFLA_VXLAN_PORT_RANGE],
+>>>>>>> upstream/android-13
 					    "Invalid source port range");
 			return -EINVAL;
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	if (data[IFLA_VXLAN_DF]) {
+		enum ifla_vxlan_df df = nla_get_u8(data[IFLA_VXLAN_DF]);
+
+		if (df < 0 || df > VXLAN_DF_MAX) {
+			NL_SET_ERR_MSG_ATTR(extack, data[IFLA_VXLAN_DF],
+					    "Invalid DF attribute");
+			return -EINVAL;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -2843,6 +4016,7 @@ static void vxlan_get_drvinfo(struct net_device *netdev,
 	strlcpy(drvinfo->driver, "vxlan", sizeof(drvinfo->driver));
 }
 
+<<<<<<< HEAD
 static const struct ethtool_ops vxlan_ethtool_ops = {
 	.get_drvinfo	= vxlan_get_drvinfo,
 	.get_link	= ethtool_op_get_link,
@@ -2850,6 +4024,35 @@ static const struct ethtool_ops vxlan_ethtool_ops = {
 
 static struct socket *vxlan_create_sock(struct net *net, bool ipv6,
 					__be16 port, u32 flags)
+=======
+static int vxlan_get_link_ksettings(struct net_device *dev,
+				    struct ethtool_link_ksettings *cmd)
+{
+	struct vxlan_dev *vxlan = netdev_priv(dev);
+	struct vxlan_rdst *dst = &vxlan->default_dst;
+	struct net_device *lowerdev = __dev_get_by_index(vxlan->net,
+							 dst->remote_ifindex);
+
+	if (!lowerdev) {
+		cmd->base.duplex = DUPLEX_UNKNOWN;
+		cmd->base.port = PORT_OTHER;
+		cmd->base.speed = SPEED_UNKNOWN;
+
+		return 0;
+	}
+
+	return __ethtool_get_link_ksettings(lowerdev, cmd);
+}
+
+static const struct ethtool_ops vxlan_ethtool_ops = {
+	.get_drvinfo		= vxlan_get_drvinfo,
+	.get_link		= ethtool_op_get_link,
+	.get_link_ksettings	= vxlan_get_link_ksettings,
+};
+
+static struct socket *vxlan_create_sock(struct net *net, bool ipv6,
+					__be16 port, u32 flags, int ifindex)
+>>>>>>> upstream/android-13
 {
 	struct socket *sock;
 	struct udp_port_cfg udp_conf;
@@ -2867,18 +4070,31 @@ static struct socket *vxlan_create_sock(struct net *net, bool ipv6,
 	}
 
 	udp_conf.local_udp_port = port;
+<<<<<<< HEAD
+=======
+	udp_conf.bind_ifindex = ifindex;
+>>>>>>> upstream/android-13
 
 	/* Open UDP socket */
 	err = udp_sock_create(net, &udp_conf, &sock);
 	if (err < 0)
 		return ERR_PTR(err);
 
+<<<<<<< HEAD
+=======
+	udp_allow_gso(sock->sk);
+>>>>>>> upstream/android-13
 	return sock;
 }
 
 /* Create new listen socket if needed */
 static struct vxlan_sock *vxlan_socket_create(struct net *net, bool ipv6,
+<<<<<<< HEAD
 					      __be16 port, u32 flags)
+=======
+					      __be16 port, u32 flags,
+					      int ifindex)
+>>>>>>> upstream/android-13
 {
 	struct vxlan_net *vn = net_generic(net, vxlan_net_id);
 	struct vxlan_sock *vs;
@@ -2893,7 +4109,11 @@ static struct vxlan_sock *vxlan_socket_create(struct net *net, bool ipv6,
 	for (h = 0; h < VNI_HASH_SIZE; ++h)
 		INIT_HLIST_HEAD(&vs->vni_list[h]);
 
+<<<<<<< HEAD
 	sock = vxlan_create_sock(net, ipv6, port, flags);
+=======
+	sock = vxlan_create_sock(net, ipv6, port, flags, ifindex);
+>>>>>>> upstream/android-13
 	if (IS_ERR(sock)) {
 		kfree(vs);
 		return ERR_CAST(sock);
@@ -2916,6 +4136,10 @@ static struct vxlan_sock *vxlan_socket_create(struct net *net, bool ipv6,
 	tunnel_cfg.sk_user_data = vs;
 	tunnel_cfg.encap_type = 1;
 	tunnel_cfg.encap_rcv = vxlan_rcv;
+<<<<<<< HEAD
+=======
+	tunnel_cfg.encap_err_lookup = vxlan_err_lookup;
+>>>>>>> upstream/android-13
 	tunnel_cfg.encap_destroy = NULL;
 	tunnel_cfg.gro_receive = vxlan_gro_receive;
 	tunnel_cfg.gro_complete = vxlan_gro_complete;
@@ -2930,11 +4154,24 @@ static int __vxlan_sock_add(struct vxlan_dev *vxlan, bool ipv6)
 	struct vxlan_net *vn = net_generic(vxlan->net, vxlan_net_id);
 	struct vxlan_sock *vs = NULL;
 	struct vxlan_dev_node *node;
+<<<<<<< HEAD
+=======
+	int l3mdev_index = 0;
+
+	if (vxlan->cfg.remote_ifindex)
+		l3mdev_index = l3mdev_master_upper_ifindex_by_index(
+			vxlan->net, vxlan->cfg.remote_ifindex);
+>>>>>>> upstream/android-13
 
 	if (!vxlan->cfg.no_share) {
 		spin_lock(&vn->sock_lock);
 		vs = vxlan_find_sock(vxlan->net, ipv6 ? AF_INET6 : AF_INET,
+<<<<<<< HEAD
 				     vxlan->cfg.dst_port, vxlan->cfg.flags);
+=======
+				     vxlan->cfg.dst_port, vxlan->cfg.flags,
+				     l3mdev_index);
+>>>>>>> upstream/android-13
 		if (vs && !refcount_inc_not_zero(&vs->refcnt)) {
 			spin_unlock(&vn->sock_lock);
 			return -EBUSY;
@@ -2943,7 +4180,12 @@ static int __vxlan_sock_add(struct vxlan_dev *vxlan, bool ipv6)
 	}
 	if (!vs)
 		vs = vxlan_socket_create(vxlan->net, ipv6,
+<<<<<<< HEAD
 					 vxlan->cfg.dst_port, vxlan->cfg.flags);
+=======
+					 vxlan->cfg.dst_port, vxlan->cfg.flags,
+					 l3mdev_index);
+>>>>>>> upstream/android-13
 	if (IS_ERR(vs))
 		return PTR_ERR(vs);
 #if IS_ENABLED(CONFIG_IPV6)
@@ -3083,6 +4325,10 @@ static int vxlan_config_validate(struct net *src_net, struct vxlan_config *conf,
 #if IS_ENABLED(CONFIG_IPV6)
 		if (use_ipv6) {
 			struct inet6_dev *idev = __in6_dev_get(lowerdev);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 			if (idev && idev->cnf.disable_ipv6) {
 				NL_SET_ERR_MSG(extack,
 					       "IPv6 support disabled by administrator");
@@ -3228,10 +4474,20 @@ static int __vxlan_dev_create(struct net *net, struct net_device *dev,
 {
 	struct vxlan_net *vn = net_generic(net, vxlan_net_id);
 	struct vxlan_dev *vxlan = netdev_priv(dev);
+<<<<<<< HEAD
 	struct vxlan_fdb *f = NULL;
 	bool unregister = false;
 	int err;
 
+=======
+	struct net_device *remote_dev = NULL;
+	struct vxlan_fdb *f = NULL;
+	bool unregister = false;
+	struct vxlan_rdst *dst;
+	int err;
+
+	dst = &vxlan->default_dst;
+>>>>>>> upstream/android-13
 	err = vxlan_dev_configure(net, dev, conf, false, extack);
 	if (err)
 		return err;
@@ -3239,6 +4495,7 @@ static int __vxlan_dev_create(struct net *net, struct net_device *dev,
 	dev->ethtool_ops = &vxlan_ethtool_ops;
 
 	/* create an fdb entry for a valid default destination */
+<<<<<<< HEAD
 	if (!vxlan_addr_any(&vxlan->default_dst.remote_ip)) {
 		err = vxlan_fdb_create(vxlan, all_zeros_mac,
 				       &vxlan->default_dst.remote_ip,
@@ -3248,6 +4505,17 @@ static int __vxlan_dev_create(struct net *net, struct net_device *dev,
 				       vxlan->default_dst.remote_vni,
 				       vxlan->default_dst.remote_ifindex,
 				       NTF_SELF, &f);
+=======
+	if (!vxlan_addr_any(&dst->remote_ip)) {
+		err = vxlan_fdb_create(vxlan, all_zeros_mac,
+				       &dst->remote_ip,
+				       NUD_REACHABLE | NUD_PERMANENT,
+				       vxlan->cfg.dst_port,
+				       dst->remote_vni,
+				       dst->remote_vni,
+				       dst->remote_ifindex,
+				       NTF_SELF, 0, &f, extack);
+>>>>>>> upstream/android-13
 		if (err)
 			return err;
 	}
@@ -3257,6 +4525,7 @@ static int __vxlan_dev_create(struct net *net, struct net_device *dev,
 		goto errout;
 	unregister = true;
 
+<<<<<<< HEAD
 	err = rtnl_configure_link(dev, NULL);
 	if (err)
 		goto errout;
@@ -3268,23 +4537,104 @@ static int __vxlan_dev_create(struct net *net, struct net_device *dev,
 	list_add(&vxlan->next, &vn->vxlan_list);
 	return 0;
 
+=======
+	if (dst->remote_ifindex) {
+		remote_dev = __dev_get_by_index(net, dst->remote_ifindex);
+		if (!remote_dev) {
+			err = -ENODEV;
+			goto errout;
+		}
+
+		err = netdev_upper_dev_link(remote_dev, dev, extack);
+		if (err)
+			goto errout;
+	}
+
+	err = rtnl_configure_link(dev, NULL);
+	if (err < 0)
+		goto unlink;
+
+	if (f) {
+		vxlan_fdb_insert(vxlan, all_zeros_mac, dst->remote_vni, f);
+
+		/* notify default fdb entry */
+		err = vxlan_fdb_notify(vxlan, f, first_remote_rtnl(f),
+				       RTM_NEWNEIGH, true, extack);
+		if (err) {
+			vxlan_fdb_destroy(vxlan, f, false, false);
+			if (remote_dev)
+				netdev_upper_dev_unlink(remote_dev, dev);
+			goto unregister;
+		}
+	}
+
+	list_add(&vxlan->next, &vn->vxlan_list);
+	if (remote_dev)
+		dst->remote_dev = remote_dev;
+	return 0;
+unlink:
+	if (remote_dev)
+		netdev_upper_dev_unlink(remote_dev, dev);
+>>>>>>> upstream/android-13
 errout:
 	/* unregister_netdevice() destroys the default FDB entry with deletion
 	 * notification. But the addition notification was not sent yet, so
 	 * destroy the entry by hand here.
 	 */
 	if (f)
+<<<<<<< HEAD
 		vxlan_fdb_destroy(vxlan, f, false);
+=======
+		__vxlan_fdb_free(f);
+unregister:
+>>>>>>> upstream/android-13
 	if (unregister)
 		unregister_netdevice(dev);
 	return err;
 }
 
+<<<<<<< HEAD
 static int vxlan_nl2conf(struct nlattr *tb[], struct nlattr *data[],
 			 struct net_device *dev, struct vxlan_config *conf,
 			 bool changelink)
 {
 	struct vxlan_dev *vxlan = netdev_priv(dev);
+=======
+/* Set/clear flags based on attribute */
+static int vxlan_nl2flag(struct vxlan_config *conf, struct nlattr *tb[],
+			  int attrtype, unsigned long mask, bool changelink,
+			  bool changelink_supported,
+			  struct netlink_ext_ack *extack)
+{
+	unsigned long flags;
+
+	if (!tb[attrtype])
+		return 0;
+
+	if (changelink && !changelink_supported) {
+		vxlan_flag_attr_error(attrtype, extack);
+		return -EOPNOTSUPP;
+	}
+
+	if (vxlan_policy[attrtype].type == NLA_FLAG)
+		flags = conf->flags | mask;
+	else if (nla_get_u8(tb[attrtype]))
+		flags = conf->flags | mask;
+	else
+		flags = conf->flags & ~mask;
+
+	conf->flags = flags;
+
+	return 0;
+}
+
+static int vxlan_nl2conf(struct nlattr *tb[], struct nlattr *data[],
+			 struct net_device *dev, struct vxlan_config *conf,
+			 bool changelink, struct netlink_ext_ack *extack)
+{
+	struct vxlan_dev *vxlan = netdev_priv(dev);
+	int err = 0;
+>>>>>>> upstream/android-13
 
 	memset(conf, 0, sizeof(*conf));
 
@@ -3295,40 +4645,85 @@ static int vxlan_nl2conf(struct nlattr *tb[], struct nlattr *data[],
 	if (data[IFLA_VXLAN_ID]) {
 		__be32 vni = cpu_to_be32(nla_get_u32(data[IFLA_VXLAN_ID]));
 
+<<<<<<< HEAD
 		if (changelink && (vni != conf->vni))
 			return -EOPNOTSUPP;
+=======
+		if (changelink && (vni != conf->vni)) {
+			NL_SET_ERR_MSG_ATTR(extack, tb[IFLA_VXLAN_ID], "Cannot change VNI");
+			return -EOPNOTSUPP;
+		}
+>>>>>>> upstream/android-13
 		conf->vni = cpu_to_be32(nla_get_u32(data[IFLA_VXLAN_ID]));
 	}
 
 	if (data[IFLA_VXLAN_GROUP]) {
+<<<<<<< HEAD
 		if (changelink && (conf->remote_ip.sa.sa_family != AF_INET))
 			return -EOPNOTSUPP;
+=======
+		if (changelink && (conf->remote_ip.sa.sa_family != AF_INET)) {
+			NL_SET_ERR_MSG_ATTR(extack, tb[IFLA_VXLAN_GROUP], "New group address family does not match old group");
+			return -EOPNOTSUPP;
+		}
+>>>>>>> upstream/android-13
 
 		conf->remote_ip.sin.sin_addr.s_addr = nla_get_in_addr(data[IFLA_VXLAN_GROUP]);
 		conf->remote_ip.sa.sa_family = AF_INET;
 	} else if (data[IFLA_VXLAN_GROUP6]) {
+<<<<<<< HEAD
 		if (!IS_ENABLED(CONFIG_IPV6))
 			return -EPFNOSUPPORT;
 
 		if (changelink && (conf->remote_ip.sa.sa_family != AF_INET6))
 			return -EOPNOTSUPP;
+=======
+		if (!IS_ENABLED(CONFIG_IPV6)) {
+			NL_SET_ERR_MSG_ATTR(extack, tb[IFLA_VXLAN_GROUP6], "IPv6 support not enabled in the kernel");
+			return -EPFNOSUPPORT;
+		}
+
+		if (changelink && (conf->remote_ip.sa.sa_family != AF_INET6)) {
+			NL_SET_ERR_MSG_ATTR(extack, tb[IFLA_VXLAN_GROUP6], "New group address family does not match old group");
+			return -EOPNOTSUPP;
+		}
+>>>>>>> upstream/android-13
 
 		conf->remote_ip.sin6.sin6_addr = nla_get_in6_addr(data[IFLA_VXLAN_GROUP6]);
 		conf->remote_ip.sa.sa_family = AF_INET6;
 	}
 
 	if (data[IFLA_VXLAN_LOCAL]) {
+<<<<<<< HEAD
 		if (changelink && (conf->saddr.sa.sa_family != AF_INET))
 			return -EOPNOTSUPP;
+=======
+		if (changelink && (conf->saddr.sa.sa_family != AF_INET)) {
+			NL_SET_ERR_MSG_ATTR(extack, tb[IFLA_VXLAN_LOCAL], "New local address family does not match old");
+			return -EOPNOTSUPP;
+		}
+>>>>>>> upstream/android-13
 
 		conf->saddr.sin.sin_addr.s_addr = nla_get_in_addr(data[IFLA_VXLAN_LOCAL]);
 		conf->saddr.sa.sa_family = AF_INET;
 	} else if (data[IFLA_VXLAN_LOCAL6]) {
+<<<<<<< HEAD
 		if (!IS_ENABLED(CONFIG_IPV6))
 			return -EPFNOSUPPORT;
 
 		if (changelink && (conf->saddr.sa.sa_family != AF_INET6))
 			return -EOPNOTSUPP;
+=======
+		if (!IS_ENABLED(CONFIG_IPV6)) {
+			NL_SET_ERR_MSG_ATTR(extack, tb[IFLA_VXLAN_LOCAL6], "IPv6 support not enabled in the kernel");
+			return -EPFNOSUPPORT;
+		}
+
+		if (changelink && (conf->saddr.sa.sa_family != AF_INET6)) {
+			NL_SET_ERR_MSG_ATTR(extack, tb[IFLA_VXLAN_LOCAL6], "New local address family does not match old");
+			return -EOPNOTSUPP;
+		}
+>>>>>>> upstream/android-13
 
 		/* TODO: respect scope id */
 		conf->saddr.sin6.sin6_addr = nla_get_in6_addr(data[IFLA_VXLAN_LOCAL6]);
@@ -3345,9 +4740,18 @@ static int vxlan_nl2conf(struct nlattr *tb[], struct nlattr *data[],
 		conf->ttl = nla_get_u8(data[IFLA_VXLAN_TTL]);
 
 	if (data[IFLA_VXLAN_TTL_INHERIT]) {
+<<<<<<< HEAD
 		if (changelink)
 			return -EOPNOTSUPP;
 		conf->flags |= VXLAN_F_TTL_INHERIT;
+=======
+		err = vxlan_nl2flag(conf, data, IFLA_VXLAN_TTL_INHERIT,
+				    VXLAN_F_TTL_INHERIT, changelink, false,
+				    extack);
+		if (err)
+			return err;
+
+>>>>>>> upstream/android-13
 	}
 
 	if (data[IFLA_VXLAN_LABEL])
@@ -3355,15 +4759,24 @@ static int vxlan_nl2conf(struct nlattr *tb[], struct nlattr *data[],
 			     IPV6_FLOWLABEL_MASK;
 
 	if (data[IFLA_VXLAN_LEARNING]) {
+<<<<<<< HEAD
 		if (nla_get_u8(data[IFLA_VXLAN_LEARNING]))
 			conf->flags |= VXLAN_F_LEARN;
 		else
 			conf->flags &= ~VXLAN_F_LEARN;
+=======
+		err = vxlan_nl2flag(conf, data, IFLA_VXLAN_LEARNING,
+				    VXLAN_F_LEARN, changelink, true,
+				    extack);
+		if (err)
+			return err;
+>>>>>>> upstream/android-13
 	} else if (!changelink) {
 		/* default to learn on a new device */
 		conf->flags |= VXLAN_F_LEARN;
 	}
 
+<<<<<<< HEAD
 	if (data[IFLA_VXLAN_AGEING]) {
 		if (changelink)
 			return -EOPNOTSUPP;
@@ -3401,14 +4814,65 @@ static int vxlan_nl2conf(struct nlattr *tb[], struct nlattr *data[],
 	if (data[IFLA_VXLAN_LIMIT]) {
 		if (changelink)
 			return -EOPNOTSUPP;
+=======
+	if (data[IFLA_VXLAN_AGEING])
+		conf->age_interval = nla_get_u32(data[IFLA_VXLAN_AGEING]);
+
+	if (data[IFLA_VXLAN_PROXY]) {
+		err = vxlan_nl2flag(conf, data, IFLA_VXLAN_PROXY,
+				    VXLAN_F_PROXY, changelink, false,
+				    extack);
+		if (err)
+			return err;
+	}
+
+	if (data[IFLA_VXLAN_RSC]) {
+		err = vxlan_nl2flag(conf, data, IFLA_VXLAN_RSC,
+				    VXLAN_F_RSC, changelink, false,
+				    extack);
+		if (err)
+			return err;
+	}
+
+	if (data[IFLA_VXLAN_L2MISS]) {
+		err = vxlan_nl2flag(conf, data, IFLA_VXLAN_L2MISS,
+				    VXLAN_F_L2MISS, changelink, false,
+				    extack);
+		if (err)
+			return err;
+	}
+
+	if (data[IFLA_VXLAN_L3MISS]) {
+		err = vxlan_nl2flag(conf, data, IFLA_VXLAN_L3MISS,
+				    VXLAN_F_L3MISS, changelink, false,
+				    extack);
+		if (err)
+			return err;
+	}
+
+	if (data[IFLA_VXLAN_LIMIT]) {
+		if (changelink) {
+			NL_SET_ERR_MSG_ATTR(extack, tb[IFLA_VXLAN_LIMIT],
+					    "Cannot change limit");
+			return -EOPNOTSUPP;
+		}
+>>>>>>> upstream/android-13
 		conf->addrmax = nla_get_u32(data[IFLA_VXLAN_LIMIT]);
 	}
 
 	if (data[IFLA_VXLAN_COLLECT_METADATA]) {
+<<<<<<< HEAD
 		if (changelink)
 			return -EOPNOTSUPP;
 		if (nla_get_u8(data[IFLA_VXLAN_COLLECT_METADATA]))
 			conf->flags |= VXLAN_F_COLLECT_METADATA;
+=======
+		err = vxlan_nl2flag(conf, data, IFLA_VXLAN_COLLECT_METADATA,
+				    VXLAN_F_COLLECT_METADATA, changelink, false,
+				    extack);
+		if (err)
+			return err;
+>>>>>>> upstream/android-13
 	}
 
 	if (data[IFLA_VXLAN_PORT_RANGE]) {
@@ -3418,24 +4882,46 @@ static int vxlan_nl2conf(struct nlattr *tb[], struct nlattr *data[],
 			conf->port_min = ntohs(p->low);
 			conf->port_max = ntohs(p->high);
 		} else {
+<<<<<<< HEAD
+=======
+			NL_SET_ERR_MSG_ATTR(extack, tb[IFLA_VXLAN_PORT_RANGE],
+					    "Cannot change port range");
+>>>>>>> upstream/android-13
 			return -EOPNOTSUPP;
 		}
 	}
 
 	if (data[IFLA_VXLAN_PORT]) {
+<<<<<<< HEAD
 		if (changelink)
 			return -EOPNOTSUPP;
+=======
+		if (changelink) {
+			NL_SET_ERR_MSG_ATTR(extack, tb[IFLA_VXLAN_PORT],
+					    "Cannot change port");
+			return -EOPNOTSUPP;
+		}
+>>>>>>> upstream/android-13
 		conf->dst_port = nla_get_be16(data[IFLA_VXLAN_PORT]);
 	}
 
 	if (data[IFLA_VXLAN_UDP_CSUM]) {
+<<<<<<< HEAD
 		if (changelink)
 			return -EOPNOTSUPP;
+=======
+		if (changelink) {
+			NL_SET_ERR_MSG_ATTR(extack, tb[IFLA_VXLAN_UDP_CSUM],
+					    "Cannot change UDP_CSUM flag");
+			return -EOPNOTSUPP;
+		}
+>>>>>>> upstream/android-13
 		if (!nla_get_u8(data[IFLA_VXLAN_UDP_CSUM]))
 			conf->flags |= VXLAN_F_UDP_ZERO_CSUM_TX;
 	}
 
 	if (data[IFLA_VXLAN_UDP_ZERO_CSUM6_TX]) {
+<<<<<<< HEAD
 		if (changelink)
 			return -EOPNOTSUPP;
 		if (nla_get_u8(data[IFLA_VXLAN_UDP_ZERO_CSUM6_TX]))
@@ -3487,6 +4973,74 @@ static int vxlan_nl2conf(struct nlattr *tb[], struct nlattr *data[],
 		conf->mtu = nla_get_u32(tb[IFLA_MTU]);
 	}
 
+=======
+		err = vxlan_nl2flag(conf, data, IFLA_VXLAN_UDP_ZERO_CSUM6_TX,
+				    VXLAN_F_UDP_ZERO_CSUM6_TX, changelink,
+				    false, extack);
+		if (err)
+			return err;
+	}
+
+	if (data[IFLA_VXLAN_UDP_ZERO_CSUM6_RX]) {
+		err = vxlan_nl2flag(conf, data, IFLA_VXLAN_UDP_ZERO_CSUM6_RX,
+				    VXLAN_F_UDP_ZERO_CSUM6_RX, changelink,
+				    false, extack);
+		if (err)
+			return err;
+	}
+
+	if (data[IFLA_VXLAN_REMCSUM_TX]) {
+		err = vxlan_nl2flag(conf, data, IFLA_VXLAN_REMCSUM_TX,
+				    VXLAN_F_REMCSUM_TX, changelink, false,
+				    extack);
+		if (err)
+			return err;
+	}
+
+	if (data[IFLA_VXLAN_REMCSUM_RX]) {
+		err = vxlan_nl2flag(conf, data, IFLA_VXLAN_REMCSUM_RX,
+				    VXLAN_F_REMCSUM_RX, changelink, false,
+				    extack);
+		if (err)
+			return err;
+	}
+
+	if (data[IFLA_VXLAN_GBP]) {
+		err = vxlan_nl2flag(conf, data, IFLA_VXLAN_GBP,
+				    VXLAN_F_GBP, changelink, false, extack);
+		if (err)
+			return err;
+	}
+
+	if (data[IFLA_VXLAN_GPE]) {
+		err = vxlan_nl2flag(conf, data, IFLA_VXLAN_GPE,
+				    VXLAN_F_GPE, changelink, false,
+				    extack);
+		if (err)
+			return err;
+	}
+
+	if (data[IFLA_VXLAN_REMCSUM_NOPARTIAL]) {
+		err = vxlan_nl2flag(conf, data, IFLA_VXLAN_REMCSUM_NOPARTIAL,
+				    VXLAN_F_REMCSUM_NOPARTIAL, changelink,
+				    false, extack);
+		if (err)
+			return err;
+	}
+
+	if (tb[IFLA_MTU]) {
+		if (changelink) {
+			NL_SET_ERR_MSG_ATTR(extack, tb[IFLA_MTU],
+					    "Cannot change mtu");
+			return -EOPNOTSUPP;
+		}
+		conf->mtu = nla_get_u32(tb[IFLA_MTU]);
+	}
+
+	if (data[IFLA_VXLAN_DF])
+		conf->df = nla_get_u8(data[IFLA_VXLAN_DF]);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -3497,7 +5051,11 @@ static int vxlan_newlink(struct net *src_net, struct net_device *dev,
 	struct vxlan_config conf;
 	int err;
 
+<<<<<<< HEAD
 	err = vxlan_nl2conf(tb, data, dev, &conf, false);
+=======
+	err = vxlan_nl2conf(tb, data, dev, &conf, false, extack);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
@@ -3509,6 +5067,7 @@ static int vxlan_changelink(struct net_device *dev, struct nlattr *tb[],
 			    struct netlink_ext_ack *extack)
 {
 	struct vxlan_dev *vxlan = netdev_priv(dev);
+<<<<<<< HEAD
 	struct vxlan_rdst *dst = &vxlan->default_dst;
 	struct vxlan_rdst old_dst;
 	struct vxlan_config conf;
@@ -3522,10 +5081,33 @@ static int vxlan_changelink(struct net_device *dev, struct nlattr *tb[],
 	memcpy(&old_dst, dst, sizeof(struct vxlan_rdst));
 
 	err = vxlan_dev_configure(vxlan->net, dev, &conf, true, extack);
+=======
+	struct net_device *lowerdev;
+	struct vxlan_config conf;
+	struct vxlan_rdst *dst;
+	int err;
+
+	dst = &vxlan->default_dst;
+	err = vxlan_nl2conf(tb, data, dev, &conf, true, extack);
+	if (err)
+		return err;
+
+	err = vxlan_config_validate(vxlan->net, &conf, &lowerdev,
+				    vxlan, extack);
+	if (err)
+		return err;
+
+	if (dst->remote_dev == lowerdev)
+		lowerdev = NULL;
+
+	err = netdev_adjacent_change_prepare(dst->remote_dev, lowerdev, dev,
+					     extack);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
 	/* handle default dst entry */
+<<<<<<< HEAD
 	if (!vxlan_addr_equal(&dst->remote_ip, &old_dst.remote_ip)) {
 		spin_lock_bh(&vxlan->hash_lock);
 		if (!vxlan_addr_any(&old_dst.remote_ip))
@@ -3554,6 +5136,46 @@ static int vxlan_changelink(struct net_device *dev, struct nlattr *tb[],
 		spin_unlock_bh(&vxlan->hash_lock);
 	}
 
+=======
+	if (!vxlan_addr_equal(&conf.remote_ip, &dst->remote_ip)) {
+		u32 hash_index = fdb_head_index(vxlan, all_zeros_mac, conf.vni);
+
+		spin_lock_bh(&vxlan->hash_lock[hash_index]);
+		if (!vxlan_addr_any(&conf.remote_ip)) {
+			err = vxlan_fdb_update(vxlan, all_zeros_mac,
+					       &conf.remote_ip,
+					       NUD_REACHABLE | NUD_PERMANENT,
+					       NLM_F_APPEND | NLM_F_CREATE,
+					       vxlan->cfg.dst_port,
+					       conf.vni, conf.vni,
+					       conf.remote_ifindex,
+					       NTF_SELF, 0, true, extack);
+			if (err) {
+				spin_unlock_bh(&vxlan->hash_lock[hash_index]);
+				netdev_adjacent_change_abort(dst->remote_dev,
+							     lowerdev, dev);
+				return err;
+			}
+		}
+		if (!vxlan_addr_any(&dst->remote_ip))
+			__vxlan_fdb_delete(vxlan, all_zeros_mac,
+					   dst->remote_ip,
+					   vxlan->cfg.dst_port,
+					   dst->remote_vni,
+					   dst->remote_vni,
+					   dst->remote_ifindex,
+					   true);
+		spin_unlock_bh(&vxlan->hash_lock[hash_index]);
+	}
+
+	if (conf.age_interval != vxlan->cfg.age_interval)
+		mod_timer(&vxlan->age_timer, jiffies);
+
+	netdev_adjacent_change_commit(dst->remote_dev, lowerdev, dev);
+	if (lowerdev && lowerdev != dst->remote_dev)
+		dst->remote_dev = lowerdev;
+	vxlan_config_apply(dev, &conf, lowerdev, vxlan->net, true);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -3565,6 +5187,11 @@ static void vxlan_dellink(struct net_device *dev, struct list_head *head)
 
 	list_del(&vxlan->next);
 	unregister_netdevice_queue(dev, head);
+<<<<<<< HEAD
+=======
+	if (vxlan->default_dst.remote_dev)
+		netdev_upper_dev_unlink(vxlan->default_dst.remote_dev, dev);
+>>>>>>> upstream/android-13
 }
 
 static size_t vxlan_get_size(const struct net_device *dev)
@@ -3577,6 +5204,10 @@ static size_t vxlan_get_size(const struct net_device *dev)
 		nla_total_size(sizeof(__u8)) +	/* IFLA_VXLAN_TTL */
 		nla_total_size(sizeof(__u8)) +	/* IFLA_VXLAN_TTL_INHERIT */
 		nla_total_size(sizeof(__u8)) +	/* IFLA_VXLAN_TOS */
+<<<<<<< HEAD
+=======
+		nla_total_size(sizeof(__u8)) +	/* IFLA_VXLAN_DF */
+>>>>>>> upstream/android-13
 		nla_total_size(sizeof(__be32)) + /* IFLA_VXLAN_LABEL */
 		nla_total_size(sizeof(__u8)) +	/* IFLA_VXLAN_LEARNING */
 		nla_total_size(sizeof(__u8)) +	/* IFLA_VXLAN_PROXY */
@@ -3643,6 +5274,7 @@ static int vxlan_fill_info(struct sk_buff *skb, const struct net_device *dev)
 	    nla_put_u8(skb, IFLA_VXLAN_TTL_INHERIT,
 		       !!(vxlan->cfg.flags & VXLAN_F_TTL_INHERIT)) ||
 	    nla_put_u8(skb, IFLA_VXLAN_TOS, vxlan->cfg.tos) ||
+<<<<<<< HEAD
 	    nla_put_be32(skb, IFLA_VXLAN_LABEL, vxlan->cfg.label) ||
 	    nla_put_u8(skb, IFLA_VXLAN_LEARNING,
 			!!(vxlan->cfg.flags & VXLAN_F_LEARN)) ||
@@ -3654,12 +5286,27 @@ static int vxlan_fill_info(struct sk_buff *skb, const struct net_device *dev)
 			!!(vxlan->cfg.flags & VXLAN_F_L2MISS)) ||
 	    nla_put_u8(skb, IFLA_VXLAN_L3MISS,
 			!!(vxlan->cfg.flags & VXLAN_F_L3MISS)) ||
+=======
+	    nla_put_u8(skb, IFLA_VXLAN_DF, vxlan->cfg.df) ||
+	    nla_put_be32(skb, IFLA_VXLAN_LABEL, vxlan->cfg.label) ||
+	    nla_put_u8(skb, IFLA_VXLAN_LEARNING,
+		       !!(vxlan->cfg.flags & VXLAN_F_LEARN)) ||
+	    nla_put_u8(skb, IFLA_VXLAN_PROXY,
+		       !!(vxlan->cfg.flags & VXLAN_F_PROXY)) ||
+	    nla_put_u8(skb, IFLA_VXLAN_RSC,
+		       !!(vxlan->cfg.flags & VXLAN_F_RSC)) ||
+	    nla_put_u8(skb, IFLA_VXLAN_L2MISS,
+		       !!(vxlan->cfg.flags & VXLAN_F_L2MISS)) ||
+	    nla_put_u8(skb, IFLA_VXLAN_L3MISS,
+		       !!(vxlan->cfg.flags & VXLAN_F_L3MISS)) ||
+>>>>>>> upstream/android-13
 	    nla_put_u8(skb, IFLA_VXLAN_COLLECT_METADATA,
 		       !!(vxlan->cfg.flags & VXLAN_F_COLLECT_METADATA)) ||
 	    nla_put_u32(skb, IFLA_VXLAN_AGEING, vxlan->cfg.age_interval) ||
 	    nla_put_u32(skb, IFLA_VXLAN_LIMIT, vxlan->cfg.addrmax) ||
 	    nla_put_be16(skb, IFLA_VXLAN_PORT, vxlan->cfg.dst_port) ||
 	    nla_put_u8(skb, IFLA_VXLAN_UDP_CSUM,
+<<<<<<< HEAD
 			!(vxlan->cfg.flags & VXLAN_F_UDP_ZERO_CSUM_TX)) ||
 	    nla_put_u8(skb, IFLA_VXLAN_UDP_ZERO_CSUM6_TX,
 			!!(vxlan->cfg.flags & VXLAN_F_UDP_ZERO_CSUM6_TX)) ||
@@ -3669,6 +5316,17 @@ static int vxlan_fill_info(struct sk_buff *skb, const struct net_device *dev)
 			!!(vxlan->cfg.flags & VXLAN_F_REMCSUM_TX)) ||
 	    nla_put_u8(skb, IFLA_VXLAN_REMCSUM_RX,
 			!!(vxlan->cfg.flags & VXLAN_F_REMCSUM_RX)))
+=======
+		       !(vxlan->cfg.flags & VXLAN_F_UDP_ZERO_CSUM_TX)) ||
+	    nla_put_u8(skb, IFLA_VXLAN_UDP_ZERO_CSUM6_TX,
+		       !!(vxlan->cfg.flags & VXLAN_F_UDP_ZERO_CSUM6_TX)) ||
+	    nla_put_u8(skb, IFLA_VXLAN_UDP_ZERO_CSUM6_RX,
+		       !!(vxlan->cfg.flags & VXLAN_F_UDP_ZERO_CSUM6_RX)) ||
+	    nla_put_u8(skb, IFLA_VXLAN_REMCSUM_TX,
+		       !!(vxlan->cfg.flags & VXLAN_F_REMCSUM_TX)) ||
+	    nla_put_u8(skb, IFLA_VXLAN_REMCSUM_RX,
+		       !!(vxlan->cfg.flags & VXLAN_F_REMCSUM_RX)))
+>>>>>>> upstream/android-13
 		goto nla_put_failure;
 
 	if (nla_put(skb, IFLA_VXLAN_PORT_RANGE, sizeof(ports), &ports))
@@ -3725,7 +5383,11 @@ struct net_device *vxlan_dev_create(struct net *net, const char *name,
 	memset(&tb, 0, sizeof(tb));
 
 	dev = rtnl_create_link(net, name, name_assign_type,
+<<<<<<< HEAD
 			       &vxlan_link_ops, tb);
+=======
+			       &vxlan_link_ops, tb, NULL);
+>>>>>>> upstream/android-13
 	if (IS_ERR(dev))
 		return dev;
 
@@ -3776,6 +5438,7 @@ static int vxlan_netdevice_event(struct notifier_block *unused,
 	struct net_device *dev = netdev_notifier_info_to_dev(ptr);
 	struct vxlan_net *vn = net_generic(dev_net(dev), vxlan_net_id);
 
+<<<<<<< HEAD
 	if (event == NETDEV_UNREGISTER) {
 		vxlan_offload_rx_ports(dev, false);
 		vxlan_handle_lowerdev_unregister(vn, dev);
@@ -3785,6 +5448,14 @@ static int vxlan_netdevice_event(struct notifier_block *unused,
 		   event == NETDEV_UDP_TUNNEL_DROP_INFO) {
 		vxlan_offload_rx_ports(dev, event == NETDEV_UDP_TUNNEL_PUSH_INFO);
 	}
+=======
+	if (event == NETDEV_UNREGISTER)
+		vxlan_handle_lowerdev_unregister(vn, dev);
+	else if (event == NETDEV_UDP_TUNNEL_PUSH_INFO)
+		vxlan_offload_rx_ports(dev, true);
+	else if (event == NETDEV_UDP_TUNNEL_DROP_INFO)
+		vxlan_offload_rx_ports(dev, false);
+>>>>>>> upstream/android-13
 
 	return NOTIFY_DONE;
 }
@@ -3793,6 +5464,173 @@ static struct notifier_block vxlan_notifier_block __read_mostly = {
 	.notifier_call = vxlan_netdevice_event,
 };
 
+<<<<<<< HEAD
+=======
+static void
+vxlan_fdb_offloaded_set(struct net_device *dev,
+			struct switchdev_notifier_vxlan_fdb_info *fdb_info)
+{
+	struct vxlan_dev *vxlan = netdev_priv(dev);
+	struct vxlan_rdst *rdst;
+	struct vxlan_fdb *f;
+	u32 hash_index;
+
+	hash_index = fdb_head_index(vxlan, fdb_info->eth_addr, fdb_info->vni);
+
+	spin_lock_bh(&vxlan->hash_lock[hash_index]);
+
+	f = vxlan_find_mac(vxlan, fdb_info->eth_addr, fdb_info->vni);
+	if (!f)
+		goto out;
+
+	rdst = vxlan_fdb_find_rdst(f, &fdb_info->remote_ip,
+				   fdb_info->remote_port,
+				   fdb_info->remote_vni,
+				   fdb_info->remote_ifindex);
+	if (!rdst)
+		goto out;
+
+	rdst->offloaded = fdb_info->offloaded;
+
+out:
+	spin_unlock_bh(&vxlan->hash_lock[hash_index]);
+}
+
+static int
+vxlan_fdb_external_learn_add(struct net_device *dev,
+			     struct switchdev_notifier_vxlan_fdb_info *fdb_info)
+{
+	struct vxlan_dev *vxlan = netdev_priv(dev);
+	struct netlink_ext_ack *extack;
+	u32 hash_index;
+	int err;
+
+	hash_index = fdb_head_index(vxlan, fdb_info->eth_addr, fdb_info->vni);
+	extack = switchdev_notifier_info_to_extack(&fdb_info->info);
+
+	spin_lock_bh(&vxlan->hash_lock[hash_index]);
+	err = vxlan_fdb_update(vxlan, fdb_info->eth_addr, &fdb_info->remote_ip,
+			       NUD_REACHABLE,
+			       NLM_F_CREATE | NLM_F_REPLACE,
+			       fdb_info->remote_port,
+			       fdb_info->vni,
+			       fdb_info->remote_vni,
+			       fdb_info->remote_ifindex,
+			       NTF_USE | NTF_SELF | NTF_EXT_LEARNED,
+			       0, false, extack);
+	spin_unlock_bh(&vxlan->hash_lock[hash_index]);
+
+	return err;
+}
+
+static int
+vxlan_fdb_external_learn_del(struct net_device *dev,
+			     struct switchdev_notifier_vxlan_fdb_info *fdb_info)
+{
+	struct vxlan_dev *vxlan = netdev_priv(dev);
+	struct vxlan_fdb *f;
+	u32 hash_index;
+	int err = 0;
+
+	hash_index = fdb_head_index(vxlan, fdb_info->eth_addr, fdb_info->vni);
+	spin_lock_bh(&vxlan->hash_lock[hash_index]);
+
+	f = vxlan_find_mac(vxlan, fdb_info->eth_addr, fdb_info->vni);
+	if (!f)
+		err = -ENOENT;
+	else if (f->flags & NTF_EXT_LEARNED)
+		err = __vxlan_fdb_delete(vxlan, fdb_info->eth_addr,
+					 fdb_info->remote_ip,
+					 fdb_info->remote_port,
+					 fdb_info->vni,
+					 fdb_info->remote_vni,
+					 fdb_info->remote_ifindex,
+					 false);
+
+	spin_unlock_bh(&vxlan->hash_lock[hash_index]);
+
+	return err;
+}
+
+static int vxlan_switchdev_event(struct notifier_block *unused,
+				 unsigned long event, void *ptr)
+{
+	struct net_device *dev = switchdev_notifier_info_to_dev(ptr);
+	struct switchdev_notifier_vxlan_fdb_info *fdb_info;
+	int err = 0;
+
+	switch (event) {
+	case SWITCHDEV_VXLAN_FDB_OFFLOADED:
+		vxlan_fdb_offloaded_set(dev, ptr);
+		break;
+	case SWITCHDEV_VXLAN_FDB_ADD_TO_BRIDGE:
+		fdb_info = ptr;
+		err = vxlan_fdb_external_learn_add(dev, fdb_info);
+		if (err) {
+			err = notifier_from_errno(err);
+			break;
+		}
+		fdb_info->offloaded = true;
+		vxlan_fdb_offloaded_set(dev, fdb_info);
+		break;
+	case SWITCHDEV_VXLAN_FDB_DEL_TO_BRIDGE:
+		fdb_info = ptr;
+		err = vxlan_fdb_external_learn_del(dev, fdb_info);
+		if (err) {
+			err = notifier_from_errno(err);
+			break;
+		}
+		fdb_info->offloaded = false;
+		vxlan_fdb_offloaded_set(dev, fdb_info);
+		break;
+	}
+
+	return err;
+}
+
+static struct notifier_block vxlan_switchdev_notifier_block __read_mostly = {
+	.notifier_call = vxlan_switchdev_event,
+};
+
+static void vxlan_fdb_nh_flush(struct nexthop *nh)
+{
+	struct vxlan_fdb *fdb;
+	struct vxlan_dev *vxlan;
+	u32 hash_index;
+
+	rcu_read_lock();
+	list_for_each_entry_rcu(fdb, &nh->fdb_list, nh_list) {
+		vxlan = rcu_dereference(fdb->vdev);
+		WARN_ON(!vxlan);
+		hash_index = fdb_head_index(vxlan, fdb->eth_addr,
+					    vxlan->default_dst.remote_vni);
+		spin_lock_bh(&vxlan->hash_lock[hash_index]);
+		if (!hlist_unhashed(&fdb->hlist))
+			vxlan_fdb_destroy(vxlan, fdb, false, false);
+		spin_unlock_bh(&vxlan->hash_lock[hash_index]);
+	}
+	rcu_read_unlock();
+}
+
+static int vxlan_nexthop_event(struct notifier_block *nb,
+			       unsigned long event, void *ptr)
+{
+	struct nh_notifier_info *info = ptr;
+	struct nexthop *nh;
+
+	if (event != NEXTHOP_EVENT_DEL)
+		return NOTIFY_DONE;
+
+	nh = nexthop_find_by_id(info->net, info->id);
+	if (!nh)
+		return NOTIFY_DONE;
+
+	vxlan_fdb_nh_flush(nh);
+
+	return NOTIFY_DONE;
+}
+
+>>>>>>> upstream/android-13
 static __net_init int vxlan_init_net(struct net *net)
 {
 	struct vxlan_net *vn = net_generic(net, vxlan_net_id);
@@ -3800,11 +5638,20 @@ static __net_init int vxlan_init_net(struct net *net)
 
 	INIT_LIST_HEAD(&vn->vxlan_list);
 	spin_lock_init(&vn->sock_lock);
+<<<<<<< HEAD
+=======
+	vn->nexthop_notifier_block.notifier_call = vxlan_nexthop_event;
+>>>>>>> upstream/android-13
 
 	for (h = 0; h < PORT_HASH_SIZE; ++h)
 		INIT_HLIST_HEAD(&vn->sock_list[h]);
 
+<<<<<<< HEAD
 	return 0;
+=======
+	return register_nexthop_notifier(net, &vn->nexthop_notifier_block,
+					 NULL);
+>>>>>>> upstream/android-13
 }
 
 static void vxlan_destroy_tunnels(struct net *net, struct list_head *head)
@@ -3833,6 +5680,14 @@ static void __net_exit vxlan_exit_batch_net(struct list_head *net_list)
 	LIST_HEAD(list);
 	unsigned int h;
 
+<<<<<<< HEAD
+=======
+	list_for_each_entry(net, net_list, exit_list) {
+		struct vxlan_net *vn = net_generic(net, vxlan_net_id);
+
+		unregister_nexthop_notifier(net, &vn->nexthop_notifier_block);
+	}
+>>>>>>> upstream/android-13
 	rtnl_lock();
 	list_for_each_entry(net, net_list, exit_list)
 		vxlan_destroy_tunnels(net, &list);
@@ -3869,11 +5724,25 @@ static int __init vxlan_init_module(void)
 	if (rc)
 		goto out2;
 
+<<<<<<< HEAD
 	rc = rtnl_link_register(&vxlan_link_ops);
 	if (rc)
 		goto out3;
 
 	return 0;
+=======
+	rc = register_switchdev_notifier(&vxlan_switchdev_notifier_block);
+	if (rc)
+		goto out3;
+
+	rc = rtnl_link_register(&vxlan_link_ops);
+	if (rc)
+		goto out4;
+
+	return 0;
+out4:
+	unregister_switchdev_notifier(&vxlan_switchdev_notifier_block);
+>>>>>>> upstream/android-13
 out3:
 	unregister_netdevice_notifier(&vxlan_notifier_block);
 out2:
@@ -3886,6 +5755,10 @@ late_initcall(vxlan_init_module);
 static void __exit vxlan_cleanup_module(void)
 {
 	rtnl_link_unregister(&vxlan_link_ops);
+<<<<<<< HEAD
+=======
+	unregister_switchdev_notifier(&vxlan_switchdev_notifier_block);
+>>>>>>> upstream/android-13
 	unregister_netdevice_notifier(&vxlan_notifier_block);
 	unregister_pernet_subsys(&vxlan_net_ops);
 	/* rcu_barrier() is called by netns */

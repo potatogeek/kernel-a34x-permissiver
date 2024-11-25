@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
 * Copyright (C) 2012 Invensense, Inc.
 *
@@ -9,6 +10,11 @@
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+* Copyright (C) 2012 Invensense, Inc.
+>>>>>>> upstream/android-13
 */
 
 #include <linux/module.h>
@@ -21,7 +27,10 @@
 #include <linux/interrupt.h>
 #include <linux/poll.h>
 #include <linux/math64.h>
+<<<<<<< HEAD
 #include <asm/unaligned.h>
+=======
+>>>>>>> upstream/android-13
 #include "inv_mpu_iio.h"
 
 /**
@@ -98,6 +107,7 @@ static s64 inv_mpu6050_get_timestamp(struct inv_mpu6050_state *st)
 	return ts;
 }
 
+<<<<<<< HEAD
 int inv_reset_fifo(struct iio_dev *indio_dev)
 {
 	int result;
@@ -150,6 +160,16 @@ int inv_reset_fifo(struct iio_dev *indio_dev)
 	if (st->chip_config.accl_fifo_enable)
 		d |= INV_MPU6050_BIT_ACCEL_OUT;
 	result = regmap_write(st->map, st->reg->fifo_en, d);
+=======
+static int inv_reset_fifo(struct iio_dev *indio_dev)
+{
+	int result;
+	struct inv_mpu6050_state  *st = iio_priv(indio_dev);
+
+	/* disable fifo and reenable it */
+	inv_mpu6050_prepare_fifo(st, false);
+	result = inv_mpu6050_prepare_fifo(st, true);
+>>>>>>> upstream/android-13
 	if (result)
 		goto reset_fifo_fail;
 
@@ -163,7 +183,11 @@ reset_fifo_fail:
 	return result;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * inv_mpu6050_read_fifo() - Transfer data from hardware FIFO to KFIFO.
  */
 irqreturn_t inv_mpu6050_read_fifo(int irq, void *p)
@@ -173,7 +197,10 @@ irqreturn_t inv_mpu6050_read_fifo(int irq, void *p)
 	struct inv_mpu6050_state *st = iio_priv(indio_dev);
 	size_t bytes_per_datum;
 	int result;
+<<<<<<< HEAD
 	u8 data[INV_MPU6050_OUTPUT_DATA_SIZE];
+=======
+>>>>>>> upstream/android-13
 	u16 fifo_count;
 	s64 timestamp;
 	int int_status;
@@ -188,6 +215,7 @@ irqreturn_t inv_mpu6050_read_fifo(int irq, void *p)
 			"failed to ack interrupt\n");
 		goto flush_fifo;
 	}
+<<<<<<< HEAD
 	if (!(int_status & INV_MPU6050_BIT_RAW_DATA_RDY_INT)) {
 		dev_warn(regmap_get_device(st->map),
 			"spurious interrupt with status 0x%x\n", int_status);
@@ -196,6 +224,14 @@ irqreturn_t inv_mpu6050_read_fifo(int irq, void *p)
 
 	if (!(st->chip_config.accl_fifo_enable |
 		st->chip_config.gyro_fifo_enable))
+=======
+	if (!(int_status & INV_MPU6050_BIT_RAW_DATA_RDY_INT))
+		goto end_session;
+
+	if (!(st->chip_config.accl_fifo_enable |
+		st->chip_config.gyro_fifo_enable |
+		st->chip_config.magn_fifo_enable))
+>>>>>>> upstream/android-13
 		goto end_session;
 	bytes_per_datum = 0;
 	if (st->chip_config.accl_fifo_enable)
@@ -204,18 +240,34 @@ irqreturn_t inv_mpu6050_read_fifo(int irq, void *p)
 	if (st->chip_config.gyro_fifo_enable)
 		bytes_per_datum += INV_MPU6050_BYTES_PER_3AXIS_SENSOR;
 
+<<<<<<< HEAD
 	if (st->chip_type == INV_ICM20602)
 		bytes_per_datum += INV_ICM20602_BYTES_PER_TEMP_SENSOR;
+=======
+	if (st->chip_config.temp_fifo_enable)
+		bytes_per_datum += INV_MPU6050_BYTES_PER_TEMP_SENSOR;
+
+	if (st->chip_config.magn_fifo_enable)
+		bytes_per_datum += INV_MPU9X50_BYTES_MAGN;
+>>>>>>> upstream/android-13
 
 	/*
 	 * read fifo_count register to know how many bytes are inside the FIFO
 	 * right now
 	 */
+<<<<<<< HEAD
 	result = regmap_bulk_read(st->map, st->reg->fifo_count_h, data,
 				  INV_MPU6050_FIFO_COUNT_BYTE);
 	if (result)
 		goto end_session;
 	fifo_count = get_unaligned_be16(&data[0]);
+=======
+	result = regmap_bulk_read(st->map, st->reg->fifo_count_h,
+				  st->data, INV_MPU6050_FIFO_COUNT_BYTE);
+	if (result)
+		goto end_session;
+	fifo_count = be16_to_cpup((__be16 *)&st->data[0]);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Handle fifo overflow by resetting fifo.
@@ -232,8 +284,13 @@ irqreturn_t inv_mpu6050_read_fifo(int irq, void *p)
 	nb = fifo_count / bytes_per_datum;
 	inv_mpu6050_update_period(st, pf->timestamp, nb);
 	for (i = 0; i < nb; ++i) {
+<<<<<<< HEAD
 		result = regmap_bulk_read(st->map, st->reg->fifo_r_w,
 					  data, bytes_per_datum);
+=======
+		result = regmap_noinc_read(st->map, st->reg->fifo_r_w,
+					   st->data, bytes_per_datum);
+>>>>>>> upstream/android-13
 		if (result)
 			goto flush_fifo;
 		/* skip first samples if needed */
@@ -242,7 +299,11 @@ irqreturn_t inv_mpu6050_read_fifo(int irq, void *p)
 			continue;
 		}
 		timestamp = inv_mpu6050_get_timestamp(st);
+<<<<<<< HEAD
 		iio_push_to_buffers_with_timestamp(indio_dev, data, timestamp);
+=======
+		iio_push_to_buffers_with_timestamp(indio_dev, st->data, timestamp);
+>>>>>>> upstream/android-13
 	}
 
 end_session:

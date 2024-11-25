@@ -198,7 +198,11 @@ enum dccp_role {
 
 struct dccp_service_list {
 	__u32	dccpsl_nr;
+<<<<<<< HEAD
 	__be32	dccpsl_list[0];
+=======
+	__be32	dccpsl_list[];
+>>>>>>> upstream/android-13
 };
 
 #define DCCP_SERVICE_INVALID_VALUE htonl((__u32)-1)

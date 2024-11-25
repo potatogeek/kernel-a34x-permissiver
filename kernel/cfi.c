@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * CFI (Control Flow Integrity) error and slowpath handling
  *
@@ -11,12 +12,30 @@
 #include <linux/rcupdate.h>
 #include <linux/spinlock.h>
 #include <asm/bug.h>
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Clang Control Flow Integrity (CFI) error and slowpath handling.
+ *
+ * Copyright (C) 2021 Google LLC
+ */
+
+#include <linux/hardirq.h>
+#include <linux/kallsyms.h>
+#include <linux/module.h>
+#include <linux/mutex.h>
+#include <linux/printk.h>
+#include <linux/ratelimit.h>
+#include <linux/rcupdate.h>
+#include <linux/vmalloc.h>
+>>>>>>> upstream/android-13
 #include <asm/cacheflush.h>
 #include <asm/set_memory.h>
 
 /* Compiler-defined handler names */
 #ifdef CONFIG_CFI_PERMISSIVE
 #define cfi_failure_handler	__ubsan_handle_cfi_check_fail
+<<<<<<< HEAD
 #define cfi_slowpath_handler	__cfi_slowpath_diag
 #else /* enforcing */
 #define cfi_failure_handler	__ubsan_handle_cfi_check_fail_abort
@@ -31,10 +50,34 @@ static inline void handle_cfi_failure(void *ptr)
 	pr_err("CFI failure (target: %pF):\n", ptr);
 	BUG();
 #endif
+=======
+#else
+#define cfi_failure_handler	__ubsan_handle_cfi_check_fail_abort
+#endif
+
+/*
+ * __cfi_check won't be linked against compiler generated one,
+ * if no KBUILD_CFLAGS_MODULE is passed to compiler.
+ * 
+ * extern void __cfi_check(uint64_t id, void *ptr, void *diag);
+ *
+ */
+void __weak __cfi_check(uint64_t id, void *ptr, void *diag)
+{
+	return;
+}
+static inline void handle_cfi_failure(void *ptr)
+{
+	if (IS_ENABLED(CONFIG_CFI_PERMISSIVE))
+		WARN_RATELIMIT(1, "CFI failure (target: %pS):\n", ptr);
+	else
+		panic("CFI failure (target: %pS)\n", ptr);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_MODULES
 #ifdef CONFIG_CFI_CLANG_SHADOW
+<<<<<<< HEAD
 struct shadow_range {
 	/* Module address range */
 	unsigned long mod_min_addr;
@@ -60,30 +103,94 @@ struct cfi_shadow {
 static DEFINE_SPINLOCK(shadow_update_lock);
 static struct cfi_shadow __rcu *cfi_shadow __read_mostly = NULL;
 
+=======
+/*
+ * Index type. A 16-bit index can address at most (2^16)-2 pages (taking
+ * into account SHADOW_INVALID), i.e. ~256M with 4k pages.
+ */
+typedef u16 shadow_t;
+#define SHADOW_INVALID		((shadow_t)~0UL)
+
+struct cfi_shadow {
+	/* Page index for the beginning of the shadow */
+	unsigned long base;
+	/* An array of __cfi_check locations (as indices to the shadow) */
+	shadow_t shadow[1];
+} __packed;
+
+/*
+ * The shadow covers ~128M from the beginning of the module region. If
+ * the region is larger, we fall back to __module_address for the rest.
+ */
+#define __SHADOW_RANGE		(_UL(SZ_128M) >> PAGE_SHIFT)
+
+/* The in-memory size of struct cfi_shadow, always at least one page */
+#define __SHADOW_PAGES		((__SHADOW_RANGE * sizeof(shadow_t)) >> PAGE_SHIFT)
+#define SHADOW_PAGES		max(1UL, __SHADOW_PAGES)
+#define SHADOW_SIZE		(SHADOW_PAGES << PAGE_SHIFT)
+
+/* The actual size of the shadow array, minus metadata */
+#define SHADOW_ARR_SIZE		(SHADOW_SIZE - offsetof(struct cfi_shadow, shadow))
+#define SHADOW_ARR_SLOTS	(SHADOW_ARR_SIZE / sizeof(shadow_t))
+
+static DEFINE_MUTEX(shadow_update_lock);
+static struct cfi_shadow __rcu *cfi_shadow __read_mostly;
+
+/* Returns the index in the shadow for the given address */
+>>>>>>> upstream/android-13
 static inline int ptr_to_shadow(const struct cfi_shadow *s, unsigned long ptr)
 {
 	unsigned long index;
 	unsigned long page = ptr >> PAGE_SHIFT;
 
+<<<<<<< HEAD
 	if (unlikely(page < s->r.min_page))
 		return -1; /* Outside of module area */
 
 	index = page - s->r.min_page;
 
 	if (index >= SHADOW_SIZE)
+=======
+	if (unlikely(page < s->base))
+		return -1; /* Outside of module area */
+
+	index = page - s->base;
+
+	if (index >= SHADOW_ARR_SLOTS)
+>>>>>>> upstream/android-13
 		return -1; /* Cannot be addressed with shadow */
 
 	return (int)index;
 }
 
+<<<<<<< HEAD
 static inline unsigned long shadow_to_ptr(const struct cfi_shadow *s,
 	int index)
 {
 	BUG_ON(index < 0 || index >= SHADOW_SIZE);
+=======
+/* Returns the page address for an index in the shadow */
+static inline unsigned long shadow_to_ptr(const struct cfi_shadow *s,
+	int index)
+{
+	if (unlikely(index < 0 || index >= SHADOW_ARR_SLOTS))
+		return 0;
+
+	return (s->base + index) << PAGE_SHIFT;
+}
+
+/* Returns the __cfi_check function address for the given shadow location */
+static inline unsigned long shadow_to_check_fn(const struct cfi_shadow *s,
+	int index)
+{
+	if (unlikely(index < 0 || index >= SHADOW_ARR_SLOTS))
+		return 0;
+>>>>>>> upstream/android-13
 
 	if (unlikely(s->shadow[index] == SHADOW_INVALID))
 		return 0;
 
+<<<<<<< HEAD
 	return (s->r.min_page + s->shadow[index]) << PAGE_SHIFT;
 }
 
@@ -93,6 +200,10 @@ static inline unsigned long shadow_to_page(const struct cfi_shadow *s,
 	BUG_ON(index < 0 || index >= SHADOW_SIZE);
 
 	return (s->r.min_page + index) << PAGE_SHIFT;
+=======
+	/* __cfi_check is always page aligned */
+	return (s->base + s->shadow[index]) << PAGE_SHIFT;
+>>>>>>> upstream/android-13
 }
 
 static void prepare_next_shadow(const struct cfi_shadow __rcu *prev,
@@ -101,27 +212,46 @@ static void prepare_next_shadow(const struct cfi_shadow __rcu *prev,
 	int i, index, check;
 
 	/* Mark everything invalid */
+<<<<<<< HEAD
 	memset(next->shadow, 0xFF, sizeof(next->shadow));
+=======
+	memset(next->shadow, 0xFF, SHADOW_ARR_SIZE);
+>>>>>>> upstream/android-13
 
 	if (!prev)
 		return; /* No previous shadow */
 
+<<<<<<< HEAD
 	/* If the base address didn't change, update is not needed */
 	if (prev->r.min_page == next->r.min_page) {
 		memcpy(next->shadow, prev->shadow, sizeof(next->shadow));
+=======
+	/* If the base address didn't change, an update is not needed */
+	if (prev->base == next->base) {
+		memcpy(next->shadow, prev->shadow, SHADOW_ARR_SIZE);
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	/* Convert the previous shadow to the new address range */
+<<<<<<< HEAD
 	for (i = 0; i < SHADOW_SIZE; ++i) {
 		if (prev->shadow[i] == SHADOW_INVALID)
 			continue;
 
 		index = ptr_to_shadow(next, shadow_to_page(prev, i));
+=======
+	for (i = 0; i < SHADOW_ARR_SLOTS; ++i) {
+		if (prev->shadow[i] == SHADOW_INVALID)
+			continue;
+
+		index = ptr_to_shadow(next, shadow_to_ptr(prev, i));
+>>>>>>> upstream/android-13
 		if (index < 0)
 			continue;
 
 		check = ptr_to_shadow(next,
+<<<<<<< HEAD
 				shadow_to_ptr(prev, prev->shadow[i]));
 		if (check < 0)
 			continue;
@@ -155,10 +285,45 @@ static void add_module_to_shadow(struct cfi_shadow *s, struct module *mod)
 			/* Assume a page only contains code for one module */
 			BUG_ON(s->shadow[index] != SHADOW_INVALID);
 			s->shadow[index] = (u16)check_index;
+=======
+				shadow_to_check_fn(prev, prev->shadow[i]));
+		if (check < 0)
+			continue;
+
+		next->shadow[index] = (shadow_t)check;
+	}
+}
+
+static void add_module_to_shadow(struct cfi_shadow *s, struct module *mod,
+			unsigned long min_addr, unsigned long max_addr)
+{
+	int check_index;
+	unsigned long check = (unsigned long)mod->cfi_check;
+	unsigned long ptr;
+
+	if (unlikely(!PAGE_ALIGNED(check))) {
+		pr_warn("cfi: not using shadow for module %s\n", mod->name);
+		return;
+	}
+
+	check_index = ptr_to_shadow(s, check);
+	if (check_index < 0)
+		return; /* Module not addressable with shadow */
+
+	/* For each page, store the check function index in the shadow */
+	for (ptr = min_addr; ptr <= max_addr; ptr += PAGE_SIZE) {
+		int index = ptr_to_shadow(s, ptr);
+
+		if (index >= 0) {
+			/* Each page must only contain one module */
+			WARN_ON_ONCE(s->shadow[index] != SHADOW_INVALID);
+			s->shadow[index] = (shadow_t)check_index;
+>>>>>>> upstream/android-13
 		}
 	}
 }
 
+<<<<<<< HEAD
 static void remove_module_from_shadow(struct cfi_shadow *s, struct module *mod)
 {
 	unsigned long ptr;
@@ -172,11 +337,22 @@ static void remove_module_from_shadow(struct cfi_shadow *s, struct module *mod)
 
 	for (ptr = min_page_addr; ptr <= max_page_addr; ptr += PAGE_SIZE) {
 		int index = ptr_to_shadow(s, ptr);
+=======
+static void remove_module_from_shadow(struct cfi_shadow *s, struct module *mod,
+		unsigned long min_addr, unsigned long max_addr)
+{
+	unsigned long ptr;
+
+	for (ptr = min_addr; ptr <= max_addr; ptr += PAGE_SIZE) {
+		int index = ptr_to_shadow(s, ptr);
+
+>>>>>>> upstream/android-13
 		if (index >= 0)
 			s->shadow[index] = SHADOW_INVALID;
 	}
 }
 
+<<<<<<< HEAD
 typedef void (*update_shadow_fn)(struct cfi_shadow *, struct module *);
 
 static void update_shadow(struct module *mod, unsigned long min_addr,
@@ -202,10 +378,42 @@ static void update_shadow(struct module *mod, unsigned long min_addr,
 	rcu_assign_pointer(cfi_shadow, next);
 
 	spin_unlock(&shadow_update_lock);
+=======
+typedef void (*update_shadow_fn)(struct cfi_shadow *, struct module *,
+			unsigned long min_addr, unsigned long max_addr);
+
+static void update_shadow(struct module *mod, unsigned long base_addr,
+		update_shadow_fn fn)
+{
+	struct cfi_shadow *prev;
+	struct cfi_shadow *next;
+	unsigned long min_addr, max_addr;
+
+	next = vmalloc(SHADOW_SIZE);
+
+	mutex_lock(&shadow_update_lock);
+	prev = rcu_dereference_protected(cfi_shadow,
+					 mutex_is_locked(&shadow_update_lock));
+
+	if (next) {
+		next->base = base_addr >> PAGE_SHIFT;
+		prepare_next_shadow(prev, next);
+
+		min_addr = (unsigned long)mod->core_layout.base;
+		max_addr = min_addr + mod->core_layout.text_size;
+		fn(next, mod, min_addr & PAGE_MASK, max_addr & PAGE_MASK);
+
+		set_memory_ro((unsigned long)next, SHADOW_PAGES);
+	}
+
+	rcu_assign_pointer(cfi_shadow, next);
+	mutex_unlock(&shadow_update_lock);
+>>>>>>> upstream/android-13
 	synchronize_rcu();
 
 	if (prev) {
 		set_memory_rw((unsigned long)prev, SHADOW_PAGES);
+<<<<<<< HEAD
 		free_pages((unsigned long)prev, SHADOW_ORDER);
 	}
 }
@@ -223,6 +431,21 @@ void cfi_module_remove(struct module *mod, unsigned long min_addr,
 	update_shadow(mod, min_addr, max_addr, remove_module_from_shadow);
 }
 EXPORT_SYMBOL_GPL(cfi_module_remove);
+=======
+		vfree(prev);
+	}
+}
+
+void cfi_module_add(struct module *mod, unsigned long base_addr)
+{
+	update_shadow(mod, base_addr, add_module_to_shadow);
+}
+
+void cfi_module_remove(struct module *mod, unsigned long base_addr)
+{
+	update_shadow(mod, base_addr, remove_module_from_shadow);
+}
+>>>>>>> upstream/android-13
 
 static inline cfi_check_fn ptr_to_check_fn(const struct cfi_shadow __rcu *s,
 	unsigned long ptr)
@@ -232,13 +455,17 @@ static inline cfi_check_fn ptr_to_check_fn(const struct cfi_shadow __rcu *s,
 	if (unlikely(!s))
 		return NULL; /* No shadow available */
 
+<<<<<<< HEAD
 	if (ptr < s->r.mod_min_addr || ptr > s->r.mod_max_addr)
 		return NULL; /* Not in a mapped module */
 
+=======
+>>>>>>> upstream/android-13
 	index = ptr_to_shadow(s, ptr);
 	if (index < 0)
 		return NULL; /* Cannot be addressed with shadow */
 
+<<<<<<< HEAD
 	return (cfi_check_fn)shadow_to_ptr(s, index);
 }
 #endif /* CONFIG_CFI_CLANG_SHADOW */
@@ -292,15 +519,110 @@ void cfi_slowpath_handler(uint64_t id, void *ptr, void *diag)
 		handle_cfi_failure(ptr);
 }
 EXPORT_SYMBOL_GPL(cfi_slowpath_handler);
+=======
+	return (cfi_check_fn)shadow_to_check_fn(s, index);
+}
+
+static inline cfi_check_fn find_shadow_check_fn(unsigned long ptr)
+{
+	cfi_check_fn fn;
+
+	rcu_read_lock_sched_notrace();
+	fn = ptr_to_check_fn(rcu_dereference_sched(cfi_shadow), ptr);
+	rcu_read_unlock_sched_notrace();
+
+	return fn;
+}
+
+#else /* !CONFIG_CFI_CLANG_SHADOW */
+
+static inline cfi_check_fn find_shadow_check_fn(unsigned long ptr)
+{
+	return NULL;
+}
+
+#endif /* CONFIG_CFI_CLANG_SHADOW */
+
+static inline cfi_check_fn find_module_check_fn(unsigned long ptr)
+{
+	cfi_check_fn fn = NULL;
+	struct module *mod;
+
+	rcu_read_lock_sched_notrace();
+	mod = __module_address(ptr);
+	if (mod)
+		fn = mod->cfi_check;
+	rcu_read_unlock_sched_notrace();
+
+	return fn;
+}
+
+static inline cfi_check_fn find_check_fn(unsigned long ptr)
+{
+	cfi_check_fn fn = NULL;
+	unsigned long flags;
+	bool rcu_idle;
+
+	if (is_kernel_text(ptr))
+		return __cfi_check;
+
+	/*
+	 * Indirect call checks can happen when RCU is not watching. Both
+	 * the shadow and __module_address use RCU, so we need to wake it
+	 * up if necessary.
+	 */
+	rcu_idle = !rcu_is_watching();
+	if (rcu_idle) {
+		local_irq_save(flags);
+		rcu_irq_enter();
+	}
+
+	if (IS_ENABLED(CONFIG_CFI_CLANG_SHADOW))
+		fn = find_shadow_check_fn(ptr);
+	if (!fn)
+		fn = find_module_check_fn(ptr);
+
+	if (rcu_idle) {
+		rcu_irq_exit();
+		local_irq_restore(flags);
+	}
+
+	return fn;
+}
+
+void __cfi_slowpath_diag(uint64_t id, void *ptr, void *diag)
+{
+	cfi_check_fn fn = find_check_fn((unsigned long)ptr);
+
+	if (likely(fn))
+		fn(id, ptr, diag);
+	else /* Don't allow unchecked modules */
+		handle_cfi_failure(ptr);
+}
+EXPORT_SYMBOL(__cfi_slowpath_diag);
+
+#else /* !CONFIG_MODULES */
+
+void __cfi_slowpath_diag(uint64_t id, void *ptr, void *diag)
+{
+	handle_cfi_failure(ptr); /* No modules */
+}
+EXPORT_SYMBOL(__cfi_slowpath_diag);
+
+>>>>>>> upstream/android-13
 #endif /* CONFIG_MODULES */
 
 void cfi_failure_handler(void *data, void *ptr, void *vtable)
 {
 	handle_cfi_failure(ptr);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(cfi_failure_handler);
 
 void __cfi_check_fail(void *data, void *ptr)
 {
 	handle_cfi_failure(ptr);
 }
+=======
+EXPORT_SYMBOL(cfi_failure_handler);
+>>>>>>> upstream/android-13

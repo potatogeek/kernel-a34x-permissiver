@@ -3,7 +3,11 @@
  *
  * Module Name: excreate - Named object creation
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -15,7 +19,10 @@
 
 #define _COMPONENT          ACPI_EXECUTER
 ACPI_MODULE_NAME("excreate")
+<<<<<<< HEAD
 #ifndef ACPI_NO_METHOD_EXECUTION
+=======
+>>>>>>> upstream/android-13
 /*******************************************************************************
  *
  * FUNCTION:    acpi_ex_create_alias
@@ -390,7 +397,10 @@ acpi_status acpi_ex_create_power_resource(struct acpi_walk_state *walk_state)
 	acpi_ut_remove_reference(obj_desc);
 	return_ACPI_STATUS(status);
 }
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 /*******************************************************************************
  *

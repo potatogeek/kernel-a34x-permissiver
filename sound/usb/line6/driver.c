@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Line 6 Linux USB driver
  *
  * Copyright (C) 2004-2010 Markus Grabner (grabner@icg.tugraz.at)
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License as
  *	published by the Free Software Foundation, version 2.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -101,7 +108,11 @@ static void line6_stop_listen(struct usb_line6 *line6)
 /*
 	Send raw message in pieces of wMaxPacketSize bytes.
 */
+<<<<<<< HEAD
 static int line6_send_raw_message(struct usb_line6 *line6, const char *buffer,
+=======
+int line6_send_raw_message(struct usb_line6 *line6, const char *buffer,
+>>>>>>> upstream/android-13
 				  int size)
 {
 	int i, done = 0;
@@ -117,12 +128,20 @@ static int line6_send_raw_message(struct usb_line6 *line6, const char *buffer,
 			retval = usb_interrupt_msg(line6->usbdev,
 						usb_sndintpipe(line6->usbdev, properties->ep_ctrl_w),
 						(char *)frag_buf, frag_size,
+<<<<<<< HEAD
 						&partial, LINE6_TIMEOUT * HZ);
+=======
+						&partial, LINE6_TIMEOUT);
+>>>>>>> upstream/android-13
 		} else {
 			retval = usb_bulk_msg(line6->usbdev,
 						usb_sndbulkpipe(line6->usbdev, properties->ep_ctrl_w),
 						(char *)frag_buf, frag_size,
+<<<<<<< HEAD
 						&partial, LINE6_TIMEOUT * HZ);
+=======
+						&partial, LINE6_TIMEOUT);
+>>>>>>> upstream/android-13
 		}
 
 		if (retval) {
@@ -136,6 +155,10 @@ static int line6_send_raw_message(struct usb_line6 *line6, const char *buffer,
 
 	return done;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(line6_send_raw_message);
+>>>>>>> upstream/android-13
 
 /*
 	Notification of completion of asynchronous request transmission.
@@ -196,6 +219,7 @@ static int line6_send_raw_message_async_part(struct message *msg,
 }
 
 /*
+<<<<<<< HEAD
 	Setup and start timer.
 */
 void line6_start_timer(struct timer_list *timer, unsigned long msecs,
@@ -207,6 +231,8 @@ void line6_start_timer(struct timer_list *timer, unsigned long msecs,
 EXPORT_SYMBOL_GPL(line6_start_timer);
 
 /*
+=======
+>>>>>>> upstream/android-13
 	Asynchronously send raw message.
 */
 int line6_send_raw_message_async(struct usb_line6 *line6, const char *buffer,
@@ -351,12 +377,17 @@ int line6_read_data(struct usb_line6 *line6, unsigned address, void *data,
 {
 	struct usb_device *usbdev = line6->usbdev;
 	int ret;
+<<<<<<< HEAD
 	unsigned char *len;
+=======
+	u8 len;
+>>>>>>> upstream/android-13
 	unsigned count;
 
 	if (address > 0xffff || datalen > 0xff)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	len = kmalloc(sizeof(*len), GFP_KERNEL);
 	if (!len)
 		return -ENOMEM;
@@ -368,6 +399,14 @@ int line6_read_data(struct usb_line6 *line6, unsigned address, void *data,
 			      NULL, 0, LINE6_TIMEOUT * HZ);
 
 	if (ret < 0) {
+=======
+	/* query the serial number: */
+	ret = usb_control_msg_send(usbdev, 0, 0x67,
+				   USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
+				   (datalen << 8) | 0x21, address, NULL, 0,
+				   LINE6_TIMEOUT, GFP_KERNEL);
+	if (ret) {
+>>>>>>> upstream/android-13
 		dev_err(line6->ifcdev, "read request failed (error %d)\n", ret);
 		goto exit;
 	}
@@ -376,22 +415,35 @@ int line6_read_data(struct usb_line6 *line6, unsigned address, void *data,
 	for (count = 0; count < LINE6_READ_WRITE_MAX_RETRIES; count++) {
 		mdelay(LINE6_READ_WRITE_STATUS_DELAY);
 
+<<<<<<< HEAD
 		ret = usb_control_msg(usbdev, usb_rcvctrlpipe(usbdev, 0), 0x67,
 				      USB_TYPE_VENDOR | USB_RECIP_DEVICE |
 				      USB_DIR_IN,
 				      0x0012, 0x0000, len, 1,
 				      LINE6_TIMEOUT * HZ);
 		if (ret < 0) {
+=======
+		ret = usb_control_msg_recv(usbdev, 0, 0x67,
+					   USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
+					   0x0012, 0x0000, &len, 1,
+					   LINE6_TIMEOUT, GFP_KERNEL);
+		if (ret) {
+>>>>>>> upstream/android-13
 			dev_err(line6->ifcdev,
 				"receive length failed (error %d)\n", ret);
 			goto exit;
 		}
 
+<<<<<<< HEAD
 		if (*len != 0xff)
+=======
+		if (len != 0xff)
+>>>>>>> upstream/android-13
 			break;
 	}
 
 	ret = -EIO;
+<<<<<<< HEAD
 	if (*len == 0xff) {
 		dev_err(line6->ifcdev, "read failed after %d retries\n",
 			count);
@@ -401,10 +453,22 @@ int line6_read_data(struct usb_line6 *line6, unsigned address, void *data,
 		dev_err(line6->ifcdev,
 			"length mismatch (expected %d, got %d)\n",
 			(int)datalen, (int)*len);
+=======
+	if (len == 0xff) {
+		dev_err(line6->ifcdev, "read failed after %d retries\n",
+			count);
+		goto exit;
+	} else if (len != datalen) {
+		/* should be equal or something went wrong */
+		dev_err(line6->ifcdev,
+			"length mismatch (expected %d, got %d)\n",
+			(int)datalen, len);
+>>>>>>> upstream/android-13
 		goto exit;
 	}
 
 	/* receive the result: */
+<<<<<<< HEAD
 	ret = usb_control_msg(usbdev, usb_rcvctrlpipe(usbdev, 0), 0x67,
 			      USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
 			      0x0013, 0x0000, data, datalen,
@@ -415,6 +479,16 @@ int line6_read_data(struct usb_line6 *line6, unsigned address, void *data,
 
 exit:
 	kfree(len);
+=======
+	ret = usb_control_msg_recv(usbdev, 0, 0x67,
+				   USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
+				   0x0013, 0x0000, data, datalen, LINE6_TIMEOUT,
+				   GFP_KERNEL);
+	if (ret)
+		dev_err(line6->ifcdev, "read failed (error %d)\n", ret);
+
+exit:
+>>>>>>> upstream/android-13
 	return ret;
 }
 EXPORT_SYMBOL_GPL(line6_read_data);
@@ -433,6 +507,7 @@ int line6_write_data(struct usb_line6 *line6, unsigned address, void *data,
 	if (address > 0xffff || datalen > 0xffff)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	status = kmalloc(sizeof(*status), GFP_KERNEL);
 	if (!status)
 		return -ENOMEM;
@@ -443,6 +518,17 @@ int line6_write_data(struct usb_line6 *line6, unsigned address, void *data,
 			      LINE6_TIMEOUT * HZ);
 
 	if (ret < 0) {
+=======
+	status = kmalloc(1, GFP_KERNEL);
+	if (!status)
+		return -ENOMEM;
+
+	ret = usb_control_msg_send(usbdev, 0, 0x67,
+				   USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
+				   0x0022, address, data, datalen, LINE6_TIMEOUT,
+				   GFP_KERNEL);
+	if (ret) {
+>>>>>>> upstream/android-13
 		dev_err(line6->ifcdev,
 			"write request failed (error %d)\n", ret);
 		goto exit;
@@ -451,6 +537,7 @@ int line6_write_data(struct usb_line6 *line6, unsigned address, void *data,
 	for (count = 0; count < LINE6_READ_WRITE_MAX_RETRIES; count++) {
 		mdelay(LINE6_READ_WRITE_STATUS_DELAY);
 
+<<<<<<< HEAD
 		ret = usb_control_msg(usbdev, usb_rcvctrlpipe(usbdev, 0),
 				      0x67,
 				      USB_TYPE_VENDOR | USB_RECIP_DEVICE |
@@ -459,6 +546,13 @@ int line6_write_data(struct usb_line6 *line6, unsigned address, void *data,
 				      status, 1, LINE6_TIMEOUT * HZ);
 
 		if (ret < 0) {
+=======
+		ret = usb_control_msg_recv(usbdev, 0, 0x67,
+					   USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
+					   0x0012, 0x0000, status, 1, LINE6_TIMEOUT,
+					   GFP_KERNEL);
+		if (ret) {
+>>>>>>> upstream/android-13
 			dev_err(line6->ifcdev,
 				"receiving status failed (error %d)\n", ret);
 			goto exit;
@@ -565,6 +659,10 @@ static int line6_hwdep_open(struct snd_hwdep *hw, struct file *file)
 	/* NOTE: hwdep layer provides atomicity here */
 
 	line6->messages.active = 1;
+<<<<<<< HEAD
+=======
+	line6->messages.nonblock = file->f_flags & O_NONBLOCK ? 1 : 0;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -594,6 +692,12 @@ line6_hwdep_read(struct snd_hwdep *hwdep, char __user *buf, long count,
 	while (kfifo_len(&line6->messages.fifo) == 0) {
 		mutex_unlock(&line6->messages.read_lock);
 
+<<<<<<< HEAD
+=======
+		if (line6->messages.nonblock)
+			return -EAGAIN;
+
+>>>>>>> upstream/android-13
 		rv = wait_event_interruptible(
 			line6->messages.wait_queue,
 			kfifo_len(&line6->messages.fifo) != 0);
@@ -641,11 +745,33 @@ line6_hwdep_write(struct snd_hwdep *hwdep, const char __user *data, long count,
 	return rv;
 }
 
+<<<<<<< HEAD
+=======
+static __poll_t
+line6_hwdep_poll(struct snd_hwdep *hwdep, struct file *file, poll_table *wait)
+{
+	__poll_t rv;
+	struct usb_line6 *line6 = hwdep->private_data;
+
+	poll_wait(file, &line6->messages.wait_queue, wait);
+
+	mutex_lock(&line6->messages.read_lock);
+	rv = kfifo_len(&line6->messages.fifo) == 0 ? 0 : EPOLLIN | EPOLLRDNORM;
+	mutex_unlock(&line6->messages.read_lock);
+
+	return rv;
+}
+
+>>>>>>> upstream/android-13
 static const struct snd_hwdep_ops hwdep_ops = {
 	.open    = line6_hwdep_open,
 	.release = line6_hwdep_release,
 	.read    = line6_hwdep_read,
 	.write   = line6_hwdep_write,
+<<<<<<< HEAD
+=======
+	.poll    = line6_hwdep_poll,
+>>>>>>> upstream/android-13
 };
 
 /* Insert into circular buffer */
@@ -705,6 +831,13 @@ static int line6_init_cap_control(struct usb_line6 *line6)
 		line6->buffer_message = kmalloc(LINE6_MIDI_MESSAGE_MAXLEN, GFP_KERNEL);
 		if (!line6->buffer_message)
 			return -ENOMEM;
+<<<<<<< HEAD
+=======
+
+		ret = line6_init_midi(line6);
+		if (ret < 0)
+			return ret;
+>>>>>>> upstream/android-13
 	} else {
 		ret = line6_hwdep_init(line6);
 		if (ret < 0)
@@ -871,10 +1004,15 @@ int line6_suspend(struct usb_interface *interface, pm_message_t message)
 	if (line6->properties->capabilities & LINE6_CAP_CONTROL)
 		line6_stop_listen(line6);
 
+<<<<<<< HEAD
 	if (line6pcm != NULL) {
 		snd_pcm_suspend_all(line6pcm->pcm);
 		line6pcm->flags = 0;
 	}
+=======
+	if (line6pcm != NULL)
+		line6pcm->flags = 0;
+>>>>>>> upstream/android-13
 
 	return 0;
 }

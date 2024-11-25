@@ -7,17 +7,29 @@ ccflags-y := -I$(srctree)/$(src)/include \
 	-I$(srctree)/arch/arm/plat-omap/include
 
 # Common support
+<<<<<<< HEAD
 obj-y := id.o io.o control.o devices.o fb.o timer.o pm.o \
 	 common.o dma.o wd_timer.o display.o i2c.o hdq1w.o omap_hwmod.o \
 	 omap_device.o omap-headsmp.o sram.o
 
 hwmod-common				= omap_hwmod.o omap_hwmod_reset.o \
 					  omap_hwmod_common_data.o
+=======
+obj-y := id.o io.o control.o devices.o fb.o pm.o \
+	 common.o dma.o omap-headsmp.o sram.o
+
+hwmod-common				= omap_hwmod.o omap_hwmod_reset.o \
+					  omap_hwmod_common_data.o \
+					  omap_hwmod_common_ipblock_data.o \
+					  omap_device.o display.o hdq1w.o \
+					  i2c.o wd_timer.o
+>>>>>>> upstream/android-13
 clock-common				= clock.o
 secure-common				= omap-smc.o omap-secure.o
 
 obj-$(CONFIG_ARCH_OMAP2) += $(omap-2-3-common) $(hwmod-common)
 obj-$(CONFIG_ARCH_OMAP3) += $(omap-2-3-common) $(hwmod-common) $(secure-common)
+<<<<<<< HEAD
 obj-$(CONFIG_ARCH_OMAP4) += $(hwmod-common) $(secure-common)
 obj-$(CONFIG_SOC_AM33XX) += $(hwmod-common)
 obj-$(CONFIG_SOC_OMAP5)	 += $(hwmod-common) $(secure-common)
@@ -29,6 +41,24 @@ obj-y += mcbsp.o
 endif
 
 obj-$(CONFIG_TWL4030_CORE) += omap_twl.o
+=======
+obj-$(CONFIG_ARCH_OMAP4) += $(secure-common)
+obj-$(CONFIG_SOC_AM33XX) += $(secure-common)
+obj-$(CONFIG_SOC_OMAP5)  += $(secure-common)
+obj-$(CONFIG_SOC_AM43XX) += $(secure-common)
+obj-$(CONFIG_SOC_DRA7XX) += $(secure-common)
+
+ifneq ($(CONFIG_SND_SOC_OMAP_MCBSP),)
+obj-$(CONFIG_OMAP_HWMOD) += mcbsp.o
+endif
+
+obj-$(CONFIG_TWL4030_CORE) += omap_twl.o
+
+ifneq ($(CONFIG_MFD_CPCAP),)
+obj-y 					+= pmic-cpcap.o
+endif
+
+>>>>>>> upstream/android-13
 obj-$(CONFIG_SOC_HAS_OMAP2_SDRC)	+= sdrc.o
 
 # SMP support ONLY available for OMAP4
@@ -41,18 +71,27 @@ obj-$(CONFIG_SOC_OMAP5)			+= $(omap-4-5-common) $(smp-y) sleep44xx.o
 obj-$(CONFIG_SOC_AM43XX)		+= $(omap-4-5-common)
 obj-$(CONFIG_SOC_DRA7XX)		+= $(omap-4-5-common) $(smp-y) sleep44xx.o
 
+<<<<<<< HEAD
 plus_sec := $(call as-instr,.arch_extension sec,+sec)
 AFLAGS_omap-headsmp.o			:=-Wa,-march=armv7-a$(plus_sec)
 AFLAGS_omap-smc.o			:=-Wa,-march=armv7-a$(plus_sec)
 AFLAGS_sleep44xx.o			:=-Wa,-march=armv7-a$(plus_sec)
+=======
+omap5-dra7-common-$(CONFIG_SOC_HAS_REALTIME_COUNTER) =  timer.o
+obj-$(CONFIG_SOC_OMAP5)			+= $(omap5-dra7-common-y)
+obj-$(CONFIG_SOC_DRA7XX)		+= $(omap5-dra7-common-y)
+>>>>>>> upstream/android-13
 
 # Functions loaded to SRAM
 obj-$(CONFIG_SOC_OMAP2420)		+= sram242x.o
 obj-$(CONFIG_SOC_OMAP2430)		+= sram243x.o
 
+<<<<<<< HEAD
 AFLAGS_sram242x.o			:=-Wa,-march=armv6
 AFLAGS_sram243x.o			:=-Wa,-march=armv6
 
+=======
+>>>>>>> upstream/android-13
 # Restart code (OMAP4/5 currently in omap4-common.c)
 obj-$(CONFIG_SOC_OMAP2420)		+= omap2-restart.o
 obj-$(CONFIG_SOC_OMAP2430)		+= omap2-restart.o
@@ -94,11 +133,14 @@ obj-$(CONFIG_PM_DEBUG)			+= pm-debug.o
 obj-$(CONFIG_POWER_AVS_OMAP)		+= sr_device.o
 obj-$(CONFIG_POWER_AVS_OMAP_CLASS3)    += smartreflex-class3.o
 
+<<<<<<< HEAD
 AFLAGS_sleep24xx.o			:=-Wa,-march=armv6
 AFLAGS_sleep34xx.o			:=-Wa,-march=armv7-a$(plus_sec)
 AFLAGS_sleep33xx.o			:=-Wa,-march=armv7-a$(plus_sec)
 AFLAGS_sleep43xx.o			:=-Wa,-march=armv7-a$(plus_sec)
 
+=======
+>>>>>>> upstream/android-13
 endif
 
 ifeq ($(CONFIG_CPU_IDLE),y)
@@ -198,7 +240,10 @@ obj-$(CONFIG_SOC_OMAP2420)		+= opp2420_data.o
 obj-$(CONFIG_SOC_OMAP2430)		+= opp2430_data.o
 
 # hwmod data
+<<<<<<< HEAD
 obj-y					+= omap_hwmod_common_ipblock_data.o
+=======
+>>>>>>> upstream/android-13
 obj-$(CONFIG_SOC_OMAP2420)		+= omap_hwmod_2xxx_ipblock_data.o
 obj-$(CONFIG_SOC_OMAP2420)		+= omap_hwmod_2xxx_3xxx_ipblock_data.o
 obj-$(CONFIG_SOC_OMAP2420)		+= omap_hwmod_2xxx_interconnect_data.o
@@ -209,6 +254,7 @@ obj-$(CONFIG_SOC_OMAP2430)		+= omap_hwmod_2xxx_interconnect_data.o
 obj-$(CONFIG_SOC_OMAP2430)		+= omap_hwmod_2430_data.o
 obj-$(CONFIG_ARCH_OMAP3)		+= omap_hwmod_2xxx_3xxx_ipblock_data.o
 obj-$(CONFIG_ARCH_OMAP3)		+= omap_hwmod_3xxx_data.o
+<<<<<<< HEAD
 obj-$(CONFIG_SOC_AM33XX)		+= omap_hwmod_33xx_data.o
 obj-$(CONFIG_SOC_AM33XX)		+= omap_hwmod_33xx_43xx_interconnect_data.o
 obj-$(CONFIG_SOC_AM33XX)		+= omap_hwmod_33xx_43xx_ipblock_data.o
@@ -219,6 +265,9 @@ obj-$(CONFIG_SOC_TI81XX)		+= omap_hwmod_81xx_data.o
 obj-$(CONFIG_ARCH_OMAP4)		+= omap_hwmod_44xx_data.o
 obj-$(CONFIG_SOC_OMAP5)			+= omap_hwmod_54xx_data.o
 obj-$(CONFIG_SOC_DRA7XX)		+= omap_hwmod_7xx_data.o
+=======
+obj-$(CONFIG_SOC_TI81XX)		+= omap_hwmod_81xx_data.o
+>>>>>>> upstream/android-13
 
 # OMAP2420 MSDI controller integration support ("MMC")
 obj-$(CONFIG_SOC_OMAP2420)		+= msdi.o
@@ -229,13 +278,17 @@ obj-$(CONFIG_MACH_NOKIA_N8X0)		+= board-n8x0.o
 
 # Platform specific device init code
 
+<<<<<<< HEAD
 omap-hsmmc-$(CONFIG_MMC_OMAP_HS)	:= hsmmc.o
 obj-y					+= $(omap-hsmmc-m) $(omap-hsmmc-y)
 
+=======
+>>>>>>> upstream/android-13
 obj-y					+= omap_phy_internal.o
 
 obj-$(CONFIG_MACH_OMAP2_TUSB6010)	+= usb-tusb6010.o
 
+<<<<<<< HEAD
 arch/arm/mach-omap2/pm-asm-offsets.s: arch/arm/mach-omap2/pm-asm-offsets.c
 	$(call if_changed_dep,cc_s_c)
 
@@ -243,3 +296,14 @@ include/generated/ti-pm-asm-offsets.h: arch/arm/mach-omap2/pm-asm-offsets.s FORC
 	$(call filechk,offsets,__TI_PM_ASM_OFFSETS_H__)
 
 $(obj)/sleep33xx.o $(obj)/sleep43xx.o: include/generated/ti-pm-asm-offsets.h
+=======
+$(obj)/pm-asm-offsets.h: $(obj)/pm-asm-offsets.s FORCE
+	$(call filechk,offsets,__TI_PM_ASM_OFFSETS_H__)
+
+$(obj)/sleep33xx.o $(obj)/sleep43xx.o: $(obj)/pm-asm-offsets.h
+
+targets += pm-asm-offsets.s
+clean-files += pm-asm-offsets.h
+
+obj-$(CONFIG_OMAP_IOMMU)		+= omap-iommu.o
+>>>>>>> upstream/android-13

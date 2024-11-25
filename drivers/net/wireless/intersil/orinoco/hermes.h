@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /* hermes.h
  *
  * Driver core for the "Hermes" wireless MAC controller, as used in
@@ -17,8 +21,11 @@
  *
  * Portions taken from hfa384x.h.
  * Copyright (C) 1999 AbsoluteValue Systems, Inc. All Rights Reserved.
+<<<<<<< HEAD
  *
  * This file distributed under the GPL, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _HERMES_H
@@ -342,7 +349,11 @@ struct agere_ext_scan_info {
 	__le64	timestamp;
 	__le16	beacon_interval;
 	__le16	capabilities;
+<<<<<<< HEAD
 	u8	data[0];
+=======
+	u8	data[];
+>>>>>>> upstream/android-13
 } __packed;
 
 #define HERMES_LINKSTATUS_NOT_CONNECTED   (0x0000)
@@ -387,6 +398,11 @@ struct hermes_ops {
 	int (*allocate)(struct hermes *hw, u16 size, u16 *fid);
 	int (*read_ltv)(struct hermes *hw, int bap, u16 rid, unsigned buflen,
 			u16 *length, void *buf);
+<<<<<<< HEAD
+=======
+	int (*read_ltv_pr)(struct hermes *hw, int bap, u16 rid,
+			      unsigned buflen, u16 *length, void *buf);
+>>>>>>> upstream/android-13
 	int (*write_ltv)(struct hermes *hw, int bap, u16 rid,
 			 u16 length, const void *value);
 	int (*bap_pread)(struct hermes *hw, int bap, void *buf, int len,
@@ -495,6 +511,11 @@ static inline void hermes_clear_words(struct hermes *hw, int off,
 
 #define HERMES_READ_RECORD(hw, bap, rid, buf) \
 	(hw->ops->read_ltv((hw), (bap), (rid), sizeof(*buf), NULL, (buf)))
+<<<<<<< HEAD
+=======
+#define HERMES_READ_RECORD_PR(hw, bap, rid, buf) \
+	(hw->ops->read_ltv_pr((hw), (bap), (rid), sizeof(*buf), NULL, (buf)))
+>>>>>>> upstream/android-13
 #define HERMES_WRITE_RECORD(hw, bap, rid, buf) \
 	(hw->ops->write_ltv((hw), (bap), (rid), \
 			    HERMES_BYTES_TO_RECLEN(sizeof(*buf)), (buf)))
@@ -510,6 +531,20 @@ static inline int hermes_read_wordrec(struct hermes *hw, int bap, u16 rid,
 	return err;
 }
 
+<<<<<<< HEAD
+=======
+static inline int hermes_read_wordrec_pr(struct hermes *hw, int bap, u16 rid,
+					 u16 *word)
+{
+	__le16 rec;
+	int err;
+
+	err = HERMES_READ_RECORD_PR(hw, bap, rid, &rec);
+	*word = le16_to_cpu(rec);
+	return err;
+}
+
+>>>>>>> upstream/android-13
 static inline int hermes_write_wordrec(struct hermes *hw, int bap, u16 rid,
 				       u16 word)
 {

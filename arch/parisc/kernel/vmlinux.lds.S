@@ -18,6 +18,12 @@
 				*(.data..vm0.pgd) \
 				*(.data..vm0.pte)
 
+<<<<<<< HEAD
+=======
+#define CC_USING_PATCHABLE_FUNCTION_ENTRY
+#define RO_EXCEPTION_TABLE_ALIGN	8
+
+>>>>>>> upstream/android-13
 #include <asm-generic/vmlinux.lds.h>
 
 /* needed for the processor specific cache alignment size */	
@@ -35,6 +41,18 @@ OUTPUT_FORMAT("elf64-hppa-linux")
 OUTPUT_ARCH(hppa:hppa2.0w)
 #endif
 
+<<<<<<< HEAD
+=======
+#define EXIT_TEXT_SECTIONS()	.exit.text : { EXIT_TEXT }
+#if !defined(CONFIG_64BIT) || defined(CONFIG_MLONGCALLS)
+#define MLONGCALL_KEEP(x)
+#define MLONGCALL_DISCARD(x)	x
+#else
+#define MLONGCALL_KEEP(x)	x
+#define MLONGCALL_DISCARD(x)
+#endif
+
+>>>>>>> upstream/android-13
 ENTRY(parisc_kernel_start)
 #ifndef CONFIG_64BIT
 jiffies = jiffies_64 + 4;
@@ -47,6 +65,7 @@ SECTIONS
 
 	__init_begin = .;
 	HEAD_TEXT_SECTION
+<<<<<<< HEAD
 	INIT_TEXT_SECTION(8)
 
 	. = ALIGN(PAGE_SIZE);
@@ -56,22 +75,47 @@ SECTIONS
 	{
 		EXIT_TEXT
 	}
+=======
+	MLONGCALL_DISCARD(INIT_TEXT_SECTION(8))
+
+	. = ALIGN(PAGE_SIZE);
+	INIT_DATA_SECTION(PAGE_SIZE)
+	MLONGCALL_DISCARD(EXIT_TEXT_SECTIONS())
+>>>>>>> upstream/android-13
 	.exit.data :
 	{
 		EXIT_DATA
 	}
 	PERCPU_SECTION(8)
+<<<<<<< HEAD
+=======
+	. = ALIGN(4);
+	.altinstructions : {
+		__alt_instructions = .;
+		*(.altinstructions)
+		__alt_instructions_end = .;
+	}
+>>>>>>> upstream/android-13
 	. = ALIGN(HUGEPAGE_SIZE);
 	__init_end = .;
 	/* freed after init ends here */
 
 	_text = .;		/* Text and read-only data */
 	_stext = .;
+<<<<<<< HEAD
 	.text ALIGN(PAGE_SIZE) : {
 		TEXT_TEXT
 		SCHED_TEXT
 		CPUIDLE_TEXT
 		LOCK_TEXT
+=======
+	MLONGCALL_KEEP(INIT_TEXT_SECTION(8))
+	.text ALIGN(PAGE_SIZE) : {
+		TEXT_TEXT
+		LOCK_TEXT
+		SCHED_TEXT
+		CPUIDLE_TEXT
+>>>>>>> upstream/android-13
 		KPROBES_TEXT
 		IRQENTRY_TEXT
 		SOFTIRQENTRY_TEXT
@@ -86,6 +130,10 @@ SECTIONS
 		*(.lock.text)		/* out-of-line lock text */
 		*(.gnu.warning)
 	}
+<<<<<<< HEAD
+=======
+	MLONGCALL_KEEP(EXIT_TEXT_SECTIONS())
+>>>>>>> upstream/android-13
 	. = ALIGN(PAGE_SIZE);
 	_etext = .;
 	/* End of text section */
@@ -94,7 +142,11 @@ SECTIONS
 	_sdata = .;
 
 	/* Architecturally we need to keep __gp below 0x1000000 and thus
+<<<<<<< HEAD
 	 * in front of RO_DATA_SECTION() which stores lots of tracepoint
+=======
+	 * in front of RO_DATA() which stores lots of tracepoint
+>>>>>>> upstream/android-13
 	 * and ftrace symbols. */
 #ifdef CONFIG_64BIT
 	. = ALIGN(16);
@@ -112,11 +164,15 @@ SECTIONS
 	}
 #endif
 
+<<<<<<< HEAD
 	RO_DATA_SECTION(8)
 
 	/* RO because of BUILDTIME_EXTABLE_SORT */
 	EXCEPTION_TABLE(8)
 	NOTES
+=======
+	RO_DATA(8)
+>>>>>>> upstream/android-13
 
 	/* unwind info */
 	.PARISC.unwind : {
@@ -134,7 +190,11 @@ SECTIONS
 	data_start = .;
 
 	/* Data */
+<<<<<<< HEAD
 	RW_DATA_SECTION(L1_CACHE_BYTES, PAGE_SIZE, PAGE_SIZE)
+=======
+	RW_DATA(L1_CACHE_BYTES, PAGE_SIZE, PAGE_SIZE)
+>>>>>>> upstream/android-13
 
 	/* PA-RISC locks requires 16-byte alignment */
 	. = ALIGN(16);
@@ -152,6 +212,10 @@ SECTIONS
 	_end = . ;
 
 	STABS_DEBUG
+<<<<<<< HEAD
+=======
+	ELF_DETAILS
+>>>>>>> upstream/android-13
 	.note 0 : { *(.note) }
 
 	/* Sections to be discarded */

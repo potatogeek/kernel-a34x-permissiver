@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * MVEBU Core divider clock
  *
@@ -5,13 +9,20 @@
  *
  * Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
  *
+<<<<<<< HEAD
  * This file is licensed under the terms of the GNU General Public
  * License version 2.  This program is licensed "as is" without any
  * warranty of any kind, whether express or implied.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
 #include <linux/clk-provider.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/of_address.h>
 #include <linux/slab.h>
 #include <linux/delay.h>
@@ -252,7 +263,11 @@ static void __init
 mvebu_corediv_clk_init(struct device_node *node,
 		       const struct clk_corediv_soc_desc *soc_desc)
 {
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	struct clk_corediv *corediv;
 	struct clk **clks;
 	void __iomem *base;

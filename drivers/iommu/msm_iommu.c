@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -13,11 +14,21 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
+ *
+ * Author: Stepan Moskovchenko <stepanm@codeaurora.org>
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt)	KBUILD_MODNAME ": " fmt
 #include <linux/kernel.h>
+<<<<<<< HEAD
 #include <linux/module.h>
+=======
+#include <linux/init.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/errno.h>
 #include <linux/io.h>
@@ -29,10 +40,16 @@
 #include <linux/iommu.h>
 #include <linux/clk.h>
 #include <linux/err.h>
+<<<<<<< HEAD
 #include <linux/of_iommu.h>
 
 #include <asm/cacheflush.h>
 #include <asm/sizes.h>
+=======
+
+#include <asm/cacheflush.h>
+#include <linux/sizes.h>
+>>>>>>> upstream/android-13
 
 #include "msm_iommu_hw-8xxx.h"
 #include "msm_iommu.h"
@@ -45,7 +62,11 @@ __asm__ __volatile__ (							\
 /* bitmap of the page sizes currently supported */
 #define MSM_IOMMU_PGSIZES	(SZ_4K | SZ_64K | SZ_1M | SZ_16M)
 
+<<<<<<< HEAD
 DEFINE_SPINLOCK(msm_iommu_lock);
+=======
+static DEFINE_SPINLOCK(msm_iommu_lock);
+>>>>>>> upstream/android-13
 static LIST_HEAD(qcom_iommu_devices);
 static struct iommu_ops msm_iommu_ops;
 
@@ -179,6 +200,7 @@ fail:
 	return;
 }
 
+<<<<<<< HEAD
 static void __flush_iotlb_sync(void *cookie)
 {
 	/*
@@ -193,6 +215,24 @@ static const struct iommu_gather_ops msm_iommu_gather_ops = {
 	.tlb_flush_all = __flush_iotlb,
 	.tlb_add_flush = __flush_iotlb_range,
 	.tlb_sync = __flush_iotlb_sync,
+=======
+static void __flush_iotlb_walk(unsigned long iova, size_t size,
+			       size_t granule, void *cookie)
+{
+	__flush_iotlb_range(iova, size, granule, false, cookie);
+}
+
+static void __flush_iotlb_page(struct iommu_iotlb_gather *gather,
+			       unsigned long iova, size_t granule, void *cookie)
+{
+	__flush_iotlb_range(iova, granule, granule, true, cookie);
+}
+
+static const struct iommu_flush_ops msm_iommu_flush_ops = {
+	.tlb_flush_all = __flush_iotlb,
+	.tlb_flush_walk = __flush_iotlb_walk,
+	.tlb_add_page = __flush_iotlb_page,
+>>>>>>> upstream/android-13
 };
 
 static int msm_iommu_alloc_ctx(unsigned long *map, int start, int end)
@@ -281,8 +321,13 @@ static void __program_context(void __iomem *base, int ctx,
 	SET_V2PCFG(base, ctx, 0x3);
 
 	SET_TTBCR(base, ctx, priv->cfg.arm_v7s_cfg.tcr);
+<<<<<<< HEAD
 	SET_TTBR0(base, ctx, priv->cfg.arm_v7s_cfg.ttbr[0]);
 	SET_TTBR1(base, ctx, priv->cfg.arm_v7s_cfg.ttbr[1]);
+=======
+	SET_TTBR0(base, ctx, priv->cfg.arm_v7s_cfg.ttbr);
+	SET_TTBR1(base, ctx, 0);
+>>>>>>> upstream/android-13
 
 	/* Set prrr and nmrr */
 	SET_PRRR(base, ctx, priv->cfg.arm_v7s_cfg.prrr);
@@ -352,11 +397,18 @@ static int msm_iommu_domain_config(struct msm_priv *priv)
 	spin_lock_init(&priv->pgtlock);
 
 	priv->cfg = (struct io_pgtable_cfg) {
+<<<<<<< HEAD
 		.quirks = IO_PGTABLE_QUIRK_TLBI_ON_MAP,
 		.pgsize_bitmap = msm_iommu_ops.pgsize_bitmap,
 		.ias = 32,
 		.oas = 32,
 		.tlb = &msm_iommu_gather_ops,
+=======
+		.pgsize_bitmap = msm_iommu_ops.pgsize_bitmap,
+		.ias = 32,
+		.oas = 32,
+		.tlb = &msm_iommu_flush_ops,
+>>>>>>> upstream/android-13
 		.iommu_dev = priv->dev,
 	};
 
@@ -390,16 +442,23 @@ static struct msm_iommu_dev *find_iommu_for_dev(struct device *dev)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int msm_iommu_add_device(struct device *dev)
 {
 	struct msm_iommu_dev *iommu;
 	struct iommu_group *group;
+=======
+static struct iommu_device *msm_iommu_probe_device(struct device *dev)
+{
+	struct msm_iommu_dev *iommu;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 
 	spin_lock_irqsave(&msm_iommu_lock, flags);
 	iommu = find_iommu_for_dev(dev);
 	spin_unlock_irqrestore(&msm_iommu_lock, flags);
 
+<<<<<<< HEAD
 	if (iommu)
 		iommu_device_link(&iommu->iommu, dev);
 	else
@@ -427,6 +486,16 @@ static void msm_iommu_remove_device(struct device *dev)
 		iommu_device_unlink(&iommu->iommu, dev);
 
 	iommu_group_remove_device(dev);
+=======
+	if (!iommu)
+		return ERR_PTR(-ENODEV);
+
+	return &iommu->iommu;
+}
+
+static void msm_iommu_release_device(struct device *dev)
+{
+>>>>>>> upstream/android-13
 }
 
 static int msm_iommu_attach_dev(struct iommu_domain *domain, struct device *dev)
@@ -459,10 +528,17 @@ static int msm_iommu_attach_dev(struct iommu_domain *domain, struct device *dev)
 				master->num =
 					msm_iommu_alloc_ctx(iommu->context_map,
 							    0, iommu->ncb);
+<<<<<<< HEAD
 					if (IS_ERR_VALUE(master->num)) {
 						ret = -ENODEV;
 						goto fail;
 					}
+=======
+				if (IS_ERR_VALUE(master->num)) {
+					ret = -ENODEV;
+					goto fail;
+				}
+>>>>>>> upstream/android-13
 				config_mids(iommu, master);
 				__program_context(iommu->base, master->num,
 						  priv);
@@ -506,27 +582,52 @@ fail:
 }
 
 static int msm_iommu_map(struct iommu_domain *domain, unsigned long iova,
+<<<<<<< HEAD
 			 phys_addr_t pa, size_t len, int prot)
+=======
+			 phys_addr_t pa, size_t len, int prot, gfp_t gfp)
+>>>>>>> upstream/android-13
 {
 	struct msm_priv *priv = to_msm_priv(domain);
 	unsigned long flags;
 	int ret;
 
 	spin_lock_irqsave(&priv->pgtlock, flags);
+<<<<<<< HEAD
 	ret = priv->iop->map(priv->iop, iova, pa, len, prot);
+=======
+	ret = priv->iop->map(priv->iop, iova, pa, len, prot, GFP_ATOMIC);
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&priv->pgtlock, flags);
 
 	return ret;
 }
 
+<<<<<<< HEAD
 static size_t msm_iommu_unmap(struct iommu_domain *domain, unsigned long iova,
 			      size_t len)
+=======
+static void msm_iommu_sync_map(struct iommu_domain *domain, unsigned long iova,
+			       size_t size)
+{
+	struct msm_priv *priv = to_msm_priv(domain);
+
+	__flush_iotlb_range(iova, size, SZ_4K, false, priv);
+}
+
+static size_t msm_iommu_unmap(struct iommu_domain *domain, unsigned long iova,
+			      size_t len, struct iommu_iotlb_gather *gather)
+>>>>>>> upstream/android-13
 {
 	struct msm_priv *priv = to_msm_priv(domain);
 	unsigned long flags;
 
 	spin_lock_irqsave(&priv->pgtlock, flags);
+<<<<<<< HEAD
 	len = priv->iop->unmap(priv->iop, iova, len);
+=======
+	len = priv->iop->unmap(priv->iop, iova, len, gather);
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&priv->pgtlock, flags);
 
 	return len;
@@ -615,14 +716,22 @@ static void insert_iommu_master(struct device *dev,
 				struct msm_iommu_dev **iommu,
 				struct of_phandle_args *spec)
 {
+<<<<<<< HEAD
 	struct msm_iommu_ctx_dev *master = dev->archdata.iommu;
+=======
+	struct msm_iommu_ctx_dev *master = dev_iommu_priv_get(dev);
+>>>>>>> upstream/android-13
 	int sid;
 
 	if (list_empty(&(*iommu)->ctx_list)) {
 		master = kzalloc(sizeof(*master), GFP_ATOMIC);
 		master->of_node = dev->of_node;
 		list_add(&master->list, &(*iommu)->ctx_list);
+<<<<<<< HEAD
 		dev->archdata.iommu = master;
+=======
+		dev_iommu_priv_set(dev, master);
+>>>>>>> upstream/android-13
 	}
 
 	for (sid = 0; sid < master->num_mids; sid++)
@@ -702,9 +811,23 @@ static struct iommu_ops msm_iommu_ops = {
 	.detach_dev = msm_iommu_detach_dev,
 	.map = msm_iommu_map,
 	.unmap = msm_iommu_unmap,
+<<<<<<< HEAD
 	.iova_to_phys = msm_iommu_iova_to_phys,
 	.add_device = msm_iommu_add_device,
 	.remove_device = msm_iommu_remove_device,
+=======
+	/*
+	 * Nothing is needed here, the barrier to guarantee
+	 * completion of the tlb sync operation is implicitly
+	 * taken care when the iommu client does a writel before
+	 * kick starting the other master.
+	 */
+	.iotlb_sync = NULL,
+	.iotlb_sync_map = msm_iommu_sync_map,
+	.iova_to_phys = msm_iommu_iova_to_phys,
+	.probe_device = msm_iommu_probe_device,
+	.release_device = msm_iommu_release_device,
+>>>>>>> upstream/android-13
 	.device_group = generic_device_group,
 	.pgsize_bitmap = MSM_IOMMU_PGSIZES,
 	.of_xlate = qcom_iommu_of_xlate,
@@ -761,7 +884,10 @@ static int msm_iommu_probe(struct platform_device *pdev)
 
 	iommu->irq = platform_get_irq(pdev, 0);
 	if (iommu->irq < 0) {
+<<<<<<< HEAD
 		dev_err(iommu->dev, "could not get iommu irq\n");
+=======
+>>>>>>> upstream/android-13
 		ret = -ENODEV;
 		goto fail;
 	}
@@ -807,10 +933,14 @@ static int msm_iommu_probe(struct platform_device *pdev)
 		goto fail;
 	}
 
+<<<<<<< HEAD
 	iommu_device_set_ops(&iommu->iommu, &msm_iommu_ops);
 	iommu_device_set_fwnode(&iommu->iommu, &pdev->dev.of_node->fwnode);
 
 	ret = iommu_device_register(&iommu->iommu);
+=======
+	ret = iommu_device_register(&iommu->iommu, &msm_iommu_ops, &pdev->dev);
+>>>>>>> upstream/android-13
 	if (ret) {
 		pr_err("Could not register msm-smmu at %pa\n", &ioaddr);
 		goto fail;
@@ -861,6 +991,7 @@ static int __init msm_iommu_driver_init(void)
 
 	return ret;
 }
+<<<<<<< HEAD
 
 static void __exit msm_iommu_driver_exit(void)
 {
@@ -872,3 +1003,7 @@ module_exit(msm_iommu_driver_exit);
 
 MODULE_LICENSE("GPL v2");
 MODULE_AUTHOR("Stepan Moskovchenko <stepanm@codeaurora.org>");
+=======
+subsys_initcall(msm_iommu_driver_init);
+
+>>>>>>> upstream/android-13

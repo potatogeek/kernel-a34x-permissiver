@@ -45,6 +45,7 @@
 
 #ifndef __ASSEMBLY__
 
+<<<<<<< HEAD
 /*
  * All accesses to bridge hardware registers must be done
  * using 32-bit loads and stores.
@@ -57,6 +58,23 @@ typedef u64	bridge_ate_t;
  * are always "pointer to volatile"
  */
 typedef volatile bridge_ate_t  *bridge_ate_p;
+=======
+#define ATE_V		0x01
+#define ATE_CO		0x02
+#define ATE_PREC	0x04
+#define ATE_PREF	0x08
+#define ATE_BAR		0x10
+
+#define ATE_PFNSHIFT		12
+#define ATE_TIDSHIFT		8
+#define ATE_RMFSHIFT		48
+
+#define mkate(xaddr, xid, attr) (((xaddr) & 0x0000fffffffff000ULL) | \
+				 ((xid)<<ATE_TIDSHIFT) | \
+				 (attr))
+
+#define BRIDGE_INTERNAL_ATES	128
+>>>>>>> upstream/android-13
 
 /*
  * It is generally preferred that hardware registers on the bridge
@@ -65,7 +83,11 @@ typedef volatile bridge_ate_t  *bridge_ate_p;
  * Generated from Bridge spec dated 04oct95
  */
 
+<<<<<<< HEAD
 typedef volatile struct bridge_s {
+=======
+struct bridge_regs {
+>>>>>>> upstream/android-13
 	/* Local Registers			       0x000000-0x00FFFF */
 
 	/* standard widget configuration	       0x000000-0x000057 */
@@ -86,6 +108,7 @@ typedef volatile struct bridge_s {
 #define b_wid_tflush			b_widget.w_tflush
 
 	/* bridge-specific widget configuration 0x000058-0x00007F */
+<<<<<<< HEAD
 	bridgereg_t	    _pad_000058;
 	bridgereg_t	    b_wid_aux_err;		/* 0x00005C */
 	bridgereg_t	    _pad_000060;
@@ -128,10 +151,55 @@ typedef volatile struct bridge_s {
 	bridgereg_t	_pad_0000D8;
 	bridgereg_t	b_pci_err_lower;		/* 0x0000DC */
 	bridgereg_t	_pad_0000E0[8];
+=======
+	u32	_pad_000058;
+	u32	b_wid_aux_err;		/* 0x00005C */
+	u32	_pad_000060;
+	u32	b_wid_resp_upper;		/* 0x000064 */
+	u32	_pad_000068;
+	u32	b_wid_resp_lower;		/* 0x00006C */
+	u32	_pad_000070;
+	u32	 b_wid_tst_pin_ctrl;		/* 0x000074 */
+	u32	_pad_000078[2];
+
+	/* PMU & Map 0x000080-0x00008F */
+	u32	_pad_000080;
+	u32	b_dir_map;			/* 0x000084 */
+	u32	_pad_000088[2];
+
+	/* SSRAM 0x000090-0x00009F */
+	u32	_pad_000090;
+	u32	b_ram_perr;			/* 0x000094 */
+	u32	_pad_000098[2];
+
+	/* Arbitration 0x0000A0-0x0000AF */
+	u32	_pad_0000A0;
+	u32	b_arb;				/* 0x0000A4 */
+	u32	_pad_0000A8[2];
+
+	/* Number In A Can 0x0000B0-0x0000BF */
+	u32	_pad_0000B0;
+	u32	b_nic;				/* 0x0000B4 */
+	u32	_pad_0000B8[2];
+
+	/* PCI/GIO 0x0000C0-0x0000FF */
+	u32	_pad_0000C0;
+	u32	b_bus_timeout;			/* 0x0000C4 */
+#define b_pci_bus_timeout b_bus_timeout
+
+	u32	_pad_0000C8;
+	u32	b_pci_cfg;			/* 0x0000CC */
+	u32	_pad_0000D0;
+	u32	b_pci_err_upper;		/* 0x0000D4 */
+	u32	_pad_0000D8;
+	u32	b_pci_err_lower;		/* 0x0000DC */
+	u32	_pad_0000E0[8];
+>>>>>>> upstream/android-13
 #define b_gio_err_lower b_pci_err_lower
 #define b_gio_err_upper b_pci_err_upper
 
 	/* Interrupt 0x000100-0x0001FF */
+<<<<<<< HEAD
 	bridgereg_t	_pad_000100;
 	bridgereg_t	b_int_status;			/* 0x000104 */
 	bridgereg_t	_pad_000108;
@@ -166,25 +234,77 @@ typedef volatile struct bridge_s {
 	struct {
 		bridgereg_t	__pad;			/* 0x0002{80,,,88} */
 		bridgereg_t	reg;			/* 0x0002{84,,,8C} */
+=======
+	u32	_pad_000100;
+	u32	b_int_status;			/* 0x000104 */
+	u32	_pad_000108;
+	u32	b_int_enable;			/* 0x00010C */
+	u32	_pad_000110;
+	u32	b_int_rst_stat;			/* 0x000114 */
+	u32	_pad_000118;
+	u32	b_int_mode;			/* 0x00011C */
+	u32	_pad_000120;
+	u32	b_int_device;			/* 0x000124 */
+	u32	_pad_000128;
+	u32	b_int_host_err;			/* 0x00012C */
+
+	struct {
+		u32	__pad;			/* 0x0001{30,,,68} */
+		u32	addr;			/* 0x0001{34,,,6C} */
+	} b_int_addr[8];				/* 0x000130 */
+
+	u32	_pad_000170[36];
+
+	/* Device 0x000200-0x0003FF */
+	struct {
+		u32	__pad;			/* 0x0002{00,,,38} */
+		u32	reg;			/* 0x0002{04,,,3C} */
+	} b_device[8];					/* 0x000200 */
+
+	struct {
+		u32	__pad;			/* 0x0002{40,,,78} */
+		u32	reg;			/* 0x0002{44,,,7C} */
+	} b_wr_req_buf[8];				/* 0x000240 */
+
+	struct {
+		u32	__pad;			/* 0x0002{80,,,88} */
+		u32	reg;			/* 0x0002{84,,,8C} */
+>>>>>>> upstream/android-13
 	} b_rrb_map[2];					/* 0x000280 */
 #define b_even_resp	b_rrb_map[0].reg		/* 0x000284 */
 #define b_odd_resp	b_rrb_map[1].reg		/* 0x00028C */
 
+<<<<<<< HEAD
 	bridgereg_t	_pad_000290;
 	bridgereg_t	b_resp_status;			/* 0x000294 */
 	bridgereg_t	_pad_000298;
 	bridgereg_t	b_resp_clear;			/* 0x00029C */
 
 	bridgereg_t	_pad_0002A0[24];
+=======
+	u32	_pad_000290;
+	u32	b_resp_status;			/* 0x000294 */
+	u32	_pad_000298;
+	u32	b_resp_clear;			/* 0x00029C */
+
+	u32	_pad_0002A0[24];
+>>>>>>> upstream/android-13
 
 	char		_pad_000300[0x10000 - 0x000300];
 
 	/* Internal Address Translation Entry RAM 0x010000-0x0103FF */
 	union {
+<<<<<<< HEAD
 		bridge_ate_t	wr;			/* write-only */
 		struct {
 			bridgereg_t	_p_pad;
 			bridgereg_t	rd;		/* read-only */
+=======
+		u64	wr;			/* write-only */
+		struct {
+			u32	_p_pad;
+			u32	rd;		/* read-only */
+>>>>>>> upstream/android-13
 		}			hi;
 	}			    b_int_ate_ram[128];
 
@@ -192,8 +312,13 @@ typedef volatile struct bridge_s {
 
 	/* Internal Address Translation Entry RAM LOW 0x011000-0x0113FF */
 	struct {
+<<<<<<< HEAD
 		bridgereg_t	_p_pad;
 		bridgereg_t	rd;		/* read-only */
+=======
+		u32	_p_pad;
+		u32	rd;		/* read-only */
+>>>>>>> upstream/android-13
 	} b_int_ate_ram_lo[128];
 
 	char	_pad_011400[0x20000 - 0x011400];
@@ -212,7 +337,11 @@ typedef volatile struct bridge_s {
 		} f[8];
 	} b_type0_cfg_dev[8];					/* 0x020000 */
 
+<<<<<<< HEAD
     /* PCI Type 1 Configuration Space 0x028000-0x028FFF */
+=======
+	/* PCI Type 1 Configuration Space 0x028000-0x028FFF */
+>>>>>>> upstream/android-13
 	union {				/* make all access sizes available. */
 		u8	c[0x1000 / 1];
 		u16	s[0x1000 / 2];
@@ -233,7 +362,11 @@ typedef volatile struct bridge_s {
 	u8	_pad_030007[0x04fff8];			/* 0x030008-0x07FFFF */
 
 	/* External Address Translation Entry RAM 0x080000-0x0FFFFF */
+<<<<<<< HEAD
 	bridge_ate_t	b_ext_ate_ram[0x10000];
+=======
+	u64	b_ext_ate_ram[0x10000];
+>>>>>>> upstream/android-13
 
 	/* Reserved 0x100000-0x1FFFFF */
 	char	_pad_100000[0x200000-0x100000];
@@ -259,13 +392,21 @@ typedef volatile struct bridge_s {
 		u32	l[0x400000 / 4];	/* read-only */
 		u64	d[0x400000 / 8];	/* read-only */
 	} b_external_flash;			/* 0xC00000 */
+<<<<<<< HEAD
 } bridge_t;
+=======
+};
+>>>>>>> upstream/android-13
 
 /*
  * Field formats for Error Command Word and Auxiliary Error Command Word
  * of bridge.
  */
+<<<<<<< HEAD
 typedef struct bridge_err_cmdword_s {
+=======
+struct bridge_err_cmdword {
+>>>>>>> upstream/android-13
 	union {
 		u32		cmd_word;
 		struct {
@@ -282,7 +423,11 @@ typedef struct bridge_err_cmdword_s {
 				rsvd:8;
 		} berr_st;
 	} berr_un;
+<<<<<<< HEAD
 } bridge_err_cmdword_t;
+=======
+};
+>>>>>>> upstream/android-13
 
 #define berr_field	berr_un.berr_st
 #endif /* !__ASSEMBLY__ */
@@ -290,7 +435,11 @@ typedef struct bridge_err_cmdword_s {
 /*
  * The values of these macros can and should be crosschecked
  * regularly against the offsets of the like-named fields
+<<<<<<< HEAD
  * within the "bridge_t" structure above.
+=======
+ * within the bridge_regs structure above.
+>>>>>>> upstream/android-13
  */
 
 /* Byte offset macros for Bridge internal registers */
@@ -797,6 +946,7 @@ typedef struct bridge_err_cmdword_s {
 #define PCI64_ATTR_RMF_MASK	0x00ff000000000000
 #define PCI64_ATTR_RMF_SHFT	48
 
+<<<<<<< HEAD
 #ifndef __ASSEMBLY__
 /* Address translation entry for mapped pci32 accesses */
 typedef union ate_u {
@@ -842,14 +992,35 @@ struct bridge_controller {
 	unsigned int		irq_cpu;
 	u64			baddr;
 	unsigned int		pci_int[8];
+=======
+struct bridge_controller {
+	struct resource		busn;
+	struct bridge_regs	*base;
+	unsigned long		baddr;
+	unsigned long		intr_addr;
+	struct irq_domain	*domain;
+	unsigned int		pci_int[8][2];
+	unsigned int		int_mapping[8][2];
+	u32			ioc3_sid[8];
+	nasid_t			nasid;
+>>>>>>> upstream/android-13
 };
 
 #define BRIDGE_CONTROLLER(bus) \
 	((struct bridge_controller *)((bus)->sysdata))
 
+<<<<<<< HEAD
 extern void register_bridge_irq(unsigned int irq);
 extern int request_bridge_irq(struct bridge_controller *bc);
 
 extern struct pci_ops bridge_pci_ops;
+=======
+#define bridge_read(bc, reg)		__raw_readl(&bc->base->reg)
+#define bridge_write(bc, reg, val)	__raw_writel(val, &bc->base->reg)
+#define bridge_set(bc, reg, val)	\
+	__raw_writel(__raw_readl(&bc->base->reg) | (val), &bc->base->reg)
+#define bridge_clr(bc, reg, val)	\
+	__raw_writel(__raw_readl(&bc->base->reg) & ~(val), &bc->base->reg)
+>>>>>>> upstream/android-13
 
 #endif /* _ASM_PCI_BRIDGE_H */

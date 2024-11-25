@@ -16,6 +16,11 @@ enum {
 	NETNSA_NSID,
 	NETNSA_PID,
 	NETNSA_FD,
+<<<<<<< HEAD
+=======
+	NETNSA_TARGET_NSID,
+	NETNSA_CURRENT_NSID,
+>>>>>>> upstream/android-13
 	__NETNSA_MAX,
 };
 

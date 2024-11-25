@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * ADT7410/ADT7420 digital temperature sensor driver
  *
  * Copyright 2012-2013 Analog Devices Inc.
  *   Author: Lars-Peter Clausen <lars@metafoo.de>
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2 or later.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -40,8 +47,12 @@ static const struct adt7x10_ops adt7410_i2c_ops = {
 	.write_byte = adt7410_i2c_write_byte,
 };
 
+<<<<<<< HEAD
 static int adt7410_i2c_probe(struct i2c_client *client,
 	const struct i2c_device_id *id)
+=======
+static int adt7410_i2c_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	if (!i2c_check_functionality(client->adapter,
 			I2C_FUNC_SMBUS_BYTE_DATA | I2C_FUNC_SMBUS_WORD_DATA))
@@ -68,7 +79,11 @@ static struct i2c_driver adt7410_driver = {
 		.name	= "adt7410",
 		.pm	= ADT7X10_DEV_PM_OPS,
 	},
+<<<<<<< HEAD
 	.probe		= adt7410_i2c_probe,
+=======
+	.probe_new	= adt7410_i2c_probe,
+>>>>>>> upstream/android-13
 	.remove		= adt7410_i2c_remove,
 	.id_table	= adt7410_ids,
 	.address_list	= I2C_ADDRS(0x48, 0x49, 0x4a, 0x4b),

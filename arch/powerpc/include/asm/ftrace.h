@@ -8,9 +8,17 @@
 #define MCOUNT_ADDR		((unsigned long)(_mcount))
 #define MCOUNT_INSN_SIZE	4 /* sizeof mcount call */
 
+<<<<<<< HEAD
 #ifdef __ASSEMBLY__
 
 /* Based off of objdump optput from glibc */
+=======
+#define HAVE_FUNCTION_GRAPH_RET_ADDR_PTR
+
+#ifdef __ASSEMBLY__
+
+/* Based off of objdump output from glibc */
+>>>>>>> upstream/android-13
 
 #define MCOUNT_SAVE_FRAME			\
 	stwu	r1,-48(r1);			\
@@ -50,7 +58,11 @@ extern void _mcount(void);
 
 static inline unsigned long ftrace_call_adjust(unsigned long addr)
 {
+<<<<<<< HEAD
        /* reloction of mcount call site is the same as the address */
+=======
+       /* relocation of mcount call site is the same as the address */
+>>>>>>> upstream/android-13
        return addr;
 }
 
@@ -106,9 +118,29 @@ static inline void this_cpu_enable_ftrace(void)
 {
 	get_paca()->ftrace_enabled = 1;
 }
+<<<<<<< HEAD
 #else /* CONFIG_PPC64 */
 static inline void this_cpu_disable_ftrace(void) { }
 static inline void this_cpu_enable_ftrace(void) { }
+=======
+
+/* Disable ftrace on this CPU if possible (may not be implemented) */
+static inline void this_cpu_set_ftrace_enabled(u8 ftrace_enabled)
+{
+	get_paca()->ftrace_enabled = ftrace_enabled;
+}
+
+static inline u8 this_cpu_get_ftrace_enabled(void)
+{
+	return get_paca()->ftrace_enabled;
+}
+
+#else /* CONFIG_PPC64 */
+static inline void this_cpu_disable_ftrace(void) { }
+static inline void this_cpu_enable_ftrace(void) { }
+static inline void this_cpu_set_ftrace_enabled(u8 ftrace_enabled) { }
+static inline u8 this_cpu_get_ftrace_enabled(void) { return 1; }
+>>>>>>> upstream/android-13
 #endif /* CONFIG_PPC64 */
 #endif /* !__ASSEMBLY__ */
 

@@ -1,15 +1,24 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2013 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2013 Freescale Semiconductor, Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
 #include <linux/cpu.h>
 #include <linux/cpufreq.h>
+<<<<<<< HEAD
 #include <linux/cpu_cooling.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/err.h>
 #include <linux/module.h>
 #include <linux/nvmem-consumer.h>
@@ -52,8 +61,11 @@ static struct clk_bulk_data clks[] = {
 };
 
 static struct device *cpu_dev;
+<<<<<<< HEAD
 static struct thermal_cooling_device *cdev;
 static bool free_opp;
+=======
+>>>>>>> upstream/android-13
 static struct cpufreq_frequency_table *freq_table;
 static unsigned int max_freq;
 static unsigned int transition_latency;
@@ -177,6 +189,7 @@ static int imx6q_set_target(struct cpufreq_policy *policy, unsigned int index)
 	/* scaling down?  scale voltage after frequency */
 	if (new_freq < old_freq) {
 		ret = regulator_set_voltage_tol(arm_reg, volt, 0);
+<<<<<<< HEAD
 		if (ret) {
 			dev_warn(cpu_dev,
 				 "failed to scale vddarm down: %d\n", ret);
@@ -193,12 +206,25 @@ static int imx6q_set_target(struct cpufreq_policy *policy, unsigned int index)
 				dev_warn(cpu_dev, "failed to scale vddpu down: %d\n", ret);
 				ret = 0;
 			}
+=======
+		if (ret)
+			dev_warn(cpu_dev,
+				 "failed to scale vddarm down: %d\n", ret);
+		ret = regulator_set_voltage_tol(soc_reg, imx6_soc_volt[index], 0);
+		if (ret)
+			dev_warn(cpu_dev, "failed to scale vddsoc down: %d\n", ret);
+		if (!IS_ERR(pu_reg)) {
+			ret = regulator_set_voltage_tol(pu_reg, imx6_soc_volt[index], 0);
+			if (ret)
+				dev_warn(cpu_dev, "failed to scale vddpu down: %d\n", ret);
+>>>>>>> upstream/android-13
 		}
 	}
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static void imx6q_cpufreq_ready(struct cpufreq_policy *policy)
 {
 	cdev = of_cpufreq_cooling_register(policy);
@@ -224,18 +250,36 @@ static int imx6q_cpufreq_exit(struct cpufreq_policy *policy)
 {
 	cpufreq_cooling_unregister(cdev);
 
+=======
+static int imx6q_cpufreq_init(struct cpufreq_policy *policy)
+{
+	policy->clk = clks[ARM].clk;
+	cpufreq_generic_init(policy, freq_table, transition_latency);
+	policy->suspend_freq = max_freq;
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static struct cpufreq_driver imx6q_cpufreq_driver = {
+<<<<<<< HEAD
 	.flags = CPUFREQ_NEED_INITIAL_FREQ_CHECK,
+=======
+	.flags = CPUFREQ_NEED_INITIAL_FREQ_CHECK |
+		 CPUFREQ_IS_COOLING_DEV,
+>>>>>>> upstream/android-13
 	.verify = cpufreq_generic_frequency_table_verify,
 	.target_index = imx6q_set_target,
 	.get = cpufreq_generic_get,
 	.init = imx6q_cpufreq_init,
+<<<<<<< HEAD
 	.exit = imx6q_cpufreq_exit,
 	.name = "imx6q-cpufreq",
 	.ready = imx6q_cpufreq_ready,
+=======
+	.register_em = cpufreq_register_em_with_opp,
+	.name = "imx6q-cpufreq",
+>>>>>>> upstream/android-13
 	.attr = cpufreq_generic_attr,
 	.suspend = cpufreq_generic_suspend,
 };
@@ -246,11 +290,16 @@ static struct cpufreq_driver imx6q_cpufreq_driver = {
 #define OCOTP_CFG3_SPEED_996MHZ		0x2
 #define OCOTP_CFG3_SPEED_852MHZ		0x1
 
+<<<<<<< HEAD
 static void imx6q_opp_check_speed_grading(struct device *dev)
+=======
+static int imx6q_opp_check_speed_grading(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct device_node *np;
 	void __iomem *base;
 	u32 val;
+<<<<<<< HEAD
 
 	np = of_find_compatible_node(NULL, NULL, "fsl,imx6q-ocotp");
 	if (!np)
@@ -271,6 +320,38 @@ static void imx6q_opp_check_speed_grading(struct device *dev)
 	 * We need to set the max speed of ARM according to fuse map.
 	 */
 	val = readl_relaxed(base + OCOTP_CFG3);
+=======
+	int ret;
+
+	if (of_find_property(dev->of_node, "nvmem-cells", NULL)) {
+		ret = nvmem_cell_read_u32(dev, "speed_grade", &val);
+		if (ret)
+			return ret;
+	} else {
+		np = of_find_compatible_node(NULL, NULL, "fsl,imx6q-ocotp");
+		if (!np)
+			return -ENOENT;
+
+		base = of_iomap(np, 0);
+		of_node_put(np);
+		if (!base) {
+			dev_err(dev, "failed to map ocotp\n");
+			return -EFAULT;
+		}
+
+		/*
+		 * SPEED_GRADING[1:0] defines the max speed of ARM:
+		 * 2b'11: 1200000000Hz;
+		 * 2b'10: 996000000Hz;
+		 * 2b'01: 852000000Hz; -- i.MX6Q Only, exclusive with 996MHz.
+		 * 2b'00: 792000000Hz;
+		 * We need to set the max speed of ARM according to fuse map.
+		 */
+		val = readl_relaxed(base + OCOTP_CFG3);
+		iounmap(base);
+	}
+
+>>>>>>> upstream/android-13
 	val >>= OCOTP_CFG3_SPEED_SHIFT;
 	val &= 0x3;
 
@@ -287,9 +368,14 @@ static void imx6q_opp_check_speed_grading(struct device *dev)
 			if (dev_pm_opp_disable(dev, 1200000000))
 				dev_warn(dev, "failed to disable 1.2GHz OPP\n");
 	}
+<<<<<<< HEAD
 	iounmap(base);
 put_node:
 	of_node_put(np);
+=======
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 #define OCOTP_CFG3_6UL_SPEED_696MHZ	0x2
@@ -414,6 +500,7 @@ static int imx6q_cpufreq_probe(struct platform_device *pdev)
 	if (of_machine_is_compatible("fsl,imx6ul") ||
 	    of_machine_is_compatible("fsl,imx6ull")) {
 		ret = imx6ul_opp_check_speed_grading(cpu_dev);
+<<<<<<< HEAD
 		if (ret == -EPROBE_DEFER)
 			return ret;
 		if (ret) {
@@ -427,6 +514,18 @@ static int imx6q_cpufreq_probe(struct platform_device *pdev)
 
 	/* Because we have added the OPPs here, we must free them */
 	free_opp = true;
+=======
+	} else {
+		ret = imx6q_opp_check_speed_grading(cpu_dev);
+	}
+	if (ret) {
+		if (ret != -EPROBE_DEFER)
+			dev_err(cpu_dev, "failed to read ocotp: %d\n",
+				ret);
+		goto out_free_opp;
+	}
+
+>>>>>>> upstream/android-13
 	num = dev_pm_opp_get_opp_count(cpu_dev);
 	if (num < 0) {
 		ret = num;
@@ -528,8 +627,12 @@ soc_opp_out:
 free_freq_table:
 	dev_pm_opp_free_cpufreq_table(cpu_dev, &freq_table);
 out_free_opp:
+<<<<<<< HEAD
 	if (free_opp)
 		dev_pm_opp_of_remove_table(cpu_dev);
+=======
+	dev_pm_opp_of_remove_table(cpu_dev);
+>>>>>>> upstream/android-13
 put_reg:
 	if (!IS_ERR(arm_reg))
 		regulator_put(arm_reg);
@@ -549,8 +652,12 @@ static int imx6q_cpufreq_remove(struct platform_device *pdev)
 {
 	cpufreq_unregister_driver(&imx6q_cpufreq_driver);
 	dev_pm_opp_free_cpufreq_table(cpu_dev, &freq_table);
+<<<<<<< HEAD
 	if (free_opp)
 		dev_pm_opp_of_remove_table(cpu_dev);
+=======
+	dev_pm_opp_of_remove_table(cpu_dev);
+>>>>>>> upstream/android-13
 	regulator_put(arm_reg);
 	if (!IS_ERR(pu_reg))
 		regulator_put(pu_reg);

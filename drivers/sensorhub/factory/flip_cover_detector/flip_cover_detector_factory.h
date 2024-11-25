@@ -42,10 +42,16 @@ enum {
 #define COVER_DETACH            0 // OPEN
 #define COVER_ATTACH            1 // CLOSE
 #define COVER_ATTACH_NFC_ACTIVE 2 // CLOSE
+<<<<<<< HEAD
 #define COVER_ATTACH_NFC_TAG_PRESENT 7 // CLOSE
 
 void check_cover_detection_factory(void);
 
 #define FCD_SUBCMD_CAL_MATRIX_NUM	126
 
+=======
+
+void check_cover_detection_factory(void);
+
+>>>>>>> upstream/android-13
 #endif

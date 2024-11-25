@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 menuconfig ARCH_QCOM
 	bool "Qualcomm Support"
 	depends on ARCH_MULTI_V7
@@ -11,6 +15,14 @@ menuconfig ARCH_QCOM
 
 if ARCH_QCOM
 
+<<<<<<< HEAD
+=======
+config ARCH_IPQ40XX
+	bool "Enable support for IPQ40XX"
+	select CLKSRC_QCOM
+	select HAVE_ARM_ARCH_TIMER
+
+>>>>>>> upstream/android-13
 config ARCH_MSM8X60
 	bool "Enable support for MSM8X60"
 	select CLKSRC_QCOM

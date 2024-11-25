@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ACPI Hardware Error Device (PNP0C33) Driver
  *
@@ -6,6 +10,7 @@
  *
  * ACPI Hardware Error Device is used to report some hardware errors
  * notified via SCI, mainly the corrected errors.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version
@@ -15,6 +20,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -82,7 +89,10 @@ static struct acpi_driver acpi_hed_driver = {
 };
 module_acpi_driver(acpi_hed_driver);
 
+<<<<<<< HEAD
 ACPI_MODULE_NAME("hed");
+=======
+>>>>>>> upstream/android-13
 MODULE_AUTHOR("Huang Ying");
 MODULE_DESCRIPTION("ACPI Hardware Error Device Driver");
 MODULE_LICENSE("GPL");

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016 Avago Technologies.  All rights reserved.
  *
@@ -13,6 +14,11 @@
  * See the GNU General Public License for more details, a copy of which
  * can be found in the file COPYING included with this package
  *
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (c) 2016 Avago Technologies.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 #include <linux/module.h>
@@ -20,12 +26,22 @@
 #include <uapi/scsi/fc/fc_fs.h>
 #include <uapi/scsi/fc/fc_els.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
 
+=======
+#include <linux/overflow.h>
+#include <linux/blk-cgroup.h>
+>>>>>>> upstream/android-13
 #include "nvme.h"
 #include "fabrics.h"
 #include <linux/nvme-fc-driver.h>
 #include <linux/nvme-fc.h>
+<<<<<<< HEAD
 
+=======
+#include "fc.h"
+#include <scsi/scsi_transport_fc.h>
+>>>>>>> upstream/android-13
 
 /* *************************** Data Structures/Defines ****************** */
 
@@ -36,6 +52,13 @@ enum nvme_fc_queue_flags {
 };
 
 #define NVME_FC_DEFAULT_DEV_LOSS_TMO	60	/* seconds */
+<<<<<<< HEAD
+=======
+#define NVME_FC_DEFAULT_RECONNECT_TMO	2	/* delay between reconnects
+						 * when connected and a
+						 * connection failure.
+						 */
+>>>>>>> upstream/android-13
 
 struct nvme_fc_queue {
 	struct nvme_fc_ctrl	*ctrl;
@@ -72,6 +95,20 @@ struct nvmefc_ls_req_op {
 	bool			req_queued;
 };
 
+<<<<<<< HEAD
+=======
+struct nvmefc_ls_rcv_op {
+	struct nvme_fc_rport		*rport;
+	struct nvmefc_ls_rsp		*lsrsp;
+	union nvmefc_ls_requests	*rqstbuf;
+	union nvmefc_ls_responses	*rspbuf;
+	u16				rqstdatalen;
+	bool				handled;
+	dma_addr_t			rspdma;
+	struct list_head		lsrcv_list;	/* rport->ls_rcv_list */
+} __aligned(sizeof(u64));	/* alignment for other things alloc'd with */
+
+>>>>>>> upstream/android-13
 enum nvme_fcpop_state {
 	FCPOP_STATE_UNINIT	= 0,
 	FCPOP_STATE_IDLE	= 1,
@@ -104,6 +141,15 @@ struct nvme_fc_fcp_op {
 	struct nvme_fc_ersp_iu	rsp_iu;
 };
 
+<<<<<<< HEAD
+=======
+struct nvme_fcp_op_w_sgl {
+	struct nvme_fc_fcp_op	op;
+	struct scatterlist	sgl[NVME_INLINE_SG_CNT];
+	uint8_t			priv[];
+};
+
+>>>>>>> upstream/android-13
 struct nvme_fc_lport {
 	struct nvme_fc_local_port	localport;
 
@@ -122,17 +168,32 @@ struct nvme_fc_rport {
 	struct list_head		endp_list; /* for lport->endp_list */
 	struct list_head		ctrl_list;
 	struct list_head		ls_req_list;
+<<<<<<< HEAD
+=======
+	struct list_head		ls_rcv_list;
+	struct list_head		disc_list;
+>>>>>>> upstream/android-13
 	struct device			*dev;	/* physical device for dma */
 	struct nvme_fc_lport		*lport;
 	spinlock_t			lock;
 	struct kref			ref;
 	atomic_t                        act_ctrl_cnt;
 	unsigned long			dev_loss_end;
+<<<<<<< HEAD
 } __aligned(sizeof(u64));	/* alignment for other things alloc'd with */
 
 enum nvme_fcctrl_flags {
 	FCCTRL_TERMIO		= (1 << 0),
 };
+=======
+	struct work_struct		lsrcv_work;
+} __aligned(sizeof(u64));	/* alignment for other things alloc'd with */
+
+/* fc_ctrl flags values - specified as bit positions */
+#define ASSOC_ACTIVE		0
+#define ASSOC_FAILED		1
+#define FCCTRL_TERMIO		2
+>>>>>>> upstream/android-13
 
 struct nvme_fc_ctrl {
 	spinlock_t		lock;
@@ -143,20 +204,33 @@ struct nvme_fc_ctrl {
 	u32			cnum;
 
 	bool			ioq_live;
+<<<<<<< HEAD
 	bool			assoc_active;
 	atomic_t		err_work_active;
 	u64			association_id;
+=======
+	u64			association_id;
+	struct nvmefc_ls_rcv_op	*rcv_disconn;
+>>>>>>> upstream/android-13
 
 	struct list_head	ctrl_list;	/* rport->ctrl_list */
 
 	struct blk_mq_tag_set	admin_tag_set;
 	struct blk_mq_tag_set	tag_set;
 
+<<<<<<< HEAD
 	struct delayed_work	connect_work;
 	struct work_struct	err_work;
 
 	struct kref		ref;
 	u32			flags;
+=======
+	struct work_struct	ioerr_work;
+	struct delayed_work	connect_work;
+
+	struct kref		ref;
+	unsigned long		flags;
+>>>>>>> upstream/android-13
 	u32			iocnt;
 	wait_queue_head_t	ioabort_wait;
 
@@ -208,19 +282,37 @@ static DEFINE_IDA(nvme_fc_ctrl_cnt);
 
 static struct workqueue_struct *nvme_fc_wq;
 
+<<<<<<< HEAD
+=======
+static bool nvme_fc_waiting_to_unload;
+static DECLARE_COMPLETION(nvme_fc_unload_proceed);
+
+>>>>>>> upstream/android-13
 /*
  * These items are short-term. They will eventually be moved into
  * a generic FC class. See comments in module init.
  */
+<<<<<<< HEAD
 static struct class *fc_class;
 static struct device *fc_udev_device;
 
+=======
+static struct device *fc_udev_device;
+
+static void nvme_fc_complete_rq(struct request *rq);
+>>>>>>> upstream/android-13
 
 /* *********************** FC-NVME Port Management ************************ */
 
 static void __nvme_fc_delete_hw_queue(struct nvme_fc_ctrl *,
 			struct nvme_fc_queue *, unsigned int);
 
+<<<<<<< HEAD
+=======
+static void nvme_fc_handle_ls_rqst_work(struct work_struct *work);
+
+
+>>>>>>> upstream/android-13
 static void
 nvme_fc_free_lport(struct kref *ref)
 {
@@ -234,6 +326,11 @@ nvme_fc_free_lport(struct kref *ref)
 	/* remove from transport list */
 	spin_lock_irqsave(&nvme_fc_lock, flags);
 	list_del(&lport->port_list);
+<<<<<<< HEAD
+=======
+	if (nvme_fc_waiting_to_unload && list_empty(&nvme_fc_lport_list))
+		complete(&nvme_fc_unload_proceed);
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&nvme_fc_lock, flags);
 
 	ida_simple_remove(&nvme_fc_local_port_cnt, lport->localport.port_num);
@@ -319,7 +416,11 @@ out_done:
  * @template:  LLDD entrypoints and operational parameters for the port
  * @dev:       physical hardware device node port corresponds to. Will be
  *             used for DMA mappings
+<<<<<<< HEAD
  * @lport_p:   pointer to a local port pointer. Upon success, the routine
+=======
+ * @portptr:   pointer to a local port pointer. Upon success, the routine
+>>>>>>> upstream/android-13
  *             will allocate a nvme_fc_local_port structure and place its
  *             address in the local port pointer. Upon failure, local port
  *             pointer will be set to 0.
@@ -394,7 +495,14 @@ nvme_fc_register_localport(struct nvme_fc_port_info *pinfo,
 	newrec->ops = template;
 	newrec->dev = dev;
 	ida_init(&newrec->endp_cnt);
+<<<<<<< HEAD
 	newrec->localport.private = &newrec[1];
+=======
+	if (template->local_priv_sz)
+		newrec->localport.private = &newrec[1];
+	else
+		newrec->localport.private = NULL;
+>>>>>>> upstream/android-13
 	newrec->localport.node_name = pinfo->node_name;
 	newrec->localport.port_name = pinfo->port_name;
 	newrec->localport.port_role = pinfo->port_role;
@@ -427,8 +535,12 @@ EXPORT_SYMBOL_GPL(nvme_fc_register_localport);
  * nvme_fc_unregister_localport - transport entry point called by an
  *                              LLDD to deregister/remove a previously
  *                              registered a NVME host FC port.
+<<<<<<< HEAD
  * @localport: pointer to the (registered) local port that is to be
  *             deregistered.
+=======
+ * @portptr: pointer to the (registered) local port that is to be deregistered.
+>>>>>>> upstream/android-13
  *
  * Returns:
  * a completion status. Must be 0 upon success; a negative errno
@@ -509,6 +621,10 @@ nvme_fc_free_rport(struct kref *ref)
 	list_del(&rport->endp_list);
 	spin_unlock_irqrestore(&nvme_fc_lock, flags);
 
+<<<<<<< HEAD
+=======
+	WARN_ON(!list_empty(&rport->disc_list));
+>>>>>>> upstream/android-13
 	ida_simple_remove(&lport->endp_cnt, rport->remoteport.port_num);
 
 	kfree(rport);
@@ -633,7 +749,11 @@ __nvme_fc_set_dev_loss_tmo(struct nvme_fc_rport *rport,
  * @localport: pointer to the (registered) local port that the remote
  *             subsystem port is connected to.
  * @pinfo:     pointer to information about the port to be registered
+<<<<<<< HEAD
  * @rport_p:   pointer to a remote port pointer. Upon success, the routine
+=======
+ * @portptr:   pointer to a remote port pointer. Upon success, the routine
+>>>>>>> upstream/android-13
  *             will allocate a nvme_fc_remote_port structure and place its
  *             address in the remote port pointer. Upon failure, remote port
  *             pointer will be set to 0.
@@ -696,13 +816,27 @@ nvme_fc_register_remoteport(struct nvme_fc_local_port *localport,
 	INIT_LIST_HEAD(&newrec->endp_list);
 	INIT_LIST_HEAD(&newrec->ctrl_list);
 	INIT_LIST_HEAD(&newrec->ls_req_list);
+<<<<<<< HEAD
+=======
+	INIT_LIST_HEAD(&newrec->disc_list);
+>>>>>>> upstream/android-13
 	kref_init(&newrec->ref);
 	atomic_set(&newrec->act_ctrl_cnt, 0);
 	spin_lock_init(&newrec->lock);
 	newrec->remoteport.localport = &lport->localport;
+<<<<<<< HEAD
 	newrec->dev = lport->dev;
 	newrec->lport = lport;
 	newrec->remoteport.private = &newrec[1];
+=======
+	INIT_LIST_HEAD(&newrec->ls_rcv_list);
+	newrec->dev = lport->dev;
+	newrec->lport = lport;
+	if (lport->ops->remote_priv_sz)
+		newrec->remoteport.private = &newrec[1];
+	else
+		newrec->remoteport.private = NULL;
+>>>>>>> upstream/android-13
 	newrec->remoteport.port_role = pinfo->port_role;
 	newrec->remoteport.node_name = pinfo->node_name;
 	newrec->remoteport.port_name = pinfo->port_name;
@@ -710,6 +844,10 @@ nvme_fc_register_remoteport(struct nvme_fc_local_port *localport,
 	newrec->remoteport.port_state = FC_OBJSTATE_ONLINE;
 	newrec->remoteport.port_num = idx;
 	__nvme_fc_set_dev_loss_tmo(newrec, pinfo);
+<<<<<<< HEAD
+=======
+	INIT_WORK(&newrec->lsrcv_work, nvme_fc_handle_ls_rqst_work);
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&nvme_fc_lock, flags);
 	list_add_tail(&newrec->endp_list, &lport->endp_list);
@@ -799,6 +937,10 @@ nvme_fc_ctrl_connectivity_loss(struct nvme_fc_ctrl *ctrl)
 		break;
 
 	case NVME_CTRL_DELETING:
+<<<<<<< HEAD
+=======
+	case NVME_CTRL_DELETING_NOIO:
+>>>>>>> upstream/android-13
 	default:
 		/* no action to take - let it delete */
 		break;
@@ -809,8 +951,13 @@ nvme_fc_ctrl_connectivity_loss(struct nvme_fc_ctrl *ctrl)
  * nvme_fc_unregister_remoteport - transport entry point called by an
  *                              LLDD to deregister/remove a previously
  *                              registered a NVME subsystem FC port.
+<<<<<<< HEAD
  * @remoteport: pointer to the (registered) remote port that is to be
  *              deregistered.
+=======
+ * @portptr: pointer to the (registered) remote port that is to be
+ *           deregistered.
+>>>>>>> upstream/android-13
  *
  * Returns:
  * a completion status. Must be 0 upon success; a negative errno
@@ -999,6 +1146,10 @@ fc_dma_unmap_sg(struct device *dev, struct scatterlist *sg, int nents,
 static void nvme_fc_ctrl_put(struct nvme_fc_ctrl *);
 static int nvme_fc_ctrl_get(struct nvme_fc_ctrl *);
 
+<<<<<<< HEAD
+=======
+static void nvme_fc_error_recovery(struct nvme_fc_ctrl *ctrl, char *errmsg);
+>>>>>>> upstream/android-13
 
 static void
 __nvme_fc_finish_ls_req(struct nvmefc_ls_req_op *lsop)
@@ -1139,6 +1290,7 @@ nvme_fc_send_ls_req_async(struct nvme_fc_rport *rport,
 	return __nvme_fc_send_ls_req(rport, lsop, done);
 }
 
+<<<<<<< HEAD
 /* Validation Error indexes into the string table below */
 enum {
 	VERR_NO_ERROR		= 0,
@@ -1174,6 +1326,8 @@ static char *validation_errors[] = {
 	"Bad Disconnect ACC Length",
 };
 
+=======
+>>>>>>> upstream/android-13
 static int
 nvme_fc_connect_admin_queue(struct nvme_fc_ctrl *ctrl,
 	struct nvme_fc_queue *queue, u16 qsize, u16 ersp_ratio)
@@ -1182,6 +1336,7 @@ nvme_fc_connect_admin_queue(struct nvme_fc_ctrl *ctrl,
 	struct nvmefc_ls_req *lsreq;
 	struct fcnvme_ls_cr_assoc_rqst *assoc_rqst;
 	struct fcnvme_ls_cr_assoc_acc *assoc_acc;
+<<<<<<< HEAD
 	int ret, fcret = 0;
 
 	lsop = kzalloc((sizeof(*lsop) +
@@ -1197,6 +1352,29 @@ nvme_fc_connect_admin_queue(struct nvme_fc_ctrl *ctrl,
 	assoc_rqst = (struct fcnvme_ls_cr_assoc_rqst *)
 			(lsreq->private + ctrl->lport->ops->lsrqst_priv_sz);
 	assoc_acc = (struct fcnvme_ls_cr_assoc_acc *)&assoc_rqst[1];
+=======
+	unsigned long flags;
+	int ret, fcret = 0;
+
+	lsop = kzalloc((sizeof(*lsop) +
+			 sizeof(*assoc_rqst) + sizeof(*assoc_acc) +
+			 ctrl->lport->ops->lsrqst_priv_sz), GFP_KERNEL);
+	if (!lsop) {
+		dev_info(ctrl->ctrl.device,
+			"NVME-FC{%d}: send Create Association failed: ENOMEM\n",
+			ctrl->cnum);
+		ret = -ENOMEM;
+		goto out_no_memory;
+	}
+
+	assoc_rqst = (struct fcnvme_ls_cr_assoc_rqst *)&lsop[1];
+	assoc_acc = (struct fcnvme_ls_cr_assoc_acc *)&assoc_rqst[1];
+	lsreq = &lsop->ls_req;
+	if (ctrl->lport->ops->lsrqst_priv_sz)
+		lsreq->private = &assoc_acc[1];
+	else
+		lsreq->private = NULL;
+>>>>>>> upstream/android-13
 
 	assoc_rqst->w0.ls_cmd = FCNVME_LS_CREATE_ASSOCIATION;
 	assoc_rqst->desc_list_len =
@@ -1223,7 +1401,11 @@ nvme_fc_connect_admin_queue(struct nvme_fc_ctrl *ctrl,
 	lsreq->rqstlen = sizeof(*assoc_rqst);
 	lsreq->rspaddr = assoc_acc;
 	lsreq->rsplen = sizeof(*assoc_acc);
+<<<<<<< HEAD
 	lsreq->timeout = NVME_FC_CONNECT_TIMEOUT_SEC;
+=======
+	lsreq->timeout = NVME_FC_LS_TIMEOUT_SEC;
+>>>>>>> upstream/android-13
 
 	ret = nvme_fc_send_ls_req(ctrl->rport, lsop);
 	if (ret)
@@ -1263,14 +1445,25 @@ nvme_fc_connect_admin_queue(struct nvme_fc_ctrl *ctrl,
 	if (fcret) {
 		ret = -EBADF;
 		dev_err(ctrl->dev,
+<<<<<<< HEAD
 			"q %d connect failed: %s\n",
 			queue->qnum, validation_errors[fcret]);
 	} else {
+=======
+			"q %d Create Association LS failed: %s\n",
+			queue->qnum, validation_errors[fcret]);
+	} else {
+		spin_lock_irqsave(&ctrl->lock, flags);
+>>>>>>> upstream/android-13
 		ctrl->association_id =
 			be64_to_cpu(assoc_acc->associd.association_id);
 		queue->connection_id =
 			be64_to_cpu(assoc_acc->connectid.connection_id);
 		set_bit(NVME_FC_Q_CONNECTED, &queue->flags);
+<<<<<<< HEAD
+=======
+		spin_unlock_irqrestore(&ctrl->lock, flags);
+>>>>>>> upstream/android-13
 	}
 
 out_free_buffer:
@@ -1294,6 +1487,7 @@ nvme_fc_connect_queue(struct nvme_fc_ctrl *ctrl, struct nvme_fc_queue *queue,
 	int ret, fcret = 0;
 
 	lsop = kzalloc((sizeof(*lsop) +
+<<<<<<< HEAD
 			 ctrl->lport->ops->lsrqst_priv_sz +
 			 sizeof(*conn_rqst) + sizeof(*conn_acc)), GFP_KERNEL);
 	if (!lsop) {
@@ -1306,6 +1500,25 @@ nvme_fc_connect_queue(struct nvme_fc_ctrl *ctrl, struct nvme_fc_queue *queue,
 	conn_rqst = (struct fcnvme_ls_cr_conn_rqst *)
 			(lsreq->private + ctrl->lport->ops->lsrqst_priv_sz);
 	conn_acc = (struct fcnvme_ls_cr_conn_acc *)&conn_rqst[1];
+=======
+			 sizeof(*conn_rqst) + sizeof(*conn_acc) +
+			 ctrl->lport->ops->lsrqst_priv_sz), GFP_KERNEL);
+	if (!lsop) {
+		dev_info(ctrl->ctrl.device,
+			"NVME-FC{%d}: send Create Connection failed: ENOMEM\n",
+			ctrl->cnum);
+		ret = -ENOMEM;
+		goto out_no_memory;
+	}
+
+	conn_rqst = (struct fcnvme_ls_cr_conn_rqst *)&lsop[1];
+	conn_acc = (struct fcnvme_ls_cr_conn_acc *)&conn_rqst[1];
+	lsreq = &lsop->ls_req;
+	if (ctrl->lport->ops->lsrqst_priv_sz)
+		lsreq->private = (void *)&conn_acc[1];
+	else
+		lsreq->private = NULL;
+>>>>>>> upstream/android-13
 
 	conn_rqst->w0.ls_cmd = FCNVME_LS_CREATE_CONNECTION;
 	conn_rqst->desc_list_len = cpu_to_be32(
@@ -1331,7 +1544,11 @@ nvme_fc_connect_queue(struct nvme_fc_ctrl *ctrl, struct nvme_fc_queue *queue,
 	lsreq->rqstlen = sizeof(*conn_rqst);
 	lsreq->rspaddr = conn_acc;
 	lsreq->rsplen = sizeof(*conn_acc);
+<<<<<<< HEAD
 	lsreq->timeout = NVME_FC_CONNECT_TIMEOUT_SEC;
+=======
+	lsreq->timeout = NVME_FC_LS_TIMEOUT_SEC;
+>>>>>>> upstream/android-13
 
 	ret = nvme_fc_send_ls_req(ctrl->rport, lsop);
 	if (ret)
@@ -1362,7 +1579,11 @@ nvme_fc_connect_queue(struct nvme_fc_ctrl *ctrl, struct nvme_fc_queue *queue,
 	if (fcret) {
 		ret = -EBADF;
 		dev_err(ctrl->dev,
+<<<<<<< HEAD
 			"q %d connect failed: %s\n",
+=======
+			"q %d Create I/O Connection LS failed: %s\n",
+>>>>>>> upstream/android-13
 			queue->qnum, validation_errors[fcret]);
 	} else {
 		queue->connection_id =
@@ -1375,7 +1596,11 @@ out_free_buffer:
 out_no_memory:
 	if (ret)
 		dev_err(ctrl->dev,
+<<<<<<< HEAD
 			"queue %d connect command failed (%d).\n",
+=======
+			"queue %d connect I/O queue failed (%d).\n",
+>>>>>>> upstream/android-13
 			queue->qnum, ret);
 	return ret;
 }
@@ -1387,7 +1612,11 @@ nvme_fc_disconnect_assoc_done(struct nvmefc_ls_req *lsreq, int status)
 
 	__nvme_fc_finish_ls_req(lsop);
 
+<<<<<<< HEAD
 	/* fc-nvme iniator doesn't care about success or failure of cmd */
+=======
+	/* fc-nvme initiator doesn't care about success or failure of cmd */
+>>>>>>> upstream/android-13
 
 	kfree(lsop);
 }
@@ -1412,13 +1641,19 @@ nvme_fc_disconnect_assoc_done(struct nvmefc_ls_req *lsreq, int status)
 static void
 nvme_fc_xmt_disconnect_assoc(struct nvme_fc_ctrl *ctrl)
 {
+<<<<<<< HEAD
 	struct fcnvme_ls_disconnect_rqst *discon_rqst;
 	struct fcnvme_ls_disconnect_acc *discon_acc;
+=======
+	struct fcnvme_ls_disconnect_assoc_rqst *discon_rqst;
+	struct fcnvme_ls_disconnect_assoc_acc *discon_acc;
+>>>>>>> upstream/android-13
 	struct nvmefc_ls_req_op *lsop;
 	struct nvmefc_ls_req *lsreq;
 	int ret;
 
 	lsop = kzalloc((sizeof(*lsop) +
+<<<<<<< HEAD
 			 ctrl->lport->ops->lsrqst_priv_sz +
 			 sizeof(*discon_rqst) + sizeof(*discon_acc)),
 			GFP_KERNEL);
@@ -1458,11 +1693,34 @@ nvme_fc_xmt_disconnect_assoc(struct nvme_fc_ctrl *ctrl)
 	lsreq->rspaddr = discon_acc;
 	lsreq->rsplen = sizeof(*discon_acc);
 	lsreq->timeout = NVME_FC_CONNECT_TIMEOUT_SEC;
+=======
+			sizeof(*discon_rqst) + sizeof(*discon_acc) +
+			ctrl->lport->ops->lsrqst_priv_sz), GFP_KERNEL);
+	if (!lsop) {
+		dev_info(ctrl->ctrl.device,
+			"NVME-FC{%d}: send Disconnect Association "
+			"failed: ENOMEM\n",
+			ctrl->cnum);
+		return;
+	}
+
+	discon_rqst = (struct fcnvme_ls_disconnect_assoc_rqst *)&lsop[1];
+	discon_acc = (struct fcnvme_ls_disconnect_assoc_acc *)&discon_rqst[1];
+	lsreq = &lsop->ls_req;
+	if (ctrl->lport->ops->lsrqst_priv_sz)
+		lsreq->private = (void *)&discon_acc[1];
+	else
+		lsreq->private = NULL;
+
+	nvmefc_fmt_lsreq_discon_assoc(lsreq, discon_rqst, discon_acc,
+				ctrl->association_id);
+>>>>>>> upstream/android-13
 
 	ret = nvme_fc_send_ls_req_async(ctrl->rport, lsop,
 				nvme_fc_disconnect_assoc_done);
 	if (ret)
 		kfree(lsop);
+<<<<<<< HEAD
 
 	/* only meaningful part to terminating the association */
 	ctrl->association_id = 0;
@@ -1473,6 +1731,363 @@ nvme_fc_xmt_disconnect_assoc(struct nvme_fc_ctrl *ctrl)
 
 static void nvme_fc_error_recovery(struct nvme_fc_ctrl *ctrl, char *errmsg);
 
+=======
+}
+
+static void
+nvme_fc_xmt_ls_rsp_done(struct nvmefc_ls_rsp *lsrsp)
+{
+	struct nvmefc_ls_rcv_op *lsop = lsrsp->nvme_fc_private;
+	struct nvme_fc_rport *rport = lsop->rport;
+	struct nvme_fc_lport *lport = rport->lport;
+	unsigned long flags;
+
+	spin_lock_irqsave(&rport->lock, flags);
+	list_del(&lsop->lsrcv_list);
+	spin_unlock_irqrestore(&rport->lock, flags);
+
+	fc_dma_sync_single_for_cpu(lport->dev, lsop->rspdma,
+				sizeof(*lsop->rspbuf), DMA_TO_DEVICE);
+	fc_dma_unmap_single(lport->dev, lsop->rspdma,
+			sizeof(*lsop->rspbuf), DMA_TO_DEVICE);
+
+	kfree(lsop);
+
+	nvme_fc_rport_put(rport);
+}
+
+static void
+nvme_fc_xmt_ls_rsp(struct nvmefc_ls_rcv_op *lsop)
+{
+	struct nvme_fc_rport *rport = lsop->rport;
+	struct nvme_fc_lport *lport = rport->lport;
+	struct fcnvme_ls_rqst_w0 *w0 = &lsop->rqstbuf->w0;
+	int ret;
+
+	fc_dma_sync_single_for_device(lport->dev, lsop->rspdma,
+				  sizeof(*lsop->rspbuf), DMA_TO_DEVICE);
+
+	ret = lport->ops->xmt_ls_rsp(&lport->localport, &rport->remoteport,
+				     lsop->lsrsp);
+	if (ret) {
+		dev_warn(lport->dev,
+			"LLDD rejected LS RSP xmt: LS %d status %d\n",
+			w0->ls_cmd, ret);
+		nvme_fc_xmt_ls_rsp_done(lsop->lsrsp);
+		return;
+	}
+}
+
+static struct nvme_fc_ctrl *
+nvme_fc_match_disconn_ls(struct nvme_fc_rport *rport,
+		      struct nvmefc_ls_rcv_op *lsop)
+{
+	struct fcnvme_ls_disconnect_assoc_rqst *rqst =
+					&lsop->rqstbuf->rq_dis_assoc;
+	struct nvme_fc_ctrl *ctrl, *ret = NULL;
+	struct nvmefc_ls_rcv_op *oldls = NULL;
+	u64 association_id = be64_to_cpu(rqst->associd.association_id);
+	unsigned long flags;
+
+	spin_lock_irqsave(&rport->lock, flags);
+
+	list_for_each_entry(ctrl, &rport->ctrl_list, ctrl_list) {
+		if (!nvme_fc_ctrl_get(ctrl))
+			continue;
+		spin_lock(&ctrl->lock);
+		if (association_id == ctrl->association_id) {
+			oldls = ctrl->rcv_disconn;
+			ctrl->rcv_disconn = lsop;
+			ret = ctrl;
+		}
+		spin_unlock(&ctrl->lock);
+		if (ret)
+			/* leave the ctrl get reference */
+			break;
+		nvme_fc_ctrl_put(ctrl);
+	}
+
+	spin_unlock_irqrestore(&rport->lock, flags);
+
+	/* transmit a response for anything that was pending */
+	if (oldls) {
+		dev_info(rport->lport->dev,
+			"NVME-FC{%d}: Multiple Disconnect Association "
+			"LS's received\n", ctrl->cnum);
+		/* overwrite good response with bogus failure */
+		oldls->lsrsp->rsplen = nvme_fc_format_rjt(oldls->rspbuf,
+						sizeof(*oldls->rspbuf),
+						rqst->w0.ls_cmd,
+						FCNVME_RJT_RC_UNAB,
+						FCNVME_RJT_EXP_NONE, 0);
+		nvme_fc_xmt_ls_rsp(oldls);
+	}
+
+	return ret;
+}
+
+/*
+ * returns true to mean LS handled and ls_rsp can be sent
+ * returns false to defer ls_rsp xmt (will be done as part of
+ *     association termination)
+ */
+static bool
+nvme_fc_ls_disconnect_assoc(struct nvmefc_ls_rcv_op *lsop)
+{
+	struct nvme_fc_rport *rport = lsop->rport;
+	struct fcnvme_ls_disconnect_assoc_rqst *rqst =
+					&lsop->rqstbuf->rq_dis_assoc;
+	struct fcnvme_ls_disconnect_assoc_acc *acc =
+					&lsop->rspbuf->rsp_dis_assoc;
+	struct nvme_fc_ctrl *ctrl = NULL;
+	int ret = 0;
+
+	memset(acc, 0, sizeof(*acc));
+
+	ret = nvmefc_vldt_lsreq_discon_assoc(lsop->rqstdatalen, rqst);
+	if (!ret) {
+		/* match an active association */
+		ctrl = nvme_fc_match_disconn_ls(rport, lsop);
+		if (!ctrl)
+			ret = VERR_NO_ASSOC;
+	}
+
+	if (ret) {
+		dev_info(rport->lport->dev,
+			"Disconnect LS failed: %s\n",
+			validation_errors[ret]);
+		lsop->lsrsp->rsplen = nvme_fc_format_rjt(acc,
+					sizeof(*acc), rqst->w0.ls_cmd,
+					(ret == VERR_NO_ASSOC) ?
+						FCNVME_RJT_RC_INV_ASSOC :
+						FCNVME_RJT_RC_LOGIC,
+					FCNVME_RJT_EXP_NONE, 0);
+		return true;
+	}
+
+	/* format an ACCept response */
+
+	lsop->lsrsp->rsplen = sizeof(*acc);
+
+	nvme_fc_format_rsp_hdr(acc, FCNVME_LS_ACC,
+			fcnvme_lsdesc_len(
+				sizeof(struct fcnvme_ls_disconnect_assoc_acc)),
+			FCNVME_LS_DISCONNECT_ASSOC);
+
+	/*
+	 * the transmit of the response will occur after the exchanges
+	 * for the association have been ABTS'd by
+	 * nvme_fc_delete_association().
+	 */
+
+	/* fail the association */
+	nvme_fc_error_recovery(ctrl, "Disconnect Association LS received");
+
+	/* release the reference taken by nvme_fc_match_disconn_ls() */
+	nvme_fc_ctrl_put(ctrl);
+
+	return false;
+}
+
+/*
+ * Actual Processing routine for received FC-NVME LS Requests from the LLD
+ * returns true if a response should be sent afterward, false if rsp will
+ * be sent asynchronously.
+ */
+static bool
+nvme_fc_handle_ls_rqst(struct nvmefc_ls_rcv_op *lsop)
+{
+	struct fcnvme_ls_rqst_w0 *w0 = &lsop->rqstbuf->w0;
+	bool ret = true;
+
+	lsop->lsrsp->nvme_fc_private = lsop;
+	lsop->lsrsp->rspbuf = lsop->rspbuf;
+	lsop->lsrsp->rspdma = lsop->rspdma;
+	lsop->lsrsp->done = nvme_fc_xmt_ls_rsp_done;
+	/* Be preventative. handlers will later set to valid length */
+	lsop->lsrsp->rsplen = 0;
+
+	/*
+	 * handlers:
+	 *   parse request input, execute the request, and format the
+	 *   LS response
+	 */
+	switch (w0->ls_cmd) {
+	case FCNVME_LS_DISCONNECT_ASSOC:
+		ret = nvme_fc_ls_disconnect_assoc(lsop);
+		break;
+	case FCNVME_LS_DISCONNECT_CONN:
+		lsop->lsrsp->rsplen = nvme_fc_format_rjt(lsop->rspbuf,
+				sizeof(*lsop->rspbuf), w0->ls_cmd,
+				FCNVME_RJT_RC_UNSUP, FCNVME_RJT_EXP_NONE, 0);
+		break;
+	case FCNVME_LS_CREATE_ASSOCIATION:
+	case FCNVME_LS_CREATE_CONNECTION:
+		lsop->lsrsp->rsplen = nvme_fc_format_rjt(lsop->rspbuf,
+				sizeof(*lsop->rspbuf), w0->ls_cmd,
+				FCNVME_RJT_RC_LOGIC, FCNVME_RJT_EXP_NONE, 0);
+		break;
+	default:
+		lsop->lsrsp->rsplen = nvme_fc_format_rjt(lsop->rspbuf,
+				sizeof(*lsop->rspbuf), w0->ls_cmd,
+				FCNVME_RJT_RC_INVAL, FCNVME_RJT_EXP_NONE, 0);
+		break;
+	}
+
+	return(ret);
+}
+
+static void
+nvme_fc_handle_ls_rqst_work(struct work_struct *work)
+{
+	struct nvme_fc_rport *rport =
+		container_of(work, struct nvme_fc_rport, lsrcv_work);
+	struct fcnvme_ls_rqst_w0 *w0;
+	struct nvmefc_ls_rcv_op *lsop;
+	unsigned long flags;
+	bool sendrsp;
+
+restart:
+	sendrsp = true;
+	spin_lock_irqsave(&rport->lock, flags);
+	list_for_each_entry(lsop, &rport->ls_rcv_list, lsrcv_list) {
+		if (lsop->handled)
+			continue;
+
+		lsop->handled = true;
+		if (rport->remoteport.port_state == FC_OBJSTATE_ONLINE) {
+			spin_unlock_irqrestore(&rport->lock, flags);
+			sendrsp = nvme_fc_handle_ls_rqst(lsop);
+		} else {
+			spin_unlock_irqrestore(&rport->lock, flags);
+			w0 = &lsop->rqstbuf->w0;
+			lsop->lsrsp->rsplen = nvme_fc_format_rjt(
+						lsop->rspbuf,
+						sizeof(*lsop->rspbuf),
+						w0->ls_cmd,
+						FCNVME_RJT_RC_UNAB,
+						FCNVME_RJT_EXP_NONE, 0);
+		}
+		if (sendrsp)
+			nvme_fc_xmt_ls_rsp(lsop);
+		goto restart;
+	}
+	spin_unlock_irqrestore(&rport->lock, flags);
+}
+
+/**
+ * nvme_fc_rcv_ls_req - transport entry point called by an LLDD
+ *                       upon the reception of a NVME LS request.
+ *
+ * The nvme-fc layer will copy payload to an internal structure for
+ * processing.  As such, upon completion of the routine, the LLDD may
+ * immediately free/reuse the LS request buffer passed in the call.
+ *
+ * If this routine returns error, the LLDD should abort the exchange.
+ *
+ * @portptr:    pointer to the (registered) remote port that the LS
+ *              was received from. The remoteport is associated with
+ *              a specific localport.
+ * @lsrsp:      pointer to a nvmefc_ls_rsp response structure to be
+ *              used to reference the exchange corresponding to the LS
+ *              when issuing an ls response.
+ * @lsreqbuf:   pointer to the buffer containing the LS Request
+ * @lsreqbuf_len: length, in bytes, of the received LS request
+ */
+int
+nvme_fc_rcv_ls_req(struct nvme_fc_remote_port *portptr,
+			struct nvmefc_ls_rsp *lsrsp,
+			void *lsreqbuf, u32 lsreqbuf_len)
+{
+	struct nvme_fc_rport *rport = remoteport_to_rport(portptr);
+	struct nvme_fc_lport *lport = rport->lport;
+	struct fcnvme_ls_rqst_w0 *w0 = (struct fcnvme_ls_rqst_w0 *)lsreqbuf;
+	struct nvmefc_ls_rcv_op *lsop;
+	unsigned long flags;
+	int ret;
+
+	nvme_fc_rport_get(rport);
+
+	/* validate there's a routine to transmit a response */
+	if (!lport->ops->xmt_ls_rsp) {
+		dev_info(lport->dev,
+			"RCV %s LS failed: no LLDD xmt_ls_rsp\n",
+			(w0->ls_cmd <= NVME_FC_LAST_LS_CMD_VALUE) ?
+				nvmefc_ls_names[w0->ls_cmd] : "");
+		ret = -EINVAL;
+		goto out_put;
+	}
+
+	if (lsreqbuf_len > sizeof(union nvmefc_ls_requests)) {
+		dev_info(lport->dev,
+			"RCV %s LS failed: payload too large\n",
+			(w0->ls_cmd <= NVME_FC_LAST_LS_CMD_VALUE) ?
+				nvmefc_ls_names[w0->ls_cmd] : "");
+		ret = -E2BIG;
+		goto out_put;
+	}
+
+	lsop = kzalloc(sizeof(*lsop) +
+			sizeof(union nvmefc_ls_requests) +
+			sizeof(union nvmefc_ls_responses),
+			GFP_KERNEL);
+	if (!lsop) {
+		dev_info(lport->dev,
+			"RCV %s LS failed: No memory\n",
+			(w0->ls_cmd <= NVME_FC_LAST_LS_CMD_VALUE) ?
+				nvmefc_ls_names[w0->ls_cmd] : "");
+		ret = -ENOMEM;
+		goto out_put;
+	}
+	lsop->rqstbuf = (union nvmefc_ls_requests *)&lsop[1];
+	lsop->rspbuf = (union nvmefc_ls_responses *)&lsop->rqstbuf[1];
+
+	lsop->rspdma = fc_dma_map_single(lport->dev, lsop->rspbuf,
+					sizeof(*lsop->rspbuf),
+					DMA_TO_DEVICE);
+	if (fc_dma_mapping_error(lport->dev, lsop->rspdma)) {
+		dev_info(lport->dev,
+			"RCV %s LS failed: DMA mapping failure\n",
+			(w0->ls_cmd <= NVME_FC_LAST_LS_CMD_VALUE) ?
+				nvmefc_ls_names[w0->ls_cmd] : "");
+		ret = -EFAULT;
+		goto out_free;
+	}
+
+	lsop->rport = rport;
+	lsop->lsrsp = lsrsp;
+
+	memcpy(lsop->rqstbuf, lsreqbuf, lsreqbuf_len);
+	lsop->rqstdatalen = lsreqbuf_len;
+
+	spin_lock_irqsave(&rport->lock, flags);
+	if (rport->remoteport.port_state != FC_OBJSTATE_ONLINE) {
+		spin_unlock_irqrestore(&rport->lock, flags);
+		ret = -ENOTCONN;
+		goto out_unmap;
+	}
+	list_add_tail(&lsop->lsrcv_list, &rport->ls_rcv_list);
+	spin_unlock_irqrestore(&rport->lock, flags);
+
+	schedule_work(&rport->lsrcv_work);
+
+	return 0;
+
+out_unmap:
+	fc_dma_unmap_single(lport->dev, lsop->rspdma,
+			sizeof(*lsop->rspbuf), DMA_TO_DEVICE);
+out_free:
+	kfree(lsop);
+out_put:
+	nvme_fc_rport_put(rport);
+	return ret;
+}
+EXPORT_SYMBOL_GPL(nvme_fc_rcv_ls_req);
+
+
+/* *********************** NVME Ctrl Routines **************************** */
+
+>>>>>>> upstream/android-13
 static void
 __nvme_fc_exit_request(struct nvme_fc_ctrl *ctrl,
 		struct nvme_fc_fcp_op *op)
@@ -1504,8 +2119,15 @@ __nvme_fc_abort_op(struct nvme_fc_ctrl *ctrl, struct nvme_fc_fcp_op *op)
 	opstate = atomic_xchg(&op->state, FCPOP_STATE_ABORTED);
 	if (opstate != FCPOP_STATE_ACTIVE)
 		atomic_set(&op->state, opstate);
+<<<<<<< HEAD
 	else if (ctrl->flags & FCCTRL_TERMIO)
 		ctrl->iocnt++;
+=======
+	else if (test_bit(FCCTRL_TERMIO, &ctrl->flags)) {
+		op->flags |= FCOP_FLAGS_TERMIO;
+		ctrl->iocnt++;
+	}
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&ctrl->lock, flags);
 
 	if (opstate != FCPOP_STATE_ACTIVE)
@@ -1541,7 +2163,12 @@ __nvme_fc_fcpop_chk_teardowns(struct nvme_fc_ctrl *ctrl,
 
 	if (opstate == FCPOP_STATE_ABORTED) {
 		spin_lock_irqsave(&ctrl->lock, flags);
+<<<<<<< HEAD
 		if (ctrl->flags & FCCTRL_TERMIO) {
+=======
+		if (test_bit(FCCTRL_TERMIO, &ctrl->flags) &&
+		    op->flags & FCOP_FLAGS_TERMIO) {
+>>>>>>> upstream/android-13
 			if (!--ctrl->iocnt)
 				wake_up(&ctrl->ioabort_wait);
 		}
@@ -1550,6 +2177,18 @@ __nvme_fc_fcpop_chk_teardowns(struct nvme_fc_ctrl *ctrl,
 }
 
 static void
+<<<<<<< HEAD
+=======
+nvme_fc_ctrl_ioerr_work(struct work_struct *work)
+{
+	struct nvme_fc_ctrl *ctrl =
+			container_of(work, struct nvme_fc_ctrl, ioerr_work);
+
+	nvme_fc_error_recovery(ctrl, "transport detected io error");
+}
+
+static void
+>>>>>>> upstream/android-13
 nvme_fc_fcpio_done(struct nvmefc_fcp_req *req)
 {
 	struct nvme_fc_fcp_op *op = fcp_req_to_fcp_op(req);
@@ -1607,9 +2246,19 @@ nvme_fc_fcpio_done(struct nvmefc_fcp_req *req)
 				sizeof(op->rsp_iu), DMA_FROM_DEVICE);
 
 	if (opstate == FCPOP_STATE_ABORTED)
+<<<<<<< HEAD
 		status = cpu_to_le16(NVME_SC_ABORT_REQ << 1);
 	else if (freq->status)
 		status = cpu_to_le16(NVME_SC_INTERNAL << 1);
+=======
+		status = cpu_to_le16(NVME_SC_HOST_ABORTED_CMD << 1);
+	else if (freq->status) {
+		status = cpu_to_le16(NVME_SC_HOST_PATH_ERROR << 1);
+		dev_info(ctrl->ctrl.device,
+			"NVME-FC{%d}: io failed due to lldd error %d\n",
+			ctrl->cnum, freq->status);
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * For the linux implementation, if we have an unsuccesful
@@ -1636,8 +2285,18 @@ nvme_fc_fcpio_done(struct nvmefc_fcp_req *req)
 		 * no payload in the CQE by the transport.
 		 */
 		if (freq->transferred_length !=
+<<<<<<< HEAD
 			be32_to_cpu(op->cmd_iu.data_len)) {
 			status = cpu_to_le16(NVME_SC_INTERNAL << 1);
+=======
+		    be32_to_cpu(op->cmd_iu.data_len)) {
+			status = cpu_to_le16(NVME_SC_HOST_PATH_ERROR << 1);
+			dev_info(ctrl->ctrl.device,
+				"NVME-FC{%d}: io failed due to bad transfer "
+				"length: %d vs expected %d\n",
+				ctrl->cnum, freq->transferred_length,
+				be32_to_cpu(op->cmd_iu.data_len));
+>>>>>>> upstream/android-13
 			goto done;
 		}
 		result.u64 = 0;
@@ -1652,9 +2311,25 @@ nvme_fc_fcpio_done(struct nvmefc_fcp_req *req)
 					(freq->rcv_rsplen / 4) ||
 			     be32_to_cpu(op->rsp_iu.xfrd_len) !=
 					freq->transferred_length ||
+<<<<<<< HEAD
 			     op->rsp_iu.status_code ||
 			     sqe->common.command_id != cqe->command_id)) {
 			status = cpu_to_le16(NVME_SC_INTERNAL << 1);
+=======
+			     op->rsp_iu.ersp_result ||
+			     sqe->common.command_id != cqe->command_id)) {
+			status = cpu_to_le16(NVME_SC_HOST_PATH_ERROR << 1);
+			dev_info(ctrl->ctrl.device,
+				"NVME-FC{%d}: io failed due to bad NVMe_ERSP: "
+				"iu len %d, xfr len %d vs %d, status code "
+				"%d, cmdid %d vs %d\n",
+				ctrl->cnum, be16_to_cpu(op->rsp_iu.iu_len),
+				be32_to_cpu(op->rsp_iu.xfrd_len),
+				freq->transferred_length,
+				op->rsp_iu.ersp_result,
+				sqe->common.command_id,
+				cqe->command_id);
+>>>>>>> upstream/android-13
 			goto done;
 		}
 		result = cqe->result;
@@ -1662,7 +2337,15 @@ nvme_fc_fcpio_done(struct nvmefc_fcp_req *req)
 		break;
 
 	default:
+<<<<<<< HEAD
 		status = cpu_to_le16(NVME_SC_INTERNAL << 1);
+=======
+		status = cpu_to_le16(NVME_SC_HOST_PATH_ERROR << 1);
+		dev_info(ctrl->ctrl.device,
+			"NVME-FC{%d}: io failed due to odd NVMe_xRSP iu "
+			"len %d\n",
+			ctrl->cnum, freq->rcv_rsplen);
+>>>>>>> upstream/android-13
 		goto done;
 	}
 
@@ -1679,11 +2362,20 @@ done:
 	}
 
 	__nvme_fc_fcpop_chk_teardowns(ctrl, op, opstate);
+<<<<<<< HEAD
 	nvme_end_request(rq, status, result);
 
 check_error:
 	if (terminate_assoc)
 		nvme_fc_error_recovery(ctrl, "transport detected io error");
+=======
+	if (!nvme_try_complete_req(rq, status, result))
+		nvme_fc_complete_rq(rq);
+
+check_error:
+	if (terminate_assoc && ctrl->ctrl.state != NVME_CTRL_RESETTING)
+		queue_work(nvme_reset_wq, &ctrl->ioerr_work);
+>>>>>>> upstream/android-13
 }
 
 static int
@@ -1691,6 +2383,11 @@ __nvme_fc_init_request(struct nvme_fc_ctrl *ctrl,
 		struct nvme_fc_queue *queue, struct nvme_fc_fcp_op *op,
 		struct request *rq, u32 rqno)
 {
+<<<<<<< HEAD
+=======
+	struct nvme_fcp_op_w_sgl *op_w_sgl =
+		container_of(op, typeof(*op_w_sgl), op);
+>>>>>>> upstream/android-13
 	struct nvme_fc_cmd_iu *cmdiu = &op->cmd_iu;
 	int ret = 0;
 
@@ -1700,16 +2397,30 @@ __nvme_fc_init_request(struct nvme_fc_ctrl *ctrl,
 	op->fcp_req.rspaddr = &op->rsp_iu;
 	op->fcp_req.rsplen = sizeof(op->rsp_iu);
 	op->fcp_req.done = nvme_fc_fcpio_done;
+<<<<<<< HEAD
 	op->fcp_req.first_sgl = (struct scatterlist *)&op[1];
 	op->fcp_req.private = &op->fcp_req.first_sgl[SG_CHUNK_SIZE];
+=======
+>>>>>>> upstream/android-13
 	op->ctrl = ctrl;
 	op->queue = queue;
 	op->rq = rq;
 	op->rqno = rqno;
 
+<<<<<<< HEAD
 	cmdiu->scsi_id = NVME_CMD_SCSI_ID;
 	cmdiu->fc_id = NVME_CMD_FC_ID;
 	cmdiu->iu_len = cpu_to_be16(sizeof(*cmdiu) / sizeof(u32));
+=======
+	cmdiu->format_id = NVME_CMD_FORMAT_ID;
+	cmdiu->fc_id = NVME_CMD_FC_ID;
+	cmdiu->iu_len = cpu_to_be16(sizeof(*cmdiu) / sizeof(u32));
+	if (queue->qnum)
+		cmdiu->rsv_cat = fccmnd_set_cat_css(0,
+					(NVME_CC_CSS_NVM >> NVME_CC_CSS_SHIFT));
+	else
+		cmdiu->rsv_cat = fccmnd_set_cat_admin(0);
+>>>>>>> upstream/android-13
 
 	op->fcp_req.cmddma = fc_dma_map_single(ctrl->lport->dev,
 				&op->cmd_iu, sizeof(op->cmd_iu), DMA_TO_DEVICE);
@@ -1739,12 +2450,28 @@ nvme_fc_init_request(struct blk_mq_tag_set *set, struct request *rq,
 		unsigned int hctx_idx, unsigned int numa_node)
 {
 	struct nvme_fc_ctrl *ctrl = set->driver_data;
+<<<<<<< HEAD
 	struct nvme_fc_fcp_op *op = blk_mq_rq_to_pdu(rq);
 	int queue_idx = (set == &ctrl->tag_set) ? hctx_idx + 1 : 0;
 	struct nvme_fc_queue *queue = &ctrl->queues[queue_idx];
 
 	nvme_req(rq)->ctrl = &ctrl->ctrl;
 	return __nvme_fc_init_request(ctrl, queue, op, rq, queue->rqcnt++);
+=======
+	struct nvme_fcp_op_w_sgl *op = blk_mq_rq_to_pdu(rq);
+	int queue_idx = (set == &ctrl->tag_set) ? hctx_idx + 1 : 0;
+	struct nvme_fc_queue *queue = &ctrl->queues[queue_idx];
+	int res;
+
+	res = __nvme_fc_init_request(ctrl, queue, &op->op, rq, queue->rqcnt++);
+	if (res)
+		return res;
+	op->op.fcp_req.first_sgl = op->sgl;
+	op->op.fcp_req.private = &op->priv[0];
+	nvme_req(rq)->ctrl = &ctrl->ctrl;
+	nvme_req(rq)->cmd = &op->op.cmd_iu.sqe;
+	return res;
+>>>>>>> upstream/android-13
 }
 
 static int
@@ -1753,15 +2480,28 @@ nvme_fc_init_aen_ops(struct nvme_fc_ctrl *ctrl)
 	struct nvme_fc_fcp_op *aen_op;
 	struct nvme_fc_cmd_iu *cmdiu;
 	struct nvme_command *sqe;
+<<<<<<< HEAD
 	void *private;
+=======
+	void *private = NULL;
+>>>>>>> upstream/android-13
 	int i, ret;
 
 	aen_op = ctrl->aen_ops;
 	for (i = 0; i < NVME_NR_AEN_COMMANDS; i++, aen_op++) {
+<<<<<<< HEAD
 		private = kzalloc(ctrl->lport->ops->fcprqst_priv_sz,
 						GFP_KERNEL);
 		if (!private)
 			return -ENOMEM;
+=======
+		if (ctrl->lport->ops->fcprqst_priv_sz) {
+			private = kzalloc(ctrl->lport->ops->fcprqst_priv_sz,
+						GFP_KERNEL);
+			if (!private)
+				return -ENOMEM;
+		}
+>>>>>>> upstream/android-13
 
 		cmdiu = &aen_op->cmd_iu;
 		sqe = &cmdiu->sqe;
@@ -1774,7 +2514,10 @@ nvme_fc_init_aen_ops(struct nvme_fc_ctrl *ctrl)
 		}
 
 		aen_op->flags = FCOP_FLAGS_AEN;
+<<<<<<< HEAD
 		aen_op->fcp_req.first_sgl = NULL; /* no sg list */
+=======
+>>>>>>> upstream/android-13
 		aen_op->fcp_req.private = private;
 
 		memset(sqe, 0, sizeof(*sqe));
@@ -1794,9 +2537,12 @@ nvme_fc_term_aen_ops(struct nvme_fc_ctrl *ctrl)
 	cancel_work_sync(&ctrl->ctrl.async_event_work);
 	aen_op = ctrl->aen_ops;
 	for (i = 0; i < NVME_NR_AEN_COMMANDS; i++, aen_op++) {
+<<<<<<< HEAD
 		if (!aen_op->fcp_req.private)
 			continue;
 
+=======
+>>>>>>> upstream/android-13
 		__nvme_fc_exit_request(ctrl, aen_op);
 
 		kfree(aen_op->fcp_req.private);
@@ -1948,7 +2694,11 @@ nvme_fc_create_hw_io_queues(struct nvme_fc_ctrl *ctrl, u16 qsize)
 	return 0;
 
 delete_queues:
+<<<<<<< HEAD
 	for (; i >= 0; i--)
+=======
+	for (; i > 0; i--)
+>>>>>>> upstream/android-13
 		__nvme_fc_delete_hw_queue(ctrl, &ctrl->queues[i], i);
 	return ret;
 }
@@ -2001,6 +2751,10 @@ nvme_fc_ctrl_free(struct kref *ref)
 
 	blk_mq_unquiesce_queue(ctrl->ctrl.admin_q);
 	blk_cleanup_queue(ctrl->ctrl.admin_q);
+<<<<<<< HEAD
+=======
+	blk_cleanup_queue(ctrl->ctrl.fabrics_q);
+>>>>>>> upstream/android-13
 	blk_mq_free_tag_set(&ctrl->admin_tag_set);
 
 	kfree(ctrl->queues);
@@ -2040,6 +2794,7 @@ nvme_fc_nvme_ctrl_freed(struct nvme_ctrl *nctrl)
 	nvme_fc_ctrl_put(ctrl);
 }
 
+<<<<<<< HEAD
 static void
 nvme_fc_error_recovery(struct nvme_fc_ctrl *ctrl, char *errmsg)
 {
@@ -2058,6 +2813,114 @@ nvme_fc_error_recovery(struct nvme_fc_ctrl *ctrl, char *errmsg)
 			atomic_set(&ctrl->err_work_active, 0);
 			WARN_ON(1);
 		}
+=======
+/*
+ * This routine is used by the transport when it needs to find active
+ * io on a queue that is to be terminated. The transport uses
+ * blk_mq_tagset_busy_itr() to find the busy requests, which then invoke
+ * this routine to kill them on a 1 by 1 basis.
+ *
+ * As FC allocates FC exchange for each io, the transport must contact
+ * the LLDD to terminate the exchange, thus releasing the FC exchange.
+ * After terminating the exchange the LLDD will call the transport's
+ * normal io done path for the request, but it will have an aborted
+ * status. The done path will return the io request back to the block
+ * layer with an error status.
+ */
+static bool
+nvme_fc_terminate_exchange(struct request *req, void *data, bool reserved)
+{
+	struct nvme_ctrl *nctrl = data;
+	struct nvme_fc_ctrl *ctrl = to_fc_ctrl(nctrl);
+	struct nvme_fc_fcp_op *op = blk_mq_rq_to_pdu(req);
+
+	op->nreq.flags |= NVME_REQ_CANCELLED;
+	__nvme_fc_abort_op(ctrl, op);
+	return true;
+}
+
+/*
+ * This routine runs through all outstanding commands on the association
+ * and aborts them.  This routine is typically be called by the
+ * delete_association routine. It is also called due to an error during
+ * reconnect. In that scenario, it is most likely a command that initializes
+ * the controller, including fabric Connect commands on io queues, that
+ * may have timed out or failed thus the io must be killed for the connect
+ * thread to see the error.
+ */
+static void
+__nvme_fc_abort_outstanding_ios(struct nvme_fc_ctrl *ctrl, bool start_queues)
+{
+	int q;
+
+	/*
+	 * if aborting io, the queues are no longer good, mark them
+	 * all as not live.
+	 */
+	if (ctrl->ctrl.queue_count > 1) {
+		for (q = 1; q < ctrl->ctrl.queue_count; q++)
+			clear_bit(NVME_FC_Q_LIVE, &ctrl->queues[q].flags);
+	}
+	clear_bit(NVME_FC_Q_LIVE, &ctrl->queues[0].flags);
+
+	/*
+	 * If io queues are present, stop them and terminate all outstanding
+	 * ios on them. As FC allocates FC exchange for each io, the
+	 * transport must contact the LLDD to terminate the exchange,
+	 * thus releasing the FC exchange. We use blk_mq_tagset_busy_itr()
+	 * to tell us what io's are busy and invoke a transport routine
+	 * to kill them with the LLDD.  After terminating the exchange
+	 * the LLDD will call the transport's normal io done path, but it
+	 * will have an aborted status. The done path will return the
+	 * io requests back to the block layer as part of normal completions
+	 * (but with error status).
+	 */
+	if (ctrl->ctrl.queue_count > 1) {
+		nvme_stop_queues(&ctrl->ctrl);
+		nvme_sync_io_queues(&ctrl->ctrl);
+		blk_mq_tagset_busy_iter(&ctrl->tag_set,
+				nvme_fc_terminate_exchange, &ctrl->ctrl);
+		blk_mq_tagset_wait_completed_request(&ctrl->tag_set);
+		if (start_queues)
+			nvme_start_queues(&ctrl->ctrl);
+	}
+
+	/*
+	 * Other transports, which don't have link-level contexts bound
+	 * to sqe's, would try to gracefully shutdown the controller by
+	 * writing the registers for shutdown and polling (call
+	 * nvme_shutdown_ctrl()). Given a bunch of i/o was potentially
+	 * just aborted and we will wait on those contexts, and given
+	 * there was no indication of how live the controlelr is on the
+	 * link, don't send more io to create more contexts for the
+	 * shutdown. Let the controller fail via keepalive failure if
+	 * its still present.
+	 */
+
+	/*
+	 * clean up the admin queue. Same thing as above.
+	 */
+	blk_mq_quiesce_queue(ctrl->ctrl.admin_q);
+	blk_sync_queue(ctrl->ctrl.admin_q);
+	blk_mq_tagset_busy_iter(&ctrl->admin_tag_set,
+				nvme_fc_terminate_exchange, &ctrl->ctrl);
+	blk_mq_tagset_wait_completed_request(&ctrl->admin_tag_set);
+}
+
+static void
+nvme_fc_error_recovery(struct nvme_fc_ctrl *ctrl, char *errmsg)
+{
+	/*
+	 * if an error (io timeout, etc) while (re)connecting, the remote
+	 * port requested terminating of the association (disconnect_ls)
+	 * or an error (timeout or abort) occurred on an io while creating
+	 * the controller.  Abort any ios on the association and let the
+	 * create_association error path resolve things.
+	 */
+	if (ctrl->ctrl.state == NVME_CTRL_CONNECTING) {
+		__nvme_fc_abort_outstanding_ios(ctrl, true);
+		set_bit(ASSOC_FAILED, &ctrl->flags);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -2066,7 +2929,11 @@ nvme_fc_error_recovery(struct nvme_fc_ctrl *ctrl, char *errmsg)
 		return;
 
 	dev_warn(ctrl->ctrl.device,
+<<<<<<< HEAD
 		"NVME-FC{%d}: transport association error detected: %s\n",
+=======
+		"NVME-FC{%d}: transport association event: %s\n",
+>>>>>>> upstream/android-13
 		ctrl->cnum, errmsg);
 	dev_warn(ctrl->ctrl.device,
 		"NVME-FC{%d}: resetting controller\n", ctrl->cnum);
@@ -2079,6 +2946,7 @@ nvme_fc_timeout(struct request *rq, bool reserved)
 {
 	struct nvme_fc_fcp_op *op = blk_mq_rq_to_pdu(rq);
 	struct nvme_fc_ctrl *ctrl = op->ctrl;
+<<<<<<< HEAD
 
 	/*
 	 * we can't individually ABTS an io without affecting the queue,
@@ -2088,6 +2956,22 @@ nvme_fc_timeout(struct request *rq, bool reserved)
 	 * and recreate an association on the link.
 	 */
 	nvme_fc_error_recovery(ctrl, "io timeout error");
+=======
+	struct nvme_fc_cmd_iu *cmdiu = &op->cmd_iu;
+	struct nvme_command *sqe = &cmdiu->sqe;
+
+	/*
+	 * Attempt to abort the offending command. Command completion
+	 * will detect the aborted io and will fail the connection.
+	 */
+	dev_info(ctrl->ctrl.device,
+		"NVME-FC{%d.%d}: io timeout: opcode %d fctype %d w10/11: "
+		"x%08x/x%08x\n",
+		ctrl->cnum, op->queue->qnum, sqe->common.opcode,
+		sqe->connect.fctype, sqe->common.cdw10, sqe->common.cdw11);
+	if (__nvme_fc_abort_op(ctrl, op))
+		nvme_fc_error_recovery(ctrl, "io timeout abort failed");
+>>>>>>> upstream/android-13
 
 	/*
 	 * the io abort has been initiated. Have the reset timer
@@ -2102,27 +2986,46 @@ nvme_fc_map_data(struct nvme_fc_ctrl *ctrl, struct request *rq,
 		struct nvme_fc_fcp_op *op)
 {
 	struct nvmefc_fcp_req *freq = &op->fcp_req;
+<<<<<<< HEAD
 	enum dma_data_direction dir;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	freq->sg_cnt = 0;
 
+<<<<<<< HEAD
 	if (!blk_rq_payload_bytes(rq))
+=======
+	if (!blk_rq_nr_phys_segments(rq))
+>>>>>>> upstream/android-13
 		return 0;
 
 	freq->sg_table.sgl = freq->first_sgl;
 	ret = sg_alloc_table_chained(&freq->sg_table,
+<<<<<<< HEAD
 			blk_rq_nr_phys_segments(rq), freq->sg_table.sgl);
+=======
+			blk_rq_nr_phys_segments(rq), freq->sg_table.sgl,
+			NVME_INLINE_SG_CNT);
+>>>>>>> upstream/android-13
 	if (ret)
 		return -ENOMEM;
 
 	op->nents = blk_rq_map_sg(rq->q, rq, freq->sg_table.sgl);
 	WARN_ON(op->nents > blk_rq_nr_phys_segments(rq));
+<<<<<<< HEAD
 	dir = (rq_data_dir(rq) == WRITE) ? DMA_TO_DEVICE : DMA_FROM_DEVICE;
 	freq->sg_cnt = fc_dma_map_sg(ctrl->lport->dev, freq->sg_table.sgl,
 				op->nents, dir);
 	if (unlikely(freq->sg_cnt <= 0)) {
 		sg_free_table_chained(&freq->sg_table, true);
+=======
+	freq->sg_cnt = fc_dma_map_sg(ctrl->lport->dev, freq->sg_table.sgl,
+				op->nents, rq_dma_dir(rq));
+	if (unlikely(freq->sg_cnt <= 0)) {
+		sg_free_table_chained(&freq->sg_table, NVME_INLINE_SG_CNT);
+>>>>>>> upstream/android-13
 		freq->sg_cnt = 0;
 		return -EFAULT;
 	}
@@ -2143,12 +3046,18 @@ nvme_fc_unmap_data(struct nvme_fc_ctrl *ctrl, struct request *rq,
 		return;
 
 	fc_dma_unmap_sg(ctrl->lport->dev, freq->sg_table.sgl, op->nents,
+<<<<<<< HEAD
 				((rq_data_dir(rq) == WRITE) ?
 					DMA_TO_DEVICE : DMA_FROM_DEVICE));
 
 	nvme_cleanup_cmd(rq);
 
 	sg_free_table_chained(&freq->sg_table, true);
+=======
+			rq_dma_dir(rq));
+
+	sg_free_table_chained(&freq->sg_table, NVME_INLINE_SG_CNT);
+>>>>>>> upstream/android-13
 
 	freq->sg_cnt = 0;
 }
@@ -2275,8 +3184,15 @@ nvme_fc_start_fcp_op(struct nvme_fc_ctrl *ctrl, struct nvme_fc_queue *queue,
 		opstate = atomic_xchg(&op->state, FCPOP_STATE_COMPLETE);
 		__nvme_fc_fcpop_chk_teardowns(ctrl, op, opstate);
 
+<<<<<<< HEAD
 		if (!(op->flags & FCOP_FLAGS_AEN))
 			nvme_fc_unmap_data(ctrl, op->rq, op);
+=======
+		if (!(op->flags & FCOP_FLAGS_AEN)) {
+			nvme_fc_unmap_data(ctrl, op->rq, op);
+			nvme_cleanup_cmd(op->rq);
+		}
+>>>>>>> upstream/android-13
 
 		nvme_fc_ctrl_put(ctrl);
 
@@ -2299,14 +3215,18 @@ nvme_fc_queue_rq(struct blk_mq_hw_ctx *hctx,
 	struct nvme_fc_ctrl *ctrl = queue->ctrl;
 	struct request *rq = bd->rq;
 	struct nvme_fc_fcp_op *op = blk_mq_rq_to_pdu(rq);
+<<<<<<< HEAD
 	struct nvme_fc_cmd_iu *cmdiu = &op->cmd_iu;
 	struct nvme_command *sqe = &cmdiu->sqe;
+=======
+>>>>>>> upstream/android-13
 	enum nvmefc_fcp_datadir	io_dir;
 	bool queue_ready = test_bit(NVME_FC_Q_LIVE, &queue->flags);
 	u32 data_len;
 	blk_status_t ret;
 
 	if (ctrl->rport->remoteport.port_state != FC_OBJSTATE_ONLINE ||
+<<<<<<< HEAD
 	    !nvmf_check_ready(&queue->ctrl->ctrl, rq, queue_ready))
 		return nvmf_fail_nonready_command(&queue->ctrl->ctrl, rq);
 
@@ -2320,10 +3240,37 @@ nvme_fc_queue_rq(struct blk_mq_hw_ctx *hctx,
 					NVMEFC_FCP_WRITE : NVMEFC_FCP_READ);
 	else
 		io_dir = NVMEFC_FCP_NODATA;
+=======
+	    !nvme_check_ready(&queue->ctrl->ctrl, rq, queue_ready))
+		return nvme_fail_nonready_command(&queue->ctrl->ctrl, rq);
+
+	ret = nvme_setup_cmd(ns, rq);
+	if (ret)
+		return ret;
+
+	/*
+	 * nvme core doesn't quite treat the rq opaquely. Commands such
+	 * as WRITE ZEROES will return a non-zero rq payload_bytes yet
+	 * there is no actual payload to be transferred.
+	 * To get it right, key data transmission on there being 1 or
+	 * more physical segments in the sg list. If there is no
+	 * physical segments, there is no payload.
+	 */
+	if (blk_rq_nr_phys_segments(rq)) {
+		data_len = blk_rq_payload_bytes(rq);
+		io_dir = ((rq_data_dir(rq) == WRITE) ?
+					NVMEFC_FCP_WRITE : NVMEFC_FCP_READ);
+	} else {
+		data_len = 0;
+		io_dir = NVMEFC_FCP_NODATA;
+	}
+
+>>>>>>> upstream/android-13
 
 	return nvme_fc_start_fcp_op(ctrl, queue, op, data_len, io_dir);
 }
 
+<<<<<<< HEAD
 static struct blk_mq_tags *
 nvme_fc_tagset(struct nvme_fc_queue *queue)
 {
@@ -2356,11 +3303,14 @@ nvme_fc_poll(struct blk_mq_hw_ctx *hctx, unsigned int tag)
 	return ((atomic_read(&op->state) != FCPOP_STATE_ACTIVE));
 }
 
+=======
+>>>>>>> upstream/android-13
 static void
 nvme_fc_submit_async_event(struct nvme_ctrl *arg)
 {
 	struct nvme_fc_ctrl *ctrl = to_fc_ctrl(arg);
 	struct nvme_fc_fcp_op *aen_op;
+<<<<<<< HEAD
 	unsigned long flags;
 	bool terminating = false;
 	blk_status_t ret;
@@ -2371,6 +3321,11 @@ nvme_fc_submit_async_event(struct nvme_ctrl *arg)
 	spin_unlock_irqrestore(&ctrl->lock, flags);
 
 	if (terminating)
+=======
+	blk_status_t ret;
+
+	if (test_bit(FCCTRL_TERMIO, &ctrl->flags))
+>>>>>>> upstream/android-13
 		return;
 
 	aen_op = &ctrl->aen_ops[0];
@@ -2389,12 +3344,17 @@ nvme_fc_complete_rq(struct request *rq)
 	struct nvme_fc_ctrl *ctrl = op->ctrl;
 
 	atomic_set(&op->state, FCPOP_STATE_IDLE);
+<<<<<<< HEAD
+=======
+	op->flags &= ~FCOP_FLAGS_TERMIO;
+>>>>>>> upstream/android-13
 
 	nvme_fc_unmap_data(ctrl, rq, op);
 	nvme_complete_rq(rq);
 	nvme_fc_ctrl_put(ctrl);
 }
 
+<<<<<<< HEAD
 /*
  * This routine is used by the transport when it needs to find active
  * io on a queue that is to be terminated. The transport uses
@@ -2418,6 +3378,8 @@ nvme_fc_terminate_exchange(struct request *req, void *data, bool reserved)
 	__nvme_fc_abort_op(ctrl, op);
 }
 
+=======
+>>>>>>> upstream/android-13
 
 static const struct blk_mq_ops nvme_fc_mq_ops = {
 	.queue_rq	= nvme_fc_queue_rq,
@@ -2425,7 +3387,10 @@ static const struct blk_mq_ops nvme_fc_mq_ops = {
 	.init_request	= nvme_fc_init_request,
 	.exit_request	= nvme_fc_exit_request,
 	.init_hctx	= nvme_fc_init_hctx,
+<<<<<<< HEAD
 	.poll		= nvme_fc_poll,
+=======
+>>>>>>> upstream/android-13
 	.timeout	= nvme_fc_timeout,
 };
 
@@ -2454,6 +3419,7 @@ nvme_fc_create_io_queues(struct nvme_fc_ctrl *ctrl)
 	memset(&ctrl->tag_set, 0, sizeof(ctrl->tag_set));
 	ctrl->tag_set.ops = &nvme_fc_mq_ops;
 	ctrl->tag_set.queue_depth = ctrl->ctrl.opts->queue_size;
+<<<<<<< HEAD
 	ctrl->tag_set.reserved_tags = 1; /* fabric connect */
 	ctrl->tag_set.numa_node = NUMA_NO_NODE;
 	ctrl->tag_set.flags = BLK_MQ_F_SHOULD_MERGE;
@@ -2461,6 +3427,14 @@ nvme_fc_create_io_queues(struct nvme_fc_ctrl *ctrl)
 					(SG_CHUNK_SIZE *
 						sizeof(struct scatterlist)) +
 					ctrl->lport->ops->fcprqst_priv_sz;
+=======
+	ctrl->tag_set.reserved_tags = NVMF_RESERVED_TAGS;
+	ctrl->tag_set.numa_node = ctrl->ctrl.numa_node;
+	ctrl->tag_set.flags = BLK_MQ_F_SHOULD_MERGE;
+	ctrl->tag_set.cmd_size =
+		struct_size((struct nvme_fcp_op_w_sgl *)NULL, priv,
+			    ctrl->lport->ops->fcprqst_priv_sz);
+>>>>>>> upstream/android-13
 	ctrl->tag_set.driver_data = ctrl;
 	ctrl->tag_set.nr_hw_queues = ctrl->ctrl.queue_count - 1;
 	ctrl->tag_set.timeout = NVME_IO_TIMEOUT;
@@ -2507,6 +3481,10 @@ static int
 nvme_fc_recreate_io_queues(struct nvme_fc_ctrl *ctrl)
 {
 	struct nvmf_ctrl_options *opts = ctrl->ctrl.opts;
+<<<<<<< HEAD
+=======
+	u32 prior_ioq_cnt = ctrl->ctrl.queue_count - 1;
+>>>>>>> upstream/android-13
 	unsigned int nr_io_queues;
 	int ret;
 
@@ -2519,11 +3497,31 @@ nvme_fc_recreate_io_queues(struct nvme_fc_ctrl *ctrl)
 		return ret;
 	}
 
+<<<<<<< HEAD
+=======
+	if (!nr_io_queues && prior_ioq_cnt) {
+		dev_info(ctrl->ctrl.device,
+			"Fail Reconnect: At least 1 io queue "
+			"required (was %d)\n", prior_ioq_cnt);
+		return -ENOSPC;
+	}
+
+>>>>>>> upstream/android-13
 	ctrl->ctrl.queue_count = nr_io_queues + 1;
 	/* check for io queues existing */
 	if (ctrl->ctrl.queue_count == 1)
 		return 0;
 
+<<<<<<< HEAD
+=======
+	if (prior_ioq_cnt != nr_io_queues) {
+		dev_info(ctrl->ctrl.device,
+			"reconnect: revising io queue count from %d to %d\n",
+			prior_ioq_cnt, nr_io_queues);
+		blk_mq_update_nr_hw_queues(&ctrl->tag_set, nr_io_queues);
+	}
+
+>>>>>>> upstream/android-13
 	ret = nvme_fc_create_hw_io_queues(ctrl, ctrl->ctrl.sqsize + 1);
 	if (ret)
 		goto out_free_io_queues;
@@ -2532,8 +3530,11 @@ nvme_fc_recreate_io_queues(struct nvme_fc_ctrl *ctrl)
 	if (ret)
 		goto out_delete_hw_queues;
 
+<<<<<<< HEAD
 	blk_mq_update_nr_hw_queues(&ctrl->tag_set, nr_io_queues);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 
 out_delete_hw_queues:
@@ -2568,10 +3569,16 @@ nvme_fc_ctlr_active_on_rport(struct nvme_fc_ctrl *ctrl)
 	struct nvme_fc_rport *rport = ctrl->rport;
 	u32 cnt;
 
+<<<<<<< HEAD
 	if (ctrl->assoc_active)
 		return 1;
 
 	ctrl->assoc_active = true;
+=======
+	if (test_and_set_bit(ASSOC_ACTIVE, &ctrl->flags))
+		return 1;
+
+>>>>>>> upstream/android-13
 	cnt = atomic_inc_return(&rport->act_ctrl_cnt);
 	if (cnt == 1)
 		nvme_fc_rport_active_on_lport(rport);
@@ -2586,7 +3593,11 @@ nvme_fc_ctlr_inactive_on_rport(struct nvme_fc_ctrl *ctrl)
 	struct nvme_fc_lport *lport = rport->lport;
 	u32 cnt;
 
+<<<<<<< HEAD
 	/* ctrl->assoc_active=false will be set independently */
+=======
+	/* clearing of ctrl->flags ASSOC_ACTIVE bit is in association delete */
+>>>>>>> upstream/android-13
 
 	cnt = atomic_dec_return(&rport->act_ctrl_cnt);
 	if (cnt == 0) {
@@ -2606,6 +3617,11 @@ static int
 nvme_fc_create_association(struct nvme_fc_ctrl *ctrl)
 {
 	struct nvmf_ctrl_options *opts = ctrl->ctrl.opts;
+<<<<<<< HEAD
+=======
+	struct nvmefc_ls_rcv_op *disls = NULL;
+	unsigned long flags;
+>>>>>>> upstream/android-13
 	int ret;
 	bool changed;
 
@@ -2617,6 +3633,17 @@ nvme_fc_create_association(struct nvme_fc_ctrl *ctrl)
 	if (nvme_fc_ctlr_active_on_rport(ctrl))
 		return -ENOTUNIQ;
 
+<<<<<<< HEAD
+=======
+	dev_info(ctrl->ctrl.device,
+		"NVME-FC{%d}: create association : host wwpn 0x%016llx "
+		" rport wwpn 0x%016llx: NQN \"%s\"\n",
+		ctrl->cnum, ctrl->lport->localport.port_name,
+		ctrl->rport->remoteport.port_name, ctrl->ctrl.opts->subsysnqn);
+
+	clear_bit(ASSOC_FAILED, &ctrl->flags);
+
+>>>>>>> upstream/android-13
 	/*
 	 * Create the admin queue
 	 */
@@ -2631,8 +3658,11 @@ nvme_fc_create_association(struct nvme_fc_ctrl *ctrl)
 	if (ret)
 		goto out_delete_hw_queue;
 
+<<<<<<< HEAD
 	blk_mq_unquiesce_queue(ctrl->ctrl.admin_q);
 
+=======
+>>>>>>> upstream/android-13
 	ret = nvmf_connect_admin_queue(&ctrl->ctrl);
 	if (ret)
 		goto out_disconnect_admin_queue;
@@ -2646,6 +3676,7 @@ nvme_fc_create_association(struct nvme_fc_ctrl *ctrl)
 	 * prior connection values
 	 */
 
+<<<<<<< HEAD
 	ret = nvmf_reg_read64(&ctrl->ctrl, NVME_REG_CAP, &ctrl->ctrl.cap);
 	if (ret) {
 		dev_err(ctrl->ctrl.device,
@@ -2665,6 +3696,20 @@ nvme_fc_create_association(struct nvme_fc_ctrl *ctrl)
 
 	ret = nvme_init_identify(&ctrl->ctrl);
 	if (ret)
+=======
+	ret = nvme_enable_ctrl(&ctrl->ctrl);
+	if (ret || test_bit(ASSOC_FAILED, &ctrl->flags))
+		goto out_disconnect_admin_queue;
+
+	ctrl->ctrl.max_segments = ctrl->lport->ops->max_sgl_segments;
+	ctrl->ctrl.max_hw_sectors = ctrl->ctrl.max_segments <<
+						(ilog2(SZ_4K) - 9);
+
+	blk_mq_unquiesce_queue(ctrl->ctrl.admin_q);
+
+	ret = nvme_init_ctrl_finish(&ctrl->ctrl);
+	if (ret || test_bit(ASSOC_FAILED, &ctrl->flags))
+>>>>>>> upstream/android-13
 		goto out_disconnect_admin_queue;
 
 	/* sanity checks */
@@ -2673,16 +3718,33 @@ nvme_fc_create_association(struct nvme_fc_ctrl *ctrl)
 	if (ctrl->ctrl.icdoff) {
 		dev_err(ctrl->ctrl.device, "icdoff %d is not supported!\n",
 				ctrl->ctrl.icdoff);
+<<<<<<< HEAD
+=======
+		ret = NVME_SC_INVALID_FIELD | NVME_SC_DNR;
+>>>>>>> upstream/android-13
 		goto out_disconnect_admin_queue;
 	}
 
 	/* FC-NVME supports normal SGL Data Block Descriptors */
+<<<<<<< HEAD
+=======
+	if (!nvme_ctrl_sgl_supported(&ctrl->ctrl)) {
+		dev_err(ctrl->ctrl.device,
+			"Mandatory sgls are not supported!\n");
+		ret = NVME_SC_INVALID_FIELD | NVME_SC_DNR;
+		goto out_disconnect_admin_queue;
+	}
+>>>>>>> upstream/android-13
 
 	if (opts->queue_size > ctrl->ctrl.maxcmd) {
 		/* warn if maxcmd is lower than queue_size */
 		dev_warn(ctrl->ctrl.device,
 			"queue_size %zu > ctrl maxcmd %u, reducing "
+<<<<<<< HEAD
 			"to queue_size\n",
+=======
+			"to maxcmd\n",
+>>>>>>> upstream/android-13
 			opts->queue_size, ctrl->ctrl.maxcmd);
 		opts->queue_size = ctrl->ctrl.maxcmd;
 	}
@@ -2690,7 +3752,12 @@ nvme_fc_create_association(struct nvme_fc_ctrl *ctrl)
 	if (opts->queue_size > ctrl->ctrl.sqsize + 1) {
 		/* warn if sqsize is lower than queue_size */
 		dev_warn(ctrl->ctrl.device,
+<<<<<<< HEAD
 			"queue_size %zu > ctrl sqsize %u, clamping down\n",
+=======
+			"queue_size %zu > ctrl sqsize %u, reducing "
+			"to sqsize\n",
+>>>>>>> upstream/android-13
 			opts->queue_size, ctrl->ctrl.sqsize + 1);
 		opts->queue_size = ctrl->ctrl.sqsize + 1;
 	}
@@ -2708,9 +3775,15 @@ nvme_fc_create_association(struct nvme_fc_ctrl *ctrl)
 			ret = nvme_fc_create_io_queues(ctrl);
 		else
 			ret = nvme_fc_recreate_io_queues(ctrl);
+<<<<<<< HEAD
 		if (ret)
 			goto out_term_aen_ops;
 	}
+=======
+	}
+	if (ret || test_bit(ASSOC_FAILED, &ctrl->flags))
+		goto out_term_aen_ops;
+>>>>>>> upstream/android-13
 
 	changed = nvme_change_ctrl_state(&ctrl->ctrl, NVME_CTRL_LIVE);
 
@@ -2726,16 +3799,34 @@ out_term_aen_ops:
 out_disconnect_admin_queue:
 	/* send a Disconnect(association) LS to fc-nvme target */
 	nvme_fc_xmt_disconnect_assoc(ctrl);
+<<<<<<< HEAD
+=======
+	spin_lock_irqsave(&ctrl->lock, flags);
+	ctrl->association_id = 0;
+	disls = ctrl->rcv_disconn;
+	ctrl->rcv_disconn = NULL;
+	spin_unlock_irqrestore(&ctrl->lock, flags);
+	if (disls)
+		nvme_fc_xmt_ls_rsp(disls);
+>>>>>>> upstream/android-13
 out_delete_hw_queue:
 	__nvme_fc_delete_hw_queue(ctrl, &ctrl->queues[0], 0);
 out_free_queue:
 	nvme_fc_free_queue(&ctrl->queues[0]);
+<<<<<<< HEAD
 	ctrl->assoc_active = false;
+=======
+	clear_bit(ASSOC_ACTIVE, &ctrl->flags);
+>>>>>>> upstream/android-13
 	nvme_fc_ctlr_inactive_on_rport(ctrl);
 
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 /*
  * This routine stops operation of the controller on the host side.
  * On the host os stack side: Admin and IO queues are stopped,
@@ -2745,6 +3836,7 @@ out_free_queue:
 static void
 nvme_fc_delete_association(struct nvme_fc_ctrl *ctrl)
 {
+<<<<<<< HEAD
 	unsigned long flags;
 
 	if (!ctrl->assoc_active)
@@ -2794,6 +3886,20 @@ nvme_fc_delete_association(struct nvme_fc_ctrl *ctrl)
 	blk_mq_quiesce_queue(ctrl->ctrl.admin_q);
 	blk_mq_tagset_busy_iter(&ctrl->admin_tag_set,
 				nvme_fc_terminate_exchange, &ctrl->ctrl);
+=======
+	struct nvmefc_ls_rcv_op *disls = NULL;
+	unsigned long flags;
+
+	if (!test_and_clear_bit(ASSOC_ACTIVE, &ctrl->flags))
+		return;
+
+	spin_lock_irqsave(&ctrl->lock, flags);
+	set_bit(FCCTRL_TERMIO, &ctrl->flags);
+	ctrl->iocnt = 0;
+	spin_unlock_irqrestore(&ctrl->lock, flags);
+
+	__nvme_fc_abort_outstanding_ios(ctrl, false);
+>>>>>>> upstream/android-13
 
 	/* kill the aens as they are a separate path */
 	nvme_fc_abort_aen_ops(ctrl);
@@ -2801,7 +3907,11 @@ nvme_fc_delete_association(struct nvme_fc_ctrl *ctrl)
 	/* wait for all io that had to be aborted */
 	spin_lock_irq(&ctrl->lock);
 	wait_event_lock_irq(ctrl->ioabort_wait, ctrl->iocnt == 0, ctrl->lock);
+<<<<<<< HEAD
 	ctrl->flags &= ~FCCTRL_TERMIO;
+=======
+	clear_bit(FCCTRL_TERMIO, &ctrl->flags);
+>>>>>>> upstream/android-13
 	spin_unlock_irq(&ctrl->lock);
 
 	nvme_fc_term_aen_ops(ctrl);
@@ -2815,6 +3925,21 @@ nvme_fc_delete_association(struct nvme_fc_ctrl *ctrl)
 	if (ctrl->association_id)
 		nvme_fc_xmt_disconnect_assoc(ctrl);
 
+<<<<<<< HEAD
+=======
+	spin_lock_irqsave(&ctrl->lock, flags);
+	ctrl->association_id = 0;
+	disls = ctrl->rcv_disconn;
+	ctrl->rcv_disconn = NULL;
+	spin_unlock_irqrestore(&ctrl->lock, flags);
+	if (disls)
+		/*
+		 * if a Disconnect Request was waiting for a response, send
+		 * now that all ABTS's have been issued (and are complete).
+		 */
+		nvme_fc_xmt_ls_rsp(disls);
+
+>>>>>>> upstream/android-13
 	if (ctrl->ctrl.tagset) {
 		nvme_fc_delete_hw_io_queues(ctrl);
 		nvme_fc_free_io_queues(ctrl);
@@ -2837,7 +3962,11 @@ nvme_fc_delete_ctrl(struct nvme_ctrl *nctrl)
 {
 	struct nvme_fc_ctrl *ctrl = to_fc_ctrl(nctrl);
 
+<<<<<<< HEAD
 	cancel_work_sync(&ctrl->err_work);
+=======
+	cancel_work_sync(&ctrl->ioerr_work);
+>>>>>>> upstream/android-13
 	cancel_delayed_work_sync(&ctrl->connect_work);
 	/*
 	 * kill the association on the link side.  this will block
@@ -2857,11 +3986,21 @@ nvme_fc_reconnect_or_delete(struct nvme_fc_ctrl *ctrl, int status)
 	if (ctrl->ctrl.state != NVME_CTRL_CONNECTING)
 		return;
 
+<<<<<<< HEAD
 	if (portptr->port_state == FC_OBJSTATE_ONLINE)
 		dev_info(ctrl->ctrl.device,
 			"NVME-FC{%d}: reset: Reconnect attempt failed (%d)\n",
 			ctrl->cnum, status);
 	else if (time_after_eq(jiffies, rport->dev_loss_end))
+=======
+	if (portptr->port_state == FC_OBJSTATE_ONLINE) {
+		dev_info(ctrl->ctrl.device,
+			"NVME-FC{%d}: reset: Reconnect attempt failed (%d)\n",
+			ctrl->cnum, status);
+		if (status > 0 && (status & NVME_SC_DNR))
+			recon = false;
+	} else if (time_after_eq(jiffies, rport->dev_loss_end))
+>>>>>>> upstream/android-13
 		recon = false;
 
 	if (recon && nvmf_should_reconnect(&ctrl->ctrl)) {
@@ -2875,6 +4014,7 @@ nvme_fc_reconnect_or_delete(struct nvme_fc_ctrl *ctrl, int status)
 
 		queue_delayed_work(nvme_wq, &ctrl->connect_work, recon_delay);
 	} else {
+<<<<<<< HEAD
 		if (portptr->port_state == FC_OBJSTATE_ONLINE)
 			dev_warn(ctrl->ctrl.device,
 				"NVME-FC{%d}: Max reconnect attempts (%d) "
@@ -2885,11 +4025,31 @@ nvme_fc_reconnect_or_delete(struct nvme_fc_ctrl *ctrl, int status)
 				"NVME-FC{%d}: dev_loss_tmo (%d) expired "
 				"while waiting for remoteport connectivity.\n",
 				ctrl->cnum, portptr->dev_loss_tmo);
+=======
+		if (portptr->port_state == FC_OBJSTATE_ONLINE) {
+			if (status > 0 && (status & NVME_SC_DNR))
+				dev_warn(ctrl->ctrl.device,
+					 "NVME-FC{%d}: reconnect failure\n",
+					 ctrl->cnum);
+			else
+				dev_warn(ctrl->ctrl.device,
+					 "NVME-FC{%d}: Max reconnect attempts "
+					 "(%d) reached.\n",
+					 ctrl->cnum, ctrl->ctrl.nr_reconnects);
+		} else
+			dev_warn(ctrl->ctrl.device,
+				"NVME-FC{%d}: dev_loss_tmo (%d) expired "
+				"while waiting for remoteport connectivity.\n",
+				ctrl->cnum, min_t(int, portptr->dev_loss_tmo,
+					(ctrl->ctrl.opts->max_reconnects *
+					 ctrl->ctrl.opts->reconnect_delay)));
+>>>>>>> upstream/android-13
 		WARN_ON(nvme_delete_ctrl(&ctrl->ctrl));
 	}
 }
 
 static void
+<<<<<<< HEAD
 __nvme_fc_terminate_io(struct nvme_fc_ctrl *ctrl)
 {
 	/*
@@ -2917,10 +4077,13 @@ __nvme_fc_terminate_io(struct nvme_fc_ctrl *ctrl)
 }
 
 static void
+=======
+>>>>>>> upstream/android-13
 nvme_fc_reset_ctrl_work(struct work_struct *work)
 {
 	struct nvme_fc_ctrl *ctrl =
 		container_of(work, struct nvme_fc_ctrl, ctrl.reset_work);
+<<<<<<< HEAD
 	int ret;
 
 	__nvme_fc_terminate_io(ctrl);
@@ -2957,6 +4120,32 @@ nvme_fc_connect_err_work(struct work_struct *work)
 	 * the io that had the error that scheduled this work.
 	 */
 }
+=======
+
+	nvme_stop_ctrl(&ctrl->ctrl);
+
+	/* will block will waiting for io to terminate */
+	nvme_fc_delete_association(ctrl);
+
+	if (!nvme_change_ctrl_state(&ctrl->ctrl, NVME_CTRL_CONNECTING))
+		dev_err(ctrl->ctrl.device,
+			"NVME-FC{%d}: error_recovery: Couldn't change state "
+			"to CONNECTING\n", ctrl->cnum);
+
+	if (ctrl->rport->remoteport.port_state == FC_OBJSTATE_ONLINE) {
+		if (!queue_delayed_work(nvme_wq, &ctrl->connect_work, 0)) {
+			dev_err(ctrl->ctrl.device,
+				"NVME-FC{%d}: failed to schedule connect "
+				"after reset\n", ctrl->cnum);
+		} else {
+			flush_delayed_work(&ctrl->connect_work);
+		}
+	} else {
+		nvme_fc_reconnect_or_delete(ctrl, -ENOTCONN);
+	}
+}
+
+>>>>>>> upstream/android-13
 
 static const struct nvme_ctrl_ops nvme_fc_ctrl_ops = {
 	.name			= "fc",
@@ -3033,7 +4222,11 @@ nvme_fc_init_ctrl(struct device *dev, struct nvmf_ctrl_options *opts,
 {
 	struct nvme_fc_ctrl *ctrl;
 	unsigned long flags;
+<<<<<<< HEAD
 	int ret, idx;
+=======
+	int ret, idx, ctrl_loss_tmo;
+>>>>>>> upstream/android-13
 
 	if (!(rport->remoteport.port_role &
 	    (FC_PORT_ROLE_NVME_DISCOVERY | FC_PORT_ROLE_NVME_TARGET))) {
@@ -3059,16 +4252,41 @@ nvme_fc_init_ctrl(struct device *dev, struct nvmf_ctrl_options *opts,
 		goto out_free_ctrl;
 	}
 
+<<<<<<< HEAD
 	ctrl->ctrl.opts = opts;
 	ctrl->ctrl.nr_reconnects = 0;
+=======
+	/*
+	 * if ctrl_loss_tmo is being enforced and the default reconnect delay
+	 * is being used, change to a shorter reconnect delay for FC.
+	 */
+	if (opts->max_reconnects != -1 &&
+	    opts->reconnect_delay == NVMF_DEF_RECONNECT_DELAY &&
+	    opts->reconnect_delay > NVME_FC_DEFAULT_RECONNECT_TMO) {
+		ctrl_loss_tmo = opts->max_reconnects * opts->reconnect_delay;
+		opts->reconnect_delay = NVME_FC_DEFAULT_RECONNECT_TMO;
+		opts->max_reconnects = DIV_ROUND_UP(ctrl_loss_tmo,
+						opts->reconnect_delay);
+	}
+
+	ctrl->ctrl.opts = opts;
+	ctrl->ctrl.nr_reconnects = 0;
+	if (lport->dev)
+		ctrl->ctrl.numa_node = dev_to_node(lport->dev);
+	else
+		ctrl->ctrl.numa_node = NUMA_NO_NODE;
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&ctrl->ctrl_list);
 	ctrl->lport = lport;
 	ctrl->rport = rport;
 	ctrl->dev = lport->dev;
 	ctrl->cnum = idx;
 	ctrl->ioq_live = false;
+<<<<<<< HEAD
 	ctrl->assoc_active = false;
 	atomic_set(&ctrl->err_work_active, 0);
+=======
+>>>>>>> upstream/android-13
 	init_waitqueue_head(&ctrl->ioabort_wait);
 
 	get_device(ctrl->dev);
@@ -3076,7 +4294,11 @@ nvme_fc_init_ctrl(struct device *dev, struct nvmf_ctrl_options *opts,
 
 	INIT_WORK(&ctrl->ctrl.reset_work, nvme_fc_reset_ctrl_work);
 	INIT_DELAYED_WORK(&ctrl->connect_work, nvme_fc_connect_ctrl_work);
+<<<<<<< HEAD
 	INIT_WORK(&ctrl->err_work, nvme_fc_connect_err_work);
+=======
+	INIT_WORK(&ctrl->ioerr_work, nvme_fc_ctrl_ioerr_work);
+>>>>>>> upstream/android-13
 	spin_lock_init(&ctrl->lock);
 
 	/* io queue count */
@@ -3100,6 +4322,7 @@ nvme_fc_init_ctrl(struct device *dev, struct nvmf_ctrl_options *opts,
 	memset(&ctrl->admin_tag_set, 0, sizeof(ctrl->admin_tag_set));
 	ctrl->admin_tag_set.ops = &nvme_fc_admin_mq_ops;
 	ctrl->admin_tag_set.queue_depth = NVME_AQ_MQ_TAG_DEPTH;
+<<<<<<< HEAD
 	ctrl->admin_tag_set.reserved_tags = 2; /* fabric connect + Keep-Alive */
 	ctrl->admin_tag_set.numa_node = NUMA_NO_NODE;
 	ctrl->admin_tag_set.cmd_size = sizeof(struct nvme_fc_fcp_op) +
@@ -3109,6 +4332,16 @@ nvme_fc_init_ctrl(struct device *dev, struct nvmf_ctrl_options *opts,
 	ctrl->admin_tag_set.driver_data = ctrl;
 	ctrl->admin_tag_set.nr_hw_queues = 1;
 	ctrl->admin_tag_set.timeout = ADMIN_TIMEOUT;
+=======
+	ctrl->admin_tag_set.reserved_tags = NVMF_RESERVED_TAGS;
+	ctrl->admin_tag_set.numa_node = ctrl->ctrl.numa_node;
+	ctrl->admin_tag_set.cmd_size =
+		struct_size((struct nvme_fcp_op_w_sgl *)NULL, priv,
+			    ctrl->lport->ops->fcprqst_priv_sz);
+	ctrl->admin_tag_set.driver_data = ctrl;
+	ctrl->admin_tag_set.nr_hw_queues = 1;
+	ctrl->admin_tag_set.timeout = NVME_ADMIN_TIMEOUT;
+>>>>>>> upstream/android-13
 	ctrl->admin_tag_set.flags = BLK_MQ_F_NO_SCHED;
 
 	ret = blk_mq_alloc_tag_set(&ctrl->admin_tag_set);
@@ -3116,10 +4349,23 @@ nvme_fc_init_ctrl(struct device *dev, struct nvmf_ctrl_options *opts,
 		goto out_free_queues;
 	ctrl->ctrl.admin_tagset = &ctrl->admin_tag_set;
 
+<<<<<<< HEAD
 	ctrl->ctrl.admin_q = blk_mq_init_queue(&ctrl->admin_tag_set);
 	if (IS_ERR(ctrl->ctrl.admin_q)) {
 		ret = PTR_ERR(ctrl->ctrl.admin_q);
 		goto out_free_admin_tag_set;
+=======
+	ctrl->ctrl.fabrics_q = blk_mq_init_queue(&ctrl->admin_tag_set);
+	if (IS_ERR(ctrl->ctrl.fabrics_q)) {
+		ret = PTR_ERR(ctrl->ctrl.fabrics_q);
+		goto out_free_admin_tag_set;
+	}
+
+	ctrl->ctrl.admin_q = blk_mq_init_queue(&ctrl->admin_tag_set);
+	if (IS_ERR(ctrl->ctrl.admin_q)) {
+		ret = PTR_ERR(ctrl->ctrl.admin_q);
+		goto out_cleanup_fabrics_q;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -3146,10 +4392,14 @@ nvme_fc_init_ctrl(struct device *dev, struct nvmf_ctrl_options *opts,
 		goto fail_ctrl;
 	}
 
+<<<<<<< HEAD
 	nvme_get_ctrl(&ctrl->ctrl);
 
 	if (!queue_delayed_work(nvme_wq, &ctrl->connect_work, 0)) {
 		nvme_put_ctrl(&ctrl->ctrl);
+=======
+	if (!queue_delayed_work(nvme_wq, &ctrl->connect_work, 0)) {
+>>>>>>> upstream/android-13
 		dev_err(ctrl->ctrl.device,
 			"NVME-FC{%d}: failed to schedule initial connect\n",
 			ctrl->cnum);
@@ -3166,8 +4416,13 @@ nvme_fc_init_ctrl(struct device *dev, struct nvmf_ctrl_options *opts,
 
 fail_ctrl:
 	nvme_change_ctrl_state(&ctrl->ctrl, NVME_CTRL_DELETING);
+<<<<<<< HEAD
 	cancel_work_sync(&ctrl->ctrl.reset_work);
 	cancel_work_sync(&ctrl->err_work);
+=======
+	cancel_work_sync(&ctrl->ioerr_work);
+	cancel_work_sync(&ctrl->ctrl.reset_work);
+>>>>>>> upstream/android-13
 	cancel_delayed_work_sync(&ctrl->connect_work);
 
 	ctrl->ctrl.opts = NULL;
@@ -3191,6 +4446,11 @@ fail_ctrl:
 
 out_cleanup_admin_q:
 	blk_cleanup_queue(ctrl->ctrl.admin_q);
+<<<<<<< HEAD
+=======
+out_cleanup_fabrics_q:
+	blk_cleanup_queue(ctrl->ctrl.fabrics_q);
+>>>>>>> upstream/android-13
 out_free_admin_tag_set:
 	blk_mq_free_tag_set(&ctrl->admin_tag_set);
 out_free_queues:
@@ -3235,7 +4495,11 @@ nvme_fc_parse_traddr(struct nvmet_fc_traddr *traddr, char *buf, size_t blen)
 	substring_t wwn = { name, &name[sizeof(name)-1] };
 	int nnoffset, pnoffset;
 
+<<<<<<< HEAD
 	/* validate it string one of the 2 allowed formats */
+=======
+	/* validate if string is one of the 2 allowed formats */
+>>>>>>> upstream/android-13
 	if (strnlen(buf, blen) == NVME_FC_TRADDR_MAXLENGTH &&
 			!strncmp(buf, "nn-0x", NVME_FC_TRADDR_OXNNLEN) &&
 			!strncmp(&buf[NVME_FC_TRADDR_MAX_PN_OFFSET],
@@ -3332,6 +4596,163 @@ static struct nvmf_transport_ops nvme_fc_transport = {
 	.create_ctrl	= nvme_fc_create_ctrl,
 };
 
+<<<<<<< HEAD
+=======
+/* Arbitrary successive failures max. With lots of subsystems could be high */
+#define DISCOVERY_MAX_FAIL	20
+
+static ssize_t nvme_fc_nvme_discovery_store(struct device *dev,
+		struct device_attribute *attr, const char *buf, size_t count)
+{
+	unsigned long flags;
+	LIST_HEAD(local_disc_list);
+	struct nvme_fc_lport *lport;
+	struct nvme_fc_rport *rport;
+	int failcnt = 0;
+
+	spin_lock_irqsave(&nvme_fc_lock, flags);
+restart:
+	list_for_each_entry(lport, &nvme_fc_lport_list, port_list) {
+		list_for_each_entry(rport, &lport->endp_list, endp_list) {
+			if (!nvme_fc_lport_get(lport))
+				continue;
+			if (!nvme_fc_rport_get(rport)) {
+				/*
+				 * This is a temporary condition. Upon restart
+				 * this rport will be gone from the list.
+				 *
+				 * Revert the lport put and retry.  Anything
+				 * added to the list already will be skipped (as
+				 * they are no longer list_empty).  Loops should
+				 * resume at rports that were not yet seen.
+				 */
+				nvme_fc_lport_put(lport);
+
+				if (failcnt++ < DISCOVERY_MAX_FAIL)
+					goto restart;
+
+				pr_err("nvme_discovery: too many reference "
+				       "failures\n");
+				goto process_local_list;
+			}
+			if (list_empty(&rport->disc_list))
+				list_add_tail(&rport->disc_list,
+					      &local_disc_list);
+		}
+	}
+
+process_local_list:
+	while (!list_empty(&local_disc_list)) {
+		rport = list_first_entry(&local_disc_list,
+					 struct nvme_fc_rport, disc_list);
+		list_del_init(&rport->disc_list);
+		spin_unlock_irqrestore(&nvme_fc_lock, flags);
+
+		lport = rport->lport;
+		/* signal discovery. Won't hurt if it repeats */
+		nvme_fc_signal_discovery_scan(lport, rport);
+		nvme_fc_rport_put(rport);
+		nvme_fc_lport_put(lport);
+
+		spin_lock_irqsave(&nvme_fc_lock, flags);
+	}
+	spin_unlock_irqrestore(&nvme_fc_lock, flags);
+
+	return count;
+}
+
+/* Parse the cgroup id from a buf and return the length of cgrpid */
+static int fc_parse_cgrpid(const char *buf, u64 *id)
+{
+	char cgrp_id[16+1];
+	int cgrpid_len, j;
+
+	memset(cgrp_id, 0x0, sizeof(cgrp_id));
+	for (cgrpid_len = 0, j = 0; cgrpid_len < 17; cgrpid_len++) {
+		if (buf[cgrpid_len] != ':')
+			cgrp_id[cgrpid_len] = buf[cgrpid_len];
+		else {
+			j = 1;
+			break;
+		}
+	}
+	if (!j)
+		return -EINVAL;
+	if (kstrtou64(cgrp_id, 16, id) < 0)
+		return -EINVAL;
+	return cgrpid_len;
+}
+
+/*
+ * fc_update_appid: Parse and update the appid in the blkcg associated with
+ * cgroupid.
+ * @buf: buf contains both cgrpid and appid info
+ * @count: size of the buffer
+ */
+static int fc_update_appid(const char *buf, size_t count)
+{
+	u64 cgrp_id;
+	int appid_len = 0;
+	int cgrpid_len = 0;
+	char app_id[FC_APPID_LEN];
+	int ret = 0;
+
+	if (buf[count-1] == '\n')
+		count--;
+
+	if ((count > (16+1+FC_APPID_LEN)) || (!strchr(buf, ':')))
+		return -EINVAL;
+
+	cgrpid_len = fc_parse_cgrpid(buf, &cgrp_id);
+	if (cgrpid_len < 0)
+		return -EINVAL;
+	appid_len = count - cgrpid_len - 1;
+	if (appid_len > FC_APPID_LEN)
+		return -EINVAL;
+
+	memset(app_id, 0x0, sizeof(app_id));
+	memcpy(app_id, &buf[cgrpid_len+1], appid_len);
+	ret = blkcg_set_fc_appid(app_id, cgrp_id, sizeof(app_id));
+	if (ret < 0)
+		return ret;
+	return count;
+}
+
+static ssize_t fc_appid_store(struct device *dev,
+		struct device_attribute *attr, const char *buf, size_t count)
+{
+	int ret  = 0;
+
+	ret = fc_update_appid(buf, count);
+	if (ret < 0)
+		return -EINVAL;
+	return count;
+}
+static DEVICE_ATTR(nvme_discovery, 0200, NULL, nvme_fc_nvme_discovery_store);
+static DEVICE_ATTR(appid_store, 0200, NULL, fc_appid_store);
+
+static struct attribute *nvme_fc_attrs[] = {
+	&dev_attr_nvme_discovery.attr,
+	&dev_attr_appid_store.attr,
+	NULL
+};
+
+static const struct attribute_group nvme_fc_attr_group = {
+	.attrs = nvme_fc_attrs,
+};
+
+static const struct attribute_group *nvme_fc_attr_groups[] = {
+	&nvme_fc_attr_group,
+	NULL
+};
+
+static struct class fc_class = {
+	.name = "fc",
+	.dev_groups = nvme_fc_attr_groups,
+	.owner = THIS_MODULE,
+};
+
+>>>>>>> upstream/android-13
 static int __init nvme_fc_init_module(void)
 {
 	int ret;
@@ -3354,17 +4775,27 @@ static int __init nvme_fc_init_module(void)
 	 * put in place, this code will move to a more generic
 	 * location for the class.
 	 */
+<<<<<<< HEAD
 	fc_class = class_create(THIS_MODULE, "fc");
 	if (IS_ERR(fc_class)) {
 		pr_err("couldn't register class fc\n");
 		ret = PTR_ERR(fc_class);
+=======
+	ret = class_register(&fc_class);
+	if (ret) {
+		pr_err("couldn't register class fc\n");
+>>>>>>> upstream/android-13
 		goto out_destroy_wq;
 	}
 
 	/*
 	 * Create a device for the FC-centric udev events
 	 */
+<<<<<<< HEAD
 	fc_udev_device = device_create(fc_class, NULL, MKDEV(0, 0), NULL,
+=======
+	fc_udev_device = device_create(&fc_class, NULL, MKDEV(0, 0), NULL,
+>>>>>>> upstream/android-13
 				"fc_udev_device");
 	if (IS_ERR(fc_udev_device)) {
 		pr_err("couldn't create fc_udev device!\n");
@@ -3379,28 +4810,87 @@ static int __init nvme_fc_init_module(void)
 	return 0;
 
 out_destroy_device:
+<<<<<<< HEAD
 	device_destroy(fc_class, MKDEV(0, 0));
 out_destroy_class:
 	class_destroy(fc_class);
+=======
+	device_destroy(&fc_class, MKDEV(0, 0));
+out_destroy_class:
+	class_unregister(&fc_class);
+>>>>>>> upstream/android-13
 out_destroy_wq:
 	destroy_workqueue(nvme_fc_wq);
 
 	return ret;
 }
 
+<<<<<<< HEAD
 static void __exit nvme_fc_exit_module(void)
 {
 	/* sanity check - all lports should be removed */
 	if (!list_empty(&nvme_fc_lport_list))
 		pr_warn("%s: localport list not empty\n", __func__);
+=======
+static void
+nvme_fc_delete_controllers(struct nvme_fc_rport *rport)
+{
+	struct nvme_fc_ctrl *ctrl;
+
+	spin_lock(&rport->lock);
+	list_for_each_entry(ctrl, &rport->ctrl_list, ctrl_list) {
+		dev_warn(ctrl->ctrl.device,
+			"NVME-FC{%d}: transport unloading: deleting ctrl\n",
+			ctrl->cnum);
+		nvme_delete_ctrl(&ctrl->ctrl);
+	}
+	spin_unlock(&rport->lock);
+}
+
+static void
+nvme_fc_cleanup_for_unload(void)
+{
+	struct nvme_fc_lport *lport;
+	struct nvme_fc_rport *rport;
+
+	list_for_each_entry(lport, &nvme_fc_lport_list, port_list) {
+		list_for_each_entry(rport, &lport->endp_list, endp_list) {
+			nvme_fc_delete_controllers(rport);
+		}
+	}
+}
+
+static void __exit nvme_fc_exit_module(void)
+{
+	unsigned long flags;
+	bool need_cleanup = false;
+
+	spin_lock_irqsave(&nvme_fc_lock, flags);
+	nvme_fc_waiting_to_unload = true;
+	if (!list_empty(&nvme_fc_lport_list)) {
+		need_cleanup = true;
+		nvme_fc_cleanup_for_unload();
+	}
+	spin_unlock_irqrestore(&nvme_fc_lock, flags);
+	if (need_cleanup) {
+		pr_info("%s: waiting for ctlr deletes\n", __func__);
+		wait_for_completion(&nvme_fc_unload_proceed);
+		pr_info("%s: ctrl deletes complete\n", __func__);
+	}
+>>>>>>> upstream/android-13
 
 	nvmf_unregister_transport(&nvme_fc_transport);
 
 	ida_destroy(&nvme_fc_local_port_cnt);
 	ida_destroy(&nvme_fc_ctrl_cnt);
 
+<<<<<<< HEAD
 	device_destroy(fc_class, MKDEV(0, 0));
 	class_destroy(fc_class);
+=======
+	device_destroy(&fc_class, MKDEV(0, 0));
+	class_unregister(&fc_class);
+>>>>>>> upstream/android-13
 	destroy_workqueue(nvme_fc_wq);
 }
 

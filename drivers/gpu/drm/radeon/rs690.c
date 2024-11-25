@@ -25,11 +25,21 @@
  *          Alex Deucher
  *          Jerome Glisse
  */
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include "radeon.h"
 #include "radeon_asic.h"
 #include "radeon_audio.h"
 #include "atom.h"
+=======
+
+#include <linux/pci.h>
+
+#include "atom.h"
+#include "radeon.h"
+#include "radeon_asic.h"
+#include "radeon_audio.h"
+>>>>>>> upstream/android-13
 #include "rs690d.h"
 
 int rs690_mc_wait_for_idle(struct radeon_device *rdev)
@@ -185,7 +195,11 @@ static void rs690_mc_init(struct radeon_device *rdev)
 		/* FastFB shall be used with UMA memory. Here it is simply disabled when sideport 
 		 * memory is present.
 		 */
+<<<<<<< HEAD
 		if (rdev->mc.igp_sideport_enabled == false && radeon_fastfb == 1) {
+=======
+		if (!rdev->mc.igp_sideport_enabled && radeon_fastfb == 1) {
+>>>>>>> upstream/android-13
 			DRM_INFO("Direct mapping: aper base at 0x%llx, replaced by direct mapping base 0x%llx.\n", 
 					(unsigned long long)rdev->mc.aper_base, k8_addr);
 			rdev->mc.aper_base = (resource_size_t)k8_addr;
@@ -848,9 +862,13 @@ int rs690_init(struct radeon_device *rdev)
 	rs690_mc_init(rdev);
 	rv515_debugfs(rdev);
 	/* Fence driver */
+<<<<<<< HEAD
 	r = radeon_fence_driver_init(rdev);
 	if (r)
 		return r;
+=======
+	radeon_fence_driver_init(rdev);
+>>>>>>> upstream/android-13
 	/* Memory manager */
 	r = radeon_bo_init(rdev);
 	if (r)

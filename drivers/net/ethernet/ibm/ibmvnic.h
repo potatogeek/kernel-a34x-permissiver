@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /**************************************************************************/
 /*                                                                        */
 /*  IBM System i and System p Virtual NIC Device Driver                   */
@@ -6,6 +10,7 @@
 /*  Thomas Falcon (tlfalcon@linux.vnet.ibm.com)                           */
 /*  John Allen (jallen@linux.vnet.ibm.com)                                */
 /*                                                                        */
+<<<<<<< HEAD
 /*  This program is free software; you can redistribute it and/or modify  */
 /*  it under the terms of the GNU General Public License as published by  */
 /*  the Free Software Foundation; either version 2 of the License, or     */
@@ -18,6 +23,8 @@
 /*                                                                        */
 /*  You should have received a copy of the GNU General Public License     */
 /*  along with this program.                                              */
+=======
+>>>>>>> upstream/android-13
 /*                                                                        */
 /* This module contains the implementation of a virtual ethernet device   */
 /* for use with IBM i/pSeries LPAR Linux.  It utilizes the logical LAN    */
@@ -31,6 +38,10 @@
 #define IBMVNIC_INVALID_MAP	-1
 #define IBMVNIC_STATS_TIMEOUT	1
 #define IBMVNIC_INIT_FAILED	2
+<<<<<<< HEAD
+=======
+#define IBMVNIC_OPEN_FAILED	3
+>>>>>>> upstream/android-13
 
 /* basic structures plus 100 2k buffers */
 #define IBMVNIC_IO_ENTITLEMENT_DEFAULT	610305
@@ -39,7 +50,14 @@
 #define IBMVNIC_RX_WEIGHT		16
 /* when changing this, update IBMVNIC_IO_ENTITLEMENT_DEFAULT */
 #define IBMVNIC_BUFFS_PER_POOL	100
+<<<<<<< HEAD
 #define IBMVNIC_MAX_QUEUES	10
+=======
+#define IBMVNIC_MAX_QUEUES	16
+#define IBMVNIC_MAX_QUEUE_SZ   4096
+#define IBMVNIC_MAX_IND_DESCS  16
+#define IBMVNIC_IND_ARR_SZ	(IBMVNIC_MAX_IND_DESCS * 32)
+>>>>>>> upstream/android-13
 
 #define IBMVNIC_TSO_BUF_SZ	65536
 #define IBMVNIC_TSO_BUFS	64
@@ -48,6 +66,11 @@
 #define IBMVNIC_MAX_LTB_SIZE ((1 << (MAX_ORDER - 1)) * PAGE_SIZE)
 #define IBMVNIC_BUFFER_HLEN 500
 
+<<<<<<< HEAD
+=======
+#define IBMVNIC_RESET_DELAY 100
+
+>>>>>>> upstream/android-13
 struct ibmvnic_login_buffer {
 	__be32 len;
 	__be32 version;
@@ -226,8 +249,11 @@ struct ibmvnic_tx_comp_desc {
 #define IBMVNIC_TCP_CHKSUM		0x20
 #define IBMVNIC_UDP_CHKSUM		0x08
 
+<<<<<<< HEAD
 #define IBMVNIC_MAX_FRAGS_PER_CRQ 3
 
+=======
+>>>>>>> upstream/android-13
 struct ibmvnic_tx_desc {
 	u8 first;
 	u8 type;
@@ -371,11 +397,24 @@ struct ibmvnic_phys_parms {
 	u8 flags2;
 #define IBMVNIC_LOGICAL_LNK_ACTIVE 0x80
 	__be32 speed;
+<<<<<<< HEAD
 #define IBMVNIC_AUTONEG		0x80
 #define IBMVNIC_10MBPS		0x40
 #define IBMVNIC_100MBPS		0x20
 #define IBMVNIC_1GBPS		0x10
 #define IBMVNIC_10GBPS		0x08
+=======
+#define IBMVNIC_AUTONEG		0x80000000
+#define IBMVNIC_10MBPS		0x40000000
+#define IBMVNIC_100MBPS		0x20000000
+#define IBMVNIC_1GBPS		0x10000000
+#define IBMVNIC_10GBPS		0x08000000
+#define IBMVNIC_40GBPS		0x04000000
+#define IBMVNIC_100GBPS		0x02000000
+#define IBMVNIC_25GBPS		0x01000000
+#define IBMVNIC_50GBPS		0x00800000
+#define IBMVNIC_200GBPS		0x00400000
+>>>>>>> upstream/android-13
 	__be32 mtu;
 	struct ibmvnic_rc rc;
 } __packed __aligned(8);
@@ -409,6 +448,7 @@ struct ibmvnic_control_ip_offload {
 	struct ibmvnic_rc rc;
 } __packed __aligned(8);
 
+<<<<<<< HEAD
 struct ibmvnic_request_dump_size {
 	u8 first;
 	u8 cmd;
@@ -480,6 +520,8 @@ struct ibmvnic_collect_fw_trace {
 	struct ibmvnic_rc rc;
 } __packed __aligned(8);
 
+=======
+>>>>>>> upstream/android-13
 struct ibmvnic_request_statistics {
 	u8 first;
 	u8 cmd;
@@ -491,6 +533,7 @@ struct ibmvnic_request_statistics {
 	u8 reserved[4];
 } __packed __aligned(8);
 
+<<<<<<< HEAD
 struct ibmvnic_request_debug_stats {
 	u8 first;
 	u8 cmd;
@@ -500,6 +543,8 @@ struct ibmvnic_request_debug_stats {
 	struct ibmvnic_rc rc;
 } __packed __aligned(8);
 
+=======
+>>>>>>> upstream/android-13
 struct ibmvnic_error_indication {
 	u8 first;
 	u8 cmd;
@@ -674,6 +719,7 @@ union ibmvnic_crq {
 	struct ibmvnic_query_ip_offload query_ip_offload_rsp;
 	struct ibmvnic_control_ip_offload control_ip_offload;
 	struct ibmvnic_control_ip_offload control_ip_offload_rsp;
+<<<<<<< HEAD
 	struct ibmvnic_request_dump_size request_dump_size;
 	struct ibmvnic_request_dump_size request_dump_size_rsp;
 	struct ibmvnic_request_dump request_dump;
@@ -690,6 +736,10 @@ union ibmvnic_crq {
 	struct ibmvnic_generic_crq request_statistics_rsp;
 	struct ibmvnic_request_debug_stats request_debug_stats;
 	struct ibmvnic_request_debug_stats request_debug_stats_rsp;
+=======
+	struct ibmvnic_request_statistics request_statistics;
+	struct ibmvnic_generic_crq request_statistics_rsp;
+>>>>>>> upstream/android-13
 	struct ibmvnic_error_indication error_indication;
 	struct ibmvnic_link_state_indication link_state_indication;
 	struct ibmvnic_change_mac_addr change_mac_addr;
@@ -842,8 +892,15 @@ struct ibmvnic_crq_queue {
 	union ibmvnic_crq *msgs;
 	int size, cur;
 	dma_addr_t msg_token;
+<<<<<<< HEAD
 	spinlock_t lock;
 	bool active;
+=======
+	/* Used for serialization of msgs, cur */
+	spinlock_t lock;
+	bool active;
+	char name[32];
+>>>>>>> upstream/android-13
 };
 
 union sub_crq {
@@ -857,6 +914,15 @@ union sub_crq {
 	struct ibmvnic_rx_buff_add_desc rx_add;
 };
 
+<<<<<<< HEAD
+=======
+struct ibmvnic_ind_xmit_queue {
+	union sub_crq *indir_arr;
+	dma_addr_t indir_dma;
+	int index;
+};
+
+>>>>>>> upstream/android-13
 struct ibmvnic_sub_crq_queue {
 	union sub_crq *msgs;
 	int size, cur;
@@ -866,11 +932,23 @@ struct ibmvnic_sub_crq_queue {
 	unsigned int irq;
 	unsigned int pool_index;
 	int scrq_num;
+<<<<<<< HEAD
 	spinlock_t lock;
 	struct sk_buff *rx_skb_top;
 	struct ibmvnic_adapter *adapter;
 	atomic_t used;
 };
+=======
+	/* Used for serialization of msgs, cur */
+	spinlock_t lock;
+	struct sk_buff *rx_skb_top;
+	struct ibmvnic_adapter *adapter;
+	struct ibmvnic_ind_xmit_queue ind_buf;
+	atomic_t used;
+	char name[32];
+	u64 handle;
+} ____cacheline_aligned;
+>>>>>>> upstream/android-13
 
 struct ibmvnic_long_term_buff {
 	unsigned char *buff;
@@ -881,6 +959,7 @@ struct ibmvnic_long_term_buff {
 
 struct ibmvnic_tx_buff {
 	struct sk_buff *skb;
+<<<<<<< HEAD
 	dma_addr_t data_dma[IBMVNIC_MAX_FRAGS_PER_CRQ];
 	unsigned int data_len[IBMVNIC_MAX_FRAGS_PER_CRQ];
 	int index;
@@ -889,6 +968,10 @@ struct ibmvnic_tx_buff {
 	union sub_crq indir_arr[6];
 	u8 hdr_data[140];
 	dma_addr_t indir_dma;
+=======
+	int index;
+	int pool_index;
+>>>>>>> upstream/android-13
 	int num_entries;
 };
 
@@ -900,7 +983,11 @@ struct ibmvnic_tx_pool {
 	struct ibmvnic_long_term_buff long_term_buff;
 	int num_buffers;
 	int buf_size;
+<<<<<<< HEAD
 };
+=======
+} ____cacheline_aligned;
+>>>>>>> upstream/android-13
 
 struct ibmvnic_rx_buff {
 	struct sk_buff *skb;
@@ -921,7 +1008,11 @@ struct ibmvnic_rx_pool {
 	int next_alloc;
 	int active;
 	struct ibmvnic_long_term_buff long_term_buff;
+<<<<<<< HEAD
 };
+=======
+} ____cacheline_aligned;
+>>>>>>> upstream/android-13
 
 struct ibmvnic_vpd {
 	unsigned char *buff;
@@ -936,14 +1027,24 @@ enum vnic_state {VNIC_PROBING = 1,
 		 VNIC_CLOSING,
 		 VNIC_CLOSED,
 		 VNIC_REMOVING,
+<<<<<<< HEAD
 		 VNIC_REMOVED};
+=======
+		 VNIC_REMOVED,
+		 VNIC_DOWN};
+>>>>>>> upstream/android-13
 
 enum ibmvnic_reset_reason {VNIC_RESET_FAILOVER = 1,
 			   VNIC_RESET_MOBILITY,
 			   VNIC_RESET_FATAL,
 			   VNIC_RESET_NON_FATAL,
 			   VNIC_RESET_TIMEOUT,
+<<<<<<< HEAD
 			   VNIC_RESET_CHANGE_PARAM};
+=======
+			   VNIC_RESET_CHANGE_PARAM,
+			   VNIC_RESET_PASSIVE_INIT};
+>>>>>>> upstream/android-13
 
 struct ibmvnic_rwi {
 	enum ibmvnic_reset_reason reset_reason;
@@ -956,7 +1057,10 @@ struct ibmvnic_tunables {
 	u64 rx_entries;
 	u64 tx_entries;
 	u64 mtu;
+<<<<<<< HEAD
 	struct sockaddr mac;
+=======
+>>>>>>> upstream/android-13
 };
 
 struct ibmvnic_adapter {
@@ -978,7 +1082,10 @@ struct ibmvnic_adapter {
 	struct ibmvnic_statistics stats;
 	dma_addr_t stats_token;
 	struct completion stats_done;
+<<<<<<< HEAD
 	spinlock_t stats_lock;
+=======
+>>>>>>> upstream/android-13
 	int replenish_no_mem;
 	int replenish_add_buff_success;
 	int replenish_add_buff_failure;
@@ -992,6 +1099,12 @@ struct ibmvnic_adapter {
 	int phys_link_state;
 	int logical_link_state;
 
+<<<<<<< HEAD
+=======
+	u32 speed;
+	u8 duplex;
+
+>>>>>>> upstream/android-13
 	/* login data */
 	struct ibmvnic_login_buffer *login_buf;
 	dma_addr_t login_buf_token;
@@ -1004,8 +1117,13 @@ struct ibmvnic_adapter {
 	atomic_t running_cap_crqs;
 	bool wait_capability;
 
+<<<<<<< HEAD
 	struct ibmvnic_sub_crq_queue **tx_scrq;
 	struct ibmvnic_sub_crq_queue **rx_scrq;
+=======
+	struct ibmvnic_sub_crq_queue **tx_scrq ____cacheline_aligned;
+	struct ibmvnic_sub_crq_queue **rx_scrq ____cacheline_aligned;
+>>>>>>> upstream/android-13
 
 	/* rx structs */
 	struct napi_struct *napi;
@@ -1018,6 +1136,11 @@ struct ibmvnic_adapter {
 	int init_done_rc;
 
 	struct completion fw_done;
+<<<<<<< HEAD
+=======
+	/* Used for serialization of device commands */
+	struct mutex fw_lock;
+>>>>>>> upstream/android-13
 	int fw_done_rc;
 
 	struct completion reset_done;
@@ -1064,6 +1187,7 @@ struct ibmvnic_adapter {
 	u32 num_active_rx_napi;
 	u32 num_active_tx_scrqs;
 	u32 num_active_tx_pools;
+<<<<<<< HEAD
 
 	struct tasklet_struct tasklet;
 	enum vnic_state state;
@@ -1075,6 +1199,33 @@ struct ibmvnic_adapter {
 	bool napi_enabled, from_passive_init;
 
 	bool mac_change_pending;
+=======
+	u32 cur_rx_buf_sz;
+
+	struct tasklet_struct tasklet;
+	enum vnic_state state;
+	/* Used for serialization of state field. When taking both state
+	 * and rwi locks, take state lock first.
+	 */
+	spinlock_t state_lock;
+	enum ibmvnic_reset_reason reset_reason;
+	struct list_head rwi_list;
+	/* Used for serialization of rwi_list. When taking both state
+	 * and rwi locks, take state lock first
+	 */
+	spinlock_t rwi_lock;
+	struct work_struct ibmvnic_reset;
+	struct delayed_work ibmvnic_delayed_reset;
+	unsigned long resetting;
+	/* last device reset time */
+	unsigned long last_reset_time;
+
+	bool napi_enabled;
+	bool from_passive_init;
+	bool login_pending;
+	/* protected by rcu */
+	bool tx_queues_active;
+>>>>>>> upstream/android-13
 	bool failover_pending;
 	bool force_reset_recovery;
 

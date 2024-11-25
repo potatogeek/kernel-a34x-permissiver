@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Kernel Probes Jump Optimization (Optprobes)
  *
@@ -15,6 +16,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Kernel Probes Jump Optimization (Optprobes)
+ *
+>>>>>>> upstream/android-13
  * Copyright (C) IBM Corporation, 2002, 2004
  * Copyright (C) Hitachi Ltd., 2012
  * Copyright (C) Huawei Inc., 2014

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* QLogic qed NIC Driver
  * Copyright (c) 2015-2017  QLogic Corporation
  *
@@ -28,6 +29,12 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause) */
+/* QLogic qed NIC Driver
+ * Copyright (c) 2015-2017  QLogic Corporation
+ * Copyright (c) 2019-2020 Marvell International Ltd.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _QED_DEV_API_H
@@ -230,6 +237,7 @@ enum qed_dmae_address_type_t {
 	QED_DMAE_ADDRESS_GRC
 };
 
+<<<<<<< HEAD
 /* value of flags If QED_DMAE_FLAG_RW_REPL_SRC flag is set and the
  * source is a block of length DMAE_MAX_RW_SIZE and the
  * destination is larger, the source block will be duplicated as
@@ -248,6 +256,8 @@ struct qed_dmae_params {
 	u8 dst_vfid;
 };
 
+=======
+>>>>>>> upstream/android-13
 /**
  * @brief qed_dmae_host2grc - copy data from source addr to
  * dmae registers using the given ptt
@@ -257,7 +267,11 @@ struct qed_dmae_params {
  * @param source_addr
  * @param grc_addr (dmae_data_offset)
  * @param size_in_dwords
+<<<<<<< HEAD
  * @param flags (one of the flags defined above)
+=======
+ * @param p_params (default parameters will be used in case of NULL)
+>>>>>>> upstream/android-13
  */
 int
 qed_dmae_host2grc(struct qed_hwfn *p_hwfn,
@@ -265,7 +279,11 @@ qed_dmae_host2grc(struct qed_hwfn *p_hwfn,
 		  u64 source_addr,
 		  u32 grc_addr,
 		  u32 size_in_dwords,
+<<<<<<< HEAD
 		  u32 flags);
+=======
+		  struct qed_dmae_params *p_params);
+>>>>>>> upstream/android-13
 
  /**
  * @brief qed_dmae_grc2host - Read data from dmae data offset
@@ -275,11 +293,19 @@ qed_dmae_host2grc(struct qed_hwfn *p_hwfn,
  * @param grc_addr (dmae_data_offset)
  * @param dest_addr
  * @param size_in_dwords
+<<<<<<< HEAD
  * @param flags - one of the flags defined above
  */
 int qed_dmae_grc2host(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt,
 		      u32 grc_addr, dma_addr_t dest_addr, u32 size_in_dwords,
 		      u32 flags);
+=======
+ * @param p_params (default parameters will be used in case of NULL)
+ */
+int qed_dmae_grc2host(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt,
+		      u32 grc_addr, dma_addr_t dest_addr, u32 size_in_dwords,
+		      struct qed_dmae_params *p_params);
+>>>>>>> upstream/android-13
 
 /**
  * @brief qed_dmae_host2host - copy data from to source address
@@ -290,7 +316,11 @@ int qed_dmae_grc2host(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt,
  * @param source_addr
  * @param dest_addr
  * @param size_in_dwords
+<<<<<<< HEAD
  * @param params
+=======
+ * @param p_params (default parameters will be used in case of NULL)
+>>>>>>> upstream/android-13
  */
 int qed_dmae_host2host(struct qed_hwfn *p_hwfn,
 		       struct qed_ptt *p_ptt,
@@ -298,6 +328,7 @@ int qed_dmae_host2host(struct qed_hwfn *p_hwfn,
 		       dma_addr_t dest_addr,
 		       u32 size_in_dwords, struct qed_dmae_params *p_params);
 
+<<<<<<< HEAD
 /**
  * @brief qed_chain_alloc - Allocate and initialize a chain
  *
@@ -327,6 +358,11 @@ qed_chain_alloc(struct qed_dev *cdev,
  * @param p_chain
  */
 void qed_chain_free(struct qed_dev *cdev, struct qed_chain *p_chain);
+=======
+int qed_chain_alloc(struct qed_dev *cdev, struct qed_chain *chain,
+		    struct qed_chain_init_params *params);
+void qed_chain_free(struct qed_dev *cdev, struct qed_chain *chain);
+>>>>>>> upstream/android-13
 
 /**
  * @@brief qed_fw_l2_queue - Get absolute L2 queue ID
@@ -368,6 +404,7 @@ int qed_fw_rss_eng(struct qed_hwfn *p_hwfn,
 		   u8 *dst_id);
 
 /**
+<<<<<<< HEAD
  * @brief qed_llh_add_mac_filter - configures a MAC filter in llh
  *
  * @param p_hwfn
@@ -388,6 +425,68 @@ void qed_llh_remove_mac_filter(struct qed_hwfn *p_hwfn,
 			       struct qed_ptt *p_ptt, u8 *p_filter);
 
 enum qed_llh_port_filter_type_t {
+=======
+ * @brief qed_llh_get_num_ppfid - Return the allocated number of LLH filter
+ *	banks that are allocated to the PF.
+ *
+ * @param cdev
+ *
+ * @return u8 - Number of LLH filter banks
+ */
+u8 qed_llh_get_num_ppfid(struct qed_dev *cdev);
+
+enum qed_eng {
+	QED_ENG0,
+	QED_ENG1,
+	QED_BOTH_ENG,
+};
+
+/**
+ * @brief qed_llh_set_ppfid_affinity - Set the engine affinity for the given
+ *	LLH filter bank.
+ *
+ * @param cdev
+ * @param ppfid - relative within the allocated ppfids ('0' is the default one).
+ * @param eng
+ *
+ * @return int
+ */
+int qed_llh_set_ppfid_affinity(struct qed_dev *cdev,
+			       u8 ppfid, enum qed_eng eng);
+
+/**
+ * @brief qed_llh_set_roce_affinity - Set the RoCE engine affinity
+ *
+ * @param cdev
+ * @param eng
+ *
+ * @return int
+ */
+int qed_llh_set_roce_affinity(struct qed_dev *cdev, enum qed_eng eng);
+
+/**
+ * @brief qed_llh_add_mac_filter - Add a LLH MAC filter into the given filter
+ *	bank.
+ *
+ * @param cdev
+ * @param ppfid - relative within the allocated ppfids ('0' is the default one).
+ * @param mac_addr - MAC to add
+ */
+int qed_llh_add_mac_filter(struct qed_dev *cdev,
+			   u8 ppfid, u8 mac_addr[ETH_ALEN]);
+
+/**
+ * @brief qed_llh_remove_mac_filter - Remove a LLH MAC filter from the given
+ *	filter bank.
+ *
+ * @param p_ptt
+ * @param p_filter - MAC to remove
+ */
+void qed_llh_remove_mac_filter(struct qed_dev *cdev,
+			       u8 ppfid, u8 mac_addr[ETH_ALEN]);
+
+enum qed_llh_prot_filter_type_t {
+>>>>>>> upstream/android-13
 	QED_LLH_FILTER_ETHERTYPE,
 	QED_LLH_FILTER_TCP_SRC_PORT,
 	QED_LLH_FILTER_TCP_DEST_PORT,
@@ -398,15 +497,25 @@ enum qed_llh_port_filter_type_t {
 };
 
 /**
+<<<<<<< HEAD
  * @brief qed_llh_add_protocol_filter - configures a protocol filter in llh
  *
  * @param p_hwfn
  * @param p_ptt
+=======
+ * @brief qed_llh_add_protocol_filter - Add a LLH protocol filter into the
+ *	given filter bank.
+ *
+ * @param cdev
+ * @param ppfid - relative within the allocated ppfids ('0' is the default one).
+ * @param type - type of filters and comparing
+>>>>>>> upstream/android-13
  * @param source_port_or_eth_type - source port or ethertype to add
  * @param dest_port - destination port to add
  * @param type - type of filters and comparing
  */
 int
+<<<<<<< HEAD
 qed_llh_add_protocol_filter(struct qed_hwfn *p_hwfn,
 			    struct qed_ptt *p_ptt,
 			    u16 source_port_or_eth_type,
@@ -428,6 +537,28 @@ qed_llh_remove_protocol_filter(struct qed_hwfn *p_hwfn,
 			       u16 source_port_or_eth_type,
 			       u16 dest_port,
 			       enum qed_llh_port_filter_type_t type);
+=======
+qed_llh_add_protocol_filter(struct qed_dev *cdev,
+			    u8 ppfid,
+			    enum qed_llh_prot_filter_type_t type,
+			    u16 source_port_or_eth_type, u16 dest_port);
+
+/**
+ * @brief qed_llh_remove_protocol_filter - Remove a LLH protocol filter from
+ *	the given filter bank.
+ *
+ * @param cdev
+ * @param ppfid - relative within the allocated ppfids ('0' is the default one).
+ * @param type - type of filters and comparing
+ * @param source_port_or_eth_type - source port or ethertype to add
+ * @param dest_port - destination port to add
+ */
+void
+qed_llh_remove_protocol_filter(struct qed_dev *cdev,
+			       u8 ppfid,
+			       enum qed_llh_prot_filter_type_t type,
+			       u16 source_port_or_eth_type, u16 dest_port);
+>>>>>>> upstream/android-13
 
 /**
  * *@brief Cleanup of previous driver remains prior to load
@@ -472,6 +603,49 @@ int qed_get_queue_coalesce(struct qed_hwfn *p_hwfn, u16 *coal, void *handle);
 int
 qed_set_queue_coalesce(u16 rx_coal, u16 tx_coal, void *p_handle);
 
+<<<<<<< HEAD
+=======
+/**
+ * @brief qed_pglueb_set_pfid_enable - Enable or disable PCI BUS MASTER
+ *
+ * @param p_hwfn
+ * @param p_ptt
+ * @param b_enable - true/false
+ *
+ * @return int
+ */
+int qed_pglueb_set_pfid_enable(struct qed_hwfn *p_hwfn,
+			       struct qed_ptt *p_ptt, bool b_enable);
+
+/**
+ * @brief db_recovery_add - add doorbell information to the doorbell
+ * recovery mechanism.
+ *
+ * @param cdev
+ * @param db_addr - doorbell address
+ * @param db_data - address of where db_data is stored
+ * @param db_width - doorbell is 32b pr 64b
+ * @param db_space - doorbell recovery addresses are user or kernel space
+ */
+int qed_db_recovery_add(struct qed_dev *cdev,
+			void __iomem *db_addr,
+			void *db_data,
+			enum qed_db_rec_width db_width,
+			enum qed_db_rec_space db_space);
+
+/**
+ * @brief db_recovery_del - remove doorbell information from the doorbell
+ * recovery mechanism. db_data serves as key (db_addr is not unique).
+ *
+ * @param cdev
+ * @param db_addr - doorbell address
+ * @param db_data - address where db_data is stored. Serves as key for the
+ *                  entry to delete.
+ */
+int qed_db_recovery_del(struct qed_dev *cdev,
+			void __iomem *db_addr, void *db_data);
+
+>>>>>>> upstream/android-13
 
 const char *qed_hw_get_resc_name(enum qed_resources res_id);
 #endif

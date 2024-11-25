@@ -1,15 +1,26 @@
+<<<<<<< HEAD
 /* QLogic qed NIC Driver
  * Copyright (c) 2015 QLogic Corporation
  *
  * This software is available under the terms of the GNU General Public License
  * (GPL) Version 2, available from the file COPYING in the main directory of
  * this source tree.
+=======
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause)
+/* QLogic qed NIC Driver
+ * Copyright (c) 2015 QLogic Corporation
+ * Copyright (c) 2019-2020 Marvell International Ltd.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
 #include <linux/vmalloc.h>
 #include <linux/crc32.h>
 #include "qed.h"
+<<<<<<< HEAD
+=======
+#include "qed_cxt.h"
+>>>>>>> upstream/android-13
 #include "qed_hsi.h"
 #include "qed_hw.h"
 #include "qed_mcp.h"
@@ -25,6 +36,7 @@ enum mem_groups {
 	MEM_GROUP_BRB_RAM,
 	MEM_GROUP_BRB_MEM,
 	MEM_GROUP_PRS_MEM,
+<<<<<<< HEAD
 	MEM_GROUP_IOR,
 	MEM_GROUP_BTB_RAM,
 	MEM_GROUP_CONN_CFC_MEM,
@@ -41,11 +53,33 @@ enum mem_groups {
 	MEM_GROUP_RDIF_CTX,
 	MEM_GROUP_TDIF_CTX,
 	MEM_GROUP_CFC_MEM,
+=======
+	MEM_GROUP_SDM_MEM,
+	MEM_GROUP_PBUF,
+	MEM_GROUP_IOR,
+	MEM_GROUP_RAM,
+	MEM_GROUP_BTB_RAM,
+	MEM_GROUP_RDIF_CTX,
+	MEM_GROUP_TDIF_CTX,
+	MEM_GROUP_CFC_MEM,
+	MEM_GROUP_CONN_CFC_MEM,
+	MEM_GROUP_CAU_PI,
+	MEM_GROUP_CAU_MEM,
+	MEM_GROUP_CAU_MEM_EXT,
+	MEM_GROUP_PXP_ILT,
+	MEM_GROUP_MULD_MEM,
+	MEM_GROUP_BTB_MEM,
+>>>>>>> upstream/android-13
 	MEM_GROUP_IGU_MEM,
 	MEM_GROUP_IGU_MSIX,
 	MEM_GROUP_CAU_SB,
 	MEM_GROUP_BMB_RAM,
 	MEM_GROUP_BMB_MEM,
+<<<<<<< HEAD
+=======
+	MEM_GROUP_TM_MEM,
+	MEM_GROUP_TASK_CFC_MEM,
+>>>>>>> upstream/android-13
 	MEM_GROUPS_NUM
 };
 
@@ -59,6 +93,7 @@ static const char * const s_mem_group_names[] = {
 	"BRB_RAM",
 	"BRB_MEM",
 	"PRS_MEM",
+<<<<<<< HEAD
 	"IOR",
 	"BTB_RAM",
 	"CONN_CFC_MEM",
@@ -75,11 +110,33 @@ static const char * const s_mem_group_names[] = {
 	"RDIF_CTX",
 	"TDIF_CTX",
 	"CFC_MEM",
+=======
+	"SDM_MEM",
+	"PBUF",
+	"IOR",
+	"RAM",
+	"BTB_RAM",
+	"RDIF_CTX",
+	"TDIF_CTX",
+	"CFC_MEM",
+	"CONN_CFC_MEM",
+	"CAU_PI",
+	"CAU_MEM",
+	"CAU_MEM_EXT",
+	"PXP_ILT",
+	"MULD_MEM",
+	"BTB_MEM",
+>>>>>>> upstream/android-13
 	"IGU_MEM",
 	"IGU_MSIX",
 	"CAU_SB",
 	"BMB_RAM",
 	"BMB_MEM",
+<<<<<<< HEAD
+=======
+	"TM_MEM",
+	"TASK_CFC_MEM",
+>>>>>>> upstream/android-13
 };
 
 /* Idle check conditions */
@@ -173,6 +230,7 @@ static u32(*cond_arr[]) (const u32 *r, const u32 *imm) = {
 	cond13,
 };
 
+<<<<<<< HEAD
 /******************************* Data Types **********************************/
 
 enum platform_ids {
@@ -181,27 +239,82 @@ enum platform_ids {
 	PLATFORM_RESERVED2,
 	PLATFORM_RESERVED3,
 	MAX_PLATFORM_IDS
+=======
+#define NUM_PHYS_BLOCKS 84
+
+#define NUM_DBG_RESET_REGS 8
+
+/******************************* Data Types **********************************/
+
+enum hw_types {
+	HW_TYPE_ASIC,
+	PLATFORM_RESERVED,
+	PLATFORM_RESERVED2,
+	PLATFORM_RESERVED3,
+	PLATFORM_RESERVED4,
+	MAX_HW_TYPES
+};
+
+/* CM context types */
+enum cm_ctx_types {
+	CM_CTX_CONN_AG,
+	CM_CTX_CONN_ST,
+	CM_CTX_TASK_AG,
+	CM_CTX_TASK_ST,
+	NUM_CM_CTX_TYPES
+};
+
+/* Debug bus frame modes */
+enum dbg_bus_frame_modes {
+	DBG_BUS_FRAME_MODE_4ST = 0,	/* 4 Storm dwords (no HW) */
+	DBG_BUS_FRAME_MODE_2ST_2HW = 1,	/* 2 Storm dwords, 2 HW dwords */
+	DBG_BUS_FRAME_MODE_1ST_3HW = 2,	/* 1 Storm dwords, 3 HW dwords */
+	DBG_BUS_FRAME_MODE_4HW = 3,	/* 4 HW dwords (no Storms) */
+	DBG_BUS_FRAME_MODE_8HW = 4,	/* 8 HW dwords (no Storms) */
+	DBG_BUS_NUM_FRAME_MODES
+>>>>>>> upstream/android-13
 };
 
 /* Chip constant definitions */
 struct chip_defs {
 	const char *name;
+<<<<<<< HEAD
 };
 
 /* Platform constant definitions */
 struct platform_defs {
+=======
+	u32 num_ilt_pages;
+};
+
+/* HW type constant definitions */
+struct hw_type_defs {
+>>>>>>> upstream/android-13
 	const char *name;
 	u32 delay_factor;
 	u32 dmae_thresh;
 	u32 log_thresh;
 };
 
+<<<<<<< HEAD
+=======
+/* RBC reset definitions */
+struct rbc_reset_defs {
+	u32 reset_reg_addr;
+	u32 reset_val[MAX_CHIP_IDS];
+};
+
+>>>>>>> upstream/android-13
 /* Storm constant definitions.
  * Addresses are in bytes, sizes are in quad-regs.
  */
 struct storm_defs {
 	char letter;
+<<<<<<< HEAD
 	enum block_id block_id;
+=======
+	enum block_id sem_block_id;
+>>>>>>> upstream/android-13
 	enum dbg_bus_clients dbg_client_id[MAX_CHIP_IDS];
 	bool has_vfc;
 	u32 sem_fast_mem_addr;
@@ -210,6 +323,7 @@ struct storm_defs {
 	u32 sem_slow_mode_addr;
 	u32 sem_slow_mode1_conf_addr;
 	u32 sem_sync_dbg_empty_addr;
+<<<<<<< HEAD
 	u32 sem_slow_dbg_empty_addr;
 	u32 cm_ctx_wr_addr;
 	u32 cm_conn_ag_ctx_lid_size;
@@ -251,6 +365,28 @@ struct reset_reg_defs {
 	u32 addr;
 	bool exists[MAX_CHIP_IDS];
 	u32 unreset_val[MAX_CHIP_IDS];
+=======
+	u32 sem_gpre_vect_addr;
+	u32 cm_ctx_wr_addr;
+	u32 cm_ctx_rd_addr[NUM_CM_CTX_TYPES];
+	u32 cm_ctx_lid_sizes[MAX_CHIP_IDS][NUM_CM_CTX_TYPES];
+};
+
+/* Debug Bus Constraint operation constant definitions */
+struct dbg_bus_constraint_op_defs {
+	u8 hw_op_val;
+	bool is_cyclic;
+};
+
+/* Storm Mode definitions */
+struct storm_mode_defs {
+	const char *name;
+	bool is_fast_dbg;
+	u8 id_in_hw;
+	u32 src_disable_reg_addr;
+	u32 src_enable_val;
+	bool exists[MAX_CHIP_IDS];
+>>>>>>> upstream/android-13
 };
 
 struct grc_param_defs {
@@ -260,7 +396,11 @@ struct grc_param_defs {
 	bool is_preset;
 	bool is_persistent;
 	u32 exclude_all_preset_val;
+<<<<<<< HEAD
 	u32 crash_preset_val;
+=======
+	u32 crash_preset_val[MAX_CHIP_IDS];
+>>>>>>> upstream/android-13
 };
 
 /* Address is in 128b units. Width is in bits. */
@@ -317,6 +457,7 @@ struct split_type_defs {
 
 /******************************** Constants **********************************/
 
+<<<<<<< HEAD
 #define MAX_LCIDS			320
 #define MAX_LTIDS			320
 
@@ -326,6 +467,9 @@ struct split_type_defs {
 
 #define BYTES_IN_DWORD			sizeof(u32)
 
+=======
+#define BYTES_IN_DWORD			sizeof(u32)
+>>>>>>> upstream/android-13
 /* In the macros below, size and offset are specified in bits */
 #define CEIL_DWORDS(size)		DIV_ROUND_UP(size, 32)
 #define FIELD_BIT_OFFSET(type, field)	type ## _ ## field ## _ ## OFFSET
@@ -351,6 +495,7 @@ struct split_type_defs {
 			qed_wr(dev, ptt, addr,	(arr)[i]); \
 	} while (0)
 
+<<<<<<< HEAD
 #define ARR_REG_RD(dev, ptt, addr, arr, arr_size) \
 	do { \
 		for (i = 0; i < (arr_size); i++) \
@@ -365,6 +510,19 @@ struct split_type_defs {
 	(1 + ((block_desc)->has_latency_events ? 1 : 0))
 #define NUM_DBG_LINES(block_desc) \
 	((block_desc)->num_of_lines + NUM_EXTRA_DBG_LINES(block_desc))
+=======
+#define DWORDS_TO_BYTES(dwords)		((dwords) * BYTES_IN_DWORD)
+#define BYTES_TO_DWORDS(bytes)		((bytes) / BYTES_IN_DWORD)
+
+/* extra lines include a signature line + optional latency events line */
+#define NUM_EXTRA_DBG_LINES(block) \
+	(GET_FIELD((block)->flags, DBG_BLOCK_CHIP_HAS_LATENCY_EVENTS) ? 2 : 1)
+#define NUM_DBG_LINES(block) \
+	((block)->num_of_dbg_bus_lines + NUM_EXTRA_DBG_LINES(block))
+
+#define USE_DMAE			true
+#define PROTECT_WIDE_BUS		true
+>>>>>>> upstream/android-13
 
 #define RAM_LINES_TO_DWORDS(lines)	((lines) * 2)
 #define RAM_LINES_TO_BYTES(lines) \
@@ -383,6 +541,12 @@ struct split_type_defs {
 #define IDLE_CHK_RESULT_REG_HDR_DWORDS \
 	BYTES_TO_DWORDS(sizeof(struct dbg_idle_chk_result_reg_hdr))
 
+<<<<<<< HEAD
+=======
+#define PAGE_MEM_DESC_SIZE_DWORDS \
+	BYTES_TO_DWORDS(sizeof(struct phys_mem_desc))
+
+>>>>>>> upstream/android-13
 #define IDLE_CHK_MAX_ENTRIES_SIZE	32
 
 /* The sizes and offsets below are specified in bits */
@@ -428,7 +592,13 @@ struct split_type_defs {
 
 #define STATIC_DEBUG_LINE_DWORDS	9
 
+<<<<<<< HEAD
 #define NUM_COMMON_GLOBAL_PARAMS	8
+=======
+#define NUM_COMMON_GLOBAL_PARAMS	9
+
+#define MAX_RECURSION_DEPTH		10
+>>>>>>> upstream/android-13
 
 #define FW_IMG_MAIN			1
 
@@ -452,11 +622,17 @@ struct split_type_defs {
 	(MCP_REG_SCRATCH + \
 	 offsetof(struct static_init, sections[SPAD_SECTION_TRACE]))
 
+<<<<<<< HEAD
+=======
+#define MAX_SW_PLTAFORM_STR_SIZE	64
+
+>>>>>>> upstream/android-13
 #define EMPTY_FW_VERSION_STR		"???_???_???_???"
 #define EMPTY_FW_IMAGE_STR		"???????????????"
 
 /***************************** Constant Arrays *******************************/
 
+<<<<<<< HEAD
 struct dbg_array {
 	const u32 *ptr;
 	u32 size_in_dwords;
@@ -470,12 +646,19 @@ static struct chip_defs s_chip_defs[MAX_CHIP_IDS] = {
 	{"bb"},
 	{"ah"},
 	{"reserved"},
+=======
+/* Chip constant definitions array */
+static struct chip_defs s_chip_defs[MAX_CHIP_IDS] = {
+	{"bb", PSWRQ2_REG_ILT_MEMORY_SIZE_BB / 2},
+	{"ah", PSWRQ2_REG_ILT_MEMORY_SIZE_K2 / 2}
+>>>>>>> upstream/android-13
 };
 
 /* Storm constant definitions array */
 static struct storm_defs s_storm_defs[] = {
 	/* Tstorm */
 	{'T', BLOCK_TSEM,
+<<<<<<< HEAD
 	 {DBG_BUS_CLIENT_RBCT, DBG_BUS_CLIENT_RBCT,
 	  DBG_BUS_CLIENT_RBCT}, true,
 	 TSEM_REG_FAST_MEMORY,
@@ -1500,6 +1683,106 @@ static struct block_defs *s_block_defs[MAX_BLOCK_ID] = {
 };
 
 static struct platform_defs s_platform_defs[] = {
+=======
+		{DBG_BUS_CLIENT_RBCT, DBG_BUS_CLIENT_RBCT},
+		true,
+		TSEM_REG_FAST_MEMORY,
+		TSEM_REG_DBG_FRAME_MODE_BB_K2, TSEM_REG_SLOW_DBG_ACTIVE_BB_K2,
+		TSEM_REG_SLOW_DBG_MODE_BB_K2, TSEM_REG_DBG_MODE1_CFG_BB_K2,
+		TSEM_REG_SYNC_DBG_EMPTY, TSEM_REG_DBG_GPRE_VECT,
+		TCM_REG_CTX_RBC_ACCS,
+		{TCM_REG_AGG_CON_CTX, TCM_REG_SM_CON_CTX, TCM_REG_AGG_TASK_CTX,
+		 TCM_REG_SM_TASK_CTX},
+		{{4, 16, 2, 4}, {4, 16, 2, 4}} /* {bb} {k2} */
+	},
+
+	/* Mstorm */
+	{'M', BLOCK_MSEM,
+		{DBG_BUS_CLIENT_RBCT, DBG_BUS_CLIENT_RBCM},
+		false,
+		MSEM_REG_FAST_MEMORY,
+		MSEM_REG_DBG_FRAME_MODE_BB_K2,
+		MSEM_REG_SLOW_DBG_ACTIVE_BB_K2,
+		MSEM_REG_SLOW_DBG_MODE_BB_K2,
+		MSEM_REG_DBG_MODE1_CFG_BB_K2,
+		MSEM_REG_SYNC_DBG_EMPTY,
+		MSEM_REG_DBG_GPRE_VECT,
+		MCM_REG_CTX_RBC_ACCS,
+		{MCM_REG_AGG_CON_CTX, MCM_REG_SM_CON_CTX, MCM_REG_AGG_TASK_CTX,
+		 MCM_REG_SM_TASK_CTX },
+		{{1, 10, 2, 7}, {1, 10, 2, 7}} /* {bb} {k2}*/
+	},
+
+	/* Ustorm */
+	{'U', BLOCK_USEM,
+		{DBG_BUS_CLIENT_RBCU, DBG_BUS_CLIENT_RBCU},
+		false,
+		USEM_REG_FAST_MEMORY,
+		USEM_REG_DBG_FRAME_MODE_BB_K2,
+		USEM_REG_SLOW_DBG_ACTIVE_BB_K2,
+		USEM_REG_SLOW_DBG_MODE_BB_K2,
+		USEM_REG_DBG_MODE1_CFG_BB_K2,
+		USEM_REG_SYNC_DBG_EMPTY,
+		USEM_REG_DBG_GPRE_VECT,
+		UCM_REG_CTX_RBC_ACCS,
+		{UCM_REG_AGG_CON_CTX, UCM_REG_SM_CON_CTX, UCM_REG_AGG_TASK_CTX,
+		 UCM_REG_SM_TASK_CTX},
+		{{2, 13, 3, 3}, {2, 13, 3, 3}} /* {bb} {k2} */
+	},
+
+	/* Xstorm */
+	{'X', BLOCK_XSEM,
+		{DBG_BUS_CLIENT_RBCX, DBG_BUS_CLIENT_RBCX},
+		false,
+		XSEM_REG_FAST_MEMORY,
+		XSEM_REG_DBG_FRAME_MODE_BB_K2,
+		XSEM_REG_SLOW_DBG_ACTIVE_BB_K2,
+		XSEM_REG_SLOW_DBG_MODE_BB_K2,
+		XSEM_REG_DBG_MODE1_CFG_BB_K2,
+		XSEM_REG_SYNC_DBG_EMPTY,
+		XSEM_REG_DBG_GPRE_VECT,
+		XCM_REG_CTX_RBC_ACCS,
+		{XCM_REG_AGG_CON_CTX, XCM_REG_SM_CON_CTX, 0, 0},
+		{{9, 15, 0, 0}, {9, 15,	0, 0}} /* {bb} {k2} */
+	},
+
+	/* Ystorm */
+	{'Y', BLOCK_YSEM,
+		{DBG_BUS_CLIENT_RBCX, DBG_BUS_CLIENT_RBCY},
+		false,
+		YSEM_REG_FAST_MEMORY,
+		YSEM_REG_DBG_FRAME_MODE_BB_K2,
+		YSEM_REG_SLOW_DBG_ACTIVE_BB_K2,
+		YSEM_REG_SLOW_DBG_MODE_BB_K2,
+		YSEM_REG_DBG_MODE1_CFG_BB_K2,
+		YSEM_REG_SYNC_DBG_EMPTY,
+		YSEM_REG_DBG_GPRE_VECT,
+		YCM_REG_CTX_RBC_ACCS,
+		{YCM_REG_AGG_CON_CTX, YCM_REG_SM_CON_CTX, YCM_REG_AGG_TASK_CTX,
+		 YCM_REG_SM_TASK_CTX},
+		{{2, 3, 2, 12}, {2, 3, 2, 12}} /* {bb} {k2} */
+	},
+
+	/* Pstorm */
+	{'P', BLOCK_PSEM,
+		{DBG_BUS_CLIENT_RBCS, DBG_BUS_CLIENT_RBCS},
+		true,
+		PSEM_REG_FAST_MEMORY,
+		PSEM_REG_DBG_FRAME_MODE_BB_K2,
+		PSEM_REG_SLOW_DBG_ACTIVE_BB_K2,
+		PSEM_REG_SLOW_DBG_MODE_BB_K2,
+		PSEM_REG_DBG_MODE1_CFG_BB_K2,
+		PSEM_REG_SYNC_DBG_EMPTY,
+		PSEM_REG_DBG_GPRE_VECT,
+		PCM_REG_CTX_RBC_ACCS,
+		{0, PCM_REG_SM_CON_CTX, 0, 0},
+		{{0, 10, 0, 0}, {0, 10, 0, 0}} /* {bb} {k2} */
+	},
+};
+
+static struct hw_type_defs s_hw_type_defs[] = {
+	/* HW_TYPE_ASIC */
+>>>>>>> upstream/android-13
 	{"asic", 1, 256, 32768},
 	{"reserved", 0, 0, 0},
 	{"reserved2", 0, 0, 0},
@@ -1508,6 +1791,7 @@ static struct platform_defs s_platform_defs[] = {
 
 static struct grc_param_defs s_grc_param_defs[] = {
 	/* DBG_GRC_PARAM_DUMP_TSTORM */
+<<<<<<< HEAD
 	{{1, 1, 1}, 0, 1, false, false, 1, 1},
 
 	/* DBG_GRC_PARAM_DUMP_MSTORM */
@@ -1648,6 +1932,161 @@ static struct rss_mem_defs s_rss_mem_defs[] = {
 
 	{ "rss_mem_ind", "rss_ind", 4096, 16,
 	  {16384, 26624, 32768} }
+=======
+	{{1, 1}, 0, 1, false, false, 1, {1, 1}},
+
+	/* DBG_GRC_PARAM_DUMP_MSTORM */
+	{{1, 1}, 0, 1, false, false, 1, {1, 1}},
+
+	/* DBG_GRC_PARAM_DUMP_USTORM */
+	{{1, 1}, 0, 1, false, false, 1, {1, 1}},
+
+	/* DBG_GRC_PARAM_DUMP_XSTORM */
+	{{1, 1}, 0, 1, false, false, 1, {1, 1}},
+
+	/* DBG_GRC_PARAM_DUMP_YSTORM */
+	{{1, 1}, 0, 1, false, false, 1, {1, 1}},
+
+	/* DBG_GRC_PARAM_DUMP_PSTORM */
+	{{1, 1}, 0, 1, false, false, 1, {1, 1}},
+
+	/* DBG_GRC_PARAM_DUMP_REGS */
+	{{1, 1}, 0, 1, false, false, 0, {1, 1}},
+
+	/* DBG_GRC_PARAM_DUMP_RAM */
+	{{1, 1}, 0, 1, false, false, 0, {1, 1}},
+
+	/* DBG_GRC_PARAM_DUMP_PBUF */
+	{{1, 1}, 0, 1, false, false, 0, {1, 1}},
+
+	/* DBG_GRC_PARAM_DUMP_IOR */
+	{{0, 0}, 0, 1, false, false, 0, {1, 1}},
+
+	/* DBG_GRC_PARAM_DUMP_VFC */
+	{{0, 0}, 0, 1, false, false, 0, {1, 1}},
+
+	/* DBG_GRC_PARAM_DUMP_CM_CTX */
+	{{1, 1}, 0, 1, false, false, 0, {1, 1}},
+
+	/* DBG_GRC_PARAM_DUMP_ILT */
+	{{1, 1}, 0, 1, false, false, 0, {1, 1}},
+
+	/* DBG_GRC_PARAM_DUMP_RSS */
+	{{1, 1}, 0, 1, false, false, 0, {1, 1}},
+
+	/* DBG_GRC_PARAM_DUMP_CAU */
+	{{1, 1}, 0, 1, false, false, 0, {1, 1}},
+
+	/* DBG_GRC_PARAM_DUMP_QM */
+	{{1, 1}, 0, 1, false, false, 0, {1, 1}},
+
+	/* DBG_GRC_PARAM_DUMP_MCP */
+	{{1, 1}, 0, 1, false, false, 0, {1, 1}},
+
+	/* DBG_GRC_PARAM_DUMP_DORQ */
+	{{1, 1}, 0, 1, false, false, 0, {1, 1}},
+
+	/* DBG_GRC_PARAM_DUMP_CFC */
+	{{1, 1}, 0, 1, false, false, 0, {1, 1}},
+
+	/* DBG_GRC_PARAM_DUMP_IGU */
+	{{1, 1}, 0, 1, false, false, 0, {1, 1}},
+
+	/* DBG_GRC_PARAM_DUMP_BRB */
+	{{0, 0}, 0, 1, false, false, 0, {1, 1}},
+
+	/* DBG_GRC_PARAM_DUMP_BTB */
+	{{0, 0}, 0, 1, false, false, 0, {1, 1}},
+
+	/* DBG_GRC_PARAM_DUMP_BMB */
+	{{0, 0}, 0, 1, false, false, 0, {0, 0}},
+
+	/* DBG_GRC_PARAM_RESERVED1 */
+	{{0, 0}, 0, 1, false, false, 0, {0, 0}},
+
+	/* DBG_GRC_PARAM_DUMP_MULD */
+	{{1, 1}, 0, 1, false, false, 0, {1, 1}},
+
+	/* DBG_GRC_PARAM_DUMP_PRS */
+	{{1, 1}, 0, 1, false, false, 0, {1, 1}},
+
+	/* DBG_GRC_PARAM_DUMP_DMAE */
+	{{1, 1}, 0, 1, false, false, 0, {1, 1}},
+
+	/* DBG_GRC_PARAM_DUMP_TM */
+	{{1, 1}, 0, 1, false, false, 0, {1, 1}},
+
+	/* DBG_GRC_PARAM_DUMP_SDM */
+	{{1, 1}, 0, 1, false, false, 0, {1, 1}},
+
+	/* DBG_GRC_PARAM_DUMP_DIF */
+	{{1, 1}, 0, 1, false, false, 0, {1, 1}},
+
+	/* DBG_GRC_PARAM_DUMP_STATIC */
+	{{1, 1}, 0, 1, false, false, 0, {1, 1}},
+
+	/* DBG_GRC_PARAM_UNSTALL */
+	{{0, 0}, 0, 1, false, false, 0, {0, 0}},
+
+	/* DBG_GRC_PARAM_RESERVED2 */
+	{{0, 0}, 0, 1, false, false, 0, {0, 0}},
+
+	/* DBG_GRC_PARAM_MCP_TRACE_META_SIZE */
+	{{0, 0}, 1, 0xffffffff, false, true, 0, {0, 0}},
+
+	/* DBG_GRC_PARAM_EXCLUDE_ALL */
+	{{0, 0}, 0, 1, true, false, 0, {0, 0}},
+
+	/* DBG_GRC_PARAM_CRASH */
+	{{0, 0}, 0, 1, true, false, 0, {0, 0}},
+
+	/* DBG_GRC_PARAM_PARITY_SAFE */
+	{{0, 0}, 0, 1, false, false, 0, {0, 0}},
+
+	/* DBG_GRC_PARAM_DUMP_CM */
+	{{1, 1}, 0, 1, false, false, 0, {1, 1}},
+
+	/* DBG_GRC_PARAM_DUMP_PHY */
+	{{0, 0}, 0, 1, false, false, 0, {0, 0}},
+
+	/* DBG_GRC_PARAM_NO_MCP */
+	{{0, 0}, 0, 1, false, false, 0, {0, 0}},
+
+	/* DBG_GRC_PARAM_NO_FW_VER */
+	{{0, 0}, 0, 1, false, false, 0, {0, 0}},
+
+	/* DBG_GRC_PARAM_RESERVED3 */
+	{{0, 0}, 0, 1, false, false, 0, {0, 0}},
+
+	/* DBG_GRC_PARAM_DUMP_MCP_HW_DUMP */
+	{{0, 1}, 0, 1, false, false, 0, {0, 1}},
+
+	/* DBG_GRC_PARAM_DUMP_ILT_CDUC */
+	{{1, 1}, 0, 1, false, false, 0, {0, 0}},
+
+	/* DBG_GRC_PARAM_DUMP_ILT_CDUT */
+	{{1, 1}, 0, 1, false, false, 0, {0, 0}},
+
+	/* DBG_GRC_PARAM_DUMP_CAU_EXT */
+	{{0, 0}, 0, 1, false, false, 0, {1, 1}}
+};
+
+static struct rss_mem_defs s_rss_mem_defs[] = {
+	{"rss_mem_cid", "rss_cid", 0, 32,
+	 {256, 320}},
+
+	{"rss_mem_key_msb", "rss_key", 1024, 256,
+	 {128, 208}},
+
+	{"rss_mem_key_lsb", "rss_key", 2048, 64,
+	 {128, 208}},
+
+	{"rss_mem_info", "rss_info", 3072, 16,
+	 {128, 208}},
+
+	{"rss_mem_ind", "rss_ind", 4096, 16,
+	 {16384, 26624}}
+>>>>>>> upstream/android-13
 };
 
 static struct vfc_ram_defs s_vfc_ram_defs[] = {
@@ -1658,6 +2097,7 @@ static struct vfc_ram_defs s_vfc_ram_defs[] = {
 };
 
 static struct big_ram_defs s_big_ram_defs[] = {
+<<<<<<< HEAD
 	{ "BRB", MEM_GROUP_BRB_MEM, MEM_GROUP_BRB_RAM, DBG_GRC_PARAM_DUMP_BRB,
 	  BRB_REG_BIG_RAM_ADDRESS, BRB_REG_BIG_RAM_DATA,
 	  MISC_REG_BLOCK_256B_EN, {0, 0, 0},
@@ -1706,6 +2146,33 @@ static struct reset_reg_defs s_reset_regs_defs[] = {
 	/* DBG_RESET_REG_MISC_PL_PDA_VAUX */
 	{ MISC_REG_RESET_PL_PDA_VAUX,
 	  {true, true, true}, {0x2, 0x2, 0x2} },
+=======
+	{"BRB", MEM_GROUP_BRB_MEM, MEM_GROUP_BRB_RAM, DBG_GRC_PARAM_DUMP_BRB,
+	 BRB_REG_BIG_RAM_ADDRESS, BRB_REG_BIG_RAM_DATA,
+	 MISC_REG_BLOCK_256B_EN, {0, 0},
+	 {153600, 180224}},
+
+	{"BTB", MEM_GROUP_BTB_MEM, MEM_GROUP_BTB_RAM, DBG_GRC_PARAM_DUMP_BTB,
+	 BTB_REG_BIG_RAM_ADDRESS, BTB_REG_BIG_RAM_DATA,
+	 MISC_REG_BLOCK_256B_EN, {0, 1},
+	 {92160, 117760}},
+
+	{"BMB", MEM_GROUP_BMB_MEM, MEM_GROUP_BMB_RAM, DBG_GRC_PARAM_DUMP_BMB,
+	 BMB_REG_BIG_RAM_ADDRESS, BMB_REG_BIG_RAM_DATA,
+	 MISCS_REG_BLOCK_256B_EN, {0, 0},
+	 {36864, 36864}}
+};
+
+static struct rbc_reset_defs s_rbc_reset_defs[] = {
+	{MISCS_REG_RESET_PL_HV,
+	 {0x0, 0x400}},
+	{MISC_REG_RESET_PL_PDA_VMAIN_1,
+	 {0x4404040, 0x4404040}},
+	{MISC_REG_RESET_PL_PDA_VMAIN_2,
+	 {0x7, 0x7c00007}},
+	{MISC_REG_RESET_PL_PDA_VAUX,
+	 {0x2, 0x2}},
+>>>>>>> upstream/android-13
 };
 
 static struct phy_defs s_phy_defs[] = {
@@ -1759,6 +2226,18 @@ static u32 qed_read_unaligned_dword(u8 *buf)
 	return dword;
 }
 
+<<<<<<< HEAD
+=======
+/* Sets the value of the specified GRC param */
+static void qed_grc_set_param(struct qed_hwfn *p_hwfn,
+			      enum dbg_grc_params grc_param, u32 val)
+{
+	struct dbg_tools_data *dev_data = &p_hwfn->dbg_info;
+
+	dev_data->grc.param_val[grc_param] = val;
+}
+
+>>>>>>> upstream/android-13
 /* Returns the value of the specified GRC param */
 static u32 qed_grc_get_param(struct qed_hwfn *p_hwfn,
 			     enum dbg_grc_params grc_param)
@@ -1779,9 +2258,25 @@ static void qed_dbg_grc_init_params(struct qed_hwfn *p_hwfn)
 	}
 }
 
+<<<<<<< HEAD
 /* Initializes debug data for the specified device */
 static enum dbg_status qed_dbg_dev_init(struct qed_hwfn *p_hwfn,
 					struct qed_ptt *p_ptt)
+=======
+/* Sets pointer and size for the specified binary buffer type */
+static void qed_set_dbg_bin_buf(struct qed_hwfn *p_hwfn,
+				enum bin_dbg_buffer_type buf_type,
+				const u32 *ptr, u32 size)
+{
+	struct virt_mem_desc *buf = &p_hwfn->dbg_arrays[buf_type];
+
+	buf->ptr = (void *)ptr;
+	buf->size = size;
+}
+
+/* Initializes debug data for the specified device */
+static enum dbg_status qed_dbg_dev_init(struct qed_hwfn *p_hwfn)
+>>>>>>> upstream/android-13
 {
 	struct dbg_tools_data *dev_data = &p_hwfn->dbg_info;
 	u8 num_pfs = 0, max_pfs_per_port = 0;
@@ -1806,6 +2301,7 @@ static enum dbg_status qed_dbg_dev_init(struct qed_hwfn *p_hwfn,
 		return DBG_STATUS_UNKNOWN_CHIP;
 	}
 
+<<<<<<< HEAD
 	/* Set platofrm */
 	dev_data->platform_id = PLATFORM_ASIC;
 	dev_data->mode_enable[MODE_ASIC] = 1;
@@ -1819,13 +2315,32 @@ static enum dbg_status qed_dbg_dev_init(struct qed_hwfn *p_hwfn,
 		dev_data->mode_enable[MODE_PORTS_PER_ENG_2] = 1;
 		break;
 	case 2:
+=======
+	/* Set HW type */
+	dev_data->hw_type = HW_TYPE_ASIC;
+	dev_data->mode_enable[MODE_ASIC] = 1;
+
+	/* Set port mode */
+	switch (p_hwfn->cdev->num_ports_in_engine) {
+	case 1:
+		dev_data->mode_enable[MODE_PORTS_PER_ENG_1] = 1;
+		break;
+	case 2:
+		dev_data->mode_enable[MODE_PORTS_PER_ENG_2] = 1;
+		break;
+	case 4:
+>>>>>>> upstream/android-13
 		dev_data->mode_enable[MODE_PORTS_PER_ENG_4] = 1;
 		break;
 	}
 
 	/* Set 100G mode */
+<<<<<<< HEAD
 	if (dev_data->chip_id == CHIP_BB &&
 	    qed_rd(p_hwfn, p_ptt, CNIG_REG_NW_PORT_MODE_BB) == 2)
+=======
+	if (QED_IS_CMT(p_hwfn->cdev))
+>>>>>>> upstream/android-13
 		dev_data->mode_enable[MODE_100G] = 1;
 
 	/* Set number of ports */
@@ -1851,6 +2366,7 @@ static enum dbg_status qed_dbg_dev_init(struct qed_hwfn *p_hwfn,
 	return DBG_STATUS_OK;
 }
 
+<<<<<<< HEAD
 static struct dbg_bus_block *get_dbg_bus_block_desc(struct qed_hwfn *p_hwfn,
 						    enum block_id block_id)
 {
@@ -1859,6 +2375,38 @@ static struct dbg_bus_block *get_dbg_bus_block_desc(struct qed_hwfn *p_hwfn,
 	return (struct dbg_bus_block *)&dbg_bus_blocks[block_id *
 						       MAX_CHIP_IDS +
 						       dev_data->chip_id];
+=======
+static const struct dbg_block *get_dbg_block(struct qed_hwfn *p_hwfn,
+					     enum block_id block_id)
+{
+	const struct dbg_block *dbg_block;
+
+	dbg_block = p_hwfn->dbg_arrays[BIN_BUF_DBG_BLOCKS].ptr;
+	return dbg_block + block_id;
+}
+
+static const struct dbg_block_chip *qed_get_dbg_block_per_chip(struct qed_hwfn
+							       *p_hwfn,
+							       enum block_id
+							       block_id)
+{
+	struct dbg_tools_data *dev_data = &p_hwfn->dbg_info;
+
+	return (const struct dbg_block_chip *)
+	    p_hwfn->dbg_arrays[BIN_BUF_DBG_BLOCKS_CHIP_DATA].ptr +
+	    block_id * MAX_CHIP_IDS + dev_data->chip_id;
+}
+
+static const struct dbg_reset_reg *qed_get_dbg_reset_reg(struct qed_hwfn
+							 *p_hwfn,
+							 u8 reset_reg_id)
+{
+	struct dbg_tools_data *dev_data = &p_hwfn->dbg_info;
+
+	return (const struct dbg_reset_reg *)
+	    p_hwfn->dbg_arrays[BIN_BUF_DBG_RESET_REGS].ptr +
+	    reset_reg_id * MAX_CHIP_IDS + dev_data->chip_id;
+>>>>>>> upstream/android-13
 }
 
 /* Reads the FW info structure for the specified Storm from the chip,
@@ -1870,7 +2418,11 @@ static void qed_read_storm_fw_info(struct qed_hwfn *p_hwfn,
 {
 	struct storm_defs *storm = &s_storm_defs[storm_id];
 	struct fw_info_location fw_info_location;
+<<<<<<< HEAD
 	u32 addr, i, *dest;
+=======
+	u32 addr, i, size, *dest;
+>>>>>>> upstream/android-13
 
 	memset(&fw_info_location, 0, sizeof(fw_info_location));
 	memset(fw_info, 0, sizeof(*fw_info));
@@ -1879,6 +2431,7 @@ static void qed_read_storm_fw_info(struct qed_hwfn *p_hwfn,
 	 * The address is located in the last line of the Storm RAM.
 	 */
 	addr = storm->sem_fast_mem_addr + SEM_FAST_REG_INT_RAM +
+<<<<<<< HEAD
 	       DWORDS_TO_BYTES(SEM_FAST_REG_INT_RAM_SIZE_BB_K2) -
 	       sizeof(fw_info_location);
 	dest = (u32 *)&fw_info_location;
@@ -1896,6 +2449,35 @@ static void qed_read_storm_fw_info(struct qed_hwfn *p_hwfn,
 		     i++, addr += BYTES_IN_DWORD)
 			dest[i] = qed_rd(p_hwfn, p_ptt, addr);
 	}
+=======
+	    DWORDS_TO_BYTES(SEM_FAST_REG_INT_RAM_SIZE) -
+	    sizeof(fw_info_location);
+
+	dest = (u32 *)&fw_info_location;
+	size = BYTES_TO_DWORDS(sizeof(fw_info_location));
+
+	for (i = 0; i < size; i++, addr += BYTES_IN_DWORD)
+		dest[i] = qed_rd(p_hwfn, p_ptt, addr);
+
+	/* qed_rq() fetches data in CPU byteorder. Swap it back to
+	 * the device's to get right structure layout.
+	 */
+	cpu_to_le32_array(dest, size);
+
+	/* Read FW version info from Storm RAM */
+	size = le32_to_cpu(fw_info_location.size);
+	if (!size || size > sizeof(*fw_info))
+		return;
+
+	addr = le32_to_cpu(fw_info_location.grc_addr);
+	dest = (u32 *)fw_info;
+	size = BYTES_TO_DWORDS(size);
+
+	for (i = 0; i < size; i++, addr += BYTES_IN_DWORD)
+		dest[i] = qed_rd(p_hwfn, p_ptt, addr);
+
+	cpu_to_le32_array(dest, size);
+>>>>>>> upstream/android-13
 }
 
 /* Dumps the specified string to the specified buffer.
@@ -2019,9 +2601,14 @@ static u32 qed_dump_fw_ver_param(struct qed_hwfn *p_hwfn,
 				     dump, "fw-version", fw_ver_str);
 	offset += qed_dump_str_param(dump_buf + offset,
 				     dump, "fw-image", fw_img_str);
+<<<<<<< HEAD
 	offset += qed_dump_num_param(dump_buf + offset,
 				     dump,
 				     "fw-timestamp", fw_info.ver.timestamp);
+=======
+	offset += qed_dump_num_param(dump_buf + offset, dump, "fw-timestamp",
+				     le32_to_cpu(fw_info.ver.timestamp));
+>>>>>>> upstream/android-13
 
 	return offset;
 }
@@ -2075,6 +2662,32 @@ static u32 qed_dump_mfw_ver_param(struct qed_hwfn *p_hwfn,
 	return qed_dump_str_param(dump_buf, dump, "mfw-version", mfw_ver_str);
 }
 
+<<<<<<< HEAD
+=======
+/* Reads the chip revision from the chip and writes it as a param to the
+ * specified buffer. Returns the dumped size in dwords.
+ */
+static u32 qed_dump_chip_revision_param(struct qed_hwfn *p_hwfn,
+					struct qed_ptt *p_ptt,
+					u32 *dump_buf, bool dump)
+{
+	struct dbg_tools_data *dev_data = &p_hwfn->dbg_info;
+	char param_str[3] = "??";
+
+	if (dev_data->hw_type == HW_TYPE_ASIC) {
+		u32 chip_rev, chip_metal;
+
+		chip_rev = qed_rd(p_hwfn, p_ptt, MISCS_REG_CHIP_REV);
+		chip_metal = qed_rd(p_hwfn, p_ptt, MISCS_REG_CHIP_METAL);
+
+		param_str[0] = 'a' + (u8)chip_rev;
+		param_str[1] = '0' + (u8)chip_metal;
+	}
+
+	return qed_dump_str_param(dump_buf, dump, "chip-revision", param_str);
+}
+
+>>>>>>> upstream/android-13
 /* Writes a section header to the specified buffer.
  * Returns the dumped size in dwords.
  */
@@ -2098,7 +2711,12 @@ static u32 qed_dump_common_global_params(struct qed_hwfn *p_hwfn,
 	u8 num_params;
 
 	/* Dump global params section header */
+<<<<<<< HEAD
 	num_params = NUM_COMMON_GLOBAL_PARAMS + num_specific_global_params;
+=======
+	num_params = NUM_COMMON_GLOBAL_PARAMS + num_specific_global_params +
+		(dev_data->chip_id == CHIP_BB ? 1 : 0);
+>>>>>>> upstream/android-13
 	offset += qed_dump_section_hdr(dump_buf + offset,
 				       dump, "global_params", num_params);
 
@@ -2106,6 +2724,11 @@ static u32 qed_dump_common_global_params(struct qed_hwfn *p_hwfn,
 	offset += qed_dump_fw_ver_param(p_hwfn, p_ptt, dump_buf + offset, dump);
 	offset += qed_dump_mfw_ver_param(p_hwfn,
 					 p_ptt, dump_buf + offset, dump);
+<<<<<<< HEAD
+=======
+	offset += qed_dump_chip_revision_param(p_hwfn,
+					       p_ptt, dump_buf + offset, dump);
+>>>>>>> upstream/android-13
 	offset += qed_dump_num_param(dump_buf + offset,
 				     dump, "tools-version", TOOLS_VERSION);
 	offset += qed_dump_str_param(dump_buf + offset,
@@ -2115,11 +2738,20 @@ static u32 qed_dump_common_global_params(struct qed_hwfn *p_hwfn,
 	offset += qed_dump_str_param(dump_buf + offset,
 				     dump,
 				     "platform",
+<<<<<<< HEAD
 				     s_platform_defs[dev_data->platform_id].
 				     name);
 	offset +=
 	    qed_dump_num_param(dump_buf + offset, dump, "pci-func",
 			       p_hwfn->abs_pf_id);
+=======
+				     s_hw_type_defs[dev_data->hw_type].name);
+	offset += qed_dump_num_param(dump_buf + offset,
+				     dump, "pci-func", p_hwfn->abs_pf_id);
+	if (dev_data->chip_id == CHIP_BB)
+		offset += qed_dump_num_param(dump_buf + offset,
+					     dump, "path", QED_PATH_ID(p_hwfn));
+>>>>>>> upstream/android-13
 
 	return offset;
 }
@@ -2150,6 +2782,7 @@ static void qed_update_blocks_reset_state(struct qed_hwfn *p_hwfn,
 					  struct qed_ptt *p_ptt)
 {
 	struct dbg_tools_data *dev_data = &p_hwfn->dbg_info;
+<<<<<<< HEAD
 	u32 reg_val[MAX_DBG_RESET_REGS] = { 0 };
 	u32 i;
 
@@ -2168,6 +2801,89 @@ static void qed_update_blocks_reset_state(struct qed_hwfn *p_hwfn,
 	}
 }
 
+=======
+	u32 reg_val[NUM_DBG_RESET_REGS] = { 0 };
+	u8 rst_reg_id;
+	u32 blk_id;
+
+	/* Read reset registers */
+	for (rst_reg_id = 0; rst_reg_id < NUM_DBG_RESET_REGS; rst_reg_id++) {
+		const struct dbg_reset_reg *rst_reg;
+		bool rst_reg_removed;
+		u32 rst_reg_addr;
+
+		rst_reg = qed_get_dbg_reset_reg(p_hwfn, rst_reg_id);
+		rst_reg_removed = GET_FIELD(rst_reg->data,
+					    DBG_RESET_REG_IS_REMOVED);
+		rst_reg_addr = DWORDS_TO_BYTES(GET_FIELD(rst_reg->data,
+							 DBG_RESET_REG_ADDR));
+
+		if (!rst_reg_removed)
+			reg_val[rst_reg_id] = qed_rd(p_hwfn, p_ptt,
+						     rst_reg_addr);
+	}
+
+	/* Check if blocks are in reset */
+	for (blk_id = 0; blk_id < NUM_PHYS_BLOCKS; blk_id++) {
+		const struct dbg_block_chip *blk;
+		bool has_rst_reg;
+		bool is_removed;
+
+		blk = qed_get_dbg_block_per_chip(p_hwfn, (enum block_id)blk_id);
+		is_removed = GET_FIELD(blk->flags, DBG_BLOCK_CHIP_IS_REMOVED);
+		has_rst_reg = GET_FIELD(blk->flags,
+					DBG_BLOCK_CHIP_HAS_RESET_REG);
+
+		if (!is_removed && has_rst_reg)
+			dev_data->block_in_reset[blk_id] =
+			    !(reg_val[blk->reset_reg_id] &
+			      BIT(blk->reset_reg_bit_offset));
+	}
+}
+
+/* is_mode_match recursive function */
+static bool qed_is_mode_match_rec(struct qed_hwfn *p_hwfn,
+				  u16 *modes_buf_offset, u8 rec_depth)
+{
+	struct dbg_tools_data *dev_data = &p_hwfn->dbg_info;
+	u8 *dbg_array;
+	bool arg1, arg2;
+	u8 tree_val;
+
+	if (rec_depth > MAX_RECURSION_DEPTH) {
+		DP_NOTICE(p_hwfn,
+			  "Unexpected error: is_mode_match_rec exceeded the max recursion depth. This is probably due to a corrupt init/debug buffer.\n");
+		return false;
+	}
+
+	/* Get next element from modes tree buffer */
+	dbg_array = p_hwfn->dbg_arrays[BIN_BUF_DBG_MODE_TREE].ptr;
+	tree_val = dbg_array[(*modes_buf_offset)++];
+
+	switch (tree_val) {
+	case INIT_MODE_OP_NOT:
+		return !qed_is_mode_match_rec(p_hwfn,
+					      modes_buf_offset, rec_depth + 1);
+	case INIT_MODE_OP_OR:
+	case INIT_MODE_OP_AND:
+		arg1 = qed_is_mode_match_rec(p_hwfn,
+					     modes_buf_offset, rec_depth + 1);
+		arg2 = qed_is_mode_match_rec(p_hwfn,
+					     modes_buf_offset, rec_depth + 1);
+		return (tree_val == INIT_MODE_OP_OR) ? (arg1 ||
+							arg2) : (arg1 && arg2);
+	default:
+		return dev_data->mode_enable[tree_val - MAX_INIT_MODE_OPS] > 0;
+	}
+}
+
+/* Returns true if the mode (specified using modes_buf_offset) is enabled */
+static bool qed_is_mode_match(struct qed_hwfn *p_hwfn, u16 *modes_buf_offset)
+{
+	return qed_is_mode_match_rec(p_hwfn, modes_buf_offset, 0);
+}
+
+>>>>>>> upstream/android-13
 /* Enable / disable the Debug block */
 static void qed_bus_enable_dbg_block(struct qed_hwfn *p_hwfn,
 				     struct qed_ptt *p_ptt, bool enable)
@@ -2179,6 +2895,7 @@ static void qed_bus_enable_dbg_block(struct qed_hwfn *p_hwfn,
 static void qed_bus_reset_dbg_block(struct qed_hwfn *p_hwfn,
 				    struct qed_ptt *p_ptt)
 {
+<<<<<<< HEAD
 	u32 dbg_reset_reg_addr, old_reset_reg_val, new_reset_reg_val;
 	struct block_defs *dbg_block = s_block_defs[BLOCK_DBG];
 
@@ -2196,6 +2913,23 @@ static void qed_bus_set_framing_mode(struct qed_hwfn *p_hwfn,
 				     enum dbg_bus_frame_modes mode)
 {
 	qed_wr(p_hwfn, p_ptt, DBG_REG_FRAMING_MODE, (u8)mode);
+=======
+	u32 reset_reg_addr, old_reset_reg_val, new_reset_reg_val;
+	const struct dbg_reset_reg *reset_reg;
+	const struct dbg_block_chip *block;
+
+	block = qed_get_dbg_block_per_chip(p_hwfn, BLOCK_DBG);
+	reset_reg = qed_get_dbg_reset_reg(p_hwfn, block->reset_reg_id);
+	reset_reg_addr =
+	    DWORDS_TO_BYTES(GET_FIELD(reset_reg->data, DBG_RESET_REG_ADDR));
+
+	old_reset_reg_val = qed_rd(p_hwfn, p_ptt, reset_reg_addr);
+	new_reset_reg_val =
+	    old_reset_reg_val & ~BIT(block->reset_reg_bit_offset);
+
+	qed_wr(p_hwfn, p_ptt, reset_reg_addr, new_reset_reg_val);
+	qed_wr(p_hwfn, p_ptt, reset_reg_addr, old_reset_reg_val);
+>>>>>>> upstream/android-13
 }
 
 /* Enable / disable Debug Bus clients according to the specified mask
@@ -2207,6 +2941,7 @@ static void qed_bus_enable_clients(struct qed_hwfn *p_hwfn,
 	qed_wr(p_hwfn, p_ptt, DBG_REG_CLIENT_ENABLE, client_mask);
 }
 
+<<<<<<< HEAD
 static bool qed_is_mode_match(struct qed_hwfn *p_hwfn, u16 *modes_buf_offset)
 {
 	struct dbg_tools_data *dev_data = &p_hwfn->dbg_info;
@@ -2229,6 +2964,67 @@ static bool qed_is_mode_match(struct qed_hwfn *p_hwfn, u16 *modes_buf_offset)
 							arg2) : (arg1 && arg2);
 	default:
 		return dev_data->mode_enable[tree_val - MAX_INIT_MODE_OPS] > 0;
+=======
+static void qed_bus_config_dbg_line(struct qed_hwfn *p_hwfn,
+				    struct qed_ptt *p_ptt,
+				    enum block_id block_id,
+				    u8 line_id,
+				    u8 enable_mask,
+				    u8 right_shift,
+				    u8 force_valid_mask, u8 force_frame_mask)
+{
+	const struct dbg_block_chip *block =
+		qed_get_dbg_block_per_chip(p_hwfn, block_id);
+
+	qed_wr(p_hwfn, p_ptt, DWORDS_TO_BYTES(block->dbg_select_reg_addr),
+	       line_id);
+	qed_wr(p_hwfn, p_ptt, DWORDS_TO_BYTES(block->dbg_dword_enable_reg_addr),
+	       enable_mask);
+	qed_wr(p_hwfn, p_ptt, DWORDS_TO_BYTES(block->dbg_shift_reg_addr),
+	       right_shift);
+	qed_wr(p_hwfn, p_ptt, DWORDS_TO_BYTES(block->dbg_force_valid_reg_addr),
+	       force_valid_mask);
+	qed_wr(p_hwfn, p_ptt, DWORDS_TO_BYTES(block->dbg_force_frame_reg_addr),
+	       force_frame_mask);
+}
+
+/* Disable debug bus in all blocks */
+static void qed_bus_disable_blocks(struct qed_hwfn *p_hwfn,
+				   struct qed_ptt *p_ptt)
+{
+	struct dbg_tools_data *dev_data = &p_hwfn->dbg_info;
+	u32 block_id;
+
+	/* Disable all blocks */
+	for (block_id = 0; block_id < MAX_BLOCK_ID; block_id++) {
+		const struct dbg_block_chip *block_per_chip =
+		    qed_get_dbg_block_per_chip(p_hwfn,
+					       (enum block_id)block_id);
+
+		if (GET_FIELD(block_per_chip->flags,
+			      DBG_BLOCK_CHIP_IS_REMOVED) ||
+		    dev_data->block_in_reset[block_id])
+			continue;
+
+		/* Disable debug bus */
+		if (GET_FIELD(block_per_chip->flags,
+			      DBG_BLOCK_CHIP_HAS_DBG_BUS)) {
+			u32 dbg_en_addr =
+				block_per_chip->dbg_dword_enable_reg_addr;
+			u16 modes_buf_offset =
+			    GET_FIELD(block_per_chip->dbg_bus_mode.data,
+				      DBG_MODE_HDR_MODES_BUF_OFFSET);
+			bool eval_mode =
+			    GET_FIELD(block_per_chip->dbg_bus_mode.data,
+				      DBG_MODE_HDR_EVAL_MODE) > 0;
+
+			if (!eval_mode ||
+			    qed_is_mode_match(p_hwfn, &modes_buf_offset))
+				qed_wr(p_hwfn, p_ptt,
+				       DWORDS_TO_BYTES(dbg_en_addr),
+				       0);
+		}
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -2241,6 +3037,23 @@ static bool qed_grc_is_included(struct qed_hwfn *p_hwfn,
 	return qed_grc_get_param(p_hwfn, grc_param) > 0;
 }
 
+<<<<<<< HEAD
+=======
+/* Returns the storm_id that matches the specified Storm letter,
+ * or MAX_DBG_STORMS if invalid storm letter.
+ */
+static enum dbg_storms qed_get_id_from_letter(char storm_letter)
+{
+	u8 storm_id;
+
+	for (storm_id = 0; storm_id < MAX_DBG_STORMS; storm_id++)
+		if (s_storm_defs[storm_id].letter == storm_letter)
+			return (enum dbg_storms)storm_id;
+
+	return MAX_DBG_STORMS;
+}
+
+>>>>>>> upstream/android-13
 /* Returns true of the specified Storm should be included in the dump, false
  * otherwise.
  */
@@ -2256,6 +3069,7 @@ static bool qed_grc_is_storm_included(struct qed_hwfn *p_hwfn,
 static bool qed_grc_is_mem_included(struct qed_hwfn *p_hwfn,
 				    enum block_id block_id, u8 mem_group_id)
 {
+<<<<<<< HEAD
 	struct block_defs *block = s_block_defs[block_id];
 	u8 i;
 
@@ -2264,6 +3078,22 @@ static bool qed_grc_is_mem_included(struct qed_hwfn *p_hwfn,
 	    !qed_grc_is_storm_included(p_hwfn,
 				       (enum dbg_storms)block->storm_id))
 		return false;
+=======
+	const struct dbg_block *block;
+	u8 i;
+
+	block = get_dbg_block(p_hwfn, block_id);
+
+	/* If the block is associated with a Storm, check Storm match */
+	if (block->associated_storm_letter) {
+		enum dbg_storms associated_storm_id =
+		    qed_get_id_from_letter(block->associated_storm_letter);
+
+		if (associated_storm_id == MAX_DBG_STORMS ||
+		    !qed_grc_is_storm_included(p_hwfn, associated_storm_id))
+			return false;
+	}
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < NUM_BIG_RAM_TYPES; i++) {
 		struct big_ram_defs *big_ram = &s_big_ram_defs[i];
@@ -2285,6 +3115,11 @@ static bool qed_grc_is_mem_included(struct qed_hwfn *p_hwfn,
 	case MEM_GROUP_CAU_SB:
 	case MEM_GROUP_CAU_PI:
 		return qed_grc_is_included(p_hwfn, DBG_GRC_PARAM_DUMP_CAU);
+<<<<<<< HEAD
+=======
+	case MEM_GROUP_CAU_MEM_EXT:
+		return qed_grc_is_included(p_hwfn, DBG_GRC_PARAM_DUMP_CAU_EXT);
+>>>>>>> upstream/android-13
 	case MEM_GROUP_QM_MEM:
 		return qed_grc_is_included(p_hwfn, DBG_GRC_PARAM_DUMP_QM);
 	case MEM_GROUP_CFC_MEM:
@@ -2292,6 +3127,11 @@ static bool qed_grc_is_mem_included(struct qed_hwfn *p_hwfn,
 	case MEM_GROUP_TASK_CFC_MEM:
 		return qed_grc_is_included(p_hwfn, DBG_GRC_PARAM_DUMP_CFC) ||
 		       qed_grc_is_included(p_hwfn, DBG_GRC_PARAM_DUMP_CM_CTX);
+<<<<<<< HEAD
+=======
+	case MEM_GROUP_DORQ_MEM:
+		return qed_grc_is_included(p_hwfn, DBG_GRC_PARAM_DUMP_DORQ);
+>>>>>>> upstream/android-13
 	case MEM_GROUP_IGU_MEM:
 	case MEM_GROUP_IGU_MSIX:
 		return qed_grc_is_included(p_hwfn, DBG_GRC_PARAM_DUMP_IGU);
@@ -2337,6 +3177,7 @@ static void qed_grc_stall_storms(struct qed_hwfn *p_hwfn,
 	msleep(STALL_DELAY_MS);
 }
 
+<<<<<<< HEAD
 /* Takes all blocks out of reset */
 static void qed_grc_unreset_blocks(struct qed_hwfn *p_hwfn,
 				   struct qed_ptt *p_ptt)
@@ -2368,22 +3209,103 @@ static void qed_grc_unreset_blocks(struct qed_hwfn *p_hwfn,
 			       p_ptt,
 			       s_reset_regs_defs[i].addr +
 			       RESET_REG_UNRESET_OFFSET, reg_val[i]);
+=======
+/* Takes all blocks out of reset. If rbc_only is true, only RBC clients are
+ * taken out of reset.
+ */
+static void qed_grc_unreset_blocks(struct qed_hwfn *p_hwfn,
+				   struct qed_ptt *p_ptt, bool rbc_only)
+{
+	struct dbg_tools_data *dev_data = &p_hwfn->dbg_info;
+	u8 chip_id = dev_data->chip_id;
+	u32 i;
+
+	/* Take RBCs out of reset */
+	for (i = 0; i < ARRAY_SIZE(s_rbc_reset_defs); i++)
+		if (s_rbc_reset_defs[i].reset_val[dev_data->chip_id])
+			qed_wr(p_hwfn,
+			       p_ptt,
+			       s_rbc_reset_defs[i].reset_reg_addr +
+			       RESET_REG_UNRESET_OFFSET,
+			       s_rbc_reset_defs[i].reset_val[chip_id]);
+
+	if (!rbc_only) {
+		u32 reg_val[NUM_DBG_RESET_REGS] = { 0 };
+		u8 reset_reg_id;
+		u32 block_id;
+
+		/* Fill reset regs values */
+		for (block_id = 0; block_id < NUM_PHYS_BLOCKS; block_id++) {
+			bool is_removed, has_reset_reg, unreset_before_dump;
+			const struct dbg_block_chip *block;
+
+			block = qed_get_dbg_block_per_chip(p_hwfn,
+							   (enum block_id)
+							   block_id);
+			is_removed =
+			    GET_FIELD(block->flags, DBG_BLOCK_CHIP_IS_REMOVED);
+			has_reset_reg =
+			    GET_FIELD(block->flags,
+				      DBG_BLOCK_CHIP_HAS_RESET_REG);
+			unreset_before_dump =
+			    GET_FIELD(block->flags,
+				      DBG_BLOCK_CHIP_UNRESET_BEFORE_DUMP);
+
+			if (!is_removed && has_reset_reg && unreset_before_dump)
+				reg_val[block->reset_reg_id] |=
+				    BIT(block->reset_reg_bit_offset);
+		}
+
+		/* Write reset registers */
+		for (reset_reg_id = 0; reset_reg_id < NUM_DBG_RESET_REGS;
+		     reset_reg_id++) {
+			const struct dbg_reset_reg *reset_reg;
+			u32 reset_reg_addr;
+
+			reset_reg = qed_get_dbg_reset_reg(p_hwfn, reset_reg_id);
+
+			if (GET_FIELD
+			    (reset_reg->data, DBG_RESET_REG_IS_REMOVED))
+				continue;
+
+			if (reg_val[reset_reg_id]) {
+				reset_reg_addr =
+				    GET_FIELD(reset_reg->data,
+					      DBG_RESET_REG_ADDR);
+				qed_wr(p_hwfn,
+				       p_ptt,
+				       DWORDS_TO_BYTES(reset_reg_addr) +
+				       RESET_REG_UNRESET_OFFSET,
+				       reg_val[reset_reg_id]);
+			}
+		}
+>>>>>>> upstream/android-13
 	}
 }
 
 /* Returns the attention block data of the specified block */
 static const struct dbg_attn_block_type_data *
+<<<<<<< HEAD
 qed_get_block_attn_data(enum block_id block_id, enum dbg_attn_type attn_type)
 {
 	const struct dbg_attn_block *base_attn_block_arr =
 		(const struct dbg_attn_block *)
 		s_dbg_arrays[BIN_BUF_DBG_ATTN_BLOCKS].ptr;
+=======
+qed_get_block_attn_data(struct qed_hwfn *p_hwfn,
+			enum block_id block_id, enum dbg_attn_type attn_type)
+{
+	const struct dbg_attn_block *base_attn_block_arr =
+	    (const struct dbg_attn_block *)
+	    p_hwfn->dbg_arrays[BIN_BUF_DBG_ATTN_BLOCKS].ptr;
+>>>>>>> upstream/android-13
 
 	return &base_attn_block_arr[block_id].per_type_data[attn_type];
 }
 
 /* Returns the attention registers of the specified block */
 static const struct dbg_attn_reg *
+<<<<<<< HEAD
 qed_get_block_attn_regs(enum block_id block_id, enum dbg_attn_type attn_type,
 			u8 *num_attn_regs)
 {
@@ -2395,6 +3317,20 @@ qed_get_block_attn_regs(enum block_id block_id, enum dbg_attn_type attn_type,
 	return &((const struct dbg_attn_reg *)
 		 s_dbg_arrays[BIN_BUF_DBG_ATTN_REGS].ptr)[block_type_data->
 							  regs_offset];
+=======
+qed_get_block_attn_regs(struct qed_hwfn *p_hwfn,
+			enum block_id block_id, enum dbg_attn_type attn_type,
+			u8 *num_attn_regs)
+{
+	const struct dbg_attn_block_type_data *block_type_data =
+	    qed_get_block_attn_data(p_hwfn, block_id, attn_type);
+
+	*num_attn_regs = block_type_data->num_regs;
+
+	return (const struct dbg_attn_reg *)
+		p_hwfn->dbg_arrays[BIN_BUF_DBG_ATTN_REGS].ptr +
+		block_type_data->regs_offset;
+>>>>>>> upstream/android-13
 }
 
 /* For each block, clear the status of all parities */
@@ -2406,11 +3342,20 @@ static void qed_grc_clear_all_prty(struct qed_hwfn *p_hwfn,
 	u8 reg_idx, num_attn_regs;
 	u32 block_id;
 
+<<<<<<< HEAD
 	for (block_id = 0; block_id < MAX_BLOCK_ID; block_id++) {
 		if (dev_data->block_in_reset[block_id])
 			continue;
 
 		attn_reg_arr = qed_get_block_attn_regs((enum block_id)block_id,
+=======
+	for (block_id = 0; block_id < NUM_PHYS_BLOCKS; block_id++) {
+		if (dev_data->block_in_reset[block_id])
+			continue;
+
+		attn_reg_arr = qed_get_block_attn_regs(p_hwfn,
+						       (enum block_id)block_id,
+>>>>>>> upstream/android-13
 						       ATTN_TYPE_PARITY,
 						       &num_attn_regs);
 
@@ -2438,22 +3383,37 @@ static void qed_grc_clear_all_prty(struct qed_hwfn *p_hwfn,
 }
 
 /* Dumps GRC registers section header. Returns the dumped size in dwords.
+<<<<<<< HEAD
  * The following parameters are dumped:
  * - count: no. of dumped entries
  * - split_type: split type
  * - split_id: split ID (dumped only if split_id != SPLIT_TYPE_NONE)
  * - param_name: user parameter value (dumped only if param_name != NULL
  *		 and param_val != NULL).
+=======
+ * the following parameters are dumped:
+ * - count: no. of dumped entries
+ * - split_type: split type
+ * - split_id: split ID (dumped only if split_id != SPLIT_TYPE_NONE)
+ * - reg_type_name: register type name (dumped only if reg_type_name != NULL)
+>>>>>>> upstream/android-13
  */
 static u32 qed_grc_dump_regs_hdr(u32 *dump_buf,
 				 bool dump,
 				 u32 num_reg_entries,
 				 enum init_split_types split_type,
+<<<<<<< HEAD
 				 u8 split_id,
 				 const char *param_name, const char *param_val)
 {
 	u8 num_params = 2 +
 	    (split_type != SPLIT_TYPE_NONE ? 1 : 0) + (param_name ? 1 : 0);
+=======
+				 u8 split_id, const char *reg_type_name)
+{
+	u8 num_params = 2 +
+	    (split_type != SPLIT_TYPE_NONE ? 1 : 0) + (reg_type_name ? 1 : 0);
+>>>>>>> upstream/android-13
 	u32 offset = 0;
 
 	offset += qed_dump_section_hdr(dump_buf + offset,
@@ -2466,9 +3426,15 @@ static u32 qed_grc_dump_regs_hdr(u32 *dump_buf,
 	if (split_type != SPLIT_TYPE_NONE)
 		offset += qed_dump_num_param(dump_buf + offset,
 					     dump, "id", split_id);
+<<<<<<< HEAD
 	if (param_name && param_val)
 		offset += qed_dump_str_param(dump_buf + offset,
 					     dump, param_name, param_val);
+=======
+	if (reg_type_name)
+		offset += qed_dump_str_param(dump_buf + offset,
+					     dump, "type", reg_type_name);
+>>>>>>> upstream/android-13
 
 	return offset;
 }
@@ -2498,10 +3464,16 @@ static u32 qed_grc_dump_addr_range(struct qed_hwfn *p_hwfn,
 {
 	struct dbg_tools_data *dev_data = &p_hwfn->dbg_info;
 	u8 port_id = 0, pf_id = 0, vf_id = 0, fid = 0;
+<<<<<<< HEAD
+=======
+	bool read_using_dmae = false;
+	u32 thresh;
+>>>>>>> upstream/android-13
 
 	if (!dump)
 		return len;
 
+<<<<<<< HEAD
 	/* Print log if needed */
 	dev_data->num_regs_read += len;
 	if (dev_data->num_regs_read >=
@@ -2513,6 +3485,8 @@ static u32 qed_grc_dump_addr_range(struct qed_hwfn *p_hwfn,
 		dev_data->num_regs_read = 0;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	switch (split_type) {
 	case SPLIT_TYPE_PORT:
 		port_id = split_id;
@@ -2533,6 +3507,7 @@ static u32 qed_grc_dump_addr_range(struct qed_hwfn *p_hwfn,
 	}
 
 	/* Try reading using DMAE */
+<<<<<<< HEAD
 	if (dev_data->use_dmae && split_type == SPLIT_TYPE_NONE &&
 	    (len >= s_platform_defs[dev_data->platform_id].dmae_thresh ||
 	     wide_bus)) {
@@ -2550,11 +3525,67 @@ static u32 qed_grc_dump_addr_range(struct qed_hwfn *p_hwfn,
 	/* Set pretend */
 	if (split_type != dev_data->pretend.split_type || split_id !=
 	    dev_data->pretend.split_id) {
+=======
+	if (dev_data->use_dmae && split_type != SPLIT_TYPE_VF &&
+	    (len >= s_hw_type_defs[dev_data->hw_type].dmae_thresh ||
+	     (PROTECT_WIDE_BUS && wide_bus))) {
+		struct qed_dmae_params dmae_params;
+
+		/* Set DMAE params */
+		memset(&dmae_params, 0, sizeof(dmae_params));
+		SET_FIELD(dmae_params.flags, QED_DMAE_PARAMS_COMPLETION_DST, 1);
+		switch (split_type) {
+		case SPLIT_TYPE_PORT:
+			SET_FIELD(dmae_params.flags, QED_DMAE_PARAMS_PORT_VALID,
+				  1);
+			dmae_params.port_id = port_id;
+			break;
+		case SPLIT_TYPE_PF:
+			SET_FIELD(dmae_params.flags,
+				  QED_DMAE_PARAMS_SRC_PF_VALID, 1);
+			dmae_params.src_pfid = pf_id;
+			break;
+		case SPLIT_TYPE_PORT_PF:
+			SET_FIELD(dmae_params.flags, QED_DMAE_PARAMS_PORT_VALID,
+				  1);
+			SET_FIELD(dmae_params.flags,
+				  QED_DMAE_PARAMS_SRC_PF_VALID, 1);
+			dmae_params.port_id = port_id;
+			dmae_params.src_pfid = pf_id;
+			break;
+		default:
+			break;
+		}
+
+		/* Execute DMAE command */
+		read_using_dmae = !qed_dmae_grc2host(p_hwfn,
+						     p_ptt,
+						     DWORDS_TO_BYTES(addr),
+						     (u64)(uintptr_t)(dump_buf),
+						     len, &dmae_params);
+		if (!read_using_dmae) {
+			dev_data->use_dmae = 0;
+			DP_VERBOSE(p_hwfn,
+				   QED_MSG_DEBUG,
+				   "Failed reading from chip using DMAE, using GRC instead\n");
+		}
+	}
+
+	if (read_using_dmae)
+		goto print_log;
+
+	/* If not read using DMAE, read using GRC */
+
+	/* Set pretend */
+	if (split_type != dev_data->pretend.split_type ||
+	    split_id != dev_data->pretend.split_id) {
+>>>>>>> upstream/android-13
 		switch (split_type) {
 		case SPLIT_TYPE_PORT:
 			qed_port_pretend(p_hwfn, p_ptt, port_id);
 			break;
 		case SPLIT_TYPE_PF:
+<<<<<<< HEAD
 			fid = pf_id << PXP_PRETEND_CONCRETE_FID_PFID_SHIFT;
 			qed_fid_pretend(p_hwfn, p_ptt, fid);
 			break;
@@ -2565,6 +3596,21 @@ static u32 qed_grc_dump_addr_range(struct qed_hwfn *p_hwfn,
 		case SPLIT_TYPE_VF:
 			fid = BIT(PXP_PRETEND_CONCRETE_FID_VFVALID_SHIFT) |
 			      (vf_id << PXP_PRETEND_CONCRETE_FID_VFID_SHIFT);
+=======
+			fid = FIELD_VALUE(PXP_PRETEND_CONCRETE_FID_PFID,
+					  pf_id);
+			qed_fid_pretend(p_hwfn, p_ptt, fid);
+			break;
+		case SPLIT_TYPE_PORT_PF:
+			fid = FIELD_VALUE(PXP_PRETEND_CONCRETE_FID_PFID,
+					  pf_id);
+			qed_port_fid_pretend(p_hwfn, p_ptt, port_id, fid);
+			break;
+		case SPLIT_TYPE_VF:
+			fid = FIELD_VALUE(PXP_PRETEND_CONCRETE_FID_VFVALID, 1)
+			      | FIELD_VALUE(PXP_PRETEND_CONCRETE_FID_VFID,
+					  vf_id);
+>>>>>>> upstream/android-13
 			qed_fid_pretend(p_hwfn, p_ptt, fid);
 			break;
 		default:
@@ -2578,6 +3624,19 @@ static u32 qed_grc_dump_addr_range(struct qed_hwfn *p_hwfn,
 	/* Read registers using GRC */
 	qed_read_regs(p_hwfn, p_ptt, dump_buf, addr, len);
 
+<<<<<<< HEAD
+=======
+print_log:
+	/* Print log */
+	dev_data->num_regs_read += len;
+	thresh = s_hw_type_defs[dev_data->hw_type].log_thresh;
+	if ((dev_data->num_regs_read / thresh) >
+	    ((dev_data->num_regs_read - len) / thresh))
+		DP_VERBOSE(p_hwfn,
+			   QED_MSG_DEBUG,
+			   "Dumped %d registers...\n", dev_data->num_regs_read);
+
+>>>>>>> upstream/android-13
 	return len;
 }
 
@@ -2662,7 +3721,11 @@ static u32 qed_grc_dump_reg_entry_skip(struct qed_hwfn *p_hwfn,
 /* Dumps GRC registers entries. Returns the dumped size in dwords. */
 static u32 qed_grc_dump_regs_entries(struct qed_hwfn *p_hwfn,
 				     struct qed_ptt *p_ptt,
+<<<<<<< HEAD
 				     struct dbg_array input_regs_arr,
+=======
+				     struct virt_mem_desc input_regs_arr,
+>>>>>>> upstream/android-13
 				     u32 *dump_buf,
 				     bool dump,
 				     enum init_split_types split_type,
@@ -2675,10 +3738,17 @@ static u32 qed_grc_dump_regs_entries(struct qed_hwfn *p_hwfn,
 
 	*num_dumped_reg_entries = 0;
 
+<<<<<<< HEAD
 	while (input_offset < input_regs_arr.size_in_dwords) {
 		const struct dbg_dump_cond_hdr *cond_hdr =
 		    (const struct dbg_dump_cond_hdr *)
 		    &input_regs_arr.ptr[input_offset++];
+=======
+	while (input_offset < BYTES_TO_DWORDS(input_regs_arr.size)) {
+		const struct dbg_dump_cond_hdr *cond_hdr =
+		    (const struct dbg_dump_cond_hdr *)
+		    input_regs_arr.ptr + input_offset++;
+>>>>>>> upstream/android-13
 		u16 modes_buf_offset;
 		bool eval_mode;
 
@@ -2701,7 +3771,11 @@ static u32 qed_grc_dump_regs_entries(struct qed_hwfn *p_hwfn,
 		for (i = 0; i < cond_hdr->data_size; i++, input_offset++) {
 			const struct dbg_dump_reg *reg =
 			    (const struct dbg_dump_reg *)
+<<<<<<< HEAD
 			    &input_regs_arr.ptr[input_offset];
+=======
+			    input_regs_arr.ptr + input_offset;
+>>>>>>> upstream/android-13
 			u32 addr, len;
 			bool wide_bus;
 
@@ -2726,14 +3800,22 @@ static u32 qed_grc_dump_regs_entries(struct qed_hwfn *p_hwfn,
 /* Dumps GRC registers entries. Returns the dumped size in dwords. */
 static u32 qed_grc_dump_split_data(struct qed_hwfn *p_hwfn,
 				   struct qed_ptt *p_ptt,
+<<<<<<< HEAD
 				   struct dbg_array input_regs_arr,
+=======
+				   struct virt_mem_desc input_regs_arr,
+>>>>>>> upstream/android-13
 				   u32 *dump_buf,
 				   bool dump,
 				   bool block_enable[MAX_BLOCK_ID],
 				   enum init_split_types split_type,
+<<<<<<< HEAD
 				   u8 split_id,
 				   const char *param_name,
 				   const char *param_val)
+=======
+				   u8 split_id, const char *reg_type_name)
+>>>>>>> upstream/android-13
 {
 	struct dbg_tools_data *dev_data = &p_hwfn->dbg_info;
 	enum init_split_types hdr_split_type = split_type;
@@ -2751,7 +3833,11 @@ static u32 qed_grc_dump_split_data(struct qed_hwfn *p_hwfn,
 				       false,
 				       0,
 				       hdr_split_type,
+<<<<<<< HEAD
 				       hdr_split_id, param_name, param_val);
+=======
+				       hdr_split_id, reg_type_name);
+>>>>>>> upstream/android-13
 
 	/* Dump registers */
 	offset += qed_grc_dump_regs_entries(p_hwfn,
@@ -2770,7 +3856,11 @@ static u32 qed_grc_dump_split_data(struct qed_hwfn *p_hwfn,
 				      dump,
 				      num_dumped_reg_entries,
 				      hdr_split_type,
+<<<<<<< HEAD
 				      hdr_split_id, param_name, param_val);
+=======
+				      hdr_split_id, reg_type_name);
+>>>>>>> upstream/android-13
 
 	return num_dumped_reg_entries > 0 ? offset : 0;
 }
@@ -2783,6 +3873,7 @@ static u32 qed_grc_dump_registers(struct qed_hwfn *p_hwfn,
 				  u32 *dump_buf,
 				  bool dump,
 				  bool block_enable[MAX_BLOCK_ID],
+<<<<<<< HEAD
 				  const char *param_name, const char *param_val)
 {
 	struct dbg_tools_data *dev_data = &p_hwfn->dbg_info;
@@ -2792,12 +3883,25 @@ static u32 qed_grc_dump_registers(struct qed_hwfn *p_hwfn,
 	       s_dbg_arrays[BIN_BUF_DBG_DUMP_REG].size_in_dwords) {
 		const struct dbg_dump_split_hdr *split_hdr;
 		struct dbg_array curr_input_regs_arr;
+=======
+				  const char *reg_type_name)
+{
+	struct virt_mem_desc *dbg_buf =
+	    &p_hwfn->dbg_arrays[BIN_BUF_DBG_DUMP_REG];
+	struct dbg_tools_data *dev_data = &p_hwfn->dbg_info;
+	u32 offset = 0, input_offset = 0;
+
+	while (input_offset < BYTES_TO_DWORDS(dbg_buf->size)) {
+		const struct dbg_dump_split_hdr *split_hdr;
+		struct virt_mem_desc curr_input_regs_arr;
+>>>>>>> upstream/android-13
 		enum init_split_types split_type;
 		u16 split_count = 0;
 		u32 split_data_size;
 		u8 split_id;
 
 		split_hdr =
+<<<<<<< HEAD
 			(const struct dbg_dump_split_hdr *)
 			&s_dbg_arrays[BIN_BUF_DBG_DUMP_REG].ptr[input_offset++];
 		split_type =
@@ -2809,6 +3913,19 @@ static u32 qed_grc_dump_registers(struct qed_hwfn *p_hwfn,
 		curr_input_regs_arr.ptr =
 			&s_dbg_arrays[BIN_BUF_DBG_DUMP_REG].ptr[input_offset];
 		curr_input_regs_arr.size_in_dwords = split_data_size;
+=======
+		    (const struct dbg_dump_split_hdr *)
+		    dbg_buf->ptr + input_offset++;
+		split_type =
+		    GET_FIELD(split_hdr->hdr,
+			      DBG_DUMP_SPLIT_HDR_SPLIT_TYPE_ID);
+		split_data_size = GET_FIELD(split_hdr->hdr,
+					    DBG_DUMP_SPLIT_HDR_DATA_SIZE);
+		curr_input_regs_arr.ptr =
+		    (u32 *)p_hwfn->dbg_arrays[BIN_BUF_DBG_DUMP_REG].ptr +
+		    input_offset;
+		curr_input_regs_arr.size = DWORDS_TO_BYTES(split_data_size);
+>>>>>>> upstream/android-13
 
 		switch (split_type) {
 		case SPLIT_TYPE_NONE:
@@ -2836,16 +3953,26 @@ static u32 qed_grc_dump_registers(struct qed_hwfn *p_hwfn,
 							  dump, block_enable,
 							  split_type,
 							  split_id,
+<<<<<<< HEAD
 							  param_name,
 							  param_val);
+=======
+							  reg_type_name);
+>>>>>>> upstream/android-13
 
 		input_offset += split_data_size;
 	}
 
 	/* Cancel pretends (pretend to original PF) */
 	if (dump) {
+<<<<<<< HEAD
 		fid = p_hwfn->rel_pf_id << PXP_PRETEND_CONCRETE_FID_PFID_SHIFT;
 		qed_fid_pretend(p_hwfn, p_ptt, fid);
+=======
+		qed_fid_pretend(p_hwfn, p_ptt,
+				FIELD_VALUE(PXP_PRETEND_CONCRETE_FID_PFID,
+					    p_hwfn->rel_pf_id));
+>>>>>>> upstream/android-13
 		dev_data->pretend.split_type = SPLIT_TYPE_NONE;
 		dev_data->pretend.split_id = 0;
 	}
@@ -2858,6 +3985,7 @@ static u32 qed_grc_dump_reset_regs(struct qed_hwfn *p_hwfn,
 				   struct qed_ptt *p_ptt,
 				   u32 *dump_buf, bool dump)
 {
+<<<<<<< HEAD
 	struct dbg_tools_data *dev_data = &p_hwfn->dbg_info;
 	u32 i, offset = 0, num_regs = 0;
 
@@ -2871,13 +3999,40 @@ static u32 qed_grc_dump_reset_regs(struct qed_hwfn *p_hwfn,
 		if (!s_reset_regs_defs[i].exists[dev_data->chip_id])
 			continue;
 
+=======
+	u32 offset = 0, num_regs = 0;
+	u8 reset_reg_id;
+
+	/* Calculate header size */
+	offset += qed_grc_dump_regs_hdr(dump_buf,
+					false,
+					0, SPLIT_TYPE_NONE, 0, "RESET_REGS");
+
+	/* Write reset registers */
+	for (reset_reg_id = 0; reset_reg_id < NUM_DBG_RESET_REGS;
+	     reset_reg_id++) {
+		const struct dbg_reset_reg *reset_reg;
+		u32 reset_reg_addr;
+
+		reset_reg = qed_get_dbg_reset_reg(p_hwfn, reset_reg_id);
+
+		if (GET_FIELD(reset_reg->data, DBG_RESET_REG_IS_REMOVED))
+			continue;
+
+		reset_reg_addr = GET_FIELD(reset_reg->data, DBG_RESET_REG_ADDR);
+>>>>>>> upstream/android-13
 		offset += qed_grc_dump_reg_entry(p_hwfn,
 						 p_ptt,
 						 dump_buf + offset,
 						 dump,
+<<<<<<< HEAD
 						 BYTES_TO_DWORDS
 						 (s_reset_regs_defs[i].addr), 1,
 						 false, SPLIT_TYPE_NONE, 0);
+=======
+						 reset_reg_addr,
+						 1, false, SPLIT_TYPE_NONE, 0);
+>>>>>>> upstream/android-13
 		num_regs++;
 	}
 
@@ -2885,7 +4040,11 @@ static u32 qed_grc_dump_reset_regs(struct qed_hwfn *p_hwfn,
 	if (dump)
 		qed_grc_dump_regs_hdr(dump_buf,
 				      true, num_regs, SPLIT_TYPE_NONE,
+<<<<<<< HEAD
 				      0, NULL, NULL);
+=======
+				      0, "RESET_REGS");
+>>>>>>> upstream/android-13
 
 	return offset;
 }
@@ -2898,6 +4057,7 @@ static u32 qed_grc_dump_modified_regs(struct qed_hwfn *p_hwfn,
 				      u32 *dump_buf, bool dump)
 {
 	struct dbg_tools_data *dev_data = &p_hwfn->dbg_info;
+<<<<<<< HEAD
 	u32 block_id, offset = 0, num_reg_entries = 0;
 	const struct dbg_attn_reg *attn_reg_arr;
 	u8 storm_id, reg_idx, num_attn_regs;
@@ -2913,6 +4073,25 @@ static u32 qed_grc_dump_modified_regs(struct qed_hwfn *p_hwfn,
 			continue;
 
 		attn_reg_arr = qed_get_block_attn_regs((enum block_id)block_id,
+=======
+	u32 block_id, offset = 0, stall_regs_offset;
+	const struct dbg_attn_reg *attn_reg_arr;
+	u8 storm_id, reg_idx, num_attn_regs;
+	u32 num_reg_entries = 0;
+
+	/* Write empty header for attention registers */
+	offset += qed_grc_dump_regs_hdr(dump_buf,
+					false,
+					0, SPLIT_TYPE_NONE, 0, "ATTN_REGS");
+
+	/* Write parity registers */
+	for (block_id = 0; block_id < NUM_PHYS_BLOCKS; block_id++) {
+		if (dev_data->block_in_reset[block_id] && dump)
+			continue;
+
+		attn_reg_arr = qed_get_block_attn_regs(p_hwfn,
+						       (enum block_id)block_id,
+>>>>>>> upstream/android-13
 						       ATTN_TYPE_PARITY,
 						       &num_attn_regs);
 
@@ -2955,6 +4134,7 @@ static u32 qed_grc_dump_modified_regs(struct qed_hwfn *p_hwfn,
 		}
 	}
 
+<<<<<<< HEAD
 	/* Write Storm stall status registers */
 	for (storm_id = 0; storm_id < MAX_DBG_STORMS; storm_id++) {
 		struct storm_defs *storm = &s_storm_defs[storm_id];
@@ -2965,6 +4145,31 @@ static u32 qed_grc_dump_modified_regs(struct qed_hwfn *p_hwfn,
 
 		addr =
 		    BYTES_TO_DWORDS(s_storm_defs[storm_id].sem_fast_mem_addr +
+=======
+	/* Overwrite header for attention registers */
+	if (dump)
+		qed_grc_dump_regs_hdr(dump_buf,
+				      true,
+				      num_reg_entries,
+				      SPLIT_TYPE_NONE, 0, "ATTN_REGS");
+
+	/* Write empty header for stall registers */
+	stall_regs_offset = offset;
+	offset += qed_grc_dump_regs_hdr(dump_buf,
+					false, 0, SPLIT_TYPE_NONE, 0, "REGS");
+
+	/* Write Storm stall status registers */
+	for (storm_id = 0, num_reg_entries = 0; storm_id < MAX_DBG_STORMS;
+	     storm_id++) {
+		struct storm_defs *storm = &s_storm_defs[storm_id];
+		u32 addr;
+
+		if (dev_data->block_in_reset[storm->sem_block_id] && dump)
+			continue;
+
+		addr =
+		    BYTES_TO_DWORDS(storm->sem_fast_mem_addr +
+>>>>>>> upstream/android-13
 				    SEM_FAST_REG_STALLED);
 		offset += qed_grc_dump_reg_entry(p_hwfn,
 						 p_ptt,
@@ -2976,12 +4181,21 @@ static u32 qed_grc_dump_modified_regs(struct qed_hwfn *p_hwfn,
 		num_reg_entries++;
 	}
 
+<<<<<<< HEAD
 	/* Write header */
 	if (dump)
 		qed_grc_dump_regs_hdr(dump_buf,
 				      true,
 				      num_reg_entries, SPLIT_TYPE_NONE,
 				      0, NULL, NULL);
+=======
+	/* Overwrite header for stall registers */
+	if (dump)
+		qed_grc_dump_regs_hdr(dump_buf + stall_regs_offset,
+				      true,
+				      num_reg_entries,
+				      SPLIT_TYPE_NONE, 0, "REGS");
+>>>>>>> upstream/android-13
 
 	return offset;
 }
@@ -2994,8 +4208,12 @@ static u32 qed_grc_dump_special_regs(struct qed_hwfn *p_hwfn,
 	u32 offset = 0, addr;
 
 	offset += qed_grc_dump_regs_hdr(dump_buf,
+<<<<<<< HEAD
 					dump, 2, SPLIT_TYPE_NONE, 0,
 					NULL, NULL);
+=======
+					dump, 2, SPLIT_TYPE_NONE, 0, "REGS");
+>>>>>>> upstream/android-13
 
 	/* Dump R/TDIF_REG_DEBUG_ERROR_INFO_SIZE (every 8'th register should be
 	 * skipped).
@@ -3043,8 +4261,12 @@ static u32 qed_grc_dump_mem_hdr(struct qed_hwfn *p_hwfn,
 				u32 len,
 				u32 bit_width,
 				bool packed,
+<<<<<<< HEAD
 				const char *mem_group,
 				bool is_storm, char storm_letter)
+=======
+				const char *mem_group, char storm_letter)
+>>>>>>> upstream/android-13
 {
 	u8 num_params = 3;
 	u32 offset = 0;
@@ -3065,7 +4287,11 @@ static u32 qed_grc_dump_mem_hdr(struct qed_hwfn *p_hwfn,
 
 	if (name) {
 		/* Dump name */
+<<<<<<< HEAD
 		if (is_storm) {
+=======
+		if (storm_letter) {
+>>>>>>> upstream/android-13
 			strcpy(buf, "?STORM_");
 			buf[0] = storm_letter;
 			strcpy(buf + strlen(buf), name);
@@ -3097,7 +4323,11 @@ static u32 qed_grc_dump_mem_hdr(struct qed_hwfn *p_hwfn,
 					     dump, "packed", 1);
 
 	/* Dump reg type */
+<<<<<<< HEAD
 	if (is_storm) {
+=======
+	if (storm_letter) {
+>>>>>>> upstream/android-13
 		strcpy(buf, "?STORM_");
 		buf[0] = storm_letter;
 		strcpy(buf + strlen(buf), mem_group);
@@ -3124,8 +4354,12 @@ static u32 qed_grc_dump_mem(struct qed_hwfn *p_hwfn,
 			    bool wide_bus,
 			    u32 bit_width,
 			    bool packed,
+<<<<<<< HEAD
 			    const char *mem_group,
 			    bool is_storm, char storm_letter)
+=======
+			    const char *mem_group, char storm_letter)
+>>>>>>> upstream/android-13
 {
 	u32 offset = 0;
 
@@ -3136,8 +4370,12 @@ static u32 qed_grc_dump_mem(struct qed_hwfn *p_hwfn,
 				       addr,
 				       len,
 				       bit_width,
+<<<<<<< HEAD
 				       packed,
 				       mem_group, is_storm, storm_letter);
+=======
+				       packed, mem_group, storm_letter);
+>>>>>>> upstream/android-13
 	offset += qed_grc_dump_addr_range(p_hwfn,
 					  p_ptt,
 					  dump_buf + offset,
@@ -3150,20 +4388,34 @@ static u32 qed_grc_dump_mem(struct qed_hwfn *p_hwfn,
 /* Dumps GRC memories entries. Returns the dumped size in dwords. */
 static u32 qed_grc_dump_mem_entries(struct qed_hwfn *p_hwfn,
 				    struct qed_ptt *p_ptt,
+<<<<<<< HEAD
 				    struct dbg_array input_mems_arr,
+=======
+				    struct virt_mem_desc input_mems_arr,
+>>>>>>> upstream/android-13
 				    u32 *dump_buf, bool dump)
 {
 	u32 i, offset = 0, input_offset = 0;
 	bool mode_match = true;
 
+<<<<<<< HEAD
 	while (input_offset < input_mems_arr.size_in_dwords) {
+=======
+	while (input_offset < BYTES_TO_DWORDS(input_mems_arr.size)) {
+>>>>>>> upstream/android-13
 		const struct dbg_dump_cond_hdr *cond_hdr;
 		u16 modes_buf_offset;
 		u32 num_entries;
 		bool eval_mode;
 
+<<<<<<< HEAD
 		cond_hdr = (const struct dbg_dump_cond_hdr *)
 			   &input_mems_arr.ptr[input_offset++];
+=======
+		cond_hdr =
+		    (const struct dbg_dump_cond_hdr *)input_mems_arr.ptr +
+		    input_offset++;
+>>>>>>> upstream/android-13
 		num_entries = cond_hdr->data_size / MEM_DUMP_ENTRY_SIZE_DWORDS;
 
 		/* Check required mode */
@@ -3185,6 +4437,7 @@ static u32 qed_grc_dump_mem_entries(struct qed_hwfn *p_hwfn,
 		for (i = 0; i < num_entries;
 		     i++, input_offset += MEM_DUMP_ENTRY_SIZE_DWORDS) {
 			const struct dbg_dump_mem *mem =
+<<<<<<< HEAD
 				(const struct dbg_dump_mem *)
 				&input_mems_arr.ptr[input_offset];
 			u8 mem_group_id = GET_FIELD(mem->dword0,
@@ -3195,14 +4448,33 @@ static u32 qed_grc_dump_mem_entries(struct qed_hwfn *p_hwfn,
 			enum block_id block_id;
 			u32 mem_addr, mem_len;
 
+=======
+			    (const struct dbg_dump_mem *)((u32 *)
+							  input_mems_arr.ptr
+							  + input_offset);
+			const struct dbg_block *block;
+			char storm_letter = 0;
+			u32 mem_addr, mem_len;
+			bool mem_wide_bus;
+			u8 mem_group_id;
+
+			mem_group_id = GET_FIELD(mem->dword0,
+						 DBG_DUMP_MEM_MEM_GROUP_ID);
+>>>>>>> upstream/android-13
 			if (mem_group_id >= MEM_GROUPS_NUM) {
 				DP_NOTICE(p_hwfn, "Invalid mem_group_id\n");
 				return 0;
 			}
 
+<<<<<<< HEAD
 			block_id = (enum block_id)cond_hdr->block_id;
 			if (!qed_grc_is_mem_included(p_hwfn,
 						     block_id,
+=======
+			if (!qed_grc_is_mem_included(p_hwfn,
+						     (enum block_id)
+						     cond_hdr->block_id,
+>>>>>>> upstream/android-13
 						     mem_group_id))
 				continue;
 
@@ -3211,6 +4483,7 @@ static u32 qed_grc_dump_mem_entries(struct qed_hwfn *p_hwfn,
 			mem_wide_bus = GET_FIELD(mem->dword1,
 						 DBG_DUMP_MEM_WIDE_BUS);
 
+<<<<<<< HEAD
 			/* Update memory length for CCFC/TCFC memories
 			 * according to number of LCIDs/LTIDs.
 			 */
@@ -3247,6 +4520,16 @@ static u32 qed_grc_dump_mem_entries(struct qed_hwfn *p_hwfn,
 						 [cond_hdr->block_id]->
 						 storm_id].letter;
 			}
+=======
+			block = get_dbg_block(p_hwfn,
+					      cond_hdr->block_id);
+
+			/* If memory is associated with Storm,
+			 * update storm details
+			 */
+			if (block->associated_storm_letter)
+				storm_letter = block->associated_storm_letter;
+>>>>>>> upstream/android-13
 
 			/* Dump memory */
 			offset += qed_grc_dump_mem(p_hwfn,
@@ -3260,7 +4543,10 @@ static u32 qed_grc_dump_mem_entries(struct qed_hwfn *p_hwfn,
 						0,
 						false,
 						s_mem_group_names[mem_group_id],
+<<<<<<< HEAD
 						is_storm,
+=======
+>>>>>>> upstream/android-13
 						storm_letter);
 		}
 	}
@@ -3275,6 +4561,7 @@ static u32 qed_grc_dump_memories(struct qed_hwfn *p_hwfn,
 				 struct qed_ptt *p_ptt,
 				 u32 *dump_buf, bool dump)
 {
+<<<<<<< HEAD
 	u32 offset = 0, input_offset = 0;
 
 	while (input_offset <
@@ -3295,6 +4582,27 @@ static u32 qed_grc_dump_memories(struct qed_hwfn *p_hwfn,
 		curr_input_mems_arr.ptr =
 			&s_dbg_arrays[BIN_BUF_DBG_DUMP_MEM].ptr[input_offset];
 		curr_input_mems_arr.size_in_dwords = split_data_size;
+=======
+	struct virt_mem_desc *dbg_buf =
+	    &p_hwfn->dbg_arrays[BIN_BUF_DBG_DUMP_MEM];
+	u32 offset = 0, input_offset = 0;
+
+	while (input_offset < BYTES_TO_DWORDS(dbg_buf->size)) {
+		const struct dbg_dump_split_hdr *split_hdr;
+		struct virt_mem_desc curr_input_mems_arr;
+		enum init_split_types split_type;
+		u32 split_data_size;
+
+		split_hdr =
+		    (const struct dbg_dump_split_hdr *)dbg_buf->ptr +
+		    input_offset++;
+		split_type = GET_FIELD(split_hdr->hdr,
+				       DBG_DUMP_SPLIT_HDR_SPLIT_TYPE_ID);
+		split_data_size = GET_FIELD(split_hdr->hdr,
+					    DBG_DUMP_SPLIT_HDR_DATA_SIZE);
+		curr_input_mems_arr.ptr = (u32 *)dbg_buf->ptr + input_offset;
+		curr_input_mems_arr.size = DWORDS_TO_BYTES(split_data_size);
+>>>>>>> upstream/android-13
 
 		if (split_type == SPLIT_TYPE_NONE)
 			offset += qed_grc_dump_mem_entries(p_hwfn,
@@ -3322,17 +4630,32 @@ static u32 qed_grc_dump_ctx_data(struct qed_hwfn *p_hwfn,
 				 bool dump,
 				 const char *name,
 				 u32 num_lids,
+<<<<<<< HEAD
 				 u32 lid_size,
 				 u32 rd_reg_addr,
 				 u8 storm_id)
 {
 	struct storm_defs *storm = &s_storm_defs[storm_id];
 	u32 i, lid, total_size, offset = 0;
+=======
+				 enum cm_ctx_types ctx_type, u8 storm_id)
+{
+	struct dbg_tools_data *dev_data = &p_hwfn->dbg_info;
+	struct storm_defs *storm = &s_storm_defs[storm_id];
+	u32 i, lid, lid_size, total_size;
+	u32 rd_reg_addr, offset = 0;
+
+	/* Convert quad-regs to dwords */
+	lid_size = storm->cm_ctx_lid_sizes[dev_data->chip_id][ctx_type] * 4;
+>>>>>>> upstream/android-13
 
 	if (!lid_size)
 		return 0;
 
+<<<<<<< HEAD
 	lid_size *= BYTES_IN_DWORD;
+=======
+>>>>>>> upstream/android-13
 	total_size = num_lids * lid_size;
 
 	offset += qed_grc_dump_mem_hdr(p_hwfn,
@@ -3342,11 +4665,16 @@ static u32 qed_grc_dump_ctx_data(struct qed_hwfn *p_hwfn,
 				       0,
 				       total_size,
 				       lid_size * 32,
+<<<<<<< HEAD
 				       false, name, true, storm->letter);
+=======
+				       false, name, storm->letter);
+>>>>>>> upstream/android-13
 
 	if (!dump)
 		return offset + total_size;
 
+<<<<<<< HEAD
 	/* Dump context data */
 	for (lid = 0; lid < num_lids; lid++) {
 		for (i = 0; i < lid_size; i++, offset++) {
@@ -3354,6 +4682,23 @@ static u32 qed_grc_dump_ctx_data(struct qed_hwfn *p_hwfn,
 			       p_ptt, storm->cm_ctx_wr_addr, (i << 9) | lid);
 			*(dump_buf + offset) = qed_rd(p_hwfn,
 						      p_ptt, rd_reg_addr);
+=======
+	rd_reg_addr = BYTES_TO_DWORDS(storm->cm_ctx_rd_addr[ctx_type]);
+
+	/* Dump context data */
+	for (lid = 0; lid < num_lids; lid++) {
+		for (i = 0; i < lid_size; i++) {
+			qed_wr(p_hwfn,
+			       p_ptt, storm->cm_ctx_wr_addr, (i << 9) | lid);
+			offset += qed_grc_dump_addr_range(p_hwfn,
+							  p_ptt,
+							  dump_buf + offset,
+							  dump,
+							  rd_reg_addr,
+							  1,
+							  false,
+							  SPLIT_TYPE_NONE, 0);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -3364,18 +4709,25 @@ static u32 qed_grc_dump_ctx_data(struct qed_hwfn *p_hwfn,
 static u32 qed_grc_dump_ctx(struct qed_hwfn *p_hwfn,
 			    struct qed_ptt *p_ptt, u32 *dump_buf, bool dump)
 {
+<<<<<<< HEAD
 	enum dbg_grc_params grc_param;
+=======
+>>>>>>> upstream/android-13
 	u32 offset = 0;
 	u8 storm_id;
 
 	for (storm_id = 0; storm_id < MAX_DBG_STORMS; storm_id++) {
+<<<<<<< HEAD
 		struct storm_defs *storm = &s_storm_defs[storm_id];
 
+=======
+>>>>>>> upstream/android-13
 		if (!qed_grc_is_storm_included(p_hwfn,
 					       (enum dbg_storms)storm_id))
 			continue;
 
 		/* Dump Conn AG context size */
+<<<<<<< HEAD
 		grc_param = DBG_GRC_PARAM_NUM_LCIDS;
 		offset +=
 			qed_grc_dump_ctx_data(p_hwfn,
@@ -3430,11 +4782,48 @@ static u32 qed_grc_dump_ctx(struct qed_hwfn *p_hwfn,
 					      storm->cm_task_st_ctx_lid_size,
 					      storm->cm_task_st_ctx_rd_addr,
 					      storm_id);
+=======
+		offset += qed_grc_dump_ctx_data(p_hwfn,
+						p_ptt,
+						dump_buf + offset,
+						dump,
+						"CONN_AG_CTX",
+						NUM_OF_LCIDS,
+						CM_CTX_CONN_AG, storm_id);
+
+		/* Dump Conn ST context size */
+		offset += qed_grc_dump_ctx_data(p_hwfn,
+						p_ptt,
+						dump_buf + offset,
+						dump,
+						"CONN_ST_CTX",
+						NUM_OF_LCIDS,
+						CM_CTX_CONN_ST, storm_id);
+
+		/* Dump Task AG context size */
+		offset += qed_grc_dump_ctx_data(p_hwfn,
+						p_ptt,
+						dump_buf + offset,
+						dump,
+						"TASK_AG_CTX",
+						NUM_OF_LTIDS,
+						CM_CTX_TASK_AG, storm_id);
+
+		/* Dump Task ST context size */
+		offset += qed_grc_dump_ctx_data(p_hwfn,
+						p_ptt,
+						dump_buf + offset,
+						dump,
+						"TASK_ST_CTX",
+						NUM_OF_LTIDS,
+						CM_CTX_TASK_ST, storm_id);
+>>>>>>> upstream/android-13
 	}
 
 	return offset;
 }
 
+<<<<<<< HEAD
 /* Dumps GRC IORs data. Returns the dumped size in dwords. */
 static u32 qed_grc_dump_iors(struct qed_hwfn *p_hwfn,
 			     struct qed_ptt *p_ptt, u32 *dump_buf, bool dump)
@@ -3472,6 +4861,80 @@ static u32 qed_grc_dump_iors(struct qed_hwfn *p_hwfn,
 	}
 
 	return offset;
+=======
+#define VFC_STATUS_RESP_READY_BIT	0
+#define VFC_STATUS_BUSY_BIT		1
+#define VFC_STATUS_SENDING_CMD_BIT	2
+
+#define VFC_POLLING_DELAY_MS	1
+#define VFC_POLLING_COUNT		20
+
+/* Reads data from VFC. Returns the number of dwords read (0 on error).
+ * Sizes are specified in dwords.
+ */
+static u32 qed_grc_dump_read_from_vfc(struct qed_hwfn *p_hwfn,
+				      struct qed_ptt *p_ptt,
+				      struct storm_defs *storm,
+				      u32 *cmd_data,
+				      u32 cmd_size,
+				      u32 *addr_data,
+				      u32 addr_size,
+				      u32 resp_size, u32 *dump_buf)
+{
+	struct dbg_tools_data *dev_data = &p_hwfn->dbg_info;
+	u32 vfc_status, polling_ms, polling_count = 0, i;
+	u32 reg_addr, sem_base;
+	bool is_ready = false;
+
+	sem_base = storm->sem_fast_mem_addr;
+	polling_ms = VFC_POLLING_DELAY_MS *
+	    s_hw_type_defs[dev_data->hw_type].delay_factor;
+
+	/* Write VFC command */
+	ARR_REG_WR(p_hwfn,
+		   p_ptt,
+		   sem_base + SEM_FAST_REG_VFC_DATA_WR,
+		   cmd_data, cmd_size);
+
+	/* Write VFC address */
+	ARR_REG_WR(p_hwfn,
+		   p_ptt,
+		   sem_base + SEM_FAST_REG_VFC_ADDR,
+		   addr_data, addr_size);
+
+	/* Read response */
+	for (i = 0; i < resp_size; i++) {
+		/* Poll until ready */
+		do {
+			reg_addr = sem_base + SEM_FAST_REG_VFC_STATUS;
+			qed_grc_dump_addr_range(p_hwfn,
+						p_ptt,
+						&vfc_status,
+						true,
+						BYTES_TO_DWORDS(reg_addr),
+						1,
+						false, SPLIT_TYPE_NONE, 0);
+			is_ready = vfc_status & BIT(VFC_STATUS_RESP_READY_BIT);
+
+			if (!is_ready) {
+				if (polling_count++ == VFC_POLLING_COUNT)
+					return 0;
+
+				msleep(polling_ms);
+			}
+		} while (!is_ready);
+
+		reg_addr = sem_base + SEM_FAST_REG_VFC_DATA_RD;
+		qed_grc_dump_addr_range(p_hwfn,
+					p_ptt,
+					dump_buf + i,
+					true,
+					BYTES_TO_DWORDS(reg_addr),
+					1, false, SPLIT_TYPE_NONE, 0);
+	}
+
+	return resp_size;
+>>>>>>> upstream/android-13
 }
 
 /* Dump VFC CAM. Returns the dumped size in dwords. */
@@ -3483,7 +4946,11 @@ static u32 qed_grc_dump_vfc_cam(struct qed_hwfn *p_hwfn,
 	struct storm_defs *storm = &s_storm_defs[storm_id];
 	u32 cam_addr[VFC_CAM_ADDR_DWORDS] = { 0 };
 	u32 cam_cmd[VFC_CAM_CMD_DWORDS] = { 0 };
+<<<<<<< HEAD
 	u32 row, i, offset = 0;
+=======
+	u32 row, offset = 0;
+>>>>>>> upstream/android-13
 
 	offset += qed_grc_dump_mem_hdr(p_hwfn,
 				       dump_buf + offset,
@@ -3492,7 +4959,11 @@ static u32 qed_grc_dump_vfc_cam(struct qed_hwfn *p_hwfn,
 				       0,
 				       total_size,
 				       256,
+<<<<<<< HEAD
 				       false, "vfc_cam", true, storm->letter);
+=======
+				       false, "vfc_cam", storm->letter);
+>>>>>>> upstream/android-13
 
 	if (!dump)
 		return offset + total_size;
@@ -3500,6 +4971,7 @@ static u32 qed_grc_dump_vfc_cam(struct qed_hwfn *p_hwfn,
 	/* Prepare CAM address */
 	SET_VAR_FIELD(cam_addr, VFC_CAM_ADDR, OP, VFC_OPCODE_CAM_RD);
 
+<<<<<<< HEAD
 	for (row = 0; row < VFC_CAM_NUM_ROWS;
 	     row++, offset += VFC_CAM_RESP_DWORDS) {
 		/* Write VFC CAM command */
@@ -3520,6 +4992,20 @@ static u32 qed_grc_dump_vfc_cam(struct qed_hwfn *p_hwfn,
 			   p_ptt,
 			   storm->sem_fast_mem_addr + SEM_FAST_REG_VFC_DATA_RD,
 			   dump_buf + offset, VFC_CAM_RESP_DWORDS);
+=======
+	/* Read VFC CAM data */
+	for (row = 0; row < VFC_CAM_NUM_ROWS; row++) {
+		SET_VAR_FIELD(cam_cmd, VFC_CAM_CMD, ROW, row);
+		offset += qed_grc_dump_read_from_vfc(p_hwfn,
+						     p_ptt,
+						     storm,
+						     cam_cmd,
+						     VFC_CAM_CMD_DWORDS,
+						     cam_addr,
+						     VFC_CAM_ADDR_DWORDS,
+						     VFC_CAM_RESP_DWORDS,
+						     dump_buf + offset);
+>>>>>>> upstream/android-13
 	}
 
 	return offset;
@@ -3536,7 +5022,11 @@ static u32 qed_grc_dump_vfc_ram(struct qed_hwfn *p_hwfn,
 	struct storm_defs *storm = &s_storm_defs[storm_id];
 	u32 ram_addr[VFC_RAM_ADDR_DWORDS] = { 0 };
 	u32 ram_cmd[VFC_RAM_CMD_DWORDS] = { 0 };
+<<<<<<< HEAD
 	u32 row, i, offset = 0;
+=======
+	u32 row, offset = 0;
+>>>>>>> upstream/android-13
 
 	offset += qed_grc_dump_mem_hdr(p_hwfn,
 				       dump_buf + offset,
@@ -3547,14 +5037,19 @@ static u32 qed_grc_dump_vfc_ram(struct qed_hwfn *p_hwfn,
 				       256,
 				       false,
 				       ram_defs->type_name,
+<<<<<<< HEAD
 				       true, storm->letter);
 
 	/* Prepare RAM address */
 	SET_VAR_FIELD(ram_addr, VFC_RAM_ADDR, OP, VFC_OPCODE_RAM_RD);
+=======
+				       storm->letter);
+>>>>>>> upstream/android-13
 
 	if (!dump)
 		return offset + total_size;
 
+<<<<<<< HEAD
 	for (row = ram_defs->base_row;
 	     row < ram_defs->base_row + ram_defs->num_rows;
 	     row++, offset += VFC_RAM_RESP_DWORDS) {
@@ -3576,6 +5071,24 @@ static u32 qed_grc_dump_vfc_ram(struct qed_hwfn *p_hwfn,
 			   p_ptt,
 			   storm->sem_fast_mem_addr + SEM_FAST_REG_VFC_DATA_RD,
 			   dump_buf + offset, VFC_RAM_RESP_DWORDS);
+=======
+	/* Prepare RAM address */
+	SET_VAR_FIELD(ram_addr, VFC_RAM_ADDR, OP, VFC_OPCODE_RAM_RD);
+
+	/* Read VFC RAM data */
+	for (row = ram_defs->base_row;
+	     row < ram_defs->base_row + ram_defs->num_rows; row++) {
+		SET_VAR_FIELD(ram_addr, VFC_RAM_ADDR, ROW, row);
+		offset += qed_grc_dump_read_from_vfc(p_hwfn,
+						     p_ptt,
+						     storm,
+						     ram_cmd,
+						     VFC_RAM_CMD_DWORDS,
+						     ram_addr,
+						     VFC_RAM_ADDR_DWORDS,
+						     VFC_RAM_RESP_DWORDS,
+						     dump_buf + offset);
+>>>>>>> upstream/android-13
 	}
 
 	return offset;
@@ -3585,16 +5098,23 @@ static u32 qed_grc_dump_vfc_ram(struct qed_hwfn *p_hwfn,
 static u32 qed_grc_dump_vfc(struct qed_hwfn *p_hwfn,
 			    struct qed_ptt *p_ptt, u32 *dump_buf, bool dump)
 {
+<<<<<<< HEAD
 	struct dbg_tools_data *dev_data = &p_hwfn->dbg_info;
+=======
+>>>>>>> upstream/android-13
 	u8 storm_id, i;
 	u32 offset = 0;
 
 	for (storm_id = 0; storm_id < MAX_DBG_STORMS; storm_id++) {
 		if (!qed_grc_is_storm_included(p_hwfn,
 					       (enum dbg_storms)storm_id) ||
+<<<<<<< HEAD
 		    !s_storm_defs[storm_id].has_vfc ||
 		    (storm_id == DBG_PSTORM_ID && dev_data->platform_id !=
 		     PLATFORM_ASIC))
+=======
+		    !s_storm_defs[storm_id].has_vfc)
+>>>>>>> upstream/android-13
 			continue;
 
 		/* Read CAM */
@@ -3644,7 +5164,11 @@ static u32 qed_grc_dump_rss(struct qed_hwfn *p_hwfn,
 					       total_dwords,
 					       rss_defs->entry_width,
 					       packed,
+<<<<<<< HEAD
 					       rss_defs->type_name, false, 0);
+=======
+					       rss_defs->type_name, 0);
+>>>>>>> upstream/android-13
 
 		/* Dump RSS data */
 		if (!dump) {
@@ -3704,7 +5228,11 @@ static u32 qed_grc_dump_big_ram(struct qed_hwfn *p_hwfn,
 				       0,
 				       ram_size,
 				       block_size * 8,
+<<<<<<< HEAD
 				       false, type_name, false, 0);
+=======
+				       false, type_name, 0);
+>>>>>>> upstream/android-13
 
 	/* Read and dump Big RAM data */
 	if (!dump)
@@ -3730,6 +5258,10 @@ static u32 qed_grc_dump_big_ram(struct qed_hwfn *p_hwfn,
 	return offset;
 }
 
+<<<<<<< HEAD
+=======
+/* Dumps MCP scratchpad. Returns the dumped size in dwords. */
+>>>>>>> upstream/android-13
 static u32 qed_grc_dump_mcp(struct qed_hwfn *p_hwfn,
 			    struct qed_ptt *p_ptt, u32 *dump_buf, bool dump)
 {
@@ -3751,8 +5283,13 @@ static u32 qed_grc_dump_mcp(struct qed_hwfn *p_hwfn,
 				   dump,
 				   NULL,
 				   BYTES_TO_DWORDS(MCP_REG_SCRATCH),
+<<<<<<< HEAD
 				   MCP_REG_SCRATCH_SIZE_BB_K2,
 				   false, 0, false, "MCP", false, 0);
+=======
+				   MCP_REG_SCRATCH_SIZE,
+				   false, 0, false, "MCP", 0);
+>>>>>>> upstream/android-13
 
 	/* Dump MCP cpu_reg_file */
 	offset += qed_grc_dump_mem(p_hwfn,
@@ -3762,19 +5299,31 @@ static u32 qed_grc_dump_mcp(struct qed_hwfn *p_hwfn,
 				   NULL,
 				   BYTES_TO_DWORDS(MCP_REG_CPU_REG_FILE),
 				   MCP_REG_CPU_REG_FILE_SIZE,
+<<<<<<< HEAD
 				   false, 0, false, "MCP", false, 0);
+=======
+				   false, 0, false, "MCP", 0);
+>>>>>>> upstream/android-13
 
 	/* Dump MCP registers */
 	block_enable[BLOCK_MCP] = true;
 	offset += qed_grc_dump_registers(p_hwfn,
 					 p_ptt,
 					 dump_buf + offset,
+<<<<<<< HEAD
 					 dump, block_enable, "block", "MCP");
+=======
+					 dump, block_enable, "MCP");
+>>>>>>> upstream/android-13
 
 	/* Dump required non-MCP registers */
 	offset += qed_grc_dump_regs_hdr(dump_buf + offset,
 					dump, 1, SPLIT_TYPE_NONE, 0,
+<<<<<<< HEAD
 					"block", "MCP");
+=======
+					"MCP");
+>>>>>>> upstream/android-13
 	addr = BYTES_TO_DWORDS(MISC_REG_SHARED_MEM_ADDR);
 	offset += qed_grc_dump_reg_entry(p_hwfn,
 					 p_ptt,
@@ -3791,7 +5340,13 @@ static u32 qed_grc_dump_mcp(struct qed_hwfn *p_hwfn,
 	return offset;
 }
 
+<<<<<<< HEAD
 /* Dumps the tbus indirect memory for all PHYs. */
+=======
+/* Dumps the tbus indirect memory for all PHYs.
+ * Returns the dumped size in dwords.
+ */
+>>>>>>> upstream/android-13
 static u32 qed_grc_dump_phy(struct qed_hwfn *p_hwfn,
 			    struct qed_ptt *p_ptt, u32 *dump_buf, bool dump)
 {
@@ -3825,7 +5380,11 @@ static u32 qed_grc_dump_phy(struct qed_hwfn *p_hwfn,
 					       mem_name,
 					       0,
 					       PHY_DUMP_SIZE_DWORDS,
+<<<<<<< HEAD
 					       16, true, mem_name, false, 0);
+=======
+					       16, true, mem_name, 0);
+>>>>>>> upstream/android-13
 
 		if (!dump) {
 			offset += PHY_DUMP_SIZE_DWORDS;
@@ -3856,6 +5415,7 @@ static u32 qed_grc_dump_phy(struct qed_hwfn *p_hwfn,
 	return offset;
 }
 
+<<<<<<< HEAD
 static void qed_config_dbg_line(struct qed_hwfn *p_hwfn,
 				struct qed_ptt *p_ptt,
 				enum block_id block_id,
@@ -3871,6 +5431,60 @@ static void qed_config_dbg_line(struct qed_hwfn *p_hwfn,
 	qed_wr(p_hwfn, p_ptt, block->dbg_shift_addr, right_shift);
 	qed_wr(p_hwfn, p_ptt, block->dbg_force_valid_addr, force_valid_mask);
 	qed_wr(p_hwfn, p_ptt, block->dbg_force_frame_addr, force_frame_mask);
+=======
+static enum dbg_status qed_find_nvram_image(struct qed_hwfn *p_hwfn,
+					    struct qed_ptt *p_ptt,
+					    u32 image_type,
+					    u32 *nvram_offset_bytes,
+					    u32 *nvram_size_bytes);
+
+static enum dbg_status qed_nvram_read(struct qed_hwfn *p_hwfn,
+				      struct qed_ptt *p_ptt,
+				      u32 nvram_offset_bytes,
+				      u32 nvram_size_bytes, u32 *ret_buf);
+
+/* Dumps the MCP HW dump from NVRAM. Returns the dumped size in dwords. */
+static u32 qed_grc_dump_mcp_hw_dump(struct qed_hwfn *p_hwfn,
+				    struct qed_ptt *p_ptt,
+				    u32 *dump_buf, bool dump)
+{
+	u32 hw_dump_offset_bytes = 0, hw_dump_size_bytes = 0;
+	u32 hw_dump_size_dwords = 0, offset = 0;
+	enum dbg_status status;
+
+	/* Read HW dump image from NVRAM */
+	status = qed_find_nvram_image(p_hwfn,
+				      p_ptt,
+				      NVM_TYPE_HW_DUMP_OUT,
+				      &hw_dump_offset_bytes,
+				      &hw_dump_size_bytes);
+	if (status != DBG_STATUS_OK)
+		return 0;
+
+	hw_dump_size_dwords = BYTES_TO_DWORDS(hw_dump_size_bytes);
+
+	/* Dump HW dump image section */
+	offset += qed_dump_section_hdr(dump_buf + offset,
+				       dump, "mcp_hw_dump", 1);
+	offset += qed_dump_num_param(dump_buf + offset,
+				     dump, "size", hw_dump_size_dwords);
+
+	/* Read MCP HW dump image into dump buffer */
+	if (dump && hw_dump_size_dwords) {
+		status = qed_nvram_read(p_hwfn,
+					p_ptt,
+					hw_dump_offset_bytes,
+					hw_dump_size_bytes, dump_buf + offset);
+		if (status != DBG_STATUS_OK) {
+			DP_NOTICE(p_hwfn,
+				  "Failed to read MCP HW Dump image from NVRAM\n");
+			return 0;
+		}
+	}
+	offset += hw_dump_size_dwords;
+
+	return offset;
+>>>>>>> upstream/android-13
 }
 
 /* Dumps Static Debug data. Returns the dumped size in dwords. */
@@ -3879,13 +5493,18 @@ static u32 qed_grc_dump_static_debug(struct qed_hwfn *p_hwfn,
 				     u32 *dump_buf, bool dump)
 {
 	struct dbg_tools_data *dev_data = &p_hwfn->dbg_info;
+<<<<<<< HEAD
 	u32 block_id, line_id, offset = 0;
+=======
+	u32 block_id, line_id, offset = 0, addr, len;
+>>>>>>> upstream/android-13
 
 	/* Don't dump static debug if a debug bus recording is in progress */
 	if (dump && qed_rd(p_hwfn, p_ptt, DBG_REG_DBG_BLOCK_ON))
 		return 0;
 
 	if (dump) {
+<<<<<<< HEAD
 		/* Disable all blocks debug output */
 		for (block_id = 0; block_id < MAX_BLOCK_ID; block_id++) {
 			struct block_defs *block = s_block_defs[block_id];
@@ -3899,6 +5518,14 @@ static u32 qed_grc_dump_static_debug(struct qed_hwfn *p_hwfn,
 		qed_bus_reset_dbg_block(p_hwfn, p_ptt);
 		qed_bus_set_framing_mode(p_hwfn,
 					 p_ptt, DBG_BUS_FRAME_MODE_8HW_0ST);
+=======
+		/* Disable debug bus in all blocks */
+		qed_bus_disable_blocks(p_hwfn, p_ptt);
+
+		qed_bus_reset_dbg_block(p_hwfn, p_ptt);
+		qed_wr(p_hwfn,
+		       p_ptt, DBG_REG_FRAMING_MODE, DBG_BUS_FRAME_MODE_8HW);
+>>>>>>> upstream/android-13
 		qed_wr(p_hwfn,
 		       p_ptt, DBG_REG_DEBUG_TARGET, DBG_BUS_TARGET_ID_INT_BUF);
 		qed_wr(p_hwfn, p_ptt, DBG_REG_FULL_MODE, 1);
@@ -3907,6 +5534,7 @@ static u32 qed_grc_dump_static_debug(struct qed_hwfn *p_hwfn,
 
 	/* Dump all static debug lines for each relevant block */
 	for (block_id = 0; block_id < MAX_BLOCK_ID; block_id++) {
+<<<<<<< HEAD
 		struct block_defs *block = s_block_defs[block_id];
 		struct dbg_bus_block *block_desc;
 		u32 block_dwords, addr, len;
@@ -3922,13 +5550,54 @@ static u32 qed_grc_dump_static_debug(struct qed_hwfn *p_hwfn,
 			       STATIC_DEBUG_LINE_DWORDS;
 
 		/* Dump static section params */
+=======
+		const struct dbg_block_chip *block_per_chip;
+		const struct dbg_block *block;
+		bool is_removed, has_dbg_bus;
+		u16 modes_buf_offset;
+		u32 block_dwords;
+
+		block_per_chip =
+		    qed_get_dbg_block_per_chip(p_hwfn, (enum block_id)block_id);
+		is_removed = GET_FIELD(block_per_chip->flags,
+				       DBG_BLOCK_CHIP_IS_REMOVED);
+		has_dbg_bus = GET_FIELD(block_per_chip->flags,
+					DBG_BLOCK_CHIP_HAS_DBG_BUS);
+
+		/* read+clear for NWS parity is not working, skip NWS block */
+		if (block_id == BLOCK_NWS)
+			continue;
+
+		if (!is_removed && has_dbg_bus &&
+		    GET_FIELD(block_per_chip->dbg_bus_mode.data,
+			      DBG_MODE_HDR_EVAL_MODE) > 0) {
+			modes_buf_offset =
+			    GET_FIELD(block_per_chip->dbg_bus_mode.data,
+				      DBG_MODE_HDR_MODES_BUF_OFFSET);
+			if (!qed_is_mode_match(p_hwfn, &modes_buf_offset))
+				has_dbg_bus = false;
+		}
+
+		if (is_removed || !has_dbg_bus)
+			continue;
+
+		block_dwords = NUM_DBG_LINES(block_per_chip) *
+			       STATIC_DEBUG_LINE_DWORDS;
+
+		/* Dump static section params */
+		block = get_dbg_block(p_hwfn, (enum block_id)block_id);
+>>>>>>> upstream/android-13
 		offset += qed_grc_dump_mem_hdr(p_hwfn,
 					       dump_buf + offset,
 					       dump,
 					       block->name,
 					       0,
 					       block_dwords,
+<<<<<<< HEAD
 					       32, false, "STATIC", false, 0);
+=======
+					       32, false, "STATIC", 0);
+>>>>>>> upstream/android-13
 
 		if (!dump) {
 			offset += block_dwords;
@@ -3944,6 +5613,7 @@ static u32 qed_grc_dump_static_debug(struct qed_hwfn *p_hwfn,
 		}
 
 		/* Enable block's client */
+<<<<<<< HEAD
 		dbg_client_id = block->dbg_client_id[dev_data->chip_id];
 		qed_bus_enable_clients(p_hwfn,
 				       p_ptt,
@@ -3958,6 +5628,21 @@ static u32 qed_grc_dump_static_debug(struct qed_hwfn *p_hwfn,
 					    p_ptt,
 					    (enum block_id)block_id,
 					    (u8)line_id, 0xf, 0, 0, 0);
+=======
+		qed_bus_enable_clients(p_hwfn,
+				       p_ptt,
+				       BIT(block_per_chip->dbg_client_id));
+
+		addr = BYTES_TO_DWORDS(DBG_REG_CALENDAR_OUT_DATA);
+		len = STATIC_DEBUG_LINE_DWORDS;
+		for (line_id = 0; line_id < (u32)NUM_DBG_LINES(block_per_chip);
+		     line_id++) {
+			/* Configure debug line ID */
+			qed_bus_config_dbg_line(p_hwfn,
+						p_ptt,
+						(enum block_id)block_id,
+						(u8)line_id, 0xf, 0, 0, 0);
+>>>>>>> upstream/android-13
 
 			/* Read debug line info */
 			offset += qed_grc_dump_addr_range(p_hwfn,
@@ -3972,7 +5657,12 @@ static u32 qed_grc_dump_static_debug(struct qed_hwfn *p_hwfn,
 
 		/* Disable block's client and debug output */
 		qed_bus_enable_clients(p_hwfn, p_ptt, 0);
+<<<<<<< HEAD
 		qed_wr(p_hwfn, p_ptt, block->dbg_enable_addr, 0);
+=======
+		qed_bus_config_dbg_line(p_hwfn, p_ptt,
+					(enum block_id)block_id, 0, 0, 0, 0, 0);
+>>>>>>> upstream/android-13
 	}
 
 	if (dump) {
@@ -3992,8 +5682,13 @@ static enum dbg_status qed_grc_dump(struct qed_hwfn *p_hwfn,
 				    bool dump, u32 *num_dumped_dwords)
 {
 	struct dbg_tools_data *dev_data = &p_hwfn->dbg_info;
+<<<<<<< HEAD
 	bool parities_masked = false;
 	u32 offset = 0;
+=======
+	u32 dwords_read, offset = 0;
+	bool parities_masked = false;
+>>>>>>> upstream/android-13
 	u8 i;
 
 	*num_dumped_dwords = 0;
@@ -4012,6 +5707,7 @@ static enum dbg_status qed_grc_dump(struct qed_hwfn *p_hwfn,
 	offset += qed_dump_num_param(dump_buf + offset,
 				     dump,
 				     "num-lcids",
+<<<<<<< HEAD
 				     qed_grc_get_param(p_hwfn,
 						DBG_GRC_PARAM_NUM_LCIDS));
 	offset += qed_dump_num_param(dump_buf + offset,
@@ -4019,6 +5715,13 @@ static enum dbg_status qed_grc_dump(struct qed_hwfn *p_hwfn,
 				     "num-ltids",
 				     qed_grc_get_param(p_hwfn,
 						DBG_GRC_PARAM_NUM_LTIDS));
+=======
+				     NUM_OF_LCIDS);
+	offset += qed_dump_num_param(dump_buf + offset,
+				     dump,
+				     "num-ltids",
+				     NUM_OF_LTIDS);
+>>>>>>> upstream/android-13
 	offset += qed_dump_num_param(dump_buf + offset,
 				     dump, "num-ports", dev_data->num_ports);
 
@@ -4030,7 +5733,11 @@ static enum dbg_status qed_grc_dump(struct qed_hwfn *p_hwfn,
 
 	/* Take all blocks out of reset (using reset registers) */
 	if (dump) {
+<<<<<<< HEAD
 		qed_grc_unreset_blocks(p_hwfn, p_ptt);
+=======
+		qed_grc_unreset_blocks(p_hwfn, p_ptt, false);
+>>>>>>> upstream/android-13
 		qed_update_blocks_reset_state(p_hwfn, p_ptt);
 	}
 
@@ -4073,7 +5780,11 @@ static enum dbg_status qed_grc_dump(struct qed_hwfn *p_hwfn,
 						 dump_buf +
 						 offset,
 						 dump,
+<<<<<<< HEAD
 						 block_enable, NULL, NULL);
+=======
+						 block_enable, NULL);
+>>>>>>> upstream/android-13
 
 		/* Dump special registers */
 		offset += qed_grc_dump_special_regs(p_hwfn,
@@ -4107,6 +5818,7 @@ static enum dbg_status qed_grc_dump(struct qed_hwfn *p_hwfn,
 						       dump_buf + offset,
 						       dump, i);
 
+<<<<<<< HEAD
 	/* Dump IORs */
 	if (qed_grc_is_included(p_hwfn, DBG_GRC_PARAM_DUMP_IOR))
 		offset += qed_grc_dump_iors(p_hwfn,
@@ -4116,14 +5828,38 @@ static enum dbg_status qed_grc_dump(struct qed_hwfn *p_hwfn,
 	if (qed_grc_is_included(p_hwfn, DBG_GRC_PARAM_DUMP_VFC))
 		offset += qed_grc_dump_vfc(p_hwfn,
 					   p_ptt, dump_buf + offset, dump);
+=======
+	/* Dump VFC */
+	if (qed_grc_is_included(p_hwfn, DBG_GRC_PARAM_DUMP_VFC)) {
+		dwords_read = qed_grc_dump_vfc(p_hwfn,
+					       p_ptt, dump_buf + offset, dump);
+		offset += dwords_read;
+		if (!dwords_read)
+			return DBG_STATUS_VFC_READ_ERROR;
+	}
+>>>>>>> upstream/android-13
 
 	/* Dump PHY tbus */
 	if (qed_grc_is_included(p_hwfn,
 				DBG_GRC_PARAM_DUMP_PHY) && dev_data->chip_id ==
+<<<<<<< HEAD
 	    CHIP_K2 && dev_data->platform_id == PLATFORM_ASIC)
 		offset += qed_grc_dump_phy(p_hwfn,
 					   p_ptt, dump_buf + offset, dump);
 
+=======
+	    CHIP_K2 && dev_data->hw_type == HW_TYPE_ASIC)
+		offset += qed_grc_dump_phy(p_hwfn,
+					   p_ptt, dump_buf + offset, dump);
+
+	/* Dump MCP HW Dump */
+	if (qed_grc_is_included(p_hwfn, DBG_GRC_PARAM_DUMP_MCP_HW_DUMP) &&
+	    !qed_grc_get_param(p_hwfn, DBG_GRC_PARAM_NO_MCP) && 1)
+		offset += qed_grc_dump_mcp_hw_dump(p_hwfn,
+						   p_ptt,
+						   dump_buf + offset, dump);
+
+>>>>>>> upstream/android-13
 	/* Dump static debug data (only if not during debug bus recording) */
 	if (qed_grc_is_included(p_hwfn,
 				DBG_GRC_PARAM_DUMP_STATIC) &&
@@ -4174,8 +5910,14 @@ static u32 qed_idle_chk_dump_failure(struct qed_hwfn *p_hwfn,
 	u8 reg_id;
 
 	hdr = (struct dbg_idle_chk_result_hdr *)dump_buf;
+<<<<<<< HEAD
 	regs = &((const union dbg_idle_chk_reg *)
 		 s_dbg_arrays[BIN_BUF_DBG_IDLE_CHK_REGS].ptr)[rule->reg_offset];
+=======
+	regs = (const union dbg_idle_chk_reg *)
+		p_hwfn->dbg_arrays[BIN_BUF_DBG_IDLE_CHK_REGS].ptr +
+		rule->reg_offset;
+>>>>>>> upstream/android-13
 	cond_regs = &regs[0].cond_reg;
 	info_regs = &regs[rule->num_cond_regs].info_reg;
 
@@ -4195,8 +5937,13 @@ static u32 qed_idle_chk_dump_failure(struct qed_hwfn *p_hwfn,
 		const struct dbg_idle_chk_cond_reg *reg = &cond_regs[reg_id];
 		struct dbg_idle_chk_result_reg_hdr *reg_hdr;
 
+<<<<<<< HEAD
 		reg_hdr = (struct dbg_idle_chk_result_reg_hdr *)
 			  (dump_buf + offset);
+=======
+		reg_hdr =
+		    (struct dbg_idle_chk_result_reg_hdr *)(dump_buf + offset);
+>>>>>>> upstream/android-13
 
 		/* Write register header */
 		if (!dump) {
@@ -4313,12 +6060,22 @@ qed_idle_chk_dump_rule_entries(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt,
 		const u32 *imm_values;
 
 		rule = &input_rules[i];
+<<<<<<< HEAD
 		regs = &((const union dbg_idle_chk_reg *)
 			 s_dbg_arrays[BIN_BUF_DBG_IDLE_CHK_REGS].ptr)
 			[rule->reg_offset];
 		cond_regs = &regs[0].cond_reg;
 		imm_values = &s_dbg_arrays[BIN_BUF_DBG_IDLE_CHK_IMMS].ptr
 			     [rule->imm_offset];
+=======
+		regs = (const union dbg_idle_chk_reg *)
+			p_hwfn->dbg_arrays[BIN_BUF_DBG_IDLE_CHK_REGS].ptr +
+			rule->reg_offset;
+		cond_regs = &regs[0].cond_reg;
+		imm_values =
+		    (u32 *)p_hwfn->dbg_arrays[BIN_BUF_DBG_IDLE_CHK_IMMS].ptr +
+		    rule->imm_offset;
+>>>>>>> upstream/android-13
 
 		/* Check if all condition register blocks are out of reset, and
 		 * find maximal number of entries (all condition registers that
@@ -4436,10 +6193,19 @@ qed_idle_chk_dump_rule_entries(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt,
 static u32 qed_idle_chk_dump(struct qed_hwfn *p_hwfn,
 			     struct qed_ptt *p_ptt, u32 *dump_buf, bool dump)
 {
+<<<<<<< HEAD
 	u32 num_failing_rules_offset, offset = 0, input_offset = 0;
 	u32 num_failing_rules = 0;
 
 	/* Dump global params */
+=======
+	struct virt_mem_desc *dbg_buf =
+	    &p_hwfn->dbg_arrays[BIN_BUF_DBG_IDLE_CHK_RULES];
+	u32 num_failing_rules_offset, offset = 0,
+	    input_offset = 0, num_failing_rules = 0;
+
+	/* Dump global params  - 1 must match below amount of params */
+>>>>>>> upstream/android-13
 	offset += qed_dump_common_global_params(p_hwfn,
 						p_ptt,
 						dump_buf + offset, dump, 1);
@@ -4451,12 +6217,19 @@ static u32 qed_idle_chk_dump(struct qed_hwfn *p_hwfn,
 	num_failing_rules_offset = offset;
 	offset += qed_dump_num_param(dump_buf + offset, dump, "num_rules", 0);
 
+<<<<<<< HEAD
 	while (input_offset <
 	       s_dbg_arrays[BIN_BUF_DBG_IDLE_CHK_RULES].size_in_dwords) {
 		const struct dbg_idle_chk_cond_hdr *cond_hdr =
 			(const struct dbg_idle_chk_cond_hdr *)
 			&s_dbg_arrays[BIN_BUF_DBG_IDLE_CHK_RULES].ptr
 			[input_offset++];
+=======
+	while (input_offset < BYTES_TO_DWORDS(dbg_buf->size)) {
+		const struct dbg_idle_chk_cond_hdr *cond_hdr =
+		    (const struct dbg_idle_chk_cond_hdr *)dbg_buf->ptr +
+		    input_offset++;
+>>>>>>> upstream/android-13
 		bool eval_mode, mode_match = true;
 		u32 curr_failing_rules;
 		u16 modes_buf_offset;
@@ -4473,6 +6246,7 @@ static u32 qed_idle_chk_dump(struct qed_hwfn *p_hwfn,
 		}
 
 		if (mode_match) {
+<<<<<<< HEAD
 			offset +=
 			    qed_idle_chk_dump_rule_entries(p_hwfn,
 				p_ptt,
@@ -4483,6 +6257,23 @@ static u32 qed_idle_chk_dump(struct qed_hwfn *p_hwfn,
 				ptr[input_offset],
 				cond_hdr->data_size / IDLE_CHK_RULE_SIZE_DWORDS,
 				&curr_failing_rules);
+=======
+			const struct dbg_idle_chk_rule *rule =
+			    (const struct dbg_idle_chk_rule *)((u32 *)
+							       dbg_buf->ptr
+							       + input_offset);
+			u32 num_input_rules =
+				cond_hdr->data_size / IDLE_CHK_RULE_SIZE_DWORDS;
+			offset +=
+			    qed_idle_chk_dump_rule_entries(p_hwfn,
+							   p_ptt,
+							   dump_buf +
+							   offset,
+							   dump,
+							   rule,
+							   num_input_rules,
+							   &curr_failing_rules);
+>>>>>>> upstream/android-13
 			num_failing_rules += curr_failing_rules;
 		}
 
@@ -4549,7 +6340,11 @@ static enum dbg_status qed_nvram_read(struct qed_hwfn *p_hwfn,
 {
 	u32 ret_mcp_resp, ret_mcp_param, ret_read_size, bytes_to_copy;
 	s32 bytes_left = nvram_size_bytes;
+<<<<<<< HEAD
 	u32 read_offset = 0;
+=======
+	u32 read_offset = 0, param = 0;
+>>>>>>> upstream/android-13
 
 	DP_VERBOSE(p_hwfn,
 		   QED_MSG_DEBUG,
@@ -4562,6 +6357,7 @@ static enum dbg_status qed_nvram_read(struct qed_hwfn *p_hwfn,
 		     MCP_DRV_NVM_BUF_LEN) ? MCP_DRV_NVM_BUF_LEN : bytes_left;
 
 		/* Call NVRAM read command */
+<<<<<<< HEAD
 		if (qed_mcp_nvm_rd_cmd(p_hwfn, p_ptt,
 				       DRV_MSG_CODE_NVM_READ_NVRAM,
 				       (nvram_offset_bytes +
@@ -4570,6 +6366,16 @@ static enum dbg_status qed_nvram_read(struct qed_hwfn *p_hwfn,
 					DRV_MB_PARAM_NVM_LEN_OFFSET),
 				       &ret_mcp_resp, &ret_mcp_param,
 				       &ret_read_size,
+=======
+		SET_MFW_FIELD(param,
+			      DRV_MB_PARAM_NVM_OFFSET,
+			      nvram_offset_bytes + read_offset);
+		SET_MFW_FIELD(param, DRV_MB_PARAM_NVM_LEN, bytes_to_copy);
+		if (qed_mcp_nvm_rd_cmd(p_hwfn, p_ptt,
+				       DRV_MSG_CODE_NVM_READ_NVRAM, param,
+				       &ret_mcp_resp,
+				       &ret_mcp_param, &ret_read_size,
+>>>>>>> upstream/android-13
 				       (u32 *)((u8 *)ret_buf + read_offset)))
 			return DBG_STATUS_NVRAM_READ_FAILED;
 
@@ -4707,12 +6513,21 @@ static enum dbg_status qed_mcp_trace_dump(struct qed_hwfn *p_hwfn,
 	u32 trace_meta_size_dwords = 0, running_bundle_id, offset = 0;
 	u32 trace_meta_offset_bytes = 0, trace_meta_size_bytes = 0;
 	enum dbg_status status;
+<<<<<<< HEAD
 	bool mcp_access;
 	int halted = 0;
 
 	*num_dumped_dwords = 0;
 
 	mcp_access = !qed_grc_get_param(p_hwfn, DBG_GRC_PARAM_NO_MCP);
+=======
+	int halted = 0;
+	bool use_mfw;
+
+	*num_dumped_dwords = 0;
+
+	use_mfw = !qed_grc_get_param(p_hwfn, DBG_GRC_PARAM_NO_MCP);
+>>>>>>> upstream/android-13
 
 	/* Get trace data info */
 	status = qed_mcp_trace_get_data_info(p_hwfn,
@@ -4733,7 +6548,11 @@ static enum dbg_status qed_mcp_trace_dump(struct qed_hwfn *p_hwfn,
 	 * consistent. if halt fails, MCP trace is taken anyway, with a small
 	 * risk that it may be corrupt.
 	 */
+<<<<<<< HEAD
 	if (dump && mcp_access) {
+=======
+	if (dump && use_mfw) {
+>>>>>>> upstream/android-13
 		halted = !qed_mcp_halt(p_hwfn, p_ptt);
 		if (!halted)
 			DP_NOTICE(p_hwfn, "MCP halt failed!\n");
@@ -4773,17 +6592,26 @@ static enum dbg_status qed_mcp_trace_dump(struct qed_hwfn *p_hwfn,
 	 */
 	trace_meta_size_bytes =
 		qed_grc_get_param(p_hwfn, DBG_GRC_PARAM_MCP_TRACE_META_SIZE);
+<<<<<<< HEAD
 	if ((!trace_meta_size_bytes || dump) && mcp_access) {
+=======
+	if ((!trace_meta_size_bytes || dump) && use_mfw)
+>>>>>>> upstream/android-13
 		status = qed_mcp_trace_get_meta_info(p_hwfn,
 						     p_ptt,
 						     trace_data_size_bytes,
 						     &running_bundle_id,
 						     &trace_meta_offset_bytes,
 						     &trace_meta_size_bytes);
+<<<<<<< HEAD
 		if (status == DBG_STATUS_OK)
 			trace_meta_size_dwords =
 				BYTES_TO_DWORDS(trace_meta_size_bytes);
 	}
+=======
+	if (status == DBG_STATUS_OK)
+		trace_meta_size_dwords = BYTES_TO_DWORDS(trace_meta_size_bytes);
+>>>>>>> upstream/android-13
 
 	/* Dump trace meta size param */
 	offset += qed_dump_num_param(dump_buf + offset,
@@ -4807,7 +6635,11 @@ static enum dbg_status qed_mcp_trace_dump(struct qed_hwfn *p_hwfn,
 	/* If no mcp access, indicate that the dump doesn't contain the meta
 	 * data from NVRAM.
 	 */
+<<<<<<< HEAD
 	return mcp_access ? status : DBG_STATUS_NVRAM_GET_IMAGE_FAILED;
+=======
+	return use_mfw ? status : DBG_STATUS_NVRAM_GET_IMAGE_FAILED;
+>>>>>>> upstream/android-13
 }
 
 /* Dump GRC FIFO */
@@ -4985,6 +6817,7 @@ static enum dbg_status qed_protection_override_dump(struct qed_hwfn *p_hwfn,
 	override_window_dwords =
 		qed_rd(p_hwfn, p_ptt, GRC_REG_NUMBER_VALID_OVERRIDE_WINDOW) *
 		PROTECTION_OVERRIDE_ELEMENT_DWORDS;
+<<<<<<< HEAD
 	addr = BYTES_TO_DWORDS(GRC_REG_PROTECTION_OVERRIDE_WINDOW);
 	offset += qed_grc_dump_addr_range(p_hwfn,
 					  p_ptt,
@@ -4995,6 +6828,20 @@ static enum dbg_status qed_protection_override_dump(struct qed_hwfn *p_hwfn,
 					  true, SPLIT_TYPE_NONE, 0);
 	qed_dump_num_param(dump_buf + size_param_offset, dump, "size",
 			   override_window_dwords);
+=======
+	if (override_window_dwords) {
+		addr = BYTES_TO_DWORDS(GRC_REG_PROTECTION_OVERRIDE_WINDOW);
+		offset += qed_grc_dump_addr_range(p_hwfn,
+						  p_ptt,
+						  dump_buf + offset,
+						  true,
+						  addr,
+						  override_window_dwords,
+						  true, SPLIT_TYPE_NONE, 0);
+		qed_dump_num_param(dump_buf + size_param_offset, dump, "size",
+				   override_window_dwords);
+	}
+>>>>>>> upstream/android-13
 out:
 	/* Dump last section */
 	offset += qed_dump_last_section(dump_buf, offset, dump);
@@ -5030,7 +6877,11 @@ static u32 qed_fw_asserts_dump(struct qed_hwfn *p_hwfn,
 		struct storm_defs *storm = &s_storm_defs[storm_id];
 		u32 last_list_idx, addr;
 
+<<<<<<< HEAD
 		if (dev_data->block_in_reset[storm->block_id])
+=======
+		if (dev_data->block_in_reset[storm->sem_block_id])
+>>>>>>> upstream/android-13
 			continue;
 
 		/* Read FW info for the current Storm */
@@ -5055,9 +6906,17 @@ static u32 qed_fw_asserts_dump(struct qed_hwfn *p_hwfn,
 			continue;
 		}
 
+<<<<<<< HEAD
 		fw_asserts_section_addr = storm->sem_fast_mem_addr +
 			SEM_FAST_REG_INT_RAM +
 			RAM_LINES_TO_BYTES(asserts->section_ram_line_offset);
+=======
+		addr = le16_to_cpu(asserts->section_ram_line_offset);
+		fw_asserts_section_addr = storm->sem_fast_mem_addr +
+					  SEM_FAST_REG_INT_RAM +
+					  RAM_LINES_TO_BYTES(addr);
+
+>>>>>>> upstream/android-13
 		next_list_idx_addr = fw_asserts_section_addr +
 			DWORDS_TO_BYTES(asserts->list_next_index_dword_offset);
 		next_list_idx = qed_rd(p_hwfn, p_ptt, next_list_idx_addr);
@@ -5081,6 +6940,7 @@ static u32 qed_fw_asserts_dump(struct qed_hwfn *p_hwfn,
 	return offset;
 }
 
+<<<<<<< HEAD
 /***************************** Public Functions *******************************/
 
 enum dbg_status qed_dbg_set_bin_ptr(const u8 * const bin_ptr)
@@ -5095,6 +6955,364 @@ enum dbg_status qed_dbg_set_bin_ptr(const u8 * const bin_ptr)
 		s_dbg_arrays[buf_id].size_in_dwords =
 		    BYTES_TO_DWORDS(buf_array[buf_id].length);
 	}
+=======
+/* Dumps the specified ILT pages to the specified buffer.
+ * Returns the dumped size in dwords.
+ */
+static u32 qed_ilt_dump_pages_range(u32 *dump_buf,
+				    bool dump,
+				    u32 start_page_id,
+				    u32 num_pages,
+				    struct phys_mem_desc *ilt_pages,
+				    bool dump_page_ids)
+{
+	u32 page_id, end_page_id, offset = 0;
+
+	if (num_pages == 0)
+		return offset;
+
+	end_page_id = start_page_id + num_pages - 1;
+
+	for (page_id = start_page_id; page_id <= end_page_id; page_id++) {
+		struct phys_mem_desc *mem_desc = &ilt_pages[page_id];
+
+		/**
+		 *
+		 * if (page_id >= ->p_cxt_mngr->ilt_shadow_size)
+		 *     break;
+		 */
+
+		if (!ilt_pages[page_id].virt_addr)
+			continue;
+
+		if (dump_page_ids) {
+			/* Copy page ID to dump buffer */
+			if (dump)
+				*(dump_buf + offset) = page_id;
+			offset++;
+		} else {
+			/* Copy page memory to dump buffer */
+			if (dump)
+				memcpy(dump_buf + offset,
+				       mem_desc->virt_addr, mem_desc->size);
+			offset += BYTES_TO_DWORDS(mem_desc->size);
+		}
+	}
+
+	return offset;
+}
+
+/* Dumps a section containing the dumped ILT pages.
+ * Returns the dumped size in dwords.
+ */
+static u32 qed_ilt_dump_pages_section(struct qed_hwfn *p_hwfn,
+				      u32 *dump_buf,
+				      bool dump,
+				      u32 valid_conn_pf_pages,
+				      u32 valid_conn_vf_pages,
+				      struct phys_mem_desc *ilt_pages,
+				      bool dump_page_ids)
+{
+	struct qed_ilt_client_cfg *clients = p_hwfn->p_cxt_mngr->clients;
+	u32 pf_start_line, start_page_id, offset = 0;
+	u32 cdut_pf_init_pages, cdut_vf_init_pages;
+	u32 cdut_pf_work_pages, cdut_vf_work_pages;
+	u32 base_data_offset, size_param_offset;
+	u32 cdut_pf_pages, cdut_vf_pages;
+	const char *section_name;
+	u8 i;
+
+	section_name = dump_page_ids ? "ilt_page_ids" : "ilt_page_mem";
+	cdut_pf_init_pages = qed_get_cdut_num_pf_init_pages(p_hwfn);
+	cdut_vf_init_pages = qed_get_cdut_num_vf_init_pages(p_hwfn);
+	cdut_pf_work_pages = qed_get_cdut_num_pf_work_pages(p_hwfn);
+	cdut_vf_work_pages = qed_get_cdut_num_vf_work_pages(p_hwfn);
+	cdut_pf_pages = cdut_pf_init_pages + cdut_pf_work_pages;
+	cdut_vf_pages = cdut_vf_init_pages + cdut_vf_work_pages;
+	pf_start_line = p_hwfn->p_cxt_mngr->pf_start_line;
+
+	offset +=
+	    qed_dump_section_hdr(dump_buf + offset, dump, section_name, 1);
+
+	/* Dump size parameter (0 for now, overwritten with real size later) */
+	size_param_offset = offset;
+	offset += qed_dump_num_param(dump_buf + offset, dump, "size", 0);
+	base_data_offset = offset;
+
+	/* CDUC pages are ordered as follows:
+	 * - PF pages - valid section (included in PF connection type mapping)
+	 * - PF pages - invalid section (not dumped)
+	 * - For each VF in the PF:
+	 *   - VF pages - valid section (included in VF connection type mapping)
+	 *   - VF pages - invalid section (not dumped)
+	 */
+	if (qed_grc_get_param(p_hwfn, DBG_GRC_PARAM_DUMP_ILT_CDUC)) {
+		/* Dump connection PF pages */
+		start_page_id = clients[ILT_CLI_CDUC].first.val - pf_start_line;
+		offset += qed_ilt_dump_pages_range(dump_buf + offset,
+						   dump,
+						   start_page_id,
+						   valid_conn_pf_pages,
+						   ilt_pages, dump_page_ids);
+
+		/* Dump connection VF pages */
+		start_page_id += clients[ILT_CLI_CDUC].pf_total_lines;
+		for (i = 0; i < p_hwfn->p_cxt_mngr->vf_count;
+		     i++, start_page_id += clients[ILT_CLI_CDUC].vf_total_lines)
+			offset += qed_ilt_dump_pages_range(dump_buf + offset,
+							   dump,
+							   start_page_id,
+							   valid_conn_vf_pages,
+							   ilt_pages,
+							   dump_page_ids);
+	}
+
+	/* CDUT pages are ordered as follows:
+	 * - PF init pages (not dumped)
+	 * - PF work pages
+	 * - For each VF in the PF:
+	 *   - VF init pages (not dumped)
+	 *   - VF work pages
+	 */
+	if (qed_grc_get_param(p_hwfn, DBG_GRC_PARAM_DUMP_ILT_CDUT)) {
+		/* Dump task PF pages */
+		start_page_id = clients[ILT_CLI_CDUT].first.val +
+		    cdut_pf_init_pages - pf_start_line;
+		offset += qed_ilt_dump_pages_range(dump_buf + offset,
+						   dump,
+						   start_page_id,
+						   cdut_pf_work_pages,
+						   ilt_pages, dump_page_ids);
+
+		/* Dump task VF pages */
+		start_page_id = clients[ILT_CLI_CDUT].first.val +
+		    cdut_pf_pages + cdut_vf_init_pages - pf_start_line;
+		for (i = 0; i < p_hwfn->p_cxt_mngr->vf_count;
+		     i++, start_page_id += cdut_vf_pages)
+			offset += qed_ilt_dump_pages_range(dump_buf + offset,
+							   dump,
+							   start_page_id,
+							   cdut_vf_work_pages,
+							   ilt_pages,
+							   dump_page_ids);
+	}
+
+	/* Overwrite size param */
+	if (dump)
+		qed_dump_num_param(dump_buf + size_param_offset,
+				   dump, "size", offset - base_data_offset);
+
+	return offset;
+}
+
+/* Performs ILT Dump to the specified buffer.
+ * Returns the dumped size in dwords.
+ */
+static u32 qed_ilt_dump(struct qed_hwfn *p_hwfn,
+			struct qed_ptt *p_ptt, u32 *dump_buf, bool dump)
+{
+	struct qed_ilt_client_cfg *clients = p_hwfn->p_cxt_mngr->clients;
+	u32 valid_conn_vf_cids, valid_conn_vf_pages, offset = 0;
+	u32 valid_conn_pf_cids, valid_conn_pf_pages, num_pages;
+	u32 num_cids_per_page, conn_ctx_size;
+	u32 cduc_page_size, cdut_page_size;
+	struct phys_mem_desc *ilt_pages;
+	u8 conn_type;
+
+	cduc_page_size = 1 <<
+	    (clients[ILT_CLI_CDUC].p_size.val + PXP_ILT_PAGE_SIZE_NUM_BITS_MIN);
+	cdut_page_size = 1 <<
+	    (clients[ILT_CLI_CDUT].p_size.val + PXP_ILT_PAGE_SIZE_NUM_BITS_MIN);
+	conn_ctx_size = p_hwfn->p_cxt_mngr->conn_ctx_size;
+	num_cids_per_page = (int)(cduc_page_size / conn_ctx_size);
+	ilt_pages = p_hwfn->p_cxt_mngr->ilt_shadow;
+
+	/* Dump global params - 22 must match number of params below */
+	offset += qed_dump_common_global_params(p_hwfn, p_ptt,
+						dump_buf + offset, dump, 22);
+	offset += qed_dump_str_param(dump_buf + offset,
+				     dump, "dump-type", "ilt-dump");
+	offset += qed_dump_num_param(dump_buf + offset,
+				     dump,
+				     "cduc-page-size", cduc_page_size);
+	offset += qed_dump_num_param(dump_buf + offset,
+				     dump,
+				     "cduc-first-page-id",
+				     clients[ILT_CLI_CDUC].first.val);
+	offset += qed_dump_num_param(dump_buf + offset,
+				     dump,
+				     "cduc-last-page-id",
+				     clients[ILT_CLI_CDUC].last.val);
+	offset += qed_dump_num_param(dump_buf + offset,
+				     dump,
+				     "cduc-num-pf-pages",
+				     clients
+				     [ILT_CLI_CDUC].pf_total_lines);
+	offset += qed_dump_num_param(dump_buf + offset,
+				     dump,
+				     "cduc-num-vf-pages",
+				     clients
+				     [ILT_CLI_CDUC].vf_total_lines);
+	offset += qed_dump_num_param(dump_buf + offset,
+				     dump,
+				     "max-conn-ctx-size",
+				     conn_ctx_size);
+	offset += qed_dump_num_param(dump_buf + offset,
+				     dump,
+				     "cdut-page-size", cdut_page_size);
+	offset += qed_dump_num_param(dump_buf + offset,
+				     dump,
+				     "cdut-first-page-id",
+				     clients[ILT_CLI_CDUT].first.val);
+	offset += qed_dump_num_param(dump_buf + offset,
+				     dump,
+				     "cdut-last-page-id",
+				     clients[ILT_CLI_CDUT].last.val);
+	offset += qed_dump_num_param(dump_buf + offset,
+				     dump,
+				     "cdut-num-pf-init-pages",
+				     qed_get_cdut_num_pf_init_pages(p_hwfn));
+	offset += qed_dump_num_param(dump_buf + offset,
+				     dump,
+				     "cdut-num-vf-init-pages",
+				     qed_get_cdut_num_vf_init_pages(p_hwfn));
+	offset += qed_dump_num_param(dump_buf + offset,
+				     dump,
+				     "cdut-num-pf-work-pages",
+				     qed_get_cdut_num_pf_work_pages(p_hwfn));
+	offset += qed_dump_num_param(dump_buf + offset,
+				     dump,
+				     "cdut-num-vf-work-pages",
+				     qed_get_cdut_num_vf_work_pages(p_hwfn));
+	offset += qed_dump_num_param(dump_buf + offset,
+				     dump,
+				     "max-task-ctx-size",
+				     p_hwfn->p_cxt_mngr->task_ctx_size);
+	offset += qed_dump_num_param(dump_buf + offset,
+				     dump,
+				     "task-type-id",
+				     p_hwfn->p_cxt_mngr->task_type_id);
+	offset += qed_dump_num_param(dump_buf + offset,
+				     dump,
+				     "first-vf-id-in-pf",
+				     p_hwfn->p_cxt_mngr->first_vf_in_pf);
+	offset += /* 18 */ qed_dump_num_param(dump_buf + offset,
+					      dump,
+					      "num-vfs-in-pf",
+					      p_hwfn->p_cxt_mngr->vf_count);
+	offset += qed_dump_num_param(dump_buf + offset,
+				     dump,
+				     "ptr-size-bytes", sizeof(void *));
+	offset += qed_dump_num_param(dump_buf + offset,
+				     dump,
+				     "pf-start-line",
+				     p_hwfn->p_cxt_mngr->pf_start_line);
+	offset += qed_dump_num_param(dump_buf + offset,
+				     dump,
+				     "page-mem-desc-size-dwords",
+				     PAGE_MEM_DESC_SIZE_DWORDS);
+	offset += qed_dump_num_param(dump_buf + offset,
+				     dump,
+				     "ilt-shadow-size",
+				     p_hwfn->p_cxt_mngr->ilt_shadow_size);
+	/* Additional/Less parameters require matching of number in call to
+	 * dump_common_global_params()
+	 */
+
+	/* Dump section containing number of PF CIDs per connection type */
+	offset += qed_dump_section_hdr(dump_buf + offset,
+				       dump, "num_pf_cids_per_conn_type", 1);
+	offset += qed_dump_num_param(dump_buf + offset,
+				     dump, "size", NUM_OF_CONNECTION_TYPES_E4);
+	for (conn_type = 0, valid_conn_pf_cids = 0;
+	     conn_type < NUM_OF_CONNECTION_TYPES_E4; conn_type++, offset++) {
+		u32 num_pf_cids =
+		    p_hwfn->p_cxt_mngr->conn_cfg[conn_type].cid_count;
+
+		if (dump)
+			*(dump_buf + offset) = num_pf_cids;
+		valid_conn_pf_cids += num_pf_cids;
+	}
+
+	/* Dump section containing number of VF CIDs per connection type */
+	offset += qed_dump_section_hdr(dump_buf + offset,
+				       dump, "num_vf_cids_per_conn_type", 1);
+	offset += qed_dump_num_param(dump_buf + offset,
+				     dump, "size", NUM_OF_CONNECTION_TYPES_E4);
+	for (conn_type = 0, valid_conn_vf_cids = 0;
+	     conn_type < NUM_OF_CONNECTION_TYPES_E4; conn_type++, offset++) {
+		u32 num_vf_cids =
+		    p_hwfn->p_cxt_mngr->conn_cfg[conn_type].cids_per_vf;
+
+		if (dump)
+			*(dump_buf + offset) = num_vf_cids;
+		valid_conn_vf_cids += num_vf_cids;
+	}
+
+	/* Dump section containing physical memory descs for each ILT page */
+	num_pages = p_hwfn->p_cxt_mngr->ilt_shadow_size;
+	offset += qed_dump_section_hdr(dump_buf + offset,
+				       dump, "ilt_page_desc", 1);
+	offset += qed_dump_num_param(dump_buf + offset,
+				     dump,
+				     "size",
+				     num_pages * PAGE_MEM_DESC_SIZE_DWORDS);
+
+	/* Copy memory descriptors to dump buffer */
+	if (dump) {
+		u32 page_id;
+
+		for (page_id = 0; page_id < num_pages;
+		     page_id++, offset += PAGE_MEM_DESC_SIZE_DWORDS)
+			memcpy(dump_buf + offset,
+			       &ilt_pages[page_id],
+			       DWORDS_TO_BYTES(PAGE_MEM_DESC_SIZE_DWORDS));
+	} else {
+		offset += num_pages * PAGE_MEM_DESC_SIZE_DWORDS;
+	}
+
+	valid_conn_pf_pages = DIV_ROUND_UP(valid_conn_pf_cids,
+					   num_cids_per_page);
+	valid_conn_vf_pages = DIV_ROUND_UP(valid_conn_vf_cids,
+					   num_cids_per_page);
+
+	/* Dump ILT pages IDs */
+	offset += qed_ilt_dump_pages_section(p_hwfn,
+					     dump_buf + offset,
+					     dump,
+					     valid_conn_pf_pages,
+					     valid_conn_vf_pages,
+					     ilt_pages, true);
+
+	/* Dump ILT pages memory */
+	offset += qed_ilt_dump_pages_section(p_hwfn,
+					     dump_buf + offset,
+					     dump,
+					     valid_conn_pf_pages,
+					     valid_conn_vf_pages,
+					     ilt_pages, false);
+
+	/* Dump last section */
+	offset += qed_dump_last_section(dump_buf, offset, dump);
+
+	return offset;
+}
+
+/***************************** Public Functions *******************************/
+
+enum dbg_status qed_dbg_set_bin_ptr(struct qed_hwfn *p_hwfn,
+				    const u8 * const bin_ptr)
+{
+	struct bin_buffer_hdr *buf_hdrs = (struct bin_buffer_hdr *)bin_ptr;
+	u8 buf_id;
+
+	/* Convert binary data to debug arrays */
+	for (buf_id = 0; buf_id < MAX_BIN_DBG_BUFFER_TYPE; buf_id++)
+		qed_set_dbg_bin_buf(p_hwfn,
+				    buf_id,
+				    (u32 *)(bin_ptr + buf_hdrs[buf_id].offset),
+				    buf_hdrs[buf_id].length);
+>>>>>>> upstream/android-13
 
 	return DBG_STATUS_OK;
 }
@@ -5109,7 +7327,11 @@ bool qed_read_fw_info(struct qed_hwfn *p_hwfn,
 		struct storm_defs *storm = &s_storm_defs[storm_id];
 
 		/* Skip Storm if it's in reset */
+<<<<<<< HEAD
 		if (dev_data->block_in_reset[storm->block_id])
+=======
+		if (dev_data->block_in_reset[storm->sem_block_id])
+>>>>>>> upstream/android-13
 			continue;
 
 		/* Read FW info for the current Storm */
@@ -5121,6 +7343,72 @@ bool qed_read_fw_info(struct qed_hwfn *p_hwfn,
 	return false;
 }
 
+<<<<<<< HEAD
+=======
+enum dbg_status qed_dbg_grc_config(struct qed_hwfn *p_hwfn,
+				   enum dbg_grc_params grc_param, u32 val)
+{
+	struct dbg_tools_data *dev_data = &p_hwfn->dbg_info;
+	enum dbg_status status;
+	int i;
+
+	DP_VERBOSE(p_hwfn,
+		   QED_MSG_DEBUG,
+		   "dbg_grc_config: paramId = %d, val = %d\n", grc_param, val);
+
+	status = qed_dbg_dev_init(p_hwfn);
+	if (status != DBG_STATUS_OK)
+		return status;
+
+	/* Initializes the GRC parameters (if not initialized). Needed in order
+	 * to set the default parameter values for the first time.
+	 */
+	qed_dbg_grc_init_params(p_hwfn);
+
+	if (grc_param >= MAX_DBG_GRC_PARAMS)
+		return DBG_STATUS_INVALID_ARGS;
+	if (val < s_grc_param_defs[grc_param].min ||
+	    val > s_grc_param_defs[grc_param].max)
+		return DBG_STATUS_INVALID_ARGS;
+
+	if (s_grc_param_defs[grc_param].is_preset) {
+		/* Preset param */
+
+		/* Disabling a preset is not allowed. Call
+		 * dbg_grc_set_params_default instead.
+		 */
+		if (!val)
+			return DBG_STATUS_INVALID_ARGS;
+
+		/* Update all params with the preset values */
+		for (i = 0; i < MAX_DBG_GRC_PARAMS; i++) {
+			struct grc_param_defs *defs = &s_grc_param_defs[i];
+			u32 preset_val;
+			/* Skip persistent params */
+			if (defs->is_persistent)
+				continue;
+
+			/* Find preset value */
+			if (grc_param == DBG_GRC_PARAM_EXCLUDE_ALL)
+				preset_val =
+				    defs->exclude_all_preset_val;
+			else if (grc_param == DBG_GRC_PARAM_CRASH)
+				preset_val =
+				    defs->crash_preset_val[dev_data->chip_id];
+			else
+				return DBG_STATUS_INVALID_ARGS;
+
+			qed_grc_set_param(p_hwfn, i, preset_val);
+		}
+	} else {
+		/* Regular param - set its value */
+		qed_grc_set_param(p_hwfn, grc_param, val);
+	}
+
+	return DBG_STATUS_OK;
+}
+
+>>>>>>> upstream/android-13
 /* Assign default GRC param values */
 void qed_dbg_grc_set_params_default(struct qed_hwfn *p_hwfn)
 {
@@ -5137,18 +7425,30 @@ enum dbg_status qed_dbg_grc_get_dump_buf_size(struct qed_hwfn *p_hwfn,
 					      struct qed_ptt *p_ptt,
 					      u32 *buf_size)
 {
+<<<<<<< HEAD
 	enum dbg_status status = qed_dbg_dev_init(p_hwfn, p_ptt);
+=======
+	enum dbg_status status = qed_dbg_dev_init(p_hwfn);
+>>>>>>> upstream/android-13
 
 	*buf_size = 0;
 
 	if (status != DBG_STATUS_OK)
 		return status;
 
+<<<<<<< HEAD
 	if (!s_dbg_arrays[BIN_BUF_DBG_MODE_TREE].ptr ||
 	    !s_dbg_arrays[BIN_BUF_DBG_DUMP_REG].ptr ||
 	    !s_dbg_arrays[BIN_BUF_DBG_DUMP_MEM].ptr ||
 	    !s_dbg_arrays[BIN_BUF_DBG_ATTN_BLOCKS].ptr ||
 	    !s_dbg_arrays[BIN_BUF_DBG_ATTN_REGS].ptr)
+=======
+	if (!p_hwfn->dbg_arrays[BIN_BUF_DBG_MODE_TREE].ptr ||
+	    !p_hwfn->dbg_arrays[BIN_BUF_DBG_DUMP_REG].ptr ||
+	    !p_hwfn->dbg_arrays[BIN_BUF_DBG_DUMP_MEM].ptr ||
+	    !p_hwfn->dbg_arrays[BIN_BUF_DBG_ATTN_BLOCKS].ptr ||
+	    !p_hwfn->dbg_arrays[BIN_BUF_DBG_ATTN_REGS].ptr)
+>>>>>>> upstream/android-13
 		return DBG_STATUS_DBG_ARRAY_NOT_SET;
 
 	return qed_grc_dump(p_hwfn, p_ptt, NULL, false, buf_size);
@@ -5188,6 +7488,7 @@ enum dbg_status qed_dbg_idle_chk_get_dump_buf_size(struct qed_hwfn *p_hwfn,
 						   u32 *buf_size)
 {
 	struct dbg_tools_data *dev_data = &p_hwfn->dbg_info;
+<<<<<<< HEAD
 	struct idle_chk_data *idle_chk;
 	enum dbg_status status;
 
@@ -5202,6 +7503,21 @@ enum dbg_status qed_dbg_idle_chk_get_dump_buf_size(struct qed_hwfn *p_hwfn,
 	    !s_dbg_arrays[BIN_BUF_DBG_IDLE_CHK_REGS].ptr ||
 	    !s_dbg_arrays[BIN_BUF_DBG_IDLE_CHK_IMMS].ptr ||
 	    !s_dbg_arrays[BIN_BUF_DBG_IDLE_CHK_RULES].ptr)
+=======
+	struct idle_chk_data *idle_chk = &dev_data->idle_chk;
+	enum dbg_status status;
+
+	*buf_size = 0;
+
+	status = qed_dbg_dev_init(p_hwfn);
+	if (status != DBG_STATUS_OK)
+		return status;
+
+	if (!p_hwfn->dbg_arrays[BIN_BUF_DBG_MODE_TREE].ptr ||
+	    !p_hwfn->dbg_arrays[BIN_BUF_DBG_IDLE_CHK_REGS].ptr ||
+	    !p_hwfn->dbg_arrays[BIN_BUF_DBG_IDLE_CHK_IMMS].ptr ||
+	    !p_hwfn->dbg_arrays[BIN_BUF_DBG_IDLE_CHK_RULES].ptr)
+>>>>>>> upstream/android-13
 		return DBG_STATUS_DBG_ARRAY_NOT_SET;
 
 	if (!idle_chk->buf_size_set) {
@@ -5236,6 +7552,10 @@ enum dbg_status qed_dbg_idle_chk_dump(struct qed_hwfn *p_hwfn,
 		return DBG_STATUS_DUMP_BUF_TOO_SMALL;
 
 	/* Update reset state */
+<<<<<<< HEAD
+=======
+	qed_grc_unreset_blocks(p_hwfn, p_ptt, true);
+>>>>>>> upstream/android-13
 	qed_update_blocks_reset_state(p_hwfn, p_ptt);
 
 	/* Idle Check Dump */
@@ -5251,7 +7571,11 @@ enum dbg_status qed_dbg_mcp_trace_get_dump_buf_size(struct qed_hwfn *p_hwfn,
 						    struct qed_ptt *p_ptt,
 						    u32 *buf_size)
 {
+<<<<<<< HEAD
 	enum dbg_status status = qed_dbg_dev_init(p_hwfn, p_ptt);
+=======
+	enum dbg_status status = qed_dbg_dev_init(p_hwfn);
+>>>>>>> upstream/android-13
 
 	*buf_size = 0;
 
@@ -5298,7 +7622,11 @@ enum dbg_status qed_dbg_reg_fifo_get_dump_buf_size(struct qed_hwfn *p_hwfn,
 						   struct qed_ptt *p_ptt,
 						   u32 *buf_size)
 {
+<<<<<<< HEAD
 	enum dbg_status status = qed_dbg_dev_init(p_hwfn, p_ptt);
+=======
+	enum dbg_status status = qed_dbg_dev_init(p_hwfn);
+>>>>>>> upstream/android-13
 
 	*buf_size = 0;
 
@@ -5344,7 +7672,11 @@ enum dbg_status qed_dbg_igu_fifo_get_dump_buf_size(struct qed_hwfn *p_hwfn,
 						   struct qed_ptt *p_ptt,
 						   u32 *buf_size)
 {
+<<<<<<< HEAD
 	enum dbg_status status = qed_dbg_dev_init(p_hwfn, p_ptt);
+=======
+	enum dbg_status status = qed_dbg_dev_init(p_hwfn);
+>>>>>>> upstream/android-13
 
 	*buf_size = 0;
 
@@ -5390,7 +7722,11 @@ qed_dbg_protection_override_get_dump_buf_size(struct qed_hwfn *p_hwfn,
 					      struct qed_ptt *p_ptt,
 					      u32 *buf_size)
 {
+<<<<<<< HEAD
 	enum dbg_status status = qed_dbg_dev_init(p_hwfn, p_ptt);
+=======
+	enum dbg_status status = qed_dbg_dev_init(p_hwfn);
+>>>>>>> upstream/android-13
 
 	*buf_size = 0;
 
@@ -5440,7 +7776,11 @@ enum dbg_status qed_dbg_fw_asserts_get_dump_buf_size(struct qed_hwfn *p_hwfn,
 						     struct qed_ptt *p_ptt,
 						     u32 *buf_size)
 {
+<<<<<<< HEAD
 	enum dbg_status status = qed_dbg_dev_init(p_hwfn, p_ptt);
+=======
+	enum dbg_status status = qed_dbg_dev_init(p_hwfn);
+>>>>>>> upstream/android-13
 
 	*buf_size = 0;
 
@@ -5484,6 +7824,53 @@ enum dbg_status qed_dbg_fw_asserts_dump(struct qed_hwfn *p_hwfn,
 	return DBG_STATUS_OK;
 }
 
+<<<<<<< HEAD
+=======
+static enum dbg_status qed_dbg_ilt_get_dump_buf_size(struct qed_hwfn *p_hwfn,
+						     struct qed_ptt *p_ptt,
+						     u32 *buf_size)
+{
+	enum dbg_status status = qed_dbg_dev_init(p_hwfn);
+
+	*buf_size = 0;
+
+	if (status != DBG_STATUS_OK)
+		return status;
+
+	*buf_size = qed_ilt_dump(p_hwfn, p_ptt, NULL, false);
+
+	return DBG_STATUS_OK;
+}
+
+static enum dbg_status qed_dbg_ilt_dump(struct qed_hwfn *p_hwfn,
+					struct qed_ptt *p_ptt,
+					u32 *dump_buf,
+					u32 buf_size_in_dwords,
+					u32 *num_dumped_dwords)
+{
+	u32 needed_buf_size_in_dwords;
+	enum dbg_status status;
+
+	*num_dumped_dwords = 0;
+
+	status = qed_dbg_ilt_get_dump_buf_size(p_hwfn,
+					       p_ptt,
+					       &needed_buf_size_in_dwords);
+	if (status != DBG_STATUS_OK)
+		return status;
+
+	if (buf_size_in_dwords < needed_buf_size_in_dwords)
+		return DBG_STATUS_DUMP_BUF_TOO_SMALL;
+
+	*num_dumped_dwords = qed_ilt_dump(p_hwfn, p_ptt, dump_buf, true);
+
+	/* Reveret GRC params to their default */
+	qed_dbg_grc_set_params_default(p_hwfn);
+
+	return DBG_STATUS_OK;
+}
+
+>>>>>>> upstream/android-13
 enum dbg_status qed_dbg_read_attn(struct qed_hwfn *p_hwfn,
 				  struct qed_ptt *p_ptt,
 				  enum block_id block_id,
@@ -5491,19 +7878,33 @@ enum dbg_status qed_dbg_read_attn(struct qed_hwfn *p_hwfn,
 				  bool clear_status,
 				  struct dbg_attn_block_result *results)
 {
+<<<<<<< HEAD
 	enum dbg_status status = qed_dbg_dev_init(p_hwfn, p_ptt);
+=======
+	enum dbg_status status = qed_dbg_dev_init(p_hwfn);
+>>>>>>> upstream/android-13
 	u8 reg_idx, num_attn_regs, num_result_regs = 0;
 	const struct dbg_attn_reg *attn_reg_arr;
 
 	if (status != DBG_STATUS_OK)
 		return status;
 
+<<<<<<< HEAD
 	if (!s_dbg_arrays[BIN_BUF_DBG_MODE_TREE].ptr ||
 	    !s_dbg_arrays[BIN_BUF_DBG_ATTN_BLOCKS].ptr ||
 	    !s_dbg_arrays[BIN_BUF_DBG_ATTN_REGS].ptr)
 		return DBG_STATUS_DBG_ARRAY_NOT_SET;
 
 	attn_reg_arr = qed_get_block_attn_regs(block_id,
+=======
+	if (!p_hwfn->dbg_arrays[BIN_BUF_DBG_MODE_TREE].ptr ||
+	    !p_hwfn->dbg_arrays[BIN_BUF_DBG_ATTN_BLOCKS].ptr ||
+	    !p_hwfn->dbg_arrays[BIN_BUF_DBG_ATTN_REGS].ptr)
+		return DBG_STATUS_DBG_ARRAY_NOT_SET;
+
+	attn_reg_arr = qed_get_block_attn_regs(p_hwfn,
+					       block_id,
+>>>>>>> upstream/android-13
 					       attn_type, &num_attn_regs);
 
 	for (reg_idx = 0; reg_idx < num_attn_regs; reg_idx++) {
@@ -5548,7 +7949,11 @@ enum dbg_status qed_dbg_read_attn(struct qed_hwfn *p_hwfn,
 
 	results->block_id = (u8)block_id;
 	results->names_offset =
+<<<<<<< HEAD
 	    qed_get_block_attn_data(block_id, attn_type)->names_offset;
+=======
+	    qed_get_block_attn_data(p_hwfn, block_id, attn_type)->names_offset;
+>>>>>>> upstream/android-13
 	SET_FIELD(results->data, DBG_ATTN_BLOCK_RESULT_ATTN_TYPE, attn_type);
 	SET_FIELD(results->data,
 		  DBG_ATTN_BLOCK_RESULT_NUM_REGS, num_result_regs);
@@ -5558,6 +7963,7 @@ enum dbg_status qed_dbg_read_attn(struct qed_hwfn *p_hwfn,
 
 /******************************* Data Types **********************************/
 
+<<<<<<< HEAD
 struct block_info {
 	const char *name;
 	enum block_id id;
@@ -5592,6 +7998,8 @@ struct mcp_trace_meta {
 	struct mcp_trace_format *formats;
 };
 
+=======
+>>>>>>> upstream/android-13
 /* REG fifo element */
 struct reg_fifo_element {
 	u64 data;
@@ -5615,6 +8023,15 @@ struct reg_fifo_element {
 #define REG_FIFO_ELEMENT_ERROR_MASK		0x1f
 };
 
+<<<<<<< HEAD
+=======
+/* REG fifo error element */
+struct reg_fifo_err {
+	u32 err_code;
+	const char *err_msg;
+};
+
+>>>>>>> upstream/android-13
 /* IGU fifo element */
 struct igu_fifo_element {
 	u32 dword0;
@@ -5721,7 +8138,11 @@ struct igu_fifo_addr_data {
 #define MCP_TRACE_MAX_MODULE_LEN		8
 #define MCP_TRACE_FORMAT_MAX_PARAMS		3
 #define MCP_TRACE_FORMAT_PARAM_WIDTH \
+<<<<<<< HEAD
 	(MCP_TRACE_FORMAT_P2_SIZE_SHIFT - MCP_TRACE_FORMAT_P1_SIZE_SHIFT)
+=======
+	(MCP_TRACE_FORMAT_P2_SIZE_OFFSET - MCP_TRACE_FORMAT_P1_SIZE_OFFSET)
+>>>>>>> upstream/android-13
 
 #define REG_FIFO_ELEMENT_ADDR_FACTOR		4
 #define REG_FIFO_ELEMENT_IS_PF_VF_VAL		127
@@ -5730,6 +8151,7 @@ struct igu_fifo_addr_data {
 
 /***************************** Constant Arrays *******************************/
 
+<<<<<<< HEAD
 struct user_dbg_array {
 	const u32 *ptr;
 	u32 size_in_dwords;
@@ -5831,6 +8253,8 @@ static struct block_info s_block_info_arr[] = {
 	{"bar0_map", BLOCK_BAR0_MAP}
 };
 
+=======
+>>>>>>> upstream/android-13
 /* Status string array */
 static const char * const s_status_str[] = {
 	/* DBG_STATUS_OK */
@@ -5860,6 +8284,7 @@ static const char * const s_status_str[] = {
 	/* DBG_STATUS_PCI_BUF_NOT_ALLOCATED */
 	"A PCI buffer wasn't allocated",
 
+<<<<<<< HEAD
 	/* DBG_STATUS_TOO_MANY_INPUTS */
 	"Too many inputs were enabled. Enabled less inputs, or set 'unifyInputs' to true",
 
@@ -5868,6 +8293,15 @@ static const char * const s_status_str[] = {
 
 	/* DBG_STATUS_HW_ONLY_RECORDING */
 	"Cannot record Storm data since the entire recording cycle is used by HW",
+=======
+	/* DBG_STATUS_INVALID_FILTER_TRIGGER_DWORDS */
+	"The filter/trigger constraint dword offsets are not enabled for recording",
+	/* DBG_STATUS_NO_MATCHING_FRAMING_MODE */
+	"No matching framing mode",
+
+	/* DBG_STATUS_VFC_READ_ERROR */
+	"Error reading from VFC",
+>>>>>>> upstream/android-13
 
 	/* DBG_STATUS_STORM_ALREADY_ENABLED */
 	"The Storm was already enabled",
@@ -5884,8 +8318,13 @@ static const char * const s_status_str[] = {
 	/* DBG_STATUS_NO_INPUT_ENABLED */
 	"No input was enabled for recording",
 
+<<<<<<< HEAD
 	/* DBG_STATUS_NO_FILTER_TRIGGER_64B */
 	"Filters and triggers are not allowed when recording in 64b units",
+=======
+	/* DBG_STATUS_NO_FILTER_TRIGGER_256B */
+	"Filters and triggers are not allowed in E4 256-bit mode",
+>>>>>>> upstream/android-13
 
 	/* DBG_STATUS_FILTER_ALREADY_ENABLED */
 	"The filter was already enabled",
@@ -5959,8 +8398,13 @@ static const char * const s_status_str[] = {
 	/* DBG_STATUS_MCP_COULD_NOT_RESUME */
 	"Failed to resume MCP after halt",
 
+<<<<<<< HEAD
 	/* DBG_STATUS_RESERVED2 */
 	"Reserved debug status - shouldn't be returned",
+=======
+	/* DBG_STATUS_RESERVED0 */
+	"",
+>>>>>>> upstream/android-13
 
 	/* DBG_STATUS_SEMI_FIFO_NOT_EMPTY */
 	"Failed to empty SEMI sync FIFO",
@@ -5983,6 +8427,7 @@ static const char * const s_status_str[] = {
 	/* DBG_STATUS_DBG_ARRAY_NOT_SET */
 	"Debug arrays were not set (when using binary files, dbg_set_bin_ptr must be called)",
 
+<<<<<<< HEAD
 	/* DBG_STATUS_FILTER_BUG */
 	"Debug Bus filtering requires the -unifyInputs option (due to a HW bug)",
 
@@ -5994,6 +8439,34 @@ static const char * const s_status_str[] = {
 
 	/* DBG_STATUS_DBG_BUS_IN_USE */
 	"The debug bus is in use"
+=======
+	/* DBG_STATUS_RESERVED1 */
+	"",
+
+	/* DBG_STATUS_NON_MATCHING_LINES */
+	"Non-matching debug lines - in E4, all lines must be of the same type (either 128b or 256b)",
+
+	/* DBG_STATUS_INSUFFICIENT_HW_IDS */
+	"Insufficient HW IDs. Try to record less Storms/blocks",
+
+	/* DBG_STATUS_DBG_BUS_IN_USE */
+	"The debug bus is in use",
+
+	/* DBG_STATUS_INVALID_STORM_DBG_MODE */
+	"The storm debug mode is not supported in the current chip",
+
+	/* DBG_STATUS_OTHER_ENGINE_BB_ONLY */
+	"Other engine is supported only in BB",
+
+	/* DBG_STATUS_FILTER_SINGLE_HW_ID */
+	"The configured filter mode requires a single Storm/block input",
+
+	/* DBG_STATUS_TRIGGER_SINGLE_HW_ID */
+	"The configured filter mode requires that all the constraints of a single trigger state will be defined on a single Storm/block input",
+
+	/* DBG_STATUS_MISSING_TRIGGER_STATE_STORM */
+	"When triggering on Storm data, the Storm to trigger on must be specified"
+>>>>>>> upstream/android-13
 };
 
 /* Idle check severity names array */
@@ -6049,7 +8522,11 @@ static const char * const s_master_strs[] = {
 	"xsdm",
 	"dbu",
 	"dmae",
+<<<<<<< HEAD
 	"???",
+=======
+	"jdap",
+>>>>>>> upstream/android-13
 	"???",
 	"???",
 	"???",
@@ -6057,12 +8534,22 @@ static const char * const s_master_strs[] = {
 };
 
 /* REG FIFO error messages array */
+<<<<<<< HEAD
 static const char * const s_reg_fifo_error_strs[] = {
 	"grc timeout",
 	"address doesn't belong to any block",
 	"reserved address in block or write to read-only address",
 	"privilege/protection mismatch",
 	"path isolation error"
+=======
+static struct reg_fifo_err s_reg_fifo_errors[] = {
+	{1, "grc timeout"},
+	{2, "address doesn't belong to any block"},
+	{4, "reserved address in block or write to read-only address"},
+	{8, "privilege/protection mismatch"},
+	{16, "path isolation error"},
+	{17, "RSL error"}
+>>>>>>> upstream/android-13
 };
 
 /* IGU FIFO sources array */
@@ -6085,7 +8572,11 @@ static const char * const s_igu_fifo_error_strs[] = {
 	"no error",
 	"length error",
 	"function disabled",
+<<<<<<< HEAD
 	"VF sent command to attnetion address",
+=======
+	"VF sent command to attention address",
+>>>>>>> upstream/android-13
 	"host sent prod update command",
 	"read of during interrupt register while in MIMD mode",
 	"access to PXP BAR reserved address",
@@ -6137,6 +8628,7 @@ static const struct igu_fifo_addr_data s_igu_fifo_addr_data[] = {
 
 /******************************** Variables **********************************/
 
+<<<<<<< HEAD
 /* MCP Trace meta data array - used in case the dump doesn't contain the
  * meta data (e.g. due to no NVRAM access).
  */
@@ -6146,6 +8638,8 @@ static struct user_dbg_array s_mcp_trace_meta_arr = { NULL, 0 };
 static struct mcp_trace_meta s_mcp_trace_meta;
 static bool s_mcp_trace_meta_valid;
 
+=======
+>>>>>>> upstream/android-13
 /* Temporary buffer, used for print size calculations */
 static char s_temp_buf[MAX_MSG_LEN];
 
@@ -6311,10 +8805,37 @@ static u32 qed_print_section_params(u32 *dump_buf,
 	return dump_offset;
 }
 
+<<<<<<< HEAD
 /* Parses the idle check rules and returns the number of characters printed.
  * In case of parsing error, returns 0.
  */
 static u32 qed_parse_idle_chk_dump_rules(u32 *dump_buf,
+=======
+/* Returns the block name that matches the specified block ID,
+ * or NULL if not found.
+ */
+static const char *qed_dbg_get_block_name(struct qed_hwfn *p_hwfn,
+					  enum block_id block_id)
+{
+	const struct dbg_block_user *block =
+	    (const struct dbg_block_user *)
+	    p_hwfn->dbg_arrays[BIN_BUF_DBG_BLOCKS_USER_DATA].ptr + block_id;
+
+	return (const char *)block->name;
+}
+
+static struct dbg_tools_user_data *qed_dbg_get_user_data(struct qed_hwfn
+							 *p_hwfn)
+{
+	return (struct dbg_tools_user_data *)p_hwfn->dbg_user_info;
+}
+
+/* Parses the idle check rules and returns the number of characters printed.
+ * In case of parsing error, returns 0.
+ */
+static u32 qed_parse_idle_chk_dump_rules(struct qed_hwfn *p_hwfn,
+					 u32 *dump_buf,
+>>>>>>> upstream/android-13
 					 u32 *dump_buf_end,
 					 u32 num_rules,
 					 bool print_fw_idle_chk,
@@ -6342,6 +8863,7 @@ static u32 qed_parse_idle_chk_dump_rules(u32 *dump_buf,
 
 		hdr = (struct dbg_idle_chk_result_hdr *)dump_buf;
 		rule_parsing_data =
+<<<<<<< HEAD
 			(const struct dbg_idle_chk_rule_parsing_data *)
 			&s_user_dbg_arrays[BIN_BUF_DBG_IDLE_CHK_PARSING_DATA].
 			ptr[hdr->rule_id];
@@ -6355,6 +8877,20 @@ static u32 qed_parse_idle_chk_dump_rules(u32 *dump_buf,
 			&((const char *)
 			s_user_dbg_arrays[BIN_BUF_DBG_PARSING_STRINGS].ptr)
 			[parsing_str_offset];
+=======
+		    (const struct dbg_idle_chk_rule_parsing_data *)
+		    p_hwfn->dbg_arrays[BIN_BUF_DBG_IDLE_CHK_PARSING_DATA].ptr +
+		    hdr->rule_id;
+		parsing_str_offset =
+		    GET_FIELD(rule_parsing_data->data,
+			      DBG_IDLE_CHK_RULE_PARSING_DATA_STR_OFFSET);
+		has_fw_msg =
+		    GET_FIELD(rule_parsing_data->data,
+			      DBG_IDLE_CHK_RULE_PARSING_DATA_HAS_FW_MSG) > 0;
+		parsing_str = (const char *)
+		    p_hwfn->dbg_arrays[BIN_BUF_DBG_PARSING_STRINGS].ptr +
+		    parsing_str_offset;
+>>>>>>> upstream/android-13
 		lsi_msg = parsing_str;
 		curr_reg_id = 0;
 
@@ -6458,7 +8994,12 @@ static u32 qed_parse_idle_chk_dump_rules(u32 *dump_buf,
  * parsed_results_bytes.
  * The parsing status is returned.
  */
+<<<<<<< HEAD
 static enum dbg_status qed_parse_idle_chk_dump(u32 *dump_buf,
+=======
+static enum dbg_status qed_parse_idle_chk_dump(struct qed_hwfn *p_hwfn,
+					       u32 *dump_buf,
+>>>>>>> upstream/android-13
 					       u32 num_dumped_dwords,
 					       char *results_buf,
 					       u32 *parsed_results_bytes,
@@ -6476,8 +9017,13 @@ static enum dbg_status qed_parse_idle_chk_dump(u32 *dump_buf,
 	*num_errors = 0;
 	*num_warnings = 0;
 
+<<<<<<< HEAD
 	if (!s_user_dbg_arrays[BIN_BUF_DBG_PARSING_STRINGS].ptr ||
 	    !s_user_dbg_arrays[BIN_BUF_DBG_IDLE_CHK_PARSING_DATA].ptr)
+=======
+	if (!p_hwfn->dbg_arrays[BIN_BUF_DBG_PARSING_STRINGS].ptr ||
+	    !p_hwfn->dbg_arrays[BIN_BUF_DBG_IDLE_CHK_PARSING_DATA].ptr)
+>>>>>>> upstream/android-13
 		return DBG_STATUS_DBG_ARRAY_NOT_SET;
 
 	/* Read global_params section */
@@ -6510,7 +9056,12 @@ static enum dbg_status qed_parse_idle_chk_dump(u32 *dump_buf,
 					    results_offset),
 			    "FW_IDLE_CHECK:\n");
 		rules_print_size =
+<<<<<<< HEAD
 			qed_parse_idle_chk_dump_rules(dump_buf,
+=======
+			qed_parse_idle_chk_dump_rules(p_hwfn,
+						      dump_buf,
+>>>>>>> upstream/android-13
 						      dump_buf_end,
 						      num_rules,
 						      true,
@@ -6530,7 +9081,12 @@ static enum dbg_status qed_parse_idle_chk_dump(u32 *dump_buf,
 					    results_offset),
 			    "\nLSI_IDLE_CHECK:\n");
 		rules_print_size =
+<<<<<<< HEAD
 			qed_parse_idle_chk_dump_rules(dump_buf,
+=======
+			qed_parse_idle_chk_dump_rules(p_hwfn,
+						      dump_buf,
+>>>>>>> upstream/android-13
 						      dump_buf_end,
 						      num_rules,
 						      false,
@@ -6570,6 +9126,7 @@ static enum dbg_status qed_parse_idle_chk_dump(u32 *dump_buf,
 	return DBG_STATUS_OK;
 }
 
+<<<<<<< HEAD
 /* Frees the specified MCP Trace meta data */
 static void qed_mcp_trace_free_meta(struct qed_hwfn *p_hwfn,
 				    struct mcp_trace_meta *meta)
@@ -6593,10 +9150,13 @@ static void qed_mcp_trace_free_meta(struct qed_hwfn *p_hwfn,
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Allocates and fills MCP Trace meta data based on the specified meta data
  * dump buffer.
  * Returns debug status code.
  */
+<<<<<<< HEAD
 static enum dbg_status qed_mcp_trace_alloc_meta(struct qed_hwfn *p_hwfn,
 						const u32 *meta_buf,
 						struct mcp_trace_meta *meta)
@@ -6607,6 +9167,24 @@ static enum dbg_status qed_mcp_trace_alloc_meta(struct qed_hwfn *p_hwfn,
 	/* Free the previous meta before loading a new one. */
 	if (s_mcp_trace_meta_valid)
 		qed_mcp_trace_free_meta(p_hwfn, meta);
+=======
+static enum dbg_status
+qed_mcp_trace_alloc_meta_data(struct qed_hwfn *p_hwfn,
+			      const u32 *meta_buf)
+{
+	struct dbg_tools_user_data *dev_user_data;
+	u32 offset = 0, signature, i;
+	struct mcp_trace_meta *meta;
+	u8 *meta_buf_bytes;
+
+	dev_user_data = qed_dbg_get_user_data(p_hwfn);
+	meta = &dev_user_data->mcp_trace_meta;
+	meta_buf_bytes = (u8 *)meta_buf;
+
+	/* Free the previous meta before loading a new one. */
+	if (meta->is_allocated)
+		qed_mcp_trace_free_meta_data(p_hwfn);
+>>>>>>> upstream/android-13
 
 	memset(meta, 0, sizeof(*meta));
 
@@ -6659,9 +9237,14 @@ static enum dbg_status qed_mcp_trace_alloc_meta(struct qed_hwfn *p_hwfn,
 
 		format_ptr->data = qed_read_dword_from_buf(meta_buf_bytes,
 							   &offset);
+<<<<<<< HEAD
 		format_len =
 		    (format_ptr->data &
 		     MCP_TRACE_FORMAT_LEN_MASK) >> MCP_TRACE_FORMAT_LEN_SHIFT;
+=======
+		format_len = GET_MFW_FIELD(format_ptr->data,
+					   MCP_TRACE_FORMAT_LEN);
+>>>>>>> upstream/android-13
 		format_ptr->format_str = kzalloc(format_len, GFP_KERNEL);
 		if (!format_ptr->format_str) {
 			/* Update number of modules to be released */
@@ -6674,7 +9257,11 @@ static enum dbg_status qed_mcp_trace_alloc_meta(struct qed_hwfn *p_hwfn,
 				      format_len, format_ptr->format_str);
 	}
 
+<<<<<<< HEAD
 	s_mcp_trace_meta_valid = true;
+=======
+	meta->is_allocated = true;
+>>>>>>> upstream/android-13
 	return DBG_STATUS_OK;
 }
 
@@ -6684,16 +9271,27 @@ static enum dbg_status qed_mcp_trace_alloc_meta(struct qed_hwfn *p_hwfn,
  * trace_buf - MCP trace cyclic buffer
  * trace_buf_size - MCP trace cyclic buffer size in bytes
  * data_offset - offset in bytes of the data to parse in the MCP trace cyclic
+<<<<<<< HEAD
  *               buffer.
  * data_size - size in bytes of data to parse.
  * parsed_buf - destination buffer for parsed data.
  * parsed_bytes - size of parsed data in bytes.
  */
 static enum dbg_status qed_parse_mcp_trace_buf(u8 *trace_buf,
+=======
+ *		 buffer.
+ * data_size - size in bytes of data to parse.
+ * parsed_buf - destination buffer for parsed data.
+ * parsed_results_bytes - size of parsed data in bytes.
+ */
+static enum dbg_status qed_parse_mcp_trace_buf(struct qed_hwfn *p_hwfn,
+					       u8 *trace_buf,
+>>>>>>> upstream/android-13
 					       u32 trace_buf_size,
 					       u32 data_offset,
 					       u32 data_size,
 					       char *parsed_buf,
+<<<<<<< HEAD
 					       u32 *parsed_bytes)
 {
 	u32 param_mask, param_shift;
@@ -6702,6 +9300,20 @@ static enum dbg_status qed_parse_mcp_trace_buf(u8 *trace_buf,
 	*parsed_bytes = 0;
 
 	if (!s_mcp_trace_meta_valid)
+=======
+					       u32 *parsed_results_bytes)
+{
+	struct dbg_tools_user_data *dev_user_data;
+	struct mcp_trace_meta *meta;
+	u32 param_mask, param_shift;
+	enum dbg_status status;
+
+	dev_user_data = qed_dbg_get_user_data(p_hwfn);
+	meta = &dev_user_data->mcp_trace_meta;
+	*parsed_results_bytes = 0;
+
+	if (!meta->is_allocated)
+>>>>>>> upstream/android-13
 		return DBG_STATUS_MCP_TRACE_BAD_DATA;
 
 	status = DBG_STATUS_OK;
@@ -6723,10 +9335,16 @@ static enum dbg_status qed_parse_mcp_trace_buf(u8 *trace_buf,
 		format_idx = header & MFW_TRACE_EVENTID_MASK;
 
 		/* Skip message if its index doesn't exist in the meta data */
+<<<<<<< HEAD
 		if (format_idx >= s_mcp_trace_meta.formats_num) {
 			u8 format_size =
 				(u8)((header & MFW_TRACE_PRM_SIZE_MASK) >>
 				     MFW_TRACE_PRM_SIZE_SHIFT);
+=======
+		if (format_idx >= meta->formats_num) {
+			u8 format_size = (u8)GET_MFW_FIELD(header,
+							   MFW_TRACE_PRM_SIZE);
+>>>>>>> upstream/android-13
 
 			if (data_size < format_size)
 				return DBG_STATUS_MCP_TRACE_BAD_DATA;
@@ -6738,6 +9356,7 @@ static enum dbg_status qed_parse_mcp_trace_buf(u8 *trace_buf,
 			continue;
 		}
 
+<<<<<<< HEAD
 		format_ptr = &s_mcp_trace_meta.formats[format_idx];
 
 		for (i = 0,
@@ -6746,6 +9365,15 @@ static enum dbg_status qed_parse_mcp_trace_buf(u8 *trace_buf,
 		     i < MCP_TRACE_FORMAT_MAX_PARAMS;
 		     i++,
 		     param_mask <<= MCP_TRACE_FORMAT_PARAM_WIDTH,
+=======
+		format_ptr = &meta->formats[format_idx];
+
+		for (i = 0,
+		     param_mask = MCP_TRACE_FORMAT_P1_SIZE_MASK, param_shift =
+		     MCP_TRACE_FORMAT_P1_SIZE_OFFSET;
+		     i < MCP_TRACE_FORMAT_MAX_PARAMS;
+		     i++, param_mask <<= MCP_TRACE_FORMAT_PARAM_WIDTH,
+>>>>>>> upstream/android-13
 		     param_shift += MCP_TRACE_FORMAT_PARAM_WIDTH) {
 			/* Extract param size (0..3) */
 			u8 param_size = (u8)((format_ptr->data & param_mask) >>
@@ -6773,16 +9401,24 @@ static enum dbg_status qed_parse_mcp_trace_buf(u8 *trace_buf,
 			data_size -= param_size;
 		}
 
+<<<<<<< HEAD
 		format_level = (u8)((format_ptr->data &
 				     MCP_TRACE_FORMAT_LEVEL_MASK) >>
 				    MCP_TRACE_FORMAT_LEVEL_SHIFT);
 		format_module = (u8)((format_ptr->data &
 				      MCP_TRACE_FORMAT_MODULE_MASK) >>
 				     MCP_TRACE_FORMAT_MODULE_SHIFT);
+=======
+		format_level = (u8)GET_MFW_FIELD(format_ptr->data,
+						 MCP_TRACE_FORMAT_LEVEL);
+		format_module = (u8)GET_MFW_FIELD(format_ptr->data,
+						  MCP_TRACE_FORMAT_MODULE);
+>>>>>>> upstream/android-13
 		if (format_level >= ARRAY_SIZE(s_mcp_trace_level_str))
 			return DBG_STATUS_MCP_TRACE_BAD_DATA;
 
 		/* Print current message to results buffer */
+<<<<<<< HEAD
 		*parsed_bytes +=
 			sprintf(qed_get_buf_ptr(parsed_buf, *parsed_bytes),
 				"%s %-8s: ",
@@ -6790,12 +9426,26 @@ static enum dbg_status qed_parse_mcp_trace_buf(u8 *trace_buf,
 				s_mcp_trace_meta.modules[format_module]);
 		*parsed_bytes +=
 		    sprintf(qed_get_buf_ptr(parsed_buf, *parsed_bytes),
+=======
+		*parsed_results_bytes +=
+			sprintf(qed_get_buf_ptr(parsed_buf,
+						*parsed_results_bytes),
+				"%s %-8s: ",
+				s_mcp_trace_level_str[format_level],
+				meta->modules[format_module]);
+		*parsed_results_bytes +=
+		    sprintf(qed_get_buf_ptr(parsed_buf, *parsed_results_bytes),
+>>>>>>> upstream/android-13
 			    format_ptr->format_str,
 			    params[0], params[1], params[2]);
 	}
 
 	/* Add string NULL terminator */
+<<<<<<< HEAD
 	(*parsed_bytes)++;
+=======
+	(*parsed_results_bytes)++;
+>>>>>>> upstream/android-13
 
 	return status;
 }
@@ -6803,24 +9453,42 @@ static enum dbg_status qed_parse_mcp_trace_buf(u8 *trace_buf,
 /* Parses an MCP Trace dump buffer.
  * If result_buf is not NULL, the MCP Trace results are printed to it.
  * In any case, the required results buffer size is assigned to
+<<<<<<< HEAD
  * parsed_bytes.
+=======
+ * parsed_results_bytes.
+>>>>>>> upstream/android-13
  * The parsing status is returned.
  */
 static enum dbg_status qed_parse_mcp_trace_dump(struct qed_hwfn *p_hwfn,
 						u32 *dump_buf,
+<<<<<<< HEAD
 						char *parsed_buf,
 						u32 *parsed_bytes)
 {
 	const char *section_name, *param_name, *param_str_val;
 	u32 data_size, trace_data_dwords, trace_meta_dwords;
 	u32 offset, results_offset, parsed_buf_bytes;
+=======
+						char *results_buf,
+						u32 *parsed_results_bytes,
+						bool free_meta_data)
+{
+	const char *section_name, *param_name, *param_str_val;
+	u32 data_size, trace_data_dwords, trace_meta_dwords;
+	u32 offset, results_offset, results_buf_bytes;
+>>>>>>> upstream/android-13
 	u32 param_num_val, num_section_params;
 	struct mcp_trace *trace;
 	enum dbg_status status;
 	const u32 *meta_buf;
 	u8 *trace_buf;
 
+<<<<<<< HEAD
 	*parsed_bytes = 0;
+=======
+	*parsed_results_bytes = 0;
+>>>>>>> upstream/android-13
 
 	/* Read global_params section */
 	dump_buf += qed_read_section_hdr(dump_buf,
@@ -6831,7 +9499,11 @@ static enum dbg_status qed_parse_mcp_trace_dump(struct qed_hwfn *p_hwfn,
 	/* Print global params */
 	dump_buf += qed_print_section_params(dump_buf,
 					     num_section_params,
+<<<<<<< HEAD
 					     parsed_buf, &results_offset);
+=======
+					     results_buf, &results_offset);
+>>>>>>> upstream/android-13
 
 	/* Read trace_data section */
 	dump_buf += qed_read_section_hdr(dump_buf,
@@ -6846,6 +9518,12 @@ static enum dbg_status qed_parse_mcp_trace_dump(struct qed_hwfn *p_hwfn,
 
 	/* Prepare trace info */
 	trace = (struct mcp_trace *)dump_buf;
+<<<<<<< HEAD
+=======
+	if (trace->signature != MFW_TRACE_SIGNATURE || !trace->size)
+		return DBG_STATUS_MCP_TRACE_BAD_DATA;
+
+>>>>>>> upstream/android-13
 	trace_buf = (u8 *)dump_buf + sizeof(*trace);
 	offset = trace->trace_oldest;
 	data_size = qed_cyclic_sub(trace->trace_prod, offset, trace->size);
@@ -6865,15 +9543,26 @@ static enum dbg_status qed_parse_mcp_trace_dump(struct qed_hwfn *p_hwfn,
 	/* Choose meta data buffer */
 	if (!trace_meta_dwords) {
 		/* Dump doesn't include meta data */
+<<<<<<< HEAD
 		if (!s_mcp_trace_meta_arr.ptr)
 			return DBG_STATUS_MCP_TRACE_NO_META;
 		meta_buf = s_mcp_trace_meta_arr.ptr;
+=======
+		struct dbg_tools_user_data *dev_user_data =
+			qed_dbg_get_user_data(p_hwfn);
+
+		if (!dev_user_data->mcp_trace_user_meta_buf)
+			return DBG_STATUS_MCP_TRACE_NO_META;
+
+		meta_buf = dev_user_data->mcp_trace_user_meta_buf;
+>>>>>>> upstream/android-13
 	} else {
 		/* Dump includes meta data */
 		meta_buf = dump_buf;
 	}
 
 	/* Allocate meta data memory */
+<<<<<<< HEAD
 	status = qed_mcp_trace_alloc_meta(p_hwfn, meta_buf, &s_mcp_trace_meta);
 	if (status != DBG_STATUS_OK)
 		return status;
@@ -6890,6 +9579,28 @@ static enum dbg_status qed_parse_mcp_trace_dump(struct qed_hwfn *p_hwfn,
 		return status;
 
 	*parsed_bytes = results_offset + parsed_buf_bytes;
+=======
+	status = qed_mcp_trace_alloc_meta_data(p_hwfn, meta_buf);
+	if (status != DBG_STATUS_OK)
+		return status;
+
+	status = qed_parse_mcp_trace_buf(p_hwfn,
+					 trace_buf,
+					 trace->size,
+					 offset,
+					 data_size,
+					 results_buf ?
+					 results_buf + results_offset :
+					 NULL,
+					 &results_buf_bytes);
+	if (status != DBG_STATUS_OK)
+		return status;
+
+	if (free_meta_data)
+		qed_mcp_trace_free_meta_data(p_hwfn);
+
+	*parsed_results_bytes = results_offset + results_buf_bytes;
+>>>>>>> upstream/android-13
 
 	return DBG_STATUS_OK;
 }
@@ -6907,7 +9618,11 @@ static enum dbg_status qed_parse_reg_fifo_dump(u32 *dump_buf,
 	const char *section_name, *param_name, *param_str_val;
 	u32 param_num_val, num_section_params, num_elements;
 	struct reg_fifo_element *elements;
+<<<<<<< HEAD
 	u8 i, j, err_val, vf_val;
+=======
+	u8 i, j, err_code, vf_val;
+>>>>>>> upstream/android-13
 	u32 results_offset = 0;
 	char vf_str[4];
 
@@ -6938,7 +9653,11 @@ static enum dbg_status qed_parse_reg_fifo_dump(u32 *dump_buf,
 
 	/* Decode elements */
 	for (i = 0; i < num_elements; i++) {
+<<<<<<< HEAD
 		bool err_printed = false;
+=======
+		const char *err_msg = NULL;
+>>>>>>> upstream/android-13
 
 		/* Discover if element belongs to a VF or a PF */
 		vf_val = GET_FIELD(elements[i].data, REG_FIFO_ELEMENT_VF);
@@ -6947,11 +9666,24 @@ static enum dbg_status qed_parse_reg_fifo_dump(u32 *dump_buf,
 		else
 			sprintf(vf_str, "%d", vf_val);
 
+<<<<<<< HEAD
+=======
+		/* Find error message */
+		err_code = GET_FIELD(elements[i].data, REG_FIFO_ELEMENT_ERROR);
+		for (j = 0; j < ARRAY_SIZE(s_reg_fifo_errors) && !err_msg; j++)
+			if (err_code == s_reg_fifo_errors[j].err_code)
+				err_msg = s_reg_fifo_errors[j].err_msg;
+
+>>>>>>> upstream/android-13
 		/* Add parsed element to parsed buffer */
 		results_offset +=
 		    sprintf(qed_get_buf_ptr(results_buf,
 					    results_offset),
+<<<<<<< HEAD
 			    "raw: 0x%016llx, address: 0x%07x, access: %-5s, pf: %2d, vf: %s, port: %d, privilege: %-3s, protection: %-12s, master: %-4s, errors: ",
+=======
+			    "raw: 0x%016llx, address: 0x%07x, access: %-5s, pf: %2d, vf: %s, port: %d, privilege: %-3s, protection: %-12s, master: %-4s, error: %s\n",
+>>>>>>> upstream/android-13
 			    elements[i].data,
 			    (u32)GET_FIELD(elements[i].data,
 					   REG_FIFO_ELEMENT_ADDRESS) *
@@ -6968,6 +9700,7 @@ static enum dbg_status qed_parse_reg_fifo_dump(u32 *dump_buf,
 			    s_protection_strs[GET_FIELD(elements[i].data,
 						REG_FIFO_ELEMENT_PROTECTION)],
 			    s_master_strs[GET_FIELD(elements[i].data,
+<<<<<<< HEAD
 						REG_FIFO_ELEMENT_MASTER)]);
 
 		/* Print errors */
@@ -6992,6 +9725,10 @@ static enum dbg_status qed_parse_reg_fifo_dump(u32 *dump_buf,
 
 		results_offset +=
 		    sprintf(qed_get_buf_ptr(results_buf, results_offset), "\n");
+=======
+						    REG_FIFO_ELEMENT_MASTER)],
+			    err_msg ? err_msg : "unknown error code");
+>>>>>>> upstream/android-13
 	}
 
 	results_offset += sprintf(qed_get_buf_ptr(results_buf,
@@ -7345,6 +10082,7 @@ static enum dbg_status qed_parse_fw_asserts_dump(u32 *dump_buf,
 
 /***************************** Public Functions *******************************/
 
+<<<<<<< HEAD
 enum dbg_status qed_dbg_user_set_bin_ptr(const u8 * const bin_ptr)
 {
 	struct bin_buffer_hdr *buf_array = (struct bin_buffer_hdr *)bin_ptr;
@@ -7357,6 +10095,31 @@ enum dbg_status qed_dbg_user_set_bin_ptr(const u8 * const bin_ptr)
 		s_user_dbg_arrays[buf_id].size_in_dwords =
 			BYTES_TO_DWORDS(buf_array[buf_id].length);
 	}
+=======
+enum dbg_status qed_dbg_user_set_bin_ptr(struct qed_hwfn *p_hwfn,
+					 const u8 * const bin_ptr)
+{
+	struct bin_buffer_hdr *buf_hdrs = (struct bin_buffer_hdr *)bin_ptr;
+	u8 buf_id;
+
+	/* Convert binary data to debug arrays */
+	for (buf_id = 0; buf_id < MAX_BIN_DBG_BUFFER_TYPE; buf_id++)
+		qed_set_dbg_bin_buf(p_hwfn,
+				    (enum bin_dbg_buffer_type)buf_id,
+				    (u32 *)(bin_ptr + buf_hdrs[buf_id].offset),
+				    buf_hdrs[buf_id].length);
+
+	return DBG_STATUS_OK;
+}
+
+enum dbg_status qed_dbg_alloc_user_data(struct qed_hwfn *p_hwfn,
+					void **user_data_ptr)
+{
+	*user_data_ptr = kzalloc(sizeof(struct dbg_tools_user_data),
+				 GFP_KERNEL);
+	if (!(*user_data_ptr))
+		return DBG_STATUS_VIRT_MEM_ALLOC_FAILED;
+>>>>>>> upstream/android-13
 
 	return DBG_STATUS_OK;
 }
@@ -7374,7 +10137,12 @@ enum dbg_status qed_get_idle_chk_results_buf_size(struct qed_hwfn *p_hwfn,
 {
 	u32 num_errors, num_warnings;
 
+<<<<<<< HEAD
 	return qed_parse_idle_chk_dump(dump_buf,
+=======
+	return qed_parse_idle_chk_dump(p_hwfn,
+				       dump_buf,
+>>>>>>> upstream/android-13
 				       num_dumped_dwords,
 				       NULL,
 				       results_buf_size,
@@ -7390,17 +10158,32 @@ enum dbg_status qed_print_idle_chk_results(struct qed_hwfn *p_hwfn,
 {
 	u32 parsed_buf_size;
 
+<<<<<<< HEAD
 	return qed_parse_idle_chk_dump(dump_buf,
+=======
+	return qed_parse_idle_chk_dump(p_hwfn,
+				       dump_buf,
+>>>>>>> upstream/android-13
 				       num_dumped_dwords,
 				       results_buf,
 				       &parsed_buf_size,
 				       num_errors, num_warnings);
 }
 
+<<<<<<< HEAD
 void qed_dbg_mcp_trace_set_meta_data(u32 *data, u32 size)
 {
 	s_mcp_trace_meta_arr.ptr = data;
 	s_mcp_trace_meta_arr.size_in_dwords = size;
+=======
+void qed_dbg_mcp_trace_set_meta_data(struct qed_hwfn *p_hwfn,
+				     const u32 *meta_buf)
+{
+	struct dbg_tools_user_data *dev_user_data =
+		qed_dbg_get_user_data(p_hwfn);
+
+	dev_user_data->mcp_trace_user_meta_buf = meta_buf;
+>>>>>>> upstream/android-13
 }
 
 enum dbg_status qed_get_mcp_trace_results_buf_size(struct qed_hwfn *p_hwfn,
@@ -7409,7 +10192,11 @@ enum dbg_status qed_get_mcp_trace_results_buf_size(struct qed_hwfn *p_hwfn,
 						   u32 *results_buf_size)
 {
 	return qed_parse_mcp_trace_dump(p_hwfn,
+<<<<<<< HEAD
 					dump_buf, NULL, results_buf_size);
+=======
+					dump_buf, NULL, results_buf_size, true);
+>>>>>>> upstream/android-13
 }
 
 enum dbg_status qed_print_mcp_trace_results(struct qed_hwfn *p_hwfn,
@@ -7421,6 +10208,7 @@ enum dbg_status qed_print_mcp_trace_results(struct qed_hwfn *p_hwfn,
 
 	return qed_parse_mcp_trace_dump(p_hwfn,
 					dump_buf,
+<<<<<<< HEAD
 					results_buf, &parsed_buf_size);
 }
 
@@ -7435,6 +10223,63 @@ enum dbg_status qed_print_mcp_trace_line(u8 *dump_buf,
 				       0,
 				       num_dumped_bytes,
 				       results_buf, &parsed_bytes);
+=======
+					results_buf, &parsed_buf_size, true);
+}
+
+enum dbg_status qed_print_mcp_trace_results_cont(struct qed_hwfn *p_hwfn,
+						 u32 *dump_buf,
+						 char *results_buf)
+{
+	u32 parsed_buf_size;
+
+	return qed_parse_mcp_trace_dump(p_hwfn, dump_buf, results_buf,
+					&parsed_buf_size, false);
+}
+
+enum dbg_status qed_print_mcp_trace_line(struct qed_hwfn *p_hwfn,
+					 u8 *dump_buf,
+					 u32 num_dumped_bytes,
+					 char *results_buf)
+{
+	u32 parsed_results_bytes;
+
+	return qed_parse_mcp_trace_buf(p_hwfn,
+				       dump_buf,
+				       num_dumped_bytes,
+				       0,
+				       num_dumped_bytes,
+				       results_buf, &parsed_results_bytes);
+}
+
+/* Frees the specified MCP Trace meta data */
+void qed_mcp_trace_free_meta_data(struct qed_hwfn *p_hwfn)
+{
+	struct dbg_tools_user_data *dev_user_data;
+	struct mcp_trace_meta *meta;
+	u32 i;
+
+	dev_user_data = qed_dbg_get_user_data(p_hwfn);
+	meta = &dev_user_data->mcp_trace_meta;
+	if (!meta->is_allocated)
+		return;
+
+	/* Release modules */
+	if (meta->modules) {
+		for (i = 0; i < meta->modules_num; i++)
+			kfree(meta->modules[i]);
+		kfree(meta->modules);
+	}
+
+	/* Release formats */
+	if (meta->formats) {
+		for (i = 0; i < meta->formats_num; i++)
+			kfree(meta->formats[i].format_str);
+		kfree(meta->formats);
+	}
+
+	meta->is_allocated = false;
+>>>>>>> upstream/android-13
 }
 
 enum dbg_status qed_get_reg_fifo_results_buf_size(struct qed_hwfn *p_hwfn,
@@ -7517,6 +10362,7 @@ enum dbg_status qed_print_fw_asserts_results(struct qed_hwfn *p_hwfn,
 enum dbg_status qed_dbg_parse_attn(struct qed_hwfn *p_hwfn,
 				   struct dbg_attn_block_result *results)
 {
+<<<<<<< HEAD
 	struct user_dbg_array *block_attn, *pstrings;
 	const u32 *block_attn_name_offsets;
 	enum dbg_attn_type attn_type;
@@ -7536,6 +10382,30 @@ enum dbg_status qed_dbg_parse_attn(struct qed_hwfn *p_hwfn,
 
 	block_attn = &s_user_dbg_arrays[BIN_BUF_DBG_ATTN_NAME_OFFSETS];
 	block_attn_name_offsets = &block_attn->ptr[results->names_offset];
+=======
+	const u32 *block_attn_name_offsets;
+	const char *attn_name_base;
+	const char *block_name;
+	enum dbg_attn_type attn_type;
+	u8 num_regs, i, j;
+
+	num_regs = GET_FIELD(results->data, DBG_ATTN_BLOCK_RESULT_NUM_REGS);
+	attn_type = GET_FIELD(results->data, DBG_ATTN_BLOCK_RESULT_ATTN_TYPE);
+	block_name = qed_dbg_get_block_name(p_hwfn, results->block_id);
+	if (!block_name)
+		return DBG_STATUS_INVALID_ARGS;
+
+	if (!p_hwfn->dbg_arrays[BIN_BUF_DBG_ATTN_INDEXES].ptr ||
+	    !p_hwfn->dbg_arrays[BIN_BUF_DBG_ATTN_NAME_OFFSETS].ptr ||
+	    !p_hwfn->dbg_arrays[BIN_BUF_DBG_PARSING_STRINGS].ptr)
+		return DBG_STATUS_DBG_ARRAY_NOT_SET;
+
+	block_attn_name_offsets =
+	    (u32 *)p_hwfn->dbg_arrays[BIN_BUF_DBG_ATTN_NAME_OFFSETS].ptr +
+	    results->names_offset;
+
+	attn_name_base = p_hwfn->dbg_arrays[BIN_BUF_DBG_PARSING_STRINGS].ptr;
+>>>>>>> upstream/android-13
 
 	/* Go over registers with a non-zero attention status */
 	for (i = 0; i < num_regs; i++) {
@@ -7546,6 +10416,7 @@ enum dbg_status qed_dbg_parse_attn(struct qed_hwfn *p_hwfn,
 		reg_result = &results->reg_results[i];
 		num_reg_attn = GET_FIELD(reg_result->data,
 					 DBG_ATTN_REG_RESULT_NUM_REG_ATTN);
+<<<<<<< HEAD
 		block_attn = &s_user_dbg_arrays[BIN_BUF_DBG_ATTN_INDEXES];
 		bit_mapping = &((struct dbg_attn_bit_mapping *)
 				block_attn->ptr)[reg_result->block_attn_offset];
@@ -7558,6 +10429,19 @@ enum dbg_status qed_dbg_parse_attn(struct qed_hwfn *p_hwfn,
 						     DBG_ATTN_BIT_MAPPING_VAL);
 			const char *attn_name, *attn_type_str, *masked_str;
 			u32 attn_name_offset, sts_addr;
+=======
+		bit_mapping = (struct dbg_attn_bit_mapping *)
+		    p_hwfn->dbg_arrays[BIN_BUF_DBG_ATTN_INDEXES].ptr +
+		    reg_result->block_attn_offset;
+
+		/* Go over attention status bits */
+		for (j = 0; j < num_reg_attn; j++, bit_idx++) {
+			u16 attn_idx_val = GET_FIELD(bit_mapping[j].data,
+						     DBG_ATTN_BIT_MAPPING_VAL);
+			const char *attn_name, *attn_type_str, *masked_str;
+			u32 attn_name_offset;
+			u32 sts_addr;
+>>>>>>> upstream/android-13
 
 			/* Check if bit mask should be advanced (due to unused
 			 * bits).
@@ -7569,6 +10453,7 @@ enum dbg_status qed_dbg_parse_attn(struct qed_hwfn *p_hwfn,
 			}
 
 			/* Check current bit index */
+<<<<<<< HEAD
 			if (!(reg_result->sts_val & BIT(bit_idx))) {
 				bit_idx++;
 				continue;
@@ -7581,6 +10466,21 @@ enum dbg_status qed_dbg_parse_attn(struct qed_hwfn *p_hwfn,
 				      pstrings->ptr)[attn_name_offset];
 			attn_type_str = attn_type == ATTN_TYPE_INTERRUPT ?
 					"Interrupt" : "Parity";
+=======
+			if (!(reg_result->sts_val & BIT(bit_idx)))
+				continue;
+
+			/* An attention bit with value=1 was found
+			 * Find attention name
+			 */
+			attn_name_offset =
+				block_attn_name_offsets[attn_idx_val];
+			attn_name = attn_name_base + attn_name_offset;
+			attn_type_str =
+				(attn_type ==
+				 ATTN_TYPE_INTERRUPT ? "Interrupt" :
+				 "Parity");
+>>>>>>> upstream/android-13
 			masked_str = reg_result->mask_val & BIT(bit_idx) ?
 				     " [masked]" : "";
 			sts_addr = GET_FIELD(reg_result->data,
@@ -7588,15 +10488,24 @@ enum dbg_status qed_dbg_parse_attn(struct qed_hwfn *p_hwfn,
 			DP_NOTICE(p_hwfn,
 				  "%s (%s) : %s [address 0x%08x, bit %d]%s\n",
 				  block_name, attn_type_str, attn_name,
+<<<<<<< HEAD
 				  sts_addr, bit_idx, masked_str);
 
 			bit_idx++;
+=======
+				  sts_addr * 4, bit_idx, masked_str);
+>>>>>>> upstream/android-13
 		}
 	}
 
 	return DBG_STATUS_OK;
 }
 
+<<<<<<< HEAD
+=======
+static DEFINE_MUTEX(qed_dbg_lock);
+
+>>>>>>> upstream/android-13
 /* Wrapper for unifying the idle_chk and mcp_trace api */
 static enum dbg_status
 qed_print_idle_chk_results_wrapper(struct qed_hwfn *p_hwfn,
@@ -7656,7 +10565,14 @@ static struct {
 		    qed_dbg_fw_asserts_get_dump_buf_size,
 		    qed_dbg_fw_asserts_dump,
 		    qed_print_fw_asserts_results,
+<<<<<<< HEAD
 		    qed_get_fw_asserts_results_buf_size},};
+=======
+		    qed_get_fw_asserts_results_buf_size}, {
+	"ilt",
+		    qed_dbg_ilt_get_dump_buf_size,
+		    qed_dbg_ilt_dump, NULL, NULL},};
+>>>>>>> upstream/android-13
 
 static void qed_dbg_print_feature(u8 *p_text_buf, u32 text_size)
 {
@@ -7677,7 +10593,11 @@ static enum dbg_status format_feature(struct qed_hwfn *p_hwfn,
 				      enum qed_dbg_features feature_idx)
 {
 	struct qed_dbg_feature *feature =
+<<<<<<< HEAD
 	    &p_hwfn->cdev->dbg_params.features[feature_idx];
+=======
+	    &p_hwfn->cdev->dbg_features[feature_idx];
+>>>>>>> upstream/android-13
 	u32 text_size_bytes, null_char_pos, i;
 	enum dbg_status rc;
 	char *text_buf;
@@ -7726,9 +10646,21 @@ static enum dbg_status format_feature(struct qed_hwfn *p_hwfn,
 		text_buf[i] = '\n';
 
 	/* Dump printable feature to log */
+<<<<<<< HEAD
 	if (p_hwfn->cdev->dbg_params.print_data)
 		qed_dbg_print_feature(text_buf, text_size_bytes);
 
+=======
+	if (p_hwfn->cdev->print_dbg_data)
+		qed_dbg_print_feature(text_buf, text_size_bytes);
+
+	/* Just return the original binary buffer if requested */
+	if (p_hwfn->cdev->dbg_bin_dump) {
+		vfree(text_buf);
+		return DBG_STATUS_OK;
+	}
+
+>>>>>>> upstream/android-13
 	/* Free the old dump_buf and point the dump_buf to the newly allocagted
 	 * and formatted text buffer.
 	 */
@@ -7739,13 +10671,22 @@ static enum dbg_status format_feature(struct qed_hwfn *p_hwfn,
 	return rc;
 }
 
+<<<<<<< HEAD
+=======
+#define MAX_DBG_FEATURE_SIZE_DWORDS	0x3FFFFFFF
+
+>>>>>>> upstream/android-13
 /* Generic function for performing the dump of a debug feature. */
 static enum dbg_status qed_dbg_dump(struct qed_hwfn *p_hwfn,
 				    struct qed_ptt *p_ptt,
 				    enum qed_dbg_features feature_idx)
 {
 	struct qed_dbg_feature *feature =
+<<<<<<< HEAD
 	    &p_hwfn->cdev->dbg_params.features[feature_idx];
+=======
+	    &p_hwfn->cdev->dbg_features[feature_idx];
+>>>>>>> upstream/android-13
 	u32 buf_size_dwords;
 	enum dbg_status rc;
 
@@ -7768,6 +10709,20 @@ static enum dbg_status qed_dbg_dump(struct qed_hwfn *p_hwfn,
 						       &buf_size_dwords);
 	if (rc != DBG_STATUS_OK && rc != DBG_STATUS_NVRAM_GET_IMAGE_FAILED)
 		return rc;
+<<<<<<< HEAD
+=======
+
+	if (buf_size_dwords > MAX_DBG_FEATURE_SIZE_DWORDS) {
+		feature->buf_size = 0;
+		DP_NOTICE(p_hwfn->cdev,
+			  "Debug feature [\"%s\"] size (0x%x dwords) exceeds maximum size (0x%x dwords)\n",
+			  qed_features_lookup[feature_idx].name,
+			  buf_size_dwords, MAX_DBG_FEATURE_SIZE_DWORDS);
+
+		return DBG_STATUS_OK;
+	}
+
+>>>>>>> upstream/android-13
 	feature->buf_size = buf_size_dwords * sizeof(u32);
 	feature->dump_buf = vmalloc(feature->buf_size);
 	if (!feature->dump_buf)
@@ -7859,9 +10814,14 @@ static int qed_dbg_nvm_image(struct qed_dev *cdev, void *buffer,
 			     enum qed_nvm_images image_id)
 {
 	struct qed_hwfn *p_hwfn =
+<<<<<<< HEAD
 		&cdev->hwfns[cdev->dbg_params.engine_for_debug];
 	u32 len_rounded, i;
 	__be32 val;
+=======
+		&cdev->hwfns[cdev->engine_for_debug];
+	u32 len_rounded;
+>>>>>>> upstream/android-13
 	int rc;
 
 	*num_dumped_bytes = 0;
@@ -7880,10 +10840,16 @@ static int qed_dbg_nvm_image(struct qed_dev *cdev, void *buffer,
 
 	/* QED_NVM_IMAGE_NVM_META image is not swapped like other images */
 	if (image_id != QED_NVM_IMAGE_NVM_META)
+<<<<<<< HEAD
 		for (i = 0; i < len_rounded; i += 4) {
 			val = cpu_to_be32(*(u32 *)(buffer + i));
 			*(u32 *)(buffer + i) = val;
 		}
+=======
+		cpu_to_be32_array((__force __be32 *)buffer,
+				  (const u32 *)buffer,
+				  len_rounded / sizeof(u32));
+>>>>>>> upstream/android-13
 
 	*num_dumped_bytes = len_rounded;
 
@@ -7914,6 +10880,19 @@ int qed_dbg_fw_asserts_size(struct qed_dev *cdev)
 	return qed_dbg_feature_size(cdev, DBG_FEATURE_FW_ASSERTS);
 }
 
+<<<<<<< HEAD
+=======
+int qed_dbg_ilt(struct qed_dev *cdev, void *buffer, u32 *num_dumped_bytes)
+{
+	return qed_dbg_feature(cdev, buffer, DBG_FEATURE_ILT, num_dumped_bytes);
+}
+
+int qed_dbg_ilt_size(struct qed_dev *cdev)
+{
+	return qed_dbg_feature_size(cdev, DBG_FEATURE_ILT);
+}
+
+>>>>>>> upstream/android-13
 int qed_dbg_mcp_trace(struct qed_dev *cdev, void *buffer,
 		      u32 *num_dumped_bytes)
 {
@@ -7930,9 +10909,25 @@ int qed_dbg_mcp_trace_size(struct qed_dev *cdev)
  * feature buffer.
  */
 #define REGDUMP_HEADER_SIZE			sizeof(u32)
+<<<<<<< HEAD
 #define REGDUMP_HEADER_FEATURE_SHIFT		24
 #define REGDUMP_HEADER_ENGINE_SHIFT		31
 #define REGDUMP_HEADER_OMIT_ENGINE_SHIFT	30
+=======
+#define REGDUMP_HEADER_SIZE_SHIFT		0
+#define REGDUMP_HEADER_SIZE_MASK		0xffffff
+#define REGDUMP_HEADER_FEATURE_SHIFT		24
+#define REGDUMP_HEADER_FEATURE_MASK		0x1f
+#define REGDUMP_HEADER_BIN_DUMP_SHIFT		29
+#define REGDUMP_HEADER_BIN_DUMP_MASK		0x1
+#define REGDUMP_HEADER_OMIT_ENGINE_SHIFT	30
+#define REGDUMP_HEADER_OMIT_ENGINE_MASK		0x1
+#define REGDUMP_HEADER_ENGINE_SHIFT		31
+#define REGDUMP_HEADER_ENGINE_MASK		0x1
+#define REGDUMP_MAX_SIZE			0x1000000
+#define ILT_DUMP_MAX_SIZE			(1024 * 1024 * 15)
+
+>>>>>>> upstream/android-13
 enum debug_print_features {
 	OLD_MODE = 0,
 	IDLE_CHK = 1,
@@ -7946,6 +10941,7 @@ enum debug_print_features {
 	NVM_CFG1 = 9,
 	DEFAULT_CFG = 10,
 	NVM_META = 11,
+<<<<<<< HEAD
 };
 
 static u32 qed_calc_regdump_header(enum debug_print_features feature,
@@ -7957,17 +10953,60 @@ static u32 qed_calc_regdump_header(enum debug_print_features feature,
 	return feature_size | (feature << REGDUMP_HEADER_FEATURE_SHIFT) |
 	       (omit_engine << REGDUMP_HEADER_OMIT_ENGINE_SHIFT) |
 	       (engine << REGDUMP_HEADER_ENGINE_SHIFT);
+=======
+	MDUMP = 12,
+	ILT_DUMP = 13,
+};
+
+static u32 qed_calc_regdump_header(struct qed_dev *cdev,
+				   enum debug_print_features feature,
+				   int engine, u32 feature_size, u8 omit_engine)
+{
+	u32 res = 0;
+
+	SET_FIELD(res, REGDUMP_HEADER_SIZE, feature_size);
+	if (res != feature_size)
+		DP_NOTICE(cdev,
+			  "Feature %d is too large (size 0x%x) and will corrupt the dump\n",
+			  feature, feature_size);
+
+	SET_FIELD(res, REGDUMP_HEADER_FEATURE, feature);
+	SET_FIELD(res, REGDUMP_HEADER_BIN_DUMP, 1);
+	SET_FIELD(res, REGDUMP_HEADER_OMIT_ENGINE, omit_engine);
+	SET_FIELD(res, REGDUMP_HEADER_ENGINE, engine);
+
+	return res;
+>>>>>>> upstream/android-13
 }
 
 int qed_dbg_all_data(struct qed_dev *cdev, void *buffer)
 {
 	u8 cur_engine, omit_engine = 0, org_engine;
+<<<<<<< HEAD
 	u32 offset = 0, feature_size;
 	int rc;
 
 	if (cdev->num_hwfns == 1)
 		omit_engine = 1;
 
+=======
+	struct qed_hwfn *p_hwfn =
+		&cdev->hwfns[cdev->engine_for_debug];
+	struct dbg_tools_data *dev_data = &p_hwfn->dbg_info;
+	int grc_params[MAX_DBG_GRC_PARAMS], i;
+	u32 offset = 0, feature_size;
+	int rc;
+
+	for (i = 0; i < MAX_DBG_GRC_PARAMS; i++)
+		grc_params[i] = dev_data->grc.param_val[i];
+
+	if (!QED_IS_CMT(cdev))
+		omit_engine = 1;
+
+	mutex_lock(&qed_dbg_lock);
+	cdev->dbg_bin_dump = true;
+
+>>>>>>> upstream/android-13
 	org_engine = qed_get_debug_engine(cdev);
 	for (cur_engine = 0; cur_engine < cdev->num_hwfns; cur_engine++) {
 		/* Collect idle_chks and grcDump for each hw function */
@@ -7980,7 +11019,11 @@ int qed_dbg_all_data(struct qed_dev *cdev, void *buffer)
 				      REGDUMP_HEADER_SIZE, &feature_size);
 		if (!rc) {
 			*(u32 *)((u8 *)buffer + offset) =
+<<<<<<< HEAD
 			    qed_calc_regdump_header(IDLE_CHK, cur_engine,
+=======
+			    qed_calc_regdump_header(cdev, IDLE_CHK, cur_engine,
+>>>>>>> upstream/android-13
 						    feature_size, omit_engine);
 			offset += (feature_size + REGDUMP_HEADER_SIZE);
 		} else {
@@ -7992,7 +11035,11 @@ int qed_dbg_all_data(struct qed_dev *cdev, void *buffer)
 				      REGDUMP_HEADER_SIZE, &feature_size);
 		if (!rc) {
 			*(u32 *)((u8 *)buffer + offset) =
+<<<<<<< HEAD
 			    qed_calc_regdump_header(IDLE_CHK, cur_engine,
+=======
+			    qed_calc_regdump_header(cdev, IDLE_CHK, cur_engine,
+>>>>>>> upstream/android-13
 						    feature_size, omit_engine);
 			offset += (feature_size + REGDUMP_HEADER_SIZE);
 		} else {
@@ -8004,7 +11051,11 @@ int qed_dbg_all_data(struct qed_dev *cdev, void *buffer)
 				      REGDUMP_HEADER_SIZE, &feature_size);
 		if (!rc) {
 			*(u32 *)((u8 *)buffer + offset) =
+<<<<<<< HEAD
 			    qed_calc_regdump_header(REG_FIFO, cur_engine,
+=======
+			    qed_calc_regdump_header(cdev, REG_FIFO, cur_engine,
+>>>>>>> upstream/android-13
 						    feature_size, omit_engine);
 			offset += (feature_size + REGDUMP_HEADER_SIZE);
 		} else {
@@ -8016,7 +11067,11 @@ int qed_dbg_all_data(struct qed_dev *cdev, void *buffer)
 				      REGDUMP_HEADER_SIZE, &feature_size);
 		if (!rc) {
 			*(u32 *)((u8 *)buffer + offset) =
+<<<<<<< HEAD
 			    qed_calc_regdump_header(IGU_FIFO, cur_engine,
+=======
+			    qed_calc_regdump_header(cdev, IGU_FIFO, cur_engine,
+>>>>>>> upstream/android-13
 						    feature_size, omit_engine);
 			offset += (feature_size + REGDUMP_HEADER_SIZE);
 		} else {
@@ -8029,7 +11084,11 @@ int qed_dbg_all_data(struct qed_dev *cdev, void *buffer)
 						 &feature_size);
 		if (!rc) {
 			*(u32 *)((u8 *)buffer + offset) =
+<<<<<<< HEAD
 			    qed_calc_regdump_header(PROTECTION_OVERRIDE,
+=======
+			    qed_calc_regdump_header(cdev, PROTECTION_OVERRIDE,
+>>>>>>> upstream/android-13
 						    cur_engine,
 						    feature_size, omit_engine);
 			offset += (feature_size + REGDUMP_HEADER_SIZE);
@@ -8044,22 +11103,60 @@ int qed_dbg_all_data(struct qed_dev *cdev, void *buffer)
 					REGDUMP_HEADER_SIZE, &feature_size);
 		if (!rc) {
 			*(u32 *)((u8 *)buffer + offset) =
+<<<<<<< HEAD
 			    qed_calc_regdump_header(FW_ASSERTS, cur_engine,
 						    feature_size, omit_engine);
+=======
+			    qed_calc_regdump_header(cdev, FW_ASSERTS,
+						    cur_engine, feature_size,
+						    omit_engine);
+>>>>>>> upstream/android-13
 			offset += (feature_size + REGDUMP_HEADER_SIZE);
 		} else {
 			DP_ERR(cdev, "qed_dbg_fw_asserts failed. rc = %d\n",
 			       rc);
 		}
 
+<<<<<<< HEAD
 		/* GRC dump - must be last because when mcp stuck it will
 		 * clutter idle_chk, reg_fifo, ...
 		 */
+=======
+		feature_size = qed_dbg_ilt_size(cdev);
+		if (!cdev->disable_ilt_dump &&
+		    feature_size < ILT_DUMP_MAX_SIZE) {
+			rc = qed_dbg_ilt(cdev, (u8 *)buffer + offset +
+					 REGDUMP_HEADER_SIZE, &feature_size);
+			if (!rc) {
+				*(u32 *)((u8 *)buffer + offset) =
+				    qed_calc_regdump_header(cdev, ILT_DUMP,
+							    cur_engine,
+							    feature_size,
+							    omit_engine);
+				offset += feature_size + REGDUMP_HEADER_SIZE;
+			} else {
+				DP_ERR(cdev, "qed_dbg_ilt failed. rc = %d\n",
+				       rc);
+			}
+		}
+
+		/* GRC dump - must be last because when mcp stuck it will
+		 * clutter idle_chk, reg_fifo, ...
+		 */
+		for (i = 0; i < MAX_DBG_GRC_PARAMS; i++)
+			dev_data->grc.param_val[i] = grc_params[i];
+
+>>>>>>> upstream/android-13
 		rc = qed_dbg_grc(cdev, (u8 *)buffer + offset +
 				 REGDUMP_HEADER_SIZE, &feature_size);
 		if (!rc) {
 			*(u32 *)((u8 *)buffer + offset) =
+<<<<<<< HEAD
 			    qed_calc_regdump_header(GRC_DUMP, cur_engine,
+=======
+			    qed_calc_regdump_header(cdev, GRC_DUMP,
+						    cur_engine,
+>>>>>>> upstream/android-13
 						    feature_size, omit_engine);
 			offset += (feature_size + REGDUMP_HEADER_SIZE);
 		} else {
@@ -8068,18 +11165,27 @@ int qed_dbg_all_data(struct qed_dev *cdev, void *buffer)
 	}
 
 	qed_set_debug_engine(cdev, org_engine);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	/* mcp_trace */
 	rc = qed_dbg_mcp_trace(cdev, (u8 *)buffer + offset +
 			       REGDUMP_HEADER_SIZE, &feature_size);
 	if (!rc) {
 		*(u32 *)((u8 *)buffer + offset) =
+<<<<<<< HEAD
 		    qed_calc_regdump_header(MCP_TRACE, cur_engine,
+=======
+		    qed_calc_regdump_header(cdev, MCP_TRACE, cur_engine,
+>>>>>>> upstream/android-13
 					    feature_size, omit_engine);
 		offset += (feature_size + REGDUMP_HEADER_SIZE);
 	} else {
 		DP_ERR(cdev, "qed_dbg_mcp_trace failed. rc = %d\n", rc);
 	}
 
+<<<<<<< HEAD
 	/* nvm cfg1 */
 	rc = qed_dbg_nvm_image(cdev,
 			       (u8 *)buffer + offset + REGDUMP_HEADER_SIZE,
@@ -8087,6 +11193,20 @@ int qed_dbg_all_data(struct qed_dev *cdev, void *buffer)
 	if (!rc) {
 		*(u32 *)((u8 *)buffer + offset) =
 		    qed_calc_regdump_header(NVM_CFG1, cur_engine,
+=======
+	/* Re-populate nvm attribute info */
+	qed_mcp_nvm_info_free(p_hwfn);
+	qed_mcp_nvm_info_populate(p_hwfn);
+
+	/* nvm cfg1 */
+	rc = qed_dbg_nvm_image(cdev,
+			       (u8 *)buffer + offset +
+			       REGDUMP_HEADER_SIZE, &feature_size,
+			       QED_NVM_IMAGE_NVM_CFG1);
+	if (!rc) {
+		*(u32 *)((u8 *)buffer + offset) =
+		    qed_calc_regdump_header(cdev, NVM_CFG1, cur_engine,
+>>>>>>> upstream/android-13
 					    feature_size, omit_engine);
 		offset += (feature_size + REGDUMP_HEADER_SIZE);
 	} else if (rc != -ENOENT) {
@@ -8101,7 +11221,11 @@ int qed_dbg_all_data(struct qed_dev *cdev, void *buffer)
 			       &feature_size, QED_NVM_IMAGE_DEFAULT_CFG);
 	if (!rc) {
 		*(u32 *)((u8 *)buffer + offset) =
+<<<<<<< HEAD
 		    qed_calc_regdump_header(DEFAULT_CFG, cur_engine,
+=======
+		    qed_calc_regdump_header(cdev, DEFAULT_CFG, cur_engine,
+>>>>>>> upstream/android-13
 					    feature_size, omit_engine);
 		offset += (feature_size + REGDUMP_HEADER_SIZE);
 	} else if (rc != -ENOENT) {
@@ -8117,8 +11241,13 @@ int qed_dbg_all_data(struct qed_dev *cdev, void *buffer)
 			       &feature_size, QED_NVM_IMAGE_NVM_META);
 	if (!rc) {
 		*(u32 *)((u8 *)buffer + offset) =
+<<<<<<< HEAD
 		    qed_calc_regdump_header(NVM_META, cur_engine,
 					    feature_size, omit_engine);
+=======
+			qed_calc_regdump_header(cdev, NVM_META, cur_engine,
+						feature_size, omit_engine);
+>>>>>>> upstream/android-13
 		offset += (feature_size + REGDUMP_HEADER_SIZE);
 	} else if (rc != -ENOENT) {
 		DP_ERR(cdev,
@@ -8126,16 +11255,45 @@ int qed_dbg_all_data(struct qed_dev *cdev, void *buffer)
 		       QED_NVM_IMAGE_NVM_META, "QED_NVM_IMAGE_NVM_META", rc);
 	}
 
+<<<<<<< HEAD
+=======
+	/* nvm mdump */
+	rc = qed_dbg_nvm_image(cdev, (u8 *)buffer + offset +
+			       REGDUMP_HEADER_SIZE, &feature_size,
+			       QED_NVM_IMAGE_MDUMP);
+	if (!rc) {
+		*(u32 *)((u8 *)buffer + offset) =
+			qed_calc_regdump_header(cdev, MDUMP, cur_engine,
+						feature_size, omit_engine);
+		offset += (feature_size + REGDUMP_HEADER_SIZE);
+	} else if (rc != -ENOENT) {
+		DP_ERR(cdev,
+		       "qed_dbg_nvm_image failed for image %d (%s), rc = %d\n",
+		       QED_NVM_IMAGE_MDUMP, "QED_NVM_IMAGE_MDUMP", rc);
+	}
+
+	cdev->dbg_bin_dump = false;
+	mutex_unlock(&qed_dbg_lock);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 int qed_dbg_all_data_size(struct qed_dev *cdev)
 {
 	struct qed_hwfn *p_hwfn =
+<<<<<<< HEAD
 		&cdev->hwfns[cdev->dbg_params.engine_for_debug];
 	u32 regs_len = 0, image_len = 0;
 	u8 cur_engine, org_engine;
 
+=======
+		&cdev->hwfns[cdev->engine_for_debug];
+	u32 regs_len = 0, image_len = 0, ilt_len = 0, total_ilt_len = 0;
+	u8 cur_engine, org_engine;
+
+	cdev->disable_ilt_dump = false;
+>>>>>>> upstream/android-13
 	org_engine = qed_get_debug_engine(cdev);
 	for (cur_engine = 0; cur_engine < cdev->num_hwfns; cur_engine++) {
 		/* Engine specific */
@@ -8150,6 +11308,15 @@ int qed_dbg_all_data_size(struct qed_dev *cdev)
 			    REGDUMP_HEADER_SIZE +
 			    qed_dbg_protection_override_size(cdev) +
 			    REGDUMP_HEADER_SIZE + qed_dbg_fw_asserts_size(cdev);
+<<<<<<< HEAD
+=======
+
+		ilt_len = REGDUMP_HEADER_SIZE + qed_dbg_ilt_size(cdev);
+		if (ilt_len < ILT_DUMP_MAX_SIZE) {
+			total_ilt_len += ilt_len;
+			regs_len += ilt_len;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	qed_set_debug_engine(cdev, org_engine);
@@ -8165,6 +11332,20 @@ int qed_dbg_all_data_size(struct qed_dev *cdev)
 	qed_dbg_nvm_image_length(p_hwfn, QED_NVM_IMAGE_NVM_META, &image_len);
 	if (image_len)
 		regs_len += REGDUMP_HEADER_SIZE + image_len;
+<<<<<<< HEAD
+=======
+	qed_dbg_nvm_image_length(p_hwfn, QED_NVM_IMAGE_MDUMP, &image_len);
+	if (image_len)
+		regs_len += REGDUMP_HEADER_SIZE + image_len;
+
+	if (regs_len > REGDUMP_MAX_SIZE) {
+		DP_VERBOSE(cdev, QED_MSG_DEBUG,
+			   "Dump exceeds max size 0x%x, disable ILT dump\n",
+			   REGDUMP_MAX_SIZE);
+		cdev->disable_ilt_dump = true;
+		regs_len -= total_ilt_len;
+	}
+>>>>>>> upstream/android-13
 
 	return regs_len;
 }
@@ -8173,9 +11354,15 @@ int qed_dbg_feature(struct qed_dev *cdev, void *buffer,
 		    enum qed_dbg_features feature, u32 *num_dumped_bytes)
 {
 	struct qed_hwfn *p_hwfn =
+<<<<<<< HEAD
 		&cdev->hwfns[cdev->dbg_params.engine_for_debug];
 	struct qed_dbg_feature *qed_feature =
 		&cdev->dbg_params.features[feature];
+=======
+		&cdev->hwfns[cdev->engine_for_debug];
+	struct qed_dbg_feature *qed_feature =
+		&cdev->dbg_features[feature];
+>>>>>>> upstream/android-13
 	enum dbg_status dbg_rc;
 	struct qed_ptt *p_ptt;
 	int rc = 0;
@@ -8198,7 +11385,11 @@ int qed_dbg_feature(struct qed_dev *cdev, void *buffer,
 	DP_VERBOSE(cdev, QED_MSG_DEBUG,
 		   "copying debugfs feature to external buffer\n");
 	memcpy(buffer, qed_feature->dump_buf, qed_feature->buf_size);
+<<<<<<< HEAD
 	*num_dumped_bytes = cdev->dbg_params.features[feature].dumped_dwords *
+=======
+	*num_dumped_bytes = cdev->dbg_features[feature].dumped_dwords *
+>>>>>>> upstream/android-13
 			    4;
 
 out:
@@ -8209,10 +11400,16 @@ out:
 int qed_dbg_feature_size(struct qed_dev *cdev, enum qed_dbg_features feature)
 {
 	struct qed_hwfn *p_hwfn =
+<<<<<<< HEAD
 		&cdev->hwfns[cdev->dbg_params.engine_for_debug];
 	struct qed_ptt *p_ptt = qed_ptt_acquire(p_hwfn);
 	struct qed_dbg_feature *qed_feature =
 		&cdev->dbg_params.features[feature];
+=======
+		&cdev->hwfns[cdev->engine_for_debug];
+	struct qed_dbg_feature *qed_feature = &cdev->dbg_features[feature];
+	struct qed_ptt *p_ptt = qed_ptt_acquire(p_hwfn);
+>>>>>>> upstream/android-13
 	u32 buf_size_dwords;
 	enum dbg_status rc;
 
@@ -8224,6 +11421,13 @@ int qed_dbg_feature_size(struct qed_dev *cdev, enum qed_dbg_features feature)
 	if (rc != DBG_STATUS_OK)
 		buf_size_dwords = 0;
 
+<<<<<<< HEAD
+=======
+	/* Feature will not be dumped if it exceeds maximum size */
+	if (buf_size_dwords > MAX_DBG_FEATURE_SIZE_DWORDS)
+		buf_size_dwords = 0;
+
+>>>>>>> upstream/android-13
 	qed_ptt_release(p_hwfn, p_ptt);
 	qed_feature->buf_size = buf_size_dwords * sizeof(u32);
 	return qed_feature->buf_size;
@@ -8231,26 +11435,50 @@ int qed_dbg_feature_size(struct qed_dev *cdev, enum qed_dbg_features feature)
 
 u8 qed_get_debug_engine(struct qed_dev *cdev)
 {
+<<<<<<< HEAD
 	return cdev->dbg_params.engine_for_debug;
+=======
+	return cdev->engine_for_debug;
+>>>>>>> upstream/android-13
 }
 
 void qed_set_debug_engine(struct qed_dev *cdev, int engine_number)
 {
 	DP_VERBOSE(cdev, QED_MSG_DEBUG, "set debug engine to %d\n",
 		   engine_number);
+<<<<<<< HEAD
 	cdev->dbg_params.engine_for_debug = engine_number;
+=======
+	cdev->engine_for_debug = engine_number;
+>>>>>>> upstream/android-13
 }
 
 void qed_dbg_pf_init(struct qed_dev *cdev)
 {
+<<<<<<< HEAD
 	const u8 *dbg_values;
+=======
+	const u8 *dbg_values = NULL;
+	int i;
+>>>>>>> upstream/android-13
 
 	/* Debug values are after init values.
 	 * The offset is the first dword of the file.
 	 */
 	dbg_values = cdev->firmware->data + *(u32 *)cdev->firmware->data;
+<<<<<<< HEAD
 	qed_dbg_set_bin_ptr((u8 *)dbg_values);
 	qed_dbg_user_set_bin_ptr((u8 *)dbg_values);
+=======
+
+	for_each_hwfn(cdev, i) {
+		qed_dbg_set_bin_ptr(&cdev->hwfns[i], dbg_values);
+		qed_dbg_user_set_bin_ptr(&cdev->hwfns[i], dbg_values);
+	}
+
+	/* Set the hwfn to be 0 as default */
+	cdev->engine_for_debug = 0;
+>>>>>>> upstream/android-13
 }
 
 void qed_dbg_pf_exit(struct qed_dev *cdev)
@@ -8258,11 +11486,19 @@ void qed_dbg_pf_exit(struct qed_dev *cdev)
 	struct qed_dbg_feature *feature = NULL;
 	enum qed_dbg_features feature_idx;
 
+<<<<<<< HEAD
 	/* Debug features' buffers may be allocated if debug feature was used
 	 * but dump wasn't called.
 	 */
 	for (feature_idx = 0; feature_idx < DBG_FEATURE_NUM; feature_idx++) {
 		feature = &cdev->dbg_params.features[feature_idx];
+=======
+	/* debug features' buffers may be allocated if debug feature was used
+	 * but dump wasn't called
+	 */
+	for (feature_idx = 0; feature_idx < DBG_FEATURE_NUM; feature_idx++) {
+		feature = &cdev->dbg_features[feature_idx];
+>>>>>>> upstream/android-13
 		if (feature->dump_buf) {
 			vfree(feature->dump_buf);
 			feature->dump_buf = NULL;

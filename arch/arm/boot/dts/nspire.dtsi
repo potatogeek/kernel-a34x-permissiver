@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/boot/nspire.dtsi
  *
  *  Copyright (C) 2013 Daniel Tang <tangrs@tangrs.id.au>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2, as
@@ -12,6 +17,13 @@
 /include/ "skeleton.dtsi"
 
 / {
+=======
+ */
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+>>>>>>> upstream/android-13
 	interrupt-parent = <&intc>;
 
 	cpus {
@@ -99,8 +111,19 @@
 			reg = <0xC0000000 0x1000>;
 			interrupts = <21>;
 
+<<<<<<< HEAD
 			clocks = <&apb_pclk>;
 			clock-names = "apb_pclk";
+=======
+			/*
+			 * We assume the same clock is fed to APB and CLCDCLK.
+			 * There is some code to scale the clock down by a factor
+			 * 48 for the display so likely the frequency to the
+			 * display is 1MHz and the CLCDCLK is 48 MHz.
+			 */
+			clocks = <&apb_pclk>, <&apb_pclk>;
+			clock-names = "clcdclk", "apb_pclk";
+>>>>>>> upstream/android-13
 		};
 
 		adc: adc@C4000000 {
@@ -143,15 +166,29 @@
 
 			timer0: timer@900C0000 {
 				reg = <0x900C0000 0x1000>;
+<<<<<<< HEAD
 
 				clocks = <&timer_clk>;
+=======
+				clocks = <&timer_clk>, <&timer_clk>,
+					 <&timer_clk>;
+				clock-names = "timer0clk", "timer1clk",
+					      "apb_pclk";
+>>>>>>> upstream/android-13
 			};
 
 			timer1: timer@900D0000 {
 				reg = <0x900D0000 0x1000>;
 				interrupts = <19>;
+<<<<<<< HEAD
 
 				clocks = <&timer_clk>;
+=======
+				clocks = <&timer_clk>, <&timer_clk>,
+					 <&timer_clk>;
+				clock-names = "timer0clk", "timer1clk",
+					      "apb_pclk";
+>>>>>>> upstream/android-13
 			};
 
 			watchdog: watchdog@90060000 {

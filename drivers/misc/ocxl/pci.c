@@ -1,9 +1,14 @@
 // SPDX-License-Identifier: GPL-2.0+
+<<<<<<< HEAD
 // Copyright 2017 IBM Corp.
 #include <linux/module.h>
 #include <linux/pci.h>
 #include <linux/idr.h>
 #include <asm/pnv-ocxl.h>
+=======
+// Copyright 2019 IBM Corp.
+#include <linux/module.h>
+>>>>>>> upstream/android-13
 #include "ocxl_internal.h"
 
 /*
@@ -17,6 +22,7 @@ static const struct pci_device_id ocxl_pci_tbl[] = {
 };
 MODULE_DEVICE_TABLE(pci, ocxl_pci_tbl);
 
+<<<<<<< HEAD
 
 static struct ocxl_fn *ocxl_fn_get(struct ocxl_fn *fn)
 {
@@ -562,11 +568,38 @@ static int ocxl_probe(struct pci_dev *dev, const struct pci_device_id *id)
 		}
 	}
 	dev_info(&dev->dev, "%d AFU(s) configured\n", afu_count);
+=======
+static int ocxl_probe(struct pci_dev *dev, const struct pci_device_id *id)
+{
+	int rc;
+	struct ocxl_afu *afu, *tmp;
+	struct ocxl_fn *fn;
+	struct list_head *afu_list;
+
+	fn = ocxl_function_open(dev);
+	if (IS_ERR(fn))
+		return PTR_ERR(fn);
+
+	pci_set_drvdata(dev, fn);
+
+	afu_list = ocxl_function_afu_list(fn);
+
+	list_for_each_entry_safe(afu, tmp, afu_list, list) {
+		// Cleanup handled within ocxl_file_register_afu()
+		rc = ocxl_file_register_afu(afu);
+		if (rc) {
+			dev_err(&dev->dev, "Failed to register AFU '%s' index %d",
+					afu->config.name, afu->config.idx);
+		}
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static void ocxl_remove(struct pci_dev *dev)
 {
+<<<<<<< HEAD
 	struct ocxl_afu *afu, *tmp;
 	struct ocxl_fn *fn = pci_get_drvdata(dev);
 
@@ -574,6 +607,20 @@ static void ocxl_remove(struct pci_dev *dev)
 		remove_afu(afu);
 	}
 	remove_function(fn);
+=======
+	struct ocxl_fn *fn;
+	struct ocxl_afu *afu;
+	struct list_head *afu_list;
+
+	fn = pci_get_drvdata(dev);
+	afu_list = ocxl_function_afu_list(fn);
+
+	list_for_each_entry(afu, afu_list, list) {
+		ocxl_file_unregister_afu(afu);
+	}
+
+	ocxl_function_close(fn);
+>>>>>>> upstream/android-13
 }
 
 struct pci_driver ocxl_pci_driver = {

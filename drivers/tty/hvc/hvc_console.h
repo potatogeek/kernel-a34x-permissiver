@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0+
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+>>>>>>> upstream/android-13
 /*
  * hvc_console.h
  * Copyright (C) 2005 IBM Corporation
@@ -30,7 +34,11 @@
  * for the tty device.  Since this driver supports hotplug of vty adapters we
  * need to make sure we have enough allocated.
  */
+<<<<<<< HEAD
 #define HVC_ALLOC_TTY_ADAPTERS	8
+=======
+#define HVC_ALLOC_TTY_ADAPTERS	64
+>>>>>>> upstream/android-13
 
 struct hvc_struct {
 	struct tty_port port;

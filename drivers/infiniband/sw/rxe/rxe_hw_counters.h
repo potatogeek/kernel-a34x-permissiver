@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2017 Mellanox Technologies Ltd. All rights reserved.
  *
@@ -28,6 +29,11 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB */
+/*
+ * Copyright (c) 2017 Mellanox Technologies Ltd. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef RXE_HW_COUNTERS_H
@@ -50,6 +56,7 @@ enum rxe_counters {
 	RXE_CNT_RNR_RETRY_EXCEEDED,
 	RXE_CNT_COMP_RETRY,
 	RXE_CNT_SEND_ERR,
+<<<<<<< HEAD
 	RXE_NUM_OF_COUNTERS
 };
 
@@ -58,4 +65,17 @@ struct rdma_hw_stats *rxe_ib_alloc_hw_stats(struct ib_device *ibdev,
 int rxe_ib_get_hw_stats(struct ib_device *ibdev,
 			struct rdma_hw_stats *stats,
 			u8 port, int index);
+=======
+	RXE_CNT_LINK_DOWNED,
+	RXE_CNT_RDMA_SEND,
+	RXE_CNT_RDMA_RECV,
+	RXE_NUM_OF_COUNTERS
+};
+
+struct rdma_hw_stats *rxe_ib_alloc_hw_port_stats(struct ib_device *ibdev,
+						 u32 port_num);
+int rxe_ib_get_hw_stats(struct ib_device *ibdev,
+			struct rdma_hw_stats *stats,
+			u32 port, int index);
+>>>>>>> upstream/android-13
 #endif /* RXE_HW_COUNTERS_H */

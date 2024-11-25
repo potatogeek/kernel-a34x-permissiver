@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * drivers/uio/uio_dmem_genirq.c
  *
@@ -6,10 +10,13 @@
  * Copyright (C) 2012 Damian Hobson-Garcia
  *
  * Based on uio_pdrv_genirq.c by Magnus Damm
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/platform_device.h>
@@ -23,6 +30,10 @@
 #include <linux/pm_runtime.h>
 #include <linux/dma-mapping.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
+=======
+#include <linux/irq.h>
+>>>>>>> upstream/android-13
 
 #include <linux/of.h>
 #include <linux/of_platform.h>
@@ -47,7 +58,10 @@ static int uio_dmem_genirq_open(struct uio_info *info, struct inode *inode)
 {
 	struct uio_dmem_genirq_platdata *priv = info->priv;
 	struct uio_mem *uiomem;
+<<<<<<< HEAD
 	int ret = 0;
+=======
+>>>>>>> upstream/android-13
 	int dmem_region = priv->dmem_region_start;
 
 	uiomem = &priv->uioinfo->mem[priv->dmem_region_start];
@@ -71,7 +85,11 @@ static int uio_dmem_genirq_open(struct uio_info *info, struct inode *inode)
 	mutex_unlock(&priv->alloc_lock);
 	/* Wait until the Runtime PM code has woken up the device */
 	pm_runtime_get_sync(&priv->pdev->dev);
+<<<<<<< HEAD
 	return ret;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int uio_dmem_genirq_release(struct uio_info *info, struct inode *inode)
@@ -146,6 +164,16 @@ static int uio_dmem_genirq_irqcontrol(struct uio_info *dev_info, s32 irq_on)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void uio_dmem_genirq_pm_disable(void *data)
+{
+	struct device *dev = data;
+
+	pm_runtime_disable(dev);
+}
+
+>>>>>>> upstream/android-13
 static int uio_dmem_genirq_probe(struct platform_device *pdev)
 {
 	struct uio_dmem_genirq_pdata *pdata = dev_get_platdata(&pdev->dev);
@@ -156,6 +184,7 @@ static int uio_dmem_genirq_probe(struct platform_device *pdev)
 	int i;
 
 	if (pdev->dev.of_node) {
+<<<<<<< HEAD
 		int irq;
 
 		/* alloc uioinfo for one device */
@@ -174,16 +203,32 @@ static int uio_dmem_genirq_probe(struct platform_device *pdev)
 			uioinfo->irq = UIO_IRQ_NONE;
 		else
 			uioinfo->irq = irq;
+=======
+		/* alloc uioinfo for one device */
+		uioinfo = devm_kzalloc(&pdev->dev, sizeof(*uioinfo), GFP_KERNEL);
+		if (!uioinfo) {
+			dev_err(&pdev->dev, "unable to kmalloc\n");
+			return -ENOMEM;
+		}
+		uioinfo->name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "%pOFn",
+					       pdev->dev.of_node);
+		uioinfo->version = "devicetree";
+>>>>>>> upstream/android-13
 	}
 
 	if (!uioinfo || !uioinfo->name || !uioinfo->version) {
 		dev_err(&pdev->dev, "missing platform_data\n");
+<<<<<<< HEAD
 		goto bad0;
+=======
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 
 	if (uioinfo->handler || uioinfo->irqcontrol ||
 	    uioinfo->irq_flags & IRQF_SHARED) {
 		dev_err(&pdev->dev, "interrupt configuration error\n");
+<<<<<<< HEAD
 		goto bad0;
 	}
 
@@ -192,6 +237,15 @@ static int uio_dmem_genirq_probe(struct platform_device *pdev)
 		ret = -ENOMEM;
 		dev_err(&pdev->dev, "unable to kmalloc\n");
 		goto bad0;
+=======
+		return -EINVAL;
+	}
+
+	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
+	if (!priv) {
+		dev_err(&pdev->dev, "unable to kmalloc\n");
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 	}
 
 	dma_set_coherent_mask(&pdev->dev, DMA_BIT_MASK(32));
@@ -203,6 +257,7 @@ static int uio_dmem_genirq_probe(struct platform_device *pdev)
 	mutex_init(&priv->alloc_lock);
 
 	if (!uioinfo->irq) {
+<<<<<<< HEAD
 		ret = platform_get_irq(pdev, 0);
 		if (ret < 0) {
 			dev_err(&pdev->dev, "failed to get IRQ\n");
@@ -210,6 +265,34 @@ static int uio_dmem_genirq_probe(struct platform_device *pdev)
 		}
 		uioinfo->irq = ret;
 	}
+=======
+		/* Multiple IRQs are not supported */
+		ret = platform_get_irq(pdev, 0);
+		if (ret == -ENXIO && pdev->dev.of_node)
+			ret = UIO_IRQ_NONE;
+		else if (ret < 0)
+			return ret;
+		uioinfo->irq = ret;
+	}
+
+	if (uioinfo->irq) {
+		struct irq_data *irq_data = irq_get_irq_data(uioinfo->irq);
+
+		/*
+		 * If a level interrupt, dont do lazy disable. Otherwise the
+		 * irq will fire again since clearing of the actual cause, on
+		 * device level, is done in userspace
+		 * irqd_is_level_type() isn't used since isn't valid until
+		 * irq is configured.
+		 */
+		if (irq_data &&
+		    irqd_get_trigger_type(irq_data) & IRQ_TYPE_LEVEL_MASK) {
+			dev_dbg(&pdev->dev, "disable lazy unmask\n");
+			irq_set_status_flags(uioinfo->irq, IRQ_DISABLE_UNLAZY);
+		}
+	}
+
+>>>>>>> upstream/android-13
 	uiomem = &uioinfo->mem[0];
 
 	for (i = 0; i < pdev->num_resources; ++i) {
@@ -274,6 +357,7 @@ static int uio_dmem_genirq_probe(struct platform_device *pdev)
 	 */
 	pm_runtime_enable(&pdev->dev);
 
+<<<<<<< HEAD
 	ret = uio_register_device(&pdev->dev, priv->uioinfo);
 	if (ret) {
 		dev_err(&pdev->dev, "unable to register uio device\n");
@@ -309,6 +393,13 @@ static int uio_dmem_genirq_remove(struct platform_device *pdev)
 
 	kfree(priv);
 	return 0;
+=======
+	ret = devm_add_action_or_reset(&pdev->dev, uio_dmem_genirq_pm_disable, &pdev->dev);
+	if (ret)
+		return ret;
+
+	return devm_uio_register_device(&pdev->dev, priv->uioinfo);
+>>>>>>> upstream/android-13
 }
 
 static int uio_dmem_genirq_runtime_nop(struct device *dev)
@@ -342,7 +433,10 @@ MODULE_DEVICE_TABLE(of, uio_of_genirq_match);
 
 static struct platform_driver uio_dmem_genirq = {
 	.probe = uio_dmem_genirq_probe,
+<<<<<<< HEAD
 	.remove = uio_dmem_genirq_remove,
+=======
+>>>>>>> upstream/android-13
 	.driver = {
 		.name = DRIVER_NAME,
 		.pm = &uio_dmem_genirq_dev_pm_ops,

@@ -9,7 +9,11 @@
 #include "odm_precomp.h"
 
 static bool CheckPositive(
+<<<<<<< HEAD
 	PDM_ODM_T pDM_Odm, const u32 Condition1, const u32 Condition2
+=======
+	struct dm_odm_t *pDM_Odm, const u32 Condition1, const u32 Condition2
+>>>>>>> upstream/android-13
 )
 {
 	u8 _BoardType =
@@ -33,6 +37,7 @@ static bool CheckPositive(
 		pDM_Odm->TypeALNA << 16 |
 		pDM_Odm->TypeAPA << 24;
 
+<<<<<<< HEAD
 	ODM_RT_TRACE(
 		pDM_Odm,
 		ODM_COMP_INIT,
@@ -74,6 +79,8 @@ static bool CheckPositive(
 		)
 	);
 
+=======
+>>>>>>> upstream/android-13
 
 	/*  Value Defined Check =============== */
 	/* QFN Type [15:12] and Cut Version [27:24] need to do value check */
@@ -112,7 +119,11 @@ static bool CheckPositive(
 }
 
 static bool CheckNegative(
+<<<<<<< HEAD
 	PDM_ODM_T pDM_Odm, const u32  Condition1, const u32 Condition2
+=======
+	struct dm_odm_t *pDM_Odm, const u32  Condition1, const u32 Condition2
+>>>>>>> upstream/android-13
 )
 {
 	return true;
@@ -257,12 +268,17 @@ static u32 Array_MP_8723B_AGC_TAB[] = {
 
 };
 
+<<<<<<< HEAD
 void ODM_ReadAndConfig_MP_8723B_AGC_TAB(PDM_ODM_T pDM_Odm)
+=======
+void ODM_ReadAndConfig_MP_8723B_AGC_TAB(struct dm_odm_t *pDM_Odm)
+>>>>>>> upstream/android-13
 {
 	u32 i = 0;
 	u32 ArrayLen = ARRAY_SIZE(Array_MP_8723B_AGC_TAB);
 	u32 *Array = Array_MP_8723B_AGC_TAB;
 
+<<<<<<< HEAD
 	ODM_RT_TRACE(
 		pDM_Odm,
 		ODM_COMP_INIT,
@@ -270,6 +286,8 @@ void ODM_ReadAndConfig_MP_8723B_AGC_TAB(PDM_ODM_T pDM_Odm)
 		("===> ODM_ReadAndConfig_MP_8723B_AGC_TAB\n")
 	);
 
+=======
+>>>>>>> upstream/android-13
 	for (i = 0; i < ArrayLen; i += 2) {
 		u32 v1 = Array[i];
 		u32 v2 = Array[i+1];
@@ -299,7 +317,11 @@ void ODM_ReadAndConfig_MP_8723B_AGC_TAB(PDM_ODM_T pDM_Odm)
 				READ_NEXT_PAIR(v1, v2, i);
 			}
 
+<<<<<<< HEAD
 			if (bMatched == false) {
+=======
+			if (!bMatched) {
+>>>>>>> upstream/android-13
 				/*  Condition isn't matched.
 				*   Discard the following (offset, data) pairs.
 				*/
@@ -526,12 +548,17 @@ static u32 Array_MP_8723B_PHY_REG[] = {
 
 };
 
+<<<<<<< HEAD
 void ODM_ReadAndConfig_MP_8723B_PHY_REG(PDM_ODM_T pDM_Odm)
+=======
+void ODM_ReadAndConfig_MP_8723B_PHY_REG(struct dm_odm_t *pDM_Odm)
+>>>>>>> upstream/android-13
 {
 	u32 i = 0;
 	u32 ArrayLen = ARRAY_SIZE(Array_MP_8723B_PHY_REG);
 	u32 *Array = Array_MP_8723B_PHY_REG;
 
+<<<<<<< HEAD
 	ODM_RT_TRACE(
 		pDM_Odm,
 		ODM_COMP_INIT,
@@ -539,6 +566,8 @@ void ODM_ReadAndConfig_MP_8723B_PHY_REG(PDM_ODM_T pDM_Odm)
 		("===> ODM_ReadAndConfig_MP_8723B_PHY_REG\n")
 	);
 
+=======
+>>>>>>> upstream/android-13
 	for (i = 0; i < ArrayLen; i += 2) {
 		u32 v1 = Array[i];
 		u32 v2 = Array[i+1];
@@ -568,7 +597,11 @@ void ODM_ReadAndConfig_MP_8723B_PHY_REG(PDM_ODM_T pDM_Odm)
 				READ_NEXT_PAIR(v1, v2, i);
 			}
 
+<<<<<<< HEAD
 			if (bMatched == false) {
+=======
+			if (!bMatched) {
+>>>>>>> upstream/android-13
 				/*  Condition isn't matched.
 				*   Discard the following (offset, data) pairs.
 				*/
@@ -598,6 +631,7 @@ void ODM_ReadAndConfig_MP_8723B_PHY_REG(PDM_ODM_T pDM_Odm)
 ******************************************************************************/
 
 static u32 Array_MP_8723B_PHY_REG_PG[] = {
+<<<<<<< HEAD
 	0, 0, 0, 0x00000e08, 0x0000ff00, 0x00003800,
 	0, 0, 0, 0x0000086c, 0xffffff00, 0x32343600,
 	0, 0, 0, 0x00000e00, 0xffffffff, 0x40424444,
@@ -607,10 +641,22 @@ static u32 Array_MP_8723B_PHY_REG_PG[] = {
 };
 
 void ODM_ReadAndConfig_MP_8723B_PHY_REG_PG(PDM_ODM_T pDM_Odm)
+=======
+	0, 0x00000e08, 0x0000ff00, 0x00003800,
+	0, 0x0000086c, 0xffffff00, 0x32343600,
+	0, 0x00000e00, 0xffffffff, 0x40424444,
+	0, 0x00000e04, 0xffffffff, 0x28323638,
+	0, 0x00000e10, 0xffffffff, 0x38404244,
+	0, 0x00000e14, 0xffffffff, 0x26303436
+};
+
+void ODM_ReadAndConfig_MP_8723B_PHY_REG_PG(struct dm_odm_t *pDM_Odm)
+>>>>>>> upstream/android-13
 {
 	u32 i = 0;
 	u32 *Array = Array_MP_8723B_PHY_REG_PG;
 
+<<<<<<< HEAD
 	ODM_RT_TRACE(
 		pDM_Odm,
 		ODM_COMP_INIT,
@@ -622,13 +668,24 @@ void ODM_ReadAndConfig_MP_8723B_PHY_REG_PG(PDM_ODM_T pDM_Odm)
 	pDM_Odm->PhyRegPgValueType = PHY_REG_PG_EXACT_VALUE;
 
 	for (i = 0; i < ARRAY_SIZE(Array_MP_8723B_PHY_REG_PG); i += 6) {
+=======
+	pDM_Odm->PhyRegPgVersion = 1;
+	pDM_Odm->PhyRegPgValueType = PHY_REG_PG_EXACT_VALUE;
+
+	for (i = 0; i < ARRAY_SIZE(Array_MP_8723B_PHY_REG_PG); i += 4) {
+>>>>>>> upstream/android-13
 		u32 v1 = Array[i];
 		u32 v2 = Array[i+1];
 		u32 v3 = Array[i+2];
 		u32 v4 = Array[i+3];
+<<<<<<< HEAD
 		u32 v5 = Array[i+4];
 		u32 v6 = Array[i+5];
 
 		odm_ConfigBB_PHY_REG_PG_8723B(pDM_Odm, v1, v2, v3, v4, v5, v6);
+=======
+
+		odm_ConfigBB_PHY_REG_PG_8723B(pDM_Odm, v1, v2, v3, v4);
+>>>>>>> upstream/android-13
 	}
 }

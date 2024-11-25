@@ -13,6 +13,11 @@
 #include <linux/debugfs.h>
 #include <asm/diag.h>
 #include <asm/trace/diag.h>
+<<<<<<< HEAD
+=======
+#include <asm/sections.h>
+#include "entry.h"
+>>>>>>> upstream/android-13
 
 struct diag_stat {
 	unsigned int counter[NR_DIAG_STAT];
@@ -45,16 +50,38 @@ static const struct diag_desc diag_map[NR_DIAG_STAT] = {
 	[DIAG_STAT_X2FC] = { .code = 0x2fc, .name = "Guest Performance Data" },
 	[DIAG_STAT_X304] = { .code = 0x304, .name = "Partition-Resource Service" },
 	[DIAG_STAT_X308] = { .code = 0x308, .name = "List-Directed IPL" },
+<<<<<<< HEAD
 	[DIAG_STAT_X500] = { .code = 0x500, .name = "Virtio Service" },
 };
 
+=======
+	[DIAG_STAT_X318] = { .code = 0x318, .name = "CP Name and Version Codes" },
+	[DIAG_STAT_X500] = { .code = 0x500, .name = "Virtio Service" },
+};
+
+struct diag_ops __amode31_ref diag_amode31_ops = {
+	.diag210 = _diag210_amode31,
+	.diag26c = _diag26c_amode31,
+	.diag14 = _diag14_amode31,
+	.diag0c = _diag0c_amode31,
+	.diag308_reset = _diag308_reset_amode31
+};
+
+static struct diag210 _diag210_tmp_amode31 __section(".amode31.data");
+struct diag210 __amode31_ref *__diag210_tmp_amode31 = &_diag210_tmp_amode31;
+
+>>>>>>> upstream/android-13
 static int show_diag_stat(struct seq_file *m, void *v)
 {
 	struct diag_stat *stat;
 	unsigned long n = (unsigned long) v - 1;
 	int cpu, prec, tmp;
 
+<<<<<<< HEAD
 	get_online_cpus();
+=======
+	cpus_read_lock();
+>>>>>>> upstream/android-13
 	if (n == 0) {
 		seq_puts(m, "         ");
 
@@ -73,7 +100,11 @@ static int show_diag_stat(struct seq_file *m, void *v)
 		}
 		seq_printf(m, "    %s\n", diag_map[n-1].name);
 	}
+<<<<<<< HEAD
 	put_online_cpus();
+=======
+	cpus_read_unlock();
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -99,6 +130,7 @@ static const struct seq_operations show_diag_stat_sops = {
 	.show	= show_diag_stat,
 };
 
+<<<<<<< HEAD
 static int show_diag_stat_open(struct inode *inode, struct file *file)
 {
 	return seq_open(file, &show_diag_stat_sops);
@@ -111,6 +143,9 @@ static const struct file_operations show_diag_stat_fops = {
 	.release	= seq_release,
 };
 
+=======
+DEFINE_SEQ_ATTRIBUTE(show_diag_stat);
+>>>>>>> upstream/android-13
 
 static int __init show_diag_stat_init(void)
 {
@@ -138,6 +173,7 @@ EXPORT_SYMBOL(diag_stat_inc_norecursion);
 /*
  * Diagnose 14: Input spool file manipulation
  */
+<<<<<<< HEAD
 static inline int __diag14(unsigned long rx, unsigned long ry1,
 			   unsigned long subcode)
 {
@@ -162,11 +198,18 @@ int diag14(unsigned long rx, unsigned long ry1, unsigned long subcode)
 {
 	diag_stat_inc(DIAG_STAT_X014);
 	return __diag14(rx, ry1, subcode);
+=======
+int diag14(unsigned long rx, unsigned long ry1, unsigned long subcode)
+{
+	diag_stat_inc(DIAG_STAT_X014);
+	return diag_amode31_ops.diag14(rx, ry1, subcode);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(diag14);
 
 static inline int __diag204(unsigned long *subcode, unsigned long size, void *addr)
 {
+<<<<<<< HEAD
 	register unsigned long _subcode asm("0") = *subcode;
 	register unsigned long _size asm("1") = size;
 
@@ -177,6 +220,17 @@ static inline int __diag204(unsigned long *subcode, unsigned long size, void *ad
 		: "+d" (_subcode), "+d" (_size) : "d" (addr) : "memory");
 	*subcode = _subcode;
 	return _size;
+=======
+	union register_pair rp = { .even = *subcode, .odd = size };
+
+	asm volatile(
+		"	diag	%[addr],%[rp],0x204\n"
+		"0:	nopr	%%r7\n"
+		EX_TABLE(0b,0b)
+		: [rp] "+&d" (rp.pair) : [addr] "d" (addr) : "memory");
+	*subcode = rp.even;
+	return rp.odd;
+>>>>>>> upstream/android-13
 }
 
 int diag204(unsigned long subcode, unsigned long size, void *addr)
@@ -194,16 +248,20 @@ EXPORT_SYMBOL(diag204);
  */
 int diag210(struct diag210 *addr)
 {
+<<<<<<< HEAD
 	/*
 	 * diag 210 needs its data below the 2GB border, so we
 	 * use a static data area to be sure
 	 */
 	static struct diag210 diag210_tmp;
+=======
+>>>>>>> upstream/android-13
 	static DEFINE_SPINLOCK(diag210_lock);
 	unsigned long flags;
 	int ccode;
 
 	spin_lock_irqsave(&diag210_lock, flags);
+<<<<<<< HEAD
 	diag210_tmp = *addr;
 
 	diag_stat_inc(DIAG_STAT_X210);
@@ -218,6 +276,14 @@ int diag210(struct diag210 *addr)
 		: "=&d" (ccode) : "a" (&diag210_tmp) : "cc", "memory");
 
 	*addr = diag210_tmp;
+=======
+	*__diag210_tmp_amode31 = *addr;
+
+	diag_stat_inc(DIAG_STAT_X210);
+	ccode = diag_amode31_ops.diag210(__diag210_tmp_amode31);
+
+	*addr = *__diag210_tmp_amode31;
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&diag210_lock, flags);
 
 	return ccode;
@@ -242,6 +308,7 @@ EXPORT_SYMBOL(diag224);
 /*
  * Diagnose 26C: Access Certain System Information
  */
+<<<<<<< HEAD
 static inline int __diag26c(void *req, void *resp, enum diag26c_sc subcode)
 {
 	register unsigned long _req asm("2") = (addr_t) req;
@@ -264,5 +331,11 @@ int diag26c(void *req, void *resp, enum diag26c_sc subcode)
 {
 	diag_stat_inc(DIAG_STAT_X26C);
 	return __diag26c(req, resp, subcode);
+=======
+int diag26c(void *req, void *resp, enum diag26c_sc subcode)
+{
+	diag_stat_inc(DIAG_STAT_X26C);
+	return diag_amode31_ops.diag26c(req, resp, subcode);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(diag26c);

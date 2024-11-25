@@ -700,9 +700,12 @@ ahd_linux_slave_alloc(struct scsi_device *sdev)
 static int
 ahd_linux_slave_configure(struct scsi_device *sdev)
 {
+<<<<<<< HEAD
 	struct	ahd_softc *ahd;
 
 	ahd = *((struct ahd_softc **)sdev->host->hostdata);
+=======
+>>>>>>> upstream/android-13
 	if (bootverbose)
 		sdev_printk(KERN_INFO, sdev, "Slave Configure\n");
 
@@ -723,16 +726,23 @@ static int
 ahd_linux_biosparam(struct scsi_device *sdev, struct block_device *bdev,
 		    sector_t capacity, int geom[])
 {
+<<<<<<< HEAD
 	uint8_t *bh;
 	int	 heads;
 	int	 sectors;
 	int	 cylinders;
 	int	 ret;
+=======
+	int	 heads;
+	int	 sectors;
+	int	 cylinders;
+>>>>>>> upstream/android-13
 	int	 extended;
 	struct	 ahd_softc *ahd;
 
 	ahd = *((struct ahd_softc **)sdev->host->hostdata);
 
+<<<<<<< HEAD
 	bh = scsi_bios_ptable(bdev);
 	if (bh) {
 		ret = scsi_partsize(bh, capacity,
@@ -741,6 +751,11 @@ ahd_linux_biosparam(struct scsi_device *sdev, struct block_device *bdev,
 		if (ret != -1)
 			return (ret);
 	}
+=======
+	if (scsi_partsize(bdev, capacity, geom))
+		return 0;
+
+>>>>>>> upstream/android-13
 	heads = 64;
 	sectors = 32;
 	cylinders = aic_sector_div(capacity, heads, sectors);
@@ -785,16 +800,23 @@ ahd_linux_dev_reset(struct scsi_cmnd *cmd)
 	struct scb *reset_scb;
 	u_int  cdb_byte;
 	int    retval = SUCCESS;
+<<<<<<< HEAD
 	int    paused;
 	int    wait;
+=======
+>>>>>>> upstream/android-13
 	struct	ahd_initiator_tinfo *tinfo;
 	struct	ahd_tmode_tstate *tstate;
 	unsigned long flags;
 	DECLARE_COMPLETION_ONSTACK(done);
 
 	reset_scb = NULL;
+<<<<<<< HEAD
 	paused = FALSE;
 	wait = FALSE;
+=======
+
+>>>>>>> upstream/android-13
 	ahd = *(struct ahd_softc **)cmd->device->host->hostdata;
 
 	scmd_printk(KERN_INFO, cmd,
@@ -920,7 +942,10 @@ struct scsi_host_template aic79xx_driver_template = {
 	.this_id		= -1,
 	.max_sectors		= 8192,
 	.cmd_per_lun		= 2,
+<<<<<<< HEAD
 	.use_clustering		= ENABLE_CLUSTERING,
+=======
+>>>>>>> upstream/android-13
 	.slave_alloc		= ahd_linux_slave_alloc,
 	.slave_configure	= ahd_linux_slave_configure,
 	.target_alloc		= ahd_linux_target_alloc,
@@ -966,8 +991,13 @@ int
 ahd_dmamem_alloc(struct ahd_softc *ahd, bus_dma_tag_t dmat, void** vaddr,
 		 int flags, bus_dmamap_t *mapp)
 {
+<<<<<<< HEAD
 	*vaddr = pci_alloc_consistent(ahd->dev_softc,
 				      dmat->maxsize, mapp);
+=======
+	*vaddr = dma_alloc_coherent(&ahd->dev_softc->dev, dmat->maxsize, mapp,
+				    GFP_ATOMIC);
+>>>>>>> upstream/android-13
 	if (*vaddr == NULL)
 		return (ENOMEM);
 	return(0);
@@ -977,8 +1007,12 @@ void
 ahd_dmamem_free(struct ahd_softc *ahd, bus_dma_tag_t dmat,
 		void* vaddr, bus_dmamap_t map)
 {
+<<<<<<< HEAD
 	pci_free_consistent(ahd->dev_softc, dmat->maxsize,
 			    vaddr, map);
+=======
+	dma_free_coherent(&ahd->dev_softc->dev, dmat->maxsize, vaddr, map);
+>>>>>>> upstream/android-13
 }
 
 int
@@ -1617,10 +1651,17 @@ ahd_linux_run_command(struct ahd_softc *ahd, struct ahd_linux_device *dev,
 	if ((dev->flags & (AHD_DEV_Q_TAGGED|AHD_DEV_Q_BASIC)) != 0) {
 		if (dev->commands_since_idle_or_otag == AHD_OTAG_THRESH
 		 && (dev->flags & AHD_DEV_Q_TAGGED) != 0) {
+<<<<<<< HEAD
 			hscb->control |= MSG_ORDERED_TASK;
 			dev->commands_since_idle_or_otag = 0;
 		} else {
 			hscb->control |= MSG_SIMPLE_TASK;
+=======
+			hscb->control |= ORDERED_QUEUE_TAG;
+			dev->commands_since_idle_or_otag = 0;
+		} else {
+			hscb->control |= SIMPLE_QUEUE_TAG;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -1801,10 +1842,18 @@ ahd_done(struct ahd_softc *ahd, struct scb *scb)
 	 */
 	cmd->sense_buffer[0] = 0;
 	if (ahd_get_transaction_status(scb) == CAM_REQ_INPROG) {
+<<<<<<< HEAD
+=======
+#ifdef AHD_REPORT_UNDERFLOWS
+>>>>>>> upstream/android-13
 		uint32_t amount_xferred;
 
 		amount_xferred =
 		    ahd_get_transfer_length(scb) - ahd_get_residual(scb);
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 		if ((scb->flags & SCB_TRANSMISSION_ERROR) != 0) {
 #ifdef AHD_DEBUG
 			if ((ahd_debug & AHD_SHOW_MISC) != 0) {
@@ -1847,7 +1896,11 @@ ahd_done(struct ahd_softc *ahd, struct scb *scb)
 
 	if (dev->openings == 1
 	 && ahd_get_transaction_status(scb) == CAM_REQ_CMP
+<<<<<<< HEAD
 	 && ahd_get_scsi_status(scb) != SCSI_STATUS_QUEUE_FULL)
+=======
+	 && ahd_get_scsi_status(scb) != SAM_STAT_TASK_SET_FULL)
+>>>>>>> upstream/android-13
 		dev->tag_success_count++;
 	/*
 	 * Some devices deal with temporary internal resource
@@ -1904,8 +1957,13 @@ ahd_linux_handle_scsi_status(struct ahd_softc *ahd,
 	switch (ahd_get_scsi_status(scb)) {
 	default:
 		break;
+<<<<<<< HEAD
 	case SCSI_STATUS_CHECK_COND:
 	case SCSI_STATUS_CMD_TERMINATED:
+=======
+	case SAM_STAT_CHECK_CONDITION:
+	case SAM_STAT_COMMAND_TERMINATED:
+>>>>>>> upstream/android-13
 	{
 		struct scsi_cmnd *cmd;
 
@@ -1941,7 +1999,11 @@ ahd_linux_handle_scsi_status(struct ahd_softc *ahd,
 			memcpy(cmd->sense_buffer,
 			       ahd_get_sense_buf(ahd, scb)
 			       + sense_offset, sense_size);
+<<<<<<< HEAD
 			cmd->result |= (DRIVER_SENSE << 24);
+=======
+			set_status_byte(cmd, SAM_STAT_CHECK_CONDITION);
+>>>>>>> upstream/android-13
 
 #ifdef AHD_DEBUG
 			if (ahd_debug & AHD_SHOW_SENSE) {
@@ -1960,7 +2022,11 @@ ahd_linux_handle_scsi_status(struct ahd_softc *ahd,
 		}
 		break;
 	}
+<<<<<<< HEAD
 	case SCSI_STATUS_QUEUE_FULL:
+=======
+	case SAM_STAT_TASK_SET_FULL:
+>>>>>>> upstream/android-13
 		/*
 		 * By the time the core driver has returned this
 		 * command, all other commands that were queued
@@ -2006,7 +2072,11 @@ ahd_linux_handle_scsi_status(struct ahd_softc *ahd,
 				dev->last_queuefull_same_count = 0;
 			}
 			ahd_set_transaction_status(scb, CAM_REQUEUE_REQ);
+<<<<<<< HEAD
 			ahd_set_scsi_status(scb, SCSI_STATUS_OK);
+=======
+			ahd_set_scsi_status(scb, SAM_STAT_GOOD);
+>>>>>>> upstream/android-13
 			ahd_platform_set_tags(ahd, sdev, &devinfo,
 				     (dev->flags & AHD_DEV_Q_BASIC)
 				   ? AHD_QUEUE_BASIC : AHD_QUEUE_TAGGED);
@@ -2020,7 +2090,11 @@ ahd_linux_handle_scsi_status(struct ahd_softc *ahd,
 		ahd_platform_set_tags(ahd, sdev, &devinfo,
 			     (dev->flags & AHD_DEV_Q_BASIC)
 			   ? AHD_QUEUE_BASIC : AHD_QUEUE_TAGGED);
+<<<<<<< HEAD
 		ahd_set_scsi_status(scb, SCSI_STATUS_BUSY);
+=======
+		ahd_set_scsi_status(scb, SAM_STAT_BUSY);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -2031,6 +2105,10 @@ ahd_linux_queue_cmd_complete(struct ahd_softc *ahd, struct scsi_cmnd *cmd)
 	int new_status = DID_OK;
 	int do_fallback = 0;
 	int scsi_status;
+<<<<<<< HEAD
+=======
+	struct scsi_sense_data *sense;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Map CAM error codes into Linux Error codes.  We
@@ -2047,11 +2125,16 @@ ahd_linux_queue_cmd_complete(struct ahd_softc *ahd, struct scsi_cmnd *cmd)
 		break;
 	case CAM_AUTOSENSE_FAIL:
 		new_status = DID_ERROR;
+<<<<<<< HEAD
 		/* Fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case CAM_SCSI_STATUS_ERROR:
 		scsi_status = ahd_cmd_get_scsi_status(cmd);
 
 		switch(scsi_status) {
+<<<<<<< HEAD
 		case SCSI_STATUS_CMD_TERMINATED:
 		case SCSI_STATUS_CHECK_COND:
 			if ((cmd->result >> 24) != DRIVER_SENSE) {
@@ -2066,6 +2149,16 @@ ahd_linux_queue_cmd_complete(struct ahd_softc *ahd, struct scsi_cmnd *cmd)
 				     || sense->add_sense_code == 0x48))
 					do_fallback = 1;
 			}
+=======
+		case SAM_STAT_COMMAND_TERMINATED:
+		case SAM_STAT_CHECK_CONDITION:
+			sense = (struct scsi_sense_data *)
+				cmd->sense_buffer;
+			if (sense->extra_len >= 5 &&
+			    (sense->add_sense_code == 0x47
+			     || sense->add_sense_code == 0x48))
+				do_fallback = 1;
+>>>>>>> upstream/android-13
 			break;
 		default:
 			break;
@@ -2153,9 +2246,14 @@ ahd_linux_queue_abort_cmd(struct scsi_cmnd *cmd)
 	u_int  saved_scbptr;
 	u_int  active_scbptr;
 	u_int  last_phase;
+<<<<<<< HEAD
 	u_int  saved_scsiid;
 	u_int  cdb_byte;
 	int    retval;
+=======
+	u_int  cdb_byte;
+	int    retval = SUCCESS;
+>>>>>>> upstream/android-13
 	int    was_paused;
 	int    paused;
 	int    wait;
@@ -2193,8 +2291,12 @@ ahd_linux_queue_abort_cmd(struct scsi_cmnd *cmd)
 		 * so we must not still own the command.
 		 */
 		scmd_printk(KERN_INFO, cmd, "Is not an active device\n");
+<<<<<<< HEAD
 		retval = SUCCESS;
 		goto no_cmd;
+=======
+		goto done;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -2207,7 +2309,11 @@ ahd_linux_queue_abort_cmd(struct scsi_cmnd *cmd)
 
 	if (pending_scb == NULL) {
 		scmd_printk(KERN_INFO, cmd, "Command not found\n");
+<<<<<<< HEAD
 		goto no_cmd;
+=======
+		goto done;
+>>>>>>> upstream/android-13
 	}
 
 	if ((pending_scb->flags & SCB_RECOVERY_SCB) != 0) {
@@ -2215,7 +2321,11 @@ ahd_linux_queue_abort_cmd(struct scsi_cmnd *cmd)
 		 * We can't queue two recovery actions using the same SCB
 		 */
 		retval = FAILED;
+<<<<<<< HEAD
 		goto  done;
+=======
+		goto done;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -2230,7 +2340,11 @@ ahd_linux_queue_abort_cmd(struct scsi_cmnd *cmd)
 
 	if ((pending_scb->flags & SCB_ACTIVE) == 0) {
 		scmd_printk(KERN_INFO, cmd, "Command already completed\n");
+<<<<<<< HEAD
 		goto no_cmd;
+=======
+		goto done;
+>>>>>>> upstream/android-13
 	}
 
 	printk("%s: At time of recovery, card was %spaused\n",
@@ -2247,7 +2361,10 @@ ahd_linux_queue_abort_cmd(struct scsi_cmnd *cmd)
 		printk("%s:%d:%d:%d: Cmd aborted from QINFIFO\n",
 		       ahd_name(ahd), cmd->device->channel, 
 		       cmd->device->id, (u8)cmd->device->lun);
+<<<<<<< HEAD
 		retval = SUCCESS;
+=======
+>>>>>>> upstream/android-13
 		goto done;
 	}
 
@@ -2269,7 +2386,11 @@ ahd_linux_queue_abort_cmd(struct scsi_cmnd *cmd)
 	 * passed in command.  That command is currently active on the
 	 * bus or is in the disconnected state.
 	 */
+<<<<<<< HEAD
 	saved_scsiid = ahd_inb(ahd, SAVED_SCSIID);
+=======
+	ahd_inb(ahd, SAVED_SCSIID);
+>>>>>>> upstream/android-13
 	if (last_phase != P_BUSFREE
 	    && SCB_GET_TAG(pending_scb) == active_scbptr) {
 
@@ -2344,6 +2465,7 @@ ahd_linux_queue_abort_cmd(struct scsi_cmnd *cmd)
 	} else {
 		scmd_printk(KERN_INFO, cmd, "Unable to deliver message\n");
 		retval = FAILED;
+<<<<<<< HEAD
 		goto done;
 	}
 
@@ -2355,6 +2477,12 @@ no_cmd:
 	 * well defined, so this may change in time.
 	 */
 	retval = SUCCESS;
+=======
+	}
+
+
+	ahd_restore_modes(ahd, saved_modes);
+>>>>>>> upstream/android-13
 done:
 	if (paused)
 		ahd_unpause(ahd);

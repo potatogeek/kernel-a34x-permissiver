@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* parport_sunbpp.c: Parallel-port routines for SBUS
  * 
  * Author: Derrick J. Brashear <shadow@dementia.org>
@@ -313,7 +317,11 @@ static int bpp_probe(struct platform_device *op)
 	value_tcr &= ~P_TCR_DIR;
 	sbus_writeb(value_tcr, &regs->p_tcr);
 
+<<<<<<< HEAD
 	printk(KERN_INFO "%s: sunbpp at 0x%lx\n", p->name, p->base);
+=======
+	pr_info("%s: sunbpp at 0x%lx\n", p->name, p->base);
+>>>>>>> upstream/android-13
 
 	dev_set_drvdata(&op->dev, p);
 
@@ -376,6 +384,9 @@ module_platform_driver(bpp_sbus_driver);
 
 MODULE_AUTHOR("Derrick J Brashear");
 MODULE_DESCRIPTION("Parport Driver for Sparc bidirectional Port");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("Sparc Bidirectional Parallel Port");
+=======
+>>>>>>> upstream/android-13
 MODULE_VERSION("2.0");
 MODULE_LICENSE("GPL");

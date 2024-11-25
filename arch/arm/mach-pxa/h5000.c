@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Hardware definitions for HP iPAQ h5xxx Handheld Computers
  *
@@ -6,11 +10,14 @@
  * Copyright 2004-2005  Phil Blundell <pb@handhelds.org>
  * Copyright 2007-2008  Anton Vorontsov <cbouatmailru@gmail.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * COMPAQ COMPUTER CORPORATION MAKES NO WARRANTIES, EXPRESSED OR IMPLIED,
  * AS TO THE USEFULNESS OR CORRECTNESS OF THIS CODE OR ITS
  * FITNESS FOR ANY PARTICULAR PURPOSE.

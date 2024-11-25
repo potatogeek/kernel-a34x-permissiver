@@ -25,6 +25,10 @@
 # define SMP_CACHE_BYTES	(1 << 3)
 #endif
 
+<<<<<<< HEAD
 #define __read_mostly __attribute__((__section__(".data..read_mostly")))
+=======
+#define __read_mostly __section(".data..read_mostly")
+>>>>>>> upstream/android-13
 
 #endif /* _ASM_IA64_CACHE_H */

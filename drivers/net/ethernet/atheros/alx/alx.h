@@ -137,9 +137,17 @@ struct alx_priv {
 
 	/* protects hw.stats */
 	spinlock_t stats_lock;
+<<<<<<< HEAD
 };
 
 extern const struct ethtool_ops alx_ethtool_ops;
 extern const char alx_drv_name[];
+=======
+
+	struct mutex mtx;
+};
+
+extern const struct ethtool_ops alx_ethtool_ops;
+>>>>>>> upstream/android-13
 
 #endif

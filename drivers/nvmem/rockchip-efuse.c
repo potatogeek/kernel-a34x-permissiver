@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Rockchip eFuse Driver
  *
  * Copyright (c) 2015 Rockchip Electronics Co. Ltd.
  * Author: Caesar Wang <wxt@rock-chips.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -12,6 +17,8 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>

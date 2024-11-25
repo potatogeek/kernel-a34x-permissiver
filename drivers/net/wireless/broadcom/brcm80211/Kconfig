@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 config BRCMUTIL
 	tristate
 
@@ -11,12 +15,17 @@ config BRCMSMAC
 	select BRCMUTIL
 	select FW_LOADER
 	select CORDIC
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  This module adds support for PCIe wireless adapters based on Broadcom
 	  IEEE802.11n SoftMAC chipsets. It also has WLAN led support, which will
 	  be available if you select BCMA_DRIVER_GPIO. If you choose to build a
 	  module, the driver will be called brcmsmac.ko.
 
+<<<<<<< HEAD
 config BRCMFMAC
 	tristate "Broadcom FullMAC WLAN driver"
 	depends on CFG80211
@@ -66,11 +75,18 @@ config BRCMFMAC_PCIE
 	  This option enables the PCIE bus interface support for Broadcom
 	  IEEE802.11ac embedded FullMAC WLAN driver. Say Y if you want to
 	  use the driver for an PCIE wireless card.
+=======
+source "drivers/net/wireless/broadcom/brcm80211/brcmfmac/Kconfig"
+>>>>>>> upstream/android-13
 
 config BRCM_TRACING
 	bool "Broadcom device tracing"
 	depends on BRCMSMAC || BRCMFMAC
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  If you say Y here, the Broadcom wireless drivers will register
 	  with ftrace to dump event information into the trace ringbuffer.
 	  Tracing can be enabled at runtime to aid in debugging wireless
@@ -81,6 +97,11 @@ config BRCM_TRACING
 config BRCMDBG
 	bool "Broadcom driver debug functions"
 	depends on BRCMSMAC || BRCMFMAC
+<<<<<<< HEAD
 	select WANT_DEV_COREDUMP
 	---help---
+=======
+	select WANT_DEV_COREDUMP if BRCMFMAC
+	help
+>>>>>>> upstream/android-13
 	  Selecting this enables additional code for debug purposes.

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Stephen Evanchik <evanchsa@gmail.com>
  *
@@ -5,6 +6,12 @@
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Stephen Evanchik <evanchsa@gmail.com>
+ *
+>>>>>>> upstream/android-13
  * Trademarks are the property of their respective owners.
  */
 
@@ -217,7 +224,11 @@ static bool trackpoint_is_attr_available(struct psmouse *psmouse,
 static umode_t trackpoint_is_attr_visible(struct kobject *kobj,
 					  struct attribute *attr, int n)
 {
+<<<<<<< HEAD
 	struct device *dev = container_of(kobj, struct device, kobj);
+=======
+	struct device *dev = kobj_to_dev(kobj);
+>>>>>>> upstream/android-13
 	struct serio *serio = to_serio_port(dev);
 	struct psmouse *psmouse = serio_get_drvdata(serio);
 

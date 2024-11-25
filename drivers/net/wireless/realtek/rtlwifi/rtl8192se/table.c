@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2012  Realtek Corporation.
@@ -23,6 +24,10 @@
  *
  * Created on  2010/ 5/18,  1:41
  *****************************************************************************/
+=======
+// SPDX-License-Identifier: GPL-2.0
+/* Copyright(c) 2009-2012  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #include "table.h"
 

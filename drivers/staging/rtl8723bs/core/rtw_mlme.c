@@ -4,6 +4,7 @@
  * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
  *
  ******************************************************************************/
+<<<<<<< HEAD
 #define _RTW_MLME_C_
 
 #include <linux/etherdevice.h>
@@ -20,18 +21,42 @@ sint	_rtw_init_mlme_priv(struct adapter *padapter)
 	struct wlan_network	*pnetwork;
 	struct mlme_priv 	*pmlmepriv = &padapter->mlmepriv;
 	sint	res = _SUCCESS;
+=======
+#include <linux/etherdevice.h>
+#include <drv_types.h>
+#include <rtw_debug.h>
+#include <hal_btcoex.h>
+#include <linux/jiffies.h>
+
+int	rtw_init_mlme_priv(struct adapter *padapter)
+{
+	int	i;
+	u8 *pbuf;
+	struct wlan_network	*pnetwork;
+	struct mlme_priv	*pmlmepriv = &padapter->mlmepriv;
+	int	res = _SUCCESS;
+>>>>>>> upstream/android-13
 
 	pmlmepriv->nic_hdl = (u8 *)padapter;
 
 	pmlmepriv->pscanned = NULL;
 	pmlmepriv->fw_state = WIFI_STATION_STATE; /*  Must sync with rtw_wdev_alloc() */
 	/*  wdev->iftype = NL80211_IFTYPE_STATION */
+<<<<<<< HEAD
 	pmlmepriv->cur_network.network.InfrastructureMode = Ndis802_11AutoUnknown;
 	pmlmepriv->scan_mode = SCAN_ACTIVE;/*  1: active, 0: pasive. Maybe someday we should rename this varable to "active_mode" (Jeff) */
 
 	spin_lock_init(&(pmlmepriv->lock));
 	_rtw_init_queue(&(pmlmepriv->free_bss_pool));
 	_rtw_init_queue(&(pmlmepriv->scanned_queue));
+=======
+	pmlmepriv->cur_network.network.infrastructure_mode = Ndis802_11AutoUnknown;
+	pmlmepriv->scan_mode = SCAN_ACTIVE;/*  1: active, 0: pasive. Maybe someday we should rename this varable to "active_mode" (Jeff) */
+
+	spin_lock_init(&pmlmepriv->lock);
+	_rtw_init_queue(&pmlmepriv->free_bss_pool);
+	_rtw_init_queue(&pmlmepriv->scanned_queue);
+>>>>>>> upstream/android-13
 
 	set_scanned_network_val(pmlmepriv, 0);
 
@@ -39,7 +64,11 @@ sint	_rtw_init_mlme_priv(struct adapter *padapter)
 
 	pbuf = vzalloc(array_size(MAX_BSS_CNT, sizeof(struct wlan_network)));
 
+<<<<<<< HEAD
 	if (pbuf == NULL) {
+=======
+	if (!pbuf) {
+>>>>>>> upstream/android-13
 		res = _FAIL;
 		goto exit;
 	}
@@ -48,9 +77,15 @@ sint	_rtw_init_mlme_priv(struct adapter *padapter)
 	pnetwork = (struct wlan_network *)pbuf;
 
 	for (i = 0; i < MAX_BSS_CNT; i++) {
+<<<<<<< HEAD
 		INIT_LIST_HEAD(&(pnetwork->list));
 
 		list_add_tail(&(pnetwork->list), &(pmlmepriv->free_bss_pool.queue));
+=======
+		INIT_LIST_HEAD(&pnetwork->list);
+
+		list_add_tail(&pnetwork->list, &pmlmepriv->free_bss_pool.queue);
+>>>>>>> upstream/android-13
 
 		pnetwork++;
 	}
@@ -66,9 +101,12 @@ sint	_rtw_init_mlme_priv(struct adapter *padapter)
 	pmlmepriv->roam_flags = 0
 		| RTW_ROAM_ON_EXPIRED
 		| RTW_ROAM_ON_RESUME
+<<<<<<< HEAD
 		#ifdef CONFIG_LAYER2_ROAMING_ACTIVE /* FIXME */
 		| RTW_ROAM_ACTIVE
 		#endif
+=======
+>>>>>>> upstream/android-13
 		;
 
 	pmlmepriv->roam_scanr_exp_ms = RTW_ROAM_SCAN_RESULT_EXP_MS;
@@ -111,9 +149,13 @@ void _rtw_free_mlme_priv(struct mlme_priv *pmlmepriv)
 {
 	if (pmlmepriv) {
 		rtw_free_mlme_priv_ie_data(pmlmepriv);
+<<<<<<< HEAD
 		if (pmlmepriv->free_bss_buf) {
 			vfree(pmlmepriv->free_bss_buf);
 		}
+=======
+		vfree(pmlmepriv->free_bss_buf);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -132,7 +174,11 @@ struct	wlan_network *_rtw_dequeue_network(struct __queue *queue)
 
 	else
 	{
+<<<<<<< HEAD
 		pnetwork = LIST_CONTAINOR(get_next(&queue->queue), struct wlan_network, list);
+=======
+		pnetwork = container_of(get_next(&queue->queue), struct wlan_network, list);
+>>>>>>> upstream/android-13
 
 		list_del_init(&(pnetwork->list));
 	}
@@ -143,7 +189,11 @@ struct	wlan_network *_rtw_dequeue_network(struct __queue *queue)
 }
 */
 
+<<<<<<< HEAD
 struct	wlan_network *_rtw_alloc_network(struct	mlme_priv *pmlmepriv)/* _queue *free_queue) */
+=======
+struct	wlan_network *rtw_alloc_network(struct	mlme_priv *pmlmepriv)
+>>>>>>> upstream/android-13
 {
 	struct	wlan_network	*pnetwork;
 	struct __queue *free_queue = &pmlmepriv->free_bss_pool;
@@ -157,11 +207,18 @@ struct	wlan_network *_rtw_alloc_network(struct	mlme_priv *pmlmepriv)/* _queue *f
 	}
 	plist = get_next(&(free_queue->queue));
 
+<<<<<<< HEAD
 	pnetwork = LIST_CONTAINOR(plist, struct wlan_network, list);
 
 	list_del_init(&pnetwork->list);
 
 	RT_TRACE(_module_rtl871x_mlme_c_, _drv_info_, ("_rtw_alloc_network: ptr =%p\n", plist));
+=======
+	pnetwork = container_of(plist, struct wlan_network, list);
+
+	list_del_init(&pnetwork->list);
+
+>>>>>>> upstream/android-13
 	pnetwork->network_type = 0;
 	pnetwork->fixed = false;
 	pnetwork->last_scanned = jiffies;
@@ -183,10 +240,17 @@ void _rtw_free_network(struct	mlme_priv *pmlmepriv, struct wlan_network *pnetwor
 /* 	_irqL irqL; */
 	struct __queue *free_queue = &(pmlmepriv->free_bss_pool);
 
+<<<<<<< HEAD
 	if (pnetwork == NULL)
 		return;
 
 	if (pnetwork->fixed == true)
+=======
+	if (!pnetwork)
+		return;
+
+	if (pnetwork->fixed)
+>>>>>>> upstream/android-13
 		return;
 
 	if ((check_fwstate(pmlmepriv, WIFI_ADHOC_MASTER_STATE) == true) ||
@@ -207,9 +271,12 @@ void _rtw_free_network(struct	mlme_priv *pmlmepriv, struct wlan_network *pnetwor
 
 	pmlmepriv->num_of_scanned--;
 
+<<<<<<< HEAD
 
 	/* DBG_871X("_rtw_free_network:SSID =%s\n", pnetwork->network.Ssid.Ssid); */
 
+=======
+>>>>>>> upstream/android-13
 	spin_unlock_bh(&free_queue->lock);
 }
 
@@ -218,10 +285,17 @@ void _rtw_free_network_nolock(struct	mlme_priv *pmlmepriv, struct wlan_network *
 
 	struct __queue *free_queue = &(pmlmepriv->free_bss_pool);
 
+<<<<<<< HEAD
 	if (pnetwork == NULL)
 		return;
 
 	if (pnetwork->fixed == true)
+=======
+	if (!pnetwork)
+		return;
+
+	if (pnetwork->fixed)
+>>>>>>> upstream/android-13
 		return;
 
 	/* spin_lock_irqsave(&free_queue->lock, irqL); */
@@ -254,6 +328,7 @@ struct wlan_network *_rtw_find_network(struct __queue *scanned_queue, u8 *addr)
 	/* spin_lock_bh(&scanned_queue->lock); */
 
 	phead = get_list_head(scanned_queue);
+<<<<<<< HEAD
 	plist = get_next(phead);
 
 	while (plist != phead) {
@@ -263,6 +338,13 @@ struct wlan_network *_rtw_find_network(struct __queue *scanned_queue, u8 *addr)
 			break;
 
 		plist = get_next(plist);
+=======
+	list_for_each(plist, phead) {
+		pnetwork = list_entry(plist, struct wlan_network, list);
+
+		if (!memcmp(addr, pnetwork->network.mac_address, ETH_ALEN))
+			break;
+>>>>>>> upstream/android-13
 	}
 
 	if (plist == phead)
@@ -274,9 +356,15 @@ exit:
 	return pnetwork;
 }
 
+<<<<<<< HEAD
 void _rtw_free_network_queue(struct adapter *padapter, u8 isfreeall)
 {
 	struct list_head *phead, *plist;
+=======
+void rtw_free_network_queue(struct adapter *padapter, u8 isfreeall)
+{
+	struct list_head *phead, *plist, *tmp;
+>>>>>>> upstream/android-13
 	struct wlan_network *pnetwork;
 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
 	struct __queue *scanned_queue = &pmlmepriv->scanned_queue;
@@ -284,6 +372,7 @@ void _rtw_free_network_queue(struct adapter *padapter, u8 isfreeall)
 	spin_lock_bh(&scanned_queue->lock);
 
 	phead = get_list_head(scanned_queue);
+<<<<<<< HEAD
 	plist = get_next(phead);
 
 	while (phead != plist) {
@@ -291,6 +380,11 @@ void _rtw_free_network_queue(struct adapter *padapter, u8 isfreeall)
 		pnetwork = LIST_CONTAINOR(plist, struct wlan_network, list);
 
 		plist = get_next(plist);
+=======
+	list_for_each_safe(plist, tmp, phead) {
+
+		pnetwork = list_entry(plist, struct wlan_network, list);
+>>>>>>> upstream/android-13
 
 		_rtw_free_network(pmlmepriv, pnetwork, isfreeall);
 
@@ -299,6 +393,7 @@ void _rtw_free_network_queue(struct adapter *padapter, u8 isfreeall)
 	spin_unlock_bh(&scanned_queue->lock);
 }
 
+<<<<<<< HEAD
 
 
 
@@ -317,6 +412,21 @@ sint rtw_if_up(struct adapter *padapter)
 }
 
 
+=======
+signed int rtw_if_up(struct adapter *padapter)
+{
+	signed int res;
+
+	if (padapter->bDriverStopped || padapter->bSurpriseRemoved ||
+		(check_fwstate(&padapter->mlmepriv, _FW_LINKED) == false))
+		res = false;
+	else
+		res =  true;
+
+	return res;
+}
+
+>>>>>>> upstream/android-13
 void rtw_generate_random_ibss(u8 *pibss)
 {
 	unsigned long curtime = jiffies;
@@ -327,26 +437,40 @@ void rtw_generate_random_ibss(u8 *pibss)
 	pibss[3] = (u8)(curtime & 0xff) ;/* p[0]; */
 	pibss[4] = (u8)((curtime>>8) & 0xff) ;/* p[1]; */
 	pibss[5] = (u8)((curtime>>16) & 0xff) ;/* p[2]; */
+<<<<<<< HEAD
 	return;
+=======
+>>>>>>> upstream/android-13
 }
 
 u8 *rtw_get_capability_from_ie(u8 *ie)
 {
+<<<<<<< HEAD
 	return (ie + 8 + 2);
 }
 
 
+=======
+	return ie + 8 + 2;
+}
+
+>>>>>>> upstream/android-13
 u16 rtw_get_capability(struct wlan_bssid_ex *bss)
 {
 	__le16	val;
 
+<<<<<<< HEAD
 	memcpy((u8 *)&val, rtw_get_capability_from_ie(bss->IEs), 2);
+=======
+	memcpy((u8 *)&val, rtw_get_capability_from_ie(bss->ies), 2);
+>>>>>>> upstream/android-13
 
 	return le16_to_cpu(val);
 }
 
 u8 *rtw_get_beacon_interval_from_ie(u8 *ie)
 {
+<<<<<<< HEAD
 	return (ie + 8);
 }
 
@@ -357,11 +481,17 @@ int	rtw_init_mlme_priv(struct adapter *padapter)/* struct	mlme_priv *pmlmepriv) 
 
 	res = _rtw_init_mlme_priv(padapter);/*  (pmlmepriv); */
 	return res;
+=======
+	return ie + 8;
+>>>>>>> upstream/android-13
 }
 
 void rtw_free_mlme_priv(struct mlme_priv *pmlmepriv)
 {
+<<<<<<< HEAD
 	RT_TRACE(_module_rtl871x_mlme_c_, _drv_err_, ("rtw_free_mlme_priv\n"));
+=======
+>>>>>>> upstream/android-13
 	_rtw_free_mlme_priv(pmlmepriv);
 }
 
@@ -375,6 +505,7 @@ static struct	wlan_network *rtw_dequeue_network(struct __queue *queue)
 }
 */
 
+<<<<<<< HEAD
 struct	wlan_network *rtw_alloc_network(struct	mlme_priv *pmlmepriv);
 struct	wlan_network *rtw_alloc_network(struct	mlme_priv *pmlmepriv)/* _queue	*free_queue) */
 {
@@ -388,16 +519,24 @@ void rtw_free_network_nolock(struct adapter *padapter, struct wlan_network *pnet
 void rtw_free_network_nolock(struct adapter *padapter, struct wlan_network *pnetwork)
 {
 	/* RT_TRACE(_module_rtl871x_mlme_c_, _drv_err_, ("rtw_free_network ==> ssid = %s\n\n" , pnetwork->network.Ssid.Ssid)); */
+=======
+void rtw_free_network_nolock(struct adapter *padapter, struct wlan_network *pnetwork);
+void rtw_free_network_nolock(struct adapter *padapter, struct wlan_network *pnetwork)
+{
+>>>>>>> upstream/android-13
 	_rtw_free_network_nolock(&(padapter->mlmepriv), pnetwork);
 	rtw_cfg80211_unlink_bss(padapter, pnetwork);
 }
 
+<<<<<<< HEAD
 
 void rtw_free_network_queue(struct adapter *dev, u8 isfreeall)
 {
 	_rtw_free_network_queue(dev, isfreeall);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
 	return the wlan_network with the matching addr
 
@@ -416,10 +555,17 @@ int rtw_is_same_ibss(struct adapter *adapter, struct wlan_network *pnetwork)
 	struct security_priv *psecuritypriv = &adapter->securitypriv;
 
 	if ((psecuritypriv->dot11PrivacyAlgrthm != _NO_PRIVACY_) &&
+<<<<<<< HEAD
 		    (pnetwork->network.Privacy == 0))
 		ret = false;
 	else if ((psecuritypriv->dot11PrivacyAlgrthm == _NO_PRIVACY_) &&
 		 (pnetwork->network.Privacy == 1))
+=======
+		    (pnetwork->network.privacy == 0))
+		ret = false;
+	else if ((psecuritypriv->dot11PrivacyAlgrthm == _NO_PRIVACY_) &&
+		 (pnetwork->network.privacy == 1))
+>>>>>>> upstream/android-13
 		ret = false;
 	else
 		ret = true;
@@ -430,10 +576,15 @@ int rtw_is_same_ibss(struct adapter *adapter, struct wlan_network *pnetwork)
 
 inline int is_same_ess(struct wlan_bssid_ex *a, struct wlan_bssid_ex *b)
 {
+<<<<<<< HEAD
 	/* RT_TRACE(_module_rtl871x_mlme_c_, _drv_err_, ("(%s,%d)(%s,%d)\n", */
 	/* 		a->Ssid.Ssid, a->Ssid.SsidLength, b->Ssid.Ssid, b->Ssid.SsidLength)); */
 	return (a->Ssid.SsidLength == b->Ssid.SsidLength)
 		&&  !memcmp(a->Ssid.Ssid, b->Ssid.Ssid, a->Ssid.SsidLength);
+=======
+	return (a->ssid.ssid_length == b->ssid.ssid_length)
+		&&  !memcmp(a->ssid.ssid, b->ssid.ssid, a->ssid.ssid_length);
+>>>>>>> upstream/android-13
 }
 
 int is_same_network(struct wlan_bssid_ex *src, struct wlan_bssid_ex *dst, u8 feature)
@@ -444,13 +595,19 @@ int is_same_network(struct wlan_bssid_ex *src, struct wlan_bssid_ex *dst, u8 fea
 	if (rtw_bug_check(dst, src, &s_cap, &d_cap) == false)
 			return false;
 
+<<<<<<< HEAD
 	memcpy((u8 *)&tmps, rtw_get_capability_from_ie(src->IEs), 2);
 	memcpy((u8 *)&tmpd, rtw_get_capability_from_ie(dst->IEs), 2);
 
+=======
+	memcpy((u8 *)&tmps, rtw_get_capability_from_ie(src->ies), 2);
+	memcpy((u8 *)&tmpd, rtw_get_capability_from_ie(dst->ies), 2);
+>>>>>>> upstream/android-13
 
 	s_cap = le16_to_cpu(tmps);
 	d_cap = le16_to_cpu(tmpd);
 
+<<<<<<< HEAD
 	return ((src->Ssid.SsidLength == dst->Ssid.SsidLength) &&
 		/* 	(src->Configuration.DSConfig == dst->Configuration.DSConfig) && */
 			((!memcmp(src->MacAddress, dst->MacAddress, ETH_ALEN))) &&
@@ -459,6 +616,16 @@ int is_same_network(struct wlan_bssid_ex *src, struct wlan_bssid_ex *dst, u8 fea
 			(d_cap & WLAN_CAPABILITY_IBSS)) &&
 			((s_cap & WLAN_CAPABILITY_BSS) ==
 			(d_cap & WLAN_CAPABILITY_BSS)));
+=======
+	return (src->ssid.ssid_length == dst->ssid.ssid_length) &&
+		/* 	(src->configuration.ds_config == dst->configuration.ds_config) && */
+			((!memcmp(src->mac_address, dst->mac_address, ETH_ALEN))) &&
+			((!memcmp(src->ssid.ssid, dst->ssid.ssid, src->ssid.ssid_length))) &&
+			((s_cap & WLAN_CAPABILITY_IBSS) ==
+			(d_cap & WLAN_CAPABILITY_IBSS)) &&
+			((s_cap & WLAN_CAPABILITY_ESS) ==
+			(d_cap & WLAN_CAPABILITY_ESS));
+>>>>>>> upstream/android-13
 
 }
 
@@ -468,6 +635,7 @@ struct wlan_network *_rtw_find_same_network(struct __queue *scanned_queue, struc
 	struct wlan_network *found = NULL;
 
 	phead = get_list_head(scanned_queue);
+<<<<<<< HEAD
 	plist = get_next(phead);
 
 	while (plist != phead) {
@@ -477,6 +645,13 @@ struct wlan_network *_rtw_find_same_network(struct __queue *scanned_queue, struc
 			break;
 
 		plist = get_next(plist);
+=======
+	list_for_each(plist, phead) {
+		found = list_entry(plist, struct wlan_network, list);
+
+		if (is_same_network(&network->network, &found->network, 0))
+			break;
+>>>>>>> upstream/android-13
 	}
 
 	if (plist == phead)
@@ -489,12 +664,16 @@ struct	wlan_network	*rtw_get_oldest_wlan_network(struct __queue *scanned_queue)
 {
 	struct list_head	*plist, *phead;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	struct	wlan_network	*pwlan = NULL;
 	struct	wlan_network	*oldest = NULL;
 
 	phead = get_list_head(scanned_queue);
 
+<<<<<<< HEAD
 	plist = get_next(phead);
 
 	while (1) {
@@ -510,6 +689,16 @@ struct	wlan_network	*rtw_get_oldest_wlan_network(struct __queue *scanned_queue)
 		}
 
 		plist = get_next(plist);
+=======
+	list_for_each(plist, phead) {
+
+		pwlan = list_entry(plist, struct wlan_network, list);
+
+		if (!pwlan->fixed) {
+			if (oldest == NULL || time_after(oldest->last_scanned, pwlan->last_scanned))
+				oldest = pwlan;
+		}
+>>>>>>> upstream/android-13
 	}
 	return oldest;
 
@@ -518,14 +707,21 @@ struct	wlan_network	*rtw_get_oldest_wlan_network(struct __queue *scanned_queue)
 void update_network(struct wlan_bssid_ex *dst, struct wlan_bssid_ex *src,
 	struct adapter *padapter, bool update_ie)
 {
+<<<<<<< HEAD
 	long rssi_ori = dst->Rssi;
 
 	u8 sq_smp = src->PhyInfo.SignalQuality;
+=======
+	long rssi_ori = dst->rssi;
+
+	u8 sq_smp = src->phy_info.signal_quality;
+>>>>>>> upstream/android-13
 
 	u8 ss_final;
 	u8 sq_final;
 	long rssi_final;
 
+<<<<<<< HEAD
 	#if defined(DBG_RX_SIGNAL_DISPLAY_SSID_MONITORED) && 1
 	if (strcmp(dst->Ssid.Ssid, DBG_RX_SIGNAL_DISPLAY_SSID_MONITORED) == 0) {
 		DBG_871X(FUNC_ADPT_FMT" %s("MAC_FMT", ch%u) ss_ori:%3u, sq_ori:%3u, rssi_ori:%3ld, ss_smp:%3u, sq_smp:%3u, rssi_smp:%3ld\n"
@@ -537,6 +733,8 @@ void update_network(struct wlan_bssid_ex *dst, struct wlan_bssid_ex *src,
 	}
 	#endif
 
+=======
+>>>>>>> upstream/android-13
 	/* The rule below is 1/5 for sample value, 4/5 for history value */
 	if (check_fwstate(&padapter->mlmepriv, _FW_LINKED) && is_same_network(&(padapter->mlmepriv.cur_network.network), src, 0)) {
 		/* Take the recvpriv's value for the connected AP*/
@@ -544,11 +742,16 @@ void update_network(struct wlan_bssid_ex *dst, struct wlan_bssid_ex *src,
 		sq_final = padapter->recvpriv.signal_qual;
 		/* the rssi value here is undecorated, and will be used for antenna diversity */
 		if (sq_smp != 101) /* from the right channel */
+<<<<<<< HEAD
 			rssi_final = (src->Rssi+dst->Rssi*4)/5;
+=======
+			rssi_final = (src->rssi+dst->rssi*4)/5;
+>>>>>>> upstream/android-13
 		else
 			rssi_final = rssi_ori;
 	} else {
 		if (sq_smp != 101) { /* from the right channel */
+<<<<<<< HEAD
 			ss_final = ((u32)(src->PhyInfo.SignalStrength)+(u32)(dst->PhyInfo.SignalStrength)*4)/5;
 			sq_final = ((u32)(src->PhyInfo.SignalQuality)+(u32)(dst->PhyInfo.SignalQuality)*4)/5;
 			rssi_final = (src->Rssi+dst->Rssi*4)/5;
@@ -557,11 +760,22 @@ void update_network(struct wlan_bssid_ex *dst, struct wlan_bssid_ex *src,
 			ss_final = dst->PhyInfo.SignalStrength;
 			sq_final = dst->PhyInfo.SignalQuality;
 			rssi_final = dst->Rssi;
+=======
+			ss_final = ((u32)(src->phy_info.signal_strength)+(u32)(dst->phy_info.signal_strength)*4)/5;
+			sq_final = ((u32)(src->phy_info.signal_quality)+(u32)(dst->phy_info.signal_quality)*4)/5;
+			rssi_final = (src->rssi+dst->rssi*4)/5;
+		} else {
+			/* bss info not receiving from the right channel, use the original RX signal infos */
+			ss_final = dst->phy_info.signal_strength;
+			sq_final = dst->phy_info.signal_quality;
+			rssi_final = dst->rssi;
+>>>>>>> upstream/android-13
 		}
 
 	}
 
 	if (update_ie) {
+<<<<<<< HEAD
 		dst->Reserved[0] = src->Reserved[0];
 		dst->Reserved[1] = src->Reserved[1];
 		memcpy((u8 *)dst, (u8 *)src, get_wlan_bssid_ex_sz(src));
@@ -578,6 +792,16 @@ void update_network(struct wlan_bssid_ex *dst, struct wlan_bssid_ex *src,
 			, dst->Ssid.Ssid, MAC_ARG(dst->MacAddress), dst->PhyInfo.SignalStrength, dst->PhyInfo.SignalQuality, dst->Rssi);
 	}
 	#endif
+=======
+		dst->reserved[0] = src->reserved[0];
+		dst->reserved[1] = src->reserved[1];
+		memcpy((u8 *)dst, (u8 *)src, get_wlan_bssid_ex_sz(src));
+	}
+
+	dst->phy_info.signal_strength = ss_final;
+	dst->phy_info.signal_quality = sq_final;
+	dst->rssi = rssi_final;
+>>>>>>> upstream/android-13
 }
 
 static void update_current_network(struct adapter *adapter, struct wlan_bssid_ex *pnetwork)
@@ -590,6 +814,7 @@ static void update_current_network(struct adapter *adapter, struct wlan_bssid_ex
 		&(pmlmepriv->cur_network.network));
 
 	if ((check_fwstate(pmlmepriv, _FW_LINKED) == true) && (is_same_network(&(pmlmepriv->cur_network.network), pnetwork, 0))) {
+<<<<<<< HEAD
 		/* RT_TRACE(_module_rtl871x_mlme_c_, _drv_err_,"Same Network\n"); */
 
 		/* if (pmlmepriv->cur_network.network.IELength<= pnetwork->IELength) */
@@ -597,16 +822,28 @@ static void update_current_network(struct adapter *adapter, struct wlan_bssid_ex
 			update_network(&(pmlmepriv->cur_network.network), pnetwork, adapter, true);
 			rtw_update_protection(adapter, (pmlmepriv->cur_network.network.IEs) + sizeof(struct ndis_802_11_fix_ie),
 									pmlmepriv->cur_network.network.IELength);
+=======
+		/* if (pmlmepriv->cur_network.network.ie_length<= pnetwork->ie_length) */
+		{
+			update_network(&(pmlmepriv->cur_network.network), pnetwork, adapter, true);
+			rtw_update_protection(adapter, (pmlmepriv->cur_network.network.ies) + sizeof(struct ndis_802_11_fix_ie),
+									pmlmepriv->cur_network.network.ie_length);
+>>>>>>> upstream/android-13
 		}
 	}
 }
 
+<<<<<<< HEAD
 
 /*
 
 Caller must hold pmlmepriv->lock first.
 
 
+=======
+/*
+Caller must hold pmlmepriv->lock first.
+>>>>>>> upstream/android-13
 */
 void rtw_update_scanned_network(struct adapter *adapter, struct wlan_bssid_ex *target)
 {
@@ -621,6 +858,7 @@ void rtw_update_scanned_network(struct adapter *adapter, struct wlan_bssid_ex *t
 
 	spin_lock_bh(&queue->lock);
 	phead = get_list_head(queue);
+<<<<<<< HEAD
 	plist = get_next(phead);
 
 	while (1) {
@@ -628,6 +866,10 @@ void rtw_update_scanned_network(struct adapter *adapter, struct wlan_bssid_ex *t
 			break;
 
 		pnetwork = LIST_CONTAINOR(plist, struct wlan_network, list);
+=======
+	list_for_each(plist, phead) {
+		pnetwork = list_entry(plist, struct wlan_network, list);
+>>>>>>> upstream/android-13
 
 		rtw_bug_check(pnetwork, pnetwork, pnetwork, pnetwork);
 
@@ -637,17 +879,26 @@ void rtw_update_scanned_network(struct adapter *adapter, struct wlan_bssid_ex *t
 		}
 
 		if (rtw_roam_flags(adapter)) {
+<<<<<<< HEAD
 			/* TODO: don't  select netowrk in the same ess as oldest if it's new enough*/
+=======
+			/* TODO: don't select network in the same ess as oldest if it's new enough*/
+>>>>>>> upstream/android-13
 		}
 
 		if (oldest == NULL || time_after(oldest->last_scanned, pnetwork->last_scanned))
 			oldest = pnetwork;
 
+<<<<<<< HEAD
 		plist = get_next(plist);
 
 	}
 
 
+=======
+	}
+
+>>>>>>> upstream/android-13
 	/* If we didn't find a match, then get a new network slot to initialize
 	 * with this beacon's information */
 	/* if (phead == plist) { */
@@ -656,10 +907,16 @@ void rtw_update_scanned_network(struct adapter *adapter, struct wlan_bssid_ex *t
 			/* If there are no more slots, expire the oldest */
 			/* list_del_init(&oldest->list); */
 			pnetwork = oldest;
+<<<<<<< HEAD
 			if (pnetwork == NULL) {
 				RT_TRACE(_module_rtl871x_mlme_c_, _drv_err_, ("\n\n\nsomething wrong here\n\n\n"));
 				goto exit;
 			}
+=======
+			if (!pnetwork)
+				goto exit;
+
+>>>>>>> upstream/android-13
 			memcpy(&(pnetwork->network), target,  get_wlan_bssid_ex_sz(target));
 			/*  variable initialize */
 			pnetwork->fixed = false;
@@ -670,13 +927,19 @@ void rtw_update_scanned_network(struct adapter *adapter, struct wlan_bssid_ex *t
 			pnetwork->join_res = 0;
 
 			/* bss info not receiving from the right channel */
+<<<<<<< HEAD
 			if (pnetwork->network.PhyInfo.SignalQuality == 101)
 				pnetwork->network.PhyInfo.SignalQuality = 0;
+=======
+			if (pnetwork->network.phy_info.signal_quality == 101)
+				pnetwork->network.phy_info.signal_quality = 0;
+>>>>>>> upstream/android-13
 		} else {
 			/* Otherwise just pull from the free list */
 
 			pnetwork = rtw_alloc_network(pmlmepriv); /*  will update scan_time */
 
+<<<<<<< HEAD
 			if (pnetwork == NULL) {
 				RT_TRACE(_module_rtl871x_mlme_c_, _drv_err_, ("\n\n\nsomething wrong here\n\n\n"));
 				goto exit;
@@ -684,13 +947,25 @@ void rtw_update_scanned_network(struct adapter *adapter, struct wlan_bssid_ex *t
 
 			bssid_ex_sz = get_wlan_bssid_ex_sz(target);
 			target->Length = bssid_ex_sz;
+=======
+			if (!pnetwork)
+				goto exit;
+
+			bssid_ex_sz = get_wlan_bssid_ex_sz(target);
+			target->length = bssid_ex_sz;
+>>>>>>> upstream/android-13
 			memcpy(&(pnetwork->network), target, bssid_ex_sz);
 
 			pnetwork->last_scanned = jiffies;
 
 			/* bss info not receiving from the right channel */
+<<<<<<< HEAD
 			if (pnetwork->network.PhyInfo.SignalQuality == 101)
 				pnetwork->network.PhyInfo.SignalQuality = 0;
+=======
+			if (pnetwork->network.phy_info.signal_quality == 101)
+				pnetwork->network.phy_info.signal_quality = 0;
+>>>>>>> upstream/android-13
 
 			list_add_tail(&(pnetwork->list), &(queue->queue));
 
@@ -704,6 +979,7 @@ void rtw_update_scanned_network(struct adapter *adapter, struct wlan_bssid_ex *t
 
 		pnetwork->last_scanned = jiffies;
 
+<<<<<<< HEAD
 		/* target.Reserved[0]== 1, means that scanned network is a bcn frame. */
 		if ((pnetwork->network.IELength > target->IELength) && (target->Reserved[0] == 1))
 			update_ie = false;
@@ -712,6 +988,15 @@ void rtw_update_scanned_network(struct adapter *adapter, struct wlan_bssid_ex *t
 		if ((target->Reserved[0] != 2) &&
 			(target->Reserved[0] >= pnetwork->network.Reserved[0])
 			) {
+=======
+		/* target.reserved[0]== 1, means that scanned network is a bcn frame. */
+		if (pnetwork->network.ie_length > target->ie_length && target->reserved[0] == 1)
+			update_ie = false;
+
+		/*  probe resp(3) > beacon(1) > probe req(2) */
+		if (target->reserved[0] != 2 &&
+		    target->reserved[0] >= pnetwork->network.reserved[0]) {
+>>>>>>> upstream/android-13
 			update_ie = true;
 		} else {
 			update_ie = false;
@@ -758,10 +1043,17 @@ int rtw_is_desired_network(struct adapter *adapter, struct wlan_network *pnetwor
 	int bselected = true;
 
 	desired_encmode = psecuritypriv->ndisencryptstatus;
+<<<<<<< HEAD
 	privacy = pnetwork->network.Privacy;
 
 	if (check_fwstate(pmlmepriv, WIFI_UNDER_WPS)) {
 		if (rtw_get_wps_ie(pnetwork->network.IEs+_FIXED_IE_LENGTH_, pnetwork->network.IELength-_FIXED_IE_LENGTH_, NULL, &wps_ielen) != NULL)
+=======
+	privacy = pnetwork->network.privacy;
+
+	if (check_fwstate(pmlmepriv, WIFI_UNDER_WPS)) {
+		if (rtw_get_wps_ie(pnetwork->network.ies+_FIXED_IE_LENGTH_, pnetwork->network.ie_length-_FIXED_IE_LENGTH_, NULL, &wps_ielen))
+>>>>>>> upstream/android-13
 			return true;
 		else
 			return false;
@@ -775,6 +1067,7 @@ int rtw_is_desired_network(struct adapter *adapter, struct wlan_network *pnetwor
 	    bselected = false;
 
 		if (psecuritypriv->ndisauthtype == Ndis802_11AuthModeWPA2PSK) {
+<<<<<<< HEAD
 			p = rtw_get_ie(pnetwork->network.IEs + _BEACON_IE_OFFSET_, _RSN_IE_2_, &ie_len, (pnetwork->network.IELength - _BEACON_IE_OFFSET_));
 			if (p && ie_len > 0) {
 				bselected = true;
@@ -796,16 +1089,39 @@ int rtw_is_desired_network(struct adapter *adapter, struct wlan_network *pnetwor
 	}
 
 
+=======
+			p = rtw_get_ie(pnetwork->network.ies + _BEACON_IE_OFFSET_, WLAN_EID_RSN, &ie_len, (pnetwork->network.ie_length - _BEACON_IE_OFFSET_));
+			if (p && ie_len > 0)
+				bselected = true;
+			else
+				bselected = false;
+		}
+	}
+
+	if ((desired_encmode != Ndis802_11EncryptionDisabled) && (privacy == 0))
+		bselected = false;
+
+	if (check_fwstate(pmlmepriv, WIFI_ADHOC_STATE) == true) {
+		if (pnetwork->network.infrastructure_mode != pmlmepriv->cur_network.network.infrastructure_mode)
+			bselected = false;
+	}
+
+>>>>>>> upstream/android-13
 	return bselected;
 }
 
 /* TODO: Perry : For Power Management */
 void rtw_atimdone_event_callback(struct adapter	*adapter, u8 *pbuf)
 {
+<<<<<<< HEAD
 	RT_TRACE(_module_rtl871x_mlme_c_, _drv_err_, ("receive atimdone_evet\n"));
 }
 
 
+=======
+}
+
+>>>>>>> upstream/android-13
 void rtw_survey_event_callback(struct adapter	*adapter, u8 *pbuf)
 {
 	u32 len;
@@ -814,6 +1130,7 @@ void rtw_survey_event_callback(struct adapter	*adapter, u8 *pbuf)
 
 	pnetwork = (struct wlan_bssid_ex *)pbuf;
 
+<<<<<<< HEAD
 	RT_TRACE(_module_rtl871x_mlme_c_, _drv_info_, ("rtw_survey_event_callback, ssid =%s\n",  pnetwork->Ssid.Ssid));
 
 	len = get_wlan_bssid_ex_sz(pnetwork);
@@ -822,11 +1139,17 @@ void rtw_survey_event_callback(struct adapter	*adapter, u8 *pbuf)
 		return;
 	}
 
+=======
+	len = get_wlan_bssid_ex_sz(pnetwork);
+	if (len > (sizeof(struct wlan_bssid_ex)))
+		return;
+>>>>>>> upstream/android-13
 
 	spin_lock_bh(&pmlmepriv->lock);
 
 	/*  update IBSS_network 's timestamp */
 	if ((check_fwstate(pmlmepriv, WIFI_ADHOC_MASTER_STATE)) == true) {
+<<<<<<< HEAD
 		/* RT_TRACE(_module_rtl871x_mlme_c_, _drv_err_,"rtw_survey_event_callback : WIFI_ADHOC_MASTER_STATE\n\n"); */
 		if (!memcmp(&(pmlmepriv->cur_network.network.MacAddress), pnetwork->MacAddress, ETH_ALEN)) {
 			struct wlan_network *ibss_wlan = NULL;
@@ -836,6 +1159,16 @@ void rtw_survey_event_callback(struct adapter	*adapter, u8 *pbuf)
 			ibss_wlan = rtw_find_network(&pmlmepriv->scanned_queue,  pnetwork->MacAddress);
 			if (ibss_wlan) {
 				memcpy(ibss_wlan->network.IEs, pnetwork->IEs, 8);
+=======
+		if (!memcmp(&(pmlmepriv->cur_network.network.mac_address), pnetwork->mac_address, ETH_ALEN)) {
+			struct wlan_network *ibss_wlan = NULL;
+
+			memcpy(pmlmepriv->cur_network.network.ies, pnetwork->ies, 8);
+			spin_lock_bh(&(pmlmepriv->scanned_queue.lock));
+			ibss_wlan = rtw_find_network(&pmlmepriv->scanned_queue,  pnetwork->mac_address);
+			if (ibss_wlan) {
+				memcpy(ibss_wlan->network.ies, pnetwork->ies, 8);
+>>>>>>> upstream/android-13
 				spin_unlock_bh(&(pmlmepriv->scanned_queue.lock));
 				goto exit;
 			}
@@ -845,15 +1178,21 @@ void rtw_survey_event_callback(struct adapter	*adapter, u8 *pbuf)
 
 	/*  lock pmlmepriv->lock when you accessing network_q */
 	if ((check_fwstate(pmlmepriv, _FW_UNDER_LINKING)) == false) {
+<<<<<<< HEAD
 		if (pnetwork->Ssid.Ssid[0] == 0) {
 			pnetwork->Ssid.SsidLength = 0;
 		}
+=======
+		if (pnetwork->ssid.ssid[0] == 0)
+			pnetwork->ssid.ssid_length = 0;
+>>>>>>> upstream/android-13
 		rtw_add_network(adapter, pnetwork);
 	}
 
 exit:
 
 	spin_unlock_bh(&pmlmepriv->lock);
+<<<<<<< HEAD
 
 	return;
 }
@@ -863,6 +1202,12 @@ exit:
 void rtw_surveydone_event_callback(struct adapter	*adapter, u8 *pbuf)
 {
 	u8 timer_cancelled = false;
+=======
+}
+
+void rtw_surveydone_event_callback(struct adapter	*adapter, u8 *pbuf)
+{
+>>>>>>> upstream/android-13
 	struct	mlme_priv *pmlmepriv = &(adapter->mlmepriv);
 
 	spin_lock_bh(&pmlmepriv->lock);
@@ -872,6 +1217,7 @@ void rtw_surveydone_event_callback(struct adapter	*adapter, u8 *pbuf)
 		pmlmepriv->wps_probe_req_ie = NULL;
 	}
 
+<<<<<<< HEAD
 	RT_TRACE(_module_rtl871x_mlme_c_, _drv_info_, ("rtw_surveydone_event_callback: fw_state:%x\n\n", get_fwstate(pmlmepriv)));
 
 	if (check_fwstate(pmlmepriv, _FW_UNDER_SURVEY)) {
@@ -896,28 +1242,50 @@ void rtw_surveydone_event_callback(struct adapter	*adapter, u8 *pbuf)
 	rtw_set_signal_stat_timer(&adapter->recvpriv);
 
 	if (pmlmepriv->to_join == true) {
+=======
+	if (check_fwstate(pmlmepriv, _FW_UNDER_SURVEY)) {
+		del_timer_sync(&pmlmepriv->scan_to_timer);
+		_clr_fwstate_(pmlmepriv, _FW_UNDER_SURVEY);
+	}
+
+	rtw_set_signal_stat_timer(&adapter->recvpriv);
+
+	if (pmlmepriv->to_join) {
+>>>>>>> upstream/android-13
 		if ((check_fwstate(pmlmepriv, WIFI_ADHOC_STATE) == true)) {
 			if (check_fwstate(pmlmepriv, _FW_LINKED) == false) {
 				set_fwstate(pmlmepriv, _FW_UNDER_LINKING);
 
 				if (rtw_select_and_join_from_scanned_queue(pmlmepriv) == _SUCCESS) {
 					_set_timer(&pmlmepriv->assoc_timer, MAX_JOIN_TIMEOUT);
+<<<<<<< HEAD
 				} else{
 					struct wlan_bssid_ex    *pdev_network = &(adapter->registrypriv.dev_network);
 					u8 *pibss = adapter->registrypriv.dev_network.MacAddress;
+=======
+				} else {
+					u8 ret = _SUCCESS;
+					struct wlan_bssid_ex    *pdev_network = &(adapter->registrypriv.dev_network);
+					u8 *pibss = adapter->registrypriv.dev_network.mac_address;
+>>>>>>> upstream/android-13
 
 					/* pmlmepriv->fw_state ^= _FW_UNDER_SURVEY;because don't set assoc_timer */
 					_clr_fwstate_(pmlmepriv, _FW_UNDER_SURVEY);
 
+<<<<<<< HEAD
 					RT_TRACE(_module_rtl871x_mlme_c_, _drv_err_, ("switching to adhoc master\n"));
 
 					memcpy(&pdev_network->Ssid, &pmlmepriv->assoc_ssid, sizeof(struct ndis_802_11_ssid));
+=======
+					memcpy(&pdev_network->ssid, &pmlmepriv->assoc_ssid, sizeof(struct ndis_802_11_ssid));
+>>>>>>> upstream/android-13
 
 					rtw_update_registrypriv_dev_network(adapter);
 					rtw_generate_random_ibss(pibss);
 
 					pmlmepriv->fw_state = WIFI_ADHOC_MASTER_STATE;
 
+<<<<<<< HEAD
 					if (rtw_createbss_cmd(adapter) != _SUCCESS) {
 					RT_TRACE(_module_rtl871x_mlme_c_, _drv_err_, ("Error =>rtw_createbss_cmd status FAIL\n"));
 					}
@@ -927,6 +1295,18 @@ void rtw_surveydone_event_callback(struct adapter	*adapter, u8 *pbuf)
 			}
 		} else{
 			int s_ret;
+=======
+					pmlmepriv->to_join = false;
+
+					ret = rtw_createbss_cmd(adapter);
+					if (ret != _SUCCESS)
+						goto unlock;
+				}
+			}
+		} else {
+			int s_ret;
+
+>>>>>>> upstream/android-13
 			set_fwstate(pmlmepriv, _FW_UNDER_LINKING);
 			pmlmepriv->to_join = false;
 			s_ret = rtw_select_and_join_from_scanned_queue(pmlmepriv);
@@ -935,14 +1315,19 @@ void rtw_surveydone_event_callback(struct adapter	*adapter, u8 *pbuf)
 			} else if (s_ret == 2) {/* there is no need to wait for join */
 				_clr_fwstate_(pmlmepriv, _FW_UNDER_LINKING);
 				rtw_indicate_connect(adapter);
+<<<<<<< HEAD
 			} else{
 				DBG_871X("try_to_join, but select scanning queue fail, to_roam:%d\n", rtw_to_roam(adapter));
 
+=======
+			} else {
+>>>>>>> upstream/android-13
 				if (rtw_to_roam(adapter) != 0) {
 					if (rtw_dec_to_roam(adapter) == 0
 						|| _SUCCESS != rtw_sitesurvey_cmd(adapter, &pmlmepriv->assoc_ssid, 1, NULL, 0)
 					) {
 						rtw_set_to_roam(adapter, 0);
+<<<<<<< HEAD
 #ifdef CONFIG_INTEL_WIDI
 						if (adapter->mlmepriv.widi_state == INTEL_WIDI_STATE_ROAMING) {
 							memset(pmlmepriv->sa_ext, 0x00, L2SDTA_SERVICE_VE_LEN);
@@ -950,6 +1335,8 @@ void rtw_surveydone_event_callback(struct adapter	*adapter, u8 *pbuf)
 							DBG_871X("change to widi listen\n");
 						}
 #endif /*  CONFIG_INTEL_WIDI */
+=======
+>>>>>>> upstream/android-13
 						rtw_free_assoc_resources(adapter, 1);
 						rtw_indicate_disconnect(adapter);
 					} else {
@@ -966,15 +1353,23 @@ void rtw_surveydone_event_callback(struct adapter	*adapter, u8 *pbuf)
 			if (check_fwstate(pmlmepriv, WIFI_STATION_STATE)
 				&& check_fwstate(pmlmepriv, _FW_LINKED)) {
 				if (rtw_select_roaming_candidate(pmlmepriv) == _SUCCESS) {
+<<<<<<< HEAD
 					receive_disconnect(adapter, pmlmepriv->cur_network.network.MacAddress
+=======
+					receive_disconnect(adapter, pmlmepriv->cur_network.network.mac_address
+>>>>>>> upstream/android-13
 						, WLAN_REASON_ACTIVE_ROAM);
 				}
 			}
 		}
 	}
 
+<<<<<<< HEAD
 	/* DBG_871X("scan complete in %dms\n", jiffies_to_msecs(jiffies - pmlmepriv->scan_start_time)); */
 
+=======
+unlock:
+>>>>>>> upstream/android-13
 	spin_unlock_bh(&pmlmepriv->lock);
 
 	rtw_os_xmit_schedule(adapter);
@@ -998,7 +1393,10 @@ static void free_scanqueue(struct	mlme_priv *pmlmepriv)
 	struct __queue *scan_queue = &pmlmepriv->scanned_queue;
 	struct list_head	*plist, *phead, *ptemp;
 
+<<<<<<< HEAD
 	RT_TRACE(_module_rtl871x_mlme_c_, _drv_notice_, ("+free_scanqueue\n"));
+=======
+>>>>>>> upstream/android-13
 	spin_lock_bh(&scan_queue->lock);
 	spin_lock_bh(&free_queue->lock);
 
@@ -1032,12 +1430,18 @@ static void find_network(struct adapter *adapter)
 	struct	mlme_priv *pmlmepriv = &adapter->mlmepriv;
 	struct wlan_network *tgt_network = &pmlmepriv->cur_network;
 
+<<<<<<< HEAD
 	pwlan = rtw_find_network(&pmlmepriv->scanned_queue, tgt_network->network.MacAddress);
 	if (pwlan)
 		pwlan->fixed = false;
 	else
 		RT_TRACE(_module_rtl871x_mlme_c_, _drv_err_, ("rtw_free_assoc_resources : pwlan == NULL\n\n"));
 
+=======
+	pwlan = rtw_find_network(&pmlmepriv->scanned_queue, tgt_network->network.mac_address);
+	if (pwlan)
+		pwlan->fixed = false;
+>>>>>>> upstream/android-13
 
 	if (check_fwstate(pmlmepriv, WIFI_ADHOC_MASTER_STATE) &&
 	    (adapter->stapriv.asoc_sta_count == 1))
@@ -1051,6 +1455,7 @@ void rtw_free_assoc_resources(struct adapter *adapter, int lock_scanned_queue)
 {
 	struct	mlme_priv *pmlmepriv = &adapter->mlmepriv;
 	struct wlan_network *tgt_network = &pmlmepriv->cur_network;
+<<<<<<< HEAD
 	struct	sta_priv *pstapriv = &adapter->stapriv;
 	struct dvobj_priv *psdpriv = adapter->dvobj;
 	struct debug_priv *pdbgpriv = &psdpriv->drv_dbg;
@@ -1068,6 +1473,16 @@ void rtw_free_assoc_resources(struct adapter *adapter, int lock_scanned_queue)
 
 		spin_unlock_bh(&(pstapriv->sta_hash_lock));
 
+=======
+	struct dvobj_priv *psdpriv = adapter->dvobj;
+	struct debug_priv *pdbgpriv = &psdpriv->drv_dbg;
+
+	if (check_fwstate(pmlmepriv, WIFI_STATION_STATE|WIFI_AP_STATE)) {
+		struct sta_info *psta;
+
+		psta = rtw_get_stainfo(&adapter->stapriv, tgt_network->network.mac_address);
+		rtw_free_stainfo(adapter,  psta);
+>>>>>>> upstream/android-13
 	}
 
 	if (check_fwstate(pmlmepriv, WIFI_ADHOC_STATE|WIFI_ADHOC_MASTER_STATE|WIFI_AP_STATE)) {
@@ -1096,8 +1511,11 @@ void rtw_indicate_connect(struct adapter *padapter)
 {
 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
 
+<<<<<<< HEAD
 	RT_TRACE(_module_rtl871x_mlme_c_, _drv_err_, ("+rtw_indicate_connect\n"));
 
+=======
+>>>>>>> upstream/android-13
 	pmlmepriv->to_join = false;
 
 	if (!check_fwstate(&padapter->mlmepriv, _FW_LINKED)) {
@@ -1108,6 +1526,7 @@ void rtw_indicate_connect(struct adapter *padapter)
 	}
 
 	rtw_set_to_roam(padapter, 0);
+<<<<<<< HEAD
 #ifdef CONFIG_INTEL_WIDI
 	if (padapter->mlmepriv.widi_state == INTEL_WIDI_STATE_ROAMING) {
 		memset(pmlmepriv->sa_ext, 0x00, L2SDTA_SERVICE_VE_LEN);
@@ -1119,6 +1538,10 @@ void rtw_indicate_connect(struct adapter *padapter)
 	rtw_set_scan_deny(padapter, 3000);
 
 	RT_TRACE(_module_rtl871x_mlme_c_, _drv_err_, ("-rtw_indicate_connect: fw_state = 0x%08x\n", get_fwstate(pmlmepriv)));
+=======
+	rtw_set_scan_deny(padapter, 3000);
+
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1128,12 +1551,17 @@ void rtw_indicate_disconnect(struct adapter *padapter)
 {
 	struct	mlme_priv *pmlmepriv = &padapter->mlmepriv;
 
+<<<<<<< HEAD
 	RT_TRACE(_module_rtl871x_mlme_c_, _drv_err_, ("+rtw_indicate_disconnect\n"));
 
 	_clr_fwstate_(pmlmepriv, _FW_UNDER_LINKING|WIFI_UNDER_WPS);
 
 	/* DBG_871X("clear wps when %s\n", __func__); */
 
+=======
+	_clr_fwstate_(pmlmepriv, _FW_UNDER_LINKING|WIFI_UNDER_WPS);
+
+>>>>>>> upstream/android-13
 	if (rtw_to_roam(padapter) > 0)
 		_clr_fwstate_(pmlmepriv, _FW_LINKED);
 
@@ -1155,17 +1583,23 @@ void rtw_indicate_disconnect(struct adapter *padapter)
 
 inline void rtw_indicate_scan_done(struct adapter *padapter, bool aborted)
 {
+<<<<<<< HEAD
 	DBG_871X(FUNC_ADPT_FMT"\n", FUNC_ADPT_ARG(padapter));
 
+=======
+>>>>>>> upstream/android-13
 	rtw_os_indicate_scan_done(padapter, aborted);
 
 	if (is_primary_adapter(padapter) &&
 	    (!adapter_to_pwrctl(padapter)->bInSuspend) &&
 	    (!check_fwstate(&padapter->mlmepriv,
 			    WIFI_ASOC_STATE|WIFI_UNDER_LINKING))) {
+<<<<<<< HEAD
 		struct pwrctrl_priv *pwrpriv;
 
 		pwrpriv = adapter_to_pwrctl(padapter);
+=======
+>>>>>>> upstream/android-13
 		rtw_set_ips_deny(padapter, 0);
 		_set_timer(&padapter->mlmepriv.dynamic_chk_timer, 1);
 	}
@@ -1185,6 +1619,7 @@ void rtw_scan_abort(struct adapter *adapter)
 		if (adapter->bDriverStopped || adapter->bSurpriseRemoved)
 			break;
 
+<<<<<<< HEAD
 		DBG_871X(FUNC_NDEV_FMT"fw_state = _FW_UNDER_SURVEY!\n", FUNC_NDEV_ARG(adapter->pnetdev));
 		msleep(20);
 	}
@@ -1194,6 +1629,14 @@ void rtw_scan_abort(struct adapter *adapter)
 			DBG_871X(FUNC_NDEV_FMT"waiting for scan_abort time out!\n", FUNC_NDEV_ARG(adapter->pnetdev));
 		rtw_indicate_scan_done(adapter, true);
 	}
+=======
+		msleep(20);
+	}
+
+	if (check_fwstate(pmlmepriv, _FW_UNDER_SURVEY))
+		rtw_indicate_scan_done(adapter, true);
+
+>>>>>>> upstream/android-13
 	pmlmeext->scan_abort = false;
 }
 
@@ -1205,6 +1648,7 @@ static struct sta_info *rtw_joinbss_update_stainfo(struct adapter *padapter, str
 	struct sta_priv *pstapriv = &padapter->stapriv;
 	struct mlme_ext_priv *pmlmeext = &padapter->mlmeextpriv;
 
+<<<<<<< HEAD
 	psta = rtw_get_stainfo(pstapriv, pnetwork->network.MacAddress);
 	if (psta == NULL) {
 		psta = rtw_alloc_stainfo(pstapriv, pnetwork->network.MacAddress);
@@ -1214,11 +1658,20 @@ static struct sta_info *rtw_joinbss_update_stainfo(struct adapter *padapter, str
 
 		DBG_871X("%s\n", __func__);
 
+=======
+	psta = rtw_get_stainfo(pstapriv, pnetwork->network.mac_address);
+	if (!psta)
+		psta = rtw_alloc_stainfo(pstapriv, pnetwork->network.mac_address);
+
+	if (psta) { /* update ptarget_sta */
+
+>>>>>>> upstream/android-13
 		psta->aid  = pnetwork->join_res;
 
 		update_sta_info(padapter, psta);
 
 		/* update station supportRate */
+<<<<<<< HEAD
 		psta->bssratelen = rtw_get_rateset_len(pnetwork->network.SupportedRates);
 		memcpy(psta->bssrateset, pnetwork->network.SupportedRates, psta->bssratelen);
 		rtw_hal_update_sta_rate_mask(padapter, psta);
@@ -1226,6 +1679,14 @@ static struct sta_info *rtw_joinbss_update_stainfo(struct adapter *padapter, str
 		psta->wireless_mode = pmlmeext->cur_wireless_mode;
 		psta->raid = rtw_hal_networktype_to_raid(padapter, psta);
 
+=======
+		psta->bssratelen = rtw_get_rateset_len(pnetwork->network.supported_rates);
+		memcpy(psta->bssrateset, pnetwork->network.supported_rates, psta->bssratelen);
+		rtw_hal_update_sta_rate_mask(padapter, psta);
+
+		psta->wireless_mode = pmlmeext->cur_wireless_mode;
+		psta->raid = networktype_to_raid_ex(padapter, psta);
+>>>>>>> upstream/android-13
 
 		/* sta mode */
 		rtw_hal_set_odm_var(padapter, HAL_ODM_STA_INFO, psta, true);
@@ -1258,7 +1719,10 @@ static struct sta_info *rtw_joinbss_update_stainfo(struct adapter *padapter, str
 			padapter->securitypriv.wps_ie_len = 0;
 		}
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 		/* for A-MPDU Rx reordering buffer control for bmc_sta & sta_info */
 		/* if A-MPDU Rx is enabled, resetting  rx_ordering_ctrl wstart_b(indicate_seq) to default value = 0xffff */
 		/* todo: check if AP can send A-MPDU packets */
@@ -1267,15 +1731,21 @@ static struct sta_info *rtw_joinbss_update_stainfo(struct adapter *padapter, str
 			preorder_ctrl = &psta->recvreorder_ctrl[i];
 			preorder_ctrl->enable = false;
 			preorder_ctrl->indicate_seq = 0xffff;
+<<<<<<< HEAD
 			#ifdef DBG_RX_SEQ
 			DBG_871X("DBG_RX_SEQ %s:%d indicate_seq:%u\n", __func__, __LINE__,
 				preorder_ctrl->indicate_seq);
 			#endif
+=======
+>>>>>>> upstream/android-13
 			preorder_ctrl->wend_b = 0xffff;
 			preorder_ctrl->wsize_b = 64;/* max_ampdu_sz;ex. 32(kbytes) -> wsize_b =32 */
 		}
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 		bmc_sta = rtw_get_bcmc_stainfo(padapter);
 		if (bmc_sta) {
 			for (i = 0; i < 16 ; i++) {
@@ -1283,10 +1753,13 @@ static struct sta_info *rtw_joinbss_update_stainfo(struct adapter *padapter, str
 				preorder_ctrl = &bmc_sta->recvreorder_ctrl[i];
 				preorder_ctrl->enable = false;
 				preorder_ctrl->indicate_seq = 0xffff;
+<<<<<<< HEAD
 				#ifdef DBG_RX_SEQ
 				DBG_871X("DBG_RX_SEQ %s:%d indicate_seq:%u\n", __func__, __LINE__,
 					preorder_ctrl->indicate_seq);
 				#endif
+=======
+>>>>>>> upstream/android-13
 				preorder_ctrl->wend_b = 0xffff;
 				preorder_ctrl->wsize_b = 64;/* max_ampdu_sz;ex. 32(kbytes) -> wsize_b =32 */
 			}
@@ -1304,6 +1777,7 @@ static void rtw_joinbss_update_network(struct adapter *padapter, struct wlan_net
 	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);
 	struct wlan_network  *cur_network = &(pmlmepriv->cur_network);
 
+<<<<<<< HEAD
 	DBG_871X("%s\n", __func__);
 
 	RT_TRACE(_module_rtl871x_mlme_c_, _drv_info_, ("\nfw_state:%x, BSSID:"MAC_FMT"\n"
@@ -1334,11 +1808,31 @@ static void rtw_joinbss_update_network(struct adapter *padapter, struct wlan_net
 			, padapter->recvpriv.signal_qual
 	);
 	#endif
+=======
+	/*  why not use ptarget_wlan?? */
+	memcpy(&cur_network->network, &pnetwork->network, pnetwork->network.length);
+	/*  some ies in pnetwork is wrong, so we should use ptarget_wlan ies */
+	cur_network->network.ie_length = ptarget_wlan->network.ie_length;
+	memcpy(&cur_network->network.ies[0], &ptarget_wlan->network.ies[0], MAX_IE_SZ);
+
+	cur_network->aid = pnetwork->join_res;
+
+	rtw_set_signal_stat_timer(&padapter->recvpriv);
+
+	padapter->recvpriv.signal_strength = ptarget_wlan->network.phy_info.signal_strength;
+	padapter->recvpriv.signal_qual = ptarget_wlan->network.phy_info.signal_quality;
+	/* the ptarget_wlan->network.rssi is raw data, we use ptarget_wlan->network.phy_info.signal_strength instead (has scaled) */
+	padapter->recvpriv.rssi = translate_percentage_to_dbm(ptarget_wlan->network.phy_info.signal_strength);
+>>>>>>> upstream/android-13
 
 	rtw_set_signal_stat_timer(&padapter->recvpriv);
 
 	/* update fw_state will clr _FW_UNDER_LINKING here indirectly */
+<<<<<<< HEAD
 	switch (pnetwork->network.InfrastructureMode) {
+=======
+	switch (pnetwork->network.infrastructure_mode) {
+>>>>>>> upstream/android-13
 	case Ndis802_11Infrastructure:
 
 			if (pmlmepriv->fw_state&WIFI_UNDER_WPS)
@@ -1352,6 +1846,7 @@ static void rtw_joinbss_update_network(struct adapter *padapter, struct wlan_net
 			break;
 	default:
 			pmlmepriv->fw_state = WIFI_NULL_STATE;
+<<<<<<< HEAD
 			RT_TRACE(_module_rtl871x_mlme_c_, _drv_err_, ("Invalid network_mode\n"));
 			break;
 	}
@@ -1360,6 +1855,15 @@ static void rtw_joinbss_update_network(struct adapter *padapter, struct wlan_net
 									(cur_network->network.IELength));
 
 	rtw_update_ht_cap(padapter, cur_network->network.IEs, cur_network->network.IELength, (u8) cur_network->network.Configuration.DSConfig);
+=======
+			break;
+	}
+
+	rtw_update_protection(padapter, (cur_network->network.ies) + sizeof(struct ndis_802_11_fix_ie),
+									(cur_network->network.ie_length));
+
+	rtw_update_ht_cap(padapter, cur_network->network.ies, cur_network->network.ie_length, (u8) cur_network->network.configuration.ds_config);
+>>>>>>> upstream/android-13
 }
 
 /* Notes: the function could be > passive_level (the same context as Rx tasklet) */
@@ -1372,8 +1876,12 @@ static void rtw_joinbss_update_network(struct adapter *padapter, struct wlan_net
 /* define REJOIN */
 void rtw_joinbss_event_prehandle(struct adapter *adapter, u8 *pbuf)
 {
+<<<<<<< HEAD
 	static u8 retry;
 	u8 timer_cancelled;
+=======
+	static u8 __maybe_unused retry;
+>>>>>>> upstream/android-13
 	struct sta_info *ptarget_sta = NULL, *pcur_sta = NULL;
 	struct	sta_priv *pstapriv = &adapter->stapriv;
 	struct	mlme_priv *pmlmepriv = &(adapter->mlmepriv);
@@ -1382,6 +1890,7 @@ void rtw_joinbss_event_prehandle(struct adapter *adapter, u8 *pbuf)
 	struct wlan_network	*pcur_wlan = NULL, *ptarget_wlan = NULL;
 	unsigned int		the_same_macaddr = false;
 
+<<<<<<< HEAD
 	RT_TRACE(_module_rtl871x_mlme_c_, _drv_info_, ("joinbss event call back received with res =%d\n", pnetwork->join_res));
 
 	rtw_get_encrypt_decrypt_from_registrypriv(adapter);
@@ -1400,20 +1909,33 @@ void rtw_joinbss_event_prehandle(struct adapter *adapter, u8 *pbuf)
 		RT_TRACE(_module_rtl871x_mlme_c_, _drv_err_, ("\n\n ***joinbss_evt_callback return a wrong bss ***\n\n"));
 		return;
 	}
+=======
+	rtw_get_encrypt_decrypt_from_registrypriv(adapter);
+
+	the_same_macaddr = !memcmp(pnetwork->network.mac_address, cur_network->network.mac_address, ETH_ALEN);
+
+	pnetwork->network.length = get_wlan_bssid_ex_sz(&pnetwork->network);
+	if (pnetwork->network.length > sizeof(struct wlan_bssid_ex))
+		return;
+>>>>>>> upstream/android-13
 
 	spin_lock_bh(&pmlmepriv->lock);
 
 	pmlmepriv->LinkDetectInfo.TrafficTransitionCount = 0;
 	pmlmepriv->LinkDetectInfo.LowPowerTransitionCount = 0;
 
+<<<<<<< HEAD
 	RT_TRACE(_module_rtl871x_mlme_c_, _drv_info_, ("\n rtw_joinbss_event_callback !! spin_lock_irqsave\n"));
 
+=======
+>>>>>>> upstream/android-13
 	if (pnetwork->join_res > 0) {
 		spin_lock_bh(&(pmlmepriv->scanned_queue.lock));
 		retry = 0;
 		if (check_fwstate(pmlmepriv, _FW_UNDER_LINKING)) {
 			/* s1. find ptarget_wlan */
 			if (check_fwstate(pmlmepriv, _FW_LINKED)) {
+<<<<<<< HEAD
 				if (the_same_macaddr == true) {
 					ptarget_wlan = rtw_find_network(&pmlmepriv->scanned_queue, cur_network->network.MacAddress);
 				} else{
@@ -1426,13 +1948,31 @@ void rtw_joinbss_event_prehandle(struct adapter *adapter, u8 *pbuf)
 						rtw_free_stainfo(adapter,  pcur_sta);
 
 					ptarget_wlan = rtw_find_network(&pmlmepriv->scanned_queue, pnetwork->network.MacAddress);
+=======
+				if (the_same_macaddr) {
+					ptarget_wlan = rtw_find_network(&pmlmepriv->scanned_queue, cur_network->network.mac_address);
+				} else {
+					pcur_wlan = rtw_find_network(&pmlmepriv->scanned_queue, cur_network->network.mac_address);
+					if (pcur_wlan)
+						pcur_wlan->fixed = false;
+
+					pcur_sta = rtw_get_stainfo(pstapriv, cur_network->network.mac_address);
+					if (pcur_sta)
+						rtw_free_stainfo(adapter,  pcur_sta);
+
+					ptarget_wlan = rtw_find_network(&pmlmepriv->scanned_queue, pnetwork->network.mac_address);
+>>>>>>> upstream/android-13
 					if (check_fwstate(pmlmepriv, WIFI_STATION_STATE) == true) {
 						if (ptarget_wlan)
 							ptarget_wlan->fixed = true;
 					}
 				}
 
+<<<<<<< HEAD
 			} else{
+=======
+			} else {
+>>>>>>> upstream/android-13
 				ptarget_wlan = _rtw_find_same_network(&pmlmepriv->scanned_queue, pnetwork);
 				if (check_fwstate(pmlmepriv, WIFI_STATION_STATE) == true) {
 					if (ptarget_wlan)
@@ -1443,18 +1983,31 @@ void rtw_joinbss_event_prehandle(struct adapter *adapter, u8 *pbuf)
 			/* s2. update cur_network */
 			if (ptarget_wlan) {
 				rtw_joinbss_update_network(adapter, ptarget_wlan, pnetwork);
+<<<<<<< HEAD
 			} else{
 				DBG_871X_LEVEL(_drv_always_, "Can't find ptarget_wlan when joinbss_event callback\n");
+=======
+			} else {
+				netdev_dbg(adapter->pnetdev,
+					   "Can't find ptarget_wlan when joinbss_event callback\n");
+>>>>>>> upstream/android-13
 				spin_unlock_bh(&(pmlmepriv->scanned_queue.lock));
 				goto ignore_joinbss_callback;
 			}
 
+<<<<<<< HEAD
 
 			/* s3. find ptarget_sta & update ptarget_sta after update cur_network only for station mode */
 			if (check_fwstate(pmlmepriv, WIFI_STATION_STATE) == true) {
 				ptarget_sta = rtw_joinbss_update_stainfo(adapter, pnetwork);
 				if (ptarget_sta == NULL) {
 					RT_TRACE(_module_rtl871x_mlme_c_, _drv_err_, ("Can't update stainfo when joinbss_event callback\n"));
+=======
+			/* s3. find ptarget_sta & update ptarget_sta after update cur_network only for station mode */
+			if (check_fwstate(pmlmepriv, WIFI_STATION_STATE) == true) {
+				ptarget_sta = rtw_joinbss_update_stainfo(adapter, pnetwork);
+				if (!ptarget_sta) {
+>>>>>>> upstream/android-13
 					spin_unlock_bh(&(pmlmepriv->scanned_queue.lock));
 					goto ignore_joinbss_callback;
 				}
@@ -1464,6 +2017,7 @@ void rtw_joinbss_event_prehandle(struct adapter *adapter, u8 *pbuf)
 			if (check_fwstate(pmlmepriv, WIFI_STATION_STATE) == true) {
 				pmlmepriv->cur_network_scanned = ptarget_wlan;
 				rtw_indicate_connect(adapter);
+<<<<<<< HEAD
 			} else{
 				/* adhoc mode will rtw_indicate_connect when rtw_stassoc_event_callback */
 				RT_TRACE(_module_rtl871x_mlme_c_, _drv_info_, ("adhoc mode, fw_state:%x", get_fwstate(pmlmepriv)));
@@ -1483,12 +2037,24 @@ void rtw_joinbss_event_prehandle(struct adapter *adapter, u8 *pbuf)
 
 		spin_unlock_bh(&(pmlmepriv->scanned_queue.lock));
 
+=======
+			}
+
+			spin_unlock_bh(&pmlmepriv->scanned_queue.lock);
+
+			/* s5. Cancel assoc_timer */
+			del_timer_sync(&pmlmepriv->assoc_timer);
+		} else {
+			spin_unlock_bh(&(pmlmepriv->scanned_queue.lock));
+		}
+>>>>>>> upstream/android-13
 	} else if (pnetwork->join_res == -4) {
 		rtw_reset_securitypriv(adapter);
 		_set_timer(&pmlmepriv->assoc_timer, 1);
 
 		/* rtw_free_assoc_resources(adapter, 1); */
 
+<<<<<<< HEAD
 		if ((check_fwstate(pmlmepriv, _FW_UNDER_LINKING)) == true) {
 			RT_TRACE(_module_rtl871x_mlme_c_, _drv_err_, ("fail! clear _FW_UNDER_LINKING ^^^fw_state =%x\n", get_fwstate(pmlmepriv)));
 			_clr_fwstate_(pmlmepriv, _FW_UNDER_LINKING);
@@ -1502,6 +2068,17 @@ void rtw_joinbss_event_prehandle(struct adapter *adapter, u8 *pbuf)
 			res = rtw_select_and_join_from_scanned_queue(pmlmepriv);
 			RT_TRACE(_module_rtl871x_mlme_c_, _drv_err_, ("rtw_select_and_join_from_scanned_queue again! res:%d\n", res));
 		}
+=======
+		if ((check_fwstate(pmlmepriv, _FW_UNDER_LINKING)) == true)
+			_clr_fwstate_(pmlmepriv, _FW_UNDER_LINKING);
+
+	} else {/* if join_res < 0 (join fails), then try again */
+
+		#ifdef REJOIN
+		res = _FAIL;
+		if (retry < 2)
+			res = rtw_select_and_join_from_scanned_queue(pmlmepriv);
+>>>>>>> upstream/android-13
 
 		if (res == _SUCCESS) {
 			/* extend time of assoc_timer */
@@ -1510,8 +2087,12 @@ void rtw_joinbss_event_prehandle(struct adapter *adapter, u8 *pbuf)
 		} else if (res == 2) {/* there is no need to wait for join */
 			_clr_fwstate_(pmlmepriv, _FW_UNDER_LINKING);
 			rtw_indicate_connect(adapter);
+<<<<<<< HEAD
 		} else{
 			RT_TRACE(_module_rtl871x_mlme_c_, _drv_err_, ("Set Assoc_Timer = 1; can't find match ssid in scanned_q\n"));
+=======
+		} else {
+>>>>>>> upstream/android-13
 		#endif
 
 			_set_timer(&pmlmepriv->assoc_timer, 1);
@@ -1543,7 +2124,11 @@ void rtw_sta_media_status_rpt(struct adapter *adapter, struct sta_info *psta, u3
 {
 	u16 media_status_rpt;
 
+<<<<<<< HEAD
 	if (psta == NULL)
+=======
+	if (!psta)
+>>>>>>> upstream/android-13
 		return;
 
 	media_status_rpt = (u16)((psta->mac_id<<8)|mstatus); /*   MACID|OPMODE:1 connect */
@@ -1569,12 +2154,18 @@ void rtw_stassoc_event_callback(struct adapter *adapter, u8 *pbuf)
 
 			rtw_sta_media_status_rpt(adapter, psta, 1);
 
+<<<<<<< HEAD
 #ifndef CONFIG_AUTO_AP_MODE
 
 			ap_sta_info_defer_update(adapter, psta);
 
 			/* report to upper layer */
 			DBG_871X("indicate_sta_assoc_event to upper layer - hostapd\n");
+=======
+			ap_sta_info_defer_update(adapter, psta);
+
+			/* report to upper layer */
+>>>>>>> upstream/android-13
 			spin_lock_bh(&psta->lock);
 			if (psta->passoc_req && psta->assoc_req_len > 0) {
 				passoc_req = rtw_zmalloc(psta->assoc_req_len);
@@ -1594,32 +2185,50 @@ void rtw_stassoc_event_callback(struct adapter *adapter, u8 *pbuf)
 
 				kfree(passoc_req);
 			}
+<<<<<<< HEAD
 #endif /* CONFIG_AUTO_AP_MODE */
+=======
+>>>>>>> upstream/android-13
 		}
 		return;
 	}
 
 	/* for AD-HOC mode */
 	psta = rtw_get_stainfo(&adapter->stapriv, pstassoc->macaddr);
+<<<<<<< HEAD
 	if (psta != NULL) {
 		/* the sta have been in sta_info_queue => do nothing */
 
 		RT_TRACE(_module_rtl871x_mlme_c_, _drv_err_, ("Error: rtw_stassoc_event_callback: sta has been in sta_hash_queue\n"));
 
+=======
+	if (psta) {
+		/* the sta have been in sta_info_queue => do nothing */
+
+>>>>>>> upstream/android-13
 		return; /* between drv has received this event before and  fw have not yet to set key to CAM_ENTRY) */
 	}
 
 	psta = rtw_alloc_stainfo(&adapter->stapriv, pstassoc->macaddr);
+<<<<<<< HEAD
 	if (psta == NULL) {
 		RT_TRACE(_module_rtl871x_mlme_c_, _drv_err_, ("Can't alloc sta_info when rtw_stassoc_event_callback\n"));
 		return;
 	}
+=======
+	if (!psta)
+		return;
+>>>>>>> upstream/android-13
 
 	/* to do : init sta_info variable */
 	psta->qos_option = 0;
 	psta->mac_id = (uint)pstassoc->cam_id;
 	/* psta->aid = (uint)pstassoc->cam_id; */
+<<<<<<< HEAD
 	DBG_871X("%s\n", __func__);
+=======
+
+>>>>>>> upstream/android-13
 	/* for ad-hoc mode */
 	rtw_hal_set_odm_var(adapter, HAL_ODM_STA_INFO, psta, true);
 
@@ -1628,7 +2237,10 @@ void rtw_stassoc_event_callback(struct adapter *adapter, u8 *pbuf)
 	if (adapter->securitypriv.dot11AuthAlgrthm == dot11AuthAlgrthm_8021X)
 		psta->dot118021XPrivacy = adapter->securitypriv.dot11PrivacyAlgrthm;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	psta->ieee8021x_blocked = false;
 
 	spin_lock_bh(&pmlmepriv->lock);
@@ -1637,7 +2249,11 @@ void rtw_stassoc_event_callback(struct adapter *adapter, u8 *pbuf)
 		(check_fwstate(pmlmepriv, WIFI_ADHOC_STATE) == true)) {
 		if (adapter->stapriv.asoc_sta_count == 2) {
 			spin_lock_bh(&(pmlmepriv->scanned_queue.lock));
+<<<<<<< HEAD
 			ptarget_wlan = rtw_find_network(&pmlmepriv->scanned_queue, cur_network->network.MacAddress);
+=======
+			ptarget_wlan = rtw_find_network(&pmlmepriv->scanned_queue, cur_network->network.mac_address);
+>>>>>>> upstream/android-13
 			pmlmepriv->cur_network_scanned = ptarget_wlan;
 			if (ptarget_wlan)
 				ptarget_wlan->fixed = true;
@@ -1649,7 +2265,10 @@ void rtw_stassoc_event_callback(struct adapter *adapter, u8 *pbuf)
 
 	spin_unlock_bh(&pmlmepriv->lock);
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	mlmeext_sta_add_event_callback(adapter, psta);
 }
 
@@ -1672,10 +2291,16 @@ void rtw_stadel_event_callback(struct adapter *adapter, u8 *pbuf)
 	else
 		mac_id = pstadel->mac_id;
 
+<<<<<<< HEAD
 	DBG_871X("%s(mac_id =%d) =" MAC_FMT "\n", __func__, mac_id, MAC_ARG(pstadel->macaddr));
 
 	if (mac_id >= 0) {
 		u16 media_status;
+=======
+	if (mac_id >= 0) {
+		u16 media_status;
+
+>>>>>>> upstream/android-13
 		media_status = (mac_id<<8)|0; /*   MACID|OPMODE:0 means disconnect */
 		/* for STA, AP, ADHOC mode, report disconnect stauts to FW */
 		rtw_hal_set_hwreg(adapter, HW_VAR_H2C_MEDIA_STATUS_RPT, (u8 *)&media_status);
@@ -1685,7 +2310,10 @@ void rtw_stadel_event_callback(struct adapter *adapter, u8 *pbuf)
 	if ((pmlmeinfo->state&0x03) == WIFI_FW_AP_STATE)
 		return;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	mlmeext_sta_del_event_callback(adapter);
 
 	spin_lock_bh(&pmlmepriv->lock);
@@ -1703,6 +2331,7 @@ void rtw_stadel_event_callback(struct adapter *adapter, u8 *pbuf)
 			roam = true;
 			roam_target = pmlmepriv->roam_network;
 		}
+<<<<<<< HEAD
 #ifdef CONFIG_INTEL_WIDI
 		else if (adapter->mlmepriv.widi_state == INTEL_WIDI_STATE_CONNECTED) {
 			roam = true;
@@ -1710,6 +2339,10 @@ void rtw_stadel_event_callback(struct adapter *adapter, u8 *pbuf)
 #endif /*  CONFIG_INTEL_WIDI */
 
 		if (roam == true) {
+=======
+
+		if (roam) {
+>>>>>>> upstream/android-13
 			if (rtw_to_roam(adapter) > 0)
 				rtw_dec_to_roam(adapter); /* this stadel_event is caused by roaming, decrease to_roam */
 			else if (rtw_to_roam(adapter) == 0)
@@ -1725,18 +2358,25 @@ void rtw_stadel_event_callback(struct adapter *adapter, u8 *pbuf)
 
 		spin_lock_bh(&(pmlmepriv->scanned_queue.lock));
 		/*  remove the network entry in scanned_queue */
+<<<<<<< HEAD
 		pwlan = rtw_find_network(&pmlmepriv->scanned_queue, tgt_network->network.MacAddress);
+=======
+		pwlan = rtw_find_network(&pmlmepriv->scanned_queue, tgt_network->network.mac_address);
+>>>>>>> upstream/android-13
 		if (pwlan) {
 			pwlan->fixed = false;
 			rtw_free_network_nolock(adapter, pwlan);
 		}
 		spin_unlock_bh(&(pmlmepriv->scanned_queue.lock));
 
+<<<<<<< HEAD
 #ifdef CONFIG_INTEL_WIDI
 		if (!rtw_to_roam(adapter))
 			process_intel_widi_disconnect(adapter, 1);
 #endif /*  CONFIG_INTEL_WIDI */
 
+=======
+>>>>>>> upstream/android-13
 		_rtw_roaming(adapter, roam_target);
 	}
 
@@ -1746,11 +2386,19 @@ void rtw_stadel_event_callback(struct adapter *adapter, u8 *pbuf)
 		rtw_free_stainfo(adapter,  psta);
 
 		if (adapter->stapriv.asoc_sta_count == 1) {/* a sta + bc/mc_stainfo (not Ibss_stainfo) */
+<<<<<<< HEAD
+=======
+			u8 ret = _SUCCESS;
+>>>>>>> upstream/android-13
 			/* rtw_indicate_disconnect(adapter);removed@20091105 */
 			spin_lock_bh(&(pmlmepriv->scanned_queue.lock));
 			/* free old ibss network */
 			/* pwlan = rtw_find_network(&pmlmepriv->scanned_queue, pstadel->macaddr); */
+<<<<<<< HEAD
 			pwlan = rtw_find_network(&pmlmepriv->scanned_queue, tgt_network->network.MacAddress);
+=======
+			pwlan = rtw_find_network(&pmlmepriv->scanned_queue, tgt_network->network.mac_address);
+>>>>>>> upstream/android-13
 			if (pwlan) {
 				pwlan->fixed = false;
 				rtw_free_network_nolock(adapter, pwlan);
@@ -1758,11 +2406,19 @@ void rtw_stadel_event_callback(struct adapter *adapter, u8 *pbuf)
 			spin_unlock_bh(&(pmlmepriv->scanned_queue.lock));
 			/* re-create ibss */
 			pdev_network = &(adapter->registrypriv.dev_network);
+<<<<<<< HEAD
 			pibss = adapter->registrypriv.dev_network.MacAddress;
 
 			memcpy(pdev_network, &tgt_network->network, get_wlan_bssid_ex_sz(&tgt_network->network));
 
 			memcpy(&pdev_network->Ssid, &pmlmepriv->assoc_ssid, sizeof(struct ndis_802_11_ssid));
+=======
+			pibss = adapter->registrypriv.dev_network.mac_address;
+
+			memcpy(pdev_network, &tgt_network->network, get_wlan_bssid_ex_sz(&tgt_network->network));
+
+			memcpy(&pdev_network->ssid, &pmlmepriv->assoc_ssid, sizeof(struct ndis_802_11_ssid));
+>>>>>>> upstream/android-13
 
 			rtw_update_registrypriv_dev_network(adapter);
 
@@ -1773,6 +2429,7 @@ void rtw_stadel_event_callback(struct adapter *adapter, u8 *pbuf)
 				_clr_fwstate_(pmlmepriv, WIFI_ADHOC_STATE);
 			}
 
+<<<<<<< HEAD
 			if (rtw_createbss_cmd(adapter) != _SUCCESS) {
 
 				RT_TRACE(_module_rtl871x_ioctl_set_c_, _drv_err_, ("***Error =>stadel_event_callback: rtw_createbss_cmd status FAIL***\n "));
@@ -1780,10 +2437,19 @@ void rtw_stadel_event_callback(struct adapter *adapter, u8 *pbuf)
 			}
 
 
+=======
+			ret = rtw_createbss_cmd(adapter);
+			if (ret != _SUCCESS)
+				goto unlock;
+>>>>>>> upstream/android-13
 		}
 
 	}
 
+<<<<<<< HEAD
+=======
+unlock:
+>>>>>>> upstream/android-13
 	spin_unlock_bh(&pmlmepriv->lock);
 }
 
@@ -1791,13 +2457,19 @@ void rtw_cpwm_event_callback(struct adapter *padapter, u8 *pbuf)
 {
 	struct reportpwrstate_parm *preportpwrstate;
 
+<<<<<<< HEAD
 	RT_TRACE(_module_rtl871x_mlme_c_, _drv_err_, ("+rtw_cpwm_event_callback !!!\n"));
+=======
+>>>>>>> upstream/android-13
 	preportpwrstate = (struct reportpwrstate_parm *)pbuf;
 	preportpwrstate->state |= (u8)(adapter_to_pwrctl(padapter)->cpwm_tog + 0x80);
 	cpwm_int_hdl(padapter, preportpwrstate);
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 void rtw_wmm_event_callback(struct adapter *padapter, u8 *pbuf)
 {
 	WMMOnAssocRsp(padapter);
@@ -1813,8 +2485,11 @@ void _rtw_join_timeout_handler(struct timer_list *t)
 						  mlmepriv.assoc_timer);
 	struct	mlme_priv *pmlmepriv = &adapter->mlmepriv;
 
+<<<<<<< HEAD
 	DBG_871X("%s, fw_state =%x\n", __func__, get_fwstate(pmlmepriv));
 
+=======
+>>>>>>> upstream/android-13
 	if (adapter->bDriverStopped || adapter->bSurpriseRemoved)
 		return;
 
@@ -1825,14 +2500,21 @@ void _rtw_join_timeout_handler(struct timer_list *t)
 			rtw_dec_to_roam(adapter);
 			if (rtw_to_roam(adapter) != 0) { /* try another */
 				int do_join_r;
+<<<<<<< HEAD
 				DBG_871X("%s try another roaming\n", __func__);
 				do_join_r = rtw_do_join(adapter);
 				if (_SUCCESS != do_join_r) {
 					DBG_871X("%s roaming do_join return %d\n", __func__, do_join_r);
+=======
+
+				do_join_r = rtw_do_join(adapter);
+				if (_SUCCESS != do_join_r) {
+>>>>>>> upstream/android-13
 					continue;
 				}
 				break;
 			} else {
+<<<<<<< HEAD
 #ifdef CONFIG_INTEL_WIDI
 				if (adapter->mlmepriv.widi_state == INTEL_WIDI_STATE_ROAMING) {
 					memset(pmlmepriv->sa_ext, 0x00, L2SDTA_SERVICE_VE_LEN);
@@ -1841,12 +2523,18 @@ void _rtw_join_timeout_handler(struct timer_list *t)
 				}
 #endif /*  CONFIG_INTEL_WIDI */
 				DBG_871X("%s We've try roaming but fail\n", __func__);
+=======
+>>>>>>> upstream/android-13
 				rtw_indicate_disconnect(adapter);
 				break;
 			}
 		}
 
+<<<<<<< HEAD
 	} else{
+=======
+	} else {
+>>>>>>> upstream/android-13
 		rtw_indicate_disconnect(adapter);
 		free_scanqueue(pmlmepriv);/*  */
 
@@ -1868,8 +2556,11 @@ void rtw_scan_timeout_handler(struct timer_list *t)
 						  mlmepriv.scan_to_timer);
 	struct	mlme_priv *pmlmepriv = &adapter->mlmepriv;
 
+<<<<<<< HEAD
 	DBG_871X(FUNC_ADPT_FMT" fw_state =%x\n", FUNC_ADPT_ARG(adapter), get_fwstate(pmlmepriv));
 
+=======
+>>>>>>> upstream/android-13
 	spin_lock_bh(&pmlmepriv->lock);
 
 	_clr_fwstate_(pmlmepriv, _FW_UNDER_SURVEY);
@@ -1894,8 +2585,11 @@ void rtw_mlme_reset_auto_scan_int(struct adapter *adapter)
 			mlme->auto_scan_int_ms = mlme->roam_scan_int_ms;
 	} else
 		mlme->auto_scan_int_ms = 0; /* disabled */
+<<<<<<< HEAD
 
 	return;
+=======
+>>>>>>> upstream/android-13
 }
 
 static void rtw_auto_scan_handler(struct adapter *padapter)
@@ -1908,6 +2602,7 @@ static void rtw_auto_scan_handler(struct adapter *padapter)
 		&& jiffies_to_msecs(jiffies - pmlmepriv->scan_start_time) > pmlmepriv->auto_scan_int_ms) {
 
 		if (!padapter->registrypriv.wifi_spec) {
+<<<<<<< HEAD
 			if (check_fwstate(pmlmepriv, _FW_UNDER_SURVEY|_FW_UNDER_LINKING) == true) {
 				DBG_871X(FUNC_ADPT_FMT" _FW_UNDER_SURVEY|_FW_UNDER_LINKING\n", FUNC_ADPT_ARG(padapter));
 				goto exit;
@@ -1921,6 +2616,15 @@ static void rtw_auto_scan_handler(struct adapter *padapter)
 
 		DBG_871X(FUNC_ADPT_FMT"\n", FUNC_ADPT_ARG(padapter));
 
+=======
+			if (check_fwstate(pmlmepriv, _FW_UNDER_SURVEY | _FW_UNDER_LINKING) == true)
+				goto exit;
+
+			if (pmlmepriv->LinkDetectInfo.bBusyTraffic)
+				goto exit;
+		}
+
+>>>>>>> upstream/android-13
 		rtw_set_802_11_bssid_list_scan(padapter, NULL, 0);
 	}
 
@@ -1933,6 +2637,7 @@ void rtw_dynamic_check_timer_handler(struct adapter *adapter)
 	if (!adapter)
 		return;
 
+<<<<<<< HEAD
 	if (adapter->hw_init_completed == false)
 		return;
 
@@ -1947,6 +2652,19 @@ void rtw_dynamic_check_timer_handler(struct adapter *adapter)
 
 	if ((adapter_to_pwrctl(adapter)->bFwCurrentInPSMode == true)
 		&& (rtw_btcoex_IsBtControlLps(adapter) == false)
+=======
+	if (!adapter->hw_init_completed)
+		return;
+
+	if (adapter->bDriverStopped || adapter->bSurpriseRemoved)
+		return;
+
+	if (adapter->net_closed)
+		return;
+
+	if ((adapter_to_pwrctl(adapter)->fw_current_in_ps_mode)
+		&& !(hal_btcoex_IsBtControlLps(adapter))
+>>>>>>> upstream/android-13
 		) {
 		u8 bEnterPS;
 
@@ -1956,6 +2674,7 @@ void rtw_dynamic_check_timer_handler(struct adapter *adapter)
 		if (bEnterPS) {
 			/* rtw_lps_ctrl_wk_cmd(adapter, LPS_CTRL_ENTER, 1); */
 			rtw_hal_dm_watchdog_in_lps(adapter);
+<<<<<<< HEAD
 		} else{
 			/* call rtw_lps_ctrl_wk_cmd(padapter, LPS_CTRL_LEAVE, 1) in traffic_status_watchdog() */
 		}
@@ -1964,22 +2683,39 @@ void rtw_dynamic_check_timer_handler(struct adapter *adapter)
 		if (is_primary_adapter(adapter)) {
 			rtw_dynamic_chk_wk_cmd(adapter);
 		}
+=======
+		} else {
+			/* call rtw_lps_ctrl_wk_cmd(padapter, LPS_CTRL_LEAVE, 1) in traffic_status_watchdog() */
+		}
+
+	} else {
+		if (is_primary_adapter(adapter))
+			rtw_dynamic_chk_wk_cmd(adapter);
+>>>>>>> upstream/android-13
 	}
 
 	/* auto site survey */
 	rtw_auto_scan_handler(adapter);
 }
 
+<<<<<<< HEAD
 
 inline bool rtw_is_scan_deny(struct adapter *adapter)
 {
 	struct mlme_priv *mlmepriv = &adapter->mlmepriv;
+=======
+inline bool rtw_is_scan_deny(struct adapter *adapter)
+{
+	struct mlme_priv *mlmepriv = &adapter->mlmepriv;
+
+>>>>>>> upstream/android-13
 	return (atomic_read(&mlmepriv->set_scan_deny) != 0) ? true : false;
 }
 
 inline void rtw_clear_scan_deny(struct adapter *adapter)
 {
 	struct mlme_priv *mlmepriv = &adapter->mlmepriv;
+<<<<<<< HEAD
 	atomic_set(&mlmepriv->set_scan_deny, 0);
 
 	DBG_871X(FUNC_ADPT_FMT"\n", FUNC_ADPT_ARG(adapter));
@@ -1988,13 +2724,20 @@ inline void rtw_clear_scan_deny(struct adapter *adapter)
 void rtw_set_scan_deny_timer_hdl(struct adapter *adapter)
 {
 	rtw_clear_scan_deny(adapter);
+=======
+
+	atomic_set(&mlmepriv->set_scan_deny, 0);
+>>>>>>> upstream/android-13
 }
 
 void rtw_set_scan_deny(struct adapter *adapter, u32 ms)
 {
 	struct mlme_priv *mlmepriv = &adapter->mlmepriv;
 
+<<<<<<< HEAD
 	DBG_871X(FUNC_ADPT_FMT"\n", FUNC_ADPT_ARG(adapter));
+=======
+>>>>>>> upstream/android-13
 	atomic_set(&mlmepriv->set_scan_deny, 1);
 	_set_timer(&mlmepriv->set_scan_deny_timer, ms);
 }
@@ -2016,6 +2759,7 @@ static int rtw_check_roaming_candidate(struct mlme_priv *mlme
 	if (rtw_is_desired_network(adapter, competitor) == false)
 		goto exit;
 
+<<<<<<< HEAD
 	DBG_871X("roam candidate:%s %s("MAC_FMT", ch%3u) rssi:%d, age:%5d\n",
 		(competitor == mlme->cur_network_scanned)?"*":" ",
 		competitor->network.Ssid.Ssid,
@@ -2028,6 +2772,11 @@ static int rtw_check_roaming_candidate(struct mlme_priv *mlme
 	/* got specific addr to roam */
 	if (!is_zero_mac_addr(mlme->roam_tgt_addr)) {
 		if (!memcmp(mlme->roam_tgt_addr, competitor->network.MacAddress, ETH_ALEN))
+=======
+	/* got specific addr to roam */
+	if (!is_zero_mac_addr(mlme->roam_tgt_addr)) {
+		if (!memcmp(mlme->roam_tgt_addr, competitor->network.mac_address, ETH_ALEN))
+>>>>>>> upstream/android-13
 			goto update;
 		else
 			goto exit;
@@ -2035,10 +2784,17 @@ static int rtw_check_roaming_candidate(struct mlme_priv *mlme
 	if (jiffies_to_msecs(jiffies - competitor->last_scanned) >= mlme->roam_scanr_exp_ms)
 		goto exit;
 
+<<<<<<< HEAD
 	if (competitor->network.Rssi - mlme->cur_network_scanned->network.Rssi < mlme->roam_rssi_diff_th)
 		goto exit;
 
 	if (*candidate != NULL && (*candidate)->network.Rssi >= competitor->network.Rssi)
+=======
+	if (competitor->network.rssi - mlme->cur_network_scanned->network.rssi < mlme->roam_rssi_diff_th)
+		goto exit;
+
+	if (*candidate && (*candidate)->network.rssi >= competitor->network.rssi)
+>>>>>>> upstream/android-13
 		goto exit;
 
 update:
@@ -2053,18 +2809,26 @@ int rtw_select_roaming_candidate(struct mlme_priv *mlme)
 {
 	int ret = _FAIL;
 	struct list_head	*phead;
+<<<<<<< HEAD
 	struct adapter *adapter;
+=======
+>>>>>>> upstream/android-13
 	struct __queue	*queue	= &(mlme->scanned_queue);
 	struct	wlan_network	*pnetwork = NULL;
 	struct	wlan_network	*candidate = NULL;
 
+<<<<<<< HEAD
 	if (mlme->cur_network_scanned == NULL) {
+=======
+	if (!mlme->cur_network_scanned) {
+>>>>>>> upstream/android-13
 		rtw_warn_on(1);
 		return ret;
 	}
 
 	spin_lock_bh(&(mlme->scanned_queue.lock));
 	phead = get_list_head(queue);
+<<<<<<< HEAD
 	adapter = (struct adapter *)mlme->nic_hdl;
 
 	mlme->pscanned = get_next(phead);
@@ -2085,11 +2849,19 @@ int rtw_select_roaming_candidate(struct mlme_priv *mlme)
 			, MAC_ARG(pnetwork->network.MacAddress)
 			, pnetwork->network.Configuration.DSConfig
 			, (int)pnetwork->network.Rssi);
+=======
+
+	list_for_each(mlme->pscanned, phead) {
+
+		pnetwork = list_entry(mlme->pscanned, struct wlan_network,
+				      list);
+>>>>>>> upstream/android-13
 
 		rtw_check_roaming_candidate(mlme, &candidate, pnetwork);
 
 	}
 
+<<<<<<< HEAD
 	if (candidate == NULL) {
 		DBG_871X("%s: return _FAIL(candidate == NULL)\n", __func__);
 		ret = _FAIL;
@@ -2102,6 +2874,15 @@ int rtw_select_roaming_candidate(struct mlme_priv *mlme)
 		mlme->roam_network = candidate;
 
 		if (!memcmp(candidate->network.MacAddress, mlme->roam_tgt_addr, ETH_ALEN))
+=======
+	if (!candidate) {
+		ret = _FAIL;
+		goto exit;
+	} else {
+		mlme->roam_network = candidate;
+
+		if (!memcmp(candidate->network.mac_address, mlme->roam_tgt_addr, ETH_ALEN))
+>>>>>>> upstream/android-13
 			eth_zero_addr(mlme->roam_tgt_addr);
 	}
 
@@ -2123,17 +2904,29 @@ static int rtw_check_join_candidate(struct mlme_priv *mlme
 	int updated = false;
 	struct adapter *adapter = container_of(mlme, struct adapter, mlmepriv);
 
+<<<<<<< HEAD
 
 	/* check bssid, if needed */
 	if (mlme->assoc_by_bssid == true) {
 		if (memcmp(competitor->network.MacAddress, mlme->assoc_bssid, ETH_ALEN))
+=======
+	/* check bssid, if needed */
+	if (mlme->assoc_by_bssid) {
+		if (memcmp(competitor->network.mac_address, mlme->assoc_bssid, ETH_ALEN))
+>>>>>>> upstream/android-13
 			goto exit;
 	}
 
 	/* check ssid, if needed */
+<<<<<<< HEAD
 	if (mlme->assoc_ssid.Ssid[0] && mlme->assoc_ssid.SsidLength) {
 		if (competitor->network.Ssid.SsidLength != mlme->assoc_ssid.SsidLength
 			|| memcmp(competitor->network.Ssid.Ssid, mlme->assoc_ssid.Ssid, mlme->assoc_ssid.SsidLength)
+=======
+	if (mlme->assoc_ssid.ssid[0] && mlme->assoc_ssid.ssid_length) {
+		if (competitor->network.ssid.ssid_length != mlme->assoc_ssid.ssid_length
+			|| memcmp(competitor->network.ssid.ssid, mlme->assoc_ssid.ssid, mlme->assoc_ssid.ssid_length)
+>>>>>>> upstream/android-13
 		)
 			goto exit;
 	}
@@ -2148,11 +2941,16 @@ static int rtw_check_join_candidate(struct mlme_priv *mlme
 			goto exit;
 	}
 
+<<<<<<< HEAD
 	if (*candidate == NULL || (*candidate)->network.Rssi < competitor->network.Rssi) {
+=======
+	if (*candidate == NULL || (*candidate)->network.rssi < competitor->network.rssi) {
+>>>>>>> upstream/android-13
 		*candidate = competitor;
 		updated = true;
 	}
 
+<<<<<<< HEAD
 	if (updated) {
 		DBG_871X("[by_bssid:%u][assoc_ssid:%s]"
 			"[to_roam:%u] "
@@ -2167,6 +2965,8 @@ static int rtw_check_join_candidate(struct mlme_priv *mlme
 		);
 	}
 
+=======
+>>>>>>> upstream/android-13
 exit:
 	return updated;
 }
@@ -2174,12 +2974,17 @@ exit:
 /*
 Calling context:
 The caller of the sub-routine will be in critical section...
+<<<<<<< HEAD
 
 The caller must hold the following spinlock
 
 pmlmepriv->lock
 
 
+=======
+The caller must hold the following spinlock
+pmlmepriv->lock
+>>>>>>> upstream/android-13
 */
 
 int rtw_select_and_join_from_scanned_queue(struct mlme_priv *pmlmepriv)
@@ -2202,6 +3007,7 @@ int rtw_select_and_join_from_scanned_queue(struct mlme_priv *pmlmepriv)
 	}
 
 	phead = get_list_head(queue);
+<<<<<<< HEAD
 	pmlmepriv->pscanned = get_next(phead);
 
 	while (phead != pmlmepriv->pscanned) {
@@ -2220,11 +3026,18 @@ int rtw_select_and_join_from_scanned_queue(struct mlme_priv *pmlmepriv)
 			, MAC_ARG(pnetwork->network.MacAddress)
 			, pnetwork->network.Configuration.DSConfig
 			, (int)pnetwork->network.Rssi);
+=======
+	list_for_each(pmlmepriv->pscanned, phead) {
+
+		pnetwork = list_entry(pmlmepriv->pscanned,
+				      struct wlan_network, list);
+>>>>>>> upstream/android-13
 
 		rtw_check_join_candidate(pmlmepriv, &candidate, pnetwork);
 
 	}
 
+<<<<<<< HEAD
 	if (candidate == NULL) {
 		DBG_871X("%s: return _FAIL(candidate == NULL)\n", __func__);
 #ifdef CONFIG_WOWLAN
@@ -2236,6 +3049,12 @@ int rtw_select_and_join_from_scanned_queue(struct mlme_priv *pmlmepriv)
 		DBG_871X("%s: candidate: %s("MAC_FMT", ch:%u)\n", __func__,
 			candidate->network.Ssid.Ssid, MAC_ARG(candidate->network.MacAddress),
 			candidate->network.Configuration.DSConfig);
+=======
+	if (!candidate) {
+		ret = _FAIL;
+		goto exit;
+	} else {
+>>>>>>> upstream/android-13
 		goto candidate_exist;
 	}
 
@@ -2243,8 +3062,11 @@ candidate_exist:
 
 	/*  check for situation of  _FW_LINKED */
 	if (check_fwstate(pmlmepriv, _FW_LINKED) == true) {
+<<<<<<< HEAD
 		DBG_871X("%s: _FW_LINKED while ask_for_joinbss!!!\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 		rtw_disassoc_cmd(adapter, 0, true);
 		rtw_indicate_disconnect(adapter);
 		rtw_free_assoc_resources(adapter, 0);
@@ -2258,27 +3080,46 @@ exit:
 	return ret;
 }
 
+<<<<<<< HEAD
 sint rtw_set_auth(struct adapter *adapter, struct security_priv *psecuritypriv)
+=======
+signed int rtw_set_auth(struct adapter *adapter, struct security_priv *psecuritypriv)
+>>>>>>> upstream/android-13
 {
 	struct	cmd_obj *pcmd;
 	struct	setauth_parm *psetauthparm;
 	struct	cmd_priv *pcmdpriv = &(adapter->cmdpriv);
+<<<<<<< HEAD
 	sint		res = _SUCCESS;
 
 	pcmd = rtw_zmalloc(sizeof(struct cmd_obj));
 	if (pcmd == NULL) {
+=======
+	signed int		res = _SUCCESS;
+
+	pcmd = rtw_zmalloc(sizeof(struct cmd_obj));
+	if (!pcmd) {
+>>>>>>> upstream/android-13
 		res = _FAIL;  /* try again */
 		goto exit;
 	}
 
 	psetauthparm = rtw_zmalloc(sizeof(struct setauth_parm));
+<<<<<<< HEAD
 	if (psetauthparm == NULL) {
 		kfree((unsigned char *)pcmd);
+=======
+	if (!psetauthparm) {
+		kfree(pcmd);
+>>>>>>> upstream/android-13
 		res = _FAIL;
 		goto exit;
 	}
 
+<<<<<<< HEAD
 	memset(psetauthparm, 0, sizeof(struct setauth_parm));
+=======
+>>>>>>> upstream/android-13
 	psetauthparm->mode = (unsigned char)psecuritypriv->dot11AuthAlgrthm;
 
 	pcmd->cmdcode = _SetAuth_CMD_;
@@ -2287,23 +3128,33 @@ sint rtw_set_auth(struct adapter *adapter, struct security_priv *psecuritypriv)
 	pcmd->rsp = NULL;
 	pcmd->rspsz = 0;
 
+<<<<<<< HEAD
 
 	INIT_LIST_HEAD(&pcmd->list);
 
 	RT_TRACE(_module_rtl871x_mlme_c_, _drv_err_, ("after enqueue set_auth_cmd, auth_mode =%x\n", psecuritypriv->dot11AuthAlgrthm));
 
+=======
+	INIT_LIST_HEAD(&pcmd->list);
+
+>>>>>>> upstream/android-13
 	res = rtw_enqueue_cmd(pcmdpriv, pcmd);
 
 exit:
 	return res;
 }
 
+<<<<<<< HEAD
 sint rtw_set_key(struct adapter *adapter, struct security_priv *psecuritypriv, sint keyid, u8 set_tx, bool enqueue)
+=======
+signed int rtw_set_key(struct adapter *adapter, struct security_priv *psecuritypriv, signed int keyid, u8 set_tx, bool enqueue)
+>>>>>>> upstream/android-13
 {
 	u8 keylen;
 	struct cmd_obj		*pcmd;
 	struct setkey_parm	*psetkeyparm;
 	struct cmd_priv 	*pcmdpriv = &(adapter->cmdpriv);
+<<<<<<< HEAD
 	sint	res = _SUCCESS;
 
 	psetkeyparm = rtw_zmalloc(sizeof(struct setkey_parm));
@@ -2321,14 +3172,32 @@ sint rtw_set_key(struct adapter *adapter, struct security_priv *psecuritypriv, s
 		RT_TRACE(_module_rtl871x_mlme_c_, _drv_err_, ("\n rtw_set_key: psetkeyparm->algorithm =(u8)psecuritypriv->dot11PrivacyAlgrthm =%d\n", psetkeyparm->algorithm));
 
 	}
+=======
+	signed int	res = _SUCCESS;
+
+	psetkeyparm = rtw_zmalloc(sizeof(struct setkey_parm));
+	if (!psetkeyparm) {
+		res = _FAIL;
+		goto exit;
+	}
+
+	if (psecuritypriv->dot11AuthAlgrthm == dot11AuthAlgrthm_8021X)
+		psetkeyparm->algorithm = (unsigned char)psecuritypriv->dot118021XGrpPrivacy;
+	else
+		psetkeyparm->algorithm = (u8)psecuritypriv->dot11PrivacyAlgrthm;
+
+>>>>>>> upstream/android-13
 	psetkeyparm->keyid = (u8)keyid;/* 0~3 */
 	psetkeyparm->set_tx = set_tx;
 	if (is_wep_enc(psetkeyparm->algorithm))
 		adapter->securitypriv.key_mask |= BIT(psetkeyparm->keyid);
 
+<<<<<<< HEAD
 	DBG_871X("==> rtw_set_key algorithm(%x), keyid(%x), key_mask(%x)\n", psetkeyparm->algorithm, psetkeyparm->keyid, adapter->securitypriv.key_mask);
 	RT_TRACE(_module_rtl871x_mlme_c_, _drv_err_, ("\n rtw_set_key: psetkeyparm->algorithm =%d psetkeyparm->keyid =(u8)keyid =%d\n", psetkeyparm->algorithm, keyid));
 
+=======
+>>>>>>> upstream/android-13
 	switch (psetkeyparm->algorithm) {
 
 	case _WEP40_:
@@ -2350,6 +3219,7 @@ sint rtw_set_key(struct adapter *adapter, struct security_priv *psecuritypriv, s
 		psetkeyparm->grpkey = 1;
 		break;
 	default:
+<<<<<<< HEAD
 		RT_TRACE(_module_rtl871x_mlme_c_, _drv_err_, ("\n rtw_set_key:psecuritypriv->dot11PrivacyAlgrthm = %x (must be 1 or 2 or 4 or 5)\n", psecuritypriv->dot11PrivacyAlgrthm));
 		res = _FAIL;
 		kfree((unsigned char *)psetkeyparm);
@@ -2361,6 +3231,17 @@ sint rtw_set_key(struct adapter *adapter, struct security_priv *psecuritypriv, s
 		pcmd = rtw_zmalloc(sizeof(struct cmd_obj));
 		if (pcmd == NULL) {
 			kfree((unsigned char *)psetkeyparm);
+=======
+		res = _FAIL;
+		kfree(psetkeyparm);
+		goto exit;
+	}
+
+	if (enqueue) {
+		pcmd = rtw_zmalloc(sizeof(struct cmd_obj));
+		if (!pcmd) {
+			kfree(psetkeyparm);
+>>>>>>> upstream/android-13
 			res = _FAIL;  /* try again */
 			goto exit;
 		}
@@ -2373,18 +3254,29 @@ sint rtw_set_key(struct adapter *adapter, struct security_priv *psecuritypriv, s
 
 		INIT_LIST_HEAD(&pcmd->list);
 
+<<<<<<< HEAD
 		/* sema_init(&(pcmd->cmd_sem), 0); */
 
 		res = rtw_enqueue_cmd(pcmdpriv, pcmd);
 	} else{
 		setkey_hdl(adapter, (u8 *)psetkeyparm);
 		kfree((u8 *) psetkeyparm);
+=======
+		res = rtw_enqueue_cmd(pcmdpriv, pcmd);
+	} else {
+		setkey_hdl(adapter, (u8 *)psetkeyparm);
+		kfree(psetkeyparm);
+>>>>>>> upstream/android-13
 	}
 exit:
 	return res;
 }
 
+<<<<<<< HEAD
 /* adjust IEs for rtw_joinbss_cmd in WMM */
+=======
+/* adjust ies for rtw_joinbss_cmd in WMM */
+>>>>>>> upstream/android-13
 int rtw_restruct_wmm_ie(struct adapter *adapter, u8 *in_ie, u8 *out_ie, uint in_len, uint initial_out_len)
 {
 	unsigned	int ielength = 0;
@@ -2413,7 +3305,10 @@ int rtw_restruct_wmm_ie(struct adapter *adapter, u8 *in_ie, u8 *out_ie, uint in_
 
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 /*  */
 /*  Ported from 8185: IsInPreAuthKeyList(). (Renamed from SecIsInPreAuthKeyList(), 2006-10-13.) */
 /*  Added by Annie, 2006-05-07. */
@@ -2434,7 +3329,11 @@ static int SecIsInPMKIDList(struct adapter *Adapter, u8 *bssid)
 		if ((psecuritypriv->PMKIDList[i].bUsed) &&
 				(!memcmp(psecuritypriv->PMKIDList[i].Bssid, bssid, ETH_ALEN))) {
 			break;
+<<<<<<< HEAD
 		} else{
+=======
+		} else {
+>>>>>>> upstream/android-13
 			i++;
 			/* continue; */
 		}
@@ -2478,7 +3377,11 @@ static int rtw_append_pmkid(struct adapter *Adapter, int iEntry, u8 *ie, uint ie
 	return ie_len;
 }
 
+<<<<<<< HEAD
 sint rtw_restruct_sec_ie(struct adapter *adapter, u8 *in_ie, u8 *out_ie, uint in_len)
+=======
+signed int rtw_restruct_sec_ie(struct adapter *adapter, u8 *in_ie, u8 *out_ie, uint in_len)
+>>>>>>> upstream/android-13
 {
 	u8 authmode = 0x0;
 	uint	ielength;
@@ -2488,22 +3391,35 @@ sint rtw_restruct_sec_ie(struct adapter *adapter, u8 *in_ie, u8 *out_ie, uint in
 	struct security_priv *psecuritypriv = &adapter->securitypriv;
 	uint	ndisauthmode = psecuritypriv->ndisauthtype;
 
+<<<<<<< HEAD
 	RT_TRACE(_module_rtl871x_mlme_c_, _drv_notice_,
 		 ("+rtw_restruct_sec_ie: ndisauthmode =%d\n", ndisauthmode));
 
+=======
+>>>>>>> upstream/android-13
 	/* copy fixed ie only */
 	memcpy(out_ie, in_ie, 12);
 	ielength = 12;
 	if ((ndisauthmode == Ndis802_11AuthModeWPA) || (ndisauthmode == Ndis802_11AuthModeWPAPSK))
+<<<<<<< HEAD
 			authmode = _WPA_IE_ID_;
 	if ((ndisauthmode == Ndis802_11AuthModeWPA2) || (ndisauthmode == Ndis802_11AuthModeWPA2PSK))
 			authmode = _WPA2_IE_ID_;
+=======
+			authmode = WLAN_EID_VENDOR_SPECIFIC;
+	if ((ndisauthmode == Ndis802_11AuthModeWPA2) || (ndisauthmode == Ndis802_11AuthModeWPA2PSK))
+			authmode = WLAN_EID_RSN;
+>>>>>>> upstream/android-13
 
 	if (check_fwstate(pmlmepriv, WIFI_UNDER_WPS)) {
 		memcpy(out_ie+ielength, psecuritypriv->wps_ie, psecuritypriv->wps_ie_len);
 
 		ielength += psecuritypriv->wps_ie_len;
+<<<<<<< HEAD
 	} else if ((authmode == _WPA_IE_ID_) || (authmode == _WPA2_IE_ID_)) {
+=======
+	} else if ((authmode == WLAN_EID_VENDOR_SPECIFIC) || (authmode == WLAN_EID_RSN)) {
+>>>>>>> upstream/android-13
 		/* copy RSN or SSN */
 		memcpy(&out_ie[ielength], &psecuritypriv->supplicant_ie[0], psecuritypriv->supplicant_ie[1]+2);
 		/* debug for CONFIG_IEEE80211W
@@ -2521,8 +3437,13 @@ sint rtw_restruct_sec_ie(struct adapter *adapter, u8 *in_ie, u8 *out_ie, uint in
 	iEntry = SecIsInPMKIDList(adapter, pmlmepriv->assoc_bssid);
 	if (iEntry < 0) {
 		return ielength;
+<<<<<<< HEAD
 	} else{
 		if (authmode == _WPA2_IE_ID_)
+=======
+	} else {
+		if (authmode == WLAN_EID_RSN)
+>>>>>>> upstream/android-13
 			ielength = rtw_append_pmkid(adapter, iEntry, out_ie, ielength);
 	}
 	return ielength;
@@ -2535,6 +3456,7 @@ void rtw_init_registrypriv_dev_network(struct adapter *adapter)
 	struct wlan_bssid_ex    *pdev_network = &pregistrypriv->dev_network;
 	u8 *myhwaddr = myid(peepriv);
 
+<<<<<<< HEAD
 	memcpy(pdev_network->MacAddress, myhwaddr, ETH_ALEN);
 
 	memcpy(&pdev_network->Ssid, &pregistrypriv->ssid, sizeof(struct ndis_802_11_ssid));
@@ -2545,6 +3467,14 @@ void rtw_init_registrypriv_dev_network(struct adapter *adapter)
 	pdev_network->Configuration.FHConfig.HopPattern = 0;
 	pdev_network->Configuration.FHConfig.HopSet = 0;
 	pdev_network->Configuration.FHConfig.DwellTime = 0;
+=======
+	memcpy(pdev_network->mac_address, myhwaddr, ETH_ALEN);
+
+	memcpy(&pdev_network->ssid, &pregistrypriv->ssid, sizeof(struct ndis_802_11_ssid));
+
+	pdev_network->configuration.length = sizeof(struct ndis_802_11_conf);
+	pdev_network->configuration.beacon_period = 100;
+>>>>>>> upstream/android-13
 }
 
 void rtw_update_registrypriv_dev_network(struct adapter *adapter)
@@ -2556,6 +3486,7 @@ void rtw_update_registrypriv_dev_network(struct adapter *adapter)
 	struct	wlan_network	*cur_network = &adapter->mlmepriv.cur_network;
 	/* struct	xmit_priv *pxmitpriv = &adapter->xmitpriv; */
 
+<<<<<<< HEAD
 	pdev_network->Privacy = (psecuritypriv->dot11PrivacyAlgrthm > 0 ? 1 : 0) ; /*  adhoc no 802.1x */
 
 	pdev_network->Rssi = 0;
@@ -2563,12 +3494,22 @@ void rtw_update_registrypriv_dev_network(struct adapter *adapter)
 	switch (pregistrypriv->wireless_mode) {
 	case WIRELESS_11B:
 		pdev_network->NetworkTypeInUse = (Ndis802_11DS);
+=======
+	pdev_network->privacy = (psecuritypriv->dot11PrivacyAlgrthm > 0 ? 1 : 0) ; /*  adhoc no 802.1x */
+
+	pdev_network->rssi = 0;
+
+	switch (pregistrypriv->wireless_mode) {
+	case WIRELESS_11B:
+		pdev_network->network_type_in_use = (Ndis802_11DS);
+>>>>>>> upstream/android-13
 		break;
 	case WIRELESS_11G:
 	case WIRELESS_11BG:
 	case WIRELESS_11_24N:
 	case WIRELESS_11G_24N:
 	case WIRELESS_11BG_24N:
+<<<<<<< HEAD
 		pdev_network->NetworkTypeInUse = (Ndis802_11OFDM24);
 		break;
 	case WIRELESS_11A:
@@ -2580,12 +3521,16 @@ void rtw_update_registrypriv_dev_network(struct adapter *adapter)
 			pdev_network->NetworkTypeInUse = (Ndis802_11OFDM5);
 		else
 			pdev_network->NetworkTypeInUse = (Ndis802_11OFDM24);
+=======
+		pdev_network->network_type_in_use = (Ndis802_11OFDM24);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		/*  TODO */
 		break;
 	}
 
+<<<<<<< HEAD
 	pdev_network->Configuration.DSConfig = (pregistrypriv->channel);
 	RT_TRACE(_module_rtl871x_mlme_c_, _drv_info_, ("pregistrypriv->channel =%d, pdev_network->Configuration.DSConfig = 0x%x\n", pregistrypriv->channel, pdev_network->Configuration.DSConfig));
 
@@ -2593,10 +3538,19 @@ void rtw_update_registrypriv_dev_network(struct adapter *adapter)
 		pdev_network->Configuration.ATIMWindow = (0);
 
 	pdev_network->InfrastructureMode = (cur_network->network.InfrastructureMode);
+=======
+	pdev_network->configuration.ds_config = (pregistrypriv->channel);
+
+	if (cur_network->network.infrastructure_mode == Ndis802_11IBSS)
+		pdev_network->configuration.atim_window = (0);
+
+	pdev_network->infrastructure_mode = (cur_network->network.infrastructure_mode);
+>>>>>>> upstream/android-13
 
 	/*  1. Supported rates */
 	/*  2. IE */
 
+<<<<<<< HEAD
 	/* rtw_set_supported_rate(pdev_network->SupportedRates, pregistrypriv->wireless_mode) ;  will be called in rtw_generate_ie */
 	sz = rtw_generate_ie(pregistrypriv);
 
@@ -2606,6 +3560,17 @@ void rtw_update_registrypriv_dev_network(struct adapter *adapter)
 
 	/* notes: translate IELength & Length after assign the Length to cmdsz in createbss_cmd(); */
 	/* pdev_network->IELength = cpu_to_le32(sz); */
+=======
+	/* rtw_set_supported_rate(pdev_network->supported_rates, pregistrypriv->wireless_mode) ;  will be called in rtw_generate_ie */
+	sz = rtw_generate_ie(pregistrypriv);
+
+	pdev_network->ie_length = sz;
+
+	pdev_network->length = get_wlan_bssid_ex_sz((struct wlan_bssid_ex  *)pdev_network);
+
+	/* notes: translate ie_length & length after assign the length to cmdsz in createbss_cmd(); */
+	/* pdev_network->ie_length = cpu_to_le32(sz); */
+>>>>>>> upstream/android-13
 }
 
 void rtw_get_encrypt_decrypt_from_registrypriv(struct adapter *adapter)
@@ -2636,7 +3601,11 @@ void rtw_joinbss_reset(struct adapter *padapter)
 		else
 			threshold = 0;
 		rtw_hal_set_hwreg(padapter, HW_VAR_RXDMA_AGG_PG_TH, (u8 *)(&threshold));
+<<<<<<< HEAD
 	} else{
+=======
+	} else {
+>>>>>>> upstream/android-13
 		threshold = 1;
 		rtw_hal_set_hwreg(padapter, HW_VAR_RXDMA_AGG_PG_TH, (u8 *)(&threshold));
 	}
@@ -2670,8 +3639,11 @@ void rtw_ht_use_default_setting(struct adapter *padapter)
 		if (TEST_FLAG(pregistrypriv->ldpc_cap, BIT5))
 			SET_FLAG(phtpriv->ldpc_cap, LDPC_HT_ENABLE_TX);
 	}
+<<<<<<< HEAD
 	if (phtpriv->ldpc_cap)
 		DBG_871X("[HT] Support LDPC = 0x%02X\n", phtpriv->ldpc_cap);
+=======
+>>>>>>> upstream/android-13
 
 	/*  STBC */
 	rtw_hal_get_def_var(padapter, HAL_DEF_TX_STBC, (u8 *)&bHwSTBCSupport);
@@ -2685,13 +3657,17 @@ void rtw_ht_use_default_setting(struct adapter *padapter)
 		if (TEST_FLAG(pregistrypriv->stbc_cap, BIT4))
 			SET_FLAG(phtpriv->stbc_cap, STBC_HT_ENABLE_RX);
 	}
+<<<<<<< HEAD
 	if (phtpriv->stbc_cap)
 		DBG_871X("[HT] Support STBC = 0x%02X\n", phtpriv->stbc_cap);
+=======
+>>>>>>> upstream/android-13
 
 	/*  Beamforming setting */
 	rtw_hal_get_def_var(padapter, HAL_DEF_EXPLICIT_BEAMFORMER, (u8 *)&bHwSupportBeamformer);
 	rtw_hal_get_def_var(padapter, HAL_DEF_EXPLICIT_BEAMFORMEE, (u8 *)&bHwSupportBeamformee);
 	CLEAR_FLAGS(phtpriv->beamform_cap);
+<<<<<<< HEAD
 	if (TEST_FLAG(pregistrypriv->beamform_cap, BIT4) && bHwSupportBeamformer) {
 		SET_FLAG(phtpriv->beamform_cap, BEAMFORMING_HT_BEAMFORMER_ENABLE);
 		DBG_871X("[HT] Support Beamformer\n");
@@ -2700,18 +3676,33 @@ void rtw_ht_use_default_setting(struct adapter *padapter)
 		SET_FLAG(phtpriv->beamform_cap, BEAMFORMING_HT_BEAMFORMEE_ENABLE);
 		DBG_871X("[HT] Support Beamformee\n");
 	}
+=======
+	if (TEST_FLAG(pregistrypriv->beamform_cap, BIT4) && bHwSupportBeamformer)
+		SET_FLAG(phtpriv->beamform_cap, BEAMFORMING_HT_BEAMFORMER_ENABLE);
+
+	if (TEST_FLAG(pregistrypriv->beamform_cap, BIT5) && bHwSupportBeamformee)
+		SET_FLAG(phtpriv->beamform_cap, BEAMFORMING_HT_BEAMFORMEE_ENABLE);
+>>>>>>> upstream/android-13
 }
 
 void rtw_build_wmm_ie_ht(struct adapter *padapter, u8 *out_ie, uint *pout_len)
 {
 	unsigned char WMM_IE[] = {0x00, 0x50, 0xf2, 0x02, 0x00, 0x01, 0x00};
 	int out_len;
+<<<<<<< HEAD
 	u8 *pframe;
 
 	if (padapter->mlmepriv.qospriv.qos_option == 0) {
 		out_len = *pout_len;
 		pframe = rtw_set_ie(out_ie+out_len, _VENDOR_SPECIFIC_IE_,
 							_WMM_IE_Length_, WMM_IE, pout_len);
+=======
+
+	if (padapter->mlmepriv.qospriv.qos_option == 0) {
+		out_len = *pout_len;
+		rtw_set_ie(out_ie+out_len, WLAN_EID_VENDOR_SPECIFIC,
+			   _WMM_IE_Length_, WMM_IE, pout_len);
+>>>>>>> upstream/android-13
 
 		padapter->mlmepriv.qospriv.qos_option = 1;
 	}
@@ -2721,10 +3712,17 @@ void rtw_build_wmm_ie_ht(struct adapter *padapter, u8 *out_ie, uint *pout_len)
 unsigned int rtw_restructure_ht_ie(struct adapter *padapter, u8 *in_ie, u8 *out_ie, uint in_len, uint *pout_len, u8 channel)
 {
 	u32 ielen, out_len;
+<<<<<<< HEAD
 	enum HT_CAP_AMPDU_FACTOR max_rx_ampdu_factor;
 	unsigned char *p, *pframe;
 	struct rtw_ieee80211_ht_cap ht_capie;
 	u8 cbw40_enable = 0, stbc_rx_enable = 0, rf_type = 0, operation_bw = 0;
+=======
+	enum ieee80211_max_ampdu_length_exp max_rx_ampdu_factor;
+	unsigned char *p;
+	struct ieee80211_ht_cap ht_capie;
+	u8 cbw40_enable = 0, stbc_rx_enable = 0, operation_bw = 0;
+>>>>>>> upstream/android-13
 	struct registry_priv *pregistrypriv = &padapter->registrypriv;
 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
 	struct ht_priv 	*phtpriv = &pmlmepriv->htpriv;
@@ -2734,7 +3732,11 @@ unsigned int rtw_restructure_ht_ie(struct adapter *padapter, u8 *in_ie, u8 *out_
 
 	out_len = *pout_len;
 
+<<<<<<< HEAD
 	memset(&ht_capie, 0, sizeof(struct rtw_ieee80211_ht_cap));
+=======
+	memset(&ht_capie, 0, sizeof(struct ieee80211_ht_cap));
+>>>>>>> upstream/android-13
 
 	ht_capie.cap_info = cpu_to_le16(IEEE80211_HT_CAP_DSSSCCK40);
 
@@ -2742,7 +3744,11 @@ unsigned int rtw_restructure_ht_ie(struct adapter *padapter, u8 *in_ie, u8 *out_
 		ht_capie.cap_info |= cpu_to_le16(IEEE80211_HT_CAP_SGI_20);
 
 	/* Get HT BW */
+<<<<<<< HEAD
 	if (in_ie == NULL) {
+=======
+	if (!in_ie) {
+>>>>>>> upstream/android-13
 		/* TDLS: TODO 20/40 issue */
 		if (check_fwstate(pmlmepriv, WIFI_STATION_STATE)) {
 			operation_bw = padapter->mlmeextpriv.cur_bwmode;
@@ -2752,9 +3758,16 @@ unsigned int rtw_restructure_ht_ie(struct adapter *padapter, u8 *in_ie, u8 *out_
 			/* TDLS: TODO 40? */
 			operation_bw = CHANNEL_WIDTH_40;
 	} else {
+<<<<<<< HEAD
 		p = rtw_get_ie(in_ie, _HT_ADD_INFO_IE_, &ielen, in_len);
 		if (p && (ielen == sizeof(struct ieee80211_ht_addt_info))) {
 			struct HT_info_element *pht_info = (struct HT_info_element *)(p+2);
+=======
+		p = rtw_get_ie(in_ie, WLAN_EID_HT_OPERATION, &ielen, in_len);
+		if (p && (ielen == sizeof(struct ieee80211_ht_addt_info))) {
+			struct HT_info_element *pht_info = (struct HT_info_element *)(p+2);
+
+>>>>>>> upstream/android-13
 			if (pht_info->infos[0] & BIT(2)) {
 				switch (pht_info->infos[0] & 0x3) {
 				case 1:
@@ -2794,6 +3807,7 @@ unsigned int rtw_restructure_ht_ie(struct adapter *padapter, u8 *in_ie, u8 *out_
 
 	if (TEST_FLAG(phtpriv->stbc_cap, STBC_HT_ENABLE_RX)) {
 		if ((channel <= 14 && pregistrypriv->rx_stbc == 0x1) ||	/* enable for 2.4GHz */
+<<<<<<< HEAD
 			(pregistrypriv->wifi_spec == 1)) {
 			stbc_rx_enable = 1;
 			DBG_871X("declare supporting RX STBC\n");
@@ -2833,13 +3847,35 @@ unsigned int rtw_restructure_ht_ie(struct adapter *padapter, u8 *in_ie, u8 *out_
 
 	{
 		u32 rx_packet_offset, max_recvbuf_sz;
+=======
+			(pregistrypriv->wifi_spec == 1))
+			stbc_rx_enable = 1;
+	}
+
+	/* fill default supported_mcs_set */
+	memcpy(&ht_capie.mcs, pmlmeext->default_supported_mcs_set, 16);
+
+	/* update default supported_mcs_set */
+	if (stbc_rx_enable)
+		ht_capie.cap_info |= cpu_to_le16(IEEE80211_HT_CAP_RX_STBC_1R);/* RX STBC One spatial stream */
+
+	set_mcs_rate_by_mask(ht_capie.mcs.rx_mask, MCS_RATE_1R);
+
+	{
+		u32 rx_packet_offset, max_recvbuf_sz;
+
+>>>>>>> upstream/android-13
 		rtw_hal_get_def_var(padapter, HAL_DEF_RX_PACKET_OFFSET, &rx_packet_offset);
 		rtw_hal_get_def_var(padapter, HAL_DEF_MAX_RECVBUF_SZ, &max_recvbuf_sz);
 	}
 
 	if (padapter->driver_rx_ampdu_factor != 0xFF)
 		max_rx_ampdu_factor =
+<<<<<<< HEAD
 		  (enum HT_CAP_AMPDU_FACTOR)padapter->driver_rx_ampdu_factor;
+=======
+		  (enum ieee80211_max_ampdu_length_exp)padapter->driver_rx_ampdu_factor;
+>>>>>>> upstream/android-13
 	else
 		rtw_hal_get_def_var(padapter, HW_VAR_MAX_RX_AMPDU_FACTOR,
 				    &max_rx_ampdu_factor);
@@ -2852,6 +3888,7 @@ unsigned int rtw_restructure_ht_ie(struct adapter *padapter, u8 *in_ie, u8 *out_
 	else
 		ht_capie.ampdu_params_info |= (IEEE80211_HT_CAP_AMPDU_DENSITY&0x00);
 
+<<<<<<< HEAD
 	pframe = rtw_set_ie(out_ie+out_len, _HT_CAPABILITY_IE_,
 						sizeof(struct rtw_ieee80211_ht_cap), (unsigned char *)&ht_capie, pout_len);
 
@@ -2862,6 +3899,18 @@ unsigned int rtw_restructure_ht_ie(struct adapter *padapter, u8 *in_ie, u8 *out_
 		if (p && (ielen == sizeof(struct ieee80211_ht_addt_info))) {
 			out_len = *pout_len;
 			pframe = rtw_set_ie(out_ie+out_len, _HT_ADD_INFO_IE_, ielen, p+2, pout_len);
+=======
+	rtw_set_ie(out_ie+out_len, WLAN_EID_HT_CAPABILITY,
+		   sizeof(struct ieee80211_ht_cap), (unsigned char *)&ht_capie, pout_len);
+
+	phtpriv->ht_option = true;
+
+	if (in_ie) {
+		p = rtw_get_ie(in_ie, WLAN_EID_HT_OPERATION, &ielen, in_len);
+		if (p && (ielen == sizeof(struct ieee80211_ht_addt_info))) {
+			out_len = *pout_len;
+			rtw_set_ie(out_ie+out_len, WLAN_EID_HT_OPERATION, ielen, p+2, pout_len);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -2875,8 +3924,12 @@ void rtw_update_ht_cap(struct adapter *padapter, u8 *pie, uint ie_len, u8 channe
 	u8 *p, max_ampdu_sz;
 	int len;
 	/* struct sta_info *bmc_sta, *psta; */
+<<<<<<< HEAD
 	struct rtw_ieee80211_ht_cap *pht_capie;
 	struct ieee80211_ht_addt_info *pht_addtinfo;
+=======
+	struct ieee80211_ht_cap *pht_capie;
+>>>>>>> upstream/android-13
 	/* struct recv_reorder_ctrl *preorder_ctrl; */
 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
 	struct ht_priv 	*phtpriv = &pmlmepriv->htpriv;
@@ -2887,13 +3940,17 @@ void rtw_update_ht_cap(struct adapter *padapter, u8 *pie, uint ie_len, u8 channe
 	struct mlme_ext_info *pmlmeinfo = &(pmlmeext->mlmext_info);
 	u8 cbw40_enable = 0;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	if (!phtpriv->ht_option)
 		return;
 
 	if ((!pmlmeinfo->HT_info_enable) || (!pmlmeinfo->HT_caps_enable))
 		return;
 
+<<<<<<< HEAD
 	DBG_871X("+rtw_update_ht_cap()\n");
 
 	/* maybe needs check if ap supports rx ampdu. */
@@ -2920,15 +3977,36 @@ void rtw_update_ht_cap(struct adapter *padapter, u8 *pie, uint ie_len, u8 channe
 		max_ampdu_sz = 1 << (max_ampdu_sz+3); /*  max_ampdu_sz (kbytes); */
 
 		/* DBG_871X("rtw_update_ht_cap(): max_ampdu_sz =%d\n", max_ampdu_sz); */
+=======
+	/* maybe needs check if ap supports rx ampdu. */
+	if (!(phtpriv->ampdu_enable) && pregistrypriv->ampdu_enable == 1) {
+		phtpriv->ampdu_enable = true;
+	}
+
+	/* check Max Rx A-MPDU Size */
+	len = 0;
+	p = rtw_get_ie(pie+sizeof(struct ndis_802_11_fix_ie), WLAN_EID_HT_CAPABILITY, &len, ie_len-sizeof(struct ndis_802_11_fix_ie));
+	if (p && len > 0) {
+		pht_capie = (struct ieee80211_ht_cap *)(p+2);
+		max_ampdu_sz = (pht_capie->ampdu_params_info & IEEE80211_HT_CAP_AMPDU_FACTOR);
+		max_ampdu_sz = 1 << (max_ampdu_sz+3); /*  max_ampdu_sz (kbytes); */
+
+>>>>>>> upstream/android-13
 		phtpriv->rx_ampdu_maxlen = max_ampdu_sz;
 
 	}
 
+<<<<<<< HEAD
 
 	len = 0;
 	p = rtw_get_ie(pie+sizeof(struct ndis_802_11_fix_ie), _HT_ADD_INFO_IE_, &len, ie_len-sizeof(struct ndis_802_11_fix_ie));
 	if (p && len > 0) {
 		pht_addtinfo = (struct ieee80211_ht_addt_info *)(p+2);
+=======
+	len = 0;
+	p = rtw_get_ie(pie+sizeof(struct ndis_802_11_fix_ie), WLAN_EID_HT_OPERATION, &len, ie_len-sizeof(struct ndis_802_11_fix_ie));
+	if (p && len > 0) {
+>>>>>>> upstream/android-13
 		/* todo: */
 	}
 
@@ -2945,15 +4023,19 @@ void rtw_update_ht_cap(struct adapter *padapter, u8 *pie, uint ie_len, u8 channe
 	    (le16_to_cpu(pmlmeinfo->HT_caps.u.HT_cap_element.HT_caps_info) &
 	      BIT(1)) && (pmlmeinfo->HT_info.infos[0] & BIT(2))) {
 		int i;
+<<<<<<< HEAD
 		u8 rf_type;
 
 		rtw_hal_get_hwreg(padapter, HW_VAR_RF_TYPE, (u8 *)(&rf_type));
+=======
+>>>>>>> upstream/android-13
 
 		/* update the MCS set */
 		for (i = 0; i < 16; i++)
 			pmlmeinfo->HT_caps.u.HT_cap_element.MCS_rate[i] &= pmlmeext->default_supported_mcs_set[i];
 
 		/* update the MCS rates */
+<<<<<<< HEAD
 		switch (rf_type) {
 		case RF_1T1R:
 		case RF_1T2R:
@@ -2970,6 +4052,9 @@ void rtw_update_ht_cap(struct adapter *padapter, u8 *pie, uint ie_len, u8 channe
 			set_mcs_rate_by_mask(pmlmeinfo->HT_caps.u.HT_cap_element.MCS_rate, MCS_RATE_2R);
 #endif /* CONFIG_DISABLE_MCS13TO15 */
 		}
+=======
+		set_mcs_rate_by_mask(pmlmeinfo->HT_caps.u.HT_cap_element.MCS_rate, MCS_RATE_1R);
+>>>>>>> upstream/android-13
 
 		/* switch to the 40M Hz mode according to the AP */
 		/* pmlmeext->cur_bwmode = CHANNEL_WIDTH_40; */
@@ -2994,8 +4079,11 @@ void rtw_update_ht_cap(struct adapter *padapter, u8 *pie, uint ie_len, u8 channe
 	pmlmeinfo->SM_PS =
 		(le16_to_cpu(pmlmeinfo->HT_caps.u.HT_cap_element.HT_caps_info) &
 		 0x0C) >> 2;
+<<<<<<< HEAD
 	if (pmlmeinfo->SM_PS == WLAN_HT_CAP_SM_PS_STATIC)
 		DBG_871X("%s(): WLAN_HT_CAP_SM_PS_STATIC\n", __func__);
+=======
+>>>>>>> upstream/android-13
 
 	/*  */
 	/*  Config current HT Protection mode. */
@@ -3019,6 +4107,7 @@ void rtw_issue_addbareq_cmd(struct adapter *padapter, struct xmit_frame *pxmitfr
 	priority = pattrib->priority;
 
 	psta = rtw_get_stainfo(&padapter->stapriv, pattrib->ra);
+<<<<<<< HEAD
 	if (pattrib->psta != psta) {
 		DBG_871X("%s, pattrib->psta(%p) != psta(%p)\n", __func__, pattrib->psta, psta);
 		return;
@@ -3038,11 +4127,28 @@ void rtw_issue_addbareq_cmd(struct adapter *padapter, struct xmit_frame *pxmitfr
 	phtpriv = &psta->htpriv;
 
 	if ((phtpriv->ht_option == true) && (phtpriv->ampdu_enable == true)) {
+=======
+	if (pattrib->psta != psta)
+		return;
+
+	if (!psta)
+		return;
+
+	if (!(psta->state & _FW_LINKED))
+		return;
+
+	phtpriv = &psta->htpriv;
+
+	if (phtpriv->ht_option && phtpriv->ampdu_enable) {
+>>>>>>> upstream/android-13
 		issued = (phtpriv->agg_enable_bitmap>>priority)&0x1;
 		issued |= (phtpriv->candidate_tid_bitmap>>priority)&0x1;
 
 		if (0 == issued) {
+<<<<<<< HEAD
 			DBG_871X("rtw_issue_addbareq_cmd, p =%d\n", priority);
+=======
+>>>>>>> upstream/android-13
 			psta->htpriv.candidate_tid_bitmap |= BIT((u8)priority);
 			rtw_addbareq_cmd(padapter, (u8) priority, pattrib->ra);
 		}
@@ -3055,6 +4161,7 @@ void rtw_append_exented_cap(struct adapter *padapter, u8 *out_ie, uint *pout_len
 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
 	struct ht_priv 	*phtpriv = &pmlmepriv->htpriv;
 	u8 cap_content[8] = {0};
+<<<<<<< HEAD
 	u8 *pframe;
 
 
@@ -3063,6 +4170,13 @@ void rtw_append_exented_cap(struct adapter *padapter, u8 *out_ie, uint *pout_len
 	}
 
 	pframe = rtw_set_ie(out_ie + *pout_len, EID_EXTCapability, 8, cap_content, pout_len);
+=======
+
+	if (phtpriv->bss_coexist)
+		SET_EXT_CAPABILITY_ELE_BSS_COEXIST(cap_content, 1);
+
+	rtw_set_ie(out_ie + *pout_len, WLAN_EID_EXT_CAPABILITY, 8, cap_content, pout_len);
+>>>>>>> upstream/android-13
 }
 
 inline void rtw_set_to_roam(struct adapter *adapter, u8 to_roam)
@@ -3098,10 +4212,14 @@ void _rtw_roaming(struct adapter *padapter, struct wlan_network *tgt_network)
 	int do_join_r;
 
 	if (0 < rtw_to_roam(padapter)) {
+<<<<<<< HEAD
 		DBG_871X("roaming from %s("MAC_FMT"), length:%d\n",
 				cur_network->network.Ssid.Ssid, MAC_ARG(cur_network->network.MacAddress),
 				cur_network->network.Ssid.SsidLength);
 		memcpy(&pmlmepriv->assoc_ssid, &cur_network->network.Ssid, sizeof(struct ndis_802_11_ssid));
+=======
+		memcpy(&pmlmepriv->assoc_ssid, &cur_network->network.ssid, sizeof(struct ndis_802_11_ssid));
+>>>>>>> upstream/android-13
 
 		pmlmepriv->assoc_by_bssid = false;
 
@@ -3110,13 +4228,19 @@ void _rtw_roaming(struct adapter *padapter, struct wlan_network *tgt_network)
 			if (_SUCCESS == do_join_r) {
 				break;
 			} else {
+<<<<<<< HEAD
 				DBG_871X("roaming do_join return %d\n", do_join_r);
+=======
+>>>>>>> upstream/android-13
 				rtw_dec_to_roam(padapter);
 
 				if (rtw_to_roam(padapter) > 0) {
 					continue;
 				} else {
+<<<<<<< HEAD
 					DBG_871X("%s(%d) -to roaming fail, indicate_disconnect\n", __func__, __LINE__);
+=======
+>>>>>>> upstream/android-13
 					rtw_indicate_disconnect(padapter);
 					break;
 				}
@@ -3126,13 +4250,21 @@ void _rtw_roaming(struct adapter *padapter, struct wlan_network *tgt_network)
 
 }
 
+<<<<<<< HEAD
 sint rtw_linked_check(struct adapter *padapter)
+=======
+signed int rtw_linked_check(struct adapter *padapter)
+>>>>>>> upstream/android-13
 {
 	if ((check_fwstate(&padapter->mlmepriv, WIFI_AP_STATE) == true) ||
 			(check_fwstate(&padapter->mlmepriv, WIFI_ADHOC_STATE|WIFI_ADHOC_MASTER_STATE) == true)) {
 		if (padapter->stapriv.asoc_sta_count > 2)
 			return true;
+<<<<<<< HEAD
 	} else{	/* Station mode */
+=======
+	} else {	/* Station mode */
+>>>>>>> upstream/android-13
 		if (check_fwstate(&padapter->mlmepriv, _FW_LINKED) == true)
 			return true;
 	}

@@ -9,7 +9,11 @@
  * published by the Free Software Foundation.
  *
  *  Structure passed to kernel to tell it about the
+<<<<<<< HEAD
  *  hardware it's running on.  See Documentation/arm/Setup
+=======
+ *  hardware it's running on.  See Documentation/arm/setup.rst
+>>>>>>> upstream/android-13
  *  for more info.
  */
 #ifndef _UAPI__ASMARM_SETUP_H
@@ -17,7 +21,11 @@
 
 #include <linux/types.h>
 
+<<<<<<< HEAD
 #define COMMAND_LINE_SIZE 2048
+=======
+#define COMMAND_LINE_SIZE 1024
+>>>>>>> upstream/android-13
 
 /* The list ends with an ATAG_NONE node. */
 #define ATAG_NONE	0x00000000

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
  * Copyright (C) 2004-2006 Red Hat, Inc.  All rights reserved.
@@ -5,6 +6,12 @@
  * This copyrighted material is made available to anyone wishing to use,
  * modify, copy, or redistribute it subject to the terms and conditions
  * of the GNU General Public License version 2.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
+ * Copyright (C) 2004-2006 Red Hat, Inc.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -76,9 +83,12 @@
 #include "bmap.h"
 #include "util.h"
 
+<<<<<<< HEAD
 #define IS_LEAF     1 /* Hashed (leaf) directory */
 #define IS_DINODE   2 /* Linear (stuffed dinode block) directory */
 
+=======
+>>>>>>> upstream/android-13
 #define MAX_RA_BLOCKS 32 /* max read-ahead blocks */
 
 #define gfs2_disk_hash2offset(h) (((u64)(h)) >> 1)
@@ -165,7 +175,11 @@ static int gfs2_dir_write_data(struct gfs2_inode *ip, const char *buf,
 	unsigned int o;
 	int copied = 0;
 	int error = 0;
+<<<<<<< HEAD
 	int new = 0;
+=======
+	bool new = false;
+>>>>>>> upstream/android-13
 
 	if (!size)
 		return 0;
@@ -178,7 +192,11 @@ static int gfs2_dir_write_data(struct gfs2_inode *ip, const char *buf,
 		return -EINVAL;
 
 	if (gfs2_is_stuffed(ip)) {
+<<<<<<< HEAD
 		error = gfs2_unstuff_dinode(ip, NULL);
+=======
+		error = gfs2_unstuff_dinode(ip);
+>>>>>>> upstream/android-13
 		if (error)
 			return error;
 	}
@@ -195,9 +213,15 @@ static int gfs2_dir_write_data(struct gfs2_inode *ip, const char *buf,
 			amount = sdp->sd_sb.sb_bsize - o;
 
 		if (!extlen) {
+<<<<<<< HEAD
 			new = 1;
 			error = gfs2_extent_map(&ip->i_inode, lblock, &new,
 						&dblock, &extlen);
+=======
+			extlen = 1;
+			error = gfs2_alloc_extent(&ip->i_inode, lblock, &dblock,
+						  &extlen, &new);
+>>>>>>> upstream/android-13
 			if (error)
 				goto fail;
 			error = -EIO;
@@ -292,15 +316,23 @@ static int gfs2_dir_read_data(struct gfs2_inode *ip, __be64 *buf,
 	while (copied < size) {
 		unsigned int amount;
 		struct buffer_head *bh;
+<<<<<<< HEAD
 		int new;
+=======
+>>>>>>> upstream/android-13
 
 		amount = size - copied;
 		if (amount > sdp->sd_sb.sb_bsize - o)
 			amount = sdp->sd_sb.sb_bsize - o;
 
 		if (!extlen) {
+<<<<<<< HEAD
 			new = 0;
 			error = gfs2_extent_map(&ip->i_inode, lblock, &new,
+=======
+			extlen = 32;
+			error = gfs2_get_extent(&ip->i_inode, lblock,
+>>>>>>> upstream/android-13
 						&dblock, &extlen);
 			if (error || !dblock)
 				goto fail;
@@ -360,7 +392,11 @@ static __be64 *gfs2_dir_get_hash_table(struct gfs2_inode *ip)
 
 	hc = kmalloc(hsize, GFP_NOFS | __GFP_NOWARN);
 	if (hc == NULL)
+<<<<<<< HEAD
 		hc = __vmalloc(hsize, GFP_NOFS, PAGE_KERNEL);
+=======
+		hc = __vmalloc(hsize, GFP_NOFS);
+>>>>>>> upstream/android-13
 
 	if (hc == NULL)
 		return ERR_PTR(-ENOMEM);
@@ -506,7 +542,12 @@ static int gfs2_dirent_gather(const struct gfs2_dirent *dent,
  * For now the most important thing is to check that the various sizes
  * are correct.
  */
+<<<<<<< HEAD
 static int gfs2_check_dirent(struct gfs2_dirent *dent, unsigned int offset,
+=======
+static int gfs2_check_dirent(struct gfs2_sbd *sdp,
+			     struct gfs2_dirent *dent, unsigned int offset,
+>>>>>>> upstream/android-13
 			     unsigned int size, unsigned int len, int first)
 {
 	const char *msg = "gfs2_dirent too small";
@@ -528,12 +569,20 @@ static int gfs2_check_dirent(struct gfs2_dirent *dent, unsigned int offset,
 		goto error;
 	return 0;
 error:
+<<<<<<< HEAD
 	pr_warn("%s: %s (%s)\n",
+=======
+	fs_warn(sdp, "%s: %s (%s)\n",
+>>>>>>> upstream/android-13
 		__func__, msg, first ? "first in block" : "not first in block");
 	return -EIO;
 }
 
+<<<<<<< HEAD
 static int gfs2_dirent_offset(const void *buf)
+=======
+static int gfs2_dirent_offset(struct gfs2_sbd *sdp, const void *buf)
+>>>>>>> upstream/android-13
 {
 	const struct gfs2_meta_header *h = buf;
 	int offset;
@@ -552,7 +601,12 @@ static int gfs2_dirent_offset(const void *buf)
 	}
 	return offset;
 wrong_type:
+<<<<<<< HEAD
 	pr_warn("%s: wrong block type %u\n", __func__, be32_to_cpu(h->mh_type));
+=======
+	fs_warn(sdp, "%s: wrong block type %u\n", __func__,
+		be32_to_cpu(h->mh_type));
+>>>>>>> upstream/android-13
 	return -1;
 }
 
@@ -566,7 +620,11 @@ static struct gfs2_dirent *gfs2_dirent_scan(struct inode *inode, void *buf,
 	unsigned size;
 	int ret = 0;
 
+<<<<<<< HEAD
 	ret = gfs2_dirent_offset(buf);
+=======
+	ret = gfs2_dirent_offset(GFS2_SB(inode), buf);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		goto consist_inode;
 
@@ -574,7 +632,11 @@ static struct gfs2_dirent *gfs2_dirent_scan(struct inode *inode, void *buf,
 	prev = NULL;
 	dent = buf + offset;
 	size = be16_to_cpu(dent->de_rec_len);
+<<<<<<< HEAD
 	if (gfs2_check_dirent(dent, offset, size, len, 1))
+=======
+	if (gfs2_check_dirent(GFS2_SB(inode), dent, offset, size, len, 1))
+>>>>>>> upstream/android-13
 		goto consist_inode;
 	do {
 		ret = scan(dent, name, opaque);
@@ -586,7 +648,12 @@ static struct gfs2_dirent *gfs2_dirent_scan(struct inode *inode, void *buf,
 		prev = dent;
 		dent = buf + offset;
 		size = be16_to_cpu(dent->de_rec_len);
+<<<<<<< HEAD
 		if (gfs2_check_dirent(dent, offset, size, len, 0))
+=======
+		if (gfs2_check_dirent(GFS2_SB(inode), dent, offset, size,
+				      len, 0))
+>>>>>>> upstream/android-13
 			goto consist_inode;
 	} while(1);
 
@@ -750,7 +817,11 @@ static struct gfs2_dirent *gfs2_dirent_split_alloc(struct inode *inode,
 	struct gfs2_dirent *dent;
 	dent = gfs2_dirent_scan(inode, bh->b_data, bh->b_size,
 				gfs2_dirent_find_offset, name, ptr);
+<<<<<<< HEAD
 	if (!dent || IS_ERR(dent))
+=======
+	if (IS_ERR_OR_NULL(dent))
+>>>>>>> upstream/android-13
 		return dent;
 	return do_init_dirent(inode, dent, name, bh,
 			      (unsigned)(ptr - (void *)dent));
@@ -773,14 +844,23 @@ static int get_leaf(struct gfs2_inode *dip, u64 leaf_no,
 /**
  * get_leaf_nr - Get a leaf number associated with the index
  * @dip: The GFS2 inode
+<<<<<<< HEAD
  * @index:
  * @leaf_out:
+=======
+ * @index: hash table index of the targeted leaf
+ * @leaf_out: Resulting leaf block number
+>>>>>>> upstream/android-13
  *
  * Returns: 0 on success, error code otherwise
  */
 
+<<<<<<< HEAD
 static int get_leaf_nr(struct gfs2_inode *dip, u32 index,
 		       u64 *leaf_out)
+=======
+static int get_leaf_nr(struct gfs2_inode *dip, u32 index, u64 *leaf_out)
+>>>>>>> upstream/android-13
 {
 	__be64 *hash;
 	int error;
@@ -854,7 +934,11 @@ static struct gfs2_dirent *gfs2_dirent_search(struct inode *inode,
 		return ERR_PTR(error);
 	dent = gfs2_dirent_scan(inode, bh->b_data, bh->b_size, scan, name, NULL);
 got_dent:
+<<<<<<< HEAD
 	if (unlikely(dent == NULL || IS_ERR(dent))) {
+=======
+	if (IS_ERR_OR_NULL(dent)) {
+>>>>>>> upstream/android-13
 		brelse(bh);
 		bh = NULL;
 	}
@@ -880,7 +964,11 @@ static struct gfs2_leaf *new_leaf(struct inode *inode, struct buffer_head **pbh,
 	if (!bh)
 		return NULL;
 
+<<<<<<< HEAD
 	gfs2_trans_add_unrevoke(GFS2_SB(inode), bn, 1);
+=======
+	gfs2_trans_remove_revoke(GFS2_SB(inode), bn, 1);
+>>>>>>> upstream/android-13
 	gfs2_trans_add_meta(ip->i_gl, bh);
 	gfs2_metatype_set(bh, GFS2_METATYPE_LF, GFS2_FORMAT_LF);
 	leaf = (struct gfs2_leaf *)bh->b_data;
@@ -901,7 +989,11 @@ static struct gfs2_leaf *new_leaf(struct inode *inode, struct buffer_head **pbh,
 
 /**
  * dir_make_exhash - Convert a stuffed directory into an ExHash directory
+<<<<<<< HEAD
  * @dip: The GFS2 inode
+=======
+ * @inode: The directory inode to be converted to exhash
+>>>>>>> upstream/android-13
  *
  * Returns: 0 on success, error code otherwise
  */
@@ -994,9 +1086,14 @@ static int dir_make_exhash(struct inode *inode)
 
 /**
  * dir_split_leaf - Split a leaf block into two
+<<<<<<< HEAD
  * @dip: The GFS2 inode
  * @index:
  * @leaf_no:
+=======
+ * @inode: The directory inode to be split
+ * @name: name of the dirent we're trying to insert
+>>>>>>> upstream/android-13
  *
  * Returns: 0 on success, error code on failure
  */
@@ -1043,7 +1140,11 @@ static int dir_split_leaf(struct inode *inode, const struct qstr *name)
 	len = BIT(dip->i_depth - be16_to_cpu(oleaf->lf_depth));
 	half_len = len >> 1;
 	if (!half_len) {
+<<<<<<< HEAD
 		pr_warn("i_depth %u lf_depth %u index %u\n",
+=======
+		fs_warn(GFS2_SB(inode), "i_depth %u lf_depth %u index %u\n",
+>>>>>>> upstream/android-13
 			dip->i_depth, be16_to_cpu(oleaf->lf_depth), index);
 		gfs2_consist_inode(dip);
 		error = -EIO;
@@ -1169,7 +1270,11 @@ static int dir_double_exhash(struct gfs2_inode *dip)
 
 	hc2 = kmalloc_array(hsize_bytes, 2, GFP_NOFS | __GFP_NOWARN);
 	if (hc2 == NULL)
+<<<<<<< HEAD
 		hc2 = __vmalloc(hsize_bytes * 2, GFP_NOFS, PAGE_KERNEL);
+=======
+		hc2 = __vmalloc(hsize_bytes * 2, GFP_NOFS);
+>>>>>>> upstream/android-13
 
 	if (!hc2)
 		return -ENOMEM;
@@ -1255,6 +1360,10 @@ static int compare_dents(const void *a, const void *b)
  * @ctx: what to feed the entries to
  * @darr: an array of struct gfs2_dirent pointers to read
  * @entries: the number of entries in darr
+<<<<<<< HEAD
+=======
+ * @sort_start: index of the directory array to start our sort
+>>>>>>> upstream/android-13
  * @copied: pointer to int that's non-zero if a entry has been copied out
  *
  * Jump through some hoops to make sure that if there are hash collsions,
@@ -1330,7 +1439,11 @@ static void *gfs2_alloc_sort_buffer(unsigned size)
 	if (size < KMALLOC_MAX_SIZE)
 		ptr = kmalloc(size, GFP_NOFS | __GFP_NOWARN);
 	if (!ptr)
+<<<<<<< HEAD
 		ptr = __vmalloc(size, GFP_NOFS, PAGE_KERNEL);
+=======
+		ptr = __vmalloc(size, GFP_NOFS);
+>>>>>>> upstream/android-13
 	return ptr;
 }
 
@@ -1351,7 +1464,11 @@ static int gfs2_set_cookies(struct gfs2_sbd *sdp, struct buffer_head *bh,
 		if (!sdp->sd_args.ar_loccookie)
 			continue;
 		offset = (char *)(darr[i]) -
+<<<<<<< HEAD
 			 (bh->b_data + gfs2_dirent_offset(bh->b_data));
+=======
+			(bh->b_data + gfs2_dirent_offset(sdp, bh->b_data));
+>>>>>>> upstream/android-13
 		offset /= GFS2_MIN_DIRENT_SIZE;
 		offset += leaf_nr * sdp->sd_max_dents_per_leaf;
 		if (offset >= GFS2_USE_HASH_FLAG ||
@@ -1463,8 +1580,12 @@ static int gfs2_dir_read_leaf(struct inode *inode, struct dir_context *ctx,
 				sort_offset : entries, copied);
 out_free:
 	for(i = 0; i < leaf; i++)
+<<<<<<< HEAD
 		if (larr[i])
 			brelse(larr[i]);
+=======
+		brelse(larr[i]);
+>>>>>>> upstream/android-13
 	kvfree(larr);
 out:
 	return error;
@@ -1472,6 +1593,13 @@ out:
 
 /**
  * gfs2_dir_readahead - Issue read-ahead requests for leaf blocks.
+<<<<<<< HEAD
+=======
+ * @inode: the directory inode
+ * @hsize: hash table size
+ * @index: index into the hash table
+ * @f_ra: read-ahead parameters
+>>>>>>> upstream/android-13
  *
  * Note: we can't calculate each index like dir_e_read can because we don't
  * have the leaf, and therefore we don't have the depth, and therefore we
@@ -1521,8 +1649,14 @@ static void gfs2_dir_readahead(struct inode *inode, unsigned hsize, u32 index,
 
 /**
  * dir_e_read - Reads the entries from a directory into a filldir buffer
+<<<<<<< HEAD
  * @dip: dinode pointer
  * @ctx: actor to feed the entries to
+=======
+ * @inode: the directory inode
+ * @ctx: actor to feed the entries to
+ * @f_ra: read-ahead parameters
+>>>>>>> upstream/android-13
  *
  * Returns: errno
  */
@@ -1631,7 +1765,11 @@ out:
 
 /**
  * gfs2_dir_search - Search a directory
+<<<<<<< HEAD
  * @dip: The GFS2 dir inode
+=======
+ * @dir: The GFS2 directory inode
+>>>>>>> upstream/android-13
  * @name: The name we are looking up
  * @fail_on_exist: Fail if the name exists rather than looking it up
  *
@@ -1868,7 +2006,11 @@ int gfs2_dir_add(struct inode *inode, const struct qstr *name,
 /**
  * gfs2_dir_del - Delete a directory entry
  * @dip: The GFS2 inode
+<<<<<<< HEAD
  * @filename: The filename
+=======
+ * @dentry: The directory entry we want to delete
+>>>>>>> upstream/android-13
  *
  * Returns: 0 on success, error code on failure
  */
@@ -1922,9 +2064,16 @@ int gfs2_dir_del(struct gfs2_inode *dip, const struct dentry *dentry)
 
 /**
  * gfs2_dir_mvino - Change inode number of directory entry
+<<<<<<< HEAD
  * @dip: The GFS2 inode
  * @filename:
  * @new_inode:
+=======
+ * @dip: The GFS2 directory inode
+ * @filename: the filename to be moved
+ * @nip: the new GFS2 inode
+ * @new_type: the de_type of the new dirent
+>>>>>>> upstream/android-13
  *
  * This routine changes the inode number of a directory entry.  It's used
  * by rename to change ".." when a directory is moved.
@@ -1964,7 +2113,11 @@ int gfs2_dir_mvino(struct gfs2_inode *dip, const struct qstr *filename,
  * @len: the number of pointers to this leaf
  * @leaf_no: the leaf number
  * @leaf_bh: buffer_head for the starting leaf
+<<<<<<< HEAD
  * last_dealloc: 1 if this is the final dealloc for the leaf, else 0
+=======
+ * @last_dealloc: 1 if this is the final dealloc for the leaf, else 0
+>>>>>>> upstream/android-13
  *
  * Returns: errno
  */
@@ -1991,8 +2144,12 @@ static int leaf_dealloc(struct gfs2_inode *dip, u32 index, u32 len,
 
 	ht = kzalloc(size, GFP_NOFS | __GFP_NOWARN);
 	if (ht == NULL)
+<<<<<<< HEAD
 		ht = __vmalloc(size, GFP_NOFS | __GFP_NOWARN | __GFP_ZERO,
 			       PAGE_KERNEL);
+=======
+		ht = __vmalloc(size, GFP_NOFS | __GFP_NOWARN | __GFP_ZERO);
+>>>>>>> upstream/android-13
 	if (!ht)
 		return -ENOMEM;
 
@@ -2018,7 +2175,11 @@ static int leaf_dealloc(struct gfs2_inode *dip, u32 index, u32 len,
 		l_blocks++;
 	}
 
+<<<<<<< HEAD
 	gfs2_rlist_alloc(&rlist, LM_ST_EXCLUSIVE);
+=======
+	gfs2_rlist_alloc(&rlist);
+>>>>>>> upstream/android-13
 
 	for (x = 0; x < rlist.rl_rgrps; x++) {
 		struct gfs2_rgrpd *rgd = gfs2_glock2rgrp(rlist.rl_ghs[x].gh_gl);
@@ -2032,13 +2193,23 @@ static int leaf_dealloc(struct gfs2_inode *dip, u32 index, u32 len,
 
 	error = gfs2_trans_begin(sdp,
 			rg_blocks + (DIV_ROUND_UP(size, sdp->sd_jbsize) + 1) +
+<<<<<<< HEAD
 			RES_DINODE + RES_STATFS + RES_QUOTA, l_blocks);
+=======
+			RES_DINODE + RES_STATFS + RES_QUOTA, RES_DINODE +
+				 l_blocks);
+>>>>>>> upstream/android-13
 	if (error)
 		goto out_rg_gunlock;
 
 	bh = leaf_bh;
 
 	for (blk = leaf_no; blk; blk = nblk) {
+<<<<<<< HEAD
+=======
+		struct gfs2_rgrpd *rgd;
+
+>>>>>>> upstream/android-13
 		if (blk != leaf_no) {
 			error = get_leaf(dip, blk, &bh);
 			if (error)
@@ -2049,7 +2220,12 @@ static int leaf_dealloc(struct gfs2_inode *dip, u32 index, u32 len,
 		if (blk != leaf_no)
 			brelse(bh);
 
+<<<<<<< HEAD
 		gfs2_free_meta(dip, blk, 1);
+=======
+		rgd = gfs2_blk2rgrpd(sdp, blk, true);
+		gfs2_free_meta(dip, rgd, blk, 1);
+>>>>>>> upstream/android-13
 		gfs2_add_inode_blocks(&dip->i_inode, -1);
 	}
 
@@ -2143,8 +2319,13 @@ out:
 
 /**
  * gfs2_diradd_alloc_required - find if adding entry will require an allocation
+<<<<<<< HEAD
  * @ip: the file being written to
  * @filname: the filename that's going to be added
+=======
+ * @inode: the directory inode being written to
+ * @name: the filename that's going to be added
+>>>>>>> upstream/android-13
  * @da: The structure to return dir alloc info
  *
  * Returns: 0 if ok, -ve on error

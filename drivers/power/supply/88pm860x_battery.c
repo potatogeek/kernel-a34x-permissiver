@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Battery driver for Marvell 88PM860x PMIC
  *
  * Copyright (c) 2012 Marvell International Ltd.
  * Author:	Jett Zhou <jtzhou@marvell.com>
  *		Haojian Zhuang <haojian.zhuang@marvell.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -112,8 +119,13 @@ struct pm860x_battery_info {
 };
 
 struct ccnt {
+<<<<<<< HEAD
 	unsigned long long int pos;
 	unsigned long long int neg;
+=======
+	unsigned long long pos;
+	unsigned long long neg;
+>>>>>>> upstream/android-13
 	unsigned int spos;
 	unsigned int sneg;
 
@@ -924,6 +936,7 @@ static int pm860x_battery_probe(struct platform_device *pdev)
 		return -ENOMEM;
 
 	info->irq_cc = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (info->irq_cc <= 0) {
 		dev_err(&pdev->dev, "No IRQ resource!\n");
 		return -EINVAL;
@@ -934,6 +947,14 @@ static int pm860x_battery_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev, "No IRQ resource!\n");
 		return -EINVAL;
 	}
+=======
+	if (info->irq_cc <= 0)
+		return -EINVAL;
+
+	info->irq_batt = platform_get_irq(pdev, 1);
+	if (info->irq_batt <= 0)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	info->chip = chip;
 	info->i2c =

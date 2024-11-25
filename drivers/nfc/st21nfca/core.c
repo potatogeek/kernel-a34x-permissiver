@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * HCI based Driver for STMicroelectronics NFC Chip
  *
  * Copyright (C) 2014  STMicroelectronics SAS. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -14,12 +19,17 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
 #include <linux/nfc.h>
 #include <net/nfc/hci.h>
+<<<<<<< HEAD
 #include <net/nfc/llc.h>
+=======
+>>>>>>> upstream/android-13
 
 #include "st21nfca.h"
 
@@ -83,7 +93,11 @@
 
 static DECLARE_BITMAP(dev_mask, ST21NFCA_NUM_DEVICES);
 
+<<<<<<< HEAD
 static struct nfc_hci_gate st21nfca_gates[] = {
+=======
+static const struct nfc_hci_gate st21nfca_gates[] = {
+>>>>>>> upstream/android-13
 	{NFC_HCI_ADMIN_GATE, NFC_HCI_ADMIN_PIPE},
 	{NFC_HCI_LINK_MGMT_GATE, NFC_HCI_LINK_MGMT_PIPE},
 	{ST21NFCA_DEVICE_MGNT_GATE, ST21NFCA_DEVICE_MGNT_PIPE},
@@ -805,7 +819,10 @@ static int st21nfca_hci_im_transceive(struct nfc_hci_dev *hdev,
 					      skb->len,
 					      st21nfca_hci_data_exchange_cb,
 					      info);
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 	default:
 		return 1;
 	}
@@ -924,7 +941,11 @@ static int st21nfca_hci_event_received(struct nfc_hci_dev *hdev, u8 pipe,
 	}
 }
 
+<<<<<<< HEAD
 static struct nfc_hci_ops st21nfca_hci_ops = {
+=======
+static const struct nfc_hci_ops st21nfca_hci_ops = {
+>>>>>>> upstream/android-13
 	.open = st21nfca_hci_open,
 	.close = st21nfca_hci_close,
 	.load_session = st21nfca_hci_load_session,
@@ -947,7 +968,11 @@ static struct nfc_hci_ops st21nfca_hci_ops = {
 	.se_io = st21nfca_hci_se_io,
 };
 
+<<<<<<< HEAD
 int st21nfca_hci_probe(void *phy_id, struct nfc_phy_ops *phy_ops,
+=======
+int st21nfca_hci_probe(void *phy_id, const struct nfc_phy_ops *phy_ops,
+>>>>>>> upstream/android-13
 		       char *llc_name, int phy_headroom, int phy_tailroom,
 		       int phy_payload, struct nfc_hci_dev **hdev,
 			   struct st21nfca_se_status *se_status)

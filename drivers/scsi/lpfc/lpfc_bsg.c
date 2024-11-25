@@ -1,7 +1,11 @@
 /*******************************************************************
  * This file is part of the Emulex Linux Device Driver for         *
  * Fibre Channel Host Bus Adapters.                                *
+<<<<<<< HEAD
  * Copyright (C) 2017-2018 Broadcom. All Rights Reserved. The term *
+=======
+ * Copyright (C) 2017-2021 Broadcom. All Rights Reserved. The term *
+>>>>>>> upstream/android-13
  * “Broadcom” refers to Broadcom Inc. and/or its subsidiaries.     *
  * Copyright (C) 2009-2015 Emulex.  All rights reserved.           *
  * EMULEX and SLI are trademarks of Emulex.                        *
@@ -27,6 +31,10 @@
 #include <linux/delay.h>
 #include <linux/list.h>
 #include <linux/bsg-lib.h>
+<<<<<<< HEAD
+=======
+#include <linux/vmalloc.h>
+>>>>>>> upstream/android-13
 
 #include <scsi/scsi.h>
 #include <scsi/scsi_host.h>
@@ -328,7 +336,11 @@ lpfc_bsg_send_mgmt_cmd_cmp(struct lpfc_hba *phba,
 	spin_unlock_irqrestore(&phba->hbalock, flags);
 
 	iocb = &dd_data->context_un.iocb;
+<<<<<<< HEAD
 	ndlp = iocb->ndlp;
+=======
+	ndlp = iocb->cmdiocbq->context_un.ndlp;
+>>>>>>> upstream/android-13
 	rmp = iocb->rmp;
 	cmp = cmdiocbq->context2;
 	bmp = cmdiocbq->context3;
@@ -365,8 +377,13 @@ lpfc_bsg_send_mgmt_cmd_cmp(struct lpfc_hba *phba,
 	lpfc_free_bsg_buffers(phba, rmp);
 	lpfc_mbuf_free(phba, bmp->virt, bmp->phys);
 	kfree(bmp);
+<<<<<<< HEAD
 	lpfc_sli_release_iocbq(phba, cmdiocbq);
 	lpfc_nlp_put(ndlp);
+=======
+	lpfc_nlp_put(ndlp);
+	lpfc_sli_release_iocbq(phba, cmdiocbq);
+>>>>>>> upstream/android-13
 	kfree(dd_data);
 
 	/* Complete the job if the job is still active */
@@ -407,6 +424,12 @@ lpfc_bsg_send_mgmt_cmd(struct bsg_job *job)
 	/* in case no data is transferred */
 	bsg_reply->reply_payload_rcv_len = 0;
 
+<<<<<<< HEAD
+=======
+	if (ndlp->nlp_flag & NLP_ELS_SND_MASK)
+		return -ENODEV;
+
+>>>>>>> upstream/android-13
 	/* allocate our bsg tracking structure */
 	dd_data = kmalloc(sizeof(struct bsg_job_data), GFP_KERNEL);
 	if (!dd_data) {
@@ -416,6 +439,7 @@ lpfc_bsg_send_mgmt_cmd(struct bsg_job *job)
 		goto no_dd_data;
 	}
 
+<<<<<<< HEAD
 	if (!lpfc_nlp_get(ndlp)) {
 		rc = -ENODEV;
 		goto no_ndlp;
@@ -430,6 +454,12 @@ lpfc_bsg_send_mgmt_cmd(struct bsg_job *job)
 	if (!cmdiocbq) {
 		rc = -ENOMEM;
 		goto free_ndlp;
+=======
+	cmdiocbq = lpfc_sli_get_iocbq(phba);
+	if (!cmdiocbq) {
+		rc = -ENOMEM;
+		goto free_dd;
+>>>>>>> upstream/android-13
 	}
 
 	cmd = &cmdiocbq->iocb;
@@ -495,11 +525,18 @@ lpfc_bsg_send_mgmt_cmd(struct bsg_job *job)
 	cmdiocbq->context1 = dd_data;
 	cmdiocbq->context2 = cmp;
 	cmdiocbq->context3 = bmp;
+<<<<<<< HEAD
 	cmdiocbq->context_un.ndlp = ndlp;
 	dd_data->type = TYPE_IOCB;
 	dd_data->set_job = job;
 	dd_data->context_un.iocb.cmdiocbq = cmdiocbq;
 	dd_data->context_un.iocb.ndlp = ndlp;
+=======
+
+	dd_data->type = TYPE_IOCB;
+	dd_data->set_job = job;
+	dd_data->context_un.iocb.cmdiocbq = cmdiocbq;
+>>>>>>> upstream/android-13
 	dd_data->context_un.iocb.rmp = rmp;
 	job->dd_data = dd_data;
 
@@ -513,8 +550,18 @@ lpfc_bsg_send_mgmt_cmd(struct bsg_job *job)
 		readl(phba->HCregaddr); /* flush */
 	}
 
+<<<<<<< HEAD
 	iocb_stat = lpfc_sli_issue_iocb(phba, LPFC_ELS_RING, cmdiocbq, 0);
 
+=======
+	cmdiocbq->context_un.ndlp = lpfc_nlp_get(ndlp);
+	if (!cmdiocbq->context_un.ndlp) {
+		rc = -ENODEV;
+		goto free_rmp;
+	}
+
+	iocb_stat = lpfc_sli_issue_iocb(phba, LPFC_ELS_RING, cmdiocbq, 0);
+>>>>>>> upstream/android-13
 	if (iocb_stat == IOCB_SUCCESS) {
 		spin_lock_irqsave(&phba->hbalock, flags);
 		/* make sure the I/O had not been completed yet */
@@ -531,7 +578,11 @@ lpfc_bsg_send_mgmt_cmd(struct bsg_job *job)
 	}
 
 	/* iocb failed so cleanup */
+<<<<<<< HEAD
 	job->dd_data = NULL;
+=======
+	lpfc_nlp_put(ndlp);
+>>>>>>> upstream/android-13
 
 free_rmp:
 	lpfc_free_bsg_buffers(phba, rmp);
@@ -543,9 +594,13 @@ free_bmp:
 	kfree(bmp);
 free_cmdiocbq:
 	lpfc_sli_release_iocbq(phba, cmdiocbq);
+<<<<<<< HEAD
 free_ndlp:
 	lpfc_nlp_put(ndlp);
 no_ndlp:
+=======
+free_dd:
+>>>>>>> upstream/android-13
 	kfree(dd_data);
 no_dd_data:
 	/* make error code available to userspace */
@@ -639,8 +694,14 @@ lpfc_bsg_rport_els_cmp(struct lpfc_hba *phba,
 		}
 	}
 
+<<<<<<< HEAD
 	lpfc_nlp_put(ndlp);
 	lpfc_els_free_iocb(phba, cmdiocbq);
+=======
+	lpfc_els_free_iocb(phba, cmdiocbq);
+
+	lpfc_nlp_put(ndlp);
+>>>>>>> upstream/android-13
 	kfree(dd_data);
 
 	/* Complete the job if the job is still active */
@@ -717,15 +778,24 @@ lpfc_bsg_rport_els(struct bsg_job *job)
 		goto release_ndlp;
 	}
 
+<<<<<<< HEAD
 	rpi = ndlp->nlp_rpi;
 
 	/* Transfer the request payload to allocated command dma buffer */
 
+=======
+	/* Transfer the request payload to allocated command dma buffer */
+>>>>>>> upstream/android-13
 	sg_copy_to_buffer(job->request_payload.sg_list,
 			  job->request_payload.sg_cnt,
 			  ((struct lpfc_dmabuf *)cmdiocbq->context2)->virt,
 			  cmdsize);
 
+<<<<<<< HEAD
+=======
+	rpi = ndlp->nlp_rpi;
+
+>>>>>>> upstream/android-13
 	if (phba->sli_rev == LPFC_SLI_REV4)
 		cmdiocbq->iocb.ulpContext = phba->sli4_hba.rpi_ids[rpi];
 	else
@@ -751,8 +821,18 @@ lpfc_bsg_rport_els(struct bsg_job *job)
 		readl(phba->HCregaddr); /* flush */
 	}
 
+<<<<<<< HEAD
 	rc = lpfc_sli_issue_iocb(phba, LPFC_ELS_RING, cmdiocbq, 0);
 
+=======
+	cmdiocbq->context1 = lpfc_nlp_get(ndlp);
+	if (!cmdiocbq->context1) {
+		rc = -EIO;
+		goto linkdown_err;
+	}
+
+	rc = lpfc_sli_issue_iocb(phba, LPFC_ELS_RING, cmdiocbq, 0);
+>>>>>>> upstream/android-13
 	if (rc == IOCB_SUCCESS) {
 		spin_lock_irqsave(&phba->hbalock, flags);
 		/* make sure the I/O had not been completed/released */
@@ -768,11 +848,17 @@ lpfc_bsg_rport_els(struct bsg_job *job)
 		rc = -EIO;
 	}
 
+<<<<<<< HEAD
 	/* iocb failed so cleanup */
 	job->dd_data = NULL;
 
 linkdown_err:
 	cmdiocbq->context1 = ndlp;
+=======
+	/* I/O issue failed.  Cleanup resources. */
+
+linkdown_err:
+>>>>>>> upstream/android-13
 	lpfc_els_free_iocb(phba, cmdiocbq);
 
 release_ndlp:
@@ -901,11 +987,16 @@ diag_cmd_data_free(struct lpfc_hba *phba, struct lpfc_dmabufext *mlist)
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
  * lpfc_bsg_ct_unsol_event - process an unsolicited CT command
  * @phba:
  * @pring:
  * @piocbq:
+=======
+/*
+ * lpfc_bsg_ct_unsol_event - process an unsolicited CT command
+>>>>>>> upstream/android-13
  *
  * This function is called when an unsolicited CT command is received.  It
  * forwards the event to any processes registered to receive CT events.
@@ -938,6 +1029,7 @@ lpfc_bsg_ct_unsol_event(struct lpfc_hba *phba, struct lpfc_sli_ring *pring,
 	INIT_LIST_HEAD(&head);
 	list_add_tail(&head, &piocbq->list);
 
+<<<<<<< HEAD
 	if (piocbq->iocb.ulpBdeCount == 0 ||
 	    piocbq->iocb.un.cont64[0].tus.f.bdeSize == 0)
 		goto error_ct_unsol_exit;
@@ -960,6 +1052,11 @@ lpfc_bsg_ct_unsol_event(struct lpfc_hba *phba, struct lpfc_sli_ring *pring,
 	cmd = ct_req->CommandResponse.bits.CmdRsp;
 	if (!(phba->sli3_options & LPFC_SLI3_HBQ_ENABLED))
 		lpfc_sli_ringpostbuf_put(phba, pring, dmabuf);
+=======
+	ct_req = (struct lpfc_sli_ct_request *)bdeBuf1->virt;
+	evt_req_id = ct_req->FsType;
+	cmd = ct_req->CommandResponse.bits.CmdRsp;
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&phba->ct_ev_lock, flags);
 	list_for_each_entry(evt, &phba->ct_ev_waiters, node) {
@@ -1039,7 +1136,11 @@ lpfc_bsg_ct_unsol_event(struct lpfc_hba *phba, struct lpfc_sli_ring *pring,
 				if (!dmabuf) {
 					lpfc_printf_log(phba, KERN_ERR,
 						LOG_LIBDFC, "2616 No dmabuf "
+<<<<<<< HEAD
 						"found for iocbq 0x%p\n",
+=======
+						"found for iocbq x%px\n",
+>>>>>>> upstream/android-13
 						iocbq);
 					kfree(evt_dat->data);
 					kfree(evt_dat);
@@ -1275,9 +1376,13 @@ lpfc_bsg_hba_set_event(struct bsg_job *job)
 	return 0; /* call job done later */
 
 job_error:
+<<<<<<< HEAD
 	if (dd_data != NULL)
 		kfree(dd_data);
 
+=======
+	kfree(dd_data);
+>>>>>>> upstream/android-13
 	job->dd_data = NULL;
 	return rc;
 }
@@ -1475,7 +1580,12 @@ lpfc_issue_ct_rsp_cmp(struct lpfc_hba *phba,
  * @phba: Pointer to HBA context object.
  * @job: Pointer to the job object.
  * @tag: tag index value into the ports context exchange array.
+<<<<<<< HEAD
  * @bmp: Pointer to a dma buffer descriptor.
+=======
+ * @cmp: Pointer to a cmp dma buffer descriptor.
+ * @bmp: Pointer to a bmp dma buffer descriptor.
+>>>>>>> upstream/android-13
  * @num_entry: Number of enties in the bde.
  **/
 static int
@@ -1491,6 +1601,18 @@ lpfc_issue_ct_rsp(struct lpfc_hba *phba, struct bsg_job *job, uint32_t tag,
 	unsigned long flags;
 	uint32_t creg_val;
 
+<<<<<<< HEAD
+=======
+	ndlp = lpfc_findnode_did(phba->pport, phba->ct_ctx[tag].SID);
+	if (!ndlp) {
+		lpfc_printf_log(phba, KERN_WARNING, LOG_ELS,
+				"2721 ndlp null for oxid %x SID %x\n",
+				phba->ct_ctx[tag].rxid,
+				phba->ct_ctx[tag].SID);
+		return IOCB_ERROR;
+	}
+
+>>>>>>> upstream/android-13
 	/* allocate our bsg tracking structure */
 	dd_data = kmalloc(sizeof(struct bsg_job_data), GFP_KERNEL);
 	if (!dd_data) {
@@ -1541,12 +1663,15 @@ lpfc_issue_ct_rsp(struct lpfc_hba *phba, struct bsg_job *job, uint32_t tag,
 			goto issue_ct_rsp_exit;
 		}
 
+<<<<<<< HEAD
 		/* Check if the ndlp is active */
 		if (!ndlp || !NLP_CHK_NODE_ACT(ndlp)) {
 			rc = IOCB_ERROR;
 			goto issue_ct_rsp_exit;
 		}
 
+=======
+>>>>>>> upstream/android-13
 		/* get a refernece count so the ndlp doesn't go away while
 		 * we respond
 		 */
@@ -1570,7 +1695,10 @@ lpfc_issue_ct_rsp(struct lpfc_hba *phba, struct bsg_job *job, uint32_t tag,
 		"2722 Xmit CT response on exchange x%x Data: x%x x%x x%x\n",
 		icmd->ulpContext, icmd->ulpIoTag, tag, phba->link_state);
 
+<<<<<<< HEAD
 	ctiocb->iocb_cmpl = NULL;
+=======
+>>>>>>> upstream/android-13
 	ctiocb->iocb_flag |= LPFC_IO_LIBDFC;
 	ctiocb->vport = phba->pport;
 	ctiocb->context1 = dd_data;
@@ -1582,7 +1710,15 @@ lpfc_issue_ct_rsp(struct lpfc_hba *phba, struct bsg_job *job, uint32_t tag,
 	dd_data->type = TYPE_IOCB;
 	dd_data->set_job = job;
 	dd_data->context_un.iocb.cmdiocbq = ctiocb;
+<<<<<<< HEAD
 	dd_data->context_un.iocb.ndlp = ndlp;
+=======
+	dd_data->context_un.iocb.ndlp = lpfc_nlp_get(ndlp);
+	if (!dd_data->context_un.iocb.ndlp) {
+		rc = -IOCB_ERROR;
+		goto issue_ct_rsp_exit;
+	}
+>>>>>>> upstream/android-13
 	dd_data->context_un.iocb.rmp = NULL;
 	job->dd_data = dd_data;
 
@@ -1597,7 +1733,10 @@ lpfc_issue_ct_rsp(struct lpfc_hba *phba, struct bsg_job *job, uint32_t tag,
 	}
 
 	rc = lpfc_sli_issue_iocb(phba, LPFC_ELS_RING, ctiocb, 0);
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	if (rc == IOCB_SUCCESS) {
 		spin_lock_irqsave(&phba->hbalock, flags);
 		/* make sure the I/O had not been completed/released */
@@ -1611,6 +1750,10 @@ lpfc_issue_ct_rsp(struct lpfc_hba *phba, struct bsg_job *job, uint32_t tag,
 
 	/* iocb failed so cleanup */
 	job->dd_data = NULL;
+<<<<<<< HEAD
+=======
+	lpfc_nlp_put(ndlp);
+>>>>>>> upstream/android-13
 
 issue_ct_rsp_exit:
 	lpfc_sli_release_iocbq(phba, ctiocb);
@@ -1967,6 +2110,7 @@ link_diag_state_set_out:
 }
 
 /**
+<<<<<<< HEAD
  * lpfc_sli4_bsg_set_internal_loopback - set sli4 internal loopback diagnostic
  * @phba: Pointer to HBA context object.
  *
@@ -1975,6 +2119,19 @@ link_diag_state_set_out:
  */
 static int
 lpfc_sli4_bsg_set_internal_loopback(struct lpfc_hba *phba)
+=======
+ * lpfc_sli4_bsg_set_loopback_mode - set sli4 internal loopback diagnostic
+ * @phba: Pointer to HBA context object.
+ * @mode: loopback mode to set
+ * @link_no: link number for loopback mode to set
+ *
+ * This function is responsible for issuing a sli4 mailbox command for setting
+ * up loopback diagnostic for a link.
+ */
+static int
+lpfc_sli4_bsg_set_loopback_mode(struct lpfc_hba *phba, int mode,
+				uint32_t link_no)
+>>>>>>> upstream/android-13
 {
 	LPFC_MBOXQ_t *pmboxq;
 	uint32_t req_len, alloc_len;
@@ -1995,11 +2152,27 @@ lpfc_sli4_bsg_set_internal_loopback(struct lpfc_hba *phba)
 	}
 	link_diag_loopback = &pmboxq->u.mqe.un.link_diag_loopback;
 	bf_set(lpfc_mbx_set_diag_state_link_num,
+<<<<<<< HEAD
 	       &link_diag_loopback->u.req, phba->sli4_hba.lnk_info.lnk_no);
 	bf_set(lpfc_mbx_set_diag_state_link_type,
 	       &link_diag_loopback->u.req, phba->sli4_hba.lnk_info.lnk_tp);
 	bf_set(lpfc_mbx_set_diag_lpbk_type, &link_diag_loopback->u.req,
 	       LPFC_DIAG_LOOPBACK_TYPE_INTERNAL);
+=======
+	       &link_diag_loopback->u.req, link_no);
+
+	if (phba->sli4_hba.conf_trunk & (1 << link_no)) {
+		bf_set(lpfc_mbx_set_diag_state_link_type,
+		       &link_diag_loopback->u.req, LPFC_LNK_FC_TRUNKED);
+	} else {
+		bf_set(lpfc_mbx_set_diag_state_link_type,
+		       &link_diag_loopback->u.req,
+		       phba->sli4_hba.lnk_info.lnk_tp);
+	}
+
+	bf_set(lpfc_mbx_set_diag_lpbk_type, &link_diag_loopback->u.req,
+	       mode);
+>>>>>>> upstream/android-13
 
 	mbxstatus = lpfc_sli_issue_mbox_wait(phba, pmboxq, LPFC_MBOX_TMO);
 	if ((mbxstatus != MBX_SUCCESS) || (pmboxq->u.mb.mbxStatus)) {
@@ -2053,7 +2226,11 @@ lpfc_sli4_bsg_diag_loopback_mode(struct lpfc_hba *phba, struct bsg_job *job)
 	struct fc_bsg_request *bsg_request = job->request;
 	struct fc_bsg_reply *bsg_reply = job->reply;
 	struct diag_mode_set *loopback_mode;
+<<<<<<< HEAD
 	uint32_t link_flags, timeout;
+=======
+	uint32_t link_flags, timeout, link_no;
+>>>>>>> upstream/android-13
 	int i, rc = 0;
 
 	/* no data to return just the return code */
@@ -2068,12 +2245,47 @@ lpfc_sli4_bsg_diag_loopback_mode(struct lpfc_hba *phba, struct bsg_job *job)
 				(int)(sizeof(struct fc_bsg_request) +
 				sizeof(struct diag_mode_set)));
 		rc = -EINVAL;
+<<<<<<< HEAD
 		goto job_error;
+=======
+		goto job_done;
+	}
+
+	loopback_mode = (struct diag_mode_set *)
+		bsg_request->rqst_data.h_vendor.vendor_cmd;
+	link_flags = loopback_mode->type;
+	timeout = loopback_mode->timeout * 100;
+
+	if (loopback_mode->physical_link == -1)
+		link_no = phba->sli4_hba.lnk_info.lnk_no;
+	else
+		link_no = loopback_mode->physical_link;
+
+	if (link_flags == DISABLE_LOOP_BACK) {
+		rc = lpfc_sli4_bsg_set_loopback_mode(phba,
+					LPFC_DIAG_LOOPBACK_TYPE_DISABLE,
+					link_no);
+		if (!rc) {
+			/* Unset the need disable bit */
+			phba->sli4_hba.conf_trunk &= ~((1 << link_no) << 4);
+		}
+		goto job_done;
+	} else {
+		/* Check if we need to disable the loopback state */
+		if (phba->sli4_hba.conf_trunk & ((1 << link_no) << 4)) {
+			rc = -EPERM;
+			goto job_done;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	rc = lpfc_bsg_diag_mode_enter(phba);
 	if (rc)
+<<<<<<< HEAD
 		goto job_error;
+=======
+		goto job_done;
+>>>>>>> upstream/android-13
 
 	/* indicate we are in loobpack diagnostic mode */
 	spin_lock_irq(&phba->hbalock);
@@ -2083,15 +2295,22 @@ lpfc_sli4_bsg_diag_loopback_mode(struct lpfc_hba *phba, struct bsg_job *job)
 	/* reset port to start frome scratch */
 	rc = lpfc_selective_reset(phba);
 	if (rc)
+<<<<<<< HEAD
 		goto job_error;
+=======
+		goto job_done;
+>>>>>>> upstream/android-13
 
 	/* bring the link to diagnostic mode */
 	lpfc_printf_log(phba, KERN_INFO, LOG_LIBDFC,
 			"3129 Bring link to diagnostic state.\n");
+<<<<<<< HEAD
 	loopback_mode = (struct diag_mode_set *)
 		bsg_request->rqst_data.h_vendor.vendor_cmd;
 	link_flags = loopback_mode->type;
 	timeout = loopback_mode->timeout * 100;
+=======
+>>>>>>> upstream/android-13
 
 	rc = lpfc_sli4_bsg_set_link_diag_state(phba, 1);
 	if (rc) {
@@ -2119,6 +2338,7 @@ lpfc_sli4_bsg_diag_loopback_mode(struct lpfc_hba *phba, struct bsg_job *job)
 	lpfc_printf_log(phba, KERN_INFO, LOG_LIBDFC,
 			"3132 Set up loopback mode:x%x\n", link_flags);
 
+<<<<<<< HEAD
 	if (link_flags == INTERNAL_LOOP_BACK)
 		rc = lpfc_sli4_bsg_set_internal_loopback(phba);
 	else if (link_flags == EXTERNAL_LOOP_BACK)
@@ -2126,6 +2346,56 @@ lpfc_sli4_bsg_diag_loopback_mode(struct lpfc_hba *phba, struct bsg_job *job)
 						    FLAGS_TOPOLOGY_MODE_PT_PT,
 						    MBX_NOWAIT);
 	else {
+=======
+	switch (link_flags) {
+	case INTERNAL_LOOP_BACK:
+		if (phba->sli4_hba.conf_trunk & (1 << link_no)) {
+			rc = lpfc_sli4_bsg_set_loopback_mode(phba,
+					LPFC_DIAG_LOOPBACK_TYPE_INTERNAL,
+					link_no);
+		} else {
+			/* Trunk is configured, but link is not in this trunk */
+			if (phba->sli4_hba.conf_trunk) {
+				rc = -ELNRNG;
+				goto loopback_mode_exit;
+			}
+
+			rc = lpfc_sli4_bsg_set_loopback_mode(phba,
+					LPFC_DIAG_LOOPBACK_TYPE_INTERNAL,
+					link_no);
+		}
+
+		if (!rc) {
+			/* Set the need disable bit */
+			phba->sli4_hba.conf_trunk |= (1 << link_no) << 4;
+		}
+
+		break;
+	case EXTERNAL_LOOP_BACK:
+		if (phba->sli4_hba.conf_trunk & (1 << link_no)) {
+			rc = lpfc_sli4_bsg_set_loopback_mode(phba,
+				LPFC_DIAG_LOOPBACK_TYPE_EXTERNAL_TRUNKED,
+				link_no);
+		} else {
+			/* Trunk is configured, but link is not in this trunk */
+			if (phba->sli4_hba.conf_trunk) {
+				rc = -ELNRNG;
+				goto loopback_mode_exit;
+			}
+
+			rc = lpfc_sli4_bsg_set_loopback_mode(phba,
+						LPFC_DIAG_LOOPBACK_TYPE_SERDES,
+						link_no);
+		}
+
+		if (!rc) {
+			/* Set the need disable bit */
+			phba->sli4_hba.conf_trunk |= (1 << link_no) << 4;
+		}
+
+		break;
+	default:
+>>>>>>> upstream/android-13
 		rc = -EINVAL;
 		lpfc_printf_log(phba, KERN_ERR, LOG_LIBDFC,
 				"3141 Loopback mode:x%x not supported\n",
@@ -2184,7 +2454,11 @@ loopback_mode_exit:
 	}
 	lpfc_bsg_diag_mode_exit(phba);
 
+<<<<<<< HEAD
 job_error:
+=======
+job_done:
+>>>>>>> upstream/android-13
 	/* make error code available to userspace */
 	bsg_reply->result = rc;
 	/* complete the job back to userspace if no error */
@@ -2331,6 +2605,7 @@ lpfc_sli4_bsg_link_diag_test(struct bsg_job *job)
 	union lpfc_sli4_cfg_shdr *shdr;
 	uint32_t shdr_status, shdr_add_status;
 	struct diag_status *diag_status_reply;
+<<<<<<< HEAD
 	int mbxstatus, rc = 0;
 
 	shost = fc_bsg_to_shost(job);
@@ -2358,6 +2633,29 @@ lpfc_sli4_bsg_link_diag_test(struct bsg_job *job)
 		rc = -ENODEV;
 		goto job_error;
 	}
+=======
+	int mbxstatus, rc = -ENODEV, rc1 = 0;
+
+	shost = fc_bsg_to_shost(job);
+	if (!shost)
+		goto job_error;
+
+	vport = shost_priv(shost);
+	if (!vport)
+		goto job_error;
+
+	phba = vport->phba;
+	if (!phba)
+		goto job_error;
+
+
+	if (phba->sli_rev < LPFC_SLI_REV4)
+		goto job_error;
+
+	if (bf_get(lpfc_sli_intf_if_type, &phba->sli4_hba.sli_intf) <
+	    LPFC_SLI_INTF_IF_TYPE_2)
+		goto job_error;
+>>>>>>> upstream/android-13
 
 	if (job->request_len < sizeof(struct fc_bsg_request) +
 	    sizeof(struct sli4_link_diag)) {
@@ -2384,16 +2682,30 @@ lpfc_sli4_bsg_link_diag_test(struct bsg_job *job)
 		goto job_error;
 
 	pmboxq = mempool_alloc(phba->mbox_mem_pool, GFP_KERNEL);
+<<<<<<< HEAD
 	if (!pmboxq)
 		goto link_diag_test_exit;
+=======
+	if (!pmboxq) {
+		rc = -ENOMEM;
+		goto link_diag_test_exit;
+	}
+>>>>>>> upstream/android-13
 
 	req_len = (sizeof(struct lpfc_mbx_set_link_diag_state) -
 		   sizeof(struct lpfc_sli4_cfg_mhdr));
 	alloc_len = lpfc_sli4_config(phba, pmboxq, LPFC_MBOX_SUBSYSTEM_FCOE,
 				     LPFC_MBOX_OPCODE_FCOE_LINK_DIAG_STATE,
 				     req_len, LPFC_SLI4_MBX_EMBED);
+<<<<<<< HEAD
 	if (alloc_len != req_len)
 		goto link_diag_test_exit;
+=======
+	if (alloc_len != req_len) {
+		rc = -ENOMEM;
+		goto link_diag_test_exit;
+	}
+>>>>>>> upstream/android-13
 
 	run_link_diag_test = &pmboxq->u.mqe.un.link_diag_test;
 	bf_set(lpfc_mbx_run_diag_test_link_num, &run_link_diag_test->u.req,
@@ -2425,6 +2737,7 @@ lpfc_sli4_bsg_link_diag_test(struct bsg_job *job)
 	diag_status_reply = (struct diag_status *)
 			    bsg_reply->reply_data.vendor_reply.vendor_rsp;
 
+<<<<<<< HEAD
 	if (job->reply_len <
 	    sizeof(struct fc_bsg_request) + sizeof(struct diag_status)) {
 		lpfc_printf_log(phba, KERN_WARNING, LOG_LIBDFC,
@@ -2432,6 +2745,14 @@ lpfc_sli4_bsg_link_diag_test(struct bsg_job *job)
 				"below minimum size (%d): reply_len:%d\n",
 				(int)(sizeof(struct fc_bsg_request) +
 				sizeof(struct diag_status)),
+=======
+	if (job->reply_len < sizeof(*bsg_reply) + sizeof(*diag_status_reply)) {
+		lpfc_printf_log(phba, KERN_WARNING, LOG_LIBDFC,
+				"3012 Received Run link diag test reply "
+				"below minimum size (%d): reply_len:%d\n",
+				(int)(sizeof(*bsg_reply) +
+				sizeof(*diag_status_reply)),
+>>>>>>> upstream/android-13
 				job->reply_len);
 		rc = -EINVAL;
 		goto job_error;
@@ -2442,7 +2763,11 @@ lpfc_sli4_bsg_link_diag_test(struct bsg_job *job)
 	diag_status_reply->shdr_add_status = shdr_add_status;
 
 link_diag_test_exit:
+<<<<<<< HEAD
 	rc = lpfc_sli4_bsg_set_link_diag_state(phba, 0);
+=======
+	rc1 = lpfc_sli4_bsg_set_link_diag_state(phba, 0);
+>>>>>>> upstream/android-13
 
 	if (pmboxq)
 		mempool_free(pmboxq, phba->mbox_mem_pool);
@@ -2451,6 +2776,11 @@ link_diag_test_exit:
 
 job_error:
 	/* make error code available to userspace */
+<<<<<<< HEAD
+=======
+	if (rc1 && !rc)
+		rc = rc1;
+>>>>>>> upstream/android-13
 	bsg_reply->result = rc;
 	/* complete the job back to userspace if no error */
 	if (rc == 0)
@@ -2500,9 +2830,15 @@ static int lpfcdiag_loop_self_reg(struct lpfc_hba *phba, uint16_t *rpi)
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	dmabuff = (struct lpfc_dmabuf *) mbox->context1;
 	mbox->context1 = NULL;
 	mbox->context2 = NULL;
+=======
+	dmabuff = (struct lpfc_dmabuf *)mbox->ctx_buf;
+	mbox->ctx_buf = NULL;
+	mbox->ctx_ndlp = NULL;
+>>>>>>> upstream/android-13
 	status = lpfc_sli_issue_mbox_wait(phba, mbox, LPFC_MBOX_TMO);
 
 	if ((status != MBX_SUCCESS) || (mbox->u.mb.mbxStatus)) {
@@ -2729,8 +3065,13 @@ lpfc_bsg_dma_page_alloc(struct lpfc_hba *phba)
 	INIT_LIST_HEAD(&dmabuf->list);
 
 	/* now, allocate dma buffer */
+<<<<<<< HEAD
 	dmabuf->virt = dma_zalloc_coherent(&pcidev->dev, BSG_MBOX_SIZE,
 					   &(dmabuf->phys), GFP_KERNEL);
+=======
+	dmabuf->virt = dma_alloc_coherent(&pcidev->dev, BSG_MBOX_SIZE,
+					  &(dmabuf->phys), GFP_KERNEL);
+>>>>>>> upstream/android-13
 
 	if (!dmabuf->virt) {
 		kfree(dmabuf);
@@ -2843,9 +3184,12 @@ diag_cmd_data_alloc(struct lpfc_hba *phba,
 
 		if (nocopydata) {
 			bpl->tus.f.bdeFlags = 0;
+<<<<<<< HEAD
 			pci_dma_sync_single_for_device(phba->pcidev,
 				dmp->dma.phys, LPFC_BPL_SIZE, PCI_DMA_TODEVICE);
 
+=======
+>>>>>>> upstream/android-13
 		} else {
 			memset((uint8_t *)dmp->dma.virt, 0, cnt);
 			bpl->tus.f.bdeFlags = BUFF_TYPE_BDE_64I;
@@ -2949,7 +3293,11 @@ static int lpfcdiag_loop_post_rxbufs(struct lpfc_hba *phba, uint16_t rxxri,
 			cmd->un.cont64[i].addrLow = putPaddrLow(mp[i]->phys);
 			cmd->un.cont64[i].tus.f.bdeSize =
 				((struct lpfc_dmabufext *)mp[i])->size;
+<<<<<<< HEAD
 					cmd->ulpBdeCount = ++i;
+=======
+			cmd->ulpBdeCount = ++i;
+>>>>>>> upstream/android-13
 
 			if ((--num_bde > 0) && (i < 2))
 				continue;
@@ -3350,8 +3698,12 @@ lpfc_bsg_get_dfc_rev(struct bsg_job *job)
 	event_reply = (struct get_mgmt_rev_reply *)
 		bsg_reply->reply_data.vendor_reply.vendor_rsp;
 
+<<<<<<< HEAD
 	if (job->reply_len <
 	    sizeof(struct fc_bsg_request) + sizeof(struct get_mgmt_rev_reply)) {
+=======
+	if (job->reply_len < sizeof(*bsg_reply) + sizeof(*event_reply)) {
+>>>>>>> upstream/android-13
 		lpfc_printf_log(phba, KERN_WARNING, LOG_LIBDFC,
 				"2741 Received GET_DFC_REV reply below "
 				"minimum size\n");
@@ -3390,7 +3742,11 @@ lpfc_bsg_issue_mbox_cmpl(struct lpfc_hba *phba, LPFC_MBOXQ_t *pmboxq)
 	unsigned long flags;
 	uint8_t *pmb, *pmb_buf;
 
+<<<<<<< HEAD
 	dd_data = pmboxq->context1;
+=======
+	dd_data = pmboxq->ctx_ndlp;
+>>>>>>> upstream/android-13
 
 	/*
 	 * The outgoing buffer is readily referred from the dma buffer,
@@ -3469,6 +3825,10 @@ static int lpfc_bsg_check_cmd_access(struct lpfc_hba *phba,
 				mb->mbxCommand);
 			return -EPERM;
 		}
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	case MBX_WRITE_NV:
 	case MBX_WRITE_VPARMS:
 	case MBX_LOAD_SM:
@@ -3529,7 +3889,11 @@ static int lpfc_bsg_check_cmd_access(struct lpfc_hba *phba,
 }
 
 /**
+<<<<<<< HEAD
  * lpfc_bsg_mbox_ext_cleanup - clean up context of multi-buffer mbox session
+=======
+ * lpfc_bsg_mbox_ext_session_reset - clean up context of multi-buffer mbox session
+>>>>>>> upstream/android-13
  * @phba: Pointer to HBA context object.
  *
  * This is routine clean up and reset BSG handling of multi-buffer mbox
@@ -3575,7 +3939,11 @@ lpfc_bsg_issue_mbox_ext_handle_job(struct lpfc_hba *phba, LPFC_MBOXQ_t *pmboxq)
 	struct lpfc_sli_config_mbox *sli_cfg_mbx;
 	uint8_t *pmbx;
 
+<<<<<<< HEAD
 	dd_data = pmboxq->context1;
+=======
+	dd_data = pmboxq->ctx_buf;
+>>>>>>> upstream/android-13
 
 	/* Determine if job has been aborted */
 	spin_lock_irqsave(&phba->ct_ev_lock, flags);
@@ -3818,6 +4186,7 @@ lpfc_bsg_sli_cfg_dma_desc_setup(struct lpfc_hba *phba, enum nemb_type nemb_tp,
 }
 
 /**
+<<<<<<< HEAD
  * lpfc_bsg_sli_cfg_mse_read_cmd_ext - sli_config non-embedded mailbox cmd read
  * @phba: Pointer to HBA context object.
  * @mb: Pointer to a BSG mailbox object.
@@ -3826,6 +4195,16 @@ lpfc_bsg_sli_cfg_dma_desc_setup(struct lpfc_hba *phba, enum nemb_type nemb_tp,
  *
  * This routine performs SLI_CONFIG (0x9B) read mailbox command operation with
  * non-embedded external bufffers.
+=======
+ * lpfc_bsg_sli_cfg_read_cmd_ext - sli_config non-embedded mailbox cmd read
+ * @phba: Pointer to HBA context object.
+ * @job: Pointer to the job object.
+ * @nemb_tp: Enumerate of non-embedded mailbox command type.
+ * @dmabuf: Pointer to a DMA buffer descriptor.
+ *
+ * This routine performs SLI_CONFIG (0x9B) read mailbox command operation with
+ * non-embedded external buffers.
+>>>>>>> upstream/android-13
  **/
 static int
 lpfc_bsg_sli_cfg_read_cmd_ext(struct lpfc_hba *phba, struct bsg_job *job,
@@ -3962,7 +4341,11 @@ lpfc_bsg_sli_cfg_read_cmd_ext(struct lpfc_hba *phba, struct bsg_job *job,
 	pmboxq->mbox_cmpl = lpfc_bsg_issue_read_mbox_ext_cmpl;
 
 	/* context fields to callback function */
+<<<<<<< HEAD
 	pmboxq->context1 = dd_data;
+=======
+	pmboxq->ctx_buf = dd_data;
+>>>>>>> upstream/android-13
 	dd_data->type = TYPE_MBOX;
 	dd_data->set_job = job;
 	dd_data->context_un.mbox.pmboxq = pmboxq;
@@ -4009,11 +4392,20 @@ job_error:
 /**
  * lpfc_bsg_sli_cfg_write_cmd_ext - sli_config non-embedded mailbox cmd write
  * @phba: Pointer to HBA context object.
+<<<<<<< HEAD
  * @mb: Pointer to a BSG mailbox object.
  * @dmabuff: Pointer to a DMA buffer descriptor.
  *
  * This routine performs SLI_CONFIG (0x9B) write mailbox command operation with
  * non-embedded external bufffers.
+=======
+ * @job: Pointer to the job object.
+ * @nemb_tp: Enumerate of non-embedded mailbox command type.
+ * @dmabuf: Pointer to a DMA buffer descriptor.
+ *
+ * This routine performs SLI_CONFIG (0x9B) write mailbox command operation with
+ * non-embedded external buffers.
+>>>>>>> upstream/android-13
  **/
 static int
 lpfc_bsg_sli_cfg_write_cmd_ext(struct lpfc_hba *phba, struct bsg_job *job,
@@ -4133,7 +4525,11 @@ lpfc_bsg_sli_cfg_write_cmd_ext(struct lpfc_hba *phba, struct bsg_job *job,
 		pmboxq->mbox_cmpl = lpfc_bsg_issue_write_mbox_ext_cmpl;
 
 		/* context fields to callback function */
+<<<<<<< HEAD
 		pmboxq->context1 = dd_data;
+=======
+		pmboxq->ctx_buf = dd_data;
+>>>>>>> upstream/android-13
 		dd_data->type = TYPE_MBOX;
 		dd_data->set_job = job;
 		dd_data->context_un.mbox.pmboxq = pmboxq;
@@ -4157,7 +4553,11 @@ lpfc_bsg_sli_cfg_write_cmd_ext(struct lpfc_hba *phba, struct bsg_job *job,
 		goto job_error;
 	}
 
+<<<<<<< HEAD
 	/* wait for additoinal external buffers */
+=======
+	/* wait for additional external buffers */
+>>>>>>> upstream/android-13
 
 	bsg_reply->result = 0;
 	bsg_job_done(job, bsg_reply->result,
@@ -4175,12 +4575,21 @@ job_error:
 /**
  * lpfc_bsg_handle_sli_cfg_mbox - handle sli-cfg mailbox cmd with ext buffer
  * @phba: Pointer to HBA context object.
+<<<<<<< HEAD
  * @mb: Pointer to a BSG mailbox object.
  * @dmabuff: Pointer to a DMA buffer descriptor.
  *
  * This routine handles SLI_CONFIG (0x9B) mailbox command with non-embedded
  * external bufffers, including both 0x9B with non-embedded MSEs and 0x9B
  * with embedded sussystem 0x1 and opcodes with external HBDs.
+=======
+ * @job: Pointer to the job object.
+ * @dmabuf: Pointer to a DMA buffer descriptor.
+ *
+ * This routine handles SLI_CONFIG (0x9B) mailbox command with non-embedded
+ * external buffers, including both 0x9B with non-embedded MSEs and 0x9B
+ * with embedded subsystem 0x1 and opcodes with external HBDs.
+>>>>>>> upstream/android-13
  **/
 static int
 lpfc_bsg_handle_sli_cfg_mbox(struct lpfc_hba *phba, struct bsg_job *job,
@@ -4236,6 +4645,10 @@ lpfc_bsg_handle_sli_cfg_mbox(struct lpfc_hba *phba, struct bsg_job *job,
 			case COMN_OPCODE_GET_CNTL_ADDL_ATTRIBUTES:
 			case COMN_OPCODE_GET_CNTL_ATTRIBUTES:
 			case COMN_OPCODE_GET_PROFILE_CONFIG:
+<<<<<<< HEAD
+=======
+			case COMN_OPCODE_SET_FEATURES:
+>>>>>>> upstream/android-13
 				lpfc_printf_log(phba, KERN_INFO, LOG_LIBDFC,
 						"3106 Handled SLI_CONFIG "
 						"subsys_comn, opcode:x%x\n",
@@ -4307,7 +4720,11 @@ lpfc_bsg_handle_sli_cfg_mbox(struct lpfc_hba *phba, struct bsg_job *job,
 }
 
 /**
+<<<<<<< HEAD
  * lpfc_bsg_mbox_ext_abort_req - request to abort mbox command with ext buffers
+=======
+ * lpfc_bsg_mbox_ext_abort - request to abort mbox command with ext buffers
+>>>>>>> upstream/android-13
  * @phba: Pointer to HBA context object.
  *
  * This routine is for requesting to abort a pass-through mailbox command with
@@ -4326,7 +4743,11 @@ lpfc_bsg_mbox_ext_abort(struct lpfc_hba *phba)
 /**
  * lpfc_bsg_read_ebuf_get - get the next mailbox read external buffer
  * @phba: Pointer to HBA context object.
+<<<<<<< HEAD
  * @dmabuf: Pointer to a DMA buffer descriptor.
+=======
+ * @job: Pointer to the job object.
+>>>>>>> upstream/android-13
  *
  * This routine extracts the next mailbox read external buffer back to
  * user space through BSG.
@@ -4396,6 +4817,10 @@ lpfc_bsg_read_ebuf_get(struct lpfc_hba *phba, struct bsg_job *job)
 /**
  * lpfc_bsg_write_ebuf_set - set the next mailbox write external buffer
  * @phba: Pointer to HBA context object.
+<<<<<<< HEAD
+=======
+ * @job: Pointer to the job object.
+>>>>>>> upstream/android-13
  * @dmabuf: Pointer to a DMA buffer descriptor.
  *
  * This routine sets up the next mailbox read external buffer obtained
@@ -4479,7 +4904,11 @@ lpfc_bsg_write_ebuf_set(struct lpfc_hba *phba, struct bsg_job *job,
 		pmboxq->mbox_cmpl = lpfc_bsg_issue_write_mbox_ext_cmpl;
 
 		/* context fields to callback function */
+<<<<<<< HEAD
 		pmboxq->context1 = dd_data;
+=======
+		pmboxq->ctx_buf = dd_data;
+>>>>>>> upstream/android-13
 		dd_data->type = TYPE_MBOX;
 		dd_data->set_job = job;
 		dd_data->context_un.mbox.pmboxq = pmboxq;
@@ -4503,7 +4932,11 @@ lpfc_bsg_write_ebuf_set(struct lpfc_hba *phba, struct bsg_job *job,
 		goto job_error;
 	}
 
+<<<<<<< HEAD
 	/* wait for additoinal external buffers */
+=======
+	/* wait for additional external buffers */
+>>>>>>> upstream/android-13
 	bsg_reply->result = 0;
 	bsg_job_done(job, bsg_reply->result,
 		       bsg_reply->reply_payload_rcv_len);
@@ -4521,8 +4954,13 @@ job_error:
 /**
  * lpfc_bsg_handle_sli_cfg_ebuf - handle ext buffer with sli-cfg mailbox cmd
  * @phba: Pointer to HBA context object.
+<<<<<<< HEAD
  * @mb: Pointer to a BSG mailbox object.
  * @dmabuff: Pointer to a DMA buffer descriptor.
+=======
+ * @job: Pointer to the job object.
+ * @dmabuf: Pointer to a DMA buffer descriptor.
+>>>>>>> upstream/android-13
  *
  * This routine handles the external buffer with SLI_CONFIG (0x9B) mailbox
  * command with multiple non-embedded external buffers.
@@ -4566,10 +5004,17 @@ lpfc_bsg_handle_sli_cfg_ebuf(struct lpfc_hba *phba, struct bsg_job *job,
 /**
  * lpfc_bsg_handle_sli_cfg_ext - handle sli-cfg mailbox with external buffer
  * @phba: Pointer to HBA context object.
+<<<<<<< HEAD
  * @mb: Pointer to a BSG mailbox object.
  * @dmabuff: Pointer to a DMA buffer descriptor.
  *
  * This routine checkes and handles non-embedded multi-buffer SLI_CONFIG
+=======
+ * @job: Pointer to the job object.
+ * @dmabuf: Pointer to a DMA buffer descriptor.
+ *
+ * This routine checks and handles non-embedded multi-buffer SLI_CONFIG
+>>>>>>> upstream/android-13
  * (0x9B) mailbox commands and external buffers.
  **/
 static int
@@ -4640,14 +5085,22 @@ sli_cfg_ext_error:
 /**
  * lpfc_bsg_issue_mbox - issues a mailbox command on behalf of an app
  * @phba: Pointer to HBA context object.
+<<<<<<< HEAD
  * @mb: Pointer to a mailbox object.
+=======
+ * @job: Pointer to the job object.
+>>>>>>> upstream/android-13
  * @vport: Pointer to a vport object.
  *
  * Allocate a tracking object, mailbox command memory, get a mailbox
  * from the mailbox pool, copy the caller mailbox command.
  *
  * If offline and the sli is active we need to poll for the command (port is
+<<<<<<< HEAD
  * being reset) and com-plete the job, otherwise issue the mailbox command and
+=======
+ * being reset) and complete the job, otherwise issue the mailbox command and
+>>>>>>> upstream/android-13
  * let our completion handler finish the command.
  **/
 static int
@@ -4687,7 +5140,11 @@ lpfc_bsg_issue_mbox(struct lpfc_hba *phba, struct bsg_job *job,
 	 * Don't allow mailbox commands to be sent when blocked or when in
 	 * the middle of discovery
 	 */
+<<<<<<< HEAD
 	 if (phba->sli.sli_flag & LPFC_BLOCK_MGMT_IO) {
+=======
+	if (phba->sli.sli_flag & LPFC_BLOCK_MGMT_IO) {
+>>>>>>> upstream/android-13
 		rc = -EAGAIN;
 		goto job_done;
 	}
@@ -4766,7 +5223,11 @@ lpfc_bsg_issue_mbox(struct lpfc_hba *phba, struct bsg_job *job,
 	if (mbox_req->inExtWLen || mbox_req->outExtWLen) {
 		from = pmbx;
 		ext = from + sizeof(MAILBOX_t);
+<<<<<<< HEAD
 		pmboxq->context2 = ext;
+=======
+		pmboxq->ctx_buf = ext;
+>>>>>>> upstream/android-13
 		pmboxq->in_ext_byte_len =
 			mbox_req->inExtWLen * sizeof(uint32_t);
 		pmboxq->out_ext_byte_len =
@@ -4894,7 +5355,11 @@ lpfc_bsg_issue_mbox(struct lpfc_hba *phba, struct bsg_job *job,
 	pmboxq->mbox_cmpl = lpfc_bsg_issue_mbox_cmpl;
 
 	/* setup context field to pass wait_queue pointer to wake function */
+<<<<<<< HEAD
 	pmboxq->context1 = dd_data;
+=======
+	pmboxq->ctx_ndlp = dd_data;
+>>>>>>> upstream/android-13
 	dd_data->type = TYPE_MBOX;
 	dd_data->set_job = job;
 	dd_data->context_un.mbox.pmboxq = pmboxq;
@@ -5133,8 +5598,13 @@ lpfc_menlo_cmd(struct bsg_job *job)
 		goto no_dd_data;
 	}
 
+<<<<<<< HEAD
 	if (job->reply_len <
 	    sizeof(struct fc_bsg_request) + sizeof(struct menlo_response)) {
+=======
+	if (job->reply_len < sizeof(*bsg_reply) +
+				sizeof(struct menlo_response)) {
+>>>>>>> upstream/android-13
 		lpfc_printf_log(phba, KERN_WARNING, LOG_LIBDFC,
 				"2785 Received MENLO_CMD reply below "
 				"minimum size\n");
@@ -5290,9 +5760,13 @@ lpfc_forced_link_speed(struct bsg_job *job)
 	forced_reply = (struct forced_link_speed_support_reply *)
 		bsg_reply->reply_data.vendor_reply.vendor_rsp;
 
+<<<<<<< HEAD
 	if (job->reply_len <
 	    sizeof(struct fc_bsg_request) +
 	    sizeof(struct forced_link_speed_support_reply)) {
+=======
+	if (job->reply_len < sizeof(*bsg_reply) + sizeof(*forced_reply)) {
+>>>>>>> upstream/android-13
 		lpfc_printf_log(phba, KERN_WARNING, LOG_LIBDFC,
 				"0049 Received FORCED_LINK_SPEED reply below "
 				"minimum size\n");
@@ -5312,6 +5786,481 @@ job_error:
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * lpfc_check_fwlog_support: Check FW log support on the adapter
+ * @phba: Pointer to HBA context object.
+ *
+ * Check if FW Logging support by the adapter
+ **/
+int
+lpfc_check_fwlog_support(struct lpfc_hba *phba)
+{
+	struct lpfc_ras_fwlog *ras_fwlog = NULL;
+
+	ras_fwlog = &phba->ras_fwlog;
+
+	if (!ras_fwlog->ras_hwsupport)
+		return -EACCES;
+	else if (!ras_fwlog->ras_enabled)
+		return -EPERM;
+	else
+		return 0;
+}
+
+/**
+ * lpfc_bsg_get_ras_config: Get RAS configuration settings
+ * @job: fc_bsg_job to handle
+ *
+ * Get RAS configuration values set.
+ **/
+static int
+lpfc_bsg_get_ras_config(struct bsg_job *job)
+{
+	struct Scsi_Host *shost = fc_bsg_to_shost(job);
+	struct lpfc_vport *vport = shost_priv(shost);
+	struct fc_bsg_reply *bsg_reply = job->reply;
+	struct lpfc_hba *phba = vport->phba;
+	struct lpfc_bsg_get_ras_config_reply *ras_reply;
+	struct lpfc_ras_fwlog *ras_fwlog = &phba->ras_fwlog;
+	int rc = 0;
+
+	if (job->request_len <
+	    sizeof(struct fc_bsg_request) +
+	    sizeof(struct lpfc_bsg_ras_req)) {
+		lpfc_printf_log(phba, KERN_ERR, LOG_LIBDFC,
+				"6192 FW_LOG request received "
+				"below minimum size\n");
+		rc = -EINVAL;
+		goto ras_job_error;
+	}
+
+	/* Check FW log status */
+	rc = lpfc_check_fwlog_support(phba);
+	if (rc)
+		goto ras_job_error;
+
+	ras_reply = (struct lpfc_bsg_get_ras_config_reply *)
+		bsg_reply->reply_data.vendor_reply.vendor_rsp;
+
+	/* Current logging state */
+	spin_lock_irq(&phba->hbalock);
+	if (ras_fwlog->state == ACTIVE)
+		ras_reply->state = LPFC_RASLOG_STATE_RUNNING;
+	else
+		ras_reply->state = LPFC_RASLOG_STATE_STOPPED;
+	spin_unlock_irq(&phba->hbalock);
+
+	ras_reply->log_level = phba->ras_fwlog.fw_loglevel;
+	ras_reply->log_buff_sz = phba->cfg_ras_fwlog_buffsize;
+
+ras_job_error:
+	/* make error code available to userspace */
+	bsg_reply->result = rc;
+
+	/* complete the job back to userspace */
+	if (!rc)
+		bsg_job_done(job, bsg_reply->result,
+			     bsg_reply->reply_payload_rcv_len);
+	return rc;
+}
+
+/**
+ * lpfc_bsg_set_ras_config: Set FW logging parameters
+ * @job: fc_bsg_job to handle
+ *
+ * Set log-level parameters for FW-logging in host memory
+ **/
+static int
+lpfc_bsg_set_ras_config(struct bsg_job *job)
+{
+	struct Scsi_Host *shost = fc_bsg_to_shost(job);
+	struct lpfc_vport *vport = shost_priv(shost);
+	struct lpfc_hba *phba = vport->phba;
+	struct lpfc_bsg_set_ras_config_req *ras_req;
+	struct fc_bsg_request *bsg_request = job->request;
+	struct lpfc_ras_fwlog *ras_fwlog = &phba->ras_fwlog;
+	struct fc_bsg_reply *bsg_reply = job->reply;
+	uint8_t action = 0, log_level = 0;
+	int rc = 0, action_status = 0;
+
+	if (job->request_len <
+	    sizeof(struct fc_bsg_request) +
+	    sizeof(struct lpfc_bsg_set_ras_config_req)) {
+		lpfc_printf_log(phba, KERN_ERR, LOG_LIBDFC,
+				"6182 Received RAS_LOG request "
+				"below minimum size\n");
+		rc = -EINVAL;
+		goto ras_job_error;
+	}
+
+	/* Check FW log status */
+	rc = lpfc_check_fwlog_support(phba);
+	if (rc)
+		goto ras_job_error;
+
+	ras_req = (struct lpfc_bsg_set_ras_config_req *)
+		bsg_request->rqst_data.h_vendor.vendor_cmd;
+	action = ras_req->action;
+	log_level = ras_req->log_level;
+
+	if (action == LPFC_RASACTION_STOP_LOGGING) {
+		/* Check if already disabled */
+		spin_lock_irq(&phba->hbalock);
+		if (ras_fwlog->state != ACTIVE) {
+			spin_unlock_irq(&phba->hbalock);
+			rc = -ESRCH;
+			goto ras_job_error;
+		}
+		spin_unlock_irq(&phba->hbalock);
+
+		/* Disable logging */
+		lpfc_ras_stop_fwlog(phba);
+	} else {
+		/*action = LPFC_RASACTION_START_LOGGING*/
+
+		/* Even though FW-logging is active re-initialize
+		 * FW-logging with new log-level. Return status
+		 * "Logging already Running" to caller.
+		 **/
+		spin_lock_irq(&phba->hbalock);
+		if (ras_fwlog->state != INACTIVE)
+			action_status = -EINPROGRESS;
+		spin_unlock_irq(&phba->hbalock);
+
+		/* Enable logging */
+		rc = lpfc_sli4_ras_fwlog_init(phba, log_level,
+					      LPFC_RAS_ENABLE_LOGGING);
+		if (rc) {
+			rc = -EINVAL;
+			goto ras_job_error;
+		}
+
+		/* Check if FW-logging is re-initialized */
+		if (action_status == -EINPROGRESS)
+			rc = action_status;
+	}
+ras_job_error:
+	/* make error code available to userspace */
+	bsg_reply->result = rc;
+
+	/* complete the job back to userspace */
+	if (!rc)
+		bsg_job_done(job, bsg_reply->result,
+			     bsg_reply->reply_payload_rcv_len);
+
+	return rc;
+}
+
+/**
+ * lpfc_bsg_get_ras_lwpd: Get log write position data
+ * @job: fc_bsg_job to handle
+ *
+ * Get Offset/Wrap count of the log message written
+ * in host memory
+ **/
+static int
+lpfc_bsg_get_ras_lwpd(struct bsg_job *job)
+{
+	struct Scsi_Host *shost = fc_bsg_to_shost(job);
+	struct lpfc_vport *vport = shost_priv(shost);
+	struct lpfc_bsg_get_ras_lwpd *ras_reply;
+	struct lpfc_hba *phba = vport->phba;
+	struct lpfc_ras_fwlog *ras_fwlog = &phba->ras_fwlog;
+	struct fc_bsg_reply *bsg_reply = job->reply;
+	u32 *lwpd_ptr = NULL;
+	int rc = 0;
+
+	rc = lpfc_check_fwlog_support(phba);
+	if (rc)
+		goto ras_job_error;
+
+	if (job->request_len <
+	    sizeof(struct fc_bsg_request) +
+	    sizeof(struct lpfc_bsg_ras_req)) {
+		lpfc_printf_log(phba, KERN_ERR, LOG_LIBDFC,
+				"6183 Received RAS_LOG request "
+				"below minimum size\n");
+		rc = -EINVAL;
+		goto ras_job_error;
+	}
+
+	ras_reply = (struct lpfc_bsg_get_ras_lwpd *)
+		bsg_reply->reply_data.vendor_reply.vendor_rsp;
+
+	if (!ras_fwlog->lwpd.virt) {
+		lpfc_printf_log(phba, KERN_ERR, LOG_LIBDFC,
+				"6193 Restart FW Logging\n");
+		rc = -EINVAL;
+		goto ras_job_error;
+	}
+
+	/* Get lwpd offset */
+	lwpd_ptr = (uint32_t *)(ras_fwlog->lwpd.virt);
+	ras_reply->offset = be32_to_cpu(*lwpd_ptr & 0xffffffff);
+
+	/* Get wrap count */
+	ras_reply->wrap_count = be32_to_cpu(*(++lwpd_ptr) & 0xffffffff);
+
+ras_job_error:
+	/* make error code available to userspace */
+	bsg_reply->result = rc;
+
+	/* complete the job back to userspace */
+	if (!rc)
+		bsg_job_done(job, bsg_reply->result,
+			     bsg_reply->reply_payload_rcv_len);
+
+	return rc;
+}
+
+/**
+ * lpfc_bsg_get_ras_fwlog: Read FW log
+ * @job: fc_bsg_job to handle
+ *
+ * Copy the FW log into the passed buffer.
+ **/
+static int
+lpfc_bsg_get_ras_fwlog(struct bsg_job *job)
+{
+	struct Scsi_Host *shost = fc_bsg_to_shost(job);
+	struct lpfc_vport *vport = shost_priv(shost);
+	struct lpfc_hba *phba = vport->phba;
+	struct fc_bsg_request *bsg_request = job->request;
+	struct fc_bsg_reply *bsg_reply = job->reply;
+	struct lpfc_bsg_get_fwlog_req *ras_req;
+	u32 rd_offset, rd_index, offset;
+	void *src, *fwlog_buff;
+	struct lpfc_ras_fwlog *ras_fwlog = NULL;
+	struct lpfc_dmabuf *dmabuf, *next;
+	int rc = 0;
+
+	ras_fwlog = &phba->ras_fwlog;
+
+	rc = lpfc_check_fwlog_support(phba);
+	if (rc)
+		goto ras_job_error;
+
+	/* Logging to be stopped before reading */
+	spin_lock_irq(&phba->hbalock);
+	if (ras_fwlog->state == ACTIVE) {
+		spin_unlock_irq(&phba->hbalock);
+		rc = -EINPROGRESS;
+		goto ras_job_error;
+	}
+	spin_unlock_irq(&phba->hbalock);
+
+	if (job->request_len <
+	    sizeof(struct fc_bsg_request) +
+	    sizeof(struct lpfc_bsg_get_fwlog_req)) {
+		lpfc_printf_log(phba, KERN_ERR, LOG_LIBDFC,
+				"6184 Received RAS_LOG request "
+				"below minimum size\n");
+		rc = -EINVAL;
+		goto ras_job_error;
+	}
+
+	ras_req = (struct lpfc_bsg_get_fwlog_req *)
+		bsg_request->rqst_data.h_vendor.vendor_cmd;
+	rd_offset = ras_req->read_offset;
+
+	/* Allocate memory to read fw log*/
+	fwlog_buff = vmalloc(ras_req->read_size);
+	if (!fwlog_buff) {
+		rc = -ENOMEM;
+		goto ras_job_error;
+	}
+
+	rd_index = (rd_offset / LPFC_RAS_MAX_ENTRY_SIZE);
+	offset = (rd_offset % LPFC_RAS_MAX_ENTRY_SIZE);
+
+	list_for_each_entry_safe(dmabuf, next,
+			      &ras_fwlog->fwlog_buff_list, list) {
+
+		if (dmabuf->buffer_tag < rd_index)
+			continue;
+
+		src = dmabuf->virt + offset;
+		memcpy(fwlog_buff, src, ras_req->read_size);
+		break;
+	}
+
+	bsg_reply->reply_payload_rcv_len =
+		sg_copy_from_buffer(job->reply_payload.sg_list,
+				    job->reply_payload.sg_cnt,
+				    fwlog_buff, ras_req->read_size);
+
+	vfree(fwlog_buff);
+
+ras_job_error:
+	bsg_reply->result = rc;
+	if (!rc)
+		bsg_job_done(job, bsg_reply->result,
+			     bsg_reply->reply_payload_rcv_len);
+
+	return rc;
+}
+
+static int
+lpfc_get_trunk_info(struct bsg_job *job)
+{
+	struct lpfc_vport *vport = shost_priv(fc_bsg_to_shost(job));
+	struct lpfc_hba *phba = vport->phba;
+	struct fc_bsg_reply *bsg_reply = job->reply;
+	struct lpfc_trunk_info *event_reply;
+	int rc = 0;
+
+	if (job->request_len <
+	    sizeof(struct fc_bsg_request) + sizeof(struct get_trunk_info_req)) {
+		lpfc_printf_log(phba, KERN_ERR, LOG_LIBDFC,
+				"2744 Received GET TRUNK _INFO request below "
+				"minimum size\n");
+		rc = -EINVAL;
+		goto job_error;
+	}
+
+	event_reply = (struct lpfc_trunk_info *)
+		bsg_reply->reply_data.vendor_reply.vendor_rsp;
+
+	if (job->reply_len < sizeof(*bsg_reply) + sizeof(*event_reply)) {
+		lpfc_printf_log(phba, KERN_WARNING, LOG_LIBDFC,
+				"2728 Received GET TRUNK _INFO reply below "
+				"minimum size\n");
+		rc = -EINVAL;
+		goto job_error;
+	}
+	if (event_reply == NULL) {
+		rc = -EINVAL;
+		goto job_error;
+	}
+
+	bsg_bf_set(lpfc_trunk_info_link_status, event_reply,
+		   (phba->link_state >= LPFC_LINK_UP) ? 1 : 0);
+
+	bsg_bf_set(lpfc_trunk_info_trunk_active0, event_reply,
+		   (phba->trunk_link.link0.state == LPFC_LINK_UP) ? 1 : 0);
+
+	bsg_bf_set(lpfc_trunk_info_trunk_active1, event_reply,
+		   (phba->trunk_link.link1.state == LPFC_LINK_UP) ? 1 : 0);
+
+	bsg_bf_set(lpfc_trunk_info_trunk_active2, event_reply,
+		   (phba->trunk_link.link2.state == LPFC_LINK_UP) ? 1 : 0);
+
+	bsg_bf_set(lpfc_trunk_info_trunk_active3, event_reply,
+		   (phba->trunk_link.link3.state == LPFC_LINK_UP) ? 1 : 0);
+
+	bsg_bf_set(lpfc_trunk_info_trunk_config0, event_reply,
+		   bf_get(lpfc_conf_trunk_port0, &phba->sli4_hba));
+
+	bsg_bf_set(lpfc_trunk_info_trunk_config1, event_reply,
+		   bf_get(lpfc_conf_trunk_port1, &phba->sli4_hba));
+
+	bsg_bf_set(lpfc_trunk_info_trunk_config2, event_reply,
+		   bf_get(lpfc_conf_trunk_port2, &phba->sli4_hba));
+
+	bsg_bf_set(lpfc_trunk_info_trunk_config3, event_reply,
+		   bf_get(lpfc_conf_trunk_port3, &phba->sli4_hba));
+
+	event_reply->port_speed = phba->sli4_hba.link_state.speed / 1000;
+	event_reply->logical_speed =
+				phba->sli4_hba.link_state.logical_speed / 1000;
+job_error:
+	bsg_reply->result = rc;
+	if (!rc)
+		bsg_job_done(job, bsg_reply->result,
+			     bsg_reply->reply_payload_rcv_len);
+	return rc;
+
+}
+
+static int
+lpfc_get_cgnbuf_info(struct bsg_job *job)
+{
+	struct lpfc_vport *vport = shost_priv(fc_bsg_to_shost(job));
+	struct lpfc_hba *phba = vport->phba;
+	struct fc_bsg_request *bsg_request = job->request;
+	struct fc_bsg_reply *bsg_reply = job->reply;
+	struct get_cgnbuf_info_req *cgnbuf_req;
+	struct lpfc_cgn_info *cp;
+	uint8_t *cgn_buff;
+	int size, cinfosz;
+	int  rc = 0;
+
+	if (job->request_len < sizeof(struct fc_bsg_request) +
+	    sizeof(struct get_cgnbuf_info_req)) {
+		rc = -ENOMEM;
+		goto job_exit;
+	}
+
+	if (!phba->sli4_hba.pc_sli4_params.cmf) {
+		rc = -ENOENT;
+		goto job_exit;
+	}
+
+	if (!phba->cgn_i || !phba->cgn_i->virt) {
+		rc = -ENOENT;
+		goto job_exit;
+	}
+
+	cp = phba->cgn_i->virt;
+	if (cp->cgn_info_version < LPFC_CGN_INFO_V3) {
+		rc = -EPERM;
+		goto job_exit;
+	}
+
+	cgnbuf_req = (struct get_cgnbuf_info_req *)
+		bsg_request->rqst_data.h_vendor.vendor_cmd;
+
+	/* For reset or size == 0 */
+	bsg_reply->reply_payload_rcv_len = 0;
+
+	if (cgnbuf_req->reset == LPFC_BSG_CGN_RESET_STAT) {
+		lpfc_init_congestion_stat(phba);
+		goto job_exit;
+	}
+
+	/* We don't want to include the CRC at the end */
+	cinfosz = sizeof(struct lpfc_cgn_info) - sizeof(uint32_t);
+
+	size = cgnbuf_req->read_size;
+	if (!size)
+		goto job_exit;
+
+	if (size < cinfosz) {
+		/* Just copy back what we can */
+		cinfosz = size;
+		rc = -E2BIG;
+	}
+
+	/* Allocate memory to read congestion info */
+	cgn_buff = vmalloc(cinfosz);
+	if (!cgn_buff) {
+		rc = -ENOMEM;
+		goto job_exit;
+	}
+
+	memcpy(cgn_buff, cp, cinfosz);
+
+	bsg_reply->reply_payload_rcv_len =
+		sg_copy_from_buffer(job->reply_payload.sg_list,
+				    job->reply_payload.sg_cnt,
+				    cgn_buff, cinfosz);
+
+	vfree(cgn_buff);
+
+job_exit:
+	bsg_reply->result = rc;
+	if (!rc)
+		bsg_job_done(job, bsg_reply->result,
+			     bsg_reply->reply_payload_rcv_len);
+	else
+		lpfc_printf_log(phba, KERN_ERR, LOG_LIBDFC,
+				"2724 GET CGNBUF error: %d\n", rc);
+	return rc;
+}
+
+/**
+>>>>>>> upstream/android-13
  * lpfc_bsg_hst_vendor - process a vendor-specific fc_bsg_job
  * @job: fc_bsg_job to handle
  **/
@@ -5358,6 +6307,27 @@ lpfc_bsg_hst_vendor(struct bsg_job *job)
 	case LPFC_BSG_VENDOR_FORCED_LINK_SPEED:
 		rc = lpfc_forced_link_speed(job);
 		break;
+<<<<<<< HEAD
+=======
+	case LPFC_BSG_VENDOR_RAS_GET_LWPD:
+		rc = lpfc_bsg_get_ras_lwpd(job);
+		break;
+	case LPFC_BSG_VENDOR_RAS_GET_FWLOG:
+		rc = lpfc_bsg_get_ras_fwlog(job);
+		break;
+	case LPFC_BSG_VENDOR_RAS_GET_CONFIG:
+		rc = lpfc_bsg_get_ras_config(job);
+		break;
+	case LPFC_BSG_VENDOR_RAS_SET_CONFIG:
+		rc = lpfc_bsg_set_ras_config(job);
+		break;
+	case LPFC_BSG_VENDOR_GET_TRUNK_INFO:
+		rc = lpfc_get_trunk_info(job);
+		break;
+	case LPFC_BSG_VENDOR_GET_CGNBUF_INFO:
+		rc = lpfc_get_cgnbuf_info(job);
+		break;
+>>>>>>> upstream/android-13
 	default:
 		rc = -EINVAL;
 		bsg_reply->reply_payload_rcv_len = 0;
@@ -5371,7 +6341,11 @@ lpfc_bsg_hst_vendor(struct bsg_job *job)
 
 /**
  * lpfc_bsg_request - handle a bsg request from the FC transport
+<<<<<<< HEAD
  * @job: fc_bsg_job to handle
+=======
+ * @job: bsg_job to handle
+>>>>>>> upstream/android-13
  **/
 int
 lpfc_bsg_request(struct bsg_job *job)
@@ -5405,7 +6379,11 @@ lpfc_bsg_request(struct bsg_job *job)
 
 /**
  * lpfc_bsg_timeout - handle timeout of a bsg request from the FC transport
+<<<<<<< HEAD
  * @job: fc_bsg_job that has timed out
+=======
+ * @job: bsg_job that has timed out
+>>>>>>> upstream/android-13
  *
  * This function just aborts the job's IOCB.  The aborted IOCB will return to
  * the waiting function which will handle passing the error back to userspace
@@ -5469,7 +6447,11 @@ lpfc_bsg_timeout(struct bsg_job *job)
 			}
 		}
 		if (list_empty(&completions))
+<<<<<<< HEAD
 			lpfc_sli_issue_abort_iotag(phba, pring, cmdiocb);
+=======
+			lpfc_sli_issue_abort_iotag(phba, pring, cmdiocb, NULL);
+>>>>>>> upstream/android-13
 		spin_unlock_irqrestore(&phba->hbalock, flags);
 		if (!list_empty(&completions)) {
 			lpfc_sli_cancel_iocbs(phba, &completions,
@@ -5506,7 +6488,11 @@ lpfc_bsg_timeout(struct bsg_job *job)
 			}
 		}
 		if (list_empty(&completions))
+<<<<<<< HEAD
 			lpfc_sli_issue_abort_iotag(phba, pring, cmdiocb);
+=======
+			lpfc_sli_issue_abort_iotag(phba, pring, cmdiocb, NULL);
+>>>>>>> upstream/android-13
 		spin_unlock_irqrestore(&phba->hbalock, flags);
 		if (!list_empty(&completions)) {
 			lpfc_sli_cancel_iocbs(phba, &completions,

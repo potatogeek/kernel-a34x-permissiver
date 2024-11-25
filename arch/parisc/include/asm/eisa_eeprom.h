@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * eisa_eeprom.h - provide support for EISA adapters in PA-RISC machines
  *
@@ -8,6 +9,13 @@
  *
  * Copyright (c) 2001, 2002 Daniel Engstrom <5116@telia.com>
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * eisa_eeprom.h - provide support for EISA adapters in PA-RISC machines
+ *
+ * Copyright (c) 2001, 2002 Daniel Engstrom <5116@telia.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef ASM_EISA_EEPROM_H

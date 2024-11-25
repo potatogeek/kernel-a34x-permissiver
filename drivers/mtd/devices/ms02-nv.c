@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *	Copyright (c) 2001 Maciej W. Rozycki
  *
@@ -5,6 +6,11 @@
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *	Copyright (c) 2001 Maciej W. Rozycki
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -290,7 +296,10 @@ static int __init ms02nv_init(void)
 		break;
 	default:
 		return -ENODEV;
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	for (i = 0; i < ARRAY_SIZE(ms02nv_addrs); i++)

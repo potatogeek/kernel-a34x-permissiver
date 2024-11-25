@@ -17,5 +17,9 @@
 #define HWCAP_LOONGSON_MMI  (1 << 11)
 #define HWCAP_LOONGSON_EXT  (1 << 12)
 #define HWCAP_LOONGSON_EXT2 (1 << 13)
+<<<<<<< HEAD
+=======
+#define HWCAP_LOONGSON_CPUCFG (1 << 14)
+>>>>>>> upstream/android-13
 
 #endif /* _UAPI_ASM_HWCAP_H */

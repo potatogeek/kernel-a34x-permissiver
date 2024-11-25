@@ -25,7 +25,11 @@ vb2_dma_contig_plane_dma_addr(struct vb2_buffer *vb, unsigned int plane_no)
 }
 
 int vb2_dma_contig_set_max_seg_size(struct device *dev, unsigned int size);
+<<<<<<< HEAD
 void vb2_dma_contig_clear_max_seg_size(struct device *dev);
+=======
+static inline void vb2_dma_contig_clear_max_seg_size(struct device *dev) { }
+>>>>>>> upstream/android-13
 
 extern const struct vb2_mem_ops vb2_dma_contig_memops;
 

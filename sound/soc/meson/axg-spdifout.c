@@ -108,7 +108,11 @@ static int axg_spdifout_trigger(struct snd_pcm_substream *substream, int cmd,
 	}
 }
 
+<<<<<<< HEAD
 static int axg_spdifout_digital_mute(struct snd_soc_dai *dai, int mute)
+=======
+static int axg_spdifout_mute(struct snd_soc_dai *dai, int mute, int direction)
+>>>>>>> upstream/android-13
 {
 	struct axg_spdifout *priv = snd_soc_dai_get_drvdata(dai);
 
@@ -285,10 +289,18 @@ static void axg_spdifout_shutdown(struct snd_pcm_substream *substream,
 
 static const struct snd_soc_dai_ops axg_spdifout_ops = {
 	.trigger	= axg_spdifout_trigger,
+<<<<<<< HEAD
 	.digital_mute	= axg_spdifout_digital_mute,
 	.hw_params	= axg_spdifout_hw_params,
 	.startup	= axg_spdifout_startup,
 	.shutdown	= axg_spdifout_shutdown,
+=======
+	.mute_stream	= axg_spdifout_mute,
+	.hw_params	= axg_spdifout_hw_params,
+	.startup	= axg_spdifout_startup,
+	.shutdown	= axg_spdifout_shutdown,
+	.no_capture_mute = 1,
+>>>>>>> upstream/android-13
 };
 
 static struct snd_soc_dai_driver axg_spdifout_dai_drv[] = {
@@ -401,7 +413,10 @@ static int axg_spdifout_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct axg_spdifout *priv;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	void __iomem *regs;
 	int ret;
 
@@ -410,8 +425,12 @@ static int axg_spdifout_probe(struct platform_device *pdev)
 		return -ENOMEM;
 	platform_set_drvdata(pdev, priv);
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	regs = devm_ioremap_resource(dev, res);
+=======
+	regs = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(regs))
 		return PTR_ERR(regs);
 

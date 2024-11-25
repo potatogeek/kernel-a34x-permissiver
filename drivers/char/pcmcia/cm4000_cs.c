@@ -530,7 +530,11 @@ static int set_protocol(struct cm4000_dev *dev, struct ptsreq *ptsreq)
 			DEBUGP(5, dev, "NumRecBytes is valid\n");
 			break;
 		}
+<<<<<<< HEAD
 		mdelay(10);
+=======
+		usleep_range(10000, 11000);
+>>>>>>> upstream/android-13
 	}
 	if (i == 100) {
 		DEBUGP(5, dev, "Timeout waiting for NumRecBytes getting "
@@ -544,9 +548,19 @@ static int set_protocol(struct cm4000_dev *dev, struct ptsreq *ptsreq)
 		io_read_num_rec_bytes(iobase, &num_bytes_read);
 		if (num_bytes_read >= 4) {
 			DEBUGP(2, dev, "NumRecBytes = %i\n", num_bytes_read);
+<<<<<<< HEAD
 			break;
 		}
 		mdelay(10);
+=======
+			if (num_bytes_read > 4) {
+				rc = -EIO;
+				goto exit_setprotocol;
+			}
+			break;
+		}
+		usleep_range(10000, 11000);
+>>>>>>> upstream/android-13
 	}
 
 	/* check whether it is a short PTS reply? */
@@ -731,8 +745,14 @@ static void monitor_card(struct timer_list *t)
 	}
 
 	switch (dev->mstate) {
+<<<<<<< HEAD
 		unsigned char flags0;
 	case M_CARDOFF:
+=======
+	case M_CARDOFF: {
+		unsigned char flags0;
+
+>>>>>>> upstream/android-13
 		DEBUGP(4, dev, "M_CARDOFF\n");
 		flags0 = inb(REG_FLAGS0(iobase));
 		if (flags0 & 0x02) {
@@ -755,6 +775,10 @@ static void monitor_card(struct timer_list *t)
 			dev->mdelay = T_50MSEC;
 		}
 		break;
+<<<<<<< HEAD
+=======
+	}
+>>>>>>> upstream/android-13
 	case M_FETCH_ATR:
 		DEBUGP(4, dev, "M_FETCH_ATR\n");
 		xoutb(0x80, REG_FLAGS0(iobase));
@@ -1048,7 +1072,10 @@ static ssize_t cmm_write(struct file *filp, const char __user *buf,
 	struct cm4000_dev *dev = filp->private_data;
 	unsigned int iobase = dev->p_dev->resource[0]->start;
 	unsigned short s;
+<<<<<<< HEAD
 	unsigned char tmp;
+=======
+>>>>>>> upstream/android-13
 	unsigned char infolen;
 	unsigned char sendT0;
 	unsigned short nsend;
@@ -1146,7 +1173,11 @@ static ssize_t cmm_write(struct file *filp, const char __user *buf,
 	set_cardparameter(dev);
 
 	/* dummy read, reset flag procedure received */
+<<<<<<< HEAD
 	tmp = inb(REG_FLAGS1(iobase));
+=======
+	inb(REG_FLAGS1(iobase));
+>>>>>>> upstream/android-13
 
 	dev->flags1 = 0x20	/* T_Active */
 	    | (sendT0)
@@ -1402,7 +1433,10 @@ static long cmm_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 	unsigned int iobase = dev->p_dev->resource[0]->start;
 	struct inode *inode = file_inode(filp);
 	struct pcmcia_device *link;
+<<<<<<< HEAD
 	int size;
+=======
+>>>>>>> upstream/android-13
 	int rc;
 	void __user *argp = (void __user *)arg;
 #ifdef CM4000_DEBUG
@@ -1439,6 +1473,7 @@ static long cmm_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 		DEBUGP(4, dev, "iocnr mismatch\n");
 		goto out;
 	}
+<<<<<<< HEAD
 	size = _IOC_SIZE(cmd);
 	rc = -EFAULT;
 	DEBUGP(4, dev, "iocdir=%.4x iocr=%.4x iocw=%.4x iocsize=%d cmd=%.4x\n",
@@ -1452,6 +1487,8 @@ static long cmm_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 		if (!access_ok(VERIFY_READ, argp, size))
 			goto out;
 	}
+=======
+>>>>>>> upstream/android-13
 	rc = 0;
 
 	switch (cmd) {
@@ -1682,7 +1719,11 @@ static int cmm_open(struct inode *inode, struct file *filp)
 	link->open = 1;		/* only one open per device */
 
 	DEBUGP(2, dev, "<- cmm_open\n");
+<<<<<<< HEAD
 	ret = nonseekable_open(inode, filp);
+=======
+	ret = stream_open(inode, filp);
+>>>>>>> upstream/android-13
 out:
 	mutex_unlock(&cmm_mutex);
 	return ret;

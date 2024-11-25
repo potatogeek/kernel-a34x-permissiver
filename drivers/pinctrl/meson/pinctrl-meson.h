@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Pin controller and GPIO driver for Amlogic Meson SoCs
  *
  * Copyright (C) 2014 Beniamino Galvani <b.galvani@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -12,10 +17,21 @@
  */
 
 #include <linux/gpio.h>
+=======
+ */
+
+#include <linux/gpio/driver.h>
+>>>>>>> upstream/android-13
 #include <linux/pinctrl/pinctrl.h>
 #include <linux/platform_device.h>
 #include <linux/regmap.h>
 #include <linux/types.h>
+<<<<<<< HEAD
+=======
+#include <linux/module.h>
+
+struct meson_pinctrl;
+>>>>>>> upstream/android-13
 
 /**
  * struct meson_pmx_group - a pinmux group
@@ -71,10 +87,27 @@ enum meson_reg_type {
 	REG_DIR,
 	REG_OUT,
 	REG_IN,
+<<<<<<< HEAD
+=======
+	REG_DS,
+>>>>>>> upstream/android-13
 	NUM_REG,
 };
 
 /**
+<<<<<<< HEAD
+=======
+ * enum meson_pinconf_drv - value of drive-strength supported
+ */
+enum meson_pinconf_drv {
+	MESON_PINCONF_DRV_500UA,
+	MESON_PINCONF_DRV_2500UA,
+	MESON_PINCONF_DRV_3000UA,
+	MESON_PINCONF_DRV_4000UA,
+};
+
+/**
+>>>>>>> upstream/android-13
  * struct meson bank
  *
  * @name:	bank name
@@ -109,6 +142,10 @@ struct meson_pinctrl_data {
 	unsigned int num_banks;
 	const struct pinmux_ops *pmx_ops;
 	void *pmx_data;
+<<<<<<< HEAD
+=======
+	int (*parse_dt)(struct meson_pinctrl *pc);
+>>>>>>> upstream/android-13
 };
 
 struct meson_pinctrl {
@@ -120,6 +157,10 @@ struct meson_pinctrl {
 	struct regmap *reg_pullen;
 	struct regmap *reg_pull;
 	struct regmap *reg_gpio;
+<<<<<<< HEAD
+=======
+	struct regmap *reg_ds;
+>>>>>>> upstream/android-13
 	struct gpio_chip chip;
 	struct device_node *of_node;
 };
@@ -131,7 +172,12 @@ struct meson_pinctrl {
 		.num_groups = ARRAY_SIZE(fn ## _groups),		\
 	}
 
+<<<<<<< HEAD
 #define BANK(n, f, l, fi, li, per, peb, pr, pb, dr, db, or, ob, ir, ib)	\
+=======
+#define BANK_DS(n, f, l, fi, li, per, peb, pr, pb, dr, db, or, ob, ir, ib,     \
+		dsr, dsb)                                                      \
+>>>>>>> upstream/android-13
 	{								\
 		.name		= n,					\
 		.first		= f,					\
@@ -144,9 +190,19 @@ struct meson_pinctrl {
 			[REG_DIR]	= { dr, db },			\
 			[REG_OUT]	= { or, ob },			\
 			[REG_IN]	= { ir, ib },			\
+<<<<<<< HEAD
 		},							\
 	 }
 
+=======
+			[REG_DS]	= { dsr, dsb },			\
+		},							\
+	 }
+
+#define BANK(n, f, l, fi, li, per, peb, pr, pb, dr, db, or, ob, ir, ib) \
+	BANK_DS(n, f, l, fi, li, per, peb, pr, pb, dr, db, or, ob, ir, ib, 0, 0)
+
+>>>>>>> upstream/android-13
 #define MESON_PIN(x) PINCTRL_PIN(x, #x)
 
 /* Common pmx functions */
@@ -160,3 +216,10 @@ int meson_pmx_get_groups(struct pinctrl_dev *pcdev,
 
 /* Common probe function */
 int meson_pinctrl_probe(struct platform_device *pdev);
+<<<<<<< HEAD
+=======
+/* Common ao groups extra dt parse function for SoCs before g12a  */
+int meson8_aobus_parse_dt_extra(struct meson_pinctrl *pc);
+/* Common extra dt parse function for SoCs like A1  */
+int meson_a1_parse_dt_extra(struct meson_pinctrl *pc);
+>>>>>>> upstream/android-13

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef _ASM_UPROBES_H
 #define _ASM_UPROBES_H
 /*
  * User-space Probes (UProbes) for powerpc
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -17,6 +22,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
+=======
+>>>>>>> upstream/android-13
  * Copyright IBM Corporation, 2007-2012
  *
  * Adapted from the x86 port by Ananth N Mavinakayanahalli <ananth@in.ibm.com>
@@ -24,10 +31,18 @@
 
 #include <linux/notifier.h>
 #include <asm/probes.h>
+<<<<<<< HEAD
 
 typedef ppc_opcode_t uprobe_opcode_t;
 
 #define MAX_UINSN_BYTES		4
+=======
+#include <asm/inst.h>
+
+typedef ppc_opcode_t uprobe_opcode_t;
+
+#define MAX_UINSN_BYTES		8
+>>>>>>> upstream/android-13
 #define UPROBE_XOL_SLOT_BYTES	(MAX_UINSN_BYTES)
 
 /* The following alias is needed for reference from arch-agnostic code */
@@ -36,8 +51,13 @@ typedef ppc_opcode_t uprobe_opcode_t;
 
 struct arch_uprobe {
 	union {
+<<<<<<< HEAD
 		u32	insn;
 		u32	ixol;
+=======
+		u32 insn[2];
+		u32 ixol[2];
+>>>>>>> upstream/android-13
 	};
 };
 

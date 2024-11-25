@@ -5,8 +5,11 @@
 #include <linux/types.h>
 #include <linux/pkt_cls.h>
 
+<<<<<<< HEAD
 #define TCA_ACT_CSUM 16
 
+=======
+>>>>>>> upstream/android-13
 enum {
 	TCA_CSUM_UNSPEC,
 	TCA_CSUM_PARMS,

@@ -22,6 +22,9 @@
 struct device_attribute **get_gyroscope_icm42605m_dev_attrs(char *name);
 struct device_attribute **get_gyroscope_lsm6dsl_dev_attrs(char *name);
 struct device_attribute **get_gyroscope_lsm6dsotr_dev_attrs(char *name);
+<<<<<<< HEAD
 struct device_attribute **get_gyroscope_lsm6dsvtr_dev_attrs(char *name);
+=======
+>>>>>>> upstream/android-13
 struct device_attribute **get_gyroscope_icm42632m_dev_attrs(char *name);
 #endif

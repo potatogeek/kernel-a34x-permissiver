@@ -16,6 +16,10 @@ int fw_argc;
 int *_fw_argv;
 int *_fw_envp;
 
+<<<<<<< HEAD
+=======
+#ifndef CONFIG_HAVE_PLAT_FW_INIT_CMDLINE
+>>>>>>> upstream/android-13
 void __init fw_init_cmdline(void)
 {
 	int i;
@@ -41,6 +45,10 @@ void __init fw_init_cmdline(void)
 			strlcat(arcs_cmdline, " ", COMMAND_LINE_SIZE);
 	}
 }
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 char * __init fw_getcmdline(void)
 {

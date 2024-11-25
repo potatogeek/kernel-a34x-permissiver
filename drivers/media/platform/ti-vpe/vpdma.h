@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2013 Texas Instruments Inc.
  *
  * David Griego, <dagriego@biglakesoftware.com>
  * Dale Farnsworth, <dale@farnsworth.org>
  * Archit Taneja, <archit@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __TI_VPDMA_H_
@@ -75,6 +82,10 @@ enum vpdma_yuv_formats {
 	VPDMA_DATA_FMT_C444,
 	VPDMA_DATA_FMT_C422,
 	VPDMA_DATA_FMT_C420,
+<<<<<<< HEAD
+=======
+	VPDMA_DATA_FMT_CB420,
+>>>>>>> upstream/android-13
 	VPDMA_DATA_FMT_YCR422,
 	VPDMA_DATA_FMT_YC444,
 	VPDMA_DATA_FMT_CRY422,

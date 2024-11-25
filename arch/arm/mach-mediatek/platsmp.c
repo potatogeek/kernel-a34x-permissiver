@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * arch/arm/mach-mediatek/platsmp.c
  *
  * Copyright (c) 2014 Mediatek Inc.
  * Author: Shunli Wang <shunli.wang@mediatek.com>
  *         Yingjoe Chen <yingjoe.chen@mediatek.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -14,6 +19,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/io.h>
 #include <linux/memblock.h>

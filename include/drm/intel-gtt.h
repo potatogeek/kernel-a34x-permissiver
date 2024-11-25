@@ -4,6 +4,13 @@
 #ifndef _DRM_INTEL_GTT_H
 #define	_DRM_INTEL_GTT_H
 
+<<<<<<< HEAD
+=======
+#include <linux/agp_backend.h>
+#include <linux/intel-iommu.h>
+#include <linux/kernel.h>
+
+>>>>>>> upstream/android-13
 void intel_gtt_get(u64 *gtt_total,
 		   phys_addr_t *mappable_base,
 		   resource_size_t *mappable_end);
@@ -30,8 +37,11 @@ void intel_gtt_clear_range(unsigned int first_entry, unsigned int num_entries);
 /* flag for GFDT type */
 #define AGP_USER_CACHED_MEMORY_GFDT (1 << 3)
 
+<<<<<<< HEAD
 #ifdef CONFIG_INTEL_IOMMU
 extern int intel_iommu_gfx_mapped;
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #endif

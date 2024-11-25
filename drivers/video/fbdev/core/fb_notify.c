@@ -19,6 +19,11 @@ static BLOCKING_NOTIFIER_HEAD(fb_notifier_list);
 /**
  *	fb_register_client - register a client notifier
  *	@nb: notifier block to callback on events
+<<<<<<< HEAD
+=======
+ *
+ *	Return: 0 on success, negative error code on failure.
+>>>>>>> upstream/android-13
  */
 int fb_register_client(struct notifier_block *nb)
 {
@@ -29,6 +34,11 @@ EXPORT_SYMBOL(fb_register_client);
 /**
  *	fb_unregister_client - unregister a client notifier
  *	@nb: notifier block to callback on events
+<<<<<<< HEAD
+=======
+ *
+ *	Return: 0 on success, negative error code on failure.
+>>>>>>> upstream/android-13
  */
 int fb_unregister_client(struct notifier_block *nb)
 {
@@ -38,7 +48,14 @@ EXPORT_SYMBOL(fb_unregister_client);
 
 /**
  * fb_notifier_call_chain - notify clients of fb_events
+<<<<<<< HEAD
  *
+=======
+ * @val: value passed to callback
+ * @v: pointer passed to callback
+ *
+ * Return: The return value of the last notifier function
+>>>>>>> upstream/android-13
  */
 int fb_notifier_call_chain(unsigned long val, void *v)
 {

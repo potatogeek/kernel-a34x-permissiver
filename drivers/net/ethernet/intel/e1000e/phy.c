@@ -371,7 +371,11 @@ s32 e1000e_read_phy_reg_igp_locked(struct e1000_hw *hw, u32 offset, u16 *data)
 }
 
 /**
+<<<<<<< HEAD
  *  e1000e_write_phy_reg_igp - Write igp PHY register
+=======
+ *  __e1000e_write_phy_reg_igp - Write igp PHY register
+>>>>>>> upstream/android-13
  *  @hw: pointer to the HW structure
  *  @offset: register offset to write to
  *  @data: data to write at register offset
@@ -607,7 +611,11 @@ static s32 e1000_set_master_slave_mode(struct e1000_hw *hw)
 		break;
 	case e1000_ms_auto:
 		phy_data &= ~CTL1000_ENABLE_MASTER;
+<<<<<<< HEAD
 		/* fall-through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
@@ -2311,6 +2319,10 @@ s32 e1000e_determine_phy_address(struct e1000_hw *hw)
 /**
  *  e1000_get_phy_addr_for_bm_page - Retrieve PHY page address
  *  @page: page to access
+<<<<<<< HEAD
+=======
+ *  @reg: register to check
+>>>>>>> upstream/android-13
  *
  *  Returns the phy address for the page requested.
  **/
@@ -2728,6 +2740,10 @@ void e1000_power_down_phy_copper(struct e1000_hw *hw)
  *  @offset: register offset to be read
  *  @data: pointer to the read data
  *  @locked: semaphore has already been acquired or not
+<<<<<<< HEAD
+=======
+ *  @page_set: BM_WUC_PAGE already set and access enabled
+>>>>>>> upstream/android-13
  *
  *  Acquires semaphore, if necessary, then reads the PHY register at offset
  *  and stores the retrieved information in data.  Release any acquired
@@ -2836,6 +2852,10 @@ s32 e1000_read_phy_reg_page_hv(struct e1000_hw *hw, u32 offset, u16 *data)
  *  @offset: register offset to write to
  *  @data: data to write at register offset
  *  @locked: semaphore has already been acquired or not
+<<<<<<< HEAD
+=======
+ *  @page_set: BM_WUC_PAGE already set and access enabled
+>>>>>>> upstream/android-13
  *
  *  Acquires semaphore, if necessary, then writes the data to PHY register
  *  at the offset.  Release any acquired semaphores before exiting.
@@ -2975,7 +2995,11 @@ static u32 e1000_get_phy_addr_for_hv_page(u32 page)
  *  @data: pointer to the data to be read or written
  *  @read: determines if operation is read or write
  *
+<<<<<<< HEAD
  *  Reads the PHY register at offset and stores the retreived information
+=======
+ *  Reads the PHY register at offset and stores the retrieved information
+>>>>>>> upstream/android-13
  *  in data.  Assumes semaphore already acquired.  Note that the procedure
  *  to access these regs uses the address port and data port to read/write.
  *  These accesses done with PHY address 2 and without using pages.

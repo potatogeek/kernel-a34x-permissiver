@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * cs5530.c - Initialisation code for Cyrix/NatSemi VSA1 softaudio
  *
@@ -21,6 +25,7 @@
  * Thanks to National Semiconductor for providing the needed information
  * on the XpressAudio(tm) internals.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
@@ -31,6 +36,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * TO DO:
  *	Investigate whether we can portably support Cognac (5520) in the
  *	same manner.
@@ -74,6 +81,7 @@ static const struct pci_device_id snd_cs5530_ids[] = {
 
 MODULE_DEVICE_TABLE(pci, snd_cs5530_ids);
 
+<<<<<<< HEAD
 static int snd_cs5530_free(struct snd_cs5530 *chip)
 {
 	pci_release_regions(chip->pci);
@@ -93,6 +101,8 @@ static void snd_cs5530_remove(struct pci_dev *pci)
 	snd_card_free(pci_get_drvdata(pci));
 }
 
+=======
+>>>>>>> upstream/android-13
 static u8 snd_cs5530_mixer_read(unsigned long io, u8 reg)
 {
 	outb(reg, io + 4);
@@ -103,16 +113,23 @@ static u8 snd_cs5530_mixer_read(unsigned long io, u8 reg)
 }
 
 static int snd_cs5530_create(struct snd_card *card,
+<<<<<<< HEAD
 			     struct pci_dev *pci,
 			     struct snd_cs5530 **rchip)
 {
 	struct snd_cs5530 *chip;
+=======
+			     struct pci_dev *pci)
+{
+	struct snd_cs5530 *chip = card->private_data;
+>>>>>>> upstream/android-13
 	unsigned long sb_base;
 	u8 irq, dma8, dma16 = 0;
 	u16 map;
 	void __iomem *mem;
 	int err;
 
+<<<<<<< HEAD
 	static struct snd_device_ops ops = {
 		.dev_free = snd_cs5530_dev_free,
 	};
@@ -147,6 +164,21 @@ static int snd_cs5530_create(struct snd_card *card,
 
 	map = readw(mem + 0x18);
 	iounmap(mem);
+=======
+	err = pcim_enable_device(pci);
+ 	if (err < 0)
+		return err;
+
+	chip->card = card;
+	chip->pci = pci;
+
+	err = pcim_iomap_regions(pci, 1 << 0, "CS5530");
+	if (err < 0)
+		return err;
+	chip->pci_base = pci_resource_start(pci, 0);
+	mem = pcim_iomap_table(pci)[0];
+	map = readw(mem + 0x18);
+>>>>>>> upstream/android-13
 
 	/* Map bits
 		0:1	* 0x20 + 0x200 = sb base
@@ -163,7 +195,10 @@ static int snd_cs5530_create(struct snd_card *card,
 		dev_info(card->dev, "XpressAudio at 0x%lx\n", sb_base);
 	else {
 		dev_err(card->dev, "Could not find XpressAudio!\n");
+<<<<<<< HEAD
 		snd_cs5530_free(chip);
+=======
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	}
 
@@ -183,7 +218,10 @@ static int snd_cs5530_create(struct snd_card *card,
 		dma16 = 7;
 	else {
 		dev_err(card->dev, "No 16bit DMA enabled\n");
+<<<<<<< HEAD
 		snd_cs5530_free(chip);
+=======
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	}
 
@@ -195,7 +233,10 @@ static int snd_cs5530_create(struct snd_card *card,
 		dma8 = 3;
 	else {
 		dev_err(card->dev, "No 8bit DMA enabled\n");
+<<<<<<< HEAD
 		snd_cs5530_free(chip);
+=======
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	}
 
@@ -209,7 +250,10 @@ static int snd_cs5530_create(struct snd_card *card,
 		irq = 10;
 	else {
 		dev_err(card->dev, "SoundBlaster IRQ not set\n");
+<<<<<<< HEAD
 		snd_cs5530_free(chip);
+=======
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	}
 
@@ -219,20 +263,27 @@ static int snd_cs5530_create(struct snd_card *card,
 						dma16, SB_HW_CS5530, &chip->sb);
 	if (err < 0) {
 		dev_err(card->dev, "Could not create SoundBlaster\n");
+<<<<<<< HEAD
 		snd_cs5530_free(chip);
+=======
+>>>>>>> upstream/android-13
 		return err;
 	}
 
 	err = snd_sb16dsp_pcm(chip->sb, 0);
 	if (err < 0) {
 		dev_err(card->dev, "Could not create PCM\n");
+<<<<<<< HEAD
 		snd_cs5530_free(chip);
+=======
+>>>>>>> upstream/android-13
 		return err;
 	}
 
 	err = snd_sbmixer_new(chip->sb);
 	if (err < 0) {
 		dev_err(card->dev, "Could not create Mixer\n");
+<<<<<<< HEAD
 		snd_cs5530_free(chip);
 		return err;
 	}
@@ -244,6 +295,11 @@ static int snd_cs5530_create(struct snd_card *card,
 	}
 
 	*rchip = chip;
+=======
+		return err;
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -252,7 +308,11 @@ static int snd_cs5530_probe(struct pci_dev *pci,
 {
 	static int dev;
 	struct snd_card *card;
+<<<<<<< HEAD
 	struct snd_cs5530 *chip = NULL;
+=======
+	struct snd_cs5530 *chip;
+>>>>>>> upstream/android-13
 	int err;
 
 	if (dev >= SNDRV_CARDS)
@@ -262,6 +322,7 @@ static int snd_cs5530_probe(struct pci_dev *pci,
 		return -ENOENT;
 	}
 
+<<<<<<< HEAD
 	err = snd_card_new(&pci->dev, index[dev], id[dev], THIS_MODULE,
 			   0, &card);
 
@@ -273,16 +334,32 @@ static int snd_cs5530_probe(struct pci_dev *pci,
 		snd_card_free(card);
 		return err;
 	}
+=======
+	err = snd_devm_card_new(&pci->dev, index[dev], id[dev], THIS_MODULE,
+				sizeof(*chip), &card);
+	if (err < 0)
+		return err;
+	chip = card->private_data;
+
+	err = snd_cs5530_create(card, pci);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 
 	strcpy(card->driver, "CS5530");
 	strcpy(card->shortname, "CS5530 Audio");
 	sprintf(card->longname, "%s at 0x%lx", card->shortname, chip->pci_base);
 
 	err = snd_card_register(card);
+<<<<<<< HEAD
 	if (err < 0) {
 		snd_card_free(card);
 		return err;
 	}
+=======
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 	pci_set_drvdata(pci, card);
 	dev++;
 	return 0;
@@ -292,7 +369,10 @@ static struct pci_driver cs5530_driver = {
 	.name = KBUILD_MODNAME,
 	.id_table = snd_cs5530_ids,
 	.probe = snd_cs5530_probe,
+<<<<<<< HEAD
 	.remove = snd_cs5530_remove,
+=======
+>>>>>>> upstream/android-13
 };
 
 module_pci_driver(cs5530_driver);

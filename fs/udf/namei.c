@@ -30,6 +30,10 @@
 #include <linux/sched.h>
 #include <linux/crc-itu-t.h>
 #include <linux/exportfs.h>
+<<<<<<< HEAD
+=======
+#include <linux/iversion.h>
+>>>>>>> upstream/android-13
 
 static inline int udf_match(int len1, const unsigned char *name1, int len2,
 			    const unsigned char *name2)
@@ -74,12 +78,20 @@ int udf_write_fi(struct inode *inode, struct fileIdentDesc *cfi,
 
 	if (fileident) {
 		if (adinicb || (offset + lfi < 0)) {
+<<<<<<< HEAD
 			memcpy((uint8_t *)sfi->fileIdent + liu, fileident, lfi);
 		} else if (offset >= 0) {
 			memcpy(fibh->ebh->b_data + offset, fileident, lfi);
 		} else {
 			memcpy((uint8_t *)sfi->fileIdent + liu, fileident,
 				-offset);
+=======
+			memcpy(sfi->impUse + liu, fileident, lfi);
+		} else if (offset >= 0) {
+			memcpy(fibh->ebh->b_data + offset, fileident, lfi);
+		} else {
+			memcpy(sfi->impUse + liu, fileident, -offset);
+>>>>>>> upstream/android-13
 			memcpy(fibh->ebh->b_data, fileident - offset,
 				lfi + offset);
 		}
@@ -88,11 +100,19 @@ int udf_write_fi(struct inode *inode, struct fileIdentDesc *cfi,
 	offset += lfi;
 
 	if (adinicb || (offset + padlen < 0)) {
+<<<<<<< HEAD
 		memset((uint8_t *)sfi->padding + liu + lfi, 0x00, padlen);
 	} else if (offset >= 0) {
 		memset(fibh->ebh->b_data + offset, 0x00, padlen);
 	} else {
 		memset((uint8_t *)sfi->padding + liu + lfi, 0x00, -offset);
+=======
+		memset(sfi->impUse + liu + lfi, 0x00, padlen);
+	} else if (offset >= 0) {
+		memset(fibh->ebh->b_data + offset, 0x00, padlen);
+	} else {
+		memset(sfi->impUse + liu + lfi, 0x00, -offset);
+>>>>>>> upstream/android-13
 		memset(fibh->ebh->b_data, 0x00, padlen + offset);
 	}
 
@@ -135,6 +155,11 @@ int udf_write_fi(struct inode *inode, struct fileIdentDesc *cfi,
 			mark_buffer_dirty_inode(fibh->ebh, inode);
 		mark_buffer_dirty_inode(fibh->sbh, inode);
 	}
+<<<<<<< HEAD
+=======
+	inode_inc_iversion(inode);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -226,7 +251,11 @@ static struct fileIdentDesc *udf_find_entry(struct inode *dir,
 		lfi = cfi->lengthFileIdent;
 
 		if (fibh->sbh == fibh->ebh) {
+<<<<<<< HEAD
 			nameptr = fi->fileIdent + liu;
+=======
+			nameptr = udf_get_fi_ident(fi);
+>>>>>>> upstream/android-13
 		} else {
 			int poffset;	/* Unpaded ending offset */
 
@@ -246,7 +275,11 @@ static struct fileIdentDesc *udf_find_entry(struct inode *dir,
 					}
 				}
 				nameptr = copy_name;
+<<<<<<< HEAD
 				memcpy(nameptr, fi->fileIdent + liu,
+=======
+				memcpy(nameptr, udf_get_fi_ident(fi),
+>>>>>>> upstream/android-13
 					lfi - poffset);
 				memcpy(nameptr + lfi - poffset,
 					fibh->ebh->b_data, poffset);
@@ -304,6 +337,7 @@ static struct dentry *udf_lookup(struct inode *dir, struct dentry *dentry,
 	if (dentry->d_name.len > UDF_NAME_LEN)
 		return ERR_PTR(-ENAMETOOLONG);
 
+<<<<<<< HEAD
 #ifdef UDF_RECOVERY
 	/* temporary shorthand for specifying files by inode number */
 	if (!strncmp(dentry->d_name.name, ".B=", 3)) {
@@ -319,6 +353,8 @@ static struct dentry *udf_lookup(struct inode *dir, struct dentry *dentry,
 	} else
 #endif /* UDF_RECOVERY */
 
+=======
+>>>>>>> upstream/android-13
 	fi = udf_find_entry(dir, &dentry->d_name, &fibh, &cfi);
 	if (IS_ERR(fi))
 		return ERR_CAST(fi);
@@ -475,8 +511,12 @@ add:
 		if (dinfo->i_alloc_type == ICBTAG_FLAG_AD_IN_ICB) {
 			block = dinfo->i_location.logicalBlockNum;
 			fi = (struct fileIdentDesc *)
+<<<<<<< HEAD
 					(dinfo->i_ext.i_data +
 					 fibh->soffset -
+=======
+					(dinfo->i_data + fibh->soffset -
+>>>>>>> upstream/android-13
 					 udf_ext0_offset(dir) +
 					 dinfo->i_lenEAttr);
 		} else {
@@ -620,8 +660,13 @@ static int udf_add_nondir(struct dentry *dentry, struct inode *inode)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int udf_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 		      bool excl)
+=======
+static int udf_create(struct user_namespace *mnt_userns, struct inode *dir,
+		      struct dentry *dentry, umode_t mode, bool excl)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode = udf_new_inode(dir, mode);
 
@@ -639,7 +684,12 @@ static int udf_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 	return udf_add_nondir(dentry, inode);
 }
 
+<<<<<<< HEAD
 static int udf_tmpfile(struct inode *dir, struct dentry *dentry, umode_t mode)
+=======
+static int udf_tmpfile(struct user_namespace *mnt_userns, struct inode *dir,
+		       struct dentry *dentry, umode_t mode)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode = udf_new_inode(dir, mode);
 
@@ -658,8 +708,13 @@ static int udf_tmpfile(struct inode *dir, struct dentry *dentry, umode_t mode)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int udf_mknod(struct inode *dir, struct dentry *dentry, umode_t mode,
 		     dev_t rdev)
+=======
+static int udf_mknod(struct user_namespace *mnt_userns, struct inode *dir,
+		     struct dentry *dentry, umode_t mode, dev_t rdev)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode;
 
@@ -674,7 +729,12 @@ static int udf_mknod(struct inode *dir, struct dentry *dentry, umode_t mode,
 	return udf_add_nondir(dentry, inode);
 }
 
+<<<<<<< HEAD
 static int udf_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
+=======
+static int udf_mkdir(struct user_namespace *mnt_userns, struct inode *dir,
+		     struct dentry *dentry, umode_t mode)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode;
 	struct udf_fileident_bh fibh;
@@ -893,8 +953,13 @@ out:
 	return retval;
 }
 
+<<<<<<< HEAD
 static int udf_symlink(struct inode *dir, struct dentry *dentry,
 		       const char *symname)
+=======
+static int udf_symlink(struct user_namespace *mnt_userns, struct inode *dir,
+		       struct dentry *dentry, const char *symname)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode = udf_new_inode(dir, S_IFLNK | 0777);
 	struct pathComponent *pc;
@@ -948,6 +1013,13 @@ static int udf_symlink(struct inode *dir, struct dentry *dentry,
 				iinfo->i_location.partitionReferenceNum,
 				0);
 		epos.bh = udf_tgetblk(sb, block);
+<<<<<<< HEAD
+=======
+		if (unlikely(!epos.bh)) {
+			err = -ENOMEM;
+			goto out_no_entry;
+		}
+>>>>>>> upstream/android-13
 		lock_buffer(epos.bh);
 		memset(epos.bh->b_data, 0x00, bsize);
 		set_buffer_uptodate(epos.bh);
@@ -955,7 +1027,11 @@ static int udf_symlink(struct inode *dir, struct dentry *dentry,
 		mark_buffer_dirty_inode(epos.bh, inode);
 		ea = epos.bh->b_data + udf_ext0_offset(inode);
 	} else
+<<<<<<< HEAD
 		ea = iinfo->i_ext.i_data + iinfo->i_lenEAttr;
+=======
+		ea = iinfo->i_data + iinfo->i_lenEAttr;
+>>>>>>> upstream/android-13
 
 	eoffset = sb->s_blocksize - udf_ext0_offset(inode);
 	pc = (struct pathComponent *)ea;
@@ -1081,9 +1157,15 @@ static int udf_link(struct dentry *old_dentry, struct inode *dir,
 /* Anybody can rename anything with this: the permission checks are left to the
  * higher-level routines.
  */
+<<<<<<< HEAD
 static int udf_rename(struct inode *old_dir, struct dentry *old_dentry,
 		      struct inode *new_dir, struct dentry *new_dentry,
 		      unsigned int flags)
+=======
+static int udf_rename(struct user_namespace *mnt_userns, struct inode *old_dir,
+		      struct dentry *old_dentry, struct inode *new_dir,
+		      struct dentry *new_dentry, unsigned int flags)
+>>>>>>> upstream/android-13
 {
 	struct inode *old_inode = d_inode(old_dentry);
 	struct inode *new_inode = d_inode(new_dentry);
@@ -1135,7 +1217,11 @@ static int udf_rename(struct inode *old_dir, struct dentry *old_dentry,
 		retval = -EIO;
 		if (old_iinfo->i_alloc_type == ICBTAG_FLAG_AD_IN_ICB) {
 			dir_fi = udf_get_fileident(
+<<<<<<< HEAD
 					old_iinfo->i_ext.i_data -
+=======
+					old_iinfo->i_data -
+>>>>>>> upstream/android-13
 					  (old_iinfo->i_efe ?
 					   sizeof(struct extendedFileEntry) :
 					   sizeof(struct fileEntry)),
@@ -1229,11 +1315,18 @@ static struct dentry *udf_get_parent(struct dentry *child)
 {
 	struct kernel_lb_addr tloc;
 	struct inode *inode = NULL;
+<<<<<<< HEAD
 	struct qstr dotdot = QSTR_INIT("..", 2);
 	struct fileIdentDesc cfi;
 	struct udf_fileident_bh fibh;
 
 	if (!udf_find_entry(d_inode(child), &dotdot, &fibh, &cfi))
+=======
+	struct fileIdentDesc cfi;
+	struct udf_fileident_bh fibh;
+
+	if (!udf_find_entry(d_inode(child), &dotdot_name, &fibh, &cfi))
+>>>>>>> upstream/android-13
 		return ERR_PTR(-EACCES);
 
 	if (fibh.sbh != fibh.ebh)

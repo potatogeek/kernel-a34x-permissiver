@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * public header file of the frontend drivers for mobile DVB-T demodulators
  * DiBcom 3000M-B and DiBcom 3000P/M-C (http://www.dibcom.fr/)
@@ -8,17 +12,24 @@
  *
  * Copyright (C) 2004 Amaury Demol for DiBcom
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License as
  *	published by the Free Software Foundation, version 2.
  *
+=======
+>>>>>>> upstream/android-13
  * Acknowledgements
  *
  *  Amaury Demol from DiBcom for providing specs and driver
  *  sources, on which this driver (and the dvb-dibusb) are based.
  *
+<<<<<<< HEAD
  * see Documentation/media/dvb-drivers/dvb-usb.rst for more information
  *
+=======
+ * see Documentation/driver-api/media/drivers/dvb-usb.rst for more information
+>>>>>>> upstream/android-13
  */
 
 #ifndef DIB3000_H

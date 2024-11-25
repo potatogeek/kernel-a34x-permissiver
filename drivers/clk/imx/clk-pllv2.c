@@ -239,12 +239,22 @@ static const struct clk_ops clk_pllv2_ops = {
 	.set_rate = clk_pllv2_set_rate,
 };
 
+<<<<<<< HEAD
 struct clk *imx_clk_pllv2(const char *name, const char *parent,
 		void __iomem *base)
 {
 	struct clk_pllv2 *pll;
 	struct clk *clk;
 	struct clk_init_data init = {};
+=======
+struct clk_hw *imx_clk_hw_pllv2(const char *name, const char *parent,
+		void __iomem *base)
+{
+	struct clk_pllv2 *pll;
+	struct clk_hw *hw;
+	struct clk_init_data init;
+	int ret;
+>>>>>>> upstream/android-13
 
 	pll = kzalloc(sizeof(*pll), GFP_KERNEL);
 	if (!pll)
@@ -259,10 +269,22 @@ struct clk *imx_clk_pllv2(const char *name, const char *parent,
 	init.num_parents = 1;
 
 	pll->hw.init = &init;
+<<<<<<< HEAD
 
 	clk = clk_register(NULL, &pll->hw);
 	if (IS_ERR(clk))
 		kfree(pll);
 
 	return clk;
+=======
+	hw = &pll->hw;
+
+	ret = clk_hw_register(NULL, hw);
+	if (ret) {
+		kfree(pll);
+		return ERR_PTR(ret);
+	}
+
+	return hw;
+>>>>>>> upstream/android-13
 }

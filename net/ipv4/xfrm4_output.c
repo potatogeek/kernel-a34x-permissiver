@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * xfrm4_output.c - Common IPsec encapsulation code for IPv4.
  * Copyright (c) 2004 Herbert Xu <herbert@gondor.apana.org.au>
@@ -6,6 +7,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * xfrm4_output.c - Common IPsec encapsulation code for IPv4.
+ * Copyright (c) 2004 Herbert Xu <herbert@gondor.apana.org.au>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/if_ether.h>
@@ -18,6 +25,7 @@
 #include <net/xfrm.h>
 #include <net/icmp.h>
 
+<<<<<<< HEAD
 static int xfrm4_tunnel_check_size(struct sk_buff *skb)
 {
 	int mtu, ret = 0;
@@ -106,11 +114,19 @@ static int __xfrm4_output(struct net *net, struct sock *sk, struct sk_buff *skb)
 	bool toobig;
 
 #ifdef CONFIG_NETFILTER
+=======
+static int __xfrm4_output(struct net *net, struct sock *sk, struct sk_buff *skb)
+{
+#ifdef CONFIG_NETFILTER
+	struct xfrm_state *x = skb_dst(skb)->xfrm;
+
+>>>>>>> upstream/android-13
 	if (!x) {
 		IPCB(skb)->flags |= IPSKB_REROUTED;
 		return dst_output(net, sk, skb);
 	}
 #endif
+<<<<<<< HEAD
 	if (x->props.mode != XFRM_MODE_TUNNEL)
 		goto skip_frag;
 
@@ -131,12 +147,20 @@ static int __xfrm4_output(struct net *net, struct sock *sk, struct sk_buff *skb)
 
 skip_frag:
 	return x->outer_mode->afinfo->output_finish(sk, skb);
+=======
+
+	return xfrm_output(sk, skb);
+>>>>>>> upstream/android-13
 }
 
 int xfrm4_output(struct net *net, struct sock *sk, struct sk_buff *skb)
 {
 	return NF_HOOK_COND(NFPROTO_IPV4, NF_INET_POST_ROUTING,
+<<<<<<< HEAD
 			    net, sk, skb, NULL, skb_dst(skb)->dev,
+=======
+			    net, sk, skb, skb->dev, skb_dst(skb)->dev,
+>>>>>>> upstream/android-13
 			    __xfrm4_output,
 			    !(IPCB(skb)->flags & IPSKB_REROUTED));
 }

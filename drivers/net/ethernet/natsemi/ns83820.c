@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 #define VERSION "0.23"
 /* ns83820.c by Benjamin LaHaise with contributions.
  *
@@ -10,6 +14,7 @@
  *
  * Mmmm, chocolate vanilla mocha...
  *
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +30,8 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  *
+=======
+>>>>>>> upstream/android-13
  * ChangeLog
  * =========
  *	20010414	0.1 - created
@@ -540,8 +547,13 @@ static inline int ns83820_add_rx_skb(struct ns83820 *dev, struct sk_buff *skb)
 
 	dev->rx_info.next_empty = (next_empty + 1) % NR_RX_DESC;
 	cmdsts = REAL_RX_BUF_SIZE | CMDSTS_INTR;
+<<<<<<< HEAD
 	buf = pci_map_single(dev->pci_dev, skb->data,
 			     REAL_RX_BUF_SIZE, PCI_DMA_FROMDEVICE);
+=======
+	buf = dma_map_single(&dev->pci_dev->dev, skb->data, REAL_RX_BUF_SIZE,
+			     DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 	build_rx_desc(dev, sg, 0, buf, cmdsts, 0);
 	/* update link of previous rx */
 	if (likely(next_empty != dev->rx_info.next_rx))
@@ -614,12 +626,21 @@ static void phy_intr(struct net_device *ndev)
 	struct ns83820 *dev = PRIV(ndev);
 	static const char *speeds[] = { "10", "100", "1000", "1000(?)", "1000F" };
 	u32 cfg, new_cfg;
+<<<<<<< HEAD
 	u32 tbisr, tanar, tanlpar;
+=======
+	u32 tanar, tanlpar;
+>>>>>>> upstream/android-13
 	int speed, fullduplex, newlinkstate;
 
 	cfg = readl(dev->base + CFG) ^ SPDSTS_POLARITY;
 
 	if (dev->CFG_cache & CFG_TBI_EN) {
+<<<<<<< HEAD
+=======
+		u32 __maybe_unused tbisr;
+
+>>>>>>> upstream/android-13
 		/* we have an optical transceiver */
 		tbisr = readl(dev->base + TBISR);
 		tanar = readl(dev->base + TANAR);
@@ -872,8 +893,13 @@ static void rx_irq(struct net_device *ndev)
 		mb();
 		clear_rx_desc(dev, next_rx);
 
+<<<<<<< HEAD
 		pci_unmap_single(dev->pci_dev, bufptr,
 				 RX_BUF_SIZE, PCI_DMA_FROMDEVICE);
+=======
+		dma_unmap_single(&dev->pci_dev->dev, bufptr, RX_BUF_SIZE,
+				 DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 		len = cmdsts & CMDSTS_LEN_MASK;
 #ifdef NS83820_VLAN_ACCEL_SUPPORT
 		/* NH: As was mentioned below, this chip is kinda
@@ -937,10 +963,17 @@ out:
 	spin_unlock_irqrestore(&info->lock, flags);
 }
 
+<<<<<<< HEAD
 static void rx_action(unsigned long _dev)
 {
 	struct net_device *ndev = (void *)_dev;
 	struct ns83820 *dev = PRIV(ndev);
+=======
+static void rx_action(struct tasklet_struct *t)
+{
+	struct ns83820 *dev = from_tasklet(dev, t, rx_tasklet);
+	struct net_device *ndev = dev->ndev;
+>>>>>>> upstream/android-13
 	rx_irq(ndev);
 	writel(ihr, dev->base + IHR);
 
@@ -999,6 +1032,7 @@ static void do_tx_done(struct net_device *ndev)
 		len = cmdsts & CMDSTS_LEN_MASK;
 		addr = desc_addr_get(desc + DESC_BUFPTR);
 		if (skb) {
+<<<<<<< HEAD
 			pci_unmap_single(dev->pci_dev,
 					addr,
 					len,
@@ -1010,6 +1044,15 @@ static void do_tx_done(struct net_device *ndev)
 					addr,
 					len,
 					PCI_DMA_TODEVICE);
+=======
+			dma_unmap_single(&dev->pci_dev->dev, addr, len,
+					 DMA_TO_DEVICE);
+			dev_consume_skb_irq(skb);
+			atomic_dec(&dev->nr_tx_skbs);
+		} else
+			dma_unmap_page(&dev->pci_dev->dev, addr, len,
+				       DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 
 		tx_done_idx = (tx_done_idx + 1) % NR_TX_DESC;
 		dev->tx_done_idx = tx_done_idx;
@@ -1037,10 +1080,17 @@ static void ns83820_cleanup_tx(struct ns83820 *dev)
 		dev->tx_skbs[i] = NULL;
 		if (skb) {
 			__le32 *desc = dev->tx_descs + (i * DESC_SIZE);
+<<<<<<< HEAD
 			pci_unmap_single(dev->pci_dev,
 					desc_addr_get(desc + DESC_BUFPTR),
 					le32_to_cpu(desc[DESC_CMDSTS]) & CMDSTS_LEN_MASK,
 					PCI_DMA_TODEVICE);
+=======
+			dma_unmap_single(&dev->pci_dev->dev,
+					 desc_addr_get(desc + DESC_BUFPTR),
+					 le32_to_cpu(desc[DESC_CMDSTS]) & CMDSTS_LEN_MASK,
+					 DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 			dev_kfree_skb_irq(skb);
 			atomic_dec(&dev->nr_tx_skbs);
 		}
@@ -1135,7 +1185,12 @@ again:
 	len = skb->len;
 	if (nr_frags)
 		len -= skb->data_len;
+<<<<<<< HEAD
 	buf = pci_map_single(dev->pci_dev, skb->data, len, PCI_DMA_TODEVICE);
+=======
+	buf = dma_map_single(&dev->pci_dev->dev, skb->data, len,
+			     DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 
 	first_desc = dev->tx_descs + (free_idx * DESC_SIZE);
 
@@ -1221,7 +1276,11 @@ static int ns83820_get_link_ksettings(struct net_device *ndev,
 				      struct ethtool_link_ksettings *cmd)
 {
 	struct ns83820 *dev = PRIV(ndev);
+<<<<<<< HEAD
 	u32 cfg, tanar, tbicr;
+=======
+	u32 cfg, tbicr;
+>>>>>>> upstream/android-13
 	int fullduplex   = 0;
 	u32 supported;
 
@@ -1240,7 +1299,11 @@ static int ns83820_get_link_ksettings(struct net_device *ndev,
 
 	/* read current configuration */
 	cfg   = readl(dev->base + CFG) ^ SPDSTS_POLARITY;
+<<<<<<< HEAD
 	tanar = readl(dev->base + TANAR);
+=======
+	readl(dev->base + TANAR);
+>>>>>>> upstream/android-13
 	tbicr = readl(dev->base + TBICR);
 
 	fullduplex = (cfg & CFG_DUPSTS) ? 1 : 0;
@@ -1563,7 +1626,11 @@ static int ns83820_stop(struct net_device *ndev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void ns83820_tx_timeout(struct net_device *ndev)
+=======
+static void ns83820_tx_timeout(struct net_device *ndev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct ns83820 *dev = PRIV(ndev);
         u32 tx_done_idx;
@@ -1617,7 +1684,11 @@ static void ns83820_tx_watch(struct timer_list *t)
 			ndev->name,
 			dev->tx_done_idx, dev->tx_free_idx,
 			atomic_read(&dev->nr_tx_skbs));
+<<<<<<< HEAD
 		ns83820_tx_timeout(ndev);
+=======
+		ns83820_tx_timeout(ndev, UINT_MAX);
+>>>>>>> upstream/android-13
 	}
 
 	mod_timer(&dev->tx_watchdog, jiffies + 2*HZ);
@@ -1869,6 +1940,7 @@ static unsigned ns83820_mii_write_reg(struct ns83820 *dev, unsigned phy, unsigne
 static void ns83820_probe_phy(struct net_device *ndev)
 {
 	struct ns83820 *dev = PRIV(ndev);
+<<<<<<< HEAD
 	static int first;
 	int i;
 #define MII_PHYIDR1	0x02
@@ -1919,6 +1991,30 @@ static void ns83820_probe_phy(struct net_device *ndev)
 		b = ns83820_mii_read_reg(dev, 1, 0x1d);
 		dprintk("version: 0x%04x 0x%04x\n", a, b);
 	}
+=======
+	int j;
+	unsigned a, b;
+
+	for (j = 0; j < 0x16; j += 4) {
+		dprintk("%s: [0x%02x] %04x %04x %04x %04x\n",
+			ndev->name, j,
+			ns83820_mii_read_reg(dev, 1, 0 + j),
+			ns83820_mii_read_reg(dev, 1, 1 + j),
+			ns83820_mii_read_reg(dev, 1, 2 + j),
+			ns83820_mii_read_reg(dev, 1, 3 + j)
+			);
+	}
+
+	/* read firmware version: memory addr is 0x8402 and 0x8403 */
+	ns83820_mii_write_reg(dev, 1, 0x16, 0x000d);
+	ns83820_mii_write_reg(dev, 1, 0x1e, 0x810e);
+	a = ns83820_mii_read_reg(dev, 1, 0x1d);
+
+	ns83820_mii_write_reg(dev, 1, 0x16, 0x000d);
+	ns83820_mii_write_reg(dev, 1, 0x1e, 0x810e);
+	b = ns83820_mii_read_reg(dev, 1, 0x1d);
+	dprintk("version: 0x%04x 0x%04x\n", a, b);
+>>>>>>> upstream/android-13
 }
 #endif
 
@@ -1944,12 +2040,21 @@ static int ns83820_init_one(struct pci_dev *pci_dev,
 
 	/* See if we can set the dma mask early on; failure is fatal. */
 	if (sizeof(dma_addr_t) == 8 &&
+<<<<<<< HEAD
 		!pci_set_dma_mask(pci_dev, DMA_BIT_MASK(64))) {
 		using_dac = 1;
 	} else if (!pci_set_dma_mask(pci_dev, DMA_BIT_MASK(32))) {
 		using_dac = 0;
 	} else {
 		dev_warn(&pci_dev->dev, "pci_set_dma_mask failed!\n");
+=======
+		!dma_set_mask(&pci_dev->dev, DMA_BIT_MASK(64))) {
+		using_dac = 1;
+	} else if (!dma_set_mask(&pci_dev->dev, DMA_BIT_MASK(32))) {
+		using_dac = 0;
+	} else {
+		dev_warn(&pci_dev->dev, "dma_set_mask failed!\n");
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	}
 
@@ -1969,7 +2074,11 @@ static int ns83820_init_one(struct pci_dev *pci_dev,
 	SET_NETDEV_DEV(ndev, &pci_dev->dev);
 
 	INIT_WORK(&dev->tq_refill, queue_refill);
+<<<<<<< HEAD
 	tasklet_init(&dev->rx_tasklet, rx_action, (unsigned long)ndev);
+=======
+	tasklet_setup(&dev->rx_tasklet, rx_action);
+>>>>>>> upstream/android-13
 
 	err = pci_enable_device(pci_dev);
 	if (err) {
@@ -1979,11 +2088,21 @@ static int ns83820_init_one(struct pci_dev *pci_dev,
 
 	pci_set_master(pci_dev);
 	addr = pci_resource_start(pci_dev, 1);
+<<<<<<< HEAD
 	dev->base = ioremap_nocache(addr, PAGE_SIZE);
 	dev->tx_descs = pci_alloc_consistent(pci_dev,
 			4 * DESC_SIZE * NR_TX_DESC, &dev->tx_phy_descs);
 	dev->rx_info.descs = pci_alloc_consistent(pci_dev,
 			4 * DESC_SIZE * NR_RX_DESC, &dev->rx_info.phy_descs);
+=======
+	dev->base = ioremap(addr, PAGE_SIZE);
+	dev->tx_descs = dma_alloc_coherent(&pci_dev->dev,
+					   4 * DESC_SIZE * NR_TX_DESC,
+					   &dev->tx_phy_descs, GFP_KERNEL);
+	dev->rx_info.descs = dma_alloc_coherent(&pci_dev->dev,
+						4 * DESC_SIZE * NR_RX_DESC,
+						&dev->rx_info.phy_descs, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	err = -ENOMEM;
 	if (!dev->base || !dev->tx_descs || !dev->rx_info.descs)
 		goto out_disable;
@@ -2225,8 +2344,15 @@ out_free_irq:
 out_disable:
 	if (dev->base)
 		iounmap(dev->base);
+<<<<<<< HEAD
 	pci_free_consistent(pci_dev, 4 * DESC_SIZE * NR_TX_DESC, dev->tx_descs, dev->tx_phy_descs);
 	pci_free_consistent(pci_dev, 4 * DESC_SIZE * NR_RX_DESC, dev->rx_info.descs, dev->rx_info.phy_descs);
+=======
+	dma_free_coherent(&pci_dev->dev, 4 * DESC_SIZE * NR_TX_DESC,
+			  dev->tx_descs, dev->tx_phy_descs);
+	dma_free_coherent(&pci_dev->dev, 4 * DESC_SIZE * NR_RX_DESC,
+			  dev->rx_info.descs, dev->rx_info.phy_descs);
+>>>>>>> upstream/android-13
 	pci_disable_device(pci_dev);
 out_free:
 	free_netdev(ndev);
@@ -2247,10 +2373,17 @@ static void ns83820_remove_one(struct pci_dev *pci_dev)
 	unregister_netdev(ndev);
 	free_irq(dev->pci_dev->irq, ndev);
 	iounmap(dev->base);
+<<<<<<< HEAD
 	pci_free_consistent(dev->pci_dev, 4 * DESC_SIZE * NR_TX_DESC,
 			dev->tx_descs, dev->tx_phy_descs);
 	pci_free_consistent(dev->pci_dev, 4 * DESC_SIZE * NR_RX_DESC,
 			dev->rx_info.descs, dev->rx_info.phy_descs);
+=======
+	dma_free_coherent(&dev->pci_dev->dev, 4 * DESC_SIZE * NR_TX_DESC,
+			  dev->tx_descs, dev->tx_phy_descs);
+	dma_free_coherent(&dev->pci_dev->dev, 4 * DESC_SIZE * NR_RX_DESC,
+			  dev->rx_info.descs, dev->rx_info.phy_descs);
+>>>>>>> upstream/android-13
 	pci_disable_device(dev->pci_dev);
 	free_netdev(ndev);
 }

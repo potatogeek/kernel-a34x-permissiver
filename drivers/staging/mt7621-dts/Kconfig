@@ -1,5 +1,16 @@
+<<<<<<< HEAD
 config DTB_GNUBEE1
 	bool "GnuBee1 NAS"
+=======
+# SPDX-License-Identifier: GPL-2.0
+config DTB_GNUBEE1
+	bool "GnuBee1 2.5inch NAS"
+	depends on SOC_MT7621 && DTB_RT_NONE
+	select BUILTIN_DTB
+
+config DTB_GNUBEE2
+	bool "GnuBee2 3.5inch NAS"
+>>>>>>> upstream/android-13
 	depends on SOC_MT7621 && DTB_RT_NONE
 	select BUILTIN_DTB
 

@@ -31,11 +31,15 @@
 #define _TTM_BO_DRIVER_H_
 
 #include <drm/drm_mm.h>
+<<<<<<< HEAD
 #include <drm/drm_global.h>
+=======
+>>>>>>> upstream/android-13
 #include <drm/drm_vma_manager.h>
 #include <linux/workqueue.h>
 #include <linux/fs.h>
 #include <linux/spinlock.h>
+<<<<<<< HEAD
 #include <linux/reservation.h>
 
 #include "ttm_bo_api.h"
@@ -507,11 +511,51 @@ ttm_flag_masked(uint32_t *old, uint32_t new, uint32_t mask)
 	return *old;
 }
 
+=======
+#include <linux/dma-resv.h>
+
+#include <drm/ttm/ttm_device.h>
+
+#include "ttm_bo_api.h"
+#include "ttm_kmap_iter.h"
+#include "ttm_placement.h"
+#include "ttm_tt.h"
+#include "ttm_pool.h"
+
+/**
+ * struct ttm_lru_bulk_move_pos
+ *
+ * @first: first BO in the bulk move range
+ * @last: last BO in the bulk move range
+ *
+ * Positions for a lru bulk move.
+ */
+struct ttm_lru_bulk_move_pos {
+	struct ttm_buffer_object *first;
+	struct ttm_buffer_object *last;
+};
+
+/**
+ * struct ttm_lru_bulk_move
+ *
+ * @tt: first/last lru entry for BOs in the TT domain
+ * @vram: first/last lru entry for BOs in the VRAM domain
+ * @swap: first/last lru entry for BOs on the swap list
+ *
+ * Helper structure for bulk moves on the LRU list.
+ */
+struct ttm_lru_bulk_move {
+	struct ttm_lru_bulk_move_pos tt[TTM_MAX_BO_PRIORITY];
+	struct ttm_lru_bulk_move_pos vram[TTM_MAX_BO_PRIORITY];
+};
+
+>>>>>>> upstream/android-13
 /*
  * ttm_bo.c
  */
 
 /**
+<<<<<<< HEAD
  * ttm_mem_reg_is_pci
  *
  * @bdev: Pointer to a struct ttm_bo_device.
@@ -523,12 +567,18 @@ ttm_flag_masked(uint32_t *old, uint32_t new, uint32_t mask)
 bool ttm_mem_reg_is_pci(struct ttm_bo_device *bdev, struct ttm_mem_reg *mem);
 
 /**
+=======
+>>>>>>> upstream/android-13
  * ttm_bo_mem_space
  *
  * @bo: Pointer to a struct ttm_buffer_object. the data of which
  * we want to allocate space for.
  * @proposed_placement: Proposed new placement for the buffer object.
+<<<<<<< HEAD
  * @mem: A struct ttm_mem_reg.
+=======
+ * @mem: A struct ttm_resource.
+>>>>>>> upstream/android-13
  * @interruptible: Sleep interruptible when sliping.
  * @no_wait_gpu: Return immediately if the GPU is busy.
  *
@@ -543,6 +593,7 @@ bool ttm_mem_reg_is_pci(struct ttm_bo_device *bdev, struct ttm_mem_reg *mem);
  */
 int ttm_bo_mem_space(struct ttm_buffer_object *bo,
 		     struct ttm_placement *placement,
+<<<<<<< HEAD
 		     struct ttm_mem_reg *mem,
 		     struct ttm_operation_ctx *ctx);
 
@@ -575,6 +626,11 @@ int ttm_bo_device_init(struct ttm_bo_device *bdev, struct ttm_bo_global *glob,
 		       struct address_space *mapping,
 		       uint64_t file_page_offset, bool need_dma32);
 
+=======
+		     struct ttm_resource **mem,
+		     struct ttm_operation_ctx *ctx);
+
+>>>>>>> upstream/android-13
 /**
  * ttm_bo_unmap_virtual
  *
@@ -583,6 +639,7 @@ int ttm_bo_device_init(struct ttm_bo_device *bdev, struct ttm_bo_global *glob,
 void ttm_bo_unmap_virtual(struct ttm_buffer_object *bo);
 
 /**
+<<<<<<< HEAD
  * ttm_bo_unmap_virtual
  *
  * @bo: tear down the virtual mappings for this BO
@@ -645,6 +702,8 @@ static inline int __ttm_bo_reserve(struct ttm_buffer_object *bo,
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * ttm_bo_reserve:
  *
  * @bo: A pointer to a struct ttm_buffer_object.
@@ -653,6 +712,7 @@ static inline int __ttm_bo_reserve(struct ttm_buffer_object *bo,
  * @ticket: ticket used to acquire the ww_mutex.
  *
  * Locks a buffer object for validation. (Or prevents other processes from
+<<<<<<< HEAD
  * locking it for validation) and removes it from lru lists, while taking
  * a number of measures to prevent deadlocks.
  *
@@ -677,11 +737,19 @@ static inline int __ttm_bo_reserve(struct ttm_buffer_object *bo,
  * then rerun the validation with the same validation sequence. This procedure
  * will always guarantee that the process with the lowest validation sequence
  * will eventually succeed, preventing both deadlocks and starvation.
+=======
+ * locking it for validation), while taking a number of measures to prevent
+ * deadlocks.
+>>>>>>> upstream/android-13
  *
  * Returns:
  * -EDEADLK: The reservation may cause a deadlock.
  * Release all buffer reservations, wait for @bo to become unreserved and
+<<<<<<< HEAD
  * try again. (only if use_sequence == 1).
+=======
+ * try again.
+>>>>>>> upstream/android-13
  * -ERESTARTSYS: A wait for the buffer to become unreserved was interrupted by
  * a signal. Release all buffer reservations and return to user-space.
  * -EBUSY: The function needed to sleep, but @no_wait was true
@@ -692,6 +760,7 @@ static inline int ttm_bo_reserve(struct ttm_buffer_object *bo,
 				 bool interruptible, bool no_wait,
 				 struct ww_acquire_ctx *ticket)
 {
+<<<<<<< HEAD
 	int ret;
 
 	WARN_ON(!kref_read(&bo->kref));
@@ -700,6 +769,25 @@ static inline int ttm_bo_reserve(struct ttm_buffer_object *bo,
 	if (likely(ret == 0))
 		ttm_bo_del_sub_from_lru(bo);
 
+=======
+	int ret = 0;
+
+	if (no_wait) {
+		bool success;
+		if (WARN_ON(ticket))
+			return -EBUSY;
+
+		success = dma_resv_trylock(bo->base.resv);
+		return success ? 0 : -EBUSY;
+	}
+
+	if (interruptible)
+		ret = dma_resv_lock_interruptible(bo->base.resv, ticket);
+	else
+		ret = dma_resv_lock(bo->base.resv, ticket);
+	if (ret == -EINTR)
+		return -ERESTARTSYS;
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -717,6 +805,7 @@ static inline int ttm_bo_reserve_slowpath(struct ttm_buffer_object *bo,
 					  bool interruptible,
 					  struct ww_acquire_ctx *ticket)
 {
+<<<<<<< HEAD
 	int ret = 0;
 
 	WARN_ON(!kref_read(&bo->kref));
@@ -733,6 +822,46 @@ static inline int ttm_bo_reserve_slowpath(struct ttm_buffer_object *bo,
 		ret = -ERESTARTSYS;
 
 	return ret;
+=======
+	if (interruptible) {
+		int ret = dma_resv_lock_slow_interruptible(bo->base.resv,
+							   ticket);
+		if (ret == -EINTR)
+			ret = -ERESTARTSYS;
+		return ret;
+	}
+	dma_resv_lock_slow(bo->base.resv, ticket);
+	return 0;
+}
+
+static inline void
+ttm_bo_move_to_lru_tail_unlocked(struct ttm_buffer_object *bo)
+{
+	spin_lock(&bo->bdev->lru_lock);
+	ttm_bo_move_to_lru_tail(bo, bo->resource, NULL);
+	spin_unlock(&bo->bdev->lru_lock);
+}
+
+static inline void ttm_bo_assign_mem(struct ttm_buffer_object *bo,
+				     struct ttm_resource *new_mem)
+{
+	WARN_ON(bo->resource);
+	bo->resource = new_mem;
+}
+
+/**
+ * ttm_bo_move_null = assign memory for a buffer object.
+ * @bo: The bo to assign the memory to
+ * @new_mem: The memory to be assigned.
+ *
+ * Assign the memory from new_mem to the memory of the buffer object bo.
+ */
+static inline void ttm_bo_move_null(struct ttm_buffer_object *bo,
+				    struct ttm_resource *new_mem)
+{
+	ttm_resource_free(bo, &bo->resource);
+	ttm_bo_assign_mem(bo, new_mem);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -744,17 +873,23 @@ static inline int ttm_bo_reserve_slowpath(struct ttm_buffer_object *bo,
  */
 static inline void ttm_bo_unreserve(struct ttm_buffer_object *bo)
 {
+<<<<<<< HEAD
 	if (!(bo->mem.placement & TTM_PL_FLAG_NO_EVICT)) {
 		spin_lock(&bo->bdev->glob->lru_lock);
 		ttm_bo_add_to_lru(bo);
 		spin_unlock(&bo->bdev->glob->lru_lock);
 	}
 	reservation_object_unlock(bo->resv);
+=======
+	ttm_bo_move_to_lru_tail_unlocked(bo);
+	dma_resv_unlock(bo->base.resv);
+>>>>>>> upstream/android-13
 }
 
 /*
  * ttm_bo_util.c
  */
+<<<<<<< HEAD
 
 int ttm_mem_io_reserve(struct ttm_bo_device *bdev,
 		       struct ttm_mem_reg *mem);
@@ -781,6 +916,12 @@ void ttm_mem_io_free(struct ttm_bo_device *bdev,
 int ttm_bo_move_ttm(struct ttm_buffer_object *bo,
 		    struct ttm_operation_ctx *ctx,
 		    struct ttm_mem_reg *new_mem);
+=======
+int ttm_mem_io_reserve(struct ttm_device *bdev,
+		       struct ttm_resource *mem);
+void ttm_mem_io_free(struct ttm_device *bdev,
+		     struct ttm_resource *mem);
+>>>>>>> upstream/android-13
 
 /**
  * ttm_bo_move_memcpy
@@ -788,7 +929,11 @@ int ttm_bo_move_ttm(struct ttm_buffer_object *bo,
  * @bo: A pointer to a struct ttm_buffer_object.
  * @interruptible: Sleep interruptible if waiting.
  * @no_wait_gpu: Return immediately if the GPU is busy.
+<<<<<<< HEAD
  * @new_mem: struct ttm_mem_reg indicating where to move.
+=======
+ * @new_mem: struct ttm_resource indicating where to move.
+>>>>>>> upstream/android-13
  *
  * Fallback move function for a mappable buffer object in mappable memory.
  * The function will, if successful,
@@ -802,6 +947,7 @@ int ttm_bo_move_ttm(struct ttm_buffer_object *bo,
 
 int ttm_bo_move_memcpy(struct ttm_buffer_object *bo,
 		       struct ttm_operation_ctx *ctx,
+<<<<<<< HEAD
 		       struct ttm_mem_reg *new_mem);
 
 /**
@@ -812,6 +958,9 @@ int ttm_bo_move_memcpy(struct ttm_buffer_object *bo,
  * Utility function to free an old placement after a successful move.
  */
 void ttm_bo_free_old_node(struct ttm_buffer_object *bo);
+=======
+		       struct ttm_resource *new_mem);
+>>>>>>> upstream/android-13
 
 /**
  * ttm_bo_move_accel_cleanup.
@@ -819,7 +968,12 @@ void ttm_bo_free_old_node(struct ttm_buffer_object *bo);
  * @bo: A pointer to a struct ttm_buffer_object.
  * @fence: A fence object that signals when moving is complete.
  * @evict: This is an evict move. Don't return until the buffer is idle.
+<<<<<<< HEAD
  * @new_mem: struct ttm_mem_reg indicating where to move.
+=======
+ * @pipeline: evictions are to be pipelined.
+ * @new_mem: struct ttm_resource indicating where to move.
+>>>>>>> upstream/android-13
  *
  * Accelerated move function to be called when an accelerated move
  * has been scheduled. The function will create a new temporary buffer object
@@ -830,6 +984,7 @@ void ttm_bo_free_old_node(struct ttm_buffer_object *bo);
  */
 int ttm_bo_move_accel_cleanup(struct ttm_buffer_object *bo,
 			      struct dma_fence *fence, bool evict,
+<<<<<<< HEAD
 			      struct ttm_mem_reg *new_mem);
 
 /**
@@ -846,27 +1001,85 @@ int ttm_bo_move_accel_cleanup(struct ttm_buffer_object *bo,
 int ttm_bo_pipeline_move(struct ttm_buffer_object *bo,
 			 struct dma_fence *fence, bool evict,
 			 struct ttm_mem_reg *new_mem);
+=======
+			      bool pipeline,
+			      struct ttm_resource *new_mem);
+
+/**
+ * ttm_bo_move_accel_cleanup.
+ *
+ * @bo: A pointer to a struct ttm_buffer_object.
+ * @new_mem: struct ttm_resource indicating where to move.
+ *
+ * Special case of ttm_bo_move_accel_cleanup where the bo is guaranteed
+ * by the caller to be idle. Typically used after memcpy buffer moves.
+ */
+static inline void ttm_bo_move_sync_cleanup(struct ttm_buffer_object *bo,
+					    struct ttm_resource *new_mem)
+{
+	int ret = ttm_bo_move_accel_cleanup(bo, NULL, true, false, new_mem);
+
+	WARN_ON(ret);
+}
+>>>>>>> upstream/android-13
 
 /**
  * ttm_bo_pipeline_gutting.
  *
  * @bo: A pointer to a struct ttm_buffer_object.
  *
+<<<<<<< HEAD
  * Pipelined gutting a BO of it's backing store.
+=======
+ * Pipelined gutting a BO of its backing store.
+>>>>>>> upstream/android-13
  */
 int ttm_bo_pipeline_gutting(struct ttm_buffer_object *bo);
 
 /**
  * ttm_io_prot
  *
+<<<<<<< HEAD
  * @c_state: Caching state.
+=======
+ * bo: ttm buffer object
+ * res: ttm resource object
+>>>>>>> upstream/android-13
  * @tmp: Page protection flag for a normal, cached mapping.
  *
  * Utility function that returns the pgprot_t that should be used for
  * setting up a PTE with the caching model indicated by @c_state.
  */
+<<<<<<< HEAD
 pgprot_t ttm_io_prot(uint32_t caching_flags, pgprot_t tmp);
 
 extern const struct ttm_mem_type_manager_func ttm_bo_manager_func;
 
+=======
+pgprot_t ttm_io_prot(struct ttm_buffer_object *bo, struct ttm_resource *res,
+		     pgprot_t tmp);
+
+/**
+ * ttm_bo_tt_bind
+ *
+ * Bind the object tt to a memory resource.
+ */
+int ttm_bo_tt_bind(struct ttm_buffer_object *bo, struct ttm_resource *mem);
+
+/**
+ * ttm_bo_tt_destroy.
+ */
+void ttm_bo_tt_destroy(struct ttm_buffer_object *bo);
+
+void ttm_move_memcpy(struct ttm_buffer_object *bo,
+		     u32 num_pages,
+		     struct ttm_kmap_iter *dst_iter,
+		     struct ttm_kmap_iter *src_iter);
+
+struct ttm_kmap_iter *
+ttm_kmap_iter_iomap_init(struct ttm_kmap_iter_iomap *iter_io,
+			 struct io_mapping *iomap,
+			 struct sg_table *st,
+			 resource_size_t start);
+>>>>>>> upstream/android-13
 #endif

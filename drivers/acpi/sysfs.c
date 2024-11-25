@@ -5,6 +5,7 @@
 
 #define pr_fmt(fmt) "ACPI: " fmt
 
+<<<<<<< HEAD
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/moduleparam.h>
@@ -15,6 +16,16 @@
 #define _COMPONENT		ACPI_SYSTEM_COMPONENT
 ACPI_MODULE_NAME("sysfs");
 
+=======
+#include <linux/acpi.h>
+#include <linux/bitmap.h>
+#include <linux/init.h>
+#include <linux/kernel.h>
+#include <linux/moduleparam.h>
+
+#include "internal.h"
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_ACPI_DEBUG
 /*
  * ACPI debug sysfs I/F, including:
@@ -51,6 +62,7 @@ static const struct acpi_dlayer acpi_debug_layers[] = {
 	ACPI_DEBUG_INIT(ACPI_CA_DISASSEMBLER),
 	ACPI_DEBUG_INIT(ACPI_COMPILER),
 	ACPI_DEBUG_INIT(ACPI_TOOLS),
+<<<<<<< HEAD
 
 	ACPI_DEBUG_INIT(ACPI_BUS_COMPONENT),
 	ACPI_DEBUG_INIT(ACPI_AC_COMPONENT),
@@ -66,6 +78,8 @@ static const struct acpi_dlayer acpi_debug_layers[] = {
 	ACPI_DEBUG_INIT(ACPI_MEMORY_DEVICE_COMPONENT),
 	ACPI_DEBUG_INIT(ACPI_VIDEO_COMPONENT),
 	ACPI_DEBUG_INIT(ACPI_PROCESSOR_COMPONENT),
+=======
+>>>>>>> upstream/android-13
 };
 
 static const struct acpi_dlevel acpi_debug_levels[] = {
@@ -214,7 +228,11 @@ static int param_set_trace_method_name(const char *val,
 
 static int param_get_trace_method_name(char *buffer, const struct kernel_param *kp)
 {
+<<<<<<< HEAD
 	return scnprintf(buffer, PAGE_SIZE, "%s", acpi_gbl_trace_method_name);
+=======
+	return scnprintf(buffer, PAGE_SIZE, "%s\n", acpi_gbl_trace_method_name);
+>>>>>>> upstream/android-13
 }
 
 static const struct kernel_param_ops param_ops_trace_method = {
@@ -271,6 +289,7 @@ static int param_set_trace_state(const char *val,
 static int param_get_trace_state(char *buffer, const struct kernel_param *kp)
 {
 	if (!(acpi_gbl_trace_flags & ACPI_TRACE_ENABLED))
+<<<<<<< HEAD
 		return sprintf(buffer, "disable");
 	else {
 		if (acpi_gbl_trace_method_name) {
@@ -282,6 +301,15 @@ static int param_get_trace_state(char *buffer, const struct kernel_param *kp)
 			return sprintf(buffer, "enable");
 	}
 	return 0;
+=======
+		return sprintf(buffer, "disable\n");
+	if (!acpi_gbl_trace_method_name)
+		return sprintf(buffer, "enable\n");
+	if (acpi_gbl_trace_flags & ACPI_TRACE_ONESHOT)
+		return sprintf(buffer, "method-once\n");
+	else
+		return sprintf(buffer, "method\n");
+>>>>>>> upstream/android-13
 }
 
 module_param_call(trace_state, param_set_trace_state, param_get_trace_state,
@@ -302,7 +330,11 @@ static int param_get_acpica_version(char *buffer,
 {
 	int result;
 
+<<<<<<< HEAD
 	result = sprintf(buffer, "%x", ACPI_CA_VERSION);
+=======
+	result = sprintf(buffer, "%x\n", ACPI_CA_VERSION);
+>>>>>>> upstream/android-13
 
 	return result;
 }
@@ -327,9 +359,15 @@ static struct kobject *hotplug_kobj;
 
 struct acpi_table_attr {
 	struct bin_attribute attr;
+<<<<<<< HEAD
 	char name[ACPI_NAME_SIZE];
 	int instance;
 	char filename[ACPI_NAME_SIZE+ACPI_INST_SIZE];
+=======
+	char name[ACPI_NAMESEG_SIZE];
+	int instance;
+	char filename[ACPI_NAMESEG_SIZE+ACPI_INST_SIZE];
+>>>>>>> upstream/android-13
 	struct list_head node;
 };
 
@@ -368,15 +406,23 @@ static int acpi_table_attr_init(struct kobject *tables_obj,
 	char instance_str[ACPI_INST_SIZE];
 
 	sysfs_attr_init(&table_attr->attr.attr);
+<<<<<<< HEAD
 	ACPI_MOVE_NAME(table_attr->name, table_header->signature);
 
 	list_for_each_entry(attr, &acpi_table_attr_list, node) {
 		if (ACPI_COMPARE_NAME(table_attr->name, attr->name))
+=======
+	ACPI_COPY_NAMESEG(table_attr->name, table_header->signature);
+
+	list_for_each_entry(attr, &acpi_table_attr_list, node) {
+		if (ACPI_COMPARE_NAMESEG(table_attr->name, attr->name))
+>>>>>>> upstream/android-13
 			if (table_attr->instance < attr->instance)
 				table_attr->instance = attr->instance;
 	}
 	table_attr->instance++;
 	if (table_attr->instance > ACPI_MAX_TABLE_INSTANCES) {
+<<<<<<< HEAD
 		pr_warn("%4.4s: too many table instances\n",
 			table_attr->name);
 		return -ERANGE;
@@ -384,6 +430,14 @@ static int acpi_table_attr_init(struct kobject *tables_obj,
 
 	ACPI_MOVE_NAME(table_attr->filename, table_header->signature);
 	table_attr->filename[ACPI_NAME_SIZE] = '\0';
+=======
+		pr_warn("%4.4s: too many table instances\n", table_attr->name);
+		return -ERANGE;
+	}
+
+	ACPI_COPY_NAMESEG(table_attr->filename, table_header->signature);
+	table_attr->filename[ACPI_NAMESEG_SIZE] = '\0';
+>>>>>>> upstream/android-13
 	if (table_attr->instance > 1 || (table_attr->instance == 1 &&
 					 !acpi_get_table
 					 (table_header->signature, 2, &header))) {
@@ -406,8 +460,12 @@ acpi_status acpi_sysfs_table_handler(u32 event, void *table, void *context)
 
 	switch (event) {
 	case ACPI_TABLE_EVENT_INSTALL:
+<<<<<<< HEAD
 		table_attr =
 		    kzalloc(sizeof(struct acpi_table_attr), GFP_KERNEL);
+=======
+		table_attr = kzalloc(sizeof(*table_attr), GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (!table_attr)
 			return AE_NO_MEMORY;
 
@@ -438,7 +496,11 @@ static ssize_t acpi_data_show(struct file *filp, struct kobject *kobj,
 			      loff_t offset, size_t count)
 {
 	struct acpi_data_attr *data_attr;
+<<<<<<< HEAD
 	void __iomem *base;
+=======
+	void *base;
+>>>>>>> upstream/android-13
 	ssize_t rc;
 
 	data_attr = container_of(bin_attr, struct acpi_data_attr, attr);
@@ -484,7 +546,11 @@ static int acpi_table_data_init(struct acpi_table_header *th)
 	int i;
 
 	for (i = 0; i < NUM_ACPI_DATA_OBJS; i++) {
+<<<<<<< HEAD
 		if (ACPI_COMPARE_NAME(th->signature, acpi_data_objs[i].name)) {
+=======
+		if (ACPI_COMPARE_NAMESEG(th->signature, acpi_data_objs[i].name)) {
+>>>>>>> upstream/android-13
 			data_attr = kzalloc(sizeof(*data_attr), GFP_KERNEL);
 			if (!data_attr)
 				return -ENOMEM;
@@ -600,8 +666,11 @@ static void delete_gpe_attr_array(void)
 		kfree(counter_attrs);
 	}
 	kfree(all_attrs);
+<<<<<<< HEAD
 
 	return;
+=======
+>>>>>>> upstream/android-13
 }
 
 static void gpe_count(u32 gpe_number)
@@ -616,8 +685,11 @@ static void gpe_count(u32 gpe_number)
 	else
 		all_counters[num_gpes + ACPI_NUM_FIXED_EVENTS +
 			     COUNT_ERROR].count++;
+<<<<<<< HEAD
 
 	return;
+=======
+>>>>>>> upstream/android-13
 }
 
 static void fixed_event_count(u32 event_number)
@@ -630,8 +702,11 @@ static void fixed_event_count(u32 event_number)
 	else
 		all_counters[num_gpes + ACPI_NUM_FIXED_EVENTS +
 			     COUNT_ERROR].count++;
+<<<<<<< HEAD
 
 	return;
+=======
+>>>>>>> upstream/android-13
 }
 
 static void acpi_global_event_handler(u32 event_type, acpi_handle device,
@@ -648,15 +723,23 @@ static void acpi_global_event_handler(u32 event_type, acpi_handle device,
 	}
 }
 
+<<<<<<< HEAD
 static int get_status(u32 index, acpi_event_status *status,
 		      acpi_handle *handle)
 {
 	int result;
+=======
+static int get_status(u32 index, acpi_event_status *ret,
+		      acpi_handle *handle)
+{
+	acpi_status status;
+>>>>>>> upstream/android-13
 
 	if (index >= num_gpes + ACPI_NUM_FIXED_EVENTS)
 		return -EINVAL;
 
 	if (index < num_gpes) {
+<<<<<<< HEAD
 		result = acpi_get_gpe_device(index, handle);
 		if (result) {
 			ACPI_EXCEPTION((AE_INFO, AE_NOT_FOUND,
@@ -668,6 +751,21 @@ static int get_status(u32 index, acpi_event_status *status,
 		result = acpi_get_event_status(index - num_gpes, status);
 
 	return result;
+=======
+		status = acpi_get_gpe_device(index, handle);
+		if (ACPI_FAILURE(status)) {
+			pr_warn("Invalid GPE 0x%x", index);
+			return -ENXIO;
+		}
+		status = acpi_get_gpe_status(*handle, index, ret);
+	} else {
+		status = acpi_get_event_status(index - num_gpes, ret);
+	}
+	if (ACPI_FAILURE(status))
+		return -EIO;
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static ssize_t counter_show(struct kobject *kobj,
@@ -753,8 +851,12 @@ static ssize_t counter_set(struct kobject *kobj,
 		goto end;
 
 	if (!(status & ACPI_EVENT_FLAG_HAS_HANDLER)) {
+<<<<<<< HEAD
 		printk(KERN_WARNING PREFIX
 		       "Can not change Invalid GPE/Fixed Event status\n");
+=======
+		pr_warn("Can not change Invalid GPE/Fixed Event status\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -812,6 +914,10 @@ end:
  * the GPE flooding for GPE 00, they need to specify the following boot
  * parameter:
  *   acpi_mask_gpe=0x00
+<<<<<<< HEAD
+=======
+ * Note, the parameter can be a list (see bitmap_parselist() for the details).
+>>>>>>> upstream/android-13
  * The masking status can be modified by the following runtime controlling
  * interface:
  *   echo unmask > /sys/firmware/acpi/interrupts/gpe00
@@ -821,11 +927,24 @@ static DECLARE_BITMAP(acpi_masked_gpes_map, ACPI_MASKABLE_GPE_MAX) __initdata;
 
 static int __init acpi_gpe_set_masked_gpes(char *val)
 {
+<<<<<<< HEAD
 	u8 gpe;
 
 	if (kstrtou8(val, 0, &gpe))
 		return -EINVAL;
 	set_bit(gpe, acpi_masked_gpes_map);
+=======
+	int ret;
+	u8 gpe;
+
+	ret = kstrtou8(val, 0, &gpe);
+	if (ret) {
+		ret = bitmap_parselist(val, acpi_masked_gpes_map, ACPI_MASKABLE_GPE_MAX);
+		if (ret)
+			return ret;
+	} else
+		set_bit(gpe, acpi_masked_gpes_map);
+>>>>>>> upstream/android-13
 
 	return 1;
 }
@@ -857,6 +976,7 @@ void acpi_irq_stats_init(void)
 	num_gpes = acpi_current_gpe_count;
 	num_counters = num_gpes + ACPI_NUM_FIXED_EVENTS + NUM_COUNTERS_EXTRA;
 
+<<<<<<< HEAD
 	all_attrs = kcalloc(num_counters + 1, sizeof(struct attribute *),
 			    GFP_KERNEL);
 	if (all_attrs == NULL)
@@ -864,6 +984,13 @@ void acpi_irq_stats_init(void)
 
 	all_counters = kcalloc(num_counters, sizeof(struct event_counter),
 			       GFP_KERNEL);
+=======
+	all_attrs = kcalloc(num_counters + 1, sizeof(*all_attrs), GFP_KERNEL);
+	if (all_attrs == NULL)
+		return;
+
+	all_counters = kcalloc(num_counters, sizeof(*all_counters), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (all_counters == NULL)
 		goto fail;
 
@@ -871,8 +998,12 @@ void acpi_irq_stats_init(void)
 	if (ACPI_FAILURE(status))
 		goto fail;
 
+<<<<<<< HEAD
 	counter_attrs = kcalloc(num_counters, sizeof(struct kobj_attribute),
 				GFP_KERNEL);
+=======
+	counter_attrs = kcalloc(num_counters, sizeof(*counter_attrs), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (counter_attrs == NULL)
 		goto fail;
 
@@ -922,7 +1053,10 @@ void acpi_irq_stats_init(void)
 
 fail:
 	delete_gpe_attr_array();
+<<<<<<< HEAD
 	return;
+=======
+>>>>>>> upstream/android-13
 }
 
 static void __exit interrupt_stats_exit(void)
@@ -930,6 +1064,7 @@ static void __exit interrupt_stats_exit(void)
 	sysfs_remove_group(acpi_kobj, &interrupt_stats_attr_group);
 
 	delete_gpe_attr_array();
+<<<<<<< HEAD
 
 	return;
 }
@@ -937,24 +1072,40 @@ static void __exit interrupt_stats_exit(void)
 static ssize_t
 acpi_show_profile(struct kobject *kobj, struct kobj_attribute *attr,
 		  char *buf)
+=======
+}
+
+static ssize_t pm_profile_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	return sprintf(buf, "%d\n", acpi_gbl_FADT.preferred_profile);
 }
 
+<<<<<<< HEAD
 static const struct kobj_attribute pm_profile_attr =
 	__ATTR(pm_profile, S_IRUGO, acpi_show_profile, NULL);
 
 static ssize_t hotplug_enabled_show(struct kobject *kobj,
 				    struct kobj_attribute *attr, char *buf)
+=======
+static const struct kobj_attribute pm_profile_attr = __ATTR_RO(pm_profile);
+
+static ssize_t enabled_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct acpi_hotplug_profile *hotplug = to_acpi_hotplug_profile(kobj);
 
 	return sprintf(buf, "%d\n", hotplug->enabled);
 }
 
+<<<<<<< HEAD
 static ssize_t hotplug_enabled_store(struct kobject *kobj,
 				     struct kobj_attribute *attr,
 				     const char *buf, size_t size)
+=======
+static ssize_t enabled_store(struct kobject *kobj, struct kobj_attribute *attr,
+			     const char *buf, size_t size)
+>>>>>>> upstream/android-13
 {
 	struct acpi_hotplug_profile *hotplug = to_acpi_hotplug_profile(kobj);
 	unsigned int val;
@@ -966,9 +1117,13 @@ static ssize_t hotplug_enabled_store(struct kobject *kobj,
 	return size;
 }
 
+<<<<<<< HEAD
 static struct kobj_attribute hotplug_enabled_attr =
 	__ATTR(enabled, S_IRUGO | S_IWUSR, hotplug_enabled_show,
 		hotplug_enabled_store);
+=======
+static struct kobj_attribute hotplug_enabled_attr = __ATTR_RW(enabled);
+>>>>>>> upstream/android-13
 
 static struct attribute *hotplug_profile_attrs[] = {
 	&hotplug_enabled_attr.attr,
@@ -999,7 +1154,11 @@ void acpi_sysfs_add_hotplug_profile(struct acpi_hotplug_profile *hotplug,
 	return;
 
  err_out:
+<<<<<<< HEAD
 	pr_err(PREFIX "Unable to add hotplug profile '%s'\n", name);
+=======
+	pr_err("Unable to add hotplug profile '%s'\n", name);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t force_remove_show(struct kobject *kobj,
@@ -1026,9 +1185,13 @@ static ssize_t force_remove_store(struct kobject *kobj,
 	return size;
 }
 
+<<<<<<< HEAD
 static const struct kobj_attribute force_remove_attr =
 	__ATTR(force_remove, S_IRUGO | S_IWUSR, force_remove_show,
 	       force_remove_store);
+=======
+static const struct kobj_attribute force_remove_attr = __ATTR_RW(force_remove);
+>>>>>>> upstream/android-13
 
 int __init acpi_sysfs_init(void)
 {

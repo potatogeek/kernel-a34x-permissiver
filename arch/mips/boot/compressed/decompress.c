@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright 2001 MontaVista Software Inc.
  * Author: Matt Porter <mporter@mvista.com>
  *
  * Copyright (C) 2009 Lemote, Inc.
  * Author: Wu Zhangjin <wuzhangjin@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute	it and/or modify it
  * under  the terms of	the GNU General	 Public License as published by the
@@ -11,6 +16,12 @@
  * option) any later version.
  */
 
+=======
+ */
+
+#define DISABLE_BRANCH_PROFILING
+
+>>>>>>> upstream/android-13
 #include <linux/types.h>
 #include <linux/kernel.h>
 #include <linux/string.h>
@@ -18,6 +29,10 @@
 
 #include <asm/addrspace.h>
 #include <asm/unaligned.h>
+<<<<<<< HEAD
+=======
+#include <asm-generic/vmlinux.lds.h>
+>>>>>>> upstream/android-13
 
 /*
  * These two variables specify the free mem region
@@ -77,6 +92,13 @@ void error(char *x)
 #include "../../../../lib/decompress_unxz.c"
 #endif
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_KERNEL_ZSTD
+#include "../../../../lib/decompress_unzstd.c"
+#endif
+
+>>>>>>> upstream/android-13
 const unsigned long __stack_chk_guard = 0x000a0dff;
 
 void __stack_chk_fail(void)
@@ -120,6 +142,16 @@ void decompress_kernel(unsigned long boot_heap_start)
 		/* last four bytes is always image size in little endian */
 		image_size = get_unaligned_le32((void *)&__image_end - 4);
 
+<<<<<<< HEAD
+=======
+		/* The device tree's address must be properly aligned  */
+		image_size = ALIGN(image_size, STRUCT_ALIGNMENT);
+
+		puts("Copy device tree to address  ");
+		puthex(VMLINUX_LOAD_ADDRESS_ULL + image_size);
+		puts("\n");
+
+>>>>>>> upstream/android-13
 		/* copy dtb to where the booted kernel will expect it */
 		memcpy((void *)VMLINUX_LOAD_ADDRESS_ULL + image_size,
 		       __appended_dtb, dtb_size);

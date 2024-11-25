@@ -15,6 +15,10 @@ rdma_rxe-y := \
 	rxe_qp.o \
 	rxe_cq.o \
 	rxe_mr.o \
+<<<<<<< HEAD
+=======
+	rxe_mw.o \
+>>>>>>> upstream/android-13
 	rxe_opcode.o \
 	rxe_mmap.o \
 	rxe_icrc.o \

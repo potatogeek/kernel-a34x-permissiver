@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * File:	mca.c
  * Purpose:	Generic MCA handling layer
@@ -77,7 +81,11 @@
 #include <linux/sched/task.h>
 #include <linux/interrupt.h>
 #include <linux/irq.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/acpi.h>
 #include <linux/timer.h>
 #include <linux/module.h>
@@ -90,12 +98,20 @@
 #include <linux/gfp.h>
 
 #include <asm/delay.h>
+<<<<<<< HEAD
 #include <asm/machvec.h>
+=======
+#include <asm/efi.h>
+>>>>>>> upstream/android-13
 #include <asm/meminit.h>
 #include <asm/page.h>
 #include <asm/ptrace.h>
 #include <asm/sal.h>
 #include <asm/mca.h>
+<<<<<<< HEAD
+=======
+#include <asm/mca_asm.h>
+>>>>>>> upstream/android-13
 #include <asm/kexec.h>
 
 #include <asm/irq.h>
@@ -104,11 +120,20 @@
 
 #include "mca_drv.h"
 #include "entry.h"
+<<<<<<< HEAD
 
 #if defined(IA64_MCA_DEBUG_INFO)
 # define IA64_MCA_DEBUG(fmt...)	printk(fmt)
 #else
 # define IA64_MCA_DEBUG(fmt...)
+=======
+#include "irq.h"
+
+#if defined(IA64_MCA_DEBUG_INFO)
+# define IA64_MCA_DEBUG(fmt...) printk(fmt)
+#else
+# define IA64_MCA_DEBUG(fmt...) do {} while (0)
+>>>>>>> upstream/android-13
 #endif
 
 #define NOTIFY_INIT(event, regs, arg, spin)				\
@@ -148,9 +173,13 @@ static ia64_mc_info_t		ia64_mc_info;
 #define CPE_HISTORY_LENGTH    5
 #define CMC_HISTORY_LENGTH    5
 
+<<<<<<< HEAD
 #ifdef CONFIG_ACPI
 static struct timer_list cpe_poll_timer;
 #endif
+=======
+static struct timer_list cpe_poll_timer;
+>>>>>>> upstream/android-13
 static struct timer_list cmc_poll_timer;
 /*
  * This variable tells whether we are currently in polling mode.
@@ -359,11 +388,14 @@ typedef struct ia64_state_log_s
 
 static ia64_state_log_t ia64_state_log[IA64_MAX_LOG_TYPES];
 
+<<<<<<< HEAD
 #define IA64_LOG_ALLOCATE(it, size) \
 	{ia64_state_log[it].isl_log[IA64_LOG_CURR_INDEX(it)] = \
 		(ia64_err_rec_t *)alloc_bootmem(size); \
 	ia64_state_log[it].isl_log[IA64_LOG_NEXT_INDEX(it)] = \
 		(ia64_err_rec_t *)alloc_bootmem(size);}
+=======
+>>>>>>> upstream/android-13
 #define IA64_LOG_LOCK_INIT(it) spin_lock_init(&ia64_state_log[it].isl_lock)
 #define IA64_LOG_LOCK(it)      spin_lock_irqsave(&ia64_state_log[it].isl_lock, s)
 #define IA64_LOG_UNLOCK(it)    spin_unlock_irqrestore(&ia64_state_log[it].isl_lock,s)
@@ -378,6 +410,22 @@ static ia64_state_log_t ia64_state_log[IA64_MAX_LOG_TYPES];
 #define IA64_LOG_CURR_BUFFER(it)   (void *)((ia64_state_log[it].isl_log[IA64_LOG_CURR_INDEX(it)]))
 #define IA64_LOG_COUNT(it)         ia64_state_log[it].isl_count
 
+<<<<<<< HEAD
+=======
+static inline void ia64_log_allocate(int it, u64 size)
+{
+	ia64_state_log[it].isl_log[IA64_LOG_CURR_INDEX(it)] =
+		(ia64_err_rec_t *)memblock_alloc(size, SMP_CACHE_BYTES);
+	if (!ia64_state_log[it].isl_log[IA64_LOG_CURR_INDEX(it)])
+		panic("%s: Failed to allocate %llu bytes\n", __func__, size);
+
+	ia64_state_log[it].isl_log[IA64_LOG_NEXT_INDEX(it)] =
+		(ia64_err_rec_t *)memblock_alloc(size, SMP_CACHE_BYTES);
+	if (!ia64_state_log[it].isl_log[IA64_LOG_NEXT_INDEX(it)])
+		panic("%s: Failed to allocate %llu bytes\n", __func__, size);
+}
+
+>>>>>>> upstream/android-13
 /*
  * ia64_log_init
  *	Reset the OS ia64 log buffer
@@ -399,9 +447,13 @@ ia64_log_init(int sal_info_type)
 		return;
 
 	// set up OS data structures to hold error info
+<<<<<<< HEAD
 	IA64_LOG_ALLOCATE(sal_info_type, max_size);
 	memset(IA64_LOG_CURR_BUFFER(sal_info_type), 0, max_size);
 	memset(IA64_LOG_NEXT_BUFFER(sal_info_type), 0, max_size);
+=======
+	ia64_log_allocate(sal_info_type, max_size);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -525,8 +577,11 @@ int mca_recover_range(unsigned long addr)
 }
 EXPORT_SYMBOL_GPL(mca_recover_range);
 
+<<<<<<< HEAD
 #ifdef CONFIG_ACPI
 
+=======
+>>>>>>> upstream/android-13
 int cpe_vector = -1;
 int ia64_cpe_irq = -1;
 
@@ -588,9 +643,12 @@ out:
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 #endif /* CONFIG_ACPI */
 
 #ifdef CONFIG_ACPI
+=======
+>>>>>>> upstream/android-13
 /*
  * ia64_mca_register_cpev
  *
@@ -618,7 +676,10 @@ ia64_mca_register_cpev (int cpev)
 	IA64_MCA_DEBUG("%s: corrected platform error "
 		       "vector %#x registered\n", __func__, cpev);
 }
+<<<<<<< HEAD
 #endif /* CONFIG_ACPI */
+=======
+>>>>>>> upstream/android-13
 
 /*
  * ia64_mca_cmc_vector_setup
@@ -737,7 +798,11 @@ ia64_mca_cmc_vector_enable_keventd(struct work_struct *unused)
 static void
 ia64_mca_wakeup(int cpu)
 {
+<<<<<<< HEAD
 	platform_send_ipi(cpu, IA64_MCA_WAKEUP_VECTOR, IA64_IPI_DM_INT, 0);
+=======
+	ia64_send_ipi(cpu, IA64_MCA_WAKEUP_VECTOR, IA64_IPI_DM_INT, 0);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -895,7 +960,11 @@ static void
 finish_pt_regs(struct pt_regs *regs, struct ia64_sal_os_state *sos,
 		unsigned long *nat)
 {
+<<<<<<< HEAD
 	const pal_min_state_area_t *ms = sos->pal_min_state;
+=======
+	const struct pal_min_state_area *ms = sos->pal_min_state;
+>>>>>>> upstream/android-13
 	const u64 *bank;
 
 	/* If ipsr.ic then use pmsa_{iip,ipsr,ifs}, else use
@@ -971,7 +1040,11 @@ ia64_mca_modify_original_stack(struct pt_regs *regs,
 	char *p;
 	ia64_va va;
 	extern char ia64_leave_kernel[];	/* Need asm address, not function descriptor */
+<<<<<<< HEAD
 	const pal_min_state_area_t *ms = sos->pal_min_state;
+=======
+	const struct pal_min_state_area *ms = sos->pal_min_state;
+>>>>>>> upstream/android-13
 	struct task_struct *previous_current;
 	struct pt_regs *old_regs;
 	struct switch_stack *old_sw;
@@ -1483,7 +1556,11 @@ ia64_mca_cmc_int_caller(int cmc_irq, void *arg)
 	cpuid = cpumask_next(cpuid+1, cpu_online_mask);
 
 	if (cpuid < nr_cpu_ids) {
+<<<<<<< HEAD
 		platform_send_ipi(cpuid, IA64_CMCP_VECTOR, IA64_IPI_DM_INT, 0);
+=======
+		ia64_send_ipi(cpuid, IA64_CMCP_VECTOR, IA64_IPI_DM_INT, 0);
+>>>>>>> upstream/android-13
 	} else {
 		/* If no log record, switch out of polling mode */
 		if (start_count == IA64_LOG_COUNT(SAL_INFO_TYPE_CMC)) {
@@ -1516,7 +1593,11 @@ static void
 ia64_mca_cmc_poll (struct timer_list *unused)
 {
 	/* Trigger a CMC interrupt cascade  */
+<<<<<<< HEAD
 	platform_send_ipi(cpumask_first(cpu_online_mask), IA64_CMCP_VECTOR,
+=======
+	ia64_send_ipi(cpumask_first(cpu_online_mask), IA64_CMCP_VECTOR,
+>>>>>>> upstream/android-13
 							IA64_IPI_DM_INT, 0);
 }
 
@@ -1533,8 +1614,11 @@ ia64_mca_cmc_poll (struct timer_list *unused)
  * Outputs
  * 	handled
  */
+<<<<<<< HEAD
 #ifdef CONFIG_ACPI
 
+=======
+>>>>>>> upstream/android-13
 static irqreturn_t
 ia64_mca_cpe_int_caller(int cpe_irq, void *arg)
 {
@@ -1553,7 +1637,11 @@ ia64_mca_cpe_int_caller(int cpe_irq, void *arg)
 	cpuid = cpumask_next(cpuid+1, cpu_online_mask);
 
 	if (cpuid < NR_CPUS) {
+<<<<<<< HEAD
 		platform_send_ipi(cpuid, IA64_CPEP_VECTOR, IA64_IPI_DM_INT, 0);
+=======
+		ia64_send_ipi(cpuid, IA64_CPEP_VECTOR, IA64_IPI_DM_INT, 0);
+>>>>>>> upstream/android-13
 	} else {
 		/*
 		 * If a log was recorded, increase our polling frequency,
@@ -1593,12 +1681,19 @@ static void
 ia64_mca_cpe_poll (struct timer_list *unused)
 {
 	/* Trigger a CPE interrupt cascade  */
+<<<<<<< HEAD
 	platform_send_ipi(cpumask_first(cpu_online_mask), IA64_CPEP_VECTOR,
 							IA64_IPI_DM_INT, 0);
 }
 
 #endif /* CONFIG_ACPI */
 
+=======
+	ia64_send_ipi(cpumask_first(cpu_online_mask), IA64_CPEP_VECTOR,
+							IA64_IPI_DM_INT, 0);
+}
+
+>>>>>>> upstream/android-13
 static int
 default_monarch_init_process(struct notifier_block *self, unsigned long val, void *data)
 {
@@ -1636,7 +1731,11 @@ default_monarch_init_process(struct notifier_block *self, unsigned long val, voi
 	if (read_trylock(&tasklist_lock)) {
 		do_each_thread (g, t) {
 			printk("\nBacktrace of pid %d (%s)\n", t->pid, t->comm);
+<<<<<<< HEAD
 			show_stack(t, NULL);
+=======
+			show_stack(t, NULL, KERN_DEFAULT);
+>>>>>>> upstream/android-13
 		} while_each_thread (g, t);
 		read_unlock(&tasklist_lock);
 	}
@@ -1772,6 +1871,7 @@ ia64_mca_disable_cpe_polling(char *str)
 
 __setup("disable_cpe_poll", ia64_mca_disable_cpe_polling);
 
+<<<<<<< HEAD
 static struct irqaction cmci_irqaction = {
 	.handler =	ia64_mca_cmc_int_handler,
 	.name =		"cmc_hndlr"
@@ -1804,6 +1904,8 @@ static struct irqaction mca_cpep_irqaction = {
 };
 #endif /* CONFIG_ACPI */
 
+=======
+>>>>>>> upstream/android-13
 /* Minimal format of the MCA/INIT stacks.  The pseudo processes that run on
  * these stacks can never sleep, they cannot return from the kernel to user
  * space, they do not appear in a normal ps listing.  So there is no need to
@@ -1823,8 +1925,13 @@ format_mca_init_stack(void *mca_data, unsigned long offset,
 	ti->task = p;
 	ti->cpu = cpu;
 	p->stack = ti;
+<<<<<<< HEAD
 	p->state = TASK_UNINTERRUPTIBLE;
 	cpumask_set_cpu(cpu, &p->cpus_allowed);
+=======
+	p->__state = TASK_UNINTERRUPTIBLE;
+	cpumask_set_cpu(cpu, &p->cpus_mask);
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&p->tasks);
 	p->parent = p->real_parent = p->group_leader = p;
 	INIT_LIST_HEAD(&p->children);
@@ -1835,8 +1942,12 @@ format_mca_init_stack(void *mca_data, unsigned long offset,
 /* Caller prevents this from being called after init */
 static void * __ref mca_bootmem(void)
 {
+<<<<<<< HEAD
 	return __alloc_bootmem(sizeof(struct ia64_mca_cpu),
 	                    KERNEL_STACK_SIZE, 0);
+=======
+	return memblock_alloc(sizeof(struct ia64_mca_cpu), KERNEL_STACK_SIZE);
+>>>>>>> upstream/android-13
 }
 
 /* Do per-CPU MCA-related initialization.  */
@@ -2065,6 +2176,7 @@ void __init ia64_mca_irq_init(void)
 	 *  Configure the CMCI/P vector and handler. Interrupts for CMC are
 	 *  per-processor, so AP CMC interrupts are setup in smp_callin() (smpboot.c).
 	 */
+<<<<<<< HEAD
 	register_percpu_irq(IA64_CMC_VECTOR, &cmci_irqaction);
 	register_percpu_irq(IA64_CMCP_VECTOR, &cmcp_irqaction);
 	ia64_mca_cmc_vector_setup();       /* Setup vector on BSP */
@@ -2079,6 +2191,25 @@ void __init ia64_mca_irq_init(void)
 	/* Setup the CPEI/P handler */
 	register_percpu_irq(IA64_CPEP_VECTOR, &mca_cpep_irqaction);
 #endif
+=======
+	register_percpu_irq(IA64_CMC_VECTOR, ia64_mca_cmc_int_handler, 0,
+			    "cmc_hndlr");
+	register_percpu_irq(IA64_CMCP_VECTOR, ia64_mca_cmc_int_caller, 0,
+			    "cmc_poll");
+	ia64_mca_cmc_vector_setup();       /* Setup vector on BSP */
+
+	/* Setup the MCA rendezvous interrupt vector */
+	register_percpu_irq(IA64_MCA_RENDEZ_VECTOR, ia64_mca_rendez_int_handler,
+			    0, "mca_rdzv");
+
+	/* Setup the MCA wakeup interrupt vector */
+	register_percpu_irq(IA64_MCA_WAKEUP_VECTOR, ia64_mca_wakeup_int_handler,
+			    0, "mca_wkup");
+
+	/* Setup the CPEI/P handler */
+	register_percpu_irq(IA64_CPEP_VECTOR, ia64_mca_cpe_int_caller, 0,
+			    "cpe_poll");
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2106,7 +2237,10 @@ ia64_mca_late_init(void)
 			  ia64_mca_cpu_online, NULL);
 	IA64_MCA_DEBUG("%s: CMCI/P setup and enabled.\n", __func__);
 
+<<<<<<< HEAD
 #ifdef CONFIG_ACPI
+=======
+>>>>>>> upstream/android-13
 	/* Setup the CPEI/P vector and handler */
 	cpe_vector = acpi_request_vector(ACPI_INTERRUPT_CPEI);
 	timer_setup(&cpe_poll_timer, ia64_mca_cpe_poll, 0);
@@ -2120,7 +2254,13 @@ ia64_mca_late_init(void)
 			if (irq > 0) {
 				cpe_poll_enabled = 0;
 				irq_set_status_flags(irq, IRQ_PER_CPU);
+<<<<<<< HEAD
 				setup_irq(irq, &mca_cpe_irqaction);
+=======
+				if (request_irq(irq, ia64_mca_cpe_int_handler,
+						0, "cpe_hndlr", NULL))
+					pr_err("Failed to register cpe_hndlr interrupt\n");
+>>>>>>> upstream/android-13
 				ia64_cpe_irq = irq;
 				ia64_mca_register_cpev(cpe_vector);
 				IA64_MCA_DEBUG("%s: CPEI/P setup and enabled.\n",
@@ -2137,7 +2277,10 @@ ia64_mca_late_init(void)
 			IA64_MCA_DEBUG("%s: CPEP setup and enabled.\n", __func__);
 		}
 	}
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	return 0;
 }

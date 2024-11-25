@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+>>>>>>> upstream/android-13
 /*
  * Sleepable Read-Copy Update mechanism for mutual exclusion,
  *	tree variant.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -19,6 +24,11 @@
  * Copyright (C) IBM Corporation, 2017
  *
  * Author: Paul McKenney <paulmck@us.ibm.com>
+=======
+ * Copyright (C) IBM Corporation, 2017
+ *
+ * Author: Paul McKenney <paulmck@linux.ibm.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef _LINUX_SRCU_TREE_H
@@ -45,13 +55,22 @@ struct srcu_data {
 	unsigned long srcu_gp_seq_needed;	/* Furthest future GP needed. */
 	unsigned long srcu_gp_seq_needed_exp;	/* Furthest future exp GP. */
 	bool srcu_cblist_invoking;		/* Invoking these CBs? */
+<<<<<<< HEAD
 	struct delayed_work work;		/* Context for CB invoking. */
+=======
+	struct timer_list delay_work;		/* Delay for CB invoking */
+	struct work_struct work;		/* Context for CB invoking. */
+>>>>>>> upstream/android-13
 	struct rcu_head srcu_barrier_head;	/* For srcu_barrier() use. */
 	struct srcu_node *mynode;		/* Leaf srcu_node. */
 	unsigned long grpmask;			/* Mask for leaf srcu_node */
 						/*  ->srcu_data_have_cbs[]. */
 	int cpu;
+<<<<<<< HEAD
 	struct srcu_struct *sp;
+=======
+	struct srcu_struct *ssp;
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -94,9 +113,13 @@ struct srcu_struct {
 						/*  callback for the barrier */
 						/*  operation. */
 	struct delayed_work work;
+<<<<<<< HEAD
 #ifdef CONFIG_DEBUG_LOCK_ALLOC
 	struct lockdep_map dep_map;
 #endif /* #ifdef CONFIG_DEBUG_LOCK_ALLOC */
+=======
+	struct lockdep_map dep_map;
+>>>>>>> upstream/android-13
 };
 
 /* Values for state variable (bottom bits of ->srcu_gp_seq). */
@@ -105,12 +128,22 @@ struct srcu_struct {
 #define SRCU_STATE_SCAN2	2
 
 #define __SRCU_STRUCT_INIT(name, pcpu_name)				\
+<<<<<<< HEAD
 	{								\
 		.sda = &pcpu_name,					\
 		.lock = __SPIN_LOCK_UNLOCKED(name.lock),		\
 		.srcu_gp_seq_needed = 0 - 1,				\
 		__SRCU_DEP_MAP_INIT(name)				\
 	}
+=======
+{									\
+	.sda = &pcpu_name,						\
+	.lock = __SPIN_LOCK_UNLOCKED(name.lock),			\
+	.srcu_gp_seq_needed = -1UL,					\
+	.work = __DELAYED_WORK_INITIALIZER(name.work, NULL, 0),		\
+	__SRCU_DEP_MAP_INIT(name)					\
+}
+>>>>>>> upstream/android-13
 
 /*
  * Define and initialize a srcu struct at build time.
@@ -131,6 +164,7 @@ struct srcu_struct {
  *
  * See include/linux/percpu-defs.h for the rules on per-CPU variables.
  */
+<<<<<<< HEAD
 #define __DEFINE_SRCU(name, is_static)					\
 	static DEFINE_PER_CPU(struct srcu_data, name##_srcu_data);\
 	is_static struct srcu_struct name = __SRCU_STRUCT_INIT(name, name##_srcu_data)
@@ -140,5 +174,24 @@ struct srcu_struct {
 void synchronize_srcu_expedited(struct srcu_struct *sp);
 void srcu_barrier(struct srcu_struct *sp);
 void srcu_torture_stats_print(struct srcu_struct *sp, char *tt, char *tf);
+=======
+#ifdef MODULE
+# define __DEFINE_SRCU(name, is_static)					\
+	is_static struct srcu_struct name;				\
+	struct srcu_struct * const __srcu_struct_##name			\
+		__section("___srcu_struct_ptrs") = &name
+#else
+# define __DEFINE_SRCU(name, is_static)					\
+	static DEFINE_PER_CPU(struct srcu_data, name##_srcu_data);	\
+	is_static struct srcu_struct name =				\
+		__SRCU_STRUCT_INIT(name, name##_srcu_data)
+#endif
+#define DEFINE_SRCU(name)		__DEFINE_SRCU(name, /* not static */)
+#define DEFINE_STATIC_SRCU(name)	__DEFINE_SRCU(name, static)
+
+void synchronize_srcu_expedited(struct srcu_struct *ssp);
+void srcu_barrier(struct srcu_struct *ssp);
+void srcu_torture_stats_print(struct srcu_struct *ssp, char *tt, char *tf);
+>>>>>>> upstream/android-13
 
 #endif

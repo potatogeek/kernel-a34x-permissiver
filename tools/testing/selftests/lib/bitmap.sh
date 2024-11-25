@@ -1,5 +1,6 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 
 # Kselftest framework requirement - SKIP code is 4.
 ksft_skip=4
@@ -17,3 +18,6 @@ else
 	echo "bitmap: [FAIL]"
 	exit 1
 fi
+=======
+$(dirname $0)/../kselftest/module.sh "bitmap" test_bitmap
+>>>>>>> upstream/android-13

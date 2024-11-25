@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Hisilicon Fast Ethernet MAC Driver
  *
  * Copyright (c) 2016 HiSilicon Technologies Co., Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +20,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/circ_buf.h>
@@ -687,6 +694,7 @@ static void hisi_femac_net_set_rx_mode(struct net_device *dev)
 	}
 }
 
+<<<<<<< HEAD
 static int hisi_femac_net_ioctl(struct net_device *dev,
 				struct ifreq *ifreq, int cmd)
 {
@@ -699,6 +707,8 @@ static int hisi_femac_net_ioctl(struct net_device *dev,
 	return phy_mii_ioctl(dev->phydev, ifreq, cmd);
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct ethtool_ops hisi_femac_ethtools_ops = {
 	.get_link		= ethtool_op_get_link,
 	.get_link_ksettings	= phy_ethtool_get_link_ksettings,
@@ -709,7 +719,11 @@ static const struct net_device_ops hisi_femac_netdev_ops = {
 	.ndo_open		= hisi_femac_net_open,
 	.ndo_stop		= hisi_femac_net_close,
 	.ndo_start_xmit		= hisi_femac_net_xmit,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= hisi_femac_net_ioctl,
+=======
+	.ndo_eth_ioctl		= phy_do_ioctl_running,
+>>>>>>> upstream/android-13
 	.ndo_set_mac_address	= hisi_femac_set_mac_address,
 	.ndo_set_rx_mode	= hisi_femac_net_set_rx_mode,
 };
@@ -793,11 +807,17 @@ static int hisi_femac_drv_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct device_node *node = dev->of_node;
+<<<<<<< HEAD
 	struct resource *res;
 	struct net_device *ndev;
 	struct hisi_femac_priv *priv;
 	struct phy_device *phy;
 	const char *mac_addr;
+=======
+	struct net_device *ndev;
+	struct hisi_femac_priv *priv;
+	struct phy_device *phy;
+>>>>>>> upstream/android-13
 	int ret;
 
 	ndev = alloc_etherdev(sizeof(*priv));
@@ -811,15 +831,23 @@ static int hisi_femac_drv_probe(struct platform_device *pdev)
 	priv->dev = dev;
 	priv->ndev = ndev;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	priv->port_base = devm_ioremap_resource(dev, res);
+=======
+	priv->port_base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(priv->port_base)) {
 		ret = PTR_ERR(priv->port_base);
 		goto out_free_netdev;
 	}
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
 	priv->glb_base = devm_ioremap_resource(dev, res);
+=======
+	priv->glb_base = devm_platform_ioremap_resource(pdev, 1);
+>>>>>>> upstream/android-13
 	if (IS_ERR(priv->glb_base)) {
 		ret = PTR_ERR(priv->glb_base);
 		goto out_free_netdev;
@@ -869,10 +897,15 @@ static int hisi_femac_drv_probe(struct platform_device *pdev)
 			   (unsigned long)phy->phy_id,
 			   phy_modes(phy->interface));
 
+<<<<<<< HEAD
 	mac_addr = of_get_mac_address(node);
 	if (mac_addr)
 		ether_addr_copy(ndev->dev_addr, mac_addr);
 	if (!is_valid_ether_addr(ndev->dev_addr)) {
+=======
+	ret = of_get_mac_address(node, ndev->dev_addr);
+	if (ret) {
+>>>>>>> upstream/android-13
 		eth_hw_addr_random(ndev);
 		dev_warn(dev, "using random MAC address %pM\n",
 			 ndev->dev_addr);
@@ -892,7 +925,10 @@ static int hisi_femac_drv_probe(struct platform_device *pdev)
 
 	ndev->irq = platform_get_irq(pdev, 0);
 	if (ndev->irq <= 0) {
+<<<<<<< HEAD
 		dev_err(dev, "No irq resource\n");
+=======
+>>>>>>> upstream/android-13
 		ret = -ENODEV;
 		goto out_disconnect_phy;
 	}

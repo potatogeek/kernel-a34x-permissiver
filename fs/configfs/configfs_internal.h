@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* -*- mode: c; c-basic-offset:8; -*-
  * vim: noexpandtab sw=8 ts=8 sts=0:
  *
@@ -18,6 +19,12 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 021110-1307, USA.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * configfs_internal.h - Internal stuff for configfs
+ *
+>>>>>>> upstream/android-13
  * Based on sysfs:
  * 	sysfs is Copyright (C) 2001, 2002, 2003 Patrick Mochel
  *
@@ -48,7 +55,11 @@ struct configfs_dirent {
 	int			s_dependent_count;
 	struct list_head	s_sibling;
 	struct list_head	s_children;
+<<<<<<< HEAD
 	struct list_head	s_links;
+=======
+	int			s_links;
+>>>>>>> upstream/android-13
 	void			* s_element;
 	int			s_type;
 	umode_t			s_mode;
@@ -80,7 +91,11 @@ extern struct kmem_cache *configfs_dir_cachep;
 extern int configfs_is_root(struct config_item *item);
 
 extern struct inode * configfs_new_inode(umode_t mode, struct configfs_dirent *, struct super_block *);
+<<<<<<< HEAD
 extern int configfs_create(struct dentry *, umode_t mode, void (*init)(struct inode *));
+=======
+extern struct inode *configfs_create(struct dentry *, umode_t mode);
+>>>>>>> upstream/android-13
 
 extern int configfs_create_file(struct config_item *, const struct configfs_attribute *);
 extern int configfs_create_bin_file(struct config_item *,
@@ -93,12 +108,20 @@ extern void configfs_hash_and_remove(struct dentry * dir, const char * name);
 
 extern const unsigned char * configfs_get_name(struct configfs_dirent *sd);
 extern void configfs_drop_dentry(struct configfs_dirent *sd, struct dentry *parent);
+<<<<<<< HEAD
 extern int configfs_setattr(struct dentry *dentry, struct iattr *iattr);
+=======
+extern int configfs_setattr(struct user_namespace *mnt_userns,
+			    struct dentry *dentry, struct iattr *iattr);
+>>>>>>> upstream/android-13
 
 extern struct dentry *configfs_pin_fs(void);
 extern void configfs_release_fs(void);
 
+<<<<<<< HEAD
 extern struct rw_semaphore configfs_rename_sem;
+=======
+>>>>>>> upstream/android-13
 extern const struct file_operations configfs_dir_operations;
 extern const struct file_operations configfs_file_operations;
 extern const struct file_operations configfs_bin_file_operations;
@@ -107,6 +130,7 @@ extern const struct inode_operations configfs_root_inode_operations;
 extern const struct inode_operations configfs_symlink_inode_operations;
 extern const struct dentry_operations configfs_dentry_ops;
 
+<<<<<<< HEAD
 extern int configfs_symlink(struct inode *dir, struct dentry *dentry,
 			    const char *symname);
 extern int configfs_unlink(struct inode *dir, struct dentry *dentry);
@@ -119,6 +143,15 @@ struct configfs_symlink {
 extern int configfs_create_link(struct configfs_symlink *sl,
 				struct dentry *parent,
 				struct dentry *dentry);
+=======
+extern int configfs_symlink(struct user_namespace *mnt_userns,
+			    struct inode *dir, struct dentry *dentry,
+			    const char *symname);
+extern int configfs_unlink(struct inode *dir, struct dentry *dentry);
+
+int configfs_create_link(struct configfs_dirent *target, struct dentry *parent,
+		struct dentry *dentry, char *body);
+>>>>>>> upstream/android-13
 
 static inline struct config_item * to_item(struct dentry * dentry)
 {
@@ -146,11 +179,15 @@ static inline struct config_item *configfs_get_config_item(struct dentry *dentry
 	spin_lock(&dentry->d_lock);
 	if (!d_unhashed(dentry)) {
 		struct configfs_dirent * sd = dentry->d_fsdata;
+<<<<<<< HEAD
 		if (sd->s_type & CONFIGFS_ITEM_LINK) {
 			struct configfs_symlink * sl = sd->s_element;
 			item = config_item_get(sl->sl_target);
 		} else
 			item = config_item_get(sd->s_element);
+=======
+		item = config_item_get(sd->s_element);
+>>>>>>> upstream/android-13
 	}
 	spin_unlock(&dentry->d_lock);
 

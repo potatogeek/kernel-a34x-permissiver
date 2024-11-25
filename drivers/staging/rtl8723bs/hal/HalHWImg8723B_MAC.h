@@ -15,6 +15,10 @@
 
 void
 ODM_ReadAndConfig_MP_8723B_MAC_REG(/*  TC: Test Chip, MP: MP Chip */
+<<<<<<< HEAD
 	PDM_ODM_T  pDM_Odm
+=======
+	struct dm_odm_t *pDM_Odm
+>>>>>>> upstream/android-13
 );
 #endif

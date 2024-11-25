@@ -69,8 +69,11 @@
 # define RPCDBG_FACILITY        RPCDBG_AUTH
 #endif
 
+<<<<<<< HEAD
 DEFINE_SPINLOCK(krb5_seq_lock);
 
+=======
+>>>>>>> upstream/android-13
 static void *
 setup_token(struct krb5_ctx *ctx, struct xdr_netobj *token)
 {
@@ -133,14 +136,22 @@ gss_get_mic_v1(struct krb5_ctx *ctx, struct xdr_buf *text,
 	struct xdr_netobj	md5cksum = {.len = sizeof(cksumdata),
 					    .data = cksumdata};
 	void			*ptr;
+<<<<<<< HEAD
 	s32			now;
+=======
+	time64_t		now;
+>>>>>>> upstream/android-13
 	u32			seq_send;
 	u8			*cksumkey;
 
 	dprintk("RPC:       %s\n", __func__);
 	BUG_ON(ctx == NULL);
 
+<<<<<<< HEAD
 	now = get_seconds();
+=======
+	now = ktime_get_real_seconds();
+>>>>>>> upstream/android-13
 
 	ptr = setup_token(ctx, token);
 
@@ -155,9 +166,13 @@ gss_get_mic_v1(struct krb5_ctx *ctx, struct xdr_buf *text,
 
 	memcpy(ptr + GSS_KRB5_TOK_HDR_LEN, md5cksum.data, md5cksum.len);
 
+<<<<<<< HEAD
 	spin_lock(&krb5_seq_lock);
 	seq_send = ctx->seq_send++;
 	spin_unlock(&krb5_seq_lock);
+=======
+	seq_send = atomic_fetch_inc(&ctx->seq_send);
+>>>>>>> upstream/android-13
 
 	if (krb5_make_seq_num(ctx, ctx->seq, ctx->initiate ? 0 : 0xff,
 			      seq_send, ptr + GSS_KRB5_TOK_HDR_LEN, ptr + 8))
@@ -174,8 +189,12 @@ gss_get_mic_v2(struct krb5_ctx *ctx, struct xdr_buf *text,
 	struct xdr_netobj cksumobj = { .len = sizeof(cksumdata),
 				       .data = cksumdata};
 	void *krb5_hdr;
+<<<<<<< HEAD
 	s32 now;
 	u64 seq_send;
+=======
+	time64_t now;
+>>>>>>> upstream/android-13
 	u8 *cksumkey;
 	unsigned int cksum_usage;
 	__be64 seq_send_be64;
@@ -186,11 +205,15 @@ gss_get_mic_v2(struct krb5_ctx *ctx, struct xdr_buf *text,
 
 	/* Set up the sequence number. Now 64-bits in clear
 	 * text and w/o direction indicator */
+<<<<<<< HEAD
 	spin_lock(&krb5_seq_lock);
 	seq_send = ctx->seq_send64++;
 	spin_unlock(&krb5_seq_lock);
 
 	seq_send_be64 = cpu_to_be64(seq_send);
+=======
+	seq_send_be64 = cpu_to_be64(atomic64_fetch_inc(&ctx->seq_send64));
+>>>>>>> upstream/android-13
 	memcpy(krb5_hdr + 8, (char *) &seq_send_be64, 8);
 
 	if (ctx->initiate) {
@@ -207,7 +230,11 @@ gss_get_mic_v2(struct krb5_ctx *ctx, struct xdr_buf *text,
 
 	memcpy(krb5_hdr + GSS_KRB5_TOK_HDR_LEN, cksumobj.data, cksumobj.len);
 
+<<<<<<< HEAD
 	now = get_seconds();
+=======
+	now = ktime_get_real_seconds();
+>>>>>>> upstream/android-13
 
 	return (ctx->endtime < now) ? GSS_S_CONTEXT_EXPIRED : GSS_S_COMPLETE;
 }
@@ -223,7 +250,10 @@ gss_get_mic_kerberos(struct gss_ctx *gss_ctx, struct xdr_buf *text,
 		BUG();
 	case ENCTYPE_DES_CBC_RAW:
 	case ENCTYPE_DES3_CBC_RAW:
+<<<<<<< HEAD
 	case ENCTYPE_ARCFOUR_HMAC:
+=======
+>>>>>>> upstream/android-13
 		return gss_get_mic_v1(ctx, text, token);
 	case ENCTYPE_AES128_CTS_HMAC_SHA1_96:
 	case ENCTYPE_AES256_CTS_HMAC_SHA1_96:

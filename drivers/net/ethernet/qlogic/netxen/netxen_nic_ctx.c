@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2003 - 2009 NetXen, Inc.
  * Copyright (C) 2009 - QLogic Corporation.
  * All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,6 +24,8 @@
  * The full GNU General Public License is included in this distribution
  * in the file called "COPYING".
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "netxen_nic_hw.h"
@@ -129,7 +136,12 @@ netxen_get_minidump_template(struct netxen_adapter *adapter)
 		return NX_RCODE_INVALID_ARGS;
 	}
 
+<<<<<<< HEAD
 	addr = pci_zalloc_consistent(adapter->pdev, size, &md_template_addr);
+=======
+	addr = dma_alloc_coherent(&adapter->pdev->dev, size,
+				  &md_template_addr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!addr) {
 		dev_err(&adapter->pdev->dev, "Unable to allocate dmable memory for template.\n");
 		return -ENOMEM;
@@ -149,7 +161,11 @@ netxen_get_minidump_template(struct netxen_adapter *adapter)
 		dev_err(&adapter->pdev->dev, "Failed to get minidump template, err_code : %d, requested_size : %d, actual_size : %d\n",
 			cmd.rsp.cmd, size, cmd.rsp.arg2);
 	}
+<<<<<<< HEAD
 	pci_free_consistent(adapter->pdev, size, addr, md_template_addr);
+=======
+	dma_free_coherent(&adapter->pdev->dev, size, addr, md_template_addr);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -297,14 +313,24 @@ nx_fw_cmd_create_rx_ctx(struct netxen_adapter *adapter)
 	rsp_size =
 		SIZEOF_CARDRSP_RX(nx_cardrsp_rx_ctx_t, nrds_rings, nsds_rings);
 
+<<<<<<< HEAD
 	addr = pci_alloc_consistent(adapter->pdev,
 				rq_size, &hostrq_phys_addr);
+=======
+	addr = dma_alloc_coherent(&adapter->pdev->dev, rq_size,
+				  &hostrq_phys_addr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (addr == NULL)
 		return -ENOMEM;
 	prq = addr;
 
+<<<<<<< HEAD
 	addr = pci_alloc_consistent(adapter->pdev,
 			rsp_size, &cardrsp_phys_addr);
+=======
+	addr = dma_alloc_coherent(&adapter->pdev->dev, rsp_size,
+				  &cardrsp_phys_addr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (addr == NULL) {
 		err = -ENOMEM;
 		goto out_free_rq;
@@ -403,9 +429,16 @@ nx_fw_cmd_create_rx_ctx(struct netxen_adapter *adapter)
 	recv_ctx->virt_port = prsp->virt_port;
 
 out_free_rsp:
+<<<<<<< HEAD
 	pci_free_consistent(adapter->pdev, rsp_size, prsp, cardrsp_phys_addr);
 out_free_rq:
 	pci_free_consistent(adapter->pdev, rq_size, prq, hostrq_phys_addr);
+=======
+	dma_free_coherent(&adapter->pdev->dev, rsp_size, prsp,
+			  cardrsp_phys_addr);
+out_free_rq:
+	dma_free_coherent(&adapter->pdev->dev, rq_size, prq, hostrq_phys_addr);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -445,23 +478,38 @@ nx_fw_cmd_create_tx_ctx(struct netxen_adapter *adapter)
 	struct netxen_cmd_args cmd;
 
 	rq_size = SIZEOF_HOSTRQ_TX(nx_hostrq_tx_ctx_t);
+<<<<<<< HEAD
 	rq_addr = pci_alloc_consistent(adapter->pdev,
 		rq_size, &rq_phys_addr);
+=======
+	rq_addr = dma_alloc_coherent(&adapter->pdev->dev, rq_size,
+				     &rq_phys_addr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!rq_addr)
 		return -ENOMEM;
 
 	rsp_size = SIZEOF_CARDRSP_TX(nx_cardrsp_tx_ctx_t);
+<<<<<<< HEAD
 	rsp_addr = pci_alloc_consistent(adapter->pdev,
 		rsp_size, &rsp_phys_addr);
+=======
+	rsp_addr = dma_alloc_coherent(&adapter->pdev->dev, rsp_size,
+				      &rsp_phys_addr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!rsp_addr) {
 		err = -ENOMEM;
 		goto out_free_rq;
 	}
 
+<<<<<<< HEAD
 	memset(rq_addr, 0, rq_size);
 	prq = rq_addr;
 
 	memset(rsp_addr, 0, rsp_size);
+=======
+	prq = rq_addr;
+
+>>>>>>> upstream/android-13
 	prsp = rsp_addr;
 
 	prq->host_rsp_dma_addr = cpu_to_le64(rsp_phys_addr);
@@ -509,10 +557,18 @@ nx_fw_cmd_create_tx_ctx(struct netxen_adapter *adapter)
 		err = -EIO;
 	}
 
+<<<<<<< HEAD
 	pci_free_consistent(adapter->pdev, rsp_size, rsp_addr, rsp_phys_addr);
 
 out_free_rq:
 	pci_free_consistent(adapter->pdev, rq_size, rq_addr, rq_phys_addr);
+=======
+	dma_free_coherent(&adapter->pdev->dev, rsp_size, rsp_addr,
+			  rsp_phys_addr);
+
+out_free_rq:
+	dma_free_coherent(&adapter->pdev->dev, rq_size, rq_addr, rq_phys_addr);
+>>>>>>> upstream/android-13
 
 	return err;
 }
@@ -763,15 +819,24 @@ int netxen_alloc_hw_resources(struct netxen_adapter *adapter)
 	recv_ctx = &adapter->recv_ctx;
 	tx_ring = adapter->tx_ring;
 
+<<<<<<< HEAD
 	addr = pci_alloc_consistent(pdev,
 			sizeof(struct netxen_ring_ctx) + sizeof(uint32_t),
 			&recv_ctx->phys_addr);
+=======
+	addr = dma_alloc_coherent(&pdev->dev,
+				  sizeof(struct netxen_ring_ctx) + sizeof(uint32_t),
+				  &recv_ctx->phys_addr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (addr == NULL) {
 		dev_err(&pdev->dev, "failed to allocate hw context\n");
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	memset(addr, 0, sizeof(struct netxen_ring_ctx));
+=======
+>>>>>>> upstream/android-13
 	recv_ctx->hwctx = addr;
 	recv_ctx->hwctx->ctx_id = cpu_to_le32(port);
 	recv_ctx->hwctx->cmd_consumer_offset =
@@ -781,8 +846,13 @@ int netxen_alloc_hw_resources(struct netxen_adapter *adapter)
 		(__le32 *)(((char *)addr) + sizeof(struct netxen_ring_ctx));
 
 	/* cmd desc ring */
+<<<<<<< HEAD
 	addr = pci_alloc_consistent(pdev, TX_DESC_RINGSIZE(tx_ring),
 			&tx_ring->phys_addr);
+=======
+	addr = dma_alloc_coherent(&pdev->dev, TX_DESC_RINGSIZE(tx_ring),
+				  &tx_ring->phys_addr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 
 	if (addr == NULL) {
 		dev_err(&pdev->dev, "%s: failed to allocate tx desc ring\n",
@@ -795,9 +865,15 @@ int netxen_alloc_hw_resources(struct netxen_adapter *adapter)
 
 	for (ring = 0; ring < adapter->max_rds_rings; ring++) {
 		rds_ring = &recv_ctx->rds_rings[ring];
+<<<<<<< HEAD
 		addr = pci_alloc_consistent(adapter->pdev,
 				RCV_DESC_RINGSIZE(rds_ring),
 				&rds_ring->phys_addr);
+=======
+		addr = dma_alloc_coherent(&adapter->pdev->dev,
+					  RCV_DESC_RINGSIZE(rds_ring),
+					  &rds_ring->phys_addr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (addr == NULL) {
 			dev_err(&pdev->dev,
 				"%s: failed to allocate rds ring [%d]\n",
@@ -816,9 +892,15 @@ int netxen_alloc_hw_resources(struct netxen_adapter *adapter)
 	for (ring = 0; ring < adapter->max_sds_rings; ring++) {
 		sds_ring = &recv_ctx->sds_rings[ring];
 
+<<<<<<< HEAD
 		addr = pci_alloc_consistent(adapter->pdev,
 				STATUS_DESC_RINGSIZE(sds_ring),
 				&sds_ring->phys_addr);
+=======
+		addr = dma_alloc_coherent(&adapter->pdev->dev,
+					  STATUS_DESC_RINGSIZE(sds_ring),
+					  &sds_ring->phys_addr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (addr == NULL) {
 			dev_err(&pdev->dev,
 				"%s: failed to allocate sds ring [%d]\n",
@@ -893,19 +975,31 @@ done:
 	recv_ctx = &adapter->recv_ctx;
 
 	if (recv_ctx->hwctx != NULL) {
+<<<<<<< HEAD
 		pci_free_consistent(adapter->pdev,
 				sizeof(struct netxen_ring_ctx) +
 				sizeof(uint32_t),
 				recv_ctx->hwctx,
 				recv_ctx->phys_addr);
+=======
+		dma_free_coherent(&adapter->pdev->dev,
+				  sizeof(struct netxen_ring_ctx) + sizeof(uint32_t),
+				  recv_ctx->hwctx, recv_ctx->phys_addr);
+>>>>>>> upstream/android-13
 		recv_ctx->hwctx = NULL;
 	}
 
 	tx_ring = adapter->tx_ring;
 	if (tx_ring->desc_head != NULL) {
+<<<<<<< HEAD
 		pci_free_consistent(adapter->pdev,
 				TX_DESC_RINGSIZE(tx_ring),
 				tx_ring->desc_head, tx_ring->phys_addr);
+=======
+		dma_free_coherent(&adapter->pdev->dev,
+				  TX_DESC_RINGSIZE(tx_ring),
+				  tx_ring->desc_head, tx_ring->phys_addr);
+>>>>>>> upstream/android-13
 		tx_ring->desc_head = NULL;
 	}
 
@@ -913,10 +1007,17 @@ done:
 		rds_ring = &recv_ctx->rds_rings[ring];
 
 		if (rds_ring->desc_head != NULL) {
+<<<<<<< HEAD
 			pci_free_consistent(adapter->pdev,
 					RCV_DESC_RINGSIZE(rds_ring),
 					rds_ring->desc_head,
 					rds_ring->phys_addr);
+=======
+			dma_free_coherent(&adapter->pdev->dev,
+					  RCV_DESC_RINGSIZE(rds_ring),
+					  rds_ring->desc_head,
+					  rds_ring->phys_addr);
+>>>>>>> upstream/android-13
 			rds_ring->desc_head = NULL;
 		}
 	}
@@ -925,10 +1026,17 @@ done:
 		sds_ring = &recv_ctx->sds_rings[ring];
 
 		if (sds_ring->desc_head != NULL) {
+<<<<<<< HEAD
 			pci_free_consistent(adapter->pdev,
 				STATUS_DESC_RINGSIZE(sds_ring),
 				sds_ring->desc_head,
 				sds_ring->phys_addr);
+=======
+			dma_free_coherent(&adapter->pdev->dev,
+					  STATUS_DESC_RINGSIZE(sds_ring),
+					  sds_ring->desc_head,
+					  sds_ring->phys_addr);
+>>>>>>> upstream/android-13
 			sds_ring->desc_head = NULL;
 		}
 	}

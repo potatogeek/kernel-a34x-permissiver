@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  *  linux/include/linux/mmc/core.h
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ *  linux/include/linux/mmc/core.h
+>>>>>>> upstream/android-13
  */
 #ifndef LINUX_MMC_CORE_H
 #define LINUX_MMC_CORE_H
@@ -110,9 +116,12 @@ struct mmc_command {
  */
 
 	unsigned int		busy_timeout;	/* busy detect timeout in ms */
+<<<<<<< HEAD
 	/* Set this flag only for blocking sanitize request */
 	bool			sanitize_busy;
 
+=======
+>>>>>>> upstream/android-13
 	struct mmc_data		*data;		/* data segment associated with cmd */
 	struct mmc_request	*mrq;		/* associated request */
 };
@@ -152,6 +161,7 @@ struct mmc_request {
 	struct mmc_command	*cmd;
 	struct mmc_data		*data;
 	struct mmc_command	*stop;
+<<<<<<< HEAD
 #ifdef CONFIG_MTK_EMMC_CQ_SUPPORT
 	struct mmc_async_req	*areq;
 	int			flags;
@@ -163,6 +173,9 @@ struct mmc_request {
 #if defined(CONFIG_MTK_HW_FDE) || defined(CONFIG_MMC_CRYPTO)
 	bool		is_mmc_req; /* request is from mmc layer */
 #endif
+=======
+
+>>>>>>> upstream/android-13
 	struct completion	completion;
 	struct completion	cmd_completion;
 	void			(*done)(struct mmc_request *);/* completion function */
@@ -178,6 +191,7 @@ struct mmc_request {
 	bool			cap_cmd_during_tfr;
 
 	int			tag;
+<<<<<<< HEAD
 #ifdef CONFIG_MMC_CRYPTO
 	int crypto_key_slot;
 	u64 data_unit_num;
@@ -196,6 +210,14 @@ static inline bool mmc_request_crypto_enabled(const struct mmc_request *mrq)
 	return false;
 }
 #endif
+=======
+
+#ifdef CONFIG_MMC_CRYPTO
+	const struct bio_crypt_ctx *crypto_ctx;
+	int			crypto_key_slot;
+#endif
+};
+>>>>>>> upstream/android-13
 
 struct mmc_card;
 

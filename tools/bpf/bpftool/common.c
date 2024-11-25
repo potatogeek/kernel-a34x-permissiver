@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2017-2018 Netronome Systems, Inc.
  *
@@ -35,6 +36,16 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <fts.h>
+=======
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+/* Copyright (C) 2017-2018 Netronome Systems, Inc. */
+
+#define _GNU_SOURCE
+#include <ctype.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <ftw.h>
+>>>>>>> upstream/android-13
 #include <libgen.h>
 #include <mntent.h>
 #include <stdbool.h>
@@ -46,11 +57,20 @@
 #include <linux/magic.h>
 #include <net/if.h>
 #include <sys/mount.h>
+<<<<<<< HEAD
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/vfs.h>
 
 #include <bpf.h>
+=======
+#include <sys/resource.h>
+#include <sys/stat.h>
+#include <sys/vfs.h>
+
+#include <bpf/bpf.h>
+#include <bpf/libbpf.h> /* libbpf_num_possible_cpus */
+>>>>>>> upstream/android-13
 
 #include "main.h"
 
@@ -58,6 +78,54 @@
 #define BPF_FS_MAGIC		0xcafe4a11
 #endif
 
+<<<<<<< HEAD
+=======
+const char * const attach_type_name[__MAX_BPF_ATTACH_TYPE] = {
+	[BPF_CGROUP_INET_INGRESS]	= "ingress",
+	[BPF_CGROUP_INET_EGRESS]	= "egress",
+	[BPF_CGROUP_INET_SOCK_CREATE]	= "sock_create",
+	[BPF_CGROUP_INET_SOCK_RELEASE]	= "sock_release",
+	[BPF_CGROUP_SOCK_OPS]		= "sock_ops",
+	[BPF_CGROUP_DEVICE]		= "device",
+	[BPF_CGROUP_INET4_BIND]		= "bind4",
+	[BPF_CGROUP_INET6_BIND]		= "bind6",
+	[BPF_CGROUP_INET4_CONNECT]	= "connect4",
+	[BPF_CGROUP_INET6_CONNECT]	= "connect6",
+	[BPF_CGROUP_INET4_POST_BIND]	= "post_bind4",
+	[BPF_CGROUP_INET6_POST_BIND]	= "post_bind6",
+	[BPF_CGROUP_INET4_GETPEERNAME]	= "getpeername4",
+	[BPF_CGROUP_INET6_GETPEERNAME]	= "getpeername6",
+	[BPF_CGROUP_INET4_GETSOCKNAME]	= "getsockname4",
+	[BPF_CGROUP_INET6_GETSOCKNAME]	= "getsockname6",
+	[BPF_CGROUP_UDP4_SENDMSG]	= "sendmsg4",
+	[BPF_CGROUP_UDP6_SENDMSG]	= "sendmsg6",
+	[BPF_CGROUP_SYSCTL]		= "sysctl",
+	[BPF_CGROUP_UDP4_RECVMSG]	= "recvmsg4",
+	[BPF_CGROUP_UDP6_RECVMSG]	= "recvmsg6",
+	[BPF_CGROUP_GETSOCKOPT]		= "getsockopt",
+	[BPF_CGROUP_SETSOCKOPT]		= "setsockopt",
+
+	[BPF_SK_SKB_STREAM_PARSER]	= "sk_skb_stream_parser",
+	[BPF_SK_SKB_STREAM_VERDICT]	= "sk_skb_stream_verdict",
+	[BPF_SK_SKB_VERDICT]		= "sk_skb_verdict",
+	[BPF_SK_MSG_VERDICT]		= "sk_msg_verdict",
+	[BPF_LIRC_MODE2]		= "lirc_mode2",
+	[BPF_FLOW_DISSECTOR]		= "flow_dissector",
+	[BPF_TRACE_RAW_TP]		= "raw_tp",
+	[BPF_TRACE_FENTRY]		= "fentry",
+	[BPF_TRACE_FEXIT]		= "fexit",
+	[BPF_MODIFY_RETURN]		= "mod_ret",
+	[BPF_LSM_MAC]			= "lsm_mac",
+	[BPF_SK_LOOKUP]			= "sk_lookup",
+	[BPF_TRACE_ITER]		= "trace_iter",
+	[BPF_XDP_DEVMAP]		= "xdp_devmap",
+	[BPF_XDP_CPUMAP]		= "xdp_cpumap",
+	[BPF_XDP]			= "xdp",
+	[BPF_SK_REUSEPORT_SELECT]	= "sk_skb_reuseport_select",
+	[BPF_SK_REUSEPORT_SELECT_OR_MIGRATE]	= "sk_skb_reuseport_select_or_migrate",
+};
+
+>>>>>>> upstream/android-13
 void p_err(const char *fmt, ...)
 {
 	va_list ap;
@@ -99,7 +167,19 @@ static bool is_bpffs(char *path)
 	return (unsigned long)st_fs.f_type == BPF_FS_MAGIC;
 }
 
+<<<<<<< HEAD
 static int mnt_bpffs(const char *target, char *buff, size_t bufflen)
+=======
+void set_max_rlimit(void)
+{
+	struct rlimit rinf = { RLIM_INFINITY, RLIM_INFINITY };
+
+	setrlimit(RLIMIT_MEMLOCK, &rinf);
+}
+
+static int
+mnt_fs(const char *target, const char *type, char *buff, size_t bufflen)
+>>>>>>> upstream/android-13
 {
 	bool bind_done = false;
 
@@ -121,15 +201,22 @@ static int mnt_bpffs(const char *target, char *buff, size_t bufflen)
 		bind_done = true;
 	}
 
+<<<<<<< HEAD
 	if (mount("bpf", target, "bpf", 0, "mode=0700")) {
 		snprintf(buff, bufflen, "mount -t bpf bpf %s failed: %s",
 			 target, strerror(errno));
+=======
+	if (mount(type, target, type, 0, "mode=0700")) {
+		snprintf(buff, bufflen, "mount -t %s %s %s failed: %s",
+			 type, type, target, strerror(errno));
+>>>>>>> upstream/android-13
 		return -1;
 	}
 
 	return 0;
 }
 
+<<<<<<< HEAD
 int open_obj_pinned(char *path, bool quiet)
 {
 	int fd;
@@ -148,6 +235,51 @@ int open_obj_pinned(char *path, bool quiet)
 }
 
 int open_obj_pinned_any(char *path, enum bpf_obj_type exp_type)
+=======
+int mount_tracefs(const char *target)
+{
+	char err_str[ERR_MAX_LEN];
+	int err;
+
+	err = mnt_fs(target, "tracefs", err_str, ERR_MAX_LEN);
+	if (err) {
+		err_str[ERR_MAX_LEN - 1] = '\0';
+		p_err("can't mount tracefs: %s", err_str);
+	}
+
+	return err;
+}
+
+int open_obj_pinned(const char *path, bool quiet)
+{
+	char *pname;
+	int fd = -1;
+
+	pname = strdup(path);
+	if (!pname) {
+		if (!quiet)
+			p_err("mem alloc failed");
+		goto out_ret;
+	}
+
+	fd = bpf_obj_get(pname);
+	if (fd < 0) {
+		if (!quiet)
+			p_err("bpf obj get (%s): %s", pname,
+			      errno == EACCES && !is_bpffs(dirname(pname)) ?
+			    "directory not in bpf file system (bpffs)" :
+			    strerror(errno));
+		goto out_free;
+	}
+
+out_free:
+	free(pname);
+out_ret:
+	return fd;
+}
+
+int open_obj_pinned_any(const char *path, enum bpf_obj_type exp_type)
+>>>>>>> upstream/android-13
 {
 	enum bpf_obj_type type;
 	int fd;
@@ -170,13 +302,18 @@ int open_obj_pinned_any(char *path, enum bpf_obj_type exp_type)
 	return fd;
 }
 
+<<<<<<< HEAD
 int do_pin_fd(int fd, const char *name)
+=======
+int mount_bpffs_for_pin(const char *name)
+>>>>>>> upstream/android-13
 {
 	char err_str[ERR_MAX_LEN];
 	char *file;
 	char *dir;
 	int err = 0;
 
+<<<<<<< HEAD
 	err = bpf_obj_pin(fd, name);
 	if (!err)
 		goto out;
@@ -198,6 +335,29 @@ int do_pin_fd(int fd, const char *name)
 			p_err("can't pin the object (%s): %s", name,
 			      strerror(errno));
 	} else {
+=======
+	file = malloc(strlen(name) + 1);
+	if (!file) {
+		p_err("mem alloc failed");
+		return -1;
+	}
+
+	strcpy(file, name);
+	dir = dirname(file);
+
+	if (is_bpffs(dir))
+		/* nothing to do if already mounted */
+		goto out_free;
+
+	if (block_mount) {
+		p_err("no BPF file system found, not mounting it due to --nomount option");
+		err = -1;
+		goto out_free;
+	}
+
+	err = mnt_fs(dir, "bpf", err_str, ERR_MAX_LEN);
+	if (err) {
+>>>>>>> upstream/android-13
 		err_str[ERR_MAX_LEN - 1] = '\0';
 		p_err("can't mount BPF file system to pin the object (%s): %s",
 		      name, err_str);
@@ -205,6 +365,7 @@ int do_pin_fd(int fd, const char *name)
 
 out_free:
 	free(file);
+<<<<<<< HEAD
 out:
 	return err;
 }
@@ -242,6 +403,34 @@ int do_pin_any(int argc, char **argv, int (*get_fd_by_id)(__u32))
 		p_err("can't open object by id (%u): %s", id, strerror(errno));
 		return -1;
 	}
+=======
+	return err;
+}
+
+int do_pin_fd(int fd, const char *name)
+{
+	int err;
+
+	err = mount_bpffs_for_pin(name);
+	if (err)
+		return err;
+
+	err = bpf_obj_pin(fd, name);
+	if (err)
+		p_err("can't pin the object (%s): %s", name, strerror(errno));
+
+	return err;
+}
+
+int do_pin_any(int argc, char **argv, int (*get_fd)(int *, char ***))
+{
+	int err;
+	int fd;
+
+	fd = get_fd(&argc, &argv);
+	if (fd < 0)
+		return fd;
+>>>>>>> upstream/android-13
 
 	err = do_pin_fd(fd, *argv);
 
@@ -269,7 +458,11 @@ int get_fd_type(int fd)
 	char buf[512];
 	ssize_t n;
 
+<<<<<<< HEAD
 	snprintf(path, sizeof(path), "/proc/%d/fd/%d", getpid(), fd);
+=======
+	snprintf(path, sizeof(path), "/proc/self/fd/%d", fd);
+>>>>>>> upstream/android-13
 
 	n = readlink(path, buf, sizeof(buf));
 	if (n < 0) {
@@ -285,6 +478,11 @@ int get_fd_type(int fd)
 		return BPF_OBJ_MAP;
 	else if (strstr(buf, "bpf-prog"))
 		return BPF_OBJ_PROG;
+<<<<<<< HEAD
+=======
+	else if (strstr(buf, "bpf-link"))
+		return BPF_OBJ_LINK;
+>>>>>>> upstream/android-13
 
 	return BPF_OBJ_UNKNOWN;
 }
@@ -297,6 +495,7 @@ char *get_fdinfo(int fd, const char *key)
 	ssize_t n;
 	FILE *fdi;
 
+<<<<<<< HEAD
 	snprintf(path, sizeof(path), "/proc/%d/fdinfo/%d", getpid(), fd);
 
 	fdi = fopen(path, "r");
@@ -304,6 +503,13 @@ char *get_fdinfo(int fd, const char *key)
 		p_err("can't open fdinfo: %s", strerror(errno));
 		return NULL;
 	}
+=======
+	snprintf(path, sizeof(path), "/proc/self/fdinfo/%d", fd);
+
+	fdi = fopen(path, "r");
+	if (!fdi)
+		return NULL;
+>>>>>>> upstream/android-13
 
 	while ((n = getline(&line, &line_n, fdi)) > 0) {
 		char *value;
@@ -316,7 +522,10 @@ char *get_fdinfo(int fd, const char *key)
 
 		value = strchr(line, '\t');
 		if (!value || !value[1]) {
+<<<<<<< HEAD
 			p_err("malformed fdinfo!?");
+=======
+>>>>>>> upstream/android-13
 			free(line);
 			return NULL;
 		}
@@ -329,7 +538,10 @@ char *get_fdinfo(int fd, const char *key)
 		return line;
 	}
 
+<<<<<<< HEAD
 	p_err("key '%s' not found in fdinfo", key);
+=======
+>>>>>>> upstream/android-13
 	free(line);
 	fclose(fdi);
 	return NULL;
@@ -355,6 +567,7 @@ void print_hex_data_json(uint8_t *data, size_t len)
 	jsonw_end_array(json_wtr);
 }
 
+<<<<<<< HEAD
 int build_pinned_obj_table(struct pinned_obj_table *tab,
 			   enum bpf_obj_type type)
 {
@@ -367,11 +580,71 @@ int build_pinned_obj_table(struct pinned_obj_table *tab,
 	FTSENT *ftse = NULL;
 	FTS *fts = NULL;
 	int fd, err;
+=======
+/* extra params for nftw cb */
+static struct pinned_obj_table *build_fn_table;
+static enum bpf_obj_type build_fn_type;
+
+static int do_build_table_cb(const char *fpath, const struct stat *sb,
+			     int typeflag, struct FTW *ftwbuf)
+{
+	struct bpf_prog_info pinned_info;
+	__u32 len = sizeof(pinned_info);
+	struct pinned_obj *obj_node;
+	enum bpf_obj_type objtype;
+	int fd, err = 0;
+
+	if (typeflag != FTW_F)
+		goto out_ret;
+
+	fd = open_obj_pinned(fpath, true);
+	if (fd < 0)
+		goto out_ret;
+
+	objtype = get_fd_type(fd);
+	if (objtype != build_fn_type)
+		goto out_close;
+
+	memset(&pinned_info, 0, sizeof(pinned_info));
+	if (bpf_obj_get_info_by_fd(fd, &pinned_info, &len))
+		goto out_close;
+
+	obj_node = calloc(1, sizeof(*obj_node));
+	if (!obj_node) {
+		err = -1;
+		goto out_close;
+	}
+
+	obj_node->id = pinned_info.id;
+	obj_node->path = strdup(fpath);
+	if (!obj_node->path) {
+		err = -1;
+		free(obj_node);
+		goto out_close;
+	}
+
+	hash_add(build_fn_table->table, &obj_node->hash, obj_node->id);
+out_close:
+	close(fd);
+out_ret:
+	return err;
+}
+
+int build_pinned_obj_table(struct pinned_obj_table *tab,
+			   enum bpf_obj_type type)
+{
+	struct mntent *mntent = NULL;
+	FILE *mntfile = NULL;
+	int flags = FTW_PHYS;
+	int nopenfd = 16;
+	int err = 0;
+>>>>>>> upstream/android-13
 
 	mntfile = setmntent("/proc/mounts", "r");
 	if (!mntfile)
 		return -1;
 
+<<<<<<< HEAD
 	while ((mntent = getmntent(mntfile))) {
 		char *path[] = { mntent->mnt_dir, NULL };
 
@@ -420,6 +693,22 @@ int build_pinned_obj_table(struct pinned_obj_table *tab,
 	}
 	fclose(mntfile);
 	return 0;
+=======
+	build_fn_table = tab;
+	build_fn_type = type;
+
+	while ((mntent = getmntent(mntfile))) {
+		char *path = mntent->mnt_dir;
+
+		if (strncmp(mntent->mnt_type, "bpf", 3) != 0)
+			continue;
+		err = nftw(path, do_build_table_cb, nopenfd, flags);
+		if (err)
+			break;
+	}
+	fclose(mntfile);
+	return err;
+>>>>>>> upstream/android-13
 }
 
 void delete_pinned_obj_table(struct pinned_obj_table *tab)
@@ -446,6 +735,7 @@ unsigned int get_page_size(void)
 
 unsigned int get_possible_cpus(void)
 {
+<<<<<<< HEAD
 	static unsigned int result;
 	char buf[128];
 	long int n;
@@ -497,6 +787,15 @@ unsigned int get_possible_cpus(void)
 	result = n;
 
 	return result;
+=======
+	int cpus = libbpf_num_possible_cpus();
+
+	if (cpus < 0) {
+		p_err("Can't get # of possible cpus: %s", strerror(-cpus));
+		exit(-1);
+	}
+	return cpus;
+>>>>>>> upstream/android-13
 }
 
 static char *
@@ -555,7 +854,13 @@ static int read_sysfs_netdev_hex_int(char *devname, const char *entry_name)
 	return read_sysfs_hex_int(full_path);
 }
 
+<<<<<<< HEAD
 const char *ifindex_to_bfd_name_ns(__u32 ifindex, __u64 ns_dev, __u64 ns_ino)
+=======
+const char *
+ifindex_to_bfd_params(__u32 ifindex, __u64 ns_dev, __u64 ns_ino,
+		      const char **opt)
+>>>>>>> upstream/android-13
 {
 	char devname[IF_NAMESIZE];
 	int vendor_id;
@@ -580,6 +885,10 @@ const char *ifindex_to_bfd_name_ns(__u32 ifindex, __u64 ns_dev, __u64 ns_ino)
 		    device_id != 0x6000 &&
 		    device_id != 0x6003)
 			p_info("Unknown NFP device ID, assuming it is NFP-6xxx arch");
+<<<<<<< HEAD
+=======
+		*opt = "ctx4";
+>>>>>>> upstream/android-13
 		return "NFP-6xxx";
 	default:
 		p_err("Can't get bfd arch name for device vendor id 0x%04x",
@@ -595,7 +904,11 @@ void print_dev_plain(__u32 ifindex, __u64 ns_dev, __u64 ns_inode)
 	if (!ifindex)
 		return;
 
+<<<<<<< HEAD
 	printf(" dev ");
+=======
+	printf("  offloaded_to ");
+>>>>>>> upstream/android-13
 	if (ifindex_to_name_ns(ifindex, ns_dev, ns_inode, name))
 		printf("%s", name);
 	else
@@ -619,3 +932,342 @@ void print_dev_json(__u32 ifindex, __u64 ns_dev, __u64 ns_inode)
 		jsonw_string_field(json_wtr, "ifname", name);
 	jsonw_end_object(json_wtr);
 }
+<<<<<<< HEAD
+=======
+
+int parse_u32_arg(int *argc, char ***argv, __u32 *val, const char *what)
+{
+	char *endptr;
+
+	NEXT_ARGP();
+
+	if (*val) {
+		p_err("%s already specified", what);
+		return -1;
+	}
+
+	*val = strtoul(**argv, &endptr, 0);
+	if (*endptr) {
+		p_err("can't parse %s as %s", **argv, what);
+		return -1;
+	}
+	NEXT_ARGP();
+
+	return 0;
+}
+
+int __printf(2, 0)
+print_all_levels(__maybe_unused enum libbpf_print_level level,
+		 const char *format, va_list args)
+{
+	return vfprintf(stderr, format, args);
+}
+
+static int prog_fd_by_nametag(void *nametag, int **fds, bool tag)
+{
+	unsigned int id = 0;
+	int fd, nb_fds = 0;
+	void *tmp;
+	int err;
+
+	while (true) {
+		struct bpf_prog_info info = {};
+		__u32 len = sizeof(info);
+
+		err = bpf_prog_get_next_id(id, &id);
+		if (err) {
+			if (errno != ENOENT) {
+				p_err("%s", strerror(errno));
+				goto err_close_fds;
+			}
+			return nb_fds;
+		}
+
+		fd = bpf_prog_get_fd_by_id(id);
+		if (fd < 0) {
+			p_err("can't get prog by id (%u): %s",
+			      id, strerror(errno));
+			goto err_close_fds;
+		}
+
+		err = bpf_obj_get_info_by_fd(fd, &info, &len);
+		if (err) {
+			p_err("can't get prog info (%u): %s",
+			      id, strerror(errno));
+			goto err_close_fd;
+		}
+
+		if ((tag && memcmp(nametag, info.tag, BPF_TAG_SIZE)) ||
+		    (!tag && strncmp(nametag, info.name, BPF_OBJ_NAME_LEN))) {
+			close(fd);
+			continue;
+		}
+
+		if (nb_fds > 0) {
+			tmp = realloc(*fds, (nb_fds + 1) * sizeof(int));
+			if (!tmp) {
+				p_err("failed to realloc");
+				goto err_close_fd;
+			}
+			*fds = tmp;
+		}
+		(*fds)[nb_fds++] = fd;
+	}
+
+err_close_fd:
+	close(fd);
+err_close_fds:
+	while (--nb_fds >= 0)
+		close((*fds)[nb_fds]);
+	return -1;
+}
+
+int prog_parse_fds(int *argc, char ***argv, int **fds)
+{
+	if (is_prefix(**argv, "id")) {
+		unsigned int id;
+		char *endptr;
+
+		NEXT_ARGP();
+
+		id = strtoul(**argv, &endptr, 0);
+		if (*endptr) {
+			p_err("can't parse %s as ID", **argv);
+			return -1;
+		}
+		NEXT_ARGP();
+
+		(*fds)[0] = bpf_prog_get_fd_by_id(id);
+		if ((*fds)[0] < 0) {
+			p_err("get by id (%u): %s", id, strerror(errno));
+			return -1;
+		}
+		return 1;
+	} else if (is_prefix(**argv, "tag")) {
+		unsigned char tag[BPF_TAG_SIZE];
+
+		NEXT_ARGP();
+
+		if (sscanf(**argv, BPF_TAG_FMT, tag, tag + 1, tag + 2,
+			   tag + 3, tag + 4, tag + 5, tag + 6, tag + 7)
+		    != BPF_TAG_SIZE) {
+			p_err("can't parse tag");
+			return -1;
+		}
+		NEXT_ARGP();
+
+		return prog_fd_by_nametag(tag, fds, true);
+	} else if (is_prefix(**argv, "name")) {
+		char *name;
+
+		NEXT_ARGP();
+
+		name = **argv;
+		if (strlen(name) > BPF_OBJ_NAME_LEN - 1) {
+			p_err("can't parse name");
+			return -1;
+		}
+		NEXT_ARGP();
+
+		return prog_fd_by_nametag(name, fds, false);
+	} else if (is_prefix(**argv, "pinned")) {
+		char *path;
+
+		NEXT_ARGP();
+
+		path = **argv;
+		NEXT_ARGP();
+
+		(*fds)[0] = open_obj_pinned_any(path, BPF_OBJ_PROG);
+		if ((*fds)[0] < 0)
+			return -1;
+		return 1;
+	}
+
+	p_err("expected 'id', 'tag', 'name' or 'pinned', got: '%s'?", **argv);
+	return -1;
+}
+
+int prog_parse_fd(int *argc, char ***argv)
+{
+	int *fds = NULL;
+	int nb_fds, fd;
+
+	fds = malloc(sizeof(int));
+	if (!fds) {
+		p_err("mem alloc failed");
+		return -1;
+	}
+	nb_fds = prog_parse_fds(argc, argv, &fds);
+	if (nb_fds != 1) {
+		if (nb_fds > 1) {
+			p_err("several programs match this handle");
+			while (nb_fds--)
+				close(fds[nb_fds]);
+		}
+		fd = -1;
+		goto exit_free;
+	}
+
+	fd = fds[0];
+exit_free:
+	free(fds);
+	return fd;
+}
+
+static int map_fd_by_name(char *name, int **fds)
+{
+	unsigned int id = 0;
+	int fd, nb_fds = 0;
+	void *tmp;
+	int err;
+
+	while (true) {
+		struct bpf_map_info info = {};
+		__u32 len = sizeof(info);
+
+		err = bpf_map_get_next_id(id, &id);
+		if (err) {
+			if (errno != ENOENT) {
+				p_err("%s", strerror(errno));
+				goto err_close_fds;
+			}
+			return nb_fds;
+		}
+
+		fd = bpf_map_get_fd_by_id(id);
+		if (fd < 0) {
+			p_err("can't get map by id (%u): %s",
+			      id, strerror(errno));
+			goto err_close_fds;
+		}
+
+		err = bpf_obj_get_info_by_fd(fd, &info, &len);
+		if (err) {
+			p_err("can't get map info (%u): %s",
+			      id, strerror(errno));
+			goto err_close_fd;
+		}
+
+		if (strncmp(name, info.name, BPF_OBJ_NAME_LEN)) {
+			close(fd);
+			continue;
+		}
+
+		if (nb_fds > 0) {
+			tmp = realloc(*fds, (nb_fds + 1) * sizeof(int));
+			if (!tmp) {
+				p_err("failed to realloc");
+				goto err_close_fd;
+			}
+			*fds = tmp;
+		}
+		(*fds)[nb_fds++] = fd;
+	}
+
+err_close_fd:
+	close(fd);
+err_close_fds:
+	while (--nb_fds >= 0)
+		close((*fds)[nb_fds]);
+	return -1;
+}
+
+int map_parse_fds(int *argc, char ***argv, int **fds)
+{
+	if (is_prefix(**argv, "id")) {
+		unsigned int id;
+		char *endptr;
+
+		NEXT_ARGP();
+
+		id = strtoul(**argv, &endptr, 0);
+		if (*endptr) {
+			p_err("can't parse %s as ID", **argv);
+			return -1;
+		}
+		NEXT_ARGP();
+
+		(*fds)[0] = bpf_map_get_fd_by_id(id);
+		if ((*fds)[0] < 0) {
+			p_err("get map by id (%u): %s", id, strerror(errno));
+			return -1;
+		}
+		return 1;
+	} else if (is_prefix(**argv, "name")) {
+		char *name;
+
+		NEXT_ARGP();
+
+		name = **argv;
+		if (strlen(name) > BPF_OBJ_NAME_LEN - 1) {
+			p_err("can't parse name");
+			return -1;
+		}
+		NEXT_ARGP();
+
+		return map_fd_by_name(name, fds);
+	} else if (is_prefix(**argv, "pinned")) {
+		char *path;
+
+		NEXT_ARGP();
+
+		path = **argv;
+		NEXT_ARGP();
+
+		(*fds)[0] = open_obj_pinned_any(path, BPF_OBJ_MAP);
+		if ((*fds)[0] < 0)
+			return -1;
+		return 1;
+	}
+
+	p_err("expected 'id', 'name' or 'pinned', got: '%s'?", **argv);
+	return -1;
+}
+
+int map_parse_fd(int *argc, char ***argv)
+{
+	int *fds = NULL;
+	int nb_fds, fd;
+
+	fds = malloc(sizeof(int));
+	if (!fds) {
+		p_err("mem alloc failed");
+		return -1;
+	}
+	nb_fds = map_parse_fds(argc, argv, &fds);
+	if (nb_fds != 1) {
+		if (nb_fds > 1) {
+			p_err("several maps match this handle");
+			while (nb_fds--)
+				close(fds[nb_fds]);
+		}
+		fd = -1;
+		goto exit_free;
+	}
+
+	fd = fds[0];
+exit_free:
+	free(fds);
+	return fd;
+}
+
+int map_parse_fd_and_info(int *argc, char ***argv, void *info, __u32 *info_len)
+{
+	int err;
+	int fd;
+
+	fd = map_parse_fd(argc, argv);
+	if (fd < 0)
+		return -1;
+
+	err = bpf_obj_get_info_by_fd(fd, info, info_len);
+	if (err) {
+		p_err("can't get map info: %s", strerror(errno));
+		close(fd);
+		return err;
+	}
+
+	return fd;
+}
+>>>>>>> upstream/android-13

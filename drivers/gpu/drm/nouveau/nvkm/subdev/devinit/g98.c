@@ -35,6 +35,7 @@ g98_devinit_disable(struct nvkm_devinit *init)
 	u64 disable = 0ULL;
 
 	if (!(r001540 & 0x40000000)) {
+<<<<<<< HEAD
 		disable |= (1ULL << NVKM_ENGINE_MSPDEC);
 		disable |= (1ULL << NVKM_ENGINE_MSVLD);
 		disable |= (1ULL << NVKM_ENGINE_MSPPP);
@@ -46,6 +47,19 @@ g98_devinit_disable(struct nvkm_devinit *init)
 		disable |= (1ULL << NVKM_ENGINE_MSVLD);
 	if (!(r00154c & 0x00000040))
 		disable |= (1ULL << NVKM_ENGINE_SEC);
+=======
+		nvkm_subdev_disable(device, NVKM_ENGINE_MSPDEC, 0);
+		nvkm_subdev_disable(device, NVKM_ENGINE_MSVLD, 0);
+		nvkm_subdev_disable(device, NVKM_ENGINE_MSPPP, 0);
+	}
+
+	if (!(r00154c & 0x00000004))
+		nvkm_subdev_disable(device, NVKM_ENGINE_DISP, 0);
+	if (!(r00154c & 0x00000020))
+		nvkm_subdev_disable(device, NVKM_ENGINE_MSVLD, 0);
+	if (!(r00154c & 0x00000040))
+		nvkm_subdev_disable(device, NVKM_ENGINE_SEC, 0);
+>>>>>>> upstream/android-13
 
 	return disable;
 }
@@ -60,8 +74,15 @@ g98_devinit = {
 };
 
 int
+<<<<<<< HEAD
 g98_devinit_new(struct nvkm_device *device, int index,
 		struct nvkm_devinit **pinit)
 {
 	return nv50_devinit_new_(&g98_devinit, device, index, pinit);
+=======
+g98_devinit_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+		struct nvkm_devinit **pinit)
+{
+	return nv50_devinit_new_(&g98_devinit, device, type, inst, pinit);
+>>>>>>> upstream/android-13
 }

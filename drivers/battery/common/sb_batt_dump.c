@@ -62,6 +62,7 @@ static ssize_t show_attrs(struct device *dev,
 	{
 		char temp_buf[1024] = {0,};
 		int size = 1024;
+<<<<<<< HEAD
 		union power_supply_propval dc_state = {0, };
 
 		dc_state.strval = "NO_CHARGING";
@@ -72,15 +73,24 @@ static ssize_t show_attrs(struct device *dev,
 
 		snprintf(temp_buf + strlen(temp_buf), size,
 			"%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%s,%s,%s,%s,%s,%d,%s,%d,%d,%lu,0x%x,0x%x,0x%x,%d,%d,",
+=======
+
+		snprintf(temp_buf + strlen(temp_buf), size,
+			"%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%s,%s,%s,%s,%d,%s,%d,%d,%lu,0x%x,0x%x,0x%x,",
+>>>>>>> upstream/android-13
 			battery->voltage_now, battery->current_now,
 			battery->current_max, battery->charging_current,
 			battery->capacity,
 			battery->temperature, battery->usb_temp,
 			battery->chg_temp, battery->wpc_temp,
 			battery->blkt_temp, battery->lrp,
+<<<<<<< HEAD
 			battery->dchg_temp, battery->sub_bat_temp,
 			sb_get_bst_str(battery->status),
 			dc_state.strval,
+=======
+			sb_get_bst_str(battery->status),
+>>>>>>> upstream/android-13
 			sb_get_cm_str(battery->charging_mode),
 			sb_get_hl_str(battery->health),
 			sb_get_ct_str(battery->cable_type),
@@ -91,6 +101,7 @@ static ssize_t show_attrs(struct device *dev,
 			(battery->expired_time / 1000),
 			battery->current_event,
 			battery->misc_event,
+<<<<<<< HEAD
 			battery->tx_event,
 #if defined(CONFIG_WIRELESS_RX_PHM_CTRL)
 			battery->wc_rx_pdetb_mode,
@@ -100,6 +111,9 @@ static ssize_t show_attrs(struct device *dev,
 
 			battery->srccap_transit
 		);
+=======
+			battery->tx_event);
+>>>>>>> upstream/android-13
 		size = sizeof(temp_buf) - strlen(temp_buf);
 
 	{
@@ -112,6 +126,7 @@ static ssize_t show_attrs(struct device *dev,
 		size = sizeof(temp_buf) - strlen(temp_buf);
 	}
 
+<<<<<<< HEAD
 		snprintf(temp_buf+strlen(temp_buf), size,
 			"%d,%d,%d,%d,",
 			battery->voltage_avg_main, battery->voltage_avg_sub,
@@ -139,6 +154,28 @@ static ssize_t show_attrs(struct device *dev,
 			goto skip_wc;
 
 		size = sizeof(temp_buf) - strlen(temp_buf);
+=======
+#if IS_ENABLED(CONFIG_DUAL_BATTERY)
+		snprintf(temp_buf+strlen(temp_buf), size,
+			"%d,%d,%d,%d,",
+			battery->voltage_pack_main, battery->voltage_pack_sub,
+			battery->current_now_main, battery->current_now_sub);
+		size = sizeof(temp_buf) - strlen(temp_buf);
+#endif
+
+#if defined(CONFIG_BATTERY_AGE_FORECAST)
+		snprintf(temp_buf+strlen(temp_buf), size, "%d,", battery->batt_cycle);
+		size = sizeof(temp_buf) - strlen(temp_buf);
+#endif
+
+#if IS_ENABLED(CONFIG_WIRELESS_CHARGING)
+		if (battery->wc_tx_enable)
+			value.intval = SB_WRL_TX_MODE;
+		else if (is_wireless_fake_type(battery->cable_type))
+			value.intval = SB_WRL_RX_MODE;
+		else
+			goto skip_wc;
+>>>>>>> upstream/android-13
 		psy_do_property(battery->pdata->wireless_charger_name, get,
 			POWER_SUPPLY_EXT_PROP_BATT_DUMP, value);
 
@@ -146,10 +183,17 @@ static ssize_t show_attrs(struct device *dev,
 		size = sizeof(temp_buf) - strlen(temp_buf);
 skip_wc:
 #endif
+<<<<<<< HEAD
 		if (value.intval == SB_WRL_NONE) {
 			snprintf(temp_buf+strlen(temp_buf), size, "%d,", 0);
 			size = sizeof(temp_buf) - strlen(temp_buf);
 		}
+=======
+		psy_do_property(battery->pdata->fuelgauge_name, get,
+			POWER_SUPPLY_EXT_PROP_BATT_DUMP, value);
+		snprintf(temp_buf+strlen(temp_buf), size, "%s,", value.strval);
+		size = sizeof(temp_buf) - strlen(temp_buf);
+>>>>>>> upstream/android-13
 
 		count += scnprintf(buf + count, PAGE_SIZE - count, "%s\n", temp_buf);
 	}

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* MCP23S08 SPI/I2C GPIO driver */
 
 #include <linux/kernel.h>
@@ -12,11 +13,29 @@
 #include <asm/byteorder.h>
 #include <linux/interrupt.h>
 #include <linux/of_device.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* MCP23S08 SPI/I2C GPIO driver */
+
+#include <linux/bitops.h>
+#include <linux/kernel.h>
+#include <linux/device.h>
+#include <linux/mutex.h>
+#include <linux/mod_devicetable.h>
+#include <linux/module.h>
+#include <linux/export.h>
+#include <linux/gpio/driver.h>
+#include <linux/gpio/consumer.h>
+#include <linux/slab.h>
+#include <asm/byteorder.h>
+#include <linux/interrupt.h>
+>>>>>>> upstream/android-13
 #include <linux/regmap.h>
 #include <linux/pinctrl/pinctrl.h>
 #include <linux/pinctrl/pinconf.h>
 #include <linux/pinctrl/pinconf-generic.h>
 
+<<<<<<< HEAD
 /*
  * MCP types supported by driver
  */
@@ -28,6 +47,9 @@
 #define MCP_TYPE_018    5
 
 #define MCP_MAX_DEV_PER_CS	8
+=======
+#include "pinctrl-mcp23s08.h"
+>>>>>>> upstream/android-13
 
 /* Registers are all 8 bits wide.
  *
@@ -52,6 +74,7 @@
 #define MCP_GPIO	0x09
 #define MCP_OLAT	0x0a
 
+<<<<<<< HEAD
 struct mcp23s08;
 
 struct mcp23s08 {
@@ -76,6 +99,8 @@ struct mcp23s08 {
 	struct pinctrl_desc	pinctrl_desc;
 };
 
+=======
+>>>>>>> upstream/android-13
 static const struct reg_default mcp23x08_defaults[] = {
 	{.reg = MCP_IODIR,		.def = 0xff},
 	{.reg = MCP_IPOL,		.def = 0x00},
@@ -107,7 +132,11 @@ static const struct regmap_access_table mcp23x08_precious_table = {
 	.n_yes_ranges = 1,
 };
 
+<<<<<<< HEAD
 static const struct regmap_config mcp23x08_regmap = {
+=======
+const struct regmap_config mcp23x08_regmap = {
+>>>>>>> upstream/android-13
 	.reg_bits = 8,
 	.val_bits = 8,
 
@@ -119,6 +148,10 @@ static const struct regmap_config mcp23x08_regmap = {
 	.cache_type = REGCACHE_FLAT,
 	.max_register = MCP_OLAT,
 };
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(mcp23x08_regmap);
+>>>>>>> upstream/android-13
 
 static const struct reg_default mcp23x17_defaults[] = {
 	{.reg = MCP_IODIR << 1,		.def = 0xffff},
@@ -151,7 +184,11 @@ static const struct regmap_access_table mcp23x17_precious_table = {
 	.n_yes_ranges = 1,
 };
 
+<<<<<<< HEAD
 static const struct regmap_config mcp23x17_regmap = {
+=======
+const struct regmap_config mcp23x17_regmap = {
+>>>>>>> upstream/android-13
 	.reg_bits = 8,
 	.val_bits = 16,
 
@@ -164,6 +201,10 @@ static const struct regmap_config mcp23x17_regmap = {
 	.cache_type = REGCACHE_FLAT,
 	.val_format_endian = REGMAP_ENDIAN_LITTLE,
 };
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(mcp23x17_regmap);
+>>>>>>> upstream/android-13
 
 static int mcp_read(struct mcp23s08 *mcp, unsigned int reg, unsigned int *val)
 {
@@ -265,7 +306,10 @@ static int mcp_pinconf_get(struct pinctrl_dev *pctldev, unsigned int pin,
 		status = (data & BIT(pin)) ? 1 : 0;
 		break;
 	default:
+<<<<<<< HEAD
 		dev_err(mcp->dev, "Invalid config param %04x\n", param);
+=======
+>>>>>>> upstream/android-13
 		return -ENOTSUPP;
 	}
 
@@ -292,7 +336,11 @@ static int mcp_pinconf_set(struct pinctrl_dev *pctldev, unsigned int pin,
 			ret = mcp_set_bit(mcp, MCP_GPPU, pin, arg);
 			break;
 		default:
+<<<<<<< HEAD
 			dev_err(mcp->dev, "Invalid config param %04x\n", param);
+=======
+			dev_dbg(mcp->dev, "Invalid config param %04x\n", param);
+>>>>>>> upstream/android-13
 			return -ENOTSUPP;
 		}
 	}
@@ -308,6 +356,7 @@ static const struct pinconf_ops mcp_pinconf_ops = {
 
 /*----------------------------------------------------------------------*/
 
+<<<<<<< HEAD
 #ifdef CONFIG_SPI_MASTER
 
 static int mcp23sxx_spi_write(void *context, const void *data, size_t count)
@@ -382,6 +431,8 @@ struct mcp23s08_driver_data {
 };
 
 
+=======
+>>>>>>> upstream/android-13
 static int mcp23s08_direction_input(struct gpio_chip *chip, unsigned offset)
 {
 	struct mcp23s08	*mcp = gpiochip_get_data(chip);
@@ -458,6 +509,14 @@ static irqreturn_t mcp23s08_irq(int irq, void *data)
 	if (mcp_read(mcp, MCP_INTF, &intf))
 		goto unlock;
 
+<<<<<<< HEAD
+=======
+	if (intf == 0) {
+		/* There is no interrupt pending */
+		goto unlock;
+	}
+
+>>>>>>> upstream/android-13
 	if (mcp_read(mcp, MCP_INTCAP, &intcap))
 		goto unlock;
 
@@ -475,11 +534,14 @@ static irqreturn_t mcp23s08_irq(int irq, void *data)
 	mcp->cached_gpio = gpio;
 	mutex_unlock(&mcp->lock);
 
+<<<<<<< HEAD
 	if (intf == 0) {
 		/* There is no interrupt pending */
 		return IRQ_HANDLED;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	dev_dbg(mcp->chip.parent,
 		"intcap 0x%04X intf 0x%04X gpio_orig 0x%04X gpio 0x%04X\n",
 		intcap, intf, gpio_orig, gpio);
@@ -561,7 +623,10 @@ static int mcp23s08_irq_set_type(struct irq_data *data, unsigned int type)
 	struct gpio_chip *gc = irq_data_get_irq_chip_data(data);
 	struct mcp23s08 *mcp = gpiochip_get_data(gc);
 	unsigned int pos = data->hwirq;
+<<<<<<< HEAD
 	int status = 0;
+=======
+>>>>>>> upstream/android-13
 
 	if ((type & IRQ_TYPE_EDGE_BOTH) == IRQ_TYPE_EDGE_BOTH) {
 		mcp_set_bit(mcp, MCP_INTCON, pos, false);
@@ -584,7 +649,11 @@ static int mcp23s08_irq_set_type(struct irq_data *data, unsigned int type)
 	} else
 		return -EINVAL;
 
+<<<<<<< HEAD
 	return status;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void mcp23s08_irq_bus_lock(struct irq_data *data)
@@ -607,6 +676,7 @@ static void mcp23s08_irq_bus_unlock(struct irq_data *data)
 	mutex_unlock(&mcp->lock);
 }
 
+<<<<<<< HEAD
 static struct irq_chip mcp23s08_irq_chip = {
 	.name = "gpio-mcp23xxx",
 	.irq_mask = mcp23s08_irq_mask,
@@ -616,6 +686,8 @@ static struct irq_chip mcp23s08_irq_chip = {
 	.irq_bus_sync_unlock = mcp23s08_irq_bus_unlock,
 };
 
+=======
+>>>>>>> upstream/android-13
 static int mcp23s08_irq_setup(struct mcp23s08 *mcp)
 {
 	struct gpio_chip *chip = &mcp->chip;
@@ -639,6 +711,7 @@ static int mcp23s08_irq_setup(struct mcp23s08 *mcp)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int mcp23s08_irqchip_setup(struct mcp23s08 *mcp)
 {
 	struct gpio_chip *chip = &mcp->chip;
@@ -776,29 +849,53 @@ done:
 static int mcp23s08_probe_one(struct mcp23s08 *mcp, struct device *dev,
 			      void *data, unsigned addr, unsigned type,
 			      unsigned int base, int cs)
+=======
+/*----------------------------------------------------------------------*/
+
+int mcp23s08_probe_one(struct mcp23s08 *mcp, struct device *dev,
+		       unsigned int addr, unsigned int type, unsigned int base)
+>>>>>>> upstream/android-13
 {
 	int status, ret;
 	bool mirror = false;
 	bool open_drain = false;
+<<<<<<< HEAD
 	struct regmap_config *one_regmap_config = NULL;
 	int raw_chip_address = (addr & ~0x40) >> 1;
+=======
+>>>>>>> upstream/android-13
 
 	mutex_init(&mcp->lock);
 
 	mcp->dev = dev;
 	mcp->addr = addr;
+<<<<<<< HEAD
 	mcp->irq_active_high = false;
+=======
+
+	mcp->irq_active_high = false;
+	mcp->irq_chip.name = dev_name(dev);
+	mcp->irq_chip.irq_mask = mcp23s08_irq_mask;
+	mcp->irq_chip.irq_unmask = mcp23s08_irq_unmask;
+	mcp->irq_chip.irq_set_type = mcp23s08_irq_set_type;
+	mcp->irq_chip.irq_bus_lock = mcp23s08_irq_bus_lock;
+	mcp->irq_chip.irq_bus_sync_unlock = mcp23s08_irq_bus_unlock;
+>>>>>>> upstream/android-13
 
 	mcp->chip.direction_input = mcp23s08_direction_input;
 	mcp->chip.get = mcp23s08_get;
 	mcp->chip.direction_output = mcp23s08_direction_output;
 	mcp->chip.set = mcp23s08_set;
+<<<<<<< HEAD
 	mcp->chip.dbg_show = mcp23s08_dbg_show;
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_OF_GPIO
 	mcp->chip.of_gpio_n_cells = 2;
 	mcp->chip.of_node = dev->of_node;
 #endif
 
+<<<<<<< HEAD
 	switch (type) {
 #ifdef CONFIG_SPI_MASTER
 	case MCP_TYPE_S08:
@@ -876,22 +973,33 @@ static int mcp23s08_probe_one(struct mcp23s08 *mcp, struct device *dev,
 	if (IS_ERR(mcp->regmap))
 		return PTR_ERR(mcp->regmap);
 
+=======
+>>>>>>> upstream/android-13
 	mcp->chip.base = base;
 	mcp->chip.can_sleep = true;
 	mcp->chip.parent = dev;
 	mcp->chip.owner = THIS_MODULE;
 
+<<<<<<< HEAD
+=======
+	mcp->reset_gpio = devm_gpiod_get_optional(dev, "reset", GPIOD_OUT_LOW);
+
+>>>>>>> upstream/android-13
 	/* verify MCP_IOCON.SEQOP = 0, so sequential reads work,
 	 * and MCP_IOCON.HAEN = 1, so we work with all chips.
 	 */
 
 	ret = mcp_read(mcp, MCP_IOCON, &status);
 	if (ret < 0)
+<<<<<<< HEAD
 		goto fail;
 
 	ret = devm_gpiochip_add_data(dev, &mcp->chip, mcp);
 	if (ret < 0)
 		goto fail;
+=======
+		return dev_err_probe(dev, ret, "can't identify chip %d\n", addr);
+>>>>>>> upstream/android-13
 
 	mcp->irq_controller =
 		device_property_read_bool(dev, "interrupt-controller");
@@ -925,6 +1033,7 @@ static int mcp23s08_probe_one(struct mcp23s08 *mcp, struct device *dev,
 
 		ret = mcp_write(mcp, MCP_IOCON, status);
 		if (ret < 0)
+<<<<<<< HEAD
 			goto fail;
 	}
 
@@ -942,6 +1051,28 @@ static int mcp23s08_probe_one(struct mcp23s08 *mcp, struct device *dev,
 	} else {
 		mcp->pinctrl_desc.name = "mcp23xxx-pinctrl";
 	}
+=======
+			return dev_err_probe(dev, ret, "can't write IOCON %d\n", addr);
+	}
+
+	if (mcp->irq && mcp->irq_controller) {
+		struct gpio_irq_chip *girq = &mcp->chip.irq;
+
+		girq->chip = &mcp->irq_chip;
+		/* This will let us handle the parent IRQ in the driver */
+		girq->parent_handler = NULL;
+		girq->num_parents = 0;
+		girq->parents = NULL;
+		girq->default_type = IRQ_TYPE_NONE;
+		girq->handler = handle_simple_irq;
+		girq->threaded = true;
+	}
+
+	ret = devm_gpiochip_add_data(dev, &mcp->chip, mcp);
+	if (ret < 0)
+		return dev_err_probe(dev, ret, "can't add GPIO chip\n");
+
+>>>>>>> upstream/android-13
 	mcp->pinctrl_desc.pctlops = &mcp_pinctrl_ops;
 	mcp->pinctrl_desc.confops = &mcp_pinconf_ops;
 	mcp->pinctrl_desc.npins = mcp->chip.ngpio;
@@ -952,6 +1083,7 @@ static int mcp23s08_probe_one(struct mcp23s08 *mcp, struct device *dev,
 	mcp->pinctrl_desc.owner = THIS_MODULE;
 
 	mcp->pctldev = devm_pinctrl_register(dev, &mcp->pinctrl_desc, mcp);
+<<<<<<< HEAD
 	if (IS_ERR(mcp->pctldev)) {
 		ret = PTR_ERR(mcp->pctldev);
 		goto fail;
@@ -1238,5 +1370,19 @@ static void __exit mcp23s08_exit(void)
 	mcp23s08_i2c_exit();
 }
 module_exit(mcp23s08_exit);
+=======
+	if (IS_ERR(mcp->pctldev))
+		return dev_err_probe(dev, PTR_ERR(mcp->pctldev), "can't register controller\n");
+
+	if (mcp->irq) {
+		ret = mcp23s08_irq_setup(mcp);
+		if (ret)
+			return dev_err_probe(dev, ret, "can't setup IRQ\n");
+	}
+
+	return 0;
+}
+EXPORT_SYMBOL_GPL(mcp23s08_probe_one);
+>>>>>>> upstream/android-13
 
 MODULE_LICENSE("GPL");

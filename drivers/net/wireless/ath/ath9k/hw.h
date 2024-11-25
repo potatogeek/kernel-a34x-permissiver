@@ -173,6 +173,10 @@
 #define ATH9K_NUM_QUEUES            10
 
 #define MAX_RATE_POWER              63
+<<<<<<< HEAD
+=======
+#define MAX_COMBINED_POWER          254 /* 128 dBm, chosen to fit in u8 */
+>>>>>>> upstream/android-13
 #define AH_WAIT_TIMEOUT             100000 /* (us) */
 #define AH_TSF_WRITE_TIMEOUT        100    /* (us) */
 #define AH_TIME_QUANTUM             10
@@ -426,6 +430,10 @@ enum ath9k_cal_flags {
 	TXIQCAL_DONE,
 	TXCLCAL_DONE,
 	SW_PKDET_DONE,
+<<<<<<< HEAD
+=======
+	LONGCAL_PENDING,
+>>>>>>> upstream/android-13
 };
 
 struct ath9k_hw_cal_data {
@@ -818,6 +826,10 @@ struct ath_hw {
 	struct ath9k_pacal_info pacal_info;
 	struct ar5416Stats stats;
 	struct ath9k_tx_queue_info txq[ATH9K_NUM_TX_QUEUES];
+<<<<<<< HEAD
+=======
+	DECLARE_BITMAP(pending_del_keymap, ATH_KEYMAX);
+>>>>>>> upstream/android-13
 
 	enum ath9k_int imask;
 	u32 imrs2_reg;
@@ -832,6 +844,10 @@ struct ath_hw {
 
 	/* Calibration */
 	u32 supp_cals;
+<<<<<<< HEAD
+=======
+	unsigned long cal_start_time;
+>>>>>>> upstream/android-13
 	struct ath9k_cal_list iq_caldata;
 	struct ath9k_cal_list adcgain_caldata;
 	struct ath9k_cal_list adcdc_caldata;

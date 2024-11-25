@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  *  Copyright (C) 2009-2010, Lars-Peter Clausen <lars@metafoo.de>
  *  Copyright (C) 2010, Paul Cercueil <paul@crapouillou.net>
  *	 JZ4740 SoC RTC driver
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify it
  *  under  the terms of  the GNU General Public License as published by the
@@ -12,6 +17,8 @@
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -20,6 +27,10 @@
 #include <linux/module.h>
 #include <linux/of_device.h>
 #include <linux/platform_device.h>
+<<<<<<< HEAD
+=======
+#include <linux/pm_wakeirq.h>
+>>>>>>> upstream/android-13
 #include <linux/reboot.h>
 #include <linux/rtc.h>
 #include <linux/slab.h>
@@ -54,6 +65,10 @@
 
 enum jz4740_rtc_type {
 	ID_JZ4740,
+<<<<<<< HEAD
+=======
+	ID_JZ4760,
+>>>>>>> upstream/android-13
 	ID_JZ4780,
 };
 
@@ -62,6 +77,7 @@ struct jz4740_rtc {
 	enum jz4740_rtc_type type;
 
 	struct rtc_device *rtc;
+<<<<<<< HEAD
 	struct clk *clk;
 
 	int irq;
@@ -70,6 +86,10 @@ struct jz4740_rtc {
 
 	unsigned int min_wakeup_pin_assert_time;
 	unsigned int reset_pin_assert_time;
+=======
+
+	spinlock_t lock;
+>>>>>>> upstream/android-13
 };
 
 static struct device *dev_for_power_off;
@@ -114,7 +134,11 @@ static inline int jz4740_rtc_reg_write(struct jz4740_rtc *rtc, size_t reg,
 {
 	int ret = 0;
 
+<<<<<<< HEAD
 	if (rtc->type >= ID_JZ4780)
+=======
+	if (rtc->type >= ID_JZ4760)
+>>>>>>> upstream/android-13
 		ret = jz4780_rtc_enable_write(rtc);
 	if (ret == 0)
 		ret = jz4740_rtc_wait_write_ready(rtc);
@@ -156,6 +180,12 @@ static int jz4740_rtc_read_time(struct device *dev, struct rtc_time *time)
 	uint32_t secs, secs2;
 	int timeout = 5;
 
+<<<<<<< HEAD
+=======
+	if (jz4740_rtc_reg_read(rtc, JZ_REG_RTC_SCRATCHPAD) != 0x12345678)
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	/* If the seconds register is read while it is updated, it can contain a
 	 * bogus value. This can be avoided by making sure that two consecutive
 	 * reads have the same value.
@@ -171,16 +201,33 @@ static int jz4740_rtc_read_time(struct device *dev, struct rtc_time *time)
 	if (timeout == 0)
 		return -EIO;
 
+<<<<<<< HEAD
 	rtc_time_to_tm(secs, time);
+=======
+	rtc_time64_to_tm(secs, time);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int jz4740_rtc_set_mmss(struct device *dev, unsigned long secs)
 {
 	struct jz4740_rtc *rtc = dev_get_drvdata(dev);
 
 	return jz4740_rtc_reg_write(rtc, JZ_REG_RTC_SEC, secs);
+=======
+static int jz4740_rtc_set_time(struct device *dev, struct rtc_time *time)
+{
+	struct jz4740_rtc *rtc = dev_get_drvdata(dev);
+	int ret;
+
+	ret = jz4740_rtc_reg_write(rtc, JZ_REG_RTC_SEC, rtc_tm_to_time64(time));
+	if (ret)
+		return ret;
+
+	return jz4740_rtc_reg_write(rtc, JZ_REG_RTC_SCRATCHPAD, 0x12345678);
+>>>>>>> upstream/android-13
 }
 
 static int jz4740_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
@@ -196,18 +243,28 @@ static int jz4740_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
 	alrm->enabled = !!(ctrl & JZ_RTC_CTRL_AE);
 	alrm->pending = !!(ctrl & JZ_RTC_CTRL_AF);
 
+<<<<<<< HEAD
 	rtc_time_to_tm(secs, &alrm->time);
 
 	return rtc_valid_tm(&alrm->time);
+=======
+	rtc_time64_to_tm(secs, &alrm->time);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int jz4740_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
 {
 	int ret;
 	struct jz4740_rtc *rtc = dev_get_drvdata(dev);
+<<<<<<< HEAD
 	unsigned long secs;
 
 	rtc_tm_to_time(&alrm->time, &secs);
+=======
+	uint32_t secs = lower_32_bits(rtc_tm_to_time64(&alrm->time));
+>>>>>>> upstream/android-13
 
 	ret = jz4740_rtc_reg_write(rtc, JZ_REG_RTC_SEC_ALARM, secs);
 	if (!ret)
@@ -225,7 +282,11 @@ static int jz4740_rtc_alarm_irq_enable(struct device *dev, unsigned int enable)
 
 static const struct rtc_class_ops jz4740_rtc_ops = {
 	.read_time	= jz4740_rtc_read_time,
+<<<<<<< HEAD
 	.set_mmss	= jz4740_rtc_set_mmss,
+=======
+	.set_time	= jz4740_rtc_set_time,
+>>>>>>> upstream/android-13
 	.read_alarm	= jz4740_rtc_read_alarm,
 	.set_alarm	= jz4740_rtc_set_alarm,
 	.alarm_irq_enable = jz4740_rtc_alarm_irq_enable,
@@ -260,6 +321,7 @@ static void jz4740_rtc_poweroff(struct device *dev)
 
 static void jz4740_rtc_power_off(void)
 {
+<<<<<<< HEAD
 	struct jz4740_rtc *rtc = dev_get_drvdata(dev_for_power_off);
 	unsigned long rtc_rate;
 	unsigned long wakeup_filter_ticks;
@@ -294,17 +356,31 @@ static void jz4740_rtc_power_off(void)
 	jz4740_rtc_reg_write(rtc,
 			     JZ_REG_RTC_RESET_COUNTER, reset_counter_ticks);
 
+=======
+>>>>>>> upstream/android-13
 	jz4740_rtc_poweroff(dev_for_power_off);
 	kernel_halt();
 }
 
+<<<<<<< HEAD
 static const struct of_device_id jz4740_rtc_of_match[] = {
 	{ .compatible = "ingenic,jz4740-rtc", .data = (void *)ID_JZ4740 },
+=======
+static void jz4740_rtc_clk_disable(void *data)
+{
+	clk_disable_unprepare(data);
+}
+
+static const struct of_device_id jz4740_rtc_of_match[] = {
+	{ .compatible = "ingenic,jz4740-rtc", .data = (void *)ID_JZ4740 },
+	{ .compatible = "ingenic,jz4760-rtc", .data = (void *)ID_JZ4760 },
+>>>>>>> upstream/android-13
 	{ .compatible = "ingenic,jz4780-rtc", .data = (void *)ID_JZ4780 },
 	{},
 };
 MODULE_DEVICE_TABLE(of, jz4740_rtc_of_match);
 
+<<<<<<< HEAD
 static int jz4740_rtc_probe(struct platform_device *pdev)
 {
 	int ret;
@@ -340,12 +416,90 @@ static int jz4740_rtc_probe(struct platform_device *pdev)
 	if (IS_ERR(rtc->clk)) {
 		dev_err(&pdev->dev, "Failed to get RTC clock\n");
 		return PTR_ERR(rtc->clk);
+=======
+static void jz4740_rtc_set_wakeup_params(struct jz4740_rtc *rtc,
+					 struct device_node *np,
+					 unsigned long rate)
+{
+	unsigned long wakeup_ticks, reset_ticks;
+	unsigned int min_wakeup_pin_assert_time = 60; /* Default: 60ms */
+	unsigned int reset_pin_assert_time = 100; /* Default: 100ms */
+
+	of_property_read_u32(np, "ingenic,reset-pin-assert-time-ms",
+			     &reset_pin_assert_time);
+	of_property_read_u32(np, "ingenic,min-wakeup-pin-assert-time-ms",
+			     &min_wakeup_pin_assert_time);
+
+	/*
+	 * Set minimum wakeup pin assertion time: 100 ms.
+	 * Range is 0 to 2 sec if RTC is clocked at 32 kHz.
+	 */
+	wakeup_ticks = (min_wakeup_pin_assert_time * rate) / 1000;
+	if (wakeup_ticks < JZ_RTC_WAKEUP_FILTER_MASK)
+		wakeup_ticks &= JZ_RTC_WAKEUP_FILTER_MASK;
+	else
+		wakeup_ticks = JZ_RTC_WAKEUP_FILTER_MASK;
+	jz4740_rtc_reg_write(rtc, JZ_REG_RTC_WAKEUP_FILTER, wakeup_ticks);
+
+	/*
+	 * Set reset pin low-level assertion time after wakeup: 60 ms.
+	 * Range is 0 to 125 ms if RTC is clocked at 32 kHz.
+	 */
+	reset_ticks = (reset_pin_assert_time * rate) / 1000;
+	if (reset_ticks < JZ_RTC_RESET_COUNTER_MASK)
+		reset_ticks &= JZ_RTC_RESET_COUNTER_MASK;
+	else
+		reset_ticks = JZ_RTC_RESET_COUNTER_MASK;
+	jz4740_rtc_reg_write(rtc, JZ_REG_RTC_RESET_COUNTER, reset_ticks);
+}
+
+static int jz4740_rtc_probe(struct platform_device *pdev)
+{
+	struct device *dev = &pdev->dev;
+	struct device_node *np = dev->of_node;
+	struct jz4740_rtc *rtc;
+	unsigned long rate;
+	struct clk *clk;
+	int ret, irq;
+
+	rtc = devm_kzalloc(dev, sizeof(*rtc), GFP_KERNEL);
+	if (!rtc)
+		return -ENOMEM;
+
+	rtc->type = (enum jz4740_rtc_type)device_get_match_data(dev);
+
+	irq = platform_get_irq(pdev, 0);
+	if (irq < 0)
+		return irq;
+
+	rtc->base = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(rtc->base))
+		return PTR_ERR(rtc->base);
+
+	clk = devm_clk_get(dev, "rtc");
+	if (IS_ERR(clk)) {
+		dev_err(dev, "Failed to get RTC clock\n");
+		return PTR_ERR(clk);
+	}
+
+	ret = clk_prepare_enable(clk);
+	if (ret) {
+		dev_err(dev, "Failed to enable clock\n");
+		return ret;
+	}
+
+	ret = devm_add_action_or_reset(dev, jz4740_rtc_clk_disable, clk);
+	if (ret) {
+		dev_err(dev, "Failed to register devm action\n");
+		return ret;
+>>>>>>> upstream/android-13
 	}
 
 	spin_lock_init(&rtc->lock);
 
 	platform_set_drvdata(pdev, rtc);
 
+<<<<<<< HEAD
 	device_init_wakeup(&pdev->dev, 1);
 
 	rtc->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
@@ -392,11 +546,56 @@ static int jz4740_rtc_probe(struct platform_device *pdev)
 			dev_warn(&pdev->dev,
 				 "Poweroff handler already present!\n");
 		}
+=======
+	device_init_wakeup(dev, 1);
+
+	ret = dev_pm_set_wake_irq(dev, irq);
+	if (ret) {
+		dev_err(dev, "Failed to set wake irq: %d\n", ret);
+		return ret;
+	}
+
+	rtc->rtc = devm_rtc_allocate_device(dev);
+	if (IS_ERR(rtc->rtc)) {
+		ret = PTR_ERR(rtc->rtc);
+		dev_err(dev, "Failed to allocate rtc device: %d\n", ret);
+		return ret;
+	}
+
+	rtc->rtc->ops = &jz4740_rtc_ops;
+	rtc->rtc->range_max = U32_MAX;
+
+	rate = clk_get_rate(clk);
+	jz4740_rtc_set_wakeup_params(rtc, np, rate);
+
+	/* Each 1 Hz pulse should happen after (rate) ticks */
+	jz4740_rtc_reg_write(rtc, JZ_REG_RTC_REGULATOR, rate - 1);
+
+	ret = devm_rtc_register_device(rtc->rtc);
+	if (ret)
+		return ret;
+
+	ret = devm_request_irq(dev, irq, jz4740_rtc_irq, 0,
+			       pdev->name, rtc);
+	if (ret) {
+		dev_err(dev, "Failed to request rtc irq: %d\n", ret);
+		return ret;
+	}
+
+	if (of_device_is_system_power_controller(np)) {
+		dev_for_power_off = dev;
+
+		if (!pm_power_off)
+			pm_power_off = jz4740_rtc_power_off;
+		else
+			dev_warn(dev, "Poweroff handler already present!\n");
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 static int jz4740_rtc_suspend(struct device *dev)
 {
@@ -433,14 +632,21 @@ static const struct platform_device_id jz4740_rtc_ids[] = {
 };
 MODULE_DEVICE_TABLE(platform, jz4740_rtc_ids);
 
+=======
+>>>>>>> upstream/android-13
 static struct platform_driver jz4740_rtc_driver = {
 	.probe	 = jz4740_rtc_probe,
 	.driver	 = {
 		.name  = "jz4740-rtc",
+<<<<<<< HEAD
 		.pm    = JZ4740_RTC_PM_OPS,
 		.of_match_table = of_match_ptr(jz4740_rtc_of_match),
 	},
 	.id_table = jz4740_rtc_ids,
+=======
+		.of_match_table = jz4740_rtc_of_match,
+	},
+>>>>>>> upstream/android-13
 };
 
 module_platform_driver(jz4740_rtc_driver);

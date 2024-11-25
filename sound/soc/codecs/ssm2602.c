@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * File:         sound/soc/codecs/ssm2602.c
  * Author:       Cliff Cai <Cliff.Cai@analog.com>
@@ -26,6 +27,22 @@
  * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+//
+// File:         sound/soc/codecs/ssm2602.c
+// Author:       Cliff Cai <Cliff.Cai@analog.com>
+//
+// Created:      Tue June 06 2008
+// Description:  Driver for ssm2602 sound chip
+//
+// Modified:
+//               Copyright 2008 Analog Devices Inc.
+//
+// Bugs:         Enter bugs at http://blackfin.uclinux.org/
+
+#include <linux/delay.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/regmap.h>
 #include <linux/slab.h>
@@ -111,7 +128,10 @@ SOC_SINGLE_TLV("Sidetone Playback Volume", SSM2602_APANA, 6, 3, 1,
 
 SOC_SINGLE("Mic Boost (+20dB)", SSM2602_APANA, 0, 1, 0),
 SOC_SINGLE("Mic Boost2 (+20dB)", SSM2602_APANA, 8, 1, 0),
+<<<<<<< HEAD
 SOC_SINGLE("Mic Switch", SSM2602_APANA, 1, 1, 1),
+=======
+>>>>>>> upstream/android-13
 };
 
 /* Output Mixer */
@@ -121,10 +141,37 @@ SOC_DAPM_SINGLE("HiFi Playback Switch", SSM2602_APANA, 4, 1, 0),
 SOC_DAPM_SINGLE("Mic Sidetone Switch", SSM2602_APANA, 5, 1, 0),
 };
 
+<<<<<<< HEAD
+=======
+static const struct snd_kcontrol_new mic_ctl =
+	SOC_DAPM_SINGLE("Switch", SSM2602_APANA, 1, 1, 1);
+
+>>>>>>> upstream/android-13
 /* Input mux */
 static const struct snd_kcontrol_new ssm2602_input_mux_controls =
 SOC_DAPM_ENUM("Input Select", ssm2602_enum[0]);
 
+<<<<<<< HEAD
+=======
+static int ssm2602_mic_switch_event(struct snd_soc_dapm_widget *w,
+				struct snd_kcontrol *kcontrol, int event)
+{
+	/*
+	 * According to the ssm2603 data sheet (control register sequencing),
+	 * the digital core should be activated only after all necessary bits
+	 * in the power register are enabled, and a delay determined by the
+	 * decoupling capacitor on the VMID pin has passed. If the digital core
+	 * is activated too early, or even before the ADC is powered up, audible
+	 * artifacts appear at the beginning and end of the recorded signal.
+	 *
+	 * In practice, audible artifacts disappear well over 500 ms.
+	 */
+	msleep(500);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static const struct snd_soc_dapm_widget ssm260x_dapm_widgets[] = {
 SND_SOC_DAPM_DAC("DAC", "HiFi Playback", SSM2602_PWR, 3, 1),
 SND_SOC_DAPM_ADC("ADC", "HiFi Capture", SSM2602_PWR, 2, 1),
@@ -146,6 +193,12 @@ SND_SOC_DAPM_MIXER("Output Mixer", SSM2602_PWR, 4, 1,
 SND_SOC_DAPM_MUX("Input Mux", SND_SOC_NOPM, 0, 0, &ssm2602_input_mux_controls),
 SND_SOC_DAPM_MICBIAS("Mic Bias", SSM2602_PWR, 1, 1),
 
+<<<<<<< HEAD
+=======
+SND_SOC_DAPM_SWITCH_E("Mic Switch", SSM2602_APANA, 1, 1, &mic_ctl,
+		ssm2602_mic_switch_event, SND_SOC_DAPM_PRE_PMU),
+
+>>>>>>> upstream/android-13
 SND_SOC_DAPM_OUTPUT("LHPOUT"),
 SND_SOC_DAPM_OUTPUT("RHPOUT"),
 SND_SOC_DAPM_INPUT("MICIN"),
@@ -178,9 +231,17 @@ static const struct snd_soc_dapm_route ssm2602_routes[] = {
 	{"LHPOUT", NULL, "Output Mixer"},
 
 	{"Input Mux", "Line", "Line Input"},
+<<<<<<< HEAD
 	{"Input Mux", "Mic", "Mic Bias"},
 	{"ADC", NULL, "Input Mux"},
 
+=======
+	{"Input Mux", "Mic", "Mic Switch"},
+	{"ADC", NULL, "Input Mux"},
+
+	{"Mic Switch", NULL, "Mic Bias"},
+
+>>>>>>> upstream/android-13
 	{"Mic Bias", NULL, "MICIN"},
 };
 
@@ -327,7 +388,11 @@ static int ssm2602_startup(struct snd_pcm_substream *substream,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int ssm2602_mute(struct snd_soc_dai *dai, int mute)
+=======
+static int ssm2602_mute(struct snd_soc_dai *dai, int mute, int direction)
+>>>>>>> upstream/android-13
 {
 	struct ssm2602_priv *ssm2602 = snd_soc_component_get_drvdata(dai->component);
 
@@ -494,9 +559,16 @@ static int ssm2602_set_bias_level(struct snd_soc_component *component,
 static const struct snd_soc_dai_ops ssm2602_dai_ops = {
 	.startup	= ssm2602_startup,
 	.hw_params	= ssm2602_hw_params,
+<<<<<<< HEAD
 	.digital_mute	= ssm2602_mute,
 	.set_sysclk	= ssm2602_set_dai_sysclk,
 	.set_fmt	= ssm2602_set_dai_fmt,
+=======
+	.mute_stream	= ssm2602_mute,
+	.set_sysclk	= ssm2602_set_dai_sysclk,
+	.set_fmt	= ssm2602_set_dai_fmt,
+	.no_capture_mute = 1,
+>>>>>>> upstream/android-13
 };
 
 static struct snd_soc_dai_driver ssm2602_dai = {
@@ -514,8 +586,13 @@ static struct snd_soc_dai_driver ssm2602_dai = {
 		.rates = SSM2602_RATES,
 		.formats = SSM2602_FORMATS,},
 	.ops = &ssm2602_dai_ops,
+<<<<<<< HEAD
 	.symmetric_rates = 1,
 	.symmetric_samplebits = 1,
+=======
+	.symmetric_rate = 1,
+	.symmetric_sample_bits = 1,
+>>>>>>> upstream/android-13
 };
 
 static int ssm2602_resume(struct snd_soc_component *component)

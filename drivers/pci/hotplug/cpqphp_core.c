@@ -121,7 +121,10 @@ static int init_SERR(struct controller *ctrl)
 {
 	u32 tempdword;
 	u32 number_of_slots;
+<<<<<<< HEAD
 	u8 physical_slot;
+=======
+>>>>>>> upstream/android-13
 
 	if (!ctrl)
 		return 1;
@@ -131,7 +134,10 @@ static int init_SERR(struct controller *ctrl)
 	number_of_slots = readb(ctrl->hpc_reg + SLOT_MASK) & 0x0F;
 	/* Loop through slots */
 	while (number_of_slots) {
+<<<<<<< HEAD
 		physical_slot = tempdword;
+=======
+>>>>>>> upstream/android-13
 		writeb(0, ctrl->hpc_reg + SLOT_SERR);
 		tempdword++;
 		number_of_slots--;
@@ -175,7 +181,10 @@ static void pci_print_IRQ_route(void)
 		dbg("%d %d %d %d\n", tbus, tdevice >> 3, tdevice & 0x7, tslot);
 
 	}
+<<<<<<< HEAD
 	return;
+=======
+>>>>>>> upstream/android-13
 }
 
 
@@ -275,9 +284,13 @@ static int ctrl_slot_cleanup(struct controller *ctrl)
 
 	while (old_slot) {
 		next_slot = old_slot->next;
+<<<<<<< HEAD
 		pci_hp_deregister(old_slot->hotplug_slot);
 		kfree(old_slot->hotplug_slot->info);
 		kfree(old_slot->hotplug_slot);
+=======
+		pci_hp_deregister(&old_slot->hotplug_slot);
+>>>>>>> upstream/android-13
 		kfree(old_slot);
 		old_slot = next_slot;
 	}
@@ -301,9 +314,16 @@ static int ctrl_slot_cleanup(struct controller *ctrl)
  *
  * Won't work for more than one PCI-PCI bridge in a slot.
  *
+<<<<<<< HEAD
  * @bus_num - bus number of PCI device
  * @dev_num - device number of PCI device
  * @slot - Pointer to u8 where slot number will	be returned
+=======
+ * @bus: pointer to the PCI bus structure
+ * @bus_num: bus number of PCI device
+ * @dev_num: device number of PCI device
+ * @slot: Pointer to u8 where slot number will	be returned
+>>>>>>> upstream/android-13
  *
  * Output:	SUCCESS or FAILURE
  */
@@ -419,7 +439,11 @@ cpqhp_set_attention_status(struct controller *ctrl, struct pci_func *func,
 static int set_attention_status(struct hotplug_slot *hotplug_slot, u8 status)
 {
 	struct pci_func *slot_func;
+<<<<<<< HEAD
 	struct slot *slot = hotplug_slot->private;
+=======
+	struct slot *slot = to_slot(hotplug_slot);
+>>>>>>> upstream/android-13
 	struct controller *ctrl = slot->ctrl;
 	u8 bus;
 	u8 devfn;
@@ -446,7 +470,11 @@ static int set_attention_status(struct hotplug_slot *hotplug_slot, u8 status)
 static int process_SI(struct hotplug_slot *hotplug_slot)
 {
 	struct pci_func *slot_func;
+<<<<<<< HEAD
 	struct slot *slot = hotplug_slot->private;
+=======
+	struct slot *slot = to_slot(hotplug_slot);
+>>>>>>> upstream/android-13
 	struct controller *ctrl = slot->ctrl;
 	u8 bus;
 	u8 devfn;
@@ -478,7 +506,11 @@ static int process_SI(struct hotplug_slot *hotplug_slot)
 static int process_SS(struct hotplug_slot *hotplug_slot)
 {
 	struct pci_func *slot_func;
+<<<<<<< HEAD
 	struct slot *slot = hotplug_slot->private;
+=======
+	struct slot *slot = to_slot(hotplug_slot);
+>>>>>>> upstream/android-13
 	struct controller *ctrl = slot->ctrl;
 	u8 bus;
 	u8 devfn;
@@ -505,7 +537,11 @@ static int process_SS(struct hotplug_slot *hotplug_slot)
 
 static int hardware_test(struct hotplug_slot *hotplug_slot, u32 value)
 {
+<<<<<<< HEAD
 	struct slot *slot = hotplug_slot->private;
+=======
+	struct slot *slot = to_slot(hotplug_slot);
+>>>>>>> upstream/android-13
 	struct controller *ctrl = slot->ctrl;
 
 	dbg("%s - physical_slot = %s\n", __func__, slot_name(slot));
@@ -516,7 +552,11 @@ static int hardware_test(struct hotplug_slot *hotplug_slot, u32 value)
 
 static int get_power_status(struct hotplug_slot *hotplug_slot, u8 *value)
 {
+<<<<<<< HEAD
 	struct slot *slot = hotplug_slot->private;
+=======
+	struct slot *slot = to_slot(hotplug_slot);
+>>>>>>> upstream/android-13
 	struct controller *ctrl = slot->ctrl;
 
 	dbg("%s - physical_slot = %s\n", __func__, slot_name(slot));
@@ -527,7 +567,11 @@ static int get_power_status(struct hotplug_slot *hotplug_slot, u8 *value)
 
 static int get_attention_status(struct hotplug_slot *hotplug_slot, u8 *value)
 {
+<<<<<<< HEAD
 	struct slot *slot = hotplug_slot->private;
+=======
+	struct slot *slot = to_slot(hotplug_slot);
+>>>>>>> upstream/android-13
 	struct controller *ctrl = slot->ctrl;
 
 	dbg("%s - physical_slot = %s\n", __func__, slot_name(slot));
@@ -538,7 +582,11 @@ static int get_attention_status(struct hotplug_slot *hotplug_slot, u8 *value)
 
 static int get_latch_status(struct hotplug_slot *hotplug_slot, u8 *value)
 {
+<<<<<<< HEAD
 	struct slot *slot = hotplug_slot->private;
+=======
+	struct slot *slot = to_slot(hotplug_slot);
+>>>>>>> upstream/android-13
 	struct controller *ctrl = slot->ctrl;
 
 	dbg("%s - physical_slot = %s\n", __func__, slot_name(slot));
@@ -550,7 +598,11 @@ static int get_latch_status(struct hotplug_slot *hotplug_slot, u8 *value)
 
 static int get_adapter_status(struct hotplug_slot *hotplug_slot, u8 *value)
 {
+<<<<<<< HEAD
 	struct slot *slot = hotplug_slot->private;
+=======
+	struct slot *slot = to_slot(hotplug_slot);
+>>>>>>> upstream/android-13
 	struct controller *ctrl = slot->ctrl;
 
 	dbg("%s - physical_slot = %s\n", __func__, slot_name(slot));
@@ -560,7 +612,11 @@ static int get_adapter_status(struct hotplug_slot *hotplug_slot, u8 *value)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct hotplug_slot_ops cpqphp_hotplug_slot_ops = {
+=======
+static const struct hotplug_slot_ops cpqphp_hotplug_slot_ops = {
+>>>>>>> upstream/android-13
 	.set_attention_status =	set_attention_status,
 	.enable_slot =		process_SI,
 	.disable_slot =		process_SS,
@@ -578,8 +634,11 @@ static int ctrl_slot_setup(struct controller *ctrl,
 			void __iomem *smbios_table)
 {
 	struct slot *slot;
+<<<<<<< HEAD
 	struct hotplug_slot *hotplug_slot;
 	struct hotplug_slot_info *hotplug_slot_info;
+=======
+>>>>>>> upstream/android-13
 	struct pci_bus *bus = ctrl->pci_bus;
 	u8 number_of_slots;
 	u8 slot_device;
@@ -605,6 +664,7 @@ static int ctrl_slot_setup(struct controller *ctrl,
 			goto error;
 		}
 
+<<<<<<< HEAD
 		slot->hotplug_slot = kzalloc(sizeof(*(slot->hotplug_slot)),
 						GFP_KERNEL);
 		if (!slot->hotplug_slot) {
@@ -621,6 +681,8 @@ static int ctrl_slot_setup(struct controller *ctrl,
 		}
 		hotplug_slot_info = hotplug_slot->info;
 
+=======
+>>>>>>> upstream/android-13
 		slot->ctrl = ctrl;
 		slot->bus = ctrl->bus;
 		slot->device = slot_device;
@@ -669,6 +731,7 @@ static int ctrl_slot_setup(struct controller *ctrl,
 			((read_slot_enable(ctrl) << 2) >> ctrl_slot) & 0x04;
 
 		/* register this slot with the hotplug pci core */
+<<<<<<< HEAD
 		hotplug_slot->private = slot;
 		snprintf(name, SLOT_NAME_SIZE, "%u", slot->number);
 		hotplug_slot->ops = &cpqphp_hotplug_slot_ops;
@@ -680,18 +743,30 @@ static int ctrl_slot_setup(struct controller *ctrl,
 			cpq_get_latch_status(ctrl, slot);
 		hotplug_slot_info->adapter_status =
 			get_presence_status(ctrl, slot);
+=======
+		snprintf(name, SLOT_NAME_SIZE, "%u", slot->number);
+		slot->hotplug_slot.ops = &cpqphp_hotplug_slot_ops;
+>>>>>>> upstream/android-13
 
 		dbg("registering bus %d, dev %d, number %d, ctrl->slot_device_offset %d, slot %d\n",
 				slot->bus, slot->device,
 				slot->number, ctrl->slot_device_offset,
 				slot_number);
+<<<<<<< HEAD
 		result = pci_hp_register(hotplug_slot,
+=======
+		result = pci_hp_register(&slot->hotplug_slot,
+>>>>>>> upstream/android-13
 					 ctrl->pci_dev->bus,
 					 slot->device,
 					 name);
 		if (result) {
 			err("pci_hp_register failed with error %d\n", result);
+<<<<<<< HEAD
 			goto error_info;
+=======
+			goto error_slot;
+>>>>>>> upstream/android-13
 		}
 
 		slot->next = ctrl->slot;
@@ -703,10 +778,13 @@ static int ctrl_slot_setup(struct controller *ctrl,
 	}
 
 	return 0;
+<<<<<<< HEAD
 error_info:
 	kfree(hotplug_slot_info);
 error_hpslot:
 	kfree(hotplug_slot);
+=======
+>>>>>>> upstream/android-13
 error_slot:
 	kfree(slot);
 error:

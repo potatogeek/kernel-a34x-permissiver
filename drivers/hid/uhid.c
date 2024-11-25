@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * User-space I/O driver support for HID subsystem
  * Copyright (c) 2012 David Herrmann
  */
 
 /*
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/atomic.h>
@@ -30,11 +37,28 @@
 
 struct uhid_device {
 	struct mutex devlock;
+<<<<<<< HEAD
+=======
+
+	/* This flag tracks whether the HID device is usable for commands from
+	 * userspace. The flag is already set before hid_add_device(), which
+	 * runs in workqueue context, to allow hid_add_device() to communicate
+	 * with userspace.
+	 * However, if hid_add_device() fails, the flag is cleared without
+	 * holding devlock.
+	 * We guarantee that if @running changes from true to false while you're
+	 * holding @devlock, it's still fine to access @hid.
+	 */
+>>>>>>> upstream/android-13
 	bool running;
 
 	__u8 *rd_data;
 	uint rd_size;
 
+<<<<<<< HEAD
+=======
+	/* When this is NULL, userspace may use UHID_CREATE/UHID_CREATE2. */
+>>>>>>> upstream/android-13
 	struct hid_device *hid;
 	struct uhid_event input_buf;
 
@@ -65,9 +89,24 @@ static void uhid_device_add_worker(struct work_struct *work)
 	if (ret) {
 		hid_err(uhid->hid, "Cannot register HID device: error %d\n", ret);
 
+<<<<<<< HEAD
 		hid_destroy_device(uhid->hid);
 		uhid->hid = NULL;
 		uhid->running = false;
+=======
+		/* We used to call hid_destroy_device() here, but that's really
+		 * messy to get right because we have to coordinate with
+		 * concurrent writes from userspace that might be in the middle
+		 * of using uhid->hid.
+		 * Just leave uhid->hid as-is for now, and clean it up when
+		 * userspace tries to close or reinitialize the uhid instance.
+		 *
+		 * However, we do have to clear the ->running flag and do a
+		 * wakeup to make sure userspace knows that the device is gone.
+		 */
+		uhid->running = false;
+		wake_up_interruptible(&uhid->report_wait);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -476,7 +515,11 @@ static int uhid_dev_create2(struct uhid_device *uhid,
 	void *rd_data;
 	int ret;
 
+<<<<<<< HEAD
 	if (uhid->running)
+=======
+	if (uhid->hid)
+>>>>>>> upstream/android-13
 		return -EALREADY;
 
 	rd_size = ev->u.create2.rd_size;
@@ -558,7 +601,11 @@ static int uhid_dev_create(struct uhid_device *uhid,
 
 static int uhid_dev_destroy(struct uhid_device *uhid)
 {
+<<<<<<< HEAD
 	if (!uhid->running)
+=======
+	if (!uhid->hid)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	uhid->running = false;
@@ -567,6 +614,10 @@ static int uhid_dev_destroy(struct uhid_device *uhid)
 	cancel_work_sync(&uhid->worker);
 
 	hid_destroy_device(uhid->hid);
+<<<<<<< HEAD
+=======
+	uhid->hid = NULL;
+>>>>>>> upstream/android-13
 	kfree(uhid->rd_data);
 
 	return 0;
@@ -631,7 +682,11 @@ static int uhid_char_open(struct inode *inode, struct file *file)
 	INIT_WORK(&uhid->worker, uhid_device_add_worker);
 
 	file->private_data = uhid;
+<<<<<<< HEAD
 	nonseekable_open(inode, file);
+=======
+	stream_open(inode, file);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

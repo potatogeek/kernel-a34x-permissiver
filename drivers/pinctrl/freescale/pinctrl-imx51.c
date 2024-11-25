@@ -776,6 +776,10 @@ static struct platform_driver imx51_pinctrl_driver = {
 	.driver = {
 		.name = "imx51-pinctrl",
 		.of_match_table = imx51_pinctrl_of_match,
+<<<<<<< HEAD
+=======
+		.suppress_bind_attrs = true,
+>>>>>>> upstream/android-13
 	},
 	.probe = imx51_pinctrl_probe,
 };

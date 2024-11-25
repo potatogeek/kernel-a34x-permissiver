@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * ddbridge-io.h: Digital Devices bridge I/O inline functions
  *
@@ -13,7 +17,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __DDBRIDGE_IO_H__

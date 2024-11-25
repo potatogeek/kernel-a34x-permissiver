@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * rt5514.c  --  RT5514 ALSA SoC audio codec driver
  *
  * Copyright 2015 Realtek Semiconductor Corp.
  * Author: Oder Chiou <oder_chiou@realtek.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/acpi.h>
@@ -489,6 +496,10 @@ static const struct snd_kcontrol_new rt5514_sto2_dmic_mux =
 /**
  * rt5514_calc_dmic_clk - Calculate the frequency divider parameter of dmic.
  *
+<<<<<<< HEAD
+=======
+ * @component: only used for dev_warn
+>>>>>>> upstream/android-13
  * @rate: base clock rate.
  *
  * Choose divider parameter that gives the highest possible DMIC frequency in
@@ -496,7 +507,11 @@ static const struct snd_kcontrol_new rt5514_sto2_dmic_mux =
  */
 static int rt5514_calc_dmic_clk(struct snd_soc_component *component, int rate)
 {
+<<<<<<< HEAD
 	int div[] = {2, 3, 4, 8, 12, 16, 24, 32};
+=======
+	static const int div[] = {2, 3, 4, 8, 12, 16, 24, 32};
+>>>>>>> upstream/android-13
 	int i;
 
 	if (rate < 1000000 * div[0]) {
@@ -1201,7 +1216,12 @@ static const struct regmap_config rt5514_regmap = {
 	.cache_type = REGCACHE_RBTREE,
 	.reg_defaults = rt5514_reg,
 	.num_reg_defaults = ARRAY_SIZE(rt5514_reg),
+<<<<<<< HEAD
 	.use_single_rw = true,
+=======
+	.use_single_read = true,
+	.use_single_write = true,
+>>>>>>> upstream/android-13
 };
 
 static const struct i2c_device_id rt5514_i2c_id[] = {

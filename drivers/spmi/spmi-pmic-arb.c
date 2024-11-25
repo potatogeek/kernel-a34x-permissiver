@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2012-2015, 2017, The Linux Foundation. All rights reserved.
  *
@@ -9,6 +10,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2012-2015, 2017, 2021, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 #include <linux/bitmap.h>
 #include <linux/delay.h>
@@ -513,8 +519,12 @@ static void cleanup_irq(struct spmi_pmic_arb *pmic_arb, u16 apid, int id)
 static void periph_interrupt(struct spmi_pmic_arb *pmic_arb, u16 apid)
 {
 	unsigned int irq;
+<<<<<<< HEAD
 	u32 status;
 	int id;
+=======
+	u32 status, id;
+>>>>>>> upstream/android-13
 	u8 sid = (pmic_arb->apid_data[apid].ppid >> 8) & 0xF;
 	u8 per = pmic_arb->apid_data[apid].ppid & 0xFF;
 
@@ -666,7 +676,12 @@ static int qpnpint_get_irqchip_state(struct irq_data *d,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int qpnpint_irq_request_resources(struct irq_data *d)
+=======
+static int qpnpint_irq_domain_activate(struct irq_domain *domain,
+				       struct irq_data *d, bool reserve)
+>>>>>>> upstream/android-13
 {
 	struct spmi_pmic_arb *pmic_arb = irq_data_get_irq_chip_data(d);
 	u16 periph = hwirq_to_per(d->hwirq);
@@ -692,6 +707,7 @@ static struct irq_chip pmic_arb_irqchip = {
 	.irq_set_type	= qpnpint_irq_set_type,
 	.irq_set_wake	= qpnpint_irq_set_wake,
 	.irq_get_irqchip_state	= qpnpint_get_irqchip_state,
+<<<<<<< HEAD
 	.irq_request_resources = qpnpint_irq_request_resources,
 	.flags		= IRQCHIP_MASK_ON_SUSPEND,
 };
@@ -704,15 +720,33 @@ static int qpnpint_irq_domain_dt_translate(struct irq_domain *d,
 					   unsigned int *out_type)
 {
 	struct spmi_pmic_arb *pmic_arb = d->host_data;
+=======
+	.flags		= IRQCHIP_MASK_ON_SUSPEND,
+};
+
+static int qpnpint_irq_domain_translate(struct irq_domain *d,
+					struct irq_fwspec *fwspec,
+					unsigned long *out_hwirq,
+					unsigned int *out_type)
+{
+	struct spmi_pmic_arb *pmic_arb = d->host_data;
+	u32 *intspec = fwspec->param;
+>>>>>>> upstream/android-13
 	u16 apid, ppid;
 	int rc;
 
 	dev_dbg(&pmic_arb->spmic->dev, "intspec[0] 0x%1x intspec[1] 0x%02x intspec[2] 0x%02x\n",
 		intspec[0], intspec[1], intspec[2]);
 
+<<<<<<< HEAD
 	if (irq_domain_get_of_node(d) != controller)
 		return -EINVAL;
 	if (intsize != 4)
+=======
+	if (irq_domain_get_of_node(d) != pmic_arb->spmic->dev.of_node)
+		return -EINVAL;
+	if (fwspec->param_count != 4)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	if (intspec[0] > 0xF || intspec[1] > 0xFF || intspec[2] > 0x7)
 		return -EINVAL;
@@ -740,6 +774,7 @@ static int qpnpint_irq_domain_dt_translate(struct irq_domain *d,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int qpnpint_irq_domain_map(struct irq_domain *d,
 				  unsigned int virq,
 				  irq_hw_number_t hwirq)
@@ -751,6 +786,49 @@ static int qpnpint_irq_domain_map(struct irq_domain *d,
 	irq_set_chip_and_handler(virq, &pmic_arb_irqchip, handle_level_irq);
 	irq_set_chip_data(virq, d->host_data);
 	irq_set_noprobe(virq);
+=======
+static struct lock_class_key qpnpint_irq_lock_class, qpnpint_irq_request_class;
+
+static void qpnpint_irq_domain_map(struct spmi_pmic_arb *pmic_arb,
+				   struct irq_domain *domain, unsigned int virq,
+				   irq_hw_number_t hwirq, unsigned int type)
+{
+	irq_flow_handler_t handler;
+
+	dev_dbg(&pmic_arb->spmic->dev, "virq = %u, hwirq = %lu, type = %u\n",
+		virq, hwirq, type);
+
+	if (type & IRQ_TYPE_EDGE_BOTH)
+		handler = handle_edge_irq;
+	else
+		handler = handle_level_irq;
+
+
+	irq_set_lockdep_class(virq, &qpnpint_irq_lock_class,
+			      &qpnpint_irq_request_class);
+	irq_domain_set_info(domain, virq, hwirq, &pmic_arb_irqchip, pmic_arb,
+			    handler, NULL, NULL);
+}
+
+static int qpnpint_irq_domain_alloc(struct irq_domain *domain,
+				    unsigned int virq, unsigned int nr_irqs,
+				    void *data)
+{
+	struct spmi_pmic_arb *pmic_arb = domain->host_data;
+	struct irq_fwspec *fwspec = data;
+	irq_hw_number_t hwirq;
+	unsigned int type;
+	int ret, i;
+
+	ret = qpnpint_irq_domain_translate(domain, fwspec, &hwirq, &type);
+	if (ret)
+		return ret;
+
+	for (i = 0; i < nr_irqs; i++)
+		qpnpint_irq_domain_map(pmic_arb, domain, virq + i, hwirq + i,
+				       type);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1126,8 +1204,15 @@ static const struct pmic_arb_ver_ops pmic_arb_v5 = {
 };
 
 static const struct irq_domain_ops pmic_arb_irq_domain_ops = {
+<<<<<<< HEAD
 	.map	= qpnpint_irq_domain_map,
 	.xlate	= qpnpint_irq_domain_dt_translate,
+=======
+	.activate = qpnpint_irq_domain_activate,
+	.alloc = qpnpint_irq_domain_alloc,
+	.free = irq_domain_free_irqs_common,
+	.translate = qpnpint_irq_domain_translate,
+>>>>>>> upstream/android-13
 };
 
 static int spmi_pmic_arb_probe(struct platform_device *pdev)

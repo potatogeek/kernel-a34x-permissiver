@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * rtc-ds1305.c -- driver for DS1305 and DS1306 SPI RTC chips
  *
  * Copyright (C) 2008 David Brownell
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/init.h>
@@ -329,17 +336,25 @@ static int ds1305_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
 	u8		buf[1 + DS1305_ALM_LEN];
 
 	/* convert desired alarm to time_t */
+<<<<<<< HEAD
 	status = rtc_tm_to_time(&alm->time, &later);
 	if (status < 0)
 		return status;
+=======
+	later = rtc_tm_to_time64(&alm->time);
+>>>>>>> upstream/android-13
 
 	/* Read current time as time_t */
 	status = ds1305_get_time(dev, &tm);
 	if (status < 0)
 		return status;
+<<<<<<< HEAD
 	status = rtc_tm_to_time(&tm, &now);
 	if (status < 0)
 		return status;
+=======
+	now = rtc_tm_to_time64(&tm);
+>>>>>>> upstream/android-13
 
 	/* make sure alarm fires within the next 24 hours */
 	if (later <= now)
@@ -443,13 +458,20 @@ static const struct rtc_class_ops ds1305_ops = {
 static void ds1305_work(struct work_struct *work)
 {
 	struct ds1305	*ds1305 = container_of(work, struct ds1305, work);
+<<<<<<< HEAD
 	struct mutex	*lock = &ds1305->rtc->ops_lock;
+=======
+>>>>>>> upstream/android-13
 	struct spi_device *spi = ds1305->spi;
 	u8		buf[3];
 	int		status;
 
 	/* lock to protect ds1305->ctrl */
+<<<<<<< HEAD
 	mutex_lock(lock);
+=======
+	rtc_lock(ds1305->rtc);
+>>>>>>> upstream/android-13
 
 	/* Disable the IRQ, and clear its status ... for now, we "know"
 	 * that if more than one alarm is active, they're in sync.
@@ -467,7 +489,11 @@ static void ds1305_work(struct work_struct *work)
 	if (status < 0)
 		dev_dbg(&spi->dev, "clear irq --> %d\n", status);
 
+<<<<<<< HEAD
 	mutex_unlock(lock);
+=======
+	rtc_unlock(ds1305->rtc);
+>>>>>>> upstream/android-13
 
 	if (!test_bit(FLAG_EXITING, &ds1305->flags))
 		enable_irq(spi->irq);
@@ -694,6 +720,7 @@ static int ds1305_probe(struct spi_device *spi)
 
 	/* register RTC ... from here on, ds1305->ctrl needs locking */
 	ds1305->rtc = devm_rtc_allocate_device(&spi->dev);
+<<<<<<< HEAD
 	if (IS_ERR(ds1305->rtc)) {
 		return PTR_ERR(ds1305->rtc);
 	}
@@ -709,6 +736,21 @@ static int ds1305_probe(struct spi_device *spi)
 	}
 
 	rtc_nvmem_register(ds1305->rtc, &ds1305_nvmem_cfg);
+=======
+	if (IS_ERR(ds1305->rtc))
+		return PTR_ERR(ds1305->rtc);
+
+	ds1305->rtc->ops = &ds1305_ops;
+	ds1305->rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
+	ds1305->rtc->range_max = RTC_TIMESTAMP_END_2099;
+
+	ds1305_nvmem_cfg.priv = ds1305;
+	status = devm_rtc_register_device(ds1305->rtc);
+	if (status)
+		return status;
+
+	devm_rtc_nvmem_register(ds1305->rtc, &ds1305_nvmem_cfg);
+>>>>>>> upstream/android-13
 
 	/* Maybe set up alarm IRQ; be ready to handle it triggering right
 	 * away.  NOTE that we don't share this.  The signal is active low,

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015-2017 Netronome Systems, Inc.
  *
@@ -30,6 +31,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+=======
+/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause) */
+/* Copyright (C) 2015-2017 Netronome Systems, Inc. */
+>>>>>>> upstream/android-13
 
 #ifndef NFP6000_NFP6000_H
 #define NFP6000_NFP6000_H

@@ -419,12 +419,21 @@ static int mmp_clk_set_rate(struct clk_hw *hw, unsigned long rate,
 	}
 }
 
+<<<<<<< HEAD
 static void mmp_clk_mix_init(struct clk_hw *hw)
+=======
+static int mmp_clk_mix_init(struct clk_hw *hw)
+>>>>>>> upstream/android-13
 {
 	struct mmp_clk_mix *mix = to_clk_mix(hw);
 
 	if (mix->table)
 		_filter_clk_table(mix, mix->table, mix->table_size);
+<<<<<<< HEAD
+=======
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 const struct clk_ops mmp_clk_mix_ops = {
@@ -439,7 +448,11 @@ const struct clk_ops mmp_clk_mix_ops = {
 
 struct clk *mmp_clk_register_mix(struct device *dev,
 					const char *name,
+<<<<<<< HEAD
 					const char **parent_names,
+=======
+					const char * const *parent_names,
+>>>>>>> upstream/android-13
 					u8 num_parents,
 					unsigned long flags,
 					struct mmp_clk_mix_config *config,
@@ -447,7 +460,11 @@ struct clk *mmp_clk_register_mix(struct device *dev,
 {
 	struct mmp_clk_mix *mix;
 	struct clk *clk;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	size_t table_bytes;
 
 	mix = kzalloc(sizeof(*mix), GFP_KERNEL);

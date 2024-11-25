@@ -11,6 +11,14 @@
 	model = "Rockchip PX3-EVB";
 	compatible = "rockchip,px3-evb", "rockchip,px3", "rockchip,rk3188";
 
+<<<<<<< HEAD
+=======
+	aliases {
+		mmc0 = &mmc0;
+		mmc1 = &emmc;
+	};
+
+>>>>>>> upstream/android-13
 	chosen {
 		stdout-path = "serial2:115200n8";
 	};
@@ -44,13 +52,32 @@
 };
 
 &cpu0 {
+<<<<<<< HEAD
 	cpu0-supply = <&vdd_cpu>;
+=======
+	cpu-supply = <&vdd_cpu>;
+};
+
+&cpu1 {
+	cpu-supply = <&vdd_cpu>;
+};
+
+&cpu2 {
+	cpu-supply = <&vdd_cpu>;
+};
+
+&cpu3 {
+	cpu-supply = <&vdd_cpu>;
+>>>>>>> upstream/android-13
 };
 
 &emmc {
 	bus-width = <8>;
 	cap-mmc-highspeed;
+<<<<<<< HEAD
 	disable-wp;
+=======
+>>>>>>> upstream/android-13
 	non-removable;
 	pinctrl-names = "default";
 	pinctrl-0 = <&emmc_clk>, <&emmc_cmd>, <&emmc_rst>;
@@ -236,10 +263,17 @@
 
 	usb {
 		host_vbus_drv: host-vbus-drv {
+<<<<<<< HEAD
 			rockchip,pins = <0 3 RK_FUNC_GPIO &pcfg_pull_none>;
 		};
 		otg_vbus_drv: otg-vbus-drv {
 			rockchip,pins = <2 31 RK_FUNC_GPIO &pcfg_pull_none>;
+=======
+			rockchip,pins = <0 RK_PA3 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
+		otg_vbus_drv: otg-vbus-drv {
+			rockchip,pins = <2 RK_PD7 RK_FUNC_GPIO &pcfg_pull_none>;
+>>>>>>> upstream/android-13
 		};
 	};
 };

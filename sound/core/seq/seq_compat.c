@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *   32bit -> 64bit ioctl wrapper for sequencer API
  *   Copyright (c) by Takashi Iwai <tiwai@suse.de>
@@ -16,6 +17,12 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *   32bit -> 64bit ioctl wrapper for sequencer API
+ *   Copyright (c) by Takashi Iwai <tiwai@suse.de>
+>>>>>>> upstream/android-13
  */
 
 /* This file included from seq.c */

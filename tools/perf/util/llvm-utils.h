@@ -6,7 +6,11 @@
 #ifndef __LLVM_UTILS_H
 #define __LLVM_UTILS_H
 
+<<<<<<< HEAD
 #include "debug.h"
+=======
+#include <stdbool.h>
+>>>>>>> upstream/android-13
 
 struct llvm_param {
 	/* Path of clang executable */

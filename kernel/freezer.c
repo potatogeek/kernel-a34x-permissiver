@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * kernel/freezer.c - Function to freeze a process
  *
@@ -10,6 +14,10 @@
 #include <linux/syscalls.h>
 #include <linux/freezer.h>
 #include <linux/kthread.h>
+<<<<<<< HEAD
+=======
+#include <linux/mmu_context.h>
+>>>>>>> upstream/android-13
 
 /* total number of freezing conditions in effect */
 atomic_t system_freezing_cnt = ATOMIC_INIT(0);
@@ -21,12 +29,15 @@ EXPORT_SYMBOL(system_freezing_cnt);
 bool pm_freezing;
 bool pm_nosig_freezing;
 
+<<<<<<< HEAD
 /*
  * Temporary export for the deadlock workaround in ata_scsi_hotplug().
  * Remove once the hack becomes unnecessary.
  */
 EXPORT_SYMBOL_GPL(pm_freezing);
 
+=======
+>>>>>>> upstream/android-13
 /* protects freezing and frozen transitions */
 static DEFINE_SPINLOCK(freezer_lock);
 
@@ -57,13 +68,23 @@ bool freezing_slow_path(struct task_struct *p)
 }
 EXPORT_SYMBOL(freezing_slow_path);
 
+<<<<<<< HEAD
+=======
+#undef CREATE_TRACE_POINT
+#include <trace/hooks/cgroup.h>
+
+>>>>>>> upstream/android-13
 /* Refrigerator is place where frozen processes are stored :-). */
 bool __refrigerator(bool check_kthr_stop)
 {
 	/* Hmm, should we be allowed to suspend when there are realtime
 	   processes around? */
 	bool was_frozen = false;
+<<<<<<< HEAD
 	long save = current->state;
+=======
+	unsigned int save = get_current_state();
+>>>>>>> upstream/android-13
 
 	pr_debug("%s entered refrigerator\n", current->comm);
 
@@ -75,6 +96,10 @@ bool __refrigerator(bool check_kthr_stop)
 		if (!freezing(current) ||
 		    (check_kthr_stop && kthread_should_stop()))
 			current->flags &= ~PF_FROZEN;
+<<<<<<< HEAD
+=======
+		trace_android_rvh_refrigerator(pm_nosig_freezing);
+>>>>>>> upstream/android-13
 		spin_unlock_irq(&freezer_lock);
 
 		if (!(current->flags & PF_FROZEN))
@@ -151,9 +176,22 @@ bool freeze_task(struct task_struct *p)
 void __thaw_task(struct task_struct *p)
 {
 	unsigned long flags;
+<<<<<<< HEAD
 
 	spin_lock_irqsave(&freezer_lock, flags);
 	if (frozen(p))
+=======
+	const struct cpumask *mask = task_cpu_possible_mask(p);
+
+	spin_lock_irqsave(&freezer_lock, flags);
+	/*
+	 * Wake up frozen tasks. On asymmetric systems where tasks cannot
+	 * run on all CPUs, ttwu() may have deferred a wakeup generated
+	 * before thaw_secondary_cpus() had completed so we generate
+	 * additional wakeups here for tasks in the PF_FREEZER_SKIP state.
+	 */
+	if (frozen(p) || (frozen_or_skipped(p) && mask != cpu_possible_mask))
+>>>>>>> upstream/android-13
 		wake_up_process(p);
 	spin_unlock_irqrestore(&freezer_lock, flags);
 }

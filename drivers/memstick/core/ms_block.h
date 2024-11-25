@@ -1,18 +1,28 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  ms_block.h - Sony MemoryStick (legacy) storage support
 
  *  Copyright (C) 2013 Maxim Levitsky <maximlevitsky@gmail.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Minor portions of the driver are copied from mspro_block.c which is
  * Copyright (C) 2007 Alex Dubov <oakad@yahoo.com>
  *
  * Also ms structures were copied from old broken driver by same author
  * These probably come from MS spec
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef MS_BLOCK_NEW_H
@@ -152,6 +162,10 @@ struct msb_data {
 	struct gendisk			*disk;
 	struct request_queue		*queue;
 	spinlock_t			q_lock;
+<<<<<<< HEAD
+=======
+	struct blk_mq_tag_set		tag_set;
+>>>>>>> upstream/android-13
 	struct hd_geometry		geometry;
 	struct attribute_group		attr_group;
 	struct request			*req;

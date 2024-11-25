@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* SCTP kernel implementation
  * (C) Copyright IBM Corp. 2001, 2004
  * Copyright (c) 1999-2000 Cisco, Inc.
@@ -9,6 +13,7 @@
  * This file converts numerical ID value to alphabetical names for SCTP
  * terms such as chunk type, parameter time, event type, etc.
  *
+<<<<<<< HEAD
  * This SCTP implementation is free software;
  * you can redistribute it and/or modify it under the terms of
  * the GNU General Public License as published by
@@ -25,6 +30,8 @@
  * along with GNU CC; see the file COPYING.  If not, see
  * <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  * Please send any bug reports or fixes you make to the
  * email address(es):
  *    lksctp developers <linux-sctp@vger.kernel.org>
@@ -169,6 +176,10 @@ static const char *const sctp_timer_tbl[] = {
 	"TIMEOUT_T5_SHUTDOWN_GUARD",
 	"TIMEOUT_HEARTBEAT",
 	"TIMEOUT_RECONF",
+<<<<<<< HEAD
+=======
+	"TIMEOUT_PROBE",
+>>>>>>> upstream/android-13
 	"TIMEOUT_SACK",
 	"TIMEOUT_AUTOCLOSE",
 };

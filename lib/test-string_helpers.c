@@ -19,7 +19,11 @@ static __init bool test_string_check_buf(const char *name, unsigned int flags,
 	if (q_real == q_test && !memcmp(out_test, out_real, q_test))
 		return true;
 
+<<<<<<< HEAD
 	pr_warn("Test '%s' failed: flags = %u\n", name, flags);
+=======
+	pr_warn("Test '%s' failed: flags = %#x\n", name, flags);
+>>>>>>> upstream/android-13
 
 	print_hex_dump(KERN_WARNING, "Input: ", DUMP_PREFIX_NONE, 16, 1,
 		       in, p, true);
@@ -136,6 +140,7 @@ static const struct test_string_2 escape0[] __initconst = {{
 		.flags = ESCAPE_SPACE | ESCAPE_HEX,
 	},{
 		/* terminator */
+<<<<<<< HEAD
 	}},
 },{
 	.in = "\\h\\\"\a\e\\",
@@ -151,16 +156,40 @@ static const struct test_string_2 escape0[] __initconst = {{
 	},{
 		/* terminator */
 	}},
+=======
+	}}
+},{
+	.in = "\\h\\\"\a\e\\",
+	.s1 = {{
+		.out = "\\\\h\\\\\\\"\\a\\e\\\\",
+		.flags = ESCAPE_SPECIAL,
+	},{
+		.out = "\\\\\\150\\\\\\\"\\a\\e\\\\",
+		.flags = ESCAPE_SPECIAL | ESCAPE_OCTAL,
+	},{
+		.out = "\\\\\\x68\\\\\\\"\\a\\e\\\\",
+		.flags = ESCAPE_SPECIAL | ESCAPE_HEX,
+	},{
+		/* terminator */
+	}}
+>>>>>>> upstream/android-13
 },{
 	.in = "\eb \\C\007\"\x90\r]",
 	.s1 = {{
 		.out = "\eb \\C\007\"\x90\\r]",
 		.flags = ESCAPE_SPACE,
 	},{
+<<<<<<< HEAD
 		.out = "\\eb \\\\C\\a\"\x90\r]",
 		.flags = ESCAPE_SPECIAL,
 	},{
 		.out = "\\eb \\\\C\\a\"\x90\\r]",
+=======
+		.out = "\\eb \\\\C\\a\\\"\x90\r]",
+		.flags = ESCAPE_SPECIAL,
+	},{
+		.out = "\\eb \\\\C\\a\\\"\x90\\r]",
+>>>>>>> upstream/android-13
 		.flags = ESCAPE_SPACE | ESCAPE_SPECIAL,
 	},{
 		.out = "\\033\\142\\040\\134\\103\\007\\042\\220\\015\\135",
@@ -169,10 +198,17 @@ static const struct test_string_2 escape0[] __initconst = {{
 		.out = "\\033\\142\\040\\134\\103\\007\\042\\220\\r\\135",
 		.flags = ESCAPE_SPACE | ESCAPE_OCTAL,
 	},{
+<<<<<<< HEAD
 		.out = "\\e\\142\\040\\\\\\103\\a\\042\\220\\015\\135",
 		.flags = ESCAPE_SPECIAL | ESCAPE_OCTAL,
 	},{
 		.out = "\\e\\142\\040\\\\\\103\\a\\042\\220\\r\\135",
+=======
+		.out = "\\e\\142\\040\\\\\\103\\a\\\"\\220\\015\\135",
+		.flags = ESCAPE_SPECIAL | ESCAPE_OCTAL,
+	},{
+		.out = "\\e\\142\\040\\\\\\103\\a\\\"\\220\\r\\135",
+>>>>>>> upstream/android-13
 		.flags = ESCAPE_SPACE | ESCAPE_SPECIAL | ESCAPE_OCTAL,
 	},{
 		.out = "\eb \\C\007\"\x90\r]",
@@ -201,12 +237,34 @@ static const struct test_string_2 escape0[] __initconst = {{
 		.flags = ESCAPE_NP | ESCAPE_HEX,
 	},{
 		/* terminator */
+<<<<<<< HEAD
 	}},
+=======
+	}}
+},{
+	.in = "\007 \eb\"\x90\xCF\r",
+	.s1 = {{
+		.out = "\007 \eb\"\\220\\317\r",
+		.flags = ESCAPE_OCTAL | ESCAPE_NA,
+	},{
+		.out = "\007 \eb\"\\x90\\xcf\r",
+		.flags = ESCAPE_HEX | ESCAPE_NA,
+	},{
+		.out = "\007 \eb\"\x90\xCF\r",
+		.flags = ESCAPE_NA,
+	},{
+		/* terminator */
+	}}
+>>>>>>> upstream/android-13
 },{
 	/* terminator */
 }};
 
+<<<<<<< HEAD
 #define	TEST_STRING_2_DICT_1		"b\\ \t\r"
+=======
+#define	TEST_STRING_2_DICT_1		"b\\ \t\r\xCF"
+>>>>>>> upstream/android-13
 static const struct test_string_2 escape1[] __initconst = {{
 	.in = "\f\\ \n\r\t\v",
 	.s1 = {{
@@ -216,6 +274,7 @@ static const struct test_string_2 escape1[] __initconst = {{
 		.out = "\f\\x5c\\x20\n\\x0d\\x09\v",
 		.flags = ESCAPE_HEX,
 	},{
+<<<<<<< HEAD
 		/* terminator */
 	}},
 },{
@@ -226,6 +285,42 @@ static const struct test_string_2 escape1[] __initconst = {{
 	},{
 		/* terminator */
 	}},
+=======
+		.out = "\f\\134\\040\n\\015\\011\v",
+		.flags = ESCAPE_ANY | ESCAPE_APPEND,
+	},{
+		.out = "\\014\\134\\040\\012\\015\\011\\013",
+		.flags = ESCAPE_OCTAL | ESCAPE_APPEND | ESCAPE_NAP,
+	},{
+		.out = "\\x0c\\x5c\\x20\\x0a\\x0d\\x09\\x0b",
+		.flags = ESCAPE_HEX | ESCAPE_APPEND | ESCAPE_NAP,
+	},{
+		.out = "\f\\134\\040\n\\015\\011\v",
+		.flags = ESCAPE_OCTAL | ESCAPE_APPEND | ESCAPE_NA,
+	},{
+		.out = "\f\\x5c\\x20\n\\x0d\\x09\v",
+		.flags = ESCAPE_HEX | ESCAPE_APPEND | ESCAPE_NA,
+	},{
+		/* terminator */
+	}}
+},{
+	.in = "\\h\\\"\a\xCF\e\\",
+	.s1 = {{
+		.out = "\\134h\\134\"\a\\317\e\\134",
+		.flags = ESCAPE_OCTAL,
+	},{
+		.out = "\\134h\\134\"\a\\317\e\\134",
+		.flags = ESCAPE_ANY | ESCAPE_APPEND,
+	},{
+		.out = "\\134h\\134\"\\007\\317\\033\\134",
+		.flags = ESCAPE_OCTAL | ESCAPE_APPEND | ESCAPE_NAP,
+	},{
+		.out = "\\134h\\134\"\a\\317\e\\134",
+		.flags = ESCAPE_OCTAL | ESCAPE_APPEND | ESCAPE_NA,
+	},{
+		/* terminator */
+	}}
+>>>>>>> upstream/android-13
 },{
 	.in = "\eb \\C\007\"\x90\r]",
 	.s1 = {{
@@ -233,11 +328,122 @@ static const struct test_string_2 escape1[] __initconst = {{
 		.flags = ESCAPE_OCTAL,
 	},{
 		/* terminator */
+<<<<<<< HEAD
 	}},
+=======
+	}}
+},{
+	.in = "\007 \eb\"\x90\xCF\r",
+	.s1 = {{
+		.out = "\007 \eb\"\x90\xCF\r",
+		.flags = ESCAPE_NA,
+	},{
+		.out = "\007 \eb\"\x90\xCF\r",
+		.flags = ESCAPE_SPACE | ESCAPE_NA,
+	},{
+		.out = "\007 \eb\"\x90\xCF\r",
+		.flags = ESCAPE_SPECIAL | ESCAPE_NA,
+	},{
+		.out = "\007 \eb\"\x90\xCF\r",
+		.flags = ESCAPE_SPACE | ESCAPE_SPECIAL | ESCAPE_NA,
+	},{
+		.out = "\007 \eb\"\x90\\317\r",
+		.flags = ESCAPE_OCTAL | ESCAPE_NA,
+	},{
+		.out = "\007 \eb\"\x90\\317\r",
+		.flags = ESCAPE_SPACE | ESCAPE_OCTAL | ESCAPE_NA,
+	},{
+		.out = "\007 \eb\"\x90\\317\r",
+		.flags = ESCAPE_SPECIAL | ESCAPE_OCTAL | ESCAPE_NA,
+	},{
+		.out = "\007 \eb\"\x90\\317\r",
+		.flags = ESCAPE_ANY | ESCAPE_NA,
+	},{
+		.out = "\007 \eb\"\x90\\xcf\r",
+		.flags = ESCAPE_HEX | ESCAPE_NA,
+	},{
+		.out = "\007 \eb\"\x90\\xcf\r",
+		.flags = ESCAPE_SPACE | ESCAPE_HEX | ESCAPE_NA,
+	},{
+		.out = "\007 \eb\"\x90\\xcf\r",
+		.flags = ESCAPE_SPECIAL | ESCAPE_HEX | ESCAPE_NA,
+	},{
+		.out = "\007 \eb\"\x90\\xcf\r",
+		.flags = ESCAPE_SPACE | ESCAPE_SPECIAL | ESCAPE_HEX | ESCAPE_NA,
+	},{
+		/* terminator */
+	}}
+},{
+	.in = "\007 \eb\"\x90\xCF\r",
+	.s1 = {{
+		.out = "\007 \eb\"\x90\xCF\r",
+		.flags = ESCAPE_NAP,
+	},{
+		.out = "\007 \eb\"\x90\xCF\\r",
+		.flags = ESCAPE_SPACE | ESCAPE_NAP,
+	},{
+		.out = "\007 \eb\"\x90\xCF\r",
+		.flags = ESCAPE_SPECIAL | ESCAPE_NAP,
+	},{
+		.out = "\007 \eb\"\x90\xCF\\r",
+		.flags = ESCAPE_SPACE | ESCAPE_SPECIAL | ESCAPE_NAP,
+	},{
+		.out = "\007 \eb\"\x90\\317\\015",
+		.flags = ESCAPE_OCTAL | ESCAPE_NAP,
+	},{
+		.out = "\007 \eb\"\x90\\317\\r",
+		.flags = ESCAPE_SPACE | ESCAPE_OCTAL | ESCAPE_NAP,
+	},{
+		.out = "\007 \eb\"\x90\\317\\015",
+		.flags = ESCAPE_SPECIAL | ESCAPE_OCTAL | ESCAPE_NAP,
+	},{
+		.out = "\007 \eb\"\x90\\317\r",
+		.flags = ESCAPE_ANY | ESCAPE_NAP,
+	},{
+		.out = "\007 \eb\"\x90\\xcf\\x0d",
+		.flags = ESCAPE_HEX | ESCAPE_NAP,
+	},{
+		.out = "\007 \eb\"\x90\\xcf\\r",
+		.flags = ESCAPE_SPACE | ESCAPE_HEX | ESCAPE_NAP,
+	},{
+		.out = "\007 \eb\"\x90\\xcf\\x0d",
+		.flags = ESCAPE_SPECIAL | ESCAPE_HEX | ESCAPE_NAP,
+	},{
+		.out = "\007 \eb\"\x90\\xcf\\r",
+		.flags = ESCAPE_SPACE | ESCAPE_SPECIAL | ESCAPE_HEX | ESCAPE_NAP,
+	},{
+		/* terminator */
+	}}
+>>>>>>> upstream/android-13
 },{
 	/* terminator */
 }};
 
+<<<<<<< HEAD
+=======
+static const struct test_string strings_upper[] __initconst = {
+	{
+		.in = "abcdefgh1234567890test",
+		.out = "ABCDEFGH1234567890TEST",
+	},
+	{
+		.in = "abCdeFgH1234567890TesT",
+		.out = "ABCDEFGH1234567890TEST",
+	},
+};
+
+static const struct test_string strings_lower[] __initconst = {
+	{
+		.in = "ABCDEFGH1234567890TEST",
+		.out = "abcdefgh1234567890test",
+	},
+	{
+		.in = "abCdeFgH1234567890TesT",
+		.out = "abcdefgh1234567890test",
+	},
+};
+
+>>>>>>> upstream/android-13
 static __init const char *test_string_find_match(const struct test_string_2 *s2,
 						 unsigned int flags)
 {
@@ -268,7 +474,11 @@ test_string_escape_overflow(const char *in, int p, unsigned int flags, const cha
 
 	q_real = string_escape_mem(in, p, NULL, 0, flags, esc);
 	if (q_real != q_test)
+<<<<<<< HEAD
 		pr_warn("Test '%s' failed: flags = %u, osz = 0, expected %d, got %d\n",
+=======
+		pr_warn("Test '%s' failed: flags = %#x, osz = 0, expected %d, got %d\n",
+>>>>>>> upstream/android-13
 			name, flags, q_test, q_real);
 }
 
@@ -293,8 +503,18 @@ static __init void test_string_escape(const char *name,
 		/* NULL injection */
 		if (flags & ESCAPE_NULL) {
 			in[p++] = '\0';
+<<<<<<< HEAD
 			out_test[q_test++] = '\\';
 			out_test[q_test++] = '0';
+=======
+			/* '\0' passes isascii() test */
+			if (flags & ESCAPE_NA && !(flags & ESCAPE_APPEND && esc)) {
+				out_test[q_test++] = '\0';
+			} else {
+				out_test[q_test++] = '\\';
+				out_test[q_test++] = '0';
+			}
+>>>>>>> upstream/android-13
 		}
 
 		/* Don't try strings that have no output */
@@ -390,27 +610,90 @@ static __init void test_string_get_size(void)
 	test_string_get_size_one(4096, U64_MAX, "75.6 ZB", "64.0 ZiB");
 }
 
+<<<<<<< HEAD
+=======
+static void __init test_string_upper_lower(void)
+{
+	char *dst;
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(strings_upper); i++) {
+		const char *s = strings_upper[i].in;
+		int len = strlen(strings_upper[i].in) + 1;
+
+		dst = kmalloc(len, GFP_KERNEL);
+		if (!dst)
+			return;
+
+		string_upper(dst, s);
+		if (memcmp(dst, strings_upper[i].out, len)) {
+			pr_warn("Test 'string_upper' failed : expected %s, got %s!\n",
+				strings_upper[i].out, dst);
+			kfree(dst);
+			return;
+		}
+		kfree(dst);
+	}
+
+	for (i = 0; i < ARRAY_SIZE(strings_lower); i++) {
+		const char *s = strings_lower[i].in;
+		int len = strlen(strings_lower[i].in) + 1;
+
+		dst = kmalloc(len, GFP_KERNEL);
+		if (!dst)
+			return;
+
+		string_lower(dst, s);
+		if (memcmp(dst, strings_lower[i].out, len)) {
+			pr_warn("Test 'string_lower failed : : expected %s, got %s!\n",
+				strings_lower[i].out, dst);
+			kfree(dst);
+			return;
+		}
+		kfree(dst);
+	}
+}
+
+>>>>>>> upstream/android-13
 static int __init test_string_helpers_init(void)
 {
 	unsigned int i;
 
 	pr_info("Running tests...\n");
+<<<<<<< HEAD
 	for (i = 0; i < UNESCAPE_ANY + 1; i++)
+=======
+	for (i = 0; i < UNESCAPE_ALL_MASK + 1; i++)
+>>>>>>> upstream/android-13
 		test_string_unescape("unescape", i, false);
 	test_string_unescape("unescape inplace",
 			     get_random_int() % (UNESCAPE_ANY + 1), true);
 
 	/* Without dictionary */
+<<<<<<< HEAD
 	for (i = 0; i < (ESCAPE_ANY_NP | ESCAPE_HEX) + 1; i++)
 		test_string_escape("escape 0", escape0, i, TEST_STRING_2_DICT_0);
 
 	/* With dictionary */
 	for (i = 0; i < (ESCAPE_ANY_NP | ESCAPE_HEX) + 1; i++)
+=======
+	for (i = 0; i < ESCAPE_ALL_MASK + 1; i++)
+		test_string_escape("escape 0", escape0, i, TEST_STRING_2_DICT_0);
+
+	/* With dictionary */
+	for (i = 0; i < ESCAPE_ALL_MASK + 1; i++)
+>>>>>>> upstream/android-13
 		test_string_escape("escape 1", escape1, i, TEST_STRING_2_DICT_1);
 
 	/* Test string_get_size() */
 	test_string_get_size();
 
+<<<<<<< HEAD
+=======
+	/* Test string upper(), string_lower() */
+	test_string_upper_lower();
+
+>>>>>>> upstream/android-13
 	return -EINVAL;
 }
 module_init(test_string_helpers_init);

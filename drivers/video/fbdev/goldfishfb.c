@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2007 Google, Inc.
  * Copyright (C) 2012 Intel, Inc.
@@ -11,6 +12,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2007 Google, Inc.
+ * Copyright (C) 2012 Intel, Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -169,7 +176,11 @@ static int goldfish_fb_blank(int blank, struct fb_info *info)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct fb_ops goldfish_fb_ops = {
+=======
+static const struct fb_ops goldfish_fb_ops = {
+>>>>>>> upstream/android-13
 	.owner          = THIS_MODULE,
 	.fb_check_var   = goldfish_fb_check_var,
 	.fb_set_par     = goldfish_fb_set_par,
@@ -314,11 +325,19 @@ static const struct of_device_id goldfish_fb_of_match[] = {
 };
 MODULE_DEVICE_TABLE(of, goldfish_fb_of_match);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_ACPI
+>>>>>>> upstream/android-13
 static const struct acpi_device_id goldfish_fb_acpi_match[] = {
 	{ "GFSH0004", 0 },
 	{ },
 };
 MODULE_DEVICE_TABLE(acpi, goldfish_fb_acpi_match);
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 static struct platform_driver goldfish_fb_driver = {
 	.probe		= goldfish_fb_probe,

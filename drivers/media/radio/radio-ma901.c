@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for the MasterKit MA901 USB FM radio. This device plugs
  * into the USB port and an analog audio input or headphones, so this thing
  * only deals with initialization, frequency setting, volume.
  *
  * Copyright (c) 2012 Alexey Klimov <klimov.linux@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +19,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -197,11 +204,17 @@ static int vidioc_querycap(struct file *file, void *priv,
 {
 	struct ma901radio_device *radio = video_drvdata(file);
 
+<<<<<<< HEAD
 	strlcpy(v->driver, "radio-ma901", sizeof(v->driver));
 	strlcpy(v->card, "Masterkit MA901 USB FM Radio", sizeof(v->card));
 	usb_make_path(radio->usbdev, v->bus_info, sizeof(v->bus_info));
 	v->device_caps = V4L2_CAP_RADIO | V4L2_CAP_TUNER;
 	v->capabilities = v->device_caps | V4L2_CAP_DEVICE_CAPS;
+=======
+	strscpy(v->driver, "radio-ma901", sizeof(v->driver));
+	strscpy(v->card, "Masterkit MA901 USB FM Radio", sizeof(v->card));
+	usb_make_path(radio->usbdev, v->bus_info, sizeof(v->bus_info));
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -222,7 +235,11 @@ static int vidioc_g_tuner(struct file *file, void *priv,
 	 * retval = ma901radio_get_stat(radio, &is_stereo, &v->signal);
 	 */
 
+<<<<<<< HEAD
 	strcpy(v->name, "FM");
+=======
+	strscpy(v->name, "FM", sizeof(v->name));
+>>>>>>> upstream/android-13
 	v->type = V4L2_TUNER_RADIO;
 	v->rangelow = FREQ_MIN * FREQ_MUL;
 	v->rangehigh = FREQ_MAX * FREQ_MUL;
@@ -400,13 +417,21 @@ static int usb_ma901radio_probe(struct usb_interface *intf,
 
 	radio->v4l2_dev.ctrl_handler = &radio->hdl;
 	radio->v4l2_dev.release = usb_ma901radio_release;
+<<<<<<< HEAD
 	strlcpy(radio->vdev.name, radio->v4l2_dev.name,
+=======
+	strscpy(radio->vdev.name, radio->v4l2_dev.name,
+>>>>>>> upstream/android-13
 		sizeof(radio->vdev.name));
 	radio->vdev.v4l2_dev = &radio->v4l2_dev;
 	radio->vdev.fops = &usb_ma901radio_fops;
 	radio->vdev.ioctl_ops = &usb_ma901radio_ioctl_ops;
 	radio->vdev.release = video_device_release_empty;
 	radio->vdev.lock = &radio->lock;
+<<<<<<< HEAD
+=======
+	radio->vdev.device_caps = V4L2_CAP_RADIO | V4L2_CAP_TUNER;
+>>>>>>> upstream/android-13
 
 	radio->usbdev = interface_to_usbdev(intf);
 	radio->intf = intf;

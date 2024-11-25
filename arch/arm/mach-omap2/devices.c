@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * linux/arch/arm/mach-omap2/devices.c
  *
  * OMAP2 platform device setup/initialization
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -14,6 +21,10 @@
 #include <linux/platform_device.h>
 #include <linux/io.h>
 #include <linux/clk.h>
+<<<<<<< HEAD
+=======
+#include <linux/dma-mapping.h>
+>>>>>>> upstream/android-13
 #include <linux/err.h>
 #include <linux/slab.h>
 #include <linux/of.h>
@@ -47,11 +58,23 @@ static struct resource omap_vout_resource[2] = {
 };
 #endif
 
+<<<<<<< HEAD
+=======
+static u64 omap_vout_dma_mask = DMA_BIT_MASK(32);
+
+>>>>>>> upstream/android-13
 static struct platform_device omap_vout_device = {
 	.name		= "omap_vout",
 	.num_resources	= ARRAY_SIZE(omap_vout_resource),
 	.resource 	= &omap_vout_resource[0],
 	.id		= -1,
+<<<<<<< HEAD
+=======
+	.dev		= {
+		.dma_mask		= &omap_vout_dma_mask,
+		.coherent_dma_mask	= DMA_BIT_MASK(32),
+	},
+>>>>>>> upstream/android-13
 };
 
 int __init omap_init_vout(void)

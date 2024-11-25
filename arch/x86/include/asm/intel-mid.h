@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * intel-mid.h: Intel MID specific setup code
  *
@@ -7,13 +8,24 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; version 2
  * of the License.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Intel MID specific setup code
+ *
+ * (C) Copyright 2009, 2021 Intel Corporation
+>>>>>>> upstream/android-13
  */
 #ifndef _ASM_X86_INTEL_MID_H
 #define _ASM_X86_INTEL_MID_H
 
+<<<<<<< HEAD
 #include <linux/sfi.h>
 #include <linux/pci.h>
 #include <linux/platform_device.h>
+=======
+#include <linux/pci.h>
+>>>>>>> upstream/android-13
 
 extern int intel_mid_pci_init(void);
 extern int intel_mid_pci_set_power_state(struct pci_dev *pdev, pci_power_t state);
@@ -26,6 +38,7 @@ extern void intel_mid_pwr_power_off(void);
 
 extern int intel_mid_pwr_get_lss_id(struct pci_dev *pdev);
 
+<<<<<<< HEAD
 extern int get_gpio_by_name(const char *name);
 extern int __init sfi_parse_mrtc(struct sfi_table_header *table);
 extern int __init sfi_parse_mtmr(struct sfi_table_header *table);
@@ -107,6 +120,20 @@ enum intel_mid_timer_options {
 
 extern enum intel_mid_timer_options intel_mid_timer_options;
 
+=======
+#ifdef CONFIG_X86_INTEL_MID
+
+extern void intel_scu_devices_create(void);
+extern void intel_scu_devices_destroy(void);
+
+#else /* !CONFIG_X86_INTEL_MID */
+
+static inline void intel_scu_devices_create(void) { }
+static inline void intel_scu_devices_destroy(void) { }
+
+#endif /* !CONFIG_X86_INTEL_MID */
+
+>>>>>>> upstream/android-13
 /* Bus Select SoC Fuse value */
 #define BSEL_SOC_FUSE_MASK		0x7
 /* FSB 133MHz */
@@ -116,6 +143,7 @@ extern enum intel_mid_timer_options intel_mid_timer_options;
 /* FSB 83MHz */
 #define BSEL_SOC_FUSE_111		0x7
 
+<<<<<<< HEAD
 #define SFI_MTMR_MAX_NUM		8
 #define SFI_MRTC_MAX			8
 
@@ -131,4 +159,6 @@ extern void intel_mid_rtc_init(void);
 /* The offset for the mapping of global gpio pin to irq */
 #define INTEL_MID_IRQ_OFFSET		0x100
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _ASM_X86_INTEL_MID_H */

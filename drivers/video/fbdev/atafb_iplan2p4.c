@@ -10,7 +10,10 @@
  *  more details.
  */
 
+<<<<<<< HEAD
 #include <linux/module.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/string.h>
 #include <linux/fb.h>
 
@@ -284,6 +287,7 @@ void atafb_iplan2p4_linefill(struct fb_info *info, u_long next_line,
 	if (width)
 		fill8_2col((u8 *)dest, fgcolor, bgcolor, *data);
 }
+<<<<<<< HEAD
 
 #ifdef MODULE
 MODULE_LICENSE("GPL");
@@ -306,3 +310,5 @@ void cleanup_module(void)
 EXPORT_SYMBOL(atafb_iplan2p4_copyarea);
 EXPORT_SYMBOL(atafb_iplan2p4_fillrect);
 EXPORT_SYMBOL(atafb_iplan2p4_linefill);
+=======
+>>>>>>> upstream/android-13

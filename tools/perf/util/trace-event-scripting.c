@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * trace-event-scripting.  Scripting engine common and initialization code.
  *
  * Copyright (C) 2009-2010 Tom Zanussi <tzanussi@gmail.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <stdio.h>
@@ -24,6 +31,7 @@
 #include <string.h>
 #include <errno.h>
 
+<<<<<<< HEAD
 #include "../perf.h"
 #include "debug.h"
 #include "util.h"
@@ -31,6 +39,35 @@
 
 struct scripting_context *scripting_context;
 
+=======
+#include "debug.h"
+#include "trace-event.h"
+#include "event.h"
+#include "evsel.h"
+#include <linux/zalloc.h>
+
+struct scripting_context *scripting_context;
+
+void scripting_context__update(struct scripting_context *c,
+			       union perf_event *event,
+			       struct perf_sample *sample,
+			       struct evsel *evsel,
+			       struct addr_location *al,
+			       struct addr_location *addr_al)
+{
+	c->event_data = sample->raw_data;
+	if (evsel->tp_format)
+		c->pevent = evsel->tp_format->tep;
+	else
+		c->pevent = NULL;
+	c->event = event;
+	c->sample = sample;
+	c->evsel = evsel;
+	c->al = al;
+	c->addr_al = addr_al;
+}
+
+>>>>>>> upstream/android-13
 static int flush_script_unsupported(void)
 {
 	return 0;
@@ -43,8 +80,14 @@ static int stop_script_unsupported(void)
 
 static void process_event_unsupported(union perf_event *event __maybe_unused,
 				      struct perf_sample *sample __maybe_unused,
+<<<<<<< HEAD
 				      struct perf_evsel *evsel __maybe_unused,
 				      struct addr_location *al __maybe_unused)
+=======
+				      struct evsel *evsel __maybe_unused,
+				      struct addr_location *al __maybe_unused,
+				      struct addr_location *addr_al __maybe_unused)
+>>>>>>> upstream/android-13
 {
 }
 
@@ -59,7 +102,12 @@ static void print_python_unsupported_msg(void)
 
 static int python_start_script_unsupported(const char *script __maybe_unused,
 					   int argc __maybe_unused,
+<<<<<<< HEAD
 					   const char **argv __maybe_unused)
+=======
+					   const char **argv __maybe_unused,
+					   struct perf_session *session __maybe_unused)
+>>>>>>> upstream/android-13
 {
 	print_python_unsupported_msg();
 
@@ -78,6 +126,10 @@ static int python_generate_script_unsupported(struct tep_handle *pevent
 
 struct scripting_ops python_scripting_unsupported_ops = {
 	.name = "Python",
+<<<<<<< HEAD
+=======
+	.dirname = "python",
+>>>>>>> upstream/android-13
 	.start_script = python_start_script_unsupported,
 	.flush_script = flush_script_unsupported,
 	.stop_script = stop_script_unsupported,
@@ -123,7 +175,12 @@ static void print_perl_unsupported_msg(void)
 
 static int perl_start_script_unsupported(const char *script __maybe_unused,
 					 int argc __maybe_unused,
+<<<<<<< HEAD
 					 const char **argv __maybe_unused)
+=======
+					 const char **argv __maybe_unused,
+					 struct perf_session *session __maybe_unused)
+>>>>>>> upstream/android-13
 {
 	print_perl_unsupported_msg();
 
@@ -141,6 +198,10 @@ static int perl_generate_script_unsupported(struct tep_handle *pevent
 
 struct scripting_ops perl_scripting_unsupported_ops = {
 	.name = "Perl",
+<<<<<<< HEAD
+=======
+	.dirname = "perl",
+>>>>>>> upstream/android-13
 	.start_script = perl_start_script_unsupported,
 	.flush_script = flush_script_unsupported,
 	.stop_script = stop_script_unsupported,

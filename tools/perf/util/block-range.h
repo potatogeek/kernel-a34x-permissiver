@@ -2,7 +2,15 @@
 #ifndef __PERF_BLOCK_RANGE_H
 #define __PERF_BLOCK_RANGE_H
 
+<<<<<<< HEAD
 #include "symbol.h"
+=======
+#include <stdbool.h>
+#include <linux/rbtree.h>
+#include <linux/types.h>
+
+struct symbol;
+>>>>>>> upstream/android-13
 
 /*
  * struct block_range - non-overlapping parts of basic blocks

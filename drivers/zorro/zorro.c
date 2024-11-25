@@ -41,7 +41,11 @@ struct zorro_dev *zorro_autocon;
 
 struct zorro_bus {
 	struct device dev;
+<<<<<<< HEAD
 	struct zorro_dev devices[0];
+=======
+	struct zorro_dev devices[];
+>>>>>>> upstream/android-13
 };
 
 
@@ -181,7 +185,11 @@ static int __init amiga_zorro_probe(struct platform_device *pdev)
 		z->resource.name = z->name;
 		r = zorro_find_parent_resource(pdev, z);
 		error = request_resource(r, &z->resource);
+<<<<<<< HEAD
 		if (error)
+=======
+		if (error && !(z->rom.er_Type & ERTF_MEMLIST))
+>>>>>>> upstream/android-13
 			dev_err(&bus->dev,
 				"Address space collision on device %s %pR\n",
 				z->name, &z->resource);

@@ -38,6 +38,7 @@
 #include <linux/scatterlist.h>
 
 #include "iscsi_iser.h"
+<<<<<<< HEAD
 static
 int iser_fast_reg_fmr(struct iscsi_iser_task *iser_task,
 		      struct iser_data_buf *mem,
@@ -66,12 +67,15 @@ static const struct iser_reg_ops fmr_ops = {
 	.reg_desc_get	= iser_reg_desc_get_fmr,
 	.reg_desc_put	= iser_reg_desc_put_fmr,
 };
+=======
+>>>>>>> upstream/android-13
 
 void iser_reg_comp(struct ib_cq *cq, struct ib_wc *wc)
 {
 	iser_err_comp(wc, "memreg");
 }
 
+<<<<<<< HEAD
 int iser_assign_reg_ops(struct iser_device *device)
 {
 	struct ib_device *ib_dev = device->ib_device;
@@ -94,6 +98,9 @@ int iser_assign_reg_ops(struct iser_device *device)
 }
 
 struct iser_fr_desc *
+=======
+static struct iser_fr_desc *
+>>>>>>> upstream/android-13
 iser_reg_desc_get_fr(struct ib_conn *ib_conn)
 {
 	struct iser_fr_pool *fr_pool = &ib_conn->fr_pool;
@@ -109,7 +116,11 @@ iser_reg_desc_get_fr(struct ib_conn *ib_conn)
 	return desc;
 }
 
+<<<<<<< HEAD
 void
+=======
+static void
+>>>>>>> upstream/android-13
 iser_reg_desc_put_fr(struct ib_conn *ib_conn,
 		     struct iser_fr_desc *desc)
 {
@@ -121,6 +132,7 @@ iser_reg_desc_put_fr(struct ib_conn *ib_conn,
 	spin_unlock_irqrestore(&fr_pool->lock, flags);
 }
 
+<<<<<<< HEAD
 struct iser_fr_desc *
 iser_reg_desc_get_fmr(struct ib_conn *ib_conn)
 {
@@ -160,6 +172,8 @@ static void iser_dump_page_vec(struct iser_page_vec *page_vec)
 		iser_err("vec[%d]: %llx\n", i, page_vec->pages[i]);
 }
 
+=======
+>>>>>>> upstream/android-13
 int iser_dma_map_task_data(struct iscsi_iser_task *iser_task,
 			    struct iser_data_buf *data,
 			    enum iser_data_dir iser_dir,
@@ -171,7 +185,11 @@ int iser_dma_map_task_data(struct iscsi_iser_task *iser_task,
 	dev = iser_task->iser_conn->ib_conn.device->ib_device;
 
 	data->dma_nents = ib_dma_map_sg(dev, data->sg, data->size, dma_dir);
+<<<<<<< HEAD
 	if (data->dma_nents == 0) {
+=======
+	if (unlikely(data->dma_nents == 0)) {
+>>>>>>> upstream/android-13
 		iser_err("dma_map_sg failed!!!\n");
 		return -EINVAL;
 	}
@@ -204,8 +222,13 @@ iser_reg_dma(struct iser_device *device, struct iser_data_buf *mem,
 		reg->rkey = device->pd->unsafe_global_rkey;
 	else
 		reg->rkey = 0;
+<<<<<<< HEAD
 	reg->sge.addr = ib_sg_dma_address(device->ib_device, &sg[0]);
 	reg->sge.length = ib_sg_dma_len(device->ib_device, &sg[0]);
+=======
+	reg->sge.addr = sg_dma_address(&sg[0]);
+	reg->sge.length = sg_dma_len(&sg[0]);
+>>>>>>> upstream/android-13
 
 	iser_dbg("Single DMA entry: lkey=0x%x, rkey=0x%x, addr=0x%llx,"
 		 " length=0x%x\n", reg->sge.lkey, reg->rkey,
@@ -214,6 +237,7 @@ iser_reg_dma(struct iser_device *device, struct iser_data_buf *mem,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int iser_set_page(struct ib_mr *mr, u64 addr)
 {
 	struct iser_page_vec *page_vec =
@@ -302,16 +326,51 @@ void iser_unreg_mem_fastreg(struct iscsi_iser_task *iser_task,
 
 	device->reg_ops->reg_desc_put(&iser_task->iser_conn->ib_conn,
 				     reg->mem_h);
+=======
+void iser_unreg_mem_fastreg(struct iscsi_iser_task *iser_task,
+			    enum iser_data_dir cmd_dir)
+{
+	struct iser_mem_reg *reg = &iser_task->rdma_reg[cmd_dir];
+	struct iser_fr_desc *desc;
+	struct ib_mr_status mr_status;
+
+	desc = reg->mem_h;
+	if (!desc)
+		return;
+
+	/*
+	 * The signature MR cannot be invalidated and reused without checking.
+	 * libiscsi calls the check_protection transport handler only if
+	 * SCSI-Response is received. And the signature MR is not checked if
+	 * the task is completed for some other reason like a timeout or error
+	 * handling. That's why we must check the signature MR here before
+	 * putting it to the free pool.
+	 */
+	if (unlikely(desc->sig_protected)) {
+		desc->sig_protected = false;
+		ib_check_mr_status(desc->rsc.sig_mr, IB_MR_CHECK_SIG_STATUS,
+				   &mr_status);
+	}
+	iser_reg_desc_put_fr(&iser_task->iser_conn->ib_conn, reg->mem_h);
+>>>>>>> upstream/android-13
 	reg->mem_h = NULL;
 }
 
 static void
+<<<<<<< HEAD
 iser_set_dif_domain(struct scsi_cmnd *sc, struct ib_sig_attrs *sig_attrs,
 		    struct ib_sig_domain *domain)
 {
 	domain->sig_type = IB_SIG_TYPE_T10_DIF;
 	domain->sig.dif.pi_interval = scsi_prot_interval(sc);
 	domain->sig.dif.ref_tag = t10_pi_ref_tag(sc->request);
+=======
+iser_set_dif_domain(struct scsi_cmnd *sc, struct ib_sig_domain *domain)
+{
+	domain->sig_type = IB_SIG_TYPE_T10_DIF;
+	domain->sig.dif.pi_interval = scsi_prot_interval(sc);
+	domain->sig.dif.ref_tag = t10_pi_ref_tag(scsi_cmd_to_rq(sc));
+>>>>>>> upstream/android-13
 	/*
 	 * At the moment we hard code those, but in the future
 	 * we will take them from sc.
@@ -321,7 +380,11 @@ iser_set_dif_domain(struct scsi_cmnd *sc, struct ib_sig_attrs *sig_attrs,
 	domain->sig.dif.ref_escape = true;
 	if (sc->prot_flags & SCSI_PROT_REF_INCREMENT)
 		domain->sig.dif.ref_remap = true;
+<<<<<<< HEAD
 };
+=======
+}
+>>>>>>> upstream/android-13
 
 static int
 iser_set_sig_attrs(struct scsi_cmnd *sc, struct ib_sig_attrs *sig_attrs)
@@ -330,21 +393,35 @@ iser_set_sig_attrs(struct scsi_cmnd *sc, struct ib_sig_attrs *sig_attrs)
 	case SCSI_PROT_WRITE_INSERT:
 	case SCSI_PROT_READ_STRIP:
 		sig_attrs->mem.sig_type = IB_SIG_TYPE_NONE;
+<<<<<<< HEAD
 		iser_set_dif_domain(sc, sig_attrs, &sig_attrs->wire);
+=======
+		iser_set_dif_domain(sc, &sig_attrs->wire);
+>>>>>>> upstream/android-13
 		sig_attrs->wire.sig.dif.bg_type = IB_T10DIF_CRC;
 		break;
 	case SCSI_PROT_READ_INSERT:
 	case SCSI_PROT_WRITE_STRIP:
 		sig_attrs->wire.sig_type = IB_SIG_TYPE_NONE;
+<<<<<<< HEAD
 		iser_set_dif_domain(sc, sig_attrs, &sig_attrs->mem);
+=======
+		iser_set_dif_domain(sc, &sig_attrs->mem);
+>>>>>>> upstream/android-13
 		sig_attrs->mem.sig.dif.bg_type = sc->prot_flags & SCSI_PROT_IP_CHECKSUM ?
 						IB_T10DIF_CSUM : IB_T10DIF_CRC;
 		break;
 	case SCSI_PROT_READ_PASS:
 	case SCSI_PROT_WRITE_PASS:
+<<<<<<< HEAD
 		iser_set_dif_domain(sc, sig_attrs, &sig_attrs->wire);
 		sig_attrs->wire.sig.dif.bg_type = IB_T10DIF_CRC;
 		iser_set_dif_domain(sc, sig_attrs, &sig_attrs->mem);
+=======
+		iser_set_dif_domain(sc, &sig_attrs->wire);
+		sig_attrs->wire.sig.dif.bg_type = IB_T10DIF_CRC;
+		iser_set_dif_domain(sc, &sig_attrs->mem);
+>>>>>>> upstream/android-13
 		sig_attrs->mem.sig.dif.bg_type = sc->prot_flags & SCSI_PROT_IP_CHECKSUM ?
 						IB_T10DIF_CSUM : IB_T10DIF_CRC;
 		break;
@@ -370,17 +447,27 @@ iser_set_prot_checks(struct scsi_cmnd *sc, u8 *mask)
 static inline void
 iser_inv_rkey(struct ib_send_wr *inv_wr,
 	      struct ib_mr *mr,
+<<<<<<< HEAD
 	      struct ib_cqe *cqe)
+=======
+	      struct ib_cqe *cqe,
+	      struct ib_send_wr *next_wr)
+>>>>>>> upstream/android-13
 {
 	inv_wr->opcode = IB_WR_LOCAL_INV;
 	inv_wr->wr_cqe = cqe;
 	inv_wr->ex.invalidate_rkey = mr->rkey;
 	inv_wr->send_flags = 0;
 	inv_wr->num_sge = 0;
+<<<<<<< HEAD
+=======
+	inv_wr->next = next_wr;
+>>>>>>> upstream/android-13
 }
 
 static int
 iser_reg_sig_mr(struct iscsi_iser_task *iser_task,
+<<<<<<< HEAD
 		struct iser_pi_context *pi_ctx,
 		struct iser_mem_reg *data_reg,
 		struct iser_mem_reg *prot_reg,
@@ -391,6 +478,18 @@ iser_reg_sig_mr(struct iscsi_iser_task *iser_task,
 	struct ib_cqe *cqe = &iser_task->iser_conn->ib_conn.reg_cqe;
 	struct ib_sig_handover_wr *wr;
 	struct ib_mr *mr = pi_ctx->sig_mr;
+=======
+		struct iser_data_buf *mem,
+		struct iser_data_buf *sig_mem,
+		struct iser_reg_resources *rsc,
+		struct iser_mem_reg *sig_reg)
+{
+	struct iser_tx_desc *tx_desc = &iser_task->desc;
+	struct ib_cqe *cqe = &iser_task->iser_conn->ib_conn.reg_cqe;
+	struct ib_mr *mr = rsc->sig_mr;
+	struct ib_sig_attrs *sig_attrs = mr->sig_attrs;
+	struct ib_reg_wr *wr = &tx_desc->reg_wr;
+>>>>>>> upstream/android-13
 	int ret;
 
 	memset(sig_attrs, 0, sizeof(*sig_attrs));
@@ -400,6 +499,7 @@ iser_reg_sig_mr(struct iscsi_iser_task *iser_task,
 
 	iser_set_prot_checks(iser_task->sc, &sig_attrs->check_mask);
 
+<<<<<<< HEAD
 	if (pi_ctx->sig_mr_valid)
 		iser_inv_rkey(iser_tx_next_wr(tx_desc), mr, cqe);
 
@@ -427,6 +527,38 @@ iser_reg_sig_mr(struct iscsi_iser_task *iser_task,
 	sig_reg->rkey = mr->rkey;
 	sig_reg->sge.addr = 0;
 	sig_reg->sge.length = scsi_transfer_length(iser_task->sc);
+=======
+	if (rsc->mr_valid)
+		iser_inv_rkey(&tx_desc->inv_wr, mr, cqe, &wr->wr);
+
+	ib_update_fast_reg_key(mr, ib_inc_rkey(mr->rkey));
+
+	ret = ib_map_mr_sg_pi(mr, mem->sg, mem->dma_nents, NULL,
+			      sig_mem->sg, sig_mem->dma_nents, NULL, SZ_4K);
+	if (unlikely(ret)) {
+		iser_err("failed to map PI sg (%d)\n",
+			 mem->dma_nents + sig_mem->dma_nents);
+		goto err;
+	}
+
+	memset(wr, 0, sizeof(*wr));
+	wr->wr.next = &tx_desc->send_wr;
+	wr->wr.opcode = IB_WR_REG_MR_INTEGRITY;
+	wr->wr.wr_cqe = cqe;
+	wr->wr.num_sge = 0;
+	wr->wr.send_flags = 0;
+	wr->mr = mr;
+	wr->key = mr->rkey;
+	wr->access = IB_ACCESS_LOCAL_WRITE |
+		     IB_ACCESS_REMOTE_READ |
+		     IB_ACCESS_REMOTE_WRITE;
+	rsc->mr_valid = 1;
+
+	sig_reg->sge.lkey = mr->lkey;
+	sig_reg->rkey = mr->rkey;
+	sig_reg->sge.addr = mr->iova;
+	sig_reg->sge.length = mr->length;
+>>>>>>> upstream/android-13
 
 	iser_dbg("lkey=0x%x rkey=0x%x addr=0x%llx length=%u\n",
 		 sig_reg->sge.lkey, sig_reg->rkey, sig_reg->sge.addr,
@@ -443,6 +575,7 @@ static int iser_fast_reg_mr(struct iscsi_iser_task *iser_task,
 	struct iser_tx_desc *tx_desc = &iser_task->desc;
 	struct ib_cqe *cqe = &iser_task->iser_conn->ib_conn.reg_cqe;
 	struct ib_mr *mr = rsc->mr;
+<<<<<<< HEAD
 	struct ib_reg_wr *wr;
 	int n;
 
@@ -452,13 +585,28 @@ static int iser_fast_reg_mr(struct iscsi_iser_task *iser_task,
 	ib_update_fast_reg_key(mr, ib_inc_rkey(mr->rkey));
 
 	n = ib_map_mr_sg(mr, mem->sg, mem->dma_nents, NULL, SIZE_4K);
+=======
+	struct ib_reg_wr *wr = &tx_desc->reg_wr;
+	int n;
+
+	if (rsc->mr_valid)
+		iser_inv_rkey(&tx_desc->inv_wr, mr, cqe, &wr->wr);
+
+	ib_update_fast_reg_key(mr, ib_inc_rkey(mr->rkey));
+
+	n = ib_map_mr_sg(mr, mem->sg, mem->dma_nents, NULL, SZ_4K);
+>>>>>>> upstream/android-13
 	if (unlikely(n != mem->dma_nents)) {
 		iser_err("failed to map sg (%d/%d)\n",
 			 n, mem->dma_nents);
 		return n < 0 ? n : -EINVAL;
 	}
 
+<<<<<<< HEAD
 	wr = container_of(iser_tx_next_wr(tx_desc), struct ib_reg_wr, wr);
+=======
+	wr->wr.next = &tx_desc->send_wr;
+>>>>>>> upstream/android-13
 	wr->wr.opcode = IB_WR_REG_MR;
 	wr->wr.wr_cqe = cqe;
 	wr->wr.send_flags = 0;
@@ -483,6 +631,7 @@ static int iser_fast_reg_mr(struct iscsi_iser_task *iser_task,
 }
 
 static int
+<<<<<<< HEAD
 iser_reg_prot_sg(struct iscsi_iser_task *task,
 		 struct iser_data_buf *mem,
 		 struct iser_fr_desc *desc,
@@ -498,6 +647,8 @@ iser_reg_prot_sg(struct iscsi_iser_task *task,
 }
 
 static int
+=======
+>>>>>>> upstream/android-13
 iser_reg_data_sg(struct iscsi_iser_task *task,
 		 struct iser_data_buf *mem,
 		 struct iser_fr_desc *desc,
@@ -509,6 +660,7 @@ iser_reg_data_sg(struct iscsi_iser_task *task,
 	if (use_dma_key)
 		return iser_reg_dma(device, mem, reg);
 
+<<<<<<< HEAD
 	return device->reg_ops->reg_mem(task, mem, &desc->rsc, reg);
 }
 
@@ -521,6 +673,18 @@ int iser_reg_rdma_mem(struct iscsi_iser_task *task,
 	struct iser_data_buf *mem = &task->data[dir];
 	struct iser_mem_reg *reg = &task->rdma_reg[dir];
 	struct iser_mem_reg *data_reg;
+=======
+	return iser_fast_reg_mr(task, mem, &desc->rsc, reg);
+}
+
+int iser_reg_mem_fastreg(struct iscsi_iser_task *task,
+			 enum iser_data_dir dir,
+			 bool all_imm)
+{
+	struct ib_conn *ib_conn = &task->iser_conn->ib_conn;
+	struct iser_data_buf *mem = &task->data[dir];
+	struct iser_mem_reg *reg = &task->rdma_reg[dir];
+>>>>>>> upstream/android-13
 	struct iser_fr_desc *desc = NULL;
 	bool use_dma_key;
 	int err;
@@ -529,6 +693,7 @@ int iser_reg_rdma_mem(struct iscsi_iser_task *task,
 		      scsi_get_prot_op(task->sc) == SCSI_PROT_NORMAL;
 
 	if (!use_dma_key) {
+<<<<<<< HEAD
 		desc = device->reg_ops->reg_desc_get(ib_conn);
 		reg->mem_h = desc;
 	}
@@ -559,12 +724,30 @@ int iser_reg_rdma_mem(struct iscsi_iser_task *task,
 			goto err_reg;
 
 		desc->pi_ctx->sig_protected = 1;
+=======
+		desc = iser_reg_desc_get_fr(ib_conn);
+		reg->mem_h = desc;
+	}
+
+	if (scsi_get_prot_op(task->sc) == SCSI_PROT_NORMAL) {
+		err = iser_reg_data_sg(task, mem, desc, use_dma_key, reg);
+		if (unlikely(err))
+			goto err_reg;
+	} else {
+		err = iser_reg_sig_mr(task, mem, &task->prot[dir],
+				      &desc->rsc, reg);
+		if (unlikely(err))
+			goto err_reg;
+
+		desc->sig_protected = true;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
 
 err_reg:
 	if (desc)
+<<<<<<< HEAD
 		device->reg_ops->reg_desc_put(ib_conn, desc);
 
 	return err;
@@ -577,3 +760,9 @@ void iser_unreg_rdma_mem(struct iscsi_iser_task *task,
 
 	device->reg_ops->unreg_mem(task, dir);
 }
+=======
+		iser_reg_desc_put_fr(ib_conn, desc);
+
+	return err;
+}
+>>>>>>> upstream/android-13

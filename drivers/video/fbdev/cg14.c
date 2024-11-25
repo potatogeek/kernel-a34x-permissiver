@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* cg14.c: CGFOURTEEN frame buffer driver
  *
  * Copyright (C) 2003, 2006 David S. Miller (davem@davemloft.net)
@@ -38,7 +42,11 @@ static int cg14_pan_display(struct fb_var_screeninfo *, struct fb_info *);
  *  Frame buffer operations
  */
 
+<<<<<<< HEAD
 static struct fb_ops cg14_ops = {
+=======
+static const struct fb_ops cg14_ops = {
+>>>>>>> upstream/android-13
 	.owner			= THIS_MODULE,
 	.fb_setcolreg		= cg14_setcolreg,
 	.fb_pan_display		= cg14_pan_display,
@@ -355,9 +363,13 @@ static int cg14_ioctl(struct fb_info *info, unsigned int cmd, unsigned long arg)
 static void cg14_init_fix(struct fb_info *info, int linebytes,
 			  struct device_node *dp)
 {
+<<<<<<< HEAD
 	const char *name = dp->name;
 
 	strlcpy(info->fix.id, name, sizeof(info->fix.id));
+=======
+	snprintf(info->fix.id, sizeof(info->fix.id), "%pOFn", dp);
+>>>>>>> upstream/android-13
 
 	info->fix.type = FB_TYPE_PACKED_PIXELS;
 	info->fix.visual = FB_VISUAL_PSEUDOCOLOR;
@@ -488,8 +500,13 @@ static int cg14_probe(struct platform_device *op)
 					  info->var.xres);
 	info->fix.smem_len = PAGE_ALIGN(linebytes * info->var.yres);
 
+<<<<<<< HEAD
 	if (!strcmp(dp->parent->name, "sbus") ||
 	    !strcmp(dp->parent->name, "sbi")) {
+=======
+	if (of_node_name_eq(dp->parent, "sbus") ||
+	    of_node_name_eq(dp->parent, "sbi")) {
+>>>>>>> upstream/android-13
 		info->fix.smem_start = op->resource[0].start;
 		par->iospace = op->resource[0].flags & IORESOURCE_BITS;
 	} else {
@@ -510,8 +527,12 @@ static int cg14_probe(struct platform_device *op)
 	if (!par->regs || !par->clut || !par->cursor || !info->screen_base)
 		goto out_unmap_regs;
 
+<<<<<<< HEAD
 	is_8mb = (((op->resource[1].end - op->resource[1].start) + 1) ==
 		  (8 * 1024 * 1024));
+=======
+	is_8mb = (resource_size(&op->resource[1]) == (8 * 1024 * 1024));
+>>>>>>> upstream/android-13
 
 	BUILD_BUG_ON(sizeof(par->mmap_map) != sizeof(__cg14_mmap_map));
 		

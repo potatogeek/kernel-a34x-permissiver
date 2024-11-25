@@ -13,9 +13,13 @@
 #include <linux/of.h>
 #include <linux/slab.h>
 #include <linux/device.h>
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_DRV_SAMSUNG)
 #include <linux/sec_class.h>
 #endif
+=======
+#include <linux/sec_class.h>
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_VBUS_NOTIFIER)
 #include <linux/vbus_notifier.h>
 #endif
@@ -778,6 +782,7 @@ __visible_for_testing int manager_handle_pdic_notification(struct notifier_block
 
 	switch (p_noti.id) {
 	case PDIC_NOTIFY_ID_POWER_STATUS:
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTK_CHARGER)
 		if (typec_manager.water.detected) {
 			pr_err("%s: PD event is invalid in water state", __func__);
@@ -795,6 +800,10 @@ __visible_for_testing int manager_handle_pdic_notification(struct notifier_block
 #ifdef CONFIG_USB_LPM_CHARGING_SYNC
 			set_lpm_charging_type_done(get_otg_notify(), 1);
 #endif
+=======
+		if (p_noti.sub1 && !typec_manager.pd_con_state) {
+			typec_manager.pd_con_state = 1;
+>>>>>>> upstream/android-13
 #ifdef CONFIG_USB_NOTIFY_PROC_LOG
 			store_usblog_notify(NOTIFY_MANAGER, (void *)&p_noti, NULL);
 #endif
@@ -826,9 +835,12 @@ __visible_for_testing int manager_handle_pdic_notification(struct notifier_block
 				}
 				manager_event_work(PDIC_NOTIFY_DEV_MANAGER, PDIC_NOTIFY_DEV_BATT,
 					PDIC_NOTIFY_ID_USB, 0, 0, PD_NONE_TYPE);
+<<<<<<< HEAD
 #ifdef CONFIG_USB_LPM_CHARGING_SYNC
 				set_lpm_charging_type_done(get_otg_notify(), 1);
 #endif
+=======
+>>>>>>> upstream/android-13
 			}
 		break;
 	case PDIC_NOTIFY_ID_RID:
@@ -839,6 +851,7 @@ __visible_for_testing int manager_handle_pdic_notification(struct notifier_block
 		return 0;
 	case PDIC_NOTIFY_ID_WATER:
 		if (p_noti.sub1) {	/* attach */
+<<<<<<< HEAD
 			if (!typec_manager.water.detected) {
 #if IS_ENABLED(CONFIG_MTK_CHARGER)
 				if (typec_manager.pd_con_state) {
@@ -850,6 +863,11 @@ __visible_for_testing int manager_handle_pdic_notification(struct notifier_block
 				manager_event_work(p_noti.src, PDIC_NOTIFY_DEV_MUIC,
 					PDIC_NOTIFY_ID_WATER, p_noti.sub1, p_noti.sub2, p_noti.sub3);
 			}
+=======
+			if (!typec_manager.water.detected)
+				manager_event_work(p_noti.src, PDIC_NOTIFY_DEV_MUIC,
+					PDIC_NOTIFY_ID_WATER, p_noti.sub1, p_noti.sub2, p_noti.sub3);
+>>>>>>> upstream/android-13
 			manager_water_status_update(p_noti.sub1);
 		} else {
 			manager_event_work(p_noti.src, PDIC_NOTIFY_DEV_MUIC,
@@ -873,12 +891,16 @@ __visible_for_testing int manager_handle_pdic_notification(struct notifier_block
 			p_noti.id, p_noti.sub1, p_noti.sub2, p_noti.sub3);
 
 		if (p_noti.sub1) {
+<<<<<<< HEAD
 			mutex_lock(&typec_manager.mo_lock);
+=======
+>>>>>>> upstream/android-13
 			/* Send water cable event to battery */
 			manager_event_work(p_noti.src, PDIC_NOTIFY_DEV_BATT,
 					PDIC_NOTIFY_ID_WATER, PDIC_NOTIFY_ATTACH, p_noti.sub2,
 					typec_manager.water.report_type);
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_VBUS_NOTIFIER)
 			if (typec_manager.vbus_state == STATUS_VBUS_LOW)
 #endif
@@ -887,6 +909,12 @@ __visible_for_testing int manager_handle_pdic_notification(struct notifier_block
 						PDIC_NOTIFY_ID_WATER, PDIC_NOTIFY_DETACH, p_noti.sub2,
 						typec_manager.water.report_type);
 			mutex_unlock(&typec_manager.mo_lock);
+=======
+			/* make detach event like hiccup case*/
+			manager_event_work(p_noti.src, PDIC_NOTIFY_DEV_BATT,
+					PDIC_NOTIFY_ID_WATER, PDIC_NOTIFY_DETACH, p_noti.sub2,
+					typec_manager.water.report_type);
+>>>>>>> upstream/android-13
 		}
 		return 0;
 	case PDIC_NOTIFY_ID_DEVICE_INFO:
@@ -981,6 +1009,7 @@ static void manager_handle_second_muic(PD_NOTI_ATTACH_TYPEDEF muic_evt)
 #endif
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_USB_LPM_CHARGING_SYNC
 int check_lpm_charging_type_confirm(uint64_t cable_type)
 {
@@ -1013,6 +1042,8 @@ int check_lpm_charging_type_confirm(uint64_t cable_type)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static void manager_handle_muic(PD_NOTI_ATTACH_TYPEDEF muic_evt)
 {
 	typec_manager.muic.attach_state = muic_evt.attach;
@@ -1026,6 +1057,7 @@ static void manager_handle_muic(PD_NOTI_ATTACH_TYPEDEF muic_evt)
 	if (!muic_evt.attach)
 		typec_manager.classified_cable_type = MANAGER_NOTIFY_MUIC_NONE;
 
+<<<<<<< HEAD
 #ifdef CONFIG_USB_LPM_CHARGING_SYNC
 	if (muic_evt.attach) {
 		if (check_lpm_charging_type_confirm(muic_evt.cable_type))
@@ -1033,6 +1065,8 @@ static void manager_handle_muic(PD_NOTI_ATTACH_TYPEDEF muic_evt)
 	}
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	switch (muic_evt.cable_type) {
 	case ATTACHED_DEV_JIG_USB_OFF_MUIC:
 	case ATTACHED_DEV_JIG_USB_ON_MUIC:
@@ -1229,7 +1263,11 @@ __visible_for_testing int manager_handle_vbus_notification(struct notifier_block
 		break;
 	case STATUS_VBUS_LOW:
 		typec_manager.vbus_by_otg_detection = 0;
+<<<<<<< HEAD
 		if (typec_manager.water.detected)
+=======
+		if (typec_manager.water.wVbus_det)
+>>>>>>> upstream/android-13
 			manager_event_work(PDIC_NOTIFY_DEV_MANAGER, PDIC_NOTIFY_DEV_BATT,
 				PDIC_NOTIFY_ID_ATTACH, PDIC_NOTIFY_DETACH, 0, typec_manager.water.report_type);
 		manager_event_processing_by_vbus(true);
@@ -1375,6 +1413,7 @@ int manager_notifier_register(struct notifier_block *nb, notifier_fn_t notifier,
 			nb->notifier_call(nb, m_noti.id, &(m_noti));
 		}
 #else
+<<<<<<< HEAD
 		if (typec_manager.muic.attach_state) {
 			m_noti.src = PDIC_NOTIFY_DEV_MANAGER;
 			m_noti.dest = PDIC_NOTIFY_DEV_BATT;
@@ -1388,6 +1427,8 @@ int manager_notifier_register(struct notifier_block *nb, notifier_fn_t notifier,
 					m_noti.sub3, m_noti.sub1 ? "Attached" : "Detached");
 			nb->notifier_call(nb, m_noti.id, &(m_noti));
 		}
+=======
+>>>>>>> upstream/android-13
 		pr_info("%s: [BATTERY] Registration completed\n", __func__);
 #endif
 		manager_notify_pdic_battery_init = true;
@@ -1492,8 +1533,16 @@ int manager_notifier_unregister(struct notifier_block *nb)
 }
 EXPORT_SYMBOL(manager_notifier_unregister);
 
+<<<<<<< HEAD
 static int manager_handle_notification_init(void)
 {
+=======
+static int manger_handle_notification_init(void)
+{
+	usb_external_notify_register(&typec_manager.manager_external_notifier_nb,
+		manager_external_notifier_notification, EXTERNAL_NOTIFY_DEV_MANAGER);
+
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_VBUS_NOTIFIER)
 	if (!(typec_manager.confirm_notifier_register & VBUS_NOTIFIER))
 		if (!vbus_notifier_register(&typec_manager.vbus_nb,
@@ -1531,7 +1580,11 @@ static int manager_handle_notification_init(void)
 static void delayed_manger_notifier_init(struct work_struct *work)
 {
 	pr_info("%s : %d = times!\n", __func__, typec_manager.notifier_register_try_count);
+<<<<<<< HEAD
 	if (manager_handle_notification_init()) {
+=======
+	if (manger_handle_notification_init()) {
+>>>>>>> upstream/android-13
 		if (typec_manager.notifier_register_try_count != NOTIFIER_REG_RETRY_COUNT)
 			schedule_delayed_work(&typec_manager.manager_init_work,
 				msecs_to_jiffies(NOTIFIER_REG_RETRY_TIME));
@@ -1685,10 +1738,14 @@ static int manager_notifier_init(void)
 
 	mutex_init(&typec_manager.mo_lock);
 
+<<<<<<< HEAD
 	usb_external_notify_register(&typec_manager.manager_external_notifier_nb,
 		manager_external_notifier_notification, EXTERNAL_NOTIFY_DEV_MANAGER);
 
 	if (manager_handle_notification_init())
+=======
+	if (manger_handle_notification_init())
+>>>>>>> upstream/android-13
 		schedule_delayed_work(&typec_manager.manager_init_work,
 			msecs_to_jiffies(NOTIFIER_REG_RETRY_TIME));
 

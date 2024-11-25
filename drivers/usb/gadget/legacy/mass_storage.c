@@ -105,7 +105,10 @@ FSG_MODULE_PARAMETERS(/* no prefix */, mod_data);
 
 static int msg_do_config(struct usb_configuration *c)
 {
+<<<<<<< HEAD
 	struct fsg_opts *opts;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	if (gadget_is_otg(c->cdev->gadget)) {
@@ -113,8 +116,11 @@ static int msg_do_config(struct usb_configuration *c)
 		c->bmAttributes |= USB_CONFIG_ATT_WAKEUP;
 	}
 
+<<<<<<< HEAD
 	opts = fsg_opts_from_func_inst(fi_msg);
 
+=======
+>>>>>>> upstream/android-13
 	f_msg = usb_get_function(fi_msg);
 	if (IS_ERR(f_msg))
 		return PTR_ERR(f_msg);
@@ -178,8 +184,15 @@ static int msg_bind(struct usb_composite_dev *cdev)
 		struct usb_descriptor_header *usb_desc;
 
 		usb_desc = usb_otg_descriptor_alloc(cdev->gadget);
+<<<<<<< HEAD
 		if (!usb_desc)
 			goto fail_string_ids;
+=======
+		if (!usb_desc) {
+			status = -ENOMEM;
+			goto fail_string_ids;
+		}
+>>>>>>> upstream/android-13
 		usb_otg_descriptor_init(cdev->gadget, usb_desc);
 		otg_desc[0] = usb_desc;
 		otg_desc[1] = NULL;
@@ -232,6 +245,7 @@ static struct usb_composite_driver msg_driver = {
 	.unbind		= msg_unbind,
 };
 
+<<<<<<< HEAD
 MODULE_DESCRIPTION(DRIVER_DESC);
 MODULE_AUTHOR("Michal Nazarewicz");
 MODULE_LICENSE("GPL");
@@ -247,3 +261,10 @@ static void __exit msg_cleanup(void)
 	usb_composite_unregister(&msg_driver);
 }
 module_exit(msg_cleanup);
+=======
+module_usb_composite_driver(msg_driver);
+
+MODULE_DESCRIPTION(DRIVER_DESC);
+MODULE_AUTHOR("Michal Nazarewicz");
+MODULE_LICENSE("GPL");
+>>>>>>> upstream/android-13

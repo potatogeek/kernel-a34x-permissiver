@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,6 +13,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright (C) IBM Corporation, 2005
  *               Jeff Muizelaar, 2006, 2007
@@ -22,15 +27,23 @@
 
 #define pr_fmt(fmt) "mmiotrace: " fmt
 
+<<<<<<< HEAD
 #define DEBUG 1
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/moduleparam.h>
 #include <linux/debugfs.h>
 #include <linux/slab.h>
 #include <linux/uaccess.h>
 #include <linux/io.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
 #include <linux/mmiotrace.h>
+=======
+#include <linux/mmiotrace.h>
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 #include <asm/e820/api.h> /* for ISA_START_ADDRESS */
 #include <linux/atomic.h>
 #include <linux/percpu.h>
@@ -390,15 +403,26 @@ static void enter_uniprocessor(void)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	get_online_cpus();
+=======
+	cpus_read_lock();
+>>>>>>> upstream/android-13
 	cpumask_copy(downed_cpus, cpu_online_mask);
 	cpumask_clear_cpu(cpumask_first(cpu_online_mask), downed_cpus);
 	if (num_online_cpus() > 1)
 		pr_notice("Disabling non-boot CPUs...\n");
+<<<<<<< HEAD
 	put_online_cpus();
 
 	for_each_cpu(cpu, downed_cpus) {
 		err = cpu_down(cpu);
+=======
+	cpus_read_unlock();
+
+	for_each_cpu(cpu, downed_cpus) {
+		err = remove_cpu(cpu);
+>>>>>>> upstream/android-13
 		if (!err)
 			pr_info("CPU%d is down.\n", cpu);
 		else
@@ -406,7 +430,11 @@ static void enter_uniprocessor(void)
 	}
 out:
 	if (num_online_cpus() > 1)
+<<<<<<< HEAD
 		pr_warning("multiple CPUs still online, may miss events.\n");
+=======
+		pr_warn("multiple CPUs still online, may miss events.\n");
+>>>>>>> upstream/android-13
 }
 
 static void leave_uniprocessor(void)
@@ -418,7 +446,11 @@ static void leave_uniprocessor(void)
 		return;
 	pr_notice("Re-enabling CPUs...\n");
 	for_each_cpu(cpu, downed_cpus) {
+<<<<<<< HEAD
 		err = cpu_up(cpu);
+=======
+		err = add_cpu(cpu);
+>>>>>>> upstream/android-13
 		if (!err)
 			pr_info("enabled CPU%d.\n", cpu);
 		else
@@ -430,8 +462,13 @@ static void leave_uniprocessor(void)
 static void enter_uniprocessor(void)
 {
 	if (num_online_cpus() > 1)
+<<<<<<< HEAD
 		pr_warning("multiple CPUs are online, may miss events. "
 			   "Suggest booting with maxcpus=1 kernel argument.\n");
+=======
+		pr_warn("multiple CPUs are online, may miss events. "
+			"Suggest booting with maxcpus=1 kernel argument.\n");
+>>>>>>> upstream/android-13
 }
 
 static void leave_uniprocessor(void)

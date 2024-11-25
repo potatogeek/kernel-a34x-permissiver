@@ -3,8 +3,11 @@
  * Copyright (c) 1996, 2003 VIA Networking Technologies, Inc.
  * All rights reserved.
  *
+<<<<<<< HEAD
  * File: key.c
  *
+=======
+>>>>>>> upstream/android-13
  * Purpose: Implement functions for 802.11i Key management
  *
  * Author: Jerry Chen
@@ -35,7 +38,11 @@ int vnt_key_init_table(struct vnt_private *priv)
 
 static int vnt_set_keymode(struct ieee80211_hw *hw, u8 *mac_addr,
 			   struct ieee80211_key_conf *key, u32 key_type,
+<<<<<<< HEAD
 			   u32 mode, bool onfly_latch)
+=======
+			   u32 mode)
+>>>>>>> upstream/android-13
 {
 	struct vnt_private *priv = hw->priv;
 	u8 broadcast[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
@@ -63,11 +70,15 @@ static int vnt_set_keymode(struct ieee80211_hw *hw, u8 *mac_addr,
 	}
 
 	switch (key_type) {
+<<<<<<< HEAD
 		/* fallthrough */
+=======
+>>>>>>> upstream/android-13
 	case VNT_KEY_DEFAULTKEY:
 		/* default key last entry */
 		entry = MAX_KEY_TABLE - 1;
 		key->hw_key_idx = entry;
+<<<<<<< HEAD
 	case VNT_KEY_ALLGROUP:
 		key_mode |= VNT_KEY_ALLGROUP;
 		if (onfly_latch)
@@ -77,6 +88,14 @@ static int vnt_set_keymode(struct ieee80211_hw *hw, u8 *mac_addr,
 	case VNT_KEY_GROUP:
 		key_mode |= (mode << 4);
 		key_mode |= VNT_KEY_GROUP;
+=======
+		fallthrough;
+	case VNT_KEY_GROUP_ADDRESS:
+		key_mode = mode | (mode << 4);
+		break;
+	case VNT_KEY_GROUP:
+		key_mode = mode << 4;
+>>>>>>> upstream/android-13
 		break;
 	case  VNT_KEY_PAIRWISE:
 		key_mode |= mode;
@@ -86,8 +105,12 @@ static int vnt_set_keymode(struct ieee80211_hw *hw, u8 *mac_addr,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	if (onfly_latch)
 		key_mode |= VNT_KEY_ONFLY;
+=======
+	key_mode |= key_type;
+>>>>>>> upstream/android-13
 
 	if (mode == KEY_CTL_WEP) {
 		if (key->keylen == WLAN_KEY_LEN_WEP40)
@@ -96,9 +119,14 @@ static int vnt_set_keymode(struct ieee80211_hw *hw, u8 *mac_addr,
 			key->key[15] |= 0x80;
 	}
 
+<<<<<<< HEAD
 	vnt_mac_set_keyentry(priv, key_mode, entry, key_inx, bssid, key->key);
 
 	return 0;
+=======
+	return vnt_mac_set_keyentry(priv, key_mode, entry,
+				    key_inx, bssid, key->key);
+>>>>>>> upstream/android-13
 }
 
 int vnt_set_keys(struct ieee80211_hw *hw, struct ieee80211_sta *sta,
@@ -107,12 +135,16 @@ int vnt_set_keys(struct ieee80211_hw *hw, struct ieee80211_sta *sta,
 	struct vnt_private *priv = hw->priv;
 	u8 *mac_addr = NULL;
 	u8 key_dec_mode = 0;
+<<<<<<< HEAD
 	int ret = 0, u;
+=======
+>>>>>>> upstream/android-13
 
 	if (sta)
 		mac_addr = &sta->addr[0];
 
 	switch (key->cipher) {
+<<<<<<< HEAD
 	case 0:
 		for (u = 0 ; u < MAX_KEY_TABLE; u++)
 			vnt_mac_disable_keyentry(priv, u);
@@ -129,6 +161,18 @@ int vnt_set_keys(struct ieee80211_hw *hw, struct ieee80211_sta *sta,
 		key->flags |= IEEE80211_KEY_FLAG_GENERATE_IV;
 
 		return ret;
+=======
+	case WLAN_CIPHER_SUITE_WEP40:
+	case WLAN_CIPHER_SUITE_WEP104:
+		vnt_set_keymode(hw, mac_addr, key, VNT_KEY_DEFAULTKEY,
+				KEY_CTL_WEP);
+
+		key->flags |= IEEE80211_KEY_FLAG_GENERATE_IV;
+
+		return vnt_set_keymode(hw, mac_addr, key, VNT_KEY_DEFAULTKEY,
+				       KEY_CTL_WEP);
+
+>>>>>>> upstream/android-13
 	case WLAN_CIPHER_SUITE_TKIP:
 		key->flags |= IEEE80211_KEY_FLAG_GENERATE_MMIC;
 		key->flags |= IEEE80211_KEY_FLAG_GENERATE_IV;
@@ -138,11 +182,16 @@ int vnt_set_keys(struct ieee80211_hw *hw, struct ieee80211_sta *sta,
 		break;
 	case WLAN_CIPHER_SUITE_CCMP:
 		if (priv->local_id <= MAC_REVISION_A1)
+<<<<<<< HEAD
 			return -EINVAL;
+=======
+			return -EOPNOTSUPP;
+>>>>>>> upstream/android-13
 
 		key_dec_mode = KEY_CTL_CCMP;
 
 		key->flags |= IEEE80211_KEY_FLAG_GENERATE_IV;
+<<<<<<< HEAD
 	}
 
 	if (key->flags & IEEE80211_KEY_FLAG_PAIRWISE)
@@ -153,4 +202,17 @@ int vnt_set_keys(struct ieee80211_hw *hw, struct ieee80211_sta *sta,
 				key_dec_mode, true);
 
 	return 0;
+=======
+		break;
+	default:
+		return -EOPNOTSUPP;
+	}
+
+	if (key->flags & IEEE80211_KEY_FLAG_PAIRWISE)
+		return vnt_set_keymode(hw, mac_addr, key, VNT_KEY_PAIRWISE,
+				       key_dec_mode);
+
+	return vnt_set_keymode(hw, mac_addr, key,
+				VNT_KEY_GROUP_ADDRESS, key_dec_mode);
+>>>>>>> upstream/android-13
 }

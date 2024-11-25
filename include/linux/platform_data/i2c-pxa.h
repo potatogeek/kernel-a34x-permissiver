@@ -1,16 +1,24 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  i2c_pxa.h
  *
  *  Copyright (C) 2002 Intrinsyc Software Inc.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _I2C_PXA_H_
 #define _I2C_PXA_H_
 
+<<<<<<< HEAD
 #if 0
 #define DEF_TIMEOUT             3
 #else
@@ -64,6 +72,9 @@ struct i2c_slave_client;
 struct i2c_pxa_platform_data {
 	unsigned int		slave_addr;
 	struct i2c_slave_client	*slave;
+=======
+struct i2c_pxa_platform_data {
+>>>>>>> upstream/android-13
 	unsigned int		class;
 	unsigned int		use_pio :1;
 	unsigned int		fast_mode :1;

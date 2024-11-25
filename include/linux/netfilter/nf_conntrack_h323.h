@@ -2,9 +2,18 @@
 #ifndef _NF_CONNTRACK_H323_H
 #define _NF_CONNTRACK_H323_H
 
+<<<<<<< HEAD
 #ifdef __KERNEL__
 
 #include <linux/netfilter/nf_conntrack_h323_asn1.h>
+=======
+#include <linux/netfilter.h>
+#include <linux/skbuff.h>
+#include <linux/types.h>
+#include <linux/netfilter/nf_conntrack_h323_asn1.h>
+#include <net/netfilter/nf_conntrack_expect.h>
+#include <uapi/linux/netfilter/nf_conntrack_tuple_common.h>
+>>>>>>> upstream/android-13
 
 #define RAS_PORT 1719
 #define Q931_PORT 1720
@@ -28,8 +37,11 @@ struct nf_ct_h323_master {
 	};
 };
 
+<<<<<<< HEAD
 struct nf_conn;
 
+=======
+>>>>>>> upstream/android-13
 int get_h225_addr(struct nf_conn *ct, unsigned char *data,
 		  TransportAddress *taddr, union nf_inet_addr *addr,
 		  __be16 *port);
@@ -94,5 +106,8 @@ extern int (*nat_q931_hook) (struct sk_buff *skb, struct nf_conn *ct,
 			     struct nf_conntrack_expect *exp);
 
 #endif
+<<<<<<< HEAD
 
 #endif
+=======
+>>>>>>> upstream/android-13

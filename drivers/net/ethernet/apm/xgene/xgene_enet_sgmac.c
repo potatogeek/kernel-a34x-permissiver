@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* Applied Micro X-Gene SoC Ethernet Driver
  *
  * Copyright (c) 2014, Applied Micro Circuits Corporation
  * Authors: Iyappan Subramanian <isubramanian@apm.com>
  *	    Keyur Chudgar <kchudgar@apm.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
@@ -16,6 +21,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "xgene_enet_main.h"
@@ -472,12 +479,23 @@ static int xgene_enet_reset(struct xgene_enet_pdata *p)
 		}
 	} else {
 #ifdef CONFIG_ACPI
+<<<<<<< HEAD
 		if (acpi_has_method(ACPI_HANDLE(&p->pdev->dev), "_RST"))
 			acpi_evaluate_object(ACPI_HANDLE(&p->pdev->dev),
 					     "_RST", NULL, NULL);
 		else if (acpi_has_method(ACPI_HANDLE(&p->pdev->dev), "_INI"))
 			acpi_evaluate_object(ACPI_HANDLE(&p->pdev->dev),
 					     "_INI", NULL, NULL);
+=======
+		acpi_status status;
+
+		status = acpi_evaluate_object(ACPI_HANDLE(&p->pdev->dev),
+					      "_RST", NULL, NULL);
+		if (ACPI_FAILURE(status)) {
+			acpi_evaluate_object(ACPI_HANDLE(&p->pdev->dev),
+					     "_INI", NULL, NULL);
+		}
+>>>>>>> upstream/android-13
 #endif
 	}
 

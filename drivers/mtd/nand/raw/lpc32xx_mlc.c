@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for NAND MLC Controller in LPC32xx
  *
@@ -6,6 +10,7 @@
  * Copyright © 2011 WORK Microwave GmbH
  * Copyright © 2011, 2012 Roland Stigge
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -17,6 +22,8 @@
  * GNU General Public License for more details.
  *
  *
+=======
+>>>>>>> upstream/android-13
  * NAND Flash Controller Operation:
  * - Read: Auto Decode
  * - Write: Auto Encode
@@ -41,7 +48,10 @@
 #include <linux/mm.h>
 #include <linux/dma-mapping.h>
 #include <linux/dmaengine.h>
+<<<<<<< HEAD
 #include <linux/mtd/nand_ecc.h>
+=======
+>>>>>>> upstream/android-13
 
 #define DRV_NAME "lpc32xx_mlc"
 
@@ -286,10 +296,16 @@ static void lpc32xx_nand_setup(struct lpc32xx_nand_host *host)
 /*
  * Hardware specific access to control lines
  */
+<<<<<<< HEAD
 static void lpc32xx_nand_cmd_ctrl(struct mtd_info *mtd, int cmd,
 				  unsigned int ctrl)
 {
 	struct nand_chip *nand_chip = mtd_to_nand(mtd);
+=======
+static void lpc32xx_nand_cmd_ctrl(struct nand_chip *nand_chip, int cmd,
+				  unsigned int ctrl)
+{
+>>>>>>> upstream/android-13
 	struct lpc32xx_nand_host *host = nand_get_controller_data(nand_chip);
 
 	if (cmd != NAND_CMD_NONE) {
@@ -303,9 +319,14 @@ static void lpc32xx_nand_cmd_ctrl(struct mtd_info *mtd, int cmd,
 /*
  * Read Device Ready (NAND device _and_ controller ready)
  */
+<<<<<<< HEAD
 static int lpc32xx_nand_device_ready(struct mtd_info *mtd)
 {
 	struct nand_chip *nand_chip = mtd_to_nand(mtd);
+=======
+static int lpc32xx_nand_device_ready(struct nand_chip *nand_chip)
+{
+>>>>>>> upstream/android-13
 	struct lpc32xx_nand_host *host = nand_get_controller_data(nand_chip);
 
 	if ((readb(MLC_ISR(host->io_base)) &
@@ -330,8 +351,14 @@ static irqreturn_t lpc3xxx_nand_irq(int irq, struct lpc32xx_nand_host *host)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static int lpc32xx_waitfunc_nand(struct mtd_info *mtd, struct nand_chip *chip)
 {
+=======
+static int lpc32xx_waitfunc_nand(struct nand_chip *chip)
+{
+	struct mtd_info *mtd = nand_to_mtd(chip);
+>>>>>>> upstream/android-13
 	struct lpc32xx_nand_host *host = nand_get_controller_data(chip);
 
 	if (readb(MLC_ISR(host->io_base)) & MLCISR_NAND_READY)
@@ -349,9 +376,15 @@ exit:
 	return NAND_STATUS_READY;
 }
 
+<<<<<<< HEAD
 static int lpc32xx_waitfunc_controller(struct mtd_info *mtd,
 				       struct nand_chip *chip)
 {
+=======
+static int lpc32xx_waitfunc_controller(struct nand_chip *chip)
+{
+	struct mtd_info *mtd = nand_to_mtd(chip);
+>>>>>>> upstream/android-13
 	struct lpc32xx_nand_host *host = nand_get_controller_data(chip);
 
 	if (readb(MLC_ISR(host->io_base)) & MLCISR_CONTROLLER_READY)
@@ -369,10 +402,17 @@ exit:
 	return NAND_STATUS_READY;
 }
 
+<<<<<<< HEAD
 static int lpc32xx_waitfunc(struct mtd_info *mtd, struct nand_chip *chip)
 {
 	lpc32xx_waitfunc_nand(mtd, chip);
 	lpc32xx_waitfunc_controller(mtd, chip);
+=======
+static int lpc32xx_waitfunc(struct nand_chip *chip)
+{
+	lpc32xx_waitfunc_nand(chip);
+	lpc32xx_waitfunc_controller(chip);
+>>>>>>> upstream/android-13
 
 	return NAND_STATUS_READY;
 }
@@ -442,9 +482,16 @@ out1:
 	return -ENXIO;
 }
 
+<<<<<<< HEAD
 static int lpc32xx_read_page(struct mtd_info *mtd, struct nand_chip *chip,
 			     uint8_t *buf, int oob_required, int page)
 {
+=======
+static int lpc32xx_read_page(struct nand_chip *chip, uint8_t *buf,
+			     int oob_required, int page)
+{
+	struct mtd_info *mtd = nand_to_mtd(chip);
+>>>>>>> upstream/android-13
 	struct lpc32xx_nand_host *host = nand_get_controller_data(chip);
 	int i, j;
 	uint8_t *oobbuf = chip->oob_poi;
@@ -470,7 +517,11 @@ static int lpc32xx_read_page(struct mtd_info *mtd, struct nand_chip *chip,
 		writeb(0x00, MLC_ECC_AUTO_DEC_REG(host->io_base));
 
 		/* Wait for Controller Ready */
+<<<<<<< HEAD
 		lpc32xx_waitfunc_controller(mtd, chip);
+=======
+		lpc32xx_waitfunc_controller(chip);
+>>>>>>> upstream/android-13
 
 		/* Check ECC Error status */
 		mlc_isr = readl(MLC_ISR(host->io_base));
@@ -507,11 +558,19 @@ static int lpc32xx_read_page(struct mtd_info *mtd, struct nand_chip *chip,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int lpc32xx_write_page_lowlevel(struct mtd_info *mtd,
 				       struct nand_chip *chip,
 				       const uint8_t *buf, int oob_required,
 				       int page)
 {
+=======
+static int lpc32xx_write_page_lowlevel(struct nand_chip *chip,
+				       const uint8_t *buf, int oob_required,
+				       int page)
+{
+	struct mtd_info *mtd = nand_to_mtd(chip);
+>>>>>>> upstream/android-13
 	struct lpc32xx_nand_host *host = nand_get_controller_data(chip);
 	const uint8_t *oobbuf = chip->oob_poi;
 	uint8_t *dma_buf = (uint8_t *)buf;
@@ -551,32 +610,52 @@ static int lpc32xx_write_page_lowlevel(struct mtd_info *mtd,
 		writeb(0x00, MLC_ECC_AUTO_ENC_REG(host->io_base));
 
 		/* Wait for Controller Ready */
+<<<<<<< HEAD
 		lpc32xx_waitfunc_controller(mtd, chip);
+=======
+		lpc32xx_waitfunc_controller(chip);
+>>>>>>> upstream/android-13
 	}
 
 	return nand_prog_page_end_op(chip);
 }
 
+<<<<<<< HEAD
 static int lpc32xx_read_oob(struct mtd_info *mtd, struct nand_chip *chip,
 			    int page)
+=======
+static int lpc32xx_read_oob(struct nand_chip *chip, int page)
+>>>>>>> upstream/android-13
 {
 	struct lpc32xx_nand_host *host = nand_get_controller_data(chip);
 
 	/* Read whole page - necessary with MLC controller! */
+<<<<<<< HEAD
 	lpc32xx_read_page(mtd, chip, host->dummy_buf, 1, page);
+=======
+	lpc32xx_read_page(chip, host->dummy_buf, 1, page);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int lpc32xx_write_oob(struct mtd_info *mtd, struct nand_chip *chip,
 			      int page)
+=======
+static int lpc32xx_write_oob(struct nand_chip *chip, int page)
+>>>>>>> upstream/android-13
 {
 	/* None, write_oob conflicts with the automatic LPC MLC ECC decoder! */
 	return 0;
 }
 
 /* Prepares MLC for transfers with H/W ECC enabled: always enabled anyway */
+<<<<<<< HEAD
 static void lpc32xx_ecc_enable(struct mtd_info *mtd, int mode)
+=======
+static void lpc32xx_ecc_enable(struct nand_chip *chip, int mode)
+>>>>>>> upstream/android-13
 {
 	/* Always enabled! */
 }
@@ -660,6 +739,12 @@ static int lpc32xx_nand_attach_chip(struct nand_chip *chip)
 	struct lpc32xx_nand_host *host = nand_get_controller_data(chip);
 	struct device *dev = &host->pdev->dev;
 
+<<<<<<< HEAD
+=======
+	if (chip->ecc.engine_type != NAND_ECC_ENGINE_TYPE_ON_HOST)
+		return 0;
+
+>>>>>>> upstream/android-13
 	host->dma_buf = devm_kzalloc(dev, mtd->writesize, GFP_KERNEL);
 	if (!host->dma_buf)
 		return -ENOMEM;
@@ -668,8 +753,22 @@ static int lpc32xx_nand_attach_chip(struct nand_chip *chip)
 	if (!host->dummy_buf)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	chip->ecc.mode = NAND_ECC_HW;
 	chip->ecc.size = 512;
+=======
+	chip->ecc.size = 512;
+	chip->ecc.hwctl = lpc32xx_ecc_enable;
+	chip->ecc.read_page_raw = lpc32xx_read_page;
+	chip->ecc.read_page = lpc32xx_read_page;
+	chip->ecc.write_page_raw = lpc32xx_write_page_lowlevel;
+	chip->ecc.write_page = lpc32xx_write_page_lowlevel;
+	chip->ecc.write_oob = lpc32xx_write_oob;
+	chip->ecc.read_oob = lpc32xx_read_oob;
+	chip->ecc.strength = 4;
+	chip->ecc.bytes = 10;
+
+>>>>>>> upstream/android-13
 	mtd_set_ooblayout(mtd, &lpc32xx_ooblayout_ops);
 	host->mlcsubpages = mtd->writesize / 512;
 
@@ -741,11 +840,19 @@ static int lpc32xx_nand_probe(struct platform_device *pdev)
 	if (res)
 		goto put_clk;
 
+<<<<<<< HEAD
 	nand_chip->cmd_ctrl = lpc32xx_nand_cmd_ctrl;
 	nand_chip->dev_ready = lpc32xx_nand_device_ready;
 	nand_chip->chip_delay = 25; /* us */
 	nand_chip->IO_ADDR_R = MLC_DATA(host->io_base);
 	nand_chip->IO_ADDR_W = MLC_DATA(host->io_base);
+=======
+	nand_chip->legacy.cmd_ctrl = lpc32xx_nand_cmd_ctrl;
+	nand_chip->legacy.dev_ready = lpc32xx_nand_device_ready;
+	nand_chip->legacy.chip_delay = 25; /* us */
+	nand_chip->legacy.IO_ADDR_R = MLC_DATA(host->io_base);
+	nand_chip->legacy.IO_ADDR_W = MLC_DATA(host->io_base);
+>>>>>>> upstream/android-13
 
 	/* Init NAND controller */
 	lpc32xx_nand_setup(host);
@@ -753,6 +860,7 @@ static int lpc32xx_nand_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, host);
 
 	/* Initialize function pointers */
+<<<<<<< HEAD
 	nand_chip->ecc.hwctl = lpc32xx_ecc_enable;
 	nand_chip->ecc.read_page_raw = lpc32xx_read_page;
 	nand_chip->ecc.read_page = lpc32xx_read_page;
@@ -763,6 +871,9 @@ static int lpc32xx_nand_probe(struct platform_device *pdev)
 	nand_chip->ecc.strength = 4;
 	nand_chip->ecc.bytes = 10;
 	nand_chip->waitfunc = lpc32xx_waitfunc;
+=======
+	nand_chip->legacy.waitfunc = lpc32xx_waitfunc;
+>>>>>>> upstream/android-13
 
 	nand_chip->options = NAND_NO_SUBPAGE_WRITE;
 	nand_chip->bbt_options = NAND_BBT_USE_FLASH | NAND_BBT_NO_OOB;
@@ -785,7 +896,10 @@ static int lpc32xx_nand_probe(struct platform_device *pdev)
 
 	host->irq = platform_get_irq(pdev, 0);
 	if (host->irq < 0) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "failed to get platform irq\n");
+=======
+>>>>>>> upstream/android-13
 		res = -EINVAL;
 		goto release_dma_chan;
 	}
@@ -801,7 +915,11 @@ static int lpc32xx_nand_probe(struct platform_device *pdev)
 	 * Scan to find existence of the device and get the type of NAND device:
 	 * SMALL block or LARGE block.
 	 */
+<<<<<<< HEAD
 	nand_chip->dummy_controller.ops = &lpc32xx_nand_controller_ops;
+=======
+	nand_chip->legacy.dummy_controller.ops = &lpc32xx_nand_controller_ops;
+>>>>>>> upstream/android-13
 	res = nand_scan(nand_chip, 1);
 	if (res)
 		goto free_irq;
@@ -839,8 +957,18 @@ free_gpio:
 static int lpc32xx_nand_remove(struct platform_device *pdev)
 {
 	struct lpc32xx_nand_host *host = platform_get_drvdata(pdev);
+<<<<<<< HEAD
 
 	nand_release(&host->nand_chip);
+=======
+	struct nand_chip *chip = &host->nand_chip;
+	int ret;
+
+	ret = mtd_device_unregister(nand_to_mtd(chip));
+	WARN_ON(ret);
+	nand_cleanup(chip);
+
+>>>>>>> upstream/android-13
 	free_irq(host->irq, host);
 	if (use_dma)
 		dma_release_channel(host->dma_chan);

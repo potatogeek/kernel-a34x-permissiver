@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016 Socionext Inc.
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
@@ -11,6 +12,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2016 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/mfd/syscon.h>
@@ -29,7 +36,11 @@ struct uniphier_reset_data {
 #define UNIPHIER_RESET_ACTIVE_LOW		BIT(0)
 };
 
+<<<<<<< HEAD
 #define UNIPHIER_RESET_ID_END		(unsigned int)(-1)
+=======
+#define UNIPHIER_RESET_ID_END		((unsigned int)(-1))
+>>>>>>> upstream/android-13
 
 #define UNIPHIER_RESET_END				\
 	{ .id = UNIPHIER_RESET_ID_END }

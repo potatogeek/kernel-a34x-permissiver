@@ -3,7 +3,11 @@ Kernel Mode Setting (KMS)
 =========================
 
 Drivers must initialize the mode setting core by calling
+<<<<<<< HEAD
 :c:func:`drm_mode_config_init()` on the DRM device. The function
+=======
+drmm_mode_config_init() on the DRM device. The function
+>>>>>>> upstream/android-13
 initializes the :c:type:`struct drm_device <drm_device>`
 mode_config field and never fails. Once done, mode configuration must
 be setup by initializing the following fields.
@@ -159,6 +163,11 @@ KMS Core Structures and Functions
 .. kernel-doc:: drivers/gpu/drm/drm_mode_config.c
    :export:
 
+<<<<<<< HEAD
+=======
+.. _kms_base_object_abstraction:
+
+>>>>>>> upstream/android-13
 Modeset Base Object Abstraction
 ===============================
 
@@ -181,8 +190,12 @@ Setting`_). The somewhat surprising part here is that properties are not
 directly instantiated on each object, but free-standing mode objects themselves,
 represented by :c:type:`struct drm_property <drm_property>`, which only specify
 the type and value range of a property. Any given property can be attached
+<<<<<<< HEAD
 multiple times to different objects using :c:func:`drm_object_attach_property()
 <drm_object_attach_property>`.
+=======
+multiple times to different objects using drm_object_attach_property().
+>>>>>>> upstream/android-13
 
 .. kernel-doc:: include/drm/drm_mode_object.h
    :internal:
@@ -260,7 +273,12 @@ Taken all together there's two consequences for the atomic design:
   drm_connector_state <drm_connector_state>` for connectors. These are the only
   objects with userspace-visible and settable state. For internal state drivers
   can subclass these structures through embeddeding, or add entirely new state
+<<<<<<< HEAD
   structures for their globally shared hardware functions.
+=======
+  structures for their globally shared hardware functions, see :c:type:`struct
+  drm_private_state<drm_private_state>`.
+>>>>>>> upstream/android-13
 
 - An atomic update is assembled and validated as an entirely free-standing pile
   of structures within the :c:type:`drm_atomic_state <drm_atomic_state>`
@@ -269,6 +287,17 @@ Taken all together there's two consequences for the atomic design:
   to the driver and modeset objects. This way rolling back an update boils down
   to releasing memory and unreferencing objects like framebuffers.
 
+<<<<<<< HEAD
+=======
+Locking of atomic state structures is internally using :c:type:`struct
+drm_modeset_lock <drm_modeset_lock>`. As a general rule the locking shouldn't be
+exposed to drivers, instead the right locks should be automatically acquired by
+any function that duplicates or peeks into a state, like e.g.
+drm_atomic_get_crtc_state().  Locking only protects the software data
+structure, ordering of committing state changes to hardware is sequenced using
+:c:type:`struct drm_crtc_commit <drm_crtc_commit>`.
+
+>>>>>>> upstream/android-13
 Read on in this chapter, and also in :ref:`drm_atomic_helper` for more detailed
 coverage of specific topics.
 
@@ -287,8 +316,19 @@ Atomic Mode Setting Function Reference
 .. kernel-doc:: drivers/gpu/drm/drm_atomic.c
    :export:
 
+<<<<<<< HEAD
 .. kernel-doc:: drivers/gpu/drm/drm_atomic.c
    :internal:
+=======
+Atomic Mode Setting IOCTL and UAPI Functions
+--------------------------------------------
+
+.. kernel-doc:: drivers/gpu/drm/drm_atomic_uapi.c
+   :doc: overview
+
+.. kernel-doc:: drivers/gpu/drm/drm_atomic_uapi.c
+   :export:
+>>>>>>> upstream/android-13
 
 CRTC Abstraction
 ================
@@ -305,6 +345,18 @@ CRTC Functions Reference
 .. kernel-doc:: drivers/gpu/drm/drm_crtc.c
    :export:
 
+<<<<<<< HEAD
+=======
+Color Management Functions Reference
+------------------------------------
+
+.. kernel-doc:: drivers/gpu/drm/drm_color_mgmt.c
+   :export:
+
+.. kernel-doc:: include/drm/drm_color_mgmt.h
+   :internal:
+
+>>>>>>> upstream/android-13
 Frame Buffer Abstraction
 ========================
 
@@ -323,6 +375,15 @@ Frame Buffer Functions Reference
 DRM Format Handling
 ===================
 
+<<<<<<< HEAD
+=======
+.. kernel-doc:: include/uapi/drm/drm_fourcc.h
+   :doc: overview
+
+Format Functions Reference
+--------------------------
+
+>>>>>>> upstream/android-13
 .. kernel-doc:: include/drm/drm_fourcc.h
    :internal:
 
@@ -350,6 +411,24 @@ Plane Functions Reference
 .. kernel-doc:: drivers/gpu/drm/drm_plane.c
    :export:
 
+<<<<<<< HEAD
+=======
+Plane Composition Functions Reference
+-------------------------------------
+
+.. kernel-doc:: drivers/gpu/drm/drm_blend.c
+   :export:
+
+Plane Damage Tracking Functions Reference
+-----------------------------------------
+
+.. kernel-doc:: drivers/gpu/drm/drm_damage_helper.c
+   :export:
+
+.. kernel-doc:: include/drm/drm_damage_helper.h
+   :internal:
+
+>>>>>>> upstream/android-13
 Display Modes Function Reference
 ================================
 
@@ -377,6 +456,12 @@ Connector Functions Reference
 Writeback Connectors
 --------------------
 
+<<<<<<< HEAD
+=======
+.. kernel-doc:: include/drm/drm_writeback.h
+  :internal:
+
+>>>>>>> upstream/android-13
 .. kernel-doc:: drivers/gpu/drm/drm_writeback.c
   :doc: overview
 
@@ -398,6 +483,7 @@ Encoder Functions Reference
 .. kernel-doc:: drivers/gpu/drm/drm_encoder.c
    :export:
 
+<<<<<<< HEAD
 KMS Initialization and Cleanup
 ==============================
 
@@ -494,6 +580,8 @@ created for fetching EDID data and performing monitor detection. Once
 the process is complete, the new connector is registered with sysfs to
 make its properties available to applications.
 
+=======
+>>>>>>> upstream/android-13
 KMS Locking
 ===========
 
@@ -509,6 +597,41 @@ KMS Locking
 KMS Properties
 ==============
 
+<<<<<<< HEAD
+=======
+This section of the documentation is primarily aimed at user-space developers.
+For the driver APIs, see the other sections.
+
+Requirements
+------------
+
+KMS drivers might need to add extra properties to support new features. Each
+new property introduced in a driver needs to meet a few requirements, in
+addition to the one mentioned above:
+
+* It must be standardized, documenting:
+
+  * The full, exact, name string;
+  * If the property is an enum, all the valid value name strings;
+  * What values are accepted, and what these values mean;
+  * What the property does and how it can be used;
+  * How the property might interact with other, existing properties.
+
+* It must provide a generic helper in the core code to register that
+  property on the object it attaches to.
+
+* Its content must be decoded by the core and provided in the object's
+  associated state structure. That includes anything drivers might want
+  to precompute, like struct drm_clip_rect for planes.
+
+* Its initial state must match the behavior prior to the property
+  introduction. This might be a fixed value matching what the hardware
+  does, or it may be inherited from the state the firmware left the
+  system in during boot.
+
+* An IGT test must be submitted where reasonable.
+
+>>>>>>> upstream/android-13
 Property Types and Blob Property Support
 ----------------------------------------
 
@@ -533,14 +656,37 @@ HDMI Specific Connector Properties
 .. kernel-doc:: drivers/gpu/drm/drm_connector.c
    :doc: HDMI connector properties
 
+<<<<<<< HEAD
+=======
+Standard CRTC Properties
+------------------------
+
+.. kernel-doc:: drivers/gpu/drm/drm_crtc.c
+   :doc: standard CRTC properties
+
+Standard Plane Properties
+-------------------------
+
+.. kernel-doc:: drivers/gpu/drm/drm_plane.c
+   :doc: standard plane properties
+
+>>>>>>> upstream/android-13
 Plane Composition Properties
 ----------------------------
 
 .. kernel-doc:: drivers/gpu/drm/drm_blend.c
    :doc: overview
 
+<<<<<<< HEAD
 .. kernel-doc:: drivers/gpu/drm/drm_blend.c
    :export:
+=======
+Damage Tracking Properties
+--------------------------
+
+.. kernel-doc:: drivers/gpu/drm/drm_plane.c
+   :doc: damage tracking
+>>>>>>> upstream/android-13
 
 Color Management Properties
 ---------------------------
@@ -548,9 +694,12 @@ Color Management Properties
 .. kernel-doc:: drivers/gpu/drm/drm_color_mgmt.c
    :doc: overview
 
+<<<<<<< HEAD
 .. kernel-doc:: drivers/gpu/drm/drm_color_mgmt.c
    :export:
 
+=======
+>>>>>>> upstream/android-13
 Tile Group Property
 -------------------
 
@@ -560,9 +709,22 @@ Tile Group Property
 Explicit Fencing Properties
 ---------------------------
 
+<<<<<<< HEAD
 .. kernel-doc:: drivers/gpu/drm/drm_atomic.c
    :doc: explicit fencing properties
 
+=======
+.. kernel-doc:: drivers/gpu/drm/drm_atomic_uapi.c
+   :doc: explicit fencing properties
+
+
+Variable Refresh Properties
+---------------------------
+
+.. kernel-doc:: drivers/gpu/drm/drm_connector.c
+   :doc: Variable refresh properties
+
+>>>>>>> upstream/android-13
 Existing KMS Properties
 -----------------------
 
@@ -588,3 +750,21 @@ Vertical Blanking and Interrupt Handling Functions Reference
 
 .. kernel-doc:: drivers/gpu/drm/drm_vblank.c
    :export:
+<<<<<<< HEAD
+=======
+
+Vertical Blank Work
+===================
+
+.. kernel-doc:: drivers/gpu/drm/drm_vblank_work.c
+   :doc: vblank works
+
+Vertical Blank Work Functions Reference
+---------------------------------------
+
+.. kernel-doc:: include/drm/drm_vblank_work.h
+   :internal:
+
+.. kernel-doc:: drivers/gpu/drm/drm_vblank_work.c
+   :export:
+>>>>>>> upstream/android-13

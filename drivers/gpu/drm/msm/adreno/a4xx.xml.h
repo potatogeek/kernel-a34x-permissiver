@@ -8,6 +8,7 @@ http://github.com/freedreno/envytools/
 git clone https://github.com/freedreno/envytools.git
 
 The rules-ng-ng source files this header was generated from are:
+<<<<<<< HEAD
 - /home/robclark/src/envytools/rnndb/adreno.xml               (    501 bytes, from 2018-07-03 19:37:13)
 - /home/robclark/src/envytools/rnndb/freedreno_copyright.xml  (   1572 bytes, from 2018-07-03 19:37:13)
 - /home/robclark/src/envytools/rnndb/adreno/a2xx.xml          (  36805 bytes, from 2018-07-03 19:37:13)
@@ -21,6 +22,23 @@ The rules-ng-ng source files this header was generated from are:
 - /home/robclark/src/envytools/rnndb/adreno/ocmem.xml         (   1773 bytes, from 2018-07-03 19:37:13)
 
 Copyright (C) 2013-2018 by the following authors:
+=======
+- /home/robclark/src/mesa/mesa/src/freedreno/registers/adreno.xml                     (    594 bytes, from 2021-02-18 16:45:44)
+- /home/robclark/src/mesa/mesa/src/freedreno/registers/freedreno_copyright.xml        (   1572 bytes, from 2021-02-18 16:45:44)
+- /home/robclark/src/mesa/mesa/src/freedreno/registers/adreno/a2xx.xml                (  90810 bytes, from 2021-02-18 16:45:44)
+- /home/robclark/src/mesa/mesa/src/freedreno/registers/adreno/adreno_common.xml       (  14386 bytes, from 2021-02-18 16:45:44)
+- /home/robclark/src/mesa/mesa/src/freedreno/registers/adreno/adreno_pm4.xml          (  67699 bytes, from 2021-05-31 20:21:57)
+- /home/robclark/src/mesa/mesa/src/freedreno/registers/adreno/a3xx.xml                (  84226 bytes, from 2021-02-18 16:45:44)
+- /home/robclark/src/mesa/mesa/src/freedreno/registers/adreno/a4xx.xml                ( 112551 bytes, from 2021-02-18 16:45:44)
+- /home/robclark/src/mesa/mesa/src/freedreno/registers/adreno/a5xx.xml                ( 150713 bytes, from 2021-06-10 22:34:02)
+- /home/robclark/src/mesa/mesa/src/freedreno/registers/adreno/a6xx.xml                ( 180049 bytes, from 2021-06-02 21:44:19)
+- /home/robclark/src/mesa/mesa/src/freedreno/registers/adreno/a6xx_gmu.xml            (  11331 bytes, from 2021-05-21 19:18:08)
+- /home/robclark/src/mesa/mesa/src/freedreno/registers/adreno/ocmem.xml               (   1773 bytes, from 2021-02-18 16:45:44)
+- /home/robclark/src/mesa/mesa/src/freedreno/registers/adreno/adreno_control_regs.xml (   6038 bytes, from 2021-05-27 20:22:36)
+- /home/robclark/src/mesa/mesa/src/freedreno/registers/adreno/adreno_pipe_regs.xml    (   2924 bytes, from 2021-05-27 20:18:13)
+
+Copyright (C) 2013-2021 by the following authors:
+>>>>>>> upstream/android-13
 - Rob Clark <robdclark@gmail.com> (robclark)
 - Ilia Mirkin <imirkin@alum.mit.edu> (imirkin)
 
@@ -91,6 +109,10 @@ enum a4xx_color_fmt {
 	RB4_R32G32B32A32_FLOAT = 60,
 	RB4_R32G32B32A32_UINT = 61,
 	RB4_R32G32B32A32_SINT = 62,
+<<<<<<< HEAD
+=======
+	RB4_NONE = 255,
+>>>>>>> upstream/android-13
 };
 
 enum a4xx_tile_mode {
@@ -161,6 +183,10 @@ enum a4xx_vtx_fmt {
 	VFMT4_2_10_10_10_UNORM = 61,
 	VFMT4_2_10_10_10_SINT = 62,
 	VFMT4_2_10_10_10_SNORM = 63,
+<<<<<<< HEAD
+=======
+	VFMT4_NONE = 255,
+>>>>>>> upstream/android-13
 };
 
 enum a4xx_tex_fmt {
@@ -248,6 +274,7 @@ enum a4xx_tex_fmt {
 	TFMT4_ASTC_10x10 = 122,
 	TFMT4_ASTC_12x10 = 123,
 	TFMT4_ASTC_12x12 = 124,
+<<<<<<< HEAD
 };
 
 enum a4xx_tex_fetchsize {
@@ -256,6 +283,9 @@ enum a4xx_tex_fetchsize {
 	TFETCH4_4_BYTE = 2,
 	TFETCH4_8_BYTE = 3,
 	TFETCH4_16_BYTE = 4,
+=======
+	TFMT4_NONE = 255,
+>>>>>>> upstream/android-13
 };
 
 enum a4xx_depth_format {
@@ -949,10 +979,19 @@ static inline uint32_t A4XX_RB_MSAA_CONTROL_SAMPLES(uint32_t val)
 }
 
 #define REG_A4XX_RB_RENDER_CONTROL2				0x000020a3
+<<<<<<< HEAD
 #define A4XX_RB_RENDER_CONTROL2_XCOORD				0x00000001
 #define A4XX_RB_RENDER_CONTROL2_YCOORD				0x00000002
 #define A4XX_RB_RENDER_CONTROL2_ZCOORD				0x00000004
 #define A4XX_RB_RENDER_CONTROL2_WCOORD				0x00000008
+=======
+#define A4XX_RB_RENDER_CONTROL2_COORD_MASK__MASK		0x0000000f
+#define A4XX_RB_RENDER_CONTROL2_COORD_MASK__SHIFT		0
+static inline uint32_t A4XX_RB_RENDER_CONTROL2_COORD_MASK(uint32_t val)
+{
+	return ((val) << A4XX_RB_RENDER_CONTROL2_COORD_MASK__SHIFT) & A4XX_RB_RENDER_CONTROL2_COORD_MASK__MASK;
+}
+>>>>>>> upstream/android-13
 #define A4XX_RB_RENDER_CONTROL2_SAMPLEMASK			0x00000010
 #define A4XX_RB_RENDER_CONTROL2_FACENESS			0x00000020
 #define A4XX_RB_RENDER_CONTROL2_SAMPLEID			0x00000040
@@ -963,7 +1002,14 @@ static inline uint32_t A4XX_RB_RENDER_CONTROL2_MSAA_SAMPLES(uint32_t val)
 	return ((val) << A4XX_RB_RENDER_CONTROL2_MSAA_SAMPLES__SHIFT) & A4XX_RB_RENDER_CONTROL2_MSAA_SAMPLES__MASK;
 }
 #define A4XX_RB_RENDER_CONTROL2_SAMPLEID_HR			0x00000800
+<<<<<<< HEAD
 #define A4XX_RB_RENDER_CONTROL2_VARYING				0x00001000
+=======
+#define A4XX_RB_RENDER_CONTROL2_IJ_PERSP_PIXEL			0x00001000
+#define A4XX_RB_RENDER_CONTROL2_IJ_PERSP_CENTROID		0x00002000
+#define A4XX_RB_RENDER_CONTROL2_IJ_PERSP_SAMPLE			0x00004000
+#define A4XX_RB_RENDER_CONTROL2_SIZE				0x00008000
+>>>>>>> upstream/android-13
 
 static inline uint32_t REG_A4XX_RB_MRT(uint32_t i0) { return 0x000020a4 + 0x5*i0; }
 
@@ -1083,7 +1129,11 @@ static inline uint32_t A4XX_RB_BLEND_RED_SINT(uint32_t val)
 #define A4XX_RB_BLEND_RED_FLOAT__SHIFT				16
 static inline uint32_t A4XX_RB_BLEND_RED_FLOAT(float val)
 {
+<<<<<<< HEAD
 	return ((util_float_to_half(val)) << A4XX_RB_BLEND_RED_FLOAT__SHIFT) & A4XX_RB_BLEND_RED_FLOAT__MASK;
+=======
+	return ((_mesa_float_to_half(val)) << A4XX_RB_BLEND_RED_FLOAT__SHIFT) & A4XX_RB_BLEND_RED_FLOAT__MASK;
+>>>>>>> upstream/android-13
 }
 
 #define REG_A4XX_RB_BLEND_RED_F32				0x000020f1
@@ -1111,7 +1161,11 @@ static inline uint32_t A4XX_RB_BLEND_GREEN_SINT(uint32_t val)
 #define A4XX_RB_BLEND_GREEN_FLOAT__SHIFT			16
 static inline uint32_t A4XX_RB_BLEND_GREEN_FLOAT(float val)
 {
+<<<<<<< HEAD
 	return ((util_float_to_half(val)) << A4XX_RB_BLEND_GREEN_FLOAT__SHIFT) & A4XX_RB_BLEND_GREEN_FLOAT__MASK;
+=======
+	return ((_mesa_float_to_half(val)) << A4XX_RB_BLEND_GREEN_FLOAT__SHIFT) & A4XX_RB_BLEND_GREEN_FLOAT__MASK;
+>>>>>>> upstream/android-13
 }
 
 #define REG_A4XX_RB_BLEND_GREEN_F32				0x000020f3
@@ -1139,7 +1193,11 @@ static inline uint32_t A4XX_RB_BLEND_BLUE_SINT(uint32_t val)
 #define A4XX_RB_BLEND_BLUE_FLOAT__SHIFT				16
 static inline uint32_t A4XX_RB_BLEND_BLUE_FLOAT(float val)
 {
+<<<<<<< HEAD
 	return ((util_float_to_half(val)) << A4XX_RB_BLEND_BLUE_FLOAT__SHIFT) & A4XX_RB_BLEND_BLUE_FLOAT__MASK;
+=======
+	return ((_mesa_float_to_half(val)) << A4XX_RB_BLEND_BLUE_FLOAT__SHIFT) & A4XX_RB_BLEND_BLUE_FLOAT__MASK;
+>>>>>>> upstream/android-13
 }
 
 #define REG_A4XX_RB_BLEND_BLUE_F32				0x000020f5
@@ -1167,7 +1225,11 @@ static inline uint32_t A4XX_RB_BLEND_ALPHA_SINT(uint32_t val)
 #define A4XX_RB_BLEND_ALPHA_FLOAT__SHIFT			16
 static inline uint32_t A4XX_RB_BLEND_ALPHA_FLOAT(float val)
 {
+<<<<<<< HEAD
 	return ((util_float_to_half(val)) << A4XX_RB_BLEND_ALPHA_FLOAT__SHIFT) & A4XX_RB_BLEND_ALPHA_FLOAT__MASK;
+=======
+	return ((_mesa_float_to_half(val)) << A4XX_RB_BLEND_ALPHA_FLOAT__SHIFT) & A4XX_RB_BLEND_ALPHA_FLOAT__MASK;
+>>>>>>> upstream/android-13
 }
 
 #define REG_A4XX_RB_BLEND_ALPHA_F32				0x000020f7
@@ -1877,10 +1939,13 @@ static inline uint32_t REG_A4XX_RBBM_CLOCK_DELAY_TP_REG(uint32_t i0) { return 0x
 
 #define REG_A4XX_RBBM_PERFCTR_TP_0_HI				0x00000115
 
+<<<<<<< HEAD
 #define REG_A4XX_RBBM_PERFCTR_TP_0_LO				0x00000114
 
 #define REG_A4XX_RBBM_PERFCTR_TP_0_HI				0x00000115
 
+=======
+>>>>>>> upstream/android-13
 #define REG_A4XX_RBBM_PERFCTR_TP_1_LO				0x00000116
 
 #define REG_A4XX_RBBM_PERFCTR_TP_1_HI				0x00000117
@@ -2061,8 +2126,11 @@ static inline uint32_t REG_A4XX_RBBM_CLOCK_DELAY_RB_MARB_CCU_L1_REG(uint32_t i0)
 
 #define REG_A4XX_RBBM_SP_REGFILE_SLEEP_CNTL_1			0x0000009a
 
+<<<<<<< HEAD
 #define REG_A4XX_RBBM_PERFCTR_PWR_1_LO				0x00000168
 
+=======
+>>>>>>> upstream/android-13
 #define REG_A4XX_RBBM_PERFCTR_CTL				0x00000170
 
 #define REG_A4XX_RBBM_PERFCTR_LOAD_CMD0				0x00000171
@@ -2210,8 +2278,23 @@ static inline uint32_t A4XX_CP_PROTECT_REG_MASK_LEN(uint32_t val)
 {
 	return ((val) << A4XX_CP_PROTECT_REG_MASK_LEN__SHIFT) & A4XX_CP_PROTECT_REG_MASK_LEN__MASK;
 }
+<<<<<<< HEAD
 #define A4XX_CP_PROTECT_REG_TRAP_WRITE				0x20000000
 #define A4XX_CP_PROTECT_REG_TRAP_READ				0x40000000
+=======
+#define A4XX_CP_PROTECT_REG_TRAP_WRITE__MASK			0x20000000
+#define A4XX_CP_PROTECT_REG_TRAP_WRITE__SHIFT			29
+static inline uint32_t A4XX_CP_PROTECT_REG_TRAP_WRITE(uint32_t val)
+{
+	return ((val) << A4XX_CP_PROTECT_REG_TRAP_WRITE__SHIFT) & A4XX_CP_PROTECT_REG_TRAP_WRITE__MASK;
+}
+#define A4XX_CP_PROTECT_REG_TRAP_READ__MASK			0x40000000
+#define A4XX_CP_PROTECT_REG_TRAP_READ__SHIFT			30
+static inline uint32_t A4XX_CP_PROTECT_REG_TRAP_READ(uint32_t val)
+{
+	return ((val) << A4XX_CP_PROTECT_REG_TRAP_READ__SHIFT) & A4XX_CP_PROTECT_REG_TRAP_READ__MASK;
+}
+>>>>>>> upstream/android-13
 
 #define REG_A4XX_CP_PROTECT_CTRL				0x00000250
 
@@ -3151,8 +3234,14 @@ static inline uint32_t A4XX_TPL1_TP_TEX_COUNT_GS(uint32_t val)
 #define A4XX_GRAS_CL_CLIP_CNTL_ZFAR_CLIP_DISABLE		0x00020000
 #define A4XX_GRAS_CL_CLIP_CNTL_ZERO_GB_SCALE_Z			0x00400000
 
+<<<<<<< HEAD
 #define REG_A4XX_GRAS_CLEAR_CNTL				0x00002003
 #define A4XX_GRAS_CLEAR_CNTL_NOT_FASTCLEAR			0x00000001
+=======
+#define REG_A4XX_GRAS_CNTL					0x00002003
+#define A4XX_GRAS_CNTL_IJ_PERSP					0x00000001
+#define A4XX_GRAS_CNTL_IJ_LINEAR				0x00000002
+>>>>>>> upstream/android-13
 
 #define REG_A4XX_GRAS_CL_GB_CLIP_ADJ				0x00002004
 #define A4XX_GRAS_CL_GB_CLIP_ADJ_HORZ__MASK			0x000003ff
@@ -3524,6 +3613,7 @@ static inline uint32_t A4XX_HLSQ_CONTROL_2_REG_SAMPLEMASK_REGID(uint32_t val)
 }
 
 #define REG_A4XX_HLSQ_CONTROL_3_REG				0x000023c3
+<<<<<<< HEAD
 #define A4XX_HLSQ_CONTROL_3_REG_REGID__MASK			0x000000ff
 #define A4XX_HLSQ_CONTROL_3_REG_REGID__SHIFT			0
 static inline uint32_t A4XX_HLSQ_CONTROL_3_REG_REGID(uint32_t val)
@@ -3532,6 +3622,46 @@ static inline uint32_t A4XX_HLSQ_CONTROL_3_REG_REGID(uint32_t val)
 }
 
 #define REG_A4XX_HLSQ_CONTROL_4_REG				0x000023c4
+=======
+#define A4XX_HLSQ_CONTROL_3_REG_IJ_PERSP_PIXEL__MASK		0x000000ff
+#define A4XX_HLSQ_CONTROL_3_REG_IJ_PERSP_PIXEL__SHIFT		0
+static inline uint32_t A4XX_HLSQ_CONTROL_3_REG_IJ_PERSP_PIXEL(uint32_t val)
+{
+	return ((val) << A4XX_HLSQ_CONTROL_3_REG_IJ_PERSP_PIXEL__SHIFT) & A4XX_HLSQ_CONTROL_3_REG_IJ_PERSP_PIXEL__MASK;
+}
+#define A4XX_HLSQ_CONTROL_3_REG_IJ_LINEAR_PIXEL__MASK		0x0000ff00
+#define A4XX_HLSQ_CONTROL_3_REG_IJ_LINEAR_PIXEL__SHIFT		8
+static inline uint32_t A4XX_HLSQ_CONTROL_3_REG_IJ_LINEAR_PIXEL(uint32_t val)
+{
+	return ((val) << A4XX_HLSQ_CONTROL_3_REG_IJ_LINEAR_PIXEL__SHIFT) & A4XX_HLSQ_CONTROL_3_REG_IJ_LINEAR_PIXEL__MASK;
+}
+#define A4XX_HLSQ_CONTROL_3_REG_IJ_PERSP_CENTROID__MASK		0x00ff0000
+#define A4XX_HLSQ_CONTROL_3_REG_IJ_PERSP_CENTROID__SHIFT	16
+static inline uint32_t A4XX_HLSQ_CONTROL_3_REG_IJ_PERSP_CENTROID(uint32_t val)
+{
+	return ((val) << A4XX_HLSQ_CONTROL_3_REG_IJ_PERSP_CENTROID__SHIFT) & A4XX_HLSQ_CONTROL_3_REG_IJ_PERSP_CENTROID__MASK;
+}
+#define A4XX_HLSQ_CONTROL_3_REG_IJ_LINEAR_CENTROID__MASK	0xff000000
+#define A4XX_HLSQ_CONTROL_3_REG_IJ_LINEAR_CENTROID__SHIFT	24
+static inline uint32_t A4XX_HLSQ_CONTROL_3_REG_IJ_LINEAR_CENTROID(uint32_t val)
+{
+	return ((val) << A4XX_HLSQ_CONTROL_3_REG_IJ_LINEAR_CENTROID__SHIFT) & A4XX_HLSQ_CONTROL_3_REG_IJ_LINEAR_CENTROID__MASK;
+}
+
+#define REG_A4XX_HLSQ_CONTROL_4_REG				0x000023c4
+#define A4XX_HLSQ_CONTROL_4_REG_IJ_PERSP_SAMPLE__MASK		0x000000ff
+#define A4XX_HLSQ_CONTROL_4_REG_IJ_PERSP_SAMPLE__SHIFT		0
+static inline uint32_t A4XX_HLSQ_CONTROL_4_REG_IJ_PERSP_SAMPLE(uint32_t val)
+{
+	return ((val) << A4XX_HLSQ_CONTROL_4_REG_IJ_PERSP_SAMPLE__SHIFT) & A4XX_HLSQ_CONTROL_4_REG_IJ_PERSP_SAMPLE__MASK;
+}
+#define A4XX_HLSQ_CONTROL_4_REG_IJ_LINEAR_SAMPLE__MASK		0x0000ff00
+#define A4XX_HLSQ_CONTROL_4_REG_IJ_LINEAR_SAMPLE__SHIFT		8
+static inline uint32_t A4XX_HLSQ_CONTROL_4_REG_IJ_LINEAR_SAMPLE(uint32_t val)
+{
+	return ((val) << A4XX_HLSQ_CONTROL_4_REG_IJ_LINEAR_SAMPLE__SHIFT) & A4XX_HLSQ_CONTROL_4_REG_IJ_LINEAR_SAMPLE__MASK;
+}
+>>>>>>> upstream/android-13
 
 #define REG_A4XX_HLSQ_VS_CONTROL_REG				0x000023c5
 #define A4XX_HLSQ_VS_CONTROL_REG_CONSTLENGTH__MASK		0x000000ff
@@ -4115,11 +4245,19 @@ static inline uint32_t A4XX_TEX_CONST_1_WIDTH(uint32_t val)
 }
 
 #define REG_A4XX_TEX_CONST_2					0x00000002
+<<<<<<< HEAD
 #define A4XX_TEX_CONST_2_FETCHSIZE__MASK			0x0000000f
 #define A4XX_TEX_CONST_2_FETCHSIZE__SHIFT			0
 static inline uint32_t A4XX_TEX_CONST_2_FETCHSIZE(enum a4xx_tex_fetchsize val)
 {
 	return ((val) << A4XX_TEX_CONST_2_FETCHSIZE__SHIFT) & A4XX_TEX_CONST_2_FETCHSIZE__MASK;
+=======
+#define A4XX_TEX_CONST_2_PITCHALIGN__MASK			0x0000000f
+#define A4XX_TEX_CONST_2_PITCHALIGN__SHIFT			0
+static inline uint32_t A4XX_TEX_CONST_2_PITCHALIGN(uint32_t val)
+{
+	return ((val) << A4XX_TEX_CONST_2_PITCHALIGN__SHIFT) & A4XX_TEX_CONST_2_PITCHALIGN__MASK;
+>>>>>>> upstream/android-13
 }
 #define A4XX_TEX_CONST_2_PITCH__MASK				0x3ffffe00
 #define A4XX_TEX_CONST_2_PITCH__SHIFT				9

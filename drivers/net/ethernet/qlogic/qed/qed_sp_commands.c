@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* QLogic qed NIC Driver
  * Copyright (c) 2015-2017  QLogic Corporation
  *
@@ -28,6 +29,12 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause)
+/* QLogic qed NIC Driver
+ * Copyright (c) 2015-2017  QLogic Corporation
+ * Copyright (c) 2019-2020 Marvell International Ltd.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -326,13 +333,22 @@ int qed_sp_pf_start(struct qed_hwfn *p_hwfn,
 		    struct qed_tunnel_info *p_tunn,
 		    bool allow_npar_tx_switch)
 {
+<<<<<<< HEAD
+=======
+	struct outer_tag_config_struct *outer_tag_config;
+>>>>>>> upstream/android-13
 	struct pf_start_ramrod_data *p_ramrod = NULL;
 	u16 sb = qed_int_get_sp_sb_id(p_hwfn);
 	u8 sb_index = p_hwfn->p_eq->eq_sb_index;
 	struct qed_spq_entry *p_ent = NULL;
 	struct qed_sp_init_data init_data;
+<<<<<<< HEAD
 	int rc = -EINVAL;
 	u8 page_cnt, i;
+=======
+	u8 page_cnt, i;
+	int rc;
+>>>>>>> upstream/android-13
 
 	/* update initial eq producer */
 	qed_eq_prod_update(p_hwfn,
@@ -362,6 +378,7 @@ int qed_sp_pf_start(struct qed_hwfn *p_hwfn,
 	else
 		p_ramrod->mf_mode = MF_NPAR;
 
+<<<<<<< HEAD
 	p_ramrod->outer_tag_config.outer_tag.tci =
 				cpu_to_le16(p_hwfn->hw_info.ovlan);
 	if (test_bit(QED_MF_8021Q_TAGGING, &p_hwfn->cdev->mf_bits)) {
@@ -374,27 +391,58 @@ int qed_sp_pf_start(struct qed_hwfn *p_hwfn,
 	p_ramrod->outer_tag_config.pri_map_valid = 1;
 	for (i = 0; i < QED_MAX_PFC_PRIORITIES; i++)
 		p_ramrod->outer_tag_config.inner_to_outer_pri_map[i] = i;
+=======
+	outer_tag_config = &p_ramrod->outer_tag_config;
+	outer_tag_config->outer_tag.tci = cpu_to_le16(p_hwfn->hw_info.ovlan);
+
+	if (test_bit(QED_MF_8021Q_TAGGING, &p_hwfn->cdev->mf_bits)) {
+		outer_tag_config->outer_tag.tpid = cpu_to_le16(ETH_P_8021Q);
+	} else if (test_bit(QED_MF_8021AD_TAGGING, &p_hwfn->cdev->mf_bits)) {
+		outer_tag_config->outer_tag.tpid = cpu_to_le16(ETH_P_8021AD);
+		outer_tag_config->enable_stag_pri_change = 1;
+	}
+
+	outer_tag_config->pri_map_valid = 1;
+	for (i = 0; i < QED_MAX_PFC_PRIORITIES; i++)
+		outer_tag_config->inner_to_outer_pri_map[i] = i;
+>>>>>>> upstream/android-13
 
 	/* enable_stag_pri_change should be set if port is in BD mode or,
 	 * UFP with Host Control mode.
 	 */
 	if (test_bit(QED_MF_UFP_SPECIFIC, &p_hwfn->cdev->mf_bits)) {
 		if (p_hwfn->ufp_info.pri_type == QED_UFP_PRI_OS)
+<<<<<<< HEAD
 			p_ramrod->outer_tag_config.enable_stag_pri_change = 1;
 		else
 			p_ramrod->outer_tag_config.enable_stag_pri_change = 0;
 
 		p_ramrod->outer_tag_config.outer_tag.tci |=
+=======
+			outer_tag_config->enable_stag_pri_change = 1;
+		else
+			outer_tag_config->enable_stag_pri_change = 0;
+
+		outer_tag_config->outer_tag.tci |=
+>>>>>>> upstream/android-13
 		    cpu_to_le16(((u16)p_hwfn->ufp_info.tc << 13));
 	}
 
 	/* Place EQ address in RAMROD */
 	DMA_REGPAIR_LE(p_ramrod->event_ring_pbl_addr,
+<<<<<<< HEAD
 		       p_hwfn->p_eq->chain.pbl_sp.p_phys_table);
 	page_cnt = (u8)qed_chain_get_page_cnt(&p_hwfn->p_eq->chain);
 	p_ramrod->event_ring_num_pages = page_cnt;
 	DMA_REGPAIR_LE(p_ramrod->consolid_q_pbl_addr,
 		       p_hwfn->p_consq->chain.pbl_sp.p_phys_table);
+=======
+		       qed_chain_get_pbl_phys(&p_hwfn->p_eq->chain));
+	page_cnt = (u8)qed_chain_get_page_cnt(&p_hwfn->p_eq->chain);
+	p_ramrod->event_ring_num_pages = page_cnt;
+	DMA_REGPAIR_LE(p_ramrod->consolid_q_pbl_addr,
+		       qed_chain_get_pbl_phys(&p_hwfn->p_consq->chain));
+>>>>>>> upstream/android-13
 
 	qed_tunn_set_pf_start_params(p_hwfn, p_tunn, &p_ramrod->tunnel_config);
 
@@ -409,7 +457,12 @@ int qed_sp_pf_start(struct qed_hwfn *p_hwfn,
 		p_ramrod->personality = PERSONALITY_FCOE;
 		break;
 	case QED_PCI_ISCSI:
+<<<<<<< HEAD
 		p_ramrod->personality = PERSONALITY_ISCSI;
+=======
+	case QED_PCI_NVMETCP:
+		p_ramrod->personality = PERSONALITY_TCP_ULP;
+>>>>>>> upstream/android-13
 		break;
 	case QED_PCI_ETH_ROCE:
 	case QED_PCI_ETH_IWARP:
@@ -432,7 +485,11 @@ int qed_sp_pf_start(struct qed_hwfn *p_hwfn,
 
 	DP_VERBOSE(p_hwfn, QED_MSG_SPQ,
 		   "Setting event_ring_sb [id %04x index %02x], outer_tag.tci [%d]\n",
+<<<<<<< HEAD
 		   sb, sb_index, p_ramrod->outer_tag_config.outer_tag.tci);
+=======
+		   sb, sb_index, outer_tag_config->outer_tag.tci);
+>>>>>>> upstream/android-13
 
 	rc = qed_spq_post(p_hwfn, p_ent, NULL);
 
@@ -447,7 +504,11 @@ int qed_sp_pf_update(struct qed_hwfn *p_hwfn)
 {
 	struct qed_spq_entry *p_ent = NULL;
 	struct qed_sp_init_data init_data;
+<<<<<<< HEAD
 	int rc = -EINVAL;
+=======
+	int rc;
+>>>>>>> upstream/android-13
 
 	/* Get SPQ entry */
 	memset(&init_data, 0, sizeof(init_data));
@@ -471,7 +532,11 @@ int qed_sp_pf_update_ufp(struct qed_hwfn *p_hwfn)
 {
 	struct qed_spq_entry *p_ent = NULL;
 	struct qed_sp_init_data init_data;
+<<<<<<< HEAD
 	int rc = -EOPNOTSUPP;
+=======
+	int rc;
+>>>>>>> upstream/android-13
 
 	if (p_hwfn->ufp_info.pri_type == QED_UFP_PRI_UNKNOWN) {
 		DP_INFO(p_hwfn, "Invalid priority type %d\n",
@@ -509,7 +574,11 @@ int qed_sp_pf_update_tunn_cfg(struct qed_hwfn *p_hwfn,
 {
 	struct qed_spq_entry *p_ent = NULL;
 	struct qed_sp_init_data init_data;
+<<<<<<< HEAD
 	int rc = -EINVAL;
+=======
+	int rc;
+>>>>>>> upstream/android-13
 
 	if (IS_VF(p_hwfn->cdev))
 		return qed_vf_pf_tunnel_param_update(p_hwfn, p_tunn);
@@ -546,7 +615,11 @@ int qed_sp_pf_stop(struct qed_hwfn *p_hwfn)
 {
 	struct qed_spq_entry *p_ent = NULL;
 	struct qed_sp_init_data init_data;
+<<<<<<< HEAD
 	int rc = -EINVAL;
+=======
+	int rc;
+>>>>>>> upstream/android-13
 
 	/* Get SPQ entry */
 	memset(&init_data, 0, sizeof(init_data));
@@ -588,7 +661,11 @@ int qed_sp_pf_update_stag(struct qed_hwfn *p_hwfn)
 {
 	struct qed_spq_entry *p_ent = NULL;
 	struct qed_sp_init_data init_data;
+<<<<<<< HEAD
 	int rc = -EINVAL;
+=======
+	int rc;
+>>>>>>> upstream/android-13
 
 	/* Get SPQ entry */
 	memset(&init_data, 0, sizeof(init_data));
@@ -604,6 +681,12 @@ int qed_sp_pf_update_stag(struct qed_hwfn *p_hwfn)
 
 	p_ent->ramrod.pf_update.update_mf_vlan_flag = true;
 	p_ent->ramrod.pf_update.mf_vlan = cpu_to_le16(p_hwfn->hw_info.ovlan);
+<<<<<<< HEAD
+=======
+	if (test_bit(QED_MF_UFP_SPECIFIC, &p_hwfn->cdev->mf_bits))
+		p_ent->ramrod.pf_update.mf_vlan |=
+			cpu_to_le16(((u16)p_hwfn->ufp_info.tc << 13));
+>>>>>>> upstream/android-13
 
 	return qed_spq_post(p_hwfn, p_ent, NULL);
 }

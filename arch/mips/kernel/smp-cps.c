@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2013 Imagination Technologies
  * Author: Paul Burton <paul.burton@mips.com>
@@ -6,6 +7,12 @@
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2013 Imagination Technologies
+ * Author: Paul Burton <paul.burton@mips.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/cpu.h>
@@ -16,6 +23,10 @@
 #include <linux/slab.h>
 #include <linux/smp.h>
 #include <linux/types.h>
+<<<<<<< HEAD
+=======
+#include <linux/irq.h>
+>>>>>>> upstream/android-13
 
 #include <asm/bcache.h>
 #include <asm/mips-cps.h>
@@ -398,6 +409,58 @@ static void cps_smp_finish(void)
 	local_irq_enable();
 }
 
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_HOTPLUG_CPU) || defined(CONFIG_KEXEC)
+
+enum cpu_death {
+	CPU_DEATH_HALT,
+	CPU_DEATH_POWER,
+};
+
+static void cps_shutdown_this_cpu(enum cpu_death death)
+{
+	unsigned int cpu, core, vpe_id;
+
+	cpu = smp_processor_id();
+	core = cpu_core(&cpu_data[cpu]);
+
+	if (death == CPU_DEATH_HALT) {
+		vpe_id = cpu_vpe_id(&cpu_data[cpu]);
+
+		pr_debug("Halting core %d VP%d\n", core, vpe_id);
+		if (cpu_has_mipsmt) {
+			/* Halt this TC */
+			write_c0_tchalt(TCHALT_H);
+			instruction_hazard();
+		} else if (cpu_has_vp) {
+			write_cpc_cl_vp_stop(1 << vpe_id);
+
+			/* Ensure that the VP_STOP register is written */
+			wmb();
+		}
+	} else {
+		pr_debug("Gating power to core %d\n", core);
+		/* Power down the core */
+		cps_pm_enter_state(CPS_PM_POWER_GATED);
+	}
+}
+
+#ifdef CONFIG_KEXEC
+
+static void cps_kexec_nonboot_cpu(void)
+{
+	if (cpu_has_mipsmt || cpu_has_vp)
+		cps_shutdown_this_cpu(CPU_DEATH_HALT);
+	else
+		cps_shutdown_this_cpu(CPU_DEATH_POWER);
+}
+
+#endif /* CONFIG_KEXEC */
+
+#endif /* CONFIG_HOTPLUG_CPU || CONFIG_KEXEC */
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_HOTPLUG_CPU
 
 static int cps_cpu_disable(void)
@@ -405,9 +468,12 @@ static int cps_cpu_disable(void)
 	unsigned cpu = smp_processor_id();
 	struct core_boot_config *core_cfg;
 
+<<<<<<< HEAD
 	if (!cpu)
 		return -EBUSY;
 
+=======
+>>>>>>> upstream/android-13
 	if (!cps_pm_support_state(CPS_PM_POWER_GATED))
 		return -EINVAL;
 
@@ -416,11 +482,16 @@ static int cps_cpu_disable(void)
 	smp_mb__after_atomic();
 	set_cpu_online(cpu, false);
 	calculate_cpu_foreign_map();
+<<<<<<< HEAD
+=======
+	irq_migrate_all_off_this_cpu();
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static unsigned cpu_death_sibling;
+<<<<<<< HEAD
 static enum {
 	CPU_DEATH_HALT,
 	CPU_DEATH_POWER,
@@ -429,11 +500,21 @@ static enum {
 void play_dead(void)
 {
 	unsigned int cpu, core, vpe_id;
+=======
+static enum cpu_death cpu_death;
+
+void play_dead(void)
+{
+	unsigned int cpu;
+>>>>>>> upstream/android-13
 
 	local_irq_disable();
 	idle_task_exit();
 	cpu = smp_processor_id();
+<<<<<<< HEAD
 	core = cpu_core(&cpu_data[cpu]);
+=======
+>>>>>>> upstream/android-13
 	cpu_death = CPU_DEATH_POWER;
 
 	pr_debug("CPU%d going offline\n", cpu);
@@ -456,6 +537,7 @@ void play_dead(void)
 	/* This CPU has chosen its way out */
 	(void)cpu_report_death();
 
+<<<<<<< HEAD
 	if (cpu_death == CPU_DEATH_HALT) {
 		vpe_id = cpu_vpe_id(&cpu_data[cpu]);
 
@@ -475,6 +557,9 @@ void play_dead(void)
 		/* Power down the core */
 		cps_pm_enter_state(CPS_PM_POWER_GATED);
 	}
+=======
+	cps_shutdown_this_cpu(cpu_death);
+>>>>>>> upstream/android-13
 
 	/* This should never be reached */
 	panic("Failed to offline CPU %u", cpu);
@@ -593,6 +678,12 @@ static const struct plat_smp_ops cps_smp_ops = {
 	.cpu_disable		= cps_cpu_disable,
 	.cpu_die		= cps_cpu_die,
 #endif
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_KEXEC
+	.kexec_nonboot_cpu	= cps_kexec_nonboot_cpu,
+#endif
+>>>>>>> upstream/android-13
 };
 
 bool mips_cps_smp_in_use(void)

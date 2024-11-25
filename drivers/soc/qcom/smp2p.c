@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015, Sony Mobile Communications AB.
  * Copyright (c) 2012-2013, The Linux Foundation. All rights reserved.
@@ -10,6 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2015, Sony Mobile Communications AB.
+ * Copyright (c) 2012-2013, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/interrupt.h>
@@ -120,6 +127,10 @@ struct smp2p_entry {
  * struct qcom_smp2p - device driver context
  * @dev:	device driver handle
  * @in:		pointer to the inbound smem item
+<<<<<<< HEAD
+=======
+ * @out:	pointer to the outbound smem item
+>>>>>>> upstream/android-13
  * @smem_items:	ids of the two smem items
  * @valid_entries: already scanned inbound entries
  * @local_pid:	processor id of the inbound edge
@@ -483,10 +494,15 @@ static int qcom_smp2p_probe(struct platform_device *pdev)
 		goto report_read_failure;
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(&pdev->dev, "unable to acquire smp2p interrupt\n");
 		return irq;
 	}
+=======
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 
 	smp2p->mbox_client.dev = &pdev->dev;
 	smp2p->mbox_client.knows_txdone = true;

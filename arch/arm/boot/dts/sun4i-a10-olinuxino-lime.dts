@@ -74,7 +74,11 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&led_pins_olinuxinolime>;
 
+<<<<<<< HEAD
 		green {
+=======
+		led {
+>>>>>>> upstream/android-13
 			label = "a10-olinuxino-lime:green:usr";
 			gpios = <&pio 7 2 GPIO_ACTIVE_HIGH>;
 			default-state = "on";
@@ -112,7 +116,11 @@
 };
 
 &emac {
+<<<<<<< HEAD
 	phy = <&phy1>;
+=======
+	phy-handle = <&phy1>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
@@ -186,6 +194,7 @@
 		function = "gpio_out";
 		drive-strength = <20>;
 	};
+<<<<<<< HEAD
 
 	usb0_id_detect_pin: usb0-id-detect-pin {
 		pins = "PH4";
@@ -198,6 +207,8 @@
 		function = "gpio_in";
 		bias-pull-down;
 	};
+=======
+>>>>>>> upstream/android-13
 };
 
 &reg_ahci_5v {
@@ -229,10 +240,15 @@
 };
 
 &usbphy {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&usb0_id_detect_pin>, <&usb0_vbus_detect_pin>;
 	usb0_id_det-gpio   = <&pio 7 4 GPIO_ACTIVE_HIGH>; /* PH4 */
 	usb0_vbus_det-gpio = <&pio 7 5 GPIO_ACTIVE_HIGH>; /* PH5 */
+=======
+	usb0_id_det-gpios = <&pio 7 4 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; /* PH4 */
+	usb0_vbus_det-gpios = <&pio 7 5 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; /* PH5 */
+>>>>>>> upstream/android-13
 	usb0_vbus-supply   = <&reg_usb0_vbus>;
 	usb1_vbus-supply = <&reg_usb1_vbus>;
 	usb2_vbus-supply = <&reg_usb2_vbus>;

@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) ST-Ericsson SA 2010
  *
  * Author: Naveen Kumar G <naveen.gaddipati@stericsson.com> for ST-Ericsson
  * Author: Sundar Iyer <sundar.iyer@stericsson.com> for ST-Ericsson
  *
+<<<<<<< HEAD
  * License terms:GNU General Public License (GPL) version 2
  *
+=======
+>>>>>>> upstream/android-13
  * Keypad controller driver for the SKE (Scroll Key Encoder) module used in
  * the Nomadik 8815 and Ux500 platforms.
  */
@@ -59,6 +66,11 @@
  * @board:	keypad platform device
  * @keymap:	matrix scan code table for keycodes
  * @clk:	clock structure pointer
+<<<<<<< HEAD
+=======
+ * @pclk:	clock structure pointer
+ * @ske_keypad_lock: spinlock protecting the keypad read/writes
+>>>>>>> upstream/android-13
  */
 struct ske_keypad {
 	int irq;
@@ -236,10 +248,15 @@ static int __init ske_keypad_probe(struct platform_device *pdev)
 	}
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(&pdev->dev, "failed to get keypad irq\n");
 		return -EINVAL;
 	}
+=======
+	if (irq < 0)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	if (!res) {

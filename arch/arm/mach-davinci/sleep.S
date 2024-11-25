@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * (C) Copyright 2009, Texas Instruments, Inc. http://www.ti.com/
  *
@@ -14,6 +15,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * (C) Copyright 2009, Texas Instruments, Inc. https://www.ti.com/
+>>>>>>> upstream/android-13
  */
 
 /* replicated define because linux/bitops.h cannot be included in assembly */

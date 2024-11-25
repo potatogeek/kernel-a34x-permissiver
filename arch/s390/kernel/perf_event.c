@@ -21,6 +21,7 @@
 #include <asm/lowcore.h>
 #include <asm/processor.h>
 #include <asm/sysinfo.h>
+<<<<<<< HEAD
 
 const char *perf_pmu_name(void)
 {
@@ -42,6 +43,9 @@ int perf_num_counters(void)
 	return num;
 }
 EXPORT_SYMBOL(perf_num_counters);
+=======
+#include <asm/unwind.h>
+>>>>>>> upstream/android-13
 
 static struct kvm_s390_sie_block *sie_block(struct pt_regs *regs)
 {
@@ -219,6 +223,7 @@ static int __init service_level_perf_register(void)
 }
 arch_initcall(service_level_perf_register);
 
+<<<<<<< HEAD
 static int __perf_callchain_kernel(void *data, unsigned long address, int reliable)
 {
 	struct perf_callchain_entry_ctx *entry = data;
@@ -233,6 +238,19 @@ void perf_callchain_kernel(struct perf_callchain_entry_ctx *entry,
 	if (user_mode(regs))
 		return;
 	dump_trace(__perf_callchain_kernel, entry, NULL, regs->gprs[15]);
+=======
+void perf_callchain_kernel(struct perf_callchain_entry_ctx *entry,
+			   struct pt_regs *regs)
+{
+	struct unwind_state state;
+	unsigned long addr;
+
+	unwind_for_each_frame(&state, current, regs, 0) {
+		addr = unwind_get_return_address(&state);
+		if (!addr || perf_callchain_store(entry, addr))
+			return;
+	}
+>>>>>>> upstream/android-13
 }
 
 /* Perf definitions for PMU event attributes in sysfs */

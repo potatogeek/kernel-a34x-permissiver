@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2002 - 2007 Jeff Dike (jdike@{addtoit,linux.intel}.com)
  * Licensed under the GPL
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2002 - 2007 Jeff Dike (jdike@{addtoit,linux.intel}.com)
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -19,7 +25,11 @@ static int __init start_kernel_proc(void *unused)
 {
 	int pid;
 
+<<<<<<< HEAD
 	block_signals();
+=======
+	block_signals_trace();
+>>>>>>> upstream/android-13
 	pid = os_getpid();
 
 	cpu_tasks[0].pid = pid;

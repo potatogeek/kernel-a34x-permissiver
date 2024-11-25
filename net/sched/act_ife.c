@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * net/sched/ife.c	Inter-FE action based on ForCES WG InterFE LFB
  *
@@ -9,6 +13,7 @@
  *		Subsystem"
  *		Authors: Jamal Hadi Salim and Damascene M. Joachimpillai
  *
+<<<<<<< HEAD
  *		This program is free software; you can redistribute it and/or
  *		modify it under the terms of the GNU General Public License
  *		as published by the Free Software Foundation; either version
@@ -16,6 +21,9 @@
  *
  * copyright Jamal Hadi Salim (2015)
  *
+=======
+ * copyright Jamal Hadi Salim (2015)
+>>>>>>> upstream/android-13
 */
 
 #include <linux/types.h>
@@ -29,6 +37,10 @@
 #include <net/net_namespace.h>
 #include <net/netlink.h>
 #include <net/pkt_sched.h>
+<<<<<<< HEAD
+=======
+#include <net/pkt_cls.h>
+>>>>>>> upstream/android-13
 #include <uapi/linux/tc_act/tc_ife.h>
 #include <net/tc_act/tc_ife.h>
 #include <linux/etherdevice.h>
@@ -386,7 +398,11 @@ static int dump_metalist(struct sk_buff *skb, struct tcf_ife_info *ife)
 	if (list_empty(&ife->metalist))
 		return 0;
 
+<<<<<<< HEAD
 	nest = nla_nest_start(skb, TCA_IFE_METALST);
+=======
+	nest = nla_nest_start_noflag(skb, TCA_IFE_METALST);
+>>>>>>> upstream/android-13
 	if (!nest)
 		goto out_nlmsg_trim;
 
@@ -440,6 +456,28 @@ static void tcf_ife_cleanup(struct tc_action *a)
 		kfree_rcu(p, rcu);
 }
 
+<<<<<<< HEAD
+=======
+static int load_metalist(struct nlattr **tb, bool rtnl_held)
+{
+	int i;
+
+	for (i = 1; i < max_metacnt; i++) {
+		if (tb[i]) {
+			void *val = nla_data(tb[i]);
+			int len = nla_len(tb[i]);
+			int rc;
+
+			rc = load_metaops_and_vet(i, val, len, rtnl_held);
+			if (rc != 0)
+				return rc;
+		}
+	}
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int populate_metalist(struct tcf_ife_info *ife, struct nlattr **tb,
 			     bool exists, bool rtnl_held)
 {
@@ -453,10 +491,13 @@ static int populate_metalist(struct tcf_ife_info *ife, struct nlattr **tb,
 			val = nla_data(tb[i]);
 			len = nla_len(tb[i]);
 
+<<<<<<< HEAD
 			rc = load_metaops_and_vet(i, val, len, rtnl_held);
 			if (rc != 0)
 				return rc;
 
+=======
+>>>>>>> upstream/android-13
 			rc = add_metainfo(ife, i, val, len, exists);
 			if (rc)
 				return rc;
@@ -468,12 +509,23 @@ static int populate_metalist(struct tcf_ife_info *ife, struct nlattr **tb,
 
 static int tcf_ife_init(struct net *net, struct nlattr *nla,
 			struct nlattr *est, struct tc_action **a,
+<<<<<<< HEAD
 			int ovr, int bind, bool rtnl_held,
 			struct netlink_ext_ack *extack)
 {
 	struct tc_action_net *tn = net_generic(net, ife_net_id);
 	struct nlattr *tb[TCA_IFE_MAX + 1];
 	struct nlattr *tb2[IFE_META_MAX + 1];
+=======
+			struct tcf_proto *tp, u32 flags,
+			struct netlink_ext_ack *extack)
+{
+	struct tc_action_net *tn = net_generic(net, ife_net_id);
+	bool bind = flags & TCA_ACT_FLAGS_BIND;
+	struct nlattr *tb[TCA_IFE_MAX + 1];
+	struct nlattr *tb2[IFE_META_MAX + 1];
+	struct tcf_chain *goto_ch = NULL;
+>>>>>>> upstream/android-13
 	struct tcf_ife_params *p;
 	struct tcf_ife_info *ife;
 	u16 ife_type = ETH_P_IFE;
@@ -490,7 +542,12 @@ static int tcf_ife_init(struct net *net, struct nlattr *nla,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	err = nla_parse_nested(tb, TCA_IFE_MAX, nla, ife_policy, NULL);
+=======
+	err = nla_parse_nested_deprecated(tb, TCA_IFE_MAX, nla, ife_policy,
+					  NULL);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -510,6 +567,24 @@ static int tcf_ife_init(struct net *net, struct nlattr *nla,
 	if (!p)
 		return -ENOMEM;
 
+<<<<<<< HEAD
+=======
+	if (tb[TCA_IFE_METALST]) {
+		err = nla_parse_nested_deprecated(tb2, IFE_META_MAX,
+						  tb[TCA_IFE_METALST], NULL,
+						  NULL);
+		if (err) {
+			kfree(p);
+			return err;
+		}
+		err = load_metalist(tb2, !(flags & TCA_ACT_FLAGS_NO_RTNL));
+		if (err) {
+			kfree(p);
+			return err;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	index = parm->index;
 	err = tcf_idr_check_alloc(tn, &index, a, bind);
 	if (err < 0) {
@@ -524,20 +599,38 @@ static int tcf_ife_init(struct net *net, struct nlattr *nla,
 
 	if (!exists) {
 		ret = tcf_idr_create(tn, index, est, a, &act_ife_ops,
+<<<<<<< HEAD
 				     bind, true);
+=======
+				     bind, true, 0);
+>>>>>>> upstream/android-13
 		if (ret) {
 			tcf_idr_cleanup(tn, index);
 			kfree(p);
 			return ret;
 		}
 		ret = ACT_P_CREATED;
+<<<<<<< HEAD
 	} else if (!ovr) {
+=======
+	} else if (!(flags & TCA_ACT_FLAGS_REPLACE)) {
+>>>>>>> upstream/android-13
 		tcf_idr_release(*a, bind);
 		kfree(p);
 		return -EEXIST;
 	}
 
 	ife = to_ife(*a);
+<<<<<<< HEAD
+=======
+	if (ret == ACT_P_CREATED)
+		INIT_LIST_HEAD(&ife->metalist);
+
+	err = tcf_action_check_ctrlact(parm->action, tp, &goto_ch, extack);
+	if (err < 0)
+		goto release_idr;
+
+>>>>>>> upstream/android-13
 	p->flags = parm->flags;
 
 	if (parm->flags & IFE_ENCODE) {
@@ -563,6 +656,7 @@ static int tcf_ife_init(struct net *net, struct nlattr *nla,
 		p->eth_type = ife_type;
 	}
 
+<<<<<<< HEAD
 
 	if (ret == ACT_P_CREATED)
 		INIT_LIST_HEAD(&ife->metalist);
@@ -581,6 +675,13 @@ metadata_parse_err:
 		if (err)
 			goto metadata_parse_err;
 
+=======
+	if (tb[TCA_IFE_METALST]) {
+		err = populate_metalist(ife, tb2, exists,
+					!(flags & TCA_ACT_FLAGS_NO_RTNL));
+		if (err)
+			goto metadata_parse_err;
+>>>>>>> upstream/android-13
 	} else {
 		/* if no passed metadata allow list or passed allow-all
 		 * then here we process by adding as many supported metadatum
@@ -588,15 +689,21 @@ metadata_parse_err:
 		 * going to bail out
 		 */
 		err = use_all_metadata(ife, exists);
+<<<<<<< HEAD
 		if (err) {
 			tcf_idr_release(*a, bind);
 			kfree(p);
 			return err;
 		}
+=======
+		if (err)
+			goto metadata_parse_err;
+>>>>>>> upstream/android-13
 	}
 
 	if (exists)
 		spin_lock_bh(&ife->tcf_lock);
+<<<<<<< HEAD
 	ife->tcf_action = parm->action;
 	/* protected by tcf_lock when modifying existing action */
 	rcu_swap_protected(ife->params, p, 1);
@@ -610,6 +717,27 @@ metadata_parse_err:
 		tcf_idr_insert(tn, *a);
 
 	return ret;
+=======
+	/* protected by tcf_lock when modifying existing action */
+	goto_ch = tcf_action_set_ctrlact(*a, parm->action, goto_ch);
+	p = rcu_replace_pointer(ife->params, p, 1);
+
+	if (exists)
+		spin_unlock_bh(&ife->tcf_lock);
+	if (goto_ch)
+		tcf_chain_put_by_act(goto_ch);
+	if (p)
+		kfree_rcu(p, rcu);
+
+	return ret;
+metadata_parse_err:
+	if (goto_ch)
+		tcf_chain_put_by_act(goto_ch);
+release_idr:
+	kfree(p);
+	tcf_idr_release(*a, bind);
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static int tcf_ife_dump(struct sk_buff *skb, struct tc_action *a, int bind,
@@ -862,8 +990,12 @@ static int tcf_ife_walker(struct net *net, struct sk_buff *skb,
 	return tcf_generic_walker(tn, skb, cb, type, ops, extack);
 }
 
+<<<<<<< HEAD
 static int tcf_ife_search(struct net *net, struct tc_action **a, u32 index,
 			  struct netlink_ext_ack *extack)
+=======
+static int tcf_ife_search(struct net *net, struct tc_action **a, u32 index)
+>>>>>>> upstream/android-13
 {
 	struct tc_action_net *tn = net_generic(net, ife_net_id);
 
@@ -872,7 +1004,11 @@ static int tcf_ife_search(struct net *net, struct tc_action **a, u32 index,
 
 static struct tc_action_ops act_ife_ops = {
 	.kind = "ife",
+<<<<<<< HEAD
 	.type = TCA_ACT_IFE,
+=======
+	.id = TCA_ID_IFE,
+>>>>>>> upstream/android-13
 	.owner = THIS_MODULE,
 	.act = tcf_ife_act,
 	.dump = tcf_ife_dump,

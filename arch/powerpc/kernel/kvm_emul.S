@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -11,6 +12,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright SUSE Linux Products GmbH 2010
  * Copyright 2010-2011 Freescale Semiconductor, Inc.
@@ -203,6 +208,11 @@ kvm_emulate_mtmsr_orig_ins_offs:
 kvm_emulate_mtmsr_len:
 	.long (kvm_emulate_mtmsr_end - kvm_emulate_mtmsr) / 4
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_BOOKE
+
+>>>>>>> upstream/android-13
 /* also used for wrteei 1 */
 .global kvm_emulate_wrtee
 kvm_emulate_wrtee:
@@ -296,6 +306,13 @@ kvm_emulate_wrteei_0_branch_offs:
 kvm_emulate_wrteei_0_len:
 	.long (kvm_emulate_wrteei_0_end - kvm_emulate_wrteei_0) / 4
 
+<<<<<<< HEAD
+=======
+#endif /* CONFIG_BOOKE */
+
+#ifdef CONFIG_PPC_BOOK3S_32
+
+>>>>>>> upstream/android-13
 .global kvm_emulate_mtsrin
 kvm_emulate_mtsrin:
 
@@ -345,5 +362,18 @@ kvm_emulate_mtsrin_orig_ins_offs:
 kvm_emulate_mtsrin_len:
 	.long (kvm_emulate_mtsrin_end - kvm_emulate_mtsrin) / 4
 
+<<<<<<< HEAD
+=======
+#endif /* CONFIG_PPC_BOOK3S_32 */
+
+	.balign 4
+	.global kvm_tmp
+kvm_tmp:
+	.space	(64 * 1024)
+
+.global kvm_tmp_end
+kvm_tmp_end:
+
+>>>>>>> upstream/android-13
 .global kvm_template_end
 kvm_template_end:

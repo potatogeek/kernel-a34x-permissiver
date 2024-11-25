@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2005 Voltaire Inc.  All rights reserved.
  * Copyright (c) 2005 Intel Corporation.  All rights reserved.
@@ -32,6 +33,15 @@
  */
 
 #if !defined(RDMA_CM_H)
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB */
+/*
+ * Copyright (c) 2005 Voltaire Inc.  All rights reserved.
+ * Copyright (c) 2005 Intel Corporation.  All rights reserved.
+ */
+
+#ifndef RDMA_CM_H
+>>>>>>> upstream/android-13
 #define RDMA_CM_H
 
 #include <linux/socket.h>
@@ -111,6 +121,10 @@ struct rdma_cm_event {
 		struct rdma_conn_param	conn;
 		struct rdma_ud_param	ud;
 	} param;
+<<<<<<< HEAD
+=======
+	struct rdma_ucm_ece ece;
+>>>>>>> upstream/android-13
 };
 
 struct rdma_cm_id;
@@ -133,6 +147,7 @@ struct rdma_cm_id {
 	struct rdma_route	 route;
 	enum rdma_ucm_port_space ps;
 	enum ib_qp_type		 qp_type;
+<<<<<<< HEAD
 	u8			 port_num;
 };
 
@@ -141,6 +156,19 @@ struct rdma_cm_id *__rdma_create_id(struct net *net,
 				    void *context, enum rdma_ucm_port_space ps,
 				    enum ib_qp_type qp_type,
 				    const char *caller);
+=======
+	u32			 port_num;
+};
+
+struct rdma_cm_id *
+__rdma_create_kernel_id(struct net *net, rdma_cm_event_handler event_handler,
+			void *context, enum rdma_ucm_port_space ps,
+			enum ib_qp_type qp_type, const char *caller);
+struct rdma_cm_id *rdma_create_user_id(rdma_cm_event_handler event_handler,
+				       void *context,
+				       enum rdma_ucm_port_space ps,
+				       enum ib_qp_type qp_type);
+>>>>>>> upstream/android-13
 
 /**
  * rdma_create_id - Create an RDMA identifier.
@@ -152,11 +180,23 @@ struct rdma_cm_id *__rdma_create_id(struct net *net,
  * @ps: RDMA port space.
  * @qp_type: type of queue pair associated with the id.
  *
+<<<<<<< HEAD
  * The id holds a reference on the network namespace until it is destroyed.
  */
 #define rdma_create_id(net, event_handler, context, ps, qp_type) \
 	__rdma_create_id((net), (event_handler), (context), (ps), (qp_type), \
 			 KBUILD_MODNAME)
+=======
+ * Returns a new rdma_cm_id. The id holds a reference on the network
+ * namespace until it is destroyed.
+ *
+ * The event handler callback serializes on the id's mutex and is
+ * allowed to sleep.
+ */
+#define rdma_create_id(net, event_handler, context, ps, qp_type)               \
+	__rdma_create_kernel_id(net, event_handler, context, ps, qp_type,      \
+				KBUILD_MODNAME)
+>>>>>>> upstream/android-13
 
 /**
   * rdma_destroy_id - Destroys an RDMA identifier.
@@ -192,7 +232,12 @@ int rdma_bind_addr(struct rdma_cm_id *id, struct sockaddr *addr);
  * @timeout_ms: Time to wait for resolution to complete.
  */
 int rdma_resolve_addr(struct rdma_cm_id *id, struct sockaddr *src_addr,
+<<<<<<< HEAD
 		      const struct sockaddr *dst_addr, int timeout_ms);
+=======
+		      const struct sockaddr *dst_addr,
+		      unsigned long timeout_ms);
+>>>>>>> upstream/android-13
 
 /**
  * rdma_resolve_route - Resolve the RDMA address bound to the RDMA identifier
@@ -202,7 +247,11 @@ int rdma_resolve_addr(struct rdma_cm_id *id, struct sockaddr *src_addr,
  * Users must have first called rdma_resolve_addr to resolve a dst_addr
  * into an RDMA address before calling this routine.
  */
+<<<<<<< HEAD
 int rdma_resolve_route(struct rdma_cm_id *id, int timeout_ms);
+=======
+int rdma_resolve_route(struct rdma_cm_id *id, unsigned long timeout_ms);
+>>>>>>> upstream/android-13
 
 /**
  * rdma_create_qp - Allocate a QP and associate it with the specified RDMA
@@ -245,6 +294,7 @@ void rdma_destroy_qp(struct rdma_cm_id *id);
 int rdma_init_qp_attr(struct rdma_cm_id *id, struct ib_qp_attr *qp_attr,
 		       int *qp_attr_mask);
 
+<<<<<<< HEAD
 /**
  * rdma_connect - Initiate an active connection request.
  * @id: Connection identifier to connect.
@@ -258,6 +308,14 @@ int rdma_init_qp_attr(struct rdma_cm_id *id, struct ib_qp_attr *qp_attr,
  * based on the rdma_cm_id's port space.
  */
 int rdma_connect(struct rdma_cm_id *id, struct rdma_conn_param *conn_param);
+=======
+int rdma_connect(struct rdma_cm_id *id, struct rdma_conn_param *conn_param);
+int rdma_connect_locked(struct rdma_cm_id *id,
+			struct rdma_conn_param *conn_param);
+
+int rdma_connect_ece(struct rdma_cm_id *id, struct rdma_conn_param *conn_param,
+		     struct rdma_ucm_ece *ece);
+>>>>>>> upstream/android-13
 
 /**
  * rdma_listen - This function is called by the passive side to
@@ -268,6 +326,7 @@ int rdma_connect(struct rdma_cm_id *id, struct rdma_conn_param *conn_param);
  */
 int rdma_listen(struct rdma_cm_id *id, int backlog);
 
+<<<<<<< HEAD
 int __rdma_accept(struct rdma_cm_id *id, struct rdma_conn_param *conn_param,
 		  const char *caller);
 
@@ -288,6 +347,14 @@ int __rdma_accept(struct rdma_cm_id *id, struct rdma_conn_param *conn_param,
  */
 #define rdma_accept(id, conn_param) \
 	__rdma_accept((id), (conn_param),  KBUILD_MODNAME)
+=======
+int rdma_accept(struct rdma_cm_id *id, struct rdma_conn_param *conn_param);
+
+void rdma_lock_handler(struct rdma_cm_id *id);
+void rdma_unlock_handler(struct rdma_cm_id *id);
+int rdma_accept_ece(struct rdma_cm_id *id, struct rdma_conn_param *conn_param,
+		    struct rdma_ucm_ece *ece);
+>>>>>>> upstream/android-13
 
 /**
  * rdma_notify - Notifies the RDMA CM of an asynchronous event that has
@@ -308,7 +375,11 @@ int rdma_notify(struct rdma_cm_id *id, enum ib_event_type event);
  * rdma_reject - Called to reject a connection request or response.
  */
 int rdma_reject(struct rdma_cm_id *id, const void *private_data,
+<<<<<<< HEAD
 		u8 private_data_len);
+=======
+		u8 private_data_len, u8 reason);
+>>>>>>> upstream/android-13
 
 /**
  * rdma_disconnect - This function disconnects the associated QP and
@@ -369,6 +440,12 @@ int rdma_set_reuseaddr(struct rdma_cm_id *id, int reuse);
  */
 int rdma_set_afonly(struct rdma_cm_id *id, int afonly);
 
+<<<<<<< HEAD
+=======
+int rdma_set_ack_timeout(struct rdma_cm_id *id, u8 timeout);
+
+int rdma_set_min_rnr_timer(struct rdma_cm_id *id, u8 min_rnr_timer);
+>>>>>>> upstream/android-13
  /**
  * rdma_get_service_id - Return the IB service ID for a specified address.
  * @id: Communication identifier associated with the address.
@@ -384,6 +461,7 @@ __be64 rdma_get_service_id(struct rdma_cm_id *id, struct sockaddr *addr);
 const char *__attribute_const__ rdma_reject_msg(struct rdma_cm_id *id,
 						int reason);
 /**
+<<<<<<< HEAD
  * rdma_is_consumer_reject - return true if the consumer rejected the connect
  *                           request.
  * @id: Communication identifier that received the REJECT event.
@@ -392,6 +470,8 @@ const char *__attribute_const__ rdma_reject_msg(struct rdma_cm_id *id,
 bool rdma_is_consumer_reject(struct rdma_cm_id *id, int reason);
 
 /**
+=======
+>>>>>>> upstream/android-13
  * rdma_consumer_reject_data - return the consumer reject private data and
  *			       length, if any.
  * @id: Communication identifier that received the REJECT event.

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* -*- mode: c; c-basic-offset: 8; -*-
  * vim: noexpandtab sw=8 ts=8 sts=0:
  *
@@ -18,6 +19,12 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 021110-1307, USA.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * file.c - operations for regular (text) files.
+ *
+>>>>>>> upstream/android-13
  * Based on sysfs:
  * 	sysfs is Copyright (C) 2001, 2002, 2003 Patrick Mochel
  *
@@ -30,7 +37,11 @@
 #include <linux/mutex.h>
 #include <linux/vmalloc.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
 
+=======
+#include <linux/uio.h>
+>>>>>>> upstream/android-13
 #include <linux/configfs.h>
 #include "configfs_internal.h"
 
@@ -93,6 +104,7 @@ static int fill_read_buffer(struct file *file, struct configfs_buffer *buffer)
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
  *	configfs_read_file - read an attribute.
  *	@file:	file pointer.
@@ -115,6 +127,11 @@ static int fill_read_buffer(struct file *file, struct configfs_buffer *buffer)
 static ssize_t
 configfs_read_file(struct file *file, char __user *buf, size_t count, loff_t *ppos)
 {
+=======
+static ssize_t configfs_read_iter(struct kiocb *iocb, struct iov_iter *to)
+{
+	struct file *file = iocb->ki_filp;
+>>>>>>> upstream/android-13
 	struct configfs_buffer *buffer = file->private_data;
 	ssize_t retval = 0;
 
@@ -124,15 +141,28 @@ configfs_read_file(struct file *file, char __user *buf, size_t count, loff_t *pp
 		if (retval)
 			goto out;
 	}
+<<<<<<< HEAD
 	pr_debug("%s: count = %zd, ppos = %lld, buf = %s\n",
 		 __func__, count, *ppos, buffer->page);
 	retval = simple_read_from_buffer(buf, count, ppos, buffer->page,
 					 buffer->count);
+=======
+	pr_debug("%s: count = %zd, pos = %lld, buf = %s\n",
+		 __func__, iov_iter_count(to), iocb->ki_pos, buffer->page);
+	if (iocb->ki_pos >= buffer->count)
+		goto out;
+	retval = copy_to_iter(buffer->page + iocb->ki_pos,
+			      buffer->count - iocb->ki_pos, to);
+	iocb->ki_pos += retval;
+	if (retval == 0)
+		retval = -EFAULT;
+>>>>>>> upstream/android-13
 out:
 	mutex_unlock(&buffer->mutex);
 	return retval;
 }
 
+<<<<<<< HEAD
 /**
  *	configfs_read_bin_file - read a binary attribute.
  *	@file:	file pointer.
@@ -161,6 +191,15 @@ configfs_read_bin_file(struct file *file, char __user *buf,
 	struct configfs_buffer *buffer = file->private_data;
 	ssize_t retval = 0;
 	ssize_t len = min_t(size_t, count, PAGE_SIZE);
+=======
+static ssize_t configfs_bin_read_iter(struct kiocb *iocb, struct iov_iter *to)
+{
+	struct file *file = iocb->ki_filp;
+	struct configfs_fragment *frag = to_frag(file);
+	struct configfs_buffer *buffer = file->private_data;
+	ssize_t retval = 0;
+	ssize_t len;
+>>>>>>> upstream/android-13
 
 	mutex_lock(&buffer->mutex);
 
@@ -216,13 +255,24 @@ configfs_read_bin_file(struct file *file, char __user *buf,
 		buffer->needs_read_fill = 0;
 	}
 
+<<<<<<< HEAD
 	retval = simple_read_from_buffer(buf, count, ppos, buffer->bin_buffer,
 					buffer->bin_buffer_size);
+=======
+	if (iocb->ki_pos >= buffer->bin_buffer_size)
+		goto out;
+	retval = copy_to_iter(buffer->bin_buffer + iocb->ki_pos,
+			      buffer->bin_buffer_size - iocb->ki_pos, to);
+	iocb->ki_pos += retval;
+	if (retval == 0)
+		retval = -EFAULT;
+>>>>>>> upstream/android-13
 out:
 	mutex_unlock(&buffer->mutex);
 	return retval;
 }
 
+<<<<<<< HEAD
 
 /**
  *	fill_write_buffer - copy buffer from userspace.
@@ -238,12 +288,20 @@ static int
 fill_write_buffer(struct configfs_buffer * buffer, const char __user * buf, size_t count)
 {
 	int error;
+=======
+/* Fill @buffer with data coming from @from. */
+static int fill_write_buffer(struct configfs_buffer *buffer,
+			     struct iov_iter *from)
+{
+	int copied;
+>>>>>>> upstream/android-13
 
 	if (!buffer->page)
 		buffer->page = (char *)__get_free_pages(GFP_KERNEL, 0);
 	if (!buffer->page)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	if (count >= SIMPLE_ATTR_SIZE)
 		count = SIMPLE_ATTR_SIZE - 1;
 	error = copy_from_user(buffer->page,buf,count);
@@ -252,6 +310,14 @@ fill_write_buffer(struct configfs_buffer * buffer, const char __user * buf, size
 	 * so e.g. sscanf() can scan the string easily */
 	buffer->page[count] = 0;
 	return error ? -EFAULT : count;
+=======
+	copied = copy_from_iter(buffer->page, SIMPLE_ATTR_SIZE - 1, from);
+	buffer->needs_read_fill = 1;
+	/* if buf is assumed to contain a string, terminate it by \0,
+	 * so e.g. sscanf() can scan the string easily */
+	buffer->page[copied] = 0;
+	return copied ? : -EFAULT;
+>>>>>>> upstream/android-13
 }
 
 static int
@@ -268,6 +334,7 @@ flush_write_buffer(struct file *file, struct configfs_buffer *buffer, size_t cou
 }
 
 
+<<<<<<< HEAD
 /**
  *	configfs_write_file - write an attribute.
  *	@file:	file pointer
@@ -297,10 +364,32 @@ configfs_write_file(struct file *file, const char __user *buf, size_t count, lof
 		len = flush_write_buffer(file, buffer, len);
 	if (len > 0)
 		*ppos += len;
+=======
+/*
+ * There is no easy way for us to know if userspace is only doing a partial
+ * write, so we don't support them. We expect the entire buffer to come on the
+ * first write.
+ * Hint: if you're writing a value, first read the file, modify only the value
+ * you're changing, then write entire buffer back.
+ */
+static ssize_t configfs_write_iter(struct kiocb *iocb, struct iov_iter *from)
+{
+	struct file *file = iocb->ki_filp;
+	struct configfs_buffer *buffer = file->private_data;
+	int len;
+
+	mutex_lock(&buffer->mutex);
+	len = fill_write_buffer(buffer, from);
+	if (len > 0)
+		len = flush_write_buffer(file, buffer, len);
+	if (len > 0)
+		iocb->ki_pos += len;
+>>>>>>> upstream/android-13
 	mutex_unlock(&buffer->mutex);
 	return len;
 }
 
+<<<<<<< HEAD
 /**
  *	configfs_write_bin_file - write a binary attribute.
  *	@file:	file pointer
@@ -320,6 +409,15 @@ configfs_write_bin_file(struct file *file, const char __user *buf,
 {
 	struct configfs_buffer *buffer = file->private_data;
 	void *tbuf = NULL;
+=======
+static ssize_t configfs_bin_write_iter(struct kiocb *iocb,
+				       struct iov_iter *from)
+{
+	struct file *file = iocb->ki_filp;
+	struct configfs_buffer *buffer = file->private_data;
+	void *tbuf = NULL;
+	size_t end_offset;
+>>>>>>> upstream/android-13
 	ssize_t len;
 
 	mutex_lock(&buffer->mutex);
@@ -332,15 +430,25 @@ configfs_write_bin_file(struct file *file, const char __user *buf,
 	buffer->write_in_progress = true;
 
 	/* buffer grows? */
+<<<<<<< HEAD
 	if (*ppos + count > buffer->bin_buffer_size) {
 
 		if (buffer->cb_max_size &&
 			*ppos + count > buffer->cb_max_size) {
+=======
+	end_offset = iocb->ki_pos + iov_iter_count(from);
+	if (end_offset > buffer->bin_buffer_size) {
+		if (buffer->cb_max_size && end_offset > buffer->cb_max_size) {
+>>>>>>> upstream/android-13
 			len = -EFBIG;
 			goto out;
 		}
 
+<<<<<<< HEAD
 		tbuf = vmalloc(*ppos + count);
+=======
+		tbuf = vmalloc(end_offset);
+>>>>>>> upstream/android-13
 		if (tbuf == NULL) {
 			len = -ENOMEM;
 			goto out;
@@ -355,6 +463,7 @@ configfs_write_bin_file(struct file *file, const char __user *buf,
 
 		/* clear the new area */
 		memset(tbuf + buffer->bin_buffer_size, 0,
+<<<<<<< HEAD
 			*ppos + count - buffer->bin_buffer_size);
 		buffer->bin_buffer = tbuf;
 		buffer->bin_buffer_size = *ppos + count;
@@ -365,6 +474,19 @@ configfs_write_bin_file(struct file *file, const char __user *buf,
 out:
 	mutex_unlock(&buffer->mutex);
 	return len;
+=======
+			end_offset - buffer->bin_buffer_size);
+		buffer->bin_buffer = tbuf;
+		buffer->bin_buffer_size = end_offset;
+	}
+
+	len = copy_from_iter(buffer->bin_buffer + iocb->ki_pos,
+			     buffer->bin_buffer_size - iocb->ki_pos, from);
+	iocb->ki_pos += len;
+out:
+	mutex_unlock(&buffer->mutex);
+	return len ? : -EFAULT;
+>>>>>>> upstream/android-13
 }
 
 static int __configfs_open_file(struct inode *inode, struct file *file, int type)
@@ -482,11 +604,16 @@ static int configfs_release_bin_file(struct inode *inode, struct file *file)
 {
 	struct configfs_buffer *buffer = file->private_data;
 
+<<<<<<< HEAD
 	buffer->read_in_progress = false;
 
 	if (buffer->write_in_progress) {
 		struct configfs_fragment *frag = to_frag(file);
 		buffer->write_in_progress = false;
+=======
+	if (buffer->write_in_progress) {
+		struct configfs_fragment *frag = to_frag(file);
+>>>>>>> upstream/android-13
 
 		down_read(&frag->frag_sem);
 		if (!frag->frag_dead) {
@@ -496,6 +623,7 @@ static int configfs_release_bin_file(struct inode *inode, struct file *file)
 					buffer->bin_buffer_size);
 		}
 		up_read(&frag->frag_sem);
+<<<<<<< HEAD
 		/* vfree on NULL is safe */
 		vfree(buffer->bin_buffer);
 		buffer->bin_buffer = NULL;
@@ -503,22 +631,38 @@ static int configfs_release_bin_file(struct inode *inode, struct file *file)
 		buffer->needs_read_fill = 1;
 	}
 
+=======
+	}
+
+	vfree(buffer->bin_buffer);
+
+>>>>>>> upstream/android-13
 	configfs_release(inode, file);
 	return 0;
 }
 
 
 const struct file_operations configfs_file_operations = {
+<<<<<<< HEAD
 	.read		= configfs_read_file,
 	.write		= configfs_write_file,
+=======
+	.read_iter	= configfs_read_iter,
+	.write_iter	= configfs_write_iter,
+>>>>>>> upstream/android-13
 	.llseek		= generic_file_llseek,
 	.open		= configfs_open_file,
 	.release	= configfs_release,
 };
 
 const struct file_operations configfs_bin_file_operations = {
+<<<<<<< HEAD
 	.read		= configfs_read_bin_file,
 	.write		= configfs_write_bin_file,
+=======
+	.read_iter	= configfs_bin_read_iter,
+	.write_iter	= configfs_bin_write_iter,
+>>>>>>> upstream/android-13
 	.llseek		= NULL,		/* bin file is not seekable */
 	.open		= configfs_open_bin_file,
 	.release	= configfs_release_bin_file,
@@ -548,7 +692,11 @@ int configfs_create_file(struct config_item * item, const struct configfs_attrib
 /**
  *	configfs_create_bin_file - create a binary attribute file for an item.
  *	@item:	item we're creating for.
+<<<<<<< HEAD
  *	@attr:	atrribute descriptor.
+=======
+ *	@bin_attr: atrribute descriptor.
+>>>>>>> upstream/android-13
  */
 
 int configfs_create_bin_file(struct config_item *item,

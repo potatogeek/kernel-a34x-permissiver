@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2008 IBM Corporation
  *
  * Authors:
  * Mimi Zohar <zohar@us.ibm.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, version 2 of the
  * License.
  *
+=======
+>>>>>>> upstream/android-13
  * File: integrity_iint.c
  *	- implements the integrity hooks: integrity_inode_alloc,
  *	  integrity_inode_free
@@ -16,12 +23,20 @@
  *	  using a rbtree tree.
  */
 #include <linux/slab.h>
+<<<<<<< HEAD
 #include <linux/module.h>
+=======
+#include <linux/init.h>
+>>>>>>> upstream/android-13
 #include <linux/spinlock.h>
 #include <linux/rbtree.h>
 #include <linux/file.h>
 #include <linux/uaccess.h>
 #include <linux/security.h>
+<<<<<<< HEAD
+=======
+#include <linux/lsm_hooks.h>
+>>>>>>> upstream/android-13
 #ifdef CONFIG_FIVE
 #include <uapi/linux/magic.h>
 #endif
@@ -111,6 +126,17 @@ struct integrity_iint_cache *integrity_inode_get(struct inode *inode)
 	struct rb_node *node, *parent = NULL;
 	struct integrity_iint_cache *iint, *test_iint;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * The integrity's "iint_cache" is initialized at security_init(),
+	 * unless it is not included in the ordered list of LSMs enabled
+	 * on the boot command line.
+	 */
+	if (!iint_cache)
+		panic("%s: lsm=integrity required.\n", __func__);
+
+>>>>>>> upstream/android-13
 	iint = integrity_iint_find(inode);
 	if (iint)
 		return iint;
@@ -157,6 +183,13 @@ void integrity_inode_free(struct inode *inode)
 
 	write_lock(&integrity_iint_lock);
 	iint = __integrity_iint_find(inode);
+<<<<<<< HEAD
+=======
+	if (!iint) {
+		write_unlock(&integrity_iint_lock);
+		return;
+	}
+>>>>>>> upstream/android-13
 	rb_erase(&iint->rb_node, &integrity_iint_tree);
 	write_unlock(&integrity_iint_lock);
 
@@ -165,7 +198,11 @@ void integrity_inode_free(struct inode *inode)
 
 static void init_once(void *foo)
 {
+<<<<<<< HEAD
 	struct integrity_iint_cache *iint = foo;
+=======
+	struct integrity_iint_cache *iint = (struct integrity_iint_cache *) foo;
+>>>>>>> upstream/android-13
 
 	memset(iint, 0, sizeof(*iint));
 #ifdef CONFIG_FIVE
@@ -189,7 +226,14 @@ static int __init integrity_iintcache_init(void)
 			      0, SLAB_PANIC, init_once);
 	return 0;
 }
+<<<<<<< HEAD
 security_initcall(integrity_iintcache_init);
+=======
+DEFINE_LSM(integrity) = {
+	.name = "integrity",
+	.init = integrity_iintcache_init,
+};
+>>>>>>> upstream/android-13
 
 
 /*
@@ -203,6 +247,7 @@ security_initcall(integrity_iintcache_init);
 int integrity_kernel_read(struct file *file, loff_t offset,
 			  void *addr, unsigned long count)
 {
+<<<<<<< HEAD
 	mm_segment_t old_fs;
 	char __user *buf = (char __user *)addr;
 	ssize_t ret;
@@ -226,6 +271,9 @@ int integrity_kernel_read(struct file *file, loff_t offset,
 	set_fs(old_fs);
 
 	return ret;
+=======
+	return __kernel_read(file, addr, count, &offset);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -237,7 +285,13 @@ int integrity_kernel_read(struct file *file, loff_t offset,
 void __init integrity_load_keys(void)
 {
 	ima_load_x509();
+<<<<<<< HEAD
 	evm_load_x509();
+=======
+
+	if (!IS_ENABLED(CONFIG_IMA_LOAD_X509))
+		evm_load_x509();
+>>>>>>> upstream/android-13
 }
 
 static int __init integrity_fs_init(void)

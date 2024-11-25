@@ -319,20 +319,33 @@ err1:
 	return rc;
 }
 
+<<<<<<< HEAD
 struct ib_qp *qedr_create_gsi_qp(struct qedr_dev *dev,
 				 struct ib_qp_init_attr *attrs,
 				 struct qedr_qp *qp)
+=======
+int qedr_create_gsi_qp(struct qedr_dev *dev, struct ib_qp_init_attr *attrs,
+		       struct qedr_qp *qp)
+>>>>>>> upstream/android-13
 {
 	int rc;
 
 	rc = qedr_check_gsi_qp_attrs(dev, attrs);
 	if (rc)
+<<<<<<< HEAD
 		return ERR_PTR(rc);
+=======
+		return rc;
+>>>>>>> upstream/android-13
 
 	rc = qedr_ll2_start(dev, attrs, qp);
 	if (rc) {
 		DP_ERR(dev, "create gsi qp: failed on ll2 start. rc=%d\n", rc);
+<<<<<<< HEAD
 		return ERR_PTR(rc);
+=======
+		return rc;
+>>>>>>> upstream/android-13
 	}
 
 	/* create QP */
@@ -359,7 +372,11 @@ struct ib_qp *qedr_create_gsi_qp(struct qedr_dev *dev,
 
 	DP_DEBUG(dev, QEDR_MSG_GSI, "created GSI QP %p\n", qp);
 
+<<<<<<< HEAD
 	return &qp->ibqp;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 
 err:
 	kfree(qp->rqe_wr_id);
@@ -368,7 +385,11 @@ err:
 	if (rc)
 		DP_ERR(dev, "create gsi qp: failed destroy on create\n");
 
+<<<<<<< HEAD
 	return ERR_PTR(-ENOMEM);
+=======
+	return -ENOMEM;
+>>>>>>> upstream/android-13
 }
 
 int qedr_destroy_gsi_qp(struct qedr_dev *dev)
@@ -397,14 +418,27 @@ static inline int qedr_gsi_build_header(struct qedr_dev *dev,
 	bool has_udp = false;
 	int i;
 
+<<<<<<< HEAD
+=======
+	rc = rdma_read_gid_l2_fields(sgid_attr, &vlan_id, NULL);
+	if (rc)
+		return rc;
+
+	if (vlan_id < VLAN_CFI_MASK)
+		has_vlan = true;
+
+>>>>>>> upstream/android-13
 	send_size = 0;
 	for (i = 0; i < swr->num_sge; ++i)
 		send_size += swr->sg_list[i].length;
 
+<<<<<<< HEAD
 	vlan_id = rdma_vlan_dev_vlan_id(sgid_attr->ndev);
 	if (vlan_id < VLAN_CFI_MASK)
 		has_vlan = true;
 
+=======
+>>>>>>> upstream/android-13
 	has_udp = (sgid_attr->gid_type == IB_GID_TYPE_ROCE_UDP_ENCAP);
 	if (!has_udp) {
 		/* RoCE v1 */
@@ -519,9 +553,15 @@ static inline int qedr_gsi_build_packet(struct qedr_dev *dev,
 	}
 
 	if (ether_addr_equal(udh.eth.smac_h, udh.eth.dmac_h))
+<<<<<<< HEAD
 		packet->tx_dest = QED_ROCE_LL2_TX_DEST_LB;
 	else
 		packet->tx_dest = QED_ROCE_LL2_TX_DEST_NW;
+=======
+		packet->tx_dest = QED_LL2_TX_DEST_LB;
+	else
+		packet->tx_dest = QED_LL2_TX_DEST_NW;
+>>>>>>> upstream/android-13
 
 	packet->roce_mode = roce_mode;
 	memcpy(packet->header.vaddr, ud_header_buffer, header_size);
@@ -583,8 +623,13 @@ int qedr_gsi_post_send(struct ib_qp *ibqp, const struct ib_send_wr *wr,
 		qp->wqe_wr_id[qp->sq.prod].wr_id = wr->wr_id;
 		qedr_inc_sw_prod(&qp->sq);
 		DP_DEBUG(qp->dev, QEDR_MSG_GSI,
+<<<<<<< HEAD
 			 "gsi post send: opcode=%d, in_irq=%ld, irqs_disabled=%d, wr_id=%llx\n",
 			 wr->opcode, in_irq(), irqs_disabled(), wr->wr_id);
+=======
+			 "gsi post send: opcode=%d, wr_id=%llx\n", wr->opcode,
+			 wr->wr_id);
+>>>>>>> upstream/android-13
 	} else {
 		DP_ERR(dev, "gsi post send: failed to transmit (rc=%d)\n", rc);
 		rc = -EAGAIN;

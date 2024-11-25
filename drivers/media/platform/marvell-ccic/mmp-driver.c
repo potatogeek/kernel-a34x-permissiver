@@ -1,18 +1,29 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Support for the camera device found on Marvell MMP processors; known
  * to work with the Armada 610 as used in the OLPC 1.75 system.
  *
  * Copyright 2011 Jonathan Corbet <corbet@lwn.net>
+<<<<<<< HEAD
  *
  * This file may be distributed under the terms of the GNU General
  * Public License, version 2.
+=======
+ * Copyright 2018 Lubomir Rintel <lkundrak@v3.sk>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/i2c.h>
 #include <linux/platform_data/i2c-gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/interrupt.h>
 #include <linux/spinlock.h>
 #include <linux/slab.h>
@@ -20,10 +31,18 @@
 #include <media/v4l2-device.h>
 #include <linux/platform_data/media/mmp-camera.h>
 #include <linux/device.h>
+<<<<<<< HEAD
 #include <linux/platform_device.h>
 #include <linux/gpio.h>
 #include <linux/io.h>
 #include <linux/delay.h>
+=======
+#include <linux/of.h>
+#include <linux/of_platform.h>
+#include <linux/platform_device.h>
+#include <linux/pm_runtime.h>
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/list.h>
 #include <linux/pm.h>
 #include <linux/clk.h>
@@ -34,10 +53,16 @@ MODULE_ALIAS("platform:mmp-camera");
 MODULE_AUTHOR("Jonathan Corbet <corbet@lwn.net>");
 MODULE_LICENSE("GPL");
 
+<<<<<<< HEAD
 static char *mcam_clks[] = {"CCICAXICLK", "CCICFUNCLK", "CCICPHYCLK"};
 
 struct mmp_camera {
 	void __iomem *power_regs;
+=======
+static char *mcam_clks[] = {"axi", "func", "phy"};
+
+struct mmp_camera {
+>>>>>>> upstream/android-13
 	struct platform_device *pdev;
 	struct mcam_camera mcam;
 	struct list_head devlist;
@@ -51,6 +76,7 @@ static inline struct mmp_camera *mcam_to_cam(struct mcam_camera *mcam)
 }
 
 /*
+<<<<<<< HEAD
  * A silly little infrastructure so we can keep track of our devices.
  * Chances are that we will never have more than one of them, but
  * the Armada 610 *does* have two controllers...
@@ -206,6 +232,8 @@ static void mcam_ctlr_reset(struct mcam_camera *mcam)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * calc the dphy register values
  * There are three dphy registers being used.
  * dphy[0] - CSI2_DPHY3
@@ -240,8 +268,13 @@ static void mmpcam_calc_dphy(struct mcam_camera *mcam)
 	 *  bit 8 ~ bit 15: HS_SETTLE
 	 *   Time interval during which the HS
 	 *   receiver shall ignore any Data Lane
+<<<<<<< HEAD
 	 *   HS transistions.
 	 *   The vaule has been calibrated on
+=======
+	 *   HS transitions.
+	 *   The value has been calibrated on
+>>>>>>> upstream/android-13
 	 *   different boards. It seems to work well.
 	 *
 	 *  More detail please refer
@@ -336,6 +369,7 @@ static int mmpcam_probe(struct platform_device *pdev)
 	struct mmp_camera *cam;
 	struct mcam_camera *mcam;
 	struct resource *res;
+<<<<<<< HEAD
 	struct mmp_camera_platform_data *pdata;
 	int ret;
 
@@ -346,10 +380,22 @@ static int mmpcam_probe(struct platform_device *pdev)
 	cam = devm_kzalloc(&pdev->dev, sizeof(*cam), GFP_KERNEL);
 	if (cam == NULL)
 		return -ENOMEM;
+=======
+	struct fwnode_handle *ep;
+	struct mmp_camera_platform_data *pdata;
+	struct v4l2_async_subdev *asd;
+	int ret;
+
+	cam = devm_kzalloc(&pdev->dev, sizeof(*cam), GFP_KERNEL);
+	if (cam == NULL)
+		return -ENOMEM;
+	platform_set_drvdata(pdev, cam);
+>>>>>>> upstream/android-13
 	cam->pdev = pdev;
 	INIT_LIST_HEAD(&cam->devlist);
 
 	mcam = &cam->mcam;
+<<<<<<< HEAD
 	mcam->plat_power_up = mmpcam_power_up;
 	mcam->plat_power_down = mmpcam_power_down;
 	mcam->ctlr_reset = mcam_ctlr_reset;
@@ -363,15 +409,43 @@ static int mmpcam_probe(struct platform_device *pdev)
 	mcam->bus_type = pdata->bus_type;
 	mcam->dphy = pdata->dphy;
 	if (mcam->bus_type == V4L2_MBUS_CSI2) {
+=======
+	mcam->calc_dphy = mmpcam_calc_dphy;
+	mcam->dev = &pdev->dev;
+	pdata = pdev->dev.platform_data;
+	if (pdata) {
+		mcam->mclk_src = pdata->mclk_src;
+		mcam->mclk_div = pdata->mclk_div;
+		mcam->bus_type = pdata->bus_type;
+		mcam->dphy = pdata->dphy;
+		mcam->lane = pdata->lane;
+	} else {
+		/*
+		 * These are values that used to be hardcoded in mcam-core and
+		 * work well on a OLPC XO 1.75 with a parallel bus sensor.
+		 * If it turns out other setups make sense, the values should
+		 * be obtained from the device tree.
+		 */
+		mcam->mclk_src = 3;
+		mcam->mclk_div = 2;
+	}
+	if (mcam->bus_type == V4L2_MBUS_CSI2_DPHY) {
+>>>>>>> upstream/android-13
 		cam->mipi_clk = devm_clk_get(mcam->dev, "mipi");
 		if ((IS_ERR(cam->mipi_clk) && mcam->dphy[2] == 0))
 			return PTR_ERR(cam->mipi_clk);
 	}
 	mcam->mipi_enabled = false;
+<<<<<<< HEAD
 	mcam->lane = pdata->lane;
 	mcam->chip_id = MCAM_ARMADA610;
 	mcam->buffer_mode = B_DMA_sg;
 	strlcpy(mcam->bus_info, "platform:mmp-camera", sizeof(mcam->bus_info));
+=======
+	mcam->chip_id = MCAM_ARMADA610;
+	mcam->buffer_mode = B_DMA_sg;
+	strscpy(mcam->bus_info, "platform:mmp-camera", sizeof(mcam->bus_info));
+>>>>>>> upstream/android-13
 	spin_lock_init(&mcam->dev_lock);
 	/*
 	 * Get our I/O memory.
@@ -381,6 +455,7 @@ static int mmpcam_probe(struct platform_device *pdev)
 	if (IS_ERR(mcam->regs))
 		return PTR_ERR(mcam->regs);
 	mcam->regs_size = resource_size(res);
+<<<<<<< HEAD
 	/*
 	 * Power/clock memory is elsewhere; get it too.  Perhaps this
 	 * should really be managed outside of this driver?
@@ -417,10 +492,13 @@ static int mmpcam_probe(struct platform_device *pdev)
 		return ret;
 	}
 	gpio_direction_output(pdata->sensor_reset_gpio, 0);
+=======
+>>>>>>> upstream/android-13
 
 	mcam_init_clk(mcam);
 
 	/*
+<<<<<<< HEAD
 	 * Power the device up and hand it off to the core.
 	 */
 	ret = mmpcam_power_up(mcam);
@@ -429,6 +507,42 @@ static int mmpcam_probe(struct platform_device *pdev)
 	ret = mccic_register(mcam);
 	if (ret)
 		goto out_power_down;
+=======
+	 * Create a match of the sensor against its OF node.
+	 */
+	ep = fwnode_graph_get_next_endpoint(of_fwnode_handle(pdev->dev.of_node),
+					    NULL);
+	if (!ep)
+		return -ENODEV;
+
+	v4l2_async_notifier_init(&mcam->notifier);
+
+	asd = v4l2_async_notifier_add_fwnode_remote_subdev(&mcam->notifier, ep,
+							   struct v4l2_async_subdev);
+	fwnode_handle_put(ep);
+	if (IS_ERR(asd)) {
+		ret = PTR_ERR(asd);
+		goto out;
+	}
+
+	/*
+	 * Register the device with the core.
+	 */
+	ret = mccic_register(mcam);
+	if (ret)
+		return ret;
+
+	/*
+	 * Add OF clock provider.
+	 */
+	ret = of_clk_add_provider(pdev->dev.of_node, of_clk_src_simple_get,
+								mcam->mclk);
+	if (ret) {
+		dev_err(&pdev->dev, "can't add DT clock provider\n");
+		goto out;
+	}
+
+>>>>>>> upstream/android-13
 	/*
 	 * Finally, set up our IRQ now that the core is ready to
 	 * deal with it.
@@ -436,11 +550,16 @@ static int mmpcam_probe(struct platform_device *pdev)
 	res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
 	if (res == NULL) {
 		ret = -ENODEV;
+<<<<<<< HEAD
 		goto out_unregister;
+=======
+		goto out;
+>>>>>>> upstream/android-13
 	}
 	cam->irq = res->start;
 	ret = devm_request_irq(&pdev->dev, cam->irq, mmpcam_irq, IRQF_SHARED,
 					"mmp-camera", mcam);
+<<<<<<< HEAD
 	if (ret == 0) {
 		mmpcam_add_device(cam);
 		return 0;
@@ -450,6 +569,16 @@ out_unregister:
 	mccic_shutdown(mcam);
 out_power_down:
 	mmpcam_power_down(mcam);
+=======
+	if (ret)
+		goto out;
+
+	pm_runtime_enable(&pdev->dev);
+	return 0;
+out:
+	mccic_shutdown(mcam);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -458,15 +587,24 @@ static int mmpcam_remove(struct mmp_camera *cam)
 {
 	struct mcam_camera *mcam = &cam->mcam;
 
+<<<<<<< HEAD
 	mmpcam_remove_device(cam);
 	mccic_shutdown(mcam);
 	mmpcam_power_down(mcam);
+=======
+	mccic_shutdown(mcam);
+	pm_runtime_force_suspend(mcam->dev);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int mmpcam_platform_remove(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct mmp_camera *cam = mmpcam_find_device(pdev);
+=======
+	struct mmp_camera *cam = platform_get_drvdata(pdev);
+>>>>>>> upstream/android-13
 
 	if (cam == NULL)
 		return -ENODEV;
@@ -476,6 +614,7 @@ static int mmpcam_platform_remove(struct platform_device *pdev)
 /*
  * Suspend/resume support.
  */
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 
 static int mmpcam_suspend(struct platform_device *pdev, pm_message_t state)
@@ -503,10 +642,70 @@ static int mmpcam_resume(struct platform_device *pdev)
 
 #endif
 
+=======
+
+static int __maybe_unused mmpcam_runtime_resume(struct device *dev)
+{
+	struct mmp_camera *cam = dev_get_drvdata(dev);
+	struct mcam_camera *mcam = &cam->mcam;
+	unsigned int i;
+
+	for (i = 0; i < NR_MCAM_CLK; i++) {
+		if (!IS_ERR(mcam->clk[i]))
+			clk_prepare_enable(mcam->clk[i]);
+	}
+
+	return 0;
+}
+
+static int __maybe_unused mmpcam_runtime_suspend(struct device *dev)
+{
+	struct mmp_camera *cam = dev_get_drvdata(dev);
+	struct mcam_camera *mcam = &cam->mcam;
+	int i;
+
+	for (i = NR_MCAM_CLK - 1; i >= 0; i--) {
+		if (!IS_ERR(mcam->clk[i]))
+			clk_disable_unprepare(mcam->clk[i]);
+	}
+
+	return 0;
+}
+
+static int __maybe_unused mmpcam_suspend(struct device *dev)
+{
+	struct mmp_camera *cam = dev_get_drvdata(dev);
+
+	if (!pm_runtime_suspended(dev))
+		mccic_suspend(&cam->mcam);
+	return 0;
+}
+
+static int __maybe_unused mmpcam_resume(struct device *dev)
+{
+	struct mmp_camera *cam = dev_get_drvdata(dev);
+
+	if (!pm_runtime_suspended(dev))
+		return mccic_resume(&cam->mcam);
+	return 0;
+}
+
+static const struct dev_pm_ops mmpcam_pm_ops = {
+	SET_RUNTIME_PM_OPS(mmpcam_runtime_suspend, mmpcam_runtime_resume, NULL)
+	SET_SYSTEM_SLEEP_PM_OPS(mmpcam_suspend, mmpcam_resume)
+};
+
+static const struct of_device_id mmpcam_of_match[] = {
+	{ .compatible = "marvell,mmp2-ccic", },
+	{},
+};
+MODULE_DEVICE_TABLE(of, mmpcam_of_match);
+>>>>>>> upstream/android-13
 
 static struct platform_driver mmpcam_driver = {
 	.probe		= mmpcam_probe,
 	.remove		= mmpcam_platform_remove,
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 	.suspend	= mmpcam_suspend,
 	.resume		= mmpcam_resume,
@@ -535,3 +734,13 @@ static void __exit mmpcam_exit_module(void)
 
 module_init(mmpcam_init_module);
 module_exit(mmpcam_exit_module);
+=======
+	.driver = {
+		.name	= "mmp-camera",
+		.of_match_table = of_match_ptr(mmpcam_of_match),
+		.pm = &mmpcam_pm_ops,
+	}
+};
+
+module_platform_driver(mmpcam_driver);
+>>>>>>> upstream/android-13

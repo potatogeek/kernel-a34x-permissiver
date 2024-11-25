@@ -21,7 +21,11 @@
 #define sync_test_and_clear_bit(nr, p)	_test_and_clear_bit(nr, p)
 #define sync_test_and_change_bit(nr, p)	_test_and_change_bit(nr, p)
 #define sync_test_bit(nr, addr)		test_bit(nr, addr)
+<<<<<<< HEAD
 #define sync_cmpxchg			cmpxchg
+=======
+#define arch_sync_cmpxchg		arch_cmpxchg
+>>>>>>> upstream/android-13
 
 
 #endif

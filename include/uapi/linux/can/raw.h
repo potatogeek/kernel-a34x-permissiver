@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: ((GPL-2.0 WITH Linux-syscall-note) OR BSD-3-Clause) */
+=======
+/* SPDX-License-Identifier: ((GPL-2.0-only WITH Linux-syscall-note) OR BSD-3-Clause) */
+>>>>>>> upstream/android-13
 /*
  * linux/can/raw.h
  *
@@ -49,6 +53,12 @@
 #include <linux/can.h>
 
 #define SOL_CAN_RAW (SOL_CAN_BASE + CAN_RAW)
+<<<<<<< HEAD
+=======
+enum {
+	SCM_CAN_RAW_ERRQUEUE = 1,
+};
+>>>>>>> upstream/android-13
 
 /* for socket options affecting the socket (not the global system) */
 

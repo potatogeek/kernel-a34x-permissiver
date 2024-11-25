@@ -20,8 +20,13 @@
 
 #include <asm/cpu.h>
 #include <asm/bootinfo.h>
+<<<<<<< HEAD
 #include <asm/mmu_context.h>
 #include <asm/pgtable.h>
+=======
+#include <asm/mipsregs.h>
+#include <asm/mmu_context.h>
+>>>>>>> upstream/android-13
 #include <asm/cacheflush.h>
 #include <asm/tlb.h>
 #include <asm/tlbdebug.h>
@@ -30,10 +35,13 @@
 #include <asm/r4kcache.h>
 #define CONFIG_MIPS_MT
 
+<<<<<<< HEAD
 #define KVM_GUEST_PC_TLB    0
 #define KVM_GUEST_SP_TLB    1
 
 #ifdef CONFIG_KVM_MIPS_VZ
+=======
+>>>>>>> upstream/android-13
 unsigned long GUESTID_MASK;
 EXPORT_SYMBOL_GPL(GUESTID_MASK);
 unsigned long GUESTID_FIRST_VERSION;
@@ -50,6 +58,7 @@ static u32 kvm_mips_get_root_asid(struct kvm_vcpu *vcpu)
 	else
 		return cpu_asid(smp_processor_id(), gpa_mm);
 }
+<<<<<<< HEAD
 #endif
 
 static u32 kvm_mips_get_kernel_asid(struct kvm_vcpu *vcpu)
@@ -135,6 +144,8 @@ int kvm_mips_guest_tlb_lookup(struct kvm_vcpu *vcpu, unsigned long entryhi)
 	return index;
 }
 EXPORT_SYMBOL_GPL(kvm_mips_guest_tlb_lookup);
+=======
+>>>>>>> upstream/android-13
 
 static int _kvm_mips_host_tlb_inv(unsigned long entryhi)
 {
@@ -147,8 +158,12 @@ static int _kvm_mips_host_tlb_inv(unsigned long entryhi)
 	tlb_probe_hazard();
 	idx = read_c0_index();
 
+<<<<<<< HEAD
 	if (idx >= current_cpu_data.tlbsize)
 		BUG();
+=======
+	BUG_ON(idx >= current_cpu_data.tlbsize);
+>>>>>>> upstream/android-13
 
 	if (idx >= 0) {
 		write_c0_entryhi(UNIQUE_ENTRYHI(idx));
@@ -163,6 +178,7 @@ static int _kvm_mips_host_tlb_inv(unsigned long entryhi)
 	return idx;
 }
 
+<<<<<<< HEAD
 int kvm_mips_host_tlb_inv(struct kvm_vcpu *vcpu, unsigned long va,
 			  bool user, bool kernel)
 {
@@ -211,6 +227,8 @@ EXPORT_SYMBOL_GPL(kvm_mips_host_tlb_inv);
 
 #ifdef CONFIG_KVM_MIPS_VZ
 
+=======
+>>>>>>> upstream/android-13
 /* GuestID management */
 
 /**
@@ -469,7 +487,11 @@ void kvm_vz_local_flush_guesttlb_all(void)
 		cvmmemctl2 |= CVMMEMCTL2_INHIBITTS;
 		write_c0_cvmmemctl2(cvmmemctl2);
 		break;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 
 	/* Invalidate guest entries in guest TLB */
 	write_gc0_entrylo0(0);
@@ -486,7 +508,11 @@ void kvm_vz_local_flush_guesttlb_all(void)
 	if (cvmmemctl2) {
 		cvmmemctl2 &= ~CVMMEMCTL2_INHIBITTS;
 		write_c0_cvmmemctl2(cvmmemctl2);
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 
 	write_gc0_index(old_index);
 	write_gc0_entryhi(old_entryhi);
@@ -622,6 +648,7 @@ void kvm_vz_load_guesttlb(const struct kvm_mips_tlb *buf, unsigned int index,
 }
 EXPORT_SYMBOL_GPL(kvm_vz_load_guesttlb);
 
+<<<<<<< HEAD
 #endif
 
 /**
@@ -658,3 +685,44 @@ void kvm_mips_resume_mm(int cpu)
 	current->active_mm = current->mm;
 }
 EXPORT_SYMBOL_GPL(kvm_mips_resume_mm);
+=======
+#ifdef CONFIG_CPU_LOONGSON64
+void kvm_loongson_clear_guest_vtlb(void)
+{
+	int idx = read_gc0_index();
+
+	/* Set root GuestID for root probe and write of guest TLB entry */
+	set_root_gid_to_guest_gid();
+
+	write_gc0_index(0);
+	guest_tlbinvf();
+	write_gc0_index(idx);
+
+	clear_root_gid();
+	set_c0_diag(LOONGSON_DIAG_ITLB | LOONGSON_DIAG_DTLB);
+}
+EXPORT_SYMBOL_GPL(kvm_loongson_clear_guest_vtlb);
+
+void kvm_loongson_clear_guest_ftlb(void)
+{
+	int i;
+	int idx = read_gc0_index();
+
+	/* Set root GuestID for root probe and write of guest TLB entry */
+	set_root_gid_to_guest_gid();
+
+	for (i = current_cpu_data.tlbsizevtlb;
+	     i < (current_cpu_data.tlbsizevtlb +
+		     current_cpu_data.tlbsizeftlbsets);
+	     i++) {
+		write_gc0_index(i);
+		guest_tlbinvf();
+	}
+	write_gc0_index(idx);
+
+	clear_root_gid();
+	set_c0_diag(LOONGSON_DIAG_ITLB | LOONGSON_DIAG_DTLB);
+}
+EXPORT_SYMBOL_GPL(kvm_loongson_clear_guest_ftlb);
+#endif
+>>>>>>> upstream/android-13

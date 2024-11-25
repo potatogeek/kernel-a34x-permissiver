@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Authors:
  * Copyright 2001, 2002 by Robert Olsson <robert.olsson@its.uu.se>
@@ -8,12 +12,15 @@
  * Ben Greear <greearb@candelatech.com>
  * Jens Låås <jens.laas@data.slu.se>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
  *
  *
+=======
+>>>>>>> upstream/android-13
  * A tool for loading the network with preconfigurated packets.
  * The tool is implemented as a linux module.  Parameters are output
  * device, delay (to hard_xmit), number of packets, and whether
@@ -60,9 +67,14 @@
  *
  * Integrated to 2.5.x 021029 --Lucio Maciel (luciomaciel@zipmail.com.br)
  *
+<<<<<<< HEAD
  *
  * 021124 Finished major redesign and rewrite for new functionality.
  * See Documentation/networking/pktgen.txt for how to use this.
+=======
+ * 021124 Finished major redesign and rewrite for new functionality.
+ * See Documentation/networking/pktgen.rst for how to use this.
+>>>>>>> upstream/android-13
  *
  * The new operation:
  * For each CPU one thread/process is created at start. This process checks
@@ -114,7 +126,10 @@
  *
  * Fixed src_mac command to set source mac of packet to value specified in
  * command by Adit Ranadive <adit.262@gmail.com>
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -158,6 +173,10 @@
 #include <linux/etherdevice.h>
 #include <linux/kthread.h>
 #include <linux/prefetch.h>
+<<<<<<< HEAD
+=======
+#include <linux/mmzone.h>
+>>>>>>> upstream/android-13
 #include <net/net_namespace.h>
 #include <net/checksum.h>
 #include <net/ipv6.h>
@@ -181,6 +200,12 @@
 #define IP_NAME_SZ 32
 #define MAX_MPLS_LABELS 16 /* This is the max label stack depth */
 #define MPLS_STACK_BOTTOM htonl(0x00000100)
+<<<<<<< HEAD
+=======
+/* Max number of internet mix entries that can be specified in imix_weights. */
+#define MAX_IMIX_ENTRIES 20
+#define IMIX_PRECISION 100 /* Precision of IMIX distribution */
+>>>>>>> upstream/android-13
 
 #define func_enter() pr_debug("entering %s\n", __func__);
 
@@ -248,6 +273,15 @@ static char *pkt_flag_names[] = {
 #define VLAN_TAG_SIZE(x) ((x)->vlan_id == 0xffff ? 0 : 4)
 #define SVLAN_TAG_SIZE(x) ((x)->svlan_id == 0xffff ? 0 : 4)
 
+<<<<<<< HEAD
+=======
+struct imix_pkt {
+	u64 size;
+	u64 weight;
+	u64 count_so_far;
+};
+
+>>>>>>> upstream/android-13
 struct flow_state {
 	__be32 cur_daddr;
 	int count;
@@ -349,6 +383,15 @@ struct pktgen_dev {
 	__u8 traffic_class;  /* ditto for the (former) Traffic Class in IPv6
 				(see RFC 3260, sec. 4) */
 
+<<<<<<< HEAD
+=======
+	/* IMIX */
+	unsigned int n_imix_entries;
+	struct imix_pkt imix_entries[MAX_IMIX_ENTRIES];
+	/* Maps 0-IMIX_PRECISION range to imix_entry based on probability*/
+	__u8 imix_distribution[IMIX_PRECISION];
+
+>>>>>>> upstream/android-13
 	/* MPLS */
 	unsigned int nr_labels;	/* Depth of stack, 0 = no MPLS */
 	__be32 labels[MAX_MPLS_LABELS];
@@ -473,10 +516,18 @@ static struct pktgen_dev *pktgen_find_dev(struct pktgen_thread *t,
 static int pktgen_device_event(struct notifier_block *, unsigned long, void *);
 static void pktgen_run_all_threads(struct pktgen_net *pn);
 static void pktgen_reset_all_threads(struct pktgen_net *pn);
+<<<<<<< HEAD
 static void pktgen_stop_all_threads_ifs(struct pktgen_net *pn);
 
 static void pktgen_stop(struct pktgen_thread *t);
 static void pktgen_clear_counters(struct pktgen_dev *pkt_dev);
+=======
+static void pktgen_stop_all_threads(struct pktgen_net *pn);
+
+static void pktgen_stop(struct pktgen_thread *t);
+static void pktgen_clear_counters(struct pktgen_dev *pkt_dev);
+static void fill_imix_distribution(struct pktgen_dev *pkt_dev);
+>>>>>>> upstream/android-13
 
 /* Module parameters, defaults. */
 static int pg_count_d __read_mostly = 1000;
@@ -522,6 +573,7 @@ static ssize_t pgctrl_write(struct file *file, const char __user *buf,
 	data[count - 1] = 0;	/* Strip trailing '\n' and terminate string */
 
 	if (!strcmp(data, "stop"))
+<<<<<<< HEAD
 		pktgen_stop_all_threads_ifs(pn);
 
 	else if (!strcmp(data, "start"))
@@ -530,6 +582,13 @@ static ssize_t pgctrl_write(struct file *file, const char __user *buf,
 	else if (!strcmp(data, "reset"))
 		pktgen_reset_all_threads(pn);
 
+=======
+		pktgen_stop_all_threads(pn);
+	else if (!strcmp(data, "start"))
+		pktgen_run_all_threads(pn);
+	else if (!strcmp(data, "reset"))
+		pktgen_reset_all_threads(pn);
+>>>>>>> upstream/android-13
 	else
 		return -EINVAL;
 
@@ -541,12 +600,21 @@ static int pgctrl_open(struct inode *inode, struct file *file)
 	return single_open(file, pgctrl_show, PDE_DATA(inode));
 }
 
+<<<<<<< HEAD
 static const struct file_operations pktgen_fops = {
 	.open    = pgctrl_open,
 	.read    = seq_read,
 	.llseek  = seq_lseek,
 	.write   = pgctrl_write,
 	.release = single_release,
+=======
+static const struct proc_ops pktgen_proc_ops = {
+	.proc_open	= pgctrl_open,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_write	= pgctrl_write,
+	.proc_release	= single_release,
+>>>>>>> upstream/android-13
 };
 
 static int pktgen_if_show(struct seq_file *seq, void *v)
@@ -561,6 +629,19 @@ static int pktgen_if_show(struct seq_file *seq, void *v)
 		   (unsigned long long)pkt_dev->count, pkt_dev->min_pkt_size,
 		   pkt_dev->max_pkt_size);
 
+<<<<<<< HEAD
+=======
+	if (pkt_dev->n_imix_entries > 0) {
+		seq_puts(seq, "     imix_weights: ");
+		for (i = 0; i < pkt_dev->n_imix_entries; i++) {
+			seq_printf(seq, "%llu,%llu ",
+				   pkt_dev->imix_entries[i].size,
+				   pkt_dev->imix_entries[i].weight);
+		}
+		seq_puts(seq, "\n");
+	}
+
+>>>>>>> upstream/android-13
 	seq_printf(seq,
 		   "     frags: %d  delay: %llu  clone_skb: %d  ifname: %s\n",
 		   pkt_dev->nfrags, (unsigned long long) pkt_dev->delay,
@@ -678,6 +759,21 @@ static int pktgen_if_show(struct seq_file *seq, void *v)
 		   (unsigned long long)pkt_dev->sofar,
 		   (unsigned long long)pkt_dev->errors);
 
+<<<<<<< HEAD
+=======
+	if (pkt_dev->n_imix_entries > 0) {
+		int i;
+
+		seq_puts(seq, "     imix_size_counts: ");
+		for (i = 0; i < pkt_dev->n_imix_entries; i++) {
+			seq_printf(seq, "%llu,%llu ",
+				   pkt_dev->imix_entries[i].size,
+				   pkt_dev->imix_entries[i].count_so_far);
+		}
+		seq_puts(seq, "\n");
+	}
+
+>>>>>>> upstream/android-13
 	seq_printf(seq,
 		   "     started: %lluus  stopped: %lluus idle: %lluus\n",
 		   (unsigned long long) ktime_to_us(pkt_dev->started_at),
@@ -801,6 +897,65 @@ done_str:
 	return i;
 }
 
+<<<<<<< HEAD
+=======
+/* Parses imix entries from user buffer.
+ * The user buffer should consist of imix entries separated by spaces
+ * where each entry consists of size and weight delimited by commas.
+ * "size1,weight_1 size2,weight_2 ... size_n,weight_n" for example.
+ */
+static ssize_t get_imix_entries(const char __user *buffer,
+				struct pktgen_dev *pkt_dev)
+{
+	const int max_digits = 10;
+	int i = 0;
+	long len;
+	char c;
+
+	pkt_dev->n_imix_entries = 0;
+
+	do {
+		unsigned long weight;
+		unsigned long size;
+
+		len = num_arg(&buffer[i], max_digits, &size);
+		if (len < 0)
+			return len;
+		i += len;
+		if (get_user(c, &buffer[i]))
+			return -EFAULT;
+		/* Check for comma between size_i and weight_i */
+		if (c != ',')
+			return -EINVAL;
+		i++;
+
+		if (size < 14 + 20 + 8)
+			size = 14 + 20 + 8;
+
+		len = num_arg(&buffer[i], max_digits, &weight);
+		if (len < 0)
+			return len;
+		if (weight <= 0)
+			return -EINVAL;
+
+		pkt_dev->imix_entries[pkt_dev->n_imix_entries].size = size;
+		pkt_dev->imix_entries[pkt_dev->n_imix_entries].weight = weight;
+
+		i += len;
+		if (get_user(c, &buffer[i]))
+			return -EFAULT;
+
+		i++;
+		pkt_dev->n_imix_entries++;
+
+		if (pkt_dev->n_imix_entries > MAX_IMIX_ENTRIES)
+			return -E2BIG;
+	} while (c == ' ');
+
+	return i;
+}
+
+>>>>>>> upstream/android-13
 static ssize_t get_labels(const char __user *buffer, struct pktgen_dev *pkt_dev)
 {
 	unsigned int n = 0;
@@ -928,7 +1083,11 @@ static ssize_t pktgen_if_write(struct file *file,
 			pkt_dev->min_pkt_size = value;
 			pkt_dev->cur_pkt_size = value;
 		}
+<<<<<<< HEAD
 		sprintf(pg_result, "OK: min_pkt_size=%u",
+=======
+		sprintf(pg_result, "OK: min_pkt_size=%d",
+>>>>>>> upstream/android-13
 			pkt_dev->min_pkt_size);
 		return count;
 	}
@@ -945,7 +1104,11 @@ static ssize_t pktgen_if_write(struct file *file,
 			pkt_dev->max_pkt_size = value;
 			pkt_dev->cur_pkt_size = value;
 		}
+<<<<<<< HEAD
 		sprintf(pg_result, "OK: max_pkt_size=%u",
+=======
+		sprintf(pg_result, "OK: max_pkt_size=%d",
+>>>>>>> upstream/android-13
 			pkt_dev->max_pkt_size);
 		return count;
 	}
@@ -965,7 +1128,25 @@ static ssize_t pktgen_if_write(struct file *file,
 			pkt_dev->max_pkt_size = value;
 			pkt_dev->cur_pkt_size = value;
 		}
+<<<<<<< HEAD
 		sprintf(pg_result, "OK: pkt_size=%u", pkt_dev->min_pkt_size);
+=======
+		sprintf(pg_result, "OK: pkt_size=%d", pkt_dev->min_pkt_size);
+		return count;
+	}
+
+	if (!strcmp(name, "imix_weights")) {
+		if (pkt_dev->clone_skb > 0)
+			return -EINVAL;
+
+		len = get_imix_entries(&user_buffer[i], pkt_dev);
+		if (len < 0)
+			return len;
+
+		fill_imix_distribution(pkt_dev);
+
+		i += len;
+>>>>>>> upstream/android-13
 		return count;
 	}
 
@@ -987,7 +1168,11 @@ static ssize_t pktgen_if_write(struct file *file,
 
 		i += len;
 		pkt_dev->nfrags = value;
+<<<<<<< HEAD
 		sprintf(pg_result, "OK: frags=%u", pkt_dev->nfrags);
+=======
+		sprintf(pg_result, "OK: frags=%d", pkt_dev->nfrags);
+>>>>>>> upstream/android-13
 		return count;
 	}
 	if (!strcmp(name, "delay")) {
@@ -1091,10 +1276,22 @@ static ssize_t pktgen_if_write(struct file *file,
 		len = num_arg(&user_buffer[i], 10, &value);
 		if (len < 0)
 			return len;
+<<<<<<< HEAD
+=======
+		/* clone_skb is not supported for netif_receive xmit_mode and
+		 * IMIX mode.
+		 */
+>>>>>>> upstream/android-13
 		if ((value > 0) &&
 		    ((pkt_dev->xmit_mode == M_NETIF_RECEIVE) ||
 		     !(pkt_dev->odev->priv_flags & IFF_TX_SKB_SHARING)))
 			return -ENOTSUPP;
+<<<<<<< HEAD
+=======
+		if (value > 0 && pkt_dev->n_imix_entries > 0)
+			return -EINVAL;
+
+>>>>>>> upstream/android-13
 		i += len;
 		pkt_dev->clone_skb = value;
 
@@ -1152,7 +1349,11 @@ static ssize_t pktgen_if_write(struct file *file,
 		     (!(pkt_dev->odev->priv_flags & IFF_TX_SKB_SHARING)))))
 			return -ENOTSUPP;
 		pkt_dev->burst = value < 1 ? 1 : value;
+<<<<<<< HEAD
 		sprintf(pg_result, "OK: burst=%d", pkt_dev->burst);
+=======
+		sprintf(pg_result, "OK: burst=%u", pkt_dev->burst);
+>>>>>>> upstream/android-13
 		return count;
 	}
 	if (!strcmp(name, "node")) {
@@ -1199,11 +1400,14 @@ static ssize_t pktgen_if_write(struct file *file,
 			 * pktgen_xmit() is called
 			 */
 			pkt_dev->last_ok = 1;
+<<<<<<< HEAD
 
 			/* override clone_skb if user passed default value
 			 * at module loading time
 			 */
 			pkt_dev->clone_skb = 0;
+=======
+>>>>>>> upstream/android-13
 		} else if (strcmp(f, "queue_xmit") == 0) {
 			pkt_dev->xmit_mode = M_QUEUE_XMIT;
 			pkt_dev->last_ok = 1;
@@ -1713,12 +1917,21 @@ static int pktgen_if_open(struct inode *inode, struct file *file)
 	return single_open(file, pktgen_if_show, PDE_DATA(inode));
 }
 
+<<<<<<< HEAD
 static const struct file_operations pktgen_if_fops = {
 	.open    = pktgen_if_open,
 	.read    = seq_read,
 	.llseek  = seq_lseek,
 	.write   = pktgen_if_write,
 	.release = single_release,
+=======
+static const struct proc_ops pktgen_if_proc_ops = {
+	.proc_open	= pktgen_if_open,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_write	= pktgen_if_write,
+	.proc_release	= single_release,
+>>>>>>> upstream/android-13
 };
 
 static int pktgen_thread_show(struct seq_file *seq, void *v)
@@ -1850,12 +2063,21 @@ static int pktgen_thread_open(struct inode *inode, struct file *file)
 	return single_open(file, pktgen_thread_show, PDE_DATA(inode));
 }
 
+<<<<<<< HEAD
 static const struct file_operations pktgen_thread_fops = {
 	.open    = pktgen_thread_open,
 	.read    = seq_read,
 	.llseek  = seq_lseek,
 	.write   = pktgen_thread_write,
 	.release = single_release,
+=======
+static const struct proc_ops pktgen_thread_proc_ops = {
+	.proc_open	= pktgen_thread_open,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_write	= pktgen_thread_write,
+	.proc_release	= single_release,
+>>>>>>> upstream/android-13
 };
 
 /* Think find or remove for NN */
@@ -1932,7 +2154,11 @@ static void pktgen_change_name(const struct pktgen_net *pn, struct net_device *d
 
 			pkt_dev->entry = proc_create_data(dev->name, 0600,
 							  pn->proc_dir,
+<<<<<<< HEAD
 							  &pktgen_if_fops,
+=======
+							  &pktgen_if_proc_ops,
+>>>>>>> upstream/android-13
 							  pkt_dev);
 			if (!pkt_dev->entry)
 				pr_err("can't move proc entry for '%s'\n",
@@ -2009,8 +2235,13 @@ static int pktgen_setup_dev(const struct pktgen_net *pn,
 		return -ENODEV;
 	}
 
+<<<<<<< HEAD
 	if (odev->type != ARPHRD_ETHER) {
 		pr_err("not an ethernet device: \"%s\"\n", ifname);
+=======
+	if (odev->type != ARPHRD_ETHER && odev->type != ARPHRD_LOOPBACK) {
+		pr_err("not an ethernet or loopback device: \"%s\"\n", ifname);
+>>>>>>> upstream/android-13
 		err = -EINVAL;
 	} else if (!netif_running(odev)) {
 		pr_err("device is down: \"%s\"\n", ifname);
@@ -2124,9 +2355,17 @@ static void pktgen_setup_inject(struct pktgen_dev *pkt_dev)
 			rcu_read_lock();
 			in_dev = __in_dev_get_rcu(pkt_dev->odev);
 			if (in_dev) {
+<<<<<<< HEAD
 				if (in_dev->ifa_list) {
 					pkt_dev->saddr_min =
 					    in_dev->ifa_list->ifa_address;
+=======
+				const struct in_ifaddr *ifa;
+
+				ifa = rcu_dereference(in_dev->ifa_list);
+				if (ifa) {
+					pkt_dev->saddr_min = ifa->ifa_address;
+>>>>>>> upstream/android-13
 					pkt_dev->saddr_max = pkt_dev->saddr_min;
 				}
 			}
@@ -2160,7 +2399,11 @@ static void spin(struct pktgen_dev *pkt_dev, ktime_t spin_until)
 	s64 remaining;
 	struct hrtimer_sleeper t;
 
+<<<<<<< HEAD
 	hrtimer_init_on_stack(&t.timer, CLOCK_MONOTONIC, HRTIMER_MODE_ABS);
+=======
+	hrtimer_init_sleeper_on_stack(&t, CLOCK_MONOTONIC, HRTIMER_MODE_ABS);
+>>>>>>> upstream/android-13
 	hrtimer_set_expires(&t.timer, spin_until);
 
 	remaining = ktime_to_ns(hrtimer_expires_remaining(&t.timer));
@@ -2174,11 +2417,17 @@ static void spin(struct pktgen_dev *pkt_dev, ktime_t spin_until)
 			end_time = ktime_get();
 		} while (ktime_compare(end_time, spin_until) < 0);
 	} else {
+<<<<<<< HEAD
 		/* see do_nanosleep */
 		hrtimer_init_sleeper(&t, current);
 		do {
 			set_current_state(TASK_INTERRUPTIBLE);
 			hrtimer_start_expires(&t.timer, HRTIMER_MODE_ABS);
+=======
+		do {
+			set_current_state(TASK_INTERRUPTIBLE);
+			hrtimer_sleeper_start_expires(&t, HRTIMER_MODE_ABS);
+>>>>>>> upstream/android-13
 
 			if (likely(t.task))
 				schedule();
@@ -2486,6 +2735,17 @@ static void mod_cur_headers(struct pktgen_dev *pkt_dev)
 				t = pkt_dev->min_pkt_size;
 		}
 		pkt_dev->cur_pkt_size = t;
+<<<<<<< HEAD
+=======
+	} else if (pkt_dev->n_imix_entries > 0) {
+		struct imix_pkt *entry;
+		__u32 t = prandom_u32() % IMIX_PRECISION;
+		__u8 entry_index = pkt_dev->imix_distribution[t];
+
+		entry = &pkt_dev->imix_entries[entry_index];
+		entry->count_so_far++;
+		pkt_dev->cur_pkt_size = entry->size;
+>>>>>>> upstream/android-13
 	}
 
 	set_cur_queue_map(pkt_dev);
@@ -2493,6 +2753,35 @@ static void mod_cur_headers(struct pktgen_dev *pkt_dev)
 	pkt_dev->flows[flow].count++;
 }
 
+<<<<<<< HEAD
+=======
+static void fill_imix_distribution(struct pktgen_dev *pkt_dev)
+{
+	int cumulative_probabilites[MAX_IMIX_ENTRIES];
+	int j = 0;
+	__u64 cumulative_prob = 0;
+	__u64 total_weight = 0;
+	int i = 0;
+
+	for (i = 0; i < pkt_dev->n_imix_entries; i++)
+		total_weight += pkt_dev->imix_entries[i].weight;
+
+	/* Fill cumulative_probabilites with sum of normalized probabilities */
+	for (i = 0; i < pkt_dev->n_imix_entries - 1; i++) {
+		cumulative_prob += div64_u64(pkt_dev->imix_entries[i].weight *
+						     IMIX_PRECISION,
+					     total_weight);
+		cumulative_probabilites[i] = cumulative_prob;
+	}
+	cumulative_probabilites[pkt_dev->n_imix_entries - 1] = 100;
+
+	for (i = 0; i < IMIX_PRECISION; i++) {
+		if (i == cumulative_probabilites[j])
+			j++;
+		pkt_dev->imix_distribution[i] = j;
+	}
+}
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_XFRM
 static u32 pktgen_dst_metrics[RTAX_MAX + 1] = {
@@ -2520,7 +2809,11 @@ static int pktgen_output_ipsec(struct sk_buff *skb, struct pktgen_dev *pkt_dev)
 		skb->_skb_refdst = (unsigned long)&pkt_dev->xdst.u.dst | SKB_DST_NOREF;
 
 	rcu_read_lock_bh();
+<<<<<<< HEAD
 	err = x->outer_mode->output(x, skb);
+=======
+	err = pktgen_xfrm_outer_mode_output(x, skb);
+>>>>>>> upstream/android-13
 	rcu_read_unlock_bh();
 	if (err) {
 		XFRM_INC_STATS(net, LINUX_MIB_XFRMOUTSTATEMODEERROR);
@@ -2656,7 +2949,11 @@ static void pktgen_finalize_skb(struct pktgen_dev *pkt_dev, struct sk_buff *skb,
 			}
 			get_page(pkt_dev->page);
 			skb_frag_set_page(skb, i, pkt_dev->page);
+<<<<<<< HEAD
 			skb_shinfo(skb)->frags[i].page_offset = 0;
+=======
+			skb_frag_off_set(&skb_shinfo(skb)->frags[i], 0);
+>>>>>>> upstream/android-13
 			/*last fragment, fill rest of data*/
 			if (i == (frags - 1))
 				skb_frag_size_set(&skb_shinfo(skb)->frags[i],
@@ -3033,6 +3330,7 @@ static void pktgen_run(struct pktgen_thread *t)
 		t->control &= ~(T_STOP);
 }
 
+<<<<<<< HEAD
 static void pktgen_stop_all_threads_ifs(struct pktgen_net *pn)
 {
 	struct pktgen_thread *t;
@@ -3043,10 +3341,30 @@ static void pktgen_stop_all_threads_ifs(struct pktgen_net *pn)
 
 	list_for_each_entry(t, &pn->pktgen_threads, th_list)
 		t->control |= T_STOP;
+=======
+static void pktgen_handle_all_threads(struct pktgen_net *pn, u32 flags)
+{
+	struct pktgen_thread *t;
+
+	mutex_lock(&pktgen_thread_lock);
+
+	list_for_each_entry(t, &pn->pktgen_threads, th_list)
+		t->control |= (flags);
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&pktgen_thread_lock);
 }
 
+<<<<<<< HEAD
+=======
+static void pktgen_stop_all_threads(struct pktgen_net *pn)
+{
+	func_enter();
+
+	pktgen_handle_all_threads(pn, T_STOP);
+}
+
+>>>>>>> upstream/android-13
 static int thread_is_running(const struct pktgen_thread *t)
 {
 	const struct pktgen_dev *pkt_dev;
@@ -3109,6 +3427,7 @@ static int pktgen_wait_all_threads_run(struct pktgen_net *pn)
 
 static void pktgen_run_all_threads(struct pktgen_net *pn)
 {
+<<<<<<< HEAD
 	struct pktgen_thread *t;
 
 	func_enter();
@@ -3119,6 +3438,11 @@ static void pktgen_run_all_threads(struct pktgen_net *pn)
 		t->control |= (T_RUN);
 
 	mutex_unlock(&pktgen_thread_lock);
+=======
+	func_enter();
+
+	pktgen_handle_all_threads(pn, T_RUN);
+>>>>>>> upstream/android-13
 
 	/* Propagate thread->control  */
 	schedule_timeout_interruptible(msecs_to_jiffies(125));
@@ -3128,6 +3452,7 @@ static void pktgen_run_all_threads(struct pktgen_net *pn)
 
 static void pktgen_reset_all_threads(struct pktgen_net *pn)
 {
+<<<<<<< HEAD
 	struct pktgen_thread *t;
 
 	func_enter();
@@ -3138,6 +3463,11 @@ static void pktgen_reset_all_threads(struct pktgen_net *pn)
 		t->control |= (T_REMDEVALL);
 
 	mutex_unlock(&pktgen_thread_lock);
+=======
+	func_enter();
+
+	pktgen_handle_all_threads(pn, T_REMDEVALL);
+>>>>>>> upstream/android-13
 
 	/* Propagate thread->control  */
 	schedule_timeout_interruptible(msecs_to_jiffies(125));
@@ -3163,7 +3493,23 @@ static void show_results(struct pktgen_dev *pkt_dev, int nr_frags)
 	pps = div64_u64(pkt_dev->sofar * NSEC_PER_SEC,
 			ktime_to_ns(elapsed));
 
+<<<<<<< HEAD
 	bps = pps * 8 * pkt_dev->cur_pkt_size;
+=======
+	if (pkt_dev->n_imix_entries > 0) {
+		int i;
+		struct imix_pkt *entry;
+
+		bps = 0;
+		for (i = 0; i < pkt_dev->n_imix_entries; i++) {
+			entry = &pkt_dev->imix_entries[i];
+			bps += entry->size * entry->count_so_far;
+		}
+		bps = div64_u64(bps * 8 * NSEC_PER_SEC, ktime_to_ns(elapsed));
+	} else {
+		bps = pps * 8 * pkt_dev->cur_pkt_size;
+	}
+>>>>>>> upstream/android-13
 
 	mbps = bps;
 	do_div(mbps, 1000000);
@@ -3368,7 +3714,11 @@ static void pktgen_xmit(struct pktgen_dev *pkt_dev)
 			/* skb was 'freed' by stack, so clean few
 			 * bits and reuse it
 			 */
+<<<<<<< HEAD
 			skb_reset_tc(skb);
+=======
+			skb_reset_redirect(skb);
+>>>>>>> upstream/android-13
 		} while (--burst > 0);
 		goto out; /* Skips xmit_mode M_START_XMIT */
 	} else if (pkt_dev->xmit_mode == M_QUEUE_XMIT) {
@@ -3410,7 +3760,10 @@ static void pktgen_xmit(struct pktgen_dev *pkt_dev)
 	HARD_TX_LOCK(odev, txq, smp_processor_id());
 
 	if (unlikely(netif_xmit_frozen_or_drv_stopped(txq))) {
+<<<<<<< HEAD
 		ret = NETDEV_TX_BUSY;
+=======
+>>>>>>> upstream/android-13
 		pkt_dev->last_ok = 0;
 		goto unlock;
 	}
@@ -3437,7 +3790,11 @@ xmit_more:
 		net_info_ratelimited("%s xmit error: %d\n",
 				     pkt_dev->odevname, ret);
 		pkt_dev->errors++;
+<<<<<<< HEAD
 		/* fallthru */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case NETDEV_TX_BUSY:
 		/* Retry it next time */
 		refcount_dec(&(pkt_dev->skb->users));
@@ -3466,7 +3823,10 @@ out:
 
 static int pktgen_thread_worker(void *arg)
 {
+<<<<<<< HEAD
 	DEFINE_WAIT(wait);
+=======
+>>>>>>> upstream/android-13
 	struct pktgen_thread *t = arg;
 	struct pktgen_dev *pkt_dev = NULL;
 	int cpu = t->cpu;
@@ -3636,7 +3996,11 @@ static int pktgen_add_device(struct pktgen_thread *t, const char *ifname)
 	pkt_dev->svlan_cfi = 0;
 	pkt_dev->svlan_id = 0xffff;
 	pkt_dev->burst = 1;
+<<<<<<< HEAD
 	pkt_dev->node = -1;
+=======
+	pkt_dev->node = NUMA_NO_NODE;
+>>>>>>> upstream/android-13
 
 	err = pktgen_setup_dev(t->net, pkt_dev, ifname);
 	if (err)
@@ -3645,7 +4009,11 @@ static int pktgen_add_device(struct pktgen_thread *t, const char *ifname)
 		pkt_dev->clone_skb = pg_clone_skb_d;
 
 	pkt_dev->entry = proc_create_data(ifname, 0600, t->net->proc_dir,
+<<<<<<< HEAD
 					  &pktgen_if_fops, pkt_dev);
+=======
+					  &pktgen_if_proc_ops, pkt_dev);
+>>>>>>> upstream/android-13
 	if (!pkt_dev->entry) {
 		pr_err("cannot create %s/%s procfs entry\n",
 		       PG_PROC_DIR, ifname);
@@ -3706,7 +4074,11 @@ static int __net_init pktgen_create_thread(int cpu, struct pktgen_net *pn)
 				   cpu_to_node(cpu),
 				   "kpktgend_%d", cpu);
 	if (IS_ERR(p)) {
+<<<<<<< HEAD
 		pr_err("kernel_thread() failed for cpu %d\n", t->cpu);
+=======
+		pr_err("kthread_create_on_node() failed for cpu %d\n", t->cpu);
+>>>>>>> upstream/android-13
 		list_del(&t->th_list);
 		kfree(t);
 		return PTR_ERR(p);
@@ -3715,7 +4087,11 @@ static int __net_init pktgen_create_thread(int cpu, struct pktgen_net *pn)
 	t->tsk = p;
 
 	pe = proc_create_data(t->tsk->comm, 0600, pn->proc_dir,
+<<<<<<< HEAD
 			      &pktgen_thread_fops, t);
+=======
+			      &pktgen_thread_proc_ops, t);
+>>>>>>> upstream/android-13
 	if (!pe) {
 		pr_err("cannot create %s/%s procfs entry\n",
 		       PG_PROC_DIR, t->tsk->comm);
@@ -3800,7 +4176,11 @@ static int __net_init pg_net_init(struct net *net)
 		pr_warn("cannot create /proc/net/%s\n", PG_PROC_DIR);
 		return -ENODEV;
 	}
+<<<<<<< HEAD
 	pe = proc_create(PGCTRL, 0600, pn->proc_dir, &pktgen_fops);
+=======
+	pe = proc_create(PGCTRL, 0600, pn->proc_dir, &pktgen_proc_ops);
+>>>>>>> upstream/android-13
 	if (pe == NULL) {
 		pr_err("cannot create %s procfs entry\n", PGCTRL);
 		ret = -EINVAL;

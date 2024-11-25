@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2006 Intel Corporation.  All rights reserved.
  *
@@ -31,6 +32,14 @@
  */
 
 #if !defined(RDMA_CM_IB_H)
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB */
+/*
+ * Copyright (c) 2006 Intel Corporation.  All rights reserved.
+ */
+
+#ifndef RDMA_CM_IB_H
+>>>>>>> upstream/android-13
 #define RDMA_CM_IB_H
 
 #include <rdma/rdma_cm.h>

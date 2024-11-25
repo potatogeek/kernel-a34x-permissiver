@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2017-2018 Netronome Systems, Inc.
  *
@@ -32,6 +33,11 @@
  */
 
 #include <bfd.h>
+=======
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+/* Copyright (C) 2017-2018 Netronome Systems, Inc. */
+
+>>>>>>> upstream/android-13
 #include <ctype.h>
 #include <errno.h>
 #include <getopt.h>
@@ -40,7 +46,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+<<<<<<< HEAD
 #include <bpf.h>
+=======
+#include <bpf/bpf.h>
+#include <bpf/libbpf.h>
+#include <bpf/btf.h>
+>>>>>>> upstream/android-13
 
 #include "main.h"
 
@@ -55,8 +67,20 @@ json_writer_t *json_wtr;
 bool pretty_output;
 bool json_output;
 bool show_pinned;
+<<<<<<< HEAD
 struct pinned_obj_table prog_table;
 struct pinned_obj_table map_table;
+=======
+bool block_mount;
+bool verifier_logs;
+bool relaxed_maps;
+bool use_loader;
+struct btf *base_btf;
+struct pinned_obj_table prog_table;
+struct pinned_obj_table map_table;
+struct pinned_obj_table link_table;
+struct obj_refs_table refs_table;
+>>>>>>> upstream/android-13
 
 static void __noreturn clean_and_exit(int i)
 {
@@ -85,8 +109,14 @@ static int do_help(int argc, char **argv)
 		"       %s batch file FILE\n"
 		"       %s version\n"
 		"\n"
+<<<<<<< HEAD
 		"       OBJECT := { prog | map | cgroup | perf }\n"
 		"       " HELP_SPEC_OPTIONS "\n"
+=======
+		"       OBJECT := { prog | map | link | cgroup | perf | net | feature | btf | gen | struct_ops | iter }\n"
+		"       " HELP_SPEC_OPTIONS " |\n"
+		"                    {-V|--version} }\n"
+>>>>>>> upstream/android-13
 		"",
 		bin_name, bin_name, bin_name);
 
@@ -95,6 +125,7 @@ static int do_help(int argc, char **argv)
 
 static int do_version(int argc, char **argv)
 {
+<<<<<<< HEAD
 	if (json_output) {
 		jsonw_start_object(json_wtr);
 		jsonw_name(json_wtr, "version");
@@ -102,6 +133,44 @@ static int do_version(int argc, char **argv)
 		jsonw_end_object(json_wtr);
 	} else {
 		printf("%s v%s\n", bin_name, BPFTOOL_VERSION);
+=======
+#ifdef HAVE_LIBBFD_SUPPORT
+	const bool has_libbfd = true;
+#else
+	const bool has_libbfd = false;
+#endif
+#ifdef BPFTOOL_WITHOUT_SKELETONS
+	const bool has_skeletons = false;
+#else
+	const bool has_skeletons = true;
+#endif
+
+	if (json_output) {
+		jsonw_start_object(json_wtr);	/* root object */
+
+		jsonw_name(json_wtr, "version");
+		jsonw_printf(json_wtr, "\"%s\"", BPFTOOL_VERSION);
+
+		jsonw_name(json_wtr, "features");
+		jsonw_start_object(json_wtr);	/* features */
+		jsonw_bool_field(json_wtr, "libbfd", has_libbfd);
+		jsonw_bool_field(json_wtr, "skeletons", has_skeletons);
+		jsonw_end_object(json_wtr);	/* features */
+
+		jsonw_end_object(json_wtr);	/* root object */
+	} else {
+		unsigned int nb_features = 0;
+
+		printf("%s v%s\n", bin_name, BPFTOOL_VERSION);
+		printf("features:");
+		if (has_libbfd) {
+			printf(" libbfd");
+			nb_features++;
+		}
+		if (has_skeletons)
+			printf("%s skeletons", nb_features++ ? "," : "");
+		printf("\n");
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
@@ -118,9 +187,22 @@ int cmd_select(const struct cmd *cmds, int argc, char **argv,
 	if (argc < 1 && cmds[0].func)
 		return cmds[0].func(argc, argv);
 
+<<<<<<< HEAD
 	for (i = 0; cmds[i].func; i++)
 		if (is_prefix(*argv, cmds[i].cmd))
 			return cmds[i].func(argc - 1, argv + 1);
+=======
+	for (i = 0; cmds[i].cmd; i++) {
+		if (is_prefix(*argv, cmds[i].cmd)) {
+			if (!cmds[i].func) {
+				p_err("command '%s' is not supported in bootstrap mode",
+				      cmds[i].cmd);
+				return -1;
+			}
+			return cmds[i].func(argc - 1, argv + 1);
+		}
+	}
+>>>>>>> upstream/android-13
 
 	help(argc - 1, argv + 1);
 
@@ -137,6 +219,38 @@ bool is_prefix(const char *pfx, const char *str)
 	return !memcmp(str, pfx, strlen(pfx));
 }
 
+<<<<<<< HEAD
+=======
+/* Last argument MUST be NULL pointer */
+int detect_common_prefix(const char *arg, ...)
+{
+	unsigned int count = 0;
+	const char *ref;
+	char msg[256];
+	va_list ap;
+
+	snprintf(msg, sizeof(msg), "ambiguous prefix: '%s' could be '", arg);
+	va_start(ap, arg);
+	while ((ref = va_arg(ap, const char *))) {
+		if (!is_prefix(arg, ref))
+			continue;
+		count++;
+		if (count > 1)
+			strncat(msg, "' or '", sizeof(msg) - strlen(msg) - 1);
+		strncat(msg, ref, sizeof(msg) - strlen(msg) - 1);
+	}
+	va_end(ap);
+	strncat(msg, "'", sizeof(msg) - strlen(msg) - 1);
+
+	if (count >= 2) {
+		p_err("%s", msg);
+		return -1;
+	}
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 void fprint_hex(FILE *f, void *arg, unsigned int n, const char *sep)
 {
 	unsigned char *data = arg;
@@ -213,8 +327,20 @@ static const struct cmd cmds[] = {
 	{ "batch",	do_batch },
 	{ "prog",	do_prog },
 	{ "map",	do_map },
+<<<<<<< HEAD
 	{ "cgroup",	do_cgroup },
 	{ "perf",	do_perf },
+=======
+	{ "link",	do_link },
+	{ "cgroup",	do_cgroup },
+	{ "perf",	do_perf },
+	{ "net",	do_net },
+	{ "feature",	do_feature },
+	{ "btf",	do_btf },
+	{ "gen",	do_gen },
+	{ "struct_ops",	do_struct_ops },
+	{ "iter",	do_iter },
+>>>>>>> upstream/android-13
 	{ "version",	do_version },
 	{ 0 }
 };
@@ -227,7 +353,11 @@ static int do_batch(int argc, char **argv)
 	int n_argc;
 	FILE *fp;
 	char *cp;
+<<<<<<< HEAD
 	int err;
+=======
+	int err = 0;
+>>>>>>> upstream/android-13
 	int i;
 
 	if (argc < 2) {
@@ -291,8 +421,15 @@ static int do_batch(int argc, char **argv)
 		n_argc = make_args(buf, n_argv, BATCH_ARG_NB_MAX, lines);
 		if (!n_argc)
 			continue;
+<<<<<<< HEAD
 		if (n_argc < 0)
 			goto err_close;
+=======
+		if (n_argc < 0) {
+			err = n_argc;
+			goto err_close;
+		}
+>>>>>>> upstream/android-13
 
 		if (json_output) {
 			jsonw_start_object(json_wtr);
@@ -319,8 +456,13 @@ static int do_batch(int argc, char **argv)
 		p_err("reading batch file failed: %s", strerror(errno));
 		err = -1;
 	} else {
+<<<<<<< HEAD
 		p_info("processed %d commands", lines);
 		err = 0;
+=======
+		if (!json_output)
+			printf("processed %d commands\n", lines);
+>>>>>>> upstream/android-13
 	}
 err_close:
 	if (fp != stdin)
@@ -340,21 +482,45 @@ int main(int argc, char **argv)
 		{ "pretty",	no_argument,	NULL,	'p' },
 		{ "version",	no_argument,	NULL,	'V' },
 		{ "bpffs",	no_argument,	NULL,	'f' },
+<<<<<<< HEAD
+=======
+		{ "mapcompat",	no_argument,	NULL,	'm' },
+		{ "nomount",	no_argument,	NULL,	'n' },
+		{ "debug",	no_argument,	NULL,	'd' },
+		{ "use-loader",	no_argument,	NULL,	'L' },
+		{ "base-btf",	required_argument, NULL, 'B' },
+>>>>>>> upstream/android-13
 		{ 0 }
 	};
 	int opt, ret;
 
+<<<<<<< HEAD
+=======
+	setlinebuf(stdout);
+
+>>>>>>> upstream/android-13
 	last_do_help = do_help;
 	pretty_output = false;
 	json_output = false;
 	show_pinned = false;
+<<<<<<< HEAD
+=======
+	block_mount = false;
+>>>>>>> upstream/android-13
 	bin_name = argv[0];
 
 	hash_init(prog_table.table);
 	hash_init(map_table.table);
+<<<<<<< HEAD
 
 	opterr = 0;
 	while ((opt = getopt_long(argc, argv, "Vhpjf",
+=======
+	hash_init(link_table.table);
+
+	opterr = 0;
+	while ((opt = getopt_long(argc, argv, "VhpjfLmndB:",
+>>>>>>> upstream/android-13
 				  options, NULL)) >= 0) {
 		switch (opt) {
 		case 'V':
@@ -378,6 +544,31 @@ int main(int argc, char **argv)
 		case 'f':
 			show_pinned = true;
 			break;
+<<<<<<< HEAD
+=======
+		case 'm':
+			relaxed_maps = true;
+			break;
+		case 'n':
+			block_mount = true;
+			break;
+		case 'd':
+			libbpf_set_print(print_all_levels);
+			verifier_logs = true;
+			break;
+		case 'B':
+			base_btf = btf__parse(optarg, NULL);
+			if (libbpf_get_error(base_btf)) {
+				p_err("failed to parse base BTF at '%s': %ld\n",
+				      optarg, libbpf_get_error(base_btf));
+				base_btf = NULL;
+				return -1;
+			}
+			break;
+		case 'L':
+			use_loader = true;
+			break;
+>>>>>>> upstream/android-13
 		default:
 			p_err("unrecognized option '%s'", argv[optind - 1]);
 			if (json_output)
@@ -392,8 +583,11 @@ int main(int argc, char **argv)
 	if (argc < 0)
 		usage();
 
+<<<<<<< HEAD
 	bfd_init();
 
+=======
+>>>>>>> upstream/android-13
 	ret = cmd_select(cmds, argc, argv, do_help);
 
 	if (json_output)
@@ -402,7 +596,13 @@ int main(int argc, char **argv)
 	if (show_pinned) {
 		delete_pinned_obj_table(&prog_table);
 		delete_pinned_obj_table(&map_table);
+<<<<<<< HEAD
 	}
+=======
+		delete_pinned_obj_table(&link_table);
+	}
+	btf__free(base_btf);
+>>>>>>> upstream/android-13
 
 	return ret;
 }

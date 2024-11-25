@@ -14,7 +14,11 @@ struct ds620_platform_data {
 	 *  1 = PO_LOW
 	 *  2 = PO_HIGH
 	 *
+<<<<<<< HEAD
 	 * (see Documentation/hwmon/ds620)
+=======
+	 * (see Documentation/hwmon/ds620.rst)
+>>>>>>> upstream/android-13
 	 */
 	int pomode;
 };

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * zylonite-wm97xx.c  --  Zylonite Continuous Touch screen driver
  *
@@ -6,11 +10,14 @@
  * Parts Copyright : Ian Molton <spyro@f2s.com>
  *                   Andrew Zabolotny <zap@homelink.ru>
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute  it and/or modify it
  *  under  the terms of  the GNU General  Public License as published by the
  *  Free Software Foundation;  either version 2 of the  License, or (at your
  *  option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * Notes:
  *     This is a wm97xx extended touch driver supporting interrupt driven
  *     and continuous operation on Marvell Zylonite development systems

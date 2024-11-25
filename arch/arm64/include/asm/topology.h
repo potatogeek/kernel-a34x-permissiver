@@ -4,6 +4,7 @@
 
 #include <linux/cpumask.h>
 
+<<<<<<< HEAD
 struct cpu_topology {
 	int thread_id;
 	int core_id;
@@ -28,6 +29,8 @@ void remove_cpu_topology(unsigned int cpuid);
 const struct cpumask *cpu_coregroup_mask(int cpu);
 int topology_nr_clusters(void);
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_NUMA
 
 struct pci_bus;
@@ -40,11 +43,21 @@ int pcibus_to_node(struct pci_bus *bus);
 
 #include <linux/arch_topology.h>
 
+<<<<<<< HEAD
 /* Replace task scheduler's default frequency-invariant accounting */
 #define arch_scale_freq_capacity topology_get_freq_scale
 
 /* Replace task scheduler's default max-frequency-invariant accounting */
 #define arch_scale_max_freq_capacity topology_get_max_freq_scale
+=======
+void update_freq_counters_refs(void);
+
+/* Replace task scheduler's default frequency-invariant accounting */
+#define arch_scale_freq_tick topology_scale_freq_tick
+#define arch_set_freq_scale topology_set_freq_scale
+#define arch_scale_freq_capacity topology_get_freq_scale
+#define arch_scale_freq_invariant topology_scale_freq_invariant
+>>>>>>> upstream/android-13
 
 /* Replace task scheduler's default cpu-invariant accounting */
 #define arch_scale_cpu_capacity topology_get_cpu_scale
@@ -52,9 +65,15 @@ int pcibus_to_node(struct pci_bus *bus);
 /* Enable topology flag updates */
 #define arch_update_cpu_topology topology_update_cpu_topology
 
+<<<<<<< HEAD
 /* Cpu and cluster informantion */
 #define arch_cpu_cluster_id topology_physical_package_id
 #define arch_nr_clusters topology_nr_clusters
+=======
+/* Replace task scheduler's default thermal pressure API */
+#define arch_scale_thermal_pressure topology_get_thermal_pressure
+#define arch_set_thermal_pressure   topology_set_thermal_pressure
+>>>>>>> upstream/android-13
 
 #include <asm-generic/topology.h>
 

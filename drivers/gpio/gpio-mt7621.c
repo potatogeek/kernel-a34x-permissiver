@@ -95,9 +95,13 @@ mediatek_gpio_irq_handler(int irq, void *data)
 	pending = mtk_gpio_r32(rg, GPIO_REG_STAT);
 
 	for_each_set_bit(bit, &pending, MTK_BANK_WIDTH) {
+<<<<<<< HEAD
 		u32 map = irq_find_mapping(gc->irq.domain, bit);
 
 		generic_handle_irq(map);
+=======
+		generic_handle_domain_irq(gc->irq.domain, bit);
+>>>>>>> upstream/android-13
 		mtk_gpio_w32(rg, GPIO_REG_STAT, BIT(bit));
 		ret |= IRQ_HANDLED;
 	}
@@ -227,8 +231,13 @@ mediatek_gpio_bank_probe(struct device *dev,
 	ctrl = mtk->base + GPIO_REG_DCLR + (rg->bank * GPIO_BANK_STRIDE);
 	diro = mtk->base + GPIO_REG_CTRL + (rg->bank * GPIO_BANK_STRIDE);
 
+<<<<<<< HEAD
 	ret = bgpio_init(&rg->chip, dev, 4,
 			 dat, set, ctrl, diro, NULL, 0);
+=======
+	ret = bgpio_init(&rg->chip, dev, 4, dat, set, ctrl, diro, NULL,
+			 BGPIOF_NO_SET_ON_INPUT);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(dev, "bgpio_init() failed\n");
 		return ret;
@@ -241,6 +250,7 @@ mediatek_gpio_bank_probe(struct device *dev,
 	if (!rg->chip.label)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	ret = devm_gpiochip_add_data(dev, &rg->chip, mtk);
 	if (ret < 0) {
 		dev_err(dev, "Could not register gpio %d, ret=%d\n",
@@ -248,6 +258,9 @@ mediatek_gpio_bank_probe(struct device *dev,
 		return ret;
 	}
 
+=======
+	rg->chip.offset = bank * MTK_BANK_WIDTH;
+>>>>>>> upstream/android-13
 	rg->irq_chip.name = dev_name(dev);
 	rg->irq_chip.parent_device = dev;
 	rg->irq_chip.irq_unmask = mediatek_gpio_irq_unmask;
@@ -256,10 +269,18 @@ mediatek_gpio_bank_probe(struct device *dev,
 	rg->irq_chip.irq_set_type = mediatek_gpio_irq_type;
 
 	if (mtk->gpio_irq) {
+<<<<<<< HEAD
 		/*
 		 * Manually request the irq here instead of passing
 		 * a flow-handler to gpiochip_set_chained_irqchip,
 		 * because the irq is shared.
+=======
+		struct gpio_irq_chip *girq;
+
+		/*
+		 * Directly request the irq here instead of passing
+		 * a flow-handler because the irq is shared.
+>>>>>>> upstream/android-13
 		 */
 		ret = devm_request_irq(dev, mtk->gpio_irq,
 				       mediatek_gpio_irq_handler, IRQF_SHARED,
@@ -271,6 +292,7 @@ mediatek_gpio_bank_probe(struct device *dev,
 			return ret;
 		}
 
+<<<<<<< HEAD
 		ret = gpiochip_irqchip_add(&rg->chip, &rg->irq_chip,
 					   0, handle_simple_irq, IRQ_TYPE_NONE);
 		if (ret) {
@@ -280,6 +302,23 @@ mediatek_gpio_bank_probe(struct device *dev,
 
 		gpiochip_set_chained_irqchip(&rg->chip, &rg->irq_chip,
 					     mtk->gpio_irq, NULL);
+=======
+		girq = &rg->chip.irq;
+		girq->chip = &rg->irq_chip;
+		/* This will let us handle the parent IRQ in the driver */
+		girq->parent_handler = NULL;
+		girq->num_parents = 0;
+		girq->parents = NULL;
+		girq->default_type = IRQ_TYPE_NONE;
+		girq->handler = handle_simple_irq;
+	}
+
+	ret = devm_gpiochip_add_data(dev, &rg->chip, mtk);
+	if (ret < 0) {
+		dev_err(dev, "Could not register gpio %d, ret=%d\n",
+			rg->chip.ngpio, ret);
+		return ret;
+>>>>>>> upstream/android-13
 	}
 
 	/* set polarity to low for all gpios */
@@ -293,7 +332,10 @@ mediatek_gpio_bank_probe(struct device *dev,
 static int
 mediatek_gpio_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct resource *res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+=======
+>>>>>>> upstream/android-13
 	struct device *dev = &pdev->dev;
 	struct device_node *np = dev->of_node;
 	struct mtk *mtk;
@@ -304,7 +346,11 @@ mediatek_gpio_probe(struct platform_device *pdev)
 	if (!mtk)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	mtk->base = devm_ioremap_resource(dev, res);
+=======
+	mtk->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(mtk->base))
 		return PTR_ERR(mtk->base);
 

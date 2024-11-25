@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * User memory access support for Hexagon
  *
  * Copyright (c) 2010-2011, The Linux Foundation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -16,6 +21,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_UACCESS_H
@@ -23,15 +30,21 @@
 /*
  * User space memory access functions
  */
+<<<<<<< HEAD
 #include <linux/mm.h>
 #include <asm/segment.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/sections.h>
 
 /*
  * access_ok: - Checks if a user space pointer is valid
+<<<<<<< HEAD
  * @type: Type of access: %VERIFY_READ or %VERIFY_WRITE.  Note that
  *        %VERIFY_WRITE is a superset of %VERIFY_READ - if it is safe
  *        to write to a block, it is always safe to read from it.
+=======
+>>>>>>> upstream/android-13
  * @addr: User space pointer to start of block to check
  * @size: Size of block to check
  *
@@ -43,6 +56,7 @@
  * Returns true (nonzero) if the memory block *may* be valid, false (zero)
  * if it is definitely invalid.
  *
+<<<<<<< HEAD
  * User address space in Hexagon, like x86, goes to 0xbfffffff, so the
  * simple MSB-based tests used by MIPS won't work.  Some further
  * optimization is probably possible here, but for now, keep it
@@ -54,6 +68,19 @@
 	((get_fs().seg == KERNEL_DS.seg) || \
 	(((unsigned long)addr < get_fs().seg) && \
 	  (unsigned long)size < (get_fs().seg - (unsigned long)addr)))
+=======
+ */
+#define uaccess_kernel() (get_fs().seg == KERNEL_DS.seg)
+#define user_addr_max() (uaccess_kernel() ? ~0UL : TASK_SIZE)
+
+static inline int __access_ok(unsigned long addr, unsigned long size)
+{
+	unsigned long limit = TASK_SIZE;
+
+	return (size <= limit) && (addr <= (limit - size));
+}
+#define __access_ok __access_ok
+>>>>>>> upstream/android-13
 
 /*
  * When a kernel-mode page fault is taken, the faulting instruction
@@ -75,6 +102,7 @@ unsigned long raw_copy_to_user(void __user *to, const void *from,
 __kernel_size_t __clear_user_hexagon(void __user *dest, unsigned long count);
 #define __clear_user(a, s) __clear_user_hexagon((a), (s))
 
+<<<<<<< HEAD
 #define __strncpy_from_user(dst, src, n) hexagon_strncpy_from_user(dst, src, n)
 
 /*  get around the ifndef in asm-generic/uaccess.h  */
@@ -108,5 +136,9 @@ static inline long hexagon_strncpy_from_user(char *dst, const char __user *src,
 		return res-1;
 	}
 }
+=======
+#include <asm-generic/uaccess.h>
+
+>>>>>>> upstream/android-13
 
 #endif

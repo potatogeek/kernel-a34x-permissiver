@@ -30,17 +30,25 @@
 #include <linux/irq.h>
 #include <linux/mfd/core.h>
 #include <linux/mfd/tps80031.h>
+<<<<<<< HEAD
 #include <linux/module.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/pm.h>
 #include <linux/regmap.h>
 #include <linux/slab.h>
 
+<<<<<<< HEAD
 static struct resource tps80031_rtc_resources[] = {
 	{
 		.start = TPS80031_INT_RTC_ALARM,
 		.end = TPS80031_INT_RTC_ALARM,
 		.flags = IORESOURCE_IRQ,
 	},
+=======
+static const struct resource tps80031_rtc_resources[] = {
+	DEFINE_RES_IRQ(TPS80031_INT_RTC_ALARM),
+>>>>>>> upstream/android-13
 };
 
 /* TPS80031 sub mfd devices */
@@ -438,12 +446,20 @@ static int tps80031_probe(struct i2c_client *client,
 		if (tps80031_slave_address[i] == client->addr)
 			tps80031->clients[i] = client;
 		else
+<<<<<<< HEAD
 			tps80031->clients[i] = i2c_new_dummy(client->adapter,
 						tps80031_slave_address[i]);
 		if (!tps80031->clients[i]) {
 			dev_err(&client->dev, "can't attach client %d\n", i);
 			ret = -ENOMEM;
 			goto fail_client_reg;
+=======
+			tps80031->clients[i] = devm_i2c_new_dummy_device(&client->dev,
+						client->adapter, tps80031_slave_address[i]);
+		if (IS_ERR(tps80031->clients[i])) {
+			dev_err(&client->dev, "can't attach client %d\n", i);
+			return PTR_ERR(tps80031->clients[i]);
+>>>>>>> upstream/android-13
 		}
 
 		i2c_set_clientdata(tps80031->clients[i], tps80031);
@@ -453,7 +469,11 @@ static int tps80031_probe(struct i2c_client *client,
 			ret = PTR_ERR(tps80031->regmap[i]);
 			dev_err(&client->dev,
 				"regmap %d init failed, err %d\n", i, ret);
+<<<<<<< HEAD
 			goto fail_client_reg;
+=======
+			return ret;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -462,7 +482,11 @@ static int tps80031_probe(struct i2c_client *client,
 	if (ret < 0) {
 		dev_err(&client->dev,
 			"Silicon version number read failed: %d\n", ret);
+<<<<<<< HEAD
 		goto fail_client_reg;
+=======
+		return ret;
+>>>>>>> upstream/android-13
 	}
 
 	ret = tps80031_read(&client->dev, TPS80031_SLAVE_ID3,
@@ -470,7 +494,11 @@ static int tps80031_probe(struct i2c_client *client,
 	if (ret < 0) {
 		dev_err(&client->dev,
 			"Silicon eeprom version read failed: %d\n", ret);
+<<<<<<< HEAD
 		goto fail_client_reg;
+=======
+		return ret;
+>>>>>>> upstream/android-13
 	}
 
 	dev_info(&client->dev, "ES version 0x%02x and EPROM version 0x%02x\n",
@@ -483,7 +511,11 @@ static int tps80031_probe(struct i2c_client *client,
 	ret = tps80031_irq_init(tps80031, client->irq, pdata->irq_base);
 	if (ret) {
 		dev_err(&client->dev, "IRQ init failed: %d\n", ret);
+<<<<<<< HEAD
 		goto fail_client_reg;
+=======
+		return ret;
+>>>>>>> upstream/android-13
 	}
 
 	tps80031_pupd_init(tps80031, pdata);
@@ -507,6 +539,7 @@ static int tps80031_probe(struct i2c_client *client,
 
 fail_mfd_add:
 	regmap_del_irq_chip(client->irq, tps80031->irq_data);
+<<<<<<< HEAD
 
 fail_client_reg:
 	for (i = 0; i < TPS80031_NUM_SLAVES; i++) {
@@ -537,11 +570,17 @@ static int tps80031_remove(struct i2c_client *client)
 	return 0;
 }
 
+=======
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 static const struct i2c_device_id tps80031_id_table[] = {
 	{ "tps80031", TPS80031 },
 	{ "tps80032", TPS80032 },
 	{ }
 };
+<<<<<<< HEAD
 MODULE_DEVICE_TABLE(i2c, tps80031_id_table);
 
 static struct i2c_driver tps80031_driver = {
@@ -550,6 +589,15 @@ static struct i2c_driver tps80031_driver = {
 	},
 	.probe		= tps80031_probe,
 	.remove		= tps80031_remove,
+=======
+
+static struct i2c_driver tps80031_driver = {
+	.driver	= {
+		.name			= "tps80031",
+		.suppress_bind_attrs	= true,
+	},
+	.probe		= tps80031_probe,
+>>>>>>> upstream/android-13
 	.id_table	= tps80031_id_table,
 };
 
@@ -558,6 +606,7 @@ static int __init tps80031_init(void)
 	return i2c_add_driver(&tps80031_driver);
 }
 subsys_initcall(tps80031_init);
+<<<<<<< HEAD
 
 static void __exit tps80031_exit(void)
 {
@@ -568,3 +617,5 @@ module_exit(tps80031_exit);
 MODULE_AUTHOR("Laxman Dewangan <ldewangan@nvidia.com>");
 MODULE_DESCRIPTION("TPS80031 core driver");
 MODULE_LICENSE("GPL v2");
+=======
+>>>>>>> upstream/android-13

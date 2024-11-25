@@ -508,8 +508,13 @@ static int socfpga_a10_fpga_probe(struct platform_device *pdev)
 		return -EBUSY;
 	}
 
+<<<<<<< HEAD
 	mgr = fpga_mgr_create(dev, "SoCFPGA Arria10 FPGA Manager",
 			      &socfpga_a10_fpga_mgr_ops, priv);
+=======
+	mgr = devm_fpga_mgr_create(dev, "SoCFPGA Arria10 FPGA Manager",
+				   &socfpga_a10_fpga_mgr_ops, priv);
+>>>>>>> upstream/android-13
 	if (!mgr)
 		return -ENOMEM;
 
@@ -517,7 +522,10 @@ static int socfpga_a10_fpga_probe(struct platform_device *pdev)
 
 	ret = fpga_mgr_register(mgr);
 	if (ret) {
+<<<<<<< HEAD
 		fpga_mgr_free(mgr);
+=======
+>>>>>>> upstream/android-13
 		clk_disable_unprepare(priv->clk);
 		return ret;
 	}

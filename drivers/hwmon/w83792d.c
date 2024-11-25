@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * w83792d.c - Part of lm_sensors, Linux kernel modules for hardware
  *	       monitoring
@@ -5,6 +9,7 @@
  *			    Shane Huang,
  *			    Rudolf Marek <r.marek@assembler.cz>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -19,6 +24,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  * Note:
  * 1. This driver is only for 2.6 kernel, 2.4 kernel need a different driver.
  * 2. This driver is only for Winbond W83792D C version device, there
@@ -277,9 +284,12 @@ struct w83792d_data {
 	char valid;		/* !=0 if following fields are valid */
 	unsigned long last_updated;	/* In jiffies */
 
+<<<<<<< HEAD
 	/* array of 2 pointers to subclients */
 	struct i2c_client *lm75[2];
 
+=======
+>>>>>>> upstream/android-13
 	u8 in[9];		/* Register value */
 	u8 in_max[9];		/* Register value */
 	u8 in_min[9];		/* Register value */
@@ -299,8 +309,12 @@ struct w83792d_data {
 	u8 sf2_levels[3][4];	/* Smart FanII: Fan1,2,3 duty cycle levels */
 };
 
+<<<<<<< HEAD
 static int w83792d_probe(struct i2c_client *client,
 			 const struct i2c_device_id *id);
+=======
+static int w83792d_probe(struct i2c_client *client);
+>>>>>>> upstream/android-13
 static int w83792d_detect(struct i2c_client *client,
 			  struct i2c_board_info *info);
 static int w83792d_remove(struct i2c_client *client);
@@ -323,7 +337,11 @@ static struct i2c_driver w83792d_driver = {
 	.driver = {
 		.name = "w83792d",
 	},
+<<<<<<< HEAD
 	.probe		= w83792d_probe,
+=======
+	.probe_new	= w83792d_probe,
+>>>>>>> upstream/android-13
 	.remove		= w83792d_remove,
 	.id_table	= w83792d_id,
 	.detect		= w83792d_detect,
@@ -937,11 +955,18 @@ store_sf2_level(struct device *dev, struct device_attribute *attr,
 static int
 w83792d_detect_subclients(struct i2c_client *new_client)
 {
+<<<<<<< HEAD
 	int i, id, err;
 	int address = new_client->addr;
 	u8 val;
 	struct i2c_adapter *adapter = new_client->adapter;
 	struct w83792d_data *data = i2c_get_clientdata(new_client);
+=======
+	int i, id;
+	int address = new_client->addr;
+	u8 val;
+	struct i2c_adapter *adapter = new_client->adapter;
+>>>>>>> upstream/android-13
 
 	id = i2c_adapter_id(adapter);
 	if (force_subclients[0] == id && force_subclients[1] == address) {
@@ -951,8 +976,12 @@ w83792d_detect_subclients(struct i2c_client *new_client)
 				dev_err(&new_client->dev,
 					"invalid subclient address %d; must be 0x48-0x4f\n",
 					force_subclients[i]);
+<<<<<<< HEAD
 				err = -ENODEV;
 				goto ERROR_SC_0;
+=======
+				return -ENODEV;
+>>>>>>> upstream/android-13
 			}
 		}
 		w83792d_write_value(new_client, W83792D_REG_I2C_SUBADDR,
@@ -961,6 +990,7 @@ w83792d_detect_subclients(struct i2c_client *new_client)
 	}
 
 	val = w83792d_read_value(new_client, W83792D_REG_I2C_SUBADDR);
+<<<<<<< HEAD
 	if (!(val & 0x08))
 		data->lm75[0] = i2c_new_dummy(adapter, 0x48 + (val & 0x7));
 	if (!(val & 0x80)) {
@@ -984,6 +1014,22 @@ ERROR_SC_1:
 	i2c_unregister_device(data->lm75[0]);
 ERROR_SC_0:
 	return err;
+=======
+
+	if (!(val & 0x88) && (val & 0x7) == ((val >> 4) & 0x7)) {
+		dev_err(&new_client->dev,
+			"duplicate addresses 0x%x, use force_subclient\n", 0x48 + (val & 0x7));
+		return -ENODEV;
+	}
+
+	if (!(val & 0x08))
+		devm_i2c_new_dummy_device(&new_client->dev, adapter, 0x48 + (val & 0x7));
+
+	if (!(val & 0x80))
+		devm_i2c_new_dummy_device(&new_client->dev, adapter, 0x48 + ((val >> 4) & 0x7));
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static SENSOR_DEVICE_ATTR(in0_input, S_IRUGO, show_in, NULL, 0);
@@ -1380,7 +1426,11 @@ w83792d_detect(struct i2c_client *client, struct i2c_board_info *info)
 }
 
 static int
+<<<<<<< HEAD
 w83792d_probe(struct i2c_client *client, const struct i2c_device_id *id)
+=======
+w83792d_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct w83792d_data *data;
 	struct device *dev = &client->dev;
@@ -1409,7 +1459,11 @@ w83792d_probe(struct i2c_client *client, const struct i2c_device_id *id)
 	/* Register sysfs hooks */
 	err = sysfs_create_group(&dev->kobj, &w83792d_group);
 	if (err)
+<<<<<<< HEAD
 		goto exit_i2c_unregister;
+=======
+		return err;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Read GPIO enable register to check if pins for fan 4,5 are used as
@@ -1454,9 +1508,12 @@ exit_remove_files:
 	sysfs_remove_group(&dev->kobj, &w83792d_group);
 	for (i = 0; i < ARRAY_SIZE(w83792d_group_fan); i++)
 		sysfs_remove_group(&dev->kobj, &w83792d_group_fan[i]);
+<<<<<<< HEAD
 exit_i2c_unregister:
 	i2c_unregister_device(data->lm75[0]);
 	i2c_unregister_device(data->lm75[1]);
+=======
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -1472,9 +1529,12 @@ w83792d_remove(struct i2c_client *client)
 		sysfs_remove_group(&client->dev.kobj,
 				   &w83792d_group_fan[i]);
 
+<<<<<<< HEAD
 	i2c_unregister_device(data->lm75[0]);
 	i2c_unregister_device(data->lm75[1]);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 

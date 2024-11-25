@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Copyright(c) 2005 - 2006 Attansic Corporation. All rights reserved.
  * Copyright(c) 2006 - 2007 Chris Snook <csnook@redhat.com>
@@ -5,6 +9,7 @@
  *
  * Derived from Intel e1000 driver
  * Copyright(c) 1999 - 2005 Intel Corporation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -19,6 +24,8 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 59
  * Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef ATL1_H
@@ -681,7 +688,11 @@ struct atl1_sft_stats {
 	u64 scc;		/* packets TX after a single collision */
 	u64 mcc;		/* packets TX after multiple collisions */
 	u64 latecol;		/* TX packets w/ late collisions */
+<<<<<<< HEAD
 	u64 tx_underun;		/* TX packets aborted due to TX FIFO underrun
+=======
+	u64 tx_underrun;	/* TX packets aborted due to TX FIFO underrun
+>>>>>>> upstream/android-13
 				 * or TRD FIFO underrun */
 	u64 tx_trunc;		/* TX packets truncated due to size > MTU */
 	u64 rx_pause;		/* num Pause packets received. */

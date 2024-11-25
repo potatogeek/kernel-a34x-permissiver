@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  tifm_7xx1.c - TI FlashMedia driver
  *
  *  Copyright (C) 2006 Alex Dubov <oakad@yahoo.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/tifm.h>
@@ -211,10 +218,16 @@ static void tifm_7xx1_switch_media(struct work_struct *work)
 	spin_unlock_irqrestore(&fm->lock, flags);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 
 static int tifm_7xx1_suspend(struct pci_dev *dev, pm_message_t state)
 {
+=======
+static int __maybe_unused tifm_7xx1_suspend(struct device *dev_d)
+{
+	struct pci_dev *dev = to_pci_dev(dev_d);
+>>>>>>> upstream/android-13
 	struct tifm_adapter *fm = pci_get_drvdata(dev);
 	int cnt;
 
@@ -225,6 +238,7 @@ static int tifm_7xx1_suspend(struct pci_dev *dev, pm_message_t state)
 			tifm_7xx1_sock_power_off(fm->sockets[cnt]->addr);
 	}
 
+<<<<<<< HEAD
 	pci_save_state(dev);
 	pci_enable_wake(dev, pci_choose_state(dev, state), 0);
 	pci_disable_device(dev);
@@ -234,6 +248,15 @@ static int tifm_7xx1_suspend(struct pci_dev *dev, pm_message_t state)
 
 static int tifm_7xx1_resume(struct pci_dev *dev)
 {
+=======
+	device_wakeup_disable(dev_d);
+	return 0;
+}
+
+static int __maybe_unused tifm_7xx1_resume(struct device *dev_d)
+{
+	struct pci_dev *dev = to_pci_dev(dev_d);
+>>>>>>> upstream/android-13
 	struct tifm_adapter *fm = pci_get_drvdata(dev);
 	int rc;
 	unsigned long timeout;
@@ -246,11 +269,14 @@ static int tifm_7xx1_resume(struct pci_dev *dev)
 	if (WARN_ON(fm->num_sockets > ARRAY_SIZE(new_ids)))
 		return -ENXIO;
 
+<<<<<<< HEAD
 	pci_set_power_state(dev, PCI_D0);
 	pci_restore_state(dev);
 	rc = pci_enable_device(dev);
 	if (rc)
 		return rc;
+=======
+>>>>>>> upstream/android-13
 	pci_set_master(dev);
 
 	dev_dbg(&dev->dev, "resuming host\n");
@@ -301,6 +327,7 @@ static int tifm_7xx1_resume(struct pci_dev *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 #else
 
 #define tifm_7xx1_suspend NULL
@@ -308,6 +335,8 @@ static int tifm_7xx1_resume(struct pci_dev *dev)
 
 #endif /* CONFIG_PM */
 
+=======
+>>>>>>> upstream/android-13
 static int tifm_7xx1_dummy_has_ms_pif(struct tifm_adapter *fm,
 				      struct tifm_dev *sock)
 {
@@ -403,7 +432,10 @@ static void tifm_7xx1_remove(struct pci_dev *dev)
 	fm->eject = tifm_7xx1_dummy_eject;
 	fm->has_ms_pif = tifm_7xx1_dummy_has_ms_pif;
 	writel(TIFM_IRQ_SETALL, fm->addr + FM_CLEAR_INTERRUPT_ENABLE);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	free_irq(dev->irq, fm);
 
 	tifm_remove_adapter(fm);
@@ -429,13 +461,22 @@ static const struct pci_device_id tifm_7xx1_pci_tbl[] = {
 	{ }
 };
 
+<<<<<<< HEAD
+=======
+static SIMPLE_DEV_PM_OPS(tifm_7xx1_pm_ops, tifm_7xx1_suspend, tifm_7xx1_resume);
+
+>>>>>>> upstream/android-13
 static struct pci_driver tifm_7xx1_driver = {
 	.name = DRIVER_NAME,
 	.id_table = tifm_7xx1_pci_tbl,
 	.probe = tifm_7xx1_probe,
 	.remove = tifm_7xx1_remove,
+<<<<<<< HEAD
 	.suspend = tifm_7xx1_suspend,
 	.resume = tifm_7xx1_resume,
+=======
+	.driver.pm = &tifm_7xx1_pm_ops,
+>>>>>>> upstream/android-13
 };
 
 module_pci_driver(tifm_7xx1_driver);

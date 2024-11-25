@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * cxd2841er.c
  *
@@ -9,6 +13,7 @@
  * Copyright (C) 2014 NetUP Inc.
  * Copyright (C) 2014 Sergey Kozlov <serjk@netup.ru>
  * Copyright (C) 2014 Abylay Ospan <aospan@netup.ru>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +24,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
   */
 
 #include <linux/module.h>
@@ -69,6 +76,10 @@ struct cxd2841er_priv {
 	enum cxd2841er_xtal		xtal;
 	enum fe_caps caps;
 	u32				flags;
+<<<<<<< HEAD
+=======
+	unsigned long			stats_time;
+>>>>>>> upstream/android-13
 };
 
 static const struct cxd2841er_cnr_data s_cn_data[] = {
@@ -2947,7 +2958,11 @@ static int cxd2841er_sleep_tc_to_active_t(struct cxd2841er_priv *priv,
 		((priv->flags & CXD2841ER_ASCOT) ? 0x01 : 0x00), 0x01);
 	/* Set SLV-T Bank : 0x18 */
 	cxd2841er_write_reg(priv, I2C_SLVT, 0x00, 0x18);
+<<<<<<< HEAD
 	/* Pre-RS BER moniter setting */
+=======
+	/* Pre-RS BER monitor setting */
+>>>>>>> upstream/android-13
 	cxd2841er_set_reg_bits(priv, I2C_SLVT, 0x36, 0x40, 0x07);
 	/* FEC Auto Recovery setting */
 	cxd2841er_set_reg_bits(priv, I2C_SLVT, 0x30, 0x01, 0x01);
@@ -3288,9 +3303,21 @@ static int cxd2841er_get_frontend(struct dvb_frontend *fe,
 		p->strength.stat[0].scale = FE_SCALE_NOT_AVAILABLE;
 
 	if (status & FE_HAS_LOCK) {
+<<<<<<< HEAD
 		cxd2841er_read_snr(fe);
 		cxd2841er_read_ucblocks(fe);
 
+=======
+		if (priv->stats_time &&
+		    (!time_after(jiffies, priv->stats_time)))
+			return 0;
+
+		/* Prevent retrieving stats faster than once per second */
+		priv->stats_time = jiffies + msecs_to_jiffies(1000);
+
+		cxd2841er_read_snr(fe);
+		cxd2841er_read_ucblocks(fe);
+>>>>>>> upstream/android-13
 		cxd2841er_read_ber(fe);
 	} else {
 		p->cnr.stat[0].scale = FE_SCALE_NOT_AVAILABLE;
@@ -3340,7 +3367,11 @@ static int cxd2841er_set_frontend_s(struct dvb_frontend *fe)
 		cxd2841er_tuner_set(fe);
 
 	cxd2841er_tune_done(priv);
+<<<<<<< HEAD
 	timeout = ((3000000 + (symbol_rate - 1)) / symbol_rate) + 150;
+=======
+	timeout = DIV_ROUND_UP(3000000, symbol_rate) + 150;
+>>>>>>> upstream/android-13
 
 	i = 0;
 	do {
@@ -3369,6 +3400,12 @@ done:
 	p->post_bit_error.stat[0].scale = FE_SCALE_NOT_AVAILABLE;
 	p->post_bit_count.stat[0].scale = FE_SCALE_NOT_AVAILABLE;
 
+<<<<<<< HEAD
+=======
+	/* Reset the wait for jiffies logic */
+	priv->stats_time = 0;
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 

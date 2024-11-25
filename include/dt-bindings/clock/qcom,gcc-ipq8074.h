@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016-2017, The Linux Foundation. All rights reserved.
  *
@@ -9,6 +10,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2016-2017, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _DT_BINDINGS_CLOCK_IPQ_GCC_8074_H
@@ -238,6 +244,12 @@
 #define GCC_GP1_CLK				221
 #define GCC_GP2_CLK				222
 #define GCC_GP3_CLK				223
+<<<<<<< HEAD
+=======
+#define GCC_PCIE0_AXI_S_BRIDGE_CLK		224
+#define GCC_PCIE0_RCHNG_CLK_SRC			225
+#define GCC_PCIE0_RCHNG_CLK			226
+>>>>>>> upstream/android-13
 
 #define GCC_BLSP1_BCR				0
 #define GCC_BLSP1_QUP1_BCR			1
@@ -370,5 +382,9 @@
 #define GCC_PCIE1_AXI_SLAVE_ARES		128
 #define GCC_PCIE1_AHB_ARES			129
 #define GCC_PCIE1_AXI_MASTER_STICKY_ARES	130
+<<<<<<< HEAD
+=======
+#define GCC_PCIE0_AXI_SLAVE_STICKY_ARES		131
+>>>>>>> upstream/android-13
 
 #endif

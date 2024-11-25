@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2013-2014, NVIDIA CORPORATION.  All rights reserved.
  *
@@ -12,6 +13,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2013-2014, NVIDIA CORPORATION.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -112,8 +118,12 @@ static void __init rev_sku_to_speedo_ids(struct tegra_sku_info *sku_info,
 
 void __init tegra124_init_speedo_data(struct tegra_sku_info *sku_info)
 {
+<<<<<<< HEAD
 	int i, threshold, cpu_speedo_0_value, soc_speedo_0_value;
 	int cpu_iddq_value, gpu_iddq_value, soc_iddq_value;
+=======
+	int i, threshold, soc_speedo_0_value;
+>>>>>>> upstream/android-13
 
 	BUILD_BUG_ON(ARRAY_SIZE(cpu_process_speedos) !=
 			THRESHOLD_INDEX_COUNT);
@@ -122,6 +132,7 @@ void __init tegra124_init_speedo_data(struct tegra_sku_info *sku_info)
 	BUILD_BUG_ON(ARRAY_SIZE(soc_process_speedos) !=
 			THRESHOLD_INDEX_COUNT);
 
+<<<<<<< HEAD
 	cpu_speedo_0_value = tegra_fuse_read_early(FUSE_CPU_SPEEDO_0);
 
 	/* GPU Speedo is stored in CPU_SPEEDO_2 */
@@ -135,12 +146,22 @@ void __init tegra124_init_speedo_data(struct tegra_sku_info *sku_info)
 
 	sku_info->cpu_speedo_value = cpu_speedo_0_value;
 
+=======
+	sku_info->cpu_speedo_value = tegra_fuse_read_early(FUSE_CPU_SPEEDO_0);
+>>>>>>> upstream/android-13
 	if (sku_info->cpu_speedo_value == 0) {
 		pr_warn("Tegra Warning: Speedo value not fused.\n");
 		WARN_ON(1);
 		return;
 	}
 
+<<<<<<< HEAD
+=======
+	/* GPU Speedo is stored in CPU_SPEEDO_2 */
+	sku_info->gpu_speedo_value = tegra_fuse_read_early(FUSE_CPU_SPEEDO_2);
+	soc_speedo_0_value = tegra_fuse_read_early(FUSE_SOC_SPEEDO_0);
+
+>>>>>>> upstream/android-13
 	rev_sku_to_speedo_ids(sku_info, &threshold);
 
 	sku_info->cpu_iddq_value = tegra_fuse_read_early(FUSE_CPU_IDDQ);

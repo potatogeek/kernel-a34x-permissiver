@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014 Imagination Technologies
  * Author: Paul Burton <paul.burton@mips.com>
@@ -6,6 +7,12 @@
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2014 Imagination Technologies
+ * Author: Paul Burton <paul.burton@mips.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/binfmts.h>
@@ -16,6 +23,11 @@
 #include <asm/cpu-features.h>
 #include <asm/cpu-info.h>
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_MIPS_FP_SUPPORT
+
+>>>>>>> upstream/android-13
 /* Whether to accept legacy-NaN and 2008-NaN user binaries.  */
 bool mips_use_nan_legacy;
 bool mips_use_nan_2008;
@@ -326,6 +338,11 @@ void mips_set_personality_nan(struct arch_elf_state *state)
 	}
 }
 
+<<<<<<< HEAD
+=======
+#endif /* CONFIG_MIPS_FP_SUPPORT */
+
+>>>>>>> upstream/android-13
 int mips_elf_read_implies_exec(void *elf_ex, int exstack)
 {
 	if (exstack != EXSTACK_DISABLE_X) {

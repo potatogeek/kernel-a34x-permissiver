@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Ethernet driver for the WIZnet W5100 chip.
  *
  * Copyright (C) 2006-2008 WIZnet Co.,Ltd.
  * Copyright (C) 2012 Mike Sinkovsky <msink@permonline.ru>
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2 or later.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -219,7 +226,10 @@ static inline int __w5100_write_direct(struct net_device *ndev, u32 addr,
 static inline int w5100_write_direct(struct net_device *ndev, u32 addr, u8 data)
 {
 	__w5100_write_direct(ndev, addr, data);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -236,7 +246,10 @@ static int w5100_write16_direct(struct net_device *ndev, u32 addr, u16 data)
 {
 	__w5100_write_direct(ndev, addr, data >> 8);
 	__w5100_write_direct(ndev, addr + 1, data);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -260,14 +273,18 @@ static int w5100_writebulk_direct(struct net_device *ndev, u32 addr,
 	for (i = 0; i < len; i++, addr++)
 		__w5100_write_direct(ndev, addr, *buf++);
 
+<<<<<<< HEAD
 	mmiowb();
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int w5100_mmio_init(struct net_device *ndev)
 {
 	struct platform_device *pdev = to_platform_device(ndev->dev.parent);
+<<<<<<< HEAD
 	struct w5100_priv *priv = netdev_priv(ndev);
 	struct w5100_mmio_priv *mmio_priv = w5100_mmio_priv(ndev);
 	struct resource *mem;
@@ -281,6 +298,16 @@ static int w5100_mmio_init(struct net_device *ndev)
 
 	netdev_info(ndev, "at 0x%llx irq %d\n", (u64)mem->start, priv->irq);
 
+=======
+	struct w5100_mmio_priv *mmio_priv = w5100_mmio_priv(ndev);
+
+	spin_lock_init(&mmio_priv->reg_lock);
+
+	mmio_priv->base = devm_platform_get_and_ioremap_resource(pdev, 0, NULL);
+	if (IS_ERR(mmio_priv->base))
+		return PTR_ERR(mmio_priv->base);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -375,7 +402,10 @@ static int w5100_readbulk_indirect(struct net_device *ndev, u32 addr, u8 *buf,
 	for (i = 0; i < len; i++)
 		*buf++ = w5100_read_direct(ndev, W5100_IDM_DR);
 
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&mmio_priv->reg_lock, flags);
 
 	return 0;
@@ -394,7 +424,10 @@ static int w5100_writebulk_indirect(struct net_device *ndev, u32 addr,
 	for (i = 0; i < len; i++)
 		__w5100_write_direct(ndev, W5100_IDM_DR, *buf++);
 
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&mmio_priv->reg_lock, flags);
 
 	return 0;
@@ -797,7 +830,11 @@ static void w5100_restart_work(struct work_struct *work)
 	w5100_restart(priv->ndev);
 }
 
+<<<<<<< HEAD
 static void w5100_tx_timeout(struct net_device *ndev)
+=======
+static void w5100_tx_timeout(struct net_device *ndev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct w5100_priv *priv = netdev_priv(ndev);
 
@@ -1059,6 +1096,11 @@ static int w5100_mmio_probe(struct platform_device *pdev)
 		mac_addr = data->mac_addr;
 
 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+<<<<<<< HEAD
+=======
+	if (!mem)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	if (resource_size(mem) < W5100_BUS_DIRECT_SIZE)
 		ops = &w5100_mmio_indirect_ops;
 	else

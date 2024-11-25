@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright 2010 Yong Shen <yong.shen@linaro.org>
  * Copyright 2009-2010 Pengutronix
  * Uwe Kleine-Koenig <u.kleine-koenig@pengutronix.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License version 2 as published by the
  * Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __LINUX_MFD_MC13783_H
 #define __LINUX_MFD_MC13783_H

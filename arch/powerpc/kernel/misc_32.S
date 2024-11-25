@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * This file contains miscellaneous low-level functions.
  *    Copyright (C) 1995-1996 Gary Thomas (gdt@linuxppc.org)
@@ -5,6 +9,7 @@
  * Largely rewritten by Cort Dougan (cort@cs.nmt.edu)
  * and Paul Mackerras.
  *
+<<<<<<< HEAD
  * kexec bits:
  * Copyright (C) 2002-2003 Eric Biederman  <ebiederm@xmission.com>
  * GameCube/ppc32 port Copyright (C) 2004 Albert Herranz
@@ -16,6 +21,8 @@
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/sys.h>
@@ -30,7 +37,10 @@
 #include <asm/thread_info.h>
 #include <asm/asm-offsets.h>
 #include <asm/processor.h>
+<<<<<<< HEAD
 #include <asm/kexec.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/bug.h>
 #include <asm/ptrace.h>
 #include <asm/export.h>
@@ -39,6 +49,7 @@
 	.text
 
 /*
+<<<<<<< HEAD
  * We store the saved ksp_limit in the unused part
  * of the STACK_FRAME_OVERHEAD
  */
@@ -80,6 +91,8 @@ _GLOBAL(call_do_irq)
 	blr
 
 /*
+=======
+>>>>>>> upstream/android-13
  * This returns the high 64 bits of the product of two 64-bit numbers.
  */
 _GLOBAL(mulhdu)
@@ -119,7 +132,11 @@ _GLOBAL(reloc_got2)
 	srwi.	r8,r8,2
 	beqlr
 	mtctr	r8
+<<<<<<< HEAD
 	bl	1f
+=======
+	bcl	20,31,$+4
+>>>>>>> upstream/android-13
 1:	mflr	r0
 	lis	r4,1b@ha
 	addi	r4,r4,1b@l
@@ -153,7 +170,11 @@ _GLOBAL(call_setup_cpu)
 	mtctr	r5
 	bctr
 
+<<<<<<< HEAD
 #if defined(CONFIG_CPU_FREQ_PMAC) && defined(CONFIG_6xx)
+=======
+#if defined(CONFIG_CPU_FREQ_PMAC) && defined(CONFIG_PPC_BOOK3S_32)
+>>>>>>> upstream/android-13
 
 /* This gets called by via-pmu.c to switch the PLL selection
  * on 750fx CPU. This function should really be moved to some
@@ -183,10 +204,20 @@ _GLOBAL(low_choose_750fx_pll)
 	or	r4,r4,r5
 	mtspr	SPRN_HID1,r4
 
+<<<<<<< HEAD
 	/* Store new HID1 image */
 	CURRENT_THREAD_INFO(r6, r1)
 	lwz	r6,TI_CPU(r6)
 	slwi	r6,r6,2
+=======
+#ifdef CONFIG_SMP
+	/* Store new HID1 image */
+	lwz	r6,TASK_CPU(r2)
+	slwi	r6,r6,2
+#else
+	li	r6, 0
+#endif
+>>>>>>> upstream/android-13
 	addis	r6,r6,nap_save_hid1@ha
 	stw	r4,nap_save_hid1@l(r6)
 
@@ -223,6 +254,7 @@ _GLOBAL(low_choose_7447a_dfs)
 	mtmsr	r7
 	blr
 
+<<<<<<< HEAD
 #endif /* CONFIG_CPU_FREQ_PMAC && CONFIG_6xx */
 
 /*
@@ -237,6 +269,9 @@ _GLOBAL(_nmask_and_or_msr)
 	mtmsr	r0		/* Update machine state */
 	isync
 	blr			/* Done */
+=======
+#endif /* CONFIG_CPU_FREQ_PMAC && CONFIG_PPC_BOOK3S_32 */
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_40x
 
@@ -256,6 +291,10 @@ _GLOBAL(real_readb)
 	sync
 	isync
 	blr
+<<<<<<< HEAD
+=======
+_ASM_NOKPROBE_SYMBOL(real_readb)
+>>>>>>> upstream/android-13
 
 	/*
  * Do an IO access in real mode
@@ -273,6 +312,7 @@ _GLOBAL(real_writeb)
 	sync
 	isync
 	blr
+<<<<<<< HEAD
 
 #endif /* CONFIG_40x */
 
@@ -439,6 +479,12 @@ END_FTR_SECTION_IFSET(CPU_FTR_COHERENT_ICACHE)
 	blr
 #endif /* CONFIG_BOOKE */
 
+=======
+_ASM_NOKPROBE_SYMBOL(real_writeb)
+
+#endif /* CONFIG_40x */
+
+>>>>>>> upstream/android-13
 /*
  * Copy a whole page.  We use the dcbz instruction on the destination
  * to reduce memory traffic (it eliminates the unnecessary reads of
@@ -456,7 +502,16 @@ END_FTR_SECTION_IFSET(CPU_FTR_COHERENT_ICACHE)
 	stwu	r9,16(r3)
 
 _GLOBAL(copy_page)
+<<<<<<< HEAD
 	addi	r3,r3,-4
+=======
+	rlwinm	r5, r3, 0, L1_CACHE_BYTES - 1
+	addi	r3,r3,-4
+
+0:	twnei	r5, 0	/* WARN if r3 is not cache aligned */
+	EMIT_WARN_ENTRY 0b,__FILE__,__LINE__, BUGFLAG_WARNING
+
+>>>>>>> upstream/android-13
 	addi	r4,r4,-4
 
 	li	r5,4
@@ -599,13 +654,18 @@ EXPORT_SYMBOL(__bswapdi2)
 #ifdef CONFIG_SMP
 _GLOBAL(start_secondary_resume)
 	/* Reset stack */
+<<<<<<< HEAD
 	CURRENT_THREAD_INFO(r1, r1)
+=======
+	rlwinm	r1, r1, 0, 0, 31 - THREAD_SHIFT
+>>>>>>> upstream/android-13
 	addi	r1,r1,THREAD_SIZE-STACK_FRAME_OVERHEAD
 	li	r3,0
 	stw	r3,0(r1)		/* Zero the stack frame pointer	*/
 	bl	start_secondary
 	b	.
 #endif /* CONFIG_SMP */
+<<<<<<< HEAD
 	
 /*
  * This routine is just here to keep GCC happy - sigh...
@@ -1097,3 +1157,5 @@ relocate_new_kernel_end:
 relocate_new_kernel_size:
 	.long relocate_new_kernel_end - relocate_new_kernel
 #endif
+=======
+>>>>>>> upstream/android-13

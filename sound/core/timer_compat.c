@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *   32bit -> 64bit ioctl wrapper for timer API
  *   Copyright (c) by Takashi Iwai <tiwai@suse.de>
@@ -16,6 +17,12 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *   32bit -> 64bit ioctl wrapper for timer API
+ *   Copyright (c) by Takashi Iwai <tiwai@suse.de>
+>>>>>>> upstream/android-13
  */
 
 /* This file included from timer.c */
@@ -75,14 +82,20 @@ static int snd_timer_user_info_compat(struct file *file,
 	info.card = t->card ? t->card->number : -1;
 	if (t->hw.flags & SNDRV_TIMER_HW_SLAVE)
 		info.flags |= SNDRV_TIMER_FLG_SLAVE;
+<<<<<<< HEAD
 	strlcpy(info.id, t->id, sizeof(info.id));
 	strlcpy(info.name, t->name, sizeof(info.name));
+=======
+	strscpy(info.id, t->id, sizeof(info.id));
+	strscpy(info.name, t->name, sizeof(info.name));
+>>>>>>> upstream/android-13
 	info.resolution = t->hw.resolution;
 	if (copy_to_user(_info, &info, sizeof(*_info)))
 		return -EFAULT;
 	return 0;
 }
 
+<<<<<<< HEAD
 struct snd_timer_status32 {
 	struct compat_timespec tstamp;
 	u32 resolution;
@@ -131,6 +144,13 @@ enum {
 #ifdef CONFIG_X86_X32
 	SNDRV_TIMER_IOCTL_STATUS_X32 = _IOW('T', 0x14, struct snd_timer_status),
 #endif /* CONFIG_X86_X32 */
+=======
+enum {
+	SNDRV_TIMER_IOCTL_GPARAMS32 = _IOW('T', 0x04, struct snd_timer_gparams32),
+	SNDRV_TIMER_IOCTL_INFO32 = _IOR('T', 0x11, struct snd_timer_info32),
+	SNDRV_TIMER_IOCTL_STATUS_COMPAT32 = _IOW('T', 0x14, struct snd_timer_status32),
+	SNDRV_TIMER_IOCTL_STATUS_COMPAT64 = _IOW('T', 0x14, struct snd_timer_status64),
+>>>>>>> upstream/android-13
 };
 
 static long __snd_timer_user_ioctl_compat(struct file *file, unsigned int cmd,
@@ -140,7 +160,12 @@ static long __snd_timer_user_ioctl_compat(struct file *file, unsigned int cmd,
 
 	switch (cmd) {
 	case SNDRV_TIMER_IOCTL_PVERSION:
+<<<<<<< HEAD
 	case SNDRV_TIMER_IOCTL_TREAD:
+=======
+	case SNDRV_TIMER_IOCTL_TREAD_OLD:
+	case SNDRV_TIMER_IOCTL_TREAD64:
+>>>>>>> upstream/android-13
 	case SNDRV_TIMER_IOCTL_GINFO:
 	case SNDRV_TIMER_IOCTL_GSTATUS:
 	case SNDRV_TIMER_IOCTL_SELECT:
@@ -154,17 +179,28 @@ static long __snd_timer_user_ioctl_compat(struct file *file, unsigned int cmd,
 	case SNDRV_TIMER_IOCTL_PAUSE:
 	case SNDRV_TIMER_IOCTL_PAUSE_OLD:
 	case SNDRV_TIMER_IOCTL_NEXT_DEVICE:
+<<<<<<< HEAD
 		return __snd_timer_user_ioctl(file, cmd, (unsigned long)argp);
+=======
+		return __snd_timer_user_ioctl(file, cmd, (unsigned long)argp, true);
+>>>>>>> upstream/android-13
 	case SNDRV_TIMER_IOCTL_GPARAMS32:
 		return snd_timer_user_gparams_compat(file, argp);
 	case SNDRV_TIMER_IOCTL_INFO32:
 		return snd_timer_user_info_compat(file, argp);
+<<<<<<< HEAD
 	case SNDRV_TIMER_IOCTL_STATUS32:
 		return snd_timer_user_status_compat(file, argp);
 #ifdef CONFIG_X86_X32
 	case SNDRV_TIMER_IOCTL_STATUS_X32:
 		return snd_timer_user_status_x32(file, argp);
 #endif /* CONFIG_X86_X32 */
+=======
+	case SNDRV_TIMER_IOCTL_STATUS_COMPAT32:
+		return snd_timer_user_status32(file, argp);
+	case SNDRV_TIMER_IOCTL_STATUS_COMPAT64:
+		return snd_timer_user_status64(file, argp);
+>>>>>>> upstream/android-13
 	}
 	return -ENOIOCTLCMD;
 }

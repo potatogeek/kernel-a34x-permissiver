@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * transport_class.h - a generic container for all transport classes
  *
  * Copyright (c) 2005 - James Bottomley <James.Bottomley@steeleye.com>
+<<<<<<< HEAD
  *
  * This file is licensed under GPLv2
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _TRANSPORT_CLASS_H_
@@ -63,16 +70,28 @@ struct transport_container {
 	container_of(x, struct transport_container, ac)
 
 void transport_remove_device(struct device *);
+<<<<<<< HEAD
 void transport_add_device(struct device *);
+=======
+int transport_add_device(struct device *);
+>>>>>>> upstream/android-13
 void transport_setup_device(struct device *);
 void transport_configure_device(struct device *);
 void transport_destroy_device(struct device *);
 
+<<<<<<< HEAD
 static inline void
 transport_register_device(struct device *dev)
 {
 	transport_setup_device(dev);
 	transport_add_device(dev);
+=======
+static inline int
+transport_register_device(struct device *dev)
+{
+	transport_setup_device(dev);
+	return transport_add_device(dev);
+>>>>>>> upstream/android-13
 }
 
 static inline void

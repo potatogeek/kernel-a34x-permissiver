@@ -2,19 +2,26 @@
 #ifndef __ASM_ALTERNATIVE_H
 #define __ASM_ALTERNATIVE_H
 
+<<<<<<< HEAD
 #include <asm/cpucaps.h>
 #include <asm/insn.h>
 
 #define ARM64_CB_PATCH ARM64_NCAPS
+=======
+#include <asm/alternative-macros.h>
+>>>>>>> upstream/android-13
 
 #ifndef __ASSEMBLY__
 
 #include <linux/init.h>
 #include <linux/types.h>
 #include <linux/stddef.h>
+<<<<<<< HEAD
 #include <linux/stringify.h>
 
 extern int alternatives_applied;
+=======
+>>>>>>> upstream/android-13
 
 struct alt_instr {
 	s32 orig_offset;	/* offset to original instruction */
@@ -27,7 +34,13 @@ struct alt_instr {
 typedef void (*alternative_cb_t)(struct alt_instr *alt,
 				 __le32 *origptr, __le32 *updptr, int nr_inst);
 
+<<<<<<< HEAD
 void __init apply_alternatives_all(void);
+=======
+void __init apply_boot_alternatives(void);
+void __init apply_alternatives_all(void);
+bool alternative_is_applied(u16 cpufeature);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_MODULES
 void apply_alternatives_module(void *start, size_t length);
@@ -35,6 +48,7 @@ void apply_alternatives_module(void *start, size_t length);
 static inline void apply_alternatives_module(void *start, size_t length) { }
 #endif
 
+<<<<<<< HEAD
 #define ALTINSTR_ENTRY(feature)					              \
 	" .word 661b - .\n"				/* label           */ \
 	" .word 663f - .\n"				/* new instruction */ \
@@ -295,4 +309,7 @@ alternative_endif
 #define ALTERNATIVE(oldinstr, newinstr, ...)   \
 	_ALTERNATIVE_CFG(oldinstr, newinstr, __VA_ARGS__, 1)
 
+=======
+#endif /* __ASSEMBLY__ */
+>>>>>>> upstream/android-13
 #endif /* __ASM_ALTERNATIVE_H */

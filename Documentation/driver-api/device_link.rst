@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 .. |struct dev_pm_domain| replace:: :c:type:`struct dev_pm_domain <dev_pm_domain>`
 .. |struct generic_pm_domain| replace:: :c:type:`struct generic_pm_domain <generic_pm_domain>`
+=======
+.. _device_link:
+>>>>>>> upstream/android-13
 
 ============
 Device links
@@ -86,9 +90,16 @@ integration is desired.
 
 Two other flags are specifically targeted at use cases where the device
 link is added from the consumer's ``->probe`` callback:  ``DL_FLAG_RPM_ACTIVE``
+<<<<<<< HEAD
 can be specified to runtime resume the supplier upon addition of the
 device link.  ``DL_FLAG_AUTOREMOVE_CONSUMER`` causes the device link to be
 automatically purged when the consumer fails to probe or later unbinds.
+=======
+can be specified to runtime resume the supplier and prevent it from suspending
+before the consumer is runtime suspended.  ``DL_FLAG_AUTOREMOVE_CONSUMER``
+causes the device link to be automatically purged when the consumer fails to
+probe or later unbinds.
+>>>>>>> upstream/android-13
 
 Similarly, when the device link is added from supplier's ``->probe`` callback,
 ``DL_FLAG_AUTOREMOVE_SUPPLIER`` causes the device link to be automatically
@@ -121,6 +132,23 @@ set) are expected to be removed by whoever called :c:func:`device_link_add()`
 to add them with the help of either :c:func:`device_link_del()` or
 :c:func:`device_link_remove()`.
 
+<<<<<<< HEAD
+=======
+Passing ``DL_FLAG_RPM_ACTIVE`` along with ``DL_FLAG_STATELESS`` to
+:c:func:`device_link_add()` may cause the PM-runtime usage counter of the
+supplier device to remain nonzero after a subsequent invocation of either
+:c:func:`device_link_del()` or :c:func:`device_link_remove()` to remove the
+device link returned by it.  This happens if :c:func:`device_link_add()` is
+called twice in a row for the same consumer-supplier pair without removing the
+link between these calls, in which case allowing the PM-runtime usage counter
+of the supplier to drop on an attempt to remove the link may cause it to be
+suspended while the consumer is still PM-runtime-active and that has to be
+avoided.  [To work around this limitation it is sufficient to let the consumer
+runtime suspend at least once, or call :c:func:`pm_runtime_set_suspended()` for
+it with PM-runtime disabled, between the :c:func:`device_link_add()` and
+:c:func:`device_link_del()` or :c:func:`device_link_remove()` calls.]
+
+>>>>>>> upstream/android-13
 Sometimes drivers depend on optional resources.  They are able to operate
 in a degraded mode (reduced feature set or performance) when those resources
 are not present.  An example is an SPI controller that can use a DMA engine
@@ -148,7 +176,11 @@ Examples
   is the same as if the MMU was the parent of the master device.
 
   The fact that both devices share the same power domain would normally
+<<<<<<< HEAD
   suggest usage of a |struct dev_pm_domain| or |struct generic_pm_domain|,
+=======
+  suggest usage of a struct dev_pm_domain or struct generic_pm_domain,
+>>>>>>> upstream/android-13
   however these are not independent devices that happen to share a power
   switch, but rather the MMU device serves the busmaster device and is
   useless without it.  A device link creates a synthetic hierarchical
@@ -184,7 +216,11 @@ Examples
 Alternatives
 ============
 
+<<<<<<< HEAD
 * A |struct dev_pm_domain| can be used to override the bus,
+=======
+* A struct dev_pm_domain can be used to override the bus,
+>>>>>>> upstream/android-13
   class or device type callbacks.  It is intended for devices sharing
   a single on/off switch, however it does not guarantee a specific
   suspend/resume ordering, this needs to be implemented separately.
@@ -193,7 +229,11 @@ Alternatives
   suspended.  Furthermore it cannot be used to enforce a specific shutdown
   ordering or a driver presence dependency.
 
+<<<<<<< HEAD
 * A |struct generic_pm_domain| is a lot more heavyweight than a
+=======
+* A struct generic_pm_domain is a lot more heavyweight than a
+>>>>>>> upstream/android-13
   device link and does not allow for shutdown ordering or driver presence
   dependencies.  It also cannot be used on ACPI systems.
 
@@ -303,5 +343,9 @@ State machine
 API
 ===
 
+<<<<<<< HEAD
 .. kernel-doc:: drivers/base/core.c
    :functions: device_link_add device_link_del device_link_remove
+=======
+See device_link_add(), device_link_del() and device_link_remove().
+>>>>>>> upstream/android-13

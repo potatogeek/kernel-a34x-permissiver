@@ -48,12 +48,32 @@ struct smc_cdc_msg {
 	struct smc_cdc_producer_flags	prod_flags;
 	struct smc_cdc_conn_state_flags	conn_state_flags;
 	u8				reserved[18];
+<<<<<<< HEAD
 } __packed;					/* format defined in RFC7609 */
+=======
+};
+
+/* SMC-D cursor format */
+union smcd_cdc_cursor {
+	struct {
+		u16	wrap;
+		u32	count;
+		struct smc_cdc_producer_flags	prod_flags;
+		struct smc_cdc_conn_state_flags	conn_state_flags;
+	} __packed;
+#ifdef KERNEL_HAS_ATOMIC64
+	atomic64_t		acurs;		/* for atomic processing */
+#else
+	u64			acurs;		/* for atomic processing */
+#endif
+} __aligned(8);
+>>>>>>> upstream/android-13
 
 /* CDC message for SMC-D */
 struct smcd_cdc_msg {
 	struct smc_wr_rx_hdr common;	/* Type = 0xFE */
 	u8 res1[7];
+<<<<<<< HEAD
 	u16 prod_wrap;
 	u32 prod_count;
 	u8 res2[2];
@@ -63,6 +83,12 @@ struct smcd_cdc_msg {
 	struct smc_cdc_conn_state_flags conn_state_flags;
 	u8 res3[8];
 } __packed;
+=======
+	union smcd_cdc_cursor	prod;
+	union smcd_cdc_cursor	cons;
+	u8 res3[8];
+} __aligned(8);
+>>>>>>> upstream/android-13
 
 static inline bool smc_cdc_rxed_any_close(struct smc_connection *conn)
 {
@@ -87,6 +113,7 @@ static inline void smc_curs_add(int size, union smc_host_cursor *curs,
 	}
 }
 
+<<<<<<< HEAD
 /* SMC cursors are 8 bytes long and require atomic reading and writing */
 static inline u64 smc_curs_read(union smc_host_cursor *curs,
 				struct smc_connection *conn)
@@ -104,6 +131,8 @@ static inline u64 smc_curs_read(union smc_host_cursor *curs,
 #endif
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Copy cursor src into tgt */
 static inline void smc_curs_copy(union smc_host_cursor *tgt,
 				 union smc_host_cursor *src,
@@ -135,6 +164,24 @@ static inline void smc_curs_copy_net(union smc_cdc_cursor *tgt,
 #endif
 }
 
+<<<<<<< HEAD
+=======
+static inline void smcd_curs_copy(union smcd_cdc_cursor *tgt,
+				  union smcd_cdc_cursor *src,
+				  struct smc_connection *conn)
+{
+#ifndef KERNEL_HAS_ATOMIC64
+	unsigned long flags;
+
+	spin_lock_irqsave(&conn->acurs_lock, flags);
+	tgt->acurs = src->acurs;
+	spin_unlock_irqrestore(&conn->acurs_lock, flags);
+#else
+	atomic64_set(&tgt->acurs, atomic64_read(&src->acurs));
+#endif
+}
+
+>>>>>>> upstream/android-13
 /* calculate cursor difference between old and new, where old <= new and
  * difference cannot exceed size
  */
@@ -245,6 +292,7 @@ static inline void smcr_cdc_msg_to_host(struct smc_host_cdc_msg *local,
 }
 
 static inline void smcd_cdc_msg_to_host(struct smc_host_cdc_msg *local,
+<<<<<<< HEAD
 					struct smcd_cdc_msg *peer)
 {
 	local->prod.wrap = peer->prod_wrap;
@@ -253,6 +301,22 @@ static inline void smcd_cdc_msg_to_host(struct smc_host_cdc_msg *local,
 	local->cons.count = peer->cons_count;
 	local->prod_flags = peer->prod_flags;
 	local->conn_state_flags = peer->conn_state_flags;
+=======
+					struct smcd_cdc_msg *peer,
+					struct smc_connection *conn)
+{
+	union smc_host_cursor temp;
+
+	temp.wrap = peer->prod.wrap;
+	temp.count = peer->prod.count;
+	smc_curs_copy(&local->prod, &temp, conn);
+
+	temp.wrap = peer->cons.wrap;
+	temp.count = peer->cons.count;
+	smc_curs_copy(&local->cons, &temp, conn);
+	local->prod_flags = peer->cons.prod_flags;
+	local->conn_state_flags = peer->cons.conn_state_flags;
+>>>>>>> upstream/android-13
 }
 
 static inline void smc_cdc_msg_to_host(struct smc_host_cdc_msg *local,
@@ -260,21 +324,47 @@ static inline void smc_cdc_msg_to_host(struct smc_host_cdc_msg *local,
 				       struct smc_connection *conn)
 {
 	if (conn->lgr->is_smcd)
+<<<<<<< HEAD
 		smcd_cdc_msg_to_host(local, (struct smcd_cdc_msg *)peer);
+=======
+		smcd_cdc_msg_to_host(local, (struct smcd_cdc_msg *)peer, conn);
+>>>>>>> upstream/android-13
 	else
 		smcr_cdc_msg_to_host(local, peer, conn);
 }
 
+<<<<<<< HEAD
 struct smc_cdc_tx_pend;
 
 int smc_cdc_get_free_slot(struct smc_connection *conn,
 			  struct smc_wr_buf **wr_buf,
 			  struct smc_cdc_tx_pend **pend);
 void smc_cdc_tx_dismiss_slots(struct smc_connection *conn);
+=======
+struct smc_cdc_tx_pend {
+	struct smc_connection	*conn;		/* socket connection */
+	union smc_host_cursor	cursor;		/* tx sndbuf cursor sent */
+	union smc_host_cursor	p_cursor;	/* rx RMBE cursor produced */
+	u16			ctrl_seq;	/* conn. tx sequence # */
+};
+
+int smc_cdc_get_free_slot(struct smc_connection *conn,
+			  struct smc_link *link,
+			  struct smc_wr_buf **wr_buf,
+			  struct smc_rdma_wr **wr_rdma_buf,
+			  struct smc_cdc_tx_pend **pend);
+void smc_cdc_wait_pend_tx_wr(struct smc_connection *conn);
+>>>>>>> upstream/android-13
 int smc_cdc_msg_send(struct smc_connection *conn, struct smc_wr_buf *wr_buf,
 		     struct smc_cdc_tx_pend *pend);
 int smc_cdc_get_slot_and_msg_send(struct smc_connection *conn);
 int smcd_cdc_msg_send(struct smc_connection *conn);
+<<<<<<< HEAD
+=======
+int smcr_cdc_msg_send_validation(struct smc_connection *conn,
+				 struct smc_cdc_tx_pend *pend,
+				 struct smc_wr_buf *wr_buf);
+>>>>>>> upstream/android-13
 int smc_cdc_init(void) __init;
 void smcd_cdc_rx_init(struct smc_connection *conn);
 

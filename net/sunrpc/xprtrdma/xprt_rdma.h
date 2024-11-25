@@ -44,13 +44,24 @@
 
 #include <linux/wait.h> 		/* wait_queue_head_t, etc */
 #include <linux/spinlock.h> 		/* spinlock_t, etc */
+<<<<<<< HEAD
 #include <linux/atomic.h>			/* atomic_t, etc */
 #include <linux/workqueue.h>		/* struct work_struct */
+=======
+#include <linux/atomic.h>		/* atomic_t, etc */
+#include <linux/kref.h>			/* struct kref */
+#include <linux/workqueue.h>		/* struct work_struct */
+#include <linux/llist.h>
+>>>>>>> upstream/android-13
 
 #include <rdma/rdma_cm.h>		/* RDMA connection api */
 #include <rdma/ib_verbs.h>		/* RDMA verbs api */
 
 #include <linux/sunrpc/clnt.h> 		/* rpc_xprt */
+<<<<<<< HEAD
+=======
+#include <linux/sunrpc/rpc_rdma_cid.h> 	/* completion IDs */
+>>>>>>> upstream/android-13
 #include <linux/sunrpc/rpc_rdma.h> 	/* RPC/RDMA protocol */
 #include <linux/sunrpc/xprtrdma.h> 	/* xprt parameters */
 
@@ -63,6 +74,7 @@
 #define RPCRDMA_IDLE_DISC_TO	(5U * 60 * HZ)
 
 /*
+<<<<<<< HEAD
  * Interface Adapter -- one per transport instance
  */
 struct rpcrdma_ia {
@@ -118,43 +130,119 @@ struct rpcrdma_ep {
  *
  * The below structure appears at the front of a large region of kmalloc'd
  * memory, which always starts on a good alignment boundary.
+=======
+ * RDMA Endpoint -- connection endpoint details
+ */
+struct rpcrdma_ep {
+	struct kref		re_kref;
+	struct rdma_cm_id 	*re_id;
+	struct ib_pd		*re_pd;
+	unsigned int		re_max_rdma_segs;
+	unsigned int		re_max_fr_depth;
+	bool			re_implicit_roundup;
+	enum ib_mr_type		re_mrtype;
+	struct completion	re_done;
+	unsigned int		re_send_count;
+	unsigned int		re_send_batch;
+	unsigned int		re_max_inline_send;
+	unsigned int		re_max_inline_recv;
+	int			re_async_rc;
+	int			re_connect_status;
+	atomic_t		re_receiving;
+	atomic_t		re_force_disconnect;
+	struct ib_qp_init_attr	re_attr;
+	wait_queue_head_t       re_connect_wait;
+	struct rpc_xprt		*re_xprt;
+	struct rpcrdma_connect_private
+				re_cm_private;
+	struct rdma_conn_param	re_remote_cma;
+	int			re_receive_count;
+	unsigned int		re_max_requests; /* depends on device */
+	unsigned int		re_inline_send;	/* negotiated */
+	unsigned int		re_inline_recv;	/* negotiated */
+
+	atomic_t		re_completion_ids;
+};
+
+/* Pre-allocate extra Work Requests for handling reverse-direction
+ * Receives and Sends. This is a fixed value because the Work Queues
+ * are allocated when the forward channel is set up, long before the
+ * backchannel is provisioned. This value is two times
+ * NFS4_DEF_CB_SLOT_TABLE_SIZE.
+ */
+#if defined(CONFIG_SUNRPC_BACKCHANNEL)
+#define RPCRDMA_BACKWARD_WRS (32)
+#else
+#define RPCRDMA_BACKWARD_WRS (0)
+#endif
+
+/* Registered buffer -- registered kmalloc'd memory for RDMA SEND/RECV
+>>>>>>> upstream/android-13
  */
 
 struct rpcrdma_regbuf {
 	struct ib_sge		rg_iov;
 	struct ib_device	*rg_device;
 	enum dma_data_direction	rg_direction;
+<<<<<<< HEAD
 	__be32			rg_base[0] __attribute__ ((aligned(256)));
 };
 
 static inline u64
 rdmab_addr(struct rpcrdma_regbuf *rb)
+=======
+	void			*rg_data;
+};
+
+static inline u64 rdmab_addr(struct rpcrdma_regbuf *rb)
+>>>>>>> upstream/android-13
 {
 	return rb->rg_iov.addr;
 }
 
+<<<<<<< HEAD
 static inline u32
 rdmab_length(struct rpcrdma_regbuf *rb)
+=======
+static inline u32 rdmab_length(struct rpcrdma_regbuf *rb)
+>>>>>>> upstream/android-13
 {
 	return rb->rg_iov.length;
 }
 
+<<<<<<< HEAD
 static inline u32
 rdmab_lkey(struct rpcrdma_regbuf *rb)
+=======
+static inline u32 rdmab_lkey(struct rpcrdma_regbuf *rb)
+>>>>>>> upstream/android-13
 {
 	return rb->rg_iov.lkey;
 }
 
+<<<<<<< HEAD
 static inline struct ib_device *
 rdmab_device(struct rpcrdma_regbuf *rb)
+=======
+static inline struct ib_device *rdmab_device(struct rpcrdma_regbuf *rb)
+>>>>>>> upstream/android-13
 {
 	return rb->rg_device;
 }
 
+<<<<<<< HEAD
+=======
+static inline void *rdmab_data(const struct rpcrdma_regbuf *rb)
+{
+	return rb->rg_data;
+}
+
+>>>>>>> upstream/android-13
 #define RPCRDMA_DEF_GFP		(GFP_NOIO | __GFP_NOWARN)
 
 /* To ensure a transport can always make forward progress,
  * the number of RDMA segments allowed in header chunk lists
+<<<<<<< HEAD
  * is capped at 8. This prevents less-capable devices and
  * memory registrations from overrunning the Send buffer
  * while building chunk lists.
@@ -174,6 +262,24 @@ rdmab_device(struct rpcrdma_regbuf *rb)
 enum {
 	RPCRDMA_MAX_HDR_SEGS = 8,
 	RPCRDMA_HDRBUF_SIZE = 256,
+=======
+ * is capped at 16. This prevents less-capable devices from
+ * overrunning the Send buffer while building chunk lists.
+ *
+ * Elements of the Read list take up more room than the
+ * Write list or Reply chunk. 16 read segments means the
+ * chunk lists cannot consume more than
+ *
+ * ((16 + 2) * read segment size) + 1 XDR words,
+ *
+ * or about 400 bytes. The fixed part of the header is
+ * another 24 bytes. Thus when the inline threshold is
+ * 1024 bytes, at least 600 bytes are available for RPC
+ * message bodies.
+ */
+enum {
+	RPCRDMA_MAX_HDR_SEGS = 16,
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -192,6 +298,11 @@ enum {
 
 struct rpcrdma_rep {
 	struct ib_cqe		rr_cqe;
+<<<<<<< HEAD
+=======
+	struct rpc_rdma_cid	rr_cid;
+
+>>>>>>> upstream/android-13
 	__be32			rr_xid;
 	__be32			rr_vers;
 	__be32			rr_proc;
@@ -200,27 +311,53 @@ struct rpcrdma_rep {
 	bool			rr_temp;
 	struct rpcrdma_regbuf	*rr_rdmabuf;
 	struct rpcrdma_xprt	*rr_rxprt;
+<<<<<<< HEAD
 	struct work_struct	rr_work;
 	struct xdr_buf		rr_hdrbuf;
 	struct xdr_stream	rr_stream;
 	struct rpc_rqst		*rr_rqst;
 	struct list_head	rr_list;
 	struct ib_recv_wr	rr_recv_wr;
+=======
+	struct rpc_rqst		*rr_rqst;
+	struct xdr_buf		rr_hdrbuf;
+	struct xdr_stream	rr_stream;
+	struct llist_node	rr_node;
+	struct ib_recv_wr	rr_recv_wr;
+	struct list_head	rr_all;
+};
+
+/* To reduce the rate at which a transport invokes ib_post_recv
+ * (and thus the hardware doorbell rate), xprtrdma posts Receive
+ * WRs in batches.
+ *
+ * Setting this to zero disables Receive post batching.
+ */
+enum {
+	RPCRDMA_MAX_RECV_BATCH = 7,
+>>>>>>> upstream/android-13
 };
 
 /* struct rpcrdma_sendctx - DMA mapped SGEs to unmap after Send completes
  */
 struct rpcrdma_req;
+<<<<<<< HEAD
 struct rpcrdma_xprt;
 struct rpcrdma_sendctx {
 	struct ib_send_wr	sc_wr;
 	struct ib_cqe		sc_cqe;
 	struct rpcrdma_xprt	*sc_xprt;
+=======
+struct rpcrdma_sendctx {
+	struct ib_cqe		sc_cqe;
+	struct rpc_rdma_cid	sc_cid;
+>>>>>>> upstream/android-13
 	struct rpcrdma_req	*sc_req;
 	unsigned int		sc_unmap_count;
 	struct ib_sge		sc_sges[];
 };
 
+<<<<<<< HEAD
 /* Limit the number of SGEs that can be unmapped during one
  * Send completion. This caps the amount of work a single
  * completion can do before returning to the provider.
@@ -231,11 +368,14 @@ enum {
 	RPCRDMA_MAX_SEND_BATCH = 7,
 };
 
+=======
+>>>>>>> upstream/android-13
 /*
  * struct rpcrdma_mr - external memory region metadata
  *
  * An external memory region is any buffer or page that is registered
  * on the fly (ie, not pre-registered).
+<<<<<<< HEAD
  *
  * Each rpcrdma_buffer has a list of free MWs anchored in rb_mrs. During
  * call_allocate, rpcrdma_buffer_get() assigns one to each segment in
@@ -275,12 +415,34 @@ struct rpcrdma_mr {
 	union {
 		struct rpcrdma_fmr	fmr;
 		struct rpcrdma_frwr	frwr;
+=======
+ */
+struct rpcrdma_req;
+struct rpcrdma_mr {
+	struct list_head	mr_list;
+	struct rpcrdma_req	*mr_req;
+
+	struct ib_mr		*mr_ibmr;
+	struct ib_device	*mr_device;
+	struct scatterlist	*mr_sg;
+	int			mr_nents;
+	enum dma_data_direction	mr_dir;
+	struct ib_cqe		mr_cqe;
+	struct completion	mr_linv_done;
+	union {
+		struct ib_reg_wr	mr_regwr;
+		struct ib_send_wr	mr_invwr;
+>>>>>>> upstream/android-13
 	};
 	struct rpcrdma_xprt	*mr_xprt;
 	u32			mr_handle;
 	u32			mr_length;
 	u64			mr_offset;
 	struct list_head	mr_all;
+<<<<<<< HEAD
+=======
+	struct rpc_rdma_cid	mr_cid;
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -311,10 +473,18 @@ enum {
 				  RPCRDMA_MAX_IOV_SEGS,
 };
 
+<<<<<<< HEAD
 struct rpcrdma_mr_seg {		/* chunk descriptors */
 	u32		mr_len;		/* length of chunk or segment */
 	struct page	*mr_page;	/* owning page, if any */
 	char		*mr_offset;	/* kva if no page, else offset */
+=======
+/* Arguments for DMA mapping and registration */
+struct rpcrdma_mr_seg {
+	u32		mr_len;		/* length of segment */
+	struct page	*mr_page;	/* underlying struct page */
+	u64		mr_offset;	/* IN: page offset, OUT: iova */
+>>>>>>> upstream/android-13
 };
 
 /* The Send SGE array is provisioned to send a maximum size
@@ -337,16 +507,24 @@ struct rpcrdma_buffer;
 struct rpcrdma_req {
 	struct list_head	rl_list;
 	struct rpc_rqst		rl_slot;
+<<<<<<< HEAD
 	struct rpcrdma_buffer	*rl_buffer;
 	struct rpcrdma_rep	*rl_reply;
 	struct xdr_stream	rl_stream;
 	struct xdr_buf		rl_hdrbuf;
+=======
+	struct rpcrdma_rep	*rl_reply;
+	struct xdr_stream	rl_stream;
+	struct xdr_buf		rl_hdrbuf;
+	struct ib_send_wr	rl_wr;
+>>>>>>> upstream/android-13
 	struct rpcrdma_sendctx	*rl_sendctx;
 	struct rpcrdma_regbuf	*rl_rdmabuf;	/* xprt header */
 	struct rpcrdma_regbuf	*rl_sendbuf;	/* rq_snd_buf */
 	struct rpcrdma_regbuf	*rl_recvbuf;	/* rq_rcv_buf */
 
 	struct list_head	rl_all;
+<<<<<<< HEAD
 	unsigned long		rl_flags;
 
 	struct list_head	rl_registered;	/* registered segments */
@@ -359,6 +537,15 @@ enum {
 	RPCRDMA_REQ_F_TX_RESOURCES,
 };
 
+=======
+	struct kref		rl_kref;
+
+	struct list_head	rl_free_mrs;
+	struct list_head	rl_registered;
+	struct rpcrdma_mr_seg	rl_segments[RPCRDMA_MAX_SEGS];
+};
+
+>>>>>>> upstream/android-13
 static inline struct rpcrdma_req *
 rpcr_to_rdmar(const struct rpc_rqst *rqst)
 {
@@ -368,7 +555,11 @@ rpcr_to_rdmar(const struct rpc_rqst *rqst)
 static inline void
 rpcrdma_mr_push(struct rpcrdma_mr *mr, struct list_head *list)
 {
+<<<<<<< HEAD
 	list_add_tail(&mr->mr_list, list);
+=======
+	list_add(&mr->mr_list, list);
+>>>>>>> upstream/android-13
 }
 
 static inline struct rpcrdma_mr *
@@ -376,8 +567,14 @@ rpcrdma_mr_pop(struct list_head *list)
 {
 	struct rpcrdma_mr *mr;
 
+<<<<<<< HEAD
 	mr = list_first_entry(list, struct rpcrdma_mr, mr_list);
 	list_del_init(&mr->mr_list);
+=======
+	mr = list_first_entry_or_null(list, struct rpcrdma_mr, mr_list);
+	if (mr)
+		list_del_init(&mr->mr_list);
+>>>>>>> upstream/android-13
 	return mr;
 }
 
@@ -388,15 +585,22 @@ rpcrdma_mr_pop(struct list_head *list)
  * One of these is associated with a transport instance
  */
 struct rpcrdma_buffer {
+<<<<<<< HEAD
 	spinlock_t		rb_mrlock;	/* protect rb_mrs list */
 	struct list_head	rb_mrs;
 	struct list_head	rb_all;
+=======
+	spinlock_t		rb_lock;
+	struct list_head	rb_send_bufs;
+	struct list_head	rb_mrs;
+>>>>>>> upstream/android-13
 
 	unsigned long		rb_sc_head;
 	unsigned long		rb_sc_tail;
 	unsigned long		rb_sc_last;
 	struct rpcrdma_sendctx	**rb_sc_ctxs;
 
+<<<<<<< HEAD
 	spinlock_t		rb_lock;	/* protect buf lists */
 	struct list_head	rb_send_bufs;
 	struct list_head	rb_recv_bufs;
@@ -435,6 +639,21 @@ struct rpcrdma_create_data_internal {
 	unsigned int	wsize;		/* mount wsize - max write hdr+data */
 	unsigned int	inline_rsize;	/* max non-rdma read data payload */
 	unsigned int	inline_wsize;	/* max non-rdma write data payload */
+=======
+	struct list_head	rb_allreqs;
+	struct list_head	rb_all_mrs;
+	struct list_head	rb_all_reps;
+
+	struct llist_head	rb_free_reps;
+
+	__be32			rb_max_requests;
+	u32			rb_credits;	/* most recent credit grant */
+
+	u32			rb_bc_srv_max_requests;
+	u32			rb_bc_max_requests;
+
+	struct work_struct	rb_refresh_worker;
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -452,7 +671,11 @@ struct rpcrdma_stats {
 	unsigned long		hardway_register_count;
 	unsigned long		failed_marshal_count;
 	unsigned long		bad_reply_count;
+<<<<<<< HEAD
 	unsigned long		mrs_recovered;
+=======
+	unsigned long		mrs_recycled;
+>>>>>>> upstream/android-13
 	unsigned long		mrs_orphaned;
 	unsigned long		mrs_allocated;
 	unsigned long		empty_sendctx_q;
@@ -467,6 +690,7 @@ struct rpcrdma_stats {
 };
 
 /*
+<<<<<<< HEAD
  * Per-registration mode operations
  */
 struct rpcrdma_xprt;
@@ -497,6 +721,8 @@ extern const struct rpcrdma_memreg_ops rpcrdma_fmr_memreg_ops;
 extern const struct rpcrdma_memreg_ops rpcrdma_frwr_memreg_ops;
 
 /*
+=======
+>>>>>>> upstream/android-13
  * RPCRDMA transport -- encapsulates the structures above for
  * integration with RPC.
  *
@@ -508,16 +734,26 @@ extern const struct rpcrdma_memreg_ops rpcrdma_frwr_memreg_ops;
  */
 struct rpcrdma_xprt {
 	struct rpc_xprt		rx_xprt;
+<<<<<<< HEAD
 	struct rpcrdma_ia	rx_ia;
 	struct rpcrdma_ep	rx_ep;
 	struct rpcrdma_buffer	rx_buf;
 	struct rpcrdma_create_data_internal rx_data;
 	struct delayed_work	rx_connect_worker;
+=======
+	struct rpcrdma_ep	*rx_ep;
+	struct rpcrdma_buffer	rx_buf;
+	struct delayed_work	rx_connect_worker;
+	struct rpc_timeout	rx_timeout;
+>>>>>>> upstream/android-13
 	struct rpcrdma_stats	rx_stats;
 };
 
 #define rpcx_to_rdmax(x) container_of(x, struct rpcrdma_xprt, rx_xprt)
+<<<<<<< HEAD
 #define rpcx_to_rdmad(x) (rpcx_to_rdmax(x)->rx_data)
+=======
+>>>>>>> upstream/android-13
 
 static inline const char *
 rpcrdma_addrstr(const struct rpcrdma_xprt *r_xprt)
@@ -542,6 +778,7 @@ extern int xprt_rdma_pad_optimize;
 extern unsigned int xprt_rdma_memreg_strategy;
 
 /*
+<<<<<<< HEAD
  * Interface Adapter calls - xprtrdma/verbs.c
  */
 int rpcrdma_ia_open(struct rpcrdma_xprt *xprt);
@@ -565,10 +802,21 @@ void rpcrdma_ep_disconnect(struct rpcrdma_ep *, struct rpcrdma_ia *);
 int rpcrdma_ep_post(struct rpcrdma_ia *, struct rpcrdma_ep *,
 				struct rpcrdma_req *);
 void rpcrdma_post_recvs(struct rpcrdma_xprt *r_xprt, bool temp);
+=======
+ * Endpoint calls - xprtrdma/verbs.c
+ */
+void rpcrdma_force_disconnect(struct rpcrdma_ep *ep);
+void rpcrdma_flush_disconnect(struct rpcrdma_xprt *r_xprt, struct ib_wc *wc);
+int rpcrdma_xprt_connect(struct rpcrdma_xprt *r_xprt);
+void rpcrdma_xprt_disconnect(struct rpcrdma_xprt *r_xprt);
+
+void rpcrdma_post_recvs(struct rpcrdma_xprt *r_xprt, int needed, bool temp);
+>>>>>>> upstream/android-13
 
 /*
  * Buffer calls - xprtrdma/verbs.c
  */
+<<<<<<< HEAD
 struct rpcrdma_req *rpcrdma_create_req(struct rpcrdma_xprt *);
 void rpcrdma_destroy_req(struct rpcrdma_req *);
 int rpcrdma_buffer_create(struct rpcrdma_xprt *);
@@ -591,10 +839,41 @@ void rpcrdma_free_regbuf(struct rpcrdma_regbuf *);
 
 static inline bool
 rpcrdma_regbuf_is_mapped(struct rpcrdma_regbuf *rb)
+=======
+struct rpcrdma_req *rpcrdma_req_create(struct rpcrdma_xprt *r_xprt, size_t size,
+				       gfp_t flags);
+int rpcrdma_req_setup(struct rpcrdma_xprt *r_xprt, struct rpcrdma_req *req);
+void rpcrdma_req_destroy(struct rpcrdma_req *req);
+int rpcrdma_buffer_create(struct rpcrdma_xprt *);
+void rpcrdma_buffer_destroy(struct rpcrdma_buffer *);
+struct rpcrdma_sendctx *rpcrdma_sendctx_get_locked(struct rpcrdma_xprt *r_xprt);
+
+struct rpcrdma_mr *rpcrdma_mr_get(struct rpcrdma_xprt *r_xprt);
+void rpcrdma_mrs_refresh(struct rpcrdma_xprt *r_xprt);
+
+struct rpcrdma_req *rpcrdma_buffer_get(struct rpcrdma_buffer *);
+void rpcrdma_buffer_put(struct rpcrdma_buffer *buffers,
+			struct rpcrdma_req *req);
+void rpcrdma_rep_put(struct rpcrdma_buffer *buf, struct rpcrdma_rep *rep);
+void rpcrdma_reply_put(struct rpcrdma_buffer *buffers, struct rpcrdma_req *req);
+
+bool rpcrdma_regbuf_realloc(struct rpcrdma_regbuf *rb, size_t size,
+			    gfp_t flags);
+bool __rpcrdma_regbuf_dma_map(struct rpcrdma_xprt *r_xprt,
+			      struct rpcrdma_regbuf *rb);
+
+/**
+ * rpcrdma_regbuf_is_mapped - check if buffer is DMA mapped
+ *
+ * Returns true if the buffer is now mapped to rb->rg_device.
+ */
+static inline bool rpcrdma_regbuf_is_mapped(struct rpcrdma_regbuf *rb)
+>>>>>>> upstream/android-13
 {
 	return rb->rg_device != NULL;
 }
 
+<<<<<<< HEAD
 static inline bool
 rpcrdma_dma_map_regbuf(struct rpcrdma_ia *ia, struct rpcrdma_regbuf *rb)
 {
@@ -606,6 +885,23 @@ rpcrdma_dma_map_regbuf(struct rpcrdma_ia *ia, struct rpcrdma_regbuf *rb)
 int rpcrdma_alloc_wq(void);
 void rpcrdma_destroy_wq(void);
 
+=======
+/**
+ * rpcrdma_regbuf_dma_map - DMA-map a regbuf
+ * @r_xprt: controlling transport instance
+ * @rb: regbuf to be mapped
+ *
+ * Returns true if the buffer is currently DMA mapped.
+ */
+static inline bool rpcrdma_regbuf_dma_map(struct rpcrdma_xprt *r_xprt,
+					  struct rpcrdma_regbuf *rb)
+{
+	if (likely(rpcrdma_regbuf_is_mapped(rb)))
+		return true;
+	return __rpcrdma_regbuf_dma_map(r_xprt, rb);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Wrappers for chunk registration, shared by read/write chunk code.
  */
@@ -616,12 +912,35 @@ rpcrdma_data_dir(bool writing)
 	return writing ? DMA_FROM_DEVICE : DMA_TO_DEVICE;
 }
 
+<<<<<<< HEAD
+=======
+/* Memory registration calls xprtrdma/frwr_ops.c
+ */
+void frwr_reset(struct rpcrdma_req *req);
+int frwr_query_device(struct rpcrdma_ep *ep, const struct ib_device *device);
+int frwr_mr_init(struct rpcrdma_xprt *r_xprt, struct rpcrdma_mr *mr);
+void frwr_mr_release(struct rpcrdma_mr *mr);
+struct rpcrdma_mr_seg *frwr_map(struct rpcrdma_xprt *r_xprt,
+				struct rpcrdma_mr_seg *seg,
+				int nsegs, bool writing, __be32 xid,
+				struct rpcrdma_mr *mr);
+int frwr_send(struct rpcrdma_xprt *r_xprt, struct rpcrdma_req *req);
+void frwr_reminv(struct rpcrdma_rep *rep, struct list_head *mrs);
+void frwr_unmap_sync(struct rpcrdma_xprt *r_xprt, struct rpcrdma_req *req);
+void frwr_unmap_async(struct rpcrdma_xprt *r_xprt, struct rpcrdma_req *req);
+
+>>>>>>> upstream/android-13
 /*
  * RPC/RDMA protocol calls - xprtrdma/rpc_rdma.c
  */
 
 enum rpcrdma_chunktype {
 	rpcrdma_noch = 0,
+<<<<<<< HEAD
+=======
+	rpcrdma_noch_pullup,
+	rpcrdma_noch_mapped,
+>>>>>>> upstream/android-13
 	rpcrdma_readch,
 	rpcrdma_areadch,
 	rpcrdma_writech,
@@ -632,6 +951,7 @@ int rpcrdma_prepare_send_sges(struct rpcrdma_xprt *r_xprt,
 			      struct rpcrdma_req *req, u32 hdrlen,
 			      struct xdr_buf *xdr,
 			      enum rpcrdma_chunktype rtype);
+<<<<<<< HEAD
 void rpcrdma_unmap_sendctx(struct rpcrdma_sendctx *sc);
 int rpcrdma_marshal_req(struct rpcrdma_xprt *r_xprt, struct rpc_rqst *rqst);
 void rpcrdma_set_max_header_sizes(struct rpcrdma_xprt *);
@@ -640,6 +960,15 @@ void rpcrdma_reply_handler(struct rpcrdma_rep *rep);
 void rpcrdma_release_rqst(struct rpcrdma_xprt *r_xprt,
 			  struct rpcrdma_req *req);
 void rpcrdma_deferred_completion(struct work_struct *work);
+=======
+void rpcrdma_sendctx_unmap(struct rpcrdma_sendctx *sc);
+int rpcrdma_marshal_req(struct rpcrdma_xprt *r_xprt, struct rpc_rqst *rqst);
+void rpcrdma_set_max_header_sizes(struct rpcrdma_ep *ep);
+void rpcrdma_reset_cwnd(struct rpcrdma_xprt *r_xprt);
+void rpcrdma_complete_rqst(struct rpcrdma_rep *rep);
+void rpcrdma_unpin_rqst(struct rpcrdma_rep *rep);
+void rpcrdma_reply_handler(struct rpcrdma_rep *rep);
+>>>>>>> upstream/android-13
 
 static inline void rpcrdma_set_xdrlen(struct xdr_buf *xdr, size_t len)
 {
@@ -650,9 +979,16 @@ static inline void rpcrdma_set_xdrlen(struct xdr_buf *xdr, size_t len)
 /* RPC/RDMA module init - xprtrdma/transport.c
  */
 extern unsigned int xprt_rdma_max_inline_read;
+<<<<<<< HEAD
 void xprt_rdma_format_addresses(struct rpc_xprt *xprt, struct sockaddr *sap);
 void xprt_rdma_free_addresses(struct rpc_xprt *xprt);
 void rpcrdma_connect_worker(struct work_struct *work);
+=======
+extern unsigned int xprt_rdma_max_inline_write;
+void xprt_rdma_format_addresses(struct rpc_xprt *xprt, struct sockaddr *sap);
+void xprt_rdma_free_addresses(struct rpc_xprt *xprt);
+void xprt_rdma_close(struct rpc_xprt *xprt);
+>>>>>>> upstream/android-13
 void xprt_rdma_print_stats(struct rpc_xprt *xprt, struct seq_file *seq);
 int xprt_rdma_init(void);
 void xprt_rdma_cleanup(void);
@@ -661,8 +997,13 @@ void xprt_rdma_cleanup(void);
  */
 #if defined(CONFIG_SUNRPC_BACKCHANNEL)
 int xprt_rdma_bc_setup(struct rpc_xprt *, unsigned int);
+<<<<<<< HEAD
 int xprt_rdma_bc_up(struct svc_serv *, struct net *);
 size_t xprt_rdma_bc_maxpayload(struct rpc_xprt *);
+=======
+size_t xprt_rdma_bc_maxpayload(struct rpc_xprt *);
+unsigned int xprt_rdma_bc_max_slots(struct rpc_xprt *);
+>>>>>>> upstream/android-13
 int rpcrdma_bc_post_recv(struct rpcrdma_xprt *, unsigned int);
 void rpcrdma_bc_receive_call(struct rpcrdma_xprt *, struct rpcrdma_rep *);
 int xprt_rdma_bc_send_reply(struct rpc_rqst *rqst);

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver code for Tegra's Legacy Interrupt Controller
  *
@@ -10,6 +14,7 @@
  *	Colin Cross <ccross@android.com>
  *
  * Copyright (C) 2010,2013, NVIDIA Corporation
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -20,6 +25,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/io.h>

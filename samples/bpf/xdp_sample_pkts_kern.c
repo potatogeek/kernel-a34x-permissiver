@@ -2,6 +2,7 @@
 #include <linux/ptrace.h>
 #include <linux/version.h>
 #include <uapi/linux/bpf.h>
+<<<<<<< HEAD
 #include "bpf_helpers.h"
 
 #define SAMPLE_SIZE 64ul
@@ -20,6 +21,17 @@ struct bpf_map_def SEC("maps") my_map = {
 	.value_size = sizeof(u32),
 	.max_entries = MAX_CPUS,
 };
+=======
+#include <bpf/bpf_helpers.h>
+
+#define SAMPLE_SIZE 64ul
+
+struct {
+	__uint(type, BPF_MAP_TYPE_PERF_EVENT_ARRAY);
+	__uint(key_size, sizeof(int));
+	__uint(value_size, sizeof(u32));
+} my_map SEC(".maps");
+>>>>>>> upstream/android-13
 
 SEC("xdp_sample")
 int xdp_sample_prog(struct xdp_md *ctx)

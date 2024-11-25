@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  Include file for NEC VR4100 series General-purpose I/O Unit.
  *
  *  Copyright (C) 2005-2009  Yoichi Yuasa <yuasa@linux-mips.org>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __NEC_VR41XX_GIU_H
 #define __NEC_VR41XX_GIU_H
@@ -51,6 +58,7 @@ typedef enum {
 
 extern void vr41xx_set_irq_level(unsigned int pin, irq_level_t level);
 
+<<<<<<< HEAD
 typedef enum {
 	GPIO_PULL_DOWN,
 	GPIO_PULL_UP,
@@ -59,4 +67,6 @@ typedef enum {
 
 extern int vr41xx_gpio_pullupdown(unsigned int pin, gpio_pull_t pull);
 
+=======
+>>>>>>> upstream/android-13
 #endif /* __NEC_VR41XX_GIU_H */

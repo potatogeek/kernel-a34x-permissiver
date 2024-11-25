@@ -5,10 +5,15 @@
  */
 #include "xfs.h"
 #include "xfs_fs.h"
+<<<<<<< HEAD
+=======
+#include "xfs_shared.h"
+>>>>>>> upstream/android-13
 #include "xfs_format.h"
 #include "xfs_log_format.h"
 #include "xfs_trans_resv.h"
 #include "xfs_bit.h"
+<<<<<<< HEAD
 #include "xfs_sb.h"
 #include "xfs_mount.h"
 #include "xfs_trans.h"
@@ -18,6 +23,19 @@
 #include "xfs_trace.h"
 #include "xfs_log.h"
 #include "xfs_inode.h"
+=======
+#include "xfs_mount.h"
+#include "xfs_trans.h"
+#include "xfs_trans_priv.h"
+#include "xfs_buf_item.h"
+#include "xfs_inode.h"
+#include "xfs_inode_item.h"
+#include "xfs_quota.h"
+#include "xfs_dquot_item.h"
+#include "xfs_dquot.h"
+#include "xfs_trace.h"
+#include "xfs_log.h"
+>>>>>>> upstream/android-13
 
 
 kmem_zone_t	*xfs_buf_item_zone;
@@ -27,7 +45,26 @@ static inline struct xfs_buf_log_item *BUF_ITEM(struct xfs_log_item *lip)
 	return container_of(lip, struct xfs_buf_log_item, bli_item);
 }
 
+<<<<<<< HEAD
 STATIC void	xfs_buf_do_callbacks(struct xfs_buf *bp);
+=======
+/* Is this log iovec plausibly large enough to contain the buffer log format? */
+bool
+xfs_buf_log_check_iovec(
+	struct xfs_log_iovec		*iovec)
+{
+	struct xfs_buf_log_format	*blfp = iovec->i_addr;
+	char				*bmp_end;
+	char				*item_end;
+
+	if (offsetof(struct xfs_buf_log_format, blf_data_map) > iovec->i_len)
+		return false;
+
+	item_end = (char *)iovec->i_addr + iovec->i_len;
+	bmp_end = (char *)&blfp->blf_data_map[blfp->blf_map_size];
+	return bmp_end <= item_end;
+}
+>>>>>>> upstream/android-13
 
 static inline int
 xfs_buf_log_format_size(
@@ -37,6 +74,7 @@ xfs_buf_log_format_size(
 			(blfp->blf_map_size * sizeof(blfp->blf_data_map[0]));
 }
 
+<<<<<<< HEAD
 /*
  * This returns the number of log iovecs needed to log the
  * given buf log item.
@@ -46,15 +84,47 @@ xfs_buf_log_format_size(
  * Contiguous chunks are logged in a single iovec.
  *
  * If the XFS_BLI_STALE flag has been set, then log nothing.
+=======
+static inline bool
+xfs_buf_item_straddle(
+	struct xfs_buf		*bp,
+	uint			offset,
+	int			first_bit,
+	int			nbits)
+{
+	void			*first, *last;
+
+	first = xfs_buf_offset(bp, offset + (first_bit << XFS_BLF_SHIFT));
+	last = xfs_buf_offset(bp,
+			offset + ((first_bit + nbits) << XFS_BLF_SHIFT));
+
+	if (last - first != nbits * XFS_BLF_CHUNK)
+		return true;
+	return false;
+}
+
+/*
+ * Return the number of log iovecs and space needed to log the given buf log
+ * item segment.
+ *
+ * It calculates this as 1 iovec for the buf log format structure and 1 for each
+ * stretch of non-contiguous chunks to be logged.  Contiguous chunks are logged
+ * in a single iovec.
+>>>>>>> upstream/android-13
  */
 STATIC void
 xfs_buf_item_size_segment(
 	struct xfs_buf_log_item		*bip,
 	struct xfs_buf_log_format	*blfp,
+<<<<<<< HEAD
+=======
+	uint				offset,
+>>>>>>> upstream/android-13
 	int				*nvecs,
 	int				*nbytes)
 {
 	struct xfs_buf			*bp = bip->bli_buf;
+<<<<<<< HEAD
 	int				next_bit;
 	int				last_bit;
 
@@ -69,6 +139,53 @@ xfs_buf_item_size_segment(
 	*nvecs += 2;
 	*nbytes += xfs_buf_log_format_size(blfp) + XFS_BLF_CHUNK;
 
+=======
+	int				first_bit;
+	int				nbits;
+	int				next_bit;
+	int				last_bit;
+
+	first_bit = xfs_next_bit(blfp->blf_data_map, blfp->blf_map_size, 0);
+	if (first_bit == -1)
+		return;
+
+	(*nvecs)++;
+	*nbytes += xfs_buf_log_format_size(blfp);
+
+	do {
+		nbits = xfs_contig_bits(blfp->blf_data_map,
+					blfp->blf_map_size, first_bit);
+		ASSERT(nbits > 0);
+
+		/*
+		 * Straddling a page is rare because we don't log contiguous
+		 * chunks of unmapped buffers anywhere.
+		 */
+		if (nbits > 1 &&
+		    xfs_buf_item_straddle(bp, offset, first_bit, nbits))
+			goto slow_scan;
+
+		(*nvecs)++;
+		*nbytes += nbits * XFS_BLF_CHUNK;
+
+		/*
+		 * This takes the bit number to start looking from and
+		 * returns the next set bit from there.  It returns -1
+		 * if there are no more bits set or the start bit is
+		 * beyond the end of the bitmap.
+		 */
+		first_bit = xfs_next_bit(blfp->blf_data_map, blfp->blf_map_size,
+					(uint)first_bit + nbits + 1);
+	} while (first_bit != -1);
+
+	return;
+
+slow_scan:
+	/* Count the first bit we jumped out of the above loop from */
+	(*nvecs)++;
+	*nbytes += XFS_BLF_CHUNK;
+	last_bit = first_bit;
+>>>>>>> upstream/android-13
 	while (last_bit != -1) {
 		/*
 		 * This takes the bit number to start looking from and
@@ -85,6 +202,7 @@ xfs_buf_item_size_segment(
 		 */
 		if (next_bit == -1) {
 			break;
+<<<<<<< HEAD
 		} else if (next_bit != last_bit + 1) {
 			last_bit = next_bit;
 			(*nvecs)++;
@@ -95,12 +213,24 @@ xfs_buf_item_size_segment(
 			(*nvecs)++;
 		} else {
 			last_bit++;
+=======
+		} else if (next_bit != last_bit + 1 ||
+		           xfs_buf_item_straddle(bp, offset, first_bit, nbits)) {
+			last_bit = next_bit;
+			first_bit = next_bit;
+			(*nvecs)++;
+			nbits = 1;
+		} else {
+			last_bit++;
+			nbits++;
+>>>>>>> upstream/android-13
 		}
 		*nbytes += XFS_BLF_CHUNK;
 	}
 }
 
 /*
+<<<<<<< HEAD
  * This returns the number of log iovecs needed to log the given buf log item.
  *
  * It calculates this as 1 iovec for the buf log format structure and 1 for each
@@ -108,6 +238,12 @@ xfs_buf_item_size_segment(
  * in a single iovec.
  *
  * Discontiguous buffers need a format structure per region that that is being
+=======
+ * Return the number of log iovecs and space needed to log the given buf log
+ * item.
+ *
+ * Discontiguous buffers need a format structure per region that is being
+>>>>>>> upstream/android-13
  * logged. This makes the changes in the buffer appear to log recovery as though
  * they came from separate buffers, just like would occur if multiple buffers
  * were used instead of a single discontiguous buffer. This enables
@@ -115,7 +251,15 @@ xfs_buf_item_size_segment(
  * what ends up on disk.
  *
  * If the XFS_BLI_STALE flag has been set, then log nothing but the buf log
+<<<<<<< HEAD
  * format structures.
+=======
+ * format structures. If the item has previously been logged and has dirty
+ * regions, we do not relog them in stale buffers. This has the effect of
+ * reducing the size of the relogged item by the amount of dirty data tracked
+ * by the log item. This can result in the committing transaction reducing the
+ * amount of space being consumed by the CIL.
+>>>>>>> upstream/android-13
  */
 STATIC void
 xfs_buf_item_size(
@@ -124,14 +268,27 @@ xfs_buf_item_size(
 	int			*nbytes)
 {
 	struct xfs_buf_log_item	*bip = BUF_ITEM(lip);
+<<<<<<< HEAD
 	int			i;
+=======
+	struct xfs_buf		*bp = bip->bli_buf;
+	int			i;
+	int			bytes;
+	uint			offset = 0;
+>>>>>>> upstream/android-13
 
 	ASSERT(atomic_read(&bip->bli_refcount) > 0);
 	if (bip->bli_flags & XFS_BLI_STALE) {
 		/*
+<<<<<<< HEAD
 		 * The buffer is stale, so all we need to log
 		 * is the buf log format structure with the
 		 * cancel flag in it.
+=======
+		 * The buffer is stale, so all we need to log is the buf log
+		 * format structure with the cancel flag in it as we are never
+		 * going to replay the changes tracked in the log item.
+>>>>>>> upstream/android-13
 		 */
 		trace_xfs_buf_item_size_stale(bip);
 		ASSERT(bip->__bli_format.blf_flags & XFS_BLF_CANCEL);
@@ -146,9 +303,15 @@ xfs_buf_item_size(
 
 	if (bip->bli_flags & XFS_BLI_ORDERED) {
 		/*
+<<<<<<< HEAD
 		 * The buffer has been logged just to order it.
 		 * It is not being included in the transaction
 		 * commit, so no vectors are used at all.
+=======
+		 * The buffer has been logged just to order it. It is not being
+		 * included in the transaction commit, so no vectors are used at
+		 * all.
+>>>>>>> upstream/android-13
 		 */
 		trace_xfs_buf_item_size_ordered(bip);
 		*nvecs = XFS_LOG_VEC_ORDERED;
@@ -156,7 +319,11 @@ xfs_buf_item_size(
 	}
 
 	/*
+<<<<<<< HEAD
 	 * the vector count is based on the number of buffer vectors we have
+=======
+	 * The vector count is based on the number of buffer vectors we have
+>>>>>>> upstream/android-13
 	 * dirty bits in. This will only be greater than one when we have a
 	 * compound buffer with more than one segment dirty. Hence for compound
 	 * buffers we need to track which segment the dirty bits correspond to,
@@ -164,10 +331,26 @@ xfs_buf_item_size(
 	 * count for the extra buf log format structure that will need to be
 	 * written.
 	 */
+<<<<<<< HEAD
 	for (i = 0; i < bip->bli_format_count; i++) {
 		xfs_buf_item_size_segment(bip, &bip->bli_formats[i],
 					  nvecs, nbytes);
 	}
+=======
+	bytes = 0;
+	for (i = 0; i < bip->bli_format_count; i++) {
+		xfs_buf_item_size_segment(bip, &bip->bli_formats[i], offset,
+					  nvecs, &bytes);
+		offset += BBTOB(bp->b_maps[i].bm_len);
+	}
+
+	/*
+	 * Round up the buffer size required to minimise the number of memory
+	 * allocations that need to be done as this item grows when relogged by
+	 * repeated modifications.
+	 */
+	*nbytes = round_up(bytes, 512);
+>>>>>>> upstream/android-13
 	trace_xfs_buf_item_size(bip);
 }
 
@@ -186,6 +369,7 @@ xfs_buf_item_copy_iovec(
 			nbits * XFS_BLF_CHUNK);
 }
 
+<<<<<<< HEAD
 static inline bool
 xfs_buf_item_straddle(
 	struct xfs_buf		*bp,
@@ -198,6 +382,8 @@ xfs_buf_item_straddle(
 		 XFS_BLF_CHUNK);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void
 xfs_buf_item_format_segment(
 	struct xfs_buf_log_item	*bip,
@@ -250,6 +436,41 @@ xfs_buf_item_format_segment(
 	/*
 	 * Fill in an iovec for each set of contiguous chunks.
 	 */
+<<<<<<< HEAD
+=======
+	do {
+		ASSERT(first_bit >= 0);
+		nbits = xfs_contig_bits(blfp->blf_data_map,
+					blfp->blf_map_size, first_bit);
+		ASSERT(nbits > 0);
+
+		/*
+		 * Straddling a page is rare because we don't log contiguous
+		 * chunks of unmapped buffers anywhere.
+		 */
+		if (nbits > 1 &&
+		    xfs_buf_item_straddle(bp, offset, first_bit, nbits))
+			goto slow_scan;
+
+		xfs_buf_item_copy_iovec(lv, vecp, bp, offset,
+					first_bit, nbits);
+		blfp->blf_size++;
+
+		/*
+		 * This takes the bit number to start looking from and
+		 * returns the next set bit from there.  It returns -1
+		 * if there are no more bits set or the start bit is
+		 * beyond the end of the bitmap.
+		 */
+		first_bit = xfs_next_bit(blfp->blf_data_map, blfp->blf_map_size,
+					(uint)first_bit + nbits + 1);
+	} while (first_bit != -1);
+
+	return;
+
+slow_scan:
+	ASSERT(bp->b_addr == NULL);
+>>>>>>> upstream/android-13
 	last_bit = first_bit;
 	nbits = 1;
 	for (;;) {
@@ -274,7 +495,11 @@ xfs_buf_item_format_segment(
 			blfp->blf_size++;
 			break;
 		} else if (next_bit != last_bit + 1 ||
+<<<<<<< HEAD
 		           xfs_buf_item_straddle(bp, offset, next_bit, last_bit)) {
+=======
+		           xfs_buf_item_straddle(bp, offset, first_bit, nbits)) {
+>>>>>>> upstream/android-13
 			xfs_buf_item_copy_iovec(lv, vecp, bp, offset,
 						first_bit, nbits);
 			blfp->blf_size++;
@@ -330,7 +555,11 @@ xfs_buf_item_format(
 	 * occurs during recovery.
 	 */
 	if (bip->bli_flags & XFS_BLI_INODE_BUF) {
+<<<<<<< HEAD
 		if (xfs_sb_version_hascrc(&lip->li_mountp->m_sb) ||
+=======
+		if (xfs_has_v3inodes(lip->li_mountp) ||
+>>>>>>> upstream/android-13
 		    !((bip->bli_flags & XFS_BLI_INODE_ALLOC_BUF) &&
 		      xfs_log_item_in_current_chkpt(lip)))
 			bip->__bli_format.blf_flags |= XFS_BLF_INODE_BUF;
@@ -376,6 +605,7 @@ xfs_buf_item_pin(
 }
 
 /*
+<<<<<<< HEAD
  * This is called to unpin the buffer associated with the buf log
  * item which was previously pinned with a call to xfs_buf_item_pin().
  *
@@ -387,6 +617,10 @@ xfs_buf_item_pin(
  * forced-shutdown path.  If that is true and the reference count on
  * the log item is going to drop to zero we need to free the item's
  * descriptor in the transaction.
+=======
+ * This is called to unpin the buffer associated with the buf log item which
+ * was previously pinned with a call to xfs_buf_item_pin().
+>>>>>>> upstream/android-13
  */
 STATIC void
 xfs_buf_item_unpin(
@@ -394,8 +628,12 @@ xfs_buf_item_unpin(
 	int			remove)
 {
 	struct xfs_buf_log_item	*bip = BUF_ITEM(lip);
+<<<<<<< HEAD
 	xfs_buf_t		*bp = bip->bli_buf;
 	struct xfs_ail		*ailp = lip->li_ailp;
+=======
+	struct xfs_buf		*bp = bip->bli_buf;
+>>>>>>> upstream/android-13
 	int			stale = bip->bli_flags & XFS_BLI_STALE;
 	int			freed;
 
@@ -404,16 +642,40 @@ xfs_buf_item_unpin(
 
 	trace_xfs_buf_item_unpin(bip);
 
+<<<<<<< HEAD
 	freed = atomic_dec_and_test(&bip->bli_refcount);
 
 	if (atomic_dec_and_test(&bp->b_pin_count))
 		wake_up_all(&bp->b_waiters);
 
 	if (freed && stale) {
+=======
+	/*
+	 * Drop the bli ref associated with the pin and grab the hold required
+	 * for the I/O simulation failure in the abort case. We have to do this
+	 * before the pin count drops because the AIL doesn't acquire a bli
+	 * reference. Therefore if the refcount drops to zero, the bli could
+	 * still be AIL resident and the buffer submitted for I/O (and freed on
+	 * completion) at any point before we return. This can be removed once
+	 * the AIL properly holds a reference on the bli.
+	 */
+	freed = atomic_dec_and_test(&bip->bli_refcount);
+	if (freed && !stale && remove)
+		xfs_buf_hold(bp);
+	if (atomic_dec_and_test(&bp->b_pin_count))
+		wake_up_all(&bp->b_waiters);
+
+	 /* nothing to do but drop the pin count if the bli is active */
+	if (!freed)
+		return;
+
+	if (stale) {
+>>>>>>> upstream/android-13
 		ASSERT(bip->bli_flags & XFS_BLI_STALE);
 		ASSERT(xfs_buf_islocked(bp));
 		ASSERT(bp->b_flags & XBF_STALE);
 		ASSERT(bip->__bli_format.blf_flags & XFS_BLF_CANCEL);
+<<<<<<< HEAD
 
 		trace_xfs_buf_item_unpin_stale(bip);
 
@@ -450,10 +712,30 @@ xfs_buf_item_unpin(
 		} else {
 			spin_lock(&ailp->ail_lock);
 			xfs_trans_ail_delete(ailp, lip, SHUTDOWN_LOG_IO_ERROR);
+=======
+		ASSERT(list_empty(&lip->li_trans));
+		ASSERT(!bp->b_transp);
+
+		trace_xfs_buf_item_unpin_stale(bip);
+
+		/*
+		 * If we get called here because of an IO error, we may or may
+		 * not have the item on the AIL. xfs_trans_ail_delete() will
+		 * take care of that situation. xfs_trans_ail_delete() drops
+		 * the AIL lock.
+		 */
+		if (bip->bli_flags & XFS_BLI_STALE_INODE) {
+			xfs_buf_item_done(bp);
+			xfs_buf_inode_iodone(bp);
+			ASSERT(list_empty(&bp->b_li_list));
+		} else {
+			xfs_trans_ail_delete(lip, SHUTDOWN_LOG_IO_ERROR);
+>>>>>>> upstream/android-13
 			xfs_buf_item_relse(bp);
 			ASSERT(bp->b_log_item == NULL);
 		}
 		xfs_buf_relse(bp);
+<<<<<<< HEAD
 	} else if (freed && remove) {
 		/*
 		 * There are currently two references to the buffer - the active
@@ -489,6 +771,20 @@ xfs_buf_item_unpin(
 
 static DEFINE_RATELIMIT_STATE(xfs_buf_write_fail_rl_state, 30 * HZ, 10);
 
+=======
+	} else if (remove) {
+		/*
+		 * The buffer must be locked and held by the caller to simulate
+		 * an async I/O failure. We acquired the hold for this case
+		 * before the buffer was unpinned.
+		 */
+		xfs_buf_lock(bp);
+		bp->b_flags |= XBF_ASYNC;
+		xfs_buf_ioend_fail(bp);
+	}
+}
+
+>>>>>>> upstream/android-13
 STATIC uint
 xfs_buf_item_push(
 	struct xfs_log_item	*lip,
@@ -518,11 +814,18 @@ xfs_buf_item_push(
 	trace_xfs_buf_item_push(bip);
 
 	/* has a previous flush failed due to IO errors? */
+<<<<<<< HEAD
 	if ((bp->b_flags & XBF_WRITE_FAIL) &&
 	    ___ratelimit(&xfs_buf_write_fail_rl_state, "XFS: Failing async write")) {
 		xfs_warn(bp->b_target->bt_mount,
 "Failing async write on buffer block 0x%llx. Retrying async write.",
 			 (long long)bp->b_bn);
+=======
+	if (bp->b_flags & XBF_WRITE_FAIL) {
+		xfs_buf_alert_ratelimited(bp, "XFS: Failing async write",
+	    "Failing async write on buffer block 0x%llx. Retrying async write.",
+					  (long long)xfs_buf_daddr(bp));
+>>>>>>> upstream/android-13
 	}
 
 	if (!xfs_buf_delwri_queue(bp, buffer_list))
@@ -557,7 +860,11 @@ xfs_buf_item_put(
 	 * that case, the bli is freed on buffer writeback completion.
 	 */
 	aborted = test_bit(XFS_LI_ABORTED, &lip->li_flags) ||
+<<<<<<< HEAD
 		  XFS_FORCED_SHUTDOWN(lip->li_mountp);
+=======
+		  xfs_is_shutdown(lip->li_mountp);
+>>>>>>> upstream/android-13
 	dirty = bip->bli_flags & XFS_BLI_DIRTY;
 	if (dirty && !aborted)
 		return false;
@@ -569,7 +876,11 @@ xfs_buf_item_put(
 	 * state.
 	 */
 	if (aborted)
+<<<<<<< HEAD
 		xfs_trans_ail_remove(lip, SHUTDOWN_LOG_IO_ERROR);
+=======
+		xfs_trans_ail_delete(lip, 0);
+>>>>>>> upstream/android-13
 	xfs_buf_item_relse(bip->bli_buf);
 	return true;
 }
@@ -594,7 +905,11 @@ xfs_buf_item_put(
  * free the item.
  */
 STATIC void
+<<<<<<< HEAD
 xfs_buf_item_unlock(
+=======
+xfs_buf_item_release(
+>>>>>>> upstream/android-13
 	struct xfs_log_item	*lip)
 {
 	struct xfs_buf_log_item	*bip = BUF_ITEM(lip);
@@ -605,9 +920,17 @@ xfs_buf_item_unlock(
 #if defined(DEBUG) || defined(XFS_WARN)
 	bool			ordered = bip->bli_flags & XFS_BLI_ORDERED;
 	bool			dirty = bip->bli_flags & XFS_BLI_DIRTY;
+<<<<<<< HEAD
 #endif
 
 	trace_xfs_buf_item_unlock(bip);
+=======
+	bool			aborted = test_bit(XFS_LI_ABORTED,
+						   &lip->li_flags);
+#endif
+
+	trace_xfs_buf_item_release(bip);
+>>>>>>> upstream/android-13
 
 	/*
 	 * The bli dirty state should match whether the blf has logged segments
@@ -633,10 +956,25 @@ xfs_buf_item_unlock(
 	released = xfs_buf_item_put(bip);
 	if (hold || (stale && !released))
 		return;
+<<<<<<< HEAD
 	ASSERT(!stale || test_bit(XFS_LI_ABORTED, &lip->li_flags));
 	xfs_buf_relse(bp);
 }
 
+=======
+	ASSERT(!stale || aborted);
+	xfs_buf_relse(bp);
+}
+
+STATIC void
+xfs_buf_item_committing(
+	struct xfs_log_item	*lip,
+	xfs_csn_t		seq)
+{
+	return xfs_buf_item_release(lip);
+}
+
+>>>>>>> upstream/android-13
 /*
  * This is called to find out where the oldest active copy of the
  * buf log item in the on disk log resides now that the last log
@@ -669,6 +1007,7 @@ xfs_buf_item_committed(
 	return lsn;
 }
 
+<<<<<<< HEAD
 STATIC void
 xfs_buf_item_committing(
 	struct xfs_log_item	*lip,
@@ -679,11 +1018,14 @@ xfs_buf_item_committing(
 /*
  * This is the ops vector shared by all buf log items.
  */
+=======
+>>>>>>> upstream/android-13
 static const struct xfs_item_ops xfs_buf_item_ops = {
 	.iop_size	= xfs_buf_item_size,
 	.iop_format	= xfs_buf_item_format,
 	.iop_pin	= xfs_buf_item_pin,
 	.iop_unpin	= xfs_buf_item_unpin,
+<<<<<<< HEAD
 	.iop_unlock	= xfs_buf_item_unlock,
 	.iop_committed	= xfs_buf_item_committed,
 	.iop_push	= xfs_buf_item_push,
@@ -691,6 +1033,15 @@ static const struct xfs_item_ops xfs_buf_item_ops = {
 };
 
 STATIC int
+=======
+	.iop_release	= xfs_buf_item_release,
+	.iop_committing	= xfs_buf_item_committing,
+	.iop_committed	= xfs_buf_item_committed,
+	.iop_push	= xfs_buf_item_push,
+};
+
+STATIC void
+>>>>>>> upstream/android-13
 xfs_buf_item_get_format(
 	struct xfs_buf_log_item	*bip,
 	int			count)
@@ -700,6 +1051,7 @@ xfs_buf_item_get_format(
 
 	if (count == 1) {
 		bip->bli_formats = &bip->__bli_format;
+<<<<<<< HEAD
 		return 0;
 	}
 
@@ -708,6 +1060,13 @@ xfs_buf_item_get_format(
 	if (!bip->bli_formats)
 		return -ENOMEM;
 	return 0;
+=======
+		return;
+	}
+
+	bip->bli_formats = kmem_zalloc(count * sizeof(struct xfs_buf_log_format),
+				0);
+>>>>>>> upstream/android-13
 }
 
 STATIC void
@@ -733,7 +1092,10 @@ xfs_buf_item_init(
 	struct xfs_buf_log_item	*bip = bp->b_log_item;
 	int			chunks;
 	int			map_size;
+<<<<<<< HEAD
 	int			error;
+=======
+>>>>>>> upstream/android-13
 	int			i;
 
 	/*
@@ -741,7 +1103,11 @@ xfs_buf_item_init(
 	 * this buffer. If we do already have one, there is
 	 * nothing to do here so return.
 	 */
+<<<<<<< HEAD
 	ASSERT(bp->b_target->bt_mount == mp);
+=======
+	ASSERT(bp->b_mount == mp);
+>>>>>>> upstream/android-13
 	if (bip) {
 		ASSERT(bip->bli_item.li_type == XFS_LI_BUF);
 		ASSERT(!bp->b_transp);
@@ -749,7 +1115,11 @@ xfs_buf_item_init(
 		return 0;
 	}
 
+<<<<<<< HEAD
 	bip = kmem_zone_zalloc(xfs_buf_item_zone, KM_SLEEP);
+=======
+	bip = kmem_cache_zalloc(xfs_buf_item_zone, GFP_KERNEL | __GFP_NOFAIL);
+>>>>>>> upstream/android-13
 	xfs_log_item_init(mp, &bip->bli_item, XFS_LI_BUF, &xfs_buf_item_ops);
 	bip->bli_buf = bp;
 
@@ -762,6 +1132,7 @@ xfs_buf_item_init(
 	 * Discontiguous buffer support follows the layout of the underlying
 	 * buffer. This makes the implementation as simple as possible.
 	 */
+<<<<<<< HEAD
 	error = xfs_buf_item_get_format(bip, bp->b_map_count);
 	ASSERT(error == 0);
 	if (error) {	/* to stop gcc throwing set-but-unused warnings */
@@ -769,12 +1140,27 @@ xfs_buf_item_init(
 		return error;
 	}
 
+=======
+	xfs_buf_item_get_format(bip, bp->b_map_count);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < bip->bli_format_count; i++) {
 		chunks = DIV_ROUND_UP(BBTOB(bp->b_maps[i].bm_len),
 				      XFS_BLF_CHUNK);
 		map_size = DIV_ROUND_UP(chunks, NBWORD);
 
+<<<<<<< HEAD
+=======
+		if (map_size > XFS_BLF_DATAMAP_SIZE) {
+			kmem_cache_free(xfs_buf_item_zone, bip);
+			xfs_err(mp,
+	"buffer item dirty bitmap (%u uints) too small to reflect %u bytes!",
+					map_size,
+					BBTOB(bp->b_maps[i].bm_len));
+			return -EFSCORRUPTED;
+		}
+
+>>>>>>> upstream/android-13
 		bip->bli_formats[i].blf_type = XFS_LI_BUF;
 		bip->bli_formats[i].blf_blkno = bp->b_maps[i].bm_bn;
 		bip->bli_formats[i].blf_len = bp->b_maps[i].bm_len;
@@ -807,6 +1193,12 @@ xfs_buf_item_log_segment(
 	uint		end_bit;
 	uint		mask;
 
+<<<<<<< HEAD
+=======
+	ASSERT(first < XFS_BLF_DATAMAP_SIZE * XFS_BLF_CHUNK * NBWORD);
+	ASSERT(last < XFS_BLF_DATAMAP_SIZE * XFS_BLF_CHUNK * NBWORD);
+
+>>>>>>> upstream/android-13
 	/*
 	 * Convert byte offsets to bit numbers.
 	 */
@@ -853,7 +1245,11 @@ xfs_buf_item_log_segment(
 	 * first_bit and last_bit.
 	 */
 	while ((bits_to_set - bits_set) >= NBWORD) {
+<<<<<<< HEAD
 		*wordp |= 0xffffffff;
+=======
+		*wordp = 0xffffffff;
+>>>>>>> upstream/android-13
 		bits_set += NBWORD;
 		wordp++;
 	}
@@ -941,6 +1337,7 @@ xfs_buf_item_free(
 {
 	xfs_buf_item_free_format(bip);
 	kmem_free(bip->bli_item.li_lv_shadow);
+<<<<<<< HEAD
 	kmem_zone_free(xfs_buf_item_zone, bip);
 }
 
@@ -954,20 +1351,38 @@ xfs_buf_item_free(
 void
 xfs_buf_item_relse(
 	xfs_buf_t	*bp)
+=======
+	kmem_cache_free(xfs_buf_item_zone, bip);
+}
+
+/*
+ * xfs_buf_item_relse() is called when the buf log item is no longer needed.
+ */
+void
+xfs_buf_item_relse(
+	struct xfs_buf	*bp)
+>>>>>>> upstream/android-13
 {
 	struct xfs_buf_log_item	*bip = bp->b_log_item;
 
 	trace_xfs_buf_item_relse(bp, _RET_IP_);
+<<<<<<< HEAD
 	ASSERT(!(bip->bli_item.li_flags & XFS_LI_IN_AIL));
 
 	bp->b_log_item = NULL;
 	if (list_empty(&bp->b_li_list))
 		bp->b_iodone = NULL;
 
+=======
+	ASSERT(!test_bit(XFS_LI_IN_AIL, &bip->bli_item.li_flags));
+
+	bp->b_log_item = NULL;
+>>>>>>> upstream/android-13
 	xfs_buf_rele(bp);
 	xfs_buf_item_free(bip);
 }
 
+<<<<<<< HEAD
 
 /*
  * Add the given log item with its callback to the list of callbacks
@@ -1269,4 +1684,26 @@ xfs_buf_resubmit_failed_buffers(
 		xfs_clear_li_failed(lip);
 
 	return ret;
+=======
+void
+xfs_buf_item_done(
+	struct xfs_buf		*bp)
+{
+	/*
+	 * If we are forcibly shutting down, this may well be off the AIL
+	 * already. That's because we simulate the log-committed callbacks to
+	 * unpin these buffers. Or we may never have put this item on AIL
+	 * because of the transaction was aborted forcibly.
+	 * xfs_trans_ail_delete() takes care of these.
+	 *
+	 * Either way, AIL is useless if we're forcing a shutdown.
+	 *
+	 * Note that log recovery writes might have buffer items that are not on
+	 * the AIL even when the file system is not shut down.
+	 */
+	xfs_trans_ail_delete(&bp->b_log_item->bli_item,
+			     (bp->b_flags & _XBF_LOGRECOVERY) ? 0 :
+			     SHUTDOWN_CORRUPT_INCORE);
+	xfs_buf_item_relse(bp);
+>>>>>>> upstream/android-13
 }

@@ -32,9 +32,13 @@
 #include <linux/nvram.h>
 #include <linux/of_device.h>
 #include <linux/of_platform.h>
+<<<<<<< HEAD
 #include <asm/io.h>
 #include <asm/prom.h>
 #include <asm/pgtable.h>
+=======
+#include <asm/prom.h>
+>>>>>>> upstream/android-13
 
 #include "macmodes.h"
 #include "platinumfb.h"
@@ -98,7 +102,11 @@ static int platinum_var_to_par(struct fb_var_screeninfo *var,
  * Interface used by the world
  */
 
+<<<<<<< HEAD
 static struct fb_ops platinumfb_ops = {
+=======
+static const struct fb_ops platinumfb_ops = {
+>>>>>>> upstream/android-13
 	.owner =	THIS_MODULE,
 	.fb_check_var	= platinumfb_check_var,
 	.fb_set_par	= platinumfb_set_par,
@@ -347,6 +355,7 @@ static int platinum_init_fb(struct fb_info *info)
 
 	sense = read_platinum_sense(pinfo);
 	printk(KERN_INFO "platinumfb: Monitor sense value = 0x%x, ", sense);
+<<<<<<< HEAD
 	if (default_vmode == VMODE_NVRAM) {
 #ifdef CONFIG_NVRAM
 		default_vmode = nvram_read_byte(NV_VMODE);
@@ -364,6 +373,20 @@ static int platinum_init_fb(struct fb_info *info)
 	if (default_cmode == CMODE_NVRAM)
 		default_cmode = nvram_read_byte(NV_CMODE);
 #endif
+=======
+
+	if (IS_REACHABLE(CONFIG_NVRAM) && default_vmode == VMODE_NVRAM)
+		default_vmode = nvram_read_byte(NV_VMODE);
+	if (default_vmode <= 0 || default_vmode > VMODE_MAX ||
+	    !platinum_reg_init[default_vmode - 1]) {
+		default_vmode = mac_map_monitor_sense(sense);
+		if (!platinum_reg_init[default_vmode - 1])
+			default_vmode = VMODE_640_480_60;
+	}
+
+	if (IS_REACHABLE(CONFIG_NVRAM) && default_cmode == CMODE_NVRAM)
+		default_cmode = nvram_read_byte(NV_CMODE);
+>>>>>>> upstream/android-13
 	if (default_cmode < CMODE_8 || default_cmode > CMODE_32)
 		default_cmode = CMODE_8;
 	/*
@@ -545,10 +568,16 @@ static int platinumfb_probe(struct platform_device* odev)
 	dev_info(&odev->dev, "Found Apple Platinum video hardware\n");
 
 	info = framebuffer_alloc(sizeof(*pinfo), &odev->dev);
+<<<<<<< HEAD
 	if (info == NULL) {
 		dev_err(&odev->dev, "Failed to allocate fbdev !\n");
 		return -ENOMEM;
 	}
+=======
+	if (!info)
+		return -ENOMEM;
+
+>>>>>>> upstream/android-13
 	pinfo = info->par;
 
 	if (of_address_to_resource(dp, 0, &pinfo->rsrc_reg) ||
@@ -577,8 +606,12 @@ static int platinumfb_probe(struct platform_device* odev)
 
 	/* frame buffer - map only 4MB */
 	pinfo->frame_buffer_phys = pinfo->rsrc_fb.start;
+<<<<<<< HEAD
 	pinfo->frame_buffer = __ioremap(pinfo->rsrc_fb.start, 0x400000,
 					_PAGE_WRITETHRU);
+=======
+	pinfo->frame_buffer = ioremap_wt(pinfo->rsrc_fb.start, 0x400000);
+>>>>>>> upstream/android-13
 	pinfo->base_frame_buffer = pinfo->frame_buffer;
 
 	/* registers */

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * DMTIMER platform data for TI OMAP platforms
  *
  * Copyright (C) 2012 Texas Instruments
  * Author: Jon Hunter <jon-hunter@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
@@ -15,6 +20,8 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __PLATFORM_DATA_DMTIMER_OMAP_H__
@@ -41,12 +48,21 @@ struct omap_dm_timer_ops {
 	int	(*stop)(struct omap_dm_timer *timer);
 	int	(*set_source)(struct omap_dm_timer *timer, int source);
 
+<<<<<<< HEAD
 	int	(*set_load)(struct omap_dm_timer *timer, int autoreload,
 			    unsigned int value);
 	int	(*set_match)(struct omap_dm_timer *timer, int enable,
 			     unsigned int match);
 	int	(*set_pwm)(struct omap_dm_timer *timer, int def_on,
 			   int toggle, int trigger);
+=======
+	int	(*set_load)(struct omap_dm_timer *timer, unsigned int value);
+	int	(*set_match)(struct omap_dm_timer *timer, int enable,
+			     unsigned int match);
+	int	(*set_pwm)(struct omap_dm_timer *timer, int def_on,
+			   int toggle, int trigger, int autoreload);
+	int	(*get_pwm_status)(struct omap_dm_timer *timer);
+>>>>>>> upstream/android-13
 	int	(*set_prescaler)(struct omap_dm_timer *timer, int prescaler);
 
 	unsigned int (*read_counter)(struct omap_dm_timer *timer);

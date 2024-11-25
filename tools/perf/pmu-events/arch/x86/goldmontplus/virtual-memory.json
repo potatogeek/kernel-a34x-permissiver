@@ -189,7 +189,12 @@
         "PEBScounters": "0,1,2,3",
         "EventName": "MEM_UOPS_RETIRED.DTLB_MISS_LOADS",
         "SampleAfterValue": "200003",
+<<<<<<< HEAD
         "BriefDescription": "Load uops retired that missed the DTLB (Precise event capable)"
+=======
+        "BriefDescription": "Load uops retired that missed the DTLB (Precise event capable)",
+        "Data_LA": "1"
+>>>>>>> upstream/android-13
     },
     {
         "PEBS": "2",
@@ -201,7 +206,12 @@
         "PEBScounters": "0,1,2,3",
         "EventName": "MEM_UOPS_RETIRED.DTLB_MISS_STORES",
         "SampleAfterValue": "200003",
+<<<<<<< HEAD
         "BriefDescription": "Store uops retired that missed the DTLB (Precise event capable)"
+=======
+        "BriefDescription": "Store uops retired that missed the DTLB (Precise event capable)",
+        "Data_LA": "1"
+>>>>>>> upstream/android-13
     },
     {
         "PEBS": "2",
@@ -213,6 +223,11 @@
         "PEBScounters": "0,1,2,3",
         "EventName": "MEM_UOPS_RETIRED.DTLB_MISS",
         "SampleAfterValue": "200003",
+<<<<<<< HEAD
         "BriefDescription": "Memory uops retired that missed the DTLB (Precise event capable)"
+=======
+        "BriefDescription": "Memory uops retired that missed the DTLB (Precise event capable)",
+        "Data_LA": "1"
+>>>>>>> upstream/android-13
     }
 ]

@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * (C) Copyright 2009 Intel Corporation
  * Author: Jacob Pan (jacob.jun.pan@intel.com)
  *
  * Shared with ARM platforms, Jamie Iles, Picochip 2011
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Support for the Synopsys DesignWare APB Timers.
  */
 #ifndef __DW_APB_TIMER_H__
@@ -28,7 +35,10 @@ struct dw_apb_timer {
 struct dw_apb_clock_event_device {
 	struct clock_event_device		ced;
 	struct dw_apb_timer			timer;
+<<<<<<< HEAD
 	struct irqaction			irqaction;
+=======
+>>>>>>> upstream/android-13
 	void					(*eoi)(struct dw_apb_timer *);
 };
 

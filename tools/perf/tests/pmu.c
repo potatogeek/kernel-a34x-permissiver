@@ -1,10 +1,18 @@
 // SPDX-License-Identifier: GPL-2.0
 #include "parse-events.h"
 #include "pmu.h"
+<<<<<<< HEAD
 #include "util.h"
 #include "tests.h"
 #include <errno.h>
 #include <linux/kernel.h>
+=======
+#include "tests.h"
+#include <errno.h>
+#include <stdio.h>
+#include <linux/kernel.h>
+#include <linux/limits.h>
+>>>>>>> upstream/android-13
 
 /* Simulated format definitions. */
 static struct test_format {
@@ -155,8 +163,13 @@ int test__pmu(struct test *test __maybe_unused, int subtest __maybe_unused)
 		if (ret)
 			break;
 
+<<<<<<< HEAD
 		ret = perf_pmu__config_terms(&formats, &attr, terms,
 					     false, NULL);
+=======
+		ret = perf_pmu__config_terms("perf-pmu-test", &formats, &attr,
+					     terms, false, NULL);
+>>>>>>> upstream/android-13
 		if (ret)
 			break;
 

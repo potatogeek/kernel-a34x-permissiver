@@ -27,7 +27,10 @@
 #include <linux/file.h>
 #include <linux/mm.h>
 #include <linux/mman.h>
+<<<<<<< HEAD
 #include <linux/mmu_context.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/percpu.h>
 #include <linux/slab.h>
 #include <linux/timer.h>
@@ -42,8 +45,13 @@
 #include <linux/ramfs.h>
 #include <linux/percpu-refcount.h>
 #include <linux/mount.h>
+<<<<<<< HEAD
 
 #include <asm/kmap_types.h>
+=======
+#include <linux/pseudo_fs.h>
+
+>>>>>>> upstream/android-13
 #include <linux/uaccess.h>
 #include <linux/nospec.h>
 
@@ -67,9 +75,21 @@ struct aio_ring {
 	unsigned	header_length;	/* size of aio_ring */
 
 
+<<<<<<< HEAD
 	struct io_event		io_events[0];
 }; /* 128 bytes + ring size */
 
+=======
+	struct io_event		io_events[];
+}; /* 128 bytes + ring size */
+
+/*
+ * Plugging is meant to work with larger batches of IOs. If we don't
+ * have more than the below, then don't bother setting up a plug.
+ */
+#define AIO_PLUG_THRESHOLD	2
+
+>>>>>>> upstream/android-13
 #define AIO_RING_PAGES	8
 
 struct kioctx_table {
@@ -245,6 +265,7 @@ static struct file *aio_private_file(struct kioctx *ctx, loff_t nr_pages)
 	return file;
 }
 
+<<<<<<< HEAD
 static struct dentry *aio_mount(struct file_system_type *fs_type,
 				int flags, const char *dev_name, void *data)
 {
@@ -254,6 +275,14 @@ static struct dentry *aio_mount(struct file_system_type *fs_type,
 	if (!IS_ERR(root))
 		root->d_sb->s_iflags |= SB_I_NOEXEC;
 	return root;
+=======
+static int aio_init_fs_context(struct fs_context *fc)
+{
+	if (!init_pseudo(fc, AIO_RING_MAGIC))
+		return -ENOMEM;
+	fc->s_iflags |= SB_I_NOEXEC;
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /* aio_setup
@@ -264,7 +293,11 @@ static int __init aio_setup(void)
 {
 	static struct file_system_type aio_fs = {
 		.name		= "aio",
+<<<<<<< HEAD
 		.mount		= aio_mount,
+=======
+		.init_fs_context = aio_init_fs_context,
+>>>>>>> upstream/android-13
 		.kill_sb	= kill_anon_super,
 	};
 	aio_mnt = kern_mount(&aio_fs);
@@ -421,7 +454,11 @@ static int aio_migratepage(struct address_space *mapping, struct page *new,
 	BUG_ON(PageWriteback(old));
 	get_page(new);
 
+<<<<<<< HEAD
 	rc = migrate_page_move_mapping(mapping, new, old, NULL, mode, 1);
+=======
+	rc = migrate_page_move_mapping(mapping, new, old, 1);
+>>>>>>> upstream/android-13
 	if (rc != MIGRATEPAGE_SUCCESS) {
 		put_page(new);
 		goto out_unlock;
@@ -517,16 +554,27 @@ static int aio_setup_ring(struct kioctx *ctx, unsigned int nr_events)
 	ctx->mmap_size = nr_pages * PAGE_SIZE;
 	pr_debug("attempting mmap of %lu bytes\n", ctx->mmap_size);
 
+<<<<<<< HEAD
 	if (down_write_killable(&mm->mmap_sem)) {
+=======
+	if (mmap_write_lock_killable(mm)) {
+>>>>>>> upstream/android-13
 		ctx->mmap_size = 0;
 		aio_free_ring(ctx);
 		return -EINTR;
 	}
 
+<<<<<<< HEAD
 	ctx->mmap_base = do_mmap_pgoff(ctx->aio_ring_file, 0, ctx->mmap_size,
 				       PROT_READ | PROT_WRITE,
 				       MAP_SHARED, 0, &unused, NULL);
 	up_write(&mm->mmap_sem);
+=======
+	ctx->mmap_base = do_mmap(ctx->aio_ring_file, 0, ctx->mmap_size,
+				 PROT_READ | PROT_WRITE,
+				 MAP_SHARED, 0, &unused, NULL);
+	mmap_write_unlock(mm);
+>>>>>>> upstream/android-13
 	if (IS_ERR((void *)ctx->mmap_base)) {
 		ctx->mmap_size = 0;
 		aio_free_ring(ctx);
@@ -1029,6 +1077,14 @@ static inline struct aio_kiocb *aio_get_req(struct kioctx *ctx)
 	if (unlikely(!req))
 		return NULL;
 
+<<<<<<< HEAD
+=======
+	if (unlikely(!get_reqs_available(ctx))) {
+		kmem_cache_free(kiocb_cachep, req);
+		return NULL;
+	}
+
+>>>>>>> upstream/android-13
 	percpu_ref_get(&ctx->reqs);
 	req->ki_ctx = ctx;
 	INIT_LIST_HEAD(&req->ki_list);
@@ -1067,6 +1123,11 @@ out:
 
 static inline void iocb_destroy(struct aio_kiocb *iocb)
 {
+<<<<<<< HEAD
+=======
+	if (iocb->ki_eventfd)
+		eventfd_ctx_put(iocb->ki_eventfd);
+>>>>>>> upstream/android-13
 	if (iocb->ki_filp)
 		fput(iocb->ki_filp);
 	percpu_ref_put(&iocb->ki_ctx->reqs);
@@ -1134,10 +1195,15 @@ static void aio_complete(struct aio_kiocb *iocb)
 	 * eventfd. The eventfd_signal() function is safe to be called
 	 * from IRQ context.
 	 */
+<<<<<<< HEAD
 	if (iocb->ki_eventfd) {
 		eventfd_signal(iocb->ki_eventfd, 1);
 		eventfd_ctx_put(iocb->ki_eventfd);
 	}
+=======
+	if (iocb->ki_eventfd)
+		eventfd_signal(iocb->ki_eventfd, 1);
+>>>>>>> upstream/android-13
 
 	/*
 	 * We have to order our ring_info tail store above and test
@@ -1460,7 +1526,11 @@ static int aio_prep_rw(struct kiocb *req, const struct iocb *iocb)
 
 		req->ki_ioprio = iocb->aio_reqprio;
 	} else
+<<<<<<< HEAD
 		req->ki_ioprio = IOPRIO_PRIO_VALUE(IOPRIO_CLASS_NONE, 0);
+=======
+		req->ki_ioprio = get_current_ioprio();
+>>>>>>> upstream/android-13
 
 	ret = kiocb_set_rw_flags(req, iocb->aio_rw_flags);
 	if (unlikely(ret))
@@ -1470,8 +1540,14 @@ static int aio_prep_rw(struct kiocb *req, const struct iocb *iocb)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int aio_setup_rw(int rw, const struct iocb *iocb, struct iovec **iovec,
 		bool vectored, bool compat, struct iov_iter *iter)
+=======
+static ssize_t aio_setup_rw(int rw, const struct iocb *iocb,
+		struct iovec **iovec, bool vectored, bool compat,
+		struct iov_iter *iter)
+>>>>>>> upstream/android-13
 {
 	void __user *buf = (void __user *)(uintptr_t)iocb->aio_buf;
 	size_t len = iocb->aio_nbytes;
@@ -1481,12 +1557,17 @@ static int aio_setup_rw(int rw, const struct iocb *iocb, struct iovec **iovec,
 		*iovec = NULL;
 		return ret;
 	}
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 	if (compat)
 		return compat_import_iovec(rw, buf, len, UIO_FASTIOV, iovec,
 				iter);
 #endif
 	return import_iovec(rw, buf, len, UIO_FASTIOV, iovec, iter);
+=======
+
+	return __import_iovec(rw, buf, len, UIO_FASTIOV, iovec, iter, compat);
+>>>>>>> upstream/android-13
 }
 
 static inline void aio_rw_done(struct kiocb *req, ssize_t ret)
@@ -1503,19 +1584,31 @@ static inline void aio_rw_done(struct kiocb *req, ssize_t ret)
 		 * may be already running. Just fail this IO with EINTR.
 		 */
 		ret = -EINTR;
+<<<<<<< HEAD
 		/*FALLTHRU*/
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		req->ki_complete(req, ret, 0);
 	}
 }
 
+<<<<<<< HEAD
 static ssize_t aio_read(struct kiocb *req, const struct iocb *iocb,
+=======
+static int aio_read(struct kiocb *req, const struct iocb *iocb,
+>>>>>>> upstream/android-13
 			bool vectored, bool compat)
 {
 	struct iovec inline_vecs[UIO_FASTIOV], *iovec = inline_vecs;
 	struct iov_iter iter;
 	struct file *file;
+<<<<<<< HEAD
 	ssize_t ret;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	ret = aio_prep_rw(req, iocb);
 	if (ret)
@@ -1528,7 +1621,11 @@ static ssize_t aio_read(struct kiocb *req, const struct iocb *iocb,
 		return -EINVAL;
 
 	ret = aio_setup_rw(READ, iocb, &iovec, vectored, compat, &iter);
+<<<<<<< HEAD
 	if (ret)
+=======
+	if (ret < 0)
+>>>>>>> upstream/android-13
 		return ret;
 	ret = rw_verify_area(READ, file, &req->ki_pos, iov_iter_count(&iter));
 	if (!ret)
@@ -1537,13 +1634,21 @@ static ssize_t aio_read(struct kiocb *req, const struct iocb *iocb,
 	return ret;
 }
 
+<<<<<<< HEAD
 static ssize_t aio_write(struct kiocb *req, const struct iocb *iocb,
+=======
+static int aio_write(struct kiocb *req, const struct iocb *iocb,
+>>>>>>> upstream/android-13
 			 bool vectored, bool compat)
 {
 	struct iovec inline_vecs[UIO_FASTIOV], *iovec = inline_vecs;
 	struct iov_iter iter;
 	struct file *file;
+<<<<<<< HEAD
 	ssize_t ret;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	ret = aio_prep_rw(req, iocb);
 	if (ret)
@@ -1556,7 +1661,11 @@ static ssize_t aio_write(struct kiocb *req, const struct iocb *iocb,
 		return -EINVAL;
 
 	ret = aio_setup_rw(WRITE, iocb, &iovec, vectored, compat, &iter);
+<<<<<<< HEAD
 	if (ret)
+=======
+	if (ret < 0)
+>>>>>>> upstream/android-13
 		return ret;
 	ret = rw_verify_area(WRITE, file, &req->ki_pos, iov_iter_count(&iter));
 	if (!ret) {
@@ -1568,7 +1677,11 @@ static ssize_t aio_write(struct kiocb *req, const struct iocb *iocb,
 		 * we return to userspace.
 		 */
 		if (S_ISREG(file_inode(file)->i_mode)) {
+<<<<<<< HEAD
 			__sb_start_write(file_inode(file)->i_sb, SB_FREEZE_WRITE, true);
+=======
+			sb_start_write(file_inode(file)->i_sb);
+>>>>>>> upstream/android-13
 			__sb_writers_release(file_inode(file)->i_sb, SB_FREEZE_WRITE);
 		}
 		req->ki_flags |= IOCB_WRITE;
@@ -1645,7 +1758,11 @@ static bool poll_iocb_lock_wq(struct poll_iocb *req)
 	 * In that case, only RCU prevents the queue memory from being freed.
 	 */
 	rcu_read_lock();
+<<<<<<< HEAD
 	head = smp_load_acquire(&req->head); /* BS check patch */
+=======
+	head = smp_load_acquire(&req->head);
+>>>>>>> upstream/android-13
 	if (head) {
 		spin_lock(&head->lock);
 		if (!list_empty(&req->wait.entry))
@@ -1757,7 +1874,11 @@ static int aio_poll_wake(struct wait_queue_entry *wait, unsigned mode, int sync,
 		list_del_init(&req->wait.entry);
 		list_del(&iocb->ki_list);
 		iocb->ki_res.res = mangle_poll(mask);
+<<<<<<< HEAD
 		if (iocb->ki_eventfd && eventfd_signal_count()) {
+=======
+		if (iocb->ki_eventfd && !eventfd_signal_allowed()) {
+>>>>>>> upstream/android-13
 			iocb = NULL;
 			INIT_WORK(&req->work, aio_poll_put_work);
 			schedule_work(&req->work);
@@ -1832,7 +1953,11 @@ aio_poll_queue_proc(struct file *file, struct wait_queue_head *head,
 	add_wait_queue(head, &pt->iocb->poll.wait);
 }
 
+<<<<<<< HEAD
 static ssize_t aio_poll(struct aio_kiocb *aiocb, const struct iocb *iocb)
+=======
+static int aio_poll(struct aio_kiocb *aiocb, const struct iocb *iocb)
+>>>>>>> upstream/android-13
 {
 	struct kioctx *ctx = aiocb->ki_ctx;
 	struct poll_iocb *req = &aiocb->poll;
@@ -1908,6 +2033,7 @@ static ssize_t aio_poll(struct aio_kiocb *aiocb, const struct iocb *iocb)
 }
 
 static int __io_submit_one(struct kioctx *ctx, const struct iocb *iocb,
+<<<<<<< HEAD
 			   struct iocb __user *user_iocb, bool compat)
 {
 	struct aio_kiocb *req;
@@ -1943,12 +2069,24 @@ static int __io_submit_one(struct kioctx *ctx, const struct iocb *iocb,
 		goto out_put_req;
 
 	if (iocb->aio_flags & IOCB_FLAG_RESFD) {
+=======
+			   struct iocb __user *user_iocb, struct aio_kiocb *req,
+			   bool compat)
+{
+	req->ki_filp = fget(iocb->aio_fildes);
+	if (unlikely(!req->ki_filp))
+		return -EBADF;
+
+	if (iocb->aio_flags & IOCB_FLAG_RESFD) {
+		struct eventfd_ctx *eventfd;
+>>>>>>> upstream/android-13
 		/*
 		 * If the IOCB_FLAG_RESFD flag of aio_flags is set, get an
 		 * instance of the file* now. The file descriptor must be
 		 * an eventfd() fd, and will be signaled for each completed
 		 * event using the eventfd_signal() function.
 		 */
+<<<<<<< HEAD
 		req->ki_eventfd = eventfd_ctx_fdget((int) iocb->aio_resfd);
 		if (IS_ERR(req->ki_eventfd)) {
 			ret = PTR_ERR(req->ki_eventfd);
@@ -1961,6 +2099,18 @@ static int __io_submit_one(struct kioctx *ctx, const struct iocb *iocb,
 	if (unlikely(ret)) {
 		pr_debug("EFAULT: aio_key\n");
 		goto out_put_req;
+=======
+		eventfd = eventfd_ctx_fdget(iocb->aio_resfd);
+		if (IS_ERR(eventfd))
+			return PTR_ERR(eventfd);
+
+		req->ki_eventfd = eventfd;
+	}
+
+	if (unlikely(put_user(KIOCB_KEY, &user_iocb->aio_key))) {
+		pr_debug("EFAULT: aio_key\n");
+		return -EFAULT;
+>>>>>>> upstream/android-13
 	}
 
 	req->ki_res.obj = (u64)(unsigned long)user_iocb;
@@ -1970,6 +2120,7 @@ static int __io_submit_one(struct kioctx *ctx, const struct iocb *iocb,
 
 	switch (iocb->aio_lio_opcode) {
 	case IOCB_CMD_PREAD:
+<<<<<<< HEAD
 		ret = aio_read(&req->rw, iocb, false, compat);
 		break;
 	case IOCB_CMD_PWRITE:
@@ -2014,17 +2165,80 @@ out_put_req:
 out_put_reqs_available:
 	put_reqs_available(ctx, 1);
 	return ret;
+=======
+		return aio_read(&req->rw, iocb, false, compat);
+	case IOCB_CMD_PWRITE:
+		return aio_write(&req->rw, iocb, false, compat);
+	case IOCB_CMD_PREADV:
+		return aio_read(&req->rw, iocb, true, compat);
+	case IOCB_CMD_PWRITEV:
+		return aio_write(&req->rw, iocb, true, compat);
+	case IOCB_CMD_FSYNC:
+		return aio_fsync(&req->fsync, iocb, false);
+	case IOCB_CMD_FDSYNC:
+		return aio_fsync(&req->fsync, iocb, true);
+	case IOCB_CMD_POLL:
+		return aio_poll(req, iocb);
+	default:
+		pr_debug("invalid aio operation %d\n", iocb->aio_lio_opcode);
+		return -EINVAL;
+	}
+>>>>>>> upstream/android-13
 }
 
 static int io_submit_one(struct kioctx *ctx, struct iocb __user *user_iocb,
 			 bool compat)
 {
+<<<<<<< HEAD
 	struct iocb iocb;
+=======
+	struct aio_kiocb *req;
+	struct iocb iocb;
+	int err;
+>>>>>>> upstream/android-13
 
 	if (unlikely(copy_from_user(&iocb, user_iocb, sizeof(iocb))))
 		return -EFAULT;
 
+<<<<<<< HEAD
 	return __io_submit_one(ctx, &iocb, user_iocb, compat);
+=======
+	/* enforce forwards compatibility on users */
+	if (unlikely(iocb.aio_reserved2)) {
+		pr_debug("EINVAL: reserve field set\n");
+		return -EINVAL;
+	}
+
+	/* prevent overflows */
+	if (unlikely(
+	    (iocb.aio_buf != (unsigned long)iocb.aio_buf) ||
+	    (iocb.aio_nbytes != (size_t)iocb.aio_nbytes) ||
+	    ((ssize_t)iocb.aio_nbytes < 0)
+	   )) {
+		pr_debug("EINVAL: overflow check\n");
+		return -EINVAL;
+	}
+
+	req = aio_get_req(ctx);
+	if (unlikely(!req))
+		return -EAGAIN;
+
+	err = __io_submit_one(ctx, &iocb, user_iocb, req, compat);
+
+	/* Done with the synchronous reference */
+	iocb_put(req);
+
+	/*
+	 * If err is 0, we'd either done aio_complete() ourselves or have
+	 * arranged for that to be done asynchronously.  Anything non-zero
+	 * means that we need to destroy req ourselves.
+	 */
+	if (unlikely(err)) {
+		iocb_destroy(req);
+		put_reqs_available(ctx, 1);
+	}
+	return err;
+>>>>>>> upstream/android-13
 }
 
 /* sys_io_submit:
@@ -2059,7 +2273,12 @@ SYSCALL_DEFINE3(io_submit, aio_context_t, ctx_id, long, nr,
 	if (nr > ctx->nr_events)
 		nr = ctx->nr_events;
 
+<<<<<<< HEAD
 	blk_start_plug(&plug);
+=======
+	if (nr > AIO_PLUG_THRESHOLD)
+		blk_start_plug(&plug);
+>>>>>>> upstream/android-13
 	for (i = 0; i < nr; i++) {
 		struct iocb __user *user_iocb;
 
@@ -2072,7 +2291,12 @@ SYSCALL_DEFINE3(io_submit, aio_context_t, ctx_id, long, nr,
 		if (ret)
 			break;
 	}
+<<<<<<< HEAD
 	blk_finish_plug(&plug);
+=======
+	if (nr > AIO_PLUG_THRESHOLD)
+		blk_finish_plug(&plug);
+>>>>>>> upstream/android-13
 
 	percpu_ref_put(&ctx->users);
 	return i ? i : ret;
@@ -2099,7 +2323,12 @@ COMPAT_SYSCALL_DEFINE3(io_submit, compat_aio_context_t, ctx_id,
 	if (nr > ctx->nr_events)
 		nr = ctx->nr_events;
 
+<<<<<<< HEAD
 	blk_start_plug(&plug);
+=======
+	if (nr > AIO_PLUG_THRESHOLD)
+		blk_start_plug(&plug);
+>>>>>>> upstream/android-13
 	for (i = 0; i < nr; i++) {
 		compat_uptr_t user_iocb;
 
@@ -2112,7 +2341,12 @@ COMPAT_SYSCALL_DEFINE3(io_submit, compat_aio_context_t, ctx_id,
 		if (ret)
 			break;
 	}
+<<<<<<< HEAD
 	blk_finish_plug(&plug);
+=======
+	if (nr > AIO_PLUG_THRESHOLD)
+		blk_finish_plug(&plug);
+>>>>>>> upstream/android-13
 
 	percpu_ref_put(&ctx->users);
 	return i ? i : ret;
@@ -2203,11 +2437,20 @@ static long do_io_getevents(aio_context_t ctx_id,
  *	specifies an infinite timeout. Note that the timeout pointed to by
  *	timeout is relative.  Will fail with -ENOSYS if not implemented.
  */
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_64BIT
+
+>>>>>>> upstream/android-13
 SYSCALL_DEFINE5(io_getevents, aio_context_t, ctx_id,
 		long, min_nr,
 		long, nr,
 		struct io_event __user *, events,
+<<<<<<< HEAD
 		struct timespec __user *, timeout)
+=======
+		struct __kernel_timespec __user *, timeout)
+>>>>>>> upstream/android-13
 {
 	struct timespec64	ts;
 	int			ret;
@@ -2221,6 +2464,11 @@ SYSCALL_DEFINE5(io_getevents, aio_context_t, ctx_id,
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+#endif
+
+>>>>>>> upstream/android-13
 struct __aio_sigset {
 	const sigset_t __user	*sigmask;
 	size_t		sigsetsize;
@@ -2231,12 +2479,21 @@ SYSCALL_DEFINE6(io_pgetevents,
 		long, min_nr,
 		long, nr,
 		struct io_event __user *, events,
+<<<<<<< HEAD
 		struct timespec __user *, timeout,
 		const struct __aio_sigset __user *, usig)
 {
 	struct __aio_sigset	ksig = { NULL, };
 	sigset_t		ksigmask, sigsaved;
 	struct timespec64	ts;
+=======
+		struct __kernel_timespec __user *, timeout,
+		const struct __aio_sigset __user *, usig)
+{
+	struct __aio_sigset	ksig = { NULL, };
+	struct timespec64	ts;
+	bool interrupted;
+>>>>>>> upstream/android-13
 	int ret;
 
 	if (timeout && unlikely(get_timespec64(&ts, timeout)))
@@ -2245,6 +2502,7 @@ SYSCALL_DEFINE6(io_pgetevents,
 	if (usig && copy_from_user(&ksig, usig, sizeof(ksig)))
 		return -EFAULT;
 
+<<<<<<< HEAD
 	if (ksig.sigmask) {
 		if (ksig.sigsetsize != sizeof(sigset_t))
 			return -EINVAL;
@@ -2267,21 +2525,85 @@ SYSCALL_DEFINE6(io_pgetevents,
 		if (ksig.sigmask)
 			sigprocmask(SIG_SETMASK, &sigsaved, NULL);
 	}
+=======
+	ret = set_user_sigmask(ksig.sigmask, ksig.sigsetsize);
+	if (ret)
+		return ret;
+
+	ret = do_io_getevents(ctx_id, min_nr, nr, events, timeout ? &ts : NULL);
+
+	interrupted = signal_pending(current);
+	restore_saved_sigmask_unless(interrupted);
+	if (interrupted && !ret)
+		ret = -ERESTARTNOHAND;
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 COMPAT_SYSCALL_DEFINE5(io_getevents, compat_aio_context_t, ctx_id,
 		       compat_long_t, min_nr,
 		       compat_long_t, nr,
 		       struct io_event __user *, events,
 		       struct compat_timespec __user *, timeout)
+=======
+#if defined(CONFIG_COMPAT_32BIT_TIME) && !defined(CONFIG_64BIT)
+
+SYSCALL_DEFINE6(io_pgetevents_time32,
+		aio_context_t, ctx_id,
+		long, min_nr,
+		long, nr,
+		struct io_event __user *, events,
+		struct old_timespec32 __user *, timeout,
+		const struct __aio_sigset __user *, usig)
+{
+	struct __aio_sigset	ksig = { NULL, };
+	struct timespec64	ts;
+	bool interrupted;
+	int ret;
+
+	if (timeout && unlikely(get_old_timespec32(&ts, timeout)))
+		return -EFAULT;
+
+	if (usig && copy_from_user(&ksig, usig, sizeof(ksig)))
+		return -EFAULT;
+
+
+	ret = set_user_sigmask(ksig.sigmask, ksig.sigsetsize);
+	if (ret)
+		return ret;
+
+	ret = do_io_getevents(ctx_id, min_nr, nr, events, timeout ? &ts : NULL);
+
+	interrupted = signal_pending(current);
+	restore_saved_sigmask_unless(interrupted);
+	if (interrupted && !ret)
+		ret = -ERESTARTNOHAND;
+
+	return ret;
+}
+
+#endif
+
+#if defined(CONFIG_COMPAT_32BIT_TIME)
+
+SYSCALL_DEFINE5(io_getevents_time32, __u32, ctx_id,
+		__s32, min_nr,
+		__s32, nr,
+		struct io_event __user *, events,
+		struct old_timespec32 __user *, timeout)
+>>>>>>> upstream/android-13
 {
 	struct timespec64 t;
 	int ret;
 
+<<<<<<< HEAD
 	if (timeout && compat_get_timespec64(&t, timeout))
+=======
+	if (timeout && get_old_timespec32(&t, timeout))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	ret = do_io_getevents(ctx_id, min_nr, nr, events, timeout ? &t : NULL);
@@ -2290,17 +2612,32 @@ COMPAT_SYSCALL_DEFINE5(io_getevents, compat_aio_context_t, ctx_id,
 	return ret;
 }
 
+<<<<<<< HEAD
 
 struct __compat_aio_sigset {
 	compat_sigset_t __user	*sigmask;
 	compat_size_t		sigsetsize;
 };
 
+=======
+#endif
+
+#ifdef CONFIG_COMPAT
+
+struct __compat_aio_sigset {
+	compat_uptr_t		sigmask;
+	compat_size_t		sigsetsize;
+};
+
+#if defined(CONFIG_COMPAT_32BIT_TIME)
+
+>>>>>>> upstream/android-13
 COMPAT_SYSCALL_DEFINE6(io_pgetevents,
 		compat_aio_context_t, ctx_id,
 		compat_long_t, min_nr,
 		compat_long_t, nr,
 		struct io_event __user *, events,
+<<<<<<< HEAD
 		struct compat_timespec __user *, timeout,
 		const struct __compat_aio_sigset __user *, usig)
 {
@@ -2310,11 +2647,23 @@ COMPAT_SYSCALL_DEFINE6(io_pgetevents,
 	int ret;
 
 	if (timeout && compat_get_timespec64(&t, timeout))
+=======
+		struct old_timespec32 __user *, timeout,
+		const struct __compat_aio_sigset __user *, usig)
+{
+	struct __compat_aio_sigset ksig = { 0, };
+	struct timespec64 t;
+	bool interrupted;
+	int ret;
+
+	if (timeout && get_old_timespec32(&t, timeout))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	if (usig && copy_from_user(&ksig, usig, sizeof(ksig)))
 		return -EFAULT;
 
+<<<<<<< HEAD
 	if (ksig.sigmask) {
 		if (ksig.sigsetsize != sizeof(compat_sigset_t))
 			return -EINVAL;
@@ -2336,6 +2685,53 @@ COMPAT_SYSCALL_DEFINE6(io_pgetevents,
 		if (ksig.sigmask)
 			sigprocmask(SIG_SETMASK, &sigsaved, NULL);
 	}
+=======
+	ret = set_compat_user_sigmask(compat_ptr(ksig.sigmask), ksig.sigsetsize);
+	if (ret)
+		return ret;
+
+	ret = do_io_getevents(ctx_id, min_nr, nr, events, timeout ? &t : NULL);
+
+	interrupted = signal_pending(current);
+	restore_saved_sigmask_unless(interrupted);
+	if (interrupted && !ret)
+		ret = -ERESTARTNOHAND;
+
+	return ret;
+}
+
+#endif
+
+COMPAT_SYSCALL_DEFINE6(io_pgetevents_time64,
+		compat_aio_context_t, ctx_id,
+		compat_long_t, min_nr,
+		compat_long_t, nr,
+		struct io_event __user *, events,
+		struct __kernel_timespec __user *, timeout,
+		const struct __compat_aio_sigset __user *, usig)
+{
+	struct __compat_aio_sigset ksig = { 0, };
+	struct timespec64 t;
+	bool interrupted;
+	int ret;
+
+	if (timeout && get_timespec64(&t, timeout))
+		return -EFAULT;
+
+	if (usig && copy_from_user(&ksig, usig, sizeof(ksig)))
+		return -EFAULT;
+
+	ret = set_compat_user_sigmask(compat_ptr(ksig.sigmask), ksig.sigsetsize);
+	if (ret)
+		return ret;
+
+	ret = do_io_getevents(ctx_id, min_nr, nr, events, timeout ? &t : NULL);
+
+	interrupted = signal_pending(current);
+	restore_saved_sigmask_unless(interrupted);
+	if (interrupted && !ret)
+		ret = -ERESTARTNOHAND;
+>>>>>>> upstream/android-13
 
 	return ret;
 }

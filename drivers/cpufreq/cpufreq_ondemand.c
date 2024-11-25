@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  drivers/cpufreq/cpufreq_ondemand.c
  *
  *  Copyright (C)  2001 Russell King
  *            (C)  2003 Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>.
  *                      Jun Nakajima <jun.nakajima@intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -411,7 +418,11 @@ static struct dbs_governor od_dbs_gov = {
 	.start = od_start,
 };
 
+<<<<<<< HEAD
 #define CPU_FREQ_GOV_ONDEMAND	(&od_dbs_gov.gov)
+=======
+#define CPU_FREQ_GOV_ONDEMAND	(od_dbs_gov.gov)
+>>>>>>> upstream/android-13
 
 static void od_set_powersave_bias(unsigned int powersave_bias)
 {
@@ -421,7 +432,11 @@ static void od_set_powersave_bias(unsigned int powersave_bias)
 	default_powersave_bias = powersave_bias;
 	cpumask_clear(&done);
 
+<<<<<<< HEAD
 	get_online_cpus();
+=======
+	cpus_read_lock();
+>>>>>>> upstream/android-13
 	for_each_online_cpu(cpu) {
 		struct cpufreq_policy *policy;
 		struct policy_dbs_info *policy_dbs;
@@ -432,7 +447,11 @@ static void od_set_powersave_bias(unsigned int powersave_bias)
 			continue;
 
 		policy = cpufreq_cpu_get_raw(cpu);
+<<<<<<< HEAD
 		if (!policy || policy->governor != CPU_FREQ_GOV_ONDEMAND)
+=======
+		if (!policy || policy->governor != &CPU_FREQ_GOV_ONDEMAND)
+>>>>>>> upstream/android-13
 			continue;
 
 		policy_dbs = policy->governor_data;
@@ -445,7 +464,11 @@ static void od_set_powersave_bias(unsigned int powersave_bias)
 		od_tuners = dbs_data->tuners;
 		od_tuners->powersave_bias = default_powersave_bias;
 	}
+<<<<<<< HEAD
 	put_online_cpus();
+=======
+	cpus_read_unlock();
+>>>>>>> upstream/android-13
 }
 
 void od_register_powersave_bias_handler(unsigned int (*f)
@@ -464,6 +487,7 @@ void od_unregister_powersave_bias_handler(void)
 }
 EXPORT_SYMBOL_GPL(od_unregister_powersave_bias_handler);
 
+<<<<<<< HEAD
 static int __init cpufreq_gov_dbs_init(void)
 {
 	return cpufreq_register_governor(CPU_FREQ_GOV_ONDEMAND);
@@ -474,6 +498,8 @@ static void __exit cpufreq_gov_dbs_exit(void)
 	cpufreq_unregister_governor(CPU_FREQ_GOV_ONDEMAND);
 }
 
+=======
+>>>>>>> upstream/android-13
 MODULE_AUTHOR("Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>");
 MODULE_AUTHOR("Alexey Starikovskiy <alexey.y.starikovskiy@intel.com>");
 MODULE_DESCRIPTION("'cpufreq_ondemand' - A dynamic cpufreq governor for "
@@ -483,6 +509,7 @@ MODULE_LICENSE("GPL");
 #ifdef CONFIG_CPU_FREQ_DEFAULT_GOV_ONDEMAND
 struct cpufreq_governor *cpufreq_default_governor(void)
 {
+<<<<<<< HEAD
 	return CPU_FREQ_GOV_ONDEMAND;
 }
 
@@ -491,3 +518,11 @@ fs_initcall(cpufreq_gov_dbs_init);
 module_init(cpufreq_gov_dbs_init);
 #endif
 module_exit(cpufreq_gov_dbs_exit);
+=======
+	return &CPU_FREQ_GOV_ONDEMAND;
+}
+#endif
+
+cpufreq_governor_init(CPU_FREQ_GOV_ONDEMAND);
+cpufreq_governor_exit(CPU_FREQ_GOV_ONDEMAND);
+>>>>>>> upstream/android-13

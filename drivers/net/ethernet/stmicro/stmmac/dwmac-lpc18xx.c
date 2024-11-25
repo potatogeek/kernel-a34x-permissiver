@@ -37,7 +37,11 @@ static int lpc18xx_dwmac_probe(struct platform_device *pdev)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	plat_dat = stmmac_probe_config_dt(pdev, &stmmac_res.mac);
+=======
+	plat_dat = stmmac_probe_config_dt(pdev, stmmac_res.mac);
+>>>>>>> upstream/android-13
 	if (IS_ERR(plat_dat))
 		return PTR_ERR(plat_dat);
 

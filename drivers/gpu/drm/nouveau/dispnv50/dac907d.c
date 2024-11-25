@@ -21,6 +21,7 @@
  */
 #include "core.h"
 
+<<<<<<< HEAD
 static void
 dac907d_ctrl(struct nv50_core *core, int or, u32 ctrl,
 	     struct nv50_head_atom *asyh)
@@ -31,6 +32,24 @@ dac907d_ctrl(struct nv50_core *core, int or, u32 ctrl,
 		evo_data(push, ctrl);
 		evo_kick(push, &core->chan);
 	}
+=======
+#include <nvif/push507c.h>
+
+#include <nvhw/class/cl907d.h>
+
+static int
+dac907d_ctrl(struct nv50_core *core, int or, u32 ctrl,
+	     struct nv50_head_atom *asyh)
+{
+	struct nvif_push *push = core->chan.push;
+	int ret;
+
+	if ((ret = PUSH_WAIT(push, 2)))
+		return ret;
+
+	PUSH_MTHD(push, NV907D, DAC_SET_CONTROL(or), ctrl);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 const struct nv50_outp_func

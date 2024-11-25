@@ -38,6 +38,7 @@ static int reiserfs_file_release(struct inode *inode, struct file *filp)
 
 	BUG_ON(!S_ISREG(inode->i_mode));
 
+<<<<<<< HEAD
         if (atomic_add_unless(&REISERFS_I(inode)->openers, -1, 1))
 		return 0;
 
@@ -48,6 +49,12 @@ static int reiserfs_file_release(struct inode *inode, struct file *filp)
 		return 0;
 	}
 
+=======
+	if (!atomic_dec_and_mutex_lock(&REISERFS_I(inode)->openers,
+				       &REISERFS_I(inode)->tailpack))
+		return 0;
+
+>>>>>>> upstream/android-13
 	/* fast out for when nothing needs to be done */
 	if ((!(REISERFS_I(inode)->i_flags & i_pack_on_close_mask) ||
 	     !tail_has_to_be_packed(inode)) &&
@@ -165,7 +172,11 @@ static int reiserfs_sync_file(struct file *filp, loff_t start, loff_t end,
 	barrier_done = reiserfs_commit_for_inode(inode);
 	reiserfs_write_unlock(inode->i_sb);
 	if (barrier_done != 1 && reiserfs_barrier_flush(inode->i_sb))
+<<<<<<< HEAD
 		blkdev_issue_flush(inode->i_sb->s_bdev, GFP_KERNEL, NULL);
+=======
+		blkdev_issue_flush(inode->i_sb->s_bdev);
+>>>>>>> upstream/android-13
 	inode_unlock(inode);
 	if (barrier_done < 0)
 		return barrier_done;
@@ -264,4 +275,9 @@ const struct inode_operations reiserfs_file_inode_operations = {
 	.permission = reiserfs_permission,
 	.get_acl = reiserfs_get_acl,
 	.set_acl = reiserfs_set_acl,
+<<<<<<< HEAD
+=======
+	.fileattr_get = reiserfs_fileattr_get,
+	.fileattr_set = reiserfs_fileattr_set,
+>>>>>>> upstream/android-13
 };

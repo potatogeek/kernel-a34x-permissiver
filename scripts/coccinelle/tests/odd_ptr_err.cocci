@@ -1,10 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /// PTR_ERR should access the value just tested by IS_ERR
 //# There can be false positives in the patch case, where it is the call to
 //# IS_ERR that is wrong.
 ///
 // Confidence: High
+<<<<<<< HEAD
 // Copyright: (C) 2012, 2015 Julia Lawall, INRIA.  GPLv2.
 // Copyright: (C) 2012, 2015 Gilles Muller, INRIA.  GPLv2.
+=======
+// Copyright: (C) 2012, 2015 Julia Lawall, INRIA.
+// Copyright: (C) 2012, 2015 Gilles Muller, INRIA.
+>>>>>>> upstream/android-13
 // URL: http://coccinelle.lip6.fr/
 // Options: --no-includes --include-headers
 

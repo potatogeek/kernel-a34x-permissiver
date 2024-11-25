@@ -163,7 +163,10 @@ static int efficeon_free_gatt_table(struct agp_bridge_data *bridge)
 		unsigned long page = efficeon_private.l1_table[index];
 		if (page) {
 			efficeon_private.l1_table[index] = 0;
+<<<<<<< HEAD
 			ClearPageReserved(virt_to_page((char *)page));
+=======
+>>>>>>> upstream/android-13
 			free_page(page);
 			freed++;
 		}
@@ -219,7 +222,10 @@ static int efficeon_create_gatt_table(struct agp_bridge_data *bridge)
 			efficeon_free_gatt_table(agp_bridge);
 			return -ENOMEM;
 		}
+<<<<<<< HEAD
 		SetPageReserved(virt_to_page((char *)page));
+=======
+>>>>>>> upstream/android-13
 
 		for (offset = 0; offset < PAGE_SIZE; offset += clflush_chunk)
 			clflush((char *)page+offset);

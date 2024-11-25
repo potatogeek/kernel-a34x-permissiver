@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015 Imagination Technologies
  * Author: Alex Smith <alex.smith@imgtec.com>
@@ -6,10 +7,17 @@
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (C) 2015 Imagination Technologies
+ * Author: Alex Smith <alex.smith@imgtec.com>
+>>>>>>> upstream/android-13
  */
 
 #include <asm/sgidefs.h>
 
+<<<<<<< HEAD
 #if _MIPS_SIM != _MIPS_SIM_ABI64 && defined(CONFIG_64BIT)
 
 /* Building 32-bit VDSO for the 64-bit kernel. Fake a 32-bit Kconfig. */
@@ -21,6 +29,8 @@
 #endif
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #ifndef __ASSEMBLY__
 
 #include <asm/asm.h>
@@ -82,7 +92,11 @@ static inline const struct vdso_data *get_vdso_data(void)
 
 static inline void __iomem *get_gic(const struct vdso_data *data)
 {
+<<<<<<< HEAD
 	return (void __iomem *)data - PAGE_SIZE;
+=======
+	return (void __iomem *)((unsigned long)data & PAGE_MASK) - PAGE_SIZE;
+>>>>>>> upstream/android-13
 }
 
 #endif /* CONFIG_CLKSRC_MIPS_GIC */

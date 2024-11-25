@@ -39,13 +39,28 @@
 
 #define to_tcm_loop_hba(hba)	container_of(hba, struct tcm_loop_hba, dev)
 
+<<<<<<< HEAD
 static struct workqueue_struct *tcm_loop_workqueue;
+=======
+>>>>>>> upstream/android-13
 static struct kmem_cache *tcm_loop_cmd_cache;
 
 static int tcm_loop_hba_no_cnt;
 
 static int tcm_loop_queue_status(struct se_cmd *se_cmd);
 
+<<<<<<< HEAD
+=======
+static unsigned int tcm_loop_nr_hw_queues = 1;
+module_param_named(nr_hw_queues, tcm_loop_nr_hw_queues, uint, 0644);
+
+static unsigned int tcm_loop_can_queue = 1024;
+module_param_named(can_queue, tcm_loop_can_queue, uint, 0644);
+
+static unsigned int tcm_loop_cmd_per_lun = 1024;
+module_param_named(cmd_per_lun, tcm_loop_cmd_per_lun, uint, 0644);
+
+>>>>>>> upstream/android-13
 /*
  * Called from struct target_core_fabric_ops->check_stop_free()
  */
@@ -58,8 +73,17 @@ static void tcm_loop_release_cmd(struct se_cmd *se_cmd)
 {
 	struct tcm_loop_cmd *tl_cmd = container_of(se_cmd,
 				struct tcm_loop_cmd, tl_se_cmd);
+<<<<<<< HEAD
 
 	kmem_cache_free(tcm_loop_cmd_cache, tl_cmd);
+=======
+	struct scsi_cmnd *sc = tl_cmd->sc;
+
+	if (se_cmd->se_cmd_flags & SCF_SCSI_TMR_CDB)
+		kmem_cache_free(tcm_loop_cmd_cache, tl_cmd);
+	else
+		sc->scsi_done(sc);
+>>>>>>> upstream/android-13
 }
 
 static int tcm_loop_show_info(struct seq_file *m, struct Scsi_Host *host)
@@ -69,7 +93,11 @@ static int tcm_loop_show_info(struct seq_file *m, struct Scsi_Host *host)
 }
 
 static int tcm_loop_driver_probe(struct device *);
+<<<<<<< HEAD
 static int tcm_loop_driver_remove(struct device *);
+=======
+static void tcm_loop_driver_remove(struct device *);
+>>>>>>> upstream/android-13
 
 static int pseudo_lld_bus_match(struct device *dev,
 				struct device_driver *dev_driver)
@@ -93,10 +121,15 @@ static struct device_driver tcm_loop_driverfs = {
  */
 static struct device *tcm_loop_primary;
 
+<<<<<<< HEAD
 static void tcm_loop_submission_work(struct work_struct *work)
 {
 	struct tcm_loop_cmd *tl_cmd =
 		container_of(work, struct tcm_loop_cmd, work);
+=======
+static void tcm_loop_target_queue_cmd(struct tcm_loop_cmd *tl_cmd)
+{
+>>>>>>> upstream/android-13
 	struct se_cmd *se_cmd = &tl_cmd->tl_se_cmd;
 	struct scsi_cmnd *sc = tl_cmd->sc;
 	struct tcm_loop_nexus *tl_nexus;
@@ -104,7 +137,10 @@ static void tcm_loop_submission_work(struct work_struct *work)
 	struct tcm_loop_tpg *tl_tpg;
 	struct scatterlist *sgl_bidi = NULL;
 	u32 sgl_bidi_count = 0, transfer_length;
+<<<<<<< HEAD
 	int rc;
+=======
+>>>>>>> upstream/android-13
 
 	tl_hba = *(struct tcm_loop_hba **)shost_priv(sc->device->host);
 	tl_tpg = &tl_hba->tl_hba_tpgs[sc->device->id];
@@ -128,6 +164,7 @@ static void tcm_loop_submission_work(struct work_struct *work)
 		set_host_byte(sc, DID_ERROR);
 		goto out_done;
 	}
+<<<<<<< HEAD
 	if (scsi_bidi_cmnd(sc)) {
 		struct scsi_data_buffer *sdb = scsi_in(sc);
 
@@ -136,6 +173,8 @@ static void tcm_loop_submission_work(struct work_struct *work)
 		se_cmd->se_cmd_flags |= SCF_BIDI;
 
 	}
+=======
+>>>>>>> upstream/android-13
 
 	transfer_length = scsi_transfer_length(sc);
 	if (!scsi_prot_sg_count(sc) &&
@@ -150,6 +189,7 @@ static void tcm_loop_submission_work(struct work_struct *work)
 	}
 
 	se_cmd->tag = tl_cmd->sc_cmd_tag;
+<<<<<<< HEAD
 	rc = target_submit_cmd_map_sgls(se_cmd, tl_nexus->se_sess, sc->cmnd,
 			&tl_cmd->tl_sense_buf[0], tl_cmd->sc->device->lun,
 			transfer_length, TCM_SIMPLE_TAG,
@@ -165,6 +205,22 @@ static void tcm_loop_submission_work(struct work_struct *work)
 
 out_done:
 	kmem_cache_free(tcm_loop_cmd_cache, tl_cmd);
+=======
+	target_init_cmd(se_cmd, tl_nexus->se_sess, &tl_cmd->tl_sense_buf[0],
+			tl_cmd->sc->device->lun, transfer_length,
+			TCM_SIMPLE_TAG, sc->sc_data_direction, 0);
+
+	if (target_submit_prep(se_cmd, sc->cmnd, scsi_sglist(sc),
+			       scsi_sg_count(sc), sgl_bidi, sgl_bidi_count,
+			       scsi_prot_sglist(sc), scsi_prot_sg_count(sc),
+			       GFP_ATOMIC))
+		return;
+
+	target_queue_submission(se_cmd);
+	return;
+
+out_done:
+>>>>>>> upstream/android-13
 	sc->scsi_done(sc);
 }
 
@@ -174,13 +230,18 @@ out_done:
  */
 static int tcm_loop_queuecommand(struct Scsi_Host *sh, struct scsi_cmnd *sc)
 {
+<<<<<<< HEAD
 	struct tcm_loop_cmd *tl_cmd;
+=======
+	struct tcm_loop_cmd *tl_cmd = scsi_cmd_priv(sc);
+>>>>>>> upstream/android-13
 
 	pr_debug("%s() %d:%d:%d:%llu got CDB: 0x%02x scsi_buf_len: %u\n",
 		 __func__, sc->device->host->host_no, sc->device->id,
 		 sc->device->channel, sc->device->lun, sc->cmnd[0],
 		 scsi_bufflen(sc));
 
+<<<<<<< HEAD
 	tl_cmd = kmem_cache_zalloc(tcm_loop_cmd_cache, GFP_ATOMIC);
 	if (!tl_cmd) {
 		set_host_byte(sc, DID_ERROR);
@@ -192,6 +253,13 @@ static int tcm_loop_queuecommand(struct Scsi_Host *sh, struct scsi_cmnd *sc)
 	tl_cmd->sc_cmd_tag = sc->request->tag;
 	INIT_WORK(&tl_cmd->work, tcm_loop_submission_work);
 	queue_work(tcm_loop_workqueue, &tl_cmd->work);
+=======
+	memset(tl_cmd, 0, sizeof(*tl_cmd));
+	tl_cmd->sc = sc;
+	tl_cmd->sc_cmd_tag = scsi_cmd_to_rq(sc)->tag;
+
+	tcm_loop_target_queue_cmd(tl_cmd);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -247,7 +315,11 @@ static int tcm_loop_abort_task(struct scsi_cmnd *sc)
 {
 	struct tcm_loop_hba *tl_hba;
 	struct tcm_loop_tpg *tl_tpg;
+<<<<<<< HEAD
 	int ret = FAILED;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Locate the tcm_loop_hba_t pointer
@@ -255,7 +327,11 @@ static int tcm_loop_abort_task(struct scsi_cmnd *sc)
 	tl_hba = *(struct tcm_loop_hba **)shost_priv(sc->device->host);
 	tl_tpg = &tl_hba->tl_hba_tpgs[sc->device->id];
 	ret = tcm_loop_issue_tmr(tl_tpg, sc->device->lun,
+<<<<<<< HEAD
 				 sc->request->tag, TMR_ABORT_TASK);
+=======
+				 scsi_cmd_to_rq(sc)->tag, TMR_ABORT_TASK);
+>>>>>>> upstream/android-13
 	return (ret == TMR_FUNCTION_COMPLETE) ? SUCCESS : FAILED;
 }
 
@@ -267,7 +343,11 @@ static int tcm_loop_device_reset(struct scsi_cmnd *sc)
 {
 	struct tcm_loop_hba *tl_hba;
 	struct tcm_loop_tpg *tl_tpg;
+<<<<<<< HEAD
 	int ret = FAILED;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Locate the tcm_loop_hba_t pointer
@@ -304,12 +384,15 @@ static int tcm_loop_target_reset(struct scsi_cmnd *sc)
 	return FAILED;
 }
 
+<<<<<<< HEAD
 static int tcm_loop_slave_alloc(struct scsi_device *sd)
 {
 	blk_queue_flag_set(QUEUE_FLAG_BIDI, sd->request_queue);
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static struct scsi_host_template tcm_loop_driver_template = {
 	.show_info		= tcm_loop_show_info,
 	.proc_name		= "tcm_loopback",
@@ -319,6 +402,7 @@ static struct scsi_host_template tcm_loop_driver_template = {
 	.eh_abort_handler = tcm_loop_abort_task,
 	.eh_device_reset_handler = tcm_loop_device_reset,
 	.eh_target_reset_handler = tcm_loop_target_reset,
+<<<<<<< HEAD
 	.can_queue		= 1024,
 	.this_id		= -1,
 	.sg_tablesize		= 256,
@@ -328,6 +412,15 @@ static struct scsi_host_template tcm_loop_driver_template = {
 	.slave_alloc		= tcm_loop_slave_alloc,
 	.module			= THIS_MODULE,
 	.track_queue_depth	= 1,
+=======
+	.this_id		= -1,
+	.sg_tablesize		= 256,
+	.max_sectors		= 0xFFFF,
+	.dma_boundary		= PAGE_SIZE - 1,
+	.module			= THIS_MODULE,
+	.track_queue_depth	= 1,
+	.cmd_size		= sizeof(struct tcm_loop_cmd),
+>>>>>>> upstream/android-13
 };
 
 static int tcm_loop_driver_probe(struct device *dev)
@@ -357,6 +450,12 @@ static int tcm_loop_driver_probe(struct device *dev)
 	sh->max_lun = 0;
 	sh->max_channel = 0;
 	sh->max_cmd_len = SCSI_MAX_VARLEN_CDB_SIZE;
+<<<<<<< HEAD
+=======
+	sh->nr_hw_queues = tcm_loop_nr_hw_queues;
+	sh->can_queue = tcm_loop_can_queue;
+	sh->cmd_per_lun = tcm_loop_cmd_per_lun;
+>>>>>>> upstream/android-13
 
 	host_prot = SHOST_DIF_TYPE1_PROTECTION | SHOST_DIF_TYPE2_PROTECTION |
 		    SHOST_DIF_TYPE3_PROTECTION | SHOST_DIX_TYPE1_PROTECTION |
@@ -374,7 +473,11 @@ static int tcm_loop_driver_probe(struct device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int tcm_loop_driver_remove(struct device *dev)
+=======
+static void tcm_loop_driver_remove(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct tcm_loop_hba *tl_hba;
 	struct Scsi_Host *sh;
@@ -384,7 +487,10 @@ static int tcm_loop_driver_remove(struct device *dev)
 
 	scsi_remove_host(sh);
 	scsi_host_put(sh);
+<<<<<<< HEAD
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static void tcm_loop_release_adapter(struct device *dev)
@@ -460,11 +566,14 @@ static void tcm_loop_release_core_bus(void)
 	pr_debug("Releasing TCM Loop Core BUS\n");
 }
 
+<<<<<<< HEAD
 static char *tcm_loop_get_fabric_name(void)
 {
 	return "loopback";
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline struct tcm_loop_tpg *tl_tpg(struct se_portal_group *se_tpg)
 {
 	return container_of(se_tpg, struct tcm_loop_tpg, tl_se_tpg);
@@ -565,18 +674,24 @@ static int tcm_loop_write_pending(struct se_cmd *se_cmd)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int tcm_loop_write_pending_status(struct se_cmd *se_cmd)
 {
 	return 0;
 }
 
 static int tcm_loop_queue_data_in(struct se_cmd *se_cmd)
+=======
+static int tcm_loop_queue_data_or_status(const char *func,
+		struct se_cmd *se_cmd, u8 scsi_status)
+>>>>>>> upstream/android-13
 {
 	struct tcm_loop_cmd *tl_cmd = container_of(se_cmd,
 				struct tcm_loop_cmd, tl_se_cmd);
 	struct scsi_cmnd *sc = tl_cmd->sc;
 
 	pr_debug("%s() called for scsi_cmnd: %p cdb: 0x%02x\n",
+<<<<<<< HEAD
 		 __func__, sc, sc->cmnd[0]);
 
 	sc->result = SAM_STAT_GOOD;
@@ -596,6 +711,9 @@ static int tcm_loop_queue_status(struct se_cmd *se_cmd)
 
 	pr_debug("%s() called for scsi_cmnd: %p cdb: 0x%02x\n",
 		 __func__, sc, sc->cmnd[0]);
+=======
+		 func, sc, sc->cmnd[0]);
+>>>>>>> upstream/android-13
 
 	if (se_cmd->sense_buffer &&
 	   ((se_cmd->se_cmd_flags & SCF_TRANSPORT_TASK_SENSE) ||
@@ -604,18 +722,40 @@ static int tcm_loop_queue_status(struct se_cmd *se_cmd)
 		memcpy(sc->sense_buffer, se_cmd->sense_buffer,
 				SCSI_SENSE_BUFFERSIZE);
 		sc->result = SAM_STAT_CHECK_CONDITION;
+<<<<<<< HEAD
 		set_driver_byte(sc, DRIVER_SENSE);
 	} else
 		sc->result = se_cmd->scsi_status;
+=======
+	} else
+		sc->result = scsi_status;
+>>>>>>> upstream/android-13
 
 	set_host_byte(sc, DID_OK);
 	if ((se_cmd->se_cmd_flags & SCF_OVERFLOW_BIT) ||
 	    (se_cmd->se_cmd_flags & SCF_UNDERFLOW_BIT))
 		scsi_set_resid(sc, se_cmd->residual_count);
+<<<<<<< HEAD
 	sc->scsi_done(sc);
 	return 0;
 }
 
+=======
+	return 0;
+}
+
+static int tcm_loop_queue_data_in(struct se_cmd *se_cmd)
+{
+	return tcm_loop_queue_data_or_status(__func__, se_cmd, SAM_STAT_GOOD);
+}
+
+static int tcm_loop_queue_status(struct se_cmd *se_cmd)
+{
+	return tcm_loop_queue_data_or_status(__func__,
+					     se_cmd, se_cmd->scsi_status);
+}
+
+>>>>>>> upstream/android-13
 static void tcm_loop_queue_tm_rsp(struct se_cmd *se_cmd)
 {
 	struct tcm_loop_cmd *tl_cmd = container_of(se_cmd,
@@ -1149,8 +1289,12 @@ static struct configfs_attribute *tcm_loop_wwn_attrs[] = {
 
 static const struct target_core_fabric_ops loop_ops = {
 	.module				= THIS_MODULE,
+<<<<<<< HEAD
 	.name				= "loopback",
 	.get_fabric_name		= tcm_loop_get_fabric_name,
+=======
+	.fabric_name			= "loopback",
+>>>>>>> upstream/android-13
 	.tpg_get_wwn			= tcm_loop_get_endpoint_wwn,
 	.tpg_get_tag			= tcm_loop_get_tag,
 	.tpg_check_demo_mode		= tcm_loop_check_demo_mode,
@@ -1165,7 +1309,10 @@ static const struct target_core_fabric_ops loop_ops = {
 	.release_cmd			= tcm_loop_release_cmd,
 	.sess_get_index			= tcm_loop_sess_get_index,
 	.write_pending			= tcm_loop_write_pending,
+<<<<<<< HEAD
 	.write_pending_status		= tcm_loop_write_pending_status,
+=======
+>>>>>>> upstream/android-13
 	.set_default_node_attributes	= tcm_loop_set_default_node_attributes,
 	.get_cmd_state			= tcm_loop_get_cmd_state,
 	.queue_data_in			= tcm_loop_queue_data_in,
@@ -1187,17 +1334,24 @@ static int __init tcm_loop_fabric_init(void)
 {
 	int ret = -ENOMEM;
 
+<<<<<<< HEAD
 	tcm_loop_workqueue = alloc_workqueue("tcm_loop", 0, 0);
 	if (!tcm_loop_workqueue)
 		goto out;
 
+=======
+>>>>>>> upstream/android-13
 	tcm_loop_cmd_cache = kmem_cache_create("tcm_loop_cmd_cache",
 				sizeof(struct tcm_loop_cmd),
 				__alignof__(struct tcm_loop_cmd),
 				0, NULL);
 	if (!tcm_loop_cmd_cache) {
 		pr_debug("kmem_cache_create() for tcm_loop_cmd_cache failed\n");
+<<<<<<< HEAD
 		goto out_destroy_workqueue;
+=======
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	ret = tcm_loop_alloc_core_bus();
@@ -1214,8 +1368,11 @@ out_release_core_bus:
 	tcm_loop_release_core_bus();
 out_destroy_cache:
 	kmem_cache_destroy(tcm_loop_cmd_cache);
+<<<<<<< HEAD
 out_destroy_workqueue:
 	destroy_workqueue(tcm_loop_workqueue);
+=======
+>>>>>>> upstream/android-13
 out:
 	return ret;
 }
@@ -1225,7 +1382,10 @@ static void __exit tcm_loop_fabric_exit(void)
 	target_unregister_template(&loop_ops);
 	tcm_loop_release_core_bus();
 	kmem_cache_destroy(tcm_loop_cmd_cache);
+<<<<<<< HEAD
 	destroy_workqueue(tcm_loop_workqueue);
+=======
+>>>>>>> upstream/android-13
 }
 
 MODULE_DESCRIPTION("TCM loopback virtual Linux/SCSI fabric module");

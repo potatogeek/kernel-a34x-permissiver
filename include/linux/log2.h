@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /* Integer base 2 logarithm calculation
  *
  * Copyright (C) 2006 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _LINUX_LOG2_H
@@ -160,7 +167,12 @@ unsigned long __rounddown_pow_of_two(unsigned long n)
 #define ilog2(n) \
 ( \
 	__builtin_constant_p(n) ?	\
+<<<<<<< HEAD
 	const_ilog2(n) :		\
+=======
+	((n) < 2 ? 0 :			\
+	 63 - __builtin_clzll(n)) :	\
+>>>>>>> upstream/android-13
 	(sizeof(n) <= 4) ?		\
 	__ilog2_u32(n) :		\
 	__ilog2_u64(n)			\

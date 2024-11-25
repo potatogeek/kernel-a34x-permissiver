@@ -82,6 +82,16 @@ const char *acpi_gbl_mtp_decode[] = {
 	"AddressRangeNVS"
 };
 
+<<<<<<< HEAD
+=======
+const char *acpi_gbl_phy_decode[] = {
+	"Type C",
+	"Type D",
+	"Unknown Type",
+	"Unknown Type"
+};
+
+>>>>>>> upstream/android-13
 const char *acpi_gbl_rng_decode[] = {
 	"InvalidRanges",
 	"NonISAOnlyRanges",
@@ -161,7 +171,12 @@ const char *acpi_gbl_sbt_decode[] = {
 	"/* UNKNOWN serial bus type */",
 	"I2C",
 	"SPI",
+<<<<<<< HEAD
 	"UART"
+=======
+	"UART",
+	"CSI2"
+>>>>>>> upstream/android-13
 };
 
 /* I2C serial bus access mode */

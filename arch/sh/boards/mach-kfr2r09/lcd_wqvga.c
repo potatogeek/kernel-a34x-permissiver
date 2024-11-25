@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * KFR2R09 LCD panel support
  *
@@ -5,10 +9,13 @@
  *
  * Register settings based on the out-of-tree t33fb.c driver
  * Copyright (C) 2008 Lineo Solutions, Inc.
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License. See the file COPYING in the main directory of this archive for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>

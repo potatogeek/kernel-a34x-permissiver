@@ -4,8 +4,13 @@ This file provides information, what the device node for the davinci/keystone
 NAND interface contains.
 
 Documentation:
+<<<<<<< HEAD
 Davinci DM646x - http://www.ti.com/lit/ug/sprueq7c/sprueq7c.pdf
 Kestone - http://www.ti.com/lit/ug/sprugz3a/sprugz3a.pdf
+=======
+Davinci DM646x - https://www.ti.com/lit/ug/sprueq7c/sprueq7c.pdf
+Kestone - https://www.ti.com/lit/ug/sprugz3a/sprugz3a.pdf
+>>>>>>> upstream/android-13
 
 Required properties:
 

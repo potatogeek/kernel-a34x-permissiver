@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * FSI core driver
  *
  * Copyright (C) IBM Corporation 2016
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
@@ -12,6 +17,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * TODO:
  *  - Rework topology
  *  - s/chip_id/chip_loc
@@ -58,6 +65,10 @@ static const int engine_page_size = 0x400;
 #define FSI_SMODE		0x0	/* R/W: Mode register */
 #define FSI_SISC		0x8	/* R/W: Interrupt condition */
 #define FSI_SSTAT		0x14	/* R  : Slave status */
+<<<<<<< HEAD
+=======
+#define FSI_SLBUS		0x30	/* W  : LBUS Ownership */
+>>>>>>> upstream/android-13
 #define FSI_LLMODE		0x100	/* R/W: Link layer mode register */
 
 /*
@@ -75,6 +86,14 @@ static const int engine_page_size = 0x400;
 #define FSI_SMODE_LBCRR_MASK	0xf		/* Clk ratio mask */
 
 /*
+<<<<<<< HEAD
+=======
+ * SLBUS fields
+ */
+#define FSI_SLBUS_FORCE		0x80000000	/* Force LBUS ownership */
+
+/*
+>>>>>>> upstream/android-13
  * LLMODE fields
  */
 #define FSI_LLMODE_ASYNC	0x1
@@ -726,7 +745,11 @@ static ssize_t cfam_read(struct file *filep, char __user *buf, size_t count,
 	rc = count;
  fail:
 	*offset = off;
+<<<<<<< HEAD
 	return count;
+=======
+	return rc;
+>>>>>>> upstream/android-13
 }
 
 static ssize_t cfam_write(struct file *filep, const char __user *buf,
@@ -763,7 +786,11 @@ static ssize_t cfam_write(struct file *filep, const char __user *buf,
 	rc = count;
  fail:
 	*offset = off;
+<<<<<<< HEAD
 	return count;
+=======
+	return rc;
+>>>>>>> upstream/android-13
 }
 
 static loff_t cfam_llseek(struct file *file, loff_t offset, int whence)
@@ -989,7 +1016,11 @@ static int fsi_slave_init(struct fsi_master *master, int link, uint8_t id)
 	uint32_t cfam_id;
 	struct fsi_slave *slave;
 	uint8_t crc;
+<<<<<<< HEAD
 	__be32 data, llmode;
+=======
+	__be32 data, llmode, slbus;
+>>>>>>> upstream/android-13
 	int rc;
 
 	/* Currently, we only support single slaves on a link, and use the
@@ -1060,6 +1091,17 @@ static int fsi_slave_init(struct fsi_master *master, int link, uint8_t id)
 
 	}
 
+<<<<<<< HEAD
+=======
+	slbus = cpu_to_be32(FSI_SLBUS_FORCE);
+	rc = fsi_master_write(master, link, id, FSI_SLAVE_BASE + FSI_SLBUS,
+			      &slbus, sizeof(slbus));
+	if (rc)
+		dev_warn(&master->dev,
+			 "can't set slbus on slave:%02x:%02x %d\n", link, id,
+			 rc);
+
+>>>>>>> upstream/android-13
 	rc = fsi_slave_set_smode(slave);
 	if (rc) {
 		dev_warn(&master->dev,
@@ -1162,10 +1204,25 @@ static int fsi_master_write(struct fsi_master *master, int link,
 	return rc;
 }
 
+<<<<<<< HEAD
 static int fsi_master_link_enable(struct fsi_master *master, int link)
 {
 	if (master->link_enable)
 		return master->link_enable(master, link);
+=======
+static int fsi_master_link_disable(struct fsi_master *master, int link)
+{
+	if (master->link_enable)
+		return master->link_enable(master, link, false);
+
+	return 0;
+}
+
+static int fsi_master_link_enable(struct fsi_master *master, int link)
+{
+	if (master->link_enable)
+		return master->link_enable(master, link, true);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1200,12 +1257,22 @@ static int fsi_master_scan(struct fsi_master *master)
 		}
 		rc = fsi_master_break(master, link);
 		if (rc) {
+<<<<<<< HEAD
+=======
+			fsi_master_link_disable(master, link);
+>>>>>>> upstream/android-13
 			dev_dbg(&master->dev,
 				"break to link %d failed: %d\n", link, rc);
 			continue;
 		}
 
+<<<<<<< HEAD
 		fsi_slave_init(master, link, 0);
+=======
+		rc = fsi_slave_init(master, link, 0);
+		if (rc)
+			fsi_master_link_disable(master, link);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -1272,6 +1339,22 @@ static ssize_t master_break_store(struct device *dev,
 
 static DEVICE_ATTR(break, 0200, NULL, master_break_store);
 
+<<<<<<< HEAD
+=======
+static struct attribute *master_attrs[] = {
+	&dev_attr_break.attr,
+	&dev_attr_rescan.attr,
+	NULL
+};
+
+ATTRIBUTE_GROUPS(master);
+
+static struct class fsi_master_class = {
+	.name = "fsi-master",
+	.dev_groups = master_groups,
+};
+
+>>>>>>> upstream/android-13
 int fsi_master_register(struct fsi_master *master)
 {
 	int rc;
@@ -1280,6 +1363,10 @@ int fsi_master_register(struct fsi_master *master)
 	mutex_init(&master->scan_lock);
 	master->idx = ida_simple_get(&master_ida, 0, INT_MAX, GFP_KERNEL);
 	dev_set_name(&master->dev, "fsi%d", master->idx);
+<<<<<<< HEAD
+=======
+	master->dev.class = &fsi_master_class;
+>>>>>>> upstream/android-13
 
 	rc = device_register(&master->dev);
 	if (rc) {
@@ -1287,6 +1374,7 @@ int fsi_master_register(struct fsi_master *master)
 		return rc;
 	}
 
+<<<<<<< HEAD
 	rc = device_create_file(&master->dev, &dev_attr_rescan);
 	if (rc) {
 		device_del(&master->dev);
@@ -1301,6 +1389,8 @@ int fsi_master_register(struct fsi_master *master)
 		return rc;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	np = dev_of_node(&master->dev);
 	if (!of_property_read_bool(np, "no-scan-on-init")) {
 		mutex_lock(&master->scan_lock);
@@ -1381,8 +1471,20 @@ static int __init fsi_init(void)
 	rc = bus_register(&fsi_bus_type);
 	if (rc)
 		goto fail_bus;
+<<<<<<< HEAD
 	return 0;
 
+=======
+
+	rc = class_register(&fsi_master_class);
+	if (rc)
+		goto fail_class;
+
+	return 0;
+
+ fail_class:
+	bus_unregister(&fsi_bus_type);
+>>>>>>> upstream/android-13
  fail_bus:
 	unregister_chrdev_region(fsi_base_dev, FSI_CHAR_MAX_DEVICES);
 	return rc;
@@ -1391,6 +1493,10 @@ postcore_initcall(fsi_init);
 
 static void fsi_exit(void)
 {
+<<<<<<< HEAD
+=======
+	class_unregister(&fsi_master_class);
+>>>>>>> upstream/android-13
 	bus_unregister(&fsi_bus_type);
 	unregister_chrdev_region(fsi_base_dev, FSI_CHAR_MAX_DEVICES);
 	ida_destroy(&fsi_minor_ida);

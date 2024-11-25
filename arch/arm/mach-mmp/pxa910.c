@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/mach-mmp/pxa910.c
  *
  *  Code specific to PXA910
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/clk/mmp.h>
 #include <linux/module.h>
@@ -21,7 +28,11 @@
 #include <asm/mach/time.h>
 #include "addr-map.h"
 #include "regs-apbc.h"
+<<<<<<< HEAD
 #include "cputype.h"
+=======
+#include <linux/soc/mmp/cputype.h>
+>>>>>>> upstream/android-13
 #include "irqs.h"
 #include "mfp.h"
 #include "devices.h"
@@ -116,7 +127,11 @@ void __init pxa910_timer_init(void)
 	__raw_writel(APBC_APBCLK | APBC_RST, APBC_TIMERS);
 	__raw_writel(TIMER_CLK_RST, APBC_TIMERS);
 
+<<<<<<< HEAD
 	timer_init(IRQ_PXA910_AP1_TIMER1);
+=======
+	mmp_timer_init(IRQ_PXA910_AP1_TIMER1, 3250000);
+>>>>>>> upstream/android-13
 }
 
 /* on-chip devices */

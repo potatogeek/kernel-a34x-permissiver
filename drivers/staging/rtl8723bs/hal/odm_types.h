@@ -15,7 +15,11 @@
 
 #define GET_ODM(__padapter)	((PDM_ODM_T)(&((GET_HAL_DATA(__padapter))->odmpriv)))
 
+<<<<<<< HEAD
 typedef enum _HAL_STATUS {
+=======
+enum hal_status {
+>>>>>>> upstream/android-13
 	HAL_STATUS_SUCCESS,
 	HAL_STATUS_FAILURE,
 	/*RT_STATUS_PENDING,
@@ -24,6 +28,7 @@ typedef enum _HAL_STATUS {
 	RT_STATUS_INVALID_PARAMETER,
 	RT_STATUS_NOT_SUPPORT,
 	RT_STATUS_OS_API_FAILED,*/
+<<<<<<< HEAD
 } HAL_STATUS, *PHAL_STATUS;
 
 
@@ -68,14 +73,22 @@ typedef enum _RT_SPINLOCK_TYPE {
 	RT_INDIC_SPINLOCK = 41,	/* protect indication */
 } RT_SPINLOCK_TYPE;
 
+=======
+};
+
+
+>>>>>>> upstream/android-13
 	#if defined(__LITTLE_ENDIAN)
 		#define	ODM_ENDIAN_TYPE			ODM_ENDIAN_LITTLE
 	#else
 		#define	ODM_ENDIAN_TYPE			ODM_ENDIAN_BIG
 	#endif
 
+<<<<<<< HEAD
 	typedef struct timer_list		RT_TIMER, *PRT_TIMER;
 	typedef  void *RT_TIMER_CALL_BACK;
+=======
+>>>>>>> upstream/android-13
 	#define	STA_INFO_T			struct sta_info
 	#define	PSTA_INFO_T		struct sta_info *
 

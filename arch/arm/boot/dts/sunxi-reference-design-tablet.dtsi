@@ -46,13 +46,21 @@
 
 &i2c0 {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&i2c0_pins_a>;
+=======
+	pinctrl-0 = <&i2c0_pins>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
 &i2c1 {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&i2c1_pins_a>;
+=======
+	pinctrl-0 = <&i2c1_pins>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
@@ -60,14 +68,22 @@
 	vref-supply = <&reg_vcc3v0>;
 	status = "okay";
 
+<<<<<<< HEAD
 	button@200 {
+=======
+	button-200 {
+>>>>>>> upstream/android-13
 		label = "Volume Up";
 		linux,code = <KEY_VOLUMEUP>;
 		channel = <0>;
 		voltage = <200000>;
 	};
 
+<<<<<<< HEAD
 	button@400 {
+=======
+	button-400 {
+>>>>>>> upstream/android-13
 		label = "Volume Down";
 		linux,code = <KEY_VOLUMEDOWN>;
 		channel = <0>;
@@ -77,6 +93,10 @@
 
 &pwm {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&pwm0_pins>;
+=======
+	pinctrl-0 = <&pwm0_pin>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };

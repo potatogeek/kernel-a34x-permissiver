@@ -91,8 +91,11 @@ static int moxart_wdt_probe(struct platform_device *pdev)
 {
 	struct moxart_wdt_dev *moxart_wdt;
 	struct device *dev = &pdev->dev;
+<<<<<<< HEAD
 	struct device_node *node = dev->of_node;
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	struct clk *clk;
 	int err;
 	unsigned int max_timeout;
@@ -104,12 +107,20 @@ static int moxart_wdt_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, moxart_wdt);
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	moxart_wdt->base = devm_ioremap_resource(dev, res);
 	if (IS_ERR(moxart_wdt->base))
 		return PTR_ERR(moxart_wdt->base);
 
 	clk = of_clk_get(node, 0);
+=======
+	moxart_wdt->base = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(moxart_wdt->base))
+		return PTR_ERR(moxart_wdt->base);
+
+	clk = devm_clk_get(dev, NULL);
+>>>>>>> upstream/android-13
 	if (IS_ERR(clk)) {
 		pr_err("%s: of_clk_get failed\n", __func__);
 		return PTR_ERR(clk);
@@ -136,7 +147,12 @@ static int moxart_wdt_probe(struct platform_device *pdev)
 
 	watchdog_set_drvdata(&moxart_wdt->dev, moxart_wdt);
 
+<<<<<<< HEAD
 	err = watchdog_register_device(&moxart_wdt->dev);
+=======
+	watchdog_stop_on_unregister(&moxart_wdt->dev);
+	err = devm_watchdog_register_device(dev, &moxart_wdt->dev);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
@@ -146,6 +162,7 @@ static int moxart_wdt_probe(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int moxart_wdt_remove(struct platform_device *pdev)
 {
 	struct moxart_wdt_dev *moxart_wdt = platform_get_drvdata(pdev);
@@ -155,6 +172,8 @@ static int moxart_wdt_remove(struct platform_device *pdev)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct of_device_id moxart_watchdog_match[] = {
 	{ .compatible = "moxa,moxart-watchdog" },
 	{ },
@@ -163,7 +182,10 @@ MODULE_DEVICE_TABLE(of, moxart_watchdog_match);
 
 static struct platform_driver moxart_wdt_driver = {
 	.probe      = moxart_wdt_probe,
+<<<<<<< HEAD
 	.remove     = moxart_wdt_remove,
+=======
+>>>>>>> upstream/android-13
 	.driver     = {
 		.name		= "moxart-watchdog",
 		.of_match_table	= moxart_watchdog_match,

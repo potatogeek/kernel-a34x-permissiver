@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 config NFC_MRVL
 	tristate
 	help
@@ -14,7 +18,11 @@ config NFC_MRVL_USB
 	  Marvell NFC-over-USB driver.
 
 	  This driver provides support for Marvell NFC-over-USB devices:
+<<<<<<< HEAD
           8897.
+=======
+	  8897.
+>>>>>>> upstream/android-13
 
 	  Say Y here to compile support for Marvell NFC-over-USB driver
 	  into the kernel or say M to compile it as module.

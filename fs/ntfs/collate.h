@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * collate.h - Defines for NTFS kernel collation handling.  Part of the
  *	       Linux-NTFS project.
  *
  * Copyright (c) 2004 Anton Altaparmakov
+<<<<<<< HEAD
  *
  * This program/include file is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
@@ -18,6 +23,8 @@
  * along with this program (in the main directory of the Linux-NTFS
  * distribution in the file COPYING); if not, write to the Free Software
  * Foundation,Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _LINUX_NTFS_COLLATE_H

@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * test/set flag bits stored in conntrack extension area.
  *
  * (C) 2013 Astaro GmbH & Co KG
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/export.h>
@@ -14,7 +21,11 @@
 #include <net/netfilter/nf_conntrack_ecache.h>
 #include <net/netfilter/nf_conntrack_labels.h>
 
+<<<<<<< HEAD
 static spinlock_t nf_connlabels_lock;
+=======
+static DEFINE_SPINLOCK(nf_connlabels_lock);
+>>>>>>> upstream/android-13
 
 static int replace_u32(u32 *address, u32 mask, u32 new)
 {
@@ -92,7 +103,10 @@ int nf_conntrack_labels_init(void)
 {
 	BUILD_BUG_ON(NF_CT_LABELS_MAX_SIZE / sizeof(long) >= U8_MAX);
 
+<<<<<<< HEAD
 	spin_lock_init(&nf_connlabels_lock);
+=======
+>>>>>>> upstream/android-13
 	return nf_ct_extend_register(&labels_extend);
 }
 

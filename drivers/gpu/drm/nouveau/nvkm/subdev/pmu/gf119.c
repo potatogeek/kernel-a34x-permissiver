@@ -26,6 +26,10 @@
 
 static const struct nvkm_pmu_func
 gf119_pmu = {
+<<<<<<< HEAD
+=======
+	.flcn = &gt215_pmu_flcn,
+>>>>>>> upstream/android-13
 	.code.data = gf119_pmu_code,
 	.code.size = sizeof(gf119_pmu_code),
 	.data.data = gf119_pmu_data,
@@ -39,8 +43,22 @@ gf119_pmu = {
 	.recv = gt215_pmu_recv,
 };
 
+<<<<<<< HEAD
 int
 gf119_pmu_new(struct nvkm_device *device, int index, struct nvkm_pmu **ppmu)
 {
 	return nvkm_pmu_new_(&gf119_pmu, device, index, ppmu);
+=======
+static const struct nvkm_pmu_fwif
+gf119_pmu_fwif[] = {
+	{ -1, gf100_pmu_nofw, &gf119_pmu },
+	{}
+};
+
+int
+gf119_pmu_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+	      struct nvkm_pmu **ppmu)
+{
+	return nvkm_pmu_new_(gf119_pmu_fwif, device, type, inst, ppmu);
+>>>>>>> upstream/android-13
 }

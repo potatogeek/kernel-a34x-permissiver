@@ -182,6 +182,26 @@ static int ehci_orion_drv_reset(struct usb_hcd *hcd)
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static int __maybe_unused ehci_orion_drv_suspend(struct device *dev)
+{
+	struct usb_hcd *hcd = dev_get_drvdata(dev);
+
+	return ehci_suspend(hcd, device_may_wakeup(dev));
+}
+
+static int __maybe_unused ehci_orion_drv_resume(struct device *dev)
+{
+	struct usb_hcd *hcd = dev_get_drvdata(dev);
+
+	return ehci_resume(hcd, false);
+}
+
+static SIMPLE_DEV_PM_OPS(ehci_orion_pm_ops, ehci_orion_drv_suspend,
+			 ehci_orion_drv_resume);
+
+>>>>>>> upstream/android-13
 static const struct ehci_driver_overrides orion_overrides __initconst = {
 	.extra_priv_size =	sizeof(struct orion_ehci_hcd),
 	.reset = ehci_orion_drv_reset,
@@ -206,9 +226,12 @@ static int ehci_orion_drv_probe(struct platform_device *pdev)
 
 	irq = platform_get_irq(pdev, 0);
 	if (irq <= 0) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev,
 			"Found HC with no IRQ. Check %s setup!\n",
 			dev_name(&pdev->dev));
+=======
+>>>>>>> upstream/android-13
 		err = -ENODEV;
 		goto err;
 	}
@@ -250,13 +273,22 @@ static int ehci_orion_drv_probe(struct platform_device *pdev)
 	 * the clock does not exists.
 	 */
 	priv->clk = devm_clk_get(&pdev->dev, NULL);
+<<<<<<< HEAD
 	if (!IS_ERR(priv->clk))
 		clk_prepare_enable(priv->clk);
+=======
+	if (!IS_ERR(priv->clk)) {
+		err = clk_prepare_enable(priv->clk);
+		if (err)
+			goto err_put_hcd;
+	}
+>>>>>>> upstream/android-13
 
 	priv->phy = devm_phy_optional_get(&pdev->dev, "usb");
 	if (IS_ERR(priv->phy)) {
 		err = PTR_ERR(priv->phy);
 		if (err != -ENOSYS)
+<<<<<<< HEAD
 			goto err_phy_get;
 	} else {
 		err = phy_init(priv->phy);
@@ -266,6 +298,9 @@ static int ehci_orion_drv_probe(struct platform_device *pdev)
 		err = phy_power_on(priv->phy);
 		if (err)
 			goto err_phy_power_on;
+=======
+			goto err_dis_clk;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -297,11 +332,16 @@ static int ehci_orion_drv_probe(struct platform_device *pdev)
 
 	err = usb_add_hcd(hcd, irq, IRQF_SHARED);
 	if (err)
+<<<<<<< HEAD
 		goto err_add_hcd;
+=======
+		goto err_dis_clk;
+>>>>>>> upstream/android-13
 
 	device_wakeup_enable(hcd->self.controller);
 	return 0;
 
+<<<<<<< HEAD
 err_add_hcd:
 	if (!IS_ERR(priv->phy))
 		phy_power_off(priv->phy);
@@ -312,6 +352,12 @@ err_phy_init:
 err_phy_get:
 	if (!IS_ERR(priv->clk))
 		clk_disable_unprepare(priv->clk);
+=======
+err_dis_clk:
+	if (!IS_ERR(priv->clk))
+		clk_disable_unprepare(priv->clk);
+err_put_hcd:
+>>>>>>> upstream/android-13
 	usb_put_hcd(hcd);
 err:
 	dev_err(&pdev->dev, "init %s fail, %d\n",
@@ -327,11 +373,14 @@ static int ehci_orion_drv_remove(struct platform_device *pdev)
 
 	usb_remove_hcd(hcd);
 
+<<<<<<< HEAD
 	if (!IS_ERR(priv->phy)) {
 		phy_power_off(priv->phy);
 		phy_exit(priv->phy);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (!IS_ERR(priv->clk))
 		clk_disable_unprepare(priv->clk);
 
@@ -354,6 +403,10 @@ static struct platform_driver ehci_orion_driver = {
 	.driver = {
 		.name	= "orion-ehci",
 		.of_match_table = ehci_orion_dt_ids,
+<<<<<<< HEAD
+=======
+		.pm = &ehci_orion_pm_ops,
+>>>>>>> upstream/android-13
 	},
 };
 

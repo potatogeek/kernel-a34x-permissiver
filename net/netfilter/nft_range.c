@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016 Pablo Neira Ayuso <pablo@netfilter.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2016 Pablo Neira Ayuso <pablo@netfilter.org>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -18,14 +24,23 @@
 struct nft_range_expr {
 	struct nft_data		data_from;
 	struct nft_data		data_to;
+<<<<<<< HEAD
 	enum nft_registers	sreg:8;
+=======
+	u8			sreg;
+>>>>>>> upstream/android-13
 	u8			len;
 	enum nft_range_ops	op:8;
 };
 
+<<<<<<< HEAD
 static void nft_range_eval(const struct nft_expr *expr,
 			 struct nft_regs *regs,
 			 const struct nft_pktinfo *pkt)
+=======
+void nft_range_eval(const struct nft_expr *expr,
+		    struct nft_regs *regs, const struct nft_pktinfo *pkt)
+>>>>>>> upstream/android-13
 {
 	const struct nft_range_expr *priv = nft_expr_priv(expr);
 	int d1, d2;
@@ -90,8 +105,13 @@ static int nft_range_init(const struct nft_ctx *ctx, const struct nft_expr *expr
 		goto err2;
 	}
 
+<<<<<<< HEAD
 	priv->sreg = nft_parse_register(tb[NFTA_RANGE_SREG]);
 	err = nft_validate_register_load(priv->sreg, desc_from.len);
+=======
+	err = nft_parse_register_load(tb[NFTA_RANGE_SREG], &priv->sreg,
+				      desc_from.len);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		goto err2;
 

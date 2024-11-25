@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
+<<<<<<< HEAD
  * SAMSUNG SMDK2416 board device tree source
+=======
+ * Samsung SMDK2416 board device tree source
+>>>>>>> upstream/android-13
  *
  * Copyright (c) 2013 Heiko Stuebner <heiko@sntech.de>
  */
@@ -10,13 +14,18 @@
 
 / {
 	model = "SMDK2416";
+<<<<<<< HEAD
 	compatible = "samsung,s3c2416";
+=======
+	compatible = "samsung,smdk2416", "samsung,s3c2416";
+>>>>>>> upstream/android-13
 
 	memory@30000000 {
 		device_type = "memory";
 		reg =  <0x30000000 0x4000000>;
 	};
 
+<<<<<<< HEAD
 	clocks {
 		compatible = "simple-bus";
 
@@ -26,6 +35,13 @@
 			clock-output-names = "xti";
 			#clock-cells = <0>;
 		};
+=======
+	xti: clock-0 {
+		compatible = "fixed-clock";
+		clock-frequency = <12000000>;
+		clock-output-names = "xti";
+		#clock-cells = <0>;
+>>>>>>> upstream/android-13
 	};
 };
 

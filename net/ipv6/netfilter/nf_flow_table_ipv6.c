@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/init.h>
 #include <linux/module.h>
@@ -9,6 +13,11 @@
 static struct nf_flowtable_type flowtable_ipv6 = {
 	.family		= NFPROTO_IPV6,
 	.init		= nf_flow_table_init,
+<<<<<<< HEAD
+=======
+	.setup		= nf_flow_table_offload_setup,
+	.action		= nf_flow_rule_route_ipv6,
+>>>>>>> upstream/android-13
 	.free		= nf_flow_table_free,
 	.hook		= nf_flow_offload_ipv6_hook,
 	.owner		= THIS_MODULE,
@@ -32,3 +41,7 @@ module_exit(nf_flow_ipv6_module_exit);
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Pablo Neira Ayuso <pablo@netfilter.org>");
 MODULE_ALIAS_NF_FLOWTABLE(AF_INET6);
+<<<<<<< HEAD
+=======
+MODULE_DESCRIPTION("Netfilter flow table IPv6 module");
+>>>>>>> upstream/android-13

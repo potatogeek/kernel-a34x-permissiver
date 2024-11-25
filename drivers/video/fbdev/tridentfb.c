@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Frame buffer driver for Trident TGUI, Blade and Image series
  *
@@ -1442,7 +1446,11 @@ static int tridentfb_blank(int blank_mode, struct fb_info *info)
 	return (blank_mode == FB_BLANK_NORMAL) ? 1 : 0;
 }
 
+<<<<<<< HEAD
 static struct fb_ops tridentfb_ops = {
+=======
+static const struct fb_ops tridentfb_ops = {
+>>>>>>> upstream/android-13
 	.owner = THIS_MODULE,
 	.fb_setcolreg = tridentfb_setcolreg,
 	.fb_pan_display = tridentfb_pan_display,
@@ -1555,7 +1563,11 @@ static int trident_pci_probe(struct pci_dev *dev,
 		return -1;
 	}
 
+<<<<<<< HEAD
 	default_par->io_virt = ioremap_nocache(tridentfb_fix.mmio_start,
+=======
+	default_par->io_virt = ioremap(tridentfb_fix.mmio_start,
+>>>>>>> upstream/android-13
 					       tridentfb_fix.mmio_len);
 
 	if (!default_par->io_virt) {
@@ -1578,7 +1590,11 @@ static int trident_pci_probe(struct pci_dev *dev,
 		goto out_unmap1;
 	}
 
+<<<<<<< HEAD
 	info->screen_base = ioremap_nocache(tridentfb_fix.smem_start,
+=======
+	info->screen_base = ioremap(tridentfb_fix.smem_start,
+>>>>>>> upstream/android-13
 					    tridentfb_fix.smem_len);
 
 	if (!info->screen_base) {

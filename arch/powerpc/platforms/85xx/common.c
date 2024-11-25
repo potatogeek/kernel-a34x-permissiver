@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Routines common to most mpc85xx-based boards.
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Routines common to most mpc85xx-based boards.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/of_irq.h>
@@ -89,6 +95,7 @@ void __init mpc85xx_cpm2_pic_init(void)
 #endif
 
 #ifdef CONFIG_QUICC_ENGINE
+<<<<<<< HEAD
 void __init mpc85xx_qe_init(void)
 {
 	struct device_node *np;
@@ -112,6 +119,8 @@ void __init mpc85xx_qe_init(void)
 
 }
 
+=======
+>>>>>>> upstream/android-13
 void __init mpc85xx_qe_par_io_init(void)
 {
 	struct device_node *np;

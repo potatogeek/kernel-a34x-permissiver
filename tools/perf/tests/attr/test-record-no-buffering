@@ -1,6 +1,10 @@
 [config]
 command = record
+<<<<<<< HEAD
 args    = --no-buffering kill >/dev/null 2>&1
+=======
+args    = --no-bpf-event --no-buffering kill >/dev/null 2>&1
+>>>>>>> upstream/android-13
 ret     = 1
 
 [event:base-record]

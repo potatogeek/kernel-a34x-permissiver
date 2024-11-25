@@ -49,18 +49,27 @@ probe function calls fpga_mgr_register(), such as::
 		 * them in priv
 		 */
 
+<<<<<<< HEAD
 		mgr = fpga_mgr_create(dev, "Altera SOCFPGA FPGA Manager",
 				      &socfpga_fpga_ops, priv);
+=======
+		mgr = devm_fpga_mgr_create(dev, "Altera SOCFPGA FPGA Manager",
+					   &socfpga_fpga_ops, priv);
+>>>>>>> upstream/android-13
 		if (!mgr)
 			return -ENOMEM;
 
 		platform_set_drvdata(pdev, mgr);
 
+<<<<<<< HEAD
 		ret = fpga_mgr_register(mgr);
 		if (ret)
 			fpga_mgr_free(mgr);
 
 		return ret;
+=======
+		return fpga_mgr_register(mgr);
+>>>>>>> upstream/android-13
 	}
 
 	static int socfpga_fpga_remove(struct platform_device *pdev)
@@ -102,6 +111,7 @@ The ops include a .state function which will determine the state the FPGA is in
 and return a code of type enum fpga_mgr_states.  It doesn't result in a change
 in state.
 
+<<<<<<< HEAD
 How to write an image buffer to a supported FPGA
 ------------------------------------------------
 
@@ -163,6 +173,21 @@ Some sample code::
 API for implementing a new FPGA Manager driver
 ----------------------------------------------
 
+=======
+API for implementing a new FPGA Manager driver
+----------------------------------------------
+
+* ``fpga_mgr_states`` -  Values for :c:expr:`fpga_manager->state`.
+* struct fpga_manager -  the FPGA manager struct
+* struct fpga_manager_ops -  Low level FPGA manager driver ops
+* devm_fpga_mgr_create() -  Allocate and init a manager struct
+* fpga_mgr_register() -  Register an FPGA manager
+* fpga_mgr_unregister() -  Unregister an FPGA manager
+
+.. kernel-doc:: include/linux/fpga/fpga-mgr.h
+   :functions: fpga_mgr_states
+
+>>>>>>> upstream/android-13
 .. kernel-doc:: include/linux/fpga/fpga-mgr.h
    :functions: fpga_manager
 
@@ -170,16 +195,21 @@ API for implementing a new FPGA Manager driver
    :functions: fpga_manager_ops
 
 .. kernel-doc:: drivers/fpga/fpga-mgr.c
+<<<<<<< HEAD
    :functions: fpga_mgr_create
 
 .. kernel-doc:: drivers/fpga/fpga-mgr.c
    :functions: fpga_mgr_free
+=======
+   :functions: devm_fpga_mgr_create
+>>>>>>> upstream/android-13
 
 .. kernel-doc:: drivers/fpga/fpga-mgr.c
    :functions: fpga_mgr_register
 
 .. kernel-doc:: drivers/fpga/fpga-mgr.c
    :functions: fpga_mgr_unregister
+<<<<<<< HEAD
 
 API for programming an FPGA
 ---------------------------
@@ -223,3 +253,5 @@ Note - use :c:func:`fpga_region_program_fpga()` instead of :c:func:`fpga_mgr_loa
 
 .. kernel-doc:: drivers/fpga/fpga-mgr.c
    :functions: fpga_mgr_load
+=======
+>>>>>>> upstream/android-13

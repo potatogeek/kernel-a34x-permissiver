@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright Intel Corporation (C) 2017.
  *
@@ -13,6 +14,12 @@
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *  Copyright Intel Corporation (C) 2017.
+ *
+>>>>>>> upstream/android-13
  * Based on the i2c-axxia.c driver.
  */
 #include <linux/clk.h>
@@ -66,7 +73,11 @@
 #define ALTR_I2C_XFER_TIMEOUT	(msecs_to_jiffies(250))
 
 /**
+<<<<<<< HEAD
  * altr_i2c_dev - I2C device context
+=======
+ * struct altr_i2c_dev - I2C device context
+>>>>>>> upstream/android-13
  * @base: pointer to register struct
  * @msg: pointer to current message
  * @msg_len: number of bytes transferred in msg
@@ -80,7 +91,10 @@
  * @fifo_size: size of the FIFO passed in.
  * @isr_mask: cached copy of local ISR enables.
  * @isr_status: cached copy of local ISR status.
+<<<<<<< HEAD
  * @lock: spinlock for IRQ synchronization.
+=======
+>>>>>>> upstream/android-13
  * @isr_mutex: mutex for IRQ thread.
  */
 struct altr_i2c_dev {
@@ -97,18 +111,26 @@ struct altr_i2c_dev {
 	u32 fifo_size;
 	u32 isr_mask;
 	u32 isr_status;
+<<<<<<< HEAD
 	spinlock_t lock;	/* IRQ synchronization */
+=======
+>>>>>>> upstream/android-13
 	struct mutex isr_mutex;
 };
 
 static void
 altr_i2c_int_enable(struct altr_i2c_dev *idev, u32 mask, bool enable)
 {
+<<<<<<< HEAD
 	unsigned long flags;
 	u32 int_en;
 
 	spin_lock_irqsave(&idev->lock, flags);
 
+=======
+	u32 int_en;
+
+>>>>>>> upstream/android-13
 	int_en = readl(idev->base + ALTR_I2C_ISER);
 	if (enable)
 		idev->isr_mask = int_en | mask;
@@ -116,8 +138,11 @@ altr_i2c_int_enable(struct altr_i2c_dev *idev, u32 mask, bool enable)
 		idev->isr_mask = int_en & ~mask;
 
 	writel(idev->isr_mask, idev->base + ALTR_I2C_ISER);
+<<<<<<< HEAD
 
 	spin_unlock_irqrestore(&idev->lock, flags);
+=======
+>>>>>>> upstream/android-13
 }
 
 static void altr_i2c_int_clear(struct altr_i2c_dev *idev, u32 mask)
@@ -160,7 +185,11 @@ static void altr_i2c_init(struct altr_i2c_dev *idev)
 		  (ALTR_I2C_THRESHOLD << ALTR_I2C_CTRL_TCT_SHFT);
 	u32 t_high, t_low;
 
+<<<<<<< HEAD
 	if (idev->bus_clk_rate <= 100000) {
+=======
+	if (idev->bus_clk_rate <= I2C_MAX_STANDARD_MODE_FREQ) {
+>>>>>>> upstream/android-13
 		tmp &= ~ALTR_I2C_CTRL_BSPEED;
 		/* Standard mode SCL 50/50 */
 		t_high = divisor * 1 / 2;
@@ -190,7 +219,11 @@ static void altr_i2c_init(struct altr_i2c_dev *idev)
 	altr_i2c_int_enable(idev, ALTR_I2C_ALL_IRQ, false);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * altr_i2c_transfer - On the last byte to be transmitted, send
  * a Stop bit on the last byte.
  */
@@ -203,7 +236,11 @@ static void altr_i2c_transfer(struct altr_i2c_dev *idev, u32 data)
 		writel(data, idev->base + ALTR_I2C_TFR_CMD);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * altr_i2c_empty_rx_fifo - Fetch data from RX FIFO until end of
  * transfer. Send a Stop bit on the last byte.
  */
@@ -219,9 +256,14 @@ static void altr_i2c_empty_rx_fifo(struct altr_i2c_dev *idev)
 	}
 }
 
+<<<<<<< HEAD
 /**
  * altr_i2c_fill_tx_fifo - Fill TX FIFO from current message buffer.
  * @return: Number of bytes left to transfer.
+=======
+/*
+ * altr_i2c_fill_tx_fifo - Fill TX FIFO from current message buffer.
+>>>>>>> upstream/android-13
  */
 static int altr_i2c_fill_tx_fifo(struct altr_i2c_dev *idev)
 {
@@ -357,6 +399,10 @@ static int altr_i2c_xfer_msg(struct altr_i2c_dev *idev, struct i2c_msg *msg)
 
 	time_left = wait_for_completion_timeout(&idev->msg_complete,
 						ALTR_I2C_XFER_TIMEOUT);
+<<<<<<< HEAD
+=======
+	mutex_lock(&idev->isr_mutex);
+>>>>>>> upstream/android-13
 	altr_i2c_int_enable(idev, imask, false);
 
 	value = readl(idev->base + ALTR_I2C_STATUS) & ALTR_I2C_STAT_CORE;
@@ -369,6 +415,10 @@ static int altr_i2c_xfer_msg(struct altr_i2c_dev *idev, struct i2c_msg *msg)
 	}
 
 	altr_i2c_core_disable(idev);
+<<<<<<< HEAD
+=======
+	mutex_unlock(&idev->isr_mutex);
+>>>>>>> upstream/android-13
 
 	return idev->msg_err;
 }
@@ -400,23 +450,35 @@ static const struct i2c_algorithm altr_i2c_algo = {
 static int altr_i2c_probe(struct platform_device *pdev)
 {
 	struct altr_i2c_dev *idev = NULL;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	int irq, ret;
 
 	idev = devm_kzalloc(&pdev->dev, sizeof(*idev), GFP_KERNEL);
 	if (!idev)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	idev->base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	idev->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(idev->base))
 		return PTR_ERR(idev->base);
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(&pdev->dev, "missing interrupt resource\n");
 		return irq;
 	}
+=======
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 
 	idev->i2c_clk = devm_clk_get(&pdev->dev, NULL);
 	if (IS_ERR(idev->i2c_clk)) {
@@ -426,7 +488,10 @@ static int altr_i2c_probe(struct platform_device *pdev)
 
 	idev->dev = &pdev->dev;
 	init_completion(&idev->msg_complete);
+<<<<<<< HEAD
 	spin_lock_init(&idev->lock);
+=======
+>>>>>>> upstream/android-13
 	mutex_init(&idev->isr_mutex);
 
 	ret = device_property_read_u32(idev->dev, "fifo-size",
@@ -441,10 +506,17 @@ static int altr_i2c_probe(struct platform_device *pdev)
 				       &idev->bus_clk_rate);
 	if (ret) {
 		dev_err(&pdev->dev, "Default to 100kHz\n");
+<<<<<<< HEAD
 		idev->bus_clk_rate = 100000;	/* default clock rate */
 	}
 
 	if (idev->bus_clk_rate > 400000) {
+=======
+		idev->bus_clk_rate = I2C_MAX_STANDARD_MODE_FREQ;	/* default clock rate */
+	}
+
+	if (idev->bus_clk_rate > I2C_MAX_FAST_MODE_FREQ) {
+>>>>>>> upstream/android-13
 		dev_err(&pdev->dev, "invalid clock-frequency %d\n",
 			idev->bus_clk_rate);
 		return -EINVAL;
@@ -464,7 +536,13 @@ static int altr_i2c_probe(struct platform_device *pdev)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	altr_i2c_init(idev);
+=======
+	mutex_lock(&idev->isr_mutex);
+	altr_i2c_init(idev);
+	mutex_unlock(&idev->isr_mutex);
+>>>>>>> upstream/android-13
 
 	i2c_set_adapdata(&idev->adapter, idev);
 	strlcpy(idev->adapter.name, pdev->name, sizeof(idev->adapter.name));

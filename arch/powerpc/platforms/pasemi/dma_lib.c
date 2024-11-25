@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2006-2007 PA Semi, Inc
  *
  * Common functions for DMA access on PA Semi PWRficient
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -15,6 +20,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -262,8 +269,11 @@ int pasemi_dma_alloc_ring(struct pasemi_dmachan *chan, int ring_size)
 	if (!chan->ring_virt)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	memset(chan->ring_virt, 0, ring_size * sizeof(u64));
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL(pasemi_dma_alloc_ring);
@@ -576,7 +586,11 @@ int pasemi_dma_init(void)
 		res.start = 0xfd800000;
 		res.end = res.start + 0x1000;
 	}
+<<<<<<< HEAD
 	dma_status = __ioremap(res.start, resource_size(&res), 0);
+=======
+	dma_status = ioremap_cache(res.start, resource_size(&res));
+>>>>>>> upstream/android-13
 	pci_dev_put(iob_pdev);
 
 	for (i = 0; i < MAX_TXCH; i++)

@@ -169,8 +169,13 @@ nfsd4_free_layout_stateid(struct nfs4_stid *stid)
 	spin_unlock(&fp->fi_lock);
 
 	if (!nfsd4_layout_ops[ls->ls_layout_type]->disable_recalls)
+<<<<<<< HEAD
 		vfs_setlease(ls->ls_file, F_UNLCK, NULL, (void **)&ls);
 	fput(ls->ls_file);
+=======
+		vfs_setlease(ls->ls_file->nf_file, F_UNLCK, NULL, (void **)&ls);
+	nfsd_file_put(ls->ls_file);
+>>>>>>> upstream/android-13
 
 	if (ls->ls_recalled)
 		atomic_dec(&ls->ls_stid.sc_file->fi_lo_recalls);
@@ -197,7 +202,11 @@ nfsd4_layout_setlease(struct nfs4_layout_stateid *ls)
 	fl->fl_end = OFFSET_MAX;
 	fl->fl_owner = ls;
 	fl->fl_pid = current->tgid;
+<<<<<<< HEAD
 	fl->fl_file = ls->ls_file;
+=======
+	fl->fl_file = ls->ls_file->nf_file;
+>>>>>>> upstream/android-13
 
 	status = vfs_setlease(fl->fl_file, fl->fl_type, &fl, NULL);
 	if (status) {
@@ -236,13 +245,21 @@ nfsd4_alloc_layout_stateid(struct nfsd4_compound_state *cstate,
 			NFSPROC4_CLNT_CB_LAYOUT);
 
 	if (parent->sc_type == NFS4_DELEG_STID)
+<<<<<<< HEAD
 		ls->ls_file = get_file(fp->fi_deleg_file);
+=======
+		ls->ls_file = nfsd_file_get(fp->fi_deleg_file);
+>>>>>>> upstream/android-13
 	else
 		ls->ls_file = find_any_file(fp);
 	BUG_ON(!ls->ls_file);
 
 	if (nfsd4_layout_setlease(ls)) {
+<<<<<<< HEAD
 		fput(ls->ls_file);
+=======
+		nfsd_file_put(ls->ls_file);
+>>>>>>> upstream/android-13
 		put_nfs4_file(fp);
 		kmem_cache_free(nfs4_layout_stateid_cache, ls);
 		return NULL;
@@ -626,7 +643,11 @@ nfsd4_cb_layout_fail(struct nfs4_layout_stateid *ls)
 
 	argv[0] = (char *)nfsd_recall_failed;
 	argv[1] = addr_str;
+<<<<<<< HEAD
 	argv[2] = ls->ls_file->f_path.mnt->mnt_sb->s_id;
+=======
+	argv[2] = ls->ls_file->nf_file->f_path.mnt->mnt_sb->s_id;
+>>>>>>> upstream/android-13
 	argv[3] = NULL;
 
 	error = call_usermodehelper(nfsd_recall_failed, argv, envp,
@@ -656,7 +677,10 @@ nfsd4_cb_layout_done(struct nfsd4_callback *cb, struct rpc_task *task)
 	struct nfsd_net *nn;
 	ktime_t now, cutoff;
 	const struct nfsd4_layout_ops *ops;
+<<<<<<< HEAD
 	LIST_HEAD(reaplist);
+=======
+>>>>>>> upstream/android-13
 
 
 	switch (task->tk_status) {
@@ -682,7 +706,11 @@ nfsd4_cb_layout_done(struct nfsd4_callback *cb, struct rpc_task *task)
 			rpc_delay(task, HZ/100); /* 10 mili-seconds */
 			return 0;
 		}
+<<<<<<< HEAD
 		/* Fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		/*
 		 * Unknown error or non-responding client, we'll need to fence.
@@ -694,7 +722,11 @@ nfsd4_cb_layout_done(struct nfsd4_callback *cb, struct rpc_task *task)
 			ops->fence_client(ls);
 		else
 			nfsd4_cb_layout_fail(ls);
+<<<<<<< HEAD
 		return -1;
+=======
+		return 1;
+>>>>>>> upstream/android-13
 	case -NFS4ERR_NOMATCHING_LAYOUT:
 		trace_nfsd_layout_recall_done(&ls->ls_stid.sc_stateid);
 		task->tk_status = 0;

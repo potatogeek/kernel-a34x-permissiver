@@ -47,15 +47,22 @@ static int ls1x_gpio_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct gpio_chip *gc;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	gc = devm_kzalloc(dev, sizeof(*gc), GFP_KERNEL);
 	if (!gc)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	gpio_reg_base = devm_ioremap_resource(dev, res);
+=======
+	gpio_reg_base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(gpio_reg_base))
 		return PTR_ERR(gpio_reg_base);
 

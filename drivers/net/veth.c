@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  drivers/net/veth.c
  *
@@ -24,6 +28,10 @@
 #include <linux/filter.h>
 #include <linux/ptr_ring.h>
 #include <linux/bpf_trace.h>
+<<<<<<< HEAD
+=======
+#include <linux/net_tstamp.h>
+>>>>>>> upstream/android-13
 
 #define DRV_NAME	"veth"
 #define DRV_VERSION	"1.0"
@@ -32,6 +40,7 @@
 #define VETH_RING_SIZE		256
 #define VETH_XDP_HEADROOM	(XDP_PACKET_HEADROOM + NET_IP_ALIGN)
 
+<<<<<<< HEAD
 /* Separating two types of XDP xmit */
 #define VETH_XDP_TX		BIT(0)
 #define VETH_XDP_REDIR		BIT(1)
@@ -39,14 +48,42 @@
 struct pcpu_vstats {
 	u64			packets;
 	u64			bytes;
+=======
+#define VETH_XDP_TX_BULK_SIZE	16
+#define VETH_XDP_BATCH		16
+
+struct veth_stats {
+	u64	rx_drops;
+	/* xdp */
+	u64	xdp_packets;
+	u64	xdp_bytes;
+	u64	xdp_redirect;
+	u64	xdp_drops;
+	u64	xdp_tx;
+	u64	xdp_tx_err;
+	u64	peer_tq_xdp_xmit;
+	u64	peer_tq_xdp_xmit_err;
+};
+
+struct veth_rq_stats {
+	struct veth_stats	vs;
+>>>>>>> upstream/android-13
 	struct u64_stats_sync	syncp;
 };
 
 struct veth_rq {
 	struct napi_struct	xdp_napi;
+<<<<<<< HEAD
 	struct net_device	*dev;
 	struct bpf_prog __rcu	*xdp_prog;
 	struct xdp_mem_info	xdp_mem;
+=======
+	struct napi_struct __rcu *napi; /* points to xdp_napi when the latter is initialized */
+	struct net_device	*dev;
+	struct bpf_prog __rcu	*xdp_prog;
+	struct xdp_mem_info	xdp_mem;
+	struct veth_rq_stats	stats;
+>>>>>>> upstream/android-13
 	bool			rx_notify_masked;
 	struct ptr_ring		xdp_ring;
 	struct xdp_rxq_info	xdp_rxq;
@@ -60,10 +97,47 @@ struct veth_priv {
 	unsigned int		requested_headroom;
 };
 
+<<<<<<< HEAD
+=======
+struct veth_xdp_tx_bq {
+	struct xdp_frame *q[VETH_XDP_TX_BULK_SIZE];
+	unsigned int count;
+};
+
+>>>>>>> upstream/android-13
 /*
  * ethtool interface
  */
 
+<<<<<<< HEAD
+=======
+struct veth_q_stat_desc {
+	char	desc[ETH_GSTRING_LEN];
+	size_t	offset;
+};
+
+#define VETH_RQ_STAT(m)	offsetof(struct veth_stats, m)
+
+static const struct veth_q_stat_desc veth_rq_stats_desc[] = {
+	{ "xdp_packets",	VETH_RQ_STAT(xdp_packets) },
+	{ "xdp_bytes",		VETH_RQ_STAT(xdp_bytes) },
+	{ "drops",		VETH_RQ_STAT(rx_drops) },
+	{ "xdp_redirect",	VETH_RQ_STAT(xdp_redirect) },
+	{ "xdp_drops",		VETH_RQ_STAT(xdp_drops) },
+	{ "xdp_tx",		VETH_RQ_STAT(xdp_tx) },
+	{ "xdp_tx_errors",	VETH_RQ_STAT(xdp_tx_err) },
+};
+
+#define VETH_RQ_STATS_LEN	ARRAY_SIZE(veth_rq_stats_desc)
+
+static const struct veth_q_stat_desc veth_tq_stats_desc[] = {
+	{ "xdp_xmit",		VETH_RQ_STAT(peer_tq_xdp_xmit) },
+	{ "xdp_xmit_errors",	VETH_RQ_STAT(peer_tq_xdp_xmit_err) },
+};
+
+#define VETH_TQ_STATS_LEN	ARRAY_SIZE(veth_tq_stats_desc)
+
+>>>>>>> upstream/android-13
 static struct {
 	const char string[ETH_GSTRING_LEN];
 } ethtool_stats_keys[] = {
@@ -88,9 +162,35 @@ static void veth_get_drvinfo(struct net_device *dev, struct ethtool_drvinfo *inf
 
 static void veth_get_strings(struct net_device *dev, u32 stringset, u8 *buf)
 {
+<<<<<<< HEAD
 	switch(stringset) {
 	case ETH_SS_STATS:
 		memcpy(buf, &ethtool_stats_keys, sizeof(ethtool_stats_keys));
+=======
+	char *p = (char *)buf;
+	int i, j;
+
+	switch(stringset) {
+	case ETH_SS_STATS:
+		memcpy(p, &ethtool_stats_keys, sizeof(ethtool_stats_keys));
+		p += sizeof(ethtool_stats_keys);
+		for (i = 0; i < dev->real_num_rx_queues; i++) {
+			for (j = 0; j < VETH_RQ_STATS_LEN; j++) {
+				snprintf(p, ETH_GSTRING_LEN,
+					 "rx_queue_%u_%.18s",
+					 i, veth_rq_stats_desc[j].desc);
+				p += ETH_GSTRING_LEN;
+			}
+		}
+		for (i = 0; i < dev->real_num_tx_queues; i++) {
+			for (j = 0; j < VETH_TQ_STATS_LEN; j++) {
+				snprintf(p, ETH_GSTRING_LEN,
+					 "tx_queue_%u_%.18s",
+					 i, veth_tq_stats_desc[j].desc);
+				p += ETH_GSTRING_LEN;
+			}
+		}
+>>>>>>> upstream/android-13
 		break;
 	}
 }
@@ -99,7 +199,13 @@ static int veth_get_sset_count(struct net_device *dev, int sset)
 {
 	switch (sset) {
 	case ETH_SS_STATS:
+<<<<<<< HEAD
 		return ARRAY_SIZE(ethtool_stats_keys);
+=======
+		return ARRAY_SIZE(ethtool_stats_keys) +
+		       VETH_RQ_STATS_LEN * dev->real_num_rx_queues +
+		       VETH_TQ_STATS_LEN * dev->real_num_tx_queues;
+>>>>>>> upstream/android-13
 	default:
 		return -EOPNOTSUPP;
 	}
@@ -108,12 +214,70 @@ static int veth_get_sset_count(struct net_device *dev, int sset)
 static void veth_get_ethtool_stats(struct net_device *dev,
 		struct ethtool_stats *stats, u64 *data)
 {
+<<<<<<< HEAD
 	struct veth_priv *priv = netdev_priv(dev);
 	struct net_device *peer = rtnl_dereference(priv->peer);
 
 	data[0] = peer ? peer->ifindex : 0;
 }
 
+=======
+	struct veth_priv *rcv_priv, *priv = netdev_priv(dev);
+	struct net_device *peer = rtnl_dereference(priv->peer);
+	int i, j, idx;
+
+	data[0] = peer ? peer->ifindex : 0;
+	idx = 1;
+	for (i = 0; i < dev->real_num_rx_queues; i++) {
+		const struct veth_rq_stats *rq_stats = &priv->rq[i].stats;
+		const void *stats_base = (void *)&rq_stats->vs;
+		unsigned int start;
+		size_t offset;
+
+		do {
+			start = u64_stats_fetch_begin_irq(&rq_stats->syncp);
+			for (j = 0; j < VETH_RQ_STATS_LEN; j++) {
+				offset = veth_rq_stats_desc[j].offset;
+				data[idx + j] = *(u64 *)(stats_base + offset);
+			}
+		} while (u64_stats_fetch_retry_irq(&rq_stats->syncp, start));
+		idx += VETH_RQ_STATS_LEN;
+	}
+
+	if (!peer)
+		return;
+
+	rcv_priv = netdev_priv(peer);
+	for (i = 0; i < peer->real_num_rx_queues; i++) {
+		const struct veth_rq_stats *rq_stats = &rcv_priv->rq[i].stats;
+		const void *base = (void *)&rq_stats->vs;
+		unsigned int start, tx_idx = idx;
+		size_t offset;
+
+		tx_idx += (i % dev->real_num_tx_queues) * VETH_TQ_STATS_LEN;
+		do {
+			start = u64_stats_fetch_begin_irq(&rq_stats->syncp);
+			for (j = 0; j < VETH_TQ_STATS_LEN; j++) {
+				offset = veth_tq_stats_desc[j].offset;
+				data[tx_idx + j] += *(u64 *)(base + offset);
+			}
+		} while (u64_stats_fetch_retry_irq(&rq_stats->syncp, start));
+	}
+}
+
+static void veth_get_channels(struct net_device *dev,
+			      struct ethtool_channels *channels)
+{
+	channels->tx_count = dev->real_num_tx_queues;
+	channels->rx_count = dev->real_num_rx_queues;
+	channels->max_tx = dev->num_tx_queues;
+	channels->max_rx = dev->num_rx_queues;
+}
+
+static int veth_set_channels(struct net_device *dev,
+			     struct ethtool_channels *ch);
+
+>>>>>>> upstream/android-13
 static const struct ethtool_ops veth_ethtool_ops = {
 	.get_drvinfo		= veth_get_drvinfo,
 	.get_link		= ethtool_op_get_link,
@@ -121,6 +285,12 @@ static const struct ethtool_ops veth_ethtool_ops = {
 	.get_sset_count		= veth_get_sset_count,
 	.get_ethtool_stats	= veth_get_ethtool_stats,
 	.get_link_ksettings	= veth_get_link_ksettings,
+<<<<<<< HEAD
+=======
+	.get_ts_info		= ethtool_op_get_ts_info,
+	.get_channels		= veth_get_channels,
+	.set_channels		= veth_set_channels,
+>>>>>>> upstream/android-13
 };
 
 /* general routines */
@@ -130,14 +300,24 @@ static bool veth_is_xdp_frame(void *ptr)
 	return (unsigned long)ptr & VETH_XDP_FLAG;
 }
 
+<<<<<<< HEAD
 static void *veth_ptr_to_xdp(void *ptr)
+=======
+static struct xdp_frame *veth_ptr_to_xdp(void *ptr)
+>>>>>>> upstream/android-13
 {
 	return (void *)((unsigned long)ptr & ~VETH_XDP_FLAG);
 }
 
+<<<<<<< HEAD
 static void *veth_xdp_to_ptr(void *ptr)
 {
 	return (void *)((unsigned long)ptr | VETH_XDP_FLAG);
+=======
+static void *veth_xdp_to_ptr(struct xdp_frame *xdp)
+{
+	return (void *)((unsigned long)xdp | VETH_XDP_FLAG);
+>>>>>>> upstream/android-13
 }
 
 static void veth_ptr_free(void *ptr)
@@ -152,9 +332,16 @@ static void __veth_xdp_flush(struct veth_rq *rq)
 {
 	/* Write ptr_ring before reading rx_notify_masked */
 	smp_mb();
+<<<<<<< HEAD
 	if (!rq->rx_notify_masked) {
 		rq->rx_notify_masked = true;
 		napi_schedule(&rq->xdp_napi);
+=======
+	if (!READ_ONCE(rq->rx_notify_masked) &&
+	    napi_schedule_prep(&rq->xdp_napi)) {
+		WRITE_ONCE(rq->rx_notify_masked, true);
+		__napi_schedule(&rq->xdp_napi);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -176,18 +363,48 @@ static int veth_forward_skb(struct net_device *dev, struct sk_buff *skb,
 		netif_rx(skb);
 }
 
+<<<<<<< HEAD
+=======
+/* return true if the specified skb has chances of GRO aggregation
+ * Don't strive for accuracy, but try to avoid GRO overhead in the most
+ * common scenarios.
+ * When XDP is enabled, all traffic is considered eligible, as the xmit
+ * device has TSO off.
+ * When TSO is enabled on the xmit device, we are likely interested only
+ * in UDP aggregation, explicitly check for that if the skb is suspected
+ * - the sock_wfree destructor is used by UDP, ICMP and XDP sockets -
+ * to belong to locally generated UDP traffic.
+ */
+static bool veth_skb_is_eligible_for_gro(const struct net_device *dev,
+					 const struct net_device *rcv,
+					 const struct sk_buff *skb)
+{
+	return !(dev->features & NETIF_F_ALL_TSO) ||
+		(skb->destructor == sock_wfree &&
+		 rcv->features & (NETIF_F_GRO_FRAGLIST | NETIF_F_GRO_UDP_FWD));
+}
+
+>>>>>>> upstream/android-13
 static netdev_tx_t veth_xmit(struct sk_buff *skb, struct net_device *dev)
 {
 	struct veth_priv *rcv_priv, *priv = netdev_priv(dev);
 	struct veth_rq *rq = NULL;
 	struct net_device *rcv;
 	int length = skb->len;
+<<<<<<< HEAD
 	bool rcv_xdp = false;
+=======
+	bool use_napi = false;
+>>>>>>> upstream/android-13
 	int rxq;
 
 	rcu_read_lock();
 	rcv = rcu_dereference(priv->peer);
+<<<<<<< HEAD
 	if (unlikely(!rcv)) {
+=======
+	if (unlikely(!rcv) || !pskb_may_pull(skb, ETH_HLEN)) {
+>>>>>>> upstream/android-13
 		kfree_skb(skb);
 		goto drop;
 	}
@@ -196,6 +413,7 @@ static netdev_tx_t veth_xmit(struct sk_buff *skb, struct net_device *dev)
 	rxq = skb_get_queue_mapping(skb);
 	if (rxq < rcv->real_num_rx_queues) {
 		rq = &rcv_priv->rq[rxq];
+<<<<<<< HEAD
 		rcv_xdp = rcu_access_pointer(rq->xdp_prog);
 		skb_record_rx_queue(skb, rxq);
 	}
@@ -207,12 +425,31 @@ static netdev_tx_t veth_xmit(struct sk_buff *skb, struct net_device *dev)
 		stats->bytes += length;
 		stats->packets++;
 		u64_stats_update_end(&stats->syncp);
+=======
+
+		/* The napi pointer is available when an XDP program is
+		 * attached or when GRO is enabled
+		 * Don't bother with napi/GRO if the skb can't be aggregated
+		 */
+		use_napi = rcu_access_pointer(rq->napi) &&
+			   veth_skb_is_eligible_for_gro(dev, rcv, skb);
+	}
+
+	skb_tx_timestamp(skb);
+	if (likely(veth_forward_skb(rcv, skb, rq, use_napi) == NET_RX_SUCCESS)) {
+		if (!use_napi)
+			dev_lstats_add(dev, length);
+>>>>>>> upstream/android-13
 	} else {
 drop:
 		atomic64_inc(&priv->dropped);
 	}
 
+<<<<<<< HEAD
 	if (rcv_xdp)
+=======
+	if (use_napi)
+>>>>>>> upstream/android-13
 		__veth_xdp_flush(rq);
 
 	rcu_read_unlock();
@@ -220,6 +457,7 @@ drop:
 	return NETDEV_TX_OK;
 }
 
+<<<<<<< HEAD
 static u64 veth_stats_one(struct pcpu_vstats *result, struct net_device *dev)
 {
 	struct veth_priv *priv = netdev_priv(dev);
@@ -230,10 +468,34 @@ static u64 veth_stats_one(struct pcpu_vstats *result, struct net_device *dev)
 	for_each_possible_cpu(cpu) {
 		struct pcpu_vstats *stats = per_cpu_ptr(dev->vstats, cpu);
 		u64 packets, bytes;
+=======
+static u64 veth_stats_tx(struct net_device *dev, u64 *packets, u64 *bytes)
+{
+	struct veth_priv *priv = netdev_priv(dev);
+
+	dev_lstats_read(dev, packets, bytes);
+	return atomic64_read(&priv->dropped);
+}
+
+static void veth_stats_rx(struct veth_stats *result, struct net_device *dev)
+{
+	struct veth_priv *priv = netdev_priv(dev);
+	int i;
+
+	result->peer_tq_xdp_xmit_err = 0;
+	result->xdp_packets = 0;
+	result->xdp_tx_err = 0;
+	result->xdp_bytes = 0;
+	result->rx_drops = 0;
+	for (i = 0; i < dev->num_rx_queues; i++) {
+		u64 packets, bytes, drops, xdp_tx_err, peer_tq_xdp_xmit_err;
+		struct veth_rq_stats *stats = &priv->rq[i].stats;
+>>>>>>> upstream/android-13
 		unsigned int start;
 
 		do {
 			start = u64_stats_fetch_begin_irq(&stats->syncp);
+<<<<<<< HEAD
 			packets = stats->packets;
 			bytes = stats->bytes;
 		} while (u64_stats_fetch_retry_irq(&stats->syncp, start));
@@ -241,6 +503,20 @@ static u64 veth_stats_one(struct pcpu_vstats *result, struct net_device *dev)
 		result->bytes += bytes;
 	}
 	return atomic64_read(&priv->dropped);
+=======
+			peer_tq_xdp_xmit_err = stats->vs.peer_tq_xdp_xmit_err;
+			xdp_tx_err = stats->vs.xdp_tx_err;
+			packets = stats->vs.xdp_packets;
+			bytes = stats->vs.xdp_bytes;
+			drops = stats->vs.rx_drops;
+		} while (u64_stats_fetch_retry_irq(&stats->syncp, start));
+		result->peer_tq_xdp_xmit_err += peer_tq_xdp_xmit_err;
+		result->xdp_tx_err += xdp_tx_err;
+		result->xdp_packets += packets;
+		result->xdp_bytes += bytes;
+		result->rx_drops += drops;
+	}
+>>>>>>> upstream/android-13
 }
 
 static void veth_get_stats64(struct net_device *dev,
@@ -248,18 +524,45 @@ static void veth_get_stats64(struct net_device *dev,
 {
 	struct veth_priv *priv = netdev_priv(dev);
 	struct net_device *peer;
+<<<<<<< HEAD
 	struct pcpu_vstats one;
 
 	tot->tx_dropped = veth_stats_one(&one, dev);
 	tot->tx_bytes = one.bytes;
 	tot->tx_packets = one.packets;
+=======
+	struct veth_stats rx;
+	u64 packets, bytes;
+
+	tot->tx_dropped = veth_stats_tx(dev, &packets, &bytes);
+	tot->tx_bytes = bytes;
+	tot->tx_packets = packets;
+
+	veth_stats_rx(&rx, dev);
+	tot->tx_dropped += rx.xdp_tx_err;
+	tot->rx_dropped = rx.rx_drops + rx.peer_tq_xdp_xmit_err;
+	tot->rx_bytes = rx.xdp_bytes;
+	tot->rx_packets = rx.xdp_packets;
+>>>>>>> upstream/android-13
 
 	rcu_read_lock();
 	peer = rcu_dereference(priv->peer);
 	if (peer) {
+<<<<<<< HEAD
 		tot->rx_dropped = veth_stats_one(&one, peer);
 		tot->rx_bytes = one.bytes;
 		tot->rx_packets = one.packets;
+=======
+		veth_stats_tx(peer, &packets, &bytes);
+		tot->rx_bytes += bytes;
+		tot->rx_packets += packets;
+
+		veth_stats_rx(&rx, peer);
+		tot->tx_dropped += rx.peer_tq_xdp_xmit_err;
+		tot->rx_dropped += rx.xdp_tx_err;
+		tot->tx_bytes += rx.xdp_bytes;
+		tot->tx_packets += rx.xdp_packets;
+>>>>>>> upstream/android-13
 	}
 	rcu_read_unlock();
 }
@@ -274,10 +577,13 @@ static struct sk_buff *veth_build_skb(void *head, int headroom, int len,
 {
 	struct sk_buff *skb;
 
+<<<<<<< HEAD
 	if (!buflen) {
 		buflen = SKB_DATA_ALIGN(headroom + len) +
 			 SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
 	}
+=======
+>>>>>>> upstream/android-13
 	skb = build_skb(head, buflen);
 	if (!skb)
 		return NULL;
@@ -293,6 +599,7 @@ static int veth_select_rxq(struct net_device *dev)
 	return smp_processor_id() % dev->real_num_rx_queues;
 }
 
+<<<<<<< HEAD
 static int veth_xdp_xmit(struct net_device *dev, int n,
 			 struct xdp_frame **frames, u32 flags)
 {
@@ -301,10 +608,30 @@ static int veth_xdp_xmit(struct net_device *dev, int n,
 	unsigned int max_len;
 	struct veth_rq *rq;
 	int i, drops = 0;
+=======
+static struct net_device *veth_peer_dev(struct net_device *dev)
+{
+	struct veth_priv *priv = netdev_priv(dev);
+
+	/* Callers must be under RCU read side. */
+	return rcu_dereference(priv->peer);
+}
+
+static int veth_xdp_xmit(struct net_device *dev, int n,
+			 struct xdp_frame **frames,
+			 u32 flags, bool ndo_xmit)
+{
+	struct veth_priv *rcv_priv, *priv = netdev_priv(dev);
+	int i, ret = -ENXIO, nxmit = 0;
+	struct net_device *rcv;
+	unsigned int max_len;
+	struct veth_rq *rq;
+>>>>>>> upstream/android-13
 
 	if (unlikely(flags & ~XDP_XMIT_FLAGS_MASK))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	rcv = rcu_dereference(priv->peer);
 	if (unlikely(!rcv))
 		return -ENXIO;
@@ -317,6 +644,20 @@ static int veth_xdp_xmit(struct net_device *dev, int n,
 	 */
 	if (!rcu_access_pointer(rq->xdp_prog))
 		return -ENXIO;
+=======
+	rcu_read_lock();
+	rcv = rcu_dereference(priv->peer);
+	if (unlikely(!rcv))
+		goto out;
+
+	rcv_priv = netdev_priv(rcv);
+	rq = &rcv_priv->rq[veth_select_rxq(rcv)];
+	/* The napi pointer is set if NAPI is enabled, which ensures that
+	 * xdp_ring is initialized on receive side and the peer device is up.
+	 */
+	if (!rcu_access_pointer(rq->napi))
+		goto out;
+>>>>>>> upstream/android-13
 
 	max_len = rcv->mtu + rcv->hard_header_len + VLAN_HLEN;
 
@@ -326,16 +667,23 @@ static int veth_xdp_xmit(struct net_device *dev, int n,
 		void *ptr = veth_xdp_to_ptr(frame);
 
 		if (unlikely(frame->len > max_len ||
+<<<<<<< HEAD
 			     __ptr_ring_produce(&rq->xdp_ring, ptr))) {
 			xdp_return_frame_rx_napi(frame);
 			drops++;
 		}
+=======
+			     __ptr_ring_produce(&rq->xdp_ring, ptr)))
+			break;
+		nxmit++;
+>>>>>>> upstream/android-13
 	}
 	spin_unlock(&rq->xdp_ring.producer_lock);
 
 	if (flags & XDP_XMIT_FLUSH)
 		__veth_xdp_flush(rq);
 
+<<<<<<< HEAD
 	return n - drops;
 }
 
@@ -346,28 +694,108 @@ static void veth_xdp_flush(struct net_device *dev)
 	struct veth_rq *rq;
 
 	rcu_read_lock();
+=======
+	ret = nxmit;
+	if (ndo_xmit) {
+		u64_stats_update_begin(&rq->stats.syncp);
+		rq->stats.vs.peer_tq_xdp_xmit += nxmit;
+		rq->stats.vs.peer_tq_xdp_xmit_err += n - nxmit;
+		u64_stats_update_end(&rq->stats.syncp);
+	}
+
+out:
+	rcu_read_unlock();
+
+	return ret;
+}
+
+static int veth_ndo_xdp_xmit(struct net_device *dev, int n,
+			     struct xdp_frame **frames, u32 flags)
+{
+	int err;
+
+	err = veth_xdp_xmit(dev, n, frames, flags, true);
+	if (err < 0) {
+		struct veth_priv *priv = netdev_priv(dev);
+
+		atomic64_add(n, &priv->dropped);
+	}
+
+	return err;
+}
+
+static void veth_xdp_flush_bq(struct veth_rq *rq, struct veth_xdp_tx_bq *bq)
+{
+	int sent, i, err = 0, drops;
+
+	sent = veth_xdp_xmit(rq->dev, bq->count, bq->q, 0, false);
+	if (sent < 0) {
+		err = sent;
+		sent = 0;
+	}
+
+	for (i = sent; unlikely(i < bq->count); i++)
+		xdp_return_frame(bq->q[i]);
+
+	drops = bq->count - sent;
+	trace_xdp_bulk_tx(rq->dev, sent, drops, err);
+
+	u64_stats_update_begin(&rq->stats.syncp);
+	rq->stats.vs.xdp_tx += sent;
+	rq->stats.vs.xdp_tx_err += drops;
+	u64_stats_update_end(&rq->stats.syncp);
+
+	bq->count = 0;
+}
+
+static void veth_xdp_flush(struct veth_rq *rq, struct veth_xdp_tx_bq *bq)
+{
+	struct veth_priv *rcv_priv, *priv = netdev_priv(rq->dev);
+	struct net_device *rcv;
+	struct veth_rq *rcv_rq;
+
+	rcu_read_lock();
+	veth_xdp_flush_bq(rq, bq);
+>>>>>>> upstream/android-13
 	rcv = rcu_dereference(priv->peer);
 	if (unlikely(!rcv))
 		goto out;
 
 	rcv_priv = netdev_priv(rcv);
+<<<<<<< HEAD
 	rq = &rcv_priv->rq[veth_select_rxq(rcv)];
 	/* xdp_ring is initialized on receive side? */
 	if (unlikely(!rcu_access_pointer(rq->xdp_prog)))
 		goto out;
 
 	__veth_xdp_flush(rq);
+=======
+	rcv_rq = &rcv_priv->rq[veth_select_rxq(rcv)];
+	/* xdp_ring is initialized on receive side? */
+	if (unlikely(!rcu_access_pointer(rcv_rq->xdp_prog)))
+		goto out;
+
+	__veth_xdp_flush(rcv_rq);
+>>>>>>> upstream/android-13
 out:
 	rcu_read_unlock();
 }
 
+<<<<<<< HEAD
 static int veth_xdp_tx(struct net_device *dev, struct xdp_buff *xdp)
 {
 	struct xdp_frame *frame = convert_to_xdp_frame(xdp);
+=======
+static int veth_xdp_tx(struct veth_rq *rq, struct xdp_buff *xdp,
+		       struct veth_xdp_tx_bq *bq)
+{
+	struct xdp_frame *frame = xdp_convert_buff_to_frame(xdp);
+>>>>>>> upstream/android-13
 
 	if (unlikely(!frame))
 		return -EOVERFLOW;
 
+<<<<<<< HEAD
 	return veth_xdp_xmit(dev, 1, &frame, 0);
 }
 
@@ -384,6 +812,23 @@ static struct sk_buff *veth_xdp_rcv_one(struct veth_rq *rq,
 
 	/* bpf_xdp_adjust_head() assures BPF cannot access xdp_frame area */
 	hard_start -= sizeof(struct xdp_frame);
+=======
+	if (unlikely(bq->count == VETH_XDP_TX_BULK_SIZE))
+		veth_xdp_flush_bq(rq, bq);
+
+	bq->q[bq->count++] = frame;
+
+	return 0;
+}
+
+static struct xdp_frame *veth_xdp_rcv_one(struct veth_rq *rq,
+					  struct xdp_frame *frame,
+					  struct veth_xdp_tx_bq *bq,
+					  struct veth_stats *stats)
+{
+	struct xdp_frame orig_frame;
+	struct bpf_prog *xdp_prog;
+>>>>>>> upstream/android-13
 
 	rcu_read_lock();
 	xdp_prog = rcu_dereference(rq->xdp_prog);
@@ -391,28 +836,47 @@ static struct sk_buff *veth_xdp_rcv_one(struct veth_rq *rq,
 		struct xdp_buff xdp;
 		u32 act;
 
+<<<<<<< HEAD
 		xdp.data_hard_start = hard_start;
 		xdp.data = frame->data;
 		xdp.data_end = frame->data + frame->len;
 		xdp.data_meta = frame->data - frame->metasize;
+=======
+		xdp_convert_frame_to_buff(frame, &xdp);
+>>>>>>> upstream/android-13
 		xdp.rxq = &rq->xdp_rxq;
 
 		act = bpf_prog_run_xdp(xdp_prog, &xdp);
 
 		switch (act) {
 		case XDP_PASS:
+<<<<<<< HEAD
 			delta = frame->data - xdp.data;
 			len = xdp.data_end - xdp.data;
+=======
+			if (xdp_update_frame_from_buff(&xdp, frame))
+				goto err_xdp;
+>>>>>>> upstream/android-13
 			break;
 		case XDP_TX:
 			orig_frame = *frame;
 			xdp.rxq->mem = frame->mem;
+<<<<<<< HEAD
 			if (unlikely(veth_xdp_tx(rq->dev, &xdp) < 0)) {
 				trace_xdp_exception(rq->dev, xdp_prog, act);
 				frame = &orig_frame;
 				goto err_xdp;
 			}
 			*xdp_xmit |= VETH_XDP_TX;
+=======
+			if (unlikely(veth_xdp_tx(rq, &xdp, bq) < 0)) {
+				trace_xdp_exception(rq->dev, xdp_prog, act);
+				frame = &orig_frame;
+				stats->rx_drops++;
+				goto err_xdp;
+			}
+			stats->xdp_tx++;
+>>>>>>> upstream/android-13
 			rcu_read_unlock();
 			goto xdp_xmit;
 		case XDP_REDIRECT:
@@ -420,21 +884,38 @@ static struct sk_buff *veth_xdp_rcv_one(struct veth_rq *rq,
 			xdp.rxq->mem = frame->mem;
 			if (xdp_do_redirect(rq->dev, &xdp, xdp_prog)) {
 				frame = &orig_frame;
+<<<<<<< HEAD
 				goto err_xdp;
 			}
 			*xdp_xmit |= VETH_XDP_REDIR;
+=======
+				stats->rx_drops++;
+				goto err_xdp;
+			}
+			stats->xdp_redirect++;
+>>>>>>> upstream/android-13
 			rcu_read_unlock();
 			goto xdp_xmit;
 		default:
 			bpf_warn_invalid_xdp_action(act);
+<<<<<<< HEAD
 		case XDP_ABORTED:
 			trace_xdp_exception(rq->dev, xdp_prog, act);
 		case XDP_DROP:
+=======
+			fallthrough;
+		case XDP_ABORTED:
+			trace_xdp_exception(rq->dev, xdp_prog, act);
+			fallthrough;
+		case XDP_DROP:
+			stats->xdp_drops++;
+>>>>>>> upstream/android-13
 			goto err_xdp;
 		}
 	}
 	rcu_read_unlock();
 
+<<<<<<< HEAD
 	headroom = sizeof(struct xdp_frame) + frame->headroom - delta;
 	skb = veth_build_skb(hard_start, headroom, len, 0);
 	if (!skb) {
@@ -446,6 +927,9 @@ static struct sk_buff *veth_xdp_rcv_one(struct veth_rq *rq,
 	skb->protocol = eth_type_trans(skb, rq->dev);
 err:
 	return skb;
+=======
+	return frame;
+>>>>>>> upstream/android-13
 err_xdp:
 	rcu_read_unlock();
 	xdp_return_frame(frame);
@@ -453,16 +937,60 @@ xdp_xmit:
 	return NULL;
 }
 
+<<<<<<< HEAD
 static struct sk_buff *veth_xdp_rcv_skb(struct veth_rq *rq, struct sk_buff *skb,
 					unsigned int *xdp_xmit)
 {
 	u32 pktlen, headroom, act, metalen;
+=======
+/* frames array contains VETH_XDP_BATCH at most */
+static void veth_xdp_rcv_bulk_skb(struct veth_rq *rq, void **frames,
+				  int n_xdpf, struct veth_xdp_tx_bq *bq,
+				  struct veth_stats *stats)
+{
+	void *skbs[VETH_XDP_BATCH];
+	int i;
+
+	if (xdp_alloc_skb_bulk(skbs, n_xdpf,
+			       GFP_ATOMIC | __GFP_ZERO) < 0) {
+		for (i = 0; i < n_xdpf; i++)
+			xdp_return_frame(frames[i]);
+		stats->rx_drops += n_xdpf;
+
+		return;
+	}
+
+	for (i = 0; i < n_xdpf; i++) {
+		struct sk_buff *skb = skbs[i];
+
+		skb = __xdp_build_skb_from_frame(frames[i], skb,
+						 rq->dev);
+		if (!skb) {
+			xdp_return_frame(frames[i]);
+			stats->rx_drops++;
+			continue;
+		}
+		napi_gro_receive(&rq->xdp_napi, skb);
+	}
+}
+
+static struct sk_buff *veth_xdp_rcv_skb(struct veth_rq *rq,
+					struct sk_buff *skb,
+					struct veth_xdp_tx_bq *bq,
+					struct veth_stats *stats)
+{
+	u32 pktlen, headroom, act, metalen, frame_sz;
+>>>>>>> upstream/android-13
 	void *orig_data, *orig_data_end;
 	struct bpf_prog *xdp_prog;
 	int mac_len, delta, off;
 	struct xdp_buff xdp;
 
+<<<<<<< HEAD
 	skb_orphan(skb);
+=======
+	skb_prepare_for_gro(skb);
+>>>>>>> upstream/android-13
 
 	rcu_read_lock();
 	xdp_prog = rcu_dereference(rq->xdp_prog);
@@ -498,9 +1026,14 @@ static struct sk_buff *veth_xdp_rcv_skb(struct veth_rq *rq, struct sk_buff *skb,
 			goto drop;
 		}
 
+<<<<<<< HEAD
 		nskb = veth_build_skb(head,
 				      VETH_XDP_HEADROOM + mac_len, skb->len,
 				      PAGE_SIZE);
+=======
+		nskb = veth_build_skb(head, VETH_XDP_HEADROOM + mac_len,
+				      skb->len, PAGE_SIZE);
+>>>>>>> upstream/android-13
 		if (!nskb) {
 			page_frag_free(head);
 			goto drop;
@@ -513,11 +1046,20 @@ static struct sk_buff *veth_xdp_rcv_skb(struct veth_rq *rq, struct sk_buff *skb,
 		skb = nskb;
 	}
 
+<<<<<<< HEAD
 	xdp.data_hard_start = skb->head;
 	xdp.data = skb_mac_header(skb);
 	xdp.data_end = xdp.data + pktlen;
 	xdp.data_meta = xdp.data;
 	xdp.rxq = &rq->xdp_rxq;
+=======
+	/* SKB "head" area always have tailroom for skb_shared_info */
+	frame_sz = skb_end_pointer(skb) - skb->head;
+	frame_sz += SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
+	xdp_init_buff(&xdp, frame_sz, &rq->xdp_rxq);
+	xdp_prepare_buff(&xdp, skb->head, skb->mac_header, pktlen, true);
+
+>>>>>>> upstream/android-13
 	orig_data = xdp.data;
 	orig_data_end = xdp.data_end;
 
@@ -530,24 +1072,42 @@ static struct sk_buff *veth_xdp_rcv_skb(struct veth_rq *rq, struct sk_buff *skb,
 		get_page(virt_to_page(xdp.data));
 		consume_skb(skb);
 		xdp.rxq->mem = rq->xdp_mem;
+<<<<<<< HEAD
 		if (unlikely(veth_xdp_tx(rq->dev, &xdp) < 0)) {
 			trace_xdp_exception(rq->dev, xdp_prog, act);
 			goto err_xdp;
 		}
 		*xdp_xmit |= VETH_XDP_TX;
+=======
+		if (unlikely(veth_xdp_tx(rq, &xdp, bq) < 0)) {
+			trace_xdp_exception(rq->dev, xdp_prog, act);
+			stats->rx_drops++;
+			goto err_xdp;
+		}
+		stats->xdp_tx++;
+>>>>>>> upstream/android-13
 		rcu_read_unlock();
 		goto xdp_xmit;
 	case XDP_REDIRECT:
 		get_page(virt_to_page(xdp.data));
 		consume_skb(skb);
 		xdp.rxq->mem = rq->xdp_mem;
+<<<<<<< HEAD
 		if (xdp_do_redirect(rq->dev, &xdp, xdp_prog))
 			goto err_xdp;
 		*xdp_xmit |= VETH_XDP_REDIR;
+=======
+		if (xdp_do_redirect(rq->dev, &xdp, xdp_prog)) {
+			stats->rx_drops++;
+			goto err_xdp;
+		}
+		stats->xdp_redirect++;
+>>>>>>> upstream/android-13
 		rcu_read_unlock();
 		goto xdp_xmit;
 	default:
 		bpf_warn_invalid_xdp_action(act);
+<<<<<<< HEAD
 	case XDP_ABORTED:
 		trace_xdp_exception(rq->dev, xdp_prog, act);
 	case XDP_DROP:
@@ -555,6 +1115,19 @@ static struct sk_buff *veth_xdp_rcv_skb(struct veth_rq *rq, struct sk_buff *skb,
 	}
 	rcu_read_unlock();
 
+=======
+		fallthrough;
+	case XDP_ABORTED:
+		trace_xdp_exception(rq->dev, xdp_prog, act);
+		fallthrough;
+	case XDP_DROP:
+		stats->xdp_drops++;
+		goto xdp_drop;
+	}
+	rcu_read_unlock();
+
+	/* check if bpf_xdp_adjust_head was used */
+>>>>>>> upstream/android-13
 	delta = orig_data - xdp.data;
 	off = mac_len + delta;
 	if (off > 0)
@@ -562,9 +1135,17 @@ static struct sk_buff *veth_xdp_rcv_skb(struct veth_rq *rq, struct sk_buff *skb,
 	else if (off < 0)
 		__skb_pull(skb, -off);
 	skb->mac_header -= delta;
+<<<<<<< HEAD
 	off = xdp.data_end - orig_data_end;
 	if (off != 0)
 		__skb_put(skb, off);
+=======
+
+	/* check if bpf_xdp_adjust_tail was used */
+	off = xdp.data_end - orig_data_end;
+	if (off != 0)
+		__skb_put(skb, off); /* positive on grow, negative on shrink */
+>>>>>>> upstream/android-13
 	skb->protocol = eth_type_trans(skb, rq->dev);
 
 	metalen = xdp.data - xdp.data_meta;
@@ -573,6 +1154,11 @@ static struct sk_buff *veth_xdp_rcv_skb(struct veth_rq *rq, struct sk_buff *skb,
 out:
 	return skb;
 drop:
+<<<<<<< HEAD
+=======
+	stats->rx_drops++;
+xdp_drop:
+>>>>>>> upstream/android-13
 	rcu_read_unlock();
 	kfree_skb(skb);
 	return NULL;
@@ -583,6 +1169,7 @@ xdp_xmit:
 	return NULL;
 }
 
+<<<<<<< HEAD
 static int veth_xdp_rcv(struct veth_rq *rq, int budget, unsigned int *xdp_xmit)
 {
 	int i, done = 0;
@@ -590,11 +1177,23 @@ static int veth_xdp_rcv(struct veth_rq *rq, int budget, unsigned int *xdp_xmit)
 	for (i = 0; i < budget; i++) {
 		void *ptr = __ptr_ring_consume(&rq->xdp_ring);
 		struct sk_buff *skb;
+=======
+static int veth_xdp_rcv(struct veth_rq *rq, int budget,
+			struct veth_xdp_tx_bq *bq,
+			struct veth_stats *stats)
+{
+	int i, done = 0, n_xdpf = 0;
+	void *xdpf[VETH_XDP_BATCH];
+
+	for (i = 0; i < budget; i++) {
+		void *ptr = __ptr_ring_consume(&rq->xdp_ring);
+>>>>>>> upstream/android-13
 
 		if (!ptr)
 			break;
 
 		if (veth_is_xdp_frame(ptr)) {
+<<<<<<< HEAD
 			skb = veth_xdp_rcv_one(rq, veth_ptr_to_xdp(ptr),
 					       xdp_xmit);
 		} else {
@@ -607,6 +1206,49 @@ static int veth_xdp_rcv(struct veth_rq *rq, int budget, unsigned int *xdp_xmit)
 		done++;
 	}
 
+=======
+			/* ndo_xdp_xmit */
+			struct xdp_frame *frame = veth_ptr_to_xdp(ptr);
+
+			stats->xdp_bytes += frame->len;
+			frame = veth_xdp_rcv_one(rq, frame, bq, stats);
+			if (frame) {
+				/* XDP_PASS */
+				xdpf[n_xdpf++] = frame;
+				if (n_xdpf == VETH_XDP_BATCH) {
+					veth_xdp_rcv_bulk_skb(rq, xdpf, n_xdpf,
+							      bq, stats);
+					n_xdpf = 0;
+				}
+			}
+		} else {
+			/* ndo_start_xmit */
+			struct sk_buff *skb = ptr;
+
+			stats->xdp_bytes += skb->len;
+			skb = veth_xdp_rcv_skb(rq, skb, bq, stats);
+			if (skb) {
+				if (skb_shared(skb) || skb_unclone(skb, GFP_ATOMIC))
+					netif_receive_skb(skb);
+				else
+					napi_gro_receive(&rq->xdp_napi, skb);
+			}
+		}
+		done++;
+	}
+
+	if (n_xdpf)
+		veth_xdp_rcv_bulk_skb(rq, xdpf, n_xdpf, bq, stats);
+
+	u64_stats_update_begin(&rq->stats.syncp);
+	rq->stats.vs.xdp_redirect += stats->xdp_redirect;
+	rq->stats.vs.xdp_bytes += stats->xdp_bytes;
+	rq->stats.vs.xdp_drops += stats->xdp_drops;
+	rq->stats.vs.rx_drops += stats->rx_drops;
+	rq->stats.vs.xdp_packets += done;
+	u64_stats_update_end(&rq->stats.syncp);
+
+>>>>>>> upstream/android-13
 	return done;
 }
 
@@ -614,16 +1256,28 @@ static int veth_poll(struct napi_struct *napi, int budget)
 {
 	struct veth_rq *rq =
 		container_of(napi, struct veth_rq, xdp_napi);
+<<<<<<< HEAD
 	unsigned int xdp_xmit = 0;
 	int done;
 
 	xdp_set_return_frame_no_direct();
 	done = veth_xdp_rcv(rq, budget, &xdp_xmit);
+=======
+	struct veth_stats stats = {};
+	struct veth_xdp_tx_bq bq;
+	int done;
+
+	bq.count = 0;
+
+	xdp_set_return_frame_no_direct();
+	done = veth_xdp_rcv(rq, budget, &bq, &stats);
+>>>>>>> upstream/android-13
 
 	if (done < budget && napi_complete_done(napi, done)) {
 		/* Write rx_notify_masked before reading ptr_ring */
 		smp_store_mb(rq->rx_notify_masked, false);
 		if (unlikely(!__ptr_ring_empty(&rq->xdp_ring))) {
+<<<<<<< HEAD
 			rq->rx_notify_masked = true;
 			napi_schedule(&rq->xdp_napi);
 		}
@@ -633,17 +1287,38 @@ static int veth_poll(struct napi_struct *napi, int budget)
 		veth_xdp_flush(rq->dev);
 	if (xdp_xmit & VETH_XDP_REDIR)
 		xdp_do_flush_map();
+=======
+			if (napi_schedule_prep(&rq->xdp_napi)) {
+				WRITE_ONCE(rq->rx_notify_masked, true);
+				__napi_schedule(&rq->xdp_napi);
+			}
+		}
+	}
+
+	if (stats.xdp_tx > 0)
+		veth_xdp_flush(rq, &bq);
+	if (stats.xdp_redirect > 0)
+		xdp_do_flush();
+>>>>>>> upstream/android-13
 	xdp_clear_return_frame_no_direct();
 
 	return done;
 }
 
+<<<<<<< HEAD
 static int veth_napi_add(struct net_device *dev)
+=======
+static int __veth_napi_enable_range(struct net_device *dev, int start, int end)
+>>>>>>> upstream/android-13
 {
 	struct veth_priv *priv = netdev_priv(dev);
 	int err, i;
 
+<<<<<<< HEAD
 	for (i = 0; i < dev->real_num_rx_queues; i++) {
+=======
+	for (i = start; i < end; i++) {
+>>>>>>> upstream/android-13
 		struct veth_rq *rq = &priv->rq[i];
 
 		err = ptr_ring_init(&rq->xdp_ring, VETH_RING_SIZE, GFP_KERNEL);
@@ -651,6 +1326,7 @@ static int veth_napi_add(struct net_device *dev)
 			goto err_xdp_ring;
 	}
 
+<<<<<<< HEAD
 	for (i = 0; i < dev->real_num_rx_queues; i++) {
 		struct veth_rq *rq = &priv->rq[i];
 
@@ -661,16 +1337,39 @@ static int veth_napi_add(struct net_device *dev)
 	return 0;
 err_xdp_ring:
 	for (i--; i >= 0; i--)
+=======
+	for (i = start; i < end; i++) {
+		struct veth_rq *rq = &priv->rq[i];
+
+		napi_enable(&rq->xdp_napi);
+		rcu_assign_pointer(priv->rq[i].napi, &priv->rq[i].xdp_napi);
+	}
+
+	return 0;
+
+err_xdp_ring:
+	for (i--; i >= start; i--)
+>>>>>>> upstream/android-13
 		ptr_ring_cleanup(&priv->rq[i].xdp_ring, veth_ptr_free);
 
 	return err;
 }
 
+<<<<<<< HEAD
 static void veth_napi_del(struct net_device *dev)
+=======
+static int __veth_napi_enable(struct net_device *dev)
+{
+	return __veth_napi_enable_range(dev, 0, dev->real_num_rx_queues);
+}
+
+static void veth_napi_del_range(struct net_device *dev, int start, int end)
+>>>>>>> upstream/android-13
 {
 	struct veth_priv *priv = netdev_priv(dev);
 	int i;
 
+<<<<<<< HEAD
 	for (i = 0; i < dev->real_num_rx_queues; i++) {
 		struct veth_rq *rq = &priv->rq[i];
 
@@ -683,16 +1382,46 @@ static void veth_napi_del(struct net_device *dev)
 		struct veth_rq *rq = &priv->rq[i];
 
 		netif_napi_del(&rq->xdp_napi);
+=======
+	for (i = start; i < end; i++) {
+		struct veth_rq *rq = &priv->rq[i];
+
+		rcu_assign_pointer(priv->rq[i].napi, NULL);
+		napi_disable(&rq->xdp_napi);
+		__netif_napi_del(&rq->xdp_napi);
+	}
+	synchronize_net();
+
+	for (i = start; i < end; i++) {
+		struct veth_rq *rq = &priv->rq[i];
+
+>>>>>>> upstream/android-13
 		rq->rx_notify_masked = false;
 		ptr_ring_cleanup(&rq->xdp_ring, veth_ptr_free);
 	}
 }
 
+<<<<<<< HEAD
 static int veth_enable_xdp(struct net_device *dev)
+=======
+static void veth_napi_del(struct net_device *dev)
+{
+	veth_napi_del_range(dev, 0, dev->real_num_rx_queues);
+}
+
+static bool veth_gro_requested(const struct net_device *dev)
+{
+	return !!(dev->wanted_features & NETIF_F_GRO);
+}
+
+static int veth_enable_xdp_range(struct net_device *dev, int start, int end,
+				 bool napi_already_on)
+>>>>>>> upstream/android-13
 {
 	struct veth_priv *priv = netdev_priv(dev);
 	int err, i;
 
+<<<<<<< HEAD
 	if (!xdp_rxq_info_is_reg(&priv->rq[0].xdp_rxq)) {
 		for (i = 0; i < dev->real_num_rx_queues; i++) {
 			struct veth_rq *rq = &priv->rq[i];
@@ -725,10 +1454,98 @@ err_reg_mem:
 err_rxq_reg:
 	for (i--; i >= 0; i--)
 		xdp_rxq_info_unreg(&priv->rq[i].xdp_rxq);
+=======
+	for (i = start; i < end; i++) {
+		struct veth_rq *rq = &priv->rq[i];
+
+		if (!napi_already_on)
+			netif_napi_add(dev, &rq->xdp_napi, veth_poll, NAPI_POLL_WEIGHT);
+		err = xdp_rxq_info_reg(&rq->xdp_rxq, dev, i, rq->xdp_napi.napi_id);
+		if (err < 0)
+			goto err_rxq_reg;
+
+		err = xdp_rxq_info_reg_mem_model(&rq->xdp_rxq,
+						 MEM_TYPE_PAGE_SHARED,
+						 NULL);
+		if (err < 0)
+			goto err_reg_mem;
+
+		/* Save original mem info as it can be overwritten */
+		rq->xdp_mem = rq->xdp_rxq.mem;
+	}
+	return 0;
+
+err_reg_mem:
+	xdp_rxq_info_unreg(&priv->rq[i].xdp_rxq);
+err_rxq_reg:
+	for (i--; i >= start; i--) {
+		struct veth_rq *rq = &priv->rq[i];
+
+		xdp_rxq_info_unreg(&rq->xdp_rxq);
+		if (!napi_already_on)
+			netif_napi_del(&rq->xdp_napi);
+	}
+>>>>>>> upstream/android-13
 
 	return err;
 }
 
+<<<<<<< HEAD
+=======
+static void veth_disable_xdp_range(struct net_device *dev, int start, int end,
+				   bool delete_napi)
+{
+	struct veth_priv *priv = netdev_priv(dev);
+	int i;
+
+	for (i = start; i < end; i++) {
+		struct veth_rq *rq = &priv->rq[i];
+
+		rq->xdp_rxq.mem = rq->xdp_mem;
+		xdp_rxq_info_unreg(&rq->xdp_rxq);
+
+		if (delete_napi)
+			netif_napi_del(&rq->xdp_napi);
+	}
+}
+
+static int veth_enable_xdp(struct net_device *dev)
+{
+	bool napi_already_on = veth_gro_requested(dev) && (dev->flags & IFF_UP);
+	struct veth_priv *priv = netdev_priv(dev);
+	int err, i;
+
+	if (!xdp_rxq_info_is_reg(&priv->rq[0].xdp_rxq)) {
+		err = veth_enable_xdp_range(dev, 0, dev->real_num_rx_queues, napi_already_on);
+		if (err)
+			return err;
+
+		if (!napi_already_on) {
+			err = __veth_napi_enable(dev);
+			if (err) {
+				veth_disable_xdp_range(dev, 0, dev->real_num_rx_queues, true);
+				return err;
+			}
+
+			if (!veth_gro_requested(dev)) {
+				/* user-space did not require GRO, but adding XDP
+				 * is supposed to get GRO working
+				 */
+				dev->features |= NETIF_F_GRO;
+				netdev_features_change(dev);
+			}
+		}
+	}
+
+	for (i = 0; i < dev->real_num_rx_queues; i++) {
+		rcu_assign_pointer(priv->rq[i].xdp_prog, priv->_xdp_prog);
+		rcu_assign_pointer(priv->rq[i].napi, &priv->rq[i].xdp_napi);
+	}
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static void veth_disable_xdp(struct net_device *dev)
 {
 	struct veth_priv *priv = netdev_priv(dev);
@@ -736,6 +1553,7 @@ static void veth_disable_xdp(struct net_device *dev)
 
 	for (i = 0; i < dev->real_num_rx_queues; i++)
 		rcu_assign_pointer(priv->rq[i].xdp_prog, NULL);
+<<<<<<< HEAD
 	veth_napi_del(dev);
 	for (i = 0; i < dev->real_num_rx_queues; i++) {
 		struct veth_rq *rq = &priv->rq[i];
@@ -743,6 +1561,167 @@ static void veth_disable_xdp(struct net_device *dev)
 		rq->xdp_rxq.mem = rq->xdp_mem;
 		xdp_rxq_info_unreg(&rq->xdp_rxq);
 	}
+=======
+
+	if (!netif_running(dev) || !veth_gro_requested(dev)) {
+		veth_napi_del(dev);
+
+		/* if user-space did not require GRO, since adding XDP
+		 * enabled it, clear it now
+		 */
+		if (!veth_gro_requested(dev) && netif_running(dev)) {
+			dev->features &= ~NETIF_F_GRO;
+			netdev_features_change(dev);
+		}
+	}
+
+	veth_disable_xdp_range(dev, 0, dev->real_num_rx_queues, false);
+}
+
+static int veth_napi_enable_range(struct net_device *dev, int start, int end)
+{
+	struct veth_priv *priv = netdev_priv(dev);
+	int err, i;
+
+	for (i = start; i < end; i++) {
+		struct veth_rq *rq = &priv->rq[i];
+
+		netif_napi_add(dev, &rq->xdp_napi, veth_poll, NAPI_POLL_WEIGHT);
+	}
+
+	err = __veth_napi_enable_range(dev, start, end);
+	if (err) {
+		for (i = start; i < end; i++) {
+			struct veth_rq *rq = &priv->rq[i];
+
+			netif_napi_del(&rq->xdp_napi);
+		}
+		return err;
+	}
+	return err;
+}
+
+static int veth_napi_enable(struct net_device *dev)
+{
+	return veth_napi_enable_range(dev, 0, dev->real_num_rx_queues);
+}
+
+static void veth_disable_range_safe(struct net_device *dev, int start, int end)
+{
+	struct veth_priv *priv = netdev_priv(dev);
+
+	if (start >= end)
+		return;
+
+	if (priv->_xdp_prog) {
+		veth_napi_del_range(dev, start, end);
+		veth_disable_xdp_range(dev, start, end, false);
+	} else if (veth_gro_requested(dev)) {
+		veth_napi_del_range(dev, start, end);
+	}
+}
+
+static int veth_enable_range_safe(struct net_device *dev, int start, int end)
+{
+	struct veth_priv *priv = netdev_priv(dev);
+	int err;
+
+	if (start >= end)
+		return 0;
+
+	if (priv->_xdp_prog) {
+		/* these channels are freshly initialized, napi is not on there even
+		 * when GRO is requeste
+		 */
+		err = veth_enable_xdp_range(dev, start, end, false);
+		if (err)
+			return err;
+
+		err = __veth_napi_enable_range(dev, start, end);
+		if (err) {
+			/* on error always delete the newly added napis */
+			veth_disable_xdp_range(dev, start, end, true);
+			return err;
+		}
+	} else if (veth_gro_requested(dev)) {
+		return veth_napi_enable_range(dev, start, end);
+	}
+	return 0;
+}
+
+static int veth_set_channels(struct net_device *dev,
+			     struct ethtool_channels *ch)
+{
+	struct veth_priv *priv = netdev_priv(dev);
+	unsigned int old_rx_count, new_rx_count;
+	struct veth_priv *peer_priv;
+	struct net_device *peer;
+	int err;
+
+	/* sanity check. Upper bounds are already enforced by the caller */
+	if (!ch->rx_count || !ch->tx_count)
+		return -EINVAL;
+
+	/* avoid braking XDP, if that is enabled */
+	peer = rtnl_dereference(priv->peer);
+	peer_priv = peer ? netdev_priv(peer) : NULL;
+	if (priv->_xdp_prog && peer && ch->rx_count < peer->real_num_tx_queues)
+		return -EINVAL;
+
+	if (peer && peer_priv && peer_priv->_xdp_prog && ch->tx_count > peer->real_num_rx_queues)
+		return -EINVAL;
+
+	old_rx_count = dev->real_num_rx_queues;
+	new_rx_count = ch->rx_count;
+	if (netif_running(dev)) {
+		/* turn device off */
+		netif_carrier_off(dev);
+		if (peer)
+			netif_carrier_off(peer);
+
+		/* try to allocate new resurces, as needed*/
+		err = veth_enable_range_safe(dev, old_rx_count, new_rx_count);
+		if (err)
+			goto out;
+	}
+
+	err = netif_set_real_num_rx_queues(dev, ch->rx_count);
+	if (err)
+		goto revert;
+
+	err = netif_set_real_num_tx_queues(dev, ch->tx_count);
+	if (err) {
+		int err2 = netif_set_real_num_rx_queues(dev, old_rx_count);
+
+		/* this error condition could happen only if rx and tx change
+		 * in opposite directions (e.g. tx nr raises, rx nr decreases)
+		 * and we can't do anything to fully restore the original
+		 * status
+		 */
+		if (err2)
+			pr_warn("Can't restore rx queues config %d -> %d %d",
+				new_rx_count, old_rx_count, err2);
+		else
+			goto revert;
+	}
+
+out:
+	if (netif_running(dev)) {
+		/* note that we need to swap the arguments WRT the enable part
+		 * to identify the range we have to disable
+		 */
+		veth_disable_range_safe(dev, new_rx_count, old_rx_count);
+		netif_carrier_on(dev);
+		if (peer)
+			netif_carrier_on(peer);
+	}
+	return err;
+
+revert:
+	new_rx_count = old_rx_count;
+	old_rx_count = ch->rx_count;
+	goto out;
+>>>>>>> upstream/android-13
 }
 
 static int veth_open(struct net_device *dev)
@@ -758,6 +1737,13 @@ static int veth_open(struct net_device *dev)
 		err = veth_enable_xdp(dev);
 		if (err)
 			return err;
+<<<<<<< HEAD
+=======
+	} else if (veth_gro_requested(dev)) {
+		err = veth_napi_enable(dev);
+		if (err)
+			return err;
+>>>>>>> upstream/android-13
 	}
 
 	if (peer->flags & IFF_UP) {
@@ -779,6 +1765,11 @@ static int veth_close(struct net_device *dev)
 
 	if (priv->_xdp_prog)
 		veth_disable_xdp(dev);
+<<<<<<< HEAD
+=======
+	else if (veth_gro_requested(dev))
+		veth_napi_del(dev);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -797,8 +1788,15 @@ static int veth_alloc_queues(struct net_device *dev)
 	if (!priv->rq)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	for (i = 0; i < dev->num_rx_queues; i++)
 		priv->rq[i].dev = dev;
+=======
+	for (i = 0; i < dev->num_rx_queues; i++) {
+		priv->rq[i].dev = dev;
+		u64_stats_init(&priv->rq[i].stats.syncp);
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -814,13 +1812,22 @@ static int veth_dev_init(struct net_device *dev)
 {
 	int err;
 
+<<<<<<< HEAD
 	dev->vstats = netdev_alloc_pcpu_stats(struct pcpu_vstats);
 	if (!dev->vstats)
+=======
+	dev->lstats = netdev_alloc_pcpu_stats(struct pcpu_lstats);
+	if (!dev->lstats)
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 
 	err = veth_alloc_queues(dev);
 	if (err) {
+<<<<<<< HEAD
 		free_percpu(dev->vstats);
+=======
+		free_percpu(dev->lstats);
+>>>>>>> upstream/android-13
 		return err;
 	}
 
@@ -830,7 +1837,11 @@ static int veth_dev_init(struct net_device *dev)
 static void veth_dev_free(struct net_device *dev)
 {
 	veth_free_queues(dev);
+<<<<<<< HEAD
 	free_percpu(dev->vstats);
+=======
+	free_percpu(dev->lstats);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_NET_POLL_CONTROLLER
@@ -875,10 +1886,38 @@ static netdev_features_t veth_fix_features(struct net_device *dev,
 		if (peer_priv->_xdp_prog)
 			features &= ~NETIF_F_GSO_SOFTWARE;
 	}
+<<<<<<< HEAD
+=======
+	if (priv->_xdp_prog)
+		features |= NETIF_F_GRO;
+>>>>>>> upstream/android-13
 
 	return features;
 }
 
+<<<<<<< HEAD
+=======
+static int veth_set_features(struct net_device *dev,
+			     netdev_features_t features)
+{
+	netdev_features_t changed = features ^ dev->features;
+	struct veth_priv *priv = netdev_priv(dev);
+	int err;
+
+	if (!(changed & NETIF_F_GRO) || !(dev->flags & IFF_UP) || priv->_xdp_prog)
+		return 0;
+
+	if (features & NETIF_F_GRO) {
+		err = veth_napi_enable(dev);
+		if (err)
+			return err;
+	} else {
+		veth_napi_del(dev);
+	}
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static void veth_set_rx_headroom(struct net_device *dev, int new_hr)
 {
 	struct veth_priv *peer_priv, *priv = netdev_priv(dev);
@@ -974,6 +2013,7 @@ err:
 	return err;
 }
 
+<<<<<<< HEAD
 static u32 veth_xdp_query(struct net_device *dev)
 {
 	struct veth_priv *priv = netdev_priv(dev);
@@ -986,14 +2026,19 @@ static u32 veth_xdp_query(struct net_device *dev)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int veth_xdp(struct net_device *dev, struct netdev_bpf *xdp)
 {
 	switch (xdp->command) {
 	case XDP_SETUP_PROG:
 		return veth_xdp_set(dev, xdp->prog, xdp->extack);
+<<<<<<< HEAD
 	case XDP_QUERY_PROG:
 		xdp->prog_id = veth_xdp_query(dev);
 		return 0;
+=======
+>>>>>>> upstream/android-13
 	default:
 		return -EINVAL;
 	}
@@ -1012,10 +2057,19 @@ static const struct net_device_ops veth_netdev_ops = {
 #endif
 	.ndo_get_iflink		= veth_get_iflink,
 	.ndo_fix_features	= veth_fix_features,
+<<<<<<< HEAD
 	.ndo_features_check	= passthru_features_check,
 	.ndo_set_rx_headroom	= veth_set_rx_headroom,
 	.ndo_bpf		= veth_xdp,
 	.ndo_xdp_xmit		= veth_xdp_xmit,
+=======
+	.ndo_set_features	= veth_set_features,
+	.ndo_features_check	= passthru_features_check,
+	.ndo_set_rx_headroom	= veth_set_rx_headroom,
+	.ndo_bpf		= veth_xdp,
+	.ndo_xdp_xmit		= veth_ndo_xdp_xmit,
+	.ndo_get_peer_dev	= veth_peer_dev,
+>>>>>>> upstream/android-13
 };
 
 #define VETH_FEATURES (NETIF_F_SG | NETIF_F_FRAGLIST | NETIF_F_HW_CSUM | \
@@ -1073,6 +2127,33 @@ static int veth_validate(struct nlattr *tb[], struct nlattr *data[],
 
 static struct rtnl_link_ops veth_link_ops;
 
+<<<<<<< HEAD
+=======
+static void veth_disable_gro(struct net_device *dev)
+{
+	dev->features &= ~NETIF_F_GRO;
+	dev->wanted_features &= ~NETIF_F_GRO;
+	netdev_update_features(dev);
+}
+
+static int veth_init_queues(struct net_device *dev, struct nlattr *tb[])
+{
+	int err;
+
+	if (!tb[IFLA_NUM_TX_QUEUES] && dev->num_tx_queues > 1) {
+		err = netif_set_real_num_tx_queues(dev, 1);
+		if (err)
+			return err;
+	}
+	if (!tb[IFLA_NUM_RX_QUEUES] && dev->num_rx_queues > 1) {
+		err = netif_set_real_num_rx_queues(dev, 1);
+		if (err)
+			return err;
+	}
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int veth_newlink(struct net *src_net, struct net_device *dev,
 			struct nlattr *tb[], struct nlattr *data[],
 			struct netlink_ext_ack *extack)
@@ -1112,7 +2193,11 @@ static int veth_newlink(struct net *src_net, struct net_device *dev,
 	}
 
 	if (ifmp && tbp[IFLA_IFNAME]) {
+<<<<<<< HEAD
 		nla_strlcpy(ifname, tbp[IFLA_IFNAME], IFNAMSIZ);
+=======
+		nla_strscpy(ifname, tbp[IFLA_IFNAME], IFNAMSIZ);
+>>>>>>> upstream/android-13
 		name_assign_type = NET_NAME_USER;
 	} else {
 		snprintf(ifname, IFNAMSIZ, DRV_NAME "%%d");
@@ -1124,7 +2209,11 @@ static int veth_newlink(struct net *src_net, struct net_device *dev,
 		return PTR_ERR(net);
 
 	peer = rtnl_create_link(net, ifname, name_assign_type,
+<<<<<<< HEAD
 				&veth_link_ops, tbp);
+=======
+				&veth_link_ops, tbp, extack);
+>>>>>>> upstream/android-13
 	if (IS_ERR(peer)) {
 		put_net(net);
 		return PTR_ERR(peer);
@@ -1145,6 +2234,13 @@ static int veth_newlink(struct net *src_net, struct net_device *dev,
 	if (err < 0)
 		goto err_register_peer;
 
+<<<<<<< HEAD
+=======
+	/* keep GRO disabled by default to be consistent with the established
+	 * veth behavior
+	 */
+	veth_disable_gro(peer);
+>>>>>>> upstream/android-13
 	netif_carrier_off(peer);
 
 	err = rtnl_configure_link(peer, ifmp);
@@ -1162,7 +2258,11 @@ static int veth_newlink(struct net *src_net, struct net_device *dev,
 		eth_hw_addr_random(dev);
 
 	if (tb[IFLA_IFNAME])
+<<<<<<< HEAD
 		nla_strlcpy(dev->name, tb[IFLA_IFNAME], IFNAMSIZ);
+=======
+		nla_strscpy(dev->name, tb[IFLA_IFNAME], IFNAMSIZ);
+>>>>>>> upstream/android-13
 	else
 		snprintf(dev->name, IFNAMSIZ, DRV_NAME "%%d");
 
@@ -1178,12 +2278,30 @@ static int veth_newlink(struct net *src_net, struct net_device *dev,
 
 	priv = netdev_priv(dev);
 	rcu_assign_pointer(priv->peer, peer);
+<<<<<<< HEAD
 
 	priv = netdev_priv(peer);
 	rcu_assign_pointer(priv->peer, dev);
 
 	return 0;
 
+=======
+	err = veth_init_queues(dev, tb);
+	if (err)
+		goto err_queues;
+
+	priv = netdev_priv(peer);
+	rcu_assign_pointer(priv->peer, dev);
+	err = veth_init_queues(peer, tb);
+	if (err)
+		goto err_queues;
+
+	veth_disable_gro(dev);
+	return 0;
+
+err_queues:
+	unregister_netdevice(dev);
+>>>>>>> upstream/android-13
 err_register_dev:
 	/* nothing to do */
 err_configure_peer:
@@ -1229,6 +2347,19 @@ static struct net *veth_get_link_net(const struct net_device *dev)
 	return peer ? dev_net(peer) : dev_net(dev);
 }
 
+<<<<<<< HEAD
+=======
+static unsigned int veth_get_num_queues(void)
+{
+	/* enforce the same queue limit as rtnl_create_link */
+	int queues = num_possible_cpus();
+
+	if (queues > 4096)
+		queues = 4096;
+	return queues;
+}
+
+>>>>>>> upstream/android-13
 static struct rtnl_link_ops veth_link_ops = {
 	.kind		= DRV_NAME,
 	.priv_size	= sizeof(struct veth_priv),
@@ -1239,6 +2370,11 @@ static struct rtnl_link_ops veth_link_ops = {
 	.policy		= veth_policy,
 	.maxtype	= VETH_INFO_MAX,
 	.get_link_net	= veth_get_link_net,
+<<<<<<< HEAD
+=======
+	.get_num_tx_queues	= veth_get_num_queues,
+	.get_num_rx_queues	= veth_get_num_queues,
+>>>>>>> upstream/android-13
 };
 
 /*

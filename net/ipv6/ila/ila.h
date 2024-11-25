@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015 Tom Herbert <tom@herbertland.com>
  *
@@ -6,6 +7,11 @@
  * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (c) 2015 Tom Herbert <tom@herbertland.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __ILA_H
@@ -73,11 +79,14 @@ static inline struct ila_addr *ila_a2i(struct in6_addr *addr)
 	return (struct ila_addr *)addr;
 }
 
+<<<<<<< HEAD
 static inline bool ila_addr_is_ila(struct ila_addr *iaddr)
 {
 	return (iaddr->ident.type != ILA_ATYPE_IID);
 }
 
+=======
+>>>>>>> upstream/android-13
 struct ila_params {
 	struct ila_locator locator;
 	struct ila_locator locator_match;

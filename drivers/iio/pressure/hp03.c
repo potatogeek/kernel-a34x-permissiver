@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2016 Marek Vasut <marex@denx.de>
  *
  * Driver for Hope RF HP03 digital temperature and pressure sensor.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "hp03: " fmt
@@ -227,7 +234,10 @@ static int hp03_probe(struct i2c_client *client,
 	priv->client = client;
 	mutex_init(&priv->lock);
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->name = id->name;
 	indio_dev->channels = hp03_channels;
 	indio_dev->num_channels = ARRAY_SIZE(hp03_channels);
@@ -246,6 +256,7 @@ static int hp03_probe(struct i2c_client *client,
 	 * which has it's dedicated I2C address and contains
 	 * the calibration constants for the sensor.
 	 */
+<<<<<<< HEAD
 	priv->eeprom_client = i2c_new_dummy(client->adapter, HP03_EEPROM_ADDR);
 	if (!priv->eeprom_client) {
 		dev_err(dev, "New EEPROM I2C device failed\n");
@@ -287,6 +298,28 @@ static int hp03_remove(struct i2c_client *client)
 	regmap_exit(priv->eeprom_regmap);
 	i2c_unregister_device(priv->eeprom_client);
 
+=======
+	priv->eeprom_client = devm_i2c_new_dummy_device(dev, client->adapter,
+							HP03_EEPROM_ADDR);
+	if (IS_ERR(priv->eeprom_client)) {
+		dev_err(dev, "New EEPROM I2C device failed\n");
+		return PTR_ERR(priv->eeprom_client);
+	}
+
+	priv->eeprom_regmap = devm_regmap_init_i2c(priv->eeprom_client,
+						   &hp03_regmap_config);
+	if (IS_ERR(priv->eeprom_regmap)) {
+		dev_err(dev, "Failed to allocate EEPROM regmap\n");
+		return PTR_ERR(priv->eeprom_regmap);
+	}
+
+	ret = devm_iio_device_register(dev, indio_dev);
+	if (ret) {
+		dev_err(dev, "Failed to register IIO device\n");
+		return ret;
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -308,7 +341,10 @@ static struct i2c_driver hp03_driver = {
 		.of_match_table = hp03_of_match,
 	},
 	.probe		= hp03_probe,
+<<<<<<< HEAD
 	.remove		= hp03_remove,
+=======
+>>>>>>> upstream/android-13
 	.id_table	= hp03_id,
 };
 module_i2c_driver(hp03_driver);

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Test cases for <linux/hash.h> and <linux/stringhash.h>
  * This just verifies that various ways of computing a hash

@@ -31,6 +31,10 @@
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+<<<<<<< HEAD
+=======
+#define dev_fmt pr_fmt
+>>>>>>> upstream/android-13
 
 #define DPRINTK(fmt, args...)				\
 	pr_debug("xenbus_probe (%s:%d) " fmt ".\n",	\
@@ -51,7 +55,10 @@
 #include <linux/module.h>
 
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/xen/hypervisor.h>
 
 #include <xen/xen.h>
@@ -206,6 +213,67 @@ void xenbus_otherend_changed(struct xenbus_watch *watch,
 }
 EXPORT_SYMBOL_GPL(xenbus_otherend_changed);
 
+<<<<<<< HEAD
+=======
+#define XENBUS_SHOW_STAT(name)						\
+static ssize_t name##_show(struct device *_dev,				\
+			   struct device_attribute *attr,		\
+			   char *buf)					\
+{									\
+	struct xenbus_device *dev = to_xenbus_device(_dev);		\
+									\
+	return sprintf(buf, "%d\n", atomic_read(&dev->name));		\
+}									\
+static DEVICE_ATTR_RO(name)
+
+XENBUS_SHOW_STAT(event_channels);
+XENBUS_SHOW_STAT(events);
+XENBUS_SHOW_STAT(spurious_events);
+XENBUS_SHOW_STAT(jiffies_eoi_delayed);
+
+static ssize_t spurious_threshold_show(struct device *_dev,
+				       struct device_attribute *attr,
+				       char *buf)
+{
+	struct xenbus_device *dev = to_xenbus_device(_dev);
+
+	return sprintf(buf, "%d\n", dev->spurious_threshold);
+}
+
+static ssize_t spurious_threshold_store(struct device *_dev,
+					struct device_attribute *attr,
+					const char *buf, size_t count)
+{
+	struct xenbus_device *dev = to_xenbus_device(_dev);
+	unsigned int val;
+	ssize_t ret;
+
+	ret = kstrtouint(buf, 0, &val);
+	if (ret)
+		return ret;
+
+	dev->spurious_threshold = val;
+
+	return count;
+}
+
+static DEVICE_ATTR_RW(spurious_threshold);
+
+static struct attribute *xenbus_attrs[] = {
+	&dev_attr_event_channels.attr,
+	&dev_attr_events.attr,
+	&dev_attr_spurious_events.attr,
+	&dev_attr_jiffies_eoi_delayed.attr,
+	&dev_attr_spurious_threshold.attr,
+	NULL
+};
+
+static const struct attribute_group xenbus_group = {
+	.name = "xenbus",
+	.attrs = xenbus_attrs,
+};
+
+>>>>>>> upstream/android-13
 int xenbus_dev_probe(struct device *_dev)
 {
 	struct xenbus_device *dev = to_xenbus_device(_dev);
@@ -233,9 +301,24 @@ int xenbus_dev_probe(struct device *_dev)
 		return err;
 	}
 
+<<<<<<< HEAD
 	err = drv->probe(dev, id);
 	if (err)
 		goto fail;
+=======
+	if (!try_module_get(drv->driver.owner)) {
+		dev_warn(&dev->dev, "failed to acquire module reference on '%s'\n",
+			 drv->driver.name);
+		err = -ESRCH;
+		goto fail;
+	}
+
+	down(&dev->reclaim_sem);
+	err = drv->probe(dev, id);
+	up(&dev->reclaim_sem);
+	if (err)
+		goto fail_put;
+>>>>>>> upstream/android-13
 
 	err = watch_otherend(dev);
 	if (err) {
@@ -244,21 +327,39 @@ int xenbus_dev_probe(struct device *_dev)
 		return err;
 	}
 
+<<<<<<< HEAD
 	return 0;
 fail:
 	xenbus_dev_error(dev, err, "xenbus_dev_probe on %s", dev->nodename);
 	xenbus_switch_state(dev, XenbusStateClosed);
+=======
+	dev->spurious_threshold = 1;
+	if (sysfs_create_group(&dev->dev.kobj, &xenbus_group))
+		dev_warn(&dev->dev, "sysfs_create_group on %s failed.\n",
+			 dev->nodename);
+
+	return 0;
+fail_put:
+	module_put(drv->driver.owner);
+fail:
+	xenbus_dev_error(dev, err, "xenbus_dev_probe on %s", dev->nodename);
+>>>>>>> upstream/android-13
 	return err;
 }
 EXPORT_SYMBOL_GPL(xenbus_dev_probe);
 
+<<<<<<< HEAD
 int xenbus_dev_remove(struct device *_dev)
+=======
+void xenbus_dev_remove(struct device *_dev)
+>>>>>>> upstream/android-13
 {
 	struct xenbus_device *dev = to_xenbus_device(_dev);
 	struct xenbus_driver *drv = to_xenbus_driver(_dev->driver);
 
 	DPRINTK("%s", dev->nodename);
 
+<<<<<<< HEAD
 	free_otherend_watch(dev);
 
 	if (drv->remove)
@@ -294,6 +395,34 @@ void xenbus_dev_shutdown(struct device *_dev)
 }
 EXPORT_SYMBOL_GPL(xenbus_dev_shutdown);
 
+=======
+	sysfs_remove_group(&dev->dev.kobj, &xenbus_group);
+
+	free_otherend_watch(dev);
+
+	if (drv->remove) {
+		down(&dev->reclaim_sem);
+		drv->remove(dev);
+		up(&dev->reclaim_sem);
+	}
+
+	module_put(drv->driver.owner);
+
+	free_otherend_details(dev);
+
+	/*
+	 * If the toolstack has forced the device state to closing then set
+	 * the state to closed now to allow it to be cleaned up.
+	 * Similarly, if the driver does not support re-bind, set the
+	 * closed.
+	 */
+	if (!drv->allow_rebind ||
+	    xenbus_read_driver_state(dev->nodename) == XenbusStateClosing)
+		xenbus_switch_state(dev, XenbusStateClosed);
+}
+EXPORT_SYMBOL_GPL(xenbus_dev_remove);
+
+>>>>>>> upstream/android-13
 int xenbus_register_driver_common(struct xenbus_driver *drv,
 				  struct xen_bus_type *bus,
 				  struct module *owner, const char *mod_name)
@@ -473,6 +602,10 @@ int xenbus_probe_node(struct xen_bus_type *bus,
 		goto fail;
 
 	dev_set_name(&xendev->dev, "%s", devname);
+<<<<<<< HEAD
+=======
+	sema_init(&xendev->reclaim_sem, 1);
+>>>>>>> upstream/android-13
 
 	/* Register with generic device framework. */
 	err = device_register(&xendev->dev);
@@ -607,7 +740,11 @@ int xenbus_dev_suspend(struct device *dev)
 	if (drv->suspend)
 		err = drv->suspend(xdev);
 	if (err)
+<<<<<<< HEAD
 		pr_warn("suspend %s failed: %i\n", dev_name(dev), err);
+=======
+		dev_warn(dev, "suspend failed: %i\n", err);
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL_GPL(xenbus_dev_suspend);
@@ -626,8 +763,12 @@ int xenbus_dev_resume(struct device *dev)
 	drv = to_xenbus_driver(dev->driver);
 	err = talk_to_otherend(xdev);
 	if (err) {
+<<<<<<< HEAD
 		pr_warn("resume (talk_to_otherend) %s failed: %i\n",
 			dev_name(dev), err);
+=======
+		dev_warn(dev, "resume (talk_to_otherend) failed: %i\n", err);
+>>>>>>> upstream/android-13
 		return err;
 	}
 
@@ -636,15 +777,23 @@ int xenbus_dev_resume(struct device *dev)
 	if (drv->resume) {
 		err = drv->resume(xdev);
 		if (err) {
+<<<<<<< HEAD
 			pr_warn("resume %s failed: %i\n", dev_name(dev), err);
+=======
+			dev_warn(dev, "resume failed: %i\n", err);
+>>>>>>> upstream/android-13
 			return err;
 		}
 	}
 
 	err = watch_otherend(xdev);
 	if (err) {
+<<<<<<< HEAD
 		pr_warn("resume (watch_otherend) %s failed: %d.\n",
 			dev_name(dev), err);
+=======
+		dev_warn(dev, "resume (watch_otherend) failed: %d\n", err);
+>>>>>>> upstream/android-13
 		return err;
 	}
 
@@ -846,7 +995,11 @@ static struct notifier_block xenbus_resume_nb = {
 
 static int __init xenbus_init(void)
 {
+<<<<<<< HEAD
 	int err = 0;
+=======
+	int err;
+>>>>>>> upstream/android-13
 	uint64_t v = 0;
 	xen_store_domain_type = XS_UNKNOWN;
 
@@ -886,6 +1039,32 @@ static int __init xenbus_init(void)
 		err = hvm_get_parameter(HVM_PARAM_STORE_PFN, &v);
 		if (err)
 			goto out_error;
+<<<<<<< HEAD
+=======
+		/*
+		 * Uninitialized hvm_params are zero and return no error.
+		 * Although it is theoretically possible to have
+		 * HVM_PARAM_STORE_PFN set to zero on purpose, in reality it is
+		 * not zero when valid. If zero, it means that Xenstore hasn't
+		 * been properly initialized. Instead of attempting to map a
+		 * wrong guest physical address return error.
+		 *
+		 * Also recognize all bits set as an invalid value.
+		 */
+		if (!v || !~v) {
+			err = -ENOENT;
+			goto out_error;
+		}
+		/* Avoid truncation on 32-bit. */
+#if BITS_PER_LONG == 32
+		if (v > ULONG_MAX) {
+			pr_err("%s: cannot handle HVM_PARAM_STORE_PFN=%llx > ULONG_MAX\n",
+			       __func__, v);
+			err = -EINVAL;
+			goto out_error;
+		}
+#endif
+>>>>>>> upstream/android-13
 		xen_store_gfn = (unsigned long)v;
 		xen_store_interface =
 			xen_remap(xen_store_gfn << XEN_PAGE_SHIFT,
@@ -920,8 +1099,15 @@ static int __init xenbus_init(void)
 	 */
 	proc_create_mount_point("xen");
 #endif
+<<<<<<< HEAD
 
 out_error:
+=======
+	return 0;
+
+out_error:
+	xen_store_domain_type = XS_UNKNOWN;
+>>>>>>> upstream/android-13
 	return err;
 }
 

@@ -39,11 +39,19 @@ verify "$3"
 if [ -n "${INSTALLKERNEL}" ]; then
   if [ -x ~/bin/${INSTALLKERNEL} ]; then exec ~/bin/${INSTALLKERNEL} "$@"; fi
   if [ -x /sbin/${INSTALLKERNEL} ]; then exec /sbin/${INSTALLKERNEL} "$@"; fi
+<<<<<<< HEAD
+=======
+  if [ -x /usr/sbin/${INSTALLKERNEL} ]; then exec /usr/sbin/${INSTALLKERNEL} "$@"; fi
+>>>>>>> upstream/android-13
 fi
 
 # Default install
 
+<<<<<<< HEAD
 if [ "$(basename $2)" = "zImage" ]; then
+=======
+if [ "$(basename $2)" = "vmlinuz" ]; then
+>>>>>>> upstream/android-13
 # Compressed install
   echo "Installing compressed kernel"
   base=vmlinuz

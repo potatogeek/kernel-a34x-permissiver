@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2005-2014 Brocade Communications Systems, Inc.
  * Copyright (c) 2014- QLogic Corporation.
@@ -5,6 +9,7 @@
  * www.qlogic.com
  *
  * Linux driver for QLogic BR-series Fibre Channel Host Bus Adapter.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License (GPL) Version 2 as
@@ -14,6 +19,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 /*
  * fcbuild.c - FC link service frame building and parsing routines
@@ -190,6 +197,7 @@ fc_els_rsp_build(struct fchs_s *fchs, u32 d_id, u32 s_id, __be16 ox_id)
 	fchs->ox_id = ox_id;
 }
 
+<<<<<<< HEAD
 enum fc_parse_status
 fc_els_rsp_parse(struct fchs_s *fchs, int len)
 {
@@ -211,6 +219,8 @@ fc_els_rsp_parse(struct fchs_s *fchs, int len)
 	return FC_PARSE_OK;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void
 fc_bls_rsp_build(struct fchs_s *fchs, u32 d_id, u32 s_id, __be16 ox_id)
 {
@@ -831,6 +841,7 @@ fc_rpsc_acc_build(struct fchs_s *fchs, struct fc_rpsc_acc_s *rpsc_acc,
 }
 
 u16
+<<<<<<< HEAD
 fc_logo_rsp_parse(struct fchs_s *fchs, int len)
 {
 	struct fc_els_cmd_s *els_cmd = (struct fc_els_cmd_s *) (fchs + 1);
@@ -843,6 +854,8 @@ fc_logo_rsp_parse(struct fchs_s *fchs, int len)
 }
 
 u16
+=======
+>>>>>>> upstream/android-13
 fc_pdisc_build(struct fchs_s *fchs, u32 d_id, u32 s_id, u16 ox_id,
 	       wwn_t port_name, wwn_t node_name, u16 pdu_size)
 {
@@ -908,6 +921,7 @@ fc_prlo_build(struct fchs_s *fchs, u32 d_id, u32 s_id, u16 ox_id,
 }
 
 u16
+<<<<<<< HEAD
 fc_prlo_rsp_parse(struct fchs_s *fchs, int len)
 {
 	struct fc_prlo_acc_s *prlo = (struct fc_prlo_acc_s *) (fchs + 1);
@@ -942,6 +956,8 @@ fc_prlo_rsp_parse(struct fchs_s *fchs, int len)
 }
 
 u16
+=======
+>>>>>>> upstream/android-13
 fc_tprlo_build(struct fchs_s *fchs, u32 d_id, u32 s_id, u16 ox_id,
 	       int num_pages, enum fc_tprlo_type tprlo_type, u32 tpr_id)
 {
@@ -972,6 +988,7 @@ fc_tprlo_build(struct fchs_s *fchs, u32 d_id, u32 s_id, u16 ox_id,
 }
 
 u16
+<<<<<<< HEAD
 fc_tprlo_rsp_parse(struct fchs_s *fchs, int len)
 {
 	struct fc_tprlo_acc_s *tprlo = (struct fc_tprlo_acc_s *) (fchs + 1);
@@ -1013,6 +1030,8 @@ fc_rrq_rsp_parse(struct fchs_s *fchs, int len)
 }
 
 u16
+=======
+>>>>>>> upstream/android-13
 fc_ba_rjt_build(struct fchs_s *fchs, u32 d_id, u32 s_id, __be16 ox_id,
 		u32 reason_code, u32 reason_expl)
 {

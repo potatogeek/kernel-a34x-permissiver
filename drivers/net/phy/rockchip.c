@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 /**
+=======
+// SPDX-License-Identifier: GPL-2.0+
+/*
+>>>>>>> upstream/android-13
  * drivers/net/phy/rockchip.c
  *
  * Driver for ROCKCHIP Ethernet PHYs
@@ -6,12 +11,15 @@
  * Copyright (c) 2017, Fuzhou Rockchip Electronics Co., Ltd
  *
  * David Wu <david.wu@rock-chips.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/ethtool.h>
@@ -109,6 +117,7 @@ static int rockchip_integrated_phy_config_init(struct phy_device *phydev)
 
 static void rockchip_link_change_notify(struct phy_device *phydev)
 {
+<<<<<<< HEAD
 	int speed = SPEED_10;
 
 	if (phydev->autoneg == AUTONEG_ENABLE) {
@@ -137,13 +146,21 @@ static void rockchip_link_change_notify(struct phy_device *phydev)
 			speed = SPEED_10;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * If mode switch happens from 10BT to 100BT, all DSP/AFE
 	 * registers are set to default values. So any AFE/DSP
 	 * registers have to be re-initialized in this case.
 	 */
+<<<<<<< HEAD
 	if ((phydev->speed == SPEED_10) && (speed == SPEED_100)) {
 		int ret = rockchip_integrated_phy_analog_init(phydev);
+=======
+	if (phydev->state == PHY_RUNNING && phydev->speed == SPEED_100) {
+		int ret = rockchip_integrated_phy_analog_init(phydev);
+
+>>>>>>> upstream/android-13
 		if (ret)
 			phydev_err(phydev, "rockchip_integrated_phy_analog_init err: %d.\n",
 				   ret);
@@ -207,7 +224,11 @@ static struct phy_driver rockchip_phy_driver[] = {
 	.phy_id			= INTERNAL_EPHY_ID,
 	.phy_id_mask		= 0xfffffff0,
 	.name			= "Rockchip integrated EPHY",
+<<<<<<< HEAD
 	.features		= PHY_BASIC_FEATURES,
+=======
+	/* PHY_BASIC_FEATURES */
+>>>>>>> upstream/android-13
 	.flags			= 0,
 	.link_change_notify	= rockchip_link_change_notify,
 	.soft_reset		= genphy_soft_reset,
@@ -229,4 +250,8 @@ MODULE_DEVICE_TABLE(mdio, rockchip_phy_tbl);
 
 MODULE_AUTHOR("David Wu <david.wu@rock-chips.com>");
 MODULE_DESCRIPTION("Rockchip Ethernet PHY driver");
+<<<<<<< HEAD
 MODULE_LICENSE("GPL v2");
+=======
+MODULE_LICENSE("GPL");
+>>>>>>> upstream/android-13

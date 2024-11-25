@@ -10,6 +10,10 @@
  * Most of code borrowed from the Linux-3.7 EHCI driver
  */
 #include <linux/module.h>
+<<<<<<< HEAD
+=======
+#include <linux/of.h>
+>>>>>>> upstream/android-13
 #include <linux/device.h>
 #include <linux/dmapool.h>
 #include <linux/kernel.h>
@@ -31,6 +35,11 @@
 #include <linux/uaccess.h>
 #include <linux/platform_device.h>
 #include <linux/io.h>
+<<<<<<< HEAD
+=======
+#include <linux/iopoll.h>
+#include <linux/clk.h>
+>>>>>>> upstream/android-13
 
 #include <asm/byteorder.h>
 #include <asm/irq.h>
@@ -405,6 +414,7 @@ static void qh_lines(struct fotg210_hcd *fotg210, struct fotg210_qh *qh,
 		temp = snprintf(next, size,
 				"\n\t%p%c%s len=%d %08x urb %p",
 				td, mark, ({ char *tmp;
+<<<<<<< HEAD
 				 switch ((scratch>>8)&0x03) {
 				 case 0:
 					tmp = "out";
@@ -416,6 +426,19 @@ static void qh_lines(struct fotg210_hcd *fotg210, struct fotg210_qh *qh,
 					tmp = "setup";
 					break;
 				 default:
+=======
+				switch ((scratch>>8)&0x03) {
+				case 0:
+					tmp = "out";
+					break;
+				case 1:
+					tmp = "in";
+					break;
+				case 2:
+					tmp = "setup";
+					break;
+				default:
+>>>>>>> upstream/android-13
 					tmp = "?";
 					break;
 				 } tmp; }),
@@ -847,7 +870,10 @@ static inline void create_debug_files(struct fotg210_hcd *fotg210)
 	struct dentry *root;
 
 	root = debugfs_create_dir(bus->bus_name, fotg210_debug_root);
+<<<<<<< HEAD
 	fotg210->debug_dir = root;
+=======
+>>>>>>> upstream/android-13
 
 	debugfs_create_file("async", S_IRUGO, root, bus, &debug_async_fops);
 	debugfs_create_file("periodic", S_IRUGO, root, bus,
@@ -858,7 +884,13 @@ static inline void create_debug_files(struct fotg210_hcd *fotg210)
 
 static inline void remove_debug_files(struct fotg210_hcd *fotg210)
 {
+<<<<<<< HEAD
 	debugfs_remove_recursive(fotg210->debug_dir);
+=======
+	struct usb_bus *bus = &fotg210_to_hcd(fotg210)->self;
+
+	debugfs_remove(debugfs_lookup(bus->bus_name, fotg210_debug_root));
+>>>>>>> upstream/android-13
 }
 
 /* handshake - spin reading hc until handshake completes or fails
@@ -881,6 +913,7 @@ static int handshake(struct fotg210_hcd *fotg210, void __iomem *ptr,
 		u32 mask, u32 done, int usec)
 {
 	u32 result;
+<<<<<<< HEAD
 
 	do {
 		result = fotg210_readl(fotg210, ptr);
@@ -893,6 +926,17 @@ static int handshake(struct fotg210_hcd *fotg210, void __iomem *ptr,
 		usec--;
 	} while (usec > 0);
 	return -ETIMEDOUT;
+=======
+	int ret;
+
+	ret = readl_poll_timeout_atomic(ptr, result,
+					((result & mask) == done ||
+					 result == U32_MAX), 1, usec);
+	if (result == U32_MAX)		/* card removed */
+		return -ENODEV;
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /* Force HC to halt state from unknown (EHCI spec section 2.3).
@@ -1285,7 +1329,11 @@ static void fotg210_iaa_watchdog(struct fotg210_hcd *fotg210)
 		 */
 		status = fotg210_readl(fotg210, &fotg210->regs->status);
 		if ((status & STS_IAA) || !(cmd & CMD_IAAD)) {
+<<<<<<< HEAD
 			COUNT(fotg210->stats.lost_iaa);
+=======
+			INCR(fotg210->stats.lost_iaa);
+>>>>>>> upstream/android-13
 			fotg210_writel(fotg210, STS_IAA,
 					&fotg210->regs->status);
 		}
@@ -1857,9 +1905,17 @@ static struct fotg210_qh *fotg210_qh_alloc(struct fotg210_hcd *fotg210,
 	qh = kzalloc(sizeof(*qh), GFP_ATOMIC);
 	if (!qh)
 		goto done;
+<<<<<<< HEAD
 	qh->hw = dma_pool_zalloc(fotg210->qh_pool, flags, &dma);
 	if (!qh->hw)
 		goto fail;
+=======
+	qh->hw = (struct fotg210_qh_hw *)
+		dma_pool_alloc(fotg210->qh_pool, flags, &dma);
+	if (!qh->hw)
+		goto fail;
+	memset(qh->hw, 0, sizeof(*qh->hw));
+>>>>>>> upstream/android-13
 	qh->qh_dma = dma;
 	INIT_LIST_HEAD(&qh->qtd_list);
 
@@ -1951,7 +2007,11 @@ static int fotg210_mem_init(struct fotg210_hcd *fotg210, gfp_t flags)
 		goto fail;
 
 	/* Hardware periodic table */
+<<<<<<< HEAD
 	fotg210->periodic = (__le32 *)
+=======
+	fotg210->periodic =
+>>>>>>> upstream/android-13
 		dma_alloc_coherent(fotg210_to_hcd(fotg210)->self.controller,
 				fotg210->periodic_size * sizeof(__le32),
 				&fotg210->periodic_dma, 0);
@@ -2208,12 +2268,20 @@ __acquires(fotg210->lock)
 	}
 
 	if (unlikely(urb->unlinked)) {
+<<<<<<< HEAD
 		COUNT(fotg210->stats.unlink);
+=======
+		INCR(fotg210->stats.unlink);
+>>>>>>> upstream/android-13
 	} else {
 		/* report non-error and short read status as zero */
 		if (status == -EINPROGRESS || status == -EREMOTEIO)
 			status = 0;
+<<<<<<< HEAD
 		COUNT(fotg210->stats.complete);
+=======
+		INCR(fotg210->stats.complete);
+>>>>>>> upstream/android-13
 	}
 
 #ifdef FOTG210_URB_TRACE
@@ -2509,11 +2577,14 @@ retry_xacterr:
 	return count;
 }
 
+<<<<<<< HEAD
 /* high bandwidth multiplier, as encoded in highspeed endpoint descriptors */
 #define hb_mult(wMaxPacketSize) (1 + (((wMaxPacketSize) >> 11) & 0x03))
 /* ... and packet size, for any kind of endpoint descriptor */
 #define max_packet(wMaxPacketSize) ((wMaxPacketSize) & 0x07ff)
 
+=======
+>>>>>>> upstream/android-13
 /* reverse of qh_urb_transaction:  free a list of TDs.
  * used for cleanup after errors, before HC sees an URB's TDs.
  */
@@ -2599,7 +2670,11 @@ static struct list_head *qh_urb_transaction(struct fotg210_hcd *fotg210,
 		token |= (1 /* "in" */ << 8);
 	/* else it's already initted to "out" pid (0 << 8) */
 
+<<<<<<< HEAD
 	maxpacket = max_packet(usb_maxpacket(urb->dev, urb->pipe, !is_input));
+=======
+	maxpacket = usb_maxpacket(urb->dev, urb->pipe, !is_input);
+>>>>>>> upstream/android-13
 
 	/*
 	 * buffer gets wrapped in one or more qtds;
@@ -2699,7 +2774,11 @@ cleanup:
  * any previous qh and cancel its urbs first; endpoints are
  * implicitly reset then (data toggle too).
  * That'd mean updating how usbcore talks to HCDs. (2.7?)
+<<<<<<< HEAD
 */
+=======
+ */
+>>>>>>> upstream/android-13
 
 
 /* Each QH holds a qtd list; a QH is used for everything except iso.
@@ -2713,9 +2792,17 @@ static struct fotg210_qh *qh_make(struct fotg210_hcd *fotg210, struct urb *urb,
 		gfp_t flags)
 {
 	struct fotg210_qh *qh = fotg210_qh_alloc(fotg210, flags);
+<<<<<<< HEAD
 	u32 info1 = 0, info2 = 0;
 	int is_input, type;
 	int maxp = 0;
+=======
+	struct usb_host_endpoint *ep;
+	u32 info1 = 0, info2 = 0;
+	int is_input, type;
+	int maxp = 0;
+	int mult;
+>>>>>>> upstream/android-13
 	struct usb_tt *tt = urb->dev->tt;
 	struct fotg210_qh_hw *hw;
 
@@ -2730,14 +2817,25 @@ static struct fotg210_qh *qh_make(struct fotg210_hcd *fotg210, struct urb *urb,
 
 	is_input = usb_pipein(urb->pipe);
 	type = usb_pipetype(urb->pipe);
+<<<<<<< HEAD
 	maxp = usb_maxpacket(urb->dev, urb->pipe, !is_input);
+=======
+	ep = usb_pipe_endpoint(urb->dev, urb->pipe);
+	maxp = usb_endpoint_maxp(&ep->desc);
+	mult = usb_endpoint_maxp_mult(&ep->desc);
+>>>>>>> upstream/android-13
 
 	/* 1024 byte maxpacket is a hardware ceiling.  High bandwidth
 	 * acts like up to 3KB, but is built from smaller packets.
 	 */
+<<<<<<< HEAD
 	if (max_packet(maxp) > 1024) {
 		fotg210_dbg(fotg210, "bogus qh maxpacket %d\n",
 				max_packet(maxp));
+=======
+	if (maxp > 1024) {
+		fotg210_dbg(fotg210, "bogus qh maxpacket %d\n", maxp);
+>>>>>>> upstream/android-13
 		goto done;
 	}
 
@@ -2751,8 +2849,12 @@ static struct fotg210_qh *qh_make(struct fotg210_hcd *fotg210, struct urb *urb,
 	 */
 	if (type == PIPE_INTERRUPT) {
 		qh->usecs = NS_TO_US(usb_calc_bus_time(USB_SPEED_HIGH,
+<<<<<<< HEAD
 				is_input, 0,
 				hb_mult(maxp) * max_packet(maxp)));
+=======
+				is_input, 0, mult * maxp));
+>>>>>>> upstream/android-13
 		qh->start = NO_FRAME;
 
 		if (urb->dev->speed == USB_SPEED_HIGH) {
@@ -2789,7 +2891,11 @@ static struct fotg210_qh *qh_make(struct fotg210_hcd *fotg210, struct urb *urb,
 			think_time = tt ? tt->think_time : 0;
 			qh->tt_usecs = NS_TO_US(think_time +
 					usb_calc_bus_time(urb->dev->speed,
+<<<<<<< HEAD
 					is_input, 0, max_packet(maxp)));
+=======
+					is_input, 0, maxp));
+>>>>>>> upstream/android-13
 			qh->period = urb->interval;
 			if (qh->period > fotg210->periodic_size) {
 				qh->period = fotg210->periodic_size;
@@ -2805,7 +2911,11 @@ static struct fotg210_qh *qh_make(struct fotg210_hcd *fotg210, struct urb *urb,
 	switch (urb->dev->speed) {
 	case USB_SPEED_LOW:
 		info1 |= QH_LOW_SPEED;
+<<<<<<< HEAD
 		/* FALL THROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case USB_SPEED_FULL:
 		/* EPS 0 means "full" */
@@ -2852,11 +2962,19 @@ static struct fotg210_qh *qh_make(struct fotg210_hcd *fotg210, struct urb *urb,
 			 * to help them do so.  So now people expect to use
 			 * such nonconformant devices with Linux too; sigh.
 			 */
+<<<<<<< HEAD
 			info1 |= max_packet(maxp) << 16;
 			info2 |= (FOTG210_TUNE_MULT_HS << 30);
 		} else {		/* PIPE_INTERRUPT */
 			info1 |= max_packet(maxp) << 16;
 			info2 |= hb_mult(maxp) << 30;
+=======
+			info1 |= maxp << 16;
+			info2 |= (FOTG210_TUNE_MULT_HS << 30);
+		} else {		/* PIPE_INTERRUPT */
+			info1 |= maxp << 16;
+			info2 |= mult << 30;
+>>>>>>> upstream/android-13
 		}
 		break;
 	default:
@@ -3926,6 +4044,10 @@ static void iso_stream_init(struct fotg210_hcd *fotg210,
 	int is_input;
 	long bandwidth;
 	unsigned multi;
+<<<<<<< HEAD
+=======
+	struct usb_host_endpoint *ep;
+>>>>>>> upstream/android-13
 
 	/*
 	 * this might be a "high bandwidth" highspeed endpoint,
@@ -3933,14 +4055,23 @@ static void iso_stream_init(struct fotg210_hcd *fotg210,
 	 */
 	epnum = usb_pipeendpoint(pipe);
 	is_input = usb_pipein(pipe) ? USB_DIR_IN : 0;
+<<<<<<< HEAD
 	maxp = usb_maxpacket(dev, pipe, !is_input);
+=======
+	ep = usb_pipe_endpoint(dev, pipe);
+	maxp = usb_endpoint_maxp(&ep->desc);
+>>>>>>> upstream/android-13
 	if (is_input)
 		buf1 = (1 << 11);
 	else
 		buf1 = 0;
 
+<<<<<<< HEAD
 	maxp = max_packet(maxp);
 	multi = hb_mult(maxp);
+=======
+	multi = usb_endpoint_maxp_mult(&ep->desc);
+>>>>>>> upstream/android-13
 	buf1 |= maxp;
 	maxp *= multi;
 
@@ -4111,7 +4242,11 @@ static int itd_urb_transaction(struct fotg210_iso_stream *stream,
 		} else {
 alloc_itd:
 			spin_unlock_irqrestore(&fotg210->lock, flags);
+<<<<<<< HEAD
 			itd = dma_pool_zalloc(fotg210->itd_pool, mem_flags,
+=======
+			itd = dma_pool_alloc(fotg210->itd_pool, mem_flags,
+>>>>>>> upstream/android-13
 					&itd_dma);
 			spin_lock_irqsave(&fotg210->lock, flags);
 			if (!itd) {
@@ -4121,6 +4256,10 @@ alloc_itd:
 			}
 		}
 
+<<<<<<< HEAD
+=======
+		memset(itd, 0, sizeof(*itd));
+>>>>>>> upstream/android-13
 		itd->itd_dma = itd_dma;
 		list_add(&itd->itd_list, &sched->td_list);
 	}
@@ -4461,13 +4600,21 @@ static bool itd_complete(struct fotg210_hcd *fotg210, struct fotg210_itd *itd)
 
 			/* HC need not update length with this error */
 			if (!(t & FOTG210_ISOC_BABBLE)) {
+<<<<<<< HEAD
 				desc->actual_length =
 					fotg210_itdlen(urb, desc, t);
+=======
+				desc->actual_length = FOTG210_ITD_LENGTH(t);
+>>>>>>> upstream/android-13
 				urb->actual_length += desc->actual_length;
 			}
 		} else if (likely((t & FOTG210_ISOC_ACTIVE) == 0)) {
 			desc->status = 0;
+<<<<<<< HEAD
 			desc->actual_length = fotg210_itdlen(urb, desc, t);
+=======
+			desc->actual_length = FOTG210_ITD_LENGTH(t);
+>>>>>>> upstream/android-13
 			urb->actual_length += desc->actual_length;
 		} else {
 			/* URB was too late */
@@ -4632,7 +4779,11 @@ static inline int scan_frame_queue(struct fotg210_hcd *fotg210, unsigned frame,
 		default:
 			fotg210_dbg(fotg210, "corrupt type %d frame %d shadow %p\n",
 					type, frame, q.ptr);
+<<<<<<< HEAD
 			/* FALL THROUGH */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case Q_TYPE_QH:
 		case Q_TYPE_FSTN:
 			/* End of the iTDs and siTDs */
@@ -4998,7 +5149,11 @@ static int hcd_fotg210_init(struct usb_hcd *hcd)
 	fotg210->command = temp;
 
 	/* Accept arbitrarily long scatter-gather lists */
+<<<<<<< HEAD
 	if (!(hcd->driver->flags & HCD_LOCAL_MEM))
+=======
+	if (!hcd->localmem_pool)
+>>>>>>> upstream/android-13
 		hcd->self.sg_tablesize = ~0;
 	return 0;
 }
@@ -5008,7 +5163,10 @@ static int fotg210_run(struct usb_hcd *hcd)
 {
 	struct fotg210_hcd *fotg210 = hcd_to_fotg210(hcd);
 	u32 temp;
+<<<<<<< HEAD
 	u32 hcc_params;
+=======
+>>>>>>> upstream/android-13
 
 	hcd->uses_new_polling = 1;
 
@@ -5031,7 +5189,11 @@ static int fotg210_run(struct usb_hcd *hcd)
 	 * Scsi_Host.highmem_io, and so forth.  It's readonly to all
 	 * host side drivers though.
 	 */
+<<<<<<< HEAD
 	hcc_params = fotg210_readl(fotg210, &fotg210->caps->hcc_params);
+=======
+	fotg210_readl(fotg210, &fotg210->caps->hcc_params);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Philips, Intel, and maybe others need CMD_RUN before the
@@ -5157,9 +5319,15 @@ static irqreturn_t fotg210_irq(struct usb_hcd *hcd)
 	/* normal [4.15.1.2] or error [4.15.1.1] completion */
 	if (likely((status & (STS_INT|STS_ERR)) != 0)) {
 		if (likely((status & STS_ERR) == 0))
+<<<<<<< HEAD
 			COUNT(fotg210->stats.normal);
 		else
 			COUNT(fotg210->stats.error);
+=======
+			INCR(fotg210->stats.normal);
+		else
+			INCR(fotg210->stats.error);
+>>>>>>> upstream/android-13
 		bh = 1;
 	}
 
@@ -5184,7 +5352,11 @@ static irqreturn_t fotg210_irq(struct usb_hcd *hcd)
 		if (cmd & CMD_IAAD)
 			fotg210_dbg(fotg210, "IAA with IAAD still set?\n");
 		if (fotg210->async_iaa) {
+<<<<<<< HEAD
 			COUNT(fotg210->stats.iaa);
+=======
+			INCR(fotg210->stats.iaa);
+>>>>>>> upstream/android-13
 			end_unlink_async(fotg210);
 		} else
 			fotg210_dbg(fotg210, "IAA with nothing unlinked?\n");
@@ -5277,7 +5449,11 @@ static int fotg210_urb_enqueue(struct usb_hcd *hcd, struct urb *urb,
 		 */
 		if (urb->transfer_buffer_length > (16 * 1024))
 			return -EMSGSIZE;
+<<<<<<< HEAD
 		/* FALLTHROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	/* case PIPE_BULK: */
 	default:
 		if (!qh_urb_transaction(fotg210, urb, &qtd_list, mem_flags))
@@ -5410,7 +5586,11 @@ rescan:
 		 */
 		if (tmp)
 			start_unlink_async(fotg210, qh);
+<<<<<<< HEAD
 		/* FALL THROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case QH_STATE_UNLINK:		/* wait for hw to finish? */
 	case QH_STATE_UNLINK_WAIT:
 idle_timeout:
@@ -5424,7 +5604,11 @@ idle_timeout:
 			qh_destroy(fotg210, qh);
 			break;
 		}
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		/* caller was supposed to have unlinked any requests;
 		 * that's not our job.  just leak this memory.
@@ -5506,7 +5690,11 @@ static const struct hc_driver fotg210_fotg210_hc_driver = {
 	 * generic hardware linkage
 	 */
 	.irq			= fotg210_irq,
+<<<<<<< HEAD
 	.flags			= HCD_MEMORY | HCD_USB2,
+=======
+	.flags			= HCD_MEMORY | HCD_DMA | HCD_USB2,
+>>>>>>> upstream/android-13
 
 	/*
 	 * basic lifecycle operations
@@ -5556,7 +5744,11 @@ static void fotg210_init(struct fotg210_hcd *fotg210)
 	iowrite32(value, &fotg210->regs->otgcsr);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * fotg210_hcd_probe - initialize faraday FOTG210 HCDs
  *
  * Allocates basic resources for this USB host controller, and
@@ -5600,7 +5792,11 @@ static int fotg210_hcd_probe(struct platform_device *pdev)
 	hcd->regs = devm_ioremap_resource(&pdev->dev, res);
 	if (IS_ERR(hcd->regs)) {
 		retval = PTR_ERR(hcd->regs);
+<<<<<<< HEAD
 		goto failed;
+=======
+		goto failed_put_hcd;
+>>>>>>> upstream/android-13
 	}
 
 	hcd->rsrc_start = res->start;
@@ -5610,15 +5806,39 @@ static int fotg210_hcd_probe(struct platform_device *pdev)
 
 	fotg210->caps = hcd->regs;
 
+<<<<<<< HEAD
 	retval = fotg210_setup(hcd);
 	if (retval)
 		goto failed;
+=======
+	/* It's OK not to supply this clock */
+	fotg210->pclk = clk_get(dev, "PCLK");
+	if (!IS_ERR(fotg210->pclk)) {
+		retval = clk_prepare_enable(fotg210->pclk);
+		if (retval) {
+			dev_err(dev, "failed to enable PCLK\n");
+			goto failed_put_hcd;
+		}
+	} else if (PTR_ERR(fotg210->pclk) == -EPROBE_DEFER) {
+		/*
+		 * Percolate deferrals, for anything else,
+		 * just live without the clocking.
+		 */
+		retval = PTR_ERR(fotg210->pclk);
+		goto failed_dis_clk;
+	}
+
+	retval = fotg210_setup(hcd);
+	if (retval)
+		goto failed_dis_clk;
+>>>>>>> upstream/android-13
 
 	fotg210_init(fotg210);
 
 	retval = usb_add_hcd(hcd, irq, IRQF_SHARED);
 	if (retval) {
 		dev_err(dev, "failed to add hcd with err %d\n", retval);
+<<<<<<< HEAD
 		goto failed;
 	}
 	device_wakeup_enable(hcd->self.controller);
@@ -5626,24 +5846,53 @@ static int fotg210_hcd_probe(struct platform_device *pdev)
 	return retval;
 
 failed:
+=======
+		goto failed_dis_clk;
+	}
+	device_wakeup_enable(hcd->self.controller);
+	platform_set_drvdata(pdev, hcd);
+
+	return retval;
+
+failed_dis_clk:
+	if (!IS_ERR(fotg210->pclk)) {
+		clk_disable_unprepare(fotg210->pclk);
+		clk_put(fotg210->pclk);
+	}
+failed_put_hcd:
+>>>>>>> upstream/android-13
 	usb_put_hcd(hcd);
 fail_create_hcd:
 	dev_err(dev, "init %s fail, %d\n", dev_name(dev), retval);
 	return retval;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * fotg210_hcd_remove - shutdown processing for EHCI HCDs
  * @dev: USB Host Controller being removed
  *
  */
 static int fotg210_hcd_remove(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct device *dev = &pdev->dev;
 	struct usb_hcd *hcd = dev_get_drvdata(dev);
 
 	if (!hcd)
 		return 0;
+=======
+	struct usb_hcd *hcd = platform_get_drvdata(pdev);
+	struct fotg210_hcd *fotg210 = hcd_to_fotg210(hcd);
+
+	if (!IS_ERR(fotg210->pclk)) {
+		clk_disable_unprepare(fotg210->pclk);
+		clk_put(fotg210->pclk);
+	}
+>>>>>>> upstream/android-13
 
 	usb_remove_hcd(hcd);
 	usb_put_hcd(hcd);
@@ -5651,9 +5900,24 @@ static int fotg210_hcd_remove(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct platform_driver fotg210_hcd_driver = {
 	.driver = {
 		.name   = "fotg210-hcd",
+=======
+#ifdef CONFIG_OF
+static const struct of_device_id fotg210_of_match[] = {
+	{ .compatible = "faraday,fotg210" },
+	{},
+};
+MODULE_DEVICE_TABLE(of, fotg210_of_match);
+#endif
+
+static struct platform_driver fotg210_hcd_driver = {
+	.driver = {
+		.name   = "fotg210-hcd",
+		.of_match_table = of_match_ptr(fotg210_of_match),
+>>>>>>> upstream/android-13
 	},
 	.probe  = fotg210_hcd_probe,
 	.remove = fotg210_hcd_remove,

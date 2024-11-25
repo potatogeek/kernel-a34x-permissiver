@@ -9,9 +9,14 @@
 #include <linux/mm.h>
 #include <linux/device.h>
 
+<<<<<<< HEAD
 #include <linux/uaccess.h>
 #include <asm/page.h>
 #include <asm/pgtable.h>
+=======
+#include <asm/extable.h>
+#include <asm/page.h>
+>>>>>>> upstream/android-13
 
 #include <xen/interface/xen.h>
 #include <xen/interface/grant_table.h>
@@ -93,12 +98,48 @@ clear_foreign_p2m_mapping(struct gnttab_unmap_grant_ref *unmap_ops,
  */
 static inline int xen_safe_write_ulong(unsigned long *addr, unsigned long val)
 {
+<<<<<<< HEAD
 	return __put_user(val, (unsigned long __user *)addr);
 }
 
 static inline int xen_safe_read_ulong(unsigned long *addr, unsigned long *val)
 {
 	return __get_user(*val, (unsigned long __user *)addr);
+=======
+	int ret = 0;
+
+	asm volatile("1: mov %[val], %[ptr]\n"
+		     "2:\n"
+		     ".section .fixup, \"ax\"\n"
+		     "3: sub $1, %[ret]\n"
+		     "   jmp 2b\n"
+		     ".previous\n"
+		     _ASM_EXTABLE(1b, 3b)
+		     : [ret] "+r" (ret), [ptr] "=m" (*addr)
+		     : [val] "r" (val));
+
+	return ret;
+}
+
+static inline int xen_safe_read_ulong(const unsigned long *addr,
+				      unsigned long *val)
+{
+	int ret = 0;
+	unsigned long rval = ~0ul;
+
+	asm volatile("1: mov %[ptr], %[rval]\n"
+		     "2:\n"
+		     ".section .fixup, \"ax\"\n"
+		     "3: sub $1, %[ret]\n"
+		     "   jmp 2b\n"
+		     ".previous\n"
+		     _ASM_EXTABLE(1b, 3b)
+		     : [ret] "+r" (ret), [rval] "+r" (rval)
+		     : [ptr] "m" (*addr));
+	*val = rval;
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_XEN_PV
@@ -329,7 +370,11 @@ unsigned long arbitrary_virt_to_mfn(void *vaddr);
 void make_lowmem_page_readonly(void *vaddr);
 void make_lowmem_page_readwrite(void *vaddr);
 
+<<<<<<< HEAD
 #define xen_remap(cookie, size) ioremap((cookie), (size));
+=======
+#define xen_remap(cookie, size) ioremap((cookie), (size))
+>>>>>>> upstream/android-13
 #define xen_unmap(cookie) iounmap((cookie))
 
 static inline bool xen_arch_need_swiotlb(struct device *dev,

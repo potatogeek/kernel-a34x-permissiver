@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * V4L2 sub-device
  *
@@ -5,6 +9,7 @@
  *
  * Contact: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
  *	    Sakari Ailus <sakari.ailus@iki.fi>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -14,14 +19,24 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/ioctl.h>
 #include <linux/mm.h>
+<<<<<<< HEAD
+=======
+#include <linux/module.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/types.h>
 #include <linux/videodev2.h>
 #include <linux/export.h>
+<<<<<<< HEAD
+=======
+#include <linux/version.h>
+>>>>>>> upstream/android-13
 
 #include <media/v4l2-ctrls.h>
 #include <media/v4l2-device.h>
@@ -29,6 +44,7 @@
 #include <media/v4l2-fh.h>
 #include <media/v4l2-event.h>
 
+<<<<<<< HEAD
 static int subdev_fh_init(struct v4l2_subdev_fh *fh, struct v4l2_subdev *sd)
 {
 #if defined(CONFIG_VIDEO_V4L2_SUBDEV_API)
@@ -38,15 +54,33 @@ static int subdev_fh_init(struct v4l2_subdev_fh *fh, struct v4l2_subdev *sd)
 			return -ENOMEM;
 	}
 #endif
+=======
+#if defined(CONFIG_VIDEO_V4L2_SUBDEV_API)
+static int subdev_fh_init(struct v4l2_subdev_fh *fh, struct v4l2_subdev *sd)
+{
+	struct v4l2_subdev_state *state;
+
+	state = v4l2_subdev_alloc_state(sd);
+	if (IS_ERR(state))
+		return PTR_ERR(state);
+
+	fh->state = state;
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static void subdev_fh_free(struct v4l2_subdev_fh *fh)
 {
+<<<<<<< HEAD
 #if defined(CONFIG_VIDEO_V4L2_SUBDEV_API)
 	v4l2_subdev_free_pad_config(fh->pad);
 	fh->pad = NULL;
 #endif
+=======
+	v4l2_subdev_free_state(fh->state);
+	fh->state = NULL;
+>>>>>>> upstream/android-13
 }
 
 static int subdev_open(struct file *file)
@@ -54,9 +88,12 @@ static int subdev_open(struct file *file)
 	struct video_device *vdev = video_devdata(file);
 	struct v4l2_subdev *sd = vdev_to_v4l2_subdev(vdev);
 	struct v4l2_subdev_fh *subdev_fh;
+<<<<<<< HEAD
 #if defined(CONFIG_MEDIA_CONTROLLER)
 	struct media_entity *entity = NULL;
 #endif
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	subdev_fh = kzalloc(sizeof(*subdev_fh), GFP_KERNEL);
@@ -73,12 +110,24 @@ static int subdev_open(struct file *file)
 	v4l2_fh_add(&subdev_fh->vfh);
 	file->private_data = &subdev_fh->vfh;
 #if defined(CONFIG_MEDIA_CONTROLLER)
+<<<<<<< HEAD
 	if (sd->v4l2_dev->mdev) {
 		entity = media_entity_get(&sd->entity);
 		if (!entity) {
 			ret = -EBUSY;
 			goto err;
 		}
+=======
+	if (sd->v4l2_dev->mdev && sd->entity.graph_obj.mdev->dev) {
+		struct module *owner;
+
+		owner = sd->entity.graph_obj.mdev->dev->driver->owner;
+		if (!try_module_get(owner)) {
+			ret = -EBUSY;
+			goto err;
+		}
+		subdev_fh->owner = owner;
+>>>>>>> upstream/android-13
 	}
 #endif
 
@@ -91,9 +140,13 @@ static int subdev_open(struct file *file)
 	return 0;
 
 err:
+<<<<<<< HEAD
 #if defined(CONFIG_MEDIA_CONTROLLER)
 	media_entity_put(entity);
 #endif
+=======
+	module_put(subdev_fh->owner);
+>>>>>>> upstream/android-13
 	v4l2_fh_del(&subdev_fh->vfh);
 	v4l2_fh_exit(&subdev_fh->vfh);
 	subdev_fh_free(subdev_fh);
@@ -111,10 +164,14 @@ static int subdev_close(struct file *file)
 
 	if (sd->internal_ops && sd->internal_ops->close)
 		sd->internal_ops->close(sd, subdev_fh);
+<<<<<<< HEAD
 #if defined(CONFIG_MEDIA_CONTROLLER)
 	if (sd->v4l2_dev->mdev)
 		media_entity_put(&sd->entity);
 #endif
+=======
+	module_put(subdev_fh->owner);
+>>>>>>> upstream/android-13
 	v4l2_fh_del(vfh);
 	v4l2_fh_exit(vfh);
 	subdev_fh_free(subdev_fh);
@@ -123,6 +180,7 @@ static int subdev_close(struct file *file)
 
 	return 0;
 }
+<<<<<<< HEAD
 
 #if defined(CONFIG_VIDEO_V4L2_SUBDEV_API)
 static int check_format(struct v4l2_subdev *sd,
@@ -166,26 +224,285 @@ static int check_selection(struct v4l2_subdev *sd,
 static int check_edid(struct v4l2_subdev *sd, struct v4l2_subdev_edid *edid)
 {
 	if (edid->pad >= sd->entity.num_pads)
+=======
+#else /* CONFIG_VIDEO_V4L2_SUBDEV_API */
+static int subdev_open(struct file *file)
+{
+	return -ENODEV;
+}
+
+static int subdev_close(struct file *file)
+{
+	return -ENODEV;
+}
+#endif /* CONFIG_VIDEO_V4L2_SUBDEV_API */
+
+static inline int check_which(u32 which)
+{
+	if (which != V4L2_SUBDEV_FORMAT_TRY &&
+	    which != V4L2_SUBDEV_FORMAT_ACTIVE)
+		return -EINVAL;
+
+	return 0;
+}
+
+static inline int check_pad(struct v4l2_subdev *sd, u32 pad)
+{
+#if defined(CONFIG_MEDIA_CONTROLLER)
+	if (sd->entity.num_pads) {
+		if (pad >= sd->entity.num_pads)
+			return -EINVAL;
+		return 0;
+	}
+#endif
+	/* allow pad 0 on subdevices not registered as media entities */
+	if (pad > 0)
+		return -EINVAL;
+	return 0;
+}
+
+static int check_state_pads(u32 which, struct v4l2_subdev_state *state)
+{
+	if (which == V4L2_SUBDEV_FORMAT_TRY && (!state || !state->pads))
+		return -EINVAL;
+
+	return 0;
+}
+
+static inline int check_format(struct v4l2_subdev *sd,
+			       struct v4l2_subdev_state *state,
+			       struct v4l2_subdev_format *format)
+{
+	if (!format)
+		return -EINVAL;
+
+	return check_which(format->which) ? : check_pad(sd, format->pad) ? :
+	       check_state_pads(format->which, state);
+}
+
+static int call_get_fmt(struct v4l2_subdev *sd,
+			struct v4l2_subdev_state *state,
+			struct v4l2_subdev_format *format)
+{
+	return check_format(sd, state, format) ? :
+	       sd->ops->pad->get_fmt(sd, state, format);
+}
+
+static int call_set_fmt(struct v4l2_subdev *sd,
+			struct v4l2_subdev_state *state,
+			struct v4l2_subdev_format *format)
+{
+	return check_format(sd, state, format) ? :
+	       sd->ops->pad->set_fmt(sd, state, format);
+}
+
+static int call_enum_mbus_code(struct v4l2_subdev *sd,
+			       struct v4l2_subdev_state *state,
+			       struct v4l2_subdev_mbus_code_enum *code)
+{
+	if (!code)
+		return -EINVAL;
+
+	return check_which(code->which) ? : check_pad(sd, code->pad) ? :
+	       check_state_pads(code->which, state) ? :
+	       sd->ops->pad->enum_mbus_code(sd, state, code);
+}
+
+static int call_enum_frame_size(struct v4l2_subdev *sd,
+				struct v4l2_subdev_state *state,
+				struct v4l2_subdev_frame_size_enum *fse)
+{
+	if (!fse)
+		return -EINVAL;
+
+	return check_which(fse->which) ? : check_pad(sd, fse->pad) ? :
+	       check_state_pads(fse->which, state) ? :
+	       sd->ops->pad->enum_frame_size(sd, state, fse);
+}
+
+static inline int check_frame_interval(struct v4l2_subdev *sd,
+				       struct v4l2_subdev_frame_interval *fi)
+{
+	if (!fi)
+		return -EINVAL;
+
+	return check_pad(sd, fi->pad);
+}
+
+static int call_g_frame_interval(struct v4l2_subdev *sd,
+				 struct v4l2_subdev_frame_interval *fi)
+{
+	return check_frame_interval(sd, fi) ? :
+	       sd->ops->video->g_frame_interval(sd, fi);
+}
+
+static int call_s_frame_interval(struct v4l2_subdev *sd,
+				 struct v4l2_subdev_frame_interval *fi)
+{
+	return check_frame_interval(sd, fi) ? :
+	       sd->ops->video->s_frame_interval(sd, fi);
+}
+
+static int call_enum_frame_interval(struct v4l2_subdev *sd,
+				    struct v4l2_subdev_state *state,
+				    struct v4l2_subdev_frame_interval_enum *fie)
+{
+	if (!fie)
+		return -EINVAL;
+
+	return check_which(fie->which) ? : check_pad(sd, fie->pad) ? :
+	       check_state_pads(fie->which, state) ? :
+	       sd->ops->pad->enum_frame_interval(sd, state, fie);
+}
+
+static inline int check_selection(struct v4l2_subdev *sd,
+				  struct v4l2_subdev_state *state,
+				  struct v4l2_subdev_selection *sel)
+{
+	if (!sel)
+		return -EINVAL;
+
+	return check_which(sel->which) ? : check_pad(sd, sel->pad) ? :
+	       check_state_pads(sel->which, state);
+}
+
+static int call_get_selection(struct v4l2_subdev *sd,
+			      struct v4l2_subdev_state *state,
+			      struct v4l2_subdev_selection *sel)
+{
+	return check_selection(sd, state, sel) ? :
+	       sd->ops->pad->get_selection(sd, state, sel);
+}
+
+static int call_set_selection(struct v4l2_subdev *sd,
+			      struct v4l2_subdev_state *state,
+			      struct v4l2_subdev_selection *sel)
+{
+	return check_selection(sd, state, sel) ? :
+	       sd->ops->pad->set_selection(sd, state, sel);
+}
+
+static inline int check_edid(struct v4l2_subdev *sd,
+			     struct v4l2_subdev_edid *edid)
+{
+	if (!edid)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	if (edid->blocks && edid->edid == NULL)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	return 0;
 }
 #endif
 
+=======
+	return check_pad(sd, edid->pad);
+}
+
+static int call_get_edid(struct v4l2_subdev *sd, struct v4l2_subdev_edid *edid)
+{
+	return check_edid(sd, edid) ? : sd->ops->pad->get_edid(sd, edid);
+}
+
+static int call_set_edid(struct v4l2_subdev *sd, struct v4l2_subdev_edid *edid)
+{
+	return check_edid(sd, edid) ? : sd->ops->pad->set_edid(sd, edid);
+}
+
+static int call_dv_timings_cap(struct v4l2_subdev *sd,
+			       struct v4l2_dv_timings_cap *cap)
+{
+	if (!cap)
+		return -EINVAL;
+
+	return check_pad(sd, cap->pad) ? :
+	       sd->ops->pad->dv_timings_cap(sd, cap);
+}
+
+static int call_enum_dv_timings(struct v4l2_subdev *sd,
+				struct v4l2_enum_dv_timings *dvt)
+{
+	if (!dvt)
+		return -EINVAL;
+
+	return check_pad(sd, dvt->pad) ? :
+	       sd->ops->pad->enum_dv_timings(sd, dvt);
+}
+
+static int call_get_mbus_config(struct v4l2_subdev *sd, unsigned int pad,
+				struct v4l2_mbus_config *config)
+{
+	return check_pad(sd, pad) ? :
+	       sd->ops->pad->get_mbus_config(sd, pad, config);
+}
+
+static int call_set_mbus_config(struct v4l2_subdev *sd, unsigned int pad,
+				struct v4l2_mbus_config *config)
+{
+	return check_pad(sd, pad) ? :
+	       sd->ops->pad->get_mbus_config(sd, pad, config);
+}
+
+static const struct v4l2_subdev_pad_ops v4l2_subdev_call_pad_wrappers = {
+	.get_fmt		= call_get_fmt,
+	.set_fmt		= call_set_fmt,
+	.enum_mbus_code		= call_enum_mbus_code,
+	.enum_frame_size	= call_enum_frame_size,
+	.enum_frame_interval	= call_enum_frame_interval,
+	.get_selection		= call_get_selection,
+	.set_selection		= call_set_selection,
+	.get_edid		= call_get_edid,
+	.set_edid		= call_set_edid,
+	.dv_timings_cap		= call_dv_timings_cap,
+	.enum_dv_timings	= call_enum_dv_timings,
+	.get_mbus_config	= call_get_mbus_config,
+	.set_mbus_config	= call_set_mbus_config,
+};
+
+static const struct v4l2_subdev_video_ops v4l2_subdev_call_video_wrappers = {
+	.g_frame_interval	= call_g_frame_interval,
+	.s_frame_interval	= call_s_frame_interval,
+};
+
+const struct v4l2_subdev_ops v4l2_subdev_call_wrappers = {
+	.pad	= &v4l2_subdev_call_pad_wrappers,
+	.video	= &v4l2_subdev_call_video_wrappers,
+};
+EXPORT_SYMBOL(v4l2_subdev_call_wrappers);
+
+#if defined(CONFIG_VIDEO_V4L2_SUBDEV_API)
+>>>>>>> upstream/android-13
 static long subdev_do_ioctl(struct file *file, unsigned int cmd, void *arg)
 {
 	struct video_device *vdev = video_devdata(file);
 	struct v4l2_subdev *sd = vdev_to_v4l2_subdev(vdev);
 	struct v4l2_fh *vfh = file->private_data;
+<<<<<<< HEAD
 #if defined(CONFIG_VIDEO_V4L2_SUBDEV_API)
 	struct v4l2_subdev_fh *subdev_fh = to_v4l2_subdev_fh(vfh);
 	int rval;
 #endif
 
 	switch (cmd) {
+=======
+	struct v4l2_subdev_fh *subdev_fh = to_v4l2_subdev_fh(vfh);
+	bool ro_subdev = test_bit(V4L2_FL_SUBDEV_RO_DEVNODE, &vdev->flags);
+	int rval;
+
+	switch (cmd) {
+	case VIDIOC_SUBDEV_QUERYCAP: {
+		struct v4l2_subdev_capability *cap = arg;
+
+		memset(cap->reserved, 0, sizeof(cap->reserved));
+		cap->version = LINUX_VERSION_CODE;
+		cap->capabilities = ro_subdev ? V4L2_SUBDEV_CAP_RO_SUBDEV : 0;
+
+		return 0;
+	}
+
+>>>>>>> upstream/android-13
 	case VIDIOC_QUERYCTRL:
 		/*
 		 * TODO: this really should be folded into v4l2_queryctrl (this
@@ -223,19 +540,31 @@ static long subdev_do_ioctl(struct file *file, unsigned int cmd, void *arg)
 		if (!vfh->ctrl_handler)
 			return -ENOTTY;
 		return v4l2_g_ext_ctrls(vfh->ctrl_handler,
+<<<<<<< HEAD
 					sd->v4l2_dev->mdev, arg);
+=======
+					vdev, sd->v4l2_dev->mdev, arg);
+>>>>>>> upstream/android-13
 
 	case VIDIOC_S_EXT_CTRLS:
 		if (!vfh->ctrl_handler)
 			return -ENOTTY;
 		return v4l2_s_ext_ctrls(vfh, vfh->ctrl_handler,
+<<<<<<< HEAD
 					sd->v4l2_dev->mdev, arg);
+=======
+					vdev, sd->v4l2_dev->mdev, arg);
+>>>>>>> upstream/android-13
 
 	case VIDIOC_TRY_EXT_CTRLS:
 		if (!vfh->ctrl_handler)
 			return -ENOTTY;
 		return v4l2_try_ext_ctrls(vfh->ctrl_handler,
+<<<<<<< HEAD
 					  sd->v4l2_dev->mdev, arg);
+=======
+					  vdev, sd->v4l2_dev->mdev, arg);
+>>>>>>> upstream/android-13
 
 	case VIDIOC_DQEVENT:
 		if (!(sd->flags & V4L2_SUBDEV_FL_HAS_EVENTS))
@@ -276,7 +605,11 @@ static long subdev_do_ioctl(struct file *file, unsigned int cmd, void *arg)
 			p->flags |= V4L2_CHIP_FL_WRITABLE;
 		if (sd->ops->core && sd->ops->core->g_register)
 			p->flags |= V4L2_CHIP_FL_READABLE;
+<<<<<<< HEAD
 		strlcpy(p->name, sd->name, sizeof(p->name));
+=======
+		strscpy(p->name, sd->name, sizeof(p->name));
+>>>>>>> upstream/android-13
 		return 0;
 	}
 #endif
@@ -292,6 +625,7 @@ static long subdev_do_ioctl(struct file *file, unsigned int cmd, void *arg)
 		return ret;
 	}
 
+<<<<<<< HEAD
 #if defined(CONFIG_VIDEO_V4L2_SUBDEV_API)
 	case VIDIOC_SUBDEV_G_FMT: {
 		struct v4l2_subdev_format *format = arg;
@@ -303,11 +637,20 @@ static long subdev_do_ioctl(struct file *file, unsigned int cmd, void *arg)
 		memset(format->reserved, 0, sizeof(format->reserved));
 		memset(format->format.reserved, 0, sizeof(format->format.reserved));
 		return v4l2_subdev_call(sd, pad, get_fmt, subdev_fh->pad, format);
+=======
+	case VIDIOC_SUBDEV_G_FMT: {
+		struct v4l2_subdev_format *format = arg;
+
+		memset(format->reserved, 0, sizeof(format->reserved));
+		memset(format->format.reserved, 0, sizeof(format->format.reserved));
+		return v4l2_subdev_call(sd, pad, get_fmt, subdev_fh->state, format);
+>>>>>>> upstream/android-13
 	}
 
 	case VIDIOC_SUBDEV_S_FMT: {
 		struct v4l2_subdev_format *format = arg;
 
+<<<<<<< HEAD
 		rval = check_format(sd, format);
 		if (rval)
 			return rval;
@@ -315,16 +658,27 @@ static long subdev_do_ioctl(struct file *file, unsigned int cmd, void *arg)
 		memset(format->reserved, 0, sizeof(format->reserved));
 		memset(format->format.reserved, 0, sizeof(format->format.reserved));
 		return v4l2_subdev_call(sd, pad, set_fmt, subdev_fh->pad, format);
+=======
+		if (format->which != V4L2_SUBDEV_FORMAT_TRY && ro_subdev)
+			return -EPERM;
+
+		memset(format->reserved, 0, sizeof(format->reserved));
+		memset(format->format.reserved, 0, sizeof(format->format.reserved));
+		return v4l2_subdev_call(sd, pad, set_fmt, subdev_fh->state, format);
+>>>>>>> upstream/android-13
 	}
 
 	case VIDIOC_SUBDEV_G_CROP: {
 		struct v4l2_subdev_crop *crop = arg;
 		struct v4l2_subdev_selection sel;
 
+<<<<<<< HEAD
 		rval = check_crop(sd, crop);
 		if (rval)
 			return rval;
 
+=======
+>>>>>>> upstream/android-13
 		memset(crop->reserved, 0, sizeof(crop->reserved));
 		memset(&sel, 0, sizeof(sel));
 		sel.which = crop->which;
@@ -332,7 +686,11 @@ static long subdev_do_ioctl(struct file *file, unsigned int cmd, void *arg)
 		sel.target = V4L2_SEL_TGT_CROP;
 
 		rval = v4l2_subdev_call(
+<<<<<<< HEAD
 			sd, pad, get_selection, subdev_fh->pad, &sel);
+=======
+			sd, pad, get_selection, subdev_fh->state, &sel);
+>>>>>>> upstream/android-13
 
 		crop->rect = sel.r;
 
@@ -343,11 +701,18 @@ static long subdev_do_ioctl(struct file *file, unsigned int cmd, void *arg)
 		struct v4l2_subdev_crop *crop = arg;
 		struct v4l2_subdev_selection sel;
 
+<<<<<<< HEAD
 		memset(crop->reserved, 0, sizeof(crop->reserved));
 		rval = check_crop(sd, crop);
 		if (rval)
 			return rval;
 
+=======
+		if (crop->which != V4L2_SUBDEV_FORMAT_TRY && ro_subdev)
+			return -EPERM;
+
+		memset(crop->reserved, 0, sizeof(crop->reserved));
+>>>>>>> upstream/android-13
 		memset(&sel, 0, sizeof(sel));
 		sel.which = crop->which;
 		sel.pad = crop->pad;
@@ -355,7 +720,11 @@ static long subdev_do_ioctl(struct file *file, unsigned int cmd, void *arg)
 		sel.r = crop->rect;
 
 		rval = v4l2_subdev_call(
+<<<<<<< HEAD
 			sd, pad, set_selection, subdev_fh->pad, &sel);
+=======
+			sd, pad, set_selection, subdev_fh->state, &sel);
+>>>>>>> upstream/android-13
 
 		crop->rect = sel.r;
 
@@ -365,6 +734,7 @@ static long subdev_do_ioctl(struct file *file, unsigned int cmd, void *arg)
 	case VIDIOC_SUBDEV_ENUM_MBUS_CODE: {
 		struct v4l2_subdev_mbus_code_enum *code = arg;
 
+<<<<<<< HEAD
 		if (code->which != V4L2_SUBDEV_FORMAT_TRY &&
 		    code->which != V4L2_SUBDEV_FORMAT_ACTIVE)
 			return -EINVAL;
@@ -374,12 +744,17 @@ static long subdev_do_ioctl(struct file *file, unsigned int cmd, void *arg)
 
 		memset(code->reserved, 0, sizeof(code->reserved));
 		return v4l2_subdev_call(sd, pad, enum_mbus_code, subdev_fh->pad,
+=======
+		memset(code->reserved, 0, sizeof(code->reserved));
+		return v4l2_subdev_call(sd, pad, enum_mbus_code, subdev_fh->state,
+>>>>>>> upstream/android-13
 					code);
 	}
 
 	case VIDIOC_SUBDEV_ENUM_FRAME_SIZE: {
 		struct v4l2_subdev_frame_size_enum *fse = arg;
 
+<<<<<<< HEAD
 		if (fse->which != V4L2_SUBDEV_FORMAT_TRY &&
 		    fse->which != V4L2_SUBDEV_FORMAT_ACTIVE)
 			return -EINVAL;
@@ -389,15 +764,22 @@ static long subdev_do_ioctl(struct file *file, unsigned int cmd, void *arg)
 
 		memset(fse->reserved, 0, sizeof(fse->reserved));
 		return v4l2_subdev_call(sd, pad, enum_frame_size, subdev_fh->pad,
+=======
+		memset(fse->reserved, 0, sizeof(fse->reserved));
+		return v4l2_subdev_call(sd, pad, enum_frame_size, subdev_fh->state,
+>>>>>>> upstream/android-13
 					fse);
 	}
 
 	case VIDIOC_SUBDEV_G_FRAME_INTERVAL: {
 		struct v4l2_subdev_frame_interval *fi = arg;
 
+<<<<<<< HEAD
 		if (fi->pad >= sd->entity.num_pads)
 			return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 		memset(fi->reserved, 0, sizeof(fi->reserved));
 		return v4l2_subdev_call(sd, video, g_frame_interval, arg);
 	}
@@ -405,8 +787,13 @@ static long subdev_do_ioctl(struct file *file, unsigned int cmd, void *arg)
 	case VIDIOC_SUBDEV_S_FRAME_INTERVAL: {
 		struct v4l2_subdev_frame_interval *fi = arg;
 
+<<<<<<< HEAD
 		if (fi->pad >= sd->entity.num_pads)
 			return -EINVAL;
+=======
+		if (ro_subdev)
+			return -EPERM;
+>>>>>>> upstream/android-13
 
 		memset(fi->reserved, 0, sizeof(fi->reserved));
 		return v4l2_subdev_call(sd, video, s_frame_interval, arg);
@@ -415,6 +802,7 @@ static long subdev_do_ioctl(struct file *file, unsigned int cmd, void *arg)
 	case VIDIOC_SUBDEV_ENUM_FRAME_INTERVAL: {
 		struct v4l2_subdev_frame_interval_enum *fie = arg;
 
+<<<<<<< HEAD
 		if (fie->which != V4L2_SUBDEV_FORMAT_TRY &&
 		    fie->which != V4L2_SUBDEV_FORMAT_ACTIVE)
 			return -EINVAL;
@@ -424,12 +812,17 @@ static long subdev_do_ioctl(struct file *file, unsigned int cmd, void *arg)
 
 		memset(fie->reserved, 0, sizeof(fie->reserved));
 		return v4l2_subdev_call(sd, pad, enum_frame_interval, subdev_fh->pad,
+=======
+		memset(fie->reserved, 0, sizeof(fie->reserved));
+		return v4l2_subdev_call(sd, pad, enum_frame_interval, subdev_fh->state,
+>>>>>>> upstream/android-13
 					fie);
 	}
 
 	case VIDIOC_SUBDEV_G_SELECTION: {
 		struct v4l2_subdev_selection *sel = arg;
 
+<<<<<<< HEAD
 		rval = check_selection(sd, sel);
 		if (rval)
 			return rval;
@@ -437,11 +830,17 @@ static long subdev_do_ioctl(struct file *file, unsigned int cmd, void *arg)
 		memset(sel->reserved, 0, sizeof(sel->reserved));
 		return v4l2_subdev_call(
 			sd, pad, get_selection, subdev_fh->pad, sel);
+=======
+		memset(sel->reserved, 0, sizeof(sel->reserved));
+		return v4l2_subdev_call(
+			sd, pad, get_selection, subdev_fh->state, sel);
+>>>>>>> upstream/android-13
 	}
 
 	case VIDIOC_SUBDEV_S_SELECTION: {
 		struct v4l2_subdev_selection *sel = arg;
 
+<<<<<<< HEAD
 		rval = check_selection(sd, sel);
 		if (rval)
 			return rval;
@@ -449,43 +848,63 @@ static long subdev_do_ioctl(struct file *file, unsigned int cmd, void *arg)
 		memset(sel->reserved, 0, sizeof(sel->reserved));
 		return v4l2_subdev_call(
 			sd, pad, set_selection, subdev_fh->pad, sel);
+=======
+		if (sel->which != V4L2_SUBDEV_FORMAT_TRY && ro_subdev)
+			return -EPERM;
+
+		memset(sel->reserved, 0, sizeof(sel->reserved));
+		return v4l2_subdev_call(
+			sd, pad, set_selection, subdev_fh->state, sel);
+>>>>>>> upstream/android-13
 	}
 
 	case VIDIOC_G_EDID: {
 		struct v4l2_subdev_edid *edid = arg;
 
+<<<<<<< HEAD
 		rval = check_edid(sd, edid);
 		if (rval)
 			return rval;
 
+=======
+>>>>>>> upstream/android-13
 		return v4l2_subdev_call(sd, pad, get_edid, edid);
 	}
 
 	case VIDIOC_S_EDID: {
 		struct v4l2_subdev_edid *edid = arg;
 
+<<<<<<< HEAD
 		rval = check_edid(sd, edid);
 		if (rval)
 			return rval;
 
+=======
+>>>>>>> upstream/android-13
 		return v4l2_subdev_call(sd, pad, set_edid, edid);
 	}
 
 	case VIDIOC_SUBDEV_DV_TIMINGS_CAP: {
 		struct v4l2_dv_timings_cap *cap = arg;
 
+<<<<<<< HEAD
 		if (cap->pad >= sd->entity.num_pads)
 			return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 		return v4l2_subdev_call(sd, pad, dv_timings_cap, cap);
 	}
 
 	case VIDIOC_SUBDEV_ENUM_DV_TIMINGS: {
 		struct v4l2_enum_dv_timings *dvt = arg;
 
+<<<<<<< HEAD
 		if (dvt->pad >= sd->entity.num_pads)
 			return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 		return v4l2_subdev_call(sd, pad, enum_dv_timings, dvt);
 	}
 
@@ -496,6 +915,12 @@ static long subdev_do_ioctl(struct file *file, unsigned int cmd, void *arg)
 		return v4l2_subdev_call(sd, video, g_dv_timings, arg);
 
 	case VIDIOC_SUBDEV_S_DV_TIMINGS:
+<<<<<<< HEAD
+=======
+		if (ro_subdev)
+			return -EPERM;
+
+>>>>>>> upstream/android-13
 		return v4l2_subdev_call(sd, video, s_dv_timings, arg);
 
 	case VIDIOC_SUBDEV_G_STD:
@@ -504,6 +929,12 @@ static long subdev_do_ioctl(struct file *file, unsigned int cmd, void *arg)
 	case VIDIOC_SUBDEV_S_STD: {
 		v4l2_std_id *std = arg;
 
+<<<<<<< HEAD
+=======
+		if (ro_subdev)
+			return -EPERM;
+
+>>>>>>> upstream/android-13
 		return v4l2_subdev_call(sd, video, s_std, *std);
 	}
 
@@ -519,7 +950,11 @@ static long subdev_do_ioctl(struct file *file, unsigned int cmd, void *arg)
 
 	case VIDIOC_SUBDEV_QUERYSTD:
 		return v4l2_subdev_call(sd, video, querystd, arg);
+<<<<<<< HEAD
 #endif
+=======
+
+>>>>>>> upstream/android-13
 	default:
 		return v4l2_subdev_call(sd, core, ioctl, cmd, arg);
 	}
@@ -559,6 +994,25 @@ static long subdev_compat_ioctl32(struct file *file, unsigned int cmd,
 }
 #endif
 
+<<<<<<< HEAD
+=======
+#else /* CONFIG_VIDEO_V4L2_SUBDEV_API */
+static long subdev_ioctl(struct file *file, unsigned int cmd,
+			 unsigned long arg)
+{
+	return -ENODEV;
+}
+
+#ifdef CONFIG_COMPAT
+static long subdev_compat_ioctl32(struct file *file, unsigned int cmd,
+				  unsigned long arg)
+{
+	return -ENODEV;
+}
+#endif
+#endif /* CONFIG_VIDEO_V4L2_SUBDEV_API */
+
+>>>>>>> upstream/android-13
 static __poll_t subdev_poll(struct file *file, poll_table *wait)
 {
 	struct video_device *vdev = video_devdata(file);
@@ -586,29 +1040,105 @@ const struct v4l2_file_operations v4l2_subdev_fops = {
 	.release = subdev_close,
 	.poll = subdev_poll,
 };
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(v4l2_subdev_fops);
 
 #ifdef CONFIG_MEDIA_CONTROLLER
+=======
+
+#ifdef CONFIG_MEDIA_CONTROLLER
+
+int v4l2_subdev_get_fwnode_pad_1_to_1(struct media_entity *entity,
+				      struct fwnode_endpoint *endpoint)
+{
+	struct fwnode_handle *fwnode;
+	struct v4l2_subdev *sd;
+
+	if (!is_media_entity_v4l2_subdev(entity))
+		return -EINVAL;
+
+	sd = media_entity_to_v4l2_subdev(entity);
+
+	fwnode = fwnode_graph_get_port_parent(endpoint->local_fwnode);
+	fwnode_handle_put(fwnode);
+
+	if (dev_fwnode(sd->dev) == fwnode)
+		return endpoint->port;
+
+	return -ENXIO;
+}
+EXPORT_SYMBOL_GPL(v4l2_subdev_get_fwnode_pad_1_to_1);
+
+>>>>>>> upstream/android-13
 int v4l2_subdev_link_validate_default(struct v4l2_subdev *sd,
 				      struct media_link *link,
 				      struct v4l2_subdev_format *source_fmt,
 				      struct v4l2_subdev_format *sink_fmt)
 {
+<<<<<<< HEAD
 	/* The width, height and code must match. */
 	if (source_fmt->format.width != sink_fmt->format.width
 	    || source_fmt->format.height != sink_fmt->format.height
 	    || source_fmt->format.code != sink_fmt->format.code)
 		return -EPIPE;
+=======
+	bool pass = true;
+
+	/* The width, height and code must match. */
+	if (source_fmt->format.width != sink_fmt->format.width) {
+		dev_dbg(sd->entity.graph_obj.mdev->dev,
+			"%s: width does not match (source %u, sink %u)\n",
+			__func__,
+			source_fmt->format.width, sink_fmt->format.width);
+		pass = false;
+	}
+
+	if (source_fmt->format.height != sink_fmt->format.height) {
+		dev_dbg(sd->entity.graph_obj.mdev->dev,
+			"%s: height does not match (source %u, sink %u)\n",
+			__func__,
+			source_fmt->format.height, sink_fmt->format.height);
+		pass = false;
+	}
+
+	if (source_fmt->format.code != sink_fmt->format.code) {
+		dev_dbg(sd->entity.graph_obj.mdev->dev,
+			"%s: media bus code does not match (source 0x%8.8x, sink 0x%8.8x)\n",
+			__func__,
+			source_fmt->format.code, sink_fmt->format.code);
+		pass = false;
+	}
+>>>>>>> upstream/android-13
 
 	/* The field order must match, or the sink field order must be NONE
 	 * to support interlaced hardware connected to bridges that support
 	 * progressive formats only.
 	 */
 	if (source_fmt->format.field != sink_fmt->format.field &&
+<<<<<<< HEAD
 	    sink_fmt->format.field != V4L2_FIELD_NONE)
 		return -EPIPE;
 
 	return 0;
+=======
+	    sink_fmt->format.field != V4L2_FIELD_NONE) {
+		dev_dbg(sd->entity.graph_obj.mdev->dev,
+			"%s: field does not match (source %u, sink %u)\n",
+			__func__,
+			source_fmt->format.field, sink_fmt->format.field);
+		pass = false;
+	}
+
+	if (pass)
+		return 0;
+
+	dev_dbg(sd->entity.graph_obj.mdev->dev,
+		"%s: link was \"%s\":%u -> \"%s\":%u\n", __func__,
+		link->source->entity->name, link->source->index,
+		link->sink->entity->name, link->sink->index);
+
+	return -EPIPE;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(v4l2_subdev_link_validate_default);
 
@@ -660,6 +1190,7 @@ int v4l2_subdev_link_validate(struct media_link *link)
 }
 EXPORT_SYMBOL_GPL(v4l2_subdev_link_validate);
 
+<<<<<<< HEAD
 struct v4l2_subdev_pad_config *
 v4l2_subdev_alloc_pad_config(struct v4l2_subdev *sd)
 {
@@ -689,6 +1220,53 @@ void v4l2_subdev_free_pad_config(struct v4l2_subdev_pad_config *cfg)
 	kvfree(cfg);
 }
 EXPORT_SYMBOL_GPL(v4l2_subdev_free_pad_config);
+=======
+struct v4l2_subdev_state *v4l2_subdev_alloc_state(struct v4l2_subdev *sd)
+{
+	struct v4l2_subdev_state *state;
+	int ret;
+
+	state = kzalloc(sizeof(*state), GFP_KERNEL);
+	if (!state)
+		return ERR_PTR(-ENOMEM);
+
+	if (sd->entity.num_pads) {
+		state->pads = kvmalloc_array(sd->entity.num_pads,
+					     sizeof(*state->pads),
+					     GFP_KERNEL | __GFP_ZERO);
+		if (!state->pads) {
+			ret = -ENOMEM;
+			goto err;
+		}
+	}
+
+	ret = v4l2_subdev_call(sd, pad, init_cfg, state);
+	if (ret < 0 && ret != -ENOIOCTLCMD)
+		goto err;
+
+	return state;
+
+err:
+	if (state && state->pads)
+		kvfree(state->pads);
+
+	kfree(state);
+
+	return ERR_PTR(ret);
+}
+EXPORT_SYMBOL_GPL(v4l2_subdev_alloc_state);
+
+void v4l2_subdev_free_state(struct v4l2_subdev_state *state)
+{
+	if (!state)
+		return;
+
+	kvfree(state->pads);
+	kfree(state);
+}
+EXPORT_SYMBOL_GPL(v4l2_subdev_free_state);
+
+>>>>>>> upstream/android-13
 #endif /* CONFIG_MEDIA_CONTROLLER */
 
 void v4l2_subdev_init(struct v4l2_subdev *sd, const struct v4l2_subdev_ops *ops)

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Renesas IRQC Driver
  *
  *  Copyright (C) 2013 Magnus Damm
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,11 +20,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
 #include <linux/platform_device.h>
+<<<<<<< HEAD
 #include <linux/spinlock.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/interrupt.h>
 #include <linux/ioport.h>
 #include <linux/io.h>
@@ -60,7 +70,11 @@ struct irqc_priv {
 	void __iomem *cpu_int_base;
 	struct irqc_irq irq[IRQC_IRQ_MAX];
 	unsigned int number_of_irqs;
+<<<<<<< HEAD
 	struct platform_device *pdev;
+=======
+	struct device *dev;
+>>>>>>> upstream/android-13
 	struct irq_chip_generic *gc;
 	struct irq_domain *irq_domain;
 	atomic_t wakeup_path;
@@ -73,8 +87,12 @@ static struct irqc_priv *irq_data_to_priv(struct irq_data *data)
 
 static void irqc_dbg(struct irqc_irq *i, char *str)
 {
+<<<<<<< HEAD
 	dev_dbg(&i->p->pdev->dev, "%s (%d:%d)\n",
 		str, i->requested_irq, i->hw_irq);
+=======
+	dev_dbg(i->p->dev, "%s (%d:%d)\n", str, i->requested_irq, i->hw_irq);
+>>>>>>> upstream/android-13
 }
 
 static unsigned char irqc_sense[IRQ_TYPE_SENSE_MASK + 1] = {
@@ -129,7 +147,11 @@ static irqreturn_t irqc_irq_handler(int irq, void *dev_id)
 	if (ioread32(p->iomem + DETECT_STATUS) & bit) {
 		iowrite32(bit, p->iomem + DETECT_STATUS);
 		irqc_dbg(i, "demux2");
+<<<<<<< HEAD
 		generic_handle_irq(irq_find_mapping(p->irq_domain, i->hw_irq));
+=======
+		generic_handle_domain_irq(p->irq_domain, i->hw_irq);
+>>>>>>> upstream/android-13
 		return IRQ_HANDLED;
 	}
 	return IRQ_NONE;
@@ -137,6 +159,7 @@ static irqreturn_t irqc_irq_handler(int irq, void *dev_id)
 
 static int irqc_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct irqc_priv *p;
 	struct resource *io;
 	struct resource *irq;
@@ -164,6 +187,24 @@ static int irqc_probe(struct platform_device *pdev)
 		ret = -EINVAL;
 		goto err1;
 	}
+=======
+	struct device *dev = &pdev->dev;
+	const char *name = dev_name(dev);
+	struct irqc_priv *p;
+	struct resource *irq;
+	int ret;
+	int k;
+
+	p = devm_kzalloc(dev, sizeof(*p), GFP_KERNEL);
+	if (!p)
+		return -ENOMEM;
+
+	p->dev = dev;
+	platform_set_drvdata(pdev, p);
+
+	pm_runtime_enable(dev);
+	pm_runtime_get_sync(dev);
+>>>>>>> upstream/android-13
 
 	/* allow any number of IRQs between 1 and IRQC_IRQ_MAX */
 	for (k = 0; k < IRQC_IRQ_MAX; k++) {
@@ -178,6 +219,7 @@ static int irqc_probe(struct platform_device *pdev)
 
 	p->number_of_irqs = k;
 	if (p->number_of_irqs < 1) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "not enough IRQ resources\n");
 		ret = -EINVAL;
 		goto err1;
@@ -189,10 +231,23 @@ static int irqc_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev, "failed to remap IOMEM\n");
 		ret = -ENXIO;
 		goto err2;
+=======
+		dev_err(dev, "not enough IRQ resources\n");
+		ret = -EINVAL;
+		goto err_runtime_pm_disable;
+	}
+
+	/* ioremap IOMEM and setup read/write callbacks */
+	p->iomem = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(p->iomem)) {
+		ret = PTR_ERR(p->iomem);
+		goto err_runtime_pm_disable;
+>>>>>>> upstream/android-13
 	}
 
 	p->cpu_int_base = p->iomem + IRQC_INT_CPU_BASE(0); /* SYS-SPI */
 
+<<<<<<< HEAD
 	p->irq_domain = irq_domain_add_linear(pdev->dev.of_node,
 					      p->number_of_irqs,
 					      &irq_generic_chip_ops, p);
@@ -208,12 +263,32 @@ static int irqc_probe(struct platform_device *pdev)
 	if (ret) {
 		dev_err(&pdev->dev, "cannot allocate generic chip\n");
 		goto err3;
+=======
+	p->irq_domain = irq_domain_add_linear(dev->of_node, p->number_of_irqs,
+					      &irq_generic_chip_ops, p);
+	if (!p->irq_domain) {
+		ret = -ENXIO;
+		dev_err(dev, "cannot initialize irq domain\n");
+		goto err_runtime_pm_disable;
+	}
+
+	ret = irq_alloc_domain_generic_chips(p->irq_domain, p->number_of_irqs,
+					     1, "irqc", handle_level_irq,
+					     0, 0, IRQ_GC_INIT_NESTED_LOCK);
+	if (ret) {
+		dev_err(dev, "cannot allocate generic chip\n");
+		goto err_remove_domain;
+>>>>>>> upstream/android-13
 	}
 
 	p->gc = irq_get_domain_generic_chip(p->irq_domain, 0);
 	p->gc->reg_base = p->cpu_int_base;
 	p->gc->chip_types[0].regs.enable = IRQC_EN_SET;
 	p->gc->chip_types[0].regs.disable = IRQC_EN_STS;
+<<<<<<< HEAD
+=======
+	p->gc->chip_types[0].chip.parent_device = dev;
+>>>>>>> upstream/android-13
 	p->gc->chip_types[0].chip.irq_mask = irq_gc_mask_disable_reg;
 	p->gc->chip_types[0].chip.irq_unmask = irq_gc_unmask_enable_reg;
 	p->gc->chip_types[0].chip.irq_set_type	= irqc_irq_set_type;
@@ -222,6 +297,7 @@ static int irqc_probe(struct platform_device *pdev)
 
 	/* request interrupts one by one */
 	for (k = 0; k < p->number_of_irqs; k++) {
+<<<<<<< HEAD
 		if (request_irq(p->irq[k].requested_irq, irqc_irq_handler,
 				0, name, &p->irq[k])) {
 			dev_err(&pdev->dev, "failed to request IRQ\n");
@@ -246,12 +322,32 @@ err1:
 	pm_runtime_disable(&pdev->dev);
 	kfree(p);
 err0:
+=======
+		if (devm_request_irq(dev, p->irq[k].requested_irq,
+				     irqc_irq_handler, 0, name, &p->irq[k])) {
+			dev_err(dev, "failed to request IRQ\n");
+			ret = -ENOENT;
+			goto err_remove_domain;
+		}
+	}
+
+	dev_info(dev, "driving %d irqs\n", p->number_of_irqs);
+
+	return 0;
+
+err_remove_domain:
+	irq_domain_remove(p->irq_domain);
+err_runtime_pm_disable:
+	pm_runtime_put(dev);
+	pm_runtime_disable(dev);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 static int irqc_remove(struct platform_device *pdev)
 {
 	struct irqc_priv *p = platform_get_drvdata(pdev);
+<<<<<<< HEAD
 	int k;
 
 	for (k = 0; k < p->number_of_irqs; k++)
@@ -262,6 +358,12 @@ static int irqc_remove(struct platform_device *pdev)
 	pm_runtime_put(&pdev->dev);
 	pm_runtime_disable(&pdev->dev);
 	kfree(p);
+=======
+
+	irq_domain_remove(p->irq_domain);
+	pm_runtime_put(&pdev->dev);
+	pm_runtime_disable(&pdev->dev);
+>>>>>>> upstream/android-13
 	return 0;
 }
 

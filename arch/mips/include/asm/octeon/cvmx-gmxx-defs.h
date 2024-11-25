@@ -28,6 +28,7 @@
 #ifndef __CVMX_GMXX_DEFS_H__
 #define __CVMX_GMXX_DEFS_H__
 
+<<<<<<< HEAD
 static inline uint64_t CVMX_GMXX_BAD_REG(unsigned long block_id)
 {
 	switch (cvmx_get_octeon_family()) {
@@ -104,6 +105,11 @@ static inline uint64_t CVMX_GMXX_HG2_CONTROL(unsigned long block_id)
 	case OCTEON_CN66XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CN61XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000550ull) + (block_id) * 0x8000000ull;
+=======
+static inline uint64_t CVMX_GMXX_HG2_CONTROL(unsigned long block_id)
+{
+	switch (cvmx_get_octeon_family()) {
+>>>>>>> upstream/android-13
 	case OCTEON_CN68XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000550ull) + (block_id) * 0x1000000ull;
 	}
@@ -113,6 +119,7 @@ static inline uint64_t CVMX_GMXX_HG2_CONTROL(unsigned long block_id)
 static inline uint64_t CVMX_GMXX_INF_MODE(unsigned long block_id)
 {
 	switch (cvmx_get_octeon_family()) {
+<<<<<<< HEAD
 	case OCTEON_CN30XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CN50XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CN31XX & OCTEON_FAMILY_MASK:
@@ -126,12 +133,15 @@ static inline uint64_t CVMX_GMXX_INF_MODE(unsigned long block_id)
 	case OCTEON_CN58XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CN61XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x00011800080007F8ull) + (block_id) * 0x8000000ull;
+=======
+>>>>>>> upstream/android-13
 	case OCTEON_CN68XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x00011800080007F8ull) + (block_id) * 0x1000000ull;
 	}
 	return CVMX_ADD_IO_SEG(0x00011800080007F8ull) + (block_id) * 0x8000000ull;
 }
 
+<<<<<<< HEAD
 static inline uint64_t CVMX_GMXX_NXA_ADR(unsigned long block_id)
 {
 	switch (cvmx_get_octeon_family()) {
@@ -189,6 +199,11 @@ static inline uint64_t CVMX_GMXX_PRTX_CFG(unsigned long offset, unsigned long bl
 	case OCTEON_CN61XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CN58XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000010ull) + ((offset) + (block_id) * 0x10000ull) * 2048;
+=======
+static inline uint64_t CVMX_GMXX_PRTX_CFG(unsigned long offset, unsigned long block_id)
+{
+	switch (cvmx_get_octeon_family()) {
+>>>>>>> upstream/android-13
 	case OCTEON_CN31XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000010ull) + ((offset) + (block_id) * 0x0ull) * 2048;
 	case OCTEON_CN68XX & OCTEON_FAMILY_MASK:
@@ -197,6 +212,7 @@ static inline uint64_t CVMX_GMXX_PRTX_CFG(unsigned long offset, unsigned long bl
 	return CVMX_ADD_IO_SEG(0x0001180008000010ull) + ((offset) + (block_id) * 0x10000ull) * 2048;
 }
 
+<<<<<<< HEAD
 #define CVMX_GMXX_RXAUI_CTL(block_id) (CVMX_ADD_IO_SEG(0x0001180008000740ull) + ((block_id) & 7) * 0x1000000ull)
 static inline uint64_t CVMX_GMXX_RXX_ADR_CAM0(unsigned long offset, unsigned long block_id)
 {
@@ -214,6 +230,11 @@ static inline uint64_t CVMX_GMXX_RXX_ADR_CAM0(unsigned long offset, unsigned lon
 	case OCTEON_CN61XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CN58XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000180ull) + ((offset) + (block_id) * 0x10000ull) * 2048;
+=======
+static inline uint64_t CVMX_GMXX_RXX_ADR_CAM0(unsigned long offset, unsigned long block_id)
+{
+	switch (cvmx_get_octeon_family()) {
+>>>>>>> upstream/android-13
 	case OCTEON_CN31XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000180ull) + ((offset) + (block_id) * 0x0ull) * 2048;
 	case OCTEON_CN68XX & OCTEON_FAMILY_MASK:
@@ -225,6 +246,7 @@ static inline uint64_t CVMX_GMXX_RXX_ADR_CAM0(unsigned long offset, unsigned lon
 static inline uint64_t CVMX_GMXX_RXX_ADR_CAM1(unsigned long offset, unsigned long block_id)
 {
 	switch (cvmx_get_octeon_family()) {
+<<<<<<< HEAD
 	case OCTEON_CN52XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CNF71XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CN63XX & OCTEON_FAMILY_MASK:
@@ -238,6 +260,8 @@ static inline uint64_t CVMX_GMXX_RXX_ADR_CAM1(unsigned long offset, unsigned lon
 	case OCTEON_CN61XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CN58XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000188ull) + ((offset) + (block_id) * 0x10000ull) * 2048;
+=======
+>>>>>>> upstream/android-13
 	case OCTEON_CN31XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000188ull) + ((offset) + (block_id) * 0x0ull) * 2048;
 	case OCTEON_CN68XX & OCTEON_FAMILY_MASK:
@@ -249,6 +273,7 @@ static inline uint64_t CVMX_GMXX_RXX_ADR_CAM1(unsigned long offset, unsigned lon
 static inline uint64_t CVMX_GMXX_RXX_ADR_CAM2(unsigned long offset, unsigned long block_id)
 {
 	switch (cvmx_get_octeon_family()) {
+<<<<<<< HEAD
 	case OCTEON_CN52XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CNF71XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CN63XX & OCTEON_FAMILY_MASK:
@@ -262,6 +287,8 @@ static inline uint64_t CVMX_GMXX_RXX_ADR_CAM2(unsigned long offset, unsigned lon
 	case OCTEON_CN61XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CN58XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000190ull) + ((offset) + (block_id) * 0x10000ull) * 2048;
+=======
+>>>>>>> upstream/android-13
 	case OCTEON_CN31XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000190ull) + ((offset) + (block_id) * 0x0ull) * 2048;
 	case OCTEON_CN68XX & OCTEON_FAMILY_MASK:
@@ -273,6 +300,7 @@ static inline uint64_t CVMX_GMXX_RXX_ADR_CAM2(unsigned long offset, unsigned lon
 static inline uint64_t CVMX_GMXX_RXX_ADR_CAM3(unsigned long offset, unsigned long block_id)
 {
 	switch (cvmx_get_octeon_family()) {
+<<<<<<< HEAD
 	case OCTEON_CN52XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CNF71XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CN63XX & OCTEON_FAMILY_MASK:
@@ -286,6 +314,8 @@ static inline uint64_t CVMX_GMXX_RXX_ADR_CAM3(unsigned long offset, unsigned lon
 	case OCTEON_CN61XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CN58XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000198ull) + ((offset) + (block_id) * 0x10000ull) * 2048;
+=======
+>>>>>>> upstream/android-13
 	case OCTEON_CN31XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000198ull) + ((offset) + (block_id) * 0x0ull) * 2048;
 	case OCTEON_CN68XX & OCTEON_FAMILY_MASK:
@@ -297,6 +327,7 @@ static inline uint64_t CVMX_GMXX_RXX_ADR_CAM3(unsigned long offset, unsigned lon
 static inline uint64_t CVMX_GMXX_RXX_ADR_CAM4(unsigned long offset, unsigned long block_id)
 {
 	switch (cvmx_get_octeon_family()) {
+<<<<<<< HEAD
 	case OCTEON_CN52XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CNF71XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CN63XX & OCTEON_FAMILY_MASK:
@@ -310,6 +341,8 @@ static inline uint64_t CVMX_GMXX_RXX_ADR_CAM4(unsigned long offset, unsigned lon
 	case OCTEON_CN61XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CN58XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x00011800080001A0ull) + ((offset) + (block_id) * 0x10000ull) * 2048;
+=======
+>>>>>>> upstream/android-13
 	case OCTEON_CN31XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x00011800080001A0ull) + ((offset) + (block_id) * 0x0ull) * 2048;
 	case OCTEON_CN68XX & OCTEON_FAMILY_MASK:
@@ -321,6 +354,7 @@ static inline uint64_t CVMX_GMXX_RXX_ADR_CAM4(unsigned long offset, unsigned lon
 static inline uint64_t CVMX_GMXX_RXX_ADR_CAM5(unsigned long offset, unsigned long block_id)
 {
 	switch (cvmx_get_octeon_family()) {
+<<<<<<< HEAD
 	case OCTEON_CN52XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CNF71XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CN63XX & OCTEON_FAMILY_MASK:
@@ -334,6 +368,8 @@ static inline uint64_t CVMX_GMXX_RXX_ADR_CAM5(unsigned long offset, unsigned lon
 	case OCTEON_CN61XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CN58XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x00011800080001A8ull) + ((offset) + (block_id) * 0x10000ull) * 2048;
+=======
+>>>>>>> upstream/android-13
 	case OCTEON_CN31XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x00011800080001A8ull) + ((offset) + (block_id) * 0x0ull) * 2048;
 	case OCTEON_CN68XX & OCTEON_FAMILY_MASK:
@@ -342,6 +378,7 @@ static inline uint64_t CVMX_GMXX_RXX_ADR_CAM5(unsigned long offset, unsigned lon
 	return CVMX_ADD_IO_SEG(0x00011800080001A8ull) + ((offset) + (block_id) * 0x10000ull) * 2048;
 }
 
+<<<<<<< HEAD
 static inline uint64_t CVMX_GMXX_RXX_ADR_CAM_ALL_EN(unsigned long offset, unsigned long block_id)
 {
 	switch (cvmx_get_octeon_family()) {
@@ -373,6 +410,11 @@ static inline uint64_t CVMX_GMXX_RXX_ADR_CAM_EN(unsigned long offset, unsigned l
 	case OCTEON_CN61XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CN58XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000108ull) + ((offset) + (block_id) * 0x10000ull) * 2048;
+=======
+static inline uint64_t CVMX_GMXX_RXX_ADR_CAM_EN(unsigned long offset, unsigned long block_id)
+{
+	switch (cvmx_get_octeon_family()) {
+>>>>>>> upstream/android-13
 	case OCTEON_CN31XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000108ull) + ((offset) + (block_id) * 0x0ull) * 2048;
 	case OCTEON_CN68XX & OCTEON_FAMILY_MASK:
@@ -384,6 +426,7 @@ static inline uint64_t CVMX_GMXX_RXX_ADR_CAM_EN(unsigned long offset, unsigned l
 static inline uint64_t CVMX_GMXX_RXX_ADR_CTL(unsigned long offset, unsigned long block_id)
 {
 	switch (cvmx_get_octeon_family()) {
+<<<<<<< HEAD
 	case OCTEON_CNF71XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000100ull) + ((offset) + (block_id) * 0x10000ull) * 2048;
 	case OCTEON_CN30XX & OCTEON_FAMILY_MASK:
@@ -398,6 +441,8 @@ static inline uint64_t CVMX_GMXX_RXX_ADR_CTL(unsigned long offset, unsigned long
 	case OCTEON_CN61XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CN58XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000100ull) + ((offset) + (block_id) * 0x10000ull) * 2048;
+=======
+>>>>>>> upstream/android-13
 	case OCTEON_CN31XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000100ull) + ((offset) + (block_id) * 0x0ull) * 2048;
 	case OCTEON_CN68XX & OCTEON_FAMILY_MASK:
@@ -406,6 +451,7 @@ static inline uint64_t CVMX_GMXX_RXX_ADR_CTL(unsigned long offset, unsigned long
 	return CVMX_ADD_IO_SEG(0x0001180008000100ull) + ((offset) + (block_id) * 0x10000ull) * 2048;
 }
 
+<<<<<<< HEAD
 static inline uint64_t CVMX_GMXX_RXX_DECISION(unsigned long offset, unsigned long block_id)
 {
 	switch (cvmx_get_octeon_family()) {
@@ -473,6 +519,11 @@ static inline uint64_t CVMX_GMXX_RXX_FRM_CTL(unsigned long offset, unsigned long
 	case OCTEON_CN61XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CN58XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000018ull) + ((offset) + (block_id) * 0x10000ull) * 2048;
+=======
+static inline uint64_t CVMX_GMXX_RXX_FRM_CTL(unsigned long offset, unsigned long block_id)
+{
+	switch (cvmx_get_octeon_family()) {
+>>>>>>> upstream/android-13
 	case OCTEON_CN31XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000018ull) + ((offset) + (block_id) * 0x0ull) * 2048;
 	case OCTEON_CN68XX & OCTEON_FAMILY_MASK:
@@ -483,6 +534,7 @@ static inline uint64_t CVMX_GMXX_RXX_FRM_CTL(unsigned long offset, unsigned long
 
 #define CVMX_GMXX_RXX_FRM_MAX(offset, block_id) (CVMX_ADD_IO_SEG(0x0001180008000030ull) + (((offset) & 3) + ((block_id) & 1) * 0x10000ull) * 2048)
 #define CVMX_GMXX_RXX_FRM_MIN(offset, block_id) (CVMX_ADD_IO_SEG(0x0001180008000028ull) + (((offset) & 3) + ((block_id) & 1) * 0x10000ull) * 2048)
+<<<<<<< HEAD
 static inline uint64_t CVMX_GMXX_RXX_IFG(unsigned long offset, unsigned long block_id)
 {
 	switch (cvmx_get_octeon_family()) {
@@ -507,10 +559,13 @@ static inline uint64_t CVMX_GMXX_RXX_IFG(unsigned long offset, unsigned long blo
 	}
 	return CVMX_ADD_IO_SEG(0x0001180008000058ull) + ((offset) + (block_id) * 0x10000ull) * 2048;
 }
+=======
+>>>>>>> upstream/android-13
 
 static inline uint64_t CVMX_GMXX_RXX_INT_EN(unsigned long offset, unsigned long block_id)
 {
 	switch (cvmx_get_octeon_family()) {
+<<<<<<< HEAD
 	case OCTEON_CNF71XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000008ull) + ((offset) + (block_id) * 0x10000ull) * 2048;
 	case OCTEON_CN30XX & OCTEON_FAMILY_MASK:
@@ -525,6 +580,8 @@ static inline uint64_t CVMX_GMXX_RXX_INT_EN(unsigned long offset, unsigned long 
 	case OCTEON_CN61XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CN58XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000008ull) + ((offset) + (block_id) * 0x10000ull) * 2048;
+=======
+>>>>>>> upstream/android-13
 	case OCTEON_CN31XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000008ull) + ((offset) + (block_id) * 0x0ull) * 2048;
 	case OCTEON_CN68XX & OCTEON_FAMILY_MASK:
@@ -536,6 +593,7 @@ static inline uint64_t CVMX_GMXX_RXX_INT_EN(unsigned long offset, unsigned long 
 static inline uint64_t CVMX_GMXX_RXX_INT_REG(unsigned long offset, unsigned long block_id)
 {
 	switch (cvmx_get_octeon_family()) {
+<<<<<<< HEAD
 	case OCTEON_CNF71XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000000ull) + ((offset) + (block_id) * 0x10000ull) * 2048;
 	case OCTEON_CN30XX & OCTEON_FAMILY_MASK:
@@ -550,6 +608,8 @@ static inline uint64_t CVMX_GMXX_RXX_INT_REG(unsigned long offset, unsigned long
 	case OCTEON_CN61XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CN58XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000000ull) + ((offset) + (block_id) * 0x10000ull) * 2048;
+=======
+>>>>>>> upstream/android-13
 	case OCTEON_CN31XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000000ull) + ((offset) + (block_id) * 0x0ull) * 2048;
 	case OCTEON_CN68XX & OCTEON_FAMILY_MASK:
@@ -561,6 +621,7 @@ static inline uint64_t CVMX_GMXX_RXX_INT_REG(unsigned long offset, unsigned long
 static inline uint64_t CVMX_GMXX_RXX_JABBER(unsigned long offset, unsigned long block_id)
 {
 	switch (cvmx_get_octeon_family()) {
+<<<<<<< HEAD
 	case OCTEON_CNF71XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000038ull) + ((offset) + (block_id) * 0x10000ull) * 2048;
 	case OCTEON_CN30XX & OCTEON_FAMILY_MASK:
@@ -575,6 +636,8 @@ static inline uint64_t CVMX_GMXX_RXX_JABBER(unsigned long offset, unsigned long 
 	case OCTEON_CN61XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CN58XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000038ull) + ((offset) + (block_id) * 0x10000ull) * 2048;
+=======
+>>>>>>> upstream/android-13
 	case OCTEON_CN31XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000038ull) + ((offset) + (block_id) * 0x0ull) * 2048;
 	case OCTEON_CN68XX & OCTEON_FAMILY_MASK:
@@ -583,6 +646,7 @@ static inline uint64_t CVMX_GMXX_RXX_JABBER(unsigned long offset, unsigned long 
 	return CVMX_ADD_IO_SEG(0x0001180008000038ull) + ((offset) + (block_id) * 0x10000ull) * 2048;
 }
 
+<<<<<<< HEAD
 static inline uint64_t CVMX_GMXX_RXX_PAUSE_DROP_TIME(unsigned long offset, unsigned long block_id)
 {
 	switch (cvmx_get_octeon_family()) {
@@ -991,12 +1055,20 @@ static inline uint64_t CVMX_GMXX_RX_PRTS(unsigned long block_id)
 	case OCTEON_CN58XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CN61XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000410ull) + (block_id) * 0x8000000ull;
+=======
+#define CVMX_GMXX_RXX_RX_INBND(offset, block_id) (CVMX_ADD_IO_SEG(0x0001180008000060ull) + (((offset) & 3) + ((block_id) & 1) * 0x10000ull) * 2048)
+
+static inline uint64_t CVMX_GMXX_RX_PRTS(unsigned long block_id)
+{
+	switch (cvmx_get_octeon_family()) {
+>>>>>>> upstream/android-13
 	case OCTEON_CN68XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000410ull) + (block_id) * 0x1000000ull;
 	}
 	return CVMX_ADD_IO_SEG(0x0001180008000410ull) + (block_id) * 0x8000000ull;
 }
 
+<<<<<<< HEAD
 static inline uint64_t CVMX_GMXX_RX_PRT_INFO(unsigned long block_id)
 {
 	switch (cvmx_get_octeon_family()) {
@@ -1048,6 +1120,11 @@ static inline uint64_t CVMX_GMXX_RX_XAUI_CTL(unsigned long block_id)
 	case OCTEON_CN66XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CN61XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000530ull) + (block_id) * 0x8000000ull;
+=======
+static inline uint64_t CVMX_GMXX_RX_XAUI_CTL(unsigned long block_id)
+{
+	switch (cvmx_get_octeon_family()) {
+>>>>>>> upstream/android-13
 	case OCTEON_CN68XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000530ull) + (block_id) * 0x1000000ull;
 	}
@@ -1057,6 +1134,7 @@ static inline uint64_t CVMX_GMXX_RX_XAUI_CTL(unsigned long block_id)
 static inline uint64_t CVMX_GMXX_SMACX(unsigned long offset, unsigned long block_id)
 {
 	switch (cvmx_get_octeon_family()) {
+<<<<<<< HEAD
 	case OCTEON_CNF71XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000230ull) + ((offset) + (block_id) * 0x10000ull) * 2048;
 	case OCTEON_CN30XX & OCTEON_FAMILY_MASK:
@@ -1071,6 +1149,8 @@ static inline uint64_t CVMX_GMXX_SMACX(unsigned long offset, unsigned long block
 	case OCTEON_CN61XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CN58XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000230ull) + ((offset) + (block_id) * 0x10000ull) * 2048;
+=======
+>>>>>>> upstream/android-13
 	case OCTEON_CN31XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000230ull) + ((offset) + (block_id) * 0x0ull) * 2048;
 	case OCTEON_CN68XX & OCTEON_FAMILY_MASK:
@@ -1079,6 +1159,7 @@ static inline uint64_t CVMX_GMXX_SMACX(unsigned long offset, unsigned long block
 	return CVMX_ADD_IO_SEG(0x0001180008000230ull) + ((offset) + (block_id) * 0x10000ull) * 2048;
 }
 
+<<<<<<< HEAD
 static inline uint64_t CVMX_GMXX_SOFT_BIST(unsigned long block_id)
 {
 	switch (cvmx_get_octeon_family()) {
@@ -1170,6 +1251,11 @@ static inline uint64_t CVMX_GMXX_TXX_BURST(unsigned long offset, unsigned long b
 	case OCTEON_CN61XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CN58XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000228ull) + ((offset) + (block_id) * 0x10000ull) * 2048;
+=======
+static inline uint64_t CVMX_GMXX_TXX_BURST(unsigned long offset, unsigned long block_id)
+{
+	switch (cvmx_get_octeon_family()) {
+>>>>>>> upstream/android-13
 	case OCTEON_CN31XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000228ull) + ((offset) + (block_id) * 0x0ull) * 2048;
 	case OCTEON_CN68XX & OCTEON_FAMILY_MASK:
@@ -1178,6 +1264,7 @@ static inline uint64_t CVMX_GMXX_TXX_BURST(unsigned long offset, unsigned long b
 	return CVMX_ADD_IO_SEG(0x0001180008000228ull) + ((offset) + (block_id) * 0x10000ull) * 2048;
 }
 
+<<<<<<< HEAD
 static inline uint64_t CVMX_GMXX_TXX_CBFC_XOFF(unsigned long offset, unsigned long block_id)
 {
 	switch (cvmx_get_octeon_family()) {
@@ -1212,10 +1299,13 @@ static inline uint64_t CVMX_GMXX_TXX_CBFC_XON(unsigned long offset, unsigned lon
 	return CVMX_ADD_IO_SEG(0x00011800080005C0ull) + (block_id) * 0x8000000ull;
 }
 
+=======
+>>>>>>> upstream/android-13
 #define CVMX_GMXX_TXX_CLK(offset, block_id) (CVMX_ADD_IO_SEG(0x0001180008000208ull) + (((offset) & 3) + ((block_id) & 1) * 0x10000ull) * 2048)
 static inline uint64_t CVMX_GMXX_TXX_CTL(unsigned long offset, unsigned long block_id)
 {
 	switch (cvmx_get_octeon_family()) {
+<<<<<<< HEAD
 	case OCTEON_CNF71XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000270ull) + ((offset) + (block_id) * 0x10000ull) * 2048;
 	case OCTEON_CN30XX & OCTEON_FAMILY_MASK:
@@ -1230,6 +1320,8 @@ static inline uint64_t CVMX_GMXX_TXX_CTL(unsigned long offset, unsigned long blo
 	case OCTEON_CN61XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CN58XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000270ull) + ((offset) + (block_id) * 0x10000ull) * 2048;
+=======
+>>>>>>> upstream/android-13
 	case OCTEON_CN31XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000270ull) + ((offset) + (block_id) * 0x0ull) * 2048;
 	case OCTEON_CN68XX & OCTEON_FAMILY_MASK:
@@ -1238,6 +1330,7 @@ static inline uint64_t CVMX_GMXX_TXX_CTL(unsigned long offset, unsigned long blo
 	return CVMX_ADD_IO_SEG(0x0001180008000270ull) + ((offset) + (block_id) * 0x10000ull) * 2048;
 }
 
+<<<<<<< HEAD
 static inline uint64_t CVMX_GMXX_TXX_MIN_PKT(unsigned long offset, unsigned long block_id)
 {
 	switch (cvmx_get_octeon_family()) {
@@ -1280,6 +1373,11 @@ static inline uint64_t CVMX_GMXX_TXX_PAUSE_PKT_INTERVAL(unsigned long offset, un
 	case OCTEON_CN61XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CN58XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000248ull) + ((offset) + (block_id) * 0x10000ull) * 2048;
+=======
+static inline uint64_t CVMX_GMXX_TXX_PAUSE_PKT_INTERVAL(unsigned long offset, unsigned long block_id)
+{
+	switch (cvmx_get_octeon_family()) {
+>>>>>>> upstream/android-13
 	case OCTEON_CN31XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000248ull) + ((offset) + (block_id) * 0x0ull) * 2048;
 	case OCTEON_CN68XX & OCTEON_FAMILY_MASK:
@@ -1291,6 +1389,7 @@ static inline uint64_t CVMX_GMXX_TXX_PAUSE_PKT_INTERVAL(unsigned long offset, un
 static inline uint64_t CVMX_GMXX_TXX_PAUSE_PKT_TIME(unsigned long offset, unsigned long block_id)
 {
 	switch (cvmx_get_octeon_family()) {
+<<<<<<< HEAD
 	case OCTEON_CNF71XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000238ull) + ((offset) + (block_id) * 0x10000ull) * 2048;
 	case OCTEON_CN30XX & OCTEON_FAMILY_MASK:
@@ -1305,6 +1404,8 @@ static inline uint64_t CVMX_GMXX_TXX_PAUSE_PKT_TIME(unsigned long offset, unsign
 	case OCTEON_CN61XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CN58XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000238ull) + ((offset) + (block_id) * 0x10000ull) * 2048;
+=======
+>>>>>>> upstream/android-13
 	case OCTEON_CN31XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000238ull) + ((offset) + (block_id) * 0x0ull) * 2048;
 	case OCTEON_CN68XX & OCTEON_FAMILY_MASK:
@@ -1313,6 +1414,7 @@ static inline uint64_t CVMX_GMXX_TXX_PAUSE_PKT_TIME(unsigned long offset, unsign
 	return CVMX_ADD_IO_SEG(0x0001180008000238ull) + ((offset) + (block_id) * 0x10000ull) * 2048;
 }
 
+<<<<<<< HEAD
 static inline uint64_t CVMX_GMXX_TXX_PAUSE_TOGO(unsigned long offset, unsigned long block_id)
 {
 	switch (cvmx_get_octeon_family()) {
@@ -1399,6 +1501,11 @@ static inline uint64_t CVMX_GMXX_TXX_SLOT(unsigned long offset, unsigned long bl
 	case OCTEON_CN61XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CN58XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000220ull) + ((offset) + (block_id) * 0x10000ull) * 2048;
+=======
+static inline uint64_t CVMX_GMXX_TXX_SLOT(unsigned long offset, unsigned long block_id)
+{
+	switch (cvmx_get_octeon_family()) {
+>>>>>>> upstream/android-13
 	case OCTEON_CN31XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000220ull) + ((offset) + (block_id) * 0x0ull) * 2048;
 	case OCTEON_CN68XX & OCTEON_FAMILY_MASK:
@@ -1407,6 +1514,7 @@ static inline uint64_t CVMX_GMXX_TXX_SLOT(unsigned long offset, unsigned long bl
 	return CVMX_ADD_IO_SEG(0x0001180008000220ull) + ((offset) + (block_id) * 0x10000ull) * 2048;
 }
 
+<<<<<<< HEAD
 static inline uint64_t CVMX_GMXX_TXX_SOFT_PAUSE(unsigned long offset, unsigned long block_id)
 {
 	switch (cvmx_get_octeon_family()) {
@@ -1724,6 +1832,11 @@ static inline uint64_t CVMX_GMXX_TXX_THRESH(unsigned long offset, unsigned long 
 	case OCTEON_CN61XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CN58XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000210ull) + ((offset) + (block_id) * 0x10000ull) * 2048;
+=======
+static inline uint64_t CVMX_GMXX_TXX_THRESH(unsigned long offset, unsigned long block_id)
+{
+	switch (cvmx_get_octeon_family()) {
+>>>>>>> upstream/android-13
 	case OCTEON_CN31XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000210ull) + ((offset) + (block_id) * 0x0ull) * 2048;
 	case OCTEON_CN68XX & OCTEON_FAMILY_MASK:
@@ -1732,6 +1845,7 @@ static inline uint64_t CVMX_GMXX_TXX_THRESH(unsigned long offset, unsigned long 
 	return CVMX_ADD_IO_SEG(0x0001180008000210ull) + ((offset) + (block_id) * 0x10000ull) * 2048;
 }
 
+<<<<<<< HEAD
 static inline uint64_t CVMX_GMXX_TX_BP(unsigned long block_id)
 {
 	switch (cvmx_get_octeon_family()) {
@@ -1871,6 +1985,11 @@ static inline uint64_t CVMX_GMXX_TX_INT_EN(unsigned long block_id)
 	case OCTEON_CN58XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CN61XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000508ull) + (block_id) * 0x8000000ull;
+=======
+static inline uint64_t CVMX_GMXX_TX_INT_EN(unsigned long block_id)
+{
+	switch (cvmx_get_octeon_family()) {
+>>>>>>> upstream/android-13
 	case OCTEON_CN68XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000508ull) + (block_id) * 0x1000000ull;
 	}
@@ -1880,6 +1999,7 @@ static inline uint64_t CVMX_GMXX_TX_INT_EN(unsigned long block_id)
 static inline uint64_t CVMX_GMXX_TX_INT_REG(unsigned long block_id)
 {
 	switch (cvmx_get_octeon_family()) {
+<<<<<<< HEAD
 	case OCTEON_CN30XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CN50XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CN31XX & OCTEON_FAMILY_MASK:
@@ -1893,12 +2013,15 @@ static inline uint64_t CVMX_GMXX_TX_INT_REG(unsigned long block_id)
 	case OCTEON_CN58XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CN61XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000500ull) + (block_id) * 0x8000000ull;
+=======
+>>>>>>> upstream/android-13
 	case OCTEON_CN68XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000500ull) + (block_id) * 0x1000000ull;
 	}
 	return CVMX_ADD_IO_SEG(0x0001180008000500ull) + (block_id) * 0x8000000ull;
 }
 
+<<<<<<< HEAD
 static inline uint64_t CVMX_GMXX_TX_JAM(unsigned long block_id)
 {
 	switch (cvmx_get_octeon_family()) {
@@ -1959,12 +2082,18 @@ static inline uint64_t CVMX_GMXX_TX_OVR_BP(unsigned long block_id)
 	case OCTEON_CN58XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CN61XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x00011800080004C8ull) + (block_id) * 0x8000000ull;
+=======
+static inline uint64_t CVMX_GMXX_TX_OVR_BP(unsigned long block_id)
+{
+	switch (cvmx_get_octeon_family()) {
+>>>>>>> upstream/android-13
 	case OCTEON_CN68XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x00011800080004C8ull) + (block_id) * 0x1000000ull;
 	}
 	return CVMX_ADD_IO_SEG(0x00011800080004C8ull) + (block_id) * 0x8000000ull;
 }
 
+<<<<<<< HEAD
 static inline uint64_t CVMX_GMXX_TX_PAUSE_PKT_DMAC(unsigned long block_id)
 {
 	switch (cvmx_get_octeon_family()) {
@@ -2025,6 +2154,11 @@ static inline uint64_t CVMX_GMXX_TX_PRTS(unsigned long block_id)
 	case OCTEON_CN58XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CN61XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000480ull) + (block_id) * 0x8000000ull;
+=======
+static inline uint64_t CVMX_GMXX_TX_PRTS(unsigned long block_id)
+{
+	switch (cvmx_get_octeon_family()) {
+>>>>>>> upstream/android-13
 	case OCTEON_CN68XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000480ull) + (block_id) * 0x1000000ull;
 	}
@@ -2032,13 +2166,18 @@ static inline uint64_t CVMX_GMXX_TX_PRTS(unsigned long block_id)
 }
 
 #define CVMX_GMXX_TX_SPI_CTL(block_id) (CVMX_ADD_IO_SEG(0x00011800080004C0ull) + ((block_id) & 1) * 0x8000000ull)
+<<<<<<< HEAD
 #define CVMX_GMXX_TX_SPI_DRAIN(block_id) (CVMX_ADD_IO_SEG(0x00011800080004E0ull) + ((block_id) & 1) * 0x8000000ull)
 #define CVMX_GMXX_TX_SPI_MAX(block_id) (CVMX_ADD_IO_SEG(0x00011800080004B0ull) + ((block_id) & 1) * 0x8000000ull)
 #define CVMX_GMXX_TX_SPI_ROUNDX(offset, block_id) (CVMX_ADD_IO_SEG(0x0001180008000680ull) + (((offset) & 31) + ((block_id) & 1) * 0x1000000ull) * 8)
+=======
+#define CVMX_GMXX_TX_SPI_MAX(block_id) (CVMX_ADD_IO_SEG(0x00011800080004B0ull) + ((block_id) & 1) * 0x8000000ull)
+>>>>>>> upstream/android-13
 #define CVMX_GMXX_TX_SPI_THRESH(block_id) (CVMX_ADD_IO_SEG(0x00011800080004B8ull) + ((block_id) & 1) * 0x8000000ull)
 static inline uint64_t CVMX_GMXX_TX_XAUI_CTL(unsigned long block_id)
 {
 	switch (cvmx_get_octeon_family()) {
+<<<<<<< HEAD
 	case OCTEON_CNF71XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CN52XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CN63XX & OCTEON_FAMILY_MASK:
@@ -2047,12 +2186,15 @@ static inline uint64_t CVMX_GMXX_TX_XAUI_CTL(unsigned long block_id)
 	case OCTEON_CN66XX & OCTEON_FAMILY_MASK:
 	case OCTEON_CN61XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000528ull) + (block_id) * 0x8000000ull;
+=======
+>>>>>>> upstream/android-13
 	case OCTEON_CN68XX & OCTEON_FAMILY_MASK:
 		return CVMX_ADD_IO_SEG(0x0001180008000528ull) + (block_id) * 0x1000000ull;
 	}
 	return CVMX_ADD_IO_SEG(0x0001180008000528ull) + (block_id) * 0x8000000ull;
 }
 
+<<<<<<< HEAD
 static inline uint64_t CVMX_GMXX_XAUI_EXT_LOOPBACK(unsigned long block_id)
 {
 	switch (cvmx_get_octeon_family()) {
@@ -2312,6 +2454,10 @@ union cvmx_gmxx_ebp_msk {
 	struct cvmx_gmxx_ebp_msk_s cn68xxp1;
 };
 
+=======
+void __cvmx_interrupt_gmxx_enable(int interface);
+
+>>>>>>> upstream/android-13
 union cvmx_gmxx_hg2_control {
 	uint64_t u64;
 	struct cvmx_gmxx_hg2_control_s {
@@ -2329,6 +2475,7 @@ union cvmx_gmxx_hg2_control {
 		uint64_t reserved_19_63:45;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_gmxx_hg2_control_s cn52xx;
 	struct cvmx_gmxx_hg2_control_s cn52xxp1;
 	struct cvmx_gmxx_hg2_control_s cn56xx;
@@ -2339,6 +2486,8 @@ union cvmx_gmxx_hg2_control {
 	struct cvmx_gmxx_hg2_control_s cn68xx;
 	struct cvmx_gmxx_hg2_control_s cn68xxp1;
 	struct cvmx_gmxx_hg2_control_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_gmxx_inf_mode {
@@ -2392,9 +2541,12 @@ union cvmx_gmxx_inf_mode {
 		uint64_t reserved_2_63:62;
 #endif
 	} cn31xx;
+<<<<<<< HEAD
 	struct cvmx_gmxx_inf_mode_cn31xx cn38xx;
 	struct cvmx_gmxx_inf_mode_cn31xx cn38xxp2;
 	struct cvmx_gmxx_inf_mode_cn30xx cn50xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_gmxx_inf_mode_cn52xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_10_63:54;
@@ -2414,11 +2566,14 @@ union cvmx_gmxx_inf_mode {
 		uint64_t reserved_10_63:54;
 #endif
 	} cn52xx;
+<<<<<<< HEAD
 	struct cvmx_gmxx_inf_mode_cn52xx cn52xxp1;
 	struct cvmx_gmxx_inf_mode_cn52xx cn56xx;
 	struct cvmx_gmxx_inf_mode_cn52xx cn56xxp1;
 	struct cvmx_gmxx_inf_mode_cn31xx cn58xx;
 	struct cvmx_gmxx_inf_mode_cn31xx cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_gmxx_inf_mode_cn61xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_12_63:52;
@@ -2438,8 +2593,11 @@ union cvmx_gmxx_inf_mode {
 		uint64_t reserved_12_63:52;
 #endif
 	} cn61xx;
+<<<<<<< HEAD
 	struct cvmx_gmxx_inf_mode_cn61xx cn63xx;
 	struct cvmx_gmxx_inf_mode_cn61xx cn63xxp1;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_gmxx_inf_mode_cn66xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_20_63:44;
@@ -2482,6 +2640,7 @@ union cvmx_gmxx_inf_mode {
 		uint64_t reserved_12_63:52;
 #endif
 	} cn68xx;
+<<<<<<< HEAD
 	struct cvmx_gmxx_inf_mode_cn68xx cn68xxp1;
 	struct cvmx_gmxx_inf_mode_cn61xx cnf71xx;
 };
@@ -2584,6 +2743,8 @@ union cvmx_gmxx_prtx_cbfc_ctl {
 	struct cvmx_gmxx_prtx_cbfc_ctl_s cn68xx;
 	struct cvmx_gmxx_prtx_cbfc_ctl_s cn68xxp1;
 	struct cvmx_gmxx_prtx_cbfc_ctl_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_gmxx_prtx_cfg {
@@ -2632,10 +2793,13 @@ union cvmx_gmxx_prtx_cfg {
 		uint64_t reserved_4_63:60;
 #endif
 	} cn30xx;
+<<<<<<< HEAD
 	struct cvmx_gmxx_prtx_cfg_cn30xx cn31xx;
 	struct cvmx_gmxx_prtx_cfg_cn30xx cn38xx;
 	struct cvmx_gmxx_prtx_cfg_cn30xx cn38xxp2;
 	struct cvmx_gmxx_prtx_cfg_cn30xx cn50xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_gmxx_prtx_cfg_cn52xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_14_63:50;
@@ -2661,6 +2825,7 @@ union cvmx_gmxx_prtx_cfg {
 		uint64_t reserved_14_63:50;
 #endif
 	} cn52xx;
+<<<<<<< HEAD
 	struct cvmx_gmxx_prtx_cfg_cn52xx cn52xxp1;
 	struct cvmx_gmxx_prtx_cfg_cn52xx cn56xx;
 	struct cvmx_gmxx_prtx_cfg_cn52xx cn56xxp1;
@@ -2895,6 +3060,8 @@ union cvmx_gmxx_rxx_adr_cam_en {
 	struct cvmx_gmxx_rxx_adr_cam_en_s cn68xx;
 	struct cvmx_gmxx_rxx_adr_cam_en_s cn68xxp1;
 	struct cvmx_gmxx_rxx_adr_cam_en_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_gmxx_rxx_adr_ctl {
@@ -2912,6 +3079,7 @@ union cvmx_gmxx_rxx_adr_ctl {
 		uint64_t reserved_4_63:60;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_gmxx_rxx_adr_ctl_s cn30xx;
 	struct cvmx_gmxx_rxx_adr_ctl_s cn31xx;
 	struct cvmx_gmxx_rxx_adr_ctl_s cn38xx;
@@ -3080,6 +3248,8 @@ union cvmx_gmxx_rxx_frm_chk {
 	struct cvmx_gmxx_rxx_frm_chk_cn61xx cn68xx;
 	struct cvmx_gmxx_rxx_frm_chk_cn61xx cn68xxp1;
 	struct cvmx_gmxx_rxx_frm_chk_cn61xx cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_gmxx_rxx_frm_ctl {
@@ -3165,8 +3335,11 @@ union cvmx_gmxx_rxx_frm_ctl {
 		uint64_t reserved_8_63:56;
 #endif
 	} cn31xx;
+<<<<<<< HEAD
 	struct cvmx_gmxx_rxx_frm_ctl_cn30xx cn38xx;
 	struct cvmx_gmxx_rxx_frm_ctl_cn31xx cn38xxp2;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_gmxx_rxx_frm_ctl_cn50xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_11_63:53;
@@ -3194,9 +3367,12 @@ union cvmx_gmxx_rxx_frm_ctl {
 		uint64_t reserved_11_63:53;
 #endif
 	} cn50xx;
+<<<<<<< HEAD
 	struct cvmx_gmxx_rxx_frm_ctl_cn50xx cn52xx;
 	struct cvmx_gmxx_rxx_frm_ctl_cn50xx cn52xxp1;
 	struct cvmx_gmxx_rxx_frm_ctl_cn50xx cn56xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_gmxx_rxx_frm_ctl_cn56xxp1 {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_10_63:54;
@@ -3251,7 +3427,10 @@ union cvmx_gmxx_rxx_frm_ctl {
 		uint64_t reserved_11_63:53;
 #endif
 	} cn58xx;
+<<<<<<< HEAD
 	struct cvmx_gmxx_rxx_frm_ctl_cn30xx cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_gmxx_rxx_frm_ctl_cn61xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_13_63:51;
@@ -3283,12 +3462,15 @@ union cvmx_gmxx_rxx_frm_ctl {
 		uint64_t reserved_13_63:51;
 #endif
 	} cn61xx;
+<<<<<<< HEAD
 	struct cvmx_gmxx_rxx_frm_ctl_cn61xx cn63xx;
 	struct cvmx_gmxx_rxx_frm_ctl_cn61xx cn63xxp1;
 	struct cvmx_gmxx_rxx_frm_ctl_cn61xx cn66xx;
 	struct cvmx_gmxx_rxx_frm_ctl_cn61xx cn68xx;
 	struct cvmx_gmxx_rxx_frm_ctl_cn61xx cn68xxp1;
 	struct cvmx_gmxx_rxx_frm_ctl_cn61xx cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_gmxx_rxx_frm_max {
@@ -3302,12 +3484,15 @@ union cvmx_gmxx_rxx_frm_max {
 		uint64_t reserved_16_63:48;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_gmxx_rxx_frm_max_s cn30xx;
 	struct cvmx_gmxx_rxx_frm_max_s cn31xx;
 	struct cvmx_gmxx_rxx_frm_max_s cn38xx;
 	struct cvmx_gmxx_rxx_frm_max_s cn38xxp2;
 	struct cvmx_gmxx_rxx_frm_max_s cn58xx;
 	struct cvmx_gmxx_rxx_frm_max_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_gmxx_rxx_frm_min {
@@ -3321,6 +3506,7 @@ union cvmx_gmxx_rxx_frm_min {
 		uint64_t reserved_16_63:48;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_gmxx_rxx_frm_min_s cn30xx;
 	struct cvmx_gmxx_rxx_frm_min_s cn31xx;
 	struct cvmx_gmxx_rxx_frm_min_s cn38xx;
@@ -3358,6 +3544,8 @@ union cvmx_gmxx_rxx_ifg {
 	struct cvmx_gmxx_rxx_ifg_s cn68xx;
 	struct cvmx_gmxx_rxx_ifg_s cn68xxp1;
 	struct cvmx_gmxx_rxx_ifg_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_gmxx_rxx_int_en {
@@ -3472,9 +3660,12 @@ union cvmx_gmxx_rxx_int_en {
 		uint64_t reserved_19_63:45;
 #endif
 	} cn30xx;
+<<<<<<< HEAD
 	struct cvmx_gmxx_rxx_int_en_cn30xx cn31xx;
 	struct cvmx_gmxx_rxx_int_en_cn30xx cn38xx;
 	struct cvmx_gmxx_rxx_int_en_cn30xx cn38xxp2;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_gmxx_rxx_int_en_cn50xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_20_63:44;
@@ -3581,8 +3772,11 @@ union cvmx_gmxx_rxx_int_en {
 		uint64_t reserved_29_63:35;
 #endif
 	} cn52xx;
+<<<<<<< HEAD
 	struct cvmx_gmxx_rxx_int_en_cn52xx cn52xxp1;
 	struct cvmx_gmxx_rxx_int_en_cn52xx cn56xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_gmxx_rxx_int_en_cn56xxp1 {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_27_63:37;
@@ -3685,7 +3879,10 @@ union cvmx_gmxx_rxx_int_en {
 		uint64_t reserved_20_63:44;
 #endif
 	} cn58xx;
+<<<<<<< HEAD
 	struct cvmx_gmxx_rxx_int_en_cn58xx cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_gmxx_rxx_int_en_cn61xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_29_63:35;
@@ -3745,12 +3942,15 @@ union cvmx_gmxx_rxx_int_en {
 		uint64_t reserved_29_63:35;
 #endif
 	} cn61xx;
+<<<<<<< HEAD
 	struct cvmx_gmxx_rxx_int_en_cn61xx cn63xx;
 	struct cvmx_gmxx_rxx_int_en_cn61xx cn63xxp1;
 	struct cvmx_gmxx_rxx_int_en_cn61xx cn66xx;
 	struct cvmx_gmxx_rxx_int_en_cn61xx cn68xx;
 	struct cvmx_gmxx_rxx_int_en_cn61xx cn68xxp1;
 	struct cvmx_gmxx_rxx_int_en_cn61xx cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_gmxx_rxx_int_reg {
@@ -3865,9 +4065,12 @@ union cvmx_gmxx_rxx_int_reg {
 		uint64_t reserved_19_63:45;
 #endif
 	} cn30xx;
+<<<<<<< HEAD
 	struct cvmx_gmxx_rxx_int_reg_cn30xx cn31xx;
 	struct cvmx_gmxx_rxx_int_reg_cn30xx cn38xx;
 	struct cvmx_gmxx_rxx_int_reg_cn30xx cn38xxp2;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_gmxx_rxx_int_reg_cn50xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_20_63:44;
@@ -3974,8 +4177,11 @@ union cvmx_gmxx_rxx_int_reg {
 		uint64_t reserved_29_63:35;
 #endif
 	} cn52xx;
+<<<<<<< HEAD
 	struct cvmx_gmxx_rxx_int_reg_cn52xx cn52xxp1;
 	struct cvmx_gmxx_rxx_int_reg_cn52xx cn56xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_gmxx_rxx_int_reg_cn56xxp1 {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_27_63:37;
@@ -4078,7 +4284,10 @@ union cvmx_gmxx_rxx_int_reg {
 		uint64_t reserved_20_63:44;
 #endif
 	} cn58xx;
+<<<<<<< HEAD
 	struct cvmx_gmxx_rxx_int_reg_cn58xx cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_gmxx_rxx_int_reg_cn61xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_29_63:35;
@@ -4138,12 +4347,15 @@ union cvmx_gmxx_rxx_int_reg {
 		uint64_t reserved_29_63:35;
 #endif
 	} cn61xx;
+<<<<<<< HEAD
 	struct cvmx_gmxx_rxx_int_reg_cn61xx cn63xx;
 	struct cvmx_gmxx_rxx_int_reg_cn61xx cn63xxp1;
 	struct cvmx_gmxx_rxx_int_reg_cn61xx cn66xx;
 	struct cvmx_gmxx_rxx_int_reg_cn61xx cn68xx;
 	struct cvmx_gmxx_rxx_int_reg_cn61xx cn68xxp1;
 	struct cvmx_gmxx_rxx_int_reg_cn61xx cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_gmxx_rxx_jabber {
@@ -4157,6 +4369,7 @@ union cvmx_gmxx_rxx_jabber {
 		uint64_t reserved_16_63:48;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_gmxx_rxx_jabber_s cn30xx;
 	struct cvmx_gmxx_rxx_jabber_s cn31xx;
 	struct cvmx_gmxx_rxx_jabber_s cn38xx;
@@ -4202,6 +4415,8 @@ union cvmx_gmxx_rxx_pause_drop_time {
 	struct cvmx_gmxx_rxx_pause_drop_time_s cn68xx;
 	struct cvmx_gmxx_rxx_pause_drop_time_s cn68xxp1;
 	struct cvmx_gmxx_rxx_pause_drop_time_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_gmxx_rxx_rx_inbnd {
@@ -4219,6 +4434,7 @@ union cvmx_gmxx_rxx_rx_inbnd {
 		uint64_t reserved_4_63:60;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_gmxx_rxx_rx_inbnd_s cn30xx;
 	struct cvmx_gmxx_rxx_rx_inbnd_s cn31xx;
 	struct cvmx_gmxx_rxx_rx_inbnd_s cn38xx;
@@ -4801,6 +5017,8 @@ union cvmx_gmxx_rx_prt_info {
 		uint64_t reserved_18_63:46;
 #endif
 	} cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_gmxx_rx_prts {
@@ -4814,6 +5032,7 @@ union cvmx_gmxx_rx_prts {
 		uint64_t reserved_3_63:61;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_gmxx_rx_prts_s cn30xx;
 	struct cvmx_gmxx_rx_prts_s cn31xx;
 	struct cvmx_gmxx_rx_prts_s cn38xx;
@@ -4882,6 +5101,8 @@ union cvmx_gmxx_rx_xaui_bad_col {
 	struct cvmx_gmxx_rx_xaui_bad_col_s cn68xx;
 	struct cvmx_gmxx_rx_xaui_bad_col_s cn68xxp1;
 	struct cvmx_gmxx_rx_xaui_bad_col_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_gmxx_rx_xaui_ctl {
@@ -4895,6 +5116,7 @@ union cvmx_gmxx_rx_xaui_ctl {
 		uint64_t reserved_2_63:62;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_gmxx_rx_xaui_ctl_s cn52xx;
 	struct cvmx_gmxx_rx_xaui_ctl_s cn52xxp1;
 	struct cvmx_gmxx_rx_xaui_ctl_s cn56xx;
@@ -5802,6 +6024,8 @@ union cvmx_gmxx_txx_stats_ctl {
 	struct cvmx_gmxx_txx_stats_ctl_s cn68xx;
 	struct cvmx_gmxx_txx_stats_ctl_s cn68xxp1;
 	struct cvmx_gmxx_txx_stats_ctl_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_gmxx_txx_thresh {
@@ -5824,7 +6048,10 @@ union cvmx_gmxx_txx_thresh {
 		uint64_t reserved_7_63:57;
 #endif
 	} cn30xx;
+<<<<<<< HEAD
 	struct cvmx_gmxx_txx_thresh_cn30xx cn31xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_gmxx_txx_thresh_cn38xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_9_63:55;
@@ -5834,6 +6061,7 @@ union cvmx_gmxx_txx_thresh {
 		uint64_t reserved_9_63:55;
 #endif
 	} cn38xx;
+<<<<<<< HEAD
 	struct cvmx_gmxx_txx_thresh_cn38xx cn38xxp2;
 	struct cvmx_gmxx_txx_thresh_cn30xx cn50xx;
 	struct cvmx_gmxx_txx_thresh_cn38xx cn52xx;
@@ -6068,6 +6296,8 @@ union cvmx_gmxx_tx_ifg {
 	struct cvmx_gmxx_tx_ifg_s cn68xx;
 	struct cvmx_gmxx_tx_ifg_s cn68xxp1;
 	struct cvmx_gmxx_tx_ifg_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_gmxx_tx_int_en {
@@ -6183,7 +6413,10 @@ union cvmx_gmxx_tx_int_en {
 		uint64_t reserved_16_63:48;
 #endif
 	} cn38xxp2;
+<<<<<<< HEAD
 	struct cvmx_gmxx_tx_int_en_cn30xx cn50xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_gmxx_tx_int_en_cn52xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_20_63:44;
@@ -6205,12 +6438,15 @@ union cvmx_gmxx_tx_int_en {
 		uint64_t reserved_20_63:44;
 #endif
 	} cn52xx;
+<<<<<<< HEAD
 	struct cvmx_gmxx_tx_int_en_cn52xx cn52xxp1;
 	struct cvmx_gmxx_tx_int_en_cn52xx cn56xx;
 	struct cvmx_gmxx_tx_int_en_cn52xx cn56xxp1;
 	struct cvmx_gmxx_tx_int_en_cn38xx cn58xx;
 	struct cvmx_gmxx_tx_int_en_cn38xx cn58xxp1;
 	struct cvmx_gmxx_tx_int_en_s cn61xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_gmxx_tx_int_en_cn63xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_24_63:40;
@@ -6234,8 +6470,11 @@ union cvmx_gmxx_tx_int_en {
 		uint64_t reserved_24_63:40;
 #endif
 	} cn63xx;
+<<<<<<< HEAD
 	struct cvmx_gmxx_tx_int_en_cn63xx cn63xxp1;
 	struct cvmx_gmxx_tx_int_en_s cn66xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_gmxx_tx_int_en_cn68xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_25_63:39;
@@ -6261,7 +6500,10 @@ union cvmx_gmxx_tx_int_en {
 		uint64_t reserved_25_63:39;
 #endif
 	} cn68xx;
+<<<<<<< HEAD
 	struct cvmx_gmxx_tx_int_en_cn68xx cn68xxp1;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_gmxx_tx_int_en_cnf71xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_25_63:39;
@@ -6410,7 +6652,10 @@ union cvmx_gmxx_tx_int_reg {
 		uint64_t reserved_16_63:48;
 #endif
 	} cn38xxp2;
+<<<<<<< HEAD
 	struct cvmx_gmxx_tx_int_reg_cn30xx cn50xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_gmxx_tx_int_reg_cn52xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_20_63:44;
@@ -6432,12 +6677,15 @@ union cvmx_gmxx_tx_int_reg {
 		uint64_t reserved_20_63:44;
 #endif
 	} cn52xx;
+<<<<<<< HEAD
 	struct cvmx_gmxx_tx_int_reg_cn52xx cn52xxp1;
 	struct cvmx_gmxx_tx_int_reg_cn52xx cn56xx;
 	struct cvmx_gmxx_tx_int_reg_cn52xx cn56xxp1;
 	struct cvmx_gmxx_tx_int_reg_cn38xx cn58xx;
 	struct cvmx_gmxx_tx_int_reg_cn38xx cn58xxp1;
 	struct cvmx_gmxx_tx_int_reg_s cn61xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_gmxx_tx_int_reg_cn63xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_24_63:40;
@@ -6461,8 +6709,11 @@ union cvmx_gmxx_tx_int_reg {
 		uint64_t reserved_24_63:40;
 #endif
 	} cn63xx;
+<<<<<<< HEAD
 	struct cvmx_gmxx_tx_int_reg_cn63xx cn63xxp1;
 	struct cvmx_gmxx_tx_int_reg_s cn66xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_gmxx_tx_int_reg_cn68xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_25_63:39;
@@ -6488,7 +6739,10 @@ union cvmx_gmxx_tx_int_reg {
 		uint64_t reserved_25_63:39;
 #endif
 	} cn68xx;
+<<<<<<< HEAD
 	struct cvmx_gmxx_tx_int_reg_cn68xx cn68xxp1;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_gmxx_tx_int_reg_cnf71xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_25_63:39;
@@ -6524,6 +6778,7 @@ union cvmx_gmxx_tx_int_reg {
 	} cnf71xx;
 };
 
+<<<<<<< HEAD
 union cvmx_gmxx_tx_jam {
 	uint64_t u64;
 	struct cvmx_gmxx_tx_jam_s {
@@ -6586,6 +6841,8 @@ union cvmx_gmxx_tx_lfsr {
 	struct cvmx_gmxx_tx_lfsr_s cnf71xx;
 };
 
+=======
+>>>>>>> upstream/android-13
 union cvmx_gmxx_tx_ovr_bp {
 	uint64_t u64;
 	struct cvmx_gmxx_tx_ovr_bp_s {
@@ -6622,7 +6879,10 @@ union cvmx_gmxx_tx_ovr_bp {
 		uint64_t reserved_11_63:53;
 #endif
 	} cn30xx;
+<<<<<<< HEAD
 	struct cvmx_gmxx_tx_ovr_bp_cn30xx cn31xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_gmxx_tx_ovr_bp_cn38xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_12_63:52;
@@ -6636,6 +6896,7 @@ union cvmx_gmxx_tx_ovr_bp {
 		uint64_t reserved_12_63:52;
 #endif
 	} cn38xx;
+<<<<<<< HEAD
 	struct cvmx_gmxx_tx_ovr_bp_cn38xx cn38xxp2;
 	struct cvmx_gmxx_tx_ovr_bp_cn30xx cn50xx;
 	struct cvmx_gmxx_tx_ovr_bp_s cn52xx;
@@ -6650,6 +6911,8 @@ union cvmx_gmxx_tx_ovr_bp {
 	struct cvmx_gmxx_tx_ovr_bp_s cn66xx;
 	struct cvmx_gmxx_tx_ovr_bp_s cn68xx;
 	struct cvmx_gmxx_tx_ovr_bp_s cn68xxp1;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_gmxx_tx_ovr_bp_cnf71xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_48_63:16;
@@ -6673,6 +6936,7 @@ union cvmx_gmxx_tx_ovr_bp {
 	} cnf71xx;
 };
 
+<<<<<<< HEAD
 union cvmx_gmxx_tx_pause_pkt_dmac {
 	uint64_t u64;
 	struct cvmx_gmxx_tx_pause_pkt_dmac_s {
@@ -6735,6 +6999,8 @@ union cvmx_gmxx_tx_pause_pkt_type {
 	struct cvmx_gmxx_tx_pause_pkt_type_s cnf71xx;
 };
 
+=======
+>>>>>>> upstream/android-13
 union cvmx_gmxx_tx_prts {
 	uint64_t u64;
 	struct cvmx_gmxx_tx_prts_s {
@@ -6746,6 +7012,7 @@ union cvmx_gmxx_tx_prts {
 		uint64_t reserved_5_63:59;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_gmxx_tx_prts_s cn30xx;
 	struct cvmx_gmxx_tx_prts_s cn31xx;
 	struct cvmx_gmxx_tx_prts_s cn38xx;
@@ -6764,6 +7031,8 @@ union cvmx_gmxx_tx_prts {
 	struct cvmx_gmxx_tx_prts_s cn68xx;
 	struct cvmx_gmxx_tx_prts_s cn68xxp1;
 	struct cvmx_gmxx_tx_prts_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_gmxx_tx_spi_ctl {
@@ -6779,6 +7048,7 @@ union cvmx_gmxx_tx_spi_ctl {
 		uint64_t reserved_2_63:62;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_gmxx_tx_spi_ctl_s cn38xx;
 	struct cvmx_gmxx_tx_spi_ctl_s cn38xxp2;
 	struct cvmx_gmxx_tx_spi_ctl_s cn58xx;
@@ -6799,6 +7069,8 @@ union cvmx_gmxx_tx_spi_drain {
 	struct cvmx_gmxx_tx_spi_drain_s cn38xx;
 	struct cvmx_gmxx_tx_spi_drain_s cn58xx;
 	struct cvmx_gmxx_tx_spi_drain_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_gmxx_tx_spi_max {
@@ -6827,6 +7099,7 @@ union cvmx_gmxx_tx_spi_max {
 		uint64_t reserved_16_63:48;
 #endif
 	} cn38xx;
+<<<<<<< HEAD
 	struct cvmx_gmxx_tx_spi_max_cn38xx cn38xxp2;
 	struct cvmx_gmxx_tx_spi_max_s cn58xx;
 	struct cvmx_gmxx_tx_spi_max_s cn58xxp1;
@@ -6845,6 +7118,8 @@ union cvmx_gmxx_tx_spi_roundx {
 	} s;
 	struct cvmx_gmxx_tx_spi_roundx_s cn58xx;
 	struct cvmx_gmxx_tx_spi_roundx_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_gmxx_tx_spi_thresh {
@@ -6858,10 +7133,13 @@ union cvmx_gmxx_tx_spi_thresh {
 		uint64_t reserved_6_63:58;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_gmxx_tx_spi_thresh_s cn38xx;
 	struct cvmx_gmxx_tx_spi_thresh_s cn38xxp2;
 	struct cvmx_gmxx_tx_spi_thresh_s cn58xx;
 	struct cvmx_gmxx_tx_spi_thresh_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_gmxx_tx_xaui_ctl {
@@ -6889,6 +7167,7 @@ union cvmx_gmxx_tx_xaui_ctl {
 		uint64_t reserved_11_63:53;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_gmxx_tx_xaui_ctl_s cn52xx;
 	struct cvmx_gmxx_tx_xaui_ctl_s cn52xxp1;
 	struct cvmx_gmxx_tx_xaui_ctl_s cn56xx;
@@ -6926,6 +7205,8 @@ union cvmx_gmxx_xaui_ext_loopback {
 	struct cvmx_gmxx_xaui_ext_loopback_s cn68xx;
 	struct cvmx_gmxx_xaui_ext_loopback_s cn68xxp1;
 	struct cvmx_gmxx_xaui_ext_loopback_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 #endif

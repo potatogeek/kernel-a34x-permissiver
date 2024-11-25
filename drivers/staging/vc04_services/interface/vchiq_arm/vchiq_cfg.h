@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**
  * Copyright (c) 2010-2014 Broadcom. All rights reserved.
  *
@@ -30,6 +31,10 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+/* Copyright (c) 2010-2014 Broadcom. All rights reserved. */
+>>>>>>> upstream/android-13
 
 #ifndef VCHIQ_CFG_H
 #define VCHIQ_CFG_H
@@ -37,8 +42,15 @@
 #define VCHIQ_MAGIC              VCHIQ_MAKE_FOURCC('V', 'C', 'H', 'I')
 /* The version of VCHIQ - change with any non-trivial change */
 #define VCHIQ_VERSION            8
+<<<<<<< HEAD
 /* The minimum compatible version - update to match VCHIQ_VERSION with any
 ** incompatible change */
+=======
+/*
+ * The minimum compatible version - update to match VCHIQ_VERSION with any
+ * incompatible change
+ */
+>>>>>>> upstream/android-13
 #define VCHIQ_VERSION_MIN        3
 
 /* The version that introduced the VCHIQ_IOC_LIB_VERSION ioctl */

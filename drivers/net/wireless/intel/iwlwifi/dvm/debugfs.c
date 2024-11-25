@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * GPL LICENSE SUMMARY
@@ -20,6 +21,13 @@
  *
  * The full GNU General Public License is included in this distribution
  * in the file called COPYING.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/******************************************************************************
+ *
+ * Copyright(c) 2008 - 2014 Intel Corporation. All rights reserved.
+ * Copyright (C) 2018 Intel Corporation
+>>>>>>> upstream/android-13
  *
  * Contact Information:
  *  Intel Linux Wireless <linuxwifi@intel.com>
@@ -41,6 +49,7 @@
 
 /* create and remove of files */
 #define DEBUGFS_ADD_FILE(name, parent, mode) do {			\
+<<<<<<< HEAD
 	if (!debugfs_create_file(#name, mode, parent, priv,		\
 				 &iwl_dbgfs_##name##_ops))		\
 		goto err;						\
@@ -66,6 +75,10 @@
 				   parent, ptr);			\
 	if (IS_ERR(__tmp) || !__tmp)					\
 		goto err;						\
+=======
+	debugfs_create_file(#name, mode, parent, priv,			\
+			    &iwl_dbgfs_##name##_ops);			\
+>>>>>>> upstream/android-13
 } while (0)
 
 /* file operation */
@@ -2243,7 +2256,11 @@ static ssize_t iwl_dbgfs_log_event_write(struct file *file,
 	buf_size = min(count, sizeof(buf) -  1);
 	if (copy_from_user(buf, user_buf, buf_size))
 		return -EFAULT;
+<<<<<<< HEAD
 	if (sscanf(buf, "%d", &event_log_flag) != 1)
+=======
+	if (sscanf(buf, "%u", &event_log_flag) != 1)
+>>>>>>> upstream/android-13
 		return -EFAULT;
 	if (event_log_flag == 1)
 		iwl_dump_nic_event_log(priv, true, NULL);
@@ -2352,13 +2369,18 @@ DEBUGFS_READ_WRITE_FILE_OPS(calib_disabled);
  * Create the debugfs files and directories
  *
  */
+<<<<<<< HEAD
 int iwl_dbgfs_register(struct iwl_priv *priv, struct dentry *dbgfs_dir)
+=======
+void iwl_dbgfs_register(struct iwl_priv *priv, struct dentry *dbgfs_dir)
+>>>>>>> upstream/android-13
 {
 	struct dentry *dir_data, *dir_rf, *dir_debug;
 
 	priv->debugfs_dir = dbgfs_dir;
 
 	dir_data = debugfs_create_dir("data", dbgfs_dir);
+<<<<<<< HEAD
 	if (!dir_data)
 		goto err;
 	dir_rf = debugfs_create_dir("rf", dbgfs_dir);
@@ -2367,6 +2389,10 @@ int iwl_dbgfs_register(struct iwl_priv *priv, struct dentry *dbgfs_dir)
 	dir_debug = debugfs_create_dir("debug", dbgfs_dir);
 	if (!dir_debug)
 		goto err;
+=======
+	dir_rf = debugfs_create_dir("rf", dbgfs_dir);
+	dir_debug = debugfs_create_dir("debug", dbgfs_dir);
+>>>>>>> upstream/android-13
 
 	DEBUGFS_ADD_FILE(nvm, dir_data, 0400);
 	DEBUGFS_ADD_FILE(sram, dir_data, 0600);
@@ -2426,6 +2452,7 @@ int iwl_dbgfs_register(struct iwl_priv *priv, struct dentry *dbgfs_dir)
 
 		snprintf(buf, 100, "../../%pd2", dev_dir);
 
+<<<<<<< HEAD
 		if (!debugfs_create_symlink("iwlwifi", mac80211_dir, buf))
 			goto err;
 	}
@@ -2435,4 +2462,8 @@ int iwl_dbgfs_register(struct iwl_priv *priv, struct dentry *dbgfs_dir)
 err:
 	IWL_ERR(priv, "failed to create the dvm debugfs entries\n");
 	return -ENOMEM;
+=======
+		debugfs_create_symlink("iwlwifi", mac80211_dir, buf);
+	}
+>>>>>>> upstream/android-13
 }

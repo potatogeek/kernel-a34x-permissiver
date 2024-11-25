@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * VFIO generic eventfd code for IRQFD support.
  * Derived from drivers/vfio/pci/vfio_pci_intrs.c
  *
  * Copyright (C) 2012 Red Hat, Inc.  All rights reserved.
  *     Author: Alex Williamson <alex.williamson@redhat.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/vfio.h>
@@ -49,6 +56,12 @@ static int virqfd_wakeup(wait_queue_entry_t *wait, unsigned mode, int sync, void
 	__poll_t flags = key_to_poll(key);
 
 	if (flags & EPOLLIN) {
+<<<<<<< HEAD
+=======
+		u64 cnt;
+		eventfd_ctx_do_read(virqfd->eventfd, &cnt);
+
+>>>>>>> upstream/android-13
 		/* An event has been signaled, call function */
 		if ((!virqfd->handler ||
 		     virqfd->handler(virqfd->opaque, virqfd->data)) &&

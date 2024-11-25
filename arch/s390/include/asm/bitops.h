@@ -35,13 +35,21 @@
 
 #include <linux/typecheck.h>
 #include <linux/compiler.h>
+<<<<<<< HEAD
+=======
+#include <linux/types.h>
+>>>>>>> upstream/android-13
 #include <asm/atomic_ops.h>
 #include <asm/barrier.h>
 
 #define __BITOPS_WORDS(bits) (((bits) + BITS_PER_LONG - 1) / BITS_PER_LONG)
 
 static inline unsigned long *
+<<<<<<< HEAD
 __bitops_word(unsigned long nr, volatile unsigned long *ptr)
+=======
+__bitops_word(unsigned long nr, const volatile unsigned long *ptr)
+>>>>>>> upstream/android-13
 {
 	unsigned long addr;
 
@@ -49,6 +57,7 @@ __bitops_word(unsigned long nr, volatile unsigned long *ptr)
 	return (unsigned long *)addr;
 }
 
+<<<<<<< HEAD
 static inline unsigned char *
 __bitops_byte(unsigned long nr, volatile unsigned long *ptr)
 {
@@ -237,6 +246,168 @@ static inline void __clear_bit_unlock(unsigned long nr,
 	__clear_bit(nr, ptr);
 }
 
+=======
+static inline unsigned long __bitops_mask(unsigned long nr)
+{
+	return 1UL << (nr & (BITS_PER_LONG - 1));
+}
+
+static __always_inline void arch_set_bit(unsigned long nr, volatile unsigned long *ptr)
+{
+	unsigned long *addr = __bitops_word(nr, ptr);
+	unsigned long mask = __bitops_mask(nr);
+
+	__atomic64_or(mask, (long *)addr);
+}
+
+static __always_inline void arch_clear_bit(unsigned long nr, volatile unsigned long *ptr)
+{
+	unsigned long *addr = __bitops_word(nr, ptr);
+	unsigned long mask = __bitops_mask(nr);
+
+	__atomic64_and(~mask, (long *)addr);
+}
+
+static __always_inline void arch_change_bit(unsigned long nr,
+					    volatile unsigned long *ptr)
+{
+	unsigned long *addr = __bitops_word(nr, ptr);
+	unsigned long mask = __bitops_mask(nr);
+
+	__atomic64_xor(mask, (long *)addr);
+}
+
+static inline bool arch_test_and_set_bit(unsigned long nr,
+					 volatile unsigned long *ptr)
+{
+	unsigned long *addr = __bitops_word(nr, ptr);
+	unsigned long mask = __bitops_mask(nr);
+	unsigned long old;
+
+	old = __atomic64_or_barrier(mask, (long *)addr);
+	return old & mask;
+}
+
+static inline bool arch_test_and_clear_bit(unsigned long nr,
+					   volatile unsigned long *ptr)
+{
+	unsigned long *addr = __bitops_word(nr, ptr);
+	unsigned long mask = __bitops_mask(nr);
+	unsigned long old;
+
+	old = __atomic64_and_barrier(~mask, (long *)addr);
+	return old & mask;
+}
+
+static inline bool arch_test_and_change_bit(unsigned long nr,
+					    volatile unsigned long *ptr)
+{
+	unsigned long *addr = __bitops_word(nr, ptr);
+	unsigned long mask = __bitops_mask(nr);
+	unsigned long old;
+
+	old = __atomic64_xor_barrier(mask, (long *)addr);
+	return old & mask;
+}
+
+static inline void arch___set_bit(unsigned long nr, volatile unsigned long *ptr)
+{
+	unsigned long *addr = __bitops_word(nr, ptr);
+	unsigned long mask = __bitops_mask(nr);
+
+	*addr |= mask;
+}
+
+static inline void arch___clear_bit(unsigned long nr,
+				    volatile unsigned long *ptr)
+{
+	unsigned long *addr = __bitops_word(nr, ptr);
+	unsigned long mask = __bitops_mask(nr);
+
+	*addr &= ~mask;
+}
+
+static inline void arch___change_bit(unsigned long nr,
+				     volatile unsigned long *ptr)
+{
+	unsigned long *addr = __bitops_word(nr, ptr);
+	unsigned long mask = __bitops_mask(nr);
+
+	*addr ^= mask;
+}
+
+static inline bool arch___test_and_set_bit(unsigned long nr,
+					   volatile unsigned long *ptr)
+{
+	unsigned long *addr = __bitops_word(nr, ptr);
+	unsigned long mask = __bitops_mask(nr);
+	unsigned long old;
+
+	old = *addr;
+	*addr |= mask;
+	return old & mask;
+}
+
+static inline bool arch___test_and_clear_bit(unsigned long nr,
+					     volatile unsigned long *ptr)
+{
+	unsigned long *addr = __bitops_word(nr, ptr);
+	unsigned long mask = __bitops_mask(nr);
+	unsigned long old;
+
+	old = *addr;
+	*addr &= ~mask;
+	return old & mask;
+}
+
+static inline bool arch___test_and_change_bit(unsigned long nr,
+					      volatile unsigned long *ptr)
+{
+	unsigned long *addr = __bitops_word(nr, ptr);
+	unsigned long mask = __bitops_mask(nr);
+	unsigned long old;
+
+	old = *addr;
+	*addr ^= mask;
+	return old & mask;
+}
+
+static inline bool arch_test_bit(unsigned long nr,
+				 const volatile unsigned long *ptr)
+{
+	const volatile unsigned long *addr = __bitops_word(nr, ptr);
+	unsigned long mask = __bitops_mask(nr);
+
+	return *addr & mask;
+}
+
+static inline bool arch_test_and_set_bit_lock(unsigned long nr,
+					      volatile unsigned long *ptr)
+{
+	if (arch_test_bit(nr, ptr))
+		return 1;
+	return arch_test_and_set_bit(nr, ptr);
+}
+
+static inline void arch_clear_bit_unlock(unsigned long nr,
+					 volatile unsigned long *ptr)
+{
+	smp_mb__before_atomic();
+	arch_clear_bit(nr, ptr);
+}
+
+static inline void arch___clear_bit_unlock(unsigned long nr,
+					   volatile unsigned long *ptr)
+{
+	smp_mb();
+	arch___clear_bit(nr, ptr);
+}
+
+#include <asm-generic/bitops/instrumented-atomic.h>
+#include <asm-generic/bitops/instrumented-non-atomic.h>
+#include <asm-generic/bitops/instrumented-lock.h>
+
+>>>>>>> upstream/android-13
 /*
  * Functions which use MSB0 bit numbering.
  * The bits are numbered:
@@ -261,7 +432,12 @@ static inline void clear_bit_inv(unsigned long nr, volatile unsigned long *ptr)
 	return clear_bit(nr ^ (BITS_PER_LONG - 1), ptr);
 }
 
+<<<<<<< HEAD
 static inline int test_and_clear_bit_inv(unsigned long nr, volatile unsigned long *ptr)
+=======
+static inline bool test_and_clear_bit_inv(unsigned long nr,
+					  volatile unsigned long *ptr)
+>>>>>>> upstream/android-13
 {
 	return test_and_clear_bit(nr ^ (BITS_PER_LONG - 1), ptr);
 }
@@ -276,8 +452,13 @@ static inline void __clear_bit_inv(unsigned long nr, volatile unsigned long *ptr
 	return __clear_bit(nr ^ (BITS_PER_LONG - 1), ptr);
 }
 
+<<<<<<< HEAD
 static inline int test_bit_inv(unsigned long nr,
 			       const volatile unsigned long *ptr)
+=======
+static inline bool test_bit_inv(unsigned long nr,
+				const volatile unsigned long *ptr)
+>>>>>>> upstream/android-13
 {
 	return test_bit(nr ^ (BITS_PER_LONG - 1), ptr);
 }
@@ -325,6 +506,7 @@ static inline unsigned char __flogr(unsigned long word)
 		}
 		return bit;
 	} else {
+<<<<<<< HEAD
 		register unsigned long bit asm("4") = word;
 		register unsigned long out asm("5");
 
@@ -332,6 +514,15 @@ static inline unsigned char __flogr(unsigned long word)
 			"       flogr   %[bit],%[bit]\n"
 			: [bit] "+d" (bit), [out] "=d" (out) : : "cc");
 		return bit;
+=======
+		union register_pair rp;
+
+		rp.even = word;
+		asm volatile(
+			"       flogr   %[rp],%[rp]\n"
+			: [rp] "+d" (rp.pair) : : "cc");
+		return rp.even;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -397,9 +588,15 @@ static inline int fls64(unsigned long word)
  * This is defined the same way as ffs.
  * Note fls(0) = 0, fls(1) = 1, fls(0x80000000) = 32.
  */
+<<<<<<< HEAD
 static inline int fls(int word)
 {
 	return fls64((unsigned int)word);
+=======
+static inline int fls(unsigned int word)
+{
+	return fls64(word);
+>>>>>>> upstream/android-13
 }
 
 #else /* CONFIG_HAVE_MARCH_Z9_109_FEATURES */

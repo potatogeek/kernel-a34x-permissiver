@@ -92,7 +92,12 @@
         "PEBScounters": "0,1,2,3",
         "EventName": "MEM_UOPS_RETIRED.LOCK_LOADS",
         "SampleAfterValue": "200003",
+<<<<<<< HEAD
         "BriefDescription": "Locked load uops retired (Precise event capable)"
+=======
+        "BriefDescription": "Locked load uops retired (Precise event capable)",
+        "Data_LA": "1"
+>>>>>>> upstream/android-13
     },
     {
         "PEBS": "2",
@@ -104,7 +109,12 @@
         "PEBScounters": "0,1,2,3",
         "EventName": "MEM_UOPS_RETIRED.SPLIT_LOADS",
         "SampleAfterValue": "200003",
+<<<<<<< HEAD
         "BriefDescription": "Load uops retired that split a cache-line (Precise event capable)"
+=======
+        "BriefDescription": "Load uops retired that split a cache-line (Precise event capable)",
+        "Data_LA": "1"
+>>>>>>> upstream/android-13
     },
     {
         "PEBS": "2",
@@ -116,7 +126,12 @@
         "PEBScounters": "0,1,2,3",
         "EventName": "MEM_UOPS_RETIRED.SPLIT_STORES",
         "SampleAfterValue": "200003",
+<<<<<<< HEAD
         "BriefDescription": "Stores uops retired that split a cache-line (Precise event capable)"
+=======
+        "BriefDescription": "Stores uops retired that split a cache-line (Precise event capable)",
+        "Data_LA": "1"
+>>>>>>> upstream/android-13
     },
     {
         "PEBS": "2",
@@ -128,7 +143,12 @@
         "PEBScounters": "0,1,2,3",
         "EventName": "MEM_UOPS_RETIRED.SPLIT",
         "SampleAfterValue": "200003",
+<<<<<<< HEAD
         "BriefDescription": "Memory uops retired that split a cache-line (Precise event capable)"
+=======
+        "BriefDescription": "Memory uops retired that split a cache-line (Precise event capable)",
+        "Data_LA": "1"
+>>>>>>> upstream/android-13
     },
     {
         "PEBS": "2",
@@ -140,7 +160,12 @@
         "PEBScounters": "0,1,2,3",
         "EventName": "MEM_UOPS_RETIRED.ALL_LOADS",
         "SampleAfterValue": "200003",
+<<<<<<< HEAD
         "BriefDescription": "Load uops retired (Precise event capable)"
+=======
+        "BriefDescription": "Load uops retired (Precise event capable)",
+        "Data_LA": "1"
+>>>>>>> upstream/android-13
     },
     {
         "PEBS": "2",
@@ -152,7 +177,12 @@
         "PEBScounters": "0,1,2,3",
         "EventName": "MEM_UOPS_RETIRED.ALL_STORES",
         "SampleAfterValue": "200003",
+<<<<<<< HEAD
         "BriefDescription": "Store uops retired (Precise event capable)"
+=======
+        "BriefDescription": "Store uops retired (Precise event capable)",
+        "Data_LA": "1"
+>>>>>>> upstream/android-13
     },
     {
         "PEBS": "2",
@@ -164,7 +194,12 @@
         "PEBScounters": "0,1,2,3",
         "EventName": "MEM_UOPS_RETIRED.ALL",
         "SampleAfterValue": "200003",
+<<<<<<< HEAD
         "BriefDescription": "Memory uops retired (Precise event capable)"
+=======
+        "BriefDescription": "Memory uops retired (Precise event capable)",
+        "Data_LA": "1"
+>>>>>>> upstream/android-13
     },
     {
         "PEBS": "2",
@@ -176,7 +211,12 @@
         "PEBScounters": "0,1,2,3",
         "EventName": "MEM_LOAD_UOPS_RETIRED.L1_HIT",
         "SampleAfterValue": "200003",
+<<<<<<< HEAD
         "BriefDescription": "Load uops retired that hit L1 data cache (Precise event capable)"
+=======
+        "BriefDescription": "Load uops retired that hit L1 data cache (Precise event capable)",
+        "Data_LA": "1"
+>>>>>>> upstream/android-13
     },
     {
         "PEBS": "2",
@@ -188,7 +228,12 @@
         "PEBScounters": "0,1,2,3",
         "EventName": "MEM_LOAD_UOPS_RETIRED.L2_HIT",
         "SampleAfterValue": "200003",
+<<<<<<< HEAD
         "BriefDescription": "Load uops retired that hit L2 (Precise event capable)"
+=======
+        "BriefDescription": "Load uops retired that hit L2 (Precise event capable)",
+        "Data_LA": "1"
+>>>>>>> upstream/android-13
     },
     {
         "PEBS": "2",
@@ -200,7 +245,12 @@
         "PEBScounters": "0,1,2,3",
         "EventName": "MEM_LOAD_UOPS_RETIRED.L1_MISS",
         "SampleAfterValue": "200003",
+<<<<<<< HEAD
         "BriefDescription": "Load uops retired that missed L1 data cache (Precise event capable)"
+=======
+        "BriefDescription": "Load uops retired that missed L1 data cache (Precise event capable)",
+        "Data_LA": "1"
+>>>>>>> upstream/android-13
     },
     {
         "PEBS": "2",
@@ -212,7 +262,12 @@
         "PEBScounters": "0,1,2,3",
         "EventName": "MEM_LOAD_UOPS_RETIRED.L2_MISS",
         "SampleAfterValue": "200003",
+<<<<<<< HEAD
         "BriefDescription": "Load uops retired that missed L2 (Precise event capable)"
+=======
+        "BriefDescription": "Load uops retired that missed L2 (Precise event capable)",
+        "Data_LA": "1"
+>>>>>>> upstream/android-13
     },
     {
         "PEBS": "2",
@@ -224,7 +279,12 @@
         "PEBScounters": "0,1,2,3",
         "EventName": "MEM_LOAD_UOPS_RETIRED.HITM",
         "SampleAfterValue": "200003",
+<<<<<<< HEAD
         "BriefDescription": "Memory uop retired where cross core or cross module HITM occurred (Precise event capable)"
+=======
+        "BriefDescription": "Memory uop retired where cross core or cross module HITM occurred (Precise event capable)",
+        "Data_LA": "1"
+>>>>>>> upstream/android-13
     },
     {
         "PEBS": "2",
@@ -236,7 +296,12 @@
         "PEBScounters": "0,1,2,3",
         "EventName": "MEM_LOAD_UOPS_RETIRED.WCB_HIT",
         "SampleAfterValue": "200003",
+<<<<<<< HEAD
         "BriefDescription": "Loads retired that hit WCB (Precise event capable)"
+=======
+        "BriefDescription": "Loads retired that hit WCB (Precise event capable)",
+        "Data_LA": "1"
+>>>>>>> upstream/android-13
     },
     {
         "PEBS": "2",
@@ -248,7 +313,12 @@
         "PEBScounters": "0,1,2,3",
         "EventName": "MEM_LOAD_UOPS_RETIRED.DRAM_HIT",
         "SampleAfterValue": "200003",
+<<<<<<< HEAD
         "BriefDescription": "Loads retired that came from DRAM (Precise event capable)"
+=======
+        "BriefDescription": "Loads retired that came from DRAM (Precise event capable)",
+        "Data_LA": "1"
+>>>>>>> upstream/android-13
     },
     {
         "CollectPEBSRecord": "1",
@@ -292,7 +362,11 @@
         "PDIR_COUNTER": "na",
         "MSRIndex": "0x1a6, 0x1a7",
         "SampleAfterValue": "100007",
+<<<<<<< HEAD
         "BriefDescription": "Counts demand cacheable data reads of full cache lines true miss for the L2 cache with a snoop miss in the other processor module. ",
+=======
+        "BriefDescription": "Counts demand cacheable data reads of full cache lines true miss for the L2 cache with a snoop miss in the other processor module.",
+>>>>>>> upstream/android-13
         "Offcore": "1"
     },
     {
@@ -367,7 +441,11 @@
         "PDIR_COUNTER": "na",
         "MSRIndex": "0x1a6, 0x1a7",
         "SampleAfterValue": "100007",
+<<<<<<< HEAD
         "BriefDescription": "Counts demand reads for ownership (RFO) requests generated by a write to full data cache line true miss for the L2 cache with a snoop miss in the other processor module. ",
+=======
+        "BriefDescription": "Counts demand reads for ownership (RFO) requests generated by a write to full data cache line true miss for the L2 cache with a snoop miss in the other processor module.",
+>>>>>>> upstream/android-13
         "Offcore": "1"
     },
     {
@@ -442,7 +520,11 @@
         "PDIR_COUNTER": "na",
         "MSRIndex": "0x1a6, 0x1a7",
         "SampleAfterValue": "100007",
+<<<<<<< HEAD
         "BriefDescription": "Counts demand instruction cacheline and I-side prefetch requests that miss the instruction cache true miss for the L2 cache with a snoop miss in the other processor module. ",
+=======
+        "BriefDescription": "Counts demand instruction cacheline and I-side prefetch requests that miss the instruction cache true miss for the L2 cache with a snoop miss in the other processor module.",
+>>>>>>> upstream/android-13
         "Offcore": "1"
     },
     {
@@ -517,7 +599,11 @@
         "PDIR_COUNTER": "na",
         "MSRIndex": "0x1a6, 0x1a7",
         "SampleAfterValue": "100007",
+<<<<<<< HEAD
         "BriefDescription": "Counts the number of writeback transactions caused by L1 or L2 cache evictions true miss for the L2 cache with a snoop miss in the other processor module. ",
+=======
+        "BriefDescription": "Counts the number of writeback transactions caused by L1 or L2 cache evictions true miss for the L2 cache with a snoop miss in the other processor module.",
+>>>>>>> upstream/android-13
         "Offcore": "1"
     },
     {
@@ -592,7 +678,11 @@
         "PDIR_COUNTER": "na",
         "MSRIndex": "0x1a6, 0x1a7",
         "SampleAfterValue": "100007",
+<<<<<<< HEAD
         "BriefDescription": "Counts data cacheline reads generated by hardware L2 cache prefetcher true miss for the L2 cache with a snoop miss in the other processor module. ",
+=======
+        "BriefDescription": "Counts data cacheline reads generated by hardware L2 cache prefetcher true miss for the L2 cache with a snoop miss in the other processor module.",
+>>>>>>> upstream/android-13
         "Offcore": "1"
     },
     {
@@ -667,7 +757,11 @@
         "PDIR_COUNTER": "na",
         "MSRIndex": "0x1a6, 0x1a7",
         "SampleAfterValue": "100007",
+<<<<<<< HEAD
         "BriefDescription": "Counts reads for ownership (RFO) requests generated by L2 prefetcher true miss for the L2 cache with a snoop miss in the other processor module. ",
+=======
+        "BriefDescription": "Counts reads for ownership (RFO) requests generated by L2 prefetcher true miss for the L2 cache with a snoop miss in the other processor module.",
+>>>>>>> upstream/android-13
         "Offcore": "1"
     },
     {
@@ -742,7 +836,11 @@
         "PDIR_COUNTER": "na",
         "MSRIndex": "0x1a6, 0x1a7",
         "SampleAfterValue": "100007",
+<<<<<<< HEAD
         "BriefDescription": "Counts bus lock and split lock requests true miss for the L2 cache with a snoop miss in the other processor module. ",
+=======
+        "BriefDescription": "Counts bus lock and split lock requests true miss for the L2 cache with a snoop miss in the other processor module.",
+>>>>>>> upstream/android-13
         "Offcore": "1"
     },
     {
@@ -817,7 +915,11 @@
         "PDIR_COUNTER": "na",
         "MSRIndex": "0x1a6, 0x1a7",
         "SampleAfterValue": "100007",
+<<<<<<< HEAD
         "BriefDescription": "Counts full cache line data writes to uncacheable write combining (USWC) memory region and full cache-line non-temporal writes true miss for the L2 cache with a snoop miss in the other processor module. ",
+=======
+        "BriefDescription": "Counts full cache line data writes to uncacheable write combining (USWC) memory region and full cache-line non-temporal writes true miss for the L2 cache with a snoop miss in the other processor module.",
+>>>>>>> upstream/android-13
         "Offcore": "1"
     },
     {
@@ -892,7 +994,11 @@
         "PDIR_COUNTER": "na",
         "MSRIndex": "0x1a6, 0x1a7",
         "SampleAfterValue": "100007",
+<<<<<<< HEAD
         "BriefDescription": "Counts data cache lines requests by software prefetch instructions true miss for the L2 cache with a snoop miss in the other processor module. ",
+=======
+        "BriefDescription": "Counts data cache lines requests by software prefetch instructions true miss for the L2 cache with a snoop miss in the other processor module.",
+>>>>>>> upstream/android-13
         "Offcore": "1"
     },
     {
@@ -967,7 +1073,11 @@
         "PDIR_COUNTER": "na",
         "MSRIndex": "0x1a6, 0x1a7",
         "SampleAfterValue": "100007",
+<<<<<<< HEAD
         "BriefDescription": "Counts data cache line reads generated by hardware L1 data cache prefetcher true miss for the L2 cache with a snoop miss in the other processor module. ",
+=======
+        "BriefDescription": "Counts data cache line reads generated by hardware L1 data cache prefetcher true miss for the L2 cache with a snoop miss in the other processor module.",
+>>>>>>> upstream/android-13
         "Offcore": "1"
     },
     {
@@ -1042,7 +1152,11 @@
         "PDIR_COUNTER": "na",
         "MSRIndex": "0x1a6, 0x1a7",
         "SampleAfterValue": "100007",
+<<<<<<< HEAD
         "BriefDescription": "Counts any data writes to uncacheable write combining (USWC) memory region  true miss for the L2 cache with a snoop miss in the other processor module. ",
+=======
+        "BriefDescription": "Counts any data writes to uncacheable write combining (USWC) memory region  true miss for the L2 cache with a snoop miss in the other processor module.",
+>>>>>>> upstream/android-13
         "Offcore": "1"
     },
     {
@@ -1117,7 +1231,11 @@
         "PDIR_COUNTER": "na",
         "MSRIndex": "0x1a6, 0x1a7",
         "SampleAfterValue": "100007",
+<<<<<<< HEAD
         "BriefDescription": "Counts requests to the uncore subsystem true miss for the L2 cache with a snoop miss in the other processor module. ",
+=======
+        "BriefDescription": "Counts requests to the uncore subsystem true miss for the L2 cache with a snoop miss in the other processor module.",
+>>>>>>> upstream/android-13
         "Offcore": "1"
     },
     {
@@ -1192,7 +1310,11 @@
         "PDIR_COUNTER": "na",
         "MSRIndex": "0x1a6, 0x1a7",
         "SampleAfterValue": "100007",
+<<<<<<< HEAD
         "BriefDescription": "Counts data reads generated by L1 or L2 prefetchers true miss for the L2 cache with a snoop miss in the other processor module. ",
+=======
+        "BriefDescription": "Counts data reads generated by L1 or L2 prefetchers true miss for the L2 cache with a snoop miss in the other processor module.",
+>>>>>>> upstream/android-13
         "Offcore": "1"
     },
     {
@@ -1267,7 +1389,11 @@
         "PDIR_COUNTER": "na",
         "MSRIndex": "0x1a6, 0x1a7",
         "SampleAfterValue": "100007",
+<<<<<<< HEAD
         "BriefDescription": "Counts data reads (demand & prefetch) true miss for the L2 cache with a snoop miss in the other processor module. ",
+=======
+        "BriefDescription": "Counts data reads (demand & prefetch) true miss for the L2 cache with a snoop miss in the other processor module.",
+>>>>>>> upstream/android-13
         "Offcore": "1"
     },
     {
@@ -1342,7 +1468,11 @@
         "PDIR_COUNTER": "na",
         "MSRIndex": "0x1a6, 0x1a7",
         "SampleAfterValue": "100007",
+<<<<<<< HEAD
         "BriefDescription": "Counts reads for ownership (RFO) requests (demand & prefetch) true miss for the L2 cache with a snoop miss in the other processor module. ",
+=======
+        "BriefDescription": "Counts reads for ownership (RFO) requests (demand & prefetch) true miss for the L2 cache with a snoop miss in the other processor module.",
+>>>>>>> upstream/android-13
         "Offcore": "1"
     },
     {
@@ -1417,7 +1547,11 @@
         "PDIR_COUNTER": "na",
         "MSRIndex": "0x1a6, 0x1a7",
         "SampleAfterValue": "100007",
+<<<<<<< HEAD
         "BriefDescription": "Counts data read, code read, and read for ownership (RFO) requests (demand & prefetch) true miss for the L2 cache with a snoop miss in the other processor module. ",
+=======
+        "BriefDescription": "Counts data read, code read, and read for ownership (RFO) requests (demand & prefetch) true miss for the L2 cache with a snoop miss in the other processor module.",
+>>>>>>> upstream/android-13
         "Offcore": "1"
     },
     {

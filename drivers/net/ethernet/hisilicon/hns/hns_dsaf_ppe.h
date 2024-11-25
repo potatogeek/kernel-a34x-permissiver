@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014-2015 Hisilicon Limited.
  *
@@ -5,6 +6,11 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (c) 2014-2015 Hisilicon Limited.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _HNS_DSAF_PPE_H
@@ -80,7 +86,11 @@ struct hns_ppe_cb {
 	struct hns_ppe_hw_stats hw_stats;
 
 	u8 index;	/* index in a ppe common device */
+<<<<<<< HEAD
 	void __iomem *io_base;
+=======
+	u8 __iomem *io_base;
+>>>>>>> upstream/android-13
 	int virq;
 	u32 rss_indir_table[HNS_PPEV2_RSS_IND_TBL_SIZE]; /*shadow indir tab */
 	u32 rss_key[HNS_PPEV2_RSS_KEY_NUM]; /* rss hash key */
@@ -89,14 +99,22 @@ struct hns_ppe_cb {
 struct ppe_common_cb {
 	struct device *dev;
 	struct dsaf_device *dsaf_dev;
+<<<<<<< HEAD
 	void __iomem *io_base;
+=======
+	u8 __iomem *io_base;
+>>>>>>> upstream/android-13
 
 	enum ppe_common_mode ppe_mode;
 
 	u8 comm_index;   /*ppe_common index*/
 
 	u32 ppe_num;
+<<<<<<< HEAD
 	struct hns_ppe_cb ppe_cb[0];
+=======
+	struct hns_ppe_cb ppe_cb[];
+>>>>>>> upstream/android-13
 
 };
 

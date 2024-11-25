@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 config SECURITY_LOADPIN
 	bool "Pin load of kernel files (modules, fw, etc) to one filesystem"
 	depends on SECURITY && BLOCK
@@ -10,10 +14,18 @@ config SECURITY_LOADPIN
 	  have a root filesystem backed by a read-only device such as
 	  dm-verity or a CDROM.
 
+<<<<<<< HEAD
 config SECURITY_LOADPIN_ENABLED
+=======
+config SECURITY_LOADPIN_ENFORCE
+>>>>>>> upstream/android-13
 	bool "Enforce LoadPin at boot"
 	depends on SECURITY_LOADPIN
 	help
 	  If selected, LoadPin will enforce pinning at boot. If not
 	  selected, it can be enabled at boot with the kernel parameter
+<<<<<<< HEAD
 	  "loadpin.enabled=1".
+=======
+	  "loadpin.enforce=1".
+>>>>>>> upstream/android-13

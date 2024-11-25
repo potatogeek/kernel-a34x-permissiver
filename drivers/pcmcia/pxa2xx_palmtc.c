@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/drivers/pcmcia/pxa2xx_palmtc.c
  *
@@ -5,11 +9,14 @@
  *
  * Copyright (C) 2008 Alex Osborne <ato@meshy.org>
  * Copyright (C) 2009-2011 Marek Vasut <marek.vasut@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>

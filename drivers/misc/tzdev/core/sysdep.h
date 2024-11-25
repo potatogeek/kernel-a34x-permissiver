@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Copyright (C) 2012-2017, Samsung Electronics Co., Ltd.
+=======
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd All Rights Reserved
+>>>>>>> upstream/android-13
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -58,11 +62,15 @@ typedef struct wait_queue_entry wait_queue_t;
 #include <linux/sched/rt.h>
 #endif
 
+<<<<<<< HEAD
 #if defined(CONFIG_ARM64)
 #define outer_inv_range(s, e)
 #else
 #define __flush_dcache_area(s, e)	__cpuc_flush_dcache_area(s, e)
 #endif
+=======
+#include "core/ree_time.h"
+>>>>>>> upstream/android-13
 
 #if LINUX_VERSION_CODE <= KERNEL_VERSION(3, 13, 0)
 #define U8_MAX		((u8)~0U)
@@ -86,6 +94,7 @@ typedef struct wait_queue_entry wait_queue_t;
 #define cpumask_pr_args(maskp)		nr_cpu_ids, cpumask_bits(maskp)
 #endif
 
+<<<<<<< HEAD
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 13, 0)
 #define sysdep_kernel_read(file, buf, size, off)	kernel_read(file, buf, size, &off)
 #else
@@ -98,6 +107,8 @@ typedef struct wait_queue_entry wait_queue_t;
 })
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 5, 0)
 static inline void shash_desc_zero(struct shash_desc *desc)
 {
@@ -122,7 +133,26 @@ static inline int atomic_fetch_or(int mask, atomic_t *v)
 	do {
 		c = old;
 		old = atomic_cmpxchg((v), c, c | mask);
+<<<<<<< HEAD
 	} while(old != c);
+=======
+	} while (old != c);
+
+	return old;
+}
+#endif
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 8, 0)
+static inline int atomic_fetch_and(int mask, atomic_t *v)
+{
+	int c, old;
+
+	old = atomic_read(v);
+	do {
+		c = old;
+		old = atomic_cmpxchg((v), c, c & mask);
+	} while (old != c);
+>>>>>>> upstream/android-13
 
 	return old;
 }
@@ -153,12 +183,24 @@ static inline int check_mem_region(unsigned long start, unsigned long n)
 }
 #endif
 
+<<<<<<< HEAD
+=======
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0)
+#define VERIFY_READ 0
+#define VERIFY_WRITE 1
+#define sysdep_access_ok(type, addr, size)	access_ok(addr, size)
+#else
+#define sysdep_access_ok(type, addr, size)	access_ok(type, addr, size)
+#endif
+
+>>>>>>> upstream/android-13
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
 #define sysdep_alloc_workqueue_attrs()		alloc_workqueue_attrs()
 #else
 #define sysdep_alloc_workqueue_attrs()		alloc_workqueue_attrs(GFP_KERNEL)
 #endif
 
+<<<<<<< HEAD
 long sysdep_get_user_pages(struct task_struct *task,
 		struct mm_struct *mm, unsigned long start, unsigned long nr_pages,
 		int write, int force, struct page **pages,
@@ -171,5 +213,39 @@ int sysdep_crypto_file_sha1(uint8_t *hash, struct file *file);
 int sysdep_vfs_getattr(struct file *filp, struct kstat *stat);
 void sysdep_shash_desc_init(struct shash_desc *desc, struct crypto_shash *tfm);
 int sysdep_pid_refcount_read(struct pid *pid);
+=======
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0)
+#define sysdep_mm_down_read(mm)			down_read(&mm->mmap_lock)
+#define sysdep_mm_up_read(mm)			up_read(&mm->mmap_lock)
+#define sysdep_mm_down_write(mm)		down_write(&mm->mmap_lock)
+#define sysdep_mm_up_write(mm)			up_write(&mm->mmap_lock)
+#else
+#define sysdep_mm_down_read(mm)			down_read(&mm->mmap_sem)
+#define sysdep_mm_up_read(mm)			up_read(&mm->mmap_sem)
+#define sysdep_mm_down_write(mm)		down_write(&mm->mmap_sem)
+#define sysdep_mm_up_write(mm)			up_write(&mm->mmap_sem)
+#endif
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0)
+#define sysdep_get_online_cpus()			cpus_read_lock()
+#define sysdep_put_online_cpus()			cpus_read_unlock()
+#else
+#define sysdep_get_online_cpus()			get_online_cpus()
+#define sysdep_put_online_cpus()			put_online_cpus()
+#endif
+
+void sysdep_get_ts(struct tz_ree_time *ree_ts);
+void sysdep_register_cpu_notifier(struct notifier_block *notifier,
+		int (*startup)(unsigned int cpu),
+		int (*teardown)(unsigned int cpu));
+void sysdep_unregister_cpu_notifier(struct notifier_block *notifier);
+int sysdep_crypto_file_sha1(uint8_t *hash, struct file *file);
+void sysdep_shash_desc_init(struct shash_desc *desc, struct crypto_shash *tfm);
+int sysdep_pid_refcount_read(struct pid *pid);
+int sysdep_cpufreq_register_notifier(struct notifier_block *nb, unsigned int list);
+void sysdep_pinned_vm_add(struct mm_struct *mm, unsigned long nr_pages);
+void sysdep_pinned_vm_sub(struct mm_struct *mm, unsigned long nr_pages);
+struct file *sysdep_get_exe_file(struct task_struct *task);
+>>>>>>> upstream/android-13
 
 #endif /* __SYSDEP_H__ */

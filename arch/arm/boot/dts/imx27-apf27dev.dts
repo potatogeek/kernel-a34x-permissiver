@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2013 Armadeus Systems - <support@armadeus.com>
  *
@@ -7,6 +8,11 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2013 Armadeus Systems - <support@armadeus.com>
+>>>>>>> upstream/android-13
  */
 
 /* APF27Dev is a docking board for the APF27 SOM */
@@ -18,10 +24,17 @@
 
 	display: display {
 		model = "Chimei-LW700AT9003";
+<<<<<<< HEAD
 		native-mode = <&timing0>;
 		bits-per-pixel = <16>;  /* non-standard but required */
 		fsl,pcr = <0xfae80083>;	/* non-standard but required */
 		display-timings {
+=======
+		bits-per-pixel = <16>;  /* non-standard but required */
+		fsl,pcr = <0xfae80083>;	/* non-standard but required */
+		display-timings {
+			native-mode = <&timing0>;
+>>>>>>> upstream/android-13
 			timing0: 800x480 {
 				clock-frequency = <33000033>;
 				hactive = <800>;

@@ -10,9 +10,12 @@
 
 #ifdef CONFIG_X86_LOCAL_APIC
 
+<<<<<<< HEAD
 extern int trace_resched_ipi_reg(void);
 extern void trace_resched_ipi_unreg(void);
 
+=======
+>>>>>>> upstream/android-13
 DECLARE_EVENT_CLASS(x86_irq_vector,
 
 	TP_PROTO(int vector),
@@ -37,6 +40,7 @@ DEFINE_EVENT_FN(x86_irq_vector, name##_exit,	\
 	TP_PROTO(int vector),			\
 	TP_ARGS(vector), NULL, NULL);
 
+<<<<<<< HEAD
 #define DEFINE_RESCHED_IPI_EVENT(name)		\
 DEFINE_EVENT_FN(x86_irq_vector, name##_entry,	\
 	TP_PROTO(int vector),			\
@@ -49,6 +53,8 @@ DEFINE_EVENT_FN(x86_irq_vector, name##_exit,	\
 	trace_resched_ipi_reg,			\
 	trace_resched_ipi_unreg);
 
+=======
+>>>>>>> upstream/android-13
 /*
  * local_timer - called when entering/exiting a local timer interrupt
  * vector handler
@@ -99,7 +105,11 @@ TRACE_EVENT_PERF_PERM(irq_work_exit, is_sampling_event(p_event) ? -EPERM : 0);
 /*
  * reschedule - called when entering/exiting a reschedule vector handler
  */
+<<<<<<< HEAD
 DEFINE_RESCHED_IPI_EVENT(reschedule);
+=======
+DEFINE_IRQ_VECTOR_EVENT(reschedule);
+>>>>>>> upstream/android-13
 
 /*
  * call_function - called when entering/exiting a call function interrupt
@@ -389,6 +399,10 @@ TRACE_EVENT(vector_free_moved,
 #endif /* CONFIG_X86_LOCAL_APIC */
 
 #undef TRACE_INCLUDE_PATH
+<<<<<<< HEAD
+=======
+#undef TRACE_INCLUDE_FILE
+>>>>>>> upstream/android-13
 #define TRACE_INCLUDE_PATH .
 #define TRACE_INCLUDE_FILE irq_vectors
 #endif /*  _TRACE_IRQ_VECTORS_H */

@@ -9,9 +9,14 @@
 #include <linux/mm.h>
 #include <linux/swap.h>
 #include <linux/preempt.h>
+<<<<<<< HEAD
 
 #include <asm/pgtable.h>
 #include <asm/pgalloc.h>
+=======
+#include <linux/pagemap.h>
+
+>>>>>>> upstream/android-13
 #include <asm/tlbflush.h>
 #include <asm/cacheflush.h>
 #include <asm/mmu_context.h>

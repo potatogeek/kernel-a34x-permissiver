@@ -31,6 +31,7 @@ static const struct ezusb_fx_type ezusb_fx1 = {
 static int ezusb_writememory(struct usb_device *dev, int address,
 				unsigned char *data, int length, __u8 request)
 {
+<<<<<<< HEAD
 	int result;
 	unsigned char *transfer_buffer;
 
@@ -49,6 +50,14 @@ static int ezusb_writememory(struct usb_device *dev, int address,
 
 	kfree(transfer_buffer);
 	return result;
+=======
+	if (!dev)
+		return -ENODEV;
+
+	return usb_control_msg_send(dev, 0, request,
+				 USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+				 address, 0, data, length, 3000, GFP_KERNEL);
+>>>>>>> upstream/android-13
 }
 
 static int ezusb_set_reset(struct usb_device *dev, unsigned short cpucs_reg,

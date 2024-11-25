@@ -43,8 +43,11 @@ static int iproc_pcie_pltfm_probe(struct platform_device *pdev)
 	struct iproc_pcie *pcie;
 	struct device_node *np = dev->of_node;
 	struct resource reg;
+<<<<<<< HEAD
 	resource_size_t iobase = 0;
 	LIST_HEAD(resources);
+=======
+>>>>>>> upstream/android-13
 	struct pci_host_bridge *bridge;
 	int ret;
 
@@ -87,12 +90,17 @@ static int iproc_pcie_pltfm_probe(struct platform_device *pdev)
 
 	/*
 	 * DT nodes are not used by all platforms that use the iProc PCIe
+<<<<<<< HEAD
 	 * core driver. For platforms that require explict inbound mapping
+=======
+	 * core driver. For platforms that require explicit inbound mapping
+>>>>>>> upstream/android-13
 	 * configuration, "dma-ranges" would have been present in DT
 	 */
 	pcie->need_ib_cfg = of_property_read_bool(np, "dma-ranges");
 
 	/* PHY use is optional */
+<<<<<<< HEAD
 	pcie->phy = devm_phy_get(dev, "pcie-phy");
 	if (IS_ERR(pcie->phy)) {
 		if (PTR_ERR(pcie->phy) == -EPROBE_DEFER)
@@ -106,11 +114,17 @@ static int iproc_pcie_pltfm_probe(struct platform_device *pdev)
 		dev_err(dev, "unable to get PCI host bridge resources\n");
 		return ret;
 	}
+=======
+	pcie->phy = devm_phy_optional_get(dev, "pcie-phy");
+	if (IS_ERR(pcie->phy))
+		return PTR_ERR(pcie->phy);
+>>>>>>> upstream/android-13
 
 	/* PAXC doesn't support legacy IRQs, skip mapping */
 	switch (pcie->type) {
 	case IPROC_PCIE_PAXC:
 	case IPROC_PCIE_PAXC_V2:
+<<<<<<< HEAD
 		break;
 	default:
 		pcie->map_irq = of_irq_parse_and_map_pci;
@@ -120,6 +134,17 @@ static int iproc_pcie_pltfm_probe(struct platform_device *pdev)
 	if (ret) {
 		dev_err(dev, "PCIe controller setup failed\n");
 		pci_free_resource_list(&resources);
+=======
+		pcie->map_irq = NULL;
+		break;
+	default:
+		break;
+	}
+
+	ret = iproc_pcie_setup(pcie, &bridge->windows);
+	if (ret) {
+		dev_err(dev, "PCIe controller setup failed\n");
+>>>>>>> upstream/android-13
 		return ret;
 	}
 

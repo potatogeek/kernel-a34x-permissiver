@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright 2013, Michael Ellerman, IBM Corp.
  * Licensed under GPLv2.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2013, Michael Ellerman, IBM Corp.
+>>>>>>> upstream/android-13
  */
 
 #include <errno.h>
@@ -21,6 +27,10 @@
 
 #define KILL_TIMEOUT	5
 
+<<<<<<< HEAD
+=======
+/* Setting timeout to -1 disables the alarm */
+>>>>>>> upstream/android-13
 static uint64_t timeout = 120;
 
 int run_test(int (test_function)(void), char *name)
@@ -43,8 +53,14 @@ int run_test(int (test_function)(void), char *name)
 
 	setpgid(pid, pid);
 
+<<<<<<< HEAD
 	/* Wake us up in timeout seconds */
 	alarm(timeout);
+=======
+	if (timeout != -1)
+		/* Wake us up in timeout seconds */
+		alarm(timeout);
+>>>>>>> upstream/android-13
 	terminated = false;
 
 wait:

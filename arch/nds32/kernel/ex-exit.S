@@ -8,6 +8,10 @@
 #include <asm/asm-offsets.h>
 #include <asm/thread_info.h>
 #include <asm/current.h>
+<<<<<<< HEAD
+=======
+#include <asm/fpu.h>
+>>>>>>> upstream/android-13
 
 
 
@@ -22,10 +26,25 @@
 	.macro	restore_user_regs_first
 	setgie.d
 	isb
+<<<<<<< HEAD
 
 	addi	$sp, $sp, FUCOP_CTL_OFFSET
 
 	lmw.adm $r12, [$sp], $r24, #0x0
+=======
+#if defined(CONFIG_FPU)
+	addi    $sp, $sp, OSP_OFFSET
+	lmw.adm $r12, [$sp], $r25, #0x0
+	sethi   $p0, hi20(has_fpu)
+	lbsi 	$p0, [$p0+lo12(has_fpu)]
+	beqz	$p0, 2f
+	mtsr    $r25, $FUCOP_CTL
+2:
+#else
+	addi	$sp, $sp, FUCOP_CTL_OFFSET
+	lmw.adm $r12, [$sp], $r24, #0x0
+#endif
+>>>>>>> upstream/android-13
 	mtsr	$r12, $SP_USR
 	mtsr	$r13, $IPC
 #ifdef CONFIG_HWZOL
@@ -63,7 +82,11 @@
 	restore_user_regs_last
 	.endm
 
+<<<<<<< HEAD
 #ifdef CONFIG_PREEMPT
+=======
+#ifdef CONFIG_PREEMPTION
+>>>>>>> upstream/android-13
 	.macro	preempt_stop
 	.endm
 #else
@@ -111,7 +134,11 @@ work_pending:
 	andi	$p1, $r1, #_TIF_NEED_RESCHED
 	bnez	$p1, work_resched
 
+<<<<<<< HEAD
 	andi	$p1, $r1, #_TIF_SIGPENDING|#_TIF_NOTIFY_RESUME
+=======
+	andi	$p1, $r1, #_TIF_SIGPENDING|#_TIF_NOTIFY_RESUME|#_TIF_NOTIFY_SIGNAL
+>>>>>>> upstream/android-13
 	beqz	$p1, no_work_pending
 
 	move	$r0, $sp			! 'regs'
@@ -149,12 +176,20 @@ no_work_pending:
 /*
  * preemptive kernel
  */
+<<<<<<< HEAD
 #ifdef CONFIG_PREEMPT
+=======
+#ifdef CONFIG_PREEMPTION
+>>>>>>> upstream/android-13
 resume_kernel:
 	gie_disable
 	lwi	$t0, [tsk+#TSK_TI_PREEMPT]
 	bnez	$t0, no_work_pending
+<<<<<<< HEAD
 need_resched:
+=======
+
+>>>>>>> upstream/android-13
 	lwi	$t0, [tsk+#TSK_TI_FLAGS]
 	andi	$p1, $t0, #_TIF_NEED_RESCHED
 	beqz	$p1, no_work_pending
@@ -164,7 +199,11 @@ need_resched:
 	beqz	$t0, no_work_pending
 
 	jal	preempt_schedule_irq
+<<<<<<< HEAD
 	b	need_resched
+=======
+	b	no_work_pending
+>>>>>>> upstream/android-13
 #endif
 
 /*

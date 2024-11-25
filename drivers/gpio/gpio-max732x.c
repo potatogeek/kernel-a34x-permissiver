@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  MAX732x I2C Port Expander with 8/16 I/O
  *
@@ -7,10 +11,13 @@
  *  Copyright (C) 2015 Linus Walleij <linus.walleij@linaro.org>
  *
  *  Derived from drivers/gpio/pca953x.c
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; version 2 of the License.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -506,6 +513,11 @@ static int max732x_irq_setup(struct max732x_chip *chip,
 
 	if (((pdata && pdata->irq_base) || client->irq)
 			&& has_irq != INT_NONE) {
+<<<<<<< HEAD
+=======
+		struct gpio_irq_chip *girq;
+
+>>>>>>> upstream/android-13
 		if (pdata)
 			irq_base = pdata->irq_base;
 		chip->irq_features = has_irq;
@@ -520,6 +532,7 @@ static int max732x_irq_setup(struct max732x_chip *chip,
 				client->irq);
 			return ret;
 		}
+<<<<<<< HEAD
 		ret =  gpiochip_irqchip_add_nested(&chip->gpio_chip,
 						   &max732x_irq_chip,
 						   irq_base,
@@ -533,6 +546,19 @@ static int max732x_irq_setup(struct max732x_chip *chip,
 		gpiochip_set_nested_irqchip(&chip->gpio_chip,
 					    &max732x_irq_chip,
 					    client->irq);
+=======
+
+		girq = &chip->gpio_chip.irq;
+		girq->chip = &max732x_irq_chip;
+		/* This will let us handle the parent IRQ in the driver */
+		girq->parent_handler = NULL;
+		girq->num_parents = 0;
+		girq->parents = NULL;
+		girq->default_type = IRQ_TYPE_NONE;
+		girq->handler = handle_simple_irq;
+		girq->threaded = true;
+		girq->first = irq_base; /* FIXME: get rid of this */
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -652,12 +678,21 @@ static int max732x_probe(struct i2c_client *client,
 	case 0x60:
 		chip->client_group_a = client;
 		if (nr_port > 8) {
+<<<<<<< HEAD
 			c = i2c_new_dummy(client->adapter, addr_b);
 			if (!c) {
 				dev_err(&client->dev,
 					"Failed to allocate I2C device\n");
 				ret = -ENODEV;
 				goto out_failed;
+=======
+			c = devm_i2c_new_dummy_device(&client->dev,
+						      client->adapter, addr_b);
+			if (IS_ERR(c)) {
+				dev_err(&client->dev,
+					"Failed to allocate I2C device\n");
+				return PTR_ERR(c);
+>>>>>>> upstream/android-13
 			}
 			chip->client_group_b = chip->client_dummy = c;
 		}
@@ -665,12 +700,21 @@ static int max732x_probe(struct i2c_client *client,
 	case 0x50:
 		chip->client_group_b = client;
 		if (nr_port > 8) {
+<<<<<<< HEAD
 			c = i2c_new_dummy(client->adapter, addr_a);
 			if (!c) {
 				dev_err(&client->dev,
 					"Failed to allocate I2C device\n");
 				ret = -ENODEV;
 				goto out_failed;
+=======
+			c = devm_i2c_new_dummy_device(&client->dev,
+						      client->adapter, addr_a);
+			if (IS_ERR(c)) {
+				dev_err(&client->dev,
+					"Failed to allocate I2C device\n");
+				return PTR_ERR(c);
+>>>>>>> upstream/android-13
 			}
 			chip->client_group_a = chip->client_dummy = c;
 		}
@@ -678,21 +722,30 @@ static int max732x_probe(struct i2c_client *client,
 	default:
 		dev_err(&client->dev, "invalid I2C address specified %02x\n",
 				client->addr);
+<<<<<<< HEAD
 		ret = -EINVAL;
 		goto out_failed;
+=======
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 
 	if (nr_port > 8 && !chip->client_dummy) {
 		dev_err(&client->dev,
 			"Failed to allocate second group I2C device\n");
+<<<<<<< HEAD
 		ret = -ENODEV;
 		goto out_failed;
+=======
+		return -ENODEV;
+>>>>>>> upstream/android-13
 	}
 
 	mutex_init(&chip->lock);
 
 	ret = max732x_readb(chip, is_group_a(chip, 0), &chip->reg_out[0]);
 	if (ret)
+<<<<<<< HEAD
 		goto out_failed;
 	if (nr_port > 8) {
 		ret = max732x_readb(chip, is_group_a(chip, 8), &chip->reg_out[1]);
@@ -711,6 +764,24 @@ static int max732x_probe(struct i2c_client *client,
 	}
 
 	if (pdata && pdata->setup) {
+=======
+		return ret;
+	if (nr_port > 8) {
+		ret = max732x_readb(chip, is_group_a(chip, 8), &chip->reg_out[1]);
+		if (ret)
+			return ret;
+	}
+
+	ret = max732x_irq_setup(chip, id);
+	if (ret)
+		return ret;
+
+	ret = devm_gpiochip_add_data(&client->dev, &chip->gpio_chip, chip);
+	if (ret)
+		return ret;
+
+	if (pdata->setup) {
+>>>>>>> upstream/android-13
 		ret = pdata->setup(client, chip->gpio_chip.base,
 				chip->gpio_chip.ngpio, pdata->context);
 		if (ret < 0)
@@ -719,10 +790,13 @@ static int max732x_probe(struct i2c_client *client,
 
 	i2c_set_clientdata(client, chip);
 	return 0;
+<<<<<<< HEAD
 
 out_failed:
 	i2c_unregister_device(chip->client_dummy);
 	return ret;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int max732x_remove(struct i2c_client *client)
@@ -742,11 +816,14 @@ static int max732x_remove(struct i2c_client *client)
 		}
 	}
 
+<<<<<<< HEAD
 	gpiochip_remove(&chip->gpio_chip);
 
 	/* unregister any dummy i2c_client */
 	i2c_unregister_device(chip->client_dummy);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 

@@ -1,9 +1,16 @@
 # SPDX-License-Identifier: GPL-2.0
 OBJECT_FILES_NON_STANDARD := y
+<<<<<<< HEAD
 CFLAGS_empty.o += $(DISABLE_LTO)
 
 hostprogs-y	:= modpost mk_elfconfig
 always		:= $(hostprogs-y) empty.o
+=======
+CFLAGS_REMOVE_empty.o += $(CC_FLAGS_LTO)
+
+hostprogs-always-y	+= modpost mk_elfconfig
+always-y		+= empty.o
+>>>>>>> upstream/android-13
 
 modpost-objs	:= modpost.o file2alias.o sumversion.o
 

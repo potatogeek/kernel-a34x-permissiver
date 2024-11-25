@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) ST-Ericsson AB 2010
  * Author:	Sjur Brendeland
  * License terms: GNU General Public License (GPL) version 2
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) ST-Ericsson AB 2010
+ * Author:	Sjur Brendeland
+>>>>>>> upstream/android-13
  */
 
 #ifndef CFPKT_H_

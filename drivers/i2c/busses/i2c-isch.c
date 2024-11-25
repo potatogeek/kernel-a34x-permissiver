@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
     i2c-isch.c - Linux kernel driver for Intel SCH chipset SMBus
     - Based on i2c-piix4.c
@@ -6,6 +10,7 @@
     - Intel SCH support
     Copyright (c) 2007 - 2008 Jacob Jun Pan <jacob.jun.pan@intel.com>
 
+<<<<<<< HEAD
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License version 2 as
     published by the Free Software Foundation.
@@ -14,6 +19,8 @@
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
 */
 
 /*
@@ -30,7 +37,10 @@
 #include <linux/ioport.h>
 #include <linux/i2c.h>
 #include <linux/io.h>
+<<<<<<< HEAD
 #include <linux/acpi.h>
+=======
+>>>>>>> upstream/android-13
 
 /* SCH SMBus address offsets */
 #define SMBHSTCNT	(0 + sch_smba)

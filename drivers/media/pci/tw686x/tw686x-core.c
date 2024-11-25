@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2015 VanguardiaSur - www.vanguardiasur.com.ar
  *
@@ -5,10 +9,13 @@
  * Copyright (C) 2015 Industrial Research Institute for Automation
  * and Measurements PIAP
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License
  * as published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Notes
  * -----
  *
@@ -279,7 +286,11 @@ static int tw686x_probe(struct pci_dev *pci_dev,
 	}
 
 	pci_set_master(pci_dev);
+<<<<<<< HEAD
 	err = pci_set_dma_mask(pci_dev, DMA_BIT_MASK(32));
+=======
+	err = dma_set_mask(&pci_dev->dev, DMA_BIT_MASK(32));
+>>>>>>> upstream/android-13
 	if (err) {
 		dev_err(&pci_dev->dev, "32-bit PCI DMA not supported\n");
 		err = -EIO;

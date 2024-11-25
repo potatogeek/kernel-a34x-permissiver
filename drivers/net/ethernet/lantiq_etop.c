@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *   This program is free software; you can redistribute it and/or modify it
  *   under the terms of the GNU General Public License version 2 as published
@@ -10,6 +11,10 @@
  *
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  *
  *   Copyright (C) 2011 John Crispin <blogic@openwrt.org>
  */
@@ -112,10 +117,19 @@ struct ltq_etop_priv {
 static int
 ltq_etop_alloc_skb(struct ltq_etop_chan *ch)
 {
+<<<<<<< HEAD
 	ch->skb[ch->dma.desc] = netdev_alloc_skb(ch->netdev, MAX_DMA_DATA_LEN);
 	if (!ch->skb[ch->dma.desc])
 		return -ENOMEM;
 	ch->dma.desc_base[ch->dma.desc].addr = dma_map_single(NULL,
+=======
+	struct ltq_etop_priv *priv = netdev_priv(ch->netdev);
+
+	ch->skb[ch->dma.desc] = netdev_alloc_skb(ch->netdev, MAX_DMA_DATA_LEN);
+	if (!ch->skb[ch->dma.desc])
+		return -ENOMEM;
+	ch->dma.desc_base[ch->dma.desc].addr = dma_map_single(&priv->pdev->dev,
+>>>>>>> upstream/android-13
 		ch->skb[ch->dma.desc]->data, MAX_DMA_DATA_LEN,
 		DMA_FROM_DEVICE);
 	ch->dma.desc_base[ch->dma.desc].addr =
@@ -365,6 +379,7 @@ ltq_etop_mdio_probe(struct net_device *dev)
 		return PTR_ERR(phydev);
 	}
 
+<<<<<<< HEAD
 	phydev->supported &= (SUPPORTED_10baseT_Half
 			      | SUPPORTED_10baseT_Full
 			      | SUPPORTED_100baseT_Half
@@ -374,6 +389,10 @@ ltq_etop_mdio_probe(struct net_device *dev)
 			      | SUPPORTED_TP);
 
 	phydev->advertising = phydev->supported;
+=======
+	phy_set_max_speed(phydev, SPEED_100);
+
+>>>>>>> upstream/android-13
 	phy_attached_info(phydev);
 
 	return 0;
@@ -439,6 +458,10 @@ ltq_etop_open(struct net_device *dev)
 		if (!IS_TX(i) && (!IS_RX(i)))
 			continue;
 		ltq_dma_open(&ch->dma);
+<<<<<<< HEAD
+=======
+		ltq_dma_enable_irq(&ch->dma);
+>>>>>>> upstream/android-13
 		napi_enable(&ch->napi);
 	}
 	phy_start(dev->phydev);
@@ -493,7 +516,11 @@ ltq_etop_tx(struct sk_buff *skb, struct net_device *dev)
 	netif_trans_update(dev);
 
 	spin_lock_irqsave(&priv->lock, flags);
+<<<<<<< HEAD
 	desc->addr = ((unsigned int) dma_map_single(NULL, skb->data, len,
+=======
+	desc->addr = ((unsigned int) dma_map_single(&priv->pdev->dev, skb->data, len,
+>>>>>>> upstream/android-13
 						DMA_TO_DEVICE)) - byte_offset;
 	wmb();
 	desc->ctl = LTQ_DMA_OWN | LTQ_DMA_SOP | LTQ_DMA_EOP |
@@ -524,6 +551,7 @@ ltq_etop_change_mtu(struct net_device *dev, int new_mtu)
 }
 
 static int
+<<<<<<< HEAD
 ltq_etop_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 {
 	/* TODO: mii-toll reports "No MII transceiver present!." ?!*/
@@ -531,6 +559,8 @@ ltq_etop_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 }
 
 static int
+=======
+>>>>>>> upstream/android-13
 ltq_etop_set_mac_address(struct net_device *dev, void *p)
 {
 	int ret = eth_mac_addr(dev, p);
@@ -608,7 +638,11 @@ err_hw:
 }
 
 static void
+<<<<<<< HEAD
 ltq_etop_tx_timeout(struct net_device *dev)
+=======
+ltq_etop_tx_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	int err;
 
@@ -630,7 +664,11 @@ static const struct net_device_ops ltq_eth_netdev_ops = {
 	.ndo_stop = ltq_etop_stop,
 	.ndo_start_xmit = ltq_etop_tx,
 	.ndo_change_mtu = ltq_etop_change_mtu,
+<<<<<<< HEAD
 	.ndo_do_ioctl = ltq_etop_ioctl,
+=======
+	.ndo_eth_ioctl = phy_do_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_set_mac_address = ltq_etop_set_mac_address,
 	.ndo_validate_addr = eth_validate_addr,
 	.ndo_set_rx_mode = ltq_etop_set_multicast_list,
@@ -663,7 +701,11 @@ ltq_etop_probe(struct platform_device *pdev)
 		goto err_out;
 	}
 
+<<<<<<< HEAD
 	ltq_etop_membase = devm_ioremap_nocache(&pdev->dev,
+=======
+	ltq_etop_membase = devm_ioremap(&pdev->dev,
+>>>>>>> upstream/android-13
 		res->start, resource_size(res));
 	if (!ltq_etop_membase) {
 		dev_err(&pdev->dev, "failed to remap etop engine %d\n",

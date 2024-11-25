@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * drivers/hwmon/applesmc.c - driver for Apple's SMC (accelerometer, temperature
  * sensors, fan control, keyboard backlight control) used in Intel-based Apple
@@ -12,6 +16,7 @@
  *
  * Fan control based on smcFanControl:
  * Copyright (C) 2006 Hendrik Holtmann <holtmann@mac.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License v2 as published by the
@@ -25,13 +30,19 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
 #include <linux/delay.h>
 #include <linux/platform_device.h>
+<<<<<<< HEAD
 #include <linux/input-polldev.h>
+=======
+#include <linux/input.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/slab.h>
 #include <linux/module.h>
@@ -44,6 +55,10 @@
 #include <linux/hwmon.h>
 #include <linux/workqueue.h>
 #include <linux/err.h>
+<<<<<<< HEAD
+=======
+#include <linux/bits.h>
+>>>>>>> upstream/android-13
 
 /* data port used by Apple SMC */
 #define APPLESMC_DATA_PORT	0x300
@@ -54,10 +69,20 @@
 
 #define APPLESMC_MAX_DATA_LENGTH 32
 
+<<<<<<< HEAD
 /* wait up to 128 ms for a status change. */
 #define APPLESMC_MIN_WAIT	0x0010
 #define APPLESMC_RETRY_WAIT	0x0100
 #define APPLESMC_MAX_WAIT	0x20000
+=======
+/* Apple SMC status bits */
+#define SMC_STATUS_AWAITING_DATA  BIT(0) /* SMC has data waiting to be read */
+#define SMC_STATUS_IB_CLOSED      BIT(1) /* Will ignore any input */
+#define SMC_STATUS_BUSY           BIT(2) /* Command in progress */
+
+/* Initial wait is 8us */
+#define APPLESMC_MIN_WAIT      0x0008
+>>>>>>> upstream/android-13
 
 #define APPLESMC_READ_CMD	0x10
 #define APPLESMC_WRITE_CMD	0x11
@@ -152,7 +177,11 @@ static s16 rest_y;
 static u8 backlight_state[2];
 
 static struct device *hwmon_dev;
+<<<<<<< HEAD
 static struct input_polled_dev *applesmc_idev;
+=======
+static struct input_dev *applesmc_idev;
+>>>>>>> upstream/android-13
 
 /*
  * Last index written to key_at_index sysfs file, and value to use for all other
@@ -163,6 +192,7 @@ static unsigned int key_at_index;
 static struct workqueue_struct *applesmc_led_wq;
 
 /*
+<<<<<<< HEAD
  * wait_read - Wait for a byte to appear on SMC port. Callers must
  * hold applesmc_lock.
  */
@@ -216,6 +246,86 @@ static int send_byte(u8 cmd, u16 port)
 static int send_command(u8 cmd)
 {
 	return send_byte(cmd, APPLESMC_CMD_PORT);
+=======
+ * Wait for specific status bits with a mask on the SMC.
+ * Used before all transactions.
+ * This does 10 fast loops of 8us then exponentially backs off for a
+ * minimum total wait of 262ms. Depending on usleep_range this could
+ * run out past 500ms.
+ */
+
+static int wait_status(u8 val, u8 mask)
+{
+	u8 status;
+	int us;
+	int i;
+
+	us = APPLESMC_MIN_WAIT;
+	for (i = 0; i < 24 ; i++) {
+		status = inb(APPLESMC_CMD_PORT);
+		if ((status & mask) == val)
+			return 0;
+		usleep_range(us, us * 2);
+		if (i > 9)
+			us <<= 1;
+	}
+	return -EIO;
+}
+
+/* send_byte - Write to SMC data port. Callers must hold applesmc_lock. */
+
+static int send_byte(u8 cmd, u16 port)
+{
+	int status;
+
+	status = wait_status(0, SMC_STATUS_IB_CLOSED);
+	if (status)
+		return status;
+	/*
+	 * This needs to be a separate read looking for bit 0x04
+	 * after bit 0x02 falls. If consolidated with the wait above
+	 * this extra read may not happen if status returns both
+	 * simultaneously and this would appear to be required.
+	 */
+	status = wait_status(SMC_STATUS_BUSY, SMC_STATUS_BUSY);
+	if (status)
+		return status;
+
+	outb(cmd, port);
+	return 0;
+}
+
+/* send_command - Write a command to the SMC. Callers must hold applesmc_lock. */
+
+static int send_command(u8 cmd)
+{
+	int ret;
+
+	ret = wait_status(0, SMC_STATUS_IB_CLOSED);
+	if (ret)
+		return ret;
+	outb(cmd, APPLESMC_CMD_PORT);
+	return 0;
+}
+
+/*
+ * Based on logic from the Apple driver. This is issued before any interaction
+ * If busy is stuck high, issue a read command to reset the SMC state machine.
+ * If busy is stuck high after the command then the SMC is jammed.
+ */
+
+static int smc_sane(void)
+{
+	int ret;
+
+	ret = wait_status(0, SMC_STATUS_BUSY);
+	if (!ret)
+		return ret;
+	ret = send_command(APPLESMC_READ_CMD);
+	if (ret)
+		return ret;
+	return wait_status(0, SMC_STATUS_BUSY);
+>>>>>>> upstream/android-13
 }
 
 static int send_argument(const char *key)
@@ -232,6 +342,14 @@ static int read_smc(u8 cmd, const char *key, u8 *buffer, u8 len)
 {
 	u8 status, data = 0;
 	int i;
+<<<<<<< HEAD
+=======
+	int ret;
+
+	ret = smc_sane();
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	if (send_command(cmd) || send_argument(key)) {
 		pr_warn("%.4s: read arg fail\n", key);
@@ -245,7 +363,12 @@ static int read_smc(u8 cmd, const char *key, u8 *buffer, u8 len)
 	}
 
 	for (i = 0; i < len; i++) {
+<<<<<<< HEAD
 		if (wait_read()) {
+=======
+		if (wait_status(SMC_STATUS_AWAITING_DATA | SMC_STATUS_BUSY,
+				SMC_STATUS_AWAITING_DATA | SMC_STATUS_BUSY)) {
+>>>>>>> upstream/android-13
 			pr_warn("%.4s: read data[%d] fail\n", key, i);
 			return -EIO;
 		}
@@ -256,19 +379,35 @@ static int read_smc(u8 cmd, const char *key, u8 *buffer, u8 len)
 	for (i = 0; i < 16; i++) {
 		udelay(APPLESMC_MIN_WAIT);
 		status = inb(APPLESMC_CMD_PORT);
+<<<<<<< HEAD
 		if (!(status & 0x01))
+=======
+		if (!(status & SMC_STATUS_AWAITING_DATA))
+>>>>>>> upstream/android-13
 			break;
 		data = inb(APPLESMC_DATA_PORT);
 	}
 	if (i)
 		pr_warn("flushed %d bytes, last value is: %d\n", i, data);
 
+<<<<<<< HEAD
 	return 0;
+=======
+	return wait_status(0, SMC_STATUS_BUSY);
+>>>>>>> upstream/android-13
 }
 
 static int write_smc(u8 cmd, const char *key, const u8 *buffer, u8 len)
 {
 	int i;
+<<<<<<< HEAD
+=======
+	int ret;
+
+	ret = smc_sane();
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	if (send_command(cmd) || send_argument(key)) {
 		pr_warn("%s: write arg fail\n", key);
@@ -287,7 +426,11 @@ static int write_smc(u8 cmd, const char *key, const u8 *buffer, u8 len)
 		}
 	}
 
+<<<<<<< HEAD
 	return 0;
+=======
+	return wait_status(0, SMC_STATUS_BUSY);
+>>>>>>> upstream/android-13
 }
 
 static int read_register_count(unsigned int *count)
@@ -537,7 +680,11 @@ static int applesmc_init_index(struct applesmc_registers *s)
 static int applesmc_init_smcreg_try(void)
 {
 	struct applesmc_registers *s = &smcreg;
+<<<<<<< HEAD
 	bool left_light_sensor = 0, right_light_sensor = 0;
+=======
+	bool left_light_sensor = false, right_light_sensor = false;
+>>>>>>> upstream/android-13
 	unsigned int count;
 	u8 tmp[1];
 	int ret;
@@ -693,9 +840,14 @@ static void applesmc_calibrate(void)
 	rest_x = -rest_x;
 }
 
+<<<<<<< HEAD
 static void applesmc_idev_poll(struct input_polled_dev *dev)
 {
 	struct input_dev *idev = dev->input;
+=======
+static void applesmc_idev_poll(struct input_dev *idev)
+{
+>>>>>>> upstream/android-13
 	s16 x, y;
 
 	if (applesmc_read_s16(MOTION_SENSOR_X_KEY, &x))
@@ -714,7 +866,11 @@ static void applesmc_idev_poll(struct input_polled_dev *dev)
 static ssize_t applesmc_name_show(struct device *dev,
 				   struct device_attribute *attr, char *buf)
 {
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "applesmc\n");
+=======
+	return sysfs_emit(buf, "applesmc\n");
+>>>>>>> upstream/android-13
 }
 
 static ssize_t applesmc_position_show(struct device *dev,
@@ -736,8 +892,13 @@ static ssize_t applesmc_position_show(struct device *dev,
 out:
 	if (ret)
 		return ret;
+<<<<<<< HEAD
 	else
 		return snprintf(buf, PAGE_SIZE, "(%d,%d,%d)\n", x, y, z);
+=======
+
+	return sysfs_emit(buf, "(%d,%d,%d)\n", x, y, z);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t applesmc_light_show(struct device *dev,
@@ -777,8 +938,13 @@ static ssize_t applesmc_light_show(struct device *dev,
 out:
 	if (ret)
 		return ret;
+<<<<<<< HEAD
 	else
 		return snprintf(sysfsbuf, PAGE_SIZE, "(%d,%d)\n", left, right);
+=======
+
+	return sysfs_emit(sysfsbuf, "(%d,%d)\n", left, right);
+>>>>>>> upstream/android-13
 }
 
 /* Displays sensor key as label */
@@ -787,7 +953,11 @@ static ssize_t applesmc_show_sensor_label(struct device *dev,
 {
 	const char *key = smcreg.index[to_index(devattr)];
 
+<<<<<<< HEAD
 	return snprintf(sysfsbuf, PAGE_SIZE, "%s\n", key);
+=======
+	return sysfs_emit(sysfsbuf, "%s\n", key);
+>>>>>>> upstream/android-13
 }
 
 /* Displays degree Celsius * 1000 */
@@ -805,7 +975,11 @@ static ssize_t applesmc_show_temperature(struct device *dev,
 
 	temp = 250 * (value >> 6);
 
+<<<<<<< HEAD
 	return snprintf(sysfsbuf, PAGE_SIZE, "%d\n", temp);
+=======
+	return sysfs_emit(sysfsbuf, "%d\n", temp);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t applesmc_show_fan_speed(struct device *dev,
@@ -824,7 +998,11 @@ static ssize_t applesmc_show_fan_speed(struct device *dev,
 		return ret;
 
 	speed = ((buffer[0] << 8 | buffer[1]) >> 2);
+<<<<<<< HEAD
 	return snprintf(sysfsbuf, PAGE_SIZE, "%u\n", speed);
+=======
+	return sysfs_emit(sysfsbuf, "%u\n", speed);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t applesmc_store_fan_speed(struct device *dev,
@@ -864,7 +1042,11 @@ static ssize_t applesmc_show_fan_manual(struct device *dev,
 		return ret;
 
 	manual = ((buffer[0] << 8 | buffer[1]) >> to_index(attr)) & 0x01;
+<<<<<<< HEAD
 	return snprintf(sysfsbuf, PAGE_SIZE, "%d\n", manual);
+=======
+	return sysfs_emit(sysfsbuf, "%d\n", manual);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t applesmc_store_fan_manual(struct device *dev,
@@ -916,14 +1098,23 @@ static ssize_t applesmc_show_fan_position(struct device *dev,
 
 	if (ret)
 		return ret;
+<<<<<<< HEAD
 	else
 		return snprintf(sysfsbuf, PAGE_SIZE, "%s\n", buffer+4);
+=======
+
+	return sysfs_emit(sysfsbuf, "%s\n", buffer + 4);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t applesmc_calibrate_show(struct device *dev,
 				struct device_attribute *attr, char *sysfsbuf)
 {
+<<<<<<< HEAD
 	return snprintf(sysfsbuf, PAGE_SIZE, "(%d,%d)\n", rest_x, rest_y);
+=======
+	return sysfs_emit(sysfsbuf, "(%d,%d)\n", rest_x, rest_y);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t applesmc_calibrate_store(struct device *dev,
@@ -965,7 +1156,11 @@ static ssize_t applesmc_key_count_show(struct device *dev,
 
 	count = ((u32)buffer[0]<<24) + ((u32)buffer[1]<<16) +
 						((u32)buffer[2]<<8) + buffer[3];
+<<<<<<< HEAD
 	return snprintf(sysfsbuf, PAGE_SIZE, "%d\n", count);
+=======
+	return sysfs_emit(sysfsbuf, "%d\n", count);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t applesmc_key_at_index_read_show(struct device *dev,
@@ -993,7 +1188,11 @@ static ssize_t applesmc_key_at_index_data_length_show(struct device *dev,
 	if (IS_ERR(entry))
 		return PTR_ERR(entry);
 
+<<<<<<< HEAD
 	return snprintf(sysfsbuf, PAGE_SIZE, "%d\n", entry->len);
+=======
+	return sysfs_emit(sysfsbuf, "%d\n", entry->len);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t applesmc_key_at_index_type_show(struct device *dev,
@@ -1005,7 +1204,11 @@ static ssize_t applesmc_key_at_index_type_show(struct device *dev,
 	if (IS_ERR(entry))
 		return PTR_ERR(entry);
 
+<<<<<<< HEAD
 	return snprintf(sysfsbuf, PAGE_SIZE, "%s\n", entry->type);
+=======
+	return sysfs_emit(sysfsbuf, "%s\n", entry->type);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t applesmc_key_at_index_name_show(struct device *dev,
@@ -1017,13 +1220,21 @@ static ssize_t applesmc_key_at_index_name_show(struct device *dev,
 	if (IS_ERR(entry))
 		return PTR_ERR(entry);
 
+<<<<<<< HEAD
 	return snprintf(sysfsbuf, PAGE_SIZE, "%s\n", entry->key);
+=======
+	return sysfs_emit(sysfsbuf, "%s\n", entry->key);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t applesmc_key_at_index_show(struct device *dev,
 				struct device_attribute *attr, char *sysfsbuf)
 {
+<<<<<<< HEAD
 	return snprintf(sysfsbuf, PAGE_SIZE, "%d\n", key_at_index);
+=======
+	return sysfs_emit(sysfsbuf, "%d\n", key_at_index);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t applesmc_key_at_index_store(struct device *dev,
@@ -1129,7 +1340,11 @@ static int applesmc_create_nodes(struct applesmc_node_group *groups, int num)
 			attr = &node->sda.dev_attr.attr;
 			sysfs_attr_init(attr);
 			attr->name = node->name;
+<<<<<<< HEAD
 			attr->mode = S_IRUGO | (grp->store ? S_IWUSR : 0);
+=======
+			attr->mode = 0444 | (grp->store ? 0200 : 0);
+>>>>>>> upstream/android-13
 			ret = sysfs_create_file(&pdev->dev.kobj, attr);
 			if (ret) {
 				attr->name = NULL;
@@ -1147,7 +1362,10 @@ out:
 /* Create accelerometer resources */
 static int applesmc_create_accelerometer(void)
 {
+<<<<<<< HEAD
 	struct input_dev *idev;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	if (!smcreg.has_accelerometer)
@@ -1157,19 +1375,27 @@ static int applesmc_create_accelerometer(void)
 	if (ret)
 		goto out;
 
+<<<<<<< HEAD
 	applesmc_idev = input_allocate_polled_device();
+=======
+	applesmc_idev = input_allocate_device();
+>>>>>>> upstream/android-13
 	if (!applesmc_idev) {
 		ret = -ENOMEM;
 		goto out_sysfs;
 	}
 
+<<<<<<< HEAD
 	applesmc_idev->poll = applesmc_idev_poll;
 	applesmc_idev->poll_interval = APPLESMC_POLL_INTERVAL;
 
+=======
+>>>>>>> upstream/android-13
 	/* initial calibrate for the input device */
 	applesmc_calibrate();
 
 	/* initialize the input device */
+<<<<<<< HEAD
 	idev = applesmc_idev->input;
 	idev->name = "applesmc";
 	idev->id.bustype = BUS_HOST;
@@ -1181,13 +1407,34 @@ static int applesmc_create_accelerometer(void)
 			-256, 256, APPLESMC_INPUT_FUZZ, APPLESMC_INPUT_FLAT);
 
 	ret = input_register_polled_device(applesmc_idev);
+=======
+	applesmc_idev->name = "applesmc";
+	applesmc_idev->id.bustype = BUS_HOST;
+	applesmc_idev->dev.parent = &pdev->dev;
+	input_set_abs_params(applesmc_idev, ABS_X,
+			-256, 256, APPLESMC_INPUT_FUZZ, APPLESMC_INPUT_FLAT);
+	input_set_abs_params(applesmc_idev, ABS_Y,
+			-256, 256, APPLESMC_INPUT_FUZZ, APPLESMC_INPUT_FLAT);
+
+	ret = input_setup_polling(applesmc_idev, applesmc_idev_poll);
+	if (ret)
+		goto out_idev;
+
+	input_set_poll_interval(applesmc_idev, APPLESMC_POLL_INTERVAL);
+
+	ret = input_register_device(applesmc_idev);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto out_idev;
 
 	return 0;
 
 out_idev:
+<<<<<<< HEAD
 	input_free_polled_device(applesmc_idev);
+=======
+	input_free_device(applesmc_idev);
+>>>>>>> upstream/android-13
 
 out_sysfs:
 	applesmc_destroy_nodes(accelerometer_group);
@@ -1202,8 +1449,12 @@ static void applesmc_release_accelerometer(void)
 {
 	if (!smcreg.has_accelerometer)
 		return;
+<<<<<<< HEAD
 	input_unregister_polled_device(applesmc_idev);
 	input_free_polled_device(applesmc_idev);
+=======
+	input_unregister_device(applesmc_idev);
+>>>>>>> upstream/android-13
 	applesmc_destroy_nodes(accelerometer_group);
 }
 
@@ -1273,6 +1524,13 @@ static const struct dmi_system_id applesmc_whitelist[] __initconst = {
 	  DMI_MATCH(DMI_BOARD_VENDOR, "Apple"),
 	  DMI_MATCH(DMI_PRODUCT_NAME, "iMac") },
 	},
+<<<<<<< HEAD
+=======
+	{ applesmc_dmi_match, "Apple Xserve", {
+	  DMI_MATCH(DMI_BOARD_VENDOR, "Apple"),
+	  DMI_MATCH(DMI_PRODUCT_NAME, "Xserve") },
+	},
+>>>>>>> upstream/android-13
 	{ .ident = NULL }
 };
 

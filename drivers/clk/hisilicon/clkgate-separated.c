@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Hisilicon clock separated gate driver
  *
@@ -6,6 +10,7 @@
  *
  * Author: Haojian Zhuang <haojian.zhuang@linaro.org>
  *	   Xin Li <li.xin@linaro.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +26,8 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -102,7 +109,11 @@ struct clk *hisi_register_clkgate_sep(struct device *dev, const char *name,
 {
 	struct clkgate_separated *sclk;
 	struct clk *clk;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 
 	sclk = kzalloc(sizeof(*sclk), GFP_KERNEL);
 	if (!sclk)
@@ -110,7 +121,11 @@ struct clk *hisi_register_clkgate_sep(struct device *dev, const char *name,
 
 	init.name = name;
 	init.ops = &clkgate_separated_ops;
+<<<<<<< HEAD
 	init.flags = flags | CLK_IS_BASIC;
+=======
+	init.flags = flags;
+>>>>>>> upstream/android-13
 	init.parent_names = (parent_name ? &parent_name : NULL);
 	init.num_parents = (parent_name ? 1 : 0);
 

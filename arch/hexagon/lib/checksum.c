@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Checksum functions for Hexagon
  *
  * Copyright (c) 2010-2011, The Linux Foundation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -16,6 +21,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*  This was derived from arch/alpha/lib/checksum.c  */
@@ -189,6 +196,7 @@ unsigned int do_csum(const void *voidptr, int len)
 
 	return 0xFFFF & sum0;
 }
+<<<<<<< HEAD
 
 /*
  * copy from ds while checksumming, otherwise like csum_partial
@@ -200,3 +208,5 @@ csum_partial_copy_nocheck(const void *src, void *dst, int len, __wsum sum)
 	return csum_partial(dst, len, sum);
 }
 EXPORT_SYMBOL(csum_partial_copy_nocheck);
+=======
+>>>>>>> upstream/android-13

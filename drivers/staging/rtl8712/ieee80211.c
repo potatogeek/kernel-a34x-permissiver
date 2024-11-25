@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /******************************************************************************
  * ieee80211.c
  *
  * Copyright(c) 2007 - 2010 Realtek Corporation. All rights reserved.
  * Linux device driver for RTL8192SU
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -13,6 +18,8 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
  *
+=======
+>>>>>>> upstream/android-13
  * Modifications for inclusion into the Linux staging tree are
  * Copyright(c) 2010 Larry Finger. All rights reserved.
  *
@@ -164,6 +171,7 @@ static uint r8712_get_rateset_len(u8 *rateset)
 	return i;
 }
 
+<<<<<<< HEAD
 int r8712_generate_ie(struct registry_priv *pregistrypriv)
 {
 	int rate_len;
@@ -171,6 +179,15 @@ int r8712_generate_ie(struct registry_priv *pregistrypriv)
 	struct wlan_bssid_ex *pdev_network = &pregistrypriv->dev_network;
 	u8 *ie = pdev_network->IEs;
 	u16 beaconPeriod = (u16)pdev_network->Configuration.BeaconPeriod;
+=======
+int r8712_generate_ie(struct registry_priv *registrypriv)
+{
+	int rate_len;
+	uint sz = 0;
+	struct wlan_bssid_ex *dev_network = &registrypriv->dev_network;
+	u8 *ie = dev_network->IEs;
+	u16 beaconPeriod = (u16)dev_network->Configuration.BeaconPeriod;
+>>>>>>> upstream/android-13
 
 	/*timestamp will be inserted by hardware*/
 	sz += 8;
@@ -181,6 +198,7 @@ int r8712_generate_ie(struct registry_priv *pregistrypriv)
 	ie += 2;
 	/*capability info*/
 	*(u16 *)ie = 0;
+<<<<<<< HEAD
 	*(__le16 *)ie |= cpu_to_le16(cap_IBSS);
 	if (pregistrypriv->preamble == PREAMBLE_SHORT)
 		*(__le16 *)ie |= cpu_to_le16(cap_ShortPremble);
@@ -213,10 +231,45 @@ int r8712_generate_ie(struct registry_priv *pregistrypriv)
 }
 
 unsigned char *r8712_get_wpa_ie(unsigned char *pie, uint *wpa_ie_len, int limit)
+=======
+	*(__le16 *)ie |= cpu_to_le16(WLAN_CAPABILITY_IBSS);
+	if (registrypriv->preamble == PREAMBLE_SHORT)
+		*(__le16 *)ie |= cpu_to_le16(WLAN_CAPABILITY_SHORT_PREAMBLE);
+	if (dev_network->Privacy)
+		*(__le16 *)ie |= cpu_to_le16(WLAN_CAPABILITY_PRIVACY);
+	sz += 2;
+	ie += 2;
+	/*SSID*/
+	ie = r8712_set_ie(ie, WLAN_EID_SSID, dev_network->Ssid.SsidLength,
+			  dev_network->Ssid.Ssid, &sz);
+	/*supported rates*/
+	set_supported_rate(dev_network->rates, registrypriv->wireless_mode);
+	rate_len = r8712_get_rateset_len(dev_network->rates);
+	if (rate_len > 8) {
+		ie = r8712_set_ie(ie, WLAN_EID_SUPP_RATES, 8,
+				  dev_network->rates, &sz);
+		ie = r8712_set_ie(ie, WLAN_EID_EXT_SUPP_RATES, (rate_len - 8),
+				  (dev_network->rates + 8), &sz);
+	} else {
+		ie = r8712_set_ie(ie, WLAN_EID_SUPP_RATES,
+				  rate_len, dev_network->rates, &sz);
+	}
+	/*DS parameter set*/
+	ie = r8712_set_ie(ie, WLAN_EID_DS_PARAMS, 1,
+			  (u8 *)&dev_network->Configuration.DSConfig, &sz);
+	/*IBSS Parameter Set*/
+	ie = r8712_set_ie(ie, WLAN_EID_IBSS_PARAMS, 2,
+			  (u8 *)&dev_network->Configuration.ATIMWindow, &sz);
+	return sz;
+}
+
+unsigned char *r8712_get_wpa_ie(unsigned char *ie, uint *wpa_ie_len, int limit)
+>>>>>>> upstream/android-13
 {
 	u32 len;
 	u16 val16;
 	unsigned char wpa_oui_type[] = {0x00, 0x50, 0xf2, 0x01};
+<<<<<<< HEAD
 	u8 *pbuf = pie;
 
 	while (1) {
@@ -233,20 +286,50 @@ unsigned char *r8712_get_wpa_ie(unsigned char *pie, uint *wpa_ie_len, int limit)
 				goto check_next_ie;
 			*wpa_ie_len = *(pbuf + 1);
 			return pbuf;
+=======
+	u8 *buf = ie;
+
+	while (1) {
+		buf = r8712_get_ie(buf, _WPA_IE_ID_, &len, limit);
+		if (buf) {
+			/*check if oui matches...*/
+			if (memcmp((buf + 2), wpa_oui_type,
+				   sizeof(wpa_oui_type)))
+				goto check_next_ie;
+			/*check version...*/
+			memcpy((u8 *)&val16, (buf + 6), sizeof(val16));
+			le16_to_cpus(&val16);
+			if (val16 != 0x0001)
+				goto check_next_ie;
+			*wpa_ie_len = *(buf + 1);
+			return buf;
+>>>>>>> upstream/android-13
 		}
 		*wpa_ie_len = 0;
 		return NULL;
 check_next_ie:
+<<<<<<< HEAD
 		limit = limit - (pbuf - pie) - 2 - len;
 		if (limit <= 0)
 			break;
 		pbuf += (2 + len);
+=======
+		limit = limit - (buf - ie) - 2 - len;
+		if (limit <= 0)
+			break;
+		buf += (2 + len);
+>>>>>>> upstream/android-13
 	}
 	*wpa_ie_len = 0;
 	return NULL;
 }
 
+<<<<<<< HEAD
 unsigned char *r8712_get_wpa2_ie(unsigned char *pie, uint *rsn_ie_len, int limit)
+=======
+unsigned char *r8712_get_wpa2_ie(unsigned char *pie, uint *rsn_ie_len,
+				 int limit)
+>>>>>>> upstream/android-13
 {
 	return r8712_get_ie(pie, _WPA2_IE_ID_, rsn_ie_len, limit);
 }
@@ -290,12 +373,20 @@ int r8712_parse_wpa_ie(u8 *wpa_ie, int wpa_ie_len, int *group_cipher,
 
 	if (wpa_ie_len <= 0) {
 		/* No WPA IE - fail silently */
+<<<<<<< HEAD
 		return _FAIL;
+=======
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 	if ((*wpa_ie != _WPA_IE_ID_) ||
 	    (*(wpa_ie + 1) != (u8)(wpa_ie_len - 2)) ||
 	    (memcmp(wpa_ie + 2, (void *)WPA_OUI_TYPE, WPA_SELECTOR_LEN)))
+<<<<<<< HEAD
 		return _FAIL;
+=======
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	pos = wpa_ie;
 	pos += 8;
 	left = wpa_ie_len - 8;
@@ -305,7 +396,11 @@ int r8712_parse_wpa_ie(u8 *wpa_ie, int wpa_ie_len, int *group_cipher,
 		pos += WPA_SELECTOR_LEN;
 		left -= WPA_SELECTOR_LEN;
 	} else if (left > 0) {
+<<<<<<< HEAD
 		return _FAIL;
+=======
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 	/*pairwise_cipher*/
 	if (left >= 2) {
@@ -313,16 +408,26 @@ int r8712_parse_wpa_ie(u8 *wpa_ie, int wpa_ie_len, int *group_cipher,
 		pos += 2;
 		left -= 2;
 		if (count == 0 || left < count * WPA_SELECTOR_LEN)
+<<<<<<< HEAD
 			return _FAIL;
+=======
+			return -EINVAL;
+>>>>>>> upstream/android-13
 		for (i = 0; i < count; i++) {
 			*pairwise_cipher |= r8712_get_wpa_cipher_suite(pos);
 			pos += WPA_SELECTOR_LEN;
 			left -= WPA_SELECTOR_LEN;
 		}
 	} else if (left == 1) {
+<<<<<<< HEAD
 		return _FAIL;
 	}
 	return _SUCCESS;
+=======
+		return -EINVAL;
+	}
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 int r8712_parse_wpa2_ie(u8 *rsn_ie, int rsn_ie_len, int *group_cipher,
@@ -334,11 +439,19 @@ int r8712_parse_wpa2_ie(u8 *rsn_ie, int rsn_ie_len, int *group_cipher,
 
 	if (rsn_ie_len <= 0) {
 		/* No RSN IE - fail silently */
+<<<<<<< HEAD
 		return _FAIL;
 	}
 	if ((*rsn_ie != _WPA2_IE_ID_) ||
 	    (*(rsn_ie + 1) != (u8)(rsn_ie_len - 2)))
 		return _FAIL;
+=======
+		return -EINVAL;
+	}
+	if ((*rsn_ie != _WPA2_IE_ID_) ||
+	    (*(rsn_ie + 1) != (u8)(rsn_ie_len - 2)))
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	pos = rsn_ie;
 	pos += 4;
 	left = rsn_ie_len - 4;
@@ -348,7 +461,11 @@ int r8712_parse_wpa2_ie(u8 *rsn_ie, int rsn_ie_len, int *group_cipher,
 		pos += RSN_SELECTOR_LEN;
 		left -= RSN_SELECTOR_LEN;
 	} else if (left > 0) {
+<<<<<<< HEAD
 		return _FAIL;
+=======
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 	/*pairwise_cipher*/
 	if (left >= 2) {
@@ -356,16 +473,26 @@ int r8712_parse_wpa2_ie(u8 *rsn_ie, int rsn_ie_len, int *group_cipher,
 		pos += 2;
 		left -= 2;
 		if (count == 0 || left < count * RSN_SELECTOR_LEN)
+<<<<<<< HEAD
 			return _FAIL;
+=======
+			return -EINVAL;
+>>>>>>> upstream/android-13
 		for (i = 0; i < count; i++) {
 			*pairwise_cipher |= r8712_get_wpa2_cipher_suite(pos);
 			pos += RSN_SELECTOR_LEN;
 			left -= RSN_SELECTOR_LEN;
 		}
 	} else if (left == 1) {
+<<<<<<< HEAD
 		return _FAIL;
 	}
 	return _SUCCESS;
+=======
+		return -EINVAL;
+	}
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 int r8712_get_sec_ie(u8 *in_ie, uint in_len, u8 *rsn_ie, u16 *rsn_len,
@@ -416,7 +543,11 @@ int r8712_get_wps_ie(u8 *in_ie, uint in_len, u8 *wps_ie, uint *wps_ielen)
 			match = true;
 			break;
 		}
+<<<<<<< HEAD
 			cnt += in_ie[cnt + 1] + 2; /* goto next */
+=======
+		cnt += in_ie[cnt + 1] + 2; /* goto next */
+>>>>>>> upstream/android-13
 	}
 	return match;
 }

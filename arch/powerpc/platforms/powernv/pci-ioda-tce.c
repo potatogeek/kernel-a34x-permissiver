@@ -17,6 +17,37 @@
 #include <asm/tce.h>
 #include "pci.h"
 
+<<<<<<< HEAD
+=======
+unsigned long pnv_ioda_parse_tce_sizes(struct pnv_phb *phb)
+{
+	struct pci_controller *hose = phb->hose;
+	struct device_node *dn = hose->dn;
+	unsigned long mask = 0;
+	int i, rc, count;
+	u32 val;
+
+	count = of_property_count_u32_elems(dn, "ibm,supported-tce-sizes");
+	if (count <= 0) {
+		mask = SZ_4K | SZ_64K;
+		/* Add 16M for POWER8 by default */
+		if (cpu_has_feature(CPU_FTR_ARCH_207S) &&
+				!cpu_has_feature(CPU_FTR_ARCH_300))
+			mask |= SZ_16M | SZ_256M;
+		return mask;
+	}
+
+	for (i = 0; i < count; i++) {
+		rc = of_property_read_u32_index(dn, "ibm,supported-tce-sizes",
+						i, &val);
+		if (rc == 0)
+			mask |= 1ULL << val;
+	}
+
+	return mask;
+}
+
+>>>>>>> upstream/android-13
 void pnv_pci_setup_iommu_table(struct iommu_table *tbl,
 		void *tce_mem, u64 tce_size,
 		u64 dma_offset, unsigned int page_shift)
@@ -138,7 +169,11 @@ int pnv_tce_xchg(struct iommu_table *tbl, long index,
 	if (!ptce) {
 		ptce = pnv_tce(tbl, false, idx, alloc);
 		if (!ptce)
+<<<<<<< HEAD
 			return alloc ? H_HARDWARE : H_TOO_HARD;
+=======
+			return -ENOMEM;
+>>>>>>> upstream/android-13
 	}
 
 	if (newtce & TCE_PCI_WRITE)
@@ -340,6 +375,7 @@ free_tces_exit:
 	return -ENOMEM;
 }
 
+<<<<<<< HEAD
 static void pnv_iommu_table_group_link_free(struct rcu_head *head)
 {
 	struct iommu_table_group_link *tgl = container_of(head,
@@ -348,6 +384,8 @@ static void pnv_iommu_table_group_link_free(struct rcu_head *head)
 	kfree(tgl);
 }
 
+=======
+>>>>>>> upstream/android-13
 void pnv_pci_unlink_table_and_group(struct iommu_table *tbl,
 		struct iommu_table_group *table_group)
 {
@@ -360,14 +398,28 @@ void pnv_pci_unlink_table_and_group(struct iommu_table *tbl,
 
 	/* Remove link to a group from table's list of attached groups */
 	found = false;
+<<<<<<< HEAD
 	list_for_each_entry_rcu(tgl, &tbl->it_group_list, next) {
 		if (tgl->table_group == table_group) {
 			list_del_rcu(&tgl->next);
 			call_rcu(&tgl->rcu, pnv_iommu_table_group_link_free);
+=======
+
+	rcu_read_lock();
+	list_for_each_entry_rcu(tgl, &tbl->it_group_list, next) {
+		if (tgl->table_group == table_group) {
+			list_del_rcu(&tgl->next);
+			kfree_rcu(tgl, rcu);
+>>>>>>> upstream/android-13
 			found = true;
 			break;
 		}
 	}
+<<<<<<< HEAD
+=======
+	rcu_read_unlock();
+
+>>>>>>> upstream/android-13
 	if (WARN_ON(!found))
 		return;
 
@@ -375,6 +427,10 @@ void pnv_pci_unlink_table_and_group(struct iommu_table *tbl,
 	found = false;
 	for (i = 0; i < IOMMU_TABLE_GROUP_MAX_TABLES; ++i) {
 		if (table_group->tables[i] == tbl) {
+<<<<<<< HEAD
+=======
+			iommu_tce_table_put(tbl);
+>>>>>>> upstream/android-13
 			table_group->tables[i] = NULL;
 			found = true;
 			break;
@@ -400,7 +456,11 @@ long pnv_pci_link_table_and_group(int node, int num,
 	tgl->table_group = table_group;
 	list_add_rcu(&tgl->next, &tbl->it_group_list);
 
+<<<<<<< HEAD
 	table_group->tables[num] = tbl;
+=======
+	table_group->tables[num] = iommu_tce_table_get(tbl);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

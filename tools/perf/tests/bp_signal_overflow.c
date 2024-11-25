@@ -24,7 +24,12 @@
 
 #include "tests.h"
 #include "debug.h"
+<<<<<<< HEAD
 #include "perf.h"
+=======
+#include "event.h"
+#include "../perf-sys.h"
+>>>>>>> upstream/android-13
 #include "cloexec.h"
 
 static int overflows;

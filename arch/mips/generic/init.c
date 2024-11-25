@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016 Imagination Technologies
  * Author: Paul Burton <paul.burton@mips.com>
@@ -13,6 +14,19 @@
 #include <linux/clocksource.h>
 #include <linux/init.h>
 #include <linux/irqchip.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2016 Imagination Technologies
+ * Author: Paul Burton <paul.burton@mips.com>
+ */
+
+#include <linux/clk.h>
+#include <linux/clocksource.h>
+#include <linux/init.h>
+#include <linux/irqchip.h>
+#include <linux/of_clk.h>
+>>>>>>> upstream/android-13
 #include <linux/of_fdt.h>
 
 #include <asm/bootinfo.h>
@@ -24,9 +38,15 @@
 #include <asm/smp-ops.h>
 #include <asm/time.h>
 
+<<<<<<< HEAD
 static __initdata const void *fdt;
 static __initdata const struct mips_machine *mach;
 static __initdata const void *mach_match_data;
+=======
+static __initconst const void *fdt;
+static __initconst const struct mips_machine *mach;
+static __initconst const void *mach_match_data;
+>>>>>>> upstream/android-13
 
 void __init prom_init(void)
 {
@@ -43,6 +63,7 @@ void __init *plat_get_fdt(void)
 		/* Already set up */
 		return (void *)fdt;
 
+<<<<<<< HEAD
 	if ((fw_arg0 == -2) && !fdt_check_header((void *)fw_arg1)) {
 		/*
 		 * We booted using the UHI boot protocol, so we have been
@@ -52,6 +73,15 @@ void __init *plat_get_fdt(void)
 		 */
 		fdt = (void *)fw_arg1;
 
+=======
+	fdt = (void *)get_fdt();
+	if (fdt && !fdt_check_header(fdt)) {
+		/*
+		 * We have been provided with the appropriate device tree for
+		 * the board. Make use of it & search for any machine struct
+		 * based upon the root compatible string.
+		 */
+>>>>>>> upstream/android-13
 		for_each_mips_machine(check_mach) {
 			match = mips_machine_is_compatible(check_mach, fdt);
 			if (match) {
@@ -110,7 +140,11 @@ void __init plat_mem_setup(void)
 	if (mach && mach->fixup_fdt)
 		fdt = mach->fixup_fdt(fdt, mach_match_data);
 
+<<<<<<< HEAD
 	strlcpy(arcs_cmdline, boot_command_line, COMMAND_LINE_SIZE);
+=======
+	fw_init_cmdline();
+>>>>>>> upstream/android-13
 	__dt_setup_arch((void *)fdt);
 }
 
@@ -207,7 +241,10 @@ void __init arch_init_irq(void)
 
 	irqchip_init();
 }
+<<<<<<< HEAD
 
 void __init prom_free_prom_memory(void)
 {
 }
+=======
+>>>>>>> upstream/android-13

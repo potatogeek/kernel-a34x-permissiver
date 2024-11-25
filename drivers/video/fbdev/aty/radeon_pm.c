@@ -1208,11 +1208,19 @@ static void radeon_pm_enable_dll_m10(struct radeonfb_info *rinfo)
 	case 1:
 		if (mc & 0x4)
 			break;
+<<<<<<< HEAD
 		/* fall through */
 	case 2:
 		dll_sleep_mask |= MDLL_R300_RDCK__MRDCKB_SLEEP;
 		dll_reset_mask |= MDLL_R300_RDCK__MRDCKB_RESET;
 		/* fall through */
+=======
+		fallthrough;
+	case 2:
+		dll_sleep_mask |= MDLL_R300_RDCK__MRDCKB_SLEEP;
+		dll_reset_mask |= MDLL_R300_RDCK__MRDCKB_RESET;
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 0:
 		dll_sleep_mask |= MDLL_R300_RDCK__MRDCKA_SLEEP;
 		dll_reset_mask |= MDLL_R300_RDCK__MRDCKA_RESET;
@@ -1221,7 +1229,11 @@ static void radeon_pm_enable_dll_m10(struct radeonfb_info *rinfo)
 	case 1:
 		if (!(mc & 0x4))
 			break;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 2:
 		dll_sleep_mask |= MDLL_R300_RDCK__MRDCKD_SLEEP;
 		dll_reset_mask |= MDLL_R300_RDCK__MRDCKD_RESET;
@@ -1431,7 +1443,10 @@ static void radeon_pm_full_reset_sdram(struct radeonfb_info *rinfo)
 	mdelay( 15);
 }
 
+<<<<<<< HEAD
 #if defined(CONFIG_PM)
+=======
+>>>>>>> upstream/android-13
 #if defined(CONFIG_X86) || defined(CONFIG_PPC_PMAC)
 static void radeon_pm_reset_pad_ctlr_strength(struct radeonfb_info *rinfo)
 {
@@ -2210,7 +2225,10 @@ static void radeon_reinitialize_M9P(struct radeonfb_info *rinfo)
 	radeon_pm_m10_enable_lvds_spread_spectrum(rinfo);
 }
 #endif
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 #if 0 /* Not ready yet */
 static void radeon_reinitialize_QW(struct radeonfb_info *rinfo)
@@ -2593,7 +2611,11 @@ static void radeon_set_suspend(struct radeonfb_info *rinfo, int suspend)
 		 * calling pci_set_power_state()
 		 */
 		radeonfb_whack_power_state(rinfo, PCI_D2);
+<<<<<<< HEAD
 		__pci_complete_power_transition(rinfo->pdev, PCI_D2);
+=======
+		pci_platform_power_transition(rinfo->pdev, PCI_D2);
+>>>>>>> upstream/android-13
 	} else {
 		printk(KERN_DEBUG "radeonfb (%s): switching to D0 state...\n",
 		       pci_name(rinfo->pdev));
@@ -2613,8 +2635,14 @@ static void radeon_set_suspend(struct radeonfb_info *rinfo, int suspend)
 	}
 }
 
+<<<<<<< HEAD
 int radeonfb_pci_suspend(struct pci_dev *pdev, pm_message_t mesg)
 {
+=======
+static int radeonfb_pci_suspend_late(struct device *dev, pm_message_t mesg)
+{
+	struct pci_dev *pdev = to_pci_dev(dev);
+>>>>>>> upstream/android-13
         struct fb_info *info = pci_get_drvdata(pdev);
         struct radeonfb_info *rinfo = info->par;
 
@@ -2662,11 +2690,14 @@ int radeonfb_pci_suspend(struct pci_dev *pdev, pm_message_t mesg)
 	pmac_suspend_agp_for_card(pdev);
 #endif /* CONFIG_PPC_PMAC */
 
+<<<<<<< HEAD
 	/* It's unclear whether or when the generic code will do that, so let's
 	 * do it ourselves. We save state before we do any power management
 	 */
 	pci_save_state(pdev);
 
+=======
+>>>>>>> upstream/android-13
 	/* If we support wakeup from poweroff, we save all regs we can including cfg
 	 * space
 	 */
@@ -2691,7 +2722,10 @@ int radeonfb_pci_suspend(struct pci_dev *pdev, pm_message_t mesg)
 			msleep(20);
 			OUTREG(LVDS_GEN_CNTL, INREG(LVDS_GEN_CNTL) & ~(LVDS_DIGON));
 		}
+<<<<<<< HEAD
 		pci_disable_device(pdev);
+=======
+>>>>>>> upstream/android-13
 	}
 	/* If we support D2, we go to it (should be fixed later with a flag forcing
 	 * D3 only for some laptops)
@@ -2707,6 +2741,24 @@ int radeonfb_pci_suspend(struct pci_dev *pdev, pm_message_t mesg)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int radeonfb_pci_suspend(struct device *dev)
+{
+	return radeonfb_pci_suspend_late(dev, PMSG_SUSPEND);
+}
+
+static int radeonfb_pci_hibernate(struct device *dev)
+{
+	return radeonfb_pci_suspend_late(dev, PMSG_HIBERNATE);
+}
+
+static int radeonfb_pci_freeze(struct device *dev)
+{
+	return radeonfb_pci_suspend_late(dev, PMSG_FREEZE);
+}
+
+>>>>>>> upstream/android-13
 static int radeon_check_power_loss(struct radeonfb_info *rinfo)
 {
 	return rinfo->save_regs[4] != INPLL(CLK_PIN_CNTL) ||
@@ -2714,8 +2766,14 @@ static int radeon_check_power_loss(struct radeonfb_info *rinfo)
 	       rinfo->save_regs[3] != INPLL(SCLK_CNTL);
 }
 
+<<<<<<< HEAD
 int radeonfb_pci_resume(struct pci_dev *pdev)
 {
+=======
+static int radeonfb_pci_resume(struct device *dev)
+{
+	struct pci_dev *pdev = to_pci_dev(dev);
+>>>>>>> upstream/android-13
         struct fb_info *info = pci_get_drvdata(pdev);
         struct radeonfb_info *rinfo = info->par;
 	int rc = 0;
@@ -2797,6 +2855,18 @@ int radeonfb_pci_resume(struct pci_dev *pdev)
 	return rc;
 }
 
+<<<<<<< HEAD
+=======
+const struct dev_pm_ops radeonfb_pci_pm_ops = {
+	.suspend	= radeonfb_pci_suspend,
+	.resume		= radeonfb_pci_resume,
+	.freeze		= radeonfb_pci_freeze,
+	.thaw		= radeonfb_pci_resume,
+	.poweroff	= radeonfb_pci_hibernate,
+	.restore	= radeonfb_pci_resume,
+};
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PPC__disabled
 static void radeonfb_early_resume(void *data)
 {
@@ -2844,8 +2914,13 @@ void radeonfb_pm_init(struct radeonfb_info *rinfo, int dynclk, int ignore_devlis
 		 * in some desktop G4s), Via (M9+ chip on iBook G4) and
 		 * Snowy (M11 chip on iBook G4 manufactured after July 2005)
 		 */
+<<<<<<< HEAD
 		if (!strcmp(rinfo->of_node->name, "ATY,JasperParent") ||
 		    !strcmp(rinfo->of_node->name, "ATY,SnowyParent")) {
+=======
+		if (of_node_name_eq(rinfo->of_node, "ATY,JasperParent") ||
+		    of_node_name_eq(rinfo->of_node, "ATY,SnowyParent")) {
+>>>>>>> upstream/android-13
 			rinfo->reinit_func = radeon_reinitialize_M10;
 			rinfo->pm_mode |= radeon_pm_off;
 		}
@@ -2855,7 +2930,11 @@ void radeonfb_pm_init(struct radeonfb_info *rinfo, int dynclk, int ignore_devlis
 			rinfo->pm_mode |= radeon_pm_off;
 		}
 #endif
+<<<<<<< HEAD
 		if (!strcmp(rinfo->of_node->name, "ATY,ViaParent")) {
+=======
+		if (of_node_name_eq(rinfo->of_node, "ATY,ViaParent")) {
+>>>>>>> upstream/android-13
 			rinfo->reinit_func = radeon_reinitialize_M9P;
 			rinfo->pm_mode |= radeon_pm_off;
 		}

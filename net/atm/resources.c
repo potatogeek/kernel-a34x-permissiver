@@ -52,10 +52,15 @@ static struct atm_dev *__alloc_atm_dev(const char *type)
 static struct atm_dev *__atm_dev_lookup(int number)
 {
 	struct atm_dev *dev;
+<<<<<<< HEAD
 	struct list_head *p;
 
 	list_for_each(p, &atm_devs) {
 		dev = list_entry(p, struct atm_dev, dev_list);
+=======
+
+	list_for_each_entry(dev, &atm_devs, dev_list) {
+>>>>>>> upstream/android-13
 		if (dev->number == number) {
 			atm_dev_hold(dev);
 			return dev;
@@ -193,6 +198,7 @@ static int fetch_stats(struct atm_dev *dev, struct atm_dev_stats __user *arg,
 	return error ? -EFAULT : 0;
 }
 
+<<<<<<< HEAD
 int atm_dev_ioctl(unsigned int cmd, void __user *arg, int compat)
 {
 	void __user *buf;
@@ -279,6 +285,49 @@ int atm_dev_ioctl(unsigned int cmd, void __user *arg, int compat)
 		if (get_user(number, &sioc->number))
 			return -EFAULT;
 	}
+=======
+int atm_getnames(void __user *buf, int __user *iobuf_len)
+{
+	int error, len, size = 0;
+	struct atm_dev *dev;
+	struct list_head *p;
+	int *tmp_buf, *tmp_p;
+
+	if (get_user(len, iobuf_len))
+		return -EFAULT;
+	mutex_lock(&atm_dev_mutex);
+	list_for_each(p, &atm_devs)
+		size += sizeof(int);
+	if (size > len) {
+		mutex_unlock(&atm_dev_mutex);
+		return -E2BIG;
+	}
+	tmp_buf = kmalloc(size, GFP_ATOMIC);
+	if (!tmp_buf) {
+		mutex_unlock(&atm_dev_mutex);
+		return -ENOMEM;
+	}
+	tmp_p = tmp_buf;
+	list_for_each_entry(dev, &atm_devs, dev_list) {
+		*tmp_p++ = dev->number;
+	}
+	mutex_unlock(&atm_dev_mutex);
+	error = ((copy_to_user(buf, tmp_buf, size)) ||
+		 put_user(size, iobuf_len))
+		? -EFAULT : 0;
+	kfree(tmp_buf);
+	return error;
+}
+
+int atm_dev_ioctl(unsigned int cmd, void __user *buf, int __user *sioc_len,
+		  int number, int compat)
+{
+	int error, len, size = 0;
+	struct atm_dev *dev;
+
+	if (get_user(len, sioc_len))
+		return -EFAULT;
+>>>>>>> upstream/android-13
 
 	dev = try_then_request_module(atm_dev_lookup(number), "atm-device-%d",
 				      number);
@@ -310,7 +359,11 @@ int atm_dev_ioctl(unsigned int cmd, void __user *arg, int compat)
 				goto done;
 			}
 	}
+<<<<<<< HEAD
 	/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ATM_SETESIF:
 	{
 		unsigned char esi[ESI_LEN];
@@ -332,7 +385,11 @@ int atm_dev_ioctl(unsigned int cmd, void __user *arg, int compat)
 			error = -EPERM;
 			goto done;
 		}
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ATM_GETSTAT:
 		size = sizeof(struct atm_dev_stats);
 		error = fetch_stats(dev, buf, cmd == ATM_GETSTATZ);
@@ -405,7 +462,11 @@ int atm_dev_ioctl(unsigned int cmd, void __user *arg, int compat)
 			error = -EINVAL;
 			goto done;
 		}
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ATM_SETCIRANGE:
 	case SONET_GETSTATZ:
 	case SONET_SETDIAG:
@@ -415,9 +476,15 @@ int atm_dev_ioctl(unsigned int cmd, void __user *arg, int compat)
 			error = -EPERM;
 			goto done;
 		}
+<<<<<<< HEAD
 		/* fall through */
 	default:
 		if (compat) {
+=======
+		fallthrough;
+	default:
+		if (IS_ENABLED(CONFIG_COMPAT) && compat) {
+>>>>>>> upstream/android-13
 #ifdef CONFIG_COMPAT
 			if (!dev->ops->compat_ioctl) {
 				error = -EINVAL;

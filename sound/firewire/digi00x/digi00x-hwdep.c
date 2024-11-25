@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * digi00x-hwdep.c - a part of driver for Digidesign Digi 002/003 family
  *
  * Copyright (c) 2014-2015 Takashi Sakamoto
+<<<<<<< HEAD
  *
  * Licensed under the terms of the GNU General Public License, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -88,7 +95,11 @@ static int hwdep_get_info(struct snd_dg00x *dg00x, void __user *arg)
 	info.card = dev->card->index;
 	*(__be32 *)&info.guid[0] = cpu_to_be32(dev->config_rom[3]);
 	*(__be32 *)&info.guid[4] = cpu_to_be32(dev->config_rom[4]);
+<<<<<<< HEAD
 	strlcpy(info.device_name, dev_name(&dev->device),
+=======
+	strscpy(info.device_name, dev_name(&dev->device),
+>>>>>>> upstream/android-13
 		sizeof(info.device_name));
 
 	if (copy_to_user(arg, &info, sizeof(info)))

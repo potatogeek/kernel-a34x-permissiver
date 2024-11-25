@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  acpi_ac.c - ACPI AC Adapter Driver ($Revision: 27 $)
  *
@@ -19,6 +20,18 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  */
 
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  acpi_ac.c - ACPI AC Adapter Driver (Revision: 27)
+ *
+ *  Copyright (C) 2001, 2002 Andy Grover <andrew.grover@intel.com>
+ *  Copyright (C) 2001, 2002 Paul Diefenbaugh <paul.s.diefenbaugh@intel.com>
+ */
+
+#define pr_fmt(fmt) "ACPI: AC: " fmt
+
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/slab.h>
@@ -26,17 +39,23 @@
 #include <linux/types.h>
 #include <linux/dmi.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
 #ifdef CONFIG_ACPI_PROCFS_POWER
 #include <linux/proc_fs.h>
 #include <linux/seq_file.h>
 #endif
+=======
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/power_supply.h>
 #include <linux/acpi.h>
 #include <acpi/battery.h>
 
+<<<<<<< HEAD
 #define PREFIX "ACPI: "
 
+=======
+>>>>>>> upstream/android-13
 #define ACPI_AC_CLASS			"ac_adapter"
 #define ACPI_AC_DEVICE_NAME		"AC Adapter"
 #define ACPI_AC_FILE_STATE		"state"
@@ -45,9 +64,12 @@
 #define ACPI_AC_STATUS_ONLINE		0x01
 #define ACPI_AC_STATUS_UNKNOWN		0xFF
 
+<<<<<<< HEAD
 #define _COMPONENT		ACPI_AC_COMPONENT
 ACPI_MODULE_NAME("ac");
 
+=======
+>>>>>>> upstream/android-13
 MODULE_AUTHOR("Paul Diefenbaugh");
 MODULE_DESCRIPTION("ACPI AC Adapter Driver");
 MODULE_LICENSE("GPL");
@@ -79,6 +101,7 @@ static int acpi_ac_resume(struct device *dev);
 #endif
 static SIMPLE_DEV_PM_OPS(acpi_ac_pm, NULL, acpi_ac_resume);
 
+<<<<<<< HEAD
 #ifdef CONFIG_ACPI_PROCFS_POWER
 extern struct proc_dir_entry *acpi_lock_ac_dir(void);
 extern void *acpi_unlock_ac_dir(struct proc_dir_entry *acpi_ac_dir);
@@ -87,6 +110,11 @@ extern void *acpi_unlock_ac_dir(struct proc_dir_entry *acpi_ac_dir);
 
 static int ac_sleep_before_get_state_ms;
 static int ac_check_pmic = 1;
+=======
+static int ac_sleep_before_get_state_ms;
+static int ac_check_pmic = 1;
+static int ac_only;
+>>>>>>> upstream/android-13
 
 static struct acpi_driver acpi_ac_driver = {
 	.name = "ac",
@@ -104,17 +132,25 @@ static struct acpi_driver acpi_ac_driver = {
 struct acpi_ac {
 	struct power_supply *charger;
 	struct power_supply_desc charger_desc;
+<<<<<<< HEAD
 	struct acpi_device * device;
+=======
+	struct acpi_device *device;
+>>>>>>> upstream/android-13
 	unsigned long long state;
 	struct notifier_block battery_nb;
 };
 
 #define to_acpi_ac(x) power_supply_get_drvdata(x)
 
+<<<<<<< HEAD
 /* --------------------------------------------------------------------------
                                AC Adapter Management
    -------------------------------------------------------------------------- */
 
+=======
+/* AC Adapter Management */
+>>>>>>> upstream/android-13
 static int acpi_ac_get_state(struct acpi_ac *ac)
 {
 	acpi_status status = AE_OK;
@@ -122,11 +158,25 @@ static int acpi_ac_get_state(struct acpi_ac *ac)
 	if (!ac)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	status = acpi_evaluate_integer(ac->device->handle, "_PSR", NULL,
 				       &ac->state);
 	if (ACPI_FAILURE(status)) {
 		ACPI_EXCEPTION((AE_INFO, status,
 				"Error reading AC Adapter state"));
+=======
+	if (ac_only) {
+		ac->state = 1;
+		return 0;
+	}
+
+	status = acpi_evaluate_integer(ac->device->handle, "_PSR", NULL,
+				       &ac->state);
+	if (ACPI_FAILURE(status)) {
+		acpi_handle_info(ac->device->handle,
+				"Error reading AC Adapter state: %s\n",
+				acpi_format_exception(status));
+>>>>>>> upstream/android-13
 		ac->state = ACPI_AC_STATUS_UNKNOWN;
 		return -ENODEV;
 	}
@@ -134,9 +184,13 @@ static int acpi_ac_get_state(struct acpi_ac *ac)
 	return 0;
 }
 
+<<<<<<< HEAD
 /* --------------------------------------------------------------------------
                             sysfs I/F
    -------------------------------------------------------------------------- */
+=======
+/* sysfs I/F */
+>>>>>>> upstream/android-13
 static int get_ac_property(struct power_supply *psy,
 			   enum power_supply_property psp,
 			   union power_supply_propval *val)
@@ -163,6 +217,7 @@ static enum power_supply_property ac_props[] = {
 	POWER_SUPPLY_PROP_ONLINE,
 };
 
+<<<<<<< HEAD
 #ifdef CONFIG_ACPI_PROCFS_POWER
 /* --------------------------------------------------------------------------
                               FS Interface (/proc)
@@ -238,6 +293,9 @@ static int acpi_ac_remove_fs(struct acpi_ac *ac)
                                    Driver Model
    -------------------------------------------------------------------------- */
 
+=======
+/* Driver Model */
+>>>>>>> upstream/android-13
 static void acpi_ac_notify(struct acpi_device *device, u32 event)
 {
 	struct acpi_ac *ac = acpi_driver_data(device);
@@ -247,9 +305,15 @@ static void acpi_ac_notify(struct acpi_device *device, u32 event)
 
 	switch (event) {
 	default:
+<<<<<<< HEAD
 		ACPI_DEBUG_PRINT((ACPI_DB_INFO,
 				  "Unsupported event [0x%x]\n", event));
 	/* fall through */
+=======
+		acpi_handle_debug(device->handle, "Unsupported event [0x%x]\n",
+				  event);
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ACPI_AC_NOTIFY_STATUS:
 	case ACPI_NOTIFY_BUS_CHECK:
 	case ACPI_NOTIFY_DEVICE_CHECK:
@@ -270,8 +334,11 @@ static void acpi_ac_notify(struct acpi_device *device, u32 event)
 		acpi_notifier_call_chain(device, event, (u32) ac->state);
 		kobject_uevent(&ac->charger->dev.kobj, KOBJ_CHANGE);
 	}
+<<<<<<< HEAD
 
 	return;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int acpi_ac_battery_notify(struct notifier_block *nb,
@@ -283,7 +350,11 @@ static int acpi_ac_battery_notify(struct notifier_block *nb,
 	/*
 	 * On HP Pavilion dv6-6179er AC status notifications aren't triggered
 	 * when adapter is plugged/unplugged. However, battery status
+<<<<<<< HEAD
 	 * notifcations are triggered when battery starts charging or
+=======
+	 * notifications are triggered when battery starts charging or
+>>>>>>> upstream/android-13
 	 * discharging. Re-reading AC status triggers lost AC notifications,
 	 * if AC status has changed.
 	 */
@@ -306,6 +377,7 @@ static int __init ac_do_not_check_pmic_quirk(const struct dmi_system_id *d)
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct dmi_system_id ac_dmi_table[]  __initconst = {
 	{
 	/* Thinkpad e530 */
@@ -317,18 +389,54 @@ static const struct dmi_system_id ac_dmi_table[]  __initconst = {
 	},
 	{
 		/* ECS EF20EA */
+=======
+static int __init ac_only_quirk(const struct dmi_system_id *d)
+{
+	ac_only = 1;
+	return 0;
+}
+
+/* Please keep this list alphabetically sorted */
+static const struct dmi_system_id ac_dmi_table[]  __initconst = {
+	{
+		/* ECS EF20EA, AXP288 PMIC but uses separate fuel-gauge */
+>>>>>>> upstream/android-13
 		.callback = ac_do_not_check_pmic_quirk,
 		.matches = {
 			DMI_MATCH(DMI_PRODUCT_NAME, "EF20EA"),
 		},
 	},
 	{
+<<<<<<< HEAD
 		/* Lenovo Ideapad Miix 320 */
 		.callback = ac_do_not_check_pmic_quirk,
 		.matches = {
 		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "LENOVO"),
 		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "80XF"),
 		  DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "Lenovo MIIX 320-10ICR"),
+=======
+		/* Kodlix GK45 returning incorrect state */
+		.callback = ac_only_quirk,
+		.matches = {
+			DMI_MATCH(DMI_PRODUCT_NAME, "GK45"),
+		},
+	},
+	{
+		/* Lenovo Ideapad Miix 320, AXP288 PMIC, separate fuel-gauge */
+		.callback = ac_do_not_check_pmic_quirk,
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "80XF"),
+			DMI_MATCH(DMI_PRODUCT_VERSION, "Lenovo MIIX 320-10ICR"),
+		},
+	},
+	{
+		/* Lenovo Thinkpad e530, see comment in acpi_ac_notify() */
+		.callback = thinkpad_e530_quirk,
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "32597CG"),
+>>>>>>> upstream/android-13
 		},
 	},
 	{},
@@ -360,11 +468,14 @@ static int acpi_ac_add(struct acpi_device *device)
 	psy_cfg.drv_data = ac;
 
 	ac->charger_desc.name = acpi_device_bid(device);
+<<<<<<< HEAD
 #ifdef CONFIG_ACPI_PROCFS_POWER
 	result = acpi_ac_add_fs(ac);
 	if (result)
 		goto end;
 #endif
+=======
+>>>>>>> upstream/android-13
 	ac->charger_desc.type = POWER_SUPPLY_TYPE_MAINS;
 	ac->charger_desc.properties = ac_props;
 	ac->charger_desc.num_properties = ARRAY_SIZE(ac_props);
@@ -376,19 +487,29 @@ static int acpi_ac_add(struct acpi_device *device)
 		goto end;
 	}
 
+<<<<<<< HEAD
 	printk(KERN_INFO PREFIX "%s [%s] (%s)\n",
 	       acpi_device_name(device), acpi_device_bid(device),
 	       ac->state ? "on-line" : "off-line");
+=======
+	pr_info("%s [%s] (%s)\n", acpi_device_name(device),
+		acpi_device_bid(device), ac->state ? "on-line" : "off-line");
+>>>>>>> upstream/android-13
 
 	ac->battery_nb.notifier_call = acpi_ac_battery_notify;
 	register_acpi_notifier(&ac->battery_nb);
 end:
+<<<<<<< HEAD
 	if (result) {
 #ifdef CONFIG_ACPI_PROCFS_POWER
 		acpi_ac_remove_fs(ac);
 #endif
 		kfree(ac);
 	}
+=======
+	if (result)
+		kfree(ac);
+>>>>>>> upstream/android-13
 
 	return result;
 }
@@ -397,7 +518,11 @@ end:
 static int acpi_ac_resume(struct device *dev)
 {
 	struct acpi_ac *ac;
+<<<<<<< HEAD
 	unsigned old_state;
+=======
+	unsigned int old_state;
+>>>>>>> upstream/android-13
 
 	if (!dev)
 		return -EINVAL;
@@ -430,10 +555,13 @@ static int acpi_ac_remove(struct acpi_device *device)
 	power_supply_unregister(ac->charger);
 	unregister_acpi_notifier(&ac->battery_nb);
 
+<<<<<<< HEAD
 #ifdef CONFIG_ACPI_PROCFS_POWER
 	acpi_ac_remove_fs(ac);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	kfree(ac);
 
 	return 0;
@@ -453,12 +581,17 @@ static int __init acpi_ac_init(void)
 		for (i = 0; i < ARRAY_SIZE(acpi_ac_blacklist); i++)
 			if (acpi_dev_present(acpi_ac_blacklist[i].hid, "1",
 					     acpi_ac_blacklist[i].hrv)) {
+<<<<<<< HEAD
 				pr_info(PREFIX "AC: found native %s PMIC, not loading\n",
+=======
+				pr_info("found native %s PMIC, not loading\n",
+>>>>>>> upstream/android-13
 					acpi_ac_blacklist[i].hid);
 				return -ENODEV;
 			}
 	}
 
+<<<<<<< HEAD
 #ifdef CONFIG_ACPI_PROCFS_POWER
 	acpi_ac_dir = acpi_lock_ac_dir();
 	if (!acpi_ac_dir)
@@ -473,6 +606,11 @@ static int __init acpi_ac_init(void)
 #endif
 		return -ENODEV;
 	}
+=======
+	result = acpi_bus_register_driver(&acpi_ac_driver);
+	if (result < 0)
+		return -ENODEV;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -480,9 +618,12 @@ static int __init acpi_ac_init(void)
 static void __exit acpi_ac_exit(void)
 {
 	acpi_bus_unregister_driver(&acpi_ac_driver);
+<<<<<<< HEAD
 #ifdef CONFIG_ACPI_PROCFS_POWER
 	acpi_unlock_ac_dir(acpi_ac_dir);
 #endif
+=======
+>>>>>>> upstream/android-13
 }
 module_init(acpi_ac_init);
 module_exit(acpi_ac_exit);

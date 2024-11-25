@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Interface the pinconfig portions of the pinctrl subsystem
  *
@@ -6,15 +10,22 @@
  * This interface is used in the core to keep track of pins.
  *
  * Author: Linus Walleij <linus.walleij@linaro.org>
+<<<<<<< HEAD
  *
  * License terms: GNU General Public License (GPL) version 2
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __LINUX_PINCTRL_PINCONF_H
 #define __LINUX_PINCTRL_PINCONF_H
 
+<<<<<<< HEAD
 #ifdef CONFIG_PINCONF
 
 #include <linux/pinctrl/machine.h>
+=======
+#include <linux/types.h>
+>>>>>>> upstream/android-13
 
 struct pinctrl_dev;
 struct seq_file;
@@ -31,7 +42,10 @@ struct seq_file;
  * @pin_config_group_get: get configurations for an entire pin group; should
  *	return -ENOTSUPP and -EINVAL using the same rules as pin_config_get.
  * @pin_config_group_set: configure all pins in a group
+<<<<<<< HEAD
  * @pin_config_dbg_parse_modify: optional debugfs to modify a pin configuration
+=======
+>>>>>>> upstream/android-13
  * @pin_config_dbg_show: optional debugfs display hook that will provide
  *	per-device info for a certain pin in debugfs
  * @pin_config_group_dbg_show: optional debugfs display hook that will provide
@@ -57,9 +71,12 @@ struct pinconf_ops {
 				     unsigned selector,
 				     unsigned long *configs,
 				     unsigned num_configs);
+<<<<<<< HEAD
 	int (*pin_config_dbg_parse_modify) (struct pinctrl_dev *pctldev,
 					   const char *arg,
 					   unsigned long *config);
+=======
+>>>>>>> upstream/android-13
 	void (*pin_config_dbg_show) (struct pinctrl_dev *pctldev,
 				     struct seq_file *s,
 				     unsigned offset);
@@ -71,6 +88,9 @@ struct pinconf_ops {
 					    unsigned long config);
 };
 
+<<<<<<< HEAD
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #endif /* __LINUX_PINCTRL_PINCONF_H */

@@ -35,6 +35,26 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 
+<<<<<<< HEAD
+=======
+		cpu-map {
+			cluster0 {
+				core0 {
+					cpu = <&cpu0>;
+				};
+				core1 {
+					cpu = <&cpu1>;
+				};
+				core2 {
+					cpu = <&cpu2>;
+				};
+				core3 {
+					cpu = <&cpu3>;
+				};
+			};
+		};
+
+>>>>>>> upstream/android-13
 		cpu0: cpu@a00 {
 			device_type = "cpu";
 			compatible = "arm,cortex-a9";
@@ -45,7 +65,11 @@
 			#cooling-cells = <2>; /* min followed by max */
 		};
 
+<<<<<<< HEAD
 		cpu@a01 {
+=======
+		cpu1: cpu@a01 {
+>>>>>>> upstream/android-13
 			device_type = "cpu";
 			compatible = "arm,cortex-a9";
 			reg = <0xA01>;
@@ -55,7 +79,11 @@
 			#cooling-cells = <2>; /* min followed by max */
 		};
 
+<<<<<<< HEAD
 		cpu@a02 {
+=======
+		cpu2: cpu@a02 {
+>>>>>>> upstream/android-13
 			device_type = "cpu";
 			compatible = "arm,cortex-a9";
 			reg = <0xA02>;
@@ -65,7 +93,11 @@
 			#cooling-cells = <2>; /* min followed by max */
 		};
 
+<<<<<<< HEAD
 		cpu@a03 {
+=======
+		cpu3: cpu@a03 {
+>>>>>>> upstream/android-13
 			device_type = "cpu";
 			compatible = "arm,cortex-a9";
 			reg = <0xA03>;
@@ -76,7 +108,11 @@
 		};
 	};
 
+<<<<<<< HEAD
 	cpu0_opp_table: opp_table0 {
+=======
+	cpu0_opp_table: opp-table0 {
+>>>>>>> upstream/android-13
 		compatible = "operating-points-v2";
 		opp-shared;
 
@@ -188,36 +224,61 @@
 			interrupts = <GIC_SPI 72 IRQ_TYPE_LEVEL_HIGH>;
 		};
 
+<<<<<<< HEAD
 		sysram@2020000 {
+=======
+		sram@2020000 {
+>>>>>>> upstream/android-13
 			compatible = "mmio-sram";
 			reg = <0x02020000 0x40000>;
 			#address-cells = <1>;
 			#size-cells = <1>;
 			ranges = <0 0x02020000 0x40000>;
 
+<<<<<<< HEAD
 			smp-sysram@0 {
+=======
+			smp-sram@0 {
+>>>>>>> upstream/android-13
 				compatible = "samsung,exynos4210-sysram";
 				reg = <0x0 0x1000>;
 			};
 
+<<<<<<< HEAD
 			smp-sysram@2f000 {
+=======
+			smp-sram@2f000 {
+>>>>>>> upstream/android-13
 				compatible = "samsung,exynos4210-sysram-ns";
 				reg = <0x2f000 0x1000>;
 			};
 		};
 
+<<<<<<< HEAD
 		pd_isp: isp-power-domain@10023ca0 {
+=======
+		pd_isp: power-domain@10023ca0 {
+>>>>>>> upstream/android-13
 			compatible = "samsung,exynos4210-pd";
 			reg = <0x10023CA0 0x20>;
 			#power-domain-cells = <0>;
 			label = "ISP";
 		};
 
+<<<<<<< HEAD
 		l2c: l2-cache-controller@10502000 {
+=======
+		l2c: cache-controller@10502000 {
+>>>>>>> upstream/android-13
 			compatible = "arm,pl310-cache";
 			reg = <0x10502000 0x1000>;
 			cache-unified;
 			cache-level = <2>;
+<<<<<<< HEAD
+=======
+			prefetch-data = <1>;
+			prefetch-instr = <1>;
+>>>>>>> upstream/android-13
 			arm,tag-latency = <2 2 1>;
 			arm,data-latency = <3 2 1>;
 			arm,double-linefill = <1>;
@@ -243,6 +304,7 @@
 			clock-names = "aclk200", "aclk400_mcuisp";
 		};
 
+<<<<<<< HEAD
 		mct@10050000 {
 			compatible = "samsung,exynos4412-mct";
 			reg = <0x10050000 0x800>;
@@ -262,6 +324,18 @@
 					<3 &combiner 12 7>,
 					<4 &gic 1 12 IRQ_TYPE_LEVEL_HIGH>;
 			};
+=======
+		timer@10050000 {
+			compatible = "samsung,exynos4412-mct";
+			reg = <0x10050000 0x800>;
+			clocks = <&clock CLK_FIN_PLL>, <&clock CLK_MCT>;
+			clock-names = "fin_pll", "mct";
+			interrupts-extended = <&gic GIC_SPI 57 IRQ_TYPE_LEVEL_HIGH>,
+					      <&combiner 12 5>,
+					      <&combiner 12 6>,
+					      <&combiner 12 7>,
+					      <&gic GIC_PPI 12 IRQ_TYPE_LEVEL_HIGH>;
+>>>>>>> upstream/android-13
 		};
 
 		watchdog: watchdog@10060000 {
@@ -274,14 +348,21 @@
 		};
 
 		adc: adc@126c0000 {
+<<<<<<< HEAD
 			compatible = "samsung,exynos-adc-v1";
+=======
+			compatible = "samsung,exynos4212-adc";
+>>>>>>> upstream/android-13
 			reg = <0x126C0000 0x100>;
 			interrupt-parent = <&combiner>;
 			interrupts = <10 3>;
 			clocks = <&clock CLK_TSADC>;
 			clock-names = "adc";
 			#io-channel-cells = <1>;
+<<<<<<< HEAD
 			io-channel-ranges;
+=======
+>>>>>>> upstream/android-13
 			samsung,syscon-phandle = <&pmu_system_controller>;
 			status = "disabled";
 		};
@@ -385,15 +466,28 @@
 			#iommu-cells = <0>;
 		};
 
+<<<<<<< HEAD
 		bus_dmc: bus_dmc {
+=======
+		bus_dmc: bus-dmc {
+>>>>>>> upstream/android-13
 			compatible = "samsung,exynos-bus";
 			clocks = <&clock CLK_DIV_DMC>;
 			clock-names = "bus";
 			operating-points-v2 = <&bus_dmc_opp_table>;
+<<<<<<< HEAD
 			status = "disabled";
 		};
 
 		bus_acp: bus_acp {
+=======
+			samsung,data-clock-ratio = <4>;
+			#interconnect-cells = <0>;
+			status = "disabled";
+		};
+
+		bus_acp: bus-acp {
+>>>>>>> upstream/android-13
 			compatible = "samsung,exynos-bus";
 			clocks = <&clock CLK_DIV_ACP>;
 			clock-names = "bus";
@@ -401,7 +495,11 @@
 			status = "disabled";
 		};
 
+<<<<<<< HEAD
 		bus_c2c: bus_c2c {
+=======
+		bus_c2c: bus-c2c {
+>>>>>>> upstream/android-13
 			compatible = "samsung,exynos-bus";
 			clocks = <&clock CLK_DIV_C2C>;
 			clock-names = "bus";
@@ -409,9 +507,14 @@
 			status = "disabled";
 		};
 
+<<<<<<< HEAD
 		bus_dmc_opp_table: opp_table1 {
 			compatible = "operating-points-v2";
 			opp-shared;
+=======
+		bus_dmc_opp_table: opp-table1 {
+			compatible = "operating-points-v2";
+>>>>>>> upstream/android-13
 
 			opp-100000000 {
 				opp-hz = /bits/ 64 <100000000>;
@@ -432,12 +535,21 @@
 			opp-400000000 {
 				opp-hz = /bits/ 64 <400000000>;
 				opp-microvolt = <1050000>;
+<<<<<<< HEAD
 			};
 		};
 
 		bus_acp_opp_table: opp_table2 {
 			compatible = "operating-points-v2";
 			opp-shared;
+=======
+				opp-suspend;
+			};
+		};
+
+		bus_acp_opp_table: opp-table2 {
+			compatible = "operating-points-v2";
+>>>>>>> upstream/android-13
 
 			opp-100000000 {
 				opp-hz = /bits/ 64 <100000000>;
@@ -453,15 +565,28 @@
 			};
 		};
 
+<<<<<<< HEAD
 		bus_leftbus: bus_leftbus {
+=======
+		bus_leftbus: bus-leftbus {
+>>>>>>> upstream/android-13
 			compatible = "samsung,exynos-bus";
 			clocks = <&clock CLK_DIV_GDL>;
 			clock-names = "bus";
 			operating-points-v2 = <&bus_leftbus_opp_table>;
+<<<<<<< HEAD
 			status = "disabled";
 		};
 
 		bus_rightbus: bus_rightbus {
+=======
+			interconnects = <&bus_dmc>;
+			#interconnect-cells = <0>;
+			status = "disabled";
+		};
+
+		bus_rightbus: bus-rightbus {
+>>>>>>> upstream/android-13
 			compatible = "samsung,exynos-bus";
 			clocks = <&clock CLK_DIV_GDR>;
 			clock-names = "bus";
@@ -469,15 +594,28 @@
 			status = "disabled";
 		};
 
+<<<<<<< HEAD
 		bus_display: bus_display {
+=======
+		bus_display: bus-display {
+>>>>>>> upstream/android-13
 			compatible = "samsung,exynos-bus";
 			clocks = <&clock CLK_ACLK160>;
 			clock-names = "bus";
 			operating-points-v2 = <&bus_display_opp_table>;
+<<<<<<< HEAD
 			status = "disabled";
 		};
 
 		bus_fsys: bus_fsys {
+=======
+			interconnects = <&bus_leftbus &bus_dmc>;
+			#interconnect-cells = <0>;
+			status = "disabled";
+		};
+
+		bus_fsys: bus-fsys {
+>>>>>>> upstream/android-13
 			compatible = "samsung,exynos-bus";
 			clocks = <&clock CLK_ACLK133>;
 			clock-names = "bus";
@@ -485,7 +623,11 @@
 			status = "disabled";
 		};
 
+<<<<<<< HEAD
 		bus_peri: bus_peri {
+=======
+		bus_peri: bus-peri {
+>>>>>>> upstream/android-13
 			compatible = "samsung,exynos-bus";
 			clocks = <&clock CLK_ACLK100>;
 			clock-names = "bus";
@@ -493,7 +635,11 @@
 			status = "disabled";
 		};
 
+<<<<<<< HEAD
 		bus_mfc: bus_mfc {
+=======
+		bus_mfc: bus-mfc {
+>>>>>>> upstream/android-13
 			compatible = "samsung,exynos-bus";
 			clocks = <&clock CLK_SCLK_MFC>;
 			clock-names = "bus";
@@ -501,9 +647,14 @@
 			status = "disabled";
 		};
 
+<<<<<<< HEAD
 		bus_leftbus_opp_table: opp_table3 {
 			compatible = "operating-points-v2";
 			opp-shared;
+=======
+		bus_leftbus_opp_table: opp-table3 {
+			compatible = "operating-points-v2";
+>>>>>>> upstream/android-13
 
 			opp-100000000 {
 				opp-hz = /bits/ 64 <100000000>;
@@ -520,12 +671,21 @@
 			opp-200000000 {
 				opp-hz = /bits/ 64 <200000000>;
 				opp-microvolt = <1000000>;
+<<<<<<< HEAD
 			};
 		};
 
 		bus_display_opp_table: opp_table4 {
 			compatible = "operating-points-v2";
 			opp-shared;
+=======
+				opp-suspend;
+			};
+		};
+
+		bus_display_opp_table: opp-table4 {
+			compatible = "operating-points-v2";
+>>>>>>> upstream/android-13
 
 			opp-160000000 {
 				opp-hz = /bits/ 64 <160000000>;
@@ -535,9 +695,14 @@
 			};
 		};
 
+<<<<<<< HEAD
 		bus_fsys_opp_table: opp_table5 {
 			compatible = "operating-points-v2";
 			opp-shared;
+=======
+		bus_fsys_opp_table: opp-table5 {
+			compatible = "operating-points-v2";
+>>>>>>> upstream/android-13
 
 			opp-100000000 {
 				opp-hz = /bits/ 64 <100000000>;
@@ -547,9 +712,14 @@
 			};
 		};
 
+<<<<<<< HEAD
 		bus_peri_opp_table: opp_table6 {
 			compatible = "operating-points-v2";
 			opp-shared;
+=======
+		bus_peri_opp_table: opp-table6 {
+			compatible = "operating-points-v2";
+>>>>>>> upstream/android-13
 
 			opp-50000000 {
 				opp-hz = /bits/ 64 <50000000>;
@@ -714,6 +884,56 @@
 	cpu-offset = <0x4000>;
 };
 
+<<<<<<< HEAD
+=======
+&gpu {
+	interrupts = <GIC_SPI 127 IRQ_TYPE_LEVEL_HIGH>,
+		     <GIC_SPI 122 IRQ_TYPE_LEVEL_HIGH>,
+		     <GIC_SPI 123 IRQ_TYPE_LEVEL_HIGH>,
+		     <GIC_SPI 118 IRQ_TYPE_LEVEL_HIGH>,
+		     <GIC_SPI 124 IRQ_TYPE_LEVEL_HIGH>,
+		     <GIC_SPI 119 IRQ_TYPE_LEVEL_HIGH>,
+		     <GIC_SPI 125 IRQ_TYPE_LEVEL_HIGH>,
+		     <GIC_SPI 120 IRQ_TYPE_LEVEL_HIGH>,
+		     <GIC_SPI 126 IRQ_TYPE_LEVEL_HIGH>,
+		     <GIC_SPI 121 IRQ_TYPE_LEVEL_HIGH>,
+		     <GIC_SPI 117 IRQ_TYPE_LEVEL_HIGH>;
+	interrupt-names = "gp",
+			  "gpmmu",
+			  "pp0",
+			  "ppmmu0",
+			  "pp1",
+			  "ppmmu1",
+			  "pp2",
+			  "ppmmu2",
+			  "pp3",
+			  "ppmmu3",
+			  "pmu";
+	operating-points-v2 = <&gpu_opp_table>;
+
+	gpu_opp_table: opp-table {
+		compatible = "operating-points-v2";
+
+		opp-160000000 {
+			opp-hz = /bits/ 64 <160000000>;
+			opp-microvolt = <875000>;
+		};
+		opp-267000000 {
+			opp-hz = /bits/ 64 <267000000>;
+			opp-microvolt = <900000>;
+		};
+		opp-350000000 {
+			opp-hz = /bits/ 64 <350000000>;
+			opp-microvolt = <950000>;
+		};
+		opp-440000000 {
+			opp-hz = /bits/ 64 <440000000>;
+			opp-microvolt = <1025000>;
+		};
+	};
+};
+
+>>>>>>> upstream/android-13
 &hdmi {
 	compatible = "samsung,exynos4212-hdmi";
 };
@@ -731,10 +951,19 @@
 	clock-names = "mixer", "hdmi", "sclk_hdmi", "vp";
 	clocks = <&clock CLK_MIXER>, <&clock CLK_HDMI>,
 		 <&clock CLK_SCLK_HDMI>, <&clock CLK_VP>;
+<<<<<<< HEAD
+=======
+	interconnects = <&bus_display &bus_dmc>;
+>>>>>>> upstream/android-13
 };
 
 &pmu {
 	interrupts = <2 2>, <3 2>, <18 2>, <19 2>;
+<<<<<<< HEAD
+=======
+	interrupt-affinity = <&cpu0>, <&cpu1>, <&cpu2>, <&cpu3>;
+	status = "okay";
+>>>>>>> upstream/android-13
 };
 
 &pmu_system_controller {

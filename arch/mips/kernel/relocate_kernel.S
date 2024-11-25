@@ -1,9 +1,16 @@
+<<<<<<< HEAD
 /*
  * relocate_kernel.S for kexec
  * Created by <nschichan@corp.free.fr> on Thu Oct 12 17:49:57 2006
  *
  * This source code is licensed under the GNU General Public License,
  * Version 2.  See the file COPYING for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * relocate_kernel.S for kexec
+ * Created by <nschichan@corp.free.fr> on Thu Oct 12 17:49:57 2006
+>>>>>>> upstream/android-13
  */
 
 #include <asm/asm.h>
@@ -13,6 +20,11 @@
 #include <asm/stackframe.h>
 #include <asm/addrspace.h>
 
+<<<<<<< HEAD
+=======
+#include <kernel-entry-init.h>
+
+>>>>>>> upstream/android-13
 LEAF(relocate_new_kernel)
 	PTR_L a0,	arg0
 	PTR_L a1,	arg1
@@ -127,11 +139,16 @@ LEAF(kexec_smp_wait)
 1:	LONG_L		s0, (t0)
 	bne		s0, zero,1b
 
+<<<<<<< HEAD
 #ifdef CONFIG_CPU_CAVIUM_OCTEON
 	.set push
 	.set noreorder
 	synci		0($0)
 	.set pop
+=======
+#ifdef USE_KEXEC_SMP_WAIT_FINAL
+	kexec_smp_wait_final
+>>>>>>> upstream/android-13
 #else
 	sync
 #endif
@@ -150,10 +167,17 @@ LEAF(kexec_smp_wait)
 
 kexec_args:
 	EXPORT(kexec_args)
+<<<<<<< HEAD
 arg0:	PTR		0x0
 arg1:	PTR		0x0
 arg2:	PTR		0x0
 arg3:	PTR		0x0
+=======
+arg0:	PTR_WD		0x0
+arg1:	PTR_WD		0x0
+arg2:	PTR_WD		0x0
+arg3:	PTR_WD		0x0
+>>>>>>> upstream/android-13
 	.size	kexec_args,PTRSIZE*4
 
 #ifdef CONFIG_SMP
@@ -164,10 +188,17 @@ arg3:	PTR		0x0
  */
 secondary_kexec_args:
 	EXPORT(secondary_kexec_args)
+<<<<<<< HEAD
 s_arg0: PTR		0x0
 s_arg1: PTR		0x0
 s_arg2: PTR		0x0
 s_arg3: PTR		0x0
+=======
+s_arg0: PTR_WD		0x0
+s_arg1: PTR_WD		0x0
+s_arg2: PTR_WD		0x0
+s_arg3: PTR_WD		0x0
+>>>>>>> upstream/android-13
 	.size	secondary_kexec_args,PTRSIZE*4
 kexec_flag:
 	LONG		0x1
@@ -176,17 +207,29 @@ kexec_flag:
 
 kexec_start_address:
 	EXPORT(kexec_start_address)
+<<<<<<< HEAD
 	PTR		0x0
+=======
+	PTR_WD		0x0
+>>>>>>> upstream/android-13
 	.size		kexec_start_address, PTRSIZE
 
 kexec_indirection_page:
 	EXPORT(kexec_indirection_page)
+<<<<<<< HEAD
 	PTR		0
+=======
+	PTR_WD		0
+>>>>>>> upstream/android-13
 	.size		kexec_indirection_page, PTRSIZE
 
 relocate_new_kernel_end:
 
 relocate_new_kernel_size:
 	EXPORT(relocate_new_kernel_size)
+<<<<<<< HEAD
 	PTR		relocate_new_kernel_end - relocate_new_kernel
+=======
+	PTR_WD		relocate_new_kernel_end - relocate_new_kernel
+>>>>>>> upstream/android-13
 	.size		relocate_new_kernel_size, PTRSIZE

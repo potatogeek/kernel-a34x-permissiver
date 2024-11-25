@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Hisilicon HiP04 INTC
  *
@@ -9,6 +10,16 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * HiSilicon HiP04 INTC
+ *
+ * Copyright (C) 2002-2014 ARM Limited.
+ * Copyright (c) 2013-2014 HiSilicon Ltd.
+ * Copyright (c) 2013-2014 Linaro Ltd.
+ *
+>>>>>>> upstream/android-13
  * Interrupt architecture for the HIP04 INTC:
  *
  * o There is one Interrupt Distributor, which receives interrupts
@@ -133,7 +144,16 @@ static int hip04_irq_set_type(struct irq_data *d, unsigned int type)
 
 	raw_spin_lock(&irq_controller_lock);
 
+<<<<<<< HEAD
 	ret = gic_configure_irq(irq, type, base, NULL);
+=======
+	ret = gic_configure_irq(irq, type, base + GIC_DIST_CONFIG, NULL);
+	if (ret && irq < 32) {
+		/* Misconfigured PPIs are usually not fatal */
+		pr_warn("GIC: PPI%d is secure or misconfigured\n", irq - 16);
+		ret = 0;
+	}
+>>>>>>> upstream/android-13
 
 	raw_spin_unlock(&irq_controller_lock);
 
@@ -169,6 +189,32 @@ static int hip04_irq_set_affinity(struct irq_data *d,
 
 	return IRQ_SET_MASK_OK;
 }
+<<<<<<< HEAD
+=======
+
+static void hip04_ipi_send_mask(struct irq_data *d, const struct cpumask *mask)
+{
+	int cpu;
+	unsigned long flags, map = 0;
+
+	raw_spin_lock_irqsave(&irq_controller_lock, flags);
+
+	/* Convert our logical CPU mask into a physical one. */
+	for_each_cpu(cpu, mask)
+		map |= hip04_cpu_map[cpu];
+
+	/*
+	 * Ensure that stores to Normal memory are visible to the
+	 * other CPUs before they observe us issuing the IPI.
+	 */
+	dmb(ishst);
+
+	/* this always happens on GIC0 */
+	writel_relaxed(map << 8 | d->hwirq, hip04_data.dist_base + GIC_DIST_SOFTINT);
+
+	raw_spin_unlock_irqrestore(&irq_controller_lock, flags);
+}
+>>>>>>> upstream/android-13
 #endif
 
 static void __exception_irq_entry hip04_handle_irq(struct pt_regs *regs)
@@ -180,6 +226,7 @@ static void __exception_irq_entry hip04_handle_irq(struct pt_regs *regs)
 		irqstat = readl_relaxed(cpu_base + GIC_CPU_INTACK);
 		irqnr = irqstat & GICC_IAR_INT_ID_MASK;
 
+<<<<<<< HEAD
 		if (likely(irqnr > 15 && irqnr <= HIP04_MAX_IRQS)) {
 			handle_domain_irq(hip04_data.domain, irqnr, regs);
 			continue;
@@ -193,6 +240,11 @@ static void __exception_irq_entry hip04_handle_irq(struct pt_regs *regs)
 		}
 		break;
 	} while (1);
+=======
+		if (irqnr <= HIP04_MAX_IRQS)
+			handle_domain_irq(hip04_data.domain, irqnr, regs);
+	} while (irqnr > HIP04_MAX_IRQS);
+>>>>>>> upstream/android-13
 }
 
 static struct irq_chip hip04_irq_chip = {
@@ -203,6 +255,10 @@ static struct irq_chip hip04_irq_chip = {
 	.irq_set_type		= hip04_irq_set_type,
 #ifdef CONFIG_SMP
 	.irq_set_affinity	= hip04_irq_set_affinity,
+<<<<<<< HEAD
+=======
+	.ipi_send_mask		= hip04_ipi_send_mask,
+>>>>>>> upstream/android-13
 #endif
 	.flags			= IRQCHIP_SET_TYPE_MASKED |
 				  IRQCHIP_SKIP_SET_WAKE |
@@ -271,12 +327,17 @@ static void hip04_irq_cpu_init(struct hip04_irq_data *intc)
 		if (i != cpu)
 			hip04_cpu_map[i] &= ~cpu_mask;
 
+<<<<<<< HEAD
 	gic_cpu_config(dist_base, NULL);
+=======
+	gic_cpu_config(dist_base, 32, NULL);
+>>>>>>> upstream/android-13
 
 	writel_relaxed(0xf0, base + GIC_CPU_PRIMASK);
 	writel_relaxed(1, base + GIC_CPU_CTRL);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_SMP
 static void hip04_raise_softirq(const struct cpumask *mask, unsigned int irq)
 {
@@ -302,6 +363,8 @@ static void hip04_raise_softirq(const struct cpumask *mask, unsigned int irq)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static int hip04_irq_domain_map(struct irq_domain *d, unsigned int irq,
 				irq_hw_number_t hw)
 {
@@ -309,7 +372,10 @@ static int hip04_irq_domain_map(struct irq_domain *d, unsigned int irq,
 		irq_set_percpu_devid(irq);
 		irq_set_chip_and_handler(irq, &hip04_irq_chip,
 					 handle_percpu_devid_irq);
+<<<<<<< HEAD
 		irq_set_status_flags(irq, IRQ_NOAUTOEN);
+=======
+>>>>>>> upstream/android-13
 	} else {
 		irq_set_chip_and_handler(irq, &hip04_irq_chip,
 					 handle_fasteoi_irq);
@@ -326,10 +392,20 @@ static int hip04_irq_domain_xlate(struct irq_domain *d,
 				  unsigned long *out_hwirq,
 				  unsigned int *out_type)
 {
+<<<<<<< HEAD
 	unsigned long ret = 0;
 
 	if (irq_domain_get_of_node(d) != controller)
 		return -EINVAL;
+=======
+	if (irq_domain_get_of_node(d) != controller)
+		return -EINVAL;
+	if (intsize == 1 && intspec[0] < 16) {
+		*out_hwirq = intspec[0];
+		*out_type = IRQ_TYPE_EDGE_RISING;
+		return 0;
+	}
+>>>>>>> upstream/android-13
 	if (intsize < 3)
 		return -EINVAL;
 
@@ -342,7 +418,11 @@ static int hip04_irq_domain_xlate(struct irq_domain *d,
 
 	*out_type = intspec[2] & IRQ_TYPE_SENSE_MASK;
 
+<<<<<<< HEAD
 	return ret;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int hip04_irq_starting_cpu(unsigned int cpu)
@@ -359,7 +439,10 @@ static const struct irq_domain_ops hip04_irq_domain_ops = {
 static int __init
 hip04_of_init(struct device_node *node, struct device_node *parent)
 {
+<<<<<<< HEAD
 	irq_hw_number_t hwirq_base = 16;
+=======
+>>>>>>> upstream/android-13
 	int nr_irqs, irq_base, i;
 
 	if (WARN_ON(!node))
@@ -388,24 +471,38 @@ hip04_of_init(struct device_node *node, struct device_node *parent)
 		nr_irqs = HIP04_MAX_IRQS;
 	hip04_data.nr_irqs = nr_irqs;
 
+<<<<<<< HEAD
 	nr_irqs -= hwirq_base; /* calculate # of irqs to allocate */
 
 	irq_base = irq_alloc_descs(-1, hwirq_base, nr_irqs, numa_node_id());
+=======
+	irq_base = irq_alloc_descs(-1, 0, nr_irqs, numa_node_id());
+>>>>>>> upstream/android-13
 	if (irq_base < 0) {
 		pr_err("failed to allocate IRQ numbers\n");
 		return -EINVAL;
 	}
 
 	hip04_data.domain = irq_domain_add_legacy(node, nr_irqs, irq_base,
+<<<<<<< HEAD
 						  hwirq_base,
 						  &hip04_irq_domain_ops,
 						  &hip04_data);
 
+=======
+						  0,
+						  &hip04_irq_domain_ops,
+						  &hip04_data);
+>>>>>>> upstream/android-13
 	if (WARN_ON(!hip04_data.domain))
 		return -EINVAL;
 
 #ifdef CONFIG_SMP
+<<<<<<< HEAD
 	set_smp_cross_call(hip04_raise_softirq);
+=======
+	set_smp_ipi_range(irq_base, 16);
+>>>>>>> upstream/android-13
 #endif
 	set_handle_irq(hip04_handle_irq);
 

@@ -50,7 +50,15 @@ int delete_filter(struct adapter *adapter, unsigned int fidx);
 
 int writable_filter(struct filter_entry *f);
 void clear_all_filters(struct adapter *adapter);
+<<<<<<< HEAD
 int init_hash_filter(struct adapter *adap);
 bool is_filter_exact_match(struct adapter *adap,
 			   struct ch_filter_specification *fs);
+=======
+void init_hash_filter(struct adapter *adap);
+bool is_filter_exact_match(struct adapter *adap,
+			   struct ch_filter_specification *fs);
+void cxgb4_cleanup_ethtool_filters(struct adapter *adap);
+int cxgb4_init_ethtool_filters(struct adapter *adap);
+>>>>>>> upstream/android-13
 #endif /* __CXGB4_FILTER_H */

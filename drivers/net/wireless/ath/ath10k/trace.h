@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2005-2011 Atheros Communications Inc.
  * Copyright (c) 2011-2016 Qualcomm Atheros, Inc.
@@ -13,6 +14,12 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+/* SPDX-License-Identifier: ISC */
+/*
+ * Copyright (c) 2005-2011 Atheros Communications Inc.
+ * Copyright (c) 2011-2016 Qualcomm Atheros, Inc.
+>>>>>>> upstream/android-13
  */
 
 #if !defined(_TRACE_H_) || defined(TRACE_HEADER_MULTI_READ)
@@ -40,7 +47,15 @@ static inline u32 ath10k_frm_hdr_len(const void *buf, size_t len)
 #if !defined(CONFIG_ATH10K_TRACING)
 #undef TRACE_EVENT
 #define TRACE_EVENT(name, proto, ...) \
+<<<<<<< HEAD
 static inline void trace_ ## name(proto) {}
+=======
+static inline void trace_ ## name(proto) {} \
+static inline bool trace_##name##_enabled(void) \
+{						\
+	return false;				\
+}
+>>>>>>> upstream/android-13
 #undef DECLARE_EVENT_CLASS
 #define DECLARE_EVENT_CLASS(...)
 #undef DEFINE_EVENT
@@ -246,7 +261,11 @@ TRACE_EVENT(ath10k_wmi_dbglog,
 	TP_STRUCT__entry(
 		__string(device, dev_name(ar->dev))
 		__string(driver, dev_driver_string(ar->dev))
+<<<<<<< HEAD
 		__field(u8, hw_type);
+=======
+		__field(u8, hw_type)
+>>>>>>> upstream/android-13
 		__field(size_t, buf_len)
 		__dynamic_array(u8, buf, buf_len)
 	),
@@ -276,7 +295,11 @@ TRACE_EVENT(ath10k_htt_pktlog,
 	TP_STRUCT__entry(
 		__string(device, dev_name(ar->dev))
 		__string(driver, dev_driver_string(ar->dev))
+<<<<<<< HEAD
 		__field(u8, hw_type);
+=======
+		__field(u8, hw_type)
+>>>>>>> upstream/android-13
 		__field(u16, buf_len)
 		__dynamic_array(u8, pktlog, buf_len)
 	),
@@ -290,7 +313,11 @@ TRACE_EVENT(ath10k_htt_pktlog,
 	),
 
 	TP_printk(
+<<<<<<< HEAD
 		"%s %s %d size %hu",
+=======
+		"%s %s %d size %u",
+>>>>>>> upstream/android-13
 		__get_str(driver),
 		__get_str(device),
 		__entry->hw_type,
@@ -442,7 +469,11 @@ TRACE_EVENT(ath10k_htt_rx_desc,
 	TP_STRUCT__entry(
 		__string(device, dev_name(ar->dev))
 		__string(driver, dev_driver_string(ar->dev))
+<<<<<<< HEAD
 		__field(u8, hw_type);
+=======
+		__field(u8, hw_type)
+>>>>>>> upstream/android-13
 		__field(u16, len)
 		__dynamic_array(u8, rxdesc, len)
 	),
@@ -495,7 +526,11 @@ TRACE_EVENT(ath10k_wmi_diag_container,
 	),
 
 	TP_printk(
+<<<<<<< HEAD
 		"%s %s diag container type %hhu timestamp %u code %u len %d",
+=======
+		"%s %s diag container type %u timestamp %u code %u len %d",
+>>>>>>> upstream/android-13
 		__get_str(driver),
 		__get_str(device),
 		__entry->type,

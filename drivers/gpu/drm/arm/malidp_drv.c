@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * (C) COPYRIGHT 2016 ARM Limited. All rights reserved.
  * Author: Liviu Dudau <Liviu.Dudau@arm.com>
  *
+<<<<<<< HEAD
  * This program is free software and is provided to you under the terms of the
  * GNU General Public License version 2 as published by the Free Software
  * Foundation, and any use by you of this program is subject to the terms
  * of such GNU licence.
  *
+=======
+>>>>>>> upstream/android-13
  * ARM Mali DP500/DP550/DP650 KMS/DRM driver
  */
 
@@ -19,6 +26,7 @@
 #include <linux/pm_runtime.h>
 #include <linux/debugfs.h>
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/drm_atomic.h>
 #include <drm/drm_atomic_helper.h>
@@ -26,10 +34,24 @@
 #include <drm/drm_crtc_helper.h>
 #include <drm/drm_fb_helper.h>
 #include <drm/drm_fb_cma_helper.h>
+=======
+#include <drm/drm_atomic.h>
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_crtc.h>
+#include <drm/drm_drv.h>
+#include <drm/drm_fb_cma_helper.h>
+#include <drm/drm_fb_helper.h>
+#include <drm/drm_fourcc.h>
+>>>>>>> upstream/android-13
 #include <drm/drm_gem_cma_helper.h>
 #include <drm/drm_gem_framebuffer_helper.h>
 #include <drm/drm_modeset_helper.h>
 #include <drm/drm_of.h>
+<<<<<<< HEAD
+=======
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_vblank.h>
+>>>>>>> upstream/android-13
 
 #include "malidp_drv.h"
 #include "malidp_mw.h"
@@ -37,6 +59,11 @@
 #include "malidp_hw.h"
 
 #define MALIDP_CONF_VALID_TIMEOUT	250
+<<<<<<< HEAD
+=======
+#define AFBC_HEADER_SIZE		16
+#define AFBC_SUPERBLK_ALIGNMENT		128
+>>>>>>> upstream/android-13
 
 static void malidp_write_gamma_table(struct malidp_hw_device *hwdev,
 				     u32 data[MALIDP_COEFFTAB_NUM_COEFFS])
@@ -234,6 +261,10 @@ static void malidp_atomic_commit_tail(struct drm_atomic_state *state)
 	struct drm_crtc *crtc;
 	struct drm_crtc_state *old_crtc_state;
 	int i;
+<<<<<<< HEAD
+=======
+	bool fence_cookie = dma_fence_begin_signalling();
+>>>>>>> upstream/android-13
 
 	pm_runtime_get_sync(drm->dev);
 
@@ -260,6 +291,11 @@ static void malidp_atomic_commit_tail(struct drm_atomic_state *state)
 
 	malidp_atomic_commit_hw_done(state);
 
+<<<<<<< HEAD
+=======
+	dma_fence_end_signalling(fence_cookie);
+
+>>>>>>> upstream/android-13
 	pm_runtime_put(drm->dev);
 
 	drm_atomic_helper_cleanup_planes(drm, state);
@@ -269,9 +305,125 @@ static const struct drm_mode_config_helper_funcs malidp_mode_config_helpers = {
 	.atomic_commit_tail = malidp_atomic_commit_tail,
 };
 
+<<<<<<< HEAD
 static const struct drm_mode_config_funcs malidp_mode_config_funcs = {
 	.fb_create = drm_gem_fb_create,
 	.output_poll_changed = drm_fb_helper_output_poll_changed,
+=======
+static bool
+malidp_verify_afbc_framebuffer_caps(struct drm_device *dev,
+				    const struct drm_mode_fb_cmd2 *mode_cmd)
+{
+	if (malidp_format_mod_supported(dev, mode_cmd->pixel_format,
+					mode_cmd->modifier[0]) == false)
+		return false;
+
+	if (mode_cmd->offsets[0] != 0) {
+		DRM_DEBUG_KMS("AFBC buffers' plane offset should be 0\n");
+		return false;
+	}
+
+	switch (mode_cmd->modifier[0] & AFBC_SIZE_MASK) {
+	case AFBC_SIZE_16X16:
+		if ((mode_cmd->width % 16) || (mode_cmd->height % 16)) {
+			DRM_DEBUG_KMS("AFBC buffers must be aligned to 16 pixels\n");
+			return false;
+		}
+		break;
+	default:
+		DRM_DEBUG_KMS("Unsupported AFBC block size\n");
+		return false;
+	}
+
+	return true;
+}
+
+static bool
+malidp_verify_afbc_framebuffer_size(struct drm_device *dev,
+				    struct drm_file *file,
+				    const struct drm_mode_fb_cmd2 *mode_cmd)
+{
+	int n_superblocks = 0;
+	const struct drm_format_info *info;
+	struct drm_gem_object *objs = NULL;
+	u32 afbc_superblock_size = 0, afbc_superblock_height = 0;
+	u32 afbc_superblock_width = 0, afbc_size = 0;
+	int bpp = 0;
+
+	switch (mode_cmd->modifier[0] & AFBC_SIZE_MASK) {
+	case AFBC_SIZE_16X16:
+		afbc_superblock_height = 16;
+		afbc_superblock_width = 16;
+		break;
+	default:
+		DRM_DEBUG_KMS("AFBC superblock size is not supported\n");
+		return false;
+	}
+
+	info = drm_get_format_info(dev, mode_cmd);
+
+	n_superblocks = (mode_cmd->width / afbc_superblock_width) *
+		(mode_cmd->height / afbc_superblock_height);
+
+	bpp = malidp_format_get_bpp(info->format);
+
+	afbc_superblock_size = (bpp * afbc_superblock_width * afbc_superblock_height)
+				/ BITS_PER_BYTE;
+
+	afbc_size = ALIGN(n_superblocks * AFBC_HEADER_SIZE, AFBC_SUPERBLK_ALIGNMENT);
+	afbc_size += n_superblocks * ALIGN(afbc_superblock_size, AFBC_SUPERBLK_ALIGNMENT);
+
+	if ((mode_cmd->width * bpp) != (mode_cmd->pitches[0] * BITS_PER_BYTE)) {
+		DRM_DEBUG_KMS("Invalid value of (pitch * BITS_PER_BYTE) (=%u) "
+			      "should be same as width (=%u) * bpp (=%u)\n",
+			      (mode_cmd->pitches[0] * BITS_PER_BYTE),
+			      mode_cmd->width, bpp);
+		return false;
+	}
+
+	objs = drm_gem_object_lookup(file, mode_cmd->handles[0]);
+	if (!objs) {
+		DRM_DEBUG_KMS("Failed to lookup GEM object\n");
+		return false;
+	}
+
+	if (objs->size < afbc_size) {
+		DRM_DEBUG_KMS("buffer size (%zu) too small for AFBC buffer size = %u\n",
+			      objs->size, afbc_size);
+		drm_gem_object_put(objs);
+		return false;
+	}
+
+	drm_gem_object_put(objs);
+
+	return true;
+}
+
+static bool
+malidp_verify_afbc_framebuffer(struct drm_device *dev, struct drm_file *file,
+			       const struct drm_mode_fb_cmd2 *mode_cmd)
+{
+	if (malidp_verify_afbc_framebuffer_caps(dev, mode_cmd))
+		return malidp_verify_afbc_framebuffer_size(dev, file, mode_cmd);
+
+	return false;
+}
+
+static struct drm_framebuffer *
+malidp_fb_create(struct drm_device *dev, struct drm_file *file,
+		 const struct drm_mode_fb_cmd2 *mode_cmd)
+{
+	if (mode_cmd->modifier[0]) {
+		if (!malidp_verify_afbc_framebuffer(dev, file, mode_cmd))
+			return ERR_PTR(-EINVAL);
+	}
+
+	return drm_gem_fb_create(dev, file, mode_cmd);
+}
+
+static const struct drm_mode_config_funcs malidp_mode_config_funcs = {
+	.fb_create = malidp_fb_create,
+>>>>>>> upstream/android-13
 	.atomic_check = drm_atomic_helper_check,
 	.atomic_commit = drm_atomic_helper_commit,
 };
@@ -380,9 +532,15 @@ void malidp_error(struct malidp_drm *malidp,
 	spin_unlock_irqrestore(&malidp->errors_lock, irqflags);
 }
 
+<<<<<<< HEAD
 void malidp_error_stats_dump(const char *prefix,
 			     struct malidp_error_stats error_stats,
 			     struct seq_file *m)
+=======
+static void malidp_error_stats_dump(const char *prefix,
+				    struct malidp_error_stats error_stats,
+				    struct seq_file *m)
+>>>>>>> upstream/android-13
 {
 	seq_printf(m, "[%s] num_errors : %d\n", prefix,
 		   error_stats.num_errors);
@@ -437,14 +595,21 @@ static const struct file_operations malidp_debugfs_fops = {
 	.release = single_release,
 };
 
+<<<<<<< HEAD
 static int malidp_debugfs_init(struct drm_minor *minor)
 {
 	struct malidp_drm *malidp = minor->dev->dev_private;
 	struct dentry *dentry = NULL;
+=======
+static void malidp_debugfs_init(struct drm_minor *minor)
+{
+	struct malidp_drm *malidp = minor->dev->dev_private;
+>>>>>>> upstream/android-13
 
 	malidp_error_stats_init(&malidp->de_errors);
 	malidp_error_stats_init(&malidp->se_errors);
 	spin_lock_init(&malidp->errors_lock);
+<<<<<<< HEAD
 	dentry = debugfs_create_file("debug",
 				     S_IRUGO | S_IWUSR,
 				     minor->debugfs_root, minor->dev,
@@ -454,10 +619,15 @@ static int malidp_debugfs_init(struct drm_minor *minor)
 		return -ENOMEM;
 	}
 	return 0;
+=======
+	debugfs_create_file("debug", S_IRUGO | S_IWUSR, minor->debugfs_root,
+			    minor->dev, &malidp_debugfs_fops);
+>>>>>>> upstream/android-13
 }
 
 #endif //CONFIG_DEBUG_FS
 
+<<<<<<< HEAD
 static struct drm_driver malidp_driver = {
 	.driver_features = DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC |
 			   DRIVER_PRIME,
@@ -474,6 +644,11 @@ static struct drm_driver malidp_driver = {
 	.gem_prime_vmap = drm_gem_cma_prime_vmap,
 	.gem_prime_vunmap = drm_gem_cma_prime_vunmap,
 	.gem_prime_mmap = drm_gem_cma_prime_mmap,
+=======
+static const struct drm_driver malidp_driver = {
+	.driver_features = DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC,
+	DRM_GEM_CMA_DRIVER_OPS_WITH_DUMB_CREATE(malidp_dumb_create),
+>>>>>>> upstream/android-13
 #ifdef CONFIG_DEBUG_FS
 	.debugfs_init = malidp_debugfs_init,
 #endif
@@ -565,6 +740,7 @@ static ssize_t core_id_show(struct device *dev, struct device_attribute *attr,
 	return snprintf(buf, PAGE_SIZE, "%08x\n", malidp->core_id);
 }
 
+<<<<<<< HEAD
 DEVICE_ATTR_RO(core_id);
 
 static int malidp_init_sysfs(struct device *dev)
@@ -581,6 +757,15 @@ static void malidp_fini_sysfs(struct device *dev)
 {
 	device_remove_file(dev, &dev_attr_core_id);
 }
+=======
+static DEVICE_ATTR_RO(core_id);
+
+static struct attribute *mali_dp_attrs[] = {
+	&dev_attr_core_id.attr,
+	NULL,
+};
+ATTRIBUTE_GROUPS(mali_dp);
+>>>>>>> upstream/android-13
 
 #define MAX_OUTPUT_CHANNELS	3
 
@@ -717,6 +902,15 @@ static int malidp_bind(struct device *dev)
 
 	malidp->core_id = version;
 
+<<<<<<< HEAD
+=======
+	ret = of_property_read_u32(dev->of_node,
+					"arm,malidp-arqos-value",
+					&hwdev->arqos_value);
+	if (ret)
+		hwdev->arqos_value = 0x0;
+
+>>>>>>> upstream/android-13
 	/* set the number of lines used for output of RGB data */
 	ret = of_property_read_u8_array(dev->of_node,
 					"arm,malidp-output-port-lines",
@@ -736,10 +930,13 @@ static int malidp_bind(struct device *dev)
 	if (ret < 0)
 		goto query_hw_fail;
 
+<<<<<<< HEAD
 	ret = malidp_init_sysfs(dev);
 	if (ret)
 		goto init_fail;
 
+=======
+>>>>>>> upstream/android-13
 	/* Set the CRTC's port so that the encoder component can find it */
 	malidp->crtc.port = of_graph_get_port_by_id(dev->of_node, 0);
 
@@ -762,10 +959,14 @@ static int malidp_bind(struct device *dev)
 	if (ret < 0)
 		goto irq_init_fail;
 
+<<<<<<< HEAD
 	drm->irq_enabled = true;
 
 	ret = drm_vblank_init(drm, drm->mode_config.num_crtc);
 	drm_crtc_vblank_reset(&malidp->crtc);
+=======
+	ret = drm_vblank_init(drm, drm->mode_config.num_crtc);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		DRM_ERROR("failed to initialise vblank\n");
 		goto vblank_fail;
@@ -774,35 +975,53 @@ static int malidp_bind(struct device *dev)
 
 	drm_mode_config_reset(drm);
 
+<<<<<<< HEAD
 	ret = drm_fb_cma_fbdev_init(drm, 32, 0);
 	if (ret)
 		goto fbdev_fail;
 
+=======
+>>>>>>> upstream/android-13
 	drm_kms_helper_poll_init(drm);
 
 	ret = drm_dev_register(drm, 0);
 	if (ret)
 		goto register_fail;
 
+<<<<<<< HEAD
 	return 0;
 
 register_fail:
 	drm_fb_cma_fbdev_fini(drm);
 	drm_kms_helper_poll_fini(drm);
 fbdev_fail:
+=======
+	drm_fbdev_generic_setup(drm, 32);
+
+	return 0;
+
+register_fail:
+	drm_kms_helper_poll_fini(drm);
+>>>>>>> upstream/android-13
 	pm_runtime_get_sync(dev);
 vblank_fail:
 	malidp_se_irq_fini(hwdev);
 	malidp_de_irq_fini(hwdev);
+<<<<<<< HEAD
 	drm->irq_enabled = false;
+=======
+>>>>>>> upstream/android-13
 irq_init_fail:
 	drm_atomic_helper_shutdown(drm);
 	component_unbind_all(dev, drm);
 bind_fail:
 	of_node_put(malidp->crtc.port);
 	malidp->crtc.port = NULL;
+<<<<<<< HEAD
 init_fail:
 	malidp_fini_sysfs(dev);
+=======
+>>>>>>> upstream/android-13
 	malidp_fini(drm);
 query_hw_fail:
 	pm_runtime_put(dev);
@@ -826,6 +1045,7 @@ static void malidp_unbind(struct device *dev)
 	struct malidp_hw_device *hwdev = malidp->dev;
 
 	drm_dev_unregister(drm);
+<<<<<<< HEAD
 	drm_fb_cma_fbdev_fini(drm);
 	drm_kms_helper_poll_fini(drm);
 	pm_runtime_get_sync(dev);
@@ -838,6 +1058,16 @@ static void malidp_unbind(struct device *dev)
 	of_node_put(malidp->crtc.port);
 	malidp->crtc.port = NULL;
 	malidp_fini_sysfs(dev);
+=======
+	drm_kms_helper_poll_fini(drm);
+	pm_runtime_get_sync(dev);
+	drm_atomic_helper_shutdown(drm);
+	malidp_se_irq_fini(hwdev);
+	malidp_de_irq_fini(hwdev);
+	component_unbind_all(dev, drm);
+	of_node_put(malidp->crtc.port);
+	malidp->crtc.port = NULL;
+>>>>>>> upstream/android-13
 	malidp_fini(drm);
 	pm_runtime_put(dev);
 	if (pm_runtime_enabled(dev))
@@ -933,6 +1163,10 @@ static struct platform_driver malidp_platform_driver = {
 		.name = "mali-dp",
 		.pm = &malidp_pm_ops,
 		.of_match_table	= malidp_drm_of_match,
+<<<<<<< HEAD
+=======
+		.dev_groups = mali_dp_groups,
+>>>>>>> upstream/android-13
 	},
 };
 

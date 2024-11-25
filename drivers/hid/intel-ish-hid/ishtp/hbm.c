@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ISHTP bus layer messages handling
  *
  * Copyright (c) 2003-2016, Intel Corporation.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -12,6 +17,8 @@
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/export.h>
@@ -136,6 +143,7 @@ int ishtp_hbm_start_wait(struct ishtp_device *dev)
 int ishtp_hbm_start_req(struct ishtp_device *dev)
 {
 	struct ishtp_msg_hdr hdr;
+<<<<<<< HEAD
 	unsigned char data[128];
 	struct ishtp_msg_hdr *ishtp_hdr = &hdr;
 	struct hbm_host_version_request *start_req;
@@ -149,6 +157,16 @@ int ishtp_hbm_start_req(struct ishtp_device *dev)
 	start_req->hbm_cmd = HOST_START_REQ_CMD;
 	start_req->host_version.major_version = HBM_MAJOR_VERSION;
 	start_req->host_version.minor_version = HBM_MINOR_VERSION;
+=======
+	struct hbm_host_version_request start_req = { 0 };
+
+	ishtp_hbm_hdr(&hdr, sizeof(start_req));
+
+	/* host start message */
+	start_req.hbm_cmd = HOST_START_REQ_CMD;
+	start_req.host_version.major_version = HBM_MAJOR_VERSION;
+	start_req.host_version.minor_version = HBM_MINOR_VERSION;
+>>>>>>> upstream/android-13
 
 	/*
 	 * (!) Response to HBM start may be so quick that this thread would get
@@ -156,7 +174,11 @@ int ishtp_hbm_start_req(struct ishtp_device *dev)
 	 * So set it at first, change back to ISHTP_HBM_IDLE upon failure
 	 */
 	dev->hbm_state = ISHTP_HBM_START;
+<<<<<<< HEAD
 	if (ishtp_write_message(dev, ishtp_hdr, data)) {
+=======
+	if (ishtp_write_message(dev, &hdr, &start_req)) {
+>>>>>>> upstream/android-13
 		dev_err(dev->devc, "version message send failed\n");
 		dev->dev_state = ISHTP_DEV_RESETTING;
 		dev->hbm_state = ISHTP_HBM_IDLE;
@@ -178,6 +200,7 @@ int ishtp_hbm_start_req(struct ishtp_device *dev)
 void ishtp_hbm_enum_clients_req(struct ishtp_device *dev)
 {
 	struct ishtp_msg_hdr hdr;
+<<<<<<< HEAD
 	unsigned char data[128];
 	struct ishtp_msg_hdr *ishtp_hdr = &hdr;
 	struct hbm_host_enum_request *enum_req;
@@ -191,6 +214,15 @@ void ishtp_hbm_enum_clients_req(struct ishtp_device *dev)
 	enum_req->hbm_cmd = HOST_ENUM_REQ_CMD;
 
 	if (ishtp_write_message(dev, ishtp_hdr, data)) {
+=======
+	struct hbm_host_enum_request enum_req = { 0 };
+
+	/* enumerate clients */
+	ishtp_hbm_hdr(&hdr, sizeof(enum_req));
+	enum_req.hbm_cmd = HOST_ENUM_REQ_CMD;
+
+	if (ishtp_write_message(dev, &hdr, &enum_req)) {
+>>>>>>> upstream/android-13
 		dev->dev_state = ISHTP_DEV_RESETTING;
 		dev_err(dev->devc, "enumeration request send failed\n");
 		ish_hw_reset(dev);
@@ -208,12 +240,17 @@ void ishtp_hbm_enum_clients_req(struct ishtp_device *dev)
  */
 static int ishtp_hbm_prop_req(struct ishtp_device *dev)
 {
+<<<<<<< HEAD
 
 	struct ishtp_msg_hdr hdr;
 	unsigned char data[128];
 	struct ishtp_msg_hdr *ishtp_hdr = &hdr;
 	struct hbm_props_request *prop_req;
 	const size_t len = sizeof(struct hbm_props_request);
+=======
+	struct ishtp_msg_hdr hdr;
+	struct hbm_props_request prop_req = { 0 };
+>>>>>>> upstream/android-13
 	unsigned long next_client_index;
 	uint8_t client_num;
 
@@ -237,6 +274,7 @@ static int ishtp_hbm_prop_req(struct ishtp_device *dev)
 
 	dev->fw_clients[client_num].client_id = next_client_index;
 
+<<<<<<< HEAD
 	ishtp_hbm_hdr(ishtp_hdr, len);
 	prop_req = (struct hbm_props_request *)data;
 
@@ -246,6 +284,14 @@ static int ishtp_hbm_prop_req(struct ishtp_device *dev)
 	prop_req->address = next_client_index;
 
 	if (ishtp_write_message(dev, ishtp_hdr, data)) {
+=======
+	ishtp_hbm_hdr(&hdr, sizeof(prop_req));
+
+	prop_req.hbm_cmd = HOST_CLIENT_PROPERTIES_REQ_CMD;
+	prop_req.address = next_client_index;
+
+	if (ishtp_write_message(dev, &hdr, &prop_req)) {
+>>>>>>> upstream/android-13
 		dev->dev_state = ISHTP_DEV_RESETTING;
 		dev_err(dev->devc, "properties request send failed\n");
 		ish_hw_reset(dev);
@@ -266,6 +312,7 @@ static int ishtp_hbm_prop_req(struct ishtp_device *dev)
 static void ishtp_hbm_stop_req(struct ishtp_device *dev)
 {
 	struct ishtp_msg_hdr hdr;
+<<<<<<< HEAD
 	unsigned char data[128];
 	struct ishtp_msg_hdr *ishtp_hdr = &hdr;
 	struct hbm_host_stop_request *req;
@@ -279,6 +326,16 @@ static void ishtp_hbm_stop_req(struct ishtp_device *dev)
 	req->reason = DRIVER_STOP_REQUEST;
 
 	ishtp_write_message(dev, ishtp_hdr, data);
+=======
+	struct hbm_host_stop_request stop_req = { 0 } ;
+
+	ishtp_hbm_hdr(&hdr, sizeof(stop_req));
+
+	stop_req.hbm_cmd = HOST_STOP_REQ_CMD;
+	stop_req.reason = DRIVER_STOP_REQUEST;
+
+	ishtp_write_message(dev, &hdr, &stop_req);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -294,15 +351,26 @@ int ishtp_hbm_cl_flow_control_req(struct ishtp_device *dev,
 				  struct ishtp_cl *cl)
 {
 	struct ishtp_msg_hdr hdr;
+<<<<<<< HEAD
 	unsigned char data[128];
 	struct ishtp_msg_hdr *ishtp_hdr = &hdr;
 	const size_t len = sizeof(struct hbm_flow_control);
+=======
+	struct hbm_flow_control flow_ctrl;
+	const size_t len = sizeof(flow_ctrl);
+>>>>>>> upstream/android-13
 	int	rv;
 	unsigned long	flags;
 
 	spin_lock_irqsave(&cl->fc_spinlock, flags);
+<<<<<<< HEAD
 	ishtp_hbm_hdr(ishtp_hdr, len);
 	ishtp_hbm_cl_hdr(cl, ISHTP_FLOW_CONTROL_CMD, data, len);
+=======
+
+	ishtp_hbm_hdr(&hdr, len);
+	ishtp_hbm_cl_hdr(cl, ISHTP_FLOW_CONTROL_CMD, &flow_ctrl, len);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Sync possible race when RB recycle and packet receive paths
@@ -315,7 +383,11 @@ int ishtp_hbm_cl_flow_control_req(struct ishtp_device *dev,
 
 	cl->recv_msg_num_frags = 0;
 
+<<<<<<< HEAD
 	rv = ishtp_write_message(dev, ishtp_hdr, data);
+=======
+	rv = ishtp_write_message(dev, &hdr, &flow_ctrl);
+>>>>>>> upstream/android-13
 	if (!rv) {
 		++cl->out_flow_ctrl_creds;
 		++cl->out_flow_ctrl_cnt;
@@ -345,6 +417,7 @@ int ishtp_hbm_cl_flow_control_req(struct ishtp_device *dev,
 int ishtp_hbm_cl_disconnect_req(struct ishtp_device *dev, struct ishtp_cl *cl)
 {
 	struct ishtp_msg_hdr hdr;
+<<<<<<< HEAD
 	unsigned char data[128];
 	struct ishtp_msg_hdr *ishtp_hdr = &hdr;
 	const size_t len = sizeof(struct hbm_client_connect_request);
@@ -353,6 +426,15 @@ int ishtp_hbm_cl_disconnect_req(struct ishtp_device *dev, struct ishtp_cl *cl)
 	ishtp_hbm_cl_hdr(cl, CLIENT_DISCONNECT_REQ_CMD, data, len);
 
 	return ishtp_write_message(dev, ishtp_hdr, data);
+=======
+	struct hbm_client_connect_request disconn_req;
+	const size_t len = sizeof(disconn_req);
+
+	ishtp_hbm_hdr(&hdr, len);
+	ishtp_hbm_cl_hdr(cl, CLIENT_DISCONNECT_REQ_CMD, &disconn_req, len);
+
+	return ishtp_write_message(dev, &hdr, &disconn_req);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -391,6 +473,7 @@ static void ishtp_hbm_cl_disconnect_res(struct ishtp_device *dev,
 int ishtp_hbm_cl_connect_req(struct ishtp_device *dev, struct ishtp_cl *cl)
 {
 	struct ishtp_msg_hdr hdr;
+<<<<<<< HEAD
 	unsigned char data[128];
 	struct ishtp_msg_hdr *ishtp_hdr = &hdr;
 	const size_t len = sizeof(struct hbm_client_connect_request);
@@ -399,6 +482,15 @@ int ishtp_hbm_cl_connect_req(struct ishtp_device *dev, struct ishtp_cl *cl)
 	ishtp_hbm_cl_hdr(cl, CLIENT_CONNECT_REQ_CMD, data, len);
 
 	return ishtp_write_message(dev, ishtp_hdr, data);
+=======
+	struct hbm_client_connect_request conn_req;
+	const size_t len = sizeof(conn_req);
+
+	ishtp_hbm_hdr(&hdr, len);
+	ishtp_hbm_cl_hdr(cl, CLIENT_CONNECT_REQ_CMD, &conn_req, len);
+
+	return ishtp_write_message(dev, &hdr, &conn_req);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -432,11 +524,19 @@ static void ishtp_hbm_cl_connect_res(struct ishtp_device *dev,
 }
 
 /**
+<<<<<<< HEAD
  * ishtp_client_disconnect_request() - Receive disconnect request
  * @dev: ISHTP device instance
  * @disconnect_req: disconnect request structure
  *
  * Disconnect request bus message from the fw. Send diconnect response.
+=======
+ * ishtp_hbm_fw_disconnect_req() - Receive disconnect request
+ * @dev: ISHTP device instance
+ * @disconnect_req: disconnect request structure
+ *
+ * Disconnect request bus message from the fw. Send disconnect response.
+>>>>>>> upstream/android-13
  */
 static void ishtp_hbm_fw_disconnect_req(struct ishtp_device *dev,
 	struct hbm_client_connect_request *disconnect_req)
@@ -464,7 +564,11 @@ static void ishtp_hbm_fw_disconnect_req(struct ishtp_device *dev,
 }
 
 /**
+<<<<<<< HEAD
  * ishtp_hbm_dma_xfer_ack(() - Receive transfer ACK
+=======
+ * ishtp_hbm_dma_xfer_ack() - Receive transfer ACK
+>>>>>>> upstream/android-13
  * @dev: ISHTP device instance
  * @dma_xfer: HBM transfer message
  *
@@ -948,7 +1052,11 @@ static inline void fix_cl_hdr(struct ishtp_msg_hdr *hdr, size_t length,
 /*** Suspend and resume notification ***/
 
 static uint32_t current_state;
+<<<<<<< HEAD
 static uint32_t supported_states = 0 | SUSPEND_STATE_BIT;
+=======
+static uint32_t supported_states = SUSPEND_STATE_BIT | CONNECTED_STANDBY_STATE_BIT;
+>>>>>>> upstream/android-13
 
 /**
  * ishtp_send_suspend() - Send suspend message to FW
@@ -967,7 +1075,11 @@ void ishtp_send_suspend(struct ishtp_device *dev)
 	memset(&state_status_msg, 0, len);
 	state_status_msg.hdr.cmd = SYSTEM_STATE_STATUS;
 	state_status_msg.supported_states = supported_states;
+<<<<<<< HEAD
 	current_state |= SUSPEND_STATE_BIT;
+=======
+	current_state |= (SUSPEND_STATE_BIT | CONNECTED_STANDBY_STATE_BIT);
+>>>>>>> upstream/android-13
 	dev->print_log(dev, "%s() sends SUSPEND notification\n", __func__);
 	state_status_msg.states_status = current_state;
 
@@ -993,7 +1105,11 @@ void ishtp_send_resume(struct ishtp_device *dev)
 	memset(&state_status_msg, 0, len);
 	state_status_msg.hdr.cmd = SYSTEM_STATE_STATUS;
 	state_status_msg.supported_states = supported_states;
+<<<<<<< HEAD
 	current_state &= ~SUSPEND_STATE_BIT;
+=======
+	current_state &= ~(CONNECTED_STANDBY_STATE_BIT | SUSPEND_STATE_BIT);
+>>>>>>> upstream/android-13
 	dev->print_log(dev, "%s() sends RESUME notification\n", __func__);
 	state_status_msg.states_status = current_state;
 

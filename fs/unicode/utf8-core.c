@@ -138,7 +138,11 @@ int utf8_casefold_hash(const struct unicode_map *um, const void *salt,
 
 	while ((c = utf8byte(&cur))) {
 		if (c < 0)
+<<<<<<< HEAD
 			return c;
+=======
+			return -EINVAL;
+>>>>>>> upstream/android-13
 		hash = partial_name_hash((unsigned char)c, hash);
 	}
 	str->hash = end_name_hash(hash);
@@ -175,7 +179,11 @@ static int utf8_parse_version(const char *version, unsigned int *maj,
 {
 	substring_t args[3];
 	char version_string[12];
+<<<<<<< HEAD
 	const struct match_token token[] = {
+=======
+	static const struct match_token token[] = {
+>>>>>>> upstream/android-13
 		{1, "%d.%d.%d"},
 		{0, NULL}
 	};

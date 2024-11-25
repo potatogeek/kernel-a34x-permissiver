@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) IBM Corporation, 2014, 2017
  * Anton Blanchard, Rashmica Gupta.
@@ -6,6 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) IBM Corporation, 2014, 2017
+ * Anton Blanchard, Rashmica Gupta.
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "memtrace: " fmt
@@ -20,8 +27,14 @@
 #include <linux/slab.h>
 #include <linux/memory.h>
 #include <linux/memory_hotplug.h>
+<<<<<<< HEAD
 #include <asm/machdep.h>
 #include <asm/debugfs.h>
+=======
+#include <linux/numa.h>
+#include <asm/machdep.h>
+#include <asm/cacheflush.h>
+>>>>>>> upstream/android-13
 
 /* This enables us to keep track of the memory removed from each node. */
 struct memtrace_entry {
@@ -48,10 +61,29 @@ static ssize_t memtrace_read(struct file *filp, char __user *ubuf,
 	return simple_read_from_buffer(ubuf, count, ppos, ent->mem, ent->size);
 }
 
+<<<<<<< HEAD
+=======
+static int memtrace_mmap(struct file *filp, struct vm_area_struct *vma)
+{
+	struct memtrace_entry *ent = filp->private_data;
+
+	if (ent->size < vma->vm_end - vma->vm_start)
+		return -EINVAL;
+
+	if (vma->vm_pgoff << PAGE_SHIFT >= ent->size)
+		return -EINVAL;
+
+	vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
+	return remap_pfn_range(vma, vma->vm_start, PHYS_PFN(ent->start) + vma->vm_pgoff,
+			       vma->vm_end - vma->vm_start, vma->vm_page_prot);
+}
+
+>>>>>>> upstream/android-13
 static const struct file_operations memtrace_fops = {
 	.llseek = default_llseek,
 	.read	= memtrace_read,
 	.open	= simple_open,
+<<<<<<< HEAD
 };
 
 static int check_memblock_online(struct memory_block *mem, void *arg)
@@ -69,6 +101,30 @@ static int change_memblock_state(struct memory_block *mem, void *arg)
 	mem->state = state;
 
 	return 0;
+=======
+	.mmap   = memtrace_mmap,
+};
+
+#define FLUSH_CHUNK_SIZE SZ_1G
+/**
+ * flush_dcache_range_chunked(): Write any modified data cache blocks out to
+ * memory and invalidate them, in chunks of up to FLUSH_CHUNK_SIZE
+ * Does not invalidate the corresponding instruction cache blocks.
+ *
+ * @start: the start address
+ * @stop: the stop address (exclusive)
+ * @chunk: the max size of the chunks
+ */
+static void flush_dcache_range_chunked(unsigned long start, unsigned long stop,
+				       unsigned long chunk)
+{
+	unsigned long i;
+
+	for (i = start; i < stop; i += chunk) {
+		flush_dcache_range(i, min(stop, i + chunk));
+		cond_resched();
+	}
+>>>>>>> upstream/android-13
 }
 
 static void memtrace_clear_range(unsigned long start_pfn,
@@ -76,16 +132,21 @@ static void memtrace_clear_range(unsigned long start_pfn,
 {
 	unsigned long pfn;
 
+<<<<<<< HEAD
 	/*
 	 * As pages are offline, we cannot trust the memmap anymore. As HIGHMEM
 	 * does not apply, avoid passing around "struct page" and use
 	 * clear_page() instead directly.
 	 */
+=======
+	/* As HIGHMEM does not apply, use clear_page() directly. */
+>>>>>>> upstream/android-13
 	for (pfn = start_pfn; pfn < start_pfn + nr_pages; pfn++) {
 		if (IS_ALIGNED(pfn, PAGES_PER_SECTION))
 			cond_resched();
 		clear_page(__va(PFN_PHYS(pfn)));
 	}
+<<<<<<< HEAD
 }
 
 /* called with device_hotplug_lock held */
@@ -111,10 +172,20 @@ static bool memtrace_offline_pages(u32 nid, u64 start_pfn, u64 nr_pages)
 
 
 	return true;
+=======
+	/*
+	 * Before we go ahead and use this range as cache inhibited range
+	 * flush the cache.
+	 */
+	flush_dcache_range_chunked((unsigned long)pfn_to_kaddr(start_pfn),
+				   (unsigned long)pfn_to_kaddr(start_pfn + nr_pages),
+				   FLUSH_CHUNK_SIZE);
+>>>>>>> upstream/android-13
 }
 
 static u64 memtrace_alloc_node(u32 nid, u64 size)
 {
+<<<<<<< HEAD
 	u64 start_pfn, end_pfn, nr_pages, pfn;
 	u64 base_pfn;
 	u64 bytes = memory_block_size_bytes();
@@ -154,6 +225,39 @@ static u64 memtrace_alloc_node(u32 nid, u64 size)
 	unlock_device_hotplug();
 
 	return 0;
+=======
+	const unsigned long nr_pages = PHYS_PFN(size);
+	unsigned long pfn, start_pfn;
+	struct page *page;
+
+	/*
+	 * Trace memory needs to be aligned to the size, which is guaranteed
+	 * by alloc_contig_pages().
+	 */
+	page = alloc_contig_pages(nr_pages, GFP_KERNEL | __GFP_THISNODE |
+				  __GFP_NOWARN, nid, NULL);
+	if (!page)
+		return 0;
+	start_pfn = page_to_pfn(page);
+
+	/*
+	 * Clear the range while we still have a linear mapping.
+	 *
+	 * TODO: use __GFP_ZERO with alloc_contig_pages() once supported.
+	 */
+	memtrace_clear_range(start_pfn, nr_pages);
+
+	/*
+	 * Set pages PageOffline(), to indicate that nobody (e.g., hibernation,
+	 * dumping, ...) should be touching these pages.
+	 */
+	for (pfn = start_pfn; pfn < start_pfn + nr_pages; pfn++)
+		__SetPageOffline(pfn_to_page(pfn));
+
+	arch_remove_linear_mapping(PFN_PHYS(start_pfn), size);
+
+	return PFN_PHYS(start_pfn);
+>>>>>>> upstream/android-13
 }
 
 static int memtrace_init_regions_runtime(u64 size)
@@ -213,6 +317,7 @@ static int memtrace_init_debugfs(void)
 
 		snprintf(ent->name, 16, "%08x", ent->nid);
 		dir = debugfs_create_dir(ent->name, memtrace_debugfs_dir);
+<<<<<<< HEAD
 		if (!dir) {
 			pr_err("Failed to create debugfs directory for node %d\n",
 				ent->nid);
@@ -221,6 +326,11 @@ static int memtrace_init_debugfs(void)
 
 		ent->dir = dir;
 		debugfs_create_file("trace", 0400, dir, ent, &memtrace_fops);
+=======
+
+		ent->dir = dir;
+		debugfs_create_file_unsafe("trace", 0600, dir, ent, &memtrace_fops);
+>>>>>>> upstream/android-13
 		debugfs_create_x64("start", 0400, dir, &ent->start);
 		debugfs_create_x64("size", 0400, dir, &ent->size);
 	}
@@ -228,6 +338,7 @@ static int memtrace_init_debugfs(void)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int online_mem_block(struct memory_block *mem, void *arg)
 {
 	return device_online(&mem->dev);
@@ -238,6 +349,32 @@ static int online_mem_block(struct memory_block *mem, void *arg)
  * and attempt to add them back to the kernel.
  */
 static int memtrace_online(void)
+=======
+static int memtrace_free(int nid, u64 start, u64 size)
+{
+	struct mhp_params params = { .pgprot = PAGE_KERNEL };
+	const unsigned long nr_pages = PHYS_PFN(size);
+	const unsigned long start_pfn = PHYS_PFN(start);
+	unsigned long pfn;
+	int ret;
+
+	ret = arch_create_linear_mapping(nid, start, size, &params);
+	if (ret)
+		return ret;
+
+	for (pfn = start_pfn; pfn < start_pfn + nr_pages; pfn++)
+		__ClearPageOffline(pfn_to_page(pfn));
+
+	free_contig_range(start_pfn, nr_pages);
+	return 0;
+}
+
+/*
+ * Iterate through the chunks of memory we allocated and attempt to expose
+ * them back to the kernel.
+ */
+static int memtrace_free_regions(void)
+>>>>>>> upstream/android-13
 {
 	int i, ret = 0;
 	struct memtrace_entry *ent;
@@ -245,8 +382,13 @@ static int memtrace_online(void)
 	for (i = memtrace_array_nr - 1; i >= 0; i--) {
 		ent = &memtrace_array[i];
 
+<<<<<<< HEAD
 		/* We have onlined this chunk previously */
 		if (ent->nid == -1)
+=======
+		/* We have freed this chunk previously */
+		if (ent->nid == NUMA_NO_NODE)
+>>>>>>> upstream/android-13
 			continue;
 
 		/* Remove from io mappings */
@@ -255,14 +397,20 @@ static int memtrace_online(void)
 			ent->mem = 0;
 		}
 
+<<<<<<< HEAD
 		if (add_memory(ent->nid, ent->start, ent->size)) {
 			pr_err("Failed to add trace memory to node %d\n",
+=======
+		if (memtrace_free(ent->nid, ent->start, ent->size)) {
+			pr_err("Failed to free trace memory on node %d\n",
+>>>>>>> upstream/android-13
 				ent->nid);
 			ret += 1;
 			continue;
 		}
 
 		/*
+<<<<<<< HEAD
 		 * If kernel isn't compiled with the auto online option
 		 * we need to online the memory ourselves.
 		 */
@@ -281,11 +429,23 @@ static int memtrace_online(void)
 		debugfs_remove_recursive(ent->dir);
 		pr_info("Added trace memory back to node %d\n", ent->nid);
 		ent->size = ent->start = ent->nid = -1;
+=======
+		 * Memory was freed successfully so clean up references to it
+		 * so on reentry we can tell that this chunk was freed.
+		 */
+		debugfs_remove_recursive(ent->dir);
+		pr_info("Freed trace memory back on node %d\n", ent->nid);
+		ent->size = ent->start = ent->nid = NUMA_NO_NODE;
+>>>>>>> upstream/android-13
 	}
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	/* If all chunks of memory were added successfully, reset globals */
+=======
+	/* If all chunks of memory were freed successfully, reset globals */
+>>>>>>> upstream/android-13
 	kfree(memtrace_array);
 	memtrace_array = NULL;
 	memtrace_size = 0;
@@ -310,18 +470,28 @@ static int memtrace_enable_set(void *data, u64 val)
 
 	mutex_lock(&memtrace_mutex);
 
+<<<<<<< HEAD
 	/* Re-add/online previously removed/offlined memory */
 	if (memtrace_size) {
 		if (memtrace_online())
 			goto out_unlock;
 	}
+=======
+	/* Free all previously allocated memory. */
+	if (memtrace_size && memtrace_free_regions())
+		goto out_unlock;
+>>>>>>> upstream/android-13
 
 	if (!val) {
 		rc = 0;
 		goto out_unlock;
 	}
 
+<<<<<<< HEAD
 	/* Offline and remove memory */
+=======
+	/* Allocate memory. */
+>>>>>>> upstream/android-13
 	if (memtrace_init_regions_runtime(val))
 		goto out_unlock;
 
@@ -347,9 +517,13 @@ DEFINE_SIMPLE_ATTRIBUTE(memtrace_init_fops, memtrace_enable_get,
 static int memtrace_init(void)
 {
 	memtrace_debugfs_dir = debugfs_create_dir("memtrace",
+<<<<<<< HEAD
 						  powerpc_debugfs_root);
 	if (!memtrace_debugfs_dir)
 		return -1;
+=======
+						  arch_debugfs_dir);
+>>>>>>> upstream/android-13
 
 	debugfs_create_file("enable", 0600, memtrace_debugfs_dir,
 			    NULL, &memtrace_init_fops);

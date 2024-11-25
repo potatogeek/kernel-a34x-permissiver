@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /***************************************************************************
  *   Copyright (C) 2006 by Hans Edgington <hans@edgington.nl>              *
  *   Copyright (C) 2007-2011 Hans de Goede <hdegoede@redhat.com>           *
  *                                                                         *
+<<<<<<< HEAD
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
@@ -16,6 +21,8 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+=======
+>>>>>>> upstream/android-13
  ***************************************************************************/
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -1298,7 +1305,11 @@ static struct f71882fg_data *f71882fg_update_device(struct device *dev)
 				data->pwm_auto_point_pwm[nr][0] =
 					f71882fg_read8(data,
 						F71882FG_REG_POINT_PWM(nr, 0));
+<<<<<<< HEAD
 				/* Fall through */
+=======
+				fallthrough;
+>>>>>>> upstream/android-13
 			case f71862fg:
 				data->pwm_auto_point_pwm[nr][1] =
 					f71882fg_read8(data,
@@ -1590,8 +1601,14 @@ static ssize_t show_temp(struct device *dev, struct device_attribute *devattr,
 		temp *= 125;
 		if (sign)
 			temp -= 128000;
+<<<<<<< HEAD
 	} else
 		temp = data->temp[nr] * 1000;
+=======
+	} else {
+		temp = ((s8)data->temp[nr]) * 1000;
+	}
+>>>>>>> upstream/android-13
 
 	return sprintf(buf, "%d\n", temp);
 }
@@ -2455,7 +2472,11 @@ static int f71882fg_probe(struct platform_device *pdev)
 		case f71869a:
 			/* These always have signed auto point temps */
 			data->auto_point_temp_signed = 1;
+<<<<<<< HEAD
 			/* Fall through to select correct fan/pwm reg bank! */
+=======
+			fallthrough;	/* to select correct fan/pwm reg bank! */
+>>>>>>> upstream/android-13
 		case f71889fg:
 		case f71889ed:
 		case f71889a:

@@ -16,7 +16,11 @@
 		stdout-path = &dbgu;
 	};
 
+<<<<<<< HEAD
 	memory {
+=======
+	memory@20000000 {
+>>>>>>> upstream/android-13
 		reg = <0x20000000 0x8000000>;
 	};
 

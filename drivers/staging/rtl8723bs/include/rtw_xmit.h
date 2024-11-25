@@ -7,6 +7,10 @@
 #ifndef _RTW_XMIT_H_
 #define _RTW_XMIT_H_
 
+<<<<<<< HEAD
+=======
+#include <linux/completion.h>
+>>>>>>> upstream/android-13
 
 #define MAX_XMITBUF_SZ	(20480)	/*  20k */
 
@@ -39,17 +43,30 @@
 #define HW_QUEUE_ENTRY	8
 
 #define WEP_IV(pattrib_iv, dot11txpn, keyidx)\
+<<<<<<< HEAD
 do{\
+=======
+do {\
+>>>>>>> upstream/android-13
 	pattrib_iv[0] = dot11txpn._byte_.TSC0;\
 	pattrib_iv[1] = dot11txpn._byte_.TSC1;\
 	pattrib_iv[2] = dot11txpn._byte_.TSC2;\
 	pattrib_iv[3] = ((keyidx & 0x3)<<6);\
+<<<<<<< HEAD
 	dot11txpn.val = (dot11txpn.val == 0xffffff) ? 0: (dot11txpn.val+1);\
 }while (0)
 
 
 #define TKIP_IV(pattrib_iv, dot11txpn, keyidx)\
 do{\
+=======
+	dot11txpn.val = (dot11txpn.val == 0xffffff) ? 0 : (dot11txpn.val + 1);\
+} while (0)
+
+
+#define TKIP_IV(pattrib_iv, dot11txpn, keyidx)\
+do {\
+>>>>>>> upstream/android-13
 	pattrib_iv[0] = dot11txpn._byte_.TSC1;\
 	pattrib_iv[1] = (dot11txpn._byte_.TSC1 | 0x20) & 0x7f;\
 	pattrib_iv[2] = dot11txpn._byte_.TSC0;\
@@ -58,11 +75,19 @@ do{\
 	pattrib_iv[5] = dot11txpn._byte_.TSC3;\
 	pattrib_iv[6] = dot11txpn._byte_.TSC4;\
 	pattrib_iv[7] = dot11txpn._byte_.TSC5;\
+<<<<<<< HEAD
 	dot11txpn.val = dot11txpn.val == 0xffffffffffffULL ? 0: (dot11txpn.val+1);\
 }while (0)
 
 #define AES_IV(pattrib_iv, dot11txpn, keyidx)\
 do{\
+=======
+	dot11txpn.val = dot11txpn.val == 0xffffffffffffULL ? 0 : (dot11txpn.val + 1);\
+} while (0)
+
+#define AES_IV(pattrib_iv, dot11txpn, keyidx)\
+do {\
+>>>>>>> upstream/android-13
 	pattrib_iv[0] = dot11txpn._byte_.TSC0;\
 	pattrib_iv[1] = dot11txpn._byte_.TSC1;\
 	pattrib_iv[2] = 0;\
@@ -71,8 +96,13 @@ do{\
 	pattrib_iv[5] = dot11txpn._byte_.TSC3;\
 	pattrib_iv[6] = dot11txpn._byte_.TSC4;\
 	pattrib_iv[7] = dot11txpn._byte_.TSC5;\
+<<<<<<< HEAD
 	dot11txpn.val = dot11txpn.val == 0xffffffffffffULL ? 0: (dot11txpn.val+1);\
 }while (0)
+=======
+	dot11txpn.val = dot11txpn.val == 0xffffffffffffULL ? 0 : (dot11txpn.val + 1);\
+} while (0)
+>>>>>>> upstream/android-13
 
 
 #define HWXMIT_ENTRY	4
@@ -82,6 +112,7 @@ do{\
 
 #define TXDESC_OFFSET TXDESC_SIZE
 
+<<<<<<< HEAD
 enum TXDESC_SC{
 	SC_DONT_CARE = 0x00,
 	SC_UPPER = 0x01,
@@ -89,6 +120,8 @@ enum TXDESC_SC{
 	SC_DUPLICATE = 0x03
 };
 
+=======
+>>>>>>> upstream/android-13
 #define TXDESC_40_BYTES
 
 struct tx_desc {
@@ -127,17 +160,29 @@ union txdesc {
 };
 
 struct	hw_xmit	{
+<<<<<<< HEAD
 	/* _lock xmit_lock; */
 	/* struct list_head	pending; */
 	struct __queue *sta_queue;
 	/* struct hw_txqueue *phwtxqueue; */
 	/* sint	txcmdcnt; */
+=======
+	/* spinlock_t xmit_lock; */
+	/* struct list_head	pending; */
+	struct __queue *sta_queue;
+	/* struct hw_txqueue *phwtxqueue; */
+	/* signed int	txcmdcnt; */
+>>>>>>> upstream/android-13
 	int	accnt;
 };
 
 /* reduce size */
+<<<<<<< HEAD
 struct pkt_attrib
 {
+=======
+struct pkt_attrib {
+>>>>>>> upstream/android-13
 	u8 type;
 	u8 subtype;
 	u8 bswenc;
@@ -149,7 +194,11 @@ struct pkt_attrib
 	u32 pktlen;		/* the original 802.3 pkt raw_data len (not include ether_hdr data) */
 	u32 last_txcmdsz;
 	u8 nr_frags;
+<<<<<<< HEAD
 	u8 encrypt;	/* when 0 indicate no encrypt. when non-zero, indicate the encrypt algorith */
+=======
+	u8 encrypt;	/* when 0 indicates no encryption; when non-zero, indicates the encryption algorithm */
+>>>>>>> upstream/android-13
 	u8 iv_len;
 	u8 icv_len;
 	u8 iv[18];
@@ -183,7 +232,11 @@ struct pkt_attrib
 	u8   mbssid;
 	u8 ldpc;
 	u8 stbc;
+<<<<<<< HEAD
 	struct sta_info * psta;
+=======
+	struct sta_info *psta;
+>>>>>>> upstream/android-13
 
 	u8 rtsen;
 	u8 cts2self;
@@ -216,7 +269,11 @@ enum {
 	XMITBUF_CMD = 2,
 };
 
+<<<<<<< HEAD
 struct  submit_ctx{
+=======
+struct  submit_ctx {
+>>>>>>> upstream/android-13
 	unsigned long submit_time; /* */
 	u32 timeout_ms; /* <0: not synchronous, 0: wait forever, >0: up to ms waiting */
 	int status; /* status for operation */
@@ -241,12 +298,20 @@ enum {
 
 
 void rtw_sctx_init(struct submit_ctx *sctx, int timeout_ms);
+<<<<<<< HEAD
 int rtw_sctx_wait(struct submit_ctx *sctx, const char *msg);
 void rtw_sctx_done_err(struct submit_ctx **sctx, int status);
 void rtw_sctx_done(struct submit_ctx **sctx);
 
 struct xmit_buf
 {
+=======
+int rtw_sctx_wait(struct submit_ctx *sctx);
+void rtw_sctx_done_err(struct submit_ctx **sctx, int status);
+void rtw_sctx_done(struct submit_ctx **sctx);
+
+struct xmit_buf {
+>>>>>>> upstream/android-13
 	struct list_head	list;
 
 	struct adapter *padapter;
@@ -273,20 +338,32 @@ struct xmit_buf
 	u8 pg_num;
 	u8 agg_num;
 
+<<<<<<< HEAD
 #if defined(DBG_XMIT_BUF)|| defined(DBG_XMIT_BUF_EXT)
+=======
+#if defined(DBG_XMIT_BUF) || defined(DBG_XMIT_BUF_EXT)
+>>>>>>> upstream/android-13
 	u8 no;
 #endif
 
 };
 
 
+<<<<<<< HEAD
 struct xmit_frame
 {
+=======
+struct xmit_frame {
+>>>>>>> upstream/android-13
 	struct list_head	list;
 
 	struct pkt_attrib attrib;
 
+<<<<<<< HEAD
 	_pkt *pkt;
+=======
+	struct sk_buff *pkt;
+>>>>>>> upstream/android-13
 
 	int	frame_tag;
 
@@ -313,11 +390,18 @@ struct tx_servq {
 };
 
 
+<<<<<<< HEAD
 struct sta_xmit_priv
 {
 	_lock	lock;
 	sint	option;
 	sint	apsd_setting;	/* When bit mask is on, the associated edca queue supports APSD. */
+=======
+struct sta_xmit_priv {
+	spinlock_t	lock;
+	signed int	option;
+	signed int	apsd_setting;	/* When bit mask is on, the associated edca queue supports APSD. */
+>>>>>>> upstream/android-13
 
 
 	/* struct tx_servq blk_q[MAX_NUMBLKS]; */
@@ -339,6 +423,7 @@ struct sta_xmit_priv
 
 
 struct	hw_txqueue	{
+<<<<<<< HEAD
 	volatile sint	head;
 	volatile sint	tail;
 	volatile sint	free_sz;	/* in units of 64 bytes */
@@ -352,6 +437,16 @@ struct	hw_txqueue	{
 struct agg_pkt_info{
 	u16 offset;
 	u16 pkt_len;
+=======
+	volatile signed int	head;
+	volatile signed int	tail;
+	volatile signed int	free_sz;	/* in units of 64 bytes */
+	volatile signed int      free_cmdsz;
+	volatile signed int	 txsz[8];
+	uint	ff_hwaddr;
+	uint	cmd_hwaddr;
+	signed int	ac_tag;
+>>>>>>> upstream/android-13
 };
 
 enum cmdbuf_type {
@@ -362,10 +457,17 @@ enum cmdbuf_type {
 
 struct	xmit_priv {
 
+<<<<<<< HEAD
 	_lock	lock;
 
 	_sema	xmit_sema;
 	_sema	terminate_xmitthread_sema;
+=======
+	spinlock_t	lock;
+
+	struct completion xmit_comp;
+	struct completion terminate_xmitthread_comp;
+>>>>>>> upstream/android-13
 
 	/* struct __queue	blk_strms[MAX_NUMBLKS]; */
 	struct __queue	be_pending;
@@ -415,6 +517,7 @@ struct	xmit_priv {
 
 	u8 wmm_para_seq[4];/* sequence for wmm ac parameter strength from large to small. it's value is 0->vo, 1->vi, 2->be, 3->bk. */
 
+<<<<<<< HEAD
 #ifdef CONFIG_SDIO_TX_TASKLET
 	struct tasklet_struct xmit_tasklet;
 #else
@@ -422,6 +525,11 @@ struct	xmit_priv {
 	_sema		SdioXmitSema;
 	_sema		SdioXmitTerminateSema;
 #endif /* CONFIG_SDIO_TX_TASKLET */
+=======
+	void *SdioXmitThread;
+	struct completion SdioXmitStart;
+	struct completion SdioXmitTerminate;
+>>>>>>> upstream/android-13
 
 	struct __queue free_xmitbuf_queue;
 	struct __queue pending_xmitbuf_queue;
@@ -439,10 +547,17 @@ struct	xmit_priv {
 	u16 nqos_ssn;
 
 	int	ack_tx;
+<<<<<<< HEAD
 	_mutex ack_tx_mutex;
 	struct submit_ctx ack_tx_ops;
 	u8 seq_no;
 	_lock lock_sctx;
+=======
+	struct mutex ack_tx_mutex;
+	struct submit_ctx ack_tx_ops;
+	u8 seq_no;
+	spinlock_t lock_sctx;
+>>>>>>> upstream/android-13
 };
 
 extern struct xmit_frame *__rtw_alloc_cmdxmitframe(struct xmit_priv *pxmitpriv,
@@ -466,34 +581,59 @@ struct xmit_frame *rtw_alloc_xmitframe_ext(struct xmit_priv *pxmitpriv);
 struct xmit_frame *rtw_alloc_xmitframe_once(struct xmit_priv *pxmitpriv);
 extern s32 rtw_free_xmitframe(struct xmit_priv *pxmitpriv, struct xmit_frame *pxmitframe);
 extern void rtw_free_xmitframe_queue(struct xmit_priv *pxmitpriv, struct __queue *pframequeue);
+<<<<<<< HEAD
 struct tx_servq *rtw_get_sta_pending(struct adapter *padapter, struct sta_info *psta, sint up, u8 *ac);
+=======
+struct tx_servq *rtw_get_sta_pending(struct adapter *padapter, struct sta_info *psta, signed int up, u8 *ac);
+>>>>>>> upstream/android-13
 extern s32 rtw_xmitframe_enqueue(struct adapter *padapter, struct xmit_frame *pxmitframe);
 
 extern s32 rtw_xmit_classifier(struct adapter *padapter, struct xmit_frame *pxmitframe);
 extern u32 rtw_calculate_wlan_pkt_size_by_attribue(struct pkt_attrib *pattrib);
 #define rtw_wlan_pkt_size(f) rtw_calculate_wlan_pkt_size_by_attribue(&f->attrib)
+<<<<<<< HEAD
 extern s32 rtw_xmitframe_coalesce(struct adapter *padapter, _pkt *pkt, struct xmit_frame *pxmitframe);
 extern s32 rtw_mgmt_xmitframe_coalesce(struct adapter *padapter, _pkt *pkt, struct xmit_frame *pxmitframe);
 s32 _rtw_init_hw_txqueue(struct hw_txqueue* phw_txqueue, u8 ac_tag);
+=======
+extern s32 rtw_xmitframe_coalesce(struct adapter *padapter, struct sk_buff *pkt, struct xmit_frame *pxmitframe);
+extern s32 rtw_mgmt_xmitframe_coalesce(struct adapter *padapter, struct sk_buff *pkt, struct xmit_frame *pxmitframe);
+s32 _rtw_init_hw_txqueue(struct hw_txqueue *phw_txqueue, u8 ac_tag);
+>>>>>>> upstream/android-13
 void _rtw_init_sta_xmit_priv(struct sta_xmit_priv *psta_xmitpriv);
 
 
 s32 rtw_txframes_pending(struct adapter *padapter);
+<<<<<<< HEAD
 void rtw_init_hwxmits(struct hw_xmit *phwxmit, sint entry);
 
 
 s32 _rtw_init_xmit_priv(struct xmit_priv *pxmitpriv, struct adapter *padapter);
 void _rtw_free_xmit_priv (struct xmit_priv *pxmitpriv);
+=======
+void rtw_init_hwxmits(struct hw_xmit *phwxmit, signed int entry);
+
+
+s32 _rtw_init_xmit_priv(struct xmit_priv *pxmitpriv, struct adapter *padapter);
+void _rtw_free_xmit_priv(struct xmit_priv *pxmitpriv);
+>>>>>>> upstream/android-13
 
 
 s32 rtw_alloc_hwxmits(struct adapter *padapter);
 void rtw_free_hwxmits(struct adapter *padapter);
 
 
+<<<<<<< HEAD
 s32 rtw_xmit(struct adapter *padapter, _pkt **pkt);
 bool xmitframe_hiq_filter(struct xmit_frame *xmitframe);
 
 sint xmitframe_enqueue_for_sleeping_sta(struct adapter *padapter, struct xmit_frame *pxmitframe);
+=======
+s32 rtw_xmit(struct adapter *padapter, struct sk_buff **pkt);
+bool xmitframe_hiq_filter(struct xmit_frame *xmitframe);
+
+signed int xmitframe_enqueue_for_sleeping_sta(struct adapter *padapter, struct xmit_frame *pxmitframe);
+>>>>>>> upstream/android-13
 void stop_sta_xmit(struct adapter *padapter, struct sta_info *psta);
 void wakeup_sta_to_xmit(struct adapter *padapter, struct sta_info *psta);
 void xmit_delivery_enabled_frames(struct adapter *padapter, struct sta_info *psta);
@@ -504,9 +644,15 @@ u8 qos_acm(u8 acm_mask, u8 priority);
 
 void enqueue_pending_xmitbuf(struct xmit_priv *pxmitpriv, struct xmit_buf *pxmitbuf);
 void enqueue_pending_xmitbuf_to_head(struct xmit_priv *pxmitpriv, struct xmit_buf *pxmitbuf);
+<<<<<<< HEAD
 struct xmit_buf*dequeue_pending_xmitbuf(struct xmit_priv *pxmitpriv);
 struct xmit_buf*dequeue_pending_xmitbuf_under_survey(struct xmit_priv *pxmitpriv);
 sint	check_pending_xmitbuf(struct xmit_priv *pxmitpriv);
+=======
+struct xmit_buf *dequeue_pending_xmitbuf(struct xmit_priv *pxmitpriv);
+struct xmit_buf *dequeue_pending_xmitbuf_under_survey(struct xmit_priv *pxmitpriv);
+signed int	check_pending_xmitbuf(struct xmit_priv *pxmitpriv);
+>>>>>>> upstream/android-13
 int	rtw_xmit_thread(void *context);
 
 u32 rtw_get_ff_hwaddr(struct xmit_frame	*pxmitframe);

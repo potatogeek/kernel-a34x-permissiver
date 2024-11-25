@@ -1,12 +1,23 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2001 - 2007 Jeff Dike (jdike@{addtoit,linux.intel}.com)
  * Copyright (C) 2001 Lennert Buytenhek (buytenh@gnu.org) and
  * James Leu (jleu@mindspring.net).
  * Copyright (C) 2001 by various other people who didn't put their name here.
+<<<<<<< HEAD
  * Licensed under the GPL.
  */
 
 #include <stdint.h>
+=======
+ */
+
+#include <stdint.h>
+#include <string.h>
+>>>>>>> upstream/android-13
 #include <unistd.h>
 #include <errno.h>
 #include <sys/types.h>

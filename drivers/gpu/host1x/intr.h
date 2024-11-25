@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Tegra host1x Interrupt Management
  *
  * Copyright (c) 2010-2013, NVIDIA Corporation.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -14,6 +19,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __HOST1X_INTR_H
@@ -44,6 +51,11 @@ enum host1x_intr_action {
 	 */
 	HOST1X_INTR_ACTION_WAKEUP_INTERRUPTIBLE,
 
+<<<<<<< HEAD
+=======
+	HOST1X_INTR_ACTION_SIGNAL_FENCE,
+
+>>>>>>> upstream/android-13
 	HOST1X_INTR_ACTION_COUNT
 };
 
@@ -85,8 +97,15 @@ int host1x_intr_add_action(struct host1x *host, struct host1x_syncpt *syncpt,
  * Unreference an action submitted to host1x_intr_add_action().
  * You must call this if you passed non-NULL as ref.
  * @ref the ref returned from host1x_intr_add_action()
+<<<<<<< HEAD
  */
 void host1x_intr_put_ref(struct host1x *host, unsigned int id, void *ref);
+=======
+ * @flush wait until any pending handlers have completed before returning.
+ */
+void host1x_intr_put_ref(struct host1x *host, unsigned int id, void *ref,
+			 bool flush);
+>>>>>>> upstream/android-13
 
 /* Initialize host1x sync point interrupt */
 int host1x_intr_init(struct host1x *host, unsigned int irq_sync);

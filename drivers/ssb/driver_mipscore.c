@@ -342,7 +342,11 @@ void ssb_mipscore_init(struct ssb_mipscore *mcore)
 				set_irq(dev, irq++);
 				break;
 			}
+<<<<<<< HEAD
 			/* fallthrough */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case SSB_DEV_EXTIF:
 			set_irq(dev, 0);
 			break;

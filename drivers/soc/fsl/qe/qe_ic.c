@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * arch/powerpc/sysdev/qe_lib/qe_ic.c
  *
@@ -7,11 +11,14 @@
  * Based on code from Shlomi Gridish <gridish@freescale.com>
  *
  * QUICC ENGINE Interrupt Controller
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/of_irq.h>
@@ -19,6 +26,10 @@
 #include <linux/kernel.h>
 #include <linux/init.h>
 #include <linux/errno.h>
+<<<<<<< HEAD
+=======
+#include <linux/irq.h>
+>>>>>>> upstream/android-13
 #include <linux/reboot.h>
 #include <linux/slab.h>
 #include <linux/stddef.h>
@@ -26,11 +37,68 @@
 #include <linux/signal.h>
 #include <linux/device.h>
 #include <linux/spinlock.h>
+<<<<<<< HEAD
 #include <asm/irq.h>
 #include <asm/io.h>
 #include <soc/fsl/qe/qe_ic.h>
 
 #include "qe_ic.h"
+=======
+#include <linux/platform_device.h>
+#include <asm/irq.h>
+#include <asm/io.h>
+#include <soc/fsl/qe/qe.h>
+
+#define NR_QE_IC_INTS		64
+
+/* QE IC registers offset */
+#define QEIC_CICR		0x00
+#define QEIC_CIVEC		0x04
+#define QEIC_CIPXCC		0x10
+#define QEIC_CIPYCC		0x14
+#define QEIC_CIPWCC		0x18
+#define QEIC_CIPZCC		0x1c
+#define QEIC_CIMR		0x20
+#define QEIC_CRIMR		0x24
+#define QEIC_CIPRTA		0x30
+#define QEIC_CIPRTB		0x34
+#define QEIC_CHIVEC		0x60
+
+struct qe_ic {
+	/* Control registers offset */
+	__be32 __iomem *regs;
+
+	/* The remapper for this QEIC */
+	struct irq_domain *irqhost;
+
+	/* The "linux" controller struct */
+	struct irq_chip hc_irq;
+
+	/* VIRQ numbers of QE high/low irqs */
+	int virq_high;
+	int virq_low;
+};
+
+/*
+ * QE interrupt controller internal structure
+ */
+struct qe_ic_info {
+	/* Location of this source at the QIMR register */
+	u32	mask;
+
+	/* Mask register offset */
+	u32	mask_reg;
+
+	/*
+	 * For grouped interrupts sources - the interrupt code as
+	 * appears at the group priority register
+	 */
+	u8	pri_code;
+
+	/* Group priority register offset */
+	u32	pri_reg;
+};
+>>>>>>> upstream/android-13
 
 static DEFINE_RAW_SPINLOCK(qe_ic_lock);
 
@@ -175,6 +243,7 @@ static struct qe_ic_info qe_ic_info[] = {
 		},
 };
 
+<<<<<<< HEAD
 static inline u32 qe_ic_read(volatile __be32  __iomem * base, unsigned int reg)
 {
 	return in_be32(base + (reg >> 2));
@@ -184,6 +253,17 @@ static inline void qe_ic_write(volatile __be32  __iomem * base, unsigned int reg
 			       u32 value)
 {
 	out_be32(base + (reg >> 2), value);
+=======
+static inline u32 qe_ic_read(__be32  __iomem *base, unsigned int reg)
+{
+	return ioread32be(base + (reg >> 2));
+}
+
+static inline void qe_ic_write(__be32  __iomem *base, unsigned int reg,
+			       u32 value)
+{
+	iowrite32be(value, base + (reg >> 2));
+>>>>>>> upstream/android-13
 }
 
 static inline struct qe_ic *qe_ic_from_irq(unsigned int virq)
@@ -285,8 +365,13 @@ static const struct irq_domain_ops qe_ic_host_ops = {
 	.xlate = irq_domain_xlate_onetwocell,
 };
 
+<<<<<<< HEAD
 /* Return an interrupt vector or NO_IRQ if no interrupt is pending. */
 unsigned int qe_ic_get_low_irq(struct qe_ic *qe_ic)
+=======
+/* Return an interrupt vector or 0 if no interrupt is pending. */
+static unsigned int qe_ic_get_low_irq(struct qe_ic *qe_ic)
+>>>>>>> upstream/android-13
 {
 	int irq;
 
@@ -296,13 +381,22 @@ unsigned int qe_ic_get_low_irq(struct qe_ic *qe_ic)
 	irq = qe_ic_read(qe_ic->regs, QEIC_CIVEC) >> 26;
 
 	if (irq == 0)
+<<<<<<< HEAD
 		return NO_IRQ;
+=======
+		return 0;
+>>>>>>> upstream/android-13
 
 	return irq_linear_revmap(qe_ic->irqhost, irq);
 }
 
+<<<<<<< HEAD
 /* Return an interrupt vector or NO_IRQ if no interrupt is pending. */
 unsigned int qe_ic_get_high_irq(struct qe_ic *qe_ic)
+=======
+/* Return an interrupt vector or 0 if no interrupt is pending. */
+static unsigned int qe_ic_get_high_irq(struct qe_ic *qe_ic)
+>>>>>>> upstream/android-13
 {
 	int irq;
 
@@ -312,11 +406,16 @@ unsigned int qe_ic_get_high_irq(struct qe_ic *qe_ic)
 	irq = qe_ic_read(qe_ic->regs, QEIC_CHIVEC) >> 26;
 
 	if (irq == 0)
+<<<<<<< HEAD
 		return NO_IRQ;
+=======
+		return 0;
+>>>>>>> upstream/android-13
 
 	return irq_linear_revmap(qe_ic->irqhost, irq);
 }
 
+<<<<<<< HEAD
 void __init qe_ic_init(struct device_node *node, unsigned int flags,
 		       void (*low_handler)(struct irq_desc *desc),
 		       void (*high_handler)(struct irq_desc *desc))
@@ -332,10 +431,95 @@ void __init qe_ic_init(struct device_node *node, unsigned int flags,
 	qe_ic = kzalloc(sizeof(*qe_ic), GFP_KERNEL);
 	if (qe_ic == NULL)
 		return;
+=======
+static void qe_ic_cascade_low(struct irq_desc *desc)
+{
+	struct qe_ic *qe_ic = irq_desc_get_handler_data(desc);
+	unsigned int cascade_irq = qe_ic_get_low_irq(qe_ic);
+	struct irq_chip *chip = irq_desc_get_chip(desc);
+
+	if (cascade_irq != 0)
+		generic_handle_irq(cascade_irq);
+
+	if (chip->irq_eoi)
+		chip->irq_eoi(&desc->irq_data);
+}
+
+static void qe_ic_cascade_high(struct irq_desc *desc)
+{
+	struct qe_ic *qe_ic = irq_desc_get_handler_data(desc);
+	unsigned int cascade_irq = qe_ic_get_high_irq(qe_ic);
+	struct irq_chip *chip = irq_desc_get_chip(desc);
+
+	if (cascade_irq != 0)
+		generic_handle_irq(cascade_irq);
+
+	if (chip->irq_eoi)
+		chip->irq_eoi(&desc->irq_data);
+}
+
+static void qe_ic_cascade_muxed_mpic(struct irq_desc *desc)
+{
+	struct qe_ic *qe_ic = irq_desc_get_handler_data(desc);
+	unsigned int cascade_irq;
+	struct irq_chip *chip = irq_desc_get_chip(desc);
+
+	cascade_irq = qe_ic_get_high_irq(qe_ic);
+	if (cascade_irq == 0)
+		cascade_irq = qe_ic_get_low_irq(qe_ic);
+
+	if (cascade_irq != 0)
+		generic_handle_irq(cascade_irq);
+
+	chip->irq_eoi(&desc->irq_data);
+}
+
+static int qe_ic_init(struct platform_device *pdev)
+{
+	struct device *dev = &pdev->dev;
+	void (*low_handler)(struct irq_desc *desc);
+	void (*high_handler)(struct irq_desc *desc);
+	struct qe_ic *qe_ic;
+	struct resource *res;
+	struct device_node *node = pdev->dev.of_node;
+
+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+	if (res == NULL) {
+		dev_err(dev, "no memory resource defined\n");
+		return -ENODEV;
+	}
+
+	qe_ic = devm_kzalloc(dev, sizeof(*qe_ic), GFP_KERNEL);
+	if (qe_ic == NULL)
+		return -ENOMEM;
+
+	qe_ic->regs = devm_ioremap(dev, res->start, resource_size(res));
+	if (qe_ic->regs == NULL) {
+		dev_err(dev, "failed to ioremap() registers\n");
+		return -ENODEV;
+	}
+
+	qe_ic->hc_irq = qe_ic_irq_chip;
+
+	qe_ic->virq_high = platform_get_irq(pdev, 0);
+	qe_ic->virq_low = platform_get_irq(pdev, 1);
+
+	if (qe_ic->virq_low <= 0)
+		return -ENODEV;
+
+	if (qe_ic->virq_high > 0 && qe_ic->virq_high != qe_ic->virq_low) {
+		low_handler = qe_ic_cascade_low;
+		high_handler = qe_ic_cascade_high;
+	} else {
+		low_handler = qe_ic_cascade_muxed_mpic;
+		high_handler = NULL;
+	}
+>>>>>>> upstream/android-13
 
 	qe_ic->irqhost = irq_domain_add_linear(node, NR_QE_IC_INTS,
 					       &qe_ic_host_ops, qe_ic);
 	if (qe_ic->irqhost == NULL) {
+<<<<<<< HEAD
 		kfree(qe_ic);
 		return;
 	}
@@ -375,10 +559,18 @@ void __init qe_ic_init(struct device_node *node, unsigned int flags,
 	}
 
 	qe_ic_write(qe_ic->regs, QEIC_CICR, temp);
+=======
+		dev_err(dev, "failed to add irq domain\n");
+		return -ENODEV;
+	}
+
+	qe_ic_write(qe_ic->regs, QEIC_CICR, 0);
+>>>>>>> upstream/android-13
 
 	irq_set_handler_data(qe_ic->virq_low, qe_ic);
 	irq_set_chained_handler(qe_ic->virq_low, low_handler);
 
+<<<<<<< HEAD
 	if (qe_ic->virq_high != NO_IRQ &&
 			qe_ic->virq_high != qe_ic->virq_low) {
 		irq_set_handler_data(qe_ic->virq_high, qe_ic);
@@ -510,3 +702,32 @@ static int __init init_qe_ic_sysfs(void)
 }
 
 subsys_initcall(init_qe_ic_sysfs);
+=======
+	if (high_handler) {
+		irq_set_handler_data(qe_ic->virq_high, qe_ic);
+		irq_set_chained_handler(qe_ic->virq_high, high_handler);
+	}
+	return 0;
+}
+static const struct of_device_id qe_ic_ids[] = {
+	{ .compatible = "fsl,qe-ic"},
+	{ .type = "qeic"},
+	{},
+};
+
+static struct platform_driver qe_ic_driver =
+{
+	.driver	= {
+		.name		= "qe-ic",
+		.of_match_table	= qe_ic_ids,
+	},
+	.probe	= qe_ic_init,
+};
+
+static int __init qe_ic_of_init(void)
+{
+	platform_driver_register(&qe_ic_driver);
+	return 0;
+}
+subsys_initcall(qe_ic_of_init);
+>>>>>>> upstream/android-13

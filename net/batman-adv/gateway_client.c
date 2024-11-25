@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 /* Copyright (C) 2009-2018  B.A.T.M.A.N. contributors:
  *
  * Marek Lindner
@@ -14,6 +15,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+/* Copyright (C) B.A.T.M.A.N. contributors:
+ *
+ * Marek Lindner
+>>>>>>> upstream/android-13
  */
 
 #include "gateway_client.h"
@@ -37,7 +43,10 @@
 #include <linux/netlink.h>
 #include <linux/rculist.h>
 #include <linux/rcupdate.h>
+<<<<<<< HEAD
 #include <linux/seq_file.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/skbuff.h>
 #include <linux/slab.h>
 #include <linux/spinlock.h>
@@ -47,14 +56,20 @@
 #include <uapi/linux/batadv_packet.h>
 #include <uapi/linux/batman_adv.h>
 
+<<<<<<< HEAD
 #include "gateway_common.h"
+=======
+>>>>>>> upstream/android-13
 #include "hard-interface.h"
 #include "log.h"
 #include "netlink.h"
 #include "originator.h"
 #include "routing.h"
 #include "soft-interface.h"
+<<<<<<< HEAD
 #include "sysfs.h"
+=======
+>>>>>>> upstream/android-13
 #include "translation-table.h"
 
 /* These are the offsets of the "hw type" and "hw address length" in the dhcp
@@ -74,7 +89,11 @@
  *  after rcu grace period
  * @ref: kref pointer of the gw_node
  */
+<<<<<<< HEAD
 static void batadv_gw_node_release(struct kref *ref)
+=======
+void batadv_gw_node_release(struct kref *ref)
+>>>>>>> upstream/android-13
 {
 	struct batadv_gw_node *gw_node;
 
@@ -85,6 +104,7 @@ static void batadv_gw_node_release(struct kref *ref)
 }
 
 /**
+<<<<<<< HEAD
  * batadv_gw_node_put() - decrement the gw_node refcounter and possibly release
  *  it
  * @gw_node: gateway node to free
@@ -95,6 +115,8 @@ void batadv_gw_node_put(struct batadv_gw_node *gw_node)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * batadv_gw_get_selected_gw_node() - Get currently selected gateway
  * @bat_priv: the bat priv with all the soft interface information
  *
@@ -145,8 +167,12 @@ batadv_gw_get_selected_orig(struct batadv_priv *bat_priv)
 unlock:
 	rcu_read_unlock();
 out:
+<<<<<<< HEAD
 	if (gw_node)
 		batadv_gw_node_put(gw_node);
+=======
+	batadv_gw_node_put(gw_node);
+>>>>>>> upstream/android-13
 	return orig_node;
 }
 
@@ -160,11 +186,18 @@ static void batadv_gw_select(struct batadv_priv *bat_priv,
 	if (new_gw_node)
 		kref_get(&new_gw_node->refcount);
 
+<<<<<<< HEAD
 	curr_gw_node = rcu_dereference_protected(bat_priv->gw.curr_gw, 1);
 	rcu_assign_pointer(bat_priv->gw.curr_gw, new_gw_node);
 
 	if (curr_gw_node)
 		batadv_gw_node_put(curr_gw_node);
+=======
+	curr_gw_node = rcu_replace_pointer(bat_priv->gw.curr_gw, new_gw_node,
+					   true);
+
+	batadv_gw_node_put(curr_gw_node);
+>>>>>>> upstream/android-13
 
 	spin_unlock_bh(&bat_priv->gw.list_lock);
 }
@@ -299,6 +332,7 @@ void batadv_gw_election(struct batadv_priv *bat_priv)
 	batadv_gw_select(bat_priv, next_gw);
 
 out:
+<<<<<<< HEAD
 	if (curr_gw)
 		batadv_gw_node_put(curr_gw);
 	if (next_gw)
@@ -307,6 +341,12 @@ out:
 		batadv_neigh_node_put(router);
 	if (router_ifinfo)
 		batadv_neigh_ifinfo_put(router_ifinfo);
+=======
+	batadv_gw_node_put(curr_gw);
+	batadv_gw_node_put(next_gw);
+	batadv_neigh_node_put(router);
+	batadv_neigh_ifinfo_put(router_ifinfo);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -340,8 +380,12 @@ void batadv_gw_check_election(struct batadv_priv *bat_priv,
 reselect:
 	batadv_gw_reselect(bat_priv);
 out:
+<<<<<<< HEAD
 	if (curr_gw_orig)
 		batadv_orig_node_put(curr_gw_orig);
+=======
+	batadv_orig_node_put(curr_gw_orig);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -377,6 +421,10 @@ static void batadv_gw_node_add(struct batadv_priv *bat_priv,
 
 	kref_get(&gw_node->refcount);
 	hlist_add_head_rcu(&gw_node->list, &bat_priv->gw.gateway_list);
+<<<<<<< HEAD
+=======
+	bat_priv->gw.generation++;
+>>>>>>> upstream/android-13
 
 	batadv_dbg(BATADV_DBG_BATMAN, bat_priv,
 		   "Found new gateway %pM -> gw bandwidth: %u.%u/%u.%u MBit\n",
@@ -472,6 +520,10 @@ void batadv_gw_node_update(struct batadv_priv *bat_priv,
 		if (!hlist_unhashed(&gw_node->list)) {
 			hlist_del_init_rcu(&gw_node->list);
 			batadv_gw_node_put(gw_node);
+<<<<<<< HEAD
+=======
+			bat_priv->gw.generation++;
+>>>>>>> upstream/android-13
 		}
 		spin_unlock_bh(&bat_priv->gw.list_lock);
 
@@ -479,6 +531,7 @@ void batadv_gw_node_update(struct batadv_priv *bat_priv,
 		if (gw_node == curr_gw)
 			batadv_gw_reselect(bat_priv);
 
+<<<<<<< HEAD
 		if (curr_gw)
 			batadv_gw_node_put(curr_gw);
 	}
@@ -486,6 +539,13 @@ void batadv_gw_node_update(struct batadv_priv *bat_priv,
 out:
 	if (gw_node)
 		batadv_gw_node_put(gw_node);
+=======
+		batadv_gw_node_put(curr_gw);
+	}
+
+out:
+	batadv_gw_node_put(gw_node);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -518,10 +578,15 @@ void batadv_gw_node_free(struct batadv_priv *bat_priv)
 				  &bat_priv->gw.gateway_list, list) {
 		hlist_del_init_rcu(&gw_node->list);
 		batadv_gw_node_put(gw_node);
+<<<<<<< HEAD
+=======
+		bat_priv->gw.generation++;
+>>>>>>> upstream/android-13
 	}
 	spin_unlock_bh(&bat_priv->gw.list_lock);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_BATMAN_ADV_DEBUGFS
 
 /**
@@ -560,6 +625,8 @@ int batadv_gw_client_seq_print_text(struct seq_file *seq, void *offset)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /**
  * batadv_gw_dump() - Dump gateways into a message
  * @msg: Netlink message to dump into
@@ -605,10 +672,15 @@ int batadv_gw_dump(struct sk_buff *msg, struct netlink_callback *cb)
 	ret = msg->len;
 
 out:
+<<<<<<< HEAD
 	if (primary_if)
 		batadv_hardif_put(primary_if);
 	if (soft_iface)
 		dev_put(soft_iface);
+=======
+	batadv_hardif_put(primary_if);
+	dev_put(soft_iface);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -830,6 +902,7 @@ bool batadv_gw_out_of_range(struct batadv_priv *bat_priv,
 	batadv_neigh_ifinfo_put(old_ifinfo);
 
 out:
+<<<<<<< HEAD
 	if (orig_dst_node)
 		batadv_orig_node_put(orig_dst_node);
 	if (curr_gw)
@@ -840,5 +913,12 @@ out:
 		batadv_neigh_node_put(neigh_old);
 	if (neigh_curr)
 		batadv_neigh_node_put(neigh_curr);
+=======
+	batadv_orig_node_put(orig_dst_node);
+	batadv_gw_node_put(curr_gw);
+	batadv_gw_node_put(gw_node);
+	batadv_neigh_node_put(neigh_old);
+	batadv_neigh_node_put(neigh_curr);
+>>>>>>> upstream/android-13
 	return out_of_range;
 }

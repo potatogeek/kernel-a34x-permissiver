@@ -29,16 +29,27 @@
 #include <asm/page.h>
 
 #define EFI_SUCCESS		0
+<<<<<<< HEAD
 #define EFI_LOAD_ERROR          ( 1 | (1UL << (BITS_PER_LONG-1)))
 #define EFI_INVALID_PARAMETER	( 2 | (1UL << (BITS_PER_LONG-1)))
 #define EFI_UNSUPPORTED		( 3 | (1UL << (BITS_PER_LONG-1)))
 #define EFI_BAD_BUFFER_SIZE     ( 4 | (1UL << (BITS_PER_LONG-1)))
+=======
+#define EFI_LOAD_ERROR		( 1 | (1UL << (BITS_PER_LONG-1)))
+#define EFI_INVALID_PARAMETER	( 2 | (1UL << (BITS_PER_LONG-1)))
+#define EFI_UNSUPPORTED		( 3 | (1UL << (BITS_PER_LONG-1)))
+#define EFI_BAD_BUFFER_SIZE	( 4 | (1UL << (BITS_PER_LONG-1)))
+>>>>>>> upstream/android-13
 #define EFI_BUFFER_TOO_SMALL	( 5 | (1UL << (BITS_PER_LONG-1)))
 #define EFI_NOT_READY		( 6 | (1UL << (BITS_PER_LONG-1)))
 #define EFI_DEVICE_ERROR	( 7 | (1UL << (BITS_PER_LONG-1)))
 #define EFI_WRITE_PROTECTED	( 8 | (1UL << (BITS_PER_LONG-1)))
 #define EFI_OUT_OF_RESOURCES	( 9 | (1UL << (BITS_PER_LONG-1)))
 #define EFI_NOT_FOUND		(14 | (1UL << (BITS_PER_LONG-1)))
+<<<<<<< HEAD
+=======
+#define EFI_TIMEOUT		(18 | (1UL << (BITS_PER_LONG-1)))
+>>>>>>> upstream/android-13
 #define EFI_ABORTED		(21 | (1UL << (BITS_PER_LONG-1)))
 #define EFI_SECURITY_VIOLATION	(26 | (1UL << (BITS_PER_LONG-1)))
 
@@ -48,10 +59,40 @@ typedef u16 efi_char16_t;		/* UNICODE character */
 typedef u64 efi_physical_addr_t;
 typedef void *efi_handle_t;
 
+<<<<<<< HEAD
 typedef guid_t efi_guid_t;
 
 #define EFI_GUID(a,b,c,d0,d1,d2,d3,d4,d5,d6,d7) \
 	GUID_INIT(a, b, c, d0, d1, d2, d3, d4, d5, d6, d7)
+=======
+#if defined(CONFIG_X86_64)
+#define __efiapi __attribute__((ms_abi))
+#elif defined(CONFIG_X86_32)
+#define __efiapi __attribute__((regparm(0)))
+#else
+#define __efiapi
+#endif
+
+/*
+ * The UEFI spec and EDK2 reference implementation both define EFI_GUID as
+ * struct { u32 a; u16; b; u16 c; u8 d[8]; }; and so the implied alignment
+ * is 32 bits not 8 bits like our guid_t. In some cases (i.e., on 32-bit ARM),
+ * this means that firmware services invoked by the kernel may assume that
+ * efi_guid_t* arguments are 32-bit aligned, and use memory accessors that
+ * do not tolerate misalignment. So let's set the minimum alignment to 32 bits.
+ *
+ * Note that the UEFI spec as well as some comments in the EDK2 code base
+ * suggest that EFI_GUID should be 64-bit aligned, but this appears to be
+ * a mistake, given that no code seems to exist that actually enforces that
+ * or relies on it.
+ */
+typedef guid_t efi_guid_t __aligned(__alignof__(u32));
+
+#define EFI_GUID(a, b, c, d...) (efi_guid_t){ {					\
+	(a) & 0xff, ((a) >> 8) & 0xff, ((a) >> 16) & 0xff, ((a) >> 24) & 0xff,	\
+	(b) & 0xff, ((b) >> 8) & 0xff,						\
+	(c) & 0xff, ((c) >> 8) & 0xff, d } }
+>>>>>>> upstream/android-13
 
 /*
  * Generic EFI table header
@@ -99,6 +140,11 @@ typedef	struct {
 #define EFI_MEMORY_MORE_RELIABLE \
 				((u64)0x0000000000010000ULL)	/* higher reliability */
 #define EFI_MEMORY_RO		((u64)0x0000000000020000ULL)	/* read-only */
+<<<<<<< HEAD
+=======
+#define EFI_MEMORY_SP		((u64)0x0000000000040000ULL)	/* soft reserved */
+#define EFI_MEMORY_CPU_CRYPTO	((u64)0x0000000000080000ULL)	/* supports encryption */
+>>>>>>> upstream/android-13
 #define EFI_MEMORY_RUNTIME	((u64)0x8000000000000000ULL)	/* range requires runtime mapping */
 #define EFI_MEMORY_DESCRIPTOR_VERSION	1
 
@@ -122,6 +168,7 @@ typedef struct {
 	u32 imagesize;
 } efi_capsule_header_t;
 
+<<<<<<< HEAD
 struct efi_boot_memmap {
 	efi_memory_desc_t	**map;
 	unsigned long		*map_size;
@@ -131,6 +178,8 @@ struct efi_boot_memmap {
 	unsigned long		*buff_size;
 };
 
+=======
+>>>>>>> upstream/android-13
 /*
  * EFI capsule flags
  */
@@ -153,6 +202,7 @@ struct capsule_info {
 int __efi_capsule_setup_info(struct capsule_info *cap_info);
 
 /*
+<<<<<<< HEAD
  * Allocation types for calls to boottime->allocate_pages.
  */
 #define EFI_ALLOCATE_ANY_PAGES		0
@@ -163,6 +213,8 @@ int __efi_capsule_setup_info(struct capsule_info *cap_info);
 typedef int (*efi_freemem_callback_t) (u64 start, u64 end, void *arg);
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Types and defines for Time Services
  */
 #define EFI_TIME_ADJUST_DAYLIGHT 0x1
@@ -189,6 +241,7 @@ typedef struct {
 	u8 sets_to_zero;
 } efi_time_cap_t;
 
+<<<<<<< HEAD
 typedef struct {
 	efi_table_hdr_t hdr;
 	u32 raise_tpl;
@@ -507,6 +560,9 @@ typedef struct {
 	void *set_active_pcr_banks;
 	void *get_result_of_set_active_pcr_banks;
 } efi_tcg2_protocol_t;
+=======
+typedef union efi_boot_services efi_boot_services_t;
+>>>>>>> upstream/android-13
 
 /*
  * Types and defines for EFI ResetSystem
@@ -539,6 +595,7 @@ typedef struct {
 	u32 query_variable_info;
 } efi_runtime_services_32_t;
 
+<<<<<<< HEAD
 typedef struct {
 	efi_table_hdr_t hdr;
 	u64 get_time;
@@ -557,6 +614,8 @@ typedef struct {
 	u64 query_variable_info;
 } efi_runtime_services_64_t;
 
+=======
+>>>>>>> upstream/android-13
 typedef efi_status_t efi_get_time_t (efi_time_t *tm, efi_time_cap_t *tc);
 typedef efi_status_t efi_set_time_t (efi_time_t *tm);
 typedef efi_status_t efi_get_wakeup_time_t (efi_bool_t *enabled, efi_bool_t *pending,
@@ -591,6 +650,7 @@ typedef efi_status_t efi_query_variable_store_t(u32 attributes,
 						unsigned long size,
 						bool nonblocking);
 
+<<<<<<< HEAD
 typedef struct {
 	efi_table_hdr_t			hdr;
 	efi_get_time_t			*get_time;
@@ -607,6 +667,27 @@ typedef struct {
 	efi_update_capsule_t		*update_capsule;
 	efi_query_capsule_caps_t	*query_capsule_caps;
 	efi_query_variable_info_t	*query_variable_info;
+=======
+typedef union {
+	struct {
+		efi_table_hdr_t				hdr;
+		efi_get_time_t __efiapi			*get_time;
+		efi_set_time_t __efiapi			*set_time;
+		efi_get_wakeup_time_t __efiapi		*get_wakeup_time;
+		efi_set_wakeup_time_t __efiapi		*set_wakeup_time;
+		efi_set_virtual_address_map_t __efiapi	*set_virtual_address_map;
+		void					*convert_pointer;
+		efi_get_variable_t __efiapi		*get_variable;
+		efi_get_next_variable_t __efiapi	*get_next_variable;
+		efi_set_variable_t __efiapi		*set_variable;
+		efi_get_next_high_mono_count_t __efiapi	*get_next_high_mono_count;
+		efi_reset_system_t __efiapi		*reset_system;
+		efi_update_capsule_t __efiapi		*update_capsule;
+		efi_query_capsule_caps_t __efiapi	*query_capsule_caps;
+		efi_query_variable_info_t __efiapi	*query_variable_info;
+	};
+	efi_runtime_services_32_t mixed_mode;
+>>>>>>> upstream/android-13
 } efi_runtime_services_t;
 
 void efi_native_runtime_setup(void);
@@ -659,19 +740,46 @@ void efi_native_runtime_setup(void);
 #define EFI_CONSOLE_OUT_DEVICE_GUID		EFI_GUID(0xd3b36f2c, 0xd551, 0x11d4,  0x9a, 0x46, 0x00, 0x90, 0x27, 0x3f, 0xc1, 0x4d)
 #define APPLE_PROPERTIES_PROTOCOL_GUID		EFI_GUID(0x91bd12fe, 0xf6c3, 0x44fb,  0xa5, 0xb7, 0x51, 0x22, 0xab, 0x30, 0x3a, 0xe0)
 #define EFI_TCG2_PROTOCOL_GUID			EFI_GUID(0x607f766c, 0x7455, 0x42be,  0x93, 0x0b, 0xe4, 0xd7, 0x6d, 0xb2, 0x72, 0x0f)
+<<<<<<< HEAD
+=======
+#define EFI_LOAD_FILE_PROTOCOL_GUID		EFI_GUID(0x56ec3091, 0x954c, 0x11d2,  0x8e, 0x3f, 0x00, 0xa0, 0xc9, 0x69, 0x72, 0x3b)
+#define EFI_LOAD_FILE2_PROTOCOL_GUID		EFI_GUID(0x4006c0c1, 0xfcb3, 0x403e,  0x99, 0x6d, 0x4a, 0x6c, 0x87, 0x24, 0xe0, 0x6d)
+#define EFI_RT_PROPERTIES_TABLE_GUID		EFI_GUID(0xeb66918a, 0x7eef, 0x402a,  0x84, 0x2e, 0x93, 0x1d, 0x21, 0xc3, 0x8a, 0xe9)
+>>>>>>> upstream/android-13
 
 #define EFI_IMAGE_SECURITY_DATABASE_GUID	EFI_GUID(0xd719b2cb, 0x3d3a, 0x4596,  0xa3, 0xbc, 0xda, 0xd0, 0x0e, 0x67, 0x65, 0x6f)
 #define EFI_SHIM_LOCK_GUID			EFI_GUID(0x605dab50, 0xe046, 0x4300,  0xab, 0xb6, 0x3d, 0xd8, 0x10, 0xdd, 0x8b, 0x23)
 
+<<<<<<< HEAD
+=======
+#define EFI_CERT_SHA256_GUID			EFI_GUID(0xc1c41626, 0x504c, 0x4092, 0xac, 0xa9, 0x41, 0xf9, 0x36, 0x93, 0x43, 0x28)
+#define EFI_CERT_X509_GUID			EFI_GUID(0xa5c059a1, 0x94e4, 0x4aa7, 0x87, 0xb5, 0xab, 0x15, 0x5c, 0x2b, 0xf0, 0x72)
+#define EFI_CERT_X509_SHA256_GUID		EFI_GUID(0x3bd2a492, 0x96c0, 0x4079, 0xb4, 0x20, 0xfc, 0xf9, 0x8e, 0xf1, 0x03, 0xed)
+
+>>>>>>> upstream/android-13
 /*
  * This GUID is used to pass to the kernel proper the struct screen_info
  * structure that was populated by the stub based on the GOP protocol instance
  * associated with ConOut
  */
 #define LINUX_EFI_ARM_SCREEN_INFO_TABLE_GUID	EFI_GUID(0xe03fc20a, 0x85dc, 0x406e,  0xb9, 0x0e, 0x4a, 0xb5, 0x02, 0x37, 0x1d, 0x95)
+<<<<<<< HEAD
 #define LINUX_EFI_LOADER_ENTRY_GUID		EFI_GUID(0x4a67b082, 0x0a4c, 0x41cf,  0xb6, 0xc7, 0x44, 0x0b, 0x29, 0xbb, 0x8c, 0x4f)
 #define LINUX_EFI_RANDOM_SEED_TABLE_GUID	EFI_GUID(0x1ce1e5bc, 0x7ceb, 0x42f2,  0x81, 0xe5, 0x8a, 0xad, 0xf1, 0x80, 0xf5, 0x7b)
 #define LINUX_EFI_TPM_EVENT_LOG_GUID		EFI_GUID(0xb7799cb0, 0xeca2, 0x4943,  0x96, 0x67, 0x1f, 0xae, 0x07, 0xb7, 0x47, 0xfa)
+=======
+#define LINUX_EFI_ARM_CPU_STATE_TABLE_GUID	EFI_GUID(0xef79e4aa, 0x3c3d, 0x4989,  0xb9, 0x02, 0x07, 0xa9, 0x43, 0xe5, 0x50, 0xd2)
+#define LINUX_EFI_LOADER_ENTRY_GUID		EFI_GUID(0x4a67b082, 0x0a4c, 0x41cf,  0xb6, 0xc7, 0x44, 0x0b, 0x29, 0xbb, 0x8c, 0x4f)
+#define LINUX_EFI_RANDOM_SEED_TABLE_GUID	EFI_GUID(0x1ce1e5bc, 0x7ceb, 0x42f2,  0x81, 0xe5, 0x8a, 0xad, 0xf1, 0x80, 0xf5, 0x7b)
+#define LINUX_EFI_TPM_EVENT_LOG_GUID		EFI_GUID(0xb7799cb0, 0xeca2, 0x4943,  0x96, 0x67, 0x1f, 0xae, 0x07, 0xb7, 0x47, 0xfa)
+#define LINUX_EFI_TPM_FINAL_LOG_GUID		EFI_GUID(0x1e2ed096, 0x30e2, 0x4254,  0xbd, 0x89, 0x86, 0x3b, 0xbe, 0xf8, 0x23, 0x25)
+#define LINUX_EFI_MEMRESERVE_TABLE_GUID		EFI_GUID(0x888eb0c6, 0x8ede, 0x4ff5,  0xa8, 0xf0, 0x9a, 0xee, 0x5c, 0xb9, 0x77, 0xc2)
+#define LINUX_EFI_INITRD_MEDIA_GUID		EFI_GUID(0x5568e427, 0x68fc, 0x4f3d,  0xac, 0x74, 0xca, 0x55, 0x52, 0x31, 0xcc, 0x68)
+#define LINUX_EFI_MOK_VARIABLE_TABLE_GUID	EFI_GUID(0xc451ed2b, 0x9694, 0x45d3,  0xba, 0xba, 0xed, 0x9f, 0x89, 0x88, 0xa3, 0x89)
+
+/* OEM GUIDs */
+#define DELLEMC_EFI_RCI2_TABLE_GUID		EFI_GUID(0x2d9f28a2, 0xa886, 0x456a,  0x97, 0xa8, 0xf1, 0x1e, 0xf2, 0x4f, 0xf4, 0x55)
+>>>>>>> upstream/android-13
 
 typedef struct {
 	efi_guid_t guid;
@@ -683,15 +791,29 @@ typedef struct {
 	u32 table;
 } efi_config_table_32_t;
 
+<<<<<<< HEAD
 typedef struct {
 	efi_guid_t guid;
 	unsigned long table;
+=======
+typedef union {
+	struct {
+		efi_guid_t guid;
+		void *table;
+	};
+	efi_config_table_32_t mixed_mode;
+>>>>>>> upstream/android-13
 } efi_config_table_t;
 
 typedef struct {
 	efi_guid_t guid;
+<<<<<<< HEAD
 	const char *name;
 	unsigned long *ptr;
+=======
+	unsigned long *ptr;
+	const char name[16];
+>>>>>>> upstream/android-13
 } efi_config_table_type_t;
 
 #define EFI_SYSTEM_TABLE_SIGNATURE ((u64)0x5453595320494249ULL)
@@ -737,6 +859,7 @@ typedef struct {
 	u32 tables;
 } efi_system_table_32_t;
 
+<<<<<<< HEAD
 typedef struct {
 	efi_table_hdr_t hdr;
 	unsigned long fw_vendor;	/* physical addr of CHAR16 vendor string */
@@ -751,18 +874,49 @@ typedef struct {
 	efi_boot_services_t *boottime;
 	unsigned long nr_tables;
 	unsigned long tables;
+=======
+typedef union efi_simple_text_input_protocol efi_simple_text_input_protocol_t;
+typedef union efi_simple_text_output_protocol efi_simple_text_output_protocol_t;
+
+typedef union {
+	struct {
+		efi_table_hdr_t hdr;
+		unsigned long fw_vendor;	/* physical addr of CHAR16 vendor string */
+		u32 fw_revision;
+		unsigned long con_in_handle;
+		efi_simple_text_input_protocol_t *con_in;
+		unsigned long con_out_handle;
+		efi_simple_text_output_protocol_t *con_out;
+		unsigned long stderr_handle;
+		unsigned long stderr;
+		efi_runtime_services_t *runtime;
+		efi_boot_services_t *boottime;
+		unsigned long nr_tables;
+		unsigned long tables;
+	};
+	efi_system_table_32_t mixed_mode;
+>>>>>>> upstream/android-13
 } efi_system_table_t;
 
 /*
  * Architecture independent structure for describing a memory map for the
+<<<<<<< HEAD
  * benefit of efi_memmap_init_early(), saving us the need to pass four
  * parameters.
+=======
+ * benefit of efi_memmap_init_early(), and for passing context between
+ * efi_memmap_alloc() and efi_memmap_install().
+>>>>>>> upstream/android-13
  */
 struct efi_memory_map_data {
 	phys_addr_t phys_map;
 	unsigned long size;
 	unsigned long desc_version;
 	unsigned long desc_size;
+<<<<<<< HEAD
+=======
+	unsigned long flags;
+>>>>>>> upstream/android-13
 };
 
 struct efi_memory_map {
@@ -772,7 +926,14 @@ struct efi_memory_map {
 	int nr_map;
 	unsigned long desc_version;
 	unsigned long desc_size;
+<<<<<<< HEAD
 	bool late;
+=======
+#define EFI_MEMMAP_LATE (1UL << 0)
+#define EFI_MEMMAP_MEMBLOCK (1UL << 1)
+#define EFI_MEMMAP_SLAB (1UL << 2)
+	unsigned long flags;
+>>>>>>> upstream/android-13
 };
 
 struct efi_mem_range {
@@ -780,6 +941,7 @@ struct efi_mem_range {
 	u64 attribute;
 };
 
+<<<<<<< HEAD
 struct efi_fdt_params {
 	u64 system_table;
 	u64 mmap;
@@ -914,6 +1076,8 @@ typedef struct _efi_file_io_interface {
 #define EFI_FILE_MODE_WRITE	0x0000000000000002
 #define EFI_FILE_MODE_CREATE	0x8000000000000000
 
+=======
+>>>>>>> upstream/android-13
 typedef struct {
 	u32 version;
 	u32 length;
@@ -923,6 +1087,17 @@ typedef struct {
 #define EFI_PROPERTIES_TABLE_VERSION	0x00010000
 #define EFI_PROPERTIES_RUNTIME_MEMORY_PROTECTION_NON_EXECUTABLE_PE_DATA	0x1
 
+<<<<<<< HEAD
+=======
+typedef struct {
+	u16 version;
+	u16 length;
+	u32 runtime_services_supported;
+} efi_rt_properties_table_t;
+
+#define EFI_RT_PROPERTIES_TABLE_VERSION	0x1
+
+>>>>>>> upstream/android-13
 #define EFI_INVALID_TABLE_ADDR		(~0UL)
 
 typedef struct {
@@ -933,10 +1108,37 @@ typedef struct {
 	efi_memory_desc_t entry[0];
 } efi_memory_attributes_table_t;
 
+<<<<<<< HEAD
+=======
+typedef struct {
+	efi_guid_t signature_owner;
+	u8 signature_data[];
+} efi_signature_data_t;
+
+typedef struct {
+	efi_guid_t signature_type;
+	u32 signature_list_size;
+	u32 signature_header_size;
+	u32 signature_size;
+	u8 signature_header[];
+	/* efi_signature_data_t signatures[][] */
+} efi_signature_list_t;
+
+typedef u8 efi_sha256_hash_t[32];
+
+typedef struct {
+	efi_sha256_hash_t to_be_signed_hash;
+	efi_time_t time_of_revocation;
+} efi_cert_x509_sha256_t;
+
+extern unsigned long __ro_after_init efi_rng_seed;		/* RNG Seed table */
+
+>>>>>>> upstream/android-13
 /*
  * All runtime access to EFI goes through this structure:
  */
 extern struct efi {
+<<<<<<< HEAD
 	efi_system_table_t *systab;	/* EFI system table */
 	unsigned int runtime_version;	/* Runtime services version */
 	unsigned long mps;		/* MPS table */
@@ -976,6 +1178,60 @@ extern struct efi {
 	unsigned long flags;
 } efi;
 
+=======
+	const efi_runtime_services_t	*runtime;		/* EFI runtime services table */
+	unsigned int			runtime_version;	/* Runtime services version */
+	unsigned int			runtime_supported_mask;
+
+	unsigned long			acpi;			/* ACPI table  (IA64 ext 0.71) */
+	unsigned long			acpi20;			/* ACPI table  (ACPI 2.0) */
+	unsigned long			smbios;			/* SMBIOS table (32 bit entry point) */
+	unsigned long			smbios3;		/* SMBIOS table (64 bit entry point) */
+	unsigned long			esrt;			/* ESRT table */
+	unsigned long			tpm_log;		/* TPM2 Event Log table */
+	unsigned long			tpm_final_log;		/* TPM2 Final Events Log table */
+	unsigned long			mokvar_table;		/* MOK variable config table */
+
+	efi_get_time_t			*get_time;
+	efi_set_time_t			*set_time;
+	efi_get_wakeup_time_t		*get_wakeup_time;
+	efi_set_wakeup_time_t		*set_wakeup_time;
+	efi_get_variable_t		*get_variable;
+	efi_get_next_variable_t		*get_next_variable;
+	efi_set_variable_t		*set_variable;
+	efi_set_variable_t		*set_variable_nonblocking;
+	efi_query_variable_info_t	*query_variable_info;
+	efi_query_variable_info_t	*query_variable_info_nonblocking;
+	efi_update_capsule_t		*update_capsule;
+	efi_query_capsule_caps_t	*query_capsule_caps;
+	efi_get_next_high_mono_count_t	*get_next_high_mono_count;
+	efi_reset_system_t		*reset_system;
+
+	struct efi_memory_map		memmap;
+	unsigned long			flags;
+} efi;
+
+#define EFI_RT_SUPPORTED_GET_TIME 				0x0001
+#define EFI_RT_SUPPORTED_SET_TIME 				0x0002
+#define EFI_RT_SUPPORTED_GET_WAKEUP_TIME			0x0004
+#define EFI_RT_SUPPORTED_SET_WAKEUP_TIME			0x0008
+#define EFI_RT_SUPPORTED_GET_VARIABLE				0x0010
+#define EFI_RT_SUPPORTED_GET_NEXT_VARIABLE_NAME			0x0020
+#define EFI_RT_SUPPORTED_SET_VARIABLE				0x0040
+#define EFI_RT_SUPPORTED_SET_VIRTUAL_ADDRESS_MAP		0x0080
+#define EFI_RT_SUPPORTED_CONVERT_POINTER			0x0100
+#define EFI_RT_SUPPORTED_GET_NEXT_HIGH_MONOTONIC_COUNT		0x0200
+#define EFI_RT_SUPPORTED_RESET_SYSTEM				0x0400
+#define EFI_RT_SUPPORTED_UPDATE_CAPSULE				0x0800
+#define EFI_RT_SUPPORTED_QUERY_CAPSULE_CAPABILITIES		0x1000
+#define EFI_RT_SUPPORTED_QUERY_VARIABLE_INFO			0x2000
+
+#define EFI_RT_SUPPORTED_ALL					0x3fff
+
+#define EFI_RT_SUPPORTED_TIME_SERVICES				0x000f
+#define EFI_RT_SUPPORTED_VARIABLE_SERVICES			0x0070
+
+>>>>>>> upstream/android-13
 extern struct mm_struct efi_mm;
 
 static inline int
@@ -992,16 +1248,20 @@ efi_guid_to_str(efi_guid_t *guid, char *out)
 }
 
 extern void efi_init (void);
+<<<<<<< HEAD
 extern void *efi_get_pal_addr (void);
 extern void efi_map_pal_code (void);
 extern void efi_memmap_walk (efi_freemem_callback_t callback, void *arg);
 extern void efi_gettimeofday (struct timespec64 *ts);
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_EFI
 extern void efi_enter_virtual_mode (void);	/* switch EFI to virtual mode, if possible */
 #else
 static inline void efi_enter_virtual_mode (void) {}
 #endif
 #ifdef CONFIG_X86
+<<<<<<< HEAD
 extern void efi_free_boot_services(void);
 extern efi_status_t efi_query_variable_store(u32 attributes,
 					     unsigned long size,
@@ -1009,6 +1269,12 @@ extern efi_status_t efi_query_variable_store(u32 attributes,
 extern void efi_find_mirror(void);
 #else
 static inline void efi_free_boot_services(void) {}
+=======
+extern efi_status_t efi_query_variable_store(u32 attributes,
+					     unsigned long size,
+					     bool nonblocking);
+#else
+>>>>>>> upstream/android-13
 
 static inline efi_status_t efi_query_variable_store(u32 attributes,
 						    unsigned long size,
@@ -1019,24 +1285,48 @@ static inline efi_status_t efi_query_variable_store(u32 attributes,
 #endif
 extern void __iomem *efi_lookup_mapped_addr(u64 phys_addr);
 
+<<<<<<< HEAD
 extern phys_addr_t __init efi_memmap_alloc(unsigned int num_entries);
 extern int __init efi_memmap_init_early(struct efi_memory_map_data *data);
 extern int __init efi_memmap_init_late(phys_addr_t addr, unsigned long size);
 extern void __init efi_memmap_unmap(void);
 extern int __init efi_memmap_install(phys_addr_t addr, unsigned int nr_map);
+=======
+extern int __init efi_memmap_alloc(unsigned int num_entries,
+				   struct efi_memory_map_data *data);
+extern void __efi_memmap_free(u64 phys, unsigned long size,
+			      unsigned long flags);
+extern int __init efi_memmap_init_early(struct efi_memory_map_data *data);
+extern int __init efi_memmap_init_late(phys_addr_t addr, unsigned long size);
+extern void __init efi_memmap_unmap(void);
+extern int __init efi_memmap_install(struct efi_memory_map_data *data);
+>>>>>>> upstream/android-13
 extern int __init efi_memmap_split_count(efi_memory_desc_t *md,
 					 struct range *range);
 extern void __init efi_memmap_insert(struct efi_memory_map *old_memmap,
 				     void *buf, struct efi_mem_range *mem);
 
+<<<<<<< HEAD
 extern int efi_config_init(efi_config_table_type_t *arch_tables);
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_EFI_ESRT
 extern void __init efi_esrt_init(void);
 #else
 static inline void efi_esrt_init(void) { }
 #endif
+<<<<<<< HEAD
 extern int efi_config_parse_tables(void *config_tables, int count, int sz,
 				   efi_config_table_type_t *arch_tables);
+=======
+extern int efi_config_parse_tables(const efi_config_table_t *config_tables,
+				   int count,
+				   const efi_config_table_type_t *arch_tables);
+extern int efi_systab_check_header(const efi_table_hdr_t *systab_hdr,
+				   int min_major_version);
+extern void efi_systab_report_header(const efi_table_hdr_t *systab_hdr,
+				     unsigned long fw_vendor);
+>>>>>>> upstream/android-13
 extern u64 efi_get_iobase (void);
 extern int efi_mem_type(unsigned long phys_addr);
 extern u64 efi_mem_attributes (unsigned long phys_addr);
@@ -1045,10 +1335,17 @@ extern int __init efi_uart_console_only (void);
 extern u64 efi_mem_desc_end(efi_memory_desc_t *md);
 extern int efi_mem_desc_lookup(u64 phys_addr, efi_memory_desc_t *out_md);
 extern void efi_mem_reserve(phys_addr_t addr, u64 size);
+<<<<<<< HEAD
 extern void efi_initialize_iomem_resources(struct resource *code_resource,
 		struct resource *data_resource, struct resource *bss_resource);
 extern void efi_reserve_boot_services(void);
 extern int efi_get_fdt_params(struct efi_fdt_params *params);
+=======
+extern int efi_mem_reserve_persistent(phys_addr_t addr, u64 size);
+extern void efi_initialize_iomem_resources(struct resource *code_resource,
+		struct resource *data_resource, struct resource *bss_resource);
+extern u64 efi_get_fdt_params(struct efi_memory_map_data *data);
+>>>>>>> upstream/android-13
 extern struct kobject *efi_kobj;
 
 extern int efi_reboot_quirk_mode;
@@ -1060,6 +1357,11 @@ extern void __init efi_fake_memmap(void);
 static inline void efi_fake_memmap(void) { }
 #endif
 
+<<<<<<< HEAD
+=======
+extern unsigned long efi_mem_attr_table;
+
+>>>>>>> upstream/android-13
 /*
  * efi_memattr_perm_setter - arch specific callback function passed into
  *                           efi_memattr_apply_permissions() that updates the
@@ -1117,6 +1419,18 @@ extern int efi_memattr_apply_permissions(struct mm_struct *mm,
 char * __init efi_md_typeattr_format(char *buf, size_t size,
 				     const efi_memory_desc_t *md);
 
+<<<<<<< HEAD
+=======
+
+typedef void (*efi_element_handler_t)(const char *source,
+				      const void *element_data,
+				      size_t element_size);
+extern int __init parse_efi_signature_list(
+	const char *source,
+	const void *data, size_t size,
+	efi_element_handler_t (*get_handler_for_guid)(const efi_guid_t *));
+
+>>>>>>> upstream/android-13
 /**
  * efi_range_is_wc - check the WC bit on an address range
  * @start: starting kvirt address
@@ -1156,6 +1470,11 @@ extern int __init efi_setup_pcdp_console(char *);
 #define EFI_DBG			8	/* Print additional debug info at runtime */
 #define EFI_NX_PE_DATA		9	/* Can runtime data regions be mapped non-executable? */
 #define EFI_MEM_ATTR		10	/* Did firmware publish an EFI_MEMORY_ATTRIBUTES table? */
+<<<<<<< HEAD
+=======
+#define EFI_MEM_NO_SOFT_RESERVE	11	/* Is the kernel configured to ignore soft reservations? */
+#define EFI_PRESERVE_BS_REGIONS	12	/* Are EFI boot-services memory segments available? */
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_EFI
 /*
@@ -1167,7 +1486,22 @@ static inline bool efi_enabled(int feature)
 }
 extern void efi_reboot(enum reboot_mode reboot_mode, const char *__unused);
 
+<<<<<<< HEAD
 extern bool efi_is_table_address(unsigned long phys_addr);
+=======
+bool __pure __efi_soft_reserve_enabled(void);
+
+static inline bool __pure efi_soft_reserve_enabled(void)
+{
+	return IS_ENABLED(CONFIG_EFI_SOFT_RESERVE)
+		&& __efi_soft_reserve_enabled();
+}
+
+static inline bool efi_rt_services_supported(unsigned int mask)
+{
+	return (efi.runtime_supported_mask & mask) == mask;
+}
+>>>>>>> upstream/android-13
 #else
 static inline bool efi_enabled(int feature)
 {
@@ -1176,13 +1510,21 @@ static inline bool efi_enabled(int feature)
 static inline void
 efi_reboot(enum reboot_mode reboot_mode, const char *__unused) {}
 
+<<<<<<< HEAD
 static inline bool
 efi_capsule_pending(int *reset_type)
+=======
+static inline bool efi_soft_reserve_enabled(void)
+>>>>>>> upstream/android-13
 {
 	return false;
 }
 
+<<<<<<< HEAD
 static inline bool efi_is_table_address(unsigned long phys_addr)
+=======
+static inline bool efi_rt_services_supported(unsigned int mask)
+>>>>>>> upstream/android-13
 {
 	return false;
 }
@@ -1215,6 +1557,7 @@ extern int efi_status_to_err(efi_status_t status);
 #define EFI_VARIABLE_GUID_LEN	UUID_STRING_LEN
 
 /*
+<<<<<<< HEAD
  * The type of search to perform when calling boottime->locate_handle
  */
 #define EFI_LOCATE_ALL_HANDLES			0
@@ -1222,6 +1565,8 @@ extern int efi_status_to_err(efi_status_t status);
 #define EFI_LOCATE_BY_PROTOCOL			2
 
 /*
+=======
+>>>>>>> upstream/android-13
  * EFI Device Path information
  */
 #define EFI_DEV_HW			0x01
@@ -1260,6 +1605,7 @@ extern int efi_status_to_err(efi_status_t status);
 #define   EFI_DEV_END_ENTIRE			0xFF
 
 struct efi_generic_dev_path {
+<<<<<<< HEAD
 	u8 type;
 	u8 sub_type;
 	u16 length;
@@ -1284,6 +1630,42 @@ struct efi_dev_path {
 #if IS_ENABLED(CONFIG_EFI_DEV_PATH_PARSER)
 struct device *efi_get_device_by_path(struct efi_dev_path **node, size_t *len);
 #endif
+=======
+	u8				type;
+	u8				sub_type;
+	u16				length;
+} __packed;
+
+struct efi_acpi_dev_path {
+	struct efi_generic_dev_path	header;
+	u32				hid;
+	u32				uid;
+} __packed;
+
+struct efi_pci_dev_path {
+	struct efi_generic_dev_path	header;
+	u8				fn;
+	u8				dev;
+} __packed;
+
+struct efi_vendor_dev_path {
+	struct efi_generic_dev_path	header;
+	efi_guid_t			vendorguid;
+	u8				vendordata[];
+} __packed;
+
+struct efi_dev_path {
+	union {
+		struct efi_generic_dev_path	header;
+		struct efi_acpi_dev_path	acpi;
+		struct efi_pci_dev_path		pci;
+		struct efi_vendor_dev_path	vendor;
+	};
+} __packed;
+
+struct device *efi_get_device_by_path(const struct efi_dev_path **node,
+				      size_t *len);
+>>>>>>> upstream/android-13
 
 static inline void memrange_efi_to_native(u64 *addr, u64 *npages)
 {
@@ -1338,6 +1720,7 @@ struct efivar_entry {
 	bool deleting;
 };
 
+<<<<<<< HEAD
 typedef struct {
 	u32 reset;
 	u32 output_string;
@@ -1432,6 +1815,8 @@ typedef efi_status_t (*efi_graphics_output_protocol_query_mode)(
 
 extern struct list_head efivar_sysfs_list;
 
+=======
+>>>>>>> upstream/android-13
 static inline void
 efivar_unregister(struct efivar_entry *var)
 {
@@ -1444,6 +1829,10 @@ int efivars_register(struct efivars *efivars,
 int efivars_unregister(struct efivars *efivars);
 struct kobject *efivars_kobject(void);
 
+<<<<<<< HEAD
+=======
+int efivar_supports_writes(void);
+>>>>>>> upstream/android-13
 int efivar_init(int (*func)(efi_char16_t *, efi_guid_t, unsigned long, void *),
 		void *data, bool duplicates, struct list_head *head);
 
@@ -1482,6 +1871,7 @@ bool efivar_validate(efi_guid_t vendor, efi_char16_t *var_name, u8 *data,
 bool efivar_variable_is_removable(efi_guid_t vendor, const char *name,
 				  size_t len);
 
+<<<<<<< HEAD
 extern struct work_struct efivar_work;
 void efivar_run_worker(void);
 
@@ -1491,6 +1881,9 @@ int efivars_sysfs_init(void);
 #define EFIVARS_DATA_SIZE_MAX 1024
 
 #endif /* CONFIG_EFI_VARS */
+=======
+#if IS_ENABLED(CONFIG_EFI_CAPSULE_LOADER)
+>>>>>>> upstream/android-13
 extern bool efi_capsule_pending(int *reset_type);
 
 extern int efi_capsule_supported(efi_guid_t guid, u32 flags,
@@ -1498,6 +1891,12 @@ extern int efi_capsule_supported(efi_guid_t guid, u32 flags,
 
 extern int efi_capsule_update(efi_capsule_header_t *capsule,
 			      phys_addr_t *pages);
+<<<<<<< HEAD
+=======
+#else
+static inline bool efi_capsule_pending(int *reset_type) { return false; }
+#endif
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_EFI_RUNTIME_MAP
 int efi_runtime_map_init(struct kobject *);
@@ -1527,6 +1926,7 @@ static inline int efi_runtime_map_copy(void *buf, size_t bufsz)
 
 #endif
 
+<<<<<<< HEAD
 /* prototypes shared between arch specific and generic stub code */
 
 void efi_printk(efi_system_table_t *sys_table_arg, char *str);
@@ -1568,6 +1968,8 @@ efi_status_t efi_setup_gop(efi_system_table_t *sys_table_arg,
 			   struct screen_info *si, efi_guid_t *proto,
 			   unsigned long size);
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_EFI
 extern bool efi_runtime_disabled(void);
 #else
@@ -1575,6 +1977,10 @@ static inline bool efi_runtime_disabled(void) { return true; }
 #endif
 
 extern void efi_call_virt_check_flags(unsigned long flags, const char *call);
+<<<<<<< HEAD
+=======
+extern unsigned long efi_call_virt_save_flags(void);
+>>>>>>> upstream/android-13
 
 enum efi_secureboot_mode {
 	efi_secureboot_mode_unset,
@@ -1582,6 +1988,7 @@ enum efi_secureboot_mode {
 	efi_secureboot_mode_disabled,
 	efi_secureboot_mode_enabled,
 };
+<<<<<<< HEAD
 enum efi_secureboot_mode efi_get_secureboot(efi_system_table_t *sys_table);
 
 #ifdef CONFIG_RESET_ATTACK_MITIGATION
@@ -1592,6 +1999,38 @@ efi_enable_reset_attack_mitigation(efi_system_table_t *sys_table_arg) { }
 #endif
 
 void efi_retrieve_tpm2_eventlog(efi_system_table_t *sys_table);
+=======
+
+static inline
+enum efi_secureboot_mode efi_get_secureboot_mode(efi_get_variable_t *get_var)
+{
+	u8 secboot, setupmode = 0;
+	efi_status_t status;
+	unsigned long size;
+
+	size = sizeof(secboot);
+	status = get_var(L"SecureBoot", &EFI_GLOBAL_VARIABLE_GUID, NULL, &size,
+			 &secboot);
+	if (status == EFI_NOT_FOUND)
+		return efi_secureboot_mode_disabled;
+	if (status != EFI_SUCCESS)
+		return efi_secureboot_mode_unknown;
+
+	size = sizeof(setupmode);
+	get_var(L"SetupMode", &EFI_GLOBAL_VARIABLE_GUID, NULL, &size, &setupmode);
+	if (secboot == 0 || setupmode == 1)
+		return efi_secureboot_mode_disabled;
+	return efi_secureboot_mode_enabled;
+}
+
+#ifdef CONFIG_EFI_EMBEDDED_FIRMWARE
+void efi_check_for_embedded_firmwares(void);
+#else
+static inline void efi_check_for_embedded_firmwares(void) { }
+#endif
+
+efi_status_t efi_random_get_seed(void);
+>>>>>>> upstream/android-13
 
 /*
  * Arch code can implement the following three template macros, avoiding
@@ -1620,7 +2059,11 @@ void efi_retrieve_tpm2_eventlog(efi_system_table_t *sys_table);
 									\
 	arch_efi_call_virt_setup();					\
 									\
+<<<<<<< HEAD
 	local_save_flags(__flags);					\
+=======
+	__flags = efi_call_virt_save_flags();				\
+>>>>>>> upstream/android-13
 	__s = arch_efi_call_virt(p, f, args);				\
 	efi_call_virt_check_flags(__flags, __stringify(f));		\
 									\
@@ -1635,13 +2078,18 @@ void efi_retrieve_tpm2_eventlog(efi_system_table_t *sys_table);
 									\
 	arch_efi_call_virt_setup();					\
 									\
+<<<<<<< HEAD
 	local_save_flags(__flags);					\
+=======
+	__flags = efi_call_virt_save_flags();				\
+>>>>>>> upstream/android-13
 	arch_efi_call_virt(p, f, args);					\
 	efi_call_virt_check_flags(__flags, __stringify(f));		\
 									\
 	arch_efi_call_virt_teardown();					\
 })
 
+<<<<<<< HEAD
 typedef efi_status_t (*efi_exit_boot_map_processing)(
 	efi_system_table_t *sys_table_arg,
 	struct efi_boot_memmap *map,
@@ -1653,6 +2101,8 @@ efi_status_t efi_exit_boot_services(efi_system_table_t *sys_table,
 				    void *priv,
 				    efi_exit_boot_map_processing priv_func);
 
+=======
+>>>>>>> upstream/android-13
 #define EFI_RANDOM_SEED_SIZE		64U
 
 struct linux_efi_random_seed {
@@ -1662,12 +2112,17 @@ struct linux_efi_random_seed {
 
 struct linux_efi_tpm_eventlog {
 	u32	size;
+<<<<<<< HEAD
+=======
+	u32	final_events_preboot_size;
+>>>>>>> upstream/android-13
 	u8	version;
 	u8	log[];
 };
 
 extern int efi_tpm_eventlog_init(void);
 
+<<<<<<< HEAD
 /* efi_runtime_service() function identifiers */
 enum efi_rts_ids {
 	GET_TIME,
@@ -1681,6 +2136,36 @@ enum efi_rts_ids {
 	GET_NEXT_HIGH_MONO_COUNT,
 	UPDATE_CAPSULE,
 	QUERY_CAPSULE_CAPS,
+=======
+struct efi_tcg2_final_events_table {
+	u64 version;
+	u64 nr_events;
+	u8 events[];
+};
+extern int efi_tpm_final_log_size;
+
+extern unsigned long rci2_table_phys;
+
+/*
+ * efi_runtime_service() function identifiers.
+ * "NONE" is used by efi_recover_from_page_fault() to check if the page
+ * fault happened while executing an efi runtime service.
+ */
+enum efi_rts_ids {
+	EFI_NONE,
+	EFI_GET_TIME,
+	EFI_SET_TIME,
+	EFI_GET_WAKEUP_TIME,
+	EFI_SET_WAKEUP_TIME,
+	EFI_GET_VARIABLE,
+	EFI_GET_NEXT_VARIABLE,
+	EFI_SET_VARIABLE,
+	EFI_QUERY_VARIABLE_INFO,
+	EFI_GET_NEXT_HIGH_MONO_COUNT,
+	EFI_RESET_SYSTEM,
+	EFI_UPDATE_CAPSULE,
+	EFI_QUERY_CAPSULE_CAPS,
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -1707,4 +2192,62 @@ extern struct efi_runtime_work efi_rts_work;
 /* Workqueue to queue EFI Runtime Services */
 extern struct workqueue_struct *efi_rts_wq;
 
+<<<<<<< HEAD
+=======
+struct linux_efi_memreserve {
+	int		size;			// allocated size of the array
+	atomic_t	count;			// number of entries used
+	phys_addr_t	next;			// pa of next struct instance
+	struct {
+		phys_addr_t	base;
+		phys_addr_t	size;
+	} entry[];
+};
+
+#define EFI_MEMRESERVE_COUNT(size) (((size) - sizeof(struct linux_efi_memreserve)) \
+	/ sizeof_field(struct linux_efi_memreserve, entry[0]))
+
+void __init efi_arch_mem_reserve(phys_addr_t addr, u64 size);
+
+char *efi_systab_show_arch(char *str);
+
+/*
+ * The LINUX_EFI_MOK_VARIABLE_TABLE_GUID config table can be provided
+ * to the kernel by an EFI boot loader. The table contains a packed
+ * sequence of these entries, one for each named MOK variable.
+ * The sequence is terminated by an entry with a completely NULL
+ * name and 0 data size.
+ */
+struct efi_mokvar_table_entry {
+	char name[256];
+	u64 data_size;
+	u8 data[];
+} __attribute((packed));
+
+#ifdef CONFIG_LOAD_UEFI_KEYS
+extern void __init efi_mokvar_table_init(void);
+extern struct efi_mokvar_table_entry *efi_mokvar_entry_next(
+			struct efi_mokvar_table_entry **mokvar_entry);
+extern struct efi_mokvar_table_entry *efi_mokvar_entry_find(const char *name);
+#else
+static inline void efi_mokvar_table_init(void) { }
+static inline struct efi_mokvar_table_entry *efi_mokvar_entry_next(
+			struct efi_mokvar_table_entry **mokvar_entry)
+{
+	return NULL;
+}
+static inline struct efi_mokvar_table_entry *efi_mokvar_entry_find(
+			const char *name)
+{
+	return NULL;
+}
+#endif
+
+#ifdef CONFIG_SYSFB
+extern void efifb_setup_from_dmi(struct screen_info *si, const char *opt);
+#else
+static inline void efifb_setup_from_dmi(struct screen_info *si, const char *opt) { }
+#endif
+
+>>>>>>> upstream/android-13
 #endif /* _LINUX_EFI_H */

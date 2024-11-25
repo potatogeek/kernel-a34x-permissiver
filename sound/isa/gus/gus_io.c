@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
  *  I/O routines for GF1/InterWave synthesizer chips
@@ -17,6 +18,12 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
+ *  I/O routines for GF1/InterWave synthesizer chips
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -418,7 +425,11 @@ void snd_gf1_select_active_voices(struct snd_gus_card * gus)
 {
 	unsigned short voices;
 
+<<<<<<< HEAD
 	static unsigned short voices_tbl[32 - 14 + 1] =
+=======
+	static const unsigned short voices_tbl[32 - 14 + 1] =
+>>>>>>> upstream/android-13
 	{
 	    44100, 41160, 38587, 36317, 34300, 32494, 30870, 29400, 28063, 26843,
 	    25725, 24696, 23746, 22866, 22050, 21289, 20580, 19916, 19293

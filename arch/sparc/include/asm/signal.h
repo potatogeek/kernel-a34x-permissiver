@@ -9,6 +9,7 @@
 #include <uapi/asm/signal.h>
 
 #ifndef __ASSEMBLY__
+<<<<<<< HEAD
 /*
  * DJHR
  * SA_STATIC_ALLOC is used for the sparc32 system to indicate that this
@@ -21,6 +22,8 @@
  *
  */
 #define SA_STATIC_ALLOC         0x8000
+=======
+>>>>>>> upstream/android-13
 
 #define __ARCH_HAS_KA_RESTORER
 #define __ARCH_HAS_SA_RESTORER

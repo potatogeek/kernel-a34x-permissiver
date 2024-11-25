@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  *  Driver for CPM (SCC/SMC) serial ports
  *
@@ -13,6 +17,11 @@
 #include <linux/platform_device.h>
 #include <linux/fs_uart_pd.h>
 
+<<<<<<< HEAD
+=======
+struct gpio_desc;
+
+>>>>>>> upstream/android-13
 #if defined(CONFIG_CPM2)
 #include "cpm_uart_cpm2.h"
 #elif defined(CONFIG_CPM1)
@@ -80,7 +89,11 @@ struct uart_cpm_port {
 	int			wait_closing;
 	/* value to combine with opcode to form cpm command */
 	u32			command;
+<<<<<<< HEAD
 	int			gpios[NUM_GPIOS];
+=======
+	struct gpio_desc	*gpios[NUM_GPIOS];
+>>>>>>> upstream/android-13
 };
 
 extern int cpm_uart_nr;

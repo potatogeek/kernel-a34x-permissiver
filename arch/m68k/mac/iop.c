@@ -47,6 +47,13 @@
  *
  * TODO:
  *
+<<<<<<< HEAD
+=======
+ * o The SCC IOP has to be placed in bypass mode before the serial console
+ *   gets initialized. iop_init() would be one place to do that. Or the
+ *   bootloader could do that. For now, the Serial Switch control panel
+ *   is needed for that -- contrary to the changelog above.
+>>>>>>> upstream/android-13
  * o Something should be periodically checking iop_alive() to make sure the
  *   IOP hasn't died.
  * o Some of the IOP manager routines need better error checking and
@@ -225,6 +232,7 @@ static struct iop_msg *iop_get_unused_msg(void)
 }
 
 /*
+<<<<<<< HEAD
  * This is called by the startup code before anything else. Its purpose
  * is to find and initialize the IOPs early in the boot sequence, so that
  * the serial IOP can be placed into bypass mode _before_ we try to
@@ -259,6 +267,8 @@ void __init iop_preinit(void)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Initialize the IOPs, if present.
  */
 
@@ -266,11 +276,31 @@ void __init iop_init(void)
 {
 	int i;
 
+<<<<<<< HEAD
 	if (iop_scc_present) {
 		pr_debug("SCC IOP detected at %p\n", iop_base[IOP_NUM_SCC]);
 	}
 	if (iop_ism_present) {
 		pr_debug("ISM IOP detected at %p\n", iop_base[IOP_NUM_ISM]);
+=======
+	if (macintosh_config->scc_type == MAC_SCC_IOP) {
+		if (macintosh_config->ident == MAC_MODEL_IIFX)
+			iop_base[IOP_NUM_SCC] = (struct mac_iop *)SCC_IOP_BASE_IIFX;
+		else
+			iop_base[IOP_NUM_SCC] = (struct mac_iop *)SCC_IOP_BASE_QUADRA;
+		iop_scc_present = 1;
+		pr_debug("SCC IOP detected at %p\n", iop_base[IOP_NUM_SCC]);
+	}
+	if (macintosh_config->adb_type == MAC_ADB_IOP) {
+		if (macintosh_config->ident == MAC_MODEL_IIFX)
+			iop_base[IOP_NUM_ISM] = (struct mac_iop *)ISM_IOP_BASE_IIFX;
+		else
+			iop_base[IOP_NUM_ISM] = (struct mac_iop *)ISM_IOP_BASE_QUADRA;
+		iop_ism_present = 1;
+		pr_debug("ISM IOP detected at %p\n", iop_base[IOP_NUM_ISM]);
+
+		iop_stop(iop_base[IOP_NUM_ISM]);
+>>>>>>> upstream/android-13
 		iop_start(iop_base[IOP_NUM_ISM]);
 		iop_alive(iop_base[IOP_NUM_ISM]); /* clears the alive flag */
 	}
@@ -293,7 +323,10 @@ void __init iop_init(void)
 
 /*
  * Register the interrupt handler for the IOPs.
+<<<<<<< HEAD
  * TODO: might be wrong for non-OSS machines. Anyone?
+=======
+>>>>>>> upstream/android-13
  */
 
 void __init iop_register_interrupts(void)
@@ -348,8 +381,13 @@ void iop_complete_message(struct iop_msg *msg)
 	int chan = msg->channel;
 	int i,offset;
 
+<<<<<<< HEAD
 	iop_pr_debug("msg %p iop_num %d channel %d\n", msg, msg->iop_num,
 	             msg->channel);
+=======
+	iop_pr_debug("iop_num %d chan %d reply %*ph\n",
+		     msg->iop_num, msg->channel, IOP_MSG_LEN, msg->reply);
+>>>>>>> upstream/android-13
 
 	offset = IOP_ADDR_RECV_MSG + (msg->channel * IOP_MSG_LEN);
 
@@ -373,6 +411,12 @@ static void iop_do_send(struct iop_msg *msg)
 	volatile struct mac_iop *iop = iop_base[msg->iop_num];
 	int i,offset;
 
+<<<<<<< HEAD
+=======
+	iop_pr_debug("iop_num %d chan %d message %*ph\n",
+		     msg->iop_num, msg->channel, IOP_MSG_LEN, msg->message);
+
+>>>>>>> upstream/android-13
 	offset = IOP_ADDR_SEND_MSG + (msg->channel * IOP_MSG_LEN);
 
 	for (i = 0 ; i < IOP_MSG_LEN ; i++, offset++) {
@@ -395,8 +439,11 @@ static void iop_handle_send(uint iop_num, uint chan)
 	struct iop_msg *msg;
 	int i,offset;
 
+<<<<<<< HEAD
 	iop_pr_debug("iop_num %d chan %d\n", iop_num, chan);
 
+=======
+>>>>>>> upstream/android-13
 	iop_writeb(iop, IOP_ADDR_SEND_STATE + chan, IOP_MSG_IDLE);
 
 	if (!(msg = iop_send_queue[iop_num][chan])) return;
@@ -406,6 +453,12 @@ static void iop_handle_send(uint iop_num, uint chan)
 	for (i = 0 ; i < IOP_MSG_LEN ; i++, offset++) {
 		msg->reply[i] = iop_readb(iop, offset);
 	}
+<<<<<<< HEAD
+=======
+	iop_pr_debug("iop_num %d chan %d reply %*ph\n",
+		     iop_num, chan, IOP_MSG_LEN, msg->reply);
+
+>>>>>>> upstream/android-13
 	if (msg->handler) (*msg->handler)(msg);
 	msg->status = IOP_MSGSTATUS_UNUSED;
 	msg = msg->next;
@@ -425,8 +478,11 @@ static void iop_handle_recv(uint iop_num, uint chan)
 	int i,offset;
 	struct iop_msg *msg;
 
+<<<<<<< HEAD
 	iop_pr_debug("iop_num %d chan %d\n", iop_num, chan);
 
+=======
+>>>>>>> upstream/android-13
 	msg = iop_get_unused_msg();
 	msg->iop_num = iop_num;
 	msg->channel = chan;
@@ -438,6 +494,11 @@ static void iop_handle_recv(uint iop_num, uint chan)
 	for (i = 0 ; i < IOP_MSG_LEN ; i++, offset++) {
 		msg->message[i] = iop_readb(iop, offset);
 	}
+<<<<<<< HEAD
+=======
+	iop_pr_debug("iop_num %d chan %d message %*ph\n",
+		     iop_num, chan, IOP_MSG_LEN, msg->message);
+>>>>>>> upstream/android-13
 
 	iop_writeb(iop, IOP_ADDR_RECV_STATE + chan, IOP_MSG_RCVD);
 
@@ -447,9 +508,13 @@ static void iop_handle_recv(uint iop_num, uint chan)
 	if (msg->handler) {
 		(*msg->handler)(msg);
 	} else {
+<<<<<<< HEAD
 		iop_pr_debug("unclaimed message on iop_num %d chan %d\n",
 		             iop_num, chan);
 		iop_pr_debug("%*ph\n", IOP_MSG_LEN, msg->message);
+=======
+		memset(msg->reply, 0, IOP_MSG_LEN);
+>>>>>>> upstream/android-13
 		iop_complete_message(msg);
 	}
 }
@@ -557,6 +622,7 @@ irqreturn_t iop_ism_irq(int irq, void *dev_id)
 	uint iop_num = (uint) dev_id;
 	volatile struct mac_iop *iop = iop_base[iop_num];
 	int i,state;
+<<<<<<< HEAD
 
 	iop_pr_debug("status %02X\n", iop->status_ctrl);
 
@@ -587,6 +653,43 @@ irqreturn_t iop_ism_irq(int irq, void *dev_id)
 		}
 		iop_pr_cont("\n");
 	}
+=======
+	u8 events = iop->status_ctrl & (IOP_INT0 | IOP_INT1);
+
+	do {
+		iop_pr_debug("iop_num %d status %02X\n", iop_num,
+			     iop->status_ctrl);
+
+		/* INT0 indicates state change on an outgoing message channel */
+		if (events & IOP_INT0) {
+			iop->status_ctrl = IOP_INT0 | IOP_RUN | IOP_AUTOINC;
+			for (i = 0; i < NUM_IOP_CHAN; i++) {
+				state = iop_readb(iop, IOP_ADDR_SEND_STATE + i);
+				if (state == IOP_MSG_COMPLETE)
+					iop_handle_send(iop_num, i);
+				else if (state != IOP_MSG_IDLE)
+					iop_pr_debug("chan %d send state %02X\n",
+						     i, state);
+			}
+		}
+
+		/* INT1 for incoming messages */
+		if (events & IOP_INT1) {
+			iop->status_ctrl = IOP_INT1 | IOP_RUN | IOP_AUTOINC;
+			for (i = 0; i < NUM_IOP_CHAN; i++) {
+				state = iop_readb(iop, IOP_ADDR_RECV_STATE + i);
+				if (state == IOP_MSG_NEW)
+					iop_handle_recv(iop_num, i);
+				else if (state != IOP_MSG_IDLE)
+					iop_pr_debug("chan %d recv state %02X\n",
+						     i, state);
+			}
+		}
+
+		events = iop->status_ctrl & (IOP_INT0 | IOP_INT1);
+	} while (events);
+
+>>>>>>> upstream/android-13
 	return IRQ_HANDLED;
 }
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2007 Freescale Semiconductor, Inc. All Rights Reserved.
  * Copyright 2008 Juergen Beisert, kernel@pengutronix.de
@@ -15,6 +16,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2007 Freescale Semiconductor, Inc. All Rights Reserved.
+ * Copyright 2008 Juergen Beisert, kernel@pengutronix.de
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -22,6 +29,10 @@
  */
 
 #include <linux/io.h>
+<<<<<<< HEAD
+=======
+#include <linux/of_address.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 
 #include "hardware.h"
@@ -30,16 +41,34 @@ static int mx27_cpu_rev = -1;
 static int mx27_cpu_partnumber;
 
 #define SYS_CHIP_ID             0x00    /* The offset of CHIP ID register */
+<<<<<<< HEAD
 
 static int mx27_read_cpu_rev(void)
 {
 	u32 val;
+=======
+#define SYSCTRL_OFFSET		0x800	/* Offset from CCM base address */
+
+static int mx27_read_cpu_rev(void)
+{
+	void __iomem *ccm_base;
+	struct device_node *np;
+	u32 val;
+
+	np = of_find_compatible_node(NULL, NULL, "fsl,imx27-ccm");
+	ccm_base = of_iomap(np, 0);
+	BUG_ON(!ccm_base);
+>>>>>>> upstream/android-13
 	/*
 	 * now we have access to the IO registers. As we need
 	 * the silicon revision very early we read it here to
 	 * avoid any further hooks
 	*/
+<<<<<<< HEAD
 	val = imx_readl(MX27_IO_ADDRESS(MX27_SYSCTRL_BASE_ADDR + SYS_CHIP_ID));
+=======
+	val = imx_readl(ccm_base + SYSCTRL_OFFSET + SYS_CHIP_ID);
+>>>>>>> upstream/android-13
 
 	mx27_cpu_partnumber = (int)((val >> 12) & 0xFFFF);
 

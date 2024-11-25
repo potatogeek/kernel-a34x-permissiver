@@ -569,8 +569,12 @@ static int ctcm_transmit_skb(struct channel *ch, struct sk_buff *skb)
 	fsm_addtimer(&ch->timer, CTCM_TIME_5_SEC, CTC_EVENT_TIMER, ch);
 	spin_lock_irqsave(get_ccwdev_lock(ch->cdev), saveflags);
 	ch->prof.send_stamp = jiffies;
+<<<<<<< HEAD
 	rc = ccw_device_start(ch->cdev, &ch->ccw[ccw_idx],
 					(unsigned long)ch, 0xff, 0);
+=======
+	rc = ccw_device_start(ch->cdev, &ch->ccw[ccw_idx], 0, 0xff, 0);
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(get_ccwdev_lock(ch->cdev), saveflags);
 	if (ccw_idx == 3)
 		ch->prof.doios_single++;
@@ -624,6 +628,7 @@ static void ctcmpc_send_sweep_req(struct channel *rch)
 				goto nomem;
 	}
 
+<<<<<<< HEAD
 	header = kmalloc(TH_SWEEP_LENGTH, gfp_type());
 
 	if (!header) {
@@ -643,6 +648,12 @@ static void ctcmpc_send_sweep_req(struct channel *rch)
 
 	kfree(header);
 
+=======
+	header = skb_put_zero(sweep_skb, TH_SWEEP_LENGTH);
+	header->th.th_ch_flag	= TH_SWEEP_REQ;  /* 0x0f */
+	header->sw.th_last_seq	= ch->th_seq_num;
+
+>>>>>>> upstream/android-13
 	netif_trans_update(dev);
 	skb_queue_tail(&ch->sweep_queue, sweep_skb);
 
@@ -681,6 +692,7 @@ static int ctcmpc_transmit_skb(struct channel *ch, struct sk_buff *skb)
 	if ((fsm_getstate(ch->fsm) != CTC_STATE_TXIDLE) || grp->in_sweep) {
 		spin_lock_irqsave(&ch->collect_lock, saveflags);
 		refcount_inc(&skb->users);
+<<<<<<< HEAD
 		p_header = kmalloc(PDU_HEADER_LENGTH, gfp_type());
 
 		if (!p_header) {
@@ -699,6 +711,18 @@ static int ctcmpc_transmit_skb(struct channel *ch, struct sk_buff *skb)
 		p_header->pdu_seq = 0;
 		memcpy(skb_push(skb, PDU_HEADER_LENGTH), p_header,
 		       PDU_HEADER_LENGTH);
+=======
+
+		p_header = skb_push(skb, PDU_HEADER_LENGTH);
+		p_header->pdu_offset = skb->len - PDU_HEADER_LENGTH;
+		p_header->pdu_proto = 0x01;
+		if (be16_to_cpu(skb->protocol) == ETH_P_SNAP) {
+			p_header->pdu_flag = PDU_FIRST | PDU_CNTL;
+		} else {
+			p_header->pdu_flag = PDU_FIRST;
+		}
+		p_header->pdu_seq = 0;
+>>>>>>> upstream/android-13
 
 		CTCM_PR_DEBUG("%s(%s): Put on collect_q - skb len: %04x \n"
 				"pdu header and data for up to 32 bytes:\n",
@@ -707,7 +731,10 @@ static int ctcmpc_transmit_skb(struct channel *ch, struct sk_buff *skb)
 
 		skb_queue_tail(&ch->collect_queue, skb);
 		ch->collect_len += skb->len;
+<<<<<<< HEAD
 		kfree(p_header);
+=======
+>>>>>>> upstream/android-13
 
 		spin_unlock_irqrestore(&ch->collect_lock, saveflags);
 			goto done;
@@ -737,6 +764,7 @@ static int ctcmpc_transmit_skb(struct channel *ch, struct sk_buff *skb)
 		}
 	}
 
+<<<<<<< HEAD
 	p_header = kmalloc(PDU_HEADER_LENGTH, gfp_type());
 
 	if (!p_header)
@@ -754,6 +782,17 @@ static int ctcmpc_transmit_skb(struct channel *ch, struct sk_buff *skb)
 	memcpy(skb_push(skb, PDU_HEADER_LENGTH), p_header, PDU_HEADER_LENGTH);
 
 	kfree(p_header);
+=======
+	p_header = skb_push(skb, PDU_HEADER_LENGTH);
+	p_header->pdu_offset = skb->len - PDU_HEADER_LENGTH;
+	p_header->pdu_proto = 0x01;
+	p_header->pdu_seq = 0;
+	if (be16_to_cpu(skb->protocol) == ETH_P_SNAP) {
+		p_header->pdu_flag = PDU_FIRST | PDU_CNTL;
+	} else {
+		p_header->pdu_flag = PDU_FIRST;
+	}
+>>>>>>> upstream/android-13
 
 	if (ch->collect_len > 0) {
 		spin_lock_irqsave(&ch->collect_lock, saveflags);
@@ -769,6 +808,7 @@ static int ctcmpc_transmit_skb(struct channel *ch, struct sk_buff *skb)
 
 	ch->prof.txlen += skb->len - PDU_HEADER_LENGTH;
 
+<<<<<<< HEAD
 	header = kmalloc(TH_HEADER_LENGTH, gfp_type());
 	if (!header)
 		goto nomem_exit;
@@ -777,17 +817,27 @@ static int ctcmpc_transmit_skb(struct channel *ch, struct sk_buff *skb)
 	header->th_ch_flag = TH_HAS_PDU;  /* Normal data */
 	header->th_blk_flag = 0x00;
 	header->th_is_xid = 0x00;          /* Just data here */
+=======
+	/* put the TH on the packet */
+	header = skb_push(skb, TH_HEADER_LENGTH);
+	memset(header, 0, TH_HEADER_LENGTH);
+
+	header->th_ch_flag = TH_HAS_PDU;  /* Normal data */
+>>>>>>> upstream/android-13
 	ch->th_seq_num++;
 	header->th_seq_num = ch->th_seq_num;
 
 	CTCM_PR_DBGDATA("%s(%s) ToVTAM_th_seq= %08x\n" ,
 		       __func__, dev->name, ch->th_seq_num);
 
+<<<<<<< HEAD
 	/* put the TH on the packet */
 	memcpy(skb_push(skb, TH_HEADER_LENGTH), header, TH_HEADER_LENGTH);
 
 	kfree(header);
 
+=======
+>>>>>>> upstream/android-13
 	CTCM_PR_DBGDATA("%s(%s): skb len: %04x\n - pdu header and data for "
 			"up to 32 bytes sent to vtam:\n",
 				__func__, dev->name, skb->len);
@@ -833,8 +883,12 @@ static int ctcmpc_transmit_skb(struct channel *ch, struct sk_buff *skb)
 
 	spin_lock_irqsave(get_ccwdev_lock(ch->cdev), saveflags);
 	ch->prof.send_stamp = jiffies;
+<<<<<<< HEAD
 	rc = ccw_device_start(ch->cdev, &ch->ccw[ccw_idx],
 					(unsigned long)ch, 0xff, 0);
+=======
+	rc = ccw_device_start(ch->cdev, &ch->ccw[ccw_idx], 0, 0xff, 0);
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(get_ccwdev_lock(ch->cdev), saveflags);
 	if (ccw_idx == 3)
 		ch->prof.doios_single++;
@@ -945,7 +999,11 @@ static int ctcmpc_tx(struct sk_buff *skb, struct net_device *dev)
 		CTCM_D3_DUMP((char *)skb->data, min_t(int, 32, skb->len));
 
 		len =  skb->len + TH_HEADER_LENGTH + PDU_HEADER_LENGTH;
+<<<<<<< HEAD
 		newskb = __dev_alloc_skb(len, gfp_type() | GFP_DMA);
+=======
+		newskb = __dev_alloc_skb(len, GFP_ATOMIC | GFP_DMA);
+>>>>>>> upstream/android-13
 
 		if (!newskb) {
 			CTCM_DBF_TEXT_(MPC_TRACE, CTC_DBF_ERROR,
@@ -1074,10 +1132,15 @@ static void ctcm_free_netdevice(struct net_device *dev)
 		if (grp) {
 			if (grp->fsm)
 				kfree_fsm(grp->fsm);
+<<<<<<< HEAD
 			if (grp->xid_skb)
 				dev_kfree_skb(grp->xid_skb);
 			if (grp->rcvd_xid_skb)
 				dev_kfree_skb(grp->rcvd_xid_skb);
+=======
+			dev_kfree_skb(grp->xid_skb);
+			dev_kfree_skb(grp->rcvd_xid_skb);
+>>>>>>> upstream/android-13
 			tasklet_kill(&grp->mpc_tasklet2);
 			kfree(grp);
 			priv->mpcg = NULL;
@@ -1365,7 +1428,11 @@ static int add_channel(struct ccw_device *cdev, enum ctcm_channel_types type,
 
 	ch->protocol = priv->protocol;
 	if (IS_MPC(priv)) {
+<<<<<<< HEAD
 		ch->discontact_th = kzalloc(TH_HEADER_LENGTH, gfp_type());
+=======
+		ch->discontact_th = kzalloc(TH_HEADER_LENGTH, GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (ch->discontact_th == NULL)
 					goto nomem_return;
 
@@ -1702,6 +1769,7 @@ static void ctcm_remove_device(struct ccwgroup_device *cgdev)
 	put_device(&cgdev->dev);
 }
 
+<<<<<<< HEAD
 static int ctcm_pm_suspend(struct ccwgroup_device *gdev)
 {
 	struct ctcm_priv *priv = dev_get_drvdata(&gdev->dev);
@@ -1739,6 +1807,8 @@ err_out:
 	return rc;
 }
 
+=======
+>>>>>>> upstream/android-13
 static struct ccw_device_id ctcm_ids[] = {
 	{CCW_DEVICE(0x3088, 0x08), .driver_info = ctcm_channel_type_parallel},
 	{CCW_DEVICE(0x3088, 0x1e), .driver_info = ctcm_channel_type_ficon},
@@ -1768,9 +1838,12 @@ static struct ccwgroup_driver ctcm_group_driver = {
 	.remove      = ctcm_remove_device,
 	.set_online  = ctcm_new_device,
 	.set_offline = ctcm_shutdown_device,
+<<<<<<< HEAD
 	.freeze	     = ctcm_pm_suspend,
 	.thaw	     = ctcm_pm_resume,
 	.restore     = ctcm_pm_resume,
+=======
+>>>>>>> upstream/android-13
 };
 
 static ssize_t group_store(struct device_driver *ddrv, const char *buf,

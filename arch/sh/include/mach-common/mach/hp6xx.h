@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #ifndef __ASM_SH_HP6XX_H
 #define __ASM_SH_HP6XX_H
 
@@ -9,6 +10,15 @@
  * for more details.
  *
  */
+=======
+/* SPDX-License-Identifier: GPL-2.0
+ *
+ * Copyright (C) 2003, 2004, 2005  Andriy Skulysh
+ */
+#ifndef __ASM_SH_HP6XX_H
+#define __ASM_SH_HP6XX_H
+
+>>>>>>> upstream/android-13
 #include <linux/sh_intc.h>
 
 #define HP680_BTN_IRQ		evt2irq(0x600)	/* IRQ0_IRQ */

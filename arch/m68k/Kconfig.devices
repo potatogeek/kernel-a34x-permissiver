@@ -59,7 +59,11 @@ config NFETH
 config ATARI_ETHERNAT
 	bool "Atari EtherNAT Ethernet support"
 	depends on ATARI
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  Say Y to include support for the EtherNAT network adapter for the
 	  CT/60 extension port.
 
@@ -69,7 +73,11 @@ config ATARI_ETHERNAT
 config ATARI_ETHERNEC
 	bool "Atari EtherNEC Ethernet support"
 	depends on ATARI_ROM_ISA
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  Say Y to include support for the EtherNEC network adapter for the
 	  ROM port. The driver works by polling instead of interrupts, so it
 	  is quite slow.
@@ -120,7 +128,11 @@ config HPAPCI
 config SERIAL_CONSOLE
 	bool "Support for serial port console"
 	depends on AMIGA_BUILTIN_SERIAL=y
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  If you say Y here, it will be possible to use a serial port as the
 	  system console (the system console is the device which receives all
 	  kernel messages and warnings and which allows logins in single user

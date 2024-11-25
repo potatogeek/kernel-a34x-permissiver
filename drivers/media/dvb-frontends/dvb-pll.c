@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * descriptions + helper functions for simple dvb plls.
  *
  * (c) 2004 Gerd Knorr <kraxel@bytesex.org> [SuSE Labs]
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -841,7 +848,11 @@ struct dvb_frontend *dvb_pll_attach(struct dvb_frontend *fe, int pll_addr,
 	memcpy(&fe->ops.tuner_ops, &dvb_pll_tuner_ops,
 	       sizeof(struct dvb_tuner_ops));
 
+<<<<<<< HEAD
 	strncpy(fe->ops.tuner_ops.info.name, desc->name,
+=======
+	strscpy(fe->ops.tuner_ops.info.name, desc->name,
+>>>>>>> upstream/android-13
 		sizeof(fe->ops.tuner_ops.info.name));
 
 	fe->ops.tuner_ops.info.frequency_min_hz = desc->min;

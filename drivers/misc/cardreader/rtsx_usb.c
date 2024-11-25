@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* Driver for Realtek USB card reader
  *
  * Copyright(c) 2009-2013 Realtek Semiconductor Corp. All rights reserved.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2
  * as published by the Free Software Foundation.
@@ -14,6 +19,8 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  * Author:
  *   Roger Tseng <rogerable@realtek.com>
  */
@@ -723,8 +730,20 @@ static int rtsx_usb_suspend(struct usb_interface *intf, pm_message_t message)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int rtsx_usb_resume(struct usb_interface *intf)
 {
+=======
+static int rtsx_usb_resume_child(struct device *dev, void *data)
+{
+	pm_request_resume(dev);
+	return 0;
+}
+
+static int rtsx_usb_resume(struct usb_interface *intf)
+{
+	device_for_each_child(&intf->dev, NULL, rtsx_usb_resume_child);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -734,6 +753,10 @@ static int rtsx_usb_reset_resume(struct usb_interface *intf)
 		(struct rtsx_ucr *)usb_get_intfdata(intf);
 
 	rtsx_usb_reset_chip(ucr);
+<<<<<<< HEAD
+=======
+	device_for_each_child(&intf->dev, NULL, rtsx_usb_resume_child);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -762,7 +785,11 @@ static int rtsx_usb_post_reset(struct usb_interface *intf)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct usb_device_id rtsx_usb_usb_ids[] = {
+=======
+static const struct usb_device_id rtsx_usb_usb_ids[] = {
+>>>>>>> upstream/android-13
 	{ USB_DEVICE(0x0BDA, 0x0129) },
 	{ USB_DEVICE(0x0BDA, 0x0139) },
 	{ USB_DEVICE(0x0BDA, 0x0140) },

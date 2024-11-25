@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef __SOUND_EMU8000_H
 #define __SOUND_EMU8000_H
 /*
@@ -5,6 +9,7 @@
  *
  *  Copyright (C) 1999 Steve Ratcliffe
  *  Copyright (C) 1999-2000 Takashi Iwai <tiwai@suse.de>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -19,6 +24,8 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <sound/emux_synth.h>
@@ -69,9 +76,12 @@ struct snd_emu8000 {
 	unsigned long port1;	/* Port usually base+0 */
 	unsigned long port2;	/* Port usually at base+0x400 */
 	unsigned long port3;	/* Port usually at base+0x800 */
+<<<<<<< HEAD
 	struct resource *res_port1;
 	struct resource *res_port2;
 	struct resource *res_port3;
+=======
+>>>>>>> upstream/android-13
 	unsigned short last_reg;/* Last register command */
 	spinlock_t reg_lock;
 

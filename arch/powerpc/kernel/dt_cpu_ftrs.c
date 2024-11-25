@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright 2017, Nicholas Piggin, IBM Corporation
  * Licensed under GPLv2.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2017, Nicholas Piggin, IBM Corporation
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "dt-cpu-ftrs: " fmt
@@ -17,15 +23,25 @@
 
 #include <asm/cputable.h>
 #include <asm/dt_cpu_ftrs.h>
+<<<<<<< HEAD
 #include <asm/mmu.h>
 #include <asm/oprofile_impl.h>
+=======
+#include <asm/mce.h>
+#include <asm/mmu.h>
+>>>>>>> upstream/android-13
 #include <asm/prom.h>
 #include <asm/setup.h>
 
 
 /* Device-tree visible constants follow */
+<<<<<<< HEAD
 #define ISA_V2_07B      2070
 #define ISA_V3_0B       3000
+=======
+#define ISA_V3_0B       3000
+#define ISA_V3_1        3100
+>>>>>>> upstream/android-13
 
 #define USABLE_PR               (1U << 0)
 #define USABLE_OS               (1U << 1)
@@ -64,22 +80,32 @@ struct dt_cpu_feature {
  * Set up the base CPU
  */
 
+<<<<<<< HEAD
 extern long __machine_check_early_realmode_p8(struct pt_regs *regs);
 extern long __machine_check_early_realmode_p9(struct pt_regs *regs);
 
+=======
+>>>>>>> upstream/android-13
 static int hv_mode;
 
 static struct {
 	u64	lpcr;
+<<<<<<< HEAD
 	u64	lpcr_clear;
 	u64	hfscr;
 	u64	fscr;
+=======
+	u64	hfscr;
+	u64	fscr;
+	u64	pcr;
+>>>>>>> upstream/android-13
 } system_registers;
 
 static void (*init_pmu_registers)(void);
 
 static void __restore_cpu_cpufeatures(void)
 {
+<<<<<<< HEAD
 	u64 lpcr;
 
 	/*
@@ -102,6 +128,13 @@ static void __restore_cpu_cpufeatures(void)
 		mtspr(SPRN_LPID, 0);
 		mtspr(SPRN_HFSCR, system_registers.hfscr);
 		mtspr(SPRN_PCR, 0);
+=======
+	mtspr(SPRN_LPCR, system_registers.lpcr);
+	if (hv_mode) {
+		mtspr(SPRN_LPID, 0);
+		mtspr(SPRN_HFSCR, system_registers.hfscr);
+		mtspr(SPRN_PCR, system_registers.pcr);
+>>>>>>> upstream/android-13
 	}
 	mtspr(SPRN_FSCR, system_registers.fscr);
 
@@ -122,7 +155,10 @@ static struct cpu_spec __initdata base_cpu_spec = {
 	.num_pmcs		= 0,
 	.pmc_type		= PPC_PMC_DEFAULT,
 	.oprofile_cpu_type	= NULL,
+<<<<<<< HEAD
 	.oprofile_type		= PPC_OPROFILE_INVALID,
+=======
+>>>>>>> upstream/android-13
 	.cpu_setup		= NULL,
 	.cpu_restore		= __restore_cpu_cpufeatures,
 	.machine_check_early	= NULL,
@@ -139,11 +175,18 @@ static void __init cpufeatures_setup_cpu(void)
 	/* Initialize the base environment -- clear FSCR/HFSCR.  */
 	hv_mode = !!(mfmsr() & MSR_HV);
 	if (hv_mode) {
+<<<<<<< HEAD
 		/* CPU_FTR_HVMODE is used early in PACA setup */
+=======
+>>>>>>> upstream/android-13
 		cur_cpu_spec->cpu_features |= CPU_FTR_HVMODE;
 		mtspr(SPRN_HFSCR, 0);
 	}
 	mtspr(SPRN_FSCR, 0);
+<<<<<<< HEAD
+=======
+	mtspr(SPRN_PCR, PCR_MASK);
+>>>>>>> upstream/android-13
 
 	/*
 	 * LPCR does not get cleared, to match behaviour with secondaries
@@ -274,6 +317,7 @@ static int __init feat_enable_idle_nap(struct dt_cpu_feature *f)
 	return 1;
 }
 
+<<<<<<< HEAD
 static int __init feat_enable_align_dsisr(struct dt_cpu_feature *f)
 {
 	cur_cpu_spec->cpu_features &= ~CPU_FTR_NODSISRALIGN;
@@ -281,6 +325,8 @@ static int __init feat_enable_align_dsisr(struct dt_cpu_feature *f)
 	return 1;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int __init feat_enable_idle_stop(struct dt_cpu_feature *f)
 {
 	u64 lpcr;
@@ -318,7 +364,10 @@ static int __init feat_enable_mmu_hash_v3(struct dt_cpu_feature *f)
 {
 	u64 lpcr;
 
+<<<<<<< HEAD
 	system_registers.lpcr_clear |= (LPCR_ISL | LPCR_UPRT | LPCR_HR);
+=======
+>>>>>>> upstream/android-13
 	lpcr = mfspr(SPRN_LPCR);
 	lpcr &= ~(LPCR_ISL | LPCR_UPRT | LPCR_HR);
 	mtspr(SPRN_LPCR, lpcr);
@@ -335,6 +384,10 @@ static int __init feat_enable_mmu_radix(struct dt_cpu_feature *f)
 #ifdef CONFIG_PPC_RADIX_MMU
 	cur_cpu_spec->mmu_features |= MMU_FTR_TYPE_RADIX;
 	cur_cpu_spec->mmu_features |= MMU_FTRS_HASH_BASE;
+<<<<<<< HEAD
+=======
+	cur_cpu_spec->mmu_features |= MMU_FTR_GTSE;
+>>>>>>> upstream/android-13
 	cur_cpu_spec->cpu_user_features |= PPC_FEATURE_HAS_MMU;
 
 	return 1;
@@ -448,6 +501,43 @@ static int __init feat_enable_pmu_power9(struct dt_cpu_feature *f)
 	return 1;
 }
 
+<<<<<<< HEAD
+=======
+static void init_pmu_power10(void)
+{
+	init_pmu_power9();
+
+	mtspr(SPRN_MMCR3, 0);
+	mtspr(SPRN_MMCRA, MMCRA_BHRB_DISABLE);
+	mtspr(SPRN_MMCR0, MMCR0_PMCCEXT);
+}
+
+static int __init feat_enable_pmu_power10(struct dt_cpu_feature *f)
+{
+	hfscr_pmu_enable();
+
+	init_pmu_power10();
+	init_pmu_registers = init_pmu_power10;
+
+	cur_cpu_spec->cpu_features |= CPU_FTR_MMCRA;
+	cur_cpu_spec->cpu_user_features |= PPC_FEATURE_PSERIES_PERFMON_COMPAT;
+
+	cur_cpu_spec->num_pmcs          = 6;
+	cur_cpu_spec->pmc_type          = PPC_PMC_IBM;
+	cur_cpu_spec->oprofile_cpu_type = "ppc64/power10";
+
+	return 1;
+}
+
+static int __init feat_enable_mce_power10(struct dt_cpu_feature *f)
+{
+	cur_cpu_spec->platform = "power10";
+	cur_cpu_spec->machine_check_early = __machine_check_early_realmode_p10;
+
+	return 1;
+}
+
+>>>>>>> upstream/android-13
 static int __init feat_enable_tm(struct dt_cpu_feature *f)
 {
 #ifdef CONFIG_PPC_TRANSACTIONAL_MEM
@@ -560,6 +650,21 @@ static int __init feat_enable_large_ci(struct dt_cpu_feature *f)
 	return 1;
 }
 
+<<<<<<< HEAD
+=======
+static int __init feat_enable_mma(struct dt_cpu_feature *f)
+{
+	u64 pcr;
+
+	feat_enable(f);
+	pcr = mfspr(SPRN_PCR);
+	pcr &= ~PCR_MMA_DIS;
+	mtspr(SPRN_PCR, pcr);
+
+	return 1;
+}
+
+>>>>>>> upstream/android-13
 struct dt_cpu_feature_match {
 	const char *name;
 	int (*enable)(struct dt_cpu_feature *f);
@@ -573,6 +678,10 @@ static struct dt_cpu_feature_match __initdata
 	{"little-endian", feat_enable_le, CPU_FTR_REAL_LE},
 	{"smt", feat_enable_smt, 0},
 	{"interrupt-facilities", feat_enable, 0},
+<<<<<<< HEAD
+=======
+	{"system-call-vectored", feat_enable, 0},
+>>>>>>> upstream/android-13
 	{"timer-facilities", feat_enable, 0},
 	{"timer-facilities-v3", feat_enable, 0},
 	{"debug-facilities", feat_enable, 0},
@@ -595,7 +704,11 @@ static struct dt_cpu_feature_match __initdata
 	{"tm-suspend-hypervisor-assist", feat_enable, CPU_FTR_P9_TM_HV_ASSIST},
 	{"tm-suspend-xer-so-bug", feat_enable, CPU_FTR_P9_TM_XER_SO_BUG},
 	{"idle-nap", feat_enable_idle_nap, 0},
+<<<<<<< HEAD
 	{"alignment-interrupt-dsisr", feat_enable_align_dsisr, 0},
+=======
+	/* alignment-interrupt-dsisr ignored */
+>>>>>>> upstream/android-13
 	{"idle-stop", feat_enable_idle_stop, 0},
 	{"machine-check-power8", feat_enable_mce_power8, 0},
 	{"performance-monitor-power8", feat_enable_pmu_power8, 0},
@@ -624,7 +737,13 @@ static struct dt_cpu_feature_match __initdata
 	{"group-start-register", feat_enable, 0},
 	{"pc-relative-addressing", feat_enable, 0},
 	{"machine-check-power9", feat_enable_mce_power9, 0},
+<<<<<<< HEAD
 	{"performance-monitor-power9", feat_enable_pmu_power9, 0},
+=======
+	{"machine-check-power10", feat_enable_mce_power10, 0},
+	{"performance-monitor-power9", feat_enable_pmu_power9, 0},
+	{"performance-monitor-power10", feat_enable_pmu_power10, 0},
+>>>>>>> upstream/android-13
 	{"event-based-branch-v3", feat_enable, 0},
 	{"random-number-generator", feat_enable, 0},
 	{"system-call-vectored", feat_disable, 0},
@@ -633,6 +752,12 @@ static struct dt_cpu_feature_match __initdata
 	{"vector-binary128", feat_enable, 0},
 	{"vector-binary16", feat_enable, 0},
 	{"wait-v3", feat_enable, 0},
+<<<<<<< HEAD
+=======
+	{"prefix-instructions", feat_enable, 0},
+	{"matrix-multiply-assist", feat_enable_mma, 0},
+	{"debug-facilities-v31", feat_enable, CPU_FTR_DAWR1},
+>>>>>>> upstream/android-13
 };
 
 static bool __initdata using_dt_cpu_ftrs;
@@ -658,10 +783,22 @@ static void __init cpufeatures_setup_start(u32 isa)
 {
 	pr_info("setup for ISA %d\n", isa);
 
+<<<<<<< HEAD
 	if (isa >= 3000) {
 		cur_cpu_spec->cpu_features |= CPU_FTR_ARCH_300;
 		cur_cpu_spec->cpu_user_features2 |= PPC_FEATURE2_ARCH_3_00;
 	}
+=======
+	if (isa >= ISA_V3_0B) {
+		cur_cpu_spec->cpu_features |= CPU_FTR_ARCH_300;
+		cur_cpu_spec->cpu_user_features2 |= PPC_FEATURE2_ARCH_3_00;
+	}
+
+	if (isa >= ISA_V3_1) {
+		cur_cpu_spec->cpu_features |= CPU_FTR_ARCH_31;
+		cur_cpu_spec->cpu_user_features2 |= PPC_FEATURE2_ARCH_3_1;
+	}
+>>>>>>> upstream/android-13
 }
 
 static bool __init cpufeatures_process_feature(struct dt_cpu_feature *f)
@@ -734,6 +871,7 @@ static __init void cpufeatures_cpu_quirks(void)
 	/*
 	 * Not all quirks can be derived from the cpufeatures device tree.
 	 */
+<<<<<<< HEAD
 	if ((version & 0xffffefff) == 0x004e0200)
 		; /* DD2.0 has no feature flag */
 	else if ((version & 0xffffefff) == 0x004e0201)
@@ -745,6 +883,22 @@ static __init void cpufeatures_cpu_quirks(void)
 	} else if ((version & 0xffff0000) == 0x004e0000)
 		/* DD2.1 and up have DD2_1 */
 		cur_cpu_spec->cpu_features |= CPU_FTR_POWER9_DD2_1;
+=======
+	if ((version & 0xffffefff) == 0x004e0200) {
+		/* DD2.0 has no feature flag */
+		cur_cpu_spec->cpu_features |= CPU_FTR_P9_RADIX_PREFETCH_BUG;
+	} else if ((version & 0xffffefff) == 0x004e0201) {
+		cur_cpu_spec->cpu_features |= CPU_FTR_POWER9_DD2_1;
+		cur_cpu_spec->cpu_features |= CPU_FTR_P9_RADIX_PREFETCH_BUG;
+	} else if ((version & 0xffffefff) == 0x004e0202) {
+		cur_cpu_spec->cpu_features |= CPU_FTR_P9_TM_HV_ASSIST;
+		cur_cpu_spec->cpu_features |= CPU_FTR_P9_TM_XER_SO_BUG;
+		cur_cpu_spec->cpu_features |= CPU_FTR_POWER9_DD2_1;
+	} else if ((version & 0xffff0000) == 0x004e0000) {
+		/* DD2.1 and up have DD2_1 */
+		cur_cpu_spec->cpu_features |= CPU_FTR_POWER9_DD2_1;
+	}
+>>>>>>> upstream/android-13
 
 	if ((version & 0xffff0000) == 0x004e0000) {
 		cur_cpu_spec->cpu_features &= ~(CPU_FTR_DAWR);
@@ -752,12 +906,15 @@ static __init void cpufeatures_cpu_quirks(void)
 	}
 
 	update_tlbie_feature_flag(version);
+<<<<<<< HEAD
 	/*
 	 * PKEY was not in the initial base or feature node
 	 * specification, but it should become optional in the next
 	 * cpu feature version sequence.
 	 */
 	cur_cpu_spec->cpu_features |= CPU_FTR_PKEY;
+=======
+>>>>>>> upstream/android-13
 }
 
 static void __init cpufeatures_setup_finished(void)
@@ -775,6 +932,10 @@ static void __init cpufeatures_setup_finished(void)
 	system_registers.lpcr = mfspr(SPRN_LPCR);
 	system_registers.hfscr = mfspr(SPRN_HFSCR);
 	system_registers.fscr = mfspr(SPRN_FSCR);
+<<<<<<< HEAD
+=======
+	system_registers.pcr = mfspr(SPRN_PCR);
+>>>>>>> upstream/android-13
 
 	pr_info("final cpu/mmu features = 0x%016lx 0x%08x\n",
 		cur_cpu_spec->cpu_features, cur_cpu_spec->mmu_features);
@@ -846,7 +1007,10 @@ static int __init process_cpufeatures_node(unsigned long node,
 	int len;
 
 	f = &dt_cpu_features[i];
+<<<<<<< HEAD
 	memset(f, 0, sizeof(struct dt_cpu_feature));
+=======
+>>>>>>> upstream/android-13
 
 	f->node = node;
 
@@ -1041,9 +1205,18 @@ static int __init dt_cpu_ftrs_scan_callback(unsigned long node, const char
 	/* Count and allocate space for cpu features */
 	of_scan_flat_dt_subnodes(node, count_cpufeatures_subnodes,
 						&nr_dt_cpu_features);
+<<<<<<< HEAD
 	dt_cpu_features = __va(
 		memblock_alloc(sizeof(struct dt_cpu_feature)*
 				nr_dt_cpu_features, PAGE_SIZE));
+=======
+	dt_cpu_features = memblock_alloc(sizeof(struct dt_cpu_feature) * nr_dt_cpu_features, PAGE_SIZE);
+	if (!dt_cpu_features)
+		panic("%s: Failed to allocate %zu bytes align=0x%lx\n",
+		      __func__,
+		      sizeof(struct dt_cpu_feature) * nr_dt_cpu_features,
+		      PAGE_SIZE);
+>>>>>>> upstream/android-13
 
 	cpufeatures_setup_start(isa);
 

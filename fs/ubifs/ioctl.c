@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * This file is part of UBIFS.
  *
  * Copyright (C) 2006-2008 Nokia Corporation.
  * Copyright (C) 2006, 2007 University of Szeged, Hungary
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
@@ -17,6 +22,8 @@
  * this program; if not, write to the Free Software Foundation, Inc., 51
  * Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  * Authors: Zoltan Sogor
  *          Artem Bityutskiy (Битюцкий Артём)
  *          Adrian Hunter
@@ -26,6 +33,7 @@
 
 #include <linux/compat.h>
 #include <linux/mount.h>
+<<<<<<< HEAD
 #include "ubifs.h"
 
 /* Need to be kept consistent with checked flags in ioctl2ubifs() */
@@ -33,6 +41,20 @@
 	(FS_COMPR_FL | FS_SYNC_FL | FS_APPEND_FL | \
 	 FS_IMMUTABLE_FL | FS_DIRSYNC_FL)
 
+=======
+#include <linux/fileattr.h>
+#include "ubifs.h"
+
+/* Need to be kept consistent with checked flags in ioctl2ubifs() */
+#define UBIFS_SETTABLE_IOCTL_FLAGS \
+	(FS_COMPR_FL | FS_SYNC_FL | FS_APPEND_FL | \
+	 FS_IMMUTABLE_FL | FS_DIRSYNC_FL)
+
+/* Need to be kept consistent with checked flags in ubifs2ioctl() */
+#define UBIFS_GETTABLE_IOCTL_FLAGS \
+	(UBIFS_SETTABLE_IOCTL_FLAGS | FS_ENCRYPT_FL)
+
+>>>>>>> upstream/android-13
 /**
  * ubifs_set_inode_flags - set VFS inode flags.
  * @inode: VFS inode to set flags for
@@ -103,22 +125,36 @@ static int ubifs2ioctl(int ubifs_flags)
 		ioctl_flags |= FS_IMMUTABLE_FL;
 	if (ubifs_flags & UBIFS_DIRSYNC_FL)
 		ioctl_flags |= FS_DIRSYNC_FL;
+<<<<<<< HEAD
+=======
+	if (ubifs_flags & UBIFS_CRYPT_FL)
+		ioctl_flags |= FS_ENCRYPT_FL;
+>>>>>>> upstream/android-13
 
 	return ioctl_flags;
 }
 
 static int setflags(struct inode *inode, int flags)
 {
+<<<<<<< HEAD
 	int oldflags, err, release;
 	struct ubifs_inode *ui = ubifs_inode(inode);
 	struct ubifs_info *c = inode->i_sb->s_fs_info;
 	struct ubifs_budget_req req = { .dirtied_ino = 1,
 					.dirtied_ino_d = ui->data_len };
+=======
+	int err, release;
+	struct ubifs_inode *ui = ubifs_inode(inode);
+	struct ubifs_info *c = inode->i_sb->s_fs_info;
+	struct ubifs_budget_req req = { .dirtied_ino = 1,
+			.dirtied_ino_d = ALIGN(ui->data_len, 8) };
+>>>>>>> upstream/android-13
 
 	err = ubifs_budget_space(c, &req);
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	/*
 	 * The IMMUTABLE and APPEND_ONLY flags can only be changed by
 	 * the relevant capability.
@@ -133,6 +169,10 @@ static int setflags(struct inode *inode, int flags)
 	}
 
 	ui->flags &= ~ioctl2ubifs(UBIFS_SUPPORTED_IOCTL_FLAGS);
+=======
+	mutex_lock(&ui->ui_mutex);
+	ui->flags &= ~ioctl2ubifs(UBIFS_SETTABLE_IOCTL_FLAGS);
+>>>>>>> upstream/android-13
 	ui->flags |= ioctl2ubifs(flags);
 	ubifs_set_inode_flags(inode);
 	inode->i_ctime = current_time(inode);
@@ -145,16 +185,58 @@ static int setflags(struct inode *inode, int flags)
 	if (IS_SYNC(inode))
 		err = write_inode_now(inode, 1);
 	return err;
+<<<<<<< HEAD
 
 out_unlock:
 	ubifs_err(c, "can't modify inode %lu attributes", inode->i_ino);
 	mutex_unlock(&ui->ui_mutex);
 	ubifs_release_budget(c, &req);
 	return err;
+=======
+}
+
+int ubifs_fileattr_get(struct dentry *dentry, struct fileattr *fa)
+{
+	struct inode *inode = d_inode(dentry);
+	int flags = ubifs2ioctl(ubifs_inode(inode)->flags);
+
+	if (d_is_special(dentry))
+		return -ENOTTY;
+
+	dbg_gen("get flags: %#x, i_flags %#x", flags, inode->i_flags);
+	fileattr_fill_flags(fa, flags);
+
+	return 0;
+}
+
+int ubifs_fileattr_set(struct user_namespace *mnt_userns,
+		       struct dentry *dentry, struct fileattr *fa)
+{
+	struct inode *inode = d_inode(dentry);
+	int flags = fa->flags;
+
+	if (d_is_special(dentry))
+		return -ENOTTY;
+
+	if (fileattr_has_fsx(fa))
+		return -EOPNOTSUPP;
+
+	if (flags & ~UBIFS_GETTABLE_IOCTL_FLAGS)
+		return -EOPNOTSUPP;
+
+	flags &= UBIFS_SETTABLE_IOCTL_FLAGS;
+
+	if (!S_ISDIR(inode->i_mode))
+		flags &= ~FS_DIRSYNC_FL;
+
+	dbg_gen("set flags: %#x, i_flags %#x", flags, inode->i_flags);
+	return setflags(inode, flags);
+>>>>>>> upstream/android-13
 }
 
 long ubifs_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
+<<<<<<< HEAD
 	int flags, err;
 	struct inode *inode = file_inode(file);
 
@@ -195,6 +277,13 @@ long ubifs_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 	}
 	case FS_IOC_SET_ENCRYPTION_POLICY: {
 #ifdef CONFIG_FS_ENCRYPTION
+=======
+	int err;
+	struct inode *inode = file_inode(file);
+
+	switch (cmd) {
+	case FS_IOC_SET_ENCRYPTION_POLICY: {
+>>>>>>> upstream/android-13
 		struct ubifs_info *c = inode->i_sb->s_fs_info;
 
 		err = ubifs_enable_encryption(c);
@@ -202,6 +291,7 @@ long ubifs_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 			return err;
 
 		return fscrypt_ioctl_set_policy(file, (const void __user *)arg);
+<<<<<<< HEAD
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -213,6 +303,11 @@ long ubifs_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 		return -EOPNOTSUPP;
 #endif
 	}
+=======
+	}
+	case FS_IOC_GET_ENCRYPTION_POLICY:
+		return fscrypt_ioctl_get_policy(file, (void __user *)arg);
+>>>>>>> upstream/android-13
 
 	case FS_IOC_GET_ENCRYPTION_POLICY_EX:
 		return fscrypt_ioctl_get_policy_ex(file, (void __user *)arg);

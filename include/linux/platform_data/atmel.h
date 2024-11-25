@@ -1,12 +1,19 @@
+<<<<<<< HEAD
 /*
  * atmel platform data
  *
  * GPL v2 Only
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * atmel platform data
+>>>>>>> upstream/android-13
  */
 
 #ifndef __ATMEL_H__
 #define __ATMEL_H__
 
+<<<<<<< HEAD
  /* Compact Flash */
 struct at91_cf_data {
 	int	irq_pin;		/* I/O IRQ */
@@ -19,6 +26,8 @@ struct at91_cf_data {
 #define AT91_IDE_SWAP_A0_A2	0x02
 };
 
+=======
+>>>>>>> upstream/android-13
 /* FIXME: this needs a better location, but gets stuff building again */
 #ifdef CONFIG_ATMEL_PM
 extern int at91_suspend_entering_slow_clock(void);

@@ -1,13 +1,24 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 Russell King
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2012 Russell King
+>>>>>>> upstream/android-13
  */
 #ifndef ARMADA_CRTC_H
 #define ARMADA_CRTC_H
 
+<<<<<<< HEAD
+=======
+#include <drm/drm_crtc.h>
+
+>>>>>>> upstream/android-13
 struct armada_gem_object;
 
 struct armada_regs {
@@ -37,10 +48,17 @@ struct armada_variant;
 struct armada_crtc {
 	struct drm_crtc		crtc;
 	const struct armada_variant *variant;
+<<<<<<< HEAD
 	unsigned		num;
 	void __iomem		*base;
 	struct clk		*clk;
 	struct clk		*extclk[2];
+=======
+	void			*variant_data;
+	unsigned		num;
+	void __iomem		*base;
+	struct clk		*clk;
+>>>>>>> upstream/android-13
 	struct {
 		uint32_t	spu_v_h_total;
 		uint32_t	spu_v_porch;
@@ -73,6 +91,28 @@ struct armada_crtc {
 
 void armada_drm_crtc_update_regs(struct armada_crtc *, struct armada_regs *);
 
+<<<<<<< HEAD
+=======
+struct armada_clocking_params {
+	unsigned long permillage_min;
+	unsigned long permillage_max;
+	u32 settable;
+	u32 div_max;
+};
+
+struct armada_clk_result {
+	unsigned long desired_clk_hz;
+	struct clk *clk;
+	u32 div;
+};
+
+int armada_crtc_select_clock(struct armada_crtc *dcrtc,
+			     struct armada_clk_result *res,
+			     const struct armada_clocking_params *params,
+			     struct clk *clks[], size_t num_clks,
+			     unsigned long desired_khz);
+
+>>>>>>> upstream/android-13
 extern struct platform_driver armada_lcd_platform_driver;
 
 #endif

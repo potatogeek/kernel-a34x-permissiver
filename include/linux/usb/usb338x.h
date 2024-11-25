@@ -113,7 +113,14 @@ struct usb338x_ll_regs {
 	u32   ll_ltssm_ctrl1;
 	u32   ll_ltssm_ctrl2;
 	u32   ll_ltssm_ctrl3;
+<<<<<<< HEAD
 	u32   unused[2];
+=======
+	u32   unused1;
+
+	/* 0x710 */
+	u32   unused2;
+>>>>>>> upstream/android-13
 	u32   ll_general_ctrl0;
 	u32   ll_general_ctrl1;
 #define     PM_U3_AUTO_EXIT                                     29
@@ -136,6 +143,7 @@ struct usb338x_ll_regs {
 	u32   ll_general_ctrl2;
 #define     SELECT_INVERT_LANE_POLARITY                         7
 #define     FORCE_INVERT_LANE_POLARITY                          6
+<<<<<<< HEAD
 	u32   ll_general_ctrl3;
 	u32   ll_general_ctrl4;
 	u32   ll_error_gen;
@@ -143,10 +151,25 @@ struct usb338x_ll_regs {
 
 struct usb338x_ll_lfps_regs {
 	/* offset 0x748 */
+=======
+
+	/* 0x720 */
+	u32   ll_general_ctrl3;
+	u32   ll_general_ctrl4;
+	u32   ll_error_gen;
+	u32   unused3;
+
+	/* 0x730 */
+	u32   unused4[4];
+
+	/* 0x740 */
+	u32   unused5[2];
+>>>>>>> upstream/android-13
 	u32   ll_lfps_5;
 #define     TIMER_LFPS_6US                                      16
 	u32   ll_lfps_6;
 #define     TIMER_LFPS_80US                                     0
+<<<<<<< HEAD
 } __packed;
 
 struct usb338x_ll_tsn_regs {
@@ -159,6 +182,27 @@ struct usb338x_ll_tsn_regs {
 
 struct usb338x_ll_chi_regs {
 	/* offset 0x79C */
+=======
+
+	/* 0x750 */
+	u32   unused6[8];
+
+	/* 0x770 */
+	u32   unused7[3];
+	u32   ll_tsn_counters_2;
+#define     HOT_TX_NORESET_TS2                                  24
+
+	/* 0x780 */
+	u32   ll_tsn_counters_3;
+#define     HOT_RX_RESET_TS2                                    0
+	u32   unused8[3];
+
+	/* 0x790 */
+	u32   unused9;
+	u32   ll_lfps_timers_2;
+#define     LFPS_TIMERS_2_WORKAROUND_VALUE			0x084d
+	u32   unused10;
+>>>>>>> upstream/android-13
 	u32   ll_tsn_chicken_bit;
 #define     RECOVERY_IDLE_TO_RECOVER_FMW                        3
 } __packed;

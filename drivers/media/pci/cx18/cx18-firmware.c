@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  cx18 firmware functions
  *
  *  Copyright (C) 2007  Hans Verkuil <hverkuil@xs4all.nl>
  *  Copyright (C) 2008  Andy Walls <awalls@md.metrocast.net>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "cx18-driver.h"
@@ -253,7 +260,11 @@ void cx18_init_power(struct cx18 *cx, int lowpwr)
 	 * an error of less than 0.13 ppm which is way, way better than any off
 	 * the shelf crystal will have for accuracy anyway.
 	 *
+<<<<<<< HEAD
 	 * Below I aim to run the PLLs' VCOs near 400 MHz to minimze errors.
+=======
+	 * Below I aim to run the PLLs' VCOs near 400 MHz to minimize errors.
+>>>>>>> upstream/android-13
 	 *
 	 * Many thanks to Jeff Campbell and Mike Bradley for their extensive
 	 * investigation, experimentation, testing, and suggested solutions of

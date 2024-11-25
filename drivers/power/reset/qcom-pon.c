@@ -14,11 +14,21 @@
 
 #define PON_SOFT_RB_SPARE		0x8f
 
+<<<<<<< HEAD
+=======
+#define GEN1_REASON_SHIFT		2
+#define GEN2_REASON_SHIFT		1
+
+>>>>>>> upstream/android-13
 struct pm8916_pon {
 	struct device *dev;
 	struct regmap *regmap;
 	u32 baseaddr;
 	struct reboot_mode_driver reboot_mode;
+<<<<<<< HEAD
+=======
+	long reason_shift;
+>>>>>>> upstream/android-13
 };
 
 static int pm8916_reboot_mode_write(struct reboot_mode_driver *reboot,
@@ -30,7 +40,12 @@ static int pm8916_reboot_mode_write(struct reboot_mode_driver *reboot,
 
 	ret = regmap_update_bits(pon->regmap,
 				 pon->baseaddr + PON_SOFT_RB_SPARE,
+<<<<<<< HEAD
 				 0xfc, magic << 2);
+=======
+				 GENMASK(7, pon->reason_shift),
+				 magic << pon->reason_shift);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		dev_err(pon->dev, "update reboot mode bits failed\n");
 
@@ -60,6 +75,10 @@ static int pm8916_pon_probe(struct platform_device *pdev)
 		return error;
 
 	pon->reboot_mode.dev = &pdev->dev;
+<<<<<<< HEAD
+=======
+	pon->reason_shift = (long)of_device_get_match_data(&pdev->dev);
+>>>>>>> upstream/android-13
 	pon->reboot_mode.write = pm8916_reboot_mode_write;
 	error = devm_reboot_mode_register(&pdev->dev, &pon->reboot_mode);
 	if (error) {
@@ -73,7 +92,13 @@ static int pm8916_pon_probe(struct platform_device *pdev)
 }
 
 static const struct of_device_id pm8916_pon_id_table[] = {
+<<<<<<< HEAD
 	{ .compatible = "qcom,pm8916-pon" },
+=======
+	{ .compatible = "qcom,pm8916-pon", .data = (void *)GEN1_REASON_SHIFT },
+	{ .compatible = "qcom,pms405-pon", .data = (void *)GEN1_REASON_SHIFT },
+	{ .compatible = "qcom,pm8998-pon", .data = (void *)GEN2_REASON_SHIFT },
+>>>>>>> upstream/android-13
 	{ }
 };
 MODULE_DEVICE_TABLE(of, pm8916_pon_id_table);

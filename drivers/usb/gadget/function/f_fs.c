@@ -17,17 +17,35 @@
 #include <linux/blkdev.h>
 #include <linux/pagemap.h>
 #include <linux/export.h>
+<<<<<<< HEAD
 #include <linux/hid.h>
 #include <linux/module.h>
 #include <linux/sched/signal.h>
 #include <linux/uio.h>
 #include <asm/unaligned.h>
 
+=======
+#include <linux/fs_parser.h>
+#include <linux/hid.h>
+#include <linux/mm.h>
+#include <linux/module.h>
+#include <linux/scatterlist.h>
+#include <linux/sched/signal.h>
+#include <linux/uio.h>
+#include <linux/vmalloc.h>
+#include <asm/unaligned.h>
+
+#include <linux/usb/ccid.h>
+>>>>>>> upstream/android-13
 #include <linux/usb/composite.h>
 #include <linux/usb/functionfs.h>
 
 #include <linux/aio.h>
+<<<<<<< HEAD
 #include <linux/mmu_context.h>
+=======
+#include <linux/kthread.h>
+>>>>>>> upstream/android-13
 #include <linux/poll.h>
 #include <linux/eventfd.h>
 
@@ -36,8 +54,11 @@
 #include "u_os_desc.h"
 #include "configfs.h"
 
+<<<<<<< HEAD
 #include "usb_boost.h"
 
+=======
+>>>>>>> upstream/android-13
 #define FUNCTIONFS_MAGIC	0xa647361 /* Chosen by a honest dice roll ;) */
 
 /* Reference counter handling */
@@ -126,7 +147,10 @@ struct ffs_ep {
 struct ffs_epfile {
 	/* Protects ep->ep and ep->req. */
 	struct mutex			mutex;
+<<<<<<< HEAD
 	atomic_t				error;
+=======
+>>>>>>> upstream/android-13
 
 	struct ffs_data			*ffs;
 	struct ffs_ep			*ep;	/* P: ffs->eps_lock */
@@ -197,7 +221,10 @@ struct ffs_epfile {
 	unsigned char			isoc;	/* P: ffs->eps_lock */
 
 	unsigned char			_pad;
+<<<<<<< HEAD
 	atomic_t			opened;
+=======
+>>>>>>> upstream/android-13
 };
 
 struct ffs_buffer {
@@ -222,6 +249,11 @@ struct ffs_io_data {
 
 	struct usb_ep *ep;
 	struct usb_request *req;
+<<<<<<< HEAD
+=======
+	struct sg_table sgt;
+	bool use_sg;
+>>>>>>> upstream/android-13
 
 	struct ffs_data *ffs;
 };
@@ -247,8 +279,13 @@ EXPORT_SYMBOL_GPL(ffs_lock);
 static struct ffs_dev *_ffs_find_dev(const char *name);
 static struct ffs_dev *_ffs_alloc_dev(void);
 static void _ffs_free_dev(struct ffs_dev *dev);
+<<<<<<< HEAD
 static void *ffs_acquire_dev(const char *dev_name);
 static void ffs_release_dev(struct ffs_data *ffs_data);
+=======
+static int ffs_acquire_dev(const char *dev_name, struct ffs_data *ffs_data);
+static void ffs_release_dev(struct ffs_dev *ffs_dev);
+>>>>>>> upstream/android-13
 static int ffs_ready(struct ffs_data *ffs);
 static void ffs_closed(struct ffs_data *ffs);
 
@@ -293,6 +330,7 @@ static int __ffs_ep0_queue_wait(struct ffs_data *ffs, char *data, size_t len)
 	reinit_completion(&ffs->ep0req_completion);
 
 	ret = usb_ep_queue(ffs->gadget->ep0, req, GFP_ATOMIC);
+<<<<<<< HEAD
 	if (unlikely(ret < 0))
 		return ret;
 
@@ -300,13 +338,23 @@ static int __ffs_ep0_queue_wait(struct ffs_data *ffs, char *data, size_t len)
 	if (unlikely(ret)) {
 		if (!ffs->gadget)
 			return -EINTR;
+=======
+	if (ret < 0)
+		return ret;
+
+	ret = wait_for_completion_interruptible(&ffs->ep0req_completion);
+	if (ret) {
+>>>>>>> upstream/android-13
 		usb_ep_dequeue(ffs->gadget->ep0, req);
 		return -EINTR;
 	}
 
 	ffs->setup_state = FFS_NO_SETUP;
+<<<<<<< HEAD
 	if (!ffs->ep0req)
 		return -EINTR;
+=======
+>>>>>>> upstream/android-13
 	return req->status ? req->status : req->actual;
 }
 
@@ -338,7 +386,11 @@ static ssize_t ffs_ep0_write(struct file *file, const char __user *buf,
 
 	/* Acquire mutex */
 	ret = ffs_mutex_lock(&ffs->mutex, file->f_flags & O_NONBLOCK);
+<<<<<<< HEAD
 	if (unlikely(ret < 0))
+=======
+	if (ret < 0)
+>>>>>>> upstream/android-13
 		return ret;
 
 	/* Check state */
@@ -346,7 +398,11 @@ static ssize_t ffs_ep0_write(struct file *file, const char __user *buf,
 	case FFS_READ_DESCRIPTORS:
 	case FFS_READ_STRINGS:
 		/* Copy data */
+<<<<<<< HEAD
 		if (unlikely(len < 16)) {
+=======
+		if (len < 16) {
+>>>>>>> upstream/android-13
 			ret = -EINVAL;
 			break;
 		}
@@ -361,7 +417,11 @@ static ssize_t ffs_ep0_write(struct file *file, const char __user *buf,
 		if (ffs->state == FFS_READ_DESCRIPTORS) {
 			pr_info("read descriptors\n");
 			ret = __ffs_data_got_descs(ffs, data, len);
+<<<<<<< HEAD
 			if (unlikely(ret < 0))
+=======
+			if (ret < 0)
+>>>>>>> upstream/android-13
 				break;
 
 			ffs->state = FFS_READ_STRINGS;
@@ -369,11 +429,19 @@ static ssize_t ffs_ep0_write(struct file *file, const char __user *buf,
 		} else {
 			pr_info("read strings\n");
 			ret = __ffs_data_got_strings(ffs, data, len);
+<<<<<<< HEAD
 			if (unlikely(ret < 0))
 				break;
 
 			ret = ffs_epfiles_create(ffs);
 			if (unlikely(ret)) {
+=======
+			if (ret < 0)
+				break;
+
+			ret = ffs_epfiles_create(ffs);
+			if (ret) {
+>>>>>>> upstream/android-13
 				ffs->state = FFS_CLOSING;
 				break;
 			}
@@ -382,7 +450,11 @@ static ssize_t ffs_ep0_write(struct file *file, const char __user *buf,
 			mutex_unlock(&ffs->mutex);
 
 			ret = ffs_ready(ffs);
+<<<<<<< HEAD
 			if (unlikely(ret < 0)) {
+=======
+			if (ret < 0) {
+>>>>>>> upstream/android-13
 				ffs->state = FFS_CLOSING;
 				return ret;
 			}
@@ -496,7 +568,11 @@ static ssize_t __ffs_ep0_read_events(struct ffs_data *ffs, char __user *buf,
 	spin_unlock_irq(&ffs->ev.waitq.lock);
 	mutex_unlock(&ffs->mutex);
 
+<<<<<<< HEAD
 	return unlikely(copy_to_user(buf, events, size)) ? -EFAULT : size;
+=======
+	return copy_to_user(buf, events, size) ? -EFAULT : size;
+>>>>>>> upstream/android-13
 }
 
 static ssize_t ffs_ep0_read(struct file *file, char __user *buf,
@@ -515,7 +591,11 @@ static ssize_t ffs_ep0_read(struct file *file, char __user *buf,
 
 	/* Acquire mutex */
 	ret = ffs_mutex_lock(&ffs->mutex, file->f_flags & O_NONBLOCK);
+<<<<<<< HEAD
 	if (unlikely(ret < 0))
+=======
+	if (ret < 0)
+>>>>>>> upstream/android-13
 		return ret;
 
 	/* Check state */
@@ -537,7 +617,11 @@ static ssize_t ffs_ep0_read(struct file *file, char __user *buf,
 
 	case FFS_NO_SETUP:
 		n = len / sizeof(struct usb_functionfs_event);
+<<<<<<< HEAD
 		if (unlikely(!n)) {
+=======
+		if (!n) {
+>>>>>>> upstream/android-13
 			ret = -EINVAL;
 			break;
 		}
@@ -568,9 +652,15 @@ static ssize_t ffs_ep0_read(struct file *file, char __user *buf,
 
 		spin_unlock_irq(&ffs->ev.waitq.lock);
 
+<<<<<<< HEAD
 		if (likely(len)) {
 			data = kmalloc(len, GFP_KERNEL);
 			if (unlikely(!data)) {
+=======
+		if (len) {
+			data = kmalloc(len, GFP_KERNEL);
+			if (!data) {
+>>>>>>> upstream/android-13
 				ret = -ENOMEM;
 				goto done_mutex;
 			}
@@ -587,7 +677,11 @@ static ssize_t ffs_ep0_read(struct file *file, char __user *buf,
 
 		/* unlocks spinlock */
 		ret = __ffs_ep0_queue_wait(ffs, data, len);
+<<<<<<< HEAD
 		if (likely(ret > 0) && unlikely(copy_to_user(buf, data, len)))
+=======
+		if ((ret > 0) && (copy_to_user(buf, data, len)))
+>>>>>>> upstream/android-13
 			ret = -EFAULT;
 		goto done_mutex;
 
@@ -609,6 +703,7 @@ static int ffs_ep0_open(struct inode *inode, struct file *file)
 
 	ENTER();
 
+<<<<<<< HEAD
 	pr_info("%s +\n", __func__);
 
 	/* to get updated opened atomic variable value */
@@ -622,12 +717,20 @@ static int ffs_ep0_open(struct inode *inode, struct file *file)
 		pr_info("%s ffs->state=%d -\n", __func__, ffs->state);
 		return -EBUSY;
 	}
+=======
+	if (ffs->state == FFS_CLOSING)
+		return -EBUSY;
+>>>>>>> upstream/android-13
 
 	file->private_data = ffs;
 	ffs_data_opened(ffs);
 
+<<<<<<< HEAD
 	pr_info("%s -\n", __func__);
 	return 0;
+=======
+	return stream_open(inode, file);
+>>>>>>> upstream/android-13
 }
 
 static int ffs_ep0_release(struct inode *inode, struct file *file)
@@ -636,9 +739,14 @@ static int ffs_ep0_release(struct inode *inode, struct file *file)
 
 	ENTER();
 
+<<<<<<< HEAD
 	pr_info("%s +\n", __func__);
 	ffs_data_closed(ffs);
 	pr_info("%s -\n", __func__);
+=======
+	ffs_data_closed(ffs);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -671,7 +779,11 @@ static __poll_t ffs_ep0_poll(struct file *file, poll_table *wait)
 	poll_wait(file, &ffs->ev.waitq, wait);
 
 	ret = ffs_mutex_lock(&ffs->mutex, file->f_flags & O_NONBLOCK);
+<<<<<<< HEAD
 	if (unlikely(ret < 0))
+=======
+	if (ret < 0)
+>>>>>>> upstream/android-13
 		return mask;
 
 	switch (ffs->state) {
@@ -692,6 +804,11 @@ static __poll_t ffs_ep0_poll(struct file *file, poll_table *wait)
 			mask |= (EPOLLIN | EPOLLOUT);
 			break;
 		}
+<<<<<<< HEAD
+=======
+		break;
+
+>>>>>>> upstream/android-13
 	case FFS_CLOSING:
 		break;
 	case FFS_DEACTIVATED:
@@ -720,7 +837,11 @@ static const struct file_operations ffs_ep0_operations = {
 static void ffs_epfile_io_complete(struct usb_ep *_ep, struct usb_request *req)
 {
 	ENTER();
+<<<<<<< HEAD
 	if (likely(req->context)) {
+=======
+	if (req->context) {
+>>>>>>> upstream/android-13
 		struct ffs_ep *ep = _ep->driver_data;
 		ep->status = req->status ? req->status : req->actual;
 		complete(req->context);
@@ -730,10 +851,17 @@ static void ffs_epfile_io_complete(struct usb_ep *_ep, struct usb_request *req)
 static ssize_t ffs_copy_to_iter(void *data, int data_len, struct iov_iter *iter)
 {
 	ssize_t ret = copy_to_iter(data, data_len, iter);
+<<<<<<< HEAD
 	if (likely(ret == data_len))
 		return ret;
 
 	if (unlikely(iov_iter_count(iter)))
+=======
+	if (ret == data_len)
+		return ret;
+
+	if (iov_iter_count(iter))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	/*
@@ -770,6 +898,68 @@ static ssize_t ffs_copy_to_iter(void *data, int data_len, struct iov_iter *iter)
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * allocate a virtually contiguous buffer and create a scatterlist describing it
+ * @sg_table	- pointer to a place to be filled with sg_table contents
+ * @size	- required buffer size
+ */
+static void *ffs_build_sg_list(struct sg_table *sgt, size_t sz)
+{
+	struct page **pages;
+	void *vaddr, *ptr;
+	unsigned int n_pages;
+	int i;
+
+	vaddr = vmalloc(sz);
+	if (!vaddr)
+		return NULL;
+
+	n_pages = PAGE_ALIGN(sz) >> PAGE_SHIFT;
+	pages = kvmalloc_array(n_pages, sizeof(struct page *), GFP_KERNEL);
+	if (!pages) {
+		vfree(vaddr);
+
+		return NULL;
+	}
+	for (i = 0, ptr = vaddr; i < n_pages; ++i, ptr += PAGE_SIZE)
+		pages[i] = vmalloc_to_page(ptr);
+
+	if (sg_alloc_table_from_pages(sgt, pages, n_pages, 0, sz, GFP_KERNEL)) {
+		kvfree(pages);
+		vfree(vaddr);
+
+		return NULL;
+	}
+	kvfree(pages);
+
+	return vaddr;
+}
+
+static inline void *ffs_alloc_buffer(struct ffs_io_data *io_data,
+	size_t data_len)
+{
+	if (io_data->use_sg)
+		return ffs_build_sg_list(&io_data->sgt, data_len);
+
+	return kmalloc(data_len, GFP_KERNEL);
+}
+
+static inline void ffs_free_buffer(struct ffs_io_data *io_data)
+{
+	if (!io_data->buf)
+		return;
+
+	if (io_data->use_sg) {
+		sg_free_table(&io_data->sgt);
+		vfree(io_data->buf);
+	} else {
+		kfree(io_data->buf);
+	}
+}
+
+>>>>>>> upstream/android-13
 static void ffs_user_copy_worker(struct work_struct *work)
 {
 	struct ffs_io_data *io_data = container_of(work, struct ffs_io_data,
@@ -779,6 +969,7 @@ static void ffs_user_copy_worker(struct work_struct *work)
 	bool kiocb_has_eventfd = io_data->kiocb->ki_flags & IOCB_EVENTFD;
 
 	if (io_data->read && ret > 0) {
+<<<<<<< HEAD
 		mm_segment_t oldfs = get_fs();
 
 		set_fs(USER_DS);
@@ -786,6 +977,11 @@ static void ffs_user_copy_worker(struct work_struct *work)
 		ret = ffs_copy_to_iter(io_data->buf, ret, &io_data->data);
 		unuse_mm(io_data->mm);
 		set_fs(oldfs);
+=======
+		kthread_use_mm(io_data->mm);
+		ret = ffs_copy_to_iter(io_data->buf, ret, &io_data->data);
+		kthread_unuse_mm(io_data->mm);
+>>>>>>> upstream/android-13
 	}
 
 	io_data->kiocb->ki_complete(io_data->kiocb, ret, ret);
@@ -797,7 +993,11 @@ static void ffs_user_copy_worker(struct work_struct *work)
 
 	if (io_data->read)
 		kfree(io_data->to_free);
+<<<<<<< HEAD
 	kfree(io_data->buf);
+=======
+	ffs_free_buffer(io_data);
+>>>>>>> upstream/android-13
 	kfree(io_data);
 }
 
@@ -844,7 +1044,11 @@ static ssize_t __ffs_epfile_read_buffered(struct ffs_epfile *epfile,
 		return ret;
 	}
 
+<<<<<<< HEAD
 	if (unlikely(iov_iter_count(iter))) {
+=======
+	if (iov_iter_count(iter)) {
+>>>>>>> upstream/android-13
 		ret = -EFAULT;
 	} else {
 		buf->length -= ret;
@@ -865,10 +1069,17 @@ static ssize_t __ffs_epfile_read_data(struct ffs_epfile *epfile,
 	struct ffs_buffer *buf;
 
 	ssize_t ret = copy_to_iter(data, data_len, iter);
+<<<<<<< HEAD
 	if (likely(data_len == ret))
 		return ret;
 
 	if (unlikely(iov_iter_count(iter)))
+=======
+	if (data_len == ret)
+		return ret;
+
+	if (iov_iter_count(iter))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	/* See ffs_copy_to_iter for more context. */
@@ -889,7 +1100,11 @@ static ssize_t __ffs_epfile_read_data(struct ffs_epfile *epfile,
 	 * in struct ffs_epfile for full read_buffer pointer synchronisation
 	 * story.
 	 */
+<<<<<<< HEAD
 	if (unlikely(cmpxchg(&epfile->read_buffer, NULL, buf)))
+=======
+	if (cmpxchg(&epfile->read_buffer, NULL, buf))
+>>>>>>> upstream/android-13
 		kfree(buf);
 
 	return ret;
@@ -904,11 +1119,14 @@ static ssize_t ffs_epfile_io(struct file *file, struct ffs_io_data *io_data)
 	ssize_t ret, data_len = -EINVAL;
 	int halt;
 
+<<<<<<< HEAD
 	/* to get updated error atomic variable value */
 	smp_mb__before_atomic();
 	if (atomic_read(&epfile->error))
 		return -ENODEV;
 
+=======
+>>>>>>> upstream/android-13
 	/* Are we still active? */
 	if (WARN_ON(epfile->ffs->state != FFS_ACTIVE))
 		return -ENODEV;
@@ -919,6 +1137,7 @@ static ssize_t ffs_epfile_io(struct file *file, struct ffs_io_data *io_data)
 		if (file->f_flags & O_NONBLOCK)
 			return -EAGAIN;
 
+<<<<<<< HEAD
 		/* Don't wait on write if device is offline */
 		if (!io_data->read)
 			return -ENODEV;
@@ -938,6 +1157,12 @@ static ssize_t ffs_epfile_io(struct file *file, struct ffs_io_data *io_data)
 
 		if (!ep)
 			return -ENODEV;
+=======
+		ret = wait_event_interruptible(
+				epfile->ffs->wait, (ep = epfile->ep));
+		if (ret)
+			return -EINTR;
+>>>>>>> upstream/android-13
 	}
 
 	/* Do we halt? */
@@ -947,7 +1172,11 @@ static ssize_t ffs_epfile_io(struct file *file, struct ffs_io_data *io_data)
 
 	/* We will be using request and read_buffer */
 	ret = ffs_mutex_lock(&epfile->mutex, file->f_flags & O_NONBLOCK);
+<<<<<<< HEAD
 	if (unlikely(ret))
+=======
+	if (ret)
+>>>>>>> upstream/android-13
 		goto error;
 
 	/* Allocate & copy */
@@ -987,10 +1216,19 @@ static ssize_t ffs_epfile_io(struct file *file, struct ffs_io_data *io_data)
 		 */
 		if (io_data->read)
 			data_len = usb_ep_align_maybe(gadget, ep->ep, data_len);
+<<<<<<< HEAD
 		spin_unlock_irq(&epfile->ffs->eps_lock);
 
 		data = kmalloc(data_len, GFP_KERNEL);
 		if (unlikely(!data)) {
+=======
+
+		io_data->use_sg = gadget->sg_supported && data_len > PAGE_SIZE;
+		spin_unlock_irq(&epfile->ffs->eps_lock);
+
+		data = ffs_alloc_buffer(io_data, data_len);
+		if (!data) {
+>>>>>>> upstream/android-13
 			ret = -ENOMEM;
 			goto error_mutex;
 		}
@@ -1001,9 +1239,12 @@ static ssize_t ffs_epfile_io(struct file *file, struct ffs_io_data *io_data)
 		}
 	}
 
+<<<<<<< HEAD
 	if (!strncmp(epfile->ffs->dev_name, "mtp", 3))
 		usb_boost();
 
+=======
+>>>>>>> upstream/android-13
 	spin_lock_irq(&epfile->ffs->eps_lock);
 
 	if (epfile->ep != ep) {
@@ -1013,7 +1254,11 @@ static ssize_t ffs_epfile_io(struct file *file, struct ffs_io_data *io_data)
 		ret = usb_ep_set_halt(ep->ep);
 		if (!ret)
 			ret = -EBADMSG;
+<<<<<<< HEAD
 	} else if (unlikely(data_len == -EINVAL)) {
+=======
+	} else if (data_len == -EINVAL) {
+>>>>>>> upstream/android-13
 		/*
 		 * Sanity Check: even though data_len can't be used
 		 * uninitialized at the time I write this comment, some
@@ -1032,13 +1277,28 @@ static ssize_t ffs_epfile_io(struct file *file, struct ffs_io_data *io_data)
 		bool interrupted = false;
 
 		req = ep->req;
+<<<<<<< HEAD
 		req->buf      = data;
 		req->length   = data_len;
+=======
+		if (io_data->use_sg) {
+			req->buf = NULL;
+			req->sg	= io_data->sgt.sgl;
+			req->num_sgs = io_data->sgt.nents;
+		} else {
+			req->buf = data;
+			req->num_sgs = 0;
+		}
+		req->length = data_len;
+
+		io_data->buf = data;
+>>>>>>> upstream/android-13
 
 		req->context  = &done;
 		req->complete = ffs_epfile_io_complete;
 
 		ret = usb_ep_queue(ep->ep, req, GFP_ATOMIC);
+<<<<<<< HEAD
 		if (unlikely(ret < 0)) {
 			ret = -EIO;
 			goto error_lock;
@@ -1047,12 +1307,21 @@ static ssize_t ffs_epfile_io(struct file *file, struct ffs_io_data *io_data)
 		spin_unlock_irq(&epfile->ffs->eps_lock);
 
 		if (unlikely(wait_for_completion_interruptible(&done))) {
+=======
+		if (ret < 0)
+			goto error_lock;
+
+		spin_unlock_irq(&epfile->ffs->eps_lock);
+
+		if (wait_for_completion_interruptible(&done)) {
+>>>>>>> upstream/android-13
 			/*
 			 * To avoid race condition with ffs_epfile_io_complete,
 			 * dequeue the request first then check
 			 * status. usb_ep_dequeue API should guarantee no race
 			 * condition with req->complete callback.
 			 */
+<<<<<<< HEAD
 			spin_lock_irq(&epfile->ffs->eps_lock);
 			interrupted = true;
 			/*
@@ -1088,12 +1357,38 @@ static ssize_t ffs_epfile_io(struct file *file, struct ffs_io_data *io_data)
 		if (io_data->read && ret > 0)
 			ret = __ffs_epfile_read_data(epfile, data, ep->status,
 						     &io_data->data);
+=======
+			usb_ep_dequeue(ep->ep, req);
+			wait_for_completion(&done);
+			interrupted = ep->status < 0;
+		}
+
+		if (interrupted)
+			ret = -EINTR;
+		else if (io_data->read && ep->status > 0)
+			ret = __ffs_epfile_read_data(epfile, data, ep->status,
+						     &io_data->data);
+		else
+			ret = ep->status;
+>>>>>>> upstream/android-13
 		goto error_mutex;
 	} else if (!(req = usb_ep_alloc_request(ep->ep, GFP_ATOMIC))) {
 		ret = -ENOMEM;
 	} else {
+<<<<<<< HEAD
 		req->buf      = data;
 		req->length   = data_len;
+=======
+		if (io_data->use_sg) {
+			req->buf = NULL;
+			req->sg	= io_data->sgt.sgl;
+			req->num_sgs = io_data->sgt.nents;
+		} else {
+			req->buf = data;
+			req->num_sgs = 0;
+		}
+		req->length = data_len;
+>>>>>>> upstream/android-13
 
 		io_data->buf = data;
 		io_data->ep = ep->ep;
@@ -1104,7 +1399,11 @@ static ssize_t ffs_epfile_io(struct file *file, struct ffs_io_data *io_data)
 		req->complete = ffs_epfile_async_io_complete;
 
 		ret = usb_ep_queue(ep->ep, req, GFP_ATOMIC);
+<<<<<<< HEAD
 		if (unlikely(ret)) {
+=======
+		if (ret) {
+>>>>>>> upstream/android-13
 			io_data->req = NULL;
 			usb_ep_free_request(ep->ep, req);
 			goto error_lock;
@@ -1123,7 +1422,12 @@ error_lock:
 error_mutex:
 	mutex_unlock(&epfile->mutex);
 error:
+<<<<<<< HEAD
 	kfree(data);
+=======
+	if (ret != -EIOCBQUEUED) /* don't free if there is iocb queued */
+		ffs_free_buffer(io_data);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -1131,6 +1435,7 @@ static int
 ffs_epfile_open(struct inode *inode, struct file *file)
 {
 	struct ffs_epfile *epfile = inode->i_private;
+<<<<<<< HEAD
 #if defined(CONFIG_MACH_MT6765)
 	struct cpumask cpu_mask;
 	int i = 1, idx = 0;
@@ -1177,6 +1482,18 @@ ffs_epfile_open(struct inode *inode, struct file *file)
 
 	pr_info("%s -\n", __func__);
 	return 0;
+=======
+
+	ENTER();
+
+	if (WARN_ON(epfile->ffs->state != FFS_ACTIVE))
+		return -ENODEV;
+
+	file->private_data = epfile;
+	ffs_data_opened(epfile->ffs);
+
+	return stream_open(inode, file);
+>>>>>>> upstream/android-13
 }
 
 static int ffs_aio_cancel(struct kiocb *kiocb)
@@ -1190,7 +1507,11 @@ static int ffs_aio_cancel(struct kiocb *kiocb)
 
 	spin_lock_irqsave(&epfile->ffs->eps_lock, flags);
 
+<<<<<<< HEAD
 	if (likely(io_data && io_data->ep && io_data->req))
+=======
+	if (io_data && io_data->ep && io_data->req)
+>>>>>>> upstream/android-13
 		value = usb_ep_dequeue(io_data->ep, io_data->req);
 	else
 		value = -EINVAL;
@@ -1209,7 +1530,11 @@ static ssize_t ffs_epfile_write_iter(struct kiocb *kiocb, struct iov_iter *from)
 
 	if (!is_sync_kiocb(kiocb)) {
 		p = kzalloc(sizeof(io_data), GFP_KERNEL);
+<<<<<<< HEAD
 		if (unlikely(!p))
+=======
+		if (!p)
+>>>>>>> upstream/android-13
 			return -ENOMEM;
 		p->aio = true;
 	} else {
@@ -1246,7 +1571,11 @@ static ssize_t ffs_epfile_read_iter(struct kiocb *kiocb, struct iov_iter *to)
 
 	if (!is_sync_kiocb(kiocb)) {
 		p = kzalloc(sizeof(io_data), GFP_KERNEL);
+<<<<<<< HEAD
 		if (unlikely(!p))
+=======
+		if (!p)
+>>>>>>> upstream/android-13
 			return -ENOMEM;
 		p->aio = true;
 	} else {
@@ -1293,6 +1622,7 @@ ffs_epfile_release(struct inode *inode, struct file *file)
 
 	ENTER();
 
+<<<<<<< HEAD
 	pr_info("%s +\n", __func__);
 	/* to get updated opened atomic variable value */
 	smp_mb__before_atomic();
@@ -1302,6 +1632,11 @@ ffs_epfile_release(struct inode *inode, struct file *file)
 	ffs_data_closed(epfile->ffs);
 	file->private_data = NULL;
 	pr_info("%s -\n", __func__);
+=======
+	__ffs_epfile_read_buffer_free(epfile);
+	ffs_data_closed(epfile->ffs);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1317,11 +1652,14 @@ static long ffs_epfile_ioctl(struct file *file, unsigned code,
 	if (WARN_ON(epfile->ffs->state != FFS_ACTIVE))
 		return -ENODEV;
 
+<<<<<<< HEAD
 	/* to get updated opened atomic variable value */
 	smp_mb__before_atomic();
 	if (atomic_read(&epfile->error))
 		return -ENODEV;
 
+=======
+>>>>>>> upstream/android-13
 	/* Wait for endpoint to be enabled */
 	ep = epfile->ep;
 	if (!ep) {
@@ -1390,6 +1728,7 @@ static long ffs_epfile_ioctl(struct file *file, unsigned code,
 	return ret;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 static long ffs_epfile_compat_ioctl(struct file *file, unsigned code,
 		unsigned long value)
@@ -1398,6 +1737,8 @@ static long ffs_epfile_compat_ioctl(struct file *file, unsigned code,
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static const struct file_operations ffs_epfile_operations = {
 	.llseek =	no_llseek,
 
@@ -1406,9 +1747,13 @@ static const struct file_operations ffs_epfile_operations = {
 	.read_iter =	ffs_epfile_read_iter,
 	.release =	ffs_epfile_release,
 	.unlocked_ioctl =	ffs_epfile_ioctl,
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 	.compat_ioctl = ffs_epfile_compat_ioctl,
 #endif
+=======
+	.compat_ioctl = compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 };
 
 
@@ -1431,7 +1776,11 @@ ffs_sb_make_inode(struct super_block *sb, void *data,
 
 	inode = new_inode(sb);
 
+<<<<<<< HEAD
 	if (likely(inode)) {
+=======
+	if (inode) {
+>>>>>>> upstream/android-13
 		struct timespec64 ts = current_time(inode);
 
 		inode->i_ino	 = get_next_ino();
@@ -1463,11 +1812,19 @@ static struct dentry *ffs_sb_create_file(struct super_block *sb,
 	ENTER();
 
 	dentry = d_alloc_name(sb->s_root, name);
+<<<<<<< HEAD
 	if (unlikely(!dentry))
 		return NULL;
 
 	inode = ffs_sb_make_inode(sb, data, fops, NULL, &ffs->file_perms);
 	if (unlikely(!inode)) {
+=======
+	if (!dentry)
+		return NULL;
+
+	inode = ffs_sb_make_inode(sb, data, fops, NULL, &ffs->file_perms);
+	if (!inode) {
+>>>>>>> upstream/android-13
 		dput(dentry);
 		return NULL;
 	}
@@ -1490,9 +1847,15 @@ struct ffs_sb_fill_data {
 	struct ffs_data *ffs_data;
 };
 
+<<<<<<< HEAD
 static int ffs_sb_fill(struct super_block *sb, void *_data, int silent)
 {
 	struct ffs_sb_fill_data *data = _data;
+=======
+static int ffs_sb_fill(struct super_block *sb, struct fs_context *fc)
+{
+	struct ffs_sb_fill_data *data = fc->fs_private;
+>>>>>>> upstream/android-13
 	struct inode	*inode;
 	struct ffs_data	*ffs = data->ffs_data;
 
@@ -1514,17 +1877,26 @@ static int ffs_sb_fill(struct super_block *sb, void *_data, int silent)
 				  &simple_dir_inode_operations,
 				  &data->perms);
 	sb->s_root = d_make_root(inode);
+<<<<<<< HEAD
 	if (unlikely(!sb->s_root))
 		return -ENOMEM;
 
 	/* EP0 file */
 	if (unlikely(!ffs_sb_create_file(sb, "ep0", ffs,
 					 &ffs_ep0_operations)))
+=======
+	if (!sb->s_root)
+		return -ENOMEM;
+
+	/* EP0 file */
+	if (!ffs_sb_create_file(sb, "ep0", ffs, &ffs_ep0_operations))
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int ffs_fs_parse_opts(struct ffs_sb_fill_data *data, char *opts)
 {
 	ENTER();
@@ -1666,6 +2038,147 @@ ffs_fs_mount(struct file_system_type *t, int flags,
 		ffs_data_put(data.ffs_data);
 	}
 	return rv;
+=======
+enum {
+	Opt_no_disconnect,
+	Opt_rmode,
+	Opt_fmode,
+	Opt_mode,
+	Opt_uid,
+	Opt_gid,
+};
+
+static const struct fs_parameter_spec ffs_fs_fs_parameters[] = {
+	fsparam_bool	("no_disconnect",	Opt_no_disconnect),
+	fsparam_u32	("rmode",		Opt_rmode),
+	fsparam_u32	("fmode",		Opt_fmode),
+	fsparam_u32	("mode",		Opt_mode),
+	fsparam_u32	("uid",			Opt_uid),
+	fsparam_u32	("gid",			Opt_gid),
+	{}
+};
+
+static int ffs_fs_parse_param(struct fs_context *fc, struct fs_parameter *param)
+{
+	struct ffs_sb_fill_data *data = fc->fs_private;
+	struct fs_parse_result result;
+	int opt;
+
+	ENTER();
+
+	opt = fs_parse(fc, ffs_fs_fs_parameters, param, &result);
+	if (opt < 0)
+		return opt;
+
+	switch (opt) {
+	case Opt_no_disconnect:
+		data->no_disconnect = result.boolean;
+		break;
+	case Opt_rmode:
+		data->root_mode  = (result.uint_32 & 0555) | S_IFDIR;
+		break;
+	case Opt_fmode:
+		data->perms.mode = (result.uint_32 & 0666) | S_IFREG;
+		break;
+	case Opt_mode:
+		data->root_mode  = (result.uint_32 & 0555) | S_IFDIR;
+		data->perms.mode = (result.uint_32 & 0666) | S_IFREG;
+		break;
+
+	case Opt_uid:
+		data->perms.uid = make_kuid(current_user_ns(), result.uint_32);
+		if (!uid_valid(data->perms.uid))
+			goto unmapped_value;
+		break;
+	case Opt_gid:
+		data->perms.gid = make_kgid(current_user_ns(), result.uint_32);
+		if (!gid_valid(data->perms.gid))
+			goto unmapped_value;
+		break;
+
+	default:
+		return -ENOPARAM;
+	}
+
+	return 0;
+
+unmapped_value:
+	return invalf(fc, "%s: unmapped value: %u", param->key, result.uint_32);
+}
+
+/*
+ * Set up the superblock for a mount.
+ */
+static int ffs_fs_get_tree(struct fs_context *fc)
+{
+	struct ffs_sb_fill_data *ctx = fc->fs_private;
+	struct ffs_data	*ffs;
+	int ret;
+
+	ENTER();
+
+	if (!fc->source)
+		return invalf(fc, "No source specified");
+
+	ffs = ffs_data_new(fc->source);
+	if (!ffs)
+		return -ENOMEM;
+	ffs->file_perms = ctx->perms;
+	ffs->no_disconnect = ctx->no_disconnect;
+
+	ffs->dev_name = kstrdup(fc->source, GFP_KERNEL);
+	if (!ffs->dev_name) {
+		ffs_data_put(ffs);
+		return -ENOMEM;
+	}
+
+	ret = ffs_acquire_dev(ffs->dev_name, ffs);
+	if (ret) {
+		ffs_data_put(ffs);
+		return ret;
+	}
+
+	ctx->ffs_data = ffs;
+	return get_tree_nodev(fc, ffs_sb_fill);
+}
+
+static void ffs_fs_free_fc(struct fs_context *fc)
+{
+	struct ffs_sb_fill_data *ctx = fc->fs_private;
+
+	if (ctx) {
+		if (ctx->ffs_data) {
+			ffs_data_put(ctx->ffs_data);
+		}
+
+		kfree(ctx);
+	}
+}
+
+static const struct fs_context_operations ffs_fs_context_ops = {
+	.free		= ffs_fs_free_fc,
+	.parse_param	= ffs_fs_parse_param,
+	.get_tree	= ffs_fs_get_tree,
+};
+
+static int ffs_fs_init_fs_context(struct fs_context *fc)
+{
+	struct ffs_sb_fill_data *ctx;
+
+	ctx = kzalloc(sizeof(struct ffs_sb_fill_data), GFP_KERNEL);
+	if (!ctx)
+		return -ENOMEM;
+
+	ctx->perms.mode = S_IFREG | 0600;
+	ctx->perms.uid = GLOBAL_ROOT_UID;
+	ctx->perms.gid = GLOBAL_ROOT_GID;
+	ctx->root_mode = S_IFDIR | 0500;
+	ctx->no_disconnect = false;
+
+	fc->fs_private = ctx;
+	fc->ops = &ffs_fs_context_ops;
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void
@@ -1674,16 +2187,26 @@ ffs_fs_kill_sb(struct super_block *sb)
 	ENTER();
 
 	kill_litter_super(sb);
+<<<<<<< HEAD
 	if (sb->s_fs_info) {
 		ffs_release_dev(sb->s_fs_info);
 		ffs_data_closed(sb->s_fs_info);
 	}
+=======
+	if (sb->s_fs_info)
+		ffs_data_closed(sb->s_fs_info);
+>>>>>>> upstream/android-13
 }
 
 static struct file_system_type ffs_fs_type = {
 	.owner		= THIS_MODULE,
 	.name		= "functionfs",
+<<<<<<< HEAD
 	.mount		= ffs_fs_mount,
+=======
+	.init_fs_context = ffs_fs_init_fs_context,
+	.parameters	= ffs_fs_fs_parameters,
+>>>>>>> upstream/android-13
 	.kill_sb	= ffs_fs_kill_sb,
 };
 MODULE_ALIAS_FS("functionfs");
@@ -1698,7 +2221,11 @@ static int functionfs_init(void)
 	ENTER();
 
 	ret = register_filesystem(&ffs_fs_type);
+<<<<<<< HEAD
 	if (likely(!ret))
+=======
+	if (!ret)
+>>>>>>> upstream/android-13
 		pr_info("file system registered\n");
 	else
 		pr_err("failed registering file system (%d)\n", ret);
@@ -1723,8 +2250,12 @@ static void ffs_data_reset(struct ffs_data *ffs);
 static void ffs_data_get(struct ffs_data *ffs)
 {
 	ENTER();
+<<<<<<< HEAD
 	/* to get updated ref atomic variable value */
 	smp_mb__before_atomic();
+=======
+
+>>>>>>> upstream/android-13
 	refcount_inc(&ffs->ref);
 }
 
@@ -1732,22 +2263,29 @@ static void ffs_data_opened(struct ffs_data *ffs)
 {
 	ENTER();
 
+<<<<<<< HEAD
 	pr_info("%s +\n", __func__);
 	/* to get updated ref atomic variable value */
 	smp_mb__before_atomic();
+=======
+>>>>>>> upstream/android-13
 	refcount_inc(&ffs->ref);
 	if (atomic_add_return(1, &ffs->opened) == 1 &&
 			ffs->state == FFS_DEACTIVATED) {
 		ffs->state = FFS_CLOSING;
 		ffs_data_reset(ffs);
 	}
+<<<<<<< HEAD
 	pr_info("%s ffs->opened=%d -\n", __func__, atomic_read(&ffs->opened));
+=======
+>>>>>>> upstream/android-13
 }
 
 static void ffs_data_put(struct ffs_data *ffs)
 {
 	ENTER();
 
+<<<<<<< HEAD
 	/* to get updated ref atomic variable value */
 	smp_mb__before_atomic();
 	if (unlikely(refcount_dec_and_test(&ffs->ref))) {
@@ -1755,6 +2293,14 @@ static void ffs_data_put(struct ffs_data *ffs)
 		ffs_data_clear(ffs);
 		BUG_ON(waitqueue_active(&ffs->ev.waitq) ||
 		       waitqueue_active(&ffs->ep0req_completion.wait) ||
+=======
+	if (refcount_dec_and_test(&ffs->ref)) {
+		pr_info("%s(): freeing\n", __func__);
+		ffs_data_clear(ffs);
+		ffs_release_dev(ffs->private_data);
+		BUG_ON(waitqueue_active(&ffs->ev.waitq) ||
+		       swait_active(&ffs->ep0req_completion.wait) ||
+>>>>>>> upstream/android-13
 		       waitqueue_active(&ffs->wait));
 		destroy_workqueue(ffs->io_completion_wq);
 		kfree(ffs->dev_name);
@@ -1764,6 +2310,7 @@ static void ffs_data_put(struct ffs_data *ffs)
 
 static void ffs_data_closed(struct ffs_data *ffs)
 {
+<<<<<<< HEAD
 	ENTER();
 
 	pr_info("%s +\n", __func__);
@@ -1786,27 +2333,61 @@ static void ffs_data_closed(struct ffs_data *ffs)
 				__ffs_ep0_stall(ffs);
 		} else {
 			pr_info("%s call ffs_data_reset 1\n", __func__);
+=======
+	struct ffs_epfile *epfiles;
+	unsigned long flags;
+
+	ENTER();
+
+	if (atomic_dec_and_test(&ffs->opened)) {
+		if (ffs->no_disconnect) {
+			ffs->state = FFS_DEACTIVATED;
+			spin_lock_irqsave(&ffs->eps_lock, flags);
+			epfiles = ffs->epfiles;
+			ffs->epfiles = NULL;
+			spin_unlock_irqrestore(&ffs->eps_lock,
+							flags);
+
+			if (epfiles)
+				ffs_epfiles_destroy(epfiles,
+						 ffs->eps_count);
+
+			if (ffs->setup_state == FFS_SETUP_PENDING)
+				__ffs_ep0_stall(ffs);
+		} else {
+>>>>>>> upstream/android-13
 			ffs->state = FFS_CLOSING;
 			ffs_data_reset(ffs);
 		}
 	}
+<<<<<<< HEAD
 
 	/* to get updated opened atomic variable value */
 	smp_mb__before_atomic();
 	if (atomic_read(&ffs->opened) < 0) {
 		pr_info("%s call ffs_data_reset 2\n", __func__);
+=======
+	if (atomic_read(&ffs->opened) < 0) {
+>>>>>>> upstream/android-13
 		ffs->state = FFS_CLOSING;
 		ffs_data_reset(ffs);
 	}
 
 	ffs_data_put(ffs);
+<<<<<<< HEAD
 	pr_info("%s ffs->opened=%d -\n", __func__, atomic_read(&ffs->opened));
+=======
+>>>>>>> upstream/android-13
 }
 
 static struct ffs_data *ffs_data_new(const char *dev_name)
 {
 	struct ffs_data *ffs = kzalloc(sizeof *ffs, GFP_KERNEL);
+<<<<<<< HEAD
 	if (unlikely(!ffs))
+=======
+	if (!ffs)
+>>>>>>> upstream/android-13
 		return NULL;
 
 	ENTER();
@@ -1817,8 +2398,11 @@ static struct ffs_data *ffs_data_new(const char *dev_name)
 		return NULL;
 	}
 
+<<<<<<< HEAD
 	/* to get updated opened atomic variable value */
 	smp_mb__before_atomic();
+=======
+>>>>>>> upstream/android-13
 	refcount_set(&ffs->ref, 1);
 	atomic_set(&ffs->opened, 0);
 	ffs->state = FFS_READ_DESCRIPTORS;
@@ -1836,12 +2420,19 @@ static struct ffs_data *ffs_data_new(const char *dev_name)
 
 static void ffs_data_clear(struct ffs_data *ffs)
 {
+<<<<<<< HEAD
+=======
+	struct ffs_epfile *epfiles;
+	unsigned long flags;
+
+>>>>>>> upstream/android-13
 	ENTER();
 
 	ffs_closed(ffs);
 
 	BUG_ON(ffs->gadget);
 
+<<<<<<< HEAD
 	/* Blocking inode NULL */
 	mutex_lock(&ffs->mutex);
 	if (ffs->epfiles) {
@@ -1854,6 +2445,27 @@ static void ffs_data_clear(struct ffs_data *ffs)
 
 	if (ffs->ffs_eventfd)
 		eventfd_ctx_put(ffs->ffs_eventfd);
+=======
+	spin_lock_irqsave(&ffs->eps_lock, flags);
+	epfiles = ffs->epfiles;
+	ffs->epfiles = NULL;
+	spin_unlock_irqrestore(&ffs->eps_lock, flags);
+
+	/*
+	 * potential race possible between ffs_func_eps_disable
+	 * & ffs_epfile_release therefore maintaining a local
+	 * copy of epfile will save us from use-after-free.
+	 */
+	if (epfiles) {
+		ffs_epfiles_destroy(epfiles, ffs->eps_count);
+		ffs->epfiles = NULL;
+	}
+
+	if (ffs->ffs_eventfd) {
+		eventfd_ctx_put(ffs->ffs_eventfd);
+		ffs->ffs_eventfd = NULL;
+	}
+>>>>>>> upstream/android-13
 
 	kfree(ffs->raw_descs_data);
 	kfree(ffs->raw_strings);
@@ -1866,7 +2478,10 @@ static void ffs_data_reset(struct ffs_data *ffs)
 
 	ffs_data_clear(ffs);
 
+<<<<<<< HEAD
 	ffs->epfiles = NULL;
+=======
+>>>>>>> upstream/android-13
 	ffs->raw_descs_data = NULL;
 	ffs->raw_descs = NULL;
 	ffs->raw_strings = NULL;
@@ -1900,6 +2515,7 @@ static int functionfs_bind(struct ffs_data *ffs, struct usb_composite_dev *cdev)
 
 	ENTER();
 
+<<<<<<< HEAD
 	if (WARN_ON(ffs->state != FFS_ACTIVE
 		 || test_and_set_bit(FFS_FL_BOUND, &ffs->flags)))
 		return -EBADFD;
@@ -1910,6 +2526,21 @@ static int functionfs_bind(struct ffs_data *ffs, struct usb_composite_dev *cdev)
 
 	ffs->ep0req = usb_ep_alloc_request(cdev->gadget->ep0, GFP_KERNEL);
 	if (unlikely(!ffs->ep0req))
+=======
+	if (ffs->state != FFS_ACTIVE
+		 || test_and_set_bit(FFS_FL_BOUND, &ffs->flags)){
+		pr_err("WARN_ON: %s: ffs->state %d, ffs->flags 0x%x\n",
+                                               __func__, ffs->state, ffs->flags);
+		return -EBADFD;
+	}
+
+	first_id = usb_string_ids_n(cdev, ffs->strings_count);
+	if (first_id < 0)
+		return first_id;
+
+	ffs->ep0req = usb_ep_alloc_request(cdev->gadget->ep0, GFP_KERNEL);
+	if (!ffs->ep0req)
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 	ffs->ep0req->complete = ffs_ep0_complete;
 	ffs->ep0req->context = ffs;
@@ -1931,6 +2562,7 @@ static int functionfs_bind(struct ffs_data *ffs, struct usb_composite_dev *cdev)
 
 static void functionfs_unbind(struct ffs_data *ffs)
 {
+<<<<<<< HEAD
 	struct usb_request *temp_ep0req;
 	
 	ENTER();
@@ -1939,6 +2571,13 @@ static void functionfs_unbind(struct ffs_data *ffs)
 		temp_ep0req = ffs->ep0req;
 		ffs->ep0req = NULL;
 		usb_ep_free_request(ffs->gadget->ep0, temp_ep0req);
+=======
+	ENTER();
+
+	if (!WARN_ON(!ffs->gadget)) {
+		usb_ep_free_request(ffs->gadget->ep0, ffs->ep0req);
+		ffs->ep0req = NULL;
+>>>>>>> upstream/android-13
 		ffs->gadget = NULL;
 		clear_bit(FFS_FL_BOUND, &ffs->flags);
 		ffs_data_put(ffs);
@@ -1952,7 +2591,10 @@ static int ffs_epfiles_create(struct ffs_data *ffs)
 
 	ENTER();
 
+<<<<<<< HEAD
 	pr_info("%s +\n", __func__);
+=======
+>>>>>>> upstream/android-13
 	count = ffs->eps_count;
 	epfiles = kcalloc(count, sizeof(*epfiles), GFP_KERNEL);
 	if (!epfiles)
@@ -1962,7 +2604,10 @@ static int ffs_epfiles_create(struct ffs_data *ffs)
 	for (i = 1; i <= count; ++i, ++epfile) {
 		epfile->ffs = ffs;
 		mutex_init(&epfile->mutex);
+<<<<<<< HEAD
 		atomic_set(&epfile->opened, 0);
+=======
+>>>>>>> upstream/android-13
 		if (ffs->user_flags & FUNCTIONFS_VIRTUAL_ADDR)
 			sprintf(epfile->name, "ep%02x", ffs->eps_addrmap[i]);
 		else
@@ -1970,16 +2615,24 @@ static int ffs_epfiles_create(struct ffs_data *ffs)
 		epfile->dentry = ffs_sb_create_file(ffs->sb, epfile->name,
 						 epfile,
 						 &ffs_epfile_operations);
+<<<<<<< HEAD
 		if (unlikely(!epfile->dentry)) {
 			pr_info("%s epfiles destroy +\n", __func__);
 			ffs_epfiles_destroy(epfiles, i - 1);
 			pr_info("%s epfiles destroy -\n", __func__);
+=======
+		if (!epfile->dentry) {
+			ffs_epfiles_destroy(epfiles, i - 1);
+>>>>>>> upstream/android-13
 			return -ENOMEM;
 		}
 	}
 
 	ffs->epfiles = epfiles;
+<<<<<<< HEAD
 	pr_info("%s -\n", __func__);
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1999,11 +2652,15 @@ static void ffs_epfiles_destroy(struct ffs_epfile *epfiles, unsigned count)
 	}
 
 	kfree(epfiles);
+<<<<<<< HEAD
 	epfiles = NULL;
+=======
+>>>>>>> upstream/android-13
 }
 
 static void ffs_func_eps_disable(struct ffs_function *func)
 {
+<<<<<<< HEAD
 	struct ffs_ep *ep         = func->eps;
 	struct ffs_epfile *epfile = func->ffs->epfiles;
 	unsigned count            = func->ffs->eps_count;
@@ -2025,17 +2682,39 @@ static void ffs_func_eps_disable(struct ffs_function *func)
 		++ep;
 
 		if (epfile && func->ffs->epfiles) {
+=======
+	struct ffs_ep *ep;
+	struct ffs_epfile *epfile;
+	unsigned short count;
+	unsigned long flags;
+
+	spin_lock_irqsave(&func->ffs->eps_lock, flags);
+	count = func->ffs->eps_count;
+	epfile = func->ffs->epfiles;
+	ep = func->eps;
+	while (count--) {
+		/* pending requests get nuked */
+		if (ep->ep)
+			usb_ep_disable(ep->ep);
+		++ep;
+
+		if (epfile) {
+>>>>>>> upstream/android-13
 			epfile->ep = NULL;
 			__ffs_epfile_read_buffer_free(epfile);
 			++epfile;
 		}
 	}
 	spin_unlock_irqrestore(&func->ffs->eps_lock, flags);
+<<<<<<< HEAD
 	pr_info("%s -\n", __func__);
+=======
+>>>>>>> upstream/android-13
 }
 
 static int ffs_func_eps_enable(struct ffs_function *func)
 {
+<<<<<<< HEAD
 	struct ffs_data *ffs      = func->ffs;
 	struct ffs_ep *ep         = func->eps;
 	struct ffs_epfile *epfile = ffs->epfiles;
@@ -2050,6 +2729,20 @@ static int ffs_func_eps_enable(struct ffs_function *func)
 		ret = -ENOENT;
 		goto out;
 	}
+=======
+	struct ffs_data *ffs;
+	struct ffs_ep *ep;
+	struct ffs_epfile *epfile;
+	unsigned short count;
+	unsigned long flags;
+	int ret = 0;
+
+	spin_lock_irqsave(&func->ffs->eps_lock, flags);
+	ffs = func->ffs;
+	ep = func->eps;
+	epfile = ffs->epfiles;
+	count = ffs->eps_count;
+>>>>>>> upstream/android-13
 	while(count--) {
 		ep->ep->driver_data = ep;
 
@@ -2061,12 +2754,16 @@ static int ffs_func_eps_enable(struct ffs_function *func)
 		}
 
 		ret = usb_ep_enable(ep->ep);
+<<<<<<< HEAD
 		if (likely(!ret)) {
 			if (ffs->epfiles == NULL) {
 				pr_err("%s epfiles is null in while\n", __func__);
 				ret = -ENOENT;
 				break;
 			}
+=======
+		if (!ret) {
+>>>>>>> upstream/android-13
 			epfile->ep = ep;
 			epfile->in = usb_endpoint_dir_in(ep->ep->desc);
 			epfile->isoc = usb_endpoint_xfer_isoc(ep->ep->desc);
@@ -2077,10 +2774,16 @@ static int ffs_func_eps_enable(struct ffs_function *func)
 		++ep;
 		++epfile;
 	}
+<<<<<<< HEAD
 out:
 	wake_up_interruptible(&ffs->wait);
 	spin_unlock_irqrestore(&func->ffs->eps_lock, flags);
 	pr_info("%s -\n", __func__);
+=======
+
+	wake_up_interruptible(&ffs->wait);
+	spin_unlock_irqrestore(&func->ffs->eps_lock, flags);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -2114,7 +2817,11 @@ typedef int (*ffs_os_desc_callback)(enum ffs_os_desc_type entity,
 
 static int __must_check ffs_do_single_desc(char *data, unsigned len,
 					   ffs_entity_callback entity,
+<<<<<<< HEAD
 					   void *priv)
+=======
+					   void *priv, int *current_class)
+>>>>>>> upstream/android-13
 {
 	struct usb_descriptor_header *_ds = (void *)data;
 	u8 length;
@@ -2140,12 +2847,20 @@ static int __must_check ffs_do_single_desc(char *data, unsigned len,
 #define __entity_check_ENDPOINT(val)   ((val) & USB_ENDPOINT_NUMBER_MASK)
 #define __entity(type, val) do {					\
 		pr_vdebug("entity " #type "(%02x)\n", (val));		\
+<<<<<<< HEAD
 		if (unlikely(!__entity_check_ ##type(val))) {		\
+=======
+		if (!__entity_check_ ##type(val)) {			\
+>>>>>>> upstream/android-13
 			pr_vdebug("invalid entity's value\n");		\
 			return -EINVAL;					\
 		}							\
 		ret = entity(FFS_ ##type, &val, _ds, priv);		\
+<<<<<<< HEAD
 		if (unlikely(ret < 0)) {				\
+=======
+		if (ret < 0) {						\
+>>>>>>> upstream/android-13
 			pr_debug("entity " #type "(%02x); ret = %d\n",	\
 				 (val), ret);				\
 			return ret;					\
@@ -2172,6 +2887,10 @@ static int __must_check ffs_do_single_desc(char *data, unsigned len,
 		__entity(INTERFACE, ds->bInterfaceNumber);
 		if (ds->iInterface)
 			__entity(STRING, ds->iInterface);
+<<<<<<< HEAD
+=======
+		*current_class = ds->bInterfaceClass;
+>>>>>>> upstream/android-13
 	}
 		break;
 
@@ -2185,11 +2904,30 @@ static int __must_check ffs_do_single_desc(char *data, unsigned len,
 	}
 		break;
 
+<<<<<<< HEAD
 	case HID_DT_HID:
 		pr_vdebug("hid descriptor\n");
 		if (length != sizeof(struct hid_descriptor))
 			goto inv_length;
 		break;
+=======
+	case USB_TYPE_CLASS | 0x01:
+		if (*current_class == USB_INTERFACE_CLASS_HID) {
+			pr_vdebug("hid descriptor\n");
+			if (length != sizeof(struct hid_descriptor))
+				goto inv_length;
+			break;
+		} else if (*current_class == USB_INTERFACE_CLASS_CCID) {
+			pr_vdebug("ccid descriptor\n");
+			if (length != sizeof(struct ccid_descriptor))
+				goto inv_length;
+			break;
+		} else {
+			pr_vdebug("unknown descriptor: %d for class %d\n",
+			      _ds->bDescriptorType, *current_class);
+			return -EINVAL;
+		}
+>>>>>>> upstream/android-13
 
 	case USB_DT_OTG:
 		if (length != sizeof(struct usb_otg_descriptor))
@@ -2246,6 +2984,10 @@ static int __must_check ffs_do_descs(unsigned count, char *data, unsigned len,
 {
 	const unsigned _len = len;
 	unsigned long num = 0;
+<<<<<<< HEAD
+=======
+	int current_class = -1;
+>>>>>>> upstream/android-13
 
 	ENTER();
 
@@ -2257,7 +2999,11 @@ static int __must_check ffs_do_descs(unsigned count, char *data, unsigned len,
 
 		/* Record "descriptor" entity */
 		ret = entity(FFS_DESCRIPTOR, (u8 *)num, (void *)data, priv);
+<<<<<<< HEAD
 		if (unlikely(ret < 0)) {
+=======
+		if (ret < 0) {
+>>>>>>> upstream/android-13
 			pr_debug("entity DESCRIPTOR(%02lx); ret = %d\n",
 				 num, ret);
 			return ret;
@@ -2266,8 +3012,14 @@ static int __must_check ffs_do_descs(unsigned count, char *data, unsigned len,
 		if (!data)
 			return _len - len;
 
+<<<<<<< HEAD
 		ret = ffs_do_single_desc(data, len, entity, priv);
 		if (unlikely(ret < 0)) {
+=======
+		ret = ffs_do_single_desc(data, len, entity, priv,
+			&current_class);
+		if (ret < 0) {
+>>>>>>> upstream/android-13
 			pr_debug("%s returns %d\n", __func__, ret);
 			return ret;
 		}
@@ -2373,7 +3125,11 @@ static int __must_check ffs_do_single_os_desc(char *data, unsigned len,
 	/* loop over all ext compat/ext prop descriptors */
 	while (feature_count--) {
 		ret = entity(type, h, data, len, priv);
+<<<<<<< HEAD
 		if (unlikely(ret < 0)) {
+=======
+		if (ret < 0) {
+>>>>>>> upstream/android-13
 			pr_debug("bad OS descriptor, type: %d\n", type);
 			return ret;
 		}
@@ -2413,7 +3169,11 @@ static int __must_check ffs_do_os_descs(unsigned count,
 			return -EINVAL;
 
 		ret = __ffs_do_os_desc_header(&type, desc);
+<<<<<<< HEAD
 		if (unlikely(ret < 0)) {
+=======
+		if (ret < 0) {
+>>>>>>> upstream/android-13
 			pr_debug("entity OS_DESCRIPTOR(%02lx); ret = %d\n",
 				 num, ret);
 			return ret;
@@ -2434,7 +3194,11 @@ static int __must_check ffs_do_os_descs(unsigned count,
 		 */
 		ret = ffs_do_single_os_desc(data, len, type,
 					    feature_count, entity, priv, desc);
+<<<<<<< HEAD
 		if (unlikely(ret < 0)) {
+=======
+		if (ret < 0) {
+>>>>>>> upstream/android-13
 			pr_debug("%s returns %d\n", __func__, ret);
 			return ret;
 		}
@@ -2445,7 +3209,11 @@ static int __must_check ffs_do_os_descs(unsigned count,
 	return _len - len;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Validate contents of the buffer from userspace related to OS descriptors.
  */
 static int __ffs_data_do_os_desc(enum ffs_os_desc_type type,
@@ -2597,7 +3365,11 @@ static int __ffs_data_got_descs(struct ffs_data *ffs,
 		os_descs_count = get_unaligned_le32(data);
 		data += 4;
 		len -= 4;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 
 	/* Read descriptors */
 	raw_descs = data;
@@ -2666,20 +3438,34 @@ static int __ffs_data_got_strings(struct ffs_data *ffs,
 
 	ENTER();
 
+<<<<<<< HEAD
 	if (unlikely(len < 16 ||
 		     get_unaligned_le32(data) != FUNCTIONFS_STRINGS_MAGIC ||
 		     get_unaligned_le32(data + 4) != len))
+=======
+	if (len < 16 ||
+	    get_unaligned_le32(data) != FUNCTIONFS_STRINGS_MAGIC ||
+	    get_unaligned_le32(data + 4) != len)
+>>>>>>> upstream/android-13
 		goto error;
 	str_count  = get_unaligned_le32(data + 8);
 	lang_count = get_unaligned_le32(data + 12);
 
 	/* if one is zero the other must be zero */
+<<<<<<< HEAD
 	if (unlikely(!str_count != !lang_count))
+=======
+	if (!str_count != !lang_count)
+>>>>>>> upstream/android-13
 		goto error;
 
 	/* Do we have at least as many strings as descriptors need? */
 	needed_count = ffs->strings_count;
+<<<<<<< HEAD
 	if (unlikely(str_count < needed_count))
+=======
+	if (str_count < needed_count)
+>>>>>>> upstream/android-13
 		goto error;
 
 	/*
@@ -2703,7 +3489,11 @@ static int __ffs_data_got_strings(struct ffs_data *ffs,
 
 		char *vlabuf = kmalloc(vla_group_size(d), GFP_KERNEL);
 
+<<<<<<< HEAD
 		if (unlikely(!vlabuf)) {
+=======
+		if (!vlabuf) {
+>>>>>>> upstream/android-13
 			kfree(_data);
 			return -ENOMEM;
 		}
@@ -2731,7 +3521,11 @@ static int __ffs_data_got_strings(struct ffs_data *ffs,
 		unsigned needed = needed_count;
 		u32 str_per_lang = str_count;
 
+<<<<<<< HEAD
 		if (unlikely(len < 3))
+=======
+		if (len < 3)
+>>>>>>> upstream/android-13
 			goto error_free;
 		t->language = get_unaligned_le16(data);
 		t->strings  = s;
@@ -2744,7 +3538,11 @@ static int __ffs_data_got_strings(struct ffs_data *ffs,
 		do { /* str_count > 0 so we can use do-while */
 			size_t length = strnlen(data, len);
 
+<<<<<<< HEAD
 			if (unlikely(length == len))
+=======
+			if (length == len)
+>>>>>>> upstream/android-13
 				goto error_free;
 
 			/*
@@ -2752,7 +3550,11 @@ static int __ffs_data_got_strings(struct ffs_data *ffs,
 			 * if that's the case we simply ignore the
 			 * rest
 			 */
+<<<<<<< HEAD
 			if (likely(needed)) {
+=======
+			if (needed) {
+>>>>>>> upstream/android-13
 				/*
 				 * s->id will be set while adding
 				 * function to configuration so for
@@ -2774,7 +3576,11 @@ static int __ffs_data_got_strings(struct ffs_data *ffs,
 	} while (--lang_count);
 
 	/* Some garbage left? */
+<<<<<<< HEAD
 	if (unlikely(len))
+=======
+	if (len)
+>>>>>>> upstream/android-13
 		goto error_free;
 
 	/* Done! */
@@ -2820,7 +3626,11 @@ static void __ffs_event_add(struct ffs_data *ffs,
 	switch (type) {
 	case FUNCTIONFS_RESUME:
 		rem_type2 = FUNCTIONFS_SUSPEND;
+<<<<<<< HEAD
 		/* FALL THROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case FUNCTIONFS_SUSPEND:
 	case FUNCTIONFS_SETUP:
 		rem_type1 = type;
@@ -2921,7 +3731,11 @@ static int __ffs_func_bind_do_descs(enum ffs_entity_type type, u8 *valuep,
 
 	ffs_ep = func->eps + idx;
 
+<<<<<<< HEAD
 	if (unlikely(ffs_ep->descs[ep_desc_id])) {
+=======
+	if (ffs_ep->descs[ep_desc_id]) {
+>>>>>>> upstream/android-13
 		pr_err("two %sspeed descriptors for EP %d\n",
 			  speed_names[ep_desc_id],
 			  ds->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK);
@@ -2938,20 +3752,39 @@ static int __ffs_func_bind_do_descs(enum ffs_entity_type type, u8 *valuep,
 		struct usb_request *req;
 		struct usb_ep *ep;
 		u8 bEndpointAddress;
+<<<<<<< HEAD
+=======
+		u16 wMaxPacketSize;
+>>>>>>> upstream/android-13
 
 		/*
 		 * We back up bEndpointAddress because autoconfig overwrites
 		 * it with physical endpoint address.
 		 */
 		bEndpointAddress = ds->bEndpointAddress;
+<<<<<<< HEAD
 		pr_vdebug("autoconfig\n");
 		ep = usb_ep_autoconfig(func->gadget, ds);
 		if (unlikely(!ep))
+=======
+		/*
+		 * We back up wMaxPacketSize because autoconfig treats
+		 * endpoint descriptors as if they were full speed.
+		 */
+		wMaxPacketSize = ds->wMaxPacketSize;
+		pr_vdebug("autoconfig\n");
+		ep = usb_ep_autoconfig(func->gadget, ds);
+		if (!ep)
+>>>>>>> upstream/android-13
 			return -ENOTSUPP;
 		ep->driver_data = func->eps + idx;
 
 		req = usb_ep_alloc_request(ep, GFP_KERNEL);
+<<<<<<< HEAD
 		if (unlikely(!req))
+=======
+		if (!req)
+>>>>>>> upstream/android-13
 			return -ENOMEM;
 
 		ffs_ep->ep  = ep;
@@ -2964,6 +3797,14 @@ static int __ffs_func_bind_do_descs(enum ffs_entity_type type, u8 *valuep,
 		 */
 		if (func->ffs->user_flags & FUNCTIONFS_VIRTUAL_ADDR)
 			ds->bEndpointAddress = bEndpointAddress;
+<<<<<<< HEAD
+=======
+		/*
+		 * Restore wMaxPacketSize which was potentially
+		 * overwritten by autoconfig.
+		 */
+		ds->wMaxPacketSize = wMaxPacketSize;
+>>>>>>> upstream/android-13
 	}
 	ffs_dump_mem(": Rewritten ep desc", ds, ds->bLength);
 
@@ -2988,7 +3829,11 @@ static int __ffs_func_bind_do_nums(enum ffs_entity_type type, u8 *valuep,
 		idx = *valuep;
 		if (func->interfaces_nums[idx] < 0) {
 			int id = usb_interface_id(func->conf, &func->function);
+<<<<<<< HEAD
 			if (unlikely(id < 0))
+=======
+			if (id < 0)
+>>>>>>> upstream/android-13
 				return id;
 			func->interfaces_nums[idx] = id;
 		}
@@ -3009,7 +3854,11 @@ static int __ffs_func_bind_do_nums(enum ffs_entity_type type, u8 *valuep,
 			return 0;
 
 		idx = (*valuep & USB_ENDPOINT_NUMBER_MASK) - 1;
+<<<<<<< HEAD
 		if (unlikely(!func->eps[idx].ep))
+=======
+		if (!func->eps[idx].ep)
+>>>>>>> upstream/android-13
 			return -EINVAL;
 
 		{
@@ -3110,6 +3959,10 @@ static inline struct f_fs_opts *ffs_do_functionfs_bind(struct usb_function *f,
 	struct ffs_function *func = ffs_func_from_usb(f);
 	struct f_fs_opts *ffs_opts =
 		container_of(f->fi, struct f_fs_opts, func_inst);
+<<<<<<< HEAD
+=======
+	struct ffs_data *ffs_data;
+>>>>>>> upstream/android-13
 	int ret;
 
 	ENTER();
@@ -3124,12 +3977,20 @@ static inline struct f_fs_opts *ffs_do_functionfs_bind(struct usb_function *f,
 	if (!ffs_opts->no_configfs)
 		ffs_dev_lock();
 	ret = ffs_opts->dev->desc_ready ? 0 : -ENODEV;
+<<<<<<< HEAD
 	func->ffs = ffs_opts->dev->ffs_data;
+=======
+	ffs_data = ffs_opts->dev->ffs_data;
+>>>>>>> upstream/android-13
 	if (!ffs_opts->no_configfs)
 		ffs_dev_unlock();
 	if (ret)
 		return ERR_PTR(ret);
 
+<<<<<<< HEAD
+=======
+	func->ffs = ffs_data;
+>>>>>>> upstream/android-13
 	func->conf = c;
 	func->gadget = c->cdev->gadget;
 
@@ -3192,12 +4053,20 @@ static int _ffs_func_bind(struct usb_configuration *c,
 	ENTER();
 
 	/* Has descriptors only for speeds gadget does not support */
+<<<<<<< HEAD
 	if (unlikely(!(full | high | super)))
+=======
+	if (!(full | high | super))
+>>>>>>> upstream/android-13
 		return -ENOTSUPP;
 
 	/* Allocate a single chunk, less management later on */
 	vlabuf = kzalloc(vla_group_size(d), GFP_KERNEL);
+<<<<<<< HEAD
 	if (unlikely(!vlabuf))
+=======
+	if (!vlabuf)
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 
 	ffs->ms_os_descs_ext_prop_avail = vla_ptr(vlabuf, d, ext_prop);
@@ -3226,13 +4095,21 @@ static int _ffs_func_bind(struct usb_configuration *c,
 	 * endpoints first, so that later we can rewrite the endpoint
 	 * numbers without worrying that it may be described later on.
 	 */
+<<<<<<< HEAD
 	if (likely(full)) {
+=======
+	if (full) {
+>>>>>>> upstream/android-13
 		func->function.fs_descriptors = vla_ptr(vlabuf, d, fs_descs);
 		fs_len = ffs_do_descs(ffs->fs_descs_count,
 				      vla_ptr(vlabuf, d, raw_descs),
 				      d_raw_descs__sz,
 				      __ffs_func_bind_do_descs, func);
+<<<<<<< HEAD
 		if (unlikely(fs_len < 0)) {
+=======
+		if (fs_len < 0) {
+>>>>>>> upstream/android-13
 			ret = fs_len;
 			goto error;
 		}
@@ -3240,13 +4117,21 @@ static int _ffs_func_bind(struct usb_configuration *c,
 		fs_len = 0;
 	}
 
+<<<<<<< HEAD
 	if (likely(high)) {
+=======
+	if (high) {
+>>>>>>> upstream/android-13
 		func->function.hs_descriptors = vla_ptr(vlabuf, d, hs_descs);
 		hs_len = ffs_do_descs(ffs->hs_descs_count,
 				      vla_ptr(vlabuf, d, raw_descs) + fs_len,
 				      d_raw_descs__sz - fs_len,
 				      __ffs_func_bind_do_descs, func);
+<<<<<<< HEAD
 		if (unlikely(hs_len < 0)) {
+=======
+		if (hs_len < 0) {
+>>>>>>> upstream/android-13
 			ret = hs_len;
 			goto error;
 		}
@@ -3254,14 +4139,22 @@ static int _ffs_func_bind(struct usb_configuration *c,
 		hs_len = 0;
 	}
 
+<<<<<<< HEAD
 	if (likely(super)) {
+=======
+	if (super) {
+>>>>>>> upstream/android-13
 		func->function.ss_descriptors = func->function.ssp_descriptors =
 			vla_ptr(vlabuf, d, ss_descs);
 		ss_len = ffs_do_descs(ffs->ss_descs_count,
 				vla_ptr(vlabuf, d, raw_descs) + fs_len + hs_len,
 				d_raw_descs__sz - fs_len - hs_len,
 				__ffs_func_bind_do_descs, func);
+<<<<<<< HEAD
 		if (unlikely(ss_len < 0)) {
+=======
+		if (ss_len < 0) {
+>>>>>>> upstream/android-13
 			ret = ss_len;
 			goto error;
 		}
@@ -3279,7 +4172,11 @@ static int _ffs_func_bind(struct usb_configuration *c,
 			   (super ? ffs->ss_descs_count : 0),
 			   vla_ptr(vlabuf, d, raw_descs), d_raw_descs__sz,
 			   __ffs_func_bind_do_nums, func);
+<<<<<<< HEAD
 	if (unlikely(ret < 0))
+=======
+	if (ret < 0)
+>>>>>>> upstream/android-13
 		goto error;
 
 	func->function.os_desc_table = vla_ptr(vlabuf, d, os_desc_table);
@@ -3300,7 +4197,11 @@ static int _ffs_func_bind(struct usb_configuration *c,
 				      d_raw_descs__sz - fs_len - hs_len -
 				      ss_len,
 				      __ffs_func_bind_do_os_desc, func);
+<<<<<<< HEAD
 		if (unlikely(ret < 0))
+=======
+		if (ret < 0)
+>>>>>>> upstream/android-13
 			goto error;
 	}
 	func->function.os_desc_n =
@@ -3349,6 +4250,7 @@ static int ffs_func_set_alt(struct usb_function *f,
 	struct ffs_data *ffs = func->ffs;
 	int ret = 0, intf;
 
+<<<<<<< HEAD
 	pr_info("%s - ffs->state:%d\n", __func__, ffs->state);
 	if (ffs->epfiles == NULL) {
 		pr_info("%s - UAF fix\n", __func__);
@@ -3365,6 +4267,16 @@ static int ffs_func_set_alt(struct usb_function *f,
 		ffs_func_eps_disable(ffs->func);
 		ffs->func = NULL;
 	}
+=======
+	if (alt != (unsigned)-1) {
+		intf = ffs_func_revmap_intf(func, interface);
+		if (intf < 0)
+			return intf;
+	}
+
+	if (ffs->func)
+		ffs_func_eps_disable(ffs->func);
+>>>>>>> upstream/android-13
 
 	if (ffs->state == FFS_DEACTIVATED) {
 		ffs->state = FFS_CLOSING;
@@ -3384,7 +4296,11 @@ static int ffs_func_set_alt(struct usb_function *f,
 
 	ffs->func = func;
 	ret = ffs_func_eps_enable(func);
+<<<<<<< HEAD
 	if (likely(ret >= 0))
+=======
+	if (ret >= 0)
+>>>>>>> upstream/android-13
 		ffs_event_add(ffs, FUNCTIONFS_ENABLE);
 	return ret;
 }
@@ -3426,13 +4342,21 @@ static int ffs_func_setup(struct usb_function *f,
 	switch (creq->bRequestType & USB_RECIP_MASK) {
 	case USB_RECIP_INTERFACE:
 		ret = ffs_func_revmap_intf(func, le16_to_cpu(creq->wIndex));
+<<<<<<< HEAD
 		if (unlikely(ret < 0))
+=======
+		if (ret < 0)
+>>>>>>> upstream/android-13
 			return ret;
 		break;
 
 	case USB_RECIP_ENDPOINT:
 		ret = ffs_func_revmap_ep(func, le16_to_cpu(creq->wIndex));
+<<<<<<< HEAD
 		if (unlikely(ret < 0))
+=======
+		if (ret < 0)
+>>>>>>> upstream/android-13
 			return ret;
 		if (func->ffs->user_flags & FUNCTIONFS_VIRTUAL_ADDR)
 			ret = func->ffs->eps_addrmap[ret];
@@ -3592,6 +4516,10 @@ static void ffs_free_inst(struct usb_function_instance *f)
 	struct f_fs_opts *opts;
 
 	opts = to_f_fs_opts(f);
+<<<<<<< HEAD
+=======
+	ffs_release_dev(opts->dev);
+>>>>>>> upstream/android-13
 	ffs_dev_lock();
 	_ffs_free_dev(opts->dev);
 	ffs_dev_unlock();
@@ -3600,7 +4528,11 @@ static void ffs_free_inst(struct usb_function_instance *f)
 
 static int ffs_set_inst_name(struct usb_function_instance *fi, const char *name)
 {
+<<<<<<< HEAD
 	if (strlen(name) >= FIELD_SIZEOF(struct ffs_dev, name))
+=======
+	if (strlen(name) >= sizeof_field(struct ffs_dev, name))
+>>>>>>> upstream/android-13
 		return -ENAMETOOLONG;
 	return ffs_name_dev(to_f_fs_opts(fi)->dev, name);
 }
@@ -3653,6 +4585,12 @@ static void ffs_func_unbind(struct usb_configuration *c,
 		ffs->func = NULL;
 	}
 
+<<<<<<< HEAD
+=======
+	/* Drain any pending AIO completions */
+	drain_workqueue(ffs->io_completion_wq);
+
+>>>>>>> upstream/android-13
 	if (!--opts->refcnt)
 		functionfs_unbind(ffs);
 
@@ -3662,7 +4600,10 @@ static void ffs_func_unbind(struct usb_configuration *c,
 		if (ep->ep && ep->req)
 			usb_ep_free_request(ep->ep, ep->req);
 		ep->req = NULL;
+<<<<<<< HEAD
 		ep->ep = NULL;
+=======
+>>>>>>> upstream/android-13
 		++ep;
 	}
 	spin_unlock_irqrestore(&func->ffs->eps_lock, flags);
@@ -3684,16 +4625,26 @@ static void ffs_func_unbind(struct usb_configuration *c,
 static struct usb_function *ffs_alloc(struct usb_function_instance *fi)
 {
 	struct ffs_function *func;
+<<<<<<< HEAD
 	struct ffs_dev *dev;
+=======
+>>>>>>> upstream/android-13
 
 	ENTER();
 
 	func = kzalloc(sizeof(*func), GFP_KERNEL);
+<<<<<<< HEAD
 	if (unlikely(!func))
 		return ERR_PTR(-ENOMEM);
 
 	dev = to_f_fs_opts(fi)->dev;
 	func->function.name    = dev->name;
+=======
+	if (!func)
+		return ERR_PTR(-ENOMEM);
+
+	func->function.name    = "Function FS Gadget";
+>>>>>>> upstream/android-13
 
 	func->function.bind    = ffs_func_bind;
 	func->function.unbind  = ffs_func_unbind;
@@ -3779,23 +4730,33 @@ static void _ffs_free_dev(struct ffs_dev *dev)
 {
 	list_del(&dev->entry);
 
+<<<<<<< HEAD
 	/* Clear the private_data pointer to stop incorrect dev access */
 	if (dev->ffs_data)
 		dev->ffs_data->private_data = NULL;
 
+=======
+>>>>>>> upstream/android-13
 	kfree(dev);
 	if (list_empty(&ffs_devices))
 		functionfs_cleanup();
 }
 
+<<<<<<< HEAD
 static void *ffs_acquire_dev(const char *dev_name)
 {
+=======
+static int ffs_acquire_dev(const char *dev_name, struct ffs_data *ffs_data)
+{
+	int ret = 0;
+>>>>>>> upstream/android-13
 	struct ffs_dev *ffs_dev;
 
 	ENTER();
 	ffs_dev_lock();
 
 	ffs_dev = _ffs_find_dev(dev_name);
+<<<<<<< HEAD
 	if (!ffs_dev)
 		ffs_dev = ERR_PTR(-ENOENT);
 	else if (ffs_dev->mounted)
@@ -3820,6 +4781,36 @@ static void ffs_release_dev(struct ffs_data *ffs_data)
 	ffs_dev = ffs_data->private_data;
 	if (ffs_dev) {
 		ffs_dev->mounted = false;
+=======
+	if (!ffs_dev) {
+		ret = -ENOENT;
+	} else if (ffs_dev->mounted) {
+		ret = -EBUSY;
+	} else if (ffs_dev->ffs_acquire_dev_callback &&
+		   ffs_dev->ffs_acquire_dev_callback(ffs_dev)) {
+		ret = -ENOENT;
+	} else {
+		ffs_dev->mounted = true;
+		ffs_dev->ffs_data = ffs_data;
+		ffs_data->private_data = ffs_dev;
+	}
+
+	ffs_dev_unlock();
+	return ret;
+}
+
+static void ffs_release_dev(struct ffs_dev *ffs_dev)
+{
+	ENTER();
+	ffs_dev_lock();
+
+	if (ffs_dev && ffs_dev->mounted) {
+		ffs_dev->mounted = false;
+		if (ffs_dev->ffs_data) {
+			ffs_dev->ffs_data->private_data = NULL;
+			ffs_dev->ffs_data = NULL;
+		}
+>>>>>>> upstream/android-13
 
 		if (ffs_dev->ffs_release_dev_callback)
 			ffs_dev->ffs_release_dev_callback(ffs_dev);
@@ -3847,7 +4838,10 @@ static int ffs_ready(struct ffs_data *ffs)
 	}
 
 	ffs_obj->desc_ready = true;
+<<<<<<< HEAD
 	ffs_obj->ffs_data = ffs;
+=======
+>>>>>>> upstream/android-13
 
 	if (ffs_obj->ffs_ready_callback) {
 		ret = ffs_obj->ffs_ready_callback(ffs);
@@ -3875,7 +4869,10 @@ static void ffs_closed(struct ffs_data *ffs)
 		goto done;
 
 	ffs_obj->desc_ready = false;
+<<<<<<< HEAD
 	ffs_obj->ffs_data = NULL;
+=======
+>>>>>>> upstream/android-13
 
 	if (test_and_clear_bit(FFS_FL_CALL_CLOSED_CALLBACK, &ffs->flags) &&
 	    ffs_obj->ffs_closed_callback)
@@ -3905,7 +4902,11 @@ done:
 static int ffs_mutex_lock(struct mutex *mutex, unsigned nonblock)
 {
 	return nonblock
+<<<<<<< HEAD
 		? likely(mutex_trylock(mutex)) ? 0 : -EAGAIN
+=======
+		? mutex_trylock(mutex) ? 0 : -EAGAIN
+>>>>>>> upstream/android-13
 		: mutex_lock_interruptible(mutex);
 }
 
@@ -3913,6 +4914,7 @@ static char *ffs_prepare_buffer(const char __user *buf, size_t len)
 {
 	char *data;
 
+<<<<<<< HEAD
 	if (unlikely(!len))
 		return NULL;
 
@@ -3924,6 +4926,14 @@ static char *ffs_prepare_buffer(const char __user *buf, size_t len)
 		kfree(data);
 		return ERR_PTR(-EFAULT);
 	}
+=======
+	if (!len)
+		return NULL;
+
+	data = memdup_user(buf, len);
+	if (IS_ERR(data))
+		return data;
+>>>>>>> upstream/android-13
 
 	pr_vdebug("Buffer from user space:\n");
 	ffs_dump_mem("", data, len);

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Netlink interface for IEEE 802.15.4 stack
  *
  * Copyright 2007, 2008 Siemens AG
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * as published by the Free Software Foundation.
@@ -12,6 +17,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * Written by:
  * Sergey Lapin <slapin@ossfans.org>
  * Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
@@ -242,15 +249,26 @@ int ieee802154_add_iface(struct sk_buff *skb, struct genl_info *info)
 		 * dev_set_mac_address require RTNL_LOCK
 		 */
 		rtnl_lock();
+<<<<<<< HEAD
 		rc = dev_set_mac_address(dev, &addr);
+=======
+		rc = dev_set_mac_address(dev, &addr, NULL);
+>>>>>>> upstream/android-13
 		rtnl_unlock();
 		if (rc)
 			goto dev_unregister;
 	}
 
 	if (nla_put_string(msg, IEEE802154_ATTR_PHY_NAME, wpan_phy_name(phy)) ||
+<<<<<<< HEAD
 	    nla_put_string(msg, IEEE802154_ATTR_DEV_NAME, dev->name))
 		goto nla_put_failure;
+=======
+	    nla_put_string(msg, IEEE802154_ATTR_DEV_NAME, dev->name)) {
+		rc = -EMSGSIZE;
+		goto nla_put_failure;
+	}
+>>>>>>> upstream/android-13
 	dev_put(dev);
 
 	wpan_phy_put(phy);
@@ -346,8 +364,12 @@ nla_put_failure:
 out_dev:
 	wpan_phy_put(phy);
 out:
+<<<<<<< HEAD
 	if (dev)
 		dev_put(dev);
+=======
+	dev_put(dev);
+>>>>>>> upstream/android-13
 
 	return rc;
 }

@@ -57,7 +57,10 @@
 MODULE_AUTHOR("Simon Kelley");
 MODULE_DESCRIPTION("Support for Atmel at76c50x 802.11 wireless ethernet cards.");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("Atmel at76c50x PCMCIA cards");
+=======
+>>>>>>> upstream/android-13
 
 /*====================================================================*/
 
@@ -117,11 +120,17 @@ static int atmel_config_check(struct pcmcia_device *p_dev, void *priv_data)
 
 static int atmel_config(struct pcmcia_device *link)
 {
+<<<<<<< HEAD
 	struct local_info *dev;
 	int ret;
 	const struct pcmcia_device_id *did;
 
 	dev = link->priv;
+=======
+	int ret;
+	const struct pcmcia_device_id *did;
+
+>>>>>>> upstream/android-13
 	did = dev_get_drvdata(&link->dev);
 
 	dev_dbg(&link->dev, "atmel_config\n");

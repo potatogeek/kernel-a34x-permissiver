@@ -28,7 +28,10 @@
  * Driver for the cx23415/6 chip.
  * Author: Kevin Thayer (nufan_wfk at yahoo.com)
  * License: GPL
+<<<<<<< HEAD
  * http://www.ivtvdriver.org
+=======
+>>>>>>> upstream/android-13
  *
  * -----
  * MPG600/MPG160 support by  T.Adachi <tadachi@tadachi-net.com>
@@ -58,8 +61,11 @@
 #include <linux/uaccess.h>
 #include <asm/byteorder.h>
 
+<<<<<<< HEAD
 #include <linux/dvb/video.h>
 #include <linux/dvb/audio.h>
+=======
+>>>>>>> upstream/android-13
 #include <media/v4l2-common.h>
 #include <media/v4l2-ioctl.h>
 #include <media/v4l2-ctrls.h>
@@ -333,7 +339,10 @@ struct ivtv_stream {
 	struct ivtv *itv;		/* for ease of use */
 	const char *name;		/* name of the stream */
 	int type;			/* stream type */
+<<<<<<< HEAD
 	u32 caps;			/* V4L2 capabilities */
+=======
+>>>>>>> upstream/android-13
 
 	struct v4l2_fh *fh;		/* pointer to the streaming filehandle */
 	spinlock_t qlock;		/* locks access to the queues */

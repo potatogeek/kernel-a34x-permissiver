@@ -3,7 +3,11 @@
  *
  * Module Name: exoparg6 - AML execution - opcodes with 6 arguments
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Linux MegaRAID driver for SAS based RAID controllers
  *
  *  Copyright (c) 2009-2013  LSI Corporation
+<<<<<<< HEAD
  *  Copyright (c) 2013-2014  Avago Technologies
  *
  *  This program is free software; you can redistribute it and/or
@@ -29,6 +34,20 @@
  *
  *  Mail to: Avago Technologies, 350 West Trimble Road, Building 90,
  *  San Jose, California 95131
+=======
+ *  Copyright (c) 2013-2016  Avago Technologies
+ *  Copyright (c) 2016-2018  Broadcom Inc.
+ *
+ *  FILE: megaraid_sas_fusion.c
+ *
+ *  Authors: Broadcom Inc.
+ *           Sumant Patro
+ *           Adam Radford
+ *           Kashyap Desai <kashyap.desai@broadcom.com>
+ *           Sumit Saxena <sumit.saxena@broadcom.com>
+ *
+ *  Send feedback to: megaraidlinux.pdl@broadcom.com
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -48,6 +67,11 @@
 #include <linux/mutex.h>
 #include <linux/poll.h>
 #include <linux/vmalloc.h>
+<<<<<<< HEAD
+=======
+#include <linux/workqueue.h>
+#include <linux/irq_poll.h>
+>>>>>>> upstream/android-13
 
 #include <scsi/scsi.h>
 #include <scsi/scsi_cmnd.h>
@@ -60,9 +84,12 @@
 #include "megaraid_sas.h"
 
 
+<<<<<<< HEAD
 extern void megasas_free_cmds(struct megasas_instance *instance);
 extern struct megasas_cmd *megasas_get_cmd(struct megasas_instance
 					   *instance);
+=======
+>>>>>>> upstream/android-13
 extern void
 megasas_complete_cmd(struct megasas_instance *instance,
 		     struct megasas_cmd *cmd, u8 alt_status);
@@ -70,6 +97,7 @@ int
 wait_and_poll(struct megasas_instance *instance, struct megasas_cmd *cmd,
 	      int seconds);
 
+<<<<<<< HEAD
 void
 megasas_return_cmd(struct megasas_instance *instance, struct megasas_cmd *cmd);
 int megasas_alloc_cmds(struct megasas_instance *instance);
@@ -83,11 +111,20 @@ megasas_check_and_restore_queue_depth(struct megasas_instance *instance);
 
 int megasas_transition_to_ready(struct megasas_instance *instance, int ocr);
 void megaraid_sas_kill_hba(struct megasas_instance *instance);
+=======
+int
+megasas_clear_intr_fusion(struct megasas_instance *instance);
+
+int megasas_transition_to_ready(struct megasas_instance *instance, int ocr);
+>>>>>>> upstream/android-13
 
 extern u32 megasas_dbg_lvl;
 int megasas_sriov_start_heartbeat(struct megasas_instance *instance,
 				  int initial);
+<<<<<<< HEAD
 void megasas_start_timer(struct megasas_instance *instance);
+=======
+>>>>>>> upstream/android-13
 extern struct megasas_mgmt_info megasas_mgmt_info;
 extern unsigned int resetwaittime;
 extern unsigned int dual_qdepth_disable;
@@ -95,14 +132,81 @@ static void megasas_free_rdpq_fusion(struct megasas_instance *instance);
 static void megasas_free_reply_fusion(struct megasas_instance *instance);
 static inline
 void megasas_configure_queue_sizes(struct megasas_instance *instance);
+<<<<<<< HEAD
+=======
+static void megasas_fusion_crash_dump(struct megasas_instance *instance);
+
+/**
+ * megasas_adp_reset_wait_for_ready -	initiate chip reset and wait for
+ *					controller to come to ready state
+ * @instance:				adapter's soft state
+ * @do_adp_reset:			If true, do a chip reset
+ * @ocr_context:			If called from OCR context this will
+ *					be set to 1, else 0
+ *
+ * This function initates a chip reset followed by a wait for controller to
+ * transition to ready state.
+ * During this, driver will block all access to PCI config space from userspace
+ */
+int
+megasas_adp_reset_wait_for_ready(struct megasas_instance *instance,
+				 bool do_adp_reset,
+				 int ocr_context)
+{
+	int ret = FAILED;
+
+	/*
+	 * Block access to PCI config space from userspace
+	 * when diag reset is initiated from driver
+	 */
+	if (megasas_dbg_lvl & OCR_DEBUG)
+		dev_info(&instance->pdev->dev,
+			 "Block access to PCI config space %s %d\n",
+			 __func__, __LINE__);
+
+	pci_cfg_access_lock(instance->pdev);
+
+	if (do_adp_reset) {
+		if (instance->instancet->adp_reset
+			(instance, instance->reg_set))
+			goto out;
+	}
+
+	/* Wait for FW to become ready */
+	if (megasas_transition_to_ready(instance, ocr_context)) {
+		dev_warn(&instance->pdev->dev,
+			 "Failed to transition controller to ready for scsi%d.\n",
+			 instance->host->host_no);
+		goto out;
+	}
+
+	ret = SUCCESS;
+out:
+	if (megasas_dbg_lvl & OCR_DEBUG)
+		dev_info(&instance->pdev->dev,
+			 "Unlock access to PCI config space %s %d\n",
+			 __func__, __LINE__);
+
+	pci_cfg_access_unlock(instance->pdev);
+
+	return ret;
+}
+>>>>>>> upstream/android-13
 
 /**
  * megasas_check_same_4gb_region -	check if allocation
  *					crosses same 4GB boundary or not
+<<<<<<< HEAD
  * @instance -				adapter's soft instance
  * start_addr -			start address of DMA allocation
  * size -				size of allocation in bytes
  * return -				true : allocation does not cross same
+=======
+ * @instance:				adapter's soft instance
+ * @start_addr:				start address of DMA allocation
+ * @size:				size of allocation in bytes
+ * @return:				true : allocation does not cross same
+>>>>>>> upstream/android-13
  *					4GB boundary
  *					false: allocation crosses same
  *					4GB boundary
@@ -127,9 +231,15 @@ static inline bool megasas_check_same_4gb_region
 
 /**
  * megasas_enable_intr_fusion -	Enables interrupts
+<<<<<<< HEAD
  * @regs:			MFI register set
  */
 void
+=======
+ * @instance:	adapter's soft instance
+ */
+static void
+>>>>>>> upstream/android-13
 megasas_enable_intr_fusion(struct megasas_instance *instance)
 {
 	struct megasas_register_set __iomem *regs;
@@ -143,11 +253,17 @@ megasas_enable_intr_fusion(struct megasas_instance *instance)
 	writel(~MFI_FUSION_ENABLE_INTERRUPT_MASK, &(regs)->outbound_intr_mask);
 
 	/* Dummy readl to force pci flush */
+<<<<<<< HEAD
 	readl(&regs->outbound_intr_mask);
+=======
+	dev_info(&instance->pdev->dev, "%s is called outbound_intr_mask:0x%08x\n",
+		 __func__, readl(&regs->outbound_intr_mask));
+>>>>>>> upstream/android-13
 }
 
 /**
  * megasas_disable_intr_fusion - Disables interrupt
+<<<<<<< HEAD
  * @regs:			 MFI register set
  */
 void
@@ -155,12 +271,21 @@ megasas_disable_intr_fusion(struct megasas_instance *instance)
 {
 	u32 mask = 0xFFFFFFFF;
 	u32 status;
+=======
+ * @instance:	adapter's soft instance
+ */
+static void
+megasas_disable_intr_fusion(struct megasas_instance *instance)
+{
+	u32 mask = 0xFFFFFFFF;
+>>>>>>> upstream/android-13
 	struct megasas_register_set __iomem *regs;
 	regs = instance->reg_set;
 	instance->mask_interrupts = 1;
 
 	writel(mask, &regs->outbound_intr_mask);
 	/* Dummy readl to force pci flush */
+<<<<<<< HEAD
 	status = readl(&regs->outbound_intr_mask);
 }
 
@@ -172,6 +297,23 @@ megasas_clear_intr_fusion(struct megasas_register_set __iomem *regs)
 	 * Check if it is our interrupt
 	 */
 	status = readl(&regs->outbound_intr_status);
+=======
+	dev_info(&instance->pdev->dev, "%s is called outbound_intr_mask:0x%08x\n",
+		 __func__, readl(&regs->outbound_intr_mask));
+}
+
+int
+megasas_clear_intr_fusion(struct megasas_instance *instance)
+{
+	u32 status;
+	struct megasas_register_set __iomem *regs;
+	regs = instance->reg_set;
+	/*
+	 * Check if it is our interrupt
+	 */
+	status = megasas_readl(instance,
+			       &regs->outbound_intr_status);
+>>>>>>> upstream/android-13
 
 	if (status & 1) {
 		writel(status, &regs->outbound_intr_status);
@@ -184,9 +326,50 @@ megasas_clear_intr_fusion(struct megasas_register_set __iomem *regs)
 	return 1;
 }
 
+<<<<<<< HEAD
 /**
  * megasas_get_cmd_fusion -	Get a command from the free pool
  * @instance:		Adapter soft state
+=======
+static inline void
+megasas_sdev_busy_inc(struct megasas_instance *instance,
+		      struct scsi_cmnd *scmd)
+{
+	if (instance->perf_mode == MR_BALANCED_PERF_MODE) {
+		struct MR_PRIV_DEVICE *mr_device_priv_data =
+			scmd->device->hostdata;
+		atomic_inc(&mr_device_priv_data->sdev_priv_busy);
+	}
+}
+
+static inline void
+megasas_sdev_busy_dec(struct megasas_instance *instance,
+		      struct scsi_cmnd *scmd)
+{
+	if (instance->perf_mode == MR_BALANCED_PERF_MODE) {
+		struct MR_PRIV_DEVICE *mr_device_priv_data =
+			scmd->device->hostdata;
+		atomic_dec(&mr_device_priv_data->sdev_priv_busy);
+	}
+}
+
+static inline int
+megasas_sdev_busy_read(struct megasas_instance *instance,
+		       struct scsi_cmnd *scmd)
+{
+	if (instance->perf_mode == MR_BALANCED_PERF_MODE) {
+		struct MR_PRIV_DEVICE *mr_device_priv_data =
+			scmd->device->hostdata;
+		return atomic_read(&mr_device_priv_data->sdev_priv_busy);
+	}
+	return 0;
+}
+
+/**
+ * megasas_get_cmd_fusion -	Get a command from the free pool
+ * @instance:		Adapter soft state
+ * @blk_tag:		Command tag
+>>>>>>> upstream/android-13
  *
  * Returns a blk_tag indexed mpt frame
  */
@@ -214,6 +397,7 @@ inline void megasas_return_cmd_fusion(struct megasas_instance *instance,
 }
 
 /**
+<<<<<<< HEAD
  * megasas_fire_cmd_fusion -	Sends command to the FW
  * @instance:			Adapter soft state
  * @req_desc:			64bit Request descriptor
@@ -223,12 +407,23 @@ inline void megasas_return_cmd_fusion(struct megasas_instance *instance,
 
 static void
 megasas_fire_cmd_fusion(struct megasas_instance *instance,
+=======
+ * megasas_write_64bit_req_desc -	PCI writes 64bit request descriptor
+ * @instance:				Adapter soft state
+ * @req_desc:				64bit Request descriptor
+ */
+static void
+megasas_write_64bit_req_desc(struct megasas_instance *instance,
+>>>>>>> upstream/android-13
 		union MEGASAS_REQUEST_DESCRIPTOR_UNION *req_desc)
 {
 #if defined(writeq) && defined(CONFIG_64BIT)
 	u64 req_data = (((u64)le32_to_cpu(req_desc->u.high) << 32) |
 		le32_to_cpu(req_desc->u.low));
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	writeq(req_data, &instance->reg_set->inbound_low_queue_port);
 #else
 	unsigned long flags;
@@ -237,15 +432,43 @@ megasas_fire_cmd_fusion(struct megasas_instance *instance,
 		&instance->reg_set->inbound_low_queue_port);
 	writel(le32_to_cpu(req_desc->u.high),
 		&instance->reg_set->inbound_high_queue_port);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&instance->hba_lock, flags);
 #endif
 }
 
 /**
+<<<<<<< HEAD
  * megasas_fusion_update_can_queue -	Do all Adapter Queue depth related calculations here
  * @instance:							Adapter soft state
  * fw_boot_context:						Whether this function called during probe or after OCR
+=======
+ * megasas_fire_cmd_fusion -	Sends command to the FW
+ * @instance:			Adapter soft state
+ * @req_desc:			32bit or 64bit Request descriptor
+ *
+ * Perform PCI Write. AERO SERIES supports 32 bit Descriptor.
+ * Prior to AERO_SERIES support 64 bit Descriptor.
+ */
+static void
+megasas_fire_cmd_fusion(struct megasas_instance *instance,
+		union MEGASAS_REQUEST_DESCRIPTOR_UNION *req_desc)
+{
+	if (instance->atomic_desc_support)
+		writel(le32_to_cpu(req_desc->u.low),
+			&instance->reg_set->inbound_single_queue_port);
+	else
+		megasas_write_64bit_req_desc(instance, req_desc);
+}
+
+/**
+ * megasas_fusion_update_can_queue -	Do all Adapter Queue depth related calculations here
+ * @instance:		Adapter soft state
+ * @fw_boot_context:	Whether this function called during probe or after OCR
+>>>>>>> upstream/android-13
  *
  * This function is only for fusion controllers.
  * Update host can queue, if firmware downgrade max supported firmware commands.
@@ -258,6 +481,7 @@ megasas_fusion_update_can_queue(struct megasas_instance *instance, int fw_boot_c
 {
 	u16 cur_max_fw_cmds = 0;
 	u16 ldio_threshold = 0;
+<<<<<<< HEAD
 	struct megasas_register_set __iomem *reg_set;
 
 	reg_set = instance->reg_set;
@@ -272,6 +496,20 @@ megasas_fusion_update_can_queue(struct megasas_instance *instance, int fw_boot_c
 	else
 		ldio_threshold =
 			(instance->instancet->read_fw_status_reg(reg_set) & 0x00FFFF) - MEGASAS_FUSION_IOCTL_CMDS;
+=======
+
+	/* ventura FW does not fill outbound_scratch_pad_2 with queue depth */
+	if (instance->adapter_type < VENTURA_SERIES)
+		cur_max_fw_cmds =
+		megasas_readl(instance,
+			      &instance->reg_set->outbound_scratch_pad_2) & 0x00FFFF;
+
+	if (dual_qdepth_disable || !cur_max_fw_cmds)
+		cur_max_fw_cmds = instance->instancet->read_fw_status_reg(instance) & 0x00FFFF;
+	else
+		ldio_threshold =
+			(instance->instancet->read_fw_status_reg(instance) & 0x00FFFF) - MEGASAS_FUSION_IOCTL_CMDS;
+>>>>>>> upstream/android-13
 
 	dev_info(&instance->pdev->dev,
 		 "Current firmware supports maximum commands: %d\t LDIO threshold: %d\n",
@@ -301,6 +539,37 @@ megasas_fusion_update_can_queue(struct megasas_instance *instance, int fw_boot_c
 		instance->max_fw_cmds = instance->max_fw_cmds-1;
 	}
 }
+<<<<<<< HEAD
+=======
+
+static inline void
+megasas_get_msix_index(struct megasas_instance *instance,
+		       struct scsi_cmnd *scmd,
+		       struct megasas_cmd_fusion *cmd,
+		       u8 data_arms)
+{
+	if (instance->perf_mode == MR_BALANCED_PERF_MODE &&
+	    (megasas_sdev_busy_read(instance, scmd) >
+	     (data_arms * MR_DEVICE_HIGH_IOPS_DEPTH))) {
+		cmd->request_desc->SCSIIO.MSIxIndex =
+			mega_mod64((atomic64_add_return(1, &instance->high_iops_outstanding) /
+					MR_HIGH_IOPS_BATCH_COUNT), instance->low_latency_index_start);
+	} else if (instance->msix_load_balance) {
+		cmd->request_desc->SCSIIO.MSIxIndex =
+			(mega_mod64(atomic64_add_return(1, &instance->total_io_count),
+				instance->msix_vectors));
+	} else if (instance->host->nr_hw_queues > 1) {
+		u32 tag = blk_mq_unique_tag(scsi_cmd_to_rq(scmd));
+
+		cmd->request_desc->SCSIIO.MSIxIndex = blk_mq_unique_tag_to_hwq(tag) +
+			instance->low_latency_index_start;
+	} else {
+		cmd->request_desc->SCSIIO.MSIxIndex =
+			instance->reply_map[raw_smp_processor_id()];
+	}
+}
+
+>>>>>>> upstream/android-13
 /**
  * megasas_free_cmds_fusion -	Free all the cmds in the free cmd pool
  * @instance:		Adapter soft state
@@ -471,7 +740,11 @@ static int megasas_create_sg_sense_fusion(struct megasas_instance *instance)
 	return 0;
 }
 
+<<<<<<< HEAD
 int
+=======
+static int
+>>>>>>> upstream/android-13
 megasas_alloc_cmdlist_fusion(struct megasas_instance *instance)
 {
 	u32 max_mpt_cmd, i, j;
@@ -510,7 +783,12 @@ megasas_alloc_cmdlist_fusion(struct megasas_instance *instance)
 
 	return 0;
 }
+<<<<<<< HEAD
 int
+=======
+
+static int
+>>>>>>> upstream/android-13
 megasas_alloc_request_fusion(struct megasas_instance *instance)
 {
 	struct fusion_context *fusion;
@@ -592,7 +870,11 @@ retry_alloc:
 	return 0;
 }
 
+<<<<<<< HEAD
 int
+=======
+static int
+>>>>>>> upstream/android-13
 megasas_alloc_reply_fusion(struct megasas_instance *instance)
 {
 	int i, count;
@@ -601,6 +883,11 @@ megasas_alloc_reply_fusion(struct megasas_instance *instance)
 	fusion = instance->ctrl_context;
 
 	count = instance->msix_vectors > 0 ? instance->msix_vectors : 1;
+<<<<<<< HEAD
+=======
+	count += instance->iopoll_q_count;
+
+>>>>>>> upstream/android-13
 	fusion->reply_frames_desc_pool =
 			dma_pool_create("mr_reply", &instance->pdev->dev,
 				fusion->reply_alloc_sz * count, 16, 0);
@@ -669,7 +956,11 @@ megasas_alloc_reply_fusion(struct megasas_instance *instance)
 	return 0;
 }
 
+<<<<<<< HEAD
 int
+=======
+static int
+>>>>>>> upstream/android-13
 megasas_alloc_rdpq_fusion(struct megasas_instance *instance)
 {
 	int i, j, k, msix_count;
@@ -685,8 +976,14 @@ megasas_alloc_rdpq_fusion(struct megasas_instance *instance)
 	array_size = sizeof(struct MPI2_IOC_INIT_RDPQ_ARRAY_ENTRY) *
 		     MAX_MSIX_QUEUES_FUSION;
 
+<<<<<<< HEAD
 	fusion->rdpq_virt = pci_zalloc_consistent(instance->pdev, array_size,
 						  &fusion->rdpq_phys);
+=======
+	fusion->rdpq_virt = dma_alloc_coherent(&instance->pdev->dev,
+					       array_size, &fusion->rdpq_phys,
+					       GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!fusion->rdpq_virt) {
 		dev_err(&instance->pdev->dev,
 			"Failed from %s %d\n",  __func__, __LINE__);
@@ -694,6 +991,10 @@ megasas_alloc_rdpq_fusion(struct megasas_instance *instance)
 	}
 
 	msix_count = instance->msix_vectors > 0 ? instance->msix_vectors : 1;
+<<<<<<< HEAD
+=======
+	msix_count += instance->iopoll_q_count;
+>>>>>>> upstream/android-13
 
 	fusion->reply_frames_desc_pool = dma_pool_create("mr_rdpq",
 							 &instance->pdev->dev,
@@ -808,6 +1109,7 @@ megasas_free_rdpq_fusion(struct megasas_instance *instance) {
 
 	}
 
+<<<<<<< HEAD
 	if (fusion->reply_frames_desc_pool)
 		dma_pool_destroy(fusion->reply_frames_desc_pool);
 	if (fusion->reply_frames_desc_pool_align)
@@ -815,6 +1117,13 @@ megasas_free_rdpq_fusion(struct megasas_instance *instance) {
 
 	if (fusion->rdpq_virt)
 		pci_free_consistent(instance->pdev,
+=======
+	dma_pool_destroy(fusion->reply_frames_desc_pool);
+	dma_pool_destroy(fusion->reply_frames_desc_pool_align);
+
+	if (fusion->rdpq_virt)
+		dma_free_coherent(&instance->pdev->dev,
+>>>>>>> upstream/android-13
 			sizeof(struct MPI2_IOC_INIT_RDPQ_ARRAY_ENTRY) * MAX_MSIX_QUEUES_FUSION,
 			fusion->rdpq_virt, fusion->rdpq_phys);
 }
@@ -831,8 +1140,12 @@ megasas_free_reply_fusion(struct megasas_instance *instance) {
 			fusion->reply_frames_desc[0],
 			fusion->reply_frames_desc_phys[0]);
 
+<<<<<<< HEAD
 	if (fusion->reply_frames_desc_pool)
 		dma_pool_destroy(fusion->reply_frames_desc_pool);
+=======
+	dma_pool_destroy(fusion->reply_frames_desc_pool);
+>>>>>>> upstream/android-13
 
 }
 
@@ -853,7 +1166,11 @@ megasas_free_reply_fusion(struct megasas_instance *instance) {
  * and is used as SMID of the cmd.
  * SMID value range is from 1 to max_fw_cmds.
  */
+<<<<<<< HEAD
 int
+=======
+static int
+>>>>>>> upstream/android-13
 megasas_alloc_cmds_fusion(struct megasas_instance *instance)
 {
 	int i;
@@ -879,9 +1196,12 @@ megasas_alloc_cmds_fusion(struct megasas_instance *instance)
 	if (megasas_alloc_cmdlist_fusion(instance))
 		goto fail_exit;
 
+<<<<<<< HEAD
 	dev_info(&instance->pdev->dev, "Configured max firmware commands: %d\n",
 		 instance->max_fw_cmds);
 
+=======
+>>>>>>> upstream/android-13
 	/* The first 256 bytes (SMID 0) is not used. Don't add to the cmd list */
 	io_req_base = fusion->io_request_frames + MEGA_MPI2_RAID_DEFAULT_IO_FRAME_SIZE;
 	io_req_base_phys = fusion->io_request_frames_phys + MEGA_MPI2_RAID_DEFAULT_IO_FRAME_SIZE;
@@ -925,6 +1245,10 @@ fail_exit:
  * wait_and_poll -	Issues a polling command
  * @instance:			Adapter soft state
  * @cmd:			Command packet to be issued
+<<<<<<< HEAD
+=======
+ * @seconds:			Maximum poll time
+>>>>>>> upstream/android-13
  *
  * For polling, MFI requires the cmd_status to be set to 0xFF before posting.
  */
@@ -934,17 +1258,33 @@ wait_and_poll(struct megasas_instance *instance, struct megasas_cmd *cmd,
 {
 	int i;
 	struct megasas_header *frame_hdr = &cmd->frame->hdr;
+<<<<<<< HEAD
 	struct fusion_context *fusion;
 
 	u32 msecs = seconds * 1000;
 
 	fusion = instance->ctrl_context;
+=======
+	u32 status_reg;
+
+	u32 msecs = seconds * 1000;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Wait for cmd_status to change
 	 */
 	for (i = 0; (i < msecs) && (frame_hdr->cmd_status == 0xff); i += 20) {
 		rmb();
 		msleep(20);
+<<<<<<< HEAD
+=======
+		if (!(i % 5000)) {
+			status_reg = instance->instancet->read_fw_status_reg(instance)
+					& MFI_STATE_MASK;
+			if (status_reg == MFI_STATE_FAULT)
+				break;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	if (frame_hdr->cmd_status == MFI_STAT_INVALID_STATUS)
@@ -975,9 +1315,16 @@ megasas_ioc_init_fusion(struct megasas_instance *instance)
 	struct megasas_header *frame_hdr;
 	const char *sys_info;
 	MFI_CAPABILITIES *drv_ops;
+<<<<<<< HEAD
 	u32 scratch_pad_2;
 	ktime_t time;
 	bool cur_fw_64bit_dma_capable;
+=======
+	u32 scratch_pad_1;
+	ktime_t time;
+	bool cur_fw_64bit_dma_capable;
+	bool cur_intr_coalescing;
+>>>>>>> upstream/android-13
 
 	fusion = instance->ctrl_context;
 
@@ -986,6 +1333,7 @@ megasas_ioc_init_fusion(struct megasas_instance *instance)
 
 	cmd = fusion->ioc_init_cmd;
 
+<<<<<<< HEAD
 	scratch_pad_2 = readl
 		(&instance->reg_set->outbound_scratch_pad_2);
 
@@ -994,6 +1342,16 @@ megasas_ioc_init_fusion(struct megasas_instance *instance)
 	if (instance->adapter_type == INVADER_SERIES) {
 		cur_fw_64bit_dma_capable =
 			(scratch_pad_2 & MR_CAN_HANDLE_64_BIT_DMA_OFFSET) ? true : false;
+=======
+	scratch_pad_1 = megasas_readl
+		(instance, &instance->reg_set->outbound_scratch_pad_1);
+
+	cur_rdpq_mode = (scratch_pad_1 & MR_RDPQ_MODE_OFFSET) ? 1 : 0;
+
+	if (instance->adapter_type == INVADER_SERIES) {
+		cur_fw_64bit_dma_capable =
+			(scratch_pad_1 & MR_CAN_HANDLE_64_BIT_DMA_OFFSET) ? true : false;
+>>>>>>> upstream/android-13
 
 		if (instance->consistent_mask_64bit && !cur_fw_64bit_dma_capable) {
 			dev_err(&instance->pdev->dev, "Driver was operating on 64bit "
@@ -1011,7 +1369,22 @@ megasas_ioc_init_fusion(struct megasas_instance *instance)
 		goto fail_fw_init;
 	}
 
+<<<<<<< HEAD
 	instance->fw_sync_cache_support = (scratch_pad_2 &
+=======
+	cur_intr_coalescing = (scratch_pad_1 & MR_INTR_COALESCING_SUPPORT_OFFSET) ?
+							true : false;
+
+	if ((instance->low_latency_index_start ==
+		MR_HIGH_IOPS_QUEUE_COUNT) && cur_intr_coalescing)
+		instance->perf_mode = MR_BALANCED_PERF_MODE;
+
+	dev_info(&instance->pdev->dev, "Performance mode :%s (latency index = %d)\n",
+		MEGASAS_PERF_MODE_2STR(instance->perf_mode),
+		instance->low_latency_index_start);
+
+	instance->fw_sync_cache_support = (scratch_pad_1 &
+>>>>>>> upstream/android-13
 		MR_CAN_HANDLE_SYNC_CACHE_OFFSET) ? 1 : 0;
 	dev_info(&instance->pdev->dev, "FW supports sync cache\t: %s\n",
 		 instance->fw_sync_cache_support ? "Yes" : "No");
@@ -1032,7 +1405,11 @@ megasas_ioc_init_fusion(struct megasas_instance *instance)
 			MPI2_IOCINIT_MSGFLAG_RDPQ_ARRAY_MODE : 0;
 	IOCInitMessage->SystemRequestFrameBaseAddress = cpu_to_le64(fusion->io_request_frames_phys);
 	IOCInitMessage->SenseBufferAddressHigh = cpu_to_le32(upper_32_bits(fusion->sense_phys_addr));
+<<<<<<< HEAD
 	IOCInitMessage->HostMSIxVectors = instance->msix_vectors;
+=======
+	IOCInitMessage->HostMSIxVectors = instance->msix_vectors + instance->iopoll_q_count;
+>>>>>>> upstream/android-13
 	IOCInitMessage->HostPageSize = MR_DEFAULT_NVME_PAGE_SHIFT;
 
 	time = ktime_get_real();
@@ -1044,9 +1421,13 @@ megasas_ioc_init_fusion(struct megasas_instance *instance)
 
 	frame_hdr = &cmd->frame->hdr;
 	frame_hdr->cmd_status = 0xFF;
+<<<<<<< HEAD
 	frame_hdr->flags = cpu_to_le16(
 		le16_to_cpu(frame_hdr->flags) |
 		MFI_FRAME_DONT_POST_IN_REPLY_QUEUE);
+=======
+	frame_hdr->flags |= cpu_to_le16(MFI_FRAME_DONT_POST_IN_REPLY_QUEUE);
+>>>>>>> upstream/android-13
 
 	init_frame->cmd	= MFI_CMD_INIT;
 	init_frame->cmd_status = 0xFF;
@@ -1073,6 +1454,10 @@ megasas_ioc_init_fusion(struct megasas_instance *instance)
 	drv_ops->mfi_capabilities.support_qd_throttling = 1;
 	drv_ops->mfi_capabilities.support_pd_map_target_id = 1;
 	drv_ops->mfi_capabilities.support_nvme_passthru = 1;
+<<<<<<< HEAD
+=======
+	drv_ops->mfi_capabilities.support_fw_exposed_dev_list = 1;
+>>>>>>> upstream/android-13
 
 	if (instance->consistent_mask_64bit)
 		drv_ops->mfi_capabilities.support_64bit_mode = 1;
@@ -1096,6 +1481,25 @@ megasas_ioc_init_fusion(struct megasas_instance *instance)
 		cpu_to_le32(lower_32_bits(ioc_init_handle));
 	init_frame->data_xfer_len = cpu_to_le32(sizeof(struct MPI2_IOC_INIT_REQUEST));
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Each bit in replyqueue_mask represents one group of MSI-x vectors
+	 * (each group has 8 vectors)
+	 */
+	switch (instance->perf_mode) {
+	case MR_BALANCED_PERF_MODE:
+		init_frame->replyqueue_mask =
+		       cpu_to_le16(~(~0 << instance->low_latency_index_start/8));
+		break;
+	case MR_IOPS_PERF_MODE:
+		init_frame->replyqueue_mask =
+		       cpu_to_le16(~(~0 << instance->msix_vectors/8));
+		break;
+	}
+
+
+>>>>>>> upstream/android-13
 	req_desc.u.low = cpu_to_le32(lower_32_bits(cmd->frame_phys_addr));
 	req_desc.u.high = cpu_to_le32(upper_32_bits(cmd->frame_phys_addr));
 	req_desc.MFAIo.RequestFlags =
@@ -1108,15 +1512,26 @@ megasas_ioc_init_fusion(struct megasas_instance *instance)
 	instance->instancet->disable_intr(instance);
 
 	for (i = 0; i < (10 * 1000); i += 20) {
+<<<<<<< HEAD
 		if (readl(&instance->reg_set->doorbell) & 1)
+=======
+		if (megasas_readl(instance, &instance->reg_set->doorbell) & 1)
+>>>>>>> upstream/android-13
 			msleep(20);
 		else
 			break;
 	}
 
+<<<<<<< HEAD
 	megasas_fire_cmd_fusion(instance, &req_desc);
 
 	wait_and_poll(instance, cmd, MFI_POLL_TIMEOUT_SECS);
+=======
+	/* For AERO also, IOC_INIT requires 64 bit descriptor write */
+	megasas_write_64bit_req_desc(instance, &req_desc);
+
+	wait_and_poll(instance, cmd, MFI_IO_TIMEOUT_SECS);
+>>>>>>> upstream/android-13
 
 	frame_hdr = &cmd->frame->hdr;
 	if (frame_hdr->cmd_status != 0) {
@@ -1124,6 +1539,20 @@ megasas_ioc_init_fusion(struct megasas_instance *instance)
 		goto fail_fw_init;
 	}
 
+<<<<<<< HEAD
+=======
+	if (instance->adapter_type >= AERO_SERIES) {
+		scratch_pad_1 = megasas_readl
+			(instance, &instance->reg_set->outbound_scratch_pad_1);
+
+		instance->atomic_desc_support =
+			(scratch_pad_1 & MR_ATOMIC_DESCRIPTOR_SUPPORT_OFFSET) ? 1 : 0;
+
+		dev_info(&instance->pdev->dev, "FW supports atomic descriptor\t: %s\n",
+			instance->atomic_desc_support ? "Yes" : "No");
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 
 fail_fw_init:
@@ -1146,7 +1575,11 @@ fail_fw_init:
 int
 megasas_sync_pd_seq_num(struct megasas_instance *instance, bool pend) {
 	int ret = 0;
+<<<<<<< HEAD
 	u32 pd_seq_map_sz;
+=======
+	size_t pd_seq_map_sz;
+>>>>>>> upstream/android-13
 	struct megasas_cmd *cmd;
 	struct megasas_dcmd_frame *dcmd;
 	struct fusion_context *fusion = instance->ctrl_context;
@@ -1155,9 +1588,13 @@ megasas_sync_pd_seq_num(struct megasas_instance *instance, bool pend) {
 
 	pd_sync = (void *)fusion->pd_seq_sync[(instance->pd_seq_map_id & 1)];
 	pd_seq_h = fusion->pd_seq_phys[(instance->pd_seq_map_id & 1)];
+<<<<<<< HEAD
 	pd_seq_map_sz = sizeof(struct MR_PD_CFG_SEQ_NUM_SYNC) +
 			(sizeof(struct MR_PD_CFG_SEQ) *
 			(MAX_PHYSICAL_DEVICES - 1));
+=======
+	pd_seq_map_sz = struct_size(pd_sync, seq, MAX_PHYSICAL_DEVICES - 1);
+>>>>>>> upstream/android-13
 
 	cmd = megasas_get_cmd(instance);
 	if (!cmd) {
@@ -1210,7 +1647,13 @@ megasas_sync_pd_seq_num(struct megasas_instance *instance, bool pend) {
 	}
 
 	if (ret == DCMD_TIMEOUT)
+<<<<<<< HEAD
 		megaraid_sas_kill_hba(instance);
+=======
+		dev_warn(&instance->pdev->dev,
+			 "%s DCMD timed out, continue without JBOD sequence map\n",
+			 __func__);
+>>>>>>> upstream/android-13
 
 	if (ret == DCMD_SUCCESS)
 		instance->pd_seq_map_id++;
@@ -1292,7 +1735,13 @@ megasas_get_ld_map_info(struct megasas_instance *instance)
 		ret = megasas_issue_polled(instance, cmd);
 
 	if (ret == DCMD_TIMEOUT)
+<<<<<<< HEAD
 		megaraid_sas_kill_hba(instance);
+=======
+		dev_warn(&instance->pdev->dev,
+			 "%s DCMD timed out, RAID map is disabled\n",
+			 __func__);
+>>>>>>> upstream/android-13
 
 	megasas_return_cmd(instance, cmd);
 
@@ -1329,7 +1778,10 @@ megasas_sync_map_info(struct megasas_instance *instance)
 	struct megasas_cmd *cmd;
 	struct megasas_dcmd_frame *dcmd;
 	u16 num_lds;
+<<<<<<< HEAD
 	u32 size_sync_info;
+=======
+>>>>>>> upstream/android-13
 	struct fusion_context *fusion;
 	struct MR_LD_TARGET_SYNC *ci = NULL;
 	struct MR_DRV_RAID_MAP_ALL *map;
@@ -1358,8 +1810,11 @@ megasas_sync_map_info(struct megasas_instance *instance)
 
 	dcmd = &cmd->frame->dcmd;
 
+<<<<<<< HEAD
 	size_sync_info = sizeof(struct MR_LD_TARGET_SYNC) *num_lds;
 
+=======
+>>>>>>> upstream/android-13
 	memset(dcmd->mbox.b, 0, MFI_MBOX_SIZE);
 
 	ci = (struct MR_LD_TARGET_SYNC *)
@@ -1560,14 +2015,22 @@ void megasas_configure_queue_sizes(struct megasas_instance *instance)
 	fusion = instance->ctrl_context;
 	max_cmd = instance->max_fw_cmds;
 
+<<<<<<< HEAD
 	if (instance->adapter_type == VENTURA_SERIES)
+=======
+	if (instance->adapter_type >= VENTURA_SERIES)
+>>>>>>> upstream/android-13
 		instance->max_mpt_cmds = instance->max_fw_cmds * RAID_1_PEER_CMDS;
 	else
 		instance->max_mpt_cmds = instance->max_fw_cmds;
 
+<<<<<<< HEAD
 	instance->max_scsi_cmds = instance->max_fw_cmds -
 			(MEGASAS_FUSION_INTERNAL_CMDS +
 			MEGASAS_FUSION_IOCTL_CMDS);
+=======
+	instance->max_scsi_cmds = instance->max_fw_cmds - instance->max_mfi_cmds;
+>>>>>>> upstream/android-13
 	instance->cur_can_queue = instance->max_scsi_cmds;
 	instance->host->can_queue = instance->cur_can_queue;
 
@@ -1628,8 +2091,12 @@ static inline void megasas_free_ioc_init_cmd(struct megasas_instance *instance)
 				  fusion->ioc_init_cmd->frame,
 				  fusion->ioc_init_cmd->frame_phys_addr);
 
+<<<<<<< HEAD
 	if (fusion->ioc_init_cmd)
 		kfree(fusion->ioc_init_cmd);
+=======
+	kfree(fusion->ioc_init_cmd);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1638,6 +2105,7 @@ static inline void megasas_free_ioc_init_cmd(struct megasas_instance *instance)
  *
  * This is the main function for initializing firmware.
  */
+<<<<<<< HEAD
 u32
 megasas_init_adapter_fusion(struct megasas_instance *instance)
 {
@@ -1650,6 +2118,18 @@ megasas_init_adapter_fusion(struct megasas_instance *instance)
 
 	reg_set = instance->reg_set;
 
+=======
+static u32
+megasas_init_adapter_fusion(struct megasas_instance *instance)
+{
+	struct fusion_context *fusion;
+	u32 scratch_pad_1;
+	int i = 0, count;
+	u32 status_reg;
+
+	fusion = instance->ctrl_context;
+
+>>>>>>> upstream/android-13
 	megasas_fusion_update_can_queue(instance, PROBE_CONTEXT);
 
 	/*
@@ -1660,13 +2140,20 @@ megasas_init_adapter_fusion(struct megasas_instance *instance)
 
 	megasas_configure_queue_sizes(instance);
 
+<<<<<<< HEAD
 	scratch_pad_2 = readl(&instance->reg_set->outbound_scratch_pad_2);
 	/* If scratch_pad_2 & MEGASAS_MAX_CHAIN_SIZE_UNITS_MASK is set,
+=======
+	scratch_pad_1 = megasas_readl(instance,
+				      &instance->reg_set->outbound_scratch_pad_1);
+	/* If scratch_pad_1 & MEGASAS_MAX_CHAIN_SIZE_UNITS_MASK is set,
+>>>>>>> upstream/android-13
 	 * Firmware support extended IO chain frame which is 4 times more than
 	 * legacy Firmware.
 	 * Legacy Firmware - Frame size is (8 * 128) = 1K
 	 * 1M IO Firmware  - Frame size is (8 * 128 * 4)  = 4K
 	 */
+<<<<<<< HEAD
 	if (scratch_pad_2 & MEGASAS_MAX_CHAIN_SIZE_UNITS_MASK)
 		instance->max_chain_frame_sz =
 			((scratch_pad_2 & MEGASAS_MAX_CHAIN_SIZE_MASK) >>
@@ -1674,6 +2161,15 @@ megasas_init_adapter_fusion(struct megasas_instance *instance)
 	else
 		instance->max_chain_frame_sz =
 			((scratch_pad_2 & MEGASAS_MAX_CHAIN_SIZE_MASK) >>
+=======
+	if (scratch_pad_1 & MEGASAS_MAX_CHAIN_SIZE_UNITS_MASK)
+		instance->max_chain_frame_sz =
+			((scratch_pad_1 & MEGASAS_MAX_CHAIN_SIZE_MASK) >>
+			MEGASAS_MAX_CHAIN_SHIFT) * MEGASAS_1MB_IO;
+	else
+		instance->max_chain_frame_sz =
+			((scratch_pad_1 & MEGASAS_MAX_CHAIN_SIZE_MASK) >>
+>>>>>>> upstream/android-13
 			MEGASAS_MAX_CHAIN_SHIFT) * MEGASAS_256K_IO;
 
 	if (instance->max_chain_frame_sz < MEGASAS_CHAIN_FRAME_SZ_MIN) {
@@ -1704,6 +2200,11 @@ megasas_init_adapter_fusion(struct megasas_instance *instance)
 		 sizeof(union MPI2_SGE_IO_UNION))/16;
 
 	count = instance->msix_vectors > 0 ? instance->msix_vectors : 1;
+<<<<<<< HEAD
+=======
+	count += instance->iopoll_q_count;
+
+>>>>>>> upstream/android-13
 	for (i = 0 ; i < count; i++)
 		fusion->last_reply_idx[i] = 0;
 
@@ -1716,6 +2217,12 @@ megasas_init_adapter_fusion(struct megasas_instance *instance)
 				MEGASAS_FUSION_IOCTL_CMDS);
 	sema_init(&instance->ioctl_sem, MEGASAS_FUSION_IOCTL_CMDS);
 
+<<<<<<< HEAD
+=======
+	for (i = 0; i < MAX_MSIX_QUEUES_FUSION; i++)
+		atomic_set(&fusion->busy_mq_poll[i], 0);
+
+>>>>>>> upstream/android-13
 	if (megasas_alloc_ioc_init_frame(instance))
 		return 1;
 
@@ -1728,8 +2235,26 @@ megasas_init_adapter_fusion(struct megasas_instance *instance)
 	if (megasas_alloc_cmds_fusion(instance))
 		goto fail_alloc_cmds;
 
+<<<<<<< HEAD
 	if (megasas_ioc_init_fusion(instance))
 		goto fail_ioc_init;
+=======
+	if (megasas_ioc_init_fusion(instance)) {
+		status_reg = instance->instancet->read_fw_status_reg(instance);
+		if (((status_reg & MFI_STATE_MASK) == MFI_STATE_FAULT) &&
+		    (status_reg & MFI_RESET_ADAPTER)) {
+			/* Do a chip reset and then retry IOC INIT once */
+			if (megasas_adp_reset_wait_for_ready
+				(instance, true, 0) == FAILED)
+				goto fail_ioc_init;
+
+			if (megasas_ioc_init_fusion(instance))
+				goto fail_ioc_init;
+		} else {
+			goto fail_ioc_init;
+		}
+	}
+>>>>>>> upstream/android-13
 
 	megasas_display_intel_branding(instance);
 	if (megasas_get_ctrl_info(instance)) {
@@ -1741,6 +2266,10 @@ megasas_init_adapter_fusion(struct megasas_instance *instance)
 
 	instance->flag_ieee = 1;
 	instance->r1_ldio_hint_default =  MR_R1_LDIO_PIGGYBACK_DEFAULT;
+<<<<<<< HEAD
+=======
+	instance->threshold_reply_count = instance->max_fw_cmds / 4;
+>>>>>>> upstream/android-13
 	fusion->fast_path_io = 0;
 
 	if (megasas_allocate_raid_maps(instance))
@@ -1761,6 +2290,7 @@ fail_alloc_mfi_cmds:
 }
 
 /**
+<<<<<<< HEAD
  * map_cmd_status -	Maps FW cmd status to OS cmd status
  * @cmd :		Pointer to cmd
  * @status :		status of cmd returned by FW
@@ -1768,6 +2298,102 @@ fail_alloc_mfi_cmds:
  */
 
 void
+=======
+ * megasas_fault_detect_work	-	Worker function of
+ *					FW fault handling workqueue.
+ * @work:	FW fault work struct
+ */
+static void
+megasas_fault_detect_work(struct work_struct *work)
+{
+	struct megasas_instance *instance =
+		container_of(work, struct megasas_instance,
+			     fw_fault_work.work);
+	u32 fw_state, dma_state, status;
+
+	/* Check the fw state */
+	fw_state = instance->instancet->read_fw_status_reg(instance) &
+			MFI_STATE_MASK;
+
+	if (fw_state == MFI_STATE_FAULT) {
+		dma_state = instance->instancet->read_fw_status_reg(instance) &
+				MFI_STATE_DMADONE;
+		/* Start collecting crash, if DMA bit is done */
+		if (instance->crash_dump_drv_support &&
+		    instance->crash_dump_app_support && dma_state) {
+			megasas_fusion_crash_dump(instance);
+		} else {
+			if (instance->unload == 0) {
+				status = megasas_reset_fusion(instance->host, 0);
+				if (status != SUCCESS) {
+					dev_err(&instance->pdev->dev,
+						"Failed from %s %d, do not re-arm timer\n",
+						__func__, __LINE__);
+					return;
+				}
+			}
+		}
+	}
+
+	if (instance->fw_fault_work_q)
+		queue_delayed_work(instance->fw_fault_work_q,
+			&instance->fw_fault_work,
+			msecs_to_jiffies(MEGASAS_WATCHDOG_THREAD_INTERVAL));
+}
+
+int
+megasas_fusion_start_watchdog(struct megasas_instance *instance)
+{
+	/* Check if the Fault WQ is already started */
+	if (instance->fw_fault_work_q)
+		return SUCCESS;
+
+	INIT_DELAYED_WORK(&instance->fw_fault_work, megasas_fault_detect_work);
+
+	snprintf(instance->fault_handler_work_q_name,
+		 sizeof(instance->fault_handler_work_q_name),
+		 "poll_megasas%d_status", instance->host->host_no);
+
+	instance->fw_fault_work_q =
+		create_singlethread_workqueue(instance->fault_handler_work_q_name);
+	if (!instance->fw_fault_work_q) {
+		dev_err(&instance->pdev->dev, "Failed from %s %d\n",
+			__func__, __LINE__);
+		return FAILED;
+	}
+
+	queue_delayed_work(instance->fw_fault_work_q,
+			   &instance->fw_fault_work,
+			   msecs_to_jiffies(MEGASAS_WATCHDOG_THREAD_INTERVAL));
+
+	return SUCCESS;
+}
+
+void
+megasas_fusion_stop_watchdog(struct megasas_instance *instance)
+{
+	struct workqueue_struct *wq;
+
+	if (instance->fw_fault_work_q) {
+		wq = instance->fw_fault_work_q;
+		instance->fw_fault_work_q = NULL;
+		if (!cancel_delayed_work_sync(&instance->fw_fault_work))
+			flush_workqueue(wq);
+		destroy_workqueue(wq);
+	}
+}
+
+/**
+ * map_cmd_status -	Maps FW cmd status to OS cmd status
+ * @fusion:		fusion context
+ * @scmd:		Pointer to cmd
+ * @status:		status of cmd returned by FW
+ * @ext_status:		ext status of cmd returned by FW
+ * @data_length:	command data length
+ * @sense:		command sense data
+ */
+static void
+>>>>>>> upstream/android-13
 map_cmd_status(struct fusion_context *fusion,
 		struct scsi_cmnd *scmd, u8 status, u8 ext_status,
 		u32 data_length, u8 *sense)
@@ -1795,7 +2421,10 @@ map_cmd_status(struct fusion_context *fusion,
 			       SCSI_SENSE_BUFFERSIZE);
 			memcpy(scmd->sense_buffer, sense,
 			       SCSI_SENSE_BUFFERSIZE);
+<<<<<<< HEAD
 			scmd->result |= DRIVER_SENSE << 24;
+=======
+>>>>>>> upstream/android-13
 		}
 
 		/*
@@ -1843,8 +2472,11 @@ static bool
 megasas_is_prp_possible(struct megasas_instance *instance,
 			struct scsi_cmnd *scmd, int sge_count)
 {
+<<<<<<< HEAD
 	struct fusion_context *fusion;
 	int i;
+=======
+>>>>>>> upstream/android-13
 	u32 data_length = 0;
 	struct scatterlist *sg_scmd;
 	bool build_prp = false;
@@ -1852,7 +2484,10 @@ megasas_is_prp_possible(struct megasas_instance *instance,
 
 	mr_nvme_pg_size = max_t(u32, instance->nvme_page_size,
 				MR_DEFAULT_NVME_PAGE_SIZE);
+<<<<<<< HEAD
 	fusion = instance->ctrl_context;
+=======
+>>>>>>> upstream/android-13
 	data_length = scsi_bufflen(scmd);
 	sg_scmd = scsi_sglist(scmd);
 
@@ -1874,6 +2509,7 @@ megasas_is_prp_possible(struct megasas_instance *instance,
 			build_prp = true;
 	}
 
+<<<<<<< HEAD
 /*
  * Below code detects gaps/holes in IO data buffers.
  * What does holes/gaps mean?
@@ -1934,6 +2570,8 @@ megasas_is_prp_possible(struct megasas_instance *instance,
 		}
 	}
 
+=======
+>>>>>>> upstream/android-13
 	return build_prp;
 }
 
@@ -1965,12 +2603,18 @@ megasas_make_prp_nvme(struct megasas_instance *instance, struct scsi_cmnd *scmd,
 	u32 first_prp_len;
 	bool build_prp = false;
 	int data_len = scsi_bufflen(scmd);
+<<<<<<< HEAD
 	struct fusion_context *fusion;
 	u32 mr_nvme_pg_size = max_t(u32, instance->nvme_page_size,
 					MR_DEFAULT_NVME_PAGE_SIZE);
 
 	fusion = instance->ctrl_context;
 
+=======
+	u32 mr_nvme_pg_size = max_t(u32, instance->nvme_page_size,
+					MR_DEFAULT_NVME_PAGE_SIZE);
+
+>>>>>>> upstream/android-13
 	build_prp = megasas_is_prp_possible(instance, scmd, sge_count);
 
 	if (!build_prp)
@@ -2064,7 +2708,10 @@ megasas_make_prp_nvme(struct megasas_instance *instance, struct scsi_cmnd *scmd,
 	main_chain_element->Length =
 			cpu_to_le32(num_prp_in_chain * sizeof(u64));
 
+<<<<<<< HEAD
 	atomic_inc(&instance->prp_sgl);
+=======
+>>>>>>> upstream/android-13
 	return build_prp;
 }
 
@@ -2074,7 +2721,11 @@ megasas_make_prp_nvme(struct megasas_instance *instance, struct scsi_cmnd *scmd,
  * @scp:		SCSI command from the mid-layer
  * @sgl_ptr:		SGL to be filled in
  * @cmd:		cmd we are working on
+<<<<<<< HEAD
  * @sge_count		sge count
+=======
+ * @sge_count:		sge count
+>>>>>>> upstream/android-13
  *
  */
 static void
@@ -2139,7 +2790,10 @@ megasas_make_sgl_fusion(struct megasas_instance *instance,
 			memset(sgl_ptr, 0, instance->max_chain_frame_sz);
 		}
 	}
+<<<<<<< HEAD
 	atomic_inc(&instance->ieee_sgl);
+=======
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -2184,6 +2838,7 @@ int megasas_make_sgl(struct megasas_instance *instance, struct scsi_cmnd *scp,
 
 /**
  * megasas_set_pd_lba -	Sets PD LBA
+<<<<<<< HEAD
  * @cdb:		CDB
  * @cdb_len:		cdb length
  * @start_blk:		Start block of IO
@@ -2191,6 +2846,18 @@ int megasas_make_sgl(struct megasas_instance *instance, struct scsi_cmnd *scp,
  * Used to set the PD LBA in CDB for FP IOs
  */
 void
+=======
+ * @io_request:		IO request
+ * @cdb_len:		cdb length
+ * @io_info:		IO information
+ * @scp:		SCSI command
+ * @local_map_ptr:	Raid map
+ * @ref_tag:		Primary reference tag
+ *
+ * Used to set the PD LBA in CDB for FP IOs
+ */
+static void
+>>>>>>> upstream/android-13
 megasas_set_pd_lba(struct MPI2_RAID_SCSI_IO_REQUEST *io_request, u8 cdb_len,
 		   struct IO_REQUEST_INFO *io_info, struct scsi_cmnd *scp,
 		   struct MR_DRV_RAID_MAP_ALL *local_map_ptr, u32 ref_tag)
@@ -2210,7 +2877,11 @@ megasas_set_pd_lba(struct MPI2_RAID_SCSI_IO_REQUEST *io_request, u8 cdb_len,
 		cdb[0] =  MEGASAS_SCSI_VARIABLE_LENGTH_CMD;
 		cdb[7] =  MEGASAS_SCSI_ADDL_CDB_LEN;
 
+<<<<<<< HEAD
 		if (scp->sc_data_direction == PCI_DMA_FROMDEVICE)
+=======
+		if (scp->sc_data_direction == DMA_FROM_DEVICE)
+>>>>>>> upstream/android-13
 			cdb[9] = MEGASAS_SCSI_SERVICE_ACTION_READ32;
 		else
 			cdb[9] = MEGASAS_SCSI_SERVICE_ACTION_WRITE32;
@@ -2239,7 +2910,11 @@ megasas_set_pd_lba(struct MPI2_RAID_SCSI_IO_REQUEST *io_request, u8 cdb_len,
 		cdb[31] = (u8)(num_blocks & 0xff);
 
 		/* set SCSI IO EEDPFlags */
+<<<<<<< HEAD
 		if (scp->sc_data_direction == PCI_DMA_FROMDEVICE) {
+=======
+		if (scp->sc_data_direction == DMA_FROM_DEVICE) {
+>>>>>>> upstream/android-13
 			io_request->EEDPFlags = cpu_to_le16(
 				MPI2_SCSIIO_EEDPFLAGS_INC_PRI_REFTAG  |
 				MPI2_SCSIIO_EEDPFLAGS_CHECK_REFTAG |
@@ -2444,16 +3119,31 @@ static void megasas_stream_detect(struct megasas_instance *instance,
  * affinity (cpu of the controller) and raid_flags in the raid context
  * based on IO type.
  *
+<<<<<<< HEAD
+=======
+ * @fusion:		Fusion context
+>>>>>>> upstream/android-13
  * @praid_context:	IO RAID context
  * @raid:		LD raid map
  * @fp_possible:	Is fast path possible?
  * @is_read:		Is read IO?
+<<<<<<< HEAD
  *
  */
 static void
 megasas_set_raidflag_cpu_affinity(union RAID_CONTEXT_UNION *praid_context,
 				  struct MR_LD_RAID *raid, bool fp_possible,
 				  u8 is_read, u32 scsi_buff_len)
+=======
+ * @scsi_buff_len:	SCSI command buffer length
+ *
+ */
+static void
+megasas_set_raidflag_cpu_affinity(struct fusion_context *fusion,
+				union RAID_CONTEXT_UNION *praid_context,
+				struct MR_LD_RAID *raid, bool fp_possible,
+				u8 is_read, u32 scsi_buff_len)
+>>>>>>> upstream/android-13
 {
 	u8 cpu_sel = MR_RAID_CTX_CPUSEL_0;
 	struct RAID_CONTEXT_G35 *rctx_g35;
@@ -2511,11 +3201,19 @@ megasas_set_raidflag_cpu_affinity(union RAID_CONTEXT_UNION *praid_context,
 	 * vs MR_RAID_FLAGS_IO_SUB_TYPE_CACHE_BYPASS.
 	 * IO Subtype is not bitmap.
 	 */
+<<<<<<< HEAD
 	if ((raid->level == 1) && (!is_read)) {
 		if (scsi_buff_len > MR_LARGE_IO_MIN_SIZE)
 			praid_context->raid_context_g35.raid_flags =
 				(MR_RAID_FLAGS_IO_SUB_TYPE_LDIO_BW_LIMIT
 				<< MR_RAID_CTX_RAID_FLAGS_IO_SUB_TYPE_SHIFT);
+=======
+	if ((fusion->pcie_bw_limitation) && (raid->level == 1) && (!is_read) &&
+			(scsi_buff_len > MR_LARGE_IO_MIN_SIZE)) {
+		praid_context->raid_context_g35.raid_flags =
+			(MR_RAID_FLAGS_IO_SUB_TYPE_LDIO_BW_LIMIT
+			<< MR_RAID_CTX_RAID_FLAGS_IO_SUB_TYPE_SHIFT);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -2528,7 +3226,11 @@ megasas_set_raidflag_cpu_affinity(union RAID_CONTEXT_UNION *praid_context,
  * Prepares the io_request and chain elements (sg_frame) for IO
  * The IO can be for PD (Fast Path) or LD
  */
+<<<<<<< HEAD
 void
+=======
+static void
+>>>>>>> upstream/android-13
 megasas_build_ldio_fusion(struct megasas_instance *instance,
 			  struct scsi_cmnd *scp,
 			  struct megasas_cmd_fusion *cmd)
@@ -2538,27 +3240,46 @@ megasas_build_ldio_fusion(struct megasas_instance *instance,
 	u32 start_lba_lo, start_lba_hi, device_id, datalength = 0;
 	u32 scsi_buff_len;
 	struct MPI2_RAID_SCSI_IO_REQUEST *io_request;
+<<<<<<< HEAD
 	union MEGASAS_REQUEST_DESCRIPTOR_UNION *req_desc;
+=======
+>>>>>>> upstream/android-13
 	struct IO_REQUEST_INFO io_info;
 	struct fusion_context *fusion;
 	struct MR_DRV_RAID_MAP_ALL *local_map_ptr;
 	u8 *raidLUN;
 	unsigned long spinlock_flags;
+<<<<<<< HEAD
 	union RAID_CONTEXT_UNION *praid_context;
 	struct MR_LD_RAID *raid = NULL;
 	struct MR_PRIV_DEVICE *mrdev_priv;
+=======
+	struct MR_LD_RAID *raid = NULL;
+	struct MR_PRIV_DEVICE *mrdev_priv;
+	struct RAID_CONTEXT *rctx;
+	struct RAID_CONTEXT_G35 *rctx_g35;
+>>>>>>> upstream/android-13
 
 	device_id = MEGASAS_DEV_INDEX(scp);
 
 	fusion = instance->ctrl_context;
 
 	io_request = cmd->io_request;
+<<<<<<< HEAD
 	io_request->RaidContext.raid_context.virtual_disk_tgt_id =
 		cpu_to_le16(device_id);
 	io_request->RaidContext.raid_context.status = 0;
 	io_request->RaidContext.raid_context.ex_status = 0;
 
 	req_desc = (union MEGASAS_REQUEST_DESCRIPTOR_UNION *)cmd->request_desc;
+=======
+	rctx = &io_request->RaidContext.raid_context;
+	rctx_g35 = &io_request->RaidContext.raid_context_g35;
+
+	rctx->virtual_disk_tgt_id = cpu_to_le16(device_id);
+	rctx->status = 0;
+	rctx->ex_status = 0;
+>>>>>>> upstream/android-13
 
 	start_lba_lo = 0;
 	start_lba_hi = 0;
@@ -2621,8 +3342,14 @@ megasas_build_ldio_fusion(struct megasas_instance *instance,
 	io_info.r1_alt_dev_handle = MR_DEVHANDLE_INVALID;
 	scsi_buff_len = scsi_bufflen(scp);
 	io_request->DataLength = cpu_to_le32(scsi_buff_len);
+<<<<<<< HEAD
 
 	if (scp->sc_data_direction == PCI_DMA_FROMDEVICE)
+=======
+	io_info.data_arms = 1;
+
+	if (scp->sc_data_direction == DMA_FROM_DEVICE)
+>>>>>>> upstream/android-13
 		io_info.isRead = 1;
 
 	local_map_ptr = fusion->ld_drv_map[(instance->map_id & 1)];
@@ -2632,21 +3359,34 @@ megasas_build_ldio_fusion(struct megasas_instance *instance,
 		raid = MR_LdRaidGet(ld, local_map_ptr);
 
 	if (!raid || (!fusion->fast_path_io)) {
+<<<<<<< HEAD
 		io_request->RaidContext.raid_context.reg_lock_flags  = 0;
 		fp_possible = false;
 	} else {
 		if (MR_BuildRaidContext(instance, &io_info,
 					&io_request->RaidContext.raid_context,
+=======
+		rctx->reg_lock_flags  = 0;
+		fp_possible = false;
+	} else {
+		if (MR_BuildRaidContext(instance, &io_info, rctx,
+>>>>>>> upstream/android-13
 					local_map_ptr, &raidLUN))
 			fp_possible = (io_info.fpOkForIo > 0) ? true : false;
 	}
 
+<<<<<<< HEAD
 	cmd->request_desc->SCSIIO.MSIxIndex =
 		instance->reply_map[raw_smp_processor_id()];
 
 	praid_context = &io_request->RaidContext;
 
 	if (instance->adapter_type == VENTURA_SERIES) {
+=======
+	megasas_get_msix_index(instance, scp, cmd, io_info.data_arms);
+
+	if (instance->adapter_type >= VENTURA_SERIES) {
+>>>>>>> upstream/android-13
 		/* FP for Optimal raid level 1.
 		 * All large RAID-1 writes (> 32 KiB, both WT and WB modes)
 		 * are built by the driver as LD I/Os.
@@ -2662,8 +3402,14 @@ megasas_build_ldio_fusion(struct megasas_instance *instance,
 				(instance->host->can_queue)) {
 				fp_possible = false;
 				atomic_dec(&instance->fw_outstanding);
+<<<<<<< HEAD
 			} else if ((scsi_buff_len > MR_LARGE_IO_MIN_SIZE) ||
 				   (atomic_dec_if_positive(&mrdev_priv->r1_ldio_hint) > 0)) {
+=======
+			} else if (fusion->pcie_bw_limitation &&
+				((scsi_buff_len > MR_LARGE_IO_MIN_SIZE) ||
+				   (atomic_dec_if_positive(&mrdev_priv->r1_ldio_hint) > 0))) {
+>>>>>>> upstream/android-13
 				fp_possible = false;
 				atomic_dec(&instance->fw_outstanding);
 				if (scsi_buff_len > MR_LARGE_IO_MIN_SIZE)
@@ -2682,17 +3428,29 @@ megasas_build_ldio_fusion(struct megasas_instance *instance,
 			/* In ventura if stream detected for a read and it is
 			 * read ahead capable make this IO as LDIO
 			 */
+<<<<<<< HEAD
 			if (is_stream_detected(&io_request->RaidContext.raid_context_g35))
+=======
+			if (is_stream_detected(rctx_g35))
+>>>>>>> upstream/android-13
 				fp_possible = false;
 		}
 
 		/* If raid is NULL, set CPU affinity to default CPU0 */
 		if (raid)
+<<<<<<< HEAD
 			megasas_set_raidflag_cpu_affinity(praid_context,
 				raid, fp_possible, io_info.isRead,
 				scsi_buff_len);
 		else
 			praid_context->raid_context_g35.routing_flags |=
+=======
+			megasas_set_raidflag_cpu_affinity(fusion, &io_request->RaidContext,
+				raid, fp_possible, io_info.isRead,
+				scsi_buff_len);
+		else
+			rctx_g35->routing_flags |=
+>>>>>>> upstream/android-13
 				(MR_RAID_CTX_CPUSEL_0 << MR_RAID_CTX_ROUTINGFLAGS_CPUSEL_SHIFT);
 	}
 
@@ -2704,6 +3462,7 @@ megasas_build_ldio_fusion(struct megasas_instance *instance,
 			(MPI2_REQ_DESCRIPT_FLAGS_FP_IO
 			 << MEGASAS_REQ_DESCRIPT_FLAGS_TYPE_SHIFT);
 		if (instance->adapter_type == INVADER_SERIES) {
+<<<<<<< HEAD
 			if (io_request->RaidContext.raid_context.reg_lock_flags ==
 			    REGION_TYPE_UNUSED)
 				cmd->request_desc->SCSIIO.RequestFlags =
@@ -2723,6 +3482,18 @@ megasas_build_ldio_fusion(struct megasas_instance *instance,
 						(MPI2_TYPE_CUDA << RAID_CONTEXT_TYPE_SHIFT);
 			io_request->RaidContext.raid_context_g35.routing_flags |=
 						(1 << MR_RAID_CTX_ROUTINGFLAGS_SQN_SHIFT);
+=======
+			rctx->type = MPI2_TYPE_CUDA;
+			rctx->nseg = 0x1;
+			io_request->IoFlags |= cpu_to_le16(MPI25_SAS_DEVICE0_FLAGS_ENABLED_FAST_PATH);
+			rctx->reg_lock_flags |=
+			  (MR_RL_FLAGS_GRANT_DESTINATION_CUDA |
+			   MR_RL_FLAGS_SEQ_NUM_ENABLE);
+		} else if (instance->adapter_type >= VENTURA_SERIES) {
+			rctx_g35->nseg_type |= (1 << RAID_CONTEXT_NSEG_SHIFT);
+			rctx_g35->nseg_type |= (MPI2_TYPE_CUDA << RAID_CONTEXT_TYPE_SHIFT);
+			rctx_g35->routing_flags |= (1 << MR_RAID_CTX_ROUTINGFLAGS_SQN_SHIFT);
+>>>>>>> upstream/android-13
 			io_request->IoFlags |=
 				cpu_to_le16(MPI25_SAS_DEVICE0_FLAGS_ENABLED_FAST_PATH);
 		}
@@ -2735,17 +3506,28 @@ megasas_build_ldio_fusion(struct megasas_instance *instance,
 					&io_info, local_map_ptr);
 			scp->SCp.Status |= MEGASAS_LOAD_BALANCE_FLAG;
 			cmd->pd_r1_lb = io_info.pd_after_lb;
+<<<<<<< HEAD
 			if (instance->adapter_type == VENTURA_SERIES)
 				io_request->RaidContext.raid_context_g35.span_arm
 					= io_info.span_arm;
 			else
 				io_request->RaidContext.raid_context.span_arm
 					= io_info.span_arm;
+=======
+			if (instance->adapter_type >= VENTURA_SERIES)
+				rctx_g35->span_arm = io_info.span_arm;
+			else
+				rctx->span_arm = io_info.span_arm;
+>>>>>>> upstream/android-13
 
 		} else
 			scp->SCp.Status &= ~MEGASAS_LOAD_BALANCE_FLAG;
 
+<<<<<<< HEAD
 		if (instance->adapter_type == VENTURA_SERIES)
+=======
+		if (instance->adapter_type >= VENTURA_SERIES)
+>>>>>>> upstream/android-13
 			cmd->r1_alt_dev_handle = io_info.r1_alt_dev_handle;
 		else
 			cmd->r1_alt_dev_handle = MR_DEVHANDLE_INVALID;
@@ -2763,13 +3545,18 @@ megasas_build_ldio_fusion(struct megasas_instance *instance,
 		/* populate the LUN field */
 		memcpy(io_request->LUN, raidLUN, 8);
 	} else {
+<<<<<<< HEAD
 		io_request->RaidContext.raid_context.timeout_value =
+=======
+		rctx->timeout_value =
+>>>>>>> upstream/android-13
 			cpu_to_le16(local_map_ptr->raidMap.fpPdIoTimeoutSec);
 		cmd->request_desc->SCSIIO.RequestFlags =
 			(MEGASAS_REQ_DESCRIPT_FLAGS_LD_IO
 			 << MEGASAS_REQ_DESCRIPT_FLAGS_TYPE_SHIFT);
 		if (instance->adapter_type == INVADER_SERIES) {
 			if (io_info.do_fp_rlbypass ||
+<<<<<<< HEAD
 			(io_request->RaidContext.raid_context.reg_lock_flags
 					== REGION_TYPE_UNUSED))
 				cmd->request_desc->SCSIIO.RequestFlags =
@@ -2788,6 +3575,21 @@ megasas_build_ldio_fusion(struct megasas_instance *instance,
 					(1 << RAID_CONTEXT_NSEG_SHIFT);
 			io_request->RaidContext.raid_context_g35.nseg_type |=
 					(MPI2_TYPE_CUDA << RAID_CONTEXT_TYPE_SHIFT);
+=======
+			(rctx->reg_lock_flags == REGION_TYPE_UNUSED))
+				cmd->request_desc->SCSIIO.RequestFlags =
+					(MEGASAS_REQ_DESCRIPT_FLAGS_NO_LOCK <<
+					MEGASAS_REQ_DESCRIPT_FLAGS_TYPE_SHIFT);
+			rctx->type = MPI2_TYPE_CUDA;
+			rctx->reg_lock_flags |=
+				(MR_RL_FLAGS_GRANT_DESTINATION_CPU0 |
+					MR_RL_FLAGS_SEQ_NUM_ENABLE);
+			rctx->nseg = 0x1;
+		} else if (instance->adapter_type >= VENTURA_SERIES) {
+			rctx_g35->routing_flags |= (1 << MR_RAID_CTX_ROUTINGFLAGS_SQN_SHIFT);
+			rctx_g35->nseg_type |= (1 << RAID_CONTEXT_NSEG_SHIFT);
+			rctx_g35->nseg_type |= (MPI2_TYPE_CUDA << RAID_CONTEXT_TYPE_SHIFT);
+>>>>>>> upstream/android-13
 		}
 		io_request->Function = MEGASAS_MPI2_FUNCTION_LD_IO_REQUEST;
 		io_request->DevHandle = cpu_to_le16(device_id);
@@ -2798,7 +3600,11 @@ megasas_build_ldio_fusion(struct megasas_instance *instance,
 /**
  * megasas_build_ld_nonrw_fusion - prepares non rw ios for virtual disk
  * @instance:		Adapter soft state
+<<<<<<< HEAD
  * @scp:		SCSI command
+=======
+ * @scmd:		SCSI command
+>>>>>>> upstream/android-13
  * @cmd:		Command to be prepared
  *
  * Prepares the io_request frame for non-rw io cmds for vd.
@@ -2848,7 +3654,11 @@ static void megasas_build_ld_nonrw_fusion(struct megasas_instance *instance,
 		io_request->DevHandle = cpu_to_le16(device_id);
 		io_request->LUN[1] = scmd->device->lun;
 		pRAID_Context->timeout_value =
+<<<<<<< HEAD
 			cpu_to_le16 (scmd->request->timeout / HZ);
+=======
+			cpu_to_le16(scsi_cmd_to_rq(scmd)->timeout / HZ);
+>>>>>>> upstream/android-13
 		cmd->request_desc->SCSIIO.RequestFlags =
 			(MPI2_REQ_DESCRIPT_FLAGS_SCSI_IO <<
 			MEGASAS_REQ_DESCRIPT_FLAGS_TYPE_SHIFT);
@@ -2856,7 +3666,11 @@ static void megasas_build_ld_nonrw_fusion(struct megasas_instance *instance,
 
 		/* set RAID context values */
 		pRAID_Context->config_seq_num = raid->seqNum;
+<<<<<<< HEAD
 		if (instance->adapter_type != VENTURA_SERIES)
+=======
+		if (instance->adapter_type < VENTURA_SERIES)
+>>>>>>> upstream/android-13
 			pRAID_Context->reg_lock_flags = REGION_TYPE_SHARED_READ;
 		pRAID_Context->timeout_value =
 			cpu_to_le16(raid->fpIoTimeoutForLd);
@@ -2886,7 +3700,11 @@ static void megasas_build_ld_nonrw_fusion(struct megasas_instance *instance,
 /**
  * megasas_build_syspd_fusion - prepares rw/non-rw ios for syspd
  * @instance:		Adapter soft state
+<<<<<<< HEAD
  * @scp:		SCSI command
+=======
+ * @scmd:		SCSI command
+>>>>>>> upstream/android-13
  * @cmd:		Command to be prepared
  * @fp_possible:	parameter to detect fast path or firmware path io.
  *
@@ -2911,7 +3729,11 @@ megasas_build_syspd_fusion(struct megasas_instance *instance,
 
 	device_id = MEGASAS_DEV_INDEX(scmd);
 	pd_index = MEGASAS_PD_INDEX(scmd);
+<<<<<<< HEAD
 	os_timeout_value = scmd->request->timeout / HZ;
+=======
+	os_timeout_value = scsi_cmd_to_rq(scmd)->timeout / HZ;
+>>>>>>> upstream/android-13
 	mr_device_priv_data = scmd->device->hostdata;
 	cmd->pd_interface = mr_device_priv_data->interface_type;
 
@@ -2927,6 +3749,7 @@ megasas_build_syspd_fusion(struct megasas_instance *instance,
 		<< MR_RAID_CTX_RAID_FLAGS_IO_SUB_TYPE_SHIFT;
 
 	/* If FW supports PD sequence number */
+<<<<<<< HEAD
 	if (instance->use_seqnum_jbod_fp &&
 		instance->pd_list[pd_index].driveType == TYPE_DISK) {
 		/* TgtId must be incremented by 255 as jbod seq number is index
@@ -2965,12 +3788,67 @@ megasas_build_syspd_fusion(struct megasas_instance *instance,
 		pRAID_Context->virtual_disk_tgt_id = cpu_to_le16(device_id);
 		pRAID_Context->config_seq_num = 0;
 		io_request->DevHandle = cpu_to_le16(0xFFFF);
+=======
+	if (instance->support_seqnum_jbod_fp) {
+		if (instance->use_seqnum_jbod_fp &&
+			instance->pd_list[pd_index].driveType == TYPE_DISK) {
+
+			/* More than 256 PD/JBOD support for Ventura */
+			if (instance->support_morethan256jbod)
+				pRAID_Context->virtual_disk_tgt_id =
+					pd_sync->seq[pd_index].pd_target_id;
+			else
+				pRAID_Context->virtual_disk_tgt_id =
+					cpu_to_le16(device_id +
+					(MAX_PHYSICAL_DEVICES - 1));
+			pRAID_Context->config_seq_num =
+				pd_sync->seq[pd_index].seqNum;
+			io_request->DevHandle =
+				pd_sync->seq[pd_index].devHandle;
+			if (instance->adapter_type >= VENTURA_SERIES) {
+				io_request->RaidContext.raid_context_g35.routing_flags |=
+					(1 << MR_RAID_CTX_ROUTINGFLAGS_SQN_SHIFT);
+				io_request->RaidContext.raid_context_g35.nseg_type |=
+					(1 << RAID_CONTEXT_NSEG_SHIFT);
+				io_request->RaidContext.raid_context_g35.nseg_type |=
+					(MPI2_TYPE_CUDA << RAID_CONTEXT_TYPE_SHIFT);
+			} else {
+				pRAID_Context->type = MPI2_TYPE_CUDA;
+				pRAID_Context->nseg = 0x1;
+				pRAID_Context->reg_lock_flags |=
+					(MR_RL_FLAGS_SEQ_NUM_ENABLE |
+					 MR_RL_FLAGS_GRANT_DESTINATION_CUDA);
+			}
+		} else {
+			pRAID_Context->virtual_disk_tgt_id =
+				cpu_to_le16(device_id +
+				(MAX_PHYSICAL_DEVICES - 1));
+			pRAID_Context->config_seq_num = 0;
+			io_request->DevHandle = cpu_to_le16(0xFFFF);
+		}
+	} else {
+		pRAID_Context->virtual_disk_tgt_id = cpu_to_le16(device_id);
+		pRAID_Context->config_seq_num = 0;
+
+		if (fusion->fast_path_io) {
+			local_map_ptr =
+				fusion->ld_drv_map[(instance->map_id & 1)];
+			io_request->DevHandle =
+				local_map_ptr->raidMap.devHndlInfo[device_id].curDevHdl;
+		} else {
+			io_request->DevHandle = cpu_to_le16(0xFFFF);
+		}
+>>>>>>> upstream/android-13
 	}
 
 	cmd->request_desc->SCSIIO.DevHandle = io_request->DevHandle;
 
+<<<<<<< HEAD
 	cmd->request_desc->SCSIIO.MSIxIndex =
 		instance->reply_map[raw_smp_processor_id()];
+=======
+	megasas_get_msix_index(instance, scmd, cmd, 1);
+>>>>>>> upstream/android-13
 
 	if (!fp_possible) {
 		/* system pd firmware path */
@@ -3010,13 +3888,22 @@ megasas_build_syspd_fusion(struct megasas_instance *instance,
  * Invokes helper functions to prepare request frames
  * and sets flags appropriate for IO/Non-IO cmd
  */
+<<<<<<< HEAD
 int
+=======
+static int
+>>>>>>> upstream/android-13
 megasas_build_io_fusion(struct megasas_instance *instance,
 			struct scsi_cmnd *scp,
 			struct megasas_cmd_fusion *cmd)
 {
 	int sge_count;
 	u8  cmd_type;
+<<<<<<< HEAD
+=======
+	u16 pd_index = 0;
+	u8 drive_type = 0;
+>>>>>>> upstream/android-13
 	struct MPI2_RAID_SCSI_IO_REQUEST *io_request = cmd->io_request;
 	struct MR_PRIV_DEVICE *mr_device_priv_data;
 	mr_device_priv_data = scp->device->hostdata;
@@ -3051,8 +3938,17 @@ megasas_build_io_fusion(struct megasas_instance *instance,
 		megasas_build_syspd_fusion(instance, scp, cmd, true);
 		break;
 	case NON_READ_WRITE_SYSPDIO:
+<<<<<<< HEAD
 		if (instance->secure_jbod_support ||
 		    mr_device_priv_data->is_tm_capable)
+=======
+		pd_index = MEGASAS_PD_INDEX(scp);
+		drive_type = instance->pd_list[pd_index].driveType;
+		if ((instance->secure_jbod_support ||
+		     mr_device_priv_data->is_tm_capable) ||
+		     (instance->adapter_type >= VENTURA_SERIES &&
+		     drive_type == TYPE_ENCLOSURE))
+>>>>>>> upstream/android-13
 			megasas_build_syspd_fusion(instance, scp, cmd, false);
 		else
 			megasas_build_syspd_fusion(instance, scp, cmd, true);
@@ -3074,7 +3970,11 @@ megasas_build_io_fusion(struct megasas_instance *instance,
 		return 1;
 	}
 
+<<<<<<< HEAD
 	if (instance->adapter_type == VENTURA_SERIES) {
+=======
+	if (instance->adapter_type >= VENTURA_SERIES) {
+>>>>>>> upstream/android-13
 		set_num_sge(&io_request->RaidContext.raid_context_g35, sge_count);
 		cpu_to_le16s(&io_request->RaidContext.raid_context_g35.routing_flags);
 		cpu_to_le16s(&io_request->RaidContext.raid_context_g35.nseg_type);
@@ -3089,9 +3989,15 @@ megasas_build_io_fusion(struct megasas_instance *instance,
 
 	io_request->SGLFlags = cpu_to_le16(MPI2_SGE_FLAGS_64_BIT_ADDRESSING);
 
+<<<<<<< HEAD
 	if (scp->sc_data_direction == PCI_DMA_TODEVICE)
 		io_request->Control |= cpu_to_le32(MPI2_SCSIIO_CONTROL_WRITE);
 	else if (scp->sc_data_direction == PCI_DMA_FROMDEVICE)
+=======
+	if (scp->sc_data_direction == DMA_TO_DEVICE)
+		io_request->Control |= cpu_to_le32(MPI2_SCSIIO_CONTROL_WRITE);
+	else if (scp->sc_data_direction == DMA_FROM_DEVICE)
+>>>>>>> upstream/android-13
 		io_request->Control |= cpu_to_le32(MPI2_SCSIIO_CONTROL_READ);
 
 	io_request->SGLOffset0 =
@@ -3124,9 +4030,15 @@ megasas_get_request_descriptor(struct megasas_instance *instance, u16 index)
 /* megasas_prepate_secondRaid1_IO
  *  It prepares the raid 1 second IO
  */
+<<<<<<< HEAD
 void megasas_prepare_secondRaid1_IO(struct megasas_instance *instance,
 			    struct megasas_cmd_fusion *cmd,
 			    struct megasas_cmd_fusion *r1_cmd)
+=======
+static void megasas_prepare_secondRaid1_IO(struct megasas_instance *instance,
+					   struct megasas_cmd_fusion *cmd,
+					   struct megasas_cmd_fusion *r1_cmd)
+>>>>>>> upstream/android-13
 {
 	union MEGASAS_REQUEST_DESCRIPTOR_UNION *req_desc, *req_desc2 = NULL;
 	struct fusion_context *fusion;
@@ -3150,9 +4062,15 @@ void megasas_prepare_secondRaid1_IO(struct megasas_instance *instance,
 	r1_cmd->request_desc->SCSIIO.DevHandle = cmd->r1_alt_dev_handle;
 	r1_cmd->io_request->DevHandle = cmd->r1_alt_dev_handle;
 	r1_cmd->r1_alt_dev_handle = cmd->io_request->DevHandle;
+<<<<<<< HEAD
 	cmd->io_request->RaidContext.raid_context_g35.smid.peer_smid =
 			cpu_to_le16(r1_cmd->index);
 	r1_cmd->io_request->RaidContext.raid_context_g35.smid.peer_smid =
+=======
+	cmd->io_request->RaidContext.raid_context_g35.flow_specific.peer_smid =
+			cpu_to_le16(r1_cmd->index);
+	r1_cmd->io_request->RaidContext.raid_context_g35.flow_specific.peer_smid =
+>>>>>>> upstream/android-13
 			cpu_to_le16(cmd->index);
 	/*MSIxIndex of both commands request descriptors should be same*/
 	r1_cmd->request_desc->SCSIIO.MSIxIndex =
@@ -3175,9 +4093,12 @@ megasas_build_and_issue_cmd_fusion(struct megasas_instance *instance,
 	struct megasas_cmd_fusion *cmd, *r1_cmd = NULL;
 	union MEGASAS_REQUEST_DESCRIPTOR_UNION *req_desc;
 	u32 index;
+<<<<<<< HEAD
 	struct fusion_context *fusion;
 
 	fusion = instance->ctrl_context;
+=======
+>>>>>>> upstream/android-13
 
 	if ((megasas_cmd_type(scmd) == READ_WRITE_LDIO) &&
 		instance->ldio_threshold &&
@@ -3193,7 +4114,11 @@ megasas_build_and_issue_cmd_fusion(struct megasas_instance *instance,
 		return SCSI_MLQUEUE_HOST_BUSY;
 	}
 
+<<<<<<< HEAD
 	cmd = megasas_get_cmd_fusion(instance, scmd->request->tag);
+=======
+	cmd = megasas_get_cmd_fusion(instance, scsi_cmd_to_rq(scmd)->tag);
+>>>>>>> upstream/android-13
 
 	if (!cmd) {
 		atomic_dec(&instance->fw_outstanding);
@@ -3234,7 +4159,11 @@ megasas_build_and_issue_cmd_fusion(struct megasas_instance *instance,
 	 */
 	if (cmd->r1_alt_dev_handle != MR_DEVHANDLE_INVALID) {
 		r1_cmd = megasas_get_cmd_fusion(instance,
+<<<<<<< HEAD
 				(scmd->request->tag + instance->max_fw_cmds));
+=======
+				scsi_cmd_to_rq(scmd)->tag + instance->max_fw_cmds);
+>>>>>>> upstream/android-13
 		megasas_prepare_secondRaid1_IO(instance, cmd, r1_cmd);
 	}
 
@@ -3243,6 +4172,10 @@ megasas_build_and_issue_cmd_fusion(struct megasas_instance *instance,
 	 * Issue the command to the FW
 	 */
 
+<<<<<<< HEAD
+=======
+	megasas_sdev_busy_inc(instance, scmd);
+>>>>>>> upstream/android-13
 	megasas_fire_cmd_fusion(instance, req_desc);
 
 	if (r1_cmd)
@@ -3256,7 +4189,11 @@ megasas_build_and_issue_cmd_fusion(struct megasas_instance *instance,
  * megasas_complete_r1_command -
  * completes R1 FP write commands which has valid peer smid
  * @instance:			Adapter soft state
+<<<<<<< HEAD
  * @cmd_fusion:			MPT command frame
+=======
+ * @cmd:			MPT command frame
+>>>>>>> upstream/android-13
  *
  */
 static inline void
@@ -3273,7 +4210,11 @@ megasas_complete_r1_command(struct megasas_instance *instance,
 
 	rctx_g35 = &cmd->io_request->RaidContext.raid_context_g35;
 	fusion = instance->ctrl_context;
+<<<<<<< HEAD
 	peer_smid = le16_to_cpu(rctx_g35->smid.peer_smid);
+=======
+	peer_smid = le16_to_cpu(rctx_g35->flow_specific.peer_smid);
+>>>>>>> upstream/android-13
 
 	r1_cmd = fusion->cmd_list[peer_smid - 1];
 	scmd_local = cmd->scmd;
@@ -3303,6 +4244,10 @@ megasas_complete_r1_command(struct megasas_instance *instance,
 		scmd_local->SCp.ptr = NULL;
 		megasas_return_cmd_fusion(instance, cmd);
 		scsi_dma_unmap(scmd_local);
+<<<<<<< HEAD
+=======
+		megasas_sdev_busy_dec(instance, scmd_local);
+>>>>>>> upstream/android-13
 		scmd_local->scsi_done(scmd_local);
 	}
 }
@@ -3310,10 +4255,21 @@ megasas_complete_r1_command(struct megasas_instance *instance,
 /**
  * complete_cmd_fusion -	Completes command
  * @instance:			Adapter soft state
+<<<<<<< HEAD
  * Completes all commands that is in reply descriptor queue
  */
 int
 complete_cmd_fusion(struct megasas_instance *instance, u32 MSIxIndex)
+=======
+ * @MSIxIndex:			MSI number
+ * @irq_context:		IRQ context
+ *
+ * Completes all commands that is in reply descriptor queue
+ */
+static int
+complete_cmd_fusion(struct megasas_instance *instance, u32 MSIxIndex,
+		    struct megasas_irq_context *irq_context)
+>>>>>>> upstream/android-13
 {
 	union MPI2_REPLY_DESCRIPTORS_UNION *desc;
 	struct MPI2_SCSI_IO_SUCCESS_REPLY_DESCRIPTOR *reply_desc;
@@ -3336,6 +4292,12 @@ complete_cmd_fusion(struct megasas_instance *instance, u32 MSIxIndex)
 	if (atomic_read(&instance->adprecovery) == MEGASAS_HW_CRITICAL_ERROR)
 		return IRQ_HANDLED;
 
+<<<<<<< HEAD
+=======
+	if (irq_context && !atomic_add_unless(&irq_context->in_used, 1, 1))
+		return 0;
+
+>>>>>>> upstream/android-13
 	desc = fusion->reply_frames_desc[MSIxIndex] +
 				fusion->last_reply_idx[MSIxIndex];
 
@@ -3346,8 +4308,16 @@ complete_cmd_fusion(struct megasas_instance *instance, u32 MSIxIndex)
 	reply_descript_type = reply_desc->ReplyFlags &
 		MPI2_RPY_DESCRIPT_FLAGS_TYPE_MASK;
 
+<<<<<<< HEAD
 	if (reply_descript_type == MPI2_RPY_DESCRIPT_FLAGS_UNUSED)
 		return IRQ_NONE;
+=======
+	if (reply_descript_type == MPI2_RPY_DESCRIPT_FLAGS_UNUSED) {
+		if (irq_context)
+			atomic_dec(&irq_context->in_used);
+		return IRQ_NONE;
+	}
+>>>>>>> upstream/android-13
 
 	num_completed = 0;
 
@@ -3386,7 +4356,11 @@ complete_cmd_fusion(struct megasas_instance *instance, u32 MSIxIndex)
 				atomic_dec(&lbinfo->scsi_pending_cmds[cmd_fusion->pd_r1_lb]);
 				cmd_fusion->scmd->SCp.Status &= ~MEGASAS_LOAD_BALANCE_FLAG;
 			}
+<<<<<<< HEAD
 			//Fall thru and complete IO
+=======
+			fallthrough;	/* and complete IO */
+>>>>>>> upstream/android-13
 		case MEGASAS_MPI2_FUNCTION_LD_IO_REQUEST: /* LD-IO Path */
 			atomic_dec(&instance->fw_outstanding);
 			if (cmd_fusion->r1_alt_dev_handle == MR_DEVHANDLE_INVALID) {
@@ -3399,6 +4373,10 @@ complete_cmd_fusion(struct megasas_instance *instance, u32 MSIxIndex)
 				scmd_local->SCp.ptr = NULL;
 				megasas_return_cmd_fusion(instance, cmd_fusion);
 				scsi_dma_unmap(scmd_local);
+<<<<<<< HEAD
+=======
+				megasas_sdev_busy_dec(instance, scmd_local);
+>>>>>>> upstream/android-13
 				scmd_local->scsi_done(scmd_local);
 			} else	/* Optimal VD - R1 FP command completion. */
 				megasas_complete_r1_command(instance, cmd_fusion);
@@ -3446,7 +4424,11 @@ complete_cmd_fusion(struct megasas_instance *instance, u32 MSIxIndex)
 		 * number of reply counts and still there are more replies in reply queue
 		 * pending to be completed
 		 */
+<<<<<<< HEAD
 		if (threshold_reply_count >= THRESHOLD_REPLY_COUNT) {
+=======
+		if (threshold_reply_count >= instance->threshold_reply_count) {
+>>>>>>> upstream/android-13
 			if (instance->msix_combined)
 				writel(((MSIxIndex & 0x7) << 24) |
 					fusion->last_reply_idx[MSIxIndex],
@@ -3456,6 +4438,7 @@ complete_cmd_fusion(struct megasas_instance *instance, u32 MSIxIndex)
 					fusion->last_reply_idx[MSIxIndex],
 					instance->reply_post_host_index_addr[0]);
 			threshold_reply_count = 0;
+<<<<<<< HEAD
 		}
 	}
 
@@ -3473,41 +4456,180 @@ complete_cmd_fusion(struct megasas_instance *instance, u32 MSIxIndex)
 			instance->reply_post_host_index_addr[0]);
 	megasas_check_and_restore_queue_depth(instance);
 	return IRQ_HANDLED;
+=======
+			if (irq_context) {
+				if (!irq_context->irq_poll_scheduled) {
+					irq_context->irq_poll_scheduled = true;
+					irq_context->irq_line_enable = true;
+					irq_poll_sched(&irq_context->irqpoll);
+				}
+				atomic_dec(&irq_context->in_used);
+				return num_completed;
+			}
+		}
+	}
+
+	if (num_completed) {
+		wmb();
+		if (instance->msix_combined)
+			writel(((MSIxIndex & 0x7) << 24) |
+				fusion->last_reply_idx[MSIxIndex],
+				instance->reply_post_host_index_addr[MSIxIndex/8]);
+		else
+			writel((MSIxIndex << 24) |
+				fusion->last_reply_idx[MSIxIndex],
+				instance->reply_post_host_index_addr[0]);
+		megasas_check_and_restore_queue_depth(instance);
+	}
+
+	if (irq_context)
+		atomic_dec(&irq_context->in_used);
+
+	return num_completed;
+}
+
+int megasas_blk_mq_poll(struct Scsi_Host *shost, unsigned int queue_num)
+{
+
+	struct megasas_instance *instance;
+	int num_entries = 0;
+	struct fusion_context *fusion;
+
+	instance = (struct megasas_instance *)shost->hostdata;
+
+	fusion = instance->ctrl_context;
+
+	queue_num = queue_num + instance->low_latency_index_start;
+
+	if (!atomic_add_unless(&fusion->busy_mq_poll[queue_num], 1, 1))
+		return 0;
+
+	num_entries = complete_cmd_fusion(instance, queue_num, NULL);
+	atomic_dec(&fusion->busy_mq_poll[queue_num]);
+
+	return num_entries;
+}
+
+/**
+ * megasas_enable_irq_poll() - enable irqpoll
+ * @instance:			Adapter soft state
+ */
+static void megasas_enable_irq_poll(struct megasas_instance *instance)
+{
+	u32 count, i;
+	struct megasas_irq_context *irq_ctx;
+
+	count = instance->msix_vectors > 0 ? instance->msix_vectors : 1;
+
+	for (i = 0; i < count; i++) {
+		irq_ctx = &instance->irq_context[i];
+		irq_poll_enable(&irq_ctx->irqpoll);
+	}
+>>>>>>> upstream/android-13
 }
 
 /**
  * megasas_sync_irqs -	Synchronizes all IRQs owned by adapter
+<<<<<<< HEAD
  * @instance:			Adapter soft state
  */
 void megasas_sync_irqs(unsigned long instance_addr)
+=======
+ * @instance_addr:			Adapter soft state address
+ */
+static void megasas_sync_irqs(unsigned long instance_addr)
+>>>>>>> upstream/android-13
 {
 	u32 count, i;
 	struct megasas_instance *instance =
 		(struct megasas_instance *)instance_addr;
+<<<<<<< HEAD
 
 	count = instance->msix_vectors > 0 ? instance->msix_vectors : 1;
 
 	for (i = 0; i < count; i++)
 		synchronize_irq(pci_irq_vector(instance->pdev, i));
+=======
+	struct megasas_irq_context *irq_ctx;
+
+	count = instance->msix_vectors > 0 ? instance->msix_vectors : 1;
+
+	for (i = 0; i < count; i++) {
+		synchronize_irq(pci_irq_vector(instance->pdev, i));
+		irq_ctx = &instance->irq_context[i];
+		irq_poll_disable(&irq_ctx->irqpoll);
+		if (irq_ctx->irq_poll_scheduled) {
+			irq_ctx->irq_poll_scheduled = false;
+			enable_irq(irq_ctx->os_irq);
+			complete_cmd_fusion(instance, irq_ctx->MSIxIndex, irq_ctx);
+		}
+	}
+}
+
+/**
+ * megasas_irqpoll() - process a queue for completed reply descriptors
+ * @irqpoll:	IRQ poll structure associated with queue to poll.
+ * @budget:	Threshold of reply descriptors to process per poll.
+ *
+ * Return: The number of entries processed.
+ */
+
+int megasas_irqpoll(struct irq_poll *irqpoll, int budget)
+{
+	struct megasas_irq_context *irq_ctx;
+	struct megasas_instance *instance;
+	int num_entries;
+
+	irq_ctx = container_of(irqpoll, struct megasas_irq_context, irqpoll);
+	instance = irq_ctx->instance;
+
+	if (irq_ctx->irq_line_enable) {
+		disable_irq_nosync(irq_ctx->os_irq);
+		irq_ctx->irq_line_enable = false;
+	}
+
+	num_entries = complete_cmd_fusion(instance, irq_ctx->MSIxIndex, irq_ctx);
+	if (num_entries < budget) {
+		irq_poll_complete(irqpoll);
+		irq_ctx->irq_poll_scheduled = false;
+		enable_irq(irq_ctx->os_irq);
+		complete_cmd_fusion(instance, irq_ctx->MSIxIndex, irq_ctx);
+	}
+
+	return num_entries;
+>>>>>>> upstream/android-13
 }
 
 /**
  * megasas_complete_cmd_dpc_fusion -	Completes command
+<<<<<<< HEAD
  * @instance:			Adapter soft state
  *
  * Tasklet to complete cmds
  */
 void
+=======
+ * @instance_addr:			Adapter soft state address
+ *
+ * Tasklet to complete cmds
+ */
+static void
+>>>>>>> upstream/android-13
 megasas_complete_cmd_dpc_fusion(unsigned long instance_addr)
 {
 	struct megasas_instance *instance =
 		(struct megasas_instance *)instance_addr;
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+	struct megasas_irq_context *irq_ctx = NULL;
+>>>>>>> upstream/android-13
 	u32 count, MSIxIndex;
 
 	count = instance->msix_vectors > 0 ? instance->msix_vectors : 1;
 
 	/* If we have already declared adapter dead, donot complete cmds */
+<<<<<<< HEAD
 	spin_lock_irqsave(&instance->hba_lock, flags);
 	if (atomic_read(&instance->adprecovery) == MEGASAS_HW_CRITICAL_ERROR) {
 		spin_unlock_irqrestore(&instance->hba_lock, flags);
@@ -3517,28 +4639,57 @@ megasas_complete_cmd_dpc_fusion(unsigned long instance_addr)
 
 	for (MSIxIndex = 0 ; MSIxIndex < count; MSIxIndex++)
 		complete_cmd_fusion(instance, MSIxIndex);
+=======
+	if (atomic_read(&instance->adprecovery) == MEGASAS_HW_CRITICAL_ERROR)
+		return;
+
+	for (MSIxIndex = 0 ; MSIxIndex < count; MSIxIndex++) {
+		irq_ctx = &instance->irq_context[MSIxIndex];
+		complete_cmd_fusion(instance, MSIxIndex, irq_ctx);
+	}
+>>>>>>> upstream/android-13
 }
 
 /**
  * megasas_isr_fusion - isr entry point
+<<<<<<< HEAD
  */
 irqreturn_t megasas_isr_fusion(int irq, void *devp)
 {
 	struct megasas_irq_context *irq_context = devp;
 	struct megasas_instance *instance = irq_context->instance;
 	u32 mfiStatus, fw_state, dma_state;
+=======
+ * @irq:	IRQ number
+ * @devp:	IRQ context
+ */
+static irqreturn_t megasas_isr_fusion(int irq, void *devp)
+{
+	struct megasas_irq_context *irq_context = devp;
+	struct megasas_instance *instance = irq_context->instance;
+	u32 mfiStatus;
+>>>>>>> upstream/android-13
 
 	if (instance->mask_interrupts)
 		return IRQ_NONE;
 
+<<<<<<< HEAD
 	if (!instance->msix_vectors) {
 		mfiStatus = instance->instancet->clear_intr(instance->reg_set);
+=======
+	if (irq_context->irq_poll_scheduled)
+		return IRQ_HANDLED;
+
+	if (!instance->msix_vectors) {
+		mfiStatus = instance->instancet->clear_intr(instance);
+>>>>>>> upstream/android-13
 		if (!mfiStatus)
 			return IRQ_NONE;
 	}
 
 	/* If we are resetting, bail */
 	if (test_bit(MEGASAS_FUSION_IN_RESET, &instance->reset_flags)) {
+<<<<<<< HEAD
 		instance->instancet->clear_intr(instance->reg_set);
 		return IRQ_HANDLED;
 	}
@@ -3568,15 +4719,30 @@ irqreturn_t megasas_isr_fusion(int irq, void *devp)
 	}
 
 	return IRQ_HANDLED;
+=======
+		instance->instancet->clear_intr(instance);
+		return IRQ_HANDLED;
+	}
+
+	return complete_cmd_fusion(instance, irq_context->MSIxIndex, irq_context)
+			? IRQ_HANDLED : IRQ_NONE;
+>>>>>>> upstream/android-13
 }
 
 /**
  * build_mpt_mfi_pass_thru - builds a cmd fo MFI Pass thru
  * @instance:			Adapter soft state
+<<<<<<< HEAD
  * mfi_cmd:			megasas_cmd pointer
  *
  */
 void
+=======
+ * @mfi_cmd:			megasas_cmd pointer
+ *
+ */
+static void
+>>>>>>> upstream/android-13
 build_mpt_mfi_pass_thru(struct megasas_instance *instance,
 			struct megasas_cmd *mfi_cmd)
 {
@@ -3634,7 +4800,11 @@ build_mpt_mfi_pass_thru(struct megasas_instance *instance,
  * @cmd:			mfi cmd to build
  *
  */
+<<<<<<< HEAD
 union MEGASAS_REQUEST_DESCRIPTOR_UNION *
+=======
+static union MEGASAS_REQUEST_DESCRIPTOR_UNION *
+>>>>>>> upstream/android-13
 build_mpt_cmd(struct megasas_instance *instance, struct megasas_cmd *cmd)
 {
 	union MEGASAS_REQUEST_DESCRIPTOR_UNION *req_desc = NULL;
@@ -3660,7 +4830,11 @@ build_mpt_cmd(struct megasas_instance *instance, struct megasas_cmd *cmd)
  * @cmd:			mfi cmd pointer
  *
  */
+<<<<<<< HEAD
 void
+=======
+static void
+>>>>>>> upstream/android-13
 megasas_issue_dcmd_fusion(struct megasas_instance *instance,
 			  struct megasas_cmd *cmd)
 {
@@ -3690,18 +4864,31 @@ megasas_release_fusion(struct megasas_instance *instance)
 
 /**
  * megasas_read_fw_status_reg_fusion - returns the current FW status value
+<<<<<<< HEAD
  * @regs:			MFI register set
  */
 static u32
 megasas_read_fw_status_reg_fusion(struct megasas_register_set __iomem *regs)
 {
 	return readl(&(regs)->outbound_scratch_pad);
+=======
+ * @instance:			Adapter soft state
+ */
+static u32
+megasas_read_fw_status_reg_fusion(struct megasas_instance *instance)
+{
+	return megasas_readl(instance, &instance->reg_set->outbound_scratch_pad_0);
+>>>>>>> upstream/android-13
 }
 
 /**
  * megasas_alloc_host_crash_buffer -	Host buffers for Crash dump collection from Firmware
  * @instance:				Controller's soft instance
+<<<<<<< HEAD
  * return:			        Number of allocated host crash buffers
+=======
+ * @return:			        Number of allocated host crash buffers
+>>>>>>> upstream/android-13
  */
 static void
 megasas_alloc_host_crash_buffer(struct megasas_instance *instance)
@@ -3728,8 +4915,12 @@ megasas_free_host_crash_buffer(struct megasas_instance *instance)
 {
 	unsigned int i;
 	for (i = 0; i < instance->drv_buf_alloc; i++) {
+<<<<<<< HEAD
 		if (instance->crash_buf[i])
 			vfree(instance->crash_buf[i]);
+=======
+		vfree(instance->crash_buf[i]);
+>>>>>>> upstream/android-13
 	}
 	instance->drv_buf_index = 0;
 	instance->drv_buf_alloc = 0;
@@ -3739,6 +4930,10 @@ megasas_free_host_crash_buffer(struct megasas_instance *instance)
 
 /**
  * megasas_adp_reset_fusion -	For controller reset
+<<<<<<< HEAD
+=======
+ * @instance:				Controller's soft instance
+>>>>>>> upstream/android-13
  * @regs:				MFI register set
  */
 static int
@@ -3757,11 +4952,20 @@ megasas_adp_reset_fusion(struct megasas_instance *instance,
 	writel(MPI2_WRSEQ_6TH_KEY_VALUE, &instance->reg_set->fusion_seq_offset);
 
 	/* Check that the diag write enable (DRWE) bit is on */
+<<<<<<< HEAD
 	host_diag = readl(&instance->reg_set->fusion_host_diag);
 	retry = 0;
 	while (!(host_diag & HOST_DIAG_WRITE_ENABLE)) {
 		msleep(100);
 		host_diag = readl(&instance->reg_set->fusion_host_diag);
+=======
+	host_diag = megasas_readl(instance, &instance->reg_set->fusion_host_diag);
+	retry = 0;
+	while (!(host_diag & HOST_DIAG_WRITE_ENABLE)) {
+		msleep(100);
+		host_diag = megasas_readl(instance,
+					  &instance->reg_set->fusion_host_diag);
+>>>>>>> upstream/android-13
 		if (retry++ == 100) {
 			dev_warn(&instance->pdev->dev,
 				"Host diag unlock failed from %s %d\n",
@@ -3778,11 +4982,20 @@ megasas_adp_reset_fusion(struct megasas_instance *instance,
 	msleep(3000);
 
 	/* Make sure reset adapter bit is cleared */
+<<<<<<< HEAD
 	host_diag = readl(&instance->reg_set->fusion_host_diag);
 	retry = 0;
 	while (host_diag & HOST_DIAG_RESET_ADAPTER) {
 		msleep(100);
 		host_diag = readl(&instance->reg_set->fusion_host_diag);
+=======
+	host_diag = megasas_readl(instance, &instance->reg_set->fusion_host_diag);
+	retry = 0;
+	while (host_diag & HOST_DIAG_RESET_ADAPTER) {
+		msleep(100);
+		host_diag = megasas_readl(instance,
+					  &instance->reg_set->fusion_host_diag);
+>>>>>>> upstream/android-13
 		if (retry++ == 1000) {
 			dev_warn(&instance->pdev->dev,
 				"Diag reset adapter never cleared %s %d\n",
@@ -3793,14 +5006,22 @@ megasas_adp_reset_fusion(struct megasas_instance *instance,
 	if (host_diag & HOST_DIAG_RESET_ADAPTER)
 		return -1;
 
+<<<<<<< HEAD
 	abs_state = instance->instancet->read_fw_status_reg(instance->reg_set)
+=======
+	abs_state = instance->instancet->read_fw_status_reg(instance)
+>>>>>>> upstream/android-13
 			& MFI_STATE_MASK;
 	retry = 0;
 
 	while ((abs_state <= MFI_STATE_FW_INIT) && (retry++ < 1000)) {
 		msleep(100);
 		abs_state = instance->instancet->
+<<<<<<< HEAD
 			read_fw_status_reg(instance->reg_set) & MFI_STATE_MASK;
+=======
+			read_fw_status_reg(instance) & MFI_STATE_MASK;
+>>>>>>> upstream/android-13
 	}
 	if (abs_state <= MFI_STATE_FW_INIT) {
 		dev_warn(&instance->pdev->dev,
@@ -3814,6 +5035,10 @@ megasas_adp_reset_fusion(struct megasas_instance *instance,
 
 /**
  * megasas_check_reset_fusion -	For controller reset check
+<<<<<<< HEAD
+=======
+ * @instance:				Controller's soft instance
+>>>>>>> upstream/android-13
  * @regs:				MFI register set
  */
 static int
@@ -3823,6 +5048,7 @@ megasas_check_reset_fusion(struct megasas_instance *instance,
 	return 0;
 }
 
+<<<<<<< HEAD
 /* This function waits for outstanding commands on fusion to complete */
 int megasas_wait_for_outstanding_fusion(struct megasas_instance *instance,
 					int reason, int *convert)
@@ -3838,6 +5064,70 @@ int megasas_wait_for_outstanding_fusion(struct megasas_instance *instance,
 			dev_warn(&instance->pdev->dev, "Found FW in FAULT state,"
 			       " will reset adapter scsi%d.\n",
 				instance->host->host_no);
+=======
+/**
+ * megasas_trigger_snap_dump -	Trigger snap dump in FW
+ * @instance:			Soft instance of adapter
+ */
+static inline void megasas_trigger_snap_dump(struct megasas_instance *instance)
+{
+	int j;
+	u32 fw_state, abs_state;
+
+	if (!instance->disableOnlineCtrlReset) {
+		dev_info(&instance->pdev->dev, "Trigger snap dump\n");
+		writel(MFI_ADP_TRIGGER_SNAP_DUMP,
+		       &instance->reg_set->doorbell);
+		readl(&instance->reg_set->doorbell);
+	}
+
+	for (j = 0; j < instance->snapdump_wait_time; j++) {
+		abs_state = instance->instancet->read_fw_status_reg(instance);
+		fw_state = abs_state & MFI_STATE_MASK;
+		if (fw_state == MFI_STATE_FAULT) {
+			dev_printk(KERN_ERR, &instance->pdev->dev,
+				   "FW in FAULT state Fault code:0x%x subcode:0x%x func:%s\n",
+				   abs_state & MFI_STATE_FAULT_CODE,
+				   abs_state & MFI_STATE_FAULT_SUBCODE, __func__);
+			return;
+		}
+		msleep(1000);
+	}
+}
+
+/* This function waits for outstanding commands on fusion to complete */
+static int
+megasas_wait_for_outstanding_fusion(struct megasas_instance *instance,
+				    int reason, int *convert)
+{
+	int i, outstanding, retval = 0, hb_seconds_missed = 0;
+	u32 fw_state, abs_state;
+	u32 waittime_for_io_completion;
+
+	waittime_for_io_completion =
+		min_t(u32, resetwaittime,
+			(resetwaittime - instance->snapdump_wait_time));
+
+	if (reason == MFI_IO_TIMEOUT_OCR) {
+		dev_info(&instance->pdev->dev,
+			"MFI command is timed out\n");
+		megasas_complete_cmd_dpc_fusion((unsigned long)instance);
+		if (instance->snapdump_wait_time)
+			megasas_trigger_snap_dump(instance);
+		retval = 1;
+		goto out;
+	}
+
+	for (i = 0; i < waittime_for_io_completion; i++) {
+		/* Check if firmware is in fault state */
+		abs_state = instance->instancet->read_fw_status_reg(instance);
+		fw_state = abs_state & MFI_STATE_MASK;
+		if (fw_state == MFI_STATE_FAULT) {
+			dev_printk(KERN_ERR, &instance->pdev->dev,
+				   "FW in FAULT state Fault code:0x%x subcode:0x%x func:%s\n",
+				   abs_state & MFI_STATE_FAULT_CODE,
+				   abs_state & MFI_STATE_FAULT_SUBCODE, __func__);
+>>>>>>> upstream/android-13
 			megasas_complete_cmd_dpc_fusion((unsigned long)instance);
 			if (instance->requestorId && reason) {
 				dev_warn(&instance->pdev->dev, "SR-IOV Found FW in FAULT"
@@ -3851,6 +5141,7 @@ int megasas_wait_for_outstanding_fusion(struct megasas_instance *instance,
 			goto out;
 		}
 
+<<<<<<< HEAD
 		if (reason == MFI_IO_TIMEOUT_OCR) {
 			dev_info(&instance->pdev->dev,
 				"MFI IO is timed out, initiating OCR\n");
@@ -3858,6 +5149,8 @@ int megasas_wait_for_outstanding_fusion(struct megasas_instance *instance,
 			retval = 1;
 			goto out;
 		}
+=======
+>>>>>>> upstream/android-13
 
 		/* If SR-IOV VF mode & heartbeat timeout, don't wait */
 		if (instance->requestorId && !reason) {
@@ -3902,6 +5195,15 @@ int megasas_wait_for_outstanding_fusion(struct megasas_instance *instance,
 		msleep(1000);
 	}
 
+<<<<<<< HEAD
+=======
+	if (instance->snapdump_wait_time) {
+		megasas_trigger_snap_dump(instance);
+		retval = 1;
+		goto out;
+	}
+
+>>>>>>> upstream/android-13
 	if (atomic_read(&instance->fw_outstanding)) {
 		dev_err(&instance->pdev->dev, "pending commands remain after waiting, "
 		       "will reset adapter scsi%d.\n",
@@ -3909,6 +5211,10 @@ int megasas_wait_for_outstanding_fusion(struct megasas_instance *instance,
 		*convert = 1;
 		retval = 1;
 	}
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 out:
 	return retval;
 }
@@ -3921,6 +5227,11 @@ void  megasas_reset_reply_desc(struct megasas_instance *instance)
 
 	fusion = instance->ctrl_context;
 	count = instance->msix_vectors > 0 ? instance->msix_vectors : 1;
+<<<<<<< HEAD
+=======
+	count += instance->iopoll_q_count;
+
+>>>>>>> upstream/android-13
 	for (i = 0 ; i < count ; i++) {
 		fusion->last_reply_idx[i] = 0;
 		reply_desc = fusion->reply_frames_desc[i];
@@ -3933,7 +5244,12 @@ void  megasas_reset_reply_desc(struct megasas_instance *instance)
  * megasas_refire_mgmt_cmd :	Re-fire management commands
  * @instance:				Controller's soft instance
 */
+<<<<<<< HEAD
 void megasas_refire_mgmt_cmd(struct megasas_instance *instance)
+=======
+static void megasas_refire_mgmt_cmd(struct megasas_instance *instance,
+			     bool return_ioctl)
+>>>>>>> upstream/android-13
 {
 	int j;
 	struct megasas_cmd_fusion *cmd_fusion;
@@ -3942,7 +5258,11 @@ void megasas_refire_mgmt_cmd(struct megasas_instance *instance)
 	union MEGASAS_REQUEST_DESCRIPTOR_UNION *req_desc;
 	struct MPI2_RAID_SCSI_IO_REQUEST *scsi_io_req;
 	u16 smid;
+<<<<<<< HEAD
 	bool refire_cmd = 0;
+=======
+	bool refire_cmd = false;
+>>>>>>> upstream/android-13
 	u8 result;
 	u32 opcode = 0;
 
@@ -3987,10 +5307,33 @@ void megasas_refire_mgmt_cmd(struct megasas_instance *instance)
 			}
 
 			break;
+<<<<<<< HEAD
+=======
+		case MFI_CMD_TOOLBOX:
+			if (!instance->support_pci_lane_margining) {
+				cmd_mfi->frame->hdr.cmd_status = MFI_STAT_INVALID_CMD;
+				result = COMPLETE_CMD;
+			}
+
+			break;
+>>>>>>> upstream/android-13
 		default:
 			break;
 		}
 
+<<<<<<< HEAD
+=======
+		if (return_ioctl && cmd_mfi->sync_cmd &&
+		    cmd_mfi->frame->hdr.cmd != MFI_CMD_ABORT) {
+			dev_err(&instance->pdev->dev,
+				"return -EBUSY from %s %d cmd 0x%x opcode 0x%x\n",
+				__func__, __LINE__, cmd_mfi->frame->hdr.cmd,
+				le32_to_cpu(cmd_mfi->frame->dcmd.opcode));
+			cmd_mfi->cmd_status_drv = DCMD_BUSY;
+			result = COMPLETE_CMD;
+		}
+
+>>>>>>> upstream/android-13
 		scsi_io_req = (struct MPI2_RAID_SCSI_IO_REQUEST *)
 				cmd_fusion->io_request;
 		if (scsi_io_req->Function == MPI2_FUNCTION_SCSI_TASK_MGMT)
@@ -4011,6 +5354,40 @@ void megasas_refire_mgmt_cmd(struct megasas_instance *instance)
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * megasas_return_polled_cmds: Return polled mode commands back to the pool
+ *			       before initiating an OCR.
+ * @instance:                  Controller's soft instance
+ */
+static void
+megasas_return_polled_cmds(struct megasas_instance *instance)
+{
+	int i;
+	struct megasas_cmd_fusion *cmd_fusion;
+	struct fusion_context *fusion;
+	struct megasas_cmd *cmd_mfi;
+
+	fusion = instance->ctrl_context;
+
+	for (i = instance->max_scsi_cmds; i < instance->max_fw_cmds; i++) {
+		cmd_fusion = fusion->cmd_list[i];
+		cmd_mfi = instance->cmd_list[cmd_fusion->sync_cmd_idx];
+
+		if (cmd_mfi->flags & DRV_DCMD_POLLED_MODE) {
+			if (megasas_dbg_lvl & OCR_DEBUG)
+				dev_info(&instance->pdev->dev,
+					 "%s %d return cmd 0x%x opcode 0x%x\n",
+					 __func__, __LINE__, cmd_mfi->frame->hdr.cmd,
+					 le32_to_cpu(cmd_mfi->frame->dcmd.opcode));
+			cmd_mfi->flags &= ~DRV_DCMD_POLLED_MODE;
+			megasas_return_cmd(instance, cmd_mfi);
+		}
+	}
+}
+
+/*
+>>>>>>> upstream/android-13
  * megasas_track_scsiio : Track SCSI IOs outstanding to a SCSI device
  * @instance: per adapter struct
  * @channel: the channel assigned by the OS
@@ -4047,8 +5424,13 @@ static int megasas_track_scsiio(struct megasas_instance *instance,
 
 /**
  * megasas_tm_response_code - translation of device response code
+<<<<<<< HEAD
  * @ioc: per adapter object
  * @mpi_reply: MPI reply returned by firmware
+=======
+ * @instance:	Controller's soft instance
+ * @mpi_reply:	MPI reply returned by firmware
+>>>>>>> upstream/android-13
  *
  * Return nothing.
  */
@@ -4103,9 +5485,15 @@ megasas_tm_response_code(struct megasas_instance *instance,
  * @device_handle: device handle
  * @channel: the channel assigned by the OS
  * @id: the id assigned by the OS
+<<<<<<< HEAD
  * @type: MPI2_SCSITASKMGMT_TASKTYPE__XXX (defined in megaraid_sas_fusion.c)
  * @smid_task: smid assigned to the task
  * @m_type: TM_MUTEX_ON or TM_MUTEX_OFF
+=======
+ * @smid_task: smid assigned to the task
+ * @type: MPI2_SCSITASKMGMT_TASKTYPE__XXX (defined in megaraid_sas_fusion.c)
+ * @mr_device_priv_data: private data
+>>>>>>> upstream/android-13
  * Context: user
  *
  * MegaRaid use MPT interface for Task Magement request.
@@ -4214,6 +5602,10 @@ megasas_issue_tm(struct megasas_instance *instance, u16 device_handle,
 			instance->instancet->disable_intr(instance);
 			megasas_sync_irqs((unsigned long)instance);
 			instance->instancet->enable_intr(instance);
+<<<<<<< HEAD
+=======
+			megasas_enable_irq_poll(instance);
+>>>>>>> upstream/android-13
 			if (scsi_lookup->scmd == NULL)
 				break;
 		}
@@ -4227,6 +5619,10 @@ megasas_issue_tm(struct megasas_instance *instance, u16 device_handle,
 		megasas_sync_irqs((unsigned long)instance);
 		rc = megasas_track_scsiio(instance, id, channel);
 		instance->instancet->enable_intr(instance);
+<<<<<<< HEAD
+=======
+		megasas_enable_irq_poll(instance);
+>>>>>>> upstream/android-13
 
 		break;
 	case MPI2_SCSITASKMGMT_TASKTYPE_ABRT_TASK_SET:
@@ -4319,17 +5715,24 @@ int megasas_task_abort_fusion(struct scsi_cmnd *scmd)
 {
 	struct megasas_instance *instance;
 	u16 smid, devhandle;
+<<<<<<< HEAD
 	struct fusion_context *fusion;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 	struct MR_PRIV_DEVICE *mr_device_priv_data;
 	mr_device_priv_data = scmd->device->hostdata;
 
+<<<<<<< HEAD
 
 	instance = (struct megasas_instance *)scmd->device->host->hostdata;
 	fusion = instance->ctrl_context;
 
 	scmd_printk(KERN_INFO, scmd, "task abort called for scmd(%p)\n", scmd);
 	scsi_print_command(scmd);
+=======
+	instance = (struct megasas_instance *)scmd->device->host->hostdata;
+>>>>>>> upstream/android-13
 
 	if (atomic_read(&instance->adprecovery) != MEGASAS_HBA_OPERATIONAL) {
 		dev_err(&instance->pdev->dev, "Controller is not OPERATIONAL,"
@@ -4346,7 +5749,10 @@ int megasas_task_abort_fusion(struct scsi_cmnd *scmd)
 		goto out;
 	}
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	if (!mr_device_priv_data->is_tm_capable) {
 		ret = FAILED;
 		goto out;
@@ -4359,7 +5765,11 @@ int megasas_task_abort_fusion(struct scsi_cmnd *scmd)
 	if (!smid) {
 		ret = SUCCESS;
 		scmd_printk(KERN_NOTICE, scmd, "Command for which abort is"
+<<<<<<< HEAD
 			" issued is not found in oustanding commands\n");
+=======
+			" issued is not found in outstanding commands\n");
+>>>>>>> upstream/android-13
 		mutex_unlock(&instance->reset_mutex);
 		goto out;
 	}
@@ -4374,20 +5784,39 @@ int megasas_task_abort_fusion(struct scsi_cmnd *scmd)
 		goto out;
 	}
 	sdev_printk(KERN_INFO, scmd->device,
+<<<<<<< HEAD
 		"attempting task abort! scmd(%p) tm_dev_handle 0x%x\n",
 		scmd, devhandle);
 
 	mr_device_priv_data->tm_busy = 1;
+=======
+		"attempting task abort! scmd(0x%p) tm_dev_handle 0x%x\n",
+		scmd, devhandle);
+
+	mr_device_priv_data->tm_busy = true;
+>>>>>>> upstream/android-13
 	ret = megasas_issue_tm(instance, devhandle,
 			scmd->device->channel, scmd->device->id, smid,
 			MPI2_SCSITASKMGMT_TASKTYPE_ABORT_TASK,
 			mr_device_priv_data);
+<<<<<<< HEAD
 	mr_device_priv_data->tm_busy = 0;
 
 	mutex_unlock(&instance->reset_mutex);
 out:
 	sdev_printk(KERN_INFO, scmd->device, "task abort: %s scmd(%p)\n",
 			((ret == SUCCESS) ? "SUCCESS" : "FAILED"), scmd);
+=======
+	mr_device_priv_data->tm_busy = false;
+
+	mutex_unlock(&instance->reset_mutex);
+	scmd_printk(KERN_INFO, scmd, "task abort %s!! scmd(0x%p)\n",
+			((ret == SUCCESS) ? "SUCCESS" : "FAILED"), scmd);
+out:
+	scsi_print_command(scmd);
+	if (megasas_dbg_lvl & TM_DEBUG)
+		megasas_dump_fusion_io(scmd);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -4405,15 +5834,21 @@ int megasas_reset_target_fusion(struct scsi_cmnd *scmd)
 	struct megasas_instance *instance;
 	int ret = FAILED;
 	u16 devhandle;
+<<<<<<< HEAD
 	struct fusion_context *fusion;
+=======
+>>>>>>> upstream/android-13
 	struct MR_PRIV_DEVICE *mr_device_priv_data;
 	mr_device_priv_data = scmd->device->hostdata;
 
 	instance = (struct megasas_instance *)scmd->device->host->hostdata;
+<<<<<<< HEAD
 	fusion = instance->ctrl_context;
 
 	sdev_printk(KERN_INFO, scmd->device,
 		    "target reset called for scmd(%p)\n", scmd);
+=======
+>>>>>>> upstream/android-13
 
 	if (atomic_read(&instance->adprecovery) != MEGASAS_HBA_OPERATIONAL) {
 		dev_err(&instance->pdev->dev, "Controller is not OPERATIONAL,"
@@ -4423,14 +5858,22 @@ int megasas_reset_target_fusion(struct scsi_cmnd *scmd)
 	}
 
 	if (!mr_device_priv_data) {
+<<<<<<< HEAD
 		sdev_printk(KERN_INFO, scmd->device, "device been deleted! "
 			"scmd(%p)\n", scmd);
+=======
+		sdev_printk(KERN_INFO, scmd->device,
+			    "device been deleted! scmd: (0x%p)\n", scmd);
+>>>>>>> upstream/android-13
 		scmd->result = DID_NO_CONNECT << 16;
 		ret = SUCCESS;
 		goto out;
 	}
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	if (!mr_device_priv_data->is_tm_capable) {
 		ret = FAILED;
 		goto out;
@@ -4448,24 +5891,44 @@ int megasas_reset_target_fusion(struct scsi_cmnd *scmd)
 	}
 
 	sdev_printk(KERN_INFO, scmd->device,
+<<<<<<< HEAD
 		"attempting target reset! scmd(%p) tm_dev_handle 0x%x\n",
 		scmd, devhandle);
 	mr_device_priv_data->tm_busy = 1;
+=======
+		"attempting target reset! scmd(0x%p) tm_dev_handle: 0x%x\n",
+		scmd, devhandle);
+	mr_device_priv_data->tm_busy = true;
+>>>>>>> upstream/android-13
 	ret = megasas_issue_tm(instance, devhandle,
 			scmd->device->channel, scmd->device->id, 0,
 			MPI2_SCSITASKMGMT_TASKTYPE_TARGET_RESET,
 			mr_device_priv_data);
+<<<<<<< HEAD
 	mr_device_priv_data->tm_busy = 0;
 	mutex_unlock(&instance->reset_mutex);
 out:
 	scmd_printk(KERN_NOTICE, scmd, "megasas: target reset %s!!\n",
 		(ret == SUCCESS) ? "SUCCESS" : "FAILED");
 
+=======
+	mr_device_priv_data->tm_busy = false;
+	mutex_unlock(&instance->reset_mutex);
+	scmd_printk(KERN_NOTICE, scmd, "target reset %s!!\n",
+		(ret == SUCCESS) ? "SUCCESS" : "FAILED");
+
+out:
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 /*SRIOV get other instance in cluster if any*/
+<<<<<<< HEAD
 struct megasas_instance *megasas_get_peer_instance(struct megasas_instance *instance)
+=======
+static struct
+megasas_instance *megasas_get_peer_instance(struct megasas_instance *instance)
+>>>>>>> upstream/android-13
 {
 	int i;
 
@@ -4505,12 +5968,21 @@ int megasas_reset_fusion(struct Scsi_Host *shost, int reason)
 	struct megasas_instance *instance;
 	struct megasas_cmd_fusion *cmd_fusion, *r1_cmd;
 	struct fusion_context *fusion;
+<<<<<<< HEAD
 	u32 abs_state, status_reg, reset_adapter;
+=======
+	u32 abs_state, status_reg, reset_adapter, fpio_count = 0;
+>>>>>>> upstream/android-13
 	u32 io_timeout_in_crash_mode = 0;
 	struct scsi_cmnd *scmd_local = NULL;
 	struct scsi_device *sdev;
 	int ret_target_prop = DCMD_FAILED;
 	bool is_target_prop = false;
+<<<<<<< HEAD
+=======
+	bool do_adp_reset = true;
+	int max_reset_tries = MEGASAS_FUSION_MAX_RESET_TRIES;
+>>>>>>> upstream/android-13
 
 	instance = (struct megasas_instance *)shost->hostdata;
 	fusion = instance->ctrl_context;
@@ -4524,7 +5996,11 @@ int megasas_reset_fusion(struct Scsi_Host *shost, int reason)
 		mutex_unlock(&instance->reset_mutex);
 		return FAILED;
 	}
+<<<<<<< HEAD
 	status_reg = instance->instancet->read_fw_status_reg(instance->reg_set);
+=======
+	status_reg = instance->instancet->read_fw_status_reg(instance);
+>>>>>>> upstream/android-13
 	abs_state = status_reg & MFI_STATE_MASK;
 
 	/* IO timeout detected, forcibly put FW in FAULT state */
@@ -4533,7 +6009,11 @@ int megasas_reset_fusion(struct Scsi_Host *shost, int reason)
 		dev_info(&instance->pdev->dev, "IO/DCMD timeout is detected, "
 			"forcibly FAULT Firmware\n");
 		atomic_set(&instance->adprecovery, MEGASAS_ADPRESET_SM_INFAULT);
+<<<<<<< HEAD
 		status_reg = readl(&instance->reg_set->doorbell);
+=======
+		status_reg = megasas_readl(instance, &instance->reg_set->doorbell);
+>>>>>>> upstream/android-13
 		writel(status_reg | MFI_STATE_FORCE_OCR,
 			&instance->reg_set->doorbell);
 		readl(&instance->reg_set->doorbell);
@@ -4578,19 +6058,28 @@ int megasas_reset_fusion(struct Scsi_Host *shost, int reason)
 		if (convert)
 			reason = 0;
 
+<<<<<<< HEAD
 		if (megasas_dbg_lvl & OCR_LOGS)
+=======
+		if (megasas_dbg_lvl & OCR_DEBUG)
+>>>>>>> upstream/android-13
 			dev_info(&instance->pdev->dev, "\nPending SCSI commands:\n");
 
 		/* Now return commands back to the OS */
 		for (i = 0 ; i < instance->max_scsi_cmds; i++) {
 			cmd_fusion = fusion->cmd_list[i];
 			/*check for extra commands issued by driver*/
+<<<<<<< HEAD
 			if (instance->adapter_type == VENTURA_SERIES) {
+=======
+			if (instance->adapter_type >= VENTURA_SERIES) {
+>>>>>>> upstream/android-13
 				r1_cmd = fusion->cmd_list[i + instance->max_fw_cmds];
 				megasas_return_cmd_fusion(instance, r1_cmd);
 			}
 			scmd_local = cmd_fusion->scmd;
 			if (cmd_fusion->scmd) {
+<<<<<<< HEAD
 				if (megasas_dbg_lvl & OCR_LOGS) {
 					sdev_printk(KERN_INFO,
 						cmd_fusion->scmd->device, "SMID: 0x%x\n",
@@ -4598,6 +6087,19 @@ int megasas_reset_fusion(struct Scsi_Host *shost, int reason)
 					scsi_print_command(cmd_fusion->scmd);
 				}
 
+=======
+				if (megasas_dbg_lvl & OCR_DEBUG) {
+					sdev_printk(KERN_INFO,
+						cmd_fusion->scmd->device, "SMID: 0x%x\n",
+						cmd_fusion->index);
+					megasas_dump_fusion_io(cmd_fusion->scmd);
+				}
+
+				if (cmd_fusion->io_request->Function ==
+					MPI2_FUNCTION_SCSI_IO_REQUEST)
+					fpio_count++;
+
+>>>>>>> upstream/android-13
 				scmd_local->result =
 					megasas_check_mpio_paths(instance,
 							scmd_local);
@@ -4610,10 +6112,19 @@ int megasas_reset_fusion(struct Scsi_Host *shost, int reason)
 			}
 		}
 
+<<<<<<< HEAD
 		atomic_set(&instance->fw_outstanding, 0);
 
 		status_reg = instance->instancet->read_fw_status_reg(
 			instance->reg_set);
+=======
+		dev_info(&instance->pdev->dev, "Outstanding fastpath IOs: %d\n",
+			fpio_count);
+
+		atomic_set(&instance->fw_outstanding, 0);
+
+		status_reg = instance->instancet->read_fw_status_reg(instance);
+>>>>>>> upstream/android-13
 		abs_state = status_reg & MFI_STATE_MASK;
 		reset_adapter = status_reg & MFI_RESET_ADAPTER;
 		if (instance->disableOnlineCtrlReset ||
@@ -4622,15 +6133,20 @@ int megasas_reset_fusion(struct Scsi_Host *shost, int reason)
 			dev_warn(&instance->pdev->dev, "Reset not supported"
 			       ", killing adapter scsi%d.\n",
 				instance->host->host_no);
+<<<<<<< HEAD
 			megaraid_sas_kill_hba(instance);
 			instance->skip_heartbeat_timer_del = 1;
 			retval = FAILED;
 			goto out;
+=======
+			goto kill_hba;
+>>>>>>> upstream/android-13
 		}
 
 		/* Let SR-IOV VF & PF sync up if there was a HB failure */
 		if (instance->requestorId && !reason) {
 			msleep(MEGASAS_OCR_SETTLE_TIME_VF);
+<<<<<<< HEAD
 			goto transition_to_ready;
 		}
 
@@ -4641,36 +6157,69 @@ int megasas_reset_fusion(struct Scsi_Host *shost, int reason)
 				(instance, instance->reg_set))
 				continue;
 transition_to_ready:
+=======
+			do_adp_reset = false;
+			max_reset_tries = MEGASAS_SRIOV_MAX_RESET_TRIES_VF;
+		}
+
+		/* Now try to reset the chip */
+		for (i = 0; i < max_reset_tries; i++) {
+			/*
+			 * Do adp reset and wait for
+			 * controller to transition to ready
+			 */
+			if (megasas_adp_reset_wait_for_ready(instance,
+				do_adp_reset, 1) == FAILED)
+				continue;
+
+>>>>>>> upstream/android-13
 			/* Wait for FW to become ready */
 			if (megasas_transition_to_ready(instance, 1)) {
 				dev_warn(&instance->pdev->dev,
 					"Failed to transition controller to ready for "
 					"scsi%d.\n", instance->host->host_no);
+<<<<<<< HEAD
 				if (instance->requestorId && !reason)
 					goto fail_kill_adapter;
 				else
 					continue;
+=======
+				continue;
+>>>>>>> upstream/android-13
 			}
 			megasas_reset_reply_desc(instance);
 			megasas_fusion_update_can_queue(instance, OCR_CONTEXT);
 
 			if (megasas_ioc_init_fusion(instance)) {
+<<<<<<< HEAD
 				if (instance->requestorId && !reason)
 					goto fail_kill_adapter;
 				else
 					continue;
+=======
+				continue;
+>>>>>>> upstream/android-13
 			}
 
 			if (megasas_get_ctrl_info(instance)) {
 				dev_info(&instance->pdev->dev,
 					"Failed from %s %d\n",
 					__func__, __LINE__);
+<<<<<<< HEAD
 				megaraid_sas_kill_hba(instance);
 				retval = FAILED;
 				goto out;
 			}
 
 			megasas_refire_mgmt_cmd(instance);
+=======
+				goto kill_hba;
+			}
+
+			megasas_refire_mgmt_cmd(instance,
+						(i == (MEGASAS_FUSION_MAX_RESET_TRIES - 1)
+							? 1 : 0));
+>>>>>>> upstream/android-13
 
 			/* Reset load balance info */
 			if (fusion->load_balance_info)
@@ -4678,13 +6227,30 @@ transition_to_ready:
 				       (sizeof(struct LD_LOAD_BALANCE_INFO) *
 				       MAX_LOGICAL_DRIVES_EXT));
 
+<<<<<<< HEAD
 			if (!megasas_get_map_info(instance))
 				megasas_sync_map_info(instance);
+=======
+			if (!megasas_get_map_info(instance)) {
+				megasas_sync_map_info(instance);
+			} else {
+				/*
+				 * Return pending polled mode cmds before
+				 * retrying OCR
+				 */
+				megasas_return_polled_cmds(instance);
+				continue;
+			}
+>>>>>>> upstream/android-13
 
 			megasas_setup_jbod_map(instance);
 
 			/* reset stream detection array */
+<<<<<<< HEAD
 			if (instance->adapter_type == VENTURA_SERIES) {
+=======
+			if (instance->adapter_type >= VENTURA_SERIES) {
+>>>>>>> upstream/android-13
 				for (j = 0; j < MAX_LOGICAL_DRIVES_EXT; ++j) {
 					memset(fusion->stream_detect_by_ld[j],
 					0, sizeof(struct LD_STREAM_DETECT));
@@ -4696,7 +6262,11 @@ transition_to_ready:
 			clear_bit(MEGASAS_FUSION_IN_RESET,
 				  &instance->reset_flags);
 			instance->instancet->enable_intr(instance);
+<<<<<<< HEAD
 
+=======
+			megasas_enable_irq_poll(instance);
+>>>>>>> upstream/android-13
 			shost_for_each_device(sdev, shost) {
 				if ((instance->tgt_prop) &&
 				    (instance->nvme_page_size))
@@ -4706,11 +6276,28 @@ transition_to_ready:
 				megasas_set_dynamic_target_properties(sdev, is_target_prop);
 			}
 
+<<<<<<< HEAD
 			atomic_set(&instance->adprecovery, MEGASAS_HBA_OPERATIONAL);
 
 			dev_info(&instance->pdev->dev, "Interrupts are enabled and"
 				" controller is OPERATIONAL for scsi:%d\n",
 				instance->host->host_no);
+=======
+			status_reg = instance->instancet->read_fw_status_reg
+					(instance);
+			abs_state = status_reg & MFI_STATE_MASK;
+			if (abs_state != MFI_STATE_OPERATIONAL) {
+				dev_info(&instance->pdev->dev,
+					 "Adapter is not OPERATIONAL, state 0x%x for scsi:%d\n",
+					 abs_state, instance->host->host_no);
+				goto out;
+			}
+			atomic_set(&instance->adprecovery, MEGASAS_HBA_OPERATIONAL);
+
+			dev_info(&instance->pdev->dev,
+				 "Adapter is OPERATIONAL for scsi:%d\n",
+				 instance->host->host_no);
+>>>>>>> upstream/android-13
 
 			/* Restart SR-IOV heartbeat */
 			if (instance->requestorId) {
@@ -4728,6 +6315,16 @@ transition_to_ready:
 				megasas_set_crash_dump_params(instance,
 					MR_CRASH_BUF_TURN_OFF);
 
+<<<<<<< HEAD
+=======
+			if (instance->snapdump_wait_time) {
+				megasas_get_snapdump_properties(instance);
+				dev_info(&instance->pdev->dev,
+					 "Snap dump wait time\t: %d\n",
+					 instance->snapdump_wait_time);
+			}
+
+>>>>>>> upstream/android-13
 			retval = SUCCESS;
 
 			/* Adapter reset completed successfully */
@@ -4737,6 +6334,7 @@ transition_to_ready:
 
 			goto out;
 		}
+<<<<<<< HEAD
 fail_kill_adapter:
 		/* Reset failed, kill the adapter */
 		dev_warn(&instance->pdev->dev, "Reset failed, killing "
@@ -4744,6 +6342,12 @@ fail_kill_adapter:
 		megaraid_sas_kill_hba(instance);
 		instance->skip_heartbeat_timer_del = 1;
 		retval = FAILED;
+=======
+		/* Reset failed, kill the adapter */
+		dev_warn(&instance->pdev->dev, "Reset failed, killing "
+		       "adapter scsi%d.\n", instance->host->host_no);
+		goto kill_hba;
+>>>>>>> upstream/android-13
 	} else {
 		/* For VF: Restart HB timer if we didn't OCR */
 		if (instance->requestorId) {
@@ -4751,14 +6355,27 @@ fail_kill_adapter:
 		}
 		clear_bit(MEGASAS_FUSION_IN_RESET, &instance->reset_flags);
 		instance->instancet->enable_intr(instance);
+<<<<<<< HEAD
 		atomic_set(&instance->adprecovery, MEGASAS_HBA_OPERATIONAL);
 	}
+=======
+		megasas_enable_irq_poll(instance);
+		atomic_set(&instance->adprecovery, MEGASAS_HBA_OPERATIONAL);
+		goto out;
+	}
+kill_hba:
+	megaraid_sas_kill_hba(instance);
+	megasas_enable_irq_poll(instance);
+	instance->skip_heartbeat_timer_del = 1;
+	retval = FAILED;
+>>>>>>> upstream/android-13
 out:
 	clear_bit(MEGASAS_FUSION_OCR_NOT_POSSIBLE, &instance->reset_flags);
 	mutex_unlock(&instance->reset_mutex);
 	return retval;
 }
 
+<<<<<<< HEAD
 /* Fusion Crash dump collection work queue */
 void  megasas_fusion_crash_dump_wq(struct work_struct *work)
 {
@@ -4769,6 +6386,17 @@ void  megasas_fusion_crash_dump_wq(struct work_struct *work)
 
 
 	status_reg = instance->instancet->read_fw_status_reg(instance->reg_set);
+=======
+/* Fusion Crash dump collection */
+static void  megasas_fusion_crash_dump(struct megasas_instance *instance)
+{
+	u32 status_reg;
+	u8 partial_copy = 0;
+	int wait = 0;
+
+
+	status_reg = instance->instancet->read_fw_status_reg(instance);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Allocate host crash buffers to copy data from 1 MB DMA crash buffer
@@ -4784,8 +6412,13 @@ void  megasas_fusion_crash_dump_wq(struct work_struct *work)
 				"crash dump and initiating OCR\n");
 			status_reg |= MFI_STATE_CRASH_DUMP_DONE;
 			writel(status_reg,
+<<<<<<< HEAD
 				&instance->reg_set->outbound_scratch_pad);
 			readl(&instance->reg_set->outbound_scratch_pad);
+=======
+				&instance->reg_set->outbound_scratch_pad_0);
+			readl(&instance->reg_set->outbound_scratch_pad_0);
+>>>>>>> upstream/android-13
 			return;
 		}
 		megasas_alloc_host_crash_buffer(instance);
@@ -4793,6 +6426,7 @@ void  megasas_fusion_crash_dump_wq(struct work_struct *work)
 			"allocated: %d\n", instance->drv_buf_alloc);
 	}
 
+<<<<<<< HEAD
 	/*
 	 * Driver has allocated max buffers, which can be allocated
 	 * and FW has more crash dump data, then driver will
@@ -4808,6 +6442,43 @@ void  megasas_fusion_crash_dump_wq(struct work_struct *work)
 			instance->crash_dump_buf, CRASH_DMA_BUF_SIZE);
 		instance->drv_buf_index++;
 		status_reg &= ~MFI_STATE_DMADONE;
+=======
+	while (!(status_reg & MFI_STATE_CRASH_DUMP_DONE) &&
+	       (wait < MEGASAS_WATCHDOG_WAIT_COUNT)) {
+		if (!(status_reg & MFI_STATE_DMADONE)) {
+			/*
+			 * Next crash dump buffer is not yet DMA'd by FW
+			 * Check after 10ms. Wait for 1 second for FW to
+			 * post the next buffer. If not bail out.
+			 */
+			wait++;
+			msleep(MEGASAS_WAIT_FOR_NEXT_DMA_MSECS);
+			status_reg = instance->instancet->read_fw_status_reg(
+					instance);
+			continue;
+		}
+
+		wait = 0;
+		if (instance->drv_buf_index >= instance->drv_buf_alloc) {
+			dev_info(&instance->pdev->dev,
+				 "Driver is done copying the buffer: %d\n",
+				 instance->drv_buf_alloc);
+			status_reg |= MFI_STATE_CRASH_DUMP_DONE;
+			partial_copy = 1;
+			break;
+		} else {
+			memcpy(instance->crash_buf[instance->drv_buf_index],
+			       instance->crash_dump_buf, CRASH_DMA_BUF_SIZE);
+			instance->drv_buf_index++;
+			status_reg &= ~MFI_STATE_DMADONE;
+		}
+
+		writel(status_reg, &instance->reg_set->outbound_scratch_pad_0);
+		readl(&instance->reg_set->outbound_scratch_pad_0);
+
+		msleep(MEGASAS_WAIT_FOR_NEXT_DMA_MSECS);
+		status_reg = instance->instancet->read_fw_status_reg(instance);
+>>>>>>> upstream/android-13
 	}
 
 	if (status_reg & MFI_STATE_CRASH_DUMP_DONE) {
@@ -4816,6 +6487,7 @@ void  megasas_fusion_crash_dump_wq(struct work_struct *work)
 		instance->fw_crash_buffer_size =  instance->drv_buf_index;
 		instance->fw_crash_state = AVAILABLE;
 		instance->drv_buf_index = 0;
+<<<<<<< HEAD
 		writel(status_reg, &instance->reg_set->outbound_scratch_pad);
 		readl(&instance->reg_set->outbound_scratch_pad);
 		if (!partial_copy)
@@ -4823,6 +6495,12 @@ void  megasas_fusion_crash_dump_wq(struct work_struct *work)
 	} else {
 		writel(status_reg, &instance->reg_set->outbound_scratch_pad);
 		readl(&instance->reg_set->outbound_scratch_pad);
+=======
+		writel(status_reg, &instance->reg_set->outbound_scratch_pad_0);
+		readl(&instance->reg_set->outbound_scratch_pad_0);
+		if (!partial_copy)
+			megasas_reset_fusion(instance->host, 0);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -4864,6 +6542,10 @@ megasas_alloc_fusion_context(struct megasas_instance *instance)
 		if (!fusion->log_to_span) {
 			dev_err(&instance->pdev->dev, "Failed from %s %d\n",
 				__func__, __LINE__);
+<<<<<<< HEAD
+=======
+			kfree(instance->ctrl_context);
+>>>>>>> upstream/android-13
 			return -ENOMEM;
 		}
 	}

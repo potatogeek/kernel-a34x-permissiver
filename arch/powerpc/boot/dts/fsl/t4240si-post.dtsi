@@ -950,6 +950,7 @@
 /include/ "qoriq-clockgen2.dtsi"
 	global-utilities@e1000 {
 		compatible = "fsl,t4240-clockgen", "fsl,qoriq-clockgen-2.0";
+<<<<<<< HEAD
 
 		pll2: pll2@840 {
 			#clock-cells = <1>;
@@ -1011,6 +1012,8 @@
 				"pll4", "pll4-div2", "pll4-div4";
 			clock-output-names = "cmux2";
 		};
+=======
+>>>>>>> upstream/android-13
 	};
 
 	rcpm: global-utilities@e2000 {

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015-2017 Netronome Systems, Inc.
  *
@@ -30,6 +31,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+=======
+/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause) */
+/* Copyright (C) 2015-2018 Netronome Systems, Inc. */
+>>>>>>> upstream/android-13
 
 /*
  * nfp_main.h
@@ -72,7 +77,11 @@ struct nfp_shared_buf;
  */
 struct nfp_dumpspec {
 	u32 size;
+<<<<<<< HEAD
 	u8 data[0];
+=======
+	u8 data[];
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -94,6 +103,10 @@ struct nfp_dumpspec {
  * @limit_vfs:		Number of VFs supported by firmware (~0 for PCI limit)
  * @num_vfs:		Number of SR-IOV VFs enabled
  * @fw_loaded:		Is the firmware loaded?
+<<<<<<< HEAD
+=======
+ * @unload_fw_on_remove:Do we need to unload firmware on driver removal?
+>>>>>>> upstream/android-13
  * @ctrl_vnic:		Pointer to the control vNIC if available
  * @mip:		MIP handle
  * @rtbl:		RTsym table
@@ -140,6 +153,10 @@ struct nfp_pf {
 	unsigned int num_vfs;
 
 	bool fw_loaded;
+<<<<<<< HEAD
+=======
+	bool unload_fw_on_remove;
+>>>>>>> upstream/android-13
 
 	struct nfp_net *ctrl_vnic;
 
@@ -194,6 +211,11 @@ nfp_pf_map_rtsym(struct nfp_pf *pf, const char *name, const char *sym_fmt,
 		 unsigned int min_size, struct nfp_cpp_area **area);
 int nfp_mbox_cmd(struct nfp_pf *pf, u32 cmd, void *in_data, u64 in_length,
 		 void *out_data, u64 out_length);
+<<<<<<< HEAD
+=======
+int nfp_flash_update_common(struct nfp_pf *pf, const struct firmware *fw,
+			    struct netlink_ext_ack *extack);
+>>>>>>> upstream/android-13
 
 enum nfp_dump_diag {
 	NFP_DUMP_NSP_DIAG = 0,
@@ -213,4 +235,10 @@ int nfp_shared_buf_pool_get(struct nfp_pf *pf, unsigned int sb, u16 pool_index,
 int nfp_shared_buf_pool_set(struct nfp_pf *pf, unsigned int sb,
 			    u16 pool_index, u32 size,
 			    enum devlink_sb_threshold_type threshold_type);
+<<<<<<< HEAD
+=======
+
+int nfp_devlink_params_register(struct nfp_pf *pf);
+void nfp_devlink_params_unregister(struct nfp_pf *pf);
+>>>>>>> upstream/android-13
 #endif /* NFP_MAIN_H */

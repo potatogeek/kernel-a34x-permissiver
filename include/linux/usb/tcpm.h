@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2015-2017 Google, Inc
  *
@@ -10,6 +11,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright 2015-2017 Google, Inc
+>>>>>>> upstream/android-13
  */
 
 #ifndef __LINUX_USB_TCPM_H
@@ -28,6 +34,13 @@ enum typec_cc_status {
 	TYPEC_CC_RP_3_0,
 };
 
+<<<<<<< HEAD
+=======
+/* Collision Avoidance */
+#define SINK_TX_NG	TYPEC_CC_RP_1_5
+#define SINK_TX_OK	TYPEC_CC_RP_3_0
+
+>>>>>>> upstream/android-13
 enum typec_cc_polarity {
 	TYPEC_POLARITY_CC1,
 	TYPEC_POLARITY_CC2,
@@ -55,6 +68,7 @@ enum tcpm_transmit_type {
 	TCPC_TX_BIST_MODE_2 = 7
 };
 
+<<<<<<< HEAD
 /**
  * struct tcpc_config - Port configuration
  * @src_pdo:	PDO parameters sent to port partner as response to
@@ -94,6 +108,8 @@ struct tcpc_config {
 	const struct typec_altmode_desc *alt_modes;
 };
 
+=======
+>>>>>>> upstream/android-13
 /* Mux state attributes */
 #define TCPC_MUX_USB_ENABLED		BIT(0)	/* USB enabled */
 #define TCPC_MUX_DP_ENABLED		BIT(1)	/* DP enabled */
@@ -101,7 +117,10 @@ struct tcpc_config {
 
 /**
  * struct tcpc_dev - Port configuration and callback functions
+<<<<<<< HEAD
  * @config:	Pointer to port configuration
+=======
+>>>>>>> upstream/android-13
  * @fwnode:	Pointer to port fwnode
  * @get_vbus:	Called to read current VBUS state
  * @get_current_limit:
@@ -111,6 +130,11 @@ struct tcpc_config {
  *		For example, some tcpcs may include BC1.2 charger detection
  *		and use that in this case.
  * @set_cc:	Called to set value of CC pins
+<<<<<<< HEAD
+=======
+ * @apply_rc:	Optional; Needed to move TCPCI based chipset to APPLY_RC state
+ *		as stated by the TCPCI specification.
+>>>>>>> upstream/android-13
  * @get_cc:	Called to read current CC pin values
  * @set_polarity:
  *		Called to set polarity
@@ -127,16 +151,64 @@ struct tcpc_config {
  *		automatically if a connection is established.
  * @try_role:	Optional; called to set a preferred role
  * @pd_transmit:Called to transmit PD message
+<<<<<<< HEAD
  * @mux:	Pointer to multiplexer data
  */
 struct tcpc_dev {
 	const struct tcpc_config *config;
+=======
+ * @set_bist_data: Turn on/off bist data mode for compliance testing
+ * @enable_frs:
+ *		Optional; Called to enable/disable PD 3.0 fast role swap.
+ *		Enabling frs is accessory dependent as not all PD3.0
+ *		accessories support fast role swap.
+ * @frs_sourcing_vbus:
+ *		Optional; Called to notify that vbus is now being sourced.
+ *		Low level drivers can perform chip specific operations, if any.
+ * @enable_auto_vbus_discharge:
+ *		Optional; TCPCI spec based TCPC implementations can optionally
+ *		support hardware to autonomously dischrge vbus upon disconnecting
+ *		as sink or source. TCPM signals TCPC to enable the mechanism upon
+ *		entering connected state and signals disabling upon disconnect.
+ * @set_auto_vbus_discharge_threshold:
+ *		Mandatory when enable_auto_vbus_discharge is implemented. TCPM
+ *		calls this function to allow lower levels drivers to program the
+ *		vbus threshold voltage below which the vbus discharge circuit
+ *		will be turned on. requested_vbus_voltage is set to 0 when vbus
+ *		is going to disappear knowingly i.e. during PR_SWAP and
+ *		HARD_RESET etc.
+ * @is_vbus_vsafe0v:
+ *		Optional; TCPCI spec based TCPC implementations are expected to
+ *		detect VSAFE0V voltage level at vbus. When detection of VSAFE0V
+ *		is supported by TCPC, set this callback for TCPM to query
+ *		whether vbus is at VSAFE0V when needed.
+ *		Returns true when vbus is at VSAFE0V, false otherwise.
+ * @set_partner_usb_comm_capable:
+ *              Optional; The USB Communications Capable bit indicates if port
+ *              partner is capable of communication over the USB data lines
+ *              (e.g. D+/- or SS Tx/Rx). Called to notify the status of the bit.
+ * @check_contaminant:
+ *		Optional; The callback is called when CC pins report open status
+ *		at the end of the toggling period. Chip level drivers are
+ *		expected to check for contaminant and re-enable toggling if
+ *		needed. When 0 is not returned, check_contaminant is expected to
+ *		restart toggling after checking the connector for contaminant.
+ *		This forces the TCPM state machine to tranistion to TOGGLING state
+ *		without calling start_toggling callback.
+ */
+struct tcpc_dev {
+>>>>>>> upstream/android-13
 	struct fwnode_handle *fwnode;
 
 	int (*init)(struct tcpc_dev *dev);
 	int (*get_vbus)(struct tcpc_dev *dev);
 	int (*get_current_limit)(struct tcpc_dev *dev);
 	int (*set_cc)(struct tcpc_dev *dev, enum typec_cc_status cc);
+<<<<<<< HEAD
+=======
+	int (*apply_rc)(struct tcpc_dev *dev, enum typec_cc_status cc,
+			enum typec_cc_polarity polarity);
+>>>>>>> upstream/android-13
 	int (*get_cc)(struct tcpc_dev *dev, enum typec_cc_status *cc1,
 		      enum typec_cc_status *cc2);
 	int (*set_polarity)(struct tcpc_dev *dev,
@@ -152,7 +224,20 @@ struct tcpc_dev {
 			      enum typec_cc_status cc);
 	int (*try_role)(struct tcpc_dev *dev, int role);
 	int (*pd_transmit)(struct tcpc_dev *dev, enum tcpm_transmit_type type,
+<<<<<<< HEAD
 			   const struct pd_message *msg);
+=======
+			   const struct pd_message *msg, unsigned int negotiated_rev);
+	int (*set_bist_data)(struct tcpc_dev *dev, bool on);
+	int (*enable_frs)(struct tcpc_dev *dev, bool enable);
+	void (*frs_sourcing_vbus)(struct tcpc_dev *dev);
+	int (*enable_auto_vbus_discharge)(struct tcpc_dev *dev, bool enable);
+	int (*set_auto_vbus_discharge_threshold)(struct tcpc_dev *dev, enum typec_pwr_opmode mode,
+						 bool pps_active, u32 requested_vbus_voltage);
+	bool (*is_vbus_vsafe0v)(struct tcpc_dev *dev);
+	void (*set_partner_usb_comm_capable)(struct tcpc_dev *dev, bool enable);
+	int (*check_contaminant)(struct tcpc_dev *dev);
+>>>>>>> upstream/android-13
 };
 
 struct tcpm_port;
@@ -160,19 +245,31 @@ struct tcpm_port;
 struct tcpm_port *tcpm_register_port(struct device *dev, struct tcpc_dev *tcpc);
 void tcpm_unregister_port(struct tcpm_port *port);
 
+<<<<<<< HEAD
 int tcpm_update_source_capabilities(struct tcpm_port *port, const u32 *pdo,
 				    unsigned int nr_pdo);
+=======
+>>>>>>> upstream/android-13
 int tcpm_update_sink_capabilities(struct tcpm_port *port, const u32 *pdo,
 				  unsigned int nr_pdo,
 				  unsigned int operating_snk_mw);
 
 void tcpm_vbus_change(struct tcpm_port *port);
 void tcpm_cc_change(struct tcpm_port *port);
+<<<<<<< HEAD
+=======
+void tcpm_sink_frs(struct tcpm_port *port);
+void tcpm_sourcing_vbus(struct tcpm_port *port);
+>>>>>>> upstream/android-13
 void tcpm_pd_receive(struct tcpm_port *port,
 		     const struct pd_message *msg);
 void tcpm_pd_transmit_complete(struct tcpm_port *port,
 			       enum tcpm_transmit_status status);
 void tcpm_pd_hard_reset(struct tcpm_port *port);
 void tcpm_tcpc_reset(struct tcpm_port *port);
+<<<<<<< HEAD
+=======
+bool tcpm_is_debouncing(struct tcpm_port *tcpm);
+>>>>>>> upstream/android-13
 
 #endif /* __LINUX_USB_TCPM_H */

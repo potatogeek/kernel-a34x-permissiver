@@ -1,8 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #include <linux/virtio.h>
 #include <linux/spinlock.h>
 #include <linux/virtio_config.h>
 #include <linux/module.h>
 #include <linux/idr.h>
+<<<<<<< HEAD
+=======
+#include <linux/of.h>
+>>>>>>> upstream/android-13
 #include <uapi/linux/virtio_ids.h>
 
 /* Unique numbering for virtio devices. */
@@ -140,15 +148,24 @@ void virtio_config_changed(struct virtio_device *dev)
 }
 EXPORT_SYMBOL_GPL(virtio_config_changed);
 
+<<<<<<< HEAD
 void virtio_config_disable(struct virtio_device *dev)
+=======
+static void virtio_config_disable(struct virtio_device *dev)
+>>>>>>> upstream/android-13
 {
 	spin_lock_irq(&dev->config_lock);
 	dev->config_enabled = false;
 	spin_unlock_irq(&dev->config_lock);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(virtio_config_disable);
 
 void virtio_config_enable(struct virtio_device *dev)
+=======
+
+static void virtio_config_enable(struct virtio_device *dev)
+>>>>>>> upstream/android-13
 {
 	spin_lock_irq(&dev->config_lock);
 	dev->config_enabled = true;
@@ -157,14 +174,22 @@ void virtio_config_enable(struct virtio_device *dev)
 	dev->config_change_pending = false;
 	spin_unlock_irq(&dev->config_lock);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(virtio_config_enable);
 
 void virtio_add_status(struct virtio_device *dev, unsigned int status)
 {
+=======
+
+void virtio_add_status(struct virtio_device *dev, unsigned int status)
+{
+	might_sleep();
+>>>>>>> upstream/android-13
 	dev->config->set_status(dev, dev->config->get_status(dev) | status);
 }
 EXPORT_SYMBOL_GPL(virtio_add_status);
 
+<<<<<<< HEAD
 int virtio_finalize_features(struct virtio_device *dev)
 {
 	int ret = dev->config->finalize_features(dev);
@@ -172,6 +197,30 @@ int virtio_finalize_features(struct virtio_device *dev)
 
 	if (ret)
 		return ret;
+=======
+/* Do some validation, then set FEATURES_OK */
+static int virtio_features_ok(struct virtio_device *dev)
+{
+	unsigned status;
+	int ret;
+
+	might_sleep();
+
+	ret = arch_has_restricted_virtio_memory_access();
+	if (ret) {
+		if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1)) {
+			dev_warn(&dev->dev,
+				 "device must provide VIRTIO_F_VERSION_1\n");
+			return -ENODEV;
+		}
+
+		if (!virtio_has_feature(dev, VIRTIO_F_ACCESS_PLATFORM)) {
+			dev_warn(&dev->dev,
+				 "device must provide VIRTIO_F_ACCESS_PLATFORM\n");
+			return -ENODEV;
+		}
+	}
+>>>>>>> upstream/android-13
 
 	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1))
 		return 0;
@@ -185,7 +234,10 @@ int virtio_finalize_features(struct virtio_device *dev)
 	}
 	return 0;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(virtio_finalize_features);
+=======
+>>>>>>> upstream/android-13
 
 static int virtio_dev_probe(struct device *_d)
 {
@@ -232,6 +284,7 @@ static int virtio_dev_probe(struct device *_d)
 		if (device_features & (1ULL << i))
 			__virtio_set_bit(dev, i);
 
+<<<<<<< HEAD
 	if (drv->validate) {
 		err = drv->validate(dev);
 		if (err)
@@ -239,6 +292,28 @@ static int virtio_dev_probe(struct device *_d)
 	}
 
 	err = virtio_finalize_features(dev);
+=======
+	err = dev->config->finalize_features(dev);
+	if (err)
+		goto err;
+
+	if (drv->validate) {
+		u64 features = dev->features;
+
+		err = drv->validate(dev);
+		if (err)
+			goto err;
+
+		/* Did validation change any features? Then write them again. */
+		if (features != dev->features) {
+			err = dev->config->finalize_features(dev);
+			if (err)
+				goto err;
+		}
+	}
+
+	err = virtio_features_ok(dev);
+>>>>>>> upstream/android-13
 	if (err)
 		goto err;
 
@@ -262,7 +337,11 @@ err:
 
 }
 
+<<<<<<< HEAD
 static int virtio_dev_remove(struct device *_d)
+=======
+static void virtio_dev_remove(struct device *_d)
+>>>>>>> upstream/android-13
 {
 	struct virtio_device *dev = dev_to_virtio(_d);
 	struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
@@ -276,7 +355,12 @@ static int virtio_dev_remove(struct device *_d)
 
 	/* Acknowledge the device's existence again. */
 	virtio_add_status(dev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
+<<<<<<< HEAD
 	return 0;
+=======
+
+	of_node_put(dev->dev.of_node);
+>>>>>>> upstream/android-13
 }
 
 static struct bus_type virtio_bus = {
@@ -303,6 +387,51 @@ void unregister_virtio_driver(struct virtio_driver *driver)
 }
 EXPORT_SYMBOL_GPL(unregister_virtio_driver);
 
+<<<<<<< HEAD
+=======
+static int virtio_device_of_init(struct virtio_device *dev)
+{
+	struct device_node *np, *pnode = dev_of_node(dev->dev.parent);
+	char compat[] = "virtio,deviceXXXXXXXX";
+	int ret, count;
+
+	if (!pnode)
+		return 0;
+
+	count = of_get_available_child_count(pnode);
+	if (!count)
+		return 0;
+
+	/* There can be only 1 child node */
+	if (WARN_ON(count > 1))
+		return -EINVAL;
+
+	np = of_get_next_available_child(pnode, NULL);
+	if (WARN_ON(!np))
+		return -ENODEV;
+
+	ret = snprintf(compat, sizeof(compat), "virtio,device%x", dev->id.device);
+	BUG_ON(ret >= sizeof(compat));
+
+	/*
+	 * On powerpc/pseries virtio devices are PCI devices so PCI
+	 * vendor/device ids play the role of the "compatible" property.
+	 * Simply don't init of_node in this case.
+	 */
+	if (!of_device_is_compatible(np, compat)) {
+		ret = 0;
+		goto out;
+	}
+
+	dev->dev.of_node = np;
+	return 0;
+
+out:
+	of_node_put(np);
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 /**
  * register_virtio_device - register virtio device
  * @dev        : virtio device to be registered
@@ -327,6 +456,13 @@ int register_virtio_device(struct virtio_device *dev)
 	dev->index = err;
 	dev_set_name(&dev->dev, "virtio%u", dev->index);
 
+<<<<<<< HEAD
+=======
+	err = virtio_device_of_init(dev);
+	if (err)
+		goto out_ida_remove;
+
+>>>>>>> upstream/android-13
 	spin_lock_init(&dev->config_lock);
 	dev->config_enabled = false;
 	dev->config_change_pending = false;
@@ -339,6 +475,10 @@ int register_virtio_device(struct virtio_device *dev)
 	virtio_add_status(dev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
 
 	INIT_LIST_HEAD(&dev->vqs);
+<<<<<<< HEAD
+=======
+	spin_lock_init(&dev->vqs_list_lock);
+>>>>>>> upstream/android-13
 
 	/*
 	 * device_add() causes the bus infrastructure to look for a matching
@@ -346,14 +486,36 @@ int register_virtio_device(struct virtio_device *dev)
 	 */
 	err = device_add(&dev->dev);
 	if (err)
+<<<<<<< HEAD
 		ida_simple_remove(&virtio_index_ida, dev->index);
 out:
 	if (err)
 		virtio_add_status(dev, VIRTIO_CONFIG_S_FAILED);
+=======
+		goto out_of_node_put;
+
+	return 0;
+
+out_of_node_put:
+	of_node_put(dev->dev.of_node);
+out_ida_remove:
+	ida_simple_remove(&virtio_index_ida, dev->index);
+out:
+	virtio_add_status(dev, VIRTIO_CONFIG_S_FAILED);
+>>>>>>> upstream/android-13
 	return err;
 }
 EXPORT_SYMBOL_GPL(register_virtio_device);
 
+<<<<<<< HEAD
+=======
+bool is_virtio_device(struct device *dev)
+{
+	return dev->bus == &virtio_bus;
+}
+EXPORT_SYMBOL_GPL(is_virtio_device);
+
+>>>>>>> upstream/android-13
 void unregister_virtio_device(struct virtio_device *dev)
 {
 	int index = dev->index; /* save for after device release */
@@ -402,7 +564,15 @@ int virtio_device_restore(struct virtio_device *dev)
 	/* We have a driver! */
 	virtio_add_status(dev, VIRTIO_CONFIG_S_DRIVER);
 
+<<<<<<< HEAD
 	ret = virtio_finalize_features(dev);
+=======
+	ret = dev->config->finalize_features(dev);
+	if (ret)
+		goto err;
+
+	ret = virtio_features_ok(dev);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto err;
 

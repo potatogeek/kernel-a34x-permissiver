@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * OMAP2+ Clock Management prototypes
  *
@@ -5,10 +9,13 @@
  * Copyright (C) 2007-2009 Nokia Corporation
  *
  * Written by Paul Walmsley
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __ARCH_ASM_MACH_OMAP2_CM_H
 #define __ARCH_ASM_MACH_OMAP2_CM_H
@@ -29,7 +36,10 @@
 
 extern struct omap_domain_base cm_base;
 extern struct omap_domain_base cm2_base;
+<<<<<<< HEAD
 extern void omap2_set_globals_cm(void __iomem *cm, void __iomem *cm2);
+=======
+>>>>>>> upstream/android-13
 # endif
 
 /*

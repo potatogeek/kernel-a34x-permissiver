@@ -36,6 +36,11 @@
 #define MAX_IRQNAME	16	/* big enough for "QMan portal %d" */
 #define QMAN_POLL_LIMIT 32
 #define QMAN_PIRQ_DQRR_ITHRESH 12
+<<<<<<< HEAD
+=======
+#define QMAN_DQRR_IT_MAX 15
+#define QMAN_ITP_MAX 0xFFF
+>>>>>>> upstream/android-13
 #define QMAN_PIRQ_MR_ITHRESH 4
 #define QMAN_PIRQ_IPERIOD 100
 
@@ -447,11 +452,14 @@ static inline int qm_eqcr_init(struct qm_portal *portal,
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline unsigned int qm_eqcr_get_ci_stashing(struct qm_portal *portal)
 {
 	return (qm_in(portal, QM_REG_CFG) >> 28) & 0x7;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void qm_eqcr_finish(struct qm_portal *portal)
 {
 	struct qm_eqcr *eqcr = &portal->eqcr;
@@ -727,9 +735,21 @@ static inline void qm_dqrr_vdqcr_set(struct qm_portal *portal, u32 vdqcr)
 	qm_out(portal, QM_REG_DQRR_VDQCR, vdqcr);
 }
 
+<<<<<<< HEAD
 static inline void qm_dqrr_set_ithresh(struct qm_portal *portal, u8 ithresh)
 {
 	qm_out(portal, QM_REG_DQRR_ITR, ithresh);
+=======
+static inline int qm_dqrr_set_ithresh(struct qm_portal *portal, u8 ithresh)
+{
+
+	if (ithresh > QMAN_DQRR_IT_MAX)
+		return -EINVAL;
+
+	qm_out(portal, QM_REG_DQRR_ITR, ithresh);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /* --- MR API --- */
@@ -850,12 +870,32 @@ static inline void qm_mr_set_ithresh(struct qm_portal *portal, u8 ithresh)
 
 static inline int qm_mc_init(struct qm_portal *portal)
 {
+<<<<<<< HEAD
+=======
+	u8 rr0, rr1;
+>>>>>>> upstream/android-13
 	struct qm_mc *mc = &portal->mc;
 
 	mc->cr = portal->addr.ce + QM_CL_CR;
 	mc->rr = portal->addr.ce + QM_CL_RR0;
+<<<<<<< HEAD
 	mc->rridx = (mc->cr->_ncw_verb & QM_MCC_VERB_VBIT)
 		    ? 0 : 1;
+=======
+	/*
+	 * The expected valid bit polarity for the next CR command is 0
+	 * if RR1 contains a valid response, and is 1 if RR0 contains a
+	 * valid response. If both RR contain all 0, this indicates either
+	 * that no command has been executed since reset (in which case the
+	 * expected valid bit polarity is 1)
+	 */
+	rr0 = mc->rr->verb;
+	rr1 = (mc->rr+1)->verb;
+	if ((rr0 == 0 && rr1 == 0) || rr0 != 0)
+		mc->rridx = 1;
+	else
+		mc->rridx = 0;
+>>>>>>> upstream/android-13
 	mc->vbit = mc->rridx ? QM_MCC_VERB_VBIT : 0;
 #ifdef CONFIG_FSL_DPAA_CHECKING
 	mc->state = qman_mc_idle;
@@ -998,8 +1038,69 @@ static inline void put_affine_portal(void)
 	put_cpu_var(qman_affine_portal);
 }
 
+<<<<<<< HEAD
 static struct workqueue_struct *qm_portal_wq;
 
+=======
+
+static inline struct qman_portal *get_portal_for_channel(u16 channel)
+{
+	int i;
+
+	for (i = 0; i < num_possible_cpus(); i++) {
+		if (affine_portals[i] &&
+		    affine_portals[i]->config->channel == channel)
+			return affine_portals[i];
+	}
+
+	return NULL;
+}
+
+static struct workqueue_struct *qm_portal_wq;
+
+int qman_dqrr_set_ithresh(struct qman_portal *portal, u8 ithresh)
+{
+	int res;
+
+	if (!portal)
+		return -EINVAL;
+
+	res = qm_dqrr_set_ithresh(&portal->p, ithresh);
+	if (res)
+		return res;
+
+	portal->p.dqrr.ithresh = ithresh;
+
+	return 0;
+}
+EXPORT_SYMBOL(qman_dqrr_set_ithresh);
+
+void qman_dqrr_get_ithresh(struct qman_portal *portal, u8 *ithresh)
+{
+	if (portal && ithresh)
+		*ithresh = qm_in(&portal->p, QM_REG_DQRR_ITR);
+}
+EXPORT_SYMBOL(qman_dqrr_get_ithresh);
+
+void qman_portal_get_iperiod(struct qman_portal *portal, u32 *iperiod)
+{
+	if (portal && iperiod)
+		*iperiod = qm_in(&portal->p, QM_REG_ITPR);
+}
+EXPORT_SYMBOL(qman_portal_get_iperiod);
+
+int qman_portal_set_iperiod(struct qman_portal *portal, u32 iperiod)
+{
+	if (!portal || iperiod > QMAN_ITP_MAX)
+		return -EINVAL;
+
+	qm_out(&portal->p, QM_REG_ITPR, iperiod);
+
+	return 0;
+}
+EXPORT_SYMBOL(qman_portal_set_iperiod);
+
+>>>>>>> upstream/android-13
 int qman_wq_alloc(void)
 {
 	qm_portal_wq = alloc_workqueue("qman_portal_wq", 0, 1);
@@ -1008,6 +1109,23 @@ int qman_wq_alloc(void)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+
+void qman_enable_irqs(void)
+{
+	int i;
+
+	for (i = 0; i < num_possible_cpus(); i++) {
+		if (affine_portals[i]) {
+			qm_out(&affine_portals[i]->p, QM_REG_ISR, 0xffffffff);
+			qm_out(&affine_portals[i]->p, QM_REG_IIR, 0);
+		}
+
+	}
+}
+
+>>>>>>> upstream/android-13
 /*
  * This is what everything can wait on, even if it migrates to a different cpu
  * to the one whose affine portal it is waiting on.
@@ -1074,7 +1192,11 @@ static u32 fq_to_tag(struct qman_fq *fq)
 
 static u32 __poll_portal_slow(struct qman_portal *p, u32 is);
 static inline unsigned int __poll_portal_fast(struct qman_portal *p,
+<<<<<<< HEAD
 					unsigned int poll_limit);
+=======
+					unsigned int poll_limit, bool sched_napi);
+>>>>>>> upstream/android-13
 static void qm_congestion_task(struct work_struct *work);
 static void qm_mr_process_task(struct work_struct *work);
 
@@ -1089,7 +1211,11 @@ static irqreturn_t portal_isr(int irq, void *ptr)
 
 	/* DQRR-handling if it's interrupt-driven */
 	if (is & QM_PIRQ_DQRI) {
+<<<<<<< HEAD
 		__poll_portal_fast(p, QMAN_POLL_LIMIT);
+=======
+		__poll_portal_fast(p, QMAN_POLL_LIMIT, true);
+>>>>>>> upstream/android-13
 		clear = QM_DQAVAIL_MASK | QM_PIRQ_DQRI;
 	}
 	/* Handling of anything else that's interrupt-driven */
@@ -1102,6 +1228,10 @@ static int drain_mr_fqrni(struct qm_portal *p)
 {
 	const union qm_mr_entry *msg;
 loop:
+<<<<<<< HEAD
+=======
+	qm_mr_pvb_update(p);
+>>>>>>> upstream/android-13
 	msg = qm_mr_current(p);
 	if (!msg) {
 		/*
@@ -1118,7 +1248,12 @@ loop:
 		 * entries well before the ring has been fully consumed, so
 		 * we're being *really* paranoid here.
 		 */
+<<<<<<< HEAD
 		msleep(1);
+=======
+		mdelay(1);
+		qm_mr_pvb_update(p);
+>>>>>>> upstream/android-13
 		msg = qm_mr_current(p);
 		if (!msg)
 			return 0;
@@ -1205,17 +1340,28 @@ static int qman_create_portal(struct qman_portal *portal,
 	qm_out(p, QM_REG_ISDR, isdr);
 	portal->irq_sources = 0;
 	qm_out(p, QM_REG_IER, 0);
+<<<<<<< HEAD
 	qm_out(p, QM_REG_ISR, 0xffffffff);
 	snprintf(portal->irqname, MAX_IRQNAME, IRQNAME, c->cpu);
+=======
+	snprintf(portal->irqname, MAX_IRQNAME, IRQNAME, c->cpu);
+	qm_out(p, QM_REG_IIR, 1);
+>>>>>>> upstream/android-13
 	if (request_irq(c->irq, portal_isr, 0, portal->irqname,	portal)) {
 		dev_err(c->dev, "request_irq() failed\n");
 		goto fail_irq;
 	}
+<<<<<<< HEAD
 	if (c->cpu != -1 && irq_can_set_affinity(c->irq) &&
 	    irq_set_affinity(c->irq, cpumask_of(c->cpu))) {
 		dev_err(c->dev, "irq_set_affinity() failed\n");
 		goto fail_affinity;
 	}
+=======
+
+	if (dpaa_set_portal_irq_affinity(c->dev, c->irq, c->cpu))
+		goto fail_affinity;
+>>>>>>> upstream/android-13
 
 	/* Need EQCR to be empty before continuing */
 	isdr &= ~QM_PIRQ_EQCI;
@@ -1228,7 +1374,11 @@ static int qman_create_portal(struct qman_portal *portal,
 	isdr &= ~(QM_PIRQ_DQRI | QM_PIRQ_MRI);
 	qm_out(p, QM_REG_ISDR, isdr);
 	if (qm_dqrr_current(p)) {
+<<<<<<< HEAD
 		dev_err(c->dev, "DQRR unclean\n");
+=======
+		dev_dbg(c->dev, "DQRR unclean\n");
+>>>>>>> upstream/android-13
 		qm_dqrr_cdc_consume_n(p, 0xffff);
 	}
 	if (qm_mr_current(p) && drain_mr_fqrni(p)) {
@@ -1241,8 +1391,15 @@ static int qman_create_portal(struct qman_portal *portal,
 	}
 	/* Success */
 	portal->config = c;
+<<<<<<< HEAD
 	qm_out(p, QM_REG_ISDR, 0);
 	qm_out(p, QM_REG_IIR, 0);
+=======
+	qm_out(p, QM_REG_ISR, 0xffffffff);
+	qm_out(p, QM_REG_ISDR, 0);
+	if (!qman_requires_cleanup())
+		qm_out(p, QM_REG_IIR, 0);
+>>>>>>> upstream/android-13
 	/* Write a sane SDQCR */
 	qm_dqrr_sdqcr_set(p, portal->sdqcr);
 	return 0;
@@ -1515,7 +1672,11 @@ static noinline void clear_vdqcr(struct qman_portal *p, struct qman_fq *fq)
  * user callbacks to call into any QMan API.
  */
 static inline unsigned int __poll_portal_fast(struct qman_portal *p,
+<<<<<<< HEAD
 					unsigned int poll_limit)
+=======
+					unsigned int poll_limit, bool sched_napi)
+>>>>>>> upstream/android-13
 {
 	const struct qm_dqrr_entry *dq;
 	struct qman_fq *fq;
@@ -1549,7 +1710,11 @@ static inline unsigned int __poll_portal_fast(struct qman_portal *p,
 			 * and we don't want multiple if()s in the critical
 			 * path (SDQCR).
 			 */
+<<<<<<< HEAD
 			res = fq->cb.dqrr(p, fq, dq);
+=======
+			res = fq->cb.dqrr(p, fq, dq, sched_napi);
+>>>>>>> upstream/android-13
 			if (res == qman_cb_dqrr_stop)
 				break;
 			/* Check for VDQCR completion */
@@ -1559,7 +1724,11 @@ static inline unsigned int __poll_portal_fast(struct qman_portal *p,
 			/* SDQCR: context_b points to the FQ */
 			fq = tag_to_fq(be32_to_cpu(dq->context_b));
 			/* Now let the callback do its stuff */
+<<<<<<< HEAD
 			res = fq->cb.dqrr(p, fq, dq);
+=======
+			res = fq->cb.dqrr(p, fq, dq, sched_napi);
+>>>>>>> upstream/android-13
 			/*
 			 * The callback can request that we exit without
 			 * consuming this entry nor advancing;
@@ -1657,9 +1826,22 @@ struct qman_portal *qman_get_affine_portal(int cpu)
 }
 EXPORT_SYMBOL(qman_get_affine_portal);
 
+<<<<<<< HEAD
 int qman_p_poll_dqrr(struct qman_portal *p, unsigned int limit)
 {
 	return __poll_portal_fast(p, limit);
+=======
+int qman_start_using_portal(struct qman_portal *p, struct device *dev)
+{
+	return (!device_link_add(dev, p->config->dev,
+				 DL_FLAG_AUTOREMOVE_CONSUMER)) ? -EINVAL : 0;
+}
+EXPORT_SYMBOL(qman_start_using_portal);
+
+int qman_p_poll_dqrr(struct qman_portal *p, unsigned int limit)
+{
+	return __poll_portal_fast(p, limit, false);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(qman_p_poll_dqrr);
 
@@ -2521,14 +2703,24 @@ static int _qm_dqrr_consume_and_match(struct qm_portal *p, u32 fqid, int s,
 #define qm_dqrr_drain_nomatch(p) \
 	_qm_dqrr_consume_and_match(p, 0, 0, false)
 
+<<<<<<< HEAD
 static int qman_shutdown_fq(u32 fqid)
 {
 	struct qman_portal *p;
+=======
+int qman_shutdown_fq(u32 fqid)
+{
+	struct qman_portal *p, *channel_portal;
+>>>>>>> upstream/android-13
 	struct device *dev;
 	union qm_mc_command *mcc;
 	union qm_mc_result *mcr;
 	int orl_empty, drain = 0, ret = 0;
+<<<<<<< HEAD
 	u32 channel, wq, res;
+=======
+	u32 channel, res;
+>>>>>>> upstream/android-13
 	u8 state;
 
 	p = get_affine_portal();
@@ -2561,7 +2753,22 @@ static int qman_shutdown_fq(u32 fqid)
 	DPAA_ASSERT((mcr->verb & QM_MCR_VERB_MASK) == QM_MCR_VERB_QUERYFQ);
 	/* Need to store these since the MCR gets reused */
 	channel = qm_fqd_get_chan(&mcr->queryfq.fqd);
+<<<<<<< HEAD
 	wq = qm_fqd_get_wq(&mcr->queryfq.fqd);
+=======
+	qm_fqd_get_wq(&mcr->queryfq.fqd);
+
+	if (channel < qm_channel_pool1) {
+		channel_portal = get_portal_for_channel(channel);
+		if (channel_portal == NULL) {
+			dev_err(dev, "Can't find portal for dedicated channel 0x%x\n",
+				channel);
+			ret = -EIO;
+			goto out;
+		}
+	} else
+		channel_portal = p;
+>>>>>>> upstream/android-13
 
 	switch (state) {
 	case QM_MCR_NP_STATE_TEN_SCHED:
@@ -2569,11 +2776,19 @@ static int qman_shutdown_fq(u32 fqid)
 	case QM_MCR_NP_STATE_ACTIVE:
 	case QM_MCR_NP_STATE_PARKED:
 		orl_empty = 0;
+<<<<<<< HEAD
 		mcc = qm_mc_start(&p->p);
 		qm_fqid_set(&mcc->fq, fqid);
 		qm_mc_commit(&p->p, QM_MCC_VERB_ALTER_RETIRE);
 		if (!qm_mc_result_timeout(&p->p, &mcr)) {
 			dev_err(dev, "QUERYFQ_NP timeout\n");
+=======
+		mcc = qm_mc_start(&channel_portal->p);
+		qm_fqid_set(&mcc->fq, fqid);
+		qm_mc_commit(&channel_portal->p, QM_MCC_VERB_ALTER_RETIRE);
+		if (!qm_mc_result_timeout(&channel_portal->p, &mcr)) {
+			dev_err(dev, "ALTER_RETIRE timeout\n");
+>>>>>>> upstream/android-13
 			ret = -ETIMEDOUT;
 			goto out;
 		}
@@ -2581,6 +2796,12 @@ static int qman_shutdown_fq(u32 fqid)
 			    QM_MCR_VERB_ALTER_RETIRE);
 		res = mcr->result; /* Make a copy as we reuse MCR below */
 
+<<<<<<< HEAD
+=======
+		if (res == QM_MCR_RESULT_OK)
+			drain_mr_fqrni(&channel_portal->p);
+
+>>>>>>> upstream/android-13
 		if (res == QM_MCR_RESULT_PENDING) {
 			/*
 			 * Need to wait for the FQRN in the message ring, which
@@ -2589,7 +2810,10 @@ static int qman_shutdown_fq(u32 fqid)
 			 * to dequeue from the channel the FQ is scheduled on
 			 */
 			int found_fqrn = 0;
+<<<<<<< HEAD
 			u16 dequeue_wq = 0;
+=======
+>>>>>>> upstream/android-13
 
 			/* Flag that we need to drain FQ */
 			drain = 1;
@@ -2597,11 +2821,16 @@ static int qman_shutdown_fq(u32 fqid)
 			if (channel >= qm_channel_pool1 &&
 			    channel < qm_channel_pool1 + 15) {
 				/* Pool channel, enable the bit in the portal */
+<<<<<<< HEAD
 				dequeue_wq = (channel -
 					      qm_channel_pool1 + 1)<<4 | wq;
 			} else if (channel < qm_channel_pool1) {
 				/* Dedicated channel */
 				dequeue_wq = wq;
+=======
+			} else if (channel < qm_channel_pool1) {
+				/* Dedicated channel */
+>>>>>>> upstream/android-13
 			} else {
 				dev_err(dev, "Can't recover FQ 0x%x, ch: 0x%x",
 					fqid, channel);
@@ -2610,21 +2839,41 @@ static int qman_shutdown_fq(u32 fqid)
 			}
 			/* Set the sdqcr to drain this channel */
 			if (channel < qm_channel_pool1)
+<<<<<<< HEAD
 				qm_dqrr_sdqcr_set(&p->p,
 						  QM_SDQCR_TYPE_ACTIVE |
 						  QM_SDQCR_CHANNELS_DEDICATED);
 			else
 				qm_dqrr_sdqcr_set(&p->p,
+=======
+				qm_dqrr_sdqcr_set(&channel_portal->p,
+						  QM_SDQCR_TYPE_ACTIVE |
+						  QM_SDQCR_CHANNELS_DEDICATED);
+			else
+				qm_dqrr_sdqcr_set(&channel_portal->p,
+>>>>>>> upstream/android-13
 						  QM_SDQCR_TYPE_ACTIVE |
 						  QM_SDQCR_CHANNELS_POOL_CONV
 						  (channel));
 			do {
 				/* Keep draining DQRR while checking the MR*/
+<<<<<<< HEAD
 				qm_dqrr_drain_nomatch(&p->p);
 				/* Process message ring too */
 				found_fqrn = qm_mr_drain(&p->p, FQRN);
 				cpu_relax();
 			} while (!found_fqrn);
+=======
+				qm_dqrr_drain_nomatch(&channel_portal->p);
+				/* Process message ring too */
+				found_fqrn = qm_mr_drain(&channel_portal->p,
+							 FQRN);
+				cpu_relax();
+			} while (!found_fqrn);
+			/* Restore SDQCR */
+			qm_dqrr_sdqcr_set(&channel_portal->p,
+					  channel_portal->sdqcr);
+>>>>>>> upstream/android-13
 
 		}
 		if (res != QM_MCR_RESULT_OK &&
@@ -2655,9 +2904,14 @@ static int qman_shutdown_fq(u32 fqid)
 				 * Wait for a dequeue and process the dequeues,
 				 * making sure to empty the ring completely
 				 */
+<<<<<<< HEAD
 			} while (qm_dqrr_drain_wait(&p->p, fqid, FQ_EMPTY));
 		}
 		qm_dqrr_sdqcr_set(&p->p, 0);
+=======
+			} while (!qm_dqrr_drain_wait(&p->p, fqid, FQ_EMPTY));
+		}
+>>>>>>> upstream/android-13
 
 		while (!orl_empty) {
 			/* Wait for the ORL to have been completely drained */
@@ -2694,7 +2948,11 @@ static int qman_shutdown_fq(u32 fqid)
 
 		DPAA_ASSERT((mcr->verb & QM_MCR_VERB_MASK) ==
 			    QM_MCR_VERB_ALTER_OOS);
+<<<<<<< HEAD
 		if (mcr->result) {
+=======
+		if (mcr->result != QM_MCR_RESULT_OK) {
+>>>>>>> upstream/android-13
 			dev_err(dev, "OOS fail: FQ 0x%x (0x%x)\n",
 				fqid, mcr->result);
 			ret = -EIO;

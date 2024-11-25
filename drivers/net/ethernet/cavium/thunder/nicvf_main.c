@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015 Cavium, Inc.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License
  * as published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2015 Cavium, Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -75,9 +81,12 @@ module_param(cpi_alg, int, 0444);
 MODULE_PARM_DESC(cpi_alg,
 		 "PFC algorithm (0=none, 1=VLAN, 2=VLAN16, 3=IP Diffserv)");
 
+<<<<<<< HEAD
 /* workqueue for handling kernel ndo_set_rx_mode() calls */
 static struct workqueue_struct *nicvf_rx_mode_wq;
 
+=======
+>>>>>>> upstream/android-13
 static inline u8 nicvf_netdev_qidx(struct nicvf *nic, u8 qidx)
 {
 	if (nic->sqs_mode)
@@ -132,20 +141,32 @@ static void nicvf_write_to_mbx(struct nicvf *nic, union nic_mbx *mbx)
 
 int nicvf_send_msg_to_pf(struct nicvf *nic, union nic_mbx *mbx)
 {
+<<<<<<< HEAD
 	int timeout = NIC_MBOX_MSG_TIMEOUT;
 	int sleep = 10;
+=======
+	unsigned long timeout;
+	int ret = 0;
+
+	mutex_lock(&nic->rx_mode_mtx);
+>>>>>>> upstream/android-13
 
 	nic->pf_acked = false;
 	nic->pf_nacked = false;
 
 	nicvf_write_to_mbx(nic, mbx);
 
+<<<<<<< HEAD
+=======
+	timeout = jiffies + msecs_to_jiffies(NIC_MBOX_MSG_TIMEOUT);
+>>>>>>> upstream/android-13
 	/* Wait for previous message to be acked, timeout 2sec */
 	while (!nic->pf_acked) {
 		if (nic->pf_nacked) {
 			netdev_err(nic->netdev,
 				   "PF NACK to mbox msg 0x%02x from VF%d\n",
 				   (mbx->msg.msg & 0xFF), nic->vf_id);
+<<<<<<< HEAD
 			return -EINVAL;
 		}
 		msleep(sleep);
@@ -160,6 +181,24 @@ int nicvf_send_msg_to_pf(struct nicvf *nic, union nic_mbx *mbx)
 		}
 	}
 	return 0;
+=======
+			ret = -EINVAL;
+			break;
+		}
+		usleep_range(8000, 10000);
+		if (nic->pf_acked)
+			break;
+		if (time_after(jiffies, timeout)) {
+			netdev_err(nic->netdev,
+				   "PF didn't ACK to mbox msg 0x%02x from VF%d\n",
+				   (mbx->msg.msg & 0xFF), nic->vf_id);
+			ret = -EBUSY;
+			break;
+		}
+	}
+	mutex_unlock(&nic->rx_mode_mtx);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /* Checks if VF is able to comminicate with PF
@@ -246,6 +285,7 @@ static void  nicvf_handle_mbx_intr(struct nicvf *nic)
 		break;
 	case NIC_MBOX_MSG_BGX_LINK_CHANGE:
 		nic->pf_acked = true;
+<<<<<<< HEAD
 		nic->link_up = mbx.link_status.link_up;
 		nic->duplex = mbx.link_status.duplex;
 		nic->speed = mbx.link_status.speed;
@@ -261,6 +301,26 @@ static void  nicvf_handle_mbx_intr(struct nicvf *nic)
 			netdev_info(nic->netdev, "Link is Down\n");
 			netif_carrier_off(nic->netdev);
 			netif_tx_stop_all_queues(nic->netdev);
+=======
+		if (nic->link_up != mbx.link_status.link_up) {
+			nic->link_up = mbx.link_status.link_up;
+			nic->duplex = mbx.link_status.duplex;
+			nic->speed = mbx.link_status.speed;
+			nic->mac_type = mbx.link_status.mac_type;
+			if (nic->link_up) {
+				netdev_info(nic->netdev,
+					    "Link is Up %d Mbps %s duplex\n",
+					    nic->speed,
+					    nic->duplex == DUPLEX_FULL ?
+					    "Full" : "Half");
+				netif_carrier_on(nic->netdev);
+				netif_tx_start_all_queues(nic->netdev);
+			} else {
+				netdev_info(nic->netdev, "Link is Down\n");
+				netif_carrier_off(nic->netdev);
+				netif_tx_stop_all_queues(nic->netdev);
+			}
+>>>>>>> upstream/android-13
 		}
 		break;
 	case NIC_MBOX_MSG_ALLOC_SQS:
@@ -528,6 +588,10 @@ static inline bool nicvf_xdp_rx(struct nicvf *nic, struct bpf_prog *prog,
 				struct cqe_rx_t *cqe_rx, struct snd_queue *sq,
 				struct rcv_queue *rq, struct sk_buff **skb)
 {
+<<<<<<< HEAD
+=======
+	unsigned char *hard_start, *data;
+>>>>>>> upstream/android-13
 	struct xdp_buff xdp;
 	struct page *page;
 	u32 action;
@@ -545,6 +609,7 @@ static inline bool nicvf_xdp_rx(struct nicvf *nic, struct bpf_prog *prog,
 	cpu_addr = (u64)phys_to_virt(cpu_addr);
 	page = virt_to_page((void *)cpu_addr);
 
+<<<<<<< HEAD
 	xdp.data_hard_start = page_address(page);
 	xdp.data = (void *)cpu_addr;
 	xdp_set_data_meta_invalid(&xdp);
@@ -555,6 +620,16 @@ static inline bool nicvf_xdp_rx(struct nicvf *nic, struct bpf_prog *prog,
 	rcu_read_lock();
 	action = bpf_prog_run_xdp(prog, &xdp);
 	rcu_read_unlock();
+=======
+	xdp_init_buff(&xdp, RCV_FRAG_LEN + XDP_PACKET_HEADROOM,
+		      &rq->xdp_rxq);
+	hard_start = page_address(page);
+	data = (unsigned char *)cpu_addr;
+	xdp_prepare_buff(&xdp, hard_start, data - hard_start, len, false);
+	orig_data = xdp.data;
+
+	action = bpf_prog_run_xdp(prog, &xdp);
+>>>>>>> upstream/android-13
 
 	len = xdp.data_end - xdp.data;
 	/* Check if XDP program has changed headers */
@@ -591,10 +666,17 @@ static inline bool nicvf_xdp_rx(struct nicvf *nic, struct bpf_prog *prog,
 		return true;
 	default:
 		bpf_warn_invalid_xdp_action(action);
+<<<<<<< HEAD
 		/* fall through */
 	case XDP_ABORTED:
 		trace_xdp_exception(nic->netdev, prog, action);
 		/* fall through */
+=======
+		fallthrough;
+	case XDP_ABORTED:
+		trace_xdp_exception(nic->netdev, prog, action);
+		fallthrough;
+>>>>>>> upstream/android-13
 	case XDP_DROP:
 		/* Check if it's a recycled page, if not
 		 * unmap the DMA mapping.
@@ -982,9 +1064,15 @@ static int nicvf_poll(struct napi_struct *napi, int budget)
  *
  * As of now only CQ errors are handled
  */
+<<<<<<< HEAD
 static void nicvf_handle_qs_err(unsigned long data)
 {
 	struct nicvf *nic = (struct nicvf *)data;
+=======
+static void nicvf_handle_qs_err(struct tasklet_struct *t)
+{
+	struct nicvf *nic = from_tasklet(nic, t, qs_err_task);
+>>>>>>> upstream/android-13
 	struct queue_set *qs = nic->qs;
 	int qidx;
 	u64 status;
@@ -1223,7 +1311,11 @@ static int nicvf_register_misc_interrupt(struct nicvf *nic)
 	if (ret < 0) {
 		netdev_err(nic->netdev,
 			   "Req for #%d msix vectors failed\n", nic->num_vec);
+<<<<<<< HEAD
 		return 1;
+=======
+		return ret;
+>>>>>>> upstream/android-13
 	}
 
 	sprintf(nic->irq_name[irq], "%s Mbox", "NICVF");
@@ -1242,7 +1334,11 @@ static int nicvf_register_misc_interrupt(struct nicvf *nic)
 	if (!nicvf_check_pf_ready(nic)) {
 		nicvf_disable_intr(nic, NICVF_INTR_MBOX, 0);
 		nicvf_unregister_interrupts(nic);
+<<<<<<< HEAD
 		return 1;
+=======
+		return -EIO;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -1329,6 +1425,15 @@ int nicvf_stop(struct net_device *netdev)
 	struct nicvf_cq_poll *cq_poll = NULL;
 	union nic_mbx mbx = {};
 
+<<<<<<< HEAD
+=======
+	/* wait till all queued set_rx_mode tasks completes */
+	if (nic->nicvf_rx_mode_wq) {
+		cancel_delayed_work_sync(&nic->link_change_work);
+		drain_workqueue(nic->nicvf_rx_mode_wq);
+	}
+
+>>>>>>> upstream/android-13
 	mbx.msg.msg = NIC_MBOX_MSG_SHUTDOWN;
 	nicvf_send_msg_to_pf(nic, &mbx);
 
@@ -1428,6 +1533,21 @@ static int nicvf_update_hw_max_frs(struct nicvf *nic, int mtu)
 	return nicvf_send_msg_to_pf(nic, &mbx);
 }
 
+<<<<<<< HEAD
+=======
+static void nicvf_link_status_check_task(struct work_struct *work_arg)
+{
+	struct nicvf *nic = container_of(work_arg,
+					 struct nicvf,
+					 link_change_work.work);
+	union nic_mbx mbx = {};
+	mbx.msg.msg = NIC_MBOX_MSG_BGX_LINK_CHANGE;
+	nicvf_send_msg_to_pf(nic, &mbx);
+	queue_delayed_work(nic->nicvf_rx_mode_wq,
+			   &nic->link_change_work, 2 * HZ);
+}
+
+>>>>>>> upstream/android-13
 int nicvf_open(struct net_device *netdev)
 {
 	int cpu, err, qidx;
@@ -1435,6 +1555,13 @@ int nicvf_open(struct net_device *netdev)
 	struct queue_set *qs = nic->qs;
 	struct nicvf_cq_poll *cq_poll = NULL;
 
+<<<<<<< HEAD
+=======
+	/* wait till all queued set_rx_mode tasks completes if any */
+	if (nic->nicvf_rx_mode_wq)
+		drain_workqueue(nic->nicvf_rx_mode_wq);
+
+>>>>>>> upstream/android-13
 	netif_carrier_off(netdev);
 
 	err = nicvf_register_misc_interrupt(nic);
@@ -1468,12 +1595,19 @@ int nicvf_open(struct net_device *netdev)
 	}
 
 	/* Init tasklet for handling Qset err interrupt */
+<<<<<<< HEAD
 	tasklet_init(&nic->qs_err_task, nicvf_handle_qs_err,
 		     (unsigned long)nic);
 
 	/* Init RBDR tasklet which will refill RBDR */
 	tasklet_init(&nic->rbdr_task, nicvf_rbdr_task,
 		     (unsigned long)nic);
+=======
+	tasklet_setup(&nic->qs_err_task, nicvf_handle_qs_err);
+
+	/* Init RBDR tasklet which will refill RBDR */
+	tasklet_setup(&nic->rbdr_task, nicvf_rbdr_task);
+>>>>>>> upstream/android-13
 	INIT_DELAYED_WORK(&nic->rbdr_work, nicvf_rbdr_work);
 
 	/* Configure CPI alorithm */
@@ -1531,6 +1665,16 @@ int nicvf_open(struct net_device *netdev)
 	/* Send VF config done msg to PF */
 	nicvf_send_cfg_done(nic);
 
+<<<<<<< HEAD
+=======
+	if (nic->nicvf_rx_mode_wq) {
+		INIT_DELAYED_WORK(&nic->link_change_work,
+				  nicvf_link_status_check_task);
+		queue_delayed_work(nic->nicvf_rx_mode_wq,
+				   &nic->link_change_work, 0);
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 cleanup:
 	nicvf_disable_intr(nic, NICVF_INTR_MBOX, 0);
@@ -1709,7 +1853,11 @@ static void nicvf_get_stats64(struct net_device *netdev,
 
 }
 
+<<<<<<< HEAD
 static void nicvf_tx_timeout(struct net_device *dev)
+=======
+static void nicvf_tx_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct nicvf *nic = netdev_priv(dev);
 
@@ -1844,6 +1992,7 @@ static int nicvf_xdp_setup(struct nicvf *nic, struct bpf_prog *prog)
 
 	if (nic->xdp_prog) {
 		/* Attach BPF program */
+<<<<<<< HEAD
 		nic->xdp_prog = bpf_prog_add(nic->xdp_prog, nic->rx_queues - 1);
 		if (!IS_ERR(nic->xdp_prog)) {
 			bpf_attached = true;
@@ -1851,6 +2000,10 @@ static int nicvf_xdp_setup(struct nicvf *nic, struct bpf_prog *prog)
 			ret = PTR_ERR(nic->xdp_prog);
 			nic->xdp_prog = NULL;
 		}
+=======
+		bpf_prog_add(nic->xdp_prog, nic->rx_queues - 1);
+		bpf_attached = true;
+>>>>>>> upstream/android-13
 	}
 
 	/* Calculate Tx queues needed for XDP and network stack */
@@ -1879,9 +2032,12 @@ static int nicvf_xdp(struct net_device *netdev, struct netdev_bpf *xdp)
 	switch (xdp->command) {
 	case XDP_SETUP_PROG:
 		return nicvf_xdp_setup(nic, xdp->prog);
+<<<<<<< HEAD
 	case XDP_QUERY_PROG:
 		xdp->prog_id = nic->xdp_prog ? nic->xdp_prog->aux->id : 0;
 		return 0;
+=======
+>>>>>>> upstream/android-13
 	default:
 		return -EINVAL;
 	}
@@ -1976,7 +2132,11 @@ static void __nicvf_set_rx_mode_task(u8 mode, struct xcast_addr_list *mc_addrs,
 		 * its' own LMAC to the filter to accept packets for it.
 		 */
 		mbx.xcast.msg = NIC_MBOX_MSG_ADD_MCAST;
+<<<<<<< HEAD
 		mbx.xcast.data.mac = 0;
+=======
+		mbx.xcast.mac = 0;
+>>>>>>> upstream/android-13
 		if (nicvf_send_msg_to_pf(nic, &mbx) < 0)
 			goto free_mc;
 	}
@@ -1986,7 +2146,11 @@ static void __nicvf_set_rx_mode_task(u8 mode, struct xcast_addr_list *mc_addrs,
 		/* now go through kernel list of MACs and add them one by one */
 		for (idx = 0; idx < mc_addrs->count; idx++) {
 			mbx.xcast.msg = NIC_MBOX_MSG_ADD_MCAST;
+<<<<<<< HEAD
 			mbx.xcast.data.mac = mc_addrs->mc[idx];
+=======
+			mbx.xcast.mac = mc_addrs->mc[idx];
+>>>>>>> upstream/android-13
 			if (nicvf_send_msg_to_pf(nic, &mbx) < 0)
 				goto free_mc;
 		}
@@ -1994,7 +2158,11 @@ static void __nicvf_set_rx_mode_task(u8 mode, struct xcast_addr_list *mc_addrs,
 
 	/* and finally set rx mode for PF accordingly */
 	mbx.xcast.msg = NIC_MBOX_MSG_SET_XCAST;
+<<<<<<< HEAD
 	mbx.xcast.data.mode = mode;
+=======
+	mbx.xcast.mode = mode;
+>>>>>>> upstream/android-13
 
 	nicvf_send_msg_to_pf(nic, &mbx);
 free_mc:
@@ -2004,7 +2172,11 @@ free_mc:
 static void nicvf_set_rx_mode_task(struct work_struct *work_arg)
 {
 	struct nicvf_work *vf_work = container_of(work_arg, struct nicvf_work,
+<<<<<<< HEAD
 						  work.work);
+=======
+						  work);
+>>>>>>> upstream/android-13
 	struct nicvf *nic = container_of(vf_work, struct nicvf, rx_mode_work);
 	u8 mode;
 	struct xcast_addr_list *mc;
@@ -2043,8 +2215,13 @@ static void nicvf_set_rx_mode(struct net_device *netdev)
 			mode |= BGX_XCAST_MCAST_FILTER;
 			/* here we need to copy mc addrs */
 			if (netdev_mc_count(netdev)) {
+<<<<<<< HEAD
 				mc_list = kmalloc(offsetof(typeof(*mc_list),
 							   mc[netdev_mc_count(netdev)]),
+=======
+				mc_list = kmalloc(struct_size(mc_list, mc,
+							      netdev_mc_count(netdev)),
+>>>>>>> upstream/android-13
 						  GFP_ATOMIC);
 				if (unlikely(!mc_list))
 					return;
@@ -2061,7 +2238,11 @@ static void nicvf_set_rx_mode(struct net_device *netdev)
 	kfree(nic->rx_mode_work.mc);
 	nic->rx_mode_work.mc = mc_list;
 	nic->rx_mode_work.mode = mode;
+<<<<<<< HEAD
 	queue_delayed_work(nicvf_rx_mode_wq, &nic->rx_mode_work.work, 0);
+=======
+	queue_work(nic->nicvf_rx_mode_wq, &nic->rx_mode_work.work);
+>>>>>>> upstream/android-13
 	spin_unlock(&nic->rx_mode_wq_lock);
 }
 
@@ -2076,7 +2257,11 @@ static const struct net_device_ops nicvf_netdev_ops = {
 	.ndo_fix_features       = nicvf_fix_features,
 	.ndo_set_features       = nicvf_set_features,
 	.ndo_bpf		= nicvf_xdp,
+<<<<<<< HEAD
 	.ndo_do_ioctl           = nicvf_ioctl,
+=======
+	.ndo_eth_ioctl           = nicvf_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_set_rx_mode        = nicvf_set_rx_mode,
 };
 
@@ -2110,18 +2295,25 @@ static int nicvf_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 		goto err_disable_device;
 	}
 
+<<<<<<< HEAD
 	err = pci_set_dma_mask(pdev, DMA_BIT_MASK(48));
+=======
+	err = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(48));
+>>>>>>> upstream/android-13
 	if (err) {
 		dev_err(dev, "Unable to get usable DMA configuration\n");
 		goto err_release_regions;
 	}
 
+<<<<<<< HEAD
 	err = pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(48));
 	if (err) {
 		dev_err(dev, "unable to get 48-bit DMA for consistent allocations\n");
 		goto err_release_regions;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	qcount = netif_get_num_default_rss_queues();
 
 	/* Restrict multiqset support only for host bound VFs */
@@ -2153,6 +2345,12 @@ static int nicvf_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 		nic->max_queues *= 2;
 	nic->ptp_clock = ptp_clock;
 
+<<<<<<< HEAD
+=======
+	/* Initialize mutex that serializes usage of VF's mailbox */
+	mutex_init(&nic->rx_mode_mtx);
+
+>>>>>>> upstream/android-13
 	/* MAP VF's configuration registers */
 	nic->reg_base = pcim_iomap(pdev, PCI_CFG_REG_BAR_NUM, 0);
 	if (!nic->reg_base) {
@@ -2218,7 +2416,20 @@ static int nicvf_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 
 	INIT_WORK(&nic->reset_task, nicvf_reset_task);
 
+<<<<<<< HEAD
 	INIT_DELAYED_WORK(&nic->rx_mode_work.work, nicvf_set_rx_mode_task);
+=======
+	nic->nicvf_rx_mode_wq = alloc_ordered_workqueue("nicvf_rx_mode_wq_VF%d",
+							WQ_MEM_RECLAIM,
+							nic->vf_id);
+	if (!nic->nicvf_rx_mode_wq) {
+		err = -ENOMEM;
+		dev_err(dev, "Failed to allocate work queue\n");
+		goto err_unregister_interrupts;
+	}
+
+	INIT_WORK(&nic->rx_mode_work.work, nicvf_set_rx_mode_task);
+>>>>>>> upstream/android-13
 	spin_lock_init(&nic->rx_mode_wq_lock);
 
 	err = register_netdev(netdev);
@@ -2259,13 +2470,23 @@ static void nicvf_remove(struct pci_dev *pdev)
 	nic = netdev_priv(netdev);
 	pnetdev = nic->pnicvf->netdev;
 
+<<<<<<< HEAD
 	cancel_delayed_work_sync(&nic->rx_mode_work.work);
 
+=======
+>>>>>>> upstream/android-13
 	/* Check if this Qset is assigned to different VF.
 	 * If yes, clean primary and all secondary Qsets.
 	 */
 	if (pnetdev && (pnetdev->reg_state == NETREG_REGISTERED))
 		unregister_netdev(pnetdev);
+<<<<<<< HEAD
+=======
+	if (nic->nicvf_rx_mode_wq) {
+		destroy_workqueue(nic->nicvf_rx_mode_wq);
+		nic->nicvf_rx_mode_wq = NULL;
+	}
+>>>>>>> upstream/android-13
 	nicvf_unregister_interrupts(nic);
 	pci_set_drvdata(pdev, NULL);
 	if (nic->drv_stats)
@@ -2292,17 +2513,23 @@ static struct pci_driver nicvf_driver = {
 static int __init nicvf_init_module(void)
 {
 	pr_info("%s, ver %s\n", DRV_NAME, DRV_VERSION);
+<<<<<<< HEAD
 	nicvf_rx_mode_wq = alloc_ordered_workqueue("nicvf_generic",
 						   WQ_MEM_RECLAIM);
+=======
+>>>>>>> upstream/android-13
 	return pci_register_driver(&nicvf_driver);
 }
 
 static void __exit nicvf_cleanup_module(void)
 {
+<<<<<<< HEAD
 	if (nicvf_rx_mode_wq) {
 		destroy_workqueue(nicvf_rx_mode_wq);
 		nicvf_rx_mode_wq = NULL;
 	}
+=======
+>>>>>>> upstream/android-13
 	pci_unregister_driver(&nicvf_driver);
 }
 

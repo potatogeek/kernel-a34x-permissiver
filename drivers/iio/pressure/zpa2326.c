@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Murata ZPA2326 pressure and temperature sensor IIO driver
  *
  * Copyright (c) 2016 Parrot S.A.
  *
  * Author: Gregor Boirie <gregor.boirie@parrot.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
@@ -13,6 +18,8 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 /**
@@ -72,6 +79,10 @@
 #include <linux/iio/trigger.h>
 #include <linux/iio/trigger_consumer.h>
 #include <linux/iio/triggered_buffer.h>
+<<<<<<< HEAD
+=======
+#include <asm/unaligned.h>
+>>>>>>> upstream/android-13
 #include "zpa2326.h"
 
 /* 200 ms should be enough for the longest conversion time in one-shot mode. */
@@ -110,7 +121,11 @@ static const struct zpa2326_frequency *zpa2326_highest_frequency(void)
 }
 
 /**
+<<<<<<< HEAD
  * struct zpa_private - Per-device internal private state
+=======
+ * struct zpa2326_private - Per-device internal private state
+>>>>>>> upstream/android-13
  * @timestamp:  Buffered samples ready datum.
  * @regmap:     Underlying I2C / SPI bus adapter used to abstract slave register
  *              accesses.
@@ -1015,22 +1030,34 @@ static int zpa2326_fetch_raw_sample(const struct iio_dev *indio_dev,
 	struct regmap *regs = ((struct zpa2326_private *)
 			       iio_priv(indio_dev))->regmap;
 	int            err;
+<<<<<<< HEAD
+=======
+	u8             v[3];
+>>>>>>> upstream/android-13
 
 	switch (type) {
 	case IIO_PRESSURE:
 		zpa2326_dbg(indio_dev, "fetching raw pressure sample");
 
+<<<<<<< HEAD
 		err = regmap_bulk_read(regs, ZPA2326_PRESS_OUT_XL_REG, value,
 				       3);
+=======
+		err = regmap_bulk_read(regs, ZPA2326_PRESS_OUT_XL_REG, v, sizeof(v));
+>>>>>>> upstream/android-13
 		if (err) {
 			zpa2326_warn(indio_dev, "failed to fetch pressure (%d)",
 				     err);
 			return err;
 		}
 
+<<<<<<< HEAD
 		/* Pressure is a 24 bits wide little-endian unsigned int. */
 		*value = (((u8 *)value)[2] << 16) | (((u8 *)value)[1] << 8) |
 			 ((u8 *)value)[0];
+=======
+		*value = get_unaligned_le24(&v[0]);
+>>>>>>> upstream/android-13
 
 		return IIO_VAL_INT;
 
@@ -1259,8 +1286,16 @@ static int zpa2326_postenable_buffer(struct iio_dev *indio_dev)
 		 * get rid of samples acquired during previous rounds (if any).
 		 */
 		err = zpa2326_clear_fifo(indio_dev, 0);
+<<<<<<< HEAD
 		if (err)
 			goto err;
+=======
+		if (err) {
+			zpa2326_err(indio_dev,
+				    "failed to enable buffering (%d)", err);
+			return err;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	if (!iio_trigger_using_own(indio_dev) && priv->waken) {
@@ -1269,6 +1304,7 @@ static int zpa2326_postenable_buffer(struct iio_dev *indio_dev)
 		 * powered up: reconfigure one-shot mode.
 		 */
 		err = zpa2326_config_oneshot(indio_dev, priv->irq);
+<<<<<<< HEAD
 		if (err)
 			goto err;
 	}
@@ -1284,6 +1320,16 @@ err:
 	zpa2326_err(indio_dev, "failed to enable buffering (%d)", err);
 
 	return err;
+=======
+		if (err) {
+			zpa2326_err(indio_dev,
+				    "failed to enable buffering (%d)", err);
+			return err;
+		}
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int zpa2326_postdisable_buffer(struct iio_dev *indio_dev)
@@ -1296,7 +1342,10 @@ static int zpa2326_postdisable_buffer(struct iio_dev *indio_dev)
 static const struct iio_buffer_setup_ops zpa2326_buffer_setup_ops = {
 	.preenable   = zpa2326_preenable_buffer,
 	.postenable  = zpa2326_postenable_buffer,
+<<<<<<< HEAD
 	.predisable  = iio_triggered_buffer_predisable,
+=======
+>>>>>>> upstream/android-13
 	.postdisable = zpa2326_postdisable_buffer
 };
 
@@ -1396,7 +1445,11 @@ static const struct iio_trigger_ops zpa2326_trigger_ops = {
 };
 
 /**
+<<<<<<< HEAD
  * zpa2326_init_trigger() - Create an interrupt driven / hardware trigger
+=======
+ * zpa2326_init_managed_trigger() - Create interrupt driven / hardware trigger
+>>>>>>> upstream/android-13
  *                          allowing to notify external devices a new sample is
  *                          ready.
  * @parent:    Hardware sampling device @indio_dev is a child of.
@@ -1422,12 +1475,20 @@ static int zpa2326_init_managed_trigger(struct device          *parent,
 		return 0;
 
 	trigger = devm_iio_trigger_alloc(parent, "%s-dev%d",
+<<<<<<< HEAD
 					 indio_dev->name, indio_dev->id);
+=======
+					 indio_dev->name,
+					 iio_device_id(indio_dev));
+>>>>>>> upstream/android-13
 	if (!trigger)
 		return -ENOMEM;
 
 	/* Basic setup. */
+<<<<<<< HEAD
 	trigger->dev.parent = parent;
+=======
+>>>>>>> upstream/android-13
 	trigger->ops = &zpa2326_trigger_ops;
 
 	private->trigger = trigger;
@@ -1610,7 +1671,10 @@ static struct iio_dev *zpa2326_create_managed_iiodev(struct device *device,
 
 	/* Setup for userspace synchronous on demand sampling. */
 	indio_dev->modes = INDIO_DIRECT_MODE;
+<<<<<<< HEAD
 	indio_dev->dev.parent = device;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->channels = zpa2326_channels;
 	indio_dev->num_channels = ARRAY_SIZE(zpa2326_channels);
 	indio_dev->name = name;

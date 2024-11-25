@@ -254,14 +254,20 @@ void __init config_hp300(void)
 	mach_sched_init      = hp300_sched_init;
 	mach_init_IRQ        = hp300_init_IRQ;
 	mach_get_model       = hp300_get_model;
+<<<<<<< HEAD
 	arch_gettimeoffset   = hp300_gettimeoffset;
+=======
+>>>>>>> upstream/android-13
 	mach_hwclk	     = hp300_hwclk;
 	mach_get_ss	     = hp300_get_ss;
 	mach_reset           = hp300_reset;
 #ifdef CONFIG_HEARTBEAT
 	mach_heartbeat       = hp300_pulse;
 #endif
+<<<<<<< HEAD
 	mach_max_dma_address = 0xffffffff;
+=======
+>>>>>>> upstream/android-13
 
 	if (hp300_model >= HP_330 && hp300_model <= HP_433S &&
 	    hp300_model != HP_350) {

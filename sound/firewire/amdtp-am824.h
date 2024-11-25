@@ -45,5 +45,9 @@ void amdtp_am824_midi_trigger(struct amdtp_stream *s, unsigned int port,
 			      struct snd_rawmidi_substream *midi);
 
 int amdtp_am824_init(struct amdtp_stream *s, struct fw_unit *unit,
+<<<<<<< HEAD
 		     enum amdtp_stream_direction dir, enum cip_flags flags);
+=======
+		     enum amdtp_stream_direction dir, unsigned int flags);
+>>>>>>> upstream/android-13
 #endif

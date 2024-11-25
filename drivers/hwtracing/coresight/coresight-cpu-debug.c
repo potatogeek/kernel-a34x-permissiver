@@ -17,6 +17,10 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/moduleparam.h>
+<<<<<<< HEAD
+=======
+#include <linux/panic_notifier.h>
+>>>>>>> upstream/android-13
 #include <linux/pm_qos.h>
 #include <linux/slab.h>
 #include <linux/smp.h>
@@ -104,7 +108,11 @@ static DEFINE_PER_CPU(struct debug_drvdata *, debug_drvdata);
 static int debug_count;
 static struct dentry *debug_debugfs_dir;
 
+<<<<<<< HEAD
 static bool debug_enable;
+=======
+static bool debug_enable = IS_ENABLED(CONFIG_CORESIGHT_CPU_DEBUG_DEFAULT_ON);
+>>>>>>> upstream/android-13
 module_param_named(enable, debug_enable, bool, 0600);
 MODULE_PARM_DESC(enable, "Control to enable coresight CPU debug functionality");
 
@@ -346,10 +354,17 @@ static void debug_init_arch_data(void *info)
 	switch (mode) {
 	case EDDEVID_IMPL_FULL:
 		drvdata->edvidsr_present = true;
+<<<<<<< HEAD
 		/* Fall through */
 	case EDDEVID_IMPL_EDPCSR_EDCIDSR:
 		drvdata->edcidsr_present = true;
 		/* Fall through */
+=======
+		fallthrough;
+	case EDDEVID_IMPL_EDPCSR_EDCIDSR:
+		drvdata->edcidsr_present = true;
+		fallthrough;
+>>>>>>> upstream/android-13
 	case EDDEVID_IMPL_EDPCSR:
 		/*
 		 * In ARM DDI 0487A.k, the EDDEVID1.PCSROffset is used to
@@ -525,11 +540,15 @@ static const struct file_operations debug_func_knob_fops = {
 
 static int debug_func_init(void)
 {
+<<<<<<< HEAD
 	struct dentry *file;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	/* Create debugfs node */
 	debug_debugfs_dir = debugfs_create_dir("coresight_cpu_debug", NULL);
+<<<<<<< HEAD
 	if (!debug_debugfs_dir) {
 		pr_err("%s: unable to create debugfs directory\n", __func__);
 		return -ENOMEM;
@@ -542,6 +561,10 @@ static int debug_func_init(void)
 		ret = -ENOMEM;
 		goto err;
 	}
+=======
+	debugfs_create_file("enable", 0644, debug_debugfs_dir, NULL,
+			    &debug_func_knob_fops);
+>>>>>>> upstream/android-13
 
 	/* Register function to be called for panic */
 	ret = atomic_notifier_chain_register(&panic_notifier_list,
@@ -572,14 +595,24 @@ static int debug_probe(struct amba_device *adev, const struct amba_id *id)
 	struct device *dev = &adev->dev;
 	struct debug_drvdata *drvdata;
 	struct resource *res = &adev->res;
+<<<<<<< HEAD
 	struct device_node *np = adev->dev.of_node;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	drvdata = devm_kzalloc(dev, sizeof(*drvdata), GFP_KERNEL);
 	if (!drvdata)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	drvdata->cpu = np ? of_coresight_get_cpu(np) : 0;
+=======
+	drvdata->cpu = coresight_get_cpu(dev);
+	if (drvdata->cpu < 0)
+		return drvdata->cpu;
+
+>>>>>>> upstream/android-13
 	if (per_cpu(debug_drvdata, drvdata->cpu)) {
 		dev_err(dev, "CPU%d drvdata has already been initialized\n",
 			drvdata->cpu);
@@ -596,11 +629,19 @@ static int debug_probe(struct amba_device *adev, const struct amba_id *id)
 
 	drvdata->base = base;
 
+<<<<<<< HEAD
 	get_online_cpus();
 	per_cpu(debug_drvdata, drvdata->cpu) = drvdata;
 	ret = smp_call_function_single(drvdata->cpu, debug_init_arch_data,
 				       drvdata, 1);
 	put_online_cpus();
+=======
+	cpus_read_lock();
+	per_cpu(debug_drvdata, drvdata->cpu) = drvdata;
+	ret = smp_call_function_single(drvdata->cpu, debug_init_arch_data,
+				       drvdata, 1);
+	cpus_read_unlock();
+>>>>>>> upstream/android-13
 
 	if (ret) {
 		dev_err(dev, "CPU%d debug arch init failed\n", drvdata->cpu);
@@ -636,7 +677,11 @@ err:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int debug_remove(struct amba_device *adev)
+=======
+static void debug_remove(struct amba_device *adev)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &adev->dev;
 	struct debug_drvdata *drvdata = amba_get_drvdata(adev);
@@ -651,6 +696,7 @@ static int debug_remove(struct amba_device *adev)
 
 	if (!--debug_count)
 		debug_func_exit();
+<<<<<<< HEAD
 
 	return 0;
 }
@@ -675,6 +721,31 @@ static const struct amba_id debug_ids[] = {
 	{ 0, 0 },
 };
 
+=======
+}
+
+static const struct amba_cs_uci_id uci_id_debug[] = {
+	{
+		/*  CPU Debug UCI data */
+		.devarch	= 0x47706a15,
+		.devarch_mask	= 0xfff0ffff,
+		.devtype	= 0x00000015,
+	}
+};
+
+static const struct amba_id debug_ids[] = {
+	CS_AMBA_ID(0x000bbd03),				/* Cortex-A53 */
+	CS_AMBA_ID(0x000bbd07),				/* Cortex-A57 */
+	CS_AMBA_ID(0x000bbd08),				/* Cortex-A72 */
+	CS_AMBA_ID(0x000bbd09),				/* Cortex-A73 */
+	CS_AMBA_UCI_ID(0x000f0205, uci_id_debug),	/* Qualcomm Kryo */
+	CS_AMBA_UCI_ID(0x000f0211, uci_id_debug),	/* Qualcomm Kryo */
+	{},
+};
+
+MODULE_DEVICE_TABLE(amba, debug_ids);
+
+>>>>>>> upstream/android-13
 static struct amba_driver debug_driver = {
 	.drv = {
 		.name   = "coresight-cpu-debug",

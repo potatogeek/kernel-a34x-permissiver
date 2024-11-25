@@ -122,7 +122,10 @@ struct chanstat {
  * @n_rcv_packets_not_accepted:     # bogs rcv packets.
  * @queuefullmsg_logged:
  * @struct chstat:
+<<<<<<< HEAD
  * @struct irq_poll_timer:
+=======
+>>>>>>> upstream/android-13
  * @struct napi:
  * @struct cmdrsp:
  */
@@ -183,7 +186,10 @@ struct visornic_devdata {
 
 	int queuefullmsg_logged;
 	struct chanstat chstat;
+<<<<<<< HEAD
 	struct timer_list irq_poll_timer;
+=======
+>>>>>>> upstream/android-13
 	struct napi_struct napi;
 	struct uiscmdrsp cmdrsp[SIZEOF_CMDRSP];
 };
@@ -284,9 +290,15 @@ static int visor_copy_fragsinfo_from_skb(struct sk_buff *skb,
 		for (frag = 0; frag < numfrags; frag++) {
 			count = add_physinfo_entries(page_to_pfn(
 				  skb_frag_page(&skb_shinfo(skb)->frags[frag])),
+<<<<<<< HEAD
 				  skb_shinfo(skb)->frags[frag].page_offset,
 				  skb_shinfo(skb)->frags[frag].size, count,
 				  frags_max, frags);
+=======
+				  skb_frag_off(&skb_shinfo(skb)->frags[frag]),
+				  skb_frag_size(&skb_shinfo(skb)->frags[frag]),
+				  count, frags_max, frags);
+>>>>>>> upstream/android-13
 			/* add_physinfo_entries only returns
 			 * zero if the frags array is out of room
 			 * That should never happen because we
@@ -341,7 +353,11 @@ static void visornic_serverdown_complete(struct visornic_devdata *devdata)
 	struct net_device *netdev = devdata->netdev;
 
 	/* Stop polling for interrupts */
+<<<<<<< HEAD
 	del_timer_sync(&devdata->irq_poll_timer);
+=======
+	visorbus_disable_channel_interrupts(devdata->dev);
+>>>>>>> upstream/android-13
 
 	rtnl_lock();
 	dev_close(netdev);
@@ -534,7 +550,11 @@ static int visornic_disable_with_timeout(struct net_device *netdev,
 		return err;
 
 	/* wait for ack to arrive before we try to free rcv buffers
+<<<<<<< HEAD
 	 * NOTE: the other end automatically unposts the rcv buffers when
+=======
+	 * NOTE: the other end automatically unposts the rcv buffers
+>>>>>>> upstream/android-13
 	 * when it gets a disable.
 	 */
 	spin_lock_irqsave(&devdata->priv_lock, flags);
@@ -896,9 +916,13 @@ static netdev_tx_t visornic_xmit(struct sk_buff *skb, struct net_device *netdev)
 	    ((skb_end_pointer(skb) - skb->data) >= ETH_MIN_PACKET_SIZE)) {
 		/* pad the packet out to minimum size */
 		padlen = ETH_MIN_PACKET_SIZE - len;
+<<<<<<< HEAD
 		memset(&skb->data[len], 0, padlen);
 		skb->tail += padlen;
 		skb->len += padlen;
+=======
+		skb_put_zero(skb, padlen);
+>>>>>>> upstream/android-13
 		len += padlen;
 		firstfraglen += padlen;
 	}
@@ -1080,7 +1104,11 @@ out_save_flags:
  * Queue the work and return. Make sure we have not already been informed that
  * the IO Partition is gone; if so, we will have already timed-out the xmits.
  */
+<<<<<<< HEAD
 static void visornic_xmit_timeout(struct net_device *netdev)
+=======
+static void visornic_xmit_timeout(struct net_device *netdev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct visornic_devdata *devdata = netdev_priv(netdev);
 	unsigned long flags;
@@ -1751,16 +1779,29 @@ static int visornic_poll(struct napi_struct *napi, int budget)
 	return rx_count;
 }
 
+<<<<<<< HEAD
 /* poll_for_irq	- checks the status of the response queue
  * @v: Void pointer to the visronic devdata struct.
+=======
+/* visornic_channel_interrupt	- checks the status of the response queue
+>>>>>>> upstream/android-13
  *
  * Main function of the vnic_incoming thread. Periodically check the response
  * queue and drain it if needed.
  */
+<<<<<<< HEAD
 static void poll_for_irq(struct timer_list *t)
 {
 	struct visornic_devdata *devdata = from_timer(devdata, t,
 						      irq_poll_timer);
+=======
+static void visornic_channel_interrupt(struct visor_device *dev)
+{
+	struct visornic_devdata *devdata = dev_get_drvdata(&dev->device);
+
+	if (!devdata)
+		return;
+>>>>>>> upstream/android-13
 
 	if (!visorchannel_signalempty(
 				   devdata->dev->visorchannel,
@@ -1769,7 +1810,10 @@ static void poll_for_irq(struct timer_list *t)
 
 	atomic_set(&devdata->interrupt_rcvd, 0);
 
+<<<<<<< HEAD
 	mod_timer(&devdata->irq_poll_timer, msecs_to_jiffies(2));
+=======
+>>>>>>> upstream/android-13
 }
 
 /* visornic_probe - probe function for visornic devices
@@ -1863,12 +1907,20 @@ static int visornic_probe(struct visor_device *dev)
 	skb_queue_head_init(&devdata->xmitbufhead);
 
 	/* create a cmdrsp we can use to post and unpost rcv buffers */
+<<<<<<< HEAD
 	devdata->cmdrsp_rcv = kmalloc(SIZEOF_CMDRSP, GFP_ATOMIC);
+=======
+	devdata->cmdrsp_rcv = kmalloc(SIZEOF_CMDRSP, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!devdata->cmdrsp_rcv) {
 		err = -ENOMEM;
 		goto cleanup_rcvbuf;
 	}
+<<<<<<< HEAD
 	devdata->xmit_cmdrsp = kmalloc(SIZEOF_CMDRSP, GFP_ATOMIC);
+=======
+	devdata->xmit_cmdrsp = kmalloc(SIZEOF_CMDRSP, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!devdata->xmit_cmdrsp) {
 		err = -ENOMEM;
 		goto cleanup_cmdrsp_rcv;
@@ -1891,6 +1943,7 @@ static int visornic_probe(struct visor_device *dev)
 	/* Let's start our threads to get responses */
 	netif_napi_add(netdev, &devdata->napi, visornic_poll, NAPI_WEIGHT);
 
+<<<<<<< HEAD
 	timer_setup(&devdata->irq_poll_timer, poll_for_irq, 0);
 	/* Note: This time has to start running before the while
 	 * loop below because the napi routine is responsible for
@@ -1898,6 +1951,8 @@ static int visornic_probe(struct visor_device *dev)
 	 */
 	mod_timer(&devdata->irq_poll_timer, msecs_to_jiffies(2));
 
+=======
+>>>>>>> upstream/android-13
 	channel_offset = offsetof(struct visor_io_channel,
 				  channel_header.features);
 	err = visorbus_read_channel(dev, channel_offset, &features, 8);
@@ -1950,7 +2005,11 @@ cleanup_register_netdev:
 	unregister_netdev(netdev);
 
 cleanup_napi_add:
+<<<<<<< HEAD
 	del_timer_sync(&devdata->irq_poll_timer);
+=======
+	visorbus_disable_channel_interrupts(dev);
+>>>>>>> upstream/android-13
 	netif_napi_del(&devdata->napi);
 
 cleanup_xmit_cmdrsp:
@@ -2018,7 +2077,11 @@ static void visornic_remove(struct visor_device *dev)
 	/* this will call visornic_close() */
 	unregister_netdev(netdev);
 
+<<<<<<< HEAD
 	del_timer_sync(&devdata->irq_poll_timer);
+=======
+	visorbus_disable_channel_interrupts(devdata->dev);
+>>>>>>> upstream/android-13
 	netif_napi_del(&devdata->napi);
 
 	dev_set_drvdata(&dev->device, NULL);
@@ -2092,10 +2155,17 @@ static int visornic_resume(struct visor_device *dev,
 	 * we can start using the device again.
 	 * TODO: State transitions
 	 */
+<<<<<<< HEAD
 	mod_timer(&devdata->irq_poll_timer, msecs_to_jiffies(2));
 
 	rtnl_lock();
 	dev_open(netdev);
+=======
+	visorbus_enable_channel_interrupts(dev);
+
+	rtnl_lock();
+	dev_open(netdev, NULL);
+>>>>>>> upstream/android-13
 	rtnl_unlock();
 
 	complete_func(dev, 0);
@@ -2114,7 +2184,11 @@ static struct visor_driver visornic_driver = {
 	.remove = visornic_remove,
 	.pause = visornic_pause,
 	.resume = visornic_resume,
+<<<<<<< HEAD
 	.channel_interrupt = NULL,
+=======
+	.channel_interrupt = visornic_channel_interrupt,
+>>>>>>> upstream/android-13
 };
 
 /* visornic_init - init function

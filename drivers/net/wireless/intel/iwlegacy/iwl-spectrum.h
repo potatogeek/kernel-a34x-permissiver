@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /******************************************************************************
  *
  * Copyright(c) 2003 - 2011 Intel Corporation. All rights reserved.
  *
  * Portions of this file are derived from the ieee80211 subsystem header files.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -20,6 +25,8 @@
  * The full GNU General Public License is included in this distribution in the
  * file called LICENSE.
  *
+=======
+>>>>>>> upstream/android-13
  * Contact Information:
  *  Intel Linux Wireless <ilw@linux.intel.com>
  * Intel Corporation, 5200 N.E. Elam Young Parkway, Hillsboro, OR 97124-6497
@@ -68,7 +75,11 @@ struct ieee80211_measurement_params {
 struct ieee80211_info_element {
 	u8 id;
 	u8 len;
+<<<<<<< HEAD
 	u8 data[0];
+=======
+	u8 data[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct ieee80211_measurement_request {
@@ -76,7 +87,11 @@ struct ieee80211_measurement_request {
 	u8 token;
 	u8 mode;
 	u8 type;
+<<<<<<< HEAD
 	struct ieee80211_measurement_params params[0];
+=======
+	struct ieee80211_measurement_params params[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct ieee80211_measurement_report {

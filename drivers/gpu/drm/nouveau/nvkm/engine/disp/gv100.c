@@ -28,7 +28,11 @@
 #include <core/gpuobj.h>
 #include <subdev/timer.h>
 
+<<<<<<< HEAD
 static int
+=======
+int
+>>>>>>> upstream/android-13
 gv100_disp_wndw_cnt(struct nvkm_disp *disp, unsigned long *pmask)
 {
 	struct nvkm_device *device = disp->engine.subdev.device;
@@ -36,7 +40,11 @@ gv100_disp_wndw_cnt(struct nvkm_disp *disp, unsigned long *pmask)
 	return (nvkm_rd32(device, 0x610074) & 0x03f00000) >> 20;
 }
 
+<<<<<<< HEAD
 static void
+=======
+void
+>>>>>>> upstream/android-13
 gv100_disp_super(struct work_struct *work)
 {
 	struct nv50_disp *disp =
@@ -101,12 +109,35 @@ gv100_disp_exception(struct nv50_disp *disp, int chid)
 	u32 stat = nvkm_rd32(device, 0x611020 + (chid * 12));
 	u32 type = (stat & 0x00007000) >> 12;
 	u32 mthd = (stat & 0x00000fff) << 2;
+<<<<<<< HEAD
 	u32 data = nvkm_rd32(device, 0x611024 + (chid * 12));
 	u32 code = nvkm_rd32(device, 0x611028 + (chid * 12));
 
 	nvkm_error(subdev, "chid %d %08x [type %d mthd %04x] "
 			   "data %08x code %08x\n",
 		   chid, stat, type, mthd, data, code);
+=======
+	const struct nvkm_enum *reason =
+		nvkm_enum_find(nv50_disp_intr_error_type, type);
+
+	/*TODO: Suspect 33->41 are for WRBK channel exceptions, but we
+	 *      don't support those currently.
+	 *
+	 *      CORE+WIN CHIDs map directly to the FE_EXCEPT() slots.
+	 */
+	if (chid <= 32) {
+		u32 data = nvkm_rd32(device, 0x611024 + (chid * 12));
+		u32 code = nvkm_rd32(device, 0x611028 + (chid * 12));
+		nvkm_error(subdev, "chid %d stat %08x reason %d [%s] "
+				   "mthd %04x data %08x code %08x\n",
+			   chid, stat, type, reason ? reason->name : "",
+			   mthd, data, code);
+	} else {
+		nvkm_error(subdev, "chid %d stat %08x reason %d [%s] "
+				   "mthd %04x\n",
+			   chid, stat, type, reason ? reason->name : "", mthd);
+	}
+>>>>>>> upstream/android-13
 
 	if (chid < ARRAY_SIZE(disp->chan) && disp->chan[chid]) {
 		switch (mthd) {
@@ -141,6 +172,15 @@ gv100_disp_intr_ctrl_disp(struct nv50_disp *disp)
 	if (stat & 0x00000008)
 		stat &= ~0x00000008;
 
+<<<<<<< HEAD
+=======
+	if (stat & 0x00000080) {
+		u32 error = nvkm_mask(device, 0x611848, 0x00000000, 0x00000000);
+		nvkm_warn(subdev, "error %08x\n", error);
+		stat &= ~0x00000080;
+	}
+
+>>>>>>> upstream/android-13
 	if (stat & 0x00000100) {
 		unsigned long wndws = nvkm_rd32(device, 0x611858);
 		unsigned long other = nvkm_rd32(device, 0x61185c);
@@ -257,7 +297,11 @@ gv100_disp_intr_head_timing(struct nv50_disp *disp, int head)
 	}
 }
 
+<<<<<<< HEAD
 static void
+=======
+void
+>>>>>>> upstream/android-13
 gv100_disp_intr(struct nv50_disp *disp)
 {
 	struct nvkm_subdev *subdev = &disp->base.engine.subdev;
@@ -297,7 +341,11 @@ gv100_disp_intr(struct nv50_disp *disp)
 		nvkm_warn(subdev, "intr %08x\n", stat);
 }
 
+<<<<<<< HEAD
 static void
+=======
+void
+>>>>>>> upstream/android-13
 gv100_disp_fini(struct nv50_disp *disp)
 {
 	struct nvkm_device *device = disp->base.engine.subdev.device;
@@ -421,7 +469,14 @@ gv100_disp = {
 };
 
 int
+<<<<<<< HEAD
 gv100_disp_new(struct nvkm_device *device, int index, struct nvkm_disp **pdisp)
 {
 	return nv50_disp_new_(&gv100_disp, device, index, pdisp);
+=======
+gv100_disp_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+	       struct nvkm_disp **pdisp)
+{
+	return nv50_disp_new_(&gv100_disp, device, type, inst, pdisp);
+>>>>>>> upstream/android-13
 }

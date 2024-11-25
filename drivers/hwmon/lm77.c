@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * lm77.c - Part of lm_sensors, Linux kernel modules for hardware
  *	    monitoring
@@ -9,6 +13,7 @@
  * resolution made by National Semiconductor.  Complete datasheet can be
  * obtained at their site:
  *	http://www.national.com/pf/LM/LM77.html
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +24,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -137,7 +144,11 @@ static struct lm77_data *lm77_update_device(struct device *dev)
 
 /* sysfs stuff */
 
+<<<<<<< HEAD
 static ssize_t show_temp(struct device *dev, struct device_attribute *devattr,
+=======
+static ssize_t temp_show(struct device *dev, struct device_attribute *devattr,
+>>>>>>> upstream/android-13
 			 char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
@@ -146,7 +157,11 @@ static ssize_t show_temp(struct device *dev, struct device_attribute *devattr,
 	return sprintf(buf, "%d\n", data->temp[attr->index]);
 }
 
+<<<<<<< HEAD
 static ssize_t show_temp_hyst(struct device *dev,
+=======
+static ssize_t temp_hyst_show(struct device *dev,
+>>>>>>> upstream/android-13
 			      struct device_attribute *devattr, char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
@@ -160,8 +175,14 @@ static ssize_t show_temp_hyst(struct device *dev,
 	return sprintf(buf, "%d\n", temp);
 }
 
+<<<<<<< HEAD
 static ssize_t set_temp(struct device *dev, struct device_attribute *devattr,
 			const char *buf, size_t count)
+=======
+static ssize_t temp_store(struct device *dev,
+			  struct device_attribute *devattr, const char *buf,
+			  size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct lm77_data *data = dev_get_drvdata(dev);
@@ -186,9 +207,15 @@ static ssize_t set_temp(struct device *dev, struct device_attribute *devattr,
  * hysteresis is stored as a relative value on the chip, so it has to be
  * converted first.
  */
+<<<<<<< HEAD
 static ssize_t set_temp_hyst(struct device *dev,
 			     struct device_attribute *devattr,
 			     const char *buf, size_t count)
+=======
+static ssize_t temp_hyst_store(struct device *dev,
+			       struct device_attribute *devattr,
+			       const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct lm77_data *data = dev_get_drvdata(dev);
 	struct i2c_client *client = data->client;
@@ -208,7 +235,11 @@ static ssize_t set_temp_hyst(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t show_alarm(struct device *dev, struct device_attribute *attr,
+=======
+static ssize_t alarm_show(struct device *dev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 			  char *buf)
 {
 	int bitnr = to_sensor_dev_attr(attr)->index;
@@ -216,6 +247,7 @@ static ssize_t show_alarm(struct device *dev, struct device_attribute *attr,
 	return sprintf(buf, "%u\n", (data->alarms >> bitnr) & 1);
 }
 
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(temp1_input, S_IRUGO, show_temp, NULL, t_input);
 static SENSOR_DEVICE_ATTR(temp1_crit, S_IWUSR | S_IRUGO, show_temp, set_temp,
 			  t_crit);
@@ -232,6 +264,20 @@ static SENSOR_DEVICE_ATTR(temp1_max_hyst, S_IRUGO, show_temp_hyst, NULL, t_max);
 static SENSOR_DEVICE_ATTR(temp1_crit_alarm, S_IRUGO, show_alarm, NULL, 2);
 static SENSOR_DEVICE_ATTR(temp1_min_alarm, S_IRUGO, show_alarm, NULL, 0);
 static SENSOR_DEVICE_ATTR(temp1_max_alarm, S_IRUGO, show_alarm, NULL, 1);
+=======
+static SENSOR_DEVICE_ATTR_RO(temp1_input, temp, t_input);
+static SENSOR_DEVICE_ATTR_RW(temp1_crit, temp, t_crit);
+static SENSOR_DEVICE_ATTR_RW(temp1_min, temp, t_min);
+static SENSOR_DEVICE_ATTR_RW(temp1_max, temp, t_max);
+
+static SENSOR_DEVICE_ATTR_RW(temp1_crit_hyst, temp_hyst, t_crit);
+static SENSOR_DEVICE_ATTR_RO(temp1_min_hyst, temp_hyst, t_min);
+static SENSOR_DEVICE_ATTR_RO(temp1_max_hyst, temp_hyst, t_max);
+
+static SENSOR_DEVICE_ATTR_RO(temp1_crit_alarm, alarm, 2);
+static SENSOR_DEVICE_ATTR_RO(temp1_min_alarm, alarm, 0);
+static SENSOR_DEVICE_ATTR_RO(temp1_max_alarm, alarm, 1);
+>>>>>>> upstream/android-13
 
 static struct attribute *lm77_attrs[] = {
 	&sensor_dev_attr_temp1_input.dev_attr.attr,
@@ -327,7 +373,11 @@ static void lm77_init_client(struct i2c_client *client)
 		lm77_write_value(client, LM77_REG_CONF, conf & 0xfe);
 }
 
+<<<<<<< HEAD
 static int lm77_probe(struct i2c_client *client, const struct i2c_device_id *id)
+=======
+static int lm77_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &client->dev;
 	struct device *hwmon_dev;
@@ -360,7 +410,11 @@ static struct i2c_driver lm77_driver = {
 	.driver = {
 		.name	= "lm77",
 	},
+<<<<<<< HEAD
 	.probe		= lm77_probe,
+=======
+	.probe_new	= lm77_probe,
+>>>>>>> upstream/android-13
 	.id_table	= lm77_id,
 	.detect		= lm77_detect,
 	.address_list	= normal_i2c,

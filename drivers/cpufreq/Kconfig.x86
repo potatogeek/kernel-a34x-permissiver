@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # x86 CPU Frequency scaling drivers
 #
 
 config X86_INTEL_PSTATE
+<<<<<<< HEAD
        bool "Intel P state control"
        depends on X86
        select ACPI_PROCESSOR if ACPI
@@ -14,6 +19,21 @@ config X86_INTEL_PSTATE
 
 	  When this driver is enabled it will become the preferred
           scaling driver for Sandy bridge processors.
+=======
+	bool "Intel P state control"
+	depends on X86
+	select ACPI_PROCESSOR if ACPI
+	select ACPI_CPPC_LIB if X86_64 && ACPI && SCHED_MC_PRIO
+	select CPU_FREQ_GOV_PERFORMANCE
+	select CPU_FREQ_GOV_SCHEDUTIL if SMP
+	help
+	  This driver provides a P state for Intel core processors.
+	  The driver implements an internal governor and will become
+	  the scaling driver and governor for Sandy bridge processors.
+
+	  When this driver is enabled it will become the preferred
+	  scaling driver for Sandy bridge processors.
+>>>>>>> upstream/android-13
 
 	  If in doubt, say N.
 
@@ -24,7 +44,11 @@ config X86_PCC_CPUFREQ
 	  This driver adds support for the PCC interface.
 
 	  For details, take a look at:
+<<<<<<< HEAD
 	  <file:Documentation/cpu-freq/pcc-cpufreq.txt>.
+=======
+	  <file:Documentation/admin-guide/pm/cpufreq_drivers.rst>.
+>>>>>>> upstream/android-13
 
 	  To compile this driver as a module, choose M here: the
 	  module will be called pcc-cpufreq.
@@ -59,6 +83,7 @@ config X86_ACPI_CPUFREQ_CPB
 	  By enabling this option the acpi_cpufreq driver provides the old
 	  entry in addition to the new boost ones, for compatibility reasons.
 
+<<<<<<< HEAD
 config X86_SFI_CPUFREQ
 	tristate "SFI Performance-States driver"
 	depends on X86_INTEL_MID && SFI
@@ -73,6 +98,12 @@ config ELAN_CPUFREQ
 	tristate "AMD Elan SC400 and SC410"
 	depends on MELAN
 	---help---
+=======
+config ELAN_CPUFREQ
+	tristate "AMD Elan SC400 and SC410"
+	depends on MELAN
+	help
+>>>>>>> upstream/android-13
 	  This adds the CPUFreq driver for AMD Elan SC400 and SC410
 	  processors.
 
@@ -87,7 +118,11 @@ config ELAN_CPUFREQ
 config SC520_CPUFREQ
 	tristate "AMD Elan SC520"
 	depends on MELAN
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  This adds the CPUFreq driver for AMD Elan SC520 processor.
 
 	  For details, take a look at <file:Documentation/cpu-freq/>.

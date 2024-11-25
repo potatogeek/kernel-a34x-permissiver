@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * wm8750-apc8750.dts
  *  - Device tree file for VIA APC8750
  *
  * Copyright (C) 2012 Tony Prisk <linux@prisktech.co.nz>
+<<<<<<< HEAD
  *
  * Licensed under GPLv2 or later
+=======
+>>>>>>> upstream/android-13
  */
 
 /dts-v1/;

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * OMAP4xxx bandgap registers, bitfields and temperature definitions
  *
  * Copyright (C) 2013 Texas Instruments Incorporated - http://www.ti.com/
  * Contact:
  *   Eduardo Valentin <eduardo.valentin@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,6 +24,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __OMAP4XXX_BANDGAP_H
 #define __OMAP4XXX_BANDGAP_H
@@ -54,7 +61,11 @@
 /* OMAP4430.TEMP_SENSOR bits */
 #define OMAP4430_BGAP_TEMPSOFF_MASK			BIT(12)
 #define OMAP4430_BGAP_TSHUT_MASK			BIT(11)
+<<<<<<< HEAD
 #define OMAP4430_SINGLE_MODE_MASK			BIT(10)
+=======
+#define OMAP4430_CONTINUOUS_MODE_MASK			BIT(10)
+>>>>>>> upstream/android-13
 #define OMAP4430_BGAP_TEMP_SENSOR_SOC_MASK		BIT(9)
 #define OMAP4430_BGAP_TEMP_SENSOR_EOCZ_MASK		BIT(8)
 #define OMAP4430_BGAP_TEMP_SENSOR_DTEMP_MASK		(0xff << 0)
@@ -127,7 +138,11 @@
 #define OMAP4460_BGAP_TEMP_SENSOR_DTEMP_MASK		(0x3ff << 0)
 
 /* OMAP4460.BANDGAP_CTRL bits */
+<<<<<<< HEAD
 #define OMAP4460_SINGLE_MODE_MASK			BIT(31)
+=======
+#define OMAP4460_CONTINUOUS_MODE_MASK			BIT(31)
+>>>>>>> upstream/android-13
 #define OMAP4460_MASK_HOT_MASK				BIT(1)
 #define OMAP4460_MASK_COLD_MASK				BIT(0)
 

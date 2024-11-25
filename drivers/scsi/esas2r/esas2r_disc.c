@@ -1031,8 +1031,14 @@ static u32 esas2r_disc_get_phys_addr(struct esas2r_sg_context *sgc, u64 *addr)
 {
 	struct esas2r_adapter *a = sgc->adapter;
 
+<<<<<<< HEAD
 	if (sgc->length > ESAS2R_DISC_BUF_LEN)
 		esas2r_bugon();
+=======
+	if (sgc->length > ESAS2R_DISC_BUF_LEN) {
+		esas2r_bugon();
+	}
+>>>>>>> upstream/android-13
 
 	*addr = a->uncached_phys
 		+ (u64)((u8 *)a->disc_buffer - a->uncached);

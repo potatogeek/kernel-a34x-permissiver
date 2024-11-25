@@ -15,7 +15,11 @@ void efi_reboot(enum reboot_mode reboot_mode, const char *__unused)
 	const char *str[] = { "cold", "warm", "shutdown", "platform" };
 	int efi_mode, cap_reset_mode;
 
+<<<<<<< HEAD
 	if (!efi_enabled(EFI_RUNTIME_SERVICES))
+=======
+	if (!efi_rt_services_supported(EFI_RT_SUPPORTED_RESET_SYSTEM))
+>>>>>>> upstream/android-13
 		return;
 
 	switch (reboot_mode) {
@@ -64,7 +68,11 @@ static void efi_power_off(void)
 
 static int __init efi_shutdown_init(void)
 {
+<<<<<<< HEAD
 	if (!efi_enabled(EFI_RUNTIME_SERVICES))
+=======
+	if (!efi_rt_services_supported(EFI_RT_SUPPORTED_RESET_SYSTEM))
+>>>>>>> upstream/android-13
 		return -ENODEV;
 
 	if (efi_poweroff_required()) {

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #include <linux/fs.h>
 #include <linux/interrupt.h>
 #include <asm/octeon/octeon.h>
@@ -61,6 +65,7 @@ static int reset_statistics(void *data, u64 value)
 	return 0;
 }
 
+<<<<<<< HEAD
 DEFINE_SIMPLE_ATTRIBUTE(reset_statistics_ops, NULL, reset_statistics, "%llu\n");
 
 static int init_debufs(void)
@@ -88,6 +93,15 @@ static int init_debufs(void)
 
 	return 0;
 
+=======
+DEFINE_DEBUGFS_ATTRIBUTE(reset_statistics_ops, NULL, reset_statistics, "%llu\n");
+
+static void init_debugfs(void)
+{
+	dir = debugfs_create_dir("oct_ilm", 0);
+	debugfs_create_file("statistics", 0222, dir, NULL, &oct_ilm_ops);
+	debugfs_create_file("reset", 0222, dir, NULL, &reset_statistics_ops);
+>>>>>>> upstream/android-13
 }
 
 static void init_latency_info(struct latency_info *li, int startup)
@@ -169,11 +183,15 @@ static __init int oct_ilm_module_init(void)
 	int rc;
 	int irq = OCTEON_IRQ_TIMER0 + TIMER_NUM;
 
+<<<<<<< HEAD
 	rc = init_debufs();
 	if (rc) {
 		WARN(1, "Could not create debugfs entries");
 		return rc;
 	}
+=======
+	init_debugfs();
+>>>>>>> upstream/android-13
 
 	rc = request_irq(irq, cvm_oct_ciu_timer_interrupt, IRQF_NO_THREAD,
 			 "oct_ilm", 0);

@@ -2,7 +2,11 @@
  * vpif-display - VPIF display driver
  * Display driver for TI DaVinci VPIF
  *
+<<<<<<< HEAD
  * Copyright (C) 2009 Texas Instruments Incorporated - http://www.ti.com/
+=======
+ * Copyright (C) 2009 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  * Copyright (C) 2014 Lad, Prabhakar <prabhakar.csengg@gmail.com>
  *
  * This program is free software; you can redistribute it and/or
@@ -101,7 +105,11 @@ static int vpif_buffer_prepare(struct vb2_buffer *vb)
  * vpif_buffer_queue_setup : Callback function for buffer setup.
  * @vq: vb2_queue ptr
  * @nbuffers: ptr to number of buffers requested by application
+<<<<<<< HEAD
  * @nplanes:: contains number of distinct video planes needed to hold a frame
+=======
+ * @nplanes: contains number of distinct video planes needed to hold a frame
+>>>>>>> upstream/android-13
  * @sizes: contains the size (in bytes) of each plane.
  * @alloc_devs: ptr to allocation context
  *
@@ -138,7 +146,11 @@ static int vpif_buffer_queue_setup(struct vb2_queue *vq,
  * vpif_buffer_queue : Callback function to add buffer to DMA queue
  * @vb: ptr to vb2_buffer
  *
+<<<<<<< HEAD
  * This callback fucntion queues the buffer to DMA engine
+=======
+ * This callback function queues the buffer to DMA engine
+>>>>>>> upstream/android-13
  */
 static void vpif_buffer_queue(struct vb2_buffer *vb)
 {
@@ -584,12 +596,19 @@ static int vpif_querycap(struct file *file, void  *priv,
 {
 	struct vpif_display_config *config = vpif_dev->platform_data;
 
+<<<<<<< HEAD
 	cap->device_caps = V4L2_CAP_VIDEO_OUTPUT | V4L2_CAP_STREAMING;
 	cap->capabilities = cap->device_caps | V4L2_CAP_DEVICE_CAPS;
 	strlcpy(cap->driver, VPIF_DRIVER_NAME, sizeof(cap->driver));
 	snprintf(cap->bus_info, sizeof(cap->bus_info), "platform:%s",
 		 dev_name(vpif_dev));
 	strlcpy(cap->card, config->card_name, sizeof(cap->card));
+=======
+	strscpy(cap->driver, VPIF_DRIVER_NAME, sizeof(cap->driver));
+	snprintf(cap->bus_info, sizeof(cap->bus_info), "platform:%s",
+		 dev_name(vpif_dev));
+	strscpy(cap->card, config->card_name, sizeof(cap->card));
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -601,10 +620,14 @@ static int vpif_enum_fmt_vid_out(struct file *file, void  *priv,
 		return -EINVAL;
 
 	/* Fill in the information about format */
+<<<<<<< HEAD
 	fmt->type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
 	strcpy(fmt->description, "YCbCr4:2:2 YC Planar");
 	fmt->pixelformat = V4L2_PIX_FMT_YUV422P;
 	fmt->flags = 0;
+=======
+	fmt->pixelformat = V4L2_PIX_FMT_YUV422P;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -634,7 +657,11 @@ static int vpif_try_fmt_vid_out(struct file *file, void *priv,
 	struct v4l2_pix_format *pixfmt = &fmt->fmt.pix;
 
 	/*
+<<<<<<< HEAD
 	 * to supress v4l-compliance warnings silently correct
+=======
+	 * to suppress v4l-compliance warnings silently correct
+>>>>>>> upstream/android-13
 	 * the pixelformat
 	 */
 	if (pixfmt->pixelformat != V4L2_PIX_FMT_YUV422P)
@@ -986,8 +1013,13 @@ static int vpif_s_dv_timings(struct file *file, void *priv,
 	} else {
 		std_info->l5 = std_info->vsize - (bt->vfrontporch - 1);
 	}
+<<<<<<< HEAD
 	strncpy(std_info->name, "Custom timings BT656/1120",
 			VPIF_MAX_NAME);
+=======
+	strscpy(std_info->name, "Custom timings BT656/1120",
+		sizeof(std_info->name));
+>>>>>>> upstream/android-13
 	std_info->width = bt->width;
 	std_info->height = bt->height;
 	std_info->frm_fmt = bt->interlaced ? 0 : 1;
@@ -1122,6 +1154,7 @@ static void free_vpif_objs(void)
 		kfree(vpif_obj.dev[i]);
 }
 
+<<<<<<< HEAD
 static int vpif_async_bound(struct v4l2_async_notifier *notifier,
 			    struct v4l2_subdev *subdev,
 			    struct v4l2_async_subdev *asd)
@@ -1139,6 +1172,8 @@ static int vpif_async_bound(struct v4l2_async_notifier *notifier,
 	return -EINVAL;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int vpif_probe_complete(void)
 {
 	struct common_obj *common;
@@ -1209,7 +1244,11 @@ static int vpif_probe_complete(void)
 
 		/* Initialize the video_device structure */
 		vdev = &ch->video_dev;
+<<<<<<< HEAD
 		strlcpy(vdev->name, VPIF_DRIVER_NAME, sizeof(vdev->name));
+=======
+		strscpy(vdev->name, VPIF_DRIVER_NAME, sizeof(vdev->name));
+>>>>>>> upstream/android-13
 		vdev->release = video_device_release_empty;
 		vdev->fops = &vpif_fops;
 		vdev->ioctl_ops = &vpif_ioctl_ops;
@@ -1217,8 +1256,14 @@ static int vpif_probe_complete(void)
 		vdev->vfl_dir = VFL_DIR_TX;
 		vdev->queue = q;
 		vdev->lock = &common->lock;
+<<<<<<< HEAD
 		video_set_drvdata(&ch->video_dev, ch);
 		err = video_register_device(vdev, VFL_TYPE_GRABBER,
+=======
+		vdev->device_caps = V4L2_CAP_VIDEO_OUTPUT | V4L2_CAP_STREAMING;
+		video_set_drvdata(&ch->video_dev, ch);
+		err = video_register_device(vdev, VFL_TYPE_VIDEO,
+>>>>>>> upstream/android-13
 					    (j ? 3 : 2));
 		if (err < 0)
 			goto probe_out;
@@ -1229,12 +1274,16 @@ static int vpif_probe_complete(void)
 probe_out:
 	for (k = 0; k < j; k++) {
 		ch = vpif_obj.dev[k];
+<<<<<<< HEAD
 		common = &ch->common[k];
+=======
+>>>>>>> upstream/android-13
 		video_unregister_device(&ch->video_dev);
 	}
 	return err;
 }
 
+<<<<<<< HEAD
 static int vpif_async_complete(struct v4l2_async_notifier *notifier)
 {
 	return vpif_probe_complete();
@@ -1245,6 +1294,8 @@ static const struct v4l2_async_notifier_operations vpif_async_ops = {
 	.complete = vpif_async_complete,
 };
 
+=======
+>>>>>>> upstream/android-13
 /*
  * vpif_probe: This function creates device entries by register itself to the
  * V4L2 driver and initializes fields of each channel objects
@@ -1299,6 +1350,7 @@ static __init int vpif_probe(struct platform_device *pdev)
 		goto vpif_unregister;
 	}
 
+<<<<<<< HEAD
 	if (!vpif_obj.config->asd_sizes) {
 		i2c_adap = i2c_get_adapter(vpif_obj.config->i2c_adapter_id);
 		for (i = 0; i < subdev_count; i++) {
@@ -1333,6 +1385,27 @@ static __init int vpif_probe(struct platform_device *pdev)
 			goto probe_subdev_out;
 		}
 	}
+=======
+	i2c_adap = i2c_get_adapter(vpif_obj.config->i2c_adapter_id);
+	for (i = 0; i < subdev_count; i++) {
+		vpif_obj.sd[i] =
+			v4l2_i2c_new_subdev_board(&vpif_obj.v4l2_dev,
+						  i2c_adap,
+						  &subdevdata[i].board_info,
+						  NULL);
+		if (!vpif_obj.sd[i]) {
+			vpif_err("Error registering v4l2 subdevice\n");
+			err = -ENODEV;
+			goto probe_subdev_out;
+		}
+
+		if (vpif_obj.sd[i])
+			vpif_obj.sd[i]->grp_id = 1 << i;
+	}
+	err = vpif_probe_complete();
+	if (err)
+		goto probe_subdev_out;
+>>>>>>> upstream/android-13
 
 	return 0;
 

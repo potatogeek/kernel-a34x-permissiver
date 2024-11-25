@@ -3,7 +3,11 @@
  *
  * Name: aclinuxex.h - Extra OS specific defines, etc. for Linux
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 

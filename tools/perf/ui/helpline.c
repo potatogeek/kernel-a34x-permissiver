@@ -3,10 +3,15 @@
 #include <stdlib.h>
 #include <string.h>
 
+<<<<<<< HEAD
 #include "../debug.h"
 #include "helpline.h"
 #include "ui.h"
 #include "../util.h"
+=======
+#include "helpline.h"
+#include "ui.h"
+>>>>>>> upstream/android-13
 
 char ui_helpline__current[512];
 

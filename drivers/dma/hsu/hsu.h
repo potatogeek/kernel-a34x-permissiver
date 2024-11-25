@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Driver for the High Speed UART DMA
  *
  * Copyright (C) 2015 Intel Corporation
  *
  * Partially based on the bits found in drivers/tty/serial/mfd.c.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __DMA_HSU_H__

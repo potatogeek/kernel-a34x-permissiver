@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Omnivision OV9650/OV9652 CMOS Image Sensor driver
  *
@@ -6,10 +10,13 @@
  * Register definitions and initial settings based on a driver written
  * by Vladimir Fonov.
  * Copyright (c) 2010, Vladimir Fonov
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/clk.h>
 #include <linux/delay.h>
@@ -20,6 +27,10 @@
 #include <linux/media.h>
 #include <linux/module.h>
 #include <linux/ratelimit.h>
+<<<<<<< HEAD
+=======
+#include <linux/regmap.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/string.h>
 #include <linux/videodev2.h>
@@ -44,8 +55,13 @@ MODULE_PARM_DESC(debug, "Debug level (0-2)");
  * OV9650/OV9652 register definitions
  */
 #define REG_GAIN		0x00	/* Gain control, AGC[7:0] */
+<<<<<<< HEAD
 #define REG_BLUE		0x01	/* AWB - Blue chanel gain */
 #define REG_RED			0x02	/* AWB - Red chanel gain */
+=======
+#define REG_BLUE		0x01	/* AWB - Blue channel gain */
+#define REG_RED			0x02	/* AWB - Red channel gain */
+>>>>>>> upstream/android-13
 #define REG_VREF		0x03	/* [7:6] - AGC[9:8], [5:3]/[2:0] */
 #define  VREF_GAIN_MASK		0xc0	/* - VREF end/start low 3 bits */
 #define REG_COM1		0x04
@@ -259,7 +275,11 @@ struct ov965x {
 	/* Protects the struct fields below */
 	struct mutex lock;
 
+<<<<<<< HEAD
 	struct i2c_client *client;
+=======
+	struct regmap *regmap;
+>>>>>>> upstream/android-13
 
 	/* Exposure row interval in us */
 	unsigned int exp_row_interval;
@@ -424,6 +444,7 @@ static inline struct ov965x *to_ov965x(struct v4l2_subdev *sd)
 	return container_of(sd, struct ov965x, sd);
 }
 
+<<<<<<< HEAD
 static int ov965x_read(struct i2c_client *client, u8 addr, u8 *val)
 {
 	u8 buf = addr;
@@ -463,12 +484,48 @@ static int ov965x_write(struct i2c_client *client, u8 addr, u8 val)
 }
 
 static int ov965x_write_array(struct i2c_client *client,
+=======
+static int ov965x_read(struct ov965x *ov965x, u8 addr, u8 *val)
+{
+	int ret;
+	unsigned int buf;
+
+	ret = regmap_read(ov965x->regmap, addr, &buf);
+	if (!ret)
+		*val = buf;
+	else
+		*val = -1;
+
+	v4l2_dbg(2, debug, &ov965x->sd, "%s: 0x%02x @ 0x%02x. (%d)\n",
+		 __func__, *val, addr, ret);
+
+	return ret;
+}
+
+static int ov965x_write(struct ov965x *ov965x, u8 addr, u8 val)
+{
+	int ret;
+
+	ret = regmap_write(ov965x->regmap, addr, val);
+
+	v4l2_dbg(2, debug, &ov965x->sd, "%s: 0x%02x @ 0x%02X (%d)\n",
+		 __func__, val, addr, ret);
+
+	return ret;
+}
+
+static int ov965x_write_array(struct ov965x *ov965x,
+>>>>>>> upstream/android-13
 			      const struct i2c_rv *regs)
 {
 	int i, ret = 0;
 
 	for (i = 0; ret == 0 && regs[i].addr != REG_NULL; i++)
+<<<<<<< HEAD
 		ret = ov965x_write(client, regs[i].addr, regs[i].value);
+=======
+		ret = ov965x_write(ov965x, regs[i].addr, regs[i].value);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -486,7 +543,11 @@ static int ov965x_set_default_gamma_curve(struct ov965x *ov965x)
 	unsigned int i;
 
 	for (i = 0; i < ARRAY_SIZE(gamma_curve); i++) {
+<<<<<<< HEAD
 		int ret = ov965x_write(ov965x->client, addr, gamma_curve[i]);
+=======
+		int ret = ov965x_write(ov965x, addr, gamma_curve[i]);
+>>>>>>> upstream/android-13
 
 		if (ret < 0)
 			return ret;
@@ -506,7 +567,11 @@ static int ov965x_set_color_matrix(struct ov965x *ov965x)
 	unsigned int i;
 
 	for (i = 0; i < ARRAY_SIZE(mtx); i++) {
+<<<<<<< HEAD
 		int ret = ov965x_write(ov965x->client, addr, mtx[i]);
+=======
+		int ret = ov965x_write(ov965x, addr, mtx[i]);
+>>>>>>> upstream/android-13
 
 		if (ret < 0)
 			return ret;
@@ -542,16 +607,26 @@ static int __ov965x_set_power(struct ov965x *ov965x, int on)
 static int ov965x_s_power(struct v4l2_subdev *sd, int on)
 {
 	struct ov965x *ov965x = to_ov965x(sd);
+<<<<<<< HEAD
 	struct i2c_client *client = ov965x->client;
 	int ret = 0;
 
 	v4l2_dbg(1, debug, client, "%s: on: %d\n", __func__, on);
+=======
+	int ret = 0;
+
+	v4l2_dbg(1, debug, sd, "%s: on: %d\n", __func__, on);
+>>>>>>> upstream/android-13
 
 	mutex_lock(&ov965x->lock);
 	if (ov965x->power == !on) {
 		ret = __ov965x_set_power(ov965x, on);
 		if (!ret && on) {
+<<<<<<< HEAD
 			ret = ov965x_write_array(client,
+=======
+			ret = ov965x_write_array(ov965x,
+>>>>>>> upstream/android-13
 						 ov965x_init_regs);
 			ov965x->apply_frame_fmt = 1;
 			ov965x->ctrls.update = 1;
@@ -609,13 +684,21 @@ static int ov965x_set_banding_filter(struct ov965x *ov965x, int value)
 	int ret;
 	u8 reg;
 
+<<<<<<< HEAD
 	ret = ov965x_read(ov965x->client, REG_COM8, &reg);
+=======
+	ret = ov965x_read(ov965x, REG_COM8, &reg);
+>>>>>>> upstream/android-13
 	if (!ret) {
 		if (value == V4L2_CID_POWER_LINE_FREQUENCY_DISABLED)
 			reg &= ~COM8_BFILT;
 		else
 			reg |= COM8_BFILT;
+<<<<<<< HEAD
 		ret = ov965x_write(ov965x->client, REG_COM8, reg);
+=======
+		ret = ov965x_write(ov965x, REG_COM8, reg);
+>>>>>>> upstream/android-13
 	}
 	if (value == V4L2_CID_POWER_LINE_FREQUENCY_DISABLED)
 		return 0;
@@ -631,7 +714,11 @@ static int ov965x_set_banding_filter(struct ov965x *ov965x, int value)
 	       ov965x->fiv->interval.numerator;
 	mbd = ((mbd / (light_freq * 2)) + 500) / 1000UL;
 
+<<<<<<< HEAD
 	return ov965x_write(ov965x->client, REG_MBD, mbd);
+=======
+	return ov965x_write(ov965x, REG_MBD, mbd);
+>>>>>>> upstream/android-13
 }
 
 static int ov965x_set_white_balance(struct ov965x *ov965x, int awb)
@@ -639,6 +726,7 @@ static int ov965x_set_white_balance(struct ov965x *ov965x, int awb)
 	int ret;
 	u8 reg;
 
+<<<<<<< HEAD
 	ret = ov965x_read(ov965x->client, REG_COM8, &reg);
 	if (!ret) {
 		reg = awb ? reg | REG_COM8 : reg & ~REG_COM8;
@@ -650,6 +738,19 @@ static int ov965x_set_white_balance(struct ov965x *ov965x, int awb)
 		if (ret < 0)
 			return ret;
 		ret = ov965x_write(ov965x->client, REG_RED,
+=======
+	ret = ov965x_read(ov965x, REG_COM8, &reg);
+	if (!ret) {
+		reg = awb ? reg | REG_COM8 : reg & ~REG_COM8;
+		ret = ov965x_write(ov965x, REG_COM8, reg);
+	}
+	if (!ret && !awb) {
+		ret = ov965x_write(ov965x, REG_BLUE,
+				   ov965x->ctrls.blue_balance->val);
+		if (ret < 0)
+			return ret;
+		ret = ov965x_write(ov965x, REG_RED,
+>>>>>>> upstream/android-13
 				   ov965x->ctrls.red_balance->val);
 	}
 	return ret;
@@ -677,14 +778,21 @@ static int ov965x_set_brightness(struct ov965x *ov965x, int val)
 		return -EINVAL;
 
 	for (i = 0; i < NUM_BR_REGS && !ret; i++)
+<<<<<<< HEAD
 		ret = ov965x_write(ov965x->client, regs[0][i],
+=======
+		ret = ov965x_write(ov965x, regs[0][i],
+>>>>>>> upstream/android-13
 				   regs[val][i]);
 	return ret;
 }
 
 static int ov965x_set_gain(struct ov965x *ov965x, int auto_gain)
 {
+<<<<<<< HEAD
 	struct i2c_client *client = ov965x->client;
+=======
+>>>>>>> upstream/android-13
 	struct ov965x_ctrls *ctrls = &ov965x->ctrls;
 	int ret = 0;
 	u8 reg;
@@ -693,14 +801,22 @@ static int ov965x_set_gain(struct ov965x *ov965x, int auto_gain)
 	 * gain value in REG_VREF, REG_GAIN is not overwritten.
 	 */
 	if (ctrls->auto_gain->is_new) {
+<<<<<<< HEAD
 		ret = ov965x_read(client, REG_COM8, &reg);
+=======
+		ret = ov965x_read(ov965x, REG_COM8, &reg);
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			return ret;
 		if (ctrls->auto_gain->val)
 			reg |= COM8_AGC;
 		else
 			reg &= ~COM8_AGC;
+<<<<<<< HEAD
 		ret = ov965x_write(client, REG_COM8, reg);
+=======
+		ret = ov965x_write(ov965x, REG_COM8, reg);
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			return ret;
 	}
@@ -724,15 +840,26 @@ static int ov965x_set_gain(struct ov965x *ov965x, int auto_gain)
 		rgain = (gain - ((1 << m) * 16)) / (1 << m);
 		rgain |= (((1 << m) - 1) << 4);
 
+<<<<<<< HEAD
 		ret = ov965x_write(client, REG_GAIN, rgain & 0xff);
 		if (ret < 0)
 			return ret;
 		ret = ov965x_read(client, REG_VREF, &reg);
+=======
+		ret = ov965x_write(ov965x, REG_GAIN, rgain & 0xff);
+		if (ret < 0)
+			return ret;
+		ret = ov965x_read(ov965x, REG_VREF, &reg);
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			return ret;
 		reg &= ~VREF_GAIN_MASK;
 		reg |= (((rgain >> 8) & 0x3) << 6);
+<<<<<<< HEAD
 		ret = ov965x_write(client, REG_VREF, reg);
+=======
+		ret = ov965x_write(ov965x, REG_VREF, reg);
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			return ret;
 		/* Return updated control's value to userspace */
@@ -747,10 +874,17 @@ static int ov965x_set_sharpness(struct ov965x *ov965x, unsigned int value)
 	u8 com14, edge;
 	int ret;
 
+<<<<<<< HEAD
 	ret = ov965x_read(ov965x->client, REG_COM14, &com14);
 	if (ret < 0)
 		return ret;
 	ret = ov965x_read(ov965x->client, REG_EDGE, &edge);
+=======
+	ret = ov965x_read(ov965x, REG_COM14, &com14);
+	if (ret < 0)
+		return ret;
+	ret = ov965x_read(ov965x, REG_EDGE, &edge);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 	com14 = value ? com14 | COM14_EDGE_EN : com14 & ~COM14_EDGE_EN;
@@ -761,33 +895,52 @@ static int ov965x_set_sharpness(struct ov965x *ov965x, unsigned int value)
 	} else {
 		com14 &= ~COM14_EEF_X2;
 	}
+<<<<<<< HEAD
 	ret = ov965x_write(ov965x->client, REG_COM14, com14);
+=======
+	ret = ov965x_write(ov965x, REG_COM14, com14);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 
 	edge &= ~EDGE_FACTOR_MASK;
 	edge |= ((u8)value & 0x0f);
 
+<<<<<<< HEAD
 	return ov965x_write(ov965x->client, REG_EDGE, edge);
+=======
+	return ov965x_write(ov965x, REG_EDGE, edge);
+>>>>>>> upstream/android-13
 }
 
 static int ov965x_set_exposure(struct ov965x *ov965x, int exp)
 {
+<<<<<<< HEAD
 	struct i2c_client *client = ov965x->client;
+=======
+>>>>>>> upstream/android-13
 	struct ov965x_ctrls *ctrls = &ov965x->ctrls;
 	bool auto_exposure = (exp == V4L2_EXPOSURE_AUTO);
 	int ret;
 	u8 reg;
 
 	if (ctrls->auto_exp->is_new) {
+<<<<<<< HEAD
 		ret = ov965x_read(client, REG_COM8, &reg);
+=======
+		ret = ov965x_read(ov965x, REG_COM8, &reg);
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			return ret;
 		if (auto_exposure)
 			reg |= (COM8_AEC | COM8_AGC);
 		else
 			reg &= ~(COM8_AEC | COM8_AGC);
+<<<<<<< HEAD
 		ret = ov965x_write(client, REG_COM8, reg);
+=======
+		ret = ov965x_write(ov965x, REG_COM8, reg);
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			return ret;
 	}
@@ -799,12 +952,21 @@ static int ov965x_set_exposure(struct ov965x *ov965x, int exp)
 		 * Manual exposure value
 		 * [b15:b0] - AECHM (b15:b10), AECH (b9:b2), COM1 (b1:b0)
 		 */
+<<<<<<< HEAD
 		ret = ov965x_write(client, REG_COM1, exposure & 0x3);
 		if (!ret)
 			ret = ov965x_write(client, REG_AECH,
 					   (exposure >> 2) & 0xff);
 		if (!ret)
 			ret = ov965x_write(client, REG_AECHM,
+=======
+		ret = ov965x_write(ov965x, REG_COM1, exposure & 0x3);
+		if (!ret)
+			ret = ov965x_write(ov965x, REG_AECH,
+					   (exposure >> 2) & 0xff);
+		if (!ret)
+			ret = ov965x_write(ov965x, REG_AECHM,
+>>>>>>> upstream/android-13
 					   (exposure >> 10) & 0x3f);
 		/* Update the value to minimize rounding errors */
 		ctrls->exposure->val = ((exposure * ov965x->exp_row_interval)
@@ -827,7 +989,11 @@ static int ov965x_set_flip(struct ov965x *ov965x)
 	if (ov965x->ctrls.vflip->val)
 		mvfp |= MVFP_FLIP;
 
+<<<<<<< HEAD
 	return ov965x_write(ov965x->client, REG_MVFP, mvfp);
+=======
+	return ov965x_write(ov965x, REG_MVFP, mvfp);
+>>>>>>> upstream/android-13
 }
 
 #define NUM_SAT_LEVELS	5
@@ -851,7 +1017,11 @@ static int ov965x_set_saturation(struct ov965x *ov965x, int val)
 		return -EINVAL;
 
 	for (i = 0; i < NUM_SAT_REGS && !ret; i++)
+<<<<<<< HEAD
 		ret = ov965x_write(ov965x->client, addr + i, regs[val][i]);
+=======
+		ret = ov965x_write(ov965x, addr + i, regs[val][i]);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -861,16 +1031,27 @@ static int ov965x_set_test_pattern(struct ov965x *ov965x, int value)
 	int ret;
 	u8 reg;
 
+<<<<<<< HEAD
 	ret = ov965x_read(ov965x->client, REG_COM23, &reg);
 	if (ret < 0)
 		return ret;
 	reg = value ? reg | COM23_TEST_MODE : reg & ~COM23_TEST_MODE;
 	return ov965x_write(ov965x->client, REG_COM23, reg);
+=======
+	ret = ov965x_read(ov965x, REG_COM23, &reg);
+	if (ret < 0)
+		return ret;
+	reg = value ? reg | COM23_TEST_MODE : reg & ~COM23_TEST_MODE;
+	return ov965x_write(ov965x, REG_COM23, reg);
+>>>>>>> upstream/android-13
 }
 
 static int __g_volatile_ctrl(struct ov965x *ov965x, struct v4l2_ctrl *ctrl)
 {
+<<<<<<< HEAD
 	struct i2c_client *client = ov965x->client;
+=======
+>>>>>>> upstream/android-13
 	unsigned int exposure, gain, m;
 	u8 reg0, reg1, reg2;
 	int ret;
@@ -882,10 +1063,17 @@ static int __g_volatile_ctrl(struct ov965x *ov965x, struct v4l2_ctrl *ctrl)
 	case V4L2_CID_AUTOGAIN:
 		if (!ctrl->val)
 			return 0;
+<<<<<<< HEAD
 		ret = ov965x_read(client, REG_GAIN, &reg0);
 		if (ret < 0)
 			return ret;
 		ret = ov965x_read(client, REG_VREF, &reg1);
+=======
+		ret = ov965x_read(ov965x, REG_GAIN, &reg0);
+		if (ret < 0)
+			return ret;
+		ret = ov965x_read(ov965x, REG_VREF, &reg1);
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			return ret;
 		gain = ((reg1 >> 6) << 8) | reg0;
@@ -896,6 +1084,7 @@ static int __g_volatile_ctrl(struct ov965x *ov965x, struct v4l2_ctrl *ctrl)
 	case V4L2_CID_EXPOSURE_AUTO:
 		if (ctrl->val == V4L2_EXPOSURE_MANUAL)
 			return 0;
+<<<<<<< HEAD
 		ret = ov965x_read(client, REG_COM1, &reg0);
 		if (ret < 0)
 			return ret;
@@ -903,6 +1092,15 @@ static int __g_volatile_ctrl(struct ov965x *ov965x, struct v4l2_ctrl *ctrl)
 		if (ret < 0)
 			return ret;
 		ret = ov965x_read(client, REG_AECHM, &reg2);
+=======
+		ret = ov965x_read(ov965x, REG_COM1, &reg0);
+		if (ret < 0)
+			return ret;
+		ret = ov965x_read(ov965x, REG_AECH, &reg1);
+		if (ret < 0)
+			return ret;
+		ret = ov965x_read(ov965x, REG_AECHM, &reg2);
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			return ret;
 		exposure = ((reg2 & 0x3f) << 10) | (reg1 << 2) |
@@ -1085,7 +1283,11 @@ static void ov965x_get_default_format(struct v4l2_mbus_framefmt *mf)
 }
 
 static int ov965x_enum_mbus_code(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 				 struct v4l2_subdev_pad_config *cfg,
+=======
+				 struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 				 struct v4l2_subdev_mbus_code_enum *code)
 {
 	if (code->index >= ARRAY_SIZE(ov965x_formats))
@@ -1096,7 +1298,11 @@ static int ov965x_enum_mbus_code(struct v4l2_subdev *sd,
 }
 
 static int ov965x_enum_frame_sizes(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 				   struct v4l2_subdev_pad_config *cfg,
+=======
+				   struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 				   struct v4l2_subdev_frame_size_enum *fse)
 {
 	int i = ARRAY_SIZE(ov965x_formats);
@@ -1182,14 +1388,22 @@ static int ov965x_s_frame_interval(struct v4l2_subdev *sd,
 }
 
 static int ov965x_get_fmt(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 			  struct v4l2_subdev_pad_config *cfg,
+=======
+			  struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			  struct v4l2_subdev_format *fmt)
 {
 	struct ov965x *ov965x = to_ov965x(sd);
 	struct v4l2_mbus_framefmt *mf;
 
 	if (fmt->which == V4L2_SUBDEV_FORMAT_TRY) {
+<<<<<<< HEAD
 		mf = v4l2_subdev_get_try_format(sd, cfg, 0);
+=======
+		mf = v4l2_subdev_get_try_format(sd, sd_state, 0);
+>>>>>>> upstream/android-13
 		fmt->format = *mf;
 		return 0;
 	}
@@ -1227,7 +1441,11 @@ static void __ov965x_try_frame_size(struct v4l2_mbus_framefmt *mf,
 }
 
 static int ov965x_set_fmt(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 			  struct v4l2_subdev_pad_config *cfg,
+=======
+			  struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			  struct v4l2_subdev_format *fmt)
 {
 	unsigned int index = ARRAY_SIZE(ov965x_formats);
@@ -1249,8 +1467,14 @@ static int ov965x_set_fmt(struct v4l2_subdev *sd,
 	mutex_lock(&ov965x->lock);
 
 	if (fmt->which == V4L2_SUBDEV_FORMAT_TRY) {
+<<<<<<< HEAD
 		if (cfg) {
 			mf = v4l2_subdev_get_try_format(sd, cfg, fmt->pad);
+=======
+		if (sd_state) {
+			mf = v4l2_subdev_get_try_format(sd, sd_state,
+							fmt->pad);
+>>>>>>> upstream/android-13
 			*mf = fmt->format;
 		}
 	} else {
@@ -1284,32 +1508,51 @@ static int ov965x_set_frame_size(struct ov965x *ov965x)
 	int i, ret = 0;
 
 	for (i = 0; ret == 0 && i < NUM_FMT_REGS; i++)
+<<<<<<< HEAD
 		ret = ov965x_write(ov965x->client, frame_size_reg_addr[i],
+=======
+		ret = ov965x_write(ov965x, frame_size_reg_addr[i],
+>>>>>>> upstream/android-13
 				   ov965x->frame_size->regs[i]);
 	return ret;
 }
 
 static int __ov965x_set_params(struct ov965x *ov965x)
 {
+<<<<<<< HEAD
 	struct i2c_client *client = ov965x->client;
+=======
+>>>>>>> upstream/android-13
 	struct ov965x_ctrls *ctrls = &ov965x->ctrls;
 	int ret = 0;
 	u8 reg;
 
 	if (ov965x->apply_frame_fmt) {
 		reg = DEF_CLKRC + ov965x->fiv->clkrc_div;
+<<<<<<< HEAD
 		ret = ov965x_write(client, REG_CLKRC, reg);
+=======
+		ret = ov965x_write(ov965x, REG_CLKRC, reg);
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			return ret;
 		ret = ov965x_set_frame_size(ov965x);
 		if (ret < 0)
 			return ret;
+<<<<<<< HEAD
 		ret = ov965x_read(client, REG_TSLB, &reg);
+=======
+		ret = ov965x_read(ov965x, REG_TSLB, &reg);
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			return ret;
 		reg &= ~TSLB_YUYV_MASK;
 		reg |= ov965x->tslb_reg;
+<<<<<<< HEAD
 		ret = ov965x_write(client, REG_TSLB, reg);
+=======
+		ret = ov965x_write(ov965x, REG_TSLB, reg);
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			return ret;
 	}
@@ -1323,10 +1566,17 @@ static int __ov965x_set_params(struct ov965x *ov965x)
 	 * Select manual banding filter, the filter will
 	 * be enabled further if required.
 	 */
+<<<<<<< HEAD
 	ret = ov965x_read(client, REG_COM11, &reg);
 	if (!ret)
 		reg |= COM11_BANDING;
 	ret = ov965x_write(client, REG_COM11, reg);
+=======
+	ret = ov965x_read(ov965x, REG_COM11, &reg);
+	if (!ret)
+		reg |= COM11_BANDING;
+	ret = ov965x_write(ov965x, REG_COM11, reg);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 	/*
@@ -1338,12 +1588,19 @@ static int __ov965x_set_params(struct ov965x *ov965x)
 
 static int ov965x_s_stream(struct v4l2_subdev *sd, int on)
 {
+<<<<<<< HEAD
 	struct i2c_client *client = v4l2_get_subdevdata(sd);
+=======
+>>>>>>> upstream/android-13
 	struct ov965x *ov965x = to_ov965x(sd);
 	struct ov965x_ctrls *ctrls = &ov965x->ctrls;
 	int ret = 0;
 
+<<<<<<< HEAD
 	v4l2_dbg(1, debug, client, "%s: on: %d\n", __func__, on);
+=======
+	v4l2_dbg(1, debug, sd, "%s: on: %d\n", __func__, on);
+>>>>>>> upstream/android-13
 
 	mutex_lock(&ov965x->lock);
 	if (ov965x->streaming == !on) {
@@ -1363,7 +1620,11 @@ static int ov965x_s_stream(struct v4l2_subdev *sd, int on)
 				ctrls->update = 0;
 		}
 		if (!ret)
+<<<<<<< HEAD
 			ret = ov965x_write(client, REG_COM2,
+=======
+			ret = ov965x_write(ov965x, REG_COM2,
+>>>>>>> upstream/android-13
 					   on ? 0x01 : 0x11);
 	}
 	if (!ret)
@@ -1381,7 +1642,11 @@ static int ov965x_s_stream(struct v4l2_subdev *sd, int on)
 static int ov965x_open(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
 {
 	struct v4l2_mbus_framefmt *mf =
+<<<<<<< HEAD
 		v4l2_subdev_get_try_format(sd, fh->pad, 0);
+=======
+		v4l2_subdev_get_try_format(sd, fh->state, 0);
+>>>>>>> upstream/android-13
 
 	ov965x_get_default_format(mf);
 	return 0;
@@ -1426,6 +1691,10 @@ static int ov965x_configure_gpios_pdata(struct ov965x *ov965x,
 {
 	int ret, i;
 	int gpios[NUM_GPIOS];
+<<<<<<< HEAD
+=======
+	struct device *dev = regmap_get_device(ov965x->regmap);
+>>>>>>> upstream/android-13
 
 	gpios[GPIO_PWDN] = pdata->gpio_pwdn;
 	gpios[GPIO_RST]  = pdata->gpio_reset;
@@ -1435,7 +1704,11 @@ static int ov965x_configure_gpios_pdata(struct ov965x *ov965x,
 
 		if (!gpio_is_valid(gpio))
 			continue;
+<<<<<<< HEAD
 		ret = devm_gpio_request_one(&ov965x->client->dev, gpio,
+=======
+		ret = devm_gpio_request_one(dev, gpio,
+>>>>>>> upstream/android-13
 					    GPIOF_OUT_INIT_HIGH, "OV965X");
 		if (ret < 0)
 			return ret;
@@ -1451,7 +1724,11 @@ static int ov965x_configure_gpios_pdata(struct ov965x *ov965x,
 
 static int ov965x_configure_gpios(struct ov965x *ov965x)
 {
+<<<<<<< HEAD
 	struct device *dev = &ov965x->client->dev;
+=======
+	struct device *dev = regmap_get_device(ov965x->regmap);
+>>>>>>> upstream/android-13
 
 	ov965x->gpios[GPIO_PWDN] = devm_gpiod_get_optional(dev, "powerdown",
 							GPIOD_OUT_HIGH);
@@ -1472,7 +1749,10 @@ static int ov965x_configure_gpios(struct ov965x *ov965x)
 
 static int ov965x_detect_sensor(struct v4l2_subdev *sd)
 {
+<<<<<<< HEAD
 	struct i2c_client *client = v4l2_get_subdevdata(sd);
+=======
+>>>>>>> upstream/android-13
 	struct ov965x *ov965x = to_ov965x(sd);
 	u8 pid, ver;
 	int ret;
@@ -1485,9 +1765,15 @@ static int ov965x_detect_sensor(struct v4l2_subdev *sd)
 	msleep(25);
 
 	/* Check sensor revision */
+<<<<<<< HEAD
 	ret = ov965x_read(client, REG_PID, &pid);
 	if (!ret)
 		ret = ov965x_read(client, REG_VER, &ver);
+=======
+	ret = ov965x_read(ov965x, REG_PID, &pid);
+	if (!ret)
+		ret = ov965x_read(ov965x, REG_VER, &ver);
+>>>>>>> upstream/android-13
 
 	__ov965x_set_power(ov965x, 0);
 
@@ -1496,8 +1782,13 @@ static int ov965x_detect_sensor(struct v4l2_subdev *sd)
 		if (ov965x->id == OV9650_ID || ov965x->id == OV9652_ID) {
 			v4l2_info(sd, "Found OV%04X sensor\n", ov965x->id);
 		} else {
+<<<<<<< HEAD
 			v4l2_err(sd, "Sensor detection failed (%04X, %d)\n",
 				 ov965x->id, ret);
+=======
+			v4l2_err(sd, "Sensor detection failed (%04X)\n",
+				 ov965x->id);
+>>>>>>> upstream/android-13
 			ret = -ENODEV;
 		}
 	}
@@ -1507,19 +1798,39 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int ov965x_probe(struct i2c_client *client,
 			const struct i2c_device_id *id)
+=======
+static int ov965x_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	const struct ov9650_platform_data *pdata = client->dev.platform_data;
 	struct v4l2_subdev *sd;
 	struct ov965x *ov965x;
 	int ret;
+<<<<<<< HEAD
+=======
+	static const struct regmap_config ov965x_regmap_config = {
+		.reg_bits = 8,
+		.val_bits = 8,
+		.max_register = 0xab,
+	};
+>>>>>>> upstream/android-13
 
 	ov965x = devm_kzalloc(&client->dev, sizeof(*ov965x), GFP_KERNEL);
 	if (!ov965x)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	ov965x->client = client;
+=======
+	ov965x->regmap = devm_regmap_init_sccb(client, &ov965x_regmap_config);
+	if (IS_ERR(ov965x->regmap)) {
+		dev_err(&client->dev, "Failed to allocate register map\n");
+		return PTR_ERR(ov965x->regmap);
+	}
+>>>>>>> upstream/android-13
 
 	if (pdata) {
 		if (pdata->mclk_frequency == 0) {
@@ -1532,7 +1843,11 @@ static int ov965x_probe(struct i2c_client *client,
 		if (ret < 0)
 			return ret;
 	} else if (dev_fwnode(&client->dev)) {
+<<<<<<< HEAD
 		ov965x->clk = devm_clk_get(&ov965x->client->dev, NULL);
+=======
+		ov965x->clk = devm_clk_get(&client->dev, NULL);
+>>>>>>> upstream/android-13
 		if (IS_ERR(ov965x->clk))
 			return PTR_ERR(ov965x->clk);
 		ov965x->mclk_frequency = clk_get_rate(ov965x->clk);
@@ -1551,7 +1866,11 @@ static int ov965x_probe(struct i2c_client *client,
 
 	sd = &ov965x->sd;
 	v4l2_i2c_subdev_init(sd, client, &ov965x_subdev_ops);
+<<<<<<< HEAD
 	strlcpy(sd->name, DRIVER_NAME, sizeof(sd->name));
+=======
+	strscpy(sd->name, DRIVER_NAME, sizeof(sd->name));
+>>>>>>> upstream/android-13
 
 	sd->internal_ops = &ov965x_sd_internal_ops;
 	sd->flags |= V4L2_SUBDEV_FL_HAS_DEVNODE |
@@ -1626,7 +1945,11 @@ static struct i2c_driver ov965x_i2c_driver = {
 		.name	= DRIVER_NAME,
 		.of_match_table = of_match_ptr(ov965x_of_match),
 	},
+<<<<<<< HEAD
 	.probe		= ov965x_probe,
+=======
+	.probe_new	= ov965x_probe,
+>>>>>>> upstream/android-13
 	.remove		= ov965x_remove,
 	.id_table	= ov965x_id,
 };

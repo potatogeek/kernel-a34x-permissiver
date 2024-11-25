@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * intel_pt_insn_decoder.h: Intel Processor Trace support
  * Copyright (c) 2013-2014, Intel Corporation.
@@ -11,6 +12,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * intel_pt_insn_decoder.h: Intel Processor Trace support
+ * Copyright (c) 2013-2014, Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #ifndef INCLUDE__INTEL_PT_INSN_DECODER_H__
@@ -33,6 +40,10 @@ enum intel_pt_insn_op {
 	INTEL_PT_OP_INT,
 	INTEL_PT_OP_SYSCALL,
 	INTEL_PT_OP_SYSRET,
+<<<<<<< HEAD
+=======
+	INTEL_PT_OP_VMENTRY,
+>>>>>>> upstream/android-13
 };
 
 enum intel_pt_insn_branch {

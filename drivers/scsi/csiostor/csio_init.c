@@ -154,6 +154,7 @@ csio_dfs_create(struct csio_hw *hw)
 /*
  * csio_dfs_destroy - Destroys per-hw debugfs.
  */
+<<<<<<< HEAD
 static int
 csio_dfs_destroy(struct csio_hw *hw)
 {
@@ -161,12 +162,19 @@ csio_dfs_destroy(struct csio_hw *hw)
 		debugfs_remove_recursive(hw->debugfs_root);
 
 	return 0;
+=======
+static void
+csio_dfs_destroy(struct csio_hw *hw)
+{
+	debugfs_remove_recursive(hw->debugfs_root);
+>>>>>>> upstream/android-13
 }
 
 /*
  * csio_dfs_init - Debug filesystem initialization for the module.
  *
  */
+<<<<<<< HEAD
 static int
 csio_dfs_init(void)
 {
@@ -175,6 +183,12 @@ csio_dfs_init(void)
 		pr_warn("Could not create debugfs entry, continuing\n");
 
 	return 0;
+=======
+static void
+csio_dfs_init(void)
+{
+	csio_debugfs_root = debugfs_create_dir(KBUILD_MODNAME, NULL);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -210,11 +224,19 @@ csio_pci_init(struct pci_dev *pdev, int *bars)
 	pci_set_master(pdev);
 	pci_try_set_mwi(pdev);
 
+<<<<<<< HEAD
 	if (!pci_set_dma_mask(pdev, DMA_BIT_MASK(64))) {
 		pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(64));
 	} else if (!pci_set_dma_mask(pdev, DMA_BIT_MASK(32))) {
 		pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(32));
 	} else {
+=======
+	rv = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
+	if (rv)
+		rv = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32));
+	if (rv) {
+		rv = -ENODEV;
+>>>>>>> upstream/android-13
 		dev_err(&pdev->dev, "No suitable DMA available.\n");
 		goto err_release_regions;
 	}
@@ -258,7 +280,10 @@ static void
 csio_hw_exit_workers(struct csio_hw *hw)
 {
 	cancel_work_sync(&hw->evtq_work);
+<<<<<<< HEAD
 	flush_scheduled_work();
+=======
+>>>>>>> upstream/android-13
 }
 
 static int
@@ -537,7 +562,11 @@ static struct csio_hw *csio_hw_alloc(struct pci_dev *pdev)
 		goto err_free_hw;
 
 	/* Get the start address of registers from BAR 0 */
+<<<<<<< HEAD
 	hw->regstart = ioremap_nocache(pci_resource_start(pdev, 0),
+=======
+	hw->regstart = ioremap(pci_resource_start(pdev, 0),
+>>>>>>> upstream/android-13
 				       pci_resource_len(pdev, 0));
 	if (!hw->regstart) {
 		csio_err(hw, "Could not map BAR 0, regstart = %p\n",
@@ -590,7 +619,11 @@ csio_hw_free(struct csio_hw *hw)
  * @hw:		The HW module.
  * @dev:	The device associated with this invocation.
  * @probe:	Called from probe context or not?
+<<<<<<< HEAD
  * @os_pln:	Parent lnode if any.
+=======
+ * @pln:	Parent lnode if any.
+>>>>>>> upstream/android-13
  *
  * Allocates lnode structure via scsi_host_alloc, initializes
  * shost, initializes lnode module and registers with SCSI ML
@@ -1102,7 +1135,10 @@ csio_pci_slot_reset(struct pci_dev *pdev)
 	pci_set_master(pdev);
 	pci_restore_state(pdev);
 	pci_save_state(pdev);
+<<<<<<< HEAD
 	pci_cleanup_aer_uncorrect_error_status(pdev);
+=======
+>>>>>>> upstream/android-13
 
 	/* Bring HW s/m to ready state.
 	 * but don't resume IOs.
@@ -1263,3 +1299,7 @@ MODULE_DEVICE_TABLE(pci, csio_pci_tbl);
 MODULE_VERSION(CSIO_DRV_VERSION);
 MODULE_FIRMWARE(FW_FNAME_T5);
 MODULE_FIRMWARE(FW_FNAME_T6);
+<<<<<<< HEAD
+=======
+MODULE_SOFTDEP("pre: cxgb4");
+>>>>>>> upstream/android-13

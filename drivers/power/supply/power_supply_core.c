@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  Universal power supply monitor class
  *
@@ -6,8 +10,11 @@
  *  Copyright © 2003  Ian Molton <spyro@f2s.com>
  *
  *  Modified: 2004, Oct     Szabolcs Gyurko
+<<<<<<< HEAD
  *
  *  You may use this code as per GPL version 2
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -33,6 +40,16 @@ EXPORT_SYMBOL_GPL(power_supply_notifier);
 
 static struct device_type power_supply_dev_type;
 
+<<<<<<< HEAD
+=======
+struct match_device_node_array_param {
+	struct device_node *parent_of_node;
+	struct power_supply **psy;
+	ssize_t psy_size;
+	ssize_t psy_count;
+};
+
+>>>>>>> upstream/android-13
 #define POWER_SUPPLY_DEFERRED_REGISTER_TIME	msecs_to_jiffies(10)
 
 static bool __power_supply_is_supplied_by(struct power_supply *supplier,
@@ -126,6 +143,10 @@ void power_supply_changed(struct power_supply *psy)
 }
 EXPORT_SYMBOL_GPL(power_supply_changed);
 
+<<<<<<< HEAD
+=======
+static int psy_register_cooler(struct power_supply *psy);
+>>>>>>> upstream/android-13
 /*
  * Notify that power supply was registered after parent finished the probing.
  *
@@ -133,6 +154,11 @@ EXPORT_SYMBOL_GPL(power_supply_changed);
  * calling power_supply_changed() directly from power_supply_register()
  * would lead to execution of get_property() function provided by the driver
  * too early - before the probe ends.
+<<<<<<< HEAD
+=======
+ * Also, registering cooling device from the probe will execute the
+ * get_property() function. So register the cooling device after the probe.
+>>>>>>> upstream/android-13
  *
  * Avoid that by waiting on parent's mutex.
  */
@@ -150,14 +176,21 @@ static void power_supply_deferred_register_work(struct work_struct *work)
 	}
 
 	power_supply_changed(psy);
+<<<<<<< HEAD
+=======
+	psy_register_cooler(psy);
+>>>>>>> upstream/android-13
 
 	if (psy->dev.parent)
 		mutex_unlock(&psy->dev.parent->mutex);
 }
 
 #ifdef CONFIG_OF
+<<<<<<< HEAD
 #include <linux/of.h>
 
+=======
+>>>>>>> upstream/android-13
 static int __power_supply_populate_supplied_from(struct device *dev,
 						 void *data)
 {
@@ -172,7 +205,11 @@ static int __power_supply_populate_supplied_from(struct device *dev,
 			break;
 
 		if (np == epsy->of_node) {
+<<<<<<< HEAD
 			dev_info(&psy->dev, "%s: Found supply : %s\n",
+=======
+			dev_dbg(&psy->dev, "%s: Found supply : %s\n",
+>>>>>>> upstream/android-13
 				psy->desc->name, epsy->desc->name);
 			psy->supplied_from[i-1] = (char *)epsy->desc->name;
 			psy->num_supplies++;
@@ -525,6 +562,80 @@ struct power_supply *power_supply_get_by_phandle(struct device_node *np,
 }
 EXPORT_SYMBOL_GPL(power_supply_get_by_phandle);
 
+<<<<<<< HEAD
+=======
+static int power_supply_match_device_node_array(struct device *dev,
+						void *data)
+{
+	struct match_device_node_array_param *param =
+		(struct match_device_node_array_param *)data;
+	struct power_supply **psy = param->psy;
+	ssize_t size = param->psy_size;
+	ssize_t *count = &param->psy_count;
+
+	if (!dev->parent || dev->parent->of_node != param->parent_of_node)
+		return 0;
+
+	if (*count >= size)
+		return -EOVERFLOW;
+
+	psy[*count] = dev_get_drvdata(dev);
+	atomic_inc(&psy[*count]->use_cnt);
+	(*count)++;
+
+	return 0;
+}
+
+/**
+ * power_supply_get_by_phandle_array() - Similar to
+ * power_supply_get_by_phandle but returns an array of power supply
+ * objects which are associated with the phandle.
+ * @np: Pointer to device node holding phandle property.
+ * @property: Name of property holding a power supply name.
+ * @psy: Array of power_supply pointers provided by the client which is
+ * filled by power_supply_get_by_phandle_array.
+ * @size: size of power_supply pointer array.
+ *
+ * If power supply was found, it increases reference count for the
+ * internal power supply's device. The user should power_supply_put()
+ * after usage.
+ *
+ * Return: On success returns the number of power supply objects filled
+ * in the @psy array.
+ * -EOVERFLOW when size of @psy array is not suffice.
+ * -EINVAL when @psy is NULL or @size is 0.
+ * -ENODEV when matching device_node is not found.
+ */
+int power_supply_get_by_phandle_array(struct device_node *np,
+				      const char *property,
+				      struct power_supply **psy,
+				      ssize_t size)
+{
+	struct device_node *power_supply_np;
+	int ret;
+	struct match_device_node_array_param param;
+
+	if (!psy || !size)
+		return -EINVAL;
+
+	power_supply_np = of_parse_phandle(np, property, 0);
+	if (!power_supply_np)
+		return -ENODEV;
+
+	param.parent_of_node = power_supply_np;
+	param.psy = psy;
+	param.psy_size = size;
+	param.psy_count = 0;
+	ret = class_for_each_device(power_supply_class, NULL, &param,
+				    power_supply_match_device_node_array);
+
+	of_node_put(power_supply_np);
+
+	return param.psy_count;
+}
+EXPORT_SYMBOL_GPL(power_supply_get_by_phandle_array);
+
+>>>>>>> upstream/android-13
 static void devm_power_supply_put(struct device *dev, void *res)
 {
 	struct power_supply **psy = res;
@@ -568,6 +679,7 @@ EXPORT_SYMBOL_GPL(devm_power_supply_get_by_phandle);
 int power_supply_get_battery_info(struct power_supply *psy,
 				  struct power_supply_battery_info *info)
 {
+<<<<<<< HEAD
 	struct device_node *battery_np;
 	const char *value;
 	int err;
@@ -575,10 +687,40 @@ int power_supply_get_battery_info(struct power_supply *psy,
 	info->energy_full_design_uwh         = -EINVAL;
 	info->charge_full_design_uah         = -EINVAL;
 	info->voltage_min_design_uv          = -EINVAL;
+=======
+	struct power_supply_resistance_temp_table *resist_table;
+	struct device_node *battery_np;
+	const char *value;
+	int err, len, index;
+	const __be32 *list;
+
+	info->technology                     = POWER_SUPPLY_TECHNOLOGY_UNKNOWN;
+	info->energy_full_design_uwh         = -EINVAL;
+	info->charge_full_design_uah         = -EINVAL;
+	info->voltage_min_design_uv          = -EINVAL;
+	info->voltage_max_design_uv          = -EINVAL;
+>>>>>>> upstream/android-13
 	info->precharge_current_ua           = -EINVAL;
 	info->charge_term_current_ua         = -EINVAL;
 	info->constant_charge_current_max_ua = -EINVAL;
 	info->constant_charge_voltage_max_uv = -EINVAL;
+<<<<<<< HEAD
+=======
+	info->temp_ambient_alert_min         = INT_MIN;
+	info->temp_ambient_alert_max         = INT_MAX;
+	info->temp_alert_min                 = INT_MIN;
+	info->temp_alert_max                 = INT_MAX;
+	info->temp_min                       = INT_MIN;
+	info->temp_max                       = INT_MAX;
+	info->factory_internal_resistance_uohm  = -EINVAL;
+	info->resist_table = NULL;
+
+	for (index = 0; index < POWER_SUPPLY_OCV_TEMP_MAX; index++) {
+		info->ocv_table[index]       = NULL;
+		info->ocv_temp[index]        = -EINVAL;
+		info->ocv_table_size[index]  = -EINVAL;
+	}
+>>>>>>> upstream/android-13
 
 	if (!psy->of_node) {
 		dev_warn(&psy->dev, "%s currently only supports devicetree\n",
@@ -592,6 +734,7 @@ int power_supply_get_battery_info(struct power_supply *psy,
 
 	err = of_property_read_string(battery_np, "compatible", &value);
 	if (err)
+<<<<<<< HEAD
 		return err;
 
 	if (strcmp("simple-battery", value))
@@ -602,12 +745,45 @@ int power_supply_get_battery_info(struct power_supply *psy,
 	 * Documentation/power/power_supply_class.txt.
 	 */
 
+=======
+		goto out_put_node;
+
+	if (strcmp("simple-battery", value)) {
+		err = -ENODEV;
+		goto out_put_node;
+	}
+
+	/* The property and field names below must correspond to elements
+	 * in enum power_supply_property. For reasoning, see
+	 * Documentation/power/power_supply_class.rst.
+	 */
+
+	if (!of_property_read_string(battery_np, "device-chemistry", &value)) {
+		if (!strcmp("nickel-cadmium", value))
+			info->technology = POWER_SUPPLY_TECHNOLOGY_NiCd;
+		else if (!strcmp("nickel-metal-hydride", value))
+			info->technology = POWER_SUPPLY_TECHNOLOGY_NiMH;
+		else if (!strcmp("lithium-ion", value))
+			/* Imprecise lithium-ion type */
+			info->technology = POWER_SUPPLY_TECHNOLOGY_LION;
+		else if (!strcmp("lithium-ion-polymer", value))
+			info->technology = POWER_SUPPLY_TECHNOLOGY_LIPO;
+		else if (!strcmp("lithium-ion-iron-phosphate", value))
+			info->technology = POWER_SUPPLY_TECHNOLOGY_LiFe;
+		else if (!strcmp("lithium-ion-manganese-oxide", value))
+			info->technology = POWER_SUPPLY_TECHNOLOGY_LiMn;
+		else
+			dev_warn(&psy->dev, "%s unknown battery type\n", value);
+	}
+
+>>>>>>> upstream/android-13
 	of_property_read_u32(battery_np, "energy-full-design-microwatt-hours",
 			     &info->energy_full_design_uwh);
 	of_property_read_u32(battery_np, "charge-full-design-microamp-hours",
 			     &info->charge_full_design_uah);
 	of_property_read_u32(battery_np, "voltage-min-design-microvolt",
 			     &info->voltage_min_design_uv);
+<<<<<<< HEAD
 	of_property_read_u32(battery_np, "precharge-current-microamp",
 			     &info->precharge_current_ua);
 	of_property_read_u32(battery_np, "charge-term-current-microamp",
@@ -621,6 +797,249 @@ int power_supply_get_battery_info(struct power_supply *psy,
 }
 EXPORT_SYMBOL_GPL(power_supply_get_battery_info);
 
+=======
+	of_property_read_u32(battery_np, "voltage-max-design-microvolt",
+			     &info->voltage_max_design_uv);
+	of_property_read_u32(battery_np, "trickle-charge-current-microamp",
+			     &info->tricklecharge_current_ua);
+	of_property_read_u32(battery_np, "precharge-current-microamp",
+			     &info->precharge_current_ua);
+	of_property_read_u32(battery_np, "precharge-upper-limit-microvolt",
+			     &info->precharge_voltage_max_uv);
+	of_property_read_u32(battery_np, "charge-term-current-microamp",
+			     &info->charge_term_current_ua);
+	of_property_read_u32(battery_np, "re-charge-voltage-microvolt",
+			     &info->charge_restart_voltage_uv);
+	of_property_read_u32(battery_np, "over-voltage-threshold-microvolt",
+			     &info->overvoltage_limit_uv);
+	of_property_read_u32(battery_np, "constant-charge-current-max-microamp",
+			     &info->constant_charge_current_max_ua);
+	of_property_read_u32(battery_np, "constant-charge-voltage-max-microvolt",
+			     &info->constant_charge_voltage_max_uv);
+	of_property_read_u32(battery_np, "factory-internal-resistance-micro-ohms",
+			     &info->factory_internal_resistance_uohm);
+
+	of_property_read_u32_index(battery_np, "ambient-celsius",
+				   0, &info->temp_ambient_alert_min);
+	of_property_read_u32_index(battery_np, "ambient-celsius",
+				   1, &info->temp_ambient_alert_max);
+	of_property_read_u32_index(battery_np, "alert-celsius",
+				   0, &info->temp_alert_min);
+	of_property_read_u32_index(battery_np, "alert-celsius",
+				   1, &info->temp_alert_max);
+	of_property_read_u32_index(battery_np, "operating-range-celsius",
+				   0, &info->temp_min);
+	of_property_read_u32_index(battery_np, "operating-range-celsius",
+				   1, &info->temp_max);
+
+	len = of_property_count_u32_elems(battery_np, "ocv-capacity-celsius");
+	if (len < 0 && len != -EINVAL) {
+		err = len;
+		goto out_put_node;
+	} else if (len > POWER_SUPPLY_OCV_TEMP_MAX) {
+		dev_err(&psy->dev, "Too many temperature values\n");
+		err = -EINVAL;
+		goto out_put_node;
+	} else if (len > 0) {
+		of_property_read_u32_array(battery_np, "ocv-capacity-celsius",
+					   info->ocv_temp, len);
+	}
+
+	for (index = 0; index < len; index++) {
+		struct power_supply_battery_ocv_table *table;
+		char *propname;
+		int i, tab_len, size;
+
+		propname = kasprintf(GFP_KERNEL, "ocv-capacity-table-%d", index);
+		list = of_get_property(battery_np, propname, &size);
+		if (!list || !size) {
+			dev_err(&psy->dev, "failed to get %s\n", propname);
+			kfree(propname);
+			power_supply_put_battery_info(psy, info);
+			err = -EINVAL;
+			goto out_put_node;
+		}
+
+		kfree(propname);
+		tab_len = size / (2 * sizeof(__be32));
+		info->ocv_table_size[index] = tab_len;
+
+		table = info->ocv_table[index] =
+			devm_kcalloc(&psy->dev, tab_len, sizeof(*table), GFP_KERNEL);
+		if (!info->ocv_table[index]) {
+			power_supply_put_battery_info(psy, info);
+			err = -ENOMEM;
+			goto out_put_node;
+		}
+
+		for (i = 0; i < tab_len; i++) {
+			table[i].ocv = be32_to_cpu(*list);
+			list++;
+			table[i].capacity = be32_to_cpu(*list);
+			list++;
+		}
+	}
+
+	list = of_get_property(battery_np, "resistance-temp-table", &len);
+	if (!list || !len)
+		goto out_put_node;
+
+	info->resist_table_size = len / (2 * sizeof(__be32));
+	resist_table = info->resist_table = devm_kcalloc(&psy->dev,
+							 info->resist_table_size,
+							 sizeof(*resist_table),
+							 GFP_KERNEL);
+	if (!info->resist_table) {
+		power_supply_put_battery_info(psy, info);
+		err = -ENOMEM;
+		goto out_put_node;
+	}
+
+	for (index = 0; index < info->resist_table_size; index++) {
+		resist_table[index].temp = be32_to_cpu(*list++);
+		resist_table[index].resistance = be32_to_cpu(*list++);
+	}
+
+out_put_node:
+	of_node_put(battery_np);
+	return err;
+}
+EXPORT_SYMBOL_GPL(power_supply_get_battery_info);
+
+void power_supply_put_battery_info(struct power_supply *psy,
+				   struct power_supply_battery_info *info)
+{
+	int i;
+
+	for (i = 0; i < POWER_SUPPLY_OCV_TEMP_MAX; i++) {
+		if (info->ocv_table[i])
+			devm_kfree(&psy->dev, info->ocv_table[i]);
+	}
+
+	if (info->resist_table)
+		devm_kfree(&psy->dev, info->resist_table);
+}
+EXPORT_SYMBOL_GPL(power_supply_put_battery_info);
+
+/**
+ * power_supply_temp2resist_simple() - find the battery internal resistance
+ * percent
+ * @table: Pointer to battery resistance temperature table
+ * @table_len: The table length
+ * @temp: Current temperature
+ *
+ * This helper function is used to look up battery internal resistance percent
+ * according to current temperature value from the resistance temperature table,
+ * and the table must be ordered descending. Then the actual battery internal
+ * resistance = the ideal battery internal resistance * percent / 100.
+ *
+ * Return: the battery internal resistance percent
+ */
+int power_supply_temp2resist_simple(struct power_supply_resistance_temp_table *table,
+				    int table_len, int temp)
+{
+	int i, resist;
+
+	for (i = 0; i < table_len; i++)
+		if (temp > table[i].temp)
+			break;
+
+	if (i > 0 && i < table_len) {
+		int tmp;
+
+		tmp = (table[i - 1].resistance - table[i].resistance) *
+			(temp - table[i].temp);
+		tmp /= table[i - 1].temp - table[i].temp;
+		resist = tmp + table[i].resistance;
+	} else if (i == 0) {
+		resist = table[0].resistance;
+	} else {
+		resist = table[table_len - 1].resistance;
+	}
+
+	return resist;
+}
+EXPORT_SYMBOL_GPL(power_supply_temp2resist_simple);
+
+/**
+ * power_supply_ocv2cap_simple() - find the battery capacity
+ * @table: Pointer to battery OCV lookup table
+ * @table_len: OCV table length
+ * @ocv: Current OCV value
+ *
+ * This helper function is used to look up battery capacity according to
+ * current OCV value from one OCV table, and the OCV table must be ordered
+ * descending.
+ *
+ * Return: the battery capacity.
+ */
+int power_supply_ocv2cap_simple(struct power_supply_battery_ocv_table *table,
+				int table_len, int ocv)
+{
+	int i, cap, tmp;
+
+	for (i = 0; i < table_len; i++)
+		if (ocv > table[i].ocv)
+			break;
+
+	if (i > 0 && i < table_len) {
+		tmp = (table[i - 1].capacity - table[i].capacity) *
+			(ocv - table[i].ocv);
+		tmp /= table[i - 1].ocv - table[i].ocv;
+		cap = tmp + table[i].capacity;
+	} else if (i == 0) {
+		cap = table[0].capacity;
+	} else {
+		cap = table[table_len - 1].capacity;
+	}
+
+	return cap;
+}
+EXPORT_SYMBOL_GPL(power_supply_ocv2cap_simple);
+
+struct power_supply_battery_ocv_table *
+power_supply_find_ocv2cap_table(struct power_supply_battery_info *info,
+				int temp, int *table_len)
+{
+	int best_temp_diff = INT_MAX, temp_diff;
+	u8 i, best_index = 0;
+
+	if (!info->ocv_table[0])
+		return NULL;
+
+	for (i = 0; i < POWER_SUPPLY_OCV_TEMP_MAX; i++) {
+		/* Out of capacity tables */
+		if (!info->ocv_table[i])
+			break;
+
+		temp_diff = abs(info->ocv_temp[i] - temp);
+
+		if (temp_diff < best_temp_diff) {
+			best_temp_diff = temp_diff;
+			best_index = i;
+		}
+	}
+
+	*table_len = info->ocv_table_size[best_index];
+	return info->ocv_table[best_index];
+}
+EXPORT_SYMBOL_GPL(power_supply_find_ocv2cap_table);
+
+int power_supply_batinfo_ocv2cap(struct power_supply_battery_info *info,
+				 int ocv, int temp)
+{
+	struct power_supply_battery_ocv_table *table;
+	int table_len;
+
+	table = power_supply_find_ocv2cap_table(info, temp, &table_len);
+	if (!table)
+		return -EINVAL;
+
+	return power_supply_ocv2cap_simple(table, table_len, ocv);
+}
+EXPORT_SYMBOL_GPL(power_supply_batinfo_ocv2cap);
+
+>>>>>>> upstream/android-13
 int power_supply_get_property(struct power_supply *psy,
 			    enum power_supply_property psp,
 			    union power_supply_propval *val)
@@ -718,7 +1137,11 @@ static struct thermal_zone_device_ops psy_tzd_ops = {
 
 static int psy_register_thermal(struct power_supply *psy)
 {
+<<<<<<< HEAD
 	int i;
+=======
+	int i, ret;
+>>>>>>> upstream/android-13
 
 	if (psy->desc->no_thermal)
 		return 0;
@@ -728,7 +1151,16 @@ static int psy_register_thermal(struct power_supply *psy)
 		if (psy->desc->properties[i] == POWER_SUPPLY_PROP_TEMP) {
 			psy->tzd = thermal_zone_device_register(psy->desc->name,
 					0, 0, psy, &psy_tzd_ops, NULL, 0, 0);
+<<<<<<< HEAD
 			return PTR_ERR_OR_ZERO(psy->tzd);
+=======
+			if (IS_ERR(psy->tzd))
+				return PTR_ERR(psy->tzd);
+			ret = thermal_zone_device_enable(psy->tzd);
+			if (ret)
+				thermal_zone_device_unregister(psy->tzd);
+			return ret;
+>>>>>>> upstream/android-13
 		}
 	}
 	return 0;
@@ -760,7 +1192,11 @@ static int ps_get_max_charge_cntl_limit(struct thermal_cooling_device *tcd,
 	return ret;
 }
 
+<<<<<<< HEAD
 static int ps_get_cur_chrage_cntl_limit(struct thermal_cooling_device *tcd,
+=======
+static int ps_get_cur_charge_cntl_limit(struct thermal_cooling_device *tcd,
+>>>>>>> upstream/android-13
 					unsigned long *state)
 {
 	struct power_supply *psy;
@@ -795,7 +1231,11 @@ static int ps_set_cur_charge_cntl_limit(struct thermal_cooling_device *tcd,
 
 static const struct thermal_cooling_device_ops psy_tcd_ops = {
 	.get_max_state = ps_get_max_charge_cntl_limit,
+<<<<<<< HEAD
 	.get_cur_state = ps_get_cur_chrage_cntl_limit,
+=======
+	.get_cur_state = ps_get_cur_charge_cntl_limit,
+>>>>>>> upstream/android-13
 	.set_cur_state = ps_set_cur_charge_cntl_limit,
 };
 
@@ -807,9 +1247,21 @@ static int psy_register_cooler(struct power_supply *psy)
 	for (i = 0; i < psy->desc->num_properties; i++) {
 		if (psy->desc->properties[i] ==
 				POWER_SUPPLY_PROP_CHARGE_CONTROL_LIMIT) {
+<<<<<<< HEAD
 			psy->tcd = thermal_cooling_device_register(
 							(char *)psy->desc->name,
 							psy, &psy_tcd_ops);
+=======
+			if (psy->dev.parent)
+				psy->tcd = thermal_of_cooling_device_register(
+						dev_of_node(psy->dev.parent),
+						(char *)psy->desc->name,
+						psy, &psy_tcd_ops);
+			else
+				psy->tcd = thermal_cooling_device_register(
+						(char *)psy->desc->name,
+						psy, &psy_tcd_ops);
+>>>>>>> upstream/android-13
 			return PTR_ERR_OR_ZERO(psy->tcd);
 		}
 	}
@@ -880,6 +1332,10 @@ __power_supply_register(struct device *parent,
 	dev_set_drvdata(dev, psy);
 	psy->desc = desc;
 	if (cfg) {
+<<<<<<< HEAD
+=======
+		dev->groups = cfg->attr_grp;
+>>>>>>> upstream/android-13
 		psy->drv_data = cfg->drv_data;
 		psy->of_node =
 			cfg->fwnode ? to_of_node(cfg->fwnode) : cfg->of_node;
@@ -897,7 +1353,11 @@ __power_supply_register(struct device *parent,
 
 	rc = power_supply_check_supplies(psy);
 	if (rc) {
+<<<<<<< HEAD
 		dev_info(dev, "Not all required supplies found, defer probe\n");
+=======
+		dev_dbg(dev, "Not all required supplies found, defer probe\n");
+>>>>>>> upstream/android-13
 		goto check_supplies_failed;
 	}
 
@@ -914,14 +1374,24 @@ __power_supply_register(struct device *parent,
 	if (rc)
 		goto register_thermal_failed;
 
+<<<<<<< HEAD
 	rc = psy_register_cooler(psy);
 	if (rc)
 		goto register_cooler_failed;
 
+=======
+>>>>>>> upstream/android-13
 	rc = power_supply_create_triggers(psy);
 	if (rc)
 		goto create_triggers_failed;
 
+<<<<<<< HEAD
+=======
+	rc = power_supply_add_hwmon_sysfs(psy);
+	if (rc)
+		goto add_hwmon_sysfs_failed;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Update use_cnt after any uevents (most notably from device_add()).
 	 * We are here still during driver's probe but
@@ -940,9 +1410,15 @@ __power_supply_register(struct device *parent,
 
 	return psy;
 
+<<<<<<< HEAD
 create_triggers_failed:
 	psy_unregister_cooler(psy);
 register_cooler_failed:
+=======
+add_hwmon_sysfs_failed:
+	power_supply_remove_triggers(psy);
+create_triggers_failed:
+>>>>>>> upstream/android-13
 	psy_unregister_thermal(psy);
 register_thermal_failed:
 	device_del(dev);
@@ -1092,6 +1568,10 @@ void power_supply_unregister(struct power_supply *psy)
 	cancel_work_sync(&psy->changed_work);
 	cancel_delayed_work_sync(&psy->deferred_register_work);
 	sysfs_remove_link(&psy->dev.kobj, "powers");
+<<<<<<< HEAD
+=======
+	power_supply_remove_hwmon_sysfs(psy);
+>>>>>>> upstream/android-13
 	power_supply_remove_triggers(psy);
 	psy_unregister_cooler(psy);
 	psy_unregister_thermal(psy);
@@ -1112,6 +1592,10 @@ static int __init power_supply_class_init(void)
 
 	if (IS_ERR(power_supply_class))
 		return PTR_ERR(power_supply_class);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	power_supply_class->dev_uevent = power_supply_uevent;
 	power_supply_init_attrs(&power_supply_dev_type);
 

@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/drivers/mmc/host/sdhci_f_sdh30.c
  *
  * Copyright (C) 2013 - 2015 Fujitsu Semiconductor, Ltd
  *              Vincent Yang <vincent.yang@tw.fujitsu.com>
  * Copyright (C) 2015 Linaro Ltd  Andy Green <andy.green@linaro.org>
+<<<<<<< HEAD
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, version 2 of the License.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/acpi.h>
@@ -19,6 +26,7 @@
 #include <linux/clk.h>
 
 #include "sdhci-pltfm.h"
+<<<<<<< HEAD
 
 /* F_SDH30 extended Controller registers */
 #define F_SDH30_AHB_CONFIG		0x100
@@ -44,6 +52,9 @@
 #define F_SDH30_CMD_DAT_DELAY		0x200
 
 #define F_SDH30_MIN_CLOCK		400000
+=======
+#include "sdhci_f_sdh30.h"
+>>>>>>> upstream/android-13
 
 struct f_sdhost_priv {
 	struct clk *clk_iface;
@@ -116,16 +127,24 @@ static int sdhci_f_sdh30_probe(struct platform_device *pdev)
 {
 	struct sdhci_host *host;
 	struct device *dev = &pdev->dev;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	int irq, ctrl = 0, ret = 0;
 	struct f_sdhost_priv *priv;
 	u32 reg = 0;
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(dev, "%s: no irq specified\n", __func__);
 		return irq;
 	}
+=======
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 
 	host = sdhci_alloc_host(dev, sizeof(struct f_sdhost_priv));
 	if (IS_ERR(host))
@@ -152,8 +171,12 @@ static int sdhci_f_sdh30_probe(struct platform_device *pdev)
 	host->ops = &sdhci_f_sdh30_ops;
 	host->irq = irq;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	host->ioaddr = devm_ioremap_resource(&pdev->dev, res);
+=======
+	host->ioaddr = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(host->ioaddr)) {
 		ret = PTR_ERR(host->ioaddr);
 		goto err;
@@ -250,6 +273,10 @@ MODULE_DEVICE_TABLE(acpi, f_sdh30_acpi_ids);
 static struct platform_driver sdhci_f_sdh30_driver = {
 	.driver = {
 		.name = "f_sdh30",
+<<<<<<< HEAD
+=======
+		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
+>>>>>>> upstream/android-13
 		.of_match_table = of_match_ptr(f_sdh30_dt_ids),
 		.acpi_match_table = ACPI_PTR(f_sdh30_acpi_ids),
 		.pm	= &sdhci_pltfm_pmops,

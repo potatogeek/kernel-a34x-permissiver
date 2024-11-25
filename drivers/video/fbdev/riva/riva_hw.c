@@ -247,14 +247,21 @@ static int nv3_iterate(nv3_fifo_info *res_info, nv3_sim_state * state, nv3_arb_i
     int mburst_size = 32;
     int mmisses, gmisses, vmisses;
     int misses;
+<<<<<<< HEAD
     int vlwm, glwm, mlwm;
+=======
+    int vlwm, glwm;
+>>>>>>> upstream/android-13
     int last, next, cur;
     int max_gfsize ;
     long ns;
 
     vlwm = 0;
     glwm = 0;
+<<<<<<< HEAD
     mlwm = 0;
+=======
+>>>>>>> upstream/android-13
     vfsize = 0;
     gfsize = 0;
     cur = ainfo->cur;
@@ -656,13 +663,20 @@ static void nv4CalcArbitration
     nv4_sim_state *arb
 )
 {
+<<<<<<< HEAD
     int data, pagemiss, cas,width, video_enable, color_key_enable, bpp, align;
+=======
+    int data, pagemiss, cas,width, video_enable, bpp;
+>>>>>>> upstream/android-13
     int nvclks, mclks, pclks, vpagemiss, crtpagemiss, vbs;
     int found, mclk_extra, mclk_loop, cbs, m1, p1;
     int mclk_freq, pclk_freq, nvclk_freq, mp_enable;
     int us_m, us_n, us_p, video_drain_rate, crtc_drain_rate;
     int vpm_us, us_video, vlwm, video_fill_us, cpm_us, us_crt,clwm;
+<<<<<<< HEAD
     int craw, vraw;
+=======
+>>>>>>> upstream/android-13
 
     fifo->valid = 1;
     pclk_freq = arb->pclk_khz;
@@ -672,9 +686,13 @@ static void nv4CalcArbitration
     cas = arb->mem_latency;
     width = arb->memory_width >> 6;
     video_enable = arb->enable_video;
+<<<<<<< HEAD
     color_key_enable = arb->gr_during_vid;
     bpp = arb->pix_bpp;
     align = arb->mem_aligned;
+=======
+    bpp = arb->pix_bpp;
+>>>>>>> upstream/android-13
     mp_enable = arb->enable_mp;
     clwm = 0;
     vlwm = 0;
@@ -782,8 +800,11 @@ static void nv4CalcArbitration
                 mclk_extra--;
             }
         }
+<<<<<<< HEAD
         craw = clwm;
         vraw = vlwm;
+=======
+>>>>>>> upstream/android-13
         if (clwm < 384) clwm = 384;
         if (vlwm < 128) vlwm = 128;
         data = (int)(clwm);
@@ -842,6 +863,7 @@ static void nv10CalcArbitration
     nv10_sim_state *arb
 )
 {
+<<<<<<< HEAD
     int data, pagemiss, cas,width, video_enable, color_key_enable, bpp, align;
     int nvclks, mclks, pclks, vpagemiss, crtpagemiss, vbs;
     int nvclk_fill, us_extra;
@@ -853,6 +875,19 @@ static void nv10CalcArbitration
     int clwm_rnd_down;
     int craw, m2us, us_pipe, us_pipe_min, vus_pipe, p1clk, p2;
     int pclks_2_top_fifo, min_mclk_extra;
+=======
+    int data, pagemiss, width, video_enable, bpp;
+    int nvclks, mclks, pclks, vpagemiss, crtpagemiss;
+    int nvclk_fill;
+    int found, mclk_extra, mclk_loop, cbs, m1;
+    int mclk_freq, pclk_freq, nvclk_freq, mp_enable;
+    int us_m, us_m_min, us_n, us_p, crtc_drain_rate;
+    int vus_m;
+    int vpm_us, us_video, cpm_us, us_crt,clwm;
+    int clwm_rnd_down;
+    int m2us, us_pipe_min, p1clk, p2;
+    int min_mclk_extra;
+>>>>>>> upstream/android-13
     int us_min_mclk_extra;
 
     fifo->valid = 1;
@@ -860,6 +895,7 @@ static void nv10CalcArbitration
     mclk_freq = arb->mclk_khz;
     nvclk_freq = arb->nvclk_khz;
     pagemiss = arb->mem_page_miss;
+<<<<<<< HEAD
     cas = arb->mem_latency;
     width = arb->memory_width/64;
     video_enable = arb->enable_video;
@@ -872,6 +908,15 @@ static void nv10CalcArbitration
 
     cbs = 512;
     vbs = 512;
+=======
+    width = arb->memory_width/64;
+    video_enable = arb->enable_video;
+    bpp = arb->pix_bpp;
+    mp_enable = arb->enable_mp;
+    clwm = 0;
+
+    cbs = 512;
+>>>>>>> upstream/android-13
 
     pclks = 4; /* lwm detect. */
 
@@ -932,6 +977,7 @@ static void nv10CalcArbitration
       us_min_mclk_extra = min_mclk_extra *1000*1000 / mclk_freq;
       us_n = nvclks*1000*1000 / nvclk_freq;/* nvclk latency in us */
       us_p = pclks*1000*1000 / pclk_freq;/* nvclk latency in us */
+<<<<<<< HEAD
       us_pipe = us_m + us_n + us_p;
       us_pipe_min = us_m_min + us_n + us_p;
       us_extra = 0;
@@ -943,6 +989,13 @@ static void nv10CalcArbitration
 
       if(video_enable) {
         video_drain_rate = pclk_freq * 4; /* MB/s */
+=======
+      us_pipe_min = us_m_min + us_n + us_p;
+
+      vus_m = mclk_loop *1000*1000 / mclk_freq; /* Mclk latency in us */
+
+      if(video_enable) {
+>>>>>>> upstream/android-13
         crtc_drain_rate = pclk_freq * bpp/8; /* MB/s */
 
         vpagemiss = 1; /* self generating page miss */
@@ -1001,7 +1054,10 @@ static void nv10CalcArbitration
               else if(crtc_drain_rate * 100  >= nvclk_fill * 98) {
                   clwm = 1024;
                   cbs = 512;
+<<<<<<< HEAD
                   us_extra = (cbs * 1000 * 1000)/ (8*width)/mclk_freq ;
+=======
+>>>>>>> upstream/android-13
               }
           }
       }
@@ -1018,7 +1074,10 @@ static void nv10CalcArbitration
 
       m1 = clwm + cbs -  1024; /* Amount of overfill */
       m2us = us_pipe_min + us_min_mclk_extra;
+<<<<<<< HEAD
       pclks_2_top_fifo = (1024-clwm)/(8*width);
+=======
+>>>>>>> upstream/android-13
 
       /* pclk cycles to drain */
       p1clk = m2us * pclk_freq/(1000*1000); 
@@ -1046,7 +1105,10 @@ static void nv10CalcArbitration
               min_mclk_extra--;
         }
       }
+<<<<<<< HEAD
       craw = clwm;
+=======
+>>>>>>> upstream/android-13
 
       if(clwm < (1024-cbs+8)) clwm = 1024-cbs+8;
       data = (int)(clwm);
@@ -1245,8 +1307,12 @@ int CalcStateExt
 )
 {
     int pixelDepth;
+<<<<<<< HEAD
     int uninitialized_var(VClk),uninitialized_var(m),
         uninitialized_var(n),	uninitialized_var(p);
+=======
+    int VClk, m, n, p;
+>>>>>>> upstream/android-13
 
     /*
      * Save mode parameters.
@@ -1343,6 +1409,7 @@ int CalcStateExt
 /*
  * Load fixed function state and pre-calculated/stored state.
  */
+<<<<<<< HEAD
 #if 0
 #define LOAD_FIXED_STATE(tbl,dev)                                       \
     for (i = 0; i < sizeof(tbl##Table##dev)/8; i++)                 \
@@ -1361,6 +1428,8 @@ int CalcStateExt
         chip->dev[tbl##Table##dev##_32BPP[i][0]] = tbl##Table##dev##_32BPP[i][1]
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #define LOAD_FIXED_STATE(tbl,dev)                                       \
     for (i = 0; i < sizeof(tbl##Table##dev)/8; i++)                 \
         NV_WR32(&chip->dev[tbl##Table##dev[i][0]], 0, tbl##Table##dev[i][1])

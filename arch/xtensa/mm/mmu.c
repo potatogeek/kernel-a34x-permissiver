@@ -4,7 +4,11 @@
  *
  * Extracted from init.c
  */
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/percpu.h>
 #include <linux/init.h>
 #include <linux/string.h>
@@ -21,8 +25,12 @@
 #if defined(CONFIG_HIGHMEM)
 static void * __init init_pmd(unsigned long vaddr, unsigned long n_pages)
 {
+<<<<<<< HEAD
 	pgd_t *pgd = pgd_offset_k(vaddr);
 	pmd_t *pmd = pmd_offset(pgd, vaddr);
+=======
+	pmd_t *pmd = pmd_off_k(vaddr);
+>>>>>>> upstream/android-13
 	pte_t *pte;
 	unsigned long i;
 
@@ -31,7 +39,14 @@ static void * __init init_pmd(unsigned long vaddr, unsigned long n_pages)
 	pr_debug("%s: vaddr: 0x%08lx, n_pages: %ld\n",
 		 __func__, vaddr, n_pages);
 
+<<<<<<< HEAD
 	pte = alloc_bootmem_low_pages(n_pages * sizeof(pte_t));
+=======
+	pte = memblock_alloc_low(n_pages * sizeof(pte_t), PAGE_SIZE);
+	if (!pte)
+		panic("%s: Failed to allocate %lu bytes align=%lx\n",
+		      __func__, n_pages * sizeof(pte_t), PAGE_SIZE);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < n_pages; ++i)
 		pte_clear(NULL, 0, pte + i);
@@ -50,7 +65,12 @@ static void * __init init_pmd(unsigned long vaddr, unsigned long n_pages)
 
 static void __init fixedrange_init(void)
 {
+<<<<<<< HEAD
 	init_pmd(__fix_to_virt(0), __end_of_fixed_addresses);
+=======
+	BUILD_BUG_ON(FIXADDR_START < TLBTEMP_BASE_1 + TLBTEMP_SIZE);
+	init_pmd(FIXADDR_START, __end_of_fixed_addresses);
+>>>>>>> upstream/android-13
 }
 #endif
 
@@ -98,7 +118,11 @@ void init_mmu(void)
 
 void init_kio(void)
 {
+<<<<<<< HEAD
 #if XCHAL_HAVE_PTP_MMU && XCHAL_HAVE_SPANNING_WAY && defined(CONFIG_OF)
+=======
+#if XCHAL_HAVE_PTP_MMU && XCHAL_HAVE_SPANNING_WAY && defined(CONFIG_USE_OF)
+>>>>>>> upstream/android-13
 	/*
 	 * Update the IO area mapping in case xtensa_kio_paddr has changed
 	 */

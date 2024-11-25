@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * C-Media CMI8788 driver for Asus Xonar cards
  *
  * Copyright (c) Clemens Ladisch <clemens@ladisch.de>
+<<<<<<< HEAD
  *
  *
  *  This driver is free software; you can redistribute it and/or modify
@@ -15,6 +20,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this driver; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/pci.h>
@@ -28,7 +35,10 @@
 MODULE_AUTHOR("Clemens Ladisch <clemens@ladisch.de>");
 MODULE_DESCRIPTION("Asus Virtuoso driver");
 MODULE_LICENSE("GPL v2");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{{Asus,AV66},{Asus,AV100},{Asus,AV200}}");
+=======
+>>>>>>> upstream/android-13
 
 static int index[SNDRV_CARDS] = SNDRV_DEFAULT_IDX;
 static char *id[SNDRV_CARDS] = SNDRV_DEFAULT_STR;
@@ -95,7 +105,10 @@ static struct pci_driver xonar_driver = {
 	.name = KBUILD_MODNAME,
 	.id_table = xonar_ids,
 	.probe = xonar_probe,
+<<<<<<< HEAD
 	.remove = oxygen_pci_remove,
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM_SLEEP
 	.driver = {
 		.pm = &oxygen_pci_pm,

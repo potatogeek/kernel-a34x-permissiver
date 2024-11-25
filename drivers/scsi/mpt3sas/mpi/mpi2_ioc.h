@@ -1,13 +1,21 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
+<<<<<<< HEAD
  * Copyright 2000-2015 Avago Technologies.  All rights reserved.
+=======
+ * Copyright 2000-2020 Broadcom Inc. All rights reserved.
+>>>>>>> upstream/android-13
  *
  *
  *          Name:  mpi2_ioc.h
  *         Title:  MPI IOC, Port, Event, FW Download, and FW Upload messages
  * Creation Date:  October 11, 2006
  *
+<<<<<<< HEAD
  * mpi2_ioc.h Version:  02.00.34
+=======
+ * mpi2_ioc.h Version:  02.00.37
+>>>>>>> upstream/android-13
  *
  * NOTE: Names (typedefs, defines, etc.) beginning with an MPI25 or Mpi25
  *       prefix are for use only on MPI v2.5 products, and must not be used
@@ -171,6 +179,17 @@
  * 09-29-17   02.00.34 Added MPI26_EVENT_PCIDEV_STAT_RC_PCIE_HOT_RESET_FAILED
  *                     to the ReasonCode field in PCIe Device Status Change
  *                     Event Data.
+<<<<<<< HEAD
+=======
+ * 07-22-18   02.00.35 Added FW_DOWNLOAD_ITYPE_CPLD and _PSOC.
+ *                     Moved FW image definitions ionto new mpi2_image,h
+ * 08-14-18   02.00.36 Fixed definition of MPI2_FW_DOWNLOAD_ITYPE_PSOC (0x16)
+ * 09-07-18   02.00.37 Added MPI26_EVENT_PCIE_TOPO_PI_16_LANES
+ * 10-02-19   02.00.38 Added MPI26_IOCINIT_CFGFLAGS_COREDUMP_ENABLE
+ *                     Added MPI26_IOCFACTS_CAPABILITY_COREDUMP_ENABLED
+ *                     Added MPI2_FW_DOWNLOAD_ITYPE_COREDUMP
+ *                     Added MPI2_FW_UPLOAD_ITYPE_COREDUMP
+>>>>>>> upstream/android-13
  * --------------------------------------------------------------------------
  */
 
@@ -244,6 +263,10 @@ typedef struct _MPI2_IOC_INIT_REQUEST {
 
 /*ConfigurationFlags */
 #define MPI26_IOCINIT_CFGFLAGS_NVME_SGL_FORMAT  (0x0001)
+<<<<<<< HEAD
+=======
+#define MPI26_IOCINIT_CFGFLAGS_COREDUMP_ENABLE  (0x0002)
+>>>>>>> upstream/android-13
 
 /*minimum depth for a Reply Descriptor Post Queue */
 #define MPI2_RDPQ_DEPTH_MIN                     (16)
@@ -373,6 +396,10 @@ typedef struct _MPI2_IOC_FACTS_REPLY {
 /*ProductID field uses MPI2_FW_HEADER_PID_ */
 
 /*IOCCapabilities */
+<<<<<<< HEAD
+=======
+#define MPI26_IOCFACTS_CAPABILITY_COREDUMP_ENABLED      (0x00200000)
+>>>>>>> upstream/android-13
 #define MPI26_IOCFACTS_CAPABILITY_PCIE_SRIOV            (0x00100000)
 #define MPI26_IOCFACTS_CAPABILITY_ATOMIC_REQ            (0x00080000)
 #define MPI2_IOCFACTS_CAPABILITY_RDPQ_ARRAY_CAPABLE     (0x00040000)
@@ -1255,6 +1282,10 @@ typedef struct _MPI26_EVENT_PCIE_TOPO_PORT_ENTRY {
 #define MPI26_EVENT_PCIE_TOPO_PI_2_LANES                    (0x20)
 #define MPI26_EVENT_PCIE_TOPO_PI_4_LANES                    (0x30)
 #define MPI26_EVENT_PCIE_TOPO_PI_8_LANES                    (0x40)
+<<<<<<< HEAD
+=======
+#define MPI26_EVENT_PCIE_TOPO_PI_16_LANES                   (0x50)
+>>>>>>> upstream/android-13
 
 #define MPI26_EVENT_PCIE_TOPO_PI_RATE_MASK                  (0x0F)
 #define MPI26_EVENT_PCIE_TOPO_PI_RATE_UNKNOWN               (0x00)
@@ -1450,6 +1481,13 @@ typedef struct _MPI2_FW_DOWNLOAD_REQUEST {
 #define MPI2_FW_DOWNLOAD_ITYPE_CTLR                 (0x12)
 #define MPI2_FW_DOWNLOAD_ITYPE_IMR_FIRMWARE         (0x13)
 #define MPI2_FW_DOWNLOAD_ITYPE_MR_NVDATA            (0x14)
+<<<<<<< HEAD
+=======
+/*MPI v2.6 and newer */
+#define MPI2_FW_DOWNLOAD_ITYPE_CPLD                 (0x15)
+#define MPI2_FW_DOWNLOAD_ITYPE_PSOC                 (0x16)
+#define MPI2_FW_DOWNLOAD_ITYPE_COREDUMP             (0x17)
+>>>>>>> upstream/android-13
 #define MPI2_FW_DOWNLOAD_ITYPE_MIN_PRODUCT_SPECIFIC (0xF0)
 
 /*MPI v2.0 FWDownload TransactionContext Element */
@@ -1597,6 +1635,7 @@ typedef struct _MPI2_FW_UPLOAD_REPLY {
 } MPI2_FW_UPLOAD_REPLY, *PTR_MPI2_FW_UPLOAD_REPLY,
 	Mpi2FWUploadReply_t, *pMPi2FWUploadReply_t;
 
+<<<<<<< HEAD
 /*FW Image Header */
 typedef struct _MPI2_FW_IMAGE_HEADER {
 	U32 Signature;		/*0x00 */
@@ -1943,6 +1982,8 @@ typedef struct _MPI25_ENCRYPTED_HASH_DATA {
 } MPI25_ENCRYPTED_HASH_DATA, *PTR_MPI25_ENCRYPTED_HASH_DATA,
 Mpi25EncryptedHashData_t, *pMpi25EncryptedHashData_t;
 
+=======
+>>>>>>> upstream/android-13
 
 /****************************************************************************
 * PowerManagementControl message

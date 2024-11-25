@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	Sonix sn9c201 sn9c202 library
  *
  * Copyright (C) 2012 Jean-Francois Moine <http://moinejf.free.fr>
  *	Copyright (C) 2008-2009 microdia project <microdia@googlegroups.com>
  *	Copyright (C) 2009 Brian Johnson <brijohn@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +19,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -1613,7 +1620,11 @@ static int sd_chip_info(struct gspca_dev *gspca_dev,
 	if (chip->match.addr > 1)
 		return -EINVAL;
 	if (chip->match.addr == 1)
+<<<<<<< HEAD
 		strlcpy(chip->name, "sensor", sizeof(chip->name));
+=======
+		strscpy(chip->name, "sensor", sizeof(chip->name));
+>>>>>>> upstream/android-13
 	return 0;
 }
 #endif
@@ -1646,7 +1657,11 @@ static int sd_config(struct gspca_dev *gspca_dev,
 		break;
 	case SENSOR_HV7131R:
 		sd->i2c_intf = 0x81;			/* i2c 400 Kb/s */
+<<<<<<< HEAD
 		/* fall thru */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		cam->cam_mode = vga_mode;
 		cam->nmodes = ARRAY_SIZE(vga_mode);

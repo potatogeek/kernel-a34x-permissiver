@@ -459,12 +459,15 @@ static const u32 ar5416Common[][2] = {
 	{0x0000a3e0, 0x000001ce},
 };
 
+<<<<<<< HEAD
 static const u32 ar5416Bank0[][2] = {
 	/* Addr      allmodes  */
 	{0x000098b0, 0x1e5795e5},
 	{0x000098e0, 0x02008020},
 };
 
+=======
+>>>>>>> upstream/android-13
 static const u32 ar5416BB_RfGain[][3] = {
 	/* Addr      5G          2G        */
 	{0x00009a00, 0x00000000, 0x00000000},
@@ -533,6 +536,7 @@ static const u32 ar5416BB_RfGain[][3] = {
 	{0x00009afc, 0x000000f9, 0x000000f9},
 };
 
+<<<<<<< HEAD
 static const u32 ar5416Bank1[][2] = {
 	/* Addr      allmodes  */
 	{0x000098b0, 0x02108421},
@@ -587,6 +591,8 @@ static const u32 ar5416Bank6[][3] = {
 	{0x000098d0, 0x0000000f, 0x0010000f},
 };
 
+=======
+>>>>>>> upstream/android-13
 static const u32 ar5416Bank6TPC[][3] = {
 	/* Addr      5G          2G        */
 	{0x0000989c, 0x00000000, 0x00000000},
@@ -624,6 +630,7 @@ static const u32 ar5416Bank6TPC[][3] = {
 	{0x000098d0, 0x0000000f, 0x0010000f},
 };
 
+<<<<<<< HEAD
 static const u32 ar5416Bank7[][2] = {
 	/* Addr      allmodes  */
 	{0x0000989c, 0x00000500},
@@ -631,6 +638,8 @@ static const u32 ar5416Bank7[][2] = {
 	{0x000098cc, 0x0000000e},
 };
 
+=======
+>>>>>>> upstream/android-13
 static const u32 ar5416Addac[][2] = {
 	/* Addr      allmodes  */
 	{0x0000989c, 0x00000000},
@@ -671,4 +680,7 @@ static const u32 ar5416Addac[][2] = {
 	{0x0000989c, 0x00000000},
 	{0x000098c4, 0x00000000},
 };
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13

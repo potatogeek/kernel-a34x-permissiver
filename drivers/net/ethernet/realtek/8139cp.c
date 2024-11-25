@@ -6,7 +6,11 @@
 	Copyright (C) 2000, 2001 David S. Miller (davem@redhat.com) [sungem.c]
 	Copyright 2001 Manfred Spraul				    [natsemi.c]
 	Copyright 1999-2001 by Donald Becker.			    [natsemi.c]
+<<<<<<< HEAD
        	Written 1997-2001 by Donald Becker.			    [8139too.c]
+=======
+	Written 1997-2001 by Donald Becker.			    [8139too.c]
+>>>>>>> upstream/android-13
 	Copyright 1998-2001 by Jes Sorensen, <jes@trained-monkey.org>. [acenic.c]
 
 	This software may be used and distributed according to the terms of
@@ -514,7 +518,11 @@ static int cp_rx_poll(struct napi_struct *napi, int budget)
 		}
 
 		new_mapping = dma_map_single(&cp->pdev->dev, new_skb->data, buflen,
+<<<<<<< HEAD
 					 PCI_DMA_FROMDEVICE);
+=======
+					 DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 		if (dma_mapping_error(&cp->pdev->dev, new_mapping)) {
 			dev->stats.rx_dropped++;
 			kfree_skb(new_skb);
@@ -522,7 +530,11 @@ static int cp_rx_poll(struct napi_struct *napi, int budget)
 		}
 
 		dma_unmap_single(&cp->pdev->dev, mapping,
+<<<<<<< HEAD
 				 buflen, PCI_DMA_FROMDEVICE);
+=======
+				 buflen, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 
 		/* Handle checksum offloading for incoming packets. */
 		if (cp_rx_csum_ok(status))
@@ -666,7 +678,11 @@ static void cp_tx (struct cp_private *cp)
 
 		dma_unmap_single(&cp->pdev->dev, le64_to_cpu(txd->addr),
 				 cp->tx_opts[tx_tail] & 0xffff,
+<<<<<<< HEAD
 				 PCI_DMA_TODEVICE);
+=======
+				 DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 
 		if (status & LastFrag) {
 			if (status & (TxError | TxFIFOUnder)) {
@@ -691,7 +707,11 @@ static void cp_tx (struct cp_private *cp)
 			}
 			bytes_compl += skb->len;
 			pkts_compl++;
+<<<<<<< HEAD
 			dev_kfree_skb_irq(skb);
+=======
+			dev_consume_skb_irq(skb);
+>>>>>>> upstream/android-13
 		}
 
 		cp->tx_skb[tx_tail] = NULL;
@@ -724,7 +744,11 @@ static void unwind_tx_frag_mapping(struct cp_private *cp, struct sk_buff *skb,
 		txd = &cp->tx_ring[index];
 		this_frag = &skb_shinfo(skb)->frags[frag];
 		dma_unmap_single(&cp->pdev->dev, le64_to_cpu(txd->addr),
+<<<<<<< HEAD
 				 skb_frag_size(this_frag), PCI_DMA_TODEVICE);
+=======
+				 skb_frag_size(this_frag), DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -781,7 +805,11 @@ static netdev_tx_t cp_start_xmit (struct sk_buff *skb,
 		dma_addr_t mapping;
 
 		len = skb->len;
+<<<<<<< HEAD
 		mapping = dma_map_single(&cp->pdev->dev, skb->data, len, PCI_DMA_TODEVICE);
+=======
+		mapping = dma_map_single(&cp->pdev->dev, skb->data, len, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 		if (dma_mapping_error(&cp->pdev->dev, mapping))
 			goto out_dma_error;
 
@@ -810,7 +838,11 @@ static netdev_tx_t cp_start_xmit (struct sk_buff *skb,
 		first_eor = eor;
 		first_len = skb_headlen(skb);
 		first_mapping = dma_map_single(&cp->pdev->dev, skb->data,
+<<<<<<< HEAD
 					       first_len, PCI_DMA_TODEVICE);
+=======
+					       first_len, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 		if (dma_mapping_error(&cp->pdev->dev, first_mapping))
 			goto out_dma_error;
 
@@ -826,7 +858,11 @@ static netdev_tx_t cp_start_xmit (struct sk_buff *skb,
 			len = skb_frag_size(this_frag);
 			mapping = dma_map_single(&cp->pdev->dev,
 						 skb_frag_address(this_frag),
+<<<<<<< HEAD
 						 len, PCI_DMA_TODEVICE);
+=======
+						 len, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 			if (dma_mapping_error(&cp->pdev->dev, mapping)) {
 				unwind_tx_frag_mapping(cp, skb, first_entry, entry);
 				goto out_dma_error;
@@ -947,8 +983,13 @@ static struct net_device_stats *cp_get_stats(struct net_device *dev)
 
 	/* The chip only need report frame silently dropped. */
 	spin_lock_irqsave(&cp->lock, flags);
+<<<<<<< HEAD
  	if (netif_running(dev) && netif_device_present(dev))
  		__cp_get_stats(cp);
+=======
+	if (netif_running(dev) && netif_device_present(dev))
+		__cp_get_stats(cp);
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&cp->lock, flags);
 
 	return &dev->stats;
@@ -1069,7 +1110,11 @@ static int cp_refill_rx(struct cp_private *cp)
 			goto err_out;
 
 		mapping = dma_map_single(&cp->pdev->dev, skb->data,
+<<<<<<< HEAD
 					 cp->rx_buf_sz, PCI_DMA_FROMDEVICE);
+=======
+					 cp->rx_buf_sz, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 		if (dma_mapping_error(&cp->pdev->dev, mapping)) {
 			kfree_skb(skb);
 			goto err_out;
@@ -1139,7 +1184,11 @@ static void cp_clean_rings (struct cp_private *cp)
 		if (cp->rx_skb[i]) {
 			desc = cp->rx_ring + i;
 			dma_unmap_single(&cp->pdev->dev,le64_to_cpu(desc->addr),
+<<<<<<< HEAD
 					 cp->rx_buf_sz, PCI_DMA_FROMDEVICE);
+=======
+					 cp->rx_buf_sz, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 			dev_kfree_skb_any(cp->rx_skb[i]);
 		}
 	}
@@ -1151,7 +1200,11 @@ static void cp_clean_rings (struct cp_private *cp)
 			desc = cp->tx_ring + i;
 			dma_unmap_single(&cp->pdev->dev,le64_to_cpu(desc->addr),
 					 le32_to_cpu(desc->opts1) & 0xffff,
+<<<<<<< HEAD
 					 PCI_DMA_TODEVICE);
+=======
+					 DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 			if (le32_to_cpu(desc->opts1) & LastFrag)
 				dev_kfree_skb_any(skb);
 			cp->dev->stats.tx_dropped++;
@@ -1235,11 +1288,19 @@ static int cp_close (struct net_device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void cp_tx_timeout(struct net_device *dev)
 {
 	struct cp_private *cp = netdev_priv(dev);
 	unsigned long flags;
 	int rc, i;
+=======
+static void cp_tx_timeout(struct net_device *dev, unsigned int txqueue)
+{
+	struct cp_private *cp = netdev_priv(dev);
+	unsigned long flags;
+	int i;
+>>>>>>> upstream/android-13
 
 	netdev_warn(dev, "Transmit timeout, status %2x %4x %4x %4x\n",
 		    cpr8(Cmd), cpr16(CpCmd),
@@ -1260,7 +1321,11 @@ static void cp_tx_timeout(struct net_device *dev)
 
 	cp_stop_hw(cp);
 	cp_clean_rings(cp);
+<<<<<<< HEAD
 	rc = cp_init_rings(cp);
+=======
+	cp_init_rings(cp);
+>>>>>>> upstream/android-13
 	cp_start_hw(cp);
 	__cp_set_rx_mode(dev);
 	cpw16_f(IntrMask, cp_norx_intr_mask);
@@ -1869,7 +1934,11 @@ static const struct net_device_ops cp_netdev_ops = {
 	.ndo_set_mac_address 	= cp_set_mac_address,
 	.ndo_set_rx_mode	= cp_set_rx_mode,
 	.ndo_get_stats		= cp_get_stats,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= cp_ioctl,
+=======
+	.ndo_eth_ioctl		= cp_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_start_xmit		= cp_start_xmit,
 	.ndo_tx_timeout		= cp_tx_timeout,
 	.ndo_set_features	= cp_set_features,
@@ -1945,24 +2014,35 @@ static int cp_init_one (struct pci_dev *pdev, const struct pci_device_id *ent)
 
 	/* Configure DMA attributes. */
 	if ((sizeof(dma_addr_t) > 4) &&
+<<<<<<< HEAD
 	    !pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(64)) &&
 	    !pci_set_dma_mask(pdev, DMA_BIT_MASK(64))) {
+=======
+	    !dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64))) {
+>>>>>>> upstream/android-13
 		pci_using_dac = 1;
 	} else {
 		pci_using_dac = 0;
 
+<<<<<<< HEAD
 		rc = pci_set_dma_mask(pdev, DMA_BIT_MASK(32));
+=======
+		rc = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32));
+>>>>>>> upstream/android-13
 		if (rc) {
 			dev_err(&pdev->dev,
 				"No usable DMA configuration, aborting\n");
 			goto err_out_res;
 		}
+<<<<<<< HEAD
 		rc = pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(32));
 		if (rc) {
 			dev_err(&pdev->dev,
 				"No usable consistent DMA configuration, aborting\n");
 			goto err_out_res;
 		}
+=======
+>>>>>>> upstream/android-13
 	}
 
 	cp->cpcmd = (pci_using_dac ? PCIDAC : 0) |
@@ -2054,10 +2134,16 @@ static void cp_remove_one (struct pci_dev *pdev)
 	free_netdev(dev);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 static int cp_suspend (struct pci_dev *pdev, pm_message_t state)
 {
 	struct net_device *dev = pci_get_drvdata(pdev);
+=======
+static int __maybe_unused cp_suspend(struct device *device)
+{
+	struct net_device *dev = dev_get_drvdata(device);
+>>>>>>> upstream/android-13
 	struct cp_private *cp = netdev_priv(dev);
 	unsigned long flags;
 
@@ -2075,16 +2161,26 @@ static int cp_suspend (struct pci_dev *pdev, pm_message_t state)
 
 	spin_unlock_irqrestore (&cp->lock, flags);
 
+<<<<<<< HEAD
 	pci_save_state(pdev);
 	pci_enable_wake(pdev, pci_choose_state(pdev, state), cp->wol_enabled);
 	pci_set_power_state(pdev, pci_choose_state(pdev, state));
+=======
+	device_set_wakeup_enable(device, cp->wol_enabled);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int cp_resume (struct pci_dev *pdev)
 {
 	struct net_device *dev = pci_get_drvdata (pdev);
+=======
+static int __maybe_unused cp_resume(struct device *device)
+{
+	struct net_device *dev = dev_get_drvdata(device);
+>>>>>>> upstream/android-13
 	struct cp_private *cp = netdev_priv(dev);
 	unsigned long flags;
 
@@ -2093,10 +2189,13 @@ static int cp_resume (struct pci_dev *pdev)
 
 	netif_device_attach (dev);
 
+<<<<<<< HEAD
 	pci_set_power_state(pdev, PCI_D0);
 	pci_restore_state(pdev);
 	pci_enable_wake(pdev, PCI_D0, 0);
 
+=======
+>>>>>>> upstream/android-13
 	/* FIXME: sh*t may happen if the Rx ring buffer is depleted */
 	cp_init_rings_index (cp);
 	cp_init_hw (cp);
@@ -2111,7 +2210,10 @@ static int cp_resume (struct pci_dev *pdev)
 
 	return 0;
 }
+<<<<<<< HEAD
 #endif /* CONFIG_PM */
+=======
+>>>>>>> upstream/android-13
 
 static const struct pci_device_id cp_pci_tbl[] = {
         { PCI_DEVICE(PCI_VENDOR_ID_REALTEK,     PCI_DEVICE_ID_REALTEK_8139), },
@@ -2120,15 +2222,24 @@ static const struct pci_device_id cp_pci_tbl[] = {
 };
 MODULE_DEVICE_TABLE(pci, cp_pci_tbl);
 
+<<<<<<< HEAD
+=======
+static SIMPLE_DEV_PM_OPS(cp_pm_ops, cp_suspend, cp_resume);
+
+>>>>>>> upstream/android-13
 static struct pci_driver cp_driver = {
 	.name         = DRV_NAME,
 	.id_table     = cp_pci_tbl,
 	.probe        =	cp_init_one,
 	.remove       = cp_remove_one,
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 	.resume       = cp_resume,
 	.suspend      = cp_suspend,
 #endif
+=======
+	.driver.pm    = &cp_pm_ops,
+>>>>>>> upstream/android-13
 };
 
 module_pci_driver(cp_driver);

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * SCSI device handler infrastruture.
  *
@@ -14,6 +15,11 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * SCSI device handler infrastructure.
+>>>>>>> upstream/android-13
  *
  * Copyright IBM Corporation, 2007
  *      Authors:
@@ -76,6 +82,10 @@ static const struct scsi_dh_blist scsi_dh_blist[] = {
 	{"LSI", "INF-01-00",		"rdac", },
 	{"ENGENIO", "INF-01-00",	"rdac", },
 	{"LENOVO", "DE_Series",		"rdac", },
+<<<<<<< HEAD
+=======
+	{"FUJITSU", "ETERNUS_AHB",	"rdac", },
+>>>>>>> upstream/android-13
 	{NULL, NULL,			NULL },
 };
 

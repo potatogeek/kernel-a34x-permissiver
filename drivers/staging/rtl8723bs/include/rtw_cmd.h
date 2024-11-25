@@ -7,6 +7,10 @@
 #ifndef __RTW_CMD_H_
 #define __RTW_CMD_H_
 
+<<<<<<< HEAD
+=======
+#include <linux/completion.h>
+>>>>>>> upstream/android-13
 
 #define C2H_MEM_SZ (16*1024)
 
@@ -27,7 +31,10 @@
 		u8 *rsp;
 		u32 rspsz;
 		struct submit_ctx *sctx;
+<<<<<<< HEAD
 		/* _sema		cmd_sem; */
+=======
+>>>>>>> upstream/android-13
 		struct list_head	list;
 	};
 
@@ -38,9 +45,14 @@
 	};
 
 	struct cmd_priv {
+<<<<<<< HEAD
 		_sema	cmd_queue_sema;
 		/* _sema	cmd_done_sema; */
 		_sema	terminate_cmdthread_sema;
+=======
+		struct completion cmd_queue_comp;
+		struct completion terminate_cmdthread_comp;
+>>>>>>> upstream/android-13
 		struct __queue	cmd_queue;
 		u8 cmd_seq;
 		u8 *cmd_buf;	/* shall be non-paged, and 4 bytes aligned */
@@ -54,11 +66,19 @@
 		/* u8 cmdthd_running; */
 		u8 stop_req;
 		struct adapter *padapter;
+<<<<<<< HEAD
 		_mutex sctx_mutex;
 	};
 
 	struct	evt_priv {
 		_workitem c2h_wk;
+=======
+		struct mutex sctx_mutex;
+	};
+
+	struct	evt_priv {
+		struct work_struct c2h_wk;
+>>>>>>> upstream/android-13
 		bool c2h_wk_alive;
 		struct rtw_cbuf *c2h_queue;
 		#define C2H_QUEUE_MAX_LEN 10
@@ -76,7 +96,11 @@ do {\
 	INIT_LIST_HEAD(&pcmd->list);\
 	pcmd->cmdcode = code;\
 	pcmd->parmbuf = (u8 *)(pparm);\
+<<<<<<< HEAD
 	pcmd->cmdsz = sizeof (*pparm);\
+=======
+	pcmd->cmdsz = sizeof(*pparm);\
+>>>>>>> upstream/android-13
 	pcmd->rsp = NULL;\
 	pcmd->rspsz = 0;\
 } while (0)
@@ -108,6 +132,7 @@ struct c2h_evt_hdr_88xx {
 
 #define c2h_evt_valid(c2h_evt) ((c2h_evt)->id || (c2h_evt)->plen)
 
+<<<<<<< HEAD
 struct P2P_PS_Offload_t {
 	u8 Offload_En:1;
 	u8 role:1; /*  1: Owner, 0: Client */
@@ -124,12 +149,16 @@ struct P2P_PS_CTWPeriod_t {
 };
 
 extern u32 rtw_enqueue_cmd(struct cmd_priv *pcmdpriv, struct cmd_obj *obj);
+=======
+int rtw_enqueue_cmd(struct cmd_priv *pcmdpriv, struct cmd_obj *obj);
+>>>>>>> upstream/android-13
 extern struct cmd_obj *rtw_dequeue_cmd(struct cmd_priv *pcmdpriv);
 extern void rtw_free_cmd_obj(struct cmd_obj *pcmd);
 
 void rtw_stop_cmd_thread(struct adapter *adapter);
 int rtw_cmd_thread(void *context);
 
+<<<<<<< HEAD
 extern u32 rtw_init_cmd_priv (struct cmd_priv *pcmdpriv);
 extern void rtw_free_cmd_priv (struct cmd_priv *pcmdpriv);
 
@@ -139,6 +168,14 @@ extern void rtw_evt_notify_isr(struct evt_priv *pevtpriv);
 
 enum rtw_drvextra_cmd_id
 {
+=======
+extern void rtw_free_cmd_priv(struct cmd_priv *pcmdpriv);
+
+extern void rtw_free_evt_priv(struct evt_priv *pevtpriv);
+extern void rtw_evt_notify_isr(struct evt_priv *pevtpriv);
+
+enum {
+>>>>>>> upstream/android-13
 	NONE_WK_CID,
 	DYNAMIC_CHK_WK_CID,
 	DM_CTRL_WK_CID,
@@ -155,13 +192,18 @@ enum rtw_drvextra_cmd_id
 	RESET_SECURITYPRIV, /*  add for CONFIG_IEEE80211W, none 11w also can use */
 	FREE_ASSOC_RESOURCES, /*  add for CONFIG_IEEE80211W, none 11w also can use */
 	DM_IN_LPS_WK_CID,
+<<<<<<< HEAD
 	DM_RA_MSK_WK_CID, /* add for STA update RAMask when bandwith change. */
+=======
+	DM_RA_MSK_WK_CID, /* add for STA update RAMask when bandwidth change. */
+>>>>>>> upstream/android-13
 	BEAMFORMING_WK_CID,
 	LPS_CHANGE_DTIM_CID,
 	BTINFO_WK_CID,
 	MAX_WK_CID
 };
 
+<<<<<<< HEAD
 enum LPS_CTRL_TYPE
 {
 	LPS_CTRL_SCAN = 0,
@@ -174,12 +216,26 @@ enum LPS_CTRL_TYPE
 };
 
 enum RFINTFS {
+=======
+enum {
+	LPS_CTRL_SCAN = 0,
+	LPS_CTRL_JOINBSS = 1,
+	LPS_CTRL_CONNECT = 2,
+	LPS_CTRL_DISCONNECT = 3,
+	LPS_CTRL_SPECIAL_PACKET = 4,
+	LPS_CTRL_LEAVE = 5,
+	LPS_CTRL_TRAFFIC_BUSY = 6,
+};
+
+enum {
+>>>>>>> upstream/android-13
 	SWSI,
 	HWSI,
 	HWPI,
 };
 
 /*
+<<<<<<< HEAD
 Caller Mode: Infra, Ad-HoC(C)
 
 Notes: To enter USB suspend mode
@@ -192,6 +248,8 @@ struct usb_suspend_parm {
 };
 
 /*
+=======
+>>>>>>> upstream/android-13
 Caller Mode: Infra, Ad-HoC
 
 Notes: To join a known BSS.
@@ -270,7 +328,11 @@ Command-Event Mode
 #define RTW_SSID_SCAN_AMOUNT 9 /*  for WEXT_CSCAN_AMOUNT 9 */
 #define RTW_CHANNEL_SCAN_AMOUNT (14+37)
 struct sitesurvey_parm {
+<<<<<<< HEAD
 	sint scan_mode;	/* active: 1, passive: 0 */
+=======
+	signed int scan_mode;	/* active: 1, passive: 0 */
+>>>>>>> upstream/android-13
 	u8 ssid_num;
 	u8 ch_num;
 	struct ndis_802_11_ssid ssid[RTW_SSID_SCAN_AMOUNT];
@@ -404,10 +466,13 @@ struct getbasicrate_parm {
 	u32 rsvd;
 };
 
+<<<<<<< HEAD
 struct getbasicrate_rsp {
 	u8 basicrates[NumRates];
 };
 
+=======
+>>>>>>> upstream/android-13
 /*
 Caller Mode: Any
 
@@ -433,10 +498,13 @@ struct getdatarate_parm {
 	u32 rsvd;
 
 };
+<<<<<<< HEAD
 struct getdatarate_rsp {
 	u8 datarates[NumRates];
 };
 
+=======
+>>>>>>> upstream/android-13
 
 /*
 Caller Mode: Any
@@ -461,11 +529,14 @@ struct	getphyinfo_parm {
 	u32 rsvd;
 };
 
+<<<<<<< HEAD
 struct	getphyinfo_rsp {
 	struct regulatory_class class_sets[NUM_REGULATORYS];
 	u8 status;
 };
 
+=======
+>>>>>>> upstream/android-13
 /*
 Caller Mode: Any
 
@@ -492,6 +563,7 @@ struct	getphy_parm {
 	u32 rsvd;
 
 };
+<<<<<<< HEAD
 struct	getphy_rsp {
 	u8 rfchannel;
 	u8 modem;
@@ -535,6 +607,10 @@ struct getrfintfs_parm {
 
 struct Tx_Beacon_param
 {
+=======
+
+struct Tx_Beacon_param {
+>>>>>>> upstream/android-13
 	struct wlan_bssid_ex network;
 };
 
@@ -543,7 +619,11 @@ struct Tx_Beacon_param
 
 	mac[0] == 0
 	==> CMD mode, return H2C_SUCCESS.
+<<<<<<< HEAD
 	The following condition must be ture under CMD mode
+=======
+	The following condition must be true under CMD mode
+>>>>>>> upstream/android-13
 		mac[1] == mac[4], mac[2] == mac[3], mac[0]=mac[5]= 0;
 		s0 == 0x1234, s1 == 0xabcd, w0 == 0x78563412, w1 == 0x5aa5def7;
 		s2 == (b1 << 8 | b0);
@@ -600,6 +680,7 @@ struct drvextra_cmd_parm {
 	unsigned char *pbuf;
 };
 
+<<<<<<< HEAD
 /*------------------- Below are used for RF/BB tunning ---------------------*/
 
 struct	setantenna_parm {
@@ -671,10 +752,15 @@ struct	setcountjudge_parm {
 struct	getcountjudge_parm {
 	u32 rsvd;
 };
+=======
+/*------------------- Below are used for RF/BB tuning ---------------------*/
+
+>>>>>>> upstream/android-13
 struct	getcountjudge_rsp {
 	u8 count_judge[MAX_RATES_LENGTH];
 };
 
+<<<<<<< HEAD
 
 struct setratable_parm {
 	u8 ss_ForceUp[NumRates];
@@ -759,6 +845,9 @@ struct setassocrspextraie_parm {
 
 struct addBaReq_parm
 {
+=======
+struct addBaReq_parm {
+>>>>>>> upstream/android-13
 	unsigned int tid;
 	u8 addr[ETH_ALEN];
 };
@@ -771,6 +860,7 @@ struct set_ch_parm {
 };
 
 /*H2C Handler index: 59 */
+<<<<<<< HEAD
 struct SetChannelPlan_param
 {
 	u8 channel_plan;
@@ -785,20 +875,37 @@ struct LedBlink_param
 /*H2C Handler index: 61 */
 struct SetChannelSwitch_param
 {
+=======
+struct SetChannelPlan_param {
+	u8 channel_plan;
+};
+
+/*H2C Handler index: 61 */
+struct SetChannelSwitch_param {
+>>>>>>> upstream/android-13
 	u8 new_ch_no;
 };
 
 /*H2C Handler index: 62 */
+<<<<<<< HEAD
 struct TDLSoption_param
 {
+=======
+struct TDLSoption_param {
+>>>>>>> upstream/android-13
 	u8 addr[ETH_ALEN];
 	u8 option;
 };
 
 /*H2C Handler index: 64 */
+<<<<<<< HEAD
 struct RunInThread_param
 {
 	void (*func)(void*);
+=======
+struct RunInThread_param {
+	void (*func)(void *);
+>>>>>>> upstream/android-13
 	void *context;
 };
 
@@ -810,7 +917,11 @@ struct RunInThread_param
 
 Result:
 0x00: success
+<<<<<<< HEAD
 0x01: sucess, and check Response.
+=======
+0x01: success, and check Response.
+>>>>>>> upstream/android-13
 0x02: cmd ignored due to duplicated sequcne number
 0x03: cmd dropped due to invalid cmd code
 0x04: reserved.
@@ -830,15 +941,25 @@ Result:
 
 u8 rtw_sitesurvey_cmd(struct adapter  *padapter, struct ndis_802_11_ssid *ssid, int ssid_num, struct rtw_ieee80211_channel *ch, int ch_num);
 extern u8 rtw_createbss_cmd(struct adapter  *padapter);
+<<<<<<< HEAD
 u8 rtw_startbss_cmd(struct adapter  *padapter, int flags);
+=======
+int rtw_startbss_cmd(struct adapter  *padapter, int flags);
+>>>>>>> upstream/android-13
 
 struct sta_info;
 extern u8 rtw_setstakey_cmd(struct adapter  *padapter, struct sta_info *sta, u8 unicast_key, bool enqueue);
 extern u8 rtw_clearstakey_cmd(struct adapter *padapter, struct sta_info *sta, u8 enqueue);
 
+<<<<<<< HEAD
 extern u8 rtw_joinbss_cmd(struct adapter  *padapter, struct wlan_network* pnetwork);
 u8 rtw_disassoc_cmd(struct adapter *padapter, u32 deauth_timeout_ms, bool enqueue);
 extern u8 rtw_setopmode_cmd(struct adapter  *padapter, enum NDIS_802_11_NETWORK_INFRASTRUCTURE networktype, bool enqueue);
+=======
+extern u8 rtw_joinbss_cmd(struct adapter *padapter, struct wlan_network *pnetwork);
+u8 rtw_disassoc_cmd(struct adapter *padapter, u32 deauth_timeout_ms, bool enqueue);
+extern u8 rtw_setopmode_cmd(struct adapter  *padapter, enum ndis_802_11_network_infrastructure networktype, bool enqueue);
+>>>>>>> upstream/android-13
 extern u8 rtw_setdatarate_cmd(struct adapter  *padapter, u8 *rateset);
 extern u8 rtw_setrfintfs_cmd(struct adapter  *padapter, u8 mode);
 
@@ -884,6 +1005,7 @@ struct _cmd_callback {
 	void (*callback)(struct adapter  *padapter, struct cmd_obj *cmd);
 };
 
+<<<<<<< HEAD
 enum rtw_h2c_cmd
 {
 	GEN_CMD_CODE(_Read_MACREG) ,	/*0*/
@@ -929,13 +1051,63 @@ enum rtw_h2c_cmd
 	GEN_CMD_CODE(_JoinbssRpt),
 	GEN_CMD_CODE(_SetRaTable) ,
 	GEN_CMD_CODE(_GetRaTable) ,
+=======
+enum {
+	GEN_CMD_CODE(_Read_MACREG),	/*0*/
+	GEN_CMD_CODE(_Write_MACREG),
+	GEN_CMD_CODE(_Read_BBREG),
+	GEN_CMD_CODE(_Write_BBREG),
+	GEN_CMD_CODE(_Read_RFREG),
+	GEN_CMD_CODE(_Write_RFREG), /*5*/
+	GEN_CMD_CODE(_Read_EEPROM),
+	GEN_CMD_CODE(_Write_EEPROM),
+	GEN_CMD_CODE(_Read_EFUSE),
+	GEN_CMD_CODE(_Write_EFUSE),
+
+	GEN_CMD_CODE(_Read_CAM),	/*10*/
+	GEN_CMD_CODE(_Write_CAM),
+	GEN_CMD_CODE(_setBCNITV),
+	GEN_CMD_CODE(_setMBIDCFG),
+	GEN_CMD_CODE(_JoinBss),   /*14*/
+	GEN_CMD_CODE(_DisConnect), /*15*/
+	GEN_CMD_CODE(_CreateBss),
+	GEN_CMD_CODE(_SetOpMode),
+	GEN_CMD_CODE(_SiteSurvey),  /*18*/
+	GEN_CMD_CODE(_SetAuth),
+
+	GEN_CMD_CODE(_SetKey),	/*20*/
+	GEN_CMD_CODE(_SetStaKey),
+	GEN_CMD_CODE(_SetAssocSta),
+	GEN_CMD_CODE(_DelAssocSta),
+	GEN_CMD_CODE(_SetStaPwrState),
+	GEN_CMD_CODE(_SetBasicRate), /*25*/
+	GEN_CMD_CODE(_GetBasicRate),
+	GEN_CMD_CODE(_SetDataRate),
+	GEN_CMD_CODE(_GetDataRate),
+	GEN_CMD_CODE(_SetPhyInfo),
+
+	GEN_CMD_CODE(_GetPhyInfo),	/*30*/
+	GEN_CMD_CODE(_SetPhy),
+	GEN_CMD_CODE(_GetPhy),
+	GEN_CMD_CODE(_readRssi),
+	GEN_CMD_CODE(_readGain),
+	GEN_CMD_CODE(_SetAtim), /*35*/
+	GEN_CMD_CODE(_SetPwrMode),
+	GEN_CMD_CODE(_JoinbssRpt),
+	GEN_CMD_CODE(_SetRaTable),
+	GEN_CMD_CODE(_GetRaTable),
+>>>>>>> upstream/android-13
 
 	GEN_CMD_CODE(_GetCCXReport), /*40*/
 	GEN_CMD_CODE(_GetDTMReport),
 	GEN_CMD_CODE(_GetTXRateStatistics),
 	GEN_CMD_CODE(_SetUsbSuspend),
 	GEN_CMD_CODE(_SetH2cLbk),
+<<<<<<< HEAD
 	GEN_CMD_CODE(_AddBAReq) , /*45*/
+=======
+	GEN_CMD_CODE(_AddBAReq), /*45*/
+>>>>>>> upstream/android-13
 	GEN_CMD_CODE(_SetChannel), /*46*/
 	GEN_CMD_CODE(_SetTxPower),
 	GEN_CMD_CODE(_SwitchAntenna),
@@ -953,6 +1125,7 @@ enum rtw_h2c_cmd
 	GEN_CMD_CODE(_Set_H2C_MSG), /*58*/
 
 	GEN_CMD_CODE(_SetChannelPlan), /*59*/
+<<<<<<< HEAD
 	GEN_CMD_CODE(_LedBlink), /*60*/
 
 	GEN_CMD_CODE(_SetChannelSwitch), /*61*/
@@ -960,6 +1133,14 @@ enum rtw_h2c_cmd
 	GEN_CMD_CODE(_ChkBMCSleepq), /*63*/
 
 	GEN_CMD_CODE(_RunInThreadCMD), /*64*/
+=======
+
+	GEN_CMD_CODE(_SetChannelSwitch), /*60*/
+	GEN_CMD_CODE(_TDLS), /*61*/
+	GEN_CMD_CODE(_ChkBMCSleepq), /*62*/
+
+	GEN_CMD_CODE(_RunInThreadCMD), /*63*/
+>>>>>>> upstream/android-13
 
 	MAX_H2CCMD
 };

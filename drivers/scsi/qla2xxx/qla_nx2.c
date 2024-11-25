@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 /*
  * QLogic Fibre Channel HBA Driver
  * Copyright (c)  2003-2014 QLogic Corporation
  *
  * See LICENSE.qla2xxx for copyright and licensing details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * QLogic Fibre Channel HBA Driver
+ * Copyright (c)  2003-2014 QLogic Corporation
+>>>>>>> upstream/android-13
  */
 
 #include <linux/vmalloc.h>
@@ -140,7 +147,11 @@ qla8044_poll_wait_for_ready(struct scsi_qla_host *vha, uint32_t addr1,
 	uint32_t mask)
 {
 	unsigned long timeout;
+<<<<<<< HEAD
 	uint32_t temp;
+=======
+	uint32_t temp = 0;
+>>>>>>> upstream/android-13
 
 	/* jiffies after 100ms */
 	timeout = jiffies + msecs_to_jiffies(TIMEOUT_100_MS);
@@ -559,12 +570,21 @@ exit_lock_error:
 /*
  * Address and length are byte address
  */
+<<<<<<< HEAD
 uint8_t *
 qla8044_read_optrom_data(struct scsi_qla_host *vha, uint8_t *buf,
 	uint32_t offset, uint32_t length)
 {
 	scsi_block_requests(vha->host);
 	if (qla8044_read_flash_data(vha, (uint8_t *)buf, offset, length / 4)
+=======
+void *
+qla8044_read_optrom_data(struct scsi_qla_host *vha, void *buf,
+	uint32_t offset, uint32_t length)
+{
+	scsi_block_requests(vha->host);
+	if (qla8044_read_flash_data(vha, buf, offset, length / 4)
+>>>>>>> upstream/android-13
 	    != QLA_SUCCESS) {
 		ql_log(ql_log_warn, vha,  0xb08d,
 		    "%s: Failed to read from flash\n",
@@ -660,7 +680,11 @@ static int
 qla8044_poll_reg(struct scsi_qla_host *vha, uint32_t addr,
 	int duration, uint32_t test_mask, uint32_t test_result)
 {
+<<<<<<< HEAD
 	uint32_t value;
+=======
+	uint32_t value = 0;
+>>>>>>> upstream/android-13
 	int timeout_error;
 	uint8_t retries;
 	int ret_val = QLA_SUCCESS;
@@ -1441,7 +1465,11 @@ qla8044_device_bootstrap(struct scsi_qla_host *vha)
 	if (idc_ctrl & GRACEFUL_RESET_BIT1) {
 		qla8044_wr_reg(ha, QLA8044_IDC_DRV_CTRL,
 		    (idc_ctrl & ~GRACEFUL_RESET_BIT1));
+<<<<<<< HEAD
 		ha->fw_dumped = 0;
+=======
+		ha->fw_dumped = false;
+>>>>>>> upstream/android-13
 	}
 
 dev_ready:
@@ -2029,7 +2057,11 @@ exit_error:
 }
 
 /**
+<<<<<<< HEAD
  * qla4_8xxx_check_temp - Check the ISP82XX temperature.
+=======
+ * qla8044_check_temp - Check the ISP82XX temperature.
+>>>>>>> upstream/android-13
  * @vha: adapter block pointer.
  *
  * Note: The caller should not hold the idc lock.
@@ -2227,19 +2259,28 @@ qla8044_minidump_process_control(struct scsi_qla_host *vha,
 		if (opcode & QLA82XX_DBG_OPCODE_WR) {
 			qla8044_wr_reg_indirect(vha, crb_addr,
 			    crb_entry->value_1);
+<<<<<<< HEAD
 			opcode &= ~QLA82XX_DBG_OPCODE_WR;
+=======
+>>>>>>> upstream/android-13
 		}
 
 		if (opcode & QLA82XX_DBG_OPCODE_RW) {
 			qla8044_rd_reg_indirect(vha, crb_addr, &read_value);
 			qla8044_wr_reg_indirect(vha, crb_addr, read_value);
+<<<<<<< HEAD
 			opcode &= ~QLA82XX_DBG_OPCODE_RW;
+=======
+>>>>>>> upstream/android-13
 		}
 
 		if (opcode & QLA82XX_DBG_OPCODE_AND) {
 			qla8044_rd_reg_indirect(vha, crb_addr, &read_value);
 			read_value &= crb_entry->value_2;
+<<<<<<< HEAD
 			opcode &= ~QLA82XX_DBG_OPCODE_AND;
+=======
+>>>>>>> upstream/android-13
 			if (opcode & QLA82XX_DBG_OPCODE_OR) {
 				read_value |= crb_entry->value_3;
 				opcode &= ~QLA82XX_DBG_OPCODE_OR;
@@ -2250,7 +2291,10 @@ qla8044_minidump_process_control(struct scsi_qla_host *vha,
 			qla8044_rd_reg_indirect(vha, crb_addr, &read_value);
 			read_value |= crb_entry->value_3;
 			qla8044_wr_reg_indirect(vha, crb_addr, read_value);
+<<<<<<< HEAD
 			opcode &= ~QLA82XX_DBG_OPCODE_OR;
+=======
+>>>>>>> upstream/android-13
 		}
 		if (opcode & QLA82XX_DBG_OPCODE_POLL) {
 			poll_time = crb_entry->crb_strd.poll_timeout;
@@ -2270,7 +2314,10 @@ qla8044_minidump_process_control(struct scsi_qla_host *vha,
 					    crb_addr, &read_value);
 				}
 			} while (1);
+<<<<<<< HEAD
 			opcode &= ~QLA82XX_DBG_OPCODE_POLL;
+=======
+>>>>>>> upstream/android-13
 		}
 
 		if (opcode & QLA82XX_DBG_OPCODE_RDSTATE) {
@@ -2284,7 +2331,10 @@ qla8044_minidump_process_control(struct scsi_qla_host *vha,
 			qla8044_rd_reg_indirect(vha, addr, &read_value);
 			index = crb_entry->crb_ctrl.state_index_v;
 			tmplt_hdr->saved_state_array[index] = read_value;
+<<<<<<< HEAD
 			opcode &= ~QLA82XX_DBG_OPCODE_RDSTATE;
+=======
+>>>>>>> upstream/android-13
 		}
 
 		if (opcode & QLA82XX_DBG_OPCODE_WRSTATE) {
@@ -2304,7 +2354,10 @@ qla8044_minidump_process_control(struct scsi_qla_host *vha,
 			}
 
 			qla8044_wr_reg_indirect(vha, addr, read_value);
+<<<<<<< HEAD
 			opcode &= ~QLA82XX_DBG_OPCODE_WRSTATE;
+=======
+>>>>>>> upstream/android-13
 		}
 
 		if (opcode & QLA82XX_DBG_OPCODE_MDSTATE) {
@@ -2317,7 +2370,10 @@ qla8044_minidump_process_control(struct scsi_qla_host *vha,
 			read_value |= crb_entry->value_3;
 			read_value += crb_entry->value_1;
 			tmplt_hdr->saved_state_array[index] = read_value;
+<<<<<<< HEAD
 			opcode &= ~QLA82XX_DBG_OPCODE_MDSTATE;
+=======
+>>>>>>> upstream/android-13
 		}
 		crb_addr += crb_entry->crb_strd.addr_stride;
 	}
@@ -2595,7 +2651,11 @@ qla8044_minidump_process_rdmux(struct scsi_qla_host *vha,
 	struct qla8044_minidump_entry_hdr *entry_hdr,
 	uint32_t **d_ptr)
 {
+<<<<<<< HEAD
 	uint32_t r_addr, s_stride, s_addr, s_value, loop_cnt, i, r_value;
+=======
+	uint32_t r_addr, s_stride, s_addr, s_value, loop_cnt, i, r_value = 0;
+>>>>>>> upstream/android-13
 	struct qla8044_minidump_entry_mux *mux_hdr;
 	uint32_t *data_ptr = *d_ptr;
 
@@ -2810,7 +2870,11 @@ error:
 
 #define ISP8044_PEX_DMA_ENGINE_INDEX		8
 #define ISP8044_PEX_DMA_BASE_ADDRESS		0x77320000
+<<<<<<< HEAD
 #define ISP8044_PEX_DMA_NUM_OFFSET		0x10000
+=======
+#define ISP8044_PEX_DMA_NUM_OFFSET		0x10000UL
+>>>>>>> upstream/android-13
 #define ISP8044_PEX_DMA_CMD_ADDR_LOW		0x0
 #define ISP8044_PEX_DMA_CMD_ADDR_HIGH		0x04
 #define ISP8044_PEX_DMA_CMD_STS_AND_CNTRL	0x08
@@ -2965,7 +3029,11 @@ qla8044_minidump_pex_dma_read(struct scsi_qla_host *vha,
 
 		/* Prepare: Write pex-dma descriptor to MS memory. */
 		rval = qla8044_ms_mem_write_128b(vha,
+<<<<<<< HEAD
 		    m_hdr->desc_card_addr, (void *)&dma_desc,
+=======
+		    m_hdr->desc_card_addr, (uint32_t *)&dma_desc,
+>>>>>>> upstream/android-13
 		    (sizeof(struct qla8044_pex_dma_descriptor)/16));
 		if (rval) {
 			ql_log(ql_log_warn, vha, 0xb14a,
@@ -2987,7 +3055,11 @@ qla8044_minidump_pex_dma_read(struct scsi_qla_host *vha,
 		read_size += chunk_size;
 	}
 
+<<<<<<< HEAD
 	*d_ptr = (void *)data_ptr;
+=======
+	*d_ptr = (uint32_t *)data_ptr;
+>>>>>>> upstream/android-13
 
 error_exit:
 	if (rdmem_buffer)
@@ -3007,10 +3079,16 @@ qla8044_minidump_process_rddfe(struct scsi_qla_host *vha,
 	uint16_t count;
 	uint32_t poll, mask, modify_mask;
 	uint32_t wait_count = 0;
+<<<<<<< HEAD
 
 	uint32_t *data_ptr = *d_ptr;
 
 	struct qla8044_minidump_entry_rddfe *rddfe;
+=======
+	uint32_t *data_ptr = *d_ptr;
+	struct qla8044_minidump_entry_rddfe *rddfe;
+
+>>>>>>> upstream/android-13
 	rddfe = (struct qla8044_minidump_entry_rddfe *) entry_hdr;
 
 	addr1 = rddfe->addr_1;
@@ -3250,7 +3328,11 @@ qla8044_collect_md_data(struct scsi_qla_host *vha)
 		goto md_failed;
 	}
 
+<<<<<<< HEAD
 	ha->fw_dumped = 0;
+=======
+	ha->fw_dumped = false;
+>>>>>>> upstream/android-13
 
 	if (!ha->md_tmplt_hdr || !ha->md_dump) {
 		ql_log(ql_log_warn, vha, 0xb10e,
@@ -3471,7 +3553,11 @@ skip_nxt_entry:
 	ql_log(ql_log_info, vha, 0xb110,
 	    "Firmware dump saved to temp buffer (%ld/%p %ld/%p).\n",
 	    vha->host_no, ha->md_tmplt_hdr, vha->host_no, ha->md_dump);
+<<<<<<< HEAD
 	ha->fw_dumped = 1;
+=======
+	ha->fw_dumped = true;
+>>>>>>> upstream/android-13
 	qla2x00_post_uevent_work(vha, QLA_UEVENT_CODE_FW_DUMP);
 
 
@@ -3488,7 +3574,11 @@ qla8044_get_minidump(struct scsi_qla_host *vha)
 	struct qla_hw_data *ha = vha->hw;
 
 	if (!qla8044_collect_md_data(vha)) {
+<<<<<<< HEAD
 		ha->fw_dumped = 1;
+=======
+		ha->fw_dumped = true;
+>>>>>>> upstream/android-13
 		ha->prev_minidump_failed = 0;
 	} else {
 		ql_log(ql_log_fatal, vha, 0xb0db,
@@ -3797,7 +3887,11 @@ qla8044_write_flash_dword_mode(scsi_qla_host_t *vha, uint32_t *dwptr,
 }
 
 int
+<<<<<<< HEAD
 qla8044_write_optrom_data(struct scsi_qla_host *vha, uint8_t *buf,
+=======
+qla8044_write_optrom_data(struct scsi_qla_host *vha, void *buf,
+>>>>>>> upstream/android-13
 			  uint32_t offset, uint32_t length)
 {
 	int rval = QLA_FUNCTION_FAILED, i, burst_iter_count;
@@ -3878,7 +3972,11 @@ out:
 #define PF_BITS_MASK		(0xF << 16)
 /**
  * qla8044_intr_handler() - Process interrupts for the ISP8044
+<<<<<<< HEAD
  * @irq:
+=======
+ * @irq: interrupt number
+>>>>>>> upstream/android-13
  * @dev_id: SCSI driver HA context
  *
  * Called by system whenever the host adapter generates an interrupt.
@@ -3896,7 +3994,11 @@ qla8044_intr_handler(int irq, void *dev_id)
 	unsigned long	flags;
 	unsigned long	iter;
 	uint32_t	stat;
+<<<<<<< HEAD
 	uint16_t	mb[4];
+=======
+	uint16_t	mb[8];
+>>>>>>> upstream/android-13
 	uint32_t leg_int_ptr = 0, pf_bit;
 
 	rsp = (struct rsp_que *) dev_id;
@@ -3947,8 +4049,13 @@ qla8044_intr_handler(int irq, void *dev_id)
 	spin_lock_irqsave(&ha->hardware_lock, flags);
 	for (iter = 1; iter--; ) {
 
+<<<<<<< HEAD
 		if (RD_REG_DWORD(&reg->host_int)) {
 			stat = RD_REG_DWORD(&reg->host_status);
+=======
+		if (rd_reg_dword(&reg->host_int)) {
+			stat = rd_reg_dword(&reg->host_status);
+>>>>>>> upstream/android-13
 			if ((stat & HSRX_RISC_INT) == 0)
 				break;
 
@@ -3962,9 +4069,15 @@ qla8044_intr_handler(int irq, void *dev_id)
 				break;
 			case 0x12:
 				mb[0] = MSW(stat);
+<<<<<<< HEAD
 				mb[1] = RD_REG_WORD(&reg->mailbox_out[1]);
 				mb[2] = RD_REG_WORD(&reg->mailbox_out[2]);
 				mb[3] = RD_REG_WORD(&reg->mailbox_out[3]);
+=======
+				mb[1] = rd_reg_word(&reg->mailbox_out[1]);
+				mb[2] = rd_reg_word(&reg->mailbox_out[2]);
+				mb[3] = rd_reg_word(&reg->mailbox_out[3]);
+>>>>>>> upstream/android-13
 				qla2x00_async_event(vha, rsp, mb);
 				break;
 			case 0x13:
@@ -3977,7 +4090,11 @@ qla8044_intr_handler(int irq, void *dev_id)
 				break;
 			}
 		}
+<<<<<<< HEAD
 		WRT_REG_DWORD(&reg->host_int, 0);
+=======
+		wrt_reg_dword(&reg->host_int, 0);
+>>>>>>> upstream/android-13
 	}
 
 	qla2x00_handle_mbx_completion(ha, status);
@@ -4071,7 +4188,11 @@ exit_isp_reset:
 }
 
 void
+<<<<<<< HEAD
 qla8044_fw_dump(scsi_qla_host_t *vha, int hardware_locked)
+=======
+qla8044_fw_dump(scsi_qla_host_t *vha)
+>>>>>>> upstream/android-13
 {
 	struct qla_hw_data *ha = vha->hw;
 

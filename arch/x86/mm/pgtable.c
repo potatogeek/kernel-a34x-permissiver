@@ -3,7 +3,10 @@
 #include <linux/gfp.h>
 #include <linux/hugetlb.h>
 #include <asm/pgalloc.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/tlb.h>
 #include <asm/fixmap.h>
 #include <asm/mtrr.h>
@@ -13,6 +16,7 @@ phys_addr_t physical_mask __ro_after_init = (1ULL << __PHYSICAL_MASK_SHIFT) - 1;
 EXPORT_SYMBOL(physical_mask);
 #endif
 
+<<<<<<< HEAD
 #define PGALLOC_GFP (GFP_KERNEL_ACCOUNT | __GFP_ZERO)
 
 #ifdef CONFIG_HIGHPTE
@@ -40,6 +44,27 @@ pgtable_t pte_alloc_one(struct mm_struct *mm, unsigned long address)
 		return NULL;
 	}
 	return pte;
+=======
+#ifdef CONFIG_HIGHPTE
+#define PGTABLE_HIGHMEM __GFP_HIGHMEM
+#else
+#define PGTABLE_HIGHMEM 0
+#endif
+
+#ifndef CONFIG_PARAVIRT
+static inline
+void paravirt_tlb_remove_table(struct mmu_gather *tlb, void *table)
+{
+	tlb_remove_page(tlb, table);
+}
+#endif
+
+gfp_t __userpte_alloc_gfp = GFP_PGTABLE_USER | PGTABLE_HIGHMEM;
+
+pgtable_t pte_alloc_one(struct mm_struct *mm)
+{
+	return __pte_alloc_one(mm, __userpte_alloc_gfp);
+>>>>>>> upstream/android-13
 }
 
 static int __init setup_userpte(char *arg)
@@ -61,7 +86,11 @@ early_param("userpte", setup_userpte);
 
 void ___pte_free_tlb(struct mmu_gather *tlb, struct page *pte)
 {
+<<<<<<< HEAD
 	pgtable_page_dtor(pte);
+=======
+	pgtable_pte_page_dtor(pte);
+>>>>>>> upstream/android-13
 	paravirt_release_pte(page_to_pfn(pte));
 	paravirt_tlb_remove_table(tlb, pte);
 }
@@ -190,7 +219,11 @@ static void pgd_dtor(pgd_t *pgd)
  * when PTI is enabled. We need them to map the per-process LDT into the
  * user-space page-table.
  */
+<<<<<<< HEAD
 #define PREALLOCATED_USER_PMDS	 (static_cpu_has(X86_FEATURE_PTI) ? \
+=======
+#define PREALLOCATED_USER_PMDS	 (boot_cpu_has(X86_FEATURE_PTI) ? \
+>>>>>>> upstream/android-13
 					KERNEL_PGD_PTRS : 0)
 #define MAX_PREALLOCATED_USER_PMDS KERNEL_PGD_PTRS
 
@@ -235,7 +268,11 @@ static int preallocate_pmds(struct mm_struct *mm, pmd_t *pmds[], int count)
 {
 	int i;
 	bool failed = false;
+<<<<<<< HEAD
 	gfp_t gfp = PGALLOC_GFP;
+=======
+	gfp_t gfp = GFP_PGTABLE_USER;
+>>>>>>> upstream/android-13
 
 	if (mm == &init_mm)
 		gfp &= ~__GFP_ACCOUNT;
@@ -292,7 +329,11 @@ static void pgd_mop_up_pmds(struct mm_struct *mm, pgd_t *pgdp)
 
 #ifdef CONFIG_PAGE_TABLE_ISOLATION
 
+<<<<<<< HEAD
 	if (!static_cpu_has(X86_FEATURE_PTI))
+=======
+	if (!boot_cpu_has(X86_FEATURE_PTI))
+>>>>>>> upstream/android-13
 		return;
 
 	pgdp = kernel_to_user_pgdp(pgdp);
@@ -373,14 +414,22 @@ static void pgd_prepopulate_user_pmd(struct mm_struct *mm,
 
 static struct kmem_cache *pgd_cache;
 
+<<<<<<< HEAD
 static int __init pgd_cache_init(void)
+=======
+void __init pgtable_cache_init(void)
+>>>>>>> upstream/android-13
 {
 	/*
 	 * When PAE kernel is running as a Xen domain, it does not use
 	 * shared kernel pmd. And this requires a whole page for pgd.
 	 */
 	if (!SHARED_KERNEL_PMD)
+<<<<<<< HEAD
 		return 0;
+=======
+		return;
+>>>>>>> upstream/android-13
 
 	/*
 	 * when PAE kernel is not running as a Xen domain, it uses
@@ -390,9 +439,13 @@ static int __init pgd_cache_init(void)
 	 */
 	pgd_cache = kmem_cache_create("pgd_cache", PGD_SIZE, PGD_ALIGN,
 				      SLAB_PANIC, NULL);
+<<<<<<< HEAD
 	return 0;
 }
 core_initcall(pgd_cache_init);
+=======
+}
+>>>>>>> upstream/android-13
 
 static inline pgd_t *_pgd_alloc(void)
 {
@@ -401,14 +454,22 @@ static inline pgd_t *_pgd_alloc(void)
 	 * We allocate one page for pgd.
 	 */
 	if (!SHARED_KERNEL_PMD)
+<<<<<<< HEAD
 		return (pgd_t *)__get_free_pages(PGALLOC_GFP,
+=======
+		return (pgd_t *)__get_free_pages(GFP_PGTABLE_USER,
+>>>>>>> upstream/android-13
 						 PGD_ALLOCATION_ORDER);
 
 	/*
 	 * Now PAE kernel is not running as a Xen domain. We can allocate
 	 * a 32-byte slab for pgd to save memory space.
 	 */
+<<<<<<< HEAD
 	return kmem_cache_alloc(pgd_cache, PGALLOC_GFP);
+=======
+	return kmem_cache_alloc(pgd_cache, GFP_PGTABLE_USER);
+>>>>>>> upstream/android-13
 }
 
 static inline void _pgd_free(pgd_t *pgd)
@@ -422,7 +483,12 @@ static inline void _pgd_free(pgd_t *pgd)
 
 static inline pgd_t *_pgd_alloc(void)
 {
+<<<<<<< HEAD
 	return (pgd_t *)__get_free_pages(PGALLOC_GFP, PGD_ALLOCATION_ORDER);
+=======
+	return (pgd_t *)__get_free_pages(GFP_PGTABLE_USER,
+					 PGD_ALLOCATION_ORDER);
+>>>>>>> upstream/android-13
 }
 
 static inline void _pgd_free(pgd_t *pgd)
@@ -560,7 +626,11 @@ int ptep_test_and_clear_young(struct vm_area_struct *vma,
 	return ret;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_TRANSPARENT_HUGEPAGE
+=======
+#if defined(CONFIG_TRANSPARENT_HUGEPAGE) || defined(CONFIG_ARCH_HAS_NONLEAF_PMD_YOUNG)
+>>>>>>> upstream/android-13
 int pmdp_test_and_clear_young(struct vm_area_struct *vma,
 			      unsigned long addr, pmd_t *pmdp)
 {
@@ -572,6 +642,12 @@ int pmdp_test_and_clear_young(struct vm_area_struct *vma,
 
 	return ret;
 }
+<<<<<<< HEAD
+=======
+#endif
+
+#ifdef CONFIG_TRANSPARENT_HUGEPAGE
+>>>>>>> upstream/android-13
 int pudp_test_and_clear_young(struct vm_area_struct *vma,
 			      unsigned long addr, pud_t *pudp)
 {
@@ -723,11 +799,17 @@ int pud_set_huge(pud_t *pud, phys_addr_t addr, pgprot_t prot)
 	if (pud_present(*pud) && !pud_huge(*pud))
 		return 0;
 
+<<<<<<< HEAD
 	prot = pgprot_4k_2_large(prot);
 
 	set_pte((pte_t *)pud, pfn_pte(
 		(u64)addr >> PAGE_SHIFT,
 		__pgprot(pgprot_val(prot) | _PAGE_PSE)));
+=======
+	set_pte((pte_t *)pud, pfn_pte(
+		(u64)addr >> PAGE_SHIFT,
+		__pgprot(protval_4k_2_large(pgprot_val(prot)) | _PAGE_PSE)));
+>>>>>>> upstream/android-13
 
 	return 1;
 }
@@ -755,11 +837,17 @@ int pmd_set_huge(pmd_t *pmd, phys_addr_t addr, pgprot_t prot)
 	if (pmd_present(*pmd) && !pmd_huge(*pmd))
 		return 0;
 
+<<<<<<< HEAD
 	prot = pgprot_4k_2_large(prot);
 
 	set_pte((pte_t *)pmd, pfn_pte(
 		(u64)addr >> PAGE_SHIFT,
 		__pgprot(pgprot_val(prot) | _PAGE_PSE)));
+=======
+	set_pte((pte_t *)pmd, pfn_pte(
+		(u64)addr >> PAGE_SHIFT,
+		__pgprot(protval_4k_2_large(pgprot_val(prot)) | _PAGE_PSE)));
+>>>>>>> upstream/android-13
 
 	return 1;
 }
@@ -811,10 +899,14 @@ int pud_free_pmd_page(pud_t *pud, unsigned long addr)
 	pte_t *pte;
 	int i;
 
+<<<<<<< HEAD
 	if (pud_none(*pud))
 		return 1;
 
 	pmd = (pmd_t *)pud_page_vaddr(*pud);
+=======
+	pmd = pud_pgtable(*pud);
+>>>>>>> upstream/android-13
 	pmd_sv = (pmd_t *)__get_free_page(GFP_KERNEL);
 	if (!pmd_sv)
 		return 0;
@@ -857,9 +949,12 @@ int pmd_free_pte_page(pmd_t *pmd, unsigned long addr)
 {
 	pte_t *pte;
 
+<<<<<<< HEAD
 	if (pmd_none(*pmd))
 		return 1;
 
+=======
+>>>>>>> upstream/android-13
 	pte = (pte_t *)pmd_page_vaddr(*pmd);
 	pmd_clear(pmd);
 
@@ -873,11 +968,14 @@ int pmd_free_pte_page(pmd_t *pmd, unsigned long addr)
 
 #else /* !CONFIG_X86_64 */
 
+<<<<<<< HEAD
 int pud_free_pmd_page(pud_t *pud, unsigned long addr)
 {
 	return pud_none(*pud);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Disable free page handling on x86-PAE. This assures that ioremap()
  * does not update sync'd pmd entries. See vmalloc_sync_one().

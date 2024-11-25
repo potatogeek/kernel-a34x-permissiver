@@ -1,9 +1,12 @@
 # SPDX-License-Identifier: GPL-2.0
 menu "Memory management options"
 
+<<<<<<< HEAD
 config QUICKLIST
 	def_bool y
 
+=======
+>>>>>>> upstream/android-13
 config MMU
         bool "Support for memory management hardware"
 	depends on !CPU_SH2
@@ -18,8 +21,12 @@ config MMU
 
 config PAGE_OFFSET
 	hex
+<<<<<<< HEAD
 	default "0x80000000" if MMU && SUPERH32
 	default "0x20000000" if MMU && SUPERH64
+=======
+	default "0x80000000" if MMU
+>>>>>>> upstream/android-13
 	default "0x00000000"
 
 config FORCE_MAX_ZONEORDER
@@ -48,7 +55,11 @@ config FORCE_MAX_ZONEORDER
 config MEMORY_START
 	hex "Physical memory start address"
 	default "0x08000000"
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  Computers built with Hitachi SuperH processors always
 	  map the ROM starting at address zero.  But the processor
 	  does not specify the range that RAM takes.
@@ -75,12 +86,19 @@ config MEMORY_SIZE
 
 config 29BIT
 	def_bool !32BIT
+<<<<<<< HEAD
 	depends on SUPERH32
+=======
+>>>>>>> upstream/android-13
 	select UNCACHED_MAPPING
 
 config 32BIT
 	bool
+<<<<<<< HEAD
 	default y if CPU_SH5 || !MMU
+=======
+	default !MMU
+>>>>>>> upstream/android-13
 
 config PMB
 	bool "Support 32-bit physical addressing through PMB"
@@ -110,7 +128,11 @@ config VSYSCALL
 	  (the default value) say Y.
 
 config NUMA
+<<<<<<< HEAD
 	bool "Non Uniform Memory Access (NUMA) Support"
+=======
+	bool "Non-Uniform Memory Access (NUMA) Support"
+>>>>>>> upstream/android-13
 	depends on MMU && SYS_SUPPORTS_NUMA
 	select ARCH_WANT_NUMA_VARIABLE_LOCALITY
 	default n
@@ -125,7 +147,11 @@ config NODES_SHIFT
 	int
 	default "3" if CPU_SUBTYPE_SHX3
 	default "1"
+<<<<<<< HEAD
 	depends on NEED_MULTIPLE_NODES
+=======
+	depends on NUMA
+>>>>>>> upstream/android-13
 
 config ARCH_FLATMEM_ENABLE
 	def_bool y
@@ -141,6 +167,7 @@ config ARCH_SPARSEMEM_DEFAULT
 config ARCH_SELECT_MEMORY_MODEL
 	def_bool y
 
+<<<<<<< HEAD
 config ARCH_ENABLE_MEMORY_HOTPLUG
 	def_bool y
 	depends on SPARSEMEM && MMU
@@ -149,13 +176,19 @@ config ARCH_ENABLE_MEMORY_HOTREMOVE
 	def_bool y
 	depends on SPARSEMEM && MMU
 
+=======
+>>>>>>> upstream/android-13
 config ARCH_MEMORY_PROBE
 	def_bool y
 	depends on MEMORY_HOTPLUG
 
 config IOREMAP_FIXED
        def_bool y
+<<<<<<< HEAD
        depends on X2TLB || SUPERH64
+=======
+       depends on X2TLB
+>>>>>>> upstream/android-13
 
 config UNCACHED_MAPPING
 	bool
@@ -187,7 +220,11 @@ config PAGE_SIZE_16KB
 
 config PAGE_SIZE_64KB
 	bool "64kB"
+<<<<<<< HEAD
 	depends on !MMU || CPU_SH4 || CPU_SH5
+=======
+	depends on !MMU || CPU_SH4
+>>>>>>> upstream/android-13
 	help
 	  This enables support for 64kB pages, possible on all SH-4
 	  CPUs and later.
@@ -219,10 +256,13 @@ config HUGETLB_PAGE_SIZE_64MB
 	bool "64MB"
 	depends on X2TLB
 
+<<<<<<< HEAD
 config HUGETLB_PAGE_SIZE_512MB
 	bool "512MB"
 	depends on CPU_SH5
 
+=======
+>>>>>>> upstream/android-13
 endchoice
 
 config SCHED_MC
@@ -245,7 +285,11 @@ config SH7705_CACHE_32KB
 
 choice
 	prompt "Cache mode"
+<<<<<<< HEAD
 	default CACHE_WRITEBACK if CPU_SH2A || CPU_SH3 || CPU_SH4 || CPU_SH5
+=======
+	default CACHE_WRITEBACK if CPU_SH2A || CPU_SH3 || CPU_SH4
+>>>>>>> upstream/android-13
 	default CACHE_WRITETHROUGH if (CPU_SH2 && !CPU_SH2A)
 
 config CACHE_WRITEBACK

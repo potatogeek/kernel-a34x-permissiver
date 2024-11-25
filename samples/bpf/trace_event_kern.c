@@ -5,11 +5,19 @@
  * License as published by the Free Software Foundation.
  */
 #include <linux/ptrace.h>
+<<<<<<< HEAD
 #include <linux/version.h>
 #include <uapi/linux/bpf.h>
 #include <uapi/linux/bpf_perf_event.h>
 #include <uapi/linux/perf_event.h>
 #include "bpf_helpers.h"
+=======
+#include <uapi/linux/bpf.h>
+#include <uapi/linux/bpf_perf_event.h>
+#include <uapi/linux/perf_event.h>
+#include <bpf/bpf_helpers.h>
+#include <bpf/bpf_tracing.h>
+>>>>>>> upstream/android-13
 
 struct key_t {
 	char comm[TASK_COMM_LEN];
@@ -17,6 +25,7 @@ struct key_t {
 	u32 userstack;
 };
 
+<<<<<<< HEAD
 struct bpf_map_def SEC("maps") counts = {
 	.type = BPF_MAP_TYPE_HASH,
 	.key_size = sizeof(struct key_t),
@@ -30,6 +39,21 @@ struct bpf_map_def SEC("maps") stackmap = {
 	.value_size = PERF_MAX_STACK_DEPTH * sizeof(u64),
 	.max_entries = 10000,
 };
+=======
+struct {
+	__uint(type, BPF_MAP_TYPE_HASH);
+	__type(key, struct key_t);
+	__type(value, u64);
+	__uint(max_entries, 10000);
+} counts SEC(".maps");
+
+struct {
+	__uint(type, BPF_MAP_TYPE_STACK_TRACE);
+	__uint(key_size, sizeof(u32));
+	__uint(value_size, PERF_MAX_STACK_DEPTH * sizeof(u64));
+	__uint(max_entries, 10000);
+} stackmap SEC(".maps");
+>>>>>>> upstream/android-13
 
 #define KERN_STACKID_FLAGS (0 | BPF_F_FAST_STACK_CMP)
 #define USER_STACKID_FLAGS (0 | BPF_F_FAST_STACK_CMP | BPF_F_USER_STACK)

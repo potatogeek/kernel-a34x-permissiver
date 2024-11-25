@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/lib/getuser.S
  *
  *  Copyright (C) 2001 Russell King
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  *  Idea from x86 version, (C) Copyright 1998 Linus Torvalds
  *
  * These functions have a non-standard call interface to make them more

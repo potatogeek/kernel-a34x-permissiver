@@ -31,8 +31,11 @@
  *    Eric Anholt <anholt@FreeBSD.org>
  */
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/mga_drm.h>
+=======
+>>>>>>> upstream/android-13
 #include "mga_drv.h"
 
 u32 mga_get_vblank_counter(struct drm_device *dev, unsigned int pipe)
@@ -118,16 +121,24 @@ void mga_disable_vblank(struct drm_device *dev, unsigned int pipe)
 	/* MGA_WRITE(MGA_IEN, MGA_VLINEIEN | MGA_SOFTRAPEN); */
 }
 
+<<<<<<< HEAD
 int mga_driver_fence_wait(struct drm_device *dev, unsigned int *sequence)
 {
 	drm_mga_private_t *dev_priv = (drm_mga_private_t *) dev->dev_private;
 	unsigned int cur_fence;
 	int ret = 0;
+=======
+void mga_driver_fence_wait(struct drm_device *dev, unsigned int *sequence)
+{
+	drm_mga_private_t *dev_priv = (drm_mga_private_t *) dev->dev_private;
+	unsigned int cur_fence;
+>>>>>>> upstream/android-13
 
 	/* Assume that the user has missed the current sequence number
 	 * by about a day rather than she wants to wait for years
 	 * using fences.
 	 */
+<<<<<<< HEAD
 	DRM_WAIT_ON(ret, dev_priv->fence_queue, 3 * HZ,
 		    (((cur_fence = atomic_read(&dev_priv->last_fence_retired))
 		      - *sequence) <= (1 << 23)));
@@ -135,6 +146,14 @@ int mga_driver_fence_wait(struct drm_device *dev, unsigned int *sequence)
 	*sequence = cur_fence;
 
 	return ret;
+=======
+	wait_event_timeout(dev_priv->fence_queue,
+		    (((cur_fence = atomic_read(&dev_priv->last_fence_retired))
+		      - *sequence) <= (1 << 23)),
+		    msecs_to_jiffies(3000));
+
+	*sequence = cur_fence;
+>>>>>>> upstream/android-13
 }
 
 void mga_driver_irq_preinstall(struct drm_device *dev)

@@ -1,11 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * mac80211_hwsim - software simulator of 802.11 radio(s) for mac80211
  * Copyright (c) 2008, Jouni Malinen <j@w1.fi>
  * Copyright (c) 2011, Javier Lopez <jlopex@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+ * Copyright (C) 2020 Intel Corporation
+>>>>>>> upstream/android-13
  */
 
 #ifndef __MAC80211_HWSIM_H
@@ -77,6 +85,15 @@ enum hwsim_tx_control_flags {
  * @HWSIM_CMD_DEL_RADIO: destroy a radio, reply is multicasted
  * @HWSIM_CMD_GET_RADIO: fetch information about existing radios, uses:
  *	%HWSIM_ATTR_RADIO_ID
+<<<<<<< HEAD
+=======
+ * @HWSIM_CMD_ADD_MAC_ADDR: add a receive MAC address (given in the
+ *	%HWSIM_ATTR_ADDR_RECEIVER attribute) to a device identified by
+ *	%HWSIM_ATTR_ADDR_TRANSMITTER. This lets wmediumd forward frames
+ *	to this receiver address for a given station.
+ * @HWSIM_CMD_DEL_MAC_ADDR: remove the MAC address again, the attributes
+ *	are the same as to @HWSIM_CMD_ADD_MAC_ADDR.
+>>>>>>> upstream/android-13
  * @__HWSIM_CMD_MAX: enum limit
  */
 enum {
@@ -87,6 +104,11 @@ enum {
 	HWSIM_CMD_NEW_RADIO,
 	HWSIM_CMD_DEL_RADIO,
 	HWSIM_CMD_GET_RADIO,
+<<<<<<< HEAD
+=======
+	HWSIM_CMD_ADD_MAC_ADDR,
+	HWSIM_CMD_DEL_MAC_ADDR,
+>>>>>>> upstream/android-13
 	__HWSIM_CMD_MAX,
 };
 #define HWSIM_CMD_MAX (_HWSIM_CMD_MAX - 1)
@@ -132,6 +154,11 @@ enum {
  * @HWSIM_ATTR_TX_INFO_FLAGS: additional flags for corresponding
  *	rates of %HWSIM_ATTR_TX_INFO
  * @HWSIM_ATTR_PERM_ADDR: permanent mac address of new radio
+<<<<<<< HEAD
+=======
+ * @HWSIM_ATTR_IFTYPE_SUPPORT: u32 attribute of supported interface types bits
+ * @HWSIM_ATTR_CIPHER_SUPPORT: u32 array of supported cipher types
+>>>>>>> upstream/android-13
  * @__HWSIM_ATTR_MAX: enum limit
  */
 
@@ -160,6 +187,11 @@ enum {
 	HWSIM_ATTR_PAD,
 	HWSIM_ATTR_TX_INFO_FLAGS,
 	HWSIM_ATTR_PERM_ADDR,
+<<<<<<< HEAD
+=======
+	HWSIM_ATTR_IFTYPE_SUPPORT,
+	HWSIM_ATTR_CIPHER_SUPPORT,
+>>>>>>> upstream/android-13
 	__HWSIM_ATTR_MAX,
 };
 #define HWSIM_ATTR_MAX (__HWSIM_ATTR_MAX - 1)
@@ -244,4 +276,27 @@ struct hwsim_tx_rate_flag {
 	s8 idx;
 	u16 flags;
 } __packed;
+<<<<<<< HEAD
+=======
+
+/**
+ * DOC: Frame transmission support over virtio
+ *
+ * Frame transmission is also supported over virtio to allow communication
+ * with external entities.
+ */
+
+/**
+ * enum hwsim_vqs - queues for virtio frame transmission
+ *
+ * @HWSIM_VQ_TX: send frames to external entity
+ * @HWSIM_VQ_RX: receive frames and transmission info reports
+ * @HWSIM_NUM_VQS: enum limit
+ */
+enum {
+	HWSIM_VQ_TX,
+	HWSIM_VQ_RX,
+	HWSIM_NUM_VQS,
+};
+>>>>>>> upstream/android-13
 #endif /* __MAC80211_HWSIM_H */

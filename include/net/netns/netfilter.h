@@ -3,6 +3,10 @@
 #define __NETNS_NETFILTER_H
 
 #include <linux/netfilter_defs.h>
+<<<<<<< HEAD
+=======
+#include <linux/android_kabi.h>
+>>>>>>> upstream/android-13
 
 struct proc_dir_entry;
 struct nf_logger;
@@ -12,7 +16,10 @@ struct netns_nf {
 #if defined CONFIG_PROC_FS
 	struct proc_dir_entry *proc_netfilter;
 #endif
+<<<<<<< HEAD
 	const struct nf_queue_handler __rcu *queue_handler;
+=======
+>>>>>>> upstream/android-13
 	const struct nf_logger __rcu *nf_loggers[NFPROTO_NUMPROTO];
 #ifdef CONFIG_SYSCTL
 	struct ctl_table_header *nf_log_dir_header;
@@ -22,15 +29,31 @@ struct netns_nf {
 #ifdef CONFIG_NETFILTER_FAMILY_ARP
 	struct nf_hook_entries __rcu *hooks_arp[NF_ARP_NUMHOOKS];
 #endif
+<<<<<<< HEAD
 	struct nf_hook_entries __rcu *hooks_bridge[NF_INET_NUMHOOKS];
+=======
+#ifdef CONFIG_NETFILTER_FAMILY_BRIDGE
+	struct nf_hook_entries __rcu *hooks_bridge[NF_INET_NUMHOOKS];
+#endif
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_DECNET)
 	struct nf_hook_entries __rcu *hooks_decnet[NF_DN_NUMHOOKS];
 #endif
 #if IS_ENABLED(CONFIG_NF_DEFRAG_IPV4)
+<<<<<<< HEAD
 	bool			defrag_ipv4;
 #endif
 #if IS_ENABLED(CONFIG_NF_DEFRAG_IPV6)
 	bool			defrag_ipv6;
 #endif
+=======
+	unsigned int defrag_ipv4_users;
+#endif
+#if IS_ENABLED(CONFIG_NF_DEFRAG_IPV6)
+	unsigned int defrag_ipv6_users;
+#endif
+
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 #endif

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Copyright (C) 2017-2018 HUAWEI, Inc.
+<<<<<<< HEAD
  *             http://www.huawei.com/
  * Created by Gao Xiang <gaoxiang25@huawei.com>
  */
@@ -17,6 +18,12 @@ static const unsigned char erofs_filetype_table[EROFS_FT_MAX] = {
 	[EROFS_FT_SYMLINK]	= DT_LNK,
 };
 
+=======
+ *             https://www.huawei.com/
+ */
+#include "internal.h"
+
+>>>>>>> upstream/android-13
 static void debug_one_dentry(unsigned char d_type, const char *de_name,
 			     unsigned int de_namelen)
 {
@@ -44,10 +51,14 @@ static int erofs_fill_dentries(struct inode *dir, struct dir_context *ctx,
 		unsigned int de_namelen;
 		unsigned char d_type;
 
+<<<<<<< HEAD
 		if (de->file_type < EROFS_FT_MAX)
 			d_type = erofs_filetype_table[de->file_type];
 		else
 			d_type = DT_UNKNOWN;
+=======
+		d_type = fs_ftype_to_dtype(de->file_type);
+>>>>>>> upstream/android-13
 
 		nameoff = le16_to_cpu(de->nameoff);
 		de_name = (char *)dentry_blk + nameoff;
@@ -153,4 +164,7 @@ const struct file_operations erofs_dir_fops = {
 	.read		= generic_read_dir,
 	.iterate_shared	= erofs_readdir,
 };
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13

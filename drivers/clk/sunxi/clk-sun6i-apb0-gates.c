@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014 Free Electrons
  *
@@ -6,6 +7,15 @@
  *
  * Allwinner A31 APB0 clock gates driver
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2014 Free Electrons
+ *
+ * Author: Boris BREZILLON <boris.brezillon@free-electrons.com>
+ *
+ * Allwinner A31 APB0 clock gates driver
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk-provider.h>
@@ -38,7 +48,10 @@ static int sun6i_a31_apb0_gates_clk_probe(struct platform_device *pdev)
 {
 	struct device_node *np = pdev->dev.of_node;
 	struct clk_onecell_data *clk_data;
+<<<<<<< HEAD
 	const struct of_device_id *device;
+=======
+>>>>>>> upstream/android-13
 	const struct gates_data *data;
 	const char *clk_parent;
 	const char *clk_name;
@@ -51,10 +64,16 @@ static int sun6i_a31_apb0_gates_clk_probe(struct platform_device *pdev)
 	if (!np)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	device = of_match_device(sun6i_a31_apb0_gates_clk_dt_ids, &pdev->dev);
 	if (!device)
 		return -ENODEV;
 	data = device->data;
+=======
+	data = of_device_get_match_data(&pdev->dev);
+	if (!data)
+		return -ENODEV;
+>>>>>>> upstream/android-13
 
 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	reg = devm_ioremap_resource(&pdev->dev, r);

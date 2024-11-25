@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * AMD Secure Encrypted Virtualization (SEV) driver interface
  *
@@ -5,12 +9,16 @@
  *
  * Author: Brijesh Singh <brijesh.singh@amd.com>
  *
+<<<<<<< HEAD
  * SEV spec 0.14 is available at:
  * http://support.amd.com/TechDocs/55766_SEV-KM API_Specification.pdf
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+ * SEV API spec is available at https://developer.amd.com/sev
+>>>>>>> upstream/android-13
  */
 
 #ifndef __PSP_SEV_H__
@@ -70,12 +78,20 @@ enum sev_cmd {
 	SEV_CMD_LAUNCH_MEASURE		= 0x033,
 	SEV_CMD_LAUNCH_UPDATE_SECRET	= 0x034,
 	SEV_CMD_LAUNCH_FINISH		= 0x035,
+<<<<<<< HEAD
+=======
+	SEV_CMD_ATTESTATION_REPORT	= 0x036,
+>>>>>>> upstream/android-13
 
 	/* Guest migration commands (outgoing) */
 	SEV_CMD_SEND_START		= 0x040,
 	SEV_CMD_SEND_UPDATE_DATA	= 0x041,
 	SEV_CMD_SEND_UPDATE_VMSA	= 0x042,
 	SEV_CMD_SEND_FINISH		= 0x043,
+<<<<<<< HEAD
+=======
+	SEV_CMD_SEND_CANCEL		= 0x044,
+>>>>>>> upstream/android-13
 
 	/* Guest migration commands (incoming) */
 	SEV_CMD_RECEIVE_START		= 0x050,
@@ -104,6 +120,11 @@ struct sev_data_init {
 	u32 tmr_len;			/* In */
 } __packed;
 
+<<<<<<< HEAD
+=======
+#define SEV_INIT_FLAGS_SEV_ES	0x01
+
+>>>>>>> upstream/android-13
 /**
  * struct sev_data_pek_csr - PEK_CSR command parameters
  *
@@ -327,11 +348,19 @@ struct sev_data_send_start {
 	u64 pdh_cert_address;			/* In */
 	u32 pdh_cert_len;			/* In */
 	u32 reserved1;
+<<<<<<< HEAD
 	u64 plat_cert_address;			/* In */
 	u32 plat_cert_len;			/* In */
 	u32 reserved2;
 	u64 amd_cert_address;			/* In */
 	u32 amd_cert_len;			/* In */
+=======
+	u64 plat_certs_address;			/* In */
+	u32 plat_certs_len;			/* In */
+	u32 reserved2;
+	u64 amd_certs_address;			/* In */
+	u32 amd_certs_len;			/* In */
+>>>>>>> upstream/android-13
 	u32 reserved3;
 	u64 session_address;			/* In */
 	u32 session_len;			/* In/Out */
@@ -394,6 +423,18 @@ struct sev_data_send_finish {
 } __packed;
 
 /**
+<<<<<<< HEAD
+=======
+ * struct sev_data_send_cancel - SEND_CANCEL command parameters
+ *
+ * @handle: handle of the VM to process
+ */
+struct sev_data_send_cancel {
+	u32 handle;				/* In */
+} __packed;
+
+/**
+>>>>>>> upstream/android-13
  * struct sev_data_receive_start - RECEIVE_START command parameters
  *
  * @handle: handle of the VM to perform receive operation
@@ -485,6 +526,25 @@ struct sev_data_dbg {
 	u32 len;				/* In */
 } __packed;
 
+<<<<<<< HEAD
+=======
+/**
+ * struct sev_data_attestation_report - SEV_ATTESTATION_REPORT command parameters
+ *
+ * @handle: handle of the VM
+ * @mnonce: a random nonce that will be included in the report.
+ * @address: physical address where the report will be copied.
+ * @len: length of the physical buffer.
+ */
+struct sev_data_attestation_report {
+	u32 handle;				/* In */
+	u32 reserved;
+	u64 address;				/* In */
+	u8 mnonce[16];				/* In */
+	u32 len;				/* In/Out */
+} __packed;
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_CRYPTO_DEV_SP_PSP
 
 /**
@@ -599,7 +659,11 @@ int sev_guest_df_flush(int *error);
  */
 int sev_guest_decommission(struct sev_data_decommission *data, int *error);
 
+<<<<<<< HEAD
 void *psp_copy_user_blob(u64 __user uaddr, u32 len);
+=======
+void *psp_copy_user_blob(u64 uaddr, u32 len);
+>>>>>>> upstream/android-13
 
 #else	/* !CONFIG_CRYPTO_DEV_SP_PSP */
 

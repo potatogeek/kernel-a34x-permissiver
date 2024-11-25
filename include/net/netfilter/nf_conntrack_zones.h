@@ -3,9 +3,13 @@
 #define _NF_CONNTRACK_ZONES_H
 
 #include <linux/netfilter/nf_conntrack_zones_common.h>
+<<<<<<< HEAD
 
 #if IS_ENABLED(CONFIG_NF_CONNTRACK)
 #include <net/netfilter/nf_conntrack_extend.h>
+=======
+#include <net/netfilter/nf_conntrack.h>
+>>>>>>> upstream/android-13
 
 static inline const struct nf_conntrack_zone *
 nf_ct_zone(const struct nf_conn *ct)
@@ -87,5 +91,9 @@ static inline bool nf_ct_zone_equal_any(const struct nf_conn *a,
 	return true;
 #endif
 }
+<<<<<<< HEAD
 #endif /* IS_ENABLED(CONFIG_NF_CONNTRACK) */
+=======
+
+>>>>>>> upstream/android-13
 #endif /* _NF_CONNTRACK_ZONES_H */

@@ -4,45 +4,70 @@
 
 #include <linux/sched.h>
 #include <linux/sched/clock.h>
+<<<<<<< HEAD
 
 #ifdef CONFIG_BLOCK
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/major.h>
 #include <linux/genhd.h>
 #include <linux/list.h>
 #include <linux/llist.h>
+<<<<<<< HEAD
 #include <linux/timer.h>
 #include <linux/workqueue.h>
 #include <linux/pagemap.h>
 #include <linux/backing-dev-defs.h>
+=======
+#include <linux/minmax.h>
+#include <linux/timer.h>
+#include <linux/workqueue.h>
+>>>>>>> upstream/android-13
 #include <linux/wait.h>
 #include <linux/mempool.h>
 #include <linux/pfn.h>
 #include <linux/bio.h>
 #include <linux/stringify.h>
 #include <linux/gfp.h>
+<<<<<<< HEAD
 #include <linux/bsg.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/smp.h>
 #include <linux/rcupdate.h>
 #include <linux/percpu-refcount.h>
 #include <linux/scatterlist.h>
 #include <linux/blkzoned.h>
+<<<<<<< HEAD
 
 struct module;
 struct scsi_ioctl_command;
 
+=======
+#include <linux/pm.h>
+#include <linux/sbitmap.h>
+#include <linux/android_kabi.h>
+#include <linux/android_vendor.h>
+
+struct module;
+>>>>>>> upstream/android-13
 struct request_queue;
 struct elevator_queue;
 struct blk_trace;
 struct request;
 struct sg_io_hdr;
+<<<<<<< HEAD
 struct bsg_job;
+=======
+>>>>>>> upstream/android-13
 struct blkcg_gq;
 struct blk_flush_queue;
 struct pr_ops;
 struct rq_qos;
 struct blk_queue_stats;
 struct blk_stat_callback;
+<<<<<<< HEAD
 struct keyslot_manager;
 
 #define BLKDEV_MIN_RQ	4
@@ -51,14 +76,27 @@ struct keyslot_manager;
 #else
 #define BLKDEV_MAX_RQ  128     /* Default maximum */
 #endif
+=======
+struct blk_keyslot_manager;
+
+#define BLKDEV_MIN_RQ	4
+#define BLKDEV_MAX_RQ	128	/* Default maximum */
+>>>>>>> upstream/android-13
 
 /* Must be consistent with blk_mq_poll_stats_bkt() */
 #define BLK_MQ_POLL_STATS_BKTS 16
 
+<<<<<<< HEAD
+=======
+/* Doing classic polling */
+#define BLK_MQ_POLL_CLASSIC -1
+
+>>>>>>> upstream/android-13
 /*
  * Maximum number of blkcg policies allowed to be registered concurrently.
  * Defined here to simplify include dependency.
  */
+<<<<<<< HEAD
 #define BLKCG_MAX_POLS		5
 
 typedef void (rq_end_io_fn)(struct request *, blk_status_t);
@@ -82,16 +120,27 @@ struct request_list {
 	unsigned int		flags;
 };
 
+=======
+#define BLKCG_MAX_POLS		6
+
+typedef void (rq_end_io_fn)(struct request *, blk_status_t);
+
+>>>>>>> upstream/android-13
 /*
  * request flags */
 typedef __u32 __bitwise req_flags_t;
 
+<<<<<<< HEAD
 /* elevator knows about this request */
 #define RQF_SORTED		((__force req_flags_t)(1 << 0))
 /* drive already may have started this one */
 #define RQF_STARTED		((__force req_flags_t)(1 << 1))
 /* uses tagged queueing */
 #define RQF_QUEUED		((__force req_flags_t)(1 << 2))
+=======
+/* drive already may have started this one */
+#define RQF_STARTED		((__force req_flags_t)(1 << 1))
+>>>>>>> upstream/android-13
 /* may not be passed by ioscheduler */
 #define RQF_SOFTBARRIER		((__force req_flags_t)(1 << 3))
 /* request for flush sequence */
@@ -102,26 +151,38 @@ typedef __u32 __bitwise req_flags_t;
 #define RQF_MQ_INFLIGHT		((__force req_flags_t)(1 << 6))
 /* don't call prep for this one */
 #define RQF_DONTPREP		((__force req_flags_t)(1 << 7))
+<<<<<<< HEAD
 /* set for "ide_preempt" requests and also for requests for which the SCSI
    "quiesce" state must be ignored. */
 #define RQF_PREEMPT		((__force req_flags_t)(1 << 8))
 /* contains copies of user pages */
 #define RQF_COPY_USER		((__force req_flags_t)(1 << 9))
+=======
+>>>>>>> upstream/android-13
 /* vaguely specified driver internal error.  Ignored by the block layer */
 #define RQF_FAILED		((__force req_flags_t)(1 << 10))
 /* don't warn about errors */
 #define RQF_QUIET		((__force req_flags_t)(1 << 11))
 /* elevator private data attached */
 #define RQF_ELVPRIV		((__force req_flags_t)(1 << 12))
+<<<<<<< HEAD
 /* account I/O stat */
 #define RQF_IO_STAT		((__force req_flags_t)(1 << 13))
 /* request came from our alloc pool */
 #define RQF_ALLOCED		((__force req_flags_t)(1 << 14))
+=======
+/* account into disk and partition IO statistics */
+#define RQF_IO_STAT		((__force req_flags_t)(1 << 13))
+>>>>>>> upstream/android-13
 /* runtime pm request */
 #define RQF_PM			((__force req_flags_t)(1 << 15))
 /* on IO scheduler merge hash */
 #define RQF_HASHED		((__force req_flags_t)(1 << 16))
+<<<<<<< HEAD
 /* IO stats tracking on */
+=======
+/* track IO completion time */
+>>>>>>> upstream/android-13
 #define RQF_STATS		((__force req_flags_t)(1 << 17))
 /* Look at ->special_vec for the actual data payload instead of the
    bio chain. */
@@ -155,16 +216,28 @@ enum mq_rq_state {
 struct request {
 	struct request_queue *q;
 	struct blk_mq_ctx *mq_ctx;
+<<<<<<< HEAD
 
 	int cpu;
 	unsigned int cmd_flags;		/* op and common flags */
 	req_flags_t rq_flags;
 
+=======
+	struct blk_mq_hw_ctx *mq_hctx;
+
+	unsigned int cmd_flags;		/* op and common flags */
+	req_flags_t rq_flags;
+
+	int tag;
+>>>>>>> upstream/android-13
 	int internal_tag;
 
 	/* the following two fields are internal, NEVER access directly */
 	unsigned int __data_len;	/* total data len */
+<<<<<<< HEAD
 	int tag;
+=======
+>>>>>>> upstream/android-13
 	sector_t __sector;		/* sector cursor */
 
 	struct bio *bio;
@@ -181,7 +254,11 @@ struct request {
 	 */
 	union {
 		struct hlist_node hash;	/* merge hash */
+<<<<<<< HEAD
 		struct list_head ipi_list;
+=======
+		struct llist_node ipi_list;
+>>>>>>> upstream/android-13
 	};
 
 	/*
@@ -216,8 +293,17 @@ struct request {
 	};
 
 	struct gendisk *rq_disk;
+<<<<<<< HEAD
 	struct hd_struct *part;
 	/* Time that I/O was submitted to the kernel. */
+=======
+	struct block_device *part;
+#ifdef CONFIG_BLK_RQ_ALLOC_TIME
+	/* Time that the first bio started allocating this request. */
+	u64 alloc_time_ns;
+#endif
+	/* Time that this request was allocated for this IO. */
+>>>>>>> upstream/android-13
 	u64 start_time_ns;
 	/* Time that I/O was submitted to the device. */
 	u64 io_start_time_ns;
@@ -225,9 +311,18 @@ struct request {
 #ifdef CONFIG_BLK_WBT
 	unsigned short wbt_flags;
 #endif
+<<<<<<< HEAD
 #ifdef CONFIG_BLK_DEV_THROTTLING_LOW
 	unsigned short throtl_size;
 #endif
+=======
+	/*
+	 * rq sectors used for blk stats. It has the same value
+	 * with blk_rq_sectors(rq), except that it never be zeroed
+	 * by completion.
+	 */
+	unsigned short stats_sectors;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Number of scatter-gather DMA addr+len pairs after
@@ -239,6 +334,7 @@ struct request {
 	unsigned short nr_integrity_segments;
 #endif
 
+<<<<<<< HEAD
 	unsigned short write_hint;
 	unsigned short ioprio;
 
@@ -246,15 +342,29 @@ struct request {
 
 	unsigned int extra_len;	/* length of alignment and padding */
 
+=======
+#ifdef CONFIG_BLK_INLINE_ENCRYPTION
+	struct bio_crypt_ctx *crypt_ctx;
+	struct blk_ksm_keyslot *crypt_keyslot;
+#endif
+
+	unsigned short write_hint;
+	unsigned short ioprio;
+
+>>>>>>> upstream/android-13
 	enum mq_rq_state state;
 	refcount_t ref;
 
 	unsigned int timeout;
+<<<<<<< HEAD
 
 	/* access through blk_rq_set_deadline, blk_rq_deadline */
 	unsigned long __deadline;
 
 	struct list_head timeout_list;
+=======
+	unsigned long deadline;
+>>>>>>> upstream/android-13
 
 	union {
 		struct __call_single_data csd;
@@ -267,6 +377,7 @@ struct request {
 	rq_end_io_fn *end_io;
 	void *end_io_data;
 
+<<<<<<< HEAD
 	/* for bidi */
 	struct request *next_rq;
 
@@ -305,6 +416,28 @@ static inline bool bio_is_passthrough(struct bio *bio)
 	unsigned op = bio_op(bio);
 
 	return blk_op_is_scsi(op) || blk_op_is_private(op);
+=======
+	ANDROID_KABI_RESERVE(1);
+};
+
+static inline int blk_validate_block_size(unsigned int bsize)
+{
+	if (bsize < 512 || bsize > PAGE_SIZE || !is_power_of_2(bsize))
+		return -EINVAL;
+
+	return 0;
+}
+
+static inline bool blk_op_is_passthrough(unsigned int op)
+{
+	op &= REQ_OP_MASK;
+	return op == REQ_OP_DRV_IN || op == REQ_OP_DRV_OUT;
+}
+
+static inline bool blk_rq_is_passthrough(struct request *rq)
+{
+	return blk_op_is_passthrough(req_op(rq));
+>>>>>>> upstream/android-13
 }
 
 static inline unsigned short req_get_ioprio(struct request *req)
@@ -316,6 +449,7 @@ static inline unsigned short req_get_ioprio(struct request *req)
 
 struct blk_queue_ctx;
 
+<<<<<<< HEAD
 typedef void (request_fn_proc) (struct request_queue *q);
 typedef blk_qc_t (make_request_fn) (struct request_queue *q, struct bio *bio);
 typedef bool (poll_q_fn) (struct request_queue *q, blk_qc_t);
@@ -329,19 +463,26 @@ typedef int (lld_busy_fn) (struct request_queue *q);
 typedef int (bsg_job_fn) (struct bsg_job *);
 typedef int (init_rq_fn)(struct request_queue *, struct request *, gfp_t);
 typedef void (exit_rq_fn)(struct request_queue *, struct request *);
+=======
+struct bio_vec;
+>>>>>>> upstream/android-13
 
 enum blk_eh_timer_return {
 	BLK_EH_DONE,		/* drivers has completed the command */
 	BLK_EH_RESET_TIMER,	/* reset timer and try again */
 };
 
+<<<<<<< HEAD
 typedef enum blk_eh_timer_return (rq_timed_out_fn)(struct request *);
 
+=======
+>>>>>>> upstream/android-13
 enum blk_queue_state {
 	Queue_down,
 	Queue_up,
 };
 
+<<<<<<< HEAD
 struct blk_queue_tag {
 	struct request **tag_index;	/* map of busy tags */
 	unsigned long *tag_map;		/* bit map of free/busy tags */
@@ -368,6 +509,34 @@ enum blk_zoned_model {
 
 struct queue_limits {
 	unsigned long		bounce_pfn;
+=======
+#define BLK_TAG_ALLOC_FIFO 0 /* allocate starting from 0 */
+#define BLK_TAG_ALLOC_RR 1 /* allocate starting from last allocated tag */
+
+/*
+ * Zoned block device models (zoned limit).
+ *
+ * Note: This needs to be ordered from the least to the most severe
+ * restrictions for the inheritance in blk_stack_limits() to work.
+ */
+enum blk_zoned_model {
+	BLK_ZONED_NONE = 0,	/* Regular block device */
+	BLK_ZONED_HA,		/* Host-aware zoned block device */
+	BLK_ZONED_HM,		/* Host-managed zoned block device */
+};
+
+/*
+ * BLK_BOUNCE_NONE:	never bounce (default)
+ * BLK_BOUNCE_HIGH:	bounce all highmem pages
+ */
+enum blk_bounce {
+	BLK_BOUNCE_NONE,
+	BLK_BOUNCE_HIGH,
+};
+
+struct queue_limits {
+	enum blk_bounce		bounce;
+>>>>>>> upstream/android-13
 	unsigned long		seg_boundary_mask;
 	unsigned long		virt_boundary_mask;
 
@@ -385,8 +554,15 @@ struct queue_limits {
 	unsigned int		max_hw_discard_sectors;
 	unsigned int		max_write_same_sectors;
 	unsigned int		max_write_zeroes_sectors;
+<<<<<<< HEAD
 	unsigned int		discard_granularity;
 	unsigned int		discard_alignment;
+=======
+	unsigned int		max_zone_append_sectors;
+	unsigned int		discard_granularity;
+	unsigned int		discard_alignment;
+	unsigned int		zone_write_granularity;
+>>>>>>> upstream/android-13
 
 	unsigned short		max_segments;
 	unsigned short		max_integrity_segments;
@@ -394,6 +570,7 @@ struct queue_limits {
 
 	unsigned char		misaligned;
 	unsigned char		discard_misaligned;
+<<<<<<< HEAD
 	unsigned char		cluster;
 	unsigned char		raid_partial_stripes_expensive;
 	enum blk_zoned_model	zoned;
@@ -419,6 +596,45 @@ extern int blkdev_reset_zones_ioctl(struct block_device *bdev, fmode_t mode,
 
 #else /* CONFIG_BLK_DEV_ZONED */
 
+=======
+	unsigned char		raid_partial_stripes_expensive;
+	enum blk_zoned_model	zoned;
+
+	ANDROID_KABI_RESERVE(1);
+
+	ANDROID_OEM_DATA(1);
+};
+
+typedef int (*report_zones_cb)(struct blk_zone *zone, unsigned int idx,
+			       void *data);
+
+void blk_queue_set_zoned(struct gendisk *disk, enum blk_zoned_model model);
+
+#ifdef CONFIG_BLK_DEV_ZONED
+
+#define BLK_ALL_ZONES  ((unsigned int)-1)
+int blkdev_report_zones(struct block_device *bdev, sector_t sector,
+			unsigned int nr_zones, report_zones_cb cb, void *data);
+unsigned int blkdev_nr_zones(struct gendisk *disk);
+extern int blkdev_zone_mgmt(struct block_device *bdev, enum req_opf op,
+			    sector_t sectors, sector_t nr_sectors,
+			    gfp_t gfp_mask);
+int blk_revalidate_disk_zones(struct gendisk *disk,
+			      void (*update_driver_data)(struct gendisk *disk));
+
+extern int blkdev_report_zones_ioctl(struct block_device *bdev, fmode_t mode,
+				     unsigned int cmd, unsigned long arg);
+extern int blkdev_zone_mgmt_ioctl(struct block_device *bdev, fmode_t mode,
+				  unsigned int cmd, unsigned long arg);
+
+#else /* CONFIG_BLK_DEV_ZONED */
+
+static inline unsigned int blkdev_nr_zones(struct gendisk *disk)
+{
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static inline int blkdev_report_zones_ioctl(struct block_device *bdev,
 					    fmode_t mode, unsigned int cmd,
 					    unsigned long arg)
@@ -426,15 +642,22 @@ static inline int blkdev_report_zones_ioctl(struct block_device *bdev,
 	return -ENOTTY;
 }
 
+<<<<<<< HEAD
 static inline int blkdev_reset_zones_ioctl(struct block_device *bdev,
 					   fmode_t mode, unsigned int cmd,
 					   unsigned long arg)
+=======
+static inline int blkdev_zone_mgmt_ioctl(struct block_device *bdev,
+					 fmode_t mode, unsigned int cmd,
+					 unsigned long arg)
+>>>>>>> upstream/android-13
 {
 	return -ENOTTY;
 }
 
 #endif /* CONFIG_BLK_DEV_ZONED */
 
+<<<<<<< HEAD
 #ifdef CONFIG_BLK_IO_VOLUME
 struct block_io_volume {
 	int			queuing_rqs;
@@ -533,10 +756,18 @@ struct request_queue {
 	struct elevator_queue	*elevator;
 	int			nr_rqs[2];	/* # allocated [a]sync rqs */
 	int			nr_rqs_elvpriv;	/* # allocated rqs w/ elvpriv */
+=======
+struct request_queue {
+	struct request		*last_merge;
+	struct elevator_queue	*elevator;
+
+	struct percpu_ref	q_usage_counter;
+>>>>>>> upstream/android-13
 
 	struct blk_queue_stats	*stats;
 	struct rq_qos		*rq_qos;
 
+<<<<<<< HEAD
 	/*
 	 * If blkcg is not used, @q->root_rl serves all requests.  If blkcg
 	 * is used, root blkg allocates from @q->root_rl and all other
@@ -568,6 +799,12 @@ struct request_queue {
 	/* sw queues */
 	struct blk_mq_ctx __percpu	*queue_ctx;
 	unsigned int		nr_queues;
+=======
+	const struct blk_mq_ops	*mq_ops;
+
+	/* sw queues */
+	struct blk_mq_ctx __percpu	*queue_ctx;
+>>>>>>> upstream/android-13
 
 	unsigned int		queue_depth;
 
@@ -576,6 +813,7 @@ struct request_queue {
 	unsigned int		nr_hw_queues;
 
 	/*
+<<<<<<< HEAD
 	 * Dispatch queue sorting
 	 */
 	sector_t		end_sector;
@@ -589,6 +827,8 @@ struct request_queue {
 	struct backing_dev_info	*backing_dev_info;
 
 	/*
+=======
+>>>>>>> upstream/android-13
 	 * The queue owner gets to use this for whatever they like.
 	 * ll_rw_blk doesn't touch it.
 	 */
@@ -600,8 +840,12 @@ struct request_queue {
 	unsigned long		queue_flags;
 	/*
 	 * Number of contexts that have called blk_set_pm_only(). If this
+<<<<<<< HEAD
 	 * counter is above zero then only RQF_PM and RQF_PREEMPT requests are
 	 * processed.
+=======
+	 * counter is above zero then only RQF_PM requests are processed.
+>>>>>>> upstream/android-13
 	 */
 	atomic_t		pm_only;
 
@@ -611,6 +855,7 @@ struct request_queue {
 	 */
 	int			id;
 
+<<<<<<< HEAD
 	/*
 	 * queue needs bounce pages for pages above this limit
 	 */
@@ -623,6 +868,11 @@ struct request_queue {
 	 */
 	spinlock_t		__queue_lock;
 	spinlock_t		*queue_lock;
+=======
+	spinlock_t		queue_lock;
+
+	struct gendisk		*disk;
+>>>>>>> upstream/android-13
 
 	/*
 	 * queue kobject
@@ -632,7 +882,11 @@ struct request_queue {
 	/*
 	 * mq queue kobject
 	 */
+<<<<<<< HEAD
 	struct kobject mq_kobj;
+=======
+	struct kobject *mq_kobj;
+>>>>>>> upstream/android-13
 
 #ifdef  CONFIG_BLK_DEV_INTEGRITY
 	struct blk_integrity integrity;
@@ -640,14 +894,19 @@ struct request_queue {
 
 #ifdef CONFIG_PM
 	struct device		*dev;
+<<<<<<< HEAD
 	int			rpm_status;
 	unsigned int		nr_pending;
+=======
+	enum rpm_status		rpm_status;
+>>>>>>> upstream/android-13
 #endif
 
 	/*
 	 * queue settings
 	 */
 	unsigned long		nr_requests;	/* Max # of requests */
+<<<<<<< HEAD
 	unsigned int		nr_congestion_on;
 	unsigned int		nr_congestion_off;
 	unsigned int		nr_batching;
@@ -673,6 +932,15 @@ struct request_queue {
 #ifdef CONFIG_BLK_INLINE_ENCRYPTION
 	/* Inline crypto capabilities */
 	struct keyslot_manager *ksm;
+=======
+
+	unsigned int		dma_pad_mask;
+	unsigned int		dma_alignment;
+
+#ifdef CONFIG_BLK_INLINE_ENCRYPTION
+	/* Inline crypto capabilities */
+	struct blk_keyslot_manager *ksm;
+>>>>>>> upstream/android-13
 #endif
 
 	unsigned int		rq_timeout;
@@ -683,7 +951,15 @@ struct request_queue {
 
 	struct timer_list	timeout;
 	struct work_struct	timeout_work;
+<<<<<<< HEAD
 	struct list_head	timeout_list;
+=======
+
+	atomic_t		nr_active_requests_shared_sbitmap;
+
+	struct sbitmap_queue	sched_bitmap_tags;
+	struct sbitmap_queue	sched_breserved_tags;
+>>>>>>> upstream/android-13
 
 	struct list_head	icq_list;
 #ifdef CONFIG_BLK_CGROUP
@@ -694,13 +970,24 @@ struct request_queue {
 
 	struct queue_limits	limits;
 
+<<<<<<< HEAD
+=======
+	unsigned int		required_elevator_features;
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_BLK_DEV_ZONED
 	/*
 	 * Zoned block device information for request dispatch control.
 	 * nr_zones is the total number of zones of the device. This is always
+<<<<<<< HEAD
 	 * 0 for regular block devices. seq_zones_bitmap is a bitmap of nr_zones
 	 * bits which indicates if a zone is conventional (bit clear) or
 	 * sequential (bit set). seq_zones_wlock is a bitmap of nr_zones
+=======
+	 * 0 for regular block devices. conv_zones_bitmap is a bitmap of nr_zones
+	 * bits which indicates if a zone is conventional (bit set) or
+	 * sequential (bit clear). seq_zones_wlock is a bitmap of nr_zones
+>>>>>>> upstream/android-13
 	 * bits which indicates if a zone is write locked, that is, if a write
 	 * request targeting the zone was dispatched. All three fields are
 	 * initialized by the low level device driver (e.g. scsi/sd.c).
@@ -713,6 +1000,7 @@ struct request_queue {
 	 * blk_mq_unfreeze_queue().
 	 */
 	unsigned int		nr_zones;
+<<<<<<< HEAD
 	unsigned long		*seq_zones_bitmap;
 	unsigned long		*seq_zones_wlock;
 #endif /* CONFIG_BLK_DEV_ZONED */
@@ -726,24 +1014,52 @@ struct request_queue {
 #ifdef CONFIG_BLK_DEV_IO_TRACE
 	struct blk_trace __rcu	*blk_trace;
 	struct mutex		blk_trace_mutex;
+=======
+	unsigned long		*conv_zones_bitmap;
+	unsigned long		*seq_zones_wlock;
+	unsigned int		max_open_zones;
+	unsigned int		max_active_zones;
+#endif /* CONFIG_BLK_DEV_ZONED */
+
+	int			node;
+	struct mutex		debugfs_mutex;
+#ifdef CONFIG_BLK_DEV_IO_TRACE
+	struct blk_trace __rcu	*blk_trace;
+>>>>>>> upstream/android-13
 #endif
 	/*
 	 * for flush operations
 	 */
 	struct blk_flush_queue	*fq;
+<<<<<<< HEAD
 	unsigned long		flush_ios;
+=======
+>>>>>>> upstream/android-13
 
 	struct list_head	requeue_list;
 	spinlock_t		requeue_lock;
 	struct delayed_work	requeue_work;
 
 	struct mutex		sysfs_lock;
+<<<<<<< HEAD
 
 	int			bypass_depth;
 	atomic_t		mq_freeze_depth;
 
 	bsg_job_fn		*bsg_job_fn;
 	struct bsg_class_device bsg_dev;
+=======
+	struct mutex		sysfs_dir_lock;
+
+	/*
+	 * for reusing dead hctx instance in case of updating
+	 * nr_hw_queues
+	 */
+	struct list_head	unused_hctx_list;
+	spinlock_t		unused_hctx_lock;
+
+	int			mq_freeze_depth;
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_BLK_DEV_THROTTLING
 	/* Throttle data */
@@ -751,28 +1067,48 @@ struct request_queue {
 #endif
 	struct rcu_head		rcu_head;
 	wait_queue_head_t	mq_freeze_wq;
+<<<<<<< HEAD
 	struct percpu_ref	q_usage_counter;
 	struct list_head	all_q_node;
+=======
+	/*
+	 * Protect concurrent access to q_usage_counter by
+	 * percpu_ref_kill() and percpu_ref_reinit().
+	 */
+	struct mutex		mq_freeze_lock;
+>>>>>>> upstream/android-13
 
 	struct blk_mq_tag_set	*tag_set;
 	struct list_head	tag_set_list;
 	struct bio_set		bio_split;
 
+<<<<<<< HEAD
 #ifdef CONFIG_BLK_DEBUG_FS
 	struct dentry		*debugfs_dir;
 	struct dentry		*sched_debugfs_dir;
+=======
+	struct dentry		*debugfs_dir;
+
+#ifdef CONFIG_BLK_DEBUG_FS
+	struct dentry		*sched_debugfs_dir;
+	struct dentry		*rqos_debugfs_dir;
+>>>>>>> upstream/android-13
 #endif
 
 	bool			mq_sysfs_init_done;
 
 	size_t			cmd_size;
+<<<<<<< HEAD
 	void			*rq_alloc_data;
 
 	struct work_struct	release_work;
+=======
+>>>>>>> upstream/android-13
 
 #define BLK_MAX_WRITE_HINTS	5
 	u64			write_hints[BLK_MAX_WRITE_HINTS];
 
+<<<<<<< HEAD
 #ifdef CONFIG_BLK_IO_VOLUME
         struct block_io_volume  blk_io_vol[BLK_MAX_IO_VOLS];
 #endif
@@ -823,10 +1159,56 @@ struct request_queue {
 #define QUEUE_FLAG_MQ_DEFAULT	((1 << QUEUE_FLAG_IO_STAT) |		\
 				 (1 << QUEUE_FLAG_SAME_COMP)	|	\
 				 (1 << QUEUE_FLAG_POLL))
+=======
+	ANDROID_KABI_RESERVE(1);
+	ANDROID_KABI_RESERVE(2);
+	ANDROID_KABI_RESERVE(3);
+	ANDROID_KABI_RESERVE(4);
+
+	ANDROID_OEM_DATA(1);
+};
+
+/* Keep blk_queue_flag_name[] in sync with the definitions below */
+#define QUEUE_FLAG_STOPPED	0	/* queue is stopped */
+#define QUEUE_FLAG_DYING	1	/* queue being torn down */
+#define QUEUE_FLAG_NOMERGES     3	/* disable merge attempts */
+#define QUEUE_FLAG_SAME_COMP	4	/* complete on same CPU-group */
+#define QUEUE_FLAG_FAIL_IO	5	/* fake timeout */
+#define QUEUE_FLAG_NONROT	6	/* non-rotational device (SSD) */
+#define QUEUE_FLAG_VIRT		QUEUE_FLAG_NONROT /* paravirt device */
+#define QUEUE_FLAG_IO_STAT	7	/* do disk/partitions IO accounting */
+#define QUEUE_FLAG_DISCARD	8	/* supports DISCARD */
+#define QUEUE_FLAG_NOXMERGES	9	/* No extended merges */
+#define QUEUE_FLAG_ADD_RANDOM	10	/* Contributes to random pool */
+#define QUEUE_FLAG_SECERASE	11	/* supports secure erase */
+#define QUEUE_FLAG_SAME_FORCE	12	/* force complete on same CPU */
+#define QUEUE_FLAG_DEAD		13	/* queue tear-down finished */
+#define QUEUE_FLAG_INIT_DONE	14	/* queue is initialized */
+#define QUEUE_FLAG_STABLE_WRITES 15	/* don't modify blks until WB is done */
+#define QUEUE_FLAG_POLL		16	/* IO polling enabled if set */
+#define QUEUE_FLAG_WC		17	/* Write back caching */
+#define QUEUE_FLAG_FUA		18	/* device supports FUA writes */
+#define QUEUE_FLAG_DAX		19	/* device supports DAX */
+#define QUEUE_FLAG_STATS	20	/* track IO start and completion times */
+#define QUEUE_FLAG_POLL_STATS	21	/* collecting stats for hybrid polling */
+#define QUEUE_FLAG_REGISTERED	22	/* queue has been registered to a disk */
+#define QUEUE_FLAG_SCSI_PASSTHROUGH 23	/* queue supports SCSI commands */
+#define QUEUE_FLAG_QUIESCED	24	/* queue has been quiesced */
+#define QUEUE_FLAG_PCI_P2PDMA	25	/* device supports PCI p2p requests */
+#define QUEUE_FLAG_ZONE_RESETALL 26	/* supports Zone Reset All */
+#define QUEUE_FLAG_RQ_ALLOC_TIME 27	/* record rq->alloc_time_ns */
+#define QUEUE_FLAG_HCTX_ACTIVE	28	/* at least one blk-mq hctx is active */
+#define QUEUE_FLAG_NOWAIT       29	/* device supports NOWAIT */
+
+#define QUEUE_FLAG_MQ_DEFAULT	((1 << QUEUE_FLAG_IO_STAT) |		\
+				 (1 << QUEUE_FLAG_SAME_COMP) |		\
+				 (1 << QUEUE_FLAG_NOWAIT))
+>>>>>>> upstream/android-13
 
 void blk_queue_flag_set(unsigned int flag, struct request_queue *q);
 void blk_queue_flag_clear(unsigned int flag, struct request_queue *q);
 bool blk_queue_flag_test_and_set(unsigned int flag, struct request_queue *q);
+<<<<<<< HEAD
 bool blk_queue_flag_test_and_clear(unsigned int flag, struct request_queue *q);
 
 #define blk_queue_tagged(q)	test_bit(QUEUE_FLAG_QUEUED, &(q)->queue_flags)
@@ -834,19 +1216,46 @@ bool blk_queue_flag_test_and_clear(unsigned int flag, struct request_queue *q);
 #define blk_queue_dying(q)	test_bit(QUEUE_FLAG_DYING, &(q)->queue_flags)
 #define blk_queue_dead(q)	test_bit(QUEUE_FLAG_DEAD, &(q)->queue_flags)
 #define blk_queue_bypass(q)	test_bit(QUEUE_FLAG_BYPASS, &(q)->queue_flags)
+=======
+
+#define blk_queue_stopped(q)	test_bit(QUEUE_FLAG_STOPPED, &(q)->queue_flags)
+#define blk_queue_dying(q)	test_bit(QUEUE_FLAG_DYING, &(q)->queue_flags)
+#define blk_queue_dead(q)	test_bit(QUEUE_FLAG_DEAD, &(q)->queue_flags)
+>>>>>>> upstream/android-13
 #define blk_queue_init_done(q)	test_bit(QUEUE_FLAG_INIT_DONE, &(q)->queue_flags)
 #define blk_queue_nomerges(q)	test_bit(QUEUE_FLAG_NOMERGES, &(q)->queue_flags)
 #define blk_queue_noxmerges(q)	\
 	test_bit(QUEUE_FLAG_NOXMERGES, &(q)->queue_flags)
 #define blk_queue_nonrot(q)	test_bit(QUEUE_FLAG_NONROT, &(q)->queue_flags)
+<<<<<<< HEAD
 #define blk_queue_io_stat(q)	test_bit(QUEUE_FLAG_IO_STAT, &(q)->queue_flags)
 #define blk_queue_add_random(q)	test_bit(QUEUE_FLAG_ADD_RANDOM, &(q)->queue_flags)
 #define blk_queue_discard(q)	test_bit(QUEUE_FLAG_DISCARD, &(q)->queue_flags)
+=======
+#define blk_queue_stable_writes(q) \
+	test_bit(QUEUE_FLAG_STABLE_WRITES, &(q)->queue_flags)
+#define blk_queue_io_stat(q)	test_bit(QUEUE_FLAG_IO_STAT, &(q)->queue_flags)
+#define blk_queue_add_random(q)	test_bit(QUEUE_FLAG_ADD_RANDOM, &(q)->queue_flags)
+#define blk_queue_discard(q)	test_bit(QUEUE_FLAG_DISCARD, &(q)->queue_flags)
+#define blk_queue_zone_resetall(q)	\
+	test_bit(QUEUE_FLAG_ZONE_RESETALL, &(q)->queue_flags)
+>>>>>>> upstream/android-13
 #define blk_queue_secure_erase(q) \
 	(test_bit(QUEUE_FLAG_SECERASE, &(q)->queue_flags))
 #define blk_queue_dax(q)	test_bit(QUEUE_FLAG_DAX, &(q)->queue_flags)
 #define blk_queue_scsi_passthrough(q)	\
 	test_bit(QUEUE_FLAG_SCSI_PASSTHROUGH, &(q)->queue_flags)
+<<<<<<< HEAD
+=======
+#define blk_queue_pci_p2pdma(q)	\
+	test_bit(QUEUE_FLAG_PCI_P2PDMA, &(q)->queue_flags)
+#ifdef CONFIG_BLK_RQ_ALLOC_TIME
+#define blk_queue_rq_alloc_time(q)	\
+	test_bit(QUEUE_FLAG_RQ_ALLOC_TIME, &(q)->queue_flags)
+#else
+#define blk_queue_rq_alloc_time(q)	false
+#endif
+>>>>>>> upstream/android-13
 
 #define blk_noretry_request(rq) \
 	((rq)->cmd_flags & (REQ_FAILFAST_DEV|REQ_FAILFAST_TRANSPORT| \
@@ -855,10 +1264,15 @@ bool blk_queue_flag_test_and_clear(unsigned int flag, struct request_queue *q);
 #define blk_queue_pm_only(q)	atomic_read(&(q)->pm_only)
 #define blk_queue_fua(q)	test_bit(QUEUE_FLAG_FUA, &(q)->queue_flags)
 #define blk_queue_registered(q)	test_bit(QUEUE_FLAG_REGISTERED, &(q)->queue_flags)
+<<<<<<< HEAD
+=======
+#define blk_queue_nowait(q)	test_bit(QUEUE_FLAG_NOWAIT, &(q)->queue_flags)
+>>>>>>> upstream/android-13
 
 extern void blk_set_pm_only(struct request_queue *q);
 extern void blk_clear_pm_only(struct request_queue *q);
 
+<<<<<<< HEAD
 static inline int queue_in_flight(struct request_queue *q)
 {
 	return q->in_flight[0] + q->in_flight[1];
@@ -874,10 +1288,13 @@ static inline bool blk_account_rq(struct request *rq)
 /* rq->queuelist of dequeued request must be list_empty() */
 #define blk_queued_rq(rq)	(!list_empty(&(rq)->queuelist))
 
+=======
+>>>>>>> upstream/android-13
 #define list_entry_rq(ptr)	list_entry((ptr), struct request, queuelist)
 
 #define rq_data_dir(rq)		(op_is_write(req_op(rq)) ? WRITE : READ)
 
+<<<<<<< HEAD
 /*
  * Driver can handle struct request, if it either has an old style
  * request_fn defined, or is blk-mq based.
@@ -891,11 +1308,42 @@ static inline unsigned int blk_queue_cluster(struct request_queue *q)
 {
 	return q->limits.cluster;
 }
+=======
+#define rq_dma_dir(rq) \
+	(op_is_write(req_op(rq)) ? DMA_TO_DEVICE : DMA_FROM_DEVICE)
+
+#define dma_map_bvec(dev, bv, dir, attrs) \
+	dma_map_page_attrs(dev, (bv)->bv_page, (bv)->bv_offset, (bv)->bv_len, \
+	(dir), (attrs))
+
+static inline bool queue_is_mq(struct request_queue *q)
+{
+	return q->mq_ops;
+}
+
+#ifdef CONFIG_PM
+static inline enum rpm_status queue_rpm_status(struct request_queue *q)
+{
+	return q->rpm_status;
+}
+#else
+static inline enum rpm_status queue_rpm_status(struct request_queue *q)
+{
+	return RPM_ACTIVE;
+}
+#endif
+>>>>>>> upstream/android-13
 
 static inline enum blk_zoned_model
 blk_queue_zoned_model(struct request_queue *q)
 {
+<<<<<<< HEAD
 	return q->limits.zoned;
+=======
+	if (IS_ENABLED(CONFIG_BLK_DEV_ZONED))
+		return q->limits.zoned;
+	return BLK_ZONED_NONE;
+>>>>>>> upstream/android-13
 }
 
 static inline bool blk_queue_is_zoned(struct request_queue *q)
@@ -909,12 +1357,24 @@ static inline bool blk_queue_is_zoned(struct request_queue *q)
 	}
 }
 
+<<<<<<< HEAD
 static inline unsigned int blk_queue_zone_sectors(struct request_queue *q)
+=======
+static inline sector_t blk_queue_zone_sectors(struct request_queue *q)
+>>>>>>> upstream/android-13
 {
 	return blk_queue_is_zoned(q) ? q->limits.chunk_sectors : 0;
 }
 
 #ifdef CONFIG_BLK_DEV_ZONED
+<<<<<<< HEAD
+=======
+static inline unsigned int blk_queue_nr_zones(struct request_queue *q)
+{
+	return blk_queue_is_zoned(q) ? q->nr_zones : 0;
+}
+
+>>>>>>> upstream/android-13
 static inline unsigned int blk_queue_zone_no(struct request_queue *q,
 					     sector_t sector)
 {
@@ -926,9 +1386,62 @@ static inline unsigned int blk_queue_zone_no(struct request_queue *q,
 static inline bool blk_queue_zone_is_seq(struct request_queue *q,
 					 sector_t sector)
 {
+<<<<<<< HEAD
 	if (!blk_queue_is_zoned(q) || !q->seq_zones_bitmap)
 		return false;
 	return test_bit(blk_queue_zone_no(q, sector), q->seq_zones_bitmap);
+=======
+	if (!blk_queue_is_zoned(q))
+		return false;
+	if (!q->conv_zones_bitmap)
+		return true;
+	return !test_bit(blk_queue_zone_no(q, sector), q->conv_zones_bitmap);
+}
+
+static inline void blk_queue_max_open_zones(struct request_queue *q,
+		unsigned int max_open_zones)
+{
+	q->max_open_zones = max_open_zones;
+}
+
+static inline unsigned int queue_max_open_zones(const struct request_queue *q)
+{
+	return q->max_open_zones;
+}
+
+static inline void blk_queue_max_active_zones(struct request_queue *q,
+		unsigned int max_active_zones)
+{
+	q->max_active_zones = max_active_zones;
+}
+
+static inline unsigned int queue_max_active_zones(const struct request_queue *q)
+{
+	return q->max_active_zones;
+}
+#else /* CONFIG_BLK_DEV_ZONED */
+static inline unsigned int blk_queue_nr_zones(struct request_queue *q)
+{
+	return 0;
+}
+static inline bool blk_queue_zone_is_seq(struct request_queue *q,
+					 sector_t sector)
+{
+	return false;
+}
+static inline unsigned int blk_queue_zone_no(struct request_queue *q,
+					     sector_t sector)
+{
+	return 0;
+}
+static inline unsigned int queue_max_open_zones(const struct request_queue *q)
+{
+	return 0;
+}
+static inline unsigned int queue_max_active_zones(const struct request_queue *q)
+{
+	return 0;
+>>>>>>> upstream/android-13
 }
 #endif /* CONFIG_BLK_DEV_ZONED */
 
@@ -937,6 +1450,7 @@ static inline bool rq_is_sync(struct request *rq)
 	return op_is_sync(rq->cmd_flags);
 }
 
+<<<<<<< HEAD
 static inline bool blk_rl_full(struct request_list *rl, bool sync)
 {
 	unsigned int flag = sync ? BLK_RL_SYNCFULL : BLK_RL_ASYNCFULL;
@@ -958,6 +1472,8 @@ static inline void blk_clear_rl_full(struct request_list *rl, bool sync)
 	rl->flags &= ~flag;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline bool rq_mergeable(struct request *rq)
 {
 	if (blk_rq_is_passthrough(rq))
@@ -969,6 +1485,12 @@ static inline bool rq_mergeable(struct request *rq)
 	if (req_op(rq) == REQ_OP_WRITE_ZEROES)
 		return false;
 
+<<<<<<< HEAD
+=======
+	if (req_op(rq) == REQ_OP_ZONE_APPEND)
+		return false;
+
+>>>>>>> upstream/android-13
 	if (rq->cmd_flags & REQ_NOMERGE_FLAGS)
 		return false;
 	if (rq->rq_flags & RQF_NOMERGE_FLAGS)
@@ -995,6 +1517,7 @@ static inline unsigned int blk_queue_depth(struct request_queue *q)
 }
 
 /*
+<<<<<<< HEAD
  * q->prep_rq_fn return values
  */
 enum {
@@ -1023,6 +1546,8 @@ extern unsigned long blk_max_low_pfn, blk_max_pfn;
 #define BLK_BOUNCE_ISA		(DMA_BIT_MASK(24))
 
 /*
+=======
+>>>>>>> upstream/android-13
  * default timeout for SG_IO if none specified
  */
 #define BLK_DEFAULT_SG_TIMEOUT	(60 * HZ)
@@ -1053,6 +1578,13 @@ struct req_iterator {
 	__rq_for_each_bio(_iter.bio, _rq)			\
 		bio_for_each_segment(bvl, _iter.bio, _iter.iter)
 
+<<<<<<< HEAD
+=======
+#define rq_for_each_bvec(bvl, _rq, _iter)			\
+	__rq_for_each_bio(_iter.bio, _rq)			\
+		bio_for_each_bvec(bvl, _iter.bio, _iter.iter)
+
+>>>>>>> upstream/android-13
 #define rq_iter_last(bvec, _iter)				\
 		(_iter.bio->bi_next == NULL &&			\
 		 bio_iter_last(bvec, _iter.iter))
@@ -1070,6 +1602,7 @@ static inline void rq_flush_dcache_pages(struct request *rq)
 
 extern int blk_register_queue(struct gendisk *disk);
 extern void blk_unregister_queue(struct gendisk *disk);
+<<<<<<< HEAD
 extern blk_qc_t generic_make_request(struct bio *bio);
 extern blk_qc_t direct_make_request(struct bio *bio);
 extern void blk_rq_init(struct request_queue *q, struct request *rq);
@@ -1079,6 +1612,13 @@ extern void __blk_put_request(struct request_queue *, struct request *);
 extern struct request *blk_get_request(struct request_queue *, unsigned int op,
 				       blk_mq_req_flags_t flags);
 extern void blk_requeue_request(struct request_queue *, struct request *);
+=======
+blk_qc_t submit_bio_noacct(struct bio *bio);
+extern void blk_rq_init(struct request_queue *q, struct request *rq);
+extern void blk_put_request(struct request *);
+extern struct request *blk_get_request(struct request_queue *, unsigned int op,
+				       blk_mq_req_flags_t flags);
+>>>>>>> upstream/android-13
 extern int blk_lld_busy(struct request_queue *q);
 extern int blk_rq_prep_clone(struct request *rq, struct request *rq_src,
 			     struct bio_set *bs, gfp_t gfp_mask,
@@ -1087,6 +1627,7 @@ extern int blk_rq_prep_clone(struct request *rq, struct request *rq_src,
 extern void blk_rq_unprep_clone(struct request *rq);
 extern blk_status_t blk_insert_cloned_request(struct request_queue *q,
 				     struct request *rq);
+<<<<<<< HEAD
 extern int blk_rq_append_bio(struct request *rq, struct bio **bio);
 extern void blk_delay_queue(struct request_queue *, unsigned long);
 extern void blk_queue_split(struct request_queue *, struct bio **);
@@ -1110,6 +1651,13 @@ extern void __blk_run_queue(struct request_queue *q);
 extern void __blk_run_queue_uncond(struct request_queue *q);
 extern void blk_run_queue(struct request_queue *);
 extern void blk_run_queue_async(struct request_queue *q);
+=======
+int blk_rq_append_bio(struct request *rq, struct bio *bio);
+extern void blk_queue_split(struct bio **);
+extern int blk_queue_enter(struct request_queue *q, blk_mq_req_flags_t flags);
+extern void blk_queue_exit(struct request_queue *q);
+extern void blk_sync_queue(struct request_queue *q);
+>>>>>>> upstream/android-13
 extern int blk_rq_map_user(struct request_queue *, struct request *,
 			   struct rq_map_data *, void __user *, unsigned long,
 			   gfp_t);
@@ -1118,6 +1666,7 @@ extern int blk_rq_map_kern(struct request_queue *, struct request *, void *, uns
 extern int blk_rq_map_user_iov(struct request_queue *, struct request *,
 			       struct rq_map_data *, const struct iov_iter *,
 			       gfp_t);
+<<<<<<< HEAD
 extern void blk_execute_rq(struct request_queue *, struct gendisk *,
 			  struct request *, int);
 extern void blk_execute_rq_nowait(struct request_queue *, struct gendisk *,
@@ -1127,6 +1676,21 @@ int blk_status_to_errno(blk_status_t status);
 blk_status_t errno_to_blk_status(int errno);
 
 bool blk_poll(struct request_queue *q, blk_qc_t cookie);
+=======
+extern void blk_execute_rq_nowait(struct gendisk *,
+				  struct request *, int, rq_end_io_fn *);
+
+blk_status_t blk_execute_rq(struct gendisk *bd_disk, struct request *rq,
+			    int at_head);
+
+/* Helper to convert REQ_OP_XXX to its string format XXX */
+extern const char *blk_op_str(unsigned int op);
+
+int blk_status_to_errno(blk_status_t status);
+blk_status_t errno_to_blk_status(int errno);
+
+int blk_poll(struct request_queue *q, blk_qc_t cookie, bool spin);
+>>>>>>> upstream/android-13
 
 static inline struct request_queue *bdev_get_queue(struct block_device *bdev)
 {
@@ -1146,6 +1710,13 @@ static inline struct request_queue *bdev_get_queue(struct block_device *bdev)
 #define SECTOR_SIZE (1 << SECTOR_SHIFT)
 #endif
 
+<<<<<<< HEAD
+=======
+#define PAGE_SECTORS_SHIFT	(PAGE_SHIFT - SECTOR_SHIFT)
+#define PAGE_SECTORS		(1 << PAGE_SECTORS_SHIFT)
+#define SECTOR_MASK		(PAGE_SECTORS - 1)
+
+>>>>>>> upstream/android-13
 /*
  * blk_rq_pos()			: the current sector
  * blk_rq_bytes()		: bytes left in the entire request
@@ -1153,6 +1724,10 @@ static inline struct request_queue *bdev_get_queue(struct block_device *bdev)
  * blk_rq_err_bytes()		: bytes left till the next error boundary
  * blk_rq_sectors()		: sectors left in the entire request
  * blk_rq_cur_sectors()		: sectors left in the current segment
+<<<<<<< HEAD
+=======
+ * blk_rq_stats_sectors()	: sectors of the entire request used for stats
+>>>>>>> upstream/android-13
  */
 static inline sector_t blk_rq_pos(const struct request *rq)
 {
@@ -1181,7 +1756,32 @@ static inline unsigned int blk_rq_cur_sectors(const struct request *rq)
 	return blk_rq_cur_bytes(rq) >> SECTOR_SHIFT;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_BLK_DEV_ZONED
+=======
+static inline unsigned int blk_rq_stats_sectors(const struct request *rq)
+{
+	return rq->stats_sectors;
+}
+
+#ifdef CONFIG_BLK_DEV_ZONED
+
+/* Helper to convert BLK_ZONE_ZONE_XXX to its string format XXX */
+const char *blk_zone_cond_str(enum blk_zone_cond zone_cond);
+
+static inline unsigned int bio_zone_no(struct bio *bio)
+{
+	return blk_queue_zone_no(bdev_get_queue(bio->bi_bdev),
+				 bio->bi_iter.bi_sector);
+}
+
+static inline unsigned int bio_zone_is_seq(struct bio *bio)
+{
+	return blk_queue_zone_is_seq(bdev_get_queue(bio->bi_bdev),
+				     bio->bi_iter.bi_sector);
+}
+
+>>>>>>> upstream/android-13
 static inline unsigned int blk_rq_zone_no(struct request *rq)
 {
 	return blk_queue_zone_no(rq->q, blk_rq_pos(rq));
@@ -1206,6 +1806,20 @@ static inline unsigned int blk_rq_payload_bytes(struct request *rq)
 	return blk_rq_bytes(rq);
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * Return the first full biovec in the request.  The caller needs to check that
+ * there are any bvecs before calling this helper.
+ */
+static inline struct bio_vec req_bvec(struct request *rq)
+{
+	if (rq->rq_flags & RQF_SPECIAL_PAYLOAD)
+		return rq->special_vec;
+	return mp_bvec_iter_bvec(rq->bio->bi_io_vec, rq->bio->bi_iter);
+}
+
+>>>>>>> upstream/android-13
 static inline unsigned int blk_queue_get_max_sectors(struct request_queue *q,
 						     int op)
 {
@@ -1227,6 +1841,7 @@ static inline unsigned int blk_queue_get_max_sectors(struct request_queue *q,
  * file system requests.
  */
 static inline unsigned int blk_max_size_offset(struct request_queue *q,
+<<<<<<< HEAD
 					       sector_t offset)
 {
 	if (!q->limits.chunk_sectors)
@@ -1234,6 +1849,24 @@ static inline unsigned int blk_max_size_offset(struct request_queue *q,
 
 	return min(q->limits.max_sectors, (unsigned int)(q->limits.chunk_sectors -
 			(offset & (q->limits.chunk_sectors - 1))));
+=======
+					       sector_t offset,
+					       unsigned int chunk_sectors)
+{
+	if (!chunk_sectors) {
+		if (q->limits.chunk_sectors)
+			chunk_sectors = q->limits.chunk_sectors;
+		else
+			return q->limits.max_sectors;
+	}
+
+	if (likely(is_power_of_2(chunk_sectors)))
+		chunk_sectors -= offset & (chunk_sectors - 1);
+	else
+		chunk_sectors -= sector_div(offset, chunk_sectors);
+
+	return min(q->limits.max_sectors, chunk_sectors);
+>>>>>>> upstream/android-13
 }
 
 static inline unsigned int blk_rq_get_max_sectors(struct request *rq,
@@ -1249,7 +1882,11 @@ static inline unsigned int blk_rq_get_max_sectors(struct request *rq,
 	    req_op(rq) == REQ_OP_SECURE_ERASE)
 		return blk_queue_get_max_sectors(q, req_op(rq));
 
+<<<<<<< HEAD
 	return min(blk_max_size_offset(q, offset),
+=======
+	return min(blk_max_size_offset(q, offset, 0),
+>>>>>>> upstream/android-13
 			blk_queue_get_max_sectors(q, req_op(rq)));
 }
 
@@ -1264,6 +1901,7 @@ static inline unsigned int blk_rq_count_bios(struct request *rq)
 	return nr_bios;
 }
 
+<<<<<<< HEAD
 /*
  * Request issue related functions.
  */
@@ -1271,6 +1909,8 @@ extern struct request *blk_peek_request(struct request_queue *q);
 extern void blk_start_request(struct request *rq);
 extern struct request *blk_fetch_request(struct request_queue *q);
 
+=======
+>>>>>>> upstream/android-13
 void blk_steal_bios(struct bio_list *list, struct request *rq);
 
 /*
@@ -1278,6 +1918,7 @@ void blk_steal_bios(struct bio_list *list, struct request *rq);
  *
  * blk_update_request() completes given number of bytes and updates
  * the request without completing it.
+<<<<<<< HEAD
  *
  * blk_end_request() and friends.  __blk_end_request() must be called
  * with the request queue spinlock acquired.
@@ -1301,10 +1942,18 @@ extern void blk_complete_request(struct request *);
 extern void __blk_complete_request(struct request *);
 extern void blk_abort_request(struct request *);
 extern void blk_unprep_request(struct request *);
+=======
+ */
+extern bool blk_update_request(struct request *rq, blk_status_t error,
+			       unsigned int nr_bytes);
+
+extern void blk_abort_request(struct request *);
+>>>>>>> upstream/android-13
 
 /*
  * Access functions for manipulating queue properties
  */
+<<<<<<< HEAD
 extern struct request_queue *blk_init_queue_node(request_fn_proc *rfn,
 					spinlock_t *lock, int node_id);
 extern struct request_queue *blk_init_queue(request_fn_proc *, spinlock_t *);
@@ -1312,6 +1961,10 @@ extern int blk_init_allocated_queue(struct request_queue *);
 extern void blk_cleanup_queue(struct request_queue *);
 extern void blk_queue_make_request(struct request_queue *, make_request_fn *);
 extern void blk_queue_bounce_limit(struct request_queue *, u64);
+=======
+extern void blk_cleanup_queue(struct request_queue *);
+void blk_queue_bounce_limit(struct request_queue *q, enum blk_bounce limit);
+>>>>>>> upstream/android-13
 extern void blk_queue_max_hw_sectors(struct request_queue *, unsigned int);
 extern void blk_queue_chunk_sectors(struct request_queue *, unsigned int);
 extern void blk_queue_max_segments(struct request_queue *, unsigned short);
@@ -1325,9 +1978,20 @@ extern void blk_queue_max_write_same_sectors(struct request_queue *q,
 extern void blk_queue_max_write_zeroes_sectors(struct request_queue *q,
 		unsigned int max_write_same_sectors);
 extern void blk_queue_logical_block_size(struct request_queue *, unsigned int);
+<<<<<<< HEAD
 extern void blk_queue_physical_block_size(struct request_queue *, unsigned int);
 extern void blk_queue_alignment_offset(struct request_queue *q,
 				       unsigned int alignment);
+=======
+extern void blk_queue_max_zone_append_sectors(struct request_queue *q,
+		unsigned int max_zone_append_sectors);
+extern void blk_queue_physical_block_size(struct request_queue *, unsigned int);
+void blk_queue_zone_write_granularity(struct request_queue *q,
+				      unsigned int size);
+extern void blk_queue_alignment_offset(struct request_queue *q,
+				       unsigned int alignment);
+void disk_update_readahead(struct gendisk *disk);
+>>>>>>> upstream/android-13
 extern void blk_limits_io_min(struct queue_limits *limits, unsigned int min);
 extern void blk_queue_io_min(struct request_queue *q, unsigned int min);
 extern void blk_limits_io_opt(struct queue_limits *limits, unsigned int opt);
@@ -1337,6 +2001,7 @@ extern void blk_set_default_limits(struct queue_limits *lim);
 extern void blk_set_stacking_limits(struct queue_limits *lim);
 extern int blk_stack_limits(struct queue_limits *t, struct queue_limits *b,
 			    sector_t offset);
+<<<<<<< HEAD
 extern int bdev_stack_limits(struct queue_limits *t, struct block_device *bdev,
 			    sector_t offset);
 extern void disk_stack_limits(struct gendisk *disk, struct block_device *bdev,
@@ -1359,6 +2024,21 @@ extern void blk_queue_rq_timed_out(struct request_queue *, rq_timed_out_fn *);
 extern void blk_queue_rq_timeout(struct request_queue *, unsigned int);
 extern void blk_queue_flush_queueable(struct request_queue *q, bool queueable);
 extern void blk_queue_write_cache(struct request_queue *q, bool enabled, bool fua);
+=======
+extern void disk_stack_limits(struct gendisk *disk, struct block_device *bdev,
+			      sector_t offset);
+extern void blk_queue_update_dma_pad(struct request_queue *, unsigned int);
+extern void blk_queue_segment_boundary(struct request_queue *, unsigned long);
+extern void blk_queue_virt_boundary(struct request_queue *, unsigned long);
+extern void blk_queue_dma_alignment(struct request_queue *, int);
+extern void blk_queue_update_dma_alignment(struct request_queue *, int);
+extern void blk_queue_rq_timeout(struct request_queue *, unsigned int);
+extern void blk_queue_write_cache(struct request_queue *q, bool enabled, bool fua);
+extern void blk_queue_required_elevator_features(struct request_queue *q,
+						 unsigned int features);
+extern bool blk_queue_can_use_dma_map_merging(struct request_queue *q,
+					      struct device *dev);
+>>>>>>> upstream/android-13
 
 /*
  * Number of physical segments as sent to the device.
@@ -1385,6 +2065,7 @@ static inline unsigned short blk_rq_nr_discard_segments(struct request *rq)
 	return max_t(unsigned short, rq->nr_phys_segments, 1);
 }
 
+<<<<<<< HEAD
 extern int blk_rq_map_sg(struct request_queue *, struct request *, struct scatterlist *);
 extern void blk_dump_rq_flags(struct request *, char *);
 extern long nr_blockdev_pages(void);
@@ -1419,6 +2100,25 @@ static inline void blk_post_runtime_resume(struct request_queue *q, int err) {}
 static inline void blk_set_runtime_active(struct request_queue *q) {}
 #endif
 
+=======
+int __blk_rq_map_sg(struct request_queue *q, struct request *rq,
+		struct scatterlist *sglist, struct scatterlist **last_sg);
+static inline int blk_rq_map_sg(struct request_queue *q, struct request *rq,
+		struct scatterlist *sglist)
+{
+	struct scatterlist *last_sg = NULL;
+
+	return __blk_rq_map_sg(q, rq, sglist, &last_sg);
+}
+extern void blk_dump_rq_flags(struct request *, char *);
+
+bool __must_check blk_get_queue(struct request_queue *);
+extern void blk_put_queue(struct request_queue *);
+
+void blk_mark_disk_dead(struct gendisk *disk);
+
+#ifdef CONFIG_BLOCK
+>>>>>>> upstream/android-13
 /*
  * blk_plug permits building a queue of related requests by holding the I/O
  * fragments for a short period. This allows merging of sequential requests
@@ -1432,12 +2132,21 @@ static inline void blk_set_runtime_active(struct request_queue *q) {}
  * schedule() where blk_schedule_flush_plug() is called.
  */
 struct blk_plug {
+<<<<<<< HEAD
 	struct list_head list; /* requests */
 	struct list_head mq_list; /* blk-mq requests */
 	struct list_head cb_list; /* md requires an unplug callback */
 };
 #define BLK_MAX_REQUEST_COUNT 16
 #define BLK_PLUG_FLUSH_SIZE (128 * 1024)
+=======
+	struct list_head mq_list; /* blk-mq requests */
+	struct list_head cb_list; /* md requires an unplug callback */
+	unsigned short rq_count;
+	bool multiple_queues;
+	bool nowait;
+};
+>>>>>>> upstream/android-13
 
 struct blk_plug_cb;
 typedef void (*blk_plug_cb_fn)(struct blk_plug_cb *, bool);
@@ -1473,6 +2182,7 @@ static inline bool blk_needs_flush_plug(struct task_struct *tsk)
 	struct blk_plug *plug = tsk->plug;
 
 	return plug &&
+<<<<<<< HEAD
 		(!list_empty(&plug->list) ||
 		 !list_empty(&plug->mq_list) ||
 		 !list_empty(&plug->cb_list));
@@ -1499,6 +2209,53 @@ static inline struct request *blk_map_queue_find_tag(struct blk_queue_tag *bqt,
 }
 
 extern int blkdev_issue_flush(struct block_device *, gfp_t, sector_t *);
+=======
+		 (!list_empty(&plug->mq_list) ||
+		 !list_empty(&plug->cb_list));
+}
+
+int blkdev_issue_flush(struct block_device *bdev);
+long nr_blockdev_pages(void);
+#else /* CONFIG_BLOCK */
+struct blk_plug {
+};
+
+static inline void blk_start_plug(struct blk_plug *plug)
+{
+}
+
+static inline void blk_finish_plug(struct blk_plug *plug)
+{
+}
+
+static inline void blk_flush_plug(struct task_struct *task)
+{
+}
+
+static inline void blk_schedule_flush_plug(struct task_struct *task)
+{
+}
+
+
+static inline bool blk_needs_flush_plug(struct task_struct *tsk)
+{
+	return false;
+}
+
+static inline int blkdev_issue_flush(struct block_device *bdev)
+{
+	return 0;
+}
+
+static inline long nr_blockdev_pages(void)
+{
+	return 0;
+}
+#endif /* CONFIG_BLOCK */
+
+extern void blk_io_schedule(void);
+
+>>>>>>> upstream/android-13
 extern int blkdev_issue_write_same(struct block_device *bdev, sector_t sector,
 		sector_t nr_sects, gfp_t gfp_mask, struct page *page);
 
@@ -1540,52 +2297,108 @@ static inline int sb_issue_zeroout(struct super_block *sb, sector_t block,
 				    gfp_mask, 0);
 }
 
+<<<<<<< HEAD
 extern int blk_verify_command(unsigned char *cmd, fmode_t mode);
+=======
+static inline bool bdev_is_partition(struct block_device *bdev)
+{
+	return bdev->bd_partno;
+}
+>>>>>>> upstream/android-13
 
 enum blk_default_limits {
 	BLK_MAX_SEGMENTS	= 128,
 	BLK_SAFE_MAX_SECTORS	= 255,
+<<<<<<< HEAD
 	BLK_DEF_MAX_SECTORS	= 1024,
+=======
+	BLK_DEF_MAX_SECTORS	= 2560,
+>>>>>>> upstream/android-13
 	BLK_MAX_SEGMENT_SIZE	= 65536,
 	BLK_SEG_BOUNDARY_MASK	= 0xFFFFFFFFUL,
 };
 
+<<<<<<< HEAD
 static inline unsigned long queue_segment_boundary(struct request_queue *q)
+=======
+static inline unsigned long queue_segment_boundary(const struct request_queue *q)
+>>>>>>> upstream/android-13
 {
 	return q->limits.seg_boundary_mask;
 }
 
+<<<<<<< HEAD
 static inline unsigned long queue_virt_boundary(struct request_queue *q)
+=======
+static inline unsigned long queue_virt_boundary(const struct request_queue *q)
+>>>>>>> upstream/android-13
 {
 	return q->limits.virt_boundary_mask;
 }
 
+<<<<<<< HEAD
 static inline unsigned int queue_max_sectors(struct request_queue *q)
+=======
+static inline unsigned int queue_max_sectors(const struct request_queue *q)
+>>>>>>> upstream/android-13
 {
 	return q->limits.max_sectors;
 }
 
+<<<<<<< HEAD
 static inline unsigned int queue_max_hw_sectors(struct request_queue *q)
+=======
+static inline unsigned int queue_max_bytes(struct request_queue *q)
+{
+	return min_t(unsigned int, queue_max_sectors(q), INT_MAX >> 9) << 9;
+}
+
+static inline unsigned int queue_max_hw_sectors(const struct request_queue *q)
+>>>>>>> upstream/android-13
 {
 	return q->limits.max_hw_sectors;
 }
 
+<<<<<<< HEAD
 static inline unsigned short queue_max_segments(struct request_queue *q)
+=======
+static inline unsigned short queue_max_segments(const struct request_queue *q)
+>>>>>>> upstream/android-13
 {
 	return q->limits.max_segments;
 }
 
+<<<<<<< HEAD
 static inline unsigned short queue_max_discard_segments(struct request_queue *q)
+=======
+static inline unsigned short queue_max_discard_segments(const struct request_queue *q)
+>>>>>>> upstream/android-13
 {
 	return q->limits.max_discard_segments;
 }
 
+<<<<<<< HEAD
 static inline unsigned int queue_max_segment_size(struct request_queue *q)
+=======
+static inline unsigned int queue_max_segment_size(const struct request_queue *q)
+>>>>>>> upstream/android-13
 {
 	return q->limits.max_segment_size;
 }
 
+<<<<<<< HEAD
 static inline unsigned queue_logical_block_size(struct request_queue *q)
+=======
+static inline unsigned int queue_max_zone_append_sectors(const struct request_queue *q)
+{
+
+	const struct queue_limits *l = &q->limits;
+
+	return min(l->max_zone_append_sectors, l->max_sectors);
+}
+
+static inline unsigned queue_logical_block_size(const struct request_queue *q)
+>>>>>>> upstream/android-13
 {
 	int retval = 512;
 
@@ -1600,7 +2413,11 @@ static inline unsigned int bdev_logical_block_size(struct block_device *bdev)
 	return queue_logical_block_size(bdev_get_queue(bdev));
 }
 
+<<<<<<< HEAD
 static inline unsigned int queue_physical_block_size(struct request_queue *q)
+=======
+static inline unsigned int queue_physical_block_size(const struct request_queue *q)
+>>>>>>> upstream/android-13
 {
 	return q->limits.physical_block_size;
 }
@@ -1610,7 +2427,11 @@ static inline unsigned int bdev_physical_block_size(struct block_device *bdev)
 	return queue_physical_block_size(bdev_get_queue(bdev));
 }
 
+<<<<<<< HEAD
 static inline unsigned int queue_io_min(struct request_queue *q)
+=======
+static inline unsigned int queue_io_min(const struct request_queue *q)
+>>>>>>> upstream/android-13
 {
 	return q->limits.io_min;
 }
@@ -1620,7 +2441,11 @@ static inline int bdev_io_min(struct block_device *bdev)
 	return queue_io_min(bdev_get_queue(bdev));
 }
 
+<<<<<<< HEAD
 static inline unsigned int queue_io_opt(struct request_queue *q)
+=======
+static inline unsigned int queue_io_opt(const struct request_queue *q)
+>>>>>>> upstream/android-13
 {
 	return q->limits.io_opt;
 }
@@ -1630,7 +2455,23 @@ static inline int bdev_io_opt(struct block_device *bdev)
 	return queue_io_opt(bdev_get_queue(bdev));
 }
 
+<<<<<<< HEAD
 static inline int queue_alignment_offset(struct request_queue *q)
+=======
+static inline unsigned int
+queue_zone_write_granularity(const struct request_queue *q)
+{
+	return q->limits.zone_write_granularity;
+}
+
+static inline unsigned int
+bdev_zone_write_granularity(struct block_device *bdev)
+{
+	return queue_zone_write_granularity(bdev_get_queue(bdev));
+}
+
+static inline int queue_alignment_offset(const struct request_queue *q)
+>>>>>>> upstream/android-13
 {
 	if (q->limits.misaligned)
 		return -1;
@@ -1653,6 +2494,7 @@ static inline int bdev_alignment_offset(struct block_device *bdev)
 
 	if (q->limits.misaligned)
 		return -1;
+<<<<<<< HEAD
 
 	if (bdev != bdev->bd_contains)
 		return bdev->bd_part->alignment_offset;
@@ -1661,6 +2503,15 @@ static inline int bdev_alignment_offset(struct block_device *bdev)
 }
 
 static inline int queue_discard_alignment(struct request_queue *q)
+=======
+	if (bdev_is_partition(bdev))
+		return queue_limit_alignment_offset(&q->limits,
+				bdev->bd_start_sect);
+	return q->limits.alignment_offset;
+}
+
+static inline int queue_discard_alignment(const struct request_queue *q)
+>>>>>>> upstream/android-13
 {
 	if (q->limits.discard_misaligned)
 		return -1;
@@ -1691,13 +2542,38 @@ static inline int queue_limit_discard_alignment(struct queue_limits *lim, sector
 	return offset << SECTOR_SHIFT;
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * Two cases of handling DISCARD merge:
+ * If max_discard_segments > 1, the driver takes every bio
+ * as a range and send them to controller together. The ranges
+ * needn't to be contiguous.
+ * Otherwise, the bios/requests will be handled as same as
+ * others which should be contiguous.
+ */
+static inline bool blk_discard_mergable(struct request *req)
+{
+	if (req_op(req) == REQ_OP_DISCARD &&
+	    queue_max_discard_segments(req->q) > 1)
+		return true;
+	return false;
+}
+
+>>>>>>> upstream/android-13
 static inline int bdev_discard_alignment(struct block_device *bdev)
 {
 	struct request_queue *q = bdev_get_queue(bdev);
 
+<<<<<<< HEAD
 	if (bdev != bdev->bd_contains)
 		return bdev->bd_part->discard_alignment;
 
+=======
+	if (bdev_is_partition(bdev))
+		return queue_limit_discard_alignment(&q->limits,
+				bdev->bd_start_sect);
+>>>>>>> upstream/android-13
 	return q->limits.discard_alignment;
 }
 
@@ -1741,7 +2617,11 @@ static inline bool bdev_is_zoned(struct block_device *bdev)
 	return false;
 }
 
+<<<<<<< HEAD
 static inline unsigned int bdev_zone_sectors(struct block_device *bdev)
+=======
+static inline sector_t bdev_zone_sectors(struct block_device *bdev)
+>>>>>>> upstream/android-13
 {
 	struct request_queue *q = bdev_get_queue(bdev);
 
@@ -1750,7 +2630,29 @@ static inline unsigned int bdev_zone_sectors(struct block_device *bdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline int queue_dma_alignment(struct request_queue *q)
+=======
+static inline unsigned int bdev_max_open_zones(struct block_device *bdev)
+{
+	struct request_queue *q = bdev_get_queue(bdev);
+
+	if (q)
+		return queue_max_open_zones(q);
+	return 0;
+}
+
+static inline unsigned int bdev_max_active_zones(struct block_device *bdev)
+{
+	struct request_queue *q = bdev_get_queue(bdev);
+
+	if (q)
+		return queue_max_active_zones(q);
+	return 0;
+}
+
+static inline int queue_dma_alignment(const struct request_queue *q)
+>>>>>>> upstream/android-13
 {
 	return q ? q->dma_alignment : 511;
 }
@@ -1775,6 +2677,7 @@ static inline unsigned int blksize_bits(unsigned int size)
 
 static inline unsigned int block_size(struct block_device *bdev)
 {
+<<<<<<< HEAD
 	return bdev->bd_block_size;
 }
 
@@ -1882,6 +2785,12 @@ static inline bool req_gap_front_merge(struct request *req, struct bio *bio)
 
 int kblockd_schedule_work(struct work_struct *work);
 int kblockd_schedule_work_on(int cpu, struct work_struct *work);
+=======
+	return 1 << bdev->bd_inode->i_blkbits;
+}
+
+int kblockd_schedule_work(struct work_struct *work);
+>>>>>>> upstream/android-13
 int kblockd_mod_delayed_work_on(int cpu, struct delayed_work *dwork, unsigned long delay);
 
 #define MODULE_ALIAS_BLOCKDEV(major,minor) \
@@ -1908,10 +2817,20 @@ struct blk_integrity_iter {
 };
 
 typedef blk_status_t (integrity_processing_fn) (struct blk_integrity_iter *);
+<<<<<<< HEAD
+=======
+typedef void (integrity_prepare_fn) (struct request *);
+typedef void (integrity_complete_fn) (struct request *, unsigned int);
+>>>>>>> upstream/android-13
 
 struct blk_integrity_profile {
 	integrity_processing_fn		*generate_fn;
 	integrity_processing_fn		*verify_fn;
+<<<<<<< HEAD
+=======
+	integrity_prepare_fn		*prepare_fn;
+	integrity_complete_fn		*complete_fn;
+>>>>>>> upstream/android-13
 	const char			*name;
 };
 
@@ -1921,10 +2840,13 @@ extern int blk_integrity_compare(struct gendisk *, struct gendisk *);
 extern int blk_rq_map_integrity_sg(struct request_queue *, struct bio *,
 				   struct scatterlist *);
 extern int blk_rq_count_integrity_sg(struct request_queue *, struct bio *);
+<<<<<<< HEAD
 extern bool blk_integrity_merge_rq(struct request_queue *, struct request *,
 				   struct request *);
 extern bool blk_integrity_merge_bio(struct request_queue *, struct request *,
 				    struct bio *);
+=======
+>>>>>>> upstream/android-13
 
 static inline struct blk_integrity *blk_get_integrity(struct gendisk *disk)
 {
@@ -1942,6 +2864,15 @@ struct blk_integrity *bdev_get_integrity(struct block_device *bdev)
 	return blk_get_integrity(bdev->bd_disk);
 }
 
+<<<<<<< HEAD
+=======
+static inline bool
+blk_integrity_queue_supports_integrity(struct request_queue *q)
+{
+	return q->integrity.profile;
+}
+
+>>>>>>> upstream/android-13
 static inline bool blk_integrity_rq(struct request *rq)
 {
 	return rq->cmd_flags & REQ_INTEGRITY;
@@ -1954,11 +2885,16 @@ static inline void blk_queue_max_integrity_segments(struct request_queue *q,
 }
 
 static inline unsigned short
+<<<<<<< HEAD
 queue_max_integrity_segments(struct request_queue *q)
+=======
+queue_max_integrity_segments(const struct request_queue *q)
+>>>>>>> upstream/android-13
 {
 	return q->limits.max_integrity_segments;
 }
 
+<<<<<<< HEAD
 static inline bool integrity_req_gap_back_merge(struct request *req,
 						struct bio *next)
 {
@@ -1979,6 +2915,8 @@ static inline bool integrity_req_gap_front_merge(struct request *req,
 				bip_next->bip_vec[0].bv_offset);
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * bio_integrity_intervals - Return number of integrity intervals for a bio
  * @bi:		blk_integrity profile for device
@@ -2001,6 +2939,20 @@ static inline unsigned int bio_integrity_bytes(struct blk_integrity *bi,
 	return bio_integrity_intervals(bi, sectors) * bi->tuple_size;
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * Return the first bvec that contains integrity data.  Only drivers that are
+ * limited to a single integrity segment should use this helper.
+ */
+static inline struct bio_vec *rq_integrity_vec(struct request *rq)
+{
+	if (WARN_ON_ONCE(queue_max_integrity_segments(rq->q) > 1))
+		return NULL;
+	return rq->bio->bi_integrity->bip_vec;
+}
+
+>>>>>>> upstream/android-13
 #else /* CONFIG_BLK_DEV_INTEGRITY */
 
 struct bio;
@@ -2031,6 +2983,14 @@ static inline struct blk_integrity *blk_get_integrity(struct gendisk *disk)
 {
 	return NULL;
 }
+<<<<<<< HEAD
+=======
+static inline bool
+blk_integrity_queue_supports_integrity(struct request_queue *q)
+{
+	return false;
+}
+>>>>>>> upstream/android-13
 static inline int blk_integrity_compare(struct gendisk *a, struct gendisk *b)
 {
 	return 0;
@@ -2046,6 +3006,7 @@ static inline void blk_queue_max_integrity_segments(struct request_queue *q,
 						    unsigned int segs)
 {
 }
+<<<<<<< HEAD
 static inline unsigned short queue_max_integrity_segments(struct request_queue *q)
 {
 	return 0;
@@ -2073,6 +3034,12 @@ static inline bool integrity_req_gap_front_merge(struct request *req,
 {
 	return false;
 }
+=======
+static inline unsigned short queue_max_integrity_segments(const struct request_queue *q)
+{
+	return 0;
+}
+>>>>>>> upstream/android-13
 
 static inline unsigned int bio_integrity_intervals(struct blk_integrity *bi,
 						   unsigned int sectors)
@@ -2086,9 +3053,40 @@ static inline unsigned int bio_integrity_bytes(struct blk_integrity *bi,
 	return 0;
 }
 
+<<<<<<< HEAD
 #endif /* CONFIG_BLK_DEV_INTEGRITY */
 
 struct block_device_operations {
+=======
+static inline struct bio_vec *rq_integrity_vec(struct request *rq)
+{
+	return NULL;
+}
+
+#endif /* CONFIG_BLK_DEV_INTEGRITY */
+
+#ifdef CONFIG_BLK_INLINE_ENCRYPTION
+
+bool blk_ksm_register(struct blk_keyslot_manager *ksm, struct request_queue *q);
+
+void blk_ksm_unregister(struct request_queue *q);
+
+#else /* CONFIG_BLK_INLINE_ENCRYPTION */
+
+static inline bool blk_ksm_register(struct blk_keyslot_manager *ksm,
+				    struct request_queue *q)
+{
+	return true;
+}
+
+static inline void blk_ksm_unregister(struct request_queue *q) { }
+
+#endif /* CONFIG_BLK_INLINE_ENCRYPTION */
+
+
+struct block_device_operations {
+	blk_qc_t (*submit_bio) (struct bio *bio);
+>>>>>>> upstream/android-13
 	int (*open) (struct block_device *, fmode_t);
 	void (*release) (struct gendisk *, fmode_t);
 	int (*rw_page)(struct block_device *, sector_t, struct page *, unsigned int);
@@ -2096,6 +3094,7 @@ struct block_device_operations {
 	int (*compat_ioctl) (struct block_device *, fmode_t, unsigned, unsigned long);
 	unsigned int (*check_events) (struct gendisk *disk,
 				      unsigned int clearing);
+<<<<<<< HEAD
 	/* ->media_changed() is DEPRECATED, use ->check_events() instead */
 	int (*media_changed) (struct gendisk *);
 	void (*unlock_native_capacity) (struct gendisk *);
@@ -2109,12 +3108,48 @@ struct block_device_operations {
 
 extern int __blkdev_driver_ioctl(struct block_device *, fmode_t, unsigned int,
 				 unsigned long);
+=======
+	void (*unlock_native_capacity) (struct gendisk *);
+	int (*getgeo)(struct block_device *, struct hd_geometry *);
+	int (*set_read_only)(struct block_device *bdev, bool ro);
+	/* this callback is with swap_lock and sometimes page table lock held */
+	void (*swap_slot_free_notify) (struct block_device *, unsigned long);
+	int (*report_zones)(struct gendisk *, sector_t sector,
+			unsigned int nr_zones, report_zones_cb cb, void *data);
+	char *(*devnode)(struct gendisk *disk, umode_t *mode);
+	struct module *owner;
+	const struct pr_ops *pr_ops;
+
+	/*
+	 * Special callback for probing GPT entry at a given sector.
+	 * Needed by Android devices, used by GPT scanner and MMC blk
+	 * driver.
+	 */
+	int (*alternative_gpt_sector)(struct gendisk *disk, sector_t *sector);
+
+	ANDROID_KABI_RESERVE(1);
+	ANDROID_KABI_RESERVE(2);
+	ANDROID_OEM_DATA(1);
+};
+
+#ifdef CONFIG_COMPAT
+extern int blkdev_compat_ptr_ioctl(struct block_device *, fmode_t,
+				      unsigned int, unsigned long);
+#else
+#define blkdev_compat_ptr_ioctl NULL
+#endif
+
+>>>>>>> upstream/android-13
 extern int bdev_read_page(struct block_device *, sector_t, struct page *);
 extern int bdev_write_page(struct block_device *, sector_t, struct page *,
 						struct writeback_control *);
 
 #ifdef CONFIG_BLK_DEV_ZONED
 bool blk_req_needs_zone_write_lock(struct request *rq);
+<<<<<<< HEAD
+=======
+bool blk_req_zone_write_trylock(struct request *rq);
+>>>>>>> upstream/android-13
 void __blk_req_zone_write_lock(struct request *rq);
 void __blk_req_zone_write_unlock(struct request *rq);
 
@@ -2166,6 +3201,7 @@ static inline bool blk_req_can_dispatch_to_zone(struct request *rq)
 }
 #endif /* CONFIG_BLK_DEV_ZONED */
 
+<<<<<<< HEAD
 #else /* CONFIG_BLOCK */
 
 struct block_device;
@@ -2214,3 +3250,98 @@ static inline int blkdev_issue_flush(struct block_device *bdev, gfp_t gfp_mask,
 #endif /* CONFIG_BLOCK */
 
 #endif
+=======
+static inline void blk_wake_io_task(struct task_struct *waiter)
+{
+	/*
+	 * If we're polling, the task itself is doing the completions. For
+	 * that case, we don't need to signal a wakeup, it's enough to just
+	 * mark us as RUNNING.
+	 */
+	if (waiter == current)
+		__set_current_state(TASK_RUNNING);
+	else
+		wake_up_process(waiter);
+}
+
+unsigned long disk_start_io_acct(struct gendisk *disk, unsigned int sectors,
+		unsigned int op);
+void disk_end_io_acct(struct gendisk *disk, unsigned int op,
+		unsigned long start_time);
+
+void bio_start_io_acct_time(struct bio *bio, unsigned long start_time);
+unsigned long bio_start_io_acct(struct bio *bio);
+void bio_end_io_acct_remapped(struct bio *bio, unsigned long start_time,
+		struct block_device *orig_bdev);
+
+/**
+ * bio_end_io_acct - end I/O accounting for bio based drivers
+ * @bio:	bio to end account for
+ * @start:	start time returned by bio_start_io_acct()
+ */
+static inline void bio_end_io_acct(struct bio *bio, unsigned long start_time)
+{
+	return bio_end_io_acct_remapped(bio, start_time, bio->bi_bdev);
+}
+
+int bdev_read_only(struct block_device *bdev);
+int set_blocksize(struct block_device *bdev, int size);
+
+const char *bdevname(struct block_device *bdev, char *buffer);
+int lookup_bdev(const char *pathname, dev_t *dev);
+
+void blkdev_show(struct seq_file *seqf, off_t offset);
+
+#define BDEVNAME_SIZE	32	/* Largest string for a blockdev identifier */
+#define BDEVT_SIZE	10	/* Largest string for MAJ:MIN for blkdev */
+#ifdef CONFIG_BLOCK
+#define BLKDEV_MAJOR_MAX	512
+#else
+#define BLKDEV_MAJOR_MAX	0
+#endif
+
+struct block_device *blkdev_get_by_path(const char *path, fmode_t mode,
+		void *holder);
+struct block_device *blkdev_get_by_dev(dev_t dev, fmode_t mode, void *holder);
+int bd_prepare_to_claim(struct block_device *bdev, void *holder);
+void bd_abort_claiming(struct block_device *bdev, void *holder);
+void blkdev_put(struct block_device *bdev, fmode_t mode);
+
+/* just for blk-cgroup, don't use elsewhere */
+struct block_device *blkdev_get_no_open(dev_t dev);
+void blkdev_put_no_open(struct block_device *bdev);
+
+struct block_device *bdev_alloc(struct gendisk *disk, u8 partno);
+void bdev_add(struct block_device *bdev, dev_t dev);
+struct block_device *I_BDEV(struct inode *inode);
+int truncate_bdev_range(struct block_device *bdev, fmode_t mode, loff_t lstart,
+		loff_t lend);
+
+#ifdef CONFIG_BLOCK
+void invalidate_bdev(struct block_device *bdev);
+int sync_blockdev(struct block_device *bdev);
+int sync_blockdev_nowait(struct block_device *bdev);
+void sync_bdevs(bool wait);
+#else
+static inline void invalidate_bdev(struct block_device *bdev)
+{
+}
+static inline int sync_blockdev(struct block_device *bdev)
+{
+	return 0;
+}
+static inline int sync_blockdev_nowait(struct block_device *bdev)
+{
+	return 0;
+}
+static inline void sync_bdevs(bool wait)
+{
+}
+#endif
+int fsync_bdev(struct block_device *bdev);
+
+int freeze_bdev(struct block_device *bdev);
+int thaw_bdev(struct block_device *bdev);
+
+#endif /* _LINUX_BLKDEV_H */
+>>>>>>> upstream/android-13

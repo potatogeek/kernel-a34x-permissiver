@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2013 Regents of the University of California
  *
@@ -9,6 +10,11 @@
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *   GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2013 Regents of the University of California
+>>>>>>> upstream/android-13
  */
 
 
@@ -16,7 +22,12 @@
 #include <asm/asm.h>
 
 /* void *memset(void *, int, size_t) */
+<<<<<<< HEAD
 ENTRY(memset)
+=======
+ENTRY(__memset)
+WEAK(memset)
+>>>>>>> upstream/android-13
 	move t0, a0  /* Preserve return value */
 
 	/* Defer to byte-oriented fill for small sizes */
@@ -117,4 +128,8 @@ ENTRY(memset)
 	bltu t0, a3, 5b
 6:
 	ret
+<<<<<<< HEAD
 END(memset)
+=======
+END(__memset)
+>>>>>>> upstream/android-13

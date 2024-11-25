@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015-2017 Netronome Systems, Inc.
  *
@@ -30,6 +31,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+=======
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+/* Copyright (C) 2015-2018 Netronome Systems, Inc. */
+>>>>>>> upstream/android-13
 
 /*
  * nfp_nffw.c
@@ -54,7 +59,11 @@
 
 #define NFFW_FWID_ALL   255
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * NFFW_INFO_VERSION history:
  * 0: This was never actually used (before versioning), but it refers to
  *    the previous struct which had FWINFO_CNT = MEINFO_CNT = 120 that later
@@ -156,6 +165,7 @@ static u64 nffw_fwinfo_mip_offset_get(const struct nffw_fwinfo *fi)
 	return (mip_off_hi & 0xFF) << 32 | le32_to_cpu(fi->mip_offset_lo);
 }
 
+<<<<<<< HEAD
 #define NFP_IMB_TGTADDRESSMODECFG_MODE_of(_x)		(((_x) >> 13) & 0x7)
 #define NFP_IMB_TGTADDRESSMODECFG_ADDRMODE		BIT(12)
 #define   NFP_IMB_TGTADDRESSMODECFG_ADDRMODE_32_BIT	0
@@ -179,6 +189,8 @@ static int nfp_mip_mu_locality_lsb(struct nfp_cpp *cpp)
 	return nfp_cppat_mu_locality_lsb(mode, addr40);
 }
 
+=======
+>>>>>>> upstream/android-13
 static unsigned int
 nffw_res_fwinfos(struct nfp_nffw_info_data *fwinf, struct nffw_fwinfo **arr)
 {
@@ -304,6 +316,7 @@ int nfp_nffw_info_mip_first(struct nfp_nffw_info *state, u32 *cpp_id, u64 *off)
 	*off = nffw_fwinfo_mip_offset_get(fwinfo);
 
 	if (nffw_fwinfo_mip_mu_da_get(fwinfo)) {
+<<<<<<< HEAD
 		int locality_off;
 
 		if (NFP_CPP_ID_TARGET_of(*cpp_id) != NFP_CPP_TARGET_MU)
@@ -312,6 +325,9 @@ int nfp_nffw_info_mip_first(struct nfp_nffw_info *state, u32 *cpp_id, u64 *off)
 		locality_off = nfp_mip_mu_locality_lsb(state->cpp);
 		if (locality_off < 0)
 			return locality_off;
+=======
+		int locality_off = nfp_cpp_mu_locality_lsb(state->cpp);
+>>>>>>> upstream/android-13
 
 		*off &= ~(NFP_MU_ADDR_ACCESS_TYPE_MASK << locality_off);
 		*off |= NFP_MU_ADDR_ACCESS_TYPE_DIRECT << locality_off;

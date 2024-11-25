@@ -23,13 +23,20 @@
 #include <linux/mm.h>
 #include <linux/init.h>
 #include <linux/pagemap.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/binfmts.h>
 
 #include <asm/setup.h>
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/sections.h>
 #include <asm/tlb.h>
 #include <asm/mmu_context.h>
@@ -46,17 +53,28 @@ pgd_t *pgd_current;
  */
 void __init paging_init(void)
 {
+<<<<<<< HEAD
 	unsigned long zones_size[MAX_NR_ZONES];
 
 	memset(zones_size, 0, sizeof(zones_size));
+=======
+	unsigned long max_zone_pfn[MAX_NR_ZONES] = { 0 };
+>>>>>>> upstream/android-13
 
 	pagetable_init();
 	pgd_current = swapper_pg_dir;
 
+<<<<<<< HEAD
 	zones_size[ZONE_NORMAL] = max_mapnr;
 
 	/* pass the memory from the bootmem allocator to the main allocator */
 	free_area_init(zones_size);
+=======
+	max_zone_pfn[ZONE_NORMAL] = max_mapnr;
+
+	/* pass the memory from the bootmem allocator to the main allocator */
+	free_area_init(max_zone_pfn);
+>>>>>>> upstream/android-13
 
 	flush_dcache_range((unsigned long)empty_zero_page,
 			(unsigned long)empty_zero_page + PAGE_SIZE);
@@ -73,8 +91,12 @@ void __init mem_init(void)
 	high_memory = __va(end_mem);
 
 	/* this will put all memory onto the freelists */
+<<<<<<< HEAD
 	free_all_bootmem();
 	mem_init_print_info(NULL);
+=======
+	memblock_free_all();
+>>>>>>> upstream/android-13
 }
 
 void __init mmu_init(void)
@@ -82,6 +104,7 @@ void __init mmu_init(void)
 	flush_tlb_all();
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_BLK_DEV_INITRD
 void __init free_initrd_mem(unsigned long start, unsigned long end)
 {
@@ -94,6 +117,8 @@ void __ref free_initmem(void)
 	free_initmem_default(-1);
 }
 
+=======
+>>>>>>> upstream/android-13
 #define __page_aligned(order) __aligned(PAGE_SIZE << (order))
 pgd_t swapper_pg_dir[PTRS_PER_PGD] __page_aligned(PGD_ORDER);
 pte_t invalid_pte_table[PTRS_PER_PTE] __page_aligned(PTE_ORDER);
@@ -124,14 +149,22 @@ int arch_setup_additional_pages(struct linux_binprm *bprm, int uses_interp)
 	struct mm_struct *mm = current->mm;
 	int ret;
 
+<<<<<<< HEAD
 	down_write(&mm->mmap_sem);
+=======
+	mmap_write_lock(mm);
+>>>>>>> upstream/android-13
 
 	/* Map kuser helpers to user space address */
 	ret = install_special_mapping(mm, KUSER_BASE, KUSER_SIZE,
 				      VM_READ | VM_EXEC | VM_MAYREAD |
 				      VM_MAYEXEC, kuser_page);
 
+<<<<<<< HEAD
 	up_write(&mm->mmap_sem);
+=======
+	mmap_write_unlock(mm);
+>>>>>>> upstream/android-13
 
 	return ret;
 }

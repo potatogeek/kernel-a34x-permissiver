@@ -111,18 +111,30 @@ __EXTERN_INLINE void jensen_set_hae(unsigned long addr)
  * convinced that I need one of the newer machines.
  */
 
+<<<<<<< HEAD
 static inline unsigned int jensen_local_inb(unsigned long addr)
+=======
+__EXTERN_INLINE unsigned int jensen_local_inb(unsigned long addr)
+>>>>>>> upstream/android-13
 {
 	return 0xff & *(vuip)((addr << 9) + EISA_VL82C106);
 }
 
+<<<<<<< HEAD
 static inline void jensen_local_outb(u8 b, unsigned long addr)
+=======
+__EXTERN_INLINE void jensen_local_outb(u8 b, unsigned long addr)
+>>>>>>> upstream/android-13
 {
 	*(vuip)((addr << 9) + EISA_VL82C106) = b;
 	mb();
 }
 
+<<<<<<< HEAD
 static inline unsigned int jensen_bus_inb(unsigned long addr)
+=======
+__EXTERN_INLINE unsigned int jensen_bus_inb(unsigned long addr)
+>>>>>>> upstream/android-13
 {
 	long result;
 
@@ -131,7 +143,11 @@ static inline unsigned int jensen_bus_inb(unsigned long addr)
 	return __kernel_extbl(result, addr & 3);
 }
 
+<<<<<<< HEAD
 static inline void jensen_bus_outb(u8 b, unsigned long addr)
+=======
+__EXTERN_INLINE void jensen_bus_outb(u8 b, unsigned long addr)
+>>>>>>> upstream/android-13
 {
 	jensen_set_hae(0);
 	*(vuip)((addr << 7) + EISA_IO + 0x00) = b * 0x01010101;
@@ -305,7 +321,11 @@ __EXTERN_INLINE int jensen_is_mmio(const volatile void __iomem *addr)
    that it doesn't make sense to merge them.  */
 
 #define IOPORT(OS, NS)							\
+<<<<<<< HEAD
 __EXTERN_INLINE unsigned int jensen_ioread##NS(void __iomem *xaddr)	\
+=======
+__EXTERN_INLINE unsigned int jensen_ioread##NS(const void __iomem *xaddr)	\
+>>>>>>> upstream/android-13
 {									\
 	if (jensen_is_mmio(xaddr))					\
 		return jensen_read##OS(xaddr - 0x100000000ul);		\

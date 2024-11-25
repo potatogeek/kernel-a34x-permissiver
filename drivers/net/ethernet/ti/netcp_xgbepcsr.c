@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * XGE PCSR module initialisation
  *
@@ -5,6 +9,7 @@
  * Authors:	Sandeep Nair <sandeep_n@ti.com>
  *		WingMan Kwok <w-kwok2@ti.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation version 2.
@@ -13,6 +18,8 @@
  * kind, whether express or implied; without even the implied warranty
  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include "netcp.h"
 

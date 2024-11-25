@@ -31,6 +31,7 @@ struct device;
 extern int edac_op_state;
 
 struct bus_type *edac_get_sysfs_subsys(void);
+<<<<<<< HEAD
 int edac_get_report_status(void);
 void edac_set_report_status(int new);
 
@@ -39,6 +40,8 @@ enum {
 	EDAC_REPORTING_DISABLED,
 	EDAC_REPORTING_FORCE
 };
+=======
+>>>>>>> upstream/android-13
 
 static inline void opstate_init(void)
 {
@@ -183,11 +186,23 @@ static inline char *mc_event_error_type(const unsigned int err_type)
  * @MEM_RDDR3:		Registered DDR3 RAM
  *			This is a variant of the DDR3 memories.
  * @MEM_LRDDR3:		Load-Reduced DDR3 memory.
+<<<<<<< HEAD
+=======
+ * @MEM_LPDDR3:		Low-Power DDR3 memory.
+>>>>>>> upstream/android-13
  * @MEM_DDR4:		Unbuffered DDR4 RAM
  * @MEM_RDDR4:		Registered DDR4 RAM
  *			This is a variant of the DDR4 memories.
  * @MEM_LRDDR4:		Load-Reduced DDR4 memory.
+<<<<<<< HEAD
  * @MEM_NVDIMM:		Non-volatile RAM
+=======
+ * @MEM_LPDDR4:		Low-Power DDR4 memory.
+ * @MEM_DDR5:		Unbuffered DDR5 RAM
+ * @MEM_NVDIMM:		Non-volatile RAM
+ * @MEM_WIO2:		Wide I/O 2.
+ * @MEM_HBM2:		High bandwidth Memory Gen 2.
+>>>>>>> upstream/android-13
  */
 enum mem_type {
 	MEM_EMPTY = 0,
@@ -208,10 +223,22 @@ enum mem_type {
 	MEM_DDR3,
 	MEM_RDDR3,
 	MEM_LRDDR3,
+<<<<<<< HEAD
 	MEM_DDR4,
 	MEM_RDDR4,
 	MEM_LRDDR4,
 	MEM_NVDIMM,
+=======
+	MEM_LPDDR3,
+	MEM_DDR4,
+	MEM_RDDR4,
+	MEM_LRDDR4,
+	MEM_LPDDR4,
+	MEM_DDR5,
+	MEM_NVDIMM,
+	MEM_WIO2,
+	MEM_HBM2,
+>>>>>>> upstream/android-13
 };
 
 #define MEM_FLAG_EMPTY		BIT(MEM_EMPTY)
@@ -231,6 +258,7 @@ enum mem_type {
 #define MEM_FLAG_XDR            BIT(MEM_XDR)
 #define MEM_FLAG_DDR3           BIT(MEM_DDR3)
 #define MEM_FLAG_RDDR3          BIT(MEM_RDDR3)
+<<<<<<< HEAD
 #define MEM_FLAG_DDR4           BIT(MEM_DDR4)
 #define MEM_FLAG_RDDR4          BIT(MEM_RDDR4)
 #define MEM_FLAG_LRDDR4         BIT(MEM_LRDDR4)
@@ -238,6 +266,20 @@ enum mem_type {
 
 /**
  * enum edac-type - Error Detection and Correction capabilities and mode
+=======
+#define MEM_FLAG_LPDDR3         BIT(MEM_LPDDR3)
+#define MEM_FLAG_DDR4           BIT(MEM_DDR4)
+#define MEM_FLAG_RDDR4          BIT(MEM_RDDR4)
+#define MEM_FLAG_LRDDR4         BIT(MEM_LRDDR4)
+#define MEM_FLAG_LPDDR4         BIT(MEM_LPDDR4)
+#define MEM_FLAG_DDR5           BIT(MEM_DDR5)
+#define MEM_FLAG_NVDIMM         BIT(MEM_NVDIMM)
+#define MEM_FLAG_WIO2		BIT(MEM_WIO2)
+#define MEM_FLAG_HBM2		BIT(MEM_HBM2)
+
+/**
+ * enum edac_type - Error Detection and Correction capabilities and mode
+>>>>>>> upstream/android-13
  * @EDAC_UNKNOWN:	Unknown if ECC is available
  * @EDAC_NONE:		Doesn't support ECC
  * @EDAC_RESERVED:	Reserved ECC type
@@ -317,7 +359,11 @@ enum scrub_type {
 #define OP_OFFLINE		0x300
 
 /**
+<<<<<<< HEAD
  * enum edac_mc_layer - memory controller hierarchy layer
+=======
+ * enum edac_mc_layer_type - memory controller hierarchy layer
+>>>>>>> upstream/android-13
  *
  * @EDAC_MC_LAYER_BRANCH:	memory layer is named "branch"
  * @EDAC_MC_LAYER_CHANNEL:	memory layer is named "channel"
@@ -362,6 +408,7 @@ struct edac_mc_layer {
  */
 #define EDAC_MAX_LAYERS		3
 
+<<<<<<< HEAD
 /**
  * EDAC_DIMM_OFF - Macro responsible to get a pointer offset inside a pointer
  *		   array for the element given by [layer0,layer1,layer2]
@@ -434,15 +481,24 @@ struct edac_mc_layer {
 	__p;								\
 })
 
+=======
+>>>>>>> upstream/android-13
 struct dimm_info {
 	struct device dev;
 
 	char label[EDAC_MC_LABEL_LEN + 1];	/* DIMM label on motherboard */
 
 	/* Memory location data */
+<<<<<<< HEAD
 	unsigned location[EDAC_MAX_LAYERS];
 
 	struct mem_ctl_info *mci;	/* the parent */
+=======
+	unsigned int location[EDAC_MAX_LAYERS];
+
+	struct mem_ctl_info *mci;	/* the parent */
+	unsigned int idx;		/* index within the parent dimm array */
+>>>>>>> upstream/android-13
 
 	u32 grain;		/* granularity of reported error in bytes */
 	enum dev_type dtype;	/* memory device type */
@@ -451,7 +507,16 @@ struct dimm_info {
 
 	u32 nr_pages;			/* number of pages on this dimm */
 
+<<<<<<< HEAD
 	unsigned csrow, cschannel;	/* Points to the old API data */
+=======
+	unsigned int csrow, cschannel;	/* Points to the old API data */
+
+	u16 smbios_handle;              /* Handle for SMBIOS type 17 */
+
+	u32 ce_count;
+	u32 ue_count;
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -511,6 +576,10 @@ struct errcount_attribute_data {
  * struct edac_raw_error_desc - Raw error report structure
  * @grain:			minimum granularity for an error report, in bytes
  * @error_count:		number of errors of the same type
+<<<<<<< HEAD
+=======
+ * @type:			severity of the error (CE/UE/Fatal)
+>>>>>>> upstream/android-13
  * @top_layer:			top layer of the error (layer[0])
  * @mid_layer:			middle layer of the error (layer[1])
  * @low_layer:			low layer of the error (layer[2])
@@ -522,6 +591,7 @@ struct errcount_attribute_data {
  * @location:			location of the error
  * @label:			label of the affected DIMM(s)
  * @other_detail:		other driver-specific detail about the error
+<<<<<<< HEAD
  * @enable_per_layer_report:	if false, the error affects all layers
  *				(typically, a memory controller error)
  */
@@ -530,12 +600,21 @@ struct edac_raw_error_desc {
 	 * NOTE: everything before grain won't be cleaned by
 	 * edac_raw_error_desc_clean()
 	 */
+=======
+ */
+struct edac_raw_error_desc {
+>>>>>>> upstream/android-13
 	char location[LOCATION_SIZE];
 	char label[(EDAC_MC_LABEL_LEN + 1 + sizeof(OTHER_LABEL)) * EDAC_MAX_LABELS];
 	long grain;
 
+<<<<<<< HEAD
 	/* the vars below and grain will be cleaned on every new error report */
 	u16 error_count;
+=======
+	u16 error_count;
+	enum hw_event_mc_err_type type;
+>>>>>>> upstream/android-13
 	int top_layer;
 	int mid_layer;
 	int low_layer;
@@ -544,7 +623,10 @@ struct edac_raw_error_desc {
 	unsigned long syndrome;
 	const char *msg;
 	const char *other_detail;
+<<<<<<< HEAD
 	bool enable_per_layer_report;
+=======
+>>>>>>> upstream/android-13
 };
 
 /* MEMORY controller information structure
@@ -595,7 +677,11 @@ struct mem_ctl_info {
 					   unsigned long page);
 	int mc_idx;
 	struct csrow_info **csrows;
+<<<<<<< HEAD
 	unsigned nr_csrows, num_cschannel;
+=======
+	unsigned int nr_csrows, num_cschannel;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Memory Controller hierarchy
@@ -606,14 +692,22 @@ struct mem_ctl_info {
 	 * of the recent drivers enumerate memories per DIMM, instead.
 	 * When the memory controller is per rank, csbased is true.
 	 */
+<<<<<<< HEAD
 	unsigned n_layers;
+=======
+	unsigned int n_layers;
+>>>>>>> upstream/android-13
 	struct edac_mc_layer *layers;
 	bool csbased;
 
 	/*
 	 * DIMM info. Will eventually remove the entire csrows_info some day
 	 */
+<<<<<<< HEAD
 	unsigned tot_dimms;
+=======
+	unsigned int tot_dimms;
+>>>>>>> upstream/android-13
 	struct dimm_info **dimms;
 
 	/*
@@ -634,7 +728,10 @@ struct mem_ctl_info {
 	 */
 	u32 ce_noinfo_count, ue_noinfo_count;
 	u32 ue_mc, ce_mc;
+<<<<<<< HEAD
 	u32 *ce_per_layer[EDAC_MAX_LAYERS], *ue_per_layer[EDAC_MAX_LAYERS];
+=======
+>>>>>>> upstream/android-13
 
 	struct completion complete;
 
@@ -668,9 +765,63 @@ struct mem_ctl_info {
 	u16 fake_inject_count;
 };
 
+<<<<<<< HEAD
 /*
  * Maximum number of memory controllers in the coherent fabric.
  */
 #define EDAC_MAX_MCS	2 * MAX_NUMNODES
 
 #endif
+=======
+#define mci_for_each_dimm(mci, dimm)				\
+	for ((dimm) = (mci)->dimms[0];				\
+	     (dimm);						\
+	     (dimm) = (dimm)->idx + 1 < (mci)->tot_dimms	\
+		     ? (mci)->dimms[(dimm)->idx + 1]		\
+		     : NULL)
+
+/**
+ * edac_get_dimm - Get DIMM info from a memory controller given by
+ *                 [layer0,layer1,layer2] position
+ *
+ * @mci:	MC descriptor struct mem_ctl_info
+ * @layer0:	layer0 position
+ * @layer1:	layer1 position. Unused if n_layers < 2
+ * @layer2:	layer2 position. Unused if n_layers < 3
+ *
+ * For 1 layer, this function returns "dimms[layer0]";
+ *
+ * For 2 layers, this function is similar to allocating a two-dimensional
+ * array and returning "dimms[layer0][layer1]";
+ *
+ * For 3 layers, this function is similar to allocating a tri-dimensional
+ * array and returning "dimms[layer0][layer1][layer2]";
+ */
+static inline struct dimm_info *edac_get_dimm(struct mem_ctl_info *mci,
+	int layer0, int layer1, int layer2)
+{
+	int index;
+
+	if (layer0 < 0
+	    || (mci->n_layers > 1 && layer1 < 0)
+	    || (mci->n_layers > 2 && layer2 < 0))
+		return NULL;
+
+	index = layer0;
+
+	if (mci->n_layers > 1)
+		index = index * mci->layers[1].size + layer1;
+
+	if (mci->n_layers > 2)
+		index = index * mci->layers[2].size + layer2;
+
+	if (index < 0 || index >= mci->tot_dimms)
+		return NULL;
+
+	if (WARN_ON_ONCE(mci->dimms[index]->idx != index))
+		return NULL;
+
+	return mci->dimms[index];
+}
+#endif /* _LINUX_EDAC_H_ */
+>>>>>>> upstream/android-13

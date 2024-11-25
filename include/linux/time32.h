@@ -10,11 +10,15 @@
  */
 
 #include <linux/time64.h>
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/timex.h>
 
 #include <vdso/time32.h>
 
+<<<<<<< HEAD
 #define TIME_T_MAX	(time_t)((1UL << ((sizeof(time_t) << 3) - 1)) - 1)
 
 #if __BITS_PER_LONG == 64
@@ -204,10 +208,62 @@ static inline s64 timeval_to_ns(const struct timeval *tv)
 
 /**
  * ns_to_timeval - Convert nanoseconds to timeval
+=======
+struct old_itimerspec32 {
+	struct old_timespec32 it_interval;
+	struct old_timespec32 it_value;
+};
+
+struct old_utimbuf32 {
+	old_time32_t	actime;
+	old_time32_t	modtime;
+};
+
+struct old_timex32 {
+	u32 modes;
+	s32 offset;
+	s32 freq;
+	s32 maxerror;
+	s32 esterror;
+	s32 status;
+	s32 constant;
+	s32 precision;
+	s32 tolerance;
+	struct old_timeval32 time;
+	s32 tick;
+	s32 ppsfreq;
+	s32 jitter;
+	s32 shift;
+	s32 stabil;
+	s32 jitcnt;
+	s32 calcnt;
+	s32 errcnt;
+	s32 stbcnt;
+	s32 tai;
+
+	s32:32; s32:32; s32:32; s32:32;
+	s32:32; s32:32; s32:32; s32:32;
+	s32:32; s32:32; s32:32;
+};
+
+extern int get_old_timespec32(struct timespec64 *, const void __user *);
+extern int put_old_timespec32(const struct timespec64 *, void __user *);
+extern int get_old_itimerspec32(struct itimerspec64 *its,
+			const struct old_itimerspec32 __user *uits);
+extern int put_old_itimerspec32(const struct itimerspec64 *its,
+			struct old_itimerspec32 __user *uits);
+struct __kernel_timex;
+int get_old_timex32(struct __kernel_timex *, const struct old_timex32 __user *);
+int put_old_timex32(struct old_timex32 __user *, const struct __kernel_timex *);
+
+/**
+ * ns_to_kernel_old_timeval - Convert nanoseconds to timeval
+>>>>>>> upstream/android-13
  * @nsec:	the nanoseconds value to be converted
  *
  * Returns the timeval representation of the nsec parameter.
  */
+<<<<<<< HEAD
 extern struct timeval ns_to_timeval(const s64 nsec);
 extern struct __kernel_old_timeval ns_to_kernel_old_timeval(s64 nsec);
 
@@ -222,5 +278,21 @@ extern struct __kernel_old_timeval ns_to_kernel_old_timeval(s64 nsec);
 #define put_old_itimerspec32	put_compat_itimerspec64
 #define get_old_timespec32	compat_get_timespec64
 #define put_old_timespec32	compat_put_timespec64
+=======
+#ifndef __GENKSYMS__
+/*
+ * There is a mismatch between this signature and the declaration
+ * in kernel/time/time.c where the argument actually should be
+ * s64, but is declared as const s64 in kernel/time/time.c. Since
+ * the KMI expects const, we can't cherry-pick the upstream
+ * fix: 46dae32fe625 ("time: Correct the prototype of ns_to_kernel_old_timeval
+ * and ns_to_timespec64"). Use __GENKSYMS__ to force CRC to stay
+ * constant.
+ */
+extern struct __kernel_old_timeval ns_to_kernel_old_timeval(const s64 nsec);
+#else
+extern struct __kernel_old_timeval ns_to_kernel_old_timeval(s64 nsec);
+#endif
+>>>>>>> upstream/android-13
 
 #endif

@@ -1,15 +1,22 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * HWMON Driver for Dialog DA9055
  *
  * Copyright(c) 2012 Dialog Semiconductor Ltd.
  *
  * Author: David Dajun Chen <dchen@diasemi.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute  it and/or modify it
  *  under  the terms of  the GNU General  Public License as published by the
  *  Free Software Foundation;  either version 2 of the  License, or (at your
  *  option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -140,8 +147,14 @@ static int da9055_disable_auto_mode(struct da9055 *da9055, int channel)
 	return da9055_reg_update(da9055, DA9055_REG_ADC_CONT, 1 << channel, 0);
 }
 
+<<<<<<< HEAD
 static ssize_t da9055_read_auto_ch(struct device *dev,
 				struct device_attribute *devattr, char *buf)
+=======
+static ssize_t da9055_auto_ch_show(struct device *dev,
+				   struct device_attribute *devattr,
+				   char *buf)
+>>>>>>> upstream/android-13
 {
 	struct da9055_hwmon *hwmon = dev_get_drvdata(dev);
 	int ret, adc;
@@ -176,7 +189,11 @@ hwmon_err:
 	return ret;
 }
 
+<<<<<<< HEAD
 static ssize_t da9055_read_tjunc(struct device *dev,
+=======
+static ssize_t da9055_tjunc_show(struct device *dev,
+>>>>>>> upstream/android-13
 				 struct device_attribute *devattr, char *buf)
 {
 	struct da9055_hwmon *hwmon = dev_get_drvdata(dev);
@@ -199,13 +216,18 @@ static ssize_t da9055_read_tjunc(struct device *dev,
 							+ 3076332, 10000));
 }
 
+<<<<<<< HEAD
 static ssize_t show_label(struct device *dev,
+=======
+static ssize_t label_show(struct device *dev,
+>>>>>>> upstream/android-13
 			  struct device_attribute *devattr, char *buf)
 {
 	return sprintf(buf, "%s\n",
 		       input_names[to_sensor_dev_attr(devattr)->index]);
 }
 
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(in0_input, S_IRUGO, da9055_read_auto_ch, NULL,
 			  DA9055_ADC_VSYS);
 static SENSOR_DEVICE_ATTR(in0_label, S_IRUGO, show_label, NULL,
@@ -227,6 +249,19 @@ static SENSOR_DEVICE_ATTR(temp1_input, S_IRUGO, da9055_read_tjunc, NULL,
 			  DA9055_ADC_TJUNC);
 static SENSOR_DEVICE_ATTR(temp1_label, S_IRUGO, show_label, NULL,
 			  DA9055_ADC_TJUNC);
+=======
+static SENSOR_DEVICE_ATTR_RO(in0_input, da9055_auto_ch, DA9055_ADC_VSYS);
+static SENSOR_DEVICE_ATTR_RO(in0_label, label, DA9055_ADC_VSYS);
+static SENSOR_DEVICE_ATTR_RO(in1_input, da9055_auto_ch, DA9055_ADC_ADCIN1);
+static SENSOR_DEVICE_ATTR_RO(in1_label, label, DA9055_ADC_ADCIN1);
+static SENSOR_DEVICE_ATTR_RO(in2_input, da9055_auto_ch, DA9055_ADC_ADCIN2);
+static SENSOR_DEVICE_ATTR_RO(in2_label, label, DA9055_ADC_ADCIN2);
+static SENSOR_DEVICE_ATTR_RO(in3_input, da9055_auto_ch, DA9055_ADC_ADCIN3);
+static SENSOR_DEVICE_ATTR_RO(in3_label, label, DA9055_ADC_ADCIN3);
+
+static SENSOR_DEVICE_ATTR_RO(temp1_input, da9055_tjunc, DA9055_ADC_TJUNC);
+static SENSOR_DEVICE_ATTR_RO(temp1_label, label, DA9055_ADC_TJUNC);
+>>>>>>> upstream/android-13
 
 static struct attribute *da9055_attrs[] = {
 	&sensor_dev_attr_in0_input.dev_attr.attr,

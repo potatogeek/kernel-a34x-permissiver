@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2010-2014, The Linux Foundation. All rights reserved.
  *
@@ -12,6 +13,15 @@
  */
 
 #include <linux/device.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2010-2014, The Linux Foundation. All rights reserved.
+ */
+
+#include <linux/device.h>
+#include <linux/dma-mapping.h>
+>>>>>>> upstream/android-13
 #include <linux/interrupt.h>
 #include <crypto/internal/hash.h>
 
@@ -19,9 +29,21 @@
 #include "core.h"
 #include "sha.h"
 
+<<<<<<< HEAD
 /* crypto hw padding constant for first operation */
 #define SHA_PADDING		64
 #define SHA_PADDING_MASK	(SHA_PADDING - 1)
+=======
+struct qce_sha_saved_state {
+	u8 pending_buf[QCE_SHA_MAX_BLOCKSIZE];
+	u8 partial_digest[QCE_SHA_MAX_DIGESTSIZE];
+	__be32 byte_count[2];
+	unsigned int pending_buflen;
+	unsigned int flags;
+	u64 count;
+	bool first_blk;
+};
+>>>>>>> upstream/android-13
 
 static LIST_HEAD(ahash_algs);
 
@@ -55,7 +77,11 @@ static void qce_ahash_done(void *data)
 	dma_unmap_sg(qce->dev, &rctx->result_sg, 1, DMA_FROM_DEVICE);
 
 	memcpy(rctx->digest, result->auth_iv, digestsize);
+<<<<<<< HEAD
 	if (req->result)
+=======
+	if (req->result && rctx->last_blk)
+>>>>>>> upstream/android-13
 		memcpy(req->result, result->auth_iv, digestsize);
 
 	rctx->byte_count[0] = cpu_to_be32(result->auth_byte_count[0]);
@@ -114,7 +140,11 @@ static int qce_ahash_async_req_handle(struct crypto_async_request *async_req)
 
 	qce_dma_issue_pending(&qce->dma);
 
+<<<<<<< HEAD
 	ret = qce_start(async_req, tmpl->crypto_alg_type, 0, 0);
+=======
+	ret = qce_start(async_req, tmpl->crypto_alg_type);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto error_terminate;
 
@@ -146,6 +176,7 @@ static int qce_ahash_init(struct ahash_request *req)
 
 static int qce_ahash_export(struct ahash_request *req, void *out)
 {
+<<<<<<< HEAD
 	struct crypto_ahash *ahash = crypto_ahash_reqtfm(req);
 	struct qce_sha_reqctx *rctx = ahash_request_ctx(req);
 	unsigned long flags = rctx->flags;
@@ -205,6 +236,19 @@ static int qce_import_common(struct ahash_request *req, u64 in_count,
 	qce_cpu_to_be32p_array((__be32 *)rctx->digest, (const u8 *)state,
 			       digestsize);
 	rctx->buflen = (unsigned int)(in_count & (blocksize - 1));
+=======
+	struct qce_sha_reqctx *rctx = ahash_request_ctx(req);
+	struct qce_sha_saved_state *export_state = out;
+
+	memcpy(export_state->pending_buf, rctx->buf, rctx->buflen);
+	memcpy(export_state->partial_digest, rctx->digest, sizeof(rctx->digest));
+	export_state->byte_count[0] = rctx->byte_count[0];
+	export_state->byte_count[1] = rctx->byte_count[1];
+	export_state->pending_buflen = rctx->buflen;
+	export_state->count = rctx->count;
+	export_state->first_blk = rctx->first_blk;
+	export_state->flags = rctx->flags;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -212,6 +256,7 @@ static int qce_import_common(struct ahash_request *req, u64 in_count,
 static int qce_ahash_import(struct ahash_request *req, const void *in)
 {
 	struct qce_sha_reqctx *rctx = ahash_request_ctx(req);
+<<<<<<< HEAD
 	unsigned long flags = rctx->flags;
 	bool hmac = IS_SHA_HMAC(flags);
 	int ret = -EINVAL;
@@ -229,6 +274,21 @@ static int qce_ahash_import(struct ahash_request *req, const void *in)
 	}
 
 	return ret;
+=======
+	const struct qce_sha_saved_state *import_state = in;
+
+	memset(rctx, 0, sizeof(*rctx));
+	rctx->count = import_state->count;
+	rctx->buflen = import_state->pending_buflen;
+	rctx->first_blk = import_state->first_blk;
+	rctx->flags = import_state->flags;
+	rctx->byte_count[0] = import_state->byte_count[0];
+	rctx->byte_count[1] = import_state->byte_count[1];
+	memcpy(rctx->buf, import_state->pending_buf, rctx->buflen);
+	memcpy(rctx->digest, import_state->partial_digest, sizeof(rctx->digest));
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int qce_ahash_update(struct ahash_request *req)
@@ -269,6 +329,28 @@ static int qce_ahash_update(struct ahash_request *req)
 
 	/* calculate how many bytes will be hashed later */
 	hash_later = total % blocksize;
+<<<<<<< HEAD
+=======
+
+	/*
+	 * At this point, there is more than one block size of data.  If
+	 * the available data to transfer is exactly a multiple of block
+	 * size, save the last block to be transferred in qce_ahash_final
+	 * (with the last block bit set) if this is indeed the end of data
+	 * stream. If not this saved block will be transferred as part of
+	 * next update. If this block is not held back and if this is
+	 * indeed the end of data stream, the digest obtained will be wrong
+	 * since qce_ahash_final will see that rctx->buflen is 0 and return
+	 * doing nothing which in turn means that a digest will not be
+	 * copied to the destination result buffer.  qce_ahash_final cannot
+	 * be made to alter this behavior and allowed to proceed if
+	 * rctx->buflen is 0 because the crypto engine BAM does not allow
+	 * for zero length transfers.
+	 */
+	if (!hash_later)
+		hash_later = blocksize;
+
+>>>>>>> upstream/android-13
 	if (hash_later) {
 		unsigned int src_offset = req->nbytes - hash_later;
 		scatterwalk_map_and_copy(rctx->buf, req->src, src_offset,
@@ -292,8 +374,11 @@ static int qce_ahash_update(struct ahash_request *req)
 	if (!sg_last)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	sg_mark_end(sg_last);
 
+=======
+>>>>>>> upstream/android-13
 	if (rctx->buflen) {
 		sg_init_table(rctx->sg, 2);
 		sg_set_buf(rctx->sg, rctx->tmpbuf, rctx->buflen);
@@ -313,8 +398,17 @@ static int qce_ahash_final(struct ahash_request *req)
 	struct qce_alg_template *tmpl = to_ahash_tmpl(req->base.tfm);
 	struct qce_device *qce = tmpl->qce;
 
+<<<<<<< HEAD
 	if (!rctx->buflen)
 		return 0;
+=======
+	if (!rctx->buflen) {
+		if (tmpl->hash_zero)
+			memcpy(req->result, tmpl->hash_zero,
+					tmpl->alg.ahash.halg.digestsize);
+		return 0;
+	}
+>>>>>>> upstream/android-13
 
 	rctx->last_blk = true;
 
@@ -346,6 +440,16 @@ static int qce_ahash_digest(struct ahash_request *req)
 	rctx->first_blk = true;
 	rctx->last_blk = true;
 
+<<<<<<< HEAD
+=======
+	if (!rctx->nbytes_orig) {
+		if (tmpl->hash_zero)
+			memcpy(req->result, tmpl->hash_zero,
+					tmpl->alg.ahash.halg.digestsize);
+		return 0;
+	}
+
+>>>>>>> upstream/android-13
 	return qce->async_req_enqueue(tmpl->qce, &req->base);
 }
 
@@ -404,8 +508,11 @@ static int qce_ahash_hmac_setkey(struct crypto_ahash *tfm, const u8 *key,
 	ahash_request_set_crypt(req, &sg, ctx->authkey, keylen);
 
 	ret = crypto_wait_req(crypto_ahash_digest(req), &wait);
+<<<<<<< HEAD
 	if (ret)
 		crypto_ahash_set_flags(tfm, CRYPTO_TFM_RES_BAD_KEY_LEN);
+=======
+>>>>>>> upstream/android-13
 
 	kfree(buf);
 err_free_req:
@@ -442,7 +549,11 @@ static const struct qce_ahash_def ahash_def[] = {
 		.drv_name	= "sha1-qce",
 		.digestsize	= SHA1_DIGEST_SIZE,
 		.blocksize	= SHA1_BLOCK_SIZE,
+<<<<<<< HEAD
 		.statesize	= sizeof(struct sha1_state),
+=======
+		.statesize	= sizeof(struct qce_sha_saved_state),
+>>>>>>> upstream/android-13
 		.std_iv		= std_iv_sha1,
 	},
 	{
@@ -451,7 +562,11 @@ static const struct qce_ahash_def ahash_def[] = {
 		.drv_name	= "sha256-qce",
 		.digestsize	= SHA256_DIGEST_SIZE,
 		.blocksize	= SHA256_BLOCK_SIZE,
+<<<<<<< HEAD
 		.statesize	= sizeof(struct sha256_state),
+=======
+		.statesize	= sizeof(struct qce_sha_saved_state),
+>>>>>>> upstream/android-13
 		.std_iv		= std_iv_sha256,
 	},
 	{
@@ -460,7 +575,11 @@ static const struct qce_ahash_def ahash_def[] = {
 		.drv_name	= "hmac-sha1-qce",
 		.digestsize	= SHA1_DIGEST_SIZE,
 		.blocksize	= SHA1_BLOCK_SIZE,
+<<<<<<< HEAD
 		.statesize	= sizeof(struct sha1_state),
+=======
+		.statesize	= sizeof(struct qce_sha_saved_state),
+>>>>>>> upstream/android-13
 		.std_iv		= std_iv_sha1,
 	},
 	{
@@ -469,7 +588,11 @@ static const struct qce_ahash_def ahash_def[] = {
 		.drv_name	= "hmac-sha256-qce",
 		.digestsize	= SHA256_DIGEST_SIZE,
 		.blocksize	= SHA256_BLOCK_SIZE,
+<<<<<<< HEAD
 		.statesize	= sizeof(struct sha256_state),
+=======
+		.statesize	= sizeof(struct qce_sha_saved_state),
+>>>>>>> upstream/android-13
 		.std_iv		= std_iv_sha256,
 	},
 };
@@ -500,15 +623,30 @@ static int qce_ahash_register_one(const struct qce_ahash_def *def,
 	alg->halg.digestsize = def->digestsize;
 	alg->halg.statesize = def->statesize;
 
+<<<<<<< HEAD
 	base = &alg->halg.base;
 	base->cra_blocksize = def->blocksize;
 	base->cra_priority = 300;
 	base->cra_flags = CRYPTO_ALG_ASYNC;
+=======
+	if (IS_SHA1(def->flags))
+		tmpl->hash_zero = sha1_zero_message_hash;
+	else if (IS_SHA256(def->flags))
+		tmpl->hash_zero = sha256_zero_message_hash;
+
+	base = &alg->halg.base;
+	base->cra_blocksize = def->blocksize;
+	base->cra_priority = 300;
+	base->cra_flags = CRYPTO_ALG_ASYNC | CRYPTO_ALG_KERN_DRIVER_ONLY;
+>>>>>>> upstream/android-13
 	base->cra_ctxsize = sizeof(struct qce_sha_ctx);
 	base->cra_alignmask = 0;
 	base->cra_module = THIS_MODULE;
 	base->cra_init = qce_ahash_cra_init;
+<<<<<<< HEAD
 	INIT_LIST_HEAD(&base->cra_list);
+=======
+>>>>>>> upstream/android-13
 
 	snprintf(base->cra_name, CRYPTO_MAX_ALG_NAME, "%s", def->name);
 	snprintf(base->cra_driver_name, CRYPTO_MAX_ALG_NAME, "%s",
@@ -521,8 +659,13 @@ static int qce_ahash_register_one(const struct qce_ahash_def *def,
 
 	ret = crypto_register_ahash(alg);
 	if (ret) {
+<<<<<<< HEAD
 		kfree(tmpl);
 		dev_err(qce->dev, "%s registration failed\n", base->cra_name);
+=======
+		dev_err(qce->dev, "%s registration failed\n", base->cra_name);
+		kfree(tmpl);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 

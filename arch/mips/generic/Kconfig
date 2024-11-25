@@ -1,5 +1,9 @@
 # SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 if MIPS_GENERIC
+=======
+if MIPS_GENERIC_KERNEL
+>>>>>>> upstream/android-13
 
 config LEGACY_BOARDS
 	bool
@@ -31,6 +35,7 @@ comment "MSCC Ocelot doesn't work with SEAD3 enabled"
 	depends on LEGACY_BOARD_SEAD3
 
 config LEGACY_BOARD_OCELOT
+<<<<<<< HEAD
 	bool "Support MSCC Ocelot boards"
 	depends on LEGACY_BOARD_SEAD3=n
 	select LEGACY_BOARDS
@@ -42,6 +47,24 @@ config MSCC_OCELOT
 	bool
 	select GPIOLIB
 	select MSCC_OCELOT_IRQ
+=======
+	bool "Legacy support for Ocelot based boards"
+	depends on LEGACY_BOARD_SEAD3=n
+	select LEGACY_BOARDS
+	select SOC_VCOREIII
+	select SYS_HAS_EARLY_PRINTK
+	select USE_GENERIC_EARLY_PRINTK_8250
+
+config SOC_VCOREIII
+	bool
+	select GPIOLIB
+	select MSCC_OCELOT_IRQ
+	select MSCC_OCELOT #will be removed when driver no more use it
+
+#Will be removed when the driver using it will be converted to SOC_VCOREIII
+config MSCC_OCELOT
+	bool
+>>>>>>> upstream/android-13
 
 comment "FIT/UHI Boards"
 
@@ -53,6 +76,15 @@ config FIT_IMAGE_FDT_BOSTON
 	  enable this if you wish to boot on a MIPS Boston board, as it is
 	  expected by the bootloader.
 
+<<<<<<< HEAD
+=======
+config FIT_IMAGE_FDT_MARDUK
+	bool "Include FDT for IMG Pistachio Marduk (CI40) boards"
+	help
+	  Enable this to include the FDT for the IMG Pistachio Marduk (CI40)
+	  from Imagination Technologies in the FIT kernel image.
+
+>>>>>>> upstream/android-13
 config FIT_IMAGE_FDT_NI169445
 	bool "Include FDT for NI 169445"
 	help
@@ -65,6 +97,7 @@ config FIT_IMAGE_FDT_XILFPGA
 	  Enable this to include the FDT for the MIPSfpga platform
 	  from Imagination Technologies in the FIT kernel image.
 
+<<<<<<< HEAD
 config FIT_IMAGE_FDT_OCELOT_PCB123
 	bool "Include FDT for Microsemi Ocelot PCB123"
 	select MSCC_OCELOT
@@ -73,6 +106,46 @@ config FIT_IMAGE_FDT_OCELOT_PCB123
 	  from Microsemi in the FIT kernel image.
 	  This requires u-boot on the platform.
 
+=======
+config FIT_IMAGE_FDT_OCELOT
+	bool "Include FDT for Microsemi Ocelot development platforms"
+	select SOC_VCOREIII
+	help
+	  Enable this to include the FDT for the Ocelot development platforms
+	  from Microsemi in the FIT kernel image.
+	  This requires u-boot on the platform.
+
+config FIT_IMAGE_FDT_LUTON
+	bool "Include FDT for Microsemi Luton development platforms"
+	select SOC_VCOREIII
+	help
+	  Enable this to include the FDT for the Luton development platforms
+	  from Microsemi in the FIT kernel image.
+	  This requires u-boot on the platform.
+
+config FIT_IMAGE_FDT_JAGUAR2
+	bool "Include FDT for Microsemi Jaguar2 development platforms"
+	select SOC_VCOREIII
+	help
+	  Enable this to include the FDT for the Jaguar2 development platforms
+	  from Microsemi in the FIT kernel image.
+	  This requires u-boot on the platform.
+
+config FIT_IMAGE_FDT_SERVAL
+	bool "Include FDT for Microsemi Serval development platforms"
+	select SOC_VCOREIII
+	help
+	  Enable this to include the FDT for the Serval development platforms
+	  from Microsemi in the FIT kernel image.
+	  This requires u-boot on the platform.
+
+config BOARD_INGENIC
+	bool "Support boards based on Ingenic SoCs"
+	select MACH_INGENIC_GENERIC
+	help
+	  Enable support for boards based on Ingenic SoCs.
+
+>>>>>>> upstream/android-13
 config VIRT_BOARD_RANCHU
 	bool "Support Ranchu platform for Android emulator"
 	help

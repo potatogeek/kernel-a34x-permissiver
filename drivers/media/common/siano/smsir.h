@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 /*
  * SPDX-License-Identifier: GPL-2.0+
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+/*
+>>>>>>> upstream/android-13
  *
  * Siano Mobile Silicon, Inc.
  * MDTV receiver kernel modules.

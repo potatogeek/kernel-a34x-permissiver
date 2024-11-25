@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright 2013 Emilio López
  *
  * Emilio López <emilio@elopez.com.ar>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,17 +17,27 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
 #include <linux/clk-provider.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/of_address.h>
 #include <linux/platform_device.h>
 #include <linux/slab.h>
 
 #include "clk-factors.h"
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * sun4i_a10_get_mod0_factors() - calculates m, n factors for MOD0-style clocks
  * MOD0 rate is calculated as follows
  * rate = (parent_rate >> p) / (m + 1);
@@ -140,8 +155,13 @@ static void __init sun9i_a80_mod0_setup(struct device_node *node)
 
 	reg = of_io_request_and_map(node, 0, of_node_full_name(node));
 	if (IS_ERR(reg)) {
+<<<<<<< HEAD
 		pr_err("Could not get registers for mod0-clk: %s\n",
 		       node->name);
+=======
+		pr_err("Could not get registers for mod0-clk: %pOFn\n",
+		       node);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -306,7 +326,11 @@ static void __init sunxi_mmc_setup(struct device_node *node,
 
 	reg = of_io_request_and_map(node, 0, of_node_full_name(node));
 	if (IS_ERR(reg)) {
+<<<<<<< HEAD
 		pr_err("Couldn't map the %s clock registers\n", node->name);
+=======
+		pr_err("Couldn't map the %pOFn clock registers\n", node);
+>>>>>>> upstream/android-13
 		return;
 	}
 

@@ -18,7 +18,10 @@
 #include <linux/slab.h>
 #include <linux/jiffies.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
 #include <linux/pci-aspm.h>
+=======
+>>>>>>> upstream/android-13
 #include "../pci.h"
 
 #ifdef MODULE_PARAM_PREFIX
@@ -53,8 +56,11 @@ struct pcie_link_state {
 	struct pcie_link_state *root;	/* pointer to the root port link */
 	struct pcie_link_state *parent;	/* pointer to the parent Link state */
 	struct list_head sibling;	/* node in link_list */
+<<<<<<< HEAD
 	struct list_head children;	/* list of child link states */
 	struct list_head link;		/* node in parent's children list */
+=======
+>>>>>>> upstream/android-13
 
 	/* ASPM state */
 	u32 aspm_support:7;		/* Supported ASPM state */
@@ -77,6 +83,7 @@ struct pcie_link_state {
 	 * has one slot under it, so at most there are 8 functions.
 	 */
 	struct aspm_latency acceptable[8];
+<<<<<<< HEAD
 
 	/* L1 PM Substate info */
 	struct {
@@ -85,6 +92,8 @@ struct pcie_link_state {
 		u32 ctl1;		/* value to be programmed in ctl1 */
 		u32 ctl2;		/* value to be programmed in ctl2 */
 	} l1ss;
+=======
+>>>>>>> upstream/android-13
 };
 
 static int aspm_disabled, aspm_force;
@@ -206,7 +215,11 @@ static void pcie_clkpm_cap_init(struct pcie_link_state *link, int blacklist)
 static bool pcie_retrain_link(struct pcie_link_state *link)
 {
 	struct pci_dev *parent = link->pdev;
+<<<<<<< HEAD
 	unsigned long start_jiffies;
+=======
+	unsigned long end_jiffies;
+>>>>>>> upstream/android-13
 	u16 reg16;
 
 	pcie_capability_read_word(parent, PCI_EXP_LNKCTL, &reg16);
@@ -223,6 +236,7 @@ static bool pcie_retrain_link(struct pcie_link_state *link)
 	}
 
 	/* Wait for link training end. Break out after waiting for timeout */
+<<<<<<< HEAD
 	start_jiffies = jiffies;
 	for (;;) {
 		pcie_capability_read_word(parent, PCI_EXP_LNKSTA, &reg16);
@@ -232,6 +246,15 @@ static bool pcie_retrain_link(struct pcie_link_state *link)
 			break;
 		msleep(1);
 	}
+=======
+	end_jiffies = jiffies + LINK_RETRAIN_TIMEOUT;
+	do {
+		pcie_capability_read_word(parent, PCI_EXP_LNKSTA, &reg16);
+		if (!(reg16 & PCI_EXP_LNKSTA_LT))
+			break;
+		msleep(1);
+	} while (time_before(jiffies, end_jiffies));
+>>>>>>> upstream/android-13
 	return !(reg16 & PCI_EXP_LNKSTA_LT);
 }
 
@@ -278,7 +301,11 @@ static void pcie_aspm_configure_common_clock(struct pcie_link_state *link)
 		}
 		if (consistent)
 			return;
+<<<<<<< HEAD
 		pci_warn(parent, "ASPM: current common clock configuration is broken, reconfiguring\n");
+=======
+		pci_info(parent, "ASPM: current common clock configuration is inconsistent, reconfiguring\n");
+>>>>>>> upstream/android-13
 	}
 
 	/* Configure downstream component, all functions */
@@ -313,8 +340,15 @@ static void pcie_aspm_configure_common_clock(struct pcie_link_state *link)
 }
 
 /* Convert L0s latency encoding to ns */
+<<<<<<< HEAD
 static u32 calc_l0s_latency(u32 encoding)
 {
+=======
+static u32 calc_l0s_latency(u32 lnkcap)
+{
+	u32 encoding = (lnkcap & PCI_EXP_LNKCAP_L0SEL) >> 12;
+
+>>>>>>> upstream/android-13
 	if (encoding == 0x7)
 		return (5 * 1000);	/* > 4us */
 	return (64 << encoding);
@@ -329,8 +363,15 @@ static u32 calc_l0s_acceptable(u32 encoding)
 }
 
 /* Convert L1 latency encoding to ns */
+<<<<<<< HEAD
 static u32 calc_l1_latency(u32 encoding)
 {
+=======
+static u32 calc_l1_latency(u32 lnkcap)
+{
+	u32 encoding = (lnkcap & PCI_EXP_LNKCAP_L1EL) >> 15;
+
+>>>>>>> upstream/android-13
 	if (encoding == 0x7)
 		return (65 * 1000);	/* > 64us */
 	return (1000 << encoding);
@@ -385,6 +426,7 @@ static void encode_l12_threshold(u32 threshold_us, u32 *scale, u32 *value)
 	}
 }
 
+<<<<<<< HEAD
 struct aspm_register_info {
 	u32 support:2;
 	u32 enabled:2;
@@ -437,6 +479,8 @@ static void pcie_get_aspm_reg(struct pci_dev *pdev,
 			      &info->l1ss_ctl2);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void pcie_aspm_check_latency(struct pci_dev *endpoint)
 {
 	u32 latency, l1_switch_latency = 0;
@@ -498,6 +542,7 @@ static struct pci_dev *pci_function_0(struct pci_bus *linkbus)
 	return NULL;
 }
 
+<<<<<<< HEAD
 /* Calculate L1.2 PM substate timing parameters */
 static void aspm_calc_l1ss_info(struct pcie_link_state *link,
 				struct aspm_register_info *upreg,
@@ -509,11 +554,35 @@ static void aspm_calc_l1ss_info(struct pcie_link_state *link,
 	link->l1ss.up_cap_ptr = upreg->l1ss_cap_ptr;
 	link->l1ss.dw_cap_ptr = dwreg->l1ss_cap_ptr;
 	link->l1ss.ctl1 = link->l1ss.ctl2 = 0;
+=======
+static void pci_clear_and_set_dword(struct pci_dev *pdev, int pos,
+				    u32 clear, u32 set)
+{
+	u32 val;
+
+	pci_read_config_dword(pdev, pos, &val);
+	val &= ~clear;
+	val |= set;
+	pci_write_config_dword(pdev, pos, val);
+}
+
+/* Calculate L1.2 PM substate timing parameters */
+static void aspm_calc_l1ss_info(struct pcie_link_state *link,
+				u32 parent_l1ss_cap, u32 child_l1ss_cap)
+{
+	struct pci_dev *child = link->downstream, *parent = link->pdev;
+	u32 val1, val2, scale1, scale2;
+	u32 t_common_mode, t_power_on, l1_2_threshold, scale, value;
+	u32 ctl1 = 0, ctl2 = 0;
+	u32 pctl1, pctl2, cctl1, cctl2;
+	u32 pl1_2_enables, cl1_2_enables;
+>>>>>>> upstream/android-13
 
 	if (!(link->aspm_support & ASPM_STATE_L1_2_MASK))
 		return;
 
 	/* Choose the greater of the two Port Common_Mode_Restore_Times */
+<<<<<<< HEAD
 	val1 = (upreg->l1ss_cap & PCI_L1SS_CAP_CM_RESTORE_TIME) >> 8;
 	val2 = (dwreg->l1ss_cap & PCI_L1SS_CAP_CM_RESTORE_TIME) >> 8;
 	t_common_mode = max(val1, val2);
@@ -531,6 +600,25 @@ static void aspm_calc_l1ss_info(struct pcie_link_state *link,
 	} else {
 		link->l1ss.ctl2 |= scale2 | (val2 << 3);
 		t_power_on = calc_l1ss_pwron(link->downstream, scale2, val2);
+=======
+	val1 = (parent_l1ss_cap & PCI_L1SS_CAP_CM_RESTORE_TIME) >> 8;
+	val2 = (child_l1ss_cap & PCI_L1SS_CAP_CM_RESTORE_TIME) >> 8;
+	t_common_mode = max(val1, val2);
+
+	/* Choose the greater of the two Port T_POWER_ON times */
+	val1   = (parent_l1ss_cap & PCI_L1SS_CAP_P_PWR_ON_VALUE) >> 19;
+	scale1 = (parent_l1ss_cap & PCI_L1SS_CAP_P_PWR_ON_SCALE) >> 16;
+	val2   = (child_l1ss_cap & PCI_L1SS_CAP_P_PWR_ON_VALUE) >> 19;
+	scale2 = (child_l1ss_cap & PCI_L1SS_CAP_P_PWR_ON_SCALE) >> 16;
+
+	if (calc_l1ss_pwron(parent, scale1, val1) >
+	    calc_l1ss_pwron(child, scale2, val2)) {
+		ctl2 |= scale1 | (val1 << 3);
+		t_power_on = calc_l1ss_pwron(parent, scale1, val1);
+	} else {
+		ctl2 |= scale2 | (val2 << 3);
+		t_power_on = calc_l1ss_pwron(child, scale2, val2);
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -545,14 +633,69 @@ static void aspm_calc_l1ss_info(struct pcie_link_state *link,
 	 */
 	l1_2_threshold = 2 + 4 + t_common_mode + t_power_on;
 	encode_l12_threshold(l1_2_threshold, &scale, &value);
+<<<<<<< HEAD
 	link->l1ss.ctl1 |= t_common_mode << 8 | scale << 29 | value << 16;
+=======
+	ctl1 |= t_common_mode << 8 | scale << 29 | value << 16;
+
+	pci_read_config_dword(parent, parent->l1ss + PCI_L1SS_CTL1, &pctl1);
+	pci_read_config_dword(parent, parent->l1ss + PCI_L1SS_CTL2, &pctl2);
+	pci_read_config_dword(child, child->l1ss + PCI_L1SS_CTL1, &cctl1);
+	pci_read_config_dword(child, child->l1ss + PCI_L1SS_CTL2, &cctl2);
+
+	if (ctl1 == pctl1 && ctl1 == cctl1 &&
+	    ctl2 == pctl2 && ctl2 == cctl2)
+		return;
+
+	/* Disable L1.2 while updating.  See PCIe r5.0, sec 5.5.4, 7.8.3.3 */
+	pl1_2_enables = pctl1 & PCI_L1SS_CTL1_L1_2_MASK;
+	cl1_2_enables = cctl1 & PCI_L1SS_CTL1_L1_2_MASK;
+
+	if (pl1_2_enables || cl1_2_enables) {
+		pci_clear_and_set_dword(child, child->l1ss + PCI_L1SS_CTL1,
+					PCI_L1SS_CTL1_L1_2_MASK, 0);
+		pci_clear_and_set_dword(parent, parent->l1ss + PCI_L1SS_CTL1,
+					PCI_L1SS_CTL1_L1_2_MASK, 0);
+	}
+
+	/* Program T_POWER_ON times in both ports */
+	pci_write_config_dword(parent, parent->l1ss + PCI_L1SS_CTL2, ctl2);
+	pci_write_config_dword(child, child->l1ss + PCI_L1SS_CTL2, ctl2);
+
+	/* Program Common_Mode_Restore_Time in upstream device */
+	pci_clear_and_set_dword(parent, parent->l1ss + PCI_L1SS_CTL1,
+				PCI_L1SS_CTL1_CM_RESTORE_TIME, ctl1);
+
+	/* Program LTR_L1.2_THRESHOLD time in both ports */
+	pci_clear_and_set_dword(parent,	parent->l1ss + PCI_L1SS_CTL1,
+				PCI_L1SS_CTL1_LTR_L12_TH_VALUE |
+				PCI_L1SS_CTL1_LTR_L12_TH_SCALE, ctl1);
+	pci_clear_and_set_dword(child, child->l1ss + PCI_L1SS_CTL1,
+				PCI_L1SS_CTL1_LTR_L12_TH_VALUE |
+				PCI_L1SS_CTL1_LTR_L12_TH_SCALE, ctl1);
+
+	if (pl1_2_enables || cl1_2_enables) {
+		pci_clear_and_set_dword(parent, parent->l1ss + PCI_L1SS_CTL1, 0,
+					pl1_2_enables);
+		pci_clear_and_set_dword(child, child->l1ss + PCI_L1SS_CTL1, 0,
+					cl1_2_enables);
+	}
+>>>>>>> upstream/android-13
 }
 
 static void pcie_aspm_cap_init(struct pcie_link_state *link, int blacklist)
 {
 	struct pci_dev *child = link->downstream, *parent = link->pdev;
+<<<<<<< HEAD
 	struct pci_bus *linkbus = parent->subordinate;
 	struct aspm_register_info upreg, dwreg;
+=======
+	u32 parent_lnkcap, child_lnkcap;
+	u16 parent_lnkctl, child_lnkctl;
+	u32 parent_l1ss_cap, child_l1ss_cap;
+	u32 parent_l1ss_ctl1 = 0, child_l1ss_ctl1 = 0;
+	struct pci_bus *linkbus = parent->subordinate;
+>>>>>>> upstream/android-13
 
 	if (blacklist) {
 		/* Set enabled/disable so that we will disable ASPM later */
@@ -561,26 +704,47 @@ static void pcie_aspm_cap_init(struct pcie_link_state *link, int blacklist)
 		return;
 	}
 
+<<<<<<< HEAD
 	/* Get upstream/downstream components' register state */
 	pcie_get_aspm_reg(parent, &upreg);
 	pcie_get_aspm_reg(child, &dwreg);
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * If ASPM not supported, don't mess with the clocks and link,
 	 * bail out now.
 	 */
+<<<<<<< HEAD
 	if (!(upreg.support & dwreg.support))
+=======
+	pcie_capability_read_dword(parent, PCI_EXP_LNKCAP, &parent_lnkcap);
+	pcie_capability_read_dword(child, PCI_EXP_LNKCAP, &child_lnkcap);
+	if (!(parent_lnkcap & child_lnkcap & PCI_EXP_LNKCAP_ASPMS))
+>>>>>>> upstream/android-13
 		return;
 
 	/* Configure common clock before checking latencies */
 	pcie_aspm_configure_common_clock(link);
 
 	/*
+<<<<<<< HEAD
 	 * Re-read upstream/downstream components' register state
 	 * after clock configuration
 	 */
 	pcie_get_aspm_reg(parent, &upreg);
 	pcie_get_aspm_reg(child, &dwreg);
+=======
+	 * Re-read upstream/downstream components' register state after
+	 * clock configuration.  L0s & L1 exit latencies in the otherwise
+	 * read-only Link Capabilities may change depending on common clock
+	 * configuration (PCIe r5.0, sec 7.5.3.6).
+	 */
+	pcie_capability_read_dword(parent, PCI_EXP_LNKCAP, &parent_lnkcap);
+	pcie_capability_read_dword(child, PCI_EXP_LNKCAP, &child_lnkcap);
+	pcie_capability_read_word(parent, PCI_EXP_LNKCTL, &parent_lnkctl);
+	pcie_capability_read_word(child, PCI_EXP_LNKCTL, &child_lnkctl);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Setup L0s state
@@ -589,6 +753,7 @@ static void pcie_aspm_cap_init(struct pcie_link_state *link, int blacklist)
 	 * given link unless components on both sides of the link each
 	 * support L0s.
 	 */
+<<<<<<< HEAD
 	if (dwreg.support & upreg.support & PCIE_LINK_STATE_L0S)
 		link->aspm_support |= ASPM_STATE_L0S;
 	if (dwreg.enabled & PCIE_LINK_STATE_L0S)
@@ -627,6 +792,73 @@ static void pcie_aspm_cap_init(struct pcie_link_state *link, int blacklist)
 
 	if (link->aspm_support & ASPM_STATE_L1SS)
 		aspm_calc_l1ss_info(link, &upreg, &dwreg);
+=======
+	if (parent_lnkcap & child_lnkcap & PCI_EXP_LNKCAP_ASPM_L0S)
+		link->aspm_support |= ASPM_STATE_L0S;
+
+	if (child_lnkctl & PCI_EXP_LNKCTL_ASPM_L0S)
+		link->aspm_enabled |= ASPM_STATE_L0S_UP;
+	if (parent_lnkctl & PCI_EXP_LNKCTL_ASPM_L0S)
+		link->aspm_enabled |= ASPM_STATE_L0S_DW;
+	link->latency_up.l0s = calc_l0s_latency(parent_lnkcap);
+	link->latency_dw.l0s = calc_l0s_latency(child_lnkcap);
+
+	/* Setup L1 state */
+	if (parent_lnkcap & child_lnkcap & PCI_EXP_LNKCAP_ASPM_L1)
+		link->aspm_support |= ASPM_STATE_L1;
+
+	if (parent_lnkctl & child_lnkctl & PCI_EXP_LNKCTL_ASPM_L1)
+		link->aspm_enabled |= ASPM_STATE_L1;
+	link->latency_up.l1 = calc_l1_latency(parent_lnkcap);
+	link->latency_dw.l1 = calc_l1_latency(child_lnkcap);
+
+	/* Setup L1 substate */
+	pci_read_config_dword(parent, parent->l1ss + PCI_L1SS_CAP,
+			      &parent_l1ss_cap);
+	pci_read_config_dword(child, child->l1ss + PCI_L1SS_CAP,
+			      &child_l1ss_cap);
+
+	if (!(parent_l1ss_cap & PCI_L1SS_CAP_L1_PM_SS))
+		parent_l1ss_cap = 0;
+	if (!(child_l1ss_cap & PCI_L1SS_CAP_L1_PM_SS))
+		child_l1ss_cap = 0;
+
+	/*
+	 * If we don't have LTR for the entire path from the Root Complex
+	 * to this device, we can't use ASPM L1.2 because it relies on the
+	 * LTR_L1.2_THRESHOLD.  See PCIe r4.0, secs 5.5.4, 6.18.
+	 */
+	if (!child->ltr_path)
+		child_l1ss_cap &= ~PCI_L1SS_CAP_ASPM_L1_2;
+
+	if (parent_l1ss_cap & child_l1ss_cap & PCI_L1SS_CAP_ASPM_L1_1)
+		link->aspm_support |= ASPM_STATE_L1_1;
+	if (parent_l1ss_cap & child_l1ss_cap & PCI_L1SS_CAP_ASPM_L1_2)
+		link->aspm_support |= ASPM_STATE_L1_2;
+	if (parent_l1ss_cap & child_l1ss_cap & PCI_L1SS_CAP_PCIPM_L1_1)
+		link->aspm_support |= ASPM_STATE_L1_1_PCIPM;
+	if (parent_l1ss_cap & child_l1ss_cap & PCI_L1SS_CAP_PCIPM_L1_2)
+		link->aspm_support |= ASPM_STATE_L1_2_PCIPM;
+
+	if (parent_l1ss_cap)
+		pci_read_config_dword(parent, parent->l1ss + PCI_L1SS_CTL1,
+				      &parent_l1ss_ctl1);
+	if (child_l1ss_cap)
+		pci_read_config_dword(child, child->l1ss + PCI_L1SS_CTL1,
+				      &child_l1ss_ctl1);
+
+	if (parent_l1ss_ctl1 & child_l1ss_ctl1 & PCI_L1SS_CTL1_ASPM_L1_1)
+		link->aspm_enabled |= ASPM_STATE_L1_1;
+	if (parent_l1ss_ctl1 & child_l1ss_ctl1 & PCI_L1SS_CTL1_ASPM_L1_2)
+		link->aspm_enabled |= ASPM_STATE_L1_2;
+	if (parent_l1ss_ctl1 & child_l1ss_ctl1 & PCI_L1SS_CTL1_PCIPM_L1_1)
+		link->aspm_enabled |= ASPM_STATE_L1_1_PCIPM;
+	if (parent_l1ss_ctl1 & child_l1ss_ctl1 & PCI_L1SS_CTL1_PCIPM_L1_2)
+		link->aspm_enabled |= ASPM_STATE_L1_2_PCIPM;
+
+	if (link->aspm_support & ASPM_STATE_L1SS)
+		aspm_calc_l1ss_info(link, parent_l1ss_cap, child_l1ss_cap);
+>>>>>>> upstream/android-13
 
 	/* Save default state */
 	link->aspm_default = link->aspm_enabled;
@@ -656,6 +888,7 @@ static void pcie_aspm_cap_init(struct pcie_link_state *link, int blacklist)
 	}
 }
 
+<<<<<<< HEAD
 static void pci_clear_and_set_dword(struct pci_dev *pdev, int pos,
 				    u32 clear, u32 set)
 {
@@ -667,13 +900,18 @@ static void pci_clear_and_set_dword(struct pci_dev *pdev, int pos,
 	pci_write_config_dword(pdev, pos, val);
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Configure the ASPM L1 substates */
 static void pcie_config_aspm_l1ss(struct pcie_link_state *link, u32 state)
 {
 	u32 val, enable_req;
 	struct pci_dev *child = link->downstream, *parent = link->pdev;
+<<<<<<< HEAD
 	u32 up_cap_ptr = link->l1ss.up_cap_ptr;
 	u32 dw_cap_ptr = link->l1ss.dw_cap_ptr;
+=======
+>>>>>>> upstream/android-13
 
 	enable_req = (link->aspm_enabled ^ state) & state;
 
@@ -691,9 +929,15 @@ static void pcie_config_aspm_l1ss(struct pcie_link_state *link, u32 state)
 	 */
 
 	/* Disable all L1 substates */
+<<<<<<< HEAD
 	pci_clear_and_set_dword(child, dw_cap_ptr + PCI_L1SS_CTL1,
 				PCI_L1SS_CTL1_L1SS_MASK, 0);
 	pci_clear_and_set_dword(parent, up_cap_ptr + PCI_L1SS_CTL1,
+=======
+	pci_clear_and_set_dword(child, child->l1ss + PCI_L1SS_CTL1,
+				PCI_L1SS_CTL1_L1SS_MASK, 0);
+	pci_clear_and_set_dword(parent, parent->l1ss + PCI_L1SS_CTL1,
+>>>>>>> upstream/android-13
 				PCI_L1SS_CTL1_L1SS_MASK, 0);
 	/*
 	 * If needed, disable L1, and it gets enabled later
@@ -706,6 +950,7 @@ static void pcie_config_aspm_l1ss(struct pcie_link_state *link, u32 state)
 						   PCI_EXP_LNKCTL_ASPM_L1, 0);
 	}
 
+<<<<<<< HEAD
 	if (enable_req & ASPM_STATE_L1_2_MASK) {
 
 		/* Program T_POWER_ON times in both ports */
@@ -730,6 +975,8 @@ static void pcie_config_aspm_l1ss(struct pcie_link_state *link, u32 state)
 					link->l1ss.ctl1);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	val = 0;
 	if (state & ASPM_STATE_L1_1)
 		val |= PCI_L1SS_CTL1_ASPM_L1_1;
@@ -741,9 +988,15 @@ static void pcie_config_aspm_l1ss(struct pcie_link_state *link, u32 state)
 		val |= PCI_L1SS_CTL1_PCIPM_L1_2;
 
 	/* Enable what we need to enable */
+<<<<<<< HEAD
 	pci_clear_and_set_dword(parent, up_cap_ptr + PCI_L1SS_CTL1,
 				PCI_L1SS_CTL1_L1SS_MASK, val);
 	pci_clear_and_set_dword(child, dw_cap_ptr + PCI_L1SS_CTL1,
+=======
+	pci_clear_and_set_dword(parent, parent->l1ss + PCI_L1SS_CTL1,
+				PCI_L1SS_CTL1_L1SS_MASK, val);
+	pci_clear_and_set_dword(child, child->l1ss + PCI_L1SS_CTL1,
+>>>>>>> upstream/android-13
 				PCI_L1SS_CTL1_L1SS_MASK, val);
 }
 
@@ -862,8 +1115,11 @@ static struct pcie_link_state *alloc_pcie_link_state(struct pci_dev *pdev)
 		return NULL;
 
 	INIT_LIST_HEAD(&link->sibling);
+<<<<<<< HEAD
 	INIT_LIST_HEAD(&link->children);
 	INIT_LIST_HEAD(&link->link);
+=======
+>>>>>>> upstream/android-13
 	link->pdev = pdev;
 	link->downstream = pci_function_0(pdev->subordinate);
 
@@ -889,7 +1145,10 @@ static struct pcie_link_state *alloc_pcie_link_state(struct pci_dev *pdev)
 
 		link->parent = parent;
 		link->root = link->parent->root;
+<<<<<<< HEAD
 		list_add(&link->link, &parent->children);
+=======
+>>>>>>> upstream/android-13
 	}
 
 	list_add(&link->sibling, &link_list);
@@ -897,6 +1156,17 @@ static struct pcie_link_state *alloc_pcie_link_state(struct pci_dev *pdev)
 	return link;
 }
 
+<<<<<<< HEAD
+=======
+static void pcie_aspm_update_sysfs_visibility(struct pci_dev *pdev)
+{
+	struct pci_dev *child;
+
+	list_for_each_entry(child, &pdev->subordinate->devices, bus_list)
+		sysfs_update_group(&child->dev.kobj, &aspm_ctrl_attr_group);
+}
+
+>>>>>>> upstream/android-13
 /*
  * pcie_aspm_init_link_state: Initiate PCI express link state.
  * It is called after the pcie and its children devices are scanned.
@@ -915,10 +1185,17 @@ void pcie_aspm_init_link_state(struct pci_dev *pdev)
 
 	/*
 	 * We allocate pcie_link_state for the component on the upstream
+<<<<<<< HEAD
 	 * end of a Link, so there's nothing to do unless this device has a
 	 * Link on its secondary side.
 	 */
 	if (!pdev->has_secondary_link)
+=======
+	 * end of a Link, so there's nothing to do unless this device is
+	 * downstream port.
+	 */
+	if (!pcie_downstream_port(pdev))
+>>>>>>> upstream/android-13
 		return;
 
 	/* VIA has a strange chipset, root port is under a bridge */
@@ -958,6 +1235,11 @@ void pcie_aspm_init_link_state(struct pci_dev *pdev)
 		pcie_set_clkpm(link, policy_to_clkpm_state(link));
 	}
 
+<<<<<<< HEAD
+=======
+	pcie_aspm_update_sysfs_visibility(pdev);
+
+>>>>>>> upstream/android-13
 unlock:
 	mutex_unlock(&aspm_lock);
 out:
@@ -1013,7 +1295,10 @@ void pcie_aspm_exit_link_state(struct pci_dev *pdev)
 	/* All functions are removed, so just disable ASPM for the link */
 	pcie_config_aspm_link(link, 0);
 	list_del(&link->sibling);
+<<<<<<< HEAD
 	list_del(&link->link);
+=======
+>>>>>>> upstream/android-13
 	/* Clock PM is for endpoint device */
 	free_link_state(link);
 
@@ -1065,6 +1350,7 @@ void pcie_aspm_powersave_config_link(struct pci_dev *pdev)
 	up_read(&pci_bus_sem);
 }
 
+<<<<<<< HEAD
 static void __pci_disable_link_state(struct pci_dev *pdev, int state, bool sem)
 {
 	struct pci_dev *parent = pdev->bus->self;
@@ -1078,6 +1364,28 @@ static void __pci_disable_link_state(struct pci_dev *pdev, int state, bool sem)
 	if (!parent || !parent->link_state)
 		return;
 
+=======
+static struct pcie_link_state *pcie_aspm_get_link(struct pci_dev *pdev)
+{
+	struct pci_dev *bridge;
+
+	if (!pci_is_pcie(pdev))
+		return NULL;
+
+	bridge = pci_upstream_bridge(pdev);
+	if (!bridge || !pci_is_pcie(bridge))
+		return NULL;
+
+	return bridge->link_state;
+}
+
+static int __pci_disable_link_state(struct pci_dev *pdev, int state, bool sem)
+{
+	struct pcie_link_state *link = pcie_aspm_get_link(pdev);
+
+	if (!link)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	/*
 	 * A driver requested that ASPM be disabled on this device, but
 	 * if we don't have permission to manage ASPM (e.g., on ACPI
@@ -1088,17 +1396,37 @@ static void __pci_disable_link_state(struct pci_dev *pdev, int state, bool sem)
 	 */
 	if (aspm_disabled) {
 		pci_warn(pdev, "can't disable ASPM; OS doesn't have ASPM control\n");
+<<<<<<< HEAD
 		return;
+=======
+		return -EPERM;
+>>>>>>> upstream/android-13
 	}
 
 	if (sem)
 		down_read(&pci_bus_sem);
 	mutex_lock(&aspm_lock);
+<<<<<<< HEAD
 	link = parent->link_state;
 	if (state & PCIE_LINK_STATE_L0S)
 		link->aspm_disable |= ASPM_STATE_L0S;
 	if (state & PCIE_LINK_STATE_L1)
 		link->aspm_disable |= ASPM_STATE_L1;
+=======
+	if (state & PCIE_LINK_STATE_L0S)
+		link->aspm_disable |= ASPM_STATE_L0S;
+	if (state & PCIE_LINK_STATE_L1)
+		/* L1 PM substates require L1 */
+		link->aspm_disable |= ASPM_STATE_L1 | ASPM_STATE_L1SS;
+	if (state & PCIE_LINK_STATE_L1_1)
+		link->aspm_disable |= ASPM_STATE_L1_1;
+	if (state & PCIE_LINK_STATE_L1_2)
+		link->aspm_disable |= ASPM_STATE_L1_2;
+	if (state & PCIE_LINK_STATE_L1_1_PCIPM)
+		link->aspm_disable |= ASPM_STATE_L1_1_PCIPM;
+	if (state & PCIE_LINK_STATE_L1_2_PCIPM)
+		link->aspm_disable |= ASPM_STATE_L1_2_PCIPM;
+>>>>>>> upstream/android-13
 	pcie_config_aspm_link(link, policy_to_aspm_state(link));
 
 	if (state & PCIE_LINK_STATE_CLKPM)
@@ -1107,11 +1435,21 @@ static void __pci_disable_link_state(struct pci_dev *pdev, int state, bool sem)
 	mutex_unlock(&aspm_lock);
 	if (sem)
 		up_read(&pci_bus_sem);
+<<<<<<< HEAD
 }
 
 void pci_disable_link_state_locked(struct pci_dev *pdev, int state)
 {
 	__pci_disable_link_state(pdev, state, false);
+=======
+
+	return 0;
+}
+
+int pci_disable_link_state_locked(struct pci_dev *pdev, int state)
+{
+	return __pci_disable_link_state(pdev, state, false);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(pci_disable_link_state_locked);
 
@@ -1119,14 +1457,24 @@ EXPORT_SYMBOL(pci_disable_link_state_locked);
  * pci_disable_link_state - Disable device's link state, so the link will
  * never enter specific states.  Note that if the BIOS didn't grant ASPM
  * control to the OS, this does nothing because we can't touch the LNKCTL
+<<<<<<< HEAD
  * register.
+=======
+ * register. Returns 0 or a negative errno.
+>>>>>>> upstream/android-13
  *
  * @pdev: PCI device
  * @state: ASPM link state to disable
  */
+<<<<<<< HEAD
 void pci_disable_link_state(struct pci_dev *pdev, int state)
 {
 	__pci_disable_link_state(pdev, state, true);
+=======
+int pci_disable_link_state(struct pci_dev *pdev, int state)
+{
+	return __pci_disable_link_state(pdev, state, true);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(pci_disable_link_state);
 
@@ -1171,6 +1519,7 @@ static int pcie_aspm_get_policy(char *buffer, const struct kernel_param *kp)
 module_param_call(policy, pcie_aspm_set_policy, pcie_aspm_get_policy,
 	NULL, 0644);
 
+<<<<<<< HEAD
 #ifdef CONFIG_PCIEASPM_DEBUG
 static ssize_t link_state_show(struct device *dev,
 		struct device_attribute *attr,
@@ -1197,10 +1546,52 @@ static ssize_t link_state_store(struct device *dev,
 	if (kstrtouint(buf, 10, &state))
 		return -EINVAL;
 	if ((state & ~ASPM_STATE_ALL) != 0)
+=======
+/**
+ * pcie_aspm_enabled - Check if PCIe ASPM has been enabled for a device.
+ * @pdev: Target device.
+ *
+ * Relies on the upstream bridge's link_state being valid.  The link_state
+ * is deallocated only when the last child of the bridge (i.e., @pdev or a
+ * sibling) is removed, and the caller should be holding a reference to
+ * @pdev, so this should be safe.
+ */
+bool pcie_aspm_enabled(struct pci_dev *pdev)
+{
+	struct pcie_link_state *link = pcie_aspm_get_link(pdev);
+
+	if (!link)
+		return false;
+
+	return link->aspm_enabled;
+}
+EXPORT_SYMBOL_GPL(pcie_aspm_enabled);
+
+static ssize_t aspm_attr_show_common(struct device *dev,
+				     struct device_attribute *attr,
+				     char *buf, u8 state)
+{
+	struct pci_dev *pdev = to_pci_dev(dev);
+	struct pcie_link_state *link = pcie_aspm_get_link(pdev);
+
+	return sysfs_emit(buf, "%d\n", (link->aspm_enabled & state) ? 1 : 0);
+}
+
+static ssize_t aspm_attr_store_common(struct device *dev,
+				      struct device_attribute *attr,
+				      const char *buf, size_t len, u8 state)
+{
+	struct pci_dev *pdev = to_pci_dev(dev);
+	struct pcie_link_state *link = pcie_aspm_get_link(pdev);
+	bool state_enable;
+
+	if (strtobool(buf, &state_enable) < 0)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	down_read(&pci_bus_sem);
 	mutex_lock(&aspm_lock);
+<<<<<<< HEAD
 	list_for_each_entry(link, &link_list, sibling) {
 		if (link->root != root)
 			continue;
@@ -1230,10 +1621,66 @@ static ssize_t clk_ctl_store(struct device *dev,
 	bool state;
 
 	if (strtobool(buf, &state))
+=======
+
+	if (state_enable) {
+		link->aspm_disable &= ~state;
+		/* need to enable L1 for substates */
+		if (state & ASPM_STATE_L1SS)
+			link->aspm_disable &= ~ASPM_STATE_L1;
+	} else {
+		link->aspm_disable |= state;
+	}
+
+	pcie_config_aspm_link(link, policy_to_aspm_state(link));
+
+	mutex_unlock(&aspm_lock);
+	up_read(&pci_bus_sem);
+
+	return len;
+}
+
+#define ASPM_ATTR(_f, _s)						\
+static ssize_t _f##_show(struct device *dev,				\
+			 struct device_attribute *attr, char *buf)	\
+{ return aspm_attr_show_common(dev, attr, buf, ASPM_STATE_##_s); }	\
+									\
+static ssize_t _f##_store(struct device *dev,				\
+			  struct device_attribute *attr,		\
+			  const char *buf, size_t len)			\
+{ return aspm_attr_store_common(dev, attr, buf, len, ASPM_STATE_##_s); }
+
+ASPM_ATTR(l0s_aspm, L0S)
+ASPM_ATTR(l1_aspm, L1)
+ASPM_ATTR(l1_1_aspm, L1_1)
+ASPM_ATTR(l1_2_aspm, L1_2)
+ASPM_ATTR(l1_1_pcipm, L1_1_PCIPM)
+ASPM_ATTR(l1_2_pcipm, L1_2_PCIPM)
+
+static ssize_t clkpm_show(struct device *dev,
+			  struct device_attribute *attr, char *buf)
+{
+	struct pci_dev *pdev = to_pci_dev(dev);
+	struct pcie_link_state *link = pcie_aspm_get_link(pdev);
+
+	return sysfs_emit(buf, "%d\n", link->clkpm_enabled);
+}
+
+static ssize_t clkpm_store(struct device *dev,
+			   struct device_attribute *attr,
+			   const char *buf, size_t len)
+{
+	struct pci_dev *pdev = to_pci_dev(dev);
+	struct pcie_link_state *link = pcie_aspm_get_link(pdev);
+	bool state_enable;
+
+	if (strtobool(buf, &state_enable) < 0)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	down_read(&pci_bus_sem);
 	mutex_lock(&aspm_lock);
+<<<<<<< HEAD
 	pcie_set_clkpm_nocheck(pdev->link_state, state);
 	mutex_unlock(&aspm_lock);
 	up_read(&pci_bus_sem);
@@ -1275,6 +1722,66 @@ void pcie_aspm_remove_sysfs_dev_files(struct pci_dev *pdev)
 			&dev_attr_clk_ctl.attr, power_group);
 }
 #endif
+=======
+
+	link->clkpm_disable = !state_enable;
+	pcie_set_clkpm(link, policy_to_clkpm_state(link));
+
+	mutex_unlock(&aspm_lock);
+	up_read(&pci_bus_sem);
+
+	return len;
+}
+
+static DEVICE_ATTR_RW(clkpm);
+static DEVICE_ATTR_RW(l0s_aspm);
+static DEVICE_ATTR_RW(l1_aspm);
+static DEVICE_ATTR_RW(l1_1_aspm);
+static DEVICE_ATTR_RW(l1_2_aspm);
+static DEVICE_ATTR_RW(l1_1_pcipm);
+static DEVICE_ATTR_RW(l1_2_pcipm);
+
+static struct attribute *aspm_ctrl_attrs[] = {
+	&dev_attr_clkpm.attr,
+	&dev_attr_l0s_aspm.attr,
+	&dev_attr_l1_aspm.attr,
+	&dev_attr_l1_1_aspm.attr,
+	&dev_attr_l1_2_aspm.attr,
+	&dev_attr_l1_1_pcipm.attr,
+	&dev_attr_l1_2_pcipm.attr,
+	NULL
+};
+
+static umode_t aspm_ctrl_attrs_are_visible(struct kobject *kobj,
+					   struct attribute *a, int n)
+{
+	struct device *dev = kobj_to_dev(kobj);
+	struct pci_dev *pdev = to_pci_dev(dev);
+	struct pcie_link_state *link = pcie_aspm_get_link(pdev);
+	static const u8 aspm_state_map[] = {
+		ASPM_STATE_L0S,
+		ASPM_STATE_L1,
+		ASPM_STATE_L1_1,
+		ASPM_STATE_L1_2,
+		ASPM_STATE_L1_1_PCIPM,
+		ASPM_STATE_L1_2_PCIPM,
+	};
+
+	if (aspm_disabled || !link)
+		return 0;
+
+	if (n == 0)
+		return link->clkpm_capable ? a->mode : 0;
+
+	return link->aspm_capable & aspm_state_map[n - 1] ? a->mode : 0;
+}
+
+const struct attribute_group aspm_ctrl_attr_group = {
+	.name = "link",
+	.attrs = aspm_ctrl_attrs,
+	.is_visible = aspm_ctrl_attrs_are_visible,
+};
+>>>>>>> upstream/android-13
 
 static int __init pcie_aspm_disable(char *str)
 {

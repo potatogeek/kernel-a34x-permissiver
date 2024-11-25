@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # MediaTek SoC drivers
 #
@@ -16,6 +20,18 @@ config MTK_CMDQ
 	  time limitation, such as updating display configuration during the
 	  vblank.
 
+<<<<<<< HEAD
+=======
+config MTK_DEVAPC
+	tristate "Mediatek Device APC Support"
+	help
+	  Say yes here to enable support for Mediatek Device APC driver.
+	  This driver is mainly used to handle the violation which catches
+	  unexpected transaction.
+	  The violation information is logged for further analysis or
+	  countermeasures.
+
+>>>>>>> upstream/android-13
 config MTK_INFRACFG
 	bool "MediaTek INFRACFG Support"
 	select REGMAP
@@ -24,6 +40,7 @@ config MTK_INFRACFG
 	  INFRACFG controller contains various infrastructure registers not
 	  directly associated to any device.
 
+<<<<<<< HEAD
 config MTK_DVFSRC
 	tristate "MediaTek DVFSRC Support"
 	depends on ARCH_MEDIATEK
@@ -38,6 +55,11 @@ config MTK_DVFSRC
 config MTK_PMIC_WRAP
 	tristate "MediaTek PMIC Wrapper Support"
 	select RESET_CONTROLLER
+=======
+config MTK_PMIC_WRAP
+	tristate "MediaTek PMIC Wrapper Support"
+	depends on RESET_CONTROLLER
+>>>>>>> upstream/android-13
 	select REGMAP
 	help
 	  Say yes here to add support for MediaTek PMIC Wrapper found
@@ -54,6 +76,7 @@ config MTK_SCPSYS
 	  Say yes here to add support for the MediaTek SCPSYS power domain
 	  driver.
 
+<<<<<<< HEAD
 config MTK_SCPSYS_BRINGUP
 	bool "MediaTek SCPSYS bring Up Support"
 	depends on MTK_SCPSYS
@@ -127,3 +150,26 @@ config MTK_SOCINFO
 
 endmenu
 
+=======
+config MTK_SCPSYS_PM_DOMAINS
+	bool "MediaTek SCPSYS generic power domain"
+	default ARCH_MEDIATEK
+	depends on PM
+	select PM_GENERIC_DOMAINS
+	select REGMAP
+	help
+	  Say y here to enable power domain support.
+	  In order to meet high performance and low power requirements, the System
+	  Control Processor System (SCPSYS) has several power management related
+	  tasks in the system.
+
+config MTK_MMSYS
+	bool "MediaTek MMSYS Support"
+	default ARCH_MEDIATEK
+	depends on HAS_IOMEM
+	help
+	  Say yes here to add support for the MediaTek Multimedia
+	  Subsystem (MMSYS).
+
+endmenu
+>>>>>>> upstream/android-13

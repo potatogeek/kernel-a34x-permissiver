@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * iNexio serial touchscreen driver
  *
  * Copyright (c) 2008 Richard Lemon
  * Based on the mtouch driver (c) Vojtech Pavlik and Dan Streetman
+<<<<<<< HEAD
  *
  */
 
@@ -11,6 +16,10 @@
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
  */
+=======
+ */
+
+>>>>>>> upstream/android-13
 
 /*
  * 2008/06/19 Richard Lemon <richard@codelemon.com>
@@ -79,7 +88,11 @@ static void inexio_process_data(struct inexio *pinexio)
 static irqreturn_t inexio_interrupt(struct serio *serio,
 		unsigned char data, unsigned int flags)
 {
+<<<<<<< HEAD
 	struct inexio* pinexio = serio_get_drvdata(serio);
+=======
+	struct inexio *pinexio = serio_get_drvdata(serio);
+>>>>>>> upstream/android-13
 
 	pinexio->data[pinexio->idx] = data;
 
@@ -97,7 +110,11 @@ static irqreturn_t inexio_interrupt(struct serio *serio,
 
 static void inexio_disconnect(struct serio *serio)
 {
+<<<<<<< HEAD
 	struct inexio* pinexio = serio_get_drvdata(serio);
+=======
+	struct inexio *pinexio = serio_get_drvdata(serio);
+>>>>>>> upstream/android-13
 
 	input_get_device(pinexio->dev);
 	input_unregister_device(pinexio->dev);

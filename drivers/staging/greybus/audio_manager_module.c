@@ -25,8 +25,13 @@ struct gb_audio_manager_module_attribute {
 			 const char *buf, size_t count);
 };
 
+<<<<<<< HEAD
 static ssize_t gb_audio_module_attr_show(
 	struct kobject *kobj, struct attribute *attr, char *buf)
+=======
+static ssize_t gb_audio_module_attr_show(struct kobject *kobj,
+					 struct attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct gb_audio_manager_module_attribute *attribute;
 	struct gb_audio_manager_module *module;
@@ -213,8 +218,12 @@ int gb_audio_manager_module_create(
 	err = kobject_init_and_add(&m->kobj, &gb_audio_module_type, NULL, "%d",
 				   id);
 	if (err) {
+<<<<<<< HEAD
 		pr_err("failed initializing kobject for audio module #%d\n",
 		       id);
+=======
+		pr_err("failed initializing kobject for audio module #%d\n", id);
+>>>>>>> upstream/android-13
 		kobject_put(&m->kobj);
 		return err;
 	}

@@ -1,15 +1,23 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * STMicroelectronics gyroscopes driver
  *
  * Copyright 2012-2013 STMicroelectronics Inc.
  *
  * Denis Ciocca <denis.ciocca@st.com>
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/slab.h>
 #include <linux/errno.h>
 #include <linux/types.h>
@@ -23,6 +31,14 @@
 #include <linux/iio/sysfs.h>
 #include <linux/iio/trigger.h>
 #include <linux/iio/buffer.h>
+=======
+#include <linux/mutex.h>
+#include <linux/interrupt.h>
+#include <linux/sysfs.h>
+#include <linux/iio/iio.h>
+#include <linux/iio/sysfs.h>
+#include <linux/iio/trigger.h>
+>>>>>>> upstream/android-13
 
 #include <linux/iio/common/st_sensors.h>
 #include "st_gyro.h"
@@ -40,6 +56,7 @@
 #define ST_GYRO_FS_AVL_500DPS			500
 #define ST_GYRO_FS_AVL_2000DPS			2000
 
+<<<<<<< HEAD
 static const struct iio_chan_spec st_gyro_16bit_channels[] = {
 	ST_SENSORS_LSM_CHANNELS(IIO_ANGL_VEL,
 			BIT(IIO_CHAN_INFO_RAW) | BIT(IIO_CHAN_INFO_SCALE),
@@ -53,6 +70,38 @@ static const struct iio_chan_spec st_gyro_16bit_channels[] = {
 			BIT(IIO_CHAN_INFO_RAW) | BIT(IIO_CHAN_INFO_SCALE),
 			ST_SENSORS_SCAN_Z, 1, IIO_MOD_Z, 's', IIO_LE, 16, 16,
 			ST_GYRO_DEFAULT_OUT_Z_L_ADDR),
+=======
+static const struct iio_mount_matrix *
+st_gyro_get_mount_matrix(const struct iio_dev *indio_dev,
+			 const struct iio_chan_spec *chan)
+{
+	struct st_sensor_data *gdata = iio_priv(indio_dev);
+
+	return &gdata->mount_matrix;
+}
+
+static const struct iio_chan_spec_ext_info st_gyro_mount_matrix_ext_info[] = {
+	IIO_MOUNT_MATRIX(IIO_SHARED_BY_ALL, st_gyro_get_mount_matrix),
+	{ }
+};
+
+static const struct iio_chan_spec st_gyro_16bit_channels[] = {
+	ST_SENSORS_LSM_CHANNELS_EXT(IIO_ANGL_VEL,
+			BIT(IIO_CHAN_INFO_RAW) | BIT(IIO_CHAN_INFO_SCALE),
+			ST_SENSORS_SCAN_X, 1, IIO_MOD_X, 's', IIO_LE, 16, 16,
+			ST_GYRO_DEFAULT_OUT_X_L_ADDR,
+			st_gyro_mount_matrix_ext_info),
+	ST_SENSORS_LSM_CHANNELS_EXT(IIO_ANGL_VEL,
+			BIT(IIO_CHAN_INFO_RAW) | BIT(IIO_CHAN_INFO_SCALE),
+			ST_SENSORS_SCAN_Y, 1, IIO_MOD_Y, 's', IIO_LE, 16, 16,
+			ST_GYRO_DEFAULT_OUT_Y_L_ADDR,
+			st_gyro_mount_matrix_ext_info),
+	ST_SENSORS_LSM_CHANNELS_EXT(IIO_ANGL_VEL,
+			BIT(IIO_CHAN_INFO_RAW) | BIT(IIO_CHAN_INFO_SCALE),
+			ST_SENSORS_SCAN_Z, 1, IIO_MOD_Z, 's', IIO_LE, 16, 16,
+			ST_GYRO_DEFAULT_OUT_Z_L_ADDR,
+			st_gyro_mount_matrix_ext_info),
+>>>>>>> upstream/android-13
 	IIO_CHAN_SOFT_TIMESTAMP(3)
 };
 
@@ -360,6 +409,14 @@ static const struct st_sensor_settings st_gyro_sensors_settings[] = {
 	},
 };
 
+<<<<<<< HEAD
+=======
+/* DRDY on gyros is available only on INT2 pin */
+static const struct st_sensors_platform_data gyro_pdata = {
+	.drdy_int_pin = 2,
+};
+
+>>>>>>> upstream/android-13
 static int st_gyro_read_raw(struct iio_dev *indio_dev,
 			struct iio_chan_spec const *ch, int *val,
 							int *val2, long mask)
@@ -442,14 +499,40 @@ static const struct iio_trigger_ops st_gyro_trigger_ops = {
 #define ST_GYRO_TRIGGER_OPS NULL
 #endif
 
+<<<<<<< HEAD
 int st_gyro_common_probe(struct iio_dev *indio_dev)
 {
 	struct st_sensor_data *gdata = iio_priv(indio_dev);
 	int irq = gdata->get_irq_data_ready(indio_dev);
+=======
+/*
+ * st_gyro_get_settings() - get sensor settings from device name
+ * @name: device name buffer reference.
+ *
+ * Return: valid reference on success, NULL otherwise.
+ */
+const struct st_sensor_settings *st_gyro_get_settings(const char *name)
+{
+	int index = st_sensors_get_settings_index(name,
+					st_gyro_sensors_settings,
+					ARRAY_SIZE(st_gyro_sensors_settings));
+	if (index < 0)
+		return NULL;
+
+	return &st_gyro_sensors_settings[index];
+}
+EXPORT_SYMBOL(st_gyro_get_settings);
+
+int st_gyro_common_probe(struct iio_dev *indio_dev)
+{
+	struct st_sensor_data *gdata = iio_priv(indio_dev);
+	struct st_sensors_platform_data *pdata;
+>>>>>>> upstream/android-13
 	int err;
 
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->info = &gyro_info;
+<<<<<<< HEAD
 	mutex_init(&gdata->tb.buf_lock);
 
 	err = st_sensors_power_enable(indio_dev);
@@ -485,6 +568,39 @@ int st_gyro_common_probe(struct iio_dev *indio_dev)
 						  ST_GYRO_TRIGGER_OPS);
 		if (err < 0)
 			goto st_gyro_probe_trigger_error;
+=======
+
+	err = st_sensors_verify_id(indio_dev);
+	if (err < 0)
+		return err;
+
+	gdata->num_data_channels = ST_GYRO_NUMBER_DATA_CHANNELS;
+	indio_dev->channels = gdata->sensor_settings->ch;
+	indio_dev->num_channels = ST_SENSORS_NUMBER_ALL_CHANNELS;
+
+	err = iio_read_mount_matrix(gdata->dev, &gdata->mount_matrix);
+	if (err)
+		return err;
+
+	gdata->current_fullscale = &gdata->sensor_settings->fs.fs_avl[0];
+	gdata->odr = gdata->sensor_settings->odr.odr_avl[0].hz;
+
+	pdata = (struct st_sensors_platform_data *)&gyro_pdata;
+
+	err = st_sensors_init_sensor(indio_dev, pdata);
+	if (err < 0)
+		return err;
+
+	err = st_gyro_allocate_ring(indio_dev);
+	if (err < 0)
+		return err;
+
+	if (gdata->irq > 0) {
+		err = st_sensors_allocate_trigger(indio_dev,
+						  ST_GYRO_TRIGGER_OPS);
+		if (err < 0)
+			return err;
+>>>>>>> upstream/android-13
 	}
 
 	err = iio_device_register(indio_dev);
@@ -497,6 +613,7 @@ int st_gyro_common_probe(struct iio_dev *indio_dev)
 	return 0;
 
 st_gyro_device_register_error:
+<<<<<<< HEAD
 	if (irq > 0)
 		st_sensors_deallocate_trigger(indio_dev);
 st_gyro_probe_trigger_error:
@@ -504,6 +621,10 @@ st_gyro_probe_trigger_error:
 st_gyro_power_off:
 	st_sensors_power_disable(indio_dev);
 
+=======
+	if (gdata->irq > 0)
+		st_sensors_deallocate_trigger(indio_dev);
+>>>>>>> upstream/android-13
 	return err;
 }
 EXPORT_SYMBOL(st_gyro_common_probe);
@@ -512,6 +633,7 @@ void st_gyro_common_remove(struct iio_dev *indio_dev)
 {
 	struct st_sensor_data *gdata = iio_priv(indio_dev);
 
+<<<<<<< HEAD
 	st_sensors_power_disable(indio_dev);
 
 	iio_device_unregister(indio_dev);
@@ -519,6 +641,11 @@ void st_gyro_common_remove(struct iio_dev *indio_dev)
 		st_sensors_deallocate_trigger(indio_dev);
 
 	st_gyro_deallocate_ring(indio_dev);
+=======
+	iio_device_unregister(indio_dev);
+	if (gdata->irq > 0)
+		st_sensors_deallocate_trigger(indio_dev);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(st_gyro_common_remove);
 

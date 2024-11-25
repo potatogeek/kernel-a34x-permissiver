@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015-2016, Linaro Limited
  *
@@ -10,6 +11,11 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2015-2016, Linaro Limited
+>>>>>>> upstream/android-13
  */
 #ifndef TEE_PRIVATE_H
 #define TEE_PRIVATE_H
@@ -46,7 +52,12 @@ struct tee_shm_pool {
  * @num_users:	number of active users of this device
  * @c_no_user:	completion used when unregistering the device
  * @mutex:	mutex protecting @num_users and @idr
+<<<<<<< HEAD
  * @idr:	register of shared memory object allocated on this device
+=======
+ * @idr:	register of user space shared memory objects allocated or
+ *		registered on this device
+>>>>>>> upstream/android-13
  * @pool:	shared memory pool
  */
 struct tee_device {

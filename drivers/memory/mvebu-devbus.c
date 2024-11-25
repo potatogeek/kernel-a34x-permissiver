@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Marvell EBU SoC Device Bus Controller
  * (memory controller for NOR/NAND/SRAM/FPGA devices)
  *
  * Copyright (C) 2013-2014 Marvell
+<<<<<<< HEAD
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -136,32 +143,56 @@ static int devbus_get_timing_params(struct devbus *devbus,
 	 * The bus width is encoded into the register as 0 for 8 bits,
 	 * and 1 for 16 bits, so we do the necessary conversion here.
 	 */
+<<<<<<< HEAD
 	if (r->bus_width == 8)
 		r->bus_width = 0;
 	else if (r->bus_width == 16)
 		r->bus_width = 1;
 	else {
+=======
+	if (r->bus_width == 8) {
+		r->bus_width = 0;
+	} else if (r->bus_width == 16) {
+		r->bus_width = 1;
+	} else {
+>>>>>>> upstream/android-13
 		dev_err(devbus->dev, "invalid bus width %d\n", r->bus_width);
 		return -EINVAL;
 	}
 
 	err = get_timing_param_ps(devbus, node, "devbus,badr-skew-ps",
+<<<<<<< HEAD
 				 &r->badr_skew);
+=======
+				  &r->badr_skew);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
 	err = get_timing_param_ps(devbus, node, "devbus,turn-off-ps",
+<<<<<<< HEAD
 				 &r->turn_off);
+=======
+				  &r->turn_off);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
 	err = get_timing_param_ps(devbus, node, "devbus,acc-first-ps",
+<<<<<<< HEAD
 				 &r->acc_first);
+=======
+				  &r->acc_first);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
 	err = get_timing_param_ps(devbus, node, "devbus,acc-next-ps",
+<<<<<<< HEAD
 				 &r->acc_next);
+=======
+				  &r->acc_next);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -187,17 +218,29 @@ static int devbus_get_timing_params(struct devbus *devbus,
 	}
 
 	err = get_timing_param_ps(devbus, node, "devbus,ale-wr-ps",
+<<<<<<< HEAD
 				 &w->ale_wr);
+=======
+				  &w->ale_wr);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
 	err = get_timing_param_ps(devbus, node, "devbus,wr-low-ps",
+<<<<<<< HEAD
 				 &w->wr_low);
+=======
+				  &w->wr_low);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
 	err = get_timing_param_ps(devbus, node, "devbus,wr-high-ps",
+<<<<<<< HEAD
 				 &w->wr_high);
+=======
+				  &w->wr_high);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -279,7 +322,10 @@ static int mvebu_devbus_probe(struct platform_device *pdev)
 	struct devbus_read_params r;
 	struct devbus_write_params w;
 	struct devbus *devbus;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	struct clk *clk;
 	unsigned long rate;
 	int err;
@@ -289,8 +335,12 @@ static int mvebu_devbus_probe(struct platform_device *pdev)
 		return -ENOMEM;
 
 	devbus->dev = dev;
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	devbus->base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	devbus->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(devbus->base))
 		return PTR_ERR(devbus->base);
 

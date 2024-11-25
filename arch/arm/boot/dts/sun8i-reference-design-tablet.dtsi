@@ -54,6 +54,10 @@
 		brightness-levels = <0 10 20 30 40 50 60 70 80 90 100>;
 		default-brightness-level = <8>;
 		enable-gpios = <&pio 7 6 GPIO_ACTIVE_HIGH>; /* PH6 */
+<<<<<<< HEAD
+=======
+		power-supply = <&reg_dc1sw>;
+>>>>>>> upstream/android-13
 	};
 
 	chosen {
@@ -73,8 +77,11 @@
 		reg = <0x40>;
 		interrupt-parent = <&pio>;
 		interrupts = <1 5 IRQ_TYPE_EDGE_FALLING>; /* PB5 */
+<<<<<<< HEAD
 		pinctrl-names = "default";
 		pinctrl-0 = <&ts_power_pin>;
+=======
+>>>>>>> upstream/android-13
 		power-gpios = <&pio 7 1 GPIO_ACTIVE_HIGH>; /* PH1 */
 		/* Tablet dts must provide reg and compatible */
 		status = "disabled";
@@ -82,14 +89,18 @@
 };
 
 &mmc0 {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&mmc0_pins_a>, <&mmc0_cd_pin>;
+=======
+>>>>>>> upstream/android-13
 	vmmc-supply = <&reg_dcdc1>;
 	bus-width = <4>;
 	cd-gpios = <&pio 1 4 GPIO_ACTIVE_LOW>; /* PB4 */
 	status = "okay";
 };
 
+<<<<<<< HEAD
 &pio {
 	mmc0_cd_pin: mmc0_cd_pin@0 {
 		pins = "PB4";
@@ -109,14 +120,21 @@
 	};
 };
 
+=======
+>>>>>>> upstream/android-13
 &r_rsb {
 	status = "okay";
 
 	axp22x: pmic@3a3 {
 		compatible = "x-powers,axp223";
 		reg = <0x3a3>;
+<<<<<<< HEAD
 		interrupt-parent = <&nmi_intc>;
 		interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
+=======
+		interrupt-parent = <&r_intc>;
+		interrupts = <GIC_SPI 32 IRQ_TYPE_LEVEL_LOW>;
+>>>>>>> upstream/android-13
 		eldoin-supply = <&reg_dcdc1>;
 		drivevbus-supply = <&reg_vcc5v0>;
 		x-powers,drive-vbus-en;
@@ -239,9 +257,13 @@
 };
 
 &usbphy {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&usb0_id_detect_pin>;
 	usb0_id_det-gpio = <&pio 7 8 GPIO_ACTIVE_HIGH>; /* PH8 */
+=======
+	usb0_id_det-gpios = <&pio 7 8 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; /* PH8 */
+>>>>>>> upstream/android-13
 	usb0_vbus_power-supply = <&usb_power_supply>;
 	usb0_vbus-supply = <&reg_drivevbus>;
 	status = "okay";

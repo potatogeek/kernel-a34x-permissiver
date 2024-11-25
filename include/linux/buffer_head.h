@@ -22,9 +22,12 @@ enum bh_state_bits {
 	BH_Dirty,	/* Is dirty */
 	BH_Lock,	/* Is locked */
 	BH_Req,		/* Has been submitted for I/O */
+<<<<<<< HEAD
 	BH_Uptodate_Lock,/* Used by the first bh in a page, to serialise
 			  * IO completion of other buffers in the page
 			  */
+=======
+>>>>>>> upstream/android-13
 
 	BH_Mapped,	/* Has a disk mapping */
 	BH_New,		/* Disk mapping was newly created by get_block */
@@ -76,6 +79,12 @@ struct buffer_head {
 	struct address_space *b_assoc_map;	/* mapping this buffer is
 						   associated with */
 	atomic_t b_count;		/* users using this buffer_head */
+<<<<<<< HEAD
+=======
+	spinlock_t b_uptodate_lock;	/* Used by the first bh in a page, to
+					 * serialise IO completion of other
+					 * buffers in the page */
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -194,6 +203,11 @@ void __breadahead_gfp(struct block_device *, sector_t block, unsigned int size,
 struct buffer_head *__bread_gfp(struct block_device *,
 				sector_t block, unsigned size, gfp_t gfp);
 void invalidate_bh_lrus(void);
+<<<<<<< HEAD
+=======
+void invalidate_bh_lrus_cpu(void);
+bool has_bh_in_lru(int cpu, void *dummy);
+>>>>>>> upstream/android-13
 struct buffer_head *alloc_buffer_head(gfp_t gfp_flags);
 void free_buffer_head(struct buffer_head * bh);
 void unlock_buffer(struct buffer_head *bh);
@@ -244,7 +258,11 @@ int block_commit_write(struct page *page, unsigned from, unsigned to);
 int block_page_mkwrite(struct vm_area_struct *vma, struct vm_fault *vmf,
 				get_block_t get_block);
 /* Convert errno to return value from ->page_mkwrite() call */
+<<<<<<< HEAD
 static inline int block_page_mkwrite_return(int err)
+=======
+static inline vm_fault_t block_page_mkwrite_return(int err)
+>>>>>>> upstream/android-13
 {
 	if (err == 0)
 		return VM_FAULT_LOCKED;
@@ -272,6 +290,7 @@ void buffer_init(void);
  * inline definitions
  */
 
+<<<<<<< HEAD
 static inline void attach_page_buffers(struct page *page,
 		struct buffer_head *head)
 {
@@ -280,6 +299,8 @@ static inline void attach_page_buffers(struct page *page,
 	set_page_private(page, (unsigned long)head);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void get_bh(struct buffer_head *bh)
 {
         atomic_inc(&bh->b_count);
@@ -414,6 +435,12 @@ static inline int inode_has_buffers(struct inode *inode) { return 0; }
 static inline void invalidate_inode_buffers(struct inode *inode) {}
 static inline int remove_inode_buffers(struct inode *inode) { return 1; }
 static inline int sync_mapping_buffers(struct address_space *mapping) { return 0; }
+<<<<<<< HEAD
+=======
+static inline void invalidate_bh_lrus_cpu(void) {}
+static inline bool has_bh_in_lru(int cpu, void *dummy) { return false; }
+#define buffer_heads_over_limit 0
+>>>>>>> upstream/android-13
 
 #endif /* CONFIG_BLOCK */
 #endif /* _LINUX_BUFFER_HEAD_H */

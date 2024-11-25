@@ -42,8 +42,17 @@
 #include "dev-replace.h"
 #include "free-space-cache.h"
 #include "backref.h"
+<<<<<<< HEAD
 #include "tests/btrfs-tests.h"
 
+=======
+#include "space-info.h"
+#include "sysfs.h"
+#include "zoned.h"
+#include "tests/btrfs-tests.h"
+#include "block-group.h"
+#include "discard.h"
+>>>>>>> upstream/android-13
 #include "qgroup.h"
 #define CREATE_TRACE_POINTS
 #include <trace/events/btrfs.h>
@@ -63,11 +72,31 @@ static struct file_system_type btrfs_root_fs_type;
 
 static int btrfs_remount(struct super_block *sb, int *flags, char *data);
 
+<<<<<<< HEAD
 const char *btrfs_decode_error(int errno)
+=======
+/*
+ * Generally the error codes correspond to their respective errors, but there
+ * are a few special cases.
+ *
+ * EUCLEAN: Any sort of corruption that we encounter.  The tree-checker for
+ *          instance will return EUCLEAN if any of the blocks are corrupted in
+ *          a way that is problematic.  We want to reserve EUCLEAN for these
+ *          sort of corruptions.
+ *
+ * EROFS: If we check BTRFS_FS_STATE_ERROR and fail out with a return error, we
+ *        need to use EROFS for this case.  We will have no idea of the
+ *        original failure, that will have been reported at the time we tripped
+ *        over the error.  Each subsequent error that doesn't have any context
+ *        of the original error should use EROFS when handling BTRFS_FS_STATE_ERROR.
+ */
+const char * __attribute_const__ btrfs_decode_error(int errno)
+>>>>>>> upstream/android-13
 {
 	char *errstr = "unknown";
 
 	switch (errno) {
+<<<<<<< HEAD
 	case -EIO:
 		errstr = "IO failure";
 		break;
@@ -85,6 +114,34 @@ const char *btrfs_decode_error(int errno)
 		break;
 	case -ENOENT:
 		errstr = "No such entry";
+=======
+	case -ENOENT:		/* -2 */
+		errstr = "No such entry";
+		break;
+	case -EIO:		/* -5 */
+		errstr = "IO failure";
+		break;
+	case -ENOMEM:		/* -12*/
+		errstr = "Out of memory";
+		break;
+	case -EEXIST:		/* -17 */
+		errstr = "Object already exists";
+		break;
+	case -ENOSPC:		/* -28 */
+		errstr = "No space left";
+		break;
+	case -EROFS:		/* -30 */
+		errstr = "Readonly filesystem";
+		break;
+	case -EOPNOTSUPP:	/* -95 */
+		errstr = "Operation not supported";
+		break;
+	case -EUCLEAN:		/* -117 */
+		errstr = "Filesystem corrupted";
+		break;
+	case -EDQUOT:		/* -122 */
+		errstr = "Quota exceeded";
+>>>>>>> upstream/android-13
 		break;
 	}
 
@@ -93,7 +150,11 @@ const char *btrfs_decode_error(int errno)
 
 /*
  * __btrfs_handle_fs_error decodes expected errors from the caller and
+<<<<<<< HEAD
  * invokes the approciate error response.
+=======
+ * invokes the appropriate error response.
+>>>>>>> upstream/android-13
  */
 __cold
 void __btrfs_handle_fs_error(struct btrfs_fs_info *fs_info, const char *function,
@@ -143,15 +204,26 @@ void __btrfs_handle_fs_error(struct btrfs_fs_info *fs_info, const char *function
 	if (sb_rdonly(sb))
 		return;
 
+<<<<<<< HEAD
 	/* btrfs handle error by forcing the filesystem readonly */
 	sb->s_flags |= SB_RDONLY;
+=======
+	btrfs_discard_stop(fs_info);
+
+	/* btrfs handle error by forcing the filesystem readonly */
+	btrfs_set_sb_rdonly(sb);
+>>>>>>> upstream/android-13
 	btrfs_info(fs_info, "forced readonly");
 	/*
 	 * Note that a running device replace operation is not canceled here
 	 * although there is no way to update the progress. It would add the
 	 * risk of a deadlock, therefore the canceling is omitted. The only
 	 * penalty is that some I/O remains active until the procedure
+<<<<<<< HEAD
 	 * completes. The next time when the filesystem is mounted writeable
+=======
+	 * completes. The next time when the filesystem is mounted writable
+>>>>>>> upstream/android-13
 	 * again, the device replace operation continues.
 	 */
 }
@@ -184,7 +256,11 @@ static struct ratelimit_state printk_limits[] = {
 	RATELIMIT_STATE_INIT(printk_limits[7], DEFAULT_RATELIMIT_INTERVAL, 100),
 };
 
+<<<<<<< HEAD
 void btrfs_printk(const struct btrfs_fs_info *fs_info, const char *fmt, ...)
+=======
+void __cold btrfs_printk(const struct btrfs_fs_info *fs_info, const char *fmt, ...)
+>>>>>>> upstream/android-13
 {
 	char lvl[PRINTK_MAX_SINGLE_HEADER_LEN + 1] = "\0";
 	struct va_format vaf;
@@ -210,14 +286,53 @@ void btrfs_printk(const struct btrfs_fs_info *fs_info, const char *fmt, ...)
 	vaf.fmt = fmt;
 	vaf.va = &args;
 
+<<<<<<< HEAD
 	if (__ratelimit(ratelimit))
 		printk("%sBTRFS %s (device %s): %pV\n", lvl, type,
 			fs_info ? fs_info->sb->s_id : "<unknown>", &vaf);
+=======
+	if (__ratelimit(ratelimit)) {
+		if (fs_info)
+			printk("%sBTRFS %s (device %s): %pV\n", lvl, type,
+				fs_info->sb->s_id, &vaf);
+		else
+			printk("%sBTRFS %s: %pV\n", lvl, type, &vaf);
+	}
+>>>>>>> upstream/android-13
 
 	va_end(args);
 }
 #endif
 
+<<<<<<< HEAD
+=======
+#if BITS_PER_LONG == 32
+void __cold btrfs_warn_32bit_limit(struct btrfs_fs_info *fs_info)
+{
+	if (!test_and_set_bit(BTRFS_FS_32BIT_WARN, &fs_info->flags)) {
+		btrfs_warn(fs_info, "reaching 32bit limit for logical addresses");
+		btrfs_warn(fs_info,
+"due to page cache limit on 32bit systems, btrfs can't access metadata at or beyond %lluT",
+			   BTRFS_32BIT_MAX_FILE_SIZE >> 40);
+		btrfs_warn(fs_info,
+			   "please consider upgrading to 64bit kernel/hardware");
+	}
+}
+
+void __cold btrfs_err_32bit_limit(struct btrfs_fs_info *fs_info)
+{
+	if (!test_and_set_bit(BTRFS_FS_32BIT_ERROR, &fs_info->flags)) {
+		btrfs_err(fs_info, "reached 32bit limit for logical addresses");
+		btrfs_err(fs_info,
+"due to page cache limit on 32bit systems, metadata beyond %lluT can't be accessed",
+			  BTRFS_32BIT_MAX_FILE_SIZE >> 40);
+		btrfs_err(fs_info,
+			   "please consider upgrading to 64bit kernel/hardware");
+	}
+}
+#endif
+
+>>>>>>> upstream/android-13
 /*
  * We only mark the transaction aborted and then set the file system read-only.
  * This will prevent new transactions from starting or trying to join this
@@ -238,6 +353,7 @@ void __btrfs_abort_transaction(struct btrfs_trans_handle *trans,
 {
 	struct btrfs_fs_info *fs_info = trans->fs_info;
 
+<<<<<<< HEAD
 	trans->aborted = errno;
 	/* Nothing used. The other threads that have joined this
 	 * transaction may be able to continue. */
@@ -250,6 +366,9 @@ void __btrfs_abort_transaction(struct btrfs_trans_handle *trans,
 		           function, line, errstr);
 		return;
 	}
+=======
+	WRITE_ONCE(trans->aborted, errno);
+>>>>>>> upstream/android-13
 	WRITE_ONCE(trans->transaction->aborted, errno);
 	/* Wake up anybody who may be waiting on this transaction */
 	wake_up(&fs_info->transaction_wait);
@@ -303,14 +422,21 @@ enum {
 	Opt_device,
 	Opt_fatal_errors,
 	Opt_flushoncommit, Opt_noflushoncommit,
+<<<<<<< HEAD
 	Opt_inode_cache, Opt_noinode_cache,
+=======
+>>>>>>> upstream/android-13
 	Opt_max_inline,
 	Opt_barrier, Opt_nobarrier,
 	Opt_datacow, Opt_nodatacow,
 	Opt_datasum, Opt_nodatasum,
 	Opt_defrag, Opt_nodefrag,
 	Opt_discard, Opt_nodiscard,
+<<<<<<< HEAD
 	Opt_nologreplay,
+=======
+	Opt_discard_mode,
+>>>>>>> upstream/android-13
 	Opt_norecovery,
 	Opt_ratio,
 	Opt_rescan_uuid_tree,
@@ -324,6 +450,7 @@ enum {
 	Opt_subvolid,
 	Opt_thread_pool,
 	Opt_treelog, Opt_notreelog,
+<<<<<<< HEAD
 	Opt_usebackuproot,
 	Opt_user_subvol_rm_allowed,
 
@@ -331,6 +458,21 @@ enum {
 	Opt_alloc_start,
 	Opt_recovery,
 	Opt_subvolrootid,
+=======
+	Opt_user_subvol_rm_allowed,
+
+	/* Rescue options */
+	Opt_rescue,
+	Opt_usebackuproot,
+	Opt_nologreplay,
+	Opt_ignorebadroots,
+	Opt_ignoredatacsums,
+	Opt_rescue_all,
+
+	/* Deprecated options */
+	Opt_recovery,
+	Opt_inode_cache, Opt_noinode_cache,
+>>>>>>> upstream/android-13
 
 	/* Debugging options */
 	Opt_check_integrity,
@@ -372,8 +514,13 @@ static const match_table_t tokens = {
 	{Opt_defrag, "autodefrag"},
 	{Opt_nodefrag, "noautodefrag"},
 	{Opt_discard, "discard"},
+<<<<<<< HEAD
 	{Opt_nodiscard, "nodiscard"},
 	{Opt_nologreplay, "nologreplay"},
+=======
+	{Opt_discard_mode, "discard=%s"},
+	{Opt_nodiscard, "nodiscard"},
+>>>>>>> upstream/android-13
 	{Opt_norecovery, "norecovery"},
 	{Opt_ratio, "metadata_ratio=%u"},
 	{Opt_rescan_uuid_tree, "rescan_uuid_tree"},
@@ -391,6 +538,7 @@ static const match_table_t tokens = {
 	{Opt_thread_pool, "thread_pool=%u"},
 	{Opt_treelog, "treelog"},
 	{Opt_notreelog, "notreelog"},
+<<<<<<< HEAD
 	{Opt_usebackuproot, "usebackuproot"},
 	{Opt_user_subvol_rm_allowed, "user_subvol_rm_allowed"},
 
@@ -398,6 +546,19 @@ static const match_table_t tokens = {
 	{Opt_alloc_start, "alloc_start=%s"},
 	{Opt_recovery, "recovery"},
 	{Opt_subvolrootid, "subvolrootid=%d"},
+=======
+	{Opt_user_subvol_rm_allowed, "user_subvol_rm_allowed"},
+
+	/* Rescue options */
+	{Opt_rescue, "rescue=%s"},
+	/* Deprecated, with alias rescue=nologreplay */
+	{Opt_nologreplay, "nologreplay"},
+	/* Deprecated, with alias rescue=usebackuproot */
+	{Opt_usebackuproot, "usebackuproot"},
+
+	/* Deprecated options */
+	{Opt_recovery, "recovery"},
+>>>>>>> upstream/android-13
 
 	/* Debugging options */
 	{Opt_check_integrity, "check_int"},
@@ -416,6 +577,91 @@ static const match_table_t tokens = {
 	{Opt_err, NULL},
 };
 
+<<<<<<< HEAD
+=======
+static const match_table_t rescue_tokens = {
+	{Opt_usebackuproot, "usebackuproot"},
+	{Opt_nologreplay, "nologreplay"},
+	{Opt_ignorebadroots, "ignorebadroots"},
+	{Opt_ignorebadroots, "ibadroots"},
+	{Opt_ignoredatacsums, "ignoredatacsums"},
+	{Opt_ignoredatacsums, "idatacsums"},
+	{Opt_rescue_all, "all"},
+	{Opt_err, NULL},
+};
+
+static bool check_ro_option(struct btrfs_fs_info *fs_info, unsigned long opt,
+			    const char *opt_name)
+{
+	if (fs_info->mount_opt & opt) {
+		btrfs_err(fs_info, "%s must be used with ro mount option",
+			  opt_name);
+		return true;
+	}
+	return false;
+}
+
+static int parse_rescue_options(struct btrfs_fs_info *info, const char *options)
+{
+	char *opts;
+	char *orig;
+	char *p;
+	substring_t args[MAX_OPT_ARGS];
+	int ret = 0;
+
+	opts = kstrdup(options, GFP_KERNEL);
+	if (!opts)
+		return -ENOMEM;
+	orig = opts;
+
+	while ((p = strsep(&opts, ":")) != NULL) {
+		int token;
+
+		if (!*p)
+			continue;
+		token = match_token(p, rescue_tokens, args);
+		switch (token){
+		case Opt_usebackuproot:
+			btrfs_info(info,
+				   "trying to use backup root at mount time");
+			btrfs_set_opt(info->mount_opt, USEBACKUPROOT);
+			break;
+		case Opt_nologreplay:
+			btrfs_set_and_info(info, NOLOGREPLAY,
+					   "disabling log replay at mount time");
+			break;
+		case Opt_ignorebadroots:
+			btrfs_set_and_info(info, IGNOREBADROOTS,
+					   "ignoring bad roots");
+			break;
+		case Opt_ignoredatacsums:
+			btrfs_set_and_info(info, IGNOREDATACSUMS,
+					   "ignoring data csums");
+			break;
+		case Opt_rescue_all:
+			btrfs_info(info, "enabling all of the rescue options");
+			btrfs_set_and_info(info, IGNOREDATACSUMS,
+					   "ignoring data csums");
+			btrfs_set_and_info(info, IGNOREBADROOTS,
+					   "ignoring bad roots");
+			btrfs_set_and_info(info, NOLOGREPLAY,
+					   "disabling log replay at mount time");
+			break;
+		case Opt_err:
+			btrfs_info(info, "unrecognized rescue option '%s'", p);
+			ret = -EINVAL;
+			goto out;
+		default:
+			break;
+		}
+
+	}
+out:
+	kfree(orig);
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 /*
  * Regular mount options parser.  Everything that is needed only when
  * reading in a new superblock is parsed here.
@@ -426,7 +672,10 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
 {
 	substring_t args[MAX_OPT_ARGS];
 	char *p, *num;
+<<<<<<< HEAD
 	u64 cache_gen;
+=======
+>>>>>>> upstream/android-13
 	int intarg;
 	int ret = 0;
 	char *compress_type;
@@ -436,11 +685,25 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
 	bool saved_compress_force;
 	int no_compress = 0;
 
+<<<<<<< HEAD
 	cache_gen = btrfs_super_cache_generation(info->super_copy);
 	if (btrfs_fs_compat_ro(info, FREE_SPACE_TREE))
 		btrfs_set_opt(info->mount_opt, FREE_SPACE_TREE);
 	else if (cache_gen)
 		btrfs_set_opt(info->mount_opt, SPACE_CACHE);
+=======
+	if (btrfs_fs_compat_ro(info, FREE_SPACE_TREE))
+		btrfs_set_opt(info->mount_opt, FREE_SPACE_TREE);
+	else if (btrfs_free_space_cache_v1_active(info)) {
+		if (btrfs_is_zoned(info)) {
+			btrfs_info(info,
+			"zoned: clearing existing space cache");
+			btrfs_set_super_cache_generation(info->super_copy, 0);
+		} else {
+			btrfs_set_opt(info->mount_opt, SPACE_CACHE);
+		}
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * Even the options are empty, we still need to do extra check
@@ -463,7 +726,10 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
 		case Opt_subvol:
 		case Opt_subvol_empty:
 		case Opt_subvolid:
+<<<<<<< HEAD
 		case Opt_subvolrootid:
+=======
+>>>>>>> upstream/android-13
 		case Opt_device:
 			/*
 			 * These are parsed by btrfs_parse_subvol_options or
@@ -507,7 +773,11 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
 		case Opt_compress_force:
 		case Opt_compress_force_type:
 			compress_force = true;
+<<<<<<< HEAD
 			/* Fallthrough */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case Opt_compress:
 		case Opt_compress_type:
 			saved_compress_type = btrfs_test_opt(info,
@@ -531,7 +801,13 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
 				if (token != Opt_compress &&
 				    token != Opt_compress_force)
 					info->compress_level =
+<<<<<<< HEAD
 					  btrfs_compress_str2level(args[0].from);
+=======
+					  btrfs_compress_str2level(
+							BTRFS_COMPRESS_ZLIB,
+							args[0].from + 4);
+>>>>>>> upstream/android-13
 				btrfs_set_opt(info->mount_opt, COMPRESS);
 				btrfs_clear_opt(info->mount_opt, NODATACOW);
 				btrfs_clear_opt(info->mount_opt, NODATASUM);
@@ -545,9 +821,19 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
 				btrfs_clear_opt(info->mount_opt, NODATASUM);
 				btrfs_set_fs_incompat(info, COMPRESS_LZO);
 				no_compress = 0;
+<<<<<<< HEAD
 			} else if (strcmp(args[0].from, "zstd") == 0) {
 				compress_type = "zstd";
 				info->compress_type = BTRFS_COMPRESS_ZSTD;
+=======
+			} else if (strncmp(args[0].from, "zstd", 4) == 0) {
+				compress_type = "zstd";
+				info->compress_type = BTRFS_COMPRESS_ZSTD;
+				info->compress_level =
+					btrfs_compress_str2level(
+							 BTRFS_COMPRESS_ZSTD,
+							 args[0].from + 4);
+>>>>>>> upstream/android-13
 				btrfs_set_opt(info->mount_opt, COMPRESS);
 				btrfs_clear_opt(info->mount_opt, NODATACOW);
 				btrfs_clear_opt(info->mount_opt, NODATASUM);
@@ -604,7 +890,11 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
 			btrfs_set_opt(info->mount_opt, NOSSD);
 			btrfs_clear_and_info(info, SSD,
 					     "not using ssd optimizations");
+<<<<<<< HEAD
 			/* Fallthrough */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case Opt_nossd_spread:
 			btrfs_clear_and_info(info, SSD_SPREAD,
 					     "not using spread ssd allocation scheme");
@@ -645,10 +935,13 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
 				goto out;
 			}
 			break;
+<<<<<<< HEAD
 		case Opt_alloc_start:
 			btrfs_info(info,
 				"option alloc_start is obsolete, ignored");
 			break;
+=======
+>>>>>>> upstream/android-13
 		case Opt_acl:
 #ifdef CONFIG_BTRFS_FS_POSIX_ACL
 			info->sb->s_flags |= SB_POSIXACL;
@@ -671,6 +964,11 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
 			break;
 		case Opt_norecovery:
 		case Opt_nologreplay:
+<<<<<<< HEAD
+=======
+			btrfs_warn(info,
+		"'nologreplay' is deprecated, use 'rescue=nologreplay' instead");
+>>>>>>> upstream/android-13
 			btrfs_set_and_info(info, NOLOGREPLAY,
 					   "disabling log replay at mount time");
 			break;
@@ -691,12 +989,35 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
 				   info->metadata_ratio);
 			break;
 		case Opt_discard:
+<<<<<<< HEAD
 			btrfs_set_and_info(info, DISCARD,
 					   "turning on discard");
 			break;
 		case Opt_nodiscard:
 			btrfs_clear_and_info(info, DISCARD,
 					     "turning off discard");
+=======
+		case Opt_discard_mode:
+			if (token == Opt_discard ||
+			    strcmp(args[0].from, "sync") == 0) {
+				btrfs_clear_opt(info->mount_opt, DISCARD_ASYNC);
+				btrfs_set_and_info(info, DISCARD_SYNC,
+						   "turning on sync discard");
+			} else if (strcmp(args[0].from, "async") == 0) {
+				btrfs_clear_opt(info->mount_opt, DISCARD_SYNC);
+				btrfs_set_and_info(info, DISCARD_ASYNC,
+						   "turning on async discard");
+			} else {
+				ret = -EINVAL;
+				goto out;
+			}
+			break;
+		case Opt_nodiscard:
+			btrfs_clear_and_info(info, DISCARD_SYNC,
+					     "turning off discard");
+			btrfs_clear_and_info(info, DISCARD_ASYNC,
+					     "turning off async discard");
+>>>>>>> upstream/android-13
 			break;
 		case Opt_space_cache:
 		case Opt_space_cache_version:
@@ -730,12 +1051,18 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
 			}
 			break;
 		case Opt_inode_cache:
+<<<<<<< HEAD
 			btrfs_set_pending_and_info(info, INODE_MAP_CACHE,
 					   "enabling inode map caching");
 			break;
 		case Opt_noinode_cache:
 			btrfs_clear_pending_and_info(info, INODE_MAP_CACHE,
 					     "disabling inode map caching");
+=======
+		case Opt_noinode_cache:
+			btrfs_warn(info,
+	"the 'inode_cache' option is deprecated and has no effect since 5.11");
+>>>>>>> upstream/android-13
 			break;
 		case Opt_clear_cache:
 			btrfs_set_and_info(info, CLEAR_CACHE,
@@ -759,10 +1086,18 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
 					     "disabling auto defrag");
 			break;
 		case Opt_recovery:
+<<<<<<< HEAD
 			btrfs_warn(info,
 				   "'recovery' is deprecated, use 'usebackuproot' instead");
 			/* fall through */
 		case Opt_usebackuproot:
+=======
+		case Opt_usebackuproot:
+			btrfs_warn(info,
+			"'%s' is deprecated, use 'rescue=usebackuproot' instead",
+				   token == Opt_recovery ? "recovery" :
+				   "usebackuproot");
+>>>>>>> upstream/android-13
 			btrfs_info(info,
 				   "trying to use backup root at mount time");
 			btrfs_set_opt(info->mount_opt, USEBACKUPROOT);
@@ -774,8 +1109,12 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
 		case Opt_check_integrity_including_extent_data:
 			btrfs_info(info,
 				   "enabling check integrity including extent data");
+<<<<<<< HEAD
 			btrfs_set_opt(info->mount_opt,
 				      CHECK_INTEGRITY_INCLUDING_EXTENT_DATA);
+=======
+			btrfs_set_opt(info->mount_opt, CHECK_INTEGRITY_DATA);
+>>>>>>> upstream/android-13
 			btrfs_set_opt(info->mount_opt, CHECK_INTEGRITY);
 			break;
 		case Opt_check_integrity:
@@ -827,6 +1166,14 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
 			}
 			info->commit_interval = intarg;
 			break;
+<<<<<<< HEAD
+=======
+		case Opt_rescue:
+			ret = parse_rescue_options(info, args[0].from);
+			if (ret < 0)
+				goto out;
+			break;
+>>>>>>> upstream/android-13
 #ifdef CONFIG_BTRFS_DEBUG
 		case Opt_fragment_all:
 			btrfs_info(info, "fragmenting all space");
@@ -850,7 +1197,11 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
 			break;
 #endif
 		case Opt_err:
+<<<<<<< HEAD
 			btrfs_info(info, "unrecognized mount option '%s'", p);
+=======
+			btrfs_err(info, "unrecognized mount option '%s'", p);
+>>>>>>> upstream/android-13
 			ret = -EINVAL;
 			goto out;
 		default:
@@ -858,6 +1209,7 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
 		}
 	}
 check:
+<<<<<<< HEAD
 	/*
 	 * Extra check for current option against current flag
 	 */
@@ -866,6 +1218,16 @@ check:
 			  "nologreplay must be used with ro mount option");
 		ret = -EINVAL;
 	}
+=======
+	/* We're read-only, don't have to check. */
+	if (new_flags & SB_RDONLY)
+		goto out;
+
+	if (check_ro_option(info, BTRFS_MOUNT_NOLOGREPLAY, "nologreplay") ||
+	    check_ro_option(info, BTRFS_MOUNT_IGNOREBADROOTS, "ignorebadroots") ||
+	    check_ro_option(info, BTRFS_MOUNT_IGNOREDATACSUMS, "ignoredatacsums"))
+		ret = -EINVAL;
+>>>>>>> upstream/android-13
 out:
 	if (btrfs_fs_compat_ro(info, FREE_SPACE_TREE) &&
 	    !btrfs_test_opt(info, FREE_SPACE_TREE) &&
@@ -874,6 +1236,11 @@ out:
 		ret = -EINVAL;
 
 	}
+<<<<<<< HEAD
+=======
+	if (!ret)
+		ret = btrfs_check_mountopts_zoned(info);
+>>>>>>> upstream/android-13
 	if (!ret && btrfs_test_opt(info, SPACE_CACHE))
 		btrfs_info(info, "disk space caching is enabled");
 	if (!ret && btrfs_test_opt(info, FREE_SPACE_TREE))
@@ -988,9 +1355,12 @@ static int btrfs_parse_subvol_options(const char *options, char **subvol_name,
 
 			*subvol_objectid = subvolid;
 			break;
+<<<<<<< HEAD
 		case Opt_subvolrootid:
 			pr_warn("BTRFS: 'subvolrootid' mount option is deprecated and has no effect\n");
 			break;
+=======
+>>>>>>> upstream/android-13
 		default:
 			break;
 		}
@@ -1005,7 +1375,11 @@ char *btrfs_get_subvol_name_from_objectid(struct btrfs_fs_info *fs_info,
 					  u64 subvol_objectid)
 {
 	struct btrfs_root *root = fs_info->tree_root;
+<<<<<<< HEAD
 	struct btrfs_root *fs_root;
+=======
+	struct btrfs_root *fs_root = NULL;
+>>>>>>> upstream/android-13
 	struct btrfs_root_ref *root_ref;
 	struct btrfs_inode_ref *inode_ref;
 	struct btrfs_key key;
@@ -1020,7 +1394,10 @@ char *btrfs_get_subvol_name_from_objectid(struct btrfs_fs_info *fs_info,
 		ret = -ENOMEM;
 		goto err;
 	}
+<<<<<<< HEAD
 	path->leave_spinning = 1;
+=======
+>>>>>>> upstream/android-13
 
 	name = kmalloc(PATH_MAX, GFP_KERNEL);
 	if (!name) {
@@ -1039,6 +1416,7 @@ char *btrfs_get_subvol_name_from_objectid(struct btrfs_fs_info *fs_info,
 		key.type = BTRFS_ROOT_BACKREF_KEY;
 		key.offset = (u64)-1;
 
+<<<<<<< HEAD
 		ret = btrfs_search_slot(NULL, root, &key, path, 0, 0);
 		if (ret < 0) {
 			goto err;
@@ -1054,6 +1432,16 @@ char *btrfs_get_subvol_name_from_objectid(struct btrfs_fs_info *fs_info,
 		}
 
 		btrfs_item_key_to_cpu(path->nodes[0], &key, path->slots[0]);
+=======
+		ret = btrfs_search_backwards(root, &key, path);
+		if (ret < 0) {
+			goto err;
+		} else if (ret > 0) {
+			ret = -ENOENT;
+			goto err;
+		}
+
+>>>>>>> upstream/android-13
 		subvol_objectid = key.offset;
 
 		root_ref = btrfs_item_ptr(path->nodes[0], path->slots[0],
@@ -1070,12 +1458,19 @@ char *btrfs_get_subvol_name_from_objectid(struct btrfs_fs_info *fs_info,
 		dirid = btrfs_root_ref_dirid(path->nodes[0], root_ref);
 		btrfs_release_path(path);
 
+<<<<<<< HEAD
 		key.objectid = subvol_objectid;
 		key.type = BTRFS_ROOT_ITEM_KEY;
 		key.offset = (u64)-1;
 		fs_root = btrfs_read_fs_root_no_name(fs_info, &key);
 		if (IS_ERR(fs_root)) {
 			ret = PTR_ERR(fs_root);
+=======
+		fs_root = btrfs_get_fs_root(fs_info, subvol_objectid, true);
+		if (IS_ERR(fs_root)) {
+			ret = PTR_ERR(fs_root);
+			fs_root = NULL;
+>>>>>>> upstream/android-13
 			goto err;
 		}
 
@@ -1088,6 +1483,7 @@ char *btrfs_get_subvol_name_from_objectid(struct btrfs_fs_info *fs_info,
 			key.type = BTRFS_INODE_REF_KEY;
 			key.offset = (u64)-1;
 
+<<<<<<< HEAD
 			ret = btrfs_search_slot(NULL, fs_root, &key, path, 0, 0);
 			if (ret < 0) {
 				goto err;
@@ -1103,6 +1499,16 @@ char *btrfs_get_subvol_name_from_objectid(struct btrfs_fs_info *fs_info,
 			}
 
 			btrfs_item_key_to_cpu(path->nodes[0], &key, path->slots[0]);
+=======
+			ret = btrfs_search_backwards(fs_root, &key, path);
+			if (ret < 0) {
+				goto err;
+			} else if (ret > 0) {
+				ret = -ENOENT;
+				goto err;
+			}
+
+>>>>>>> upstream/android-13
 			dirid = key.offset;
 
 			inode_ref = btrfs_item_ptr(path->nodes[0],
@@ -1120,6 +1526,11 @@ char *btrfs_get_subvol_name_from_objectid(struct btrfs_fs_info *fs_info,
 			ptr[0] = '/';
 			btrfs_release_path(path);
 		}
+<<<<<<< HEAD
+=======
+		btrfs_put_root(fs_root);
+		fs_root = NULL;
+>>>>>>> upstream/android-13
 	}
 
 	btrfs_free_path(path);
@@ -1132,6 +1543,10 @@ char *btrfs_get_subvol_name_from_objectid(struct btrfs_fs_info *fs_info,
 	return name;
 
 err:
+<<<<<<< HEAD
+=======
+	btrfs_put_root(fs_root);
+>>>>>>> upstream/android-13
 	btrfs_free_path(path);
 	kfree(name);
 	return ERR_PTR(ret);
@@ -1148,7 +1563,10 @@ static int get_default_subvol_objectid(struct btrfs_fs_info *fs_info, u64 *objec
 	path = btrfs_alloc_path();
 	if (!path)
 		return -ENOMEM;
+<<<<<<< HEAD
 	path->leave_spinning = 1;
+=======
+>>>>>>> upstream/android-13
 
 	/*
 	 * Find the "default" dir item which points to the root item that we
@@ -1184,7 +1602,10 @@ static int btrfs_fill_super(struct super_block *sb,
 {
 	struct inode *inode;
 	struct btrfs_fs_info *fs_info = btrfs_sb(sb);
+<<<<<<< HEAD
 	struct btrfs_key key;
+=======
+>>>>>>> upstream/android-13
 	int err;
 
 	sb->s_maxbytes = MAX_LFS_FILESIZE;
@@ -1192,6 +1613,12 @@ static int btrfs_fill_super(struct super_block *sb,
 	sb->s_op = &btrfs_super_ops;
 	sb->s_d_op = &btrfs_dentry_operations;
 	sb->s_export_op = &btrfs_export_ops;
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_FS_VERITY
+	sb->s_vop = &btrfs_verityops;
+#endif
+>>>>>>> upstream/android-13
 	sb->s_xattr = btrfs_xattr_handlers;
 	sb->s_time_gran = 1;
 #ifdef CONFIG_BTRFS_FS_POSIX_ACL
@@ -1212,10 +1639,14 @@ static int btrfs_fill_super(struct super_block *sb,
 		return err;
 	}
 
+<<<<<<< HEAD
 	key.objectid = BTRFS_FIRST_FREE_OBJECTID;
 	key.type = BTRFS_INODE_ITEM_KEY;
 	key.offset = 0;
 	inode = btrfs_iget(sb, &key, fs_info->fs_root, NULL);
+=======
+	inode = btrfs_iget(sb, BTRFS_FIRST_FREE_OBJECTID, fs_info->fs_root);
+>>>>>>> upstream/android-13
 	if (IS_ERR(inode)) {
 		err = PTR_ERR(inode);
 		goto fail_close;
@@ -1279,11 +1710,24 @@ int btrfs_sync_fs(struct super_block *sb, int wait)
 	return btrfs_commit_transaction(trans);
 }
 
+<<<<<<< HEAD
+=======
+static void print_rescue_option(struct seq_file *seq, const char *s, bool *printed)
+{
+	seq_printf(seq, "%s%s", (*printed) ? ":" : ",rescue=", s);
+	*printed = true;
+}
+
+>>>>>>> upstream/android-13
 static int btrfs_show_options(struct seq_file *seq, struct dentry *dentry)
 {
 	struct btrfs_fs_info *info = btrfs_sb(dentry->d_sb);
 	const char *compress_type;
 	const char *subvol_name;
+<<<<<<< HEAD
+=======
+	bool printed = false;
+>>>>>>> upstream/android-13
 
 	if (btrfs_test_opt(info, DEGRADED))
 		seq_puts(seq, ",degraded");
@@ -1316,6 +1760,7 @@ static int btrfs_show_options(struct seq_file *seq, struct dentry *dentry)
 	if (btrfs_test_opt(info, NOTREELOG))
 		seq_puts(seq, ",notreelog");
 	if (btrfs_test_opt(info, NOLOGREPLAY))
+<<<<<<< HEAD
 		seq_puts(seq, ",nologreplay");
 	if (btrfs_test_opt(info, FLUSHONCOMMIT))
 		seq_puts(seq, ",flushoncommit");
@@ -1326,6 +1771,26 @@ static int btrfs_show_options(struct seq_file *seq, struct dentry *dentry)
 	if (btrfs_test_opt(info, SPACE_CACHE))
 		seq_puts(seq, ",space_cache");
 	else if (btrfs_test_opt(info, FREE_SPACE_TREE))
+=======
+		print_rescue_option(seq, "nologreplay", &printed);
+	if (btrfs_test_opt(info, USEBACKUPROOT))
+		print_rescue_option(seq, "usebackuproot", &printed);
+	if (btrfs_test_opt(info, IGNOREBADROOTS))
+		print_rescue_option(seq, "ignorebadroots", &printed);
+	if (btrfs_test_opt(info, IGNOREDATACSUMS))
+		print_rescue_option(seq, "ignoredatacsums", &printed);
+	if (btrfs_test_opt(info, FLUSHONCOMMIT))
+		seq_puts(seq, ",flushoncommit");
+	if (btrfs_test_opt(info, DISCARD_SYNC))
+		seq_puts(seq, ",discard");
+	if (btrfs_test_opt(info, DISCARD_ASYNC))
+		seq_puts(seq, ",discard=async");
+	if (!(info->sb->s_flags & SB_POSIXACL))
+		seq_puts(seq, ",noacl");
+	if (btrfs_free_space_cache_v1_active(info))
+		seq_puts(seq, ",space_cache");
+	else if (btrfs_fs_compat_ro(info, FREE_SPACE_TREE))
+>>>>>>> upstream/android-13
 		seq_puts(seq, ",space_cache=v2");
 	else
 		seq_puts(seq, ",nospace_cache");
@@ -1339,12 +1804,19 @@ static int btrfs_show_options(struct seq_file *seq, struct dentry *dentry)
 		seq_puts(seq, ",enospc_debug");
 	if (btrfs_test_opt(info, AUTO_DEFRAG))
 		seq_puts(seq, ",autodefrag");
+<<<<<<< HEAD
 	if (btrfs_test_opt(info, INODE_MAP_CACHE))
 		seq_puts(seq, ",inode_cache");
 	if (btrfs_test_opt(info, SKIP_BALANCE))
 		seq_puts(seq, ",skip_balance");
 #ifdef CONFIG_BTRFS_FS_CHECK_INTEGRITY
 	if (btrfs_test_opt(info, CHECK_INTEGRITY_INCLUDING_EXTENT_DATA))
+=======
+	if (btrfs_test_opt(info, SKIP_BALANCE))
+		seq_puts(seq, ",skip_balance");
+#ifdef CONFIG_BTRFS_FS_CHECK_INTEGRITY
+	if (btrfs_test_opt(info, CHECK_INTEGRITY_DATA))
+>>>>>>> upstream/android-13
 		seq_puts(seq, ",check_int_data");
 	else if (btrfs_test_opt(info, CHECK_INTEGRITY))
 		seq_puts(seq, ",check_int");
@@ -1405,7 +1877,11 @@ static inline int is_subvolume_inode(struct inode *inode)
 }
 
 static struct dentry *mount_subvol(const char *subvol_name, u64 subvol_objectid,
+<<<<<<< HEAD
 				   const char *device_name, struct vfsmount *mnt)
+=======
+				   struct vfsmount *mnt)
+>>>>>>> upstream/android-13
 {
 	struct dentry *root;
 	int ret;
@@ -1469,6 +1945,7 @@ out:
 	return root;
 }
 
+<<<<<<< HEAD
 static int parse_security_options(char *orig_opts,
 				  struct security_mnt_opts *sec_opts)
 {
@@ -1519,6 +1996,8 @@ static int setup_security_options(struct btrfs_fs_info *fs_info,
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Find a superblock for the given device / mount point.
  *
@@ -1533,16 +2012,25 @@ static struct dentry *btrfs_mount_root(struct file_system_type *fs_type,
 	struct btrfs_device *device = NULL;
 	struct btrfs_fs_devices *fs_devices = NULL;
 	struct btrfs_fs_info *fs_info = NULL;
+<<<<<<< HEAD
 	struct security_mnt_opts new_sec_opts;
+=======
+	void *new_sec_opts = NULL;
+>>>>>>> upstream/android-13
 	fmode_t mode = FMODE_READ;
 	int error = 0;
 
 	if (!(flags & SB_RDONLY))
 		mode |= FMODE_WRITE;
 
+<<<<<<< HEAD
 	security_init_mnt_opts(&new_sec_opts);
 	if (data) {
 		error = parse_security_options(data, &new_sec_opts);
+=======
+	if (data) {
+		error = security_sb_eat_lsm_opts(data, &new_sec_opts);
+>>>>>>> upstream/android-13
 		if (error)
 			return ERR_PTR(error);
 	}
@@ -1550,18 +2038,32 @@ static struct dentry *btrfs_mount_root(struct file_system_type *fs_type,
 	/*
 	 * Setup a dummy root and fs_info for test/set super.  This is because
 	 * we don't actually fill this stuff out until open_ctree, but we need
+<<<<<<< HEAD
 	 * it for searching for existing supers, so this lets us do that and
 	 * then open_ctree will properly initialize everything later.
+=======
+	 * then open_ctree will properly initialize the file system specific
+	 * settings later.  btrfs_init_fs_info initializes the static elements
+	 * of the fs_info (locks and such) to make cleanup easier if we find a
+	 * superblock with our given fs_devices later on at sget() time.
+>>>>>>> upstream/android-13
 	 */
 	fs_info = kvzalloc(sizeof(struct btrfs_fs_info), GFP_KERNEL);
 	if (!fs_info) {
 		error = -ENOMEM;
 		goto error_sec_opts;
 	}
+<<<<<<< HEAD
 
 	fs_info->super_copy = kzalloc(BTRFS_SUPER_INFO_SIZE, GFP_KERNEL);
 	fs_info->super_for_commit = kzalloc(BTRFS_SUPER_INFO_SIZE, GFP_KERNEL);
 	security_init_mnt_opts(&fs_info->security_opts);
+=======
+	btrfs_init_fs_info(fs_info);
+
+	fs_info->super_copy = kzalloc(BTRFS_SUPER_INFO_SIZE, GFP_KERNEL);
+	fs_info->super_for_commit = kzalloc(BTRFS_SUPER_INFO_SIZE, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!fs_info->super_copy || !fs_info->super_for_commit) {
 		error = -ENOMEM;
 		goto error_fs_info;
@@ -1594,7 +2096,11 @@ static struct dentry *btrfs_mount_root(struct file_system_type *fs_type,
 		goto error_close_devices;
 	}
 
+<<<<<<< HEAD
 	bdev = fs_devices->latest_bdev;
+=======
+	bdev = fs_devices->latest_dev->bdev;
+>>>>>>> upstream/android-13
 	s = sget(fs_type, btrfs_test_super, btrfs_set_super, flags | SB_NOSEC,
 		 fs_info);
 	if (IS_ERR(s)) {
@@ -1604,12 +2110,17 @@ static struct dentry *btrfs_mount_root(struct file_system_type *fs_type,
 
 	if (s->s_root) {
 		btrfs_close_devices(fs_devices);
+<<<<<<< HEAD
 		free_fs_info(fs_info);
+=======
+		btrfs_free_fs_info(fs_info);
+>>>>>>> upstream/android-13
 		if ((flags ^ s->s_flags) & SB_RDONLY)
 			error = -EBUSY;
 	} else {
 		snprintf(s->s_id, sizeof(s->s_id), "%pg", bdev);
 		btrfs_sb(s)->bdev_holder = fs_type;
+<<<<<<< HEAD
 		error = btrfs_fill_super(s, fs_devices, data);
 	}
 	if (error) {
@@ -1622,6 +2133,18 @@ static struct dentry *btrfs_mount_root(struct file_system_type *fs_type,
 	if (error) {
 		deactivate_locked_super(s);
 		goto error_sec_opts;
+=======
+		if (!strstr(crc32c_impl(), "generic"))
+			set_bit(BTRFS_FS_CSUM_IMPL_FAST, &fs_info->flags);
+		error = btrfs_fill_super(s, fs_devices, data);
+	}
+	if (!error)
+		error = security_sb_set_mnt_opts(s, new_sec_opts, 0, NULL);
+	security_free_mnt_opts(&new_sec_opts);
+	if (error) {
+		deactivate_locked_super(s);
+		return ERR_PTR(error);
+>>>>>>> upstream/android-13
 	}
 
 	return dget(s->s_root);
@@ -1629,7 +2152,11 @@ static struct dentry *btrfs_mount_root(struct file_system_type *fs_type,
 error_close_devices:
 	btrfs_close_devices(fs_devices);
 error_fs_info:
+<<<<<<< HEAD
 	free_fs_info(fs_info);
+=======
+	btrfs_free_fs_info(fs_info);
+>>>>>>> upstream/android-13
 error_sec_opts:
 	security_free_mnt_opts(&new_sec_opts);
 	return ERR_PTR(error);
@@ -1662,14 +2189,20 @@ static struct dentry *btrfs_mount(struct file_system_type *fs_type, int flags,
 {
 	struct vfsmount *mnt_root;
 	struct dentry *root;
+<<<<<<< HEAD
 	fmode_t mode = FMODE_READ;
+=======
+>>>>>>> upstream/android-13
 	char *subvol_name = NULL;
 	u64 subvol_objectid = 0;
 	int error = 0;
 
+<<<<<<< HEAD
 	if (!(flags & SB_RDONLY))
 		mode |= FMODE_WRITE;
 
+=======
+>>>>>>> upstream/android-13
 	error = btrfs_parse_subvol_options(data, &subvol_name,
 					&subvol_objectid);
 	if (error) {
@@ -1710,7 +2243,11 @@ static struct dentry *btrfs_mount(struct file_system_type *fs_type, int flags,
 	}
 
 	/* mount_subvol() will free subvol_name and mnt_root */
+<<<<<<< HEAD
 	root = mount_subvol(subvol_name, subvol_objectid, device_name, mnt_root);
+=======
+	root = mount_subvol(subvol_name, subvol_objectid, mnt_root);
+>>>>>>> upstream/android-13
 
 out:
 	return root;
@@ -1729,7 +2266,10 @@ static void btrfs_resize_thread_pool(struct btrfs_fs_info *fs_info,
 
 	btrfs_workqueue_set_max(fs_info->workers, new_pool_size);
 	btrfs_workqueue_set_max(fs_info->delalloc_workers, new_pool_size);
+<<<<<<< HEAD
 	btrfs_workqueue_set_max(fs_info->submit_workers, new_pool_size);
+=======
+>>>>>>> upstream/android-13
 	btrfs_workqueue_set_max(fs_info->caching_workers, new_pool_size);
 	btrfs_workqueue_set_max(fs_info->endio_workers, new_pool_size);
 	btrfs_workqueue_set_max(fs_info->endio_meta_workers, new_pool_size);
@@ -1743,11 +2283,14 @@ static void btrfs_resize_thread_pool(struct btrfs_fs_info *fs_info,
 				new_pool_size);
 }
 
+<<<<<<< HEAD
 static inline void btrfs_remount_prepare(struct btrfs_fs_info *fs_info)
 {
 	set_bit(BTRFS_FS_STATE_REMOUNTING, &fs_info->fs_state);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void btrfs_remount_begin(struct btrfs_fs_info *fs_info,
 				       unsigned long old_opts, int flags)
 {
@@ -1765,6 +2308,11 @@ static inline void btrfs_remount_begin(struct btrfs_fs_info *fs_info,
 static inline void btrfs_remount_cleanup(struct btrfs_fs_info *fs_info,
 					 unsigned long old_opts)
 {
+<<<<<<< HEAD
+=======
+	const bool cache_opt = btrfs_test_opt(fs_info, SPACE_CACHE);
+
+>>>>>>> upstream/android-13
 	/*
 	 * We need to cleanup all defragable inodes if the autodefragment is
 	 * close or the filesystem is read only.
@@ -1774,13 +2322,30 @@ static inline void btrfs_remount_cleanup(struct btrfs_fs_info *fs_info,
 		btrfs_cleanup_defrag_inodes(fs_info);
 	}
 
+<<<<<<< HEAD
 	clear_bit(BTRFS_FS_STATE_REMOUNTING, &fs_info->fs_state);
+=======
+	/* If we toggled discard async */
+	if (!btrfs_raw_test_opt(old_opts, DISCARD_ASYNC) &&
+	    btrfs_test_opt(fs_info, DISCARD_ASYNC))
+		btrfs_discard_resume(fs_info);
+	else if (btrfs_raw_test_opt(old_opts, DISCARD_ASYNC) &&
+		 !btrfs_test_opt(fs_info, DISCARD_ASYNC))
+		btrfs_discard_cleanup(fs_info);
+
+	/* If we toggled space cache */
+	if (cache_opt != btrfs_free_space_cache_v1_active(fs_info))
+		btrfs_set_free_space_cache_v1_active(fs_info, cache_opt);
+>>>>>>> upstream/android-13
 }
 
 static int btrfs_remount(struct super_block *sb, int *flags, char *data)
 {
 	struct btrfs_fs_info *fs_info = btrfs_sb(sb);
+<<<<<<< HEAD
 	struct btrfs_root *root = fs_info->tree_root;
+=======
+>>>>>>> upstream/android-13
 	unsigned old_flags = sb->s_flags;
 	unsigned long old_opts = fs_info->mount_opt;
 	unsigned long old_compress_type = fs_info->compress_type;
@@ -1790,6 +2355,7 @@ static int btrfs_remount(struct super_block *sb, int *flags, char *data)
 	int ret;
 
 	sync_filesystem(sb);
+<<<<<<< HEAD
 	btrfs_remount_prepare(fs_info);
 
 	if (data) {
@@ -1805,6 +2371,19 @@ static int btrfs_remount(struct super_block *sb, int *flags, char *data)
 			security_free_mnt_opts(&new_sec_opts);
 			goto restore;
 		}
+=======
+	set_bit(BTRFS_FS_STATE_REMOUNTING, &fs_info->fs_state);
+
+	if (data) {
+		void *new_sec_opts = NULL;
+
+		ret = security_sb_eat_lsm_opts(data, &new_sec_opts);
+		if (!ret)
+			ret = security_sb_remount(sb, new_sec_opts);
+		security_free_mnt_opts(&new_sec_opts);
+		if (ret)
+			goto restore;
+>>>>>>> upstream/android-13
 	}
 
 	ret = btrfs_parse_options(fs_info, data, *flags);
@@ -1815,6 +2394,25 @@ static int btrfs_remount(struct super_block *sb, int *flags, char *data)
 	btrfs_resize_thread_pool(fs_info,
 		fs_info->thread_pool_size, old_thread_pool_size);
 
+<<<<<<< HEAD
+=======
+	if ((bool)btrfs_test_opt(fs_info, FREE_SPACE_TREE) !=
+	    (bool)btrfs_fs_compat_ro(fs_info, FREE_SPACE_TREE) &&
+	    (!sb_rdonly(sb) || (*flags & SB_RDONLY))) {
+		btrfs_warn(fs_info,
+		"remount supports changing free space tree only from ro to rw");
+		/* Make sure free space cache options match the state on disk */
+		if (btrfs_fs_compat_ro(fs_info, FREE_SPACE_TREE)) {
+			btrfs_set_opt(fs_info->mount_opt, FREE_SPACE_TREE);
+			btrfs_clear_opt(fs_info->mount_opt, SPACE_CACHE);
+		}
+		if (btrfs_free_space_cache_v1_active(fs_info)) {
+			btrfs_clear_opt(fs_info->mount_opt, FREE_SPACE_TREE);
+			btrfs_set_opt(fs_info->mount_opt, SPACE_CACHE);
+		}
+	}
+
+>>>>>>> upstream/android-13
 	if ((bool)(*flags & SB_RDONLY) == sb_rdonly(sb))
 		goto out;
 
@@ -1824,13 +2422,23 @@ static int btrfs_remount(struct super_block *sb, int *flags, char *data)
 		 * the filesystem is busy.
 		 */
 		cancel_work_sync(&fs_info->async_reclaim_work);
+<<<<<<< HEAD
+=======
+		cancel_work_sync(&fs_info->async_data_reclaim_work);
+
+		btrfs_discard_cleanup(fs_info);
+>>>>>>> upstream/android-13
 
 		/* wait for the uuid_scan task to finish */
 		down(&fs_info->uuid_tree_rescan_sem);
 		/* avoid complains from lockdep et al. */
 		up(&fs_info->uuid_tree_rescan_sem);
 
+<<<<<<< HEAD
 		sb->s_flags |= SB_RDONLY;
+=======
+		btrfs_set_sb_rdonly(sb);
+>>>>>>> upstream/android-13
 
 		/*
 		 * Setting SB_RDONLY will put the cleaner thread to
@@ -1841,6 +2449,33 @@ static int btrfs_remount(struct super_block *sb, int *flags, char *data)
 		 */
 		btrfs_delete_unused_bgs(fs_info);
 
+<<<<<<< HEAD
+=======
+		/*
+		 * The cleaner task could be already running before we set the
+		 * flag BTRFS_FS_STATE_RO (and SB_RDONLY in the superblock).
+		 * We must make sure that after we finish the remount, i.e. after
+		 * we call btrfs_commit_super(), the cleaner can no longer start
+		 * a transaction - either because it was dropping a dead root,
+		 * running delayed iputs or deleting an unused block group (the
+		 * cleaner picked a block group from the list of unused block
+		 * groups before we were able to in the previous call to
+		 * btrfs_delete_unused_bgs()).
+		 */
+		wait_on_bit(&fs_info->flags, BTRFS_FS_CLEANER_RUNNING,
+			    TASK_UNINTERRUPTIBLE);
+
+		/*
+		 * We've set the superblock to RO mode, so we might have made
+		 * the cleaner task sleep without running all pending delayed
+		 * iputs. Go through all the delayed iputs here, so that if an
+		 * unmount happens without remounting RW we don't end up at
+		 * finishing close_ctree() with a non-empty list of delayed
+		 * iputs.
+		 */
+		btrfs_run_delayed_iputs(fs_info);
+
+>>>>>>> upstream/android-13
 		btrfs_dev_replace_suspend_for_unmount(fs_info);
 		btrfs_scrub_cancel(fs_info);
 		btrfs_pause_balance(fs_info);
@@ -1870,7 +2505,11 @@ static int btrfs_remount(struct super_block *sb, int *flags, char *data)
 
 		if (!btrfs_check_rw_degradable(fs_info, NULL)) {
 			btrfs_warn(fs_info,
+<<<<<<< HEAD
 				"too many missing devices, writeable remount is not allowed");
+=======
+		"too many missing devices, writable remount is not allowed");
+>>>>>>> upstream/android-13
 			ret = -EACCES;
 			goto restore;
 		}
@@ -1882,6 +2521,7 @@ static int btrfs_remount(struct super_block *sb, int *flags, char *data)
 			goto restore;
 		}
 
+<<<<<<< HEAD
 		ret = btrfs_cleanup_fs_roots(fs_info);
 		if (ret)
 			goto restore;
@@ -1916,18 +2556,49 @@ static int btrfs_remount(struct super_block *sb, int *flags, char *data)
 			}
 		}
 		sb->s_flags &= ~SB_RDONLY;
+=======
+		/*
+		 * NOTE: when remounting with a change that does writes, don't
+		 * put it anywhere above this point, as we are not sure to be
+		 * safe to write until we pass the above checks.
+		 */
+		ret = btrfs_start_pre_rw_mount(fs_info);
+		if (ret)
+			goto restore;
+
+		btrfs_clear_sb_rdonly(sb);
+>>>>>>> upstream/android-13
 
 		set_bit(BTRFS_FS_OPEN, &fs_info->flags);
 	}
 out:
+<<<<<<< HEAD
 	wake_up_process(fs_info->transaction_kthread);
 	btrfs_remount_cleanup(fs_info, old_opts);
+=======
+	/*
+	 * We need to set SB_I_VERSION here otherwise it'll get cleared by VFS,
+	 * since the absence of the flag means it can be toggled off by remount.
+	 */
+	*flags |= SB_I_VERSION;
+
+	wake_up_process(fs_info->transaction_kthread);
+	btrfs_remount_cleanup(fs_info, old_opts);
+	btrfs_clear_oneshot_options(fs_info);
+	clear_bit(BTRFS_FS_STATE_REMOUNTING, &fs_info->fs_state);
+
+>>>>>>> upstream/android-13
 	return 0;
 
 restore:
 	/* We've hit an error - don't reset SB_RDONLY */
 	if (sb_rdonly(sb))
 		old_flags |= SB_RDONLY;
+<<<<<<< HEAD
+=======
+	if (!(old_flags & SB_RDONLY))
+		clear_bit(BTRFS_FS_STATE_RO, &fs_info->fs_state);
+>>>>>>> upstream/android-13
 	sb->s_flags = old_flags;
 	fs_info->mount_opt = old_opts;
 	fs_info->compress_type = old_compress_type;
@@ -1936,10 +2607,16 @@ restore:
 		old_thread_pool_size, fs_info->thread_pool_size);
 	fs_info->metadata_ratio = old_metadata_ratio;
 	btrfs_remount_cleanup(fs_info, old_opts);
+<<<<<<< HEAD
+=======
+	clear_bit(BTRFS_FS_STATE_REMOUNTING, &fs_info->fs_state);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 /* Used to sort the devices by max_avail(descending sort) */
+<<<<<<< HEAD
 static inline int btrfs_cmp_device_free_bytes(const void *dev_info1,
 				       const void *dev_info2)
 {
@@ -1950,6 +2627,17 @@ static inline int btrfs_cmp_device_free_bytes(const void *dev_info1,
 		 ((struct btrfs_device_info *)dev_info2)->max_avail)
 		return 1;
 	else
+=======
+static int btrfs_cmp_device_free_bytes(const void *a, const void *b)
+{
+	const struct btrfs_device_info *dev_info1 = a;
+	const struct btrfs_device_info *dev_info2 = b;
+
+	if (dev_info1->max_avail > dev_info2->max_avail)
+		return -1;
+	else if (dev_info1->max_avail < dev_info2->max_avail)
+		return 1;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1975,12 +2663,21 @@ static inline int btrfs_calc_avail_data_space(struct btrfs_fs_info *fs_info,
 	struct btrfs_device_info *devices_info;
 	struct btrfs_fs_devices *fs_devices = fs_info->fs_devices;
 	struct btrfs_device *device;
+<<<<<<< HEAD
 	u64 skip_space;
 	u64 type;
 	u64 avail_space;
 	u64 min_stripe_size;
 	int min_stripes = 1, num_stripes = 1;
 	int i = 0, nr_devices;
+=======
+	u64 type;
+	u64 avail_space;
+	u64 min_stripe_size;
+	int num_stripes = 1;
+	int i = 0, nr_devices;
+	const struct btrfs_raid_attr *rattr;
+>>>>>>> upstream/android-13
 
 	/*
 	 * We aren't under the device list lock, so this is racy-ish, but good
@@ -2004,6 +2701,7 @@ static inline int btrfs_calc_avail_data_space(struct btrfs_fs_info *fs_info,
 
 	/* calc min stripe number for data space allocation */
 	type = btrfs_data_alloc_profile(fs_info);
+<<<<<<< HEAD
 	if (type & BTRFS_BLOCK_GROUP_RAID0) {
 		min_stripes = 2;
 		num_stripes = nr_devices;
@@ -2019,6 +2717,23 @@ static inline int btrfs_calc_avail_data_space(struct btrfs_fs_info *fs_info,
 		min_stripe_size = 2 * BTRFS_STRIPE_LEN;
 	else
 		min_stripe_size = BTRFS_STRIPE_LEN;
+=======
+	rattr = &btrfs_raid_array[btrfs_bg_flags_to_raid_index(type)];
+
+	if (type & BTRFS_BLOCK_GROUP_RAID0)
+		num_stripes = nr_devices;
+	else if (type & BTRFS_BLOCK_GROUP_RAID1)
+		num_stripes = 2;
+	else if (type & BTRFS_BLOCK_GROUP_RAID1C3)
+		num_stripes = 3;
+	else if (type & BTRFS_BLOCK_GROUP_RAID1C4)
+		num_stripes = 4;
+	else if (type & BTRFS_BLOCK_GROUP_RAID10)
+		num_stripes = 4;
+
+	/* Adjust for more than 1 stripe per device */
+	min_stripe_size = rattr->dev_stripes * BTRFS_STRIPE_LEN;
+>>>>>>> upstream/android-13
 
 	rcu_read_lock();
 	list_for_each_entry_rcu(device, &fs_devices->devices, dev_list) {
@@ -2034,13 +2749,18 @@ static inline int btrfs_calc_avail_data_space(struct btrfs_fs_info *fs_info,
 		avail_space = device->total_bytes - device->bytes_used;
 
 		/* align with stripe_len */
+<<<<<<< HEAD
 		avail_space = div_u64(avail_space, BTRFS_STRIPE_LEN);
 		avail_space *= BTRFS_STRIPE_LEN;
+=======
+		avail_space = rounddown(avail_space, BTRFS_STRIPE_LEN);
+>>>>>>> upstream/android-13
 
 		/*
 		 * In order to avoid overwriting the superblock on the drive,
 		 * btrfs starts at an offset of at least 1MB when doing chunk
 		 * allocation.
+<<<<<<< HEAD
 		 */
 		skip_space = SZ_1M;
 
@@ -2056,6 +2776,17 @@ static inline int btrfs_calc_avail_data_space(struct btrfs_fs_info *fs_info,
 		if (avail_space < min_stripe_size)
 			continue;
 
+=======
+		 *
+		 * This ensures we have at least min_stripe_size free space
+		 * after excluding 1MB.
+		 */
+		if (avail_space <= SZ_1M + min_stripe_size)
+			continue;
+
+		avail_space -= SZ_1M;
+
+>>>>>>> upstream/android-13
 		devices_info[i].dev = device;
 		devices_info[i].max_avail = avail_space;
 
@@ -2069,9 +2800,14 @@ static inline int btrfs_calc_avail_data_space(struct btrfs_fs_info *fs_info,
 
 	i = nr_devices - 1;
 	avail_space = 0;
+<<<<<<< HEAD
 	while (nr_devices >= min_stripes) {
 		if (num_stripes > nr_devices)
 			num_stripes = nr_devices;
+=======
+	while (nr_devices >= rattr->devs_min) {
+		num_stripes = min(num_stripes, nr_devices);
+>>>>>>> upstream/android-13
 
 		if (devices_info[i].max_avail >= min_stripe_size) {
 			int j;
@@ -2108,21 +2844,33 @@ static int btrfs_statfs(struct dentry *dentry, struct kstatfs *buf)
 {
 	struct btrfs_fs_info *fs_info = btrfs_sb(dentry->d_sb);
 	struct btrfs_super_block *disk_super = fs_info->super_copy;
+<<<<<<< HEAD
 	struct list_head *head = &fs_info->space_info;
+=======
+>>>>>>> upstream/android-13
 	struct btrfs_space_info *found;
 	u64 total_used = 0;
 	u64 total_free_data = 0;
 	u64 total_free_meta = 0;
+<<<<<<< HEAD
 	int bits = dentry->d_sb->s_blocksize_bits;
 	__be32 *fsid = (__be32 *)fs_info->fsid;
+=======
+	u32 bits = fs_info->sectorsize_bits;
+	__be32 *fsid = (__be32 *)fs_info->fs_devices->fsid;
+>>>>>>> upstream/android-13
 	unsigned factor = 1;
 	struct btrfs_block_rsv *block_rsv = &fs_info->global_block_rsv;
 	int ret;
 	u64 thresh = 0;
 	int mixed = 0;
 
+<<<<<<< HEAD
 	rcu_read_lock();
 	list_for_each_entry_rcu(found, head, list) {
+=======
+	list_for_each_entry(found, &fs_info->space_info, list) {
+>>>>>>> upstream/android-13
 		if (found->flags & BTRFS_BLOCK_GROUP_DATA) {
 			int i;
 
@@ -2151,8 +2899,11 @@ static int btrfs_statfs(struct dentry *dentry, struct kstatfs *buf)
 		total_used += found->disk_used;
 	}
 
+<<<<<<< HEAD
 	rcu_read_unlock();
 
+=======
+>>>>>>> upstream/android-13
 	buf->f_blocks = div_u64(btrfs_super_total_bytes(disk_super), factor);
 	buf->f_blocks >>= bits;
 	buf->f_bfree = buf->f_blocks - (div_u64(total_used, factor) >> bits);
@@ -2209,8 +2960,15 @@ static int btrfs_statfs(struct dentry *dentry, struct kstatfs *buf)
 	buf->f_fsid.val[0] = be32_to_cpu(fsid[0]) ^ be32_to_cpu(fsid[2]);
 	buf->f_fsid.val[1] = be32_to_cpu(fsid[1]) ^ be32_to_cpu(fsid[3]);
 	/* Mask in the root object ID too, to disambiguate subvols */
+<<<<<<< HEAD
 	buf->f_fsid.val[0] ^= BTRFS_I(d_inode(dentry))->root->objectid >> 32;
 	buf->f_fsid.val[1] ^= BTRFS_I(d_inode(dentry))->root->objectid;
+=======
+	buf->f_fsid.val[0] ^=
+		BTRFS_I(d_inode(dentry))->root->root_key.objectid >> 32;
+	buf->f_fsid.val[1] ^=
+		BTRFS_I(d_inode(dentry))->root->root_key.objectid;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -2219,7 +2977,11 @@ static void btrfs_kill_super(struct super_block *sb)
 {
 	struct btrfs_fs_info *fs_info = btrfs_sb(sb);
 	kill_anon_super(sb);
+<<<<<<< HEAD
 	free_fs_info(fs_info);
+=======
+	btrfs_free_fs_info(fs_info);
+>>>>>>> upstream/android-13
 }
 
 static struct file_system_type btrfs_fs_type = {
@@ -2235,7 +2997,11 @@ static struct file_system_type btrfs_root_fs_type = {
 	.name		= "btrfs",
 	.mount		= btrfs_mount_root,
 	.kill_sb	= btrfs_kill_super,
+<<<<<<< HEAD
 	.fs_flags	= FS_REQUIRES_DEV | FS_BINARY_MOUNTDATA,
+=======
+	.fs_flags	= FS_REQUIRES_DEV | FS_BINARY_MOUNTDATA | FS_ALLOW_IDMAP,
+>>>>>>> upstream/android-13
 };
 
 MODULE_ALIAS_FS("btrfs");
@@ -2252,7 +3018,11 @@ static int btrfs_control_open(struct inode *inode, struct file *file)
 }
 
 /*
+<<<<<<< HEAD
  * used by btrfsctl to scan devices when no FS is mounted
+=======
+ * Used by /dev/btrfs-control for devices ioctls.
+>>>>>>> upstream/android-13
  */
 static long btrfs_control_ioctl(struct file *file, unsigned int cmd,
 				unsigned long arg)
@@ -2277,6 +3047,12 @@ static long btrfs_control_ioctl(struct file *file, unsigned int cmd,
 		ret = PTR_ERR_OR_ZERO(device);
 		mutex_unlock(&uuid_mutex);
 		break;
+<<<<<<< HEAD
+=======
+	case BTRFS_IOC_FORGET_DEV:
+		ret = btrfs_forget_devices(vol->name);
+		break;
+>>>>>>> upstream/android-13
 	case BTRFS_IOC_DEVICES_READY:
 		mutex_lock(&uuid_mutex);
 		device = btrfs_scan_one_device(vol->name, FMODE_READ,
@@ -2333,6 +3109,7 @@ static int btrfs_unfreeze(struct super_block *sb)
 static int btrfs_show_devname(struct seq_file *m, struct dentry *root)
 {
 	struct btrfs_fs_info *fs_info = btrfs_sb(root->d_sb);
+<<<<<<< HEAD
 	struct btrfs_device *dev, *first_dev = NULL;
 
 	/*
@@ -2357,6 +3134,18 @@ static int btrfs_show_devname(struct seq_file *m, struct dentry *root)
 	else
 		WARN_ON(1);
 	rcu_read_unlock();
+=======
+
+	/*
+	 * There should be always a valid pointer in latest_dev, it may be stale
+	 * for a short moment in case it's being deleted but still valid until
+	 * the end of RCU grace period.
+	 */
+	rcu_read_lock();
+	seq_escape(m, rcu_str_deref(fs_info->fs_devices->latest_dev->name), " \t\n\\");
+	rcu_read_unlock();
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -2369,6 +3158,10 @@ static const struct super_operations btrfs_super_ops = {
 	.show_devname	= btrfs_show_devname,
 	.alloc_inode	= btrfs_alloc_inode,
 	.destroy_inode	= btrfs_destroy_inode,
+<<<<<<< HEAD
+=======
+	.free_inode	= btrfs_free_inode,
+>>>>>>> upstream/android-13
 	.statfs		= btrfs_statfs,
 	.remount_fs	= btrfs_remount,
 	.freeze_fs	= btrfs_freeze,
@@ -2378,7 +3171,11 @@ static const struct super_operations btrfs_super_ops = {
 static const struct file_operations btrfs_ctl_fops = {
 	.open = btrfs_control_open,
 	.unlocked_ioctl	 = btrfs_control_ioctl,
+<<<<<<< HEAD
 	.compat_ioctl = btrfs_control_ioctl,
+=======
+	.compat_ioctl = compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 	.owner	 = THIS_MODULE,
 	.llseek = noop_llseek,
 };
@@ -2417,6 +3214,19 @@ static void __init btrfs_print_mod_info(void)
 #ifdef CONFIG_BTRFS_FS_REF_VERIFY
 			", ref-verify=on"
 #endif
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_BLK_DEV_ZONED
+			", zoned=yes"
+#else
+			", zoned=no"
+#endif
+#ifdef CONFIG_FS_VERITY
+			", fsverity=yes"
+#else
+			", fsverity=no"
+#endif
+>>>>>>> upstream/android-13
 			;
 	pr_info("Btrfs loaded, crc32c=%s%s\n", crc32c_impl(), options);
 }
@@ -2441,10 +3251,21 @@ static int __init init_btrfs_fs(void)
 	if (err)
 		goto free_cachep;
 
+<<<<<<< HEAD
 	err = extent_map_init();
 	if (err)
 		goto free_extent_io;
 
+=======
+	err = extent_state_cache_init();
+	if (err)
+		goto free_extent_io;
+
+	err = extent_map_init();
+	if (err)
+		goto free_extent_state_cache;
+
+>>>>>>> upstream/android-13
 	err = ordered_data_init();
 	if (err)
 		goto free_extent_map;
@@ -2473,8 +3294,11 @@ static int __init init_btrfs_fs(void)
 	if (err)
 		goto free_end_io_wq;
 
+<<<<<<< HEAD
 	btrfs_init_lockdep();
 
+=======
+>>>>>>> upstream/android-13
 	btrfs_print_mod_info();
 
 	err = btrfs_run_sanity_tests();
@@ -2503,6 +3327,11 @@ free_ordered_data:
 	ordered_data_exit();
 free_extent_map:
 	extent_map_exit();
+<<<<<<< HEAD
+=======
+free_extent_state_cache:
+	extent_state_cache_exit();
+>>>>>>> upstream/android-13
 free_extent_io:
 	extent_io_exit();
 free_cachep:
@@ -2523,6 +3352,10 @@ static void __exit exit_btrfs_fs(void)
 	btrfs_prelim_ref_exit();
 	ordered_data_exit();
 	extent_map_exit();
+<<<<<<< HEAD
+=======
+	extent_state_cache_exit();
+>>>>>>> upstream/android-13
 	extent_io_exit();
 	btrfs_interface_exit();
 	btrfs_end_io_wq_exit();
@@ -2536,3 +3369,11 @@ late_initcall(init_btrfs_fs);
 module_exit(exit_btrfs_fs)
 
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(ANDROID_GKI_VFS_EXPORT_ONLY);
+MODULE_SOFTDEP("pre: crc32c");
+MODULE_SOFTDEP("pre: xxhash64");
+MODULE_SOFTDEP("pre: sha256");
+MODULE_SOFTDEP("pre: blake2b-256");
+>>>>>>> upstream/android-13

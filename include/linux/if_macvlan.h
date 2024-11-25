@@ -29,8 +29,13 @@ struct macvlan_dev {
 	netdev_features_t	set_features;
 	enum macvlan_mode	mode;
 	u16			flags;
+<<<<<<< HEAD
 	int			nest_level;
 	unsigned int		macaddr_count;
+=======
+	unsigned int		macaddr_count;
+	u32			bc_queue_len_req;
+>>>>>>> upstream/android-13
 #ifdef CONFIG_NET_POLL_CONTROLLER
 	struct netpoll		*netpoll;
 #endif

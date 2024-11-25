@@ -7,7 +7,11 @@
  *
  * 7-bit I2C slave address: 0x13
  *
+<<<<<<< HEAD
  * Link to data sheet: http://www.onsemi.com/pub/Collateral/LV0104CS-D.PDF
+=======
+ * Link to data sheet: https://www.onsemi.com/pub/Collateral/LV0104CS-D.PDF
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -502,7 +506,10 @@ static int lv0104cs_probe(struct i2c_client *client,
 		return ret;
 
 	indio_dev->modes = INDIO_DIRECT_MODE;
+<<<<<<< HEAD
 	indio_dev->dev.parent = &client->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->channels = lv0104cs_channels;
 	indio_dev->num_channels = ARRAY_SIZE(lv0104cs_channels);
 	indio_dev->name = client->name;

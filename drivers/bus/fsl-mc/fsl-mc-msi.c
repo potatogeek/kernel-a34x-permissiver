@@ -13,6 +13,10 @@
 #include <linux/irq.h>
 #include <linux/irqdomain.h>
 #include <linux/msi.h>
+<<<<<<< HEAD
+=======
+#include <linux/acpi_iort.h>
+>>>>>>> upstream/android-13
 
 #include "fsl-mc-private.h"
 
@@ -147,7 +151,11 @@ static void fsl_mc_msi_update_chip_ops(struct msi_domain_info *info)
 
 /**
  * fsl_mc_msi_create_irq_domain - Create a fsl-mc MSI interrupt domain
+<<<<<<< HEAD
  * @np:		Optional device-tree node of the interrupt controller
+=======
+ * @fwnode:	Optional firmware node of the interrupt controller
+>>>>>>> upstream/android-13
  * @info:	MSI domain info
  * @parent:	Parent irq domain
  *
@@ -177,6 +185,7 @@ struct irq_domain *fsl_mc_msi_create_irq_domain(struct fwnode_handle *fwnode,
 	return domain;
 }
 
+<<<<<<< HEAD
 int fsl_mc_find_msi_domain(struct device *mc_platform_dev,
 			   struct irq_domain **mc_msi_domain)
 {
@@ -194,6 +203,38 @@ int fsl_mc_find_msi_domain(struct device *mc_platform_dev,
 
 	*mc_msi_domain = msi_domain;
 	return 0;
+=======
+struct irq_domain *fsl_mc_find_msi_domain(struct device *dev)
+{
+	struct device *root_dprc_dev;
+	struct device *bus_dev;
+	struct irq_domain *msi_domain;
+	struct fsl_mc_device *mc_dev = to_fsl_mc_device(dev);
+
+	fsl_mc_get_root_dprc(dev, &root_dprc_dev);
+	bus_dev = root_dprc_dev->parent;
+
+	if (bus_dev->of_node) {
+		msi_domain = of_msi_map_get_device_domain(dev,
+						  mc_dev->icid,
+						  DOMAIN_BUS_FSL_MC_MSI);
+
+		/*
+		 * if the msi-map property is missing assume that all the
+		 * child containers inherit the domain from the parent
+		 */
+		if (!msi_domain)
+
+			msi_domain = of_msi_get_domain(bus_dev,
+						bus_dev->of_node,
+						DOMAIN_BUS_FSL_MC_MSI);
+	} else {
+		msi_domain = iort_get_device_domain(dev, mc_dev->icid,
+						    DOMAIN_BUS_FSL_MC_MSI);
+	}
+
+	return msi_domain;
+>>>>>>> upstream/android-13
 }
 
 static void fsl_mc_msi_free_descs(struct device *dev)

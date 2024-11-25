@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2003 - 2014 Intel Corporation. All rights reserved.
@@ -26,6 +27,13 @@
  * Intel Corporation, 5200 N.E. Elam Young Parkway, Hillsboro, OR 97124-6497
  *
  *****************************************************************************/
+=======
+// SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
+/*
+ * Copyright (C) 2003-2014, 2018-2021 Intel Corporation
+ * Copyright (C) 2015-2016 Intel Deutschland GmbH
+ */
+>>>>>>> upstream/android-13
 #include <linux/delay.h>
 #include <linux/device.h>
 #include <linux/export.h>
@@ -89,10 +97,17 @@ IWL_EXPORT_SYMBOL(iwl_poll_bit);
 u32 iwl_read_direct32(struct iwl_trans *trans, u32 reg)
 {
 	u32 value = 0x5a5a5a5a;
+<<<<<<< HEAD
 	unsigned long flags;
 	if (iwl_trans_grab_nic_access(trans, &flags)) {
 		value = iwl_read32(trans, reg);
 		iwl_trans_release_nic_access(trans, &flags);
+=======
+
+	if (iwl_trans_grab_nic_access(trans)) {
+		value = iwl_read32(trans, reg);
+		iwl_trans_release_nic_access(trans);
+>>>>>>> upstream/android-13
 	}
 
 	return value;
@@ -101,22 +116,34 @@ IWL_EXPORT_SYMBOL(iwl_read_direct32);
 
 void iwl_write_direct32(struct iwl_trans *trans, u32 reg, u32 value)
 {
+<<<<<<< HEAD
 	unsigned long flags;
 
 	if (iwl_trans_grab_nic_access(trans, &flags)) {
 		iwl_write32(trans, reg, value);
 		iwl_trans_release_nic_access(trans, &flags);
+=======
+	if (iwl_trans_grab_nic_access(trans)) {
+		iwl_write32(trans, reg, value);
+		iwl_trans_release_nic_access(trans);
+>>>>>>> upstream/android-13
 	}
 }
 IWL_EXPORT_SYMBOL(iwl_write_direct32);
 
 void iwl_write_direct64(struct iwl_trans *trans, u64 reg, u64 value)
 {
+<<<<<<< HEAD
 	unsigned long flags;
 
 	if (iwl_trans_grab_nic_access(trans, &flags)) {
 		iwl_write64(trans, reg, value);
 		iwl_trans_release_nic_access(trans, &flags);
+=======
+	if (iwl_trans_grab_nic_access(trans)) {
+		iwl_write64(trans, reg, value);
+		iwl_trans_release_nic_access(trans);
+>>>>>>> upstream/android-13
 	}
 }
 IWL_EXPORT_SYMBOL(iwl_write_direct64);
@@ -162,17 +189,26 @@ IWL_EXPORT_SYMBOL(iwl_write_prph64_no_grab);
 
 u32 iwl_read_prph(struct iwl_trans *trans, u32 ofs)
 {
+<<<<<<< HEAD
 	unsigned long flags;
 	u32 val = 0x5a5a5a5a;
 
 	if (iwl_trans_grab_nic_access(trans, &flags)) {
 		val = iwl_read_prph_no_grab(trans, ofs);
 		iwl_trans_release_nic_access(trans, &flags);
+=======
+	u32 val = 0x5a5a5a5a;
+
+	if (iwl_trans_grab_nic_access(trans)) {
+		val = iwl_read_prph_no_grab(trans, ofs);
+		iwl_trans_release_nic_access(trans);
+>>>>>>> upstream/android-13
 	}
 	return val;
 }
 IWL_EXPORT_SYMBOL(iwl_read_prph);
 
+<<<<<<< HEAD
 void iwl_write_prph(struct iwl_trans *trans, u32 ofs, u32 val)
 {
 	unsigned long flags;
@@ -183,6 +219,17 @@ void iwl_write_prph(struct iwl_trans *trans, u32 ofs, u32 val)
 	}
 }
 IWL_EXPORT_SYMBOL(iwl_write_prph);
+=======
+void iwl_write_prph_delay(struct iwl_trans *trans, u32 ofs, u32 val, u32 delay_ms)
+{
+	if (iwl_trans_grab_nic_access(trans)) {
+		mdelay(delay_ms);
+		iwl_write_prph_no_grab(trans, ofs, val);
+		iwl_trans_release_nic_access(trans);
+	}
+}
+IWL_EXPORT_SYMBOL(iwl_write_prph_delay);
+>>>>>>> upstream/android-13
 
 int iwl_poll_prph_bit(struct iwl_trans *trans, u32 addr,
 		      u32 bits, u32 mask, int timeout)
@@ -201,6 +248,7 @@ int iwl_poll_prph_bit(struct iwl_trans *trans, u32 addr,
 
 void iwl_set_bits_prph(struct iwl_trans *trans, u32 ofs, u32 mask)
 {
+<<<<<<< HEAD
 	unsigned long flags;
 
 	if (iwl_trans_grab_nic_access(trans, &flags)) {
@@ -208,6 +256,13 @@ void iwl_set_bits_prph(struct iwl_trans *trans, u32 ofs, u32 mask)
 				       iwl_read_prph_no_grab(trans, ofs) |
 				       mask);
 		iwl_trans_release_nic_access(trans, &flags);
+=======
+	if (iwl_trans_grab_nic_access(trans)) {
+		iwl_write_prph_no_grab(trans, ofs,
+				       iwl_read_prph_no_grab(trans, ofs) |
+				       mask);
+		iwl_trans_release_nic_access(trans);
+>>>>>>> upstream/android-13
 	}
 }
 IWL_EXPORT_SYMBOL(iwl_set_bits_prph);
@@ -215,6 +270,7 @@ IWL_EXPORT_SYMBOL(iwl_set_bits_prph);
 void iwl_set_bits_mask_prph(struct iwl_trans *trans, u32 ofs,
 			    u32 bits, u32 mask)
 {
+<<<<<<< HEAD
 	unsigned long flags;
 
 	if (iwl_trans_grab_nic_access(trans, &flags)) {
@@ -222,12 +278,20 @@ void iwl_set_bits_mask_prph(struct iwl_trans *trans, u32 ofs,
 				       (iwl_read_prph_no_grab(trans, ofs) &
 					mask) | bits);
 		iwl_trans_release_nic_access(trans, &flags);
+=======
+	if (iwl_trans_grab_nic_access(trans)) {
+		iwl_write_prph_no_grab(trans, ofs,
+				       (iwl_read_prph_no_grab(trans, ofs) &
+					mask) | bits);
+		iwl_trans_release_nic_access(trans);
+>>>>>>> upstream/android-13
 	}
 }
 IWL_EXPORT_SYMBOL(iwl_set_bits_mask_prph);
 
 void iwl_clear_bits_prph(struct iwl_trans *trans, u32 ofs, u32 mask)
 {
+<<<<<<< HEAD
 	unsigned long flags;
 	u32 val;
 
@@ -235,18 +299,41 @@ void iwl_clear_bits_prph(struct iwl_trans *trans, u32 ofs, u32 mask)
 		val = iwl_read_prph_no_grab(trans, ofs);
 		iwl_write_prph_no_grab(trans, ofs, (val & ~mask));
 		iwl_trans_release_nic_access(trans, &flags);
+=======
+	u32 val;
+
+	if (iwl_trans_grab_nic_access(trans)) {
+		val = iwl_read_prph_no_grab(trans, ofs);
+		iwl_write_prph_no_grab(trans, ofs, (val & ~mask));
+		iwl_trans_release_nic_access(trans);
+>>>>>>> upstream/android-13
 	}
 }
 IWL_EXPORT_SYMBOL(iwl_clear_bits_prph);
 
 void iwl_force_nmi(struct iwl_trans *trans)
 {
+<<<<<<< HEAD
 	if (trans->cfg->device_family < IWL_DEVICE_FAMILY_9000)
 		iwl_write_prph(trans, DEVICE_SET_NMI_REG,
 			       DEVICE_SET_NMI_VAL_DRV);
 	else
 		iwl_write_prph(trans, UREG_NIC_SET_NMI_DRIVER,
 			       UREG_NIC_SET_NMI_DRIVER_NMI_FROM_DRIVER_MSK);
+=======
+	if (trans->trans_cfg->device_family < IWL_DEVICE_FAMILY_9000)
+		iwl_write_prph_delay(trans, DEVICE_SET_NMI_REG,
+				     DEVICE_SET_NMI_VAL_DRV, 1);
+	else if (trans->trans_cfg->device_family < IWL_DEVICE_FAMILY_AX210)
+		iwl_write_umac_prph(trans, UREG_NIC_SET_NMI_DRIVER,
+				UREG_NIC_SET_NMI_DRIVER_NMI_FROM_DRIVER);
+	else if (trans->trans_cfg->device_family < IWL_DEVICE_FAMILY_BZ)
+		iwl_write_umac_prph(trans, UREG_DOORBELL_TO_ISR6,
+				    UREG_DOORBELL_TO_ISR6_NMI_BIT);
+	else
+		iwl_write32(trans, CSR_DOORBELL_VECTOR,
+			    UREG_DOORBELL_TO_ISR6_NMI_BIT);
+>>>>>>> upstream/android-13
 }
 IWL_EXPORT_SYMBOL(iwl_force_nmi);
 
@@ -392,7 +479,11 @@ int iwl_dump_fh(struct iwl_trans *trans, char **buf)
 		FH_TSSR_TX_ERROR_REG
 	};
 
+<<<<<<< HEAD
 	if (trans->cfg->mq_rx_supported)
+=======
+	if (trans->trans_cfg->mq_rx_supported)
+>>>>>>> upstream/android-13
 		return iwl_dump_rfh(trans, buf);
 
 #ifdef CONFIG_IWLWIFI_DEBUGFS
@@ -425,3 +516,89 @@ int iwl_dump_fh(struct iwl_trans *trans, char **buf)
 
 	return 0;
 }
+<<<<<<< HEAD
+=======
+
+int iwl_finish_nic_init(struct iwl_trans *trans,
+			const struct iwl_cfg_trans_params *cfg_trans)
+{
+	u32 poll_ready;
+	int err;
+
+	if (cfg_trans->bisr_workaround) {
+		/* ensure the TOP FSM isn't still in previous reset */
+		mdelay(2);
+	}
+
+	/*
+	 * Set "initialization complete" bit to move adapter from
+	 * D0U* --> D0A* (powered-up active) state.
+	 */
+	if (cfg_trans->device_family >= IWL_DEVICE_FAMILY_BZ) {
+		iwl_set_bit(trans, CSR_GP_CNTRL,
+			    CSR_GP_CNTRL_REG_FLAG_MAC_CLOCK_READY |
+			    CSR_GP_CNTRL_REG_FLAG_MAC_INIT);
+		poll_ready = CSR_GP_CNTRL_REG_FLAG_MAC_STATUS;
+	} else {
+		iwl_set_bit(trans, CSR_GP_CNTRL,
+			    CSR_GP_CNTRL_REG_FLAG_INIT_DONE);
+		poll_ready = CSR_GP_CNTRL_REG_FLAG_MAC_CLOCK_READY;
+	}
+
+	if (cfg_trans->device_family == IWL_DEVICE_FAMILY_8000)
+		udelay(2);
+
+	/*
+	 * Wait for clock stabilization; once stabilized, access to
+	 * device-internal resources is supported, e.g. iwl_write_prph()
+	 * and accesses to uCode SRAM.
+	 */
+	err = iwl_poll_bit(trans, CSR_GP_CNTRL, poll_ready, poll_ready, 25000);
+	if (err < 0)
+		IWL_DEBUG_INFO(trans, "Failed to wake NIC\n");
+
+	if (cfg_trans->bisr_workaround) {
+		/* ensure BISR shift has finished */
+		udelay(200);
+	}
+
+	return err < 0 ? err : 0;
+}
+IWL_EXPORT_SYMBOL(iwl_finish_nic_init);
+
+void iwl_trans_sync_nmi_with_addr(struct iwl_trans *trans, u32 inta_addr,
+				  u32 sw_err_bit)
+{
+	unsigned long timeout = jiffies + IWL_TRANS_NMI_TIMEOUT;
+	bool interrupts_enabled = test_bit(STATUS_INT_ENABLED, &trans->status);
+
+	/* if the interrupts were already disabled, there is no point in
+	 * calling iwl_disable_interrupts
+	 */
+	if (interrupts_enabled)
+		iwl_trans_interrupts(trans, false);
+
+	iwl_force_nmi(trans);
+	while (time_after(timeout, jiffies)) {
+		u32 inta_hw = iwl_read32(trans, inta_addr);
+
+		/* Error detected by uCode */
+		if (inta_hw & sw_err_bit) {
+			/* Clear causes register */
+			iwl_write32(trans, inta_addr, inta_hw & sw_err_bit);
+			break;
+		}
+
+		mdelay(1);
+	}
+
+	/* enable interrupts only if there were already enabled before this
+	 * function to avoid a case were the driver enable interrupts before
+	 * proper configurations were made
+	 */
+	if (interrupts_enabled)
+		iwl_trans_interrupts(trans, true);
+
+	iwl_trans_fw_error(trans, false);
+}
+>>>>>>> upstream/android-13

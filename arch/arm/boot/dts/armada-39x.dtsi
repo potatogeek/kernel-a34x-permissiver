@@ -7,13 +7,21 @@
  * Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
  */
 
+<<<<<<< HEAD
 #include "skeleton.dtsi"
+=======
+>>>>>>> upstream/android-13
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/interrupt-controller/irq.h>
 
 #define MBUS_ID(target,attributes) (((target) << 24) | ((attributes) << 16))
 
 / {
+<<<<<<< HEAD
+=======
+	#address-cells = <1>;
+	#size-cells = <1>;
+>>>>>>> upstream/android-13
 	model = "Marvell Armada 39x family SoC";
 	compatible = "marvell,armada390";
 
@@ -107,7 +115,10 @@
 				#address-cells = <1>;
 				#size-cells = <0>;
 				interrupts = <GIC_SPI 2 IRQ_TYPE_LEVEL_HIGH>;
+<<<<<<< HEAD
 				timeout-ms = <1000>;
+=======
+>>>>>>> upstream/android-13
 				clocks = <&coreclk 0>;
 				status = "disabled";
 			};
@@ -118,7 +129,10 @@
 				#address-cells = <1>;
 				#size-cells = <0>;
 				interrupts = <GIC_SPI 3 IRQ_TYPE_LEVEL_HIGH>;
+<<<<<<< HEAD
 				timeout-ms = <1000>;
+=======
+>>>>>>> upstream/android-13
 				clocks = <&coreclk 0>;
 				status = "disabled";
 			};
@@ -129,7 +143,10 @@
 				#address-cells = <1>;
 				#size-cells = <0>;
 				interrupts = <GIC_SPI 4 IRQ_TYPE_LEVEL_HIGH>;
+<<<<<<< HEAD
 				timeout-ms = <1000>;
+=======
+>>>>>>> upstream/android-13
 				clocks = <&coreclk 0>;
 				status = "disabled";
 			};
@@ -140,7 +157,10 @@
 				#address-cells = <1>;
 				#size-cells = <0>;
 				interrupts = <GIC_SPI 5 IRQ_TYPE_LEVEL_HIGH>;
+<<<<<<< HEAD
 				timeout-ms = <1000>;
+=======
+>>>>>>> upstream/android-13
 				clocks = <&coreclk 0>;
 				status = "disabled";
 			};

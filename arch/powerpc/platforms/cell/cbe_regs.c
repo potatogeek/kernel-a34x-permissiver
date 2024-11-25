@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * cbe_regs.c
  *
@@ -11,9 +15,15 @@
 #include <linux/export.h>
 #include <linux/of_device.h>
 #include <linux/of_platform.h>
+<<<<<<< HEAD
 
 #include <asm/io.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+
+#include <asm/io.h>
+>>>>>>> upstream/android-13
 #include <asm/prom.h>
 #include <asm/ptrace.h>
 #include <asm/cell-regs.h>
@@ -53,7 +63,11 @@ static struct cbe_regs_map *cbe_find_map(struct device_node *np)
 	int i;
 	struct device_node *tmp_np;
 
+<<<<<<< HEAD
 	if (strcasecmp(np->type, "spe")) {
+=======
+	if (!of_node_is_type(np, "spe")) {
+>>>>>>> upstream/android-13
 		for (i = 0; i < cbe_regs_map_count; i++)
 			if (cbe_regs_maps[i].cpu_node == np ||
 			    cbe_regs_maps[i].be_node == np)
@@ -70,8 +84,13 @@ static struct cbe_regs_map *cbe_find_map(struct device_node *np)
 		tmp_np = tmp_np->parent;
 		/* on a correct devicetree we wont get up to root */
 		BUG_ON(!tmp_np);
+<<<<<<< HEAD
 	} while (strcasecmp(tmp_np->type, "cpu") &&
 		 strcasecmp(tmp_np->type, "be"));
+=======
+	} while (!of_node_is_type(tmp_np, "cpu") ||
+		 !of_node_is_type(tmp_np, "be"));
+>>>>>>> upstream/android-13
 
 	np->data = cbe_find_map(tmp_np);
 

@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * scsi_logging.c
  *
  * Copyright (C) 2014 SUSE Linux Products GmbH
  * Copyright (C) 2014 Hannes Reinecke <hare@suse.de>
+<<<<<<< HEAD
  *
  * This file is released under the GPLv2
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -29,8 +36,14 @@ static void scsi_log_release_buffer(char *bufptr)
 
 static inline const char *scmd_name(const struct scsi_cmnd *scmd)
 {
+<<<<<<< HEAD
 	return scmd->request->rq_disk ?
 		scmd->request->rq_disk->disk_name : NULL;
+=======
+	struct request *rq = scsi_cmd_to_rq((struct scsi_cmnd *)scmd);
+
+	return rq->rq_disk ? rq->rq_disk->disk_name : NULL;
+>>>>>>> upstream/android-13
 }
 
 static size_t sdev_format_header(char *logbuf, size_t logbuf_len,
@@ -92,7 +105,11 @@ void scmd_printk(const char *level, const struct scsi_cmnd *scmd,
 	if (!logbuf)
 		return;
 	off = sdev_format_header(logbuf, logbuf_len, scmd_name(scmd),
+<<<<<<< HEAD
 				 scmd->request->tag);
+=======
+				 scsi_cmd_to_rq((struct scsi_cmnd *)scmd)->tag);
+>>>>>>> upstream/android-13
 	if (off < logbuf_len) {
 		va_start(args, fmt);
 		off += vscnprintf(logbuf + off, logbuf_len - off, fmt, args);
@@ -189,7 +206,11 @@ void scsi_print_command(struct scsi_cmnd *cmd)
 		return;
 
 	off = sdev_format_header(logbuf, logbuf_len,
+<<<<<<< HEAD
 				 scmd_name(cmd), cmd->request->tag);
+=======
+				 scmd_name(cmd), scsi_cmd_to_rq(cmd)->tag);
+>>>>>>> upstream/android-13
 	if (off >= logbuf_len)
 		goto out_printk;
 	off += scnprintf(logbuf + off, logbuf_len - off, "CDB: ");
@@ -206,6 +227,7 @@ void scsi_print_command(struct scsi_cmnd *cmd)
 		/* Print opcode in one line and use separate lines for CDB */
 		off += scnprintf(logbuf + off, logbuf_len - off, "\n");
 		dev_printk(KERN_INFO, &cmd->device->sdev_gendev, "%s", logbuf);
+<<<<<<< HEAD
 		scsi_log_release_buffer(logbuf);
 		for (k = 0; k < cmd->cmd_len; k += 16) {
 			size_t linelen = min(cmd->cmd_len - k, 16);
@@ -216,6 +238,14 @@ void scsi_print_command(struct scsi_cmnd *cmd)
 			off = sdev_format_header(logbuf, logbuf_len,
 						 scmd_name(cmd),
 						 cmd->request->tag);
+=======
+		for (k = 0; k < cmd->cmd_len; k += 16) {
+			size_t linelen = min(cmd->cmd_len - k, 16);
+
+			off = sdev_format_header(logbuf, logbuf_len,
+						 scmd_name(cmd),
+						 scsi_cmd_to_rq(cmd)->tag);
+>>>>>>> upstream/android-13
 			if (!WARN_ON(off > logbuf_len - 58)) {
 				off += scnprintf(logbuf + off, logbuf_len - off,
 						 "CDB[%02x]: ", k);
@@ -225,9 +255,14 @@ void scsi_print_command(struct scsi_cmnd *cmd)
 			}
 			dev_printk(KERN_INFO, &cmd->device->sdev_gendev, "%s",
 				   logbuf);
+<<<<<<< HEAD
 			scsi_log_release_buffer(logbuf);
 		}
 		return;
+=======
+		}
+		goto out;
+>>>>>>> upstream/android-13
 	}
 	if (!WARN_ON(off > logbuf_len - 49)) {
 		off += scnprintf(logbuf + off, logbuf_len - off, " ");
@@ -237,6 +272,10 @@ void scsi_print_command(struct scsi_cmnd *cmd)
 	}
 out_printk:
 	dev_printk(KERN_INFO, &cmd->device->sdev_gendev, "%s", logbuf);
+<<<<<<< HEAD
+=======
+out:
+>>>>>>> upstream/android-13
 	scsi_log_release_buffer(logbuf);
 }
 EXPORT_SYMBOL(scsi_print_command);
@@ -378,7 +417,12 @@ EXPORT_SYMBOL(__scsi_print_sense);
 /* Normalize and print sense buffer in SCSI command */
 void scsi_print_sense(const struct scsi_cmnd *cmd)
 {
+<<<<<<< HEAD
 	scsi_log_print_sense(cmd->device, scmd_name(cmd), cmd->request->tag,
+=======
+	scsi_log_print_sense(cmd->device, scmd_name(cmd),
+			     scsi_cmd_to_rq((struct scsi_cmnd *)cmd)->tag,
+>>>>>>> upstream/android-13
 			     cmd->sense_buffer, SCSI_SENSE_BUFFERSIZE);
 }
 EXPORT_SYMBOL(scsi_print_sense);
@@ -390,14 +434,23 @@ void scsi_print_result(const struct scsi_cmnd *cmd, const char *msg,
 	size_t off, logbuf_len;
 	const char *mlret_string = scsi_mlreturn_string(disposition);
 	const char *hb_string = scsi_hostbyte_string(cmd->result);
+<<<<<<< HEAD
 	const char *db_string = scsi_driverbyte_string(cmd->result);
+=======
+	unsigned long cmd_age = (jiffies - cmd->jiffies_at_alloc) / HZ;
+>>>>>>> upstream/android-13
 
 	logbuf = scsi_log_reserve_buffer(&logbuf_len);
 	if (!logbuf)
 		return;
 
+<<<<<<< HEAD
 	off = sdev_format_header(logbuf, logbuf_len,
 				 scmd_name(cmd), cmd->request->tag);
+=======
+	off = sdev_format_header(logbuf, logbuf_len, scmd_name(cmd),
+				 scsi_cmd_to_rq((struct scsi_cmnd *)cmd)->tag);
+>>>>>>> upstream/android-13
 
 	if (off >= logbuf_len)
 		goto out_printk;
@@ -430,12 +483,21 @@ void scsi_print_result(const struct scsi_cmnd *cmd, const char *msg,
 	if (WARN_ON(off >= logbuf_len))
 		goto out_printk;
 
+<<<<<<< HEAD
 	if (db_string)
 		off += scnprintf(logbuf + off, logbuf_len - off,
 				 "driverbyte=%s", db_string);
 	else
 		off += scnprintf(logbuf + off, logbuf_len - off,
 				 "driverbyte=0x%02x", driver_byte(cmd->result));
+=======
+	off += scnprintf(logbuf + off, logbuf_len - off,
+			 "driverbyte=DRIVER_OK ");
+
+	off += scnprintf(logbuf + off, logbuf_len - off,
+			 "cmd_age=%lus", cmd_age);
+
+>>>>>>> upstream/android-13
 out_printk:
 	dev_printk(KERN_INFO, &cmd->device->sdev_gendev, "%s", logbuf);
 	scsi_log_release_buffer(logbuf);

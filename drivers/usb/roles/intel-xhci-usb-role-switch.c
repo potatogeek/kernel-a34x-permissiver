@@ -19,6 +19,10 @@
 #include <linux/module.h>
 #include <linux/platform_device.h>
 #include <linux/pm_runtime.h>
+<<<<<<< HEAD
+=======
+#include <linux/property.h>
+>>>>>>> upstream/android-13
 #include <linux/usb/role.h>
 
 /* register definition */
@@ -26,6 +30,15 @@
 #define SW_VBUS_VALID			BIT(24)
 #define SW_IDPIN_EN			BIT(21)
 #define SW_IDPIN			BIT(20)
+<<<<<<< HEAD
+=======
+#define SW_SWITCH_EN			BIT(16)
+
+#define DRD_CONFIG_DYNAMIC		0
+#define DRD_CONFIG_STATIC_HOST		1
+#define DRD_CONFIG_STATIC_DEVICE	2
+#define DRD_CONFIG_MASK			3
+>>>>>>> upstream/android-13
 
 #define DUAL_ROLE_CFG1			0x6c
 #define HOST_MODE			BIT(29)
@@ -35,6 +48,7 @@
 #define DRV_NAME			"intel_xhci_usb_sw"
 
 struct intel_xhci_usb_data {
+<<<<<<< HEAD
 	struct usb_role_switch *role_sw;
 	void __iomem *base;
 };
@@ -45,6 +59,26 @@ static int intel_xhci_usb_set_role(struct device *dev, enum usb_role role)
 	unsigned long timeout;
 	acpi_status status;
 	u32 glk, val;
+=======
+	struct device *dev;
+	struct usb_role_switch *role_sw;
+	void __iomem *base;
+	bool enable_sw_switch;
+};
+
+static const struct software_node intel_xhci_usb_node = {
+	"intel-xhci-usb-sw",
+};
+
+static int intel_xhci_usb_set_role(struct usb_role_switch *sw,
+				   enum usb_role role)
+{
+	struct intel_xhci_usb_data *data = usb_role_switch_get_drvdata(sw);
+	unsigned long timeout;
+	acpi_status status;
+	u32 glk, val;
+	u32 drd_config = DRD_CONFIG_DYNAMIC;
+>>>>>>> upstream/android-13
 
 	/*
 	 * On many CHT devices ACPI event (_AEI) handlers read / modify /
@@ -53,6 +87,7 @@ static int intel_xhci_usb_set_role(struct device *dev, enum usb_role role)
 	 */
 	status = acpi_acquire_global_lock(ACPI_WAIT_FOREVER, &glk);
 	if (ACPI_FAILURE(status) && status != AE_NOT_CONFIGURED) {
+<<<<<<< HEAD
 		dev_err(dev, "Error could not acquire lock\n");
 		return -EIO;
 	}
@@ -60,23 +95,56 @@ static int intel_xhci_usb_set_role(struct device *dev, enum usb_role role)
 	pm_runtime_get_sync(dev);
 
 	/* Set idpin value as requested */
+=======
+		dev_err(data->dev, "Error could not acquire lock\n");
+		return -EIO;
+	}
+
+	pm_runtime_get_sync(data->dev);
+
+	/*
+	 * Set idpin value as requested.
+	 * Since some devices rely on firmware setting DRD_CONFIG and
+	 * SW_SWITCH_EN bits to be zero for role switch,
+	 * do not set these bits for those devices.
+	 */
+>>>>>>> upstream/android-13
 	val = readl(data->base + DUAL_ROLE_CFG0);
 	switch (role) {
 	case USB_ROLE_NONE:
 		val |= SW_IDPIN;
 		val &= ~SW_VBUS_VALID;
+<<<<<<< HEAD
+=======
+		drd_config = DRD_CONFIG_DYNAMIC;
+>>>>>>> upstream/android-13
 		break;
 	case USB_ROLE_HOST:
 		val &= ~SW_IDPIN;
 		val &= ~SW_VBUS_VALID;
+<<<<<<< HEAD
+=======
+		drd_config = DRD_CONFIG_STATIC_HOST;
+>>>>>>> upstream/android-13
 		break;
 	case USB_ROLE_DEVICE:
 		val |= SW_IDPIN;
 		val |= SW_VBUS_VALID;
+<<<<<<< HEAD
 		break;
 	}
 	val |= SW_IDPIN_EN;
 
+=======
+		drd_config = DRD_CONFIG_STATIC_DEVICE;
+		break;
+	}
+	val |= SW_IDPIN_EN;
+	if (data->enable_sw_switch) {
+		val &= ~DRD_CONFIG_MASK;
+		val |= SW_SWITCH_EN | drd_config;
+	}
+>>>>>>> upstream/android-13
 	writel(val, data->base + DUAL_ROLE_CFG0);
 
 	acpi_release_global_lock(glk);
@@ -88,7 +156,11 @@ static int intel_xhci_usb_set_role(struct device *dev, enum usb_role role)
 	do {
 		val = readl(data->base + DUAL_ROLE_CFG1);
 		if (!!(val & HOST_MODE) == (role == USB_ROLE_HOST)) {
+<<<<<<< HEAD
 			pm_runtime_put(dev);
+=======
+			pm_runtime_put(data->dev);
+>>>>>>> upstream/android-13
 			return 0;
 		}
 
@@ -96,6 +168,7 @@ static int intel_xhci_usb_set_role(struct device *dev, enum usb_role role)
 		usleep_range(5000, 10000);
 	} while (time_before(jiffies, timeout));
 
+<<<<<<< HEAD
 	pm_runtime_put(dev);
 
 	dev_warn(dev, "Timeout waiting for role-switch\n");
@@ -111,6 +184,23 @@ static enum usb_role intel_xhci_usb_get_role(struct device *dev)
 	pm_runtime_get_sync(dev);
 	val = readl(data->base + DUAL_ROLE_CFG0);
 	pm_runtime_put(dev);
+=======
+	pm_runtime_put(data->dev);
+
+	dev_warn(data->dev, "Timeout waiting for role-switch\n");
+	return -ETIMEDOUT;
+}
+
+static enum usb_role intel_xhci_usb_get_role(struct usb_role_switch *sw)
+{
+	struct intel_xhci_usb_data *data = usb_role_switch_get_drvdata(sw);
+	enum usb_role role;
+	u32 val;
+
+	pm_runtime_get_sync(data->dev);
+	val = readl(data->base + DUAL_ROLE_CFG0);
+	pm_runtime_put(data->dev);
+>>>>>>> upstream/android-13
 
 	if (!(val & SW_IDPIN))
 		role = USB_ROLE_HOST;
@@ -122,6 +212,7 @@ static enum usb_role intel_xhci_usb_get_role(struct device *dev)
 	return role;
 }
 
+<<<<<<< HEAD
 static const struct usb_role_switch_desc sw_desc = {
 	.set = intel_xhci_usb_set_role,
 	.get = intel_xhci_usb_get_role,
@@ -133,6 +224,15 @@ static int intel_xhci_usb_probe(struct platform_device *pdev)
 	struct device *dev = &pdev->dev;
 	struct intel_xhci_usb_data *data;
 	struct resource *res;
+=======
+static int intel_xhci_usb_probe(struct platform_device *pdev)
+{
+	struct usb_role_switch_desc sw_desc = { };
+	struct device *dev = &pdev->dev;
+	struct intel_xhci_usb_data *data;
+	struct resource *res;
+	int ret;
+>>>>>>> upstream/android-13
 
 	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
 	if (!data)
@@ -141,15 +241,41 @@ static int intel_xhci_usb_probe(struct platform_device *pdev)
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	if (!res)
 		return -EINVAL;
+<<<<<<< HEAD
 	data->base = devm_ioremap_nocache(dev, res->start, resource_size(res));
+=======
+	data->base = devm_ioremap(dev, res->start, resource_size(res));
+>>>>>>> upstream/android-13
 	if (!data->base)
 		return -ENOMEM;
 
 	platform_set_drvdata(pdev, data);
 
+<<<<<<< HEAD
 	data->role_sw = usb_role_switch_register(dev, &sw_desc);
 	if (IS_ERR(data->role_sw))
 		return PTR_ERR(data->role_sw);
+=======
+	ret = software_node_register(&intel_xhci_usb_node);
+	if (ret)
+		return ret;
+
+	sw_desc.set = intel_xhci_usb_set_role,
+	sw_desc.get = intel_xhci_usb_get_role,
+	sw_desc.allow_userspace_control = true,
+	sw_desc.fwnode = software_node_fwnode(&intel_xhci_usb_node);
+	sw_desc.driver_data = data;
+
+	data->dev = dev;
+	data->enable_sw_switch = !device_property_read_bool(dev,
+						"sw_switch_disable");
+
+	data->role_sw = usb_role_switch_register(dev, &sw_desc);
+	if (IS_ERR(data->role_sw)) {
+		fwnode_handle_put(sw_desc.fwnode);
+		return PTR_ERR(data->role_sw);
+	}
+>>>>>>> upstream/android-13
 
 	pm_runtime_set_active(dev);
 	pm_runtime_enable(dev);
@@ -164,6 +290,11 @@ static int intel_xhci_usb_remove(struct platform_device *pdev)
 	pm_runtime_disable(&pdev->dev);
 
 	usb_role_switch_unregister(data->role_sw);
+<<<<<<< HEAD
+=======
+	fwnode_handle_put(software_node_fwnode(&intel_xhci_usb_node));
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 

@@ -249,7 +249,11 @@ static void usbatm_complete(struct urb *urb)
 	/* vdbg("%s: urb 0x%p, status %d, actual_length %d",
 	     __func__, urb, status, urb->actual_length); */
 
+<<<<<<< HEAD
 	/* usually in_interrupt(), but not always */
+=======
+	/* Can be invoked from task context, protect against interrupts */
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&channel->lock, flags);
 
 	/* must add to the back when receiving; doesn't matter when sending */
@@ -511,9 +515,16 @@ static unsigned int usbatm_write_cells(struct usbatm_data *instance,
 **  receive  **
 **************/
 
+<<<<<<< HEAD
 static void usbatm_rx_process(unsigned long data)
 {
 	struct usbatm_data *instance = (struct usbatm_data *)data;
+=======
+static void usbatm_rx_process(struct tasklet_struct *t)
+{
+	struct usbatm_data *instance = from_tasklet(instance, t,
+						    rx_channel.tasklet);
+>>>>>>> upstream/android-13
 	struct urb *urb;
 
 	while ((urb = usbatm_pop_urb(&instance->rx_channel))) {
@@ -564,9 +575,16 @@ static void usbatm_rx_process(unsigned long data)
 **  send  **
 ***********/
 
+<<<<<<< HEAD
 static void usbatm_tx_process(unsigned long data)
 {
 	struct usbatm_data *instance = (struct usbatm_data *)data;
+=======
+static void usbatm_tx_process(struct tasklet_struct *t)
+{
+	struct usbatm_data *instance = from_tasklet(instance, t,
+						    tx_channel.tasklet);
+>>>>>>> upstream/android-13
 	struct sk_buff *skb = instance->current_skb;
 	struct urb *urb = NULL;
 	const unsigned int buf_size = instance->tx_channel.buf_size;
@@ -1069,8 +1087,13 @@ int usbatm_usb_probe(struct usb_interface *intf, const struct usb_device_id *id,
 
 	usbatm_init_channel(&instance->rx_channel);
 	usbatm_init_channel(&instance->tx_channel);
+<<<<<<< HEAD
 	tasklet_init(&instance->rx_channel.tasklet, usbatm_rx_process, (unsigned long)instance);
 	tasklet_init(&instance->tx_channel.tasklet, usbatm_tx_process, (unsigned long)instance);
+=======
+	tasklet_setup(&instance->rx_channel.tasklet, usbatm_rx_process);
+	tasklet_setup(&instance->tx_channel.tasklet, usbatm_tx_process);
+>>>>>>> upstream/android-13
 	instance->rx_channel.stride = ATM_CELL_SIZE + driver->rx_padding;
 	instance->tx_channel.stride = ATM_CELL_SIZE + driver->tx_padding;
 	instance->rx_channel.usbatm = instance->tx_channel.usbatm = instance;
@@ -1275,8 +1298,13 @@ EXPORT_SYMBOL_GPL(usbatm_usb_disconnect);
 
 static int __init usbatm_usb_init(void)
 {
+<<<<<<< HEAD
 	if (sizeof(struct usbatm_control) > FIELD_SIZEOF(struct sk_buff, cb)) {
 		printk(KERN_ERR "%s unusable with this kernel!\n", usbatm_driver_name);
+=======
+	if (sizeof(struct usbatm_control) > sizeof_field(struct sk_buff, cb)) {
+		pr_err("%s unusable with this kernel!\n", usbatm_driver_name);
+>>>>>>> upstream/android-13
 		return -EIO;
 	}
 

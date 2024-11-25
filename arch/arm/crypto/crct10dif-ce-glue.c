@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Accelerated CRC-T10DIF using ARM NEON and Crypto Extensions instructions
  *
  * Copyright (C) 2016 Linaro Ltd <ard.biesheuvel@linaro.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/crc-t10dif.h>
@@ -15,13 +22,21 @@
 #include <linux/string.h>
 
 #include <crypto/internal/hash.h>
+<<<<<<< HEAD
+=======
+#include <crypto/internal/simd.h>
+>>>>>>> upstream/android-13
 
 #include <asm/neon.h>
 #include <asm/simd.h>
 
 #define CRC_T10DIF_PMULL_CHUNK_SIZE	16U
 
+<<<<<<< HEAD
 asmlinkage u16 crc_t10dif_pmull(u16 init_crc, const u8 buf[], u32 len);
+=======
+asmlinkage u16 crc_t10dif_pmull(u16 init_crc, const u8 *buf, size_t len);
+>>>>>>> upstream/android-13
 
 static int crct10dif_init(struct shash_desc *desc)
 {
@@ -36,7 +51,11 @@ static int crct10dif_update(struct shash_desc *desc, const u8 *data,
 {
 	u16 *crc = shash_desc_ctx(desc);
 
+<<<<<<< HEAD
 	if (length >= CRC_T10DIF_PMULL_CHUNK_SIZE && may_use_simd()) {
+=======
+	if (length >= CRC_T10DIF_PMULL_CHUNK_SIZE && crypto_simd_usable()) {
+>>>>>>> upstream/android-13
 		kernel_neon_begin();
 		*crc = crc_t10dif_pmull(*crc, data, length);
 		kernel_neon_end();

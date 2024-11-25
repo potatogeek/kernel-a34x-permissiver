@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
 * Regulator driver for DA9055 PMIC
 *
@@ -11,6 +12,15 @@
 * (at your option) any later version.
 *
 */
+=======
+// SPDX-License-Identifier: GPL-2.0+
+//
+// Regulator driver for DA9055 PMIC
+//
+// Copyright(c) 2012 Dialog Semiconductor Ltd.
+//
+// Author: David Dajun Chen <dchen@diasemi.com>
+>>>>>>> upstream/android-13
 
 #include <linux/module.h>
 #include <linux/init.h>
@@ -48,7 +58,13 @@
 #define DA9055_ID_LDO6		7
 
 /* DA9055 BUCK current limit */
+<<<<<<< HEAD
 static const int da9055_current_limits[] = { 500000, 600000, 700000, 800000 };
+=======
+static const unsigned int da9055_current_limits[] = {
+	500000, 600000, 700000, 800000
+};
+>>>>>>> upstream/android-13
 
 struct da9055_conf_reg {
 	int reg;
@@ -169,6 +185,7 @@ static int da9055_ldo_set_mode(struct regulator_dev *rdev, unsigned int mode)
 				 val << volt.sl_shift);
 }
 
+<<<<<<< HEAD
 static int da9055_buck_get_current_limit(struct regulator_dev *rdev)
 {
 	struct da9055_regulator *regulator = rdev_get_drvdata(rdev);
@@ -202,6 +219,8 @@ static int da9055_buck_set_current_limit(struct regulator_dev *rdev, int min_uA,
 	return -EINVAL;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int da9055_regulator_get_voltage_sel(struct regulator_dev *rdev)
 {
 	struct da9055_regulator *regulator = rdev_get_drvdata(rdev);
@@ -329,8 +348,13 @@ static const struct regulator_ops da9055_buck_ops = {
 	.get_mode = da9055_buck_get_mode,
 	.set_mode = da9055_buck_set_mode,
 
+<<<<<<< HEAD
 	.get_current_limit = da9055_buck_get_current_limit,
 	.set_current_limit = da9055_buck_set_current_limit,
+=======
+	.get_current_limit = regulator_get_current_limit_regmap,
+	.set_current_limit = regulator_set_current_limit_regmap,
+>>>>>>> upstream/android-13
 
 	.get_voltage_sel = da9055_regulator_get_voltage_sel,
 	.set_voltage_sel = da9055_regulator_set_voltage_sel,
@@ -369,6 +393,11 @@ static const struct regulator_ops da9055_ldo_ops = {
 {\
 	.reg_desc = {\
 		.name = #_id,\
+<<<<<<< HEAD
+=======
+		.of_match = of_match_ptr(#_id),\
+		.regulators_node = of_match_ptr("regulators"),\
+>>>>>>> upstream/android-13
 		.ops = &da9055_ldo_ops,\
 		.type = REGULATOR_VOLTAGE,\
 		.id = DA9055_ID_##_id,\
@@ -397,6 +426,11 @@ static const struct regulator_ops da9055_ldo_ops = {
 {\
 	.reg_desc = {\
 		.name = #_id,\
+<<<<<<< HEAD
+=======
+		.of_match = of_match_ptr(#_id),\
+		.regulators_node = of_match_ptr("regulators"),\
+>>>>>>> upstream/android-13
 		.ops = &da9055_buck_ops,\
 		.type = REGULATOR_VOLTAGE,\
 		.id = DA9055_ID_##_id,\
@@ -407,6 +441,13 @@ static const struct regulator_ops da9055_ldo_ops = {
 		.uV_step = (step) * 1000,\
 		.linear_min_sel = (voffset),\
 		.owner = THIS_MODULE,\
+<<<<<<< HEAD
+=======
+		.curr_table = da9055_current_limits,\
+		.n_current_limits = ARRAY_SIZE(da9055_current_limits),\
+		.csel_reg = DA9055_REG_BUCK_LIM,\
+		.csel_mask = (mbits),\
+>>>>>>> upstream/android-13
 	},\
 	.conf = {\
 		.reg = DA9055_REG_BCORE_CONT + DA9055_ID_##_id, \
@@ -457,7 +498,10 @@ static int da9055_gpio_init(struct da9055_regulator *regulator,
 		int gpio_mux = pdata->gpio_ren[id];
 
 		config->ena_gpiod = pdata->ena_gpiods[id];
+<<<<<<< HEAD
 		config->ena_gpio_invert = 1;
+=======
+>>>>>>> upstream/android-13
 
 		/*
 		 * GPI pin is muxed with regulator to control the
@@ -535,6 +579,7 @@ static inline struct da9055_regulator_info *find_regulator_info(int id)
 	return NULL;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF
 static struct of_regulator_match da9055_reg_matches[] = {
 	{ .name = "BUCK1", },
@@ -588,6 +633,8 @@ static inline int da9055_regulator_dt_init(struct platform_device *pdev,
 }
 #endif /* CONFIG_OF */
 
+=======
+>>>>>>> upstream/android-13
 static int da9055_regulator_probe(struct platform_device *pdev)
 {
 	struct regulator_config config = { };
@@ -608,6 +655,7 @@ static int da9055_regulator_probe(struct platform_device *pdev)
 	}
 
 	regulator->da9055 = da9055;
+<<<<<<< HEAD
 	config.dev = &pdev->dev;
 	config.driver_data = regulator;
 	config.regmap = da9055->regmap;
@@ -620,6 +668,14 @@ static int da9055_regulator_probe(struct platform_device *pdev)
 		if (ret < 0)
 			return ret;
 	}
+=======
+	config.dev = da9055->dev;
+	config.driver_data = regulator;
+	config.regmap = da9055->regmap;
+
+	if (pdata)
+		config.init_data = pdata->regulators[pdev->id];
+>>>>>>> upstream/android-13
 
 	ret = da9055_gpio_init(regulator, &config, pdata, pdev->id);
 	if (ret < 0)

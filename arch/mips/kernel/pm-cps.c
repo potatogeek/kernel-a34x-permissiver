@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014 Imagination Technologies
  * Author: Paul Burton <paul.burton@mips.com>
@@ -6,6 +7,12 @@
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2014 Imagination Technologies
+ * Author: Paul Burton <paul.burton@mips.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/cpuhotplug.h>
@@ -311,7 +318,11 @@ static int cps_gen_flush_fsb(u32 **pp, struct uasm_label **pl,
 	}
 
 	/* Barrier ensuring previous cache invalidates are complete */
+<<<<<<< HEAD
 	uasm_i_sync(pp, STYPE_SYNC);
+=======
+	uasm_i_sync(pp, __SYNC_full);
+>>>>>>> upstream/android-13
 	uasm_i_ehb(pp);
 
 	/* Check whether the pipeline stalled due to the FSB being full */
@@ -401,7 +412,11 @@ static void *cps_gen_entry_code(unsigned cpu, enum cps_pm_state state)
 
 	if (coupled_coherence) {
 		/* Increment ready_count */
+<<<<<<< HEAD
 		uasm_i_sync(&p, STYPE_SYNC_MB);
+=======
+		uasm_i_sync(&p, __SYNC_mb);
+>>>>>>> upstream/android-13
 		uasm_build_label(&l, p, lbl_incready);
 		uasm_i_ll(&p, t1, 0, r_nc_count);
 		uasm_i_addiu(&p, t2, t1, 1);
@@ -410,7 +425,11 @@ static void *cps_gen_entry_code(unsigned cpu, enum cps_pm_state state)
 		uasm_i_addiu(&p, t1, t1, 1);
 
 		/* Barrier ensuring all CPUs see the updated r_nc_count value */
+<<<<<<< HEAD
 		uasm_i_sync(&p, STYPE_SYNC_MB);
+=======
+		uasm_i_sync(&p, __SYNC_mb);
+>>>>>>> upstream/android-13
 
 		/*
 		 * If this is the last VPE to become ready for non-coherence
@@ -477,7 +496,11 @@ static void *cps_gen_entry_code(unsigned cpu, enum cps_pm_state state)
 			      Index_Writeback_Inv_D, lbl_flushdcache);
 
 	/* Barrier ensuring previous cache invalidates are complete */
+<<<<<<< HEAD
 	uasm_i_sync(&p, STYPE_SYNC);
+=======
+	uasm_i_sync(&p, __SYNC_full);
+>>>>>>> upstream/android-13
 	uasm_i_ehb(&p);
 
 	if (mips_cm_revision() < CM_REV_CM3) {
@@ -491,7 +514,11 @@ static void *cps_gen_entry_code(unsigned cpu, enum cps_pm_state state)
 		uasm_i_lw(&p, t0, 0, r_pcohctl);
 
 		/* Barrier to ensure write to coherence control is complete */
+<<<<<<< HEAD
 		uasm_i_sync(&p, STYPE_SYNC);
+=======
+		uasm_i_sync(&p, __SYNC_full);
+>>>>>>> upstream/android-13
 		uasm_i_ehb(&p);
 	}
 
@@ -538,7 +565,11 @@ static void *cps_gen_entry_code(unsigned cpu, enum cps_pm_state state)
 		}
 
 		/* Barrier to ensure write to CPC command is complete */
+<<<<<<< HEAD
 		uasm_i_sync(&p, STYPE_SYNC);
+=======
+		uasm_i_sync(&p, __SYNC_full);
+>>>>>>> upstream/android-13
 		uasm_i_ehb(&p);
 	}
 
@@ -576,13 +607,21 @@ static void *cps_gen_entry_code(unsigned cpu, enum cps_pm_state state)
 	uasm_i_lw(&p, t0, 0, r_pcohctl);
 
 	/* Barrier to ensure write to coherence control is complete */
+<<<<<<< HEAD
 	uasm_i_sync(&p, STYPE_SYNC);
+=======
+	uasm_i_sync(&p, __SYNC_full);
+>>>>>>> upstream/android-13
 	uasm_i_ehb(&p);
 
 	if (coupled_coherence && (state == CPS_PM_NC_WAIT)) {
 		/* Decrement ready_count */
 		uasm_build_label(&l, p, lbl_decready);
+<<<<<<< HEAD
 		uasm_i_sync(&p, STYPE_SYNC_MB);
+=======
+		uasm_i_sync(&p, __SYNC_mb);
+>>>>>>> upstream/android-13
 		uasm_i_ll(&p, t1, 0, r_nc_count);
 		uasm_i_addiu(&p, t2, t1, -1);
 		uasm_i_sc(&p, t2, 0, r_nc_count);
@@ -590,7 +629,11 @@ static void *cps_gen_entry_code(unsigned cpu, enum cps_pm_state state)
 		uasm_i_andi(&p, v0, t1, (1 << fls(smp_num_siblings)) - 1);
 
 		/* Barrier ensuring all CPUs see the updated r_nc_count value */
+<<<<<<< HEAD
 		uasm_i_sync(&p, STYPE_SYNC_MB);
+=======
+		uasm_i_sync(&p, __SYNC_mb);
+>>>>>>> upstream/android-13
 	}
 
 	if (coupled_coherence && (state == CPS_PM_CLOCK_GATED)) {
@@ -612,7 +655,11 @@ static void *cps_gen_entry_code(unsigned cpu, enum cps_pm_state state)
 		uasm_build_label(&l, p, lbl_secondary_cont);
 
 		/* Barrier ensuring all CPUs see the updated r_nc_count value */
+<<<<<<< HEAD
 		uasm_i_sync(&p, STYPE_SYNC_MB);
+=======
+		uasm_i_sync(&p, __SYNC_mb);
+>>>>>>> upstream/android-13
 	}
 
 	/* The core is coherent, time to return to C code */

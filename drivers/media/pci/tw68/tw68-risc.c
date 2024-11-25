@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  tw68_risc.c
  *  Part of the device driver for Techwell 68xx based cards
@@ -14,6 +18,7 @@
  *  Refactored and updated to the latest v4l core frameworks:
  *
  *  Copyright (C) 2014 Hans Verkuil <hverkuil@xs4all.nl>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,6 +29,8 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "tw68.h"
@@ -160,7 +167,12 @@ int tw68_risc_buffer(struct pci_dev *pci,
 	instructions  = fields * (1 + (((bpl + padding) * lines) /
 			 PAGE_SIZE) + lines) + 4;
 	buf->size = instructions * 8;
+<<<<<<< HEAD
 	buf->cpu = pci_alloc_consistent(pci, buf->size, &buf->dma);
+=======
+	buf->cpu = dma_alloc_coherent(&pci->dev, buf->size, &buf->dma,
+				      GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (buf->cpu == NULL)
 		return -ENOMEM;
 

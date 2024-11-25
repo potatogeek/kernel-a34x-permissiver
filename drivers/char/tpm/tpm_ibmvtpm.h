@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2012 IBM Corporation
  *
@@ -7,12 +11,15 @@
  *
  * Device driver for TCG/TCPA TPM (trusted platform module).
  * Specifications at www.trustedcomputinggroup.org
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, version 2 of the
  * License.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __TPM_IBMVTPM_H__
@@ -46,7 +53,11 @@ struct ibmvtpm_dev {
 	wait_queue_head_t wq;
 	u16 res_len;
 	u32 vtpm_version;
+<<<<<<< HEAD
 	bool tpm_processing_cmd;
+=======
+	u8 tpm_processing_cmd;
+>>>>>>> upstream/android-13
 };
 
 #define CRQ_RES_BUF_SIZE	PAGE_SIZE

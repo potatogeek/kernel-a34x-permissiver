@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Ethernet driver for the WIZnet W5300 chip.
  *
  * Copyright (C) 2008-2009 WIZnet Co.,Ltd.
  * Copyright (C) 2011 Taehun Kim <kth3321 <at> gmail.com>
  * Copyright (C) 2012 Mike Sinkovsky <msink@permonline.ru>
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2 or later.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -141,7 +148,10 @@ static u16 w5300_read_indirect(struct w5300_priv *priv, u16 addr)
 
 	spin_lock_irqsave(&priv->reg_lock, flags);
 	w5300_write_direct(priv, W5300_IDM_AR, addr);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	data = w5300_read_direct(priv, W5300_IDM_DR);
 	spin_unlock_irqrestore(&priv->reg_lock, flags);
 
@@ -154,9 +164,13 @@ static void w5300_write_indirect(struct w5300_priv *priv, u16 addr, u16 data)
 
 	spin_lock_irqsave(&priv->reg_lock, flags);
 	w5300_write_direct(priv, W5300_IDM_AR, addr);
+<<<<<<< HEAD
 	mmiowb();
 	w5300_write_direct(priv, W5300_IDM_DR, data);
 	mmiowb();
+=======
+	w5300_write_direct(priv, W5300_IDM_DR, data);
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&priv->reg_lock, flags);
 }
 
@@ -192,7 +206,10 @@ static int w5300_command(struct w5300_priv *priv, u16 cmd)
 	unsigned long timeout = jiffies + msecs_to_jiffies(100);
 
 	w5300_write(priv, W5300_S0_CR, cmd);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 
 	while (w5300_read(priv, W5300_S0_CR) != 0) {
 		if (time_after(jiffies, timeout))
@@ -241,18 +258,27 @@ static void w5300_write_macaddr(struct w5300_priv *priv)
 	w5300_write(priv, W5300_SHARH,
 		      ndev->dev_addr[4] << 8 |
 		      ndev->dev_addr[5]);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 }
 
 static void w5300_hw_reset(struct w5300_priv *priv)
 {
 	w5300_write_direct(priv, W5300_MR, MR_RST);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	mdelay(5);
 	w5300_write_direct(priv, W5300_MR, priv->indirect ?
 				 MR_WDF(7) | MR_PB | MR_IND :
 				 MR_WDF(7) | MR_PB);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	w5300_write(priv, W5300_IMR, 0);
 	w5300_write_macaddr(priv);
 
@@ -264,24 +290,36 @@ static void w5300_hw_reset(struct w5300_priv *priv)
 	w5300_write32(priv, W5300_TMSRL, 64 << 24);
 	w5300_write32(priv, W5300_TMSRH, 0);
 	w5300_write(priv, W5300_MTYPE, 0x00ff);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 }
 
 static void w5300_hw_start(struct w5300_priv *priv)
 {
 	w5300_write(priv, W5300_S0_MR, priv->promisc ?
 			  S0_MR_MACRAW : S0_MR_MACRAW_MF);
+<<<<<<< HEAD
 	mmiowb();
 	w5300_command(priv, S0_CR_OPEN);
 	w5300_write(priv, W5300_S0_IMR, S0_IR_RECV | S0_IR_SENDOK);
 	w5300_write(priv, W5300_IMR, IR_S0);
 	mmiowb();
+=======
+	w5300_command(priv, S0_CR_OPEN);
+	w5300_write(priv, W5300_S0_IMR, S0_IR_RECV | S0_IR_SENDOK);
+	w5300_write(priv, W5300_IMR, IR_S0);
+>>>>>>> upstream/android-13
 }
 
 static void w5300_hw_close(struct w5300_priv *priv)
 {
 	w5300_write(priv, W5300_IMR, 0);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	w5300_command(priv, S0_CR_CLOSE);
 }
 
@@ -353,7 +391,11 @@ static void w5300_get_regs(struct net_device *ndev,
 	}
 }
 
+<<<<<<< HEAD
 static void w5300_tx_timeout(struct net_device *ndev)
+=======
+static void w5300_tx_timeout(struct net_device *ndev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct w5300_priv *priv = netdev_priv(ndev);
 
@@ -372,7 +414,10 @@ static netdev_tx_t w5300_start_tx(struct sk_buff *skb, struct net_device *ndev)
 	netif_stop_queue(ndev);
 
 	w5300_write_frame(priv, skb->data, skb->len);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	ndev->stats.tx_packets++;
 	ndev->stats.tx_bytes += skb->len;
 	dev_kfree_skb(skb);
@@ -419,7 +464,10 @@ static int w5300_napi_poll(struct napi_struct *napi, int budget)
 	if (rx_count < budget) {
 		napi_complete_done(napi, rx_count);
 		w5300_write(priv, W5300_IMR, IR_S0);
+<<<<<<< HEAD
 		mmiowb();
+=======
+>>>>>>> upstream/android-13
 	}
 
 	return rx_count;
@@ -434,7 +482,10 @@ static irqreturn_t w5300_interrupt(int irq, void *ndev_instance)
 	if (!ir)
 		return IRQ_NONE;
 	w5300_write(priv, W5300_S0_IR, ir);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 
 	if (ir & S0_IR_SENDOK) {
 		netif_dbg(priv, tx_done, ndev, "tx done\n");
@@ -444,7 +495,10 @@ static irqreturn_t w5300_interrupt(int irq, void *ndev_instance)
 	if (ir & S0_IR_RECV) {
 		if (napi_schedule_prep(&priv->napi)) {
 			w5300_write(priv, W5300_IMR, 0);
+<<<<<<< HEAD
 			mmiowb();
+=======
+>>>>>>> upstream/android-13
 			__napi_schedule(&priv->napi);
 		}
 	}
@@ -661,8 +715,12 @@ static int w5300_remove(struct platform_device *pdev)
 #ifdef CONFIG_PM_SLEEP
 static int w5300_suspend(struct device *dev)
 {
+<<<<<<< HEAD
 	struct platform_device *pdev = to_platform_device(dev);
 	struct net_device *ndev = platform_get_drvdata(pdev);
+=======
+	struct net_device *ndev = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	struct w5300_priv *priv = netdev_priv(ndev);
 
 	if (netif_running(ndev)) {
@@ -676,8 +734,12 @@ static int w5300_suspend(struct device *dev)
 
 static int w5300_resume(struct device *dev)
 {
+<<<<<<< HEAD
 	struct platform_device *pdev = to_platform_device(dev);
 	struct net_device *ndev = platform_get_drvdata(pdev);
+=======
+	struct net_device *ndev = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	struct w5300_priv *priv = netdev_priv(ndev);
 
 	if (!netif_running(ndev)) {

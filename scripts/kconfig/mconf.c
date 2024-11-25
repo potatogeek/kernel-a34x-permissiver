@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2002 Roman Zippel <zippel@linux-m68k.org>
  * Released under the terms of the GNU GPL v2.0.
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2002 Roman Zippel <zippel@linux-m68k.org>
+>>>>>>> upstream/android-13
  *
  * Introduced single menu mode (show all sub-menus in one large tree).
  * 2002-11-06 Petr Baudis <pasky@ucw.cz>
@@ -15,12 +21,21 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
+<<<<<<< HEAD
+=======
+#include <strings.h>
+>>>>>>> upstream/android-13
 #include <signal.h>
 #include <unistd.h>
 
 #include "lkc.h"
 #include "lxdialog/dialog.h"
 
+<<<<<<< HEAD
+=======
+#define JUMP_NB			9
+
+>>>>>>> upstream/android-13
 static const char mconf_readme[] =
 "Overview\n"
 "--------\n"
@@ -296,6 +311,7 @@ static char filename[PATH_MAX+1];
 static void set_config_filename(const char *config_filename)
 {
 	static char menu_backtitle[PATH_MAX+128];
+<<<<<<< HEAD
 	int size;
 
 	size = snprintf(menu_backtitle, sizeof(menu_backtitle),
@@ -307,6 +323,14 @@ static void set_config_filename(const char *config_filename)
 	size = snprintf(filename, sizeof(filename), "%s", config_filename);
 	if (size >= sizeof(filename))
 		filename[sizeof(filename)-1] = '\0';
+=======
+
+	snprintf(menu_backtitle, sizeof(menu_backtitle), "%s - %s",
+		 config_filename, rootmenu.prompt->text);
+	set_dialog_backtitle(menu_backtitle);
+
+	snprintf(filename, sizeof(filename), "%s", config_filename);
+>>>>>>> upstream/android-13
 }
 
 struct subtitle_part {
@@ -536,7 +560,11 @@ static void build_conf(struct menu *menu)
 		}
 
 		val = sym_get_tristate_value(sym);
+<<<<<<< HEAD
 		if (sym_is_changable(sym)) {
+=======
+		if (sym_is_changeable(sym)) {
+>>>>>>> upstream/android-13
 			switch (type) {
 			case S_BOOLEAN:
 				item_make("[%c]", val == no ? ' ' : '*');
@@ -587,7 +615,11 @@ static void build_conf(struct menu *menu)
 		} else {
 			switch (type) {
 			case S_BOOLEAN:
+<<<<<<< HEAD
 				if (sym_is_changable(sym))
+=======
+				if (sym_is_changeable(sym))
+>>>>>>> upstream/android-13
 					item_make("[%c]", val == no ? ' ' : '*');
 				else
 					item_make("-%c-", val == no ? ' ' : '*');
@@ -600,7 +632,11 @@ static void build_conf(struct menu *menu)
 				case mod: ch = 'M'; break;
 				default:  ch = ' '; break;
 				}
+<<<<<<< HEAD
 				if (sym_is_changable(sym)) {
+=======
+				if (sym_is_changeable(sym)) {
+>>>>>>> upstream/android-13
 					if (sym->rev_dep.tri == mod)
 						item_make("{%c}", ch);
 					else
@@ -617,7 +653,11 @@ static void build_conf(struct menu *menu)
 				if (tmp < 0)
 					tmp = 0;
 				item_add_str("%*c%s%s", tmp, ' ', menu_get_prompt(menu),
+<<<<<<< HEAD
 					     (sym_has_value(sym) || !sym_is_changable(sym)) ?
+=======
+					     (sym_has_value(sym) || !sym_is_changeable(sym)) ?
+>>>>>>> upstream/android-13
 					     "" : " (NEW)");
 				item_set_tag('s');
 				item_set_data(menu);
@@ -625,7 +665,11 @@ static void build_conf(struct menu *menu)
 			}
 		}
 		item_add_str("%*c%s%s", indent + 1, ' ', menu_get_prompt(menu),
+<<<<<<< HEAD
 			  (sym_has_value(sym) || !sym_is_changable(sym)) ?
+=======
+			  (sym_has_value(sym) || !sym_is_changeable(sym)) ?
+>>>>>>> upstream/android-13
 			  "" : " (NEW)");
 		if (menu->prompt->type == P_MENU) {
 			item_add_str("  %s", menu_is_empty(menu) ? "----" : "--->");
@@ -907,7 +951,11 @@ static void conf_load(void)
 				return;
 			if (!conf_read(dialog_input_result)) {
 				set_config_filename(dialog_input_result);
+<<<<<<< HEAD
 				sym_set_change_count(1);
+=======
+				conf_set_changed(true);
+>>>>>>> upstream/android-13
 				return;
 			}
 			show_textbox(NULL, "File does not exist!", 5, 38);
@@ -936,7 +984,11 @@ static void conf_save(void)
 				set_config_filename(dialog_input_result);
 				return;
 			}
+<<<<<<< HEAD
 			show_textbox(NULL, "Can't create file!  Probably a nonexistent directory.", 5, 60);
+=======
+			show_textbox(NULL, "Can't create file!", 5, 60);
+>>>>>>> upstream/android-13
 			break;
 		case 1:
 			show_helptext("Save Alternate Configuration", save_config_help);

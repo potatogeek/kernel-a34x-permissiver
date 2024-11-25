@@ -190,7 +190,11 @@ struct mvneta_bm_pool *mvneta_bm_pool_use(struct mvneta_bm *priv, u8 pool_id,
 			SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
 		hwbm_pool->construct = mvneta_bm_construct;
 		hwbm_pool->priv = new_pool;
+<<<<<<< HEAD
 		spin_lock_init(&hwbm_pool->lock);
+=======
+		mutex_init(&hwbm_pool->buf_lock);
+>>>>>>> upstream/android-13
 
 		/* Create new pool */
 		err = mvneta_bm_pool_create(priv, new_pool);
@@ -201,7 +205,11 @@ struct mvneta_bm_pool *mvneta_bm_pool_use(struct mvneta_bm *priv, u8 pool_id,
 		}
 
 		/* Allocate buffers for this pool */
+<<<<<<< HEAD
 		num = hwbm_pool_add(hwbm_pool, hwbm_pool->size, GFP_ATOMIC);
+=======
+		num = hwbm_pool_add(hwbm_pool, hwbm_pool->size);
+>>>>>>> upstream/android-13
 		if (num != hwbm_pool->size) {
 			WARN(1, "pool %d: %d of %d allocated\n",
 			     new_pool->id, num, hwbm_pool->size);
@@ -411,15 +419,22 @@ static int mvneta_bm_probe(struct platform_device *pdev)
 {
 	struct device_node *dn = pdev->dev.of_node;
 	struct mvneta_bm *priv;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	int err;
 
 	priv = devm_kzalloc(&pdev->dev, sizeof(struct mvneta_bm), GFP_KERNEL);
 	if (!priv)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	priv->reg_base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	priv->reg_base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(priv->reg_base))
 		return PTR_ERR(priv->reg_base);
 

@@ -41,7 +41,14 @@
 #include <linux/types.h>
 #include <linux/interrupt.h>
 #include <linux/ioport.h>
+<<<<<<< HEAD
 #include <linux/in.h>
+=======
+#include <linux/iopoll.h>
+#include <linux/in.h>
+#include <linux/of_device.h>
+#include <linux/of_net.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/string.h>
 #include <linux/delay.h>
@@ -53,6 +60,7 @@
 #include <linux/mii.h>
 #include <linux/ethtool.h>
 #include <linux/crc32.h>
+<<<<<<< HEAD
 
 #include <asm/bootinfo.h>
 #include <asm/bitops.h>
@@ -64,11 +72,252 @@
 #include <asm/mach-rc32434/rc32434.h>
 #include <asm/mach-rc32434/eth.h>
 #include <asm/mach-rc32434/dma_v.h>
+=======
+#include <linux/pgtable.h>
+#include <linux/clk.h>
+>>>>>>> upstream/android-13
 
 #define DRV_NAME	"korina"
 #define DRV_VERSION	"0.20"
 #define DRV_RELDATE	"15Sep2017"
 
+<<<<<<< HEAD
+=======
+struct eth_regs {
+	u32 ethintfc;
+	u32 ethfifott;
+	u32 etharc;
+	u32 ethhash0;
+	u32 ethhash1;
+	u32 ethu0[4];		/* Reserved. */
+	u32 ethpfs;
+	u32 ethmcp;
+	u32 eth_u1[10];		/* Reserved. */
+	u32 ethspare;
+	u32 eth_u2[42];		/* Reserved. */
+	u32 ethsal0;
+	u32 ethsah0;
+	u32 ethsal1;
+	u32 ethsah1;
+	u32 ethsal2;
+	u32 ethsah2;
+	u32 ethsal3;
+	u32 ethsah3;
+	u32 ethrbc;
+	u32 ethrpc;
+	u32 ethrupc;
+	u32 ethrfc;
+	u32 ethtbc;
+	u32 ethgpf;
+	u32 eth_u9[50];		/* Reserved. */
+	u32 ethmac1;
+	u32 ethmac2;
+	u32 ethipgt;
+	u32 ethipgr;
+	u32 ethclrt;
+	u32 ethmaxf;
+	u32 eth_u10;		/* Reserved. */
+	u32 ethmtest;
+	u32 miimcfg;
+	u32 miimcmd;
+	u32 miimaddr;
+	u32 miimwtd;
+	u32 miimrdd;
+	u32 miimind;
+	u32 eth_u11;		/* Reserved. */
+	u32 eth_u12;		/* Reserved. */
+	u32 ethcfsa0;
+	u32 ethcfsa1;
+	u32 ethcfsa2;
+};
+
+/* Ethernet interrupt registers */
+#define ETH_INT_FC_EN		BIT(0)
+#define ETH_INT_FC_ITS		BIT(1)
+#define ETH_INT_FC_RIP		BIT(2)
+#define ETH_INT_FC_JAM		BIT(3)
+#define ETH_INT_FC_OVR		BIT(4)
+#define ETH_INT_FC_UND		BIT(5)
+#define ETH_INT_FC_IOC		0x000000c0
+
+/* Ethernet FIFO registers */
+#define ETH_FIFI_TT_TTH_BIT	0
+#define ETH_FIFO_TT_TTH		0x0000007f
+
+/* Ethernet ARC/multicast registers */
+#define ETH_ARC_PRO		BIT(0)
+#define ETH_ARC_AM		BIT(1)
+#define ETH_ARC_AFM		BIT(2)
+#define ETH_ARC_AB		BIT(3)
+
+/* Ethernet SAL registers */
+#define ETH_SAL_BYTE_5		0x000000ff
+#define ETH_SAL_BYTE_4		0x0000ff00
+#define ETH_SAL_BYTE_3		0x00ff0000
+#define ETH_SAL_BYTE_2		0xff000000
+
+/* Ethernet SAH registers */
+#define ETH_SAH_BYTE1		0x000000ff
+#define ETH_SAH_BYTE0		0x0000ff00
+
+/* Ethernet GPF register */
+#define ETH_GPF_PTV		0x0000ffff
+
+/* Ethernet PFG register */
+#define ETH_PFS_PFD		BIT(0)
+
+/* Ethernet CFSA[0-3] registers */
+#define ETH_CFSA0_CFSA4		0x000000ff
+#define ETH_CFSA0_CFSA5		0x0000ff00
+#define ETH_CFSA1_CFSA2		0x000000ff
+#define ETH_CFSA1_CFSA3		0x0000ff00
+#define ETH_CFSA1_CFSA0		0x000000ff
+#define ETH_CFSA1_CFSA1		0x0000ff00
+
+/* Ethernet MAC1 registers */
+#define ETH_MAC1_RE		BIT(0)
+#define ETH_MAC1_PAF		BIT(1)
+#define ETH_MAC1_RFC		BIT(2)
+#define ETH_MAC1_TFC		BIT(3)
+#define ETH_MAC1_LB		BIT(4)
+#define ETH_MAC1_MR		BIT(31)
+
+/* Ethernet MAC2 registers */
+#define ETH_MAC2_FD		BIT(0)
+#define ETH_MAC2_FLC		BIT(1)
+#define ETH_MAC2_HFE		BIT(2)
+#define ETH_MAC2_DC		BIT(3)
+#define ETH_MAC2_CEN		BIT(4)
+#define ETH_MAC2_PE		BIT(5)
+#define ETH_MAC2_VPE		BIT(6)
+#define ETH_MAC2_APE		BIT(7)
+#define ETH_MAC2_PPE		BIT(8)
+#define ETH_MAC2_LPE		BIT(9)
+#define ETH_MAC2_NB		BIT(12)
+#define ETH_MAC2_BP		BIT(13)
+#define ETH_MAC2_ED		BIT(14)
+
+/* Ethernet IPGT register */
+#define ETH_IPGT		0x0000007f
+
+/* Ethernet IPGR registers */
+#define ETH_IPGR_IPGR2		0x0000007f
+#define ETH_IPGR_IPGR1		0x00007f00
+
+/* Ethernet CLRT registers */
+#define ETH_CLRT_MAX_RET	0x0000000f
+#define ETH_CLRT_COL_WIN	0x00003f00
+
+/* Ethernet MAXF register */
+#define ETH_MAXF		0x0000ffff
+
+/* Ethernet test registers */
+#define ETH_TEST_REG		BIT(2)
+#define ETH_MCP_DIV		0x000000ff
+
+/* MII registers */
+#define ETH_MII_CFG_RSVD	0x0000000c
+#define ETH_MII_CMD_RD		BIT(0)
+#define ETH_MII_CMD_SCN		BIT(1)
+#define ETH_MII_REG_ADDR	0x0000001f
+#define ETH_MII_PHY_ADDR	0x00001f00
+#define ETH_MII_WTD_DATA	0x0000ffff
+#define ETH_MII_RDD_DATA	0x0000ffff
+#define ETH_MII_IND_BSY		BIT(0)
+#define ETH_MII_IND_SCN		BIT(1)
+#define ETH_MII_IND_NV		BIT(2)
+
+/* Values for the DEVCS field of the Ethernet DMA Rx and Tx descriptors. */
+#define ETH_RX_FD		BIT(0)
+#define ETH_RX_LD		BIT(1)
+#define ETH_RX_ROK		BIT(2)
+#define ETH_RX_FM		BIT(3)
+#define ETH_RX_MP		BIT(4)
+#define ETH_RX_BP		BIT(5)
+#define ETH_RX_VLT		BIT(6)
+#define ETH_RX_CF		BIT(7)
+#define ETH_RX_OVR		BIT(8)
+#define ETH_RX_CRC		BIT(9)
+#define ETH_RX_CV		BIT(10)
+#define ETH_RX_DB		BIT(11)
+#define ETH_RX_LE		BIT(12)
+#define ETH_RX_LOR		BIT(13)
+#define ETH_RX_CES		BIT(14)
+#define ETH_RX_LEN_BIT		16
+#define ETH_RX_LEN		0xffff0000
+
+#define ETH_TX_FD		BIT(0)
+#define ETH_TX_LD		BIT(1)
+#define ETH_TX_OEN		BIT(2)
+#define ETH_TX_PEN		BIT(3)
+#define ETH_TX_CEN		BIT(4)
+#define ETH_TX_HEN		BIT(5)
+#define ETH_TX_TOK		BIT(6)
+#define ETH_TX_MP		BIT(7)
+#define ETH_TX_BP		BIT(8)
+#define ETH_TX_UND		BIT(9)
+#define ETH_TX_OF		BIT(10)
+#define ETH_TX_ED		BIT(11)
+#define ETH_TX_EC		BIT(12)
+#define ETH_TX_LC		BIT(13)
+#define ETH_TX_TD		BIT(14)
+#define ETH_TX_CRC		BIT(15)
+#define ETH_TX_LE		BIT(16)
+#define ETH_TX_CC		0x001E0000
+
+/* DMA descriptor (in physical memory). */
+struct dma_desc {
+	u32 control;			/* Control. use DMAD_* */
+	u32 ca;				/* Current Address. */
+	u32 devcs;			/* Device control and status. */
+	u32 link;			/* Next descriptor in chain. */
+};
+
+#define DMA_DESC_COUNT_BIT		0
+#define DMA_DESC_COUNT_MSK		0x0003ffff
+#define DMA_DESC_DS_BIT			20
+#define DMA_DESC_DS_MSK			0x00300000
+
+#define DMA_DESC_DEV_CMD_BIT		22
+#define DMA_DESC_DEV_CMD_MSK		0x01c00000
+
+/* DMA descriptors interrupts */
+#define DMA_DESC_COF			BIT(25) /* Chain on finished */
+#define DMA_DESC_COD			BIT(26) /* Chain on done */
+#define DMA_DESC_IOF			BIT(27) /* Interrupt on finished */
+#define DMA_DESC_IOD			BIT(28) /* Interrupt on done */
+#define DMA_DESC_TERM			BIT(29) /* Terminated */
+#define DMA_DESC_DONE			BIT(30) /* Done */
+#define DMA_DESC_FINI			BIT(31) /* Finished */
+
+/* DMA register (within Internal Register Map).  */
+struct dma_reg {
+	u32 dmac;		/* Control. */
+	u32 dmas;		/* Status. */
+	u32 dmasm;		/* Mask. */
+	u32 dmadptr;		/* Descriptor pointer. */
+	u32 dmandptr;		/* Next descriptor pointer. */
+};
+
+/* DMA channels specific registers */
+#define DMA_CHAN_RUN_BIT		BIT(0)
+#define DMA_CHAN_DONE_BIT		BIT(1)
+#define DMA_CHAN_MODE_BIT		BIT(2)
+#define DMA_CHAN_MODE_MSK		0x0000000c
+#define	 DMA_CHAN_MODE_AUTO		0
+#define	 DMA_CHAN_MODE_BURST		1
+#define	 DMA_CHAN_MODE_XFRT		2
+#define	 DMA_CHAN_MODE_RSVD		3
+#define DMA_CHAN_ACT_BIT		BIT(4)
+
+/* DMA status registers */
+#define DMA_STAT_FINI			BIT(0)
+#define DMA_STAT_DONE			BIT(1)
+#define DMA_STAT_CHAIN			BIT(2)
+#define DMA_STAT_ERR			BIT(3)
+#define DMA_STAT_HALT			BIT(4)
+
+>>>>>>> upstream/android-13
 #define STATION_ADDRESS_HIGH(dev) (((dev)->dev_addr[0] << 8) | \
 				   ((dev)->dev_addr[1]))
 #define STATION_ADDRESS_LOW(dev)  (((dev)->dev_addr[2] << 24) | \
@@ -95,24 +344,47 @@
 
 enum chain_status {
 	desc_filled,
+<<<<<<< HEAD
 	desc_empty
 };
 
+=======
+	desc_is_empty
+};
+
+#define DMA_COUNT(count)	((count) & DMA_DESC_COUNT_MSK)
+>>>>>>> upstream/android-13
 #define IS_DMA_FINISHED(X)	(((X) & (DMA_DESC_FINI)) != 0)
 #define IS_DMA_DONE(X)		(((X) & (DMA_DESC_DONE)) != 0)
 #define RCVPKT_LENGTH(X)	(((X) & ETH_RX_LEN) >> ETH_RX_LEN_BIT)
 
 /* Information that need to be kept for each board. */
 struct korina_private {
+<<<<<<< HEAD
 	struct eth_regs *eth_regs;
 	struct dma_reg *rx_dma_regs;
 	struct dma_reg *tx_dma_regs;
 	struct dma_desc *td_ring; /* transmit descriptor ring */
 	struct dma_desc *rd_ring; /* receive descriptor ring  */
+=======
+	struct eth_regs __iomem *eth_regs;
+	struct dma_reg __iomem *rx_dma_regs;
+	struct dma_reg __iomem *tx_dma_regs;
+	struct dma_desc *td_ring; /* transmit descriptor ring */
+	struct dma_desc *rd_ring; /* receive descriptor ring  */
+	dma_addr_t td_dma;
+	dma_addr_t rd_dma;
+>>>>>>> upstream/android-13
 
 	struct sk_buff *tx_skb[KORINA_NUM_TDS];
 	struct sk_buff *rx_skb[KORINA_NUM_RDS];
 
+<<<<<<< HEAD
+=======
+	dma_addr_t rx_skb_dma[KORINA_NUM_RDS];
+	dma_addr_t tx_skb_dma[KORINA_NUM_TDS];
+
+>>>>>>> upstream/android-13
 	int rx_next_done;
 	int rx_chain_head;
 	int rx_chain_tail;
@@ -137,6 +409,7 @@ struct korina_private {
 	struct mii_if_info mii_if;
 	struct work_struct restart_task;
 	struct net_device *dev;
+<<<<<<< HEAD
 	int phy_addr;
 };
 
@@ -146,6 +419,20 @@ static inline void korina_start_dma(struct dma_reg *ch, u32 dma_addr)
 {
 	writel(0, &ch->dmandptr);
 	writel(dma_addr, &ch->dmadptr);
+=======
+	struct device *dmadev;
+	int mii_clock_freq;
+};
+
+static dma_addr_t korina_tx_dma(struct korina_private *lp, int idx)
+{
+	return lp->td_dma + (idx * sizeof(struct dma_desc));
+}
+
+static dma_addr_t korina_rx_dma(struct korina_private *lp, int idx)
+{
+	return lp->rd_dma + (idx * sizeof(struct dma_desc));
+>>>>>>> upstream/android-13
 }
 
 static inline void korina_abort_dma(struct net_device *dev,
@@ -164,11 +451,14 @@ static inline void korina_abort_dma(struct net_device *dev,
 	writel(0, &ch->dmandptr);
 }
 
+<<<<<<< HEAD
 static inline void korina_chain_dma(struct dma_reg *ch, u32 dma_addr)
 {
 	writel(dma_addr, &ch->dmandptr);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void korina_abort_tx(struct net_device *dev)
 {
 	struct korina_private *lp = netdev_priv(dev);
@@ -183,6 +473,7 @@ static void korina_abort_rx(struct net_device *dev)
 	korina_abort_dma(dev, lp->rx_dma_regs);
 }
 
+<<<<<<< HEAD
 static void korina_start_rx(struct korina_private *lp,
 					struct dma_desc *rd)
 {
@@ -195,10 +486,13 @@ static void korina_chain_rx(struct korina_private *lp,
 	korina_chain_dma(lp->rx_dma_regs, CPHYSADDR(rd));
 }
 
+=======
+>>>>>>> upstream/android-13
 /* transmit packet */
 static int korina_send_packet(struct sk_buff *skb, struct net_device *dev)
 {
 	struct korina_private *lp = netdev_priv(dev);
+<<<<<<< HEAD
 	unsigned long flags;
 	u32 length;
 	u32 chain_prev, chain_next;
@@ -207,6 +501,19 @@ static int korina_send_packet(struct sk_buff *skb, struct net_device *dev)
 	spin_lock_irqsave(&lp->lock, flags);
 
 	td = &lp->td_ring[lp->tx_chain_tail];
+=======
+	u32 chain_prev, chain_next;
+	unsigned long flags;
+	struct dma_desc *td;
+	dma_addr_t ca;
+	u32 length;
+	int idx;
+
+	spin_lock_irqsave(&lp->lock, flags);
+
+	idx = lp->tx_chain_tail;
+	td = &lp->td_ring[idx];
+>>>>>>> upstream/android-13
 
 	/* stop queue when full, drop pkts if queue already full */
 	if (lp->tx_count >= (KORINA_NUM_TDS - 2)) {
@@ -214,6 +521,7 @@ static int korina_send_packet(struct sk_buff *skb, struct net_device *dev)
 
 		if (lp->tx_count == (KORINA_NUM_TDS - 2))
 			netif_stop_queue(dev);
+<<<<<<< HEAD
 		else {
 			dev->stats.tx_dropped++;
 			dev_kfree_skb_any(skb);
@@ -221,10 +529,15 @@ static int korina_send_packet(struct sk_buff *skb, struct net_device *dev)
 
 			return NETDEV_TX_OK;
 		}
+=======
+		else
+			goto drop_packet;
+>>>>>>> upstream/android-13
 	}
 
 	lp->tx_count++;
 
+<<<<<<< HEAD
 	lp->tx_skb[lp->tx_chain_tail] = skb;
 
 	length = skb->len;
@@ -238,14 +551,38 @@ static int korina_send_packet(struct sk_buff *skb, struct net_device *dev)
 
 	if (readl(&(lp->tx_dma_regs->dmandptr)) == 0) {
 		if (lp->tx_chain_status == desc_empty) {
+=======
+	lp->tx_skb[idx] = skb;
+
+	length = skb->len;
+
+	/* Setup the transmit descriptor. */
+	ca = dma_map_single(lp->dmadev, skb->data, length, DMA_TO_DEVICE);
+	if (dma_mapping_error(lp->dmadev, ca))
+		goto drop_packet;
+
+	lp->tx_skb_dma[idx] = ca;
+	td->ca = ca;
+
+	chain_prev = (idx - 1) & KORINA_TDS_MASK;
+	chain_next = (idx + 1) & KORINA_TDS_MASK;
+
+	if (readl(&(lp->tx_dma_regs->dmandptr)) == 0) {
+		if (lp->tx_chain_status == desc_is_empty) {
+>>>>>>> upstream/android-13
 			/* Update tail */
 			td->control = DMA_COUNT(length) |
 					DMA_DESC_COF | DMA_DESC_IOF;
 			/* Move tail */
 			lp->tx_chain_tail = chain_next;
 			/* Write to NDPTR */
+<<<<<<< HEAD
 			writel(CPHYSADDR(&lp->td_ring[lp->tx_chain_head]),
 					&lp->tx_dma_regs->dmandptr);
+=======
+			writel(korina_tx_dma(lp, lp->tx_chain_head),
+			       &lp->tx_dma_regs->dmandptr);
+>>>>>>> upstream/android-13
 			/* Move head to tail */
 			lp->tx_chain_head = lp->tx_chain_tail;
 		} else {
@@ -256,6 +593,7 @@ static int korina_send_packet(struct sk_buff *skb, struct net_device *dev)
 			lp->td_ring[chain_prev].control &=
 					~DMA_DESC_COF;
 			/* Link to prev */
+<<<<<<< HEAD
 			lp->td_ring[chain_prev].link =  CPHYSADDR(td);
 			/* Move tail */
 			lp->tx_chain_tail = chain_next;
@@ -268,6 +606,20 @@ static int korina_send_packet(struct sk_buff *skb, struct net_device *dev)
 		}
 	} else {
 		if (lp->tx_chain_status == desc_empty) {
+=======
+			lp->td_ring[chain_prev].link = korina_tx_dma(lp, idx);
+			/* Move tail */
+			lp->tx_chain_tail = chain_next;
+			/* Write to NDPTR */
+			writel(korina_tx_dma(lp, lp->tx_chain_head),
+			       &lp->tx_dma_regs->dmandptr);
+			/* Move head to tail */
+			lp->tx_chain_head = lp->tx_chain_tail;
+			lp->tx_chain_status = desc_is_empty;
+		}
+	} else {
+		if (lp->tx_chain_status == desc_is_empty) {
+>>>>>>> upstream/android-13
 			/* Update tail */
 			td->control = DMA_COUNT(length) |
 					DMA_DESC_COF | DMA_DESC_IOF;
@@ -280,23 +632,53 @@ static int korina_send_packet(struct sk_buff *skb, struct net_device *dev)
 					DMA_DESC_COF | DMA_DESC_IOF;
 			lp->td_ring[chain_prev].control &=
 					~DMA_DESC_COF;
+<<<<<<< HEAD
 			lp->td_ring[chain_prev].link =  CPHYSADDR(td);
 			lp->tx_chain_tail = chain_next;
 		}
 	}
 	dma_cache_wback((u32) td, sizeof(*td));
+=======
+			lp->td_ring[chain_prev].link = korina_tx_dma(lp, idx);
+			lp->tx_chain_tail = chain_next;
+		}
+	}
+>>>>>>> upstream/android-13
 
 	netif_trans_update(dev);
 	spin_unlock_irqrestore(&lp->lock, flags);
 
 	return NETDEV_TX_OK;
+<<<<<<< HEAD
 }
 
 static int mdio_read(struct net_device *dev, int mii_id, int reg)
+=======
+
+drop_packet:
+	dev->stats.tx_dropped++;
+	dev_kfree_skb_any(skb);
+	spin_unlock_irqrestore(&lp->lock, flags);
+
+	return NETDEV_TX_OK;
+}
+
+static int korina_mdio_wait(struct korina_private *lp)
+{
+	u32 value;
+
+	return readl_poll_timeout_atomic(&lp->eth_regs->miimind,
+					 value, value & ETH_MII_IND_BSY,
+					 1, 1000);
+}
+
+static int korina_mdio_read(struct net_device *dev, int phy, int reg)
+>>>>>>> upstream/android-13
 {
 	struct korina_private *lp = netdev_priv(dev);
 	int ret;
 
+<<<<<<< HEAD
 	mii_id = ((lp->rx_irq == 0x2c ? 1 : 0) << 8);
 
 	writel(0, &lp->eth_regs->miimcfg);
@@ -318,6 +700,36 @@ static void mdio_write(struct net_device *dev, int mii_id, int reg, int val)
 	writel(1, &lp->eth_regs->miimcmd);
 	writel(mii_id | reg, &lp->eth_regs->miimaddr);
 	writel(ETH_MII_CMD_SCN, &lp->eth_regs->miimcmd);
+=======
+	ret = korina_mdio_wait(lp);
+	if (ret < 0)
+		return ret;
+
+	writel(phy << 8 | reg, &lp->eth_regs->miimaddr);
+	writel(1, &lp->eth_regs->miimcmd);
+
+	ret = korina_mdio_wait(lp);
+	if (ret < 0)
+		return ret;
+
+	if (readl(&lp->eth_regs->miimind) & ETH_MII_IND_NV)
+		return -EINVAL;
+
+	ret = readl(&lp->eth_regs->miimrdd);
+	writel(0, &lp->eth_regs->miimcmd);
+	return ret;
+}
+
+static void korina_mdio_write(struct net_device *dev, int phy, int reg, int val)
+{
+	struct korina_private *lp = netdev_priv(dev);
+
+	if (korina_mdio_wait(lp))
+		return;
+
+	writel(0, &lp->eth_regs->miimcmd);
+	writel(phy << 8 | reg, &lp->eth_regs->miimaddr);
+>>>>>>> upstream/android-13
 	writel(val, &lp->eth_regs->miimwtd);
 }
 
@@ -353,12 +765,19 @@ static int korina_rx(struct net_device *dev, int limit)
 	struct korina_private *lp = netdev_priv(dev);
 	struct dma_desc *rd = &lp->rd_ring[lp->rx_next_done];
 	struct sk_buff *skb, *skb_new;
+<<<<<<< HEAD
 	u8 *pkt_buf;
 	u32 devcs, pkt_len, dmas;
 	int count;
 
 	dma_cache_inv((u32)rd, sizeof(*rd));
 
+=======
+	u32 devcs, pkt_len, dmas;
+	dma_addr_t ca;
+	int count;
+
+>>>>>>> upstream/android-13
 	for (count = 0; count < limit; count++) {
 		skb = lp->rx_skb[lp->rx_next_done];
 		skb_new = NULL;
@@ -392,6 +811,7 @@ static int korina_rx(struct net_device *dev, int limit)
 			goto next;
 		}
 
+<<<<<<< HEAD
 		pkt_len = RCVPKT_LENGTH(devcs);
 
 		/* must be the (first and) last
@@ -406,6 +826,24 @@ static int korina_rx(struct net_device *dev, int limit)
 
 		if (!skb_new)
 			break;
+=======
+		/* Malloc up new buffer. */
+		skb_new = netdev_alloc_skb_ip_align(dev, KORINA_RBSIZE);
+		if (!skb_new)
+			break;
+
+		ca = dma_map_single(lp->dmadev, skb_new->data, KORINA_RBSIZE,
+				    DMA_FROM_DEVICE);
+		if (dma_mapping_error(lp->dmadev, ca)) {
+			dev_kfree_skb_any(skb_new);
+			break;
+		}
+
+		pkt_len = RCVPKT_LENGTH(devcs);
+		dma_unmap_single(lp->dmadev, lp->rx_skb_dma[lp->rx_next_done],
+				 pkt_len, DMA_FROM_DEVICE);
+
+>>>>>>> upstream/android-13
 		/* Do not count the CRC */
 		skb_put(skb, pkt_len - 4);
 		skb->protocol = eth_type_trans(skb, dev);
@@ -420,15 +858,23 @@ static int korina_rx(struct net_device *dev, int limit)
 			dev->stats.multicast++;
 
 		lp->rx_skb[lp->rx_next_done] = skb_new;
+<<<<<<< HEAD
+=======
+		lp->rx_skb_dma[lp->rx_next_done] = ca;
+>>>>>>> upstream/android-13
 
 next:
 		rd->devcs = 0;
 
 		/* Restore descriptor's curr_addr */
+<<<<<<< HEAD
 		if (skb_new)
 			rd->ca = CPHYSADDR(skb_new->data);
 		else
 			rd->ca = CPHYSADDR(skb->data);
+=======
+		rd->ca = lp->rx_skb_dma[lp->rx_next_done];
+>>>>>>> upstream/android-13
 
 		rd->control = DMA_COUNT(KORINA_RBSIZE) |
 			DMA_DESC_COD | DMA_DESC_IOD;
@@ -437,14 +883,20 @@ next:
 			~DMA_DESC_COD;
 
 		lp->rx_next_done = (lp->rx_next_done + 1) & KORINA_RDS_MASK;
+<<<<<<< HEAD
 		dma_cache_wback((u32)rd, sizeof(*rd));
 		rd = &lp->rd_ring[lp->rx_next_done];
 		writel(~DMA_STAT_DONE, &lp->rx_dma_regs->dmas);
+=======
+		rd = &lp->rd_ring[lp->rx_next_done];
+		writel((u32)~DMA_STAT_DONE, &lp->rx_dma_regs->dmas);
+>>>>>>> upstream/android-13
 	}
 
 	dmas = readl(&lp->rx_dma_regs->dmas);
 
 	if (dmas & DMA_STAT_HALT) {
+<<<<<<< HEAD
 		writel(~(DMA_STAT_HALT | DMA_STAT_ERR),
 				&lp->rx_dma_regs->dmas);
 
@@ -454,6 +906,16 @@ next:
 		rd->ca = CPHYSADDR(skb->data);
 		dma_cache_wback((u32)rd, sizeof(*rd));
 		korina_chain_rx(lp, rd);
+=======
+		writel((u32)~(DMA_STAT_HALT | DMA_STAT_ERR),
+		       &lp->rx_dma_regs->dmas);
+
+		lp->dma_halt_cnt++;
+		rd->devcs = 0;
+		rd->ca = lp->rx_skb_dma[lp->rx_next_done];
+		writel(korina_rx_dma(lp, rd - lp->rd_ring),
+		       &lp->rx_dma_regs->dmandptr);
+>>>>>>> upstream/android-13
 	}
 
 	return count;
@@ -576,6 +1038,13 @@ static void korina_tx(struct net_device *dev)
 
 		/* We must always free the original skb */
 		if (lp->tx_skb[lp->tx_next_done]) {
+<<<<<<< HEAD
+=======
+			dma_unmap_single(lp->dmadev,
+					 lp->tx_skb_dma[lp->tx_next_done],
+					 lp->tx_skb[lp->tx_next_done]->len,
+					 DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 			dev_kfree_skb_any(lp->tx_skb[lp->tx_next_done]);
 			lp->tx_skb[lp->tx_next_done] = NULL;
 		}
@@ -622,9 +1091,15 @@ korina_tx_dma_interrupt(int irq, void *dev_id)
 
 		if (lp->tx_chain_status == desc_filled &&
 			(readl(&(lp->tx_dma_regs->dmandptr)) == 0)) {
+<<<<<<< HEAD
 			writel(CPHYSADDR(&lp->td_ring[lp->tx_chain_head]),
 				&(lp->tx_dma_regs->dmandptr));
 			lp->tx_chain_status = desc_empty;
+=======
+			writel(korina_tx_dma(lp, lp->tx_chain_head),
+			       &lp->tx_dma_regs->dmandptr);
+			lp->tx_chain_status = desc_is_empty;
+>>>>>>> upstream/android-13
 			lp->tx_chain_head = lp->tx_chain_tail;
 			netif_trans_update(dev);
 		}
@@ -643,7 +1118,11 @@ static void korina_check_media(struct net_device *dev, unsigned int init_media)
 {
 	struct korina_private *lp = netdev_priv(dev);
 
+<<<<<<< HEAD
 	mii_check_media(&lp->mii_if, 0, init_media);
+=======
+	mii_check_media(&lp->mii_if, 1, init_media);
+>>>>>>> upstream/android-13
 
 	if (lp->mii_if.full_duplex)
 		writel(readl(&lp->eth_regs->ethmac2) | ETH_MAC2_FD,
@@ -743,6 +1222,10 @@ static int korina_alloc_ring(struct net_device *dev)
 {
 	struct korina_private *lp = netdev_priv(dev);
 	struct sk_buff *skb;
+<<<<<<< HEAD
+=======
+	dma_addr_t ca;
+>>>>>>> upstream/android-13
 	int i;
 
 	/* Initialize the transmit descriptors */
@@ -754,7 +1237,11 @@ static int korina_alloc_ring(struct net_device *dev)
 	}
 	lp->tx_next_done = lp->tx_chain_head = lp->tx_chain_tail =
 			lp->tx_full = lp->tx_count = 0;
+<<<<<<< HEAD
 	lp->tx_chain_status = desc_empty;
+=======
+	lp->tx_chain_status = desc_is_empty;
+>>>>>>> upstream/android-13
 
 	/* Initialize the receive descriptors */
 	for (i = 0; i < KORINA_NUM_RDS; i++) {
@@ -765,19 +1252,37 @@ static int korina_alloc_ring(struct net_device *dev)
 		lp->rd_ring[i].control = DMA_DESC_IOD |
 				DMA_COUNT(KORINA_RBSIZE);
 		lp->rd_ring[i].devcs = 0;
+<<<<<<< HEAD
 		lp->rd_ring[i].ca = CPHYSADDR(skb->data);
 		lp->rd_ring[i].link = CPHYSADDR(&lp->rd_ring[i+1]);
+=======
+		ca = dma_map_single(lp->dmadev, skb->data, KORINA_RBSIZE,
+				    DMA_FROM_DEVICE);
+		if (dma_mapping_error(lp->dmadev, ca))
+			return -ENOMEM;
+		lp->rd_ring[i].ca = ca;
+		lp->rx_skb_dma[i] = ca;
+		lp->rd_ring[i].link = korina_rx_dma(lp, i + 1);
+>>>>>>> upstream/android-13
 	}
 
 	/* loop back receive descriptors, so the last
 	 * descriptor points to the first one */
+<<<<<<< HEAD
 	lp->rd_ring[i - 1].link = CPHYSADDR(&lp->rd_ring[0]);
+=======
+	lp->rd_ring[i - 1].link = lp->rd_dma;
+>>>>>>> upstream/android-13
 	lp->rd_ring[i - 1].control |= DMA_DESC_COD;
 
 	lp->rx_next_done  = 0;
 	lp->rx_chain_head = 0;
 	lp->rx_chain_tail = 0;
+<<<<<<< HEAD
 	lp->rx_chain_status = desc_empty;
+=======
+	lp->rx_chain_status = desc_is_empty;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -789,16 +1294,34 @@ static void korina_free_ring(struct net_device *dev)
 
 	for (i = 0; i < KORINA_NUM_RDS; i++) {
 		lp->rd_ring[i].control = 0;
+<<<<<<< HEAD
 		if (lp->rx_skb[i])
 			dev_kfree_skb_any(lp->rx_skb[i]);
 		lp->rx_skb[i] = NULL;
+=======
+		if (lp->rx_skb[i]) {
+			dma_unmap_single(lp->dmadev, lp->rx_skb_dma[i],
+					 KORINA_RBSIZE, DMA_FROM_DEVICE);
+			dev_kfree_skb_any(lp->rx_skb[i]);
+			lp->rx_skb[i] = NULL;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	for (i = 0; i < KORINA_NUM_TDS; i++) {
 		lp->td_ring[i].control = 0;
+<<<<<<< HEAD
 		if (lp->tx_skb[i])
 			dev_kfree_skb_any(lp->tx_skb[i]);
 		lp->tx_skb[i] = NULL;
+=======
+		if (lp->tx_skb[i]) {
+			dma_unmap_single(lp->dmadev, lp->tx_skb_dma[i],
+					 lp->tx_skb[i]->len, DMA_TO_DEVICE);
+			dev_kfree_skb_any(lp->tx_skb[i]);
+			lp->tx_skb[i] = NULL;
+		}
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -830,7 +1353,12 @@ static int korina_init(struct net_device *dev)
 
 	writel(0, &lp->rx_dma_regs->dmas);
 	/* Start Rx DMA */
+<<<<<<< HEAD
 	korina_start_rx(lp, &lp->rd_ring[0]);
+=======
+	writel(0, &lp->rx_dma_regs->dmandptr);
+	writel(korina_rx_dma(lp, 0), &lp->rx_dma_regs->dmadptr);
+>>>>>>> upstream/android-13
 
 	writel(readl(&lp->tx_dma_regs->dmasm) &
 			~(DMA_STAT_FINI | DMA_STAT_ERR),
@@ -867,14 +1395,25 @@ static int korina_init(struct net_device *dev)
 
 	/* Management Clock Prescaler Divisor
 	 * Clock independent setting */
+<<<<<<< HEAD
 	writel(((idt_cpu_freq) / MII_CLOCK + 1) & ~1,
 			&lp->eth_regs->ethmcp);
+=======
+	writel(((lp->mii_clock_freq) / MII_CLOCK + 1) & ~1,
+	       &lp->eth_regs->ethmcp);
+	writel(0, &lp->eth_regs->miimcfg);
+>>>>>>> upstream/android-13
 
 	/* don't transmit until fifo contains 48b */
 	writel(48, &lp->eth_regs->ethfifott);
 
 	writel(ETH_MAC1_RE, &lp->eth_regs->ethmac1);
 
+<<<<<<< HEAD
+=======
+	korina_check_media(dev, 1);
+
+>>>>>>> upstream/android-13
 	napi_enable(&lp->napi);
 	netif_start_queue(dev);
 
@@ -917,7 +1456,11 @@ static void korina_restart_task(struct work_struct *work)
 	enable_irq(lp->rx_irq);
 }
 
+<<<<<<< HEAD
 static void korina_tx_timeout(struct net_device *dev)
+=======
+static void korina_tx_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct korina_private *lp = netdev_priv(dev);
 
@@ -1012,7 +1555,11 @@ static const struct net_device_ops korina_netdev_ops = {
 	.ndo_start_xmit		= korina_send_packet,
 	.ndo_set_rx_mode	= korina_multicast_list,
 	.ndo_tx_timeout		= korina_tx_timeout,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= korina_ioctl,
+=======
+	.ndo_eth_ioctl		= korina_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_validate_addr	= eth_validate_addr,
 	.ndo_set_mac_address	= eth_mac_addr,
 #ifdef CONFIG_NET_POLL_CONTROLLER
@@ -1022,6 +1569,7 @@ static const struct net_device_ops korina_netdev_ops = {
 
 static int korina_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct korina_device *bif = platform_get_drvdata(pdev);
 	struct korina_private *lp;
 	struct net_device *dev;
@@ -1029,12 +1577,23 @@ static int korina_probe(struct platform_device *pdev)
 	int rc;
 
 	dev = alloc_etherdev(sizeof(struct korina_private));
+=======
+	u8 *mac_addr = dev_get_platdata(&pdev->dev);
+	struct korina_private *lp;
+	struct net_device *dev;
+	struct clk *clk;
+	void __iomem *p;
+	int rc;
+
+	dev = devm_alloc_etherdev(&pdev->dev, sizeof(struct korina_private));
+>>>>>>> upstream/android-13
 	if (!dev)
 		return -ENOMEM;
 
 	SET_NETDEV_DEV(dev, &pdev->dev);
 	lp = netdev_priv(dev);
 
+<<<<<<< HEAD
 	bif->dev = dev;
 	memcpy(dev->dev_addr, bif->mac, ETH_ALEN);
 
@@ -1078,17 +1637,72 @@ static int korina_probe(struct platform_device *pdev)
 	/* now convert TD_RING pointer to KSEG1 */
 	lp->td_ring = (struct dma_desc *)KSEG1ADDR(lp->td_ring);
 	lp->rd_ring = &lp->td_ring[KORINA_NUM_TDS];
+=======
+	if (mac_addr)
+		ether_addr_copy(dev->dev_addr, mac_addr);
+	else if (of_get_mac_address(pdev->dev.of_node, dev->dev_addr) < 0)
+		eth_hw_addr_random(dev);
+
+	clk = devm_clk_get_optional(&pdev->dev, "mdioclk");
+	if (IS_ERR(clk))
+		return PTR_ERR(clk);
+	if (clk) {
+		clk_prepare_enable(clk);
+		lp->mii_clock_freq = clk_get_rate(clk);
+	} else {
+		lp->mii_clock_freq = 200000000; /* max possible input clk */
+	}
+
+	lp->rx_irq = platform_get_irq_byname(pdev, "rx");
+	lp->tx_irq = platform_get_irq_byname(pdev, "tx");
+
+	p = devm_platform_ioremap_resource_byname(pdev, "emac");
+	if (IS_ERR(p)) {
+		printk(KERN_ERR DRV_NAME ": cannot remap registers\n");
+		return PTR_ERR(p);
+	}
+	lp->eth_regs = p;
+
+	p = devm_platform_ioremap_resource_byname(pdev, "dma_rx");
+	if (IS_ERR(p)) {
+		printk(KERN_ERR DRV_NAME ": cannot remap Rx DMA registers\n");
+		return PTR_ERR(p);
+	}
+	lp->rx_dma_regs = p;
+
+	p = devm_platform_ioremap_resource_byname(pdev, "dma_tx");
+	if (IS_ERR(p)) {
+		printk(KERN_ERR DRV_NAME ": cannot remap Tx DMA registers\n");
+		return PTR_ERR(p);
+	}
+	lp->tx_dma_regs = p;
+
+	lp->td_ring = dmam_alloc_coherent(&pdev->dev, TD_RING_SIZE,
+					  &lp->td_dma, GFP_KERNEL);
+	if (!lp->td_ring)
+		return -ENOMEM;
+
+	lp->rd_ring = dmam_alloc_coherent(&pdev->dev, RD_RING_SIZE,
+					  &lp->rd_dma, GFP_KERNEL);
+	if (!lp->rd_ring)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	spin_lock_init(&lp->lock);
 	/* just use the rx dma irq */
 	dev->irq = lp->rx_irq;
 	lp->dev = dev;
+<<<<<<< HEAD
+=======
+	lp->dmadev = &pdev->dev;
+>>>>>>> upstream/android-13
 
 	dev->netdev_ops = &korina_netdev_ops;
 	dev->ethtool_ops = &netdev_ethtool_ops;
 	dev->watchdog_timeo = TX_TIMEOUT;
 	netif_napi_add(dev, &lp->napi, korina_poll, NAPI_POLL_WEIGHT);
 
+<<<<<<< HEAD
 	lp->phy_addr = (((lp->rx_irq == 0x2c? 1:0) << 8) | 0x05);
 	lp->mii_if.dev = dev;
 	lp->mii_if.mdio_read = mdio_read;
@@ -1097,11 +1711,26 @@ static int korina_probe(struct platform_device *pdev)
 	lp->mii_if.phy_id_mask = 0x1f;
 	lp->mii_if.reg_num_mask = 0x1f;
 
+=======
+	lp->mii_if.dev = dev;
+	lp->mii_if.mdio_read = korina_mdio_read;
+	lp->mii_if.mdio_write = korina_mdio_write;
+	lp->mii_if.phy_id = 1;
+	lp->mii_if.phy_id_mask = 0x1f;
+	lp->mii_if.reg_num_mask = 0x1f;
+
+	platform_set_drvdata(pdev, dev);
+
+>>>>>>> upstream/android-13
 	rc = register_netdev(dev);
 	if (rc < 0) {
 		printk(KERN_ERR DRV_NAME
 			": cannot register net device: %d\n", rc);
+<<<<<<< HEAD
 		goto probe_err_register;
+=======
+		return rc;
+>>>>>>> upstream/android-13
 	}
 	timer_setup(&lp->media_check_timer, korina_poll_media, 0);
 
@@ -1109,6 +1738,7 @@ static int korina_probe(struct platform_device *pdev)
 
 	printk(KERN_INFO "%s: " DRV_NAME "-" DRV_VERSION " " DRV_RELDATE "\n",
 			dev->name);
+<<<<<<< HEAD
 out:
 	return rc;
 
@@ -1123,10 +1753,14 @@ probe_err_dma_rx:
 probe_err_out:
 	free_netdev(dev);
 	goto out;
+=======
+	return rc;
+>>>>>>> upstream/android-13
 }
 
 static int korina_remove(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct korina_device *bif = platform_get_drvdata(pdev);
 	struct korina_private *lp = netdev_priv(bif->dev);
 
@@ -1137,12 +1771,35 @@ static int korina_remove(struct platform_device *pdev)
 
 	unregister_netdev(bif->dev);
 	free_netdev(bif->dev);
+=======
+	struct net_device *dev = platform_get_drvdata(pdev);
+
+	unregister_netdev(dev);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct platform_driver korina_driver = {
 	.driver.name = "korina",
+=======
+#ifdef CONFIG_OF
+static const struct of_device_id korina_match[] = {
+	{
+		.compatible = "idt,3243x-emac",
+	},
+	{ }
+};
+MODULE_DEVICE_TABLE(of, korina_match);
+#endif
+
+static struct platform_driver korina_driver = {
+	.driver = {
+		.name = "korina",
+		.of_match_table = of_match_ptr(korina_match),
+	},
+>>>>>>> upstream/android-13
 	.probe = korina_probe,
 	.remove = korina_remove,
 };

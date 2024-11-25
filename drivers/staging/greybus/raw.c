@@ -13,8 +13,12 @@
 #include <linux/fs.h>
 #include <linux/idr.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
 
 #include "greybus.h"
+=======
+#include <linux/greybus.h>
+>>>>>>> upstream/android-13
 
 struct gb_raw {
 	struct gb_connection *connection;
@@ -30,7 +34,11 @@ struct gb_raw {
 struct raw_data {
 	struct list_head entry;
 	u32 len;
+<<<<<<< HEAD
 	u8 data[0];
+=======
+	u8 data[];
+>>>>>>> upstream/android-13
 };
 
 static struct class *raw_class;

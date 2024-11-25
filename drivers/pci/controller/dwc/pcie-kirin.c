@@ -2,8 +2,13 @@
 /*
  * PCIe host controller driver for Kirin Phone SoCs
  *
+<<<<<<< HEAD
  * Copyright (C) 2017 Hilisicon Electronics Co., Ltd.
  *		http://www.huawei.com
+=======
+ * Copyright (C) 2017 HiSilicon Electronics Co., Ltd.
+ *		https://www.huawei.com
+>>>>>>> upstream/android-13
  *
  * Author: Xiaowei Song <songxiaowei@huawei.com>
  */
@@ -147,6 +152,7 @@ static long kirin_pcie_get_clk(struct kirin_pcie *kirin_pcie,
 static long kirin_pcie_get_resource(struct kirin_pcie *kirin_pcie,
 				    struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct device *dev = &pdev->dev;
 	struct resource *apb;
 	struct resource *phy;
@@ -167,6 +173,18 @@ static long kirin_pcie_get_resource(struct kirin_pcie *kirin_pcie,
 	if (IS_ERR(kirin_pcie->pci->dbi_base))
 		return PTR_ERR(kirin_pcie->pci->dbi_base);
 
+=======
+	kirin_pcie->apb_base =
+		devm_platform_ioremap_resource_byname(pdev, "apb");
+	if (IS_ERR(kirin_pcie->apb_base))
+		return PTR_ERR(kirin_pcie->apb_base);
+
+	kirin_pcie->phy_base =
+		devm_platform_ioremap_resource_byname(pdev, "phy");
+	if (IS_ERR(kirin_pcie->phy_base))
+		return PTR_ERR(kirin_pcie->phy_base);
+
+>>>>>>> upstream/android-13
 	kirin_pcie->crgctrl =
 		syscon_regmap_lookup_by_compatible("hisilicon,hi3660-crgctrl");
 	if (IS_ERR(kirin_pcie->crgctrl))
@@ -335,6 +353,7 @@ static void kirin_pcie_sideband_dbi_r_mode(struct kirin_pcie *kirin_pcie,
 	kirin_apb_ctrl_writel(kirin_pcie, val, SOC_PCIECTRL_CTRL1_ADDR);
 }
 
+<<<<<<< HEAD
 static int kirin_pcie_rd_own_conf(struct pcie_port *pp,
 				  int where, int size, u32 *val)
 {
@@ -363,6 +382,39 @@ static int kirin_pcie_wr_own_conf(struct pcie_port *pp,
 	return ret;
 }
 
+=======
+static int kirin_pcie_rd_own_conf(struct pci_bus *bus, unsigned int devfn,
+				  int where, int size, u32 *val)
+{
+	struct dw_pcie *pci = to_dw_pcie_from_pp(bus->sysdata);
+
+	if (PCI_SLOT(devfn)) {
+		*val = ~0;
+		return PCIBIOS_DEVICE_NOT_FOUND;
+	}
+
+	*val = dw_pcie_read_dbi(pci, where, size);
+	return PCIBIOS_SUCCESSFUL;
+}
+
+static int kirin_pcie_wr_own_conf(struct pci_bus *bus, unsigned int devfn,
+				  int where, int size, u32 val)
+{
+	struct dw_pcie *pci = to_dw_pcie_from_pp(bus->sysdata);
+
+	if (PCI_SLOT(devfn))
+		return PCIBIOS_DEVICE_NOT_FOUND;
+
+	dw_pcie_write_dbi(pci, where, size, val);
+	return PCIBIOS_SUCCESSFUL;
+}
+
+static struct pci_ops kirin_pci_ops = {
+	.read = kirin_pcie_rd_own_conf,
+	.write = kirin_pcie_wr_own_conf,
+};
+
+>>>>>>> upstream/android-13
 static u32 kirin_pcie_read_dbi(struct dw_pcie *pci, void __iomem *base,
 			       u32 reg, size_t size)
 {
@@ -397,6 +449,7 @@ static int kirin_pcie_link_up(struct dw_pcie *pci)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int kirin_pcie_establish_link(struct pcie_port *pp)
 {
 	struct dw_pcie *pci = to_dw_pcie_from_pp(pp);
@@ -408,11 +461,17 @@ static int kirin_pcie_establish_link(struct pcie_port *pp)
 		return 0;
 
 	dw_pcie_setup_rc(pp);
+=======
+static int kirin_pcie_start_link(struct dw_pcie *pci)
+{
+	struct kirin_pcie *kirin_pcie = to_kirin_pcie(pci);
+>>>>>>> upstream/android-13
 
 	/* assert LTSSM enable */
 	kirin_apb_ctrl_writel(kirin_pcie, PCIE_LTSSM_ENABLE_BIT,
 			      PCIE_APP_LTSSM_ENABLE);
 
+<<<<<<< HEAD
 	/* check if the link is up or not */
 	while (!kirin_pcie_link_up(pci)) {
 		usleep_range(LINK_WAIT_MIN, LINK_WAIT_MAX);
@@ -423,19 +482,26 @@ static int kirin_pcie_establish_link(struct pcie_port *pp)
 		}
 	}
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int kirin_pcie_host_init(struct pcie_port *pp)
 {
+<<<<<<< HEAD
 	kirin_pcie_establish_link(pp);
 
 	if (IS_ENABLED(CONFIG_PCI_MSI))
 		dw_pcie_msi_init(pp);
+=======
+	pp->bridge->ops = &kirin_pci_ops;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct dw_pcie_ops kirin_dw_pcie_ops = {
 	.read_dbi = kirin_pcie_read_dbi,
 	.write_dbi = kirin_pcie_write_dbi,
@@ -481,6 +547,19 @@ static int kirin_add_pcie_port(struct dw_pcie *pci,
 	return dw_pcie_host_init(&pci->pp);
 }
 
+=======
+static const struct dw_pcie_ops kirin_dw_pcie_ops = {
+	.read_dbi = kirin_pcie_read_dbi,
+	.write_dbi = kirin_pcie_write_dbi,
+	.link_up = kirin_pcie_link_up,
+	.start_link = kirin_pcie_start_link,
+};
+
+static const struct dw_pcie_host_ops kirin_pcie_host_ops = {
+	.host_init = kirin_pcie_host_init,
+};
+
+>>>>>>> upstream/android-13
 static int kirin_pcie_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
@@ -503,6 +582,10 @@ static int kirin_pcie_probe(struct platform_device *pdev)
 
 	pci->dev = dev;
 	pci->ops = &kirin_dw_pcie_ops;
+<<<<<<< HEAD
+=======
+	pci->pp.ops = &kirin_pcie_host_ops;
+>>>>>>> upstream/android-13
 	kirin_pcie->pci = pci;
 
 	ret = kirin_pcie_get_clk(kirin_pcie, pdev);
@@ -515,8 +598,17 @@ static int kirin_pcie_probe(struct platform_device *pdev)
 
 	kirin_pcie->gpio_id_reset = of_get_named_gpio(dev->of_node,
 						      "reset-gpios", 0);
+<<<<<<< HEAD
 	if (kirin_pcie->gpio_id_reset < 0)
 		return -ENODEV;
+=======
+	if (kirin_pcie->gpio_id_reset == -EPROBE_DEFER) {
+		return -EPROBE_DEFER;
+	} else if (!gpio_is_valid(kirin_pcie->gpio_id_reset)) {
+		dev_err(dev, "unable to get a valid gpio pin\n");
+		return -ENODEV;
+	}
+>>>>>>> upstream/android-13
 
 	ret = kirin_pcie_power_on(kirin_pcie);
 	if (ret)
@@ -524,7 +616,11 @@ static int kirin_pcie_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, kirin_pcie);
 
+<<<<<<< HEAD
 	return kirin_add_pcie_port(pci, pdev);
+=======
+	return dw_pcie_host_init(&pci->pp);
+>>>>>>> upstream/android-13
 }
 
 static const struct of_device_id kirin_pcie_match[] = {

@@ -359,6 +359,7 @@ DEFINE_EVENT(power_domain, power_domain_target,
 );
 
 /*
+<<<<<<< HEAD
  * The pm qos events are used for pm qos update
  */
 DECLARE_EVENT_CLASS(pm_qos_request,
@@ -369,10 +370,22 @@ DECLARE_EVENT_CLASS(pm_qos_request,
 
 	TP_STRUCT__entry(
 		__field( int,                    pm_qos_class   )
+=======
+ * CPU latency QoS events used for global CPU latency QoS list updates
+ */
+DECLARE_EVENT_CLASS(cpu_latency_qos_request,
+
+	TP_PROTO(s32 value),
+
+	TP_ARGS(value),
+
+	TP_STRUCT__entry(
+>>>>>>> upstream/android-13
 		__field( s32,                    value          )
 	),
 
 	TP_fast_assign(
+<<<<<<< HEAD
 		__entry->pm_qos_class = pm_qos_class;
 		__entry->value = value;
 	),
@@ -432,6 +445,39 @@ TRACE_EVENT(pm_qos_update_request_timeout,
 		  __entry->value, __entry->timeout_us)
 );
 
+=======
+		__entry->value = value;
+	),
+
+	TP_printk("CPU_DMA_LATENCY value=%d",
+		  __entry->value)
+);
+
+DEFINE_EVENT(cpu_latency_qos_request, pm_qos_add_request,
+
+	TP_PROTO(s32 value),
+
+	TP_ARGS(value)
+);
+
+DEFINE_EVENT(cpu_latency_qos_request, pm_qos_update_request,
+
+	TP_PROTO(s32 value),
+
+	TP_ARGS(value)
+);
+
+DEFINE_EVENT(cpu_latency_qos_request, pm_qos_remove_request,
+
+	TP_PROTO(s32 value),
+
+	TP_ARGS(value)
+);
+
+/*
+ * General PM QoS events used for updates of PM QoS request lists
+ */
+>>>>>>> upstream/android-13
 DECLARE_EVENT_CLASS(pm_qos_update,
 
 	TP_PROTO(enum pm_qos_req_action action, int prev_value, int curr_value),

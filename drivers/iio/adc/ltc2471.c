@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver for Linear Technology LTC2471 and LTC2473 voltage monitors
  * The LTC2473 is identical to the 2471, but reports a differential signal.
  *
  * Copyright (C) 2017 Topic Embedded Products
  * Author: Mike Looijmans <mike.looijmans@topic.nl>
+<<<<<<< HEAD
  *
  * License: GPLv2
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -117,7 +124,10 @@ static int ltc2471_i2c_probe(struct i2c_client *client,
 	data = iio_priv(indio_dev);
 	data->client = client;
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &client->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->name = id->name;
 	indio_dev->info = &ltc2471_info;
 	indio_dev->modes = INDIO_DIRECT_MODE;

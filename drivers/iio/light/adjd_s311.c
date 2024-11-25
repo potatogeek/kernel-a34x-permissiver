@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * adjd_s311.c - Support for ADJD-S311-CR999 digital color sensor
  *
  * Copyright (C) 2012 Peter Meerwald <pmeerw@pmeerw.net>
  *
+<<<<<<< HEAD
  * This file is subject to the terms and conditions of version 2 of
  * the GNU General Public License.  See the file COPYING in the main
  * directory of this archive for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * driver for ADJD-S311-CR999 digital color sensor (10-bit channels for
  * red, green, blue, clear); 7-bit I2C slave address 0x74
  *
@@ -57,7 +64,14 @@
 
 struct adjd_s311_data {
 	struct i2c_client *client;
+<<<<<<< HEAD
 	u16 *buffer;
+=======
+	struct {
+		s16 chans[4];
+		s64 ts __aligned(8);
+	} scan;
+>>>>>>> upstream/android-13
 };
 
 enum adjd_s311_channel_idx {
@@ -132,10 +146,17 @@ static irqreturn_t adjd_s311_trigger_handler(int irq, void *p)
 		if (ret < 0)
 			goto done;
 
+<<<<<<< HEAD
 		data->buffer[j++] = ret & ADJD_S311_DATA_MASK;
 	}
 
 	iio_push_to_buffers_with_timestamp(indio_dev, data->buffer, time_ns);
+=======
+		data->scan.chans[j++] = ret & ADJD_S311_DATA_MASK;
+	}
+
+	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan, time_ns);
+>>>>>>> upstream/android-13
 
 done:
 	iio_trigger_notify_done(indio_dev->trig);
@@ -228,6 +249,7 @@ static int adjd_s311_write_raw(struct iio_dev *indio_dev,
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 static int adjd_s311_update_scan_mode(struct iio_dev *indio_dev,
 	const unsigned long *scan_mask)
 {
@@ -245,6 +267,11 @@ static const struct iio_info adjd_s311_info = {
 	.read_raw = adjd_s311_read_raw,
 	.write_raw = adjd_s311_write_raw,
 	.update_scan_mode = adjd_s311_update_scan_mode,
+=======
+static const struct iio_info adjd_s311_info = {
+	.read_raw = adjd_s311_read_raw,
+	.write_raw = adjd_s311_write_raw,
+>>>>>>> upstream/android-13
 };
 
 static int adjd_s311_probe(struct i2c_client *client,
@@ -259,16 +286,22 @@ static int adjd_s311_probe(struct i2c_client *client,
 		return -ENOMEM;
 
 	data = iio_priv(indio_dev);
+<<<<<<< HEAD
 	i2c_set_clientdata(client, indio_dev);
 	data->client = client;
 
 	indio_dev->dev.parent = &client->dev;
+=======
+	data->client = client;
+
+>>>>>>> upstream/android-13
 	indio_dev->info = &adjd_s311_info;
 	indio_dev->name = ADJD_S311_DRV_NAME;
 	indio_dev->channels = adjd_s311_channels;
 	indio_dev->num_channels = ARRAY_SIZE(adjd_s311_channels);
 	indio_dev->modes = INDIO_DIRECT_MODE;
 
+<<<<<<< HEAD
 	err = iio_triggered_buffer_setup(indio_dev, NULL,
 		adjd_s311_trigger_handler, NULL);
 	if (err < 0)
@@ -297,6 +330,14 @@ static int adjd_s311_remove(struct i2c_client *client)
 	kfree(data->buffer);
 
 	return 0;
+=======
+	err = devm_iio_triggered_buffer_setup(&client->dev, indio_dev, NULL,
+					      adjd_s311_trigger_handler, NULL);
+	if (err < 0)
+		return err;
+
+	return devm_iio_device_register(&client->dev, indio_dev);
+>>>>>>> upstream/android-13
 }
 
 static const struct i2c_device_id adjd_s311_id[] = {
@@ -310,7 +351,10 @@ static struct i2c_driver adjd_s311_driver = {
 		.name	= ADJD_S311_DRV_NAME,
 	},
 	.probe		= adjd_s311_probe,
+<<<<<<< HEAD
 	.remove		= adjd_s311_remove,
+=======
+>>>>>>> upstream/android-13
 	.id_table	= adjd_s311_id,
 };
 module_i2c_driver(adjd_s311_driver);

@@ -1,9 +1,16 @@
+<<<<<<< HEAD
 /*
  * drivers/reset/reset-oxnas.c
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Oxford Semiconductor Reset Controller driver
+>>>>>>> upstream/android-13
  *
  * Copyright (C) 2016 Neil Armstrong <narmstrong@baylibre.com>
  * Copyright (C) 2014 Ma Haijun <mahaijuns@gmail.com>
  * Copyright (C) 2009 Oxford Semiconductor Ltd
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -16,6 +23,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/err.h>
 #include <linux/init.h>

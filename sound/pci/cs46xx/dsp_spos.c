@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -13,6 +14,10 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -40,7 +45,11 @@
 static int cs46xx_dsp_async_init (struct snd_cs46xx *chip,
 				  struct dsp_scb_descriptor * fg_entry);
 
+<<<<<<< HEAD
 static enum wide_opcode wide_opcodes[] = { 
+=======
+static const enum wide_opcode wide_opcodes[] = {
+>>>>>>> upstream/android-13
 	WIDE_FOR_BEGIN_LOOP,
 	WIDE_FOR_BEGIN_LOOP2,
 	WIDE_COND_GOTO_ADDR,
@@ -630,7 +639,12 @@ static void cs46xx_dsp_proc_parameter_dump_read (struct snd_info_entry *entry,
 			col = 0;
 		}
 
+<<<<<<< HEAD
 		if ( (symbol = cs46xx_dsp_lookup_symbol_addr (chip,i / sizeof(u32), SYMBOL_PARAMETER)) != NULL) {
+=======
+		symbol = cs46xx_dsp_lookup_symbol_addr(chip, i / sizeof(u32), SYMBOL_PARAMETER);
+		if (symbol) {
+>>>>>>> upstream/android-13
 			col = 0;
 			snd_iprintf (buffer,"\n%s:\n",symbol->symbol_name);
 		}
@@ -799,6 +813,7 @@ int cs46xx_dsp_proc_init (struct snd_card *card, struct snd_cs46xx *chip)
 
 	ins->snd_card = card;
 
+<<<<<<< HEAD
 	if ((entry = snd_info_create_card_entry(card, "dsp", card->proc_root)) != NULL) {
 		entry->content = SNDRV_INFO_CONTENT_TEXT;
 		entry->mode = S_IFDIR | 0555;
@@ -809,11 +824,17 @@ int cs46xx_dsp_proc_init (struct snd_card *card, struct snd_cs46xx *chip)
 		}
 	}
 
+=======
+	entry = snd_info_create_card_entry(card, "dsp", card->proc_root);
+	if (entry)
+		entry->mode = S_IFDIR | 0555;
+>>>>>>> upstream/android-13
 	ins->proc_dsp_dir = entry;
 
 	if (!ins->proc_dsp_dir)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	if ((entry = snd_info_create_card_entry(card, "spos_symbols", ins->proc_dsp_dir)) != NULL) {
 		entry->content = SNDRV_INFO_CONTENT_TEXT;
 		entry->private_data = chip;
@@ -885,6 +906,43 @@ int cs46xx_dsp_proc_init (struct snd_card *card, struct snd_cs46xx *chip)
 		}
 	}
 	ins->proc_scb_info_entry = entry;
+=======
+	entry = snd_info_create_card_entry(card, "spos_symbols",
+					   ins->proc_dsp_dir);
+	if (entry)
+		snd_info_set_text_ops(entry, chip,
+				      cs46xx_dsp_proc_symbol_table_read);
+    
+	entry = snd_info_create_card_entry(card, "spos_modules",
+					   ins->proc_dsp_dir);
+	if (entry)
+		snd_info_set_text_ops(entry, chip,
+				      cs46xx_dsp_proc_modules_read);
+
+	entry = snd_info_create_card_entry(card, "parameter",
+					   ins->proc_dsp_dir);
+	if (entry)
+		snd_info_set_text_ops(entry, chip,
+				      cs46xx_dsp_proc_parameter_dump_read);
+
+	entry = snd_info_create_card_entry(card, "sample",
+					   ins->proc_dsp_dir);
+	if (entry)
+		snd_info_set_text_ops(entry, chip,
+				      cs46xx_dsp_proc_sample_dump_read);
+
+	entry = snd_info_create_card_entry(card, "task_tree",
+					   ins->proc_dsp_dir);
+	if (entry)
+		snd_info_set_text_ops(entry, chip,
+				      cs46xx_dsp_proc_task_tree_read);
+
+	entry = snd_info_create_card_entry(card, "scb_info",
+					   ins->proc_dsp_dir);
+	if (entry)
+		snd_info_set_text_ops(entry, chip,
+				      cs46xx_dsp_proc_scb_read);
+>>>>>>> upstream/android-13
 
 	mutex_lock(&chip->spos_mutex);
 	/* register/update SCB's entries on proc */
@@ -906,6 +964,7 @@ int cs46xx_dsp_proc_done (struct snd_cs46xx *chip)
 	if (!ins)
 		return 0;
 
+<<<<<<< HEAD
 	snd_info_free_entry(ins->proc_sym_info_entry);
 	ins->proc_sym_info_entry = NULL;
 
@@ -924,6 +983,8 @@ int cs46xx_dsp_proc_done (struct snd_cs46xx *chip)
 	snd_info_free_entry(ins->proc_task_info_entry);
 	ins->proc_task_info_entry = NULL;
 
+=======
+>>>>>>> upstream/android-13
 	mutex_lock(&chip->spos_mutex);
 	for (i = 0; i < ins->nscb; ++i) {
 		if (ins->scbs[i].deleted) continue;
@@ -1112,7 +1173,11 @@ int cs46xx_dsp_scb_and_task_init (struct snd_cs46xx *chip)
 	
 	int fifo_addr, fifo_span, valid_slots;
 
+<<<<<<< HEAD
 	static struct dsp_spos_control_block sposcb = {
+=======
+	static const struct dsp_spos_control_block sposcb = {
+>>>>>>> upstream/android-13
 		/* 0 */ HFG_TREE_SCB,HFG_STACK,
 		/* 1 */ SPOSCB_ADDR,BG_TREE_SCB_ADDR,
 		/* 2 */ DSP_SPOS_DC,0,

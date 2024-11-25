@@ -83,7 +83,15 @@ void hci_conn_del_sysfs(struct hci_conn *conn)
 static void bt_host_release(struct device *dev)
 {
 	struct hci_dev *hdev = to_hci_dev(dev);
+<<<<<<< HEAD
 	kfree(hdev);
+=======
+
+	if (hci_dev_test_flag(hdev, HCI_UNREGISTER))
+		hci_release_dev(hdev);
+	else
+		kfree(hdev);
+>>>>>>> upstream/android-13
 	module_put(THIS_MODULE);
 }
 

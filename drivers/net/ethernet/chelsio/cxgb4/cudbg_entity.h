@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 2017 Chelsio Communications.  All rights reserved.
  *
@@ -13,6 +14,11 @@
  *  The full GNU General Public License is included in this distribution in
  *  the file called "COPYING".
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ *  Copyright (C) 2017 Chelsio Communications.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __CUDBG_ENTITY_H__
@@ -94,7 +100,11 @@ struct cudbg_ulprx_la {
 struct cudbg_tp_la {
 	u32 size;
 	u32 mode;
+<<<<<<< HEAD
 	u8 data[0];
+=======
+	u8 data[];
+>>>>>>> upstream/android-13
 };
 
 static const char * const cudbg_region[] = {
@@ -146,7 +156,11 @@ struct cudbg_meminfo {
 
 struct cudbg_cim_pif_la {
 	int size;
+<<<<<<< HEAD
 	u8 data[0];
+=======
+	u8 data[];
+>>>>>>> upstream/android-13
 };
 
 struct cudbg_clk_info {
@@ -232,9 +246,12 @@ struct cudbg_mps_tcam {
 	u8 reserved[2];
 };
 
+<<<<<<< HEAD
 #define CUDBG_VPD_PF_SIZE 0x800
 #define CUDBG_SCFG_VER_ADDR 0x06
 #define CUDBG_SCFG_VER_LEN 4
+=======
+>>>>>>> upstream/android-13
 #define CUDBG_VPD_VER_ADDR 0x18c7
 #define CUDBG_VPD_VER_LEN 2
 
@@ -315,6 +332,7 @@ struct cudbg_pbt_tables {
 	u32 pbt_data[CUDBG_PBT_DATA_ENTRIES];
 };
 
+<<<<<<< HEAD
 #define IREG_NUM_ELEM 4
 
 static const u32 t6_tp_pio_array[][IREG_NUM_ELEM] = {
@@ -480,4 +498,55 @@ static const u32 t5_up_cim_reg_array[][IREG_NUM_ELEM + 1] = {
 static const u32 t6_hma_ireg_array[][IREG_NUM_ELEM] = {
 	{0x51320, 0x51324, 0xa000, 32} /* t6_hma_regs_a000_to_a01f */
 };
+=======
+enum cudbg_qdesc_qtype {
+	CUDBG_QTYPE_UNKNOWN = 0,
+	CUDBG_QTYPE_NIC_TXQ,
+	CUDBG_QTYPE_NIC_RXQ,
+	CUDBG_QTYPE_NIC_FLQ,
+	CUDBG_QTYPE_CTRLQ,
+	CUDBG_QTYPE_FWEVTQ,
+	CUDBG_QTYPE_INTRQ,
+	CUDBG_QTYPE_PTP_TXQ,
+	CUDBG_QTYPE_OFLD_TXQ,
+	CUDBG_QTYPE_RDMA_RXQ,
+	CUDBG_QTYPE_RDMA_FLQ,
+	CUDBG_QTYPE_RDMA_CIQ,
+	CUDBG_QTYPE_ISCSI_RXQ,
+	CUDBG_QTYPE_ISCSI_FLQ,
+	CUDBG_QTYPE_ISCSIT_RXQ,
+	CUDBG_QTYPE_ISCSIT_FLQ,
+	CUDBG_QTYPE_CRYPTO_TXQ,
+	CUDBG_QTYPE_CRYPTO_RXQ,
+	CUDBG_QTYPE_CRYPTO_FLQ,
+	CUDBG_QTYPE_TLS_RXQ,
+	CUDBG_QTYPE_TLS_FLQ,
+	CUDBG_QTYPE_ETHOFLD_TXQ,
+	CUDBG_QTYPE_ETHOFLD_RXQ,
+	CUDBG_QTYPE_ETHOFLD_FLQ,
+	CUDBG_QTYPE_MAX,
+};
+
+#define CUDBG_QDESC_REV 1
+
+struct cudbg_qdesc_entry {
+	u32 data_size;
+	u32 qtype;
+	u32 qid;
+	u32 desc_size;
+	u32 num_desc;
+	u8 data[]; /* Must be last */
+};
+
+struct cudbg_qdesc_info {
+	u32 qdesc_entry_size;
+	u32 num_queues;
+	u8 data[]; /* Must be last */
+};
+
+#define IREG_NUM_ELEM 4
+
+#define CUDBG_NUM_PCIE_CONFIG_REGS 0x61
+
+>>>>>>> upstream/android-13
 #endif /* __CUDBG_ENTITY_H__ */

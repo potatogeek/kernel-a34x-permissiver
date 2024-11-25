@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright 2014 FEDEVEL, Inc.
  *
  * Author: Robert Nelson <robertcnelson@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <dt-bindings/gpio/gpio.h>
@@ -136,6 +143,22 @@
 	pinctrl-0 = <&pinctrl_i2c2>;
 	status = "okay";
 
+<<<<<<< HEAD
+=======
+	pca9535: gpio-expander@27 {
+		compatible = "nxp,pca9535";
+		reg = <0x27>;
+		gpio-controller;
+		#gpio-cells = <2>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_pca9535>;
+		interrupt-parent = <&gpio6>;
+		interrupts = <16 IRQ_TYPE_LEVEL_LOW>;
+		interrupt-controller;
+		#interrupt-cells = <2>;
+	};
+
+>>>>>>> upstream/android-13
 	eeprom@57 {
 		compatible = "atmel,24c02";
 		reg = <0x57>;
@@ -241,6 +264,15 @@
 			>;
 		};
 
+<<<<<<< HEAD
+=======
+		pinctrl_pca9535: pca9535grp {
+			fsl,pins = <
+				MX6QDL_PAD_NANDF_CS3__GPIO6_IO16	0x17059
+		   >;
+		};
+
+>>>>>>> upstream/android-13
 		pinctrl_uart1: uart1grp {
 			fsl,pins = <
 				MX6QDL_PAD_CSI0_DAT10__UART1_TX_DATA	0x1b0b1

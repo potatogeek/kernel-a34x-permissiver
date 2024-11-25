@@ -4,6 +4,7 @@
 
 #include <linux/smp.h>
 #include <linux/threads.h>
+<<<<<<< HEAD
 #include <asm/machvec.h>
 
 #ifdef CONFIG_NUMA
@@ -45,6 +46,11 @@ static const struct cpumask *cpumask_of_node(int node)
 #define cpumask_of_pcibus(bus)	(cpu_online_mask)
 
 #endif /* !CONFIG_NUMA */
+=======
+#include <linux/numa.h>
+#include <asm/machvec.h>
+
+>>>>>>> upstream/android-13
 # include <asm-generic/topology.h>
 
 #endif /* _ASM_ALPHA_TOPOLOGY_H */

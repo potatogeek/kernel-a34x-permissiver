@@ -75,8 +75,14 @@ static int w25m02gv_select_target(struct spinand_device *spinand,
 }
 
 static const struct spinand_info winbond_spinand_table[] = {
+<<<<<<< HEAD
 	SPINAND_INFO("W25M02GV", 0xAB,
 		     NAND_MEMORG(1, 2048, 64, 64, 1024, 1, 1, 2),
+=======
+	SPINAND_INFO("W25M02GV",
+		     SPINAND_ID(SPINAND_READID_METHOD_OPCODE_DUMMY, 0xab),
+		     NAND_MEMORG(1, 2048, 64, 64, 1024, 20, 1, 1, 2),
+>>>>>>> upstream/android-13
 		     NAND_ECCREQ(1, 512),
 		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
 					      &write_cache_variants,
@@ -84,6 +90,7 @@ static const struct spinand_info winbond_spinand_table[] = {
 		     0,
 		     SPINAND_ECCINFO(&w25m02gv_ooblayout, NULL),
 		     SPINAND_SELECT_TARGET(w25m02gv_select_target)),
+<<<<<<< HEAD
 };
 
 /**
@@ -111,6 +118,19 @@ static int winbond_spinand_detect(struct spinand_device *spinand)
 	return 1;
 }
 
+=======
+	SPINAND_INFO("W25N01GV",
+		     SPINAND_ID(SPINAND_READID_METHOD_OPCODE_DUMMY, 0xaa),
+		     NAND_MEMORG(1, 2048, 64, 64, 1024, 20, 1, 1, 1),
+		     NAND_ECCREQ(1, 512),
+		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
+					      &write_cache_variants,
+					      &update_cache_variants),
+		     0,
+		     SPINAND_ECCINFO(&w25m02gv_ooblayout, NULL)),
+};
+
+>>>>>>> upstream/android-13
 static int winbond_spinand_init(struct spinand_device *spinand)
 {
 	struct nand_device *nand = spinand_to_nand(spinand);
@@ -130,12 +150,20 @@ static int winbond_spinand_init(struct spinand_device *spinand)
 }
 
 static const struct spinand_manufacturer_ops winbond_spinand_manuf_ops = {
+<<<<<<< HEAD
 	.detect = winbond_spinand_detect,
+=======
+>>>>>>> upstream/android-13
 	.init = winbond_spinand_init,
 };
 
 const struct spinand_manufacturer winbond_spinand_manufacturer = {
 	.id = SPINAND_MFR_WINBOND,
 	.name = "Winbond",
+<<<<<<< HEAD
+=======
+	.chips = winbond_spinand_table,
+	.nchips = ARRAY_SIZE(winbond_spinand_table),
+>>>>>>> upstream/android-13
 	.ops = &winbond_spinand_manuf_ops,
 };

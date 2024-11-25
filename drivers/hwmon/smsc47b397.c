@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * smsc47b397.c - Part of lm_sensors, Linux kernel modules
  * for hardware monitoring
@@ -10,6 +14,7 @@
  * derived in part from smsc47m1.c:
  * Copyright (C) 2002 Mark D. Studebaker <mdsxyz123@yahoo.com>
  * Copyright (C) 2004 Jean Delvare <jdelvare@suse.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +29,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -169,18 +176,30 @@ static int temp_from_reg(u8 reg)
 	return (s8)reg * 1000;
 }
 
+<<<<<<< HEAD
 static ssize_t show_temp(struct device *dev, struct device_attribute
 			 *devattr, char *buf)
+=======
+static ssize_t temp_show(struct device *dev, struct device_attribute *devattr,
+			 char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct smsc47b397_data *data = smsc47b397_update_device(dev);
 	return sprintf(buf, "%d\n", temp_from_reg(data->temp[attr->index]));
 }
 
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(temp1_input, S_IRUGO, show_temp, NULL, 0);
 static SENSOR_DEVICE_ATTR(temp2_input, S_IRUGO, show_temp, NULL, 1);
 static SENSOR_DEVICE_ATTR(temp3_input, S_IRUGO, show_temp, NULL, 2);
 static SENSOR_DEVICE_ATTR(temp4_input, S_IRUGO, show_temp, NULL, 3);
+=======
+static SENSOR_DEVICE_ATTR_RO(temp1_input, temp, 0);
+static SENSOR_DEVICE_ATTR_RO(temp2_input, temp, 1);
+static SENSOR_DEVICE_ATTR_RO(temp3_input, temp, 2);
+static SENSOR_DEVICE_ATTR_RO(temp4_input, temp, 3);
+>>>>>>> upstream/android-13
 
 /*
  * FAN: 1 RPM/bit
@@ -193,17 +212,29 @@ static int fan_from_reg(u16 reg)
 	return 90000 * 60 / reg;
 }
 
+<<<<<<< HEAD
 static ssize_t show_fan(struct device *dev, struct device_attribute
 			*devattr, char *buf)
+=======
+static ssize_t fan_show(struct device *dev, struct device_attribute *devattr,
+			char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct smsc47b397_data *data = smsc47b397_update_device(dev);
 	return sprintf(buf, "%d\n", fan_from_reg(data->fan[attr->index]));
 }
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(fan1_input, S_IRUGO, show_fan, NULL, 0);
 static SENSOR_DEVICE_ATTR(fan2_input, S_IRUGO, show_fan, NULL, 1);
 static SENSOR_DEVICE_ATTR(fan3_input, S_IRUGO, show_fan, NULL, 2);
 static SENSOR_DEVICE_ATTR(fan4_input, S_IRUGO, show_fan, NULL, 3);
+=======
+static SENSOR_DEVICE_ATTR_RO(fan1_input, fan, 0);
+static SENSOR_DEVICE_ATTR_RO(fan2_input, fan, 1);
+static SENSOR_DEVICE_ATTR_RO(fan3_input, fan, 2);
+static SENSOR_DEVICE_ATTR_RO(fan4_input, fan, 3);
+>>>>>>> upstream/android-13
 
 static struct attribute *smsc47b397_attrs[] = {
 	&sensor_dev_attr_temp1_input.dev_attr.attr,

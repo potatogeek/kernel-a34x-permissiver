@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * max8952.h - Voltage regulation for the Maxim 8952
  *
  *  Copyright (C) 2010 Samsung Electrnoics
  *  MyungJoo Ham <myungjoo.ham@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef REGULATOR_MAX8952
@@ -118,9 +125,12 @@ enum {
 #define MAX8952_NUM_DVS_MODE	4
 
 struct max8952_platform_data {
+<<<<<<< HEAD
 	int gpio_vid0;
 	int gpio_vid1;
 
+=======
+>>>>>>> upstream/android-13
 	u32 default_mode;
 	u32 dvs_mode[MAX8952_NUM_DVS_MODE]; /* MAX8952_DVS_MODEx_XXXXmV */
 

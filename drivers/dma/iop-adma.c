@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * offload engine driver for the Intel Xscale series of i/o processors
  * Copyright © 2006, Intel Corporation.
@@ -11,6 +12,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * offload engine driver for the Intel Xscale series of i/o processors
+ * Copyright © 2006, Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -25,13 +32,21 @@
 #include <linux/spinlock.h>
 #include <linux/interrupt.h>
 #include <linux/platform_device.h>
+<<<<<<< HEAD
+=======
+#include <linux/prefetch.h>
+>>>>>>> upstream/android-13
 #include <linux/memory.h>
 #include <linux/ioport.h>
 #include <linux/raid/pq.h>
 #include <linux/slab.h>
 
+<<<<<<< HEAD
 #include <mach/adma.h>
 
+=======
+#include "iop-adma.h"
+>>>>>>> upstream/android-13
 #include "dmaengine.h"
 
 #define to_iop_adma_chan(chan) container_of(chan, struct iop_adma_chan, common)
@@ -125,9 +140,15 @@ static void __iop_adma_slot_cleanup(struct iop_adma_chan *iop_chan)
 	list_for_each_entry_safe(iter, _iter, &iop_chan->chain,
 					chain_node) {
 		pr_debug("\tcookie: %d slot: %d busy: %d "
+<<<<<<< HEAD
 			"this_desc: %#x next_desc: %#llx ack: %d\n",
 			iter->async_tx.cookie, iter->idx, busy,
 			iter->async_tx.phys, (u64)iop_desc_get_next_desc(iter),
+=======
+			"this_desc: %pad next_desc: %#llx ack: %d\n",
+			iter->async_tx.cookie, iter->idx, busy,
+			&iter->async_tx.phys, (u64)iop_desc_get_next_desc(iter),
+>>>>>>> upstream/android-13
 			async_tx_test_ack(&iter->async_tx));
 		prefetch(_iter);
 		prefetch(&_iter->async_tx);
@@ -182,7 +203,11 @@ static void __iop_adma_slot_cleanup(struct iop_adma_chan *iop_chan)
 					&iop_chan->chain, chain_node) {
 					zero_sum_result |=
 					    iop_desc_get_zero_result(grp_iter);
+<<<<<<< HEAD
 					    pr_debug("\titer%d result: %d\n",
+=======
+					pr_debug("\titer%d result: %d\n",
+>>>>>>> upstream/android-13
 					    grp_iter->idx, zero_sum_result);
 					slot_cnt -= slots_per_op;
 					if (slot_cnt == 0)
@@ -247,9 +272,16 @@ iop_adma_slot_cleanup(struct iop_adma_chan *iop_chan)
 	spin_unlock_bh(&iop_chan->lock);
 }
 
+<<<<<<< HEAD
 static void iop_adma_tasklet(unsigned long data)
 {
 	struct iop_adma_chan *iop_chan = (struct iop_adma_chan *) data;
+=======
+static void iop_adma_tasklet(struct tasklet_struct *t)
+{
+	struct iop_adma_chan *iop_chan = from_tasklet(iop_chan, t,
+						      irq_tasklet);
+>>>>>>> upstream/android-13
 
 	/* lockdep will flag depedency submissions as potentially
 	 * recursive locking, this is not the case as a dependency
@@ -373,13 +405,19 @@ iop_adma_tx_submit(struct dma_async_tx_descriptor *tx)
 	struct iop_adma_chan *iop_chan = to_iop_adma_chan(tx->chan);
 	struct iop_adma_desc_slot *grp_start, *old_chain_tail;
 	int slot_cnt;
+<<<<<<< HEAD
 	int slots_per_op;
+=======
+>>>>>>> upstream/android-13
 	dma_cookie_t cookie;
 	dma_addr_t next_dma;
 
 	grp_start = sw_desc->group_head;
 	slot_cnt = grp_start->slot_cnt;
+<<<<<<< HEAD
 	slots_per_op = grp_start->slots_per_op;
+=======
+>>>>>>> upstream/android-13
 
 	spin_lock_bh(&iop_chan->lock);
 	cookie = dma_cookie_assign(tx);
@@ -417,8 +455,12 @@ static void iop_chan_start_null_xor(struct iop_adma_chan *iop_chan);
 
 /**
  * iop_adma_alloc_chan_resources -  returns the number of allocated descriptors
+<<<<<<< HEAD
  * @chan - allocate descriptor resources for this channel
  * @client - current client requesting the channel be ready for requests
+=======
+ * @chan: allocate descriptor resources for this channel
+>>>>>>> upstream/android-13
  *
  * Note: We keep the slots for 1 operation on iop_chan->chain at all times.  To
  * avoid deadlock, via async_xor, num_descs_in_pool must at a minimum be
@@ -428,6 +470,10 @@ static void iop_chan_start_null_xor(struct iop_adma_chan *iop_chan);
 static int iop_adma_alloc_chan_resources(struct dma_chan *chan)
 {
 	char *hw_desc;
+<<<<<<< HEAD
+=======
+	dma_addr_t dma_desc;
+>>>>>>> upstream/android-13
 	int idx;
 	struct iop_adma_chan *iop_chan = to_iop_adma_chan(chan);
 	struct iop_adma_desc_slot *slot = NULL;
@@ -456,9 +502,14 @@ static int iop_adma_alloc_chan_resources(struct dma_chan *chan)
 		INIT_LIST_HEAD(&slot->tx_list);
 		INIT_LIST_HEAD(&slot->chain_node);
 		INIT_LIST_HEAD(&slot->slot_node);
+<<<<<<< HEAD
 		hw_desc = (char *) iop_chan->device->dma_desc_pool;
 		slot->async_tx.phys =
 			(dma_addr_t) &hw_desc[idx * IOP_ADMA_SLOT_SIZE];
+=======
+		dma_desc = iop_chan->device->dma_desc_pool;
+		slot->async_tx.phys = dma_desc + idx * IOP_ADMA_SLOT_SIZE;
+>>>>>>> upstream/android-13
 		slot->idx = idx;
 
 		spin_lock_bh(&iop_chan->lock);
@@ -1308,9 +1359,14 @@ static int iop_adma_probe(struct platform_device *pdev)
 		goto err_free_adev;
 	}
 
+<<<<<<< HEAD
 	dev_dbg(&pdev->dev, "%s: allocated descriptor pool virt %p phys %p\n",
 		__func__, adev->dma_desc_pool_virt,
 		(void *) adev->dma_desc_pool);
+=======
+	dev_dbg(&pdev->dev, "%s: allocated descriptor pool virt %p phys %pad\n",
+		__func__, adev->dma_desc_pool_virt, &adev->dma_desc_pool);
+>>>>>>> upstream/android-13
 
 	adev->id = plat_data->hw_id;
 
@@ -1363,16 +1419,28 @@ static int iop_adma_probe(struct platform_device *pdev)
 		ret = -ENOMEM;
 		goto err_free_iop_chan;
 	}
+<<<<<<< HEAD
 	tasklet_init(&iop_chan->irq_tasklet, iop_adma_tasklet, (unsigned long)
 		iop_chan);
+=======
+	tasklet_setup(&iop_chan->irq_tasklet, iop_adma_tasklet);
+>>>>>>> upstream/android-13
 
 	/* clear errors before enabling interrupts */
 	iop_adma_device_clear_err_status(iop_chan);
 
 	for (i = 0; i < 3; i++) {
+<<<<<<< HEAD
 		irq_handler_t handler[] = { iop_adma_eot_handler,
 					iop_adma_eoc_handler,
 					iop_adma_err_handler };
+=======
+		static const irq_handler_t handler[] = {
+			iop_adma_eot_handler,
+			iop_adma_eoc_handler,
+			iop_adma_err_handler
+		};
+>>>>>>> upstream/android-13
 		int irq = platform_get_irq(pdev, i);
 		if (irq < 0) {
 			ret = -ENXIO;

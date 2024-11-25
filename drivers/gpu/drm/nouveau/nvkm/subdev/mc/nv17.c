@@ -53,7 +53,13 @@ nv17_mc = {
 };
 
 int
+<<<<<<< HEAD
 nv17_mc_new(struct nvkm_device *device, int index, struct nvkm_mc **pmc)
 {
 	return nvkm_mc_new_(&nv17_mc, device, index, pmc);
+=======
+nv17_mc_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst, struct nvkm_mc **pmc)
+{
+	return nvkm_mc_new_(&nv17_mc, device, type, inst, pmc);
+>>>>>>> upstream/android-13
 }

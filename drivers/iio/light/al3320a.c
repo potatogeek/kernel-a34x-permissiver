@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * AL3320A - Dyna Image Ambient Light Sensor
  *
  * Copyright (c) 2014, Intel Corporation.
  *
+<<<<<<< HEAD
  * This file is subject to the terms and conditions of version 2 of
  * the GNU General Public License.  See the file COPYING in the main
  * directory of this archive for more details.
@@ -16,6 +21,20 @@
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/i2c.h>
+=======
+ * IIO driver for AL3320A (7-bit I2C slave address 0x1C).
+ *
+ * TODO: interrupt support, thresholds
+ * When the driver will get support for interrupt handling, then interrupt
+ * will need to be disabled before turning sensor OFF in order to avoid
+ * potential races with the interrupt handling.
+ */
+
+#include <linux/bitfield.h>
+#include <linux/i2c.h>
+#include <linux/module.h>
+#include <linux/of.h>
+>>>>>>> upstream/android-13
 
 #include <linux/iio/iio.h>
 #include <linux/iio/sysfs.h>
@@ -40,8 +59,12 @@
 #define AL3320A_CONFIG_DISABLE		0x00
 #define AL3320A_CONFIG_ENABLE		0x01
 
+<<<<<<< HEAD
 #define AL3320A_GAIN_SHIFT		1
 #define AL3320A_GAIN_MASK		(BIT(2) | BIT(1))
+=======
+#define AL3320A_GAIN_MASK		GENMASK(2, 1)
+>>>>>>> upstream/android-13
 
 /* chip params default values */
 #define AL3320A_DEFAULT_MEAN_TIME	4
@@ -83,18 +106,44 @@ static const struct attribute_group al3320a_attribute_group = {
 	.attrs = al3320a_attributes,
 };
 
+<<<<<<< HEAD
+=======
+static int al3320a_set_pwr(struct i2c_client *client, bool pwr)
+{
+	u8 val = pwr ? AL3320A_CONFIG_ENABLE : AL3320A_CONFIG_DISABLE;
+	return i2c_smbus_write_byte_data(client, AL3320A_REG_CONFIG, val);
+}
+
+static void al3320a_set_pwr_off(void *_data)
+{
+	struct al3320a_data *data = _data;
+
+	al3320a_set_pwr(data->client, false);
+}
+
+>>>>>>> upstream/android-13
 static int al3320a_init(struct al3320a_data *data)
 {
 	int ret;
 
+<<<<<<< HEAD
 	/* power on */
 	ret = i2c_smbus_write_byte_data(data->client, AL3320A_REG_CONFIG,
 					AL3320A_CONFIG_ENABLE);
+=======
+	ret = al3320a_set_pwr(data->client, true);
+
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 
 	ret = i2c_smbus_write_byte_data(data->client, AL3320A_REG_CONFIG_RANGE,
+<<<<<<< HEAD
 					AL3320A_RANGE_3 << AL3320A_GAIN_SHIFT);
+=======
+					FIELD_PREP(AL3320A_GAIN_MASK,
+						   AL3320A_RANGE_3));
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 
@@ -137,7 +186,11 @@ static int al3320a_read_raw(struct iio_dev *indio_dev,
 		if (ret < 0)
 			return ret;
 
+<<<<<<< HEAD
 		ret = (ret & AL3320A_GAIN_MASK) >> AL3320A_GAIN_SHIFT;
+=======
+		ret = FIELD_GET(AL3320A_GAIN_MASK, ret);
+>>>>>>> upstream/android-13
 		*val = al3320a_scales[ret][0];
 		*val2 = al3320a_scales[ret][1];
 
@@ -156,11 +209,21 @@ static int al3320a_write_raw(struct iio_dev *indio_dev,
 	switch (mask) {
 	case IIO_CHAN_INFO_SCALE:
 		for (i = 0; i < ARRAY_SIZE(al3320a_scales); i++) {
+<<<<<<< HEAD
 			if (val == al3320a_scales[i][0] &&
 			    val2 == al3320a_scales[i][1])
 				return i2c_smbus_write_byte_data(data->client,
 					AL3320A_REG_CONFIG_RANGE,
 					i << AL3320A_GAIN_SHIFT);
+=======
+			if (val != al3320a_scales[i][0] ||
+			    val2 != al3320a_scales[i][1])
+				continue;
+
+			return i2c_smbus_write_byte_data(data->client,
+					AL3320A_REG_CONFIG_RANGE,
+					FIELD_PREP(AL3320A_GAIN_MASK, i));
+>>>>>>> upstream/android-13
 		}
 		break;
 	}
@@ -188,7 +251,10 @@ static int al3320a_probe(struct i2c_client *client,
 	i2c_set_clientdata(client, indio_dev);
 	data->client = client;
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &client->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->info = &al3320a_info;
 	indio_dev->name = AL3320A_DRV_NAME;
 	indio_dev->channels = al3320a_channels;
@@ -200,6 +266,7 @@ static int al3320a_probe(struct i2c_client *client,
 		dev_err(&client->dev, "al3320a chip init failed\n");
 		return ret;
 	}
+<<<<<<< HEAD
 	return devm_iio_device_register(&client->dev, indio_dev);
 }
 
@@ -209,18 +276,58 @@ static int al3320a_remove(struct i2c_client *client)
 					 AL3320A_CONFIG_DISABLE);
 }
 
+=======
+
+	ret = devm_add_action_or_reset(&client->dev,
+					al3320a_set_pwr_off,
+					data);
+	if (ret < 0)
+		return ret;
+
+	return devm_iio_device_register(&client->dev, indio_dev);
+}
+
+static int __maybe_unused al3320a_suspend(struct device *dev)
+{
+	return al3320a_set_pwr(to_i2c_client(dev), false);
+}
+
+static int __maybe_unused al3320a_resume(struct device *dev)
+{
+	return al3320a_set_pwr(to_i2c_client(dev), true);
+}
+
+static SIMPLE_DEV_PM_OPS(al3320a_pm_ops, al3320a_suspend, al3320a_resume);
+
+>>>>>>> upstream/android-13
 static const struct i2c_device_id al3320a_id[] = {
 	{"al3320a", 0},
 	{}
 };
 MODULE_DEVICE_TABLE(i2c, al3320a_id);
 
+<<<<<<< HEAD
 static struct i2c_driver al3320a_driver = {
 	.driver = {
 		.name = AL3320A_DRV_NAME,
 	},
 	.probe		= al3320a_probe,
 	.remove		= al3320a_remove,
+=======
+static const struct of_device_id al3320a_of_match[] = {
+	{ .compatible = "dynaimage,al3320a", },
+	{},
+};
+MODULE_DEVICE_TABLE(of, al3320a_of_match);
+
+static struct i2c_driver al3320a_driver = {
+	.driver = {
+		.name = AL3320A_DRV_NAME,
+		.of_match_table = al3320a_of_match,
+		.pm = &al3320a_pm_ops,
+	},
+	.probe		= al3320a_probe,
+>>>>>>> upstream/android-13
 	.id_table	= al3320a_id,
 };
 

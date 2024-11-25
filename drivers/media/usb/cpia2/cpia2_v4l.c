@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /****************************************************************************
  *
  *  Filename: cpia2_v4l.c
@@ -11,6 +15,7 @@
  *     The infrastructure of this driver is based on the cpia usb driver by
  *     Jochen Scharrlach and Johannes Erdfeldt.
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
@@ -21,6 +26,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  *  Stripped of 2.4 stuff ready for main kernel submit by
  *		Alan Cox <alan@lxorguk.ukuu.org.uk>
  ****************************************************************************/
@@ -65,7 +72,10 @@ MODULE_PARM_DESC(flicker_mode, "Flicker frequency (0 (disabled), " __stringify(5
 
 MODULE_AUTHOR("Steve Miller (STMicroelectronics) <steve.miller@st.com>");
 MODULE_DESCRIPTION("V4L-driver for STMicroelectronics CPiA2 based cameras");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("video");
+=======
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");
 MODULE_VERSION(CPIA_VERSION);
 
@@ -150,10 +160,17 @@ static ssize_t cpia2_v4l_read(struct file *file, char __user *buf, size_t count,
 			      loff_t *off)
 {
 	struct camera_data *cam = video_drvdata(file);
+<<<<<<< HEAD
 	int noblock = file->f_flags&O_NONBLOCK;
 	ssize_t ret;
 
 	if(!cam)
+=======
+	int noblock = file->f_flags & O_NONBLOCK;
+	ssize_t ret;
+
+	if (!cam)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	if (mutex_lock_interruptible(&cam->v4l2_lock))
@@ -163,7 +180,10 @@ static ssize_t cpia2_v4l_read(struct file *file, char __user *buf, size_t count,
 	return ret;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 /******************************************************************************
  *
  *  cpia2_v4l_poll
@@ -180,7 +200,10 @@ static __poll_t cpia2_v4l_poll(struct file *filp, struct poll_table_struct *wait
 	return res;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static int sync(struct camera_data *cam, int frame_nr)
 {
 	struct framebuf *frame = &cam->buffers[frame_nr];
@@ -219,12 +242,21 @@ static int cpia2_querycap(struct file *file, void *fh, struct v4l2_capability *v
 {
 	struct camera_data *cam = video_drvdata(file);
 
+<<<<<<< HEAD
 	strcpy(vc->driver, "cpia2");
 
 	if (cam->params.pnp_id.product == 0x151)
 		strcpy(vc->card, "QX5 Microscope");
 	else
 		strcpy(vc->card, "CPiA2 Camera");
+=======
+	strscpy(vc->driver, "cpia2", sizeof(vc->driver));
+
+	if (cam->params.pnp_id.product == 0x151)
+		strscpy(vc->card, "QX5 Microscope", sizeof(vc->card));
+	else
+		strscpy(vc->card, "CPiA2 Camera", sizeof(vc->card));
+>>>>>>> upstream/android-13
 	switch (cam->params.pnp_id.device_type) {
 	case DEVICE_STV_672:
 		strcat(vc->card, " (672/");
@@ -257,6 +289,7 @@ static int cpia2_querycap(struct file *file, void *fh, struct v4l2_capability *v
 		break;
 	}
 
+<<<<<<< HEAD
 	if (usb_make_path(cam->dev, vc->bus_info, sizeof(vc->bus_info)) <0)
 		memset(vc->bus_info,0, sizeof(vc->bus_info));
 
@@ -266,6 +299,10 @@ static int cpia2_querycap(struct file *file, void *fh, struct v4l2_capability *v
 	vc->capabilities = vc->device_caps |
 			   V4L2_CAP_DEVICE_CAPS;
 
+=======
+	if (usb_make_path(cam->dev, vc->bus_info, sizeof(vc->bus_info)) < 0)
+		memset(vc->bus_info, 0, sizeof(vc->bus_info));
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -281,7 +318,11 @@ static int cpia2_enum_input(struct file *file, void *fh, struct v4l2_input *i)
 {
 	if (i->index)
 		return -EINVAL;
+<<<<<<< HEAD
 	strcpy(i->name, "Camera");
+=======
+	strscpy(i->name, "Camera", sizeof(i->name));
+>>>>>>> upstream/android-13
 	i->type = V4L2_INPUT_TYPE_CAMERA;
 	return 0;
 }
@@ -306,6 +347,7 @@ static int cpia2_s_input(struct file *file, void *fh, unsigned int i)
  *****************************************************************************/
 
 static int cpia2_enum_fmt_vid_cap(struct file *file, void *fh,
+<<<<<<< HEAD
 					    struct v4l2_fmtdesc *f)
 {
 	int index = f->index;
@@ -330,6 +372,17 @@ static int cpia2_enum_fmt_vid_cap(struct file *file, void *fh,
 		return -EINVAL;
 	}
 
+=======
+				  struct v4l2_fmtdesc *f)
+{
+	if (f->index > 1)
+		return -EINVAL;
+
+	if (f->index == 0)
+		f->pixelformat = V4L2_PIX_FMT_MJPEG;
+	else
+		f->pixelformat = V4L2_PIX_FMT_JPEG;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -342,19 +395,30 @@ static int cpia2_enum_fmt_vid_cap(struct file *file, void *fh,
  *****************************************************************************/
 
 static int cpia2_try_fmt_vid_cap(struct file *file, void *fh,
+<<<<<<< HEAD
 					  struct v4l2_format *f)
+=======
+				 struct v4l2_format *f)
+>>>>>>> upstream/android-13
 {
 	struct camera_data *cam = video_drvdata(file);
 
 	if (f->fmt.pix.pixelformat != V4L2_PIX_FMT_MJPEG &&
 	    f->fmt.pix.pixelformat != V4L2_PIX_FMT_JPEG)
+<<<<<<< HEAD
 	       return -EINVAL;
+=======
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	f->fmt.pix.field = V4L2_FIELD_NONE;
 	f->fmt.pix.bytesperline = 0;
 	f->fmt.pix.sizeimage = cam->frame_size;
 	f->fmt.pix.colorspace = V4L2_COLORSPACE_JPEG;
+<<<<<<< HEAD
 	f->fmt.pix.priv = 0;
+=======
+>>>>>>> upstream/android-13
 
 	switch (cpia2_match_video_size(f->fmt.pix.width, f->fmt.pix.height)) {
 	case VIDEOSIZE_VGA:
@@ -404,19 +468,32 @@ static int cpia2_try_fmt_vid_cap(struct file *file, void *fh,
  *****************************************************************************/
 
 static int cpia2_s_fmt_vid_cap(struct file *file, void *_fh,
+<<<<<<< HEAD
 					struct v4l2_format *f)
+=======
+			       struct v4l2_format *f)
+>>>>>>> upstream/android-13
 {
 	struct camera_data *cam = video_drvdata(file);
 	int err, frame;
 
 	err = cpia2_try_fmt_vid_cap(file, _fh, f);
+<<<<<<< HEAD
 	if(err != 0)
+=======
+	if (err != 0)
+>>>>>>> upstream/android-13
 		return err;
 
 	cam->pixelformat = f->fmt.pix.pixelformat;
 
 	/* NOTE: This should be set to 1 for MJPEG, but some apps don't handle
+<<<<<<< HEAD
 	 * the missing Huffman table properly. */
+=======
+	 * the missing Huffman table properly.
+	 */
+>>>>>>> upstream/android-13
 	cam->params.compression.inhibit_htables = 0;
 		/*f->fmt.pix.pixelformat == V4L2_PIX_FMT_MJPEG;*/
 
@@ -454,7 +531,11 @@ static int cpia2_s_fmt_vid_cap(struct file *file, void *_fh,
  *****************************************************************************/
 
 static int cpia2_g_fmt_vid_cap(struct file *file, void *fh,
+<<<<<<< HEAD
 					struct v4l2_format *f)
+=======
+			       struct v4l2_format *f)
+>>>>>>> upstream/android-13
 {
 	struct camera_data *cam = video_drvdata(file);
 
@@ -465,7 +546,10 @@ static int cpia2_g_fmt_vid_cap(struct file *file, void *fh,
 	f->fmt.pix.bytesperline = 0;
 	f->fmt.pix.sizeimage = cam->frame_size;
 	f->fmt.pix.colorspace = V4L2_COLORSPACE_JPEG;
+<<<<<<< HEAD
 	f->fmt.pix.priv = 0;
+=======
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -479,6 +563,7 @@ static int cpia2_g_fmt_vid_cap(struct file *file, void *fh,
  *
  *****************************************************************************/
 
+<<<<<<< HEAD
 static int cpia2_cropcap(struct file *file, void *fh, struct v4l2_cropcap *c)
 {
 	struct camera_data *cam = video_drvdata(file);
@@ -497,6 +582,27 @@ static int cpia2_cropcap(struct file *file, void *fh, struct v4l2_cropcap *c)
 	c->pixelaspect.numerator = 1;
 	c->pixelaspect.denominator = 1;
 
+=======
+static int cpia2_g_selection(struct file *file, void *fh,
+			     struct v4l2_selection *s)
+{
+	struct camera_data *cam = video_drvdata(file);
+
+	if (s->type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
+		return -EINVAL;
+
+	switch (s->target) {
+	case V4L2_SEL_TGT_CROP_BOUNDS:
+	case V4L2_SEL_TGT_CROP_DEFAULT:
+		s->r.left = 0;
+		s->r.top = 0;
+		s->r.width = cam->width;
+		s->r.height = cam->height;
+		break;
+	default:
+		return -EINVAL;
+	}
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -580,9 +686,14 @@ static const struct {
 };
 
 static int cpia2_enum_framesizes(struct file *file, void *fh,
+<<<<<<< HEAD
 					 struct v4l2_frmsizeenum *fsize)
 {
 
+=======
+				 struct v4l2_frmsizeenum *fsize)
+{
+>>>>>>> upstream/android-13
 	if (fsize->pixel_format != V4L2_PIX_FMT_MJPEG &&
 	    fsize->pixel_format != V4L2_PIX_FMT_JPEG)
 		return -EINVAL;
@@ -596,7 +707,11 @@ static int cpia2_enum_framesizes(struct file *file, void *fh,
 }
 
 static int cpia2_enum_frameintervals(struct file *file, void *fh,
+<<<<<<< HEAD
 					   struct v4l2_frmivalenum *fival)
+=======
+				     struct v4l2_frmivalenum *fival)
+>>>>>>> upstream/android-13
 {
 	struct camera_data *cam = video_drvdata(file);
 	int max = ARRAY_SIZE(framerate_controls) - 1;
@@ -698,6 +813,7 @@ static int cpia2_g_jpegcomp(struct file *file, void *fh, struct v4l2_jpegcompres
 	parms->quality = 80; // TODO: Can this be made meaningful?
 
 	parms->jpeg_markers = V4L2_JPEG_MARKER_DQT | V4L2_JPEG_MARKER_DRI;
+<<<<<<< HEAD
 	if(!cam->params.compression.inhibit_htables) {
 		parms->jpeg_markers |= V4L2_JPEG_MARKER_DHT;
 	}
@@ -705,12 +821,24 @@ static int cpia2_g_jpegcomp(struct file *file, void *fh, struct v4l2_jpegcompres
 	parms->APPn = cam->APPn;
 	parms->APP_len = cam->APP_len;
 	if(cam->APP_len > 0) {
+=======
+	if (!cam->params.compression.inhibit_htables)
+		parms->jpeg_markers |= V4L2_JPEG_MARKER_DHT;
+
+	parms->APPn = cam->APPn;
+	parms->APP_len = cam->APP_len;
+	if (cam->APP_len > 0) {
+>>>>>>> upstream/android-13
 		memcpy(parms->APP_data, cam->APP_data, cam->APP_len);
 		parms->jpeg_markers |= V4L2_JPEG_MARKER_APP;
 	}
 
 	parms->COM_len = cam->COM_len;
+<<<<<<< HEAD
 	if(cam->COM_len > 0) {
+=======
+	if (cam->COM_len > 0) {
+>>>>>>> upstream/android-13
 		memcpy(parms->COM_data, cam->COM_data, cam->COM_len);
 		parms->jpeg_markers |= JPEG_MARKER_COM;
 	}
@@ -731,7 +859,11 @@ static int cpia2_g_jpegcomp(struct file *file, void *fh, struct v4l2_jpegcompres
  *****************************************************************************/
 
 static int cpia2_s_jpegcomp(struct file *file, void *fh,
+<<<<<<< HEAD
 		const struct v4l2_jpegcompression *parms)
+=======
+			    const struct v4l2_jpegcompression *parms)
+>>>>>>> upstream/android-13
 {
 	struct camera_data *cam = video_drvdata(file);
 
@@ -741,9 +873,15 @@ static int cpia2_s_jpegcomp(struct file *file, void *fh,
 	cam->params.compression.inhibit_htables =
 		!(parms->jpeg_markers & V4L2_JPEG_MARKER_DHT);
 
+<<<<<<< HEAD
 	if(parms->APP_len != 0) {
 		if(parms->APP_len > 0 &&
 		   parms->APP_len <= sizeof(cam->APP_data) &&
+=======
+	if (parms->APP_len != 0) {
+		if (parms->APP_len > 0 &&
+		    parms->APP_len <= sizeof(cam->APP_data) &&
+>>>>>>> upstream/android-13
 		   parms->APPn >= 0 && parms->APPn <= 15) {
 			cam->APPn = parms->APPn;
 			cam->APP_len = parms->APP_len;
@@ -757,9 +895,15 @@ static int cpia2_s_jpegcomp(struct file *file, void *fh,
 		cam->APP_len = 0;
 	}
 
+<<<<<<< HEAD
 	if(parms->COM_len != 0) {
 		if(parms->COM_len > 0 &&
 		   parms->COM_len <= sizeof(cam->COM_data)) {
+=======
+	if (parms->COM_len != 0) {
+		if (parms->COM_len > 0 &&
+		    parms->COM_len <= sizeof(cam->COM_data)) {
+>>>>>>> upstream/android-13
 			cam->COM_len = parms->COM_len;
 			memcpy(cam->COM_data, parms->COM_data, parms->COM_len);
 		} else {
@@ -784,8 +928,13 @@ static int cpia2_reqbufs(struct file *file, void *fh, struct v4l2_requestbuffers
 {
 	struct camera_data *cam = video_drvdata(file);
 
+<<<<<<< HEAD
 	if(req->type != V4L2_BUF_TYPE_VIDEO_CAPTURE ||
 	   req->memory != V4L2_MEMORY_MMAP)
+=======
+	if (req->type != V4L2_BUF_TYPE_VIDEO_CAPTURE ||
+	    req->memory != V4L2_MEMORY_MMAP)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	DBG("REQBUFS requested:%d returning:%d\n", req->count, cam->num_frames);
@@ -807,8 +956,13 @@ static int cpia2_querybuf(struct file *file, void *fh, struct v4l2_buffer *buf)
 {
 	struct camera_data *cam = video_drvdata(file);
 
+<<<<<<< HEAD
 	if(buf->type != V4L2_BUF_TYPE_VIDEO_CAPTURE ||
 	   buf->index >= cam->num_frames)
+=======
+	if (buf->type != V4L2_BUF_TYPE_VIDEO_CAPTURE ||
+	    buf->index >= cam->num_frames)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	buf->m.offset = cam->buffers[buf->index].data - cam->frame_buffer;
@@ -816,7 +970,11 @@ static int cpia2_querybuf(struct file *file, void *fh, struct v4l2_buffer *buf)
 
 	buf->memory = V4L2_MEMORY_MMAP;
 
+<<<<<<< HEAD
 	if(cam->mmapped)
+=======
+	if (cam->mmapped)
+>>>>>>> upstream/android-13
 		buf->flags = V4L2_BUF_FLAG_MAPPED;
 	else
 		buf->flags = 0;
@@ -832,15 +990,24 @@ static int cpia2_querybuf(struct file *file, void *fh, struct v4l2_buffer *buf)
 		break;
 	case FRAME_READY:
 		buf->bytesused = cam->buffers[buf->index].length;
+<<<<<<< HEAD
 		buf->timestamp = cam->buffers[buf->index].timestamp;
+=======
+		v4l2_buffer_set_timestamp(buf, cam->buffers[buf->index].ts);
+>>>>>>> upstream/android-13
 		buf->sequence = cam->buffers[buf->index].seq;
 		buf->flags = V4L2_BUF_FLAG_DONE;
 		break;
 	}
 
 	DBG("QUERYBUF index:%d offset:%d flags:%d seq:%d bytesused:%d\n",
+<<<<<<< HEAD
 	     buf->index, buf->m.offset, buf->flags, buf->sequence,
 	     buf->bytesused);
+=======
+	    buf->index, buf->m.offset, buf->flags, buf->sequence,
+	    buf->bytesused);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -857,14 +1024,23 @@ static int cpia2_qbuf(struct file *file, void *fh, struct v4l2_buffer *buf)
 {
 	struct camera_data *cam = video_drvdata(file);
 
+<<<<<<< HEAD
 	if(buf->type != V4L2_BUF_TYPE_VIDEO_CAPTURE ||
 	   buf->memory != V4L2_MEMORY_MMAP ||
+=======
+	if (buf->type != V4L2_BUF_TYPE_VIDEO_CAPTURE ||
+	    buf->memory != V4L2_MEMORY_MMAP ||
+>>>>>>> upstream/android-13
 	   buf->index >= cam->num_frames)
 		return -EINVAL;
 
 	DBG("QBUF #%d\n", buf->index);
 
+<<<<<<< HEAD
 	if(cam->buffers[buf->index].status == FRAME_READY)
+=======
+	if (cam->buffers[buf->index].status == FRAME_READY)
+>>>>>>> upstream/android-13
 		cam->buffers[buf->index].status = FRAME_EMPTY;
 
 	return 0;
@@ -882,6 +1058,7 @@ static int find_earliest_filled_buffer(struct camera_data *cam)
 {
 	int i;
 	int found = -1;
+<<<<<<< HEAD
 	for (i=0; i<cam->num_frames; i++) {
 		if(cam->buffers[i].status == FRAME_READY) {
 			if(found < 0) {
@@ -894,6 +1071,16 @@ static int find_earliest_filled_buffer(struct camera_data *cam)
 				if(tv1->tv_sec < tv2->tv_sec ||
 				   (tv1->tv_sec == tv2->tv_sec &&
 				    tv1->tv_usec < tv2->tv_usec))
+=======
+
+	for (i = 0; i < cam->num_frames; i++) {
+		if (cam->buffers[i].status == FRAME_READY) {
+			if (found < 0) {
+				found = i;
+			} else {
+				/* find which buffer is earlier */
+				if (cam->buffers[i].ts < cam->buffers[found].ts)
+>>>>>>> upstream/android-13
 					found = i;
 			}
 		}
@@ -914,12 +1101,18 @@ static int cpia2_dqbuf(struct file *file, void *fh, struct v4l2_buffer *buf)
 	struct camera_data *cam = video_drvdata(file);
 	int frame;
 
+<<<<<<< HEAD
 	if(buf->type != V4L2_BUF_TYPE_VIDEO_CAPTURE ||
 	   buf->memory != V4L2_MEMORY_MMAP)
+=======
+	if (buf->type != V4L2_BUF_TYPE_VIDEO_CAPTURE ||
+	    buf->memory != V4L2_MEMORY_MMAP)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	frame = find_earliest_filled_buffer(cam);
 
+<<<<<<< HEAD
 	if(frame < 0 && file->f_flags&O_NONBLOCK)
 		return -EAGAIN;
 
@@ -930,6 +1123,19 @@ static int cpia2_dqbuf(struct file *file, void *fh, struct v4l2_buffer *buf)
 		wait_event_interruptible(cam->wq_stream,
 					 !video_is_registered(&cam->vdev) ||
 					 (cb=cam->curbuff)->status == FRAME_READY);
+=======
+	if (frame < 0 && file->f_flags & O_NONBLOCK)
+		return -EAGAIN;
+
+	if (frame < 0) {
+		/* Wait for a frame to become available */
+		struct framebuf *cb = cam->curbuff;
+
+		mutex_unlock(&cam->v4l2_lock);
+		wait_event_interruptible(cam->wq_stream,
+					 !video_is_registered(&cam->vdev) ||
+					 (cb = cam->curbuff)->status == FRAME_READY);
+>>>>>>> upstream/android-13
 		mutex_lock(&cam->v4l2_lock);
 		if (signal_pending(current))
 			return -ERESTARTSYS;
@@ -938,13 +1144,20 @@ static int cpia2_dqbuf(struct file *file, void *fh, struct v4l2_buffer *buf)
 		frame = cb->num;
 	}
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	buf->index = frame;
 	buf->bytesused = cam->buffers[buf->index].length;
 	buf->flags = V4L2_BUF_FLAG_MAPPED | V4L2_BUF_FLAG_DONE
 		| V4L2_BUF_FLAG_TIMESTAMP_MONOTONIC;
 	buf->field = V4L2_FIELD_NONE;
+<<<<<<< HEAD
 	buf->timestamp = cam->buffers[buf->index].timestamp;
+=======
+	v4l2_buffer_set_timestamp(buf, cam->buffers[buf->index].ts);
+>>>>>>> upstream/android-13
 	buf->sequence = cam->buffers[buf->index].seq;
 	buf->m.offset = cam->buffers[buf->index].data - cam->frame_buffer;
 	buf->length = cam->frame_size;
@@ -969,7 +1182,11 @@ static int cpia2_streamon(struct file *file, void *fh, enum v4l2_buf_type type)
 
 	if (!cam->streaming) {
 		ret = cpia2_usb_stream_start(cam,
+<<<<<<< HEAD
 				cam->params.camera_state.stream_mode);
+=======
+					     cam->params.camera_state.stream_mode);
+>>>>>>> upstream/android-13
 		if (!ret)
 			v4l2_ctrl_grab(cam->usb_alt, true);
 	}
@@ -1007,7 +1224,11 @@ static int cpia2_mmap(struct file *file, struct vm_area_struct *area)
 		return -ERESTARTSYS;
 	retval = cpia2_remap_buffer(cam, area);
 
+<<<<<<< HEAD
 	if(!retval)
+=======
+	if (!retval)
+>>>>>>> upstream/android-13
 		cam->stream_fh = file->private_data;
 	mutex_unlock(&cam->v4l2_lock);
 	return retval;
@@ -1047,7 +1268,11 @@ static const struct v4l2_ioctl_ops cpia2_ioctl_ops = {
 	.vidioc_try_fmt_vid_cap		    = cpia2_try_fmt_vid_cap,
 	.vidioc_g_jpegcomp		    = cpia2_g_jpegcomp,
 	.vidioc_s_jpegcomp		    = cpia2_s_jpegcomp,
+<<<<<<< HEAD
 	.vidioc_cropcap			    = cpia2_cropcap,
+=======
+	.vidioc_g_selection		    = cpia2_g_selection,
+>>>>>>> upstream/android-13
 	.vidioc_reqbufs			    = cpia2_reqbufs,
 	.vidioc_querybuf		    = cpia2_querybuf,
 	.vidioc_qbuf			    = cpia2_qbuf,
@@ -1118,6 +1343,7 @@ int cpia2_register_camera(struct camera_data *cam)
 
 	v4l2_ctrl_handler_init(hdl, 12);
 	v4l2_ctrl_new_std(hdl, &cpia2_ctrl_ops,
+<<<<<<< HEAD
 			V4L2_CID_BRIGHTNESS,
 			cam->params.pnp_id.device_type == DEVICE_STV_672 ? 1 : 0,
 			255, 1, DEFAULT_BRIGHTNESS);
@@ -1134,11 +1360,30 @@ int cpia2_register_camera(struct camera_data *cam)
 	v4l2_ctrl_new_std(hdl, &cpia2_ctrl_ops,
 			V4L2_CID_JPEG_COMPRESSION_QUALITY, 1,
 			100, 1, 100);
+=======
+			  V4L2_CID_BRIGHTNESS,
+			  cam->params.pnp_id.device_type == DEVICE_STV_672 ? 1 : 0,
+			  255, 1, DEFAULT_BRIGHTNESS);
+	v4l2_ctrl_new_std(hdl, &cpia2_ctrl_ops,
+			  V4L2_CID_CONTRAST, 0, 255, 1, DEFAULT_CONTRAST);
+	v4l2_ctrl_new_std(hdl, &cpia2_ctrl_ops,
+			  V4L2_CID_SATURATION, 0, 255, 1, DEFAULT_SATURATION);
+	v4l2_ctrl_new_std(hdl, &cpia2_ctrl_ops,
+			  V4L2_CID_HFLIP, 0, 1, 1, 0);
+	v4l2_ctrl_new_std(hdl, &cpia2_ctrl_ops,
+			  V4L2_CID_JPEG_ACTIVE_MARKER, 0,
+			  V4L2_JPEG_ACTIVE_MARKER_DHT, 0,
+			  V4L2_JPEG_ACTIVE_MARKER_DHT);
+	v4l2_ctrl_new_std(hdl, &cpia2_ctrl_ops,
+			  V4L2_CID_JPEG_COMPRESSION_QUALITY, 1,
+			  100, 1, 100);
+>>>>>>> upstream/android-13
 	cpia2_usb_alt.def = alternate;
 	cam->usb_alt = v4l2_ctrl_new_custom(hdl, &cpia2_usb_alt, NULL);
 	/* VP5 Only */
 	if (cam->params.pnp_id.device_type != DEVICE_STV_672)
 		v4l2_ctrl_new_std(hdl, &cpia2_ctrl_ops,
+<<<<<<< HEAD
 			V4L2_CID_VFLIP, 0, 1, 1, 0);
 	/* Flicker control only valid for 672 */
 	if (cam->params.pnp_id.device_type == DEVICE_STV_672)
@@ -1151,6 +1396,23 @@ int cpia2_register_camera(struct camera_data *cam)
 				V4L2_CID_ILLUMINATORS_1, 0, 1, 1, 0);
 		cam->bottom_light = v4l2_ctrl_new_std(hdl, &cpia2_ctrl_ops,
 				V4L2_CID_ILLUMINATORS_2, 0, 1, 1, 0);
+=======
+				  V4L2_CID_VFLIP, 0, 1, 1, 0);
+	/* Flicker control only valid for 672 */
+	if (cam->params.pnp_id.device_type == DEVICE_STV_672)
+		v4l2_ctrl_new_std_menu(hdl, &cpia2_ctrl_ops,
+				       V4L2_CID_POWER_LINE_FREQUENCY,
+				       V4L2_CID_POWER_LINE_FREQUENCY_60HZ,
+				       0, 0);
+	/* Light control only valid for the QX5 Microscope */
+	if (cam->params.pnp_id.product == 0x151) {
+		cam->top_light = v4l2_ctrl_new_std(hdl, &cpia2_ctrl_ops,
+						   V4L2_CID_ILLUMINATORS_1,
+						   0, 1, 1, 0);
+		cam->bottom_light = v4l2_ctrl_new_std(hdl, &cpia2_ctrl_ops,
+						      V4L2_CID_ILLUMINATORS_2,
+						      0, 1, 1, 0);
+>>>>>>> upstream/android-13
 		v4l2_ctrl_cluster(2, &cam->top_light);
 	}
 
@@ -1165,11 +1427,20 @@ int cpia2_register_camera(struct camera_data *cam)
 	cam->vdev.lock = &cam->v4l2_lock;
 	cam->vdev.ctrl_handler = hdl;
 	cam->vdev.v4l2_dev = &cam->v4l2_dev;
+<<<<<<< HEAD
+=======
+	cam->vdev.device_caps = V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_READWRITE |
+				V4L2_CAP_STREAMING;
+>>>>>>> upstream/android-13
 
 	reset_camera_struct_v4l(cam);
 
 	/* register v4l device */
+<<<<<<< HEAD
 	if (video_register_device(&cam->vdev, VFL_TYPE_GRABBER, video_nr) < 0) {
+=======
+	if (video_register_device(&cam->vdev, VFL_TYPE_VIDEO, video_nr) < 0) {
+>>>>>>> upstream/android-13
 		ERR("video_register_device failed\n");
 		return -ENODEV;
 	}
@@ -1195,6 +1466,7 @@ void cpia2_unregister_camera(struct camera_data *cam)
  *****************************************************************************/
 static void __init check_parameters(void)
 {
+<<<<<<< HEAD
 	if(buffer_size < PAGE_SIZE) {
 		buffer_size = PAGE_SIZE;
 		LOG("buffer_size too small, setting to %d\n", buffer_size);
@@ -1212,11 +1484,34 @@ static void __init check_parameters(void)
 		num_buffers = 1;
 		LOG("num_buffers too small, setting to %d\n", num_buffers);
 	} else if(num_buffers > VIDEO_MAX_FRAME) {
+=======
+	if (buffer_size < PAGE_SIZE) {
+		buffer_size = PAGE_SIZE;
+		LOG("buffer_size too small, setting to %d\n", buffer_size);
+	} else if (buffer_size > 1024 * 1024) {
+		/* arbitrary upper limiit */
+		buffer_size = 1024 * 1024;
+		LOG("buffer_size ridiculously large, setting to %d\n",
+		    buffer_size);
+	} else {
+		buffer_size += PAGE_SIZE - 1;
+		buffer_size &= ~(PAGE_SIZE - 1);
+	}
+
+	if (num_buffers < 1) {
+		num_buffers = 1;
+		LOG("num_buffers too small, setting to %d\n", num_buffers);
+	} else if (num_buffers > VIDEO_MAX_FRAME) {
+>>>>>>> upstream/android-13
 		num_buffers = VIDEO_MAX_FRAME;
 		LOG("num_buffers too large, setting to %d\n", num_buffers);
 	}
 
+<<<<<<< HEAD
 	if(alternate < USBIF_ISO_1 || alternate > USBIF_ISO_6) {
+=======
+	if (alternate < USBIF_ISO_1 || alternate > USBIF_ISO_6) {
+>>>>>>> upstream/android-13
 		alternate = DEFAULT_ALT;
 		LOG("alternate specified is invalid, using %d\n", alternate);
 	}
@@ -1233,7 +1528,10 @@ static void __init check_parameters(void)
 
 /************   Module Stuff ***************/
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 /******************************************************************************
  *
  * cpia2_init/module_init
@@ -1247,7 +1545,10 @@ static int __init cpia2_init(void)
 	return cpia2_usb_init();
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 /******************************************************************************
  *
  * cpia2_exit/module_exit

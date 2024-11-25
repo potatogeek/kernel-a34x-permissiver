@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Support code for Analog Devices Sigma-Delta ADCs
  *
  * Copyright 2012 Analog Devices Inc.
  *  Author: Lars-Peter Clausen <lars@metafoo.de>
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/interrupt.h>
@@ -58,7 +65,11 @@ EXPORT_SYMBOL_GPL(ad_sd_set_comm);
 int ad_sd_write_reg(struct ad_sigma_delta *sigma_delta, unsigned int reg,
 	unsigned int size, unsigned int val)
 {
+<<<<<<< HEAD
 	uint8_t *data = sigma_delta->data;
+=======
+	uint8_t *data = sigma_delta->tx_buf;
+>>>>>>> upstream/android-13
 	struct spi_transfer t = {
 		.tx_buf		= data,
 		.len		= size + 1,
@@ -71,9 +82,13 @@ int ad_sd_write_reg(struct ad_sigma_delta *sigma_delta, unsigned int reg,
 
 	switch (size) {
 	case 3:
+<<<<<<< HEAD
 		data[1] = val >> 16;
 		data[2] = val >> 8;
 		data[3] = val;
+=======
+		put_unaligned_be24(val, &data[1]);
+>>>>>>> upstream/android-13
 		break;
 	case 2:
 		put_unaligned_be16(val, &data[1]);
@@ -102,7 +117,11 @@ EXPORT_SYMBOL_GPL(ad_sd_write_reg);
 static int ad_sd_read_reg_raw(struct ad_sigma_delta *sigma_delta,
 	unsigned int reg, unsigned int size, uint8_t *val)
 {
+<<<<<<< HEAD
 	uint8_t *data = sigma_delta->data;
+=======
+	uint8_t *data = sigma_delta->tx_buf;
+>>>>>>> upstream/android-13
 	int ret;
 	struct spi_transfer t[] = {
 		{
@@ -149,12 +168,17 @@ int ad_sd_read_reg(struct ad_sigma_delta *sigma_delta,
 {
 	int ret;
 
+<<<<<<< HEAD
 	ret = ad_sd_read_reg_raw(sigma_delta, reg, size, sigma_delta->data);
+=======
+	ret = ad_sd_read_reg_raw(sigma_delta, reg, size, sigma_delta->rx_buf);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		goto out;
 
 	switch (size) {
 	case 4:
+<<<<<<< HEAD
 		*val = get_unaligned_be32(sigma_delta->data);
 		break;
 	case 3:
@@ -167,6 +191,18 @@ int ad_sd_read_reg(struct ad_sigma_delta *sigma_delta,
 		break;
 	case 1:
 		*val = sigma_delta->data[0];
+=======
+		*val = get_unaligned_be32(sigma_delta->rx_buf);
+		break;
+	case 3:
+		*val = get_unaligned_be24(sigma_delta->rx_buf);
+		break;
+	case 2:
+		*val = get_unaligned_be16(sigma_delta->rx_buf);
+		break;
+	case 1:
+		*val = sigma_delta->rx_buf[0];
+>>>>>>> upstream/android-13
 		break;
 	default:
 		ret = -EINVAL;
@@ -206,7 +242,11 @@ int ad_sd_reset(struct ad_sigma_delta *sigma_delta,
 }
 EXPORT_SYMBOL_GPL(ad_sd_reset);
 
+<<<<<<< HEAD
 static int ad_sd_calibrate(struct ad_sigma_delta *sigma_delta,
+=======
+int ad_sd_calibrate(struct ad_sigma_delta *sigma_delta,
+>>>>>>> upstream/android-13
 	unsigned int mode, unsigned int channel)
 {
 	int ret;
@@ -243,6 +283,10 @@ out:
 
 	return ret;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ad_sd_calibrate);
+>>>>>>> upstream/android-13
 
 /**
  * ad_sd_calibrate_all() - Performs channel calibration
@@ -281,6 +325,10 @@ int ad_sigma_delta_single_conversion(struct iio_dev *indio_dev,
 {
 	struct ad_sigma_delta *sigma_delta = iio_device_get_drvdata(indio_dev);
 	unsigned int sample, raw_sample;
+<<<<<<< HEAD
+=======
+	unsigned int data_reg;
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 	if (iio_buffer_enabled(indio_dev))
@@ -306,7 +354,16 @@ int ad_sigma_delta_single_conversion(struct iio_dev *indio_dev,
 	if (ret < 0)
 		goto out;
 
+<<<<<<< HEAD
 	ret = ad_sd_read_reg(sigma_delta, AD_SD_REG_DATA,
+=======
+	if (sigma_delta->info->data_reg != 0)
+		data_reg = sigma_delta->info->data_reg;
+	else
+		data_reg = AD_SD_REG_DATA;
+
+	ret = ad_sd_read_reg(sigma_delta, data_reg,
+>>>>>>> upstream/android-13
 		DIV_ROUND_UP(chan->scan_type.realbits + chan->scan_type.shift, 8),
 		&raw_sample);
 
@@ -343,16 +400,23 @@ static int ad_sd_buffer_postenable(struct iio_dev *indio_dev)
 	unsigned int channel;
 	int ret;
 
+<<<<<<< HEAD
 	ret = iio_triggered_buffer_postenable(indio_dev);
 	if (ret < 0)
 		return ret;
 
+=======
+>>>>>>> upstream/android-13
 	channel = find_first_bit(indio_dev->active_scan_mask,
 				 indio_dev->masklength);
 	ret = ad_sigma_delta_set_channel(sigma_delta,
 		indio_dev->channels[channel].address);
 	if (ret)
+<<<<<<< HEAD
 		goto err_predisable;
+=======
+		return ret;
+>>>>>>> upstream/android-13
 
 	spi_bus_lock(sigma_delta->spi->master);
 	sigma_delta->bus_locked = true;
@@ -369,7 +433,10 @@ static int ad_sd_buffer_postenable(struct iio_dev *indio_dev)
 
 err_unlock:
 	spi_bus_unlock(sigma_delta->spi->master);
+<<<<<<< HEAD
 err_predisable:
+=======
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -398,28 +465,50 @@ static irqreturn_t ad_sd_trigger_handler(int irq, void *p)
 	struct iio_poll_func *pf = p;
 	struct iio_dev *indio_dev = pf->indio_dev;
 	struct ad_sigma_delta *sigma_delta = iio_device_get_drvdata(indio_dev);
+<<<<<<< HEAD
 	unsigned int reg_size;
 	uint8_t data[16];
 	int ret;
 
 	memset(data, 0x00, 16);
+=======
+	uint8_t *data = sigma_delta->rx_buf;
+	unsigned int reg_size;
+	unsigned int data_reg;
+>>>>>>> upstream/android-13
 
 	reg_size = indio_dev->channels[0].scan_type.realbits +
 			indio_dev->channels[0].scan_type.shift;
 	reg_size = DIV_ROUND_UP(reg_size, 8);
 
+<<<<<<< HEAD
+=======
+	if (sigma_delta->info->data_reg != 0)
+		data_reg = sigma_delta->info->data_reg;
+	else
+		data_reg = AD_SD_REG_DATA;
+
+>>>>>>> upstream/android-13
 	switch (reg_size) {
 	case 4:
 	case 2:
 	case 1:
+<<<<<<< HEAD
 		ret = ad_sd_read_reg_raw(sigma_delta, AD_SD_REG_DATA,
 			reg_size, &data[0]);
+=======
+		ad_sd_read_reg_raw(sigma_delta, data_reg, reg_size, &data[0]);
+>>>>>>> upstream/android-13
 		break;
 	case 3:
 		/* We store 24 bit samples in a 32 bit word. Keep the upper
 		 * byte set to zero. */
+<<<<<<< HEAD
 		ret = ad_sd_read_reg_raw(sigma_delta, AD_SD_REG_DATA,
 			reg_size, &data[1]);
+=======
+		ad_sd_read_reg_raw(sigma_delta, data_reg, reg_size, &data[1]);
+>>>>>>> upstream/android-13
 		break;
 	}
 
@@ -434,7 +523,10 @@ static irqreturn_t ad_sd_trigger_handler(int irq, void *p)
 
 static const struct iio_buffer_setup_ops ad_sd_buffer_setup_ops = {
 	.postenable = &ad_sd_buffer_postenable,
+<<<<<<< HEAD
 	.predisable = &iio_triggered_buffer_predisable,
+=======
+>>>>>>> upstream/android-13
 	.postdisable = &ad_sd_buffer_postdisable,
 	.validate_scan_mask = &iio_validate_scan_mask_onehot,
 };
@@ -473,11 +565,16 @@ EXPORT_SYMBOL_GPL(ad_sd_validate_trigger);
 static const struct iio_trigger_ops ad_sd_trigger_ops = {
 };
 
+<<<<<<< HEAD
 static int ad_sd_probe_trigger(struct iio_dev *indio_dev)
+=======
+static int devm_ad_sd_probe_trigger(struct device *dev, struct iio_dev *indio_dev)
+>>>>>>> upstream/android-13
 {
 	struct ad_sigma_delta *sigma_delta = iio_device_get_drvdata(indio_dev);
 	int ret;
 
+<<<<<<< HEAD
 	sigma_delta->trig = iio_trigger_alloc("%s-dev%d", indio_dev->name,
 						indio_dev->id);
 	if (sigma_delta->trig == NULL) {
@@ -505,11 +602,42 @@ static int ad_sd_probe_trigger(struct iio_dev *indio_dev)
 	ret = iio_trigger_register(sigma_delta->trig);
 	if (ret)
 		goto error_free_irq;
+=======
+	if (dev != &sigma_delta->spi->dev) {
+		dev_err(dev, "Trigger parent should be '%s', got '%s'\n",
+			dev_name(dev), dev_name(&sigma_delta->spi->dev));
+		return -EFAULT;
+	}
+
+	sigma_delta->trig = devm_iio_trigger_alloc(dev, "%s-dev%d", indio_dev->name,
+						   iio_device_id(indio_dev));
+	if (sigma_delta->trig == NULL)
+		return -ENOMEM;
+
+	sigma_delta->trig->ops = &ad_sd_trigger_ops;
+	init_completion(&sigma_delta->completion);
+
+	sigma_delta->irq_dis = true;
+	ret = devm_request_irq(dev, sigma_delta->spi->irq,
+			       ad_sd_data_rdy_trig_poll,
+			       sigma_delta->info->irq_flags | IRQF_NO_AUTOEN,
+			       indio_dev->name,
+			       sigma_delta);
+	if (ret)
+		return ret;
+
+	iio_trigger_set_drvdata(sigma_delta->trig, sigma_delta);
+
+	ret = devm_iio_trigger_register(dev, sigma_delta->trig);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	/* select default trigger */
 	indio_dev->trig = iio_trigger_get(sigma_delta->trig);
 
 	return 0;
+<<<<<<< HEAD
 
 error_free_irq:
 	free_irq(sigma_delta->spi->irq, sigma_delta);
@@ -561,6 +689,29 @@ void ad_sd_cleanup_buffer_and_trigger(struct iio_dev *indio_dev)
 	iio_triggered_buffer_cleanup(indio_dev);
 }
 EXPORT_SYMBOL_GPL(ad_sd_cleanup_buffer_and_trigger);
+=======
+}
+
+/**
+ * devm_ad_sd_setup_buffer_and_trigger() - Device-managed buffer & trigger setup
+ * @dev: Device object to which to bind the life-time of the resources attached
+ * @indio_dev: The IIO device
+ */
+int devm_ad_sd_setup_buffer_and_trigger(struct device *dev, struct iio_dev *indio_dev)
+{
+	int ret;
+
+	ret = devm_iio_triggered_buffer_setup(dev, indio_dev,
+					      &iio_pollfunc_store_time,
+					      &ad_sd_trigger_handler,
+					      &ad_sd_buffer_setup_ops);
+	if (ret)
+		return ret;
+
+	return devm_ad_sd_probe_trigger(dev, indio_dev);
+}
+EXPORT_SYMBOL_GPL(devm_ad_sd_setup_buffer_and_trigger);
+>>>>>>> upstream/android-13
 
 /**
  * ad_sd_init() - Initializes a ad_sigma_delta struct

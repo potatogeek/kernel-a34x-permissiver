@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Device driver for the the HMC5843 multi-chip module designed
  * for low field magnetic sensing.
@@ -8,6 +12,7 @@
  * Acknowledgment: Jonathan Cameron <jic23@kernel.org> for valuable inputs.
  * Support for HMC5883 and HMC5883L by Peter Meerwald <pmeerw@pmeerw.net>.
  * Split to multiple files by Josef Gajdusek <atx@atx.name> - 2014
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -237,6 +244,18 @@ int hmc5843_set_measurement_configuration(struct iio_dev *indio_dev,
 	return hmc5843_set_meas_conf(data, meas_conf);
 }
 
+<<<<<<< HEAD
+=======
+static const struct iio_mount_matrix *
+hmc5843_get_mount_matrix(const struct iio_dev *indio_dev,
+			  const struct iio_chan_spec *chan)
+{
+	struct hmc5843_data *data = iio_priv(indio_dev);
+
+	return &data->orientation;
+}
+
+>>>>>>> upstream/android-13
 static const struct iio_enum hmc5843_meas_conf_enum = {
 	.items = hmc5843_meas_conf_modes,
 	.num_items = ARRAY_SIZE(hmc5843_meas_conf_modes),
@@ -245,9 +264,16 @@ static const struct iio_enum hmc5843_meas_conf_enum = {
 };
 
 static const struct iio_chan_spec_ext_info hmc5843_ext_info[] = {
+<<<<<<< HEAD
 	IIO_ENUM("meas_conf", true, &hmc5843_meas_conf_enum),
 	IIO_ENUM_AVAILABLE("meas_conf", &hmc5843_meas_conf_enum),
 	{ },
+=======
+	IIO_ENUM("meas_conf", IIO_SHARED_BY_TYPE, &hmc5843_meas_conf_enum),
+	IIO_ENUM_AVAILABLE("meas_conf", &hmc5843_meas_conf_enum),
+	IIO_MOUNT_MATRIX(IIO_SHARED_BY_DIR, hmc5843_get_mount_matrix),
+	{ }
+>>>>>>> upstream/android-13
 };
 
 static const struct iio_enum hmc5983_meas_conf_enum = {
@@ -258,9 +284,16 @@ static const struct iio_enum hmc5983_meas_conf_enum = {
 };
 
 static const struct iio_chan_spec_ext_info hmc5983_ext_info[] = {
+<<<<<<< HEAD
 	IIO_ENUM("meas_conf", true, &hmc5983_meas_conf_enum),
 	IIO_ENUM_AVAILABLE("meas_conf", &hmc5983_meas_conf_enum),
 	{ },
+=======
+	IIO_ENUM("meas_conf", IIO_SHARED_BY_TYPE, &hmc5983_meas_conf_enum),
+	IIO_ENUM_AVAILABLE("meas_conf", &hmc5983_meas_conf_enum),
+	IIO_MOUNT_MATRIX(IIO_SHARED_BY_DIR, hmc5843_get_mount_matrix),
+	{ }
+>>>>>>> upstream/android-13
 };
 
 static
@@ -444,13 +477,21 @@ static irqreturn_t hmc5843_trigger_handler(int irq, void *p)
 	}
 
 	ret = regmap_bulk_read(data->regmap, HMC5843_DATA_OUT_MSB_REGS,
+<<<<<<< HEAD
 			       data->buffer, 3 * sizeof(__be16));
+=======
+			       data->scan.chans, sizeof(data->scan.chans));
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&data->lock);
 	if (ret < 0)
 		goto done;
 
+<<<<<<< HEAD
 	iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
+=======
+	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
+>>>>>>> upstream/android-13
 					   iio_get_time_ns(indio_dev));
 
 done:
@@ -635,7 +676,14 @@ int hmc5843_common_probe(struct device *dev, struct regmap *regmap,
 	data->variant = &hmc5843_chip_info_tbl[id];
 	mutex_init(&data->lock);
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = dev;
+=======
+	ret = iio_read_mount_matrix(dev, &data->orientation);
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	indio_dev->name = name;
 	indio_dev->info = &hmc5843_info;
 	indio_dev->modes = INDIO_DIRECT_MODE;

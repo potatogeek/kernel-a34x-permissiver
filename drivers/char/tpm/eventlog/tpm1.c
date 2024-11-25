@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2005, 2012 IBM Corporation
  *
@@ -12,12 +16,15 @@
  * Maintained by: <tpmdd-devel@lists.sourceforge.net>
  *
  * Access to the event log created by a system's firmware / BIOS
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/seq_file.h>
@@ -74,7 +81,11 @@ static const char* tcpa_pc_event_id_strings[] = {
 /* returns pointer to start of pos. entry of tcg log */
 static void *tpm1_bios_measurements_start(struct seq_file *m, loff_t *pos)
 {
+<<<<<<< HEAD
 	loff_t i;
+=======
+	loff_t i = 0;
+>>>>>>> upstream/android-13
 	struct tpm_chip *chip = m->private;
 	struct tpm_bios_log *log = &chip->log;
 	void *addr = log->bios_event_log;
@@ -83,16 +94,28 @@ static void *tpm1_bios_measurements_start(struct seq_file *m, loff_t *pos)
 	u32 converted_event_size;
 	u32 converted_event_type;
 
+<<<<<<< HEAD
 
 	/* read over *pos measurements */
 	for (i = 0; i < *pos; i++) {
 		event = addr;
 
+=======
+	/* read over *pos measurements */
+	do {
+		event = addr;
+
+		/* check if current entry is valid */
+		if (addr + sizeof(struct tcpa_event) > limit)
+			return NULL;
+
+>>>>>>> upstream/android-13
 		converted_event_size =
 		    do_endian_conversion(event->event_size);
 		converted_event_type =
 		    do_endian_conversion(event->event_type);
 
+<<<<<<< HEAD
 		if ((addr + sizeof(struct tcpa_event)) < limit) {
 			if ((converted_event_type == 0) &&
 			    (converted_event_size == 0))
@@ -115,6 +138,18 @@ static void *tpm1_bios_measurements_start(struct seq_file *m, loff_t *pos)
 	    || ((addr + sizeof(struct tcpa_event) + converted_event_size)
 		>= limit))
 		return NULL;
+=======
+		if (((converted_event_type == 0) && (converted_event_size == 0))
+		    || ((addr + sizeof(struct tcpa_event) + converted_event_size)
+			> limit))
+			return NULL;
+
+		if (i++ == *pos)
+			break;
+
+		addr += (sizeof(struct tcpa_event) + converted_event_size);
+	} while (1);
+>>>>>>> upstream/android-13
 
 	return addr;
 }
@@ -135,7 +170,11 @@ static void *tpm1_bios_measurements_next(struct seq_file *m, void *v,
 	v += sizeof(struct tcpa_event) + converted_event_size;
 
 	/* now check if current entry is valid */
+<<<<<<< HEAD
 	if ((v + sizeof(struct tcpa_event)) >= limit)
+=======
+	if ((v + sizeof(struct tcpa_event)) > limit)
+>>>>>>> upstream/android-13
 		return NULL;
 
 	event = v;
@@ -144,7 +183,11 @@ static void *tpm1_bios_measurements_next(struct seq_file *m, void *v,
 	converted_event_type = do_endian_conversion(event->event_type);
 
 	if (((converted_event_type == 0) && (converted_event_size == 0)) ||
+<<<<<<< HEAD
 	    ((v + sizeof(struct tcpa_event) + converted_event_size) >= limit))
+=======
+	    ((v + sizeof(struct tcpa_event) + converted_event_size) > limit))
+>>>>>>> upstream/android-13
 		return NULL;
 
 	return v;
@@ -224,6 +267,10 @@ static int get_event_name(char *dest, struct tcpa_event *event,
 		default:
 			break;
 		}
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}

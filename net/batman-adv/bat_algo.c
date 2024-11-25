@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 /* Copyright (C) 2007-2018  B.A.T.M.A.N. contributors:
  *
  * Marek Lindner, Simon Wunderlich
@@ -14,6 +15,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+/* Copyright (C) B.A.T.M.A.N. contributors:
+ *
+ * Marek Lindner, Simon Wunderlich
+>>>>>>> upstream/android-13
  */
 
 #include "main.h"
@@ -23,7 +29,10 @@
 #include <linux/moduleparam.h>
 #include <linux/netlink.h>
 #include <linux/printk.h>
+<<<<<<< HEAD
 #include <linux/seq_file.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/skbuff.h>
 #include <linux/stddef.h>
 #include <linux/string.h>
@@ -46,7 +55,17 @@ void batadv_algo_init(void)
 	INIT_HLIST_HEAD(&batadv_algo_list);
 }
 
+<<<<<<< HEAD
 static struct batadv_algo_ops *batadv_algo_get(char *name)
+=======
+/**
+ * batadv_algo_get() - Search for algorithm with specific name
+ * @name: algorithm name to find
+ *
+ * Return: Pointer to batadv_algo_ops on success, NULL otherwise
+ */
+struct batadv_algo_ops *batadv_algo_get(const char *name)
+>>>>>>> upstream/android-13
 {
 	struct batadv_algo_ops *bat_algo_ops = NULL, *bat_algo_ops_tmp;
 
@@ -109,7 +128,11 @@ int batadv_algo_register(struct batadv_algo_ops *bat_algo_ops)
  *
  * Return: 0 on success or negative error number in case of failure
  */
+<<<<<<< HEAD
 int batadv_algo_select(struct batadv_priv *bat_priv, char *name)
+=======
+int batadv_algo_select(struct batadv_priv *bat_priv, const char *name)
+>>>>>>> upstream/android-13
 {
 	struct batadv_algo_ops *bat_algo_ops;
 
@@ -122,6 +145,7 @@ int batadv_algo_select(struct batadv_priv *bat_priv, char *name)
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_BATMAN_ADV_DEBUGFS
 
 /**
@@ -145,6 +169,8 @@ int batadv_algo_seq_print_text(struct seq_file *seq, void *offset)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static int batadv_param_set_ra(const char *val, const struct kernel_param *kp)
 {
 	struct batadv_algo_ops *bat_algo_ops;

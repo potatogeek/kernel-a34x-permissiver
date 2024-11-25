@@ -46,15 +46,25 @@
 #include <net/netfilter/nf_conntrack_timestamp.h>
 #include <net/netfilter/nf_conntrack_labels.h>
 #include <net/netfilter/nf_conntrack_synproxy.h>
+<<<<<<< HEAD
 #ifdef CONFIG_NF_NAT_NEEDED
 #include <net/netfilter/nf_nat_core.h>
 #include <net/netfilter/nf_nat_l4proto.h>
+=======
+#if IS_ENABLED(CONFIG_NF_NAT)
+#include <net/netfilter/nf_nat.h>
+>>>>>>> upstream/android-13
 #include <net/netfilter/nf_nat_helper.h>
 #endif
 
 #include <linux/netfilter/nfnetlink.h>
 #include <linux/netfilter/nfnetlink_conntrack.h>
 
+<<<<<<< HEAD
+=======
+#include "nf_internals.h"
+
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");
 
 static int ctnetlink_dump_tuples_proto(struct sk_buff *skb,
@@ -64,7 +74,11 @@ static int ctnetlink_dump_tuples_proto(struct sk_buff *skb,
 	int ret = 0;
 	struct nlattr *nest_parms;
 
+<<<<<<< HEAD
 	nest_parms = nla_nest_start(skb, CTA_TUPLE_PROTO | NLA_F_NESTED);
+=======
+	nest_parms = nla_nest_start(skb, CTA_TUPLE_PROTO);
+>>>>>>> upstream/android-13
 	if (!nest_parms)
 		goto nla_put_failure;
 	if (nla_put_u8(skb, CTA_PROTO_NUM, tuple->dst.protonum))
@@ -105,7 +119,11 @@ static int ctnetlink_dump_tuples_ip(struct sk_buff *skb,
 	int ret = 0;
 	struct nlattr *nest_parms;
 
+<<<<<<< HEAD
 	nest_parms = nla_nest_start(skb, CTA_TUPLE_IP | NLA_F_NESTED);
+=======
+	nest_parms = nla_nest_start(skb, CTA_TUPLE_IP);
+>>>>>>> upstream/android-13
 	if (!nest_parms)
 		goto nla_put_failure;
 
@@ -136,8 +154,12 @@ static int ctnetlink_dump_tuples(struct sk_buff *skb,
 	ret = ctnetlink_dump_tuples_ip(skb, tuple);
 
 	if (ret >= 0) {
+<<<<<<< HEAD
 		l4proto = __nf_ct_l4proto_find(tuple->src.l3num,
 					       tuple->dst.protonum);
+=======
+		l4proto = nf_ct_l4proto_find(tuple->dst.protonum);
+>>>>>>> upstream/android-13
 		ret = ctnetlink_dump_tuples_proto(skb, tuple, l4proto);
 	}
 	rcu_read_unlock();
@@ -167,10 +189,21 @@ nla_put_failure:
 	return -1;
 }
 
+<<<<<<< HEAD
 static int ctnetlink_dump_timeout(struct sk_buff *skb, const struct nf_conn *ct)
 {
 	long timeout = nf_ct_expires(ct) / HZ;
 
+=======
+static int ctnetlink_dump_timeout(struct sk_buff *skb, const struct nf_conn *ct,
+				  bool skip_zero)
+{
+	long timeout = nf_ct_expires(ct) / HZ;
+
+	if (skip_zero && timeout == 0)
+		return 0;
+
+>>>>>>> upstream/android-13
 	if (nla_put_be32(skb, CTA_TIMEOUT, htonl(timeout)))
 		goto nla_put_failure;
 	return 0;
@@ -179,12 +212,18 @@ nla_put_failure:
 	return -1;
 }
 
+<<<<<<< HEAD
 static int ctnetlink_dump_protoinfo(struct sk_buff *skb, struct nf_conn *ct)
+=======
+static int ctnetlink_dump_protoinfo(struct sk_buff *skb, struct nf_conn *ct,
+				    bool destroy)
+>>>>>>> upstream/android-13
 {
 	const struct nf_conntrack_l4proto *l4proto;
 	struct nlattr *nest_proto;
 	int ret;
 
+<<<<<<< HEAD
 	l4proto = __nf_ct_l4proto_find(nf_ct_l3num(ct), nf_ct_protonum(ct));
 	if (!l4proto->to_nlattr)
 		return 0;
@@ -194,6 +233,17 @@ static int ctnetlink_dump_protoinfo(struct sk_buff *skb, struct nf_conn *ct)
 		goto nla_put_failure;
 
 	ret = l4proto->to_nlattr(skb, nest_proto, ct);
+=======
+	l4proto = nf_ct_l4proto_find(nf_ct_protonum(ct));
+	if (!l4proto->to_nlattr)
+		return 0;
+
+	nest_proto = nla_nest_start(skb, CTA_PROTOINFO);
+	if (!nest_proto)
+		goto nla_put_failure;
+
+	ret = l4proto->to_nlattr(skb, nest_proto, ct, destroy);
+>>>>>>> upstream/android-13
 
 	nla_nest_end(skb, nest_proto);
 
@@ -213,11 +263,19 @@ static int ctnetlink_dump_helpinfo(struct sk_buff *skb,
 	if (!help)
 		return 0;
 
+<<<<<<< HEAD
+=======
+	rcu_read_lock();
+>>>>>>> upstream/android-13
 	helper = rcu_dereference(help->helper);
 	if (!helper)
 		goto out;
 
+<<<<<<< HEAD
 	nest_helper = nla_nest_start(skb, CTA_HELP | NLA_F_NESTED);
+=======
+	nest_helper = nla_nest_start(skb, CTA_HELP);
+>>>>>>> upstream/android-13
 	if (!nest_helper)
 		goto nla_put_failure;
 	if (nla_put_string(skb, CTA_HELP_NAME, helper->name))
@@ -228,9 +286,17 @@ static int ctnetlink_dump_helpinfo(struct sk_buff *skb,
 
 	nla_nest_end(skb, nest_helper);
 out:
+<<<<<<< HEAD
 	return 0;
 
 nla_put_failure:
+=======
+	rcu_read_unlock();
+	return 0;
+
+nla_put_failure:
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 	return -1;
 }
 
@@ -251,7 +317,11 @@ dump_counters(struct sk_buff *skb, struct nf_conn_acct *acct,
 		bytes = atomic64_read(&counter[dir].bytes);
 	}
 
+<<<<<<< HEAD
 	nest_count = nla_nest_start(skb, attr | NLA_F_NESTED);
+=======
+	nest_count = nla_nest_start(skb, attr);
+>>>>>>> upstream/android-13
 	if (!nest_count)
 		goto nla_put_failure;
 
@@ -295,7 +365,11 @@ ctnetlink_dump_timestamp(struct sk_buff *skb, const struct nf_conn *ct)
 	if (!tstamp)
 		return 0;
 
+<<<<<<< HEAD
 	nest_count = nla_nest_start(skb, CTA_TIMESTAMP | NLA_F_NESTED);
+=======
+	nest_count = nla_nest_start(skb, CTA_TIMESTAMP);
+>>>>>>> upstream/android-13
 	if (!nest_count)
 		goto nla_put_failure;
 
@@ -339,7 +413,11 @@ static int ctnetlink_dump_secctx(struct sk_buff *skb, const struct nf_conn *ct)
 		return 0;
 
 	ret = -1;
+<<<<<<< HEAD
 	nest_secctx = nla_nest_start(skb, CTA_SECCTX | NLA_F_NESTED);
+=======
+	nest_secctx = nla_nest_start(skb, CTA_SECCTX);
+>>>>>>> upstream/android-13
 	if (!nest_secctx)
 		goto nla_put_failure;
 
@@ -399,7 +477,11 @@ static int ctnetlink_dump_master(struct sk_buff *skb, const struct nf_conn *ct)
 	if (!(ct->status & IPS_EXPECTED))
 		return 0;
 
+<<<<<<< HEAD
 	nest_parms = nla_nest_start(skb, CTA_TUPLE_MASTER | NLA_F_NESTED);
+=======
+	nest_parms = nla_nest_start(skb, CTA_TUPLE_MASTER);
+>>>>>>> upstream/android-13
 	if (!nest_parms)
 		goto nla_put_failure;
 	if (ctnetlink_dump_tuples(skb, master_tuple(ct)) < 0)
@@ -417,7 +499,11 @@ dump_ct_seq_adj(struct sk_buff *skb, const struct nf_ct_seqadj *seq, int type)
 {
 	struct nlattr *nest_parms;
 
+<<<<<<< HEAD
 	nest_parms = nla_nest_start(skb, type | NLA_F_NESTED);
+=======
+	nest_parms = nla_nest_start(skb, type);
+>>>>>>> upstream/android-13
 	if (!nest_parms)
 		goto nla_put_failure;
 
@@ -469,7 +555,11 @@ static int ctnetlink_dump_ct_synproxy(struct sk_buff *skb, struct nf_conn *ct)
 	if (!synproxy)
 		return 0;
 
+<<<<<<< HEAD
 	nest_parms = nla_nest_start(skb, CTA_SYNPROXY | NLA_F_NESTED);
+=======
+	nest_parms = nla_nest_start(skb, CTA_SYNPROXY);
+>>>>>>> upstream/android-13
 	if (!nest_parms)
 		goto nla_put_failure;
 
@@ -500,7 +590,11 @@ nla_put_failure:
 
 static int ctnetlink_dump_use(struct sk_buff *skb, const struct nf_conn *ct)
 {
+<<<<<<< HEAD
 	if (nla_put_be32(skb, CTA_USE, htonl(atomic_read(&ct->ct_general.use))))
+=======
+	if (nla_put_be32(skb, CTA_USE, htonl(refcount_read(&ct->ct_general.use))))
+>>>>>>> upstream/android-13
 		goto nla_put_failure;
 	return 0;
 
@@ -508,6 +602,7 @@ nla_put_failure:
 	return -1;
 }
 
+<<<<<<< HEAD
 static int
 ctnetlink_fill_info(struct sk_buff *skb, u32 portid, u32 seq, u32 type,
 		    struct nf_conn *ct)
@@ -531,6 +626,64 @@ ctnetlink_fill_info(struct sk_buff *skb, u32 portid, u32 seq, u32 type,
 	zone = nf_ct_zone(ct);
 
 	nest_parms = nla_nest_start(skb, CTA_TUPLE_ORIG | NLA_F_NESTED);
+=======
+/* all these functions access ct->ext. Caller must either hold a reference
+ * on ct or prevent its deletion by holding either the bucket spinlock or
+ * pcpu dying list lock.
+ */
+static int ctnetlink_dump_extinfo(struct sk_buff *skb,
+				  struct nf_conn *ct, u32 type)
+{
+	if (ctnetlink_dump_acct(skb, ct, type) < 0 ||
+	    ctnetlink_dump_timestamp(skb, ct) < 0 ||
+	    ctnetlink_dump_helpinfo(skb, ct) < 0 ||
+	    ctnetlink_dump_labels(skb, ct) < 0 ||
+	    ctnetlink_dump_ct_seq_adj(skb, ct) < 0 ||
+	    ctnetlink_dump_ct_synproxy(skb, ct) < 0)
+		return -1;
+
+	return 0;
+}
+
+static int ctnetlink_dump_info(struct sk_buff *skb, struct nf_conn *ct)
+{
+	if (ctnetlink_dump_status(skb, ct) < 0 ||
+	    ctnetlink_dump_mark(skb, ct) < 0 ||
+	    ctnetlink_dump_secctx(skb, ct) < 0 ||
+	    ctnetlink_dump_id(skb, ct) < 0 ||
+	    ctnetlink_dump_use(skb, ct) < 0 ||
+	    ctnetlink_dump_master(skb, ct) < 0)
+		return -1;
+
+	if (!test_bit(IPS_OFFLOAD_BIT, &ct->status) &&
+	    (ctnetlink_dump_timeout(skb, ct, false) < 0 ||
+	     ctnetlink_dump_protoinfo(skb, ct, false) < 0))
+		return -1;
+
+	return 0;
+}
+
+static int
+ctnetlink_fill_info(struct sk_buff *skb, u32 portid, u32 seq, u32 type,
+		    struct nf_conn *ct, bool extinfo, unsigned int flags)
+{
+	const struct nf_conntrack_zone *zone;
+	struct nlmsghdr *nlh;
+	struct nlattr *nest_parms;
+	unsigned int event;
+
+	if (portid)
+		flags |= NLM_F_MULTI;
+	event = nfnl_msg_type(NFNL_SUBSYS_CTNETLINK, IPCTNL_MSG_CT_NEW);
+	nlh = nfnl_msg_put(skb, portid, seq, event, flags, nf_ct_l3num(ct),
+			   NFNETLINK_V0, 0);
+	if (!nlh)
+		goto nlmsg_failure;
+
+	zone = nf_ct_zone(ct);
+
+	nest_parms = nla_nest_start(skb, CTA_TUPLE_ORIG);
+>>>>>>> upstream/android-13
 	if (!nest_parms)
 		goto nla_put_failure;
 	if (ctnetlink_dump_tuples(skb, nf_ct_tuple(ct, IP_CT_DIR_ORIGINAL)) < 0)
@@ -540,7 +693,11 @@ ctnetlink_fill_info(struct sk_buff *skb, u32 portid, u32 seq, u32 type,
 		goto nla_put_failure;
 	nla_nest_end(skb, nest_parms);
 
+<<<<<<< HEAD
 	nest_parms = nla_nest_start(skb, CTA_TUPLE_REPLY | NLA_F_NESTED);
+=======
+	nest_parms = nla_nest_start(skb, CTA_TUPLE_REPLY);
+>>>>>>> upstream/android-13
 	if (!nest_parms)
 		goto nla_put_failure;
 	if (ctnetlink_dump_tuples(skb, nf_ct_tuple(ct, IP_CT_DIR_REPLY)) < 0)
@@ -554,6 +711,7 @@ ctnetlink_fill_info(struct sk_buff *skb, u32 portid, u32 seq, u32 type,
 				   NF_CT_DEFAULT_ZONE_DIR) < 0)
 		goto nla_put_failure;
 
+<<<<<<< HEAD
 	if (ctnetlink_dump_status(skb, ct) < 0 ||
 	    ctnetlink_dump_acct(skb, ct, type) < 0 ||
 	    ctnetlink_dump_timestamp(skb, ct) < 0 ||
@@ -571,6 +729,11 @@ ctnetlink_fill_info(struct sk_buff *skb, u32 portid, u32 seq, u32 type,
 	if (!test_bit(IPS_OFFLOAD_BIT, &ct->status) &&
 	    (ctnetlink_dump_timeout(skb, ct) < 0 ||
 	     ctnetlink_dump_protoinfo(skb, ct) < 0))
+=======
+	if (ctnetlink_dump_info(skb, ct) < 0)
+		goto nla_put_failure;
+	if (extinfo && ctnetlink_dump_extinfo(skb, ct, type) < 0)
+>>>>>>> upstream/android-13
 		goto nla_put_failure;
 
 	nlmsg_end(skb, nlh);
@@ -598,7 +761,11 @@ static size_t ctnetlink_proto_size(const struct nf_conn *ct)
 	len = nla_policy_len(cta_ip_nla_policy, CTA_IP_MAX + 1);
 	len *= 3u; /* ORIG, REPLY, MASTER */
 
+<<<<<<< HEAD
 	l4proto = __nf_ct_l4proto_find(nf_ct_l3num(ct), nf_ct_protonum(ct));
+=======
+	l4proto = nf_ct_l4proto_find(nf_ct_protonum(ct));
+>>>>>>> upstream/android-13
 	len += l4proto->nlattr_size;
 	if (l4proto->nlattr_tuple_size) {
 		len4 = l4proto->nlattr_tuple_size();
@@ -663,7 +830,11 @@ static size_t ctnetlink_nlmsg_size(const struct nf_conn *ct)
 	       + nla_total_size(0) /* CTA_HELP */
 	       + nla_total_size(NF_CT_HELPER_NAME_LEN) /* CTA_HELP_NAME */
 	       + ctnetlink_secctx_size(ct)
+<<<<<<< HEAD
 #ifdef CONFIG_NF_NAT_NEEDED
+=======
+#if IS_ENABLED(CONFIG_NF_NAT)
+>>>>>>> upstream/android-13
 	       + 2 * nla_total_size(0) /* CTA_NAT_SEQ_ADJ_ORIG|REPL */
 	       + 6 * nla_total_size(sizeof(u_int32_t)) /* CTA_NAT_SEQ_OFFSET */
 #endif
@@ -679,12 +850,19 @@ static size_t ctnetlink_nlmsg_size(const struct nf_conn *ct)
 }
 
 static int
+<<<<<<< HEAD
 ctnetlink_conntrack_event(unsigned int events, struct nf_ct_event *item)
+=======
+ctnetlink_conntrack_event(unsigned int events, const struct nf_ct_event *item)
+>>>>>>> upstream/android-13
 {
 	const struct nf_conntrack_zone *zone;
 	struct net *net;
 	struct nlmsghdr *nlh;
+<<<<<<< HEAD
 	struct nfgenmsg *nfmsg;
+=======
+>>>>>>> upstream/android-13
 	struct nlattr *nest_parms;
 	struct nf_conn *ct = item->ct;
 	struct sk_buff *skb;
@@ -714,6 +892,7 @@ ctnetlink_conntrack_event(unsigned int events, struct nf_ct_event *item)
 		goto errout;
 
 	type = nfnl_msg_type(NFNL_SUBSYS_CTNETLINK, type);
+<<<<<<< HEAD
 	nlh = nlmsg_put(skb, item->portid, 0, type, sizeof(*nfmsg), flags);
 	if (nlh == NULL)
 		goto nlmsg_failure;
@@ -726,6 +905,16 @@ ctnetlink_conntrack_event(unsigned int events, struct nf_ct_event *item)
 	zone = nf_ct_zone(ct);
 
 	nest_parms = nla_nest_start(skb, CTA_TUPLE_ORIG | NLA_F_NESTED);
+=======
+	nlh = nfnl_msg_put(skb, item->portid, 0, type, flags, nf_ct_l3num(ct),
+			   NFNETLINK_V0, 0);
+	if (!nlh)
+		goto nlmsg_failure;
+
+	zone = nf_ct_zone(ct);
+
+	nest_parms = nla_nest_start(skb, CTA_TUPLE_ORIG);
+>>>>>>> upstream/android-13
 	if (!nest_parms)
 		goto nla_put_failure;
 	if (ctnetlink_dump_tuples(skb, nf_ct_tuple(ct, IP_CT_DIR_ORIGINAL)) < 0)
@@ -735,7 +924,11 @@ ctnetlink_conntrack_event(unsigned int events, struct nf_ct_event *item)
 		goto nla_put_failure;
 	nla_nest_end(skb, nest_parms);
 
+<<<<<<< HEAD
 	nest_parms = nla_nest_start(skb, CTA_TUPLE_REPLY | NLA_F_NESTED);
+=======
+	nest_parms = nla_nest_start(skb, CTA_TUPLE_REPLY);
+>>>>>>> upstream/android-13
 	if (!nest_parms)
 		goto nla_put_failure;
 	if (ctnetlink_dump_tuples(skb, nf_ct_tuple(ct, IP_CT_DIR_REPLY)) < 0)
@@ -756,6 +949,7 @@ ctnetlink_conntrack_event(unsigned int events, struct nf_ct_event *item)
 		goto nla_put_failure;
 
 	if (events & (1 << IPCT_DESTROY)) {
+<<<<<<< HEAD
 		if (ctnetlink_dump_acct(skb, ct, type) < 0 ||
 		    ctnetlink_dump_timestamp(skb, ct) < 0)
 			goto nla_put_failure;
@@ -765,6 +959,21 @@ ctnetlink_conntrack_event(unsigned int events, struct nf_ct_event *item)
 
 		if (events & (1 << IPCT_PROTOINFO)
 		    && ctnetlink_dump_protoinfo(skb, ct) < 0)
+=======
+		if (ctnetlink_dump_timeout(skb, ct, true) < 0)
+			goto nla_put_failure;
+
+		if (ctnetlink_dump_acct(skb, ct, type) < 0 ||
+		    ctnetlink_dump_timestamp(skb, ct) < 0 ||
+		    ctnetlink_dump_protoinfo(skb, ct, true) < 0)
+			goto nla_put_failure;
+	} else {
+		if (ctnetlink_dump_timeout(skb, ct, false) < 0)
+			goto nla_put_failure;
+
+		if (events & (1 << IPCT_PROTOINFO) &&
+		    ctnetlink_dump_protoinfo(skb, ct, false) < 0)
+>>>>>>> upstream/android-13
 			goto nla_put_failure;
 
 		if ((events & (1 << IPCT_HELPER) || nfct_help(ct))
@@ -826,6 +1035,7 @@ static int ctnetlink_done(struct netlink_callback *cb)
 	return 0;
 }
 
+<<<<<<< HEAD
 struct ctnetlink_filter {
 	struct {
 		u_int32_t val;
@@ -838,11 +1048,122 @@ ctnetlink_alloc_filter(const struct nlattr * const cda[])
 {
 #ifdef CONFIG_NF_CONNTRACK_MARK
 	struct ctnetlink_filter *filter;
+=======
+struct ctnetlink_filter_u32 {
+	u32 val;
+	u32 mask;
+};
+
+struct ctnetlink_filter {
+	u8 family;
+
+	u_int32_t orig_flags;
+	u_int32_t reply_flags;
+
+	struct nf_conntrack_tuple orig;
+	struct nf_conntrack_tuple reply;
+	struct nf_conntrack_zone zone;
+
+	struct ctnetlink_filter_u32 mark;
+	struct ctnetlink_filter_u32 status;
+};
+
+static const struct nla_policy cta_filter_nla_policy[CTA_FILTER_MAX + 1] = {
+	[CTA_FILTER_ORIG_FLAGS]		= { .type = NLA_U32 },
+	[CTA_FILTER_REPLY_FLAGS]	= { .type = NLA_U32 },
+};
+
+static int ctnetlink_parse_filter(const struct nlattr *attr,
+				  struct ctnetlink_filter *filter)
+{
+	struct nlattr *tb[CTA_FILTER_MAX + 1];
+	int ret = 0;
+
+	ret = nla_parse_nested(tb, CTA_FILTER_MAX, attr, cta_filter_nla_policy,
+			       NULL);
+	if (ret)
+		return ret;
+
+	if (tb[CTA_FILTER_ORIG_FLAGS]) {
+		filter->orig_flags = nla_get_u32(tb[CTA_FILTER_ORIG_FLAGS]);
+		if (filter->orig_flags & ~CTA_FILTER_F_ALL)
+			return -EOPNOTSUPP;
+	}
+
+	if (tb[CTA_FILTER_REPLY_FLAGS]) {
+		filter->reply_flags = nla_get_u32(tb[CTA_FILTER_REPLY_FLAGS]);
+		if (filter->reply_flags & ~CTA_FILTER_F_ALL)
+			return -EOPNOTSUPP;
+	}
+
+	return 0;
+}
+
+static int ctnetlink_parse_zone(const struct nlattr *attr,
+				struct nf_conntrack_zone *zone);
+static int ctnetlink_parse_tuple_filter(const struct nlattr * const cda[],
+					 struct nf_conntrack_tuple *tuple,
+					 u32 type, u_int8_t l3num,
+					 struct nf_conntrack_zone *zone,
+					 u_int32_t flags);
+
+static int ctnetlink_filter_parse_mark(struct ctnetlink_filter_u32 *mark,
+				       const struct nlattr * const cda[])
+{
+#ifdef CONFIG_NF_CONNTRACK_MARK
+	if (cda[CTA_MARK]) {
+		mark->val = ntohl(nla_get_be32(cda[CTA_MARK]));
+
+		if (cda[CTA_MARK_MASK])
+			mark->mask = ntohl(nla_get_be32(cda[CTA_MARK_MASK]));
+		else
+			mark->mask = 0xffffffff;
+	} else if (cda[CTA_MARK_MASK]) {
+		return -EINVAL;
+	}
+#endif
+	return 0;
+}
+
+static int ctnetlink_filter_parse_status(struct ctnetlink_filter_u32 *status,
+					 const struct nlattr * const cda[])
+{
+	if (cda[CTA_STATUS]) {
+		status->val = ntohl(nla_get_be32(cda[CTA_STATUS]));
+		if (cda[CTA_STATUS_MASK])
+			status->mask = ntohl(nla_get_be32(cda[CTA_STATUS_MASK]));
+		else
+			status->mask = status->val;
+
+		/* status->val == 0? always true, else always false. */
+		if (status->mask == 0)
+			return -EINVAL;
+	} else if (cda[CTA_STATUS_MASK]) {
+		return -EINVAL;
+	}
+
+	/* CTA_STATUS is NLA_U32, if this fires UAPI needs to be extended */
+	BUILD_BUG_ON(__IPS_MAX_BIT >= 32);
+	return 0;
+}
+
+static struct ctnetlink_filter *
+ctnetlink_alloc_filter(const struct nlattr * const cda[], u8 family)
+{
+	struct ctnetlink_filter *filter;
+	int err;
+
+#ifndef CONFIG_NF_CONNTRACK_MARK
+	if (cda[CTA_MARK] || cda[CTA_MARK_MASK])
+		return ERR_PTR(-EOPNOTSUPP);
+#endif
+>>>>>>> upstream/android-13
 
 	filter = kzalloc(sizeof(*filter), GFP_KERNEL);
 	if (filter == NULL)
 		return ERR_PTR(-ENOMEM);
 
+<<<<<<< HEAD
 	filter->mark.val = ntohl(nla_get_be32(cda[CTA_MARK]));
 	filter->mark.mask = ntohl(nla_get_be32(cda[CTA_MARK_MASK]));
 
@@ -850,15 +1171,87 @@ ctnetlink_alloc_filter(const struct nlattr * const cda[])
 #else
 	return ERR_PTR(-EOPNOTSUPP);
 #endif
+=======
+	filter->family = family;
+
+	err = ctnetlink_filter_parse_mark(&filter->mark, cda);
+	if (err)
+		goto err_filter;
+
+	err = ctnetlink_filter_parse_status(&filter->status, cda);
+	if (err)
+		goto err_filter;
+
+	if (!cda[CTA_FILTER])
+		return filter;
+
+	err = ctnetlink_parse_zone(cda[CTA_ZONE], &filter->zone);
+	if (err < 0)
+		goto err_filter;
+
+	err = ctnetlink_parse_filter(cda[CTA_FILTER], filter);
+	if (err < 0)
+		goto err_filter;
+
+	if (filter->orig_flags) {
+		if (!cda[CTA_TUPLE_ORIG]) {
+			err = -EINVAL;
+			goto err_filter;
+		}
+
+		err = ctnetlink_parse_tuple_filter(cda, &filter->orig,
+						   CTA_TUPLE_ORIG,
+						   filter->family,
+						   &filter->zone,
+						   filter->orig_flags);
+		if (err < 0)
+			goto err_filter;
+	}
+
+	if (filter->reply_flags) {
+		if (!cda[CTA_TUPLE_REPLY]) {
+			err = -EINVAL;
+			goto err_filter;
+		}
+
+		err = ctnetlink_parse_tuple_filter(cda, &filter->reply,
+						   CTA_TUPLE_REPLY,
+						   filter->family,
+						   &filter->zone,
+						   filter->reply_flags);
+		if (err < 0)
+			goto err_filter;
+	}
+
+	return filter;
+
+err_filter:
+	kfree(filter);
+
+	return ERR_PTR(err);
+}
+
+static bool ctnetlink_needs_filter(u8 family, const struct nlattr * const *cda)
+{
+	return family || cda[CTA_MARK] || cda[CTA_FILTER] || cda[CTA_STATUS];
+>>>>>>> upstream/android-13
 }
 
 static int ctnetlink_start(struct netlink_callback *cb)
 {
 	const struct nlattr * const *cda = cb->data;
 	struct ctnetlink_filter *filter = NULL;
+<<<<<<< HEAD
 
 	if (cda[CTA_MARK] && cda[CTA_MARK_MASK]) {
 		filter = ctnetlink_alloc_filter(cda);
+=======
+	struct nfgenmsg *nfmsg = nlmsg_data(cb->nlh);
+	u8 family = nfmsg->nfgen_family;
+
+	if (ctnetlink_needs_filter(family, cda)) {
+		filter = ctnetlink_alloc_filter(cda, family);
+>>>>>>> upstream/android-13
 		if (IS_ERR(filter))
 			return PTR_ERR(filter);
 	}
@@ -867,6 +1260,7 @@ static int ctnetlink_start(struct netlink_callback *cb)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int ctnetlink_filter_match(struct nf_conn *ct, void *data)
 {
 	struct ctnetlink_filter *filter = data;
@@ -879,18 +1273,140 @@ static int ctnetlink_filter_match(struct nf_conn *ct, void *data)
 		return 1;
 #endif
 
+=======
+static int ctnetlink_filter_match_tuple(struct nf_conntrack_tuple *filter_tuple,
+					struct nf_conntrack_tuple *ct_tuple,
+					u_int32_t flags, int family)
+{
+	switch (family) {
+	case NFPROTO_IPV4:
+		if ((flags & CTA_FILTER_FLAG(CTA_IP_SRC)) &&
+		    filter_tuple->src.u3.ip != ct_tuple->src.u3.ip)
+			return  0;
+
+		if ((flags & CTA_FILTER_FLAG(CTA_IP_DST)) &&
+		    filter_tuple->dst.u3.ip != ct_tuple->dst.u3.ip)
+			return  0;
+		break;
+	case NFPROTO_IPV6:
+		if ((flags & CTA_FILTER_FLAG(CTA_IP_SRC)) &&
+		    !ipv6_addr_cmp(&filter_tuple->src.u3.in6,
+				   &ct_tuple->src.u3.in6))
+			return 0;
+
+		if ((flags & CTA_FILTER_FLAG(CTA_IP_DST)) &&
+		    !ipv6_addr_cmp(&filter_tuple->dst.u3.in6,
+				   &ct_tuple->dst.u3.in6))
+			return 0;
+		break;
+	}
+
+	if ((flags & CTA_FILTER_FLAG(CTA_PROTO_NUM)) &&
+	    filter_tuple->dst.protonum != ct_tuple->dst.protonum)
+		return 0;
+
+	switch (ct_tuple->dst.protonum) {
+	case IPPROTO_TCP:
+	case IPPROTO_UDP:
+		if ((flags & CTA_FILTER_FLAG(CTA_PROTO_SRC_PORT)) &&
+		    filter_tuple->src.u.tcp.port != ct_tuple->src.u.tcp.port)
+			return 0;
+
+		if ((flags & CTA_FILTER_FLAG(CTA_PROTO_DST_PORT)) &&
+		    filter_tuple->dst.u.tcp.port != ct_tuple->dst.u.tcp.port)
+			return 0;
+		break;
+	case IPPROTO_ICMP:
+		if ((flags & CTA_FILTER_FLAG(CTA_PROTO_ICMP_TYPE)) &&
+		    filter_tuple->dst.u.icmp.type != ct_tuple->dst.u.icmp.type)
+			return 0;
+		if ((flags & CTA_FILTER_FLAG(CTA_PROTO_ICMP_CODE)) &&
+		    filter_tuple->dst.u.icmp.code != ct_tuple->dst.u.icmp.code)
+			return 0;
+		if ((flags & CTA_FILTER_FLAG(CTA_PROTO_ICMP_ID)) &&
+		    filter_tuple->src.u.icmp.id != ct_tuple->src.u.icmp.id)
+			return 0;
+		break;
+	case IPPROTO_ICMPV6:
+		if ((flags & CTA_FILTER_FLAG(CTA_PROTO_ICMPV6_TYPE)) &&
+		    filter_tuple->dst.u.icmp.type != ct_tuple->dst.u.icmp.type)
+			return 0;
+		if ((flags & CTA_FILTER_FLAG(CTA_PROTO_ICMPV6_CODE)) &&
+		    filter_tuple->dst.u.icmp.code != ct_tuple->dst.u.icmp.code)
+			return 0;
+		if ((flags & CTA_FILTER_FLAG(CTA_PROTO_ICMPV6_ID)) &&
+		    filter_tuple->src.u.icmp.id != ct_tuple->src.u.icmp.id)
+			return 0;
+		break;
+	}
+
+	return 1;
+}
+
+static int ctnetlink_filter_match(struct nf_conn *ct, void *data)
+{
+	struct ctnetlink_filter *filter = data;
+	struct nf_conntrack_tuple *tuple;
+	u32 status;
+
+	if (filter == NULL)
+		goto out;
+
+	/* Match entries of a given L3 protocol number.
+	 * If it is not specified, ie. l3proto == 0,
+	 * then match everything.
+	 */
+	if (filter->family && nf_ct_l3num(ct) != filter->family)
+		goto ignore_entry;
+
+	if (filter->orig_flags) {
+		tuple = nf_ct_tuple(ct, IP_CT_DIR_ORIGINAL);
+		if (!ctnetlink_filter_match_tuple(&filter->orig, tuple,
+						  filter->orig_flags,
+						  filter->family))
+			goto ignore_entry;
+	}
+
+	if (filter->reply_flags) {
+		tuple = nf_ct_tuple(ct, IP_CT_DIR_REPLY);
+		if (!ctnetlink_filter_match_tuple(&filter->reply, tuple,
+						  filter->reply_flags,
+						  filter->family))
+			goto ignore_entry;
+	}
+
+#ifdef CONFIG_NF_CONNTRACK_MARK
+	if ((ct->mark & filter->mark.mask) != filter->mark.val)
+		goto ignore_entry;
+#endif
+	status = (u32)READ_ONCE(ct->status);
+	if ((status & filter->status.mask) != filter->status.val)
+		goto ignore_entry;
+
+out:
+	return 1;
+
+ignore_entry:
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int
 ctnetlink_dump_table(struct sk_buff *skb, struct netlink_callback *cb)
 {
+<<<<<<< HEAD
+=======
+	unsigned int flags = cb->data ? NLM_F_DUMP_FILTERED : 0;
+>>>>>>> upstream/android-13
 	struct net *net = sock_net(skb->sk);
 	struct nf_conn *ct, *last;
 	struct nf_conntrack_tuple_hash *h;
 	struct hlist_nulls_node *n;
+<<<<<<< HEAD
 	struct nfgenmsg *nfmsg = nlmsg_data(cb->nlh);
 	u_int8_t l3proto = nfmsg->nfgen_family;
+=======
+>>>>>>> upstream/android-13
 	struct nf_conn *nf_ct_evict[8];
 	int res, i;
 	spinlock_t *lockp;
@@ -921,7 +1437,11 @@ restart:
 			ct = nf_ct_tuplehash_to_ctrack(h);
 			if (nf_ct_is_expired(ct)) {
 				if (i < ARRAY_SIZE(nf_ct_evict) &&
+<<<<<<< HEAD
 				    atomic_inc_not_zero(&ct->ct_general.use))
+=======
+				    refcount_inc_not_zero(&ct->ct_general.use))
+>>>>>>> upstream/android-13
 					nf_ct_evict[i++] = ct;
 				continue;
 			}
@@ -929,11 +1449,14 @@ restart:
 			if (!net_eq(net, nf_ct_net(ct)))
 				continue;
 
+<<<<<<< HEAD
 			/* Dump entries of a given L3 protocol number.
 			 * If it is not specified, ie. l3proto == 0,
 			 * then dump everything. */
 			if (l3proto && nf_ct_l3num(ct) != l3proto)
 				continue;
+=======
+>>>>>>> upstream/android-13
 			if (cb->args[1]) {
 				if (ct != last)
 					continue;
@@ -942,13 +1465,20 @@ restart:
 			if (!ctnetlink_filter_match(ct, cb->data))
 				continue;
 
+<<<<<<< HEAD
 			rcu_read_lock();
+=======
+>>>>>>> upstream/android-13
 			res =
 			ctnetlink_fill_info(skb, NETLINK_CB(cb->skb).portid,
 					    cb->nlh->nlmsg_seq,
 					    NFNL_MSG_TYPE(cb->nlh->nlmsg_type),
+<<<<<<< HEAD
 					    ct);
 			rcu_read_unlock();
+=======
+					    ct, true, flags);
+>>>>>>> upstream/android-13
 			if (res < 0) {
 				nf_conntrack_get(&ct->ct_general);
 				cb->args[1] = (unsigned long)ct;
@@ -983,6 +1513,7 @@ out:
 }
 
 static int ipv4_nlattr_to_tuple(struct nlattr *tb[],
+<<<<<<< HEAD
 				struct nf_conntrack_tuple *t)
 {
 	if (!tb[CTA_IP_V4_SRC] || !tb[CTA_IP_V4_DST])
@@ -990,11 +1521,30 @@ static int ipv4_nlattr_to_tuple(struct nlattr *tb[],
 
 	t->src.u3.ip = nla_get_in_addr(tb[CTA_IP_V4_SRC]);
 	t->dst.u3.ip = nla_get_in_addr(tb[CTA_IP_V4_DST]);
+=======
+				struct nf_conntrack_tuple *t,
+				u_int32_t flags)
+{
+	if (flags & CTA_FILTER_FLAG(CTA_IP_SRC)) {
+		if (!tb[CTA_IP_V4_SRC])
+			return -EINVAL;
+
+		t->src.u3.ip = nla_get_in_addr(tb[CTA_IP_V4_SRC]);
+	}
+
+	if (flags & CTA_FILTER_FLAG(CTA_IP_DST)) {
+		if (!tb[CTA_IP_V4_DST])
+			return -EINVAL;
+
+		t->dst.u3.ip = nla_get_in_addr(tb[CTA_IP_V4_DST]);
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static int ipv6_nlattr_to_tuple(struct nlattr *tb[],
+<<<<<<< HEAD
 				struct nf_conntrack_tuple *t)
 {
 	if (!tb[CTA_IP_V6_SRC] || !tb[CTA_IP_V6_DST])
@@ -1002,31 +1552,70 @@ static int ipv6_nlattr_to_tuple(struct nlattr *tb[],
 
 	t->src.u3.in6 = nla_get_in6_addr(tb[CTA_IP_V6_SRC]);
 	t->dst.u3.in6 = nla_get_in6_addr(tb[CTA_IP_V6_DST]);
+=======
+				struct nf_conntrack_tuple *t,
+				u_int32_t flags)
+{
+	if (flags & CTA_FILTER_FLAG(CTA_IP_SRC)) {
+		if (!tb[CTA_IP_V6_SRC])
+			return -EINVAL;
+
+		t->src.u3.in6 = nla_get_in6_addr(tb[CTA_IP_V6_SRC]);
+	}
+
+	if (flags & CTA_FILTER_FLAG(CTA_IP_DST)) {
+		if (!tb[CTA_IP_V6_DST])
+			return -EINVAL;
+
+		t->dst.u3.in6 = nla_get_in6_addr(tb[CTA_IP_V6_DST]);
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static int ctnetlink_parse_tuple_ip(struct nlattr *attr,
+<<<<<<< HEAD
 				    struct nf_conntrack_tuple *tuple)
+=======
+				    struct nf_conntrack_tuple *tuple,
+				    u_int32_t flags)
+>>>>>>> upstream/android-13
 {
 	struct nlattr *tb[CTA_IP_MAX+1];
 	int ret = 0;
 
+<<<<<<< HEAD
 	ret = nla_parse_nested(tb, CTA_IP_MAX, attr, NULL, NULL);
 	if (ret < 0)
 		return ret;
 
 	ret = nla_validate_nested(attr, CTA_IP_MAX,
 				  cta_ip_nla_policy, NULL);
+=======
+	ret = nla_parse_nested_deprecated(tb, CTA_IP_MAX, attr, NULL, NULL);
+	if (ret < 0)
+		return ret;
+
+	ret = nla_validate_nested_deprecated(attr, CTA_IP_MAX,
+					     cta_ip_nla_policy, NULL);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
 	switch (tuple->src.l3num) {
 	case NFPROTO_IPV4:
+<<<<<<< HEAD
 		ret = ipv4_nlattr_to_tuple(tb, tuple);
 		break;
 	case NFPROTO_IPV6:
 		ret = ipv6_nlattr_to_tuple(tb, tuple);
+=======
+		ret = ipv4_nlattr_to_tuple(tb, tuple, flags);
+		break;
+	case NFPROTO_IPV6:
+		ret = ipv6_nlattr_to_tuple(tb, tuple, flags);
+>>>>>>> upstream/android-13
 		break;
 	}
 
@@ -1038,12 +1627,18 @@ static const struct nla_policy proto_nla_policy[CTA_PROTO_MAX+1] = {
 };
 
 static int ctnetlink_parse_tuple_proto(struct nlattr *attr,
+<<<<<<< HEAD
 				       struct nf_conntrack_tuple *tuple)
+=======
+				       struct nf_conntrack_tuple *tuple,
+				       u_int32_t flags)
+>>>>>>> upstream/android-13
 {
 	const struct nf_conntrack_l4proto *l4proto;
 	struct nlattr *tb[CTA_PROTO_MAX+1];
 	int ret = 0;
 
+<<<<<<< HEAD
 	ret = nla_parse_nested(tb, CTA_PROTO_MAX, attr, proto_nla_policy,
 			       NULL);
 	if (ret < 0)
@@ -1061,6 +1656,30 @@ static int ctnetlink_parse_tuple_proto(struct nlattr *attr,
 					  l4proto->nla_policy, NULL);
 		if (ret == 0)
 			ret = l4proto->nlattr_to_tuple(tb, tuple);
+=======
+	ret = nla_parse_nested_deprecated(tb, CTA_PROTO_MAX, attr,
+					  proto_nla_policy, NULL);
+	if (ret < 0)
+		return ret;
+
+	if (!(flags & CTA_FILTER_FLAG(CTA_PROTO_NUM)))
+		return 0;
+
+	if (!tb[CTA_PROTO_NUM])
+		return -EINVAL;
+
+	tuple->dst.protonum = nla_get_u8(tb[CTA_PROTO_NUM]);
+
+	rcu_read_lock();
+	l4proto = nf_ct_l4proto_find(tuple->dst.protonum);
+
+	if (likely(l4proto->nlattr_to_tuple)) {
+		ret = nla_validate_nested_deprecated(attr, CTA_PROTO_MAX,
+						     l4proto->nla_policy,
+						     NULL);
+		if (ret == 0)
+			ret = l4proto->nlattr_to_tuple(tb, tuple, flags);
+>>>>>>> upstream/android-13
 	}
 
 	rcu_read_unlock();
@@ -1111,16 +1730,35 @@ static const struct nla_policy tuple_nla_policy[CTA_TUPLE_MAX+1] = {
 	[CTA_TUPLE_ZONE]	= { .type = NLA_U16 },
 };
 
+<<<<<<< HEAD
 static int
 ctnetlink_parse_tuple(const struct nlattr * const cda[],
 		      struct nf_conntrack_tuple *tuple, u32 type,
 		      u_int8_t l3num, struct nf_conntrack_zone *zone)
+=======
+#define CTA_FILTER_F_ALL_CTA_PROTO \
+  (CTA_FILTER_F_CTA_PROTO_SRC_PORT | \
+   CTA_FILTER_F_CTA_PROTO_DST_PORT | \
+   CTA_FILTER_F_CTA_PROTO_ICMP_TYPE | \
+   CTA_FILTER_F_CTA_PROTO_ICMP_CODE | \
+   CTA_FILTER_F_CTA_PROTO_ICMP_ID | \
+   CTA_FILTER_F_CTA_PROTO_ICMPV6_TYPE | \
+   CTA_FILTER_F_CTA_PROTO_ICMPV6_CODE | \
+   CTA_FILTER_F_CTA_PROTO_ICMPV6_ID)
+
+static int
+ctnetlink_parse_tuple_filter(const struct nlattr * const cda[],
+			      struct nf_conntrack_tuple *tuple, u32 type,
+			      u_int8_t l3num, struct nf_conntrack_zone *zone,
+			      u_int32_t flags)
+>>>>>>> upstream/android-13
 {
 	struct nlattr *tb[CTA_TUPLE_MAX+1];
 	int err;
 
 	memset(tuple, 0, sizeof(*tuple));
 
+<<<<<<< HEAD
 	err = nla_parse_nested(tb, CTA_TUPLE_MAX, cda[type], tuple_nla_policy,
 			       NULL);
 	if (err < 0)
@@ -1129,10 +1767,18 @@ ctnetlink_parse_tuple(const struct nlattr * const cda[],
 	if (!tb[CTA_TUPLE_IP])
 		return -EINVAL;
 
+=======
+	err = nla_parse_nested_deprecated(tb, CTA_TUPLE_MAX, cda[type],
+					  tuple_nla_policy, NULL);
+	if (err < 0)
+		return err;
+
+>>>>>>> upstream/android-13
 	if (l3num != NFPROTO_IPV4 && l3num != NFPROTO_IPV6)
 		return -EOPNOTSUPP;
 	tuple->src.l3num = l3num;
 
+<<<<<<< HEAD
 	err = ctnetlink_parse_tuple_ip(tb[CTA_TUPLE_IP], tuple);
 	if (err < 0)
 		return err;
@@ -1145,6 +1791,31 @@ ctnetlink_parse_tuple(const struct nlattr * const cda[],
 		return err;
 
 	if (tb[CTA_TUPLE_ZONE]) {
+=======
+	if (flags & CTA_FILTER_FLAG(CTA_IP_DST) ||
+	    flags & CTA_FILTER_FLAG(CTA_IP_SRC)) {
+		if (!tb[CTA_TUPLE_IP])
+			return -EINVAL;
+
+		err = ctnetlink_parse_tuple_ip(tb[CTA_TUPLE_IP], tuple, flags);
+		if (err < 0)
+			return err;
+	}
+
+	if (flags & CTA_FILTER_FLAG(CTA_PROTO_NUM)) {
+		if (!tb[CTA_TUPLE_PROTO])
+			return -EINVAL;
+
+		err = ctnetlink_parse_tuple_proto(tb[CTA_TUPLE_PROTO], tuple, flags);
+		if (err < 0)
+			return err;
+	} else if (flags & CTA_FILTER_FLAG(ALL_CTA_PROTO)) {
+		/* Can't manage proto flags without a protonum  */
+		return -EINVAL;
+	}
+
+	if ((flags & CTA_FILTER_FLAG(CTA_TUPLE_ZONE)) && tb[CTA_TUPLE_ZONE]) {
+>>>>>>> upstream/android-13
 		if (!zone)
 			return -EINVAL;
 
@@ -1163,6 +1834,18 @@ ctnetlink_parse_tuple(const struct nlattr * const cda[],
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int
+ctnetlink_parse_tuple(const struct nlattr * const cda[],
+		      struct nf_conntrack_tuple *tuple, u32 type,
+		      u_int8_t l3num, struct nf_conntrack_zone *zone)
+{
+	return ctnetlink_parse_tuple_filter(cda, tuple, type, l3num, zone,
+					    CTA_FILTER_FLAG(ALL));
+}
+
+>>>>>>> upstream/android-13
 static const struct nla_policy help_nla_policy[CTA_HELP_MAX+1] = {
 	[CTA_HELP_NAME]		= { .type = NLA_NUL_STRING,
 				    .len = NF_CT_HELPER_NAME_LEN - 1 },
@@ -1174,7 +1857,12 @@ static int ctnetlink_parse_help(const struct nlattr *attr, char **helper_name,
 	int err;
 	struct nlattr *tb[CTA_HELP_MAX+1];
 
+<<<<<<< HEAD
 	err = nla_parse_nested(tb, CTA_HELP_MAX, attr, help_nla_policy, NULL);
+=======
+	err = nla_parse_nested_deprecated(tb, CTA_HELP_MAX, attr,
+					  help_nla_policy, NULL);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -1209,6 +1897,11 @@ static const struct nla_policy ct_nla_policy[CTA_MAX+1] = {
 				    .len = NF_CT_LABELS_MAX_SIZE },
 	[CTA_LABELS_MASK]	= { .type = NLA_BINARY,
 				    .len = NF_CT_LABELS_MAX_SIZE },
+<<<<<<< HEAD
+=======
+	[CTA_FILTER]		= { .type = NLA_NESTED },
+	[CTA_STATUS_MASK]	= { .type = NLA_U32 },
+>>>>>>> upstream/android-13
 };
 
 static int ctnetlink_flush_iterate(struct nf_conn *ct, void *data)
@@ -1221,12 +1914,24 @@ static int ctnetlink_flush_iterate(struct nf_conn *ct, void *data)
 
 static int ctnetlink_flush_conntrack(struct net *net,
 				     const struct nlattr * const cda[],
+<<<<<<< HEAD
 				     u32 portid, int report)
 {
 	struct ctnetlink_filter *filter = NULL;
 
 	if (cda[CTA_MARK] && cda[CTA_MARK_MASK]) {
 		filter = ctnetlink_alloc_filter(cda);
+=======
+				     u32 portid, int report, u8 family)
+{
+	struct ctnetlink_filter *filter = NULL;
+
+	if (ctnetlink_needs_filter(family, cda)) {
+		if (cda[CTA_FILTER])
+			return -EOPNOTSUPP;
+
+		filter = ctnetlink_alloc_filter(cda, family);
+>>>>>>> upstream/android-13
 		if (IS_ERR(filter))
 			return PTR_ERR(filter);
 	}
@@ -1238,6 +1943,7 @@ static int ctnetlink_flush_conntrack(struct net *net,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int ctnetlink_del_conntrack(struct net *net, struct sock *ctnl,
 				   struct sk_buff *skb,
 				   const struct nlmsghdr *nlh,
@@ -1250,6 +1956,17 @@ static int ctnetlink_del_conntrack(struct net *net, struct sock *ctnl,
 	struct nfgenmsg *nfmsg = nlmsg_data(nlh);
 	u_int8_t u3 = nfmsg->nfgen_family;
 	struct nf_conntrack_zone zone;
+=======
+static int ctnetlink_del_conntrack(struct sk_buff *skb,
+				   const struct nfnl_info *info,
+				   const struct nlattr * const cda[])
+{
+	u8 family = info->nfmsg->nfgen_family;
+	struct nf_conntrack_tuple_hash *h;
+	struct nf_conntrack_tuple tuple;
+	struct nf_conntrack_zone zone;
+	struct nf_conn *ct;
+>>>>>>> upstream/android-13
 	int err;
 
 	err = ctnetlink_parse_zone(cda[CTA_ZONE], &zone);
@@ -1258,6 +1975,7 @@ static int ctnetlink_del_conntrack(struct net *net, struct sock *ctnl,
 
 	if (cda[CTA_TUPLE_ORIG])
 		err = ctnetlink_parse_tuple(cda, &tuple, CTA_TUPLE_ORIG,
+<<<<<<< HEAD
 					    u3, &zone);
 	else if (cda[CTA_TUPLE_REPLY])
 		err = ctnetlink_parse_tuple(cda, &tuple, CTA_TUPLE_REPLY,
@@ -1266,12 +1984,28 @@ static int ctnetlink_del_conntrack(struct net *net, struct sock *ctnl,
 		return ctnetlink_flush_conntrack(net, cda,
 						 NETLINK_CB(skb).portid,
 						 nlmsg_report(nlh));
+=======
+					    family, &zone);
+	else if (cda[CTA_TUPLE_REPLY])
+		err = ctnetlink_parse_tuple(cda, &tuple, CTA_TUPLE_REPLY,
+					    family, &zone);
+	else {
+		u_int8_t u3 = info->nfmsg->version ? family : AF_UNSPEC;
+
+		return ctnetlink_flush_conntrack(info->net, cda,
+						 NETLINK_CB(skb).portid,
+						 nlmsg_report(info->nlh), u3);
+>>>>>>> upstream/android-13
 	}
 
 	if (err < 0)
 		return err;
 
+<<<<<<< HEAD
 	h = nf_conntrack_find_get(net, &zone, &tuple);
+=======
+	h = nf_conntrack_find_get(info->net, &zone, &tuple);
+>>>>>>> upstream/android-13
 	if (!h)
 		return -ENOENT;
 
@@ -1291,12 +2025,17 @@ static int ctnetlink_del_conntrack(struct net *net, struct sock *ctnl,
 		}
 	}
 
+<<<<<<< HEAD
 	nf_ct_delete(ct, NETLINK_CB(skb).portid, nlmsg_report(nlh));
+=======
+	nf_ct_delete(ct, NETLINK_CB(skb).portid, nlmsg_report(info->nlh));
+>>>>>>> upstream/android-13
 	nf_ct_put(ct);
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int ctnetlink_get_conntrack(struct net *net, struct sock *ctnl,
 				   struct sk_buff *skb,
 				   const struct nlmsghdr *nlh,
@@ -1313,6 +2052,21 @@ static int ctnetlink_get_conntrack(struct net *net, struct sock *ctnl,
 	int err;
 
 	if (nlh->nlmsg_flags & NLM_F_DUMP) {
+=======
+static int ctnetlink_get_conntrack(struct sk_buff *skb,
+				   const struct nfnl_info *info,
+				   const struct nlattr * const cda[])
+{
+	u_int8_t u3 = info->nfmsg->nfgen_family;
+	struct nf_conntrack_tuple_hash *h;
+	struct nf_conntrack_tuple tuple;
+	struct nf_conntrack_zone zone;
+	struct sk_buff *skb2;
+	struct nf_conn *ct;
+	int err;
+
+	if (info->nlh->nlmsg_flags & NLM_F_DUMP) {
+>>>>>>> upstream/android-13
 		struct netlink_dump_control c = {
 			.start = ctnetlink_start,
 			.dump = ctnetlink_dump_table,
@@ -1320,7 +2074,11 @@ static int ctnetlink_get_conntrack(struct net *net, struct sock *ctnl,
 			.data = (void *)cda,
 		};
 
+<<<<<<< HEAD
 		return netlink_dump_start(ctnl, skb, nlh, &c);
+=======
+		return netlink_dump_start(info->sk, skb, info->nlh, &c);
+>>>>>>> upstream/android-13
 	}
 
 	err = ctnetlink_parse_zone(cda[CTA_ZONE], &zone);
@@ -1339,19 +2097,29 @@ static int ctnetlink_get_conntrack(struct net *net, struct sock *ctnl,
 	if (err < 0)
 		return err;
 
+<<<<<<< HEAD
 	h = nf_conntrack_find_get(net, &zone, &tuple);
+=======
+	h = nf_conntrack_find_get(info->net, &zone, &tuple);
+>>>>>>> upstream/android-13
 	if (!h)
 		return -ENOENT;
 
 	ct = nf_ct_tuplehash_to_ctrack(h);
 
+<<<<<<< HEAD
 	err = -ENOMEM;
 	skb2 = nlmsg_new(NLMSG_DEFAULT_SIZE, GFP_KERNEL);
 	if (skb2 == NULL) {
+=======
+	skb2 = nlmsg_new(NLMSG_DEFAULT_SIZE, GFP_KERNEL);
+	if (!skb2) {
+>>>>>>> upstream/android-13
 		nf_ct_put(ct);
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	rcu_read_lock();
 	err = ctnetlink_fill_info(skb2, NETLINK_CB(skb).portid, nlh->nlmsg_seq,
 				  NFNL_MSG_TYPE(nlh->nlmsg_type), ct);
@@ -1371,6 +2139,19 @@ free:
 out:
 	/* this avoids a loop in nfnetlink. */
 	return err == -EAGAIN ? -ENOBUFS : err;
+=======
+	err = ctnetlink_fill_info(skb2, NETLINK_CB(skb).portid,
+				  info->nlh->nlmsg_seq,
+				  NFNL_MSG_TYPE(info->nlh->nlmsg_type), ct,
+				  true, 0);
+	nf_ct_put(ct);
+	if (err <= 0) {
+		kfree_skb(skb2);
+		return -ENOMEM;
+	}
+
+	return nfnetlink_unicast(skb2, info->net, NETLINK_CB(skb).portid);
+>>>>>>> upstream/android-13
 }
 
 static int ctnetlink_done_list(struct netlink_callback *cb)
@@ -1417,6 +2198,7 @@ restart:
 					continue;
 				cb->args[1] = 0;
 			}
+<<<<<<< HEAD
 			rcu_read_lock();
 			res = ctnetlink_fill_info(skb, NETLINK_CB(cb->skb).portid,
 						  cb->nlh->nlmsg_seq,
@@ -1425,6 +2207,22 @@ restart:
 			rcu_read_unlock();
 			if (res < 0) {
 				if (!atomic_inc_not_zero(&ct->ct_general.use))
+=======
+
+			/* We can't dump extension info for the unconfirmed
+			 * list because unconfirmed conntracks can have
+			 * ct->ext reallocated (and thus freed).
+			 *
+			 * In the dying list case ct->ext can't be free'd
+			 * until after we drop pcpu->lock.
+			 */
+			res = ctnetlink_fill_info(skb, NETLINK_CB(cb->skb).portid,
+						  cb->nlh->nlmsg_seq,
+						  NFNL_MSG_TYPE(cb->nlh->nlmsg_type),
+						  ct, dying ? true : false, 0);
+			if (res < 0) {
+				if (!refcount_inc_not_zero(&ct->ct_general.use))
+>>>>>>> upstream/android-13
 					continue;
 				cb->args[0] = cpu;
 				cb->args[1] = (unsigned long)ct;
@@ -1452,6 +2250,7 @@ ctnetlink_dump_dying(struct sk_buff *skb, struct netlink_callback *cb)
 	return ctnetlink_dump_list(skb, cb, true);
 }
 
+<<<<<<< HEAD
 static int ctnetlink_get_ct_dying(struct net *net, struct sock *ctnl,
 				  struct sk_buff *skb,
 				  const struct nlmsghdr *nlh,
@@ -1459,11 +2258,22 @@ static int ctnetlink_get_ct_dying(struct net *net, struct sock *ctnl,
 				  struct netlink_ext_ack *extack)
 {
 	if (nlh->nlmsg_flags & NLM_F_DUMP) {
+=======
+static int ctnetlink_get_ct_dying(struct sk_buff *skb,
+				  const struct nfnl_info *info,
+				  const struct nlattr * const cda[])
+{
+	if (info->nlh->nlmsg_flags & NLM_F_DUMP) {
+>>>>>>> upstream/android-13
 		struct netlink_dump_control c = {
 			.dump = ctnetlink_dump_dying,
 			.done = ctnetlink_done_list,
 		};
+<<<<<<< HEAD
 		return netlink_dump_start(ctnl, skb, nlh, &c);
+=======
+		return netlink_dump_start(info->sk, skb, info->nlh, &c);
+>>>>>>> upstream/android-13
 	}
 
 	return -EOPNOTSUPP;
@@ -1475,6 +2285,7 @@ ctnetlink_dump_unconfirmed(struct sk_buff *skb, struct netlink_callback *cb)
 	return ctnetlink_dump_list(skb, cb, false);
 }
 
+<<<<<<< HEAD
 static int ctnetlink_get_ct_unconfirmed(struct net *net, struct sock *ctnl,
 					struct sk_buff *skb,
 					const struct nlmsghdr *nlh,
@@ -1482,21 +2293,40 @@ static int ctnetlink_get_ct_unconfirmed(struct net *net, struct sock *ctnl,
 					struct netlink_ext_ack *extack)
 {
 	if (nlh->nlmsg_flags & NLM_F_DUMP) {
+=======
+static int ctnetlink_get_ct_unconfirmed(struct sk_buff *skb,
+					const struct nfnl_info *info,
+					const struct nlattr * const cda[])
+{
+	if (info->nlh->nlmsg_flags & NLM_F_DUMP) {
+>>>>>>> upstream/android-13
 		struct netlink_dump_control c = {
 			.dump = ctnetlink_dump_unconfirmed,
 			.done = ctnetlink_done_list,
 		};
+<<<<<<< HEAD
 		return netlink_dump_start(ctnl, skb, nlh, &c);
+=======
+		return netlink_dump_start(info->sk, skb, info->nlh, &c);
+>>>>>>> upstream/android-13
 	}
 
 	return -EOPNOTSUPP;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_NF_NAT_NEEDED
+=======
+#if IS_ENABLED(CONFIG_NF_NAT)
+>>>>>>> upstream/android-13
 static int
 ctnetlink_parse_nat_setup(struct nf_conn *ct,
 			  enum nf_nat_manip_type manip,
 			  const struct nlattr *attr)
+<<<<<<< HEAD
+=======
+	__must_hold(RCU)
+>>>>>>> upstream/android-13
 {
 	struct nf_nat_hook *nat_hook;
 	int err;
@@ -1584,7 +2414,11 @@ ctnetlink_change_status(struct nf_conn *ct, const struct nlattr * const cda[])
 static int
 ctnetlink_setup_nat(struct nf_conn *ct, const struct nlattr * const cda[])
 {
+<<<<<<< HEAD
 #ifdef CONFIG_NF_NAT_NEEDED
+=======
+#if IS_ENABLED(CONFIG_NF_NAT)
+>>>>>>> upstream/android-13
 	int ret;
 
 	if (!cda[CTA_NAT_DST] && !cda[CTA_NAT_SRC])
@@ -1677,7 +2511,11 @@ static int ctnetlink_change_timeout(struct nf_conn *ct,
 
 	if (timeout > INT_MAX)
 		timeout = INT_MAX;
+<<<<<<< HEAD
 	ct->timeout = nfct_time_stamp + (u32)timeout;
+=======
+	WRITE_ONCE(ct->timeout, nfct_time_stamp + (u32)timeout);
+>>>>>>> upstream/android-13
 
 	if (test_bit(IPS_DYING_BIT, &ct->status))
 		return -ETIME;
@@ -1685,6 +2523,25 @@ static int ctnetlink_change_timeout(struct nf_conn *ct,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_NF_CONNTRACK_MARK)
+static void ctnetlink_change_mark(struct nf_conn *ct,
+				    const struct nlattr * const cda[])
+{
+	u32 mark, newmark, mask = 0;
+
+	if (cda[CTA_MARK_MASK])
+		mask = ~ntohl(nla_get_be32(cda[CTA_MARK_MASK]));
+
+	mark = ntohl(nla_get_be32(cda[CTA_MARK]));
+	newmark = (ct->mark & mask) ^ mark;
+	if (newmark != ct->mark)
+		ct->mark = newmark;
+}
+#endif
+
+>>>>>>> upstream/android-13
 static const struct nla_policy protoinfo_policy[CTA_PROTOINFO_MAX+1] = {
 	[CTA_PROTOINFO_TCP]	= { .type = NLA_NESTED },
 	[CTA_PROTOINFO_DCCP]	= { .type = NLA_NESTED },
@@ -1699,6 +2556,7 @@ static int ctnetlink_change_protoinfo(struct nf_conn *ct,
 	struct nlattr *tb[CTA_PROTOINFO_MAX+1];
 	int err = 0;
 
+<<<<<<< HEAD
 	err = nla_parse_nested(tb, CTA_PROTOINFO_MAX, attr, protoinfo_policy,
 			       NULL);
 	if (err < 0)
@@ -1709,6 +2567,16 @@ static int ctnetlink_change_protoinfo(struct nf_conn *ct,
 	if (l4proto->from_nlattr)
 		err = l4proto->from_nlattr(tb, ct);
 	rcu_read_unlock();
+=======
+	err = nla_parse_nested_deprecated(tb, CTA_PROTOINFO_MAX, attr,
+					  protoinfo_policy, NULL);
+	if (err < 0)
+		return err;
+
+	l4proto = nf_ct_l4proto_find(nf_ct_protonum(ct));
+	if (l4proto->from_nlattr)
+		err = l4proto->from_nlattr(tb, ct);
+>>>>>>> upstream/android-13
 
 	return err;
 }
@@ -1725,7 +2593,12 @@ static int change_seq_adj(struct nf_ct_seqadj *seq,
 	int err;
 	struct nlattr *cda[CTA_SEQADJ_MAX+1];
 
+<<<<<<< HEAD
 	err = nla_parse_nested(cda, CTA_SEQADJ_MAX, attr, seqadj_policy, NULL);
+=======
+	err = nla_parse_nested_deprecated(cda, CTA_SEQADJ_MAX, attr,
+					  seqadj_policy, NULL);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -1802,8 +2675,14 @@ static int ctnetlink_change_synproxy(struct nf_conn *ct,
 	if (!synproxy)
 		return 0;
 
+<<<<<<< HEAD
 	err = nla_parse_nested(tb, CTA_SYNPROXY_MAX, cda[CTA_SYNPROXY],
 			       synproxy_policy, NULL);
+=======
+	err = nla_parse_nested_deprecated(tb, CTA_SYNPROXY_MAX,
+					  cda[CTA_SYNPROXY], synproxy_policy,
+					  NULL);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -1880,7 +2759,11 @@ ctnetlink_change_conntrack(struct nf_conn *ct,
 
 #if defined(CONFIG_NF_CONNTRACK_MARK)
 	if (cda[CTA_MARK])
+<<<<<<< HEAD
 		ct->mark = ntohl(nla_get_be32(cda[CTA_MARK]));
+=======
+		ctnetlink_change_mark(ct, cda);
+>>>>>>> upstream/android-13
 #endif
 
 	if (cda[CTA_SEQ_ADJ_ORIG] || cda[CTA_SEQ_ADJ_REPLY]) {
@@ -1973,7 +2856,12 @@ ctnetlink_create_conntrack(struct net *net,
 			if (helper->from_nlattr)
 				helper->from_nlattr(helpinfo, ct);
 
+<<<<<<< HEAD
 			/* not in hash table yet so not strictly necessary */
+=======
+			/* disable helper auto-assignment for this entry */
+			ct->status |= IPS_HELPER;
+>>>>>>> upstream/android-13
 			RCU_INIT_POINTER(help->helper, helper);
 		}
 	} else {
@@ -2024,7 +2912,11 @@ ctnetlink_create_conntrack(struct net *net,
 
 #if defined(CONFIG_NF_CONNTRACK_MARK)
 	if (cda[CTA_MARK])
+<<<<<<< HEAD
 		ct->mark = ntohl(nla_get_be32(cda[CTA_MARK]));
+=======
+		ctnetlink_change_mark(ct, cda);
+>>>>>>> upstream/android-13
 #endif
 
 	/* setup master conntrack: this is a confirmed expectation */
@@ -2066,6 +2958,7 @@ err1:
 	return ERR_PTR(err);
 }
 
+<<<<<<< HEAD
 static int ctnetlink_new_conntrack(struct net *net, struct sock *ctnl,
 				   struct sk_buff *skb,
 				   const struct nlmsghdr *nlh,
@@ -2078,6 +2971,17 @@ static int ctnetlink_new_conntrack(struct net *net, struct sock *ctnl,
 	struct nf_conn *ct;
 	u_int8_t u3 = nfmsg->nfgen_family;
 	struct nf_conntrack_zone zone;
+=======
+static int ctnetlink_new_conntrack(struct sk_buff *skb,
+				   const struct nfnl_info *info,
+				   const struct nlattr * const cda[])
+{
+	struct nf_conntrack_tuple otuple, rtuple;
+	struct nf_conntrack_tuple_hash *h = NULL;
+	u_int8_t u3 = info->nfmsg->nfgen_family;
+	struct nf_conntrack_zone zone;
+	struct nf_conn *ct;
+>>>>>>> upstream/android-13
 	int err;
 
 	err = ctnetlink_parse_zone(cda[CTA_ZONE], &zone);
@@ -2099,6 +3003,7 @@ static int ctnetlink_new_conntrack(struct net *net, struct sock *ctnl,
 	}
 
 	if (cda[CTA_TUPLE_ORIG])
+<<<<<<< HEAD
 		h = nf_conntrack_find_get(net, &zone, &otuple);
 	else if (cda[CTA_TUPLE_REPLY])
 		h = nf_conntrack_find_get(net, &zone, &rtuple);
@@ -2106,6 +3011,15 @@ static int ctnetlink_new_conntrack(struct net *net, struct sock *ctnl,
 	if (h == NULL) {
 		err = -ENOENT;
 		if (nlh->nlmsg_flags & NLM_F_CREATE) {
+=======
+		h = nf_conntrack_find_get(info->net, &zone, &otuple);
+	else if (cda[CTA_TUPLE_REPLY])
+		h = nf_conntrack_find_get(info->net, &zone, &rtuple);
+
+	if (h == NULL) {
+		err = -ENOENT;
+		if (info->nlh->nlmsg_flags & NLM_F_CREATE) {
+>>>>>>> upstream/android-13
 			enum ip_conntrack_events events;
 
 			if (!cda[CTA_TUPLE_ORIG] || !cda[CTA_TUPLE_REPLY])
@@ -2113,8 +3027,13 @@ static int ctnetlink_new_conntrack(struct net *net, struct sock *ctnl,
 			if (otuple.dst.protonum != rtuple.dst.protonum)
 				return -EINVAL;
 
+<<<<<<< HEAD
 			ct = ctnetlink_create_conntrack(net, &zone, cda, &otuple,
 							&rtuple, u3);
+=======
+			ct = ctnetlink_create_conntrack(info->net, &zone, cda,
+							&otuple, &rtuple, u3);
+>>>>>>> upstream/android-13
 			if (IS_ERR(ct))
 				return PTR_ERR(ct);
 
@@ -2137,7 +3056,11 @@ static int ctnetlink_new_conntrack(struct net *net, struct sock *ctnl,
 						      (1 << IPCT_SYNPROXY) |
 						      events,
 						      ct, NETLINK_CB(skb).portid,
+<<<<<<< HEAD
 						      nlmsg_report(nlh));
+=======
+						      nlmsg_report(info->nlh));
+>>>>>>> upstream/android-13
 			nf_ct_put(ct);
 		}
 
@@ -2147,7 +3070,11 @@ static int ctnetlink_new_conntrack(struct net *net, struct sock *ctnl,
 
 	err = -EEXIST;
 	ct = nf_ct_tuplehash_to_ctrack(h);
+<<<<<<< HEAD
 	if (!(nlh->nlmsg_flags & NLM_F_EXCL)) {
+=======
+	if (!(info->nlh->nlmsg_flags & NLM_F_EXCL)) {
+>>>>>>> upstream/android-13
 		err = ctnetlink_change_conntrack(ct, cda);
 		if (err == 0) {
 			nf_conntrack_eventmask_report((1 << IPCT_REPLY) |
@@ -2159,7 +3086,11 @@ static int ctnetlink_new_conntrack(struct net *net, struct sock *ctnl,
 						      (1 << IPCT_MARK) |
 						      (1 << IPCT_SYNPROXY),
 						      ct, NETLINK_CB(skb).portid,
+<<<<<<< HEAD
 						      nlmsg_report(nlh));
+=======
+						      nlmsg_report(info->nlh));
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -2172,11 +3103,15 @@ ctnetlink_ct_stat_cpu_fill_info(struct sk_buff *skb, u32 portid, u32 seq,
 				__u16 cpu, const struct ip_conntrack_stat *st)
 {
 	struct nlmsghdr *nlh;
+<<<<<<< HEAD
 	struct nfgenmsg *nfmsg;
+=======
+>>>>>>> upstream/android-13
 	unsigned int flags = portid ? NLM_F_MULTI : 0, event;
 
 	event = nfnl_msg_type(NFNL_SUBSYS_CTNETLINK,
 			      IPCTNL_MSG_CT_GET_STATS_CPU);
+<<<<<<< HEAD
 	nlh = nlmsg_put(skb, portid, seq, event, sizeof(*nfmsg), flags);
 	if (nlh == NULL)
 		goto nlmsg_failure;
@@ -2189,6 +3124,15 @@ ctnetlink_ct_stat_cpu_fill_info(struct sk_buff *skb, u32 portid, u32 seq,
 	if (nla_put_be32(skb, CTA_STATS_FOUND, htonl(st->found)) ||
 	    nla_put_be32(skb, CTA_STATS_INVALID, htonl(st->invalid)) ||
 	    nla_put_be32(skb, CTA_STATS_IGNORE, htonl(st->ignore)) ||
+=======
+	nlh = nfnl_msg_put(skb, portid, seq, event, flags, AF_UNSPEC,
+			   NFNETLINK_V0, htons(cpu));
+	if (!nlh)
+		goto nlmsg_failure;
+
+	if (nla_put_be32(skb, CTA_STATS_FOUND, htonl(st->found)) ||
+	    nla_put_be32(skb, CTA_STATS_INVALID, htonl(st->invalid)) ||
+>>>>>>> upstream/android-13
 	    nla_put_be32(skb, CTA_STATS_INSERT, htonl(st->insert)) ||
 	    nla_put_be32(skb, CTA_STATS_INSERT_FAILED,
 				htonl(st->insert_failed)) ||
@@ -2196,7 +3140,15 @@ ctnetlink_ct_stat_cpu_fill_info(struct sk_buff *skb, u32 portid, u32 seq,
 	    nla_put_be32(skb, CTA_STATS_EARLY_DROP, htonl(st->early_drop)) ||
 	    nla_put_be32(skb, CTA_STATS_ERROR, htonl(st->error)) ||
 	    nla_put_be32(skb, CTA_STATS_SEARCH_RESTART,
+<<<<<<< HEAD
 				htonl(st->search_restart)))
+=======
+				htonl(st->search_restart)) ||
+	    nla_put_be32(skb, CTA_STATS_CLASH_RESOLVE,
+				htonl(st->clash_resolve)) ||
+	    nla_put_be32(skb, CTA_STATS_CHAIN_TOOLONG,
+			 htonl(st->chaintoolong)))
+>>>>>>> upstream/android-13
 		goto nla_put_failure;
 
 	nlmsg_end(skb, nlh);
@@ -2235,6 +3187,7 @@ ctnetlink_ct_stat_cpu_dump(struct sk_buff *skb, struct netlink_callback *cb)
 	return skb->len;
 }
 
+<<<<<<< HEAD
 static int ctnetlink_stat_ct_cpu(struct net *net, struct sock *ctnl,
 				 struct sk_buff *skb,
 				 const struct nlmsghdr *nlh,
@@ -2246,6 +3199,17 @@ static int ctnetlink_stat_ct_cpu(struct net *net, struct sock *ctnl,
 			.dump = ctnetlink_ct_stat_cpu_dump,
 		};
 		return netlink_dump_start(ctnl, skb, nlh, &c);
+=======
+static int ctnetlink_stat_ct_cpu(struct sk_buff *skb,
+				 const struct nfnl_info *info,
+				 const struct nlattr * const cda[])
+{
+	if (info->nlh->nlmsg_flags & NLM_F_DUMP) {
+		struct netlink_dump_control c = {
+			.dump = ctnetlink_ct_stat_cpu_dump,
+		};
+		return netlink_dump_start(info->sk, skb, info->nlh, &c);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -2255,6 +3219,7 @@ static int
 ctnetlink_stat_ct_fill_info(struct sk_buff *skb, u32 portid, u32 seq, u32 type,
 			    struct net *net)
 {
+<<<<<<< HEAD
 	struct nlmsghdr *nlh;
 	struct nfgenmsg *nfmsg;
 	unsigned int flags = portid ? NLM_F_MULTI : 0, event;
@@ -2270,6 +3235,19 @@ ctnetlink_stat_ct_fill_info(struct sk_buff *skb, u32 portid, u32 seq, u32 type,
 	nfmsg->version      = NFNETLINK_V0;
 	nfmsg->res_id	    = 0;
 
+=======
+	unsigned int flags = portid ? NLM_F_MULTI : 0, event;
+	unsigned int nr_conntracks;
+	struct nlmsghdr *nlh;
+
+	event = nfnl_msg_type(NFNL_SUBSYS_CTNETLINK, IPCTNL_MSG_CT_GET_STATS);
+	nlh = nfnl_msg_put(skb, portid, seq, event, flags, AF_UNSPEC,
+			   NFNETLINK_V0, 0);
+	if (!nlh)
+		goto nlmsg_failure;
+
+	nr_conntracks = nf_conntrack_count(net);
+>>>>>>> upstream/android-13
 	if (nla_put_be32(skb, CTA_STATS_GLOBAL_ENTRIES, htonl(nr_conntracks)))
 		goto nla_put_failure;
 
@@ -2285,10 +3263,15 @@ nlmsg_failure:
 	return -1;
 }
 
+<<<<<<< HEAD
 static int ctnetlink_stat_ct(struct net *net, struct sock *ctnl,
 			     struct sk_buff *skb, const struct nlmsghdr *nlh,
 			     const struct nlattr * const cda[],
 			     struct netlink_ext_ack *extack)
+=======
+static int ctnetlink_stat_ct(struct sk_buff *skb, const struct nfnl_info *info,
+			     const struct nlattr * const cda[])
+>>>>>>> upstream/android-13
 {
 	struct sk_buff *skb2;
 	int err;
@@ -2298,6 +3281,7 @@ static int ctnetlink_stat_ct(struct net *net, struct sock *ctnl,
 		return -ENOMEM;
 
 	err = ctnetlink_stat_ct_fill_info(skb2, NETLINK_CB(skb).portid,
+<<<<<<< HEAD
 					  nlh->nlmsg_seq,
 					  NFNL_MSG_TYPE(nlh->nlmsg_type),
 					  sock_net(skb->sk));
@@ -2315,6 +3299,17 @@ free:
 out:
 	/* this avoids a loop in nfnetlink. */
 	return err == -EAGAIN ? -ENOBUFS : err;
+=======
+					  info->nlh->nlmsg_seq,
+					  NFNL_MSG_TYPE(info->nlh->nlmsg_type),
+					  sock_net(skb->sk));
+	if (err <= 0) {
+		kfree_skb(skb2);
+		return -ENOMEM;
+	}
+
+	return nfnetlink_unicast(skb2, info->net, NETLINK_CB(skb).portid);
+>>>>>>> upstream/android-13
 }
 
 static const struct nla_policy exp_nla_policy[CTA_EXPECT_MAX+1] = {
@@ -2353,7 +3348,13 @@ ctnetlink_glue_build_size(const struct nf_conn *ct)
 	       + nla_total_size(0) /* CTA_HELP */
 	       + nla_total_size(NF_CT_HELPER_NAME_LEN) /* CTA_HELP_NAME */
 	       + ctnetlink_secctx_size(ct)
+<<<<<<< HEAD
 #ifdef CONFIG_NF_NAT_NEEDED
+=======
+	       + ctnetlink_acct_size(ct)
+	       + ctnetlink_timestamp_size(ct)
+#if IS_ENABLED(CONFIG_NF_NAT)
+>>>>>>> upstream/android-13
 	       + 2 * nla_total_size(0) /* CTA_NAT_SEQ_ADJ_ORIG|REPL */
 	       + 6 * nla_total_size(sizeof(u_int32_t)) /* CTA_NAT_SEQ_OFFSET */
 #endif
@@ -2367,12 +3368,15 @@ ctnetlink_glue_build_size(const struct nf_conn *ct)
 	       ;
 }
 
+<<<<<<< HEAD
 static struct nf_conn *ctnetlink_glue_get_ct(const struct sk_buff *skb,
 					     enum ip_conntrack_info *ctinfo)
 {
 	return nf_ct_get(skb, ctinfo);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int __ctnetlink_glue_build(struct sk_buff *skb, struct nf_conn *ct)
 {
 	const struct nf_conntrack_zone *zone;
@@ -2380,7 +3384,11 @@ static int __ctnetlink_glue_build(struct sk_buff *skb, struct nf_conn *ct)
 
 	zone = nf_ct_zone(ct);
 
+<<<<<<< HEAD
 	nest_parms = nla_nest_start(skb, CTA_TUPLE_ORIG | NLA_F_NESTED);
+=======
+	nest_parms = nla_nest_start(skb, CTA_TUPLE_ORIG);
+>>>>>>> upstream/android-13
 	if (!nest_parms)
 		goto nla_put_failure;
 	if (ctnetlink_dump_tuples(skb, nf_ct_tuple(ct, IP_CT_DIR_ORIGINAL)) < 0)
@@ -2390,7 +3398,11 @@ static int __ctnetlink_glue_build(struct sk_buff *skb, struct nf_conn *ct)
 		goto nla_put_failure;
 	nla_nest_end(skb, nest_parms);
 
+<<<<<<< HEAD
 	nest_parms = nla_nest_start(skb, CTA_TUPLE_REPLY | NLA_F_NESTED);
+=======
+	nest_parms = nla_nest_start(skb, CTA_TUPLE_REPLY);
+>>>>>>> upstream/android-13
 	if (!nest_parms)
 		goto nla_put_failure;
 	if (ctnetlink_dump_tuples(skb, nf_ct_tuple(ct, IP_CT_DIR_REPLY)) < 0)
@@ -2410,10 +3422,21 @@ static int __ctnetlink_glue_build(struct sk_buff *skb, struct nf_conn *ct)
 	if (ctnetlink_dump_status(skb, ct) < 0)
 		goto nla_put_failure;
 
+<<<<<<< HEAD
 	if (ctnetlink_dump_timeout(skb, ct) < 0)
 		goto nla_put_failure;
 
 	if (ctnetlink_dump_protoinfo(skb, ct) < 0)
+=======
+	if (ctnetlink_dump_timeout(skb, ct, false) < 0)
+		goto nla_put_failure;
+
+	if (ctnetlink_dump_protoinfo(skb, ct, false) < 0)
+		goto nla_put_failure;
+
+	if (ctnetlink_dump_acct(skb, ct, IPCTNL_MSG_CT_GET) < 0 ||
+	    ctnetlink_dump_timestamp(skb, ct) < 0)
+>>>>>>> upstream/android-13
 		goto nla_put_failure;
 
 	if (ctnetlink_dump_helpinfo(skb, ct) < 0)
@@ -2452,7 +3475,11 @@ ctnetlink_glue_build(struct sk_buff *skb, struct nf_conn *ct,
 {
 	struct nlattr *nest_parms;
 
+<<<<<<< HEAD
 	nest_parms = nla_nest_start(skb, ct_attr | NLA_F_NESTED);
+=======
+	nest_parms = nla_nest_start(skb, ct_attr);
+>>>>>>> upstream/android-13
 	if (!nest_parms)
 		goto nla_put_failure;
 
@@ -2521,6 +3548,7 @@ ctnetlink_glue_parse_ct(const struct nlattr *cda[], struct nf_conn *ct)
 	}
 #if defined(CONFIG_NF_CONNTRACK_MARK)
 	if (cda[CTA_MARK]) {
+<<<<<<< HEAD
 		u32 mask = 0, mark, newmark;
 		if (cda[CTA_MARK_MASK])
 			mask = ~ntohl(nla_get_be32(cda[CTA_MARK_MASK]));
@@ -2529,6 +3557,9 @@ ctnetlink_glue_parse_ct(const struct nlattr *cda[], struct nf_conn *ct)
 		newmark = (ct->mark & mask) ^ mark;
 		if (newmark != ct->mark)
 			ct->mark = newmark;
+=======
+		ctnetlink_change_mark(ct, cda);
+>>>>>>> upstream/android-13
 	}
 #endif
 	return 0;
@@ -2540,7 +3571,12 @@ ctnetlink_glue_parse(const struct nlattr *attr, struct nf_conn *ct)
 	struct nlattr *cda[CTA_MAX+1];
 	int ret;
 
+<<<<<<< HEAD
 	ret = nla_parse_nested(cda, CTA_MAX, attr, ct_nla_policy, NULL);
+=======
+	ret = nla_parse_nested_deprecated(cda, CTA_MAX, attr, ct_nla_policy,
+					  NULL);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 
@@ -2573,8 +3609,13 @@ ctnetlink_glue_attach_expect(const struct nlattr *attr, struct nf_conn *ct,
 	struct nf_conntrack_expect *exp;
 	int err;
 
+<<<<<<< HEAD
 	err = nla_parse_nested(cda, CTA_EXPECT_MAX, attr, exp_nla_policy,
 			       NULL);
+=======
+	err = nla_parse_nested_deprecated(cda, CTA_EXPECT_MAX, attr,
+					  exp_nla_policy, NULL);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -2597,7 +3638,11 @@ ctnetlink_glue_attach_expect(const struct nlattr *attr, struct nf_conn *ct,
 	if (IS_ERR(exp))
 		return PTR_ERR(exp);
 
+<<<<<<< HEAD
 	err = nf_ct_expect_related_report(exp, portid, report);
+=======
+	err = nf_ct_expect_related_report(exp, portid, report, 0);
+>>>>>>> upstream/android-13
 	nf_ct_expect_put(exp);
 	return err;
 }
@@ -2612,7 +3657,10 @@ static void ctnetlink_glue_seqadj(struct sk_buff *skb, struct nf_conn *ct,
 }
 
 static struct nfnl_ct_hook ctnetlink_glue_hook = {
+<<<<<<< HEAD
 	.get_ct		= ctnetlink_glue_get_ct,
+=======
+>>>>>>> upstream/android-13
 	.build_size	= ctnetlink_glue_build_size,
 	.build		= ctnetlink_glue_build,
 	.parse		= ctnetlink_glue_parse,
@@ -2631,7 +3679,11 @@ static int ctnetlink_exp_dump_tuple(struct sk_buff *skb,
 {
 	struct nlattr *nest_parms;
 
+<<<<<<< HEAD
 	nest_parms = nla_nest_start(skb, type | NLA_F_NESTED);
+=======
+	nest_parms = nla_nest_start(skb, type);
+>>>>>>> upstream/android-13
 	if (!nest_parms)
 		goto nla_put_failure;
 	if (ctnetlink_dump_tuples(skb, tuple) < 0)
@@ -2659,16 +3711,25 @@ static int ctnetlink_exp_dump_mask(struct sk_buff *skb,
 	m.src.l3num = tuple->src.l3num;
 	m.dst.protonum = tuple->dst.protonum;
 
+<<<<<<< HEAD
 	nest_parms = nla_nest_start(skb, CTA_EXPECT_MASK | NLA_F_NESTED);
+=======
+	nest_parms = nla_nest_start(skb, CTA_EXPECT_MASK);
+>>>>>>> upstream/android-13
 	if (!nest_parms)
 		goto nla_put_failure;
 
 	rcu_read_lock();
 	ret = ctnetlink_dump_tuples_ip(skb, &m);
 	if (ret >= 0) {
+<<<<<<< HEAD
 		l4proto = __nf_ct_l4proto_find(tuple->src.l3num,
 					       tuple->dst.protonum);
 	ret = ctnetlink_dump_tuples_proto(skb, &m, l4proto);
+=======
+		l4proto = nf_ct_l4proto_find(tuple->dst.protonum);
+		ret = ctnetlink_dump_tuples_proto(skb, &m, l4proto);
+>>>>>>> upstream/android-13
 	}
 	rcu_read_unlock();
 
@@ -2711,7 +3772,11 @@ ctnetlink_exp_dump_expect(struct sk_buff *skb,
 	struct nf_conn *master = exp->master;
 	long timeout = ((long)exp->timeout.expires - (long)jiffies) / HZ;
 	struct nf_conn_help *help;
+<<<<<<< HEAD
 #ifdef CONFIG_NF_NAT_NEEDED
+=======
+#if IS_ENABLED(CONFIG_NF_NAT)
+>>>>>>> upstream/android-13
 	struct nlattr *nest_parms;
 	struct nf_conntrack_tuple nat_tuple = {};
 #endif
@@ -2729,10 +3794,17 @@ ctnetlink_exp_dump_expect(struct sk_buff *skb,
 				 CTA_EXPECT_MASTER) < 0)
 		goto nla_put_failure;
 
+<<<<<<< HEAD
 #ifdef CONFIG_NF_NAT_NEEDED
 	if (!nf_inet_addr_cmp(&exp->saved_addr, &any_addr) ||
 	    exp->saved_proto.all) {
 		nest_parms = nla_nest_start(skb, CTA_EXPECT_NAT | NLA_F_NESTED);
+=======
+#if IS_ENABLED(CONFIG_NF_NAT)
+	if (!nf_inet_addr_cmp(&exp->saved_addr, &any_addr) ||
+	    exp->saved_proto.all) {
+		nest_parms = nla_nest_start(skb, CTA_EXPECT_NAT);
+>>>>>>> upstream/android-13
 		if (!nest_parms)
 			goto nla_put_failure;
 
@@ -2780,6 +3852,7 @@ ctnetlink_exp_fill_info(struct sk_buff *skb, u32 portid, u32 seq,
 			int event, const struct nf_conntrack_expect *exp)
 {
 	struct nlmsghdr *nlh;
+<<<<<<< HEAD
 	struct nfgenmsg *nfmsg;
 	unsigned int flags = portid ? NLM_F_MULTI : 0;
 
@@ -2793,6 +3866,16 @@ ctnetlink_exp_fill_info(struct sk_buff *skb, u32 portid, u32 seq,
 	nfmsg->version	    = NFNETLINK_V0;
 	nfmsg->res_id	    = 0;
 
+=======
+	unsigned int flags = portid ? NLM_F_MULTI : 0;
+
+	event = nfnl_msg_type(NFNL_SUBSYS_CTNETLINK_EXP, event);
+	nlh = nfnl_msg_put(skb, portid, seq, event, flags,
+			   exp->tuple.src.l3num, NFNETLINK_V0, 0);
+	if (!nlh)
+		goto nlmsg_failure;
+
+>>>>>>> upstream/android-13
 	if (ctnetlink_exp_dump_expect(skb, exp) < 0)
 		goto nla_put_failure;
 
@@ -2807,12 +3890,19 @@ nla_put_failure:
 
 #ifdef CONFIG_NF_CONNTRACK_EVENTS
 static int
+<<<<<<< HEAD
 ctnetlink_expect_event(unsigned int events, struct nf_exp_event *item)
+=======
+ctnetlink_expect_event(unsigned int events, const struct nf_exp_event *item)
+>>>>>>> upstream/android-13
 {
 	struct nf_conntrack_expect *exp = item->exp;
 	struct net *net = nf_ct_exp_net(exp);
 	struct nlmsghdr *nlh;
+<<<<<<< HEAD
 	struct nfgenmsg *nfmsg;
+=======
+>>>>>>> upstream/android-13
 	struct sk_buff *skb;
 	unsigned int type, group;
 	int flags = 0;
@@ -2835,6 +3925,7 @@ ctnetlink_expect_event(unsigned int events, struct nf_exp_event *item)
 		goto errout;
 
 	type = nfnl_msg_type(NFNL_SUBSYS_CTNETLINK_EXP, type);
+<<<<<<< HEAD
 	nlh = nlmsg_put(skb, item->portid, 0, type, sizeof(*nfmsg), flags);
 	if (nlh == NULL)
 		goto nlmsg_failure;
@@ -2844,6 +3935,13 @@ ctnetlink_expect_event(unsigned int events, struct nf_exp_event *item)
 	nfmsg->version	    = NFNETLINK_V0;
 	nfmsg->res_id	    = 0;
 
+=======
+	nlh = nfnl_msg_put(skb, item->portid, 0, type, flags,
+			   exp->tuple.src.l3num, NFNETLINK_V0, 0);
+	if (!nlh)
+		goto nlmsg_failure;
+
+>>>>>>> upstream/android-13
 	if (ctnetlink_exp_dump_expect(skb, exp) < 0)
 		goto nla_put_failure;
 
@@ -3008,6 +4106,7 @@ static int ctnetlink_dump_exp_ct(struct net *net, struct sock *ctnl,
 	return err;
 }
 
+<<<<<<< HEAD
 static int ctnetlink_get_expect(struct net *net, struct sock *ctnl,
 				struct sk_buff *skb, const struct nlmsghdr *nlh,
 				const struct nlattr * const cda[],
@@ -3025,12 +4124,34 @@ static int ctnetlink_get_expect(struct net *net, struct sock *ctnl,
 		if (cda[CTA_EXPECT_MASTER])
 			return ctnetlink_dump_exp_ct(net, ctnl, skb, nlh, cda,
 						     extack);
+=======
+static int ctnetlink_get_expect(struct sk_buff *skb,
+				const struct nfnl_info *info,
+				const struct nlattr * const cda[])
+{
+	u_int8_t u3 = info->nfmsg->nfgen_family;
+	struct nf_conntrack_tuple tuple;
+	struct nf_conntrack_expect *exp;
+	struct nf_conntrack_zone zone;
+	struct sk_buff *skb2;
+	int err;
+
+	if (info->nlh->nlmsg_flags & NLM_F_DUMP) {
+		if (cda[CTA_EXPECT_MASTER])
+			return ctnetlink_dump_exp_ct(info->net, info->sk, skb,
+						     info->nlh, cda,
+						     info->extack);
+>>>>>>> upstream/android-13
 		else {
 			struct netlink_dump_control c = {
 				.dump = ctnetlink_exp_dump_table,
 				.done = ctnetlink_exp_done,
 			};
+<<<<<<< HEAD
 			return netlink_dump_start(ctnl, skb, nlh, &c);
+=======
+			return netlink_dump_start(info->sk, skb, info->nlh, &c);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -3050,7 +4171,11 @@ static int ctnetlink_get_expect(struct net *net, struct sock *ctnl,
 	if (err < 0)
 		return err;
 
+<<<<<<< HEAD
 	exp = nf_ct_expect_find_get(net, &zone, &tuple);
+=======
+	exp = nf_ct_expect_find_get(info->net, &zone, &tuple);
+>>>>>>> upstream/android-13
 	if (!exp)
 		return -ENOENT;
 
@@ -3063,15 +4188,23 @@ static int ctnetlink_get_expect(struct net *net, struct sock *ctnl,
 		}
 	}
 
+<<<<<<< HEAD
 	err = -ENOMEM;
 	skb2 = nlmsg_new(NLMSG_DEFAULT_SIZE, GFP_KERNEL);
 	if (skb2 == NULL) {
 		nf_ct_expect_put(exp);
 		goto out;
+=======
+	skb2 = nlmsg_new(NLMSG_DEFAULT_SIZE, GFP_KERNEL);
+	if (!skb2) {
+		nf_ct_expect_put(exp);
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 	}
 
 	rcu_read_lock();
 	err = ctnetlink_exp_fill_info(skb2, NETLINK_CB(skb).portid,
+<<<<<<< HEAD
 				      nlh->nlmsg_seq, IPCTNL_MSG_EXP_NEW, exp);
 	rcu_read_unlock();
 	nf_ct_expect_put(exp);
@@ -3089,6 +4222,18 @@ free:
 out:
 	/* this avoids a loop in nfnetlink. */
 	return err == -EAGAIN ? -ENOBUFS : err;
+=======
+				      info->nlh->nlmsg_seq, IPCTNL_MSG_EXP_NEW,
+				      exp);
+	rcu_read_unlock();
+	nf_ct_expect_put(exp);
+	if (err <= 0) {
+		kfree_skb(skb2);
+		return -ENOMEM;
+	}
+
+	return nfnetlink_unicast(skb2, info->net, NETLINK_CB(skb).portid);
+>>>>>>> upstream/android-13
 }
 
 static bool expect_iter_name(struct nf_conntrack_expect *exp, void *data)
@@ -3106,6 +4251,7 @@ static bool expect_iter_all(struct nf_conntrack_expect *exp, void *data)
 	return true;
 }
 
+<<<<<<< HEAD
 static int ctnetlink_del_expect(struct net *net, struct sock *ctnl,
 				struct sk_buff *skb, const struct nlmsghdr *nlh,
 				const struct nlattr * const cda[],
@@ -3115,6 +4261,15 @@ static int ctnetlink_del_expect(struct net *net, struct sock *ctnl,
 	struct nf_conntrack_tuple tuple;
 	struct nfgenmsg *nfmsg = nlmsg_data(nlh);
 	u_int8_t u3 = nfmsg->nfgen_family;
+=======
+static int ctnetlink_del_expect(struct sk_buff *skb,
+				const struct nfnl_info *info,
+				const struct nlattr * const cda[])
+{
+	u_int8_t u3 = info->nfmsg->nfgen_family;
+	struct nf_conntrack_expect *exp;
+	struct nf_conntrack_tuple tuple;
+>>>>>>> upstream/android-13
 	struct nf_conntrack_zone zone;
 	int err;
 
@@ -3130,7 +4285,11 @@ static int ctnetlink_del_expect(struct net *net, struct sock *ctnl,
 			return err;
 
 		/* bump usage count to 2 */
+<<<<<<< HEAD
 		exp = nf_ct_expect_find_get(net, &zone, &tuple);
+=======
+		exp = nf_ct_expect_find_get(info->net, &zone, &tuple);
+>>>>>>> upstream/android-13
 		if (!exp)
 			return -ENOENT;
 
@@ -3146,7 +4305,11 @@ static int ctnetlink_del_expect(struct net *net, struct sock *ctnl,
 		spin_lock_bh(&nf_conntrack_expect_lock);
 		if (del_timer(&exp->timeout)) {
 			nf_ct_unlink_expect_report(exp, NETLINK_CB(skb).portid,
+<<<<<<< HEAD
 						   nlmsg_report(nlh));
+=======
+						   nlmsg_report(info->nlh));
+>>>>>>> upstream/android-13
 			nf_ct_expect_put(exp);
 		}
 		spin_unlock_bh(&nf_conntrack_expect_lock);
@@ -3156,6 +4319,7 @@ static int ctnetlink_del_expect(struct net *net, struct sock *ctnl,
 	} else if (cda[CTA_EXPECT_HELP_NAME]) {
 		char *name = nla_data(cda[CTA_EXPECT_HELP_NAME]);
 
+<<<<<<< HEAD
 		nf_ct_expect_iterate_net(net, expect_iter_name, name,
 					 NETLINK_CB(skb).portid,
 					 nlmsg_report(nlh));
@@ -3164,6 +4328,16 @@ static int ctnetlink_del_expect(struct net *net, struct sock *ctnl,
 		nf_ct_expect_iterate_net(net, expect_iter_all, NULL,
 					 NETLINK_CB(skb).portid,
 					 nlmsg_report(nlh));
+=======
+		nf_ct_expect_iterate_net(info->net, expect_iter_name, name,
+					 NETLINK_CB(skb).portid,
+					 nlmsg_report(info->nlh));
+	} else {
+		/* This basically means we have to flush everything*/
+		nf_ct_expect_iterate_net(info->net, expect_iter_all, NULL,
+					 NETLINK_CB(skb).portid,
+					 nlmsg_report(info->nlh));
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -3193,13 +4367,22 @@ ctnetlink_parse_expect_nat(const struct nlattr *attr,
 			   struct nf_conntrack_expect *exp,
 			   u_int8_t u3)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_NF_NAT_NEEDED
+=======
+#if IS_ENABLED(CONFIG_NF_NAT)
+>>>>>>> upstream/android-13
 	struct nlattr *tb[CTA_EXPECT_NAT_MAX+1];
 	struct nf_conntrack_tuple nat_tuple = {};
 	int err;
 
+<<<<<<< HEAD
 	err = nla_parse_nested(tb, CTA_EXPECT_NAT_MAX, attr,
 			       exp_nat_nla_policy, NULL);
+=======
+	err = nla_parse_nested_deprecated(tb, CTA_EXPECT_NAT_MAX, attr,
+					  exp_nat_nla_policy, NULL);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -3350,7 +4533,11 @@ ctnetlink_create_expect(struct net *net,
 		goto err_rcu;
 	}
 
+<<<<<<< HEAD
 	err = nf_ct_expect_related_report(exp, portid, report);
+=======
+	err = nf_ct_expect_related_report(exp, portid, report, 0);
+>>>>>>> upstream/android-13
 	nf_ct_expect_put(exp);
 err_rcu:
 	rcu_read_unlock();
@@ -3359,6 +4546,7 @@ err_ct:
 	return err;
 }
 
+<<<<<<< HEAD
 static int ctnetlink_new_expect(struct net *net, struct sock *ctnl,
 				struct sk_buff *skb, const struct nlmsghdr *nlh,
 				const struct nlattr * const cda[],
@@ -3368,6 +4556,15 @@ static int ctnetlink_new_expect(struct net *net, struct sock *ctnl,
 	struct nf_conntrack_expect *exp;
 	struct nfgenmsg *nfmsg = nlmsg_data(nlh);
 	u_int8_t u3 = nfmsg->nfgen_family;
+=======
+static int ctnetlink_new_expect(struct sk_buff *skb,
+				const struct nfnl_info *info,
+				const struct nlattr * const cda[])
+{
+	u_int8_t u3 = info->nfmsg->nfgen_family;
+	struct nf_conntrack_tuple tuple;
+	struct nf_conntrack_expect *exp;
+>>>>>>> upstream/android-13
 	struct nf_conntrack_zone zone;
 	int err;
 
@@ -3386,6 +4583,7 @@ static int ctnetlink_new_expect(struct net *net, struct sock *ctnl,
 		return err;
 
 	spin_lock_bh(&nf_conntrack_expect_lock);
+<<<<<<< HEAD
 	exp = __nf_ct_expect_find(net, &zone, &tuple);
 	if (!exp) {
 		spin_unlock_bh(&nf_conntrack_expect_lock);
@@ -3394,12 +4592,26 @@ static int ctnetlink_new_expect(struct net *net, struct sock *ctnl,
 			err = ctnetlink_create_expect(net, &zone, cda, u3,
 						      NETLINK_CB(skb).portid,
 						      nlmsg_report(nlh));
+=======
+	exp = __nf_ct_expect_find(info->net, &zone, &tuple);
+	if (!exp) {
+		spin_unlock_bh(&nf_conntrack_expect_lock);
+		err = -ENOENT;
+		if (info->nlh->nlmsg_flags & NLM_F_CREATE) {
+			err = ctnetlink_create_expect(info->net, &zone, cda, u3,
+						      NETLINK_CB(skb).portid,
+						      nlmsg_report(info->nlh));
+>>>>>>> upstream/android-13
 		}
 		return err;
 	}
 
 	err = -EEXIST;
+<<<<<<< HEAD
 	if (!(nlh->nlmsg_flags & NLM_F_EXCL))
+=======
+	if (!(info->nlh->nlmsg_flags & NLM_F_EXCL))
+>>>>>>> upstream/android-13
 		err = ctnetlink_change_expect(exp, cda);
 	spin_unlock_bh(&nf_conntrack_expect_lock);
 
@@ -3411,11 +4623,15 @@ ctnetlink_exp_stat_fill_info(struct sk_buff *skb, u32 portid, u32 seq, int cpu,
 			     const struct ip_conntrack_stat *st)
 {
 	struct nlmsghdr *nlh;
+<<<<<<< HEAD
 	struct nfgenmsg *nfmsg;
+=======
+>>>>>>> upstream/android-13
 	unsigned int flags = portid ? NLM_F_MULTI : 0, event;
 
 	event = nfnl_msg_type(NFNL_SUBSYS_CTNETLINK,
 			      IPCTNL_MSG_EXP_GET_STATS_CPU);
+<<<<<<< HEAD
 	nlh = nlmsg_put(skb, portid, seq, event, sizeof(*nfmsg), flags);
 	if (nlh == NULL)
 		goto nlmsg_failure;
@@ -3425,6 +4641,13 @@ ctnetlink_exp_stat_fill_info(struct sk_buff *skb, u32 portid, u32 seq, int cpu,
 	nfmsg->version      = NFNETLINK_V0;
 	nfmsg->res_id	    = htons(cpu);
 
+=======
+	nlh = nfnl_msg_put(skb, portid, seq, event, flags, AF_UNSPEC,
+			   NFNETLINK_V0, htons(cpu));
+	if (!nlh)
+		goto nlmsg_failure;
+
+>>>>>>> upstream/android-13
 	if (nla_put_be32(skb, CTA_STATS_EXP_NEW, htonl(st->expect_new)) ||
 	    nla_put_be32(skb, CTA_STATS_EXP_CREATE, htonl(st->expect_create)) ||
 	    nla_put_be32(skb, CTA_STATS_EXP_DELETE, htonl(st->expect_delete)))
@@ -3465,6 +4688,7 @@ ctnetlink_exp_stat_cpu_dump(struct sk_buff *skb, struct netlink_callback *cb)
 	return skb->len;
 }
 
+<<<<<<< HEAD
 static int ctnetlink_stat_exp_cpu(struct net *net, struct sock *ctnl,
 				  struct sk_buff *skb,
 				  const struct nlmsghdr *nlh,
@@ -3476,6 +4700,17 @@ static int ctnetlink_stat_exp_cpu(struct net *net, struct sock *ctnl,
 			.dump = ctnetlink_exp_stat_cpu_dump,
 		};
 		return netlink_dump_start(ctnl, skb, nlh, &c);
+=======
+static int ctnetlink_stat_exp_cpu(struct sk_buff *skb,
+				  const struct nfnl_info *info,
+				  const struct nlattr * const cda[])
+{
+	if (info->nlh->nlmsg_flags & NLM_F_DUMP) {
+		struct netlink_dump_control c = {
+			.dump = ctnetlink_exp_stat_cpu_dump,
+		};
+		return netlink_dump_start(info->sk, skb, info->nlh, &c);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -3483,15 +4718,21 @@ static int ctnetlink_stat_exp_cpu(struct net *net, struct sock *ctnl,
 
 #ifdef CONFIG_NF_CONNTRACK_EVENTS
 static struct nf_ct_event_notifier ctnl_notifier = {
+<<<<<<< HEAD
 	.fcn = ctnetlink_conntrack_event,
 };
 
 static struct nf_exp_event_notifier ctnl_notifier_exp = {
 	.fcn = ctnetlink_expect_event,
+=======
+	.ct_event = ctnetlink_conntrack_event,
+	.exp_event = ctnetlink_expect_event,
+>>>>>>> upstream/android-13
 };
 #endif
 
 static const struct nfnl_callback ctnl_cb[IPCTNL_MSG_MAX] = {
+<<<<<<< HEAD
 	[IPCTNL_MSG_CT_NEW]		= { .call = ctnetlink_new_conntrack,
 					    .attr_count = CTA_MAX,
 					    .policy = ct_nla_policy },
@@ -3521,6 +4762,73 @@ static const struct nfnl_callback ctnl_exp_cb[IPCTNL_MSG_EXP_MAX] = {
 					    .attr_count = CTA_EXPECT_MAX,
 					    .policy = exp_nla_policy },
 	[IPCTNL_MSG_EXP_GET_STATS_CPU]	= { .call = ctnetlink_stat_exp_cpu },
+=======
+	[IPCTNL_MSG_CT_NEW]	= {
+		.call		= ctnetlink_new_conntrack,
+		.type		= NFNL_CB_MUTEX,
+		.attr_count	= CTA_MAX,
+		.policy		= ct_nla_policy
+	},
+	[IPCTNL_MSG_CT_GET]	= {
+		.call		= ctnetlink_get_conntrack,
+		.type		= NFNL_CB_MUTEX,
+		.attr_count	= CTA_MAX,
+		.policy		= ct_nla_policy
+	},
+	[IPCTNL_MSG_CT_DELETE]	= {
+		.call		= ctnetlink_del_conntrack,
+		.type		= NFNL_CB_MUTEX,
+		.attr_count	= CTA_MAX,
+		.policy		= ct_nla_policy
+	},
+	[IPCTNL_MSG_CT_GET_CTRZERO] = {
+		.call		= ctnetlink_get_conntrack,
+		.type		= NFNL_CB_MUTEX,
+		.attr_count	= CTA_MAX,
+		.policy		= ct_nla_policy
+	},
+	[IPCTNL_MSG_CT_GET_STATS_CPU] = {
+		.call		= ctnetlink_stat_ct_cpu,
+		.type		= NFNL_CB_MUTEX,
+	},
+	[IPCTNL_MSG_CT_GET_STATS] = {
+		.call		= ctnetlink_stat_ct,
+		.type		= NFNL_CB_MUTEX,
+	},
+	[IPCTNL_MSG_CT_GET_DYING] = {
+		.call		= ctnetlink_get_ct_dying,
+		.type		= NFNL_CB_MUTEX,
+	},
+	[IPCTNL_MSG_CT_GET_UNCONFIRMED]	= {
+		.call		= ctnetlink_get_ct_unconfirmed,
+		.type		= NFNL_CB_MUTEX,
+	},
+};
+
+static const struct nfnl_callback ctnl_exp_cb[IPCTNL_MSG_EXP_MAX] = {
+	[IPCTNL_MSG_EXP_GET] = {
+		.call		= ctnetlink_get_expect,
+		.type		= NFNL_CB_MUTEX,
+		.attr_count	= CTA_EXPECT_MAX,
+		.policy		= exp_nla_policy
+	},
+	[IPCTNL_MSG_EXP_NEW] = {
+		.call		= ctnetlink_new_expect,
+		.type		= NFNL_CB_MUTEX,
+		.attr_count	= CTA_EXPECT_MAX,
+		.policy		= exp_nla_policy
+	},
+	[IPCTNL_MSG_EXP_DELETE] = {
+		.call		= ctnetlink_del_expect,
+		.type		= NFNL_CB_MUTEX,
+		.attr_count	= CTA_EXPECT_MAX,
+		.policy		= exp_nla_policy
+	},
+	[IPCTNL_MSG_EXP_GET_STATS_CPU] = {
+		.call		= ctnetlink_stat_exp_cpu,
+		.type		= NFNL_CB_MUTEX,
+	},
+>>>>>>> upstream/android-13
 };
 
 static const struct nfnetlink_subsystem ctnl_subsys = {
@@ -3544,6 +4852,7 @@ MODULE_ALIAS_NFNL_SUBSYS(NFNL_SUBSYS_CTNETLINK_EXP);
 static int __net_init ctnetlink_net_init(struct net *net)
 {
 #ifdef CONFIG_NF_CONNTRACK_EVENTS
+<<<<<<< HEAD
 	int ret;
 
 	ret = nf_conntrack_register_notifier(net, &ctnl_notifier);
@@ -3590,6 +4899,23 @@ static void __net_exit ctnetlink_net_exit_batch(struct list_head *net_exit_list)
 static struct pernet_operations ctnetlink_net_ops = {
 	.init		= ctnetlink_net_init,
 	.exit_batch	= ctnetlink_net_exit_batch,
+=======
+	nf_conntrack_register_notifier(net, &ctnl_notifier);
+#endif
+	return 0;
+}
+
+static void ctnetlink_net_pre_exit(struct net *net)
+{
+#ifdef CONFIG_NF_CONNTRACK_EVENTS
+	nf_conntrack_unregister_notifier(net);
+#endif
+}
+
+static struct pernet_operations ctnetlink_net_ops = {
+	.init		= ctnetlink_net_init,
+	.pre_exit	= ctnetlink_net_pre_exit,
+>>>>>>> upstream/android-13
 };
 
 static int __init ctnetlink_init(void)

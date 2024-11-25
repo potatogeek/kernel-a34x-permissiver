@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * AMD Memory Encryption Support
  *
  * Copyright (C) 2016 Advanced Micro Devices, Inc.
  *
  * Author: Tom Lendacky <thomas.lendacky@amd.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -12,6 +17,12 @@
 
 #include <linux/linkage.h>
 #include <asm/pgtable.h>
+=======
+ */
+
+#include <linux/linkage.h>
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 #include <asm/page.h>
 #include <asm/processor-flags.h>
 #include <asm/msr-index.h>
@@ -19,7 +30,11 @@
 
 	.text
 	.code64
+<<<<<<< HEAD
 ENTRY(sme_encrypt_execute)
+=======
+SYM_FUNC_START(sme_encrypt_execute)
+>>>>>>> upstream/android-13
 
 	/*
 	 * Entry parameters:
@@ -30,7 +45,11 @@ ENTRY(sme_encrypt_execute)
 	 *     - stack page (PAGE_SIZE)
 	 *     - encryption routine page (PAGE_SIZE)
 	 *     - intermediate copy buffer (PMD_PAGE_SIZE)
+<<<<<<< HEAD
 	 *    R8 - physcial address of the pagetables to use for encryption
+=======
+	 *    R8 - physical address of the pagetables to use for encryption
+>>>>>>> upstream/android-13
 	 */
 
 	push	%rbp
@@ -68,10 +87,17 @@ ENTRY(sme_encrypt_execute)
 	movq	%rbp, %rsp		/* Restore original stack pointer */
 	pop	%rbp
 
+<<<<<<< HEAD
 	ret
 ENDPROC(sme_encrypt_execute)
 
 ENTRY(__enc_copy)
+=======
+	RET
+SYM_FUNC_END(sme_encrypt_execute)
+
+SYM_FUNC_START(__enc_copy)
+>>>>>>> upstream/android-13
 /*
  * Routine used to encrypt memory in place.
  *   This routine must be run outside of the kernel proper since
@@ -154,6 +180,12 @@ ENTRY(__enc_copy)
 	pop	%r12
 	pop	%r15
 
+<<<<<<< HEAD
 	ret
 .L__enc_copy_end:
 ENDPROC(__enc_copy)
+=======
+	RET
+.L__enc_copy_end:
+SYM_FUNC_END(__enc_copy)
+>>>>>>> upstream/android-13

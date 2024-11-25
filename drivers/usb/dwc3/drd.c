@@ -1,8 +1,15 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 /**
  * drd.c - DesignWare USB3 DRD Controller Dual-role support
  *
  * Copyright (C) 2017 Texas Instruments Incorporated - http://www.ti.com
+=======
+/*
+ * drd.c - DesignWare USB3 DRD Controller Dual-role support
+ *
+ * Copyright (C) 2017 Texas Instruments Incorporated - https://www.ti.com
+>>>>>>> upstream/android-13
  *
  * Authors: Roger Quadros <rogerq@ti.com>
  */
@@ -10,6 +17,10 @@
 #include <linux/extcon.h>
 #include <linux/of_graph.h>
 #include <linux/platform_device.h>
+<<<<<<< HEAD
+=======
+#include <linux/property.h>
+>>>>>>> upstream/android-13
 
 #include "debug.h"
 #include "core.h"
@@ -55,7 +66,11 @@ static irqreturn_t dwc3_otg_thread_irq(int irq, void *_dwc)
 	spin_lock(&dwc->lock);
 	if (dwc->otg_restart_host) {
 		dwc3_otg_host_init(dwc);
+<<<<<<< HEAD
 		dwc->otg_restart_host = 0;
+=======
+		dwc->otg_restart_host = false;
+>>>>>>> upstream/android-13
 	}
 
 	spin_unlock(&dwc->lock);
@@ -81,7 +96,11 @@ static irqreturn_t dwc3_otg_irq(int irq, void *_dwc)
 
 		if (dwc->current_otg_role == DWC3_OTG_ROLE_HOST &&
 		    !(reg & DWC3_OEVT_DEVICEMODE))
+<<<<<<< HEAD
 			dwc->otg_restart_host = 1;
+=======
+			dwc->otg_restart_host = true;
+>>>>>>> upstream/android-13
 		dwc3_writel(dwc->regs, DWC3_OEVT, reg);
 		ret = IRQ_WAKE_THREAD;
 	}
@@ -138,14 +157,22 @@ static int dwc3_otg_get_irq(struct dwc3 *dwc)
 	struct platform_device *dwc3_pdev = to_platform_device(dwc->dev);
 	int irq;
 
+<<<<<<< HEAD
 	irq = platform_get_irq_byname(dwc3_pdev, "otg");
+=======
+	irq = platform_get_irq_byname_optional(dwc3_pdev, "otg");
+>>>>>>> upstream/android-13
 	if (irq > 0)
 		goto out;
 
 	if (irq == -EPROBE_DEFER)
 		goto out;
 
+<<<<<<< HEAD
 	irq = platform_get_irq_byname(dwc3_pdev, "dwc_usb3");
+=======
+	irq = platform_get_irq_byname_optional(dwc3_pdev, "dwc_usb3");
+>>>>>>> upstream/android-13
 	if (irq > 0)
 		goto out;
 
@@ -156,9 +183,12 @@ static int dwc3_otg_get_irq(struct dwc3 *dwc)
 	if (irq > 0)
 		goto out;
 
+<<<<<<< HEAD
 	if (irq != -EPROBE_DEFER)
 		dev_err(dwc->dev, "missing OTG IRQ\n");
 
+=======
+>>>>>>> upstream/android-13
 	if (!irq)
 		irq = -EINVAL;
 
@@ -443,6 +473,7 @@ static int dwc3_drd_notifier(struct notifier_block *nb,
 static struct extcon_dev *dwc3_get_extcon(struct dwc3 *dwc)
 {
 	struct device *dev = dwc->dev;
+<<<<<<< HEAD
 	struct device_node *np_phy, *np_conn;
 	struct extcon_dev *edev;
 
@@ -458,15 +489,148 @@ static struct extcon_dev *dwc3_get_extcon(struct dwc3 *dwc)
 		edev = NULL;
 
 	of_node_put(np_conn);
+=======
+	struct device_node *np_phy;
+	struct extcon_dev *edev = NULL;
+	const char *name;
+
+	if (device_property_read_bool(dev, "extcon"))
+		return extcon_get_edev_by_phandle(dev, 0);
+
+	/*
+	 * Device tree platforms should get extcon via phandle.
+	 * On ACPI platforms, we get the name from a device property.
+	 * This device property is for kernel internal use only and
+	 * is expected to be set by the glue code.
+	 */
+	if (device_property_read_string(dev, "linux,extcon-name", &name) == 0) {
+		edev = extcon_get_extcon_dev(name);
+		if (!edev)
+			return ERR_PTR(-EPROBE_DEFER);
+
+		return edev;
+	}
+
+	/*
+	 * Try to get an extcon device from the USB PHY controller's "port"
+	 * node. Check if it has the "port" node first, to avoid printing the
+	 * error message from underlying code, as it's a valid case: extcon
+	 * device (and "port" node) may be missing in case of "usb-role-switch"
+	 * or OTG mode.
+	 */
+	np_phy = of_parse_phandle(dev->of_node, "phys", 0);
+	if (of_graph_is_present(np_phy)) {
+		struct device_node *np_conn;
+
+		np_conn = of_graph_get_remote_node(np_phy, -1, -1);
+		if (np_conn)
+			edev = extcon_find_edev_by_node(np_conn);
+		of_node_put(np_conn);
+	}
+>>>>>>> upstream/android-13
 	of_node_put(np_phy);
 
 	return edev;
 }
 
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_USB_ROLE_SWITCH)
+#define ROLE_SWITCH 1
+static int dwc3_usb_role_switch_set(struct usb_role_switch *sw,
+				    enum usb_role role)
+{
+	struct dwc3 *dwc = usb_role_switch_get_drvdata(sw);
+	u32 mode;
+
+	switch (role) {
+	case USB_ROLE_HOST:
+		mode = DWC3_GCTL_PRTCAP_HOST;
+		break;
+	case USB_ROLE_DEVICE:
+		mode = DWC3_GCTL_PRTCAP_DEVICE;
+		break;
+	default:
+		if (dwc->role_switch_default_mode == USB_DR_MODE_HOST)
+			mode = DWC3_GCTL_PRTCAP_HOST;
+		else
+			mode = DWC3_GCTL_PRTCAP_DEVICE;
+		break;
+	}
+
+	dwc3_set_mode(dwc, mode);
+	return 0;
+}
+
+static enum usb_role dwc3_usb_role_switch_get(struct usb_role_switch *sw)
+{
+	struct dwc3 *dwc = usb_role_switch_get_drvdata(sw);
+	unsigned long flags;
+	enum usb_role role;
+
+	spin_lock_irqsave(&dwc->lock, flags);
+	switch (dwc->current_dr_role) {
+	case DWC3_GCTL_PRTCAP_HOST:
+		role = USB_ROLE_HOST;
+		break;
+	case DWC3_GCTL_PRTCAP_DEVICE:
+		role = USB_ROLE_DEVICE;
+		break;
+	case DWC3_GCTL_PRTCAP_OTG:
+		role = dwc->current_otg_role;
+		break;
+	default:
+		if (dwc->role_switch_default_mode == USB_DR_MODE_HOST)
+			role = USB_ROLE_HOST;
+		else
+			role = USB_ROLE_DEVICE;
+		break;
+	}
+	spin_unlock_irqrestore(&dwc->lock, flags);
+	return role;
+}
+
+static int dwc3_setup_role_switch(struct dwc3 *dwc)
+{
+	struct usb_role_switch_desc dwc3_role_switch = {NULL};
+	u32 mode;
+
+	dwc->role_switch_default_mode = usb_get_role_switch_default_mode(dwc->dev);
+	if (dwc->role_switch_default_mode == USB_DR_MODE_HOST) {
+		mode = DWC3_GCTL_PRTCAP_HOST;
+	} else {
+		dwc->role_switch_default_mode = USB_DR_MODE_PERIPHERAL;
+		mode = DWC3_GCTL_PRTCAP_DEVICE;
+	}
+
+	dwc3_role_switch.fwnode = dev_fwnode(dwc->dev);
+	dwc3_role_switch.set = dwc3_usb_role_switch_set;
+	dwc3_role_switch.get = dwc3_usb_role_switch_get;
+	dwc3_role_switch.driver_data = dwc;
+	dwc->role_sw = usb_role_switch_register(dwc->dev, &dwc3_role_switch);
+	if (IS_ERR(dwc->role_sw))
+		return PTR_ERR(dwc->role_sw);
+
+	dwc3_set_mode(dwc, mode);
+	return 0;
+}
+#else
+#define ROLE_SWITCH 0
+#define dwc3_setup_role_switch(x) 0
+#endif
+
+>>>>>>> upstream/android-13
 int dwc3_drd_init(struct dwc3 *dwc)
 {
 	int ret, irq;
 
+<<<<<<< HEAD
+=======
+	if (ROLE_SWITCH &&
+	    device_property_read_bool(dwc->dev, "usb-role-switch"))
+		return dwc3_setup_role_switch(dwc);
+
+>>>>>>> upstream/android-13
 	dwc->edev = dwc3_get_extcon(dwc);
 	if (IS_ERR(dwc->edev))
 		return PTR_ERR(dwc->edev);
@@ -483,7 +647,10 @@ int dwc3_drd_init(struct dwc3 *dwc)
 		dwc3_drd_update(dwc);
 	} else {
 		dwc3_set_prtcap(dwc, DWC3_GCTL_PRTCAP_OTG);
+<<<<<<< HEAD
 		dwc->current_dr_role = DWC3_GCTL_PRTCAP_OTG;
+=======
+>>>>>>> upstream/android-13
 
 		/* use OTG block to get ID event */
 		irq = dwc3_otg_get_irq(dwc);
@@ -518,6 +685,12 @@ void dwc3_drd_exit(struct dwc3 *dwc)
 {
 	unsigned long flags;
 
+<<<<<<< HEAD
+=======
+	if (dwc->role_sw)
+		usb_role_switch_unregister(dwc->role_sw);
+
+>>>>>>> upstream/android-13
 	if (dwc->edev)
 		extcon_unregister_notifier(dwc->edev, EXTCON_USB_HOST,
 					   &dwc->edev_nb);
@@ -544,6 +717,10 @@ void dwc3_drd_exit(struct dwc3 *dwc)
 		break;
 	}
 
+<<<<<<< HEAD
 	if (!dwc->edev)
+=======
+	if (dwc->otg_irq)
+>>>>>>> upstream/android-13
 		free_irq(dwc->otg_irq, dwc);
 }

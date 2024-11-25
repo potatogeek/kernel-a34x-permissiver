@@ -1,8 +1,14 @@
+<<<<<<< HEAD
 /**
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  * eCryptfs: Linux filesystem encryption layer
  *
  * Copyright (C) 2007 International Business Machines Corp.
  *   Author(s): Michael A. Halcrow <mahalcro@us.ibm.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,6 +24,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  * 02111-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/fs.h>
@@ -244,6 +252,11 @@ int ecryptfs_read_lower(char *data, loff_t offset, size_t size,
  * ecryptfs_read_lower_page_segment
  * @page_for_ecryptfs: The page into which data for eCryptfs will be
  *                     written
+<<<<<<< HEAD
+=======
+ * @page_index: Page index in @page_for_ecryptfs from which to start
+ *		writing
+>>>>>>> upstream/android-13
  * @offset_in_page: Offset in @page_for_ecryptfs from which to start
  *                  writing
  * @size: The number of bytes to write into @page_for_ecryptfs

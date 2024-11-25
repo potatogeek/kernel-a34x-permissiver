@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *
  * This header provides constants for the phy framework
  *
  * Copyright (C) 2014 STMicroelectronics
  * Author: Gabriel Fernandez <gabriel.fernandez@st.com>
+<<<<<<< HEAD
  * License terms:  GNU General Public License (GPL), version 2
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _DT_BINDINGS_PHY
@@ -16,5 +23,14 @@
 #define PHY_TYPE_USB2		3
 #define PHY_TYPE_USB3		4
 #define PHY_TYPE_UFS		5
+<<<<<<< HEAD
+=======
+#define PHY_TYPE_DP		6
+#define PHY_TYPE_XPCS		7
+#define PHY_TYPE_SGMII		8
+#define PHY_TYPE_QSGMII		9
+#define PHY_TYPE_DPHY		10
+#define PHY_TYPE_CPHY		11
+>>>>>>> upstream/android-13
 
 #endif /* _DT_BINDINGS_PHY */

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  Support for Digigram Lola PCI-e boards
  *
  *  Copyright (c) 2011 Takashi Iwai <tiwai@suse.de>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU General Public License as published by the Free
@@ -16,6 +21,8 @@
  *  You should have received a copy of the GNU General Public License along with
  *  this program; if not, write to the Free Software Foundation, Inc., 59
  *  Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _LOLA_H
@@ -316,7 +323,11 @@ struct lola_stream {
 
 struct lola_pcm {
 	unsigned int num_streams;
+<<<<<<< HEAD
 	struct snd_dma_buffer bdl; /* BDL buffer */
+=======
+	struct snd_dma_buffer *bdl; /* BDL buffer */
+>>>>>>> upstream/android-13
 	struct lola_stream streams[MAX_STREAM_COUNT];
 };
 
@@ -341,7 +352,11 @@ struct lola {
 	unsigned int last_cmd_nid, last_verb, last_data, last_extdata;
 
 	/* CORB/RIRB buffers */
+<<<<<<< HEAD
 	struct snd_dma_buffer rb;
+=======
+	struct snd_dma_buffer *rb;
+>>>>>>> upstream/android-13
 
 	/* unsolicited events */
 	unsigned int last_unsol_res;
@@ -493,7 +508,10 @@ int lola_codec_flush(struct lola *chip);
 
 /* PCM */
 int lola_create_pcm(struct lola *chip);
+<<<<<<< HEAD
 void lola_free_pcm(struct lola *chip);
+=======
+>>>>>>> upstream/android-13
 int lola_init_pcm(struct lola *chip, int dir, int *nidp);
 void lola_pcm_update(struct lola *chip, struct lola_pcm *pcm, unsigned int bits);
 

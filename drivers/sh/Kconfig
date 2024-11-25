@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 menu "SuperH / SH-Mobile Driver Options"
 
 source "drivers/sh/intc/Kconfig"

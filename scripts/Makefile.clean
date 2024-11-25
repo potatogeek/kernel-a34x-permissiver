@@ -8,15 +8,24 @@ src := $(obj)
 PHONY := __clean
 __clean:
 
+<<<<<<< HEAD
 include scripts/Kbuild.include
 
 # The filename Kbuild has precedence over Makefile
 kbuild-dir := $(if $(filter /%,$(src)),$(src),$(srctree)/$(src))
 -include $(if $(wildcard $(kbuild-dir)/Kbuild), $(kbuild-dir)/Kbuild, $(kbuild-dir)/Makefile)
+=======
+include $(srctree)/scripts/Kbuild.include
+
+# The filename Kbuild has precedence over Makefile
+kbuild-dir := $(if $(filter /%,$(src)),$(src),$(srctree)/$(src))
+include $(if $(wildcard $(kbuild-dir)/Kbuild), $(kbuild-dir)/Kbuild, $(kbuild-dir)/Makefile)
+>>>>>>> upstream/android-13
 
 # Figure out what we need to build from the various variables
 # ==========================================================================
 
+<<<<<<< HEAD
 __subdir-y	:= $(patsubst %/,%,$(filter %/, $(obj-y)))
 subdir-y	+= $(__subdir-y)
 __subdir-m	:= $(patsubst %/,%,$(filter %/, $(obj-m)))
@@ -28,6 +37,10 @@ subdir-		+= $(__subdir-)
 
 subdir-ym	:= $(sort $(subdir-y) $(subdir-m))
 subdir-ymn      := $(sort $(subdir-ym) $(subdir-))
+=======
+subdir-ymn := $(sort $(subdir-y) $(subdir-m) $(subdir-) \
+		$(patsubst %/,%, $(filter %/, $(obj-y) $(obj-m) $(obj-))))
+>>>>>>> upstream/android-13
 
 # Add subdir path
 
@@ -36,11 +49,20 @@ subdir-ymn	:= $(addprefix $(obj)/,$(subdir-ymn))
 # build a list of files to remove, usually relative to the current
 # directory
 
+<<<<<<< HEAD
 __clean-files	:= $(extra-y) $(extra-m) $(extra-)       \
 		   $(always) $(targets) $(clean-files)   \
 		   $(hostprogs-y) $(hostprogs-m) $(hostprogs-) \
 		   $(hostlibs-y) $(hostlibs-m) $(hostlibs-) \
 		   $(hostcxxlibs-y) $(hostcxxlibs-m)
+=======
+__clean-files	:= \
+	$(clean-files) $(targets) $(hostprogs) $(userprogs) \
+	$(extra-y) $(extra-m) $(extra-) \
+	$(always-y) $(always-m) $(always-) \
+	$(hostprogs-always-y) $(hostprogs-always-m) $(hostprogs-always-) \
+	$(userprogs-always-y) $(userprogs-always-m) $(userprogs-always-)
+>>>>>>> upstream/android-13
 
 __clean-files   := $(filter-out $(no-clean-files), $(__clean-files))
 
@@ -52,6 +74,7 @@ __clean-files   := $(wildcard                                               \
 		   $(addprefix $(obj)/, $(filter-out $(objtree)/%, $(__clean-files))) \
 		   $(filter $(objtree)/%, $(__clean-files)))
 
+<<<<<<< HEAD
 # same as clean-files
 
 __clean-dirs    := $(wildcard                                               \
@@ -72,6 +95,16 @@ ifneq ($(strip $(__clean-files)),)
 endif
 ifneq ($(strip $(__clean-dirs)),)
 	+$(call cmd,cleandir)
+=======
+# ==========================================================================
+
+quiet_cmd_clean = CLEAN   $(obj)
+      cmd_clean = rm -rf $(__clean-files)
+
+__clean: $(subdir-ymn)
+ifneq ($(strip $(__clean-files)),)
+	$(call cmd,clean)
+>>>>>>> upstream/android-13
 endif
 	@:
 

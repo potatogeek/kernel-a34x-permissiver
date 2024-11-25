@@ -1,9 +1,16 @@
+<<<<<<< HEAD
 /*
  * relocate_kernel.S - put the kernel image in place to boot
  * Copyright (C) 2002-2004 Eric Biederman  <ebiederm@xmission.com>
  *
  * This source code is licensed under the GNU General Public License,
  * Version 2.  See the file COPYING for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * relocate_kernel.S - put the kernel image in place to boot
+ * Copyright (C) 2002-2004 Eric Biederman  <ebiederm@xmission.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
@@ -37,8 +44,12 @@
 #define CP_PA_BACKUP_PAGES_MAP	DATA(0x1c)
 
 	.text
+<<<<<<< HEAD
 	.globl relocate_kernel
 relocate_kernel:
+=======
+SYM_CODE_START_NOALIGN(relocate_kernel)
+>>>>>>> upstream/android-13
 	/* Save the CPU context, used for jumping back */
 
 	pushl	%ebx
@@ -94,9 +105,16 @@ relocate_kernel:
 	movl    %edi, %eax
 	addl    $(identity_mapped - relocate_kernel), %eax
 	pushl   %eax
+<<<<<<< HEAD
 	ret
 
 identity_mapped:
+=======
+	RET
+SYM_CODE_END(relocate_kernel)
+
+SYM_CODE_START_LOCAL_NOALIGN(identity_mapped)
+>>>>>>> upstream/android-13
 	/* set return address to 0 if not preserving context */
 	pushl	$0
 	/* store the start address on the stack */
@@ -109,7 +127,11 @@ identity_mapped:
 	 *  - Write protect disabled
 	 *  - No task switch
 	 *  - Don't do FP software emulation.
+<<<<<<< HEAD
 	 *  - Proctected mode enabled
+=======
+	 *  - Protected mode enabled
+>>>>>>> upstream/android-13
 	 */
 	movl	%cr0, %eax
 	andl	$~(X86_CR0_PG | X86_CR0_AM | X86_CR0_WP | X86_CR0_TS | X86_CR0_EM), %eax
@@ -161,7 +183,11 @@ identity_mapped:
 	xorl    %edx, %edx
 	xorl    %esi, %esi
 	xorl    %ebp, %ebp
+<<<<<<< HEAD
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 1:
 	popl	%edx
 	movl	CP_PA_SWAP_PAGE(%edi), %esp
@@ -192,9 +218,16 @@ identity_mapped:
 	movl	%edi, %eax
 	addl	$(virtual_mapped - relocate_kernel), %eax
 	pushl	%eax
+<<<<<<< HEAD
 	ret
 
 virtual_mapped:
+=======
+	RET
+SYM_CODE_END(identity_mapped)
+
+SYM_CODE_START_LOCAL_NOALIGN(virtual_mapped)
+>>>>>>> upstream/android-13
 	movl	CR4(%edi), %eax
 	movl	%eax, %cr4
 	movl	CR3(%edi), %eax
@@ -209,10 +242,18 @@ virtual_mapped:
 	popl	%edi
 	popl	%esi
 	popl	%ebx
+<<<<<<< HEAD
 	ret
 
 	/* Do the copies */
 swap_pages:
+=======
+	RET
+SYM_CODE_END(virtual_mapped)
+
+	/* Do the copies */
+SYM_CODE_START_LOCAL_NOALIGN(swap_pages)
+>>>>>>> upstream/android-13
 	movl	8(%esp), %edx
 	movl	4(%esp), %ecx
 	pushl	%ebp
@@ -271,7 +312,12 @@ swap_pages:
 	popl	%edi
 	popl	%ebx
 	popl	%ebp
+<<<<<<< HEAD
 	ret
+=======
+	RET
+SYM_CODE_END(swap_pages)
+>>>>>>> upstream/android-13
 
 	.globl kexec_control_code_size
 .set kexec_control_code_size, . - relocate_kernel

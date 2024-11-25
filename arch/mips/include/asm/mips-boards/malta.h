@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Carsten Langgaard, carstenl@mips.com
  * Copyright (C) 2000 MIPS Technologies, Inc.  All rights reserved.
  *
+<<<<<<< HEAD
  *  This program is free software; you can distribute it and/or modify it
  *  under the terms of the GNU General Public License (Version 2) as
  *  published by the Free Software Foundation.
@@ -15,6 +20,8 @@
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  59 Temple Place - Suite 330, Boston MA 02111-1307, USA.
  *
+=======
+>>>>>>> upstream/android-13
  * Defines of the Malta board specific address-MAP, registers, etc.
  */
 #ifndef __ASM_MIPS_BOARDS_MALTA_H
@@ -104,4 +111,9 @@ static inline unsigned long get_msc_port_base(unsigned long reg)
 
 #define MALTA_JMPRS_REG		0x1f000210
 
+<<<<<<< HEAD
+=======
+extern void __init *malta_dt_shim(void *fdt);
+
+>>>>>>> upstream/android-13
 #endif /* __ASM_MIPS_BOARDS_MALTA_H */

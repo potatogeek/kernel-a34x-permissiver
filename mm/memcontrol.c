@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* memcontrol.c - Memory Controller
  *
  * Copyright IBM Corporation, 2007
@@ -20,6 +24,7 @@
  * Unified hierarchy configuration model
  * Copyright (C) 2015 Red Hat, Inc., Johannes Weiner
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -29,16 +34,28 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+ * Per memcg lru locking
+ * Copyright (C) 2020 Alibaba, Inc, Alex Shi
+>>>>>>> upstream/android-13
  */
 
 #include <linux/page_counter.h>
 #include <linux/memcontrol.h>
 #include <linux/cgroup.h>
+<<<<<<< HEAD
 #include <linux/mm.h>
+=======
+#include <linux/pagewalk.h>
+>>>>>>> upstream/android-13
 #include <linux/sched/mm.h>
 #include <linux/shmem_fs.h>
 #include <linux/hugetlb.h>
 #include <linux/pagemap.h>
+<<<<<<< HEAD
+=======
+#include <linux/vm_event_item.h>
+>>>>>>> upstream/android-13
 #include <linux/smp.h>
 #include <linux/page-flags.h>
 #include <linux/backing-dev.h>
@@ -65,6 +82,11 @@
 #include <linux/lockdep.h>
 #include <linux/file.h>
 #include <linux/tracehook.h>
+<<<<<<< HEAD
+=======
+#include <linux/psi.h>
+#include <linux/seq_buf.h>
+>>>>>>> upstream/android-13
 #include "internal.h"
 #include <net/sock.h>
 #include <net/ip.h>
@@ -73,12 +95,19 @@
 #include <linux/uaccess.h>
 
 #include <trace/events/vmscan.h>
+<<<<<<< HEAD
+=======
+#include <trace/hooks/mm.h>
+
+#include <trace/hooks/cgroup.h>
+>>>>>>> upstream/android-13
 
 struct cgroup_subsys memory_cgrp_subsys __read_mostly;
 EXPORT_SYMBOL(memory_cgrp_subsys);
 
 struct mem_cgroup *root_mem_cgroup __read_mostly;
 
+<<<<<<< HEAD
 #define MEM_CGROUP_RECLAIM_RETRIES	5
 
 /* Socket memory accounting disabled? */
@@ -92,11 +121,33 @@ static bool cgroup_memory_nokmem;
 int do_swap_account __read_mostly;
 #else
 #define do_swap_account		0
+=======
+/* Active memory cgroup to use from an interrupt context */
+DEFINE_PER_CPU(struct mem_cgroup *, int_active_memcg);
+EXPORT_PER_CPU_SYMBOL_GPL(int_active_memcg);
+
+/* Socket memory accounting disabled? */
+static bool cgroup_memory_nosocket __ro_after_init;
+
+/* Kernel memory accounting disabled? */
+bool cgroup_memory_nokmem __ro_after_init;
+
+/* Whether the swap controller is active */
+#ifdef CONFIG_MEMCG_SWAP
+bool cgroup_memory_noswap __ro_after_init;
+#else
+#define cgroup_memory_noswap		1
+#endif
+
+#ifdef CONFIG_CGROUP_WRITEBACK
+static DECLARE_WAIT_QUEUE_HEAD(memcg_cgwb_frn_waitq);
+>>>>>>> upstream/android-13
 #endif
 
 /* Whether legacy memory+swap accounting is active */
 static bool do_memsw_account(void)
 {
+<<<<<<< HEAD
 	return !cgroup_subsys_on_dfl(memory_cgrp_subsys) && do_swap_account;
 }
 
@@ -111,6 +162,13 @@ static const char *const mem_cgroup_lru_names[] = {
 #define THRESHOLDS_EVENTS_TARGET 128
 #define SOFTLIMIT_EVENTS_TARGET 1024
 #define NUMAINFO_EVENTS_TARGET	1024
+=======
+	return !cgroup_subsys_on_dfl(memory_cgrp_subsys) && !cgroup_memory_noswap;
+}
+
+#define THRESHOLDS_EVENTS_TARGET 128
+#define SOFTLIMIT_EVENTS_TARGET 1024
+>>>>>>> upstream/android-13
 
 /*
  * Cgroups above their limits are maintained in a RB-Tree, independent of
@@ -210,6 +268,7 @@ static struct move_charge_struct {
 #define	MEM_CGROUP_MAX_RECLAIM_LOOPS		100
 #define	MEM_CGROUP_MAX_SOFT_LIMIT_RECLAIM_LOOPS	2
 
+<<<<<<< HEAD
 enum charge_type {
 	MEM_CGROUP_CHARGE_TYPE_CACHE = 0,
 	MEM_CGROUP_CHARGE_TYPE_ANON,
@@ -218,6 +277,8 @@ enum charge_type {
 	NR_CHARGE_TYPE,
 };
 
+=======
+>>>>>>> upstream/android-13
 /* for encoding cft->private value on file */
 enum res_type {
 	_MEM,
@@ -230,7 +291,11 @@ enum res_type {
 #define MEMFILE_PRIVATE(x, val)	((x) << 16 | (val))
 #define MEMFILE_TYPE(val)	((val) >> 16 & 0xffff)
 #define MEMFILE_ATTR(val)	((val) & 0xffff)
+<<<<<<< HEAD
 /* Used for OOM nofiier */
+=======
+/* Used for OOM notifier */
+>>>>>>> upstream/android-13
 #define OOM_CONTROL		(0)
 
 /*
@@ -248,7 +313,11 @@ enum res_type {
 	     iter != NULL;				\
 	     iter = mem_cgroup_iter(NULL, iter, NULL))
 
+<<<<<<< HEAD
 static inline bool should_force_charge(void)
+=======
+static inline bool task_is_dying(void)
+>>>>>>> upstream/android-13
 {
 	return tsk_is_oom_victim(current) || fatal_signal_pending(current) ||
 		(current->flags & PF_EXITING);
@@ -262,6 +331,7 @@ struct vmpressure *memcg_to_vmpressure(struct mem_cgroup *memcg)
 	return &memcg->vmpressure;
 }
 
+<<<<<<< HEAD
 struct cgroup_subsys_state *vmpressure_to_css(struct vmpressure *vmpr)
 {
 	return &container_of(vmpr, struct mem_cgroup, vmpressure)->css;
@@ -270,6 +340,109 @@ struct cgroup_subsys_state *vmpressure_to_css(struct vmpressure *vmpr)
 #ifdef CONFIG_MEMCG_KMEM
 /*
  * This will be the memcg's index in each cache's ->memcg_params.memcg_caches.
+=======
+struct mem_cgroup *vmpressure_to_memcg(struct vmpressure *vmpr)
+{
+	return container_of(vmpr, struct mem_cgroup, vmpressure);
+}
+
+#ifdef CONFIG_MEMCG_KMEM
+static DEFINE_SPINLOCK(objcg_lock);
+
+bool mem_cgroup_kmem_disabled(void)
+{
+	return cgroup_memory_nokmem;
+}
+
+static void obj_cgroup_uncharge_pages(struct obj_cgroup *objcg,
+				      unsigned int nr_pages);
+
+static void obj_cgroup_release(struct percpu_ref *ref)
+{
+	struct obj_cgroup *objcg = container_of(ref, struct obj_cgroup, refcnt);
+	unsigned int nr_bytes;
+	unsigned int nr_pages;
+	unsigned long flags;
+
+	/*
+	 * At this point all allocated objects are freed, and
+	 * objcg->nr_charged_bytes can't have an arbitrary byte value.
+	 * However, it can be PAGE_SIZE or (x * PAGE_SIZE).
+	 *
+	 * The following sequence can lead to it:
+	 * 1) CPU0: objcg == stock->cached_objcg
+	 * 2) CPU1: we do a small allocation (e.g. 92 bytes),
+	 *          PAGE_SIZE bytes are charged
+	 * 3) CPU1: a process from another memcg is allocating something,
+	 *          the stock if flushed,
+	 *          objcg->nr_charged_bytes = PAGE_SIZE - 92
+	 * 5) CPU0: we do release this object,
+	 *          92 bytes are added to stock->nr_bytes
+	 * 6) CPU0: stock is flushed,
+	 *          92 bytes are added to objcg->nr_charged_bytes
+	 *
+	 * In the result, nr_charged_bytes == PAGE_SIZE.
+	 * This page will be uncharged in obj_cgroup_release().
+	 */
+	nr_bytes = atomic_read(&objcg->nr_charged_bytes);
+	WARN_ON_ONCE(nr_bytes & (PAGE_SIZE - 1));
+	nr_pages = nr_bytes >> PAGE_SHIFT;
+
+	if (nr_pages)
+		obj_cgroup_uncharge_pages(objcg, nr_pages);
+
+	spin_lock_irqsave(&objcg_lock, flags);
+	list_del(&objcg->list);
+	spin_unlock_irqrestore(&objcg_lock, flags);
+
+	percpu_ref_exit(ref);
+	kfree_rcu(objcg, rcu);
+}
+
+static struct obj_cgroup *obj_cgroup_alloc(void)
+{
+	struct obj_cgroup *objcg;
+	int ret;
+
+	objcg = kzalloc(sizeof(struct obj_cgroup), GFP_KERNEL);
+	if (!objcg)
+		return NULL;
+
+	ret = percpu_ref_init(&objcg->refcnt, obj_cgroup_release, 0,
+			      GFP_KERNEL);
+	if (ret) {
+		kfree(objcg);
+		return NULL;
+	}
+	INIT_LIST_HEAD(&objcg->list);
+	return objcg;
+}
+
+static void memcg_reparent_objcgs(struct mem_cgroup *memcg,
+				  struct mem_cgroup *parent)
+{
+	struct obj_cgroup *objcg, *iter;
+
+	objcg = rcu_replace_pointer(memcg->objcg, NULL, true);
+
+	spin_lock_irq(&objcg_lock);
+
+	/* 1) Ready to reparent active objcg. */
+	list_add(&objcg->list, &memcg->objcg_list);
+	/* 2) Reparent active objcg and already reparented objcgs to parent. */
+	list_for_each_entry(iter, &memcg->objcg_list, list)
+		WRITE_ONCE(iter->memcg, parent);
+	/* 3) Move already reparented objcgs to the parent's list */
+	list_splice(&memcg->objcg_list, &parent->objcg_list);
+
+	spin_unlock_irq(&objcg_lock);
+
+	percpu_ref_kill(&objcg->refcnt);
+}
+
+/*
+ * This will be used as a shrinker list's index.
+>>>>>>> upstream/android-13
  * The main reason for not using cgroup id for this:
  *  this works better in sparse environments, where we have a lot of memcgs,
  *  but only a few kmem-limited. Or also, if we have, for instance, 200
@@ -312,12 +485,17 @@ void memcg_put_cache_ids(void)
 
 /*
  * A lot of the calls to the cache allocation functions are expected to be
+<<<<<<< HEAD
  * inlined by the compiler. Since the calls to memcg_kmem_get_cache are
+=======
+ * inlined by the compiler. Since the calls to memcg_slab_pre_alloc_hook() are
+>>>>>>> upstream/android-13
  * conditional to this static branch, we'll have to allow modules that does
  * kmem_cache_alloc and the such to see this symbol as well
  */
 DEFINE_STATIC_KEY_FALSE(memcg_kmem_enabled_key);
 EXPORT_SYMBOL(memcg_kmem_enabled_key);
+<<<<<<< HEAD
 
 struct workqueue_struct *memcg_kmem_cache_wq;
 
@@ -452,6 +630,9 @@ static int memcg_alloc_shrinker_maps(struct mem_cgroup *memcg)
 }
 static void memcg_free_shrinker_maps(struct mem_cgroup *memcg) { }
 #endif /* CONFIG_MEMCG_KMEM */
+=======
+#endif
+>>>>>>> upstream/android-13
 
 /**
  * mem_cgroup_css_from_page - css of the memcg associated with a page
@@ -468,7 +649,11 @@ struct cgroup_subsys_state *mem_cgroup_css_from_page(struct page *page)
 {
 	struct mem_cgroup *memcg;
 
+<<<<<<< HEAD
 	memcg = page->mem_cgroup;
+=======
+	memcg = page_memcg(page);
+>>>>>>> upstream/android-13
 
 	if (!memcg || !cgroup_subsys_on_dfl(memory_cgrp_subsys))
 		memcg = root_mem_cgroup;
@@ -495,7 +680,12 @@ ino_t page_cgroup_ino(struct page *page)
 	unsigned long ino = 0;
 
 	rcu_read_lock();
+<<<<<<< HEAD
 	memcg = READ_ONCE(page->mem_cgroup);
+=======
+	memcg = page_memcg_check(page);
+
+>>>>>>> upstream/android-13
 	while (memcg && !(memcg->css.flags & CSS_ONLINE))
 		memcg = parent_mem_cgroup(memcg);
 	if (memcg)
@@ -548,6 +738,7 @@ static void __mem_cgroup_insert_exceeded(struct mem_cgroup_per_node *mz,
 		if (mz->usage_in_excess < mz_node->usage_in_excess) {
 			p = &(*p)->rb_left;
 			rightmost = false;
+<<<<<<< HEAD
 		}
 
 		/*
@@ -556,6 +747,11 @@ static void __mem_cgroup_insert_exceeded(struct mem_cgroup_per_node *mz,
 		 */
 		else if (mz->usage_in_excess >= mz_node->usage_in_excess)
 			p = &(*p)->rb_right;
+=======
+		} else {
+			p = &(*p)->rb_right;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	if (rightmost)
@@ -645,7 +841,11 @@ static void mem_cgroup_remove_from_trees(struct mem_cgroup *memcg)
 	int nid;
 
 	for_each_node(nid) {
+<<<<<<< HEAD
 		mz = mem_cgroup_nodeinfo(memcg, nid);
+=======
+		mz = memcg->nodeinfo[nid];
+>>>>>>> upstream/android-13
 		mctz = soft_limit_tree_node(nid);
 		if (mctz)
 			mem_cgroup_remove_exceeded(mz, mctz);
@@ -671,7 +871,11 @@ retry:
 	 */
 	__mem_cgroup_remove_exceeded(mz, mctz);
 	if (!soft_limit_excess(mz->memcg) ||
+<<<<<<< HEAD
 	    !css_tryget_online(&mz->memcg->css))
+=======
+	    !css_tryget(&mz->memcg->css))
+>>>>>>> upstream/android-13
 		goto retry;
 done:
 	return mz;
@@ -688,14 +892,249 @@ mem_cgroup_largest_soft_limit_node(struct mem_cgroup_tree_per_node *mctz)
 	return mz;
 }
 
+<<<<<<< HEAD
 static unsigned long memcg_sum_events(struct mem_cgroup *memcg,
 				      int event)
 {
 	return atomic_long_read(&memcg->events[event]);
+=======
+/*
+ * memcg and lruvec stats flushing
+ *
+ * Many codepaths leading to stats update or read are performance sensitive and
+ * adding stats flushing in such codepaths is not desirable. So, to optimize the
+ * flushing the kernel does:
+ *
+ * 1) Periodically and asynchronously flush the stats every 2 seconds to not let
+ *    rstat update tree grow unbounded.
+ *
+ * 2) Flush the stats synchronously on reader side only when there are more than
+ *    (MEMCG_CHARGE_BATCH * nr_cpus) update events. Though this optimization
+ *    will let stats be out of sync by atmost (MEMCG_CHARGE_BATCH * nr_cpus) but
+ *    only for 2 seconds due to (1).
+ */
+static void flush_memcg_stats_dwork(struct work_struct *w);
+static DECLARE_DEFERRABLE_WORK(stats_flush_dwork, flush_memcg_stats_dwork);
+static DEFINE_SPINLOCK(stats_flush_lock);
+static DEFINE_PER_CPU(unsigned int, stats_updates);
+static atomic_t stats_flush_threshold = ATOMIC_INIT(0);
+static u64 flush_next_time;
+
+#define FLUSH_TIME (2UL*HZ)
+
+static inline void memcg_rstat_updated(struct mem_cgroup *memcg, int val)
+{
+	unsigned int x;
+
+	cgroup_rstat_updated(memcg->css.cgroup, smp_processor_id());
+
+	x = __this_cpu_add_return(stats_updates, abs(val));
+	if (x > MEMCG_CHARGE_BATCH) {
+		atomic_add(x / MEMCG_CHARGE_BATCH, &stats_flush_threshold);
+		__this_cpu_write(stats_updates, 0);
+	}
+}
+
+static void __mem_cgroup_flush_stats(void)
+{
+	unsigned long flag;
+
+	if (!spin_trylock_irqsave(&stats_flush_lock, flag))
+		return;
+
+	flush_next_time = jiffies_64 + 2*FLUSH_TIME;
+	cgroup_rstat_flush_irqsafe(root_mem_cgroup->css.cgroup);
+	atomic_set(&stats_flush_threshold, 0);
+	spin_unlock_irqrestore(&stats_flush_lock, flag);
+}
+
+void mem_cgroup_flush_stats(void)
+{
+	if (atomic_read(&stats_flush_threshold) > num_online_cpus())
+		__mem_cgroup_flush_stats();
+}
+
+void mem_cgroup_flush_stats_delayed(void)
+{
+	if (time_after64(jiffies_64, flush_next_time))
+		mem_cgroup_flush_stats();
+}
+
+static void flush_memcg_stats_dwork(struct work_struct *w)
+{
+	__mem_cgroup_flush_stats();
+	queue_delayed_work(system_unbound_wq, &stats_flush_dwork, FLUSH_TIME);
+}
+
+/**
+ * __mod_memcg_state - update cgroup memory statistics
+ * @memcg: the memory cgroup
+ * @idx: the stat item - can be enum memcg_stat_item or enum node_stat_item
+ * @val: delta to add to the counter, can be negative
+ */
+void __mod_memcg_state(struct mem_cgroup *memcg, int idx, int val)
+{
+	if (mem_cgroup_disabled())
+		return;
+
+	__this_cpu_add(memcg->vmstats_percpu->state[idx], val);
+	memcg_rstat_updated(memcg, val);
+}
+
+/* idx can be of type enum memcg_stat_item or node_stat_item. */
+static unsigned long memcg_page_state_local(struct mem_cgroup *memcg, int idx)
+{
+	long x = 0;
+	int cpu;
+
+	for_each_possible_cpu(cpu)
+		x += per_cpu(memcg->vmstats_percpu->state[idx], cpu);
+#ifdef CONFIG_SMP
+	if (x < 0)
+		x = 0;
+#endif
+	return x;
+}
+
+void __mod_memcg_lruvec_state(struct lruvec *lruvec, enum node_stat_item idx,
+			      int val)
+{
+	struct mem_cgroup_per_node *pn;
+	struct mem_cgroup *memcg;
+
+	pn = container_of(lruvec, struct mem_cgroup_per_node, lruvec);
+	memcg = pn->memcg;
+
+	/* Update memcg */
+	__this_cpu_add(memcg->vmstats_percpu->state[idx], val);
+
+	/* Update lruvec */
+	__this_cpu_add(pn->lruvec_stats_percpu->state[idx], val);
+
+	memcg_rstat_updated(memcg, val);
+}
+
+/**
+ * __mod_lruvec_state - update lruvec memory statistics
+ * @lruvec: the lruvec
+ * @idx: the stat item
+ * @val: delta to add to the counter, can be negative
+ *
+ * The lruvec is the intersection of the NUMA node and a cgroup. This
+ * function updates the all three counters that are affected by a
+ * change of state at this level: per-node, per-cgroup, per-lruvec.
+ */
+void __mod_lruvec_state(struct lruvec *lruvec, enum node_stat_item idx,
+			int val)
+{
+	/* Update node */
+	__mod_node_page_state(lruvec_pgdat(lruvec), idx, val);
+
+	/* Update memcg and lruvec */
+	if (!mem_cgroup_disabled())
+		__mod_memcg_lruvec_state(lruvec, idx, val);
+}
+
+void __mod_lruvec_page_state(struct page *page, enum node_stat_item idx,
+			     int val)
+{
+	struct page *head = compound_head(page); /* rmap on tail pages */
+	struct mem_cgroup *memcg;
+	pg_data_t *pgdat = page_pgdat(page);
+	struct lruvec *lruvec;
+
+	rcu_read_lock();
+	memcg = page_memcg(head);
+	/* Untracked pages have no memcg, no lruvec. Update only the node */
+	if (!memcg) {
+		rcu_read_unlock();
+		__mod_node_page_state(pgdat, idx, val);
+		return;
+	}
+
+	lruvec = mem_cgroup_lruvec(memcg, pgdat);
+	__mod_lruvec_state(lruvec, idx, val);
+	rcu_read_unlock();
+}
+EXPORT_SYMBOL(__mod_lruvec_page_state);
+
+void __mod_lruvec_kmem_state(void *p, enum node_stat_item idx, int val)
+{
+	pg_data_t *pgdat = page_pgdat(virt_to_page(p));
+	struct mem_cgroup *memcg;
+	struct lruvec *lruvec;
+
+	rcu_read_lock();
+	memcg = mem_cgroup_from_obj(p);
+
+	/*
+	 * Untracked pages have no memcg, no lruvec. Update only the
+	 * node. If we reparent the slab objects to the root memcg,
+	 * when we free the slab object, we need to update the per-memcg
+	 * vmstats to keep it correct for the root memcg.
+	 */
+	if (!memcg) {
+		__mod_node_page_state(pgdat, idx, val);
+	} else {
+		lruvec = mem_cgroup_lruvec(memcg, pgdat);
+		__mod_lruvec_state(lruvec, idx, val);
+	}
+	rcu_read_unlock();
+}
+
+/*
+ * mod_objcg_mlstate() may be called with irq enabled, so
+ * mod_memcg_lruvec_state() should be used.
+ */
+static inline void mod_objcg_mlstate(struct obj_cgroup *objcg,
+				     struct pglist_data *pgdat,
+				     enum node_stat_item idx, int nr)
+{
+	struct mem_cgroup *memcg;
+	struct lruvec *lruvec;
+
+	rcu_read_lock();
+	memcg = obj_cgroup_memcg(objcg);
+	lruvec = mem_cgroup_lruvec(memcg, pgdat);
+	mod_memcg_lruvec_state(lruvec, idx, nr);
+	rcu_read_unlock();
+}
+
+/**
+ * __count_memcg_events - account VM events in a cgroup
+ * @memcg: the memory cgroup
+ * @idx: the event item
+ * @count: the number of events that occurred
+ */
+void __count_memcg_events(struct mem_cgroup *memcg, enum vm_event_item idx,
+			  unsigned long count)
+{
+	if (mem_cgroup_disabled())
+		return;
+
+	__this_cpu_add(memcg->vmstats_percpu->events[idx], count);
+	memcg_rstat_updated(memcg, count);
+}
+
+static unsigned long memcg_events(struct mem_cgroup *memcg, int event)
+{
+	return READ_ONCE(memcg->vmstats.events[event]);
+}
+
+static unsigned long memcg_events_local(struct mem_cgroup *memcg, int event)
+{
+	long x = 0;
+	int cpu;
+
+	for_each_possible_cpu(cpu)
+		x += per_cpu(memcg->vmstats_percpu->events[event], cpu);
+	return x;
+>>>>>>> upstream/android-13
 }
 
 static void mem_cgroup_charge_statistics(struct mem_cgroup *memcg,
 					 struct page *page,
+<<<<<<< HEAD
 					 bool compound, int nr_pages)
 {
 	/*
@@ -715,6 +1154,10 @@ static void mem_cgroup_charge_statistics(struct mem_cgroup *memcg,
 		__mod_memcg_state(memcg, MEMCG_RSS_HUGE, nr_pages);
 	}
 
+=======
+					 int nr_pages)
+{
+>>>>>>> upstream/android-13
 	/* pagein of a big page is an event. So, ignore page size */
 	if (nr_pages > 0)
 		__count_memcg_events(memcg, PGPGIN, 1);
@@ -723,6 +1166,7 @@ static void mem_cgroup_charge_statistics(struct mem_cgroup *memcg,
 		nr_pages = -nr_pages; /* for event */
 	}
 
+<<<<<<< HEAD
 	__this_cpu_add(memcg->stat_cpu->nr_page_events, nr_pages);
 }
 
@@ -752,6 +1196,9 @@ static unsigned long mem_cgroup_nr_lru_pages(struct mem_cgroup *memcg,
 	for_each_node_state(nid, N_MEMORY)
 		nr += mem_cgroup_node_nr_lru_pages(memcg, nid, lru_mask);
 	return nr;
+=======
+	__this_cpu_add(memcg->vmstats_percpu->nr_page_events, nr_pages);
+>>>>>>> upstream/android-13
 }
 
 static bool mem_cgroup_event_ratelimit(struct mem_cgroup *memcg,
@@ -759,8 +1206,13 @@ static bool mem_cgroup_event_ratelimit(struct mem_cgroup *memcg,
 {
 	unsigned long val, next;
 
+<<<<<<< HEAD
 	val = __this_cpu_read(memcg->stat_cpu->nr_page_events);
 	next = __this_cpu_read(memcg->stat_cpu->targets[target]);
+=======
+	val = __this_cpu_read(memcg->vmstats_percpu->nr_page_events);
+	next = __this_cpu_read(memcg->vmstats_percpu->targets[target]);
+>>>>>>> upstream/android-13
 	/* from time_after() in jiffies.h */
 	if ((long)(next - val) < 0) {
 		switch (target) {
@@ -770,6 +1222,7 @@ static bool mem_cgroup_event_ratelimit(struct mem_cgroup *memcg,
 		case MEM_CGROUP_TARGET_SOFTLIMIT:
 			next = val + SOFTLIMIT_EVENTS_TARGET;
 			break;
+<<<<<<< HEAD
 		case MEM_CGROUP_TARGET_NUMAINFO:
 			next = val + NUMAINFO_EVENTS_TARGET;
 			break;
@@ -777,6 +1230,12 @@ static bool mem_cgroup_event_ratelimit(struct mem_cgroup *memcg,
 			break;
 		}
 		__this_cpu_write(memcg->stat_cpu->targets[target], next);
+=======
+		default:
+			break;
+		}
+		__this_cpu_write(memcg->vmstats_percpu->targets[target], next);
+>>>>>>> upstream/android-13
 		return true;
 	}
 	return false;
@@ -792,6 +1251,7 @@ static void memcg_check_events(struct mem_cgroup *memcg, struct page *page)
 	if (unlikely(mem_cgroup_event_ratelimit(memcg,
 						MEM_CGROUP_TARGET_THRESH))) {
 		bool do_softlimit;
+<<<<<<< HEAD
 		bool do_numainfo __maybe_unused;
 
 		do_softlimit = mem_cgroup_event_ratelimit(memcg,
@@ -807,6 +1267,14 @@ static void memcg_check_events(struct mem_cgroup *memcg, struct page *page)
 		if (unlikely(do_numainfo))
 			atomic_inc(&memcg->numainfo_events);
 #endif
+=======
+
+		do_softlimit = mem_cgroup_event_ratelimit(memcg,
+						MEM_CGROUP_TARGET_SOFTLIMIT);
+		mem_cgroup_threshold(memcg);
+		if (unlikely(do_softlimit))
+			mem_cgroup_update_tree(memcg, page);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -824,13 +1292,33 @@ struct mem_cgroup *mem_cgroup_from_task(struct task_struct *p)
 }
 EXPORT_SYMBOL(mem_cgroup_from_task);
 
+<<<<<<< HEAD
+=======
+static __always_inline struct mem_cgroup *active_memcg(void)
+{
+	if (!in_task())
+		return this_cpu_read(int_active_memcg);
+	else
+		return current->active_memcg;
+}
+
+>>>>>>> upstream/android-13
 /**
  * get_mem_cgroup_from_mm: Obtain a reference on given mm_struct's memcg.
  * @mm: mm from which memcg should be extracted. It can be NULL.
  *
+<<<<<<< HEAD
  * Obtain a reference on mm->memcg and returns it if successful. Otherwise
  * root_mem_cgroup is returned. However if mem_cgroup is disabled, NULL is
  * returned.
+=======
+ * Obtain a reference on mm->memcg and returns it if successful. If mm
+ * is NULL, then the memcg is chosen as follows:
+ * 1) The active memcg, if set.
+ * 2) current->mm->memcg, if available
+ * 3) root memcg
+ * If mem_cgroup is disabled, NULL is returned.
+>>>>>>> upstream/android-13
  */
 struct mem_cgroup *get_mem_cgroup_from_mm(struct mm_struct *mm)
 {
@@ -839,6 +1327,7 @@ struct mem_cgroup *get_mem_cgroup_from_mm(struct mm_struct *mm)
 	if (mem_cgroup_disabled())
 		return NULL;
 
+<<<<<<< HEAD
 	rcu_read_lock();
 	do {
 		/*
@@ -853,12 +1342,41 @@ struct mem_cgroup *get_mem_cgroup_from_mm(struct mm_struct *mm)
 			if (unlikely(!memcg))
 				memcg = root_mem_cgroup;
 		}
+=======
+	/*
+	 * Page cache insertions can happen without an
+	 * actual mm context, e.g. during disk probing
+	 * on boot, loopback IO, acct() writes etc.
+	 *
+	 * No need to css_get on root memcg as the reference
+	 * counting is disabled on the root level in the
+	 * cgroup core. See CSS_NO_REF.
+	 */
+	if (unlikely(!mm)) {
+		memcg = active_memcg();
+		if (unlikely(memcg)) {
+			/* remote memcg must hold a ref */
+			css_get(&memcg->css);
+			return memcg;
+		}
+		mm = current->mm;
+		if (unlikely(!mm))
+			return root_mem_cgroup;
+	}
+
+	rcu_read_lock();
+	do {
+		memcg = mem_cgroup_from_task(rcu_dereference(mm->owner));
+		if (unlikely(!memcg))
+			memcg = root_mem_cgroup;
+>>>>>>> upstream/android-13
 	} while (!css_tryget(&memcg->css));
 	rcu_read_unlock();
 	return memcg;
 }
 EXPORT_SYMBOL(get_mem_cgroup_from_mm);
 
+<<<<<<< HEAD
 /**
  * get_mem_cgroup_from_page: Obtain a reference on given page's memcg.
  * @page: page from which memcg should be extracted.
@@ -896,6 +1414,19 @@ static __always_inline struct mem_cgroup *get_mem_cgroup_from_current(void)
 		return memcg;
 	}
 	return get_mem_cgroup_from_mm(current->mm);
+=======
+static __always_inline bool memcg_kmem_bypass(void)
+{
+	/* Allow remote memcg charging from any context. */
+	if (unlikely(active_memcg()))
+		return false;
+
+	/* Memcg to charge can't be determined. */
+	if (!in_task() || !current->mm || (current->flags & PF_KTHREAD))
+		return true;
+
+	return false;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -911,15 +1442,25 @@ static __always_inline struct mem_cgroup *get_mem_cgroup_from_current(void)
  * invocations for reference counting, or use mem_cgroup_iter_break()
  * to cancel a hierarchy walk before the round-trip is complete.
  *
+<<<<<<< HEAD
  * Reclaimers can specify a node and a priority level in @reclaim to
  * divide up the memcgs in the hierarchy among all concurrent
  * reclaimers operating on the same node and priority.
+=======
+ * Reclaimers can specify a node in @reclaim to divide up the memcgs
+ * in the hierarchy among all concurrent reclaimers operating on the
+ * same node.
+>>>>>>> upstream/android-13
  */
 struct mem_cgroup *mem_cgroup_iter(struct mem_cgroup *root,
 				   struct mem_cgroup *prev,
 				   struct mem_cgroup_reclaim_cookie *reclaim)
 {
+<<<<<<< HEAD
 	struct mem_cgroup_reclaim_iter *uninitialized_var(iter);
+=======
+	struct mem_cgroup_reclaim_iter *iter;
+>>>>>>> upstream/android-13
 	struct cgroup_subsys_state *css = NULL;
 	struct mem_cgroup *memcg = NULL;
 	struct mem_cgroup *pos = NULL;
@@ -933,19 +1474,27 @@ struct mem_cgroup *mem_cgroup_iter(struct mem_cgroup *root,
 	if (prev && !reclaim)
 		pos = prev;
 
+<<<<<<< HEAD
 	if (!root->use_hierarchy && root != root_mem_cgroup) {
 		if (prev)
 			goto out;
 		return root;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	rcu_read_lock();
 
 	if (reclaim) {
 		struct mem_cgroup_per_node *mz;
 
+<<<<<<< HEAD
 		mz = mem_cgroup_nodeinfo(root, reclaim->pgdat->node_id);
 		iter = &mz->iter[reclaim->priority];
+=======
+		mz = root->nodeinfo[reclaim->pgdat->node_id];
+		iter = &mz->iter;
+>>>>>>> upstream/android-13
 
 		if (prev && reclaim->generation != iter->generation)
 			goto out_unlock;
@@ -1018,7 +1567,10 @@ struct mem_cgroup *mem_cgroup_iter(struct mem_cgroup *root,
 
 out_unlock:
 	rcu_read_unlock();
+<<<<<<< HEAD
 out:
+=======
+>>>>>>> upstream/android-13
 	if (prev && prev != root)
 		css_put(&prev->css);
 
@@ -1045,6 +1597,7 @@ static void __invalidate_reclaim_iterators(struct mem_cgroup *from,
 	struct mem_cgroup_reclaim_iter *iter;
 	struct mem_cgroup_per_node *mz;
 	int nid;
+<<<<<<< HEAD
 	int i;
 
 	for_each_node(nid) {
@@ -1054,6 +1607,13 @@ static void __invalidate_reclaim_iterators(struct mem_cgroup *from,
 			cmpxchg(&iter->position,
 				dead_memcg, NULL);
 		}
+=======
+
+	for_each_node(nid) {
+		mz = from->nodeinfo[nid];
+		iter = &mz->iter;
+		cmpxchg(&iter->position, dead_memcg, NULL);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1103,7 +1663,11 @@ int mem_cgroup_scan_tasks(struct mem_cgroup *memcg,
 		struct css_task_iter it;
 		struct task_struct *task;
 
+<<<<<<< HEAD
 		css_task_iter_start(&iter->css, 0, &it);
+=======
+		css_task_iter_start(&iter->css, CSS_TASK_ITER_PROCS, &it);
+>>>>>>> upstream/android-13
 		while (!ret && (task = css_task_iter_next(&it)))
 			ret = fn(task, arg);
 		css_task_iter_end(&it);
@@ -1115,6 +1679,7 @@ int mem_cgroup_scan_tasks(struct mem_cgroup *memcg,
 	return ret;
 }
 
+<<<<<<< HEAD
 /**
  * mem_cgroup_page_lruvec - return lruvec for isolating/putting an LRU page
  * @page: the page
@@ -1156,6 +1721,90 @@ out:
 	return lruvec;
 }
 
+=======
+#ifdef CONFIG_DEBUG_VM
+void lruvec_memcg_debug(struct lruvec *lruvec, struct page *page)
+{
+	struct mem_cgroup *memcg;
+
+	if (mem_cgroup_disabled())
+		return;
+
+	memcg = page_memcg(page);
+
+	if (!memcg)
+		VM_BUG_ON_PAGE(lruvec_memcg(lruvec) != root_mem_cgroup, page);
+	else
+		VM_BUG_ON_PAGE(lruvec_memcg(lruvec) != memcg, page);
+}
+#endif
+
+/**
+ * lock_page_lruvec - lock and return lruvec for a given page.
+ * @page: the page
+ *
+ * These functions are safe to use under any of the following conditions:
+ * - page locked
+ * - PageLRU cleared
+ * - lock_page_memcg()
+ * - page->_refcount is zero
+ */
+struct lruvec *lock_page_lruvec(struct page *page)
+{
+	struct lruvec *lruvec;
+
+	lruvec = mem_cgroup_page_lruvec(page);
+	spin_lock(&lruvec->lru_lock);
+
+	lruvec_memcg_debug(lruvec, page);
+
+	return lruvec;
+}
+
+struct lruvec *lock_page_lruvec_irq(struct page *page)
+{
+	struct lruvec *lruvec;
+
+	lruvec = mem_cgroup_page_lruvec(page);
+	spin_lock_irq(&lruvec->lru_lock);
+
+	lruvec_memcg_debug(lruvec, page);
+
+	return lruvec;
+}
+
+struct lruvec *lock_page_lruvec_irqsave(struct page *page, unsigned long *flags)
+{
+	struct lruvec *lruvec;
+
+	lruvec = mem_cgroup_page_lruvec(page);
+	spin_lock_irqsave(&lruvec->lru_lock, *flags);
+
+	lruvec_memcg_debug(lruvec, page);
+
+	return lruvec;
+}
+
+void do_traversal_all_lruvec(void)
+{
+	pg_data_t *pgdat;
+
+	for_each_online_pgdat(pgdat) {
+		struct mem_cgroup *memcg = NULL;
+
+		memcg = mem_cgroup_iter(NULL, NULL, NULL);
+		do {
+			struct lruvec *lruvec = mem_cgroup_lruvec(memcg, pgdat);
+
+			trace_android_vh_do_traversal_lruvec(lruvec);
+
+			memcg = mem_cgroup_iter(NULL, memcg, NULL);
+		} while (memcg);
+	}
+}
+EXPORT_SYMBOL_GPL(do_traversal_all_lruvec);
+
+>>>>>>> upstream/android-13
 /**
  * mem_cgroup_update_lru_size - account for adding or removing an lru page
  * @lruvec: mem_cgroup per zone lru vector
@@ -1195,6 +1844,7 @@ void mem_cgroup_update_lru_size(struct lruvec *lruvec, enum lru_list lru,
 		*lru_size += nr_pages;
 }
 
+<<<<<<< HEAD
 bool task_in_mem_cgroup(struct task_struct *task, struct mem_cgroup *memcg)
 {
 	struct mem_cgroup *task_memcg;
@@ -1221,6 +1871,8 @@ bool task_in_mem_cgroup(struct task_struct *task, struct mem_cgroup *memcg)
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * mem_cgroup_margin - calculate chargeable space of a memory cgroup
  * @memcg: the memory cgroup
@@ -1242,7 +1894,11 @@ static unsigned long mem_cgroup_margin(struct mem_cgroup *memcg)
 	if (do_memsw_account()) {
 		count = page_counter_read(&memcg->memsw);
 		limit = READ_ONCE(memcg->memsw.max);
+<<<<<<< HEAD
 		if (count <= limit)
+=======
+		if (count < limit)
+>>>>>>> upstream/android-13
 			margin = min(margin, limit - count);
 		else
 			margin = 0;
@@ -1296,6 +1952,7 @@ static bool mem_cgroup_wait_acct_move(struct mem_cgroup *memcg)
 	return false;
 }
 
+<<<<<<< HEAD
 static const unsigned int memcg1_stats[] = {
 	MEMCG_CACHE,
 	MEMCG_RSS,
@@ -1321,12 +1978,159 @@ static const char *const memcg1_stat_names[] = {
 #define K(x) ((x) << (PAGE_SHIFT-10))
 /**
  * mem_cgroup_print_oom_info: Print OOM information relevant to memory controller.
+=======
+struct memory_stat {
+	const char *name;
+	unsigned int idx;
+};
+
+static const struct memory_stat memory_stats[] = {
+	{ "anon",			NR_ANON_MAPPED			},
+	{ "file",			NR_FILE_PAGES			},
+	{ "kernel_stack",		NR_KERNEL_STACK_KB		},
+	{ "pagetables",			NR_PAGETABLE			},
+	{ "percpu",			MEMCG_PERCPU_B			},
+	{ "sock",			MEMCG_SOCK			},
+	{ "shmem",			NR_SHMEM			},
+	{ "file_mapped",		NR_FILE_MAPPED			},
+	{ "file_dirty",			NR_FILE_DIRTY			},
+	{ "file_writeback",		NR_WRITEBACK			},
+#ifdef CONFIG_SWAP
+	{ "swapcached",			NR_SWAPCACHE			},
+#endif
+#ifdef CONFIG_TRANSPARENT_HUGEPAGE
+	{ "anon_thp",			NR_ANON_THPS			},
+	{ "file_thp",			NR_FILE_THPS			},
+	{ "shmem_thp",			NR_SHMEM_THPS			},
+#endif
+	{ "inactive_anon",		NR_INACTIVE_ANON		},
+	{ "active_anon",		NR_ACTIVE_ANON			},
+	{ "inactive_file",		NR_INACTIVE_FILE		},
+	{ "active_file",		NR_ACTIVE_FILE			},
+	{ "unevictable",		NR_UNEVICTABLE			},
+	{ "slab_reclaimable",		NR_SLAB_RECLAIMABLE_B		},
+	{ "slab_unreclaimable",		NR_SLAB_UNRECLAIMABLE_B		},
+
+	/* The memory events */
+	{ "workingset_refault_anon",	WORKINGSET_REFAULT_ANON		},
+	{ "workingset_refault_file",	WORKINGSET_REFAULT_FILE		},
+	{ "workingset_activate_anon",	WORKINGSET_ACTIVATE_ANON	},
+	{ "workingset_activate_file",	WORKINGSET_ACTIVATE_FILE	},
+	{ "workingset_restore_anon",	WORKINGSET_RESTORE_ANON		},
+	{ "workingset_restore_file",	WORKINGSET_RESTORE_FILE		},
+	{ "workingset_nodereclaim",	WORKINGSET_NODERECLAIM		},
+};
+
+/* Translate stat items to the correct unit for memory.stat output */
+static int memcg_page_state_unit(int item)
+{
+	switch (item) {
+	case MEMCG_PERCPU_B:
+	case NR_SLAB_RECLAIMABLE_B:
+	case NR_SLAB_UNRECLAIMABLE_B:
+	case WORKINGSET_REFAULT_ANON:
+	case WORKINGSET_REFAULT_FILE:
+	case WORKINGSET_ACTIVATE_ANON:
+	case WORKINGSET_ACTIVATE_FILE:
+	case WORKINGSET_RESTORE_ANON:
+	case WORKINGSET_RESTORE_FILE:
+	case WORKINGSET_NODERECLAIM:
+		return 1;
+	case NR_KERNEL_STACK_KB:
+		return SZ_1K;
+	default:
+		return PAGE_SIZE;
+	}
+}
+
+static inline unsigned long memcg_page_state_output(struct mem_cgroup *memcg,
+						    int item)
+{
+	return memcg_page_state(memcg, item) * memcg_page_state_unit(item);
+}
+
+static char *memory_stat_format(struct mem_cgroup *memcg)
+{
+	struct seq_buf s;
+	int i;
+
+	seq_buf_init(&s, kmalloc(PAGE_SIZE, GFP_KERNEL), PAGE_SIZE);
+	if (!s.buffer)
+		return NULL;
+
+	/*
+	 * Provide statistics on the state of the memory subsystem as
+	 * well as cumulative event counters that show past behavior.
+	 *
+	 * This list is ordered following a combination of these gradients:
+	 * 1) generic big picture -> specifics and details
+	 * 2) reflecting userspace activity -> reflecting kernel heuristics
+	 *
+	 * Current memory state:
+	 */
+	mem_cgroup_flush_stats();
+
+	for (i = 0; i < ARRAY_SIZE(memory_stats); i++) {
+		u64 size;
+
+		size = memcg_page_state_output(memcg, memory_stats[i].idx);
+		seq_buf_printf(&s, "%s %llu\n", memory_stats[i].name, size);
+
+		if (unlikely(memory_stats[i].idx == NR_SLAB_UNRECLAIMABLE_B)) {
+			size += memcg_page_state_output(memcg,
+							NR_SLAB_RECLAIMABLE_B);
+			seq_buf_printf(&s, "slab %llu\n", size);
+		}
+	}
+
+	/* Accumulated memory events */
+
+	seq_buf_printf(&s, "%s %lu\n", vm_event_name(PGFAULT),
+		       memcg_events(memcg, PGFAULT));
+	seq_buf_printf(&s, "%s %lu\n", vm_event_name(PGMAJFAULT),
+		       memcg_events(memcg, PGMAJFAULT));
+	seq_buf_printf(&s, "%s %lu\n",  vm_event_name(PGREFILL),
+		       memcg_events(memcg, PGREFILL));
+	seq_buf_printf(&s, "pgscan %lu\n",
+		       memcg_events(memcg, PGSCAN_KSWAPD) +
+		       memcg_events(memcg, PGSCAN_DIRECT));
+	seq_buf_printf(&s, "pgsteal %lu\n",
+		       memcg_events(memcg, PGSTEAL_KSWAPD) +
+		       memcg_events(memcg, PGSTEAL_DIRECT));
+	seq_buf_printf(&s, "%s %lu\n", vm_event_name(PGACTIVATE),
+		       memcg_events(memcg, PGACTIVATE));
+	seq_buf_printf(&s, "%s %lu\n", vm_event_name(PGDEACTIVATE),
+		       memcg_events(memcg, PGDEACTIVATE));
+	seq_buf_printf(&s, "%s %lu\n", vm_event_name(PGLAZYFREE),
+		       memcg_events(memcg, PGLAZYFREE));
+	seq_buf_printf(&s, "%s %lu\n", vm_event_name(PGLAZYFREED),
+		       memcg_events(memcg, PGLAZYFREED));
+
+#ifdef CONFIG_TRANSPARENT_HUGEPAGE
+	seq_buf_printf(&s, "%s %lu\n", vm_event_name(THP_FAULT_ALLOC),
+		       memcg_events(memcg, THP_FAULT_ALLOC));
+	seq_buf_printf(&s, "%s %lu\n", vm_event_name(THP_COLLAPSE_ALLOC),
+		       memcg_events(memcg, THP_COLLAPSE_ALLOC));
+#endif /* CONFIG_TRANSPARENT_HUGEPAGE */
+
+	/* The above should easily fit into one page */
+	WARN_ON_ONCE(seq_buf_has_overflowed(&s));
+
+	return s.buffer;
+}
+
+#define K(x) ((x) << (PAGE_SHIFT-10))
+/**
+ * mem_cgroup_print_oom_context: Print OOM information relevant to
+ * memory controller.
+>>>>>>> upstream/android-13
  * @memcg: The memory cgroup that went over limit
  * @p: Task that is going to be killed
  *
  * NOTE: @memcg and @p's mem_cgroup can be different when hierarchy is
  * enabled
  */
+<<<<<<< HEAD
 void mem_cgroup_print_oom_info(struct mem_cgroup *memcg, struct task_struct *p)
 {
 	struct mem_cgroup *iter;
@@ -1375,6 +2179,57 @@ void mem_cgroup_print_oom_info(struct mem_cgroup *memcg, struct task_struct *p)
 
 		pr_cont("\n");
 	}
+=======
+void mem_cgroup_print_oom_context(struct mem_cgroup *memcg, struct task_struct *p)
+{
+	rcu_read_lock();
+
+	if (memcg) {
+		pr_cont(",oom_memcg=");
+		pr_cont_cgroup_path(memcg->css.cgroup);
+	} else
+		pr_cont(",global_oom");
+	if (p) {
+		pr_cont(",task_memcg=");
+		pr_cont_cgroup_path(task_cgroup(p, memory_cgrp_id));
+	}
+	rcu_read_unlock();
+}
+
+/**
+ * mem_cgroup_print_oom_meminfo: Print OOM memory information relevant to
+ * memory controller.
+ * @memcg: The memory cgroup that went over limit
+ */
+void mem_cgroup_print_oom_meminfo(struct mem_cgroup *memcg)
+{
+	char *buf;
+
+	pr_info("memory: usage %llukB, limit %llukB, failcnt %lu\n",
+		K((u64)page_counter_read(&memcg->memory)),
+		K((u64)READ_ONCE(memcg->memory.max)), memcg->memory.failcnt);
+	if (cgroup_subsys_on_dfl(memory_cgrp_subsys))
+		pr_info("swap: usage %llukB, limit %llukB, failcnt %lu\n",
+			K((u64)page_counter_read(&memcg->swap)),
+			K((u64)READ_ONCE(memcg->swap.max)), memcg->swap.failcnt);
+	else {
+		pr_info("memory+swap: usage %llukB, limit %llukB, failcnt %lu\n",
+			K((u64)page_counter_read(&memcg->memsw)),
+			K((u64)memcg->memsw.max), memcg->memsw.failcnt);
+		pr_info("kmem: usage %llukB, limit %llukB, failcnt %lu\n",
+			K((u64)page_counter_read(&memcg->kmem)),
+			K((u64)memcg->kmem.max), memcg->kmem.failcnt);
+	}
+
+	pr_info("Memory cgroup stats for ");
+	pr_cont_cgroup_path(memcg->css.cgroup);
+	pr_cont(":");
+	buf = memory_stat_format(memcg);
+	if (!buf)
+		return;
+	pr_info("%s", buf);
+	kfree(buf);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1382,6 +2237,7 @@ void mem_cgroup_print_oom_info(struct mem_cgroup *memcg, struct task_struct *p)
  */
 unsigned long mem_cgroup_get_max(struct mem_cgroup *memcg)
 {
+<<<<<<< HEAD
 	unsigned long max;
 
 	max = memcg->memory.max;
@@ -1393,10 +2249,33 @@ unsigned long mem_cgroup_get_max(struct mem_cgroup *memcg)
 		swap_max = memcg->swap.max;
 		swap_max = min(swap_max, (unsigned long)total_swap_pages);
 		max = min(max + swap_max, memsw_max);
+=======
+	unsigned long max = READ_ONCE(memcg->memory.max);
+
+	if (cgroup_subsys_on_dfl(memory_cgrp_subsys)) {
+		if (mem_cgroup_swappiness(memcg))
+			max += min(READ_ONCE(memcg->swap.max),
+				   (unsigned long)total_swap_pages);
+	} else { /* v1 */
+		if (mem_cgroup_swappiness(memcg)) {
+			/* Calculate swap excess capacity from memsw limit */
+			unsigned long swap = READ_ONCE(memcg->memsw.max) - max;
+
+			max += min(swap, (unsigned long)total_swap_pages);
+		}
+>>>>>>> upstream/android-13
 	}
 	return max;
 }
 
+<<<<<<< HEAD
+=======
+unsigned long mem_cgroup_size(struct mem_cgroup *memcg)
+{
+	return page_counter_read(&memcg->memory);
+}
+
+>>>>>>> upstream/android-13
 static bool mem_cgroup_out_of_memory(struct mem_cgroup *memcg, gfp_t gfp_mask,
 				     int order)
 {
@@ -1407,19 +2286,37 @@ static bool mem_cgroup_out_of_memory(struct mem_cgroup *memcg, gfp_t gfp_mask,
 		.gfp_mask = gfp_mask,
 		.order = order,
 	};
+<<<<<<< HEAD
 	bool ret;
 
 	if (mutex_lock_killable(&oom_lock))
 		return true;
+=======
+	bool ret = true;
+
+	if (mutex_lock_killable(&oom_lock))
+		return true;
+
+	if (mem_cgroup_margin(memcg) >= (1 << order))
+		goto unlock;
+
+>>>>>>> upstream/android-13
 	/*
 	 * A few threads which were not waiting at mutex_lock_killable() can
 	 * fail to bail out. Therefore, check again after holding oom_lock.
 	 */
+<<<<<<< HEAD
 	ret = should_force_charge() || out_of_memory(&oc);
+=======
+	ret = task_is_dying() || out_of_memory(&oc);
+
+unlock:
+>>>>>>> upstream/android-13
 	mutex_unlock(&oom_lock);
 	return ret;
 }
 
+<<<<<<< HEAD
 #if MAX_NUMNODES > 1
 
 /**
@@ -1514,6 +2411,8 @@ int mem_cgroup_select_victim_node(struct mem_cgroup *memcg)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static int mem_cgroup_soft_reclaim(struct mem_cgroup *root_memcg,
 				   pg_data_t *pgdat,
 				   gfp_t gfp_mask,
@@ -1526,7 +2425,10 @@ static int mem_cgroup_soft_reclaim(struct mem_cgroup *root_memcg,
 	unsigned long nr_scanned;
 	struct mem_cgroup_reclaim_cookie reclaim = {
 		.pgdat = pgdat,
+<<<<<<< HEAD
 		.priority = 0,
+=======
+>>>>>>> upstream/android-13
 	};
 
 	excess = soft_limit_excess(root_memcg);
@@ -1621,7 +2523,11 @@ static void mem_cgroup_oom_unlock(struct mem_cgroup *memcg)
 	struct mem_cgroup *iter;
 
 	spin_lock(&memcg_oom_lock);
+<<<<<<< HEAD
 	mutex_release(&memcg_oom_lock_dep_map, 1, _RET_IP_);
+=======
+	mutex_release(&memcg_oom_lock_dep_map, _RET_IP_);
+>>>>>>> upstream/android-13
 	for_each_mem_cgroup_tree(iter, memcg)
 		iter->oom_lock = false;
 	spin_unlock(&memcg_oom_lock);
@@ -1642,8 +2548,13 @@ static void mem_cgroup_unmark_under_oom(struct mem_cgroup *memcg)
 	struct mem_cgroup *iter;
 
 	/*
+<<<<<<< HEAD
 	 * When a new child is created while the hierarchy is under oom,
 	 * mem_cgroup_oom_lock() may not be called. Watch for underflow.
+=======
+	 * Be careful about under_oom underflows because a child memcg
+	 * could have been added after mem_cgroup_mark_under_oom.
+>>>>>>> upstream/android-13
 	 */
 	spin_lock(&memcg_oom_lock);
 	for_each_mem_cgroup_tree(iter, memcg)
@@ -1704,6 +2615,11 @@ static enum oom_status mem_cgroup_oom(struct mem_cgroup *memcg, gfp_t mask, int 
 	if (order > PAGE_ALLOC_COSTLY_ORDER)
 		return OOM_SKIPPED;
 
+<<<<<<< HEAD
+=======
+	memcg_memory_event(memcg, MEMCG_OOM);
+
+>>>>>>> upstream/android-13
 	/*
 	 * We are in the middle of the charge context here, so we
 	 * don't want to block when potentially sitting on a callstack
@@ -1812,7 +2728,11 @@ bool mem_cgroup_oom_synchronize(bool handle)
 		/*
 		 * There is no guarantee that an OOM-lock contender
 		 * sees the wakeups triggered by the OOM kill
+<<<<<<< HEAD
 		 * uncharges.  Wake any sleepers explicitely.
+=======
+		 * uncharges.  Wake any sleepers explicitly.
+>>>>>>> upstream/android-13
 		 */
 		memcg_oom_recover(memcg);
 	}
@@ -1851,6 +2771,17 @@ struct mem_cgroup *mem_cgroup_get_oom_group(struct task_struct *victim,
 		goto out;
 
 	/*
+<<<<<<< HEAD
+=======
+	 * If the victim task has been asynchronously moved to a different
+	 * memory cgroup, we might end up killing tasks outside oom_domain.
+	 * In this case it's better to ignore memory.group.oom.
+	 */
+	if (unlikely(!mem_cgroup_is_descendant(memcg, oom_domain)))
+		goto out;
+
+	/*
+>>>>>>> upstream/android-13
 	 * Traverse the memory cgroup hierarchy from the victim task's
 	 * cgroup up to the OOMing cgroup (or root) to find the
 	 * highest-level memory cgroup with oom.group set.
@@ -1879,18 +2810,31 @@ void mem_cgroup_print_oom_group(struct mem_cgroup *memcg)
 }
 
 /**
+<<<<<<< HEAD
  * lock_page_memcg - lock a page->mem_cgroup binding
+=======
+ * lock_page_memcg - lock a page and memcg binding
+>>>>>>> upstream/android-13
  * @page: the page
  *
  * This function protects unlocked LRU pages from being moved to
  * another cgroup.
  *
+<<<<<<< HEAD
  * It ensures lifetime of the returned memcg. Caller is responsible
  * for the lifetime of the page; __unlock_page_memcg() is available
  * when @page might get freed inside the locked section.
  */
 struct mem_cgroup *lock_page_memcg(struct page *page)
 {
+=======
+ * It ensures lifetime of the locked memcg. Caller is responsible
+ * for the lifetime of the page.
+ */
+void lock_page_memcg(struct page *page)
+{
+	struct page *head = compound_head(page); /* rmap on tail pages */
+>>>>>>> upstream/android-13
 	struct mem_cgroup *memcg;
 	unsigned long flags;
 
@@ -1898,16 +2842,20 @@ struct mem_cgroup *lock_page_memcg(struct page *page)
 	 * The RCU lock is held throughout the transaction.  The fast
 	 * path can get away without acquiring the memcg->move_lock
 	 * because page moving starts with an RCU grace period.
+<<<<<<< HEAD
 	 *
 	 * The RCU lock also protects the memcg from being freed when
 	 * the page state that is going to change is the only thing
 	 * preventing the page itself from being freed. E.g. writeback
 	 * doesn't hold a page reference and relies on PG_writeback to
 	 * keep off truncation, migration and so forth.
+=======
+>>>>>>> upstream/android-13
          */
 	rcu_read_lock();
 
 	if (mem_cgroup_disabled())
+<<<<<<< HEAD
 		return NULL;
 again:
 	memcg = page->mem_cgroup;
@@ -1919,11 +2867,31 @@ again:
 
 	spin_lock_irqsave(&memcg->move_lock, flags);
 	if (memcg != page->mem_cgroup) {
+=======
+		return;
+again:
+	memcg = page_memcg(head);
+	if (unlikely(!memcg))
+		return;
+
+#ifdef CONFIG_PROVE_LOCKING
+	local_irq_save(flags);
+	might_lock(&memcg->move_lock);
+	local_irq_restore(flags);
+#endif
+
+	if (atomic_read(&memcg->moving_account) <= 0)
+		return;
+
+	spin_lock_irqsave(&memcg->move_lock, flags);
+	if (memcg != page_memcg(head)) {
+>>>>>>> upstream/android-13
 		spin_unlock_irqrestore(&memcg->move_lock, flags);
 		goto again;
 	}
 
 	/*
+<<<<<<< HEAD
 	 * When charge migration first begins, we can have locked and
 	 * unlocked page stat updates happening concurrently.  Track
 	 * the task who has the lock for unlock_page_memcg().
@@ -1942,6 +2910,19 @@ EXPORT_SYMBOL(lock_page_memcg);
  * Unlock and unpin a memcg returned by lock_page_memcg().
  */
 void __unlock_page_memcg(struct mem_cgroup *memcg)
+=======
+	 * When charge migration first begins, we can have multiple
+	 * critical sections holding the fast-path RCU lock and one
+	 * holding the slowpath move_lock. Track the task who has the
+	 * move_lock for unlock_page_memcg().
+	 */
+	memcg->move_lock_task = current;
+	memcg->move_lock_flags = flags;
+}
+EXPORT_SYMBOL(lock_page_memcg);
+
+static void __unlock_page_memcg(struct mem_cgroup *memcg)
+>>>>>>> upstream/android-13
 {
 	if (memcg && memcg->move_lock_task == current) {
 		unsigned long flags = memcg->move_lock_flags;
@@ -1956,11 +2937,16 @@ void __unlock_page_memcg(struct mem_cgroup *memcg)
 }
 
 /**
+<<<<<<< HEAD
  * unlock_page_memcg - unlock a page->mem_cgroup binding
+=======
+ * unlock_page_memcg - unlock a page and memcg binding
+>>>>>>> upstream/android-13
  * @page: the page
  */
 void unlock_page_memcg(struct page *page)
 {
+<<<<<<< HEAD
 	__unlock_page_memcg(page->mem_cgroup);
 }
 EXPORT_SYMBOL(unlock_page_memcg);
@@ -1968,6 +2954,32 @@ EXPORT_SYMBOL(unlock_page_memcg);
 struct memcg_stock_pcp {
 	struct mem_cgroup *cached; /* this never be root cgroup */
 	unsigned int nr_pages;
+=======
+	struct page *head = compound_head(page);
+
+	__unlock_page_memcg(page_memcg(head));
+}
+EXPORT_SYMBOL(unlock_page_memcg);
+
+struct obj_stock {
+#ifdef CONFIG_MEMCG_KMEM
+	struct obj_cgroup *cached_objcg;
+	struct pglist_data *cached_pgdat;
+	unsigned int nr_bytes;
+	int nr_slab_reclaimable_b;
+	int nr_slab_unreclaimable_b;
+#else
+	int dummy[0];
+#endif
+};
+
+struct memcg_stock_pcp {
+	struct mem_cgroup *cached; /* this never be root cgroup */
+	unsigned int nr_pages;
+	struct obj_stock task_obj;
+	struct obj_stock irq_obj;
+
+>>>>>>> upstream/android-13
 	struct work_struct work;
 	unsigned long flags;
 #define FLUSHING_CACHED_CHARGE	0
@@ -1975,6 +2987,60 @@ struct memcg_stock_pcp {
 static DEFINE_PER_CPU(struct memcg_stock_pcp, memcg_stock);
 static DEFINE_MUTEX(percpu_charge_mutex);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_MEMCG_KMEM
+static void drain_obj_stock(struct obj_stock *stock);
+static bool obj_stock_flush_required(struct memcg_stock_pcp *stock,
+				     struct mem_cgroup *root_memcg);
+
+#else
+static inline void drain_obj_stock(struct obj_stock *stock)
+{
+}
+static bool obj_stock_flush_required(struct memcg_stock_pcp *stock,
+				     struct mem_cgroup *root_memcg)
+{
+	return false;
+}
+#endif
+
+/*
+ * Most kmem_cache_alloc() calls are from user context. The irq disable/enable
+ * sequence used in this case to access content from object stock is slow.
+ * To optimize for user context access, there are now two object stocks for
+ * task context and interrupt context access respectively.
+ *
+ * The task context object stock can be accessed by disabling preemption only
+ * which is cheap in non-preempt kernel. The interrupt context object stock
+ * can only be accessed after disabling interrupt. User context code can
+ * access interrupt object stock, but not vice versa.
+ */
+static inline struct obj_stock *get_obj_stock(unsigned long *pflags)
+{
+	struct memcg_stock_pcp *stock;
+
+	if (likely(in_task())) {
+		*pflags = 0UL;
+		preempt_disable();
+		stock = this_cpu_ptr(&memcg_stock);
+		return &stock->task_obj;
+	}
+
+	local_irq_save(*pflags);
+	stock = this_cpu_ptr(&memcg_stock);
+	return &stock->irq_obj;
+}
+
+static inline void put_obj_stock(unsigned long flags)
+{
+	if (likely(in_task()))
+		preempt_enable();
+	else
+		local_irq_restore(flags);
+}
+
+>>>>>>> upstream/android-13
 /**
  * consume_stock: Try to consume stocked charge on this cpu.
  * @memcg: memcg to consume from.
@@ -2015,13 +3081,26 @@ static void drain_stock(struct memcg_stock_pcp *stock)
 {
 	struct mem_cgroup *old = stock->cached;
 
+<<<<<<< HEAD
+=======
+	if (!old)
+		return;
+
+>>>>>>> upstream/android-13
 	if (stock->nr_pages) {
 		page_counter_uncharge(&old->memory, stock->nr_pages);
 		if (do_memsw_account())
 			page_counter_uncharge(&old->memsw, stock->nr_pages);
+<<<<<<< HEAD
 		css_put_many(&old->css, stock->nr_pages);
 		stock->nr_pages = 0;
 	}
+=======
+		stock->nr_pages = 0;
+	}
+
+	css_put(&old->css);
+>>>>>>> upstream/android-13
 	stock->cached = NULL;
 }
 
@@ -2031,12 +3110,24 @@ static void drain_local_stock(struct work_struct *dummy)
 	unsigned long flags;
 
 	/*
+<<<<<<< HEAD
 	 * The only protection from memory hotplug vs. drain_stock races is
 	 * that we always operate on local CPU stock here with IRQ disabled
+=======
+	 * The only protection from cpu hotplug (memcg_hotplug_cpu_dead) vs.
+	 * drain_stock races is that we always operate on local CPU stock
+	 * here with IRQ disabled
+>>>>>>> upstream/android-13
 	 */
 	local_irq_save(flags);
 
 	stock = this_cpu_ptr(&memcg_stock);
+<<<<<<< HEAD
+=======
+	drain_obj_stock(&stock->irq_obj);
+	if (in_task())
+		drain_obj_stock(&stock->task_obj);
+>>>>>>> upstream/android-13
 	drain_stock(stock);
 	clear_bit(FLUSHING_CACHED_CHARGE, &stock->flags);
 
@@ -2057,6 +3148,10 @@ static void refill_stock(struct mem_cgroup *memcg, unsigned int nr_pages)
 	stock = this_cpu_ptr(&memcg_stock);
 	if (stock->cached != memcg) { /* reset if necessary */
 		drain_stock(stock);
+<<<<<<< HEAD
+=======
+		css_get(&memcg->css);
+>>>>>>> upstream/android-13
 		stock->cached = memcg;
 	}
 	stock->nr_pages += nr_pages;
@@ -2088,6 +3183,7 @@ static void drain_all_stock(struct mem_cgroup *root_memcg)
 	for_each_online_cpu(cpu) {
 		struct memcg_stock_pcp *stock = &per_cpu(memcg_stock, cpu);
 		struct mem_cgroup *memcg;
+<<<<<<< HEAD
 
 		memcg = stock->cached;
 		if (!memcg || !stock->nr_pages || !css_tryget(&memcg->css))
@@ -2097,12 +3193,30 @@ static void drain_all_stock(struct mem_cgroup *root_memcg)
 			continue;
 		}
 		if (!test_and_set_bit(FLUSHING_CACHED_CHARGE, &stock->flags)) {
+=======
+		bool flush = false;
+
+		rcu_read_lock();
+		memcg = stock->cached;
+		if (memcg && stock->nr_pages &&
+		    mem_cgroup_is_descendant(memcg, root_memcg))
+			flush = true;
+		else if (obj_stock_flush_required(stock, root_memcg))
+			flush = true;
+		rcu_read_unlock();
+
+		if (flush &&
+		    !test_and_set_bit(FLUSHING_CACHED_CHARGE, &stock->flags)) {
+>>>>>>> upstream/android-13
 			if (cpu == curcpu)
 				drain_local_stock(&stock->work);
 			else
 				schedule_work_on(cpu, &stock->work);
 		}
+<<<<<<< HEAD
 		css_put(&memcg->css);
+=======
+>>>>>>> upstream/android-13
 	}
 	put_cpu();
 	mutex_unlock(&percpu_charge_mutex);
@@ -2111,11 +3225,15 @@ static void drain_all_stock(struct mem_cgroup *root_memcg)
 static int memcg_hotplug_cpu_dead(unsigned int cpu)
 {
 	struct memcg_stock_pcp *stock;
+<<<<<<< HEAD
 	struct mem_cgroup *memcg;
+=======
+>>>>>>> upstream/android-13
 
 	stock = &per_cpu(memcg_stock, cpu);
 	drain_stock(stock);
 
+<<<<<<< HEAD
 	for_each_mem_cgroup(memcg) {
 		int i;
 
@@ -2162,6 +3280,34 @@ static void reclaim_high(struct mem_cgroup *memcg,
 		memcg_memory_event(memcg, MEMCG_HIGH);
 		try_to_free_mem_cgroup_pages(memcg, nr_pages, gfp_mask, true);
 	} while ((memcg = parent_mem_cgroup(memcg)));
+=======
+	return 0;
+}
+
+static unsigned long reclaim_high(struct mem_cgroup *memcg,
+				  unsigned int nr_pages,
+				  gfp_t gfp_mask)
+{
+	unsigned long nr_reclaimed = 0;
+
+	do {
+		unsigned long pflags;
+
+		if (page_counter_read(&memcg->memory) <=
+		    READ_ONCE(memcg->memory.high))
+			continue;
+
+		memcg_memory_event(memcg, MEMCG_HIGH);
+
+		psi_memstall_enter(&pflags);
+		nr_reclaimed += try_to_free_mem_cgroup_pages(memcg, nr_pages,
+							     gfp_mask, true);
+		psi_memstall_leave(&pflags);
+	} while ((memcg = parent_mem_cgroup(memcg)) &&
+		 !mem_cgroup_is_root(memcg));
+
+	return nr_reclaimed;
+>>>>>>> upstream/android-13
 }
 
 static void high_work_func(struct work_struct *work)
@@ -2173,18 +3319,169 @@ static void high_work_func(struct work_struct *work)
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * Clamp the maximum sleep time per allocation batch to 2 seconds. This is
+ * enough to still cause a significant slowdown in most cases, while still
+ * allowing diagnostics and tracing to proceed without becoming stuck.
+ */
+#define MEMCG_MAX_HIGH_DELAY_JIFFIES (2UL*HZ)
+
+/*
+ * When calculating the delay, we use these either side of the exponentiation to
+ * maintain precision and scale to a reasonable number of jiffies (see the table
+ * below.
+ *
+ * - MEMCG_DELAY_PRECISION_SHIFT: Extra precision bits while translating the
+ *   overage ratio to a delay.
+ * - MEMCG_DELAY_SCALING_SHIFT: The number of bits to scale down the
+ *   proposed penalty in order to reduce to a reasonable number of jiffies, and
+ *   to produce a reasonable delay curve.
+ *
+ * MEMCG_DELAY_SCALING_SHIFT just happens to be a number that produces a
+ * reasonable delay curve compared to precision-adjusted overage, not
+ * penalising heavily at first, but still making sure that growth beyond the
+ * limit penalises misbehaviour cgroups by slowing them down exponentially. For
+ * example, with a high of 100 megabytes:
+ *
+ *  +-------+------------------------+
+ *  | usage | time to allocate in ms |
+ *  +-------+------------------------+
+ *  | 100M  |                      0 |
+ *  | 101M  |                      6 |
+ *  | 102M  |                     25 |
+ *  | 103M  |                     57 |
+ *  | 104M  |                    102 |
+ *  | 105M  |                    159 |
+ *  | 106M  |                    230 |
+ *  | 107M  |                    313 |
+ *  | 108M  |                    409 |
+ *  | 109M  |                    518 |
+ *  | 110M  |                    639 |
+ *  | 111M  |                    774 |
+ *  | 112M  |                    921 |
+ *  | 113M  |                   1081 |
+ *  | 114M  |                   1254 |
+ *  | 115M  |                   1439 |
+ *  | 116M  |                   1638 |
+ *  | 117M  |                   1849 |
+ *  | 118M  |                   2000 |
+ *  | 119M  |                   2000 |
+ *  | 120M  |                   2000 |
+ *  +-------+------------------------+
+ */
+ #define MEMCG_DELAY_PRECISION_SHIFT 20
+ #define MEMCG_DELAY_SCALING_SHIFT 14
+
+static u64 calculate_overage(unsigned long usage, unsigned long high)
+{
+	u64 overage;
+
+	if (usage <= high)
+		return 0;
+
+	/*
+	 * Prevent division by 0 in overage calculation by acting as if
+	 * it was a threshold of 1 page
+	 */
+	high = max(high, 1UL);
+
+	overage = usage - high;
+	overage <<= MEMCG_DELAY_PRECISION_SHIFT;
+	return div64_u64(overage, high);
+}
+
+static u64 mem_find_max_overage(struct mem_cgroup *memcg)
+{
+	u64 overage, max_overage = 0;
+
+	do {
+		overage = calculate_overage(page_counter_read(&memcg->memory),
+					    READ_ONCE(memcg->memory.high));
+		max_overage = max(overage, max_overage);
+	} while ((memcg = parent_mem_cgroup(memcg)) &&
+		 !mem_cgroup_is_root(memcg));
+
+	return max_overage;
+}
+
+static u64 swap_find_max_overage(struct mem_cgroup *memcg)
+{
+	u64 overage, max_overage = 0;
+
+	do {
+		overage = calculate_overage(page_counter_read(&memcg->swap),
+					    READ_ONCE(memcg->swap.high));
+		if (overage)
+			memcg_memory_event(memcg, MEMCG_SWAP_HIGH);
+		max_overage = max(overage, max_overage);
+	} while ((memcg = parent_mem_cgroup(memcg)) &&
+		 !mem_cgroup_is_root(memcg));
+
+	return max_overage;
+}
+
+/*
+ * Get the number of jiffies that we should penalise a mischievous cgroup which
+ * is exceeding its memory.high by checking both it and its ancestors.
+ */
+static unsigned long calculate_high_delay(struct mem_cgroup *memcg,
+					  unsigned int nr_pages,
+					  u64 max_overage)
+{
+	unsigned long penalty_jiffies;
+
+	if (!max_overage)
+		return 0;
+
+	/*
+	 * We use overage compared to memory.high to calculate the number of
+	 * jiffies to sleep (penalty_jiffies). Ideally this value should be
+	 * fairly lenient on small overages, and increasingly harsh when the
+	 * memcg in question makes it clear that it has no intention of stopping
+	 * its crazy behaviour, so we exponentially increase the delay based on
+	 * overage amount.
+	 */
+	penalty_jiffies = max_overage * max_overage * HZ;
+	penalty_jiffies >>= MEMCG_DELAY_PRECISION_SHIFT;
+	penalty_jiffies >>= MEMCG_DELAY_SCALING_SHIFT;
+
+	/*
+	 * Factor in the task's own contribution to the overage, such that four
+	 * N-sized allocations are throttled approximately the same as one
+	 * 4N-sized allocation.
+	 *
+	 * MEMCG_CHARGE_BATCH pages is nominal, so work out how much smaller or
+	 * larger the current charge patch is than that.
+	 */
+	return penalty_jiffies * nr_pages / MEMCG_CHARGE_BATCH;
+}
+
+/*
+>>>>>>> upstream/android-13
  * Scheduled by try_charge() to be executed from the userland return path
  * and reclaims memory over the high limit.
  */
 void mem_cgroup_handle_over_high(void)
 {
+<<<<<<< HEAD
 	unsigned int nr_pages = current->memcg_nr_pages_over_high;
 	struct mem_cgroup *memcg;
+=======
+	unsigned long penalty_jiffies;
+	unsigned long pflags;
+	unsigned long nr_reclaimed;
+	unsigned int nr_pages = current->memcg_nr_pages_over_high;
+	int nr_retries = MAX_RECLAIM_RETRIES;
+	struct mem_cgroup *memcg;
+	bool in_retry = false;
+>>>>>>> upstream/android-13
 
 	if (likely(!nr_pages))
 		return;
 
 	memcg = get_mem_cgroup_from_mm(current->mm);
+<<<<<<< HEAD
 	reclaim_high(memcg, nr_pages, GFP_KERNEL);
 	css_put(&memcg->css);
 	current->memcg_nr_pages_over_high = 0;
@@ -2205,6 +3502,87 @@ static int try_charge(struct mem_cgroup *memcg, gfp_t gfp_mask,
 
 	if (mem_cgroup_is_root(memcg))
 		return 0;
+=======
+	current->memcg_nr_pages_over_high = 0;
+
+retry_reclaim:
+	/*
+	 * The allocating task should reclaim at least the batch size, but for
+	 * subsequent retries we only want to do what's necessary to prevent oom
+	 * or breaching resource isolation.
+	 *
+	 * This is distinct from memory.max or page allocator behaviour because
+	 * memory.high is currently batched, whereas memory.max and the page
+	 * allocator run every time an allocation is made.
+	 */
+	nr_reclaimed = reclaim_high(memcg,
+				    in_retry ? SWAP_CLUSTER_MAX : nr_pages,
+				    GFP_KERNEL);
+
+	/*
+	 * memory.high is breached and reclaim is unable to keep up. Throttle
+	 * allocators proactively to slow down excessive growth.
+	 */
+	penalty_jiffies = calculate_high_delay(memcg, nr_pages,
+					       mem_find_max_overage(memcg));
+
+	penalty_jiffies += calculate_high_delay(memcg, nr_pages,
+						swap_find_max_overage(memcg));
+
+	/*
+	 * Clamp the max delay per usermode return so as to still keep the
+	 * application moving forwards and also permit diagnostics, albeit
+	 * extremely slowly.
+	 */
+	penalty_jiffies = min(penalty_jiffies, MEMCG_MAX_HIGH_DELAY_JIFFIES);
+
+	/*
+	 * Don't sleep if the amount of jiffies this memcg owes us is so low
+	 * that it's not even worth doing, in an attempt to be nice to those who
+	 * go only a small amount over their memory.high value and maybe haven't
+	 * been aggressively reclaimed enough yet.
+	 */
+	if (penalty_jiffies <= HZ / 100)
+		goto out;
+
+	/*
+	 * If reclaim is making forward progress but we're still over
+	 * memory.high, we want to encourage that rather than doing allocator
+	 * throttling.
+	 */
+	if (nr_reclaimed || nr_retries--) {
+		in_retry = true;
+		goto retry_reclaim;
+	}
+
+	/*
+	 * If we exit early, we're guaranteed to die (since
+	 * schedule_timeout_killable sets TASK_KILLABLE). This means we don't
+	 * need to account for any ill-begotten jiffies to pay them off later.
+	 */
+	psi_memstall_enter(&pflags);
+	schedule_timeout_killable(penalty_jiffies);
+	psi_memstall_leave(&pflags);
+
+out:
+	css_put(&memcg->css);
+}
+
+static int try_charge_memcg(struct mem_cgroup *memcg, gfp_t gfp_mask,
+			unsigned int nr_pages)
+{
+	unsigned int batch = max(MEMCG_CHARGE_BATCH, nr_pages);
+	int nr_retries = MAX_RECLAIM_RETRIES;
+	struct mem_cgroup *mem_over_limit;
+	struct page_counter *counter;
+	enum oom_status oom_status;
+	unsigned long nr_reclaimed;
+	bool passed_oom = false;
+	bool may_swap = true;
+	bool drained = false;
+	unsigned long pflags;
+
+>>>>>>> upstream/android-13
 retry:
 	if (consume_stock(memcg, nr_pages))
 		return 0;
@@ -2236,6 +3614,7 @@ retry:
 		goto force;
 
 	/*
+<<<<<<< HEAD
 	 * Unlike in global OOM situations, memcg is not in a physical
 	 * memory shortage.  Allow dying and OOM-killed tasks to
 	 * bypass the last charges so that they can exit quickly and
@@ -2245,6 +3624,8 @@ retry:
 		goto force;
 
 	/*
+=======
+>>>>>>> upstream/android-13
 	 * Prevent unbounded recursion when reclaim operations need to
 	 * allocate memory. This might exceed the limits temporarily,
 	 * but we prefer facilitating memory reclaim and getting back
@@ -2261,8 +3642,15 @@ retry:
 
 	memcg_memory_event(mem_over_limit, MEMCG_MAX);
 
+<<<<<<< HEAD
 	nr_reclaimed = try_to_free_mem_cgroup_pages(mem_over_limit, nr_pages,
 						    gfp_mask, may_swap);
+=======
+	psi_memstall_enter(&pflags);
+	nr_reclaimed = try_to_free_mem_cgroup_pages(mem_over_limit, nr_pages,
+						    gfp_mask, may_swap);
+	psi_memstall_leave(&pflags);
+>>>>>>> upstream/android-13
 
 	if (mem_cgroup_margin(mem_over_limit) >= nr_pages)
 		goto retry;
@@ -2296,6 +3684,7 @@ retry:
 	if (nr_retries--)
 		goto retry;
 
+<<<<<<< HEAD
 	if (gfp_mask & __GFP_RETRY_MAYFAIL && oomed)
 		goto nomem;
 
@@ -2306,6 +3695,14 @@ retry:
 		goto force;
 
 	memcg_memory_event(mem_over_limit, MEMCG_OOM);
+=======
+	if (gfp_mask & __GFP_RETRY_MAYFAIL)
+		goto nomem;
+
+	/* Avoid endless loop for tasks bypassed by the oom killer */
+	if (passed_oom && task_is_dying())
+		goto nomem;
+>>>>>>> upstream/android-13
 
 	/*
 	 * keep retrying as long as the memcg oom killer is able to make
@@ -2314,6 +3711,7 @@ retry:
 	 */
 	oom_status = mem_cgroup_oom(mem_over_limit, gfp_mask,
 		       get_order(nr_pages * PAGE_SIZE));
+<<<<<<< HEAD
 	switch (oom_status) {
 	case OOM_SUCCESS:
 		nr_retries = MEM_CGROUP_RECLAIM_RETRIES;
@@ -2323,6 +3721,12 @@ retry:
 		goto force;
 	default:
 		goto nomem;
+=======
+	if (oom_status == OOM_SUCCESS) {
+		passed_oom = true;
+		nr_retries = MAX_RECLAIM_RETRIES;
+		goto retry;
+>>>>>>> upstream/android-13
 	}
 nomem:
 	if (!(gfp_mask & __GFP_NOFAIL))
@@ -2336,12 +3740,18 @@ force:
 	page_counter_charge(&memcg->memory, nr_pages);
 	if (do_memsw_account())
 		page_counter_charge(&memcg->memsw, nr_pages);
+<<<<<<< HEAD
 	css_get_many(&memcg->css, nr_pages);
+=======
+>>>>>>> upstream/android-13
 
 	return 0;
 
 done_restock:
+<<<<<<< HEAD
 	css_get_many(&memcg->css, batch);
+=======
+>>>>>>> upstream/android-13
 	if (batch > nr_pages)
 		refill_stock(memcg, batch - nr_pages);
 
@@ -2355,12 +3765,41 @@ done_restock:
 	 * reclaim, the cost of mismatch is negligible.
 	 */
 	do {
+<<<<<<< HEAD
 		if (page_counter_read(&memcg->memory) > memcg->high) {
 			/* Don't bother a random interrupted task */
 			if (in_interrupt()) {
 				schedule_work(&memcg->high_work);
 				break;
 			}
+=======
+		bool mem_high, swap_high;
+
+		mem_high = page_counter_read(&memcg->memory) >
+			READ_ONCE(memcg->memory.high);
+		swap_high = page_counter_read(&memcg->swap) >
+			READ_ONCE(memcg->swap.high);
+
+		/* Don't bother a random interrupted task */
+		if (in_interrupt()) {
+			if (mem_high) {
+				schedule_work(&memcg->high_work);
+				break;
+			}
+			continue;
+		}
+
+		if (mem_high || swap_high) {
+			/*
+			 * The allocating tasks in this cgroup will need to do
+			 * reclaim or be throttled to prevent further growth
+			 * of the memory or swap footprints.
+			 *
+			 * Target some best-effort fairness between the tasks,
+			 * and distribute reclaim work and delay penalties
+			 * based on how much each task is actually allocating.
+			 */
+>>>>>>> upstream/android-13
 			current->memcg_nr_pages_over_high += batch;
 			set_notify_resume(current);
 			break;
@@ -2370,6 +3809,19 @@ done_restock:
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static inline int try_charge(struct mem_cgroup *memcg, gfp_t gfp_mask,
+			     unsigned int nr_pages)
+{
+	if (mem_cgroup_is_root(memcg))
+		return 0;
+
+	return try_charge_memcg(memcg, gfp_mask, nr_pages);
+}
+
+#if defined(CONFIG_MEMCG_KMEM) || defined(CONFIG_MMU)
+>>>>>>> upstream/android-13
 static void cancel_charge(struct mem_cgroup *memcg, unsigned int nr_pages)
 {
 	if (mem_cgroup_is_root(memcg))
@@ -2378,6 +3830,7 @@ static void cancel_charge(struct mem_cgroup *memcg, unsigned int nr_pages)
 	page_counter_uncharge(&memcg->memory, nr_pages);
 	if (do_memsw_account())
 		page_counter_uncharge(&memcg->memsw, nr_pages);
+<<<<<<< HEAD
 
 	css_put_many(&memcg->css, nr_pages);
 }
@@ -2448,6 +3901,156 @@ static void commit_charge(struct page *page, struct mem_cgroup *memcg,
 }
 
 #ifdef CONFIG_MEMCG_KMEM
+=======
+}
+#endif
+
+static void commit_charge(struct page *page, struct mem_cgroup *memcg)
+{
+	VM_BUG_ON_PAGE(page_memcg(page), page);
+	/*
+	 * Any of the following ensures page's memcg stability:
+	 *
+	 * - the page lock
+	 * - LRU isolation
+	 * - lock_page_memcg()
+	 * - exclusive reference
+	 * - mem_cgroup_trylock_pages()
+	 */
+	page->memcg_data = (unsigned long)memcg;
+}
+
+static struct mem_cgroup *get_mem_cgroup_from_objcg(struct obj_cgroup *objcg)
+{
+	struct mem_cgroup *memcg;
+
+	rcu_read_lock();
+retry:
+	memcg = obj_cgroup_memcg(objcg);
+	if (unlikely(!css_tryget(&memcg->css)))
+		goto retry;
+	rcu_read_unlock();
+
+	return memcg;
+}
+
+#ifdef CONFIG_MEMCG_KMEM
+/*
+ * The allocated objcg pointers array is not accounted directly.
+ * Moreover, it should not come from DMA buffer and is not readily
+ * reclaimable. So those GFP bits should be masked off.
+ */
+#define OBJCGS_CLEAR_MASK	(__GFP_DMA | __GFP_RECLAIMABLE | __GFP_ACCOUNT)
+
+int memcg_alloc_page_obj_cgroups(struct page *page, struct kmem_cache *s,
+				 gfp_t gfp, bool new_page)
+{
+	unsigned int objects = objs_per_slab_page(s, page);
+	unsigned long memcg_data;
+	void *vec;
+
+	gfp &= ~OBJCGS_CLEAR_MASK;
+	vec = kcalloc_node(objects, sizeof(struct obj_cgroup *), gfp,
+			   page_to_nid(page));
+	if (!vec)
+		return -ENOMEM;
+
+	memcg_data = (unsigned long) vec | MEMCG_DATA_OBJCGS;
+	if (new_page) {
+		/*
+		 * If the slab page is brand new and nobody can yet access
+		 * it's memcg_data, no synchronization is required and
+		 * memcg_data can be simply assigned.
+		 */
+		page->memcg_data = memcg_data;
+	} else if (cmpxchg(&page->memcg_data, 0, memcg_data)) {
+		/*
+		 * If the slab page is already in use, somebody can allocate
+		 * and assign obj_cgroups in parallel. In this case the existing
+		 * objcg vector should be reused.
+		 */
+		kfree(vec);
+		return 0;
+	}
+
+	kmemleak_not_leak(vec);
+	return 0;
+}
+
+/*
+ * Returns a pointer to the memory cgroup to which the kernel object is charged.
+ *
+ * A passed kernel object can be a slab object or a generic kernel page, so
+ * different mechanisms for getting the memory cgroup pointer should be used.
+ * In certain cases (e.g. kernel stacks or large kmallocs with SLUB) the caller
+ * can not know for sure how the kernel object is implemented.
+ * mem_cgroup_from_obj() can be safely used in such cases.
+ *
+ * The caller must ensure the memcg lifetime, e.g. by taking rcu_read_lock(),
+ * cgroup_mutex, etc.
+ */
+struct mem_cgroup *mem_cgroup_from_obj(void *p)
+{
+	struct page *page;
+
+	if (mem_cgroup_disabled())
+		return NULL;
+
+	page = virt_to_head_page(p);
+
+	/*
+	 * Slab objects are accounted individually, not per-page.
+	 * Memcg membership data for each individual object is saved in
+	 * the page->obj_cgroups.
+	 */
+	if (page_objcgs_check(page)) {
+		struct obj_cgroup *objcg;
+		unsigned int off;
+
+		off = obj_to_index(page->slab_cache, page, p);
+		objcg = page_objcgs(page)[off];
+		if (objcg)
+			return obj_cgroup_memcg(objcg);
+
+		return NULL;
+	}
+
+	/*
+	 * page_memcg_check() is used here, because page_has_obj_cgroups()
+	 * check above could fail because the object cgroups vector wasn't set
+	 * at that moment, but it can be set concurrently.
+	 * page_memcg_check(page) will guarantee that a proper memory
+	 * cgroup pointer or NULL will be returned.
+	 */
+	return page_memcg_check(page);
+}
+
+__always_inline struct obj_cgroup *get_obj_cgroup_from_current(void)
+{
+	struct obj_cgroup *objcg = NULL;
+	struct mem_cgroup *memcg;
+
+	if (memcg_kmem_bypass())
+		return NULL;
+
+	rcu_read_lock();
+	if (unlikely(active_memcg()))
+		memcg = active_memcg();
+	else
+		memcg = mem_cgroup_from_task(current);
+
+	for (; memcg != root_mem_cgroup; memcg = parent_mem_cgroup(memcg)) {
+		objcg = rcu_dereference(memcg->objcg);
+		if (objcg && obj_cgroup_tryget(objcg))
+			break;
+		objcg = NULL;
+	}
+	rcu_read_unlock();
+
+	return objcg;
+}
+
+>>>>>>> upstream/android-13
 static int memcg_alloc_cache_id(void)
 {
 	int id, size;
@@ -2473,9 +4076,13 @@ static int memcg_alloc_cache_id(void)
 	else if (size > MEMCG_CACHES_MAX_SIZE)
 		size = MEMCG_CACHES_MAX_SIZE;
 
+<<<<<<< HEAD
 	err = memcg_update_all_caches(size);
 	if (!err)
 		err = memcg_update_all_list_lrus(size);
+=======
+	err = memcg_update_all_list_lrus(size);
+>>>>>>> upstream/android-13
 	if (!err)
 		memcg_nr_cache_ids = size;
 
@@ -2493,6 +4100,7 @@ static void memcg_free_cache_id(int id)
 	ida_simple_remove(&memcg_cache_ida, id);
 }
 
+<<<<<<< HEAD
 struct memcg_kmem_cache_create_work {
 	struct mem_cgroup *memcg;
 	struct kmem_cache *cachep;
@@ -2645,6 +4253,47 @@ int memcg_kmem_charge_memcg(struct page *page, gfp_t gfp, int order,
 	ret = try_charge(memcg, gfp, nr_pages);
 	if (ret)
 		return ret;
+=======
+/*
+ * obj_cgroup_uncharge_pages: uncharge a number of kernel pages from a objcg
+ * @objcg: object cgroup to uncharge
+ * @nr_pages: number of pages to uncharge
+ */
+static void obj_cgroup_uncharge_pages(struct obj_cgroup *objcg,
+				      unsigned int nr_pages)
+{
+	struct mem_cgroup *memcg;
+
+	memcg = get_mem_cgroup_from_objcg(objcg);
+
+	if (!cgroup_subsys_on_dfl(memory_cgrp_subsys))
+		page_counter_uncharge(&memcg->kmem, nr_pages);
+	refill_stock(memcg, nr_pages);
+
+	css_put(&memcg->css);
+}
+
+/*
+ * obj_cgroup_charge_pages: charge a number of kernel pages to a objcg
+ * @objcg: object cgroup to charge
+ * @gfp: reclaim mode
+ * @nr_pages: number of pages to charge
+ *
+ * Returns 0 on success, an error code on failure.
+ */
+static int obj_cgroup_charge_pages(struct obj_cgroup *objcg, gfp_t gfp,
+				   unsigned int nr_pages)
+{
+	struct page_counter *counter;
+	struct mem_cgroup *memcg;
+	int ret;
+
+	memcg = get_mem_cgroup_from_objcg(objcg);
+
+	ret = try_charge_memcg(memcg, gfp, nr_pages);
+	if (ret)
+		goto out;
+>>>>>>> upstream/android-13
 
 	if (!cgroup_subsys_on_dfl(memory_cgrp_subsys) &&
 	    !page_counter_try_charge(&memcg->kmem, nr_pages, &counter)) {
@@ -2656,6 +4305,7 @@ int memcg_kmem_charge_memcg(struct page *page, gfp_t gfp, int order,
 		 */
 		if (gfp & __GFP_NOFAIL) {
 			page_counter_charge(&memcg->kmem, nr_pages);
+<<<<<<< HEAD
 			return 0;
 		}
 		cancel_charge(memcg, nr_pages);
@@ -2669,12 +4319,28 @@ int memcg_kmem_charge_memcg(struct page *page, gfp_t gfp, int order,
 
 /**
  * memcg_kmem_charge: charge a kmem page to the current memory cgroup
+=======
+			goto out;
+		}
+		cancel_charge(memcg, nr_pages);
+		ret = -ENOMEM;
+	}
+out:
+	css_put(&memcg->css);
+
+	return ret;
+}
+
+/**
+ * __memcg_kmem_charge_page: charge a kmem page to the current memory cgroup
+>>>>>>> upstream/android-13
  * @page: page to charge
  * @gfp: reclaim mode
  * @order: allocation order
  *
  * Returns 0 on success, an error code on failure.
  */
+<<<<<<< HEAD
 int memcg_kmem_charge(struct page *page, gfp_t gfp, int order)
 {
 	struct mem_cgroup *memcg;
@@ -2743,6 +4409,289 @@ void mem_cgroup_split_huge_fixup(struct page *head)
 	__mod_memcg_state(head->mem_cgroup, MEMCG_RSS_HUGE, -HPAGE_PMD_NR);
 }
 #endif /* CONFIG_TRANSPARENT_HUGEPAGE */
+=======
+int __memcg_kmem_charge_page(struct page *page, gfp_t gfp, int order)
+{
+	struct obj_cgroup *objcg;
+	int ret = 0;
+
+	objcg = get_obj_cgroup_from_current();
+	if (objcg) {
+		ret = obj_cgroup_charge_pages(objcg, gfp, 1 << order);
+		if (!ret) {
+			page->memcg_data = (unsigned long)objcg |
+				MEMCG_DATA_KMEM;
+			return 0;
+		}
+		obj_cgroup_put(objcg);
+	}
+	return ret;
+}
+
+/**
+ * __memcg_kmem_uncharge_page: uncharge a kmem page
+ * @page: page to uncharge
+ * @order: allocation order
+ */
+void __memcg_kmem_uncharge_page(struct page *page, int order)
+{
+	struct obj_cgroup *objcg;
+	unsigned int nr_pages = 1 << order;
+
+	if (!PageMemcgKmem(page))
+		return;
+
+	objcg = __page_objcg(page);
+	obj_cgroup_uncharge_pages(objcg, nr_pages);
+	page->memcg_data = 0;
+	obj_cgroup_put(objcg);
+}
+
+void mod_objcg_state(struct obj_cgroup *objcg, struct pglist_data *pgdat,
+		     enum node_stat_item idx, int nr)
+{
+	unsigned long flags;
+	struct obj_stock *stock = get_obj_stock(&flags);
+	int *bytes;
+
+	/*
+	 * Save vmstat data in stock and skip vmstat array update unless
+	 * accumulating over a page of vmstat data or when pgdat or idx
+	 * changes.
+	 */
+	if (stock->cached_objcg != objcg) {
+		drain_obj_stock(stock);
+		obj_cgroup_get(objcg);
+		stock->nr_bytes = atomic_read(&objcg->nr_charged_bytes)
+				? atomic_xchg(&objcg->nr_charged_bytes, 0) : 0;
+		stock->cached_objcg = objcg;
+		stock->cached_pgdat = pgdat;
+	} else if (stock->cached_pgdat != pgdat) {
+		/* Flush the existing cached vmstat data */
+		struct pglist_data *oldpg = stock->cached_pgdat;
+
+		if (stock->nr_slab_reclaimable_b) {
+			mod_objcg_mlstate(objcg, oldpg, NR_SLAB_RECLAIMABLE_B,
+					  stock->nr_slab_reclaimable_b);
+			stock->nr_slab_reclaimable_b = 0;
+		}
+		if (stock->nr_slab_unreclaimable_b) {
+			mod_objcg_mlstate(objcg, oldpg, NR_SLAB_UNRECLAIMABLE_B,
+					  stock->nr_slab_unreclaimable_b);
+			stock->nr_slab_unreclaimable_b = 0;
+		}
+		stock->cached_pgdat = pgdat;
+	}
+
+	bytes = (idx == NR_SLAB_RECLAIMABLE_B) ? &stock->nr_slab_reclaimable_b
+					       : &stock->nr_slab_unreclaimable_b;
+	/*
+	 * Even for large object >= PAGE_SIZE, the vmstat data will still be
+	 * cached locally at least once before pushing it out.
+	 */
+	if (!*bytes) {
+		*bytes = nr;
+		nr = 0;
+	} else {
+		*bytes += nr;
+		if (abs(*bytes) > PAGE_SIZE) {
+			nr = *bytes;
+			*bytes = 0;
+		} else {
+			nr = 0;
+		}
+	}
+	if (nr)
+		mod_objcg_mlstate(objcg, pgdat, idx, nr);
+
+	put_obj_stock(flags);
+}
+
+static bool consume_obj_stock(struct obj_cgroup *objcg, unsigned int nr_bytes)
+{
+	unsigned long flags;
+	struct obj_stock *stock = get_obj_stock(&flags);
+	bool ret = false;
+
+	if (objcg == stock->cached_objcg && stock->nr_bytes >= nr_bytes) {
+		stock->nr_bytes -= nr_bytes;
+		ret = true;
+	}
+
+	put_obj_stock(flags);
+
+	return ret;
+}
+
+static void drain_obj_stock(struct obj_stock *stock)
+{
+	struct obj_cgroup *old = stock->cached_objcg;
+
+	if (!old)
+		return;
+
+	if (stock->nr_bytes) {
+		unsigned int nr_pages = stock->nr_bytes >> PAGE_SHIFT;
+		unsigned int nr_bytes = stock->nr_bytes & (PAGE_SIZE - 1);
+
+		if (nr_pages)
+			obj_cgroup_uncharge_pages(old, nr_pages);
+
+		/*
+		 * The leftover is flushed to the centralized per-memcg value.
+		 * On the next attempt to refill obj stock it will be moved
+		 * to a per-cpu stock (probably, on an other CPU), see
+		 * refill_obj_stock().
+		 *
+		 * How often it's flushed is a trade-off between the memory
+		 * limit enforcement accuracy and potential CPU contention,
+		 * so it might be changed in the future.
+		 */
+		atomic_add(nr_bytes, &old->nr_charged_bytes);
+		stock->nr_bytes = 0;
+	}
+
+	/*
+	 * Flush the vmstat data in current stock
+	 */
+	if (stock->nr_slab_reclaimable_b || stock->nr_slab_unreclaimable_b) {
+		if (stock->nr_slab_reclaimable_b) {
+			mod_objcg_mlstate(old, stock->cached_pgdat,
+					  NR_SLAB_RECLAIMABLE_B,
+					  stock->nr_slab_reclaimable_b);
+			stock->nr_slab_reclaimable_b = 0;
+		}
+		if (stock->nr_slab_unreclaimable_b) {
+			mod_objcg_mlstate(old, stock->cached_pgdat,
+					  NR_SLAB_UNRECLAIMABLE_B,
+					  stock->nr_slab_unreclaimable_b);
+			stock->nr_slab_unreclaimable_b = 0;
+		}
+		stock->cached_pgdat = NULL;
+	}
+
+	obj_cgroup_put(old);
+	stock->cached_objcg = NULL;
+}
+
+static bool obj_stock_flush_required(struct memcg_stock_pcp *stock,
+				     struct mem_cgroup *root_memcg)
+{
+	struct mem_cgroup *memcg;
+
+	if (in_task() && stock->task_obj.cached_objcg) {
+		memcg = obj_cgroup_memcg(stock->task_obj.cached_objcg);
+		if (memcg && mem_cgroup_is_descendant(memcg, root_memcg))
+			return true;
+	}
+	if (stock->irq_obj.cached_objcg) {
+		memcg = obj_cgroup_memcg(stock->irq_obj.cached_objcg);
+		if (memcg && mem_cgroup_is_descendant(memcg, root_memcg))
+			return true;
+	}
+
+	return false;
+}
+
+static void refill_obj_stock(struct obj_cgroup *objcg, unsigned int nr_bytes,
+			     bool allow_uncharge)
+{
+	unsigned long flags;
+	struct obj_stock *stock = get_obj_stock(&flags);
+	unsigned int nr_pages = 0;
+
+	if (stock->cached_objcg != objcg) { /* reset if necessary */
+		drain_obj_stock(stock);
+		obj_cgroup_get(objcg);
+		stock->cached_objcg = objcg;
+		stock->nr_bytes = atomic_read(&objcg->nr_charged_bytes)
+				? atomic_xchg(&objcg->nr_charged_bytes, 0) : 0;
+		allow_uncharge = true;	/* Allow uncharge when objcg changes */
+	}
+	stock->nr_bytes += nr_bytes;
+
+	if (allow_uncharge && (stock->nr_bytes > PAGE_SIZE)) {
+		nr_pages = stock->nr_bytes >> PAGE_SHIFT;
+		stock->nr_bytes &= (PAGE_SIZE - 1);
+	}
+
+	put_obj_stock(flags);
+
+	if (nr_pages)
+		obj_cgroup_uncharge_pages(objcg, nr_pages);
+}
+
+int obj_cgroup_charge(struct obj_cgroup *objcg, gfp_t gfp, size_t size)
+{
+	unsigned int nr_pages, nr_bytes;
+	int ret;
+
+	if (consume_obj_stock(objcg, size))
+		return 0;
+
+	/*
+	 * In theory, objcg->nr_charged_bytes can have enough
+	 * pre-charged bytes to satisfy the allocation. However,
+	 * flushing objcg->nr_charged_bytes requires two atomic
+	 * operations, and objcg->nr_charged_bytes can't be big.
+	 * The shared objcg->nr_charged_bytes can also become a
+	 * performance bottleneck if all tasks of the same memcg are
+	 * trying to update it. So it's better to ignore it and try
+	 * grab some new pages. The stock's nr_bytes will be flushed to
+	 * objcg->nr_charged_bytes later on when objcg changes.
+	 *
+	 * The stock's nr_bytes may contain enough pre-charged bytes
+	 * to allow one less page from being charged, but we can't rely
+	 * on the pre-charged bytes not being changed outside of
+	 * consume_obj_stock() or refill_obj_stock(). So ignore those
+	 * pre-charged bytes as well when charging pages. To avoid a
+	 * page uncharge right after a page charge, we set the
+	 * allow_uncharge flag to false when calling refill_obj_stock()
+	 * to temporarily allow the pre-charged bytes to exceed the page
+	 * size limit. The maximum reachable value of the pre-charged
+	 * bytes is (sizeof(object) + PAGE_SIZE - 2) if there is no data
+	 * race.
+	 */
+	nr_pages = size >> PAGE_SHIFT;
+	nr_bytes = size & (PAGE_SIZE - 1);
+
+	if (nr_bytes)
+		nr_pages += 1;
+
+	ret = obj_cgroup_charge_pages(objcg, gfp, nr_pages);
+	if (!ret && nr_bytes)
+		refill_obj_stock(objcg, PAGE_SIZE - nr_bytes, false);
+
+	return ret;
+}
+
+void obj_cgroup_uncharge(struct obj_cgroup *objcg, size_t size)
+{
+	refill_obj_stock(objcg, size, true);
+}
+
+#endif /* CONFIG_MEMCG_KMEM */
+
+/*
+ * Because page_memcg(head) is not set on tails, set it now.
+ */
+void split_page_memcg(struct page *head, unsigned int nr)
+{
+	struct mem_cgroup *memcg = page_memcg(head);
+	int i;
+
+	if (mem_cgroup_disabled() || !memcg)
+		return;
+
+	for (i = 1; i < nr; i++)
+		head[i].memcg_data = head->memcg_data;
+
+	if (PageMemcgKmem(head))
+		obj_cgroup_get_many(__page_objcg(head), nr - 1);
+	else
+		css_get_many(&memcg->css, nr - 1);
+}
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_MEMCG_SWAP
 /**
@@ -2804,7 +4753,11 @@ static int mem_cgroup_resize_max(struct mem_cgroup *memcg,
 		 * Make sure that the new limit (memsw or memory limit) doesn't
 		 * break our basic invariant rule memory.max <= memsw.max.
 		 */
+<<<<<<< HEAD
 		limits_invariant = memsw ? max >= memcg->memory.max :
+=======
+		limits_invariant = memsw ? max >= READ_ONCE(memcg->memory.max) :
+>>>>>>> upstream/android-13
 					   max <= memcg->memsw.max;
 		if (!limits_invariant) {
 			mutex_unlock(&memcg_max_mutex);
@@ -2922,6 +4875,7 @@ unsigned long mem_cgroup_soft_limit_reclaim(pg_data_t *pgdat, int order,
 }
 
 /*
+<<<<<<< HEAD
  * Test whether @memcg has children, dead or alive.  Note that this
  * function doesn't care whether @memcg has use_hierarchy enabled and
  * returns %true if there are child csses according to the cgroup
@@ -2938,13 +4892,19 @@ static inline bool memcg_has_children(struct mem_cgroup *memcg)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Reclaims as many pages from the given memcg as possible.
  *
  * Caller is responsible for holding css reference for memcg.
  */
 static int mem_cgroup_force_empty(struct mem_cgroup *memcg)
 {
+<<<<<<< HEAD
 	int nr_retries = MEM_CGROUP_RECLAIM_RETRIES;
+=======
+	int nr_retries = MAX_RECLAIM_RETRIES;
+>>>>>>> upstream/android-13
 
 	/* we call try-to-free pages for make this cgroup empty */
 	lru_add_drain_all();
@@ -2985,12 +4945,17 @@ static ssize_t mem_cgroup_force_empty_write(struct kernfs_open_file *of,
 static u64 mem_cgroup_hierarchy_read(struct cgroup_subsys_state *css,
 				     struct cftype *cft)
 {
+<<<<<<< HEAD
 	return mem_cgroup_from_css(css)->use_hierarchy;
+=======
+	return 1;
+>>>>>>> upstream/android-13
 }
 
 static int mem_cgroup_hierarchy_write(struct cgroup_subsys_state *css,
 				      struct cftype *cft, u64 val)
 {
+<<<<<<< HEAD
 	int retval = 0;
 	struct mem_cgroup *memcg = mem_cgroup_from_css(css);
 	struct mem_cgroup *parent_memcg = mem_cgroup_from_css(memcg->css.parent);
@@ -3047,10 +5012,21 @@ static void accumulate_memcg_tree(struct mem_cgroup *memcg,
 			acc->lru_pages[i] +=
 				mem_cgroup_nr_lru_pages(mi, BIT(i));
 	}
+=======
+	if (val == 1)
+		return 0;
+
+	pr_warn_once("Non-hierarchical mode is deprecated. "
+		     "Please report your usecase to linux-mm@kvack.org if you "
+		     "depend on this functionality.\n");
+
+	return -EINVAL;
+>>>>>>> upstream/android-13
 }
 
 static unsigned long mem_cgroup_usage(struct mem_cgroup *memcg, bool swap)
 {
+<<<<<<< HEAD
 	unsigned long val = 0;
 
 	if (mem_cgroup_is_root(memcg)) {
@@ -3063,10 +5039,30 @@ static unsigned long mem_cgroup_usage(struct mem_cgroup *memcg, bool swap)
 				val += memcg_page_state(iter, MEMCG_SWAP);
 		}
 	} else {
+=======
+	unsigned long val;
+
+	if (mem_cgroup_is_root(memcg)) {
+		mem_cgroup_flush_stats();
+		val = memcg_page_state(memcg, NR_FILE_PAGES) +
+			memcg_page_state(memcg, NR_ANON_MAPPED);
+		if (swap)
+			val += memcg_page_state(memcg, MEMCG_SWAP);
+	} else {
+#ifdef CONFIG_MEMCG_HEIMDALL
+		val = memcg_page_state(memcg, NR_ANON_MAPPED);
+		if (swap)
+			val += memcg_page_state(memcg, MEMCG_SWAP);
+#else
+>>>>>>> upstream/android-13
 		if (!swap)
 			val = page_counter_read(&memcg->memory);
 		else
 			val = page_counter_read(&memcg->memsw);
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 	}
 	return val;
 }
@@ -3125,6 +5121,10 @@ static u64 mem_cgroup_read_u64(struct cgroup_subsys_state *css,
 #ifdef CONFIG_MEMCG_KMEM
 static int memcg_online_kmem(struct mem_cgroup *memcg)
 {
+<<<<<<< HEAD
+=======
+	struct obj_cgroup *objcg;
+>>>>>>> upstream/android-13
 	int memcg_id;
 
 	if (cgroup_memory_nokmem)
@@ -3137,6 +5137,7 @@ static int memcg_online_kmem(struct mem_cgroup *memcg)
 	if (memcg_id < 0)
 		return memcg_id;
 
+<<<<<<< HEAD
 	static_branch_inc(&memcg_kmem_enabled_key);
 	/*
 	 * A memory cgroup is considered kmem-online as soon as it gets
@@ -3147,6 +5148,20 @@ static int memcg_online_kmem(struct mem_cgroup *memcg)
 	memcg->kmemcg_id = memcg_id;
 	memcg->kmem_state = KMEM_ONLINE;
 	INIT_LIST_HEAD(&memcg->kmem_caches);
+=======
+	objcg = obj_cgroup_alloc();
+	if (!objcg) {
+		memcg_free_cache_id(memcg_id);
+		return -ENOMEM;
+	}
+	objcg->memcg = memcg;
+	rcu_assign_pointer(memcg->objcg, objcg);
+
+	static_branch_enable(&memcg_kmem_enabled_key);
+
+	memcg->kmemcg_id = memcg_id;
+	memcg->kmem_state = KMEM_ONLINE;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -3159,6 +5174,7 @@ static void memcg_offline_kmem(struct mem_cgroup *memcg)
 
 	if (memcg->kmem_state != KMEM_ONLINE)
 		return;
+<<<<<<< HEAD
 	/*
 	 * Clear the online state before clearing memcg_caches array
 	 * entries. The slab_mutex in memcg_deactivate_kmem_caches()
@@ -3172,10 +5188,23 @@ static void memcg_offline_kmem(struct mem_cgroup *memcg)
 	kmemcg_id = memcg->kmemcg_id;
 	BUG_ON(kmemcg_id < 0);
 
+=======
+
+	memcg->kmem_state = KMEM_ALLOCATED;
+
+>>>>>>> upstream/android-13
 	parent = parent_mem_cgroup(memcg);
 	if (!parent)
 		parent = root_mem_cgroup;
 
+<<<<<<< HEAD
+=======
+	memcg_reparent_objcgs(memcg, parent);
+
+	kmemcg_id = memcg->kmemcg_id;
+	BUG_ON(kmemcg_id < 0);
+
+>>>>>>> upstream/android-13
 	/*
 	 * Change kmemcg_id of this cgroup and all its descendants to the
 	 * parent's id, and then move all entries from this cgroup's list_lrus
@@ -3189,8 +5218,11 @@ static void memcg_offline_kmem(struct mem_cgroup *memcg)
 		child = mem_cgroup_from_css(css);
 		BUG_ON(child->kmemcg_id != kmemcg_id);
 		child->kmemcg_id = parent->kmemcg_id;
+<<<<<<< HEAD
 		if (!memcg->use_hierarchy)
 			break;
+=======
+>>>>>>> upstream/android-13
 	}
 	rcu_read_unlock();
 
@@ -3204,12 +5236,15 @@ static void memcg_free_kmem(struct mem_cgroup *memcg)
 	/* css_alloc() failed, offlining didn't happen */
 	if (unlikely(memcg->kmem_state == KMEM_ONLINE))
 		memcg_offline_kmem(memcg);
+<<<<<<< HEAD
 
 	if (memcg->kmem_state == KMEM_ALLOCATED) {
 		memcg_destroy_kmem_caches(memcg);
 		static_branch_dec(&memcg_kmem_enabled_key);
 		WARN_ON(page_counter_read(&memcg->kmem));
 	}
+=======
+>>>>>>> upstream/android-13
 }
 #else
 static int memcg_online_kmem(struct mem_cgroup *memcg)
@@ -3300,6 +5335,12 @@ static ssize_t mem_cgroup_write(struct kernfs_open_file *of,
 			ret = mem_cgroup_resize_max(memcg, nr_pages, true);
 			break;
 		case _KMEM:
+<<<<<<< HEAD
+=======
+			pr_warn_once("kmem.limit_in_bytes is deprecated and will be removed. "
+				     "Please report your usecase to linux-mm@kvack.org if you "
+				     "depend on this functionality.\n");
+>>>>>>> upstream/android-13
 			ret = memcg_update_kmem_max(memcg, nr_pages);
 			break;
 		case _TCP:
@@ -3385,6 +5426,52 @@ static int mem_cgroup_move_charge_write(struct cgroup_subsys_state *css,
 #endif
 
 #ifdef CONFIG_NUMA
+<<<<<<< HEAD
+=======
+
+#define LRU_ALL_FILE (BIT(LRU_INACTIVE_FILE) | BIT(LRU_ACTIVE_FILE))
+#define LRU_ALL_ANON (BIT(LRU_INACTIVE_ANON) | BIT(LRU_ACTIVE_ANON))
+#define LRU_ALL	     ((1 << NR_LRU_LISTS) - 1)
+
+static unsigned long mem_cgroup_node_nr_lru_pages(struct mem_cgroup *memcg,
+				int nid, unsigned int lru_mask, bool tree)
+{
+	struct lruvec *lruvec = mem_cgroup_lruvec(memcg, NODE_DATA(nid));
+	unsigned long nr = 0;
+	enum lru_list lru;
+
+	VM_BUG_ON((unsigned)nid >= nr_node_ids);
+
+	for_each_lru(lru) {
+		if (!(BIT(lru) & lru_mask))
+			continue;
+		if (tree)
+			nr += lruvec_page_state(lruvec, NR_LRU_BASE + lru);
+		else
+			nr += lruvec_page_state_local(lruvec, NR_LRU_BASE + lru);
+	}
+	return nr;
+}
+
+static unsigned long mem_cgroup_nr_lru_pages(struct mem_cgroup *memcg,
+					     unsigned int lru_mask,
+					     bool tree)
+{
+	unsigned long nr = 0;
+	enum lru_list lru;
+
+	for_each_lru(lru) {
+		if (!(BIT(lru) & lru_mask))
+			continue;
+		if (tree)
+			nr += memcg_page_state(memcg, NR_LRU_BASE + lru);
+		else
+			nr += memcg_page_state_local(memcg, NR_LRU_BASE + lru);
+	}
+	return nr;
+}
+
+>>>>>>> upstream/android-13
 static int memcg_numa_stat_show(struct seq_file *m, void *v)
 {
 	struct numa_stat {
@@ -3400,6 +5487,7 @@ static int memcg_numa_stat_show(struct seq_file *m, void *v)
 	};
 	const struct numa_stat *stat;
 	int nid;
+<<<<<<< HEAD
 	unsigned long nr;
 	struct mem_cgroup *memcg = mem_cgroup_from_css(seq_css(m));
 
@@ -3411,10 +5499,25 @@ static int memcg_numa_stat_show(struct seq_file *m, void *v)
 							  stat->lru_mask);
 			seq_printf(m, " N%d=%lu", nid, nr);
 		}
+=======
+	struct mem_cgroup *memcg = mem_cgroup_from_seq(m);
+
+	mem_cgroup_flush_stats();
+
+	for (stat = stats; stat < stats + ARRAY_SIZE(stats); stat++) {
+		seq_printf(m, "%s=%lu", stat->name,
+			   mem_cgroup_nr_lru_pages(memcg, stat->lru_mask,
+						   false));
+		for_each_node_state(nid, N_MEMORY)
+			seq_printf(m, " N%d=%lu", nid,
+				   mem_cgroup_node_nr_lru_pages(memcg, nid,
+							stat->lru_mask, false));
+>>>>>>> upstream/android-13
 		seq_putc(m, '\n');
 	}
 
 	for (stat = stats; stat < stats + ARRAY_SIZE(stats); stat++) {
+<<<<<<< HEAD
 		struct mem_cgroup *iter;
 
 		nr = 0;
@@ -3428,6 +5531,16 @@ static int memcg_numa_stat_show(struct seq_file *m, void *v)
 					iter, nid, stat->lru_mask);
 			seq_printf(m, " N%d=%lu", nid, nr);
 		}
+=======
+
+		seq_printf(m, "hierarchical_%s=%lu", stat->name,
+			   mem_cgroup_nr_lru_pages(memcg, stat->lru_mask,
+						   true));
+		for_each_node_state(nid, N_MEMORY)
+			seq_printf(m, " N%d=%lu", nid,
+				   mem_cgroup_node_nr_lru_pages(memcg, nid,
+							stat->lru_mask, true));
+>>>>>>> upstream/android-13
 		seq_putc(m, '\n');
 	}
 
@@ -3435,6 +5548,35 @@ static int memcg_numa_stat_show(struct seq_file *m, void *v)
 }
 #endif /* CONFIG_NUMA */
 
+<<<<<<< HEAD
+=======
+static const unsigned int memcg1_stats[] = {
+	NR_FILE_PAGES,
+	NR_ANON_MAPPED,
+#ifdef CONFIG_TRANSPARENT_HUGEPAGE
+	NR_ANON_THPS,
+#endif
+	NR_SHMEM,
+	NR_FILE_MAPPED,
+	NR_FILE_DIRTY,
+	NR_WRITEBACK,
+	MEMCG_SWAP,
+};
+
+static const char *const memcg1_stat_names[] = {
+	"cache",
+	"rss",
+#ifdef CONFIG_TRANSPARENT_HUGEPAGE
+	"rss_huge",
+#endif
+	"shmem",
+	"mapped_file",
+	"dirty",
+	"writeback",
+	"swap",
+};
+
+>>>>>>> upstream/android-13
 /* Universal VM events cgroup1 shows, original sort order */
 static const unsigned int memcg1_events[] = {
 	PGPGIN,
@@ -3443,6 +5585,7 @@ static const unsigned int memcg1_events[] = {
 	PGMAJFAULT,
 };
 
+<<<<<<< HEAD
 static const char *const memcg1_event_names[] = {
 	"pgpgin",
 	"pgpgout",
@@ -3476,12 +5619,47 @@ static int memcg_stat_show(struct seq_file *m, void *v)
 	for (i = 0; i < NR_LRU_LISTS; i++)
 		seq_printf(m, "%s %lu\n", mem_cgroup_lru_names[i],
 			   mem_cgroup_nr_lru_pages(memcg, BIT(i)) * PAGE_SIZE);
+=======
+static int memcg_stat_show(struct seq_file *m, void *v)
+{
+	struct mem_cgroup *memcg = mem_cgroup_from_seq(m);
+	unsigned long memory, memsw;
+	struct mem_cgroup *mi;
+	unsigned int i;
+
+	BUILD_BUG_ON(ARRAY_SIZE(memcg1_stat_names) != ARRAY_SIZE(memcg1_stats));
+
+	mem_cgroup_flush_stats();
+
+	for (i = 0; i < ARRAY_SIZE(memcg1_stats); i++) {
+		unsigned long nr;
+
+		if (memcg1_stats[i] == MEMCG_SWAP && !do_memsw_account())
+			continue;
+		nr = memcg_page_state_local(memcg, memcg1_stats[i]);
+		seq_printf(m, "%s %lu\n", memcg1_stat_names[i], nr * PAGE_SIZE);
+	}
+
+	for (i = 0; i < ARRAY_SIZE(memcg1_events); i++)
+		seq_printf(m, "%s %lu\n", vm_event_name(memcg1_events[i]),
+			   memcg_events_local(memcg, memcg1_events[i]));
+
+	for (i = 0; i < NR_LRU_LISTS; i++)
+		seq_printf(m, "%s %lu\n", lru_list_name(i),
+			   memcg_page_state_local(memcg, NR_LRU_BASE + i) *
+			   PAGE_SIZE);
+>>>>>>> upstream/android-13
 
 	/* Hierarchical information */
 	memory = memsw = PAGE_COUNTER_MAX;
 	for (mi = memcg; mi; mi = parent_mem_cgroup(mi)) {
+<<<<<<< HEAD
 		memory = min(memory, mi->memory.max);
 		memsw = min(memsw, mi->memsw.max);
+=======
+		memory = min(memory, READ_ONCE(mi->memory.max));
+		memsw = min(memsw, READ_ONCE(mi->memsw.max));
+>>>>>>> upstream/android-13
 	}
 	seq_printf(m, "hierarchical_memory_limit %llu\n",
 		   (u64)memory * PAGE_SIZE);
@@ -3489,6 +5667,7 @@ static int memcg_stat_show(struct seq_file *m, void *v)
 		seq_printf(m, "hierarchical_memsw_limit %llu\n",
 			   (u64)memsw * PAGE_SIZE);
 
+<<<<<<< HEAD
 	memset(&acc, 0, sizeof(acc));
 	acc.stats_size = ARRAY_SIZE(memcg1_stats);
 	acc.stats_array = memcg1_stats;
@@ -3510,11 +5689,33 @@ static int memcg_stat_show(struct seq_file *m, void *v)
 	for (i = 0; i < NR_LRU_LISTS; i++)
 		seq_printf(m, "total_%s %llu\n", mem_cgroup_lru_names[i],
 			   (u64)acc.lru_pages[i] * PAGE_SIZE);
+=======
+	for (i = 0; i < ARRAY_SIZE(memcg1_stats); i++) {
+		unsigned long nr;
+
+		if (memcg1_stats[i] == MEMCG_SWAP && !do_memsw_account())
+			continue;
+		nr = memcg_page_state(memcg, memcg1_stats[i]);
+		seq_printf(m, "total_%s %llu\n", memcg1_stat_names[i],
+						(u64)nr * PAGE_SIZE);
+	}
+
+	for (i = 0; i < ARRAY_SIZE(memcg1_events); i++)
+		seq_printf(m, "total_%s %llu\n",
+			   vm_event_name(memcg1_events[i]),
+			   (u64)memcg_events(memcg, memcg1_events[i]));
+
+	for (i = 0; i < NR_LRU_LISTS; i++)
+		seq_printf(m, "total_%s %llu\n", lru_list_name(i),
+			   (u64)memcg_page_state(memcg, NR_LRU_BASE + i) *
+			   PAGE_SIZE);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_DEBUG_VM
 	{
 		pg_data_t *pgdat;
 		struct mem_cgroup_per_node *mz;
+<<<<<<< HEAD
 		struct zone_reclaim_stat *rstat;
 		unsigned long recent_rotated[2] = {0, 0};
 		unsigned long recent_scanned[2] = {0, 0};
@@ -3532,6 +5733,19 @@ static int memcg_stat_show(struct seq_file *m, void *v)
 		seq_printf(m, "recent_rotated_file %lu\n", recent_rotated[1]);
 		seq_printf(m, "recent_scanned_anon %lu\n", recent_scanned[0]);
 		seq_printf(m, "recent_scanned_file %lu\n", recent_scanned[1]);
+=======
+		unsigned long anon_cost = 0;
+		unsigned long file_cost = 0;
+
+		for_each_online_pgdat(pgdat) {
+			mz = memcg->nodeinfo[pgdat->node_id];
+
+			anon_cost += mz->lruvec.anon_cost;
+			file_cost += mz->lruvec.file_cost;
+		}
+		seq_printf(m, "anon_cost %lu\n", anon_cost);
+		seq_printf(m, "file_cost %lu\n", file_cost);
+>>>>>>> upstream/android-13
 	}
 #endif
 
@@ -3551,12 +5765,19 @@ static int mem_cgroup_swappiness_write(struct cgroup_subsys_state *css,
 {
 	struct mem_cgroup *memcg = mem_cgroup_from_css(css);
 
+<<<<<<< HEAD
 #ifndef CONFIG_MTK_GMO_RAM_OPTIMIZE
 	if (val > 100)
 		return -EINVAL;
 #endif
 
 	if (css->parent)
+=======
+	if (val > 200)
+		return -EINVAL;
+
+	if (!mem_cgroup_is_root(memcg))
+>>>>>>> upstream/android-13
 		memcg->swappiness = val;
 	else
 		vm_swappiness = val;
@@ -3692,8 +5913,12 @@ static int __mem_cgroup_usage_register_event(struct mem_cgroup *memcg,
 	size = thresholds->primary ? thresholds->primary->size + 1 : 1;
 
 	/* Allocate memory for new array of thresholds */
+<<<<<<< HEAD
 	new = kmalloc(sizeof(*new) + size * sizeof(struct mem_cgroup_threshold),
 			GFP_KERNEL);
+=======
+	new = kmalloc(struct_size(new, entries, size), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!new) {
 		ret = -ENOMEM;
 		goto unlock;
@@ -3701,17 +5926,27 @@ static int __mem_cgroup_usage_register_event(struct mem_cgroup *memcg,
 	new->size = size;
 
 	/* Copy thresholds (if any) to new array */
+<<<<<<< HEAD
 	if (thresholds->primary) {
 		memcpy(new->entries, thresholds->primary->entries, (size - 1) *
 				sizeof(struct mem_cgroup_threshold));
 	}
+=======
+	if (thresholds->primary)
+		memcpy(new->entries, thresholds->primary->entries,
+		       flex_array_size(new, entries, size - 1));
+>>>>>>> upstream/android-13
 
 	/* Add new threshold */
 	new->entries[size - 1].eventfd = eventfd;
 	new->entries[size - 1].threshold = threshold;
 
 	/* Sort thresholds. Registering of new threshold isn't time-critical */
+<<<<<<< HEAD
 	sort(new->entries, size, sizeof(struct mem_cgroup_threshold),
+=======
+	sort(new->entries, size, sizeof(*new->entries),
+>>>>>>> upstream/android-13
 			compare_thresholds, NULL);
 
 	/* Find current threshold */
@@ -3893,7 +6128,11 @@ static void mem_cgroup_oom_unregister_event(struct mem_cgroup *memcg,
 
 static int mem_cgroup_oom_control_read(struct seq_file *sf, void *v)
 {
+<<<<<<< HEAD
 	struct mem_cgroup *memcg = mem_cgroup_from_css(seq_css(sf));
+=======
+	struct mem_cgroup *memcg = mem_cgroup_from_seq(sf);
+>>>>>>> upstream/android-13
 
 	seq_printf(sf, "oom_kill_disable %d\n", memcg->oom_kill_disable);
 	seq_printf(sf, "under_oom %d\n", (bool)memcg->under_oom);
@@ -3908,7 +6147,11 @@ static int mem_cgroup_oom_control_write(struct cgroup_subsys_state *css,
 	struct mem_cgroup *memcg = mem_cgroup_from_css(css);
 
 	/* cannot set to root cgroup and only 0 and 1 are allowed */
+<<<<<<< HEAD
 	if (!css->parent || !((val == 0) || (val == 1)))
+=======
+	if (mem_cgroup_is_root(memcg) || !((val == 0) || (val == 1)))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	memcg->oom_kill_disable = val;
@@ -3920,6 +6163,11 @@ static int mem_cgroup_oom_control_write(struct cgroup_subsys_state *css,
 
 #ifdef CONFIG_CGROUP_WRITEBACK
 
+<<<<<<< HEAD
+=======
+#include <trace/events/writeback.h>
+
+>>>>>>> upstream/android-13
 static int memcg_wb_domain_init(struct mem_cgroup *memcg, gfp_t gfp)
 {
 	return wb_domain_init(&memcg->cgwb_domain, gfp);
@@ -3945,6 +6193,7 @@ struct wb_domain *mem_cgroup_wb_domain(struct bdi_writeback *wb)
 	return &memcg->cgwb_domain;
 }
 
+<<<<<<< HEAD
 /*
  * idx can be of type enum memcg_stat_item or node_stat_item.
  * Keep in sync with memcg_exact_page().
@@ -3961,6 +6210,8 @@ static unsigned long memcg_exact_page_state(struct mem_cgroup *memcg, int idx)
 	return x;
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * mem_cgroup_wb_stats - retrieve writeback related stats from its memcg
  * @wb: bdi_writeback in question
@@ -3986,6 +6237,7 @@ void mem_cgroup_wb_stats(struct bdi_writeback *wb, unsigned long *pfilepages,
 	struct mem_cgroup *memcg = mem_cgroup_from_css(wb->memcg_css);
 	struct mem_cgroup *parent;
 
+<<<<<<< HEAD
 	*pdirty = memcg_exact_page_state(memcg, NR_FILE_DIRTY);
 
 	/* this should eventually include NR_UNSTABLE_NFS */
@@ -3996,6 +6248,19 @@ void mem_cgroup_wb_stats(struct bdi_writeback *wb, unsigned long *pfilepages,
 
 	while ((parent = parent_mem_cgroup(memcg))) {
 		unsigned long ceiling = min(memcg->memory.max, memcg->high);
+=======
+	mem_cgroup_flush_stats();
+
+	*pdirty = memcg_page_state(memcg, NR_FILE_DIRTY);
+	*pwriteback = memcg_page_state(memcg, NR_WRITEBACK);
+	*pfilepages = memcg_page_state(memcg, NR_INACTIVE_FILE) +
+			memcg_page_state(memcg, NR_ACTIVE_FILE);
+
+	*pheadroom = PAGE_COUNTER_MAX;
+	while ((parent = parent_mem_cgroup(memcg))) {
+		unsigned long ceiling = min(READ_ONCE(memcg->memory.max),
+					    READ_ONCE(memcg->memory.high));
+>>>>>>> upstream/android-13
 		unsigned long used = page_counter_read(&memcg->memory);
 
 		*pheadroom = min(*pheadroom, ceiling - min(ceiling, used));
@@ -4003,6 +6268,133 @@ void mem_cgroup_wb_stats(struct bdi_writeback *wb, unsigned long *pfilepages,
 	}
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * Foreign dirty flushing
+ *
+ * There's an inherent mismatch between memcg and writeback.  The former
+ * tracks ownership per-page while the latter per-inode.  This was a
+ * deliberate design decision because honoring per-page ownership in the
+ * writeback path is complicated, may lead to higher CPU and IO overheads
+ * and deemed unnecessary given that write-sharing an inode across
+ * different cgroups isn't a common use-case.
+ *
+ * Combined with inode majority-writer ownership switching, this works well
+ * enough in most cases but there are some pathological cases.  For
+ * example, let's say there are two cgroups A and B which keep writing to
+ * different but confined parts of the same inode.  B owns the inode and
+ * A's memory is limited far below B's.  A's dirty ratio can rise enough to
+ * trigger balance_dirty_pages() sleeps but B's can be low enough to avoid
+ * triggering background writeback.  A will be slowed down without a way to
+ * make writeback of the dirty pages happen.
+ *
+ * Conditions like the above can lead to a cgroup getting repeatedly and
+ * severely throttled after making some progress after each
+ * dirty_expire_interval while the underlying IO device is almost
+ * completely idle.
+ *
+ * Solving this problem completely requires matching the ownership tracking
+ * granularities between memcg and writeback in either direction.  However,
+ * the more egregious behaviors can be avoided by simply remembering the
+ * most recent foreign dirtying events and initiating remote flushes on
+ * them when local writeback isn't enough to keep the memory clean enough.
+ *
+ * The following two functions implement such mechanism.  When a foreign
+ * page - a page whose memcg and writeback ownerships don't match - is
+ * dirtied, mem_cgroup_track_foreign_dirty() records the inode owning
+ * bdi_writeback on the page owning memcg.  When balance_dirty_pages()
+ * decides that the memcg needs to sleep due to high dirty ratio, it calls
+ * mem_cgroup_flush_foreign() which queues writeback on the recorded
+ * foreign bdi_writebacks which haven't expired.  Both the numbers of
+ * recorded bdi_writebacks and concurrent in-flight foreign writebacks are
+ * limited to MEMCG_CGWB_FRN_CNT.
+ *
+ * The mechanism only remembers IDs and doesn't hold any object references.
+ * As being wrong occasionally doesn't matter, updates and accesses to the
+ * records are lockless and racy.
+ */
+void mem_cgroup_track_foreign_dirty_slowpath(struct page *page,
+					     struct bdi_writeback *wb)
+{
+	struct mem_cgroup *memcg = page_memcg(page);
+	struct memcg_cgwb_frn *frn;
+	u64 now = get_jiffies_64();
+	u64 oldest_at = now;
+	int oldest = -1;
+	int i;
+
+	trace_track_foreign_dirty(page, wb);
+
+	/*
+	 * Pick the slot to use.  If there is already a slot for @wb, keep
+	 * using it.  If not replace the oldest one which isn't being
+	 * written out.
+	 */
+	for (i = 0; i < MEMCG_CGWB_FRN_CNT; i++) {
+		frn = &memcg->cgwb_frn[i];
+		if (frn->bdi_id == wb->bdi->id &&
+		    frn->memcg_id == wb->memcg_css->id)
+			break;
+		if (time_before64(frn->at, oldest_at) &&
+		    atomic_read(&frn->done.cnt) == 1) {
+			oldest = i;
+			oldest_at = frn->at;
+		}
+	}
+
+	if (i < MEMCG_CGWB_FRN_CNT) {
+		/*
+		 * Re-using an existing one.  Update timestamp lazily to
+		 * avoid making the cacheline hot.  We want them to be
+		 * reasonably up-to-date and significantly shorter than
+		 * dirty_expire_interval as that's what expires the record.
+		 * Use the shorter of 1s and dirty_expire_interval / 8.
+		 */
+		unsigned long update_intv =
+			min_t(unsigned long, HZ,
+			      msecs_to_jiffies(dirty_expire_interval * 10) / 8);
+
+		if (time_before64(frn->at, now - update_intv))
+			frn->at = now;
+	} else if (oldest >= 0) {
+		/* replace the oldest free one */
+		frn = &memcg->cgwb_frn[oldest];
+		frn->bdi_id = wb->bdi->id;
+		frn->memcg_id = wb->memcg_css->id;
+		frn->at = now;
+	}
+}
+
+/* issue foreign writeback flushes for recorded foreign dirtying events */
+void mem_cgroup_flush_foreign(struct bdi_writeback *wb)
+{
+	struct mem_cgroup *memcg = mem_cgroup_from_css(wb->memcg_css);
+	unsigned long intv = msecs_to_jiffies(dirty_expire_interval * 10);
+	u64 now = jiffies_64;
+	int i;
+
+	for (i = 0; i < MEMCG_CGWB_FRN_CNT; i++) {
+		struct memcg_cgwb_frn *frn = &memcg->cgwb_frn[i];
+
+		/*
+		 * If the record is older than dirty_expire_interval,
+		 * writeback on it has already started.  No need to kick it
+		 * off again.  Also, don't start a new one if there's
+		 * already one in flight.
+		 */
+		if (time_after64(frn->at, now - intv) &&
+		    atomic_read(&frn->done.cnt) == 1) {
+			frn->at = 0;
+			trace_flush_foreign(wb, frn->bdi_id, frn->memcg_id);
+			cgroup_writeback_by_id(frn->bdi_id, frn->memcg_id,
+					       WB_REASON_FOREIGN_FLUSH,
+					       &frn->done);
+		}
+	}
+}
+
+>>>>>>> upstream/android-13
 #else	/* CONFIG_CGROUP_WRITEBACK */
 
 static int memcg_wb_domain_init(struct mem_cgroup *memcg, gfp_t gfp)
@@ -4168,7 +6560,11 @@ static ssize_t memcg_write_event_control(struct kernfs_open_file *of,
 
 	/* the process need read permission on control file */
 	/* AV: shouldn't we check that it's been opened for read instead? */
+<<<<<<< HEAD
 	ret = inode_permission(file_inode(cfile.file), MAY_READ);
+=======
+	ret = file_permission(cfile.file, MAY_READ);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		goto out_put_cfile;
 
@@ -4220,9 +6616,15 @@ static ssize_t memcg_write_event_control(struct kernfs_open_file *of,
 
 	vfs_poll(efile.file, &event->pt);
 
+<<<<<<< HEAD
 	spin_lock(&memcg->event_list_lock);
 	list_add(&event->list, &memcg->event_list);
 	spin_unlock(&memcg->event_list_lock);
+=======
+	spin_lock_irq(&memcg->event_list_lock);
+	list_add(&event->list, &memcg->event_list);
+	spin_unlock_irq(&memcg->event_list_lock);
+>>>>>>> upstream/android-13
 
 	fdput(cfile);
 	fdput(efile);
@@ -4339,12 +6741,19 @@ static struct cftype mem_cgroup_legacy_files[] = {
 		.write = mem_cgroup_reset,
 		.read_u64 = mem_cgroup_read_u64,
 	},
+<<<<<<< HEAD
 #if defined(CONFIG_SLAB) || defined(CONFIG_SLUB_DEBUG)
 	{
 		.name = "kmem.slabinfo",
 		.seq_start = memcg_slab_start,
 		.seq_next = memcg_slab_next,
 		.seq_stop = memcg_slab_stop,
+=======
+#if defined(CONFIG_MEMCG_KMEM) && \
+	(defined(CONFIG_SLAB) || defined(CONFIG_SLUB_DEBUG))
+	{
+		.name = "kmem.slabinfo",
+>>>>>>> upstream/android-13
 		.seq_show = memcg_slab_show,
 	},
 #endif
@@ -4382,7 +6791,11 @@ static struct cftype mem_cgroup_legacy_files[] = {
  * limited to 16 bit (MEM_CGROUP_ID_MAX), limiting the total number of
  * memory-controlled cgroups to 64k.
  *
+<<<<<<< HEAD
  * However, there usually are many references to the oflline CSS after
+=======
+ * However, there usually are many references to the offline CSS after
+>>>>>>> upstream/android-13
  * the cgroup has been destroyed, such as page cache or reclaimable
  * slab objects, that don't need to hang on to the ID. We want to keep
  * those dead CSS from occupying IDs, or we might quickly exhaust the
@@ -4403,21 +6816,36 @@ static DEFINE_IDR(mem_cgroup_idr);
 static void mem_cgroup_id_remove(struct mem_cgroup *memcg)
 {
 	if (memcg->id.id > 0) {
+<<<<<<< HEAD
+=======
+		trace_android_vh_mem_cgroup_id_remove(memcg);
+>>>>>>> upstream/android-13
 		idr_remove(&mem_cgroup_idr, memcg->id.id);
 		memcg->id.id = 0;
 	}
 }
 
+<<<<<<< HEAD
 static void mem_cgroup_id_get_many(struct mem_cgroup *memcg, unsigned int n)
 {
 	VM_BUG_ON(atomic_read(&memcg->id.ref) <= 0);
 	atomic_add(n, &memcg->id.ref);
+=======
+static void __maybe_unused mem_cgroup_id_get_many(struct mem_cgroup *memcg,
+						  unsigned int n)
+{
+	refcount_add(n, &memcg->id.ref);
+>>>>>>> upstream/android-13
 }
 
 static void mem_cgroup_id_put_many(struct mem_cgroup *memcg, unsigned int n)
 {
+<<<<<<< HEAD
 	VM_BUG_ON(atomic_read(&memcg->id.ref) < n);
 	if (atomic_sub_and_test(n, &memcg->id.ref)) {
+=======
+	if (refcount_sub_and_test(n, &memcg->id.ref)) {
+>>>>>>> upstream/android-13
 		mem_cgroup_id_remove(memcg);
 
 		/* Memcg ID pins CSS */
@@ -4425,11 +6853,14 @@ static void mem_cgroup_id_put_many(struct mem_cgroup *memcg, unsigned int n)
 	}
 }
 
+<<<<<<< HEAD
 static inline void mem_cgroup_id_get(struct mem_cgroup *memcg)
 {
 	mem_cgroup_id_get_many(memcg, 1);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void mem_cgroup_id_put(struct mem_cgroup *memcg)
 {
 	mem_cgroup_id_put_many(memcg, 1);
@@ -4446,6 +6877,10 @@ struct mem_cgroup *mem_cgroup_from_id(unsigned short id)
 	WARN_ON_ONCE(!rcu_read_lock_held());
 	return idr_find(&mem_cgroup_idr, id);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(mem_cgroup_from_id);
+>>>>>>> upstream/android-13
 
 static int alloc_mem_cgroup_per_node_info(struct mem_cgroup *memcg, int node)
 {
@@ -4465,8 +6900,14 @@ static int alloc_mem_cgroup_per_node_info(struct mem_cgroup *memcg, int node)
 	if (!pn)
 		return 1;
 
+<<<<<<< HEAD
 	pn->lruvec_stat_cpu = alloc_percpu(struct lruvec_stat);
 	if (!pn->lruvec_stat_cpu) {
+=======
+	pn->lruvec_stats_percpu = alloc_percpu_gfp(struct lruvec_stats_percpu,
+						   GFP_KERNEL_ACCOUNT);
+	if (!pn->lruvec_stats_percpu) {
+>>>>>>> upstream/android-13
 		kfree(pn);
 		return 1;
 	}
@@ -4487,7 +6928,11 @@ static void free_mem_cgroup_per_node_info(struct mem_cgroup *memcg, int node)
 	if (!pn)
 		return;
 
+<<<<<<< HEAD
 	free_percpu(pn->lruvec_stat_cpu);
+=======
+	free_percpu(pn->lruvec_stats_percpu);
+>>>>>>> upstream/android-13
 	kfree(pn);
 }
 
@@ -4495,14 +6940,25 @@ static void __mem_cgroup_free(struct mem_cgroup *memcg)
 {
 	int node;
 
+<<<<<<< HEAD
 	for_each_node(node)
 		free_mem_cgroup_per_node_info(memcg, node);
 	free_percpu(memcg->stat_cpu);
+=======
+	trace_android_vh_mem_cgroup_free(memcg);
+	for_each_node(node)
+		free_mem_cgroup_per_node_info(memcg, node);
+	free_percpu(memcg->vmstats_percpu);
+>>>>>>> upstream/android-13
 	kfree(memcg);
 }
 
 static void mem_cgroup_free(struct mem_cgroup *memcg)
 {
+<<<<<<< HEAD
+=======
+	lru_gen_exit_memcg(memcg);
+>>>>>>> upstream/android-13
 	memcg_wb_domain_exit(memcg);
 	__mem_cgroup_free(memcg);
 }
@@ -4510,24 +6966,46 @@ static void mem_cgroup_free(struct mem_cgroup *memcg)
 static struct mem_cgroup *mem_cgroup_alloc(void)
 {
 	struct mem_cgroup *memcg;
+<<<<<<< HEAD
 	size_t size;
 	int node;
+=======
+	unsigned int size;
+	int node;
+	int __maybe_unused i;
+	long error = -ENOMEM;
+>>>>>>> upstream/android-13
 
 	size = sizeof(struct mem_cgroup);
 	size += nr_node_ids * sizeof(struct mem_cgroup_per_node *);
 
 	memcg = kzalloc(size, GFP_KERNEL);
 	if (!memcg)
+<<<<<<< HEAD
 		return NULL;
+=======
+		return ERR_PTR(error);
+>>>>>>> upstream/android-13
 
 	memcg->id.id = idr_alloc(&mem_cgroup_idr, NULL,
 				 1, MEM_CGROUP_ID_MAX,
 				 GFP_KERNEL);
+<<<<<<< HEAD
 	if (memcg->id.id < 0)
 		goto fail;
 
 	memcg->stat_cpu = alloc_percpu(struct mem_cgroup_stat_cpu);
 	if (!memcg->stat_cpu)
+=======
+	if (memcg->id.id < 0) {
+		error = memcg->id.id;
+		goto fail;
+	}
+
+	memcg->vmstats_percpu = alloc_percpu_gfp(struct memcg_vmstats_percpu,
+						 GFP_KERNEL_ACCOUNT);
+	if (!memcg->vmstats_percpu)
+>>>>>>> upstream/android-13
 		goto fail;
 
 	for_each_node(node)
@@ -4538,7 +7016,10 @@ static struct mem_cgroup *mem_cgroup_alloc(void)
 		goto fail;
 
 	INIT_WORK(&memcg->high_work, high_work_func);
+<<<<<<< HEAD
 	memcg->last_scanned_node = MAX_NUMNODES;
+=======
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&memcg->oom_notify);
 	mutex_init(&memcg->thresholds_lock);
 	spin_lock_init(&memcg->move_lock);
@@ -4546,6 +7027,7 @@ static struct mem_cgroup *mem_cgroup_alloc(void)
 	INIT_LIST_HEAD(&memcg->event_list);
 	spin_lock_init(&memcg->event_list_lock);
 	memcg->socket_pressure = jiffies;
+<<<<<<< HEAD
 #ifdef CONFIG_MEMCG_KMEM
 	memcg->kmemcg_id = -1;
 #endif
@@ -4553,17 +7035,43 @@ static struct mem_cgroup *mem_cgroup_alloc(void)
 	INIT_LIST_HEAD(&memcg->cgwb_list);
 #endif
 	idr_replace(&mem_cgroup_idr, memcg, memcg->id.id);
+=======
+	trace_android_rvh_memcgv2_init(memcg);
+#ifdef CONFIG_MEMCG_KMEM
+	memcg->kmemcg_id = -1;
+	INIT_LIST_HEAD(&memcg->objcg_list);
+#endif
+#ifdef CONFIG_CGROUP_WRITEBACK
+	INIT_LIST_HEAD(&memcg->cgwb_list);
+	for (i = 0; i < MEMCG_CGWB_FRN_CNT; i++)
+		memcg->cgwb_frn[i].done =
+			__WB_COMPLETION_INIT(&memcg_cgwb_frn_waitq);
+#endif
+#ifdef CONFIG_TRANSPARENT_HUGEPAGE
+	spin_lock_init(&memcg->deferred_split_queue.split_queue_lock);
+	INIT_LIST_HEAD(&memcg->deferred_split_queue.split_queue);
+	memcg->deferred_split_queue.split_queue_len = 0;
+#endif
+	idr_replace(&mem_cgroup_idr, memcg, memcg->id.id);
+	lru_gen_init_memcg(memcg);
+	trace_android_vh_mem_cgroup_alloc(memcg);
+>>>>>>> upstream/android-13
 	return memcg;
 fail:
 	mem_cgroup_id_remove(memcg);
 	__mem_cgroup_free(memcg);
+<<<<<<< HEAD
 	return NULL;
+=======
+	return ERR_PTR(error);
+>>>>>>> upstream/android-13
 }
 
 static struct cgroup_subsys_state * __ref
 mem_cgroup_css_alloc(struct cgroup_subsys_state *parent_css)
 {
 	struct mem_cgroup *parent = mem_cgroup_from_css(parent_css);
+<<<<<<< HEAD
 	struct mem_cgroup *memcg;
 	long error = -ENOMEM;
 
@@ -4582,11 +7090,32 @@ mem_cgroup_css_alloc(struct cgroup_subsys_state *parent_css)
 		page_counter_init(&memcg->memory, &parent->memory);
 		page_counter_init(&memcg->swap, &parent->swap);
 		page_counter_init(&memcg->memsw, &parent->memsw);
+=======
+	struct mem_cgroup *memcg, *old_memcg;
+	long error = -ENOMEM;
+
+	old_memcg = set_active_memcg(parent);
+	memcg = mem_cgroup_alloc();
+	set_active_memcg(old_memcg);
+	if (IS_ERR(memcg))
+		return ERR_CAST(memcg);
+
+	page_counter_set_high(&memcg->memory, PAGE_COUNTER_MAX);
+	memcg->soft_limit = PAGE_COUNTER_MAX;
+	page_counter_set_high(&memcg->swap, PAGE_COUNTER_MAX);
+	if (parent) {
+		memcg->swappiness = mem_cgroup_swappiness(parent);
+		memcg->oom_kill_disable = parent->oom_kill_disable;
+
+		page_counter_init(&memcg->memory, &parent->memory);
+		page_counter_init(&memcg->swap, &parent->swap);
+>>>>>>> upstream/android-13
 		page_counter_init(&memcg->kmem, &parent->kmem);
 		page_counter_init(&memcg->tcpmem, &parent->tcpmem);
 	} else {
 		page_counter_init(&memcg->memory, NULL);
 		page_counter_init(&memcg->swap, NULL);
+<<<<<<< HEAD
 		page_counter_init(&memcg->memsw, NULL);
 		page_counter_init(&memcg->kmem, NULL);
 		page_counter_init(&memcg->tcpmem, NULL);
@@ -4601,10 +7130,19 @@ mem_cgroup_css_alloc(struct cgroup_subsys_state *parent_css)
 
 	/* The following stuff does not apply to the root */
 	if (!parent) {
+=======
+		page_counter_init(&memcg->kmem, NULL);
+		page_counter_init(&memcg->tcpmem, NULL);
+
+>>>>>>> upstream/android-13
 		root_mem_cgroup = memcg;
 		return &memcg->css;
 	}
 
+<<<<<<< HEAD
+=======
+	/* The following stuff does not apply to the root */
+>>>>>>> upstream/android-13
 	error = memcg_online_kmem(memcg);
 	if (error)
 		goto fail;
@@ -4616,7 +7154,11 @@ mem_cgroup_css_alloc(struct cgroup_subsys_state *parent_css)
 fail:
 	mem_cgroup_id_remove(memcg);
 	mem_cgroup_free(memcg);
+<<<<<<< HEAD
 	return ERR_PTR(-ENOMEM);
+=======
+	return ERR_PTR(error);
+>>>>>>> upstream/android-13
 }
 
 static int mem_cgroup_css_online(struct cgroup_subsys_state *css)
@@ -4624,18 +7166,36 @@ static int mem_cgroup_css_online(struct cgroup_subsys_state *css)
 	struct mem_cgroup *memcg = mem_cgroup_from_css(css);
 
 	/*
+<<<<<<< HEAD
 	 * A memcg must be visible for memcg_expand_shrinker_maps()
 	 * by the time the maps are allocated. So, we allocate maps
 	 * here, when for_each_mem_cgroup() can't skip it.
 	 */
 	if (memcg_alloc_shrinker_maps(memcg)) {
+=======
+	 * A memcg must be visible for expand_shrinker_info()
+	 * by the time the maps are allocated. So, we allocate maps
+	 * here, when for_each_mem_cgroup() can't skip it.
+	 */
+	if (alloc_shrinker_info(memcg)) {
+>>>>>>> upstream/android-13
 		mem_cgroup_id_remove(memcg);
 		return -ENOMEM;
 	}
 
 	/* Online state pins memcg ID, memcg ID pins CSS */
+<<<<<<< HEAD
 	atomic_set(&memcg->id.ref, 1);
 	css_get(css);
+=======
+	refcount_set(&memcg->id.ref, 1);
+	css_get(css);
+
+	if (unlikely(mem_cgroup_is_root(memcg)))
+		queue_delayed_work(system_unbound_wq, &stats_flush_dwork,
+				   2UL*HZ);
+	trace_android_vh_mem_cgroup_css_online(css, memcg);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -4644,24 +7204,44 @@ static void mem_cgroup_css_offline(struct cgroup_subsys_state *css)
 	struct mem_cgroup *memcg = mem_cgroup_from_css(css);
 	struct mem_cgroup_event *event, *tmp;
 
+<<<<<<< HEAD
+=======
+	trace_android_vh_mem_cgroup_css_offline(css, memcg);
+>>>>>>> upstream/android-13
 	/*
 	 * Unregister events and notify userspace.
 	 * Notify userspace about cgroup removing only after rmdir of cgroup
 	 * directory to avoid race between userspace and kernelspace.
 	 */
+<<<<<<< HEAD
 	spin_lock(&memcg->event_list_lock);
+=======
+	spin_lock_irq(&memcg->event_list_lock);
+>>>>>>> upstream/android-13
 	list_for_each_entry_safe(event, tmp, &memcg->event_list, list) {
 		list_del_init(&event->list);
 		schedule_work(&event->remove);
 	}
+<<<<<<< HEAD
 	spin_unlock(&memcg->event_list_lock);
+=======
+	spin_unlock_irq(&memcg->event_list_lock);
+>>>>>>> upstream/android-13
 
 	page_counter_set_min(&memcg->memory, 0);
 	page_counter_set_low(&memcg->memory, 0);
 
 	memcg_offline_kmem(memcg);
+<<<<<<< HEAD
 	wb_memcg_offline(memcg);
 
+=======
+	reparent_shrinker_deferred(memcg);
+	wb_memcg_offline(memcg);
+
+	drain_all_stock(memcg);
+
+>>>>>>> upstream/android-13
 	mem_cgroup_id_put(memcg);
 }
 
@@ -4675,7 +7255,16 @@ static void mem_cgroup_css_released(struct cgroup_subsys_state *css)
 static void mem_cgroup_css_free(struct cgroup_subsys_state *css)
 {
 	struct mem_cgroup *memcg = mem_cgroup_from_css(css);
+<<<<<<< HEAD
 
+=======
+	int __maybe_unused i;
+
+#ifdef CONFIG_CGROUP_WRITEBACK
+	for (i = 0; i < MEMCG_CGWB_FRN_CNT; i++)
+		wb_wait_for_completion(&memcg->cgwb_frn[i].done);
+#endif
+>>>>>>> upstream/android-13
 	if (cgroup_subsys_on_dfl(memory_cgrp_subsys) && !cgroup_memory_nosocket)
 		static_branch_dec(&memcg_sockets_enabled_key);
 
@@ -4685,7 +7274,11 @@ static void mem_cgroup_css_free(struct cgroup_subsys_state *css)
 	vmpressure_cleanup(&memcg->vmpressure);
 	cancel_work_sync(&memcg->high_work);
 	mem_cgroup_remove_from_trees(memcg);
+<<<<<<< HEAD
 	memcg_free_shrinker_maps(memcg);
+=======
+	free_shrinker_info(memcg);
+>>>>>>> upstream/android-13
 	memcg_free_kmem(memcg);
 	mem_cgroup_free(memcg);
 }
@@ -4709,16 +7302,114 @@ static void mem_cgroup_css_reset(struct cgroup_subsys_state *css)
 
 	page_counter_set_max(&memcg->memory, PAGE_COUNTER_MAX);
 	page_counter_set_max(&memcg->swap, PAGE_COUNTER_MAX);
+<<<<<<< HEAD
 	page_counter_set_max(&memcg->memsw, PAGE_COUNTER_MAX);
+=======
+>>>>>>> upstream/android-13
 	page_counter_set_max(&memcg->kmem, PAGE_COUNTER_MAX);
 	page_counter_set_max(&memcg->tcpmem, PAGE_COUNTER_MAX);
 	page_counter_set_min(&memcg->memory, 0);
 	page_counter_set_low(&memcg->memory, 0);
+<<<<<<< HEAD
 	memcg->high = PAGE_COUNTER_MAX;
 	memcg->soft_limit = PAGE_COUNTER_MAX;
 	memcg_wb_domain_size_changed(memcg);
 }
 
+=======
+	page_counter_set_high(&memcg->memory, PAGE_COUNTER_MAX);
+	memcg->soft_limit = PAGE_COUNTER_MAX;
+	page_counter_set_high(&memcg->swap, PAGE_COUNTER_MAX);
+	memcg_wb_domain_size_changed(memcg);
+}
+
+static void mem_cgroup_css_rstat_flush(struct cgroup_subsys_state *css, int cpu)
+{
+	struct mem_cgroup *memcg = mem_cgroup_from_css(css);
+	struct mem_cgroup *parent = parent_mem_cgroup(memcg);
+	struct memcg_vmstats_percpu *statc;
+	long delta, v;
+	int i, nid;
+
+	statc = per_cpu_ptr(memcg->vmstats_percpu, cpu);
+
+	for (i = 0; i < MEMCG_NR_STAT; i++) {
+		/*
+		 * Collect the aggregated propagation counts of groups
+		 * below us. We're in a per-cpu loop here and this is
+		 * a global counter, so the first cycle will get them.
+		 */
+		delta = memcg->vmstats.state_pending[i];
+		if (delta)
+			memcg->vmstats.state_pending[i] = 0;
+
+		/* Add CPU changes on this level since the last flush */
+		v = READ_ONCE(statc->state[i]);
+		if (v != statc->state_prev[i]) {
+			delta += v - statc->state_prev[i];
+			statc->state_prev[i] = v;
+		}
+
+		if (!delta)
+			continue;
+
+		/* Aggregate counts on this level and propagate upwards */
+		memcg->vmstats.state[i] += delta;
+		if (parent)
+			parent->vmstats.state_pending[i] += delta;
+	}
+
+	for (i = 0; i < NR_VM_EVENT_ITEMS; i++) {
+		delta = memcg->vmstats.events_pending[i];
+		if (delta)
+			memcg->vmstats.events_pending[i] = 0;
+
+		v = READ_ONCE(statc->events[i]);
+		if (v != statc->events_prev[i]) {
+			delta += v - statc->events_prev[i];
+			statc->events_prev[i] = v;
+		}
+
+		if (!delta)
+			continue;
+
+		memcg->vmstats.events[i] += delta;
+		if (parent)
+			parent->vmstats.events_pending[i] += delta;
+	}
+
+	for_each_node_state(nid, N_MEMORY) {
+		struct mem_cgroup_per_node *pn = memcg->nodeinfo[nid];
+		struct mem_cgroup_per_node *ppn = NULL;
+		struct lruvec_stats_percpu *lstatc;
+
+		if (parent)
+			ppn = parent->nodeinfo[nid];
+
+		lstatc = per_cpu_ptr(pn->lruvec_stats_percpu, cpu);
+
+		for (i = 0; i < NR_VM_NODE_STAT_ITEMS; i++) {
+			delta = pn->lruvec_stats.state_pending[i];
+			if (delta)
+				pn->lruvec_stats.state_pending[i] = 0;
+
+			v = READ_ONCE(lstatc->state[i]);
+			if (v != lstatc->state_prev[i]) {
+				delta += v - lstatc->state_prev[i];
+				lstatc->state_prev[i] = v;
+			}
+
+			if (!delta)
+				continue;
+
+			pn->lruvec_stats.state[i] += delta;
+			if (ppn)
+				ppn->lruvec_stats.state_pending[i] += delta;
+		}
+	}
+}
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_MMU
 /* Handlers for move charge at task migration. */
 static int mem_cgroup_do_precharge(unsigned long count)
@@ -4758,7 +7449,11 @@ enum mc_target_type {
 static struct page *mc_handle_present_pte(struct vm_area_struct *vma,
 						unsigned long addr, pte_t ptent)
 {
+<<<<<<< HEAD
 	struct page *page = _vm_normal_page(vma, addr, ptent, true);
+=======
+	struct page *page = vm_normal_page(vma, addr, ptent);
+>>>>>>> upstream/android-13
 
 	if (!page || !page_mapped(page))
 		return NULL;
@@ -4791,7 +7486,11 @@ static struct page *mc_handle_swap_pte(struct vm_area_struct *vma,
 	 * as special swap entry in the CPU page table.
 	 */
 	if (is_device_private_entry(ent)) {
+<<<<<<< HEAD
 		page = device_private_entry_to_page(ent);
+=======
+		page = pfn_swap_entry_to_page(ent);
+>>>>>>> upstream/android-13
 		/*
 		 * MEMORY_DEVICE_PRIVATE means ZONE_DEVICE page and which have
 		 * a refcount of 1 when free (unlike normal page)
@@ -4809,8 +7508,12 @@ static struct page *mc_handle_swap_pte(struct vm_area_struct *vma,
 	 * we call find_get_page() with swapper_space directly.
 	 */
 	page = find_get_page(swap_address_space(ent), swp_offset(ent));
+<<<<<<< HEAD
 	if (do_memsw_account())
 		entry->val = ent.val;
+=======
+	entry->val = ent.val;
+>>>>>>> upstream/android-13
 
 	return page;
 }
@@ -4825,15 +7528,19 @@ static struct page *mc_handle_swap_pte(struct vm_area_struct *vma,
 static struct page *mc_handle_file_pte(struct vm_area_struct *vma,
 			unsigned long addr, pte_t ptent, swp_entry_t *entry)
 {
+<<<<<<< HEAD
 	struct page *page = NULL;
 	struct address_space *mapping;
 	pgoff_t pgoff;
 
+=======
+>>>>>>> upstream/android-13
 	if (!vma->vm_file) /* anonymous vma */
 		return NULL;
 	if (!(mc.flags & MOVE_FILE))
 		return NULL;
 
+<<<<<<< HEAD
 	mapping = vma->vm_file->f_mapping;
 	pgoff = linear_page_index(vma, addr);
 
@@ -4855,6 +7562,12 @@ static struct page *mc_handle_file_pte(struct vm_area_struct *vma,
 	page = find_get_page(mapping, pgoff);
 #endif
 	return page;
+=======
+	/* page is moved even if it's not RSS of this task(page-faulted). */
+	/* shmem/tmpfs may report page out on swap: account for that too. */
+	return find_get_incore_page(vma->vm_file->f_mapping,
+			linear_page_index(vma, addr));
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -4874,10 +7587,17 @@ static int mem_cgroup_move_account(struct page *page,
 				   struct mem_cgroup *from,
 				   struct mem_cgroup *to)
 {
+<<<<<<< HEAD
 	unsigned long flags;
 	unsigned int nr_pages = compound ? hpage_nr_pages(page) : 1;
 	int ret;
 	bool anon;
+=======
+	struct lruvec *from_vec, *to_vec;
+	struct pglist_data *pgdat;
+	unsigned int nr_pages = compound ? thp_nr_pages(page) : 1;
+	int ret;
+>>>>>>> upstream/android-13
 
 	VM_BUG_ON(from == to);
 	VM_BUG_ON_PAGE(PageLRU(page), page);
@@ -4885,13 +7605,18 @@ static int mem_cgroup_move_account(struct page *page,
 
 	/*
 	 * Prevent mem_cgroup_migrate() from looking at
+<<<<<<< HEAD
 	 * page->mem_cgroup of its source page while we change it.
+=======
+	 * page's memory cgroup of its source page while we change it.
+>>>>>>> upstream/android-13
 	 */
 	ret = -EBUSY;
 	if (!trylock_page(page))
 		goto out;
 
 	ret = -EINVAL;
+<<<<<<< HEAD
 	if (page->mem_cgroup != from)
 		goto out_unlock;
 
@@ -4915,10 +7640,56 @@ static int mem_cgroup_move_account(struct page *page,
 		if (mapping_cap_account_dirty(mapping)) {
 			__mod_memcg_state(from, NR_FILE_DIRTY, -nr_pages);
 			__mod_memcg_state(to, NR_FILE_DIRTY, nr_pages);
+=======
+	if (page_memcg(page) != from)
+		goto out_unlock;
+
+	pgdat = page_pgdat(page);
+	from_vec = mem_cgroup_lruvec(from, pgdat);
+	to_vec = mem_cgroup_lruvec(to, pgdat);
+
+	lock_page_memcg(page);
+
+	if (PageAnon(page)) {
+		if (page_mapped(page)) {
+			__mod_lruvec_state(from_vec, NR_ANON_MAPPED, -nr_pages);
+			__mod_lruvec_state(to_vec, NR_ANON_MAPPED, nr_pages);
+			if (PageTransHuge(page)) {
+				__mod_lruvec_state(from_vec, NR_ANON_THPS,
+						   -nr_pages);
+				__mod_lruvec_state(to_vec, NR_ANON_THPS,
+						   nr_pages);
+			}
+		}
+	} else {
+		__mod_lruvec_state(from_vec, NR_FILE_PAGES, -nr_pages);
+		__mod_lruvec_state(to_vec, NR_FILE_PAGES, nr_pages);
+
+		if (PageSwapBacked(page)) {
+			__mod_lruvec_state(from_vec, NR_SHMEM, -nr_pages);
+			__mod_lruvec_state(to_vec, NR_SHMEM, nr_pages);
+		}
+
+		if (page_mapped(page)) {
+			__mod_lruvec_state(from_vec, NR_FILE_MAPPED, -nr_pages);
+			__mod_lruvec_state(to_vec, NR_FILE_MAPPED, nr_pages);
+		}
+
+		if (PageDirty(page)) {
+			struct address_space *mapping = page_mapping(page);
+
+			if (mapping_can_writeback(mapping)) {
+				__mod_lruvec_state(from_vec, NR_FILE_DIRTY,
+						   -nr_pages);
+				__mod_lruvec_state(to_vec, NR_FILE_DIRTY,
+						   nr_pages);
+			}
+>>>>>>> upstream/android-13
 		}
 	}
 
 	if (PageWriteback(page)) {
+<<<<<<< HEAD
 		__mod_memcg_state(from, NR_WRITEBACK, -nr_pages);
 		__mod_memcg_state(to, NR_WRITEBACK, nr_pages);
 	}
@@ -4932,13 +7703,46 @@ static int mem_cgroup_move_account(struct page *page,
 	/* caller should have done css_get */
 	page->mem_cgroup = to;
 	spin_unlock_irqrestore(&from->move_lock, flags);
+=======
+		__mod_lruvec_state(from_vec, NR_WRITEBACK, -nr_pages);
+		__mod_lruvec_state(to_vec, NR_WRITEBACK, nr_pages);
+	}
+
+	/*
+	 * All state has been migrated, let's switch to the new memcg.
+	 *
+	 * It is safe to change page's memcg here because the page
+	 * is referenced, charged, isolated, and locked: we can't race
+	 * with (un)charging, migration, LRU putback, or anything else
+	 * that would rely on a stable page's memory cgroup.
+	 *
+	 * Note that lock_page_memcg is a memcg lock, not a page lock,
+	 * to save space. As soon as we switch page's memory cgroup to a
+	 * new memcg that isn't locked, the above state can change
+	 * concurrently again. Make sure we're truly done with it.
+	 */
+	smp_mb();
+
+	css_get(&to->css);
+	css_put(&from->css);
+
+	page->memcg_data = (unsigned long)to;
+
+	__unlock_page_memcg(from);
+>>>>>>> upstream/android-13
 
 	ret = 0;
 
 	local_irq_disable();
+<<<<<<< HEAD
 	mem_cgroup_charge_statistics(to, page, compound, nr_pages);
 	memcg_check_events(to, page);
 	mem_cgroup_charge_statistics(from, page, compound, -nr_pages);
+=======
+	mem_cgroup_charge_statistics(to, page, nr_pages);
+	memcg_check_events(to, page);
+	mem_cgroup_charge_statistics(from, page, -nr_pages);
+>>>>>>> upstream/android-13
 	memcg_check_events(from, page);
 	local_irq_enable();
 out_unlock:
@@ -4962,8 +7766,13 @@ out:
  *   2(MC_TARGET_SWAP): if the swap entry corresponding to this pte is a
  *     target for charge migration. if @target is not NULL, the entry is stored
  *     in target->ent.
+<<<<<<< HEAD
  *   3(MC_TARGET_DEVICE): like MC_TARGET_PAGE  but page is MEMORY_DEVICE_PUBLIC
  *     or MEMORY_DEVICE_PRIVATE (so ZONE_DEVICE page and thus not on the lru).
+=======
+ *   3(MC_TARGET_DEVICE): like MC_TARGET_PAGE  but page is MEMORY_DEVICE_PRIVATE
+ *     (so ZONE_DEVICE page and thus not on the lru).
+>>>>>>> upstream/android-13
  *     For now we such page is charge like a regular page would be as for all
  *     intent and purposes it is just special memory taking the place of a
  *     regular page.
@@ -4995,10 +7804,16 @@ static enum mc_target_type get_mctgt_type(struct vm_area_struct *vma,
 		 * mem_cgroup_move_account() checks the page is valid or
 		 * not under LRU exclusion.
 		 */
+<<<<<<< HEAD
 		if (page->mem_cgroup == mc.from) {
 			ret = MC_TARGET_PAGE;
 			if (is_device_private_page(page) ||
 			    is_device_public_page(page))
+=======
+		if (page_memcg(page) == mc.from) {
+			ret = MC_TARGET_PAGE;
+			if (is_device_private_page(page))
+>>>>>>> upstream/android-13
 				ret = MC_TARGET_DEVICE;
 			if (target)
 				target->page = page;
@@ -5040,7 +7855,11 @@ static enum mc_target_type get_mctgt_type_thp(struct vm_area_struct *vma,
 	VM_BUG_ON_PAGE(!page || !PageHead(page), page);
 	if (!(mc.flags & MOVE_ANON))
 		return ret;
+<<<<<<< HEAD
 	if (page->mem_cgroup == mc.from) {
+=======
+	if (page_memcg(page) == mc.from) {
+>>>>>>> upstream/android-13
 		ret = MC_TARGET_PAGE;
 		if (target) {
 			get_page(page);
@@ -5069,8 +7888,13 @@ static int mem_cgroup_count_precharge_pte_range(pmd_t *pmd,
 	if (ptl) {
 		/*
 		 * Note their can not be MC_TARGET_DEVICE for now as we do not
+<<<<<<< HEAD
 		 * support transparent huge page with MEMORY_DEVICE_PUBLIC or
 		 * MEMORY_DEVICE_PRIVATE but this might change.
+=======
+		 * support transparent huge page with MEMORY_DEVICE_PRIVATE but
+		 * this might change.
+>>>>>>> upstream/android-13
 		 */
 		if (get_mctgt_type_thp(vma, addr, *pmd, NULL) == MC_TARGET_PAGE)
 			mc.precharge += HPAGE_PMD_NR;
@@ -5090,10 +7914,18 @@ static int mem_cgroup_count_precharge_pte_range(pmd_t *pmd,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static const struct mm_walk_ops precharge_walk_ops = {
+	.pmd_entry	= mem_cgroup_count_precharge_pte_range,
+};
+
+>>>>>>> upstream/android-13
 static unsigned long mem_cgroup_count_precharge(struct mm_struct *mm)
 {
 	unsigned long precharge;
 
+<<<<<<< HEAD
 	struct mm_walk mem_cgroup_count_precharge_walk = {
 		.pmd_entry = mem_cgroup_count_precharge_pte_range,
 		.mm = mm,
@@ -5102,6 +7934,11 @@ static unsigned long mem_cgroup_count_precharge(struct mm_struct *mm)
 	walk_page_range(0, mm->highest_vm_end,
 			&mem_cgroup_count_precharge_walk);
 	up_read(&mm->mmap_sem);
+=======
+	mmap_read_lock(mm);
+	walk_page_range(mm, 0, mm->highest_vm_end, &precharge_walk_ops, NULL);
+	mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 
 	precharge = mc.precharge;
 	mc.precharge = 0;
@@ -5152,8 +7989,11 @@ static void __mem_cgroup_clear_mc(void)
 		if (!mem_cgroup_is_root(mc.to))
 			page_counter_uncharge(&mc.to->memory, mc.moved_swap);
 
+<<<<<<< HEAD
 		css_put_many(&mc.to->css, mc.moved_swap);
 
+=======
+>>>>>>> upstream/android-13
 		mc.moved_swap = 0;
 	}
 	memcg_oom_recover(from);
@@ -5210,7 +8050,11 @@ static int mem_cgroup_can_attach(struct cgroup_taskset *tset)
 		return 0;
 
 	/*
+<<<<<<< HEAD
 	 * We are now commited to this value whatever it is. Changes in this
+=======
+	 * We are now committed to this value whatever it is. Changes in this
+>>>>>>> upstream/android-13
 	 * tunable will only affect upcoming migrations, not the current one.
 	 * So we need to save it, and keep it going.
 	 */
@@ -5314,7 +8158,11 @@ retry:
 		switch (get_mctgt_type(vma, addr, ptent, &target)) {
 		case MC_TARGET_DEVICE:
 			device = true;
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case MC_TARGET_PAGE:
 			page = target.page;
 			/*
@@ -5369,6 +8217,7 @@ put:			/* get_mctgt_type() gets the page */
 	return ret;
 }
 
+<<<<<<< HEAD
 static void mem_cgroup_move_charge(void)
 {
 	struct mm_walk mem_cgroup_move_charge_walk = {
@@ -5376,6 +8225,14 @@ static void mem_cgroup_move_charge(void)
 		.mm = mc.mm,
 	};
 
+=======
+static const struct mm_walk_ops charge_walk_ops = {
+	.pmd_entry	= mem_cgroup_move_charge_pte_range,
+};
+
+static void mem_cgroup_move_charge(void)
+{
+>>>>>>> upstream/android-13
 	lru_add_drain_all();
 	/*
 	 * Signal lock_page_memcg() to take the memcg's move_lock
@@ -5385,9 +8242,15 @@ static void mem_cgroup_move_charge(void)
 	atomic_inc(&mc.from->moving_account);
 	synchronize_rcu();
 retry:
+<<<<<<< HEAD
 	if (unlikely(!down_read_trylock(&mc.mm->mmap_sem))) {
 		/*
 		 * Someone who are holding the mmap_sem might be waiting in
+=======
+	if (unlikely(!mmap_read_trylock(mc.mm))) {
+		/*
+		 * Someone who are holding the mmap_lock might be waiting in
+>>>>>>> upstream/android-13
 		 * waitq. So we cancel all extra charges, wake up all waiters,
 		 * and retry. Because we cancel precharges, we might not be able
 		 * to move enough charges, but moving charge is a best-effort
@@ -5401,9 +8264,16 @@ retry:
 	 * When we have consumed all precharges and failed in doing
 	 * additional charge, the page walk just aborts.
 	 */
+<<<<<<< HEAD
 	walk_page_range(0, mc.mm->highest_vm_end, &mem_cgroup_move_charge_walk);
 
 	up_read(&mc.mm->mmap_sem);
+=======
+	walk_page_range(mc.mm, 0, mc.mm->highest_vm_end, &charge_walk_ops,
+			NULL);
+
+	mmap_read_unlock(mc.mm);
+>>>>>>> upstream/android-13
 	atomic_dec(&mc.from->moving_account);
 }
 
@@ -5427,6 +8297,7 @@ static void mem_cgroup_move_task(void)
 }
 #endif
 
+<<<<<<< HEAD
 /*
  * Cgroup retains root cgroups across [un]mount cycles making it necessary
  * to verify whether we're attached to the default hierarchy on each mount
@@ -5443,6 +8314,39 @@ static void mem_cgroup_bind(struct cgroup_subsys_state *root_css)
 		root_mem_cgroup->use_hierarchy = true;
 	else
 		root_mem_cgroup->use_hierarchy = false;
+=======
+#ifdef CONFIG_LRU_GEN
+static void mem_cgroup_attach(struct cgroup_taskset *tset)
+{
+	struct cgroup_subsys_state *css;
+	struct task_struct *task = NULL;
+
+	cgroup_taskset_for_each_leader(task, css, tset)
+		break;
+
+	if (!task)
+		return;
+
+	task_lock(task);
+	if (task->mm && task->mm->owner == task)
+		lru_gen_migrate_mm(task->mm);
+	task_unlock(task);
+}
+#else
+static void mem_cgroup_attach(struct cgroup_taskset *tset)
+{
+}
+#endif /* CONFIG_LRU_GEN */
+
+static int seq_puts_memcg_tunable(struct seq_file *m, unsigned long value)
+{
+	if (value == PAGE_COUNTER_MAX)
+		seq_puts(m, "max\n");
+	else
+		seq_printf(m, "%llu\n", (u64)value * PAGE_SIZE);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static u64 memory_current_read(struct cgroup_subsys_state *css,
@@ -5455,6 +8359,7 @@ static u64 memory_current_read(struct cgroup_subsys_state *css,
 
 static int memory_min_show(struct seq_file *m, void *v)
 {
+<<<<<<< HEAD
 	struct mem_cgroup *memcg = mem_cgroup_from_css(seq_css(m));
 	unsigned long min = READ_ONCE(memcg->memory.min);
 
@@ -5464,6 +8369,10 @@ static int memory_min_show(struct seq_file *m, void *v)
 		seq_printf(m, "%llu\n", (u64)min * PAGE_SIZE);
 
 	return 0;
+=======
+	return seq_puts_memcg_tunable(m,
+		READ_ONCE(mem_cgroup_from_seq(m)->memory.min));
+>>>>>>> upstream/android-13
 }
 
 static ssize_t memory_min_write(struct kernfs_open_file *of,
@@ -5485,6 +8394,7 @@ static ssize_t memory_min_write(struct kernfs_open_file *of,
 
 static int memory_low_show(struct seq_file *m, void *v)
 {
+<<<<<<< HEAD
 	struct mem_cgroup *memcg = mem_cgroup_from_css(seq_css(m));
 	unsigned long low = READ_ONCE(memcg->memory.low);
 
@@ -5494,6 +8404,10 @@ static int memory_low_show(struct seq_file *m, void *v)
 		seq_printf(m, "%llu\n", (u64)low * PAGE_SIZE);
 
 	return 0;
+=======
+	return seq_puts_memcg_tunable(m,
+		READ_ONCE(mem_cgroup_from_seq(m)->memory.low));
+>>>>>>> upstream/android-13
 }
 
 static ssize_t memory_low_write(struct kernfs_open_file *of,
@@ -5515,6 +8429,7 @@ static ssize_t memory_low_write(struct kernfs_open_file *of,
 
 static int memory_high_show(struct seq_file *m, void *v)
 {
+<<<<<<< HEAD
 	struct mem_cgroup *memcg = mem_cgroup_from_css(seq_css(m));
 	unsigned long high = READ_ONCE(memcg->high);
 
@@ -5524,13 +8439,22 @@ static int memory_high_show(struct seq_file *m, void *v)
 		seq_printf(m, "%llu\n", (u64)high * PAGE_SIZE);
 
 	return 0;
+=======
+	return seq_puts_memcg_tunable(m,
+		READ_ONCE(mem_cgroup_from_seq(m)->memory.high));
+>>>>>>> upstream/android-13
 }
 
 static ssize_t memory_high_write(struct kernfs_open_file *of,
 				 char *buf, size_t nbytes, loff_t off)
 {
 	struct mem_cgroup *memcg = mem_cgroup_from_css(of_css(of));
+<<<<<<< HEAD
 	unsigned long nr_pages;
+=======
+	unsigned int nr_retries = MAX_RECLAIM_RETRIES;
+	bool drained = false;
+>>>>>>> upstream/android-13
 	unsigned long high;
 	int err;
 
@@ -5539,12 +8463,39 @@ static ssize_t memory_high_write(struct kernfs_open_file *of,
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	memcg->high = high;
 
 	nr_pages = page_counter_read(&memcg->memory);
 	if (nr_pages > high)
 		try_to_free_mem_cgroup_pages(memcg, nr_pages - high,
 					     GFP_KERNEL, true);
+=======
+	page_counter_set_high(&memcg->memory, high);
+
+	for (;;) {
+		unsigned long nr_pages = page_counter_read(&memcg->memory);
+		unsigned long reclaimed;
+
+		if (nr_pages <= high)
+			break;
+
+		if (signal_pending(current))
+			break;
+
+		if (!drained) {
+			drain_all_stock(memcg);
+			drained = true;
+			continue;
+		}
+
+		reclaimed = try_to_free_mem_cgroup_pages(memcg, nr_pages - high,
+							 GFP_KERNEL, true);
+
+		if (!reclaimed && !nr_retries--)
+			break;
+	}
+>>>>>>> upstream/android-13
 
 	memcg_wb_domain_size_changed(memcg);
 	return nbytes;
@@ -5552,6 +8503,7 @@ static ssize_t memory_high_write(struct kernfs_open_file *of,
 
 static int memory_max_show(struct seq_file *m, void *v)
 {
+<<<<<<< HEAD
 	struct mem_cgroup *memcg = mem_cgroup_from_css(seq_css(m));
 	unsigned long max = READ_ONCE(memcg->memory.max);
 
@@ -5561,13 +8513,21 @@ static int memory_max_show(struct seq_file *m, void *v)
 		seq_printf(m, "%llu\n", (u64)max * PAGE_SIZE);
 
 	return 0;
+=======
+	return seq_puts_memcg_tunable(m,
+		READ_ONCE(mem_cgroup_from_seq(m)->memory.max));
+>>>>>>> upstream/android-13
 }
 
 static ssize_t memory_max_write(struct kernfs_open_file *of,
 				char *buf, size_t nbytes, loff_t off)
 {
 	struct mem_cgroup *memcg = mem_cgroup_from_css(of_css(of));
+<<<<<<< HEAD
 	unsigned int nr_reclaims = MEM_CGROUP_RECLAIM_RETRIES;
+=======
+	unsigned int nr_reclaims = MAX_RECLAIM_RETRIES;
+>>>>>>> upstream/android-13
 	bool drained = false;
 	unsigned long max;
 	int err;
@@ -5585,10 +8545,15 @@ static ssize_t memory_max_write(struct kernfs_open_file *of,
 		if (nr_pages <= max)
 			break;
 
+<<<<<<< HEAD
 		if (signal_pending(current)) {
 			err = -EINTR;
 			break;
 		}
+=======
+		if (signal_pending(current))
+			break;
+>>>>>>> upstream/android-13
 
 		if (!drained) {
 			drain_all_stock(memcg);
@@ -5612,6 +8577,7 @@ static ssize_t memory_max_write(struct kernfs_open_file *of,
 	return nbytes;
 }
 
+<<<<<<< HEAD
 static int memory_events_show(struct seq_file *m, void *v)
 {
 	struct mem_cgroup *memcg = mem_cgroup_from_css(seq_css(m));
@@ -5627,11 +8593,37 @@ static int memory_events_show(struct seq_file *m, void *v)
 	seq_printf(m, "oom_kill %lu\n",
 		   atomic_long_read(&memcg->memory_events[MEMCG_OOM_KILL]));
 
+=======
+static void __memory_events_show(struct seq_file *m, atomic_long_t *events)
+{
+	seq_printf(m, "low %lu\n", atomic_long_read(&events[MEMCG_LOW]));
+	seq_printf(m, "high %lu\n", atomic_long_read(&events[MEMCG_HIGH]));
+	seq_printf(m, "max %lu\n", atomic_long_read(&events[MEMCG_MAX]));
+	seq_printf(m, "oom %lu\n", atomic_long_read(&events[MEMCG_OOM]));
+	seq_printf(m, "oom_kill %lu\n",
+		   atomic_long_read(&events[MEMCG_OOM_KILL]));
+}
+
+static int memory_events_show(struct seq_file *m, void *v)
+{
+	struct mem_cgroup *memcg = mem_cgroup_from_seq(m);
+
+	__memory_events_show(m, memcg->memory_events);
+	return 0;
+}
+
+static int memory_events_local_show(struct seq_file *m, void *v)
+{
+	struct mem_cgroup *memcg = mem_cgroup_from_seq(m);
+
+	__memory_events_show(m, memcg->memory_events_local);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int memory_stat_show(struct seq_file *m, void *v)
 {
+<<<<<<< HEAD
 	struct mem_cgroup *memcg = mem_cgroup_from_css(seq_css(m));
 	struct accumulated_stats acc;
 	int i;
@@ -5710,6 +8702,59 @@ static int memory_stat_show(struct seq_file *m, void *v)
 static int memory_oom_group_show(struct seq_file *m, void *v)
 {
 	struct mem_cgroup *memcg = mem_cgroup_from_css(seq_css(m));
+=======
+	struct mem_cgroup *memcg = mem_cgroup_from_seq(m);
+	char *buf;
+
+	buf = memory_stat_format(memcg);
+	if (!buf)
+		return -ENOMEM;
+	seq_puts(m, buf);
+	kfree(buf);
+	return 0;
+}
+
+#ifdef CONFIG_NUMA
+static inline unsigned long lruvec_page_state_output(struct lruvec *lruvec,
+						     int item)
+{
+	return lruvec_page_state(lruvec, item) * memcg_page_state_unit(item);
+}
+
+static int memory_numa_stat_show(struct seq_file *m, void *v)
+{
+	int i;
+	struct mem_cgroup *memcg = mem_cgroup_from_seq(m);
+
+	mem_cgroup_flush_stats();
+
+	for (i = 0; i < ARRAY_SIZE(memory_stats); i++) {
+		int nid;
+
+		if (memory_stats[i].idx >= NR_VM_NODE_STAT_ITEMS)
+			continue;
+
+		seq_printf(m, "%s", memory_stats[i].name);
+		for_each_node_state(nid, N_MEMORY) {
+			u64 size;
+			struct lruvec *lruvec;
+
+			lruvec = mem_cgroup_lruvec(memcg, NODE_DATA(nid));
+			size = lruvec_page_state_output(lruvec,
+							memory_stats[i].idx);
+			seq_printf(m, " N%d=%llu", nid, size);
+		}
+		seq_putc(m, '\n');
+	}
+
+	return 0;
+}
+#endif
+
+static int memory_oom_group_show(struct seq_file *m, void *v)
+{
+	struct mem_cgroup *memcg = mem_cgroup_from_seq(m);
+>>>>>>> upstream/android-13
 
 	seq_printf(m, "%d\n", memcg->oom_group);
 
@@ -5775,10 +8820,28 @@ static struct cftype memory_files[] = {
 		.seq_show = memory_events_show,
 	},
 	{
+<<<<<<< HEAD
 		.name = "stat",
 		.flags = CFTYPE_NOT_ON_ROOT,
 		.seq_show = memory_stat_show,
 	},
+=======
+		.name = "events.local",
+		.flags = CFTYPE_NOT_ON_ROOT,
+		.file_offset = offsetof(struct mem_cgroup, events_local_file),
+		.seq_show = memory_events_local_show,
+	},
+	{
+		.name = "stat",
+		.seq_show = memory_stat_show,
+	},
+#ifdef CONFIG_NUMA
+	{
+		.name = "numa_stat",
+		.seq_show = memory_numa_stat_show,
+	},
+#endif
+>>>>>>> upstream/android-13
 	{
 		.name = "oom.group",
 		.flags = CFTYPE_NOT_ON_ROOT | CFTYPE_NS_DELEGATABLE,
@@ -5795,22 +8858,152 @@ struct cgroup_subsys memory_cgrp_subsys = {
 	.css_released = mem_cgroup_css_released,
 	.css_free = mem_cgroup_css_free,
 	.css_reset = mem_cgroup_css_reset,
+<<<<<<< HEAD
 	.can_attach = mem_cgroup_can_attach,
 	.cancel_attach = mem_cgroup_cancel_attach,
 	.post_attach = mem_cgroup_move_task,
 	.bind = mem_cgroup_bind,
+=======
+	.css_rstat_flush = mem_cgroup_css_rstat_flush,
+	.can_attach = mem_cgroup_can_attach,
+	.attach = mem_cgroup_attach,
+	.cancel_attach = mem_cgroup_cancel_attach,
+	.post_attach = mem_cgroup_move_task,
+>>>>>>> upstream/android-13
 	.dfl_cftypes = memory_files,
 	.legacy_cftypes = mem_cgroup_legacy_files,
 	.early_init = 0,
 };
 
+<<<<<<< HEAD
 /**
  * mem_cgroup_protected - check if memory consumption is in the normal range
+=======
+/*
+ * This function calculates an individual cgroup's effective
+ * protection which is derived from its own memory.min/low, its
+ * parent's and siblings' settings, as well as the actual memory
+ * distribution in the tree.
+ *
+ * The following rules apply to the effective protection values:
+ *
+ * 1. At the first level of reclaim, effective protection is equal to
+ *    the declared protection in memory.min and memory.low.
+ *
+ * 2. To enable safe delegation of the protection configuration, at
+ *    subsequent levels the effective protection is capped to the
+ *    parent's effective protection.
+ *
+ * 3. To make complex and dynamic subtrees easier to configure, the
+ *    user is allowed to overcommit the declared protection at a given
+ *    level. If that is the case, the parent's effective protection is
+ *    distributed to the children in proportion to how much protection
+ *    they have declared and how much of it they are utilizing.
+ *
+ *    This makes distribution proportional, but also work-conserving:
+ *    if one cgroup claims much more protection than it uses memory,
+ *    the unused remainder is available to its siblings.
+ *
+ * 4. Conversely, when the declared protection is undercommitted at a
+ *    given level, the distribution of the larger parental protection
+ *    budget is NOT proportional. A cgroup's protection from a sibling
+ *    is capped to its own memory.min/low setting.
+ *
+ * 5. However, to allow protecting recursive subtrees from each other
+ *    without having to declare each individual cgroup's fixed share
+ *    of the ancestor's claim to protection, any unutilized -
+ *    "floating" - protection from up the tree is distributed in
+ *    proportion to each cgroup's *usage*. This makes the protection
+ *    neutral wrt sibling cgroups and lets them compete freely over
+ *    the shared parental protection budget, but it protects the
+ *    subtree as a whole from neighboring subtrees.
+ *
+ * Note that 4. and 5. are not in conflict: 4. is about protecting
+ * against immediate siblings whereas 5. is about protecting against
+ * neighboring subtrees.
+ */
+static unsigned long effective_protection(unsigned long usage,
+					  unsigned long parent_usage,
+					  unsigned long setting,
+					  unsigned long parent_effective,
+					  unsigned long siblings_protected)
+{
+	unsigned long protected;
+	unsigned long ep;
+
+	protected = min(usage, setting);
+	/*
+	 * If all cgroups at this level combined claim and use more
+	 * protection then what the parent affords them, distribute
+	 * shares in proportion to utilization.
+	 *
+	 * We are using actual utilization rather than the statically
+	 * claimed protection in order to be work-conserving: claimed
+	 * but unused protection is available to siblings that would
+	 * otherwise get a smaller chunk than what they claimed.
+	 */
+	if (siblings_protected > parent_effective)
+		return protected * parent_effective / siblings_protected;
+
+	/*
+	 * Ok, utilized protection of all children is within what the
+	 * parent affords them, so we know whatever this child claims
+	 * and utilizes is effectively protected.
+	 *
+	 * If there is unprotected usage beyond this value, reclaim
+	 * will apply pressure in proportion to that amount.
+	 *
+	 * If there is unutilized protection, the cgroup will be fully
+	 * shielded from reclaim, but we do return a smaller value for
+	 * protection than what the group could enjoy in theory. This
+	 * is okay. With the overcommit distribution above, effective
+	 * protection is always dependent on how memory is actually
+	 * consumed among the siblings anyway.
+	 */
+	ep = protected;
+
+	/*
+	 * If the children aren't claiming (all of) the protection
+	 * afforded to them by the parent, distribute the remainder in
+	 * proportion to the (unprotected) memory of each cgroup. That
+	 * way, cgroups that aren't explicitly prioritized wrt each
+	 * other compete freely over the allowance, but they are
+	 * collectively protected from neighboring trees.
+	 *
+	 * We're using unprotected memory for the weight so that if
+	 * some cgroups DO claim explicit protection, we don't protect
+	 * the same bytes twice.
+	 *
+	 * Check both usage and parent_usage against the respective
+	 * protected values. One should imply the other, but they
+	 * aren't read atomically - make sure the division is sane.
+	 */
+	if (!(cgrp_dfl_root.flags & CGRP_ROOT_MEMORY_RECURSIVE_PROT))
+		return ep;
+	if (parent_effective > siblings_protected &&
+	    parent_usage > siblings_protected &&
+	    usage > protected) {
+		unsigned long unclaimed;
+
+		unclaimed = parent_effective - siblings_protected;
+		unclaimed *= usage - protected;
+		unclaimed /= parent_usage - siblings_protected;
+
+		ep += unclaimed;
+	}
+
+	return ep;
+}
+
+/**
+ * mem_cgroup_calculate_protection - check if memory consumption is in the normal range
+>>>>>>> upstream/android-13
  * @root: the top ancestor of the sub-tree being checked
  * @memcg: the memory cgroup to check
  *
  * WARNING: This function is not stateless! It can only be used as part
  *          of a top-down tree iteration, not for isolated queries.
+<<<<<<< HEAD
  *
  * Returns one of the following:
  *   MEMCG_PROT_NONE: cgroup memory is not protected
@@ -5896,10 +9089,39 @@ enum mem_cgroup_protection mem_cgroup_protected(struct mem_cgroup *root,
 
 	emin = memcg->memory.min;
 	elow = memcg->memory.low;
+=======
+ */
+void mem_cgroup_calculate_protection(struct mem_cgroup *root,
+				     struct mem_cgroup *memcg)
+{
+	unsigned long usage, parent_usage;
+	struct mem_cgroup *parent;
+
+	if (mem_cgroup_disabled())
+		return;
+
+	if (!root)
+		root = root_mem_cgroup;
+
+	/*
+	 * Effective values of the reclaim targets are ignored so they
+	 * can be stale. Have a look at mem_cgroup_protection for more
+	 * details.
+	 * TODO: calculation should be more robust so that we do not need
+	 * that special casing.
+	 */
+	if (memcg == root)
+		return;
+
+	usage = page_counter_read(&memcg->memory);
+	if (!usage)
+		return;
+>>>>>>> upstream/android-13
 
 	parent = parent_mem_cgroup(memcg);
 	/* No parent means a non-hierarchical mode on v1 memcg */
 	if (!parent)
+<<<<<<< HEAD
 		return MEMCG_PROT_NONE;
 
 	if (parent == root)
@@ -6012,17 +9234,86 @@ out:
 int mem_cgroup_try_charge_delay(struct page *page, struct mm_struct *mm,
 			  gfp_t gfp_mask, struct mem_cgroup **memcgp,
 			  bool compound)
+=======
+		return;
+
+	trace_android_rvh_memcgv2_calc_decayed_watermark(memcg);
+
+	if (parent == root) {
+		memcg->memory.emin = READ_ONCE(memcg->memory.min);
+		memcg->memory.elow = READ_ONCE(memcg->memory.low);
+		return;
+	}
+
+	parent_usage = page_counter_read(&parent->memory);
+
+	WRITE_ONCE(memcg->memory.emin, effective_protection(usage, parent_usage,
+			READ_ONCE(memcg->memory.min),
+			READ_ONCE(parent->memory.emin),
+			atomic_long_read(&parent->memory.children_min_usage)));
+
+	WRITE_ONCE(memcg->memory.elow, effective_protection(usage, parent_usage,
+			READ_ONCE(memcg->memory.low),
+			READ_ONCE(parent->memory.elow),
+			atomic_long_read(&parent->memory.children_low_usage)));
+}
+
+static int charge_memcg(struct page *page, struct mem_cgroup *memcg, gfp_t gfp)
 {
-	struct mem_cgroup *memcg;
+	unsigned int nr_pages = thp_nr_pages(page);
 	int ret;
 
-	ret = mem_cgroup_try_charge(page, mm, gfp_mask, memcgp, compound);
-	memcg = *memcgp;
-	mem_cgroup_throttle_swaprate(memcg, page_to_nid(page), gfp_mask);
+	ret = try_charge(memcg, gfp, nr_pages);
+	if (ret)
+		goto out;
+
+	css_get(&memcg->css);
+	commit_charge(page, memcg);
+
+	local_irq_disable();
+	mem_cgroup_charge_statistics(memcg, page, nr_pages);
+	memcg_check_events(memcg, page);
+	local_irq_enable();
+out:
 	return ret;
 }
 
 /**
+ * __mem_cgroup_charge - charge a newly allocated page to a cgroup
+ * @page: page to charge
+ * @mm: mm context of the victim
+ * @gfp_mask: reclaim mode
+ *
+ * Try to charge @page to the memcg that @mm belongs to, reclaiming
+ * pages according to @gfp_mask if necessary. if @mm is NULL, try to
+ * charge to the active memcg.
+ *
+ * Do not use this for pages allocated for swapin.
+ *
+ * Returns 0 on success. Otherwise, an error code is returned.
+ */
+int __mem_cgroup_charge(struct page *page, struct mm_struct *mm,
+			gfp_t gfp_mask)
+>>>>>>> upstream/android-13
+{
+	struct mem_cgroup *memcg;
+	int ret;
+
+<<<<<<< HEAD
+	ret = mem_cgroup_try_charge(page, mm, gfp_mask, memcgp, compound);
+	memcg = *memcgp;
+	mem_cgroup_throttle_swaprate(memcg, page_to_nid(page), gfp_mask);
+=======
+	memcg = get_mem_cgroup_from_mm(mm);
+	ret = charge_memcg(page, memcg, gfp_mask);
+	css_put(&memcg->css);
+
+>>>>>>> upstream/android-13
+	return ret;
+}
+
+/**
+<<<<<<< HEAD
  * mem_cgroup_commit_charge - commit a page charge
  * @page: page to charge
  * @memcg: memcg to charge the page to
@@ -6066,11 +9357,72 @@ void mem_cgroup_commit_charge(struct page *page, struct mem_cgroup *memcg,
 
 	if (do_memsw_account() && PageSwapCache(page)) {
 		swp_entry_t entry = { .val = page_private(page) };
+=======
+ * mem_cgroup_swapin_charge_page - charge a newly allocated page for swapin
+ * @page: page to charge
+ * @mm: mm context of the victim
+ * @gfp: reclaim mode
+ * @entry: swap entry for which the page is allocated
+ *
+ * This function charges a page allocated for swapin. Please call this before
+ * adding the page to the swapcache.
+ *
+ * Returns 0 on success. Otherwise, an error code is returned.
+ */
+int mem_cgroup_swapin_charge_page(struct page *page, struct mm_struct *mm,
+				  gfp_t gfp, swp_entry_t entry)
+{
+	struct mem_cgroup *memcg;
+	unsigned short id;
+	int ret;
+
+	if (mem_cgroup_disabled())
+		return 0;
+
+	id = lookup_swap_cgroup_id(entry);
+	rcu_read_lock();
+	memcg = mem_cgroup_from_id(id);
+	if (!memcg || !css_tryget_online(&memcg->css))
+		memcg = get_mem_cgroup_from_mm(mm);
+	rcu_read_unlock();
+
+	ret = charge_memcg(page, memcg, gfp);
+
+	css_put(&memcg->css);
+	return ret;
+}
+
+/*
+ * mem_cgroup_swapin_uncharge_swap - uncharge swap slot
+ * @entry: swap entry for which the page is charged
+ *
+ * Call this function after successfully adding the charged page to swapcache.
+ *
+ * Note: This function assumes the page for which swap slot is being uncharged
+ * is order 0 page.
+ */
+void mem_cgroup_swapin_uncharge_swap(swp_entry_t entry)
+{
+	/*
+	 * Cgroup1's unified memory+swap counter has been charged with the
+	 * new swapcache page, finish the transfer by uncharging the swap
+	 * slot. The swap slot would also get uncharged when it dies, but
+	 * it can stick around indefinitely and we'd count the page twice
+	 * the entire time.
+	 *
+	 * Cgroup2 has separate resource counters for memory and swap,
+	 * so this is a non-issue here. Memory and swap charge lifetimes
+	 * correspond 1:1 to page and swap slot lifetimes: we charge the
+	 * page to memory here, and uncharge swap when the slot is freed.
+	 */
+	if (!mem_cgroup_disabled() && do_memsw_account()) {
+>>>>>>> upstream/android-13
 		/*
 		 * The swap entry might not get freed for a long time,
 		 * let's not wait for it.  The page already received a
 		 * memory+swap charge, drop the swap entry duplicate.
 		 */
+<<<<<<< HEAD
 		mem_cgroup_uncharge_swap(entry, nr_pages);
 	}
 }
@@ -6109,6 +9461,17 @@ struct uncharge_gather {
 	unsigned long nr_kmem;
 	unsigned long nr_huge;
 	unsigned long nr_shmem;
+=======
+		mem_cgroup_uncharge_swap(entry, 1);
+	}
+}
+
+struct uncharge_gather {
+	struct mem_cgroup *memcg;
+	unsigned long nr_memory;
+	unsigned long pgpgout;
+	unsigned long nr_kmem;
+>>>>>>> upstream/android-13
 	struct page *dummy_page;
 };
 
@@ -6119,6 +9482,7 @@ static inline void uncharge_gather_clear(struct uncharge_gather *ug)
 
 static void uncharge_batch(const struct uncharge_gather *ug)
 {
+<<<<<<< HEAD
 	unsigned long nr_pages = ug->nr_anon + ug->nr_file + ug->nr_kmem;
 	unsigned long flags;
 
@@ -6126,12 +9490,21 @@ static void uncharge_batch(const struct uncharge_gather *ug)
 		page_counter_uncharge(&ug->memcg->memory, nr_pages);
 		if (do_memsw_account())
 			page_counter_uncharge(&ug->memcg->memsw, nr_pages);
+=======
+	unsigned long flags;
+
+	if (ug->nr_memory) {
+		page_counter_uncharge(&ug->memcg->memory, ug->nr_memory);
+		if (do_memsw_account())
+			page_counter_uncharge(&ug->memcg->memsw, ug->nr_memory);
+>>>>>>> upstream/android-13
 		if (!cgroup_subsys_on_dfl(memory_cgrp_subsys) && ug->nr_kmem)
 			page_counter_uncharge(&ug->memcg->kmem, ug->nr_kmem);
 		memcg_oom_recover(ug->memcg);
 	}
 
 	local_irq_save(flags);
+<<<<<<< HEAD
 	__mod_memcg_state(ug->memcg, MEMCG_RSS, -ug->nr_anon);
 	__mod_memcg_state(ug->memcg, MEMCG_CACHE, -ug->nr_file);
 	__mod_memcg_state(ug->memcg, MEMCG_RSS_HUGE, -ug->nr_huge);
@@ -6143,10 +9516,20 @@ static void uncharge_batch(const struct uncharge_gather *ug)
 
 	if (!mem_cgroup_is_root(ug->memcg))
 		css_put_many(&ug->memcg->css, nr_pages);
+=======
+	__count_memcg_events(ug->memcg, PGPGOUT, ug->pgpgout);
+	__this_cpu_add(ug->memcg->vmstats_percpu->nr_page_events, ug->nr_memory);
+	memcg_check_events(ug->memcg, ug->dummy_page);
+	local_irq_restore(flags);
+
+	/* drop reference from uncharge_page */
+	css_put(&ug->memcg->css);
+>>>>>>> upstream/android-13
 }
 
 static void uncharge_page(struct page *page, struct uncharge_gather *ug)
 {
+<<<<<<< HEAD
 	VM_BUG_ON_PAGE(PageLRU(page), page);
 	VM_BUG_ON_PAGE(page_count(page) && !is_zone_device_page(page) &&
 			!PageHWPoison(page) , page);
@@ -6161,10 +9544,40 @@ static void uncharge_page(struct page *page, struct uncharge_gather *ug)
 	 */
 
 	if (ug->memcg != page->mem_cgroup) {
+=======
+	unsigned long nr_pages;
+	struct mem_cgroup *memcg;
+	struct obj_cgroup *objcg;
+	bool use_objcg = PageMemcgKmem(page);
+
+	VM_BUG_ON_PAGE(PageLRU(page), page);
+
+	/*
+	 * Nobody should be changing or seriously looking at
+	 * page memcg or objcg at this point, we have fully
+	 * exclusive access to the page.
+	 */
+	if (use_objcg) {
+		objcg = __page_objcg(page);
+		/*
+		 * This get matches the put at the end of the function and
+		 * kmem pages do not hold memcg references anymore.
+		 */
+		memcg = get_mem_cgroup_from_objcg(objcg);
+	} else {
+		memcg = __page_memcg(page);
+	}
+
+	if (!memcg)
+		return;
+
+	if (ug->memcg != memcg) {
+>>>>>>> upstream/android-13
 		if (ug->memcg) {
 			uncharge_batch(ug);
 			uncharge_gather_clear(ug);
 		}
+<<<<<<< HEAD
 		ug->memcg = page->mem_cgroup;
 	}
 
@@ -6233,6 +9646,47 @@ void mem_cgroup_uncharge(struct page *page)
 
 	/* Don't touch page->lru of any random page, pre-check: */
 	if (!page->mem_cgroup)
+=======
+		ug->memcg = memcg;
+		ug->dummy_page = page;
+
+		/* pairs with css_put in uncharge_batch */
+		css_get(&memcg->css);
+	}
+
+	nr_pages = compound_nr(page);
+
+	if (use_objcg) {
+		ug->nr_memory += nr_pages;
+		ug->nr_kmem += nr_pages;
+
+		page->memcg_data = 0;
+		obj_cgroup_put(objcg);
+	} else {
+		/* LRU pages aren't accounted at the root level */
+		if (!mem_cgroup_is_root(memcg))
+			ug->nr_memory += nr_pages;
+		ug->pgpgout++;
+
+		page->memcg_data = 0;
+	}
+
+	css_put(&memcg->css);
+}
+
+/**
+ * __mem_cgroup_uncharge - uncharge a page
+ * @page: page to uncharge
+ *
+ * Uncharge a page previously charged with __mem_cgroup_charge().
+ */
+void __mem_cgroup_uncharge(struct page *page)
+{
+	struct uncharge_gather ug;
+
+	/* Don't touch page->lru of any random page, pre-check: */
+	if (!page_memcg(page))
+>>>>>>> upstream/android-13
 		return;
 
 	uncharge_gather_clear(&ug);
@@ -6241,6 +9695,7 @@ void mem_cgroup_uncharge(struct page *page)
 }
 
 /**
+<<<<<<< HEAD
  * mem_cgroup_uncharge_list - uncharge a list of page
  * @page_list: list of pages to uncharge
  *
@@ -6254,6 +9709,24 @@ void mem_cgroup_uncharge_list(struct list_head *page_list)
 
 	if (!list_empty(page_list))
 		uncharge_list(page_list);
+=======
+ * __mem_cgroup_uncharge_list - uncharge a list of page
+ * @page_list: list of pages to uncharge
+ *
+ * Uncharge a list of pages previously charged with
+ * __mem_cgroup_charge().
+ */
+void __mem_cgroup_uncharge_list(struct list_head *page_list)
+{
+	struct uncharge_gather ug;
+	struct page *page;
+
+	uncharge_gather_clear(&ug);
+	list_for_each_entry(page, page_list, lru)
+		uncharge_page(page, &ug);
+	if (ug.memcg)
+		uncharge_batch(&ug);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -6270,7 +9743,10 @@ void mem_cgroup_migrate(struct page *oldpage, struct page *newpage)
 {
 	struct mem_cgroup *memcg;
 	unsigned int nr_pages;
+<<<<<<< HEAD
 	bool compound;
+=======
+>>>>>>> upstream/android-13
 	unsigned long flags;
 
 	VM_BUG_ON_PAGE(!PageLocked(oldpage), oldpage);
@@ -6283,15 +9759,24 @@ void mem_cgroup_migrate(struct page *oldpage, struct page *newpage)
 		return;
 
 	/* Page cache replacement: new page already charged? */
+<<<<<<< HEAD
 	if (newpage->mem_cgroup)
 		return;
 
 	/* Swapcache readahead pages can get replaced before being charged */
 	memcg = oldpage->mem_cgroup;
+=======
+	if (page_memcg(newpage))
+		return;
+
+	memcg = page_memcg(oldpage);
+	VM_WARN_ON_ONCE_PAGE(!memcg, oldpage);
+>>>>>>> upstream/android-13
 	if (!memcg)
 		return;
 
 	/* Force-charge the new page. The old one will be freed soon */
+<<<<<<< HEAD
 	compound = PageTransHuge(newpage);
 	nr_pages = compound ? hpage_nr_pages(newpage) : 1;
 
@@ -6304,6 +9789,21 @@ void mem_cgroup_migrate(struct page *oldpage, struct page *newpage)
 
 	local_irq_save(flags);
 	mem_cgroup_charge_statistics(memcg, newpage, compound, nr_pages);
+=======
+	nr_pages = thp_nr_pages(newpage);
+
+	if (!mem_cgroup_is_root(memcg)) {
+		page_counter_charge(&memcg->memory, nr_pages);
+		if (do_memsw_account())
+			page_counter_charge(&memcg->memsw, nr_pages);
+	}
+
+	css_get(&memcg->css);
+	commit_charge(newpage, memcg);
+
+	local_irq_save(flags);
+	mem_cgroup_charge_statistics(memcg, newpage, nr_pages);
+>>>>>>> upstream/android-13
 	memcg_check_events(memcg, newpage);
 	local_irq_restore(flags);
 }
@@ -6328,7 +9828,11 @@ void mem_cgroup_sk_alloc(struct sock *sk)
 		goto out;
 	if (!cgroup_subsys_on_dfl(memory_cgrp_subsys) && !memcg->tcpmem_active)
 		goto out;
+<<<<<<< HEAD
 	if (css_tryget_online(&memcg->css))
+=======
+	if (css_tryget(&memcg->css))
+>>>>>>> upstream/android-13
 		sk->sk_memcg = memcg;
 out:
 	rcu_read_unlock();
@@ -6344,6 +9848,7 @@ void mem_cgroup_sk_free(struct sock *sk)
  * mem_cgroup_charge_skmem - charge socket memory
  * @memcg: memcg to charge
  * @nr_pages: number of pages to charge
+<<<<<<< HEAD
  *
  * Charges @nr_pages to @memcg. Returns %true if the charge fit within
  * @memcg's configured limit, %false if the charge had to be forced.
@@ -6352,6 +9857,16 @@ bool mem_cgroup_charge_skmem(struct mem_cgroup *memcg, unsigned int nr_pages)
 {
 	gfp_t gfp_mask = GFP_KERNEL;
 
+=======
+ * @gfp_mask: reclaim mode
+ *
+ * Charges @nr_pages to @memcg. Returns %true if the charge fit within
+ * @memcg's configured limit, %false if it doesn't.
+ */
+bool mem_cgroup_charge_skmem(struct mem_cgroup *memcg, unsigned int nr_pages,
+			     gfp_t gfp_mask)
+{
+>>>>>>> upstream/android-13
 	if (!cgroup_subsys_on_dfl(memory_cgrp_subsys)) {
 		struct page_counter *fail;
 
@@ -6359,6 +9874,7 @@ bool mem_cgroup_charge_skmem(struct mem_cgroup *memcg, unsigned int nr_pages)
 			memcg->tcpmem_pressure = 0;
 			return true;
 		}
+<<<<<<< HEAD
 		page_counter_charge(&memcg->tcpmem, nr_pages);
 		memcg->tcpmem_pressure = 1;
 		return false;
@@ -6374,6 +9890,21 @@ bool mem_cgroup_charge_skmem(struct mem_cgroup *memcg, unsigned int nr_pages)
 		return true;
 
 	try_charge(memcg, gfp_mask|__GFP_NOFAIL, nr_pages);
+=======
+		memcg->tcpmem_pressure = 1;
+		if (gfp_mask & __GFP_NOFAIL) {
+			page_counter_charge(&memcg->tcpmem, nr_pages);
+			return true;
+		}
+		return false;
+	}
+
+	if (try_charge(memcg, gfp_mask, nr_pages) == 0) {
+		mod_memcg_state(memcg, MEMCG_SOCK, nr_pages);
+		return true;
+	}
+
+>>>>>>> upstream/android-13
 	return false;
 }
 
@@ -6406,7 +9937,11 @@ static int __init cgroup_memory(char *s)
 		if (!strcmp(token, "nokmem"))
 			cgroup_memory_nokmem = true;
 	}
+<<<<<<< HEAD
 	return 0;
+=======
+	return 1;
+>>>>>>> upstream/android-13
 }
 __setup("cgroup.memory=", cgroup_memory);
 
@@ -6422,6 +9957,7 @@ static int __init mem_cgroup_init(void)
 {
 	int cpu, node;
 
+<<<<<<< HEAD
 #ifdef CONFIG_MEMCG_KMEM
 	/*
 	 * Kmem cache creation is mostly done with the slab_mutex held,
@@ -6432,6 +9968,15 @@ static int __init mem_cgroup_init(void)
 	memcg_kmem_cache_wq = alloc_workqueue("memcg_kmem_cache", 0, 1);
 	BUG_ON(!memcg_kmem_cache_wq);
 #endif
+=======
+	/*
+	 * Currently s32 type (can refer to struct batched_lruvec_stat) is
+	 * used for per-memcg-per-cpu caching of per-node statistics. In order
+	 * to work fine, we should make sure that the overfill threshold can't
+	 * exceed S32_MAX / PAGE_SIZE.
+	 */
+	BUILD_BUG_ON(MEMCG_CHARGE_BATCH > S32_MAX / PAGE_SIZE);
+>>>>>>> upstream/android-13
 
 	cpuhp_setup_state_nocalls(CPUHP_MM_MEMCQ_DEAD, "mm/memctrl:dead", NULL,
 				  memcg_hotplug_cpu_dead);
@@ -6459,7 +10004,11 @@ subsys_initcall(mem_cgroup_init);
 #ifdef CONFIG_MEMCG_SWAP
 static struct mem_cgroup *mem_cgroup_id_get_online(struct mem_cgroup *memcg)
 {
+<<<<<<< HEAD
 	while (!atomic_inc_not_zero(&memcg->id.ref)) {
+=======
+	while (!refcount_inc_not_zero(&memcg->id.ref)) {
+>>>>>>> upstream/android-13
 		/*
 		 * The root cgroup cannot be destroyed, so it's refcount must
 		 * always be >= 1.
@@ -6491,12 +10040,24 @@ void mem_cgroup_swapout(struct page *page, swp_entry_t entry)
 	VM_BUG_ON_PAGE(PageLRU(page), page);
 	VM_BUG_ON_PAGE(page_count(page), page);
 
+<<<<<<< HEAD
 	if (!do_memsw_account())
 		return;
 
 	memcg = page->mem_cgroup;
 
 	/* Readahead page, never charged */
+=======
+	if (mem_cgroup_disabled())
+		return;
+
+	if (cgroup_subsys_on_dfl(memory_cgrp_subsys))
+		return;
+
+	memcg = page_memcg(page);
+
+	VM_WARN_ON_ONCE_PAGE(!memcg, page);
+>>>>>>> upstream/android-13
 	if (!memcg)
 		return;
 
@@ -6506,7 +10067,11 @@ void mem_cgroup_swapout(struct page *page, swp_entry_t entry)
 	 * ancestor for the swap instead and transfer the memory+swap charge.
 	 */
 	swap_memcg = mem_cgroup_id_get_online(memcg);
+<<<<<<< HEAD
 	nr_entries = hpage_nr_pages(page);
+=======
+	nr_entries = thp_nr_pages(page);
+>>>>>>> upstream/android-13
 	/* Get references for the tail pages, too */
 	if (nr_entries > 1)
 		mem_cgroup_id_get_many(swap_memcg, nr_entries - 1);
@@ -6515,12 +10080,20 @@ void mem_cgroup_swapout(struct page *page, swp_entry_t entry)
 	VM_BUG_ON_PAGE(oldid, page);
 	mod_memcg_state(swap_memcg, MEMCG_SWAP, nr_entries);
 
+<<<<<<< HEAD
 	page->mem_cgroup = NULL;
+=======
+	page->memcg_data = 0;
+>>>>>>> upstream/android-13
 
 	if (!mem_cgroup_is_root(memcg))
 		page_counter_uncharge(&memcg->memory, nr_entries);
 
+<<<<<<< HEAD
 	if (memcg != swap_memcg) {
+=======
+	if (!cgroup_memory_noswap && memcg != swap_memcg) {
+>>>>>>> upstream/android-13
 		if (!mem_cgroup_is_root(swap_memcg))
 			page_counter_charge(&swap_memcg->memsw, nr_entries);
 		page_counter_uncharge(&memcg->memsw, nr_entries);
@@ -6533,6 +10106,7 @@ void mem_cgroup_swapout(struct page *page, swp_entry_t entry)
 	 * only synchronisation we have for updating the per-CPU variables.
 	 */
 	VM_BUG_ON(!irqs_disabled());
+<<<<<<< HEAD
 	mem_cgroup_charge_statistics(memcg, page, PageTransHuge(page),
 				     -nr_entries);
 	memcg_check_events(memcg, page);
@@ -6543,6 +10117,16 @@ void mem_cgroup_swapout(struct page *page, swp_entry_t entry)
 
 /**
  * mem_cgroup_try_charge_swap - try charging swap space for a page
+=======
+	mem_cgroup_charge_statistics(memcg, page, -nr_entries);
+	memcg_check_events(memcg, page);
+
+	css_put(&memcg->css);
+}
+
+/**
+ * __mem_cgroup_try_charge_swap - try charging swap space for a page
+>>>>>>> upstream/android-13
  * @page: page being added to swap
  * @entry: swap entry to charge
  *
@@ -6550,19 +10134,34 @@ void mem_cgroup_swapout(struct page *page, swp_entry_t entry)
  *
  * Returns 0 on success, -ENOMEM on failure.
  */
+<<<<<<< HEAD
 int mem_cgroup_try_charge_swap(struct page *page, swp_entry_t entry)
 {
 	unsigned int nr_pages = hpage_nr_pages(page);
+=======
+int __mem_cgroup_try_charge_swap(struct page *page, swp_entry_t entry)
+{
+	unsigned int nr_pages = thp_nr_pages(page);
+>>>>>>> upstream/android-13
 	struct page_counter *counter;
 	struct mem_cgroup *memcg;
 	unsigned short oldid;
 
+<<<<<<< HEAD
 	if (!cgroup_subsys_on_dfl(memory_cgrp_subsys) || !do_swap_account)
 		return 0;
 
 	memcg = page->mem_cgroup;
 
 	/* Readahead page, never charged */
+=======
+	if (!cgroup_subsys_on_dfl(memory_cgrp_subsys))
+		return 0;
+
+	memcg = page_memcg(page);
+
+	VM_WARN_ON_ONCE_PAGE(!memcg, page);
+>>>>>>> upstream/android-13
 	if (!memcg)
 		return 0;
 
@@ -6573,7 +10172,11 @@ int mem_cgroup_try_charge_swap(struct page *page, swp_entry_t entry)
 
 	memcg = mem_cgroup_id_get_online(memcg);
 
+<<<<<<< HEAD
 	if (!mem_cgroup_is_root(memcg) &&
+=======
+	if (!cgroup_memory_noswap && !mem_cgroup_is_root(memcg) &&
+>>>>>>> upstream/android-13
 	    !page_counter_try_charge(&memcg->swap, nr_pages, &counter)) {
 		memcg_memory_event(memcg, MEMCG_SWAP_MAX);
 		memcg_memory_event(memcg, MEMCG_SWAP_FAIL);
@@ -6592,23 +10195,38 @@ int mem_cgroup_try_charge_swap(struct page *page, swp_entry_t entry)
 }
 
 /**
+<<<<<<< HEAD
  * mem_cgroup_uncharge_swap - uncharge swap space
  * @entry: swap entry to uncharge
  * @nr_pages: the amount of swap space to uncharge
  */
 void mem_cgroup_uncharge_swap(swp_entry_t entry, unsigned int nr_pages)
+=======
+ * __mem_cgroup_uncharge_swap - uncharge swap space
+ * @entry: swap entry to uncharge
+ * @nr_pages: the amount of swap space to uncharge
+ */
+void __mem_cgroup_uncharge_swap(swp_entry_t entry, unsigned int nr_pages)
+>>>>>>> upstream/android-13
 {
 	struct mem_cgroup *memcg;
 	unsigned short id;
 
+<<<<<<< HEAD
 	if (!do_swap_account)
 		return;
 
+=======
+>>>>>>> upstream/android-13
 	id = swap_cgroup_record(entry, 0, nr_pages);
 	rcu_read_lock();
 	memcg = mem_cgroup_from_id(id);
 	if (memcg) {
+<<<<<<< HEAD
 		if (!mem_cgroup_is_root(memcg)) {
+=======
+		if (!cgroup_memory_noswap && !mem_cgroup_is_root(memcg)) {
+>>>>>>> upstream/android-13
 			if (cgroup_subsys_on_dfl(memory_cgrp_subsys))
 				page_counter_uncharge(&memcg->swap, nr_pages);
 			else
@@ -6624,7 +10242,11 @@ long mem_cgroup_get_nr_swap_pages(struct mem_cgroup *memcg)
 {
 	long nr_swap_pages = get_nr_swap_pages();
 
+<<<<<<< HEAD
 	if (!do_swap_account || !cgroup_subsys_on_dfl(memory_cgrp_subsys))
+=======
+	if (cgroup_memory_noswap || !cgroup_subsys_on_dfl(memory_cgrp_subsys))
+>>>>>>> upstream/android-13
 		return nr_swap_pages;
 	for (; memcg != root_mem_cgroup; memcg = parent_mem_cgroup(memcg))
 		nr_swap_pages = min_t(long, nr_swap_pages,
@@ -6641,6 +10263,7 @@ bool mem_cgroup_swap_full(struct page *page)
 
 	if (vm_swap_full())
 		return true;
+<<<<<<< HEAD
 	if (!do_swap_account || !cgroup_subsys_on_dfl(memory_cgrp_subsys))
 		return false;
 
@@ -6651,10 +10274,27 @@ bool mem_cgroup_swap_full(struct page *page)
 	for (; memcg != root_mem_cgroup; memcg = parent_mem_cgroup(memcg))
 		if (page_counter_read(&memcg->swap) * 2 >= memcg->swap.max)
 			return true;
+=======
+	if (cgroup_memory_noswap || !cgroup_subsys_on_dfl(memory_cgrp_subsys))
+		return false;
+
+	memcg = page_memcg(page);
+	if (!memcg)
+		return false;
+
+	for (; memcg != root_mem_cgroup; memcg = parent_mem_cgroup(memcg)) {
+		unsigned long usage = page_counter_read(&memcg->swap);
+
+		if (usage * 2 >= READ_ONCE(memcg->swap.high) ||
+		    usage * 2 >= READ_ONCE(memcg->swap.max))
+			return true;
+	}
+>>>>>>> upstream/android-13
 
 	return false;
 }
 
+<<<<<<< HEAD
 /* for remember boot option*/
 #ifdef CONFIG_MEMCG_SWAP_ENABLED
 static int really_do_swap_account __initdata = 1;
@@ -6671,6 +10311,17 @@ static int __init enable_swap_account(char *s)
 	return 1;
 }
 __setup("swapaccount=", enable_swap_account);
+=======
+static int __init setup_swap_account(char *s)
+{
+	if (!strcmp(s, "1"))
+		cgroup_memory_noswap = false;
+	else if (!strcmp(s, "0"))
+		cgroup_memory_noswap = true;
+	return 1;
+}
+__setup("swapaccount=", setup_swap_account);
+>>>>>>> upstream/android-13
 
 static u64 swap_current_read(struct cgroup_subsys_state *css,
 			     struct cftype *cft)
@@ -6680,6 +10331,7 @@ static u64 swap_current_read(struct cgroup_subsys_state *css,
 	return (u64)page_counter_read(&memcg->swap) * PAGE_SIZE;
 }
 
+<<<<<<< HEAD
 static int swap_max_show(struct seq_file *m, void *v)
 {
 	struct mem_cgroup *memcg = mem_cgroup_from_css(seq_css(m));
@@ -6691,6 +10343,35 @@ static int swap_max_show(struct seq_file *m, void *v)
 		seq_printf(m, "%llu\n", (u64)max * PAGE_SIZE);
 
 	return 0;
+=======
+static int swap_high_show(struct seq_file *m, void *v)
+{
+	return seq_puts_memcg_tunable(m,
+		READ_ONCE(mem_cgroup_from_seq(m)->swap.high));
+}
+
+static ssize_t swap_high_write(struct kernfs_open_file *of,
+			       char *buf, size_t nbytes, loff_t off)
+{
+	struct mem_cgroup *memcg = mem_cgroup_from_css(of_css(of));
+	unsigned long high;
+	int err;
+
+	buf = strstrip(buf);
+	err = page_counter_memparse(buf, "max", &high);
+	if (err)
+		return err;
+
+	page_counter_set_high(&memcg->swap, high);
+
+	return nbytes;
+}
+
+static int swap_max_show(struct seq_file *m, void *v)
+{
+	return seq_puts_memcg_tunable(m,
+		READ_ONCE(mem_cgroup_from_seq(m)->swap.max));
+>>>>>>> upstream/android-13
 }
 
 static ssize_t swap_max_write(struct kernfs_open_file *of,
@@ -6712,8 +10393,15 @@ static ssize_t swap_max_write(struct kernfs_open_file *of,
 
 static int swap_events_show(struct seq_file *m, void *v)
 {
+<<<<<<< HEAD
 	struct mem_cgroup *memcg = mem_cgroup_from_css(seq_css(m));
 
+=======
+	struct mem_cgroup *memcg = mem_cgroup_from_seq(m);
+
+	seq_printf(m, "high %lu\n",
+		   atomic_long_read(&memcg->memory_events[MEMCG_SWAP_HIGH]));
+>>>>>>> upstream/android-13
 	seq_printf(m, "max %lu\n",
 		   atomic_long_read(&memcg->memory_events[MEMCG_SWAP_MAX]));
 	seq_printf(m, "fail %lu\n",
@@ -6729,6 +10417,15 @@ static struct cftype swap_files[] = {
 		.read_u64 = swap_current_read,
 	},
 	{
+<<<<<<< HEAD
+=======
+		.name = "swap.high",
+		.flags = CFTYPE_NOT_ON_ROOT,
+		.seq_show = swap_high_show,
+		.write = swap_high_write,
+	},
+	{
+>>>>>>> upstream/android-13
 		.name = "swap.max",
 		.flags = CFTYPE_NOT_ON_ROOT,
 		.seq_show = swap_max_show,
@@ -6743,7 +10440,11 @@ static struct cftype swap_files[] = {
 	{ }	/* terminate */
 };
 
+<<<<<<< HEAD
 static struct cftype memsw_cgroup_files[] = {
+=======
+static struct cftype memsw_files[] = {
+>>>>>>> upstream/android-13
 	{
 		.name = "memsw.usage_in_bytes",
 		.private = MEMFILE_PRIVATE(_MEMSWAP, RES_USAGE),
@@ -6770,6 +10471,7 @@ static struct cftype memsw_cgroup_files[] = {
 	{ },	/* terminate */
 };
 
+<<<<<<< HEAD
 static int __init mem_cgroup_swap_init(void)
 {
 	if (!mem_cgroup_disabled() && really_do_swap_account) {
@@ -6782,5 +10484,29 @@ static int __init mem_cgroup_swap_init(void)
 	return 0;
 }
 subsys_initcall(mem_cgroup_swap_init);
+=======
+/*
+ * If mem_cgroup_swap_init() is implemented as a subsys_initcall()
+ * instead of a core_initcall(), this could mean cgroup_memory_noswap still
+ * remains set to false even when memcg is disabled via "cgroup_disable=memory"
+ * boot parameter. This may result in premature OOPS inside
+ * mem_cgroup_get_nr_swap_pages() function in corner cases.
+ */
+static int __init mem_cgroup_swap_init(void)
+{
+	/* No memory control -> no swap control */
+	if (mem_cgroup_disabled())
+		cgroup_memory_noswap = true;
+
+	if (cgroup_memory_noswap)
+		return 0;
+
+	WARN_ON(cgroup_add_dfl_cftypes(&memory_cgrp_subsys, swap_files));
+	WARN_ON(cgroup_add_legacy_cftypes(&memory_cgrp_subsys, memsw_files));
+
+	return 0;
+}
+core_initcall(mem_cgroup_swap_init);
+>>>>>>> upstream/android-13
 
 #endif /* CONFIG_MEMCG_SWAP */

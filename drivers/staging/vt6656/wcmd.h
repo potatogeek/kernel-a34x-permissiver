@@ -1,10 +1,17 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0+
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 1996, 2003 VIA Networking Technologies, Inc.
  * All rights reserved.
  *
+<<<<<<< HEAD
  * File: wcmd.h
  *
+=======
+>>>>>>> upstream/android-13
  * Purpose: Handles the management command interface functions
  *
  * Author: Lyndon Chen

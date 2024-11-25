@@ -25,7 +25,10 @@
 #include <asm/dma.h>
 #include <asm/io.h>
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgalloc.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/ftrace.h>
 #ifdef CONFIG_BLK_DEV_FD
 #include <asm/floppy.h>
@@ -44,7 +47,11 @@ EXPORT_SYMBOL(memmove);
 EXPORT_SYMBOL(__memset);
 EXPORT_SYMBOL(__memcpy);
 EXPORT_SYMBOL(__memmove);
+<<<<<<< HEAD
 #ifndef CONFIG_GENERIC_STRNCPY_FROM_USER
+=======
+#ifdef CONFIG_ARCH_HAS_STRNCPY_FROM_USER
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(__strncpy_user);
 #endif
 EXPORT_SYMBOL(clear_page);

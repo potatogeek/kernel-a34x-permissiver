@@ -17,8 +17,13 @@
 		 	 * intrinsic
 		 	 */
 
+<<<<<<< HEAD
 #define ia64_native_getreg	__getReg
 #define ia64_native_setreg	__setReg
+=======
+#define ia64_getreg		__getReg
+#define ia64_setreg		__setReg
+>>>>>>> upstream/android-13
 
 #define ia64_hint		__hint
 #define ia64_hint_pause		__hint_pause
@@ -40,10 +45,17 @@
 #define ia64_invala_fr		__invala_fr
 #define ia64_nop		__nop
 #define ia64_sum		__sum
+<<<<<<< HEAD
 #define ia64_native_ssm		__ssm
 #define ia64_rum		__rum
 #define ia64_native_rsm		__rsm
 #define ia64_native_fc 		__fc
+=======
+#define ia64_ssm		__ssm
+#define ia64_rum		__rum
+#define ia64_rsm		__rsm
+#define ia64_fc			__fc
+>>>>>>> upstream/android-13
 
 #define ia64_ldfs		__ldfs
 #define ia64_ldfd		__ldfd
@@ -89,17 +101,29 @@
 		__setIndReg(_IA64_REG_INDR_PMC, index, val)
 #define ia64_set_pmd(index, val)	\
 		__setIndReg(_IA64_REG_INDR_PMD, index, val)
+<<<<<<< HEAD
 #define ia64_native_set_rr(index, val)	\
 		__setIndReg(_IA64_REG_INDR_RR, index, val)
 
 #define ia64_native_get_cpuid(index)	\
+=======
+#define ia64_set_rr(index, val)		\
+		__setIndReg(_IA64_REG_INDR_RR, index, val)
+
+#define ia64_get_cpuid(index)	\
+>>>>>>> upstream/android-13
 		__getIndReg(_IA64_REG_INDR_CPUID, index)
 #define __ia64_get_dbr(index)		__getIndReg(_IA64_REG_INDR_DBR, index)
 #define ia64_get_ibr(index)		__getIndReg(_IA64_REG_INDR_IBR, index)
 #define ia64_get_pkr(index)		__getIndReg(_IA64_REG_INDR_PKR, index)
 #define ia64_get_pmc(index)		__getIndReg(_IA64_REG_INDR_PMC, index)
+<<<<<<< HEAD
 #define ia64_native_get_pmd(index)	__getIndReg(_IA64_REG_INDR_PMD, index)
 #define ia64_native_get_rr(index)	__getIndReg(_IA64_REG_INDR_RR, index)
+=======
+#define ia64_get_pmd(index)		__getIndReg(_IA64_REG_INDR_PMD, index)
+#define ia64_get_rr(index)		__getIndReg(_IA64_REG_INDR_RR, index)
+>>>>>>> upstream/android-13
 
 #define ia64_srlz_d		__dsrlz
 #define ia64_srlz_i		__isrlz
@@ -121,16 +145,26 @@
 #define ia64_ld8_acq		__ld8_acq
 
 #define ia64_sync_i		__synci
+<<<<<<< HEAD
 #define ia64_native_thash	__thash
 #define ia64_native_ttag	__ttag
+=======
+#define ia64_thash		__thash
+#define ia64_ttag		__ttag
+>>>>>>> upstream/android-13
 #define ia64_itcd		__itcd
 #define ia64_itci		__itci
 #define ia64_itrd		__itrd
 #define ia64_itri		__itri
 #define ia64_ptce		__ptce
 #define ia64_ptcl		__ptcl
+<<<<<<< HEAD
 #define ia64_native_ptcg	__ptcg
 #define ia64_native_ptcga	__ptcga
+=======
+#define ia64_ptcg		__ptcg
+#define ia64_ptcga		__ptcga
+>>>>>>> upstream/android-13
 #define ia64_ptri		__ptri
 #define ia64_ptrd		__ptrd
 #define ia64_dep_mi		_m64_dep_mi
@@ -147,6 +181,7 @@
 #define ia64_lfetch_fault	__lfetch_fault
 #define ia64_lfetch_fault_excl	__lfetch_fault_excl
 
+<<<<<<< HEAD
 #define ia64_native_intrin_local_irq_restore(x)		\
 do {							\
 	if ((x) != 0) {					\
@@ -154,6 +189,15 @@ do {							\
 		ia64_srlz_d();				\
 	} else {					\
 		ia64_native_rsm(IA64_PSR_I);		\
+=======
+#define ia64_intrin_local_irq_restore(x)		\
+do {							\
+	if ((x) != 0) {					\
+		ia64_ssm(IA64_PSR_I);			\
+		ia64_srlz_d();				\
+	} else {					\
+		ia64_rsm(IA64_PSR_I);			\
+>>>>>>> upstream/android-13
 	}						\
 } while (0)
 

@@ -140,6 +140,7 @@ struct __name##_sorted *__name = __name##_sorted__new
 
 /* For 'struct intlist' */
 #define DECLARE_RESORT_RB_INTLIST(__name, __ilist)				\
+<<<<<<< HEAD
 	DECLARE_RESORT_RB(__name)(&__ilist->rblist.entries,			\
 				  __ilist->rblist.nr_entries)
 
@@ -147,5 +148,14 @@ struct __name##_sorted *__name = __name##_sorted__new
 #define DECLARE_RESORT_RB_MACHINE_THREADS(__name, __machine, hash_bucket)	\
 	DECLARE_RESORT_RB(__name)(&__machine->threads[hash_bucket].entries,	\
 				  __machine->threads[hash_bucket].nr)
+=======
+	DECLARE_RESORT_RB(__name)(&__ilist->rblist.entries.rb_root,		\
+				  __ilist->rblist.nr_entries)
+
+/* For 'struct machine->threads' */
+#define DECLARE_RESORT_RB_MACHINE_THREADS(__name, __machine, hash_bucket)    \
+ DECLARE_RESORT_RB(__name)(&__machine->threads[hash_bucket].entries.rb_root, \
+			   __machine->threads[hash_bucket].nr)
+>>>>>>> upstream/android-13
 
 #endif /* _PERF_RESORT_RB_H_ */

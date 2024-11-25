@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * helper functions for SG DMA video4linux capture buffers
  *
@@ -12,10 +16,13 @@
  * (c) 2001,02 Gerd Knorr <kraxel@bytesex.org>
  * (c) 2006 Mauro Carvalho Chehab, <mchehab@kernel.org>
  * (c) 2006 Ted Walther and John Sokol
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _VIDEOBUF_DMA_SG_H
 #define _VIDEOBUF_DMA_SG_H
@@ -34,7 +41,11 @@
  *	does memory allocation too using vmalloc_32().
  *
  * videobuf_dma_*()
+<<<<<<< HEAD
  *	see Documentation/DMA-API-HOWTO.txt, these functions to
+=======
+ *	see Documentation/core-api/dma-api-howto.rst, these functions to
+>>>>>>> upstream/android-13
  *	basically the same.  The map function does also build a
  *	scatterlist for the buffer (and unmap frees it ...)
  *
@@ -63,7 +74,11 @@ struct videobuf_dmabuf {
 	/* common */
 	struct scatterlist  *sglist;
 	int                 sglen;
+<<<<<<< HEAD
 	int                 nr_pages;
+=======
+	unsigned long       nr_pages;
+>>>>>>> upstream/android-13
 	int                 direction;
 };
 

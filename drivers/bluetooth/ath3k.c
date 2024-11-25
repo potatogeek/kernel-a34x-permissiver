@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2008-2009 Atheros Communications Inc.
  *
@@ -15,6 +16,11 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2008-2009 Atheros Communications Inc.
+>>>>>>> upstream/android-13
  */
 
 
@@ -203,10 +209,18 @@ static const struct usb_device_id ath3k_blist_tbl[] = {
 	{ }	/* Terminating entry */
 };
 
+<<<<<<< HEAD
 static inline void ath3k_log_failed_loading(int err, int len, int size)
 {
 	BT_ERR("Error in firmware loading err = %d, len = %d, size = %d",
 			err, len, size);
+=======
+static inline void ath3k_log_failed_loading(int err, int len, int size,
+					    int count)
+{
+	BT_ERR("Firmware loading err = %d, len = %d, size = %d, count = %d",
+	       err, len, size, count);
+>>>>>>> upstream/android-13
 }
 
 #define USB_REQ_DFU_DNLOAD	1
@@ -225,19 +239,29 @@ static int ath3k_load_firmware(struct usb_device *udev,
 
 	BT_DBG("udev %p", udev);
 
+<<<<<<< HEAD
 	pipe = usb_sndctrlpipe(udev, 0);
 
+=======
+>>>>>>> upstream/android-13
 	send_buf = kmalloc(BULK_SIZE, GFP_KERNEL);
 	if (!send_buf) {
 		BT_ERR("Can't allocate memory chunk for firmware");
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	memcpy(send_buf, firmware->data, FW_HDR_SIZE);
 	err = usb_control_msg(udev, pipe, USB_REQ_DFU_DNLOAD, USB_TYPE_VENDOR,
 			      0, 0, send_buf, FW_HDR_SIZE,
 			      USB_CTRL_SET_TIMEOUT);
 	if (err < 0) {
+=======
+	err = usb_control_msg_send(udev, 0, USB_REQ_DFU_DNLOAD, USB_TYPE_VENDOR,
+				   0, 0, firmware->data, FW_HDR_SIZE,
+				   USB_CTRL_SET_TIMEOUT, GFP_KERNEL);
+	if (err) {
+>>>>>>> upstream/android-13
 		BT_ERR("Can't change to loading configuration err");
 		goto error;
 	}
@@ -257,7 +281,11 @@ static int ath3k_load_firmware(struct usb_device *udev,
 					&len, 3000);
 
 		if (err || (len != size)) {
+<<<<<<< HEAD
 			ath3k_log_failed_loading(err, len, size);
+=======
+			ath3k_log_failed_loading(err, len, size, count);
+>>>>>>> upstream/android-13
 			goto error;
 		}
 
@@ -272,6 +300,7 @@ error:
 
 static int ath3k_get_state(struct usb_device *udev, unsigned char *state)
 {
+<<<<<<< HEAD
 	int ret, pipe = 0;
 	char *buf;
 
@@ -288,11 +317,18 @@ static int ath3k_get_state(struct usb_device *udev, unsigned char *state)
 	kfree(buf);
 
 	return ret;
+=======
+	return usb_control_msg_recv(udev, 0, ATH3K_GETSTATE,
+				    USB_TYPE_VENDOR | USB_DIR_IN, 0, 0,
+				    state, 1, USB_CTRL_SET_TIMEOUT,
+				    GFP_KERNEL);
+>>>>>>> upstream/android-13
 }
 
 static int ath3k_get_version(struct usb_device *udev,
 			struct ath3k_version *version)
 {
+<<<<<<< HEAD
 	int ret, pipe = 0;
 	struct ath3k_version *buf;
 	const int size = sizeof(*buf);
@@ -310,6 +346,12 @@ static int ath3k_get_version(struct usb_device *udev,
 	kfree(buf);
 
 	return ret;
+=======
+	return usb_control_msg_recv(udev, 0, ATH3K_GETVERSION,
+				    USB_TYPE_VENDOR | USB_DIR_IN, 0, 0,
+				    version, sizeof(*version), USB_CTRL_SET_TIMEOUT,
+				    GFP_KERNEL);
+>>>>>>> upstream/android-13
 }
 
 static int ath3k_load_fwfile(struct usb_device *udev,
@@ -329,6 +371,7 @@ static int ath3k_load_fwfile(struct usb_device *udev,
 	}
 
 	size = min_t(uint, count, FW_HDR_SIZE);
+<<<<<<< HEAD
 	memcpy(send_buf, firmware->data, size);
 
 	pipe = usb_sndctrlpipe(udev, 0);
@@ -336,6 +379,13 @@ static int ath3k_load_fwfile(struct usb_device *udev,
 			USB_TYPE_VENDOR, 0, 0, send_buf,
 			size, USB_CTRL_SET_TIMEOUT);
 	if (ret < 0) {
+=======
+
+	ret = usb_control_msg_send(udev, 0, ATH3K_DNLOAD, USB_TYPE_VENDOR, 0, 0,
+				   firmware->data, size, USB_CTRL_SET_TIMEOUT,
+				   GFP_KERNEL);
+	if (ret) {
+>>>>>>> upstream/android-13
 		BT_ERR("Can't change to loading configuration err");
 		kfree(send_buf);
 		return ret;
@@ -356,7 +406,11 @@ static int ath3k_load_fwfile(struct usb_device *udev,
 		err = usb_bulk_msg(udev, pipe, send_buf, size,
 					&len, 3000);
 		if (err || (len != size)) {
+<<<<<<< HEAD
 			ath3k_log_failed_loading(err, len, size);
+=======
+			ath3k_log_failed_loading(err, len, size, count);
+>>>>>>> upstream/android-13
 			kfree(send_buf);
 			return err;
 		}
@@ -368,6 +422,7 @@ static int ath3k_load_fwfile(struct usb_device *udev,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int ath3k_switch_pid(struct usb_device *udev)
 {
 	int pipe = 0;
@@ -376,15 +431,28 @@ static int ath3k_switch_pid(struct usb_device *udev)
 	return usb_control_msg(udev, pipe, USB_REG_SWITCH_VID_PID,
 			USB_TYPE_VENDOR, 0, 0,
 			NULL, 0, USB_CTRL_SET_TIMEOUT);
+=======
+static void ath3k_switch_pid(struct usb_device *udev)
+{
+	usb_control_msg_send(udev, 0, USB_REG_SWITCH_VID_PID, USB_TYPE_VENDOR,
+			     0, 0, NULL, 0, USB_CTRL_SET_TIMEOUT, GFP_KERNEL);
+>>>>>>> upstream/android-13
 }
 
 static int ath3k_set_normal_mode(struct usb_device *udev)
 {
 	unsigned char fw_state;
+<<<<<<< HEAD
 	int pipe = 0, ret;
 
 	ret = ath3k_get_state(udev, &fw_state);
 	if (ret < 0) {
+=======
+	int ret;
+
+	ret = ath3k_get_state(udev, &fw_state);
+	if (ret) {
+>>>>>>> upstream/android-13
 		BT_ERR("Can't get state to change to normal mode err");
 		return ret;
 	}
@@ -394,10 +462,16 @@ static int ath3k_set_normal_mode(struct usb_device *udev)
 		return 0;
 	}
 
+<<<<<<< HEAD
 	pipe = usb_sndctrlpipe(udev, 0);
 	return usb_control_msg(udev, pipe, ATH3K_SET_NORMAL_MODE,
 			USB_TYPE_VENDOR, 0, 0,
 			NULL, 0, USB_CTRL_SET_TIMEOUT);
+=======
+	return usb_control_msg_send(udev, 0, ATH3K_SET_NORMAL_MODE,
+				    USB_TYPE_VENDOR, 0, 0, NULL, 0,
+				    USB_CTRL_SET_TIMEOUT, GFP_KERNEL);
+>>>>>>> upstream/android-13
 }
 
 static int ath3k_load_patch(struct usb_device *udev)
@@ -410,7 +484,11 @@ static int ath3k_load_patch(struct usb_device *udev)
 	int ret;
 
 	ret = ath3k_get_state(udev, &fw_state);
+<<<<<<< HEAD
 	if (ret < 0) {
+=======
+	if (ret) {
+>>>>>>> upstream/android-13
 		BT_ERR("Can't get state to change to load ram patch err");
 		return ret;
 	}
@@ -421,7 +499,11 @@ static int ath3k_load_patch(struct usb_device *udev)
 	}
 
 	ret = ath3k_get_version(udev, &fw_version);
+<<<<<<< HEAD
 	if (ret < 0) {
+=======
+	if (ret) {
+>>>>>>> upstream/android-13
 		BT_ERR("Can't get version to change to load ram patch err");
 		return ret;
 	}
@@ -462,13 +544,21 @@ static int ath3k_load_syscfg(struct usb_device *udev)
 	int clk_value, ret;
 
 	ret = ath3k_get_state(udev, &fw_state);
+<<<<<<< HEAD
 	if (ret < 0) {
+=======
+	if (ret) {
+>>>>>>> upstream/android-13
 		BT_ERR("Can't get state to change to load configuration err");
 		return -EBUSY;
 	}
 
 	ret = ath3k_get_version(udev, &fw_version);
+<<<<<<< HEAD
 	if (ret < 0) {
+=======
+	if (ret) {
+>>>>>>> upstream/android-13
 		BT_ERR("Can't get version to change to load ram patch err");
 		return ret;
 	}
@@ -542,7 +632,11 @@ static int ath3k_probe(struct usb_interface *intf,
 			return ret;
 		}
 		ret = ath3k_set_normal_mode(udev);
+<<<<<<< HEAD
 		if (ret < 0) {
+=======
+		if (ret) {
+>>>>>>> upstream/android-13
 			BT_ERR("Set normal mode failed");
 			return ret;
 		}

@@ -207,9 +207,15 @@ static u64 cygnus_dma_dmamask = DMA_BIT_MASK(32);
 static struct cygnus_aio_port *cygnus_dai_get_dma_data(
 				struct snd_pcm_substream *substream)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *soc_runtime = substream->private_data;
 
 	return snd_soc_dai_get_dma_data(soc_runtime->cpu_dai, substream);
+=======
+	struct snd_soc_pcm_runtime *soc_runtime = asoc_substream_to_rtd(substream);
+
+	return snd_soc_dai_get_dma_data(asoc_rtd_to_cpu(soc_runtime, 0), substream);
+>>>>>>> upstream/android-13
 }
 
 static void ringbuf_set_initial(void __iomem *audio_io,
@@ -353,13 +359,21 @@ static void enable_intr(struct snd_pcm_substream *substream)
 
 static void disable_intr(struct snd_pcm_substream *substream)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+>>>>>>> upstream/android-13
 	struct cygnus_aio_port *aio;
 	u32 set_mask;
 
 	aio = cygnus_dai_get_dma_data(substream);
 
+<<<<<<< HEAD
 	dev_dbg(rtd->cpu_dai->dev, "%s on port %d\n", __func__, aio->portnum);
+=======
+	dev_dbg(asoc_rtd_to_cpu(rtd, 0)->dev, "%s on port %d\n", __func__, aio->portnum);
+>>>>>>> upstream/android-13
 
 	/* The port number maps to the bit position to be set */
 	set_mask = BIT(aio->portnum);
@@ -376,7 +390,12 @@ static void disable_intr(struct snd_pcm_substream *substream)
 
 }
 
+<<<<<<< HEAD
 static int cygnus_pcm_trigger(struct snd_pcm_substream *substream, int cmd)
+=======
+static int cygnus_pcm_trigger(struct snd_soc_component *component,
+			      struct snd_pcm_substream *substream, int cmd)
+>>>>>>> upstream/android-13
 {
 	int ret = 0;
 
@@ -577,9 +596,16 @@ static irqreturn_t cygnus_dma_irq(int irq, void *data)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static int cygnus_pcm_open(struct snd_pcm_substream *substream)
 {
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
+=======
+static int cygnus_pcm_open(struct snd_soc_component *component,
+			   struct snd_pcm_substream *substream)
+{
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+>>>>>>> upstream/android-13
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct cygnus_aio_port *aio;
 	int ret;
@@ -588,7 +614,11 @@ static int cygnus_pcm_open(struct snd_pcm_substream *substream)
 	if (!aio)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	dev_dbg(rtd->cpu_dai->dev, "%s port %d\n", __func__, aio->portnum);
+=======
+	dev_dbg(asoc_rtd_to_cpu(rtd, 0)->dev, "%s port %d\n", __func__, aio->portnum);
+>>>>>>> upstream/android-13
 
 	snd_soc_set_runtime_hwparams(substream, &cygnus_pcm_hw);
 
@@ -613,14 +643,25 @@ static int cygnus_pcm_open(struct snd_pcm_substream *substream)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int cygnus_pcm_close(struct snd_pcm_substream *substream)
 {
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
+=======
+static int cygnus_pcm_close(struct snd_soc_component *component,
+			    struct snd_pcm_substream *substream)
+{
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+>>>>>>> upstream/android-13
 	struct cygnus_aio_port *aio;
 
 	aio = cygnus_dai_get_dma_data(substream);
 
+<<<<<<< HEAD
 	dev_dbg(rtd->cpu_dai->dev, "%s  port %d\n", __func__, aio->portnum);
+=======
+	dev_dbg(asoc_rtd_to_cpu(rtd, 0)->dev, "%s  port %d\n", __func__, aio->portnum);
+>>>>>>> upstream/android-13
 
 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
 		aio->play_stream = NULL;
@@ -628,11 +669,16 @@ static int cygnus_pcm_close(struct snd_pcm_substream *substream)
 		aio->capture_stream = NULL;
 
 	if (!aio->play_stream && !aio->capture_stream)
+<<<<<<< HEAD
 		dev_dbg(rtd->cpu_dai->dev, "freed  port %d\n", aio->portnum);
+=======
+		dev_dbg(asoc_rtd_to_cpu(rtd, 0)->dev, "freed  port %d\n", aio->portnum);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int cygnus_pcm_hw_params(struct snd_pcm_substream *substream,
 	struct snd_pcm_hw_params *params)
 {
@@ -669,17 +715,34 @@ static int cygnus_pcm_prepare(struct snd_pcm_substream *substream)
 	struct cygnus_aio_port *aio;
 	unsigned long bufsize, periodsize;
 	int ret = 0;
+=======
+static int cygnus_pcm_prepare(struct snd_soc_component *component,
+			      struct snd_pcm_substream *substream)
+{
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct snd_pcm_runtime *runtime = substream->runtime;
+	struct cygnus_aio_port *aio;
+	unsigned long bufsize, periodsize;
+>>>>>>> upstream/android-13
 	bool is_play;
 	u32 start;
 	struct ringbuf_regs *p_rbuf = NULL;
 
 	aio = cygnus_dai_get_dma_data(substream);
+<<<<<<< HEAD
 	dev_dbg(rtd->cpu_dai->dev, "%s port %d\n", __func__, aio->portnum);
+=======
+	dev_dbg(asoc_rtd_to_cpu(rtd, 0)->dev, "%s port %d\n", __func__, aio->portnum);
+>>>>>>> upstream/android-13
 
 	bufsize = snd_pcm_lib_buffer_bytes(substream);
 	periodsize = snd_pcm_lib_period_bytes(substream);
 
+<<<<<<< HEAD
 	dev_dbg(rtd->cpu_dai->dev, "%s (buf_size %lu) (period_size %lu)\n",
+=======
+	dev_dbg(asoc_rtd_to_cpu(rtd, 0)->dev, "%s (buf_size %lu) (period_size %lu)\n",
+>>>>>>> upstream/android-13
 			__func__, bufsize, periodsize);
 
 	configure_ringbuf_regs(substream);
@@ -693,10 +756,18 @@ static int cygnus_pcm_prepare(struct snd_pcm_substream *substream)
 	ringbuf_set_initial(aio->cygaud->audio, p_rbuf, is_play, start,
 				periodsize, bufsize);
 
+<<<<<<< HEAD
 	return ret;
 }
 
 static snd_pcm_uframes_t cygnus_pcm_pointer(struct snd_pcm_substream *substream)
+=======
+	return 0;
+}
+
+static snd_pcm_uframes_t cygnus_pcm_pointer(struct snd_soc_component *component,
+					    struct snd_pcm_substream *substream)
+>>>>>>> upstream/android-13
 {
 	struct cygnus_aio_port *aio;
 	unsigned int res = 0, cur = 0, base = 0;
@@ -725,6 +796,7 @@ static snd_pcm_uframes_t cygnus_pcm_pointer(struct snd_pcm_substream *substream)
 	return bytes_to_frames(substream->runtime, res);
 }
 
+<<<<<<< HEAD
 static int cygnus_pcm_preallocate_dma_buffer(struct snd_pcm *pcm, int stream)
 {
 	struct snd_pcm_substream *substream = pcm->streams[stream].substream;
@@ -795,12 +867,20 @@ static int cygnus_dma_new(struct snd_soc_pcm_runtime *rtd)
 	struct snd_card *card = rtd->card->snd_card;
 	struct snd_pcm *pcm = rtd->pcm;
 	int ret;
+=======
+static int cygnus_dma_new(struct snd_soc_component *component,
+			  struct snd_soc_pcm_runtime *rtd)
+{
+	size_t size = cygnus_pcm_hw.buffer_bytes_max;
+	struct snd_card *card = rtd->card->snd_card;
+>>>>>>> upstream/android-13
 
 	if (!card->dev->dma_mask)
 		card->dev->dma_mask = &cygnus_dma_dmamask;
 	if (!card->dev->coherent_dma_mask)
 		card->dev->coherent_dma_mask = DMA_BIT_MASK(32);
 
+<<<<<<< HEAD
 	if (pcm->streams[SNDRV_PCM_STREAM_PLAYBACK].substream) {
 		ret = cygnus_pcm_preallocate_dma_buffer(pcm,
 				SNDRV_PCM_STREAM_PLAYBACK);
@@ -816,20 +896,37 @@ static int cygnus_dma_new(struct snd_soc_pcm_runtime *rtd)
 			return ret;
 		}
 	}
+=======
+	snd_pcm_set_managed_buffer_all(rtd->pcm, SNDRV_DMA_TYPE_DEV,
+				       card->dev, size, size);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static struct snd_soc_component_driver cygnus_soc_platform = {
+<<<<<<< HEAD
 	.ops		= &cygnus_pcm_ops,
 	.pcm_new	= cygnus_dma_new,
 	.pcm_free	= cygnus_dma_free_dma_buffers,
+=======
+	.open		= cygnus_pcm_open,
+	.close		= cygnus_pcm_close,
+	.prepare	= cygnus_pcm_prepare,
+	.trigger	= cygnus_pcm_trigger,
+	.pointer	= cygnus_pcm_pointer,
+	.pcm_construct	= cygnus_dma_new,
+>>>>>>> upstream/android-13
 };
 
 int cygnus_soc_platform_register(struct device *dev,
 				 struct cygnus_audio *cygaud)
 {
+<<<<<<< HEAD
 	int rc = 0;
+=======
+	int rc;
+>>>>>>> upstream/android-13
 
 	dev_dbg(dev, "%s Enter\n", __func__);
 

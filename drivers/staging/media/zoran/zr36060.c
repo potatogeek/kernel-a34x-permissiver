@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Zoran ZR36060 basic configuration functions
  *
  * Copyright (C) 2002 Laurent Pinchart <laurent.pinchart@skynet.be>
+<<<<<<< HEAD
  *
  * $Id: zr36060.c,v 1.1.2.22 2003/05/06 09:35:36 rbultje Exp $
  *
@@ -18,6 +23,8 @@
  * GNU General Public License for more details.
  *
  * ------------------------------------------------------------------------
+=======
+>>>>>>> upstream/android-13
  */
 
 #define ZR060_VERSION "v0.7"
@@ -31,7 +38,11 @@
 #include <linux/wait.h>
 
 /* I/O commands, error codes */
+<<<<<<< HEAD
 #include <asm/io.h>
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 
 /* headerfile of this module */
 #include "zr36060.h"
@@ -39,8 +50,12 @@
 /* codec io API */
 #include "videocodec.h"
 
+<<<<<<< HEAD
 /* it doesn't make sense to have more than 20 or so,
   just to prevent some unwanted loops */
+=======
+/* it doesn't make sense to have more than 20 or so, just to prevent some unwanted loops */
+>>>>>>> upstream/android-13
 #define MAX_CODECS 20
 
 /* amount of chips attached via this driver */
@@ -62,6 +77,7 @@ MODULE_PARM_DESC(debug, "Debug level (0-4)");
 	} while (0)
 
 /* =========================================================================
+<<<<<<< HEAD
    Local hardware I/O functions:
 
    read/write via codec layer (registers are located in the master device)
@@ -71,11 +87,20 @@ MODULE_PARM_DESC(debug, "Debug level (0-4)");
 static u8
 zr36060_read (struct zr36060 *ptr,
 	      u16             reg)
+=======
+ * Local hardware I/O functions:
+ * read/write via codec layer (registers are located in the master device)
+ * =========================================================================
+ */
+
+static u8 zr36060_read(struct zr36060 *ptr, u16 reg)
+>>>>>>> upstream/android-13
 {
 	u8 value = 0;
 
 	// just in case something is wrong...
 	if (ptr->codec->master_data->readreg)
+<<<<<<< HEAD
 		value = (ptr->codec->master_data->readreg(ptr->codec,
 							  reg)) & 0xff;
 	else
@@ -84,22 +109,33 @@ zr36060_read (struct zr36060 *ptr,
 			ptr->name);
 
 	//dprintk(4, "%s: reading from 0x%04x: %02x\n",ptr->name,reg,value);
+=======
+		value = (ptr->codec->master_data->readreg(ptr->codec, reg)) & 0xff;
+	else
+		pr_err("%s: invalid I/O setup, nothing read!\n", ptr->name);
+>>>>>>> upstream/android-13
 
 	return value;
 }
 
+<<<<<<< HEAD
 static void
 zr36060_write(struct zr36060 *ptr,
 	      u16             reg,
 	      u8              value)
 {
 	//dprintk(4, "%s: writing 0x%02x to 0x%04x\n",ptr->name,value,reg);
+=======
+static void zr36060_write(struct zr36060 *ptr, u16 reg, u8 value)
+{
+>>>>>>> upstream/android-13
 	dprintk(4, "0x%02x @0x%04x\n", value, reg);
 
 	// just in case something is wrong...
 	if (ptr->codec->master_data->writereg)
 		ptr->codec->master_data->writereg(ptr->codec, reg, value);
 	else
+<<<<<<< HEAD
 		dprintk(1,
 			KERN_ERR
 			"%s: invalid I/O setup, nothing written!\n",
@@ -115,6 +151,19 @@ zr36060_write(struct zr36060 *ptr,
 /* status is kept in datastructure */
 static u8
 zr36060_read_status (struct zr36060 *ptr)
+=======
+		pr_err("%s: invalid I/O setup, nothing written!\n", ptr->name);
+}
+
+/* =========================================================================
+ * Local helper function:
+ * status read
+ * =========================================================================
+ */
+
+/* status is kept in datastructure */
+static u8 zr36060_read_status(struct zr36060 *ptr)
+>>>>>>> upstream/android-13
 {
 	ptr->status = zr36060_read(ptr, ZR060_CFSR);
 
@@ -122,6 +171,7 @@ zr36060_read_status (struct zr36060 *ptr)
 	return ptr->status;
 }
 
+<<<<<<< HEAD
 /* =========================================================================
    Local helper function:
 
@@ -131,6 +181,10 @@ zr36060_read_status (struct zr36060 *ptr)
 /* scale factor is kept in datastructure */
 static u16
 zr36060_read_scalefactor (struct zr36060 *ptr)
+=======
+/* scale factor is kept in datastructure */
+static u16 zr36060_read_scalefactor(struct zr36060 *ptr)
+>>>>>>> upstream/android-13
 {
 	ptr->scalefact = (zr36060_read(ptr, ZR060_SF_HI) << 8) |
 			 (zr36060_read(ptr, ZR060_SF_LO) & 0xFF);
@@ -140,6 +194,7 @@ zr36060_read_scalefactor (struct zr36060 *ptr)
 	return ptr->scalefact;
 }
 
+<<<<<<< HEAD
 /* =========================================================================
    Local helper function:
 
@@ -152,6 +207,14 @@ zr36060_wait_end (struct zr36060 *ptr)
 	int i = 0;
 
 	while (zr36060_read_status(ptr) & ZR060_CFSR_Busy) {
+=======
+/* wait if codec is ready to proceed (end of processing) or time is over */
+static void zr36060_wait_end(struct zr36060 *ptr)
+{
+	int i = 0;
+
+	while (zr36060_read_status(ptr) & ZR060_CFSR_BUSY) {
+>>>>>>> upstream/android-13
 		udelay(1);
 		if (i++ > 200000) {	// 200ms, there is for sure something wrong!!!
 			dprintk(1,
@@ -162,6 +225,7 @@ zr36060_wait_end (struct zr36060 *ptr)
 	}
 }
 
+<<<<<<< HEAD
 /* =========================================================================
    Local helper function:
 
@@ -177,21 +241,35 @@ zr36060_basic_test (struct zr36060 *ptr)
 			KERN_ERR
 			"%s: attach failed, can't connect to jpeg processor!\n",
 			ptr->name);
+=======
+/* Basic test of "connectivity", writes/reads to/from memory the SOF marker */
+static int zr36060_basic_test(struct zr36060 *ptr)
+{
+	if ((zr36060_read(ptr, ZR060_IDR_DEV) != 0x33) &&
+	    (zr36060_read(ptr, ZR060_IDR_REV) != 0x01)) {
+		pr_err("%s: attach failed, can't connect to jpeg processor!\n", ptr->name);
+>>>>>>> upstream/android-13
 		return -ENXIO;
 	}
 
 	zr36060_wait_end(ptr);
+<<<<<<< HEAD
 	if (ptr->status & ZR060_CFSR_Busy) {
 		dprintk(1,
 			KERN_ERR
 			"%s: attach failed, jpeg processor failed (end flag)!\n",
 			ptr->name);
+=======
+	if (ptr->status & ZR060_CFSR_BUSY) {
+		pr_err("%s: attach failed, jpeg processor failed (end flag)!\n", ptr->name);
+>>>>>>> upstream/android-13
 		return -EBUSY;
 	}
 
 	return 0;		/* looks good! */
 }
 
+<<<<<<< HEAD
 /* =========================================================================
    Local helper function:
 
@@ -203,19 +281,29 @@ zr36060_pushit (struct zr36060 *ptr,
 		u16             startreg,
 		u16             len,
 		const char     *data)
+=======
+/* simple loop for pushing the init datasets */
+static int zr36060_pushit(struct zr36060 *ptr, u16 startreg, u16 len, const char *data)
+>>>>>>> upstream/android-13
 {
 	int i = 0;
 
 	dprintk(4, "%s: write data block to 0x%04x (len=%d)\n", ptr->name,
 		startreg, len);
+<<<<<<< HEAD
 	while (i < len) {
 		zr36060_write(ptr, startreg++, data[i++]);
 	}
+=======
+	while (i < len)
+		zr36060_write(ptr, startreg++, data[i++]);
+>>>>>>> upstream/android-13
 
 	return i;
 }
 
 /* =========================================================================
+<<<<<<< HEAD
    Basic datasets:
 
    jpeg baseline setup data (you find it on lots places in internet, or just
@@ -226,6 +314,17 @@ zr36060_pushit (struct zr36060 *ptr,
    it and initialize from there, as e.g. the linux zr36057/60 driver does it.
    ========================================================================= */
 
+=======
+ * Basic datasets:
+ * jpeg baseline setup data (you find it on lots places in internet, or just
+ * extract it from any regular .jpg image...)
+ *
+ * Could be variable, but until it's not needed it they are just fixed to save
+ * memory. Otherwise expand zr36060 structure with arrays, push the values to
+ * it and initialize from there, as e.g. the linux zr36057/60 driver does it.
+ * =========================================================================
+ */
+>>>>>>> upstream/android-13
 static const char zr36060_dqt[0x86] = {
 	0xff, 0xdb,		//Marker: DQT
 	0x00, 0x84,		//Length: 2*65+2
@@ -317,6 +416,7 @@ static const char zr36060_ta[8] = { 0, 1, 1, 0, 0, 0, 0, 0 };	//table idx's AC
 static const char zr36060_decimation_h[8] = { 2, 1, 1, 0, 0, 0, 0, 0 };
 static const char zr36060_decimation_v[8] = { 1, 1, 1, 0, 0, 0, 0, 0 };
 
+<<<<<<< HEAD
 /* =========================================================================
    Local helper functions:
 
@@ -331,6 +431,10 @@ static const char zr36060_decimation_v[8] = { 1, 1, 1, 0, 0, 0, 0, 0 };
 
 static int
 zr36060_set_sof (struct zr36060 *ptr)
+=======
+/* SOF (start of frame) segment depends on width, height and sampling ratio of each color component */
+static int zr36060_set_sof(struct zr36060 *ptr)
+>>>>>>> upstream/android-13
 {
 	char sof_data[34];	// max. size of register set
 	int i;
@@ -357,6 +461,7 @@ zr36060_set_sof (struct zr36060 *ptr)
 			      (3 * NO_OF_COMPONENTS) + 10, sof_data);
 }
 
+<<<<<<< HEAD
 /* ------------------------------------------------------------------------- */
 
 /* SOS (start of scan) segment depends on the used scan components
@@ -364,6 +469,10 @@ zr36060_set_sof (struct zr36060 *ptr)
 
 static int
 zr36060_set_sos (struct zr36060 *ptr)
+=======
+/* SOS (start of scan) segment depends on the used scan components of each color component */
+static int zr36060_set_sos(struct zr36060 *ptr)
+>>>>>>> upstream/android-13
 {
 	char sos_data[16];	// max. size of register set
 	int i;
@@ -387,12 +496,17 @@ zr36060_set_sos (struct zr36060 *ptr)
 			      sos_data);
 }
 
+<<<<<<< HEAD
 /* ------------------------------------------------------------------------- */
 
 /* DRI (define restart interval) */
 
 static int
 zr36060_set_dri (struct zr36060 *ptr)
+=======
+/* DRI (define restart interval) */
+static int zr36060_set_dri(struct zr36060 *ptr)
+>>>>>>> upstream/android-13
 {
 	char dri_data[6];	// max. size of register set
 
@@ -406,6 +520,7 @@ zr36060_set_dri (struct zr36060 *ptr)
 	return zr36060_pushit(ptr, ZR060_DRI_IDX, 6, dri_data);
 }
 
+<<<<<<< HEAD
 /* =========================================================================
    Setup function:
 
@@ -416,6 +531,12 @@ zr36060_set_dri (struct zr36060 *ptr)
    ========================================================================= */
 static void
 zr36060_init (struct zr36060 *ptr)
+=======
+/* Setup compression/decompression of Zoran's JPEG processor ( see also zoran 36060 manual )
+ * ... sorry for the spaghetti code ...
+ */
+static void zr36060_init(struct zr36060 *ptr)
+>>>>>>> upstream/android-13
 {
 	int sum = 0;
 	long bitcnt, tmp;
@@ -423,6 +544,7 @@ zr36060_init (struct zr36060 *ptr)
 	if (ptr->mode == CODEC_DO_COMPRESSION) {
 		dprintk(2, "%s: COMPRESSION SETUP\n", ptr->name);
 
+<<<<<<< HEAD
 		zr36060_write(ptr, ZR060_LOAD, ZR060_LOAD_SyncRst);
 
 		/* 060 communicates with 067 in master mode */
@@ -433,6 +555,16 @@ zr36060_init (struct zr36060 *ptr)
 		zr36060_write(ptr, ZR060_CMR,
 			      ZR060_CMR_Comp | ZR060_CMR_Pass2 |
 			      ZR060_CMR_BRB);
+=======
+		zr36060_write(ptr, ZR060_LOAD, ZR060_LOAD_SYNC_RST);
+
+		/* 060 communicates with 067 in master mode */
+		zr36060_write(ptr, ZR060_CIR, ZR060_CIR_CODE_MSTR);
+
+		/* Compression with or without variable scale factor */
+		/*FIXME: What about ptr->bitrate_ctrl? */
+		zr36060_write(ptr, ZR060_CMR, ZR060_CMR_COMP | ZR060_CMR_PASS2 | ZR060_CMR_BRB);
+>>>>>>> upstream/android-13
 
 		/* Must be zero */
 		zr36060_write(ptr, ZR060_MBZ, 0x00);
@@ -455,6 +587,7 @@ zr36060_init (struct zr36060 *ptr)
 		sum += zr36060_set_sos(ptr);
 		sum += zr36060_set_dri(ptr);
 
+<<<<<<< HEAD
 		/* setup the fixed jpeg tables - maybe variable, though -
 		 * (see table init section above) */
 		sum +=
@@ -463,18 +596,31 @@ zr36060_init (struct zr36060 *ptr)
 		sum +=
 		    zr36060_pushit(ptr, ZR060_DHT_IDX, sizeof(zr36060_dht),
 				   zr36060_dht);
+=======
+/* setup the fixed jpeg tables - maybe variable, though - (see table init section above) */
+		sum += zr36060_pushit(ptr, ZR060_DQT_IDX, sizeof(zr36060_dqt), zr36060_dqt);
+		sum += zr36060_pushit(ptr, ZR060_DHT_IDX, sizeof(zr36060_dht), zr36060_dht);
+>>>>>>> upstream/android-13
 		zr36060_write(ptr, ZR060_APP_IDX, 0xff);
 		zr36060_write(ptr, ZR060_APP_IDX + 1, 0xe0 + ptr->app.appn);
 		zr36060_write(ptr, ZR060_APP_IDX + 2, 0x00);
 		zr36060_write(ptr, ZR060_APP_IDX + 3, ptr->app.len + 2);
+<<<<<<< HEAD
 		sum += zr36060_pushit(ptr, ZR060_APP_IDX + 4, 60,
 				      ptr->app.data) + 4;
+=======
+		sum += zr36060_pushit(ptr, ZR060_APP_IDX + 4, 60, ptr->app.data) + 4;
+>>>>>>> upstream/android-13
 		zr36060_write(ptr, ZR060_COM_IDX, 0xff);
 		zr36060_write(ptr, ZR060_COM_IDX + 1, 0xfe);
 		zr36060_write(ptr, ZR060_COM_IDX + 2, 0x00);
 		zr36060_write(ptr, ZR060_COM_IDX + 3, ptr->com.len + 2);
+<<<<<<< HEAD
 		sum += zr36060_pushit(ptr, ZR060_COM_IDX + 4, 60,
 				      ptr->com.data) + 4;
+=======
+		sum += zr36060_pushit(ptr, ZR060_COM_IDX + 4, 60, ptr->com.data) + 4;
+>>>>>>> upstream/android-13
 
 		/* setup misc. data for compression (target code sizes) */
 
@@ -507,20 +653,36 @@ zr36060_init (struct zr36060 *ptr)
 		/* JPEG markers to be included in the compressed stream */
 		zr36060_write(ptr, ZR060_MER,
 			      ZR060_MER_DQT | ZR060_MER_DHT |
+<<<<<<< HEAD
 			      ((ptr->com.len > 0) ? ZR060_MER_Com : 0) |
 			      ((ptr->app.len > 0) ? ZR060_MER_App : 0));
 
 		/* Setup the Video Frontend */
 		/* Limit pixel range to 16..235 as per CCIR-601 */
 		zr36060_write(ptr, ZR060_VCR, ZR060_VCR_Range);
+=======
+			      ((ptr->com.len > 0) ? ZR060_MER_COM : 0) |
+			      ((ptr->app.len > 0) ? ZR060_MER_APP : 0));
+
+		/* Setup the Video Frontend */
+		/* Limit pixel range to 16..235 as per CCIR-601 */
+		zr36060_write(ptr, ZR060_VCR, ZR060_VCR_RANGE);
+>>>>>>> upstream/android-13
 
 	} else {
 		dprintk(2, "%s: EXPANSION SETUP\n", ptr->name);
 
+<<<<<<< HEAD
 		zr36060_write(ptr, ZR060_LOAD, ZR060_LOAD_SyncRst);
 
 		/* 060 communicates with 067 in master mode */
 		zr36060_write(ptr, ZR060_CIR, ZR060_CIR_CodeMstr);
+=======
+		zr36060_write(ptr, ZR060_LOAD, ZR060_LOAD_SYNC_RST);
+
+		/* 060 communicates with 067 in master mode */
+		zr36060_write(ptr, ZR060_CIR, ZR060_CIR_CODE_MSTR);
+>>>>>>> upstream/android-13
 
 		/* Decompression */
 		zr36060_write(ptr, ZR060_CMR, 0);
@@ -536,6 +698,7 @@ zr36060_init (struct zr36060 *ptr)
 		/* setup misc. data for expansion */
 		zr36060_write(ptr, ZR060_MER, 0);
 
+<<<<<<< HEAD
 		/* setup the fixed jpeg tables - maybe variable, though -
 		 * (see table init section above) */
 		zr36060_pushit(ptr, ZR060_DHT_IDX, sizeof(zr36060_dht),
@@ -556,11 +719,30 @@ zr36060_init (struct zr36060 *ptr)
 
 	if (ptr->status & ZR060_CFSR_Busy) {
 		dprintk(1, KERN_ERR "%s: init aborted!\n", ptr->name);
+=======
+/* setup the fixed jpeg tables - maybe variable, though - (see table init section above) */
+		zr36060_pushit(ptr, ZR060_DHT_IDX, sizeof(zr36060_dht), zr36060_dht);
+
+		/* Setup the Video Frontend */
+		//zr36060_write(ptr, ZR060_VCR, ZR060_VCR_FI_EXT);
+		//this doesn't seem right and doesn't work...
+		zr36060_write(ptr, ZR060_VCR, ZR060_VCR_RANGE);
+	}
+
+	/* Load the tables */
+	zr36060_write(ptr, ZR060_LOAD, ZR060_LOAD_SYNC_RST | ZR060_LOAD_LOAD);
+	zr36060_wait_end(ptr);
+	dprintk(2, "%s: Status after table preload: 0x%02x\n", ptr->name, ptr->status);
+
+	if (ptr->status & ZR060_CFSR_BUSY) {
+		pr_err("%s: init aborted!\n", ptr->name);
+>>>>>>> upstream/android-13
 		return;		// something is wrong, its timed out!!!!
 	}
 }
 
 /* =========================================================================
+<<<<<<< HEAD
    CODEC API FUNCTIONS
 
    this functions are accessed by the master via the API structure
@@ -577,6 +759,23 @@ zr36060_set_mode (struct videocodec *codec,
 	dprintk(2, "%s: set_mode %d call\n", ptr->name, mode);
 
 	if ((mode != CODEC_DO_EXPANSION) && (mode != CODEC_DO_COMPRESSION))
+=======
+ * CODEC API FUNCTIONS
+ * this functions are accessed by the master via the API structure
+ * =========================================================================
+ */
+
+/* set compressiion/expansion mode and launches codec -
+ * this should be the last call from the master before starting processing
+ */
+static int zr36060_set_mode(struct videocodec *codec, int mode)
+{
+	struct zr36060 *ptr = (struct zr36060 *)codec->data;
+
+	dprintk(2, "%s: set_mode %d call\n", ptr->name, mode);
+
+	if (mode != CODEC_DO_EXPANSION && mode != CODEC_DO_COMPRESSION)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	ptr->mode = mode;
@@ -586,6 +785,7 @@ zr36060_set_mode (struct videocodec *codec,
 }
 
 /* set picture size (norm is ignored as the codec doesn't know about it) */
+<<<<<<< HEAD
 static int
 zr36060_set_video (struct videocodec   *codec,
 		   struct tvnorm       *norm,
@@ -593,6 +793,12 @@ zr36060_set_video (struct videocodec   *codec,
 		   struct vfe_polarity *pol)
 {
 	struct zr36060 *ptr = (struct zr36060 *) codec->data;
+=======
+static int zr36060_set_video(struct videocodec *codec, const struct tvnorm *norm,
+			     struct vfe_settings *cap, struct vfe_polarity *pol)
+{
+	struct zr36060 *ptr = (struct zr36060 *)codec->data;
+>>>>>>> upstream/android-13
 	u32 reg;
 	int size;
 
@@ -601,16 +807,26 @@ zr36060_set_video (struct videocodec   *codec,
 
 	/* if () return -EINVAL;
 	 * trust the master driver that it knows what it does - so
+<<<<<<< HEAD
 	 * we allow invalid startx/y and norm for now ... */
 	ptr->width = cap->width / (cap->decimation & 0xff);
 	ptr->height = cap->height / (cap->decimation >> 8);
 
 	zr36060_write(ptr, ZR060_LOAD, ZR060_LOAD_SyncRst);
+=======
+	 * we allow invalid startx/y and norm for now ...
+	 */
+	ptr->width = cap->width / (cap->decimation & 0xff);
+	ptr->height = cap->height / (cap->decimation >> 8);
+
+	zr36060_write(ptr, ZR060_LOAD, ZR060_LOAD_SYNC_RST);
+>>>>>>> upstream/android-13
 
 	/* Note that VSPol/HSPol bits in zr36060 have the opposite
 	 * meaning of their zr360x7 counterparts with the same names
 	 * N.b. for VSPol this is only true if FIVEdge = 0 (default,
 	 * left unchanged here - in accordance with datasheet).
+<<<<<<< HEAD
 	*/
 	reg = (!pol->vsync_pol ? ZR060_VPR_VSPol : 0)
 	    | (!pol->hsync_pol ? ZR060_VPR_HSPol : 0)
@@ -620,6 +836,17 @@ zr36060_set_video (struct videocodec   *codec,
 	    | (pol->poe_pol ? ZR060_VPR_PoePol : 0)
 	    | (pol->pvalid_pol ? ZR060_VPR_PValPol : 0)
 	    | (pol->vclk_pol ? ZR060_VPR_VCLKPol : 0);
+=======
+	 */
+	reg = (!pol->vsync_pol ? ZR060_VPR_VS_POL : 0)
+	    | (!pol->hsync_pol ? ZR060_VPR_HS_POL : 0)
+	    | (pol->field_pol ? ZR060_VPR_FI_POL : 0)
+	    | (pol->blank_pol ? ZR060_VPR_BL_POL : 0)
+	    | (pol->subimg_pol ? ZR060_VPR_S_IMG_POL : 0)
+	    | (pol->poe_pol ? ZR060_VPR_POE_POL : 0)
+	    | (pol->pvalid_pol ? ZR060_VPR_P_VAL_POL : 0)
+	    | (pol->vclk_pol ? ZR060_VPR_VCLK_POL : 0);
+>>>>>>> upstream/android-13
 	zr36060_write(ptr, ZR060_VPR, reg);
 
 	reg = 0;
@@ -629,11 +856,19 @@ zr36060_set_video (struct videocodec   *codec,
 		break;
 
 	case 2:
+<<<<<<< HEAD
 		reg |= ZR060_SR_HScale2;
 		break;
 
 	case 4:
 		reg |= ZR060_SR_HScale4;
+=======
+		reg |= ZR060_SR_H_SCALE2;
+		break;
+
+	case 4:
+		reg |= ZR060_SR_H_SCALE4;
+>>>>>>> upstream/android-13
 		break;
 	}
 
@@ -643,7 +878,11 @@ zr36060_set_video (struct videocodec   *codec,
 		break;
 
 	case 2:
+<<<<<<< HEAD
 		reg |= ZR060_SR_VScale;
+=======
+		reg |= ZR060_SR_V_SCALE;
+>>>>>>> upstream/android-13
 		break;
 	}
 	zr36060_write(ptr, ZR060_SR, reg);
@@ -654,11 +893,19 @@ zr36060_set_video (struct videocodec   *codec,
 
 	/* sync generator */
 
+<<<<<<< HEAD
 	reg = norm->Ht - 1;	/* Vtotal */
 	zr36060_write(ptr, ZR060_SGR_VTOTAL_HI, (reg >> 8) & 0xff);
 	zr36060_write(ptr, ZR060_SGR_VTOTAL_LO, (reg >> 0) & 0xff);
 
 	reg = norm->Wt - 1;	/* Htotal */
+=======
+	reg = norm->ht - 1;	/* Vtotal */
+	zr36060_write(ptr, ZR060_SGR_VTOTAL_HI, (reg >> 8) & 0xff);
+	zr36060_write(ptr, ZR060_SGR_VTOTAL_LO, (reg >> 0) & 0xff);
+
+	reg = norm->wt - 1;	/* Htotal */
+>>>>>>> upstream/android-13
 	zr36060_write(ptr, ZR060_SGR_HTOTAL_HI, (reg >> 8) & 0xff);
 	zr36060_write(ptr, ZR060_SGR_HTOTAL_LO, (reg >> 0) & 0xff);
 
@@ -670,6 +917,7 @@ zr36060_set_video (struct videocodec   *codec,
 	reg = 68;
 	zr36060_write(ptr, ZR060_SGR_HSYNC, reg);
 
+<<<<<<< HEAD
 	reg = norm->VStart - 1;	/* BVstart */
 	zr36060_write(ptr, ZR060_SGR_BVSTART, reg);
 
@@ -681,11 +929,28 @@ zr36060_set_video (struct videocodec   *codec,
 	zr36060_write(ptr, ZR060_SGR_BHSTART, reg);
 
 	reg += norm->Wa;	/* BHend */
+=======
+	reg = norm->v_start - 1;	/* BVstart */
+	zr36060_write(ptr, ZR060_SGR_BVSTART, reg);
+
+	reg += norm->ha / 2;	/* BVend */
+	zr36060_write(ptr, ZR060_SGR_BVEND_HI, (reg >> 8) & 0xff);
+	zr36060_write(ptr, ZR060_SGR_BVEND_LO, (reg >> 0) & 0xff);
+
+	reg = norm->h_start - 1;	/* BHstart */
+	zr36060_write(ptr, ZR060_SGR_BHSTART, reg);
+
+	reg += norm->wa;	/* BHend */
+>>>>>>> upstream/android-13
 	zr36060_write(ptr, ZR060_SGR_BHEND_HI, (reg >> 8) & 0xff);
 	zr36060_write(ptr, ZR060_SGR_BHEND_LO, (reg >> 0) & 0xff);
 
 	/* active area */
+<<<<<<< HEAD
 	reg = cap->y + norm->VStart;	/* Vstart */
+=======
+	reg = cap->y + norm->v_start;	/* Vstart */
+>>>>>>> upstream/android-13
 	zr36060_write(ptr, ZR060_AAR_VSTART_HI, (reg >> 8) & 0xff);
 	zr36060_write(ptr, ZR060_AAR_VSTART_LO, (reg >> 0) & 0xff);
 
@@ -693,7 +958,11 @@ zr36060_set_video (struct videocodec   *codec,
 	zr36060_write(ptr, ZR060_AAR_VEND_HI, (reg >> 8) & 0xff);
 	zr36060_write(ptr, ZR060_AAR_VEND_LO, (reg >> 0) & 0xff);
 
+<<<<<<< HEAD
 	reg = cap->x + norm->HStart;	/* Hstart */
+=======
+	reg = cap->x + norm->h_start;	/* Hstart */
+>>>>>>> upstream/android-13
 	zr36060_write(ptr, ZR060_AAR_HSTART_HI, (reg >> 8) & 0xff);
 	zr36060_write(ptr, ZR060_AAR_HSTART_LO, (reg >> 0) & 0xff);
 
@@ -702,6 +971,7 @@ zr36060_set_video (struct videocodec   *codec,
 	zr36060_write(ptr, ZR060_AAR_HEND_LO, (reg >> 0) & 0xff);
 
 	/* subimage area */
+<<<<<<< HEAD
 	reg = norm->VStart - 4;	/* SVstart */
 	zr36060_write(ptr, ZR060_SWR_VSTART_HI, (reg >> 8) & 0xff);
 	zr36060_write(ptr, ZR060_SWR_VSTART_LO, (reg >> 0) & 0xff);
@@ -715,6 +985,21 @@ zr36060_set_video (struct videocodec   *codec,
 	zr36060_write(ptr, ZR060_SWR_HSTART_LO, (reg >> 0) & 0xff);
 
 	reg += norm->Wa + 8;	/* SHend */
+=======
+	reg = norm->v_start - 4;	/* SVstart */
+	zr36060_write(ptr, ZR060_SWR_VSTART_HI, (reg >> 8) & 0xff);
+	zr36060_write(ptr, ZR060_SWR_VSTART_LO, (reg >> 0) & 0xff);
+
+	reg += norm->ha / 2 + 8;	/* SVend */
+	zr36060_write(ptr, ZR060_SWR_VEND_HI, (reg >> 8) & 0xff);
+	zr36060_write(ptr, ZR060_SWR_VEND_LO, (reg >> 0) & 0xff);
+
+	reg = norm->h_start /*+ 64 */  - 4;	/* SHstart */
+	zr36060_write(ptr, ZR060_SWR_HSTART_HI, (reg >> 8) & 0xff);
+	zr36060_write(ptr, ZR060_SWR_HSTART_LO, (reg >> 0) & 0xff);
+
+	reg += norm->wa + 8;	/* SHend */
+>>>>>>> upstream/android-13
 	zr36060_write(ptr, ZR060_SWR_HEND_HI, (reg >> 8) & 0xff);
 	zr36060_write(ptr, ZR060_SWR_HEND_LO, (reg >> 0) & 0xff);
 
@@ -725,7 +1010,12 @@ zr36060_set_video (struct videocodec   *codec,
 	 * ratio 1:2. Setting low_bitrate (insmod option) sets
 	 * it to 1:4 (instead of 1:2, zr36060 max) as limit because the
 	 * buz can't handle more at decimation=1... Use low_bitrate if
+<<<<<<< HEAD
 	 * you have a Buz, unless you know what you're doing */
+=======
+	 * you have a Buz, unless you know what you're doing
+	 */
+>>>>>>> upstream/android-13
 	size = size * cap->quality / (low_bitrate ? 400 : 200);
 	/* Lower limit (arbitrary, 1 KB) */
 	if (size < 8192)
@@ -738,7 +1028,12 @@ zr36060_set_video (struct videocodec   *codec,
 
 	/* the MBCVR is the *maximum* block volume, according to the
 	 * JPEG ISO specs, this shouldn't be used, since that allows
+<<<<<<< HEAD
 	 * for the best encoding quality. So set it to it's max value */
+=======
+	 * for the best encoding quality. So set it to it's max value
+	 */
+>>>>>>> upstream/android-13
 	reg = ptr->max_block_vol;
 	zr36060_write(ptr, ZR060_MBCVR, reg);
 
@@ -746,6 +1041,7 @@ zr36060_set_video (struct videocodec   *codec,
 }
 
 /* additional control functions */
+<<<<<<< HEAD
 static int
 zr36060_control (struct videocodec *codec,
 		 int                type,
@@ -754,6 +1050,12 @@ zr36060_control (struct videocodec *codec,
 {
 	struct zr36060 *ptr = (struct zr36060 *) codec->data;
 	int *ival = (int *) data;
+=======
+static int zr36060_control(struct videocodec *codec, int type, int size, void *data)
+{
+	struct zr36060 *ptr = (struct zr36060 *)codec->data;
+	int *ival = (int *)data;
+>>>>>>> upstream/android-13
 
 	dprintk(2, "%s: control %d call with %d byte\n", ptr->name, type,
 		size);
@@ -862,6 +1164,7 @@ zr36060_control (struct videocodec *codec,
 }
 
 /* =========================================================================
+<<<<<<< HEAD
    Exit and unregister function:
 
    Deinitializes Zoran's JPEG processor
@@ -869,14 +1172,25 @@ zr36060_control (struct videocodec *codec,
 
 static int
 zr36060_unset (struct videocodec *codec)
+=======
+ * Exit and unregister function:
+ * Deinitializes Zoran's JPEG processor
+ * =========================================================================
+ */
+static int zr36060_unset(struct videocodec *codec)
+>>>>>>> upstream/android-13
 {
 	struct zr36060 *ptr = codec->data;
 
 	if (ptr) {
 		/* do wee need some codec deinit here, too ???? */
 
+<<<<<<< HEAD
 		dprintk(1, "%s: finished codec #%d\n", ptr->name,
 			ptr->num);
+=======
+		dprintk(1, "%s: finished codec #%d\n", ptr->name, ptr->num);
+>>>>>>> upstream/android-13
 		kfree(ptr);
 		codec->data = NULL;
 
@@ -888,6 +1202,7 @@ zr36060_unset (struct videocodec *codec)
 }
 
 /* =========================================================================
+<<<<<<< HEAD
    Setup and registry function:
 
    Initializes Zoran's JPEG processor
@@ -898,10 +1213,20 @@ zr36060_unset (struct videocodec *codec)
 
 static int
 zr36060_setup (struct videocodec *codec)
+=======
+ * Setup and registry function:
+ * Initializes Zoran's JPEG processor
+ * Also sets pixel size, average code size, mode (compr./decompr.)
+ * (the given size is determined by the processor with the video interface)
+ * =========================================================================
+ */
+static int zr36060_setup(struct videocodec *codec)
+>>>>>>> upstream/android-13
 {
 	struct zr36060 *ptr;
 	int res;
 
+<<<<<<< HEAD
 	dprintk(2, "zr36060: initializing MJPEG subsystem #%d.\n",
 		zr36060_codecs);
 
@@ -919,6 +1244,21 @@ zr36060_setup (struct videocodec *codec)
 
 	snprintf(ptr->name, sizeof(ptr->name), "zr36060[%d]",
 		 zr36060_codecs);
+=======
+	dprintk(2, "zr36060: initializing MJPEG subsystem #%d.\n", zr36060_codecs);
+
+	if (zr36060_codecs == MAX_CODECS) {
+		pr_err("zr36060: Can't attach more codecs!\n");
+		return -ENOSPC;
+	}
+	//mem structure init
+	ptr = kzalloc(sizeof(*ptr), GFP_KERNEL);
+	codec->data = ptr;
+	if (!ptr)
+		return -ENOMEM;
+
+	snprintf(ptr->name, sizeof(ptr->name), "zr36060[%d]", zr36060_codecs);
+>>>>>>> upstream/android-13
 	ptr->num = zr36060_codecs++;
 	ptr->codec = codec;
 
@@ -932,8 +1272,12 @@ zr36060_setup (struct videocodec *codec)
 	memcpy(ptr->h_samp_ratio, zr36060_decimation_h, 8);
 	memcpy(ptr->v_samp_ratio, zr36060_decimation_v, 8);
 
+<<<<<<< HEAD
 	ptr->bitrate_ctrl = 0;	/* 0 or 1 - fixed file size flag
 				 * (what is the difference?) */
+=======
+	ptr->bitrate_ctrl = 0;	/* 0 or 1 - fixed file size flag (what is the difference?) */
+>>>>>>> upstream/android-13
 	ptr->mode = CODEC_DO_COMPRESSION;
 	ptr->width = 384;
 	ptr->height = 288;
@@ -950,8 +1294,12 @@ zr36060_setup (struct videocodec *codec)
 
 	zr36060_init(ptr);
 
+<<<<<<< HEAD
 	dprintk(1, KERN_INFO "%s: codec attached and running\n",
 		ptr->name);
+=======
+	dprintk(1, KERN_INFO "%s: codec attached and running\n", ptr->name);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -972,6 +1320,7 @@ static const struct videocodec zr36060_codec = {
 	// others are not used
 };
 
+<<<<<<< HEAD
 /* =========================================================================
    HOOK IN DRIVER AS KERNEL MODULE
    ========================================================================= */
@@ -980,12 +1329,20 @@ static int __init
 zr36060_init_module (void)
 {
 	//dprintk(1, "zr36060 driver %s\n",ZR060_VERSION);
+=======
+static int __init zr36060_init_module(void)
+{
+>>>>>>> upstream/android-13
 	zr36060_codecs = 0;
 	return videocodec_register(&zr36060_codec);
 }
 
+<<<<<<< HEAD
 static void __exit
 zr36060_cleanup_module (void)
+=======
+static void __exit zr36060_cleanup_module(void)
+>>>>>>> upstream/android-13
 {
 	if (zr36060_codecs) {
 		dprintk(1,
@@ -1001,6 +1358,10 @@ module_init(zr36060_init_module);
 module_exit(zr36060_cleanup_module);
 
 MODULE_AUTHOR("Laurent Pinchart <laurent.pinchart@skynet.be>");
+<<<<<<< HEAD
 MODULE_DESCRIPTION("Driver module for ZR36060 jpeg processors "
 		   ZR060_VERSION);
+=======
+MODULE_DESCRIPTION("Driver module for ZR36060 jpeg processors " ZR060_VERSION);
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");

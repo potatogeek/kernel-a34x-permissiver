@@ -29,17 +29,31 @@
 #include <linux/module.h>
 #include <linux/console.h>
 #include <linux/pci.h>
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/drm.h>
 
 #include "virtgpu_drv.h"
 static struct drm_driver driver;
+=======
+
+#include <drm/drm.h>
+#include <drm/drm_aperture.h>
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_drv.h>
+#include <drm/drm_file.h>
+
+#include "virtgpu_drv.h"
+
+static const struct drm_driver driver;
+>>>>>>> upstream/android-13
 
 static int virtio_gpu_modeset = -1;
 
 MODULE_PARM_DESC(modeset, "Disable/Enable modesetting");
 module_param_named(modeset, virtio_gpu_modeset, int, 0400);
 
+<<<<<<< HEAD
 static void virtio_pci_kick_out_firmware_fb(struct pci_dev *pci_dev)
 {
 	struct apertures_struct *ap;
@@ -60,19 +74,33 @@ static void virtio_pci_kick_out_firmware_fb(struct pci_dev *pci_dev)
 	kfree(ap);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int virtio_gpu_pci_quirk(struct drm_device *dev, struct virtio_device *vdev)
 {
 	struct pci_dev *pdev = to_pci_dev(vdev->dev.parent);
 	const char *pname = dev_name(&pdev->dev);
 	bool vga = (pdev->class >> 8) == PCI_CLASS_DISPLAY_VGA;
 	char unique[20];
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	DRM_INFO("pci: %s detected at %s\n",
 		 vga ? "virtio-vga" : "virtio-gpu-pci",
 		 pname);
+<<<<<<< HEAD
 	dev->pdev = pdev;
 	if (vga)
 		virtio_pci_kick_out_firmware_fb(pdev);
+=======
+	if (vga) {
+		ret = drm_aperture_remove_conflicting_pci_framebuffers(pdev, &driver);
+		if (ret)
+			return ret;
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * Normally the drm_dev_set_unique() call is done by core DRM.
@@ -137,11 +165,20 @@ static int virtio_gpu_probe(struct virtio_device *vdev)
 
 	ret = drm_dev_register(dev, 0);
 	if (ret)
+<<<<<<< HEAD
 		goto err_free;
+=======
+		goto err_deinit;
+>>>>>>> upstream/android-13
 
 	drm_fbdev_generic_setup(vdev->priv, 32);
 	return 0;
 
+<<<<<<< HEAD
+=======
+err_deinit:
+	virtio_gpu_deinit(dev);
+>>>>>>> upstream/android-13
 err_free:
 	drm_dev_put(dev);
 	return ret;
@@ -151,9 +188,16 @@ static void virtio_gpu_remove(struct virtio_device *vdev)
 {
 	struct drm_device *dev = vdev->priv;
 
+<<<<<<< HEAD
 	drm_dev_unregister(dev);
 	virtio_gpu_deinit(dev);
 	drm_put_dev(dev);
+=======
+	drm_dev_unplug(dev);
+	drm_atomic_helper_shutdown(dev);
+	virtio_gpu_deinit(dev);
+	drm_dev_put(dev);
+>>>>>>> upstream/android-13
 }
 
 static void virtio_gpu_config_changed(struct virtio_device *vdev)
@@ -179,6 +223,11 @@ static unsigned int features[] = {
 	VIRTIO_GPU_F_VIRGL,
 #endif
 	VIRTIO_GPU_F_EDID,
+<<<<<<< HEAD
+=======
+	VIRTIO_GPU_F_RESOURCE_UUID,
+	VIRTIO_GPU_F_RESOURCE_BLOB,
+>>>>>>> upstream/android-13
 };
 static struct virtio_driver virtio_gpu_driver = {
 	.feature_table = features,
@@ -200,6 +249,7 @@ MODULE_AUTHOR("Dave Airlie <airlied@redhat.com>");
 MODULE_AUTHOR("Gerd Hoffmann <kraxel@redhat.com>");
 MODULE_AUTHOR("Alon Levy");
 
+<<<<<<< HEAD
 static const struct file_operations virtio_gpu_driver_fops = {
 	.owner = THIS_MODULE,
 	.open = drm_open,
@@ -214,6 +264,12 @@ static const struct file_operations virtio_gpu_driver_fops = {
 
 static struct drm_driver driver = {
 	.driver_features = DRIVER_MODESET | DRIVER_GEM | DRIVER_PRIME | DRIVER_RENDER | DRIVER_ATOMIC,
+=======
+DEFINE_DRM_GEM_FOPS(virtio_gpu_driver_fops);
+
+static const struct drm_driver driver = {
+	.driver_features = DRIVER_MODESET | DRIVER_GEM | DRIVER_RENDER | DRIVER_ATOMIC,
+>>>>>>> upstream/android-13
 	.open = virtio_gpu_driver_open,
 	.postclose = virtio_gpu_driver_postclose,
 
@@ -225,6 +281,7 @@ static struct drm_driver driver = {
 #endif
 	.prime_handle_to_fd = drm_gem_prime_handle_to_fd,
 	.prime_fd_to_handle = drm_gem_prime_fd_to_handle,
+<<<<<<< HEAD
 	.gem_prime_export = drm_gem_prime_export,
 	.gem_prime_import = drm_gem_prime_import,
 	.gem_prime_get_sg_table = virtgpu_gem_prime_get_sg_table,
@@ -236,6 +293,13 @@ static struct drm_driver driver = {
 	.gem_free_object_unlocked = virtio_gpu_gem_free_object,
 	.gem_open_object = virtio_gpu_gem_object_open,
 	.gem_close_object = virtio_gpu_gem_object_close,
+=======
+	.gem_prime_mmap = drm_gem_prime_mmap,
+	.gem_prime_import = virtgpu_gem_prime_import,
+	.gem_prime_import_sg_table = virtgpu_gem_prime_import_sg_table,
+
+	.gem_create_object = virtio_gpu_create_object,
+>>>>>>> upstream/android-13
 	.fops = &virtio_gpu_driver_fops,
 
 	.ioctls = virtio_gpu_ioctls,
@@ -247,4 +311,9 @@ static struct drm_driver driver = {
 	.major = DRIVER_MAJOR,
 	.minor = DRIVER_MINOR,
 	.patchlevel = DRIVER_PATCHLEVEL,
+<<<<<<< HEAD
+=======
+
+	.release = virtio_gpu_release,
+>>>>>>> upstream/android-13
 };

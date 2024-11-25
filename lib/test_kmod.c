@@ -204,7 +204,11 @@ static void test_kmod_put_module(struct kmod_test_device_info *info)
 	case TEST_KMOD_DRIVER:
 		break;
 	case TEST_KMOD_FS_TYPE:
+<<<<<<< HEAD
 		if (info && info->fs_sync && info->fs_sync->owner)
+=======
+		if (info->fs_sync && info->fs_sync->owner)
+>>>>>>> upstream/android-13
 			module_put(info->fs_sync->owner);
 		break;
 	default:
@@ -286,7 +290,11 @@ static int tally_work_test(struct kmod_test_device_info *info)
  * If this ran it means *all* tasks were created fine and we
  * are now just collecting results.
  *
+<<<<<<< HEAD
  * Only propagate errors, do not override with a subsequent sucess case.
+=======
+ * Only propagate errors, do not override with a subsequent success case.
+>>>>>>> upstream/android-13
  */
 static void tally_up_work(struct kmod_test_device *test_dev)
 {
@@ -543,7 +551,11 @@ static int trigger_config_run(struct kmod_test_device *test_dev)
 	 * wrong with the setup of the test. If the test setup went fine
 	 * then userspace must just check the result of config->test_result.
 	 * One issue with relying on the return from a call in the kernel
+<<<<<<< HEAD
 	 * is if the kernel returns a possitive value using this trigger
+=======
+	 * is if the kernel returns a positive value using this trigger
+>>>>>>> upstream/android-13
 	 * will not return the value to userspace, it would be lost.
 	 *
 	 * By not relying on capturing the return value of tests we are using
@@ -585,7 +597,11 @@ trigger_config_store(struct device *dev,
 	 * Note: any return > 0 will be treated as success
 	 * and the error value will not be available to userspace.
 	 * Do not rely on trying to send to userspace a test value
+<<<<<<< HEAD
 	 * return value as possitive return errors will be lost.
+=======
+	 * return value as positive return errors will be lost.
+>>>>>>> upstream/android-13
 	 */
 	if (WARN_ON(ret > 0))
 		return -EINVAL;
@@ -877,6 +893,7 @@ static int test_dev_config_update_uint_sync(struct kmod_test_device *test_dev,
 					    int (*test_sync)(struct kmod_test_device *test_dev))
 {
 	int ret;
+<<<<<<< HEAD
 	unsigned long new;
 	unsigned int old_val;
 
@@ -891,6 +908,19 @@ static int test_dev_config_update_uint_sync(struct kmod_test_device *test_dev,
 
 	old_val = *config;
 	*(unsigned int *)config = new;
+=======
+	unsigned int val;
+	unsigned int old_val;
+
+	ret = kstrtouint(buf, 10, &val);
+	if (ret)
+		return ret;
+
+	mutex_lock(&test_dev->config_mutex);
+
+	old_val = *config;
+	*(unsigned int *)config = val;
+>>>>>>> upstream/android-13
 
 	ret = test_sync(test_dev);
 	if (ret) {
@@ -914,6 +944,7 @@ static int test_dev_config_update_uint_range(struct kmod_test_device *test_dev,
 					     unsigned int min,
 					     unsigned int max)
 {
+<<<<<<< HEAD
 	int ret;
 	unsigned long new;
 
@@ -926,6 +957,20 @@ static int test_dev_config_update_uint_range(struct kmod_test_device *test_dev,
 
 	mutex_lock(&test_dev->config_mutex);
 	*config = new;
+=======
+	unsigned int val;
+	int ret;
+
+	ret = kstrtouint(buf, 10, &val);
+	if (ret)
+		return ret;
+
+	if (val < min || val > max)
+		return -EINVAL;
+
+	mutex_lock(&test_dev->config_mutex);
+	*config = val;
+>>>>>>> upstream/android-13
 	mutex_unlock(&test_dev->config_mutex);
 
 	/* Always return full write size even if we didn't consume all */
@@ -936,6 +981,7 @@ static int test_dev_config_update_int(struct kmod_test_device *test_dev,
 				      const char *buf, size_t size,
 				      int *config)
 {
+<<<<<<< HEAD
 	int ret;
 	long new;
 
@@ -948,6 +994,17 @@ static int test_dev_config_update_int(struct kmod_test_device *test_dev,
 
 	mutex_lock(&test_dev->config_mutex);
 	*config = new;
+=======
+	int val;
+	int ret;
+
+	ret = kstrtoint(buf, 10, &val);
+	if (ret)
+		return ret;
+
+	mutex_lock(&test_dev->config_mutex);
+	*config = val;
+>>>>>>> upstream/android-13
 	mutex_unlock(&test_dev->config_mutex);
 	/* Always return full write size even if we didn't consume all */
 	return size;
@@ -1155,6 +1212,10 @@ static struct kmod_test_device *register_test_dev_kmod(void)
 	if (ret) {
 		pr_err("could not register misc device: %d\n", ret);
 		free_test_dev_kmod(test_dev);
+<<<<<<< HEAD
+=======
+		test_dev = NULL;
+>>>>>>> upstream/android-13
 		goto out;
 	}
 

@@ -1,11 +1,17 @@
+<<<<<<< HEAD
 /* -*- mode: c; c-basic-offset: 8; -*-
  * vim: noexpandtab sw=8 ts=8 sts=0:
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  * localalloc.c
  *
  * Node local data allocation
  *
  * Copyright (C) 2002, 2004 Oracle.  All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -21,6 +27,8 @@
  * License along with this program; if not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 021110-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/fs.h>
@@ -439,12 +447,19 @@ void ocfs2_shutdown_local_alloc(struct ocfs2_super *osb)
 	bh = osb->local_alloc_bh;
 	alloc = (struct ocfs2_dinode *) bh->b_data;
 
+<<<<<<< HEAD
 	alloc_copy = kmalloc(bh->b_size, GFP_NOFS);
+=======
+	alloc_copy = kmemdup(alloc, bh->b_size, GFP_NOFS);
+>>>>>>> upstream/android-13
 	if (!alloc_copy) {
 		status = -ENOMEM;
 		goto out_commit;
 	}
+<<<<<<< HEAD
 	memcpy(alloc_copy, alloc, bh->b_size);
+=======
+>>>>>>> upstream/android-13
 
 	status = ocfs2_journal_access_di(handle, INODE_CACHE(local_alloc_inode),
 					 bh, OCFS2_JOURNAL_ACCESS_WRITE);
@@ -692,7 +707,11 @@ int ocfs2_reserve_local_alloc_bits(struct ocfs2_super *osb,
 		/*
 		 * Under certain conditions, the window slide code
 		 * might have reduced the number of bits available or
+<<<<<<< HEAD
 		 * disabled the the local alloc entirely. Re-check
+=======
+		 * disabled the local alloc entirely. Re-check
+>>>>>>> upstream/android-13
 		 * here and return -ENOSPC if necessary.
 		 */
 		status = -ENOSPC;
@@ -841,7 +860,11 @@ static int ocfs2_local_alloc_find_clear_bits(struct ocfs2_super *osb,
 				     u32 *numbits,
 				     struct ocfs2_alloc_reservation *resv)
 {
+<<<<<<< HEAD
 	int numfound = 0, bitoff, left, startoff, lastzero;
+=======
+	int numfound = 0, bitoff, left, startoff;
+>>>>>>> upstream/android-13
 	int local_resv = 0;
 	struct ocfs2_alloc_reservation r;
 	void *bitmap = NULL;
@@ -879,7 +902,10 @@ static int ocfs2_local_alloc_find_clear_bits(struct ocfs2_super *osb,
 	bitmap = OCFS2_LOCAL_ALLOC(alloc)->la_bitmap;
 
 	numfound = bitoff = startoff = 0;
+<<<<<<< HEAD
 	lastzero = -1;
+=======
+>>>>>>> upstream/android-13
 	left = le32_to_cpu(alloc->id1.bitmap1.i_total);
 	while ((bitoff = ocfs2_find_next_zero_bit(bitmap, left, startoff)) != -1) {
 		if (bitoff == left) {
@@ -1288,13 +1314,20 @@ static int ocfs2_local_alloc_slide_window(struct ocfs2_super *osb,
 	 * local alloc shutdown won't try to double free main bitmap
 	 * bits. Make a copy so the sync function knows which bits to
 	 * free. */
+<<<<<<< HEAD
 	alloc_copy = kmalloc(osb->local_alloc_bh->b_size, GFP_NOFS);
+=======
+	alloc_copy = kmemdup(alloc, osb->local_alloc_bh->b_size, GFP_NOFS);
+>>>>>>> upstream/android-13
 	if (!alloc_copy) {
 		status = -ENOMEM;
 		mlog_errno(status);
 		goto bail;
 	}
+<<<<<<< HEAD
 	memcpy(alloc_copy, alloc, osb->local_alloc_bh->b_size);
+=======
+>>>>>>> upstream/android-13
 
 	status = ocfs2_journal_access_di(handle,
 					 INODE_CACHE(local_alloc_inode),

@@ -26,11 +26,37 @@
  *
  */
 
+<<<<<<< HEAD
 #include <linux/debugfs.h>
 #include <linux/sort.h>
 #include <linux/sched/mm.h>
 #include "intel_drv.h"
 #include "intel_guc_submission.h"
+=======
+#include <linux/sched/mm.h>
+#include <linux/sort.h>
+
+#include <drm/drm_debugfs.h>
+
+#include "gem/i915_gem_context.h"
+#include "gt/intel_gt_buffer_pool.h"
+#include "gt/intel_gt_clock_utils.h"
+#include "gt/intel_gt.h"
+#include "gt/intel_gt_pm.h"
+#include "gt/intel_gt_requests.h"
+#include "gt/intel_reset.h"
+#include "gt/intel_rc6.h"
+#include "gt/intel_rps.h"
+#include "gt/intel_sseu_debugfs.h"
+
+#include "i915_debugfs.h"
+#include "i915_debugfs_params.h"
+#include "i915_irq.h"
+#include "i915_scheduler.h"
+#include "i915_trace.h"
+#include "intel_pm.h"
+#include "intel_sideband.h"
+>>>>>>> upstream/android-13
 
 static inline struct drm_i915_private *node_to_i915(struct drm_info_node *node)
 {
@@ -39,6 +65,7 @@ static inline struct drm_i915_private *node_to_i915(struct drm_info_node *node)
 
 static int i915_capabilities(struct seq_file *m, void *data)
 {
+<<<<<<< HEAD
 	struct drm_i915_private *dev_priv = node_to_i915(m->private);
 	const struct intel_device_info *info = INTEL_INFO(dev_priv);
 	struct drm_printer p = drm_seq_file_printer(m);
@@ -53,11 +80,26 @@ static int i915_capabilities(struct seq_file *m, void *data)
 
 	kernel_param_lock(THIS_MODULE);
 	i915_params_dump(&i915_modparams, &p);
+=======
+	struct drm_i915_private *i915 = node_to_i915(m->private);
+	struct drm_printer p = drm_seq_file_printer(m);
+
+	seq_printf(m, "pch: %d\n", INTEL_PCH_TYPE(i915));
+
+	intel_device_info_print_static(INTEL_INFO(i915), &p);
+	intel_device_info_print_runtime(RUNTIME_INFO(i915), &p);
+	intel_gt_info_print(&i915->gt.info, &p);
+	intel_driver_caps_print(&i915->caps, &p);
+
+	kernel_param_lock(THIS_MODULE);
+	i915_params_dump(&i915->params, &p);
+>>>>>>> upstream/android-13
 	kernel_param_unlock(THIS_MODULE);
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static char get_active_flag(struct drm_i915_gem_object *obj)
 {
 	return i915_gem_object_is_active(obj) ? '*' : ' ';
@@ -68,6 +110,8 @@ static char get_pin_flag(struct drm_i915_gem_object *obj)
 	return obj->pin_global ? 'p' : ' ';
 }
 
+=======
+>>>>>>> upstream/android-13
 static char get_tiling_flag(struct drm_i915_gem_object *obj)
 {
 	switch (i915_gem_object_get_tiling(obj)) {
@@ -80,7 +124,11 @@ static char get_tiling_flag(struct drm_i915_gem_object *obj)
 
 static char get_global_flag(struct drm_i915_gem_object *obj)
 {
+<<<<<<< HEAD
 	return obj->userfault_count ? 'g' : ' ';
+=======
+	return READ_ONCE(obj->userfault_count) ? 'g' : ' ';
+>>>>>>> upstream/android-13
 }
 
 static char get_pin_mapped_flag(struct drm_i915_gem_object *obj)
@@ -88,6 +136,7 @@ static char get_pin_mapped_flag(struct drm_i915_gem_object *obj)
 	return obj->mm.mapping ? 'M' : ' ';
 }
 
+<<<<<<< HEAD
 static u64 i915_gem_obj_total_ggtt_size(struct drm_i915_gem_object *obj)
 {
 	u64 size = 0;
@@ -101,6 +150,8 @@ static u64 i915_gem_obj_total_ggtt_size(struct drm_i915_gem_object *obj)
 	return size;
 }
 
+=======
+>>>>>>> upstream/android-13
 static const char *
 stringify_page_sizes(unsigned int page_sizes, char *buf, size_t len)
 {
@@ -131,12 +182,29 @@ stringify_page_sizes(unsigned int page_sizes, char *buf, size_t len)
 	}
 }
 
+<<<<<<< HEAD
 static void
 describe_obj(struct seq_file *m, struct drm_i915_gem_object *obj)
+=======
+static const char *stringify_vma_type(const struct i915_vma *vma)
+{
+	if (i915_vma_is_ggtt(vma))
+		return "ggtt";
+
+	if (i915_vma_is_dpt(vma))
+		return "dpt";
+
+	return "ppgtt";
+}
+
+void
+i915_debugfs_describe_obj(struct seq_file *m, struct drm_i915_gem_object *obj)
+>>>>>>> upstream/android-13
 {
 	struct drm_i915_private *dev_priv = to_i915(obj->base.dev);
 	struct intel_engine_cs *engine;
 	struct i915_vma *vma;
+<<<<<<< HEAD
 	unsigned int frontbuffer_bits;
 	int pin_count = 0;
 
@@ -146,6 +214,12 @@ describe_obj(struct seq_file *m, struct drm_i915_gem_object *obj)
 		   &obj->base,
 		   get_active_flag(obj),
 		   get_pin_flag(obj),
+=======
+	int pin_count = 0;
+
+	seq_printf(m, "%pK: %c%c%c %8zdKiB %02x %02x %s%s%s",
+		   &obj->base,
+>>>>>>> upstream/android-13
 		   get_tiling_flag(obj),
 		   get_global_flag(obj),
 		   get_pin_mapped_flag(obj),
@@ -157,6 +231,7 @@ describe_obj(struct seq_file *m, struct drm_i915_gem_object *obj)
 		   obj->mm.madv == I915_MADV_DONTNEED ? " purgeable" : "");
 	if (obj->base.name)
 		seq_printf(m, " (name: %d)", obj->base.name);
+<<<<<<< HEAD
 	list_for_each_entry(vma, &obj->vma_list, obj_link) {
 		if (i915_vma_is_pinned(vma))
 			pin_count++;
@@ -173,6 +248,24 @@ describe_obj(struct seq_file *m, struct drm_i915_gem_object *obj)
 			   vma->node.start, vma->node.size,
 			   stringify_page_sizes(vma->page_sizes.gtt, NULL, 0));
 		if (i915_vma_is_ggtt(vma)) {
+=======
+
+	spin_lock(&obj->vma.lock);
+	list_for_each_entry(vma, &obj->vma.list, obj_link) {
+		if (!drm_mm_node_allocated(&vma->node))
+			continue;
+
+		spin_unlock(&obj->vma.lock);
+
+		if (i915_vma_is_pinned(vma))
+			pin_count++;
+
+		seq_printf(m, " (%s offset: %08llx, size: %08llx, pages: %s",
+			   stringify_vma_type(vma),
+			   vma->node.start, vma->node.size,
+			   stringify_page_sizes(vma->page_sizes.gtt, NULL, 0));
+		if (i915_vma_is_ggtt(vma) || i915_vma_is_dpt(vma)) {
+>>>>>>> upstream/android-13
 			switch (vma->ggtt_view.type) {
 			case I915_GGTT_VIEW_NORMAL:
 				seq_puts(m, ", normal");
@@ -185,6 +278,7 @@ describe_obj(struct seq_file *m, struct drm_i915_gem_object *obj)
 				break;
 
 			case I915_GGTT_VIEW_ROTATED:
+<<<<<<< HEAD
 				seq_printf(m, ", rotated [(%ux%u, stride=%u, offset=%u), (%ux%u, stride=%u, offset=%u)]",
 					   vma->ggtt_view.rotated.plane[0].width,
 					   vma->ggtt_view.rotated.plane[0].height,
@@ -196,12 +290,42 @@ describe_obj(struct seq_file *m, struct drm_i915_gem_object *obj)
 					   vma->ggtt_view.rotated.plane[1].offset);
 				break;
 
+=======
+				seq_printf(m, ", rotated [(%ux%u, src_stride=%u, dst_stride=%u, offset=%u), (%ux%u, src_stride=%u, dst_stride=%u, offset=%u)]",
+					   vma->ggtt_view.rotated.plane[0].width,
+					   vma->ggtt_view.rotated.plane[0].height,
+					   vma->ggtt_view.rotated.plane[0].src_stride,
+					   vma->ggtt_view.rotated.plane[0].dst_stride,
+					   vma->ggtt_view.rotated.plane[0].offset,
+					   vma->ggtt_view.rotated.plane[1].width,
+					   vma->ggtt_view.rotated.plane[1].height,
+					   vma->ggtt_view.rotated.plane[1].src_stride,
+					   vma->ggtt_view.rotated.plane[1].dst_stride,
+					   vma->ggtt_view.rotated.plane[1].offset);
+				break;
+
+			case I915_GGTT_VIEW_REMAPPED:
+				seq_printf(m, ", remapped [(%ux%u, src_stride=%u, dst_stride=%u, offset=%u), (%ux%u, src_stride=%u, dst_stride=%u, offset=%u)]",
+					   vma->ggtt_view.remapped.plane[0].width,
+					   vma->ggtt_view.remapped.plane[0].height,
+					   vma->ggtt_view.remapped.plane[0].src_stride,
+					   vma->ggtt_view.remapped.plane[0].dst_stride,
+					   vma->ggtt_view.remapped.plane[0].offset,
+					   vma->ggtt_view.remapped.plane[1].width,
+					   vma->ggtt_view.remapped.plane[1].height,
+					   vma->ggtt_view.remapped.plane[1].src_stride,
+					   vma->ggtt_view.remapped.plane[1].dst_stride,
+					   vma->ggtt_view.remapped.plane[1].offset);
+				break;
+
+>>>>>>> upstream/android-13
 			default:
 				MISSING_CASE(vma->ggtt_view.type);
 				break;
 			}
 		}
 		if (vma->fence)
+<<<<<<< HEAD
 			seq_printf(m, " , fence: %d%s",
 				   vma->fence->id,
 				   i915_gem_active_isset(&vma->last_fence) ? "*" : "");
@@ -209,10 +333,25 @@ describe_obj(struct seq_file *m, struct drm_i915_gem_object *obj)
 	}
 	if (obj->stolen)
 		seq_printf(m, " (stolen: %08llx)", obj->stolen->start);
+=======
+			seq_printf(m, " , fence: %d", vma->fence->id);
+		seq_puts(m, ")");
+
+		spin_lock(&obj->vma.lock);
+	}
+	spin_unlock(&obj->vma.lock);
+
+	seq_printf(m, " (pinned x %d)", pin_count);
+	if (i915_gem_object_is_stolen(obj))
+		seq_printf(m, " (stolen: %08llx)", obj->stolen->start);
+	if (i915_gem_object_is_framebuffer(obj))
+		seq_printf(m, " (fb)");
+>>>>>>> upstream/android-13
 
 	engine = i915_gem_object_last_write_engine(obj);
 	if (engine)
 		seq_printf(m, " (%s)", engine->name);
+<<<<<<< HEAD
 
 	frontbuffer_bits = atomic_read(&obj->frontbuffer_bits);
 	if (frontbuffer_bits)
@@ -415,10 +554,13 @@ static void print_context_stats(struct seq_file *m,
 	mutex_unlock(&dev->struct_mutex);
 
 	print_file_stats(m, "[k]contexts", stats);
+=======
+>>>>>>> upstream/android-13
 }
 
 static int i915_gem_object_info(struct seq_file *m, void *data)
 {
+<<<<<<< HEAD
 	struct drm_i915_private *dev_priv = node_to_i915(m->private);
 	struct drm_device *dev = &dev_priv->drm;
 	struct i915_ggtt *ggtt = &dev_priv->ggtt;
@@ -936,6 +1078,20 @@ static int i915_gem_fence_regs_info(struct seq_file *m, void *data)
 	}
 
 	mutex_unlock(&dev->struct_mutex);
+=======
+	struct drm_i915_private *i915 = node_to_i915(m->private);
+	struct intel_memory_region *mr;
+	enum intel_region_id id;
+
+	seq_printf(m, "%u shrinkable [%u free] objects, %llu bytes\n",
+		   i915->mm.shrink_count,
+		   atomic_read(&i915->mm.free_count),
+		   i915->mm.shrink_memory);
+	for_each_memory_region(mr, i915, id)
+		seq_printf(m, "%s: total:%pa, available:%pa bytes\n",
+			   mr->name, &mr->total, &mr->avail);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -943,6 +1099,7 @@ static int i915_gem_fence_regs_info(struct seq_file *m, void *data)
 static ssize_t gpu_state_read(struct file *file, char __user *ubuf,
 			      size_t count, loff_t *pos)
 {
+<<<<<<< HEAD
 	struct i915_gpu_state *error = file->private_data;
 	struct drm_i915_error_state_buf str;
 	ssize_t ret;
@@ -967,18 +1124,49 @@ static ssize_t gpu_state_read(struct file *file, char __user *ubuf,
 	*pos = str.start + ret;
 out:
 	i915_error_state_buf_release(&str);
+=======
+	struct i915_gpu_coredump *error;
+	ssize_t ret;
+	void *buf;
+
+	error = file->private_data;
+	if (!error)
+		return 0;
+
+	/* Bounce buffer required because of kernfs __user API convenience. */
+	buf = kmalloc(count, GFP_KERNEL);
+	if (!buf)
+		return -ENOMEM;
+
+	ret = i915_gpu_coredump_copy_to_buffer(error, buf, *pos, count);
+	if (ret <= 0)
+		goto out;
+
+	if (!copy_to_user(ubuf, buf, ret))
+		*pos += ret;
+	else
+		ret = -EFAULT;
+
+out:
+	kfree(buf);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 static int gpu_state_release(struct inode *inode, struct file *file)
 {
+<<<<<<< HEAD
 	i915_gpu_state_put(file->private_data);
+=======
+	i915_gpu_coredump_put(file->private_data);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int i915_gpu_info_open(struct inode *inode, struct file *file)
 {
 	struct drm_i915_private *i915 = inode->i_private;
+<<<<<<< HEAD
 	struct i915_gpu_state *gpu;
 
 	intel_runtime_pm_get(i915);
@@ -986,6 +1174,16 @@ static int i915_gpu_info_open(struct inode *inode, struct file *file)
 	intel_runtime_pm_put(i915);
 	if (!gpu)
 		return -ENOMEM;
+=======
+	struct i915_gpu_coredump *gpu;
+	intel_wakeref_t wakeref;
+
+	gpu = NULL;
+	with_intel_runtime_pm(&i915->runtime_pm, wakeref)
+		gpu = i915_gpu_coredump(&i915->gt, ALL_ENGINES);
+	if (IS_ERR(gpu))
+		return PTR_ERR(gpu);
+>>>>>>> upstream/android-13
 
 	file->private_data = gpu;
 	return 0;
@@ -1005,12 +1203,20 @@ i915_error_state_write(struct file *filp,
 		       size_t cnt,
 		       loff_t *ppos)
 {
+<<<<<<< HEAD
 	struct i915_gpu_state *error = filp->private_data;
+=======
+	struct i915_gpu_coredump *error = filp->private_data;
+>>>>>>> upstream/android-13
 
 	if (!error)
 		return 0;
 
+<<<<<<< HEAD
 	DRM_DEBUG_DRIVER("Resetting error state\n");
+=======
+	drm_dbg(&error->i915->drm, "Resetting error state\n");
+>>>>>>> upstream/android-13
 	i915_reset_error_state(error->i915);
 
 	return cnt;
@@ -1018,7 +1224,17 @@ i915_error_state_write(struct file *filp,
 
 static int i915_error_state_open(struct inode *inode, struct file *file)
 {
+<<<<<<< HEAD
 	file->private_data = i915_first_error_state(inode->i_private);
+=======
+	struct i915_gpu_coredump *error;
+
+	error = i915_first_error_state(inode->i_private);
+	if (IS_ERR(error))
+		return PTR_ERR(error);
+
+	file->private_data  = error;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1032,6 +1248,7 @@ static const struct file_operations i915_error_state_fops = {
 };
 #endif
 
+<<<<<<< HEAD
 static int
 i915_next_seqno_set(void *data, u64 val)
 {
@@ -1067,6 +1284,20 @@ static int i915_frequency_info(struct seq_file *m, void *unused)
 	if (IS_GEN5(dev_priv)) {
 		u16 rgvswctl = I915_READ16(MEMSWCTL);
 		u16 rgvstat = I915_READ16(MEMSTAT_ILK);
+=======
+static int i915_frequency_info(struct seq_file *m, void *unused)
+{
+	struct drm_i915_private *dev_priv = node_to_i915(m->private);
+	struct intel_uncore *uncore = &dev_priv->uncore;
+	struct intel_rps *rps = &dev_priv->gt.rps;
+	intel_wakeref_t wakeref;
+
+	wakeref = intel_runtime_pm_get(&dev_priv->runtime_pm);
+
+	if (GRAPHICS_VER(dev_priv) == 5) {
+		u16 rgvswctl = intel_uncore_read16(uncore, MEMSWCTL);
+		u16 rgvstat = intel_uncore_read16(uncore, MEMSTAT_ILK);
+>>>>>>> upstream/android-13
 
 		seq_printf(m, "Requested P-state: %d\n", (rgvswctl >> 8) & 0xf);
 		seq_printf(m, "Requested VID: %d\n", rgvswctl & 0x3f);
@@ -1077,9 +1308,13 @@ static int i915_frequency_info(struct seq_file *m, void *unused)
 	} else if (IS_VALLEYVIEW(dev_priv) || IS_CHERRYVIEW(dev_priv)) {
 		u32 rpmodectl, freq_sts;
 
+<<<<<<< HEAD
 		mutex_lock(&dev_priv->pcu_lock);
 
 		rpmodectl = I915_READ(GEN6_RP_CONTROL);
+=======
+		rpmodectl = intel_uncore_read(&dev_priv->uncore, GEN6_RP_CONTROL);
+>>>>>>> upstream/android-13
 		seq_printf(m, "Video Turbo Mode: %s\n",
 			   yesno(rpmodectl & GEN6_RP_MEDIA_TURBO));
 		seq_printf(m, "HW control enabled: %s\n",
@@ -1088,11 +1323,19 @@ static int i915_frequency_info(struct seq_file *m, void *unused)
 			   yesno((rpmodectl & GEN6_RP_MEDIA_MODE_MASK) ==
 				  GEN6_RP_MEDIA_SW_MODE));
 
+<<<<<<< HEAD
 		freq_sts = vlv_punit_read(dev_priv, PUNIT_REG_GPU_FREQ_STS);
+=======
+		vlv_punit_get(dev_priv);
+		freq_sts = vlv_punit_read(dev_priv, PUNIT_REG_GPU_FREQ_STS);
+		vlv_punit_put(dev_priv);
+
+>>>>>>> upstream/android-13
 		seq_printf(m, "PUNIT_REG_GPU_FREQ_STS: 0x%08x\n", freq_sts);
 		seq_printf(m, "DDR freq: %d MHz\n", dev_priv->mem_freq);
 
 		seq_printf(m, "actual GPU freq: %d MHz\n",
+<<<<<<< HEAD
 			   intel_gpu_freq(dev_priv, (freq_sts >> 8) & 0xff));
 
 		seq_printf(m, "current GPU freq: %d MHz\n",
@@ -1112,6 +1355,26 @@ static int i915_frequency_info(struct seq_file *m, void *unused)
 			   intel_gpu_freq(dev_priv, rps->efficient_freq));
 		mutex_unlock(&dev_priv->pcu_lock);
 	} else if (INTEL_GEN(dev_priv) >= 6) {
+=======
+			   intel_gpu_freq(rps, (freq_sts >> 8) & 0xff));
+
+		seq_printf(m, "current GPU freq: %d MHz\n",
+			   intel_gpu_freq(rps, rps->cur_freq));
+
+		seq_printf(m, "max GPU freq: %d MHz\n",
+			   intel_gpu_freq(rps, rps->max_freq));
+
+		seq_printf(m, "min GPU freq: %d MHz\n",
+			   intel_gpu_freq(rps, rps->min_freq));
+
+		seq_printf(m, "idle GPU freq: %d MHz\n",
+			   intel_gpu_freq(rps, rps->idle_freq));
+
+		seq_printf(m,
+			   "efficient (RPe) frequency: %d MHz\n",
+			   intel_gpu_freq(rps, rps->efficient_freq));
+	} else if (GRAPHICS_VER(dev_priv) >= 6) {
+>>>>>>> upstream/android-13
 		u32 rp_state_limits;
 		u32 gt_perf_status;
 		u32 rp_state_cap;
@@ -1122,6 +1385,7 @@ static int i915_frequency_info(struct seq_file *m, void *unused)
 		u32 pm_ier, pm_imr, pm_isr, pm_iir, pm_mask;
 		int max_freq;
 
+<<<<<<< HEAD
 		rp_state_limits = I915_READ(GEN6_RP_STATE_LIMITS);
 		if (IS_GEN9_LP(dev_priv)) {
 			rp_state_cap = I915_READ(BXT_RP_STATE_CAP);
@@ -1136,6 +1400,22 @@ static int i915_frequency_info(struct seq_file *m, void *unused)
 
 		reqf = I915_READ(GEN6_RPNSWREQ);
 		if (INTEL_GEN(dev_priv) >= 9)
+=======
+		rp_state_limits = intel_uncore_read(&dev_priv->uncore, GEN6_RP_STATE_LIMITS);
+		if (IS_GEN9_LP(dev_priv)) {
+			rp_state_cap = intel_uncore_read(&dev_priv->uncore, BXT_RP_STATE_CAP);
+			gt_perf_status = intel_uncore_read(&dev_priv->uncore, BXT_GT_PERF_STATUS);
+		} else {
+			rp_state_cap = intel_uncore_read(&dev_priv->uncore, GEN6_RP_STATE_CAP);
+			gt_perf_status = intel_uncore_read(&dev_priv->uncore, GEN6_GT_PERF_STATUS);
+		}
+
+		/* RPSTAT1 is in the GT power well */
+		intel_uncore_forcewake_get(&dev_priv->uncore, FORCEWAKE_ALL);
+
+		reqf = intel_uncore_read(&dev_priv->uncore, GEN6_RPNSWREQ);
+		if (GRAPHICS_VER(dev_priv) >= 9)
+>>>>>>> upstream/android-13
 			reqf >>= 23;
 		else {
 			reqf &= ~GEN6_TURBO_DISABLE;
@@ -1144,6 +1424,7 @@ static int i915_frequency_info(struct seq_file *m, void *unused)
 			else
 				reqf >>= 25;
 		}
+<<<<<<< HEAD
 		reqf = intel_gpu_freq(dev_priv, reqf);
 
 		rpmodectl = I915_READ(GEN6_RP_CONTROL);
@@ -1165,12 +1446,35 @@ static int i915_frequency_info(struct seq_file *m, void *unused)
 		if (INTEL_GEN(dev_priv) >= 11) {
 			pm_ier = I915_READ(GEN11_GPM_WGBOXPERF_INTR_ENABLE);
 			pm_imr = I915_READ(GEN11_GPM_WGBOXPERF_INTR_MASK);
+=======
+		reqf = intel_gpu_freq(rps, reqf);
+
+		rpmodectl = intel_uncore_read(&dev_priv->uncore, GEN6_RP_CONTROL);
+		rpinclimit = intel_uncore_read(&dev_priv->uncore, GEN6_RP_UP_THRESHOLD);
+		rpdeclimit = intel_uncore_read(&dev_priv->uncore, GEN6_RP_DOWN_THRESHOLD);
+
+		rpstat = intel_uncore_read(&dev_priv->uncore, GEN6_RPSTAT1);
+		rpupei = intel_uncore_read(&dev_priv->uncore, GEN6_RP_CUR_UP_EI) & GEN6_CURICONT_MASK;
+		rpcurup = intel_uncore_read(&dev_priv->uncore, GEN6_RP_CUR_UP) & GEN6_CURBSYTAVG_MASK;
+		rpprevup = intel_uncore_read(&dev_priv->uncore, GEN6_RP_PREV_UP) & GEN6_CURBSYTAVG_MASK;
+		rpdownei = intel_uncore_read(&dev_priv->uncore, GEN6_RP_CUR_DOWN_EI) & GEN6_CURIAVG_MASK;
+		rpcurdown = intel_uncore_read(&dev_priv->uncore, GEN6_RP_CUR_DOWN) & GEN6_CURBSYTAVG_MASK;
+		rpprevdown = intel_uncore_read(&dev_priv->uncore, GEN6_RP_PREV_DOWN) & GEN6_CURBSYTAVG_MASK;
+		cagf = intel_rps_read_actual_frequency(rps);
+
+		intel_uncore_forcewake_put(&dev_priv->uncore, FORCEWAKE_ALL);
+
+		if (GRAPHICS_VER(dev_priv) >= 11) {
+			pm_ier = intel_uncore_read(&dev_priv->uncore, GEN11_GPM_WGBOXPERF_INTR_ENABLE);
+			pm_imr = intel_uncore_read(&dev_priv->uncore, GEN11_GPM_WGBOXPERF_INTR_MASK);
+>>>>>>> upstream/android-13
 			/*
 			 * The equivalent to the PM ISR & IIR cannot be read
 			 * without affecting the current state of the system
 			 */
 			pm_isr = 0;
 			pm_iir = 0;
+<<<<<<< HEAD
 		} else if (INTEL_GEN(dev_priv) >= 8) {
 			pm_ier = I915_READ(GEN8_GT_IER(2));
 			pm_imr = I915_READ(GEN8_GT_IMR(2));
@@ -1183,6 +1487,20 @@ static int i915_frequency_info(struct seq_file *m, void *unused)
 			pm_iir = I915_READ(GEN6_PMIIR);
 		}
 		pm_mask = I915_READ(GEN6_PMINTRMSK);
+=======
+		} else if (GRAPHICS_VER(dev_priv) >= 8) {
+			pm_ier = intel_uncore_read(&dev_priv->uncore, GEN8_GT_IER(2));
+			pm_imr = intel_uncore_read(&dev_priv->uncore, GEN8_GT_IMR(2));
+			pm_isr = intel_uncore_read(&dev_priv->uncore, GEN8_GT_ISR(2));
+			pm_iir = intel_uncore_read(&dev_priv->uncore, GEN8_GT_IIR(2));
+		} else {
+			pm_ier = intel_uncore_read(&dev_priv->uncore, GEN6_PMIER);
+			pm_imr = intel_uncore_read(&dev_priv->uncore, GEN6_PMIMR);
+			pm_isr = intel_uncore_read(&dev_priv->uncore, GEN6_PMISR);
+			pm_iir = intel_uncore_read(&dev_priv->uncore, GEN6_PMIIR);
+		}
+		pm_mask = intel_uncore_read(&dev_priv->uncore, GEN6_PMINTRMSK);
+>>>>>>> upstream/android-13
 
 		seq_printf(m, "Video Turbo Mode: %s\n",
 			   yesno(rpmodectl & GEN6_RP_MEDIA_TURBO));
@@ -1194,14 +1512,22 @@ static int i915_frequency_info(struct seq_file *m, void *unused)
 
 		seq_printf(m, "PM IER=0x%08x IMR=0x%08x, MASK=0x%08x\n",
 			   pm_ier, pm_imr, pm_mask);
+<<<<<<< HEAD
 		if (INTEL_GEN(dev_priv) <= 10)
+=======
+		if (GRAPHICS_VER(dev_priv) <= 10)
+>>>>>>> upstream/android-13
 			seq_printf(m, "PM ISR=0x%08x IIR=0x%08x\n",
 				   pm_isr, pm_iir);
 		seq_printf(m, "pm_intrmsk_mbz: 0x%08x\n",
 			   rps->pm_intrmsk_mbz);
 		seq_printf(m, "GT_PERF_STATUS: 0x%08x\n", gt_perf_status);
 		seq_printf(m, "Render p-state ratio: %d\n",
+<<<<<<< HEAD
 			   (gt_perf_status & (INTEL_GEN(dev_priv) >= 9 ? 0x1ff00 : 0xff00)) >> 8);
+=======
+			   (gt_perf_status & (GRAPHICS_VER(dev_priv) >= 9 ? 0x1ff00 : 0xff00)) >> 8);
+>>>>>>> upstream/android-13
 		seq_printf(m, "Render p-state VID: %d\n",
 			   gt_perf_status & 0xff);
 		seq_printf(m, "Render p-state limit: %d\n",
@@ -1212,6 +1538,7 @@ static int i915_frequency_info(struct seq_file *m, void *unused)
 		seq_printf(m, "RPDECLIMIT: 0x%08x\n", rpdeclimit);
 		seq_printf(m, "RPNSWREQ: %dMHz\n", reqf);
 		seq_printf(m, "CAGF: %dMHz\n", cagf);
+<<<<<<< HEAD
 		seq_printf(m, "RP CUR UP EI: %d (%dus)\n",
 			   rpupei, GT_PM_INTERVAL_TO_US(dev_priv, rpupei));
 		seq_printf(m, "RP CUR UP: %d (%dus)\n",
@@ -1227,12 +1554,39 @@ static int i915_frequency_info(struct seq_file *m, void *unused)
 			   rpcurdown, GT_PM_INTERVAL_TO_US(dev_priv, rpcurdown));
 		seq_printf(m, "RP PREV DOWN: %d (%dus)\n",
 			   rpprevdown, GT_PM_INTERVAL_TO_US(dev_priv, rpprevdown));
+=======
+		seq_printf(m, "RP CUR UP EI: %d (%lldns)\n",
+			   rpupei,
+			   intel_gt_pm_interval_to_ns(&dev_priv->gt, rpupei));
+		seq_printf(m, "RP CUR UP: %d (%lldun)\n",
+			   rpcurup,
+			   intel_gt_pm_interval_to_ns(&dev_priv->gt, rpcurup));
+		seq_printf(m, "RP PREV UP: %d (%lldns)\n",
+			   rpprevup,
+			   intel_gt_pm_interval_to_ns(&dev_priv->gt, rpprevup));
+		seq_printf(m, "Up threshold: %d%%\n",
+			   rps->power.up_threshold);
+
+		seq_printf(m, "RP CUR DOWN EI: %d (%lldns)\n",
+			   rpdownei,
+			   intel_gt_pm_interval_to_ns(&dev_priv->gt,
+						      rpdownei));
+		seq_printf(m, "RP CUR DOWN: %d (%lldns)\n",
+			   rpcurdown,
+			   intel_gt_pm_interval_to_ns(&dev_priv->gt,
+						      rpcurdown));
+		seq_printf(m, "RP PREV DOWN: %d (%lldns)\n",
+			   rpprevdown,
+			   intel_gt_pm_interval_to_ns(&dev_priv->gt,
+						      rpprevdown));
+>>>>>>> upstream/android-13
 		seq_printf(m, "Down threshold: %d%%\n",
 			   rps->power.down_threshold);
 
 		max_freq = (IS_GEN9_LP(dev_priv) ? rp_state_cap >> 0 :
 			    rp_state_cap >> 16) & 0xff;
 		max_freq *= (IS_GEN9_BC(dev_priv) ||
+<<<<<<< HEAD
 			     INTEL_GEN(dev_priv) >= 10 ? GEN9_FREQ_SCALER : 1);
 		seq_printf(m, "Lowest (RPN) frequency: %dMHz\n",
 			   intel_gpu_freq(dev_priv, max_freq));
@@ -1242,10 +1596,22 @@ static int i915_frequency_info(struct seq_file *m, void *unused)
 			     INTEL_GEN(dev_priv) >= 10 ? GEN9_FREQ_SCALER : 1);
 		seq_printf(m, "Nominal (RP1) frequency: %dMHz\n",
 			   intel_gpu_freq(dev_priv, max_freq));
+=======
+			     GRAPHICS_VER(dev_priv) >= 11 ? GEN9_FREQ_SCALER : 1);
+		seq_printf(m, "Lowest (RPN) frequency: %dMHz\n",
+			   intel_gpu_freq(rps, max_freq));
+
+		max_freq = (rp_state_cap & 0xff00) >> 8;
+		max_freq *= (IS_GEN9_BC(dev_priv) ||
+			     GRAPHICS_VER(dev_priv) >= 11 ? GEN9_FREQ_SCALER : 1);
+		seq_printf(m, "Nominal (RP1) frequency: %dMHz\n",
+			   intel_gpu_freq(rps, max_freq));
+>>>>>>> upstream/android-13
 
 		max_freq = (IS_GEN9_LP(dev_priv) ? rp_state_cap >> 16 :
 			    rp_state_cap >> 0) & 0xff;
 		max_freq *= (IS_GEN9_BC(dev_priv) ||
+<<<<<<< HEAD
 			     INTEL_GEN(dev_priv) >= 10 ? GEN9_FREQ_SCALER : 1);
 		seq_printf(m, "Max non-overclocked (RP0) frequency: %dMHz\n",
 			   intel_gpu_freq(dev_priv, max_freq));
@@ -1266,6 +1632,28 @@ static int i915_frequency_info(struct seq_file *m, void *unused)
 		seq_printf(m,
 			   "efficient (RPe) frequency: %d MHz\n",
 			   intel_gpu_freq(dev_priv, rps->efficient_freq));
+=======
+			     GRAPHICS_VER(dev_priv) >= 11 ? GEN9_FREQ_SCALER : 1);
+		seq_printf(m, "Max non-overclocked (RP0) frequency: %dMHz\n",
+			   intel_gpu_freq(rps, max_freq));
+		seq_printf(m, "Max overclocked frequency: %dMHz\n",
+			   intel_gpu_freq(rps, rps->max_freq));
+
+		seq_printf(m, "Current freq: %d MHz\n",
+			   intel_gpu_freq(rps, rps->cur_freq));
+		seq_printf(m, "Actual freq: %d MHz\n", cagf);
+		seq_printf(m, "Idle freq: %d MHz\n",
+			   intel_gpu_freq(rps, rps->idle_freq));
+		seq_printf(m, "Min freq: %d MHz\n",
+			   intel_gpu_freq(rps, rps->min_freq));
+		seq_printf(m, "Boost freq: %d MHz\n",
+			   intel_gpu_freq(rps, rps->boost_freq));
+		seq_printf(m, "Max freq: %d MHz\n",
+			   intel_gpu_freq(rps, rps->max_freq));
+		seq_printf(m,
+			   "efficient (RPe) frequency: %d MHz\n",
+			   intel_gpu_freq(rps, rps->efficient_freq));
+>>>>>>> upstream/android-13
 	} else {
 		seq_puts(m, "no P-state info available\n");
 	}
@@ -1274,6 +1662,7 @@ static int i915_frequency_info(struct seq_file *m, void *unused)
 	seq_printf(m, "Max CD clock frequency: %d kHz\n", dev_priv->max_cdclk_freq);
 	seq_printf(m, "Max pixel clock frequency: %d kHz\n", dev_priv->max_dotclk_freq);
 
+<<<<<<< HEAD
 	intel_runtime_pm_put(dev_priv);
 	return ret;
 }
@@ -1993,6 +2382,9 @@ static int i915_context_status(struct seq_file *m, void *unused)
 
 	mutex_unlock(&dev->struct_mutex);
 
+=======
+	intel_runtime_pm_put(&dev_priv->runtime_pm, wakeref);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -2023,6 +2415,7 @@ static const char *swizzle_string(unsigned swizzle)
 static int i915_swizzle_info(struct seq_file *m, void *data)
 {
 	struct drm_i915_private *dev_priv = node_to_i915(m->private);
+<<<<<<< HEAD
 
 	intel_runtime_pm_get(dev_priv);
 
@@ -2058,10 +2451,20 @@ static int i915_swizzle_info(struct seq_file *m, void *data)
 		seq_printf(m, "DISP_ARB_CTL = 0x%08x\n",
 			   I915_READ(DISP_ARB_CTL));
 	}
+=======
+	struct intel_uncore *uncore = &dev_priv->uncore;
+	intel_wakeref_t wakeref;
+
+	seq_printf(m, "bit6 swizzle for X-tiling = %s\n",
+		   swizzle_string(dev_priv->ggtt.bit_6_swizzle_x));
+	seq_printf(m, "bit6 swizzle for Y-tiling = %s\n",
+		   swizzle_string(dev_priv->ggtt.bit_6_swizzle_y));
+>>>>>>> upstream/android-13
 
 	if (dev_priv->quirks & QUIRK_PIN_SWIZZLED_PAGES)
 		seq_puts(m, "L-shaped memory detected\n");
 
+<<<<<<< HEAD
 	intel_runtime_pm_put(dev_priv);
 
 	return 0;
@@ -2084,10 +2487,48 @@ static int per_file_ctx(int id, void *ptr, void *data)
 	else
 		seq_printf(m, "  context %d:\n", ctx->user_handle);
 	ppgtt->debug_dump(ppgtt, m);
+=======
+	/* On BDW+, swizzling is not used. See detect_bit_6_swizzle() */
+	if (GRAPHICS_VER(dev_priv) >= 8 || IS_VALLEYVIEW(dev_priv))
+		return 0;
+
+	wakeref = intel_runtime_pm_get(&dev_priv->runtime_pm);
+
+	if (IS_GRAPHICS_VER(dev_priv, 3, 4)) {
+		seq_printf(m, "DDC = 0x%08x\n",
+			   intel_uncore_read(uncore, DCC));
+		seq_printf(m, "DDC2 = 0x%08x\n",
+			   intel_uncore_read(uncore, DCC2));
+		seq_printf(m, "C0DRB3 = 0x%04x\n",
+			   intel_uncore_read16(uncore, C0DRB3_BW));
+		seq_printf(m, "C1DRB3 = 0x%04x\n",
+			   intel_uncore_read16(uncore, C1DRB3_BW));
+	} else if (GRAPHICS_VER(dev_priv) >= 6) {
+		seq_printf(m, "MAD_DIMM_C0 = 0x%08x\n",
+			   intel_uncore_read(uncore, MAD_DIMM_C0));
+		seq_printf(m, "MAD_DIMM_C1 = 0x%08x\n",
+			   intel_uncore_read(uncore, MAD_DIMM_C1));
+		seq_printf(m, "MAD_DIMM_C2 = 0x%08x\n",
+			   intel_uncore_read(uncore, MAD_DIMM_C2));
+		seq_printf(m, "TILECTL = 0x%08x\n",
+			   intel_uncore_read(uncore, TILECTL));
+		if (GRAPHICS_VER(dev_priv) >= 8)
+			seq_printf(m, "GAMTARBMODE = 0x%08x\n",
+				   intel_uncore_read(uncore, GAMTARBMODE));
+		else
+			seq_printf(m, "ARB_MODE = 0x%08x\n",
+				   intel_uncore_read(uncore, ARB_MODE));
+		seq_printf(m, "DISP_ARB_CTL = 0x%08x\n",
+			   intel_uncore_read(uncore, DISP_ARB_CTL));
+	}
+
+	intel_runtime_pm_put(&dev_priv->runtime_pm, wakeref);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static void gen8_ppgtt_info(struct seq_file *m,
 			    struct drm_i915_private *dev_priv)
 {
@@ -2806,6 +3247,33 @@ static int i915_energy_uJ(struct seq_file *m, void *data)
 	intel_runtime_pm_put(dev_priv);
 
 	seq_printf(m, "%llu", power);
+=======
+static int i915_rps_boost_info(struct seq_file *m, void *data)
+{
+	struct drm_i915_private *dev_priv = node_to_i915(m->private);
+	struct intel_rps *rps = &dev_priv->gt.rps;
+
+	seq_printf(m, "RPS enabled? %s\n", yesno(intel_rps_is_enabled(rps)));
+	seq_printf(m, "RPS active? %s\n", yesno(intel_rps_is_active(rps)));
+	seq_printf(m, "GPU busy? %s\n", yesno(dev_priv->gt.awake));
+	seq_printf(m, "Boosts outstanding? %d\n",
+		   atomic_read(&rps->num_waiters));
+	seq_printf(m, "Interactive? %d\n", READ_ONCE(rps->power.interactive));
+	seq_printf(m, "Frequency requested %d, actual %d\n",
+		   intel_gpu_freq(rps, rps->cur_freq),
+		   intel_rps_read_actual_frequency(rps));
+	seq_printf(m, "  min hard:%d, soft:%d; max soft:%d, hard:%d\n",
+		   intel_gpu_freq(rps, rps->min_freq),
+		   intel_gpu_freq(rps, rps->min_freq_softlimit),
+		   intel_gpu_freq(rps, rps->max_freq_softlimit),
+		   intel_gpu_freq(rps, rps->max_freq));
+	seq_printf(m, "  idle:%d, efficient:%d, boost:%d\n",
+		   intel_gpu_freq(rps, rps->idle_freq),
+		   intel_gpu_freq(rps, rps->efficient_freq),
+		   intel_gpu_freq(rps, rps->boost_freq));
+
+	seq_printf(m, "Wait boosts: %d\n", READ_ONCE(rps->boosts));
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -2813,13 +3281,24 @@ static int i915_energy_uJ(struct seq_file *m, void *data)
 static int i915_runtime_pm_status(struct seq_file *m, void *unused)
 {
 	struct drm_i915_private *dev_priv = node_to_i915(m->private);
+<<<<<<< HEAD
 	struct pci_dev *pdev = dev_priv->drm.pdev;
+=======
+	struct pci_dev *pdev = to_pci_dev(dev_priv->drm.dev);
+>>>>>>> upstream/android-13
 
 	if (!HAS_RUNTIME_PM(dev_priv))
 		seq_puts(m, "Runtime power management not supported\n");
 
+<<<<<<< HEAD
 	seq_printf(m, "GPU idle: %s (epoch %u)\n",
 		   yesno(!dev_priv->gt.awake), dev_priv->gt.epoch);
+=======
+	seq_printf(m, "Runtime power status: %s\n",
+		   enableddisabled(!dev_priv->power_domains.init_wakeref));
+
+	seq_printf(m, "GPU idle: %s\n", yesno(!dev_priv->gt.awake));
+>>>>>>> upstream/android-13
 	seq_printf(m, "IRQs disabled: %s\n",
 		   yesno(!intel_irqs_enabled(dev_priv)));
 #ifdef CONFIG_PM
@@ -2832,6 +3311,7 @@ static int i915_runtime_pm_status(struct seq_file *m, void *unused)
 		   pci_power_name(pdev->current_state),
 		   pdev->current_state);
 
+<<<<<<< HEAD
 	return 0;
 }
 
@@ -3240,11 +3720,20 @@ static int i915_display_info(struct seq_file *m, void *unused)
 
 	intel_runtime_pm_put(dev_priv);
 
+=======
+	if (IS_ENABLED(CONFIG_DRM_I915_DEBUG_RUNTIME_PM)) {
+		struct drm_printer p = drm_seq_file_printer(m);
+
+		print_intel_runtime_pm_wakeref(&dev_priv->runtime_pm, &p);
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int i915_engine_info(struct seq_file *m, void *unused)
 {
+<<<<<<< HEAD
 	struct drm_i915_private *dev_priv = node_to_i915(m->private);
 	struct intel_engine_cs *engine;
 	enum intel_engine_id id;
@@ -3333,12 +3822,37 @@ static int i915_shared_dplls_info(struct seq_file *m, void *unused)
 			   pll->state.hw_state.mg_pll_tdc_coldst_bias);
 	}
 	drm_modeset_unlock_all(dev);
+=======
+	struct drm_i915_private *i915 = node_to_i915(m->private);
+	struct intel_engine_cs *engine;
+	intel_wakeref_t wakeref;
+	struct drm_printer p;
+
+	wakeref = intel_runtime_pm_get(&i915->runtime_pm);
+
+	seq_printf(m, "GT awake? %s [%d], %llums\n",
+		   yesno(i915->gt.awake),
+		   atomic_read(&i915->gt.wakeref.count),
+		   ktime_to_ms(intel_gt_get_awake_time(&i915->gt)));
+	seq_printf(m, "CS timestamp frequency: %u Hz, %d ns\n",
+		   i915->gt.clock_frequency,
+		   i915->gt.clock_period_ns);
+
+	p = drm_seq_file_printer(m);
+	for_each_uabi_engine(engine, i915)
+		intel_engine_dump(engine, &p, "%s\n", engine->name);
+
+	intel_gt_show_timelines(&i915->gt, &p, i915_request_show_with_schedule);
+
+	intel_runtime_pm_put(&i915->runtime_pm, wakeref);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static int i915_wa_registers(struct seq_file *m, void *unused)
 {
+<<<<<<< HEAD
 	struct i915_workarounds *wa = &node_to_i915(m->private)->workarounds;
 	int i;
 
@@ -3995,12 +4509,57 @@ i915_wedged_get(void *data, u64 *val)
 	*val = i915_terminally_wedged(&dev_priv->gpu_error);
 
 	return 0;
+=======
+	struct drm_i915_private *i915 = node_to_i915(m->private);
+	struct intel_engine_cs *engine;
+
+	for_each_uabi_engine(engine, i915) {
+		const struct i915_wa_list *wal = &engine->ctx_wa_list;
+		const struct i915_wa *wa;
+		unsigned int count;
+
+		count = wal->count;
+		if (!count)
+			continue;
+
+		seq_printf(m, "%s: Workarounds applied: %u\n",
+			   engine->name, count);
+
+		for (wa = wal->list; count--; wa++)
+			seq_printf(m, "0x%X: 0x%08X, mask: 0x%08X\n",
+				   i915_mmio_reg_offset(wa->reg),
+				   wa->set, wa->clr);
+
+		seq_printf(m, "\n");
+	}
+
+	return 0;
+}
+
+static int
+i915_wedged_get(void *data, u64 *val)
+{
+	struct drm_i915_private *i915 = data;
+	int ret = intel_gt_terminally_wedged(&i915->gt);
+
+	switch (ret) {
+	case -EIO:
+		*val = 1;
+		return 0;
+	case 0:
+		*val = 0;
+		return 0;
+	default:
+		return ret;
+	}
+>>>>>>> upstream/android-13
 }
 
 static int
 i915_wedged_set(void *data, u64 val)
 {
 	struct drm_i915_private *i915 = data;
+<<<<<<< HEAD
 	struct intel_engine_cs *engine;
 	unsigned int tmp;
 
@@ -4027,6 +4586,15 @@ i915_wedged_set(void *data, u64 val)
 		    I915_RESET_HANDOFF,
 		    TASK_UNINTERRUPTIBLE);
 
+=======
+
+	/* Flush any previous reset before applying for a new one */
+	wait_event(i915->gt.reset.queue,
+		   !test_bit(I915_RESET_BACKOFF, &i915->gt.reset.flags));
+
+	intel_gt_handle_error(&i915->gt, val, I915_ERROR_CAPTURE,
+			      "Manually set wedged engine mask = %llx", val);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -4035,6 +4603,7 @@ DEFINE_SIMPLE_ATTRIBUTE(i915_wedged_fops,
 			"%llu\n");
 
 static int
+<<<<<<< HEAD
 fault_irq_set(struct drm_i915_private *i915,
 	      unsigned long *irq,
 	      unsigned long val)
@@ -4093,10 +4662,25 @@ i915_ring_test_irq_get(void *data, u64 *val)
 
 	*val = dev_priv->gpu_error.test_irq_rings;
 
+=======
+i915_perf_noa_delay_set(void *data, u64 val)
+{
+	struct drm_i915_private *i915 = data;
+
+	/*
+	 * This would lead to infinite waits as we're doing timestamp
+	 * difference on the CS with only 32bits.
+	 */
+	if (intel_gt_ns_to_clock_interval(&i915->gt, val) > U32_MAX)
+		return -EINVAL;
+
+	atomic64_set(&i915->perf.noa_programming_delay, val);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int
+<<<<<<< HEAD
 i915_ring_test_irq_set(void *data, u64 val)
 {
 	struct drm_i915_private *i915 = data;
@@ -4110,6 +4694,20 @@ i915_ring_test_irq_set(void *data, u64 val)
 DEFINE_SIMPLE_ATTRIBUTE(i915_ring_test_irq_fops,
 			i915_ring_test_irq_get, i915_ring_test_irq_set,
 			"0x%08llx\n");
+=======
+i915_perf_noa_delay_get(void *data, u64 *val)
+{
+	struct drm_i915_private *i915 = data;
+
+	*val = atomic64_read(&i915->perf.noa_programming_delay);
+	return 0;
+}
+
+DEFINE_SIMPLE_ATTRIBUTE(i915_perf_noa_delay_fops,
+			i915_perf_noa_delay_get,
+			i915_perf_noa_delay_set,
+			"%llu\n");
+>>>>>>> upstream/android-13
 
 #define DROP_UNBOUND	BIT(0)
 #define DROP_BOUND	BIT(1)
@@ -4118,13 +4716,26 @@ DEFINE_SIMPLE_ATTRIBUTE(i915_ring_test_irq_fops,
 #define DROP_FREED	BIT(4)
 #define DROP_SHRINK_ALL	BIT(5)
 #define DROP_IDLE	BIT(6)
+<<<<<<< HEAD
+=======
+#define DROP_RESET_ACTIVE	BIT(7)
+#define DROP_RESET_SEQNO	BIT(8)
+#define DROP_RCU	BIT(9)
+>>>>>>> upstream/android-13
 #define DROP_ALL (DROP_UNBOUND	| \
 		  DROP_BOUND	| \
 		  DROP_RETIRE	| \
 		  DROP_ACTIVE	| \
 		  DROP_FREED	| \
 		  DROP_SHRINK_ALL |\
+<<<<<<< HEAD
 		  DROP_IDLE)
+=======
+		  DROP_IDLE	| \
+		  DROP_RESET_ACTIVE | \
+		  DROP_RESET_SEQNO | \
+		  DROP_RCU)
+>>>>>>> upstream/android-13
 static int
 i915_drop_caches_get(void *data, u64 *val)
 {
@@ -4132,17 +4743,58 @@ i915_drop_caches_get(void *data, u64 *val)
 
 	return 0;
 }
+<<<<<<< HEAD
+=======
+static int
+gt_drop_caches(struct intel_gt *gt, u64 val)
+{
+	int ret;
+
+	if (val & DROP_RESET_ACTIVE &&
+	    wait_for(intel_engines_are_idle(gt), I915_IDLE_ENGINES_TIMEOUT))
+		intel_gt_set_wedged(gt);
+
+	if (val & DROP_RETIRE)
+		intel_gt_retire_requests(gt);
+
+	if (val & (DROP_IDLE | DROP_ACTIVE)) {
+		ret = intel_gt_wait_for_idle(gt, MAX_SCHEDULE_TIMEOUT);
+		if (ret)
+			return ret;
+	}
+
+	if (val & DROP_IDLE) {
+		ret = intel_gt_pm_wait_for_idle(gt);
+		if (ret)
+			return ret;
+	}
+
+	if (val & DROP_RESET_ACTIVE && intel_gt_terminally_wedged(gt))
+		intel_gt_handle_error(gt, ALL_ENGINES, 0, NULL);
+
+	if (val & DROP_FREED)
+		intel_gt_flush_buffer_pool(gt);
+
+	return 0;
+}
+>>>>>>> upstream/android-13
 
 static int
 i915_drop_caches_set(void *data, u64 val)
 {
+<<<<<<< HEAD
 	struct drm_i915_private *dev_priv = data;
 	struct drm_device *dev = &dev_priv->drm;
 	int ret = 0;
+=======
+	struct drm_i915_private *i915 = data;
+	int ret;
+>>>>>>> upstream/android-13
 
 	DRM_DEBUG("Dropping caches: 0x%08llx [0x%08llx]\n",
 		  val, val & DROP_ALL);
 
+<<<<<<< HEAD
 	/* No need to check and wait for gpu resets, only libdrm auto-restarts
 	 * on ioctls on -EAGAIN. */
 	if (val & (DROP_ACTIVE | DROP_RETIRE)) {
@@ -4185,12 +4837,37 @@ i915_drop_caches_set(void *data, u64 val)
 		i915_gem_drain_freed_objects(dev_priv);
 
 	return ret;
+=======
+	ret = gt_drop_caches(&i915->gt, val);
+	if (ret)
+		return ret;
+
+	fs_reclaim_acquire(GFP_KERNEL);
+	if (val & DROP_BOUND)
+		i915_gem_shrink(NULL, i915, LONG_MAX, NULL, I915_SHRINK_BOUND);
+
+	if (val & DROP_UNBOUND)
+		i915_gem_shrink(NULL, i915, LONG_MAX, NULL, I915_SHRINK_UNBOUND);
+
+	if (val & DROP_SHRINK_ALL)
+		i915_gem_shrink_all(i915);
+	fs_reclaim_release(GFP_KERNEL);
+
+	if (val & DROP_RCU)
+		rcu_barrier();
+
+	if (val & DROP_FREED)
+		i915_gem_drain_freed_objects(i915);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 DEFINE_SIMPLE_ATTRIBUTE(i915_drop_caches_fops,
 			i915_drop_caches_get, i915_drop_caches_set,
 			"0x%08llx\n");
 
+<<<<<<< HEAD
 static int
 i915_cache_sharing_get(void *data, u64 *val)
 {
@@ -4485,17 +5162,34 @@ static int i915_sseu_status(struct seq_file *m, void *unused)
 	i915_print_sseu_info(m, false, &sseu);
 
 	return 0;
+=======
+static int i915_sseu_status(struct seq_file *m, void *unused)
+{
+	struct drm_i915_private *i915 = node_to_i915(m->private);
+	struct intel_gt *gt = &i915->gt;
+
+	return intel_sseu_status(m, gt);
+>>>>>>> upstream/android-13
 }
 
 static int i915_forcewake_open(struct inode *inode, struct file *file)
 {
 	struct drm_i915_private *i915 = inode->i_private;
+<<<<<<< HEAD
 
 	if (INTEL_GEN(i915) < 6)
 		return 0;
 
 	intel_runtime_pm_get(i915);
 	intel_uncore_forcewake_user_get(i915);
+=======
+	struct intel_gt *gt = &i915->gt;
+
+	atomic_inc(&gt->user_wakeref);
+	intel_gt_pm_get(gt);
+	if (GRAPHICS_VER(i915) >= 6)
+		intel_uncore_forcewake_user_get(gt->uncore);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -4503,12 +5197,21 @@ static int i915_forcewake_open(struct inode *inode, struct file *file)
 static int i915_forcewake_release(struct inode *inode, struct file *file)
 {
 	struct drm_i915_private *i915 = inode->i_private;
+<<<<<<< HEAD
 
 	if (INTEL_GEN(i915) < 6)
 		return 0;
 
 	intel_uncore_forcewake_user_put(i915);
 	intel_runtime_pm_put(i915);
+=======
+	struct intel_gt *gt = &i915->gt;
+
+	if (GRAPHICS_VER(i915) >= 6)
+		intel_uncore_forcewake_user_put(&i915->uncore);
+	intel_gt_pm_put(gt);
+	atomic_dec(&gt->user_wakeref);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -4519,6 +5222,7 @@ static const struct file_operations i915_forcewake_fops = {
 	.release = i915_forcewake_release,
 };
 
+<<<<<<< HEAD
 static int i915_hpd_storm_ctl_show(struct seq_file *m, void *data)
 {
 	struct drm_i915_private *dev_priv = m->private;
@@ -4742,6 +5446,17 @@ static const struct drm_info_list i915_debugfs_list[] = {
 	{"i915_ddb_info", i915_ddb_info, 0},
 	{"i915_sseu_status", i915_sseu_status, 0},
 	{"i915_drrs_status", i915_drrs_status, 0},
+=======
+static const struct drm_info_list i915_debugfs_list[] = {
+	{"i915_capabilities", i915_capabilities, 0},
+	{"i915_gem_objects", i915_gem_object_info, 0},
+	{"i915_frequency_info", i915_frequency_info, 0},
+	{"i915_swizzle_info", i915_swizzle_info, 0},
+	{"i915_runtime_pm_status", i915_runtime_pm_status, 0},
+	{"i915_engine_info", i915_engine_info, 0},
+	{"i915_wa_registers", i915_wa_registers, 0},
+	{"i915_sseu_status", i915_sseu_status, 0},
+>>>>>>> upstream/android-13
 	{"i915_rps_boost_info", i915_rps_boost_info, 0},
 };
 #define I915_DEBUGFS_ENTRIES ARRAY_SIZE(i915_debugfs_list)
@@ -4750,15 +5465,21 @@ static const struct i915_debugfs_files {
 	const char *name;
 	const struct file_operations *fops;
 } i915_debugfs_files[] = {
+<<<<<<< HEAD
 	{"i915_wedged", &i915_wedged_fops},
 	{"i915_cache_sharing", &i915_cache_sharing_fops},
 	{"i915_ring_missed_irq", &i915_ring_missed_irq_fops},
 	{"i915_ring_test_irq", &i915_ring_test_irq_fops},
+=======
+	{"i915_perf_noa_delay", &i915_perf_noa_delay_fops},
+	{"i915_wedged", &i915_wedged_fops},
+>>>>>>> upstream/android-13
 	{"i915_gem_drop_caches", &i915_drop_caches_fops},
 #if IS_ENABLED(CONFIG_DRM_I915_CAPTURE_ERROR)
 	{"i915_error_state", &i915_error_state_fops},
 	{"i915_gpu_info", &i915_gpu_info_fops},
 #endif
+<<<<<<< HEAD
 	{"i915_fifo_underrun_reset", &i915_fifo_underrun_reset_ops},
 	{"i915_next_seqno", &i915_next_seqno_fops},
 	{"i915_pri_wm_latency", &i915_pri_wm_latency_fops},
@@ -4917,4 +5638,28 @@ int i915_debugfs_connector_add(struct drm_connector *connector)
 	}
 
 	return 0;
+=======
+};
+
+void i915_debugfs_register(struct drm_i915_private *dev_priv)
+{
+	struct drm_minor *minor = dev_priv->drm.primary;
+	int i;
+
+	i915_debugfs_params(dev_priv);
+
+	debugfs_create_file("i915_forcewake_user", S_IRUSR, minor->debugfs_root,
+			    to_i915(minor->dev), &i915_forcewake_fops);
+	for (i = 0; i < ARRAY_SIZE(i915_debugfs_files); i++) {
+		debugfs_create_file(i915_debugfs_files[i].name,
+				    S_IRUGO | S_IWUSR,
+				    minor->debugfs_root,
+				    to_i915(minor->dev),
+				    i915_debugfs_files[i].fops);
+	}
+
+	drm_debugfs_create_files(i915_debugfs_list,
+				 I915_DEBUGFS_ENTRIES,
+				 minor->debugfs_root, minor);
+>>>>>>> upstream/android-13
 }

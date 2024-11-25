@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -59,6 +60,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+/*
+ * Copyright (C) 2012-2014, 2018-2020 Intel Corporation
+ * Copyright (C) 2017 Intel Deutschland GmbH
+ */
+>>>>>>> upstream/android-13
 #ifndef __iwl_fw_api_rs_h__
 #define __iwl_fw_api_rs_h__
 
@@ -66,12 +74,33 @@
 
 /**
  * enum iwl_tlc_mng_cfg_flags_enum - options for TLC config flags
+<<<<<<< HEAD
  * @IWL_TLC_MNG_CFG_FLAGS_STBC_MSK: enable STBC
  * @IWL_TLC_MNG_CFG_FLAGS_LDPC_MSK: enable LDPC
  */
 enum iwl_tlc_mng_cfg_flags {
 	IWL_TLC_MNG_CFG_FLAGS_STBC_MSK		= BIT(0),
 	IWL_TLC_MNG_CFG_FLAGS_LDPC_MSK		= BIT(1),
+=======
+ * @IWL_TLC_MNG_CFG_FLAGS_STBC_MSK: enable STBC. For HE this enables STBC for
+ *				    bandwidths <= 80MHz
+ * @IWL_TLC_MNG_CFG_FLAGS_LDPC_MSK: enable LDPC
+ * @IWL_TLC_MNG_CFG_FLAGS_HE_STBC_160MHZ_MSK: enable STBC in HE at 160MHz
+ *					      bandwidth
+ * @IWL_TLC_MNG_CFG_FLAGS_HE_DCM_NSS_1_MSK: enable HE Dual Carrier Modulation
+ *					    for BPSK (MCS 0) with 1 spatial
+ *					    stream
+ * @IWL_TLC_MNG_CFG_FLAGS_HE_DCM_NSS_2_MSK: enable HE Dual Carrier Modulation
+ *					    for BPSK (MCS 0) with 2 spatial
+ *					    streams
+ */
+enum iwl_tlc_mng_cfg_flags {
+	IWL_TLC_MNG_CFG_FLAGS_STBC_MSK			= BIT(0),
+	IWL_TLC_MNG_CFG_FLAGS_LDPC_MSK			= BIT(1),
+	IWL_TLC_MNG_CFG_FLAGS_HE_STBC_160MHZ_MSK	= BIT(2),
+	IWL_TLC_MNG_CFG_FLAGS_HE_DCM_NSS_1_MSK		= BIT(3),
+	IWL_TLC_MNG_CFG_FLAGS_HE_DCM_NSS_2_MSK		= BIT(4),
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -154,8 +183,21 @@ enum iwl_tlc_mng_ht_rates {
 	IWL_TLC_MNG_HT_RATE_MAX = IWL_TLC_MNG_HT_RATE_MCS11,
 };
 
+<<<<<<< HEAD
 /* Maximum supported tx antennas number */
 #define MAX_NSS 2
+=======
+enum IWL_TLC_MNG_NSS {
+	IWL_TLC_NSS_1,
+	IWL_TLC_NSS_2,
+	IWL_TLC_NSS_MAX
+};
+
+enum IWL_TLC_HT_BW_RATES {
+	IWL_TLC_HT_BW_NONE_160,
+	IWL_TLC_HT_BW_160,
+};
+>>>>>>> upstream/android-13
 
 /**
  * struct tlc_config_cmd - TLC configuration
@@ -173,6 +215,11 @@ enum iwl_tlc_mng_ht_rates {
  * @sgi_ch_width_supp: bitmap of SGI support per channel width
  *		       use BIT(@enum iwl_tlc_mng_cfg_cw)
  * @reserved2: reserved
+<<<<<<< HEAD
+=======
+ * @max_tx_op: max TXOP in uSecs for all AC (BK, BE, VO, VI),
+ *	       set zero for no limit.
+>>>>>>> upstream/android-13
  */
 struct iwl_tlc_config_cmd {
 	u8 sta_id;
@@ -183,11 +230,20 @@ struct iwl_tlc_config_cmd {
 	u8 amsdu;
 	__le16 flags;
 	__le16 non_ht_rates;
+<<<<<<< HEAD
 	__le16 ht_rates[MAX_NSS][2];
 	__le16 max_mpdu_len;
 	u8 sgi_ch_width_supp;
 	u8 reserved2[1];
 } __packed; /* TLC_MNG_CONFIG_CMD_API_S_VER_2 */
+=======
+	__le16 ht_rates[IWL_TLC_NSS_MAX][2];
+	__le16 max_mpdu_len;
+	u8 sgi_ch_width_supp;
+	u8 reserved2;
+	__le32 max_tx_op;
+} __packed; /* TLC_MNG_CONFIG_CMD_API_S_VER_3 */
+>>>>>>> upstream/android-13
 
 /**
  * enum iwl_tlc_update_flags - updated fields
@@ -217,6 +273,7 @@ struct iwl_tlc_update_notif {
 	__le32 amsdu_enabled;
 } __packed; /* TLC_MNG_UPDATE_NTFY_API_S_VER_2 */
 
+<<<<<<< HEAD
 /**
  * enum iwl_tlc_debug_flags - debug options
  * @IWL_TLC_DEBUG_FIXED_RATE: set fixed rate for rate scaling
@@ -277,6 +334,8 @@ struct iwl_dhc_tlc_cmd {
 	u8 reserved2[3];
 } __packed;
 
+=======
+>>>>>>> upstream/android-13
 /*
  * These serve as indexes into
  * struct iwl_rate_info fw_rate_idx_to_plcp[IWL_RATE_COUNT];
@@ -526,6 +585,16 @@ enum {
 #define RATE_MCS_HE_106T_POS		28
 #define RATE_MCS_HE_106T_MSK		(1 << RATE_MCS_HE_106T_POS)
 
+<<<<<<< HEAD
+=======
+/* Bit 30-31: (1) RTS, (2) CTS */
+#define RATE_MCS_RTS_REQUIRED_POS  (30)
+#define RATE_MCS_RTS_REQUIRED_MSK  (0x1 << RATE_MCS_RTS_REQUIRED_POS)
+
+#define RATE_MCS_CTS_REQUIRED_POS  (31)
+#define RATE_MCS_CTS_REQUIRED_MSK  (0x1 << RATE_MCS_CTS_REQUIRED_POS)
+
+>>>>>>> upstream/android-13
 /* Link Quality definitions */
 
 /* # entries in rate scale table to support Tx retries */

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * si7020.c - Silicon Labs Si7013/20/21 Relative Humidity and Temp Sensors
  * Copyright (c) 2013,2014  Uplogix, Inc.
  * David Barksdale <dbarksdale@uplogix.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -11,6 +16,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -28,6 +35,10 @@
 #include <linux/delay.h>
 #include <linux/i2c.h>
 #include <linux/module.h>
+<<<<<<< HEAD
+=======
+#include <linux/mod_devicetable.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/sysfs.h>
 
@@ -136,7 +147,10 @@ static int si7020_probe(struct i2c_client *client,
 	data = iio_priv(indio_dev);
 	*data = client;
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &client->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->name = dev_name(&client->dev);
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->info = &si7020_info;
@@ -162,7 +176,11 @@ MODULE_DEVICE_TABLE(of, si7020_dt_ids);
 static struct i2c_driver si7020_driver = {
 	.driver = {
 		.name = "si7020",
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(si7020_dt_ids),
+=======
+		.of_match_table = si7020_dt_ids,
+>>>>>>> upstream/android-13
 	},
 	.probe		= si7020_probe,
 	.id_table	= si7020_id,

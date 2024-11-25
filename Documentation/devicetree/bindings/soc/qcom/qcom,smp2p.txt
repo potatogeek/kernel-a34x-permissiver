@@ -41,12 +41,20 @@ processor ID) and a string identifier.
 - qcom,local-pid:
 	Usage: required
 	Value type: <u32>
+<<<<<<< HEAD
 	Definition: specifies the identfier of the local endpoint of this edge
+=======
+	Definition: specifies the identifier of the local endpoint of this edge
+>>>>>>> upstream/android-13
 
 - qcom,remote-pid:
 	Usage: required
 	Value type: <u32>
+<<<<<<< HEAD
 	Definition: specifies the identfier of the remote endpoint of this edge
+=======
+	Definition: specifies the identifier of the remote endpoint of this edge
+>>>>>>> upstream/android-13
 
 = SUBNODES
 Each SMP2P pair contain a set of inbound and outbound entries, these are

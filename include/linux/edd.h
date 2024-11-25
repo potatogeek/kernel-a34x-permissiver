@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * linux/include/linux/edd.h
  *  Copyright (C) 2002, 2003, 2004 Dell Inc.
@@ -16,6 +20,7 @@
  * transferred into the edd structure, and in drivers/firmware/edd.c, that
  * information is used to identify BIOS boot disk.  The code in setup.S
  * is very sensitive to the size of these structures.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License v2.0 as published by
@@ -26,6 +31,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _LINUX_EDD_H
 #define _LINUX_EDD_H

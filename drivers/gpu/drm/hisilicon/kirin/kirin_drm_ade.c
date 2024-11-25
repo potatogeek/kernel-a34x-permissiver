@@ -1,22 +1,34 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Hisilicon Hi6220 SoC ADE(Advanced Display Engine)'s crtc&plane driver
  *
  * Copyright (c) 2016 Linaro Limited.
+<<<<<<< HEAD
  * Copyright (c) 2014-2016 Hisilicon Limited.
+=======
+ * Copyright (c) 2014-2016 HiSilicon Limited.
+>>>>>>> upstream/android-13
  *
  * Author:
  *	Xinliang Liu <z.liuxinliang@hisilicon.com>
  *	Xinliang Liu <xinliang.liu@linaro.org>
  *	Xinwei Kong <kong.kongxinwei@hisilicon.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
 #include <linux/clk.h>
+<<<<<<< HEAD
 #include <video/display_timing.h>
 #include <linux/mfd/syscon.h>
 #include <linux/regmap.h>
@@ -30,10 +42,31 @@
 #include <drm/drm_plane_helper.h>
 #include <drm/drm_gem_cma_helper.h>
 #include <drm/drm_fb_cma_helper.h>
+=======
+#include <linux/mfd/syscon.h>
+#include <linux/platform_device.h>
+#include <linux/regmap.h>
+#include <linux/reset.h>
+
+#include <video/display_timing.h>
+
+#include <drm/drm_atomic.h>
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_crtc.h>
+#include <drm/drm_drv.h>
+#include <drm/drm_fb_cma_helper.h>
+#include <drm/drm_fourcc.h>
+#include <drm/drm_gem_cma_helper.h>
+#include <drm/drm_plane_helper.h>
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_vblank.h>
+#include <drm/drm_gem_framebuffer_helper.h>
+>>>>>>> upstream/android-13
 
 #include "kirin_drm_drv.h"
 #include "kirin_ade_reg.h"
 
+<<<<<<< HEAD
 #define PRIMARY_CH	ADE_CH1 /* primary plane */
 #define OUT_OVLY	ADE_OVLY2 /* output overlay compositor */
 #define ADE_DEBUG	1
@@ -43,6 +76,11 @@
 
 #define to_ade_plane(plane) \
 	container_of(plane, struct ade_plane, base)
+=======
+#define OUT_OVLY	ADE_OVLY2 /* output overlay compositor */
+#define ADE_DEBUG	1
+
+>>>>>>> upstream/android-13
 
 struct ade_hw_ctx {
 	void __iomem  *base;
@@ -53,6 +91,7 @@ struct ade_hw_ctx {
 	struct reset_control *reset;
 	bool power_on;
 	int irq;
+<<<<<<< HEAD
 };
 
 struct ade_crtc {
@@ -81,6 +120,13 @@ struct ade_format {
 };
 
 static const struct ade_format ade_formats[] = {
+=======
+
+	struct drm_crtc *crtc;
+};
+
+static const struct kirin_format ade_formats[] = {
+>>>>>>> upstream/android-13
 	/* 16bpp RGB: */
 	{ DRM_FORMAT_RGB565, ADE_RGB_565 },
 	{ DRM_FORMAT_BGR565, ADE_BGR_565 },
@@ -96,7 +142,11 @@ static const struct ade_format ade_formats[] = {
 	{ DRM_FORMAT_ABGR8888, ADE_ABGR_8888 },
 };
 
+<<<<<<< HEAD
 static const u32 channel_formats1[] = {
+=======
+static const u32 channel_formats[] = {
+>>>>>>> upstream/android-13
 	/* channel 1,2,3,4 */
 	DRM_FORMAT_RGB565, DRM_FORMAT_BGR565, DRM_FORMAT_RGB888,
 	DRM_FORMAT_BGR888, DRM_FORMAT_XRGB8888, DRM_FORMAT_XBGR8888,
@@ -104,6 +154,7 @@ static const u32 channel_formats1[] = {
 	DRM_FORMAT_ABGR8888
 };
 
+<<<<<<< HEAD
 u32 ade_get_channel_formats(u8 ch, const u32 **formats)
 {
 	switch (ch) {
@@ -117,6 +168,8 @@ u32 ade_get_channel_formats(u8 ch, const u32 **formats)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 /* convert from fourcc format to ade format */
 static u32 ade_get_format(u32 pixel_format)
 {
@@ -124,7 +177,11 @@ static u32 ade_get_format(u32 pixel_format)
 
 	for (i = 0; i < ARRAY_SIZE(ade_formats); i++)
 		if (ade_formats[i].pixel_format == pixel_format)
+<<<<<<< HEAD
 			return ade_formats[i].ade_format;
+=======
+			return ade_formats[i].hw_format;
+>>>>>>> upstream/android-13
 
 	/* not found */
 	DRM_ERROR("Not found pixel format!!fourcc_format= %d\n",
@@ -182,8 +239,13 @@ static bool ade_crtc_mode_fixup(struct drm_crtc *crtc,
 				const struct drm_display_mode *mode,
 				struct drm_display_mode *adjusted_mode)
 {
+<<<<<<< HEAD
 	struct ade_crtc *acrtc = to_ade_crtc(crtc);
 	struct ade_hw_ctx *ctx = acrtc->ctx;
+=======
+	struct kirin_crtc *kcrtc = to_kirin_crtc(crtc);
+	struct ade_hw_ctx *ctx = kcrtc->hw_ctx;
+>>>>>>> upstream/android-13
 
 	adjusted_mode->clock =
 		clk_round_rate(ctx->ade_pix_clk, mode->clock * 1000) / 1000;
@@ -208,11 +270,18 @@ static void ade_set_pix_clk(struct ade_hw_ctx *ctx,
 	adj_mode->clock = clk_get_rate(ctx->ade_pix_clk) / 1000;
 }
 
+<<<<<<< HEAD
 static void ade_ldi_set_mode(struct ade_crtc *acrtc,
 			     struct drm_display_mode *mode,
 			     struct drm_display_mode *adj_mode)
 {
 	struct ade_hw_ctx *ctx = acrtc->ctx;
+=======
+static void ade_ldi_set_mode(struct ade_hw_ctx *ctx,
+			     struct drm_display_mode *mode,
+			     struct drm_display_mode *adj_mode)
+{
+>>>>>>> upstream/android-13
 	void __iomem *base = ctx->base;
 	u32 width = mode->hdisplay;
 	u32 height = mode->vdisplay;
@@ -299,9 +368,14 @@ static void ade_power_down(struct ade_hw_ctx *ctx)
 	ctx->power_on = false;
 }
 
+<<<<<<< HEAD
 static void ade_set_medianoc_qos(struct ade_crtc *acrtc)
 {
 	struct ade_hw_ctx *ctx = acrtc->ctx;
+=======
+static void ade_set_medianoc_qos(struct ade_hw_ctx *ctx)
+{
+>>>>>>> upstream/android-13
 	struct regmap *map = ctx->noc_regmap;
 
 	regmap_update_bits(map, ADE0_QOSGENERATOR_MODE,
@@ -317,8 +391,13 @@ static void ade_set_medianoc_qos(struct ade_crtc *acrtc)
 
 static int ade_crtc_enable_vblank(struct drm_crtc *crtc)
 {
+<<<<<<< HEAD
 	struct ade_crtc *acrtc = to_ade_crtc(crtc);
 	struct ade_hw_ctx *ctx = acrtc->ctx;
+=======
+	struct kirin_crtc *kcrtc = to_kirin_crtc(crtc);
+	struct ade_hw_ctx *ctx = kcrtc->hw_ctx;
+>>>>>>> upstream/android-13
 	void __iomem *base = ctx->base;
 
 	if (!ctx->power_on)
@@ -332,8 +411,13 @@ static int ade_crtc_enable_vblank(struct drm_crtc *crtc)
 
 static void ade_crtc_disable_vblank(struct drm_crtc *crtc)
 {
+<<<<<<< HEAD
 	struct ade_crtc *acrtc = to_ade_crtc(crtc);
 	struct ade_hw_ctx *ctx = acrtc->ctx;
+=======
+	struct kirin_crtc *kcrtc = to_kirin_crtc(crtc);
+	struct ade_hw_ctx *ctx = kcrtc->hw_ctx;
+>>>>>>> upstream/android-13
 	void __iomem *base = ctx->base;
 
 	if (!ctx->power_on) {
@@ -347,9 +431,14 @@ static void ade_crtc_disable_vblank(struct drm_crtc *crtc)
 
 static irqreturn_t ade_irq_handler(int irq, void *data)
 {
+<<<<<<< HEAD
 	struct ade_crtc *acrtc = data;
 	struct ade_hw_ctx *ctx = acrtc->ctx;
 	struct drm_crtc *crtc = &acrtc->base;
+=======
+	struct ade_hw_ctx *ctx = data;
+	struct drm_crtc *crtc = ctx->crtc;
+>>>>>>> upstream/android-13
 	void __iomem *base = ctx->base;
 	u32 status;
 
@@ -366,11 +455,18 @@ static irqreturn_t ade_irq_handler(int irq, void *data)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static void ade_display_enable(struct ade_crtc *acrtc)
 {
 	struct ade_hw_ctx *ctx = acrtc->ctx;
 	void __iomem *base = ctx->base;
 	u32 out_fmt = acrtc->out_format;
+=======
+static void ade_display_enable(struct ade_hw_ctx *ctx)
+{
+	void __iomem *base = ctx->base;
+	u32 out_fmt = LDI_OUT_RGB_888;
+>>>>>>> upstream/android-13
 
 	/* enable output overlay compositor */
 	writel(ADE_ENABLE, base + ADE_OVLYX_CTL(OUT_OVLY));
@@ -481,6 +577,7 @@ static void ade_dump_regs(void __iomem *base) { }
 #endif
 
 static void ade_crtc_atomic_enable(struct drm_crtc *crtc,
+<<<<<<< HEAD
 				   struct drm_crtc_state *old_state)
 {
 	struct ade_crtc *acrtc = to_ade_crtc(crtc);
@@ -488,6 +585,15 @@ static void ade_crtc_atomic_enable(struct drm_crtc *crtc,
 	int ret;
 
 	if (acrtc->enable)
+=======
+				   struct drm_atomic_state *state)
+{
+	struct kirin_crtc *kcrtc = to_kirin_crtc(crtc);
+	struct ade_hw_ctx *ctx = kcrtc->hw_ctx;
+	int ret;
+
+	if (kcrtc->enable)
+>>>>>>> upstream/android-13
 		return;
 
 	if (!ctx->power_on) {
@@ -496,6 +602,7 @@ static void ade_crtc_atomic_enable(struct drm_crtc *crtc,
 			return;
 	}
 
+<<<<<<< HEAD
 	ade_set_medianoc_qos(acrtc);
 	ade_display_enable(acrtc);
 	ade_dump_regs(ctx->base);
@@ -510,22 +617,48 @@ static void ade_crtc_atomic_disable(struct drm_crtc *crtc,
 	struct ade_hw_ctx *ctx = acrtc->ctx;
 
 	if (!acrtc->enable)
+=======
+	ade_set_medianoc_qos(ctx);
+	ade_display_enable(ctx);
+	ade_dump_regs(ctx->base);
+	drm_crtc_vblank_on(crtc);
+	kcrtc->enable = true;
+}
+
+static void ade_crtc_atomic_disable(struct drm_crtc *crtc,
+				    struct drm_atomic_state *state)
+{
+	struct kirin_crtc *kcrtc = to_kirin_crtc(crtc);
+	struct ade_hw_ctx *ctx = kcrtc->hw_ctx;
+
+	if (!kcrtc->enable)
+>>>>>>> upstream/android-13
 		return;
 
 	drm_crtc_vblank_off(crtc);
 	ade_power_down(ctx);
+<<<<<<< HEAD
 	acrtc->enable = false;
+=======
+	kcrtc->enable = false;
+>>>>>>> upstream/android-13
 }
 
 static void ade_crtc_mode_set_nofb(struct drm_crtc *crtc)
 {
+<<<<<<< HEAD
 	struct ade_crtc *acrtc = to_ade_crtc(crtc);
 	struct ade_hw_ctx *ctx = acrtc->ctx;
+=======
+	struct kirin_crtc *kcrtc = to_kirin_crtc(crtc);
+	struct ade_hw_ctx *ctx = kcrtc->hw_ctx;
+>>>>>>> upstream/android-13
 	struct drm_display_mode *mode = &crtc->state->mode;
 	struct drm_display_mode *adj_mode = &crtc->state->adjusted_mode;
 
 	if (!ctx->power_on)
 		(void)ade_power_up(ctx);
+<<<<<<< HEAD
 	ade_ldi_set_mode(acrtc, mode, adj_mode);
 }
 
@@ -534,11 +667,22 @@ static void ade_crtc_atomic_begin(struct drm_crtc *crtc,
 {
 	struct ade_crtc *acrtc = to_ade_crtc(crtc);
 	struct ade_hw_ctx *ctx = acrtc->ctx;
+=======
+	ade_ldi_set_mode(ctx, mode, adj_mode);
+}
+
+static void ade_crtc_atomic_begin(struct drm_crtc *crtc,
+				  struct drm_atomic_state *state)
+{
+	struct kirin_crtc *kcrtc = to_kirin_crtc(crtc);
+	struct ade_hw_ctx *ctx = kcrtc->hw_ctx;
+>>>>>>> upstream/android-13
 	struct drm_display_mode *mode = &crtc->state->mode;
 	struct drm_display_mode *adj_mode = &crtc->state->adjusted_mode;
 
 	if (!ctx->power_on)
 		(void)ade_power_up(ctx);
+<<<<<<< HEAD
 	ade_ldi_set_mode(acrtc, mode, adj_mode);
 }
 
@@ -548,11 +692,26 @@ static void ade_crtc_atomic_flush(struct drm_crtc *crtc,
 {
 	struct ade_crtc *acrtc = to_ade_crtc(crtc);
 	struct ade_hw_ctx *ctx = acrtc->ctx;
+=======
+	ade_ldi_set_mode(ctx, mode, adj_mode);
+}
+
+static void ade_crtc_atomic_flush(struct drm_crtc *crtc,
+				  struct drm_atomic_state *state)
+
+{
+	struct kirin_crtc *kcrtc = to_kirin_crtc(crtc);
+	struct ade_hw_ctx *ctx = kcrtc->hw_ctx;
+>>>>>>> upstream/android-13
 	struct drm_pending_vblank_event *event = crtc->state->event;
 	void __iomem *base = ctx->base;
 
 	/* only crtc is enabled regs take effect */
+<<<<<<< HEAD
 	if (acrtc->enable) {
+=======
+	if (kcrtc->enable) {
+>>>>>>> upstream/android-13
 		ade_dump_regs(base);
 		/* flush ade registers */
 		writel(ADE_ENABLE, base + ADE_EN);
@@ -590,6 +749,7 @@ static const struct drm_crtc_funcs ade_crtc_funcs = {
 	.disable_vblank	= ade_crtc_disable_vblank,
 };
 
+<<<<<<< HEAD
 static int ade_crtc_init(struct drm_device *dev, struct drm_crtc *crtc,
 			 struct drm_plane *plane)
 {
@@ -619,20 +779,31 @@ static int ade_crtc_init(struct drm_device *dev, struct drm_crtc *crtc,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void ade_rdma_set(void __iomem *base, struct drm_framebuffer *fb,
 			 u32 ch, u32 y, u32 in_h, u32 fmt)
 {
 	struct drm_gem_cma_object *obj = drm_fb_cma_get_gem_obj(fb, 0);
+<<<<<<< HEAD
 	struct drm_format_name_buf format_name;
+=======
+>>>>>>> upstream/android-13
 	u32 reg_ctrl, reg_addr, reg_size, reg_stride, reg_space, reg_en;
 	u32 stride = fb->pitches[0];
 	u32 addr = (u32)obj->paddr + y * stride;
 
 	DRM_DEBUG_DRIVER("rdma%d: (y=%d, height=%d), stride=%d, paddr=0x%x\n",
 			 ch + 1, y, in_h, stride, (u32)obj->paddr);
+<<<<<<< HEAD
 	DRM_DEBUG_DRIVER("addr=0x%x, fb:%dx%d, pixel_format=%d(%s)\n",
 			 addr, fb->width, fb->height, fmt,
 			 drm_get_format_name(fb->format->format, &format_name));
+=======
+	DRM_DEBUG_DRIVER("addr=0x%x, fb:%dx%d, pixel_format=%d(%p4cc)\n",
+			 addr, fb->width, fb->height, fmt,
+			 &fb->format->format);
+>>>>>>> upstream/android-13
 
 	/* get reg offset */
 	reg_ctrl = RD_CH_CTRL(ch);
@@ -780,16 +951,27 @@ static void ade_compositor_routing_disable(void __iomem *base, u32 ch)
 /*
  * Typicaly, a channel looks like: DMA-->clip-->scale-->ctrans-->compositor
  */
+<<<<<<< HEAD
 static void ade_update_channel(struct ade_plane *aplane,
+=======
+static void ade_update_channel(struct kirin_plane *kplane,
+>>>>>>> upstream/android-13
 			       struct drm_framebuffer *fb, int crtc_x,
 			       int crtc_y, unsigned int crtc_w,
 			       unsigned int crtc_h, u32 src_x,
 			       u32 src_y, u32 src_w, u32 src_h)
 {
+<<<<<<< HEAD
 	struct ade_hw_ctx *ctx = aplane->ctx;
 	void __iomem *base = ctx->base;
 	u32 fmt = ade_get_format(fb->format->format);
 	u32 ch = aplane->ch;
+=======
+	struct ade_hw_ctx *ctx = kplane->hw_ctx;
+	void __iomem *base = ctx->base;
+	u32 fmt = ade_get_format(fb->format->format);
+	u32 ch = kplane->ch;
+>>>>>>> upstream/android-13
 	u32 in_w;
 	u32 in_h;
 
@@ -813,11 +995,19 @@ static void ade_update_channel(struct ade_plane *aplane,
 	ade_compositor_routing_set(base, ch, crtc_x, crtc_y, in_w, in_h, fmt);
 }
 
+<<<<<<< HEAD
 static void ade_disable_channel(struct ade_plane *aplane)
 {
 	struct ade_hw_ctx *ctx = aplane->ctx;
 	void __iomem *base = ctx->base;
 	u32 ch = aplane->ch;
+=======
+static void ade_disable_channel(struct kirin_plane *kplane)
+{
+	struct ade_hw_ctx *ctx = kplane->hw_ctx;
+	void __iomem *base = ctx->base;
+	u32 ch = kplane->ch;
+>>>>>>> upstream/android-13
 
 	DRM_DEBUG_DRIVER("disable channel%d\n", ch + 1);
 
@@ -832,6 +1022,7 @@ static void ade_disable_channel(struct ade_plane *aplane)
 }
 
 static int ade_plane_atomic_check(struct drm_plane *plane,
+<<<<<<< HEAD
 				  struct drm_plane_state *state)
 {
 	struct drm_framebuffer *fb = state->fb;
@@ -845,6 +1036,23 @@ static int ade_plane_atomic_check(struct drm_plane *plane,
 	int crtc_y = state->crtc_y;
 	u32 crtc_w = state->crtc_w;
 	u32 crtc_h = state->crtc_h;
+=======
+				  struct drm_atomic_state *state)
+{
+	struct drm_plane_state *new_plane_state = drm_atomic_get_new_plane_state(state,
+										 plane);
+	struct drm_framebuffer *fb = new_plane_state->fb;
+	struct drm_crtc *crtc = new_plane_state->crtc;
+	struct drm_crtc_state *crtc_state;
+	u32 src_x = new_plane_state->src_x >> 16;
+	u32 src_y = new_plane_state->src_y >> 16;
+	u32 src_w = new_plane_state->src_w >> 16;
+	u32 src_h = new_plane_state->src_h >> 16;
+	int crtc_x = new_plane_state->crtc_x;
+	int crtc_y = new_plane_state->crtc_y;
+	u32 crtc_w = new_plane_state->crtc_w;
+	u32 crtc_h = new_plane_state->crtc_h;
+>>>>>>> upstream/android-13
 	u32 fmt;
 
 	if (!crtc || !fb)
@@ -854,7 +1062,11 @@ static int ade_plane_atomic_check(struct drm_plane *plane,
 	if (fmt == ADE_FORMAT_UNSUPPORT)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	crtc_state = drm_atomic_get_crtc_state(state->state, crtc);
+=======
+	crtc_state = drm_atomic_get_crtc_state(state, crtc);
+>>>>>>> upstream/android-13
 	if (IS_ERR(crtc_state))
 		return PTR_ERR(crtc_state);
 
@@ -877,6 +1089,7 @@ static int ade_plane_atomic_check(struct drm_plane *plane,
 }
 
 static void ade_plane_atomic_update(struct drm_plane *plane,
+<<<<<<< HEAD
 				    struct drm_plane_state *old_state)
 {
 	struct drm_plane_state	*state	= plane->state;
@@ -894,6 +1107,27 @@ static void ade_plane_atomic_disable(struct drm_plane *plane,
 	struct ade_plane *aplane = to_ade_plane(plane);
 
 	ade_disable_channel(aplane);
+=======
+				    struct drm_atomic_state *state)
+{
+	struct drm_plane_state *new_state = drm_atomic_get_new_plane_state(state,
+									   plane);
+	struct kirin_plane *kplane = to_kirin_plane(plane);
+
+	ade_update_channel(kplane, new_state->fb, new_state->crtc_x,
+			   new_state->crtc_y,
+			   new_state->crtc_w, new_state->crtc_h,
+			   new_state->src_x >> 16, new_state->src_y >> 16,
+			   new_state->src_w >> 16, new_state->src_h >> 16);
+}
+
+static void ade_plane_atomic_disable(struct drm_plane *plane,
+				     struct drm_atomic_state *state)
+{
+	struct kirin_plane *kplane = to_kirin_plane(plane);
+
+	ade_disable_channel(kplane);
+>>>>>>> upstream/android-13
 }
 
 static const struct drm_plane_helper_funcs ade_plane_helper_funcs = {
@@ -911,6 +1145,7 @@ static struct drm_plane_funcs ade_plane_funcs = {
 	.atomic_destroy_state = drm_atomic_helper_plane_destroy_state,
 };
 
+<<<<<<< HEAD
 static int ade_plane_init(struct drm_device *dev, struct ade_plane *aplane,
 			  enum drm_plane_type type)
 {
@@ -936,50 +1171,90 @@ static int ade_plane_init(struct drm_device *dev, struct ade_plane *aplane,
 }
 
 static int ade_dts_parse(struct platform_device *pdev, struct ade_hw_ctx *ctx)
+=======
+static void *ade_hw_ctx_alloc(struct platform_device *pdev,
+			      struct drm_crtc *crtc)
+>>>>>>> upstream/android-13
 {
 	struct resource *res;
 	struct device *dev = &pdev->dev;
 	struct device_node *np = pdev->dev.of_node;
+<<<<<<< HEAD
+=======
+	struct ade_hw_ctx *ctx = NULL;
+	int ret;
+
+	ctx = devm_kzalloc(dev, sizeof(*ctx), GFP_KERNEL);
+	if (!ctx) {
+		DRM_ERROR("failed to alloc ade_hw_ctx\n");
+		return ERR_PTR(-ENOMEM);
+	}
+>>>>>>> upstream/android-13
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	ctx->base = devm_ioremap_resource(dev, res);
 	if (IS_ERR(ctx->base)) {
 		DRM_ERROR("failed to remap ade io base\n");
+<<<<<<< HEAD
 		return  PTR_ERR(ctx->base);
+=======
+		return ERR_PTR(-EIO);
+>>>>>>> upstream/android-13
 	}
 
 	ctx->reset = devm_reset_control_get(dev, NULL);
 	if (IS_ERR(ctx->reset))
+<<<<<<< HEAD
 		return PTR_ERR(ctx->reset);
+=======
+		return ERR_PTR(-ENODEV);
+>>>>>>> upstream/android-13
 
 	ctx->noc_regmap =
 		syscon_regmap_lookup_by_phandle(np, "hisilicon,noc-syscon");
 	if (IS_ERR(ctx->noc_regmap)) {
 		DRM_ERROR("failed to get noc regmap\n");
+<<<<<<< HEAD
 		return PTR_ERR(ctx->noc_regmap);
+=======
+		return ERR_PTR(-ENODEV);
+>>>>>>> upstream/android-13
 	}
 
 	ctx->irq = platform_get_irq(pdev, 0);
 	if (ctx->irq < 0) {
 		DRM_ERROR("failed to get irq\n");
+<<<<<<< HEAD
 		return -ENODEV;
+=======
+		return ERR_PTR(-ENODEV);
+>>>>>>> upstream/android-13
 	}
 
 	ctx->ade_core_clk = devm_clk_get(dev, "clk_ade_core");
 	if (IS_ERR(ctx->ade_core_clk)) {
 		DRM_ERROR("failed to parse clk ADE_CORE\n");
+<<<<<<< HEAD
 		return PTR_ERR(ctx->ade_core_clk);
+=======
+		return ERR_PTR(-ENODEV);
+>>>>>>> upstream/android-13
 	}
 
 	ctx->media_noc_clk = devm_clk_get(dev, "clk_codec_jpeg");
 	if (IS_ERR(ctx->media_noc_clk)) {
 		DRM_ERROR("failed to parse clk CODEC_JPEG\n");
+<<<<<<< HEAD
 		return PTR_ERR(ctx->media_noc_clk);
+=======
+		return ERR_PTR(-ENODEV);
+>>>>>>> upstream/android-13
 	}
 
 	ctx->ade_pix_clk = devm_clk_get(dev, "clk_ade_pix");
 	if (IS_ERR(ctx->ade_pix_clk)) {
 		DRM_ERROR("failed to parse clk ADE_PIX\n");
+<<<<<<< HEAD
 		return PTR_ERR(ctx->ade_pix_clk);
 	}
 
@@ -1051,4 +1326,60 @@ static void ade_drm_cleanup(struct platform_device *pdev)
 const struct kirin_dc_ops ade_dc_ops = {
 	.init = ade_drm_init,
 	.cleanup = ade_drm_cleanup
+=======
+		return ERR_PTR(-ENODEV);
+	}
+
+	/* vblank irq init */
+	ret = devm_request_irq(dev, ctx->irq, ade_irq_handler,
+			       IRQF_SHARED, dev->driver->name, ctx);
+	if (ret)
+		return ERR_PTR(-EIO);
+
+	ctx->crtc = crtc;
+
+	return ctx;
+}
+
+static void ade_hw_ctx_cleanup(void *hw_ctx)
+{
+}
+
+static const struct drm_mode_config_funcs ade_mode_config_funcs = {
+	.fb_create = drm_gem_fb_create,
+	.atomic_check = drm_atomic_helper_check,
+	.atomic_commit = drm_atomic_helper_commit,
+
+};
+
+DEFINE_DRM_GEM_CMA_FOPS(ade_fops);
+
+static const struct drm_driver ade_driver = {
+	.driver_features = DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC,
+	.fops = &ade_fops,
+	DRM_GEM_CMA_DRIVER_OPS,
+	.name = "kirin",
+	.desc = "Hisilicon Kirin620 SoC DRM Driver",
+	.date = "20150718",
+	.major = 1,
+	.minor = 0,
+};
+
+struct kirin_drm_data ade_driver_data = {
+	.num_planes = ADE_CH_NUM,
+	.prim_plane = ADE_CH1,
+	.channel_formats = channel_formats,
+	.channel_formats_cnt = ARRAY_SIZE(channel_formats),
+	.config_max_width = 2048,
+	.config_max_height = 2048,
+	.driver = &ade_driver,
+	.crtc_helper_funcs = &ade_crtc_helper_funcs,
+	.crtc_funcs = &ade_crtc_funcs,
+	.plane_helper_funcs = &ade_plane_helper_funcs,
+	.plane_funcs = &ade_plane_funcs,
+	.mode_config_funcs = &ade_mode_config_funcs,
+
+	.alloc_hw_ctx = ade_hw_ctx_alloc,
+	.cleanup_hw_ctx = ade_hw_ctx_cleanup,
+>>>>>>> upstream/android-13
 };

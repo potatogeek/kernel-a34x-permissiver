@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Clock implementation for VIA/Wondermedia SoC's
  * Copyright (C) 2012 Tony Prisk <linux@prisktech.co.nz>
@@ -11,6 +12,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Clock implementation for VIA/Wondermedia SoC's
+ * Copyright (C) 2012 Tony Prisk <linux@prisktech.co.nz>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/io.h>
@@ -236,7 +243,11 @@ static __init void vtwm_device_clk_init(struct device_node *node)
 	struct clk_device *dev_clk;
 	const char *clk_name = node->name;
 	const char *parent_name;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	int rc;
 	int clk_init_flags = 0;
 
@@ -686,7 +697,11 @@ static __init void vtwm_pll_clk_init(struct device_node *node, int pll_type)
 	struct clk_pll *pll_clk;
 	const char *clk_name = node->name;
 	const char *parent_name;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	int rc;
 
 	if (!pmc_base)

@@ -13,11 +13,17 @@
 #include <linux/kernel.h>
 #include <linux/init.h>
 #include <linux/of_device.h>
+<<<<<<< HEAD
 #include <linux/of_gpio.h>
 #include <linux/pci.h>
 #include <linux/platform_device.h>
 #include <linux/resource.h>
 #include <linux/signal.h>
+=======
+#include <linux/pci.h>
+#include <linux/platform_device.h>
+#include <linux/resource.h>
+>>>>>>> upstream/android-13
 #include <linux/types.h>
 #include <linux/regmap.h>
 
@@ -35,6 +41,7 @@ struct dw_plat_pcie_of_data {
 
 static const struct of_device_id dw_plat_pcie_of_match[];
 
+<<<<<<< HEAD
 static int dw_plat_pcie_host_init(struct pcie_port *pp)
 {
 	struct dw_pcie *pci = to_dw_pcie_from_pp(pp);
@@ -56,6 +63,9 @@ static void dw_plat_set_num_vectors(struct pcie_port *pp)
 static const struct dw_pcie_host_ops dw_plat_pcie_host_ops = {
 	.host_init = dw_plat_pcie_host_init,
 	.set_num_vectors = dw_plat_set_num_vectors,
+=======
+static const struct dw_pcie_host_ops dw_plat_pcie_host_ops = {
+>>>>>>> upstream/android-13
 };
 
 static int dw_plat_pcie_establish_link(struct dw_pcie *pci)
@@ -70,6 +80,7 @@ static const struct dw_pcie_ops dw_pcie_ops = {
 static void dw_plat_pcie_ep_init(struct dw_pcie_ep *ep)
 {
 	struct dw_pcie *pci = to_dw_pcie_from_ep(ep);
+<<<<<<< HEAD
 	struct pci_epc *epc = ep->epc;
 	enum pci_barno bar;
 
@@ -78,6 +89,12 @@ static void dw_plat_pcie_ep_init(struct dw_pcie_ep *ep)
 
 	epc->features |= EPC_FEATURE_NO_LINKUP_NOTIFIER;
 	epc->features |= EPC_FEATURE_MSIX_AVAILABLE;
+=======
+	enum pci_barno bar;
+
+	for (bar = 0; bar < PCI_STD_NUM_BARS; bar++)
+		dw_pcie_ep_reset_bar(pci, bar);
+>>>>>>> upstream/android-13
 }
 
 static int dw_plat_pcie_ep_raise_irq(struct dw_pcie_ep *ep, u8 func_no,
@@ -100,9 +117,28 @@ static int dw_plat_pcie_ep_raise_irq(struct dw_pcie_ep *ep, u8 func_no,
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct dw_pcie_ep_ops pcie_ep_ops = {
 	.ep_init = dw_plat_pcie_ep_init,
 	.raise_irq = dw_plat_pcie_ep_raise_irq,
+=======
+static const struct pci_epc_features dw_plat_pcie_epc_features = {
+	.linkup_notifier = false,
+	.msi_capable = true,
+	.msix_capable = true,
+};
+
+static const struct pci_epc_features*
+dw_plat_pcie_get_features(struct dw_pcie_ep *ep)
+{
+	return &dw_plat_pcie_epc_features;
+}
+
+static const struct dw_pcie_ep_ops pcie_ep_ops = {
+	.ep_init = dw_plat_pcie_ep_init,
+	.raise_irq = dw_plat_pcie_ep_raise_irq,
+	.get_features = dw_plat_pcie_get_features,
+>>>>>>> upstream/android-13
 };
 
 static int dw_plat_add_pcie_port(struct dw_plat_pcie *dw_plat_pcie,
@@ -117,12 +153,16 @@ static int dw_plat_add_pcie_port(struct dw_plat_pcie *dw_plat_pcie,
 	if (pp->irq < 0)
 		return pp->irq;
 
+<<<<<<< HEAD
 	if (IS_ENABLED(CONFIG_PCI_MSI)) {
 		pp->msi_irq = platform_get_irq(pdev, 0);
 		if (pp->msi_irq < 0)
 			return pp->msi_irq;
 	}
 
+=======
+	pp->num_vectors = MAX_MSI_IRQS;
+>>>>>>> upstream/android-13
 	pp->ops = &dw_plat_pcie_host_ops;
 
 	ret = dw_pcie_host_init(pp);
@@ -134,6 +174,7 @@ static int dw_plat_add_pcie_port(struct dw_plat_pcie *dw_plat_pcie,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int dw_plat_add_pcie_ep(struct dw_plat_pcie *dw_plat_pcie,
 			       struct platform_device *pdev)
 {
@@ -166,12 +207,17 @@ static int dw_plat_add_pcie_ep(struct dw_plat_pcie *dw_plat_pcie,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int dw_plat_pcie_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct dw_plat_pcie *dw_plat_pcie;
 	struct dw_pcie *pci;
+<<<<<<< HEAD
 	struct resource *res;  /* Resource from DT */
+=======
+>>>>>>> upstream/android-13
 	int ret;
 	const struct of_device_id *match;
 	const struct dw_plat_pcie_of_data *data;
@@ -198,6 +244,7 @@ static int dw_plat_pcie_probe(struct platform_device *pdev)
 	dw_plat_pcie->pci = pci;
 	dw_plat_pcie->mode = mode;
 
+<<<<<<< HEAD
 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "dbi");
 	if (!res)
 		res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
@@ -206,6 +253,8 @@ static int dw_plat_pcie_probe(struct platform_device *pdev)
 	if (IS_ERR(pci->dbi_base))
 		return PTR_ERR(pci->dbi_base);
 
+=======
+>>>>>>> upstream/android-13
 	platform_set_drvdata(pdev, dw_plat_pcie);
 
 	switch (dw_plat_pcie->mode) {
@@ -221,10 +270,15 @@ static int dw_plat_pcie_probe(struct platform_device *pdev)
 		if (!IS_ENABLED(CONFIG_PCIE_DW_PLAT_EP))
 			return -ENODEV;
 
+<<<<<<< HEAD
 		ret = dw_plat_add_pcie_ep(dw_plat_pcie, pdev);
 		if (ret < 0)
 			return ret;
 		break;
+=======
+		pci->ep.ops = &pcie_ep_ops;
+		return dw_pcie_ep_init(&pci->ep);
+>>>>>>> upstream/android-13
 	default:
 		dev_err(dev, "INVALID device type %d\n", dw_plat_pcie->mode);
 	}

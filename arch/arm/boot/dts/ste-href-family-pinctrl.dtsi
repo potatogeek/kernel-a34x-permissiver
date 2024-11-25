@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2013 Linaro Ltd.
  *
@@ -10,10 +11,19 @@
  */
 
 #include "ste-nomadik-pinctrl.dtsi"
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2013 Linaro Ltd.
+ */
+
+#include "ste-dbx5x0-pinctrl.dtsi"
+>>>>>>> upstream/android-13
 
 / {
 	soc {
 		pinctrl {
+<<<<<<< HEAD
 			/* Settings for all UART default and sleep states */
 			uart0 {
 				uart0_default_mode: uart0_default {
@@ -215,6 +225,8 @@
 				};
 			};
 
+=======
+>>>>>>> upstream/android-13
 			/* Settings for all SPI default and sleep states */
 			spi2 {
 				spi2_default_mode: spi_default {
@@ -276,6 +288,7 @@
 				};
 			};
 
+<<<<<<< HEAD
 			/* Settings for all MMC/SD/SDIO default and sleep states */
 			sdi0 {
 				/* This is the external SD card slot, 4 bits wide */
@@ -605,6 +618,8 @@
 				};
 			};
 
+=======
+>>>>>>> upstream/android-13
 			mcde {
 				lcd_default_mode: lcd_default {
 					default_mux1 {
@@ -613,7 +628,10 @@
 						groups =
 						"lcdvsi0_a_1", /* VSI0 for LCD */
 						"lcd_d0_d7_a_1", /* Data lines */
+<<<<<<< HEAD
 						"lcd_d8_d11_a_1", /* TV-out */
+=======
+>>>>>>> upstream/android-13
 						"lcdvsi1_a_1"; /* VSI1 for HDMI */
 					};
 					default_mux2 {

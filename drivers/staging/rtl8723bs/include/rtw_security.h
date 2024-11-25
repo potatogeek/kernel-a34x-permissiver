@@ -7,6 +7,10 @@
 #ifndef __RTW_SECURITY_H_
 #define __RTW_SECURITY_H_
 
+<<<<<<< HEAD
+=======
+#include <crypto/arc4.h>
+>>>>>>> upstream/android-13
 
 #define _NO_PRIVACY_		0x0
 #define _WEP40_				0x1
@@ -21,9 +25,12 @@
 
 const char *security_type_str(u8 value);
 
+<<<<<<< HEAD
 #define _WPA_IE_ID_	0xdd
 #define _WPA2_IE_ID_	0x30
 
+=======
+>>>>>>> upstream/android-13
 #define SHA256_MAC_LEN 32
 #define AES_BLOCK_SIZE 16
 #define AES_PRIV_SIZE (4 * 44)
@@ -87,12 +94,17 @@ union Keytype {
 };
 
 
+<<<<<<< HEAD
 typedef struct _RT_PMKID_LIST
 {
+=======
+struct rt_pmkid_list {
+>>>>>>> upstream/android-13
 	u8 				bUsed;
 	u8 				Bssid[6];
 	u8 				PMKID[16];
 	u8 				SsidBuf[33];
+<<<<<<< HEAD
 	u8*					ssid_octet;
 	u16 					ssid_length;
 } RT_PMKID_LIST, *PRT_PMKID_LIST;
@@ -100,6 +112,14 @@ typedef struct _RT_PMKID_LIST
 
 struct security_priv
 {
+=======
+	u8 *ssid_octet;
+	u16 					ssid_length;
+};
+
+
+struct security_priv {
+>>>>>>> upstream/android-13
 	u32   dot11AuthAlgrthm;		/*  802.11 auth, could be open, shared, 8021x and authswitch */
 	u32   dot11PrivacyAlgrthm;	/*  This specify the privacy for shared auth. algorithm. */
 
@@ -132,11 +152,18 @@ struct security_priv
 	u8 wps_ie[MAX_WPS_IE_LEN];/* added in assoc req */
 	int wps_ie_len;
 
+<<<<<<< HEAD
 
 	u8 binstallGrpkey;
 #ifdef CONFIG_GTK_OL
 	u8 binstallKCK_KEK;
 #endif /* CONFIG_GTK_OL */
+=======
+	struct arc4_ctx xmit_arc4_ctx;
+	struct arc4_ctx recv_arc4_ctx;
+
+	u8 binstallGrpkey;
+>>>>>>> upstream/android-13
 	u8 binstallBIPkey;
 	u8 busetkipkey;
 	/* _timer tkip_timer; */
@@ -150,7 +177,11 @@ struct security_priv
 
 
 	/* keeps the auth_type & enc_status from upper layer ioctl(wpa_supplicant or wzc) */
+<<<<<<< HEAD
 	u32 ndisauthtype;	/*  enum NDIS_802_11_AUTHENTICATION_MODE */
+=======
+	u32 ndisauthtype;	/*  enum ndis_802_11_authentication_mode */
+>>>>>>> upstream/android-13
 	u32 ndisencryptstatus;	/*  NDIS_802_11_ENCRYPTION_STATUS */
 
 	struct wlan_bssid_ex sec_bss;  /* for joinbss (h2c buffer) usage */
@@ -171,11 +202,16 @@ struct security_priv
 	u32 btkip_countermeasure_time;
 
 	/*  For WPA2 Pre-Authentication. */
+<<<<<<< HEAD
 	RT_PMKID_LIST		PMKIDList[NUM_PMKID_CACHE];	/*  Renamed from PreAuthKey[NUM_PRE_AUTH_KEY]. Annie, 2006-10-13. */
+=======
+	struct rt_pmkid_list		PMKIDList[NUM_PMKID_CACHE];	/*  Renamed from PreAuthKey[NUM_PRE_AUTH_KEY]. Annie, 2006-10-13. */
+>>>>>>> upstream/android-13
 	u8 		PMKIDIndex;
 
 	u8 bWepDefaultKeyIdxSet;
 
+<<<<<<< HEAD
 #define DBG_SW_SEC_CNT
 #ifdef DBG_SW_SEC_CNT
 	u64 wep_sw_enc_cnt_bc;
@@ -209,6 +245,12 @@ struct sha256_state {
 
 #define GET_ENCRY_ALGO(psecuritypriv, psta, encry_algo, bmcst)\
 do{\
+=======
+};
+
+#define GET_ENCRY_ALGO(psecuritypriv, psta, encry_algo, bmcst)\
+do {\
+>>>>>>> upstream/android-13
 	switch (psecuritypriv->dot11AuthAlgrthm)\
 	{\
 		case dot11AuthAlgrthm_Open:\
@@ -220,11 +262,16 @@ do{\
 			if (bmcst)\
 				encry_algo = (u8)psecuritypriv->dot118021XGrpPrivacy;\
 			else\
+<<<<<<< HEAD
 				encry_algo =(u8) psta->dot118021XPrivacy;\
+=======
+				encry_algo = (u8)psta->dot118021XPrivacy;\
+>>>>>>> upstream/android-13
 			break;\
 	     case dot11AuthAlgrthm_WAPI:\
 		     encry_algo = (u8)psecuritypriv->dot11PrivacyAlgrthm;\
 		     break;\
+<<<<<<< HEAD
 	}\
 }while (0)
 
@@ -232,6 +279,13 @@ do{\
 
 #define SET_ICE_IV_LEN(iv_len, icv_len, encrypt)\
 do{\
+=======
+	} \
+} while (0)
+
+#define SET_ICE_IV_LEN(iv_len, icv_len, encrypt)\
+do {\
+>>>>>>> upstream/android-13
 	switch (encrypt)\
 	{\
 		case _WEP40_:\
@@ -255,6 +309,7 @@ do{\
 			iv_len = 0;\
 			icv_len = 0;\
 			break;\
+<<<<<<< HEAD
 	}\
 }while (0)
 
@@ -268,19 +323,39 @@ do{\
 	dot11txpn._byte_.TSC4 =iv[6];\
 	dot11txpn._byte_.TSC5 =iv[7];\
 }while (0)
+=======
+	} \
+} while (0)
+
+
+#define GET_TKIP_PN(iv, dot11txpn)\
+do {\
+	dot11txpn._byte_.TSC0 = iv[2];\
+	dot11txpn._byte_.TSC1 = iv[0];\
+	dot11txpn._byte_.TSC2 = iv[4];\
+	dot11txpn._byte_.TSC3 = iv[5];\
+	dot11txpn._byte_.TSC4 = iv[6];\
+	dot11txpn._byte_.TSC5 = iv[7];\
+} while (0)
+>>>>>>> upstream/android-13
 
 
 #define ROL32(A, n)	(((A) << (n)) | (((A)>>(32-(n)))  & ((1UL << (n)) - 1)))
 #define ROR32(A, n)	ROL32((A), 32-(n))
 
+<<<<<<< HEAD
 struct mic_data
 {
+=======
+struct mic_data {
+>>>>>>> upstream/android-13
 	u32  K0, K1;         /*  Key */
 	u32  L, R;           /*  Current state */
 	u32  M;              /*  Message accumulator (single word) */
 	u32     nBytesInM;      /*  # bytes in M */
 };
 
+<<<<<<< HEAD
 extern const u32 Te0[256];
 extern const u32 Te1[256];
 extern const u32 Te2[256];
@@ -365,11 +440,14 @@ static inline u32 rotr(u32 val, int bits)
 		(a)[7] = (u8) (((u64) (val)) & 0xff);	\
 	} while (0)
 
+=======
+>>>>>>> upstream/android-13
 /* ===== start - public domain SHA256 implementation ===== */
 
 /* This is based on SHA256 implementation in LibTomCrypt that was released into
  * public domain by Tom St Denis. */
 
+<<<<<<< HEAD
 /* the K array */
 static const unsigned long K[64] = {
 	0x428a2f98UL, 0x71374491UL, 0xb5c0fbcfUL, 0xe9b5dba5UL, 0x3956c25bUL,
@@ -411,6 +489,16 @@ void rtw_secgetmic(struct mic_data *pmicdata, u8 * dst);
 
 void rtw_seccalctkipmic(
 	u8 * key,
+=======
+int omac1_aes_128(u8 *key, u8 *data, size_t data_len, u8 *mac);
+void rtw_secmicsetkey(struct mic_data *pmicdata, u8 *key);
+void rtw_secmicappendbyte(struct mic_data *pmicdata, u8 b);
+void rtw_secmicappend(struct mic_data *pmicdata, u8 *src, u32 nBytes);
+void rtw_secgetmic(struct mic_data *pmicdata, u8 *dst);
+
+void rtw_seccalctkipmic(
+	u8 *key,
+>>>>>>> upstream/android-13
 	u8 *header,
 	u8 *data,
 	u32 data_len,
@@ -427,6 +515,10 @@ void rtw_wep_decrypt(struct adapter *padapter, u8  *precvframe);
 u32 rtw_BIP_verify(struct adapter *padapter, u8 *precvframe);
 
 void rtw_sec_restore_wep_key(struct adapter *adapter);
+<<<<<<< HEAD
 u8 rtw_handle_tkip_countermeasure(struct adapter * adapter, const char *caller);
+=======
+u8 rtw_handle_tkip_countermeasure(struct adapter *adapter, const char *caller);
+>>>>>>> upstream/android-13
 
 #endif	/* __RTL871X_SECURITY_H_ */

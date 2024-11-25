@@ -29,10 +29,25 @@ static const char *v3d_fence_get_timeline_name(struct dma_fence *fence)
 {
 	struct v3d_fence *f = to_v3d_fence(fence);
 
+<<<<<<< HEAD
 	if (f->queue == V3D_BIN)
 		return "v3d-bin";
 	else
 		return "v3d-render";
+=======
+	switch (f->queue) {
+	case V3D_BIN:
+		return "v3d-bin";
+	case V3D_RENDER:
+		return "v3d-render";
+	case V3D_TFU:
+		return "v3d-tfu";
+	case V3D_CSD:
+		return "v3d-csd";
+	default:
+		return NULL;
+	}
+>>>>>>> upstream/android-13
 }
 
 const struct dma_fence_ops v3d_fence_ops = {

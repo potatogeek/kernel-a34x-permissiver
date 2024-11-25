@@ -17,7 +17,11 @@ void _mcount(void);
 #endif
 
 #ifdef CONFIG_DYNAMIC_FTRACE
+<<<<<<< HEAD
 /* reloction of mcount call site is the same as the address */
+=======
+/* relocation of mcount call site is the same as the address */
+>>>>>>> upstream/android-13
 static inline unsigned long ftrace_call_adjust(unsigned long addr)
 {
 	return addr;

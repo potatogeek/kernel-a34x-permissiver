@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver for Epson RTC-9701JE
  *
@@ -7,10 +11,13 @@
  *
  * Copyright (C) 2006 8D Technologies inc.
  * Copyright (C) 2004 Compulab Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -78,8 +85,11 @@ static int r9701_get_datetime(struct device *dev, struct rtc_time *dt)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	memset(dt, 0, sizeof(*dt));
 
+=======
+>>>>>>> upstream/android-13
 	dt->tm_sec = bcd2bin(buf[0]); /* RSECCNT */
 	dt->tm_min = bcd2bin(buf[1]); /* RMINCNT */
 	dt->tm_hour = bcd2bin(buf[2]); /* RHRCNT */
@@ -88,20 +98,27 @@ static int r9701_get_datetime(struct device *dev, struct rtc_time *dt)
 	dt->tm_mon = bcd2bin(buf[4]) - 1; /* RMONCNT */
 	dt->tm_year = bcd2bin(buf[5]) + 100; /* RYRCNT */
 
+<<<<<<< HEAD
 	/* the rtc device may contain illegal values on power up
 	 * according to the data sheet. make sure they are valid.
 	 */
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int r9701_set_datetime(struct device *dev, struct rtc_time *dt)
 {
+<<<<<<< HEAD
 	int ret, year;
 
 	year = dt->tm_year + 1900;
 	if (year >= 2100 || year < 2000)
 		return -EINVAL;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	ret = write_reg(dev, RHRCNT, bin2bcd(dt->tm_hour));
 	ret = ret ? ret : write_reg(dev, RMINCNT, bin2bcd(dt->tm_min));
@@ -109,7 +126,10 @@ static int r9701_set_datetime(struct device *dev, struct rtc_time *dt)
 	ret = ret ? ret : write_reg(dev, RDAYCNT, bin2bcd(dt->tm_mday));
 	ret = ret ? ret : write_reg(dev, RMONCNT, bin2bcd(dt->tm_mon + 1));
 	ret = ret ? ret : write_reg(dev, RYRCNT, bin2bcd(dt->tm_year - 100));
+<<<<<<< HEAD
 	ret = ret ? ret : write_reg(dev, RWKCNT, 1 << dt->tm_wday);
+=======
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -122,7 +142,10 @@ static const struct rtc_class_ops r9701_rtc_ops = {
 static int r9701_probe(struct spi_device *spi)
 {
 	struct rtc_device *rtc;
+<<<<<<< HEAD
 	struct rtc_time dt;
+=======
+>>>>>>> upstream/android-13
 	unsigned char tmp;
 	int res;
 
@@ -133,6 +156,7 @@ static int r9701_probe(struct spi_device *spi)
 		return -ENODEV;
 	}
 
+<<<<<<< HEAD
 	/*
 	 * The device seems to be present. Now check if the registers
 	 * contain invalid values. If so, try to write a default date:
@@ -156,12 +180,23 @@ static int r9701_probe(struct spi_device *spi)
 
 	rtc = devm_rtc_device_register(&spi->dev, "r9701",
 				&r9701_rtc_ops, THIS_MODULE);
+=======
+	rtc = devm_rtc_allocate_device(&spi->dev);
+>>>>>>> upstream/android-13
 	if (IS_ERR(rtc))
 		return PTR_ERR(rtc);
 
 	spi_set_drvdata(spi, rtc);
+<<<<<<< HEAD
 
 	return 0;
+=======
+	rtc->ops = &r9701_rtc_ops;
+	rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
+	rtc->range_max = RTC_TIMESTAMP_END_2099;
+
+	return devm_rtc_register_device(rtc);
+>>>>>>> upstream/android-13
 }
 
 static struct spi_driver r9701_driver = {

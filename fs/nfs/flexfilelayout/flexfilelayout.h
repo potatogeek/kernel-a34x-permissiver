@@ -81,8 +81,13 @@ struct nfs4_ff_layout_mirror {
 	u32				fh_versions_cnt;
 	struct nfs_fh			*fh_versions;
 	nfs4_stateid			stateid;
+<<<<<<< HEAD
 	struct rpc_cred	__rcu		*ro_cred;
 	struct rpc_cred	__rcu		*rw_cred;
+=======
+	const struct cred __rcu		*ro_cred;
+	const struct cred __rcu		*rw_cred;
+>>>>>>> upstream/android-13
 	refcount_t			ref;
 	spinlock_t			lock;
 	unsigned long			flags;
@@ -99,7 +104,11 @@ struct nfs4_ff_layout_segment {
 	u64				stripe_unit;
 	u32				flags;
 	u32				mirror_array_cnt;
+<<<<<<< HEAD
 	struct nfs4_ff_layout_mirror	**mirror_array;
+=======
+	struct nfs4_ff_layout_mirror	*mirror_array[];
+>>>>>>> upstream/android-13
 };
 
 struct nfs4_flexfile_layout {
@@ -180,6 +189,7 @@ ff_layout_no_read_on_rw(struct pnfs_layout_segment *lseg)
 	return FF_LAYOUT_LSEG(lseg)->flags & FF_FLAGS_NO_READ_IO;
 }
 
+<<<<<<< HEAD
 static inline bool
 ff_layout_test_devid_unavailable(struct nfs4_deviceid_node *node)
 {
@@ -202,6 +212,12 @@ static inline int
 nfs4_ff_layout_ds_version(struct pnfs_layout_segment *lseg, u32 ds_idx)
 {
 	return FF_LAYOUT_COMP(lseg, ds_idx)->mirror_ds->ds_versions[0].version;
+=======
+static inline int
+nfs4_ff_layout_ds_version(const struct nfs4_ff_layout_mirror *mirror)
+{
+	return mirror->mirror_ds->ds_versions[0].version;
+>>>>>>> upstream/android-13
 }
 
 struct nfs4_ff_layout_ds *
@@ -213,6 +229,10 @@ int ff_layout_track_ds_error(struct nfs4_flexfile_layout *flo,
 			     struct nfs4_ff_layout_mirror *mirror, u64 offset,
 			     u64 length, int status, enum nfs_opnum4 opnum,
 			     gfp_t gfp_flags);
+<<<<<<< HEAD
+=======
+void ff_layout_send_layouterror(struct pnfs_layout_segment *lseg);
+>>>>>>> upstream/android-13
 int ff_layout_encode_ds_ioerr(struct xdr_stream *xdr, const struct list_head *head);
 void ff_layout_free_ds_ioerr(struct list_head *head);
 unsigned int ff_layout_fetch_ds_ioerr(struct pnfs_layout_hdr *lo,
@@ -220,6 +240,7 @@ unsigned int ff_layout_fetch_ds_ioerr(struct pnfs_layout_hdr *lo,
 		struct list_head *head,
 		unsigned int maxnum);
 struct nfs_fh *
+<<<<<<< HEAD
 nfs4_ff_layout_select_ds_fh(struct pnfs_layout_segment *lseg, u32 mirror_idx);
 int
 nfs4_ff_layout_select_ds_stateid(struct pnfs_layout_segment *lseg,
@@ -237,6 +258,25 @@ nfs4_ff_find_or_create_ds_client(struct pnfs_layout_segment *lseg,
 				 struct inode *inode);
 struct rpc_cred *ff_layout_get_ds_cred(struct pnfs_layout_segment *lseg,
 				       u32 ds_idx, struct rpc_cred *mdscred);
+=======
+nfs4_ff_layout_select_ds_fh(struct nfs4_ff_layout_mirror *mirror);
+void
+nfs4_ff_layout_select_ds_stateid(const struct nfs4_ff_layout_mirror *mirror,
+		nfs4_stateid *stateid);
+
+struct nfs4_pnfs_ds *
+nfs4_ff_layout_prepare_ds(struct pnfs_layout_segment *lseg,
+			  struct nfs4_ff_layout_mirror *mirror,
+			  bool fail_return);
+
+struct rpc_clnt *
+nfs4_ff_find_or_create_ds_client(struct nfs4_ff_layout_mirror *mirror,
+				 struct nfs_client *ds_clp,
+				 struct inode *inode);
+const struct cred *ff_layout_get_ds_cred(struct nfs4_ff_layout_mirror *mirror,
+					 const struct pnfs_layout_range *range,
+					 const struct cred *mdscred);
+>>>>>>> upstream/android-13
 bool ff_layout_avoid_mds_available_ds(struct pnfs_layout_segment *lseg);
 bool ff_layout_avoid_read_on_rw(struct pnfs_layout_segment *lseg);
 

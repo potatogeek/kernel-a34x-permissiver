@@ -84,7 +84,11 @@ void __cvmx_interrupt_gmxx_enable(int interface)
 
 	if (OCTEON_IS_MODEL(OCTEON_CN56XX) || OCTEON_IS_MODEL(OCTEON_CN52XX)) {
 		if (mode.s.en) {
+<<<<<<< HEAD
 			switch (mode.cn56xx.mode) {
+=======
+			switch (mode.cn52xx.mode) {
+>>>>>>> upstream/android-13
 			case 1: /* XAUI */
 				num_ports = 1;
 				break;

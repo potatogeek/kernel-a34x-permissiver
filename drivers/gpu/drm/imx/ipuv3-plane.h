@@ -41,12 +41,19 @@ int ipu_plane_mode_set(struct ipu_plane *plane, struct drm_crtc *crtc,
 		       uint32_t src_x, uint32_t src_y, uint32_t src_w,
 		       uint32_t src_h, bool interlaced);
 
+<<<<<<< HEAD
 int ipu_plane_get_resources(struct ipu_plane *plane);
 void ipu_plane_put_resources(struct ipu_plane *plane);
 
+=======
+>>>>>>> upstream/android-13
 int ipu_plane_irq(struct ipu_plane *plane);
 
 void ipu_plane_disable(struct ipu_plane *ipu_plane, bool disable_dp_channel);
 void ipu_plane_disable_deferred(struct drm_plane *plane);
+<<<<<<< HEAD
+=======
+bool ipu_plane_atomic_update_pending(struct drm_plane *plane);
+>>>>>>> upstream/android-13
 
 #endif

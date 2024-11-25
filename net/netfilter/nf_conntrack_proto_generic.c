@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /* (C) 1999-2001 Paul `Rusty' Russell
  * (C) 2002-2004 Netfilter Core Team <coreteam@netfilter.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* (C) 1999-2001 Paul `Rusty' Russell
+ * (C) 2002-2004 Netfilter Core Team <coreteam@netfilter.org>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -15,6 +21,7 @@
 
 static const unsigned int nf_ct_generic_timeout = 600*HZ;
 
+<<<<<<< HEAD
 static bool nf_generic_should_process(u8 proto)
 {
 	switch (proto) {
@@ -70,6 +77,8 @@ static bool generic_new(struct nf_conn *ct, const struct sk_buff *skb,
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_NF_CONNTRACK_TIMEOUT
 
 #include <linux/netfilter/nfnetlink.h>
@@ -78,7 +87,11 @@ static bool generic_new(struct nf_conn *ct, const struct sk_buff *skb,
 static int generic_timeout_nlattr_to_obj(struct nlattr *tb[],
 					 struct net *net, void *data)
 {
+<<<<<<< HEAD
 	struct nf_generic_net *gn = generic_pernet(net);
+=======
+	struct nf_generic_net *gn = nf_generic_pernet(net);
+>>>>>>> upstream/android-13
 	unsigned int *timeout = data;
 
 	if (!timeout)
@@ -115,6 +128,7 @@ generic_timeout_nla_policy[CTA_TIMEOUT_GENERIC_MAX+1] = {
 };
 #endif /* CONFIG_NF_CONNTRACK_TIMEOUT */
 
+<<<<<<< HEAD
 #ifdef CONFIG_SYSCTL
 static struct ctl_table generic_sysctl_table[] = {
 	{
@@ -155,15 +169,26 @@ static int generic_init_net(struct net *net, u_int16_t proto)
 static struct nf_proto_net *generic_get_net_proto(struct net *net)
 {
 	return &net->ct.nf_ct_proto.generic.pn;
+=======
+void nf_conntrack_generic_init_net(struct net *net)
+{
+	struct nf_generic_net *gn = nf_generic_pernet(net);
+
+	gn->timeout = nf_ct_generic_timeout;
+>>>>>>> upstream/android-13
 }
 
 const struct nf_conntrack_l4proto nf_conntrack_l4proto_generic =
 {
+<<<<<<< HEAD
 	.l3proto		= PF_UNSPEC,
 	.l4proto		= 255,
 	.pkt_to_tuple		= generic_pkt_to_tuple,
 	.packet			= generic_packet,
 	.new			= generic_new,
+=======
+	.l4proto		= 255,
+>>>>>>> upstream/android-13
 #ifdef CONFIG_NF_CONNTRACK_TIMEOUT
 	.ctnl_timeout		= {
 		.nlattr_to_obj	= generic_timeout_nlattr_to_obj,
@@ -173,6 +198,9 @@ const struct nf_conntrack_l4proto nf_conntrack_l4proto_generic =
 		.nla_policy	= generic_timeout_nla_policy,
 	},
 #endif /* CONFIG_NF_CONNTRACK_TIMEOUT */
+<<<<<<< HEAD
 	.init_net		= generic_init_net,
 	.get_net_proto		= generic_get_net_proto,
+=======
+>>>>>>> upstream/android-13
 };

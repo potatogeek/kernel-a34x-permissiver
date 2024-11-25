@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Performance event support - PPC 8xx
  *
  * Copyright 2016 Christophe Leroy, CS Systemes d'Information
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -19,6 +26,10 @@
 #include <asm/firmware.h>
 #include <asm/ptrace.h>
 #include <asm/code-patching.h>
+<<<<<<< HEAD
+=======
+#include <asm/inst.h>
+>>>>>>> upstream/android-13
 
 #define PERF_8xx_ID_CPU_CYCLES		1
 #define PERF_8xx_ID_HW_INSTRUCTIONS	2
@@ -31,9 +42,12 @@
 
 extern unsigned long itlb_miss_counter, dtlb_miss_counter;
 extern atomic_t instruction_counter;
+<<<<<<< HEAD
 extern unsigned int itlb_miss_perf, dtlb_miss_perf;
 extern unsigned int itlb_miss_exit_1, itlb_miss_exit_2;
 extern unsigned int dtlb_miss_exit_1, dtlb_miss_exit_2, dtlb_miss_exit_3;
+=======
+>>>>>>> upstream/android-13
 
 static atomic_t insn_ctr_ref;
 static atomic_t itlb_miss_ref;
@@ -103,22 +117,34 @@ static int mpc8xx_pmu_add(struct perf_event *event, int flags)
 		break;
 	case PERF_8xx_ID_ITLB_LOAD_MISS:
 		if (atomic_inc_return(&itlb_miss_ref) == 1) {
+<<<<<<< HEAD
 			unsigned long target = (unsigned long)&itlb_miss_perf;
 
 			patch_branch(&itlb_miss_exit_1, target, 0);
 #ifndef CONFIG_PIN_TLB_TEXT
 			patch_branch(&itlb_miss_exit_2, target, 0);
 #endif
+=======
+			unsigned long target = patch_site_addr(&patch__itlbmiss_perf);
+
+			patch_branch_site(&patch__itlbmiss_exit_1, target, 0);
+>>>>>>> upstream/android-13
 		}
 		val = itlb_miss_counter;
 		break;
 	case PERF_8xx_ID_DTLB_LOAD_MISS:
 		if (atomic_inc_return(&dtlb_miss_ref) == 1) {
+<<<<<<< HEAD
 			unsigned long target = (unsigned long)&dtlb_miss_perf;
 
 			patch_branch(&dtlb_miss_exit_1, target, 0);
 			patch_branch(&dtlb_miss_exit_2, target, 0);
 			patch_branch(&dtlb_miss_exit_3, target, 0);
+=======
+			unsigned long target = patch_site_addr(&patch__dtlbmiss_perf);
+
+			patch_branch_site(&patch__dtlbmiss_exit_1, target, 0);
+>>>>>>> upstream/android-13
 		}
 		val = dtlb_miss_counter;
 		break;
@@ -164,9 +190,13 @@ static void mpc8xx_pmu_read(struct perf_event *event)
 
 static void mpc8xx_pmu_del(struct perf_event *event, int flags)
 {
+<<<<<<< HEAD
 	/* mfspr r10, SPRN_SPRG_SCRATCH0 */
 	unsigned int insn = PPC_INST_MFSPR | __PPC_RS(R10) |
 			    __PPC_SPR(SPRN_SPRG_SCRATCH0);
+=======
+	struct ppc_inst insn = ppc_inst(PPC_RAW_MFSPR(10, SPRN_SPRG_SCRATCH2));
+>>>>>>> upstream/android-13
 
 	mpc8xx_pmu_read(event);
 
@@ -179,6 +209,7 @@ static void mpc8xx_pmu_del(struct perf_event *event, int flags)
 			mtspr(SPRN_ICTRL, 7);
 		break;
 	case PERF_8xx_ID_ITLB_LOAD_MISS:
+<<<<<<< HEAD
 		if (atomic_dec_return(&itlb_miss_ref) == 0) {
 			patch_instruction(&itlb_miss_exit_1, insn);
 #ifndef CONFIG_PIN_TLB_TEXT
@@ -192,6 +223,14 @@ static void mpc8xx_pmu_del(struct perf_event *event, int flags)
 			patch_instruction(&dtlb_miss_exit_2, insn);
 			patch_instruction(&dtlb_miss_exit_3, insn);
 		}
+=======
+		if (atomic_dec_return(&itlb_miss_ref) == 0)
+			patch_instruction_site(&patch__itlbmiss_exit_1, insn);
+		break;
+	case PERF_8xx_ID_DTLB_LOAD_MISS:
+		if (atomic_dec_return(&dtlb_miss_ref) == 0)
+			patch_instruction_site(&patch__dtlbmiss_exit_1, insn);
+>>>>>>> upstream/android-13
 		break;
 	}
 }

@@ -18,7 +18,11 @@ config INITRAMFS_SOURCE
 	  When multiple directories and files are specified then the
 	  initramfs image will be the aggregate of all of them.
 
+<<<<<<< HEAD
 	  See <file:Documentation/early-userspace/README> for more details.
+=======
+	  See <file:Documentation/driver-api/early-userspace/early_userspace_support.rst> for more details.
+>>>>>>> upstream/android-13
 
 	  If you are not sure, leave it blank.
 
@@ -54,7 +58,10 @@ config INITRAMFS_ROOT_GID
 
 config RD_GZIP
 	bool "Support initial ramdisk/ramfs compressed using gzip"
+<<<<<<< HEAD
 	depends on BLK_DEV_INITRD
+=======
+>>>>>>> upstream/android-13
 	default y
 	select DECOMPRESS_GZIP
 	help
@@ -64,7 +71,10 @@ config RD_GZIP
 config RD_BZIP2
 	bool "Support initial ramdisk/ramfs compressed using bzip2"
 	default y
+<<<<<<< HEAD
 	depends on BLK_DEV_INITRD
+=======
+>>>>>>> upstream/android-13
 	select DECOMPRESS_BZIP2
 	help
 	  Support loading of a bzip2 encoded initial ramdisk or cpio buffer
@@ -73,7 +83,10 @@ config RD_BZIP2
 config RD_LZMA
 	bool "Support initial ramdisk/ramfs compressed using LZMA"
 	default y
+<<<<<<< HEAD
 	depends on BLK_DEV_INITRD
+=======
+>>>>>>> upstream/android-13
 	select DECOMPRESS_LZMA
 	help
 	  Support loading of a LZMA encoded initial ramdisk or cpio buffer
@@ -81,7 +94,10 @@ config RD_LZMA
 
 config RD_XZ
 	bool "Support initial ramdisk/ramfs compressed using XZ"
+<<<<<<< HEAD
 	depends on BLK_DEV_INITRD
+=======
+>>>>>>> upstream/android-13
 	default y
 	select DECOMPRESS_XZ
 	help
@@ -91,7 +107,10 @@ config RD_XZ
 config RD_LZO
 	bool "Support initial ramdisk/ramfs compressed using LZO"
 	default y
+<<<<<<< HEAD
 	depends on BLK_DEV_INITRD
+=======
+>>>>>>> upstream/android-13
 	select DECOMPRESS_LZO
 	help
 	  Support loading of a LZO encoded initial ramdisk or cpio buffer
@@ -100,16 +119,33 @@ config RD_LZO
 config RD_LZ4
 	bool "Support initial ramdisk/ramfs compressed using LZ4"
 	default y
+<<<<<<< HEAD
 	depends on BLK_DEV_INITRD
+=======
+>>>>>>> upstream/android-13
 	select DECOMPRESS_LZ4
 	help
 	  Support loading of a LZ4 encoded initial ramdisk or cpio buffer
 	  If unsure, say N.
 
+<<<<<<< HEAD
 choice
 	prompt "Built-in initramfs compression mode"
 	depends on INITRAMFS_SOURCE!=""
 	optional
+=======
+config RD_ZSTD
+	bool "Support initial ramdisk/ramfs compressed using ZSTD"
+	default y
+	select DECOMPRESS_ZSTD
+	help
+	  Support loading of a ZSTD encoded initial ramdisk or cpio buffer.
+	  If unsure, say N.
+
+choice
+	prompt "Built-in initramfs compression mode"
+	depends on INITRAMFS_SOURCE != ""
+>>>>>>> upstream/android-13
 	help
 	  This option allows you to decide by which algorithm the builtin
 	  initramfs will be compressed.  Several compression algorithms are
@@ -203,6 +239,20 @@ config INITRAMFS_COMPRESSION_LZ4
 	  If you choose this, keep in mind that most distros don't provide lz4
 	  by default which could cause a build failure.
 
+<<<<<<< HEAD
+=======
+config INITRAMFS_COMPRESSION_ZSTD
+	bool "ZSTD"
+	depends on RD_ZSTD
+	help
+	  ZSTD is a compression algorithm targeting intermediate compression
+	  with fast decompression speed. It will compress better than GZIP and
+	  decompress around the same speed as LZO, but slower than LZ4.
+
+	  If you choose this, keep in mind that you may need to install the zstd
+	  tool to be able to compress the initram.
+
+>>>>>>> upstream/android-13
 config INITRAMFS_COMPRESSION_NONE
 	bool "None"
 	help
@@ -215,6 +265,7 @@ config INITRAMFS_COMPRESSION_NONE
 	  filesystem image will be present in memory simultaneously
 
 endchoice
+<<<<<<< HEAD
 
 config INITRAMFS_COMPRESSION
 	depends on INITRAMFS_SOURCE!=""
@@ -233,3 +284,5 @@ config INITRAMFS_COMPRESSION
 	default ".lzma" if RD_LZMA
 	default ".bz2"  if RD_BZIP2
 	default ""
+=======
+>>>>>>> upstream/android-13

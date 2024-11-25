@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2000, 2001, 2002, 2003 Broadcom Corporation
  *
@@ -14,6 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2000, 2001, 2002, 2003 Broadcom Corporation
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -21,7 +27,11 @@
 #include <linux/linkage.h>
 #include <linux/mm.h>
 #include <linux/blkdev.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/pm.h>
 #include <linux/smp.h>
 
@@ -127,16 +137,26 @@ static __init void prom_meminit(void)
 			if (initrd_start) {
 				if ((initrd_pstart > addr) &&
 				    (initrd_pstart < (addr + size))) {
+<<<<<<< HEAD
 					add_memory_region(addr,
 							  initrd_pstart - addr,
 							  BOOT_MEM_RAM);
+=======
+					memblock_add(addr,
+						     initrd_pstart - addr);
+>>>>>>> upstream/android-13
 					rd_flag = 1;
 				}
 				if ((initrd_pend > addr) &&
 				    (initrd_pend < (addr + size))) {
+<<<<<<< HEAD
 					add_memory_region(initrd_pend,
 						(addr + size) - initrd_pend,
 						 BOOT_MEM_RAM);
+=======
+					memblock_add(initrd_pend,
+						(addr + size) - initrd_pend);
+>>>>>>> upstream/android-13
 					rd_flag = 1;
 				}
 			}
@@ -155,7 +175,11 @@ static __init void prom_meminit(void)
 				 */
 				if (size > 512)
 					size -= 512;
+<<<<<<< HEAD
 				add_memory_region(addr, size, BOOT_MEM_RAM);
+=======
+				memblock_add(addr, size);
+>>>>>>> upstream/android-13
 			}
 			board_mem_region_addrs[board_mem_region_count] = addr;
 			board_mem_region_sizes[board_mem_region_count] = size;
@@ -171,8 +195,13 @@ static __init void prom_meminit(void)
 	}
 #ifdef CONFIG_BLK_DEV_INITRD
 	if (initrd_start) {
+<<<<<<< HEAD
 		add_memory_region(initrd_pstart, initrd_pend - initrd_pstart,
 				  BOOT_MEM_RESERVED);
+=======
+		memblock_add(initrd_pstart, initrd_pend - initrd_pstart);
+		memblock_reserve(initrd_pstart, initrd_pend - initrd_pstart);
+>>>>>>> upstream/android-13
 	}
 #endif
 }
@@ -331,11 +360,14 @@ void __init prom_init(void)
 #endif
 }
 
+<<<<<<< HEAD
 void __init prom_free_prom_memory(void)
 {
 	/* Not sure what I'm supposed to do here.  Nothing, I think */
 }
 
+=======
+>>>>>>> upstream/android-13
 void prom_putchar(char c)
 {
 	int ret;

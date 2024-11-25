@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * SPU core / file system interface and HW structures
  *
  * (C) Copyright IBM Deutschland Entwicklung GmbH 2005
  *
  * Author: Arnd Bergmann <arndb@de.ibm.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _SPU_H
@@ -214,6 +221,7 @@ int spu_64k_pages_available(void);
 struct mm_struct;
 extern void spu_flush_all_slbs(struct mm_struct *mm);
 
+<<<<<<< HEAD
 /* This interface allows a profiler (e.g., OProfile) to store a ref
  * to spu context information that it creates.	This caching technique
  * avoids the need to recreate this information after a save/restore operation.
@@ -228,6 +236,8 @@ void spu_set_profile_private_kref(struct spu_context *ctx,
 
 void *spu_get_profile_private_kref(struct spu_context *ctx);
 
+=======
+>>>>>>> upstream/android-13
 /* system callbacks from the SPU */
 struct spu_syscall_block {
 	u64 nr_ret;
@@ -279,6 +289,7 @@ void spu_remove_dev_attr(struct device_attribute *attr);
 int spu_add_dev_attr_group(struct attribute_group *attrs);
 void spu_remove_dev_attr_group(struct attribute_group *attrs);
 
+<<<<<<< HEAD
 /*
  * Notifier blocks:
  *
@@ -298,6 +309,8 @@ struct notifier_block;
 int spu_switch_event_register(struct notifier_block * n);
 int spu_switch_event_unregister(struct notifier_block * n);
 
+=======
+>>>>>>> upstream/android-13
 extern void notify_spus_active(void);
 extern void do_notify_spus_active(void);
 

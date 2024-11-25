@@ -16,6 +16,7 @@
 #define DBFS_D0C_HDR_VERSION 0
 
 /*
+<<<<<<< HEAD
  * Execute diagnose 0c in 31 bit mode
  */
 static void diag0c(struct hypfs_diag0c_entry *entry)
@@ -31,11 +32,18 @@ static void diag0c(struct hypfs_diag0c_entry *entry)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Get hypfs_diag0c_entry from CPU vector and store diag0c data
  */
 static void diag0c_fn(void *data)
 {
+<<<<<<< HEAD
 	diag0c(((void **) data)[smp_processor_id()]);
+=======
+	diag_stat_inc(DIAG_STAT_X00C);
+	diag_amode31_ops.diag0c(((void **)data)[smp_processor_id()]);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -47,15 +55,25 @@ static void *diag0c_store(unsigned int *count)
 	unsigned int cpu_count, cpu, i;
 	void **cpu_vec;
 
+<<<<<<< HEAD
 	get_online_cpus();
+=======
+	cpus_read_lock();
+>>>>>>> upstream/android-13
 	cpu_count = num_online_cpus();
 	cpu_vec = kmalloc_array(num_possible_cpus(), sizeof(*cpu_vec),
 				GFP_KERNEL);
 	if (!cpu_vec)
+<<<<<<< HEAD
 		goto fail_put_online_cpus;
 	/* Note: Diag 0c needs 8 byte alignment and real storage */
 	diag0c_data = kzalloc(sizeof(struct hypfs_diag0c_hdr) +
 			      cpu_count * sizeof(struct hypfs_diag0c_entry),
+=======
+		goto fail_unlock_cpus;
+	/* Note: Diag 0c needs 8 byte alignment and real storage */
+	diag0c_data = kzalloc(struct_size(diag0c_data, entry, cpu_count),
+>>>>>>> upstream/android-13
 			      GFP_KERNEL | GFP_DMA);
 	if (!diag0c_data)
 		goto fail_kfree_cpu_vec;
@@ -69,13 +87,22 @@ static void *diag0c_store(unsigned int *count)
 	on_each_cpu(diag0c_fn, cpu_vec, 1);
 	*count = cpu_count;
 	kfree(cpu_vec);
+<<<<<<< HEAD
 	put_online_cpus();
+=======
+	cpus_read_unlock();
+>>>>>>> upstream/android-13
 	return diag0c_data;
 
 fail_kfree_cpu_vec:
 	kfree(cpu_vec);
+<<<<<<< HEAD
 fail_put_online_cpus:
 	put_online_cpus();
+=======
+fail_unlock_cpus:
+	cpus_read_unlock();
+>>>>>>> upstream/android-13
 	return ERR_PTR(-ENOMEM);
 }
 
@@ -99,7 +126,11 @@ static int dbfs_diag0c_create(void **data, void **data_free_ptr, size_t *size)
 	if (IS_ERR(diag0c_data))
 		return PTR_ERR(diag0c_data);
 	memset(&diag0c_data->hdr, 0, sizeof(diag0c_data->hdr));
+<<<<<<< HEAD
 	get_tod_clock_ext(diag0c_data->hdr.tod_ext);
+=======
+	store_tod_clock_ext((union tod_clock *)diag0c_data->hdr.tod_ext);
+>>>>>>> upstream/android-13
 	diag0c_data->hdr.len = count * sizeof(struct hypfs_diag0c_entry);
 	diag0c_data->hdr.version = DBFS_D0C_HDR_VERSION;
 	diag0c_data->hdr.count = count;
@@ -125,7 +156,12 @@ int __init hypfs_diag0c_init(void)
 {
 	if (!MACHINE_IS_VM)
 		return 0;
+<<<<<<< HEAD
 	return hypfs_dbfs_create_file(&dbfs_file_0c);
+=======
+	hypfs_dbfs_create_file(&dbfs_file_0c);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*

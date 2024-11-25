@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2003-2015 Broadcom Corporation
  * All Rights Reserved
@@ -13,6 +14,15 @@
  */
 
 #include <linux/gpio.h>
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2003-2015 Broadcom Corporation
+ * All Rights Reserved
+ */
+
+#include <linux/gpio/driver.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/of_device.h>
 #include <linux/module.h>
@@ -224,8 +234,12 @@ static void xlp_gpio_generic_handler(struct irq_desc *desc)
 		}
 
 		if (gpio_stat & BIT(gpio % XLP_GPIO_REGSZ))
+<<<<<<< HEAD
 			generic_handle_irq(irq_find_mapping(
 						priv->chip.irq.domain, gpio));
+=======
+			generic_handle_domain_irq(priv->chip.irq.domain, gpio);
+>>>>>>> upstream/android-13
 	}
 	chained_irq_exit(irqchip, desc);
 }
@@ -298,22 +312,33 @@ MODULE_DEVICE_TABLE(of, xlp_gpio_of_ids);
 static int xlp_gpio_probe(struct platform_device *pdev)
 {
 	struct gpio_chip *gc;
+<<<<<<< HEAD
 	struct resource *iores;
+=======
+	struct gpio_irq_chip *girq;
+>>>>>>> upstream/android-13
 	struct xlp_gpio_priv *priv;
 	void __iomem *gpio_base;
 	int irq_base, irq, err;
 	int ngpio;
 	u32 soc_type;
 
+<<<<<<< HEAD
 	iores = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	if (!iores)
 		return -ENODEV;
 
+=======
+>>>>>>> upstream/android-13
 	priv = devm_kzalloc(&pdev->dev,	sizeof(*priv), GFP_KERNEL);
 	if (!priv)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	gpio_base = devm_ioremap_resource(&pdev->dev, iores);
+=======
+	gpio_base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(gpio_base))
 		return PTR_ERR(gpio_base);
 
@@ -408,10 +433,28 @@ static int xlp_gpio_probe(struct platform_device *pdev)
 		irq_base = 0;
 	}
 
+<<<<<<< HEAD
+=======
+	girq = &gc->irq;
+	girq->chip = &xlp_gpio_irq_chip;
+	girq->parent_handler = xlp_gpio_generic_handler;
+	girq->num_parents = 1;
+	girq->parents = devm_kcalloc(&pdev->dev, 1,
+				     sizeof(*girq->parents),
+				     GFP_KERNEL);
+	if (!girq->parents)
+		return -ENOMEM;
+	girq->parents[0] = irq;
+	girq->first = irq_base;
+	girq->default_type = IRQ_TYPE_NONE;
+	girq->handler = handle_level_irq;
+
+>>>>>>> upstream/android-13
 	err = gpiochip_add_data(gc, priv);
 	if (err < 0)
 		return err;
 
+<<<<<<< HEAD
 	err = gpiochip_irqchip_add(gc, &xlp_gpio_irq_chip, irq_base,
 				handle_level_irq, IRQ_TYPE_NONE);
 	if (err) {
@@ -429,6 +472,11 @@ static int xlp_gpio_probe(struct platform_device *pdev)
 out_gpio_remove:
 	gpiochip_remove(gc);
 	return err;
+=======
+	dev_info(&pdev->dev, "registered %d GPIOs\n", gc->ngpio);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_ACPI

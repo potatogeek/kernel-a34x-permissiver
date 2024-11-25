@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/drivers/pinctrl/pinmux-xway.c
  *  based on linux/drivers/pinctrl/pinmux-pxa910.c
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
  *  publishhed by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  *  Copyright (C) 2012 John Crispin <john@phrozen.org>
  *  Copyright (C) 2015 Martin Schiller <mschiller@tdt.de>
  */
@@ -1708,12 +1715,19 @@ static int pinmux_xway_probe(struct platform_device *pdev)
 {
 	const struct of_device_id *match;
 	const struct pinctrl_xway_soc *xway_soc;
+<<<<<<< HEAD
 	struct resource *res;
 	int ret, i;
 
 	/* get and remap our register range */
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	xway_info.membase[0] = devm_ioremap_resource(&pdev->dev, res);
+=======
+	int ret, i;
+
+	/* get and remap our register range */
+	xway_info.membase[0] = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(xway_info.membase[0]))
 		return PTR_ERR(xway_info.membase[0]);
 
@@ -1734,13 +1748,20 @@ static int pinmux_xway_probe(struct platform_device *pdev)
 		return -ENOMEM;
 
 	for (i = 0; i < xway_chip.ngpio; i++) {
+<<<<<<< HEAD
 		/* strlen("ioXY") + 1 = 5 */
 		char *name = devm_kzalloc(&pdev->dev, 5, GFP_KERNEL);
+=======
+		char *name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "io%d", i);
+>>>>>>> upstream/android-13
 
 		if (!name)
 			return -ENOMEM;
 
+<<<<<<< HEAD
 		snprintf(name, 5, "io%d", i);
+=======
+>>>>>>> upstream/android-13
 		xway_info.pads[i].number = GPIO0 + i;
 		xway_info.pads[i].name = name;
 	}

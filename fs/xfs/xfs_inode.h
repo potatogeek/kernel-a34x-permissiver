@@ -37,6 +37,7 @@ typedef struct xfs_inode {
 	struct xfs_ifork	*i_cowfp;	/* copy on write extents */
 	struct xfs_ifork	i_df;		/* data fork */
 
+<<<<<<< HEAD
 	/* operations vectors */
 	const struct xfs_dir_ops *d_ops;		/* directory ops vector */
 
@@ -57,6 +58,46 @@ typedef struct xfs_inode {
 
 	/* VFS inode */
 	struct inode		i_vnode;	/* embedded VFS inode */
+=======
+	/* Transaction and locking information. */
+	struct xfs_inode_log_item *i_itemp;	/* logging information */
+	mrlock_t		i_lock;		/* inode lock */
+	atomic_t		i_pincount;	/* inode pin count */
+	struct llist_node	i_gclist;	/* deferred inactivation list */
+
+	/*
+	 * Bitsets of inode metadata that have been checked and/or are sick.
+	 * Callers must hold i_flags_lock before accessing this field.
+	 */
+	uint16_t		i_checked;
+	uint16_t		i_sick;
+
+	spinlock_t		i_flags_lock;	/* inode i_flags lock */
+	/* Miscellaneous state. */
+	unsigned long		i_flags;	/* see defined flags below */
+	uint64_t		i_delayed_blks;	/* count of delay alloc blks */
+	xfs_fsize_t		i_disk_size;	/* number of bytes in file */
+	xfs_rfsblock_t		i_nblocks;	/* # of direct & btree blocks */
+	prid_t			i_projid;	/* owner's project id */
+	xfs_extlen_t		i_extsize;	/* basic/minimum extent size */
+	/* cowextsize is only used for v3 inodes, flushiter for v1/2 */
+	union {
+		xfs_extlen_t	i_cowextsize;	/* basic cow extent size */
+		uint16_t	i_flushiter;	/* incremented on flush */
+	};
+	uint8_t			i_forkoff;	/* attr fork offset >> 3 */
+	uint16_t		i_diflags;	/* XFS_DIFLAG_... */
+	uint64_t		i_diflags2;	/* XFS_DIFLAG2_... */
+	struct timespec64	i_crtime;	/* time created */
+
+	/* VFS inode */
+	struct inode		i_vnode;	/* embedded VFS inode */
+
+	/* pending io completions */
+	spinlock_t		i_ioend_lock;
+	struct work_struct	i_ioend_work;
+	struct list_head	i_ioend_list;
+>>>>>>> upstream/android-13
 } xfs_inode_t;
 
 /* Convert from vfs inode to xfs inode */
@@ -80,7 +121,11 @@ static inline xfs_fsize_t XFS_ISIZE(struct xfs_inode *ip)
 {
 	if (S_ISREG(VFS_I(ip)->i_mode))
 		return i_size_read(VFS_I(ip));
+<<<<<<< HEAD
 	return ip->i_d.di_size;
+=======
+	return ip->i_disk_size;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -94,7 +139,11 @@ xfs_new_eof(struct xfs_inode *ip, xfs_fsize_t new_size)
 
 	if (new_size > i_size || new_size < 0)
 		new_size = i_size;
+<<<<<<< HEAD
 	return new_size > ip->i_d.di_size ? new_size : 0;
+=======
+	return new_size > ip->i_disk_size ? new_size : 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -164,6 +213,7 @@ xfs_iflags_test_and_set(xfs_inode_t *ip, unsigned short flags)
 	return ret;
 }
 
+<<<<<<< HEAD
 /*
  * Project quota id helpers (previously projid was 16bit only
  * and using two 16bit values to hold new 32bit projid was chosen
@@ -188,13 +238,32 @@ xfs_get_initial_prid(struct xfs_inode *dp)
 {
 	if (dp->i_d.di_flags & XFS_DIFLAG_PROJINHERIT)
 		return xfs_get_projid(dp);
+=======
+static inline prid_t
+xfs_get_initial_prid(struct xfs_inode *dp)
+{
+	if (dp->i_diflags & XFS_DIFLAG_PROJINHERIT)
+		return dp->i_projid;
+>>>>>>> upstream/android-13
 
 	return XFS_PROJID_DEFAULT;
 }
 
 static inline bool xfs_is_reflink_inode(struct xfs_inode *ip)
 {
+<<<<<<< HEAD
 	return ip->i_d.di_flags2 & XFS_DIFLAG2_REFLINK;
+=======
+	return ip->i_diflags2 & XFS_DIFLAG2_REFLINK;
+}
+
+static inline bool xfs_is_metadata_inode(struct xfs_inode *ip)
+{
+	struct xfs_mount	*mp = ip->i_mount;
+
+	return ip == mp->m_rbmip || ip == mp->m_rsumip ||
+		xfs_is_quota_inode(&mp->m_sb, ip->i_ino);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -206,6 +275,21 @@ static inline bool xfs_inode_has_cow_data(struct xfs_inode *ip)
 	return ip->i_cowfp && ip->i_cowfp->if_bytes;
 }
 
+<<<<<<< HEAD
+=======
+static inline bool xfs_inode_has_bigtime(struct xfs_inode *ip)
+{
+	return ip->i_diflags2 & XFS_DIFLAG2_BIGTIME;
+}
+
+/*
+ * Return the buftarg used for data allocations on a given inode.
+ */
+#define xfs_inode_buftarg(ip) \
+	(XFS_IS_REALTIME_INODE(ip) ? \
+		(ip)->i_mount->m_rtdev_targp : (ip)->i_mount->m_ddev_targp)
+
+>>>>>>> upstream/android-13
 /*
  * In-core inode flags.
  */
@@ -214,6 +298,7 @@ static inline bool xfs_inode_has_cow_data(struct xfs_inode *ip)
 #define XFS_IRECLAIMABLE	(1 << 2) /* inode can be reclaimed */
 #define __XFS_INEW_BIT		3	 /* inode has just been allocated */
 #define XFS_INEW		(1 << __XFS_INEW_BIT)
+<<<<<<< HEAD
 #define XFS_ITRUNCATED		(1 << 5) /* truncated down so flush-on-close */
 #define XFS_IDIRTY_RELEASE	(1 << 6) /* dirty release already seen */
 #define __XFS_IFLOCK_BIT	7	 /* inode is being flushed right now */
@@ -222,6 +307,16 @@ static inline bool xfs_inode_has_cow_data(struct xfs_inode *ip)
 #define XFS_IPINNED		(1 << __XFS_IPINNED_BIT)
 #define XFS_IDONTCACHE		(1 << 9) /* don't cache the inode long term */
 #define XFS_IEOFBLOCKS		(1 << 10)/* has the preallocblocks tag set */
+=======
+#define XFS_IPRESERVE_DM_FIELDS	(1 << 4) /* has legacy DMAPI fields set */
+#define XFS_ITRUNCATED		(1 << 5) /* truncated down so flush-on-close */
+#define XFS_IDIRTY_RELEASE	(1 << 6) /* dirty release already seen */
+#define XFS_IFLUSHING		(1 << 7) /* inode is being flushed */
+#define __XFS_IPINNED_BIT	8	 /* wakeup key for zero pin count */
+#define XFS_IPINNED		(1 << __XFS_IPINNED_BIT)
+#define XFS_IEOFBLOCKS		(1 << 9) /* has the preallocblocks tag set */
+#define XFS_NEED_INACTIVE	(1 << 10) /* see XFS_INACTIVATING below */
+>>>>>>> upstream/android-13
 /*
  * If this unlinked inode is in the middle of recovery, don't let drop_inode
  * truncate and free the inode.  This can happen if we iget the inode during
@@ -231,12 +326,31 @@ static inline bool xfs_inode_has_cow_data(struct xfs_inode *ip)
 #define XFS_ICOWBLOCKS		(1 << 12)/* has the cowblocks tag set */
 
 /*
+<<<<<<< HEAD
+=======
+ * If we need to update on-disk metadata before this IRECLAIMABLE inode can be
+ * freed, then NEED_INACTIVE will be set.  Once we start the updates, the
+ * INACTIVATING bit will be set to keep iget away from this inode.  After the
+ * inactivation completes, both flags will be cleared and the inode is a
+ * plain old IRECLAIMABLE inode.
+ */
+#define XFS_INACTIVATING	(1 << 13)
+
+/* All inode state flags related to inode reclaim. */
+#define XFS_ALL_IRECLAIM_FLAGS	(XFS_IRECLAIMABLE | \
+				 XFS_IRECLAIM | \
+				 XFS_NEED_INACTIVE | \
+				 XFS_INACTIVATING)
+
+/*
+>>>>>>> upstream/android-13
  * Per-lifetime flags need to be reset when re-using a reclaimable inode during
  * inode lookup. This prevents unintended behaviour on the new inode from
  * ocurring.
  */
 #define XFS_IRECLAIM_RESET_FLAGS	\
 	(XFS_IRECLAIMABLE | XFS_IRECLAIM | \
+<<<<<<< HEAD
 	 XFS_IDIRTY_RELEASE | XFS_ITRUNCATED)
 
 /*
@@ -268,6 +382,10 @@ static inline void xfs_ifunlock(struct xfs_inode *ip)
 	smp_mb();
 	wake_up_bit(&ip->i_flags, __XFS_IFLOCK_BIT);
 }
+=======
+	 XFS_IDIRTY_RELEASE | XFS_ITRUNCATED | XFS_NEED_INACTIVE | \
+	 XFS_INACTIVATING)
+>>>>>>> upstream/android-13
 
 /*
  * Flags for inode locking.
@@ -394,22 +512,40 @@ enum layout_break_reason {
  * new subdirectory gets S_ISGID bit from parent.
  */
 #define XFS_INHERIT_GID(pip)	\
+<<<<<<< HEAD
 	(((pip)->i_mount->m_flags & XFS_MOUNT_GRPID) || \
 	 (VFS_I(pip)->i_mode & S_ISGID))
+=======
+	(xfs_has_grpid((pip)->i_mount) || (VFS_I(pip)->i_mode & S_ISGID))
+>>>>>>> upstream/android-13
 
 int		xfs_release(struct xfs_inode *ip);
 void		xfs_inactive(struct xfs_inode *ip);
 int		xfs_lookup(struct xfs_inode *dp, struct xfs_name *name,
 			   struct xfs_inode **ipp, struct xfs_name *ci_name);
+<<<<<<< HEAD
 int		xfs_create(struct xfs_inode *dp, struct xfs_name *name,
 			   umode_t mode, dev_t rdev, struct xfs_inode **ipp);
 int		xfs_create_tmpfile(struct xfs_inode *dp, umode_t mode,
+=======
+int		xfs_create(struct user_namespace *mnt_userns,
+			   struct xfs_inode *dp, struct xfs_name *name,
+			   umode_t mode, dev_t rdev, bool need_xattr,
+			   struct xfs_inode **ipp);
+int		xfs_create_tmpfile(struct user_namespace *mnt_userns,
+			   struct xfs_inode *dp, umode_t mode,
+>>>>>>> upstream/android-13
 			   struct xfs_inode **ipp);
 int		xfs_remove(struct xfs_inode *dp, struct xfs_name *name,
 			   struct xfs_inode *ip);
 int		xfs_link(struct xfs_inode *tdp, struct xfs_inode *sip,
 			 struct xfs_name *target_name);
+<<<<<<< HEAD
 int		xfs_rename(struct xfs_inode *src_dp, struct xfs_name *src_name,
+=======
+int		xfs_rename(struct user_namespace *mnt_userns,
+			   struct xfs_inode *src_dp, struct xfs_name *src_name,
+>>>>>>> upstream/android-13
 			   struct xfs_inode *src_ip, struct xfs_inode *target_dp,
 			   struct xfs_name *target_name,
 			   struct xfs_inode *target_ip, unsigned int flags);
@@ -418,7 +554,11 @@ void		xfs_ilock(xfs_inode_t *, uint);
 int		xfs_ilock_nowait(xfs_inode_t *, uint);
 void		xfs_iunlock(xfs_inode_t *, uint);
 void		xfs_ilock_demote(xfs_inode_t *, uint);
+<<<<<<< HEAD
 int		xfs_isilocked(xfs_inode_t *, uint);
+=======
+bool		xfs_isilocked(struct xfs_inode *, uint);
+>>>>>>> upstream/android-13
 uint		xfs_ilock_data_map_shared(struct xfs_inode *);
 uint		xfs_ilock_attr_map_shared(struct xfs_inode *);
 
@@ -428,19 +568,34 @@ int		xfs_itruncate_extents_flags(struct xfs_trans **,
 				struct xfs_inode *, int, xfs_fsize_t, int);
 void		xfs_iext_realloc(xfs_inode_t *, int, int);
 
+<<<<<<< HEAD
 void		xfs_iunpin_wait(xfs_inode_t *);
 #define xfs_ipincount(ip)	((unsigned int) atomic_read(&ip->i_pincount))
 
 int		xfs_iflush(struct xfs_inode *, struct xfs_buf **);
+=======
+int		xfs_log_force_inode(struct xfs_inode *ip);
+void		xfs_iunpin_wait(xfs_inode_t *);
+#define xfs_ipincount(ip)	((unsigned int) atomic_read(&ip->i_pincount))
+
+int		xfs_iflush_cluster(struct xfs_buf *);
+>>>>>>> upstream/android-13
 void		xfs_lock_two_inodes(struct xfs_inode *ip0, uint ip0_mode,
 				struct xfs_inode *ip1, uint ip1_mode);
 
 xfs_extlen_t	xfs_get_extsz_hint(struct xfs_inode *ip);
 xfs_extlen_t	xfs_get_cowextsz_hint(struct xfs_inode *ip);
 
+<<<<<<< HEAD
 int		xfs_dir_ialloc(struct xfs_trans **, struct xfs_inode *, umode_t,
 			       xfs_nlink_t, dev_t, prid_t,
 			       struct xfs_inode **);
+=======
+int xfs_init_new_inode(struct user_namespace *mnt_userns, struct xfs_trans *tp,
+		struct xfs_inode *pip, xfs_ino_t ino, umode_t mode,
+		xfs_nlink_t nlink, dev_t rdev, prid_t prid, bool init_xattrs,
+		struct xfs_inode **ipp);
+>>>>>>> upstream/android-13
 
 static inline int
 xfs_itruncate_extents(
@@ -468,6 +623,10 @@ int	xfs_break_layouts(struct inode *inode, uint *iolock,
 /* from xfs_iops.c */
 extern void xfs_setup_inode(struct xfs_inode *ip);
 extern void xfs_setup_iops(struct xfs_inode *ip);
+<<<<<<< HEAD
+=======
+extern void xfs_diflags_to_iflags(struct xfs_inode *ip, bool init);
+>>>>>>> upstream/android-13
 
 /*
  * When setting up a newly allocated inode, we need to call
@@ -498,6 +657,18 @@ extern struct kmem_zone	*xfs_inode_zone;
 /* The default CoW extent size hint. */
 #define XFS_DEFAULT_COWEXTSZ_HINT 32
 
+<<<<<<< HEAD
 bool xfs_inode_verify_forks(struct xfs_inode *ip);
+=======
+bool xfs_inode_needs_inactive(struct xfs_inode *ip);
+
+int xfs_iunlink_init(struct xfs_perag *pag);
+void xfs_iunlink_destroy(struct xfs_perag *pag);
+
+void xfs_end_io(struct work_struct *work);
+
+int xfs_ilock2_io_mmap(struct xfs_inode *ip1, struct xfs_inode *ip2);
+void xfs_iunlock2_io_mmap(struct xfs_inode *ip1, struct xfs_inode *ip2);
+>>>>>>> upstream/android-13
 
 #endif	/* __XFS_INODE_H__ */

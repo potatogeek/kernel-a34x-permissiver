@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Hardware definitions for Palm Zire72
  *
@@ -10,12 +14,16 @@
  * Rewrite for mainline:
  *	Marek Vasut <marek.vasut@gmail.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
  * (find more info at www.hackndev.com)
  *
+=======
+ * (find more info at www.hackndev.com)
+>>>>>>> upstream/android-13
  */
 
 #include <linux/platform_device.h>
@@ -29,7 +37,10 @@
 #include <linux/gpio.h>
 #include <linux/wm97xx.h>
 #include <linux/power_supply.h>
+<<<<<<< HEAD
 #include <linux/usb/gpio_vbus.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/platform_data/i2c-gpio.h>
 #include <linux/gpio/machine.h>
 
@@ -52,8 +63,11 @@
 #include "pm.h"
 #include <linux/platform_data/media/camera-pxa.h>
 
+<<<<<<< HEAD
 #include <media/soc_camera.h>
 
+=======
+>>>>>>> upstream/android-13
 #include "generic.h"
 #include "devices.h"
 
@@ -277,6 +291,7 @@ static int __init palmz72_pm_init(void)
 device_initcall(palmz72_pm_init);
 #endif
 
+<<<<<<< HEAD
 /******************************************************************************
  * SoC Camera
  ******************************************************************************/
@@ -386,6 +401,21 @@ static void __init palmz72_camera_init(void)
 static inline void palmz72_camera_init(void) {}
 #endif
 
+=======
+static struct gpiod_lookup_table palmz72_mci_gpio_table = {
+	.dev_id = "pxa2xx-mci.0",
+	.table = {
+		GPIO_LOOKUP("gpio-pxa", GPIO_NR_PALMZ72_SD_DETECT_N,
+			    "cd", GPIO_ACTIVE_LOW),
+		GPIO_LOOKUP("gpio-pxa", GPIO_NR_PALMZ72_SD_RO,
+			    "wp", GPIO_ACTIVE_LOW),
+		GPIO_LOOKUP("gpio-pxa", GPIO_NR_PALMZ72_SD_POWER_N,
+			    "power", GPIO_ACTIVE_LOW),
+		{ },
+	},
+};
+
+>>>>>>> upstream/android-13
 /******************************************************************************
  * Machine init
  ******************************************************************************/
@@ -396,8 +426,12 @@ static void __init palmz72_init(void)
 	pxa_set_btuart_info(NULL);
 	pxa_set_stuart_info(NULL);
 
+<<<<<<< HEAD
 	palm27x_mmc_init(GPIO_NR_PALMZ72_SD_DETECT_N, GPIO_NR_PALMZ72_SD_RO,
 			GPIO_NR_PALMZ72_SD_POWER_N, 1);
+=======
+	palm27x_mmc_init(&palmz72_mci_gpio_table);
+>>>>>>> upstream/android-13
 	palm27x_lcd_init(-1, &palm_320x320_lcd_mode);
 	palm27x_udc_init(GPIO_NR_PALMZ72_USB_DETECT_N,
 			GPIO_NR_PALMZ72_USB_PULLUP, 0);
@@ -409,7 +443,10 @@ static void __init palmz72_init(void)
 	palm27x_pmic_init();
 	palmz72_kpc_init();
 	palmz72_leds_init();
+<<<<<<< HEAD
 	palmz72_camera_init();
+=======
+>>>>>>> upstream/android-13
 }
 
 MACHINE_START(PALMZ72, "Palm Zire72")

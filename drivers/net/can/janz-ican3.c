@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Janz MODULbus VMOD-ICAN3 CAN Interface Driver
  *
  * Copyright (c) 2010 Ira W. Snyder <iws@ovro.caltech.edu>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -920,10 +927,17 @@ static void ican3_to_can_frame(struct ican3_dev *mod,
 
 		cf->can_id |= desc->data[0] << 3;
 		cf->can_id |= (desc->data[1] & 0xe0) >> 5;
+<<<<<<< HEAD
 		cf->can_dlc = get_can_dlc(desc->data[1] & ICAN3_CAN_DLC_MASK);
 		memcpy(cf->data, &desc->data[2], cf->can_dlc);
 	} else {
 		cf->can_dlc = get_can_dlc(desc->data[0] & ICAN3_CAN_DLC_MASK);
+=======
+		cf->len = can_cc_dlc2len(desc->data[1] & ICAN3_CAN_DLC_MASK);
+		memcpy(cf->data, &desc->data[2], cf->len);
+	} else {
+		cf->len = can_cc_dlc2len(desc->data[0] & ICAN3_CAN_DLC_MASK);
+>>>>>>> upstream/android-13
 		if (desc->data[0] & ICAN3_EFF_RTR)
 			cf->can_id |= CAN_RTR_FLAG;
 
@@ -938,7 +952,11 @@ static void ican3_to_can_frame(struct ican3_dev *mod,
 			cf->can_id |= desc->data[3] >> 5;  /* 2-0   */
 		}
 
+<<<<<<< HEAD
 		memcpy(cf->data, &desc->data[6], cf->can_dlc);
+=======
+		memcpy(cf->data, &desc->data[6], cf->len);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -951,7 +969,11 @@ static void can_frame_to_ican3(struct ican3_dev *mod,
 
 	/* we always use the extended format, with the ECHO flag set */
 	desc->command = ICAN3_CAN_TYPE_EFF;
+<<<<<<< HEAD
 	desc->data[0] |= cf->can_dlc;
+=======
+	desc->data[0] |= cf->len;
+>>>>>>> upstream/android-13
 	desc->data[1] |= ICAN3_ECHO;
 
 	/* support single transmission (no retries) mode */
@@ -974,7 +996,11 @@ static void can_frame_to_ican3(struct ican3_dev *mod,
 	}
 
 	/* copy the data bits into the descriptor */
+<<<<<<< HEAD
 	memcpy(&desc->data[6], cf->data, cf->can_dlc);
+=======
+	memcpy(&desc->data[6], cf->data, cf->len);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1298,7 +1324,11 @@ static unsigned int ican3_get_echo_skb(struct ican3_dev *mod)
 	}
 
 	cf = (struct can_frame *)skb->data;
+<<<<<<< HEAD
 	dlc = cf->can_dlc;
+=======
+	dlc = cf->len;
+>>>>>>> upstream/android-13
 
 	/* check flag whether this packet has to be looped back */
 	if (skb->pkt_type != PACKET_LOOPBACK) {
@@ -1336,10 +1366,17 @@ static bool ican3_echo_skb_matches(struct ican3_dev *mod, struct sk_buff *skb)
 	if (cf->can_id != echo_cf->can_id)
 		return false;
 
+<<<<<<< HEAD
 	if (cf->can_dlc != echo_cf->can_dlc)
 		return false;
 
 	return memcmp(cf->data, echo_cf->data, cf->can_dlc) == 0;
+=======
+	if (cf->len != echo_cf->len)
+		return false;
+
+	return memcmp(cf->data, echo_cf->data, cf->len) == 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1425,7 +1462,11 @@ static int ican3_recv_skb(struct ican3_dev *mod)
 
 	/* update statistics, receive the skb */
 	stats->rx_packets++;
+<<<<<<< HEAD
 	stats->rx_bytes += cf->can_dlc;
+=======
+	stats->rx_bytes += cf->len;
+>>>>>>> upstream/android-13
 	netif_receive_skb(skb);
 
 err_noalloc:
@@ -1455,7 +1496,11 @@ static int ican3_napi(struct napi_struct *napi, int budget)
 
 	/* process all communication messages */
 	while (true) {
+<<<<<<< HEAD
 		struct ican3_msg uninitialized_var(msg);
+=======
+		struct ican3_msg msg;
+>>>>>>> upstream/android-13
 		ret = ican3_recv_msg(mod, &msg);
 		if (ret)
 			break;
@@ -1819,9 +1864,15 @@ static int ican3_get_berr_counter(const struct net_device *ndev,
  * Sysfs Attributes
  */
 
+<<<<<<< HEAD
 static ssize_t ican3_sysfs_show_term(struct device *dev,
 				     struct device_attribute *attr,
 				     char *buf)
+=======
+static ssize_t termination_show(struct device *dev,
+				struct device_attribute *attr,
+				char *buf)
+>>>>>>> upstream/android-13
 {
 	struct ican3_dev *mod = netdev_priv(to_net_dev(dev));
 	int ret;
@@ -1838,9 +1889,15 @@ static ssize_t ican3_sysfs_show_term(struct device *dev,
 	return snprintf(buf, PAGE_SIZE, "%u\n", mod->termination_enabled);
 }
 
+<<<<<<< HEAD
 static ssize_t ican3_sysfs_set_term(struct device *dev,
 				    struct device_attribute *attr,
 				    const char *buf, size_t count)
+=======
+static ssize_t termination_store(struct device *dev,
+				 struct device_attribute *attr,
+				 const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct ican3_dev *mod = netdev_priv(to_net_dev(dev));
 	unsigned long enable;
@@ -1856,18 +1913,29 @@ static ssize_t ican3_sysfs_set_term(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t ican3_sysfs_show_fwinfo(struct device *dev,
 				       struct device_attribute *attr,
 				       char *buf)
+=======
+static ssize_t fwinfo_show(struct device *dev,
+			   struct device_attribute *attr,
+			   char *buf)
+>>>>>>> upstream/android-13
 {
 	struct ican3_dev *mod = netdev_priv(to_net_dev(dev));
 
 	return scnprintf(buf, PAGE_SIZE, "%s\n", mod->fwinfo);
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(termination, 0644, ican3_sysfs_show_term,
 		   ican3_sysfs_set_term);
 static DEVICE_ATTR(fwinfo, 0444, ican3_sysfs_show_fwinfo, NULL);
+=======
+static DEVICE_ATTR_RW(termination);
+static DEVICE_ATTR_RO(fwinfo);
+>>>>>>> upstream/android-13
 
 static struct attribute *ican3_sysfs_attrs[] = {
 	&dev_attr_termination.attr,
@@ -1940,7 +2008,10 @@ static int ican3_probe(struct platform_device *pdev)
 	/* find our IRQ number */
 	mod->irq = platform_get_irq(pdev, 0);
 	if (mod->irq < 0) {
+<<<<<<< HEAD
 		dev_err(dev, "IRQ line not found\n");
+=======
+>>>>>>> upstream/android-13
 		ret = -ENODEV;
 		goto out_free_ndev;
 	}

@@ -27,9 +27,13 @@
 /*
  * Flags for mmap
  */
+<<<<<<< HEAD
 #define MAP_SHARED	0x001		/* Share changes */
 #define MAP_PRIVATE	0x002		/* Changes are private */
 #define MAP_SHARED_VALIDATE 0x003	/* share + validate extension flags */
+=======
+/* 0x01 - 0x03 are defined in linux/mman.h */
+>>>>>>> upstream/android-13
 #define MAP_TYPE	0x00f		/* Mask for type of mapping */
 #define MAP_FIXED	0x010		/* Interpret addr exactly */
 
@@ -97,6 +101,15 @@
 #define MADV_WIPEONFORK 18		/* Zero memory on fork, child only */
 #define MADV_KEEPONFORK 19		/* Undo MADV_WIPEONFORK */
 
+<<<<<<< HEAD
+=======
+#define MADV_COLD	20		/* deactivate these pages */
+#define MADV_PAGEOUT	21		/* reclaim these pages */
+
+#define MADV_POPULATE_READ	22	/* populate (prefault) page tables readable */
+#define MADV_POPULATE_WRITE	23	/* populate (prefault) page tables writable */
+
+>>>>>>> upstream/android-13
 /* compatibility flags */
 #define MAP_FILE	0
 

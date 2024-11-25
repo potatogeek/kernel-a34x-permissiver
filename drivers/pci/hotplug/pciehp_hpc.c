@@ -12,21 +12,53 @@
  * Send feedback to <greg@kroah.com>,<kristen.c.accardi@intel.com>
  */
 
+<<<<<<< HEAD
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/types.h>
 #include <linux/signal.h>
+=======
+#define dev_fmt(fmt) "pciehp: " fmt
+
+#include <linux/dmi.h>
+#include <linux/kernel.h>
+#include <linux/types.h>
+>>>>>>> upstream/android-13
 #include <linux/jiffies.h>
 #include <linux/kthread.h>
 #include <linux/pci.h>
 #include <linux/pm_runtime.h>
 #include <linux/interrupt.h>
+<<<<<<< HEAD
 #include <linux/time.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 
 #include "../pci.h"
 #include "pciehp.h"
 
+<<<<<<< HEAD
+=======
+static const struct dmi_system_id inband_presence_disabled_dmi_table[] = {
+	/*
+	 * Match all Dell systems, as some Dell systems have inband
+	 * presence disabled on NVMe slots (but don't support the bit to
+	 * report it). Setting inband presence disabled should have no
+	 * negative effect, except on broken hotplug slots that never
+	 * assert presence detect--and those will still work, they will
+	 * just have a bit of extra delay before being probed.
+	 */
+	{
+		.ident = "Dell System",
+		.matches = {
+			DMI_MATCH(DMI_OEM_STRING, "Dell System"),
+		},
+	},
+	{}
+};
+
+>>>>>>> upstream/android-13
 static inline struct pci_dev *ctrl_dev(struct controller *ctrl)
 {
 	return ctrl->pcie->port;
@@ -43,13 +75,21 @@ static inline int pciehp_request_irq(struct controller *ctrl)
 	if (pciehp_poll_mode) {
 		ctrl->poll_thread = kthread_run(&pciehp_poll, ctrl,
 						"pciehp_poll-%s",
+<<<<<<< HEAD
 						slot_name(ctrl->slot));
+=======
+						slot_name(ctrl));
+>>>>>>> upstream/android-13
 		return PTR_ERR_OR_ZERO(ctrl->poll_thread);
 	}
 
 	/* Installs the interrupt handler */
 	retval = request_threaded_irq(irq, pciehp_isr, pciehp_ist,
+<<<<<<< HEAD
 				      IRQF_SHARED, MY_NAME, ctrl);
+=======
+				      IRQF_SHARED, "pciehp", ctrl);
+>>>>>>> upstream/android-13
 	if (retval)
 		ctrl_err(ctrl, "Cannot get irq %d for the hotplug controller\n",
 			 irq);
@@ -69,7 +109,11 @@ static int pcie_poll_cmd(struct controller *ctrl, int timeout)
 	struct pci_dev *pdev = ctrl_dev(ctrl);
 	u16 slot_status;
 
+<<<<<<< HEAD
 	while (true) {
+=======
+	do {
+>>>>>>> upstream/android-13
 		pcie_capability_read_word(pdev, PCI_EXP_SLTSTA, &slot_status);
 		if (slot_status == (u16) ~0) {
 			ctrl_info(ctrl, "%s: no response from device\n",
@@ -80,6 +124,7 @@ static int pcie_poll_cmd(struct controller *ctrl, int timeout)
 		if (slot_status & PCI_EXP_SLTSTA_CC) {
 			pcie_capability_write_word(pdev, PCI_EXP_SLTSTA,
 						   PCI_EXP_SLTSTA_CC);
+<<<<<<< HEAD
 			return 1;
 		}
 		if (timeout < 0)
@@ -87,6 +132,15 @@ static int pcie_poll_cmd(struct controller *ctrl, int timeout)
 		msleep(10);
 		timeout -= 10;
 	}
+=======
+			ctrl->cmd_busy = 0;
+			smp_mb();
+			return 1;
+		}
+		msleep(10);
+		timeout -= 10;
+	} while (timeout >= 0);
+>>>>>>> upstream/android-13
 	return 0;	/* timeout */
 }
 
@@ -159,9 +213,15 @@ static void pcie_do_write_cmd(struct controller *ctrl, u16 cmd,
 	slot_ctrl |= (cmd & mask);
 	ctrl->cmd_busy = 1;
 	smp_mb();
+<<<<<<< HEAD
 	pcie_capability_write_word(pdev, PCI_EXP_SLTCTL, slot_ctrl);
 	ctrl->cmd_started = jiffies;
 	ctrl->slot_ctrl = slot_ctrl;
+=======
+	ctrl->slot_ctrl = slot_ctrl;
+	pcie_capability_write_word(pdev, PCI_EXP_SLTCTL, slot_ctrl);
+	ctrl->cmd_started = jiffies;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Controllers with the Intel CF118 and similar errata advertise
@@ -202,6 +262,7 @@ static void pcie_write_cmd_nowait(struct controller *ctrl, u16 cmd, u16 mask)
 	pcie_do_write_cmd(ctrl, cmd, mask, false);
 }
 
+<<<<<<< HEAD
 bool pciehp_check_link_active(struct controller *ctrl)
 {
 	struct pci_dev *pdev = ctrl_dev(ctrl);
@@ -213,10 +274,36 @@ bool pciehp_check_link_active(struct controller *ctrl)
 
 	if (ret)
 		ctrl_dbg(ctrl, "%s: lnk_status = %x\n", __func__, lnk_status);
+=======
+/**
+ * pciehp_check_link_active() - Is the link active
+ * @ctrl: PCIe hotplug controller
+ *
+ * Check whether the downstream link is currently active. Note it is
+ * possible that the card is removed immediately after this so the
+ * caller may need to take it into account.
+ *
+ * If the hotplug controller itself is not available anymore returns
+ * %-ENODEV.
+ */
+int pciehp_check_link_active(struct controller *ctrl)
+{
+	struct pci_dev *pdev = ctrl_dev(ctrl);
+	u16 lnk_status;
+	int ret;
+
+	ret = pcie_capability_read_word(pdev, PCI_EXP_LNKSTA, &lnk_status);
+	if (ret == PCIBIOS_DEVICE_NOT_FOUND || lnk_status == (u16)~0)
+		return -ENODEV;
+
+	ret = !!(lnk_status & PCI_EXP_LNKSTA_DLLLA);
+	ctrl_dbg(ctrl, "%s: lnk_status = %x\n", __func__, lnk_status);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
+<<<<<<< HEAD
 static void pcie_wait_link_active(struct controller *ctrl)
 {
 	struct pci_dev *pdev = ctrl_dev(ctrl);
@@ -224,6 +311,8 @@ static void pcie_wait_link_active(struct controller *ctrl)
 	pcie_wait_for_link(pdev, true);
 }
 
+=======
+>>>>>>> upstream/android-13
 static bool pci_bus_check_dev(struct pci_bus *bus, int devfn)
 {
 	u32 l;
@@ -242,20 +331,43 @@ static bool pci_bus_check_dev(struct pci_bus *bus, int devfn)
 		delay -= step;
 	} while (delay > 0);
 
+<<<<<<< HEAD
 	if (count > 1 && pciehp_debug)
 		printk(KERN_DEBUG "pci %04x:%02x:%02x.%d id reading try %d times with interval %d ms to get %08x\n",
+=======
+	if (count > 1)
+		pr_debug("pci %04x:%02x:%02x.%d id reading try %d times with interval %d ms to get %08x\n",
+>>>>>>> upstream/android-13
 			pci_domain_nr(bus), bus->number, PCI_SLOT(devfn),
 			PCI_FUNC(devfn), count, step, l);
 
 	return found;
 }
 
+<<<<<<< HEAD
+=======
+static void pcie_wait_for_presence(struct pci_dev *pdev)
+{
+	int timeout = 1250;
+	u16 slot_status;
+
+	do {
+		pcie_capability_read_word(pdev, PCI_EXP_SLTSTA, &slot_status);
+		if (slot_status & PCI_EXP_SLTSTA_PDS)
+			return;
+		msleep(10);
+		timeout -= 10;
+	} while (timeout > 0);
+}
+
+>>>>>>> upstream/android-13
 int pciehp_check_link_status(struct controller *ctrl)
 {
 	struct pci_dev *pdev = ctrl_dev(ctrl);
 	bool found;
 	u16 lnk_status;
 
+<<<<<<< HEAD
 	/*
 	 * Data Link Layer Link Active Reporting must be capable for
 	 * hot-plug capable downstream port. But old controller might
@@ -268,6 +380,16 @@ int pciehp_check_link_status(struct controller *ctrl)
 
 	/* wait 100ms before read pci conf, and try in 1s */
 	msleep(100);
+=======
+	if (!pcie_wait_for_link(pdev, true)) {
+		ctrl_info(ctrl, "Slot(%s): No link\n", slot_name(ctrl));
+		return -1;
+	}
+
+	if (ctrl->inband_presence_disabled)
+		pcie_wait_for_presence(pdev);
+
+>>>>>>> upstream/android-13
 	found = pci_bus_check_dev(ctrl->pcie->port->subordinate,
 					PCI_DEVFN(0, 0));
 
@@ -280,15 +402,28 @@ int pciehp_check_link_status(struct controller *ctrl)
 	ctrl_dbg(ctrl, "%s: lnk_status = %x\n", __func__, lnk_status);
 	if ((lnk_status & PCI_EXP_LNKSTA_LT) ||
 	    !(lnk_status & PCI_EXP_LNKSTA_NLW)) {
+<<<<<<< HEAD
 		ctrl_err(ctrl, "link training error: status %#06x\n",
 			 lnk_status);
+=======
+		ctrl_info(ctrl, "Slot(%s): Cannot train link: status %#06x\n",
+			  slot_name(ctrl), lnk_status);
+>>>>>>> upstream/android-13
 		return -1;
 	}
 
 	pcie_update_link_speed(ctrl->pcie->port->subordinate, lnk_status);
 
+<<<<<<< HEAD
 	if (!found)
 		return -1;
+=======
+	if (!found) {
+		ctrl_info(ctrl, "Slot(%s): No device found\n",
+			  slot_name(ctrl));
+		return -1;
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -318,8 +453,13 @@ static int pciehp_link_enable(struct controller *ctrl)
 int pciehp_get_raw_indicator_status(struct hotplug_slot *hotplug_slot,
 				    u8 *status)
 {
+<<<<<<< HEAD
 	struct slot *slot = hotplug_slot->private;
 	struct pci_dev *pdev = ctrl_dev(slot->ctrl);
+=======
+	struct controller *ctrl = to_ctrl(hotplug_slot);
+	struct pci_dev *pdev = ctrl_dev(ctrl);
+>>>>>>> upstream/android-13
 	u16 slot_ctrl;
 
 	pci_config_pm_runtime_get(pdev);
@@ -329,9 +469,15 @@ int pciehp_get_raw_indicator_status(struct hotplug_slot *hotplug_slot,
 	return 0;
 }
 
+<<<<<<< HEAD
 void pciehp_get_attention_status(struct slot *slot, u8 *status)
 {
 	struct controller *ctrl = slot->ctrl;
+=======
+int pciehp_get_attention_status(struct hotplug_slot *hotplug_slot, u8 *status)
+{
+	struct controller *ctrl = to_ctrl(hotplug_slot);
+>>>>>>> upstream/android-13
 	struct pci_dev *pdev = ctrl_dev(ctrl);
 	u16 slot_ctrl;
 
@@ -355,11 +501,20 @@ void pciehp_get_attention_status(struct slot *slot, u8 *status)
 		*status = 0xFF;
 		break;
 	}
+<<<<<<< HEAD
 }
 
 void pciehp_get_power_status(struct slot *slot, u8 *status)
 {
 	struct controller *ctrl = slot->ctrl;
+=======
+
+	return 0;
+}
+
+void pciehp_get_power_status(struct controller *ctrl, u8 *status)
+{
+>>>>>>> upstream/android-13
 	struct pci_dev *pdev = ctrl_dev(ctrl);
 	u16 slot_ctrl;
 
@@ -380,15 +535,22 @@ void pciehp_get_power_status(struct slot *slot, u8 *status)
 	}
 }
 
+<<<<<<< HEAD
 void pciehp_get_latch_status(struct slot *slot, u8 *status)
 {
 	struct pci_dev *pdev = ctrl_dev(slot->ctrl);
+=======
+void pciehp_get_latch_status(struct controller *ctrl, u8 *status)
+{
+	struct pci_dev *pdev = ctrl_dev(ctrl);
+>>>>>>> upstream/android-13
 	u16 slot_status;
 
 	pcie_capability_read_word(pdev, PCI_EXP_SLTSTA, &slot_status);
 	*status = !!(slot_status & PCI_EXP_SLTSTA_MRLSS);
 }
 
+<<<<<<< HEAD
 void pciehp_get_adapter_status(struct slot *slot, u8 *status)
 {
 	struct pci_dev *pdev = ctrl_dev(slot->ctrl);
@@ -401,6 +563,59 @@ void pciehp_get_adapter_status(struct slot *slot, u8 *status)
 int pciehp_query_power_fault(struct slot *slot)
 {
 	struct pci_dev *pdev = ctrl_dev(slot->ctrl);
+=======
+/**
+ * pciehp_card_present() - Is the card present
+ * @ctrl: PCIe hotplug controller
+ *
+ * Function checks whether the card is currently present in the slot and
+ * in that case returns true. Note it is possible that the card is
+ * removed immediately after the check so the caller may need to take
+ * this into account.
+ *
+ * It the hotplug controller itself is not available anymore returns
+ * %-ENODEV.
+ */
+int pciehp_card_present(struct controller *ctrl)
+{
+	struct pci_dev *pdev = ctrl_dev(ctrl);
+	u16 slot_status;
+	int ret;
+
+	ret = pcie_capability_read_word(pdev, PCI_EXP_SLTSTA, &slot_status);
+	if (ret == PCIBIOS_DEVICE_NOT_FOUND || slot_status == (u16)~0)
+		return -ENODEV;
+
+	return !!(slot_status & PCI_EXP_SLTSTA_PDS);
+}
+
+/**
+ * pciehp_card_present_or_link_active() - whether given slot is occupied
+ * @ctrl: PCIe hotplug controller
+ *
+ * Unlike pciehp_card_present(), which determines presence solely from the
+ * Presence Detect State bit, this helper also returns true if the Link Active
+ * bit is set.  This is a concession to broken hotplug ports which hardwire
+ * Presence Detect State to zero, such as Wilocity's [1ae9:0200].
+ *
+ * Returns: %1 if the slot is occupied and %0 if it is not. If the hotplug
+ *	    port is not present anymore returns %-ENODEV.
+ */
+int pciehp_card_present_or_link_active(struct controller *ctrl)
+{
+	int ret;
+
+	ret = pciehp_card_present(ctrl);
+	if (ret)
+		return ret;
+
+	return pciehp_check_link_active(ctrl);
+}
+
+int pciehp_query_power_fault(struct controller *ctrl)
+{
+	struct pci_dev *pdev = ctrl_dev(ctrl);
+>>>>>>> upstream/android-13
 	u16 slot_status;
 
 	pcie_capability_read_word(pdev, PCI_EXP_SLTSTA, &slot_status);
@@ -410,8 +625,12 @@ int pciehp_query_power_fault(struct slot *slot)
 int pciehp_set_raw_indicator_status(struct hotplug_slot *hotplug_slot,
 				    u8 status)
 {
+<<<<<<< HEAD
 	struct slot *slot = hotplug_slot->private;
 	struct controller *ctrl = slot->ctrl;
+=======
+	struct controller *ctrl = to_ctrl(hotplug_slot);
+>>>>>>> upstream/android-13
 	struct pci_dev *pdev = ctrl_dev(ctrl);
 
 	pci_config_pm_runtime_get(pdev);
@@ -421,6 +640,7 @@ int pciehp_set_raw_indicator_status(struct hotplug_slot *hotplug_slot,
 	return 0;
 }
 
+<<<<<<< HEAD
 void pciehp_set_attention_status(struct slot *slot, u8 value)
 {
 	struct controller *ctrl = slot->ctrl;
@@ -492,6 +712,46 @@ void pciehp_green_led_blink(struct slot *slot)
 int pciehp_power_on_slot(struct slot *slot)
 {
 	struct controller *ctrl = slot->ctrl;
+=======
+/**
+ * pciehp_set_indicators() - set attention indicator, power indicator, or both
+ * @ctrl: PCIe hotplug controller
+ * @pwr: one of:
+ *	PCI_EXP_SLTCTL_PWR_IND_ON
+ *	PCI_EXP_SLTCTL_PWR_IND_BLINK
+ *	PCI_EXP_SLTCTL_PWR_IND_OFF
+ * @attn: one of:
+ *	PCI_EXP_SLTCTL_ATTN_IND_ON
+ *	PCI_EXP_SLTCTL_ATTN_IND_BLINK
+ *	PCI_EXP_SLTCTL_ATTN_IND_OFF
+ *
+ * Either @pwr or @attn can also be INDICATOR_NOOP to leave that indicator
+ * unchanged.
+ */
+void pciehp_set_indicators(struct controller *ctrl, int pwr, int attn)
+{
+	u16 cmd = 0, mask = 0;
+
+	if (PWR_LED(ctrl) && pwr != INDICATOR_NOOP) {
+		cmd |= (pwr & PCI_EXP_SLTCTL_PIC);
+		mask |= PCI_EXP_SLTCTL_PIC;
+	}
+
+	if (ATTN_LED(ctrl) && attn != INDICATOR_NOOP) {
+		cmd |= (attn & PCI_EXP_SLTCTL_AIC);
+		mask |= PCI_EXP_SLTCTL_AIC;
+	}
+
+	if (cmd) {
+		pcie_write_cmd_nowait(ctrl, cmd, mask);
+		ctrl_dbg(ctrl, "%s: SLOTCTRL %x write cmd %x\n", __func__,
+			 pci_pcie_cap(ctrl->pcie->port) + PCI_EXP_SLTCTL, cmd);
+	}
+}
+
+int pciehp_power_on_slot(struct controller *ctrl)
+{
+>>>>>>> upstream/android-13
 	struct pci_dev *pdev = ctrl_dev(ctrl);
 	u16 slot_status;
 	int retval;
@@ -515,16 +775,50 @@ int pciehp_power_on_slot(struct slot *slot)
 	return retval;
 }
 
+<<<<<<< HEAD
 void pciehp_power_off_slot(struct slot *slot)
 {
 	struct controller *ctrl = slot->ctrl;
 
+=======
+void pciehp_power_off_slot(struct controller *ctrl)
+{
+>>>>>>> upstream/android-13
 	pcie_write_cmd(ctrl, PCI_EXP_SLTCTL_PWR_OFF, PCI_EXP_SLTCTL_PCC);
 	ctrl_dbg(ctrl, "%s: SLOTCTRL %x write cmd %x\n", __func__,
 		 pci_pcie_cap(ctrl->pcie->port) + PCI_EXP_SLTCTL,
 		 PCI_EXP_SLTCTL_PWR_OFF);
 }
 
+<<<<<<< HEAD
+=======
+static void pciehp_ignore_dpc_link_change(struct controller *ctrl,
+					  struct pci_dev *pdev, int irq)
+{
+	/*
+	 * Ignore link changes which occurred while waiting for DPC recovery.
+	 * Could be several if DPC triggered multiple times consecutively.
+	 */
+	synchronize_hardirq(irq);
+	atomic_and(~PCI_EXP_SLTSTA_DLLSC, &ctrl->pending_events);
+	if (pciehp_poll_mode)
+		pcie_capability_write_word(pdev, PCI_EXP_SLTSTA,
+					   PCI_EXP_SLTSTA_DLLSC);
+	ctrl_info(ctrl, "Slot(%s): Link Down/Up ignored (recovered by DPC)\n",
+		  slot_name(ctrl));
+
+	/*
+	 * If the link is unexpectedly down after successful recovery,
+	 * the corresponding link change may have been ignored above.
+	 * Synthesize it to ensure that it is acted on.
+	 */
+	down_read_nested(&ctrl->reset_lock, ctrl->depth);
+	if (!pciehp_check_link_active(ctrl))
+		pciehp_request(ctrl, PCI_EXP_SLTSTA_DLLSC);
+	up_read(&ctrl->reset_lock);
+}
+
+>>>>>>> upstream/android-13
 static irqreturn_t pciehp_isr(int irq, void *dev_id)
 {
 	struct controller *ctrl = (struct controller *)dev_id;
@@ -533,9 +827,17 @@ static irqreturn_t pciehp_isr(int irq, void *dev_id)
 	u16 status, events = 0;
 
 	/*
+<<<<<<< HEAD
 	 * Interrupts only occur in D3hot or shallower (PCIe r4.0, sec 6.7.3.4).
 	 */
 	if (pdev->current_state == PCI_D3cold)
+=======
+	 * Interrupts only occur in D3hot or shallower and only if enabled
+	 * in the Slot Control register (PCIe r4.0, sec 6.7.3.4).
+	 */
+	if (pdev->current_state == PCI_D3cold ||
+	    (!(ctrl->slot_ctrl & PCI_EXP_SLTCTL_HPIE) && !pciehp_poll_mode))
+>>>>>>> upstream/android-13
 		return IRQ_NONE;
 
 	/*
@@ -576,6 +878,11 @@ read_status:
 	 */
 	if (ctrl->power_fault_detected)
 		status &= ~PCI_EXP_SLTSTA_PFD;
+<<<<<<< HEAD
+=======
+	else if (status & PCI_EXP_SLTSTA_PFD)
+		ctrl->power_fault_detected = true;
+>>>>>>> upstream/android-13
 
 	events |= status;
 	if (!events) {
@@ -585,7 +892,11 @@ read_status:
 	}
 
 	if (status) {
+<<<<<<< HEAD
 		pcie_capability_write_word(pdev, PCI_EXP_SLTSTA, events);
+=======
+		pcie_capability_write_word(pdev, PCI_EXP_SLTSTA, status);
+>>>>>>> upstream/android-13
 
 		/*
 		 * In MSI mode, all event bits must be zero before the port
@@ -630,7 +941,10 @@ static irqreturn_t pciehp_ist(int irq, void *dev_id)
 {
 	struct controller *ctrl = (struct controller *)dev_id;
 	struct pci_dev *pdev = ctrl_dev(ctrl);
+<<<<<<< HEAD
 	struct slot *slot = ctrl->slot;
+=======
+>>>>>>> upstream/android-13
 	irqreturn_t ret;
 	u32 events;
 
@@ -655,6 +969,7 @@ static irqreturn_t pciehp_ist(int irq, void *dev_id)
 	/* Check Attention Button Pressed */
 	if (events & PCI_EXP_SLTSTA_ABP) {
 		ctrl_info(ctrl, "Slot(%s): Attention button pressed\n",
+<<<<<<< HEAD
 			  slot_name(slot));
 		pciehp_handle_button_press(slot);
 	}
@@ -665,17 +980,46 @@ static irqreturn_t pciehp_ist(int irq, void *dev_id)
 		ctrl_err(ctrl, "Slot(%s): Power fault\n", slot_name(slot));
 		pciehp_set_attention_status(slot, 1);
 		pciehp_green_led_off(slot);
+=======
+			  slot_name(ctrl));
+		pciehp_handle_button_press(ctrl);
+	}
+
+	/* Check Power Fault Detected */
+	if (events & PCI_EXP_SLTSTA_PFD) {
+		ctrl_err(ctrl, "Slot(%s): Power fault\n", slot_name(ctrl));
+		pciehp_set_indicators(ctrl, PCI_EXP_SLTCTL_PWR_IND_OFF,
+				      PCI_EXP_SLTCTL_ATTN_IND_ON);
+	}
+
+	/*
+	 * Ignore Link Down/Up events caused by Downstream Port Containment
+	 * if recovery from the error succeeded.
+	 */
+	if ((events & PCI_EXP_SLTSTA_DLLSC) && pci_dpc_recovered(pdev) &&
+	    ctrl->state == ON_STATE) {
+		events &= ~PCI_EXP_SLTSTA_DLLSC;
+		pciehp_ignore_dpc_link_change(ctrl, pdev, irq);
+>>>>>>> upstream/android-13
 	}
 
 	/*
 	 * Disable requests have higher priority than Presence Detect Changed
 	 * or Data Link Layer State Changed events.
 	 */
+<<<<<<< HEAD
 	down_read(&ctrl->reset_lock);
 	if (events & DISABLE_SLOT)
 		pciehp_handle_disable_request(slot);
 	else if (events & (PCI_EXP_SLTSTA_PDC | PCI_EXP_SLTSTA_DLLSC))
 		pciehp_handle_presence_or_link_change(slot, events);
+=======
+	down_read_nested(&ctrl->reset_lock, ctrl->depth);
+	if (events & DISABLE_SLOT)
+		pciehp_handle_disable_request(ctrl);
+	else if (events & (PCI_EXP_SLTSTA_PDC | PCI_EXP_SLTSTA_DLLSC))
+		pciehp_handle_presence_or_link_change(ctrl, events);
+>>>>>>> upstream/android-13
 	up_read(&ctrl->reset_lock);
 
 	ret = IRQ_HANDLED;
@@ -764,6 +1108,32 @@ void pcie_clear_hotplug_events(struct controller *ctrl)
 				   PCI_EXP_SLTSTA_PDC | PCI_EXP_SLTSTA_DLLSC);
 }
 
+<<<<<<< HEAD
+=======
+void pcie_enable_interrupt(struct controller *ctrl)
+{
+	u16 mask;
+
+	mask = PCI_EXP_SLTCTL_HPIE | PCI_EXP_SLTCTL_DLLSCE;
+	pcie_write_cmd(ctrl, mask, mask);
+}
+
+void pcie_disable_interrupt(struct controller *ctrl)
+{
+	u16 mask;
+
+	/*
+	 * Mask hot-plug interrupt to prevent it triggering immediately
+	 * when the link goes inactive (we still get PME when any of the
+	 * enabled events is detected). Same goes with Link Layer State
+	 * changed event which generates PME immediately when the link goes
+	 * inactive so mask it as well.
+	 */
+	mask = PCI_EXP_SLTCTL_HPIE | PCI_EXP_SLTCTL_DLLSCE;
+	pcie_write_cmd(ctrl, 0, mask);
+}
+
+>>>>>>> upstream/android-13
 /*
  * pciehp has a 1:1 bus:slot relationship so we ultimately want a secondary
  * bus reset of the bridge, but at the same time we want to ensure that it is
@@ -772,9 +1142,15 @@ void pcie_clear_hotplug_events(struct controller *ctrl)
  * momentarily, if we see that they could interfere. Also, clear any spurious
  * events after.
  */
+<<<<<<< HEAD
 int pciehp_reset_slot(struct slot *slot, int probe)
 {
 	struct controller *ctrl = slot->ctrl;
+=======
+int pciehp_reset_slot(struct hotplug_slot *hotplug_slot, bool probe)
+{
+	struct controller *ctrl = to_ctrl(hotplug_slot);
+>>>>>>> upstream/android-13
 	struct pci_dev *pdev = ctrl_dev(ctrl);
 	u16 stat_mask = 0, ctrl_mask = 0;
 	int rc;
@@ -782,7 +1158,11 @@ int pciehp_reset_slot(struct slot *slot, int probe)
 	if (probe)
 		return 0;
 
+<<<<<<< HEAD
 	down_write(&ctrl->reset_lock);
+=======
+	down_write_nested(&ctrl->reset_lock, ctrl->depth);
+>>>>>>> upstream/android-13
 
 	if (!ATTN_BUTTN(ctrl)) {
 		ctrl_mask |= PCI_EXP_SLTCTL_PDCE;
@@ -824,6 +1204,7 @@ void pcie_shutdown_notification(struct controller *ctrl)
 	}
 }
 
+<<<<<<< HEAD
 static int pcie_init_slot(struct controller *ctrl)
 {
 	struct pci_bus *subordinate = ctrl_dev(ctrl)->subordinate;
@@ -852,11 +1233,14 @@ static void pcie_cleanup_slot(struct controller *ctrl)
 	kfree(slot);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void dbg_ctrl(struct controller *ctrl)
 {
 	struct pci_dev *pdev = ctrl->pcie->port;
 	u16 reg16;
 
+<<<<<<< HEAD
 	if (!pciehp_debug)
 		return;
 
@@ -865,10 +1249,18 @@ static inline void dbg_ctrl(struct controller *ctrl)
 	ctrl_info(ctrl, "Slot Status            : 0x%04x\n", reg16);
 	pcie_capability_read_word(pdev, PCI_EXP_SLTCTL, &reg16);
 	ctrl_info(ctrl, "Slot Control           : 0x%04x\n", reg16);
+=======
+	ctrl_dbg(ctrl, "Slot Capabilities      : 0x%08x\n", ctrl->slot_cap);
+	pcie_capability_read_word(pdev, PCI_EXP_SLTSTA, &reg16);
+	ctrl_dbg(ctrl, "Slot Status            : 0x%04x\n", reg16);
+	pcie_capability_read_word(pdev, PCI_EXP_SLTCTL, &reg16);
+	ctrl_dbg(ctrl, "Slot Control           : 0x%04x\n", reg16);
+>>>>>>> upstream/android-13
 }
 
 #define FLAG(x, y)	(((x) & (y)) ? '+' : '-')
 
+<<<<<<< HEAD
 struct controller *pcie_init(struct pcie_device *dev)
 {
 	struct controller *ctrl;
@@ -881,6 +1273,36 @@ struct controller *pcie_init(struct pcie_device *dev)
 		goto abort;
 
 	ctrl->pcie = dev;
+=======
+static inline int pcie_hotplug_depth(struct pci_dev *dev)
+{
+	struct pci_bus *bus = dev->bus;
+	int depth = 0;
+
+	while (bus->parent) {
+		bus = bus->parent;
+		if (bus->self && bus->self->is_hotplug_bridge)
+			depth++;
+	}
+
+	return depth;
+}
+
+struct controller *pcie_init(struct pcie_device *dev)
+{
+	struct controller *ctrl;
+	u32 slot_cap, slot_cap2, link_cap;
+	u8 poweron;
+	struct pci_dev *pdev = dev->port;
+	struct pci_bus *subordinate = pdev->subordinate;
+
+	ctrl = kzalloc(sizeof(*ctrl), GFP_KERNEL);
+	if (!ctrl)
+		return NULL;
+
+	ctrl->pcie = dev;
+	ctrl->depth = pcie_hotplug_depth(dev->port);
+>>>>>>> upstream/android-13
 	pcie_capability_read_dword(pdev, PCI_EXP_SLTCAP, &slot_cap);
 
 	if (pdev->hotplug_user_indicators)
@@ -895,6 +1317,7 @@ struct controller *pcie_init(struct pcie_device *dev)
 
 	ctrl->slot_cap = slot_cap;
 	mutex_init(&ctrl->ctrl_lock);
+<<<<<<< HEAD
 	init_rwsem(&ctrl->reset_lock);
 	init_waitqueue_head(&ctrl->requester);
 	init_waitqueue_head(&ctrl->queue);
@@ -904,6 +1327,31 @@ struct controller *pcie_init(struct pcie_device *dev)
 	pcie_capability_read_dword(pdev, PCI_EXP_LNKCAP, &link_cap);
 	if (link_cap & PCI_EXP_LNKCAP_DLLLARC)
 		ctrl->link_active_reporting = 1;
+=======
+	mutex_init(&ctrl->state_lock);
+	init_rwsem(&ctrl->reset_lock);
+	init_waitqueue_head(&ctrl->requester);
+	init_waitqueue_head(&ctrl->queue);
+	INIT_DELAYED_WORK(&ctrl->button_work, pciehp_queue_pushbutton_work);
+	dbg_ctrl(ctrl);
+
+	down_read(&pci_bus_sem);
+	ctrl->state = list_empty(&subordinate->devices) ? OFF_STATE : ON_STATE;
+	up_read(&pci_bus_sem);
+
+	pcie_capability_read_dword(pdev, PCI_EXP_SLTCAP2, &slot_cap2);
+	if (slot_cap2 & PCI_EXP_SLTCAP2_IBPD) {
+		pcie_write_cmd_nowait(ctrl, PCI_EXP_SLTCTL_IBPD_DISABLE,
+				      PCI_EXP_SLTCTL_IBPD_DISABLE);
+		ctrl->inband_presence_disabled = 1;
+	}
+
+	if (dmi_first_match(inband_presence_disabled_dmi_table))
+		ctrl->inband_presence_disabled = 1;
+
+	/* Check if Data Link Layer Link Active Reporting is implemented */
+	pcie_capability_read_dword(pdev, PCI_EXP_LNKCAP, &link_cap);
+>>>>>>> upstream/android-13
 
 	/* Clear all remaining event bits in Slot Status register. */
 	pcie_capability_write_word(pdev, PCI_EXP_SLTSTA,
@@ -911,7 +1359,11 @@ struct controller *pcie_init(struct pcie_device *dev)
 		PCI_EXP_SLTSTA_MRLSC | PCI_EXP_SLTSTA_CC |
 		PCI_EXP_SLTSTA_DLLSC | PCI_EXP_SLTSTA_PDC);
 
+<<<<<<< HEAD
 	ctrl_info(ctrl, "Slot #%d AttnBtn%c PwrCtrl%c MRL%c AttnInd%c PwrInd%c HotPlug%c Surprise%c Interlock%c NoCompl%c LLActRep%c%s\n",
+=======
+	ctrl_info(ctrl, "Slot #%d AttnBtn%c PwrCtrl%c MRL%c AttnInd%c PwrInd%c HotPlug%c Surprise%c Interlock%c NoCompl%c IbPresDis%c LLActRep%c%s\n",
+>>>>>>> upstream/android-13
 		(slot_cap & PCI_EXP_SLTCAP_PSN) >> 19,
 		FLAG(slot_cap, PCI_EXP_SLTCAP_ABP),
 		FLAG(slot_cap, PCI_EXP_SLTCAP_PCP),
@@ -922,36 +1374,57 @@ struct controller *pcie_init(struct pcie_device *dev)
 		FLAG(slot_cap, PCI_EXP_SLTCAP_HPS),
 		FLAG(slot_cap, PCI_EXP_SLTCAP_EIP),
 		FLAG(slot_cap, PCI_EXP_SLTCAP_NCCS),
+<<<<<<< HEAD
 		FLAG(link_cap, PCI_EXP_LNKCAP_DLLLARC),
 		pdev->broken_cmd_compl ? " (with Cmd Compl erratum)" : "");
 
 	if (pcie_init_slot(ctrl))
 		goto abort_ctrl;
 
+=======
+		FLAG(slot_cap2, PCI_EXP_SLTCAP2_IBPD),
+		FLAG(link_cap, PCI_EXP_LNKCAP_DLLLARC),
+		pdev->broken_cmd_compl ? " (with Cmd Compl erratum)" : "");
+
+>>>>>>> upstream/android-13
 	/*
 	 * If empty slot's power status is on, turn power off.  The IRQ isn't
 	 * requested yet, so avoid triggering a notification with this command.
 	 */
 	if (POWER_CTRL(ctrl)) {
+<<<<<<< HEAD
 		pciehp_get_adapter_status(ctrl->slot, &occupied);
 		pciehp_get_power_status(ctrl->slot, &poweron);
 		if (!occupied && poweron) {
 			pcie_disable_notification(ctrl);
 			pciehp_power_off_slot(ctrl->slot);
+=======
+		pciehp_get_power_status(ctrl, &poweron);
+		if (!pciehp_card_present_or_link_active(ctrl) && poweron) {
+			pcie_disable_notification(ctrl);
+			pciehp_power_off_slot(ctrl);
+>>>>>>> upstream/android-13
 		}
 	}
 
 	return ctrl;
+<<<<<<< HEAD
 
 abort_ctrl:
 	kfree(ctrl);
 abort:
 	return NULL;
+=======
+>>>>>>> upstream/android-13
 }
 
 void pciehp_release_ctrl(struct controller *ctrl)
 {
+<<<<<<< HEAD
 	pcie_cleanup_slot(ctrl);
+=======
+	cancel_delayed_work_sync(&ctrl->button_work);
+>>>>>>> upstream/android-13
 	kfree(ctrl);
 }
 
@@ -968,7 +1441,17 @@ static void quirk_cmd_compl(struct pci_dev *pdev)
 }
 DECLARE_PCI_FIXUP_CLASS_EARLY(PCI_VENDOR_ID_INTEL, PCI_ANY_ID,
 			      PCI_CLASS_BRIDGE_PCI, 8, quirk_cmd_compl);
+<<<<<<< HEAD
+=======
+DECLARE_PCI_FIXUP_CLASS_EARLY(PCI_VENDOR_ID_QCOM, 0x0110,
+			      PCI_CLASS_BRIDGE_PCI, 8, quirk_cmd_compl);
+>>>>>>> upstream/android-13
 DECLARE_PCI_FIXUP_CLASS_EARLY(PCI_VENDOR_ID_QCOM, 0x0400,
 			      PCI_CLASS_BRIDGE_PCI, 8, quirk_cmd_compl);
 DECLARE_PCI_FIXUP_CLASS_EARLY(PCI_VENDOR_ID_QCOM, 0x0401,
 			      PCI_CLASS_BRIDGE_PCI, 8, quirk_cmd_compl);
+<<<<<<< HEAD
+=======
+DECLARE_PCI_FIXUP_CLASS_EARLY(PCI_VENDOR_ID_HXT, 0x0401,
+			      PCI_CLASS_BRIDGE_PCI, 8, quirk_cmd_compl);
+>>>>>>> upstream/android-13

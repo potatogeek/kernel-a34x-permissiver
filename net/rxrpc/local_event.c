@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* AF_RXRPC local endpoint management
  *
  * Copyright (C) 2007 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -39,7 +46,11 @@ static void rxrpc_send_version_request(struct rxrpc_local *local,
 
 	_enter("");
 
+<<<<<<< HEAD
 	if (rxrpc_extract_addr_from_skb(local, &srx, skb) < 0)
+=======
+	if (rxrpc_extract_addr_from_skb(&srx, skb) < 0)
+>>>>>>> upstream/android-13
 		return;
 
 	msg.msg_name	= &srx.transport;
@@ -81,7 +92,11 @@ static void rxrpc_send_version_request(struct rxrpc_local *local,
 }
 
 /*
+<<<<<<< HEAD
  * Process event packets targetted at a local endpoint.
+=======
+ * Process event packets targeted at a local endpoint.
+>>>>>>> upstream/android-13
  */
 void rxrpc_process_local_events(struct rxrpc_local *local)
 {
@@ -94,7 +109,11 @@ void rxrpc_process_local_events(struct rxrpc_local *local)
 	if (skb) {
 		struct rxrpc_skb_priv *sp = rxrpc_skb(skb);
 
+<<<<<<< HEAD
 		rxrpc_see_skb(skb, rxrpc_skb_rx_seen);
+=======
+		rxrpc_see_skb(skb, rxrpc_skb_seen);
+>>>>>>> upstream/android-13
 		_debug("{%d},{%u}", local->debug_id, sp->hdr.type);
 
 		switch (sp->hdr.type) {
@@ -112,7 +131,11 @@ void rxrpc_process_local_events(struct rxrpc_local *local)
 			break;
 		}
 
+<<<<<<< HEAD
 		rxrpc_free_skb(skb, rxrpc_skb_rx_freed);
+=======
+		rxrpc_free_skb(skb, rxrpc_skb_freed);
+>>>>>>> upstream/android-13
 	}
 
 	_leave("");

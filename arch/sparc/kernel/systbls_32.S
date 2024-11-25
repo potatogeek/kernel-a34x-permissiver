@@ -9,6 +9,7 @@
  * Copyright (C) 1995 Adrian M. Rodriguez (adrian@remus.rutgers.edu)
  */
 
+<<<<<<< HEAD
 
 	.data
 	.align 4
@@ -91,3 +92,12 @@ sys_call_table:
 /*350*/	.long sys_execveat, sys_membarrier, sys_userfaultfd, sys_bind, sys_listen
 /*355*/	.long sys_setsockopt, sys_mlock2, sys_copy_file_range, sys_preadv2, sys_pwritev2
 /*360*/	.long sys_statx, sys_io_pgetevents
+=======
+#define __SYSCALL_WITH_COMPAT(nr, native, compat)	__SYSCALL(nr, native)
+#define __SYSCALL(nr, entry) .long entry
+	.data
+	.align 4
+	.globl sys_call_table
+sys_call_table:
+#include <asm/syscall_table_32.h>	/* 32-bit native syscalls */
+>>>>>>> upstream/android-13

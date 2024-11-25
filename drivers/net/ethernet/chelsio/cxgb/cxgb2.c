@@ -211,9 +211,16 @@ static int cxgb_up(struct adapter *adapter)
 	t1_interrupts_clear(adapter);
 
 	adapter->params.has_msi = !disable_msi && !pci_enable_msi(adapter->pdev);
+<<<<<<< HEAD
 	err = request_irq(adapter->pdev->irq, t1_interrupt,
 			  adapter->params.has_msi ? 0 : IRQF_SHARED,
 			  adapter->name, adapter);
+=======
+	err = request_threaded_irq(adapter->pdev->irq, t1_interrupt,
+				   t1_interrupt_thread,
+				   adapter->params.has_msi ? 0 : IRQF_SHARED,
+				   adapter->name, adapter);
+>>>>>>> upstream/android-13
 	if (err) {
 		if (adapter->params.has_msi)
 			pci_disable_msi(adapter->pdev);
@@ -429,7 +436,10 @@ static void get_drvinfo(struct net_device *dev, struct ethtool_drvinfo *info)
 	struct adapter *adapter = dev->ml_priv;
 
 	strlcpy(info->driver, DRV_NAME, sizeof(info->driver));
+<<<<<<< HEAD
 	strlcpy(info->version, DRV_VERSION, sizeof(info->version));
+=======
+>>>>>>> upstream/android-13
 	strlcpy(info->bus_info, pci_name(adapter->pdev),
 		sizeof(info->bus_info));
 }
@@ -748,7 +758,13 @@ static int set_sge_param(struct net_device *dev, struct ethtool_ringparam *e)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int set_coalesce(struct net_device *dev, struct ethtool_coalesce *c)
+=======
+static int set_coalesce(struct net_device *dev, struct ethtool_coalesce *c,
+			struct kernel_ethtool_coalesce *kernel_coal,
+			struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct adapter *adapter = dev->ml_priv;
 
@@ -759,7 +775,13 @@ static int set_coalesce(struct net_device *dev, struct ethtool_coalesce *c)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int get_coalesce(struct net_device *dev, struct ethtool_coalesce *c)
+=======
+static int get_coalesce(struct net_device *dev, struct ethtool_coalesce *c,
+			struct kernel_ethtool_coalesce *kernel_coal,
+			struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct adapter *adapter = dev->ml_priv;
 
@@ -794,6 +816,12 @@ static int get_eeprom(struct net_device *dev, struct ethtool_eeprom *e,
 }
 
 static const struct ethtool_ops t1_ethtool_ops = {
+<<<<<<< HEAD
+=======
+	.supported_coalesce_params = ETHTOOL_COALESCE_RX_USECS |
+				     ETHTOOL_COALESCE_USE_ADAPTIVE_RX |
+				     ETHTOOL_COALESCE_RATE_SAMPLE_INTERVAL,
+>>>>>>> upstream/android-13
 	.get_drvinfo       = get_drvinfo,
 	.get_msglevel      = get_msglevel,
 	.set_msglevel      = set_msglevel,
@@ -914,6 +942,7 @@ static void mac_stats_task(struct work_struct *work)
 	spin_unlock(&adapter->work_lock);
 }
 
+<<<<<<< HEAD
 /*
  * Processes elmer0 external interrupts in process context.
  */
@@ -959,6 +988,8 @@ void t1_fatal_err(struct adapter *adapter)
 		 adapter->name);
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct net_device_ops cxgb_netdev_ops = {
 	.ndo_open		= cxgb_open,
 	.ndo_stop		= cxgb_close,
@@ -966,7 +997,11 @@ static const struct net_device_ops cxgb_netdev_ops = {
 	.ndo_get_stats		= t1_get_stats,
 	.ndo_validate_addr	= eth_validate_addr,
 	.ndo_set_rx_mode	= t1_set_rxmode,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= t1_ioctl,
+=======
+	.ndo_eth_ioctl		= t1_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_change_mtu		= t1_change_mtu,
 	.ndo_set_mac_address	= t1_set_mac_addr,
 	.ndo_fix_features	= t1_fix_features,
@@ -984,8 +1019,11 @@ static int init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 	struct adapter *adapter = NULL;
 	struct port_info *pi;
 
+<<<<<<< HEAD
 	pr_info_once("%s - version %s\n", DRV_DESCRIPTION, DRV_VERSION);
 
+=======
+>>>>>>> upstream/android-13
 	err = pci_enable_device(pdev);
 	if (err)
 		return err;
@@ -997,17 +1035,30 @@ static int init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 		goto out_disable_pdev;
 	}
 
+<<<<<<< HEAD
 	if (!pci_set_dma_mask(pdev, DMA_BIT_MASK(64))) {
 		pci_using_dac = 1;
 
 		if (pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(64))) {
 			pr_err("%s: unable to obtain 64-bit DMA for "
 			       "consistent allocations\n", pci_name(pdev));
+=======
+	if (!dma_set_mask(&pdev->dev, DMA_BIT_MASK(64))) {
+		pci_using_dac = 1;
+
+		if (dma_set_coherent_mask(&pdev->dev, DMA_BIT_MASK(64))) {
+			pr_err("%s: unable to obtain 64-bit DMA for coherent allocations\n",
+			       pci_name(pdev));
+>>>>>>> upstream/android-13
 			err = -ENODEV;
 			goto out_disable_pdev;
 		}
 
+<<<<<<< HEAD
 	} else if ((err = pci_set_dma_mask(pdev, DMA_BIT_MASK(32))) != 0) {
+=======
+	} else if ((err = dma_set_mask(&pdev->dev, DMA_BIT_MASK(32))) != 0) {
+>>>>>>> upstream/android-13
 		pr_err("%s: no usable DMA configuration\n", pci_name(pdev));
 		goto out_disable_pdev;
 	}
@@ -1062,8 +1113,11 @@ static int init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 			spin_lock_init(&adapter->async_lock);
 			spin_lock_init(&adapter->mac_lock);
 
+<<<<<<< HEAD
 			INIT_WORK(&adapter->ext_intr_handler_task,
 				  ext_intr_task);
+=======
+>>>>>>> upstream/android-13
 			INIT_DELAYED_WORK(&adapter->stats_update_task,
 					  mac_stats_task);
 
@@ -1153,6 +1207,10 @@ static int init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 	if (!adapter->registered_device_map) {
 		pr_err("%s: could not register any net devices\n",
 		       pci_name(pdev));
+<<<<<<< HEAD
+=======
+		err = -EINVAL;
+>>>>>>> upstream/android-13
 		goto out_release_adapter_res;
 	}
 

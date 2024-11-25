@@ -13,7 +13,11 @@
  */
 
 #include <linux/clk.h>
+<<<<<<< HEAD
 #include <linux/clk-provider.h>
+=======
+#include <linux/of_clk.h>
+>>>>>>> upstream/android-13
 #include <linux/errno.h>
 #include <linux/sched.h>
 #include <linux/time.h>
@@ -52,14 +56,20 @@ static struct clocksource ccount_clocksource = {
 	.flags = CLOCK_SOURCE_IS_CONTINUOUS,
 };
 
+<<<<<<< HEAD
 static int ccount_timer_set_next_event(unsigned long delta,
 		struct clock_event_device *dev);
+=======
+>>>>>>> upstream/android-13
 struct ccount_timer {
 	struct clock_event_device evt;
 	int irq_enabled;
 	char name[24];
 };
+<<<<<<< HEAD
 static DEFINE_PER_CPU(struct ccount_timer, ccount_timer);
+=======
+>>>>>>> upstream/android-13
 
 static int ccount_timer_set_next_event(unsigned long delta,
 		struct clock_event_device *dev)
@@ -107,6 +117,7 @@ static int ccount_timer_set_oneshot(struct clock_event_device *evt)
 	return 0;
 }
 
+<<<<<<< HEAD
 static irqreturn_t timer_interrupt(int irq, void *dev_id);
 static struct irqaction timer_irqaction = {
 	.handler =	timer_interrupt,
@@ -114,12 +125,39 @@ static struct irqaction timer_irqaction = {
 	.name =		"timer",
 };
 
+=======
+static DEFINE_PER_CPU(struct ccount_timer, ccount_timer) = {
+	.evt = {
+		.features = CLOCK_EVT_FEAT_ONESHOT,
+		.rating = 300,
+		.set_next_event = ccount_timer_set_next_event,
+		.set_state_shutdown = ccount_timer_shutdown,
+		.set_state_oneshot = ccount_timer_set_oneshot,
+		.tick_resume = ccount_timer_set_oneshot,
+	},
+};
+
+static irqreturn_t timer_interrupt(int irq, void *dev_id)
+{
+	struct clock_event_device *evt = &this_cpu_ptr(&ccount_timer)->evt;
+
+	set_linux_timer(get_linux_timer());
+	evt->event_handler(evt);
+
+	/* Allow platform to do something useful (Wdog). */
+	platform_heartbeat();
+
+	return IRQ_HANDLED;
+}
+
+>>>>>>> upstream/android-13
 void local_timer_setup(unsigned cpu)
 {
 	struct ccount_timer *timer = &per_cpu(ccount_timer, cpu);
 	struct clock_event_device *clockevent = &timer->evt;
 
 	timer->irq_enabled = 1;
+<<<<<<< HEAD
 	clockevent->name = timer->name;
 	snprintf(timer->name, sizeof(timer->name), "ccount_clockevent_%u", cpu);
 	clockevent->features = CLOCK_EVT_FEAT_ONESHOT;
@@ -128,6 +166,10 @@ void local_timer_setup(unsigned cpu)
 	clockevent->set_state_shutdown = ccount_timer_shutdown;
 	clockevent->set_state_oneshot = ccount_timer_set_oneshot;
 	clockevent->tick_resume = ccount_timer_set_oneshot;
+=======
+	snprintf(timer->name, sizeof(timer->name), "ccount_clockevent_%u", cpu);
+	clockevent->name = timer->name;
+>>>>>>> upstream/android-13
 	clockevent->cpumask = cpumask_of(cpu);
 	clockevent->irq = irq_create_mapping(NULL, LINUX_TIMER_INT);
 	if (WARN(!clockevent->irq, "error: can't map timer irq"))
@@ -170,6 +212,11 @@ static inline void calibrate_ccount(void)
 
 void __init time_init(void)
 {
+<<<<<<< HEAD
+=======
+	int irq;
+
+>>>>>>> upstream/android-13
 	of_clk_init(NULL);
 #ifdef CONFIG_XTENSA_CALIBRATE_CCOUNT
 	pr_info("Calibrating CPU frequency ");
@@ -185,11 +232,18 @@ void __init time_init(void)
 	     __func__);
 	clocksource_register_hz(&ccount_clocksource, ccount_freq);
 	local_timer_setup(0);
+<<<<<<< HEAD
 	setup_irq(this_cpu_ptr(&ccount_timer)->evt.irq, &timer_irqaction);
+=======
+	irq = this_cpu_ptr(&ccount_timer)->evt.irq;
+	if (request_irq(irq, timer_interrupt, IRQF_TIMER, "timer", NULL))
+		pr_err("Failed to request irq %d (timer)\n", irq);
+>>>>>>> upstream/android-13
 	sched_clock_register(ccount_sched_clock_read, 32, ccount_freq);
 	timer_probe();
 }
 
+<<<<<<< HEAD
 /*
  * The timer interrupt is called HZ times per second.
  */
@@ -207,6 +261,8 @@ irqreturn_t timer_interrupt(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifndef CONFIG_GENERIC_CALIBRATE_DELAY
 void calibrate_delay(void)
 {

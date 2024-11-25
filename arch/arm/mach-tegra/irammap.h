@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2012, NVIDIA CORPORATION.  All rights reserved.
  *
@@ -12,12 +13,21 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2012, NVIDIA CORPORATION.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __MACH_TEGRA_IRAMMAP_H
 #define __MACH_TEGRA_IRAMMAP_H
 
+<<<<<<< HEAD
 #include <asm/sizes.h>
+=======
+#include <linux/sizes.h>
+>>>>>>> upstream/android-13
 
 /* The first 1K of IRAM is permanently reserved for the CPU reset handler */
 #define TEGRA_IRAM_RESET_HANDLER_OFFSET	0

@@ -5,7 +5,11 @@ group_fd=-1
 flags=0|8
 cpu=*
 type=0|1
+<<<<<<< HEAD
 size=112
+=======
+size=128
+>>>>>>> upstream/android-13
 config=0
 sample_period=*
 sample_type=263
@@ -16,7 +20,11 @@ pinned=0
 exclusive=0
 exclude_user=0
 exclude_kernel=0|1
+<<<<<<< HEAD
 exclude_hv=0
+=======
+exclude_hv=0|1
+>>>>>>> upstream/android-13
 exclude_idle=0
 mmap=1
 comm=1

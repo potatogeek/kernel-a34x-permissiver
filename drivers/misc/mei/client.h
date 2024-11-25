@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *
  * Intel Management Engine Interface (Intel MEI) Linux driver
@@ -12,6 +13,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * Copyright (c) 2003-2018, Intel Corporation. All rights reserved.
+ * Intel Management Engine Interface (Intel MEI) Linux driver
+>>>>>>> upstream/android-13
  */
 
 #ifndef _MEI_CLIENT_H_
@@ -79,6 +86,57 @@ static inline u8 mei_me_cl_ver(const struct mei_me_client *me_cl)
 	return me_cl->props.protocol_version;
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * mei_me_cl_max_conn - return me client max number of connections
+ *
+ * @me_cl: me client
+ *
+ * Return: me client max number of connections
+ */
+static inline u8 mei_me_cl_max_conn(const struct mei_me_client *me_cl)
+{
+	return me_cl->props.max_number_of_connections;
+}
+
+/**
+ * mei_me_cl_fixed - return me client fixed address, if any
+ *
+ * @me_cl: me client
+ *
+ * Return: me client fixed address
+ */
+static inline u8 mei_me_cl_fixed(const struct mei_me_client *me_cl)
+{
+	return me_cl->props.fixed_address;
+}
+
+/**
+ * mei_me_cl_vt - return me client vtag supported status
+ *
+ * @me_cl: me client
+ *
+ * Return: true if me client supports vt tagging
+ */
+static inline bool mei_me_cl_vt(const struct mei_me_client *me_cl)
+{
+	return me_cl->props.vt_supported == 1;
+}
+
+/**
+ * mei_me_cl_max_len - return me client max msg length
+ *
+ * @me_cl: me client
+ *
+ * Return: me client max msg length
+ */
+static inline u32 mei_me_cl_max_len(const struct mei_me_client *me_cl)
+{
+	return me_cl->props.max_msg_length;
+}
+
+>>>>>>> upstream/android-13
 /*
  * MEI IO Functions
  */
@@ -95,8 +153,16 @@ int mei_cl_unlink(struct mei_cl *cl);
 
 struct mei_cl *mei_cl_alloc_linked(struct mei_device *dev);
 
+<<<<<<< HEAD
 struct mei_cl_cb *mei_cl_read_cb(const struct mei_cl *cl,
 				 const struct file *fp);
+=======
+struct mei_cl_cb *mei_cl_read_cb(struct mei_cl *cl, const struct file *fp);
+
+void mei_cl_add_rd_completed(struct mei_cl *cl, struct mei_cl_cb *cb);
+void mei_cl_del_rd_completed(struct mei_cl *cl, struct mei_cl_cb *cb);
+
+>>>>>>> upstream/android-13
 struct mei_cl_cb *mei_cl_alloc_cb(struct mei_cl *cl, size_t length,
 				  enum mei_cb_file_ops type,
 				  const struct file *fp);
@@ -105,6 +171,12 @@ struct mei_cl_cb *mei_cl_enqueue_ctrl_wr_cb(struct mei_cl *cl, size_t length,
 					    const struct file *fp);
 int mei_cl_flush_queues(struct mei_cl *cl, const struct file *fp);
 
+<<<<<<< HEAD
+=======
+struct mei_cl_vtag *mei_cl_vtag_alloc(struct file *fp, u8 vtag);
+const struct file *mei_cl_fp_by_vtag(const struct mei_cl *cl, u8 vtag);
+int mei_cl_vt_support_check(const struct mei_cl *cl);
+>>>>>>> upstream/android-13
 /*
  *  MEI input output function prototype
  */
@@ -116,7 +188,11 @@ int mei_cl_flush_queues(struct mei_cl *cl, const struct file *fp);
  *
  * Return: true if the host client is connected
  */
+<<<<<<< HEAD
 static inline bool mei_cl_is_connected(struct mei_cl *cl)
+=======
+static inline bool mei_cl_is_connected(const struct mei_cl *cl)
+>>>>>>> upstream/android-13
 {
 	return  cl->state == MEI_FILE_CONNECTED;
 }
@@ -221,6 +297,17 @@ void mei_cl_notify(struct mei_cl *cl);
 
 void mei_cl_all_disconnect(struct mei_device *dev);
 
+<<<<<<< HEAD
+=======
+int mei_cl_irq_dma_map(struct mei_cl *cl, struct mei_cl_cb *cb,
+		       struct list_head *cmpl_list);
+int mei_cl_irq_dma_unmap(struct mei_cl *cl, struct mei_cl_cb *cb,
+			 struct list_head *cmpl_list);
+int mei_cl_dma_alloc_and_map(struct mei_cl *cl, const struct file *fp,
+			     u8 buffer_id, size_t size);
+int mei_cl_dma_unmap(struct mei_cl *cl, const struct file *fp);
+
+>>>>>>> upstream/android-13
 #define MEI_CL_FMT "cl:host=%02d me=%02d "
 #define MEI_CL_PRM(cl) (cl)->host_client_id, mei_cl_me_id(cl)
 

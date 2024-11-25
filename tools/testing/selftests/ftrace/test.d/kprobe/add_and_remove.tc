@@ -1,6 +1,7 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-2.0
 # description: Kprobe dynamic event - adding and removing
+<<<<<<< HEAD
 
 [ -f kprobe_events ] || exit_unsupported # this is configurable
 
@@ -11,3 +12,11 @@ grep myevent kprobe_events
 test -d events/kprobes/myevent
 echo > kprobe_events
 clear_trace
+=======
+# requires: kprobe_events
+
+echo p:myevent $FUNCTION_FORK > kprobe_events
+grep myevent kprobe_events
+test -d events/kprobes/myevent
+echo > kprobe_events
+>>>>>>> upstream/android-13

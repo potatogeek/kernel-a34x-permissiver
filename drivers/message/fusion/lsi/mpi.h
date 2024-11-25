@@ -424,8 +424,13 @@ typedef struct _SGE_TRANSACTION32
     U8                      ContextSize;
     U8                      DetailsLength;
     U8                      Flags;
+<<<<<<< HEAD
     U32                     TransactionContext[1];
     U32                     TransactionDetails[1];
+=======
+    U32                     TransactionContext;
+    U32                     TransactionDetails[];
+>>>>>>> upstream/android-13
 } SGE_TRANSACTION32, MPI_POINTER PTR_SGE_TRANSACTION32,
   SGETransaction32_t, MPI_POINTER pSGETransaction32_t;
 

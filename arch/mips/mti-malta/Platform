@@ -1,6 +1,7 @@
 #
 # MIPS Malta board
 #
+<<<<<<< HEAD
 platform-$(CONFIG_MIPS_MALTA)	+= mti-malta/
 cflags-$(CONFIG_MIPS_MALTA)	+= -I$(srctree)/arch/mips/include/asm/mach-malta
 ifdef CONFIG_KVM_GUEST
@@ -8,4 +9,8 @@ ifdef CONFIG_KVM_GUEST
 else
     load-$(CONFIG_MIPS_MALTA)	+= 0xffffffff80100000
 endif
+=======
+cflags-$(CONFIG_MIPS_MALTA)	+= -I$(srctree)/arch/mips/include/asm/mach-malta
+load-$(CONFIG_MIPS_MALTA)	+= 0xffffffff80100000
+>>>>>>> upstream/android-13
 all-$(CONFIG_MIPS_MALTA)	:= $(COMPRESSION_FNAME).bin

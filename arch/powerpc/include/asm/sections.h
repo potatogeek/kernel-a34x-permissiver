@@ -5,8 +5,27 @@
 
 #include <linux/elf.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
 #include <asm-generic/sections.h>
 
+=======
+
+#define arch_is_kernel_initmem_freed arch_is_kernel_initmem_freed
+
+#include <asm-generic/sections.h>
+
+extern bool init_mem_is_free;
+
+static inline int arch_is_kernel_initmem_freed(unsigned long addr)
+{
+	if (!init_mem_is_free)
+		return 0;
+
+	return addr >= (unsigned long)__init_begin &&
+		addr < (unsigned long)__init_end;
+}
+
+>>>>>>> upstream/android-13
 extern char __head_end[];
 
 #ifdef __powerpc64__
@@ -17,6 +36,7 @@ extern char __end_interrupts[];
 extern char __prom_init_toc_start[];
 extern char __prom_init_toc_end[];
 
+<<<<<<< HEAD
 static inline int in_kernel_text(unsigned long addr)
 {
 	if (addr >= (unsigned long)_stext && addr < (unsigned long)__init_end)
@@ -24,6 +44,14 @@ static inline int in_kernel_text(unsigned long addr)
 
 	return 0;
 }
+=======
+#ifdef CONFIG_PPC_POWERNV
+extern char start_real_trampolines[];
+extern char end_real_trampolines[];
+extern char start_virt_trampolines[];
+extern char end_virt_trampolines[];
+#endif
+>>>>>>> upstream/android-13
 
 static inline unsigned long kernel_toc_addr(void)
 {
@@ -54,6 +82,7 @@ static inline int overlaps_kernel_text(unsigned long start, unsigned long end)
 		(unsigned long)_stext < end;
 }
 
+<<<<<<< HEAD
 static inline int overlaps_kvm_tmp(unsigned long start, unsigned long end)
 {
 #ifdef CONFIG_KVM_GUEST
@@ -65,6 +94,8 @@ static inline int overlaps_kvm_tmp(unsigned long start, unsigned long end)
 #endif
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef PPC64_ELF_ABI_v1
 
 #define HAVE_DEREFERENCE_FUNCTION_DESCRIPTOR 1
@@ -75,7 +106,11 @@ static inline void *dereference_function_descriptor(void *ptr)
 	struct ppc64_opd_entry *desc = ptr;
 	void *p;
 
+<<<<<<< HEAD
 	if (!probe_kernel_address(&desc->funcaddr, p))
+=======
+	if (!get_kernel_nofault(p, (void *)&desc->funcaddr))
+>>>>>>> upstream/android-13
 		ptr = p;
 	return ptr;
 }

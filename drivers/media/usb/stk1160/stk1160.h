@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * STK1160 driver
  *
@@ -7,6 +11,7 @@
  * Based on Easycap driver by R.M. Thomas
  *	Copyright (C) 2010 R.M. Thomas
  *	<rmthomas--a.t--sciolus.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/i2c.h>
@@ -112,7 +119,10 @@ struct stk1160_isoc_ctl {
 };
 
 struct stk1160_fmt {
+<<<<<<< HEAD
 	char  *name;
+=======
+>>>>>>> upstream/android-13
 	u32   fourcc;          /* v4l2 format id */
 	int   depth;
 };
@@ -177,7 +187,11 @@ struct regval {
 int stk1160_vb2_setup(struct stk1160 *dev);
 int stk1160_video_register(struct stk1160 *dev);
 void stk1160_video_unregister(struct stk1160 *dev);
+<<<<<<< HEAD
 void stk1160_clear_queue(struct stk1160 *dev);
+=======
+void stk1160_clear_queue(struct stk1160 *dev, enum vb2_buffer_state vb2_state);
+>>>>>>> upstream/android-13
 
 /* Provided by stk1160-video.c */
 int stk1160_alloc_isoc(struct stk1160 *dev);

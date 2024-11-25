@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Simple stack backtrace regression test module
  *
  * (C) Copyright 2008 Intel Corporation
  * Author: Arjan van de Ven <arjan@linux.intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; version 2
  * of the License.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/completion.h>
@@ -33,7 +40,11 @@ static void backtrace_test_irq_callback(unsigned long data)
 	complete(&backtrace_work);
 }
 
+<<<<<<< HEAD
 static DECLARE_TASKLET(backtrace_tasklet, &backtrace_test_irq_callback, 0);
+=======
+static DECLARE_TASKLET_OLD(backtrace_tasklet, &backtrace_test_irq_callback);
+>>>>>>> upstream/android-13
 
 static void backtrace_test_irq(void)
 {
@@ -48,12 +59,18 @@ static void backtrace_test_irq(void)
 #ifdef CONFIG_STACKTRACE
 static void backtrace_test_saved(void)
 {
+<<<<<<< HEAD
 	struct stack_trace trace;
 	unsigned long entries[8];
+=======
+	unsigned long entries[8];
+	unsigned int nr_entries;
+>>>>>>> upstream/android-13
 
 	pr_info("Testing a saved backtrace.\n");
 	pr_info("The following trace is a kernel self test and not a bug!\n");
 
+<<<<<<< HEAD
 	trace.nr_entries = 0;
 	trace.max_entries = ARRAY_SIZE(entries);
 	trace.entries = entries;
@@ -61,6 +78,10 @@ static void backtrace_test_saved(void)
 
 	save_stack_trace(&trace);
 	print_stack_trace(&trace, 0);
+=======
+	nr_entries = stack_trace_save(entries, ARRAY_SIZE(entries), 0);
+	stack_trace_print(entries, nr_entries, 0);
+>>>>>>> upstream/android-13
 }
 #else
 static void backtrace_test_saved(void)

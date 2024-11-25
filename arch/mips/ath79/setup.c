@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  Atheros AR71XX/AR724X/AR913X specific setup
  *
@@ -6,33 +10,52 @@
  *  Copyright (C) 2008 Imre Kaloz <kaloz@openwrt.org>
  *
  *  Parts of this file are based on Atheros' 2.6.15/2.6.31 BSP
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU General Public License version 2 as published
  *  by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
 #include <linux/err.h>
 #include <linux/clk.h>
 #include <linux/clk-provider.h>
 #include <linux/of_fdt.h>
+=======
+#include <linux/io.h>
+#include <linux/memblock.h>
+#include <linux/err.h>
+#include <linux/clk.h>
+#include <linux/of_clk.h>
+#include <linux/of_fdt.h>
+#include <linux/irqchip.h>
+>>>>>>> upstream/android-13
 
 #include <asm/bootinfo.h>
 #include <asm/idle.h>
 #include <asm/time.h>		/* for mips_hpt_frequency */
 #include <asm/reboot.h>		/* for _machine_{restart,halt} */
+<<<<<<< HEAD
 #include <asm/mips_machine.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/prom.h>
 #include <asm/fw/fw.h>
 
 #include <asm/mach-ath79/ath79.h>
 #include <asm/mach-ath79/ar71xx_regs.h>
 #include "common.h"
+<<<<<<< HEAD
 #include "dev-common.h"
 #include "machtypes.h"
+=======
+>>>>>>> upstream/android-13
 
 #define ATH79_SYS_TYPE_LEN	64
 
@@ -156,8 +179,12 @@ static void __init ath79_detect_sys_type(void)
 	case REV_ID_MAJOR_QCA9533_V2:
 		ver = 2;
 		ath79_soc_rev = 2;
+<<<<<<< HEAD
 		/* drop through */
 
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case REV_ID_MAJOR_QCA9533:
 		ath79_soc = ATH79_SOC_QCA9533;
 		chip = "9533";
@@ -211,12 +238,15 @@ const char *get_system_type(void)
 	return ath79_sys_type;
 }
 
+<<<<<<< HEAD
 int get_c0_perfcount_int(void)
 {
 	return ATH79_MISC_IRQ(5);
 }
 EXPORT_SYMBOL_GPL(get_c0_perfcount_int);
 
+=======
+>>>>>>> upstream/android-13
 unsigned int get_c0_compare_int(void)
 {
 	return CP0_LEGACY_COMPARE_IRQ;
@@ -224,11 +254,16 @@ unsigned int get_c0_compare_int(void)
 
 void __init plat_mem_setup(void)
 {
+<<<<<<< HEAD
 	unsigned long fdt_start;
+=======
+	void *dtb;
+>>>>>>> upstream/android-13
 
 	set_io_port_base(KSEG1);
 
 	/* Get the position of the FDT passed by the bootloader */
+<<<<<<< HEAD
 	fdt_start = fw_getenvl("fdt_start");
 	if (fdt_start)
 		__dt_setup_arch((void *)KSEG0ADDR(fdt_start));
@@ -249,11 +284,34 @@ void __init plat_mem_setup(void)
 		_machine_restart = ath79_restart;
 	}
 
+=======
+	dtb = (void *)fw_getenvl("fdt_start");
+	if (dtb == NULL)
+		dtb = get_fdt();
+
+	if (dtb)
+		__dt_setup_arch((void *)KSEG0ADDR(dtb));
+
+	ath79_reset_base = ioremap(AR71XX_RESET_BASE,
+					   AR71XX_RESET_SIZE);
+	ath79_pll_base = ioremap(AR71XX_PLL_BASE,
+					 AR71XX_PLL_SIZE);
+	ath79_detect_sys_type();
+	ath79_ddr_ctrl_init();
+
+	detect_memory_region(0, ATH79_MEM_SIZE_MIN, ATH79_MEM_SIZE_MAX);
+
+	_machine_restart = ath79_restart;
+>>>>>>> upstream/android-13
 	_machine_halt = ath79_halt;
 	pm_power_off = ath79_halt;
 }
 
+<<<<<<< HEAD
 static void __init ath79_of_plat_time_init(void)
+=======
+void __init plat_time_init(void)
+>>>>>>> upstream/android-13
 {
 	struct device_node *np;
 	struct clk *clk;
@@ -283,6 +341,7 @@ static void __init ath79_of_plat_time_init(void)
 	clk_put(clk);
 }
 
+<<<<<<< HEAD
 void __init plat_time_init(void)
 {
 	unsigned long cpu_clk_rate;
@@ -327,10 +386,18 @@ static int __init ath79_setup(void)
 
 arch_initcall(ath79_setup);
 
+=======
+void __init arch_init_irq(void)
+{
+	irqchip_init();
+}
+
+>>>>>>> upstream/android-13
 void __init device_tree_init(void)
 {
 	unflatten_and_copy_device_tree();
 }
+<<<<<<< HEAD
 
 MIPS_MACHINE(ATH79_MACH_GENERIC,
 	     "Generic",
@@ -341,3 +408,5 @@ MIPS_MACHINE(ATH79_MACH_GENERIC_OF,
 	     "DTB",
 	     "Generic AR71XX/AR724X/AR913X based board (DT)",
 	     NULL);
+=======
+>>>>>>> upstream/android-13

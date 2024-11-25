@@ -7,15 +7,26 @@
 
 #include <dt-bindings/interrupt-controller/irq.h>
 #include <dt-bindings/interrupt-controller/arm-gic.h>
+<<<<<<< HEAD
 #include "skeleton.dtsi"
 
 / {
+=======
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+>>>>>>> upstream/android-13
 	compatible = "mediatek,mt6589";
 	interrupt-parent = <&sysirq>;
 
 	cpus {
 		#address-cells = <1>;
 		#size-cells = <0>;
+<<<<<<< HEAD
+=======
+		enable-method = "mediatek,mt6589-smp";
+>>>>>>> upstream/android-13
 
 		cpu@0 {
 			device_type = "cpu";

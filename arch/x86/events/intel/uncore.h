@@ -2,6 +2,10 @@
 #include <linux/slab.h>
 #include <linux/pci.h>
 #include <asm/apicdef.h>
+<<<<<<< HEAD
+=======
+#include <linux/io-64-nonatomic-lo-hi.h>
+>>>>>>> upstream/android-13
 
 #include <linux/perf_event.h>
 #include "../perf_event.h"
@@ -41,6 +45,10 @@ struct intel_uncore_pmu;
 struct intel_uncore_box;
 struct uncore_event_desc;
 struct freerunning_counters;
+<<<<<<< HEAD
+=======
+struct intel_uncore_topology;
+>>>>>>> upstream/android-13
 
 struct intel_uncore_type {
 	const char *name;
@@ -49,6 +57,10 @@ struct intel_uncore_type {
 	int perf_ctr_bits;
 	int fixed_ctr_bits;
 	int num_freerunning_types;
+<<<<<<< HEAD
+=======
+	int type_id;
+>>>>>>> upstream/android-13
 	unsigned perf_ctr;
 	unsigned event_ctl;
 	unsigned event_mask;
@@ -56,11 +68,29 @@ struct intel_uncore_type {
 	unsigned fixed_ctr;
 	unsigned fixed_ctl;
 	unsigned box_ctl;
+<<<<<<< HEAD
 	unsigned msr_offset;
 	unsigned num_shared_regs:8;
 	unsigned single_fixed:1;
 	unsigned pair_ctr_ctl:1;
 	unsigned *msr_offsets;
+=======
+	u64 *box_ctls;	/* Unit ctrl addr of the first box of each die */
+	union {
+		unsigned msr_offset;
+		unsigned mmio_offset;
+	};
+	unsigned mmio_map_size;
+	unsigned num_shared_regs:8;
+	unsigned single_fixed:1;
+	unsigned pair_ctr_ctl:1;
+	union {
+		unsigned *msr_offsets;
+		unsigned *pci_offsets;
+		unsigned *mmio_offsets;
+	};
+	unsigned *box_ids;
+>>>>>>> upstream/android-13
 	struct event_constraint unconstrainted;
 	struct event_constraint *constraints;
 	struct intel_uncore_pmu *pmus;
@@ -68,7 +98,24 @@ struct intel_uncore_type {
 	struct uncore_event_desc *event_descs;
 	struct freerunning_counters *freerunning;
 	const struct attribute_group *attr_groups[4];
+<<<<<<< HEAD
 	struct pmu *pmu; /* for custom pmu ops */
+=======
+	const struct attribute_group **attr_update;
+	struct pmu *pmu; /* for custom pmu ops */
+	/*
+	 * Uncore PMU would store relevant platform topology configuration here
+	 * to identify which platform component each PMON block of that type is
+	 * supposed to monitor.
+	 */
+	struct intel_uncore_topology *topology;
+	/*
+	 * Optional callbacks for managing mapping of Uncore units to PMONs
+	 */
+	int (*get_topology)(struct intel_uncore_type *type);
+	int (*set_mapping)(struct intel_uncore_type *type);
+	void (*cleanup_mapping)(struct intel_uncore_type *type);
+>>>>>>> upstream/android-13
 };
 
 #define pmu_group attr_groups[0]
@@ -107,8 +154,12 @@ struct intel_uncore_extra_reg {
 };
 
 struct intel_uncore_box {
+<<<<<<< HEAD
 	int pci_phys_id;
 	int pkgid;	/* Logical package ID */
+=======
+	int dieid;	/* Logical die ID */
+>>>>>>> upstream/android-13
 	int n_active;	/* number of active events */
 	int n_events;
 	int cpu;	/* cpu to collect events */
@@ -125,12 +176,28 @@ struct intel_uncore_box {
 	struct hrtimer hrtimer;
 	struct list_head list;
 	struct list_head active_list;
+<<<<<<< HEAD
 	void *io_addr;
 	struct intel_uncore_extra_reg shared_regs[0];
 };
 
 #define UNCORE_BOX_FLAG_INITIATED	0
 #define UNCORE_BOX_FLAG_CTL_OFFS8	1 /* event config registers are 8-byte apart */
+=======
+	void __iomem *io_addr;
+	struct intel_uncore_extra_reg shared_regs[];
+};
+
+/* CFL uncore 8th cbox MSRs */
+#define CFL_UNC_CBO_7_PERFEVTSEL0		0xf70
+#define CFL_UNC_CBO_7_PER_CTR0			0xf76
+
+#define UNCORE_BOX_FLAG_INITIATED		0
+/* event config registers are 8-byte apart */
+#define UNCORE_BOX_FLAG_CTL_OFFS8		1
+/* CFL 8th CBOX has different MSR space */
+#define UNCORE_BOX_FLAG_CFL8_CBOX_MSR_OFFS	2
+>>>>>>> upstream/android-13
 
 struct uncore_event_desc {
 	struct device_attribute attr;
@@ -143,19 +210,52 @@ struct freerunning_counters {
 	unsigned int box_offset;
 	unsigned int num_counters;
 	unsigned int bits;
+<<<<<<< HEAD
+=======
+	unsigned *box_offsets;
+};
+
+struct intel_uncore_topology {
+	u64 configuration;
+	int segment;
+>>>>>>> upstream/android-13
 };
 
 struct pci2phy_map {
 	struct list_head list;
 	int segment;
+<<<<<<< HEAD
 	int pbus_to_physid[256];
 };
 
 struct pci2phy_map *__find_pci2phy_map(int segment);
+=======
+	int pbus_to_dieid[256];
+};
+
+struct pci2phy_map *__find_pci2phy_map(int segment);
+int uncore_pcibus_to_dieid(struct pci_bus *bus);
+int uncore_die_to_segment(int die);
+>>>>>>> upstream/android-13
 
 ssize_t uncore_event_show(struct device *dev,
 			  struct device_attribute *attr, char *buf);
 
+<<<<<<< HEAD
+=======
+static inline struct intel_uncore_pmu *dev_to_uncore_pmu(struct device *dev)
+{
+	return container_of(dev_get_drvdata(dev), struct intel_uncore_pmu, pmu);
+}
+
+#define to_device_attribute(n)	container_of(n, struct device_attribute, attr)
+#define to_dev_ext_attribute(n)	container_of(n, struct dev_ext_attribute, attr)
+#define attr_to_ext_attr(n)	to_dev_ext_attribute(to_device_attribute(n))
+
+extern int __uncore_max_dies;
+#define uncore_max_dies()	(__uncore_max_dies)
+
+>>>>>>> upstream/android-13
 #define INTEL_UNCORE_EVENT_DESC(_name, _config)			\
 {								\
 	.attr	= __ATTR(_name, 0444, uncore_event_show, NULL),	\
@@ -183,6 +283,28 @@ static inline bool uncore_pmc_freerunning(int idx)
 	return idx == UNCORE_PMC_IDX_FREERUNNING;
 }
 
+<<<<<<< HEAD
+=======
+static inline bool uncore_mmio_is_valid_offset(struct intel_uncore_box *box,
+					       unsigned long offset)
+{
+	if (offset < box->pmu->type->mmio_map_size)
+		return true;
+
+	pr_warn_once("perf uncore: Invalid offset 0x%lx exceeds mapped area of %s.\n",
+		     offset, box->pmu->type->name);
+
+	return false;
+}
+
+static inline
+unsigned int uncore_mmio_box_ctl(struct intel_uncore_box *box)
+{
+	return box->pmu->type->box_ctl +
+	       box->pmu->type->mmio_offset * box->pmu->pmu_idx;
+}
+
+>>>>>>> upstream/android-13
 static inline unsigned uncore_pci_box_ctl(struct intel_uncore_box *box)
 {
 	return box->pmu->type->box_ctl;
@@ -291,29 +413,61 @@ unsigned int uncore_freerunning_counter(struct intel_uncore_box *box,
 
 	return pmu->type->freerunning[type].counter_base +
 	       pmu->type->freerunning[type].counter_offset * idx +
+<<<<<<< HEAD
 	       pmu->type->freerunning[type].box_offset * pmu->pmu_idx;
+=======
+	       (pmu->type->freerunning[type].box_offsets ?
+	        pmu->type->freerunning[type].box_offsets[pmu->pmu_idx] :
+	        pmu->type->freerunning[type].box_offset * pmu->pmu_idx);
+>>>>>>> upstream/android-13
 }
 
 static inline
 unsigned uncore_msr_event_ctl(struct intel_uncore_box *box, int idx)
 {
+<<<<<<< HEAD
 	return box->pmu->type->event_ctl +
 		(box->pmu->type->pair_ctr_ctl ? 2 * idx : idx) +
 		uncore_msr_box_offset(box);
+=======
+	if (test_bit(UNCORE_BOX_FLAG_CFL8_CBOX_MSR_OFFS, &box->flags)) {
+		return CFL_UNC_CBO_7_PERFEVTSEL0 +
+		       (box->pmu->type->pair_ctr_ctl ? 2 * idx : idx);
+	} else {
+		return box->pmu->type->event_ctl +
+		       (box->pmu->type->pair_ctr_ctl ? 2 * idx : idx) +
+		       uncore_msr_box_offset(box);
+	}
+>>>>>>> upstream/android-13
 }
 
 static inline
 unsigned uncore_msr_perf_ctr(struct intel_uncore_box *box, int idx)
 {
+<<<<<<< HEAD
 	return box->pmu->type->perf_ctr +
 		(box->pmu->type->pair_ctr_ctl ? 2 * idx : idx) +
 		uncore_msr_box_offset(box);
+=======
+	if (test_bit(UNCORE_BOX_FLAG_CFL8_CBOX_MSR_OFFS, &box->flags)) {
+		return CFL_UNC_CBO_7_PER_CTR0 +
+		       (box->pmu->type->pair_ctr_ctl ? 2 * idx : idx);
+	} else {
+		return box->pmu->type->perf_ctr +
+		       (box->pmu->type->pair_ctr_ctl ? 2 * idx : idx) +
+		       uncore_msr_box_offset(box);
+	}
+>>>>>>> upstream/android-13
 }
 
 static inline
 unsigned uncore_fixed_ctl(struct intel_uncore_box *box)
 {
+<<<<<<< HEAD
 	if (box->pci_dev)
+=======
+	if (box->pci_dev || box->io_addr)
+>>>>>>> upstream/android-13
 		return uncore_pci_fixed_ctl(box);
 	else
 		return uncore_msr_fixed_ctl(box);
@@ -322,7 +476,11 @@ unsigned uncore_fixed_ctl(struct intel_uncore_box *box)
 static inline
 unsigned uncore_fixed_ctr(struct intel_uncore_box *box)
 {
+<<<<<<< HEAD
 	if (box->pci_dev)
+=======
+	if (box->pci_dev || box->io_addr)
+>>>>>>> upstream/android-13
 		return uncore_pci_fixed_ctr(box);
 	else
 		return uncore_msr_fixed_ctr(box);
@@ -331,7 +489,11 @@ unsigned uncore_fixed_ctr(struct intel_uncore_box *box)
 static inline
 unsigned uncore_event_ctl(struct intel_uncore_box *box, int idx)
 {
+<<<<<<< HEAD
 	if (box->pci_dev)
+=======
+	if (box->pci_dev || box->io_addr)
+>>>>>>> upstream/android-13
 		return uncore_pci_event_ctl(box, idx);
 	else
 		return uncore_msr_event_ctl(box, idx);
@@ -340,7 +502,11 @@ unsigned uncore_event_ctl(struct intel_uncore_box *box, int idx)
 static inline
 unsigned uncore_perf_ctr(struct intel_uncore_box *box, int idx)
 {
+<<<<<<< HEAD
 	if (box->pci_dev)
+=======
+	if (box->pci_dev || box->io_addr)
+>>>>>>> upstream/android-13
 		return uncore_pci_perf_ctr(box, idx);
 	else
 		return uncore_msr_perf_ctr(box, idx);
@@ -448,7 +614,11 @@ static inline void uncore_box_exit(struct intel_uncore_box *box)
 
 static inline bool uncore_box_is_fake(struct intel_uncore_box *box)
 {
+<<<<<<< HEAD
 	return (box->pkgid < 0);
+=======
+	return (box->dieid < 0);
+>>>>>>> upstream/android-13
 }
 
 static inline struct intel_uncore_pmu *uncore_event_to_pmu(struct perf_event *event)
@@ -463,6 +633,12 @@ static inline struct intel_uncore_box *uncore_event_to_box(struct perf_event *ev
 
 struct intel_uncore_box *uncore_pmu_to_box(struct intel_uncore_pmu *pmu, int cpu);
 u64 uncore_msr_read_counter(struct intel_uncore_box *box, struct perf_event *event);
+<<<<<<< HEAD
+=======
+void uncore_mmio_exit_box(struct intel_uncore_box *box);
+u64 uncore_mmio_read_counter(struct intel_uncore_box *box,
+			     struct perf_event *event);
+>>>>>>> upstream/android-13
 void uncore_pmu_start_hrtimer(struct intel_uncore_box *box);
 void uncore_pmu_cancel_hrtimer(struct intel_uncore_box *box);
 void uncore_pmu_event_start(struct perf_event *event, int flags);
@@ -475,10 +651,21 @@ struct event_constraint *
 uncore_get_constraint(struct intel_uncore_box *box, struct perf_event *event);
 void uncore_put_constraint(struct intel_uncore_box *box, struct perf_event *event);
 u64 uncore_shared_reg_config(struct intel_uncore_box *box, int idx);
+<<<<<<< HEAD
 
 extern struct intel_uncore_type **uncore_msr_uncores;
 extern struct intel_uncore_type **uncore_pci_uncores;
 extern struct pci_driver *uncore_pci_driver;
+=======
+void uncore_get_alias_name(char *pmu_name, struct intel_uncore_pmu *pmu);
+
+extern struct intel_uncore_type *empty_uncore[];
+extern struct intel_uncore_type **uncore_msr_uncores;
+extern struct intel_uncore_type **uncore_pci_uncores;
+extern struct intel_uncore_type **uncore_mmio_uncores;
+extern struct pci_driver *uncore_pci_driver;
+extern struct pci_driver *uncore_pci_sub_driver;
+>>>>>>> upstream/android-13
 extern raw_spinlock_t pci2phy_map_lock;
 extern struct list_head pci2phy_map_head;
 extern struct pci_extra_dev *uncore_extra_pci_dev;
@@ -493,6 +680,14 @@ int skl_uncore_pci_init(void);
 void snb_uncore_cpu_init(void);
 void nhm_uncore_cpu_init(void);
 void skl_uncore_cpu_init(void);
+<<<<<<< HEAD
+=======
+void icl_uncore_cpu_init(void);
+void adl_uncore_cpu_init(void);
+void tgl_uncore_cpu_init(void);
+void tgl_uncore_mmio_init(void);
+void tgl_l_uncore_mmio_init(void);
+>>>>>>> upstream/android-13
 int snb_pci2phy_map_init(int devid);
 
 /* uncore_snbep.c */
@@ -508,6 +703,18 @@ int knl_uncore_pci_init(void);
 void knl_uncore_cpu_init(void);
 int skx_uncore_pci_init(void);
 void skx_uncore_cpu_init(void);
+<<<<<<< HEAD
+=======
+int snr_uncore_pci_init(void);
+void snr_uncore_cpu_init(void);
+void snr_uncore_mmio_init(void);
+int icx_uncore_pci_init(void);
+void icx_uncore_cpu_init(void);
+void icx_uncore_mmio_init(void);
+int spr_uncore_pci_init(void);
+void spr_uncore_cpu_init(void);
+void spr_uncore_mmio_init(void);
+>>>>>>> upstream/android-13
 
 /* uncore_nhmex.c */
 void nhmex_uncore_cpu_init(void);

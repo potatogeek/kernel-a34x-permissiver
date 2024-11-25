@@ -571,21 +571,41 @@ static int test_timer(void *arg)
 	unsigned long target, delay;
 	struct timed_fence tf;
 
+<<<<<<< HEAD
+=======
+	preempt_disable();
+>>>>>>> upstream/android-13
 	timed_fence_init(&tf, target = jiffies);
 	if (!i915_sw_fence_done(&tf.fence)) {
 		pr_err("Fence with immediate expiration not signaled\n");
 		goto err;
 	}
+<<<<<<< HEAD
 	timed_fence_fini(&tf);
 
 	for_each_prime_number(delay, i915_selftest.timeout_jiffies/2) {
+=======
+	preempt_enable();
+	timed_fence_fini(&tf);
+
+	for_each_prime_number(delay, i915_selftest.timeout_jiffies/2) {
+		preempt_disable();
+>>>>>>> upstream/android-13
 		timed_fence_init(&tf, target = jiffies + delay);
 		if (i915_sw_fence_done(&tf.fence)) {
 			pr_err("Fence with future expiration (%lu jiffies) already signaled\n", delay);
 			goto err;
 		}
+<<<<<<< HEAD
 
 		i915_sw_fence_wait(&tf.fence);
+=======
+		preempt_enable();
+
+		i915_sw_fence_wait(&tf.fence);
+
+		preempt_disable();
+>>>>>>> upstream/android-13
 		if (!i915_sw_fence_done(&tf.fence)) {
 			pr_err("Fence not signaled after wait\n");
 			goto err;
@@ -595,13 +615,21 @@ static int test_timer(void *arg)
 			       target, jiffies);
 			goto err;
 		}
+<<<<<<< HEAD
 
+=======
+		preempt_enable();
+>>>>>>> upstream/android-13
 		timed_fence_fini(&tf);
 	}
 
 	return 0;
 
 err:
+<<<<<<< HEAD
+=======
+	preempt_enable();
+>>>>>>> upstream/android-13
 	timed_fence_fini(&tf);
 	return -EINVAL;
 }
@@ -611,6 +639,7 @@ static const char *mock_name(struct dma_fence *fence)
 	return "mock";
 }
 
+<<<<<<< HEAD
 static bool mock_enable_signaling(struct dma_fence *fence)
 {
 	return true;
@@ -622,6 +651,11 @@ static const struct dma_fence_ops mock_fence_ops = {
 	.enable_signaling = mock_enable_signaling,
 	.wait = dma_fence_default_wait,
 	.release = dma_fence_free,
+=======
+static const struct dma_fence_ops mock_fence_ops = {
+	.get_driver_name = mock_name,
+	.get_timeline_name = mock_name,
+>>>>>>> upstream/android-13
 };
 
 static DEFINE_SPINLOCK(mock_fence_lock);

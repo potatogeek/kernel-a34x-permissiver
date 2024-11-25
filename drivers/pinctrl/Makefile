@@ -14,11 +14,22 @@ obj-$(CONFIG_PINCTRL_AXP209)	+= pinctrl-axp209.o
 obj-$(CONFIG_PINCTRL_AT91)	+= pinctrl-at91.o
 obj-$(CONFIG_PINCTRL_AT91PIO4)	+= pinctrl-at91-pio4.o
 obj-$(CONFIG_PINCTRL_AMD)	+= pinctrl-amd.o
+<<<<<<< HEAD
 obj-$(CONFIG_PINCTRL_DA850_PUPD) += pinctrl-da850-pupd.o
+=======
+obj-$(CONFIG_PINCTRL_BM1880)	+= pinctrl-bm1880.o
+obj-$(CONFIG_PINCTRL_DA850_PUPD) += pinctrl-da850-pupd.o
+obj-$(CONFIG_PINCTRL_DA9062)	+= pinctrl-da9062.o
+>>>>>>> upstream/android-13
 obj-$(CONFIG_PINCTRL_DIGICOLOR)	+= pinctrl-digicolor.o
 obj-$(CONFIG_PINCTRL_FALCON)	+= pinctrl-falcon.o
 obj-$(CONFIG_PINCTRL_GEMINI)	+= pinctrl-gemini.o
 obj-$(CONFIG_PINCTRL_MAX77620)	+= pinctrl-max77620.o
+<<<<<<< HEAD
+=======
+obj-$(CONFIG_PINCTRL_MCP23S08_I2C)	+= pinctrl-mcp23s08_i2c.o
+obj-$(CONFIG_PINCTRL_MCP23S08_SPI)	+= pinctrl-mcp23s08_spi.o
+>>>>>>> upstream/android-13
 obj-$(CONFIG_PINCTRL_MCP23S08)	+= pinctrl-mcp23s08.o
 obj-$(CONFIG_PINCTRL_MESON)	+= meson/
 obj-$(CONFIG_PINCTRL_OXNAS)	+= pinctrl-oxnas.o
@@ -26,6 +37,7 @@ obj-$(CONFIG_PINCTRL_PALMAS)	+= pinctrl-palmas.o
 obj-$(CONFIG_PINCTRL_PIC32)	+= pinctrl-pic32.o
 obj-$(CONFIG_PINCTRL_PISTACHIO)	+= pinctrl-pistachio.o
 obj-$(CONFIG_PINCTRL_ROCKCHIP)	+= pinctrl-rockchip.o
+<<<<<<< HEAD
 obj-$(CONFIG_PINCTRL_RZA1)	+= pinctrl-rza1.o
 obj-$(CONFIG_PINCTRL_SINGLE)	+= pinctrl-single.o
 obj-$(CONFIG_PINCTRL_SIRF)	+= sirf/
@@ -33,15 +45,33 @@ obj-$(CONFIG_PINCTRL_SX150X)	+= pinctrl-sx150x.o
 obj-$(CONFIG_ARCH_TEGRA)	+= tegra/
 obj-$(CONFIG_PINCTRL_U300)	+= pinctrl-u300.o
 obj-$(CONFIG_PINCTRL_COH901)	+= pinctrl-coh901.o
+=======
+obj-$(CONFIG_PINCTRL_SINGLE)	+= pinctrl-single.o
+obj-$(CONFIG_PINCTRL_SX150X)	+= pinctrl-sx150x.o
+obj-$(CONFIG_ARCH_TEGRA)	+= tegra/
+>>>>>>> upstream/android-13
 obj-$(CONFIG_PINCTRL_XWAY)	+= pinctrl-xway.o
 obj-$(CONFIG_PINCTRL_LANTIQ)	+= pinctrl-lantiq.o
 obj-$(CONFIG_PINCTRL_LPC18XX)	+= pinctrl-lpc18xx.o
 obj-$(CONFIG_PINCTRL_TB10X)	+= pinctrl-tb10x.o
 obj-$(CONFIG_PINCTRL_ST) 	+= pinctrl-st.o
+<<<<<<< HEAD
 obj-$(CONFIG_PINCTRL_ZYNQ)	+= pinctrl-zynq.o
 obj-$(CONFIG_PINCTRL_INGENIC)	+= pinctrl-ingenic.o
 obj-$(CONFIG_PINCTRL_RK805)	+= pinctrl-rk805.o
 obj-$(CONFIG_PINCTRL_OCELOT)	+= pinctrl-ocelot.o
+=======
+obj-$(CONFIG_PINCTRL_STMFX) 	+= pinctrl-stmfx.o
+obj-$(CONFIG_PINCTRL_ZYNQ)	+= pinctrl-zynq.o
+obj-$(CONFIG_PINCTRL_ZYNQMP)	+= pinctrl-zynqmp.o
+obj-$(CONFIG_PINCTRL_INGENIC)	+= pinctrl-ingenic.o
+obj-$(CONFIG_PINCTRL_RK805)	+= pinctrl-rk805.o
+obj-$(CONFIG_PINCTRL_OCELOT)	+= pinctrl-ocelot.o
+obj-$(CONFIG_PINCTRL_MICROCHIP_SGPIO)	+= pinctrl-microchip-sgpio.o
+obj-$(CONFIG_PINCTRL_EQUILIBRIUM)   += pinctrl-equilibrium.o
+obj-$(CONFIG_PINCTRL_K210)	+= pinctrl-k210.o
+obj-$(CONFIG_PINCTRL_KEEMBAY)	+= pinctrl-keembay.o
+>>>>>>> upstream/android-13
 
 obj-y				+= actions/
 obj-$(CONFIG_ARCH_ASPEED)	+= aspeed/
@@ -51,10 +81,19 @@ obj-y				+= freescale/
 obj-$(CONFIG_X86)		+= intel/
 obj-y				+= mvebu/
 obj-y				+= nomadik/
+<<<<<<< HEAD
 obj-$(CONFIG_PINCTRL_PXA)	+= pxa/
 obj-$(CONFIG_ARCH_QCOM)		+= qcom/
 obj-$(CONFIG_PINCTRL_SAMSUNG)	+= samsung/
 obj-$(CONFIG_PINCTRL_SH_PFC)	+= sh-pfc/
+=======
+obj-$(CONFIG_ARCH_NPCM7XX)	+= nuvoton/
+obj-$(CONFIG_PINCTRL_PXA)	+= pxa/
+obj-$(CONFIG_ARCH_QCOM)		+= qcom/
+obj-$(CONFIG_PINCTRL_RALINK)	+= ralink/
+obj-$(CONFIG_PINCTRL_RENESAS)	+= renesas/
+obj-$(CONFIG_PINCTRL_SAMSUNG)	+= samsung/
+>>>>>>> upstream/android-13
 obj-$(CONFIG_PINCTRL_SPEAR)	+= spear/
 obj-y				+= sprd/
 obj-$(CONFIG_PINCTRL_STM32)	+= stm32/
@@ -63,5 +102,11 @@ obj-y				+= ti/
 obj-$(CONFIG_PINCTRL_UNIPHIER)	+= uniphier/
 obj-$(CONFIG_ARCH_VT8500)	+= vt8500/
 obj-y				+= mediatek/
+<<<<<<< HEAD
 obj-$(CONFIG_PINCTRL_ZX)	+= zte/
 obj-y				+= cirrus/
+=======
+obj-y				+= cirrus/
+obj-$(CONFIG_PINCTRL_VISCONTI)	+= visconti/
+obj-$(CONFIG_PINCTRL_SAMSUNG_PMIC) += samsung/pmic/
+>>>>>>> upstream/android-13

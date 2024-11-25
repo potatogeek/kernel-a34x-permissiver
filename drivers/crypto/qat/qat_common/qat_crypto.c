@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
   This file is provided under a dual BSD/GPLv2 license.  When using or
   redistributing this file, you may do so under either license.
@@ -44,6 +45,10 @@
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+=======
+// SPDX-License-Identifier: (BSD-3-Clause OR GPL-2.0-only)
+/* Copyright(c) 2014 - 2020 Intel Corporation */
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/slab.h>
 #include "adf_accel_devices.h"
@@ -159,6 +164,7 @@ struct qat_crypto_instance *qat_crypto_get_instance_node(int node)
  */
 int qat_crypto_dev_config(struct adf_accel_dev *accel_dev)
 {
+<<<<<<< HEAD
 	int cpus = num_online_cpus();
 	int banks = GET_MAX_BANKS(accel_dev);
 	int instances = min(cpus, banks);
@@ -175,72 +181,173 @@ int qat_crypto_dev_config(struct adf_accel_dev *accel_dev)
 		snprintf(key, sizeof(key), ADF_CY "%d" ADF_RING_BANK_NUM, i);
 		if (adf_cfg_add_key_value_param(accel_dev, ADF_KERNEL_SEC,
 						key, (void *)&val, ADF_DEC))
+=======
+	char key[ADF_CFG_MAX_KEY_LEN_IN_BYTES];
+	int banks = GET_MAX_BANKS(accel_dev);
+	int cpus = num_online_cpus();
+	unsigned long val;
+	int instances;
+	int ret;
+	int i;
+
+	if (adf_hw_dev_has_crypto(accel_dev))
+		instances = min(cpus, banks);
+	else
+		instances = 0;
+
+	ret = adf_cfg_section_add(accel_dev, ADF_KERNEL_SEC);
+	if (ret)
+		goto err;
+
+	ret = adf_cfg_section_add(accel_dev, "Accelerator0");
+	if (ret)
+		goto err;
+
+	/* Temporarily set the number of crypto instances to zero to avoid
+	 * registering the crypto algorithms.
+	 * This will be removed when the algorithms will support the
+	 * CRYPTO_TFM_REQ_MAY_BACKLOG flag
+	 */
+	instances = 0;
+
+	for (i = 0; i < instances; i++) {
+		val = i;
+		snprintf(key, sizeof(key), ADF_CY "%d" ADF_RING_ASYM_BANK_NUM, i);
+		ret = adf_cfg_add_key_value_param(accel_dev, ADF_KERNEL_SEC,
+						  key, &val, ADF_DEC);
+		if (ret)
+			goto err;
+
+		snprintf(key, sizeof(key), ADF_CY "%d" ADF_RING_SYM_BANK_NUM, i);
+		ret = adf_cfg_add_key_value_param(accel_dev, ADF_KERNEL_SEC,
+						  key, &val, ADF_DEC);
+		if (ret)
+>>>>>>> upstream/android-13
 			goto err;
 
 		snprintf(key, sizeof(key), ADF_CY "%d" ADF_ETRMGR_CORE_AFFINITY,
 			 i);
+<<<<<<< HEAD
 		if (adf_cfg_add_key_value_param(accel_dev, ADF_KERNEL_SEC,
 						key, (void *)&val, ADF_DEC))
+=======
+		ret = adf_cfg_add_key_value_param(accel_dev, ADF_KERNEL_SEC,
+						  key, &val, ADF_DEC);
+		if (ret)
+>>>>>>> upstream/android-13
 			goto err;
 
 		snprintf(key, sizeof(key), ADF_CY "%d" ADF_RING_ASYM_SIZE, i);
 		val = 128;
+<<<<<<< HEAD
 		if (adf_cfg_add_key_value_param(accel_dev, ADF_KERNEL_SEC,
 						key, (void *)&val, ADF_DEC))
+=======
+		ret = adf_cfg_add_key_value_param(accel_dev, ADF_KERNEL_SEC,
+						  key, &val, ADF_DEC);
+		if (ret)
+>>>>>>> upstream/android-13
 			goto err;
 
 		val = 512;
 		snprintf(key, sizeof(key), ADF_CY "%d" ADF_RING_SYM_SIZE, i);
+<<<<<<< HEAD
 		if (adf_cfg_add_key_value_param(accel_dev, ADF_KERNEL_SEC,
 						key, (void *)&val, ADF_DEC))
+=======
+		ret = adf_cfg_add_key_value_param(accel_dev, ADF_KERNEL_SEC,
+						  key, &val, ADF_DEC);
+		if (ret)
+>>>>>>> upstream/android-13
 			goto err;
 
 		val = 0;
 		snprintf(key, sizeof(key), ADF_CY "%d" ADF_RING_ASYM_TX, i);
+<<<<<<< HEAD
 		if (adf_cfg_add_key_value_param(accel_dev, ADF_KERNEL_SEC,
 						key, (void *)&val, ADF_DEC))
+=======
+		ret = adf_cfg_add_key_value_param(accel_dev, ADF_KERNEL_SEC,
+						  key, &val, ADF_DEC);
+		if (ret)
+>>>>>>> upstream/android-13
 			goto err;
 
 		val = 2;
 		snprintf(key, sizeof(key), ADF_CY "%d" ADF_RING_SYM_TX, i);
+<<<<<<< HEAD
 		if (adf_cfg_add_key_value_param(accel_dev, ADF_KERNEL_SEC,
 						key, (void *)&val, ADF_DEC))
+=======
+		ret = adf_cfg_add_key_value_param(accel_dev, ADF_KERNEL_SEC,
+						  key, &val, ADF_DEC);
+		if (ret)
+>>>>>>> upstream/android-13
 			goto err;
 
 		val = 8;
 		snprintf(key, sizeof(key), ADF_CY "%d" ADF_RING_ASYM_RX, i);
+<<<<<<< HEAD
 		if (adf_cfg_add_key_value_param(accel_dev, ADF_KERNEL_SEC,
 						key, (void *)&val, ADF_DEC))
+=======
+		ret = adf_cfg_add_key_value_param(accel_dev, ADF_KERNEL_SEC,
+						  key, &val, ADF_DEC);
+		if (ret)
+>>>>>>> upstream/android-13
 			goto err;
 
 		val = 10;
 		snprintf(key, sizeof(key), ADF_CY "%d" ADF_RING_SYM_RX, i);
+<<<<<<< HEAD
 		if (adf_cfg_add_key_value_param(accel_dev, ADF_KERNEL_SEC,
 						key, (void *)&val, ADF_DEC))
+=======
+		ret = adf_cfg_add_key_value_param(accel_dev, ADF_KERNEL_SEC,
+						  key, &val, ADF_DEC);
+		if (ret)
+>>>>>>> upstream/android-13
 			goto err;
 
 		val = ADF_COALESCING_DEF_TIME;
 		snprintf(key, sizeof(key), ADF_ETRMGR_COALESCE_TIMER_FORMAT, i);
+<<<<<<< HEAD
 		if (adf_cfg_add_key_value_param(accel_dev, "Accelerator0",
 						key, (void *)&val, ADF_DEC))
+=======
+		ret = adf_cfg_add_key_value_param(accel_dev, "Accelerator0",
+						  key, &val, ADF_DEC);
+		if (ret)
+>>>>>>> upstream/android-13
 			goto err;
 	}
 
 	val = i;
+<<<<<<< HEAD
 	if (adf_cfg_add_key_value_param(accel_dev, ADF_KERNEL_SEC,
 					ADF_NUM_CY, (void *)&val, ADF_DEC))
+=======
+	ret = adf_cfg_add_key_value_param(accel_dev, ADF_KERNEL_SEC, ADF_NUM_CY,
+					  &val, ADF_DEC);
+	if (ret)
+>>>>>>> upstream/android-13
 		goto err;
 
 	set_bit(ADF_STATUS_CONFIGURED, &accel_dev->status);
 	return 0;
 err:
 	dev_err(&GET_DEV(accel_dev), "Failed to start QAT accel dev\n");
+<<<<<<< HEAD
 	return -EINVAL;
+=======
+	return ret;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(qat_crypto_dev_config);
 
 static int qat_crypto_create_instances(struct adf_accel_dev *accel_dev)
 {
+<<<<<<< HEAD
 	int i;
 	unsigned long bank;
 	unsigned long num_inst, num_msg_sym, num_msg_asym;
@@ -256,17 +363,44 @@ static int qat_crypto_create_instances(struct adf_accel_dev *accel_dev)
 
 	if (kstrtoul(val, 0, &num_inst))
 		return -EFAULT;
+=======
+	unsigned long num_inst, num_msg_sym, num_msg_asym;
+	char key[ADF_CFG_MAX_KEY_LEN_IN_BYTES];
+	char val[ADF_CFG_MAX_VAL_LEN_IN_BYTES];
+	unsigned long sym_bank, asym_bank;
+	struct qat_crypto_instance *inst;
+	int msg_size;
+	int ret;
+	int i;
+
+	INIT_LIST_HEAD(&accel_dev->crypto_list);
+	ret = adf_cfg_get_param_value(accel_dev, SEC, ADF_NUM_CY, val);
+	if (ret)
+		return ret;
+
+	ret = kstrtoul(val, 0, &num_inst);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < num_inst; i++) {
 		inst = kzalloc_node(sizeof(*inst), GFP_KERNEL,
 				    dev_to_node(&GET_DEV(accel_dev)));
+<<<<<<< HEAD
 		if (!inst)
 			goto err;
+=======
+		if (!inst) {
+			ret = -ENOMEM;
+			goto err;
+		}
+>>>>>>> upstream/android-13
 
 		list_add_tail(&inst->list, &accel_dev->crypto_list);
 		inst->id = i;
 		atomic_set(&inst->refctr, 0);
 		inst->accel_dev = accel_dev;
+<<<<<<< HEAD
 		snprintf(key, sizeof(key), ADF_CY "%d" ADF_RING_BANK_NUM, i);
 		if (adf_cfg_get_param_value(accel_dev, SEC, key, val))
 			goto err;
@@ -278,32 +412,82 @@ static int qat_crypto_create_instances(struct adf_accel_dev *accel_dev)
 			goto err;
 
 		if (kstrtoul(val, 10, &num_msg_sym))
+=======
+
+		snprintf(key, sizeof(key), ADF_CY "%d" ADF_RING_SYM_BANK_NUM, i);
+		ret = adf_cfg_get_param_value(accel_dev, SEC, key, val);
+		if (ret)
+			goto err;
+
+		ret = kstrtoul(val, 10, &sym_bank);
+		if (ret)
+			goto err;
+
+		snprintf(key, sizeof(key), ADF_CY "%d" ADF_RING_ASYM_BANK_NUM, i);
+		ret = adf_cfg_get_param_value(accel_dev, SEC, key, val);
+		if (ret)
+			goto err;
+
+		ret = kstrtoul(val, 10, &asym_bank);
+		if (ret)
+			goto err;
+
+		snprintf(key, sizeof(key), ADF_CY "%d" ADF_RING_SYM_SIZE, i);
+		ret = adf_cfg_get_param_value(accel_dev, SEC, key, val);
+		if (ret)
+			goto err;
+
+		ret = kstrtoul(val, 10, &num_msg_sym);
+		if (ret)
+>>>>>>> upstream/android-13
 			goto err;
 
 		num_msg_sym = num_msg_sym >> 1;
 
 		snprintf(key, sizeof(key), ADF_CY "%d" ADF_RING_ASYM_SIZE, i);
+<<<<<<< HEAD
 		if (adf_cfg_get_param_value(accel_dev, SEC, key, val))
 			goto err;
 
 		if (kstrtoul(val, 10, &num_msg_asym))
+=======
+		ret = adf_cfg_get_param_value(accel_dev, SEC, key, val);
+		if (ret)
+			goto err;
+
+		ret = kstrtoul(val, 10, &num_msg_asym);
+		if (ret)
+>>>>>>> upstream/android-13
 			goto err;
 		num_msg_asym = num_msg_asym >> 1;
 
 		msg_size = ICP_QAT_FW_REQ_DEFAULT_SZ;
 		snprintf(key, sizeof(key), ADF_CY "%d" ADF_RING_SYM_TX, i);
+<<<<<<< HEAD
 		if (adf_create_ring(accel_dev, SEC, bank, num_msg_sym,
 				    msg_size, key, NULL, 0, &inst->sym_tx))
+=======
+		ret = adf_create_ring(accel_dev, SEC, sym_bank, num_msg_sym,
+				      msg_size, key, NULL, 0, &inst->sym_tx);
+		if (ret)
+>>>>>>> upstream/android-13
 			goto err;
 
 		msg_size = msg_size >> 1;
 		snprintf(key, sizeof(key), ADF_CY "%d" ADF_RING_ASYM_TX, i);
+<<<<<<< HEAD
 		if (adf_create_ring(accel_dev, SEC, bank, num_msg_asym,
 				    msg_size, key, NULL, 0, &inst->pke_tx))
+=======
+		ret = adf_create_ring(accel_dev, SEC, asym_bank, num_msg_asym,
+				      msg_size, key, NULL, 0, &inst->pke_tx);
+		if (ret)
+>>>>>>> upstream/android-13
 			goto err;
 
 		msg_size = ICP_QAT_FW_RESP_DEFAULT_SZ;
 		snprintf(key, sizeof(key), ADF_CY "%d" ADF_RING_SYM_RX, i);
+<<<<<<< HEAD
 		if (adf_create_ring(accel_dev, SEC, bank, num_msg_sym,
 				    msg_size, key, qat_alg_callback, 0,
 				    &inst->sym_rx))
@@ -313,12 +497,29 @@ static int qat_crypto_create_instances(struct adf_accel_dev *accel_dev)
 		if (adf_create_ring(accel_dev, SEC, bank, num_msg_asym,
 				    msg_size, key, qat_alg_asym_callback, 0,
 				    &inst->pke_rx))
+=======
+		ret = adf_create_ring(accel_dev, SEC, sym_bank, num_msg_sym,
+				      msg_size, key, qat_alg_callback, 0,
+				      &inst->sym_rx);
+		if (ret)
+			goto err;
+
+		snprintf(key, sizeof(key), ADF_CY "%d" ADF_RING_ASYM_RX, i);
+		ret = adf_create_ring(accel_dev, SEC, asym_bank, num_msg_asym,
+				      msg_size, key, qat_alg_asym_callback, 0,
+				      &inst->pke_rx);
+		if (ret)
+>>>>>>> upstream/android-13
 			goto err;
 	}
 	return 0;
 err:
 	qat_crypto_free_instances(accel_dev);
+<<<<<<< HEAD
 	return -ENOMEM;
+=======
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int qat_crypto_init(struct adf_accel_dev *accel_dev)

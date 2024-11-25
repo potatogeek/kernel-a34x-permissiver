@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Intel Atom SOC Power Management Controller Header File
  * Copyright (c) 2014, Intel Corporation.
@@ -11,6 +12,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Intel Atom SOC Power Management Controller Header File
+ * Copyright (c) 2014, Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #ifndef PMC_ATOM_H

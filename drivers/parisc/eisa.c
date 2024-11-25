@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * eisa.c - provide support for EISA adapters in PA-RISC machines
  *
@@ -6,6 +7,12 @@
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * eisa.c - provide support for EISA adapters in PA-RISC machines
+ *
+>>>>>>> upstream/android-13
  * Copyright (c) 2001 Matthew Wilcox for Hewlett Packard
  * Copyright (c) 2001 Daniel Engstrom <5116@telia.com>
  *
@@ -15,7 +22,10 @@
  * dealt with elsewhere; this file is concerned only with the EISA portions
  * of Wax.
  *
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  * HINT:
  * -----
  * To allow an ISA card to work properly in the EISA slot you need to
@@ -45,6 +55,11 @@
 #include <asm/eisa_bus.h>
 #include <asm/eisa_eeprom.h>
 
+<<<<<<< HEAD
+=======
+#include "iommu.h"
+
+>>>>>>> upstream/android-13
 #if 0
 #define EISA_DBG(msg, arg...) printk(KERN_DEBUG "eisa: " msg, ## arg)
 #else
@@ -246,11 +261,14 @@ static irqreturn_t dummy_irq2_handler(int _, void *dev)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static struct irqaction irq2_action = {
 	.handler = dummy_irq2_handler,
 	.name = "cascade",
 };
 
+=======
+>>>>>>> upstream/android-13
 static void init_eisa_pic(void)
 {
 	unsigned long flags;
@@ -338,7 +356,12 @@ static int __init eisa_probe(struct parisc_device *dev)
 	}
 
 	/* Reserve IRQ2 */
+<<<<<<< HEAD
 	setup_irq(2, &irq2_action);
+=======
+	if (request_irq(2, dummy_irq2_handler, 0, "cascade", NULL))
+		pr_err("Failed to request irq 2 (cascade)\n");
+>>>>>>> upstream/android-13
 	for (i = 0; i < 16; i++) {
 		irq_set_chip_and_handler(i, &eisa_interrupt_type,
 					 handle_simple_irq);
@@ -357,10 +380,17 @@ static int __init eisa_probe(struct parisc_device *dev)
 			eisa_dev.eeprom_addr = MIRAGE_EEPROM_BASE_ADDR;
 		}
 	}
+<<<<<<< HEAD
 	eisa_eeprom_addr = ioremap_nocache(eisa_dev.eeprom_addr, HPEE_MAX_LENGTH);
 	if (!eisa_eeprom_addr) {
 		result = -ENOMEM;
 		printk(KERN_ERR "EISA: ioremap_nocache failed!\n");
+=======
+	eisa_eeprom_addr = ioremap(eisa_dev.eeprom_addr, HPEE_MAX_LENGTH);
+	if (!eisa_eeprom_addr) {
+		result = -ENOMEM;
+		printk(KERN_ERR "EISA: ioremap failed!\n");
+>>>>>>> upstream/android-13
 		goto error_free_irq;
 	}
 	result = eisa_enumerator(eisa_dev.eeprom_addr, &eisa_dev.hba.io_space,

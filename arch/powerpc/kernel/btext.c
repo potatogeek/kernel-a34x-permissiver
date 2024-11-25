@@ -9,13 +9,20 @@
 #include <linux/init.h>
 #include <linux/export.h>
 #include <linux/memblock.h>
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 #include <asm/sections.h>
 #include <asm/prom.h>
 #include <asm/btext.h>
 #include <asm/page.h>
 #include <asm/mmu.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/io.h>
 #include <asm/processor.h>
 #include <asm/udbg.h>
@@ -26,7 +33,11 @@
 static void scrollscreen(void);
 #endif
 
+<<<<<<< HEAD
 #define __force_data __attribute__((__section__(".data")))
+=======
+#define __force_data __section(".data")
+>>>>>>> upstream/android-13
 
 static int g_loc_X __force_data;
 static int g_loc_Y __force_data;
@@ -95,6 +106,7 @@ void __init btext_prepare_BAT(void)
 		boot_text_mapped = 0;
 		return;
 	}
+<<<<<<< HEAD
 	if (PVR_VER(mfspr(SPRN_PVR)) != 1) {
 		/* 603, 604, G3, G4, ... */
 		lowbits = addr & ~0xFF000000UL;
@@ -108,6 +120,12 @@ void __init btext_prepare_BAT(void)
 		disp_BAT[0] = vaddr | (_PAGE_NO_CACHE | PP_RWXX) | 4;
 		disp_BAT[1] = addr | BL_8M | 0x40;
 	}
+=======
+	lowbits = addr & ~0xFF000000UL;
+	addr &= 0xFF000000UL;
+	disp_BAT[0] = vaddr | (BL_16M<<2) | 2;
+	disp_BAT[1] = addr | (_PAGE_NO_CACHE | _PAGE_GUARDED | BPP_RW);
+>>>>>>> upstream/android-13
 	logicalDisplayBase = (void *) (vaddr + lowbits);
 }
 #endif
@@ -163,7 +181,11 @@ void btext_map(void)
 	offset = ((unsigned long) dispDeviceBase) - base;
 	size = dispDeviceRowBytes * dispDeviceRect[3] + offset
 		+ dispDeviceRect[0];
+<<<<<<< HEAD
 	vbase = __ioremap(base, size, pgprot_val(pgprot_noncached_wc(__pgprot(0))));
+=======
+	vbase = ioremap_wc(base, size);
+>>>>>>> upstream/android-13
 	if (!vbase)
 		return;
 	logicalDisplayBase = vbase + offset;
@@ -232,6 +254,7 @@ static int btext_initialize(struct device_node *np)
 
 int __init btext_find_display(int allow_nonstdout)
 {
+<<<<<<< HEAD
 	const char *name;
 	struct device_node *np = NULL; 
 	int rc = -ENODEV;
@@ -246,6 +269,14 @@ int __init btext_find_display(int allow_nonstdout)
 				np = NULL;
 			}
 		}
+=======
+	struct device_node *np = of_stdout;
+	int rc = -ENODEV;
+
+	if (!of_node_is_type(np, "display")) {
+		printk("boot stdout isn't a display !\n");
+		np = NULL;
+>>>>>>> upstream/android-13
 	}
 	if (np)
 		rc = btext_initialize(np);
@@ -258,8 +289,15 @@ int __init btext_find_display(int allow_nonstdout)
 			rc = btext_initialize(np);
 			printk("result: %d\n", rc);
 		}
+<<<<<<< HEAD
 		if (rc == 0)
 			break;
+=======
+		if (rc == 0) {
+			of_node_put(np);
+			break;
+		}
+>>>>>>> upstream/android-13
 	}
 	return rc;
 }

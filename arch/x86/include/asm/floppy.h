@@ -31,8 +31,13 @@
 #define CSW fd_routine[can_use_virtual_dma & 1]
 
 
+<<<<<<< HEAD
 #define fd_inb(port)		inb_p(port)
 #define fd_outb(value, port)	outb_p(value, port)
+=======
+#define fd_inb(base, reg)		inb_p((base) + (reg))
+#define fd_outb(value, base, reg)	outb_p(value, (base) + (reg))
+>>>>>>> upstream/android-13
 
 #define fd_request_dma()	CSW._request_dma(FLOPPY_DMA, "floppy")
 #define fd_free_dma()		CSW._free_dma(FLOPPY_DMA)
@@ -74,6 +79,7 @@ static irqreturn_t floppy_hardint(int irq, void *dev_id)
 		int lcount;
 		char *lptr;
 
+<<<<<<< HEAD
 		st = 1;
 		for (lcount = virtual_dma_count, lptr = virtual_dma_addr;
 		     lcount; lcount--, lptr++) {
@@ -88,14 +94,36 @@ static irqreturn_t floppy_hardint(int irq, void *dev_id)
 		virtual_dma_count = lcount;
 		virtual_dma_addr = lptr;
 		st = inb(virtual_dma_port + 4);
+=======
+		for (lcount = virtual_dma_count, lptr = virtual_dma_addr;
+		     lcount; lcount--, lptr++) {
+			st = inb(virtual_dma_port + FD_STATUS);
+			st &= STATUS_DMA | STATUS_READY;
+			if (st != (STATUS_DMA | STATUS_READY))
+				break;
+			if (virtual_dma_mode)
+				outb_p(*lptr, virtual_dma_port + FD_DATA);
+			else
+				*lptr = inb_p(virtual_dma_port + FD_DATA);
+		}
+		virtual_dma_count = lcount;
+		virtual_dma_addr = lptr;
+		st = inb(virtual_dma_port + FD_STATUS);
+>>>>>>> upstream/android-13
 	}
 
 #ifdef TRACE_FLPY_INT
 	calls++;
 #endif
+<<<<<<< HEAD
 	if (st == 0x20)
 		return IRQ_HANDLED;
 	if (!(st & 0x20)) {
+=======
+	if (st == STATUS_DMA)
+		return IRQ_HANDLED;
+	if (!(st & STATUS_DMA)) {
+>>>>>>> upstream/android-13
 		virtual_dma_residue += virtual_dma_count;
 		virtual_dma_count = 0;
 #ifdef TRACE_FLPY_INT

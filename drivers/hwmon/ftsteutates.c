@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Support for the FTS Systemmonitoring Chip "Teutates"
  *
  * Copyright (C) 2016 Fujitsu Technology Solutions GmbH,
  *		  Thilo Cestonaro <thilo.cestonaro@ts.fujitsu.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +19,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/err.h>
 #include <linux/fs.h>
@@ -352,7 +359,11 @@ static int fts_watchdog_init(struct fts_data *data)
 /*****************************************************************************/
 /* SysFS handler functions						     */
 /*****************************************************************************/
+<<<<<<< HEAD
 static ssize_t show_in_value(struct device *dev,
+=======
+static ssize_t in_value_show(struct device *dev,
+>>>>>>> upstream/android-13
 			     struct device_attribute *devattr, char *buf)
 {
 	struct fts_data *data = dev_get_drvdata(dev);
@@ -366,7 +377,11 @@ static ssize_t show_in_value(struct device *dev,
 	return sprintf(buf, "%u\n", data->volt[index]);
 }
 
+<<<<<<< HEAD
 static ssize_t show_temp_value(struct device *dev,
+=======
+static ssize_t temp_value_show(struct device *dev,
+>>>>>>> upstream/android-13
 			       struct device_attribute *devattr, char *buf)
 {
 	struct fts_data *data = dev_get_drvdata(dev);
@@ -380,7 +395,11 @@ static ssize_t show_temp_value(struct device *dev,
 	return sprintf(buf, "%u\n", data->temp_input[index]);
 }
 
+<<<<<<< HEAD
 static ssize_t show_temp_fault(struct device *dev,
+=======
+static ssize_t temp_fault_show(struct device *dev,
+>>>>>>> upstream/android-13
 			       struct device_attribute *devattr, char *buf)
 {
 	struct fts_data *data = dev_get_drvdata(dev);
@@ -395,7 +414,11 @@ static ssize_t show_temp_fault(struct device *dev,
 	return sprintf(buf, "%d\n", data->temp_input[index] == 0);
 }
 
+<<<<<<< HEAD
 static ssize_t show_temp_alarm(struct device *dev,
+=======
+static ssize_t temp_alarm_show(struct device *dev,
+>>>>>>> upstream/android-13
 			       struct device_attribute *devattr, char *buf)
 {
 	struct fts_data *data = dev_get_drvdata(dev);
@@ -410,7 +433,11 @@ static ssize_t show_temp_alarm(struct device *dev,
 }
 
 static ssize_t
+<<<<<<< HEAD
 clear_temp_alarm(struct device *dev, struct device_attribute *devattr,
+=======
+temp_alarm_store(struct device *dev, struct device_attribute *devattr,
+>>>>>>> upstream/android-13
 		 const char *buf, size_t count)
 {
 	struct fts_data *data = dev_get_drvdata(dev);
@@ -441,7 +468,11 @@ error:
 	return ret;
 }
 
+<<<<<<< HEAD
 static ssize_t show_fan_value(struct device *dev,
+=======
+static ssize_t fan_value_show(struct device *dev,
+>>>>>>> upstream/android-13
 			      struct device_attribute *devattr, char *buf)
 {
 	struct fts_data *data = dev_get_drvdata(dev);
@@ -455,7 +486,11 @@ static ssize_t show_fan_value(struct device *dev,
 	return sprintf(buf, "%u\n", data->fan_input[index]);
 }
 
+<<<<<<< HEAD
 static ssize_t show_fan_source(struct device *dev,
+=======
+static ssize_t fan_source_show(struct device *dev,
+>>>>>>> upstream/android-13
 			       struct device_attribute *devattr, char *buf)
 {
 	struct fts_data *data = dev_get_drvdata(dev);
@@ -469,7 +504,11 @@ static ssize_t show_fan_source(struct device *dev,
 	return sprintf(buf, "%u\n", data->fan_source[index]);
 }
 
+<<<<<<< HEAD
 static ssize_t show_fan_alarm(struct device *dev,
+=======
+static ssize_t fan_alarm_show(struct device *dev,
+>>>>>>> upstream/android-13
 			      struct device_attribute *devattr, char *buf)
 {
 	struct fts_data *data = dev_get_drvdata(dev);
@@ -484,7 +523,11 @@ static ssize_t show_fan_alarm(struct device *dev,
 }
 
 static ssize_t
+<<<<<<< HEAD
 clear_fan_alarm(struct device *dev, struct device_attribute *devattr,
+=======
+fan_alarm_store(struct device *dev, struct device_attribute *devattr,
+>>>>>>> upstream/android-13
 		const char *buf, size_t count)
 {
 	struct fts_data *data = dev_get_drvdata(dev);
@@ -519,6 +562,7 @@ error:
 /* SysFS structs							     */
 /*****************************************************************************/
 
+<<<<<<< HEAD
 /* Temprature sensors */
 static SENSOR_DEVICE_ATTR(temp1_input,  S_IRUGO, show_temp_value, NULL, 0);
 static SENSOR_DEVICE_ATTR(temp2_input,  S_IRUGO, show_temp_value, NULL, 1);
@@ -586,6 +630,59 @@ static SENSOR_DEVICE_ATTR(temp15_alarm, S_IRUGO | S_IWUSR, show_temp_alarm,
 			  clear_temp_alarm, 14);
 static SENSOR_DEVICE_ATTR(temp16_alarm, S_IRUGO | S_IWUSR, show_temp_alarm,
 			  clear_temp_alarm, 15);
+=======
+/* Temperature sensors */
+static SENSOR_DEVICE_ATTR_RO(temp1_input, temp_value, 0);
+static SENSOR_DEVICE_ATTR_RO(temp2_input, temp_value, 1);
+static SENSOR_DEVICE_ATTR_RO(temp3_input, temp_value, 2);
+static SENSOR_DEVICE_ATTR_RO(temp4_input, temp_value, 3);
+static SENSOR_DEVICE_ATTR_RO(temp5_input, temp_value, 4);
+static SENSOR_DEVICE_ATTR_RO(temp6_input, temp_value, 5);
+static SENSOR_DEVICE_ATTR_RO(temp7_input, temp_value, 6);
+static SENSOR_DEVICE_ATTR_RO(temp8_input, temp_value, 7);
+static SENSOR_DEVICE_ATTR_RO(temp9_input, temp_value, 8);
+static SENSOR_DEVICE_ATTR_RO(temp10_input, temp_value, 9);
+static SENSOR_DEVICE_ATTR_RO(temp11_input, temp_value, 10);
+static SENSOR_DEVICE_ATTR_RO(temp12_input, temp_value, 11);
+static SENSOR_DEVICE_ATTR_RO(temp13_input, temp_value, 12);
+static SENSOR_DEVICE_ATTR_RO(temp14_input, temp_value, 13);
+static SENSOR_DEVICE_ATTR_RO(temp15_input, temp_value, 14);
+static SENSOR_DEVICE_ATTR_RO(temp16_input, temp_value, 15);
+
+static SENSOR_DEVICE_ATTR_RO(temp1_fault, temp_fault, 0);
+static SENSOR_DEVICE_ATTR_RO(temp2_fault, temp_fault, 1);
+static SENSOR_DEVICE_ATTR_RO(temp3_fault, temp_fault, 2);
+static SENSOR_DEVICE_ATTR_RO(temp4_fault, temp_fault, 3);
+static SENSOR_DEVICE_ATTR_RO(temp5_fault, temp_fault, 4);
+static SENSOR_DEVICE_ATTR_RO(temp6_fault, temp_fault, 5);
+static SENSOR_DEVICE_ATTR_RO(temp7_fault, temp_fault, 6);
+static SENSOR_DEVICE_ATTR_RO(temp8_fault, temp_fault, 7);
+static SENSOR_DEVICE_ATTR_RO(temp9_fault, temp_fault, 8);
+static SENSOR_DEVICE_ATTR_RO(temp10_fault, temp_fault, 9);
+static SENSOR_DEVICE_ATTR_RO(temp11_fault, temp_fault, 10);
+static SENSOR_DEVICE_ATTR_RO(temp12_fault, temp_fault, 11);
+static SENSOR_DEVICE_ATTR_RO(temp13_fault, temp_fault, 12);
+static SENSOR_DEVICE_ATTR_RO(temp14_fault, temp_fault, 13);
+static SENSOR_DEVICE_ATTR_RO(temp15_fault, temp_fault, 14);
+static SENSOR_DEVICE_ATTR_RO(temp16_fault, temp_fault, 15);
+
+static SENSOR_DEVICE_ATTR_RW(temp1_alarm, temp_alarm, 0);
+static SENSOR_DEVICE_ATTR_RW(temp2_alarm, temp_alarm, 1);
+static SENSOR_DEVICE_ATTR_RW(temp3_alarm, temp_alarm, 2);
+static SENSOR_DEVICE_ATTR_RW(temp4_alarm, temp_alarm, 3);
+static SENSOR_DEVICE_ATTR_RW(temp5_alarm, temp_alarm, 4);
+static SENSOR_DEVICE_ATTR_RW(temp6_alarm, temp_alarm, 5);
+static SENSOR_DEVICE_ATTR_RW(temp7_alarm, temp_alarm, 6);
+static SENSOR_DEVICE_ATTR_RW(temp8_alarm, temp_alarm, 7);
+static SENSOR_DEVICE_ATTR_RW(temp9_alarm, temp_alarm, 8);
+static SENSOR_DEVICE_ATTR_RW(temp10_alarm, temp_alarm, 9);
+static SENSOR_DEVICE_ATTR_RW(temp11_alarm, temp_alarm, 10);
+static SENSOR_DEVICE_ATTR_RW(temp12_alarm, temp_alarm, 11);
+static SENSOR_DEVICE_ATTR_RW(temp13_alarm, temp_alarm, 12);
+static SENSOR_DEVICE_ATTR_RW(temp14_alarm, temp_alarm, 13);
+static SENSOR_DEVICE_ATTR_RW(temp15_alarm, temp_alarm, 14);
+static SENSOR_DEVICE_ATTR_RW(temp16_alarm, temp_alarm, 15);
+>>>>>>> upstream/android-13
 
 static struct attribute *fts_temp_attrs[] = {
 	&sensor_dev_attr_temp1_input.dev_attr.attr,
@@ -642,6 +739,7 @@ static struct attribute *fts_temp_attrs[] = {
 };
 
 /* Fans */
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(fan1_input, S_IRUGO, show_fan_value, NULL, 0);
 static SENSOR_DEVICE_ATTR(fan2_input, S_IRUGO, show_fan_value, NULL, 1);
 static SENSOR_DEVICE_ATTR(fan3_input, S_IRUGO, show_fan_value, NULL, 2);
@@ -676,6 +774,34 @@ static SENSOR_DEVICE_ATTR(fan7_alarm, S_IRUGO | S_IWUSR,
 			 show_fan_alarm, clear_fan_alarm, 6);
 static SENSOR_DEVICE_ATTR(fan8_alarm, S_IRUGO | S_IWUSR,
 			 show_fan_alarm, clear_fan_alarm, 7);
+=======
+static SENSOR_DEVICE_ATTR_RO(fan1_input, fan_value, 0);
+static SENSOR_DEVICE_ATTR_RO(fan2_input, fan_value, 1);
+static SENSOR_DEVICE_ATTR_RO(fan3_input, fan_value, 2);
+static SENSOR_DEVICE_ATTR_RO(fan4_input, fan_value, 3);
+static SENSOR_DEVICE_ATTR_RO(fan5_input, fan_value, 4);
+static SENSOR_DEVICE_ATTR_RO(fan6_input, fan_value, 5);
+static SENSOR_DEVICE_ATTR_RO(fan7_input, fan_value, 6);
+static SENSOR_DEVICE_ATTR_RO(fan8_input, fan_value, 7);
+
+static SENSOR_DEVICE_ATTR_RO(fan1_source, fan_source, 0);
+static SENSOR_DEVICE_ATTR_RO(fan2_source, fan_source, 1);
+static SENSOR_DEVICE_ATTR_RO(fan3_source, fan_source, 2);
+static SENSOR_DEVICE_ATTR_RO(fan4_source, fan_source, 3);
+static SENSOR_DEVICE_ATTR_RO(fan5_source, fan_source, 4);
+static SENSOR_DEVICE_ATTR_RO(fan6_source, fan_source, 5);
+static SENSOR_DEVICE_ATTR_RO(fan7_source, fan_source, 6);
+static SENSOR_DEVICE_ATTR_RO(fan8_source, fan_source, 7);
+
+static SENSOR_DEVICE_ATTR_RW(fan1_alarm, fan_alarm, 0);
+static SENSOR_DEVICE_ATTR_RW(fan2_alarm, fan_alarm, 1);
+static SENSOR_DEVICE_ATTR_RW(fan3_alarm, fan_alarm, 2);
+static SENSOR_DEVICE_ATTR_RW(fan4_alarm, fan_alarm, 3);
+static SENSOR_DEVICE_ATTR_RW(fan5_alarm, fan_alarm, 4);
+static SENSOR_DEVICE_ATTR_RW(fan6_alarm, fan_alarm, 5);
+static SENSOR_DEVICE_ATTR_RW(fan7_alarm, fan_alarm, 6);
+static SENSOR_DEVICE_ATTR_RW(fan8_alarm, fan_alarm, 7);
+>>>>>>> upstream/android-13
 
 static struct attribute *fts_fan_attrs[] = {
 	&sensor_dev_attr_fan1_input.dev_attr.attr,
@@ -708,10 +834,17 @@ static struct attribute *fts_fan_attrs[] = {
 };
 
 /* Voltages */
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(in1_input, S_IRUGO, show_in_value, NULL, 0);
 static SENSOR_DEVICE_ATTR(in2_input, S_IRUGO, show_in_value, NULL, 1);
 static SENSOR_DEVICE_ATTR(in3_input, S_IRUGO, show_in_value, NULL, 2);
 static SENSOR_DEVICE_ATTR(in4_input, S_IRUGO, show_in_value, NULL, 3);
+=======
+static SENSOR_DEVICE_ATTR_RO(in1_input, in_value, 0);
+static SENSOR_DEVICE_ATTR_RO(in2_input, in_value, 1);
+static SENSOR_DEVICE_ATTR_RO(in3_input, in_value, 2);
+static SENSOR_DEVICE_ATTR_RO(in4_input, in_value, 3);
+>>>>>>> upstream/android-13
 static struct attribute *fts_voltage_attrs[] = {
 	&sensor_dev_attr_in1_input.dev_attr.attr,
 	&sensor_dev_attr_in2_input.dev_attr.attr,
@@ -747,7 +880,11 @@ static int fts_detect(struct i2c_client *client,
 {
 	int val;
 
+<<<<<<< HEAD
 	/* detection works with revsion greater or equal to 0x2b */
+=======
+	/* detection works with revision greater or equal to 0x2b */
+>>>>>>> upstream/android-13
 	val = i2c_smbus_read_byte_data(client, FTS_DEVICE_REVISION_REG);
 	if (val < 0x2b)
 		return -ENODEV;
@@ -786,7 +923,11 @@ static int fts_remove(struct i2c_client *client)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int fts_probe(struct i2c_client *client, const struct i2c_device_id *id)
+=======
+static int fts_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	u8 revision;
 	struct fts_data *data;
@@ -853,7 +994,11 @@ static struct i2c_driver fts_driver = {
 		.name = "ftsteutates",
 	},
 	.id_table = fts_id,
+<<<<<<< HEAD
 	.probe = fts_probe,
+=======
+	.probe_new = fts_probe,
+>>>>>>> upstream/android-13
 	.remove = fts_remove,
 	.detect = fts_detect,
 	.address_list = normal_i2c,

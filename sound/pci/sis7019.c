@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  Driver for SiS7019 Audio Accelerator
  *
@@ -6,6 +10,7 @@
  *  Inspired by the Trident 4D-WaveDX/NX driver.
  *
  *  All rights reserved.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,6 +24,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -36,7 +43,10 @@
 MODULE_AUTHOR("David Dillow <dave@thedillows.org>");
 MODULE_DESCRIPTION("SiS7019");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{{SiS,SiS7019 Audio Accelerator}}");
+=======
+>>>>>>> upstream/android-13
 
 static int index = SNDRV_DEFAULT_IDX1;	/* Index 0-MAX */
 static char *id = SNDRV_DEFAULT_STR1;	/* ID for this card */
@@ -375,7 +385,11 @@ static u32 sis_rate_to_delta(unsigned int rate)
 	else if (rate == 48000)
 		delta = 0x1000;
 	else
+<<<<<<< HEAD
 		delta = (((rate << 12) + 24000) / 48000) & 0x0000ffff;
+=======
+		delta = DIV_ROUND_CLOSEST(rate << 12, 48000) & 0x0000ffff;
+>>>>>>> upstream/android-13
 	return delta;
 }
 
@@ -511,6 +525,7 @@ static int sis_substream_close(struct snd_pcm_substream *substream)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int sis_playback_hw_params(struct snd_pcm_substream *substream,
 					struct snd_pcm_hw_params *hw_params)
 {
@@ -523,6 +538,8 @@ static int sis_hw_free(struct snd_pcm_substream *substream)
 	return snd_pcm_lib_free_pages(substream);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int sis_pcm_playback_prepare(struct snd_pcm_substream *substream)
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
@@ -713,11 +730,14 @@ static int sis_capture_hw_params(struct snd_pcm_substream *substream,
 	if (rc)
 		goto out;
 
+<<<<<<< HEAD
 	rc = snd_pcm_lib_malloc_pages(substream,
 					params_buffer_bytes(hw_params));
 	if (rc < 0)
 		goto out;
 
+=======
+>>>>>>> upstream/android-13
 	rc = sis_alloc_timing_voice(substream, hw_params);
 
 out:
@@ -875,9 +895,12 @@ static int sis_pcm_capture_prepare(struct snd_pcm_substream *substream)
 static const struct snd_pcm_ops sis_playback_ops = {
 	.open = sis_playback_open,
 	.close = sis_substream_close,
+<<<<<<< HEAD
 	.ioctl = snd_pcm_lib_ioctl,
 	.hw_params = sis_playback_hw_params,
 	.hw_free = sis_hw_free,
+=======
+>>>>>>> upstream/android-13
 	.prepare = sis_pcm_playback_prepare,
 	.trigger = sis_pcm_trigger,
 	.pointer = sis_pcm_pointer,
@@ -886,9 +909,13 @@ static const struct snd_pcm_ops sis_playback_ops = {
 static const struct snd_pcm_ops sis_capture_ops = {
 	.open = sis_capture_open,
 	.close = sis_substream_close,
+<<<<<<< HEAD
 	.ioctl = snd_pcm_lib_ioctl,
 	.hw_params = sis_capture_hw_params,
 	.hw_free = sis_hw_free,
+=======
+	.hw_params = sis_capture_hw_params,
+>>>>>>> upstream/android-13
 	.prepare = sis_pcm_capture_prepare,
 	.trigger = sis_pcm_trigger,
 	.pointer = sis_pcm_pointer,
@@ -916,8 +943,13 @@ static int sis_pcm_create(struct sis7019 *sis)
 	/* Try to preallocate some memory, but it's not the end of the
 	 * world if this fails.
 	 */
+<<<<<<< HEAD
 	snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_DEV,
 				snd_dma_pci_data(sis->pci), 64*1024, 128*1024);
+=======
+	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_DEV,
+				       &sis->pci->dev, 64*1024, 128*1024);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1017,7 +1049,11 @@ static int sis_mixer_create(struct sis7019 *sis)
 {
 	struct snd_ac97_bus *bus;
 	struct snd_ac97_template ac97;
+<<<<<<< HEAD
 	static struct snd_ac97_bus_ops ops = {
+=======
+	static const struct snd_ac97_bus_ops ops = {
+>>>>>>> upstream/android-13
 		.write = sis_ac97_write,
 		.read = sis_ac97_read,
 	};
@@ -1042,6 +1078,7 @@ static int sis_mixer_create(struct sis7019 *sis)
 	return rc;
 }
 
+<<<<<<< HEAD
 static void sis_free_suspend(struct sis7019 *sis)
 {
 	int i;
@@ -1052,6 +1089,12 @@ static void sis_free_suspend(struct sis7019 *sis)
 
 static int sis_chip_free(struct sis7019 *sis)
 {
+=======
+static void sis_chip_free(struct snd_card *card)
+{
+	struct sis7019 *sis = card->private_data;
+
+>>>>>>> upstream/android-13
 	/* Reset the chip, and disable all interrputs.
 	 */
 	outl(SIS_GCR_SOFTWARE_RESET, sis->ioport + SIS_GCR);
@@ -1063,6 +1106,7 @@ static int sis_chip_free(struct sis7019 *sis)
 	 */
 	if (sis->irq >= 0)
 		free_irq(sis->irq, sis);
+<<<<<<< HEAD
 
 	iounmap(sis->ioaddr);
 	pci_release_regions(sis->pci);
@@ -1075,6 +1119,8 @@ static int sis_dev_free(struct snd_device *dev)
 {
 	struct sis7019 *sis = dev->device_data;
 	return sis_chip_free(sis);
+=======
+>>>>>>> upstream/android-13
 }
 
 static int sis_chip_init(struct sis7019 *sis)
@@ -1214,7 +1260,10 @@ static int sis_suspend(struct device *dev)
 	int i;
 
 	snd_power_change_state(card, SNDRV_CTL_POWER_D3hot);
+<<<<<<< HEAD
 	snd_pcm_suspend_all(sis->pcm);
+=======
+>>>>>>> upstream/android-13
 	if (sis->codecs_present & SIS_PRIMARY_CODEC_PRESENT)
 		snd_ac97_suspend(sis->ac97[0]);
 	if (sis->codecs_present & SIS_SECONDARY_CODEC_PRESENT)
@@ -1301,7 +1350,12 @@ static int sis_alloc_suspend(struct sis7019 *sis)
 	 * buffer.
 	 */
 	for (i = 0; i < SIS_SUSPEND_PAGES; i++) {
+<<<<<<< HEAD
 		sis->suspend_state[i] = kmalloc(4096, GFP_KERNEL);
+=======
+		sis->suspend_state[i] = devm_kmalloc(&sis->pci->dev, 4096,
+						     GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (!sis->suspend_state[i])
 			return -ENOMEM;
 	}
@@ -1315,6 +1369,7 @@ static int sis_chip_create(struct snd_card *card,
 {
 	struct sis7019 *sis = card->private_data;
 	struct voice *voice;
+<<<<<<< HEAD
 	static struct snd_device_ops ops = {
 		.dev_free = sis_dev_free,
 	};
@@ -1324,14 +1379,28 @@ static int sis_chip_create(struct snd_card *card,
 	rc = pci_enable_device(pci);
 	if (rc)
 		goto error_out;
+=======
+	int rc;
+	int i;
+
+	rc = pcim_enable_device(pci);
+	if (rc)
+		return rc;
+>>>>>>> upstream/android-13
 
 	rc = dma_set_mask(&pci->dev, DMA_BIT_MASK(30));
 	if (rc < 0) {
 		dev_err(&pci->dev, "architecture does not support 30-bit PCI busmaster DMA");
+<<<<<<< HEAD
 		goto error_out_enabled;
 	}
 
 	memset(sis, 0, sizeof(*sis));
+=======
+		return -ENXIO;
+	}
+
+>>>>>>> upstream/android-13
 	mutex_init(&sis->ac97_mutex);
 	spin_lock_init(&sis->voice_lock);
 	sis->card = card;
@@ -1342,6 +1411,7 @@ static int sis_chip_create(struct snd_card *card,
 	rc = pci_request_regions(pci, "SiS7019");
 	if (rc) {
 		dev_err(&pci->dev, "unable request regions\n");
+<<<<<<< HEAD
 		goto error_out_enabled;
 	}
 
@@ -1350,26 +1420,52 @@ static int sis_chip_create(struct snd_card *card,
 	if (!sis->ioaddr) {
 		dev_err(&pci->dev, "unable to remap MMIO, aborting\n");
 		goto error_out_cleanup;
+=======
+		return rc;
+	}
+
+	sis->ioaddr = devm_ioremap(&pci->dev, pci_resource_start(pci, 1), 0x4000);
+	if (!sis->ioaddr) {
+		dev_err(&pci->dev, "unable to remap MMIO, aborting\n");
+		return -EIO;
+>>>>>>> upstream/android-13
 	}
 
 	rc = sis_alloc_suspend(sis);
 	if (rc < 0) {
 		dev_err(&pci->dev, "unable to allocate state storage\n");
+<<<<<<< HEAD
 		goto error_out_cleanup;
+=======
+		return rc;
+>>>>>>> upstream/android-13
 	}
 
 	rc = sis_chip_init(sis);
 	if (rc)
+<<<<<<< HEAD
 		goto error_out_cleanup;
+=======
+		return rc;
+	card->private_free = sis_chip_free;
+>>>>>>> upstream/android-13
 
 	rc = request_irq(pci->irq, sis_interrupt, IRQF_SHARED, KBUILD_MODNAME,
 			 sis);
 	if (rc) {
 		dev_err(&pci->dev, "unable to allocate irq %d\n", sis->irq);
+<<<<<<< HEAD
 		goto error_out_cleanup;
 	}
 
 	sis->irq = pci->irq;
+=======
+		return rc;
+	}
+
+	sis->irq = pci->irq;
+	card->sync_irq = sis->irq;
+>>>>>>> upstream/android-13
 	pci_set_master(pci);
 
 	for (i = 0; i < 64; i++) {
@@ -1384,6 +1480,7 @@ static int sis_chip_create(struct snd_card *card,
 	voice->num = SIS_CAPTURE_CHAN_AC97_PCM_IN;
 	voice->ctrl_base = SIS_CAPTURE_DMA_ADDR(sis->ioaddr, voice->num);
 
+<<<<<<< HEAD
 	rc = snd_device_new(card, SNDRV_DEV_LOWLEVEL, sis, &ops);
 	if (rc)
 		goto error_out_cleanup;
@@ -1402,14 +1499,26 @@ error_out:
 
 static int snd_sis7019_probe(struct pci_dev *pci,
 			     const struct pci_device_id *pci_id)
+=======
+	return 0;
+}
+
+static int __snd_sis7019_probe(struct pci_dev *pci,
+			       const struct pci_device_id *pci_id)
+>>>>>>> upstream/android-13
 {
 	struct snd_card *card;
 	struct sis7019 *sis;
 	int rc;
 
+<<<<<<< HEAD
 	rc = -ENOENT;
 	if (!enable)
 		goto error_out;
+=======
+	if (!enable)
+		return -ENOENT;
+>>>>>>> upstream/android-13
 
 	/* The user can specify which codecs should be present so that we
 	 * can wait for them to show up if they are slow to recover from
@@ -1422,26 +1531,45 @@ static int snd_sis7019_probe(struct pci_dev *pci,
 	if (!codecs)
 		codecs = SIS_PRIMARY_CODEC_PRESENT;
 
+<<<<<<< HEAD
 	rc = snd_card_new(&pci->dev, index, id, THIS_MODULE,
 			  sizeof(*sis), &card);
 	if (rc < 0)
 		goto error_out;
+=======
+	rc = snd_devm_card_new(&pci->dev, index, id, THIS_MODULE,
+			       sizeof(*sis), &card);
+	if (rc < 0)
+		return rc;
+>>>>>>> upstream/android-13
 
 	strcpy(card->driver, "SiS7019");
 	strcpy(card->shortname, "SiS7019");
 	rc = sis_chip_create(card, pci);
 	if (rc)
+<<<<<<< HEAD
 		goto card_error_out;
+=======
+		return rc;
+>>>>>>> upstream/android-13
 
 	sis = card->private_data;
 
 	rc = sis_mixer_create(sis);
 	if (rc)
+<<<<<<< HEAD
 		goto card_error_out;
 
 	rc = sis_pcm_create(sis);
 	if (rc)
 		goto card_error_out;
+=======
+		return rc;
+
+	rc = sis_pcm_create(sis);
+	if (rc)
+		return rc;
+>>>>>>> upstream/android-13
 
 	snprintf(card->longname, sizeof(card->longname),
 			"%s Audio Accelerator with %s at 0x%lx, irq %d",
@@ -1450,6 +1578,7 @@ static int snd_sis7019_probe(struct pci_dev *pci,
 
 	rc = snd_card_register(card);
 	if (rc)
+<<<<<<< HEAD
 		goto card_error_out;
 
 	pci_set_drvdata(pci, card);
@@ -1465,13 +1594,28 @@ error_out:
 static void snd_sis7019_remove(struct pci_dev *pci)
 {
 	snd_card_free(pci_get_drvdata(pci));
+=======
+		return rc;
+
+	pci_set_drvdata(pci, card);
+	return 0;
+}
+
+static int snd_sis7019_probe(struct pci_dev *pci,
+			     const struct pci_device_id *pci_id)
+{
+	return snd_card_free_on_error(&pci->dev, __snd_sis7019_probe(pci, pci_id));
+>>>>>>> upstream/android-13
 }
 
 static struct pci_driver sis7019_driver = {
 	.name = KBUILD_MODNAME,
 	.id_table = snd_sis7019_ids,
 	.probe = snd_sis7019_probe,
+<<<<<<< HEAD
 	.remove = snd_sis7019_remove,
+=======
+>>>>>>> upstream/android-13
 	.driver = {
 		.pm = SIS_PM_OPS,
 	},

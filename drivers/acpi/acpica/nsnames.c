@@ -13,9 +13,12 @@
 #define _COMPONENT          ACPI_NAMESPACE
 ACPI_MODULE_NAME("nsnames")
 
+<<<<<<< HEAD
 /* Local Prototypes */
 static void acpi_ns_normalize_pathname(char *original_path);
 
+=======
+>>>>>>> upstream/android-13
 /*******************************************************************************
  *
  * FUNCTION:    acpi_ns_get_external_pathname
@@ -30,7 +33,10 @@ static void acpi_ns_normalize_pathname(char *original_path);
  *              for error and debug statements.
  *
  ******************************************************************************/
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 char *acpi_ns_get_external_pathname(struct acpi_namespace_node *node)
 {
 	char *name_buffer;
@@ -108,8 +114,13 @@ acpi_ns_handle_to_name(acpi_handle target_handle, struct acpi_buffer *buffer)
 	/* Just copy the ACPI name from the Node and zero terminate it */
 
 	node_name = acpi_ut_get_node_name(node);
+<<<<<<< HEAD
 	ACPI_MOVE_NAME(buffer->pointer, node_name);
 	((char *)buffer->pointer)[ACPI_NAME_SIZE] = 0;
+=======
+	ACPI_COPY_NAMESEG(buffer->pointer, node_name);
+	((char *)buffer->pointer)[ACPI_NAMESEG_SIZE] = 0;
+>>>>>>> upstream/android-13
 
 	ACPI_DEBUG_PRINT((ACPI_DB_EXEC, "%4.4s\n", (char *)buffer->pointer));
 	return_ACPI_STATUS(AE_OK);
@@ -164,7 +175,11 @@ acpi_ns_handle_to_pathname(acpi_handle target_handle,
 	/* Build the path in the caller buffer */
 
 	(void)acpi_ns_build_normalized_path(node, buffer->pointer,
+<<<<<<< HEAD
 					    required_size, no_trailing);
+=======
+					    (u32)required_size, no_trailing);
+>>>>>>> upstream/android-13
 
 	ACPI_DEBUG_PRINT((ACPI_DB_EXEC, "%s [%X]\n",
 			  (char *)buffer->pointer, (u32) required_size));
@@ -198,7 +213,11 @@ acpi_ns_build_normalized_path(struct acpi_namespace_node *node,
 			      char *full_path, u32 path_size, u8 no_trailing)
 {
 	u32 length = 0, i;
+<<<<<<< HEAD
 	char name[ACPI_NAME_SIZE];
+=======
+	char name[ACPI_NAMESEG_SIZE];
+>>>>>>> upstream/android-13
 	u8 do_no_trailing;
 	char c, *left, *right;
 	struct acpi_namespace_node *next_node;
@@ -315,7 +334,11 @@ char *acpi_ns_get_normalized_pathname(struct acpi_namespace_node *node,
 
 	/* Build the path in the allocated buffer */
 
+<<<<<<< HEAD
 	(void)acpi_ns_build_normalized_path(node, name_buffer, size,
+=======
+	(void)acpi_ns_build_normalized_path(node, name_buffer, (u32)size,
+>>>>>>> upstream/android-13
 					    no_trailing);
 
 	ACPI_DEBUG_PRINT_RAW((ACPI_DB_NAMES, "%s: Path \"%s\"\n",
@@ -346,7 +369,11 @@ char *acpi_ns_build_prefixed_pathname(union acpi_generic_state *prefix_scope,
 	char *full_path = NULL;
 	char *external_path = NULL;
 	char *prefix_path = NULL;
+<<<<<<< HEAD
 	u32 prefix_path_length = 0;
+=======
+	acpi_size prefix_path_length = 0;
+>>>>>>> upstream/android-13
 
 	/* If there is a prefix, get the pathname to it */
 
@@ -411,7 +438,11 @@ cleanup:
  *
  ******************************************************************************/
 
+<<<<<<< HEAD
 static void acpi_ns_normalize_pathname(char *original_path)
+=======
+void acpi_ns_normalize_pathname(char *original_path)
+>>>>>>> upstream/android-13
 {
 	char *input_path = original_path;
 	char *new_path_buffer;
@@ -446,7 +477,11 @@ static void acpi_ns_normalize_pathname(char *original_path)
 
 		/* Do one nameseg at a time */
 
+<<<<<<< HEAD
 		for (i = 0; (i < ACPI_NAME_SIZE) && *input_path; i++) {
+=======
+		for (i = 0; (i < ACPI_NAMESEG_SIZE) && *input_path; i++) {
+>>>>>>> upstream/android-13
 			if ((i == 0) || (*input_path != '_')) {	/* First char is allowed to be underscore */
 				*new_path = *input_path;
 				new_path++;

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Derived from arch/ppc/mm/extable.c and arch/i386/mm/extable.c.
  *
  * Copyright (C) 2004 Paul Mackerras, IBM Corp.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bsearch.h>
@@ -14,6 +21,10 @@
 #include <linux/init.h>
 #include <linux/sort.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
+=======
+#include <linux/extable.h>
+>>>>>>> upstream/android-13
 
 #ifndef ARCH_HAS_RELATIVE_EXTABLE
 #define ex_to_insn(x)	((x)->insn)
@@ -24,7 +35,10 @@ static inline unsigned long ex_to_insn(const struct exception_table_entry *x)
 }
 #endif
 
+<<<<<<< HEAD
 #ifndef ARCH_HAS_SORT_EXTABLE
+=======
+>>>>>>> upstream/android-13
 #ifndef ARCH_HAS_RELATIVE_EXTABLE
 #define swap_ex		NULL
 #else
@@ -91,9 +105,12 @@ void trim_init_extable(struct module *m)
 		m->num_exentries--;
 }
 #endif /* CONFIG_MODULES */
+<<<<<<< HEAD
 #endif /* !ARCH_HAS_SORT_EXTABLE */
 
 #ifndef ARCH_HAS_SEARCH_EXTABLE
+=======
+>>>>>>> upstream/android-13
 
 static int cmp_ex_search(const void *key, const void *elt)
 {
@@ -123,4 +140,7 @@ search_extable(const struct exception_table_entry *base,
 	return bsearch(&value, base, num,
 		       sizeof(struct exception_table_entry), cmp_ex_search);
 }
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13

@@ -108,8 +108,13 @@ static int ali_c2_cable_detect(struct ata_port *ap)
 
 /**
  *	ali_20_filter		-	filter for earlier ALI DMA
+<<<<<<< HEAD
  *	@ap: ALi ATA port
  *	@adev: attached device
+=======
+ *	@adev: ATA device
+ *	@mask: received mask to manipulate and pass back
+>>>>>>> upstream/android-13
  *
  *	Ensure that we do not do DMA on CD devices. We may be able to
  *	fix that later on. Also ensure we do not do UDMA on WDC drives
@@ -313,7 +318,11 @@ static void ali_lock_sectors(struct ata_device *adev)
 
 /**
  *	ali_check_atapi_dma	-	DMA check for most ALi controllers
+<<<<<<< HEAD
  *	@adev: Device
+=======
+ *	@qc: Command to complete
+>>>>>>> upstream/android-13
  *
  *	Called to decide whether commands should be sent by DMA or PIO
  */

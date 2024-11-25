@@ -1,9 +1,14 @@
+<<<<<<< HEAD
 /* Copyright (C) 2013 Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/* Copyright (C) 2013 Jozsef Kadlecsik <kadlec@netfilter.org> */
+>>>>>>> upstream/android-13
 
 #ifndef _IP_SET_HASH_GEN_H
 #define _IP_SET_HASH_GEN_H
@@ -11,6 +16,7 @@
 #include <linux/rcupdate.h>
 #include <linux/jhash.h>
 #include <linux/types.h>
+<<<<<<< HEAD
 #include <linux/netfilter/ipset/ip_set_timeout.h>
 
 #define __ipset_dereference_protected(p, c)	rcu_dereference_protected(p, c)
@@ -18,6 +24,23 @@
 	__ipset_dereference_protected(p, spin_is_locked(&(set)->lock))
 
 #define rcu_dereference_bh_nfnl(p)	rcu_dereference_bh_check(p, 1)
+=======
+#include <linux/netfilter/nfnetlink.h>
+#include <linux/netfilter/ipset/ip_set.h>
+
+#define __ipset_dereference(p)		\
+	rcu_dereference_protected(p, 1)
+#define ipset_dereference_nfnl(p)	\
+	rcu_dereference_protected(p,	\
+		lockdep_nfnl_is_held(NFNL_SUBSYS_IPSET))
+#define ipset_dereference_set(p, set) 	\
+	rcu_dereference_protected(p,	\
+		lockdep_nfnl_is_held(NFNL_SUBSYS_IPSET) || \
+		lockdep_is_held(&(set)->lock))
+#define ipset_dereference_bh_nfnl(p)	\
+	rcu_dereference_bh_check(p, 	\
+		lockdep_nfnl_is_held(NFNL_SUBSYS_IPSET))
+>>>>>>> upstream/android-13
 
 /* Hashing which uses arrays to resolve clashing. The hash table is resized
  * (doubled) when searching becomes too long.
@@ -33,6 +56,7 @@
  */
 
 /* Number of elements to store in an initial array block */
+<<<<<<< HEAD
 #define AHASH_INIT_SIZE			4
 /* Max number of elements to store in an array block */
 #define AHASH_MAX_SIZE			(3 * AHASH_INIT_SIZE)
@@ -45,6 +69,20 @@
 
 static inline u8
 tune_ahash_max(u8 curr, u32 multi)
+=======
+#define AHASH_INIT_SIZE			2
+/* Max number of elements to store in an array block */
+#define AHASH_MAX_SIZE			(6 * AHASH_INIT_SIZE)
+/* Max muber of elements in the array block when tuned */
+#define AHASH_MAX_TUNED			64
+
+#define AHASH_MAX(h)			((h)->bucketsize)
+
+/* Max number of elements can be tuned */
+#ifdef IP_SET_HASH_WITH_MULTI
+static u8
+tune_bucketsize(u8 curr, u32 multi)
+>>>>>>> upstream/android-13
 {
 	u32 n;
 
@@ -57,21 +95,33 @@ tune_ahash_max(u8 curr, u32 multi)
 	 */
 	return n > curr && n <= AHASH_MAX_TUNED ? n : curr;
 }
+<<<<<<< HEAD
 
 #define TUNE_AHASH_MAX(h, multi)	\
 	((h)->ahash_max = tune_ahash_max((h)->ahash_max, multi))
 #else
 #define AHASH_MAX(h)			AHASH_MAX_SIZE
 #define TUNE_AHASH_MAX(h, multi)
+=======
+#define TUNE_BUCKETSIZE(h, multi)	\
+	((h)->bucketsize = tune_bucketsize((h)->bucketsize, multi))
+#else
+#define TUNE_BUCKETSIZE(h, multi)
+>>>>>>> upstream/android-13
 #endif
 
 /* A hash bucket */
 struct hbucket {
+<<<<<<< HEAD
 	struct rcu_head rcu;	/* for call_rcu_bh */
+=======
+	struct rcu_head rcu;	/* for call_rcu */
+>>>>>>> upstream/android-13
 	/* Which positions are used in the array */
 	DECLARE_BITMAP(used, AHASH_MAX_TUNED);
 	u8 size;		/* size of the array */
 	u8 pos;			/* position of the first free entry */
+<<<<<<< HEAD
 	unsigned char value[0]	/* the array of the values */
 		__aligned(__alignof__(u64));
 };
@@ -82,6 +132,42 @@ struct htable {
 	atomic_t uref;		/* References for dumping */
 	u8 htable_bits;		/* size of hash table == 2^htable_bits */
 	struct hbucket __rcu *bucket[0]; /* hashtable buckets */
+=======
+	unsigned char value[]	/* the array of the values */
+		__aligned(__alignof__(u64));
+};
+
+/* Region size for locking == 2^HTABLE_REGION_BITS */
+#define HTABLE_REGION_BITS	10
+#define ahash_numof_locks(htable_bits)		\
+	((htable_bits) < HTABLE_REGION_BITS ? 1	\
+		: jhash_size((htable_bits) - HTABLE_REGION_BITS))
+#define ahash_sizeof_regions(htable_bits)		\
+	(ahash_numof_locks(htable_bits) * sizeof(struct ip_set_region))
+#define ahash_region(n, htable_bits)		\
+	((n) % ahash_numof_locks(htable_bits))
+#define ahash_bucket_start(h,  htable_bits)	\
+	((htable_bits) < HTABLE_REGION_BITS ? 0	\
+		: (h) * jhash_size(HTABLE_REGION_BITS))
+#define ahash_bucket_end(h,  htable_bits)	\
+	((htable_bits) < HTABLE_REGION_BITS ? jhash_size(htable_bits)	\
+		: ((h) + 1) * jhash_size(HTABLE_REGION_BITS))
+
+struct htable_gc {
+	struct delayed_work dwork;
+	struct ip_set *set;	/* Set the gc belongs to */
+	u32 region;		/* Last gc run position */
+};
+
+/* The hash table: the table size stored here in order to make resizing easy */
+struct htable {
+	atomic_t ref;		/* References for resizing */
+	atomic_t uref;		/* References for dumping and gc */
+	u8 htable_bits;		/* size of hash table == 2^htable_bits */
+	u32 maxelem;		/* Maxelem per region */
+	struct ip_set_region *hregion;	/* Region locks and ext sizes */
+	struct hbucket __rcu *bucket[]; /* hashtable buckets */
+>>>>>>> upstream/android-13
 };
 
 #define hbucket(h, i)		((h)->bucket[i])
@@ -104,11 +190,19 @@ htable_size(u8 hbits)
 {
 	size_t hsize;
 
+<<<<<<< HEAD
 	/* We must fit both into u32 in jhash and size_t */
 	if (hbits > 31)
 		return 0;
 	hsize = jhash_size(hbits);
 	if ((((size_t)-1) - sizeof(struct htable)) / sizeof(struct hbucket *)
+=======
+	/* We must fit both into u32 in jhash and INT_MAX in kvmalloc_node() */
+	if (hbits > 31)
+		return 0;
+	hsize = jhash_size(hbits);
+	if ((INT_MAX - sizeof(struct htable)) / sizeof(struct hbucket *)
+>>>>>>> upstream/android-13
 	    < hsize)
 		return 0;
 
@@ -152,6 +246,13 @@ htable_size(u8 hbits)
 #define NLEN			0
 #endif /* IP_SET_HASH_WITH_NETS */
 
+<<<<<<< HEAD
+=======
+#define SET_ELEM_EXPIRED(set, d)	\
+	(SET_WITH_TIMEOUT(set) &&	\
+	 ip_set_timeout_expired(ext_timeout(d, set)))
+
+>>>>>>> upstream/android-13
 #endif /* _IP_SET_HASH_GEN_H */
 
 #ifndef MTYPE
@@ -195,10 +296,19 @@ htable_size(u8 hbits)
 #undef mtype_test_cidrs
 #undef mtype_test
 #undef mtype_uref
+<<<<<<< HEAD
 #undef mtype_expire
 #undef mtype_resize
 #undef mtype_head
 #undef mtype_list
+=======
+#undef mtype_resize
+#undef mtype_ext_size
+#undef mtype_resize_ad
+#undef mtype_head
+#undef mtype_list
+#undef mtype_gc_do
+>>>>>>> upstream/android-13
 #undef mtype_gc
 #undef mtype_gc_init
 #undef mtype_variant
@@ -237,10 +347,19 @@ htable_size(u8 hbits)
 #define mtype_test_cidrs	IPSET_TOKEN(MTYPE, _test_cidrs)
 #define mtype_test		IPSET_TOKEN(MTYPE, _test)
 #define mtype_uref		IPSET_TOKEN(MTYPE, _uref)
+<<<<<<< HEAD
 #define mtype_expire		IPSET_TOKEN(MTYPE, _expire)
 #define mtype_resize		IPSET_TOKEN(MTYPE, _resize)
 #define mtype_head		IPSET_TOKEN(MTYPE, _head)
 #define mtype_list		IPSET_TOKEN(MTYPE, _list)
+=======
+#define mtype_resize		IPSET_TOKEN(MTYPE, _resize)
+#define mtype_ext_size		IPSET_TOKEN(MTYPE, _ext_size)
+#define mtype_resize_ad		IPSET_TOKEN(MTYPE, _resize_ad)
+#define mtype_head		IPSET_TOKEN(MTYPE, _head)
+#define mtype_list		IPSET_TOKEN(MTYPE, _list)
+#define mtype_gc_do		IPSET_TOKEN(MTYPE, _gc_do)
+>>>>>>> upstream/android-13
 #define mtype_gc		IPSET_TOKEN(MTYPE, _gc)
 #define mtype_gc_init		IPSET_TOKEN(MTYPE, _gc_init)
 #define mtype_variant		IPSET_TOKEN(MTYPE, _variant)
@@ -265,34 +384,67 @@ htable_size(u8 hbits)
 /* The generic hash structure */
 struct htype {
 	struct htable __rcu *table; /* the hash table */
+<<<<<<< HEAD
 	struct timer_list gc;	/* garbage collection when timeout enabled */
 	struct ip_set *set;	/* attached to this ip_set */
+=======
+	struct htable_gc gc;	/* gc workqueue */
+>>>>>>> upstream/android-13
 	u32 maxelem;		/* max elements in the hash */
 	u32 initval;		/* random jhash init value */
 #ifdef IP_SET_HASH_WITH_MARKMASK
 	u32 markmask;		/* markmask value for mark mask to store */
 #endif
+<<<<<<< HEAD
 #ifdef IP_SET_HASH_WITH_MULTI
 	u8 ahash_max;		/* max elements in an array block */
 #endif
 #ifdef IP_SET_HASH_WITH_NETMASK
 	u8 netmask;		/* netmask value for subnets to store */
 #endif
+=======
+	u8 bucketsize;		/* max elements in an array block */
+#ifdef IP_SET_HASH_WITH_NETMASK
+	u8 netmask;		/* netmask value for subnets to store */
+#endif
+	struct list_head ad;	/* Resize add|del backlist */
+>>>>>>> upstream/android-13
 	struct mtype_elem next; /* temporary storage for uadd */
 #ifdef IP_SET_HASH_WITH_NETS
 	struct net_prefixes nets[NLEN]; /* book-keeping of prefixes */
 #endif
 };
 
+<<<<<<< HEAD
+=======
+/* ADD|DEL entries saved during resize */
+struct mtype_resize_ad {
+	struct list_head list;
+	enum ipset_adt ad;	/* ADD|DEL element */
+	struct mtype_elem d;	/* Element value */
+	struct ip_set_ext ext;	/* Extensions for ADD */
+	struct ip_set_ext mext;	/* Target extensions for ADD */
+	u32 flags;		/* Flags for ADD */
+};
+
+>>>>>>> upstream/android-13
 #ifdef IP_SET_HASH_WITH_NETS
 /* Network cidr size book keeping when the hash stores different
  * sized networks. cidr == real cidr + 1 to support /0.
  */
 static void
+<<<<<<< HEAD
 mtype_add_cidr(struct htype *h, u8 cidr, u8 n)
 {
 	int i, j;
 
+=======
+mtype_add_cidr(struct ip_set *set, struct htype *h, u8 cidr, u8 n)
+{
+	int i, j;
+
+	spin_lock_bh(&set->lock);
+>>>>>>> upstream/android-13
 	/* Add in increasing prefix order, so larger cidr first */
 	for (i = 0, j = -1; i < NLEN && h->nets[i].cidr[n]; i++) {
 		if (j != -1) {
@@ -301,7 +453,11 @@ mtype_add_cidr(struct htype *h, u8 cidr, u8 n)
 			j = i;
 		} else if (h->nets[i].cidr[n] == cidr) {
 			h->nets[CIDR_POS(cidr)].nets[n]++;
+<<<<<<< HEAD
 			return;
+=======
+			goto unlock;
+>>>>>>> upstream/android-13
 		}
 	}
 	if (j != -1) {
@@ -310,6 +466,7 @@ mtype_add_cidr(struct htype *h, u8 cidr, u8 n)
 	}
 	h->nets[i].cidr[n] = cidr;
 	h->nets[CIDR_POS(cidr)].nets[n] = 1;
+<<<<<<< HEAD
 }
 
 static void
@@ -317,17 +474,40 @@ mtype_del_cidr(struct htype *h, u8 cidr, u8 n)
 {
 	u8 i, j, net_end = NLEN - 1;
 
+=======
+unlock:
+	spin_unlock_bh(&set->lock);
+}
+
+static void
+mtype_del_cidr(struct ip_set *set, struct htype *h, u8 cidr, u8 n)
+{
+	u8 i, j, net_end = NLEN - 1;
+
+	spin_lock_bh(&set->lock);
+>>>>>>> upstream/android-13
 	for (i = 0; i < NLEN; i++) {
 		if (h->nets[i].cidr[n] != cidr)
 			continue;
 		h->nets[CIDR_POS(cidr)].nets[n]--;
 		if (h->nets[CIDR_POS(cidr)].nets[n] > 0)
+<<<<<<< HEAD
 			return;
 		for (j = i; j < net_end && h->nets[j].cidr[n]; j++)
 			h->nets[j].cidr[n] = h->nets[j + 1].cidr[n];
 		h->nets[j].cidr[n] = 0;
 		return;
 	}
+=======
+			goto unlock;
+		for (j = i; j < net_end && h->nets[j].cidr[n]; j++)
+			h->nets[j].cidr[n] = h->nets[j + 1].cidr[n];
+		h->nets[j].cidr[n] = 0;
+		goto unlock;
+	}
+unlock:
+	spin_unlock_bh(&set->lock);
+>>>>>>> upstream/android-13
 }
 #endif
 
@@ -335,7 +515,11 @@ mtype_del_cidr(struct htype *h, u8 cidr, u8 n)
 static size_t
 mtype_ahash_memsize(const struct htype *h, const struct htable *t)
 {
+<<<<<<< HEAD
 	return sizeof(*h) + sizeof(*t);
+=======
+	return sizeof(*h) + sizeof(*t) + ahash_sizeof_regions(t->htable_bits);
+>>>>>>> upstream/android-13
 }
 
 /* Get the ith element from the array block n */
@@ -359,6 +543,7 @@ mtype_flush(struct ip_set *set)
 	struct htype *h = set->data;
 	struct htable *t;
 	struct hbucket *n;
+<<<<<<< HEAD
 	u32 i;
 
 	t = ipset_dereference_protected(h->table, set);
@@ -371,12 +556,36 @@ mtype_flush(struct ip_set *set)
 		/* FIXME: use slab cache */
 		rcu_assign_pointer(hbucket(t, i), NULL);
 		kfree_rcu(n, rcu);
+=======
+	u32 r, i;
+
+	t = ipset_dereference_nfnl(h->table);
+	for (r = 0; r < ahash_numof_locks(t->htable_bits); r++) {
+		spin_lock_bh(&t->hregion[r].lock);
+		for (i = ahash_bucket_start(r, t->htable_bits);
+		     i < ahash_bucket_end(r, t->htable_bits); i++) {
+			n = __ipset_dereference(hbucket(t, i));
+			if (!n)
+				continue;
+			if (set->extensions & IPSET_EXT_DESTROY)
+				mtype_ext_cleanup(set, n);
+			/* FIXME: use slab cache */
+			rcu_assign_pointer(hbucket(t, i), NULL);
+			kfree_rcu(n, rcu);
+		}
+		t->hregion[r].ext_size = 0;
+		t->hregion[r].elements = 0;
+		spin_unlock_bh(&t->hregion[r].lock);
+>>>>>>> upstream/android-13
 	}
 #ifdef IP_SET_HASH_WITH_NETS
 	memset(h->nets, 0, sizeof(h->nets));
 #endif
+<<<<<<< HEAD
 	set->elements = 0;
 	set->ext_size = 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 /* Destroy the hashtable part of the set */
@@ -387,7 +596,11 @@ mtype_ahash_destroy(struct ip_set *set, struct htable *t, bool ext_destroy)
 	u32 i;
 
 	for (i = 0; i < jhash_size(t->htable_bits); i++) {
+<<<<<<< HEAD
 		n = __ipset_dereference_protected(hbucket(t, i), 1);
+=======
+		n = __ipset_dereference(hbucket(t, i));
+>>>>>>> upstream/android-13
 		if (!n)
 			continue;
 		if (set->extensions & IPSET_EXT_DESTROY && ext_destroy)
@@ -396,6 +609,10 @@ mtype_ahash_destroy(struct ip_set *set, struct htable *t, bool ext_destroy)
 		kfree(n);
 	}
 
+<<<<<<< HEAD
+=======
+	ip_set_free(t->hregion);
+>>>>>>> upstream/android-13
 	ip_set_free(t);
 }
 
@@ -404,17 +621,31 @@ static void
 mtype_destroy(struct ip_set *set)
 {
 	struct htype *h = set->data;
+<<<<<<< HEAD
 
 	if (SET_WITH_TIMEOUT(set))
 		del_timer_sync(&h->gc);
 
 	mtype_ahash_destroy(set,
 			    __ipset_dereference_protected(h->table, 1), true);
+=======
+	struct list_head *l, *lt;
+
+	if (SET_WITH_TIMEOUT(set))
+		cancel_delayed_work_sync(&h->gc.dwork);
+
+	mtype_ahash_destroy(set, ipset_dereference_nfnl(h->table), true);
+	list_for_each_safe(l, lt, &h->ad) {
+		list_del(l);
+		kfree(l);
+	}
+>>>>>>> upstream/android-13
 	kfree(h);
 
 	set->data = NULL;
 }
 
+<<<<<<< HEAD
 static void
 mtype_gc_init(struct ip_set *set, void (*gc)(struct timer_list *t))
 {
@@ -426,6 +657,8 @@ mtype_gc_init(struct ip_set *set, void (*gc)(struct timer_list *t))
 		 IPSET_GC_PERIOD(set->timeout));
 }
 
+=======
+>>>>>>> upstream/android-13
 static bool
 mtype_same_set(const struct ip_set *a, const struct ip_set *b)
 {
@@ -444,11 +677,17 @@ mtype_same_set(const struct ip_set *a, const struct ip_set *b)
 	       a->extensions == b->extensions;
 }
 
+<<<<<<< HEAD
 /* Delete expired elements from the hashtable */
 static void
 mtype_expire(struct ip_set *set, struct htype *h)
 {
 	struct htable *t;
+=======
+static void
+mtype_gc_do(struct ip_set *set, struct htype *h, struct htable *t, u32 r)
+{
+>>>>>>> upstream/android-13
 	struct hbucket *n, *tmp;
 	struct mtype_elem *data;
 	u32 i, j, d;
@@ -456,10 +695,19 @@ mtype_expire(struct ip_set *set, struct htype *h)
 #ifdef IP_SET_HASH_WITH_NETS
 	u8 k;
 #endif
+<<<<<<< HEAD
 
 	t = ipset_dereference_protected(h->table, set);
 	for (i = 0; i < jhash_size(t->htable_bits); i++) {
 		n = __ipset_dereference_protected(hbucket(t, i), 1);
+=======
+	u8 htable_bits = t->htable_bits;
+
+	spin_lock_bh(&t->hregion[r].lock);
+	for (i = ahash_bucket_start(r, htable_bits);
+	     i < ahash_bucket_end(r, htable_bits); i++) {
+		n = __ipset_dereference(hbucket(t, i));
+>>>>>>> upstream/android-13
 		if (!n)
 			continue;
 		for (j = 0, d = 0; j < n->pos; j++) {
@@ -475,41 +723,73 @@ mtype_expire(struct ip_set *set, struct htype *h)
 			smp_mb__after_atomic();
 #ifdef IP_SET_HASH_WITH_NETS
 			for (k = 0; k < IPSET_NET_COUNT; k++)
+<<<<<<< HEAD
 				mtype_del_cidr(h,
 					NCIDR_PUT(DCIDR_GET(data->cidr, k)),
 					k);
 #endif
 			ip_set_ext_destroy(set, data);
 			set->elements--;
+=======
+				mtype_del_cidr(set, h,
+					NCIDR_PUT(DCIDR_GET(data->cidr, k)),
+					k);
+#endif
+			t->hregion[r].elements--;
+			ip_set_ext_destroy(set, data);
+>>>>>>> upstream/android-13
 			d++;
 		}
 		if (d >= AHASH_INIT_SIZE) {
 			if (d >= n->size) {
+<<<<<<< HEAD
+=======
+				t->hregion[r].ext_size -=
+					ext_size(n->size, dsize);
+>>>>>>> upstream/android-13
 				rcu_assign_pointer(hbucket(t, i), NULL);
 				kfree_rcu(n, rcu);
 				continue;
 			}
 			tmp = kzalloc(sizeof(*tmp) +
+<<<<<<< HEAD
 				      (n->size - AHASH_INIT_SIZE) * dsize,
 				      GFP_ATOMIC);
 			if (!tmp)
 				/* Still try to delete expired elements */
+=======
+				(n->size - AHASH_INIT_SIZE) * dsize,
+				GFP_ATOMIC);
+			if (!tmp)
+				/* Still try to delete expired elements. */
+>>>>>>> upstream/android-13
 				continue;
 			tmp->size = n->size - AHASH_INIT_SIZE;
 			for (j = 0, d = 0; j < n->pos; j++) {
 				if (!test_bit(j, n->used))
 					continue;
 				data = ahash_data(n, j, dsize);
+<<<<<<< HEAD
 				memcpy(tmp->value + d * dsize, data, dsize);
+=======
+				memcpy(tmp->value + d * dsize,
+				       data, dsize);
+>>>>>>> upstream/android-13
 				set_bit(d, tmp->used);
 				d++;
 			}
 			tmp->pos = d;
+<<<<<<< HEAD
 			set->ext_size -= ext_size(AHASH_INIT_SIZE, dsize);
+=======
+			t->hregion[r].ext_size -=
+				ext_size(AHASH_INIT_SIZE, dsize);
+>>>>>>> upstream/android-13
 			rcu_assign_pointer(hbucket(t, i), tmp);
 			kfree_rcu(n, rcu);
 		}
 	}
+<<<<<<< HEAD
 }
 
 static void
@@ -527,6 +807,63 @@ mtype_gc(struct timer_list *t)
 	add_timer(&h->gc);
 }
 
+=======
+	spin_unlock_bh(&t->hregion[r].lock);
+}
+
+static void
+mtype_gc(struct work_struct *work)
+{
+	struct htable_gc *gc;
+	struct ip_set *set;
+	struct htype *h;
+	struct htable *t;
+	u32 r, numof_locks;
+	unsigned int next_run;
+
+	gc = container_of(work, struct htable_gc, dwork.work);
+	set = gc->set;
+	h = set->data;
+
+	spin_lock_bh(&set->lock);
+	t = ipset_dereference_set(h->table, set);
+	atomic_inc(&t->uref);
+	numof_locks = ahash_numof_locks(t->htable_bits);
+	r = gc->region++;
+	if (r >= numof_locks) {
+		r = gc->region = 0;
+	}
+	next_run = (IPSET_GC_PERIOD(set->timeout) * HZ) / numof_locks;
+	if (next_run < HZ/10)
+		next_run = HZ/10;
+	spin_unlock_bh(&set->lock);
+
+	mtype_gc_do(set, h, t, r);
+
+	if (atomic_dec_and_test(&t->uref) && atomic_read(&t->ref)) {
+		pr_debug("Table destroy after resize by expire: %p\n", t);
+		mtype_ahash_destroy(set, t, false);
+	}
+
+	queue_delayed_work(system_power_efficient_wq, &gc->dwork, next_run);
+
+}
+
+static void
+mtype_gc_init(struct htable_gc *gc)
+{
+	INIT_DEFERRABLE_WORK(&gc->dwork, mtype_gc);
+	queue_delayed_work(system_power_efficient_wq, &gc->dwork, HZ);
+}
+
+static int
+mtype_add(struct ip_set *set, void *value, const struct ip_set_ext *ext,
+	  struct ip_set_ext *mext, u32 flags);
+static int
+mtype_del(struct ip_set *set, void *value, const struct ip_set_ext *ext,
+	  struct ip_set_ext *mext, u32 flags);
+
+>>>>>>> upstream/android-13
 /* Resize a hash: create a new hash table with doubling the hashsize
  * and inserting the elements to it. Repeat until we succeed or
  * fail due to memory pressures.
@@ -537,7 +874,11 @@ mtype_resize(struct ip_set *set, bool retried)
 	struct htype *h = set->data;
 	struct htable *t, *orig;
 	u8 htable_bits;
+<<<<<<< HEAD
 	size_t extsize, dsize = set->dsize;
+=======
+	size_t hsize, dsize = set->dsize;
+>>>>>>> upstream/android-13
 #ifdef IP_SET_HASH_WITH_NETS
 	u8 flags;
 	struct mtype_elem *tmp;
@@ -545,7 +886,13 @@ mtype_resize(struct ip_set *set, bool retried)
 	struct mtype_elem *data;
 	struct mtype_elem *d;
 	struct hbucket *n, *m;
+<<<<<<< HEAD
 	u32 i, j, key;
+=======
+	struct list_head *l, *lt;
+	struct mtype_resize_ad *x;
+	u32 i, j, r, nr, key;
+>>>>>>> upstream/android-13
 	int ret;
 
 #ifdef IP_SET_HASH_WITH_NETS
@@ -553,14 +900,20 @@ mtype_resize(struct ip_set *set, bool retried)
 	if (!tmp)
 		return -ENOMEM;
 #endif
+<<<<<<< HEAD
 	rcu_read_lock_bh();
 	orig = rcu_dereference_bh_nfnl(h->table);
 	htable_bits = orig->htable_bits;
 	rcu_read_unlock_bh();
+=======
+	orig = ipset_dereference_bh_nfnl(h->table);
+	htable_bits = orig->htable_bits;
+>>>>>>> upstream/android-13
 
 retry:
 	ret = 0;
 	htable_bits++;
+<<<<<<< HEAD
 	if (!htable_bits) {
 		/* In case we have plenty of memory :-) */
 		pr_warn("Cannot increase the hashsize of set %s further\n",
@@ -569,10 +922,19 @@ retry:
 		goto out;
 	}
 	t = ip_set_alloc(htable_size(htable_bits));
+=======
+	if (!htable_bits)
+		goto hbwarn;
+	hsize = htable_size(htable_bits);
+	if (!hsize)
+		goto hbwarn;
+	t = ip_set_alloc(hsize);
+>>>>>>> upstream/android-13
 	if (!t) {
 		ret = -ENOMEM;
 		goto out;
 	}
+<<<<<<< HEAD
 	t->htable_bits = htable_bits;
 
 	spin_lock_bh(&set->lock);
@@ -655,6 +1017,126 @@ retry:
 	pr_debug("set %s resized from %u (%p) to %u (%p)\n", set->name,
 		 orig->htable_bits, orig, t->htable_bits, t);
 	/* If there's nobody else dumping the table, destroy it */
+=======
+	t->hregion = ip_set_alloc(ahash_sizeof_regions(htable_bits));
+	if (!t->hregion) {
+		ip_set_free(t);
+		ret = -ENOMEM;
+		goto out;
+	}
+	t->htable_bits = htable_bits;
+	t->maxelem = h->maxelem / ahash_numof_locks(htable_bits);
+	for (i = 0; i < ahash_numof_locks(htable_bits); i++)
+		spin_lock_init(&t->hregion[i].lock);
+
+	/* There can't be another parallel resizing,
+	 * but dumping, gc, kernel side add/del are possible
+	 */
+	orig = ipset_dereference_bh_nfnl(h->table);
+	atomic_set(&orig->ref, 1);
+	atomic_inc(&orig->uref);
+	pr_debug("attempt to resize set %s from %u to %u, t %p\n",
+		 set->name, orig->htable_bits, htable_bits, orig);
+	for (r = 0; r < ahash_numof_locks(orig->htable_bits); r++) {
+		/* Expire may replace a hbucket with another one */
+		rcu_read_lock_bh();
+		for (i = ahash_bucket_start(r, orig->htable_bits);
+		     i < ahash_bucket_end(r, orig->htable_bits); i++) {
+			n = __ipset_dereference(hbucket(orig, i));
+			if (!n)
+				continue;
+			for (j = 0; j < n->pos; j++) {
+				if (!test_bit(j, n->used))
+					continue;
+				data = ahash_data(n, j, dsize);
+				if (SET_ELEM_EXPIRED(set, data))
+					continue;
+#ifdef IP_SET_HASH_WITH_NETS
+				/* We have readers running parallel with us,
+				 * so the live data cannot be modified.
+				 */
+				flags = 0;
+				memcpy(tmp, data, dsize);
+				data = tmp;
+				mtype_data_reset_flags(data, &flags);
+#endif
+				key = HKEY(data, h->initval, htable_bits);
+				m = __ipset_dereference(hbucket(t, key));
+				nr = ahash_region(key, htable_bits);
+				if (!m) {
+					m = kzalloc(sizeof(*m) +
+					    AHASH_INIT_SIZE * dsize,
+					    GFP_ATOMIC);
+					if (!m) {
+						ret = -ENOMEM;
+						goto cleanup;
+					}
+					m->size = AHASH_INIT_SIZE;
+					t->hregion[nr].ext_size +=
+						ext_size(AHASH_INIT_SIZE,
+							 dsize);
+					RCU_INIT_POINTER(hbucket(t, key), m);
+				} else if (m->pos >= m->size) {
+					struct hbucket *ht;
+
+					if (m->size >= AHASH_MAX(h)) {
+						ret = -EAGAIN;
+					} else {
+						ht = kzalloc(sizeof(*ht) +
+						(m->size + AHASH_INIT_SIZE)
+						* dsize,
+						GFP_ATOMIC);
+						if (!ht)
+							ret = -ENOMEM;
+					}
+					if (ret < 0)
+						goto cleanup;
+					memcpy(ht, m, sizeof(struct hbucket) +
+					       m->size * dsize);
+					ht->size = m->size + AHASH_INIT_SIZE;
+					t->hregion[nr].ext_size +=
+						ext_size(AHASH_INIT_SIZE,
+							 dsize);
+					kfree(m);
+					m = ht;
+					RCU_INIT_POINTER(hbucket(t, key), ht);
+				}
+				d = ahash_data(m, m->pos, dsize);
+				memcpy(d, data, dsize);
+				set_bit(m->pos++, m->used);
+				t->hregion[nr].elements++;
+#ifdef IP_SET_HASH_WITH_NETS
+				mtype_data_reset_flags(d, &flags);
+#endif
+			}
+		}
+		rcu_read_unlock_bh();
+	}
+
+	/* There can't be any other writer. */
+	rcu_assign_pointer(h->table, t);
+
+	/* Give time to other readers of the set */
+	synchronize_rcu();
+
+	pr_debug("set %s resized from %u (%p) to %u (%p)\n", set->name,
+		 orig->htable_bits, orig, t->htable_bits, t);
+	/* Add/delete elements processed by the SET target during resize.
+	 * Kernel-side add cannot trigger a resize and userspace actions
+	 * are serialized by the mutex.
+	 */
+	list_for_each_safe(l, lt, &h->ad) {
+		x = list_entry(l, struct mtype_resize_ad, list);
+		if (x->ad == IPSET_ADD) {
+			mtype_add(set, &x->d, &x->ext, &x->mext, x->flags);
+		} else {
+			mtype_del(set, &x->d, NULL, NULL, 0);
+		}
+		list_del(l);
+		kfree(l);
+	}
+	/* If there's nobody else using the table, destroy it */
+>>>>>>> upstream/android-13
 	if (atomic_dec_and_test(&orig->uref)) {
 		pr_debug("Table destroy by resize %p\n", orig);
 		mtype_ahash_destroy(set, orig, false);
@@ -667,13 +1149,57 @@ out:
 	return ret;
 
 cleanup:
+<<<<<<< HEAD
 	atomic_set(&orig->ref, 0);
 	atomic_dec(&orig->uref);
 	spin_unlock_bh(&set->lock);
+=======
+	rcu_read_unlock_bh();
+	atomic_set(&orig->ref, 0);
+	atomic_dec(&orig->uref);
+>>>>>>> upstream/android-13
 	mtype_ahash_destroy(set, t, false);
 	if (ret == -EAGAIN)
 		goto retry;
 	goto out;
+<<<<<<< HEAD
+=======
+
+hbwarn:
+	/* In case we have plenty of memory :-) */
+	pr_warn("Cannot increase the hashsize of set %s further\n", set->name);
+	ret = -IPSET_ERR_HASH_FULL;
+	goto out;
+}
+
+/* Get the current number of elements and ext_size in the set  */
+static void
+mtype_ext_size(struct ip_set *set, u32 *elements, size_t *ext_size)
+{
+	struct htype *h = set->data;
+	const struct htable *t;
+	u32 i, j, r;
+	struct hbucket *n;
+	struct mtype_elem *data;
+
+	t = rcu_dereference_bh(h->table);
+	for (r = 0; r < ahash_numof_locks(t->htable_bits); r++) {
+		for (i = ahash_bucket_start(r, t->htable_bits);
+		     i < ahash_bucket_end(r, t->htable_bits); i++) {
+			n = rcu_dereference_bh(hbucket(t, i));
+			if (!n)
+				continue;
+			for (j = 0; j < n->pos; j++) {
+				if (!test_bit(j, n->used))
+					continue;
+				data = ahash_data(n, j, set->dsize);
+				if (!SET_ELEM_EXPIRED(set, data))
+					(*elements)++;
+			}
+		}
+		*ext_size += t->hregion[r].ext_size;
+	}
+>>>>>>> upstream/android-13
 }
 
 /* Add an element to a hash and update the internal counters when succeeded,
@@ -688,6 +1214,7 @@ mtype_add(struct ip_set *set, void *value, const struct ip_set_ext *ext,
 	const struct mtype_elem *d = value;
 	struct mtype_elem *data;
 	struct hbucket *n, *old = ERR_PTR(-ENOENT);
+<<<<<<< HEAD
 	int i, j = -1;
 	bool flag_exist = flags & IPSET_FLAG_EXIST;
 	bool deleted = false, forceadd = false, reuse = false;
@@ -706,14 +1233,58 @@ mtype_add(struct ip_set *set, void *value, const struct ip_set_ext *ext,
 	n = __ipset_dereference_protected(hbucket(t, key), 1);
 	if (!n) {
 		if (forceadd || set->elements >= h->maxelem)
+=======
+	int i, j = -1, ret;
+	bool flag_exist = flags & IPSET_FLAG_EXIST;
+	bool deleted = false, forceadd = false, reuse = false;
+	u32 r, key, multi = 0, elements, maxelem;
+
+	rcu_read_lock_bh();
+	t = rcu_dereference_bh(h->table);
+	key = HKEY(value, h->initval, t->htable_bits);
+	r = ahash_region(key, t->htable_bits);
+	atomic_inc(&t->uref);
+	elements = t->hregion[r].elements;
+	maxelem = t->maxelem;
+	if (elements >= maxelem) {
+		u32 e;
+		if (SET_WITH_TIMEOUT(set)) {
+			rcu_read_unlock_bh();
+			mtype_gc_do(set, h, t, r);
+			rcu_read_lock_bh();
+		}
+		maxelem = h->maxelem;
+		elements = 0;
+		for (e = 0; e < ahash_numof_locks(t->htable_bits); e++)
+			elements += t->hregion[e].elements;
+		if (elements >= maxelem && SET_WITH_FORCEADD(set))
+			forceadd = true;
+	}
+	rcu_read_unlock_bh();
+
+	spin_lock_bh(&t->hregion[r].lock);
+	n = rcu_dereference_bh(hbucket(t, key));
+	if (!n) {
+		if (forceadd || elements >= maxelem)
+>>>>>>> upstream/android-13
 			goto set_full;
 		old = NULL;
 		n = kzalloc(sizeof(*n) + AHASH_INIT_SIZE * set->dsize,
 			    GFP_ATOMIC);
+<<<<<<< HEAD
 		if (!n)
 			return -ENOMEM;
 		n->size = AHASH_INIT_SIZE;
 		set->ext_size += ext_size(AHASH_INIT_SIZE, set->dsize);
+=======
+		if (!n) {
+			ret = -ENOMEM;
+			goto unlock;
+		}
+		n->size = AHASH_INIT_SIZE;
+		t->hregion[r].ext_size +=
+			ext_size(AHASH_INIT_SIZE, set->dsize);
+>>>>>>> upstream/android-13
 		goto copy_elem;
 	}
 	for (i = 0; i < n->pos; i++) {
@@ -727,33 +1298,55 @@ mtype_add(struct ip_set *set, void *value, const struct ip_set_ext *ext,
 		}
 		data = ahash_data(n, i, set->dsize);
 		if (mtype_data_equal(data, d, &multi)) {
+<<<<<<< HEAD
 			if (flag_exist ||
 			    (SET_WITH_TIMEOUT(set) &&
 			     ip_set_timeout_expired(ext_timeout(data, set)))) {
+=======
+			if (flag_exist || SET_ELEM_EXPIRED(set, data)) {
+>>>>>>> upstream/android-13
 				/* Just the extensions could be overwritten */
 				j = i;
 				goto overwrite_extensions;
 			}
+<<<<<<< HEAD
 			return -IPSET_ERR_EXIST;
 		}
 		/* Reuse first timed out entry */
 		if (SET_WITH_TIMEOUT(set) &&
 		    ip_set_timeout_expired(ext_timeout(data, set)) &&
 		    j == -1) {
+=======
+			ret = -IPSET_ERR_EXIST;
+			goto unlock;
+		}
+		/* Reuse first timed out entry */
+		if (SET_ELEM_EXPIRED(set, data) && j == -1) {
+>>>>>>> upstream/android-13
 			j = i;
 			reuse = true;
 		}
 	}
 	if (reuse || forceadd) {
+<<<<<<< HEAD
+=======
+		if (j == -1)
+			j = 0;
+>>>>>>> upstream/android-13
 		data = ahash_data(n, j, set->dsize);
 		if (!deleted) {
 #ifdef IP_SET_HASH_WITH_NETS
 			for (i = 0; i < IPSET_NET_COUNT; i++)
+<<<<<<< HEAD
 				mtype_del_cidr(h,
+=======
+				mtype_del_cidr(set, h,
+>>>>>>> upstream/android-13
 					NCIDR_PUT(DCIDR_GET(data->cidr, i)),
 					i);
 #endif
 			ip_set_ext_destroy(set, data);
+<<<<<<< HEAD
 			set->elements--;
 		}
 		goto copy_data;
@@ -767,27 +1360,62 @@ mtype_add(struct ip_set *set, void *value, const struct ip_set_ext *ext,
 			/* Trigger rehashing */
 			mtype_data_next(&h->next, d);
 			return -EAGAIN;
+=======
+			t->hregion[r].elements--;
+		}
+		goto copy_data;
+	}
+	if (elements >= maxelem)
+		goto set_full;
+	/* Create a new slot */
+	if (n->pos >= n->size) {
+		TUNE_BUCKETSIZE(h, multi);
+		if (n->size >= AHASH_MAX(h)) {
+			/* Trigger rehashing */
+			mtype_data_next(&h->next, d);
+			ret = -EAGAIN;
+			goto resize;
+>>>>>>> upstream/android-13
 		}
 		old = n;
 		n = kzalloc(sizeof(*n) +
 			    (old->size + AHASH_INIT_SIZE) * set->dsize,
 			    GFP_ATOMIC);
+<<<<<<< HEAD
 		if (!n)
 			return -ENOMEM;
 		memcpy(n, old, sizeof(struct hbucket) +
 		       old->size * set->dsize);
 		n->size = old->size + AHASH_INIT_SIZE;
 		set->ext_size += ext_size(AHASH_INIT_SIZE, set->dsize);
+=======
+		if (!n) {
+			ret = -ENOMEM;
+			goto unlock;
+		}
+		memcpy(n, old, sizeof(struct hbucket) +
+		       old->size * set->dsize);
+		n->size = old->size + AHASH_INIT_SIZE;
+		t->hregion[r].ext_size +=
+			ext_size(AHASH_INIT_SIZE, set->dsize);
+>>>>>>> upstream/android-13
 	}
 
 copy_elem:
 	j = n->pos++;
 	data = ahash_data(n, j, set->dsize);
 copy_data:
+<<<<<<< HEAD
 	set->elements++;
 #ifdef IP_SET_HASH_WITH_NETS
 	for (i = 0; i < IPSET_NET_COUNT; i++)
 		mtype_add_cidr(h, NCIDR_PUT(DCIDR_GET(d->cidr, i)), i);
+=======
+	t->hregion[r].elements++;
+#ifdef IP_SET_HASH_WITH_NETS
+	for (i = 0; i < IPSET_NET_COUNT; i++)
+		mtype_add_cidr(set, h, NCIDR_PUT(DCIDR_GET(d->cidr, i)), i);
+>>>>>>> upstream/android-13
 #endif
 	memcpy(data, d, sizeof(struct mtype_elem));
 overwrite_extensions:
@@ -810,6 +1438,7 @@ overwrite_extensions:
 		if (old)
 			kfree_rcu(old, rcu);
 	}
+<<<<<<< HEAD
 
 	return 0;
 set_full:
@@ -817,6 +1446,43 @@ set_full:
 		pr_warn("Set %s is full, maxelem %u reached\n",
 			set->name, h->maxelem);
 	return -IPSET_ERR_HASH_FULL;
+=======
+	ret = 0;
+resize:
+	spin_unlock_bh(&t->hregion[r].lock);
+	if (atomic_read(&t->ref) && ext->target) {
+		/* Resize is in process and kernel side add, save values */
+		struct mtype_resize_ad *x;
+
+		x = kzalloc(sizeof(struct mtype_resize_ad), GFP_ATOMIC);
+		if (!x)
+			/* Don't bother */
+			goto out;
+		x->ad = IPSET_ADD;
+		memcpy(&x->d, value, sizeof(struct mtype_elem));
+		memcpy(&x->ext, ext, sizeof(struct ip_set_ext));
+		memcpy(&x->mext, mext, sizeof(struct ip_set_ext));
+		x->flags = flags;
+		spin_lock_bh(&set->lock);
+		list_add_tail(&x->list, &h->ad);
+		spin_unlock_bh(&set->lock);
+	}
+	goto out;
+
+set_full:
+	if (net_ratelimit())
+		pr_warn("Set %s is full, maxelem %u reached\n",
+			set->name, maxelem);
+	ret = -IPSET_ERR_HASH_FULL;
+unlock:
+	spin_unlock_bh(&t->hregion[r].lock);
+out:
+	if (atomic_dec_and_test(&t->uref) && atomic_read(&t->ref)) {
+		pr_debug("Table destroy after resize by add: %p\n", t);
+		mtype_ahash_destroy(set, t, false);
+	}
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /* Delete an element from the hash and free up space if possible.
@@ -830,6 +1496,7 @@ mtype_del(struct ip_set *set, void *value, const struct ip_set_ext *ext,
 	const struct mtype_elem *d = value;
 	struct mtype_elem *data;
 	struct hbucket *n;
+<<<<<<< HEAD
 	int i, j, k, ret = -IPSET_ERR_EXIST;
 	u32 key, multi = 0;
 	size_t dsize = set->dsize;
@@ -837,6 +1504,25 @@ mtype_del(struct ip_set *set, void *value, const struct ip_set_ext *ext,
 	t = ipset_dereference_protected(h->table, set);
 	key = HKEY(value, h->initval, t->htable_bits);
 	n = __ipset_dereference_protected(hbucket(t, key), 1);
+=======
+	struct mtype_resize_ad *x = NULL;
+	int i, j, k, r, ret = -IPSET_ERR_EXIST;
+	u32 key, multi = 0;
+	size_t dsize = set->dsize;
+
+	/* Userspace add and resize is excluded by the mutex.
+	 * Kernespace add does not trigger resize.
+	 */
+	rcu_read_lock_bh();
+	t = rcu_dereference_bh(h->table);
+	key = HKEY(value, h->initval, t->htable_bits);
+	r = ahash_region(key, t->htable_bits);
+	atomic_inc(&t->uref);
+	rcu_read_unlock_bh();
+
+	spin_lock_bh(&t->hregion[r].lock);
+	n = rcu_dereference_bh(hbucket(t, key));
+>>>>>>> upstream/android-13
 	if (!n)
 		goto out;
 	for (i = 0, k = 0; i < n->pos; i++) {
@@ -847,8 +1533,12 @@ mtype_del(struct ip_set *set, void *value, const struct ip_set_ext *ext,
 		data = ahash_data(n, i, dsize);
 		if (!mtype_data_equal(data, d, &multi))
 			continue;
+<<<<<<< HEAD
 		if (SET_WITH_TIMEOUT(set) &&
 		    ip_set_timeout_expired(ext_timeout(data, set)))
+=======
+		if (SET_ELEM_EXPIRED(set, data))
+>>>>>>> upstream/android-13
 			goto out;
 
 		ret = 0;
@@ -856,6 +1546,7 @@ mtype_del(struct ip_set *set, void *value, const struct ip_set_ext *ext,
 		smp_mb__after_atomic();
 		if (i + 1 == n->pos)
 			n->pos--;
+<<<<<<< HEAD
 		set->elements--;
 #ifdef IP_SET_HASH_WITH_NETS
 		for (j = 0; j < IPSET_NET_COUNT; j++)
@@ -864,12 +1555,39 @@ mtype_del(struct ip_set *set, void *value, const struct ip_set_ext *ext,
 #endif
 		ip_set_ext_destroy(set, data);
 
+=======
+		t->hregion[r].elements--;
+#ifdef IP_SET_HASH_WITH_NETS
+		for (j = 0; j < IPSET_NET_COUNT; j++)
+			mtype_del_cidr(set, h,
+				       NCIDR_PUT(DCIDR_GET(d->cidr, j)), j);
+#endif
+		ip_set_ext_destroy(set, data);
+
+		if (atomic_read(&t->ref) && ext->target) {
+			/* Resize is in process and kernel side del,
+			 * save values
+			 */
+			x = kzalloc(sizeof(struct mtype_resize_ad),
+				    GFP_ATOMIC);
+			if (x) {
+				x->ad = IPSET_DEL;
+				memcpy(&x->d, value,
+				       sizeof(struct mtype_elem));
+				x->flags = flags;
+			}
+		}
+>>>>>>> upstream/android-13
 		for (; i < n->pos; i++) {
 			if (!test_bit(i, n->used))
 				k++;
 		}
 		if (n->pos == 0 && k == 0) {
+<<<<<<< HEAD
 			set->ext_size -= ext_size(n->size, dsize);
+=======
+			t->hregion[r].ext_size -= ext_size(n->size, dsize);
+>>>>>>> upstream/android-13
 			rcu_assign_pointer(hbucket(t, key), NULL);
 			kfree_rcu(n, rcu);
 		} else if (k >= AHASH_INIT_SIZE) {
@@ -888,7 +1606,12 @@ mtype_del(struct ip_set *set, void *value, const struct ip_set_ext *ext,
 				k++;
 			}
 			tmp->pos = k;
+<<<<<<< HEAD
 			set->ext_size -= ext_size(AHASH_INIT_SIZE, dsize);
+=======
+			t->hregion[r].ext_size -=
+				ext_size(AHASH_INIT_SIZE, dsize);
+>>>>>>> upstream/android-13
 			rcu_assign_pointer(hbucket(t, key), tmp);
 			kfree_rcu(n, rcu);
 		}
@@ -896,10 +1619,27 @@ mtype_del(struct ip_set *set, void *value, const struct ip_set_ext *ext,
 	}
 
 out:
+<<<<<<< HEAD
 	return ret;
 }
 
 static inline int
+=======
+	spin_unlock_bh(&t->hregion[r].lock);
+	if (x) {
+		spin_lock_bh(&set->lock);
+		list_add(&x->list, &h->ad);
+		spin_unlock_bh(&set->lock);
+	}
+	if (atomic_dec_and_test(&t->uref) && atomic_read(&t->ref)) {
+		pr_debug("Table destroy after resize by del: %p\n", t);
+		mtype_ahash_destroy(set, t, false);
+	}
+	return ret;
+}
+
+static int
+>>>>>>> upstream/android-13
 mtype_data_match(struct mtype_elem *data, const struct ip_set_ext *ext,
 		 struct ip_set_ext *mext, struct ip_set *set, u32 flags)
 {
@@ -943,7 +1683,11 @@ mtype_test_cidrs(struct ip_set *set, struct mtype_elem *d,
 		mtype_data_netmask(d, NCIDR_GET(h->nets[j].cidr[0]));
 #endif
 		key = HKEY(d, h->initval, t->htable_bits);
+<<<<<<< HEAD
 		n =  rcu_dereference_bh(hbucket(t, key));
+=======
+		n = rcu_dereference_bh(hbucket(t, key));
+>>>>>>> upstream/android-13
 		if (!n)
 			continue;
 		for (i = 0; i < n->pos; i++) {
@@ -981,6 +1725,10 @@ mtype_test(struct ip_set *set, void *value, const struct ip_set_ext *ext,
 	int i, ret = 0;
 	u32 key, multi = 0;
 
+<<<<<<< HEAD
+=======
+	rcu_read_lock_bh();
+>>>>>>> upstream/android-13
 	t = rcu_dereference_bh(h->table);
 #ifdef IP_SET_HASH_WITH_NETS
 	/* If we test an IP address and not a network address,
@@ -1012,6 +1760,10 @@ mtype_test(struct ip_set *set, void *value, const struct ip_set_ext *ext,
 			goto out;
 	}
 out:
+<<<<<<< HEAD
+=======
+	rcu_read_unlock_bh();
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -1023,6 +1775,7 @@ mtype_head(struct ip_set *set, struct sk_buff *skb)
 	const struct htable *t;
 	struct nlattr *nested;
 	size_t memsize;
+<<<<<<< HEAD
 	u8 htable_bits;
 
 	/* If any members have expired, set->elements will be wrong
@@ -1044,6 +1797,20 @@ mtype_head(struct ip_set *set, struct sk_buff *skb)
 	rcu_read_unlock_bh();
 
 	nested = ipset_nest_start(skb, IPSET_ATTR_DATA);
+=======
+	u32 elements = 0;
+	size_t ext_size = 0;
+	u8 htable_bits;
+
+	rcu_read_lock_bh();
+	t = rcu_dereference_bh(h->table);
+	mtype_ext_size(set, &elements, &ext_size);
+	memsize = mtype_ahash_memsize(h, t) + ext_size + set->ext_size;
+	htable_bits = t->htable_bits;
+	rcu_read_unlock_bh();
+
+	nested = nla_nest_start(skb, IPSET_ATTR_DATA);
+>>>>>>> upstream/android-13
 	if (!nested)
 		goto nla_put_failure;
 	if (nla_put_net32(skb, IPSET_ATTR_HASHSIZE,
@@ -1059,6 +1826,7 @@ mtype_head(struct ip_set *set, struct sk_buff *skb)
 	if (nla_put_u32(skb, IPSET_ATTR_MARKMASK, h->markmask))
 		goto nla_put_failure;
 #endif
+<<<<<<< HEAD
 	if (nla_put_net32(skb, IPSET_ATTR_REFERENCES, htonl(set->ref)) ||
 	    nla_put_net32(skb, IPSET_ATTR_MEMSIZE, htonl(memsize)) ||
 	    nla_put_net32(skb, IPSET_ATTR_ELEMENTS, htonl(set->elements)))
@@ -1066,6 +1834,20 @@ mtype_head(struct ip_set *set, struct sk_buff *skb)
 	if (unlikely(ip_set_put_flags(skb, set)))
 		goto nla_put_failure;
 	ipset_nest_end(skb, nested);
+=======
+	if (set->flags & IPSET_CREATE_FLAG_BUCKETSIZE) {
+		if (nla_put_u8(skb, IPSET_ATTR_BUCKETSIZE, h->bucketsize) ||
+		    nla_put_net32(skb, IPSET_ATTR_INITVAL, htonl(h->initval)))
+			goto nla_put_failure;
+	}
+	if (nla_put_net32(skb, IPSET_ATTR_REFERENCES, htonl(set->ref)) ||
+	    nla_put_net32(skb, IPSET_ATTR_MEMSIZE, htonl(memsize)) ||
+	    nla_put_net32(skb, IPSET_ATTR_ELEMENTS, htonl(elements)))
+		goto nla_put_failure;
+	if (unlikely(ip_set_put_flags(skb, set)))
+		goto nla_put_failure;
+	nla_nest_end(skb, nested);
+>>>>>>> upstream/android-13
 
 	return 0;
 nla_put_failure:
@@ -1081,15 +1863,24 @@ mtype_uref(struct ip_set *set, struct netlink_callback *cb, bool start)
 
 	if (start) {
 		rcu_read_lock_bh();
+<<<<<<< HEAD
 		t = rcu_dereference_bh_nfnl(h->table);
+=======
+		t = ipset_dereference_bh_nfnl(h->table);
+>>>>>>> upstream/android-13
 		atomic_inc(&t->uref);
 		cb->args[IPSET_CB_PRIVATE] = (unsigned long)t;
 		rcu_read_unlock_bh();
 	} else if (cb->args[IPSET_CB_PRIVATE]) {
 		t = (struct htable *)cb->args[IPSET_CB_PRIVATE];
 		if (atomic_dec_and_test(&t->uref) && atomic_read(&t->ref)) {
+<<<<<<< HEAD
 			/* Resizing didn't destroy the hash table */
 			pr_debug("Table destroy by dump: %p\n", t);
+=======
+			pr_debug("Table destroy after resize "
+				 " by dump: %p\n", t);
+>>>>>>> upstream/android-13
 			mtype_ahash_destroy(set, t, false);
 		}
 		cb->args[IPSET_CB_PRIVATE] = 0;
@@ -1110,7 +1901,11 @@ mtype_list(const struct ip_set *set,
 	void *incomplete;
 	int i, ret = 0;
 
+<<<<<<< HEAD
 	atd = ipset_nest_start(skb, IPSET_ATTR_ADT);
+=======
+	atd = nla_nest_start(skb, IPSET_ATTR_ADT);
+>>>>>>> upstream/android-13
 	if (!atd)
 		return -EMSGSIZE;
 
@@ -1131,12 +1926,20 @@ mtype_list(const struct ip_set *set,
 			if (!test_bit(i, n->used))
 				continue;
 			e = ahash_data(n, i, set->dsize);
+<<<<<<< HEAD
 			if (SET_WITH_TIMEOUT(set) &&
 			    ip_set_timeout_expired(ext_timeout(e, set)))
 				continue;
 			pr_debug("list hash %lu hbucket %p i %u, data %p\n",
 				 cb->args[IPSET_CB_ARG0], n, i, e);
 			nested = ipset_nest_start(skb, IPSET_ATTR_DATA);
+=======
+			if (SET_ELEM_EXPIRED(set, e))
+				continue;
+			pr_debug("list hash %lu hbucket %p i %u, data %p\n",
+				 cb->args[IPSET_CB_ARG0], n, i, e);
+			nested = nla_nest_start(skb, IPSET_ATTR_DATA);
+>>>>>>> upstream/android-13
 			if (!nested) {
 				if (cb->args[IPSET_CB_ARG0] == first) {
 					nla_nest_cancel(skb, atd);
@@ -1149,10 +1952,17 @@ mtype_list(const struct ip_set *set,
 				goto nla_put_failure;
 			if (ip_set_put_extensions(skb, set, e, true))
 				goto nla_put_failure;
+<<<<<<< HEAD
 			ipset_nest_end(skb, nested);
 		}
 	}
 	ipset_nest_end(skb, atd);
+=======
+			nla_nest_end(skb, nested);
+		}
+	}
+	nla_nest_end(skb, atd);
+>>>>>>> upstream/android-13
 	/* Set listing finished */
 	cb->args[IPSET_CB_ARG0] = 0;
 
@@ -1166,7 +1976,11 @@ nla_put_failure:
 		cb->args[IPSET_CB_ARG0] = 0;
 		ret = -EMSGSIZE;
 	} else {
+<<<<<<< HEAD
 		ipset_nest_end(skb, atd);
+=======
+		nla_nest_end(skb, atd);
+>>>>>>> upstream/android-13
 	}
 out:
 	rcu_read_unlock();
@@ -1198,6 +2012,10 @@ static const struct ip_set_type_variant mtype_variant = {
 	.uref	= mtype_uref,
 	.resize	= mtype_resize,
 	.same_set = mtype_same_set,
+<<<<<<< HEAD
+=======
+	.region_lock = true,
+>>>>>>> upstream/android-13
 };
 
 #ifdef IP_SET_EMIT_CREATE
@@ -1216,6 +2034,10 @@ IPSET_TOKEN(HTYPE, _create)(struct net *net, struct ip_set *set,
 	size_t hsize;
 	struct htype *h;
 	struct htable *t;
+<<<<<<< HEAD
+=======
+	u32 i;
+>>>>>>> upstream/android-13
 
 	pr_debug("Create set %s with family %s\n",
 		 set->name, set->family == NFPROTO_IPV4 ? "inet" : "inet6");
@@ -1288,6 +2110,18 @@ IPSET_TOKEN(HTYPE, _create)(struct net *net, struct ip_set *set,
 		kfree(h);
 		return -ENOMEM;
 	}
+<<<<<<< HEAD
+=======
+	t->hregion = ip_set_alloc(ahash_sizeof_regions(hbits));
+	if (!t->hregion) {
+		ip_set_free(t);
+		kfree(h);
+		return -ENOMEM;
+	}
+	h->gc.set = set;
+	for (i = 0; i < ahash_numof_locks(hbits); i++)
+		spin_lock_init(&t->hregion[i].lock);
+>>>>>>> upstream/android-13
 	h->maxelem = maxelem;
 #ifdef IP_SET_HASH_WITH_NETMASK
 	h->netmask = netmask;
@@ -1295,12 +2129,34 @@ IPSET_TOKEN(HTYPE, _create)(struct net *net, struct ip_set *set,
 #ifdef IP_SET_HASH_WITH_MARKMASK
 	h->markmask = markmask;
 #endif
+<<<<<<< HEAD
 	get_random_bytes(&h->initval, sizeof(h->initval));
 
 	t->htable_bits = hbits;
 	RCU_INIT_POINTER(h->table, t);
 
 	h->set = set;
+=======
+	if (tb[IPSET_ATTR_INITVAL])
+		h->initval = ntohl(nla_get_be32(tb[IPSET_ATTR_INITVAL]));
+	else
+		get_random_bytes(&h->initval, sizeof(h->initval));
+	h->bucketsize = AHASH_MAX_SIZE;
+	if (tb[IPSET_ATTR_BUCKETSIZE]) {
+		h->bucketsize = nla_get_u8(tb[IPSET_ATTR_BUCKETSIZE]);
+		if (h->bucketsize < AHASH_INIT_SIZE)
+			h->bucketsize = AHASH_INIT_SIZE;
+		else if (h->bucketsize > AHASH_MAX_SIZE)
+			h->bucketsize = AHASH_MAX_SIZE;
+		else if (h->bucketsize % 2)
+			h->bucketsize += 1;
+	}
+	t->htable_bits = hbits;
+	t->maxelem = h->maxelem / ahash_numof_locks(hbits);
+	RCU_INIT_POINTER(h->table, t);
+
+	INIT_LIST_HEAD(&h->ad);
+>>>>>>> upstream/android-13
 	set->data = h;
 #ifndef IP_SET_PROTO_UNDEF
 	if (set->family == NFPROTO_IPV4) {
@@ -1323,12 +2179,19 @@ IPSET_TOKEN(HTYPE, _create)(struct net *net, struct ip_set *set,
 #ifndef IP_SET_PROTO_UNDEF
 		if (set->family == NFPROTO_IPV4)
 #endif
+<<<<<<< HEAD
 			IPSET_TOKEN(HTYPE, 4_gc_init)(set,
 				IPSET_TOKEN(HTYPE, 4_gc));
 #ifndef IP_SET_PROTO_UNDEF
 		else
 			IPSET_TOKEN(HTYPE, 6_gc_init)(set,
 				IPSET_TOKEN(HTYPE, 6_gc));
+=======
+			IPSET_TOKEN(HTYPE, 4_gc_init)(&h->gc);
+#ifndef IP_SET_PROTO_UNDEF
+		else
+			IPSET_TOKEN(HTYPE, 6_gc_init)(&h->gc);
+>>>>>>> upstream/android-13
 #endif
 	}
 	pr_debug("create %s hashsize %u (%u) maxelem %u: %p(%p)\n",

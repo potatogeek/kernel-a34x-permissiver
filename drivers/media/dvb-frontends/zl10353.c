@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for Zarlink DVB-T ZL10353 demodulator
  *
  * Copyright (C) 2006, 2007 Christopher Pascoe <c.pascoe@itee.uq.edu.au>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -211,7 +218,11 @@ static int zl10353_set_parameters(struct dvb_frontend *fe)
 		break;
 	default:
 		c->bandwidth_hz = 8000000;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 8000000:
 		zl10353_single_write(fe, MCLK_RATIO, 0x75);
 		zl10353_single_write(fe, 0x64, 0x36);
@@ -268,7 +279,11 @@ static int zl10353_set_parameters(struct dvb_frontend *fe)
 		if (c->hierarchy == HIERARCHY_AUTO ||
 		    c->hierarchy == HIERARCHY_NONE)
 			break;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		return -EINVAL;
 	}

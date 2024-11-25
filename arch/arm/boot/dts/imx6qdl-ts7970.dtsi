@@ -165,7 +165,11 @@
 };
 
 &ecspi1 {
+<<<<<<< HEAD
 	cs-gpios = <&gpio3 19 GPIO_ACTIVE_HIGH>;
+=======
+	cs-gpios = <&gpio3 19 GPIO_ACTIVE_LOW>;
+>>>>>>> upstream/android-13
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_ecspi1>;
 	status = "okay";
@@ -179,9 +183,15 @@
 
 &ecspi2 {
 	cs-gpios = <
+<<<<<<< HEAD
 		&gpio5 31 GPIO_ACTIVE_HIGH
 		&gpio7 12 GPIO_ACTIVE_HIGH
 		&gpio5 18 GPIO_ACTIVE_HIGH
+=======
+		&gpio5 31 GPIO_ACTIVE_LOW
+		&gpio7 12 GPIO_ACTIVE_LOW
+		&gpio5 18 GPIO_ACTIVE_LOW
+>>>>>>> upstream/android-13
 	>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_ecspi2>;
@@ -506,7 +516,10 @@
 };
 
 &ssi1 {
+<<<<<<< HEAD
 	fsl,mode = "i2s-slave";
+=======
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 

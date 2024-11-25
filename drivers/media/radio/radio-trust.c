@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* radio-trust.c - Trust FM Radio card driver for Linux 2.2
  * by Eric Lammerts <eric@scintilla.utwente.nl>
  *
@@ -15,7 +19,10 @@
  * Converted to V4L2 API by Mauro Carvalho Chehab <mchehab@kernel.org>
  */
 
+<<<<<<< HEAD
 #include <stdarg.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/ioport.h>

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * STMicroelectronics Key Scanning driver
  *
@@ -5,10 +9,13 @@
  * Author: Stuart Menefy <stuart.menefy@st.com>
  *
  * Based on sh_keysc.c, copyright 2008 Magnus Damm
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -190,10 +197,15 @@ static int keyscan_probe(struct platform_device *pdev)
 	keyscan_stop(keypad_data);
 
 	keypad_data->irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (keypad_data->irq < 0) {
 		dev_err(&pdev->dev, "no IRQ specified\n");
 		return -EINVAL;
 	}
+=======
+	if (keypad_data->irq < 0)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	error = devm_request_irq(&pdev->dev, keypad_data->irq, keyscan_isr, 0,
 				 pdev->name, keypad_data);
@@ -226,7 +238,11 @@ static int keyscan_suspend(struct device *dev)
 
 	if (device_may_wakeup(dev))
 		enable_irq_wake(keypad->irq);
+<<<<<<< HEAD
 	else if (input->users)
+=======
+	else if (input_device_enabled(input))
+>>>>>>> upstream/android-13
 		keyscan_stop(keypad);
 
 	mutex_unlock(&input->mutex);
@@ -244,7 +260,11 @@ static int keyscan_resume(struct device *dev)
 
 	if (device_may_wakeup(dev))
 		disable_irq_wake(keypad->irq);
+<<<<<<< HEAD
 	else if (input->users)
+=======
+	else if (input_device_enabled(input))
+>>>>>>> upstream/android-13
 		retval = keyscan_start(keypad);
 
 	mutex_unlock(&input->mutex);

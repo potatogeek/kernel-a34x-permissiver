@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * VM ops
  *
@@ -6,10 +10,13 @@
  * Copyright (C) 2006 Atmark Techno, Inc.
  * Changes for MMU support:
  *    Copyright (C) 2007 Xilinx, Inc.  All rights reserved.
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License. See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_MICROBLAZE_PAGE_H
@@ -23,6 +30,7 @@
 #ifdef __KERNEL__
 
 /* PAGE_SHIFT determines the page size */
+<<<<<<< HEAD
 #if defined(CONFIG_MICROBLAZE_64K_PAGES)
 #define PAGE_SHIFT		16
 #elif defined(CONFIG_MICROBLAZE_16K_PAGES)
@@ -30,6 +38,9 @@
 #else
 #define PAGE_SHIFT		12
 #endif
+=======
+#define PAGE_SHIFT		12
+>>>>>>> upstream/android-13
 #define PAGE_SIZE	(ASM_CONST(1) << PAGE_SHIFT)
 #define PAGE_MASK	(~(PAGE_SIZE-1))
 
@@ -44,6 +55,7 @@
 
 #define ARCH_SLAB_MINALIGN	L1_CACHE_BYTES
 
+<<<<<<< HEAD
 #define PAGE_UP(addr)	(((addr)+((PAGE_SIZE)-1))&(~((PAGE_SIZE)-1)))
 #define PAGE_DOWN(addr)	((addr)&(~((PAGE_SIZE)-1)))
 
@@ -58,6 +70,8 @@ extern unsigned int __page_offset;
 
 #else /* CONFIG_MMU */
 
+=======
+>>>>>>> upstream/android-13
 /*
  * PAGE_OFFSET -- the first address of the first page of memory. With MMU
  * it is set to the kernel start address (aligned on a page boundary).
@@ -73,8 +87,11 @@ extern unsigned int __page_offset;
 typedef unsigned long pte_basic_t;
 #define PTE_FMT		"%.8lx"
 
+<<<<<<< HEAD
 #endif /* CONFIG_MMU */
 
+=======
+>>>>>>> upstream/android-13
 # define copy_page(to, from)			memcpy((to), (from), PAGE_SIZE)
 # define clear_page(pgaddr)			memset((pgaddr), 0, PAGE_SIZE)
 
@@ -89,6 +106,7 @@ typedef struct page *pgtable_t;
 typedef struct { unsigned long	pte; }		pte_t;
 typedef struct { unsigned long	pgprot; }	pgprot_t;
 /* FIXME this can depend on linux kernel version */
+<<<<<<< HEAD
 #   ifdef CONFIG_MMU
 typedef struct { unsigned long pmd; } pmd_t;
 typedef struct { unsigned long pgd; } pgd_t;
@@ -98,10 +116,14 @@ typedef struct { pmd_t		pue[1]; }	pud_t;
 typedef struct { pud_t		p4e[1]; }	p4d_t;
 typedef struct { p4d_t		pge[1]; }	pgd_t;
 #   endif /* CONFIG_MMU */
+=======
+typedef struct { unsigned long pgd; } pgd_t;
+>>>>>>> upstream/android-13
 
 # define pte_val(x)	((x).pte)
 # define pgprot_val(x)	((x).pgprot)
 
+<<<<<<< HEAD
 #   ifdef CONFIG_MMU
 #   define pmd_val(x)      ((x).pmd)
 #   define pgd_val(x)      ((x).pgd)
@@ -113,6 +135,11 @@ typedef struct { p4d_t		pge[1]; }	pgd_t;
 
 # define __pte(x)	((pte_t) { (x) })
 # define __pmd(x)	((pmd_t) { (x) })
+=======
+#   define pgd_val(x)      ((x).pgd)
+
+# define __pte(x)	((pte_t) { (x) })
+>>>>>>> upstream/android-13
 # define __pgd(x)	((pgd_t) { (x) })
 # define __pgprot(x)	((pgprot_t) { (x) })
 
@@ -148,12 +175,16 @@ extern int page_is_ram(unsigned long pfn);
 # define virt_to_pfn(vaddr)	(phys_to_pfn((__pa(vaddr))))
 # define pfn_to_virt(pfn)	__va(pfn_to_phys((pfn)))
 
+<<<<<<< HEAD
 #  ifdef CONFIG_MMU
 
+=======
+>>>>>>> upstream/android-13
 #  define virt_to_page(kaddr)	(pfn_to_page(__pa(kaddr) >> PAGE_SHIFT))
 #  define page_to_virt(page)   __va(page_to_pfn(page) << PAGE_SHIFT)
 #  define page_to_phys(page)     (page_to_pfn(page) << PAGE_SHIFT)
 
+<<<<<<< HEAD
 #  else /* CONFIG_MMU */
 #  define virt_to_page(vaddr)	(pfn_to_page(virt_to_pfn(vaddr)))
 #  define page_to_virt(page)	(pfn_to_virt(page_to_pfn(page)))
@@ -171,6 +202,10 @@ extern int page_is_ram(unsigned long pfn);
 #  define pfn_valid(pfn)	((pfn) < (max_mapnr + ARCH_PFN_OFFSET))
 #  endif /* CONFIG_MMU */
 
+=======
+#  define ARCH_PFN_OFFSET	(memory_start >> PAGE_SHIFT)
+#  define pfn_valid(pfn)	((pfn) >= ARCH_PFN_OFFSET && (pfn) < (max_mapnr + ARCH_PFN_OFFSET))
+>>>>>>> upstream/android-13
 # endif /* __ASSEMBLY__ */
 
 #define	virt_addr_valid(vaddr)	(pfn_valid(virt_to_pfn(vaddr)))
@@ -180,12 +215,15 @@ extern int page_is_ram(unsigned long pfn);
 
 /* Convert between virtual and physical address for MMU. */
 /* Handle MicroBlaze processor with virtual memory. */
+<<<<<<< HEAD
 #ifndef CONFIG_MMU
 #define __virt_to_phys(addr)	addr
 #define __phys_to_virt(addr)	addr
 #define tophys(rd, rs)	addik rd, rs, 0
 #define tovirt(rd, rs)	addik rd, rs, 0
 #else
+=======
+>>>>>>> upstream/android-13
 #define __virt_to_phys(addr) \
 	((addr) + CONFIG_KERNEL_BASE_ADDR - CONFIG_KERNEL_START)
 #define __phys_to_virt(addr) \
@@ -194,6 +232,7 @@ extern int page_is_ram(unsigned long pfn);
 	addik rd, rs, (CONFIG_KERNEL_BASE_ADDR - CONFIG_KERNEL_START)
 #define tovirt(rd, rs) \
 	addik rd, rs, (CONFIG_KERNEL_START - CONFIG_KERNEL_BASE_ADDR)
+<<<<<<< HEAD
 #endif /* CONFIG_MMU */
 
 #define TOPHYS(addr)  __virt_to_phys(addr)
@@ -204,6 +243,11 @@ extern int page_is_ram(unsigned long pfn);
 				 VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC)
 #endif /* CONFIG_MMU */
 
+=======
+
+#define TOPHYS(addr)  __virt_to_phys(addr)
+
+>>>>>>> upstream/android-13
 #endif /* __KERNEL__ */
 
 #include <asm-generic/memory_model.h>

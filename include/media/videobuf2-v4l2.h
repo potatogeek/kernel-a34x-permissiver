@@ -13,6 +13,10 @@
 #define _MEDIA_VIDEOBUF2_V4L2_H
 
 #include <linux/videodev2.h>
+<<<<<<< HEAD
+=======
+#include <linux/android_kabi.h>
+>>>>>>> upstream/android-13
 #include <media/videobuf2-core.h>
 
 #if VB2_MAX_FRAME != VIDEO_MAX_FRAME
@@ -23,6 +27,11 @@
 #error VB2_MAX_PLANES != VIDEO_MAX_PLANES
 #endif
 
+<<<<<<< HEAD
+=======
+struct video_device;
+
+>>>>>>> upstream/android-13
 /**
  * struct vb2_v4l2_buffer - video buffer information for v4l2.
  *
@@ -33,6 +42,10 @@
  * @timecode:	frame timecode.
  * @sequence:	sequence count of this frame.
  * @request_fd:	the request_fd associated with this buffer
+<<<<<<< HEAD
+=======
+ * @is_held:	if true, then this capture buffer was held
+>>>>>>> upstream/android-13
  * @planes:	plane information (userptr/fd, length, bytesused, data_offset).
  *
  * Should contain enough information to be able to cover all the fields
@@ -46,9 +59,21 @@ struct vb2_v4l2_buffer {
 	struct v4l2_timecode	timecode;
 	__u32			sequence;
 	__s32			request_fd;
+<<<<<<< HEAD
 	struct vb2_plane	planes[VB2_MAX_PLANES];
 };
 
+=======
+	bool			is_held;
+	struct vb2_plane	planes[VB2_MAX_PLANES];
+
+	ANDROID_KABI_RESERVE(1);
+};
+
+/* VB2 V4L2 flags as set in vb2_queue.subsystem_flags */
+#define VB2_V4L2_FL_SUPPORTS_M2M_HOLD_CAPTURE_BUF (1 << 0)
+
+>>>>>>> upstream/android-13
 /*
  * to_vb2_v4l2_buffer() - cast struct vb2_buffer * to struct vb2_v4l2_buffer *
  */
@@ -59,8 +84,12 @@ struct vb2_v4l2_buffer {
  * vb2_find_timestamp() - Find buffer with given timestamp in the queue
  *
  * @q:		pointer to &struct vb2_queue with videobuf2 queue.
+<<<<<<< HEAD
  * @timestamp:	the timestamp to find. Only buffers in state DEQUEUED or DONE
  *		are considered.
+=======
+ * @timestamp:	the timestamp to find.
+>>>>>>> upstream/android-13
  * @start_idx:	the start index (usually 0) in the buffer array to start
  *		searching from. Note that there may be multiple buffers
  *		with the same timestamp value, so you can restart the search
@@ -233,6 +262,22 @@ int vb2_streamoff(struct vb2_queue *q, enum v4l2_buf_type type);
 int __must_check vb2_queue_init(struct vb2_queue *q);
 
 /**
+<<<<<<< HEAD
+=======
+ * vb2_queue_init_name() - initialize a videobuf2 queue with a name
+ * @q:		pointer to &struct vb2_queue with videobuf2 queue.
+ * @name:	the queue name
+ *
+ * This function initializes the vb2_queue exactly like vb2_queue_init(),
+ * and additionally sets the queue name. The queue name is used for logging
+ * purpose, and should uniquely identify the queue within the context of the
+ * device it belongs to. This is useful to attribute kernel log messages to the
+ * right queue for m2m devices or other devices that handle multiple queues.
+ */
+int __must_check vb2_queue_init_name(struct vb2_queue *q, const char *name);
+
+/**
+>>>>>>> upstream/android-13
  * vb2_queue_release() - stop streaming, release the queue and free memory
  * @q:		pointer to &struct vb2_queue with videobuf2 queue.
  *
@@ -243,6 +288,25 @@ int __must_check vb2_queue_init(struct vb2_queue *q);
 void vb2_queue_release(struct vb2_queue *q);
 
 /**
+<<<<<<< HEAD
+=======
+ * vb2_queue_change_type() - change the type of an inactive vb2_queue
+ * @q:		pointer to &struct vb2_queue with videobuf2 queue.
+ * @type:	the type to change to (V4L2_BUF_TYPE_VIDEO_*)
+ *
+ * This function changes the type of the vb2_queue. This is only possible
+ * if the queue is not busy (i.e. no buffers have been allocated).
+ *
+ * vb2_queue_change_type() can be used to support multiple buffer types using
+ * the same queue. The driver can implement v4l2_ioctl_ops.vidioc_reqbufs and
+ * v4l2_ioctl_ops.vidioc_create_bufs functions and call vb2_queue_change_type()
+ * before calling vb2_ioctl_reqbufs() or vb2_ioctl_create_bufs(), and thus
+ * "lock" the buffer type until the buffers have been released.
+ */
+int vb2_queue_change_type(struct vb2_queue *q, unsigned int type);
+
+/**
+>>>>>>> upstream/android-13
  * vb2_poll() - implements poll userspace operation
  * @q:		pointer to &struct vb2_queue with videobuf2 queue.
  * @file:	file argument passed to the poll file operation handler
@@ -303,6 +367,24 @@ unsigned long vb2_fop_get_unmapped_area(struct file *file, unsigned long addr,
 #endif
 
 /**
+<<<<<<< HEAD
+=======
+ * vb2_video_unregister_device - unregister the video device and release queue
+ *
+ * @vdev: pointer to &struct video_device
+ *
+ * If the driver uses vb2_fop_release()/_vb2_fop_release(), then it should use
+ * vb2_video_unregister_device() instead of video_unregister_device().
+ *
+ * This function will call video_unregister_device() and then release the
+ * vb2_queue if streaming is in progress. This will stop streaming and
+ * this will simplify the unbind sequence since after this call all subdevs
+ * will have stopped streaming as well.
+ */
+void vb2_video_unregister_device(struct video_device *vdev);
+
+/**
+>>>>>>> upstream/android-13
  * vb2_ops_wait_prepare - helper function to lock a struct &vb2_queue
  *
  * @vq: pointer to &struct vb2_queue

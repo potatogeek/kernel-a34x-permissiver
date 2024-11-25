@@ -38,6 +38,11 @@
 
 #ifdef __KERNEL__
 
+<<<<<<< HEAD
+=======
+#include <asm/bug.h>
+
+>>>>>>> upstream/android-13
 struct dql {
 	/* Fields accessed in enqueue path (dql_queued) */
 	unsigned int	num_queued;		/* Total ever queued */

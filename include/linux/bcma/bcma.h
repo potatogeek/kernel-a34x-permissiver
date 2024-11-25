@@ -332,6 +332,11 @@ extern int bcma_arch_register_fallback_sprom(
 		struct ssb_sprom *out));
 
 struct bcma_bus {
+<<<<<<< HEAD
+=======
+	struct device *dev;
+
+>>>>>>> upstream/android-13
 	/* The MMIO area. */
 	void __iomem *mmio;
 
@@ -339,6 +344,7 @@ struct bcma_bus {
 
 	enum bcma_hosttype hosttype;
 	bool host_is_pcie2; /* Used for BCMA_HOSTTYPE_PCI only */
+<<<<<<< HEAD
 	union {
 		/* Pointer to the PCI bus (only for BCMA_HOSTTYPE_PCI) */
 		struct pci_dev *host_pci;
@@ -347,6 +353,9 @@ struct bcma_bus {
 		/* Pointer to platform device (only for BCMA_HOSTTYPE_SOC) */
 		struct platform_device *host_pdev;
 	};
+=======
+	struct pci_dev *host_pci; /* PCI bus pointer (BCMA_HOSTTYPE_PCI only) */
+>>>>>>> upstream/android-13
 
 	struct bcma_chipinfo chipinfo;
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* sound/soc/samsung/pcm.c
  *
  * ALSA SoC Audio Layer - S3C PCM-Controller driver
@@ -10,6 +11,15 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0
+//
+// ALSA SoC Audio Layer - S3C PCM-Controller driver
+//
+// Copyright (c) 2009 Samsung Electronics Co. Ltd
+// Author: Jaswinder Singh <jassisinghbrar@gmail.com>
+// based upon I2S drivers by Ben Dooks.
+>>>>>>> upstream/android-13
 
 #include <linux/clk.h>
 #include <linux/io.h>
@@ -109,8 +119,18 @@
 
 /**
  * struct s3c_pcm_info - S3C PCM Controller information
+<<<<<<< HEAD
  * @dev: The parent device passed to use from the probe.
  * @regs: The pointer to the device register block.
+=======
+ * @lock: Spin lock
+ * @dev: The parent device passed to use from the probe.
+ * @regs: The pointer to the device register block.
+ * @sclk_per_fs: number of sclk per frame sync
+ * @idleclk: Whether to keep PCMSCLK enabled even when idle (no active xfer)
+ * @pclk: the PCLK_PCM (pcm) clock pointer
+ * @cclk: the SCLK_AUDIO (audio-bus) clock pointer
+>>>>>>> upstream/android-13
  * @dma_playback: DMA information for playback channel.
  * @dma_capture: DMA information for capture channel.
  */
@@ -216,8 +236,13 @@ static void s3c_pcm_snd_rxctrl(struct s3c_pcm_info *pcm, int on)
 static int s3c_pcm_trigger(struct snd_pcm_substream *substream, int cmd,
 			       struct snd_soc_dai *dai)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct s3c_pcm_info *pcm = snd_soc_dai_get_drvdata(rtd->cpu_dai);
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct s3c_pcm_info *pcm = snd_soc_dai_get_drvdata(asoc_rtd_to_cpu(rtd, 0));
+>>>>>>> upstream/android-13
 	unsigned long flags;
 
 	dev_dbg(pcm->dev, "Entered %s\n", __func__);
@@ -260,8 +285,13 @@ static int s3c_pcm_hw_params(struct snd_pcm_substream *substream,
 				 struct snd_pcm_hw_params *params,
 				 struct snd_soc_dai *socdai)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct s3c_pcm_info *pcm = snd_soc_dai_get_drvdata(rtd->cpu_dai);
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct s3c_pcm_info *pcm = snd_soc_dai_get_drvdata(asoc_rtd_to_cpu(rtd, 0));
+>>>>>>> upstream/android-13
 	void __iomem *regs = pcm->regs;
 	struct clk *clk;
 	int sclk_div, sync_div;
@@ -452,7 +482,11 @@ static int s3c_pcm_dai_probe(struct snd_soc_dai *dai)
 #define S3C_PCM_RATES  SNDRV_PCM_RATE_8000_96000
 
 #define S3C_PCM_DAI_DECLARE			\
+<<<<<<< HEAD
 	.symmetric_rates = 1,					\
+=======
+	.symmetric_rate = 1,					\
+>>>>>>> upstream/android-13
 	.probe = s3c_pcm_dai_probe,				\
 	.ops = &s3c_pcm_dai_ops,				\
 	.playback = {						\
@@ -512,8 +546,12 @@ static int s3c_pcm_dev_probe(struct platform_device *pdev)
 	/* Default is 128fs */
 	pcm->sclk_per_fs = 128;
 
+<<<<<<< HEAD
 	mem_res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	pcm->regs = devm_ioremap_resource(&pdev->dev, mem_res);
+=======
+	pcm->regs = devm_platform_get_and_ioremap_resource(pdev, 0, &mem_res);
+>>>>>>> upstream/android-13
 	if (IS_ERR(pcm->regs))
 		return PTR_ERR(pcm->regs);
 
@@ -553,7 +591,11 @@ static int s3c_pcm_dev_probe(struct platform_device *pdev)
 	pcm->dma_playback = &s3c_pcm_stereo_out[pdev->id];
 
 	ret = samsung_asoc_dma_platform_register(&pdev->dev, filter,
+<<<<<<< HEAD
 						 NULL, NULL);
+=======
+						 NULL, NULL, NULL);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(&pdev->dev, "failed to get register DMA: %d\n", ret);
 		goto err_dis_pclk;

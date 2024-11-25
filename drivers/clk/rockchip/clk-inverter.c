@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2015 Heiko Stuebner <heiko@sntech.de>
  *
@@ -10,6 +11,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2015 Heiko Stuebner <heiko@sntech.de>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -84,7 +90,11 @@ struct clk *rockchip_clk_register_inverter(const char *name,
 				void __iomem *reg, int shift, int flags,
 				spinlock_t *lock)
 {
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	struct rockchip_inv_clock *inv_clock;
 	struct clk *clk;
 

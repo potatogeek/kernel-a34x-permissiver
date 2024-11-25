@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #ifndef _I8042_X86IA64IO_H
 #define _I8042_X86IA64IO_H
 
@@ -6,6 +7,12 @@
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
  */
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+#ifndef _I8042_X86IA64IO_H
+#define _I8042_X86IA64IO_H
+
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_X86
 #include <asm/x86_init.h>
@@ -277,6 +284,16 @@ static const struct dmi_system_id __initconst i8042_dmi_nomux_table[] = {
 		},
 	},
 	{
+<<<<<<< HEAD
+=======
+		/* Fujitsu Lifebook T725 laptop */
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "LIFEBOOK T725"),
+		},
+	},
+	{
+>>>>>>> upstream/android-13
 		/* Fujitsu Lifebook U745 */
 		.matches = {
 			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
@@ -845,6 +862,16 @@ static const struct dmi_system_id __initconst i8042_dmi_notimeout_table[] = {
 		},
 	},
 	{
+<<<<<<< HEAD
+=======
+		/* Fujitsu Lifebook T725 laptop */
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "LIFEBOOK T725"),
+		},
+	},
+	{
+>>>>>>> upstream/android-13
 		/* Fujitsu U574 laptop */
 		/* https://bugzilla.kernel.org/show_bug.cgi?id=69731 */
 		.matches = {
@@ -985,6 +1012,27 @@ static const struct dmi_system_id __initconst i8042_dmi_kbdreset_table[] = {
 	{ }
 };
 
+<<<<<<< HEAD
+=======
+static const struct dmi_system_id i8042_dmi_probe_defer_table[] __initconst = {
+	{
+		/* ASUS ZenBook UX425UA */
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "ZenBook UX425UA"),
+		},
+	},
+	{
+		/* ASUS ZenBook UM325UA */
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "ZenBook UX325UA_UM325UA"),
+		},
+	},
+	{ }
+};
+
+>>>>>>> upstream/android-13
 #endif /* CONFIG_X86 */
 
 #ifdef CONFIG_PNP
@@ -1032,6 +1080,10 @@ static int i8042_pnp_kbd_probe(struct pnp_dev *dev, const struct pnp_device_id *
 	}
 	i8042_pnp_id_to_string(dev->id, i8042_kbd_firmware_id,
 			       sizeof(i8042_kbd_firmware_id));
+<<<<<<< HEAD
+=======
+	i8042_kbd_fwnode = dev_fwnode(&dev->dev);
+>>>>>>> upstream/android-13
 
 	/* Keyboard ports are always supposed to be wakeup-enabled */
 	device_set_wakeup_enable(&dev->dev, true);
@@ -1304,6 +1356,12 @@ static int __init i8042_platform_init(void)
 	if (dmi_check_system(i8042_dmi_kbdreset_table))
 		i8042_kbdreset = true;
 
+<<<<<<< HEAD
+=======
+	if (dmi_check_system(i8042_dmi_probe_defer_table))
+		i8042_probe_defer = true;
+
+>>>>>>> upstream/android-13
 	/*
 	 * A20 was already enabled during early kernel init. But some buggy
 	 * BIOSes (in MSI Laptops) require A20 to be enabled using 8042 to

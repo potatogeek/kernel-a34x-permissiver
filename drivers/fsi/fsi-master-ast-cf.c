@@ -838,7 +838,11 @@ static int load_copro_firmware(struct fsi_master_acf *master)
 	rc = request_firmware(&fw, FW_FILE_NAME, master->dev);
 	if (rc) {
 		dev_err(
+<<<<<<< HEAD
 			master->dev, "Error %d to load firwmare '%s' !\n",
+=======
+			master->dev, "Error %d to load firmware '%s' !\n",
+>>>>>>> upstream/android-13
 			rc, FW_FILE_NAME);
 		return rc;
 	}
@@ -1039,7 +1043,12 @@ static void fsi_master_acf_setup_external(struct fsi_master_acf *master)
 	gpiod_direction_input(master->gpio_data);
 }
 
+<<<<<<< HEAD
 static int fsi_master_acf_link_enable(struct fsi_master *_master, int link)
+=======
+static int fsi_master_acf_link_enable(struct fsi_master *_master, int link,
+				      bool enable)
+>>>>>>> upstream/android-13
 {
 	struct fsi_master_acf *master = to_fsi_master_acf(_master);
 	int rc = -EBUSY;
@@ -1049,7 +1058,11 @@ static int fsi_master_acf_link_enable(struct fsi_master *_master, int link)
 
 	mutex_lock(&master->lock);
 	if (!master->external_mode) {
+<<<<<<< HEAD
 		gpiod_set_value(master->gpio_enable, 1);
+=======
+		gpiod_set_value(master->gpio_enable, enable ? 1 : 0);
+>>>>>>> upstream/android-13
 		rc = 0;
 	}
 	mutex_unlock(&master->lock);
@@ -1308,7 +1321,10 @@ static int fsi_master_acf_probe(struct platform_device *pdev)
 	master->cf_mem = devm_ioremap_resource(&pdev->dev, &res);
  	if (IS_ERR(master->cf_mem)) {
 		rc = PTR_ERR(master->cf_mem);
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "Error %d mapping coldfire memory\n", rc);
+=======
+>>>>>>> upstream/android-13
  		goto err_free;
 	}
 	dev_dbg(&pdev->dev, "DRAM allocation @%x\n", master->cf_mem_addr);
@@ -1426,6 +1442,10 @@ static const struct of_device_id fsi_master_acf_match[] = {
 	{ .compatible = "aspeed,ast2500-cf-fsi-master" },
 	{ },
 };
+<<<<<<< HEAD
+=======
+MODULE_DEVICE_TABLE(of, fsi_master_acf_match);
+>>>>>>> upstream/android-13
 
 static struct platform_driver fsi_master_acf = {
 	.driver = {

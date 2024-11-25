@@ -11,13 +11,23 @@
 int hns_roce_db_map_user(struct hns_roce_ucontext *context, unsigned long virt,
 			 struct hns_roce_db *db)
 {
+<<<<<<< HEAD
 	struct hns_roce_user_db_page *page;
+=======
+	unsigned long page_addr = virt & PAGE_MASK;
+	struct hns_roce_user_db_page *page;
+	unsigned int offset;
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 	mutex_lock(&context->page_mutex);
 
 	list_for_each_entry(page, &context->page_list, list)
+<<<<<<< HEAD
 		if (page->user_virt == (virt & PAGE_MASK))
+=======
+		if (page->user_virt == page_addr)
+>>>>>>> upstream/android-13
 			goto found;
 
 	page = kmalloc(sizeof(*page), GFP_KERNEL);
@@ -27,9 +37,15 @@ int hns_roce_db_map_user(struct hns_roce_ucontext *context, unsigned long virt,
 	}
 
 	refcount_set(&page->refcount, 1);
+<<<<<<< HEAD
 	page->user_virt = (virt & PAGE_MASK);
 	page->umem = ib_umem_get(&context->ibucontext, virt & PAGE_MASK,
 				 PAGE_SIZE, 0, 0);
+=======
+	page->user_virt = page_addr;
+	page->umem = ib_umem_get(context->ibucontext.device, page_addr,
+				 PAGE_SIZE, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(page->umem)) {
 		ret = PTR_ERR(page->umem);
 		kfree(page);
@@ -39,10 +55,16 @@ int hns_roce_db_map_user(struct hns_roce_ucontext *context, unsigned long virt,
 	list_add(&page->list, &context->page_list);
 
 found:
+<<<<<<< HEAD
 	db->dma = sg_dma_address(page->umem->sg_head.sgl) +
 		  (virt & ~PAGE_MASK);
 	page->umem->sg_head.sgl->offset = virt & ~PAGE_MASK;
 	db->virt_addr = sg_virt(page->umem->sg_head.sgl);
+=======
+	offset = virt - page_addr;
+	db->dma = sg_dma_address(page->umem->sgt_append.sgt.sgl) + offset;
+	db->virt_addr = sg_virt(page->umem->sgt_append.sgt.sgl) + offset;
+>>>>>>> upstream/android-13
 	db->u.user_page = page;
 	refcount_inc(&page->refcount);
 
@@ -51,7 +73,10 @@ out:
 
 	return ret;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(hns_roce_db_map_user);
+=======
+>>>>>>> upstream/android-13
 
 void hns_roce_db_unmap_user(struct hns_roce_ucontext *context,
 			    struct hns_roce_db *db)
@@ -67,7 +92,10 @@ void hns_roce_db_unmap_user(struct hns_roce_ucontext *context,
 
 	mutex_unlock(&context->page_mutex);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(hns_roce_db_unmap_user);
+=======
+>>>>>>> upstream/android-13
 
 static struct hns_roce_db_pgdir *hns_roce_alloc_db_pgdir(
 					struct device *dma_device)
@@ -78,7 +106,12 @@ static struct hns_roce_db_pgdir *hns_roce_alloc_db_pgdir(
 	if (!pgdir)
 		return NULL;
 
+<<<<<<< HEAD
 	bitmap_fill(pgdir->order1, HNS_ROCE_DB_PER_PAGE / 2);
+=======
+	bitmap_fill(pgdir->order1,
+		    HNS_ROCE_DB_PER_PAGE / HNS_ROCE_DB_TYPE_COUNT);
+>>>>>>> upstream/android-13
 	pgdir->bits[0] = pgdir->order0;
 	pgdir->bits[1] = pgdir->order1;
 	pgdir->page = dma_alloc_coherent(dma_device, PAGE_SIZE,
@@ -94,8 +127,13 @@ static struct hns_roce_db_pgdir *hns_roce_alloc_db_pgdir(
 static int hns_roce_alloc_db_from_pgdir(struct hns_roce_db_pgdir *pgdir,
 					struct hns_roce_db *db, int order)
 {
+<<<<<<< HEAD
 	int o;
 	int i;
+=======
+	unsigned long o;
+	unsigned long i;
+>>>>>>> upstream/android-13
 
 	for (o = order; o <= 1; ++o) {
 		i = find_first_bit(pgdir->bits[o], HNS_ROCE_DB_PER_PAGE >> o);
@@ -116,7 +154,11 @@ found:
 	db->u.pgdir	= pgdir;
 	db->index	= i;
 	db->db_record	= pgdir->page + db->index;
+<<<<<<< HEAD
 	db->dma		= pgdir->db_dma  + db->index * 4;
+=======
+	db->dma		= pgdir->db_dma  + db->index * HNS_ROCE_DB_UNIT_SIZE;
+>>>>>>> upstream/android-13
 	db->order	= order;
 
 	return 0;
@@ -150,12 +192,20 @@ out:
 
 	return ret;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(hns_roce_alloc_db);
 
 void hns_roce_free_db(struct hns_roce_dev *hr_dev, struct hns_roce_db *db)
 {
 	int o;
 	int i;
+=======
+
+void hns_roce_free_db(struct hns_roce_dev *hr_dev, struct hns_roce_db *db)
+{
+	unsigned long o;
+	unsigned long i;
+>>>>>>> upstream/android-13
 
 	mutex_lock(&hr_dev->pgdir_mutex);
 
@@ -170,7 +220,12 @@ void hns_roce_free_db(struct hns_roce_dev *hr_dev, struct hns_roce_db *db)
 	i >>= o;
 	set_bit(i, db->u.pgdir->bits[o]);
 
+<<<<<<< HEAD
 	if (bitmap_full(db->u.pgdir->order1, HNS_ROCE_DB_PER_PAGE / 2)) {
+=======
+	if (bitmap_full(db->u.pgdir->order1,
+			HNS_ROCE_DB_PER_PAGE / HNS_ROCE_DB_TYPE_COUNT)) {
+>>>>>>> upstream/android-13
 		dma_free_coherent(hr_dev->dev, PAGE_SIZE, db->u.pgdir->page,
 				  db->u.pgdir->db_dma);
 		list_del(&db->u.pgdir->list);
@@ -179,4 +234,7 @@ void hns_roce_free_db(struct hns_roce_dev *hr_dev, struct hns_roce_db *db)
 
 	mutex_unlock(&hr_dev->pgdir_mutex);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(hns_roce_free_db);
+=======
+>>>>>>> upstream/android-13

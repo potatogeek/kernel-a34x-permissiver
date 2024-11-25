@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2011 Freescale Semiconductor, Inc.
  *
@@ -14,6 +15,11 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2011 Freescale Semiconductor, Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -32,9 +38,15 @@
 static int mxs_sgtl5000_hw_params(struct snd_pcm_substream *substream,
 	struct snd_pcm_hw_params *params)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct snd_soc_dai *codec_dai = rtd->codec_dai;
 	struct snd_soc_dai *cpu_dai = rtd->cpu_dai;
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct snd_soc_dai *codec_dai = asoc_rtd_to_codec(rtd, 0);
+	struct snd_soc_dai *cpu_dai = asoc_rtd_to_cpu(rtd, 0);
+>>>>>>> upstream/android-13
 	unsigned int rate = params_rate(params);
 	u32 mclk;
 	int ret;
@@ -75,10 +87,25 @@ static const struct snd_soc_ops mxs_sgtl5000_hifi_ops = {
 #define MXS_SGTL5000_DAI_FMT (SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF | \
 	SND_SOC_DAIFMT_CBS_CFS)
 
+<<<<<<< HEAD
+=======
+
+SND_SOC_DAILINK_DEFS(hifi_tx,
+	DAILINK_COMP_ARRAY(COMP_EMPTY()),
+	DAILINK_COMP_ARRAY(COMP_CODEC(NULL, "sgtl5000")),
+	DAILINK_COMP_ARRAY(COMP_EMPTY()));
+
+SND_SOC_DAILINK_DEFS(hifi_rx,
+	DAILINK_COMP_ARRAY(COMP_EMPTY()),
+	DAILINK_COMP_ARRAY(COMP_CODEC(NULL, "sgtl5000")),
+	DAILINK_COMP_ARRAY(COMP_EMPTY()));
+
+>>>>>>> upstream/android-13
 static struct snd_soc_dai_link mxs_sgtl5000_dai[] = {
 	{
 		.name		= "HiFi Tx",
 		.stream_name	= "HiFi Playback",
+<<<<<<< HEAD
 		.codec_dai_name	= "sgtl5000",
 		.dai_fmt	= MXS_SGTL5000_DAI_FMT,
 		.ops		= &mxs_sgtl5000_hifi_ops,
@@ -90,6 +117,19 @@ static struct snd_soc_dai_link mxs_sgtl5000_dai[] = {
 		.dai_fmt	= MXS_SGTL5000_DAI_FMT,
 		.ops		= &mxs_sgtl5000_hifi_ops,
 		.capture_only	= true,
+=======
+		.dai_fmt	= MXS_SGTL5000_DAI_FMT,
+		.ops		= &mxs_sgtl5000_hifi_ops,
+		.playback_only	= true,
+		SND_SOC_DAILINK_REG(hifi_tx),
+	}, {
+		.name		= "HiFi Rx",
+		.stream_name	= "HiFi Capture",
+		.dai_fmt	= MXS_SGTL5000_DAI_FMT,
+		.ops		= &mxs_sgtl5000_hifi_ops,
+		.capture_only	= true,
+		SND_SOC_DAILINK_REG(hifi_rx),
+>>>>>>> upstream/android-13
 	},
 };
 
@@ -120,16 +160,31 @@ static int mxs_sgtl5000_probe(struct platform_device *pdev)
 	codec_np = of_parse_phandle(np, "audio-codec", 0);
 	if (!saif_np[0] || !saif_np[1] || !codec_np) {
 		dev_err(&pdev->dev, "phandle missing or invalid\n");
+<<<<<<< HEAD
+=======
+		of_node_put(codec_np);
+		of_node_put(saif_np[0]);
+		of_node_put(saif_np[1]);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	for (i = 0; i < 2; i++) {
+<<<<<<< HEAD
 		mxs_sgtl5000_dai[i].codec_name = NULL;
 		mxs_sgtl5000_dai[i].codec_of_node = codec_np;
 		mxs_sgtl5000_dai[i].cpu_dai_name = NULL;
 		mxs_sgtl5000_dai[i].cpu_of_node = saif_np[i];
 		mxs_sgtl5000_dai[i].platform_name = NULL;
 		mxs_sgtl5000_dai[i].platform_of_node = saif_np[i];
+=======
+		mxs_sgtl5000_dai[i].codecs->name = NULL;
+		mxs_sgtl5000_dai[i].codecs->of_node = codec_np;
+		mxs_sgtl5000_dai[i].cpus->dai_name = NULL;
+		mxs_sgtl5000_dai[i].cpus->of_node = saif_np[i];
+		mxs_sgtl5000_dai[i].platforms->name = NULL;
+		mxs_sgtl5000_dai[i].platforms->of_node = saif_np[i];
+>>>>>>> upstream/android-13
 	}
 
 	of_node_put(codec_np);

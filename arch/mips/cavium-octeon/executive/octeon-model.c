@@ -305,7 +305,11 @@ static const char *__init octeon_model_get_string_buffer(uint32_t chip_id,
 				if (fus_dat3.s.nozip)
 					suffix = "SCP";
 
+<<<<<<< HEAD
 				if (fus_dat3.cn56xx.bar2_en)
+=======
+				if (fus_dat3.cn38xx.bar2_en)
+>>>>>>> upstream/android-13
 					suffix = "NSPB2";
 			}
 			if (l2d_fus3)
@@ -344,7 +348,11 @@ static const char *__init octeon_model_get_string_buffer(uint32_t chip_id,
 			suffix = "CP";
 		else if (fus_dat2.cn63xx.dorm_crypto)
 			suffix = "DAP";
+<<<<<<< HEAD
 		else if (fus_dat3.cn63xx.nozip)
+=======
+		else if (fus_dat3.cn61xx.nozip)
+>>>>>>> upstream/android-13
 			suffix = "SCP";
 		else
 			suffix = "AAP";
@@ -359,18 +367,30 @@ static const char *__init octeon_model_get_string_buffer(uint32_t chip_id,
 			suffix = "CP";
 		else if (fus_dat2.cn66xx.dorm_crypto)
 			suffix = "DAP";
+<<<<<<< HEAD
 		else if (fus_dat3.cn66xx.nozip)
+=======
+		else if (fus_dat3.cn61xx.nozip)
+>>>>>>> upstream/android-13
 			suffix = "SCP";
 		else
 			suffix = "AAP";
 		break;
 	case 0x91:		/* CN68XX */
 		family = "68";
+<<<<<<< HEAD
 		if (fus_dat2.cn68xx.nocrypto && fus_dat3.cn68xx.nozip)
 			suffix = "CP";
 		else if (fus_dat2.cn68xx.dorm_crypto)
 			suffix = "DAP";
 		else if (fus_dat3.cn68xx.nozip)
+=======
+		if (fus_dat2.cn68xx.nocrypto && fus_dat3.cn61xx.nozip)
+			suffix = "CP";
+		else if (fus_dat2.cn68xx.dorm_crypto)
+			suffix = "DAP";
+		else if (fus_dat3.cn61xx.nozip)
+>>>>>>> upstream/android-13
 			suffix = "SCP";
 		else if (fus_dat2.cn68xx.nocrypto)
 			suffix = "SP";
@@ -379,7 +399,11 @@ static const char *__init octeon_model_get_string_buffer(uint32_t chip_id,
 		break;
 	case 0x94:		/* CNF71XX */
 		family = "F71";
+<<<<<<< HEAD
 		if (fus_dat3.cnf71xx.nozip)
+=======
+		if (fus_dat3.cn61xx.nozip)
+>>>>>>> upstream/android-13
 			suffix = "SCP";
 		else
 			suffix = "AAP";

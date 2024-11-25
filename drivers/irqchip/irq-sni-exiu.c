@@ -1,15 +1,26 @@
+<<<<<<< HEAD
 /*
  * Driver for Socionext External Interrupt Unit (EXIU)
  *
  * Copyright (c) 2017 Linaro, Ltd. <ard.biesheuvel@linaro.org>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Driver for Socionext External Interrupt Unit (EXIU)
+ *
+ * Copyright (c) 2017-2019 Linaro, Ltd. <ard.biesheuvel@linaro.org>
+>>>>>>> upstream/android-13
  *
  * Based on irq-tegra.c:
  *   Copyright (C) 2011 Google, Inc.
  *   Copyright (C) 2010,2013, NVIDIA Corporation
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/interrupt.h>
@@ -20,6 +31,10 @@
 #include <linux/of.h>
 #include <linux/of_address.h>
 #include <linux/of_irq.h>
+<<<<<<< HEAD
+=======
+#include <linux/platform_device.h>
+>>>>>>> upstream/android-13
 
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 
@@ -134,9 +149,19 @@ static int exiu_domain_translate(struct irq_domain *domain,
 
 		*hwirq = fwspec->param[1] - info->spi_base;
 		*type = fwspec->param[2] & IRQ_TYPE_SENSE_MASK;
+<<<<<<< HEAD
 		return 0;
 	}
 	return -EINVAL;
+=======
+	} else {
+		if (fwspec->param_count != 2)
+			return -EINVAL;
+		*hwirq = fwspec->param[0];
+		*type = fwspec->param[1] & IRQ_TYPE_SENSE_MASK;
+	}
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int exiu_domain_alloc(struct irq_domain *dom, unsigned int virq,
@@ -147,6 +172,7 @@ static int exiu_domain_alloc(struct irq_domain *dom, unsigned int virq,
 	struct exiu_irq_data *info = dom->host_data;
 	irq_hw_number_t hwirq;
 
+<<<<<<< HEAD
 	if (fwspec->param_count != 3)
 		return -EINVAL;	/* Not GIC compliant */
 	if (fwspec->param[0] != GIC_SPI)
@@ -157,6 +183,23 @@ static int exiu_domain_alloc(struct irq_domain *dom, unsigned int virq,
 	irq_domain_set_hwirq_and_chip(dom, virq, hwirq, &exiu_irq_chip, info);
 
 	parent_fwspec = *fwspec;
+=======
+	parent_fwspec = *fwspec;
+	if (is_of_node(dom->parent->fwnode)) {
+		if (fwspec->param_count != 3)
+			return -EINVAL;	/* Not GIC compliant */
+		if (fwspec->param[0] != GIC_SPI)
+			return -EINVAL;	/* No PPI should point to this domain */
+
+		hwirq = fwspec->param[1] - info->spi_base;
+	} else {
+		hwirq = fwspec->param[0];
+		parent_fwspec.param[0] = hwirq + info->spi_base + 32;
+	}
+	WARN_ON(nr_irqs != 1);
+	irq_domain_set_hwirq_and_chip(dom, virq, hwirq, &exiu_irq_chip, info);
+
+>>>>>>> upstream/android-13
 	parent_fwspec.fwnode = dom->parent->fwnode;
 	return irq_domain_alloc_irqs_parent(dom, virq, nr_irqs, &parent_fwspec);
 }
@@ -167,12 +210,54 @@ static const struct irq_domain_ops exiu_domain_ops = {
 	.free		= irq_domain_free_irqs_common,
 };
 
+<<<<<<< HEAD
 static int __init exiu_init(struct device_node *node,
 			    struct device_node *parent)
 {
 	struct irq_domain *parent_domain, *domain;
 	struct exiu_irq_data *data;
 	int err;
+=======
+static struct exiu_irq_data *exiu_init(const struct fwnode_handle *fwnode,
+				       struct resource *res)
+{
+	struct exiu_irq_data *data;
+	int err;
+
+	data = kzalloc(sizeof(*data), GFP_KERNEL);
+	if (!data)
+		return ERR_PTR(-ENOMEM);
+
+	if (fwnode_property_read_u32_array(fwnode, "socionext,spi-base",
+					   &data->spi_base, 1)) {
+		err = -ENODEV;
+		goto out_free;
+	}
+
+	data->base = ioremap(res->start, resource_size(res));
+	if (!data->base) {
+		err = -ENODEV;
+		goto out_free;
+	}
+
+	/* clear and mask all interrupts */
+	writel_relaxed(0xFFFFFFFF, data->base + EIREQCLR);
+	writel_relaxed(0xFFFFFFFF, data->base + EIMASK);
+
+	return data;
+
+out_free:
+	kfree(data);
+	return ERR_PTR(err);
+}
+
+static int __init exiu_dt_init(struct device_node *node,
+			       struct device_node *parent)
+{
+	struct irq_domain *parent_domain, *domain;
+	struct exiu_irq_data *data;
+	struct resource res;
+>>>>>>> upstream/android-13
 
 	if (!parent) {
 		pr_err("%pOF: no parent, giving up\n", node);
@@ -185,6 +270,7 @@ static int __init exiu_init(struct device_node *node,
 		return -ENXIO;
 	}
 
+<<<<<<< HEAD
 	data = kzalloc(sizeof(*data), GFP_KERNEL);
 	if (!data)
 		return -ENOMEM;
@@ -204,12 +290,25 @@ static int __init exiu_init(struct device_node *node,
 	/* clear and mask all interrupts */
 	writel_relaxed(0xFFFFFFFF, data->base + EIREQCLR);
 	writel_relaxed(0xFFFFFFFF, data->base + EIMASK);
+=======
+	if (of_address_to_resource(node, 0, &res)) {
+		pr_err("%pOF: failed to parse memory resource\n", node);
+		return -ENXIO;
+	}
+
+	data = exiu_init(of_node_to_fwnode(node), &res);
+	if (IS_ERR(data))
+		return PTR_ERR(data);
+>>>>>>> upstream/android-13
 
 	domain = irq_domain_add_hierarchy(parent_domain, 0, NUM_IRQS, node,
 					  &exiu_domain_ops, data);
 	if (!domain) {
 		pr_err("%pOF: failed to allocate domain\n", node);
+<<<<<<< HEAD
 		err = -ENOMEM;
+=======
+>>>>>>> upstream/android-13
 		goto out_unmap;
 	}
 
@@ -220,8 +319,65 @@ static int __init exiu_init(struct device_node *node,
 
 out_unmap:
 	iounmap(data->base);
+<<<<<<< HEAD
 out_free:
 	kfree(data);
 	return err;
 }
 IRQCHIP_DECLARE(exiu, "socionext,synquacer-exiu", exiu_init);
+=======
+	kfree(data);
+	return -ENOMEM;
+}
+IRQCHIP_DECLARE(exiu, "socionext,synquacer-exiu", exiu_dt_init);
+
+#ifdef CONFIG_ACPI
+static int exiu_acpi_probe(struct platform_device *pdev)
+{
+	struct irq_domain *domain;
+	struct exiu_irq_data *data;
+	struct resource *res;
+
+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+	if (!res) {
+		dev_err(&pdev->dev, "failed to parse memory resource\n");
+		return -ENXIO;
+	}
+
+	data = exiu_init(dev_fwnode(&pdev->dev), res);
+	if (IS_ERR(data))
+		return PTR_ERR(data);
+
+	domain = acpi_irq_create_hierarchy(0, NUM_IRQS, dev_fwnode(&pdev->dev),
+					   &exiu_domain_ops, data);
+	if (!domain) {
+		dev_err(&pdev->dev, "failed to create IRQ domain\n");
+		goto out_unmap;
+	}
+
+	dev_info(&pdev->dev, "%d interrupts forwarded\n", NUM_IRQS);
+
+	return 0;
+
+out_unmap:
+	iounmap(data->base);
+	kfree(data);
+	return -ENOMEM;
+}
+
+static const struct acpi_device_id exiu_acpi_ids[] = {
+	{ "SCX0008" },
+	{ /* sentinel */ }
+};
+MODULE_DEVICE_TABLE(acpi, exiu_acpi_ids);
+
+static struct platform_driver exiu_driver = {
+	.driver = {
+		.name = "exiu",
+		.acpi_match_table = exiu_acpi_ids,
+	},
+	.probe = exiu_acpi_probe,
+};
+builtin_platform_driver(exiu_driver);
+#endif
+>>>>>>> upstream/android-13

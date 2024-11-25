@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  Definitions for use by exception code on Book3-E
  *
  *  Copyright (C) 2008 Ben. Herrenschmidt (benh@kernel.crashing.org), IBM Corp.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version
  *  2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _ASM_POWERPC_EXCEPTION_64E_H
 #define _ASM_POWERPC_EXCEPTION_64E_H
@@ -70,6 +77,7 @@
 #define EX_TLB_SRR0	(10 * 8)
 #define EX_TLB_SRR1	(11 * 8)
 #define EX_TLB_R7	(12 * 8)
+<<<<<<< HEAD
 #ifdef CONFIG_BOOK3E_MMU_TLB_STATS
 #define EX_TLB_R8	(13 * 8)
 #define EX_TLB_R9	(14 * 8)
@@ -78,6 +86,9 @@
 #else
 #define EX_TLB_SIZE	(13 * 8)
 #endif
+=======
+#define EX_TLB_SIZE	(13 * 8)
+>>>>>>> upstream/android-13
 
 #define	START_EXCEPTION(label)						\
 	.globl exc_##label##_book3e;					\
@@ -114,8 +125,12 @@ exc_##label##_book3e:
 	std	r11,EX_TLB_R12(r12);					    \
 	mtspr	SPRN_SPRG_TLB_EXFRAME,r14;				    \
 	std	r15,EX_TLB_SRR1(r12);					    \
+<<<<<<< HEAD
 	std	r16,EX_TLB_SRR0(r12);					    \
 	TLB_MISS_PROLOG_STATS
+=======
+	std	r16,EX_TLB_SRR0(r12);
+>>>>>>> upstream/android-13
 
 /* And these are the matching epilogs that restores things
  *
@@ -147,7 +162,10 @@ exc_##label##_book3e:
 	mtspr	SPRN_SRR0,r15;						    \
 	ld	r15,EX_TLB_R15(r12);					    \
 	mtspr	SPRN_SRR1,r16;						    \
+<<<<<<< HEAD
 	TLB_MISS_RESTORE_STATS						    \
+=======
+>>>>>>> upstream/android-13
 	ld	r16,EX_TLB_R16(r12);					    \
 	ld	r12,EX_TLB_R12(r12);					    \
 
@@ -162,6 +180,7 @@ exc_##label##_book3e:
 	addi	r11,r13,PACA_EXTLB;					    \
 	TLB_MISS_RESTORE(r11)
 
+<<<<<<< HEAD
 #ifdef CONFIG_BOOK3E_MMU_TLB_STATS
 #define TLB_MISS_PROLOG_STATS						    \
 	mflr	r10;							    \
@@ -204,11 +223,21 @@ exc_##label##_book3e:
 #define TLB_MISS_STATS_SAVE_INFO_BOLTED
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #define SET_IVOR(vector_number, vector_offset)	\
 	LOAD_REG_ADDR(r3,interrupt_base_book3e);\
 	ori	r3,r3,vector_offset@l;		\
 	mtspr	SPRN_IVOR##vector_number,r3;
+<<<<<<< HEAD
 
+=======
+/*
+ * powerpc relies on return from interrupt/syscall being context synchronising
+ * (which rfi is) to support ARCH_HAS_MEMBARRIER_SYNC_CORE without additional
+ * synchronisation instructions.
+ */
+>>>>>>> upstream/android-13
 #define RFI_TO_KERNEL							\
 	rfi
 

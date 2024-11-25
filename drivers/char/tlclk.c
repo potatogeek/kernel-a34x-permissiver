@@ -506,6 +506,7 @@ static ssize_t store_select_amcb2_transmit_clock(struct device *d,
 
 	val = (unsigned char)tmp;
 	spin_lock_irqsave(&event_lock, flags);
+<<<<<<< HEAD
 		if ((val == CLK_8kHz) || (val == CLK_16_384MHz)) {
 			SET_PORT_BITS(TLCLK_REG3, 0xc7, 0x28);
 			SET_PORT_BITS(TLCLK_REG1, 0xfb, ~val);
@@ -528,6 +529,30 @@ static ssize_t store_select_amcb2_transmit_clock(struct device *d,
 		} else
 			SET_PORT_BITS(TLCLK_REG3, 0xc7, val << 3);
 
+=======
+	if ((val == CLK_8kHz) || (val == CLK_16_384MHz)) {
+		SET_PORT_BITS(TLCLK_REG3, 0xc7, 0x28);
+		SET_PORT_BITS(TLCLK_REG1, 0xfb, ~val);
+	} else if (val >= CLK_8_592MHz) {
+		SET_PORT_BITS(TLCLK_REG3, 0xc7, 0x38);
+		switch (val) {
+		case CLK_8_592MHz:
+			SET_PORT_BITS(TLCLK_REG0, 0xfc, 2);
+			break;
+		case CLK_11_184MHz:
+			SET_PORT_BITS(TLCLK_REG0, 0xfc, 0);
+			break;
+		case CLK_34_368MHz:
+			SET_PORT_BITS(TLCLK_REG0, 0xfc, 3);
+			break;
+		case CLK_44_736MHz:
+			SET_PORT_BITS(TLCLK_REG0, 0xfc, 1);
+			break;
+		}
+	} else {
+		SET_PORT_BITS(TLCLK_REG3, 0xc7, val << 3);
+	}
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&event_lock, flags);
 
 	return strnlen(buf, count);
@@ -548,6 +573,7 @@ static ssize_t store_select_amcb1_transmit_clock(struct device *d,
 
 	val = (unsigned char)tmp;
 	spin_lock_irqsave(&event_lock, flags);
+<<<<<<< HEAD
 		if ((val == CLK_8kHz) || (val == CLK_16_384MHz)) {
 			SET_PORT_BITS(TLCLK_REG3, 0xf8, 0x5);
 			SET_PORT_BITS(TLCLK_REG1, 0xfb, ~val);
@@ -569,6 +595,30 @@ static ssize_t store_select_amcb1_transmit_clock(struct device *d,
 			}
 		} else
 			SET_PORT_BITS(TLCLK_REG3, 0xf8, val);
+=======
+	if ((val == CLK_8kHz) || (val == CLK_16_384MHz)) {
+		SET_PORT_BITS(TLCLK_REG3, 0xf8, 0x5);
+		SET_PORT_BITS(TLCLK_REG1, 0xfb, ~val);
+	} else if (val >= CLK_8_592MHz) {
+		SET_PORT_BITS(TLCLK_REG3, 0xf8, 0x7);
+		switch (val) {
+		case CLK_8_592MHz:
+			SET_PORT_BITS(TLCLK_REG0, 0xfc, 2);
+			break;
+		case CLK_11_184MHz:
+			SET_PORT_BITS(TLCLK_REG0, 0xfc, 0);
+			break;
+		case CLK_34_368MHz:
+			SET_PORT_BITS(TLCLK_REG0, 0xfc, 3);
+			break;
+		case CLK_44_736MHz:
+			SET_PORT_BITS(TLCLK_REG0, 0xfc, 1);
+			break;
+		}
+	} else {
+		SET_PORT_BITS(TLCLK_REG3, 0xf8, val);
+	}
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&event_lock, flags);
 
 	return strnlen(buf, count);

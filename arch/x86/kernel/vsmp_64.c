@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * vSMPowered(tm) systems specific initialization
  * Copyright (C) 2005 ScaleMP Inc.
  *
+<<<<<<< HEAD
  * Use of this code is subject to the terms and conditions of the
  * GNU general public license version 2. See "COPYING" or
  * http://www.gnu.org/licenses/gpl.html
  *
+=======
+>>>>>>> upstream/android-13
  * Ravikiran Thirumalai <kiran@scalemp.com>,
  * Shai Fultheim <shai@scalemp.com>
  * Paravirt ops integration: Glauber de Oliveira Costa <gcosta@redhat.com>,
@@ -26,6 +33,7 @@
 
 #define TOPOLOGY_REGISTER_OFFSET 0x10
 
+<<<<<<< HEAD
 #if defined CONFIG_PCI && defined CONFIG_PARAVIRT
 /*
  * Interrupt control on vSMPowered systems:
@@ -85,6 +93,10 @@ static unsigned __init vsmp_patch(u8 type, u16 clobbers, void *ibuf,
 }
 
 static void __init set_vsmp_pv_ops(void)
+=======
+#ifdef CONFIG_PCI
+static void __init set_vsmp_ctl(void)
+>>>>>>> upstream/android-13
 {
 	void __iomem *address;
 	unsigned int cap, ctl, cfg;
@@ -109,6 +121,7 @@ static void __init set_vsmp_pv_ops(void)
 	}
 #endif
 
+<<<<<<< HEAD
 	if (cap & ctl & (1 << 4)) {
 		/* Setup irq ops and turn on vSMP  IRQ fastpath handling */
 		pv_irq_ops.irq_disable = PV_CALLEE_SAVE(vsmp_irq_disable);
@@ -118,12 +131,15 @@ static void __init set_vsmp_pv_ops(void)
 		pv_init_ops.patch = vsmp_patch;
 		ctl &= ~(1 << 4);
 	}
+=======
+>>>>>>> upstream/android-13
 	writel(ctl, address + 4);
 	ctl = readl(address + 4);
 	pr_info("vSMP CTL: control set to:0x%08x\n", ctl);
 
 	early_iounmap(address, 8);
 }
+<<<<<<< HEAD
 #else
 static void __init set_vsmp_pv_ops(void)
 {
@@ -131,6 +147,8 @@ static void __init set_vsmp_pv_ops(void)
 #endif
 
 #ifdef CONFIG_PCI
+=======
+>>>>>>> upstream/android-13
 static int is_vsmp = -1;
 
 static void __init detect_vsmp_box(void)
@@ -164,11 +182,21 @@ static int is_vsmp_box(void)
 {
 	return 0;
 }
+<<<<<<< HEAD
+=======
+static void __init set_vsmp_ctl(void)
+{
+}
+>>>>>>> upstream/android-13
 #endif
 
 static void __init vsmp_cap_cpus(void)
 {
+<<<<<<< HEAD
 #if !defined(CONFIG_X86_VSMP) && defined(CONFIG_SMP)
+=======
+#if !defined(CONFIG_X86_VSMP) && defined(CONFIG_SMP) && defined(CONFIG_PCI)
+>>>>>>> upstream/android-13
 	void __iomem *address;
 	unsigned int cfg, topology, node_shift, maxcpus;
 
@@ -221,6 +249,10 @@ void __init vsmp_init(void)
 
 	vsmp_cap_cpus();
 
+<<<<<<< HEAD
 	set_vsmp_pv_ops();
+=======
+	set_vsmp_ctl();
+>>>>>>> upstream/android-13
 	return;
 }

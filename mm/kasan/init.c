@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
+<<<<<<< HEAD
  * This file contains some kasan initialization code.
  *
  * Copyright (c) 2015 Samsung Electronics Co., Ltd.
@@ -16,6 +17,18 @@
 #include <linux/kasan.h>
 #include <linux/kernel.h>
 #include <linux/memblock.h>
+=======
+ * This file contains KASAN shadow initialization code.
+ *
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Author: Andrey Ryabinin <ryabinin.a.a@gmail.com>
+ */
+
+#include <linux/memblock.h>
+#include <linux/init.h>
+#include <linux/kasan.h>
+#include <linux/kernel.h>
+>>>>>>> upstream/android-13
 #include <linux/mm.h>
 #include <linux/pfn.h>
 #include <linux/slab.h>
@@ -47,7 +60,11 @@ static inline bool kasan_p4d_table(pgd_t pgd)
 }
 #endif
 #if CONFIG_PGTABLE_LEVELS > 3
+<<<<<<< HEAD
 pud_t kasan_early_shadow_pud[PTRS_PER_PUD] __page_aligned_bss;
+=======
+pud_t kasan_early_shadow_pud[MAX_PTRS_PER_PUD] __page_aligned_bss;
+>>>>>>> upstream/android-13
 static inline bool kasan_pud_table(p4d_t p4d)
 {
 	return p4d_page(p4d) == virt_to_page(lm_alias(kasan_early_shadow_pud));
@@ -59,7 +76,11 @@ static inline bool kasan_pud_table(p4d_t p4d)
 }
 #endif
 #if CONFIG_PGTABLE_LEVELS > 2
+<<<<<<< HEAD
 pmd_t kasan_early_shadow_pmd[PTRS_PER_PMD] __page_aligned_bss;
+=======
+pmd_t kasan_early_shadow_pmd[MAX_PTRS_PER_PMD] __page_aligned_bss;
+>>>>>>> upstream/android-13
 static inline bool kasan_pmd_table(pud_t pud)
 {
 	return pud_page(pud) == virt_to_page(lm_alias(kasan_early_shadow_pmd));
@@ -70,7 +91,12 @@ static inline bool kasan_pmd_table(pud_t pud)
 	return false;
 }
 #endif
+<<<<<<< HEAD
 pte_t kasan_early_shadow_pte[PTRS_PER_PTE] __page_aligned_bss;
+=======
+pte_t kasan_early_shadow_pte[MAX_PTRS_PER_PTE + PTE_HWTABLE_PTRS]
+	__page_aligned_bss;
+>>>>>>> upstream/android-13
 
 static inline bool kasan_pte_table(pmd_t pmd)
 {
@@ -84,8 +110,19 @@ static inline bool kasan_early_shadow_page_entry(pte_t pte)
 
 static __init void *early_alloc(size_t size, int node)
 {
+<<<<<<< HEAD
 	return memblock_virt_alloc_try_nid(size, size, __pa(MAX_DMA_ADDRESS),
 					BOOTMEM_ALLOC_ACCESSIBLE, node);
+=======
+	void *ptr = memblock_alloc_try_nid(size, size, __pa(MAX_DMA_ADDRESS),
+					   MEMBLOCK_ALLOC_ACCESSIBLE, node);
+
+	if (!ptr)
+		panic("%s: Failed to allocate %zu bytes align=%zx nid=%d from=%llx\n",
+		      __func__, size, size, node, (u64)__pa(MAX_DMA_ADDRESS));
+
+	return ptr;
+>>>>>>> upstream/android-13
 }
 
 static void __ref zero_pte_populate(pmd_t *pmd, unsigned long addr,
@@ -124,7 +161,11 @@ static int __ref zero_pmd_populate(pud_t *pud, unsigned long addr,
 			pte_t *p;
 
 			if (slab_is_available())
+<<<<<<< HEAD
 				p = pte_alloc_one_kernel(&init_mm, addr);
+=======
+				p = pte_alloc_one_kernel(&init_mm);
+>>>>>>> upstream/android-13
 			else
 				p = early_alloc(PAGE_SIZE, NUMA_NO_NODE);
 			if (!p)
@@ -219,8 +260,13 @@ static int __ref zero_p4d_populate(pgd_t *pgd, unsigned long addr,
 /**
  * kasan_populate_early_shadow - populate shadow memory region with
  *                               kasan_early_shadow_page
+<<<<<<< HEAD
  * @shadow_start - start of the memory range to populate
  * @shadow_end   - end of the memory range to populate
+=======
+ * @shadow_start: start of the memory range to populate
+ * @shadow_end: end of the memory range to populate
+>>>>>>> upstream/android-13
  */
 int __ref kasan_populate_early_shadow(const void *shadow_start,
 					const void *shadow_end)
@@ -245,6 +291,7 @@ int __ref kasan_populate_early_shadow(const void *shadow_start,
 			 * 3,2 - level page tables where we don't have
 			 * puds,pmds, so pgd_populate(), pud_populate()
 			 * is noops.
+<<<<<<< HEAD
 			 *
 			 * The ifndef is required to avoid build breakage.
 			 *
@@ -259,6 +306,11 @@ int __ref kasan_populate_early_shadow(const void *shadow_start,
 			pgd_populate(&init_mm, pgd,
 					lm_alias(kasan_early_shadow_p4d));
 #endif
+=======
+			 */
+			pgd_populate(&init_mm, pgd,
+					lm_alias(kasan_early_shadow_p4d));
+>>>>>>> upstream/android-13
 			p4d = p4d_offset(pgd, addr);
 			p4d_populate(&init_mm, p4d,
 					lm_alias(kasan_early_shadow_pud));
@@ -455,9 +507,14 @@ void kasan_remove_zero_shadow(void *start, unsigned long size)
 	addr = (unsigned long)kasan_mem_to_shadow(start);
 	end = addr + (size >> KASAN_SHADOW_SCALE_SHIFT);
 
+<<<<<<< HEAD
 	if (WARN_ON((unsigned long)start %
 			(KASAN_SHADOW_SCALE_SIZE * PAGE_SIZE)) ||
 	    WARN_ON(size % (KASAN_SHADOW_SCALE_SIZE * PAGE_SIZE)))
+=======
+	if (WARN_ON((unsigned long)start % KASAN_MEMORY_PER_SHADOW_PAGE) ||
+	    WARN_ON(size % KASAN_MEMORY_PER_SHADOW_PAGE))
+>>>>>>> upstream/android-13
 		return;
 
 	for (; addr < end; addr = next) {
@@ -491,9 +548,14 @@ int kasan_add_zero_shadow(void *start, unsigned long size)
 	shadow_start = kasan_mem_to_shadow(start);
 	shadow_end = shadow_start + (size >> KASAN_SHADOW_SCALE_SHIFT);
 
+<<<<<<< HEAD
 	if (WARN_ON((unsigned long)start %
 			(KASAN_SHADOW_SCALE_SIZE * PAGE_SIZE)) ||
 	    WARN_ON(size % (KASAN_SHADOW_SCALE_SIZE * PAGE_SIZE)))
+=======
+	if (WARN_ON((unsigned long)start % KASAN_MEMORY_PER_SHADOW_PAGE) ||
+	    WARN_ON(size % KASAN_MEMORY_PER_SHADOW_PAGE))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	ret = kasan_populate_early_shadow(shadow_start, shadow_end);

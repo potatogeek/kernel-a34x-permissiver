@@ -1,7 +1,12 @@
+<<<<<<< HEAD
 /*
  *  This program is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU General Public License version 2 as published
  *  by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright (C) 2013 John Crispin <john@phrozen.org>
  */
@@ -19,6 +24,10 @@ struct ralink_soc_info {
 	unsigned long mem_size;
 	unsigned long mem_size_min;
 	unsigned long mem_size_max;
+<<<<<<< HEAD
+=======
+	void (*mem_detect)(void);
+>>>>>>> upstream/android-13
 };
 extern struct ralink_soc_info soc_info;
 
@@ -29,7 +38,11 @@ extern void ralink_clk_add(const char *dev, unsigned long rate);
 
 extern void ralink_rst_init(void);
 
+<<<<<<< HEAD
 extern void prom_soc_init(struct ralink_soc_info *soc_info);
+=======
+extern void __init prom_soc_init(struct ralink_soc_info *soc_info);
+>>>>>>> upstream/android-13
 
 __iomem void *plat_of_remap_node(const char *node);
 

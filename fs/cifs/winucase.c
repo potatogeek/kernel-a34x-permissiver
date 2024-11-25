@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * fs/cifs/winucase.c
  *
@@ -17,12 +18,23 @@
  * along with this program;  if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *
+ * Copyright (c) Jeffrey Layton <jlayton@redhat.com>, 2013
+ *
+>>>>>>> upstream/android-13
  * The const tables in this file were converted from the following info
  * provided by Microsoft:
  *
  * 3.1.5.3 Mapping UTF-16 Strings to Upper Case:
  *
+<<<<<<< HEAD
  * http://msdn.microsoft.com/en-us/library/hh877830.aspx
+=======
+ * https://msdn.microsoft.com/en-us/library/hh877830.aspx
+>>>>>>> upstream/android-13
  * http://www.microsoft.com/en-us/download/details.aspx?displaylang=en&id=10921
  *
  * In particular, the table in "Windows 8 Upper Case Mapping Table.txt" was

@@ -4,6 +4,11 @@
 
 #include <linux/mm.h>
 
+<<<<<<< HEAD
+=======
+#define ARCH_DEFAULT_PKEY	0
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_ARCH_HAS_PKEYS
 #include <asm/pkeys.h>
 #else /* ! CONFIG_ARCH_HAS_PKEYS */
@@ -44,10 +49,13 @@ static inline bool arch_pkeys_enabled(void)
 	return false;
 }
 
+<<<<<<< HEAD
 static inline void copy_init_pkru_to_fpregs(void)
 {
 }
 
+=======
+>>>>>>> upstream/android-13
 #endif /* ! CONFIG_ARCH_HAS_PKEYS */
 
 #endif /* _LINUX_PKEYS_H */

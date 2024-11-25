@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/lib/io-writesb.S
  *
  *  Copyright (C) 1995-2000 Russell King
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/linkage.h>
 #include <asm/assembler.h>
@@ -36,10 +43,17 @@
 		cmp	ip, #2
 		ldrb	r3, [r1], #1
 		strb	r3, [r0]
+<<<<<<< HEAD
 		ldrgeb	r3, [r1], #1
 		strgeb	r3, [r0]
 		ldrgtb	r3, [r1], #1
 		strgtb	r3, [r0]
+=======
+		ldrbge	r3, [r1], #1
+		strbge	r3, [r0]
+		ldrbgt	r3, [r1], #1
+		strbgt	r3, [r0]
+>>>>>>> upstream/android-13
 		subs	r2, r2, ip
 		bne	.Loutsb_aligned
 
@@ -64,7 +78,11 @@ ENTRY(__raw_writesb)
 		bpl	.Loutsb_16_lp
 
 		tst	r2, #15
+<<<<<<< HEAD
 		ldmeqfd	sp!, {r4, r5, pc}
+=======
+		ldmfdeq	sp!, {r4, r5, pc}
+>>>>>>> upstream/android-13
 
 .Loutsb_no_16:	tst	r2, #8
 		beq	.Loutsb_no_8
@@ -80,15 +98,26 @@ ENTRY(__raw_writesb)
 		outword	r3
 
 .Loutsb_no_4:	ands	r2, r2, #3
+<<<<<<< HEAD
 		ldmeqfd	sp!, {r4, r5, pc}
+=======
+		ldmfdeq	sp!, {r4, r5, pc}
+>>>>>>> upstream/android-13
 
 		cmp	r2, #2
 		ldrb	r3, [r1], #1
 		strb	r3, [r0]
+<<<<<<< HEAD
 		ldrgeb	r3, [r1], #1
 		strgeb	r3, [r0]
 		ldrgtb	r3, [r1]
 		strgtb	r3, [r0]
+=======
+		ldrbge	r3, [r1], #1
+		strbge	r3, [r0]
+		ldrbgt	r3, [r1]
+		strbgt	r3, [r0]
+>>>>>>> upstream/android-13
 
 		ldmfd	sp!, {r4, r5, pc}
 ENDPROC(__raw_writesb)

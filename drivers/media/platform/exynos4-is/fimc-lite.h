@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 Samsung Electronics Co., Ltd.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2012 Samsung Electronics Co., Ltd.
+>>>>>>> upstream/android-13
  */
 
 #ifndef FIMC_LITE_H_
@@ -96,13 +102,21 @@ struct flite_frame {
  * struct flite_buffer - video buffer structure
  * @vb:    vb2 buffer
  * @list:  list head for the buffers queue
+<<<<<<< HEAD
  * @paddr: DMA buffer start address
+=======
+ * @addr: DMA buffer start address
+>>>>>>> upstream/android-13
  * @index: DMA start address register's index
  */
 struct flite_buffer {
 	struct vb2_v4l2_buffer vb;
 	struct list_head list;
+<<<<<<< HEAD
 	dma_addr_t paddr;
+=======
+	dma_addr_t addr;
+>>>>>>> upstream/android-13
 	unsigned short index;
 };
 
@@ -140,6 +154,11 @@ struct flite_buffer {
  * @active_buf_count: number of video buffers scheduled in hardware
  * @frame_count: the captured frames counter
  * @reqbufs_count: the number of buffers requested with REQBUFS ioctl
+<<<<<<< HEAD
+=======
+ * @events: event info
+ * @streaming: is streaming in progress?
+>>>>>>> upstream/android-13
  */
 struct fimc_lite {
 	struct platform_device	*pdev;

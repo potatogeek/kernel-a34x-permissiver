@@ -45,12 +45,17 @@
  *    high or low depending on its state at that exact instant.
  */
 
+<<<<<<< HEAD
 #define PWM_CONTROL_OFFSET			(0x00000000)
+=======
+#define PWM_CONTROL_OFFSET			0x00000000
+>>>>>>> upstream/android-13
 #define PWM_CONTROL_SMOOTH_SHIFT(chan)		(24 + (chan))
 #define PWM_CONTROL_TYPE_SHIFT(chan)		(16 + (chan))
 #define PWM_CONTROL_POLARITY_SHIFT(chan)	(8 + (chan))
 #define PWM_CONTROL_TRIGGER_SHIFT(chan)		(chan)
 
+<<<<<<< HEAD
 #define PRESCALE_OFFSET				(0x00000004)
 #define PRESCALE_SHIFT(chan)			((chan) << 2)
 #define PRESCALE_MASK(chan)			(0x7 << PRESCALE_SHIFT(chan))
@@ -64,6 +69,21 @@
 #define DUTY_CYCLE_HIGH_OFFSET(chan)		(0x0000000c + ((chan) << 3))
 #define DUTY_CYCLE_HIGH_MIN			(0x00000000)
 #define DUTY_CYCLE_HIGH_MAX			(0x00ffffff)
+=======
+#define PRESCALE_OFFSET				0x00000004
+#define PRESCALE_SHIFT(chan)			((chan) << 2)
+#define PRESCALE_MASK(chan)			(0x7 << PRESCALE_SHIFT(chan))
+#define PRESCALE_MIN				0x00000000
+#define PRESCALE_MAX				0x00000007
+
+#define PERIOD_COUNT_OFFSET(chan)		(0x00000008 + ((chan) << 3))
+#define PERIOD_COUNT_MIN			0x00000002
+#define PERIOD_COUNT_MAX			0x00ffffff
+
+#define DUTY_CYCLE_HIGH_OFFSET(chan)		(0x0000000c + ((chan) << 3))
+#define DUTY_CYCLE_HIGH_MIN			0x00000000
+#define DUTY_CYCLE_HIGH_MAX			0x00ffffff
+>>>>>>> upstream/android-13
 
 struct kona_pwmc {
 	struct pwm_chip chip;
@@ -138,7 +158,11 @@ static int kona_pwmc_config(struct pwm_chip *chip, struct pwm_device *pwm,
 		dc = div64_u64(val, div);
 
 		/* If duty_ns or period_ns are not achievable then return */
+<<<<<<< HEAD
 		if (pc < PERIOD_COUNT_MIN || dc < DUTY_CYCLE_HIGH_MIN)
+=======
+		if (pc < PERIOD_COUNT_MIN)
+>>>>>>> upstream/android-13
 			return -EINVAL;
 
 		/* If pc and dc are in bounds, the calculation is done */
@@ -259,7 +283,10 @@ static const struct pwm_ops kona_pwm_ops = {
 static int kona_pwmc_probe(struct platform_device *pdev)
 {
 	struct kona_pwmc *kp;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	unsigned int chan;
 	unsigned int value = 0;
 	int ret = 0;
@@ -268,6 +295,7 @@ static int kona_pwmc_probe(struct platform_device *pdev)
 	if (kp == NULL)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	platform_set_drvdata(pdev, kp);
 
 	kp->chip.dev = &pdev->dev;
@@ -279,6 +307,13 @@ static int kona_pwmc_probe(struct platform_device *pdev)
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	kp->base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	kp->chip.dev = &pdev->dev;
+	kp->chip.ops = &kona_pwm_ops;
+	kp->chip.npwm = 6;
+
+	kp->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(kp->base))
 		return PTR_ERR(kp->base);
 
@@ -303,13 +338,18 @@ static int kona_pwmc_probe(struct platform_device *pdev)
 
 	clk_disable_unprepare(kp->clk);
 
+<<<<<<< HEAD
 	ret = pwmchip_add_with_polarity(&kp->chip, PWM_POLARITY_INVERSED);
+=======
+	ret = devm_pwmchip_add(&pdev->dev, &kp->chip);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		dev_err(&pdev->dev, "failed to add PWM chip: %d\n", ret);
 
 	return ret;
 }
 
+<<<<<<< HEAD
 static int kona_pwmc_remove(struct platform_device *pdev)
 {
 	struct kona_pwmc *kp = platform_get_drvdata(pdev);
@@ -322,6 +362,8 @@ static int kona_pwmc_remove(struct platform_device *pdev)
 	return pwmchip_remove(&kp->chip);
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct of_device_id bcm_kona_pwmc_dt[] = {
 	{ .compatible = "brcm,kona-pwm" },
 	{ },
@@ -334,7 +376,10 @@ static struct platform_driver kona_pwmc_driver = {
 		.of_match_table = bcm_kona_pwmc_dt,
 	},
 	.probe = kona_pwmc_probe,
+<<<<<<< HEAD
 	.remove = kona_pwmc_remove,
+=======
+>>>>>>> upstream/android-13
 };
 module_platform_driver(kona_pwmc_driver);
 

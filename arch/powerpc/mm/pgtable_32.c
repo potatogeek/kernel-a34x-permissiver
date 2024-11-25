@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * This file contains the routines setting up the linux page tables.
  *  -- paulus
@@ -11,12 +15,15 @@
  *
  *  Derived from "arch/i386/mm/init.c"
  *    Copyright (C) 1991, 1992, 1993, 1994  Linus Torvalds
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version
  *  2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -28,6 +35,7 @@
 #include <linux/highmem.h>
 #include <linux/memblock.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 
 #include <asm/pgtable.h>
 #include <asm/pgalloc.h>
@@ -210,24 +218,91 @@ void iounmap(volatile void __iomem *addr)
 EXPORT_SYMBOL(iounmap);
 
 int map_kernel_page(unsigned long va, phys_addr_t pa, int flags)
+=======
+#include <linux/set_memory.h>
+
+#include <asm/pgalloc.h>
+#include <asm/fixmap.h>
+#include <asm/setup.h>
+#include <asm/sections.h>
+#include <asm/early_ioremap.h>
+
+#include <mm/mmu_decl.h>
+
+extern char etext[], _stext[], _sinittext[], _einittext[];
+
+static u8 early_fixmap_pagetable[FIXMAP_PTE_SIZE] __page_aligned_data;
+
+notrace void __init early_ioremap_init(void)
+{
+	unsigned long addr = ALIGN_DOWN(FIXADDR_START, PGDIR_SIZE);
+	pte_t *ptep = (pte_t *)early_fixmap_pagetable;
+	pmd_t *pmdp = pmd_off_k(addr);
+
+	for (; (s32)(FIXADDR_TOP - addr) > 0;
+	     addr += PGDIR_SIZE, ptep += PTRS_PER_PTE, pmdp++)
+		pmd_populate_kernel(&init_mm, pmdp, ptep);
+
+	early_ioremap_setup();
+}
+
+static void __init *early_alloc_pgtable(unsigned long size)
+{
+	void *ptr = memblock_alloc(size, size);
+
+	if (!ptr)
+		panic("%s: Failed to allocate %lu bytes align=0x%lx\n",
+		      __func__, size, size);
+
+	return ptr;
+}
+
+pte_t __init *early_pte_alloc_kernel(pmd_t *pmdp, unsigned long va)
+{
+	if (pmd_none(*pmdp)) {
+		pte_t *ptep = early_alloc_pgtable(PTE_FRAG_SIZE);
+
+		pmd_populate_kernel(&init_mm, pmdp, ptep);
+	}
+	return pte_offset_kernel(pmdp, va);
+}
+
+
+int __ref map_kernel_page(unsigned long va, phys_addr_t pa, pgprot_t prot)
+>>>>>>> upstream/android-13
 {
 	pmd_t *pd;
 	pte_t *pg;
 	int err = -ENOMEM;
 
 	/* Use upper 10 bits of VA to index the first level map */
+<<<<<<< HEAD
 	pd = pmd_offset(pud_offset(pgd_offset_k(va), va), va);
 	/* Use middle 10 bits of VA to index the second-level map */
 	pg = pte_alloc_kernel(pd, va);
 	if (pg != 0) {
+=======
+	pd = pmd_off_k(va);
+	/* Use middle 10 bits of VA to index the second-level map */
+	if (likely(slab_is_available()))
+		pg = pte_alloc_kernel(pd, va);
+	else
+		pg = early_pte_alloc_kernel(pd, va);
+	if (pg) {
+>>>>>>> upstream/android-13
 		err = 0;
 		/* The PTE should never be already set nor present in the
 		 * hash table
 		 */
+<<<<<<< HEAD
 		BUG_ON((pte_val(*pg) & (_PAGE_PRESENT | _PAGE_HASHPTE)) &&
 		       flags);
 		set_pte_at(&init_mm, va, pg, pfn_pte(pa >> PAGE_SHIFT,
 						     __pgprot(flags)));
+=======
+		BUG_ON((pte_present(*pg) | pte_hashpte(*pg)) && pgprot_val(prot));
+		set_pte_at(&init_mm, va, pg, pfn_pte(pa >> PAGE_SHIFT, prot));
+>>>>>>> upstream/android-13
 	}
 	smp_wmb();
 	return err;
@@ -238,7 +313,11 @@ int map_kernel_page(unsigned long va, phys_addr_t pa, int flags)
  */
 static void __init __mapin_ram_chunk(unsigned long offset, unsigned long top)
 {
+<<<<<<< HEAD
 	unsigned long v, s, f;
+=======
+	unsigned long v, s;
+>>>>>>> upstream/android-13
 	phys_addr_t p;
 	int ktext;
 
@@ -248,12 +327,16 @@ static void __init __mapin_ram_chunk(unsigned long offset, unsigned long top)
 	for (; s < top; s += PAGE_SIZE) {
 		ktext = ((char *)v >= _stext && (char *)v < etext) ||
 			((char *)v >= _sinittext && (char *)v < _einittext);
+<<<<<<< HEAD
 		f = ktext ? pgprot_val(PAGE_KERNEL_TEXT) : pgprot_val(PAGE_KERNEL);
 		map_kernel_page(v, p, f);
 #ifdef CONFIG_PPC_STD_MMU_32
 		if (ktext)
 			hash_preload(&init_mm, v, 0, 0x300);
 #endif
+=======
+		map_kernel_page(v, p, ktext ? PAGE_KERNEL_TEXT : PAGE_KERNEL);
+>>>>>>> upstream/android-13
 		v += PAGE_SIZE;
 		p += PAGE_SIZE;
 	}
@@ -261,6 +344,7 @@ static void __init __mapin_ram_chunk(unsigned long offset, unsigned long top)
 
 void __init mapin_ram(void)
 {
+<<<<<<< HEAD
 	unsigned long s, top;
 
 #ifndef CONFIG_WII
@@ -358,20 +442,46 @@ static int change_page_attr(struct page *page, int numpages, pgprot_t prot)
 	flush_tlb_kernel_range((unsigned long)page_address(start),
 			       (unsigned long)page_address(page));
 	return err;
+=======
+	phys_addr_t base, end;
+	u64 i;
+
+	for_each_mem_range(i, &base, &end) {
+		phys_addr_t top = min(end, total_lowmem);
+
+		if (base >= top)
+			continue;
+		base = mmu_mapin_ram(base, top);
+		__mapin_ram_chunk(base, top);
+	}
+>>>>>>> upstream/android-13
 }
 
 void mark_initmem_nx(void)
 {
+<<<<<<< HEAD
 	struct page *page = virt_to_page(_sinittext);
 	unsigned long numpages = PFN_UP((unsigned long)_einittext) -
 				 PFN_DOWN((unsigned long)_sinittext);
 
 	change_page_attr(page, numpages, PAGE_KERNEL);
+=======
+	unsigned long numpages = PFN_UP((unsigned long)_einittext) -
+				 PFN_DOWN((unsigned long)_sinittext);
+
+	if (v_block_mapped((unsigned long)_sinittext)) {
+		mmu_mark_initmem_nx();
+	} else {
+		set_memory_nx((unsigned long)_sinittext, numpages);
+		set_memory_rw((unsigned long)_sinittext, numpages);
+	}
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_STRICT_KERNEL_RWX
 void mark_rodata_ro(void)
 {
+<<<<<<< HEAD
 	struct page *page;
 	unsigned long numpages;
 
@@ -399,5 +509,41 @@ void __kernel_map_pages(struct page *page, int numpages, int enable)
 		return;
 
 	change_page_attr(page, numpages, enable ? PAGE_KERNEL : __pgprot(0));
+=======
+	unsigned long numpages;
+
+	if (v_block_mapped((unsigned long)_stext + 1)) {
+		mmu_mark_rodata_ro();
+		ptdump_check_wx();
+		return;
+	}
+
+	/*
+	 * mark .text and .rodata as read only. Use __init_begin rather than
+	 * __end_rodata to cover NOTES and EXCEPTION_TABLE.
+	 */
+	numpages = PFN_UP((unsigned long)__init_begin) -
+		   PFN_DOWN((unsigned long)_stext);
+
+	set_memory_ro((unsigned long)_stext, numpages);
+
+	// mark_initmem_nx() should have already run by now
+	ptdump_check_wx();
+}
+#endif
+
+#if defined(CONFIG_ARCH_SUPPORTS_DEBUG_PAGEALLOC) && defined(CONFIG_DEBUG_PAGEALLOC)
+void __kernel_map_pages(struct page *page, int numpages, int enable)
+{
+	unsigned long addr = (unsigned long)page_address(page);
+
+	if (PageHighMem(page))
+		return;
+
+	if (enable)
+		set_memory_p(addr, numpages);
+	else
+		set_memory_np(addr, numpages);
+>>>>>>> upstream/android-13
 }
 #endif /* CONFIG_DEBUG_PAGEALLOC */

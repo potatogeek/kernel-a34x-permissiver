@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * OMAP thermal definitions
  *
  * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
  * Contact:
  *   Eduardo Valentin <eduardo.valentin@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,6 +24,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __TI_THERMAL_H
 #define __TI_THERMAL_H

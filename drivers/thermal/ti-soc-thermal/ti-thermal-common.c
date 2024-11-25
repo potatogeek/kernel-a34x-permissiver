@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * OMAP thermal driver interface
  *
  * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
  * Contact:
  *   Eduardo Valentin <eduardo.valentin@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,6 +24,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -180,6 +187,10 @@ int ti_thermal_expose_sensor(struct ti_bandgap *bgp, int id,
 			     char *domain)
 {
 	struct ti_thermal_data *data;
+<<<<<<< HEAD
+=======
+	int interval;
+>>>>>>> upstream/android-13
 
 	data = ti_bandgap_get_sensor_data(bgp, id);
 
@@ -197,9 +208,16 @@ int ti_thermal_expose_sensor(struct ti_bandgap *bgp, int id,
 		return PTR_ERR(data->ti_thermal);
 	}
 
+<<<<<<< HEAD
 	ti_bandgap_set_sensor_data(bgp, id, data);
 	ti_bandgap_write_update_interval(bgp, data->sensor_id,
 					data->ti_thermal->polling_delay);
+=======
+	interval = jiffies_to_msecs(data->ti_thermal->polling_delay_jiffies);
+
+	ti_bandgap_set_sensor_data(bgp, id, data);
+	ti_bandgap_write_update_interval(bgp, data->sensor_id, interval);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

@@ -7,7 +7,11 @@
  * Contains common routines for sun3/sun3x DVMA management.
  */
 
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/kernel.h>
@@ -16,7 +20,10 @@
 #include <linux/list.h>
 
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/dvma.h>
 
 #undef DVMA_DEBUG
@@ -267,7 +274,15 @@ void __init dvma_init(void)
 
 	list_add(&(hole->list), &hole_list);
 
+<<<<<<< HEAD
 	iommu_use = alloc_bootmem(IOMMU_TOTAL_ENTRIES * sizeof(unsigned long));
+=======
+	iommu_use = memblock_alloc(IOMMU_TOTAL_ENTRIES * sizeof(unsigned long),
+				   SMP_CACHE_BYTES);
+	if (!iommu_use)
+		panic("%s: Failed to allocate %zu bytes\n", __func__,
+		      IOMMU_TOTAL_ENTRIES * sizeof(unsigned long));
+>>>>>>> upstream/android-13
 
 	dvma_unmap_iommu(DVMA_START, DVMA_SIZE);
 

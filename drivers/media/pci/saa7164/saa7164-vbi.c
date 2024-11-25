@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Driver for the NXP SAA7164 PCIe bridge
  *
  *  Copyright (c) 2010-2015 Steven Toth <stoth@kernellabs.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "saa7164.h"
@@ -208,6 +215,7 @@ static int vidioc_querycap(struct file *file, void  *priv,
 	struct saa7164_port *port = fh->port;
 	struct saa7164_dev *dev = port->dev;
 
+<<<<<<< HEAD
 	strcpy(cap->driver, dev->name);
 	strlcpy(cap->card, saa7164_boards[dev->board].name,
 		sizeof(cap->card));
@@ -222,6 +230,15 @@ static int vidioc_querycap(struct file *file, void  *priv,
 		V4L2_CAP_VIDEO_CAPTURE |
 		V4L2_CAP_DEVICE_CAPS;
 
+=======
+	strscpy(cap->driver, dev->name, sizeof(cap->driver));
+	strscpy(cap->card, saa7164_boards[dev->board].name,
+		sizeof(cap->card));
+	sprintf(cap->bus_info, "PCI:%s", pci_name(dev->pci));
+	cap->capabilities = V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_READWRITE |
+			    V4L2_CAP_TUNER | V4L2_CAP_VBI_CAPTURE |
+			    V4L2_CAP_DEVICE_CAPS;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -685,6 +702,11 @@ static struct video_device saa7164_vbi_template = {
 	.ioctl_ops     = &vbi_ioctl_ops,
 	.minor         = -1,
 	.tvnorms       = SAA7164_NORMS,
+<<<<<<< HEAD
+=======
+	.device_caps   = V4L2_CAP_VBI_CAPTURE | V4L2_CAP_READWRITE |
+			 V4L2_CAP_TUNER,
+>>>>>>> upstream/android-13
 };
 
 static struct video_device *saa7164_vbi_alloc(
@@ -718,8 +740,12 @@ int saa7164_vbi_register(struct saa7164_port *port)
 
 	dprintk(DBGLVL_VBI, "%s()\n", __func__);
 
+<<<<<<< HEAD
 	if (port->type != SAA7164_MPEG_VBI)
 		BUG();
+=======
+	BUG_ON(port->type != SAA7164_MPEG_VBI);
+>>>>>>> upstream/android-13
 
 	/* Sanity check that the PCI configuration space is active */
 	if (port->hwcfg.BARLocation == 0) {
@@ -771,8 +797,12 @@ void saa7164_vbi_unregister(struct saa7164_port *port)
 
 	dprintk(DBGLVL_VBI, "%s(port=%d)\n", __func__, port->nr);
 
+<<<<<<< HEAD
 	if (port->type != SAA7164_MPEG_VBI)
 		BUG();
+=======
+	BUG_ON(port->type != SAA7164_MPEG_VBI);
+>>>>>>> upstream/android-13
 
 	if (port->v4l_device) {
 		if (port->v4l_device->minor != -1)

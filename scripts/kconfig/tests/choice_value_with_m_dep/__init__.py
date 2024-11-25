@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 """
 Hide tristate choice values with mod dependency in y choice.
 

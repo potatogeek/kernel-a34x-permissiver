@@ -95,7 +95,11 @@ static struct scsi_host_template cxgb3i_host_template = {
 	.eh_device_reset_handler = iscsi_eh_device_reset,
 	.eh_target_reset_handler = iscsi_eh_recover_target,
 	.target_alloc	= iscsi_target_alloc,
+<<<<<<< HEAD
 	.use_clustering	= DISABLE_CLUSTERING,
+=======
+	.dma_boundary	= PAGE_SIZE - 1,
+>>>>>>> upstream/android-13
 	.this_id	= -1,
 	.track_queue_depth = 1,
 };
@@ -117,6 +121,10 @@ static struct iscsi_transport cxgb3i_iscsi_transport = {
 	/* connection management */
 	.create_conn	= cxgbi_create_conn,
 	.bind_conn	= cxgbi_bind_conn,
+<<<<<<< HEAD
+=======
+	.unbind_conn	= iscsi_conn_unbind,
+>>>>>>> upstream/android-13
 	.destroy_conn	= iscsi_tcp_conn_teardown,
 	.start_conn	= iscsi_conn_start,
 	.stop_conn	= iscsi_conn_stop,
@@ -361,7 +369,11 @@ static inline void make_tx_data_wr(struct cxgbi_sock *csk, struct sk_buff *skb,
 	/* len includes the length of any HW ULP additions */
 	req->len = htonl(len);
 	/* V_TX_ULP_SUBMODE sets both the mode and submode */
+<<<<<<< HEAD
 	req->flags = htonl(V_TX_ULP_SUBMODE(cxgbi_skcb_ulp_mode(skb)) |
+=======
+	req->flags = htonl(V_TX_ULP_SUBMODE(cxgbi_skcb_tx_ulp_mode(skb)) |
+>>>>>>> upstream/android-13
 			   V_TX_SHOVE((skb_peek(&csk->write_queue) ? 0 : 1)));
 	req->sndseq = htonl(csk->snd_nxt);
 	req->param = htonl(V_TX_PORT(l2t->smt_idx));
@@ -375,10 +387,15 @@ static inline void make_tx_data_wr(struct cxgbi_sock *csk, struct sk_buff *skb,
 	}
 }
 
+<<<<<<< HEAD
 /**
  * push_tx_frames -- start transmit
  * @c3cn: the offloaded connection
  * @req_completion: request wr_ack or not
+=======
+/*
+ * push_tx_frames -- start transmit
+>>>>>>> upstream/android-13
  *
  * Prepends TX_DATA_WR or CPL_CLOSE_CON_REQ headers to buffers waiting in a
  * connection's send queue and sends them on to T3.  Must be called with the
@@ -442,7 +459,11 @@ static int push_tx_frames(struct cxgbi_sock *csk, int req_completion)
 				req_completion = 1;
 				csk->wr_una_cred = 0;
 			}
+<<<<<<< HEAD
 			len += cxgbi_ulp_extra_len(cxgbi_skcb_ulp_mode(skb));
+=======
+			len += cxgbi_ulp_extra_len(cxgbi_skcb_tx_ulp_mode(skb));
+>>>>>>> upstream/android-13
 			make_tx_data_wr(csk, skb, len, req_completion);
 			csk->snd_nxt += len;
 			cxgbi_skcb_clear_flag(skb, SKCBF_TX_NEED_HDR);
@@ -645,7 +666,11 @@ static int abort_status_to_errno(struct cxgbi_sock *csk, int abort_reason,
 				 int *need_rst)
 {
 	switch (abort_reason) {
+<<<<<<< HEAD
 	case CPL_ERR_BAD_SYN: /* fall through */
+=======
+	case CPL_ERR_BAD_SYN:
+>>>>>>> upstream/android-13
 	case CPL_ERR_CONN_RESET:
 		return csk->state > CTP_ESTABLISHED ? -EPIPE : -ECONNRESET;
 	case CPL_ERR_XMIT_TIMEDOUT:
@@ -886,11 +911,14 @@ free_cpl_skbs:
 	return -ENOMEM;
 }
 
+<<<<<<< HEAD
 /**
  * release_offload_resources - release offload resource
  * @c3cn: the offloaded iscsi tcp connection.
  * Release resources held by an offload connection (TID, L2T entry, etc.)
  */
+=======
+>>>>>>> upstream/android-13
 static void l2t_put(struct cxgbi_sock *csk)
 {
 	struct t3cdev *t3dev = (struct t3cdev *)csk->cdev->lldev;
@@ -902,6 +930,13 @@ static void l2t_put(struct cxgbi_sock *csk)
 	}
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * release_offload_resources - release offload resource
+ * Release resources held by an offload connection (TID, L2T entry, etc.)
+ */
+>>>>>>> upstream/android-13
 static void release_offload_resources(struct cxgbi_sock *csk)
 {
 	struct t3cdev *t3dev = (struct t3cdev *)csk->cdev->lldev;
@@ -959,6 +994,10 @@ static int init_act_open(struct cxgbi_sock *csk)
 	struct net_device *ndev = cdev->ports[csk->port_id];
 	struct cxgbi_hba *chba = cdev->hbas[csk->port_id];
 	struct sk_buff *skb = NULL;
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	log_debug(1 << CXGBI_DBG_TOE | 1 << CXGBI_DBG_SOCK,
 		"csk 0x%p,%u,0x%lx.\n", csk, csk->state, csk->flags);
@@ -979,14 +1018,26 @@ static int init_act_open(struct cxgbi_sock *csk)
 	csk->atid = cxgb3_alloc_atid(t3dev, &t3_client, csk);
 	if (csk->atid < 0) {
 		pr_err("NO atid available.\n");
+<<<<<<< HEAD
 		goto rel_resource;
+=======
+		ret = -EINVAL;
+		goto put_sock;
+>>>>>>> upstream/android-13
 	}
 	cxgbi_sock_set_flag(csk, CTPF_HAS_ATID);
 	cxgbi_sock_get(csk);
 
 	skb = alloc_wr(sizeof(struct cpl_act_open_req), 0, GFP_KERNEL);
+<<<<<<< HEAD
 	if (!skb)
 		goto rel_resource;
+=======
+	if (!skb) {
+		ret = -ENOMEM;
+		goto free_atid;
+	}
+>>>>>>> upstream/android-13
 	skb->sk = (struct sock *)csk;
 	set_arp_failure_handler(skb, act_open_arp_failure);
 	csk->snd_win = cxgb3i_snd_win;
@@ -1008,10 +1059,21 @@ static int init_act_open(struct cxgbi_sock *csk)
 	send_act_open_req(csk, skb, csk->l2t);
 	return 0;
 
+<<<<<<< HEAD
 rel_resource:
 	if (skb)
 		__kfree_skb(skb);
 	return -EINVAL;
+=======
+free_atid:
+	cxgb3_free_atid(t3dev, csk->atid);
+put_sock:
+	cxgbi_sock_put(csk);
+	l2t_release(t3dev, csk->l2t);
+	csk->l2t = NULL;
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 cxgb3_cpl_handler_func cxgb3i_cpl_handlers[NUM_CPL_CMDS] = {
@@ -1172,7 +1234,11 @@ static int ddp_setup_conn_pgidx(struct cxgbi_sock *csk,
 }
 
 /**
+<<<<<<< HEAD
  * cxgb3i_setup_conn_digest - setup conn. digest setting
+=======
+ * ddp_setup_conn_digest - setup conn. digest setting
+>>>>>>> upstream/android-13
  * @csk: cxgb tcp socket
  * @tid: connection id
  * @hcrc: header digest enabled
@@ -1245,8 +1311,17 @@ static int cxgb3i_ddp_init(struct cxgbi_device *cdev)
 		tformat.pgsz_order[i] = uinfo.pgsz_factor[i];
 	cxgbi_tagmask_check(tagmask, &tformat);
 
+<<<<<<< HEAD
 	cxgbi_ddp_ppm_setup(&tdev->ulp_iscsi, cdev, &tformat, ppmax,
 			    uinfo.llimit, uinfo.llimit, 0);
+=======
+	err = cxgbi_ddp_ppm_setup(&tdev->ulp_iscsi, cdev, &tformat,
+				  (uinfo.ulimit - uinfo.llimit + 1),
+				  uinfo.llimit, uinfo.llimit, 0, 0, 0);
+	if (err)
+		return err;
+
+>>>>>>> upstream/android-13
 	if (!(cdev->flags & CXGBI_FLAG_DDP_OFF)) {
 		uinfo.tagmask = tagmask;
 		uinfo.ulimit = uinfo.llimit + (ppmax << PPOD_SIZE_SHIFT);
@@ -1320,7 +1395,11 @@ static void cxgb3i_dev_open(struct t3cdev *t3dev)
 
 	err = cxgb3i_ddp_init(cdev);
 	if (err) {
+<<<<<<< HEAD
 		pr_info("0x%p ddp init failed\n", cdev);
+=======
+		pr_info("0x%p ddp init failed %d\n", cdev, err);
+>>>>>>> upstream/android-13
 		goto err_out;
 	}
 

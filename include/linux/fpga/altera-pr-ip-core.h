@@ -13,6 +13,9 @@
 #include <linux/io.h>
 
 int alt_pr_register(struct device *dev, void __iomem *reg_base);
+<<<<<<< HEAD
 int alt_pr_unregister(struct device *dev);
+=======
+>>>>>>> upstream/android-13
 
 #endif /* _ALT_PR_IP_CORE_H */

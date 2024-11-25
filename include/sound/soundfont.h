@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef __SOUND_SOUNDFONT_H
 #define __SOUND_SOUNDFONT_H
 
@@ -6,6 +10,7 @@
  *
  *  Copyright (C) 1999 Steve Ratcliffe
  *  Copyright (c) 1999-2000 Takashi iwai <tiwai@suse.de>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -20,6 +25,8 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <sound/sfnt_info.h>

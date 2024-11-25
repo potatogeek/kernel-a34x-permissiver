@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 Sascha Hauer <kernel@pengutronix.de>
  *
@@ -13,6 +14,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2012 Sascha Hauer <kernel@pengutronix.de>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -63,6 +69,7 @@ enum mx31_clks {
 static struct clk *clk[clk_max];
 static struct clk_onecell_data clk_data;
 
+<<<<<<< HEAD
 static struct clk ** const uart_clks[] __initconst = {
 	&clk[ipg],
 	&clk[uart1_gate],
@@ -73,6 +80,8 @@ static struct clk ** const uart_clks[] __initconst = {
 	NULL
 };
 
+=======
+>>>>>>> upstream/android-13
 static void __init _mx31_clocks_init(void __iomem *base, unsigned long fref)
 {
 	clk[dummy] = imx_clk_fixed("dummy", 0);
@@ -144,6 +153,7 @@ static void __init _mx31_clocks_init(void __iomem *base, unsigned long fref)
 	clk_disable_unprepare(clk[iim_gate]);
 }
 
+<<<<<<< HEAD
 int __init mx31_clocks_init(unsigned long fref)
 {
 	void __iomem *base;
@@ -215,6 +225,8 @@ int __init mx31_clocks_init(unsigned long fref)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void __init mx31_clocks_init_dt(struct device_node *np)
 {
 	struct device_node *osc_np;

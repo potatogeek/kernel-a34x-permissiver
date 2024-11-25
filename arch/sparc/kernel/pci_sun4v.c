@@ -16,6 +16,10 @@
 #include <linux/export.h>
 #include <linux/log2.h>
 #include <linux/of_device.h>
+<<<<<<< HEAD
+=======
+#include <linux/dma-map-ops.h>
+>>>>>>> upstream/android-13
 #include <asm/iommu-common.h>
 
 #include <asm/iommu.h>
@@ -73,6 +77,14 @@ static inline void iommu_batch_start(struct device *dev, unsigned long prot, uns
 	p->npages	= 0;
 }
 
+<<<<<<< HEAD
+=======
+static inline bool iommu_use_atu(struct iommu *iommu, u64 mask)
+{
+	return iommu->atu && mask > DMA_BIT_MASK(32);
+}
+
+>>>>>>> upstream/android-13
 /* Interrupts must be disabled.  */
 static long iommu_batch_flush(struct iommu_batch *p, u64 mask)
 {
@@ -92,7 +104,11 @@ static long iommu_batch_flush(struct iommu_batch *p, u64 mask)
 		prot &= (HV_PCI_MAP_ATTR_READ | HV_PCI_MAP_ATTR_WRITE);
 
 	while (npages != 0) {
+<<<<<<< HEAD
 		if (mask <= DMA_BIT_MASK(32)) {
+=======
+		if (!iommu_use_atu(pbm->iommu, mask)) {
+>>>>>>> upstream/android-13
 			num = pci_sun4v_iommu_map(devhandle,
 						  HV_PCI_TSBID(0, entry),
 						  npages,
@@ -179,7 +195,10 @@ static void *dma_4v_alloc_coherent(struct device *dev, size_t size,
 	unsigned long flags, order, first_page, npages, n;
 	unsigned long prot = 0;
 	struct iommu *iommu;
+<<<<<<< HEAD
 	struct atu *atu;
+=======
+>>>>>>> upstream/android-13
 	struct iommu_map_table *tbl;
 	struct page *page;
 	void *ret;
@@ -205,6 +224,7 @@ static void *dma_4v_alloc_coherent(struct device *dev, size_t size,
 	memset((char *)first_page, 0, PAGE_SIZE << order);
 
 	iommu = dev->archdata.iommu;
+<<<<<<< HEAD
 	atu = iommu->atu;
 
 	mask = dev->coherent_dma_mask;
@@ -212,6 +232,13 @@ static void *dma_4v_alloc_coherent(struct device *dev, size_t size,
 		tbl = &iommu->tbl;
 	else
 		tbl = &atu->tbl;
+=======
+	mask = dev->coherent_dma_mask;
+	if (!iommu_use_atu(iommu, mask))
+		tbl = &iommu->tbl;
+	else
+		tbl = &iommu->atu->tbl;
+>>>>>>> upstream/android-13
 
 	entry = iommu_tbl_range_alloc(dev, tbl, npages, NULL,
 				      (unsigned long)(-1), 0);
@@ -333,7 +360,11 @@ static void dma_4v_free_coherent(struct device *dev, size_t size, void *cpu,
 	atu = iommu->atu;
 	devhandle = pbm->devhandle;
 
+<<<<<<< HEAD
 	if (dvma <= DMA_BIT_MASK(32)) {
+=======
+	if (!iommu_use_atu(iommu, dvma)) {
+>>>>>>> upstream/android-13
 		tbl = &iommu->tbl;
 		iotsb_num = 0; /* we don't care for legacy iommu */
 	} else {
@@ -374,7 +405,11 @@ static dma_addr_t dma_4v_map_page(struct device *dev, struct page *page,
 	npages >>= IO_PAGE_SHIFT;
 
 	mask = *dev->dma_mask;
+<<<<<<< HEAD
 	if (mask <= DMA_BIT_MASK(32))
+=======
+	if (!iommu_use_atu(iommu, mask))
+>>>>>>> upstream/android-13
 		tbl = &iommu->tbl;
 	else
 		tbl = &atu->tbl;
@@ -414,12 +449,20 @@ static dma_addr_t dma_4v_map_page(struct device *dev, struct page *page,
 bad:
 	if (printk_ratelimit())
 		WARN_ON(1);
+<<<<<<< HEAD
 	return SPARC_MAPPING_ERROR;
+=======
+	return DMA_MAPPING_ERROR;
+>>>>>>> upstream/android-13
 
 iommu_map_fail:
 	local_irq_restore(flags);
 	iommu_tbl_range_free(tbl, bus_addr, npages, IOMMU_ERROR_CODE);
+<<<<<<< HEAD
 	return SPARC_MAPPING_ERROR;
+=======
+	return DMA_MAPPING_ERROR;
+>>>>>>> upstream/android-13
 }
 
 static void dma_4v_unmap_page(struct device *dev, dma_addr_t bus_addr,
@@ -483,7 +526,11 @@ static int dma_4v_map_sg(struct device *dev, struct scatterlist *sglist,
 
 	iommu = dev->archdata.iommu;
 	if (nelems == 0 || !iommu)
+<<<<<<< HEAD
 		return 0;
+=======
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	atu = iommu->atu;
 
 	prot = HV_PCI_MAP_ATTR_READ;
@@ -506,11 +553,18 @@ static int dma_4v_map_sg(struct device *dev, struct scatterlist *sglist,
 	iommu_batch_start(dev, prot, ~0UL);
 
 	max_seg_size = dma_get_max_seg_size(dev);
+<<<<<<< HEAD
 	seg_boundary_size = ALIGN(dma_get_seg_boundary(dev) + 1,
 				  IO_PAGE_SIZE) >> IO_PAGE_SHIFT;
 
 	mask = *dev->dma_mask;
 	if (mask <= DMA_BIT_MASK(32))
+=======
+	seg_boundary_size = dma_get_seg_boundary_nr_pages(dev, IO_PAGE_SHIFT);
+
+	mask = *dev->dma_mask;
+	if (!iommu_use_atu(iommu, mask))
+>>>>>>> upstream/android-13
 		tbl = &iommu->tbl;
 	else
 		tbl = &atu->tbl;
@@ -592,7 +646,10 @@ static int dma_4v_map_sg(struct device *dev, struct scatterlist *sglist,
 
 	if (outcount < incount) {
 		outs = sg_next(outs);
+<<<<<<< HEAD
 		outs->dma_address = SPARC_MAPPING_ERROR;
+=======
+>>>>>>> upstream/android-13
 		outs->dma_length = 0;
 	}
 
@@ -609,7 +666,10 @@ iommu_map_failed:
 			iommu_tbl_range_free(tbl, vaddr, npages,
 					     IOMMU_ERROR_CODE);
 			/* XXX demap? XXX */
+<<<<<<< HEAD
 			s->dma_address = SPARC_MAPPING_ERROR;
+=======
+>>>>>>> upstream/android-13
 			s->dma_length = 0;
 		}
 		if (s == outs)
@@ -617,7 +677,11 @@ iommu_map_failed:
 	}
 	local_irq_restore(flags);
 
+<<<<<<< HEAD
 	return 0;
+=======
+	return -EINVAL;
+>>>>>>> upstream/android-13
 }
 
 static void dma_4v_unmap_sg(struct device *dev, struct scatterlist *sglist,
@@ -674,6 +738,7 @@ static void dma_4v_unmap_sg(struct device *dev, struct scatterlist *sglist,
 static int dma_4v_supported(struct device *dev, u64 device_mask)
 {
 	struct iommu *iommu = dev->archdata.iommu;
+<<<<<<< HEAD
 	u64 dma_addr_mask = iommu->dma_addr_mask;
 
 	if (device_mask > DMA_BIT_MASK(32)) {
@@ -691,6 +756,14 @@ static int dma_4v_supported(struct device *dev, u64 device_mask)
 static int dma_4v_mapping_error(struct device *dev, dma_addr_t dma_addr)
 {
 	return dma_addr == SPARC_MAPPING_ERROR;
+=======
+
+	if (ali_sound_dma_hack(dev, device_mask))
+		return 1;
+	if (device_mask < iommu->dma_addr_mask)
+		return 0;
+	return 1;
+>>>>>>> upstream/android-13
 }
 
 static const struct dma_map_ops sun4v_dma_ops = {
@@ -701,7 +774,10 @@ static const struct dma_map_ops sun4v_dma_ops = {
 	.map_sg				= dma_4v_map_sg,
 	.unmap_sg			= dma_4v_unmap_sg,
 	.dma_supported			= dma_4v_supported,
+<<<<<<< HEAD
 	.mapping_error			= dma_4v_mapping_error,
+=======
+>>>>>>> upstream/android-13
 };
 
 static void pci_sun4v_scan_bus(struct pci_pbm_info *pbm, struct device *parent)

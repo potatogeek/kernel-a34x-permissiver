@@ -42,4 +42,7 @@ struct mac_driver_desc {
     /* ... more stuff */
 };
 
+<<<<<<< HEAD
 int mac_partition(struct parsed_partitions *state);
+=======
+>>>>>>> upstream/android-13

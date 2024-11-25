@@ -12,6 +12,11 @@ Driver device table
 
 .. kernel-doc:: include/linux/mod_devicetable.h
    :internal:
+<<<<<<< HEAD
+=======
+   :no-identifiers: pci_device_id
+
+>>>>>>> upstream/android-13
 
 Delaying, scheduling, and timer routines
 ----------------------------------------
@@ -55,6 +60,7 @@ High-resolution timers
 .. kernel-doc:: kernel/time/hrtimer.c
    :export:
 
+<<<<<<< HEAD
 Workqueues and Kevents
 ----------------------
 
@@ -64,6 +70,8 @@ Workqueues and Kevents
 .. kernel-doc:: kernel/workqueue.c
    :export:
 
+=======
+>>>>>>> upstream/android-13
 Internal Functions
 ------------------
 
@@ -105,13 +113,22 @@ Kernel utility functions
 
 .. kernel-doc:: include/linux/kernel.h
    :internal:
+<<<<<<< HEAD
 
 .. kernel-doc:: kernel/printk/printk.c
    :export:
+=======
+   :no-identifiers: kstrtol kstrtoul
+
+.. kernel-doc:: kernel/printk/printk.c
+   :export:
+   :no-identifiers: printk
+>>>>>>> upstream/android-13
 
 .. kernel-doc:: kernel/panic.c
    :export:
 
+<<<<<<< HEAD
 .. kernel-doc:: kernel/rcu/tree.c
    :export:
 
@@ -120,6 +137,10 @@ Kernel utility functions
 
 .. kernel-doc:: kernel/rcu/update.c
    :export:
+=======
+.. kernel-doc:: include/linux/overflow.h
+   :internal:
+>>>>>>> upstream/android-13
 
 Device Resource Management
 --------------------------

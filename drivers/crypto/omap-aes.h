@@ -1,18 +1,29 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Cryptographic API.
  *
  * Support for OMAP AES HW ACCELERATOR defines
  *
  * Copyright (c) 2015 Texas Instruments Incorporated
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __OMAP_AES_H__
 #define __OMAP_AES_H__
 
+<<<<<<< HEAD
+=======
+#include <crypto/aes.h>
+>>>>>>> upstream/android-13
 #include <crypto/engine.h>
 
 #define DST_MAXBURST			4
@@ -83,7 +94,10 @@
 
 #define FLAGS_INIT		BIT(5)
 #define FLAGS_FAST		BIT(6)
+<<<<<<< HEAD
 #define FLAGS_BUSY		BIT(7)
+=======
+>>>>>>> upstream/android-13
 
 #define FLAGS_IN_DATA_ST_SHIFT	8
 #define FLAGS_OUT_DATA_ST_SHIFT	10
@@ -102,7 +116,15 @@ struct omap_aes_ctx {
 	u32		key[AES_KEYSIZE_256 / sizeof(u32)];
 	u8		nonce[4];
 	struct crypto_skcipher	*fallback;
+<<<<<<< HEAD
 	struct crypto_skcipher	*ctr;
+=======
+};
+
+struct omap_aes_gcm_ctx {
+	struct omap_aes_ctx	octx;
+	struct crypto_aes_ctx	actx;
+>>>>>>> upstream/android-13
 };
 
 struct omap_aes_reqctx {
@@ -110,13 +132,21 @@ struct omap_aes_reqctx {
 	unsigned long mode;
 	u8 iv[AES_BLOCK_SIZE];
 	u32 auth_tag[AES_BLOCK_SIZE / sizeof(u32)];
+<<<<<<< HEAD
+=======
+	struct skcipher_request fallback_req;	// keep at the end
+>>>>>>> upstream/android-13
 };
 
 #define OMAP_AES_QUEUE_LENGTH	1
 #define OMAP_AES_CACHE_SIZE	0
 
 struct omap_aes_algs_info {
+<<<<<<< HEAD
 	struct crypto_alg	*algs_list;
+=======
+	struct skcipher_alg	*algs_list;
+>>>>>>> upstream/android-13
 	unsigned int		size;
 	unsigned int		registered;
 };
@@ -166,7 +196,11 @@ struct omap_aes_dev {
 	struct aead_queue	aead_queue;
 	spinlock_t		lock;
 
+<<<<<<< HEAD
 	struct ablkcipher_request	*req;
+=======
+	struct skcipher_request		*req;
+>>>>>>> upstream/android-13
 	struct aead_request		*aead_req;
 	struct crypto_engine		*engine;
 
@@ -206,8 +240,17 @@ int omap_aes_4106gcm_setkey(struct crypto_aead *tfm, const u8 *key,
 			    unsigned int keylen);
 int omap_aes_gcm_encrypt(struct aead_request *req);
 int omap_aes_gcm_decrypt(struct aead_request *req);
+<<<<<<< HEAD
 int omap_aes_4106gcm_encrypt(struct aead_request *req);
 int omap_aes_4106gcm_decrypt(struct aead_request *req);
+=======
+int omap_aes_gcm_setauthsize(struct crypto_aead *tfm, unsigned int authsize);
+int omap_aes_4106gcm_encrypt(struct aead_request *req);
+int omap_aes_4106gcm_decrypt(struct aead_request *req);
+int omap_aes_4106gcm_setauthsize(struct crypto_aead *parent,
+				 unsigned int authsize);
+int omap_aes_gcm_cra_init(struct crypto_aead *tfm);
+>>>>>>> upstream/android-13
 int omap_aes_write_ctrl(struct omap_aes_dev *dd);
 int omap_aes_crypt_dma_start(struct omap_aes_dev *dd);
 int omap_aes_crypt_dma_stop(struct omap_aes_dev *dd);

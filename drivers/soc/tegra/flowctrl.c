@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * drivers/soc/tegra/flowctrl.c
  *
  * Functions and macros to control the flowcontroller
  *
  * Copyright (c) 2010-2012, NVIDIA Corporation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -16,6 +21,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/cpumask.h>
@@ -102,8 +109,28 @@ void flowctrl_cpu_suspend_enter(unsigned int cpuid)
 		reg &= ~TEGRA30_FLOW_CTRL_CSR_WFE_BITMAP;
 		/* clear wfi bitmap */
 		reg &= ~TEGRA30_FLOW_CTRL_CSR_WFI_BITMAP;
+<<<<<<< HEAD
 		/* pwr gating on wfi */
 		reg |= TEGRA30_FLOW_CTRL_CSR_WFI_CPU0 << cpuid;
+=======
+
+		if (tegra_get_chip_id() == TEGRA30) {
+			/*
+			 * The wfi doesn't work well on Tegra30 because
+			 * CPU hangs under some odd circumstances after
+			 * power-gating (like memory running off PLLP),
+			 * hence use wfe that is working perfectly fine.
+			 * Note that Tegra30 TRM doc clearly stands that
+			 * wfi should be used for the "Cluster Switching",
+			 * while wfe for the power-gating, just like it
+			 * is done on Tegra20.
+			 */
+			reg |= TEGRA20_FLOW_CTRL_CSR_WFE_CPU0 << cpuid;
+		} else {
+			/* pwr gating on wfi */
+			reg |= TEGRA30_FLOW_CTRL_CSR_WFI_CPU0 << cpuid;
+		}
+>>>>>>> upstream/android-13
 		break;
 	}
 	reg |= FLOW_CTRL_CSR_INTR_FLAG;			/* clear intr flag */
@@ -215,7 +242,11 @@ static int __init tegra_flowctrl_init(void)
 		return 0;
 	}
 
+<<<<<<< HEAD
 	tegra_flowctrl_base = ioremap_nocache(res.start, resource_size(&res));
+=======
+	tegra_flowctrl_base = ioremap(res.start, resource_size(&res));
+>>>>>>> upstream/android-13
 	if (!tegra_flowctrl_base)
 		return -ENXIO;
 

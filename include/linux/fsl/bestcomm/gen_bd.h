@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Header for Bestcomm General Buffer Descriptor tasks driver
  *
@@ -11,6 +12,15 @@
  * by the Free Software Foundation.
  *
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Header for Bestcomm General Buffer Descriptor tasks driver
+ *
+ * Copyright (C) 2007 Sylvain Munaut <tnt@246tNt.com>
+ * Copyright (C) 2006 AppSpec Computer Technologies Corp.
+ *                    Jeff Gibbons <jeff.gibbons@appspec.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __BESTCOMM_GEN_BD_H__

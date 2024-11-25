@@ -73,15 +73,24 @@
 
 	leds {
 		compatible = "gpio-leds";
+<<<<<<< HEAD
 		pinctrl-names = "default";
 		pinctrl-0 = <&led_pins_bpi_m1p>;
 
 		green {
+=======
+
+		led-0 {
+>>>>>>> upstream/android-13
 			label = "bananapi-m1-plus:green:usr";
 			gpios = <&pio 7 24 GPIO_ACTIVE_HIGH>;
 		};
 
+<<<<<<< HEAD
 		pwr {
+=======
+		led-1 {
+>>>>>>> upstream/android-13
 			label = "bananapi-m1-plus:pwr:usr";
 			gpios = <&pio 7 25 GPIO_ACTIVE_HIGH>;
 			default-state = "on";
@@ -90,15 +99,21 @@
 
 	mmc3_pwrseq: mmc3_pwrseq {
 		compatible = "mmc-pwrseq-simple";
+<<<<<<< HEAD
 		pinctrl-names = "default";
 		pinctrl-0 = <&mmc3_pwrseq_pin_bpi_m1p>;
+=======
+>>>>>>> upstream/android-13
 		reset-gpios = <&pio 7 22 GPIO_ACTIVE_LOW>; /* PH22 WL-PMU-EN */
 	};
 
 	reg_gmac_3v3: gmac-3v3 {
 		compatible = "regulator-fixed";
+<<<<<<< HEAD
 		pinctrl-names = "default";
 		pinctrl-0 = <&gmac_power_pin_bpi_m1p>;
+=======
+>>>>>>> upstream/android-13
 		regulator-name = "gmac-3v3";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
@@ -134,6 +149,7 @@
 
 &gmac {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&gmac_pins_rgmii_a>;
 	phy = <&phy1>;
 	phy-mode = "rgmii";
@@ -143,6 +159,13 @@
 	phy1: ethernet-phy@1 {
 		reg = <1>;
 	};
+=======
+	pinctrl-0 = <&gmac_rgmii_pins>;
+	phy-handle = <&phy1>;
+	phy-mode = "rgmii-id";
+	phy-supply = <&reg_gmac_3v3>;
+	status = "okay";
+>>>>>>> upstream/android-13
 };
 
 &hdmi {
@@ -156,8 +179,11 @@
 };
 
 &i2c0 {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c0_pins_a>;
+=======
+>>>>>>> upstream/android-13
 	status = "okay";
 
 	axp209: pmic@34 {
@@ -175,6 +201,7 @@
 
 &ir0 {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&ir0_rx_pins_a>;
 	status = "okay";
 };
@@ -182,6 +209,19 @@
 &mmc0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&mmc0_pins_a>, <&mmc0_cd_pin_bpi_m1p>;
+=======
+	pinctrl-0 = <&ir0_rx_pin>;
+	status = "okay";
+};
+
+&gmac_mdio {
+	phy1: ethernet-phy@1 {
+		reg = <1>;
+	};
+};
+
+&mmc0 {
+>>>>>>> upstream/android-13
 	vmmc-supply = <&reg_vcc3v3>;
 	bus-width = <4>;
 	cd-gpios = <&pio 7 10 GPIO_ACTIVE_LOW>; /* PH10 */
@@ -191,8 +231,11 @@
 &mmc3 {
 	#address-cells = <1>;
 	#size-cells = <0>;
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&mmc3_pins_a>;
+=======
+>>>>>>> upstream/android-13
 	vmmc-supply = <&reg_vcc3v3>;
 	mmc-pwrseq = <&mmc3_pwrseq>;
 	bus-width = <4>;
@@ -209,11 +252,14 @@
 	};
 };
 
+<<<<<<< HEAD
 &mmc3_pins_a {
 	/* AP6210 requires pull-up */
 	bias-pull-up;
 };
 
+=======
+>>>>>>> upstream/android-13
 &ohci0 {
 	status = "okay";
 };
@@ -226,6 +272,7 @@
 	status = "okay";
 };
 
+<<<<<<< HEAD
 &pio {
 	gmac_power_pin_bpi_m1p: gmac_power_pin@0 {
 		pins = "PH23";
@@ -249,6 +296,8 @@
 	};
 };
 
+=======
+>>>>>>> upstream/android-13
 &reg_dcdc2 {
 	regulator-always-on;
 	regulator-min-microvolt = <1000000>;
@@ -280,7 +329,11 @@
 
 &uart0 {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&uart0_pins_a>;
+=======
+	pinctrl-0 = <&uart0_pb_pins>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 

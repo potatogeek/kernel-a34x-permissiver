@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * include/asm-xtensa/pgtable.h
  *
@@ -5,13 +6,22 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * include/asm-xtensa/pgtable.h
+ *
+>>>>>>> upstream/android-13
  * Copyright (C) 2001 - 2013 Tensilica Inc.
  */
 
 #ifndef _XTENSA_PGTABLE_H
 #define _XTENSA_PGTABLE_H
 
+<<<<<<< HEAD
 #define __ARCH_USE_5LEVEL_HACK
+=======
+>>>>>>> upstream/android-13
 #include <asm/page.h>
 #include <asm/kmem_layout.h>
 #include <asm-generic/pgtable-nopmd.h>
@@ -63,7 +73,10 @@
 #define PTRS_PER_PGD		1024
 #define PGD_ORDER		0
 #define USER_PTRS_PER_PGD	(TASK_SIZE/PGDIR_SIZE)
+<<<<<<< HEAD
 #define FIRST_USER_ADDRESS	0UL
+=======
+>>>>>>> upstream/android-13
 #define FIRST_USER_PGD_NR	(FIRST_USER_ADDRESS >> PGDIR_SHIFT)
 
 #ifdef CONFIG_MMU
@@ -73,7 +86,11 @@
  */
 #define VMALLOC_START		(XCHAL_KSEG_CACHED_VADDR - 0x10000000)
 #define VMALLOC_END		(VMALLOC_START + 0x07FEFFFF)
+<<<<<<< HEAD
 #define TLBTEMP_BASE_1		(VMALLOC_END + 1)
+=======
+#define TLBTEMP_BASE_1		(VMALLOC_START + 0x08000000)
+>>>>>>> upstream/android-13
 #define TLBTEMP_BASE_2		(TLBTEMP_BASE_1 + DCACHE_WAY_SIZE)
 #if 2 * DCACHE_WAY_SIZE > ICACHE_WAY_SIZE
 #define TLBTEMP_SIZE		(2 * DCACHE_WAY_SIZE)
@@ -241,7 +258,10 @@ extern void paging_init(void);
 # define swapper_pg_dir NULL
 static inline void paging_init(void) { }
 #endif
+<<<<<<< HEAD
 static inline void pgtable_cache_init(void) { }
+=======
+>>>>>>> upstream/android-13
 
 /*
  * The pmd contains the kernel virtual address of the pte page.
@@ -271,9 +291,14 @@ static inline void pgtable_cache_init(void) { }
 static inline int pte_write(pte_t pte) { return pte_val(pte) & _PAGE_WRITABLE; }
 static inline int pte_dirty(pte_t pte) { return pte_val(pte) & _PAGE_DIRTY; }
 static inline int pte_young(pte_t pte) { return pte_val(pte) & _PAGE_ACCESSED; }
+<<<<<<< HEAD
 static inline int pte_special(pte_t pte) { return 0; }
 
 static inline pte_t pte_wrprotect(pte_t pte)	
+=======
+
+static inline pte_t pte_wrprotect(pte_t pte)
+>>>>>>> upstream/android-13
 	{ pte_val(pte) &= ~(_PAGE_WRITABLE | _PAGE_HW_WRITE); return pte; }
 static inline pte_t pte_mkclean(pte_t pte)
 	{ pte_val(pte) &= ~(_PAGE_DIRTY | _PAGE_HW_WRITE); return pte; }
@@ -285,10 +310,17 @@ static inline pte_t pte_mkyoung(pte_t pte)
 	{ pte_val(pte) |= _PAGE_ACCESSED; return pte; }
 static inline pte_t pte_mkwrite(pte_t pte)
 	{ pte_val(pte) |= _PAGE_WRITABLE; return pte; }
+<<<<<<< HEAD
 static inline pte_t pte_mkspecial(pte_t pte)
 	{ return pte; }
 
 #define pgprot_noncached(prot) (__pgprot(pgprot_val(prot) & ~_PAGE_CA_MASK))
+=======
+
+#define pgprot_noncached(prot) \
+		((__pgprot((pgprot_val(prot) & ~_PAGE_CA_MASK) | \
+			   _PAGE_CA_BYPASS)))
+>>>>>>> upstream/android-13
 
 /*
  * Conversion functions: convert a page and protection to a page entry,
@@ -367,6 +399,7 @@ ptep_set_wrprotect(struct mm_struct *mm, unsigned long addr, pte_t *ptep)
 	update_pte(ptep, pte_wrprotect(pte));
 }
 
+<<<<<<< HEAD
 /* to find an entry in a kernel page-table-directory */
 #define pgd_offset_k(address)	pgd_offset(&init_mm, address)
 
@@ -386,6 +419,8 @@ ptep_set_wrprotect(struct mm_struct *mm, unsigned long addr, pte_t *ptep)
 #define pte_unmap(pte)		do { } while (0)
 
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Encode and decode a swap and file entry.
  */
@@ -437,6 +472,13 @@ extern  void update_mmu_cache(struct vm_area_struct * vma,
 
 typedef pte_t *pte_addr_t;
 
+<<<<<<< HEAD
+=======
+void update_mmu_tlb(struct vm_area_struct *vma,
+		    unsigned long address, pte_t *ptep);
+#define __HAVE_ARCH_UPDATE_MMU_TLB
+
+>>>>>>> upstream/android-13
 #endif /* !defined (__ASSEMBLY__) */
 
 #define __HAVE_ARCH_PTEP_TEST_AND_CLEAR_YOUNG
@@ -449,6 +491,9 @@ typedef pte_t *pte_addr_t;
  */
 #define HAVE_ARCH_UNMAPPED_AREA
 
+<<<<<<< HEAD
 #include <asm-generic/pgtable.h>
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _XTENSA_PGTABLE_H */

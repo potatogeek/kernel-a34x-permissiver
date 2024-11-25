@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2008 Cisco Systems, Inc.  All rights reserved.
  *
@@ -13,6 +14,11 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * Copyright 2008 Cisco Systems, Inc.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 #ifndef _FC_FIP_H_
 #define _FC_FIP_H_

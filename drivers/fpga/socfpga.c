@@ -571,6 +571,7 @@ static int socfpga_fpga_probe(struct platform_device *pdev)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	mgr = fpga_mgr_create(dev, "Altera SOCFPGA FPGA Manager",
 			      &socfpga_fpga_ops, priv);
 	if (!mgr)
@@ -592,6 +593,14 @@ static int socfpga_fpga_remove(struct platform_device *pdev)
 	fpga_mgr_unregister(mgr);
 
 	return 0;
+=======
+	mgr = devm_fpga_mgr_create(dev, "Altera SOCFPGA FPGA Manager",
+				   &socfpga_fpga_ops, priv);
+	if (!mgr)
+		return -ENOMEM;
+
+	return devm_fpga_mgr_register(dev, mgr);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_OF
@@ -605,7 +614,10 @@ MODULE_DEVICE_TABLE(of, socfpga_fpga_of_match);
 
 static struct platform_driver socfpga_fpga_driver = {
 	.probe = socfpga_fpga_probe,
+<<<<<<< HEAD
 	.remove = socfpga_fpga_remove,
+=======
+>>>>>>> upstream/android-13
 	.driver = {
 		.name	= "socfpga_fpga_manager",
 		.of_match_table = of_match_ptr(socfpga_fpga_of_match),

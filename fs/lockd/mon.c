@@ -82,6 +82,10 @@ static struct rpc_clnt *nsm_create(struct net *net, const char *nodename)
 		.version		= NSM_VERSION,
 		.authflavor		= RPC_AUTH_NULL,
 		.flags			= RPC_CLNT_CREATE_NOPING,
+<<<<<<< HEAD
+=======
+		.cred			= current_cred(),
+>>>>>>> upstream/android-13
 	};
 
 	return rpc_create(&args);
@@ -416,7 +420,11 @@ void nsm_release(struct nsm_handle *nsm)
 /*
  * XDR functions for NSM.
  *
+<<<<<<< HEAD
  * See http://www.opengroup.org/ for details on the Network
+=======
+ * See https://www.opengroup.org/ for details on the Network
+>>>>>>> upstream/android-13
  * Status Monitor wire protocol.
  */
 

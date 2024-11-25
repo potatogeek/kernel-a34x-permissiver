@@ -2,6 +2,11 @@
 #ifndef __ASM_GENERIC_IPCBUF_H
 #define __ASM_GENERIC_IPCBUF_H
 
+<<<<<<< HEAD
+=======
+#include <linux/posix_types.h>
+
+>>>>>>> upstream/android-13
 /*
  * The generic ipc64_perm structure:
  * Note extra padding because this structure is passed back and forth

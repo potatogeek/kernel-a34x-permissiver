@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * ADXL345/346 Three-Axis Digital Accelerometers
  *
  * Enter bugs at http://blackfin.uclinux.org/
  *
  * Copyright (C) 2009 Michael Hennerich, Analog Devices Inc.
+<<<<<<< HEAD
  * Licensed under the GPL-2 or later.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>

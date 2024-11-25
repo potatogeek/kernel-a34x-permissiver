@@ -5,11 +5,14 @@
  * dev.c - Individual device/gadget management (ie, a port = a gadget)
  *
  * Copyright 2017 IBM Corporation
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -50,11 +53,21 @@ void ast_vhub_dev_irq(struct ast_vhub_dev *d)
 
 static void ast_vhub_dev_enable(struct ast_vhub_dev *d)
 {
+<<<<<<< HEAD
 	u32 reg, hmsk;
+=======
+	u32 reg, hmsk, i;
+>>>>>>> upstream/android-13
 
 	if (d->enabled)
 		return;
 
+<<<<<<< HEAD
+=======
+	/* Cleanup EP0 state */
+	ast_vhub_reset_ep0(d);
+
+>>>>>>> upstream/android-13
 	/* Enable device and its EP0 interrupts */
 	reg = VHUB_DEV_EN_ENABLE_PORT |
 		VHUB_DEV_EN_EP0_IN_ACK_IRQEN |
@@ -73,6 +86,22 @@ static void ast_vhub_dev_enable(struct ast_vhub_dev *d)
 	/* Set EP0 DMA buffer address */
 	writel(d->ep0.buf_dma, d->regs + AST_VHUB_DEV_EP0_DATA);
 
+<<<<<<< HEAD
+=======
+	/* Clear stall on all EPs */
+	for (i = 0; i < d->max_epns; i++) {
+		struct ast_vhub_ep *ep = d->epns[i];
+
+		if (ep && (ep->epn.stalled || ep->epn.wedged)) {
+			ep->epn.stalled = false;
+			ep->epn.wedged = false;
+			ast_vhub_update_epn_stall(ep);
+		}
+	}
+
+	/* Additional cleanups */
+	d->wakeup_en = false;
+>>>>>>> upstream/android-13
 	d->enabled = true;
 }
 
@@ -93,7 +122,10 @@ static void ast_vhub_dev_disable(struct ast_vhub_dev *d)
 	writel(0, d->regs + AST_VHUB_DEV_EN_CTRL);
 	d->gadget.speed = USB_SPEED_UNKNOWN;
 	d->enabled = false;
+<<<<<<< HEAD
 	d->suspended = false;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int ast_vhub_dev_feature(struct ast_vhub_dev *d,
@@ -122,7 +154,11 @@ static int ast_vhub_ep_feature(struct ast_vhub_dev *d,
 	     is_set ? "SET" : "CLEAR", ep_num, wValue);
 	if (ep_num == 0)
 		return std_req_complete;
+<<<<<<< HEAD
 	if (ep_num >= AST_VHUB_NUM_GEN_EPs || !d->epns[ep_num - 1])
+=======
+	if (ep_num >= d->max_epns || !d->epns[ep_num - 1])
+>>>>>>> upstream/android-13
 		return std_req_stall;
 	if (wValue != USB_ENDPOINT_HALT)
 		return std_req_driver;
@@ -166,7 +202,11 @@ static int ast_vhub_ep_status(struct ast_vhub_dev *d,
 
 	DDBG(d, "GET_STATUS(ep%d)\n", ep_num);
 
+<<<<<<< HEAD
 	if (ep_num >= AST_VHUB_NUM_GEN_EPs)
+=======
+	if (ep_num >= d->max_epns)
+>>>>>>> upstream/android-13
 		return std_req_stall;
 	if (ep_num != 0) {
 		ep = d->epns[ep_num - 1];
@@ -201,6 +241,7 @@ int ast_vhub_std_dev_request(struct ast_vhub_ep *ep,
 	u16 wValue, wIndex;
 
 	/* No driver, we shouldn't be enabled ... */
+<<<<<<< HEAD
 	if (!d->driver || !d->enabled || d->suspended) {
 		EPDBG(ep,
 		      "Device is wrong state driver=%p enabled=%d"
@@ -209,6 +250,21 @@ int ast_vhub_std_dev_request(struct ast_vhub_ep *ep,
 		return std_req_stall;
 	}
 
+=======
+	if (!d->driver || !d->enabled) {
+		EPDBG(ep,
+		      "Device is wrong state driver=%p enabled=%d\n",
+		      d->driver, d->enabled);
+		return std_req_stall;
+	}
+
+	/*
+	 * Note: we used to reject/stall requests while suspended,
+	 * we don't do that anymore as we seem to have cases of
+	 * mass storage getting very upset.
+	 */
+
+>>>>>>> upstream/android-13
 	/* First packet, grab speed */
 	if (d->gadget.speed == USB_SPEED_UNKNOWN) {
 		d->gadget.speed = ep->vhub->speed;
@@ -279,7 +335,11 @@ static void ast_vhub_dev_nuke(struct ast_vhub_dev *d)
 {
 	unsigned int i;
 
+<<<<<<< HEAD
 	for (i = 0; i < AST_VHUB_NUM_GEN_EPs; i++) {
+=======
+	for (i = 0; i < d->max_epns; i++) {
+>>>>>>> upstream/android-13
 		if (!d->epns[i])
 			continue;
 		ast_vhub_nuke(d->epns[i], -ESHUTDOWN);
@@ -396,10 +456,17 @@ static struct usb_ep *ast_vhub_udc_match_ep(struct usb_gadget *gadget,
 	 * that will allow the generic code to use our
 	 * assigned address.
 	 */
+<<<<<<< HEAD
 	for (i = 0; i < AST_VHUB_NUM_GEN_EPs; i++)
 		if (d->epns[i] == NULL)
 			break;
 	if (i >= AST_VHUB_NUM_GEN_EPs)
+=======
+	for (i = 0; i < d->max_epns; i++)
+		if (d->epns[i] == NULL)
+			break;
+	if (i >= d->max_epns)
+>>>>>>> upstream/android-13
 		return NULL;
 	addr = i + 1;
 
@@ -438,7 +505,11 @@ static int ast_vhub_udc_stop(struct usb_gadget *gadget)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct usb_gadget_ops ast_vhub_udc_ops = {
+=======
+static const struct usb_gadget_ops ast_vhub_udc_ops = {
+>>>>>>> upstream/android-13
 	.get_frame	= ast_vhub_udc_get_frame,
 	.wakeup		= ast_vhub_udc_wakeup,
 	.pullup		= ast_vhub_udc_pullup,
@@ -449,8 +520,12 @@ static struct usb_gadget_ops ast_vhub_udc_ops = {
 
 void ast_vhub_dev_suspend(struct ast_vhub_dev *d)
 {
+<<<<<<< HEAD
 	d->suspended = true;
 	if (d->driver) {
+=======
+	if (d->driver && d->driver->suspend) {
+>>>>>>> upstream/android-13
 		spin_unlock(&d->vhub->lock);
 		d->driver->suspend(&d->gadget);
 		spin_lock(&d->vhub->lock);
@@ -459,8 +534,12 @@ void ast_vhub_dev_suspend(struct ast_vhub_dev *d)
 
 void ast_vhub_dev_resume(struct ast_vhub_dev *d)
 {
+<<<<<<< HEAD
 	d->suspended = false;
 	if (d->driver) {
+=======
+	if (d->driver && d->driver->resume) {
+>>>>>>> upstream/android-13
 		spin_unlock(&d->vhub->lock);
 		d->driver->resume(&d->gadget);
 		spin_lock(&d->vhub->lock);
@@ -469,6 +548,7 @@ void ast_vhub_dev_resume(struct ast_vhub_dev *d)
 
 void ast_vhub_dev_reset(struct ast_vhub_dev *d)
 {
+<<<<<<< HEAD
 	/*
 	 * If speed is not set, we enable the port. If it is,
 	 * send reset to the gadget and reset "speed".
@@ -491,10 +571,31 @@ void ast_vhub_dev_reset(struct ast_vhub_dev *d)
 
 		/*
 		 * Disable/re-enable HW, this will clear the address
+=======
+	/* No driver, just disable the device and return */
+	if (!d->driver) {
+		ast_vhub_dev_disable(d);
+		return;
+	}
+
+	/* If the port isn't enabled, just enable it */
+	if (!d->enabled) {
+		DDBG(d, "Reset of disabled device, enabling...\n");
+		ast_vhub_dev_enable(d);
+	} else {
+		DDBG(d, "Reset of enabled device, resetting...\n");
+		spin_unlock(&d->vhub->lock);
+		usb_gadget_udc_reset(&d->gadget, d->driver);
+		spin_lock(&d->vhub->lock);
+
+		/*
+		 * Disable and maybe re-enable HW, this will clear the address
+>>>>>>> upstream/android-13
 		 * and speed setting.
 		 */
 		ast_vhub_dev_disable(d);
 		ast_vhub_dev_enable(d);
+<<<<<<< HEAD
 
 		/* Clear stall on all EPs */
 		for (i = 0; i < AST_VHUB_NUM_GEN_EPs; i++) {
@@ -509,6 +610,8 @@ void ast_vhub_dev_reset(struct ast_vhub_dev *d)
 		/* Additional cleanups */
 		d->wakeup_en = false;
 		d->suspended = false;
+=======
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -526,6 +629,10 @@ void ast_vhub_del_dev(struct ast_vhub_dev *d)
 
 	usb_del_gadget_udc(&d->gadget);
 	device_unregister(d->port_dev);
+<<<<<<< HEAD
+=======
+	kfree(d->epns);
+>>>>>>> upstream/android-13
 }
 
 static void ast_vhub_dev_release(struct device *dev)
@@ -547,13 +654,32 @@ int ast_vhub_init_dev(struct ast_vhub *vhub, unsigned int idx)
 	ast_vhub_init_ep0(vhub, &d->ep0, d);
 
 	/*
+<<<<<<< HEAD
+=======
+	 * A USB device can have up to 30 endpoints besides control
+	 * endpoint 0.
+	 */
+	d->max_epns = min_t(u32, vhub->max_epns, 30);
+	d->epns = kcalloc(d->max_epns, sizeof(*d->epns), GFP_KERNEL);
+	if (!d->epns)
+		return -ENOMEM;
+
+	/*
+>>>>>>> upstream/android-13
 	 * The UDC core really needs us to have separate and uniquely
 	 * named "parent" devices for each port so we create a sub device
 	 * here for that purpose
 	 */
 	d->port_dev = kzalloc(sizeof(struct device), GFP_KERNEL);
+<<<<<<< HEAD
 	if (!d->port_dev)
 		return -ENOMEM;
+=======
+	if (!d->port_dev) {
+		rc = -ENOMEM;
+		goto fail_alloc;
+	}
+>>>>>>> upstream/android-13
 	device_initialize(d->port_dev);
 	d->port_dev->release = ast_vhub_dev_release;
 	d->port_dev->parent = parent;
@@ -584,6 +710,11 @@ int ast_vhub_init_dev(struct ast_vhub *vhub, unsigned int idx)
 	device_del(d->port_dev);
  fail_add:
 	put_device(d->port_dev);
+<<<<<<< HEAD
+=======
+ fail_alloc:
+	kfree(d->epns);
+>>>>>>> upstream/android-13
 
 	return rc;
 }

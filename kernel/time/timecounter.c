@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * linux/kernel/time/timecounter.c
  *
@@ -15,6 +16,12 @@
  * GNU General Public License for more details.
  */
 
+=======
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Based on clocksource code. See commit 74d23cc704d1
+ */
+>>>>>>> upstream/android-13
 #include <linux/export.h>
 #include <linux/timecounter.h>
 
@@ -89,7 +96,11 @@ static u64 cc_cyc2ns_backwards(const struct cyclecounter *cc,
 	return ns;
 }
 
+<<<<<<< HEAD
 u64 timecounter_cyc2time(struct timecounter *tc,
+=======
+u64 timecounter_cyc2time(const struct timecounter *tc,
+>>>>>>> upstream/android-13
 			 u64 cycle_tstamp)
 {
 	u64 delta = (cycle_tstamp - tc->cycle_last) & tc->cc->mask;

@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Synopsys G210 Test Chip driver
  *
  * Copyright (C) 2015-2016 Synopsys, Inc. (www.synopsys.com)
  *
  * Authors: Joao Pinto <jpinto@synopsys.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -87,11 +94,16 @@ static int tc_dwc_g210_pltfm_remove(struct platform_device *pdev)
 }
 
 static const struct dev_pm_ops tc_dwc_g210_pltfm_pm_ops = {
+<<<<<<< HEAD
 	.suspend	= ufshcd_pltfrm_suspend,
 	.resume		= ufshcd_pltfrm_resume,
 	.runtime_suspend = ufshcd_pltfrm_runtime_suspend,
 	.runtime_resume  = ufshcd_pltfrm_runtime_resume,
 	.runtime_idle    = ufshcd_pltfrm_runtime_idle,
+=======
+	SET_SYSTEM_SLEEP_PM_OPS(ufshcd_system_suspend, ufshcd_system_resume)
+	SET_RUNTIME_PM_OPS(ufshcd_runtime_suspend, ufshcd_runtime_resume, NULL)
+>>>>>>> upstream/android-13
 };
 
 static struct platform_driver tc_dwc_g210_pltfm_driver = {

@@ -62,7 +62,11 @@
 	wm8904: wm8904@1a {
 		compatible = "wlf,wm8904";
 		reg = <0x1a>;
+<<<<<<< HEAD
 		clocks = <&pck2>;
+=======
+		clocks = <&pmc PMC_TYPE_SYSTEM 10>;
+>>>>>>> upstream/android-13
 		clock-names = "mclk";
 	};
 };

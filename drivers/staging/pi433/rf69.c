@@ -4,6 +4,7 @@
  *
  * Copyright (C) 2016 Wolf-Entwicklungen
  *	Marcus Wolf <linux@wolf-entwicklungen.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +15,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 /* enable prosa debug info */
@@ -359,6 +362,7 @@ int rf69_disable_amplifier(struct spi_device *spi, u8 amplifier_mask)
 
 int rf69_set_output_power_level(struct spi_device *spi, u8 power_level)
 {
+<<<<<<< HEAD
 	// TODO: Dependency to PA0,1,2 setting
 	power_level += 18;
 
@@ -367,10 +371,56 @@ int rf69_set_output_power_level(struct spi_device *spi, u8 power_level)
 		dev_dbg(&spi->dev, "set: illegal input param");
 		return -EINVAL;
 	}
+=======
+	u8 pa_level, ocp, test_pa1, test_pa2;
+	bool pa0, pa1, pa2, high_power;
+	u8 min_power_level;
+
+	// check register pa_level
+	pa_level = rf69_read_reg(spi, REG_PALEVEL);
+	pa0 = pa_level & MASK_PALEVEL_PA0;
+	pa1 = pa_level & MASK_PALEVEL_PA1;
+	pa2 = pa_level & MASK_PALEVEL_PA2;
+
+	// check high power mode
+	ocp = rf69_read_reg(spi, REG_OCP);
+	test_pa1 = rf69_read_reg(spi, REG_TESTPA1);
+	test_pa2 = rf69_read_reg(spi, REG_TESTPA2);
+	high_power = (ocp == 0x0f) && (test_pa1 == 0x5d) && (test_pa2 == 0x7c);
+
+	if (pa0 && !pa1 && !pa2) {
+		power_level += 18;
+		min_power_level = 0;
+	} else if (!pa0 && pa1 && !pa2) {
+		power_level += 18;
+		min_power_level = 16;
+	} else if (!pa0 && pa1 && pa2) {
+		if (high_power)
+			power_level += 11;
+		else
+			power_level += 14;
+		min_power_level = 16;
+	} else {
+		goto failed;
+	}
+
+	// check input value
+	if (power_level > 0x1f)
+		goto failed;
+
+	if (power_level < min_power_level)
+		goto failed;
+>>>>>>> upstream/android-13
 
 	// write value
 	return rf69_read_mod_write(spi, REG_PALEVEL, MASK_PALEVEL_OUTPUT_POWER,
 				   power_level);
+<<<<<<< HEAD
+=======
+failed:
+	dev_dbg(&spi->dev, "set: illegal input param");
+	return -EINVAL;
+>>>>>>> upstream/android-13
 }
 
 int rf69_set_pa_ramp(struct spi_device *spi, enum pa_ramp pa_ramp)
@@ -634,9 +684,13 @@ int rf69_set_preamble_length(struct spi_device *spi, u16 preamble_length)
 	retval = rf69_write_reg(spi, REG_PREAMBLE_MSB, msb);
 	if (retval)
 		return retval;
+<<<<<<< HEAD
 	retval = rf69_write_reg(spi, REG_PREAMBLE_LSB, lsb);
 
 	return retval;
+=======
+	return rf69_write_reg(spi, REG_PREAMBLE_LSB, lsb);
+>>>>>>> upstream/android-13
 }
 
 int rf69_enable_sync(struct spi_device *spi)
@@ -701,10 +755,17 @@ int rf69_set_packet_format(struct spi_device *spi,
 	switch (packet_format) {
 	case packet_length_var:
 		return rf69_set_bit(spi, REG_PACKETCONFIG1,
+<<<<<<< HEAD
 				    MASK_PACKETCONFIG1_PAKET_FORMAT_VARIABLE);
 	case packet_length_fix:
 		return rf69_clear_bit(spi, REG_PACKETCONFIG1,
 				      MASK_PACKETCONFIG1_PAKET_FORMAT_VARIABLE);
+=======
+				    MASK_PACKETCONFIG1_PACKET_FORMAT_VARIABLE);
+	case packet_length_fix:
+		return rf69_clear_bit(spi, REG_PACKETCONFIG1,
+				      MASK_PACKETCONFIG1_PACKET_FORMAT_VARIABLE);
+>>>>>>> upstream/android-13
 	default:
 		dev_dbg(&spi->dev, "set: illegal input param");
 		return -EINVAL;
@@ -853,7 +914,10 @@ int rf69_write_fifo(struct spi_device *spi, u8 *buffer, unsigned int size)
 #ifdef DEBUG_FIFO_ACCESS
 	int i;
 #endif
+<<<<<<< HEAD
 	char spi_address = REG_FIFO | WRITE_BIT;
+=======
+>>>>>>> upstream/android-13
 	u8 local_buffer[FIFO_SIZE + 1];
 
 	if (size > FIFO_SIZE) {
@@ -862,7 +926,11 @@ int rf69_write_fifo(struct spi_device *spi, u8 *buffer, unsigned int size)
 		return -EMSGSIZE;
 	}
 
+<<<<<<< HEAD
 	local_buffer[0] = spi_address;
+=======
+	local_buffer[0] = REG_FIFO | WRITE_BIT;
+>>>>>>> upstream/android-13
 	memcpy(&local_buffer[1], buffer, size);
 
 #ifdef DEBUG_FIFO_ACCESS

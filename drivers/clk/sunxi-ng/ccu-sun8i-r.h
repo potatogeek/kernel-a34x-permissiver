@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2016 Icenowy <icenowy@aosc.xyz>
  *
@@ -10,6 +11,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright 2016 Icenowy <icenowy@aosc.xyz>
+>>>>>>> upstream/android-13
  */
 
 #ifndef _CCU_SUN8I_R_H

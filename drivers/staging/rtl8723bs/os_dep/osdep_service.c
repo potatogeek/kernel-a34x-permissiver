@@ -4,10 +4,13 @@
  * Copyright(c) 2007 - 2012 Realtek Corporation. All rights reserved.
  *
  ******************************************************************************/
+<<<<<<< HEAD
 
 
 #define _OSDEP_SERVICE_C_
 
+=======
+>>>>>>> upstream/android-13
 #include <drv_types.h>
 #include <rtw_debug.h>
 
@@ -47,12 +50,16 @@ inline struct sk_buff *_rtw_skb_copy(const struct sk_buff *skb)
 	return skb_copy(skb, in_interrupt() ? GFP_ATOMIC : GFP_KERNEL);
 }
 
+<<<<<<< HEAD
 inline struct sk_buff *_rtw_skb_clone(struct sk_buff *skb)
 {
 	return skb_clone(skb, in_interrupt() ? GFP_ATOMIC : GFP_KERNEL);
 }
 
 inline int _rtw_netif_rx(_nic_hdl ndev, struct sk_buff *skb)
+=======
+inline int _rtw_netif_rx(struct net_device *ndev, struct sk_buff *skb)
+>>>>>>> upstream/android-13
 {
 	skb->dev = ndev;
 	return netif_rx(skb);
@@ -65,6 +72,7 @@ void _rtw_init_queue(struct __queue *pqueue)
 	spin_lock_init(&(pqueue->lock));
 }
 
+<<<<<<< HEAD
 /*
 * Open a file with the specific @param path, @param flag, @param mode
 * @param fpp the pointer of struct file pointer to get struct file pointer while file opening is success
@@ -208,6 +216,8 @@ int rtw_retrive_from_file(char *path, u8 *buf, u32 sz)
 	return ret>= 0?ret:0;
 }
 
+=======
+>>>>>>> upstream/android-13
 struct net_device *rtw_alloc_etherdev_with_old_priv(int sizeof_priv, void *old_priv)
 {
 	struct net_device *pnetdev;
@@ -218,8 +228,13 @@ struct net_device *rtw_alloc_etherdev_with_old_priv(int sizeof_priv, void *old_p
 		goto RETURN;
 
 	pnpi = netdev_priv(pnetdev);
+<<<<<<< HEAD
 	pnpi->priv =old_priv;
 	pnpi->sizeof_priv =sizeof_priv;
+=======
+	pnpi->priv = old_priv;
+	pnpi->sizeof_priv = sizeof_priv;
+>>>>>>> upstream/android-13
 
 RETURN:
 	return pnetdev;
@@ -243,12 +258,20 @@ struct net_device *rtw_alloc_etherdev(int sizeof_priv)
 		goto RETURN;
 	}
 
+<<<<<<< HEAD
 	pnpi->sizeof_priv =sizeof_priv;
+=======
+	pnpi->sizeof_priv = sizeof_priv;
+>>>>>>> upstream/android-13
 RETURN:
 	return pnetdev;
 }
 
+<<<<<<< HEAD
 void rtw_free_netdev(struct net_device * netdev)
+=======
+void rtw_free_netdev(struct net_device *netdev)
+>>>>>>> upstream/android-13
 {
 	struct rtw_netdev_priv_indicator *pnpi;
 
@@ -291,6 +314,7 @@ int rtw_change_ifname(struct adapter *padapter, const char *ifname)
 	else
 		unregister_netdevice(cur_pnetdev);
 
+<<<<<<< HEAD
 	rereg_priv->old_pnetdev =cur_pnetdev;
 
 	pnetdev = rtw_init_netdev(padapter);
@@ -298,6 +322,13 @@ int rtw_change_ifname(struct adapter *padapter, const char *ifname)
 		ret = -1;
 		goto error;
 	}
+=======
+	rereg_priv->old_pnetdev = cur_pnetdev;
+
+	pnetdev = rtw_init_netdev(padapter);
+	if (!pnetdev)
+		goto error;
+>>>>>>> upstream/android-13
 
 	SET_NETDEV_DEV(pnetdev, dvobj_to_dev(adapter_to_dvobj(padapter)));
 
@@ -310,14 +341,20 @@ int rtw_change_ifname(struct adapter *padapter, const char *ifname)
 	else
 		ret = register_netdevice(pnetdev);
 
+<<<<<<< HEAD
 	if (ret != 0) {
 		RT_TRACE(_module_hci_intfs_c_, _drv_err_, ("register_netdev() failed\n"));
 		goto error;
 	}
+=======
+	if (ret != 0)
+		goto error;
+>>>>>>> upstream/android-13
 
 	return 0;
 
 error:
+<<<<<<< HEAD
 
 	return -1;
 
@@ -326,10 +363,14 @@ error:
 u64 rtw_modular64(u64 x, u64 y)
 {
 	return do_div(x, y);
+=======
+	return -1;
+>>>>>>> upstream/android-13
 }
 
 void rtw_buf_free(u8 **buf, u32 *buf_len)
 {
+<<<<<<< HEAD
 	u32 ori_len;
 
 	if (!buf || !buf_len)
@@ -337,6 +378,11 @@ void rtw_buf_free(u8 **buf, u32 *buf_len)
 
 	ori_len = *buf_len;
 
+=======
+	if (!buf || !buf_len)
+		return;
+
+>>>>>>> upstream/android-13
 	if (*buf) {
 		*buf_len = 0;
 		kfree(*buf);
@@ -386,7 +432,11 @@ keep_ori:
  */
 inline bool rtw_cbuf_full(struct rtw_cbuf *cbuf)
 {
+<<<<<<< HEAD
 	return (cbuf->write == cbuf->read-1)? true : false;
+=======
+	return (cbuf->write == cbuf->read - 1) ? true : false;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -397,7 +447,11 @@ inline bool rtw_cbuf_full(struct rtw_cbuf *cbuf)
  */
 inline bool rtw_cbuf_empty(struct rtw_cbuf *cbuf)
 {
+<<<<<<< HEAD
 	return (cbuf->write == cbuf->read)? true : false;
+=======
+	return (cbuf->write == cbuf->read) ? true : false;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -413,9 +467,14 @@ bool rtw_cbuf_push(struct rtw_cbuf *cbuf, void *buf)
 	if (rtw_cbuf_full(cbuf))
 		return _FAIL;
 
+<<<<<<< HEAD
 	DBG_871X("%s on %u\n", __func__, cbuf->write);
 	cbuf->bufs[cbuf->write] = buf;
 	cbuf->write = (cbuf->write+1)%cbuf->size;
+=======
+	cbuf->bufs[cbuf->write] = buf;
+	cbuf->write = (cbuf->write + 1) % cbuf->size;
+>>>>>>> upstream/android-13
 
 	return _SUCCESS;
 }
@@ -433,15 +492,24 @@ void *rtw_cbuf_pop(struct rtw_cbuf *cbuf)
 	if (rtw_cbuf_empty(cbuf))
 		return NULL;
 
+<<<<<<< HEAD
         DBG_871X("%s on %u\n", __func__, cbuf->read);
 	buf = cbuf->bufs[cbuf->read];
 	cbuf->read = (cbuf->read+1)%cbuf->size;
+=======
+	buf = cbuf->bufs[cbuf->read];
+	cbuf->read = (cbuf->read + 1) % cbuf->size;
+>>>>>>> upstream/android-13
 
 	return buf;
 }
 
 /**
+<<<<<<< HEAD
  * rtw_cbuf_alloc - allocte a rtw_cbuf with given size and do initialization
+=======
+ * rtw_cbuf_alloc - allocate a rtw_cbuf with given size and do initialization
+>>>>>>> upstream/android-13
  * @size: size of pointer
  *
  * Returns: pointer of srtuct rtw_cbuf, NULL for allocation failure

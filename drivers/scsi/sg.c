@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  History:
  *  Started: Aug 9 by Lawrence Foard (entropy@world.std.com),
@@ -8,12 +12,15 @@
  *        Copyright (C) 1992 Lawrence Foard
  * Version 2 and 3 extensions to driver:
  *        Copyright (C) 1998 - 2014 Douglas Gilbert
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2, or (at your option)
  * any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 static int sg_version_num = 30536;	/* 2 digits for each component */
@@ -36,6 +43,10 @@ static int sg_version_num = 30536;	/* 2 digits for each component */
 #include <linux/errno.h>
 #include <linux/mtio.h>
 #include <linux/ioctl.h>
+<<<<<<< HEAD
+=======
+#include <linux/major.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/fcntl.h>
 #include <linux/init.h>
@@ -171,7 +182,11 @@ typedef struct sg_device { /* holds the state of each scsi generic device */
 	bool exclude;		/* 1->open(O_EXCL) succeeded and is active */
 	int open_cnt;		/* count of opens (perhaps < num(sfds) ) */
 	char sgdebug;		/* 0->off, 1->sense, 9->dump dev, 10-> all devs */
+<<<<<<< HEAD
 	struct gendisk *disk;
+=======
+	char name[DISK_NAME_LEN];
+>>>>>>> upstream/android-13
 	struct cdev * cdev;	/* char_dev [sysfs: /sys/cdev/major/sg<n>] */
 	struct kref d_ref;
 } Sg_device;
@@ -207,8 +222,12 @@ static void sg_device_destroy(struct kref *kref);
 #define SZ_SG_REQ_INFO sizeof(sg_req_info_t)
 
 #define sg_printk(prefix, sdp, fmt, a...) \
+<<<<<<< HEAD
 	sdev_prefix_printk(prefix, (sdp)->device,		\
 			   (sdp)->disk->disk_name, fmt, ##a)
+=======
+	sdev_prefix_printk(prefix, (sdp)->device, (sdp)->name, fmt, ##a)
+>>>>>>> upstream/android-13
 
 /*
  * The SCSI interfaces that use read() and write() as an asynchronous variant of
@@ -243,8 +262,14 @@ static int sg_allow_access(struct file *filp, unsigned char *cmd)
 
 	if (sfp->parentdp->device->type == TYPE_SCANNER)
 		return 0;
+<<<<<<< HEAD
 
 	return blk_verify_command(cmd, filp->f_mode);
+=======
+	if (!scsi_cmd_allowed(cmd, filp->f_mode))
+		return -EPERM;
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int
@@ -410,6 +435,41 @@ sg_release(struct inode *inode, struct file *filp)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int get_sg_io_pack_id(int *pack_id, void __user *buf, size_t count)
+{
+	struct sg_header __user *old_hdr = buf;
+	int reply_len;
+
+	if (count >= SZ_SG_HEADER) {
+		/* negative reply_len means v3 format, otherwise v1/v2 */
+		if (get_user(reply_len, &old_hdr->reply_len))
+			return -EFAULT;
+
+		if (reply_len >= 0)
+			return get_user(*pack_id, &old_hdr->pack_id);
+
+		if (in_compat_syscall() &&
+		    count >= sizeof(struct compat_sg_io_hdr)) {
+			struct compat_sg_io_hdr __user *hp = buf;
+
+			return get_user(*pack_id, &hp->pack_id);
+		}
+
+		if (count >= sizeof(struct sg_io_hdr)) {
+			struct sg_io_hdr __user *hp = buf;
+
+			return get_user(*pack_id, &hp->pack_id);
+		}
+	}
+
+	/* no valid header was passed, so ignore the pack_id */
+	*pack_id = -1;
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static ssize_t
 sg_read(struct file *filp, char __user *buf, size_t count, loff_t * ppos)
 {
@@ -418,8 +478,13 @@ sg_read(struct file *filp, char __user *buf, size_t count, loff_t * ppos)
 	Sg_request *srp;
 	int req_pack_id = -1;
 	sg_io_hdr_t *hp;
+<<<<<<< HEAD
 	struct sg_header *old_hdr = NULL;
 	int retval = 0;
+=======
+	struct sg_header *old_hdr;
+	int retval;
+>>>>>>> upstream/android-13
 
 	/*
 	 * This could cause a response to be stranded. Close the associated
@@ -434,6 +499,7 @@ sg_read(struct file *filp, char __user *buf, size_t count, loff_t * ppos)
 	SCSI_LOG_TIMEOUT(3, sg_printk(KERN_INFO, sdp,
 				      "sg_read: count=%d\n", (int) count));
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, buf, count))
 		return -EFAULT;
 	if (sfp->force_packid && (count >= SZ_SG_HEADER)) {
@@ -500,6 +566,36 @@ sg_read(struct file *filp, char __user *buf, size_t count, loff_t * ppos)
 		}
 	}
 	memset(old_hdr, 0, SZ_SG_HEADER);
+=======
+	if (sfp->force_packid)
+		retval = get_sg_io_pack_id(&req_pack_id, buf, count);
+	if (retval)
+		return retval;
+
+	srp = sg_get_rq_mark(sfp, req_pack_id);
+	if (!srp) {		/* now wait on packet to arrive */
+		if (atomic_read(&sdp->detaching))
+			return -ENODEV;
+		if (filp->f_flags & O_NONBLOCK)
+			return -EAGAIN;
+		retval = wait_event_interruptible(sfp->read_wait,
+			(atomic_read(&sdp->detaching) ||
+			(srp = sg_get_rq_mark(sfp, req_pack_id))));
+		if (atomic_read(&sdp->detaching))
+			return -ENODEV;
+		if (retval)
+			/* -ERESTARTSYS as signal hit process */
+			return retval;
+	}
+	if (srp->header.interface_id != '\0')
+		return sg_new_read(sfp, buf, count, srp);
+
+	hp = &srp->header;
+	old_hdr = kzalloc(SZ_SG_HEADER, GFP_KERNEL);
+	if (!old_hdr)
+		return -ENOMEM;
+
+>>>>>>> upstream/android-13
 	old_hdr->reply_len = (int) hp->timeout;
 	old_hdr->pack_len = old_hdr->reply_len; /* old, strange behaviour */
 	old_hdr->pack_id = hp->pack_id;
@@ -509,9 +605,17 @@ sg_read(struct file *filp, char __user *buf, size_t count, loff_t * ppos)
 	old_hdr->host_status = hp->host_status;
 	old_hdr->driver_status = hp->driver_status;
 	if ((CHECK_CONDITION & hp->masked_status) ||
+<<<<<<< HEAD
 	    (DRIVER_SENSE & hp->driver_status))
 		memcpy(old_hdr->sense_buffer, srp->sense_b,
 		       sizeof (old_hdr->sense_buffer));
+=======
+	    (srp->sense_b[0] & 0x70) == 0x70) {
+		old_hdr->driver_status = DRIVER_SENSE;
+		memcpy(old_hdr->sense_buffer, srp->sense_b,
+		       sizeof (old_hdr->sense_buffer));
+	}
+>>>>>>> upstream/android-13
 	switch (hp->host_status) {
 	/* This setup of 'result' is for backward compatibility and is best
 	   ignored by the user who should use target, host + driver status */
@@ -543,7 +647,11 @@ sg_read(struct file *filp, char __user *buf, size_t count, loff_t * ppos)
 
 	/* Now copy the result back to the user buffer.  */
 	if (count >= SZ_SG_HEADER) {
+<<<<<<< HEAD
 		if (__copy_to_user(buf, old_hdr, SZ_SG_HEADER)) {
+=======
+		if (copy_to_user(buf, old_hdr, SZ_SG_HEADER)) {
+>>>>>>> upstream/android-13
 			retval = -EFAULT;
 			goto free_old_hdr;
 		}
@@ -573,14 +681,27 @@ sg_new_read(Sg_fd * sfp, char __user *buf, size_t count, Sg_request * srp)
 	int err = 0, err2;
 	int len;
 
+<<<<<<< HEAD
 	if (count < SZ_SG_IO_HDR) {
+=======
+	if (in_compat_syscall()) {
+		if (count < sizeof(struct compat_sg_io_hdr)) {
+			err = -EINVAL;
+			goto err_out;
+		}
+	} else if (count < SZ_SG_IO_HDR) {
+>>>>>>> upstream/android-13
 		err = -EINVAL;
 		goto err_out;
 	}
 	hp->sb_len_wr = 0;
 	if ((hp->mx_sb_len > 0) && hp->sbp) {
 		if ((CHECK_CONDITION & hp->masked_status) ||
+<<<<<<< HEAD
 		    (DRIVER_SENSE & hp->driver_status)) {
+=======
+		    (srp->sense_b[0] & 0x70) == 0x70) {
+>>>>>>> upstream/android-13
 			int sb_len = SCSI_SENSE_BUFFERSIZE;
 			sb_len = (hp->mx_sb_len > sb_len) ? sb_len : hp->mx_sb_len;
 			len = 8 + (int) srp->sense_b[7];	/* Additional sense length field */
@@ -589,15 +710,23 @@ sg_new_read(Sg_fd * sfp, char __user *buf, size_t count, Sg_request * srp)
 				err = -EFAULT;
 				goto err_out;
 			}
+<<<<<<< HEAD
+=======
+			hp->driver_status = DRIVER_SENSE;
+>>>>>>> upstream/android-13
 			hp->sb_len_wr = len;
 		}
 	}
 	if (hp->masked_status || hp->host_status || hp->driver_status)
 		hp->info |= SG_INFO_CHECK;
+<<<<<<< HEAD
 	if (copy_to_user(buf, hp, SZ_SG_IO_HDR)) {
 		err = -EFAULT;
 		goto err_out;
 	}
+=======
+	err = put_sg_io_hdr(hp, buf);
+>>>>>>> upstream/android-13
 err_out:
 	err2 = sg_finish_rem_req(srp);
 	sg_remove_request(sfp, srp);
@@ -632,11 +761,17 @@ sg_write(struct file *filp, const char __user *buf, size_t count, loff_t * ppos)
 	      scsi_block_when_processing_errors(sdp->device)))
 		return -ENXIO;
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_READ, buf, count))
 		return -EFAULT;	/* protects following copy_from_user()s + get_user()s */
 	if (count < SZ_SG_HEADER)
 		return -EIO;
 	if (__copy_from_user(&old_hdr, buf, SZ_SG_HEADER))
+=======
+	if (count < SZ_SG_HEADER)
+		return -EIO;
+	if (copy_from_user(&old_hdr, buf, SZ_SG_HEADER))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 	blocking = !(filp->f_flags & O_NONBLOCK);
 	if (old_hdr.reply_len < 0)
@@ -645,13 +780,23 @@ sg_write(struct file *filp, const char __user *buf, size_t count, loff_t * ppos)
 	if (count < (SZ_SG_HEADER + 6))
 		return -EIO;	/* The minimum scsi command length is 6 bytes. */
 
+<<<<<<< HEAD
+=======
+	buf += SZ_SG_HEADER;
+	if (get_user(opcode, buf))
+		return -EFAULT;
+
+>>>>>>> upstream/android-13
 	if (!(srp = sg_add_request(sfp))) {
 		SCSI_LOG_TIMEOUT(1, sg_printk(KERN_INFO, sdp,
 					      "sg_write: queue full\n"));
 		return -EDOM;
 	}
+<<<<<<< HEAD
 	buf += SZ_SG_HEADER;
 	__get_user(opcode, buf);
+=======
+>>>>>>> upstream/android-13
 	mutex_lock(&sfp->f_mutex);
 	if (sfp->next_cmd_len > 0) {
 		cmd_size = sfp->next_cmd_len;
@@ -694,7 +839,11 @@ sg_write(struct file *filp, const char __user *buf, size_t count, loff_t * ppos)
 	hp->flags = input_size;	/* structure abuse ... */
 	hp->pack_id = old_hdr.pack_id;
 	hp->usr_ptr = NULL;
+<<<<<<< HEAD
 	if (__copy_from_user(cmnd, buf, cmd_size)) {
+=======
+	if (copy_from_user(cmnd, buf, cmd_size)) {
+>>>>>>> upstream/android-13
 		sg_remove_request(sfp, srp);
 		return -EFAULT;
 	}
@@ -731,8 +880,11 @@ sg_new_write(Sg_fd *sfp, struct file *file, const char __user *buf,
 
 	if (count < SZ_SG_IO_HDR)
 		return -EINVAL;
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_READ, buf, count))
 		return -EFAULT; /* protects following copy_from_user()s + get_user()s */
+=======
+>>>>>>> upstream/android-13
 
 	sfp->cmd_q = 1;	/* when sg_io_hdr seen, set command queuing on */
 	if (!(srp = sg_add_request(sfp))) {
@@ -742,7 +894,11 @@ sg_new_write(Sg_fd *sfp, struct file *file, const char __user *buf,
 	}
 	srp->sg_io_owned = sg_io_owned;
 	hp = &srp->header;
+<<<<<<< HEAD
 	if (__copy_from_user(hp, buf, SZ_SG_IO_HDR)) {
+=======
+	if (get_sg_io_hdr(hp, buf)) {
+>>>>>>> upstream/android-13
 		sg_remove_request(sfp, srp);
 		return -EFAULT;
 	}
@@ -770,11 +926,15 @@ sg_new_write(Sg_fd *sfp, struct file *file, const char __user *buf,
 		sg_remove_request(sfp, srp);
 		return -EMSGSIZE;
 	}
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_READ, hp->cmdp, hp->cmd_len)) {
 		sg_remove_request(sfp, srp);
 		return -EFAULT;	/* protects following copy_from_user()s + get_user()s */
 	}
 	if (__copy_from_user(cmnd, hp->cmdp, hp->cmd_len)) {
+=======
+	if (copy_from_user(cmnd, hp->cmdp, hp->cmd_len)) {
+>>>>>>> upstream/android-13
 		sg_remove_request(sfp, srp);
 		return -EFAULT;
 	}
@@ -826,7 +986,11 @@ sg_common_write(Sg_fd * sfp, Sg_request * srp,
 	if (atomic_read(&sdp->detaching)) {
 		if (srp->bio) {
 			scsi_req_free_cmd(scsi_req(srp->rq));
+<<<<<<< HEAD
 			blk_end_request_all(srp->rq, BLK_STS_IOERR);
+=======
+			blk_put_request(srp->rq);
+>>>>>>> upstream/android-13
 			srp->rq = NULL;
 		}
 
@@ -842,6 +1006,7 @@ sg_common_write(Sg_fd * sfp, Sg_request * srp,
 	else
 		at_head = 1;
 
+<<<<<<< HEAD
 	if (likely(!sdp->device->timeout_override))
 		srp->rq->timeout = timeout;
 	else
@@ -850,6 +1015,11 @@ sg_common_write(Sg_fd * sfp, Sg_request * srp,
 	kref_get(&sfp->f_ref); /* sg_rq_end_io() does kref_put(). */
 	blk_execute_rq_nowait(sdp->device->request_queue, sdp->disk,
 			      srp->rq, at_head, sg_rq_end_io);
+=======
+	srp->rq->timeout = timeout;
+	kref_get(&sfp->f_ref); /* sg_rq_end_io() does kref_put(). */
+	blk_execute_rq_nowait(NULL, srp->rq, at_head, sg_rq_end_io);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -906,6 +1076,7 @@ sg_fill_request_table(Sg_fd *sfp, sg_req_info_t *rinfo)
 	}
 }
 
+<<<<<<< HEAD
 static long
 sg_ioctl(struct file *filp, unsigned int cmd_in, unsigned long arg)
 {
@@ -920,6 +1091,44 @@ sg_ioctl(struct file *filp, unsigned int cmd_in, unsigned long arg)
 	if ((!(sfp = (Sg_fd *) filp->private_data)) || (!(sdp = sfp->parentdp)))
 		return -ENXIO;
 
+=======
+#ifdef CONFIG_COMPAT
+struct compat_sg_req_info { /* used by SG_GET_REQUEST_TABLE ioctl() */
+	char req_state;
+	char orphan;
+	char sg_io_owned;
+	char problem;
+	int pack_id;
+	compat_uptr_t usr_ptr;
+	unsigned int duration;
+	int unused;
+};
+
+static int put_compat_request_table(struct compat_sg_req_info __user *o,
+				    struct sg_req_info *rinfo)
+{
+	int i;
+	for (i = 0; i < SG_MAX_QUEUE; i++) {
+		if (copy_to_user(o + i, rinfo + i, offsetof(sg_req_info_t, usr_ptr)) ||
+		    put_user((uintptr_t)rinfo[i].usr_ptr, &o[i].usr_ptr) ||
+		    put_user(rinfo[i].duration, &o[i].duration) ||
+		    put_user(rinfo[i].unused, &o[i].unused))
+			return -EFAULT;
+	}
+	return 0;
+}
+#endif
+
+static long
+sg_ioctl_common(struct file *filp, Sg_device *sdp, Sg_fd *sfp,
+		unsigned int cmd_in, void __user *p)
+{
+	int __user *ip = p;
+	int result, val, read_only;
+	Sg_request *srp;
+	unsigned long iflags;
+
+>>>>>>> upstream/android-13
 	SCSI_LOG_TIMEOUT(3, sg_printk(KERN_INFO, sdp,
 				   "sg_ioctl: cmd=0x%x\n", (int) cmd_in));
 	read_only = (O_RDWR != (filp->f_flags & O_ACCMODE));
@@ -930,8 +1139,11 @@ sg_ioctl(struct file *filp, unsigned int cmd_in, unsigned long arg)
 			return -ENODEV;
 		if (!scsi_block_when_processing_errors(sdp->device))
 			return -ENXIO;
+<<<<<<< HEAD
 		if (!access_ok(VERIFY_WRITE, p, SZ_SG_IO_HDR))
 			return -EFAULT;
+=======
+>>>>>>> upstream/android-13
 		result = sg_new_write(sfp, filp, p, SZ_SG_IO_HDR,
 				 1, read_only, 1, &srp);
 		if (result < 0)
@@ -974,6 +1186,7 @@ sg_ioctl(struct file *filp, unsigned int cmd_in, unsigned long arg)
 		 */
 		return 0;
 	case SG_GET_LOW_DMA:
+<<<<<<< HEAD
 		return put_user((int) sdp->device->host->unchecked_isa_dma, ip);
 	case SG_GET_SCSI_ID:
 		if (!access_ok(VERIFY_WRITE, p, sizeof (sg_scsi_id_t)))
@@ -996,6 +1209,25 @@ sg_ioctl(struct file *filp, unsigned int cmd_in, unsigned long arg)
 				   &sg_idp->d_queue_depth);
 			__put_user(0, &sg_idp->unused[0]);
 			__put_user(0, &sg_idp->unused[1]);
+=======
+		return put_user(0, ip);
+	case SG_GET_SCSI_ID:
+		{
+			sg_scsi_id_t v;
+
+			if (atomic_read(&sdp->detaching))
+				return -ENODEV;
+			memset(&v, 0, sizeof(v));
+			v.host_no = sdp->device->host->host_no;
+			v.channel = sdp->device->channel;
+			v.scsi_id = sdp->device->id;
+			v.lun = sdp->device->lun;
+			v.scsi_type = sdp->device->type;
+			v.h_cmd_per_lun = sdp->device->host->cmd_per_lun;
+			v.d_queue_depth = sdp->device->queue_depth;
+			if (copy_to_user(p, &v, sizeof(sg_scsi_id_t)))
+				return -EFAULT;
+>>>>>>> upstream/android-13
 			return 0;
 		}
 	case SG_SET_FORCE_PACK_ID:
@@ -1005,13 +1237,17 @@ sg_ioctl(struct file *filp, unsigned int cmd_in, unsigned long arg)
 		sfp->force_packid = val ? 1 : 0;
 		return 0;
 	case SG_GET_PACK_ID:
+<<<<<<< HEAD
 		if (!access_ok(VERIFY_WRITE, ip, sizeof (int)))
 			return -EFAULT;
+=======
+>>>>>>> upstream/android-13
 		read_lock_irqsave(&sfp->rq_list_lock, iflags);
 		list_for_each_entry(srp, &sfp->rq_list, entry) {
 			if ((1 == srp->done) && (!srp->sg_io_owned)) {
 				read_unlock_irqrestore(&sfp->rq_list_lock,
 						       iflags);
+<<<<<<< HEAD
 				__put_user(srp->header.pack_id, ip);
 				return 0;
 			}
@@ -1019,6 +1255,13 @@ sg_ioctl(struct file *filp, unsigned int cmd_in, unsigned long arg)
 		read_unlock_irqrestore(&sfp->rq_list_lock, iflags);
 		__put_user(-1, ip);
 		return 0;
+=======
+				return put_user(srp->header.pack_id, ip);
+			}
+		}
+		read_unlock_irqrestore(&sfp->rq_list_lock, iflags);
+		return put_user(-1, ip);
+>>>>>>> upstream/android-13
 	case SG_GET_NUM_WAITING:
 		read_lock_irqsave(&sfp->rq_list_lock, iflags);
 		val = 0;
@@ -1086,9 +1329,13 @@ sg_ioctl(struct file *filp, unsigned int cmd_in, unsigned long arg)
 		val = (sdp->device ? 1 : 0);
 		return put_user(val, ip);
 	case SG_GET_REQUEST_TABLE:
+<<<<<<< HEAD
 		if (!access_ok(VERIFY_WRITE, p, SZ_SG_REQ_INFO * SG_MAX_QUEUE))
 			return -EFAULT;
 		else {
+=======
+		{
+>>>>>>> upstream/android-13
 			sg_req_info_t *rinfo;
 
 			rinfo = kcalloc(SG_MAX_QUEUE, SZ_SG_REQ_INFO,
@@ -1098,8 +1345,18 @@ sg_ioctl(struct file *filp, unsigned int cmd_in, unsigned long arg)
 			read_lock_irqsave(&sfp->rq_list_lock, iflags);
 			sg_fill_request_table(sfp, rinfo);
 			read_unlock_irqrestore(&sfp->rq_list_lock, iflags);
+<<<<<<< HEAD
 			result = __copy_to_user(p, rinfo,
 						SZ_SG_REQ_INFO * SG_MAX_QUEUE);
+=======
+	#ifdef CONFIG_COMPAT
+			if (in_compat_syscall())
+				result = put_compat_request_table(p, rinfo);
+			else
+	#endif
+				result = copy_to_user(p, rinfo,
+						      SZ_SG_REQ_INFO * SG_MAX_QUEUE);
+>>>>>>> upstream/android-13
 			result = result ? -EFAULT : 0;
 			kfree(rinfo);
 			return result;
@@ -1111,7 +1368,11 @@ sg_ioctl(struct file *filp, unsigned int cmd_in, unsigned long arg)
 	case SCSI_IOCTL_SEND_COMMAND:
 		if (atomic_read(&sdp->detaching))
 			return -ENODEV;
+<<<<<<< HEAD
 		return sg_scsi_ioctl(sdp->device->request_queue, NULL, filp->f_mode, p);
+=======
+		return scsi_ioctl(sdp->device, NULL, filp->f_mode, cmd_in, p);
+>>>>>>> upstream/android-13
 	case SG_SET_DEBUG:
 		result = get_user(val, ip);
 		if (result)
@@ -1122,8 +1383,12 @@ sg_ioctl(struct file *filp, unsigned int cmd_in, unsigned long arg)
 		return put_user(max_sectors_bytes(sdp->device->request_queue),
 				ip);
 	case BLKTRACESETUP:
+<<<<<<< HEAD
 		return blk_trace_setup(sdp->device->request_queue,
 				       sdp->disk->disk_name,
+=======
+		return blk_trace_setup(sdp->device->request_queue, sdp->name,
+>>>>>>> upstream/android-13
 				       MKDEV(SCSI_GENERIC_MAJOR, sdp->index),
 				       NULL, p);
 	case BLKTRACESTART:
@@ -1150,6 +1415,7 @@ sg_ioctl(struct file *filp, unsigned int cmd_in, unsigned long arg)
 			cmd_in, filp->f_flags & O_NDELAY);
 	if (result)
 		return result;
+<<<<<<< HEAD
 	return scsi_ioctl(sdp->device, cmd_in, p);
 }
 
@@ -1159,10 +1425,24 @@ static long sg_compat_ioctl(struct file *filp, unsigned int cmd_in, unsigned lon
 	Sg_device *sdp;
 	Sg_fd *sfp;
 	struct scsi_device *sdev;
+=======
+
+	return -ENOIOCTLCMD;
+}
+
+static long
+sg_ioctl(struct file *filp, unsigned int cmd_in, unsigned long arg)
+{
+	void __user *p = (void __user *)arg;
+	Sg_device *sdp;
+	Sg_fd *sfp;
+	int ret;
+>>>>>>> upstream/android-13
 
 	if ((!(sfp = (Sg_fd *) filp->private_data)) || (!(sdp = sfp->parentdp)))
 		return -ENXIO;
 
+<<<<<<< HEAD
 	sdev = sdp->device;
 	if (sdev->host->hostt->compat_ioctl) { 
 		int ret;
@@ -1175,6 +1455,13 @@ static long sg_compat_ioctl(struct file *filp, unsigned int cmd_in, unsigned lon
 	return -ENOIOCTLCMD;
 }
 #endif
+=======
+	ret = sg_ioctl_common(filp, sdp, sfp, cmd_in, p);
+	if (ret != -ENOIOCTLCMD)
+		return ret;
+	return scsi_ioctl(sdp->device, NULL, filp->f_mode, cmd_in, p);
+}
+>>>>>>> upstream/android-13
 
 static __poll_t
 sg_poll(struct file *filp, poll_table * wait)
@@ -1364,7 +1651,11 @@ sg_rq_end_io(struct request *rq, blk_status_t status)
 
 		srp->header.status = 0xff & result;
 		srp->header.masked_status = status_byte(result);
+<<<<<<< HEAD
 		srp->header.msg_status = msg_byte(result);
+=======
+		srp->header.msg_status = COMMAND_COMPLETE;
+>>>>>>> upstream/android-13
 		srp->header.host_status = host_byte(result);
 		srp->header.driver_status = driver_byte(result);
 		if ((sdp->sgdebug > 0) &&
@@ -1398,7 +1689,11 @@ sg_rq_end_io(struct request *rq, blk_status_t status)
 	 */
 	srp->rq = NULL;
 	scsi_req_free_cmd(scsi_req(rq));
+<<<<<<< HEAD
 	__blk_put_request(rq->q, rq);
+=======
+	blk_put_request(rq);
+>>>>>>> upstream/android-13
 
 	write_lock_irqsave(&sfp->rq_list_lock, iflags);
 	if (unlikely(srp->orphan)) {
@@ -1429,9 +1724,13 @@ static const struct file_operations sg_fops = {
 	.write = sg_write,
 	.poll = sg_poll,
 	.unlocked_ioctl = sg_ioctl,
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 	.compat_ioctl = sg_compat_ioctl,
 #endif
+=======
+	.compat_ioctl = compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 	.open = sg_open,
 	.mmap = sg_mmap,
 	.release = sg_release,
@@ -1444,7 +1743,11 @@ static struct class *sg_sysfs_class;
 static int sg_sysfs_valid = 0;
 
 static Sg_device *
+<<<<<<< HEAD
 sg_alloc(struct gendisk *disk, struct scsi_device *scsidp)
+=======
+sg_alloc(struct scsi_device *scsidp)
+>>>>>>> upstream/android-13
 {
 	struct request_queue *q = scsidp->request_queue;
 	Sg_device *sdp;
@@ -1480,9 +1783,13 @@ sg_alloc(struct gendisk *disk, struct scsi_device *scsidp)
 
 	SCSI_LOG_TIMEOUT(3, sdev_printk(KERN_INFO, scsidp,
 					"sg_alloc: dev=%d \n", k));
+<<<<<<< HEAD
 	sprintf(disk->disk_name, "sg%d", k);
 	disk->first_minor = k;
 	sdp->disk = disk;
+=======
+	sprintf(sdp->name, "sg%d", k);
+>>>>>>> upstream/android-13
 	sdp->device = scsidp;
 	mutex_init(&sdp->open_rel_lock);
 	INIT_LIST_HEAD(&sdp->sfds);
@@ -1509,12 +1816,16 @@ static int
 sg_add_device(struct device *cl_dev, struct class_interface *cl_intf)
 {
 	struct scsi_device *scsidp = to_scsi_device(cl_dev->parent);
+<<<<<<< HEAD
 	struct gendisk *disk;
+=======
+>>>>>>> upstream/android-13
 	Sg_device *sdp = NULL;
 	struct cdev * cdev = NULL;
 	int error;
 	unsigned long iflags;
 
+<<<<<<< HEAD
 	disk = alloc_disk(1);
 	if (!disk) {
 		pr_warn("%s: alloc_disk failed\n", __func__);
@@ -1522,6 +1833,8 @@ sg_add_device(struct device *cl_dev, struct class_interface *cl_intf)
 	}
 	disk->major = SCSI_GENERIC_MAJOR;
 
+=======
+>>>>>>> upstream/android-13
 	error = -ENOMEM;
 	cdev = cdev_alloc();
 	if (!cdev) {
@@ -1531,7 +1844,11 @@ sg_add_device(struct device *cl_dev, struct class_interface *cl_intf)
 	cdev->owner = THIS_MODULE;
 	cdev->ops = &sg_fops;
 
+<<<<<<< HEAD
 	sdp = sg_alloc(disk, scsidp);
+=======
+	sdp = sg_alloc(scsidp);
+>>>>>>> upstream/android-13
 	if (IS_ERR(sdp)) {
 		pr_warn("%s: sg_alloc failed\n", __func__);
 		error = PTR_ERR(sdp);
@@ -1549,7 +1866,11 @@ sg_add_device(struct device *cl_dev, struct class_interface *cl_intf)
 		sg_class_member = device_create(sg_sysfs_class, cl_dev->parent,
 						MKDEV(SCSI_GENERIC_MAJOR,
 						      sdp->index),
+<<<<<<< HEAD
 						sdp, "%s", disk->disk_name);
+=======
+						sdp, "%s", sdp->name);
+>>>>>>> upstream/android-13
 		if (IS_ERR(sg_class_member)) {
 			pr_err("%s: device_create failed\n", __func__);
 			error = PTR_ERR(sg_class_member);
@@ -1577,7 +1898,10 @@ cdev_add_err:
 	kfree(sdp);
 
 out:
+<<<<<<< HEAD
 	put_disk(disk);
+=======
+>>>>>>> upstream/android-13
 	if (cdev)
 		cdev_del(cdev);
 	return error;
@@ -1601,7 +1925,10 @@ sg_device_destroy(struct kref *kref)
 	SCSI_LOG_TIMEOUT(3,
 		sg_printk(KERN_INFO, sdp, "sg_device_destroy\n"));
 
+<<<<<<< HEAD
 	put_disk(sdp->disk);
+=======
+>>>>>>> upstream/android-13
 	kfree(sdp);
 }
 
@@ -1747,7 +2074,11 @@ sg_start_req(Sg_request *srp, unsigned char *cmd)
 	 * not expect an EWOULDBLOCK from this condition.
 	 */
 	rq = blk_get_request(q, hp->dxfer_direction == SG_DXFER_TO_DEV ?
+<<<<<<< HEAD
 			REQ_OP_SCSI_OUT : REQ_OP_SCSI_IN, 0);
+=======
+			REQ_OP_DRV_OUT : REQ_OP_DRV_IN, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(rq)) {
 		kfree(long_cmdp);
 		return PTR_ERR(rq);
@@ -1768,7 +2099,10 @@ sg_start_req(Sg_request *srp, unsigned char *cmd)
 
 	if (sg_allow_dio && hp->flags & SG_FLAG_DIRECT_IO &&
 	    dxfer_dir != SG_DXFER_UNKNOWN && !iov_count &&
+<<<<<<< HEAD
 	    !sfp->parentdp->device->host->unchecked_isa_dma &&
+=======
+>>>>>>> upstream/android-13
 	    blk_rq_aligned(q, (unsigned long)hp->dxferp, dxfer_len))
 		md = NULL;
 	else
@@ -1884,7 +2218,10 @@ sg_build_indirect(Sg_scatter_hold * schp, Sg_fd * sfp, int buff_size)
 	int sg_tablesize = sfp->parentdp->sg_tablesize;
 	int blk_size = buff_size, order;
 	gfp_t gfp_mask = GFP_ATOMIC | __GFP_COMP | __GFP_NOWARN | __GFP_ZERO;
+<<<<<<< HEAD
 	struct sg_device *sdp = sfp->parentdp;
+=======
+>>>>>>> upstream/android-13
 
 	if (blk_size < 0)
 		return -EFAULT;
@@ -1910,9 +2247,12 @@ sg_build_indirect(Sg_scatter_hold * schp, Sg_fd * sfp, int buff_size)
 			scatter_elem_sz_prev = num;
 	}
 
+<<<<<<< HEAD
 	if (sdp->device->host->unchecked_isa_dma)
 		gfp_mask |= GFP_DMA;
 
+=======
+>>>>>>> upstream/android-13
 	order = get_order(num);
 retry:
 	ret_sz = 1 << (PAGE_SHIFT + order);
@@ -1997,12 +2337,20 @@ sg_read_oxfer(Sg_request * srp, char __user *outp, int num_read_xfer)
 	num = 1 << (PAGE_SHIFT + schp->page_order);
 	for (k = 0; k < schp->k_use_sg && schp->pages[k]; k++) {
 		if (num > num_read_xfer) {
+<<<<<<< HEAD
 			if (__copy_to_user(outp, page_address(schp->pages[k]),
+=======
+			if (copy_to_user(outp, page_address(schp->pages[k]),
+>>>>>>> upstream/android-13
 					   num_read_xfer))
 				return -EFAULT;
 			break;
 		} else {
+<<<<<<< HEAD
 			if (__copy_to_user(outp, page_address(schp->pages[k]),
+=======
+			if (copy_to_user(outp, page_address(schp->pages[k]),
+>>>>>>> upstream/android-13
 					   num))
 				return -EFAULT;
 			num_read_xfer -= num;
@@ -2309,6 +2657,7 @@ static int sg_proc_seq_show_int(struct seq_file *s, void *v);
 static int sg_proc_single_open_adio(struct inode *inode, struct file *file);
 static ssize_t sg_proc_write_adio(struct file *filp, const char __user *buffer,
 			          size_t count, loff_t *off);
+<<<<<<< HEAD
 static const struct file_operations adio_fops = {
 	.owner = THIS_MODULE,
 	.open = sg_proc_single_open_adio,
@@ -2316,11 +2665,20 @@ static const struct file_operations adio_fops = {
 	.llseek = seq_lseek,
 	.write = sg_proc_write_adio,
 	.release = single_release,
+=======
+static const struct proc_ops adio_proc_ops = {
+	.proc_open	= sg_proc_single_open_adio,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_write	= sg_proc_write_adio,
+	.proc_release	= single_release,
+>>>>>>> upstream/android-13
 };
 
 static int sg_proc_single_open_dressz(struct inode *inode, struct file *file);
 static ssize_t sg_proc_write_dressz(struct file *filp, 
 		const char __user *buffer, size_t count, loff_t *off);
+<<<<<<< HEAD
 static const struct file_operations dressz_fops = {
 	.owner = THIS_MODULE,
 	.open = sg_proc_single_open_dressz,
@@ -2328,6 +2686,14 @@ static const struct file_operations dressz_fops = {
 	.llseek = seq_lseek,
 	.write = sg_proc_write_dressz,
 	.release = single_release,
+=======
+static const struct proc_ops dressz_proc_ops = {
+	.proc_open	= sg_proc_single_open_dressz,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_write	= sg_proc_write_dressz,
+	.proc_release	= single_release,
+>>>>>>> upstream/android-13
 };
 
 static int sg_proc_seq_show_version(struct seq_file *s, void *v);
@@ -2368,9 +2734,15 @@ sg_proc_init(void)
 	if (!p)
 		return 1;
 
+<<<<<<< HEAD
 	proc_create("allow_dio", S_IRUGO | S_IWUSR, p, &adio_fops);
 	proc_create_seq("debug", S_IRUGO, p, &debug_seq_ops);
 	proc_create("def_reserved_size", S_IRUGO | S_IWUSR, p, &dressz_fops);
+=======
+	proc_create("allow_dio", S_IRUGO | S_IWUSR, p, &adio_proc_ops);
+	proc_create_seq("debug", S_IRUGO, p, &debug_seq_ops);
+	proc_create("def_reserved_size", S_IRUGO | S_IWUSR, p, &dressz_proc_ops);
+>>>>>>> upstream/android-13
 	proc_create_single("device_hdr", S_IRUGO, p, sg_proc_seq_show_devhdr);
 	proc_create_seq("devices", S_IRUGO, p, &dev_seq_ops);
 	proc_create_seq("device_strs", S_IRUGO, p, &devstrs_seq_ops);
@@ -2496,7 +2868,11 @@ static int sg_proc_seq_show_dev(struct seq_file *s, void *v)
 			      scsidp->id, scsidp->lun, (int) scsidp->type,
 			      1,
 			      (int) scsidp->queue_depth,
+<<<<<<< HEAD
 			      (int) atomic_read(&scsidp->device_busy),
+=======
+			      (int) scsi_device_busy(scsidp),
+>>>>>>> upstream/android-13
 			      (int) scsi_device_online(scsidp));
 	}
 	read_unlock_irqrestore(&sg_index_lock, iflags);
@@ -2540,8 +2916,12 @@ static void sg_proc_debug_helper(struct seq_file *s, Sg_device * sdp)
 			   "(res)sgat=%d low_dma=%d\n", k,
 			   jiffies_to_msecs(fp->timeout),
 			   fp->reserve.bufflen,
+<<<<<<< HEAD
 			   (int) fp->reserve.k_use_sg,
 			   (int) sdp->device->host->unchecked_isa_dma);
+=======
+			   (int) fp->reserve.k_use_sg, 0);
+>>>>>>> upstream/android-13
 		seq_printf(s, "   cmd_q=%d f_packid=%d k_orphan=%d closed=0\n",
 			   (int) fp->cmd_q, (int) fp->force_packid,
 			   (int) fp->keep_orphan);
@@ -2602,7 +2982,11 @@ static int sg_proc_seq_show_debug(struct seq_file *s, void *v)
 		goto skip;
 	read_lock(&sdp->sfd_lock);
 	if (!list_empty(&sdp->sfds)) {
+<<<<<<< HEAD
 		seq_printf(s, " >>> device=%s ", sdp->disk->disk_name);
+=======
+		seq_printf(s, " >>> device=%s ", sdp->name);
+>>>>>>> upstream/android-13
 		if (atomic_read(&sdp->detaching))
 			seq_puts(s, "detaching pending close ");
 		else if (sdp->device) {

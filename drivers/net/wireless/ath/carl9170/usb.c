@@ -61,7 +61,11 @@ MODULE_ALIAS("arusb_lnx");
  * Note:
  *
  * Always update our wiki's device list (located at:
+<<<<<<< HEAD
  * http://wireless.kernel.org/en/users/Drivers/ar9170/devices ),
+=======
+ * https://wireless.wiki.kernel.org/en/users/Drivers/ar9170/devices ),
+>>>>>>> upstream/android-13
  * whenever you add a new device.
  */
 static const struct usb_device_id carl9170_usb_ids[] = {
@@ -377,9 +381,15 @@ void carl9170_usb_handle_tx_err(struct ar9170 *ar)
 	}
 }
 
+<<<<<<< HEAD
 static void carl9170_usb_tasklet(unsigned long data)
 {
 	struct ar9170 *ar = (struct ar9170 *) data;
+=======
+static void carl9170_usb_tasklet(struct tasklet_struct *t)
+{
+	struct ar9170 *ar = from_tasklet(ar, t, usb_tasklet);
+>>>>>>> upstream/android-13
 
 	if (!IS_INITIALIZED(ar))
 		return;
@@ -1082,8 +1092,12 @@ static int carl9170_usb_probe(struct usb_interface *intf,
 	init_completion(&ar->cmd_wait);
 	init_completion(&ar->fw_boot_wait);
 	init_completion(&ar->fw_load_wait);
+<<<<<<< HEAD
 	tasklet_init(&ar->usb_tasklet, carl9170_usb_tasklet,
 		     (unsigned long)ar);
+=======
+	tasklet_setup(&ar->usb_tasklet, carl9170_usb_tasklet);
+>>>>>>> upstream/android-13
 
 	atomic_set(&ar->tx_cmd_urbs, 0);
 	atomic_set(&ar->tx_anch_urbs, 0);
@@ -1107,12 +1121,18 @@ static int carl9170_usb_probe(struct usb_interface *intf,
 static void carl9170_usb_disconnect(struct usb_interface *intf)
 {
 	struct ar9170 *ar = usb_get_intfdata(intf);
+<<<<<<< HEAD
 	struct usb_device *udev;
+=======
+>>>>>>> upstream/android-13
 
 	if (WARN_ON(!ar))
 		return;
 
+<<<<<<< HEAD
 	udev = ar->udev;
+=======
+>>>>>>> upstream/android-13
 	wait_for_completion(&ar->fw_load_wait);
 
 	if (IS_INITIALIZED(ar)) {

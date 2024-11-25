@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *    Optimized memory copy routines.
  *
  *    Copyright (C) 2004 Randolph Chung <tausq@debian.org>
  *    Copyright (C) 2013-2017 Helge Deller <deller@gmx.de>
  *
+<<<<<<< HEAD
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation; either version 2, or (at your option)
@@ -21,6 +26,10 @@
  *    Portions derived from the GNU C Library
  *    Copyright (C) 1991, 1997, 2003 Free Software Foundation, Inc.
  *
+=======
+ *    Portions derived from the GNU C Library
+ *    Copyright (C) 1991, 1997, 2003 Free Software Foundation, Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -52,6 +61,7 @@ unsigned long raw_copy_from_user(void *dst, const void __user *src,
 }
 EXPORT_SYMBOL(raw_copy_from_user);
 
+<<<<<<< HEAD
 unsigned long raw_copy_in_user(void __user *dst, const void __user *src, unsigned long len)
 {
 	mtsp(get_user_space(), 1);
@@ -60,6 +70,8 @@ unsigned long raw_copy_in_user(void __user *dst, const void __user *src, unsigne
 }
 
 
+=======
+>>>>>>> upstream/android-13
 void * memcpy(void * dst,const void *src, size_t count)
 {
 	mtsp(get_kernel_space(), 1);
@@ -68,6 +80,7 @@ void * memcpy(void * dst,const void *src, size_t count)
 	return dst;
 }
 
+<<<<<<< HEAD
 EXPORT_SYMBOL(raw_copy_in_user);
 EXPORT_SYMBOL(memcpy);
 
@@ -81,4 +94,14 @@ long probe_kernel_read(void *dst, const void *src, size_t size)
 	/* check for I/O space F_EXTEND(0xfff00000) access as well? */
 
 	return __probe_kernel_read(dst, src, size);
+=======
+EXPORT_SYMBOL(memcpy);
+
+bool copy_from_kernel_nofault_allowed(const void *unsafe_src, size_t size)
+{
+	if ((unsigned long)unsafe_src < PAGE_SIZE)
+		return false;
+	/* check for I/O space F_EXTEND(0xfff00000) access as well? */
+	return true;
+>>>>>>> upstream/android-13
 }

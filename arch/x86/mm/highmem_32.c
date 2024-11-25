@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #include <linux/highmem.h>
 #include <linux/export.h>
 #include <linux/swap.h> /* for totalram_pages */
@@ -103,6 +104,13 @@ void __kunmap_atomic(void *kvaddr)
 	preempt_enable();
 }
 EXPORT_SYMBOL(__kunmap_atomic);
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+#include <linux/highmem.h>
+#include <linux/export.h>
+#include <linux/swap.h> /* for totalram_pages */
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 
 void __init set_highmem_pages_init(void)
 {
@@ -111,7 +119,11 @@ void __init set_highmem_pages_init(void)
 
 	/*
 	 * Explicitly reset zone->managed_pages because set_highmem_pages_init()
+<<<<<<< HEAD
 	 * is invoked before free_all_bootmem()
+=======
+	 * is invoked before memblock_free_all()
+>>>>>>> upstream/android-13
 	 */
 	reset_all_zones_managed_pages();
 	for_each_zone(zone) {

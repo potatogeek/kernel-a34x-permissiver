@@ -2,9 +2,15 @@
 #ifndef __PERF_COMM_H
 #define __PERF_COMM_H
 
+<<<<<<< HEAD
 #include "../perf.h"
 #include <linux/rbtree.h>
 #include <linux/list.h>
+=======
+#include <linux/list.h>
+#include <linux/types.h>
+#include <stdbool.h>
+>>>>>>> upstream/android-13
 
 struct comm_str;
 

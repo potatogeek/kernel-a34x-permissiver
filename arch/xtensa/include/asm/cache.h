@@ -11,7 +11,11 @@
 #ifndef _XTENSA_CACHE_H
 #define _XTENSA_CACHE_H
 
+<<<<<<< HEAD
 #include <variant/core.h>
+=======
+#include <asm/core.h>
+>>>>>>> upstream/android-13
 
 #define L1_CACHE_SHIFT	XCHAL_DCACHE_LINEWIDTH
 #define L1_CACHE_BYTES	XCHAL_DCACHE_LINESIZE
@@ -31,4 +35,13 @@
 
 #define ARCH_DMA_MINALIGN	L1_CACHE_BYTES
 
+<<<<<<< HEAD
+=======
+/*
+ * R/O after init is actually writable, it cannot go to .rodata
+ * according to vmlinux linker script.
+ */
+#define __ro_after_init __read_mostly
+
+>>>>>>> upstream/android-13
 #endif	/* _XTENSA_CACHE_H */

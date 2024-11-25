@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * An rtc driver for the Dallas DS1742
  *
  * Copyright (C) 2006 Atsushi Nemoto <anemo@mba.ocn.ne.jp>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Copyright (C) 2006 Torsten Ertbjerg Rasmussen <tr@newtec.dk>
  *  - nvram size determined from resource
  *  - this ds1742 driver now supports ds1743.
@@ -193,6 +200,7 @@ static int ds1742_rtc_probe(struct platform_device *pdev)
 		return PTR_ERR(rtc);
 
 	rtc->ops = &ds1742_rtc_ops;
+<<<<<<< HEAD
 	rtc->nvram_old_abi = true;
 
 	ret = rtc_register_device(rtc);
@@ -201,6 +209,14 @@ static int ds1742_rtc_probe(struct platform_device *pdev)
 
 	if (rtc_nvmem_register(rtc, &nvmem_cfg))
 		dev_err(&pdev->dev, "Unable to register nvmem\n");
+=======
+
+	ret = devm_rtc_register_device(rtc);
+	if (ret)
+		return ret;
+
+	devm_rtc_nvmem_register(rtc, &nvmem_cfg);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

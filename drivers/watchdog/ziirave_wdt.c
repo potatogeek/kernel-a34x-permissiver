@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2015 Zodiac Inflight Innovations
  *
@@ -6,6 +10,7 @@
  * Based on twl4030_wdt.c by Timo Kokkonen <timo.t.kokkonen at nokia.com>:
  *
  * Copyright (C) Nokia Corporation
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -27,11 +34,21 @@
 #include <linux/slab.h>
 #include <linux/sysfs.h>
 #include <linux/types.h>
+<<<<<<< HEAD
 #include <linux/version.h>
 #include <linux/watchdog.h>
 
 #define ZIIRAVE_TIMEOUT_MIN	3
 #define ZIIRAVE_TIMEOUT_MAX	255
+=======
+#include <linux/watchdog.h>
+
+#include <asm/unaligned.h>
+
+#define ZIIRAVE_TIMEOUT_MIN	3
+#define ZIIRAVE_TIMEOUT_MAX	255
+#define ZIIRAVE_TIMEOUT_DEFAULT	30
+>>>>>>> upstream/android-13
 
 #define ZIIRAVE_PING_VALUE	0x0
 
@@ -57,6 +74,7 @@ static char *ziirave_reasons[] = {"power cycle", "hw watchdog", NULL, NULL,
 
 #define ZIIRAVE_FIRM_PKT_TOTAL_SIZE	20
 #define ZIIRAVE_FIRM_PKT_DATA_SIZE	16
+<<<<<<< HEAD
 #define ZIIRAVE_FIRM_FLASH_MEMORY_START	0x1600
 #define ZIIRAVE_FIRM_FLASH_MEMORY_END	0x2bbf
 
@@ -67,6 +85,14 @@ static char *ziirave_reasons[] = {"power cycle", "hw watchdog", NULL, NULL,
 
 /* Wait for ACK timeout in ms */
 #define ZIIRAVE_FIRM_WAIT_FOR_ACK_TIMEOUT	50
+=======
+#define ZIIRAVE_FIRM_FLASH_MEMORY_START	(2 * 0x1600)
+#define ZIIRAVE_FIRM_FLASH_MEMORY_END	(2 * 0x2bbf)
+#define ZIIRAVE_FIRM_PAGE_SIZE		128
+
+/* Received and ready for next Download packet. */
+#define ZIIRAVE_FIRM_DOWNLOAD_ACK	1
+>>>>>>> upstream/android-13
 
 /* Firmware commands */
 #define ZIIRAVE_CMD_DOWNLOAD_START		0x10
@@ -77,6 +103,12 @@ static char *ziirave_reasons[] = {"power cycle", "hw watchdog", NULL, NULL,
 #define ZIIRAVE_CMD_JUMP_TO_BOOTLOADER		0x0c
 #define ZIIRAVE_CMD_DOWNLOAD_PACKET		0x0e
 
+<<<<<<< HEAD
+=======
+#define ZIIRAVE_CMD_JUMP_TO_BOOTLOADER_MAGIC	1
+#define ZIIRAVE_CMD_RESET_PROCESSOR_MAGIC	1
+
+>>>>>>> upstream/android-13
 struct ziirave_wdt_rev {
 	unsigned char major;
 	unsigned char minor;
@@ -174,6 +206,7 @@ static unsigned int ziirave_wdt_get_timeleft(struct watchdog_device *wdd)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int ziirave_firm_wait_for_ack(struct watchdog_device *wdd)
 {
 	struct i2c_client *client = to_i2c_client(wdd->parent);
@@ -193,10 +226,23 @@ static int ziirave_firm_wait_for_ack(struct watchdog_device *wdd)
 			return ret;
 		}
 	} while (ret == ZIIRAVE_FIRM_DOWNLOAD_BUSY);
+=======
+static int ziirave_firm_read_ack(struct watchdog_device *wdd)
+{
+	struct i2c_client *client = to_i2c_client(wdd->parent);
+	int ret;
+
+	ret = i2c_smbus_read_byte(client);
+	if (ret < 0) {
+		dev_err(&client->dev, "Failed to read status byte\n");
+		return ret;
+	}
+>>>>>>> upstream/android-13
 
 	return ret == ZIIRAVE_FIRM_DOWNLOAD_ACK ? 0 : -EIO;
 }
 
+<<<<<<< HEAD
 static int ziirave_firm_set_read_addr(struct watchdog_device *wdd, u16 addr)
 {
 	struct i2c_client *client = to_i2c_client(wdd->parent);
@@ -235,6 +281,25 @@ static int ziirave_firm_write_byte(struct watchdog_device *wdd, u8 command,
 {
 	return ziirave_firm_write_block_data(wdd, command, 1, &byte,
 					     wait_for_ack);
+=======
+static int ziirave_firm_set_read_addr(struct watchdog_device *wdd, u32 addr)
+{
+	struct i2c_client *client = to_i2c_client(wdd->parent);
+	const u16 addr16 = (u16)addr / 2;
+	u8 address[2];
+
+	put_unaligned_le16(addr16, address);
+
+	return i2c_smbus_write_block_data(client,
+					  ZIIRAVE_CMD_DOWNLOAD_SET_READ_ADDR,
+					  sizeof(address), address);
+}
+
+static bool ziirave_firm_addr_readonly(u32 addr)
+{
+	return addr < ZIIRAVE_FIRM_FLASH_MEMORY_START ||
+	       addr > ZIIRAVE_FIRM_FLASH_MEMORY_END;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -249,6 +314,7 @@ static int ziirave_firm_write_byte(struct watchdog_device *wdd, u8 command,
  *     Data0 .. Data15: Array of 16 bytes of data.
  *     Checksum: Checksum byte to verify data integrity.
  */
+<<<<<<< HEAD
 static int ziirave_firm_write_pkt(struct watchdog_device *wdd,
 				  const struct ihex_binrec *rec)
 {
@@ -278,6 +344,55 @@ static int ziirave_firm_write_pkt(struct watchdog_device *wdd,
 
 	ret = ziirave_firm_write_block_data(wdd, ZIIRAVE_CMD_DOWNLOAD_PACKET,
 					    ARRAY_SIZE(packet), packet, true);
+=======
+static int __ziirave_firm_write_pkt(struct watchdog_device *wdd,
+				    u32 addr, const u8 *data, u8 len)
+{
+	const u16 addr16 = (u16)addr / 2;
+	struct i2c_client *client = to_i2c_client(wdd->parent);
+	u8 i, checksum = 0, packet[ZIIRAVE_FIRM_PKT_TOTAL_SIZE];
+	int ret;
+
+	/* Check max data size */
+	if (len > ZIIRAVE_FIRM_PKT_DATA_SIZE) {
+		dev_err(&client->dev, "Firmware packet too long (%d)\n",
+			len);
+		return -EMSGSIZE;
+	}
+
+	/*
+	 * Ignore packets that are targeting program memory outisde of
+	 * app partition, since they will be ignored by the
+	 * bootloader. At the same time, we need to make sure we'll
+	 * allow zero length packet that will be sent as the last step
+	 * of firmware update
+	 */
+	if (len && ziirave_firm_addr_readonly(addr))
+		return 0;
+
+	/* Packet length */
+	packet[0] = len;
+	/* Packet address */
+	put_unaligned_le16(addr16, packet + 1);
+
+	memcpy(packet + 3, data, len);
+	memset(packet + 3 + len, 0, ZIIRAVE_FIRM_PKT_DATA_SIZE - len);
+
+	/* Packet checksum */
+	for (i = 0; i < len + 3; i++)
+		checksum += packet[i];
+	packet[ZIIRAVE_FIRM_PKT_TOTAL_SIZE - 1] = checksum;
+
+	ret = i2c_smbus_write_block_data(client, ZIIRAVE_CMD_DOWNLOAD_PACKET,
+					 sizeof(packet), packet);
+	if (ret) {
+		dev_err(&client->dev,
+			"Failed to send DOWNLOAD_PACKET: %d\n", ret);
+		return ret;
+	}
+
+	ret = ziirave_firm_read_ack(wdd);
+>>>>>>> upstream/android-13
 	if (ret)
 		dev_err(&client->dev,
 		      "Failed to write firmware packet at address 0x%04x: %d\n",
@@ -286,6 +401,33 @@ static int ziirave_firm_write_pkt(struct watchdog_device *wdd,
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static int ziirave_firm_write_pkt(struct watchdog_device *wdd,
+				  u32 addr, const u8 *data, u8 len)
+{
+	const u8 max_write_len = ZIIRAVE_FIRM_PAGE_SIZE -
+		(addr - ALIGN_DOWN(addr, ZIIRAVE_FIRM_PAGE_SIZE));
+	int ret;
+
+	if (len > max_write_len) {
+		/*
+		 * If data crossed page boundary we need to split this
+		 * write in two
+		 */
+		ret = __ziirave_firm_write_pkt(wdd, addr, data, max_write_len);
+		if (ret)
+			return ret;
+
+		addr += max_write_len;
+		data += max_write_len;
+		len  -= max_write_len;
+	}
+
+	return __ziirave_firm_write_pkt(wdd, addr, data, len);
+}
+
+>>>>>>> upstream/android-13
 static int ziirave_firm_verify(struct watchdog_device *wdd,
 			       const struct firmware *fw)
 {
@@ -293,6 +435,7 @@ static int ziirave_firm_verify(struct watchdog_device *wdd,
 	const struct ihex_binrec *rec;
 	int i, ret;
 	u8 data[ZIIRAVE_FIRM_PKT_DATA_SIZE];
+<<<<<<< HEAD
 	u16 addr;
 
 	for (rec = (void *)fw->data; rec; rec = ihex_next_binrec(rec)) {
@@ -303,6 +446,14 @@ static int ziirave_firm_verify(struct watchdog_device *wdd,
 		addr = (be32_to_cpu(rec->addr) & 0xffff) >> 1;
 		if (addr < ZIIRAVE_FIRM_FLASH_MEMORY_START ||
 		    addr > ZIIRAVE_FIRM_FLASH_MEMORY_END)
+=======
+
+	for (rec = (void *)fw->data; rec; rec = ihex_next_binrec(rec)) {
+		const u16 len = be16_to_cpu(rec->len);
+		const u32 addr = be32_to_cpu(rec->addr);
+
+		if (ziirave_firm_addr_readonly(addr))
+>>>>>>> upstream/android-13
 			continue;
 
 		ret = ziirave_firm_set_read_addr(wdd, addr);
@@ -313,7 +464,11 @@ static int ziirave_firm_verify(struct watchdog_device *wdd,
 			return ret;
 		}
 
+<<<<<<< HEAD
 		for (i = 0; i < ARRAY_SIZE(data); i++) {
+=======
+		for (i = 0; i < len; i++) {
+>>>>>>> upstream/android-13
 			ret = i2c_smbus_read_byte_data(client,
 						ZIIRAVE_CMD_DOWNLOAD_READ_BYTE);
 			if (ret < 0) {
@@ -324,7 +479,11 @@ static int ziirave_firm_verify(struct watchdog_device *wdd,
 			data[i] = ret;
 		}
 
+<<<<<<< HEAD
 		if (memcmp(data, rec->data, be16_to_cpu(rec->len))) {
+=======
+		if (memcmp(data, rec->data, len)) {
+>>>>>>> upstream/android-13
 			dev_err(&client->dev,
 				"Firmware mismatch at address 0x%04x\n", addr);
 			return -EINVAL;
@@ -338,6 +497,7 @@ static int ziirave_firm_upload(struct watchdog_device *wdd,
 			       const struct firmware *fw)
 {
 	struct i2c_client *client = to_i2c_client(wdd->parent);
+<<<<<<< HEAD
 	int ret, words_till_page_break;
 	const struct ihex_binrec *rec;
 	struct ihex_binrec *rec_new;
@@ -352,10 +512,37 @@ static int ziirave_firm_upload(struct watchdog_device *wdd,
 	ret = ziirave_firm_write_byte(wdd, ZIIRAVE_CMD_DOWNLOAD_START, 1, true);
 	if (ret)
 		return ret;
+=======
+	const struct ihex_binrec *rec;
+	int ret;
+
+	ret = i2c_smbus_write_byte_data(client,
+					ZIIRAVE_CMD_JUMP_TO_BOOTLOADER,
+					ZIIRAVE_CMD_JUMP_TO_BOOTLOADER_MAGIC);
+	if (ret) {
+		dev_err(&client->dev, "Failed to jump to bootloader\n");
+		return ret;
+	}
+
+	msleep(500);
+
+	ret = i2c_smbus_write_byte(client, ZIIRAVE_CMD_DOWNLOAD_START);
+	if (ret) {
+		dev_err(&client->dev, "Failed to start download\n");
+		return ret;
+	}
+
+	ret = ziirave_firm_read_ack(wdd);
+	if (ret) {
+		dev_err(&client->dev, "No ACK for start download\n");
+		return ret;
+	}
+>>>>>>> upstream/android-13
 
 	msleep(500);
 
 	for (rec = (void *)fw->data; rec; rec = ihex_next_binrec(rec)) {
+<<<<<<< HEAD
 		/* Zero length marks end of records */
 		if (!be16_to_cpu(rec->len))
 			break;
@@ -429,6 +616,19 @@ static int ziirave_firm_upload(struct watchdog_device *wdd,
 
 	ret = ziirave_firm_write_pkt(wdd, rec_new);
 	kfree(rec_new);
+=======
+		ret = ziirave_firm_write_pkt(wdd, be32_to_cpu(rec->addr),
+					     rec->data, be16_to_cpu(rec->len));
+		if (ret)
+			return ret;
+	}
+
+	/*
+	 * Finish firmware download process by sending a zero length
+	 * payload
+	 */
+	ret = ziirave_firm_write_pkt(wdd, 0, NULL, 0);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(&client->dev, "Failed to send EMPTY packet: %d\n", ret);
 		return ret;
@@ -446,6 +646,7 @@ static int ziirave_firm_upload(struct watchdog_device *wdd,
 	}
 
 	/* End download operation */
+<<<<<<< HEAD
 	ret = ziirave_firm_write_byte(wdd, ZIIRAVE_CMD_DOWNLOAD_END, 1, false);
 	if (ret)
 		return ret;
@@ -455,6 +656,24 @@ static int ziirave_firm_upload(struct watchdog_device *wdd,
 				      false);
 	if (ret)
 		return ret;
+=======
+	ret = i2c_smbus_write_byte(client, ZIIRAVE_CMD_DOWNLOAD_END);
+	if (ret) {
+		dev_err(&client->dev,
+			"Failed to end firmware download: %d\n", ret);
+		return ret;
+	}
+
+	/* Reset the processor */
+	ret = i2c_smbus_write_byte_data(client,
+					ZIIRAVE_CMD_RESET_PROCESSOR,
+					ZIIRAVE_CMD_RESET_PROCESSOR_MAGIC);
+	if (ret) {
+		dev_err(&client->dev,
+			"Failed to reset the watchdog: %d\n", ret);
+		return ret;
+	}
+>>>>>>> upstream/android-13
 
 	msleep(500);
 
@@ -463,7 +682,11 @@ static int ziirave_firm_upload(struct watchdog_device *wdd,
 
 static const struct watchdog_info ziirave_wdt_info = {
 	.options = WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE | WDIOF_KEEPALIVEPING,
+<<<<<<< HEAD
 	.identity = "Zodiac RAVE Watchdog",
+=======
+	.identity = "RAVE Switch Watchdog",
+>>>>>>> upstream/android-13
 };
 
 static const struct watchdog_ops ziirave_wdt_ops = {
@@ -487,8 +710,14 @@ static ssize_t ziirave_wdt_sysfs_show_firm(struct device *dev,
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	ret = sprintf(buf, "02.%02u.%02u", w_priv->firmware_rev.major,
 		      w_priv->firmware_rev.minor);
+=======
+	ret = sysfs_emit(buf, "02.%02u.%02u\n",
+			 w_priv->firmware_rev.major,
+			 w_priv->firmware_rev.minor);
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&w_priv->sysfs_mutex);
 
@@ -510,8 +739,14 @@ static ssize_t ziirave_wdt_sysfs_show_boot(struct device *dev,
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	ret = sprintf(buf, "01.%02u.%02u", w_priv->bootloader_rev.major,
 		      w_priv->bootloader_rev.minor);
+=======
+	ret = sysfs_emit(buf, "01.%02u.%02u\n",
+			 w_priv->bootloader_rev.major,
+			 w_priv->bootloader_rev.minor);
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&w_priv->sysfs_mutex);
 
@@ -533,7 +768,11 @@ static ssize_t ziirave_wdt_sysfs_show_reason(struct device *dev,
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	ret = sprintf(buf, "%s", ziirave_reasons[w_priv->reset_reason]);
+=======
+	ret = sysfs_emit(buf, "%s\n", ziirave_reasons[w_priv->reset_reason]);
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&w_priv->sysfs_mutex);
 
@@ -577,7 +816,12 @@ static ssize_t ziirave_wdt_sysfs_store_firm(struct device *dev,
 		goto unlock_mutex;
 	}
 
+<<<<<<< HEAD
 	dev_info(&client->dev, "Firmware updated to version 02.%02u.%02u\n",
+=======
+	dev_info(&client->dev,
+		 "Firmware updated to version 02.%02u.%02u\n",
+>>>>>>> upstream/android-13
 		 w_priv->firmware_rev.major, w_priv->firmware_rev.minor);
 
 	/* Restore the watchdog timeout */
@@ -620,7 +864,11 @@ static int ziirave_wdt_init_duration(struct i2c_client *client)
 						   &reset_duration);
 		if (ret) {
 			dev_info(&client->dev,
+<<<<<<< HEAD
 				 "Unable to set reset pulse duration, using default\n");
+=======
+			 "No reset pulse duration specified, using default\n");
+>>>>>>> upstream/android-13
 			return 0;
 		}
 	}
@@ -642,7 +890,14 @@ static int ziirave_wdt_probe(struct i2c_client *client,
 	struct ziirave_wdt_data *w_priv;
 	int val;
 
+<<<<<<< HEAD
 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_BYTE_DATA))
+=======
+	if (!i2c_check_functionality(client->adapter,
+				     I2C_FUNC_SMBUS_BYTE |
+				     I2C_FUNC_SMBUS_BYTE_DATA |
+				     I2C_FUNC_SMBUS_WRITE_BLOCK_DATA))
+>>>>>>> upstream/android-13
 		return -ENODEV;
 
 	w_priv = devm_kzalloc(&client->dev, sizeof(*w_priv), GFP_KERNEL);
@@ -658,11 +913,15 @@ static int ziirave_wdt_probe(struct i2c_client *client,
 	w_priv->wdd.parent = &client->dev;
 	w_priv->wdd.groups = ziirave_wdt_groups;
 
+<<<<<<< HEAD
 	ret = watchdog_init_timeout(&w_priv->wdd, wdt_timeout, &client->dev);
 	if (ret) {
 		dev_info(&client->dev,
 			 "Unable to select timeout value, using default\n");
 	}
+=======
+	watchdog_init_timeout(&w_priv->wdd, wdt_timeout, &client->dev);
+>>>>>>> upstream/android-13
 
 	/*
 	 * The default value set in the watchdog should be perfectly valid, so
@@ -671,6 +930,7 @@ static int ziirave_wdt_probe(struct i2c_client *client,
 	 */
 	if (w_priv->wdd.timeout == 0) {
 		val = i2c_smbus_read_byte_data(client, ZIIRAVE_WDT_TIMEOUT);
+<<<<<<< HEAD
 		if (val < 0)
 			return val;
 
@@ -688,19 +948,49 @@ static int ziirave_wdt_probe(struct i2c_client *client,
 			 w_priv->wdd.timeout);
 	}
 
+=======
+		if (val < 0) {
+			dev_err(&client->dev, "Failed to read timeout\n");
+			return val;
+		}
+
+		if (val > ZIIRAVE_TIMEOUT_MAX ||
+		    val < ZIIRAVE_TIMEOUT_MIN)
+			val = ZIIRAVE_TIMEOUT_DEFAULT;
+
+		w_priv->wdd.timeout = val;
+	}
+
+	ret = ziirave_wdt_set_timeout(&w_priv->wdd, w_priv->wdd.timeout);
+	if (ret) {
+		dev_err(&client->dev, "Failed to set timeout\n");
+		return ret;
+	}
+
+	dev_info(&client->dev, "Timeout set to %ds\n", w_priv->wdd.timeout);
+
+>>>>>>> upstream/android-13
 	watchdog_set_nowayout(&w_priv->wdd, nowayout);
 
 	i2c_set_clientdata(client, w_priv);
 
 	/* If in unconfigured state, set to stopped */
 	val = i2c_smbus_read_byte_data(client, ZIIRAVE_WDT_STATE);
+<<<<<<< HEAD
 	if (val < 0)
 		return val;
+=======
+	if (val < 0) {
+		dev_err(&client->dev, "Failed to read state\n");
+		return val;
+	}
+>>>>>>> upstream/android-13
 
 	if (val == ZIIRAVE_STATE_INITIAL)
 		ziirave_wdt_stop(&w_priv->wdd);
 
 	ret = ziirave_wdt_init_duration(client);
+<<<<<<< HEAD
 	if (ret)
 		return ret;
 
@@ -722,6 +1012,47 @@ static int ziirave_wdt_probe(struct i2c_client *client,
 	if (w_priv->reset_reason >= ARRAY_SIZE(ziirave_reasons) ||
 	    !ziirave_reasons[w_priv->reset_reason])
 		return -ENODEV;
+=======
+	if (ret) {
+		dev_err(&client->dev, "Failed to init duration\n");
+		return ret;
+	}
+
+	ret = ziirave_wdt_revision(client, &w_priv->firmware_rev,
+				   ZIIRAVE_WDT_FIRM_VER_MAJOR);
+	if (ret) {
+		dev_err(&client->dev, "Failed to read firmware version\n");
+		return ret;
+	}
+
+	dev_info(&client->dev,
+		 "Firmware version: 02.%02u.%02u\n",
+		 w_priv->firmware_rev.major, w_priv->firmware_rev.minor);
+
+	ret = ziirave_wdt_revision(client, &w_priv->bootloader_rev,
+				   ZIIRAVE_WDT_BOOT_VER_MAJOR);
+	if (ret) {
+		dev_err(&client->dev, "Failed to read bootloader version\n");
+		return ret;
+	}
+
+	dev_info(&client->dev,
+		 "Bootloader version: 01.%02u.%02u\n",
+		 w_priv->bootloader_rev.major, w_priv->bootloader_rev.minor);
+
+	w_priv->reset_reason = i2c_smbus_read_byte_data(client,
+						ZIIRAVE_WDT_RESET_REASON);
+	if (w_priv->reset_reason < 0) {
+		dev_err(&client->dev, "Failed to read reset reason\n");
+		return w_priv->reset_reason;
+	}
+
+	if (w_priv->reset_reason >= ARRAY_SIZE(ziirave_reasons) ||
+	    !ziirave_reasons[w_priv->reset_reason]) {
+		dev_err(&client->dev, "Invalid reset reason\n");
+		return -ENODEV;
+	}
+>>>>>>> upstream/android-13
 
 	ret = watchdog_register_device(&w_priv->wdd);
 

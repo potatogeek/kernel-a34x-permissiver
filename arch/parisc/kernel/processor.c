@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *    Initial setup-routines for HP 9000 based hardware.
  *
@@ -9,6 +13,7 @@
  *    Modifications copyright 2001 Ryan Bradetich <rbradetich@uswest.net>
  *
  *    Initial PA-RISC Version: 04-23-1999 by Helge Deller
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -24,6 +29,8 @@
  *    along with this program; if not, write to the Free Software
  *    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/delay.h>
 #include <linux/init.h>
@@ -43,10 +50,17 @@
 #include <asm/irq.h>		/* for struct irq_region */
 #include <asm/parisc-device.h>
 
+<<<<<<< HEAD
 struct system_cpuinfo_parisc boot_cpu_data __read_mostly;
 EXPORT_SYMBOL(boot_cpu_data);
 #ifdef CONFIG_PA8X00
 int _parisc_requires_coherency __read_mostly;
+=======
+struct system_cpuinfo_parisc boot_cpu_data __ro_after_init;
+EXPORT_SYMBOL(boot_cpu_data);
+#ifdef CONFIG_PA8X00
+int _parisc_requires_coherency __ro_after_init;
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(_parisc_requires_coherency);
 #endif
 
@@ -177,7 +191,10 @@ static int __init processor_probe(struct parisc_device *dev)
 	if (cpuid)
 		memset(p, 0, sizeof(struct cpuinfo_parisc));
 
+<<<<<<< HEAD
 	p->loops_per_jiffy = loops_per_jiffy;
+=======
+>>>>>>> upstream/android-13
 	p->dev = dev;		/* Save IODC data in case we need it */
 	p->hpa = dev->hpa.start;	/* save CPU hpa */
 	p->cpuid = cpuid;	/* save CPU id */
@@ -226,7 +243,11 @@ static int __init processor_probe(struct parisc_device *dev)
 #ifdef CONFIG_SMP
 	if (cpuid) {
 		set_cpu_present(cpuid, true);
+<<<<<<< HEAD
 		cpu_up(cpuid);
+=======
+		add_cpu(cpuid);
+>>>>>>> upstream/android-13
 	}
 #endif
 
@@ -242,6 +263,10 @@ static int __init processor_probe(struct parisc_device *dev)
 void __init collect_boot_cpu_data(void)
 {
 	unsigned long cr16_seed;
+<<<<<<< HEAD
+=======
+	char orig_prod_num[64], current_prod_num[64], serial_no[64];
+>>>>>>> upstream/android-13
 
 	memset(&boot_cpu_data, 0, sizeof(boot_cpu_data));
 
@@ -301,6 +326,18 @@ void __init collect_boot_cpu_data(void)
 	_parisc_requires_coherency = (boot_cpu_data.cpu_type == mako) ||
 				(boot_cpu_data.cpu_type == mako2);
 #endif
+<<<<<<< HEAD
+=======
+
+	if (pdc_model_platform_info(orig_prod_num, current_prod_num, serial_no) == PDC_OK) {
+		printk(KERN_INFO "product %s, original product %s, S/N: %s\n",
+			current_prod_num[0] ? current_prod_num : "n/a",
+			orig_prod_num, serial_no);
+		add_device_randomness(orig_prod_num, strlen(orig_prod_num));
+		add_device_randomness(current_prod_num, strlen(current_prod_num));
+		add_device_randomness(serial_no, strlen(serial_no));
+	}
+>>>>>>> upstream/android-13
 }
 
 
@@ -423,8 +460,12 @@ show_cpuinfo (struct seq_file *m, void *v)
 		}
 		seq_printf(m, " (0x%02lx)\n", boot_cpu_data.pdc.capabilities);
 
+<<<<<<< HEAD
 		seq_printf(m, "model\t\t: %s\n"
 				"model name\t: %s\n",
+=======
+		seq_printf(m, "model\t\t: %s - %s\n",
+>>>>>>> upstream/android-13
 				 boot_cpu_data.pdc.sys_model_name,
 				 cpuinfo->dev ?
 				 cpuinfo->dev->name : "Unknown");
@@ -438,8 +479,13 @@ show_cpuinfo (struct seq_file *m, void *v)
 		show_cache_info(m);
 
 		seq_printf(m, "bogomips\t: %lu.%02lu\n",
+<<<<<<< HEAD
 			     cpuinfo->loops_per_jiffy / (500000 / HZ),
 			     (cpuinfo->loops_per_jiffy / (5000 / HZ)) % 100);
+=======
+			     loops_per_jiffy / (500000 / HZ),
+			     loops_per_jiffy / (5000 / HZ) % 100);
+>>>>>>> upstream/android-13
 
 		seq_printf(m, "software id\t: %ld\n\n",
 				boot_cpu_data.pdc.model.sw_id);

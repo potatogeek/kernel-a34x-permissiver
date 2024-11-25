@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 config MT76_CORE
 	tristate
 
@@ -11,6 +15,7 @@ config MT76_USB
 	tristate
 	depends on MT76_CORE
 
+<<<<<<< HEAD
 config MT76x2_COMMON
 	tristate
 	depends on MT76_CORE
@@ -41,3 +46,27 @@ config MT76x2U
 	depends on USB
 	help
 	  This adds support for MT7612U-based wireless USB dongles.
+=======
+config MT76_SDIO
+	tristate
+	depends on MT76_CORE
+
+config MT76x02_LIB
+	tristate
+	select MT76_CORE
+
+config MT76x02_USB
+	tristate
+	select MT76_USB
+
+config MT76_CONNAC_LIB
+	tristate
+	select MT76_CORE
+
+source "drivers/net/wireless/mediatek/mt76/mt76x0/Kconfig"
+source "drivers/net/wireless/mediatek/mt76/mt76x2/Kconfig"
+source "drivers/net/wireless/mediatek/mt76/mt7603/Kconfig"
+source "drivers/net/wireless/mediatek/mt76/mt7615/Kconfig"
+source "drivers/net/wireless/mediatek/mt76/mt7915/Kconfig"
+source "drivers/net/wireless/mediatek/mt76/mt7921/Kconfig"
+>>>>>>> upstream/android-13

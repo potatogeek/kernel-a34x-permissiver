@@ -6,7 +6,11 @@
  * Copyright (c) 2007 SUSE Linux Products GmbH
  * Copyright (c) 2007 Tejun Heo <teheo@suse.de>
  *
+<<<<<<< HEAD
  * Please see Documentation/filesystems/sysfs.txt for more information.
+=======
+ * Please see Documentation/filesystems/sysfs.rst for more information.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/fs.h>
@@ -23,7 +27,12 @@ static int sysfs_do_create_link_sd(struct kernfs_node *parent,
 {
 	struct kernfs_node *kn, *target = NULL;
 
+<<<<<<< HEAD
 	BUG_ON(!name || !parent);
+=======
+	if (WARN_ON(!name || !parent))
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	/*
 	 * We don't own @target_kobj and it may be removed at any time.

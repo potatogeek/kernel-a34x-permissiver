@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *
  *
@@ -13,6 +14,13 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *
+ *  Copyright (C) 2005 Mike Isely <isely@pobox.com>
+ *  Copyright (C) 2004 Aurelien Alleaume <slts@free.fr>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -132,10 +140,17 @@ static int __init pvr_init(void)
 	ret = usb_register(&pvr_driver);
 
 	if (ret == 0)
+<<<<<<< HEAD
 		printk(KERN_INFO "pvrusb2: " DRIVER_VERSION ":"
 		       DRIVER_DESC "\n");
 	if (pvrusb2_debug)
 		printk(KERN_INFO "pvrusb2: Debug mask is %d (0x%x)\n",
+=======
+		pr_info("pvrusb2: " DRIVER_VERSION ":"
+		       DRIVER_DESC "\n");
+	if (pvrusb2_debug)
+		pr_info("pvrusb2: Debug mask is %d (0x%x)\n",
+>>>>>>> upstream/android-13
 		       pvrusb2_debug,pvrusb2_debug);
 
 	pvr2_trace(PVR2_TRACE_INIT,"pvr_init complete");

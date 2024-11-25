@@ -48,7 +48,11 @@ asm    (".pushsection .text;"
 	"jne   .slowpath;"
 	"pop   %rdx;"
 	FRAME_END
+<<<<<<< HEAD
 	"ret;"
+=======
+	ASM_RET
+>>>>>>> upstream/android-13
 	".slowpath: "
 	"push   %rsi;"
 	"movzbl %al,%esi;"
@@ -56,7 +60,11 @@ asm    (".pushsection .text;"
 	"pop    %rsi;"
 	"pop    %rdx;"
 	FRAME_END
+<<<<<<< HEAD
 	"ret;"
+=======
+	ASM_RET
+>>>>>>> upstream/android-13
 	".size " PV_UNLOCK ", .-" PV_UNLOCK ";"
 	".popsection");
 

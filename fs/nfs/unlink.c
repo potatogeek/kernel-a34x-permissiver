@@ -31,7 +31,11 @@
 static void
 nfs_free_unlinkdata(struct nfs_unlinkdata *data)
 {
+<<<<<<< HEAD
 	put_rpccred(data->cred);
+=======
+	put_cred(data->cred);
+>>>>>>> upstream/android-13
 	kfree(data->args.name.name);
 	kfree(data);
 }
@@ -39,6 +43,10 @@ nfs_free_unlinkdata(struct nfs_unlinkdata *data)
 /**
  * nfs_async_unlink_done - Sillydelete post-processing
  * @task: rpc_task of the sillydelete
+<<<<<<< HEAD
+=======
+ * @calldata: pointer to nfs_unlinkdata
+>>>>>>> upstream/android-13
  *
  * Do the directory attribute update.
  */
@@ -54,7 +62,11 @@ static void nfs_async_unlink_done(struct rpc_task *task, void *calldata)
 
 /**
  * nfs_async_unlink_release - Release the sillydelete data.
+<<<<<<< HEAD
  * @task: rpc_task of the sillydelete
+=======
+ * @calldata: struct nfs_unlinkdata to release
+>>>>>>> upstream/android-13
  *
  * We need to call nfs_put_unlinkdata as a 'tk_release' task since the
  * rpc_task would be freed too.
@@ -97,7 +109,11 @@ static void nfs_do_call_unlink(struct inode *inode, struct nfs_unlinkdata *data)
 		.callback_ops = &nfs_unlink_ops,
 		.callback_data = data,
 		.workqueue = nfsiod_workqueue,
+<<<<<<< HEAD
 		.flags = RPC_TASK_ASYNC,
+=======
+		.flags = RPC_TASK_ASYNC | RPC_TASK_CRED_NOREF,
+>>>>>>> upstream/android-13
 	};
 	struct rpc_task *task;
 	struct inode *dir = d_inode(data->dentry->d_parent);
@@ -159,8 +175,13 @@ static int nfs_call_unlink(struct dentry *dentry, struct inode *inode, struct nf
 
 /**
  * nfs_async_unlink - asynchronous unlinking of a file
+<<<<<<< HEAD
  * @dir: parent directory of dentry
  * @dentry: dentry to unlink
+=======
+ * @dentry: parent directory of dentry
+ * @name: name of dentry to unlink
+>>>>>>> upstream/android-13
  */
 static int
 nfs_async_unlink(struct dentry *dentry, const struct qstr *name)
@@ -177,11 +198,15 @@ nfs_async_unlink(struct dentry *dentry, const struct qstr *name)
 		goto out_free;
 	data->args.name.len = name->len;
 
+<<<<<<< HEAD
 	data->cred = rpc_lookup_cred();
 	if (IS_ERR(data->cred)) {
 		status = PTR_ERR(data->cred);
 		goto out_free_name;
 	}
+=======
+	data->cred = get_current_cred();
+>>>>>>> upstream/android-13
 	data->res.dir_attr = &data->dir_attr;
 	init_waitqueue_head(&data->wq);
 
@@ -202,8 +227,12 @@ nfs_async_unlink(struct dentry *dentry, const struct qstr *name)
 	return 0;
 out_unlock:
 	spin_unlock(&dentry->d_lock);
+<<<<<<< HEAD
 	put_rpccred(data->cred);
 out_free_name:
+=======
+	put_cred(data->cred);
+>>>>>>> upstream/android-13
 	kfree(data->args.name.name);
 out_free:
 	kfree(data);
@@ -307,7 +336,11 @@ static void nfs_async_rename_release(void *calldata)
 	iput(data->old_dir);
 	iput(data->new_dir);
 	nfs_sb_deactive(sb);
+<<<<<<< HEAD
 	put_rpccred(data->cred);
+=======
+	put_cred(data->cred);
+>>>>>>> upstream/android-13
 	kfree(data);
 }
 
@@ -329,6 +362,10 @@ static const struct rpc_call_ops nfs_rename_ops = {
  * @new_dir: target directory for the rename
  * @old_dentry: original dentry to be renamed
  * @new_dentry: dentry to which the old_dentry should be renamed
+<<<<<<< HEAD
+=======
+ * @complete: Function to run on successful completion
+>>>>>>> upstream/android-13
  *
  * It's expected that valid references to the dentries and inodes are held
  */
@@ -344,7 +381,11 @@ nfs_async_rename(struct inode *old_dir, struct inode *new_dir,
 		.callback_ops = &nfs_rename_ops,
 		.workqueue = nfsiod_workqueue,
 		.rpc_client = NFS_CLIENT(old_dir),
+<<<<<<< HEAD
 		.flags = RPC_TASK_ASYNC,
+=======
+		.flags = RPC_TASK_ASYNC | RPC_TASK_CRED_NOREF,
+>>>>>>> upstream/android-13
 	};
 
 	data = kzalloc(sizeof(*data), GFP_KERNEL);
@@ -352,12 +393,16 @@ nfs_async_rename(struct inode *old_dir, struct inode *new_dir,
 		return ERR_PTR(-ENOMEM);
 	task_setup_data.callback_data = data;
 
+<<<<<<< HEAD
 	data->cred = rpc_lookup_cred();
 	if (IS_ERR(data->cred)) {
 		struct rpc_task *task = ERR_CAST(data->cred);
 		kfree(data);
 		return task;
 	}
+=======
+	data->cred = get_current_cred();
+>>>>>>> upstream/android-13
 
 	msg.rpc_argp = &data->args;
 	msg.rpc_resp = &data->res;
@@ -404,12 +449,15 @@ nfs_complete_sillyrename(struct rpc_task *task, struct nfs_renamedata *data)
 		nfs_cancel_async_unlink(dentry);
 		return;
 	}
+<<<<<<< HEAD
 
 	/*
 	 * vfs_unlink and the like do not issue this when a file is
 	 * sillyrenamed, so do it here.
 	 */
 	fsnotify_nameremove(dentry, 0);
+=======
+>>>>>>> upstream/android-13
 }
 
 #define SILLYNAME_PREFIX ".nfs"
@@ -514,9 +562,15 @@ nfs_sillyrename(struct inode *dir, struct dentry *dentry)
 		nfs_set_verifier(dentry, nfs_save_change_attribute(dir));
 		spin_lock(&inode->i_lock);
 		NFS_I(inode)->attr_gencount = nfs_inc_attr_generation_counter();
+<<<<<<< HEAD
 		NFS_I(inode)->cache_validity |= NFS_INO_INVALID_CHANGE
 			| NFS_INO_INVALID_CTIME
 			| NFS_INO_REVAL_FORCED;
+=======
+		nfs_set_cache_invalid(inode, NFS_INO_INVALID_CHANGE |
+						     NFS_INO_INVALID_CTIME |
+						     NFS_INO_REVAL_FORCED);
+>>>>>>> upstream/android-13
 		spin_unlock(&inode->i_lock);
 		d_move(dentry, sdentry);
 		break;

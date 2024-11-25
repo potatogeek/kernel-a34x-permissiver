@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * nicstar.c
  *
@@ -90,7 +94,11 @@
 #ifdef GENERAL_DEBUG
 #define PRINTK(args...) printk(args)
 #else
+<<<<<<< HEAD
 #define PRINTK(args...)
+=======
+#define PRINTK(args...) do {} while (0)
+>>>>>>> upstream/android-13
 #endif /* GENERAL_DEBUG */
 
 #ifdef EXTRA_DEBUG
@@ -129,8 +137,14 @@ static int ns_open(struct atm_vcc *vcc);
 static void ns_close(struct atm_vcc *vcc);
 static void fill_tst(ns_dev * card, int n, vc_map * vc);
 static int ns_send(struct atm_vcc *vcc, struct sk_buff *skb);
+<<<<<<< HEAD
 static int push_scqe(ns_dev * card, vc_map * vc, scq_info * scq, ns_scqe * tbd,
 		     struct sk_buff *skb);
+=======
+static int ns_send_bh(struct atm_vcc *vcc, struct sk_buff *skb);
+static int push_scqe(ns_dev * card, vc_map * vc, scq_info * scq, ns_scqe * tbd,
+		     struct sk_buff *skb, bool may_sleep);
+>>>>>>> upstream/android-13
 static void process_tsq(ns_dev * card);
 static void drain_scq(ns_dev * card, scq_info * scq, int pos);
 static void process_rsq(ns_dev * card);
@@ -159,6 +173,10 @@ static const struct atmdev_ops atm_ops = {
 	.close = ns_close,
 	.ioctl = ns_ioctl,
 	.send = ns_send,
+<<<<<<< HEAD
+=======
+	.send_bh = ns_send_bh,
+>>>>>>> upstream/android-13
 	.phy_put = ns_phy_put,
 	.phy_get = ns_phy_get,
 	.proc_read = ns_proc_read,
@@ -296,7 +314,11 @@ static void __exit nicstar_cleanup(void)
 {
 	XPRINTK("nicstar: nicstar_cleanup() called.\n");
 
+<<<<<<< HEAD
 	del_timer(&ns_timer);
+=======
+	del_timer_sync(&ns_timer);
+>>>>>>> upstream/android-13
 
 	pci_unregister_driver(&nicstar_driver);
 
@@ -524,6 +546,18 @@ static int ns_init_card(int i, struct pci_dev *pcidev)
 	/* Set the VPI/VCI MSb mask to zero so we can receive OAM cells */
 	writel(0x00000000, card->membase + VPM);
 
+<<<<<<< HEAD
+=======
+	card->intcnt = 0;
+	if (request_irq
+	    (pcidev->irq, &ns_irq_handler, IRQF_SHARED, "nicstar", card) != 0) {
+		pr_err("nicstar%d: can't allocate IRQ %d.\n", i, pcidev->irq);
+		error = 9;
+		ns_init_card_error(card, error);
+		return error;
+	}
+
+>>>>>>> upstream/android-13
 	/* Initialize TSQ */
 	card->tsq.org = dma_alloc_coherent(&card->pcidev->dev,
 					   NS_TSQSIZE + NS_TSQ_ALIGNMENT,
@@ -750,6 +784,7 @@ static int ns_init_card(int i, struct pci_dev *pcidev)
 
 	card->efbie = 1;
 
+<<<<<<< HEAD
 	card->intcnt = 0;
 	if (request_irq
 	    (pcidev->irq, &ns_irq_handler, IRQF_SHARED, "nicstar", card) != 0) {
@@ -759,6 +794,8 @@ static int ns_init_card(int i, struct pci_dev *pcidev)
 		return error;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/* Register device */
 	card->atmdev = atm_dev_register("nicstar", &card->pcidev->dev, &atm_ops,
 					-1, NULL);
@@ -836,10 +873,19 @@ static void ns_init_card_error(ns_dev *card, int error)
 			dev_kfree_skb_any(hb);
 	}
 	if (error >= 12) {
+<<<<<<< HEAD
 		kfree(card->rsq.org);
 	}
 	if (error >= 11) {
 		kfree(card->tsq.org);
+=======
+		dma_free_coherent(&card->pcidev->dev, NS_RSQSIZE + NS_RSQ_ALIGNMENT,
+				card->rsq.org, card->rsq.dma);
+	}
+	if (error >= 11) {
+		dma_free_coherent(&card->pcidev->dev, NS_TSQSIZE + NS_TSQ_ALIGNMENT,
+				card->tsq.org, card->tsq.dma);
+>>>>>>> upstream/android-13
 	}
 	if (error >= 10) {
 		free_irq(card->pcidev->irq, card);
@@ -1619,7 +1665,11 @@ static void fill_tst(ns_dev * card, int n, vc_map * vc)
 	card->tst_addr = new_tst;
 }
 
+<<<<<<< HEAD
 static int ns_send(struct atm_vcc *vcc, struct sk_buff *skb)
+=======
+static int _ns_send(struct atm_vcc *vcc, struct sk_buff *skb, bool may_sleep)
+>>>>>>> upstream/android-13
 {
 	ns_dev *card;
 	vc_map *vc;
@@ -1703,7 +1753,11 @@ static int ns_send(struct atm_vcc *vcc, struct sk_buff *skb)
 		scq = card->scq0;
 	}
 
+<<<<<<< HEAD
 	if (push_scqe(card, vc, scq, &scqe, skb) != 0) {
+=======
+	if (push_scqe(card, vc, scq, &scqe, skb, may_sleep) != 0) {
+>>>>>>> upstream/android-13
 		atomic_inc(&vcc->stats->tx_err);
 		dma_unmap_single(&card->pcidev->dev, NS_PRV_DMA(skb), skb->len,
 				 DMA_TO_DEVICE);
@@ -1715,8 +1769,23 @@ static int ns_send(struct atm_vcc *vcc, struct sk_buff *skb)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int push_scqe(ns_dev * card, vc_map * vc, scq_info * scq, ns_scqe * tbd,
 		     struct sk_buff *skb)
+=======
+static int ns_send(struct atm_vcc *vcc, struct sk_buff *skb)
+{
+	return _ns_send(vcc, skb, true);
+}
+
+static int ns_send_bh(struct atm_vcc *vcc, struct sk_buff *skb)
+{
+	return _ns_send(vcc, skb, false);
+}
+
+static int push_scqe(ns_dev * card, vc_map * vc, scq_info * scq, ns_scqe * tbd,
+		     struct sk_buff *skb, bool may_sleep)
+>>>>>>> upstream/android-13
 {
 	unsigned long flags;
 	ns_scqe tsr;
@@ -1727,7 +1796,11 @@ static int push_scqe(ns_dev * card, vc_map * vc, scq_info * scq, ns_scqe * tbd,
 
 	spin_lock_irqsave(&scq->lock, flags);
 	while (scq->tail == scq->next) {
+<<<<<<< HEAD
 		if (in_interrupt()) {
+=======
+		if (!may_sleep) {
+>>>>>>> upstream/android-13
 			spin_unlock_irqrestore(&scq->lock, flags);
 			printk("nicstar%d: Error pushing TBD.\n", card->index);
 			return 1;
@@ -1772,7 +1845,11 @@ static int push_scqe(ns_dev * card, vc_map * vc, scq_info * scq, ns_scqe * tbd,
 		int has_run = 0;
 
 		while (scq->tail == scq->next) {
+<<<<<<< HEAD
 			if (in_interrupt()) {
+=======
+			if (!may_sleep) {
+>>>>>>> upstream/android-13
 				data = scq_virt_to_bus(scq, scq->next);
 				ns_write_sram(card, scq->scd, &data, 1);
 				spin_unlock_irqrestore(&scq->lock, flags);
@@ -2691,11 +2768,18 @@ static void ns_poll(struct timer_list *unused)
 	PRINTK("nicstar: Entering ns_poll().\n");
 	for (i = 0; i < num_cards; i++) {
 		card = cards[i];
+<<<<<<< HEAD
 		if (spin_is_locked(&card->int_lock)) {
 			/* Probably it isn't worth spinning */
 			continue;
 		}
 		spin_lock_irqsave(&card->int_lock, flags);
+=======
+		if (!spin_trylock_irqsave(&card->int_lock, flags)) {
+			/* Probably it isn't worth spinning */
+			continue;
+		}
+>>>>>>> upstream/android-13
 
 		stat_w = 0;
 		stat_r = readl(card->membase + STAT);

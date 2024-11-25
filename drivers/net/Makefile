@@ -18,9 +18,18 @@ obj-$(CONFIG_MACVLAN) += macvlan.o
 obj-$(CONFIG_MACVTAP) += macvtap.o
 obj-$(CONFIG_MII) += mii.o
 obj-$(CONFIG_MDIO) += mdio.o
+<<<<<<< HEAD
 obj-$(CONFIG_NET) += Space.o loopback.o
 obj-$(CONFIG_NETCONSOLE) += netconsole.o
 obj-y += phy/
+=======
+obj-$(CONFIG_NET) += loopback.o
+obj-$(CONFIG_NETDEV_LEGACY_INIT) += Space.o
+obj-$(CONFIG_NETCONSOLE) += netconsole.o
+obj-y += phy/
+obj-y += mdio/
+obj-y += pcs/
+>>>>>>> upstream/android-13
 obj-$(CONFIG_RIONET) += rionet.o
 obj-$(CONFIG_NET_TEAM) += team/
 obj-$(CONFIG_TUN) += tun.o
@@ -29,10 +38,18 @@ obj-$(CONFIG_VETH) += veth.o
 obj-$(CONFIG_VIRTIO_NET) += virtio_net.o
 obj-$(CONFIG_VXLAN) += vxlan.o
 obj-$(CONFIG_GENEVE) += geneve.o
+<<<<<<< HEAD
+=======
+obj-$(CONFIG_BAREUDP) += bareudp.o
+>>>>>>> upstream/android-13
 obj-$(CONFIG_GTP) += gtp.o
 obj-$(CONFIG_NLMON) += nlmon.o
 obj-$(CONFIG_NET_VRF) += vrf.o
 obj-$(CONFIG_VSOCKMON) += vsockmon.o
+<<<<<<< HEAD
+=======
+obj-$(CONFIG_MHI_NET) += mhi_net.o
+>>>>>>> upstream/android-13
 
 #
 # Networking Drivers
@@ -41,11 +58,19 @@ obj-$(CONFIG_ARCNET) += arcnet/
 obj-$(CONFIG_DEV_APPLETALK) += appletalk/
 obj-$(CONFIG_CAIF) += caif/
 obj-$(CONFIG_CAN) += can/
+<<<<<<< HEAD
 obj-y += dsa/
+=======
+obj-$(CONFIG_NET_DSA) += dsa/
+>>>>>>> upstream/android-13
 obj-$(CONFIG_ETHERNET) += ethernet/
 obj-$(CONFIG_FDDI) += fddi/
 obj-$(CONFIG_HIPPI) += hippi/
 obj-$(CONFIG_HAMRADIO) += hamradio/
+<<<<<<< HEAD
+=======
+obj-$(CONFIG_QCOM_IPA) += ipa/
+>>>>>>> upstream/android-13
 obj-$(CONFIG_PLIP) += plip/
 obj-$(CONFIG_PPP) += ppp/
 obj-$(CONFIG_PPP_ASYNC) += ppp/
@@ -62,8 +87,14 @@ obj-$(CONFIG_NET_SB1000) += sb1000.o
 obj-$(CONFIG_SUNGEM_PHY) += sungem_phy.o
 obj-$(CONFIG_WAN) += wan/
 obj-$(CONFIG_WLAN) += wireless/
+<<<<<<< HEAD
 obj-$(CONFIG_WIMAX) += wimax/
 obj-$(CONFIG_IEEE802154) += ieee802154/
+=======
+obj-$(CONFIG_IEEE802154) += ieee802154/
+obj-$(CONFIG_WWAN) += wwan/
+obj-$(CONFIG_MCTP) += mctp/
+>>>>>>> upstream/android-13
 
 obj-$(CONFIG_VMXNET3) += vmxnet3/
 obj-$(CONFIG_XEN_NETDEV_FRONTEND) += xen-netfront.o
@@ -77,6 +108,10 @@ obj-$(CONFIG_NTB_NETDEV) += ntb_netdev.o
 obj-$(CONFIG_FUJITSU_ES) += fjes/
 
 thunderbolt-net-y += thunderbolt.o
+<<<<<<< HEAD
 obj-$(CONFIG_THUNDERBOLT_NET) += thunderbolt-net.o
+=======
+obj-$(CONFIG_USB4_NET) += thunderbolt-net.o
+>>>>>>> upstream/android-13
 obj-$(CONFIG_NETDEVSIM) += netdevsim/
 obj-$(CONFIG_NET_FAILOVER) += net_failover.o

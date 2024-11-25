@@ -36,8 +36,15 @@ g84_vp = {
 };
 
 int
+<<<<<<< HEAD
 g84_vp_new(struct nvkm_device *device, int index, struct nvkm_engine **pengine)
 {
 	return nvkm_xtensa_new_(&g84_vp, device, index,
 				true, 0x00f000, pengine);
+=======
+g84_vp_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+	   struct nvkm_engine **pengine)
+{
+	return nvkm_xtensa_new_(&g84_vp, device, type, inst, true, 0x00f000, pengine);
+>>>>>>> upstream/android-13
 }

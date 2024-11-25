@@ -24,12 +24,20 @@
 # Root namespace with metadata-mode tunnel + BPF
 # Device names and addresses:
 # 	veth1 IP: 172.16.1.200, IPv6: 00::22 (underlay)
+<<<<<<< HEAD
 # 	tunnel dev <type>11, ex: gre11, IPv4: 10.1.1.200 (overlay)
+=======
+# 	tunnel dev <type>11, ex: gre11, IPv4: 10.1.1.200, IPv6: 1::22 (overlay)
+>>>>>>> upstream/android-13
 #
 # Namespace at_ns0 with native tunnel
 # Device names and addresses:
 # 	veth0 IPv4: 172.16.1.100, IPv6: 00::11 (underlay)
+<<<<<<< HEAD
 # 	tunnel dev <type>00, ex: gre00, IPv4: 10.1.1.100 (overlay)
+=======
+# 	tunnel dev <type>00, ex: gre00, IPv4: 10.1.1.100, IPv6: 1::11 (overlay)
+>>>>>>> upstream/android-13
 #
 #
 # End-to-end ping packet flow
@@ -250,7 +258,11 @@ add_ipip_tunnel()
 	ip addr add dev $DEV 10.1.1.200/24
 }
 
+<<<<<<< HEAD
 add_ipip6tnl_tunnel()
+=======
+add_ip6tnl_tunnel()
+>>>>>>> upstream/android-13
 {
 	ip netns exec at_ns0 ip addr add ::11/96 dev veth0
 	ip netns exec at_ns0 ip link set dev veth0 up
@@ -262,11 +274,19 @@ add_ipip6tnl_tunnel()
 		ip link add dev $DEV_NS type $TYPE \
 		local ::11 remote ::22
 	ip netns exec at_ns0 ip addr add dev $DEV_NS 10.1.1.100/24
+<<<<<<< HEAD
+=======
+	ip netns exec at_ns0 ip addr add dev $DEV_NS 1::11/96
+>>>>>>> upstream/android-13
 	ip netns exec at_ns0 ip link set dev $DEV_NS up
 
 	# root namespace
 	ip link add dev $DEV type $TYPE external
 	ip addr add dev $DEV 10.1.1.200/24
+<<<<<<< HEAD
+=======
+	ip addr add dev $DEV 1::22/96
+>>>>>>> upstream/android-13
 	ip link set dev $DEV up
 }
 
@@ -534,7 +554,11 @@ test_ipip6()
 
 	check $TYPE
 	config_device
+<<<<<<< HEAD
 	add_ipip6tnl_tunnel
+=======
+	add_ip6tnl_tunnel
+>>>>>>> upstream/android-13
 	ip link set dev veth1 mtu 1500
 	attach_bpf $DEV ipip6_set_tunnel ipip6_get_tunnel
 	# underlay
@@ -553,6 +577,37 @@ test_ipip6()
         echo -e ${GREEN}"PASS: $TYPE"${NC}
 }
 
+<<<<<<< HEAD
+=======
+test_ip6ip6()
+{
+	TYPE=ip6tnl
+	DEV_NS=ip6ip6tnl00
+	DEV=ip6ip6tnl11
+	ret=0
+
+	check $TYPE
+	config_device
+	add_ip6tnl_tunnel
+	ip link set dev veth1 mtu 1500
+	attach_bpf $DEV ip6ip6_set_tunnel ip6ip6_get_tunnel
+	# underlay
+	ping6 $PING_ARG ::11
+	# ip6 over ip6
+	ping6 $PING_ARG 1::11
+	check_err $?
+	ip netns exec at_ns0 ping6 $PING_ARG 1::22
+	check_err $?
+	cleanup
+
+	if [ $ret -ne 0 ]; then
+                echo -e ${RED}"FAIL: ip6$TYPE"${NC}
+                return 1
+        fi
+        echo -e ${GREEN}"PASS: ip6$TYPE"${NC}
+}
+
+>>>>>>> upstream/android-13
 setup_xfrm_tunnel()
 {
 	auth=0x$(printf '1%.0s' {1..40})
@@ -646,6 +701,10 @@ cleanup()
 	ip link del veth1 2> /dev/null
 	ip link del ipip11 2> /dev/null
 	ip link del ipip6tnl11 2> /dev/null
+<<<<<<< HEAD
+=======
+	ip link del ip6ip6tnl11 2> /dev/null
+>>>>>>> upstream/android-13
 	ip link del gretap11 2> /dev/null
 	ip link del ip6gre11 2> /dev/null
 	ip link del ip6gretap11 2> /dev/null
@@ -696,6 +755,7 @@ check_err()
 
 bpf_tunnel_test()
 {
+<<<<<<< HEAD
 	echo "Testing GRE tunnel..."
 	test_gre
 	echo "Testing IP6GRE tunnel..."
@@ -720,6 +780,63 @@ bpf_tunnel_test()
 	test_ipip6
 	echo "Testing IPSec tunnel..."
 	test_xfrm_tunnel
+=======
+	local errors=0
+
+	echo "Testing GRE tunnel..."
+	test_gre
+	errors=$(( $errors + $? ))
+
+	echo "Testing IP6GRE tunnel..."
+	test_ip6gre
+	errors=$(( $errors + $? ))
+
+	echo "Testing IP6GRETAP tunnel..."
+	test_ip6gretap
+	errors=$(( $errors + $? ))
+
+	echo "Testing ERSPAN tunnel..."
+	test_erspan v2
+	errors=$(( $errors + $? ))
+
+	echo "Testing IP6ERSPAN tunnel..."
+	test_ip6erspan v2
+	errors=$(( $errors + $? ))
+
+	echo "Testing VXLAN tunnel..."
+	test_vxlan
+	errors=$(( $errors + $? ))
+
+	echo "Testing IP6VXLAN tunnel..."
+	test_ip6vxlan
+	errors=$(( $errors + $? ))
+
+	echo "Testing GENEVE tunnel..."
+	test_geneve
+	errors=$(( $errors + $? ))
+
+	echo "Testing IP6GENEVE tunnel..."
+	test_ip6geneve
+	errors=$(( $errors + $? ))
+
+	echo "Testing IPIP tunnel..."
+	test_ipip
+	errors=$(( $errors + $? ))
+
+	echo "Testing IPIP6 tunnel..."
+	test_ipip6
+	errors=$(( $errors + $? ))
+
+	echo "Testing IP6IP6 tunnel..."
+	test_ip6ip6
+	errors=$(( $errors + $? ))
+
+	echo "Testing IPSec tunnel..."
+	test_xfrm_tunnel
+	errors=$(( $errors + $? ))
+
+	return $errors
+>>>>>>> upstream/android-13
 }
 
 trap cleanup 0 3 6
@@ -728,4 +845,12 @@ trap cleanup_exit 2 9
 cleanup
 bpf_tunnel_test
 
+<<<<<<< HEAD
+=======
+if [ $? -ne 0 ]; then
+	echo -e "$(basename $0): ${RED}FAIL${NC}"
+	exit 1
+fi
+echo -e "$(basename $0): ${GREEN}PASS${NC}"
+>>>>>>> upstream/android-13
 exit 0

@@ -124,9 +124,15 @@ static struct hwrng amd_rng = {
 	.read		= amd_rng_read,
 };
 
+<<<<<<< HEAD
 static int __init mod_init(void)
 {
 	int err = -ENODEV;
+=======
+static int __init amd_rng_mod_init(void)
+{
+	int err;
+>>>>>>> upstream/android-13
 	struct pci_dev *pdev = NULL;
 	const struct pci_device_id *ent;
 	u32 pmbase;
@@ -188,7 +194,11 @@ out:
 	return err;
 }
 
+<<<<<<< HEAD
 static void __exit mod_exit(void)
+=======
+static void __exit amd_rng_mod_exit(void)
+>>>>>>> upstream/android-13
 {
 	struct amd768_priv *priv;
 
@@ -203,8 +213,13 @@ static void __exit mod_exit(void)
 	kfree(priv);
 }
 
+<<<<<<< HEAD
 module_init(mod_init);
 module_exit(mod_exit);
+=======
+module_init(amd_rng_mod_init);
+module_exit(amd_rng_mod_exit);
+>>>>>>> upstream/android-13
 
 MODULE_AUTHOR("The Linux Kernel team");
 MODULE_DESCRIPTION("H/W RNG driver for AMD chipsets");

@@ -42,11 +42,15 @@
  * $FreeBSD$
  */
 
+<<<<<<< HEAD
 #ifdef __linux__
 #include "../queue.h"
 #else
 #include <sys/queue.h>
 #endif
+=======
+#include "../queue.h"
+>>>>>>> upstream/android-13
 
 typedef enum {
 	UNINITIALIZED,
@@ -112,7 +116,11 @@ struct macro_arg {
 	regex_t	arg_regex;
 	char   *replacement_text;
 };
+<<<<<<< HEAD
 STAILQ_HEAD(macro_arg_list, macro_arg) args;
+=======
+STAILQ_HEAD(macro_arg_list, macro_arg);
+>>>>>>> upstream/android-13
 
 struct macro_info {
 	struct macro_arg_list args;

@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2007 Jeff Dike (jdike@{addtoit,linux.intel}.com)
  * Licensed under the GPL.
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2007 Jeff Dike (jdike@{addtoit,linux.intel}.com)
+>>>>>>> upstream/android-13
  */
 
 #include <stdio.h>
@@ -9,7 +15,11 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <string.h>
+<<<<<<< HEAD
 #include <sys/termios.h>
+=======
+#include <termios.h>
+>>>>>>> upstream/android-13
 #include <sys/wait.h>
 #include <net_user.h>
 #include <os.h>
@@ -145,7 +155,12 @@ static int slip_open(void *data)
 	}
 	sfd = err;
 
+<<<<<<< HEAD
 	if (set_up_tty(sfd))
+=======
+	err = set_up_tty(sfd);
+	if (err)
+>>>>>>> upstream/android-13
 		goto out_close2;
 
 	pri->slave = sfd;

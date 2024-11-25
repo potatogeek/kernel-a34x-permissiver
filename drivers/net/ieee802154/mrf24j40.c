@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for Microchip MRF24J40 802.15.4 Wireless-PAN Networking controller
  *
  * Copyright (C) 2012 Alan Ott <alan@signal11.us>
  *                    Signal 11 Software
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,12 +18,19 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/spi/spi.h>
 #include <linux/interrupt.h>
+<<<<<<< HEAD
 #include <linux/module.h>
 #include <linux/of.h>
+=======
+#include <linux/mod_devicetable.h>
+#include <linux/module.h>
+>>>>>>> upstream/android-13
 #include <linux/regmap.h>
 #include <linux/ieee802154.h>
 #include <linux/irq.h>
@@ -1397,7 +1409,11 @@ MODULE_DEVICE_TABLE(spi, mrf24j40_ids);
 
 static struct spi_driver mrf24j40_driver = {
 	.driver = {
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(mrf24j40_of_match),
+=======
+		.of_match_table = mrf24j40_of_match,
+>>>>>>> upstream/android-13
 		.name = "mrf24j40",
 	},
 	.id_table = mrf24j40_ids,

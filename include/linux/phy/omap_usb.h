@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * omap_usb.h -- omap usb2 phy header file
  *
@@ -14,11 +15,20 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * omap_usb.h -- omap usb2 phy header file
+ *
+ * Copyright (C) 2012-2020 Texas Instruments Incorporated - http://www.ti.com
+ * Author: Kishon Vijay Abraham I <kishon@ti.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __DRIVERS_OMAP_USB2_H
 #define __DRIVERS_OMAP_USB2_H
 
+<<<<<<< HEAD
 #include <linux/io.h>
 #include <linux/usb/otg.h>
 
@@ -74,6 +84,9 @@ struct usb_phy_data {
 #define AM437X_USB2_OTG_PD		BIT(1)
 #define AM437X_USB2_OTGVDET_EN		BIT(19)
 #define AM437X_USB2_OTGSESSEND_EN	BIT(20)
+=======
+#include <linux/usb/phy_companion.h>
+>>>>>>> upstream/android-13
 
 #define	phy_to_omapusb(x)	container_of((x), struct omap_usb, phy)
 
@@ -86,6 +99,7 @@ static inline int omap_usb2_set_comparator(struct phy_companion *comparator)
 }
 #endif
 
+<<<<<<< HEAD
 static inline u32 omap_usb_readl(void __iomem *addr, unsigned offset)
 {
 	return __raw_readl(addr + offset);
@@ -97,4 +111,6 @@ static inline void omap_usb_writel(void __iomem *addr, unsigned offset,
 	__raw_writel(data, addr + offset);
 }
 
+=======
+>>>>>>> upstream/android-13
 #endif /* __DRIVERS_OMAP_USB_H */

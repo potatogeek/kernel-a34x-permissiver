@@ -21,7 +21,10 @@
 #include <linux/firmware.h>
 #include <net/vxlan.h>
 #include <linux/kthread.h>
+<<<<<<< HEAD
 #include <net/switchdev.h>
+=======
+>>>>>>> upstream/android-13
 #include "liquidio_common.h"
 #include "octeon_droq.h"
 #include "octeon_iq.h"
@@ -40,7 +43,10 @@
 MODULE_AUTHOR("Cavium Networks, <support@cavium.com>");
 MODULE_DESCRIPTION("Cavium LiquidIO Intelligent Server Adapter Driver");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_VERSION(LIQUIDIO_VERSION);
+=======
+>>>>>>> upstream/android-13
 MODULE_FIRMWARE(LIO_FW_DIR LIO_FW_BASE_NAME LIO_210SV_NAME
 		"_" LIO_FW_NAME_TYPE_NIC LIO_FW_NAME_SUFFIX);
 MODULE_FIRMWARE(LIO_FW_DIR LIO_FW_BASE_NAME LIO_210NV_NAME
@@ -71,9 +77,15 @@ MODULE_PARM_DESC(console_bitmask,
 		 "Bitmask indicating which consoles have debug output redirected to syslog.");
 
 /**
+<<<<<<< HEAD
  * \brief determines if a given console has debug enabled.
  * @param console console to check
  * @returns  1 = enabled. 0 otherwise
+=======
+ * octeon_console_debug_enabled - determines if a given console has debug enabled.
+ * @console: console to check
+ * Return:  1 = enabled. 0 otherwise
+>>>>>>> upstream/android-13
  */
 static int octeon_console_debug_enabled(u32 console)
 {
@@ -99,6 +111,7 @@ struct lio_trusted_vf_ctx {
 	int status;
 };
 
+<<<<<<< HEAD
 struct liquidio_rx_ctl_context {
 	int octeon_id;
 
@@ -107,6 +120,8 @@ struct liquidio_rx_ctl_context {
 	int cond;
 };
 
+=======
+>>>>>>> upstream/android-13
 struct oct_link_status_resp {
 	u64 rh;
 	struct oct_link_info link_info;
@@ -136,7 +151,11 @@ union tx_info {
 	} s;
 };
 
+<<<<<<< HEAD
 /** Octeon device properties to be used by the NIC module.
+=======
+/* Octeon device properties to be used by the NIC module.
+>>>>>>> upstream/android-13
  * Each octeon device in the system will be represented
  * by this structure in the NIC module.
  */
@@ -171,6 +190,7 @@ static int liquidio_set_vf_link_state(struct net_device *netdev, int vfidx,
 static struct handshake handshake[MAX_OCTEON_DEVICES];
 static struct completion first_stage;
 
+<<<<<<< HEAD
 static void octeon_droq_bh(unsigned long pdev)
 {
 	int q_no;
@@ -178,6 +198,15 @@ static void octeon_droq_bh(unsigned long pdev)
 	struct octeon_device *oct = (struct octeon_device *)pdev;
 	struct octeon_device_priv *oct_priv =
 		(struct octeon_device_priv *)oct->priv;
+=======
+static void octeon_droq_bh(struct tasklet_struct *t)
+{
+	int q_no;
+	int reschedule = 0;
+	struct octeon_device_priv *oct_priv = from_tasklet(oct_priv, t,
+							  droq_tasklet);
+	struct octeon_device *oct = oct_priv->dev;
+>>>>>>> upstream/android-13
 
 	for (q_no = 0; q_no < MAX_OCTEON_OUTPUT_QUEUES(oct); q_no++) {
 		if (!(oct->io_qmask.oq & BIT_ULL(q_no)))
@@ -232,8 +261,13 @@ static int lio_wait_for_oq_pkts(struct octeon_device *oct)
 }
 
 /**
+<<<<<<< HEAD
  * \brief Forces all IO queues off on a given device
  * @param oct Pointer to Octeon device
+=======
+ * force_io_queues_off - Forces all IO queues off on a given device
+ * @oct: Pointer to Octeon device
+>>>>>>> upstream/android-13
  */
 static void force_io_queues_off(struct octeon_device *oct)
 {
@@ -248,8 +282,13 @@ static void force_io_queues_off(struct octeon_device *oct)
 }
 
 /**
+<<<<<<< HEAD
  * \brief Cause device to go quiet so it can be safely removed/reset/etc
  * @param oct Pointer to Octeon device
+=======
+ * pcierror_quiesce_device - Cause device to go quiet so it can be safely removed/reset/etc
+ * @oct: Pointer to Octeon device
+>>>>>>> upstream/android-13
  */
 static inline void pcierror_quiesce_device(struct octeon_device *oct)
 {
@@ -293,8 +332,13 @@ static inline void pcierror_quiesce_device(struct octeon_device *oct)
 }
 
 /**
+<<<<<<< HEAD
  * \brief Cleanup PCI AER uncorrectable error status
  * @param dev Pointer to PCI device
+=======
+ * cleanup_aer_uncorrect_error_status - Cleanup PCI AER uncorrectable error status
+ * @dev: Pointer to PCI device
+>>>>>>> upstream/android-13
  */
 static void cleanup_aer_uncorrect_error_status(struct pci_dev *dev)
 {
@@ -313,8 +357,13 @@ static void cleanup_aer_uncorrect_error_status(struct pci_dev *dev)
 }
 
 /**
+<<<<<<< HEAD
  * \brief Stop all PCI IO to a given device
  * @param dev Pointer to Octeon device
+=======
+ * stop_pci_io - Stop all PCI IO to a given device
+ * @oct: Pointer to Octeon device
+>>>>>>> upstream/android-13
  */
 static void stop_pci_io(struct octeon_device *oct)
 {
@@ -342,9 +391,15 @@ static void stop_pci_io(struct octeon_device *oct)
 }
 
 /**
+<<<<<<< HEAD
  * \brief called when PCI error is detected
  * @param pdev Pointer to PCI device
  * @param state The current pci connection state
+=======
+ * liquidio_pcie_error_detected - called when PCI error is detected
+ * @pdev: Pointer to PCI device
+ * @state: The current pci connection state
+>>>>>>> upstream/android-13
  *
  * This function is called after a PCI bus error affecting
  * this device has been detected.
@@ -372,11 +427,18 @@ static pci_ers_result_t liquidio_pcie_error_detected(struct pci_dev *pdev,
 }
 
 /**
+<<<<<<< HEAD
  * \brief mmio handler
  * @param pdev Pointer to PCI device
  */
 static pci_ers_result_t liquidio_pcie_mmio_enabled(
 				struct pci_dev *pdev __attribute__((unused)))
+=======
+ * liquidio_pcie_mmio_enabled - mmio handler
+ * @pdev: Pointer to PCI device
+ */
+static pci_ers_result_t liquidio_pcie_mmio_enabled(struct pci_dev __maybe_unused *pdev)
+>>>>>>> upstream/android-13
 {
 	/* We should never hit this since we never ask for a reset for a Fatal
 	 * Error. We always return DISCONNECT in io_error above.
@@ -386,14 +448,23 @@ static pci_ers_result_t liquidio_pcie_mmio_enabled(
 }
 
 /**
+<<<<<<< HEAD
  * \brief called after the pci bus has been reset.
  * @param pdev Pointer to PCI device
+=======
+ * liquidio_pcie_slot_reset - called after the pci bus has been reset.
+ * @pdev: Pointer to PCI device
+>>>>>>> upstream/android-13
  *
  * Restart the card from scratch, as if from a cold-boot. Implementation
  * resembles the first-half of the octeon_resume routine.
  */
+<<<<<<< HEAD
 static pci_ers_result_t liquidio_pcie_slot_reset(
 				struct pci_dev *pdev __attribute__((unused)))
+=======
+static pci_ers_result_t liquidio_pcie_slot_reset(struct pci_dev __maybe_unused *pdev)
+>>>>>>> upstream/android-13
 {
 	/* We should never hit this since we never ask for a reset for a Fatal
 	 * Error. We always return DISCONNECT in io_error above.
@@ -403,18 +474,28 @@ static pci_ers_result_t liquidio_pcie_slot_reset(
 }
 
 /**
+<<<<<<< HEAD
  * \brief called when traffic can start flowing again.
  * @param pdev Pointer to PCI device
+=======
+ * liquidio_pcie_resume - called when traffic can start flowing again.
+ * @pdev: Pointer to PCI device
+>>>>>>> upstream/android-13
  *
  * This callback is called when the error recovery driver tells us that
  * its OK to resume normal operation. Implementation resembles the
  * second-half of the octeon_resume routine.
  */
+<<<<<<< HEAD
 static void liquidio_pcie_resume(struct pci_dev *pdev __attribute__((unused)))
+=======
+static void liquidio_pcie_resume(struct pci_dev __maybe_unused *pdev)
+>>>>>>> upstream/android-13
 {
 	/* Nothing to be done here. */
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 /**
  * \brief called when suspending
@@ -436,6 +517,10 @@ static int liquidio_resume(struct pci_dev *pdev __attribute__((unused)))
 	return 0;
 }
 #endif
+=======
+#define liquidio_suspend NULL
+#define liquidio_resume NULL
+>>>>>>> upstream/android-13
 
 /* For PCI-E Advanced Error Recovery (AER) Interface */
 static const struct pci_error_handlers liquidio_err_handler = {
@@ -461,24 +546,37 @@ static const struct pci_device_id liquidio_pci_tbl[] = {
 };
 MODULE_DEVICE_TABLE(pci, liquidio_pci_tbl);
 
+<<<<<<< HEAD
+=======
+static SIMPLE_DEV_PM_OPS(liquidio_pm_ops, liquidio_suspend, liquidio_resume);
+
+>>>>>>> upstream/android-13
 static struct pci_driver liquidio_pci_driver = {
 	.name		= "LiquidIO",
 	.id_table	= liquidio_pci_tbl,
 	.probe		= liquidio_probe,
 	.remove		= liquidio_remove,
 	.err_handler	= &liquidio_err_handler,    /* For AER */
+<<<<<<< HEAD
 
 #ifdef CONFIG_PM
 	.suspend	= liquidio_suspend,
 	.resume		= liquidio_resume,
 #endif
+=======
+	.driver.pm	= &liquidio_pm_ops,
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PCI_IOV
 	.sriov_configure = liquidio_enable_sriov,
 #endif
 };
 
 /**
+<<<<<<< HEAD
  * \brief register PCI driver
+=======
+ * liquidio_init_pci - register PCI driver
+>>>>>>> upstream/android-13
  */
 static int liquidio_init_pci(void)
 {
@@ -486,7 +584,11 @@ static int liquidio_init_pci(void)
 }
 
 /**
+<<<<<<< HEAD
  * \brief unregister PCI driver
+=======
+ * liquidio_deinit_pci - unregister PCI driver
+>>>>>>> upstream/android-13
  */
 static void liquidio_deinit_pci(void)
 {
@@ -494,9 +596,15 @@ static void liquidio_deinit_pci(void)
 }
 
 /**
+<<<<<<< HEAD
  * \brief Check Tx queue status, and take appropriate action
  * @param lio per-network private data
  * @returns 0 if full, number of queues woken up otherwise
+=======
+ * check_txq_status - Check Tx queue status, and take appropriate action
+ * @lio: per-network private data
+ * Return: 0 if full, number of queues woken up otherwise
+>>>>>>> upstream/android-13
  */
 static inline int check_txq_status(struct lio *lio)
 {
@@ -522,8 +630,13 @@ static inline int check_txq_status(struct lio *lio)
 }
 
 /**
+<<<<<<< HEAD
  * \brief Print link information
  * @param netdev network device
+=======
+ * print_link_info -  Print link information
+ * @netdev: network device
+>>>>>>> upstream/android-13
  */
 static void print_link_info(struct net_device *netdev)
 {
@@ -544,8 +657,13 @@ static void print_link_info(struct net_device *netdev)
 }
 
 /**
+<<<<<<< HEAD
  * \brief Routine to notify MTU change
  * @param work work_struct data structure
+=======
+ * octnet_link_status_change - Routine to notify MTU change
+ * @work: work_struct data structure
+>>>>>>> upstream/android-13
  */
 static void octnet_link_status_change(struct work_struct *work)
 {
@@ -562,8 +680,13 @@ static void octnet_link_status_change(struct work_struct *work)
 }
 
 /**
+<<<<<<< HEAD
  * \brief Sets up the mtu status change work
  * @param netdev network device
+=======
+ * setup_link_status_change_wq - Sets up the mtu status change work
+ * @netdev: network device
+>>>>>>> upstream/android-13
  */
 static inline int setup_link_status_change_wq(struct net_device *netdev)
 {
@@ -594,9 +717,15 @@ static inline void cleanup_link_status_change_wq(struct net_device *netdev)
 }
 
 /**
+<<<<<<< HEAD
  * \brief Update link status
  * @param netdev network device
  * @param ls link status structure
+=======
+ * update_link_status - Update link status
+ * @netdev: network device
+ * @ls: link status structure
+>>>>>>> upstream/android-13
  *
  * Called on receipt of a link status response from the core application to
  * update each interface's link status.
@@ -642,6 +771,7 @@ static inline void update_link_status(struct net_device *netdev,
 }
 
 /**
+<<<<<<< HEAD
  * lio_sync_octeon_time_cb - callback that is invoked when soft command
  * sent by lio_sync_octeon_time() has completed successfully or failed
  *
@@ -662,6 +792,8 @@ static void lio_sync_octeon_time_cb(struct octeon_device *oct,
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * lio_sync_octeon_time - send latest localtime to octeon firmware so that
  * firmware will correct it's time, in case there is a time skew
  *
@@ -677,7 +809,11 @@ static void lio_sync_octeon_time(struct work_struct *work)
 	struct lio_time *lt;
 	int ret;
 
+<<<<<<< HEAD
 	sc = octeon_alloc_soft_command(oct, sizeof(struct lio_time), 0, 0);
+=======
+	sc = octeon_alloc_soft_command(oct, sizeof(struct lio_time), 16, 0);
+>>>>>>> upstream/android-13
 	if (!sc) {
 		dev_err(&oct->pci_dev->dev,
 			"Failed to sync time to octeon: soft command allocation failed\n");
@@ -696,15 +832,25 @@ static void lio_sync_octeon_time(struct work_struct *work)
 	octeon_prepare_soft_command(oct, sc, OPCODE_NIC,
 				    OPCODE_NIC_SYNC_OCTEON_TIME, 0, 0, 0);
 
+<<<<<<< HEAD
 	sc->callback = lio_sync_octeon_time_cb;
 	sc->callback_arg = sc;
 	sc->wait_time = 1000;
+=======
+	init_completion(&sc->complete);
+	sc->sc_status = OCTEON_REQUEST_PENDING;
+>>>>>>> upstream/android-13
 
 	ret = octeon_send_soft_command(oct, sc);
 	if (ret == IQ_SEND_FAILED) {
 		dev_err(&oct->pci_dev->dev,
 			"Failed to sync time to octeon: failed to send soft command\n");
 		octeon_free_soft_command(oct, sc);
+<<<<<<< HEAD
+=======
+	} else {
+		WRITE_ONCE(sc->caller_is_done, true);
+>>>>>>> upstream/android-13
 	}
 
 	queue_delayed_work(lio->sync_octeon_time_wq.wq,
@@ -713,10 +859,16 @@ static void lio_sync_octeon_time(struct work_struct *work)
 }
 
 /**
+<<<<<<< HEAD
  * setup_sync_octeon_time_wq - Sets up the work to periodically update
  * local time to octeon firmware
  *
  * @netdev - network device which should send time update to firmware
+=======
+ * setup_sync_octeon_time_wq - prepare work to periodically update local time to octeon firmware
+ *
+ * @netdev: network device which should send time update to firmware
+>>>>>>> upstream/android-13
  **/
 static inline int setup_sync_octeon_time_wq(struct net_device *netdev)
 {
@@ -740,10 +892,19 @@ static inline int setup_sync_octeon_time_wq(struct net_device *netdev)
 }
 
 /**
+<<<<<<< HEAD
  * cleanup_sync_octeon_time_wq - stop scheduling and destroy the work created
  * to periodically update local time to octeon firmware
  *
  * @netdev - network device which should send time update to firmware
+=======
+ * cleanup_sync_octeon_time_wq - destroy wq
+ *
+ * @netdev: network device which should send time update to firmware
+ *
+ * Stop scheduling and destroy the work created to periodically update local
+ * time to octeon firmware.
+>>>>>>> upstream/android-13
  **/
 static inline void cleanup_sync_octeon_time_wq(struct net_device *netdev)
 {
@@ -878,6 +1039,7 @@ static int liquidio_watchdog(void *param)
 }
 
 /**
+<<<<<<< HEAD
  * \brief PCI probe handler
  * @param pdev PCI device structure
  * @param ent unused
@@ -885,6 +1047,14 @@ static int liquidio_watchdog(void *param)
 static int
 liquidio_probe(struct pci_dev *pdev,
 	       const struct pci_device_id *ent __attribute__((unused)))
+=======
+ * liquidio_probe - PCI probe handler
+ * @pdev: PCI device structure
+ * @ent: unused
+ */
+static int
+liquidio_probe(struct pci_dev *pdev, const struct pci_device_id __maybe_unused *ent)
+>>>>>>> upstream/android-13
 {
 	struct octeon_device *oct_dev = NULL;
 	struct handshake *hs;
@@ -974,8 +1144,13 @@ static bool fw_type_is_auto(void)
 }
 
 /**
+<<<<<<< HEAD
  * \brief PCI FLR for each Octeon device.
  * @param oct octeon device
+=======
+ * octeon_pci_flr - PCI FLR for each Octeon device.
+ * @oct: octeon device
+>>>>>>> upstream/android-13
  */
 static void octeon_pci_flr(struct octeon_device *oct)
 {
@@ -1001,9 +1176,14 @@ static void octeon_pci_flr(struct octeon_device *oct)
 }
 
 /**
+<<<<<<< HEAD
  *\brief Destroy resources associated with octeon device
  * @param pdev PCI device structure
  * @param ent unused
+=======
+ * octeon_destroy_resources - Destroy resources associated with octeon device
+ * @oct: octeon device
+>>>>>>> upstream/android-13
  */
 static void octeon_destroy_resources(struct octeon_device *oct)
 {
@@ -1027,14 +1207,21 @@ static void octeon_destroy_resources(struct octeon_device *oct)
 
 		schedule_timeout_uninterruptible(HZ / 10);
 
+<<<<<<< HEAD
 		/* fallthrough */
 	case OCT_DEV_HOST_OK:
 
 		/* fallthrough */
+=======
+		fallthrough;
+	case OCT_DEV_HOST_OK:
+
+>>>>>>> upstream/android-13
 	case OCT_DEV_CONSOLE_INIT_DONE:
 		/* Remove any consoles */
 		octeon_remove_consoles(oct);
 
+<<<<<<< HEAD
 		/* fallthrough */
 	case OCT_DEV_IO_QUEUES_DONE:
 		if (wait_for_pending_requests(oct))
@@ -1043,6 +1230,16 @@ static void octeon_destroy_resources(struct octeon_device *oct)
 		if (lio_wait_for_instr_fetch(oct))
 			dev_err(&oct->pci_dev->dev, "IQ had pending instructions\n");
 
+=======
+		fallthrough;
+	case OCT_DEV_IO_QUEUES_DONE:
+		if (lio_wait_for_instr_fetch(oct))
+			dev_err(&oct->pci_dev->dev, "IQ had pending instructions\n");
+
+		if (wait_for_pending_requests(oct))
+			dev_err(&oct->pci_dev->dev, "There were pending requests\n");
+
+>>>>>>> upstream/android-13
 		/* Disable the input and output queues now. No more packets will
 		 * arrive from Octeon, but we should wait for all packet
 		 * processing to finish.
@@ -1052,7 +1249,36 @@ static void octeon_destroy_resources(struct octeon_device *oct)
 		if (lio_wait_for_oq_pkts(oct))
 			dev_err(&oct->pci_dev->dev, "OQ had pending packets\n");
 
+<<<<<<< HEAD
 	/* fallthrough */
+=======
+		/* Force all requests waiting to be fetched by OCTEON to
+		 * complete.
+		 */
+		for (i = 0; i < MAX_OCTEON_INSTR_QUEUES(oct); i++) {
+			struct octeon_instr_queue *iq;
+
+			if (!(oct->io_qmask.iq & BIT_ULL(i)))
+				continue;
+			iq = oct->instr_queue[i];
+
+			if (atomic_read(&iq->instr_pending)) {
+				spin_lock_bh(&iq->lock);
+				iq->fill_cnt = 0;
+				iq->octeon_read_index = iq->host_write_index;
+				iq->stats.instr_processed +=
+					atomic_read(&iq->instr_pending);
+				lio_process_iq_request_list(oct, iq, 0);
+				spin_unlock_bh(&iq->lock);
+			}
+		}
+
+		lio_process_ordered_list(oct, 1);
+		octeon_free_sc_done_list(oct);
+		octeon_free_sc_zombie_list(oct);
+
+		fallthrough;
+>>>>>>> upstream/android-13
 	case OCT_DEV_INTR_SET_DONE:
 		/* Disable interrupts  */
 		oct->fn_list.disable_interrupt(oct, OCTEON_ALL_INTR);
@@ -1087,17 +1313,29 @@ static void octeon_destroy_resources(struct octeon_device *oct)
 		kfree(oct->irq_name_storage);
 		oct->irq_name_storage = NULL;
 
+<<<<<<< HEAD
 	/* fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case OCT_DEV_MSIX_ALLOC_VECTOR_DONE:
 		if (OCTEON_CN23XX_PF(oct))
 			octeon_free_ioq_vector(oct);
 
+<<<<<<< HEAD
 	/* fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case OCT_DEV_MBOX_SETUP_DONE:
 		if (OCTEON_CN23XX_PF(oct))
 			oct->fn_list.free_mbox(oct);
 
+<<<<<<< HEAD
 	/* fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case OCT_DEV_IN_RESET:
 	case OCT_DEV_DROQ_INIT_DONE:
 		/* Wait for any pending operations */
@@ -1120,11 +1358,19 @@ static void octeon_destroy_resources(struct octeon_device *oct)
 			}
 		}
 
+<<<<<<< HEAD
 		/* fallthrough */
 	case OCT_DEV_RESP_LIST_INIT_DONE:
 		octeon_delete_response_list(oct);
 
 		/* fallthrough */
+=======
+		fallthrough;
+	case OCT_DEV_RESP_LIST_INIT_DONE:
+		octeon_delete_response_list(oct);
+
+		fallthrough;
+>>>>>>> upstream/android-13
 	case OCT_DEV_INSTR_QUEUE_INIT_DONE:
 		for (i = 0; i < MAX_OCTEON_INSTR_QUEUES(oct); i++) {
 			if (!(oct->io_qmask.iq & BIT_ULL(i)))
@@ -1135,16 +1381,28 @@ static void octeon_destroy_resources(struct octeon_device *oct)
 		if (oct->sriov_info.sriov_enabled)
 			pci_disable_sriov(oct->pci_dev);
 #endif
+<<<<<<< HEAD
 		/* fallthrough */
 	case OCT_DEV_SC_BUFF_POOL_INIT_DONE:
 		octeon_free_sc_buffer_pool(oct);
 
 		/* fallthrough */
+=======
+		fallthrough;
+	case OCT_DEV_SC_BUFF_POOL_INIT_DONE:
+		octeon_free_sc_buffer_pool(oct);
+
+		fallthrough;
+>>>>>>> upstream/android-13
 	case OCT_DEV_DISPATCH_INIT_DONE:
 		octeon_delete_dispatch_list(oct);
 		cancel_delayed_work_sync(&oct->nic_poll_work.work);
 
+<<<<<<< HEAD
 		/* fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case OCT_DEV_PCI_MAP_DONE:
 		refcount = octeon_deregister_device(oct);
 
@@ -1162,13 +1420,21 @@ static void octeon_destroy_resources(struct octeon_device *oct)
 		octeon_unmap_pci_barx(oct, 0);
 		octeon_unmap_pci_barx(oct, 1);
 
+<<<<<<< HEAD
 		/* fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case OCT_DEV_PCI_ENABLE_DONE:
 		pci_clear_master(oct->pci_dev);
 		/* Disable the device, releasing the PCI INT */
 		pci_disable_device(oct->pci_dev);
 
+<<<<<<< HEAD
 		/* fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case OCT_DEV_BEGIN_STATE:
 		/* Nothing to be done here either */
 		break;
@@ -1178,6 +1444,7 @@ static void octeon_destroy_resources(struct octeon_device *oct)
 }
 
 /**
+<<<<<<< HEAD
  * \brief Callback for rx ctrl
  * @param status status of request
  * @param buf pointer to resp structure
@@ -1216,10 +1483,21 @@ static void send_rx_ctrl_cmd(struct lio *lio, int start_stop)
 	struct liquidio_rx_ctl_context *ctx;
 	union octnet_cmd *ncmd;
 	int ctx_size = sizeof(struct liquidio_rx_ctl_context);
+=======
+ * send_rx_ctrl_cmd - Send Rx control command
+ * @lio: per-network private data
+ * @start_stop: whether to start or stop
+ */
+static int send_rx_ctrl_cmd(struct lio *lio, int start_stop)
+{
+	struct octeon_soft_command *sc;
+	union octnet_cmd *ncmd;
+>>>>>>> upstream/android-13
 	struct octeon_device *oct = (struct octeon_device *)lio->oct_dev;
 	int retval;
 
 	if (oct->props[lio->ifidx].rx_on == start_stop)
+<<<<<<< HEAD
 		return;
 
 	sc = (struct octeon_soft_command *)
@@ -1232,6 +1510,20 @@ static void send_rx_ctrl_cmd(struct lio *lio, int start_stop)
 	WRITE_ONCE(ctx->cond, 0);
 	ctx->octeon_id = lio_get_device_id(oct);
 	init_waitqueue_head(&ctx->wc);
+=======
+		return 0;
+
+	sc = (struct octeon_soft_command *)
+		octeon_alloc_soft_command(oct, OCTNET_CMD_SIZE,
+					  16, 0);
+	if (!sc) {
+		netif_info(lio, rx_err, lio->netdev,
+			   "Failed to allocate octeon_soft_command struct\n");
+		return -ENOMEM;
+	}
+
+	ncmd = (union octnet_cmd *)sc->virtdptr;
+>>>>>>> upstream/android-13
 
 	ncmd->u64 = 0;
 	ncmd->s.cmd = OCTNET_CMD_RX_CTL;
@@ -1244,17 +1536,27 @@ static void send_rx_ctrl_cmd(struct lio *lio, int start_stop)
 	octeon_prepare_soft_command(oct, sc, OPCODE_NIC,
 				    OPCODE_NIC_CMD, 0, 0, 0);
 
+<<<<<<< HEAD
 	sc->callback = rx_ctl_callback;
 	sc->callback_arg = sc;
 	sc->wait_time = 5000;
+=======
+	init_completion(&sc->complete);
+	sc->sc_status = OCTEON_REQUEST_PENDING;
+>>>>>>> upstream/android-13
 
 	retval = octeon_send_soft_command(oct, sc);
 	if (retval == IQ_SEND_FAILED) {
 		netif_info(lio, rx_err, lio->netdev, "Failed to send RX Control message\n");
+<<<<<<< HEAD
+=======
+		octeon_free_soft_command(oct, sc);
+>>>>>>> upstream/android-13
 	} else {
 		/* Sleep on a wait queue till the cond flag indicates that the
 		 * response arrived or timed-out.
 		 */
+<<<<<<< HEAD
 		if (sleep_cond(&ctx->wc, &ctx->cond) == -EINTR)
 			return;
 		oct->props[lio->ifidx].rx_on = start_stop;
@@ -1267,6 +1569,23 @@ static void send_rx_ctrl_cmd(struct lio *lio, int start_stop)
  * \brief Destroy NIC device interface
  * @param oct octeon device
  * @param ifidx which interface to destroy
+=======
+		retval = wait_for_sc_completion_timeout(oct, sc, 0);
+		if (retval)
+			return retval;
+
+		oct->props[lio->ifidx].rx_on = start_stop;
+		WRITE_ONCE(sc->caller_is_done, true);
+	}
+
+	return retval;
+}
+
+/**
+ * liquidio_destroy_nic_device - Destroy NIC device interface
+ * @oct: octeon device
+ * @ifidx: which interface to destroy
+>>>>>>> upstream/android-13
  *
  * Cleanup associated with each interface for an Octeon device  when NIC
  * module is being unloaded or if initialization fails during load.
@@ -1274,8 +1593,15 @@ static void send_rx_ctrl_cmd(struct lio *lio, int start_stop)
 static void liquidio_destroy_nic_device(struct octeon_device *oct, int ifidx)
 {
 	struct net_device *netdev = oct->props[ifidx].netdev;
+<<<<<<< HEAD
 	struct lio *lio;
 	struct napi_struct *napi, *n;
+=======
+	struct octeon_device_priv *oct_priv =
+		(struct octeon_device_priv *)oct->priv;
+	struct napi_struct *napi, *n;
+	struct lio *lio;
+>>>>>>> upstream/android-13
 
 	if (!netdev) {
 		dev_err(&oct->pci_dev->dev, "%s No netdevice ptr for index %d\n",
@@ -1304,6 +1630,11 @@ static void liquidio_destroy_nic_device(struct octeon_device *oct, int ifidx)
 	list_for_each_entry_safe(napi, n, &netdev->napi_list, dev_list)
 		netif_napi_del(napi);
 
+<<<<<<< HEAD
+=======
+	tasklet_enable(&oct_priv->droq_tasklet);
+
+>>>>>>> upstream/android-13
 	if (atomic_read(&lio->ifstate) & LIO_IFSTATE_REGISTERED)
 		unregister_netdev(netdev);
 
@@ -1322,8 +1653,13 @@ static void liquidio_destroy_nic_device(struct octeon_device *oct, int ifidx)
 }
 
 /**
+<<<<<<< HEAD
  * \brief Stop complete NIC functionality
  * @param oct octeon device
+=======
+ * liquidio_stop_nic_module - Stop complete NIC functionality
+ * @oct: octeon device
+>>>>>>> upstream/android-13
  */
 static int liquidio_stop_nic_module(struct octeon_device *oct)
 {
@@ -1363,8 +1699,13 @@ static int liquidio_stop_nic_module(struct octeon_device *oct)
 }
 
 /**
+<<<<<<< HEAD
  * \brief Cleans up resources at unload time
  * @param pdev PCI device structure
+=======
+ * liquidio_remove - Cleans up resources at unload time
+ * @pdev: PCI device structure
+>>>>>>> upstream/android-13
  */
 static void liquidio_remove(struct pci_dev *pdev)
 {
@@ -1396,14 +1737,22 @@ static void liquidio_remove(struct pci_dev *pdev)
 }
 
 /**
+<<<<<<< HEAD
  * \brief Identify the Octeon device and to map the BAR address space
  * @param oct octeon device
+=======
+ * octeon_chip_specific_setup - Identify the Octeon device and to map the BAR address space
+ * @oct: octeon device
+>>>>>>> upstream/android-13
  */
 static int octeon_chip_specific_setup(struct octeon_device *oct)
 {
 	u32 dev_id, rev_id;
 	int ret = 1;
+<<<<<<< HEAD
 	char *s;
+=======
+>>>>>>> upstream/android-13
 
 	pci_read_config_dword(oct->pci_dev, 0, &dev_id);
 	pci_read_config_dword(oct->pci_dev, 8, &rev_id);
@@ -1413,13 +1762,19 @@ static int octeon_chip_specific_setup(struct octeon_device *oct)
 	case OCTEON_CN68XX_PCIID:
 		oct->chip_id = OCTEON_CN68XX;
 		ret = lio_setup_cn68xx_octeon_device(oct);
+<<<<<<< HEAD
 		s = "CN68XX";
+=======
+>>>>>>> upstream/android-13
 		break;
 
 	case OCTEON_CN66XX_PCIID:
 		oct->chip_id = OCTEON_CN66XX;
 		ret = lio_setup_cn66xx_octeon_device(oct);
+<<<<<<< HEAD
 		s = "CN66XX";
+=======
+>>>>>>> upstream/android-13
 		break;
 
 	case OCTEON_CN23XX_PCIID_PF:
@@ -1432,15 +1787,22 @@ static int octeon_chip_specific_setup(struct octeon_device *oct)
 			pci_sriov_set_totalvfs(oct->pci_dev,
 					       oct->sriov_info.max_vfs);
 #endif
+<<<<<<< HEAD
 		s = "CN23XX";
 		break;
 
 	default:
 		s = "?";
+=======
+		break;
+
+	default:
+>>>>>>> upstream/android-13
 		dev_err(&oct->pci_dev->dev, "Unknown device found (dev_id: %x)\n",
 			dev_id);
 	}
 
+<<<<<<< HEAD
 	if (!ret)
 		dev_info(&oct->pci_dev->dev, "%s PASS%d.%d %s Version: %s\n", s,
 			 OCTEON_MAJOR_REV(oct),
@@ -1448,12 +1810,19 @@ static int octeon_chip_specific_setup(struct octeon_device *oct)
 			 octeon_get_conf(oct)->card_name,
 			 LIQUIDIO_VERSION);
 
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 /**
+<<<<<<< HEAD
  * \brief PCI initialization for each Octeon device.
  * @param oct octeon device
+=======
+ * octeon_pci_os_setup - PCI initialization for each Octeon device.
+ * @oct: octeon device
+>>>>>>> upstream/android-13
  */
 static int octeon_pci_os_setup(struct octeon_device *oct)
 {
@@ -1476,8 +1845,13 @@ static int octeon_pci_os_setup(struct octeon_device *oct)
 }
 
 /**
+<<<<<<< HEAD
  * \brief Unmap and free network buffer
  * @param buf buffer
+=======
+ * free_netbuf - Unmap and free network buffer
+ * @buf: buffer
+>>>>>>> upstream/android-13
  */
 static void free_netbuf(void *buf)
 {
@@ -1496,8 +1870,13 @@ static void free_netbuf(void *buf)
 }
 
 /**
+<<<<<<< HEAD
  * \brief Unmap and free gather buffer
  * @param buf buffer
+=======
+ * free_netsgbuf - Unmap and free gather buffer
+ * @buf: buffer
+>>>>>>> upstream/android-13
  */
 static void free_netsgbuf(void *buf)
 {
@@ -1519,11 +1898,19 @@ static void free_netsgbuf(void *buf)
 
 	i = 1;
 	while (frags--) {
+<<<<<<< HEAD
 		struct skb_frag_struct *frag = &skb_shinfo(skb)->frags[i - 1];
 
 		pci_unmap_page((lio->oct_dev)->pci_dev,
 			       g->sg[(i >> 2)].ptr[(i & 3)],
 			       frag->size, DMA_TO_DEVICE);
+=======
+		skb_frag_t *frag = &skb_shinfo(skb)->frags[i - 1];
+
+		dma_unmap_page(&lio->oct_dev->pci_dev->dev,
+			       g->sg[(i >> 2)].ptr[(i & 3)],
+			       skb_frag_size(frag), DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 		i++;
 	}
 
@@ -1536,8 +1923,13 @@ static void free_netsgbuf(void *buf)
 }
 
 /**
+<<<<<<< HEAD
  * \brief Unmap and free gather buffer with response
  * @param buf buffer
+=======
+ * free_netsgbuf_with_resp - Unmap and free gather buffer with response
+ * @buf: buffer
+>>>>>>> upstream/android-13
  */
 static void free_netsgbuf_with_resp(void *buf)
 {
@@ -1562,11 +1954,19 @@ static void free_netsgbuf_with_resp(void *buf)
 
 	i = 1;
 	while (frags--) {
+<<<<<<< HEAD
 		struct skb_frag_struct *frag = &skb_shinfo(skb)->frags[i - 1];
 
 		pci_unmap_page((lio->oct_dev)->pci_dev,
 			       g->sg[(i >> 2)].ptr[(i & 3)],
 			       frag->size, DMA_TO_DEVICE);
+=======
+		skb_frag_t *frag = &skb_shinfo(skb)->frags[i - 1];
+
+		dma_unmap_page(&lio->oct_dev->pci_dev->dev,
+			       g->sg[(i >> 2)].ptr[(i & 3)],
+			       skb_frag_size(frag), DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 		i++;
 	}
 
@@ -1580,9 +1980,15 @@ static void free_netsgbuf_with_resp(void *buf)
 }
 
 /**
+<<<<<<< HEAD
  * \brief Adjust ptp frequency
  * @param ptp PTP clock info
  * @param ppb how much to adjust by, in parts-per-billion
+=======
+ * liquidio_ptp_adjfreq - Adjust ptp frequency
+ * @ptp: PTP clock info
+ * @ppb: how much to adjust by, in parts-per-billion
+>>>>>>> upstream/android-13
  */
 static int liquidio_ptp_adjfreq(struct ptp_clock_info *ptp, s32 ppb)
 {
@@ -1617,9 +2023,15 @@ static int liquidio_ptp_adjfreq(struct ptp_clock_info *ptp, s32 ppb)
 }
 
 /**
+<<<<<<< HEAD
  * \brief Adjust ptp time
  * @param ptp PTP clock info
  * @param delta how much to adjust by, in nanosecs
+=======
+ * liquidio_ptp_adjtime - Adjust ptp time
+ * @ptp: PTP clock info
+ * @delta: how much to adjust by, in nanosecs
+>>>>>>> upstream/android-13
  */
 static int liquidio_ptp_adjtime(struct ptp_clock_info *ptp, s64 delta)
 {
@@ -1634,9 +2046,15 @@ static int liquidio_ptp_adjtime(struct ptp_clock_info *ptp, s64 delta)
 }
 
 /**
+<<<<<<< HEAD
  * \brief Get hardware clock time, including any adjustment
  * @param ptp PTP clock info
  * @param ts timespec
+=======
+ * liquidio_ptp_gettime - Get hardware clock time, including any adjustment
+ * @ptp: PTP clock info
+ * @ts: timespec
+>>>>>>> upstream/android-13
  */
 static int liquidio_ptp_gettime(struct ptp_clock_info *ptp,
 				struct timespec64 *ts)
@@ -1657,9 +2075,15 @@ static int liquidio_ptp_gettime(struct ptp_clock_info *ptp,
 }
 
 /**
+<<<<<<< HEAD
  * \brief Set hardware clock time. Reset adjustment
  * @param ptp PTP clock info
  * @param ts timespec
+=======
+ * liquidio_ptp_settime - Set hardware clock time. Reset adjustment
+ * @ptp: PTP clock info
+ * @ts: timespec
+>>>>>>> upstream/android-13
  */
 static int liquidio_ptp_settime(struct ptp_clock_info *ptp,
 				const struct timespec64 *ts)
@@ -1680,6 +2104,7 @@ static int liquidio_ptp_settime(struct ptp_clock_info *ptp,
 }
 
 /**
+<<<<<<< HEAD
  * \brief Check if PTP is enabled
  * @param ptp PTP clock info
  * @param rq request
@@ -1689,13 +2114,29 @@ static int
 liquidio_ptp_enable(struct ptp_clock_info *ptp __attribute__((unused)),
 		    struct ptp_clock_request *rq __attribute__((unused)),
 		    int on __attribute__((unused)))
+=======
+ * liquidio_ptp_enable - Check if PTP is enabled
+ * @ptp: PTP clock info
+ * @rq: request
+ * @on: is it on
+ */
+static int
+liquidio_ptp_enable(struct ptp_clock_info __maybe_unused *ptp,
+		    struct ptp_clock_request __maybe_unused *rq,
+		    int __maybe_unused on)
+>>>>>>> upstream/android-13
 {
 	return -EOPNOTSUPP;
 }
 
 /**
+<<<<<<< HEAD
  * \brief Open PTP clock source
  * @param netdev network device
+=======
+ * oct_ptp_open - Open PTP clock source
+ * @netdev: network device
+>>>>>>> upstream/android-13
  */
 static void oct_ptp_open(struct net_device *netdev)
 {
@@ -1727,8 +2168,13 @@ static void oct_ptp_open(struct net_device *netdev)
 }
 
 /**
+<<<<<<< HEAD
  * \brief Init PTP clock
  * @param oct octeon device
+=======
+ * liquidio_ptp_init - Init PTP clock
+ * @oct: octeon device
+>>>>>>> upstream/android-13
  */
 static void liquidio_ptp_init(struct octeon_device *oct)
 {
@@ -1744,8 +2190,13 @@ static void liquidio_ptp_init(struct octeon_device *oct)
 }
 
 /**
+<<<<<<< HEAD
  * \brief Load firmware to device
  * @param oct octeon device
+=======
+ * load_firmware - Load firmware to device
+ * @oct: octeon device
+>>>>>>> upstream/android-13
  *
  * Maps device to firmware filename, requests firmware, and downloads it
  */
@@ -1783,8 +2234,13 @@ static int load_firmware(struct octeon_device *oct)
 }
 
 /**
+<<<<<<< HEAD
  * \brief Poll routine for checking transmit queue status
  * @param work work_struct data structure
+=======
+ * octnet_poll_check_txq_status - Poll routine for checking transmit queue status
+ * @work: work_struct data structure
+>>>>>>> upstream/android-13
  */
 static void octnet_poll_check_txq_status(struct work_struct *work)
 {
@@ -1800,8 +2256,13 @@ static void octnet_poll_check_txq_status(struct work_struct *work)
 }
 
 /**
+<<<<<<< HEAD
  * \brief Sets up the txq poll check
  * @param netdev network device
+=======
+ * setup_tx_poll_fn - Sets up the txq poll check
+ * @netdev: network device
+>>>>>>> upstream/android-13
  */
 static inline int setup_tx_poll_fn(struct net_device *netdev)
 {
@@ -1833,16 +2294,32 @@ static inline void cleanup_tx_poll_fn(struct net_device *netdev)
 }
 
 /**
+<<<<<<< HEAD
  * \brief Net device open for LiquidIO
  * @param netdev network device
+=======
+ * liquidio_open - Net device open for LiquidIO
+ * @netdev: network device
+>>>>>>> upstream/android-13
  */
 static int liquidio_open(struct net_device *netdev)
 {
 	struct lio *lio = GET_LIO(netdev);
 	struct octeon_device *oct = lio->oct_dev;
+<<<<<<< HEAD
 	struct napi_struct *napi, *n;
 
 	if (oct->props[lio->ifidx].napi_enabled == 0) {
+=======
+	struct octeon_device_priv *oct_priv =
+		(struct octeon_device_priv *)oct->priv;
+	struct napi_struct *napi, *n;
+	int ret = 0;
+
+	if (oct->props[lio->ifidx].napi_enabled == 0) {
+		tasklet_disable(&oct_priv->droq_tasklet);
+
+>>>>>>> upstream/android-13
 		list_for_each_entry_safe(napi, n, &netdev->napi_list, dev_list)
 			napi_enable(napi);
 
@@ -1874,23 +2351,51 @@ static int liquidio_open(struct net_device *netdev)
 	netif_info(lio, ifup, lio->netdev, "Interface Open, ready for traffic\n");
 
 	/* tell Octeon to start forwarding packets to host */
+<<<<<<< HEAD
 	send_rx_ctrl_cmd(lio, 1);
+=======
+	ret = send_rx_ctrl_cmd(lio, 1);
+	if (ret)
+		return ret;
+
+	/* start periodical statistics fetch */
+	INIT_DELAYED_WORK(&lio->stats_wk.work, lio_fetch_stats);
+	lio->stats_wk.ctxptr = lio;
+	schedule_delayed_work(&lio->stats_wk.work, msecs_to_jiffies
+					(LIQUIDIO_NDEV_STATS_POLL_TIME_MS));
+>>>>>>> upstream/android-13
 
 	dev_info(&oct->pci_dev->dev, "%s interface is opened\n",
 		 netdev->name);
 
+<<<<<<< HEAD
 	return 0;
 }
 
 /**
  * \brief Net device stop for LiquidIO
  * @param netdev network device
+=======
+	return ret;
+}
+
+/**
+ * liquidio_stop - Net device stop for LiquidIO
+ * @netdev: network device
+>>>>>>> upstream/android-13
  */
 static int liquidio_stop(struct net_device *netdev)
 {
 	struct lio *lio = GET_LIO(netdev);
 	struct octeon_device *oct = lio->oct_dev;
+<<<<<<< HEAD
 	struct napi_struct *napi, *n;
+=======
+	struct octeon_device_priv *oct_priv =
+		(struct octeon_device_priv *)oct->priv;
+	struct napi_struct *napi, *n;
+	int ret = 0;
+>>>>>>> upstream/android-13
 
 	ifstate_reset(lio, LIO_IFSTATE_RUNNING);
 
@@ -1907,7 +2412,13 @@ static int liquidio_stop(struct net_device *netdev)
 	lio->link_changes++;
 
 	/* Tell Octeon that nic interface is down. */
+<<<<<<< HEAD
 	send_rx_ctrl_cmd(lio, 0);
+=======
+	ret = send_rx_ctrl_cmd(lio, 0);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	if (OCTEON_CN23XX_PF(oct)) {
 		if (!oct->msix_on)
@@ -1916,6 +2427,11 @@ static int liquidio_stop(struct net_device *netdev)
 		cleanup_tx_poll_fn(netdev);
 	}
 
+<<<<<<< HEAD
+=======
+	cancel_delayed_work_sync(&lio->stats_wk.work);
+
+>>>>>>> upstream/android-13
 	if (lio->ptp_clock) {
 		ptp_clock_unregister(lio->ptp_clock);
 		lio->ptp_clock = NULL;
@@ -1934,16 +2450,30 @@ static int liquidio_stop(struct net_device *netdev)
 
 		if (OCTEON_CN23XX_PF(oct))
 			oct->droq[0]->ops.poll_mode = 0;
+<<<<<<< HEAD
+=======
+
+		tasklet_enable(&oct_priv->droq_tasklet);
+>>>>>>> upstream/android-13
 	}
 
 	dev_info(&oct->pci_dev->dev, "%s interface is stopped\n", netdev->name);
 
+<<<<<<< HEAD
 	return 0;
 }
 
 /**
  * \brief Converts a mask based on net device flags
  * @param netdev network device
+=======
+	return ret;
+}
+
+/**
+ * get_new_flags - Converts a mask based on net device flags
+ * @netdev: network device
+>>>>>>> upstream/android-13
  *
  * This routine generates a octnet_ifflags mask from the net device flags
  * received from the OS.
@@ -1975,8 +2505,13 @@ static inline enum octnet_ifflags get_new_flags(struct net_device *netdev)
 }
 
 /**
+<<<<<<< HEAD
  * \brief Net device set_multicast_list
  * @param netdev network device
+=======
+ * liquidio_set_mcast_list - Net device set_multicast_list
+ * @netdev: network device
+>>>>>>> upstream/android-13
  */
 static void liquidio_set_mcast_list(struct net_device *netdev)
 {
@@ -2014,18 +2549,30 @@ static void liquidio_set_mcast_list(struct net_device *netdev)
 	/* Apparently, any activity in this call from the kernel has to
 	 * be atomic. So we won't wait for response.
 	 */
+<<<<<<< HEAD
 	nctrl.wait_time = 0;
 
 	ret = octnet_send_nic_ctrl_pkt(lio->oct_dev, &nctrl);
 	if (ret < 0) {
+=======
+
+	ret = octnet_send_nic_ctrl_pkt(lio->oct_dev, &nctrl);
+	if (ret) {
+>>>>>>> upstream/android-13
 		dev_err(&oct->pci_dev->dev, "DEVFLAGS change failed in core (ret: 0x%x)\n",
 			ret);
 	}
 }
 
 /**
+<<<<<<< HEAD
  * \brief Net device set_mac_address
  * @param netdev network device
+=======
+ * liquidio_set_mac - Net device set_mac_address
+ * @netdev: network device
+ * @p: pointer to sockaddr
+>>>>>>> upstream/android-13
  */
 static int liquidio_set_mac(struct net_device *netdev, void *p)
 {
@@ -2046,8 +2593,11 @@ static int liquidio_set_mac(struct net_device *netdev, void *p)
 	nctrl.ncmd.s.more = 1;
 	nctrl.iq_no = lio->linfo.txpciq[0].s.q_no;
 	nctrl.netpndev = (u64)netdev;
+<<<<<<< HEAD
 	nctrl.cb_fn = liquidio_link_ctrl_cmd_completion;
 	nctrl.wait_time = 100;
+=======
+>>>>>>> upstream/android-13
 
 	nctrl.udd[0] = 0;
 	/* The MAC Address is presented in network byte order. */
@@ -2058,6 +2608,17 @@ static int liquidio_set_mac(struct net_device *netdev, void *p)
 		dev_err(&oct->pci_dev->dev, "MAC Address change failed\n");
 		return -ENOMEM;
 	}
+<<<<<<< HEAD
+=======
+
+	if (nctrl.sc_status) {
+		dev_err(&oct->pci_dev->dev,
+			"%s: MAC Address change failed. sc return=%x\n",
+			 __func__, nctrl.sc_status);
+		return -EIO;
+	}
+
+>>>>>>> upstream/android-13
 	memcpy(netdev->dev_addr, addr->sa_data, netdev->addr_len);
 	memcpy(((u8 *)&lio->linfo.hw_addr) + 2, addr->sa_data, ETH_ALEN);
 
@@ -2111,7 +2672,10 @@ liquidio_get_stats64(struct net_device *netdev,
 	lstats->rx_packets = pkts;
 	lstats->rx_dropped = drop;
 
+<<<<<<< HEAD
 	octnet_get_link_stats(netdev);
+=======
+>>>>>>> upstream/android-13
 	lstats->multicast = oct->link_stats.fromwire.fw_total_mcast;
 	lstats->collisions = oct->link_stats.fromhost.total_collisions;
 
@@ -2138,10 +2702,16 @@ liquidio_get_stats64(struct net_device *netdev,
 }
 
 /**
+<<<<<<< HEAD
  * \brief Handler for SIOCSHWTSTAMP ioctl
  * @param netdev network device
  * @param ifr interface request
  * @param cmd command
+=======
+ * hwtstamp_ioctl - Handler for SIOCSHWTSTAMP ioctl
+ * @netdev: network device
+ * @ifr: interface request
+>>>>>>> upstream/android-13
  */
 static int hwtstamp_ioctl(struct net_device *netdev, struct ifreq *ifr)
 {
@@ -2196,10 +2766,17 @@ static int hwtstamp_ioctl(struct net_device *netdev, struct ifreq *ifr)
 }
 
 /**
+<<<<<<< HEAD
  * \brief ioctl handler
  * @param netdev network device
  * @param ifr interface request
  * @param cmd command
+=======
+ * liquidio_ioctl - ioctl handler
+ * @netdev: network device
+ * @ifr: interface request
+ * @cmd: command
+>>>>>>> upstream/android-13
  */
 static int liquidio_ioctl(struct net_device *netdev, struct ifreq *ifr, int cmd)
 {
@@ -2209,16 +2786,27 @@ static int liquidio_ioctl(struct net_device *netdev, struct ifreq *ifr, int cmd)
 	case SIOCSHWTSTAMP:
 		if (lio->oct_dev->ptp_enable)
 			return hwtstamp_ioctl(netdev, ifr);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		return -EOPNOTSUPP;
 	}
 }
 
 /**
+<<<<<<< HEAD
  * \brief handle a Tx timestamp response
  * @param status response status
  * @param buf pointer to skb
+=======
+ * handle_timestamp - handle a Tx timestamp response
+ * @oct: octeon device
+ * @status: response status
+ * @buf: pointer to skb
+>>>>>>> upstream/android-13
  */
 static void handle_timestamp(struct octeon_device *oct,
 			     u32 status,
@@ -2259,10 +2847,19 @@ static void handle_timestamp(struct octeon_device *oct,
 	tx_buffer_free(skb);
 }
 
+<<<<<<< HEAD
 /* \brief Send a data packet that will be timestamped
  * @param oct octeon device
  * @param ndata pointer to network data
  * @param finfo pointer to private network data
+=======
+/**
+ * send_nic_timestamp_pkt - Send a data packet that will be timestamped
+ * @oct: octeon device
+ * @ndata: pointer to network data
+ * @finfo: pointer to private network data
+ * @xmit_more: more is coming
+>>>>>>> upstream/android-13
  */
 static inline int send_nic_timestamp_pkt(struct octeon_device *oct,
 					 struct octnic_data_pkt *ndata,
@@ -2318,10 +2915,19 @@ static inline int send_nic_timestamp_pkt(struct octeon_device *oct,
 	return retval;
 }
 
+<<<<<<< HEAD
 /** \brief Transmit networks packets to the Octeon interface
  * @param skbuff   skbuff struct to be passed to network layer.
  * @param netdev    pointer to network device
  * @returns whether the packet was transmitted to the device okay or not
+=======
+/**
+ * liquidio_xmit - Transmit networks packets to the Octeon interface
+ * @skb: skbuff struct to be passed to network layer.
+ * @netdev: pointer to network device
+ *
+ * Return: whether the packet was transmitted to the device okay or not
+>>>>>>> upstream/android-13
  *             (NETDEV_TX_OK or NETDEV_TX_BUSY)
  */
 static netdev_tx_t liquidio_xmit(struct sk_buff *skb, struct net_device *netdev)
@@ -2431,7 +3037,11 @@ static netdev_tx_t liquidio_xmit(struct sk_buff *skb, struct net_device *netdev)
 
 	} else {
 		int i, frags;
+<<<<<<< HEAD
 		struct skb_frag_struct *frag;
+=======
+		skb_frag_t *frag;
+>>>>>>> upstream/android-13
 		struct octnic_gather *g;
 
 		spin_lock(&lio->glist_lock[q_idx]);
@@ -2469,11 +3079,17 @@ static netdev_tx_t liquidio_xmit(struct sk_buff *skb, struct net_device *netdev)
 			frag = &skb_shinfo(skb)->frags[i - 1];
 
 			g->sg[(i >> 2)].ptr[(i & 3)] =
+<<<<<<< HEAD
 				dma_map_page(&oct->pci_dev->dev,
 					     frag->page.p,
 					     frag->page_offset,
 					     frag->size,
 					     DMA_TO_DEVICE);
+=======
+				skb_frag_dma_map(&oct->pci_dev->dev,
+					         frag, 0, skb_frag_size(frag),
+						 DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 
 			if (dma_mapping_error(&oct->pci_dev->dev,
 					      g->sg[i >> 2].ptr[i & 3])) {
@@ -2485,7 +3101,11 @@ static netdev_tx_t liquidio_xmit(struct sk_buff *skb, struct net_device *netdev)
 					frag = &skb_shinfo(skb)->frags[j - 1];
 					dma_unmap_page(&oct->pci_dev->dev,
 						       g->sg[j >> 2].ptr[j & 3],
+<<<<<<< HEAD
 						       frag->size,
+=======
+						       skb_frag_size(frag),
+>>>>>>> upstream/android-13
 						       DMA_TO_DEVICE);
 				}
 				dev_err(&oct->pci_dev->dev, "%s DMA mapping error 3\n",
@@ -2493,7 +3113,12 @@ static netdev_tx_t liquidio_xmit(struct sk_buff *skb, struct net_device *netdev)
 				return NETDEV_TX_BUSY;
 			}
 
+<<<<<<< HEAD
 			add_sg_size(&g->sg[(i >> 2)], frag->size, (i & 3));
+=======
+			add_sg_size(&g->sg[(i >> 2)], skb_frag_size(frag),
+				    (i & 3));
+>>>>>>> upstream/android-13
 			i++;
 		}
 
@@ -2529,7 +3154,11 @@ static netdev_tx_t liquidio_xmit(struct sk_buff *skb, struct net_device *netdev)
 		irh->vlan = skb_vlan_tag_get(skb) & 0xfff;
 	}
 
+<<<<<<< HEAD
 	xmit_more = skb->xmit_more;
+=======
+	xmit_more = netdev_xmit_more();
+>>>>>>> upstream/android-13
 
 	if (unlikely(cmdsetup.s.timestamp))
 		status = send_nic_timestamp_pkt(oct, &ndata, finfo, xmit_more);
@@ -2567,10 +3196,19 @@ lio_xmit_failed:
 	return NETDEV_TX_OK;
 }
 
+<<<<<<< HEAD
 /** \brief Network device Tx timeout
  * @param netdev    pointer to network device
  */
 static void liquidio_tx_timeout(struct net_device *netdev)
+=======
+/**
+ * liquidio_tx_timeout - Network device Tx timeout
+ * @netdev:    pointer to network device
+ * @txqueue: index of the hung transmit queue
+ */
+static void liquidio_tx_timeout(struct net_device *netdev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct lio *lio;
 
@@ -2598,14 +3236,25 @@ static int liquidio_vlan_rx_add_vid(struct net_device *netdev,
 	nctrl.ncmd.s.cmd = OCTNET_CMD_ADD_VLAN_FILTER;
 	nctrl.ncmd.s.param1 = vid;
 	nctrl.iq_no = lio->linfo.txpciq[0].s.q_no;
+<<<<<<< HEAD
 	nctrl.wait_time = 100;
+=======
+>>>>>>> upstream/android-13
 	nctrl.netpndev = (u64)netdev;
 	nctrl.cb_fn = liquidio_link_ctrl_cmd_completion;
 
 	ret = octnet_send_nic_ctrl_pkt(lio->oct_dev, &nctrl);
+<<<<<<< HEAD
 	if (ret < 0) {
 		dev_err(&oct->pci_dev->dev, "Add VLAN filter failed in core (ret: 0x%x)\n",
 			ret);
+=======
+	if (ret) {
+		dev_err(&oct->pci_dev->dev, "Add VLAN filter failed in core (ret: 0x%x)\n",
+			ret);
+		if (ret > 0)
+			ret = -EIO;
+>>>>>>> upstream/android-13
 	}
 
 	return ret;
@@ -2626,24 +3275,44 @@ static int liquidio_vlan_rx_kill_vid(struct net_device *netdev,
 	nctrl.ncmd.s.cmd = OCTNET_CMD_DEL_VLAN_FILTER;
 	nctrl.ncmd.s.param1 = vid;
 	nctrl.iq_no = lio->linfo.txpciq[0].s.q_no;
+<<<<<<< HEAD
 	nctrl.wait_time = 100;
+=======
+>>>>>>> upstream/android-13
 	nctrl.netpndev = (u64)netdev;
 	nctrl.cb_fn = liquidio_link_ctrl_cmd_completion;
 
 	ret = octnet_send_nic_ctrl_pkt(lio->oct_dev, &nctrl);
+<<<<<<< HEAD
 	if (ret < 0) {
 		dev_err(&oct->pci_dev->dev, "Del VLAN filter failed in core (ret: 0x%x)\n",
 			ret);
+=======
+	if (ret) {
+		dev_err(&oct->pci_dev->dev, "Del VLAN filter failed in core (ret: 0x%x)\n",
+			ret);
+		if (ret > 0)
+			ret = -EIO;
+>>>>>>> upstream/android-13
 	}
 	return ret;
 }
 
+<<<<<<< HEAD
 /** Sending command to enable/disable RX checksum offload
  * @param netdev                pointer to network device
  * @param command               OCTNET_CMD_TNL_RX_CSUM_CTL
  * @param rx_cmd_bit            OCTNET_CMD_RXCSUM_ENABLE/
  *                              OCTNET_CMD_RXCSUM_DISABLE
  * @returns                     SUCCESS or FAILURE
+=======
+/**
+ * liquidio_set_rxcsum_command - Sending command to enable/disable RX checksum offload
+ * @netdev:                pointer to network device
+ * @command:               OCTNET_CMD_TNL_RX_CSUM_CTL
+ * @rx_cmd:                OCTNET_CMD_RXCSUM_ENABLE/OCTNET_CMD_RXCSUM_DISABLE
+ * Returns:                SUCCESS or FAILURE
+>>>>>>> upstream/android-13
  */
 static int liquidio_set_rxcsum_command(struct net_device *netdev, int command,
 				       u8 rx_cmd)
@@ -2659,19 +3328,32 @@ static int liquidio_set_rxcsum_command(struct net_device *netdev, int command,
 	nctrl.ncmd.s.cmd = command;
 	nctrl.ncmd.s.param1 = rx_cmd;
 	nctrl.iq_no = lio->linfo.txpciq[0].s.q_no;
+<<<<<<< HEAD
 	nctrl.wait_time = 100;
+=======
+>>>>>>> upstream/android-13
 	nctrl.netpndev = (u64)netdev;
 	nctrl.cb_fn = liquidio_link_ctrl_cmd_completion;
 
 	ret = octnet_send_nic_ctrl_pkt(lio->oct_dev, &nctrl);
+<<<<<<< HEAD
 	if (ret < 0) {
 		dev_err(&oct->pci_dev->dev,
 			"DEVFLAGS RXCSUM change failed in core(ret:0x%x)\n",
 			ret);
+=======
+	if (ret) {
+		dev_err(&oct->pci_dev->dev,
+			"DEVFLAGS RXCSUM change failed in core(ret:0x%x)\n",
+			ret);
+		if (ret > 0)
+			ret = -EIO;
+>>>>>>> upstream/android-13
 	}
 	return ret;
 }
 
+<<<<<<< HEAD
 /** Sending command to add/delete VxLAN UDP port to firmware
  * @param netdev                pointer to network device
  * @param command               OCTNET_CMD_VXLAN_PORT_CONFIG
@@ -2679,6 +3361,16 @@ static int liquidio_set_rxcsum_command(struct net_device *netdev, int command,
  * @param vxlan_cmd_bit         OCTNET_CMD_VXLAN_PORT_ADD,
  *                              OCTNET_CMD_VXLAN_PORT_DEL
  * @returns                     SUCCESS or FAILURE
+=======
+/**
+ * liquidio_vxlan_port_command - Sending command to add/delete VxLAN UDP port to firmware
+ * @netdev:                pointer to network device
+ * @command:               OCTNET_CMD_VXLAN_PORT_CONFIG
+ * @vxlan_port:            VxLAN port to be added or deleted
+ * @vxlan_cmd_bit:         OCTNET_CMD_VXLAN_PORT_ADD,
+ *                              OCTNET_CMD_VXLAN_PORT_DEL
+ * Return:                     SUCCESS or FAILURE
+>>>>>>> upstream/android-13
  */
 static int liquidio_vxlan_port_command(struct net_device *netdev, int command,
 				       u16 vxlan_port, u8 vxlan_cmd_bit)
@@ -2695,23 +3387,72 @@ static int liquidio_vxlan_port_command(struct net_device *netdev, int command,
 	nctrl.ncmd.s.more = vxlan_cmd_bit;
 	nctrl.ncmd.s.param1 = vxlan_port;
 	nctrl.iq_no = lio->linfo.txpciq[0].s.q_no;
+<<<<<<< HEAD
 	nctrl.wait_time = 100;
+=======
+>>>>>>> upstream/android-13
 	nctrl.netpndev = (u64)netdev;
 	nctrl.cb_fn = liquidio_link_ctrl_cmd_completion;
 
 	ret = octnet_send_nic_ctrl_pkt(lio->oct_dev, &nctrl);
+<<<<<<< HEAD
 	if (ret < 0) {
 		dev_err(&oct->pci_dev->dev,
 			"VxLAN port add/delete failed in core (ret:0x%x)\n",
 			ret);
+=======
+	if (ret) {
+		dev_err(&oct->pci_dev->dev,
+			"VxLAN port add/delete failed in core (ret:0x%x)\n",
+			ret);
+		if (ret > 0)
+			ret = -EIO;
+>>>>>>> upstream/android-13
 	}
 	return ret;
 }
 
+<<<<<<< HEAD
 /** \brief Net device fix features
  * @param netdev  pointer to network device
  * @param request features requested
  * @returns updated features list
+=======
+static int liquidio_udp_tunnel_set_port(struct net_device *netdev,
+					unsigned int table, unsigned int entry,
+					struct udp_tunnel_info *ti)
+{
+	return liquidio_vxlan_port_command(netdev,
+					   OCTNET_CMD_VXLAN_PORT_CONFIG,
+					   htons(ti->port),
+					   OCTNET_CMD_VXLAN_PORT_ADD);
+}
+
+static int liquidio_udp_tunnel_unset_port(struct net_device *netdev,
+					  unsigned int table,
+					  unsigned int entry,
+					  struct udp_tunnel_info *ti)
+{
+	return liquidio_vxlan_port_command(netdev,
+					   OCTNET_CMD_VXLAN_PORT_CONFIG,
+					   htons(ti->port),
+					   OCTNET_CMD_VXLAN_PORT_DEL);
+}
+
+static const struct udp_tunnel_nic_info liquidio_udp_tunnels = {
+	.set_port	= liquidio_udp_tunnel_set_port,
+	.unset_port	= liquidio_udp_tunnel_unset_port,
+	.tables		= {
+		{ .n_entries = 1024, .tunnel_types = UDP_TUNNEL_TYPE_VXLAN, },
+	},
+};
+
+/**
+ * liquidio_fix_features - Net device fix features
+ * @netdev:  pointer to network device
+ * @request: features requested
+ * Return: updated features list
+>>>>>>> upstream/android-13
  */
 static netdev_features_t liquidio_fix_features(struct net_device *netdev,
 					       netdev_features_t request)
@@ -2747,9 +3488,16 @@ static netdev_features_t liquidio_fix_features(struct net_device *netdev,
 	return request;
 }
 
+<<<<<<< HEAD
 /** \brief Net device set features
  * @param netdev  pointer to network device
  * @param features features to enable/disable
+=======
+/**
+ * liquidio_set_features - Net device set features
+ * @netdev:  pointer to network device
+ * @features: features to enable/disable
+>>>>>>> upstream/android-13
  */
 static int liquidio_set_features(struct net_device *netdev,
 				 netdev_features_t features)
@@ -2796,6 +3544,7 @@ static int liquidio_set_features(struct net_device *netdev,
 	return 0;
 }
 
+<<<<<<< HEAD
 static void liquidio_add_vxlan_port(struct net_device *netdev,
 				    struct udp_tunnel_info *ti)
 {
@@ -2820,12 +3569,18 @@ static void liquidio_del_vxlan_port(struct net_device *netdev,
 				    OCTNET_CMD_VXLAN_PORT_DEL);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int __liquidio_set_vf_mac(struct net_device *netdev, int vfidx,
 				 u8 *mac, bool is_admin_assigned)
 {
 	struct lio *lio = GET_LIO(netdev);
 	struct octeon_device *oct = lio->oct_dev;
 	struct octnic_ctrl_pkt nctrl;
+<<<<<<< HEAD
+=======
+	int ret = 0;
+>>>>>>> upstream/android-13
 
 	if (!is_valid_ether_addr(mac))
 		return -EINVAL;
@@ -2839,12 +3594,22 @@ static int __liquidio_set_vf_mac(struct net_device *netdev, int vfidx,
 	nctrl.ncmd.s.cmd = OCTNET_CMD_CHANGE_MACADDR;
 	/* vfidx is 0 based, but vf_num (param1) is 1 based */
 	nctrl.ncmd.s.param1 = vfidx + 1;
+<<<<<<< HEAD
 	nctrl.ncmd.s.param2 = (is_admin_assigned ? 1 : 0);
 	nctrl.ncmd.s.more = 1;
 	nctrl.iq_no = lio->linfo.txpciq[0].s.q_no;
 	nctrl.netpndev = (u64)netdev;
 	nctrl.cb_fn = liquidio_link_ctrl_cmd_completion;
 	nctrl.wait_time = LIO_CMD_WAIT_TM;
+=======
+	nctrl.ncmd.s.more = 1;
+	nctrl.iq_no = lio->linfo.txpciq[0].s.q_no;
+	nctrl.netpndev = (u64)netdev;
+	if (is_admin_assigned) {
+		nctrl.ncmd.s.param2 = true;
+		nctrl.cb_fn = liquidio_link_ctrl_cmd_completion;
+	}
+>>>>>>> upstream/android-13
 
 	nctrl.udd[0] = 0;
 	/* The MAC Address is presented in network byte order. */
@@ -2852,9 +3617,17 @@ static int __liquidio_set_vf_mac(struct net_device *netdev, int vfidx,
 
 	oct->sriov_info.vf_macaddr[vfidx] = nctrl.udd[0];
 
+<<<<<<< HEAD
 	octnet_send_nic_ctrl_pkt(oct, &nctrl);
 
 	return 0;
+=======
+	ret = octnet_send_nic_ctrl_pkt(oct, &nctrl);
+	if (ret > 0)
+		ret = -EIO;
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int liquidio_set_vf_mac(struct net_device *netdev, int vfidx, u8 *mac)
@@ -2873,6 +3646,65 @@ static int liquidio_set_vf_mac(struct net_device *netdev, int vfidx, u8 *mac)
 	return retval;
 }
 
+<<<<<<< HEAD
+=======
+static int liquidio_set_vf_spoofchk(struct net_device *netdev, int vfidx,
+				    bool enable)
+{
+	struct lio *lio = GET_LIO(netdev);
+	struct octeon_device *oct = lio->oct_dev;
+	struct octnic_ctrl_pkt nctrl;
+	int retval;
+
+	if (!(oct->fw_info.app_cap_flags & LIQUIDIO_SPOOFCHK_CAP)) {
+		netif_info(lio, drv, lio->netdev,
+			   "firmware does not support spoofchk\n");
+		return -EOPNOTSUPP;
+	}
+
+	if (vfidx < 0 || vfidx >= oct->sriov_info.num_vfs_alloced) {
+		netif_info(lio, drv, lio->netdev, "Invalid vfidx %d\n", vfidx);
+		return -EINVAL;
+	}
+
+	if (enable) {
+		if (oct->sriov_info.vf_spoofchk[vfidx])
+			return 0;
+	} else {
+		/* Clear */
+		if (!oct->sriov_info.vf_spoofchk[vfidx])
+			return 0;
+	}
+
+	memset(&nctrl, 0, sizeof(struct octnic_ctrl_pkt));
+	nctrl.ncmd.s.cmdgroup = OCTNET_CMD_GROUP1;
+	nctrl.ncmd.s.cmd = OCTNET_CMD_SET_VF_SPOOFCHK;
+	nctrl.ncmd.s.param1 =
+		vfidx + 1; /* vfidx is 0 based,
+			    * but vf_num (param1) is 1 based
+			    */
+	nctrl.ncmd.s.param2 = enable;
+	nctrl.ncmd.s.more = 0;
+	nctrl.iq_no = lio->linfo.txpciq[0].s.q_no;
+	nctrl.cb_fn = NULL;
+
+	retval = octnet_send_nic_ctrl_pkt(oct, &nctrl);
+
+	if (retval) {
+		netif_info(lio, drv, lio->netdev,
+			   "Failed to set VF %d spoofchk %s\n", vfidx,
+			enable ? "on" : "off");
+		return -1;
+	}
+
+	oct->sriov_info.vf_spoofchk[vfidx] = enable;
+	netif_info(lio, drv, lio->netdev, "VF %u spoofchk is %s\n", vfidx,
+		   enable ? "on" : "off");
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int liquidio_set_vf_vlan(struct net_device *netdev, int vfidx,
 				u16 vlan, u8 qos, __be16 vlan_proto)
 {
@@ -2880,6 +3712,10 @@ static int liquidio_set_vf_vlan(struct net_device *netdev, int vfidx,
 	struct octeon_device *oct = lio->oct_dev;
 	struct octnic_ctrl_pkt nctrl;
 	u16 vlantci;
+<<<<<<< HEAD
+=======
+	int ret = 0;
+>>>>>>> upstream/android-13
 
 	if (vfidx < 0 || vfidx >= oct->sriov_info.num_vfs_alloced)
 		return -EINVAL;
@@ -2911,6 +3747,7 @@ static int liquidio_set_vf_vlan(struct net_device *netdev, int vfidx,
 	nctrl.ncmd.s.more = 0;
 	nctrl.iq_no = lio->linfo.txpciq[0].s.q_no;
 	nctrl.cb_fn = NULL;
+<<<<<<< HEAD
 	nctrl.wait_time = LIO_CMD_WAIT_TM;
 
 	octnet_send_nic_ctrl_pkt(oct, &nctrl);
@@ -2918,6 +3755,19 @@ static int liquidio_set_vf_vlan(struct net_device *netdev, int vfidx,
 	oct->sriov_info.vf_vlantci[vfidx] = vlantci;
 
 	return 0;
+=======
+
+	ret = octnet_send_nic_ctrl_pkt(oct, &nctrl);
+	if (ret) {
+		if (ret > 0)
+			ret = -EIO;
+		return ret;
+	}
+
+	oct->sriov_info.vf_vlantci[vfidx] = vlantci;
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int liquidio_get_vf_config(struct net_device *netdev, int vfidx,
@@ -2930,6 +3780,11 @@ static int liquidio_get_vf_config(struct net_device *netdev, int vfidx,
 	if (vfidx < 0 || vfidx >= oct->sriov_info.num_vfs_alloced)
 		return -EINVAL;
 
+<<<<<<< HEAD
+=======
+	memset(ivi, 0, sizeof(struct ifla_vf_info));
+
+>>>>>>> upstream/android-13
 	ivi->vf = vfidx;
 	macaddr = 2 + (u8 *)&oct->sriov_info.vf_macaddr[vfidx];
 	ether_addr_copy(&ivi->mac[0], macaddr);
@@ -2941,6 +3796,7 @@ static int liquidio_get_vf_config(struct net_device *netdev, int vfidx,
 	else
 		ivi->trusted = false;
 	ivi->linkstate = oct->sriov_info.vf_linkstate[vfidx];
+<<<<<<< HEAD
 	return 0;
 }
 
@@ -2968,6 +3824,24 @@ static int liquidio_send_vf_trust_cmd(struct lio *lio, int vfidx, bool trusted)
 
 	ctx  = (struct lio_trusted_vf_ctx *)sc->ctxptr;
 	init_completion(&ctx->complete);
+=======
+	ivi->spoofchk = oct->sriov_info.vf_spoofchk[vfidx];
+	ivi->max_tx_rate = lio->linfo.link.s.speed;
+	ivi->min_tx_rate = 0;
+
+	return 0;
+}
+
+static int liquidio_send_vf_trust_cmd(struct lio *lio, int vfidx, bool trusted)
+{
+	struct octeon_device *oct = lio->oct_dev;
+	struct octeon_soft_command *sc;
+	int retval;
+
+	sc = octeon_alloc_soft_command(oct, 0, 16, 0);
+	if (!sc)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	sc->iq_no = lio->linfo.txpciq[0].s.q_no;
 
@@ -2976,6 +3850,7 @@ static int liquidio_send_vf_trust_cmd(struct lio *lio, int vfidx, bool trusted)
 				    OPCODE_NIC_SET_TRUSTED_VF, 0, vfidx + 1,
 				    trusted);
 
+<<<<<<< HEAD
 	sc->callback = trusted_vf_callback;
 	sc->callback_arg = sc;
 	sc->wait_time = 1000;
@@ -2993,6 +3868,23 @@ static int liquidio_send_vf_trust_cmd(struct lio *lio, int vfidx, bool trusted)
 	}
 
 	octeon_free_soft_command(oct, sc);
+=======
+	init_completion(&sc->complete);
+	sc->sc_status = OCTEON_REQUEST_PENDING;
+
+	retval = octeon_send_soft_command(oct, sc);
+	if (retval == IQ_SEND_FAILED) {
+		octeon_free_soft_command(oct, sc);
+		retval = -1;
+	} else {
+		/* Wait for response or timeout */
+		retval = wait_for_sc_completion_timeout(oct, sc, 0);
+		if (retval)
+			return (retval);
+
+		WRITE_ONCE(sc->caller_is_done, true);
+	}
+>>>>>>> upstream/android-13
 
 	return retval;
 }
@@ -3055,6 +3947,10 @@ static int liquidio_set_vf_link_state(struct net_device *netdev, int vfidx,
 	struct lio *lio = GET_LIO(netdev);
 	struct octeon_device *oct = lio->oct_dev;
 	struct octnic_ctrl_pkt nctrl;
+<<<<<<< HEAD
+=======
+	int ret = 0;
+>>>>>>> upstream/android-13
 
 	if (vfidx < 0 || vfidx >= oct->sriov_info.num_vfs_alloced)
 		return -EINVAL;
@@ -3070,6 +3966,7 @@ static int liquidio_set_vf_link_state(struct net_device *netdev, int vfidx,
 	nctrl.ncmd.s.more = 0;
 	nctrl.iq_no = lio->linfo.txpciq[0].s.q_no;
 	nctrl.cb_fn = NULL;
+<<<<<<< HEAD
 	nctrl.wait_time = LIO_CMD_WAIT_TM;
 
 	octnet_send_nic_ctrl_pkt(oct, &nctrl);
@@ -3077,6 +3974,17 @@ static int liquidio_set_vf_link_state(struct net_device *netdev, int vfidx,
 	oct->sriov_info.vf_linkstate[vfidx] = linkstate;
 
 	return 0;
+=======
+
+	ret = octnet_send_nic_ctrl_pkt(oct, &nctrl);
+
+	if (!ret)
+		oct->sriov_info.vf_linkstate[vfidx] = linkstate;
+	else if (ret > 0)
+		ret = -EIO;
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int
@@ -3094,7 +4002,12 @@ liquidio_eswitch_mode_get(struct devlink *devlink, u16 *mode)
 }
 
 static int
+<<<<<<< HEAD
 liquidio_eswitch_mode_set(struct devlink *devlink, u16 mode)
+=======
+liquidio_eswitch_mode_set(struct devlink *devlink, u16 mode,
+			  struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct lio_devlink_priv *priv;
 	struct octeon_device *oct;
@@ -3133,7 +4046,12 @@ static const struct devlink_ops liquidio_devlink_ops = {
 };
 
 static int
+<<<<<<< HEAD
 lio_pf_switchdev_attr_get(struct net_device *dev, struct switchdev_attr *attr)
+=======
+liquidio_get_port_parent_id(struct net_device *dev,
+			    struct netdev_phys_item_id *ppid)
+>>>>>>> upstream/android-13
 {
 	struct lio *lio = GET_LIO(dev);
 	struct octeon_device *oct = lio->oct_dev;
@@ -3141,6 +4059,7 @@ lio_pf_switchdev_attr_get(struct net_device *dev, struct switchdev_attr *attr)
 	if (oct->eswitch_mode != DEVLINK_ESWITCH_MODE_SWITCHDEV)
 		return -EOPNOTSUPP;
 
+<<<<<<< HEAD
 	switch (attr->id) {
 	case SWITCHDEV_ATTR_ID_PORT_PARENT_ID:
 		attr->u.ppid.id_len = ETH_ALEN;
@@ -3151,14 +4070,21 @@ lio_pf_switchdev_attr_get(struct net_device *dev, struct switchdev_attr *attr)
 	default:
 		return -EOPNOTSUPP;
 	}
+=======
+	ppid->id_len = ETH_ALEN;
+	ether_addr_copy(ppid->id, (void *)&lio->linfo.hw_addr + 2);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct switchdev_ops lio_pf_switchdev_ops = {
 	.switchdev_port_attr_get = lio_pf_switchdev_attr_get,
 };
 
+=======
+>>>>>>> upstream/android-13
 static int liquidio_get_vf_stats(struct net_device *netdev, int vfidx,
 				 struct ifla_vf_stats *vf_stats)
 {
@@ -3196,6 +4122,7 @@ static const struct net_device_ops lionetdevops = {
 	.ndo_vlan_rx_add_vid    = liquidio_vlan_rx_add_vid,
 	.ndo_vlan_rx_kill_vid   = liquidio_vlan_rx_kill_vid,
 	.ndo_change_mtu		= liquidio_change_mtu,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= liquidio_ioctl,
 	.ndo_fix_features	= liquidio_fix_features,
 	.ndo_set_features	= liquidio_set_features,
@@ -3210,6 +4137,23 @@ static const struct net_device_ops lionetdevops = {
 };
 
 /** \brief Entry point for the liquidio module
+=======
+	.ndo_eth_ioctl		= liquidio_ioctl,
+	.ndo_fix_features	= liquidio_fix_features,
+	.ndo_set_features	= liquidio_set_features,
+	.ndo_set_vf_mac		= liquidio_set_vf_mac,
+	.ndo_set_vf_vlan	= liquidio_set_vf_vlan,
+	.ndo_get_vf_config	= liquidio_get_vf_config,
+	.ndo_set_vf_spoofchk	= liquidio_set_vf_spoofchk,
+	.ndo_set_vf_trust	= liquidio_set_vf_trust,
+	.ndo_set_vf_link_state  = liquidio_set_vf_link_state,
+	.ndo_get_vf_stats	= liquidio_get_vf_stats,
+	.ndo_get_port_parent_id	= liquidio_get_port_parent_id,
+};
+
+/**
+ * liquidio_init - Entry point for the liquidio module
+>>>>>>> upstream/android-13
  */
 static int __init liquidio_init(void)
 {
@@ -3292,8 +4236,13 @@ nic_info_err:
 }
 
 /**
+<<<<<<< HEAD
  * \brief Setup network interfaces
  * @param octeon_dev  octeon device
+=======
+ * setup_nic_devices - Setup network interfaces
+ * @octeon_dev:  octeon device
+>>>>>>> upstream/android-13
  *
  * Called during init time for each device. It assumes the NIC
  * is already up and running.  The link information for each
@@ -3307,7 +4256,10 @@ static int setup_nic_devices(struct octeon_device *octeon_dev)
 	unsigned long micro;
 	u32 cur_ver;
 	struct octeon_soft_command *sc;
+<<<<<<< HEAD
 	struct liquidio_if_cfg_context *ctx;
+=======
+>>>>>>> upstream/android-13
 	struct liquidio_if_cfg_resp *resp;
 	struct octdev_props *props;
 	int retval, num_iqueues, num_oqueues;
@@ -3315,7 +4267,11 @@ static int setup_nic_devices(struct octeon_device *octeon_dev)
 	union oct_nic_if_cfg if_cfg;
 	unsigned int base_queue;
 	unsigned int gmx_port_id;
+<<<<<<< HEAD
 	u32 resp_size, ctx_size, data_size;
+=======
+	u32 resp_size, data_size;
+>>>>>>> upstream/android-13
 	u32 ifidx_or_pfnum;
 	struct lio_version *vdata;
 	struct devlink *devlink;
@@ -3340,6 +4296,7 @@ static int setup_nic_devices(struct octeon_device *octeon_dev)
 
 	for (i = 0; i < octeon_dev->ifcount; i++) {
 		resp_size = sizeof(struct liquidio_if_cfg_resp);
+<<<<<<< HEAD
 		ctx_size = sizeof(struct liquidio_if_cfg_context);
 		data_size = sizeof(struct lio_version);
 		sc = (struct octeon_soft_command *)
@@ -3347,6 +4304,13 @@ static int setup_nic_devices(struct octeon_device *octeon_dev)
 						  resp_size, ctx_size);
 		resp = (struct liquidio_if_cfg_resp *)sc->virtrptr;
 		ctx  = (struct liquidio_if_cfg_context *)sc->ctxptr;
+=======
+		data_size = sizeof(struct lio_version);
+		sc = (struct octeon_soft_command *)
+			octeon_alloc_soft_command(octeon_dev, data_size,
+						  resp_size, 0);
+		resp = (struct liquidio_if_cfg_resp *)sc->virtrptr;
+>>>>>>> upstream/android-13
 		vdata = (struct lio_version *)sc->virtdptr;
 
 		*((u64 *)vdata) = 0;
@@ -3376,9 +4340,12 @@ static int setup_nic_devices(struct octeon_device *octeon_dev)
 		dev_dbg(&octeon_dev->pci_dev->dev,
 			"requesting config for interface %d, iqs %d, oqs %d\n",
 			ifidx_or_pfnum, num_iqueues, num_oqueues);
+<<<<<<< HEAD
 		WRITE_ONCE(ctx->cond, 0);
 		ctx->octeon_id = lio_get_device_id(octeon_dev);
 		init_waitqueue_head(&ctx->wc);
+=======
+>>>>>>> upstream/android-13
 
 		if_cfg.u64 = 0;
 		if_cfg.s.num_iqueues = num_iqueues;
@@ -3392,9 +4359,14 @@ static int setup_nic_devices(struct octeon_device *octeon_dev)
 					    OPCODE_NIC_IF_CFG, 0,
 					    if_cfg.u64, 0);
 
+<<<<<<< HEAD
 		sc->callback = lio_if_cfg_callback;
 		sc->callback_arg = sc;
 		sc->wait_time = LIO_IFCFG_WAIT_TIME;
+=======
+		init_completion(&sc->complete);
+		sc->sc_status = OCTEON_REQUEST_PENDING;
+>>>>>>> upstream/android-13
 
 		retval = octeon_send_soft_command(octeon_dev, sc);
 		if (retval == IQ_SEND_FAILED) {
@@ -3402,22 +4374,42 @@ static int setup_nic_devices(struct octeon_device *octeon_dev)
 				"iq/oq config failed status: %x\n",
 				retval);
 			/* Soft instr is freed by driver in case of failure. */
+<<<<<<< HEAD
 			goto setup_nic_dev_fail;
+=======
+			octeon_free_soft_command(octeon_dev, sc);
+			return(-EIO);
+>>>>>>> upstream/android-13
 		}
 
 		/* Sleep on a wait queue till the cond flag indicates that the
 		 * response arrived or timed-out.
 		 */
+<<<<<<< HEAD
 		if (sleep_cond(&ctx->wc, &ctx->cond) == -EINTR) {
 			dev_err(&octeon_dev->pci_dev->dev, "Wait interrupted\n");
 			goto setup_nic_wait_intr;
 		}
+=======
+		retval = wait_for_sc_completion_timeout(octeon_dev, sc, 0);
+		if (retval)
+			return retval;
+>>>>>>> upstream/android-13
 
 		retval = resp->status;
 		if (retval) {
 			dev_err(&octeon_dev->pci_dev->dev, "iq/oq config failed\n");
+<<<<<<< HEAD
 			goto setup_nic_dev_fail;
 		}
+=======
+			WRITE_ONCE(sc->caller_is_done, true);
+			goto setup_nic_dev_done;
+		}
+		snprintf(octeon_dev->fw_info.liquidio_firmware_version,
+			 32, "%s",
+			 resp->cfg_info.liquidio_firmware_version);
+>>>>>>> upstream/android-13
 
 		/* Verify f/w version (in case of 'auto' loading from flash) */
 		fw_ver = octeon_dev->fw_info.liquidio_firmware_version;
@@ -3427,7 +4419,12 @@ static int setup_nic_devices(struct octeon_device *octeon_dev)
 			dev_err(&octeon_dev->pci_dev->dev,
 				"Unmatched firmware version. Expected %s.x, got %s.\n",
 				LIQUIDIO_BASE_VERSION, fw_ver);
+<<<<<<< HEAD
 			goto setup_nic_dev_fail;
+=======
+			WRITE_ONCE(sc->caller_is_done, true);
+			goto setup_nic_dev_done;
+>>>>>>> upstream/android-13
 		} else if (atomic_read(octeon_dev->adapter_fw_state) ==
 			   FW_IS_PRELOADED) {
 			dev_info(&octeon_dev->pci_dev->dev,
@@ -3454,7 +4451,12 @@ static int setup_nic_devices(struct octeon_device *octeon_dev)
 				"Got bad iqueues (%016llx) or oqueues (%016llx) from firmware.\n",
 				resp->cfg_info.iqmask,
 				resp->cfg_info.oqmask);
+<<<<<<< HEAD
 			goto setup_nic_dev_fail;
+=======
+			WRITE_ONCE(sc->caller_is_done, true);
+			goto setup_nic_dev_done;
+>>>>>>> upstream/android-13
 		}
 
 		if (OCTEON_CN6XXX(octeon_dev)) {
@@ -3473,7 +4475,12 @@ static int setup_nic_devices(struct octeon_device *octeon_dev)
 
 		if (!netdev) {
 			dev_err(&octeon_dev->pci_dev->dev, "Device allocation failed\n");
+<<<<<<< HEAD
 			goto setup_nic_dev_fail;
+=======
+			WRITE_ONCE(sc->caller_is_done, true);
+			goto setup_nic_dev_done;
+>>>>>>> upstream/android-13
 		}
 
 		SET_NETDEV_DEV(netdev, &octeon_dev->pci_dev->dev);
@@ -3482,20 +4489,33 @@ static int setup_nic_devices(struct octeon_device *octeon_dev)
 		 * netdev tasks.
 		 */
 		netdev->netdev_ops = &lionetdevops;
+<<<<<<< HEAD
 		SWITCHDEV_SET_OPS(netdev, &lio_pf_switchdev_ops);
+=======
+>>>>>>> upstream/android-13
 
 		retval = netif_set_real_num_rx_queues(netdev, num_oqueues);
 		if (retval) {
 			dev_err(&octeon_dev->pci_dev->dev,
 				"setting real number rx failed\n");
+<<<<<<< HEAD
 			goto setup_nic_dev_fail;
+=======
+			WRITE_ONCE(sc->caller_is_done, true);
+			goto setup_nic_dev_free;
+>>>>>>> upstream/android-13
 		}
 
 		retval = netif_set_real_num_tx_queues(netdev, num_iqueues);
 		if (retval) {
 			dev_err(&octeon_dev->pci_dev->dev,
 				"setting real number tx failed\n");
+<<<<<<< HEAD
 			goto setup_nic_dev_fail;
+=======
+			WRITE_ONCE(sc->caller_is_done, true);
+			goto setup_nic_dev_free;
+>>>>>>> upstream/android-13
 		}
 
 		lio = GET_LIO(netdev);
@@ -3522,6 +4542,11 @@ static int setup_nic_devices(struct octeon_device *octeon_dev)
 		lio->linfo.gmxport = resp->cfg_info.linfo.gmxport;
 		lio->linfo.link.u64 = resp->cfg_info.linfo.link.u64;
 
+<<<<<<< HEAD
+=======
+		WRITE_ONCE(sc->caller_is_done, true);
+
+>>>>>>> upstream/android-13
 		lio->msg_enable = netif_msg_init(debug, DEFAULT_MSG_ENABLE);
 
 		if (OCTEON_CN23XX_PF(octeon_dev) ||
@@ -3550,6 +4575,11 @@ static int setup_nic_devices(struct octeon_device *octeon_dev)
 		netdev->hw_enc_features = (lio->enc_dev_capability &
 					   ~NETIF_F_LRO);
 
+<<<<<<< HEAD
+=======
+		netdev->udp_tunnel_nic_info = &liquidio_udp_tunnels;
+
+>>>>>>> upstream/android-13
 		lio->dev_capability |= NETIF_F_GSO_UDP_TUNNEL;
 
 		netdev->vlan_features = lio->dev_capability;
@@ -3588,7 +4618,11 @@ static int setup_nic_devices(struct octeon_device *octeon_dev)
 				dev_err(&octeon_dev->pci_dev->dev,
 					"Error setting VF%d MAC address\n",
 					j);
+<<<<<<< HEAD
 				goto setup_nic_dev_fail;
+=======
+				goto setup_nic_dev_free;
+>>>>>>> upstream/android-13
 			}
 		}
 
@@ -3610,7 +4644,11 @@ static int setup_nic_devices(struct octeon_device *octeon_dev)
 					     lio->linfo.num_txpciq,
 					     lio->linfo.num_rxpciq)) {
 			dev_err(&octeon_dev->pci_dev->dev, "I/O queues creation failed\n");
+<<<<<<< HEAD
 			goto setup_nic_dev_fail;
+=======
+			goto setup_nic_dev_free;
+>>>>>>> upstream/android-13
 		}
 
 		ifstate_set(lio, LIO_IFSTATE_DROQ_OPS);
@@ -3621,7 +4659,11 @@ static int setup_nic_devices(struct octeon_device *octeon_dev)
 		if (lio_setup_glists(octeon_dev, lio, num_iqueues)) {
 			dev_err(&octeon_dev->pci_dev->dev,
 				"Gather list allocation failed\n");
+<<<<<<< HEAD
 			goto setup_nic_dev_fail;
+=======
+			goto setup_nic_dev_free;
+>>>>>>> upstream/android-13
 		}
 
 		/* Register ethtool support */
@@ -3643,20 +4685,35 @@ static int setup_nic_devices(struct octeon_device *octeon_dev)
 					     OCTNET_CMD_VERBOSE_ENABLE, 0);
 
 		if (setup_link_status_change_wq(netdev))
+<<<<<<< HEAD
 			goto setup_nic_dev_fail;
+=======
+			goto setup_nic_dev_free;
+>>>>>>> upstream/android-13
 
 		if ((octeon_dev->fw_info.app_cap_flags &
 		     LIQUIDIO_TIME_SYNC_CAP) &&
 		    setup_sync_octeon_time_wq(netdev))
+<<<<<<< HEAD
 			goto setup_nic_dev_fail;
 
 		if (setup_rx_oom_poll_fn(netdev))
 			goto setup_nic_dev_fail;
+=======
+			goto setup_nic_dev_free;
+
+		if (setup_rx_oom_poll_fn(netdev))
+			goto setup_nic_dev_free;
+>>>>>>> upstream/android-13
 
 		/* Register the network device with the OS */
 		if (register_netdev(netdev)) {
 			dev_err(&octeon_dev->pci_dev->dev, "Device registration failed\n");
+<<<<<<< HEAD
 			goto setup_nic_dev_fail;
+=======
+			goto setup_nic_dev_free;
+>>>>>>> upstream/android-13
 		}
 
 		dev_dbg(&octeon_dev->pci_dev->dev,
@@ -3679,8 +4736,11 @@ static int setup_nic_devices(struct octeon_device *octeon_dev)
 		dev_dbg(&octeon_dev->pci_dev->dev,
 			"NIC ifidx:%d Setup successful\n", i);
 
+<<<<<<< HEAD
 		octeon_free_soft_command(octeon_dev, sc);
 
+=======
+>>>>>>> upstream/android-13
 		if (octeon_dev->subsystem_id ==
 			OCTEON_CN2350_25GB_SUBSYS_ID ||
 		    octeon_dev->subsystem_id ==
@@ -3709,6 +4769,7 @@ static int setup_nic_devices(struct octeon_device *octeon_dev)
 		}
 		octeon_dev->speed_boot = octeon_dev->speed_setting;
 
+<<<<<<< HEAD
 	}
 
 	devlink = devlink_alloc(&liquidio_devlink_ops,
@@ -3716,16 +4777,41 @@ static int setup_nic_devices(struct octeon_device *octeon_dev)
 	if (!devlink) {
 		dev_err(&octeon_dev->pci_dev->dev, "devlink alloc failed\n");
 		goto setup_nic_wait_intr;
+=======
+		/* don't read FEC setting if unsupported by f/w (see above) */
+		if (octeon_dev->speed_boot == 25 &&
+		    !octeon_dev->no_speed_setting) {
+			liquidio_get_fec(lio);
+			octeon_dev->props[lio->ifidx].fec_boot =
+				octeon_dev->props[lio->ifidx].fec;
+		}
+	}
+
+	devlink = devlink_alloc(&liquidio_devlink_ops,
+				sizeof(struct lio_devlink_priv),
+				&octeon_dev->pci_dev->dev);
+	if (!devlink) {
+		dev_err(&octeon_dev->pci_dev->dev, "devlink alloc failed\n");
+		goto setup_nic_dev_free;
+>>>>>>> upstream/android-13
 	}
 
 	lio_devlink = devlink_priv(devlink);
 	lio_devlink->oct = octeon_dev;
 
+<<<<<<< HEAD
 	if (devlink_register(devlink, &octeon_dev->pci_dev->dev)) {
 		devlink_free(devlink);
 		dev_err(&octeon_dev->pci_dev->dev,
 			"devlink registration failed\n");
 		goto setup_nic_wait_intr;
+=======
+	if (devlink_register(devlink)) {
+		devlink_free(devlink);
+		dev_err(&octeon_dev->pci_dev->dev,
+			"devlink registration failed\n");
+		goto setup_nic_dev_free;
+>>>>>>> upstream/android-13
 	}
 
 	octeon_dev->devlink = devlink;
@@ -3733,17 +4819,27 @@ static int setup_nic_devices(struct octeon_device *octeon_dev)
 
 	return 0;
 
+<<<<<<< HEAD
 setup_nic_dev_fail:
 
 	octeon_free_soft_command(octeon_dev, sc);
 
 setup_nic_wait_intr:
+=======
+setup_nic_dev_free:
+>>>>>>> upstream/android-13
 
 	while (i--) {
 		dev_err(&octeon_dev->pci_dev->dev,
 			"NIC ifidx:%d Setup failed\n", i);
 		liquidio_destroy_nic_device(octeon_dev, i);
 	}
+<<<<<<< HEAD
+=======
+
+setup_nic_dev_done:
+
+>>>>>>> upstream/android-13
 	return -ENODEV;
 }
 
@@ -3848,8 +4944,13 @@ static int liquidio_enable_sriov(struct pci_dev *dev, int num_vfs)
 #endif
 
 /**
+<<<<<<< HEAD
  * \brief initialize the NIC
  * @param oct octeon device
+=======
+ * liquidio_init_nic_module - initialize the NIC
+ * @oct: octeon device
+>>>>>>> upstream/android-13
  *
  * This initialization routine is called once the Octeon device application is
  * up and running
@@ -3904,9 +5005,16 @@ octnet_init_failure:
 }
 
 /**
+<<<<<<< HEAD
  * \brief starter callback that invokes the remaining initialization work after
  * the NIC is up and running.
  * @param octptr  work struct work_struct
+=======
+ * nic_starter - finish init
+ * @work:  work struct work_struct
+ *
+ * starter callback that invokes the remaining initialization work after the NIC is up and running.
+>>>>>>> upstream/android-13
  */
 static void nic_starter(struct work_struct *work)
 {
@@ -3999,8 +5107,13 @@ octeon_recv_vf_drv_notice(struct octeon_recv_info *recv_info, void *buf)
 }
 
 /**
+<<<<<<< HEAD
  * \brief Device initialization for each Octeon device that is probed
  * @param octeon_dev  octeon device
+=======
+ * octeon_device_init - Device initialization for each Octeon device that is probed
+ * @octeon_dev:  octeon device
+>>>>>>> upstream/android-13
  */
 static int octeon_device_init(struct octeon_device *octeon_dev)
 {
@@ -4169,8 +5282,12 @@ static int octeon_device_init(struct octeon_device *octeon_dev)
 
 	/* Initialize the tasklet that handles output queue packet processing.*/
 	dev_dbg(&octeon_dev->pci_dev->dev, "Initializing droq tasklet\n");
+<<<<<<< HEAD
 	tasklet_init(&oct_priv->droq_tasklet, octeon_droq_bh,
 		     (unsigned long)octeon_dev);
+=======
+	tasklet_setup(&oct_priv->droq_tasklet, octeon_droq_bh);
+>>>>>>> upstream/android-13
 
 	/* Setup the interrupt handler and record the INT SUM register address
 	 */
@@ -4274,16 +5391,28 @@ static int octeon_device_init(struct octeon_device *octeon_dev)
 	complete(&handshake[octeon_dev->octeon_id].init);
 
 	atomic_set(&octeon_dev->status, OCT_DEV_HOST_OK);
+<<<<<<< HEAD
+=======
+	oct_priv->dev = octeon_dev;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 /**
+<<<<<<< HEAD
  * \brief Debug console print function
  * @param octeon_dev  octeon device
  * @param console_num console number
  * @param prefix      first portion of line to display
  * @param suffix      second portion of line to display
+=======
+ * octeon_dbg_console_print - Debug console print function
+ * @oct:  octeon device
+ * @console_num: console number
+ * @prefix:      first portion of line to display
+ * @suffix:      second portion of line to display
+>>>>>>> upstream/android-13
  *
  * The OCTEON debug console outputs entire lines (excluding '\n').
  * Normally, the line will be passed in the 'prefix' parameter.
@@ -4306,7 +5435,11 @@ static int octeon_dbg_console_print(struct octeon_device *oct, u32 console_num,
 }
 
 /**
+<<<<<<< HEAD
  * \brief Exits the module
+=======
+ * liquidio_exit - Exits the module
+>>>>>>> upstream/android-13
  */
 static void __exit liquidio_exit(void)
 {

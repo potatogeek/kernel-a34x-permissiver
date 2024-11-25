@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* Server address list management
  *
  * Copyright (C) 2017 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public Licence
  * as published by the Free Software Foundation; either version
  * 2 of the Licence, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -17,18 +24,25 @@
 #include "internal.h"
 #include "afs_fs.h"
 
+<<<<<<< HEAD
 //#define AFS_MAX_ADDRESSES
 //	((unsigned int)((PAGE_SIZE - sizeof(struct afs_addr_list)) /
 //			sizeof(struct sockaddr_rxrpc)))
 #define AFS_MAX_ADDRESSES ((unsigned int)(sizeof(unsigned long) * 8))
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Release an address list.
  */
 void afs_put_addrlist(struct afs_addr_list *alist)
 {
 	if (alist && refcount_dec_and_test(&alist->usage))
+<<<<<<< HEAD
 		call_rcu(&alist->rcu, (rcu_callback_t)kfree);
+=======
+		kfree_rcu(alist, rcu);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -43,11 +57,21 @@ struct afs_addr_list *afs_alloc_addrlist(unsigned int nr,
 
 	_enter("%u,%u,%u", nr, service, port);
 
+<<<<<<< HEAD
+=======
+	if (nr > AFS_MAX_ADDRESSES)
+		nr = AFS_MAX_ADDRESSES;
+
+>>>>>>> upstream/android-13
 	alist = kzalloc(struct_size(alist, addrs, nr), GFP_KERNEL);
 	if (!alist)
 		return NULL;
 
 	refcount_set(&alist->usage, 1);
+<<<<<<< HEAD
+=======
+	alist->max_addrs = nr;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < nr; i++) {
 		struct sockaddr_rxrpc *srx = &alist->addrs[i];
@@ -65,6 +89,7 @@ struct afs_addr_list *afs_alloc_addrlist(unsigned int nr,
 /*
  * Parse a text string consisting of delimited addresses.
  */
+<<<<<<< HEAD
 struct afs_addr_list *afs_parse_text_addrs(const char *text, size_t len,
 					   char delim,
 					   unsigned short service,
@@ -78,6 +103,27 @@ struct afs_addr_list *afs_parse_text_addrs(const char *text, size_t len,
 
 	if (!len)
 		return ERR_PTR(-EDESTADDRREQ);
+=======
+struct afs_vlserver_list *afs_parse_text_addrs(struct afs_net *net,
+					       const char *text, size_t len,
+					       char delim,
+					       unsigned short service,
+					       unsigned short port)
+{
+	struct afs_vlserver_list *vllist;
+	struct afs_addr_list *alist;
+	const char *p, *end = text + len;
+	const char *problem;
+	unsigned int nr = 0;
+	int ret = -ENOMEM;
+
+	_enter("%*.*s,%c", (int)len, (int)len, text, delim);
+
+	if (!len) {
+		_leave(" = -EDESTADDRREQ [empty]");
+		return ERR_PTR(-EDESTADDRREQ);
+	}
+>>>>>>> upstream/android-13
 
 	if (delim == ':' && (memchr(text, ',', len) || !memchr(text, '.', len)))
 		delim = ',';
@@ -85,18 +131,37 @@ struct afs_addr_list *afs_parse_text_addrs(const char *text, size_t len,
 	/* Count the addresses */
 	p = text;
 	do {
+<<<<<<< HEAD
 		if (!*p)
 			return ERR_PTR(-EINVAL);
+=======
+		if (!*p) {
+			problem = "nul";
+			goto inval;
+		}
+>>>>>>> upstream/android-13
 		if (*p == delim)
 			continue;
 		nr++;
 		if (*p == '[') {
 			p++;
+<<<<<<< HEAD
 			if (p == end)
 				return ERR_PTR(-EINVAL);
 			p = memchr(p, ']', end - p);
 			if (!p)
 				return ERR_PTR(-EINVAL);
+=======
+			if (p == end) {
+				problem = "brace1";
+				goto inval;
+			}
+			p = memchr(p, ']', end - p);
+			if (!p) {
+				problem = "brace2";
+				goto inval;
+			}
+>>>>>>> upstream/android-13
 			p++;
 			if (p >= end)
 				break;
@@ -109,6 +174,7 @@ struct afs_addr_list *afs_parse_text_addrs(const char *text, size_t len,
 	} while (p < end);
 
 	_debug("%u/%u addresses", nr, AFS_MAX_ADDRESSES);
+<<<<<<< HEAD
 	if (nr > AFS_MAX_ADDRESSES)
 		nr = AFS_MAX_ADDRESSES;
 
@@ -121,6 +187,29 @@ struct afs_addr_list *afs_parse_text_addrs(const char *text, size_t len,
 	do {
 		struct sockaddr_rxrpc *srx = &alist->addrs[alist->nr_addrs];
 		const char *q, *stop;
+=======
+
+	vllist = afs_alloc_vlserver_list(1);
+	if (!vllist)
+		return ERR_PTR(-ENOMEM);
+
+	vllist->nr_servers = 1;
+	vllist->servers[0].server = afs_alloc_vlserver("<dummy>", 7, AFS_VL_PORT);
+	if (!vllist->servers[0].server)
+		goto error_vl;
+
+	alist = afs_alloc_addrlist(nr, service, AFS_VL_PORT);
+	if (!alist)
+		goto error;
+
+	/* Extract the addresses */
+	p = text;
+	do {
+		const char *q, *stop;
+		unsigned int xport = port;
+		__be32 x[4];
+		int family;
+>>>>>>> upstream/android-13
 
 		if (*p == delim) {
 			p++;
@@ -136,6 +225,7 @@ struct afs_addr_list *afs_parse_text_addrs(const char *text, size_t len,
 					break;
 		}
 
+<<<<<<< HEAD
 		if (in4_pton(p, q - p,
 			     (u8 *)&srx->transport.sin6.sin6_addr.s6_addr32[3],
 			     -1, &stop)) {
@@ -154,12 +244,30 @@ struct afs_addr_list *afs_parse_text_addrs(const char *text, size_t len,
 			goto bad_address;
 
 		p = q;
+=======
+		if (in4_pton(p, q - p, (u8 *)&x[0], -1, &stop)) {
+			family = AF_INET;
+		} else if (in6_pton(p, q - p, (u8 *)x, -1, &stop)) {
+			family = AF_INET6;
+		} else {
+			problem = "family";
+			goto bad_address;
+		}
+
+		p = q;
+		if (stop != p) {
+			problem = "nostop";
+			goto bad_address;
+		}
+
+>>>>>>> upstream/android-13
 		if (q < end && *q == ']')
 			p++;
 
 		if (p < end) {
 			if (*p == '+') {
 				/* Port number specification "+1234" */
+<<<<<<< HEAD
 				unsigned int xport = 0;
 				p++;
 				if (p >= end || !isdigit(*p))
@@ -175,10 +283,32 @@ struct afs_addr_list *afs_parse_text_addrs(const char *text, size_t len,
 			} else if (*p == delim) {
 				p++;
 			} else {
+=======
+				xport = 0;
+				p++;
+				if (p >= end || !isdigit(*p)) {
+					problem = "port";
+					goto bad_address;
+				}
+				do {
+					xport *= 10;
+					xport += *p - '0';
+					if (xport > 65535) {
+						problem = "pval";
+						goto bad_address;
+					}
+					p++;
+				} while (p < end && isdigit(*p));
+			} else if (*p == delim) {
+				p++;
+			} else {
+				problem = "weird";
+>>>>>>> upstream/android-13
 				goto bad_address;
 			}
 		}
 
+<<<<<<< HEAD
 		alist->nr_addrs++;
 	} while (p < end && alist->nr_addrs < AFS_MAX_ADDRESSES);
 
@@ -188,6 +318,32 @@ struct afs_addr_list *afs_parse_text_addrs(const char *text, size_t len,
 bad_address:
 	kfree(alist);
 	return ERR_PTR(-EINVAL);
+=======
+		if (family == AF_INET)
+			afs_merge_fs_addr4(alist, x[0], xport);
+		else
+			afs_merge_fs_addr6(alist, x, xport);
+
+	} while (p < end);
+
+	rcu_assign_pointer(vllist->servers[0].server->addresses, alist);
+	_leave(" = [nr %u]", alist->nr_addrs);
+	return vllist;
+
+inval:
+	_leave(" = -EINVAL [%s %zu %*.*s]",
+	       problem, p - text, (int)len, (int)len, text);
+	return ERR_PTR(-EINVAL);
+bad_address:
+	_leave(" = -EINVAL [%s %zu %*.*s]",
+	       problem, p - text, (int)len, (int)len, text);
+	ret = -EINVAL;
+error:
+	afs_put_addrlist(alist);
+error_vl:
+	afs_put_vlserverlist(net, vllist);
+	return ERR_PTR(ret);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -206,14 +362,22 @@ static int afs_cmp_addr_list(const struct afs_addr_list *a1,
 /*
  * Perform a DNS query for VL servers and build a up an address list.
  */
+<<<<<<< HEAD
 struct afs_addr_list *afs_dns_query(struct afs_cell *cell, time64_t *_expiry)
 {
 	struct afs_addr_list *alist;
 	char *vllist = NULL;
+=======
+struct afs_vlserver_list *afs_dns_query(struct afs_cell *cell, time64_t *_expiry)
+{
+	struct afs_vlserver_list *vllist;
+	char *result = NULL;
+>>>>>>> upstream/android-13
 	int ret;
 
 	_enter("%s", cell->name);
 
+<<<<<<< HEAD
 	ret = dns_query("afsdb", cell->name, cell->name_len,
 			"", &vllist, _expiry);
 	if (ret < 0)
@@ -230,6 +394,28 @@ struct afs_addr_list *afs_dns_query(struct afs_cell *cell, time64_t *_expiry)
 
 	kfree(vllist);
 	return alist;
+=======
+	ret = dns_query(cell->net->net, "afsdb", cell->name, cell->name_len,
+			"srv=1", &result, _expiry, true);
+	if (ret < 0) {
+		_leave(" = %d [dns]", ret);
+		return ERR_PTR(ret);
+	}
+
+	if (*_expiry == 0)
+		*_expiry = ktime_get_real_seconds() + 60;
+
+	if (ret > 1 && result[0] == 0)
+		vllist = afs_extract_vlserver_list(cell, result, ret);
+	else
+		vllist = afs_parse_text_addrs(cell->net, result, ret, ',',
+					      VL_SERVICE, AFS_VL_PORT);
+	kfree(result);
+	if (IS_ERR(vllist) && vllist != ERR_PTR(-ENOMEM))
+		pr_err("Failed to parse DNS data %ld\n", PTR_ERR(vllist));
+
+	return vllist;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -237,6 +423,7 @@ struct afs_addr_list *afs_dns_query(struct afs_cell *cell, time64_t *_expiry)
  */
 void afs_merge_fs_addr4(struct afs_addr_list *alist, __be32 xdr, u16 port)
 {
+<<<<<<< HEAD
 	struct sockaddr_in6 *a;
 	__be16 xport = htons(port);
 	int i;
@@ -250,6 +437,25 @@ void afs_merge_fs_addr4(struct afs_addr_list *alist, __be32 xdr, u16 port)
 		    (u16 __force)xport < (u16 __force)a->sin6_port)
 			break;
 		if ((u32 __force)xdr < (u32 __force)a->sin6_addr.s6_addr32[3])
+=======
+	struct sockaddr_rxrpc *srx;
+	u32 addr = ntohl(xdr);
+	int i;
+
+	if (alist->nr_addrs >= alist->max_addrs)
+		return;
+
+	for (i = 0; i < alist->nr_ipv4; i++) {
+		struct sockaddr_in *a = &alist->addrs[i].transport.sin;
+		u32 a_addr = ntohl(a->sin_addr.s_addr);
+		u16 a_port = ntohs(a->sin_port);
+
+		if (addr == a_addr && port == a_port)
+			return;
+		if (addr == a_addr && port < a_port)
+			break;
+		if (addr < a_addr)
+>>>>>>> upstream/android-13
 			break;
 	}
 
@@ -258,12 +464,22 @@ void afs_merge_fs_addr4(struct afs_addr_list *alist, __be32 xdr, u16 port)
 			alist->addrs + i,
 			sizeof(alist->addrs[0]) * (alist->nr_addrs - i));
 
+<<<<<<< HEAD
 	a = &alist->addrs[i].transport.sin6;
 	a->sin6_port		  = xport;
 	a->sin6_addr.s6_addr32[0] = 0;
 	a->sin6_addr.s6_addr32[1] = 0;
 	a->sin6_addr.s6_addr32[2] = htonl(0xffff);
 	a->sin6_addr.s6_addr32[3] = xdr;
+=======
+	srx = &alist->addrs[i];
+	srx->srx_family = AF_RXRPC;
+	srx->transport_type = SOCK_DGRAM;
+	srx->transport_len = sizeof(srx->transport.sin);
+	srx->transport.sin.sin_family = AF_INET;
+	srx->transport.sin.sin_port = htons(port);
+	srx->transport.sin.sin_addr.s_addr = xdr;
+>>>>>>> upstream/android-13
 	alist->nr_ipv4++;
 	alist->nr_addrs++;
 }
@@ -273,6 +489,7 @@ void afs_merge_fs_addr4(struct afs_addr_list *alist, __be32 xdr, u16 port)
  */
 void afs_merge_fs_addr6(struct afs_addr_list *alist, __be32 *xdr, u16 port)
 {
+<<<<<<< HEAD
 	struct sockaddr_in6 *a;
 	__be16 xport = htons(port);
 	int i, diff;
@@ -285,6 +502,22 @@ void afs_merge_fs_addr6(struct afs_addr_list *alist, __be32 *xdr, u16 port)
 			return;
 		if (diff == 0 &&
 		    (u16 __force)xport < (u16 __force)a->sin6_port)
+=======
+	struct sockaddr_rxrpc *srx;
+	int i, diff;
+
+	if (alist->nr_addrs >= alist->max_addrs)
+		return;
+
+	for (i = alist->nr_ipv4; i < alist->nr_addrs; i++) {
+		struct sockaddr_in6 *a = &alist->addrs[i].transport.sin6;
+		u16 a_port = ntohs(a->sin6_port);
+
+		diff = memcmp(xdr, &a->sin6_addr, 16);
+		if (diff == 0 && port == a_port)
+			return;
+		if (diff == 0 && port < a_port)
+>>>>>>> upstream/android-13
 			break;
 		if (diff < 0)
 			break;
@@ -295,12 +528,22 @@ void afs_merge_fs_addr6(struct afs_addr_list *alist, __be32 *xdr, u16 port)
 			alist->addrs + i,
 			sizeof(alist->addrs[0]) * (alist->nr_addrs - i));
 
+<<<<<<< HEAD
 	a = &alist->addrs[i].transport.sin6;
 	a->sin6_port		  = xport;
 	a->sin6_addr.s6_addr32[0] = xdr[0];
 	a->sin6_addr.s6_addr32[1] = xdr[1];
 	a->sin6_addr.s6_addr32[2] = xdr[2];
 	a->sin6_addr.s6_addr32[3] = xdr[3];
+=======
+	srx = &alist->addrs[i];
+	srx->srx_family = AF_RXRPC;
+	srx->transport_type = SOCK_DGRAM;
+	srx->transport_len = sizeof(srx->transport.sin6);
+	srx->transport.sin6.sin6_family = AF_INET6;
+	srx->transport.sin6.sin6_port = htons(port);
+	memcpy(&srx->transport.sin6.sin6_addr, xdr, 16);
+>>>>>>> upstream/android-13
 	alist->nr_addrs++;
 }
 
@@ -309,11 +552,17 @@ void afs_merge_fs_addr6(struct afs_addr_list *alist, __be32 *xdr, u16 port)
  */
 bool afs_iterate_addresses(struct afs_addr_cursor *ac)
 {
+<<<<<<< HEAD
 	_enter("%hu+%hd", ac->start, (short)ac->index);
+=======
+	unsigned long set, failed;
+	int index;
+>>>>>>> upstream/android-13
 
 	if (!ac->alist)
 		return false;
 
+<<<<<<< HEAD
 	if (ac->begun) {
 		ac->index++;
 		if (ac->index == ac->alist->nr_addrs)
@@ -328,6 +577,29 @@ bool afs_iterate_addresses(struct afs_addr_cursor *ac)
 	ac->begun = true;
 	ac->responded = false;
 	ac->addr = &ac->alist->addrs[ac->index];
+=======
+	set = ac->alist->responded;
+	failed = ac->alist->failed;
+	_enter("%lx-%lx-%lx,%d", set, failed, ac->tried, ac->index);
+
+	ac->nr_iterations++;
+
+	set &= ~(failed | ac->tried);
+
+	if (!set)
+		return false;
+
+	index = READ_ONCE(ac->alist->preferred);
+	if (test_bit(index, &set))
+		goto selected;
+
+	index = __ffs(set);
+
+selected:
+	ac->index = index;
+	set_bit(index, &ac->tried);
+	ac->responded = false;
+>>>>>>> upstream/android-13
 	return true;
 }
 
@@ -340,6 +612,7 @@ int afs_end_cursor(struct afs_addr_cursor *ac)
 
 	alist = ac->alist;
 	if (alist) {
+<<<<<<< HEAD
 		if (ac->responded && ac->index != ac->start)
 			WRITE_ONCE(alist->index, ac->index);
 		afs_put_addrlist(alist);
@@ -390,3 +663,15 @@ int afs_set_vl_cursor(struct afs_addr_cursor *ac, struct afs_cell *cell)
 	ac->begun = false;
 	return 0;
 }
+=======
+		if (ac->responded &&
+		    ac->index != alist->preferred &&
+		    test_bit(ac->alist->preferred, &ac->tried))
+			WRITE_ONCE(alist->preferred, ac->index);
+		afs_put_addrlist(alist);
+		ac->alist = NULL;
+	}
+
+	return ac->error;
+}
+>>>>>>> upstream/android-13

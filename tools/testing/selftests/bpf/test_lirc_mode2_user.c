@@ -29,6 +29,10 @@
 
 #include <linux/bpf.h>
 #include <linux/lirc.h>
+<<<<<<< HEAD
+=======
+#include <linux/input.h>
+>>>>>>> upstream/android-13
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -47,12 +51,22 @@
 int main(int argc, char **argv)
 {
 	struct bpf_object *obj;
+<<<<<<< HEAD
 	int ret, lircfd, progfd, mode;
 	int testir = 0x1dead;
 	u32 prog_ids[10], prog_flags[10], prog_cnt;
 
 	if (argc != 2) {
 		printf("Usage: %s /dev/lircN\n", argv[0]);
+=======
+	int ret, lircfd, progfd, inputfd;
+	int testir1 = 0x1dead;
+	int testir2 = 0x20101;
+	u32 prog_ids[10], prog_flags[10], prog_cnt;
+
+	if (argc != 3) {
+		printf("Usage: %s /dev/lircN /dev/input/eventM\n", argv[0]);
+>>>>>>> upstream/android-13
 		return 2;
 	}
 
@@ -76,9 +90,15 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
+<<<<<<< HEAD
 	mode = LIRC_MODE_SCANCODE;
 	if (ioctl(lircfd, LIRC_SET_REC_MODE, &mode)) {
 		printf("failed to set rec mode: %m\n");
+=======
+	inputfd = open(argv[2], O_RDONLY | O_NONBLOCK);
+	if (inputfd == -1) {
+		printf("failed to open input device %s: %m\n", argv[1]);
+>>>>>>> upstream/android-13
 		return 1;
 	}
 
@@ -102,12 +122,18 @@ int main(int argc, char **argv)
 	}
 
 	/* Write raw IR */
+<<<<<<< HEAD
 	ret = write(lircfd, &testir, sizeof(testir));
 	if (ret != sizeof(testir)) {
+=======
+	ret = write(lircfd, &testir1, sizeof(testir1));
+	if (ret != sizeof(testir1)) {
+>>>>>>> upstream/android-13
 		printf("Failed to send test IR message: %m\n");
 		return 1;
 	}
 
+<<<<<<< HEAD
 	struct pollfd pfd = { .fd = lircfd, .events = POLLIN };
 	struct lirc_scancode lsc;
 
@@ -123,6 +149,48 @@ int main(int argc, char **argv)
 	if (lsc.scancode != 0xdead || lsc.rc_proto != 64) {
 		printf("Incorrect scancode decoded\n");
 		return 1;
+=======
+	struct pollfd pfd = { .fd = inputfd, .events = POLLIN };
+	struct input_event event;
+
+	for (;;) {
+		poll(&pfd, 1, 100);
+
+		/* Read decoded IR */
+		ret = read(inputfd, &event, sizeof(event));
+		if (ret != sizeof(event)) {
+			printf("Failed to read decoded IR: %m\n");
+			return 1;
+		}
+
+		if (event.type == EV_MSC && event.code == MSC_SCAN &&
+		    event.value == 0xdead) {
+			break;
+		}
+	}
+
+	/* Write raw IR */
+	ret = write(lircfd, &testir2, sizeof(testir2));
+	if (ret != sizeof(testir2)) {
+		printf("Failed to send test IR message: %m\n");
+		return 1;
+	}
+
+	for (;;) {
+		poll(&pfd, 1, 100);
+
+		/* Read decoded IR */
+		ret = read(inputfd, &event, sizeof(event));
+		if (ret != sizeof(event)) {
+			printf("Failed to read decoded IR: %m\n");
+			return 1;
+		}
+
+		if (event.type == EV_REL && event.code == REL_Y &&
+		    event.value == 1 ) {
+			break;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	prog_cnt = 10;

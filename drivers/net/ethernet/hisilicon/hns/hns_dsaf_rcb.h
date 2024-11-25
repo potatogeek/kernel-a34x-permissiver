@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014-2015 Hisilicon Limited.
  *
@@ -5,6 +6,11 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (c) 2014-2015 Hisilicon Limited.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _HNS_DSAF_RCB_H
@@ -112,7 +118,11 @@ struct rcb_common_cb {
 	u32 ring_num;
 	u32 desc_num; /*  desc num per queue*/
 
+<<<<<<< HEAD
 	struct ring_pair_cb ring_pair_cb[0];
+=======
+	struct ring_pair_cb ring_pair_cb[];
+>>>>>>> upstream/android-13
 };
 
 int hns_rcb_buf_size2type(u32 buf_size);

@@ -12,6 +12,7 @@ struct task_struct *__switch_to_asm(struct task_struct *prev,
 __visible struct task_struct *__switch_to(struct task_struct *prev,
 					  struct task_struct *next);
 
+<<<<<<< HEAD
 /* This runs runs on the previous thread's stack. */
 static inline void prepare_switch_to(struct task_struct *next)
 {
@@ -33,6 +34,8 @@ static inline void prepare_switch_to(struct task_struct *next)
 #endif
 }
 
+=======
+>>>>>>> upstream/android-13
 asmlinkage void ret_from_fork(void);
 
 /*
@@ -40,13 +43,20 @@ asmlinkage void ret_from_fork(void);
  * order of the fields must match the code in __switch_to_asm().
  */
 struct inactive_task_frame {
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_X86_64
 	unsigned long r15;
 	unsigned long r14;
 	unsigned long r13;
 	unsigned long r12;
 #else
+<<<<<<< HEAD
+=======
+	unsigned long flags;
+>>>>>>> upstream/android-13
 	unsigned long si;
 	unsigned long di;
 #endif
@@ -67,8 +77,11 @@ struct fork_frame {
 
 #define switch_to(prev, next, last)					\
 do {									\
+<<<<<<< HEAD
 	prepare_switch_to(next);					\
 									\
+=======
+>>>>>>> upstream/android-13
 	((last) = __switch_to_asm((prev), (next)));			\
 } while (0)
 
@@ -94,6 +107,7 @@ static inline void update_task_stack(struct task_struct *task)
 	else
 		this_cpu_write(cpu_tss_rw.x86_tss.sp1, task->thread.sp0);
 #else
+<<<<<<< HEAD
 	/*
 	 * x86-64 updates x86_tss.sp1 via cpu_current_top_of_stack. That
 	 * doesn't work on x86-32 because sp1 and
@@ -104,6 +118,23 @@ static inline void update_task_stack(struct task_struct *task)
 		load_sp0(task_top_of_stack(task));
 #endif
 
+=======
+	/* Xen PV enters the kernel on the thread stack. */
+	if (static_cpu_has(X86_FEATURE_XENPV))
+		load_sp0(task_top_of_stack(task));
+#endif
+}
+
+static inline void kthread_frame_init(struct inactive_task_frame *frame,
+				      unsigned long fun, unsigned long arg)
+{
+	frame->bx = fun;
+#ifdef CONFIG_X86_32
+	frame->di = arg;
+#else
+	frame->r12 = arg;
+#endif
+>>>>>>> upstream/android-13
 }
 
 #endif /* _ASM_X86_SWITCH_TO_H */

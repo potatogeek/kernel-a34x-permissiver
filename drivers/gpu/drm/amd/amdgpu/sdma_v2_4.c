@@ -21,8 +21,16 @@
  *
  * Authors: Alex Deucher
  */
+<<<<<<< HEAD
 #include <linux/firmware.h>
 #include <drm/drmP.h>
+=======
+
+#include <linux/delay.h>
+#include <linux/firmware.h>
+#include <linux/module.h>
+
+>>>>>>> upstream/android-13
 #include "amdgpu.h"
 #include "amdgpu_ucode.h"
 #include "amdgpu_trace.h"
@@ -225,7 +233,11 @@ static void sdma_v2_4_ring_set_wptr(struct amdgpu_ring *ring)
 
 static void sdma_v2_4_ring_insert_nop(struct amdgpu_ring *ring, uint32_t count)
 {
+<<<<<<< HEAD
 	struct amdgpu_sdma_instance *sdma = amdgpu_get_sdma_instance(ring);
+=======
+	struct amdgpu_sdma_instance *sdma = amdgpu_sdma_get_instance_from_ring(ring);
+>>>>>>> upstream/android-13
 	int i;
 
 	for (i = 0; i < count; i++)
@@ -240,16 +252,33 @@ static void sdma_v2_4_ring_insert_nop(struct amdgpu_ring *ring, uint32_t count)
  * sdma_v2_4_ring_emit_ib - Schedule an IB on the DMA engine
  *
  * @ring: amdgpu ring pointer
+<<<<<<< HEAD
  * @ib: IB object to schedule
+=======
+ * @job: job to retrieve vmid from
+ * @ib: IB object to schedule
+ * @flags: unused
+>>>>>>> upstream/android-13
  *
  * Schedule an IB in the DMA ring (VI).
  */
 static void sdma_v2_4_ring_emit_ib(struct amdgpu_ring *ring,
+<<<<<<< HEAD
 				   struct amdgpu_ib *ib,
 				   unsigned vmid, bool ctx_switch)
 {
 	/* IB packet must end on a 8 DW boundary */
 	sdma_v2_4_ring_insert_nop(ring, (10 - (lower_32_bits(ring->wptr) & 7)) % 8);
+=======
+				   struct amdgpu_job *job,
+				   struct amdgpu_ib *ib,
+				   uint32_t flags)
+{
+	unsigned vmid = AMDGPU_JOB_GET_VMID(job);
+
+	/* IB packet must end on a 8 DW boundary */
+	sdma_v2_4_ring_insert_nop(ring, (2 - lower_32_bits(ring->wptr)) & 7);
+>>>>>>> upstream/android-13
 
 	amdgpu_ring_write(ring, SDMA_PKT_HEADER_OP(SDMA_OP_INDIRECT) |
 			  SDMA_PKT_INDIRECT_HEADER_VMID(vmid & 0xf));
@@ -263,7 +292,11 @@ static void sdma_v2_4_ring_emit_ib(struct amdgpu_ring *ring,
 }
 
 /**
+<<<<<<< HEAD
  * sdma_v2_4_hdp_flush_ring_emit - emit an hdp flush on the DMA ring
+=======
+ * sdma_v2_4_ring_emit_hdp_flush - emit an hdp flush on the DMA ring
+>>>>>>> upstream/android-13
  *
  * @ring: amdgpu ring pointer
  *
@@ -293,7 +326,13 @@ static void sdma_v2_4_ring_emit_hdp_flush(struct amdgpu_ring *ring)
  * sdma_v2_4_ring_emit_fence - emit a fence on the DMA ring
  *
  * @ring: amdgpu ring pointer
+<<<<<<< HEAD
  * @fence: amdgpu fence object
+=======
+ * @addr: address
+ * @seq: sequence number
+ * @flags: fence related flags
+>>>>>>> upstream/android-13
  *
  * Add a DMA fence packet to the ring to write
  * the fence seq number and DMA trap packet to generate
@@ -349,8 +388,11 @@ static void sdma_v2_4_gfx_stop(struct amdgpu_device *adev)
 		ib_cntl = REG_SET_FIELD(ib_cntl, SDMA0_GFX_IB_CNTL, IB_ENABLE, 0);
 		WREG32(mmSDMA0_GFX_IB_CNTL + sdma_offsets[i], ib_cntl);
 	}
+<<<<<<< HEAD
 	sdma0->ready = false;
 	sdma1->ready = false;
+=======
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -471,17 +513,27 @@ static int sdma_v2_4_gfx_resume(struct amdgpu_device *adev)
 		/* enable DMA IBs */
 		WREG32(mmSDMA0_GFX_IB_CNTL + sdma_offsets[i], ib_cntl);
 
+<<<<<<< HEAD
 		ring->ready = true;
+=======
+		ring->sched.ready = true;
+>>>>>>> upstream/android-13
 	}
 
 	sdma_v2_4_enable(adev, true);
 	for (i = 0; i < adev->sdma.num_instances; i++) {
 		ring = &adev->sdma.instance[i].ring;
+<<<<<<< HEAD
 		r = amdgpu_ring_test_ring(ring);
 		if (r) {
 			ring->ready = false;
 			return r;
 		}
+=======
+		r = amdgpu_ring_test_helper(ring);
+		if (r)
+			return r;
+>>>>>>> upstream/android-13
 
 		if (adev->mman.buffer_funcs_ring == ring)
 			amdgpu_ttm_set_buffer_funcs_status(adev, true);
@@ -504,6 +556,7 @@ static int sdma_v2_4_rlc_resume(struct amdgpu_device *adev)
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
  * sdma_v2_4_load_microcode - load the sDMA ME ucode
  *
@@ -539,6 +592,8 @@ static int sdma_v2_4_load_microcode(struct amdgpu_device *adev)
 
 	return 0;
 }
+=======
+>>>>>>> upstream/android-13
 
 /**
  * sdma_v2_4_start - setup and start the async dma engines
@@ -552,6 +607,7 @@ static int sdma_v2_4_start(struct amdgpu_device *adev)
 {
 	int r;
 
+<<<<<<< HEAD
 
 	if (adev->firmware.load_type == AMDGPU_FW_LOAD_DIRECT) {
 		r = sdma_v2_4_load_microcode(adev);
@@ -559,6 +615,8 @@ static int sdma_v2_4_start(struct amdgpu_device *adev)
 			return r;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/* halt the engine before programing */
 	sdma_v2_4_enable(adev, false);
 
@@ -592,21 +650,31 @@ static int sdma_v2_4_ring_test_ring(struct amdgpu_ring *ring)
 	u64 gpu_addr;
 
 	r = amdgpu_device_wb_get(adev, &index);
+<<<<<<< HEAD
 	if (r) {
 		dev_err(adev->dev, "(%d) failed to allocate wb slot\n", r);
 		return r;
 	}
+=======
+	if (r)
+		return r;
+>>>>>>> upstream/android-13
 
 	gpu_addr = adev->wb.gpu_addr + (index * 4);
 	tmp = 0xCAFEDEAD;
 	adev->wb.wb[index] = cpu_to_le32(tmp);
 
 	r = amdgpu_ring_alloc(ring, 5);
+<<<<<<< HEAD
 	if (r) {
 		DRM_ERROR("amdgpu: dma failed to lock ring %d (%d).\n", ring->idx, r);
 		amdgpu_device_wb_free(adev, index);
 		return r;
 	}
+=======
+	if (r)
+		goto error_free_wb;
+>>>>>>> upstream/android-13
 
 	amdgpu_ring_write(ring, SDMA_PKT_HEADER_OP(SDMA_OP_WRITE) |
 			  SDMA_PKT_HEADER_SUB_OP(SDMA_SUBOP_WRITE_LINEAR));
@@ -620,6 +688,7 @@ static int sdma_v2_4_ring_test_ring(struct amdgpu_ring *ring)
 		tmp = le32_to_cpu(adev->wb.wb[index]);
 		if (tmp == 0xDEADBEEF)
 			break;
+<<<<<<< HEAD
 		DRM_UDELAY(1);
 	}
 
@@ -632,6 +701,16 @@ static int sdma_v2_4_ring_test_ring(struct amdgpu_ring *ring)
 	}
 	amdgpu_device_wb_free(adev, index);
 
+=======
+		udelay(1);
+	}
+
+	if (i >= adev->usec_timeout)
+		r = -ETIMEDOUT;
+
+error_free_wb:
+	amdgpu_device_wb_free(adev, index);
+>>>>>>> upstream/android-13
 	return r;
 }
 
@@ -639,6 +718,10 @@ static int sdma_v2_4_ring_test_ring(struct amdgpu_ring *ring)
  * sdma_v2_4_ring_test_ib - test an IB on the DMA engine
  *
  * @ring: amdgpu_ring structure holding ring information
+<<<<<<< HEAD
+=======
+ * @timeout: timeout value in jiffies, or MAX_SCHEDULE_TIMEOUT
+>>>>>>> upstream/android-13
  *
  * Test a simple IB in the DMA ring (VI).
  * Returns 0 on success, error on failure.
@@ -654,20 +737,32 @@ static int sdma_v2_4_ring_test_ib(struct amdgpu_ring *ring, long timeout)
 	long r;
 
 	r = amdgpu_device_wb_get(adev, &index);
+<<<<<<< HEAD
 	if (r) {
 		dev_err(adev->dev, "(%ld) failed to allocate wb slot\n", r);
 		return r;
 	}
+=======
+	if (r)
+		return r;
+>>>>>>> upstream/android-13
 
 	gpu_addr = adev->wb.gpu_addr + (index * 4);
 	tmp = 0xCAFEDEAD;
 	adev->wb.wb[index] = cpu_to_le32(tmp);
 	memset(&ib, 0, sizeof(ib));
+<<<<<<< HEAD
 	r = amdgpu_ib_get(adev, NULL, 256, &ib);
 	if (r) {
 		DRM_ERROR("amdgpu: failed to get ib (%ld).\n", r);
 		goto err0;
 	}
+=======
+	r = amdgpu_ib_get(adev, NULL, 256,
+					AMDGPU_IB_POOL_DIRECT, &ib);
+	if (r)
+		goto err0;
+>>>>>>> upstream/android-13
 
 	ib.ptr[0] = SDMA_PKT_HEADER_OP(SDMA_OP_WRITE) |
 		SDMA_PKT_HEADER_SUB_OP(SDMA_SUBOP_WRITE_LINEAR);
@@ -686,6 +781,7 @@ static int sdma_v2_4_ring_test_ib(struct amdgpu_ring *ring, long timeout)
 
 	r = dma_fence_wait_timeout(f, false, timeout);
 	if (r == 0) {
+<<<<<<< HEAD
 		DRM_ERROR("amdgpu: IB test timed out\n");
 		r = -ETIMEDOUT;
 		goto err1;
@@ -701,6 +797,18 @@ static int sdma_v2_4_ring_test_ib(struct amdgpu_ring *ring, long timeout)
 		DRM_ERROR("amdgpu: ib test failed (0x%08X)\n", tmp);
 		r = -EINVAL;
 	}
+=======
+		r = -ETIMEDOUT;
+		goto err1;
+	} else if (r < 0) {
+		goto err1;
+	}
+	tmp = le32_to_cpu(adev->wb.wb[index]);
+	if (tmp == 0xDEADBEEF)
+		r = 0;
+	else
+		r = -EINVAL;
+>>>>>>> upstream/android-13
 
 err1:
 	amdgpu_ib_free(adev, &ib, NULL);
@@ -797,16 +905,28 @@ static void sdma_v2_4_vm_set_pte_pde(struct amdgpu_ib *ib, uint64_t pe,
 /**
  * sdma_v2_4_ring_pad_ib - pad the IB to the required number of dw
  *
+<<<<<<< HEAD
+=======
+ * @ring: amdgpu_ring structure holding ring information
+>>>>>>> upstream/android-13
  * @ib: indirect buffer to fill with padding
  *
  */
 static void sdma_v2_4_ring_pad_ib(struct amdgpu_ring *ring, struct amdgpu_ib *ib)
 {
+<<<<<<< HEAD
 	struct amdgpu_sdma_instance *sdma = amdgpu_get_sdma_instance(ring);
 	u32 pad_count;
 	int i;
 
 	pad_count = (8 - (ib->length_dw & 0x7)) % 8;
+=======
+	struct amdgpu_sdma_instance *sdma = amdgpu_sdma_get_instance_from_ring(ring);
+	u32 pad_count;
+	int i;
+
+	pad_count = (-ib->length_dw) & 7;
+>>>>>>> upstream/android-13
 	for (i = 0; i < pad_count; i++)
 		if (sdma && sdma->burst_nop && (i == 0))
 			ib->ptr[ib->length_dw++] =
@@ -846,7 +966,12 @@ static void sdma_v2_4_ring_emit_pipeline_sync(struct amdgpu_ring *ring)
  * sdma_v2_4_ring_emit_vm_flush - cik vm flush using sDMA
  *
  * @ring: amdgpu_ring pointer
+<<<<<<< HEAD
  * @vm: amdgpu_vm pointer
+=======
+ * @vmid: vmid number to use
+ * @pd_addr: address
+>>>>>>> upstream/android-13
  *
  * Update the page table base and flush the VM TLB
  * using sDMA (VI).
@@ -898,19 +1023,31 @@ static int sdma_v2_4_sw_init(void *handle)
 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
 
 	/* SDMA trap event */
+<<<<<<< HEAD
 	r = amdgpu_irq_add_id(adev, AMDGPU_IH_CLIENTID_LEGACY, VISLANDS30_IV_SRCID_SDMA_TRAP,
+=======
+	r = amdgpu_irq_add_id(adev, AMDGPU_IRQ_CLIENTID_LEGACY, VISLANDS30_IV_SRCID_SDMA_TRAP,
+>>>>>>> upstream/android-13
 			      &adev->sdma.trap_irq);
 	if (r)
 		return r;
 
 	/* SDMA Privileged inst */
+<<<<<<< HEAD
 	r = amdgpu_irq_add_id(adev, AMDGPU_IH_CLIENTID_LEGACY, 241,
+=======
+	r = amdgpu_irq_add_id(adev, AMDGPU_IRQ_CLIENTID_LEGACY, 241,
+>>>>>>> upstream/android-13
 			      &adev->sdma.illegal_inst_irq);
 	if (r)
 		return r;
 
 	/* SDMA Privileged inst */
+<<<<<<< HEAD
 	r = amdgpu_irq_add_id(adev, AMDGPU_IH_CLIENTID_LEGACY, VISLANDS30_IV_SRCID_SDMA_SRBM_WRITE,
+=======
+	r = amdgpu_irq_add_id(adev, AMDGPU_IRQ_CLIENTID_LEGACY, VISLANDS30_IV_SRCID_SDMA_SRBM_WRITE,
+>>>>>>> upstream/android-13
 			      &adev->sdma.illegal_inst_irq);
 	if (r)
 		return r;
@@ -926,11 +1063,18 @@ static int sdma_v2_4_sw_init(void *handle)
 		ring->ring_obj = NULL;
 		ring->use_doorbell = false;
 		sprintf(ring->name, "sdma%d", i);
+<<<<<<< HEAD
 		r = amdgpu_ring_init(adev, ring, 1024,
 				     &adev->sdma.trap_irq,
 				     (i == 0) ?
 				     AMDGPU_SDMA_IRQ_TRAP0 :
 				     AMDGPU_SDMA_IRQ_TRAP1);
+=======
+		r = amdgpu_ring_init(adev, ring, 1024, &adev->sdma.trap_irq,
+				     (i == 0) ? AMDGPU_SDMA_IRQ_INSTANCE0 :
+				     AMDGPU_SDMA_IRQ_INSTANCE1,
+				     AMDGPU_RING_PRIO_DEFAULT, NULL);
+>>>>>>> upstream/android-13
 		if (r)
 			return r;
 	}
@@ -1065,7 +1209,11 @@ static int sdma_v2_4_set_trap_irq_state(struct amdgpu_device *adev,
 	u32 sdma_cntl;
 
 	switch (type) {
+<<<<<<< HEAD
 	case AMDGPU_SDMA_IRQ_TRAP0:
+=======
+	case AMDGPU_SDMA_IRQ_INSTANCE0:
+>>>>>>> upstream/android-13
 		switch (state) {
 		case AMDGPU_IRQ_STATE_DISABLE:
 			sdma_cntl = RREG32(mmSDMA0_CNTL + SDMA0_REGISTER_OFFSET);
@@ -1081,7 +1229,11 @@ static int sdma_v2_4_set_trap_irq_state(struct amdgpu_device *adev,
 			break;
 		}
 		break;
+<<<<<<< HEAD
 	case AMDGPU_SDMA_IRQ_TRAP1:
+=======
+	case AMDGPU_SDMA_IRQ_INSTANCE1:
+>>>>>>> upstream/android-13
 		switch (state) {
 		case AMDGPU_IRQ_STATE_DISABLE:
 			sdma_cntl = RREG32(mmSDMA0_CNTL + SDMA1_REGISTER_OFFSET);
@@ -1147,8 +1299,19 @@ static int sdma_v2_4_process_illegal_inst_irq(struct amdgpu_device *adev,
 					      struct amdgpu_irq_src *source,
 					      struct amdgpu_iv_entry *entry)
 {
+<<<<<<< HEAD
 	DRM_ERROR("Illegal instruction in SDMA command stream\n");
 	schedule_work(&adev->reset_work);
+=======
+	u8 instance_id, queue_id;
+
+	DRM_ERROR("Illegal instruction in SDMA command stream\n");
+	instance_id = (entry->ring_id & 0x3) >> 0;
+	queue_id = (entry->ring_id & 0xc) >> 2;
+
+	if (instance_id <= 1 && queue_id == 0)
+		drm_sched_fault(&adev->sdma.instance[instance_id].ring.sched);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1238,10 +1401,18 @@ static void sdma_v2_4_set_irq_funcs(struct amdgpu_device *adev)
 /**
  * sdma_v2_4_emit_copy_buffer - copy buffer using the sDMA engine
  *
+<<<<<<< HEAD
  * @ring: amdgpu_ring structure holding ring information
  * @src_offset: src GPU address
  * @dst_offset: dst GPU address
  * @byte_count: number of bytes to xfer
+=======
+ * @ib: indirect buffer to copy to
+ * @src_offset: src GPU address
+ * @dst_offset: dst GPU address
+ * @byte_count: number of bytes to xfer
+ * @tmz: unused
+>>>>>>> upstream/android-13
  *
  * Copy GPU buffers using the DMA engine (VI).
  * Used by the amdgpu ttm implementation to move pages if
@@ -1250,7 +1421,12 @@ static void sdma_v2_4_set_irq_funcs(struct amdgpu_device *adev)
 static void sdma_v2_4_emit_copy_buffer(struct amdgpu_ib *ib,
 				       uint64_t src_offset,
 				       uint64_t dst_offset,
+<<<<<<< HEAD
 				       uint32_t byte_count)
+=======
+				       uint32_t byte_count,
+				       bool tmz)
+>>>>>>> upstream/android-13
 {
 	ib->ptr[ib->length_dw++] = SDMA_PKT_HEADER_OP(SDMA_OP_COPY) |
 		SDMA_PKT_HEADER_SUB_OP(SDMA_SUBOP_COPY_LINEAR);
@@ -1265,7 +1441,11 @@ static void sdma_v2_4_emit_copy_buffer(struct amdgpu_ib *ib,
 /**
  * sdma_v2_4_emit_fill_buffer - fill buffer using the sDMA engine
  *
+<<<<<<< HEAD
  * @ring: amdgpu_ring structure holding ring information
+=======
+ * @ib: indirect buffer to copy to
+>>>>>>> upstream/android-13
  * @src_data: value to write to buffer
  * @dst_offset: dst GPU address
  * @byte_count: number of bytes to xfer
@@ -1296,10 +1476,15 @@ static const struct amdgpu_buffer_funcs sdma_v2_4_buffer_funcs = {
 
 static void sdma_v2_4_set_buffer_funcs(struct amdgpu_device *adev)
 {
+<<<<<<< HEAD
 	if (adev->mman.buffer_funcs == NULL) {
 		adev->mman.buffer_funcs = &sdma_v2_4_buffer_funcs;
 		adev->mman.buffer_funcs_ring = &adev->sdma.instance[0].ring;
 	}
+=======
+	adev->mman.buffer_funcs = &sdma_v2_4_buffer_funcs;
+	adev->mman.buffer_funcs_ring = &adev->sdma.instance[0].ring;
+>>>>>>> upstream/android-13
 }
 
 static const struct amdgpu_vm_pte_funcs sdma_v2_4_vm_pte_funcs = {
@@ -1314,6 +1499,7 @@ static void sdma_v2_4_set_vm_pte_funcs(struct amdgpu_device *adev)
 {
 	unsigned i;
 
+<<<<<<< HEAD
 	if (adev->vm_manager.vm_pte_funcs == NULL) {
 		adev->vm_manager.vm_pte_funcs = &sdma_v2_4_vm_pte_funcs;
 		for (i = 0; i < adev->sdma.num_instances; i++)
@@ -1322,6 +1508,14 @@ static void sdma_v2_4_set_vm_pte_funcs(struct amdgpu_device *adev)
 
 		adev->vm_manager.vm_pte_num_rings = adev->sdma.num_instances;
 	}
+=======
+	adev->vm_manager.vm_pte_funcs = &sdma_v2_4_vm_pte_funcs;
+	for (i = 0; i < adev->sdma.num_instances; i++) {
+		adev->vm_manager.vm_pte_scheds[i] =
+			&adev->sdma.instance[i].ring.sched;
+	}
+	adev->vm_manager.vm_pte_num_scheds = adev->sdma.num_instances;
+>>>>>>> upstream/android-13
 }
 
 const struct amdgpu_ip_block_version sdma_v2_4_ip_block =

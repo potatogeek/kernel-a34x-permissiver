@@ -31,7 +31,11 @@
  * Struct fields are always 32 or 64 bit aligned, depending on them being 32
  * or 64 bit wide respectively.
  *
+<<<<<<< HEAD
  * See Documentation/virtual/kvm/ppc-pv.txt
+=======
+ * See Documentation/virt/kvm/ppc-pv.rst
+>>>>>>> upstream/android-13
  */
 struct kvm_vcpu_arch_shared {
 	__u64 scratch1;

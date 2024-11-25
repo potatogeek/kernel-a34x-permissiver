@@ -30,7 +30,11 @@
 /* Don't have anything in the reserved bits and leaf bits */
 #define RADIX_PMD_BAD_BITS		0x60000000000000e0UL
 #define RADIX_PUD_BAD_BITS		0x60000000000000e0UL
+<<<<<<< HEAD
 #define RADIX_PGD_BAD_BITS		0x60000000000000e0UL
+=======
+#define RADIX_P4D_BAD_BITS		0x60000000000000e0UL
+>>>>>>> upstream/android-13
 
 #define RADIX_PMD_SHIFT		(PAGE_SHIFT + RADIX_PTE_INDEX_SIZE)
 #define RADIX_PUD_SHIFT		(RADIX_PMD_SHIFT + RADIX_PMD_INDEX_SIZE)
@@ -72,6 +76,7 @@
  * |                              |
  * |                              |
  * |                              |
+<<<<<<< HEAD
  * +------------------------------+  Kernel IO map end (0xc010000000000000)
  * |                              |
  * |                              |
@@ -85,6 +90,19 @@
  * +------------------------------+  Kernel vmemap start
  * |                              |
  * |     1/4 of virtual map       |
+=======
+ * +------------------------------+  Kernel vmemmap end (0xc010000000000000)
+ * |                              |
+ * |           512TB		  |
+ * |                              |
+ * +------------------------------+  Kernel IO map end/vmemap start
+ * |                              |
+ * |           512TB		  |
+ * |                              |
+ * +------------------------------+  Kernel vmap end/ IO map start
+ * |                              |
+ * |           512TB		  |
+>>>>>>> upstream/android-13
  * |                              |
  * +------------------------------+  Kernel virt start (0xc008000000000000)
  * |                              |
@@ -93,6 +111,7 @@
  * +------------------------------+  Kernel linear (0xc.....)
  */
 
+<<<<<<< HEAD
 #define RADIX_KERN_VIRT_START ASM_CONST(0xc008000000000000)
 #define RADIX_KERN_VIRT_SIZE  ASM_CONST(0x0008000000000000)
 
@@ -111,6 +130,42 @@
 #define RADIX_VMEMMAP_BASE		(RADIX_VMALLOC_END)
 
 #define RADIX_KERN_IO_START	(RADIX_KERN_VIRT_START + (RADIX_KERN_VIRT_SIZE >> 1))
+=======
+
+/*
+ * If we store section details in page->flags we can't increase the MAX_PHYSMEM_BITS
+ * if we increase SECTIONS_WIDTH we will not store node details in page->flags and
+ * page_to_nid does a page->section->node lookup
+ * Hence only increase for VMEMMAP. Further depending on SPARSEMEM_EXTREME reduce
+ * memory requirements with large number of sections.
+ * 51 bits is the max physical real address on POWER9
+ */
+
+#if defined(CONFIG_SPARSEMEM_VMEMMAP) && defined(CONFIG_SPARSEMEM_EXTREME)
+#define R_MAX_PHYSMEM_BITS	51
+#else
+#define R_MAX_PHYSMEM_BITS	46
+#endif
+
+#define RADIX_KERN_VIRT_START	ASM_CONST(0xc008000000000000)
+/*
+ * 49 =  MAX_EA_BITS_PER_CONTEXT (hash specific). To make sure we pick
+ * the same value as hash.
+ */
+#define RADIX_KERN_MAP_SIZE	(1UL << 49)
+
+#define RADIX_VMALLOC_START	RADIX_KERN_VIRT_START
+#define RADIX_VMALLOC_SIZE	RADIX_KERN_MAP_SIZE
+#define RADIX_VMALLOC_END	(RADIX_VMALLOC_START + RADIX_VMALLOC_SIZE)
+
+#define RADIX_KERN_IO_START	RADIX_VMALLOC_END
+#define RADIX_KERN_IO_SIZE	RADIX_KERN_MAP_SIZE
+#define RADIX_KERN_IO_END	(RADIX_KERN_IO_START + RADIX_KERN_IO_SIZE)
+
+#define RADIX_VMEMMAP_START	RADIX_KERN_IO_END
+#define RADIX_VMEMMAP_SIZE	RADIX_KERN_MAP_SIZE
+#define RADIX_VMEMMAP_END	(RADIX_VMEMMAP_START + RADIX_VMEMMAP_SIZE)
+>>>>>>> upstream/android-13
 
 #ifndef __ASSEMBLY__
 #define RADIX_PTE_TABLE_SIZE	(sizeof(pte_t) << RADIX_PTE_INDEX_SIZE)
@@ -127,6 +182,13 @@ extern void radix__ptep_set_access_flags(struct vm_area_struct *vma, pte_t *ptep
 					 pte_t entry, unsigned long address,
 					 int psize);
 
+<<<<<<< HEAD
+=======
+extern void radix__ptep_modify_prot_commit(struct vm_area_struct *vma,
+					   unsigned long addr, pte_t *ptep,
+					   pte_t old_pte, pte_t pte);
+
+>>>>>>> upstream/android-13
 static inline unsigned long __radix_pte_update(pte_t *ptep, unsigned long clr,
 					       unsigned long set)
 {
@@ -227,9 +289,15 @@ static inline int radix__pud_bad(pud_t pud)
 }
 
 
+<<<<<<< HEAD
 static inline int radix__pgd_bad(pgd_t pgd)
 {
 	return !!(pgd_val(pgd) & RADIX_PGD_BAD_BITS);
+=======
+static inline int radix__p4d_bad(p4d_t p4d)
+{
+	return !!(p4d_val(p4d) & RADIX_P4D_BAD_BITS);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_TRANSPARENT_HUGEPAGE
@@ -254,7 +322,17 @@ extern void radix__pgtable_trans_huge_deposit(struct mm_struct *mm, pmd_t *pmdp,
 extern pgtable_t radix__pgtable_trans_huge_withdraw(struct mm_struct *mm, pmd_t *pmdp);
 extern pmd_t radix__pmdp_huge_get_and_clear(struct mm_struct *mm,
 				      unsigned long addr, pmd_t *pmdp);
+<<<<<<< HEAD
 extern int radix__has_transparent_hugepage(void);
+=======
+static inline int radix__has_transparent_hugepage(void)
+{
+	/* For radix 2M at PMD level means thp */
+	if (mmu_psize_defs[MMU_PAGE_2M].shift == PMD_SHIFT)
+		return 1;
+	return 0;
+}
+>>>>>>> upstream/android-13
 #endif
 
 static inline pmd_t radix__pmd_mkdevmap(pmd_t pmd)
@@ -288,7 +366,12 @@ static inline unsigned long radix__get_tree_size(void)
 }
 
 #ifdef CONFIG_MEMORY_HOTPLUG
+<<<<<<< HEAD
 int radix__create_section_mapping(unsigned long start, unsigned long end, int nid);
+=======
+int radix__create_section_mapping(unsigned long start, unsigned long end,
+				  int nid, pgprot_t prot);
+>>>>>>> upstream/android-13
 int radix__remove_section_mapping(unsigned long start, unsigned long end);
 #endif /* CONFIG_MEMORY_HOTPLUG */
 #endif /* __ASSEMBLY__ */

@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 /*
  * SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+>>>>>>> upstream/android-13
  * tm6000-buf.c - driver for TM5600/TM6000/TM6010 USB video capture devices
  *
  * Copyright (c) 2006-2007 Mauro Carvalho Chehab <mchehab@kernel.org>

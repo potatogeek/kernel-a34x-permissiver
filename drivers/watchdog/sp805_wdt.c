@@ -11,7 +11,10 @@
  * warranty of any kind, whether express or implied.
  */
 
+<<<<<<< HEAD
 #include <linux/acpi.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/device.h>
 #include <linux/resource.h>
 #include <linux/amba/bus.h>
@@ -23,8 +26,13 @@
 #include <linux/math64.h>
 #include <linux/module.h>
 #include <linux/moduleparam.h>
+<<<<<<< HEAD
 #include <linux/of.h>
 #include <linux/pm.h>
+=======
+#include <linux/pm.h>
+#include <linux/property.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/spinlock.h>
 #include <linux/types.h>
@@ -58,7 +66,12 @@
  * @wdd: instance of struct watchdog_device
  * @lock: spin lock protecting dev structure and io access
  * @base: base address of wdt
+<<<<<<< HEAD
  * @clk: clock structure of wdt
+=======
+ * @clk: (optional) clock structure of wdt
+ * @rate: (optional) clock rate when provided via properties
+>>>>>>> upstream/android-13
  * @adev: amba device structure of wdt
  * @status: current status of wdt
  * @load_val: load value to be set for current timeout
@@ -231,6 +244,10 @@ static int
 sp805_wdt_probe(struct amba_device *adev, const struct amba_id *id)
 {
 	struct sp805_wdt *wdt;
+<<<<<<< HEAD
+=======
+	u64 rate = 0;
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 	wdt = devm_kzalloc(&adev->dev, sizeof(*wdt), GFP_KERNEL);
@@ -243,6 +260,7 @@ sp805_wdt_probe(struct amba_device *adev, const struct amba_id *id)
 	if (IS_ERR(wdt->base))
 		return PTR_ERR(wdt->base);
 
+<<<<<<< HEAD
 	if (adev->dev.of_node) {
 		wdt->clk = devm_clk_get(&adev->dev, NULL);
 		if (IS_ERR(wdt->clk)) {
@@ -262,6 +280,25 @@ sp805_wdt_probe(struct amba_device *adev, const struct amba_id *id)
 			dev_err(&adev->dev, "no clock-frequency property\n");
 			return -ENODEV;
 		}
+=======
+	/*
+	 * When driver probe with ACPI device, clock devices
+	 * are not available, so watchdog rate get from
+	 * clock-frequency property given in _DSD object.
+	 */
+	device_property_read_u64(&adev->dev, "clock-frequency", &rate);
+
+	wdt->clk = devm_clk_get_optional(&adev->dev, NULL);
+	if (IS_ERR(wdt->clk))
+		return dev_err_probe(&adev->dev, PTR_ERR(wdt->clk), "Clock not found\n");
+
+	wdt->rate = clk_get_rate(wdt->clk);
+	if (!wdt->rate)
+		wdt->rate = rate;
+	if (!wdt->rate) {
+		dev_err(&adev->dev, "no clock-frequency property\n");
+		return -ENODEV;
+>>>>>>> upstream/android-13
 	}
 
 	wdt->adev = adev;
@@ -291,12 +328,19 @@ sp805_wdt_probe(struct amba_device *adev, const struct amba_id *id)
 		set_bit(WDOG_HW_RUNNING, &wdt->wdd.status);
 	}
 
+<<<<<<< HEAD
 	ret = watchdog_register_device(&wdt->wdd);
 	if (ret) {
 		dev_err(&adev->dev, "watchdog_register_device() failed: %d\n",
 				ret);
 		goto err;
 	}
+=======
+	watchdog_stop_on_reboot(&wdt->wdd);
+	ret = watchdog_register_device(&wdt->wdd);
+	if (ret)
+		goto err;
+>>>>>>> upstream/android-13
 	amba_set_drvdata(adev, wdt);
 
 	dev_info(&adev->dev, "registration successful\n");
@@ -307,14 +351,21 @@ err:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int sp805_wdt_remove(struct amba_device *adev)
+=======
+static void sp805_wdt_remove(struct amba_device *adev)
+>>>>>>> upstream/android-13
 {
 	struct sp805_wdt *wdt = amba_get_drvdata(adev);
 
 	watchdog_unregister_device(&wdt->wdd);
 	watchdog_set_drvdata(&wdt->wdd, NULL);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int __maybe_unused sp805_wdt_suspend(struct device *dev)

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * i2c-algo-pcf.c i2c driver algorithms for PCF8584 adapters
  *
  *   Copyright (C) 1995-1997 Simon G. Vogl
  *		   1998-2000 Hans Berglund
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
@@ -14,6 +19,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *  GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * With some changes from Kyösti Mälkki <kmalkki@cc.hut.fi> and
  * Frodo Looijaard <frodol@dds.nl>, and also from Martin Bailey
  * <mbailey@littlefeet-inc.com>

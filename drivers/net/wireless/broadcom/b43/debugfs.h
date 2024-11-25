@@ -32,7 +32,10 @@ struct b43_txstatus_log {
 };
 
 struct b43_dfs_file {
+<<<<<<< HEAD
 	struct dentry *dentry;
+=======
+>>>>>>> upstream/android-13
 	char *buffer;
 	size_t data_len;
 };
@@ -70,8 +73,11 @@ struct b43_dfsentry {
 
 	/* Enabled/Disabled list for the dynamic debugging features. */
 	bool dyn_debug[__B43_NR_DYNDBG];
+<<<<<<< HEAD
 	/* Dentries for the dynamic debugging entries. */
 	struct dentry *dyn_debug_dentries[__B43_NR_DYNDBG];
+=======
+>>>>>>> upstream/android-13
 };
 
 bool b43_debug(struct b43_wldev *dev, enum b43_dyndbg feature);

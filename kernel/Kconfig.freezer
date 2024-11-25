@@ -1,2 +1,6 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 config FREEZER
 	def_bool PM_SLEEP || CGROUP_FREEZER

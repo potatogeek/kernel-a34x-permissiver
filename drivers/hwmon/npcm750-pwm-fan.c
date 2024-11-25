@@ -629,6 +629,7 @@ static umode_t npcm7xx_is_visible(const void *data,
 	}
 }
 
+<<<<<<< HEAD
 static const u32 npcm7xx_pwm_config[] = {
 	HWMON_PWM_INPUT,
 	HWMON_PWM_INPUT,
@@ -674,6 +675,35 @@ static const struct hwmon_channel_info npcm7xx_fan = {
 static const struct hwmon_channel_info *npcm7xx_info[] = {
 	&npcm7xx_pwm,
 	&npcm7xx_fan,
+=======
+static const struct hwmon_channel_info *npcm7xx_info[] = {
+	HWMON_CHANNEL_INFO(pwm,
+			   HWMON_PWM_INPUT,
+			   HWMON_PWM_INPUT,
+			   HWMON_PWM_INPUT,
+			   HWMON_PWM_INPUT,
+			   HWMON_PWM_INPUT,
+			   HWMON_PWM_INPUT,
+			   HWMON_PWM_INPUT,
+			   HWMON_PWM_INPUT),
+	HWMON_CHANNEL_INFO(fan,
+			   HWMON_F_INPUT,
+			   HWMON_F_INPUT,
+			   HWMON_F_INPUT,
+			   HWMON_F_INPUT,
+			   HWMON_F_INPUT,
+			   HWMON_F_INPUT,
+			   HWMON_F_INPUT,
+			   HWMON_F_INPUT,
+			   HWMON_F_INPUT,
+			   HWMON_F_INPUT,
+			   HWMON_F_INPUT,
+			   HWMON_F_INPUT,
+			   HWMON_F_INPUT,
+			   HWMON_F_INPUT,
+			   HWMON_F_INPUT,
+			   HWMON_F_INPUT),
+>>>>>>> upstream/android-13
 	NULL
 };
 
@@ -861,6 +891,7 @@ static int npcm7xx_create_pwm_cooling(struct device *dev,
 		dev_err(dev, "Property 'cooling-levels' cannot be read.\n");
 		return ret;
 	}
+<<<<<<< HEAD
 	snprintf(cdev->name, THERMAL_NAME_LENGTH, "%s%d", child->name,
 		 pwm_port);
 
@@ -868,6 +899,13 @@ static int npcm7xx_create_pwm_cooling(struct device *dev,
 							 cdev->name,
 							 cdev,
 							 &npcm7xx_pwm_cool_ops);
+=======
+	snprintf(cdev->name, THERMAL_NAME_LENGTH, "%pOFn%d", child,
+		 pwm_port);
+
+	cdev->tcdev = devm_thermal_of_cooling_device_register(dev, child,
+				cdev->name, cdev, &npcm7xx_pwm_cool_ops);
+>>>>>>> upstream/android-13
 	if (IS_ERR(cdev->tcdev))
 		return PTR_ERR(cdev->tcdev);
 
@@ -987,10 +1025,15 @@ static int npcm7xx_pwm_fan_probe(struct platform_device *pdev)
 		spin_lock_init(&data->fan_lock[i]);
 
 		data->fan_irq[i] = platform_get_irq(pdev, i);
+<<<<<<< HEAD
 		if (data->fan_irq[i] < 0) {
 			dev_err(dev, "get IRQ fan%d failed\n", i);
 			return data->fan_irq[i];
 		}
+=======
+		if (data->fan_irq[i] < 0)
+			return data->fan_irq[i];
+>>>>>>> upstream/android-13
 
 		sprintf(name, "NPCM7XX-FAN-MD%d", i);
 		ret = devm_request_irq(dev, data->fan_irq[i], npcm7xx_fan_isr,

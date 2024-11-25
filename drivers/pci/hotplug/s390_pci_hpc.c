@@ -19,6 +19,7 @@
 #include <asm/sclp.h>
 
 #define SLOT_NAME_SIZE	10
+<<<<<<< HEAD
 static LIST_HEAD(s390_hotplug_slot_list);
 
 static int zpci_fn_configured(enum zpci_state state)
@@ -84,10 +85,30 @@ static int enable_slot(struct hotplug_slot *hotplug_slot)
 out_deconfigure:
 	slot_deconfigure(slot);
 	return rc;
+=======
+
+static int enable_slot(struct hotplug_slot *hotplug_slot)
+{
+	struct zpci_dev *zdev = container_of(hotplug_slot, struct zpci_dev,
+					     hotplug_slot);
+	int rc;
+
+	if (zdev->state != ZPCI_FN_STATE_STANDBY)
+		return -EIO;
+
+	rc = sclp_pci_configure(zdev->fid);
+	zpci_dbg(3, "conf fid:%x, rc:%d\n", zdev->fid, rc);
+	if (rc)
+		return rc;
+	zdev->state = ZPCI_FN_STATE_CONFIGURED;
+
+	return zpci_scan_configured_device(zdev, zdev->fh);
+>>>>>>> upstream/android-13
 }
 
 static int disable_slot(struct hotplug_slot *hotplug_slot)
 {
+<<<<<<< HEAD
 	struct slot *slot = hotplug_slot->private;
 	struct pci_dev *pdev;
 	int rc;
@@ -106,10 +127,28 @@ static int disable_slot(struct hotplug_slot *hotplug_slot)
 		return rc;
 
 	return slot_deconfigure(slot);
+=======
+	struct zpci_dev *zdev = container_of(hotplug_slot, struct zpci_dev,
+					     hotplug_slot);
+	struct pci_dev *pdev;
+
+	if (zdev->state != ZPCI_FN_STATE_CONFIGURED)
+		return -EIO;
+
+	pdev = pci_get_slot(zdev->zbus->bus, zdev->devfn);
+	if (pdev && pci_num_vf(pdev)) {
+		pci_dev_put(pdev);
+		return -EBUSY;
+	}
+	pci_dev_put(pdev);
+
+	return zpci_deconfigure_device(zdev);
+>>>>>>> upstream/android-13
 }
 
 static int get_power_status(struct hotplug_slot *hotplug_slot, u8 *value)
 {
+<<<<<<< HEAD
 	struct slot *slot = hotplug_slot->private;
 
 	switch (slot->zdev->state) {
@@ -120,6 +159,12 @@ static int get_power_status(struct hotplug_slot *hotplug_slot, u8 *value)
 		*value = 1;
 		break;
 	}
+=======
+	struct zpci_dev *zdev = container_of(hotplug_slot, struct zpci_dev,
+					     hotplug_slot);
+
+	*value = zpci_is_device_configured(zdev) ? 1 : 0;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -130,7 +175,11 @@ static int get_adapter_status(struct hotplug_slot *hotplug_slot, u8 *value)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct hotplug_slot_ops s390_hotplug_slot_ops = {
+=======
+static const struct hotplug_slot_ops s390_hotplug_slot_ops = {
+>>>>>>> upstream/android-13
 	.enable_slot =		enable_slot,
 	.disable_slot =		disable_slot,
 	.get_power_status =	get_power_status,
@@ -139,6 +188,7 @@ static struct hotplug_slot_ops s390_hotplug_slot_ops = {
 
 int zpci_init_slot(struct zpci_dev *zdev)
 {
+<<<<<<< HEAD
 	struct hotplug_slot *hotplug_slot;
 	struct hotplug_slot_info *info;
 	char name[SLOT_NAME_SIZE];
@@ -187,10 +237,21 @@ error_hp:
 	kfree(slot);
 error:
 	return -ENOMEM;
+=======
+	char name[SLOT_NAME_SIZE];
+	struct zpci_bus *zbus = zdev->zbus;
+
+	zdev->hotplug_slot.ops = &s390_hotplug_slot_ops;
+
+	snprintf(name, SLOT_NAME_SIZE, "%08x", zdev->fid);
+	return pci_hp_register(&zdev->hotplug_slot, zbus->bus,
+			       zdev->devfn, name);
+>>>>>>> upstream/android-13
 }
 
 void zpci_exit_slot(struct zpci_dev *zdev)
 {
+<<<<<<< HEAD
 	struct slot *slot, *next;
 
 	list_for_each_entry_safe(slot, next, &s390_hotplug_slot_list,
@@ -203,4 +264,7 @@ void zpci_exit_slot(struct zpci_dev *zdev)
 		kfree(slot->hotplug_slot);
 		kfree(slot);
 	}
+=======
+	pci_hp_deregister(&zdev->hotplug_slot);
+>>>>>>> upstream/android-13
 }

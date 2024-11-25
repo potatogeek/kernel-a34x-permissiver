@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * tools/testing/selftests/kvm/lib/assert.c
  *
  * Copyright (C) 2018, Google LLC.
+<<<<<<< HEAD
  *
  * This work is licensed under the terms of the GNU GPL, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define _GNU_SOURCE /* for getline(3) and strchrnul(3)*/
@@ -13,7 +20,11 @@
 #include <execinfo.h>
 #include <sys/syscall.h>
 
+<<<<<<< HEAD
 #include "../../kselftest.h"
+=======
+#include "kselftest.h"
+>>>>>>> upstream/android-13
 
 /* Dumps the current stack trace to stderr. */
 static void __attribute__((noinline)) test_dump_stack(void);
@@ -72,9 +83,15 @@ test_assert(bool exp, const char *exp_str,
 
 		fprintf(stderr, "==== Test Assertion Failure ====\n"
 			"  %s:%u: %s\n"
+<<<<<<< HEAD
 			"  pid=%d tid=%d - %s\n",
 			file, line, exp_str, getpid(), _gettid(),
 			strerror(errno));
+=======
+			"  pid=%d tid=%d errno=%d - %s\n",
+			file, line, exp_str, getpid(), _gettid(),
+			errno, strerror(errno));
+>>>>>>> upstream/android-13
 		test_dump_stack();
 		if (fmt) {
 			fputs("  ", stderr);
@@ -83,8 +100,15 @@ test_assert(bool exp, const char *exp_str,
 		}
 		va_end(ap);
 
+<<<<<<< HEAD
 		if (errno == EACCES)
 			ksft_exit_skip("Access denied - Exiting.\n");
+=======
+		if (errno == EACCES) {
+			print_skip("Access denied - Exiting");
+			exit(KSFT_SKIP);
+		}
+>>>>>>> upstream/android-13
 		exit(254);
 	}
 

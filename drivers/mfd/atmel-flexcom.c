@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver for Atmel Flexcom
  *
  * Copyright (C) 2015 Atmel Corporation
  *
  * Author: Cyrille Pitchen <cyrille.pitchen@atmel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -16,6 +21,8 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -98,8 +105,12 @@ static const struct of_device_id atmel_flexcom_of_match[] = {
 };
 MODULE_DEVICE_TABLE(of, atmel_flexcom_of_match);
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM_SLEEP
 static int atmel_flexcom_resume(struct device *dev)
+=======
+static int __maybe_unused atmel_flexcom_resume_noirq(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct atmel_flexcom *ddata = dev_get_drvdata(dev);
 	int err;
@@ -116,16 +127,27 @@ static int atmel_flexcom_resume(struct device *dev)
 
 	return 0;
 }
+<<<<<<< HEAD
 #endif
 
 static SIMPLE_DEV_PM_OPS(atmel_flexcom_pm_ops, NULL,
 			 atmel_flexcom_resume);
+=======
+
+static const struct dev_pm_ops atmel_flexcom_pm_ops = {
+	.resume_noirq = atmel_flexcom_resume_noirq,
+};
+>>>>>>> upstream/android-13
 
 static struct platform_driver atmel_flexcom_driver = {
 	.probe	= atmel_flexcom_probe,
 	.driver	= {
 		.name		= "atmel_flexcom",
+<<<<<<< HEAD
 		.pm		= &atmel_flexcom_pm_ops,
+=======
+		.pm		= pm_ptr(&atmel_flexcom_pm_ops),
+>>>>>>> upstream/android-13
 		.of_match_table	= atmel_flexcom_of_match,
 	},
 };

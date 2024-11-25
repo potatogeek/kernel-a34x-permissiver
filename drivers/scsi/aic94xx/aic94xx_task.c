@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Aic94xx SAS/SATA Tasks
  *
  * Copyright (C) 2005 Adaptec, Inc.  All rights reserved.
  * Copyright (C) 2005 Luben Tuikov <luben_tuikov@adaptec.com>
+<<<<<<< HEAD
  *
  * This file is licensed under GPLv2.
  *
@@ -22,6 +27,8 @@
  * along with the aic94xx driver; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/spinlock.h>
@@ -42,6 +49,7 @@ static void asd_can_dequeue(struct asd_ha_struct *asd_ha, int num)
 	spin_unlock_irqrestore(&asd_ha->seq.pend_q_lock, flags);
 }
 
+<<<<<<< HEAD
 /* PCI_DMA_... to our direction translation.
  */
 static const u8 data_dir_flags[] = {
@@ -49,6 +57,15 @@ static const u8 data_dir_flags[] = {
 	[PCI_DMA_TODEVICE]      = DATA_DIR_OUT, /* OUTBOUND */
 	[PCI_DMA_FROMDEVICE]    = DATA_DIR_IN, /* INBOUND */
 	[PCI_DMA_NONE]          = DATA_DIR_NONE, /* NO TRANSFER */
+=======
+/* DMA_... to our direction translation.
+ */
+static const u8 data_dir_flags[] = {
+	[DMA_BIDIRECTIONAL]	= DATA_DIR_BYRECIPIENT,	/* UNSPECIFIED */
+	[DMA_TO_DEVICE]		= DATA_DIR_OUT,		/* OUTBOUND */
+	[DMA_FROM_DEVICE]	= DATA_DIR_IN,		/* INBOUND */
+	[DMA_NONE]		= DATA_DIR_NONE,	/* NO TRANSFER */
+>>>>>>> upstream/android-13
 };
 
 static int asd_map_scatterlist(struct sas_task *task,
@@ -60,12 +77,20 @@ static int asd_map_scatterlist(struct sas_task *task,
 	struct scatterlist *sc;
 	int num_sg, res;
 
+<<<<<<< HEAD
 	if (task->data_dir == PCI_DMA_NONE)
+=======
+	if (task->data_dir == DMA_NONE)
+>>>>>>> upstream/android-13
 		return 0;
 
 	if (task->num_scatter == 0) {
 		void *p = task->scatter;
+<<<<<<< HEAD
 		dma_addr_t dma = pci_map_single(asd_ha->pcidev, p,
+=======
+		dma_addr_t dma = dma_map_single(&asd_ha->pcidev->dev, p,
+>>>>>>> upstream/android-13
 						task->total_xfer_len,
 						task->data_dir);
 		sg_arr[0].bus_addr = cpu_to_le64((u64)dma);
@@ -79,7 +104,11 @@ static int asd_map_scatterlist(struct sas_task *task,
 	if (sas_protocol_ata(task->task_proto))
 		num_sg = task->num_scatter;
 	else
+<<<<<<< HEAD
 		num_sg = pci_map_sg(asd_ha->pcidev, task->scatter,
+=======
+		num_sg = dma_map_sg(&asd_ha->pcidev->dev, task->scatter,
+>>>>>>> upstream/android-13
 				    task->num_scatter, task->data_dir);
 	if (num_sg == 0)
 		return -ENOMEM;
@@ -126,8 +155,13 @@ static int asd_map_scatterlist(struct sas_task *task,
 	return 0;
 err_unmap:
 	if (sas_protocol_ata(task->task_proto))
+<<<<<<< HEAD
 		pci_unmap_sg(asd_ha->pcidev, task->scatter, task->num_scatter,
 			     task->data_dir);
+=======
+		dma_unmap_sg(&asd_ha->pcidev->dev, task->scatter,
+			     task->num_scatter, task->data_dir);
+>>>>>>> upstream/android-13
 	return res;
 }
 
@@ -136,21 +170,35 @@ static void asd_unmap_scatterlist(struct asd_ascb *ascb)
 	struct asd_ha_struct *asd_ha = ascb->ha;
 	struct sas_task *task = ascb->uldd_task;
 
+<<<<<<< HEAD
 	if (task->data_dir == PCI_DMA_NONE)
+=======
+	if (task->data_dir == DMA_NONE)
+>>>>>>> upstream/android-13
 		return;
 
 	if (task->num_scatter == 0) {
 		dma_addr_t dma = (dma_addr_t)
 		       le64_to_cpu(ascb->scb->ssp_task.sg_element[0].bus_addr);
+<<<<<<< HEAD
 		pci_unmap_single(ascb->ha->pcidev, dma, task->total_xfer_len,
 				 task->data_dir);
+=======
+		dma_unmap_single(&ascb->ha->pcidev->dev, dma,
+				 task->total_xfer_len, task->data_dir);
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	asd_free_coherent(asd_ha, ascb->sg_arr);
 	if (task->task_proto != SAS_PROTOCOL_STP)
+<<<<<<< HEAD
 		pci_unmap_sg(asd_ha->pcidev, task->scatter, task->num_scatter,
 			     task->data_dir);
+=======
+		dma_unmap_sg(&asd_ha->pcidev->dev, task->scatter,
+			     task->num_scatter, task->data_dir);
+>>>>>>> upstream/android-13
 }
 
 /* ---------- Task complete tasklet ---------- */
@@ -223,7 +271,11 @@ Again:
 	switch (opcode) {
 	case TC_NO_ERROR:
 		ts->resp = SAS_TASK_COMPLETE;
+<<<<<<< HEAD
 		ts->stat = SAM_STAT_GOOD;
+=======
+		ts->stat = SAS_SAM_STAT_GOOD;
+>>>>>>> upstream/android-13
 		break;
 	case TC_UNDERRUN:
 		ts->resp = SAS_TASK_COMPLETE;
@@ -287,7 +339,10 @@ Again:
 	case TA_I_T_NEXUS_LOSS:
 		opcode = dl->status_block[0];
 		goto Again;
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 	case TF_INV_CONN_HANDLE:
 		ts->resp = SAS_TASK_UNDELIVERED;
 		ts->stat = SAS_DEVICE_UNKNOWN;
@@ -334,6 +389,10 @@ Again:
 		break;
 	case SAS_PROTOCOL_SSP:
 		asd_unbuild_ssp_ascb(ascb);
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
@@ -436,10 +495,17 @@ static int asd_build_smp_ascb(struct asd_ascb *ascb, struct sas_task *task,
 	struct domain_device *dev = task->dev;
 	struct scb *scb;
 
+<<<<<<< HEAD
 	pci_map_sg(asd_ha->pcidev, &task->smp_task.smp_req, 1,
 		   PCI_DMA_TODEVICE);
 	pci_map_sg(asd_ha->pcidev, &task->smp_task.smp_resp, 1,
 		   PCI_DMA_FROMDEVICE);
+=======
+	dma_map_sg(&asd_ha->pcidev->dev, &task->smp_task.smp_req, 1,
+		   DMA_TO_DEVICE);
+	dma_map_sg(&asd_ha->pcidev->dev, &task->smp_task.smp_resp, 1,
+		   DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 
 	scb = ascb->scb;
 
@@ -471,10 +537,17 @@ static void asd_unbuild_smp_ascb(struct asd_ascb *a)
 	struct sas_task *task = a->uldd_task;
 
 	BUG_ON(!task);
+<<<<<<< HEAD
 	pci_unmap_sg(a->ha->pcidev, &task->smp_task.smp_req, 1,
 		     PCI_DMA_TODEVICE);
 	pci_unmap_sg(a->ha->pcidev, &task->smp_task.smp_resp, 1,
 		     PCI_DMA_FROMDEVICE);
+=======
+	dma_unmap_sg(&a->ha->pcidev->dev, &task->smp_task.smp_req, 1,
+		     DMA_TO_DEVICE);
+	dma_unmap_sg(&a->ha->pcidev->dev, &task->smp_task.smp_resp, 1,
+		     DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 }
 
 /* ---------- SSP ---------- */
@@ -628,6 +701,10 @@ out_err_unmap:
 				break;
 			case SAS_PROTOCOL_SSP:
 				asd_unbuild_ssp_ascb(a);
+<<<<<<< HEAD
+=======
+				break;
+>>>>>>> upstream/android-13
 			default:
 				break;
 			}

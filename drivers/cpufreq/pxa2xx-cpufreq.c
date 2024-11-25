@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 2002,2003 Intrinsyc Software
  *
@@ -15,6 +16,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Copyright (C) 2002,2003 Intrinsyc Software
+ *
+>>>>>>> upstream/android-13
  * History:
  *   31-Jul-2002 : Initial version [FB]
  *   29-Jan-2003 : added PXA255 support [FB]
@@ -26,7 +33,10 @@
  *   memory connected to CS0, you will need to register a platform specific
  *   notifier which will adjust the memory access strobes to maintain a
  *   minimum strobe width.
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2008  by Karsten Keil <kkeil@novell.com>
  *
@@ -10,6 +11,11 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2008  by Karsten Keil <kkeil@novell.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -390,7 +396,11 @@ mISDNInit(void)
 	err = mISDN_inittimer(&debug);
 	if (err)
 		goto error2;
+<<<<<<< HEAD
 	err = l1_init(&debug);
+=======
+	err = Isdnl1_Init(&debug);
+>>>>>>> upstream/android-13
 	if (err)
 		goto error3;
 	err = Isdnl2_Init(&debug);
@@ -404,7 +414,11 @@ mISDNInit(void)
 error5:
 	Isdnl2_cleanup();
 error4:
+<<<<<<< HEAD
 	l1_cleanup();
+=======
+	Isdnl1_cleanup();
+>>>>>>> upstream/android-13
 error3:
 	mISDN_timer_cleanup();
 error2:
@@ -417,7 +431,11 @@ static void mISDN_cleanup(void)
 {
 	misdn_sock_cleanup();
 	Isdnl2_cleanup();
+<<<<<<< HEAD
 	l1_cleanup();
+=======
+	Isdnl1_cleanup();
+>>>>>>> upstream/android-13
 	mISDN_timer_cleanup();
 	class_unregister(&mISDN_class);
 

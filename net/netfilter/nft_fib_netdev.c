@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2017 Pablo M. Bermudo Garay <pablombg@gmail.com>
  *
@@ -5,6 +6,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2017 Pablo M. Bermudo Garay <pablombg@gmail.com>
+ *
+>>>>>>> upstream/android-13
  * This code is based on net/netfilter/nft_fib_inet.c, written by
  * Florian Westphal <fw@strlen.de>.
  */
@@ -17,6 +24,10 @@
 #include <linux/netfilter/nf_tables.h>
 #include <net/netfilter/nf_tables_core.h>
 #include <net/netfilter/nf_tables.h>
+<<<<<<< HEAD
+=======
+#include <net/ipv6.h>
+>>>>>>> upstream/android-13
 
 #include <net/netfilter/nft_fib.h>
 
@@ -37,6 +48,11 @@ static void nft_fib_netdev_eval(const struct nft_expr *expr,
 		}
 		break;
 	case ETH_P_IPV6:
+<<<<<<< HEAD
+=======
+		if (!ipv6_mod_enabled())
+			break;
+>>>>>>> upstream/android-13
 		switch (priv->result) {
 		case NFT_FIB_RESULT_OIF:
 		case NFT_FIB_RESULT_OIFNAME:
@@ -85,3 +101,7 @@ module_exit(nft_fib_netdev_module_exit);
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Pablo M. Bermudo Garay <pablombg@gmail.com>");
 MODULE_ALIAS_NFT_AF_EXPR(5, "fib");
+<<<<<<< HEAD
+=======
+MODULE_DESCRIPTION("nftables netdev fib lookups support");
+>>>>>>> upstream/android-13

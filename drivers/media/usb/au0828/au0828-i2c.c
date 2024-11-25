@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Driver for the Auvitek AU0828 USB bridge
  *
  *  Copyright (c) 2008 Steven Toth <stoth@linuxtv.org>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "au0828.h"
@@ -378,7 +385,11 @@ int au0828_i2c_register(struct au0828_dev *dev)
 
 	dev->i2c_adap.dev.parent = &dev->usbdev->dev;
 
+<<<<<<< HEAD
 	strlcpy(dev->i2c_adap.name, KBUILD_MODNAME,
+=======
+	strscpy(dev->i2c_adap.name, KBUILD_MODNAME,
+>>>>>>> upstream/android-13
 		sizeof(dev->i2c_adap.name));
 
 	dev->i2c_adap.algo = &dev->i2c_algo;

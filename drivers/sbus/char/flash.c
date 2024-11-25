@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* flash.c: Allow mmap access to the OBP Flash, for OBP updates.
  *
  * Copyright (C) 1997  Eddie C. Dost  (ecd@skynet.be)
@@ -16,7 +20,10 @@
 #include <linux/of_device.h>
 
 #include <linux/uaccess.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/io.h>
 #include <asm/upa.h>
 
@@ -30,8 +37,11 @@ static struct {
 	unsigned long busy;		/* In use? */
 } flash;
 
+<<<<<<< HEAD
 #define FLASH_MINOR	152
 
+=======
+>>>>>>> upstream/android-13
 static int
 flash_mmap(struct file *file, struct vm_area_struct *vma)
 {
@@ -156,7 +166,11 @@ static const struct file_operations flash_fops = {
 	.release =	flash_release,
 };
 
+<<<<<<< HEAD
 static struct miscdevice flash_dev = { FLASH_MINOR, "flash", &flash_fops };
+=======
+static struct miscdevice flash_dev = { SBUS_FLASH_MINOR, "flash", &flash_fops };
+>>>>>>> upstream/android-13
 
 static int flash_probe(struct platform_device *op)
 {
@@ -165,9 +179,15 @@ static int flash_probe(struct platform_device *op)
 
 	parent = dp->parent;
 
+<<<<<<< HEAD
 	if (strcmp(parent->name, "sbus") &&
 	    strcmp(parent->name, "sbi") &&
 	    strcmp(parent->name, "ebus"))
+=======
+	if (!of_node_name_eq(parent, "sbus") &&
+	    !of_node_name_eq(parent, "sbi") &&
+	    !of_node_name_eq(parent, "ebus"))
+>>>>>>> upstream/android-13
 		return -ENODEV;
 
 	flash.read_base = op->resource[0].start;

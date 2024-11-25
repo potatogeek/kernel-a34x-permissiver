@@ -513,7 +513,11 @@ void xlgmac_get_all_hw_features(struct xlgmac_pdata *pdata)
 
 void xlgmac_print_all_hw_features(struct xlgmac_pdata *pdata)
 {
+<<<<<<< HEAD
 	char *str = NULL;
+=======
+	char __maybe_unused *str = NULL;
+>>>>>>> upstream/android-13
 
 	XLGMAC_PR("\n");
 	XLGMAC_PR("=====================================================\n");

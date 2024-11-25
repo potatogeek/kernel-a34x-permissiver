@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Copyright 2017 ATMEL
  * Copyright 2017 Free Electrons
@@ -29,10 +33,13 @@
  *   Add Nand Flash Controller support for SAMA5 SoC
  *	Copyright 2013 ATMEL, Josh Wu (josh.wu@atmel.com)
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * A few words about the naming convention in this file. This convention
  * applies to structure and function names.
  *
@@ -65,6 +72,10 @@
 #include <linux/iopoll.h>
 #include <linux/platform_device.h>
 #include <linux/regmap.h>
+<<<<<<< HEAD
+=======
+#include <soc/at91/atmel-sfr.h>
+>>>>>>> upstream/android-13
 
 #include "pmecc.h"
 
@@ -202,8 +213,15 @@ struct atmel_nand_controller_ops {
 	void (*nand_init)(struct atmel_nand_controller *nc,
 			  struct atmel_nand *nand);
 	int (*ecc_init)(struct nand_chip *chip);
+<<<<<<< HEAD
 	int (*setup_data_interface)(struct atmel_nand *nand, int csline,
 				    const struct nand_data_interface *conf);
+=======
+	int (*setup_interface)(struct atmel_nand *nand, int csline,
+			       const struct nand_interface_config *conf);
+	int (*exec_op)(struct atmel_nand *nand,
+		       const struct nand_operation *op, bool check_only);
+>>>>>>> upstream/android-13
 };
 
 struct atmel_nand_controller_caps {
@@ -211,6 +229,10 @@ struct atmel_nand_controller_caps {
 	bool legacy_of_bindings;
 	u32 ale_offs;
 	u32 cle_offs;
+<<<<<<< HEAD
+=======
+	const char *ebi_csa_regmap_name;
+>>>>>>> upstream/android-13
 	const struct atmel_nand_controller_ops *ops;
 };
 
@@ -231,10 +253,22 @@ to_nand_controller(struct nand_controller *ctl)
 	return container_of(ctl, struct atmel_nand_controller, base);
 }
 
+<<<<<<< HEAD
 struct atmel_smc_nand_controller {
 	struct atmel_nand_controller base;
 	struct regmap *matrix;
 	unsigned int ebi_csa_offs;
+=======
+struct atmel_smc_nand_ebi_csa_cfg {
+	u32 offs;
+	u32 nfd0_on_d16;
+};
+
+struct atmel_smc_nand_controller {
+	struct atmel_nand_controller base;
+	struct regmap *ebi_csa_regmap;
+	struct atmel_smc_nand_ebi_csa_cfg *ebi_csa;
+>>>>>>> upstream/android-13
 };
 
 static inline struct atmel_smc_nand_controller *
@@ -255,6 +289,10 @@ struct atmel_hsmc_nand_controller {
 	struct regmap *io;
 	struct atmel_nfc_op op;
 	struct completion complete;
+<<<<<<< HEAD
+=======
+	u32 cfg;
+>>>>>>> upstream/android-13
 	int irq;
 
 	/* Only used when instantiating from legacy DT bindings. */
@@ -410,6 +448,7 @@ err:
 	return -EIO;
 }
 
+<<<<<<< HEAD
 static u8 atmel_nand_read_byte(struct mtd_info *mtd)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
@@ -557,6 +596,8 @@ static void atmel_hsmc_nand_select_chip(struct mtd_info *mtd, int cs)
 		     ATMEL_HSMC_NFC_CTRL_EN);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int atmel_nfc_exec_op(struct atmel_hsmc_nand_controller *nc, bool poll)
 {
 	u8 *addrs = nc->op.addrs;
@@ -607,6 +648,7 @@ static int atmel_nfc_exec_op(struct atmel_hsmc_nand_controller *nc, bool poll)
 	return ret;
 }
 
+<<<<<<< HEAD
 static void atmel_hsmc_nand_cmd_ctrl(struct mtd_info *mtd, int dat,
 				     unsigned int ctrl)
 {
@@ -654,6 +696,252 @@ static void atmel_nand_cmd_ctrl(struct mtd_info *mtd, int cmd,
 		writeb(cmd, nand->activecs->io.virt + nc->caps->ale_offs);
 	else if (ctrl & NAND_CLE)
 		writeb(cmd, nand->activecs->io.virt + nc->caps->cle_offs);
+=======
+static void atmel_nand_data_in(struct atmel_nand *nand, void *buf,
+			       unsigned int len, bool force_8bit)
+{
+	struct atmel_nand_controller *nc;
+
+	nc = to_nand_controller(nand->base.controller);
+
+	/*
+	 * If the controller supports DMA, the buffer address is DMA-able and
+	 * len is long enough to make DMA transfers profitable, let's trigger
+	 * a DMA transfer. If it fails, fallback to PIO mode.
+	 */
+	if (nc->dmac && virt_addr_valid(buf) &&
+	    len >= MIN_DMA_LEN && !force_8bit &&
+	    !atmel_nand_dma_transfer(nc, buf, nand->activecs->io.dma, len,
+				     DMA_FROM_DEVICE))
+		return;
+
+	if ((nand->base.options & NAND_BUSWIDTH_16) && !force_8bit)
+		ioread16_rep(nand->activecs->io.virt, buf, len / 2);
+	else
+		ioread8_rep(nand->activecs->io.virt, buf, len);
+}
+
+static void atmel_nand_data_out(struct atmel_nand *nand, const void *buf,
+				unsigned int len, bool force_8bit)
+{
+	struct atmel_nand_controller *nc;
+
+	nc = to_nand_controller(nand->base.controller);
+
+	/*
+	 * If the controller supports DMA, the buffer address is DMA-able and
+	 * len is long enough to make DMA transfers profitable, let's trigger
+	 * a DMA transfer. If it fails, fallback to PIO mode.
+	 */
+	if (nc->dmac && virt_addr_valid(buf) &&
+	    len >= MIN_DMA_LEN && !force_8bit &&
+	    !atmel_nand_dma_transfer(nc, (void *)buf, nand->activecs->io.dma,
+				     len, DMA_TO_DEVICE))
+		return;
+
+	if ((nand->base.options & NAND_BUSWIDTH_16) && !force_8bit)
+		iowrite16_rep(nand->activecs->io.virt, buf, len / 2);
+	else
+		iowrite8_rep(nand->activecs->io.virt, buf, len);
+}
+
+static int atmel_nand_waitrdy(struct atmel_nand *nand, unsigned int timeout_ms)
+{
+	if (nand->activecs->rb.type == ATMEL_NAND_NO_RB)
+		return nand_soft_waitrdy(&nand->base, timeout_ms);
+
+	return nand_gpio_waitrdy(&nand->base, nand->activecs->rb.gpio,
+				 timeout_ms);
+}
+
+static int atmel_hsmc_nand_waitrdy(struct atmel_nand *nand,
+				   unsigned int timeout_ms)
+{
+	struct atmel_hsmc_nand_controller *nc;
+	u32 status, mask;
+
+	if (nand->activecs->rb.type != ATMEL_NAND_NATIVE_RB)
+		return atmel_nand_waitrdy(nand, timeout_ms);
+
+	nc = to_hsmc_nand_controller(nand->base.controller);
+	mask = ATMEL_HSMC_NFC_SR_RBEDGE(nand->activecs->rb.id);
+	return regmap_read_poll_timeout_atomic(nc->base.smc, ATMEL_HSMC_NFC_SR,
+					       status, status & mask,
+					       10, timeout_ms * 1000);
+}
+
+static void atmel_nand_select_target(struct atmel_nand *nand,
+				     unsigned int cs)
+{
+	nand->activecs = &nand->cs[cs];
+}
+
+static void atmel_hsmc_nand_select_target(struct atmel_nand *nand,
+					  unsigned int cs)
+{
+	struct mtd_info *mtd = nand_to_mtd(&nand->base);
+	struct atmel_hsmc_nand_controller *nc;
+	u32 cfg = ATMEL_HSMC_NFC_CFG_PAGESIZE(mtd->writesize) |
+		  ATMEL_HSMC_NFC_CFG_SPARESIZE(mtd->oobsize) |
+		  ATMEL_HSMC_NFC_CFG_RSPARE;
+
+	nand->activecs = &nand->cs[cs];
+	nc = to_hsmc_nand_controller(nand->base.controller);
+	if (nc->cfg == cfg)
+		return;
+
+	regmap_update_bits(nc->base.smc, ATMEL_HSMC_NFC_CFG,
+			   ATMEL_HSMC_NFC_CFG_PAGESIZE_MASK |
+			   ATMEL_HSMC_NFC_CFG_SPARESIZE_MASK |
+			   ATMEL_HSMC_NFC_CFG_RSPARE |
+			   ATMEL_HSMC_NFC_CFG_WSPARE,
+			   cfg);
+	nc->cfg = cfg;
+}
+
+static int atmel_smc_nand_exec_instr(struct atmel_nand *nand,
+				     const struct nand_op_instr *instr)
+{
+	struct atmel_nand_controller *nc;
+	unsigned int i;
+
+	nc = to_nand_controller(nand->base.controller);
+	switch (instr->type) {
+	case NAND_OP_CMD_INSTR:
+		writeb(instr->ctx.cmd.opcode,
+		       nand->activecs->io.virt + nc->caps->cle_offs);
+		return 0;
+	case NAND_OP_ADDR_INSTR:
+		for (i = 0; i < instr->ctx.addr.naddrs; i++)
+			writeb(instr->ctx.addr.addrs[i],
+			       nand->activecs->io.virt + nc->caps->ale_offs);
+		return 0;
+	case NAND_OP_DATA_IN_INSTR:
+		atmel_nand_data_in(nand, instr->ctx.data.buf.in,
+				   instr->ctx.data.len,
+				   instr->ctx.data.force_8bit);
+		return 0;
+	case NAND_OP_DATA_OUT_INSTR:
+		atmel_nand_data_out(nand, instr->ctx.data.buf.out,
+				    instr->ctx.data.len,
+				    instr->ctx.data.force_8bit);
+		return 0;
+	case NAND_OP_WAITRDY_INSTR:
+		return atmel_nand_waitrdy(nand,
+					  instr->ctx.waitrdy.timeout_ms);
+	default:
+		break;
+	}
+
+	return -EINVAL;
+}
+
+static int atmel_smc_nand_exec_op(struct atmel_nand *nand,
+				  const struct nand_operation *op,
+				  bool check_only)
+{
+	unsigned int i;
+	int ret = 0;
+
+	if (check_only)
+		return 0;
+
+	atmel_nand_select_target(nand, op->cs);
+	gpiod_set_value(nand->activecs->csgpio, 0);
+	for (i = 0; i < op->ninstrs; i++) {
+		ret = atmel_smc_nand_exec_instr(nand, &op->instrs[i]);
+		if (ret)
+			break;
+	}
+	gpiod_set_value(nand->activecs->csgpio, 1);
+
+	return ret;
+}
+
+static int atmel_hsmc_exec_cmd_addr(struct nand_chip *chip,
+				    const struct nand_subop *subop)
+{
+	struct atmel_nand *nand = to_atmel_nand(chip);
+	struct atmel_hsmc_nand_controller *nc;
+	unsigned int i, j;
+
+	nc = to_hsmc_nand_controller(chip->controller);
+
+	nc->op.cs = nand->activecs->id;
+	for (i = 0; i < subop->ninstrs; i++) {
+		const struct nand_op_instr *instr = &subop->instrs[i];
+
+		if (instr->type == NAND_OP_CMD_INSTR) {
+			nc->op.cmds[nc->op.ncmds++] = instr->ctx.cmd.opcode;
+			continue;
+		}
+
+		for (j = nand_subop_get_addr_start_off(subop, i);
+		     j < nand_subop_get_num_addr_cyc(subop, i); j++) {
+			nc->op.addrs[nc->op.naddrs] = instr->ctx.addr.addrs[j];
+			nc->op.naddrs++;
+		}
+	}
+
+	return atmel_nfc_exec_op(nc, true);
+}
+
+static int atmel_hsmc_exec_rw(struct nand_chip *chip,
+			      const struct nand_subop *subop)
+{
+	const struct nand_op_instr *instr = subop->instrs;
+	struct atmel_nand *nand = to_atmel_nand(chip);
+
+	if (instr->type == NAND_OP_DATA_IN_INSTR)
+		atmel_nand_data_in(nand, instr->ctx.data.buf.in,
+				   instr->ctx.data.len,
+				   instr->ctx.data.force_8bit);
+	else
+		atmel_nand_data_out(nand, instr->ctx.data.buf.out,
+				    instr->ctx.data.len,
+				    instr->ctx.data.force_8bit);
+
+	return 0;
+}
+
+static int atmel_hsmc_exec_waitrdy(struct nand_chip *chip,
+				   const struct nand_subop *subop)
+{
+	const struct nand_op_instr *instr = subop->instrs;
+	struct atmel_nand *nand = to_atmel_nand(chip);
+
+	return atmel_hsmc_nand_waitrdy(nand, instr->ctx.waitrdy.timeout_ms);
+}
+
+static const struct nand_op_parser atmel_hsmc_op_parser = NAND_OP_PARSER(
+	NAND_OP_PARSER_PATTERN(atmel_hsmc_exec_cmd_addr,
+		NAND_OP_PARSER_PAT_CMD_ELEM(true),
+		NAND_OP_PARSER_PAT_ADDR_ELEM(true, 5),
+		NAND_OP_PARSER_PAT_CMD_ELEM(true)),
+	NAND_OP_PARSER_PATTERN(atmel_hsmc_exec_rw,
+		NAND_OP_PARSER_PAT_DATA_IN_ELEM(false, 0)),
+	NAND_OP_PARSER_PATTERN(atmel_hsmc_exec_rw,
+		NAND_OP_PARSER_PAT_DATA_OUT_ELEM(false, 0)),
+	NAND_OP_PARSER_PATTERN(atmel_hsmc_exec_waitrdy,
+		NAND_OP_PARSER_PAT_WAITRDY_ELEM(false)),
+);
+
+static int atmel_hsmc_nand_exec_op(struct atmel_nand *nand,
+				   const struct nand_operation *op,
+				   bool check_only)
+{
+	int ret;
+
+	if (check_only)
+		return nand_op_parser_exec_op(&nand->base,
+					      &atmel_hsmc_op_parser, op, true);
+
+	atmel_hsmc_nand_select_target(nand, op->cs);
+	ret = nand_op_parser_exec_op(&nand->base, &atmel_hsmc_op_parser, op,
+				     false);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void atmel_nfc_copy_to_sram(struct nand_chip *chip, const u8 *buf,
@@ -853,7 +1141,11 @@ static int atmel_nand_pmecc_write_pg(struct nand_chip *chip, const u8 *buf,
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	atmel_nand_write_buf(mtd, buf, mtd->writesize);
+=======
+	nand_write_data_op(chip, buf, mtd->writesize, false);
+>>>>>>> upstream/android-13
 
 	ret = atmel_nand_pmecc_generate_eccbytes(chip, raw);
 	if (ret) {
@@ -863,20 +1155,32 @@ static int atmel_nand_pmecc_write_pg(struct nand_chip *chip, const u8 *buf,
 
 	atmel_nand_pmecc_disable(chip, raw);
 
+<<<<<<< HEAD
 	atmel_nand_write_buf(mtd, chip->oob_poi, mtd->oobsize);
+=======
+	nand_write_data_op(chip, chip->oob_poi, mtd->oobsize, false);
+>>>>>>> upstream/android-13
 
 	return nand_prog_page_end_op(chip);
 }
 
+<<<<<<< HEAD
 static int atmel_nand_pmecc_write_page(struct mtd_info *mtd,
 				       struct nand_chip *chip, const u8 *buf,
+=======
+static int atmel_nand_pmecc_write_page(struct nand_chip *chip, const u8 *buf,
+>>>>>>> upstream/android-13
 				       int oob_required, int page)
 {
 	return atmel_nand_pmecc_write_pg(chip, buf, oob_required, page, false);
 }
 
+<<<<<<< HEAD
 static int atmel_nand_pmecc_write_page_raw(struct mtd_info *mtd,
 					   struct nand_chip *chip,
+=======
+static int atmel_nand_pmecc_write_page_raw(struct nand_chip *chip,
+>>>>>>> upstream/android-13
 					   const u8 *buf, int oob_required,
 					   int page)
 {
@@ -895,25 +1199,47 @@ static int atmel_nand_pmecc_read_pg(struct nand_chip *chip, u8 *buf,
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	atmel_nand_read_buf(mtd, buf, mtd->writesize);
 	atmel_nand_read_buf(mtd, chip->oob_poi, mtd->oobsize);
 
 	ret = atmel_nand_pmecc_correct_data(chip, buf, raw);
 
+=======
+	ret = nand_read_data_op(chip, buf, mtd->writesize, false, false);
+	if (ret)
+		goto out_disable;
+
+	ret = nand_read_data_op(chip, chip->oob_poi, mtd->oobsize, false, false);
+	if (ret)
+		goto out_disable;
+
+	ret = atmel_nand_pmecc_correct_data(chip, buf, raw);
+
+out_disable:
+>>>>>>> upstream/android-13
 	atmel_nand_pmecc_disable(chip, raw);
 
 	return ret;
 }
 
+<<<<<<< HEAD
 static int atmel_nand_pmecc_read_page(struct mtd_info *mtd,
 				      struct nand_chip *chip, u8 *buf,
+=======
+static int atmel_nand_pmecc_read_page(struct nand_chip *chip, u8 *buf,
+>>>>>>> upstream/android-13
 				      int oob_required, int page)
 {
 	return atmel_nand_pmecc_read_pg(chip, buf, oob_required, page, false);
 }
 
+<<<<<<< HEAD
 static int atmel_nand_pmecc_read_page_raw(struct mtd_info *mtd,
 					  struct nand_chip *chip, u8 *buf,
+=======
+static int atmel_nand_pmecc_read_page_raw(struct nand_chip *chip, u8 *buf,
+>>>>>>> upstream/android-13
 					  int oob_required, int page)
 {
 	return atmel_nand_pmecc_read_pg(chip, buf, oob_required, page, true);
@@ -926,8 +1252,14 @@ static int atmel_hsmc_nand_pmecc_write_pg(struct nand_chip *chip,
 	struct mtd_info *mtd = nand_to_mtd(chip);
 	struct atmel_nand *nand = to_atmel_nand(chip);
 	struct atmel_hsmc_nand_controller *nc;
+<<<<<<< HEAD
 	int ret, status;
 
+=======
+	int ret;
+
+	atmel_hsmc_nand_select_target(nand, chip->cur_cs);
+>>>>>>> upstream/android-13
 	nc = to_hsmc_nand_controller(chip->controller);
 
 	atmel_nfc_copy_to_sram(chip, buf, false);
@@ -958,6 +1290,7 @@ static int atmel_hsmc_nand_pmecc_write_pg(struct nand_chip *chip,
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	atmel_nand_write_buf(mtd, chip->oob_poi, mtd->oobsize);
 
 	nc->op.cmds[0] = NAND_CMD_PAGEPROG;
@@ -977,6 +1310,14 @@ static int atmel_hsmc_nand_pmecc_write_pg(struct nand_chip *chip,
 
 static int atmel_hsmc_nand_pmecc_write_page(struct mtd_info *mtd,
 					    struct nand_chip *chip,
+=======
+	nand_write_data_op(chip, chip->oob_poi, mtd->oobsize, false);
+
+	return nand_prog_page_end_op(chip);
+}
+
+static int atmel_hsmc_nand_pmecc_write_page(struct nand_chip *chip,
+>>>>>>> upstream/android-13
 					    const u8 *buf, int oob_required,
 					    int page)
 {
@@ -984,8 +1325,12 @@ static int atmel_hsmc_nand_pmecc_write_page(struct mtd_info *mtd,
 					      false);
 }
 
+<<<<<<< HEAD
 static int atmel_hsmc_nand_pmecc_write_page_raw(struct mtd_info *mtd,
 						struct nand_chip *chip,
+=======
+static int atmel_hsmc_nand_pmecc_write_page_raw(struct nand_chip *chip,
+>>>>>>> upstream/android-13
 						const u8 *buf,
 						int oob_required, int page)
 {
@@ -1002,6 +1347,10 @@ static int atmel_hsmc_nand_pmecc_read_pg(struct nand_chip *chip, u8 *buf,
 	struct atmel_hsmc_nand_controller *nc;
 	int ret;
 
+<<<<<<< HEAD
+=======
+	atmel_hsmc_nand_select_target(nand, chip->cur_cs);
+>>>>>>> upstream/android-13
 	nc = to_hsmc_nand_controller(chip->controller);
 
 	/*
@@ -1009,12 +1358,18 @@ static int atmel_hsmc_nand_pmecc_read_pg(struct nand_chip *chip, u8 *buf,
 	 * connected to a native SoC R/B pin. If that's not the case, fallback
 	 * to the non-optimized one.
 	 */
+<<<<<<< HEAD
 	if (nand->activecs->rb.type != ATMEL_NAND_NATIVE_RB) {
 		nand_read_page_op(chip, page, 0, NULL, 0);
 
 		return atmel_nand_pmecc_read_pg(chip, buf, oob_required, page,
 						raw);
 	}
+=======
+	if (nand->activecs->rb.type != ATMEL_NAND_NATIVE_RB)
+		return atmel_nand_pmecc_read_pg(chip, buf, oob_required, page,
+						raw);
+>>>>>>> upstream/android-13
 
 	nc->op.cmds[nc->op.ncmds++] = NAND_CMD_READ0;
 
@@ -1047,16 +1402,24 @@ static int atmel_hsmc_nand_pmecc_read_pg(struct nand_chip *chip, u8 *buf,
 	return ret;
 }
 
+<<<<<<< HEAD
 static int atmel_hsmc_nand_pmecc_read_page(struct mtd_info *mtd,
 					   struct nand_chip *chip, u8 *buf,
+=======
+static int atmel_hsmc_nand_pmecc_read_page(struct nand_chip *chip, u8 *buf,
+>>>>>>> upstream/android-13
 					   int oob_required, int page)
 {
 	return atmel_hsmc_nand_pmecc_read_pg(chip, buf, oob_required, page,
 					     false);
 }
 
+<<<<<<< HEAD
 static int atmel_hsmc_nand_pmecc_read_page_raw(struct mtd_info *mtd,
 					       struct nand_chip *chip,
+=======
+static int atmel_hsmc_nand_pmecc_read_page_raw(struct nand_chip *chip,
+>>>>>>> upstream/android-13
 					       u8 *buf, int oob_required,
 					       int page)
 {
@@ -1066,7 +1429,14 @@ static int atmel_hsmc_nand_pmecc_read_page_raw(struct mtd_info *mtd,
 
 static int atmel_nand_pmecc_init(struct nand_chip *chip)
 {
+<<<<<<< HEAD
 	struct mtd_info *mtd = nand_to_mtd(chip);
+=======
+	const struct nand_ecc_props *requirements =
+		nanddev_get_ecc_requirements(&chip->base);
+	struct mtd_info *mtd = nand_to_mtd(chip);
+	struct nand_device *nanddev = mtd_to_nanddev(mtd);
+>>>>>>> upstream/android-13
 	struct atmel_nand *nand = to_atmel_nand(chip);
 	struct atmel_nand_controller *nc;
 	struct atmel_pmecc_user_req req;
@@ -1091,19 +1461,33 @@ static int atmel_nand_pmecc_init(struct nand_chip *chip)
 			chip->ecc.size = val;
 	}
 
+<<<<<<< HEAD
 	if (chip->ecc.options & NAND_ECC_MAXIMIZE)
 		req.ecc.strength = ATMEL_PMECC_MAXIMIZE_ECC_STRENGTH;
 	else if (chip->ecc.strength)
 		req.ecc.strength = chip->ecc.strength;
 	else if (chip->ecc_strength_ds)
 		req.ecc.strength = chip->ecc_strength_ds;
+=======
+	if (nanddev->ecc.user_conf.flags & NAND_ECC_MAXIMIZE_STRENGTH)
+		req.ecc.strength = ATMEL_PMECC_MAXIMIZE_ECC_STRENGTH;
+	else if (chip->ecc.strength)
+		req.ecc.strength = chip->ecc.strength;
+	else if (requirements->strength)
+		req.ecc.strength = requirements->strength;
+>>>>>>> upstream/android-13
 	else
 		req.ecc.strength = ATMEL_PMECC_MAXIMIZE_ECC_STRENGTH;
 
 	if (chip->ecc.size)
 		req.ecc.sectorsize = chip->ecc.size;
+<<<<<<< HEAD
 	else if (chip->ecc_step_ds)
 		req.ecc.sectorsize = chip->ecc_step_ds;
+=======
+	else if (requirements->step_size)
+		req.ecc.sectorsize = requirements->step_size;
+>>>>>>> upstream/android-13
 	else
 		req.ecc.sectorsize = ATMEL_PMECC_SECTOR_SIZE_AUTO;
 
@@ -1122,14 +1506,22 @@ static int atmel_nand_pmecc_init(struct nand_chip *chip)
 	if (IS_ERR(nand->pmecc))
 		return PTR_ERR(nand->pmecc);
 
+<<<<<<< HEAD
 	chip->ecc.algo = NAND_ECC_BCH;
+=======
+	chip->ecc.algo = NAND_ECC_ALGO_BCH;
+>>>>>>> upstream/android-13
 	chip->ecc.size = req.ecc.sectorsize;
 	chip->ecc.bytes = req.ecc.bytes / req.ecc.nsectors;
 	chip->ecc.strength = req.ecc.strength;
 
 	chip->options |= NAND_NO_SUBPAGE_WRITE;
 
+<<<<<<< HEAD
 	mtd_set_ooblayout(mtd, &nand_ooblayout_lp_ops);
+=======
+	mtd_set_ooblayout(mtd, nand_get_large_page_ooblayout());
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1141,15 +1533,25 @@ static int atmel_nand_ecc_init(struct nand_chip *chip)
 
 	nc = to_nand_controller(chip->controller);
 
+<<<<<<< HEAD
 	switch (chip->ecc.mode) {
 	case NAND_ECC_NONE:
 	case NAND_ECC_SOFT:
+=======
+	switch (chip->ecc.engine_type) {
+	case NAND_ECC_ENGINE_TYPE_NONE:
+	case NAND_ECC_ENGINE_TYPE_SOFT:
+>>>>>>> upstream/android-13
 		/*
 		 * Nothing to do, the core will initialize everything for us.
 		 */
 		break;
 
+<<<<<<< HEAD
 	case NAND_ECC_HW:
+=======
+	case NAND_ECC_ENGINE_TYPE_ON_HOST:
+>>>>>>> upstream/android-13
 		ret = atmel_nand_pmecc_init(chip);
 		if (ret)
 			return ret;
@@ -1163,7 +1565,11 @@ static int atmel_nand_ecc_init(struct nand_chip *chip)
 	default:
 		/* Other modes are not supported. */
 		dev_err(nc->dev, "Unsupported ECC mode: %d\n",
+<<<<<<< HEAD
 			chip->ecc.mode);
+=======
+			chip->ecc.engine_type);
+>>>>>>> upstream/android-13
 		return -ENOTSUPP;
 	}
 
@@ -1178,7 +1584,11 @@ static int atmel_hsmc_nand_ecc_init(struct nand_chip *chip)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	if (chip->ecc.mode != NAND_ECC_HW)
+=======
+	if (chip->ecc.engine_type != NAND_ECC_ENGINE_TYPE_ON_HOST)
+>>>>>>> upstream/android-13
 		return 0;
 
 	/* Adjust the ECC operations for the HSMC IP. */
@@ -1191,7 +1601,11 @@ static int atmel_hsmc_nand_ecc_init(struct nand_chip *chip)
 }
 
 static int atmel_smc_nand_prepare_smcconf(struct atmel_nand *nand,
+<<<<<<< HEAD
 					const struct nand_data_interface *conf,
+=======
+					const struct nand_interface_config *conf,
+>>>>>>> upstream/android-13
 					struct atmel_smc_cs_conf *smcconf)
 {
 	u32 ncycles, totalcycles, timeps, mckperiodps;
@@ -1201,7 +1615,11 @@ static int atmel_smc_nand_prepare_smcconf(struct atmel_nand *nand,
 	nc = to_nand_controller(nand->base.controller);
 
 	/* DDR interface not supported. */
+<<<<<<< HEAD
 	if (conf->type != NAND_SDR_IFACE)
+=======
+	if (!nand_interface_is_sdr(conf))
+>>>>>>> upstream/android-13
 		return -ENOTSUPP;
 
 	/*
@@ -1420,9 +1838,15 @@ static int atmel_smc_nand_prepare_smcconf(struct atmel_nand *nand,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int atmel_smc_nand_setup_data_interface(struct atmel_nand *nand,
 					int csline,
 					const struct nand_data_interface *conf)
+=======
+static int atmel_smc_nand_setup_interface(struct atmel_nand *nand,
+					int csline,
+					const struct nand_interface_config *conf)
+>>>>>>> upstream/android-13
 {
 	struct atmel_nand_controller *nc;
 	struct atmel_smc_cs_conf smcconf;
@@ -1445,9 +1869,15 @@ static int atmel_smc_nand_setup_data_interface(struct atmel_nand *nand,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int atmel_hsmc_nand_setup_data_interface(struct atmel_nand *nand,
 					int csline,
 					const struct nand_data_interface *conf)
+=======
+static int atmel_hsmc_nand_setup_interface(struct atmel_nand *nand,
+					int csline,
+					const struct nand_interface_config *conf)
+>>>>>>> upstream/android-13
 {
 	struct atmel_hsmc_nand_controller *nc;
 	struct atmel_smc_cs_conf smcconf;
@@ -1475,6 +1905,7 @@ static int atmel_hsmc_nand_setup_data_interface(struct atmel_nand *nand,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int atmel_nand_setup_data_interface(struct mtd_info *mtd, int csline,
 					const struct nand_data_interface *conf)
 {
@@ -1482,13 +1913,42 @@ static int atmel_nand_setup_data_interface(struct mtd_info *mtd, int csline,
 	struct atmel_nand *nand = to_atmel_nand(chip);
 	struct atmel_nand_controller *nc;
 
+=======
+static int atmel_nand_setup_interface(struct nand_chip *chip, int csline,
+				      const struct nand_interface_config *conf)
+{
+	struct atmel_nand *nand = to_atmel_nand(chip);
+	const struct nand_sdr_timings *sdr;
+	struct atmel_nand_controller *nc;
+
+	sdr = nand_get_sdr_timings(conf);
+	if (IS_ERR(sdr))
+		return PTR_ERR(sdr);
+
+>>>>>>> upstream/android-13
 	nc = to_nand_controller(nand->base.controller);
 
 	if (csline >= nand->numcs ||
 	    (csline < 0 && csline != NAND_DATA_IFACE_CHECK_ONLY))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	return nc->caps->ops->setup_data_interface(nand, csline, conf);
+=======
+	return nc->caps->ops->setup_interface(nand, csline, conf);
+}
+
+static int atmel_nand_exec_op(struct nand_chip *chip,
+			      const struct nand_operation *op,
+			      bool check_only)
+{
+	struct atmel_nand *nand = to_atmel_nand(chip);
+	struct atmel_nand_controller *nc;
+
+	nc = to_nand_controller(nand->base.controller);
+
+	return nc->caps->ops->exec_op(nand, op, check_only);
+>>>>>>> upstream/android-13
 }
 
 static void atmel_nand_init(struct atmel_nand_controller *nc,
@@ -1500,6 +1960,7 @@ static void atmel_nand_init(struct atmel_nand_controller *nc,
 	mtd->dev.parent = nc->dev;
 	nand->base.controller = &nc->base;
 
+<<<<<<< HEAD
 	chip->cmd_ctrl = atmel_nand_cmd_ctrl;
 	chip->read_byte = atmel_nand_read_byte;
 	chip->read_word = atmel_nand_read_word;
@@ -1513,17 +1974,29 @@ static void atmel_nand_init(struct atmel_nand_controller *nc,
 
 	/* Some NANDs require a longer delay than the default one (20us). */
 	chip->chip_delay = 40;
+=======
+	if (!nc->mck || !nc->caps->ops->setup_interface)
+		chip->options |= NAND_KEEP_TIMINGS;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Use a bounce buffer when the buffer passed by the MTD user is not
 	 * suitable for DMA.
 	 */
 	if (nc->dmac)
+<<<<<<< HEAD
 		chip->options |= NAND_USE_BOUNCE_BUFFER;
 
 	/* Default to HW ECC if pmecc is available. */
 	if (nc->pmecc)
 		chip->ecc.mode = NAND_ECC_HW;
+=======
+		chip->options |= NAND_USES_DMA;
+
+	/* Default to HW ECC if pmecc is available. */
+	if (nc->pmecc)
+		chip->ecc.engine_type = NAND_ECC_ENGINE_TYPE_ON_HOST;
+>>>>>>> upstream/android-13
 }
 
 static void atmel_smc_nand_init(struct atmel_nand_controller *nc,
@@ -1536,11 +2009,16 @@ static void atmel_smc_nand_init(struct atmel_nand_controller *nc,
 	atmel_nand_init(nc, nand);
 
 	smc_nc = to_smc_nand_controller(chip->controller);
+<<<<<<< HEAD
 	if (!smc_nc->matrix)
+=======
+	if (!smc_nc->ebi_csa_regmap)
+>>>>>>> upstream/android-13
 		return;
 
 	/* Attach the CS to the NAND Flash logic. */
 	for (i = 0; i < nand->numcs; i++)
+<<<<<<< HEAD
 		regmap_update_bits(smc_nc->matrix, smc_nc->ebi_csa_offs,
 				   BIT(nand->cs[i].id), BIT(nand->cs[i].id));
 }
@@ -1555,6 +2033,17 @@ static void atmel_hsmc_nand_init(struct atmel_nand_controller *nc,
 	/* Overload some methods for the HSMC controller. */
 	chip->cmd_ctrl = atmel_hsmc_nand_cmd_ctrl;
 	chip->select_chip = atmel_hsmc_nand_select_chip;
+=======
+		regmap_update_bits(smc_nc->ebi_csa_regmap,
+				   smc_nc->ebi_csa->offs,
+				   BIT(nand->cs[i].id), BIT(nand->cs[i].id));
+
+	if (smc_nc->ebi_csa->nfd0_on_d16)
+		regmap_update_bits(smc_nc->ebi_csa_regmap,
+				   smc_nc->ebi_csa->offs,
+				   smc_nc->ebi_csa->nfd0_on_d16,
+				   smc_nc->ebi_csa->nfd0_on_d16);
+>>>>>>> upstream/android-13
 }
 
 static int atmel_nand_controller_remove_nand(struct atmel_nand *nand)
@@ -1588,6 +2077,7 @@ static struct atmel_nand *atmel_nand_create(struct atmel_nand_controller *nc,
 		return ERR_PTR(-EINVAL);
 	}
 
+<<<<<<< HEAD
 	nand = devm_kzalloc(nc->dev,
 			    sizeof(*nand) + (numcs * sizeof(*nand->cs)),
 			    GFP_KERNEL);
@@ -1601,6 +2091,16 @@ static struct atmel_nand *atmel_nand_create(struct atmel_nand_controller *nc,
 	gpio = devm_fwnode_get_index_gpiod_from_child(nc->dev, "det", 0,
 						      &np->fwnode, GPIOD_IN,
 						      "nand-det");
+=======
+	nand = devm_kzalloc(nc->dev, struct_size(nand, cs, numcs), GFP_KERNEL);
+	if (!nand)
+		return ERR_PTR(-ENOMEM);
+
+	nand->numcs = numcs;
+
+	gpio = devm_fwnode_gpiod_get(nc->dev, of_fwnode_handle(np),
+				     "det", GPIOD_IN, "nand-det");
+>>>>>>> upstream/android-13
 	if (IS_ERR(gpio) && PTR_ERR(gpio) != -ENOENT) {
 		dev_err(nc->dev,
 			"Failed to get detect gpio (err = %ld)\n",
@@ -1644,9 +2144,16 @@ static struct atmel_nand *atmel_nand_create(struct atmel_nand_controller *nc,
 			nand->cs[i].rb.type = ATMEL_NAND_NATIVE_RB;
 			nand->cs[i].rb.id = val;
 		} else {
+<<<<<<< HEAD
 			gpio = devm_fwnode_get_index_gpiod_from_child(nc->dev,
 							"rb", i, &np->fwnode,
 							GPIOD_IN, "nand-rb");
+=======
+			gpio = devm_fwnode_gpiod_get_index(nc->dev,
+							   of_fwnode_handle(np),
+							   "rb", i, GPIOD_IN,
+							   "nand-rb");
+>>>>>>> upstream/android-13
 			if (IS_ERR(gpio) && PTR_ERR(gpio) != -ENOENT) {
 				dev_err(nc->dev,
 					"Failed to get R/B gpio (err = %ld)\n",
@@ -1660,10 +2167,17 @@ static struct atmel_nand *atmel_nand_create(struct atmel_nand_controller *nc,
 			}
 		}
 
+<<<<<<< HEAD
 		gpio = devm_fwnode_get_index_gpiod_from_child(nc->dev, "cs",
 							      i, &np->fwnode,
 							      GPIOD_OUT_HIGH,
 							      "nand-cs");
+=======
+		gpio = devm_fwnode_gpiod_get_index(nc->dev,
+						   of_fwnode_handle(np),
+						   "cs", i, GPIOD_OUT_HIGH,
+						   "nand-cs");
+>>>>>>> upstream/android-13
 		if (IS_ERR(gpio) && PTR_ERR(gpio) != -ENOENT) {
 			dev_err(nc->dev,
 				"Failed to get CS gpio (err = %ld)\n",
@@ -1864,6 +2378,7 @@ static void atmel_nand_controller_cleanup(struct atmel_nand_controller *nc)
 	clk_put(nc->mck);
 }
 
+<<<<<<< HEAD
 static const struct of_device_id atmel_matrix_of_ids[] = {
 	{
 		.compatible = "atmel,at91sam9260-matrix",
@@ -1892,6 +2407,73 @@ static const struct of_device_id atmel_matrix_of_ids[] = {
 	{
 		.compatible = "atmel,at91sam9x5-matrix",
 		.data = (void *)AT91SAM9X5_MATRIX_EBICSA,
+=======
+static const struct atmel_smc_nand_ebi_csa_cfg at91sam9260_ebi_csa = {
+	.offs = AT91SAM9260_MATRIX_EBICSA,
+};
+
+static const struct atmel_smc_nand_ebi_csa_cfg at91sam9261_ebi_csa = {
+	.offs = AT91SAM9261_MATRIX_EBICSA,
+};
+
+static const struct atmel_smc_nand_ebi_csa_cfg at91sam9263_ebi_csa = {
+	.offs = AT91SAM9263_MATRIX_EBI0CSA,
+};
+
+static const struct atmel_smc_nand_ebi_csa_cfg at91sam9rl_ebi_csa = {
+	.offs = AT91SAM9RL_MATRIX_EBICSA,
+};
+
+static const struct atmel_smc_nand_ebi_csa_cfg at91sam9g45_ebi_csa = {
+	.offs = AT91SAM9G45_MATRIX_EBICSA,
+};
+
+static const struct atmel_smc_nand_ebi_csa_cfg at91sam9n12_ebi_csa = {
+	.offs = AT91SAM9N12_MATRIX_EBICSA,
+};
+
+static const struct atmel_smc_nand_ebi_csa_cfg at91sam9x5_ebi_csa = {
+	.offs = AT91SAM9X5_MATRIX_EBICSA,
+};
+
+static const struct atmel_smc_nand_ebi_csa_cfg sam9x60_ebi_csa = {
+	.offs = AT91_SFR_CCFG_EBICSA,
+	.nfd0_on_d16 = AT91_SFR_CCFG_NFD0_ON_D16,
+};
+
+static const struct of_device_id atmel_ebi_csa_regmap_of_ids[] = {
+	{
+		.compatible = "atmel,at91sam9260-matrix",
+		.data = &at91sam9260_ebi_csa,
+	},
+	{
+		.compatible = "atmel,at91sam9261-matrix",
+		.data = &at91sam9261_ebi_csa,
+	},
+	{
+		.compatible = "atmel,at91sam9263-matrix",
+		.data = &at91sam9263_ebi_csa,
+	},
+	{
+		.compatible = "atmel,at91sam9rl-matrix",
+		.data = &at91sam9rl_ebi_csa,
+	},
+	{
+		.compatible = "atmel,at91sam9g45-matrix",
+		.data = &at91sam9g45_ebi_csa,
+	},
+	{
+		.compatible = "atmel,at91sam9n12-matrix",
+		.data = &at91sam9n12_ebi_csa,
+	},
+	{
+		.compatible = "atmel,at91sam9x5-matrix",
+		.data = &at91sam9x5_ebi_csa,
+	},
+	{
+		.compatible = "microchip,sam9x60-sfr",
+		.data = &sam9x60_ebi_csa,
+>>>>>>> upstream/android-13
 	},
 	{ /* sentinel */ },
 };
@@ -1939,6 +2521,11 @@ static int atmel_nand_attach_chip(struct nand_chip *chip)
 
 static const struct nand_controller_ops atmel_nand_controller_ops = {
 	.attach_chip = atmel_nand_attach_chip,
+<<<<<<< HEAD
+=======
+	.setup_interface = atmel_nand_setup_interface,
+	.exec_op = atmel_nand_exec_op,
+>>>>>>> upstream/android-13
 };
 
 static int atmel_nand_controller_init(struct atmel_nand_controller *nc,
@@ -1958,6 +2545,7 @@ static int atmel_nand_controller_init(struct atmel_nand_controller *nc,
 	platform_set_drvdata(pdev, nc);
 
 	nc->pmecc = devm_atmel_pmecc_get(dev);
+<<<<<<< HEAD
 	if (IS_ERR(nc->pmecc)) {
 		ret = PTR_ERR(nc->pmecc);
 		if (ret != -EPROBE_DEFER)
@@ -1965,6 +2553,11 @@ static int atmel_nand_controller_init(struct atmel_nand_controller *nc,
 				ret);
 		return ret;
 	}
+=======
+	if (IS_ERR(nc->pmecc))
+		return dev_err_probe(dev, PTR_ERR(nc->pmecc),
+				     "Could not get PMECC object\n");
+>>>>>>> upstream/android-13
 
 	if (nc->caps->has_dma && !atmel_nand_avoid_dma) {
 		dma_cap_mask_t mask;
@@ -1984,13 +2577,23 @@ static int atmel_nand_controller_init(struct atmel_nand_controller *nc,
 	nc->mck = of_clk_get(dev->parent->of_node, 0);
 	if (IS_ERR(nc->mck)) {
 		dev_err(dev, "Failed to retrieve MCK clk\n");
+<<<<<<< HEAD
 		return PTR_ERR(nc->mck);
+=======
+		ret = PTR_ERR(nc->mck);
+		goto out_release_dma;
+>>>>>>> upstream/android-13
 	}
 
 	np = of_parse_phandle(dev->parent->of_node, "atmel,smc", 0);
 	if (!np) {
 		dev_err(dev, "Missing or invalid atmel,smc property\n");
+<<<<<<< HEAD
 		return -EINVAL;
+=======
+		ret = -EINVAL;
+		goto out_release_dma;
+>>>>>>> upstream/android-13
 	}
 
 	nc->smc = syscon_node_to_regmap(np);
@@ -1998,10 +2601,23 @@ static int atmel_nand_controller_init(struct atmel_nand_controller *nc,
 	if (IS_ERR(nc->smc)) {
 		ret = PTR_ERR(nc->smc);
 		dev_err(dev, "Could not get SMC regmap (err = %d)\n", ret);
+<<<<<<< HEAD
 		return ret;
 	}
 
 	return 0;
+=======
+		goto out_release_dma;
+	}
+
+	return 0;
+
+out_release_dma:
+	if (nc->dmac)
+		dma_release_channel(nc->dmac);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int
@@ -2012,6 +2628,7 @@ atmel_smc_nand_controller_init(struct atmel_smc_nand_controller *nc)
 	struct device_node *np;
 	int ret;
 
+<<<<<<< HEAD
 	/* We do not retrieve the matrix syscon when parsing old DTs. */
 	if (nc->base.caps->legacy_of_bindings)
 		return 0;
@@ -2021,11 +2638,24 @@ atmel_smc_nand_controller_init(struct atmel_smc_nand_controller *nc)
 		return 0;
 
 	match = of_match_node(atmel_matrix_of_ids, np);
+=======
+	/* We do not retrieve the EBICSA regmap when parsing old DTs. */
+	if (nc->base.caps->legacy_of_bindings)
+		return 0;
+
+	np = of_parse_phandle(dev->parent->of_node,
+			      nc->base.caps->ebi_csa_regmap_name, 0);
+	if (!np)
+		return 0;
+
+	match = of_match_node(atmel_ebi_csa_regmap_of_ids, np);
+>>>>>>> upstream/android-13
 	if (!match) {
 		of_node_put(np);
 		return 0;
 	}
 
+<<<<<<< HEAD
 	nc->matrix = syscon_node_to_regmap(np);
 	of_node_put(np);
 	if (IS_ERR(nc->matrix)) {
@@ -2043,6 +2673,25 @@ atmel_smc_nand_controller_init(struct atmel_smc_nand_controller *nc)
 	if (of_device_is_compatible(dev->parent->of_node,
 				    "atmel,at91sam9263-ebi1"))
 		nc->ebi_csa_offs += 4;
+=======
+	nc->ebi_csa_regmap = syscon_node_to_regmap(np);
+	of_node_put(np);
+	if (IS_ERR(nc->ebi_csa_regmap)) {
+		ret = PTR_ERR(nc->ebi_csa_regmap);
+		dev_err(dev, "Could not get EBICSA regmap (err = %d)\n", ret);
+		return ret;
+	}
+
+	nc->ebi_csa = (struct atmel_smc_nand_ebi_csa_cfg *)match->data;
+
+	/*
+	 * The at91sam9263 has 2 EBIs, if the NAND controller is under EBI1
+	 * add 4 to ->ebi_csa->offs.
+	 */
+	if (of_device_is_compatible(dev->parent->of_node,
+				    "atmel,at91sam9263-ebi1"))
+		nc->ebi_csa->offs += 4;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -2229,6 +2878,12 @@ atmel_hsmc_nand_controller_remove(struct atmel_nand_controller *nc)
 		return ret;
 
 	hsmc_nc = container_of(nc, struct atmel_hsmc_nand_controller, base);
+<<<<<<< HEAD
+=======
+	regmap_write(hsmc_nc->base.smc, ATMEL_HSMC_NFC_CTRL,
+		     ATMEL_HSMC_NFC_CTRL_DIS);
+
+>>>>>>> upstream/android-13
 	if (hsmc_nc->sram.pool)
 		gen_pool_free(hsmc_nc->sram.pool,
 			      (unsigned long)hsmc_nc->sram.virt,
@@ -2281,6 +2936,11 @@ static int atmel_hsmc_nand_controller_probe(struct platform_device *pdev,
 	/* Initial NFC configuration. */
 	regmap_write(nc->base.smc, ATMEL_HSMC_NFC_CFG,
 		     ATMEL_HSMC_NFC_CFG_DTO_MAX);
+<<<<<<< HEAD
+=======
+	regmap_write(nc->base.smc, ATMEL_HSMC_NFC_CTRL,
+		     ATMEL_HSMC_NFC_CTRL_EN);
+>>>>>>> upstream/android-13
 
 	ret = atmel_nand_controller_add_nands(&nc->base);
 	if (ret)
@@ -2298,8 +2958,14 @@ static const struct atmel_nand_controller_ops atmel_hsmc_nc_ops = {
 	.probe = atmel_hsmc_nand_controller_probe,
 	.remove = atmel_hsmc_nand_controller_remove,
 	.ecc_init = atmel_hsmc_nand_ecc_init,
+<<<<<<< HEAD
 	.nand_init = atmel_hsmc_nand_init,
 	.setup_data_interface = atmel_hsmc_nand_setup_data_interface,
+=======
+	.nand_init = atmel_nand_init,
+	.setup_interface = atmel_hsmc_nand_setup_interface,
+	.exec_op = atmel_hsmc_nand_exec_op,
+>>>>>>> upstream/android-13
 };
 
 static const struct atmel_nand_controller_caps atmel_sama5_nc_caps = {
@@ -2356,21 +3022,36 @@ atmel_smc_nand_controller_remove(struct atmel_nand_controller *nc)
 
 /*
  * The SMC reg layout of at91rm9200 is completely different which prevents us
+<<<<<<< HEAD
  * from re-using atmel_smc_nand_setup_data_interface() for the
  * ->setup_data_interface() hook.
  * At this point, there's no support for the at91rm9200 SMC IP, so we leave
  * ->setup_data_interface() unassigned.
+=======
+ * from re-using atmel_smc_nand_setup_interface() for the
+ * ->setup_interface() hook.
+ * At this point, there's no support for the at91rm9200 SMC IP, so we leave
+ * ->setup_interface() unassigned.
+>>>>>>> upstream/android-13
  */
 static const struct atmel_nand_controller_ops at91rm9200_nc_ops = {
 	.probe = atmel_smc_nand_controller_probe,
 	.remove = atmel_smc_nand_controller_remove,
 	.ecc_init = atmel_nand_ecc_init,
 	.nand_init = atmel_smc_nand_init,
+<<<<<<< HEAD
+=======
+	.exec_op = atmel_smc_nand_exec_op,
+>>>>>>> upstream/android-13
 };
 
 static const struct atmel_nand_controller_caps atmel_rm9200_nc_caps = {
 	.ale_offs = BIT(21),
 	.cle_offs = BIT(22),
+<<<<<<< HEAD
+=======
+	.ebi_csa_regmap_name = "atmel,matrix",
+>>>>>>> upstream/android-13
 	.ops = &at91rm9200_nc_ops,
 };
 
@@ -2379,18 +3060,31 @@ static const struct atmel_nand_controller_ops atmel_smc_nc_ops = {
 	.remove = atmel_smc_nand_controller_remove,
 	.ecc_init = atmel_nand_ecc_init,
 	.nand_init = atmel_smc_nand_init,
+<<<<<<< HEAD
 	.setup_data_interface = atmel_smc_nand_setup_data_interface,
+=======
+	.setup_interface = atmel_smc_nand_setup_interface,
+	.exec_op = atmel_smc_nand_exec_op,
+>>>>>>> upstream/android-13
 };
 
 static const struct atmel_nand_controller_caps atmel_sam9260_nc_caps = {
 	.ale_offs = BIT(21),
 	.cle_offs = BIT(22),
+<<<<<<< HEAD
+=======
+	.ebi_csa_regmap_name = "atmel,matrix",
+>>>>>>> upstream/android-13
 	.ops = &atmel_smc_nc_ops,
 };
 
 static const struct atmel_nand_controller_caps atmel_sam9261_nc_caps = {
 	.ale_offs = BIT(22),
 	.cle_offs = BIT(21),
+<<<<<<< HEAD
+=======
+	.ebi_csa_regmap_name = "atmel,matrix",
+>>>>>>> upstream/android-13
 	.ops = &atmel_smc_nc_ops,
 };
 
@@ -2398,6 +3092,18 @@ static const struct atmel_nand_controller_caps atmel_sam9g45_nc_caps = {
 	.has_dma = true,
 	.ale_offs = BIT(21),
 	.cle_offs = BIT(22),
+<<<<<<< HEAD
+=======
+	.ebi_csa_regmap_name = "atmel,matrix",
+	.ops = &atmel_smc_nc_ops,
+};
+
+static const struct atmel_nand_controller_caps microchip_sam9x60_nc_caps = {
+	.has_dma = true,
+	.ale_offs = BIT(21),
+	.cle_offs = BIT(22),
+	.ebi_csa_regmap_name = "microchip,sfr",
+>>>>>>> upstream/android-13
 	.ops = &atmel_smc_nc_ops,
 };
 
@@ -2445,6 +3151,13 @@ static const struct of_device_id atmel_nand_controller_of_ids[] = {
 		.compatible = "atmel,sama5d3-nand-controller",
 		.data = &atmel_sama5_nc_caps,
 	},
+<<<<<<< HEAD
+=======
+	{
+		.compatible = "microchip,sam9x60-nand-controller",
+		.data = &microchip_sam9x60_nc_caps,
+	},
+>>>>>>> upstream/android-13
 	/* Support for old/deprecated bindings: */
 	{
 		.compatible = "atmel,at91rm9200-nand",

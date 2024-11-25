@@ -40,9 +40,15 @@
 #include <linux/of_platform.h>
 #include <linux/of_gpio.h>
 #include <linux/of_net.h>
+<<<<<<< HEAD
 
 #include <linux/vmalloc.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+
+#include <linux/vmalloc.h>
+>>>>>>> upstream/android-13
 #include <asm/irq.h>
 #include <linux/uaccess.h>
 
@@ -53,7 +59,10 @@
 MODULE_AUTHOR("Pantelis Antoniou <panto@intracom.gr>");
 MODULE_DESCRIPTION("Freescale Ethernet Driver");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_VERSION(DRV_MODULE_VERSION);
+=======
+>>>>>>> upstream/android-13
 
 static int fs_enet_debug = -1; /* -1 == use FS_ENET_DEF_MSG_ENABLE as value */
 module_param(fs_enet_debug, int, 0);
@@ -501,7 +510,11 @@ fs_enet_start_xmit(struct sk_buff *skb, struct net_device *dev)
 		nr_frags = skb_shinfo(skb)->nr_frags;
 		frag = skb_shinfo(skb)->frags;
 		for (i = 0; i < nr_frags; i++, frag++) {
+<<<<<<< HEAD
 			if (!IS_ALIGNED(frag->page_offset, 4)) {
+=======
+			if (!IS_ALIGNED(skb_frag_off(frag), 4)) {
+>>>>>>> upstream/android-13
 				is_aligned = 0;
 				break;
 			}
@@ -563,10 +576,20 @@ fs_enet_start_xmit(struct sk_buff *skb, struct net_device *dev)
 			BD_ENET_TX_TC);
 		CBDS_SC(bdp, BD_ENET_TX_READY);
 
+<<<<<<< HEAD
 		if ((CBDR_SC(bdp) & BD_ENET_TX_WRAP) == 0)
 			bdp++, curidx++;
 		else
 			bdp = fep->tx_bd_base, curidx = 0;
+=======
+		if ((CBDR_SC(bdp) & BD_ENET_TX_WRAP) == 0) {
+			bdp++;
+			curidx++;
+		} else {
+			bdp = fep->tx_bd_base;
+			curidx = 0;
+		}
+>>>>>>> upstream/android-13
 
 		len = skb_frag_size(frag);
 		CBDW_BUFADDR(bdp, skb_frag_dma_map(fep->dev, frag, 0, len,
@@ -641,7 +664,11 @@ static void fs_timeout_work(struct work_struct *work)
 		netif_wake_queue(dev);
 }
 
+<<<<<<< HEAD
 static void fs_timeout(struct net_device *dev)
+=======
+static void fs_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct fs_enet_private *fep = netdev_priv(dev);
 
@@ -790,7 +817,10 @@ static void fs_get_drvinfo(struct net_device *dev,
 			    struct ethtool_drvinfo *info)
 {
 	strlcpy(info->driver, DRV_MODULE_NAME, sizeof(info->driver));
+<<<<<<< HEAD
 	strlcpy(info->version, DRV_MODULE_VERSION, sizeof(info->version));
+=======
+>>>>>>> upstream/android-13
 }
 
 static int fs_get_regs_len(struct net_device *dev)
@@ -882,6 +912,7 @@ static const struct ethtool_ops fs_ethtool_ops = {
 	.set_tunable = fs_set_tunable,
 };
 
+<<<<<<< HEAD
 static int fs_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 {
 	if (!netif_running(dev))
@@ -890,6 +921,8 @@ static int fs_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 	return phy_mii_ioctl(dev->phydev, rq, cmd);
 }
 
+=======
+>>>>>>> upstream/android-13
 extern int fs_mii_connect(struct net_device *dev);
 extern void fs_mii_disconnect(struct net_device *dev);
 
@@ -907,7 +940,11 @@ static const struct net_device_ops fs_enet_netdev_ops = {
 	.ndo_start_xmit		= fs_enet_start_xmit,
 	.ndo_tx_timeout		= fs_timeout,
 	.ndo_set_rx_mode	= fs_set_multicast_list,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= fs_ioctl,
+=======
+	.ndo_eth_ioctl		= phy_do_ioctl_running,
+>>>>>>> upstream/android-13
 	.ndo_validate_addr	= eth_validate_addr,
 	.ndo_set_mac_address	= eth_mac_addr,
 #ifdef CONFIG_NET_POLL_CONTROLLER
@@ -925,7 +962,10 @@ static int fs_enet_probe(struct platform_device *ofdev)
 	const u32 *data;
 	struct clk *clk;
 	int err;
+<<<<<<< HEAD
 	const u8 *mac_addr;
+=======
+>>>>>>> upstream/android-13
 	const char *phy_connection_type;
 	int privsize, len, ret = -ENODEV;
 
@@ -1013,9 +1053,13 @@ static int fs_enet_probe(struct platform_device *ofdev)
 	spin_lock_init(&fep->lock);
 	spin_lock_init(&fep->tx_lock);
 
+<<<<<<< HEAD
 	mac_addr = of_get_mac_address(ofdev->dev.of_node);
 	if (mac_addr)
 		memcpy(ndev->dev_addr, mac_addr, ETH_ALEN);
+=======
+	of_get_mac_address(ofdev->dev.of_node, ndev->dev_addr);
+>>>>>>> upstream/android-13
 
 	ret = fep->ops->allocate_bd(ndev);
 	if (ret)
@@ -1053,8 +1097,12 @@ out_cleanup_data:
 out_free_dev:
 	free_netdev(ndev);
 out_put:
+<<<<<<< HEAD
 	if (fpi->clk_per)
 		clk_disable_unprepare(fpi->clk_per);
+=======
+	clk_disable_unprepare(fpi->clk_per);
+>>>>>>> upstream/android-13
 out_deregister_fixed_link:
 	of_node_put(fpi->phy_node);
 	if (of_phy_is_fixed_link(ofdev->dev.of_node))
@@ -1075,8 +1123,12 @@ static int fs_enet_remove(struct platform_device *ofdev)
 	fep->ops->cleanup_data(ndev);
 	dev_set_drvdata(fep->dev, NULL);
 	of_node_put(fep->fpi->phy_node);
+<<<<<<< HEAD
 	if (fep->fpi->clk_per)
 		clk_disable_unprepare(fep->fpi->clk_per);
+=======
+	clk_disable_unprepare(fep->fpi->clk_per);
+>>>>>>> upstream/android-13
 	if (of_phy_is_fixed_link(ofdev->dev.of_node))
 		of_phy_deregister_fixed_link(ofdev->dev.of_node);
 	free_netdev(ndev);

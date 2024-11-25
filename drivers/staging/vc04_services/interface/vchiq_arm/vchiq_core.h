@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**
  * Copyright (c) 2010-2012 Broadcom. All rights reserved.
  *
@@ -30,17 +31,49 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+/* Copyright (c) 2010-2012 Broadcom. All rights reserved. */
+>>>>>>> upstream/android-13
 
 #ifndef VCHIQ_CORE_H
 #define VCHIQ_CORE_H
 
 #include <linux/mutex.h>
+<<<<<<< HEAD
 #include <linux/semaphore.h>
 #include <linux/kthread.h>
 
 #include "vchiq_cfg.h"
 
 #include "vchiq.h"
+=======
+#include <linux/completion.h>
+#include <linux/kthread.h>
+#include <linux/kref.h>
+#include <linux/rcupdate.h>
+#include <linux/wait.h>
+#include <linux/raspberrypi/vchiq.h>
+
+#include "vchiq_cfg.h"
+
+
+/* Do this so that we can test-build the code on non-rpi systems */
+#if IS_ENABLED(CONFIG_RASPBERRYPI_FIRMWARE)
+
+#else
+
+#ifndef dsb
+#define dsb(a)
+#endif
+
+#endif	/* IS_ENABLED(CONFIG_RASPBERRYPI_FIRMWARE) */
+
+#define VCHIQ_SERVICE_HANDLE_INVALID 0
+
+#define VCHIQ_SLOT_SIZE     4096
+#define VCHIQ_MAX_MSG_SIZE  (VCHIQ_SLOT_SIZE - sizeof(struct vchiq_header))
+>>>>>>> upstream/android-13
 
 /* Run time control of log level, based on KERN_XXX level. */
 #define VCHIQ_LOG_DEFAULT  4
@@ -75,6 +108,7 @@
 #define vchiq_loud_error(...) \
 	vchiq_log_error(vchiq_core_log_level, "===== " __VA_ARGS__)
 
+<<<<<<< HEAD
 #ifndef vchiq_static_assert
 #define vchiq_static_assert(cond) __attribute__((unused)) \
 	extern int vchiq_static_assert[(cond) ? 1 : -1]
@@ -118,6 +152,12 @@ vchiq_static_assert(IS_POW2(VCHIQ_MAX_SLOTS_PER_SIDE));
 	(unsigned short)(((unsigned int)msgid >> 12) & 0xfff)
 #define VCHIQ_MSG_DSTPORT(msgid) \
 	((unsigned short)msgid & 0xfff)
+=======
+#define VCHIQ_SLOT_MASK        (VCHIQ_SLOT_SIZE - 1)
+#define VCHIQ_SLOT_QUEUE_MASK  (VCHIQ_MAX_SLOTS_PER_SIDE - 1)
+#define VCHIQ_SLOT_ZERO_SLOTS  DIV_ROUND_UP(sizeof(struct vchiq_slot_zero), \
+					    VCHIQ_SLOT_SIZE)
+>>>>>>> upstream/android-13
 
 #define VCHIQ_FOURCC_AS_4CHARS(fourcc)	\
 	((fourcc) >> 24) & 0xff, \
@@ -125,6 +165,7 @@ vchiq_static_assert(IS_POW2(VCHIQ_MAX_SLOTS_PER_SIDE));
 	((fourcc) >>  8) & 0xff, \
 	(fourcc) & 0xff
 
+<<<<<<< HEAD
 /* Ensure the fields are wide enough */
 vchiq_static_assert(VCHIQ_MSG_SRCPORT(VCHIQ_MAKE_MSG(0, 0, VCHIQ_PORT_MAX))
 	== 0);
@@ -143,6 +184,11 @@ vchiq_static_assert((unsigned int)VCHIQ_PORT_MAX <
 typedef uint32_t BITSET_T;
 
 vchiq_static_assert((sizeof(BITSET_T) * 8) == 32);
+=======
+typedef uint32_t BITSET_T;
+
+static_assert((sizeof(BITSET_T) * 8) == 32);
+>>>>>>> upstream/android-13
 
 #define BITSET_SIZE(b)        ((b + 31) >> 5)
 #define BITSET_WORD(b)        (b >> 5)
@@ -151,6 +197,7 @@ vchiq_static_assert((sizeof(BITSET_T) * 8) == 32);
 #define BITSET_SET(bs, b)     (bs[BITSET_WORD(b)] |= BITSET_BIT(b))
 #define BITSET_CLR(bs, b)     (bs[BITSET_WORD(b)] &= ~BITSET_BIT(b))
 
+<<<<<<< HEAD
 #if VCHIQ_ENABLE_STATS
 #define VCHIQ_STATS_INC(state, stat) (state->stats. stat++)
 #define VCHIQ_SERVICE_STATS_INC(service, stat) (service->stats. stat++)
@@ -162,6 +209,8 @@ vchiq_static_assert((sizeof(BITSET_T) * 8) == 32);
 #define VCHIQ_SERVICE_STATS_ADD(service, stat, addend) ((void)0)
 #endif
 
+=======
+>>>>>>> upstream/android-13
 enum {
 	DEBUG_ENTRIES,
 #if VCHIQ_ENABLE_DEBUG
@@ -198,7 +247,11 @@ enum {
 
 #endif /* VCHIQ_ENABLE_DEBUG */
 
+<<<<<<< HEAD
 typedef enum {
+=======
+enum vchiq_connstate {
+>>>>>>> upstream/android-13
 	VCHIQ_CONNSTATE_DISCONNECTED,
 	VCHIQ_CONNSTATE_CONNECTING,
 	VCHIQ_CONNSTATE_CONNECTED,
@@ -208,7 +261,11 @@ typedef enum {
 	VCHIQ_CONNSTATE_RESUMING,
 	VCHIQ_CONNSTATE_PAUSE_TIMEOUT,
 	VCHIQ_CONNSTATE_RESUME_TIMEOUT
+<<<<<<< HEAD
 } VCHIQ_CONNSTATE_T;
+=======
+};
+>>>>>>> upstream/android-13
 
 enum {
 	VCHIQ_SRVSTATE_FREE,
@@ -223,6 +280,7 @@ enum {
 	VCHIQ_SRVSTATE_CLOSED
 };
 
+<<<<<<< HEAD
 enum {
 	VCHIQ_POLL_TERMINATE,
 	VCHIQ_POLL_REMOVE,
@@ -244,17 +302,38 @@ typedef struct vchiq_bulk_struct {
 	void *userdata;
 	VCHI_MEM_HANDLE_T handle;
 	void *data;
+=======
+enum vchiq_bulk_dir {
+	VCHIQ_BULK_TRANSMIT,
+	VCHIQ_BULK_RECEIVE
+};
+
+typedef void (*vchiq_userdata_term)(void *userdata);
+
+struct vchiq_bulk {
+	short mode;
+	short dir;
+	void *userdata;
+	dma_addr_t data;
+>>>>>>> upstream/android-13
 	int size;
 	void *remote_data;
 	int remote_size;
 	int actual;
+<<<<<<< HEAD
 } VCHIQ_BULK_T;
 
 typedef struct vchiq_bulk_queue_struct {
+=======
+};
+
+struct vchiq_bulk_queue {
+>>>>>>> upstream/android-13
 	int local_insert;  /* Where to insert the next local bulk */
 	int remote_insert; /* Where to insert the next remote bulk (master) */
 	int process;       /* Bulk to transfer next */
 	int remote_notify; /* Bulk to notify the remote client of next (mstr) */
+<<<<<<< HEAD
 	int remove;        /* Bulk to notify the local client of, and remove,
 			   ** next */
 	VCHIQ_BULK_T bulks[VCHIQ_NUM_SERVICE_BULKS];
@@ -287,6 +366,37 @@ typedef struct vchiq_service_struct {
 	unsigned int ref_count;
 	int srvstate;
 	VCHIQ_USERDATA_TERM_T userdata_term;
+=======
+	int remove;        /* Bulk to notify the local client of, and remove, next */
+	struct vchiq_bulk bulks[VCHIQ_NUM_SERVICE_BULKS];
+};
+
+struct remote_event {
+	int armed;
+	int fired;
+	u32 __unused;
+};
+
+struct opaque_platform_state;
+
+struct vchiq_slot {
+	char data[VCHIQ_SLOT_SIZE];
+};
+
+struct vchiq_slot_info {
+	/* Use two counters rather than one to avoid the need for a mutex. */
+	short use_count;
+	short release_count;
+};
+
+struct vchiq_service {
+	struct vchiq_service_base base;
+	unsigned int handle;
+	struct kref ref_count;
+	struct rcu_head rcu;
+	int srvstate;
+	vchiq_userdata_term userdata_term;
+>>>>>>> upstream/android-13
 	unsigned int localport;
 	unsigned int remoteport;
 	int public_fourcc;
@@ -300,6 +410,7 @@ typedef struct vchiq_service_struct {
 	short version_min;
 	short peer_version;
 
+<<<<<<< HEAD
 	VCHIQ_STATE_T *state;
 	VCHIQ_INSTANCE_T instance;
 
@@ -310,6 +421,18 @@ typedef struct vchiq_service_struct {
 
 	struct semaphore remove_event;
 	struct semaphore bulk_remove_event;
+=======
+	struct vchiq_state *state;
+	struct vchiq_instance *instance;
+
+	int service_use_count;
+
+	struct vchiq_bulk_queue bulk_tx;
+	struct vchiq_bulk_queue bulk_rx;
+
+	struct completion remove_event;
+	struct completion bulk_remove_event;
+>>>>>>> upstream/android-13
 	struct mutex bulk_mutex;
 
 	struct service_stats_struct {
@@ -327,6 +450,7 @@ typedef struct vchiq_service_struct {
 		uint64_t bulk_tx_bytes;
 		uint64_t bulk_rx_bytes;
 	} stats;
+<<<<<<< HEAD
 } VCHIQ_SERVICE_T;
 
 /* The quota information is outside VCHIQ_SERVICE_T so that it can be
@@ -334,15 +458,39 @@ typedef struct vchiq_service_struct {
 	usage is carried over between users of the same port number.
  */
 typedef struct vchiq_service_quota_struct {
+=======
+
+	int msg_queue_read;
+	int msg_queue_write;
+	struct completion msg_queue_pop;
+	struct completion msg_queue_push;
+	struct vchiq_header *msg_queue[VCHIQ_MAX_SLOTS];
+};
+
+/*
+ * The quota information is outside struct vchiq_service so that it can
+ * be statically allocated, since for accounting reasons a service's slot
+ * usage is carried over between users of the same port number.
+ */
+struct vchiq_service_quota {
+>>>>>>> upstream/android-13
 	unsigned short slot_quota;
 	unsigned short slot_use_count;
 	unsigned short message_quota;
 	unsigned short message_use_count;
+<<<<<<< HEAD
 	struct semaphore quota_event;
 	int previous_tx_index;
 } VCHIQ_SERVICE_QUOTA_T;
 
 typedef struct vchiq_shared_state_struct {
+=======
+	struct completion quota_event;
+	int previous_tx_index;
+};
+
+struct vchiq_shared_state {
+>>>>>>> upstream/android-13
 
 	/* A non-zero value here indicates that the content is valid. */
 	int initialised;
@@ -354,6 +502,7 @@ typedef struct vchiq_shared_state_struct {
 	/* The slot allocated to synchronous messages from the owner. */
 	int slot_sync;
 
+<<<<<<< HEAD
 	/* Signalling this event indicates that owner's slot handler thread
 	** should run. */
 	REMOTE_EVENT_T trigger;
@@ -365,25 +514,58 @@ typedef struct vchiq_shared_state_struct {
 
 	/* This event should be signalled when a slot is recycled. */
 	REMOTE_EVENT_T recycle;
+=======
+	/*
+	 * Signalling this event indicates that owner's slot handler thread
+	 * should run.
+	 */
+	struct remote_event trigger;
+
+	/*
+	 * Indicates the byte position within the stream where the next message
+	 * will be written. The least significant bits are an index into the
+	 * slot. The next bits are the index of the slot in slot_queue.
+	 */
+	int tx_pos;
+
+	/* This event should be signalled when a slot is recycled. */
+	struct remote_event recycle;
+>>>>>>> upstream/android-13
 
 	/* The slot_queue index where the next recycled slot will be written. */
 	int slot_queue_recycle;
 
 	/* This event should be signalled when a synchronous message is sent. */
+<<<<<<< HEAD
 	REMOTE_EVENT_T sync_trigger;
 
 	/* This event should be signalled when a synchronous message has been
 	** released. */
 	REMOTE_EVENT_T sync_release;
+=======
+	struct remote_event sync_trigger;
+
+	/*
+	 * This event should be signalled when a synchronous message has been
+	 * released.
+	 */
+	struct remote_event sync_release;
+>>>>>>> upstream/android-13
 
 	/* A circular buffer of slot indexes. */
 	int slot_queue[VCHIQ_MAX_SLOTS_PER_SIDE];
 
 	/* Debugging state */
 	int debug[DEBUG_MAX];
+<<<<<<< HEAD
 } VCHIQ_SHARED_STATE_T;
 
 typedef struct vchiq_slot_zero_struct {
+=======
+};
+
+struct vchiq_slot_zero {
+>>>>>>> upstream/android-13
 	int magic;
 	short version;
 	short version_min;
@@ -392,6 +574,7 @@ typedef struct vchiq_slot_zero_struct {
 	int max_slots;
 	int max_slots_per_side;
 	int platform_data[2];
+<<<<<<< HEAD
 	VCHIQ_SHARED_STATE_T master;
 	VCHIQ_SHARED_STATE_T slave;
 	VCHIQ_SLOT_INFO_T slots[VCHIQ_MAX_SLOTS];
@@ -407,16 +590,40 @@ struct vchiq_state_struct {
 	VCHIQ_SHARED_STATE_T *local;
 	VCHIQ_SHARED_STATE_T *remote;
 	VCHIQ_SLOT_T *slot_data;
+=======
+	struct vchiq_shared_state master;
+	struct vchiq_shared_state slave;
+	struct vchiq_slot_info slots[VCHIQ_MAX_SLOTS];
+};
+
+struct vchiq_state {
+	int id;
+	int initialised;
+	enum vchiq_connstate conn_state;
+	short version_common;
+
+	struct vchiq_shared_state *local;
+	struct vchiq_shared_state *remote;
+	struct vchiq_slot *slot_data;
+>>>>>>> upstream/android-13
 
 	unsigned short default_slot_quota;
 	unsigned short default_message_quota;
 
 	/* Event indicating connect message received */
+<<<<<<< HEAD
 	struct semaphore connect;
 
 	/* Mutex protecting services */
 	struct mutex mutex;
 	VCHIQ_INSTANCE_T *instance;
+=======
+	struct completion connect;
+
+	/* Mutex protecting services */
+	struct mutex mutex;
+	struct vchiq_instance **instance;
+>>>>>>> upstream/android-13
 
 	/* Processes incoming messages */
 	struct task_struct *slot_handler_thread;
@@ -428,6 +635,7 @@ struct vchiq_state_struct {
 	struct task_struct *sync_thread;
 
 	/* Local implementation of the trigger remote event */
+<<<<<<< HEAD
 	struct semaphore trigger_event;
 
 	/* Local implementation of the recycle remote event */
@@ -442,6 +650,22 @@ struct vchiq_state_struct {
 	char *tx_data;
 	char *rx_data;
 	VCHIQ_SLOT_INFO_T *rx_info;
+=======
+	wait_queue_head_t trigger_event;
+
+	/* Local implementation of the recycle remote event */
+	wait_queue_head_t recycle_event;
+
+	/* Local implementation of the sync trigger remote event */
+	wait_queue_head_t sync_trigger_event;
+
+	/* Local implementation of the sync release remote event */
+	wait_queue_head_t sync_release_event;
+
+	char *tx_data;
+	char *rx_data;
+	struct vchiq_slot_info *rx_info;
+>>>>>>> upstream/android-13
 
 	struct mutex slot_mutex;
 
@@ -451,6 +675,7 @@ struct vchiq_state_struct {
 
 	struct mutex bulk_transfer_mutex;
 
+<<<<<<< HEAD
 	/* Indicates the byte position within the stream from where the next
 	** message will be read. The least significant bits are an index into
 	** the slot.The next bits are the index of the slot in
@@ -459,6 +684,20 @@ struct vchiq_state_struct {
 
 	/* A cached copy of local->tx_pos. Only write to local->tx_pos, and read
 		from remote->tx_pos. */
+=======
+	/*
+	 * Indicates the byte position within the stream from where the next
+	 * message will be read. The least significant bits are an index into
+	 * the slot.The next bits are the index of the slot in
+	 * remote->slot_queue.
+	 */
+	int rx_pos;
+
+	/*
+	 * A cached copy of local->tx_pos. Only write to local->tx_pos, and read
+	 * from remote->tx_pos.
+	 */
+>>>>>>> upstream/android-13
 	int local_tx_pos;
 
 	/* The slot_queue index of the slot to become available next. */
@@ -483,6 +722,7 @@ struct vchiq_state_struct {
 	int unused_service;
 
 	/* Signalled when a free slot becomes available. */
+<<<<<<< HEAD
 	struct semaphore slot_available_event;
 
 	struct semaphore slot_remove_event;
@@ -493,6 +733,14 @@ struct vchiq_state_struct {
 	/* Incremented when there are bulk transfers which cannot be processed
 	 * whilst paused and must be processed on resume */
 	int deferred_bulks;
+=======
+	struct completion slot_available_event;
+
+	struct completion slot_remove_event;
+
+	/* Signalled when a free data slot becomes available. */
+	struct completion data_quota_event;
+>>>>>>> upstream/android-13
 
 	struct state_stats_struct {
 		int slot_stalls;
@@ -502,6 +750,7 @@ struct vchiq_state_struct {
 		int error_count;
 	} stats;
 
+<<<<<<< HEAD
 	VCHIQ_SERVICE_T * services[VCHIQ_MAX_SERVICES];
 	VCHIQ_SERVICE_QUOTA_T service_quotas[VCHIQ_MAX_SERVICES];
 	VCHIQ_SLOT_INFO_T slot_info[VCHIQ_MAX_SLOTS];
@@ -515,12 +764,41 @@ struct bulk_waiter {
 	int actual;
 };
 
+=======
+	struct vchiq_service __rcu *services[VCHIQ_MAX_SERVICES];
+	struct vchiq_service_quota service_quotas[VCHIQ_MAX_SERVICES];
+	struct vchiq_slot_info slot_info[VCHIQ_MAX_SLOTS];
+
+	struct opaque_platform_state *platform_state;
+};
+
+struct bulk_waiter {
+	struct vchiq_bulk *bulk;
+	struct completion event;
+	int actual;
+};
+
+struct vchiq_config {
+	unsigned int max_msg_size;
+	unsigned int bulk_threshold;	/* The message size above which it
+					 * is better to use a bulk transfer
+					 * (<= max_msg_size)
+					 */
+	unsigned int max_outstanding_bulks;
+	unsigned int max_services;
+	short version;      /* The version of VCHIQ */
+	short version_min;  /* The minimum compatible version of VCHIQ */
+};
+
+
+>>>>>>> upstream/android-13
 extern spinlock_t bulk_waiter_spinlock;
 
 extern int vchiq_core_log_level;
 extern int vchiq_core_msg_log_level;
 extern int vchiq_sync_log_level;
 
+<<<<<<< HEAD
 extern VCHIQ_STATE_T *vchiq_states[VCHIQ_MAX_STATES];
 
 extern const char *
@@ -575,6 +853,56 @@ vchiq_dump_state(void *dump_context, VCHIQ_STATE_T *state);
 
 extern void
 vchiq_dump_service_state(void *dump_context, VCHIQ_SERVICE_T *service);
+=======
+extern struct vchiq_state *vchiq_states[VCHIQ_MAX_STATES];
+
+extern const char *
+get_conn_state_name(enum vchiq_connstate conn_state);
+
+extern struct vchiq_slot_zero *
+vchiq_init_slots(void *mem_base, int mem_size);
+
+extern int
+vchiq_init_state(struct vchiq_state *state, struct vchiq_slot_zero *slot_zero);
+
+extern enum vchiq_status
+vchiq_connect_internal(struct vchiq_state *state, struct vchiq_instance *instance);
+
+struct vchiq_service *
+vchiq_add_service_internal(struct vchiq_state *state,
+			   const struct vchiq_service_params_kernel *params,
+			   int srvstate, struct vchiq_instance *instance,
+			   vchiq_userdata_term userdata_term);
+
+extern enum vchiq_status
+vchiq_open_service_internal(struct vchiq_service *service, int client_id);
+
+extern enum vchiq_status
+vchiq_close_service_internal(struct vchiq_service *service, int close_recvd);
+
+extern void
+vchiq_terminate_service_internal(struct vchiq_service *service);
+
+extern void
+vchiq_free_service_internal(struct vchiq_service *service);
+
+extern void
+vchiq_shutdown_internal(struct vchiq_state *state, struct vchiq_instance *instance);
+
+extern void
+remote_event_pollall(struct vchiq_state *state);
+
+extern enum vchiq_status
+vchiq_bulk_transfer(unsigned int handle, void *offset, void __user *uoffset,
+		    int size, void *userdata, enum vchiq_bulk_mode mode,
+		    enum vchiq_bulk_dir dir);
+
+extern int
+vchiq_dump_state(void *dump_context, struct vchiq_state *state);
+
+extern int
+vchiq_dump_service_state(void *dump_context, struct vchiq_service *service);
+>>>>>>> upstream/android-13
 
 extern void
 vchiq_loud_error_header(void);
@@ -583,6 +911,7 @@ extern void
 vchiq_loud_error_footer(void);
 
 extern void
+<<<<<<< HEAD
 request_poll(VCHIQ_STATE_T *state, VCHIQ_SERVICE_T *service, int poll_type);
 
 static inline VCHIQ_SERVICE_T *
@@ -700,9 +1029,138 @@ vchiq_platform_handle_timeout(VCHIQ_STATE_T *state);
 
 extern void
 vchiq_set_conn_state(VCHIQ_STATE_T *state, VCHIQ_CONNSTATE_T newstate);
+=======
+request_poll(struct vchiq_state *state, struct vchiq_service *service,
+	     int poll_type);
+
+static inline struct vchiq_service *
+handle_to_service(unsigned int handle)
+{
+	int idx = handle & (VCHIQ_MAX_SERVICES - 1);
+	struct vchiq_state *state = vchiq_states[(handle / VCHIQ_MAX_SERVICES) &
+		(VCHIQ_MAX_STATES - 1)];
+
+	if (!state)
+		return NULL;
+	return rcu_dereference(state->services[idx]);
+}
+
+extern struct vchiq_service *
+find_service_by_handle(unsigned int handle);
+
+extern struct vchiq_service *
+find_service_by_port(struct vchiq_state *state, int localport);
+
+extern struct vchiq_service *
+find_service_for_instance(struct vchiq_instance *instance,
+	unsigned int handle);
+
+extern struct vchiq_service *
+find_closed_service_for_instance(struct vchiq_instance *instance,
+	unsigned int handle);
+
+extern struct vchiq_service *
+__next_service_by_instance(struct vchiq_state *state,
+			   struct vchiq_instance *instance,
+			   int *pidx);
+
+extern struct vchiq_service *
+next_service_by_instance(struct vchiq_state *state,
+			 struct vchiq_instance *instance,
+			 int *pidx);
+
+extern void
+vchiq_service_get(struct vchiq_service *service);
+
+extern void
+vchiq_service_put(struct vchiq_service *service);
+
+extern enum vchiq_status
+vchiq_queue_message(unsigned int handle,
+		    ssize_t (*copy_callback)(void *context, void *dest,
+					     size_t offset, size_t maxsize),
+		    void *context,
+		    size_t size);
+
+/*
+ * The following functions are called from vchiq_core, and external
+ * implementations must be provided.
+ */
+
+extern int
+vchiq_prepare_bulk_data(struct vchiq_bulk *bulk, void *offset,
+			void __user *uoffset, int size, int dir);
+
+extern void
+vchiq_complete_bulk(struct vchiq_bulk *bulk);
+
+extern void
+remote_event_signal(struct remote_event *event);
+
+extern int
+vchiq_dump(void *dump_context, const char *str, int len);
+
+extern int
+vchiq_dump_platform_state(void *dump_context);
+
+extern int
+vchiq_dump_platform_instances(void *dump_context);
+
+extern int
+vchiq_dump_platform_service_state(void *dump_context,
+	struct vchiq_service *service);
+
+extern int
+vchiq_use_service_internal(struct vchiq_service *service);
+
+extern int
+vchiq_release_service_internal(struct vchiq_service *service);
+
+extern void
+vchiq_on_remote_use(struct vchiq_state *state);
+
+extern void
+vchiq_on_remote_release(struct vchiq_state *state);
+
+extern int
+vchiq_platform_init_state(struct vchiq_state *state);
+
+extern enum vchiq_status
+vchiq_check_service(struct vchiq_service *service);
+
+extern void
+vchiq_on_remote_use_active(struct vchiq_state *state);
+
+extern enum vchiq_status
+vchiq_send_remote_use(struct vchiq_state *state);
+
+extern enum vchiq_status
+vchiq_send_remote_use_active(struct vchiq_state *state);
+
+extern void
+vchiq_platform_conn_state_changed(struct vchiq_state *state,
+				  enum vchiq_connstate oldstate,
+				  enum vchiq_connstate newstate);
+
+extern void
+vchiq_set_conn_state(struct vchiq_state *state, enum vchiq_connstate newstate);
+>>>>>>> upstream/android-13
 
 extern void
 vchiq_log_dump_mem(const char *label, uint32_t addr, const void *voidMem,
 	size_t numBytes);
 
+<<<<<<< HEAD
+=======
+extern enum vchiq_status vchiq_remove_service(unsigned int service);
+
+extern int vchiq_get_client_id(unsigned int service);
+
+extern void vchiq_get_config(struct vchiq_config *config);
+
+extern int
+vchiq_set_service_option(unsigned int service, enum vchiq_service_option option,
+			 int value);
+
+>>>>>>> upstream/android-13
 #endif

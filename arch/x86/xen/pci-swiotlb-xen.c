@@ -1,6 +1,14 @@
+<<<<<<< HEAD
 /* Glue code to lib/swiotlb-xen.c */
 
 #include <linux/dma-mapping.h>
+=======
+// SPDX-License-Identifier: GPL-2.0
+
+/* Glue code to lib/swiotlb-xen.c */
+
+#include <linux/dma-map-ops.h>
+>>>>>>> upstream/android-13
 #include <linux/pci.h>
 #include <xen/swiotlb-xen.h>
 
@@ -16,7 +24,11 @@
 #endif
 #include <linux/export.h>
 
+<<<<<<< HEAD
 int xen_swiotlb __read_mostly;
+=======
+static int xen_swiotlb __read_mostly;
+>>>>>>> upstream/android-13
 
 /*
  * pci_xen_swiotlb_detect - set xen_swiotlb to 1 if necessary
@@ -54,10 +66,17 @@ int __init pci_xen_swiotlb_detect(void)
 	return xen_swiotlb;
 }
 
+<<<<<<< HEAD
 void __init pci_xen_swiotlb_init(void)
 {
 	if (xen_swiotlb) {
 		xen_swiotlb_init(1, true /* early */);
+=======
+static void __init pci_xen_swiotlb_init(void)
+{
+	if (xen_swiotlb) {
+		xen_swiotlb_init_early();
+>>>>>>> upstream/android-13
 		dma_ops = &xen_swiotlb_dma_ops;
 
 #ifdef CONFIG_PCI
@@ -74,7 +93,11 @@ int pci_xen_swiotlb_init_late(void)
 	if (xen_swiotlb)
 		return 0;
 
+<<<<<<< HEAD
 	rc = xen_swiotlb_init(1, false /* late */);
+=======
+	rc = xen_swiotlb_init();
+>>>>>>> upstream/android-13
 	if (rc)
 		return rc;
 

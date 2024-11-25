@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  net/dccp/proto.c
  *
  *  An implementation of the DCCP protocol
  *  Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or modify it
  *	under the terms of the GNU General Public License version 2 as
  *	published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/dccp.h>
@@ -45,8 +52,13 @@ DEFINE_SNMP_STAT(struct dccp_mib, dccp_statistics) __read_mostly;
 
 EXPORT_SYMBOL_GPL(dccp_statistics);
 
+<<<<<<< HEAD
 struct percpu_counter dccp_orphan_count;
 EXPORT_SYMBOL_GPL(dccp_orphan_count);
+=======
+DEFINE_PER_CPU(unsigned int, dccp_orphan_count);
+EXPORT_PER_CPU_SYMBOL_GPL(dccp_orphan_count);
+>>>>>>> upstream/android-13
 
 struct inet_hashinfo dccp_hashinfo;
 EXPORT_SYMBOL_GPL(dccp_hashinfo);
@@ -104,7 +116,11 @@ void dccp_set_state(struct sock *sk, const int state)
 		if (inet_csk(sk)->icsk_bind_hash != NULL &&
 		    !(sk->sk_userlocks & SOCK_BINDPORT_LOCK))
 			inet_put_port(sk);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		if (oldstate == DCCP_OPEN)
 			DCCP_DEC_STATS(DCCP_MIB_CURRESTAB);
@@ -263,7 +279,10 @@ int dccp_disconnect(struct sock *sk, int flags)
 	struct inet_connection_sock *icsk = inet_csk(sk);
 	struct inet_sock *inet = inet_sk(sk);
 	struct dccp_sock *dp = dccp_sk(sk);
+<<<<<<< HEAD
 	int err = 0;
+=======
+>>>>>>> upstream/android-13
 	const int old_state = sk->sk_state;
 
 	if (old_state != DCCP_CLOSED)
@@ -306,8 +325,13 @@ int dccp_disconnect(struct sock *sk, int flags)
 
 	WARN_ON(inet->inet_num && !icsk->icsk_bind_hash);
 
+<<<<<<< HEAD
 	sk->sk_error_report(sk);
 	return err;
+=======
+	sk_error_report(sk);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 EXPORT_SYMBOL_GPL(dccp_disconnect);
@@ -379,6 +403,18 @@ int dccp_ioctl(struct sock *sk, int cmd, unsigned long arg)
 		goto out;
 
 	switch (cmd) {
+<<<<<<< HEAD
+=======
+	case SIOCOUTQ: {
+		int amount = sk_wmem_alloc_get(sk);
+		/* Using sk_wmem_alloc here because sk_wmem_queued is not used by DCCP and
+		 * always 0, comparably to UDP.
+		 */
+
+		rc = put_user(amount, (int __user *)arg);
+	}
+		break;
+>>>>>>> upstream/android-13
 	case SIOCINQ: {
 		struct sk_buff *skb;
 		unsigned long amount = 0;
@@ -406,7 +442,11 @@ out:
 EXPORT_SYMBOL_GPL(dccp_ioctl);
 
 static int dccp_setsockopt_service(struct sock *sk, const __be32 service,
+<<<<<<< HEAD
 				   char __user *optval, unsigned int optlen)
+=======
+				   sockptr_t optval, unsigned int optlen)
+>>>>>>> upstream/android-13
 {
 	struct dccp_sock *dp = dccp_sk(sk);
 	struct dccp_service_list *sl = NULL;
@@ -421,9 +461,14 @@ static int dccp_setsockopt_service(struct sock *sk, const __be32 service,
 			return -ENOMEM;
 
 		sl->dccpsl_nr = optlen / sizeof(u32) - 1;
+<<<<<<< HEAD
 		if (copy_from_user(sl->dccpsl_list,
 				   optval + sizeof(service),
 				   optlen - sizeof(service)) ||
+=======
+		if (copy_from_sockptr_offset(sl->dccpsl_list, optval,
+				sizeof(service), optlen - sizeof(service)) ||
+>>>>>>> upstream/android-13
 		    dccp_list_has_service(sl, DCCP_SERVICE_INVALID_VALUE)) {
 			kfree(sl);
 			return -EFAULT;
@@ -477,7 +522,11 @@ static int dccp_setsockopt_cscov(struct sock *sk, int cscov, bool rx)
 }
 
 static int dccp_setsockopt_ccid(struct sock *sk, int type,
+<<<<<<< HEAD
 				char __user *optval, unsigned int optlen)
+=======
+				sockptr_t optval, unsigned int optlen)
+>>>>>>> upstream/android-13
 {
 	u8 *val;
 	int rc = 0;
@@ -485,7 +534,11 @@ static int dccp_setsockopt_ccid(struct sock *sk, int type,
 	if (optlen < 1 || optlen > DCCP_FEAT_MAX_SP_VALS)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	val = memdup_user(optval, optlen);
+=======
+	val = memdup_sockptr(optval, optlen);
+>>>>>>> upstream/android-13
 	if (IS_ERR(val))
 		return PTR_ERR(val);
 
@@ -502,7 +555,11 @@ static int dccp_setsockopt_ccid(struct sock *sk, int type,
 }
 
 static int do_dccp_setsockopt(struct sock *sk, int level, int optname,
+<<<<<<< HEAD
 		char __user *optval, unsigned int optlen)
+=======
+		sockptr_t optval, unsigned int optlen)
+>>>>>>> upstream/android-13
 {
 	struct dccp_sock *dp = dccp_sk(sk);
 	int val, err = 0;
@@ -524,7 +581,11 @@ static int do_dccp_setsockopt(struct sock *sk, int level, int optname,
 	if (optlen < (int)sizeof(int))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (get_user(val, (int __user *)optval))
+=======
+	if (copy_from_sockptr(&val, optval, sizeof(int)))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	if (optname == DCCP_SOCKOPT_SERVICE)
@@ -567,8 +628,13 @@ static int do_dccp_setsockopt(struct sock *sk, int level, int optname,
 	return err;
 }
 
+<<<<<<< HEAD
 int dccp_setsockopt(struct sock *sk, int level, int optname,
 		    char __user *optval, unsigned int optlen)
+=======
+int dccp_setsockopt(struct sock *sk, int level, int optname, sockptr_t optval,
+		    unsigned int optlen)
+>>>>>>> upstream/android-13
 {
 	if (level != SOL_DCCP)
 		return inet_csk(sk)->icsk_af_ops->setsockopt(sk, level,
@@ -579,6 +645,7 @@ int dccp_setsockopt(struct sock *sk, int level, int optname,
 
 EXPORT_SYMBOL_GPL(dccp_setsockopt);
 
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 int compat_dccp_setsockopt(struct sock *sk, int level, int optname,
 			   char __user *optval, unsigned int optlen)
@@ -592,6 +659,8 @@ int compat_dccp_setsockopt(struct sock *sk, int level, int optname,
 EXPORT_SYMBOL_GPL(compat_dccp_setsockopt);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static int dccp_getsockopt_service(struct sock *sk, int len,
 				   __be32 __user *optval,
 				   int __user *optlen)
@@ -700,6 +769,7 @@ int dccp_getsockopt(struct sock *sk, int level, int optname,
 
 EXPORT_SYMBOL_GPL(dccp_getsockopt);
 
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 int compat_dccp_getsockopt(struct sock *sk, int level, int optname,
 			   char __user *optval, int __user *optlen)
@@ -713,6 +783,8 @@ int compat_dccp_getsockopt(struct sock *sk, int level, int optname,
 EXPORT_SYMBOL_GPL(compat_dccp_getsockopt);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static int dccp_msghdr_parse(struct msghdr *msg, struct sk_buff *skb)
 {
 	struct cmsghdr *cmsg;
@@ -856,7 +928,11 @@ int dccp_recvmsg(struct sock *sk, struct msghdr *msg, size_t len, int nonblock,
 		case DCCP_PKT_CLOSEREQ:
 			if (!(flags & MSG_PEEK))
 				dccp_finish_passive_close(sk);
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case DCCP_PKT_RESET:
 			dccp_pr_debug("found fin (%s) ok!\n",
 				      dccp_packet_name(dh->dccph_type));
@@ -948,6 +1024,10 @@ int inet_dccp_listen(struct socket *sock, int backlog)
 	if (!((1 << old_state) & (DCCPF_CLOSED | DCCPF_LISTEN)))
 		goto out;
 
+<<<<<<< HEAD
+=======
+	WRITE_ONCE(sk->sk_max_ack_backlog, backlog);
+>>>>>>> upstream/android-13
 	/* Really, if the socket is already in listen state
 	 * we can only allow the backlog to be adjusted.
 	 */
@@ -960,7 +1040,10 @@ int inet_dccp_listen(struct socket *sock, int backlog)
 		if (err)
 			goto out;
 	}
+<<<<<<< HEAD
 	sk->sk_max_ack_backlog = backlog;
+=======
+>>>>>>> upstream/android-13
 	err = 0;
 
 out:
@@ -982,7 +1065,11 @@ static void dccp_terminate_connection(struct sock *sk)
 	case DCCP_PARTOPEN:
 		dccp_pr_debug("Stop PARTOPEN timer (%p)\n", sk);
 		inet_csk_clear_xmit_timer(sk, ICSK_TIME_DACK);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case DCCP_OPEN:
 		dccp_send_close(sk, 1);
 
@@ -991,7 +1078,11 @@ static void dccp_terminate_connection(struct sock *sk)
 			next_state = DCCP_ACTIVE_CLOSEREQ;
 		else
 			next_state = DCCP_CLOSING;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		dccp_set_state(sk, next_state);
 	}
@@ -1077,7 +1168,11 @@ adjudge_to_death:
 	bh_lock_sock(sk);
 	WARN_ON(sock_owned_by_user(sk));
 
+<<<<<<< HEAD
 	percpu_counter_inc(sk->sk_prot->orphan_count);
+=======
+	this_cpu_inc(dccp_orphan_count);
+>>>>>>> upstream/android-13
 
 	/* Have we already been destroyed by a softirq or backlog? */
 	if (state != DCCP_CLOSED && sk->sk_state == DCCP_CLOSED)
@@ -1131,10 +1226,15 @@ EXPORT_SYMBOL_GPL(dccp_debug);
 static int __init dccp_init(void)
 {
 	unsigned long goal;
+<<<<<<< HEAD
+=======
+	unsigned long nr_pages = totalram_pages();
+>>>>>>> upstream/android-13
 	int ehash_order, bhash_order, i;
 	int rc;
 
 	BUILD_BUG_ON(sizeof(struct dccp_skb_cb) >
+<<<<<<< HEAD
 		     FIELD_SIZEOF(struct sk_buff, cb));
 	rc = percpu_counter_init(&dccp_orphan_count, 0, GFP_KERNEL);
 	if (rc)
@@ -1147,6 +1247,20 @@ static int __init dccp_init(void)
 				  SLAB_HWCACHE_ALIGN, NULL);
 	if (!dccp_hashinfo.bind_bucket_cachep)
 		goto out_free_percpu;
+=======
+		     sizeof_field(struct sk_buff, cb));
+	inet_hashinfo_init(&dccp_hashinfo);
+	rc = inet_hashinfo2_init_mod(&dccp_hashinfo);
+	if (rc)
+		goto out_fail;
+	rc = -ENOBUFS;
+	dccp_hashinfo.bind_bucket_cachep =
+		kmem_cache_create("dccp_bind_bucket",
+				  sizeof(struct inet_bind_bucket), 0,
+				  SLAB_HWCACHE_ALIGN | SLAB_ACCOUNT, NULL);
+	if (!dccp_hashinfo.bind_bucket_cachep)
+		goto out_free_hashinfo2;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Size and allocate the main established and bind bucket
@@ -1154,10 +1268,17 @@ static int __init dccp_init(void)
 	 *
 	 * The methodology is similar to that of the buffer cache.
 	 */
+<<<<<<< HEAD
 	if (totalram_pages >= (128 * 1024))
 		goal = totalram_pages >> (21 - PAGE_SHIFT);
 	else
 		goal = totalram_pages >> (23 - PAGE_SHIFT);
+=======
+	if (nr_pages >= (128 * 1024))
+		goal = nr_pages >> (21 - PAGE_SHIFT);
+	else
+		goal = nr_pages >> (23 - PAGE_SHIFT);
+>>>>>>> upstream/android-13
 
 	if (thash_entries)
 		goal = (thash_entries *
@@ -1242,8 +1363,13 @@ out_free_dccp_ehash:
 	free_pages((unsigned long)dccp_hashinfo.ehash, ehash_order);
 out_free_bind_bucket_cachep:
 	kmem_cache_destroy(dccp_hashinfo.bind_bucket_cachep);
+<<<<<<< HEAD
 out_free_percpu:
 	percpu_counter_destroy(&dccp_orphan_count);
+=======
+out_free_hashinfo2:
+	inet_hashinfo2_free_mod(&dccp_hashinfo);
+>>>>>>> upstream/android-13
 out_fail:
 	dccp_hashinfo.bhash = NULL;
 	dccp_hashinfo.ehash = NULL;
@@ -1265,7 +1391,11 @@ static void __exit dccp_fini(void)
 	kmem_cache_destroy(dccp_hashinfo.bind_bucket_cachep);
 	dccp_ackvec_exit();
 	dccp_sysctl_exit();
+<<<<<<< HEAD
 	percpu_counter_destroy(&dccp_orphan_count);
+=======
+	inet_hashinfo2_free_mod(&dccp_hashinfo);
+>>>>>>> upstream/android-13
 }
 
 module_init(dccp_init);

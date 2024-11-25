@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * INET		An implementation of the TCP/IP protocol suite for the LINUX
  *		operating system.  INET is implemented using the  BSD Socket
@@ -14,11 +18,14 @@
  *		Florian La Roche,
  *		Jonathan Layes <layes@loran.com>
  *		Arnaldo Carvalho de Melo <acme@conectiva.com.br> ARPHRD_HWX25
+<<<<<<< HEAD
  *
  *		This program is free software; you can redistribute it and/or
  *		modify it under the terms of the GNU General Public License
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _LINUX_IF_ARP_H
 #define _LINUX_IF_ARP_H
@@ -52,9 +59,17 @@ static inline bool dev_is_mac_header_xmit(const struct net_device *dev)
 	case ARPHRD_TUNNEL6:
 	case ARPHRD_SIT:
 	case ARPHRD_IPGRE:
+<<<<<<< HEAD
 	case ARPHRD_VOID:
 	case ARPHRD_NONE:
 	case ARPHRD_RAWIP:
+=======
+	case ARPHRD_IP6GRE:
+	case ARPHRD_VOID:
+	case ARPHRD_NONE:
+	case ARPHRD_RAWIP:
+	case ARPHRD_PIMREG:
+>>>>>>> upstream/android-13
 		return false;
 	default:
 		return true;

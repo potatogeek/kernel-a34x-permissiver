@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  skl-sst-utils.c - SKL sst utils functions
  *
  *  Copyright (C) 2016 Intel Corp
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as version 2, as
@@ -11,11 +16,14 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
 #include <linux/slab.h>
 #include <linux/uuid.h>
+<<<<<<< HEAD
 #include "skl-sst-dsp.h"
 #include "../common/sst-dsp.h"
 #include "../common/sst-dsp-priv.h"
@@ -23,15 +31,24 @@
 
 
 #define UUID_STR_SIZE 37
+=======
+#include "../common/sst-dsp.h"
+#include "../common/sst-dsp-priv.h"
+#include "skl.h"
+
+>>>>>>> upstream/android-13
 #define DEFAULT_HASH_SHA256_LEN 32
 
 /* FW Extended Manifest Header id = $AE1 */
 #define SKL_EXT_MANIFEST_HEADER_MAGIC   0x31454124
 
+<<<<<<< HEAD
 struct UUID {
 	u8 id[16];
 };
 
+=======
+>>>>>>> upstream/android-13
 union seg_flags {
 	u32 ul;
 	struct {
@@ -65,7 +82,11 @@ struct module_type {
 struct adsp_module_entry {
 	u32 struct_id;
 	u8  name[8];
+<<<<<<< HEAD
 	struct UUID uuid;
+=======
+	u8  uuid[16];
+>>>>>>> upstream/android-13
 	struct module_type type;
 	u8  hash1[DEFAULT_HASH_SHA256_LEN];
 	u32 entry_point;
@@ -113,12 +134,20 @@ static int skl_get_pvtid_map(struct uuid_module *module, int instance_id)
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 int skl_get_pvt_instance_id_map(struct skl_sst *ctx,
+=======
+int skl_get_pvt_instance_id_map(struct skl_dev *skl,
+>>>>>>> upstream/android-13
 				int module_id, int instance_id)
 {
 	struct uuid_module *module;
 
+<<<<<<< HEAD
 	list_for_each_entry(module, &ctx->uuid_list, list) {
+=======
+	list_for_each_entry(module, &skl->uuid_list, list) {
+>>>>>>> upstream/android-13
 		if (module->id == module_id)
 			return skl_get_pvtid_map(module, instance_id);
 	}
@@ -177,20 +206,33 @@ static inline int skl_pvtid_128(struct uuid_module *module)
 /**
  * skl_get_pvt_id: generate a private id for use as module id
  *
+<<<<<<< HEAD
  * @ctx: driver context
+=======
+ * @skl: driver context
+>>>>>>> upstream/android-13
  * @uuid_mod: module's uuid
  * @instance_id: module's instance id
  *
  * This generates a 128 bit private unique id for a module TYPE so that
  * module instance is unique
  */
+<<<<<<< HEAD
 int skl_get_pvt_id(struct skl_sst *ctx, uuid_le *uuid_mod, int instance_id)
+=======
+int skl_get_pvt_id(struct skl_dev *skl, guid_t *uuid_mod, int instance_id)
+>>>>>>> upstream/android-13
 {
 	struct uuid_module *module;
 	int pvt_id;
 
+<<<<<<< HEAD
 	list_for_each_entry(module, &ctx->uuid_list, list) {
 		if (uuid_le_cmp(*uuid_mod, module->uuid) == 0) {
+=======
+	list_for_each_entry(module, &skl->uuid_list, list) {
+		if (guid_equal(uuid_mod, &module->uuid)) {
+>>>>>>> upstream/android-13
 
 			pvt_id = skl_pvtid_128(module);
 			if (pvt_id >= 0) {
@@ -208,19 +250,32 @@ EXPORT_SYMBOL_GPL(skl_get_pvt_id);
 /**
  * skl_put_pvt_id: free up the private id allocated
  *
+<<<<<<< HEAD
  * @ctx: driver context
+=======
+ * @skl: driver context
+>>>>>>> upstream/android-13
  * @uuid_mod: module's uuid
  * @pvt_id: module pvt id
  *
  * This frees a 128 bit private unique id previously generated
  */
+<<<<<<< HEAD
 int skl_put_pvt_id(struct skl_sst *ctx, uuid_le *uuid_mod, int *pvt_id)
+=======
+int skl_put_pvt_id(struct skl_dev *skl, guid_t *uuid_mod, int *pvt_id)
+>>>>>>> upstream/android-13
 {
 	int i;
 	struct uuid_module *module;
 
+<<<<<<< HEAD
 	list_for_each_entry(module, &ctx->uuid_list, list) {
 		if (uuid_le_cmp(*uuid_mod, module->uuid) == 0) {
+=======
+	list_for_each_entry(module, &skl->uuid_list, list) {
+		if (guid_equal(uuid_mod, &module->uuid)) {
+>>>>>>> upstream/android-13
 
 			if (*pvt_id != 0)
 				i = (*pvt_id) / 64;
@@ -247,6 +302,7 @@ int snd_skl_parse_uuids(struct sst_dsp *ctx, const struct firmware *fw,
 	struct adsp_fw_hdr *adsp_hdr;
 	struct adsp_module_entry *mod_entry;
 	int i, num_entry, size;
+<<<<<<< HEAD
 	uuid_le *uuid_bin;
 	const char *buf;
 	struct skl_sst *skl = ctx->thread_context;
@@ -254,6 +310,14 @@ int snd_skl_parse_uuids(struct sst_dsp *ctx, const struct firmware *fw,
 	struct firmware stripped_fw;
 	unsigned int safe_file;
 	int ret = 0;
+=======
+	const char *buf;
+	struct skl_dev *skl = ctx->thread_context;
+	struct uuid_module *module;
+	struct firmware stripped_fw;
+	unsigned int safe_file;
+	int ret;
+>>>>>>> upstream/android-13
 
 	/* Get the FW pointer to derive ADSP header */
 	stripped_fw.data = fw->data;
@@ -279,8 +343,12 @@ int snd_skl_parse_uuids(struct sst_dsp *ctx, const struct firmware *fw,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	mod_entry = (struct adsp_module_entry *)
 		(buf + offset + adsp_hdr->len);
+=======
+	mod_entry = (struct adsp_module_entry *)(buf + offset + adsp_hdr->len);
+>>>>>>> upstream/android-13
 
 	num_entry = adsp_hdr->num_modules;
 
@@ -307,8 +375,12 @@ int snd_skl_parse_uuids(struct sst_dsp *ctx, const struct firmware *fw,
 			goto free_uuid_list;
 		}
 
+<<<<<<< HEAD
 		uuid_bin = (uuid_le *)mod_entry->uuid.id;
 		memcpy(&module->uuid, uuid_bin, sizeof(module->uuid));
+=======
+		import_guid(&module->uuid, mod_entry->uuid);
+>>>>>>> upstream/android-13
 
 		module->id = (i | (index << 12));
 		module->is_loadable = mod_entry->type.load_type;
@@ -334,11 +406,19 @@ free_uuid_list:
 	return ret;
 }
 
+<<<<<<< HEAD
 void skl_freeup_uuid_list(struct skl_sst *ctx)
 {
 	struct uuid_module *uuid, *_uuid;
 
 	list_for_each_entry_safe(uuid, _uuid, &ctx->uuid_list, list) {
+=======
+void skl_freeup_uuid_list(struct skl_dev *skl)
+{
+	struct uuid_module *uuid, *_uuid;
+
+	list_for_each_entry_safe(uuid, _uuid, &skl->uuid_list, list) {
+>>>>>>> upstream/android-13
 		list_del(&uuid->list);
 		kfree(uuid);
 	}
@@ -372,6 +452,7 @@ int skl_dsp_strip_extended_manifest(struct firmware *fw)
 }
 
 int skl_sst_ctx_init(struct device *dev, int irq, const char *fw_name,
+<<<<<<< HEAD
 	struct skl_dsp_loader_ops dsp_ops, struct skl_sst **dsp,
 	struct sst_dsp_device *skl_dev)
 {
@@ -382,6 +463,14 @@ int skl_sst_ctx_init(struct device *dev, int irq, const char *fw_name,
 	if (skl == NULL)
 		return -ENOMEM;
 
+=======
+	struct skl_dsp_loader_ops dsp_ops, struct skl_dev **dsp,
+	struct sst_dsp_device *skl_dev)
+{
+	struct skl_dev *skl = *dsp;
+	struct sst_dsp *sst;
+
+>>>>>>> upstream/android-13
 	skl->dev = dev;
 	skl_dev->thread_context = skl;
 	INIT_LIST_HEAD(&skl->uuid_list);
@@ -398,13 +487,20 @@ int skl_sst_ctx_init(struct device *dev, int irq, const char *fw_name,
 	INIT_LIST_HEAD(&sst->module_list);
 
 	skl->is_first_boot = true;
+<<<<<<< HEAD
 	if (dsp)
 		*dsp = skl;
+=======
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 int skl_prepare_lib_load(struct skl_sst *skl, struct skl_lib_info *linfo,
+=======
+int skl_prepare_lib_load(struct skl_dev *skl, struct skl_lib_info *linfo,
+>>>>>>> upstream/android-13
 		struct firmware *stripped_fw,
 		unsigned int hdr_offset, int index)
 {

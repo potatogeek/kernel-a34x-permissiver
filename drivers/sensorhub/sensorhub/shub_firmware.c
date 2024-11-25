@@ -49,6 +49,10 @@ u32 cur_fw_version;
 #define FW_VER_LEN 8
 
 #define FW_HEADER_OFFSET	(0xF0)
+<<<<<<< HEAD
+=======
+#define CONFIG_SHUB_SPU
+>>>>>>> upstream/android-13
 
 u32 get_fw_version(char *fw_buf)
 {

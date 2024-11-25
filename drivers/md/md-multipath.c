@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * multipath.c : Multiple Devices driver for Linux
  *
@@ -8,6 +12,7 @@
  * MULTIPATH management functions.
  *
  * derived from raid1.c.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License
  * (for example /usr/src/linux/COPYING); if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/blkdev.h>
@@ -139,7 +146,11 @@ static bool multipath_make_request(struct mddev *mddev, struct bio * bio)
 	mp_bh->bio.bi_private = mp_bh;
 	mddev_check_writesame(mddev, &mp_bh->bio);
 	mddev_check_write_zeroes(mddev, &mp_bh->bio);
+<<<<<<< HEAD
 	generic_make_request(&mp_bh->bio);
+=======
+	submit_bio_noacct(&mp_bh->bio);
+>>>>>>> upstream/android-13
 	return true;
 }
 
@@ -159,6 +170,7 @@ static void multipath_status(struct seq_file *seq, struct mddev *mddev)
 	seq_putc(seq, ']');
 }
 
+<<<<<<< HEAD
 static int multipath_congested(struct mddev *mddev, int bits)
 {
 	struct mpconf *conf = mddev->private;
@@ -181,6 +193,8 @@ static int multipath_congested(struct mddev *mddev, int bits)
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Careful, this can execute in IRQ contexts as well!
  */
@@ -356,7 +370,11 @@ static void multipathd(struct md_thread *thread)
 			bio->bi_opf |= REQ_FAILFAST_TRANSPORT;
 			bio->bi_end_io = multipath_end_request;
 			bio->bi_private = mp_bh;
+<<<<<<< HEAD
 			generic_make_request(bio);
+=======
+			submit_bio_noacct(bio);
+>>>>>>> upstream/android-13
 		}
 	}
 	spin_unlock_irqrestore(&conf->device_lock, flags);
@@ -486,7 +504,10 @@ static struct md_personality multipath_personality =
 	.hot_add_disk	= multipath_add_disk,
 	.hot_remove_disk= multipath_remove_disk,
 	.size		= multipath_size,
+<<<<<<< HEAD
 	.congested	= multipath_congested,
+=======
+>>>>>>> upstream/android-13
 };
 
 static int __init multipath_init (void)
@@ -502,7 +523,11 @@ static void __exit multipath_exit (void)
 module_init(multipath_init);
 module_exit(multipath_exit);
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_DESCRIPTION("simple multi-path personality for MD");
+=======
+MODULE_DESCRIPTION("simple multi-path personality for MD (deprecated)");
+>>>>>>> upstream/android-13
 MODULE_ALIAS("md-personality-7"); /* MULTIPATH */
 MODULE_ALIAS("md-multipath");
 MODULE_ALIAS("md-level--4");

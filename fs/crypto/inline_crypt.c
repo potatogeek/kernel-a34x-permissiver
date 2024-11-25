@@ -16,10 +16,17 @@
 #include <linux/blkdev.h>
 #include <linux/buffer_head.h>
 #include <linux/keyslot-manager.h>
+<<<<<<< HEAD
 #include <linux/uio.h>
 
 #include <uapi/linux/magic.h>
 
+=======
+#include <linux/sched/mm.h>
+#include <linux/slab.h>
+#include <linux/uio.h>
+
+>>>>>>> upstream/android-13
 #include "fscrypt_private.h"
 
 struct fscrypt_blk_crypto_key {
@@ -71,16 +78,23 @@ int fscrypt_select_encryption_impl(struct fscrypt_info *ci,
 {
 	const struct inode *inode = ci->ci_inode;
 	struct super_block *sb = inode->i_sb;
+<<<<<<< HEAD
 	enum blk_crypto_mode_num crypto_mode = ci->ci_mode->blk_crypto_mode;
 	unsigned int dun_bytes;
 	struct request_queue **devs;
 	int num_devs;
+=======
+	struct blk_crypto_config crypto_cfg;
+	int num_devs;
+	struct request_queue **devs;
+>>>>>>> upstream/android-13
 	int i;
 
 	/* The file must need contents encryption, not filenames encryption */
 	if (!S_ISREG(inode->i_mode))
 		return 0;
 
+<<<<<<< HEAD
 	/* blk-crypto must implement the needed encryption algorithm */
 	if (crypto_mode == BLK_ENCRYPTION_MODE_INVALID)
 		return 0;
@@ -88,6 +102,14 @@ int fscrypt_select_encryption_impl(struct fscrypt_info *ci,
 	/* The filesystem must be mounted with -o inlinecrypt */
 	if (!sb->s_cop->inline_crypt_enabled ||
 	    !sb->s_cop->inline_crypt_enabled(sb))
+=======
+	/* The crypto mode must have a blk-crypto counterpart */
+	if (ci->ci_mode->blk_crypto_mode == BLK_ENCRYPTION_MODE_INVALID)
+		return 0;
+
+	/* The filesystem must be mounted with -o inlinecrypt */
+	if (!(sb->s_flags & SB_INLINECRYPT))
+>>>>>>> upstream/android-13
 		return 0;
 
 	/*
@@ -104,6 +126,7 @@ int fscrypt_select_encryption_impl(struct fscrypt_info *ci,
 		return 0;
 
 	/*
+<<<<<<< HEAD
 	 * The needed encryption settings must be supported either by
 	 * blk-crypto-fallback, or by hardware on all the filesystem's devices.
 	 */
@@ -129,12 +152,33 @@ int fscrypt_select_encryption_impl(struct fscrypt_info *ci,
 							   dun_bytes,
 							   sb->s_blocksize,
 							   is_hw_wrapped_key))
+=======
+	 * On all the filesystem's devices, blk-crypto must support the crypto
+	 * configuration that the file would use.
+	 */
+	crypto_cfg.crypto_mode = ci->ci_mode->blk_crypto_mode;
+	crypto_cfg.data_unit_size = sb->s_blocksize;
+	crypto_cfg.dun_bytes = fscrypt_get_dun_bytes(ci);
+	crypto_cfg.is_hw_wrapped = is_hw_wrapped_key;
+	num_devs = fscrypt_get_num_devices(sb);
+	devs = kmalloc_array(num_devs, sizeof(*devs), GFP_KERNEL);
+	if (!devs)
+		return -ENOMEM;
+	fscrypt_get_devices(sb, num_devs, devs);
+
+	for (i = 0; i < num_devs; i++) {
+		if (!blk_crypto_config_supported(devs[i], &crypto_cfg))
+>>>>>>> upstream/android-13
 			goto out_free_devs;
 	}
 
 	ci->ci_inlinecrypt = true;
 out_free_devs:
 	kfree(devs);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -147,42 +191,61 @@ int fscrypt_prepare_inline_crypt_key(struct fscrypt_prepared_key *prep_key,
 	const struct inode *inode = ci->ci_inode;
 	struct super_block *sb = inode->i_sb;
 	enum blk_crypto_mode_num crypto_mode = ci->ci_mode->blk_crypto_mode;
+<<<<<<< HEAD
 	unsigned int dun_bytes;
 	int num_devs;
+=======
+	int num_devs = fscrypt_get_num_devices(sb);
+>>>>>>> upstream/android-13
 	int queue_refs = 0;
 	struct fscrypt_blk_crypto_key *blk_key;
 	int err;
 	int i;
 
+<<<<<<< HEAD
 	num_devs = fscrypt_get_num_devices(sb);
 	if (WARN_ON(num_devs < 1))
 		return -EINVAL;
 
 	blk_key = kzalloc(struct_size(blk_key, devs, num_devs), GFP_NOFS);
+=======
+	blk_key = kzalloc(struct_size(blk_key, devs, num_devs), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!blk_key)
 		return -ENOMEM;
 
 	blk_key->num_devs = num_devs;
 	fscrypt_get_devices(sb, num_devs, blk_key->devs);
 
+<<<<<<< HEAD
 	dun_bytes = fscrypt_get_dun_bytes(ci);
 
+=======
+>>>>>>> upstream/android-13
 	BUILD_BUG_ON(FSCRYPT_MAX_HW_WRAPPED_KEY_SIZE >
 		     BLK_CRYPTO_MAX_WRAPPED_KEY_SIZE);
 
 	err = blk_crypto_init_key(&blk_key->base, raw_key, raw_key_size,
+<<<<<<< HEAD
 				  is_hw_wrapped, crypto_mode, dun_bytes,
 				  sb->s_blocksize);
+=======
+				  is_hw_wrapped, crypto_mode,
+				  fscrypt_get_dun_bytes(ci), sb->s_blocksize);
+>>>>>>> upstream/android-13
 	if (err) {
 		fscrypt_err(inode, "error %d initializing blk-crypto key", err);
 		goto fail;
 	}
 
+<<<<<<< HEAD
 	/* A flag which will set eMMC crypto data unit size as 512 or 4096 */
 	if (ci->ci_policy.version == FSCRYPT_POLICY_V2 &&
 		S_ISREG(inode->i_mode))
 		blk_key->base.hie_duint_size = 4096;
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * We have to start using blk-crypto on all the filesystem's devices.
 	 * We also have to save all the request_queue's for later so that the
@@ -198,10 +261,15 @@ int fscrypt_prepare_inline_crypt_key(struct fscrypt_prepared_key *prep_key,
 		}
 		queue_refs++;
 
+<<<<<<< HEAD
 		err = blk_crypto_start_using_mode(crypto_mode, dun_bytes,
 						  sb->s_blocksize,
 						  is_hw_wrapped,
 						  blk_key->devs[i]);
+=======
+		err = blk_crypto_start_using_key(&blk_key->base,
+						 blk_key->devs[i]);
+>>>>>>> upstream/android-13
 		if (err) {
 			fscrypt_err(inode,
 				    "error %d starting to use blk-crypto", err);
@@ -220,7 +288,11 @@ int fscrypt_prepare_inline_crypt_key(struct fscrypt_prepared_key *prep_key,
 fail:
 	for (i = 0; i < queue_refs; i++)
 		blk_put_queue(blk_key->devs[i]);
+<<<<<<< HEAD
 	kzfree(blk_key);
+=======
+	kfree_sensitive(blk_key);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -231,11 +303,18 @@ void fscrypt_destroy_inline_crypt_key(struct fscrypt_prepared_key *prep_key)
 
 	if (blk_key) {
 		for (i = 0; i < blk_key->num_devs; i++) {
+<<<<<<< HEAD
 			blk_key->base.hie_duint_size = 0;
 			blk_crypto_evict_key(blk_key->devs[i], &blk_key->base);
 			blk_put_queue(blk_key->devs[i]);
 		}
 		kzfree(blk_key);
+=======
+			blk_crypto_evict_key(blk_key->devs[i], &blk_key->base);
+			blk_put_queue(blk_key->devs[i]);
+		}
+		kfree_sensitive(blk_key);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -246,6 +325,7 @@ int fscrypt_derive_raw_secret(struct super_block *sb,
 {
 	struct request_queue *q;
 
+<<<<<<< HEAD
 	q = sb->s_bdev->bd_queue;
 	if (!q->ksm)
 		return -EOPNOTSUPP;
@@ -336,6 +416,21 @@ static void fscrypt_generate_iv_spec(union fscrypt_iv *iv, u64 lblk_num,
 		iv->lblk_num = cpu_to_le64(lblk_num);
 	}
 }
+=======
+	q = bdev_get_queue(sb->s_bdev);
+	if (!q->ksm)
+		return -EOPNOTSUPP;
+
+	return blk_ksm_derive_raw_secret(q->ksm, wrapped_key, wrapped_key_size,
+					 raw_secret, raw_secret_size);
+}
+
+bool __fscrypt_inode_uses_inline_crypto(const struct inode *inode)
+{
+	return inode->i_crypt_info->ci_inlinecrypt;
+}
+EXPORT_SYMBOL_GPL(__fscrypt_inode_uses_inline_crypto);
+>>>>>>> upstream/android-13
 
 static void fscrypt_generate_dun(const struct fscrypt_info *ci, u64 lblk_num,
 				 u64 dun[BLK_CRYPTO_DUN_ARRAY_SIZE])
@@ -343,10 +438,14 @@ static void fscrypt_generate_dun(const struct fscrypt_info *ci, u64 lblk_num,
 	union fscrypt_iv iv;
 	int i;
 
+<<<<<<< HEAD
 	if (ci->ci_policy.version == FSCRYPT_POLICY_V1)
 		fscrypt_generate_iv_spec(&iv, lblk_num, ci);
 	else
 		fscrypt_generate_iv(&iv, lblk_num, ci);
+=======
+	fscrypt_generate_iv(&iv, lblk_num, ci);
+>>>>>>> upstream/android-13
 
 	BUILD_BUG_ON(FSCRYPT_MAX_IV_SIZE > BLK_CRYPTO_MAX_IV_SIZE);
 	memset(dun, 0, BLK_CRYPTO_MAX_IV_SIZE);
@@ -354,6 +453,7 @@ static void fscrypt_generate_dun(const struct fscrypt_info *ci, u64 lblk_num,
 		dun[i] = le64_to_cpu(iv.dun[i]);
 }
 
+<<<<<<< HEAD
 static void fscrypt_check_hie_ext4(struct bio *bio, const struct inode *inode)
 {
 	const struct fscrypt_info *ci = inode->i_crypt_info;
@@ -366,6 +466,10 @@ static void fscrypt_check_hie_ext4(struct bio *bio, const struct inode *inode)
 
 /**
  * fscrypt_set_bio_crypt_ctx - prepare a file contents bio for inline encryption
+=======
+/**
+ * fscrypt_set_bio_crypt_ctx() - prepare a file contents bio for inline crypto
+>>>>>>> upstream/android-13
  * @bio: a bio which will eventually be submitted to the file
  * @inode: the file's inode
  * @first_lblk: the first file logical block number in the I/O
@@ -385,7 +489,11 @@ static void fscrypt_check_hie_ext4(struct bio *bio, const struct inode *inode)
 void fscrypt_set_bio_crypt_ctx(struct bio *bio, const struct inode *inode,
 			       u64 first_lblk, gfp_t gfp_mask)
 {
+<<<<<<< HEAD
 	const struct fscrypt_info *ci = inode->i_crypt_info;
+=======
+	const struct fscrypt_info *ci;
+>>>>>>> upstream/android-13
 	u64 dun[BLK_CRYPTO_DUN_ARRAY_SIZE];
 
 	if (fscrypt_inode_should_skip_dm_default_key(inode))
@@ -393,10 +501,17 @@ void fscrypt_set_bio_crypt_ctx(struct bio *bio, const struct inode *inode,
 
 	if (!fscrypt_inode_uses_inline_crypto(inode))
 		return;
+<<<<<<< HEAD
 
 	fscrypt_generate_dun(ci, first_lblk, dun);
 	bio_crypt_set_ctx(bio, &ci->ci_key.blk_key->base, dun, gfp_mask);
 	fscrypt_check_hie_ext4(bio, inode);
+=======
+	ci = inode->i_crypt_info;
+
+	fscrypt_generate_dun(ci, first_lblk, dun);
+	bio_crypt_set_ctx(bio, &ci->ci_enc_key.blk_key->base, dun, gfp_mask);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(fscrypt_set_bio_crypt_ctx);
 
@@ -425,8 +540,13 @@ static bool bh_get_inode_and_lblk_num(const struct buffer_head *bh,
 }
 
 /**
+<<<<<<< HEAD
  * fscrypt_set_bio_crypt_ctx_bh - prepare a file contents bio for inline
  *				  encryption
+=======
+ * fscrypt_set_bio_crypt_ctx_bh() - prepare a file contents bio for inline
+ *				    crypto
+>>>>>>> upstream/android-13
  * @bio: a bio which will eventually be submitted to the file
  * @first_bh: the first buffer_head for which I/O will be submitted
  * @gfp_mask: memory allocation flags
@@ -435,8 +555,13 @@ static bool bh_get_inode_and_lblk_num(const struct buffer_head *bh,
  * of an inode and block number directly.
  */
 void fscrypt_set_bio_crypt_ctx_bh(struct bio *bio,
+<<<<<<< HEAD
 				 const struct buffer_head *first_bh,
 				 gfp_t gfp_mask)
+=======
+				  const struct buffer_head *first_bh,
+				  gfp_t gfp_mask)
+>>>>>>> upstream/android-13
 {
 	const struct inode *inode;
 	u64 first_lblk;
@@ -447,20 +572,35 @@ void fscrypt_set_bio_crypt_ctx_bh(struct bio *bio,
 EXPORT_SYMBOL_GPL(fscrypt_set_bio_crypt_ctx_bh);
 
 /**
+<<<<<<< HEAD
  * fscrypt_mergeable_bio - test whether data can be added to a bio
+=======
+ * fscrypt_mergeable_bio() - test whether data can be added to a bio
+>>>>>>> upstream/android-13
  * @bio: the bio being built up
  * @inode: the inode for the next part of the I/O
  * @next_lblk: the next file logical block number in the I/O
  *
  * When building a bio which may contain data which should undergo inline
  * encryption (or decryption) via fscrypt, filesystems should call this function
+<<<<<<< HEAD
  * to ensure that the resulting bio contains only logically contiguous data.
+=======
+ * to ensure that the resulting bio contains only contiguous data unit numbers.
+>>>>>>> upstream/android-13
  * This will return false if the next part of the I/O cannot be merged with the
  * bio because either the encryption key would be different or the encryption
  * data unit numbers would be discontiguous.
  *
  * fscrypt_set_bio_crypt_ctx() must have already been called on the bio.
  *
+<<<<<<< HEAD
+=======
+ * This function isn't required in cases where crypto-mergeability is ensured in
+ * another way, such as I/O targeting only a single file (and thus a single key)
+ * combined with fscrypt_limit_io_blocks() to ensure DUN contiguity.
+ *
+>>>>>>> upstream/android-13
  * This function also returns false if the next part of the I/O would need to
  * have a different value for the bi_skip_dm_default_key flag.
  *
@@ -485,17 +625,28 @@ bool fscrypt_mergeable_bio(struct bio *bio, const struct inode *inode,
 	 * uses the same pointer.  I.e., there's currently no need to support
 	 * merging requests where the keys are the same but the pointers differ.
 	 */
+<<<<<<< HEAD
 	if (bc->bc_key != &inode->i_crypt_info->ci_key.blk_key->base)
 		return false;
 
 	fscrypt_generate_dun(inode->i_crypt_info, next_lblk, next_dun);
 	fscrypt_check_hie_ext4(bio, inode);
+=======
+	if (bc->bc_key != &inode->i_crypt_info->ci_enc_key.blk_key->base)
+		return false;
+
+	fscrypt_generate_dun(inode->i_crypt_info, next_lblk, next_dun);
+>>>>>>> upstream/android-13
 	return bio_crypt_dun_is_contiguous(bc, bio->bi_iter.bi_size, next_dun);
 }
 EXPORT_SYMBOL_GPL(fscrypt_mergeable_bio);
 
 /**
+<<<<<<< HEAD
  * fscrypt_mergeable_bio_bh - test whether data can be added to a bio
+=======
+ * fscrypt_mergeable_bio_bh() - test whether data can be added to a bio
+>>>>>>> upstream/android-13
  * @bio: the bio being built up
  * @next_bh: the next buffer_head for which I/O will be submitted
  *
@@ -519,12 +670,24 @@ bool fscrypt_mergeable_bio_bh(struct bio *bio,
 EXPORT_SYMBOL_GPL(fscrypt_mergeable_bio_bh);
 
 /**
+<<<<<<< HEAD
  * fscrypt_dio_supported() - check whether a direct I/O request is unsupported
  *			     due to encryption constraints
  * @iocb: the file and position the I/O is targeting
  * @iter: the I/O data segment(s)
  *
  * Return: true if direct I/O is supported
+=======
+ * fscrypt_dio_supported() - check whether a DIO (direct I/O) request is
+ *			     supported as far as encryption is concerned
+ * @iocb: the file and position the I/O is targeting
+ * @iter: the I/O data segment(s)
+ *
+ * Return: %true if there are no encryption constraints that prevent DIO from
+ *	   being supported; %false if DIO is unsupported.  (Note that in the
+ *	   %true case, the filesystem might have other, non-encryption-related
+ *	   constraints that prevent DIO from actually being supported.)
+>>>>>>> upstream/android-13
  */
 bool fscrypt_dio_supported(struct kiocb *iocb, struct iov_iter *iter)
 {
@@ -535,13 +698,31 @@ bool fscrypt_dio_supported(struct kiocb *iocb, struct iov_iter *iter)
 	if (!fscrypt_needs_contents_encryption(inode))
 		return true;
 
+<<<<<<< HEAD
 	/* We only support direct I/O with inline crypto, not fs-layer crypto */
+=======
+	/* We only support DIO with inline crypto, not fs-layer crypto. */
+>>>>>>> upstream/android-13
 	if (!fscrypt_inode_uses_inline_crypto(inode))
 		return false;
 
 	/*
+<<<<<<< HEAD
 	 * Since the granularity of encryption is filesystem blocks, the I/O
 	 * must be block aligned -- not just disk sector aligned.
+=======
+	 * Since the granularity of encryption is filesystem blocks, the file
+	 * position and total I/O length must be aligned to the filesystem block
+	 * size -- not just to the block device's logical block size as is
+	 * traditionally the case for DIO on many filesystems.
+	 *
+	 * We require that the user-provided memory buffers be filesystem block
+	 * aligned too.  It is simpler to have a single alignment value required
+	 * for all properties of the I/O, as is normally the case for DIO.
+	 * Also, allowing less aligned buffers would imply that data units could
+	 * cross bvecs, which would greatly complicate the I/O stack, which
+	 * assumes that bios can be split at any bvec boundary.
+>>>>>>> upstream/android-13
 	 */
 	if (!IS_ALIGNED(iocb->ki_pos | iov_iter_alignment(iter), blocksize))
 		return false;
@@ -551,6 +732,7 @@ bool fscrypt_dio_supported(struct kiocb *iocb, struct iov_iter *iter)
 EXPORT_SYMBOL_GPL(fscrypt_dio_supported);
 
 /**
+<<<<<<< HEAD
  * fscrypt_limit_dio_pages() - limit I/O pages to avoid discontiguous DUNs
  * @inode: the file on which I/O is being done
  * @pos: the file position (in bytes) at which the I/O is being done
@@ -595,3 +777,47 @@ int fscrypt_limit_dio_pages(const struct inode *inode, loff_t pos, int nr_pages)
 
 	return min_t(u64, nr_pages, (u64)U32_MAX + 1 - dun);
 }
+=======
+ * fscrypt_limit_io_blocks() - limit I/O blocks to avoid discontiguous DUNs
+ * @inode: the file on which I/O is being done
+ * @lblk: the block at which the I/O is being started from
+ * @nr_blocks: the number of blocks we want to submit starting at @lblk
+ *
+ * Determine the limit to the number of blocks that can be submitted in a bio
+ * targeting @lblk without causing a data unit number (DUN) discontiguity.
+ *
+ * This is normally just @nr_blocks, as normally the DUNs just increment along
+ * with the logical blocks.  (Or the file is not encrypted.)
+ *
+ * In rare cases, fscrypt can be using an IV generation method that allows the
+ * DUN to wrap around within logically contiguous blocks, and that wraparound
+ * will occur.  If this happens, a value less than @nr_blocks will be returned
+ * so that the wraparound doesn't occur in the middle of a bio, which would
+ * cause encryption/decryption to produce wrong results.
+ *
+ * Return: the actual number of blocks that can be submitted
+ */
+u64 fscrypt_limit_io_blocks(const struct inode *inode, u64 lblk, u64 nr_blocks)
+{
+	const struct fscrypt_info *ci;
+	u32 dun;
+
+	if (!fscrypt_inode_uses_inline_crypto(inode))
+		return nr_blocks;
+
+	if (nr_blocks <= 1)
+		return nr_blocks;
+
+	ci = inode->i_crypt_info;
+	if (!(fscrypt_policy_flags(&ci->ci_policy) &
+	      FSCRYPT_POLICY_FLAG_IV_INO_LBLK_32))
+		return nr_blocks;
+
+	/* With IV_INO_LBLK_32, the DUN can wrap around from U32_MAX to 0. */
+
+	dun = ci->ci_hashed_ino + lblk;
+
+	return min_t(u64, nr_blocks, (u64)U32_MAX + 1 - dun);
+}
+EXPORT_SYMBOL_GPL(fscrypt_limit_io_blocks);
+>>>>>>> upstream/android-13

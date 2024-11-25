@@ -4,12 +4,21 @@
 #ifndef __MLX5E_FLOW_STEER_H__
 #define __MLX5E_FLOW_STEER_H__
 
+<<<<<<< HEAD
+=======
+#include "mod_hdr.h"
+#include "lib/fs_ttc.h"
+
+struct mlx5e_post_act;
+
+>>>>>>> upstream/android-13
 enum {
 	MLX5E_TC_FT_LEVEL = 0,
 	MLX5E_TC_TTC_FT_LEVEL,
 };
 
 struct mlx5e_tc_table {
+<<<<<<< HEAD
 	struct mlx5_flow_table		*t;
 
 	struct rhashtable               ht;
@@ -18,6 +27,27 @@ struct mlx5e_tc_table {
 	DECLARE_HASHTABLE(hairpin_tbl, 8);
 
 	struct notifier_block     netdevice_nb;
+=======
+	/* Protects the dynamic assignment of the t parameter
+	 * which is the nic tc root table.
+	 */
+	struct mutex			t_lock;
+	struct mlx5_flow_table		*t;
+	struct mlx5_fs_chains           *chains;
+	struct mlx5e_post_act		*post_act;
+
+	struct rhashtable               ht;
+
+	struct mod_hdr_tbl mod_hdr;
+	struct mutex hairpin_tbl_lock; /* protects hairpin_tbl */
+	DECLARE_HASHTABLE(hairpin_tbl, 8);
+
+	struct notifier_block     netdevice_nb;
+	struct netdev_net_notifier	netdevice_nn;
+
+	struct mlx5_tc_ct_priv         *ct;
+	struct mapping_ctx             *mapping;
+>>>>>>> upstream/android-13
 };
 
 struct mlx5e_flow_table {
@@ -33,6 +63,7 @@ struct mlx5e_l2_rule {
 
 #define MLX5E_L2_ADDR_HASH_SIZE BIT(BITS_PER_BYTE)
 
+<<<<<<< HEAD
 struct mlx5e_vlan_table {
 	struct mlx5e_flow_table		ft;
 	DECLARE_BITMAP(active_cvlans, VLAN_N_VID);
@@ -45,18 +76,35 @@ struct mlx5e_vlan_table {
 	bool			cvlan_filter_disabled;
 };
 
+=======
+struct mlx5e_promisc_table {
+	struct mlx5e_flow_table	ft;
+	struct mlx5_flow_handle	*rule;
+};
+
+/* Forward declaration and APIs to get private fields of vlan_table */
+struct mlx5e_vlan_table;
+unsigned long *mlx5e_vlan_get_active_svlans(struct mlx5e_vlan_table *vlan);
+struct mlx5_flow_table *mlx5e_vlan_get_flowtable(struct mlx5e_vlan_table *vlan);
+
+>>>>>>> upstream/android-13
 struct mlx5e_l2_table {
 	struct mlx5e_flow_table    ft;
 	struct hlist_head          netdev_uc[MLX5E_L2_ADDR_HASH_SIZE];
 	struct hlist_head          netdev_mc[MLX5E_L2_ADDR_HASH_SIZE];
 	struct mlx5e_l2_rule	   broadcast;
 	struct mlx5e_l2_rule	   allmulti;
+<<<<<<< HEAD
 	struct mlx5e_l2_rule	   promisc;
+=======
+	struct mlx5_flow_handle    *trap_rule;
+>>>>>>> upstream/android-13
 	bool                       broadcast_enabled;
 	bool                       allmulti_enabled;
 	bool                       promisc_enabled;
 };
 
+<<<<<<< HEAD
 enum mlx5e_traffic_types {
 	MLX5E_TT_IPV4_TCP,
 	MLX5E_TT_IPV6_TCP,
@@ -97,6 +145,43 @@ enum {
 #endif
 };
 
+=======
+#define MLX5E_NUM_INDIR_TIRS (MLX5_NUM_TT - 1)
+
+#define MLX5_HASH_IP		(MLX5_HASH_FIELD_SEL_SRC_IP   |\
+				 MLX5_HASH_FIELD_SEL_DST_IP)
+#define MLX5_HASH_IP_L4PORTS	(MLX5_HASH_FIELD_SEL_SRC_IP   |\
+				 MLX5_HASH_FIELD_SEL_DST_IP   |\
+				 MLX5_HASH_FIELD_SEL_L4_SPORT |\
+				 MLX5_HASH_FIELD_SEL_L4_DPORT)
+#define MLX5_HASH_IP_IPSEC_SPI	(MLX5_HASH_FIELD_SEL_SRC_IP   |\
+				 MLX5_HASH_FIELD_SEL_DST_IP   |\
+				 MLX5_HASH_FIELD_SEL_IPSEC_SPI)
+
+/* NIC prio FTS */
+enum {
+	MLX5E_PROMISC_FT_LEVEL,
+	MLX5E_VLAN_FT_LEVEL,
+	MLX5E_L2_FT_LEVEL,
+	MLX5E_TTC_FT_LEVEL,
+	MLX5E_INNER_TTC_FT_LEVEL,
+	MLX5E_FS_TT_UDP_FT_LEVEL = MLX5E_INNER_TTC_FT_LEVEL + 1,
+	MLX5E_FS_TT_ANY_FT_LEVEL = MLX5E_INNER_TTC_FT_LEVEL + 1,
+#ifdef CONFIG_MLX5_EN_TLS
+	MLX5E_ACCEL_FS_TCP_FT_LEVEL = MLX5E_INNER_TTC_FT_LEVEL + 1,
+#endif
+#ifdef CONFIG_MLX5_EN_ARFS
+	MLX5E_ARFS_FT_LEVEL = MLX5E_INNER_TTC_FT_LEVEL + 1,
+#endif
+#ifdef CONFIG_MLX5_EN_IPSEC
+	MLX5E_ACCEL_FS_ESP_FT_LEVEL = MLX5E_INNER_TTC_FT_LEVEL + 1,
+	MLX5E_ACCEL_FS_ESP_FT_ERR_LEVEL,
+#endif
+};
+
+struct mlx5e_priv;
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_MLX5_EN_RXNFC
 
 struct mlx5e_ethtool_table {
@@ -116,6 +201,7 @@ struct mlx5e_ethtool_steering {
 
 void mlx5e_ethtool_init_steering(struct mlx5e_priv *priv);
 void mlx5e_ethtool_cleanup_steering(struct mlx5e_priv *priv);
+<<<<<<< HEAD
 int mlx5e_set_rxnfc(struct net_device *dev, struct ethtool_rxnfc *cmd);
 int mlx5e_get_rxnfc(struct net_device *dev,
 		    struct ethtool_rxnfc *info, u32 *rule_locs);
@@ -150,6 +236,23 @@ struct mlx5e_arfs_tables {
 	int                            last_filter_id;
 	struct workqueue_struct        *wq;
 };
+=======
+int mlx5e_ethtool_set_rxnfc(struct net_device *dev, struct ethtool_rxnfc *cmd);
+int mlx5e_ethtool_get_rxnfc(struct net_device *dev,
+			    struct ethtool_rxnfc *info, u32 *rule_locs);
+#else
+static inline void mlx5e_ethtool_init_steering(struct mlx5e_priv *priv)    { }
+static inline void mlx5e_ethtool_cleanup_steering(struct mlx5e_priv *priv) { }
+static inline int mlx5e_ethtool_set_rxnfc(struct net_device *dev, struct ethtool_rxnfc *cmd)
+{ return -EOPNOTSUPP; }
+static inline int mlx5e_ethtool_get_rxnfc(struct net_device *dev,
+					  struct ethtool_rxnfc *info, u32 *rule_locs)
+{ return -EOPNOTSUPP; }
+#endif /* CONFIG_MLX5_EN_RXNFC */
+
+#ifdef CONFIG_MLX5_EN_ARFS
+struct mlx5e_arfs_tables;
+>>>>>>> upstream/android-13
 
 int mlx5e_arfs_create_tables(struct mlx5e_priv *priv);
 void mlx5e_arfs_destroy_tables(struct mlx5e_priv *priv);
@@ -164,12 +267,27 @@ static inline int mlx5e_arfs_enable(struct mlx5e_priv *priv) { return -EOPNOTSUP
 static inline int mlx5e_arfs_disable(struct mlx5e_priv *priv) {	return -EOPNOTSUPP; }
 #endif
 
+<<<<<<< HEAD
 struct mlx5e_flow_steering {
 	struct mlx5_flow_namespace      *ns;
+=======
+#ifdef CONFIG_MLX5_EN_TLS
+struct mlx5e_accel_fs_tcp;
+#endif
+
+struct mlx5e_fs_udp;
+struct mlx5e_fs_any;
+struct mlx5e_ptp_fs;
+
+struct mlx5e_flow_steering {
+	struct mlx5_flow_namespace      *ns;
+	struct mlx5_flow_namespace      *egress_ns;
+>>>>>>> upstream/android-13
 #ifdef CONFIG_MLX5_EN_RXNFC
 	struct mlx5e_ethtool_steering   ethtool;
 #endif
 	struct mlx5e_tc_table           tc;
+<<<<<<< HEAD
 	struct mlx5e_vlan_table         vlan;
 	struct mlx5e_l2_table           l2;
 	struct mlx5e_ttc_table          ttc;
@@ -199,6 +317,29 @@ int mlx5e_create_inner_ttc_table(struct mlx5e_priv *priv, struct ttc_params *par
 				 struct mlx5e_ttc_table *ttc);
 void mlx5e_destroy_inner_ttc_table(struct mlx5e_priv *priv,
 				   struct mlx5e_ttc_table *ttc);
+=======
+	struct mlx5e_promisc_table      promisc;
+	struct mlx5e_vlan_table         *vlan;
+	struct mlx5e_l2_table           l2;
+	struct mlx5_ttc_table           *ttc;
+	struct mlx5_ttc_table           *inner_ttc;
+#ifdef CONFIG_MLX5_EN_ARFS
+	struct mlx5e_arfs_tables       *arfs;
+#endif
+#ifdef CONFIG_MLX5_EN_TLS
+	struct mlx5e_accel_fs_tcp      *accel_tcp;
+#endif
+	struct mlx5e_fs_udp            *udp;
+	struct mlx5e_fs_any            *any;
+	struct mlx5e_ptp_fs            *ptp_fs;
+};
+
+void mlx5e_set_ttc_params(struct mlx5e_priv *priv,
+			  struct ttc_params *ttc_params, bool tunnel);
+
+void mlx5e_destroy_ttc_table(struct mlx5e_priv *priv);
+int mlx5e_create_ttc_table(struct mlx5e_priv *priv);
+>>>>>>> upstream/android-13
 
 void mlx5e_destroy_flow_table(struct mlx5e_flow_table *ft);
 
@@ -208,5 +349,16 @@ void mlx5e_disable_cvlan_filter(struct mlx5e_priv *priv);
 int mlx5e_create_flow_steering(struct mlx5e_priv *priv);
 void mlx5e_destroy_flow_steering(struct mlx5e_priv *priv);
 
+<<<<<<< HEAD
+=======
+int mlx5e_fs_init(struct mlx5e_priv *priv);
+void mlx5e_fs_cleanup(struct mlx5e_priv *priv);
+
+int mlx5e_add_vlan_trap(struct mlx5e_priv *priv, int  trap_id, int tir_num);
+void mlx5e_remove_vlan_trap(struct mlx5e_priv *priv);
+int mlx5e_add_mac_trap(struct mlx5e_priv *priv, int  trap_id, int tir_num);
+void mlx5e_remove_mac_trap(struct mlx5e_priv *priv);
+
+>>>>>>> upstream/android-13
 #endif /* __MLX5E_FLOW_STEER_H__ */
 

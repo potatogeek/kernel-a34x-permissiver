@@ -41,7 +41,11 @@ struct diff_mmio {
 
 /* Compare two diff_mmio items. */
 static int mmio_offset_compare(void *priv,
+<<<<<<< HEAD
 	struct list_head *a, struct list_head *b)
+=======
+	const struct list_head *a, const struct list_head *b)
+>>>>>>> upstream/android-13
 {
 	struct diff_mmio *ma;
 	struct diff_mmio *mb;
@@ -58,16 +62,27 @@ static int mmio_offset_compare(void *priv,
 static inline int mmio_diff_handler(struct intel_gvt *gvt,
 				    u32 offset, void *data)
 {
+<<<<<<< HEAD
 	struct drm_i915_private *dev_priv = gvt->dev_priv;
+=======
+>>>>>>> upstream/android-13
 	struct mmio_diff_param *param = data;
 	struct diff_mmio *node;
 	u32 preg, vreg;
 
+<<<<<<< HEAD
 	preg = I915_READ_NOTRACE(_MMIO(offset));
 	vreg = vgpu_vreg(param->vgpu, offset);
 
 	if (preg != vreg) {
 		node = kmalloc(sizeof(*node), GFP_KERNEL);
+=======
+	preg = intel_uncore_read_notrace(gvt->gt->uncore, _MMIO(offset));
+	vreg = vgpu_vreg(param->vgpu, offset);
+
+	if (preg != vreg) {
+		node = kmalloc(sizeof(*node), GFP_ATOMIC);
+>>>>>>> upstream/android-13
 		if (!node)
 			return -ENOMEM;
 
@@ -98,10 +113,17 @@ static int vgpu_mmio_diff_show(struct seq_file *s, void *unused)
 	mutex_lock(&gvt->lock);
 	spin_lock_bh(&gvt->scheduler.mmio_context_lock);
 
+<<<<<<< HEAD
 	mmio_hw_access_pre(gvt->dev_priv);
 	/* Recognize all the diff mmios to list. */
 	intel_gvt_for_each_tracked_mmio(gvt, mmio_diff_handler, &param);
 	mmio_hw_access_post(gvt->dev_priv);
+=======
+	mmio_hw_access_pre(gvt->gt);
+	/* Recognize all the diff mmios to list. */
+	intel_gvt_for_each_tracked_mmio(gvt, mmio_diff_handler, &param);
+	mmio_hw_access_post(gvt->gt);
+>>>>>>> upstream/android-13
 
 	spin_unlock_bh(&gvt->scheduler.mmio_context_lock);
 	mutex_unlock(&gvt->lock);
@@ -128,6 +150,10 @@ static int
 vgpu_scan_nonprivbb_get(void *data, u64 *val)
 {
 	struct intel_vgpu *vgpu = (struct intel_vgpu *)data;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	*val = vgpu->scan_nonprivbb;
 	return 0;
 }
@@ -142,6 +168,7 @@ static int
 vgpu_scan_nonprivbb_set(void *data, u64 val)
 {
 	struct intel_vgpu *vgpu = (struct intel_vgpu *)data;
+<<<<<<< HEAD
 	struct drm_i915_private *dev_priv = vgpu->gvt->dev_priv;
 	enum intel_engine_id id;
 	char buf[128], *s;
@@ -178,6 +205,9 @@ vgpu_scan_nonprivbb_set(void *data, u64 val)
 	pr_warn("%s\n", buf);
 
 done:
+=======
+
+>>>>>>> upstream/android-13
 	vgpu->scan_nonprivbb = val;
 	return 0;
 }
@@ -189,6 +219,7 @@ DEFINE_SIMPLE_ATTRIBUTE(vgpu_scan_nonprivbb_fops,
 /**
  * intel_gvt_debugfs_add_vgpu - register debugfs entries for a vGPU
  * @vgpu: a vGPU
+<<<<<<< HEAD
  *
  * Returns:
  * Zero on success, negative error code if failed.
@@ -219,6 +250,21 @@ int intel_gvt_debugfs_add_vgpu(struct intel_vgpu *vgpu)
 		return -ENOMEM;
 
 	return 0;
+=======
+ */
+void intel_gvt_debugfs_add_vgpu(struct intel_vgpu *vgpu)
+{
+	char name[16] = "";
+
+	snprintf(name, 16, "vgpu%d", vgpu->id);
+	vgpu->debugfs = debugfs_create_dir(name, vgpu->gvt->debugfs_root);
+
+	debugfs_create_bool("active", 0444, vgpu->debugfs, &vgpu->active);
+	debugfs_create_file("mmio_diff", 0444, vgpu->debugfs, vgpu,
+			    &vgpu_mmio_diff_fops);
+	debugfs_create_file("scan_nonprivbb", 0644, vgpu->debugfs, vgpu,
+			    &vgpu_scan_nonprivbb_fops);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -234,6 +280,7 @@ void intel_gvt_debugfs_remove_vgpu(struct intel_vgpu *vgpu)
 /**
  * intel_gvt_debugfs_init - register gvt debugfs root entry
  * @gvt: GVT device
+<<<<<<< HEAD
  *
  * Returns:
  * zero on success, negative if failed.
@@ -255,6 +302,17 @@ int intel_gvt_debugfs_init(struct intel_gvt *gvt)
 		return -ENOMEM;
 
 	return 0;
+=======
+ */
+void intel_gvt_debugfs_init(struct intel_gvt *gvt)
+{
+	struct drm_minor *minor = gvt->gt->i915->drm.primary;
+
+	gvt->debugfs_root = debugfs_create_dir("gvt", minor->debugfs_root);
+
+	debugfs_create_ulong("num_tracked_mmio", 0444, gvt->debugfs_root,
+			     &gvt->mmio.num_tracked_mmio);
+>>>>>>> upstream/android-13
 }
 
 /**

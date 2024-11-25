@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) International Business Machines Corp., 2006
  *
@@ -15,6 +16,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) International Business Machines Corp., 2006
+ *
+>>>>>>> upstream/android-13
  * Author: Artem Bityutskiy (Битюцкий Артём)
  */
 
@@ -974,6 +981,39 @@ static long ubi_cdev_ioctl(struct file *file, unsigned int cmd,
 		break;
 	}
 
+<<<<<<< HEAD
+=======
+	/* Check a specific PEB for bitflips and scrub it if needed */
+	case UBI_IOCRPEB:
+	{
+		int pnum;
+
+		err = get_user(pnum, (__user int32_t *)argp);
+		if (err) {
+			err = -EFAULT;
+			break;
+		}
+
+		err = ubi_bitflip_check(ubi, pnum, 0);
+		break;
+	}
+
+	/* Force scrubbing for a specific PEB */
+	case UBI_IOCSPEB:
+	{
+		int pnum;
+
+		err = get_user(pnum, (__user int32_t *)argp);
+		if (err) {
+			err = -EFAULT;
+			break;
+		}
+
+		err = ubi_bitflip_check(ubi, pnum, 1);
+		break;
+	}
+
+>>>>>>> upstream/android-13
 	default:
 		err = -ENOTTY;
 		break;
@@ -1061,6 +1101,7 @@ static long ctrl_cdev_ioctl(struct file *file, unsigned int cmd,
 	return err;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 static long vol_cdev_compat_ioctl(struct file *file, unsigned int cmd,
 				  unsigned long arg)
@@ -1091,6 +1132,8 @@ static long ctrl_cdev_compat_ioctl(struct file *file, unsigned int cmd,
 #define ctrl_cdev_compat_ioctl NULL
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /* UBI volume character device operations */
 const struct file_operations ubi_vol_cdev_operations = {
 	.owner          = THIS_MODULE,
@@ -1101,7 +1144,11 @@ const struct file_operations ubi_vol_cdev_operations = {
 	.write          = vol_cdev_write,
 	.fsync		= vol_cdev_fsync,
 	.unlocked_ioctl = vol_cdev_ioctl,
+<<<<<<< HEAD
 	.compat_ioctl   = vol_cdev_compat_ioctl,
+=======
+	.compat_ioctl   = compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 };
 
 /* UBI character device operations */
@@ -1109,13 +1156,21 @@ const struct file_operations ubi_cdev_operations = {
 	.owner          = THIS_MODULE,
 	.llseek         = no_llseek,
 	.unlocked_ioctl = ubi_cdev_ioctl,
+<<<<<<< HEAD
 	.compat_ioctl   = ubi_cdev_compat_ioctl,
+=======
+	.compat_ioctl   = compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 };
 
 /* UBI control character device operations */
 const struct file_operations ubi_ctrl_cdev_operations = {
 	.owner          = THIS_MODULE,
 	.unlocked_ioctl = ctrl_cdev_ioctl,
+<<<<<<< HEAD
 	.compat_ioctl   = ctrl_cdev_compat_ioctl,
+=======
+	.compat_ioctl   = compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 	.llseek		= no_llseek,
 };

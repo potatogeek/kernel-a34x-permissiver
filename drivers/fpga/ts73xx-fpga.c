@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Technologic Systems TS-73xx SBC FPGA loader
  *
@@ -5,6 +9,7 @@
  *
  * FPGA Manager Driver for the on-board Altera Cyclone II FPGA found on
  * TS-7300, heavily based on load_fpga.c in their vendor tree.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +19,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -40,11 +47,14 @@ struct ts73xx_fpga_priv {
 	struct device	*dev;
 };
 
+<<<<<<< HEAD
 static enum fpga_mgr_states ts73xx_fpga_state(struct fpga_manager *mgr)
 {
 	return FPGA_MGR_STATE_UNKNOWN;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int ts73xx_fpga_write_init(struct fpga_manager *mgr,
 				  struct fpga_image_info *info,
 				  const char *buf, size_t count)
@@ -106,7 +116,10 @@ static int ts73xx_fpga_write_complete(struct fpga_manager *mgr,
 }
 
 static const struct fpga_manager_ops ts73xx_fpga_ops = {
+<<<<<<< HEAD
 	.state		= ts73xx_fpga_state,
+=======
+>>>>>>> upstream/android-13
 	.write_init	= ts73xx_fpga_write_init,
 	.write		= ts73xx_fpga_write,
 	.write_complete	= ts73xx_fpga_write_complete,
@@ -118,7 +131,10 @@ static int ts73xx_fpga_probe(struct platform_device *pdev)
 	struct ts73xx_fpga_priv *priv;
 	struct fpga_manager *mgr;
 	struct resource *res;
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 
 	priv = devm_kzalloc(kdev, sizeof(*priv), GFP_KERNEL);
 	if (!priv)
@@ -128,6 +144,7 @@ static int ts73xx_fpga_probe(struct platform_device *pdev)
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	priv->io_base = devm_ioremap_resource(kdev, res);
+<<<<<<< HEAD
 	if (IS_ERR(priv->io_base)) {
 		dev_err(kdev, "unable to remap registers\n");
 		return PTR_ERR(priv->io_base);
@@ -154,6 +171,17 @@ static int ts73xx_fpga_remove(struct platform_device *pdev)
 	fpga_mgr_unregister(mgr);
 
 	return 0;
+=======
+	if (IS_ERR(priv->io_base))
+		return PTR_ERR(priv->io_base);
+
+	mgr = devm_fpga_mgr_create(kdev, "TS-73xx FPGA Manager",
+				   &ts73xx_fpga_ops, priv);
+	if (!mgr)
+		return -ENOMEM;
+
+	return devm_fpga_mgr_register(kdev, mgr);
+>>>>>>> upstream/android-13
 }
 
 static struct platform_driver ts73xx_fpga_driver = {
@@ -161,7 +189,10 @@ static struct platform_driver ts73xx_fpga_driver = {
 		.name	= "ts73xx-fpga-mgr",
 	},
 	.probe	= ts73xx_fpga_probe,
+<<<<<<< HEAD
 	.remove	= ts73xx_fpga_remove,
+=======
+>>>>>>> upstream/android-13
 };
 module_platform_driver(ts73xx_fpga_driver);
 

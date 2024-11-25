@@ -11,6 +11,7 @@
 #include "xfs_trans_resv.h"
 #include "xfs_sb.h"
 #include "xfs_mount.h"
+<<<<<<< HEAD
 #include "xfs_defer.h"
 #include "xfs_trans.h"
 #include "xfs_error.h"
@@ -23,12 +24,80 @@
 #include "xfs_log.h"
 #include "xfs_ag.h"
 #include "xfs_ag_resv.h"
+=======
+#include "xfs_trans.h"
+#include "xfs_error.h"
+#include "xfs_alloc.h"
+#include "xfs_fsops.h"
+#include "xfs_trans_space.h"
+#include "xfs_log.h"
+#include "xfs_ag.h"
+#include "xfs_ag_resv.h"
+#include "xfs_trace.h"
+
+/*
+ * Write new AG headers to disk. Non-transactional, but need to be
+ * written and completed prior to the growfs transaction being logged.
+ * To do this, we use a delayed write buffer list and wait for
+ * submission and IO completion of the list as a whole. This allows the
+ * IO subsystem to merge all the AG headers in a single AG into a single
+ * IO and hide most of the latency of the IO from us.
+ *
+ * This also means that if we get an error whilst building the buffer
+ * list to write, we can cancel the entire list without having written
+ * anything.
+ */
+static int
+xfs_resizefs_init_new_ags(
+	struct xfs_trans	*tp,
+	struct aghdr_init_data	*id,
+	xfs_agnumber_t		oagcount,
+	xfs_agnumber_t		nagcount,
+	xfs_rfsblock_t		delta,
+	bool			*lastag_extended)
+{
+	struct xfs_mount	*mp = tp->t_mountp;
+	xfs_rfsblock_t		nb = mp->m_sb.sb_dblocks + delta;
+	int			error;
+
+	*lastag_extended = false;
+
+	INIT_LIST_HEAD(&id->buffer_list);
+	for (id->agno = nagcount - 1;
+	     id->agno >= oagcount;
+	     id->agno--, delta -= id->agsize) {
+
+		if (id->agno == nagcount - 1)
+			id->agsize = nb - (id->agno *
+					(xfs_rfsblock_t)mp->m_sb.sb_agblocks);
+		else
+			id->agsize = mp->m_sb.sb_agblocks;
+
+		error = xfs_ag_init_headers(mp, id);
+		if (error) {
+			xfs_buf_delwri_cancel(&id->buffer_list);
+			return error;
+		}
+	}
+
+	error = xfs_buf_delwri_submit(&id->buffer_list);
+	if (error)
+		return error;
+
+	if (delta) {
+		*lastag_extended = true;
+		error = xfs_ag_extend_space(mp, tp, id, delta);
+	}
+	return error;
+}
+>>>>>>> upstream/android-13
 
 /*
  * growfs operations
  */
 static int
 xfs_growfs_data_private(
+<<<<<<< HEAD
 	xfs_mount_t		*mp,		/* mount point for filesystem */
 	xfs_growfs_data_t	*in)		/* growfs data input struct */
 {
@@ -65,6 +134,52 @@ xfs_growfs_data_private(
 			return -EINVAL;
 	}
 	new = nb - mp->m_sb.sb_dblocks;
+=======
+	struct xfs_mount	*mp,		/* mount point for filesystem */
+	struct xfs_growfs_data	*in)		/* growfs data input struct */
+{
+	struct xfs_buf		*bp;
+	int			error;
+	xfs_agnumber_t		nagcount;
+	xfs_agnumber_t		nagimax = 0;
+	xfs_rfsblock_t		nb, nb_div, nb_mod;
+	int64_t			delta;
+	bool			lastag_extended;
+	xfs_agnumber_t		oagcount;
+	struct xfs_trans	*tp;
+	struct aghdr_init_data	id = {};
+
+	nb = in->newblocks;
+	error = xfs_sb_validate_fsb_count(&mp->m_sb, nb);
+	if (error)
+		return error;
+
+	if (nb > mp->m_sb.sb_dblocks) {
+		error = xfs_buf_read_uncached(mp->m_ddev_targp,
+				XFS_FSB_TO_BB(mp, nb) - XFS_FSS_TO_BB(mp, 1),
+				XFS_FSS_TO_BB(mp, 1), 0, &bp, NULL);
+		if (error)
+			return error;
+		xfs_buf_relse(bp);
+	}
+
+	nb_div = nb;
+	nb_mod = do_div(nb_div, mp->m_sb.sb_agblocks);
+	nagcount = nb_div + (nb_mod != 0);
+	if (nb_mod && nb_mod < XFS_MIN_AG_BLOCKS) {
+		nagcount--;
+		nb = (xfs_rfsblock_t)nagcount * mp->m_sb.sb_agblocks;
+	}
+	delta = nb - mp->m_sb.sb_dblocks;
+	/*
+	 * Reject filesystems with a single AG because they are not
+	 * supported, and reject a shrink operation that would cause a
+	 * filesystem to become unsupported.
+	 */
+	if (delta < 0 && nagcount < 2)
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	oagcount = mp->m_sb.sb_agcount;
 
 	/* allocate the new per-ag structures */
@@ -72,6 +187,7 @@ xfs_growfs_data_private(
 		error = xfs_initialize_perag(mp, nagcount, &nagimax);
 		if (error)
 			return error;
+<<<<<<< HEAD
 	}
 
 	error = xfs_trans_alloc(mp, &M_RES(mp)->tr_growdata,
@@ -121,6 +237,36 @@ xfs_growfs_data_private(
 			goto out_trans_cancel;
 	}
 
+=======
+	} else if (nagcount < oagcount) {
+		/* TODO: shrinking the entire AGs hasn't yet completed */
+		return -EINVAL;
+	}
+
+	error = xfs_trans_alloc(mp, &M_RES(mp)->tr_growdata,
+			(delta > 0 ? XFS_GROWFS_SPACE_RES(mp) : -delta), 0,
+			XFS_TRANS_RESERVE, &tp);
+	if (error)
+		return error;
+
+	if (delta > 0) {
+		error = xfs_resizefs_init_new_ags(tp, &id, oagcount, nagcount,
+						  delta, &lastag_extended);
+	} else {
+		static struct ratelimit_state shrink_warning = \
+			RATELIMIT_STATE_INIT("shrink_warning", 86400 * HZ, 1);
+		ratelimit_set_flags(&shrink_warning, RATELIMIT_MSG_ON_RELEASE);
+
+		if (__ratelimit(&shrink_warning))
+			xfs_alert(mp,
+	"EXPERIMENTAL online shrink feature in use. Use at your own risk!");
+
+		error = xfs_ag_shrink_space(mp, &tp, nagcount - 1, -delta);
+	}
+	if (error)
+		goto out_trans_cancel;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Update changed superblock fields transactionally. These are not
 	 * seen by the rest of the world until the transaction commit applies
@@ -128,11 +274,27 @@ xfs_growfs_data_private(
 	 */
 	if (nagcount > oagcount)
 		xfs_trans_mod_sb(tp, XFS_TRANS_SB_AGCOUNT, nagcount - oagcount);
+<<<<<<< HEAD
 	if (nb > mp->m_sb.sb_dblocks)
 		xfs_trans_mod_sb(tp, XFS_TRANS_SB_DBLOCKS,
 				 nb - mp->m_sb.sb_dblocks);
 	if (id.nfree)
 		xfs_trans_mod_sb(tp, XFS_TRANS_SB_FDBLOCKS, id.nfree);
+=======
+	if (delta)
+		xfs_trans_mod_sb(tp, XFS_TRANS_SB_DBLOCKS, delta);
+	if (id.nfree)
+		xfs_trans_mod_sb(tp, XFS_TRANS_SB_FDBLOCKS, id.nfree);
+
+	/*
+	 * Sync sb counters now to reflect the updated values. This is
+	 * particularly important for shrink because the write verifier
+	 * will fail if sb_fdblocks is ever larger than sb_dblocks.
+	 */
+	if (xfs_has_lazysbcount(mp))
+		xfs_log_sb(tp);
+
+>>>>>>> upstream/android-13
 	xfs_trans_set_sync(tp);
 	error = xfs_trans_commit(tp);
 	if (error)
@@ -144,6 +306,7 @@ xfs_growfs_data_private(
 	xfs_set_low_space_thresholds(mp);
 	mp->m_alloc_set_aside = xfs_alloc_set_aside(mp);
 
+<<<<<<< HEAD
 	/*
 	 * If we expanded the last AG, free the per-AG reservation
 	 * so we can reinitialize it with the new size.
@@ -166,6 +329,31 @@ xfs_growfs_data_private(
 	error = xfs_fs_reserve_ag_blocks(mp);
 	if (error == -ENOSPC)
 		error = 0;
+=======
+	if (delta > 0) {
+		/*
+		 * If we expanded the last AG, free the per-AG reservation
+		 * so we can reinitialize it with the new size.
+		 */
+		if (lastag_extended) {
+			struct xfs_perag	*pag;
+
+			pag = xfs_perag_get(mp, id.agno);
+			error = xfs_ag_resv_free(pag);
+			xfs_perag_put(pag);
+			if (error)
+				return error;
+		}
+		/*
+		 * Reserve AG metadata blocks. ENOSPC here does not mean there
+		 * was a growfs failure, just that there still isn't space for
+		 * new user data after the grow has been run.
+		 */
+		error = xfs_fs_reserve_ag_blocks(mp);
+		if (error == -ENOSPC)
+			error = 0;
+	}
+>>>>>>> upstream/android-13
 	return error;
 
 out_trans_cancel:
@@ -175,8 +363,13 @@ out_trans_cancel:
 
 static int
 xfs_growfs_log_private(
+<<<<<<< HEAD
 	xfs_mount_t		*mp,	/* mount point for filesystem */
 	xfs_growfs_log_t	*in)	/* growfs log input struct */
+=======
+	struct xfs_mount	*mp,	/* mount point for filesystem */
+	struct xfs_growfs_log	*in)	/* growfs log input struct */
+>>>>>>> upstream/android-13
 {
 	xfs_extlen_t		nb;
 
@@ -252,9 +445,15 @@ xfs_growfs_data(
 	if (mp->m_sb.sb_imax_pct) {
 		uint64_t icount = mp->m_sb.sb_dblocks * mp->m_sb.sb_imax_pct;
 		do_div(icount, 100);
+<<<<<<< HEAD
 		mp->m_maxicount = icount << mp->m_sb.sb_inopblog;
 	} else
 		mp->m_maxicount = 0;
+=======
+		M_IGEO(mp)->maxicount = XFS_FSB_TO_INO(mp, icount);
+	} else
+		M_IGEO(mp)->maxicount = 0;
+>>>>>>> upstream/android-13
 
 	/* Update secondary superblocks now the physical grow has completed */
 	error = xfs_update_secondary_sbs(mp);
@@ -273,7 +472,11 @@ out_error:
 int
 xfs_growfs_log(
 	xfs_mount_t		*mp,
+<<<<<<< HEAD
 	xfs_growfs_log_t	*in)
+=======
+	struct xfs_growfs_log	*in)
+>>>>>>> upstream/android-13
 {
 	int error;
 
@@ -290,7 +493,11 @@ xfs_growfs_log(
  * exported through ioctl XFS_IOC_FSCOUNTS
  */
 
+<<<<<<< HEAD
 int
+=======
+void
+>>>>>>> upstream/android-13
 xfs_fs_counts(
 	xfs_mount_t		*mp,
 	xfs_fsop_counts_t	*cnt)
@@ -303,7 +510,10 @@ xfs_fs_counts(
 	spin_lock(&mp->m_sb_lock);
 	cnt->freertx = mp->m_sb.sb_frextents;
 	spin_unlock(&mp->m_sb_lock);
+<<<<<<< HEAD
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -439,6 +649,7 @@ xfs_fs_goingdown(
 {
 	switch (inflags) {
 	case XFS_FSOP_GOING_FLAGS_DEFAULT: {
+<<<<<<< HEAD
 		struct super_block *sb = freeze_bdev(mp->m_super->s_bdev);
 
 		if (sb && !IS_ERR(sb)) {
@@ -446,6 +657,12 @@ xfs_fs_goingdown(
 			thaw_bdev(sb->s_bdev, sb);
 		}
 
+=======
+		if (!freeze_bdev(mp->m_super->s_bdev)) {
+			xfs_force_shutdown(mp, SHUTDOWN_FORCE_UMOUNT);
+			thaw_bdev(mp->m_super->s_bdev);
+		}
+>>>>>>> upstream/android-13
 		break;
 	}
 	case XFS_FSOP_GOING_FLAGS_LOGFLUSH:
@@ -467,14 +684,27 @@ xfs_fs_goingdown(
  * consistent. We don't do an unmount here; just shutdown the shop, make sure
  * that absolutely nothing persistent happens to this filesystem after this
  * point.
+<<<<<<< HEAD
  */
 void
 xfs_do_force_shutdown(
 	xfs_mount_t	*mp,
+=======
+ *
+ * The shutdown state change is atomic, resulting in the first and only the
+ * first shutdown call processing the shutdown. This means we only shutdown the
+ * log once as it requires, and we don't spam the logs when multiple concurrent
+ * shutdowns race to set the shutdown flags.
+ */
+void
+xfs_do_force_shutdown(
+	struct xfs_mount *mp,
+>>>>>>> upstream/android-13
 	int		flags,
 	char		*fname,
 	int		lnnum)
 {
+<<<<<<< HEAD
 	int		logerror;
 
 	logerror = flags & SHUTDOWN_LOG_IO_ERROR;
@@ -520,6 +750,39 @@ xfs_do_force_shutdown(
 		xfs_alert(mp,
 	"Please umount the filesystem and rectify the problem(s)");
 	}
+=======
+	int		tag;
+	const char	*why;
+
+	if (test_and_set_bit(XFS_OPSTATE_SHUTDOWN, &mp->m_opstate))
+		return;
+	if (mp->m_sb_bp)
+		mp->m_sb_bp->b_flags |= XBF_DONE;
+
+	if (flags & SHUTDOWN_FORCE_UMOUNT)
+		xfs_alert(mp, "User initiated shutdown received.");
+
+	if (xlog_force_shutdown(mp->m_log, flags)) {
+		tag = XFS_PTAG_SHUTDOWN_LOGERROR;
+		why = "Log I/O Error";
+	} else if (flags & SHUTDOWN_CORRUPT_INCORE) {
+		tag = XFS_PTAG_SHUTDOWN_CORRUPT;
+		why = "Corruption of in-memory data";
+	} else {
+		tag = XFS_PTAG_SHUTDOWN_IOERROR;
+		why = "Metadata I/O Error";
+	}
+
+	trace_xfs_force_shutdown(mp, tag, flags, fname, lnnum);
+
+	xfs_alert_tag(mp, tag,
+"%s (0x%x) detected at %pS (%s:%d).  Shutting down filesystem.",
+			why, flags, __return_address, fname, lnnum);
+	xfs_alert(mp,
+		"Please unmount the filesystem and rectify the problem(s)");
+	if (xfs_error_level >= XFS_ERRLEVEL_HIGH)
+		xfs_stack_trace();
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -535,10 +798,15 @@ xfs_fs_reserve_ag_blocks(
 	int			err2;
 
 	mp->m_finobt_nores = false;
+<<<<<<< HEAD
 	for (agno = 0; agno < mp->m_sb.sb_agcount; agno++) {
 		pag = xfs_perag_get(mp, agno);
 		err2 = xfs_ag_resv_init(pag, NULL);
 		xfs_perag_put(pag);
+=======
+	for_each_perag(mp, agno, pag) {
+		err2 = xfs_ag_resv_init(pag, NULL);
+>>>>>>> upstream/android-13
 		if (err2 && !error)
 			error = err2;
 	}
@@ -564,10 +832,15 @@ xfs_fs_unreserve_ag_blocks(
 	int			error = 0;
 	int			err2;
 
+<<<<<<< HEAD
 	for (agno = 0; agno < mp->m_sb.sb_agcount; agno++) {
 		pag = xfs_perag_get(mp, agno);
 		err2 = xfs_ag_resv_free(pag);
 		xfs_perag_put(pag);
+=======
+	for_each_perag(mp, agno, pag) {
+		err2 = xfs_ag_resv_free(pag);
+>>>>>>> upstream/android-13
 		if (err2 && !error)
 			error = err2;
 	}

@@ -43,7 +43,12 @@ static int init_hw(struct echoaudio *chip, u16 device_id, u16 subdevice_id)
 	if (snd_BUG_ON((subdevice_id & 0xfff0) != LAYLA20))
 		return -ENODEV;
 
+<<<<<<< HEAD
 	if ((err = init_dsp_comm_page(chip))) {
+=======
+	err = init_dsp_comm_page(chip);
+	if (err) {
+>>>>>>> upstream/android-13
 		dev_err(chip->card->dev,
 			"init_hw - could not initialize DSP comm page\n");
 		return err;
@@ -60,7 +65,12 @@ static int init_hw(struct echoaudio *chip, u16 device_id, u16 subdevice_id)
 	chip->output_clock_types =
 		ECHO_CLOCK_BIT_WORD | ECHO_CLOCK_BIT_SUPER;
 
+<<<<<<< HEAD
 	if ((err = load_firmware(chip)) < 0)
+=======
+	err = load_firmware(chip);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 	chip->bad_board = false;
 

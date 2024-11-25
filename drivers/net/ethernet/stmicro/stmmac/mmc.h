@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*******************************************************************************
   MMC Header file
 
   Copyright (C) 2011  STMicroelectronics Ltd
 
+<<<<<<< HEAD
   This program is free software; you can redistribute it and/or modify it
   under the terms and conditions of the GNU General Public License,
   version 2, as published by the Free Software Foundation.
@@ -14,6 +19,8 @@
 
   The full GNU General Public License is included in this distribution in
   the file called "COPYING".
+=======
+>>>>>>> upstream/android-13
 
   Author: Giuseppe Cavallaro <peppe.cavallaro@st.com>
 *******************************************************************************/
@@ -34,6 +41,10 @@
 
 #define MMC_GMAC4_OFFSET		0x700
 #define MMC_GMAC3_X_OFFSET		0x100
+<<<<<<< HEAD
+=======
+#define MMC_XGMAC_OFFSET		0x800
+>>>>>>> upstream/android-13
 
 struct stmmac_counters {
 	unsigned int mmc_tx_octetcount_gb;
@@ -126,10 +137,23 @@ struct stmmac_counters {
 	unsigned int mmc_rx_tcp_err_octets;
 	unsigned int mmc_rx_icmp_gd_octets;
 	unsigned int mmc_rx_icmp_err_octets;
+<<<<<<< HEAD
 };
 
 void dwmac_mmc_ctrl(void __iomem *ioaddr, unsigned int mode);
 void dwmac_mmc_intr_all_mask(void __iomem *ioaddr);
 void dwmac_mmc_read(void __iomem *ioaddr, struct stmmac_counters *mmc);
 
+=======
+
+	/* FPE */
+	unsigned int mmc_tx_fpe_fragment_cntr;
+	unsigned int mmc_tx_hold_req_cntr;
+	unsigned int mmc_rx_packet_assembly_err_cntr;
+	unsigned int mmc_rx_packet_smd_err_cntr;
+	unsigned int mmc_rx_packet_assembly_ok_cntr;
+	unsigned int mmc_rx_fpe_fragment_cntr;
+};
+
+>>>>>>> upstream/android-13
 #endif /* __MMC_H__ */

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * TI TRF7970a RFID/NFC Transceiver Driver
  *
@@ -6,10 +10,13 @@
  * Author: Erick Macias <emacias@ti.com>
  * Author: Felipe Balbi <balbi@ti.com>
  * Author: Mark A. Greer <mgreer@animalcreek.com>
+<<<<<<< HEAD
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2  of
  * the License as published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -172,7 +179,11 @@
 
 /* Bits determining whether its a direct command or register R/W,
  * whether to use a continuous SPI transaction or not, and the actual
+<<<<<<< HEAD
  * direct cmd opcode or regster address.
+=======
+ * direct cmd opcode or register address.
+>>>>>>> upstream/android-13
  */
 #define TRF7970A_CMD_BIT_CTRL			BIT(7)
 #define TRF7970A_CMD_BIT_RW			BIT(6)
@@ -646,7 +657,11 @@ static void trf7970a_send_err_upstream(struct trf7970a *trf, int errno)
 }
 
 static int trf7970a_transmit(struct trf7970a *trf, struct sk_buff *skb,
+<<<<<<< HEAD
 			     unsigned int len, u8 *prefix,
+=======
+			     unsigned int len, const u8 *prefix,
+>>>>>>> upstream/android-13
 			     unsigned int prefix_len)
 {
 	struct spi_transfer t[2];
@@ -1156,7 +1171,11 @@ static int trf7970a_switch_rf(struct nfc_digital_dev *ddev, bool on)
 			dev_err(trf->dev, "%s - Invalid request: %d %d\n",
 				__func__, trf->state, on);
 			ret = -EINVAL;
+<<<<<<< HEAD
 			/* FALLTHROUGH */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case TRF7970A_ST_IDLE:
 		case TRF7970A_ST_IDLE_RX_BLOCKED:
 		case TRF7970A_ST_WAIT_FOR_RX_DATA:
@@ -1385,15 +1404,25 @@ static int trf7970a_is_iso15693_write_or_lock(u8 cmd)
 	case ISO15693_CMD_WRITE_DSFID:
 	case ISO15693_CMD_LOCK_DSFID:
 		return 1;
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 	default:
 		return 0;
 	}
 }
 
+<<<<<<< HEAD
 static int trf7970a_per_cmd_config(struct trf7970a *trf, struct sk_buff *skb)
 {
 	u8 *req = skb->data;
+=======
+static int trf7970a_per_cmd_config(struct trf7970a *trf,
+				   const struct sk_buff *skb)
+{
+	const u8 *req = skb->data;
+>>>>>>> upstream/android-13
 	u8 special_fcn_reg1, iso_ctrl;
 	int ret;
 
@@ -1795,7 +1824,11 @@ out_err:
 static int trf7970a_tg_listen(struct nfc_digital_dev *ddev, u16 timeout,
 			      nfc_digital_cmd_complete_t cb, void *arg)
 {
+<<<<<<< HEAD
 	struct trf7970a *trf = nfc_digital_get_drvdata(ddev);
+=======
+	const struct trf7970a *trf = nfc_digital_get_drvdata(ddev);
+>>>>>>> upstream/android-13
 
 	dev_dbg(trf->dev, "Listen - state: %d, timeout: %d ms\n",
 		trf->state, timeout);
@@ -1807,7 +1840,11 @@ static int trf7970a_tg_listen_md(struct nfc_digital_dev *ddev,
 				 u16 timeout, nfc_digital_cmd_complete_t cb,
 				 void *arg)
 {
+<<<<<<< HEAD
 	struct trf7970a *trf = nfc_digital_get_drvdata(ddev);
+=======
+	const struct trf7970a *trf = nfc_digital_get_drvdata(ddev);
+>>>>>>> upstream/android-13
 	int ret;
 
 	dev_dbg(trf->dev, "Listen MD - state: %d, timeout: %d ms\n",
@@ -1828,7 +1865,11 @@ static int trf7970a_tg_listen_md(struct nfc_digital_dev *ddev,
 
 static int trf7970a_tg_get_rf_tech(struct nfc_digital_dev *ddev, u8 *rf_tech)
 {
+<<<<<<< HEAD
 	struct trf7970a *trf = nfc_digital_get_drvdata(ddev);
+=======
+	const struct trf7970a *trf = nfc_digital_get_drvdata(ddev);
+>>>>>>> upstream/android-13
 
 	dev_dbg(trf->dev, "Get RF Tech - state: %d, rf_tech: %d\n",
 		trf->state, trf->md_rf_tech);
@@ -1865,7 +1906,11 @@ static void trf7970a_abort_cmd(struct nfc_digital_dev *ddev)
 	mutex_unlock(&trf->lock);
 }
 
+<<<<<<< HEAD
 static struct nfc_digital_ops trf7970a_nfc_ops = {
+=======
+static const struct nfc_digital_ops trf7970a_nfc_ops = {
+>>>>>>> upstream/android-13
 	.in_configure_hw	= trf7970a_in_configure_hw,
 	.in_send_cmd		= trf7970a_send_cmd,
 	.tg_configure_hw	= trf7970a_tg_configure_hw,
@@ -1963,7 +2008,11 @@ static void trf7970a_shutdown(struct trf7970a *trf)
 	case TRF7970A_ST_WAIT_TO_ISSUE_EOF:
 	case TRF7970A_ST_LISTENING:
 		trf7970a_send_err_upstream(trf, -ECANCELED);
+<<<<<<< HEAD
 		/* FALLTHROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case TRF7970A_ST_IDLE:
 	case TRF7970A_ST_IDLE_RX_BLOCKED:
 		trf7970a_switch_rf_off(trf);
@@ -1978,7 +2027,11 @@ static void trf7970a_shutdown(struct trf7970a *trf)
 	trf7970a_power_down(trf);
 }
 
+<<<<<<< HEAD
 static int trf7970a_get_autosuspend_delay(struct device_node *np)
+=======
+static int trf7970a_get_autosuspend_delay(const struct device_node *np)
+>>>>>>> upstream/android-13
 {
 	int autosuspend_delay, ret;
 
@@ -1991,7 +2044,11 @@ static int trf7970a_get_autosuspend_delay(struct device_node *np)
 
 static int trf7970a_probe(struct spi_device *spi)
 {
+<<<<<<< HEAD
 	struct device_node *np = spi->dev.of_node;
+=======
+	const struct device_node *np = spi->dev.of_node;
+>>>>>>> upstream/android-13
 	struct trf7970a *trf;
 	int uvolts, autosuspend_delay, ret;
 	u32 clk_freq = TRF7970A_13MHZ_CLOCK_FREQUENCY;

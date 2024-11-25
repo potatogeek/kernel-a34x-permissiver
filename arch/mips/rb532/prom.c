@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  RouterBoard 500 specific prom routines
  *
@@ -6,6 +10,7 @@
  *  Copyright (C) 2007, Gabor Juhos <juhosg@openwrt.org>
  *			Felix Fietkau <nbd@openwrt.org>
  *			Florian Fainelli <florian@openwrt.org>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -22,6 +27,8 @@
  *  Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  *  Boston, MA  02110-1301, USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -29,7 +36,11 @@
 #include <linux/export.h>
 #include <linux/string.h>
 #include <linux/console.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/ioport.h>
 #include <linux/blkdev.h>
 
@@ -49,11 +60,14 @@ static struct resource ddr_reg[] = {
 	}
 };
 
+<<<<<<< HEAD
 void __init prom_free_prom_memory(void)
 {
 	/* No prom memory to free */
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline int match_tag(char *arg, const char *tag)
 {
 	return strncmp(arg, tag, strlen(tag)) == 0;
@@ -125,7 +139,11 @@ void __init prom_init(void)
 	phys_addr_t memsize;
 	phys_addr_t ddrbase;
 
+<<<<<<< HEAD
 	ddr = ioremap_nocache(ddr_reg[0].start,
+=======
+	ddr = ioremap(ddr_reg[0].start,
+>>>>>>> upstream/android-13
 			ddr_reg[0].end - ddr_reg[0].start);
 
 	if (!ddr) {
@@ -141,5 +159,9 @@ void __init prom_init(void)
 
 	/* give all RAM to boot allocator,
 	 * except for the first 0x400 and the last 0x200 bytes */
+<<<<<<< HEAD
 	add_memory_region(ddrbase + 0x400, memsize - 0x600, BOOT_MEM_RAM);
+=======
+	memblock_add(ddrbase + 0x400, memsize - 0x600);
+>>>>>>> upstream/android-13
 }

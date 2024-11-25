@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  This program is free software; you can distribute it and/or modify it
  *  under the terms of the GNU General Public License (Version 2) as
@@ -11,6 +12,10 @@
  *  You should have received a copy of the GNU General Public License along
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  59 Temple Place - Suite 330, Boston MA 02111-1307, USA.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+>>>>>>> upstream/android-13
  *
  * Further private data for which no space exists in mips_fpu_struct.
  * This should be subsumed into the mips_fpu_struct structure as
@@ -183,6 +188,7 @@ void force_fcr31_sig(unsigned long fcr31, void __user *fault_addr,
 		     struct task_struct *tsk);
 int process_fpemu_return(int sig, void __user *fault_addr,
 			 unsigned long fcr31);
+<<<<<<< HEAD
 int isBranchInstr(struct pt_regs *regs, struct mm_decoded_insn dec_insn,
 		  unsigned long *contpc);
 int mm_isBranchInstr(struct pt_regs *regs, struct mm_decoded_insn dec_insn,
@@ -198,6 +204,8 @@ static inline void fpu_emulator_init_fpu(void)
 	for (i = 0; i < 32; i++)
 		set_fpr64(&t->thread.fpu.fpr[i], 0, SIGNALLING_NAN);
 }
+=======
+>>>>>>> upstream/android-13
 
 /*
  * Mask the FCSR Cause bits according to the Enable bits, observing

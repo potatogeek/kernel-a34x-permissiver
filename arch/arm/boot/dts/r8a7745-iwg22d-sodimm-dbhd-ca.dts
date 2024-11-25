@@ -84,8 +84,11 @@
 		adi,input-depth = <8>;
 		adi,input-colorspace = "rgb";
 		adi,input-clock = "1x";
+<<<<<<< HEAD
 		adi,input-style = <1>;
 		adi,input-justification = "evenly";
+=======
+>>>>>>> upstream/android-13
 
 		ports {
 			#address-cells = <1>;
@@ -108,6 +111,15 @@
 	};
 };
 
+<<<<<<< HEAD
+=======
+&lcd_panel {
+	status = "disabled";
+
+	/delete-node/ port;
+};
+
+>>>>>>> upstream/android-13
 &pfc {
 	can1_pins: can1 {
 		groups = "can1_data_b";

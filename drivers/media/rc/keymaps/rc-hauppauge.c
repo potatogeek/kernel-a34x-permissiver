@@ -67,6 +67,7 @@ static struct rc_map_table rc5_hauppauge_new[] = {
 	{ 0x1e30, KEY_PAUSE },		/* pause */
 	{ 0x1e1e, KEY_NEXTSONG },	/* skip >| */
 
+<<<<<<< HEAD
 	{ 0x1e01, KEY_1 },
 	{ 0x1e02, KEY_2 },
 	{ 0x1e03, KEY_3 },
@@ -81,6 +82,22 @@ static struct rc_map_table rc5_hauppauge_new[] = {
 
 	{ 0x1e0a, KEY_TEXT },		/* keypad asterisk as well */
 	{ 0x1e00, KEY_0 },
+=======
+	{ 0x1e01, KEY_NUMERIC_1 },
+	{ 0x1e02, KEY_NUMERIC_2 },
+	{ 0x1e03, KEY_NUMERIC_3 },
+
+	{ 0x1e04, KEY_NUMERIC_4 },
+	{ 0x1e05, KEY_NUMERIC_5 },
+	{ 0x1e06, KEY_NUMERIC_6 },
+
+	{ 0x1e07, KEY_NUMERIC_7 },
+	{ 0x1e08, KEY_NUMERIC_8 },
+	{ 0x1e09, KEY_NUMERIC_9 },
+
+	{ 0x1e0a, KEY_TEXT },		/* keypad asterisk as well */
+	{ 0x1e00, KEY_NUMERIC_0 },
+>>>>>>> upstream/android-13
 	{ 0x1e0e, KEY_SUBTITLE },	/* also the Pound key (#) */
 
 	{ 0x1e0b, KEY_RED },		/* red button */
@@ -96,6 +113,7 @@ static struct rc_map_table rc5_hauppauge_new[] = {
 	{ 0x1f3b, KEY_SELECT },		/* GO */
 
 	/* Keys 0 to 9 */
+<<<<<<< HEAD
 	{ 0x1f00, KEY_0 },
 	{ 0x1f01, KEY_1 },
 	{ 0x1f02, KEY_2 },
@@ -106,6 +124,18 @@ static struct rc_map_table rc5_hauppauge_new[] = {
 	{ 0x1f07, KEY_7 },
 	{ 0x1f08, KEY_8 },
 	{ 0x1f09, KEY_9 },
+=======
+	{ 0x1f00, KEY_NUMERIC_0 },
+	{ 0x1f01, KEY_NUMERIC_1 },
+	{ 0x1f02, KEY_NUMERIC_2 },
+	{ 0x1f03, KEY_NUMERIC_3 },
+	{ 0x1f04, KEY_NUMERIC_4 },
+	{ 0x1f05, KEY_NUMERIC_5 },
+	{ 0x1f06, KEY_NUMERIC_6 },
+	{ 0x1f07, KEY_NUMERIC_7 },
+	{ 0x1f08, KEY_NUMERIC_8 },
+	{ 0x1f09, KEY_NUMERIC_9 },
+>>>>>>> upstream/android-13
 
 	{ 0x1f1f, KEY_EXIT },		/* back/exit */
 	{ 0x1f0d, KEY_MENU },
@@ -140,6 +170,7 @@ static struct rc_map_table rc5_hauppauge_new[] = {
 	 * Keycodes for DSR-0112 remote bundled with Haupauge MiniStick
 	 * Keycodes start with address = 0x1d
 	 */
+<<<<<<< HEAD
 	{ 0x1d00, KEY_0 },
 	{ 0x1d01, KEY_1 },
 	{ 0x1d02, KEY_2 },
@@ -150,6 +181,18 @@ static struct rc_map_table rc5_hauppauge_new[] = {
 	{ 0x1d07, KEY_7 },
 	{ 0x1d08, KEY_8 },
 	{ 0x1d09, KEY_9 },
+=======
+	{ 0x1d00, KEY_NUMERIC_0 },
+	{ 0x1d01, KEY_NUMERIC_1 },
+	{ 0x1d02, KEY_NUMERIC_2 },
+	{ 0x1d03, KEY_NUMERIC_3 },
+	{ 0x1d04, KEY_NUMERIC_4 },
+	{ 0x1d05, KEY_NUMERIC_5 },
+	{ 0x1d06, KEY_NUMERIC_6 },
+	{ 0x1d07, KEY_NUMERIC_7 },
+	{ 0x1d08, KEY_NUMERIC_8 },
+	{ 0x1d09, KEY_NUMERIC_9 },
+>>>>>>> upstream/android-13
 	{ 0x1d0a, KEY_TEXT },
 	{ 0x1d0d, KEY_MENU },
 	{ 0x1d0f, KEY_MUTE },
@@ -190,6 +233,7 @@ static struct rc_map_table rc5_hauppauge_new[] = {
 	{ 0x1c17, KEY_RIGHT },
 	{ 0x1c25, KEY_OK },
 
+<<<<<<< HEAD
 	{ 0x1c00, KEY_0 },
 	{ 0x1c01, KEY_1 },
 	{ 0x1c02, KEY_2 },
@@ -200,6 +244,18 @@ static struct rc_map_table rc5_hauppauge_new[] = {
 	{ 0x1c07, KEY_7 },
 	{ 0x1c08, KEY_8 },
 	{ 0x1c09, KEY_9 },
+=======
+	{ 0x1c00, KEY_NUMERIC_0 },
+	{ 0x1c01, KEY_NUMERIC_1 },
+	{ 0x1c02, KEY_NUMERIC_2 },
+	{ 0x1c03, KEY_NUMERIC_3 },
+	{ 0x1c04, KEY_NUMERIC_4 },
+	{ 0x1c05, KEY_NUMERIC_5 },
+	{ 0x1c06, KEY_NUMERIC_6 },
+	{ 0x1c07, KEY_NUMERIC_7 },
+	{ 0x1c08, KEY_NUMERIC_8 },
+	{ 0x1c09, KEY_NUMERIC_9 },
+>>>>>>> upstream/android-13
 
 	{ 0x1c1f, KEY_EXIT },	/* BACK */
 	{ 0x1c0d, KEY_MENU },
@@ -233,6 +289,10 @@ static struct rc_map_table rc5_hauppauge_new[] = {
 	 * This one also uses RC-5 protocol
 	 * Keycodes start with address = 0x00
 	 */
+<<<<<<< HEAD
+=======
+	{ 0x000f, KEY_TV },
+>>>>>>> upstream/android-13
 	{ 0x001f, KEY_TV },
 	{ 0x0020, KEY_CHANNELUP },
 	{ 0x000c, KEY_RADIO },
@@ -245,6 +305,7 @@ static struct rc_map_table rc5_hauppauge_new[] = {
 	{ 0x0021, KEY_CHANNELDOWN },
 	{ 0x0022, KEY_VIDEO },		/* source */
 
+<<<<<<< HEAD
 	{ 0x0001, KEY_1 },
 	{ 0x0002, KEY_2 },
 	{ 0x0003, KEY_3 },
@@ -259,6 +320,22 @@ static struct rc_map_table rc5_hauppauge_new[] = {
 
 	{ 0x001e, KEY_RED },	/* Reserved */
 	{ 0x0000, KEY_0 },
+=======
+	{ 0x0001, KEY_NUMERIC_1 },
+	{ 0x0002, KEY_NUMERIC_2 },
+	{ 0x0003, KEY_NUMERIC_3 },
+
+	{ 0x0004, KEY_NUMERIC_4 },
+	{ 0x0005, KEY_NUMERIC_5 },
+	{ 0x0006, KEY_NUMERIC_6 },
+
+	{ 0x0007, KEY_NUMERIC_7 },
+	{ 0x0008, KEY_NUMERIC_8 },
+	{ 0x0009, KEY_NUMERIC_9 },
+
+	{ 0x001e, KEY_RED },	/* Reserved */
+	{ 0x0000, KEY_NUMERIC_0 },
+>>>>>>> upstream/android-13
 	{ 0x0026, KEY_SLEEP },	/* Minimize */
 };
 

@@ -2,6 +2,7 @@
 comment "S/390 block device drivers"
 	depends on S390 && BLOCK
 
+<<<<<<< HEAD
 config BLK_DEV_XPRAM
 	def_tristate m
 	prompt "XPRAM disk support"
@@ -13,6 +14,8 @@ config BLK_DEV_XPRAM
 	  This option is also available as a module which will be called
 	  xpram.  If unsure, say "N".
 
+=======
+>>>>>>> upstream/android-13
 config DCSSBLK
 	def_tristate m
 	select FS_DAX_LIMITED
@@ -26,7 +29,10 @@ config DASD
 	def_tristate y
 	prompt "Support for DASD devices"
 	depends on CCW && BLOCK
+<<<<<<< HEAD
 	select IOSCHED_DEADLINE
+=======
+>>>>>>> upstream/android-13
 	help
 	  Enable this option if you want to access DASDs directly utilizing
 	  S/390s channel subsystem commands. This is necessary for running
@@ -38,7 +44,11 @@ config DASD_PROFILE
 	depends on DASD
 	help
 	  Enable this option if you want to see profiling information
+<<<<<<< HEAD
           in /proc/dasd/statistics.
+=======
+	  in /proc/dasd/statistics.
+>>>>>>> upstream/android-13
 
 config DASD_ECKD
 	def_tristate y

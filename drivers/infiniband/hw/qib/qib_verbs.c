@@ -39,7 +39,10 @@
 #include <linux/utsname.h>
 #include <linux/rculist.h>
 #include <linux/mm.h>
+<<<<<<< HEAD
 #include <linux/random.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/vmalloc.h>
 #include <rdma/rdma_vt.h>
 
@@ -131,6 +134,7 @@ const enum ib_wc_opcode ib_qib_wc_opcode[] = {
  */
 __be64 ib_qib_sys_image_guid;
 
+<<<<<<< HEAD
 /**
  * qib_copy_sge - copy data to SGE memory
  * @ss: the SGE state
@@ -152,6 +156,8 @@ void qib_copy_sge(struct rvt_sge_state *ss, void *data, u32 length, int release)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Count the number of DMA descriptors needed to send length bytes of data.
  * Don't modify the qib_sge_state to get the count.
@@ -165,6 +171,7 @@ static u32 qib_count_sge(struct rvt_sge_state *ss, u32 length)
 	u32 ndesc = 1;  /* count the header */
 
 	while (length) {
+<<<<<<< HEAD
 		u32 len = sge.length;
 
 		if (len > length)
@@ -172,6 +179,10 @@ static u32 qib_count_sge(struct rvt_sge_state *ss, u32 length)
 		if (len > sge.sge_length)
 			len = sge.sge_length;
 		BUG_ON(len == 0);
+=======
+		u32 len = rvt_get_sge_length(&sge, length);
+
+>>>>>>> upstream/android-13
 		if (((long) sge.vaddr & (sizeof(u32) - 1)) ||
 		    (len != length && (len & (sizeof(u32) - 1)))) {
 			ndesc = 0;
@@ -208,6 +219,7 @@ static void qib_copy_from_sge(void *data, struct rvt_sge_state *ss, u32 length)
 	struct rvt_sge *sge = &ss->sge;
 
 	while (length) {
+<<<<<<< HEAD
 		u32 len = sge->length;
 
 		if (len > length)
@@ -215,6 +227,10 @@ static void qib_copy_from_sge(void *data, struct rvt_sge_state *ss, u32 length)
 		if (len > sge->sge_length)
 			len = sge->sge_length;
 		BUG_ON(len == 0);
+=======
+		u32 len = rvt_get_sge_length(sge, length);
+
+>>>>>>> upstream/android-13
 		memcpy(data, sge->vaddr, len);
 		sge->vaddr += len;
 		sge->length -= len;
@@ -269,7 +285,11 @@ static void qib_qp_rcv(struct qib_ctxtdata *rcd, struct ib_header *hdr,
 	case IB_QPT_GSI:
 		if (ib_qib_disable_sma)
 			break;
+<<<<<<< HEAD
 		/* FALLTHROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case IB_QPT_UD:
 		qib_ud_rcv(ibp, hdr, has_grh, data, tlen, qp);
 		break;
@@ -465,6 +485,7 @@ static void copy_io(u32 __iomem *piobuf, struct rvt_sge_state *ss,
 	u32 last;
 
 	while (1) {
+<<<<<<< HEAD
 		u32 len = ss->sge.length;
 		u32 off;
 
@@ -473,6 +494,11 @@ static void copy_io(u32 __iomem *piobuf, struct rvt_sge_state *ss,
 		if (len > ss->sge.sge_length)
 			len = ss->sge.sge_length;
 		BUG_ON(len == 0);
+=======
+		u32 len = rvt_get_sge_length(&ss->sge, length);
+		u32 off;
+
+>>>>>>> upstream/android-13
 		/* If the source address is not aligned, try to align it. */
 		off = (unsigned long)ss->sge.vaddr & (sizeof(u32) - 1);
 		if (off) {
@@ -754,7 +780,11 @@ static void sdma_complete(struct qib_sdma_txreq *cookie, int status)
 
 	spin_lock(&qp->s_lock);
 	if (tx->wqe)
+<<<<<<< HEAD
 		qib_send_complete(qp, tx->wqe, IB_WC_SUCCESS);
+=======
+		rvt_send_complete(qp, tx->wqe, IB_WC_SUCCESS);
+>>>>>>> upstream/android-13
 	else if (qp->ibqp.qp_type == IB_QPT_RC) {
 		struct ib_header *hdr;
 
@@ -1027,7 +1057,11 @@ done:
 	}
 	if (qp->s_wqe) {
 		spin_lock_irqsave(&qp->s_lock, flags);
+<<<<<<< HEAD
 		qib_send_complete(qp, qp->s_wqe, IB_WC_SUCCESS);
+=======
+		rvt_send_complete(qp, qp->s_wqe, IB_WC_SUCCESS);
+>>>>>>> upstream/android-13
 		spin_unlock_irqrestore(&qp->s_lock, flags);
 	} else if (qp->ibqp.qp_type == IB_QPT_RC) {
 		spin_lock_irqsave(&qp->s_lock, flags);
@@ -1104,7 +1138,11 @@ bail:
 
 /**
  * qib_get_counters - get various chip counters
+<<<<<<< HEAD
  * @dd: the qlogic_ib device
+=======
+ * @ppd: the qlogic_ib device
+>>>>>>> upstream/android-13
  * @cntrs: counters are placed here
  *
  * Return the counters needed by recv_pma_get_portcounters().
@@ -1225,7 +1263,11 @@ full:
 	}
 }
 
+<<<<<<< HEAD
 static int qib_query_port(struct rvt_dev_info *rdi, u8 port_num,
+=======
+static int qib_query_port(struct rvt_dev_info *rdi, u32 port_num,
+>>>>>>> upstream/android-13
 			  struct ib_port_attr *props)
 {
 	struct qib_ibdev *ibdev = container_of(rdi, struct qib_ibdev, rdi);
@@ -1310,7 +1352,11 @@ bail:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int qib_shut_down_port(struct rvt_dev_info *rdi, u8 port_num)
+=======
+static int qib_shut_down_port(struct rvt_dev_info *rdi, u32 port_num)
+>>>>>>> upstream/android-13
 {
 	struct qib_ibdev *ibdev = container_of(rdi, struct qib_ibdev, rdi);
 	struct qib_devdata *dd = dd_from_dev(ibdev);
@@ -1379,7 +1425,11 @@ struct ib_ah *qib_create_qp0_ah(struct qib_ibport *ibp, u16 dlid)
 	struct rvt_qp *qp0;
 	struct qib_pportdata *ppd = ppd_from_ibp(ibp);
 	struct qib_devdata *dd = dd_from_ppd(ppd);
+<<<<<<< HEAD
 	u8 port_num = ppd->port;
+=======
+	u32 port_num = ppd->port;
+>>>>>>> upstream/android-13
 
 	memset(&attr, 0, sizeof(attr));
 	attr.type = rdma_ah_find_type(&dd->verbs_dev.rdi.ibdev, port_num);
@@ -1388,7 +1438,11 @@ struct ib_ah *qib_create_qp0_ah(struct qib_ibport *ibp, u16 dlid)
 	rcu_read_lock();
 	qp0 = rcu_dereference(ibp->rvp.qp[0]);
 	if (qp0)
+<<<<<<< HEAD
 		ah = rdma_create_ah(qp0->ibqp.pd, &attr);
+=======
+		ah = rdma_create_ah(qp0->ibqp.pd, &attr, 0);
+>>>>>>> upstream/android-13
 	rcu_read_unlock();
 	return ah;
 }
@@ -1497,7 +1551,10 @@ static void qib_fill_device_attr(struct qib_devdata *dd)
 	rdi->dparms.props.max_cq = ib_qib_max_cqs;
 	rdi->dparms.props.max_cqe = ib_qib_max_cqes;
 	rdi->dparms.props.max_ah = ib_qib_max_ahs;
+<<<<<<< HEAD
 	rdi->dparms.props.max_map_per_fmr = 32767;
+=======
+>>>>>>> upstream/android-13
 	rdi->dparms.props.max_qp_rd_atom = QIB_MAX_RDMA_ATOMIC;
 	rdi->dparms.props.max_qp_init_rd_atom = 255;
 	rdi->dparms.props.max_srq = ib_qib_max_srqs;
@@ -1512,8 +1569,26 @@ static void qib_fill_device_attr(struct qib_devdata *dd)
 					rdi->dparms.props.max_mcast_grp;
 	/* post send table */
 	dd->verbs_dev.rdi.post_parms = qib_post_parms;
+<<<<<<< HEAD
 }
 
+=======
+
+	/* opcode translation table */
+	dd->verbs_dev.rdi.wc_opcode = ib_qib_wc_opcode;
+}
+
+static const struct ib_device_ops qib_dev_ops = {
+	.owner = THIS_MODULE,
+	.driver_id = RDMA_DRIVER_QIB,
+
+	.port_groups = qib_attr_port_groups,
+	.device_group = &qib_attr_group,
+	.modify_device = qib_modify_device,
+	.process_mad = qib_process_mad,
+};
+
+>>>>>>> upstream/android-13
 /**
  * qib_register_ib_device - register our device with the infiniband core
  * @dd: the device data structure
@@ -1527,7 +1602,10 @@ int qib_register_ib_device(struct qib_devdata *dd)
 	unsigned i, ctxt;
 	int ret;
 
+<<<<<<< HEAD
 	get_random_bytes(&dev->qp_rnd, sizeof(dev->qp_rnd));
+=======
+>>>>>>> upstream/android-13
 	for (i = 0; i < dd->num_pports; i++)
 		init_ibport(ppd + i);
 
@@ -1572,12 +1650,18 @@ int qib_register_ib_device(struct qib_devdata *dd)
 	if (!ib_qib_sys_image_guid)
 		ib_qib_sys_image_guid = ppd->guid;
 
+<<<<<<< HEAD
 	ibdev->owner = THIS_MODULE;
 	ibdev->node_guid = ppd->guid;
 	ibdev->phys_port_cnt = dd->num_pports;
 	ibdev->dev.parent = &dd->pcidev->dev;
 	ibdev->modify_device = qib_modify_device;
 	ibdev->process_mad = qib_process_mad;
+=======
+	ibdev->node_guid = ppd->guid;
+	ibdev->phys_port_cnt = dd->num_pports;
+	ibdev->dev.parent = &dd->pcidev->dev;
+>>>>>>> upstream/android-13
 
 	snprintf(ibdev->node_desc, sizeof(ibdev->node_desc),
 		 "Intel Infiniband HCA %s", init_utsname()->nodename);
@@ -1585,10 +1669,16 @@ int qib_register_ib_device(struct qib_devdata *dd)
 	/*
 	 * Fill in rvt info object.
 	 */
+<<<<<<< HEAD
 	dd->verbs_dev.rdi.driver_f.port_callback = qib_create_port_files;
 	dd->verbs_dev.rdi.driver_f.get_pci_dev = qib_get_pci_dev;
 	dd->verbs_dev.rdi.driver_f.check_ah = qib_check_ah;
 	dd->verbs_dev.rdi.driver_f.check_send_wqe = qib_check_send_wqe;
+=======
+	dd->verbs_dev.rdi.driver_f.get_pci_dev = qib_get_pci_dev;
+	dd->verbs_dev.rdi.driver_f.check_ah = qib_check_ah;
+	dd->verbs_dev.rdi.driver_f.setup_wqe = qib_check_send_wqe;
+>>>>>>> upstream/android-13
 	dd->verbs_dev.rdi.driver_f.notify_new_ah = qib_notify_new_ah;
 	dd->verbs_dev.rdi.driver_f.alloc_qpn = qib_alloc_qpn;
 	dd->verbs_dev.rdi.driver_f.qp_priv_alloc = qib_qp_priv_alloc;
@@ -1631,6 +1721,10 @@ int qib_register_ib_device(struct qib_devdata *dd)
 	dd->verbs_dev.rdi.dparms.node = dd->assigned_node_id;
 	dd->verbs_dev.rdi.dparms.core_cap_flags = RDMA_CORE_PORT_IBA_IB;
 	dd->verbs_dev.rdi.dparms.max_mad_size = IB_MGMT_MAD_SIZE;
+<<<<<<< HEAD
+=======
+	dd->verbs_dev.rdi.dparms.sge_copy_mode = RVT_SGE_COPY_MEMCPY;
+>>>>>>> upstream/android-13
 
 	qib_fill_device_attr(dd);
 
@@ -1643,6 +1737,7 @@ int qib_register_ib_device(struct qib_devdata *dd)
 			      dd->rcd[ctxt]->pkeys);
 	}
 
+<<<<<<< HEAD
 	ret = rvt_register_device(&dd->verbs_dev.rdi, RDMA_DRIVER_QIB);
 	if (ret)
 		goto err_tx;
@@ -1655,6 +1750,15 @@ int qib_register_ib_device(struct qib_devdata *dd)
 
 err_class:
 	rvt_unregister_device(&dd->verbs_dev.rdi);
+=======
+	ib_set_device_ops(ibdev, &qib_dev_ops);
+	ret = rvt_register_device(&dd->verbs_dev.rdi);
+	if (ret)
+		goto err_tx;
+
+	return ret;
+
+>>>>>>> upstream/android-13
 err_tx:
 	while (!list_empty(&dev->txreq_free)) {
 		struct list_head *l = dev->txreq_free.next;
@@ -1678,8 +1782,11 @@ void qib_unregister_ib_device(struct qib_devdata *dd)
 {
 	struct qib_ibdev *dev = &dd->verbs_dev;
 
+<<<<<<< HEAD
 	qib_verbs_unregister_sysfs(dd);
 
+=======
+>>>>>>> upstream/android-13
 	rvt_unregister_device(&dd->verbs_dev.rdi);
 
 	if (!list_empty(&dev->piowait))
@@ -1709,32 +1816,56 @@ void qib_unregister_ib_device(struct qib_devdata *dd)
 
 /**
  * _qib_schedule_send - schedule progress
+<<<<<<< HEAD
  * @qp - the qp
+=======
+ * @qp: the qp
+>>>>>>> upstream/android-13
  *
  * This schedules progress w/o regard to the s_flags.
  *
  * It is only used in post send, which doesn't hold
  * the s_lock.
  */
+<<<<<<< HEAD
 void _qib_schedule_send(struct rvt_qp *qp)
+=======
+bool _qib_schedule_send(struct rvt_qp *qp)
+>>>>>>> upstream/android-13
 {
 	struct qib_ibport *ibp =
 		to_iport(qp->ibqp.device, qp->port_num);
 	struct qib_pportdata *ppd = ppd_from_ibp(ibp);
 	struct qib_qp_priv *priv = qp->priv;
 
+<<<<<<< HEAD
 	queue_work(ppd->qib_wq, &priv->s_work);
+=======
+	return queue_work(ppd->qib_wq, &priv->s_work);
+>>>>>>> upstream/android-13
 }
 
 /**
  * qib_schedule_send - schedule progress
+<<<<<<< HEAD
  * @qp - the qp
+=======
+ * @qp: the qp
+>>>>>>> upstream/android-13
  *
  * This schedules qp progress.  The s_lock
  * should be held.
  */
+<<<<<<< HEAD
 void qib_schedule_send(struct rvt_qp *qp)
 {
 	if (qib_send_ok(qp))
 		_qib_schedule_send(qp);
+=======
+bool qib_schedule_send(struct rvt_qp *qp)
+{
+	if (qib_send_ok(qp))
+		return _qib_schedule_send(qp);
+	return false;
+>>>>>>> upstream/android-13
 }

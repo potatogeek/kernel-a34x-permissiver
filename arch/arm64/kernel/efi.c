@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Extensible Firmware Interface
  *
  * Based on Extensible Firmware Interface Specification version 2.4
  *
  * Copyright (C) 2013, 2014 Linaro Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/efi.h>
@@ -58,7 +65,12 @@ static __init pteval_t create_mapping_protection(efi_memory_desc_t *md)
 }
 
 /* we will fill this structure from the stub, so don't put it in .bss */
+<<<<<<< HEAD
 struct screen_info screen_info __section(.data);
+=======
+struct screen_info screen_info __section(".data");
+EXPORT_SYMBOL(screen_info);
+>>>>>>> upstream/android-13
 
 int __init efi_create_mapping(struct mm_struct *mm, efi_memory_desc_t *md)
 {
@@ -86,8 +98,12 @@ int __init efi_create_mapping(struct mm_struct *mm, efi_memory_desc_t *md)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int __init set_permissions(pte_t *ptep, pgtable_t token,
 				  unsigned long addr, void *data)
+=======
+static int __init set_permissions(pte_t *ptep, unsigned long addr, void *data)
+>>>>>>> upstream/android-13
 {
 	efi_memory_desc_t *md = data;
 	pte_t pte = READ_ONCE(*ptep);

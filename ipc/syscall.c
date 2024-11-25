@@ -17,8 +17,13 @@
 #include <linux/shm.h>
 #include <linux/uaccess.h>
 
+<<<<<<< HEAD
 SYSCALL_DEFINE6(ipc, unsigned int, call, int, first, unsigned long, second,
 		unsigned long, third, void __user *, ptr, long, fifth)
+=======
+int ksys_ipc(unsigned int call, int first, unsigned long second,
+	unsigned long third, void __user * ptr, long fifth)
+>>>>>>> upstream/android-13
 {
 	int version, ret;
 
@@ -30,12 +35,20 @@ SYSCALL_DEFINE6(ipc, unsigned int, call, int, first, unsigned long, second,
 		return ksys_semtimedop(first, (struct sembuf __user *)ptr,
 				       second, NULL);
 	case SEMTIMEDOP:
+<<<<<<< HEAD
 		if (IS_ENABLED(CONFIG_64BIT) || !IS_ENABLED(CONFIG_64BIT_TIME))
+=======
+		if (IS_ENABLED(CONFIG_64BIT))
+>>>>>>> upstream/android-13
 			return ksys_semtimedop(first, ptr, second,
 			        (const struct __kernel_timespec __user *)fifth);
 		else if (IS_ENABLED(CONFIG_COMPAT_32BIT_TIME))
 			return compat_ksys_semtimedop(first, ptr, second,
+<<<<<<< HEAD
 			        (const struct compat_timespec __user *)fifth);
+=======
+			        (const struct old_timespec32 __user *)fifth);
+>>>>>>> upstream/android-13
 		else
 			return -ENOSYS;
 
@@ -47,7 +60,11 @@ SYSCALL_DEFINE6(ipc, unsigned int, call, int, first, unsigned long, second,
 			return -EINVAL;
 		if (get_user(arg, (unsigned long __user *) ptr))
 			return -EFAULT;
+<<<<<<< HEAD
 		return ksys_semctl(first, second, third, arg);
+=======
+		return ksys_old_semctl(first, second, third, arg);
+>>>>>>> upstream/android-13
 	}
 
 	case MSGSND:
@@ -75,7 +92,11 @@ SYSCALL_DEFINE6(ipc, unsigned int, call, int, first, unsigned long, second,
 	case MSGGET:
 		return ksys_msgget((key_t) first, second);
 	case MSGCTL:
+<<<<<<< HEAD
 		return ksys_msgctl(first, second,
+=======
+		return ksys_old_msgctl(first, second,
+>>>>>>> upstream/android-13
 				   (struct msqid_ds __user *)ptr);
 
 	case SHMAT:
@@ -100,12 +121,25 @@ SYSCALL_DEFINE6(ipc, unsigned int, call, int, first, unsigned long, second,
 	case SHMGET:
 		return ksys_shmget(first, second, third);
 	case SHMCTL:
+<<<<<<< HEAD
 		return ksys_shmctl(first, second,
+=======
+		return ksys_old_shmctl(first, second,
+>>>>>>> upstream/android-13
 				   (struct shmid_ds __user *) ptr);
 	default:
 		return -ENOSYS;
 	}
 }
+<<<<<<< HEAD
+=======
+
+SYSCALL_DEFINE6(ipc, unsigned int, call, int, first, unsigned long, second,
+		unsigned long, third, void __user *, ptr, long, fifth)
+{
+	return ksys_ipc(call, first, second, third, ptr, fifth);
+}
+>>>>>>> upstream/android-13
 #endif
 
 #ifdef CONFIG_COMPAT
@@ -121,8 +155,13 @@ struct compat_ipc_kludge {
 };
 
 #ifdef CONFIG_ARCH_WANT_OLD_COMPAT_IPC
+<<<<<<< HEAD
 COMPAT_SYSCALL_DEFINE6(ipc, u32, call, int, first, int, second,
 	u32, third, compat_uptr_t, ptr, u32, fifth)
+=======
+int compat_ksys_ipc(u32 call, int first, int second,
+	u32 third, compat_uptr_t ptr, u32 fifth)
+>>>>>>> upstream/android-13
 {
 	int version;
 	u32 pad;
@@ -146,7 +185,11 @@ COMPAT_SYSCALL_DEFINE6(ipc, u32, call, int, first, int, second,
 			return -EINVAL;
 		if (get_user(pad, (u32 __user *) compat_ptr(ptr)))
 			return -EFAULT;
+<<<<<<< HEAD
 		return compat_ksys_semctl(first, second, third, pad);
+=======
+		return compat_ksys_old_semctl(first, second, third, pad);
+>>>>>>> upstream/android-13
 
 	case MSGSND:
 		return compat_ksys_msgsnd(first, ptr, second, third);
@@ -171,7 +214,11 @@ COMPAT_SYSCALL_DEFINE6(ipc, u32, call, int, first, int, second,
 	case MSGGET:
 		return ksys_msgget(first, second);
 	case MSGCTL:
+<<<<<<< HEAD
 		return compat_ksys_msgctl(first, second, compat_ptr(ptr));
+=======
+		return compat_ksys_old_msgctl(first, second, compat_ptr(ptr));
+>>>>>>> upstream/android-13
 
 	case SHMAT: {
 		int err;
@@ -190,10 +237,23 @@ COMPAT_SYSCALL_DEFINE6(ipc, u32, call, int, first, int, second,
 	case SHMGET:
 		return ksys_shmget(first, (unsigned int)second, third);
 	case SHMCTL:
+<<<<<<< HEAD
 		return compat_ksys_shmctl(first, second, compat_ptr(ptr));
+=======
+		return compat_ksys_old_shmctl(first, second, compat_ptr(ptr));
+>>>>>>> upstream/android-13
 	}
 
 	return -ENOSYS;
 }
+<<<<<<< HEAD
+=======
+
+COMPAT_SYSCALL_DEFINE6(ipc, u32, call, int, first, int, second,
+	u32, third, compat_uptr_t, ptr, u32, fifth)
+{
+	return compat_ksys_ipc(call, first, second, third, ptr, fifth);
+}
+>>>>>>> upstream/android-13
 #endif
 #endif

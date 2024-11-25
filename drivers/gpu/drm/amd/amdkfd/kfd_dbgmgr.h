@@ -275,7 +275,11 @@ struct kfd_dbgdev {
 };
 
 struct kfd_dbgmgr {
+<<<<<<< HEAD
 	unsigned int pasid;
+=======
+	u32 pasid;
+>>>>>>> upstream/android-13
 	struct kfd_dev *dev;
 	struct kfd_dbgdev *dbgdev;
 };

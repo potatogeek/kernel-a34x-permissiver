@@ -1,11 +1,23 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 menu "GCOV-based kernel profiling"
 
 config GCOV_KERNEL
 	bool "Enable gcov-based kernel profiling"
 	depends on DEBUG_FS
+<<<<<<< HEAD
 	select CONSTRUCTORS if !UML
 	default n
 	---help---
+=======
+	depends on !CC_IS_CLANG || CLANG_VERSION >= 110000
+	depends on !ARCH_WANTS_NO_INSTR || CC_HAS_NO_PROFILE_FN_ATTR
+	select CONSTRUCTORS
+	default n
+	help
+>>>>>>> upstream/android-13
 	This option enables gcov-based code profiling (e.g. for code coverage
 	measurements).
 
@@ -41,7 +53,11 @@ config GCOV_PROFILE_ALL
 	depends on GCOV_KERNEL
 	depends on ARCH_HAS_GCOV_PROFILE_ALL
 	default n
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	This options activates profiling for the entire kernel.
 
 	If unsure, say N.
@@ -50,6 +66,7 @@ config GCOV_PROFILE_ALL
 	larger and run slower. Also be sure to exclude files from profiling
 	which are not linked to the kernel image to prevent linker errors.
 
+<<<<<<< HEAD
 choice
 	prompt "Specify GCOV format"
 	depends on GCOV_KERNEL
@@ -74,4 +91,6 @@ config GCOV_FORMAT_4_7
 
 endchoice
 
+=======
+>>>>>>> upstream/android-13
 endmenu

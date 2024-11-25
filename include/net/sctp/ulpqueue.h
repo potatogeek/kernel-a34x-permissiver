@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /* SCTP kernel implementation
  * (C) Copyright IBM Corp. 2001, 2004
  * Copyright (c) 1999-2000 Cisco, Inc.
@@ -11,6 +15,7 @@
  * and the core SCTP state machine.  This is the component which handles
  * reassembly and ordering.
  *
+<<<<<<< HEAD
  * This SCTP implementation is free software;
  * you can redistribute it and/or modify it under the terms of
  * the GNU General Public License as published by
@@ -27,6 +32,8 @@
  * along with GNU CC; see the file COPYING.  If not, see
  * <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  * Please send any bug reports or fixes you make to the
  * email addresses:
  *    lksctp developers <linux-sctp@vger.kernel.org>
@@ -59,7 +66,11 @@ void sctp_ulpq_free(struct sctp_ulpq *);
 int sctp_ulpq_tail_data(struct sctp_ulpq *, struct sctp_chunk *, gfp_t);
 
 /* Add a new event for propagation to the ULP. */
+<<<<<<< HEAD
 int sctp_ulpq_tail_event(struct sctp_ulpq *, struct sctp_ulpevent *ev);
+=======
+int sctp_ulpq_tail_event(struct sctp_ulpq *, struct sk_buff_head *skb_list);
+>>>>>>> upstream/android-13
 
 /* Renege previously received chunks.  */
 void sctp_ulpq_renege(struct sctp_ulpq *, struct sctp_chunk *, gfp_t);

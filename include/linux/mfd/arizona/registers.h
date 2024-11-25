@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * ARIZONA register definitions
  *
  * Copyright 2012 Wolfson Microelectronics plc
  *
  * Author: Mark Brown <broonie@opensource.wolfsonmicro.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ARIZONA_REGISTERS_H
@@ -1189,6 +1196,7 @@
 #define ARIZONA_DSP4_SCRATCH_1                   0x1441
 #define ARIZONA_DSP4_SCRATCH_2                   0x1442
 #define ARIZONA_DSP4_SCRATCH_3                   0x1443
+<<<<<<< HEAD
 #define ARIZONA_FRF_COEFF_1                      0x1700
 #define ARIZONA_FRF_COEFF_2                      0x1701
 #define ARIZONA_FRF_COEFF_3                      0x1702
@@ -1196,6 +1204,8 @@
 #define ARIZONA_V2_DAC_COMP_1                    0x1704
 #define ARIZONA_V2_DAC_COMP_2                    0x1705
 
+=======
+>>>>>>> upstream/android-13
 
 /*
  * Field Definitions.

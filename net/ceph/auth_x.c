@@ -22,12 +22,24 @@ static void ceph_x_validate_tickets(struct ceph_auth_client *ac, int *pneed);
 static int ceph_x_is_authenticated(struct ceph_auth_client *ac)
 {
 	struct ceph_x_info *xi = ac->private;
+<<<<<<< HEAD
 	int need;
 
 	ceph_x_validate_tickets(ac, &need);
 	dout("ceph_x_is_authenticated want=%d need=%d have=%d\n",
 	     ac->want_keys, need, xi->have_keys);
 	return (ac->want_keys & xi->have_keys) == ac->want_keys;
+=======
+	int missing;
+	int need;  /* missing + need renewal */
+
+	ceph_x_validate_tickets(ac, &need);
+	missing = ac->want_keys & ~xi->have_keys;
+	WARN_ON((need & missing) != missing);
+	dout("%s want 0x%x have 0x%x missing 0x%x -> %d\n", __func__,
+	     ac->want_keys, xi->have_keys, missing, !missing);
+	return !missing;
+>>>>>>> upstream/android-13
 }
 
 static int ceph_x_should_authenticate(struct ceph_auth_client *ac)
@@ -36,9 +48,15 @@ static int ceph_x_should_authenticate(struct ceph_auth_client *ac)
 	int need;
 
 	ceph_x_validate_tickets(ac, &need);
+<<<<<<< HEAD
 	dout("ceph_x_should_authenticate want=%d need=%d have=%d\n",
 	     ac->want_keys, need, xi->have_keys);
 	return need != 0;
+=======
+	dout("%s want 0x%x have 0x%x need 0x%x -> %d\n", __func__,
+	     ac->want_keys, xi->have_keys, need, !!need);
+	return !!need;
+>>>>>>> upstream/android-13
 }
 
 static int ceph_x_encrypt_offset(void)
@@ -197,7 +215,11 @@ static int process_one_ticket(struct ceph_auth_client *ac,
 	dout(" decrypted %d bytes\n", ret);
 	dend = dp + ret;
 
+<<<<<<< HEAD
 	tkt_struct_v = ceph_decode_8(&dp);
+=======
+	ceph_decode_8_safe(&dp, dend, tkt_struct_v, bad);
+>>>>>>> upstream/android-13
 	if (tkt_struct_v != 1)
 		goto bad;
 
@@ -205,6 +227,10 @@ static int process_one_ticket(struct ceph_auth_client *ac,
 	if (ret)
 		goto out;
 
+<<<<<<< HEAD
+=======
+	ceph_decode_need(&dp, dend, sizeof(struct ceph_timespec), bad);
+>>>>>>> upstream/android-13
 	ceph_decode_timespec64(&validity, dp);
 	dp += sizeof(struct ceph_timespec);
 	new_expires = ktime_get_real_seconds() + validity.tv_sec;
@@ -265,13 +291,19 @@ out:
 
 static int ceph_x_proc_ticket_reply(struct ceph_auth_client *ac,
 				    struct ceph_crypto_key *secret,
+<<<<<<< HEAD
 				    void *buf, void *end)
 {
 	void *p = buf;
+=======
+				    void **p, void *end)
+{
+>>>>>>> upstream/android-13
 	u8 reply_struct_v;
 	u32 num;
 	int ret;
 
+<<<<<<< HEAD
 	ceph_decode_8_safe(&p, end, reply_struct_v, bad);
 	if (reply_struct_v != 1)
 		return -EINVAL;
@@ -281,6 +313,17 @@ static int ceph_x_proc_ticket_reply(struct ceph_auth_client *ac,
 
 	while (num--) {
 		ret = process_one_ticket(ac, secret, &p, end);
+=======
+	ceph_decode_8_safe(p, end, reply_struct_v, bad);
+	if (reply_struct_v != 1)
+		return -EINVAL;
+
+	ceph_decode_32_safe(p, end, num, bad);
+	dout("%d tickets\n", num);
+
+	while (num--) {
+		ret = process_one_ticket(ac, secret, p, end);
+>>>>>>> upstream/android-13
 		if (ret)
 			return ret;
 	}
@@ -379,6 +422,10 @@ static int ceph_x_build_authorizer(struct ceph_auth_client *ac,
 		}
 	}
 	au->service = th->service;
+<<<<<<< HEAD
+=======
+	WARN_ON(!th->secret_id);
+>>>>>>> upstream/android-13
 	au->secret_id = th->secret_id;
 
 	msg_a = au->buf->vec.iov_base;
@@ -442,9 +489,16 @@ static bool need_key(struct ceph_x_ticket_handler *th)
 
 static bool have_key(struct ceph_x_ticket_handler *th)
 {
+<<<<<<< HEAD
 	if (th->have_key) {
 		if (ktime_get_real_seconds() >= th->expires)
 			th->have_key = false;
+=======
+	if (th->have_key && ktime_get_real_seconds() >= th->expires) {
+		dout("ticket %d (%s) secret_id %llu expired\n", th->service,
+		     ceph_entity_type_name(th->service), th->secret_id);
+		th->have_key = false;
+>>>>>>> upstream/android-13
 	}
 
 	return th->have_key;
@@ -486,6 +540,10 @@ static int ceph_x_build_request(struct ceph_auth_client *ac,
 	struct ceph_x_info *xi = ac->private;
 	int need;
 	struct ceph_x_request_header *head = buf;
+<<<<<<< HEAD
+=======
+	void *p;
+>>>>>>> upstream/android-13
 	int ret;
 	struct ceph_x_ticket_handler *th =
 		get_ticket_handler(ac, CEPH_ENTITY_TYPE_AUTH);
@@ -494,6 +552,7 @@ static int ceph_x_build_request(struct ceph_auth_client *ac,
 		return PTR_ERR(th);
 
 	ceph_x_validate_tickets(ac, &need);
+<<<<<<< HEAD
 
 	dout("build_request want %x have %x need %x\n",
 	     ac->want_keys, xi->have_keys, need);
@@ -501,11 +560,22 @@ static int ceph_x_build_request(struct ceph_auth_client *ac,
 	if (need & CEPH_ENTITY_TYPE_AUTH) {
 		struct ceph_x_authenticate *auth = (void *)(head + 1);
 		void *p = auth + 1;
+=======
+	dout("%s want 0x%x have 0x%x need 0x%x\n", __func__, ac->want_keys,
+	     xi->have_keys, need);
+
+	if (need & CEPH_ENTITY_TYPE_AUTH) {
+		struct ceph_x_authenticate *auth = (void *)(head + 1);
+>>>>>>> upstream/android-13
 		void *enc_buf = xi->auth_authorizer.enc_buf;
 		struct ceph_x_challenge_blob *blob = enc_buf +
 							ceph_x_encrypt_offset();
 		u64 *u;
 
+<<<<<<< HEAD
+=======
+		p = auth + 1;
+>>>>>>> upstream/android-13
 		if (p > end)
 			return -ERANGE;
 
@@ -521,7 +591,11 @@ static int ceph_x_build_request(struct ceph_auth_client *ac,
 		if (ret < 0)
 			return ret;
 
+<<<<<<< HEAD
 		auth->struct_v = 1;
+=======
+		auth->struct_v = 3;  /* nautilus+ */
+>>>>>>> upstream/android-13
 		auth->key = 0;
 		for (u = (u64 *)enc_buf; u + 1 <= (u64 *)(enc_buf + ret); u++)
 			auth->key ^= *(__le64 *)u;
@@ -534,10 +608,18 @@ static int ceph_x_build_request(struct ceph_auth_client *ac,
 		if (ret < 0)
 			return ret;
 
+<<<<<<< HEAD
+=======
+		/* nautilus+: request service tickets at the same time */
+		need = ac->want_keys & ~CEPH_ENTITY_TYPE_AUTH;
+		WARN_ON(!need);
+		ceph_encode_32_safe(&p, end, need, e_range);
+>>>>>>> upstream/android-13
 		return p - buf;
 	}
 
 	if (need) {
+<<<<<<< HEAD
 		void *p = head + 1;
 		struct ceph_x_service_ticket_request *req;
 
@@ -554,10 +636,26 @@ static int ceph_x_build_request(struct ceph_auth_client *ac,
 		req = p;
 		req->keys = cpu_to_le32(need);
 		p += sizeof(*req);
+=======
+		dout(" get_principal_session_key\n");
+		ret = ceph_x_build_authorizer(ac, th, &xi->auth_authorizer);
+		if (ret)
+			return ret;
+
+		p = buf;
+		ceph_encode_16_safe(&p, end, CEPHX_GET_PRINCIPAL_SESSION_KEY,
+				    e_range);
+		ceph_encode_copy_safe(&p, end,
+			xi->auth_authorizer.buf->vec.iov_base,
+			xi->auth_authorizer.buf->vec.iov_len, e_range);
+		ceph_encode_8_safe(&p, end, 1, e_range);
+		ceph_encode_32_safe(&p, end, need, e_range);
+>>>>>>> upstream/android-13
 		return p - buf;
 	}
 
 	return 0;
+<<<<<<< HEAD
 }
 
 static int ceph_x_handle_reply(struct ceph_auth_client *ac, int result,
@@ -572,6 +670,118 @@ static int ceph_x_handle_reply(struct ceph_auth_client *ac, int result,
 
 	if (result)
 		return result;  /* XXX hmm? */
+=======
+
+e_range:
+	return -ERANGE;
+}
+
+static int decode_con_secret(void **p, void *end, u8 *con_secret,
+			     int *con_secret_len)
+{
+	int len;
+
+	ceph_decode_32_safe(p, end, len, bad);
+	ceph_decode_need(p, end, len, bad);
+
+	dout("%s len %d\n", __func__, len);
+	if (con_secret) {
+		if (len > CEPH_MAX_CON_SECRET_LEN) {
+			pr_err("connection secret too big %d\n", len);
+			goto bad_memzero;
+		}
+		memcpy(con_secret, *p, len);
+		*con_secret_len = len;
+	}
+	memzero_explicit(*p, len);
+	*p += len;
+	return 0;
+
+bad_memzero:
+	memzero_explicit(*p, len);
+bad:
+	pr_err("failed to decode connection secret\n");
+	return -EINVAL;
+}
+
+static int handle_auth_session_key(struct ceph_auth_client *ac, u64 global_id,
+				   void **p, void *end,
+				   u8 *session_key, int *session_key_len,
+				   u8 *con_secret, int *con_secret_len)
+{
+	struct ceph_x_info *xi = ac->private;
+	struct ceph_x_ticket_handler *th;
+	void *dp, *dend;
+	int len;
+	int ret;
+
+	/* AUTH ticket */
+	ret = ceph_x_proc_ticket_reply(ac, &xi->secret, p, end);
+	if (ret)
+		return ret;
+
+	ceph_auth_set_global_id(ac, global_id);
+	if (*p == end) {
+		/* pre-nautilus (or didn't request service tickets!) */
+		WARN_ON(session_key || con_secret);
+		return 0;
+	}
+
+	th = get_ticket_handler(ac, CEPH_ENTITY_TYPE_AUTH);
+	if (IS_ERR(th))
+		return PTR_ERR(th);
+
+	if (session_key) {
+		memcpy(session_key, th->session_key.key, th->session_key.len);
+		*session_key_len = th->session_key.len;
+	}
+
+	/* connection secret */
+	ceph_decode_32_safe(p, end, len, e_inval);
+	dout("%s connection secret blob len %d\n", __func__, len);
+	if (len > 0) {
+		dp = *p + ceph_x_encrypt_offset();
+		ret = ceph_x_decrypt(&th->session_key, p, *p + len);
+		if (ret < 0)
+			return ret;
+
+		dout("%s decrypted %d bytes\n", __func__, ret);
+		dend = dp + ret;
+
+		ret = decode_con_secret(&dp, dend, con_secret, con_secret_len);
+		if (ret)
+			return ret;
+	}
+
+	/* service tickets */
+	ceph_decode_32_safe(p, end, len, e_inval);
+	dout("%s service tickets blob len %d\n", __func__, len);
+	if (len > 0) {
+		ret = ceph_x_proc_ticket_reply(ac, &th->session_key,
+					       p, *p + len);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+
+e_inval:
+	return -EINVAL;
+}
+
+static int ceph_x_handle_reply(struct ceph_auth_client *ac, u64 global_id,
+			       void *buf, void *end,
+			       u8 *session_key, int *session_key_len,
+			       u8 *con_secret, int *con_secret_len)
+{
+	struct ceph_x_info *xi = ac->private;
+	struct ceph_x_ticket_handler *th;
+	int len = end - buf;
+	int result;
+	void *p;
+	int op;
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (xi->starting) {
 		/* it's a hello */
@@ -587,6 +797,7 @@ static int ceph_x_handle_reply(struct ceph_auth_client *ac, int result,
 		return -EAGAIN;
 	}
 
+<<<<<<< HEAD
 	op = le16_to_cpu(head->op);
 	result = le32_to_cpu(head->result);
 	dout("handle_reply op %d result %d\n", op, result);
@@ -595,14 +806,32 @@ static int ceph_x_handle_reply(struct ceph_auth_client *ac, int result,
 		/* verify auth key */
 		ret = ceph_x_proc_ticket_reply(ac, &xi->secret,
 					       buf + sizeof(*head), end);
+=======
+	p = buf;
+	ceph_decode_16_safe(&p, end, op, e_inval);
+	ceph_decode_32_safe(&p, end, result, e_inval);
+	dout("handle_reply op %d result %d\n", op, result);
+	switch (op) {
+	case CEPHX_GET_AUTH_SESSION_KEY:
+		/* AUTH ticket + [connection secret] + service tickets */
+		ret = handle_auth_session_key(ac, global_id, &p, end,
+					      session_key, session_key_len,
+					      con_secret, con_secret_len);
+>>>>>>> upstream/android-13
 		break;
 
 	case CEPHX_GET_PRINCIPAL_SESSION_KEY:
 		th = get_ticket_handler(ac, CEPH_ENTITY_TYPE_AUTH);
 		if (IS_ERR(th))
 			return PTR_ERR(th);
+<<<<<<< HEAD
 		ret = ceph_x_proc_ticket_reply(ac, &th->session_key,
 					       buf + sizeof(*head), end);
+=======
+
+		/* service tickets */
+		ret = ceph_x_proc_ticket_reply(ac, &th->session_key, &p, end);
+>>>>>>> upstream/android-13
 		break;
 
 	default:
@@ -613,6 +842,12 @@ static int ceph_x_handle_reply(struct ceph_auth_client *ac, int result,
 	if (ac->want_keys == xi->have_keys)
 		return 0;
 	return -EAGAIN;
+<<<<<<< HEAD
+=======
+
+e_inval:
+	return -EINVAL;
+>>>>>>> upstream/android-13
 }
 
 static void ceph_x_destroy_authorizer(struct ceph_authorizer *a)
@@ -678,6 +913,7 @@ static int ceph_x_update_authorizer(
 	return 0;
 }
 
+<<<<<<< HEAD
 static int decrypt_authorize_challenge(struct ceph_x_authorizer *au,
 				       void *challenge_buf,
 				       int challenge_buf_len,
@@ -699,19 +935,56 @@ static int decrypt_authorize_challenge(struct ceph_x_authorizer *au,
 
 	*server_challenge = le64_to_cpu(ch->server_challenge);
 	return 0;
+=======
+/*
+ * CephXAuthorizeChallenge
+ */
+static int decrypt_authorizer_challenge(struct ceph_crypto_key *secret,
+					void *challenge, int challenge_len,
+					u64 *server_challenge)
+{
+	void *dp, *dend;
+	int ret;
+
+	/* no leading len */
+	ret = __ceph_x_decrypt(secret, challenge, challenge_len);
+	if (ret < 0)
+		return ret;
+
+	dout("%s decrypted %d bytes\n", __func__, ret);
+	dp = challenge + sizeof(struct ceph_x_encrypt_header);
+	dend = dp + ret;
+
+	ceph_decode_skip_8(&dp, dend, e_inval);  /* struct_v */
+	ceph_decode_64_safe(&dp, dend, *server_challenge, e_inval);
+	dout("%s server_challenge %llu\n", __func__, *server_challenge);
+	return 0;
+
+e_inval:
+	return -EINVAL;
+>>>>>>> upstream/android-13
 }
 
 static int ceph_x_add_authorizer_challenge(struct ceph_auth_client *ac,
 					   struct ceph_authorizer *a,
+<<<<<<< HEAD
 					   void *challenge_buf,
 					   int challenge_buf_len)
+=======
+					   void *challenge, int challenge_len)
+>>>>>>> upstream/android-13
 {
 	struct ceph_x_authorizer *au = (void *)a;
 	u64 server_challenge;
 	int ret;
 
+<<<<<<< HEAD
 	ret = decrypt_authorize_challenge(au, challenge_buf, challenge_buf_len,
 					  &server_challenge);
+=======
+	ret = decrypt_authorizer_challenge(&au->session_key, challenge,
+					   challenge_len, &server_challenge);
+>>>>>>> upstream/android-13
 	if (ret) {
 		pr_err("failed to decrypt authorize challenge: %d", ret);
 		return ret;
@@ -726,6 +999,7 @@ static int ceph_x_add_authorizer_challenge(struct ceph_auth_client *ac,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int ceph_x_verify_authorizer_reply(struct ceph_auth_client *ac,
 					  struct ceph_authorizer *a)
 {
@@ -749,6 +1023,69 @@ static int ceph_x_verify_authorizer_reply(struct ceph_auth_client *ac,
 	dout("verify_authorizer_reply nonce %llx got %llx ret %d\n",
 	     au->nonce, le64_to_cpu(reply->nonce_plus_one), ret);
 	return ret;
+=======
+/*
+ * CephXAuthorizeReply
+ */
+static int decrypt_authorizer_reply(struct ceph_crypto_key *secret,
+				    void **p, void *end, u64 *nonce_plus_one,
+				    u8 *con_secret, int *con_secret_len)
+{
+	void *dp, *dend;
+	u8 struct_v;
+	int ret;
+
+	dp = *p + ceph_x_encrypt_offset();
+	ret = ceph_x_decrypt(secret, p, end);
+	if (ret < 0)
+		return ret;
+
+	dout("%s decrypted %d bytes\n", __func__, ret);
+	dend = dp + ret;
+
+	ceph_decode_8_safe(&dp, dend, struct_v, e_inval);
+	ceph_decode_64_safe(&dp, dend, *nonce_plus_one, e_inval);
+	dout("%s nonce_plus_one %llu\n", __func__, *nonce_plus_one);
+	if (struct_v >= 2) {
+		ret = decode_con_secret(&dp, dend, con_secret, con_secret_len);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+
+e_inval:
+	return -EINVAL;
+}
+
+static int ceph_x_verify_authorizer_reply(struct ceph_auth_client *ac,
+					  struct ceph_authorizer *a,
+					  void *reply, int reply_len,
+					  u8 *session_key, int *session_key_len,
+					  u8 *con_secret, int *con_secret_len)
+{
+	struct ceph_x_authorizer *au = (void *)a;
+	u64 nonce_plus_one;
+	int ret;
+
+	if (session_key) {
+		memcpy(session_key, au->session_key.key, au->session_key.len);
+		*session_key_len = au->session_key.len;
+	}
+
+	ret = decrypt_authorizer_reply(&au->session_key, &reply,
+				       reply + reply_len, &nonce_plus_one,
+				       con_secret, con_secret_len);
+	if (ret)
+		return ret;
+
+	if (nonce_plus_one != au->nonce + 1) {
+		pr_err("failed to authenticate server\n");
+		return -EPERM;
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void ceph_x_reset(struct ceph_auth_client *ac)
@@ -785,8 +1122,20 @@ static void invalidate_ticket(struct ceph_auth_client *ac, int peer_type)
 	struct ceph_x_ticket_handler *th;
 
 	th = get_ticket_handler(ac, peer_type);
+<<<<<<< HEAD
 	if (!IS_ERR(th))
 		th->have_key = false;
+=======
+	if (IS_ERR(th))
+		return;
+
+	if (th->have_key) {
+		dout("ticket %d (%s) secret_id %llu invalidated\n",
+		     th->service, ceph_entity_type_name(th->service),
+		     th->secret_id);
+		th->have_key = false;
+	}
+>>>>>>> upstream/android-13
 }
 
 static void ceph_x_invalidate_authorizer(struct ceph_auth_client *ac,
@@ -911,7 +1260,10 @@ static int ceph_x_check_message_signature(struct ceph_auth_handshake *auth,
 }
 
 static const struct ceph_auth_client_ops ceph_x_ops = {
+<<<<<<< HEAD
 	.name = "x",
+=======
+>>>>>>> upstream/android-13
 	.is_authenticated = ceph_x_is_authenticated,
 	.should_authenticate = ceph_x_should_authenticate,
 	.build_request = ceph_x_build_request,

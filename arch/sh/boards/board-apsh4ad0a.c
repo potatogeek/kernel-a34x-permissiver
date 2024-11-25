@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * ALPHAPROJECT AP-SH4AD-0A Support.
  *
  * Copyright (C) 2010 ALPHAPROJECT Co.,Ltd.
  * Copyright (C) 2010  Matt Fleming
  * Copyright (C) 2010  Paul Mundt
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/init.h>
 #include <linux/platform_device.h>
@@ -18,7 +25,11 @@
 #include <linux/irq.h>
 #include <linux/clk.h>
 #include <asm/machvec.h>
+<<<<<<< HEAD
 #include <asm/sizes.h>
+=======
+#include <linux/sizes.h>
+>>>>>>> upstream/android-13
 
 /* Dummy supplies, where voltage doesn't matter */
 static struct regulator_consumer_supply dummy_supplies[] = {

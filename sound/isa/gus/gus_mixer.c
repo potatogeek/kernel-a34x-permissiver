@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
  *  Routines for control of ICS 2101 chip and "mixer" in GF1 chip
@@ -17,6 +18,12 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
+ *  Routines for control of ICS 2101 chip and "mixer" in GF1 chip
+>>>>>>> upstream/android-13
  */
 
 #include <linux/time.h>
@@ -135,13 +142,21 @@ static int snd_ics_put_double(struct snd_kcontrol *kcontrol, struct snd_ctl_elem
 	return change;
 }
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_gf1_controls[] = {
+=======
+static const struct snd_kcontrol_new snd_gf1_controls[] = {
+>>>>>>> upstream/android-13
 GF1_SINGLE("Master Playback Switch", 0, 1, 1),
 GF1_SINGLE("Line Switch", 0, 0, 1),
 GF1_SINGLE("Mic Switch", 0, 2, 0)
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_ics_controls[] = {
+=======
+static const struct snd_kcontrol_new snd_ics_controls[] = {
+>>>>>>> upstream/android-13
 GF1_SINGLE("Master Playback Switch", 0, 1, 1),
 ICS_DOUBLE("Master Playback Volume", 0, SNDRV_ICS_MASTER_DEV),
 ICS_DOUBLE("Synth Playback Volume", 0, SNDRV_ICS_GF1_DEV),
@@ -177,12 +192,22 @@ int snd_gf1_new_mixer(struct snd_gus_card * gus)
 	if (!gus->ics_flag) {
 		max = gus->ess_flag ? 1 : ARRAY_SIZE(snd_gf1_controls);
 		for (idx = 0; idx < max; idx++) {
+<<<<<<< HEAD
 			if ((err = snd_ctl_add(card, snd_ctl_new1(&snd_gf1_controls[idx], gus))) < 0)
+=======
+			err = snd_ctl_add(card, snd_ctl_new1(&snd_gf1_controls[idx], gus));
+			if (err < 0)
+>>>>>>> upstream/android-13
 				return err;
 		}
 	} else {
 		for (idx = 0; idx < ARRAY_SIZE(snd_ics_controls); idx++) {
+<<<<<<< HEAD
 			if ((err = snd_ctl_add(card, snd_ctl_new1(&snd_ics_controls[idx], gus))) < 0)
+=======
+			err = snd_ctl_add(card, snd_ctl_new1(&snd_ics_controls[idx], gus));
+			if (err < 0)
+>>>>>>> upstream/android-13
 				return err;
 		}
 	}

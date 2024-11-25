@@ -28,6 +28,10 @@
 #include <core/enum.h>
 #include <core/gpuobj.h>
 #include <subdev/bar.h>
+<<<<<<< HEAD
+=======
+#include <subdev/fault.h>
+>>>>>>> upstream/android-13
 #include <engine/sw.h>
 
 #include <nvif/class.h>
@@ -56,7 +60,11 @@ gf100_fifo_runlist_commit(struct gf100_fifo *fifo)
 	int nr = 0;
 	int target;
 
+<<<<<<< HEAD
 	mutex_lock(&subdev->mutex);
+=======
+	mutex_lock(&fifo->base.mutex);
+>>>>>>> upstream/android-13
 	cur = fifo->runlist.mem[fifo->runlist.active];
 	fifo->runlist.active = !fifo->runlist.active;
 
@@ -72,7 +80,11 @@ gf100_fifo_runlist_commit(struct gf100_fifo *fifo)
 	case NVKM_MEM_TARGET_VRAM: target = 0; break;
 	case NVKM_MEM_TARGET_NCOH: target = 3; break;
 	default:
+<<<<<<< HEAD
 		mutex_unlock(&subdev->mutex);
+=======
+		mutex_unlock(&fifo->base.mutex);
+>>>>>>> upstream/android-13
 		WARN_ON(1);
 		return;
 	}
@@ -85,20 +97,31 @@ gf100_fifo_runlist_commit(struct gf100_fifo *fifo)
 			       !(nvkm_rd32(device, 0x00227c) & 0x00100000),
 			       msecs_to_jiffies(2000)) == 0)
 		nvkm_error(subdev, "runlist update timeout\n");
+<<<<<<< HEAD
 	mutex_unlock(&subdev->mutex);
+=======
+	mutex_unlock(&fifo->base.mutex);
+>>>>>>> upstream/android-13
 }
 
 void
 gf100_fifo_runlist_remove(struct gf100_fifo *fifo, struct gf100_fifo_chan *chan)
 {
+<<<<<<< HEAD
 	mutex_lock(&fifo->base.engine.subdev.mutex);
 	list_del_init(&chan->head);
 	mutex_unlock(&fifo->base.engine.subdev.mutex);
+=======
+	mutex_lock(&fifo->base.mutex);
+	list_del_init(&chan->head);
+	mutex_unlock(&fifo->base.mutex);
+>>>>>>> upstream/android-13
 }
 
 void
 gf100_fifo_runlist_insert(struct gf100_fifo *fifo, struct gf100_fifo_chan *chan)
 {
+<<<<<<< HEAD
 	mutex_lock(&fifo->base.engine.subdev.mutex);
 	list_add_tail(&chan->head, &fifo->chan);
 	mutex_unlock(&fifo->base.engine.subdev.mutex);
@@ -138,6 +161,49 @@ gf100_fifo_engine(struct gf100_fifo *fifo, u32 engn)
 	}
 
 	return nvkm_device_engine(device, engn);
+=======
+	mutex_lock(&fifo->base.mutex);
+	list_add_tail(&chan->head, &fifo->chan);
+	mutex_unlock(&fifo->base.mutex);
+}
+
+static struct nvkm_engine *
+gf100_fifo_id_engine(struct nvkm_fifo *fifo, int engi)
+{
+	enum nvkm_subdev_type type;
+	int inst;
+
+	switch (engi) {
+	case GF100_FIFO_ENGN_GR    : type = NVKM_ENGINE_GR    ; inst = 0; break;
+	case GF100_FIFO_ENGN_MSPDEC: type = NVKM_ENGINE_MSPDEC; inst = 0; break;
+	case GF100_FIFO_ENGN_MSPPP : type = NVKM_ENGINE_MSPPP ; inst = 0; break;
+	case GF100_FIFO_ENGN_MSVLD : type = NVKM_ENGINE_MSVLD ; inst = 0; break;
+	case GF100_FIFO_ENGN_CE0   : type = NVKM_ENGINE_CE    ; inst = 0; break;
+	case GF100_FIFO_ENGN_CE1   : type = NVKM_ENGINE_CE    ; inst = 1; break;
+	case GF100_FIFO_ENGN_SW    : type = NVKM_ENGINE_SW    ; inst = 0; break;
+	default:
+		WARN_ON(1);
+		return NULL;
+	}
+
+	return nvkm_device_engine(fifo->engine.subdev.device, type, inst);
+}
+
+static int
+gf100_fifo_engine_id(struct nvkm_fifo *base, struct nvkm_engine *engine)
+{
+	switch (engine->subdev.type) {
+	case NVKM_ENGINE_GR    : return GF100_FIFO_ENGN_GR;
+	case NVKM_ENGINE_MSPDEC: return GF100_FIFO_ENGN_MSPDEC;
+	case NVKM_ENGINE_MSPPP : return GF100_FIFO_ENGN_MSPPP;
+	case NVKM_ENGINE_MSVLD : return GF100_FIFO_ENGN_MSVLD;
+	case NVKM_ENGINE_CE    : return GF100_FIFO_ENGN_CE0 + engine->subdev.inst;
+	case NVKM_ENGINE_SW    : return GF100_FIFO_ENGN_SW;
+	default:
+		WARN_ON(1);
+		return -1;
+	}
+>>>>>>> upstream/android-13
 }
 
 static void
@@ -147,6 +213,7 @@ gf100_fifo_recover_work(struct work_struct *w)
 	struct nvkm_device *device = fifo->base.engine.subdev.device;
 	struct nvkm_engine *engine;
 	unsigned long flags;
+<<<<<<< HEAD
 	u32 engn, engm = 0;
 	u64 mask, todo;
 
@@ -161,6 +228,19 @@ gf100_fifo_recover_work(struct work_struct *w)
 
 	for (todo = mask; engn = __ffs64(todo), todo; todo &= ~BIT_ULL(engn)) {
 		if ((engine = nvkm_device_engine(device, engn))) {
+=======
+	u32 engm, engn, todo;
+
+	spin_lock_irqsave(&fifo->base.lock, flags);
+	engm = fifo->recover.mask;
+	fifo->recover.mask = 0ULL;
+	spin_unlock_irqrestore(&fifo->base.lock, flags);
+
+	nvkm_mask(device, 0x002630, engm, engm);
+
+	for (todo = engm; engn = __ffs(todo), todo; todo &= ~BIT_ULL(engn)) {
+		if ((engine = gf100_fifo_id_engine(&fifo->base, engn))) {
+>>>>>>> upstream/android-13
 			nvkm_subdev_fini(&engine->subdev, false);
 			WARN_ON(nvkm_subdev_init(&engine->subdev));
 		}
@@ -178,22 +258,35 @@ gf100_fifo_recover(struct gf100_fifo *fifo, struct nvkm_engine *engine,
 	struct nvkm_subdev *subdev = &fifo->base.engine.subdev;
 	struct nvkm_device *device = subdev->device;
 	u32 chid = chan->base.chid;
+<<<<<<< HEAD
 
 	nvkm_error(subdev, "%s engine fault on channel %d, recovering...\n",
 		   nvkm_subdev_name[engine->subdev.index], chid);
+=======
+	int engi = gf100_fifo_engine_id(&fifo->base, engine);
+
+	nvkm_error(subdev, "%s engine fault on channel %d, recovering...\n",
+		   engine->subdev.name, chid);
+>>>>>>> upstream/android-13
 	assert_spin_locked(&fifo->base.lock);
 
 	nvkm_mask(device, 0x003004 + (chid * 0x08), 0x00000001, 0x00000000);
 	list_del_init(&chan->head);
 	chan->killed = true;
 
+<<<<<<< HEAD
 	if (engine != &fifo->base.engine)
 		fifo->recover.mask |= 1ULL << engine->subdev.index;
+=======
+	if (engi >= 0 && engi != GF100_FIFO_ENGN_SW)
+		fifo->recover.mask |= BIT(engi);
+>>>>>>> upstream/android-13
 	schedule_work(&fifo->recover.work);
 	nvkm_fifo_kevent(&fifo->base, chid);
 }
 
 static const struct nvkm_enum
+<<<<<<< HEAD
 gf100_fifo_sched_reason[] = {
 	{ 0x0a, "CTXSW_TIMEOUT" },
 	{}
@@ -256,6 +349,8 @@ gf100_fifo_intr_sched(struct gf100_fifo *fifo)
 }
 
 static const struct nvkm_enum
+=======
+>>>>>>> upstream/android-13
 gf100_fifo_fault_engine[] = {
 	{ 0x00, "PGRAPH", NULL, NVKM_ENGINE_GR },
 	{ 0x03, "PEEPHOLE", NULL, NVKM_ENGINE_IFB },
@@ -266,8 +361,13 @@ gf100_fifo_fault_engine[] = {
 	{ 0x11, "PMSPPP", NULL, NVKM_ENGINE_MSPPP },
 	{ 0x13, "PCOUNTER" },
 	{ 0x14, "PMSPDEC", NULL, NVKM_ENGINE_MSPDEC },
+<<<<<<< HEAD
 	{ 0x15, "PCE0", NULL, NVKM_ENGINE_CE0 },
 	{ 0x16, "PCE1", NULL, NVKM_ENGINE_CE1 },
+=======
+	{ 0x15, "PCE0", NULL, NVKM_ENGINE_CE, 0 },
+	{ 0x16, "PCE1", NULL, NVKM_ENGINE_CE, 1 },
+>>>>>>> upstream/android-13
 	{ 0x17, "PMU" },
 	{}
 };
@@ -315,6 +415,7 @@ gf100_fifo_fault_gpcclient[] = {
 };
 
 static void
+<<<<<<< HEAD
 gf100_fifo_intr_fault(struct gf100_fifo *fifo, int unit)
 {
 	struct nvkm_subdev *subdev = &fifo->base.engine.subdev;
@@ -328,12 +429,20 @@ gf100_fifo_intr_fault(struct gf100_fifo *fifo, int unit)
 	u32 write  = (stat & 0x00000080);
 	u32 hub    = (stat & 0x00000040);
 	u32 reason = (stat & 0x0000000f);
+=======
+gf100_fifo_fault(struct nvkm_fifo *base, struct nvkm_fault_data *info)
+{
+	struct gf100_fifo *fifo = gf100_fifo(base);
+	struct nvkm_subdev *subdev = &fifo->base.engine.subdev;
+	struct nvkm_device *device = subdev->device;
+>>>>>>> upstream/android-13
 	const struct nvkm_enum *er, *eu, *ec;
 	struct nvkm_engine *engine = NULL;
 	struct nvkm_fifo_chan *chan;
 	unsigned long flags;
 	char gpcid[8] = "";
 
+<<<<<<< HEAD
 	er = nvkm_enum_find(gf100_fifo_fault_reason, reason);
 	eu = nvkm_enum_find(gf100_fifo_fault_engine, unit);
 	if (hub) {
@@ -341,41 +450,162 @@ gf100_fifo_intr_fault(struct gf100_fifo *fifo, int unit)
 	} else {
 		ec = nvkm_enum_find(gf100_fifo_fault_gpcclient, client);
 		snprintf(gpcid, sizeof(gpcid), "GPC%d/", gpc);
+=======
+	er = nvkm_enum_find(gf100_fifo_fault_reason, info->reason);
+	eu = nvkm_enum_find(gf100_fifo_fault_engine, info->engine);
+	if (info->hub) {
+		ec = nvkm_enum_find(gf100_fifo_fault_hubclient, info->client);
+	} else {
+		ec = nvkm_enum_find(gf100_fifo_fault_gpcclient, info->client);
+		snprintf(gpcid, sizeof(gpcid), "GPC%d/", info->gpc);
+>>>>>>> upstream/android-13
 	}
 
 	if (eu && eu->data2) {
 		switch (eu->data2) {
 		case NVKM_SUBDEV_BAR:
+<<<<<<< HEAD
 			nvkm_mask(device, 0x001704, 0x00000000, 0x00000000);
 			break;
 		case NVKM_SUBDEV_INSTMEM:
 			nvkm_mask(device, 0x001714, 0x00000000, 0x00000000);
+=======
+			nvkm_bar_bar1_reset(device);
+			break;
+		case NVKM_SUBDEV_INSTMEM:
+			nvkm_bar_bar2_reset(device);
+>>>>>>> upstream/android-13
 			break;
 		case NVKM_ENGINE_IFB:
 			nvkm_mask(device, 0x001718, 0x00000000, 0x00000000);
 			break;
 		default:
+<<<<<<< HEAD
 			engine = nvkm_device_engine(device, eu->data2);
+=======
+			engine = nvkm_device_engine(device, eu->data2, eu->inst);
+>>>>>>> upstream/android-13
 			break;
 		}
 	}
 
+<<<<<<< HEAD
 	chan = nvkm_fifo_chan_inst(&fifo->base, (u64)inst << 12, &flags);
+=======
+	chan = nvkm_fifo_chan_inst(&fifo->base, info->inst, &flags);
+>>>>>>> upstream/android-13
 
 	nvkm_error(subdev,
 		   "%s fault at %010llx engine %02x [%s] client %02x [%s%s] "
 		   "reason %02x [%s] on channel %d [%010llx %s]\n",
+<<<<<<< HEAD
 		   write ? "write" : "read", (u64)vahi << 32 | valo,
 		   unit, eu ? eu->name : "", client, gpcid, ec ? ec->name : "",
 		   reason, er ? er->name : "", chan ? chan->chid : -1,
 		   (u64)inst << 12,
 		   chan ? chan->object.client->name : "unknown");
+=======
+		   info->access ? "write" : "read", info->addr,
+		   info->engine, eu ? eu->name : "",
+		   info->client, gpcid, ec ? ec->name : "",
+		   info->reason, er ? er->name : "", chan ? chan->chid : -1,
+		   info->inst, chan ? chan->object.client->name : "unknown");
+>>>>>>> upstream/android-13
 
 	if (engine && chan)
 		gf100_fifo_recover(fifo, engine, (void *)chan);
 	nvkm_fifo_chan_put(&fifo->base, flags, &chan);
 }
 
+<<<<<<< HEAD
+=======
+static const struct nvkm_enum
+gf100_fifo_sched_reason[] = {
+	{ 0x0a, "CTXSW_TIMEOUT" },
+	{}
+};
+
+static void
+gf100_fifo_intr_sched_ctxsw(struct gf100_fifo *fifo)
+{
+	struct nvkm_device *device = fifo->base.engine.subdev.device;
+	struct nvkm_engine *engine;
+	struct gf100_fifo_chan *chan;
+	unsigned long flags;
+	u32 engn;
+
+	spin_lock_irqsave(&fifo->base.lock, flags);
+	for (engn = 0; engn < 6; engn++) {
+		u32 stat = nvkm_rd32(device, 0x002640 + (engn * 0x04));
+		u32 busy = (stat & 0x80000000);
+		u32 save = (stat & 0x00100000); /* maybe? */
+		u32 unk0 = (stat & 0x00040000);
+		u32 unk1 = (stat & 0x00001000);
+		u32 chid = (stat & 0x0000007f);
+		(void)save;
+
+		if (busy && unk0 && unk1) {
+			list_for_each_entry(chan, &fifo->chan, head) {
+				if (chan->base.chid == chid) {
+					engine = gf100_fifo_id_engine(&fifo->base, engn);
+					if (!engine)
+						break;
+					gf100_fifo_recover(fifo, engine, chan);
+					break;
+				}
+			}
+		}
+	}
+	spin_unlock_irqrestore(&fifo->base.lock, flags);
+}
+
+static void
+gf100_fifo_intr_sched(struct gf100_fifo *fifo)
+{
+	struct nvkm_subdev *subdev = &fifo->base.engine.subdev;
+	struct nvkm_device *device = subdev->device;
+	u32 intr = nvkm_rd32(device, 0x00254c);
+	u32 code = intr & 0x000000ff;
+	const struct nvkm_enum *en;
+
+	en = nvkm_enum_find(gf100_fifo_sched_reason, code);
+
+	nvkm_error(subdev, "SCHED_ERROR %02x [%s]\n", code, en ? en->name : "");
+
+	switch (code) {
+	case 0x0a:
+		gf100_fifo_intr_sched_ctxsw(fifo);
+		break;
+	default:
+		break;
+	}
+}
+
+void
+gf100_fifo_intr_fault(struct nvkm_fifo *fifo, int unit)
+{
+	struct nvkm_device *device = fifo->engine.subdev.device;
+	u32 inst = nvkm_rd32(device, 0x002800 + (unit * 0x10));
+	u32 valo = nvkm_rd32(device, 0x002804 + (unit * 0x10));
+	u32 vahi = nvkm_rd32(device, 0x002808 + (unit * 0x10));
+	u32 type = nvkm_rd32(device, 0x00280c + (unit * 0x10));
+	struct nvkm_fault_data info;
+
+	info.inst   =  (u64)inst << 12;
+	info.addr   = ((u64)vahi << 32) | valo;
+	info.time   = 0;
+	info.engine = unit;
+	info.valid  = 1;
+	info.gpc    = (type & 0x1f000000) >> 24;
+	info.client = (type & 0x00001f00) >> 8;
+	info.access = (type & 0x00000080) >> 7;
+	info.hub    = (type & 0x00000040) >> 6;
+	info.reason = (type & 0x0000000f);
+
+	nvkm_fifo_fault(fifo, &info);
+}
+
+>>>>>>> upstream/android-13
 static const struct nvkm_bitfield
 gf100_fifo_pbdma_intr[] = {
 /*	{ 0x00008000, "" }	seen with null ib push */
@@ -518,7 +748,11 @@ gf100_fifo_intr(struct nvkm_fifo *base)
 		u32 mask = nvkm_rd32(device, 0x00259c);
 		while (mask) {
 			u32 unit = __ffs(mask);
+<<<<<<< HEAD
 			gf100_fifo_intr_fault(fifo, unit);
+=======
+			gf100_fifo_intr_fault(&fifo->base, unit);
+>>>>>>> upstream/android-13
 			nvkm_wr32(device, 0x00259c, (1 << unit));
 			mask &= ~(1 << unit);
 		}
@@ -655,6 +889,12 @@ gf100_fifo = {
 	.init = gf100_fifo_init,
 	.fini = gf100_fifo_fini,
 	.intr = gf100_fifo_intr,
+<<<<<<< HEAD
+=======
+	.fault = gf100_fifo_fault,
+	.engine_id = gf100_fifo_engine_id,
+	.id_engine = gf100_fifo_id_engine,
+>>>>>>> upstream/android-13
 	.uevent_init = gf100_fifo_uevent_init,
 	.uevent_fini = gf100_fifo_uevent_fini,
 	.chan = {
@@ -664,7 +904,12 @@ gf100_fifo = {
 };
 
 int
+<<<<<<< HEAD
 gf100_fifo_new(struct nvkm_device *device, int index, struct nvkm_fifo **pfifo)
+=======
+gf100_fifo_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+	       struct nvkm_fifo **pfifo)
+>>>>>>> upstream/android-13
 {
 	struct gf100_fifo *fifo;
 
@@ -674,5 +919,9 @@ gf100_fifo_new(struct nvkm_device *device, int index, struct nvkm_fifo **pfifo)
 	INIT_WORK(&fifo->recover.work, gf100_fifo_recover_work);
 	*pfifo = &fifo->base;
 
+<<<<<<< HEAD
 	return nvkm_fifo_ctor(&gf100_fifo, device, index, 128, &fifo->base);
+=======
+	return nvkm_fifo_ctor(&gf100_fifo, device, type, inst, 128, &fifo->base);
+>>>>>>> upstream/android-13
 }

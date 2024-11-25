@@ -33,7 +33,11 @@
 
 int sensors_create_symlink(struct input_dev *inputdev);
 void sensors_remove_symlink(struct input_dev *inputdev);
+<<<<<<< HEAD
 int sensors_register(struct device **pdev, void *drvdata,
+=======
+int sensors_register(struct device *dev, void *drvdata,
+>>>>>>> upstream/android-13
                      struct device_attribute *attributes[], char *name);
 
 int sensors_device_register(struct device **pdev, void *drvdata,
@@ -42,8 +46,11 @@ void sensors_unregister(struct device *dev,
                         struct device_attribute *attributes[]);
 void destroy_sensor_class(void);
 
+<<<<<<< HEAD
 extern int sensordump_notifier_register(struct notifier_block *nb);
 extern int sensordump_notifier_unregister(struct notifier_block *nb);
 extern int sensordump_notifier_call_chain(unsigned long val, void *v);
 
+=======
+>>>>>>> upstream/android-13
 #endif

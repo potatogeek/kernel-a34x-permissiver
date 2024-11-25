@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * TI QSPI driver
  *
@@ -11,6 +12,14 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR /PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * TI QSPI driver
+ *
+ * Copyright (C) 2013 Texas Instruments Incorporated - https://www.ti.com
+ * Author: Sourav Poddar <sourav.poddar@ti.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -87,8 +96,11 @@ struct ti_qspi {
 
 #define QSPI_COMPLETION_TIMEOUT		msecs_to_jiffies(2000)
 
+<<<<<<< HEAD
 #define QSPI_FCLK			192000000
 
+=======
+>>>>>>> upstream/android-13
 /* Clock Control */
 #define QSPI_CLK_EN			(1 << 31)
 #define QSPI_CLK_DIV_MAX		0xffff
@@ -324,6 +336,11 @@ static int qspi_read_msg(struct ti_qspi *qspi, struct spi_transfer *t,
 {
 	int wlen;
 	unsigned int cmd;
+<<<<<<< HEAD
+=======
+	u32 rx;
+	u8 rxlen, rx_wlen;
+>>>>>>> upstream/android-13
 	u8 *rxbuf;
 
 	rxbuf = t->rx_buf;
@@ -340,20 +357,79 @@ static int qspi_read_msg(struct ti_qspi *qspi, struct spi_transfer *t,
 		break;
 	}
 	wlen = t->bits_per_word >> 3;	/* in bytes */
+<<<<<<< HEAD
+=======
+	rx_wlen = wlen;
+>>>>>>> upstream/android-13
 
 	while (count) {
 		dev_dbg(qspi->dev, "rx cmd %08x dc %08x\n", cmd, qspi->dc);
 		if (qspi_is_busy(qspi))
 			return -EBUSY;
 
+<<<<<<< HEAD
+=======
+		switch (wlen) {
+		case 1:
+			/*
+			 * Optimize the 8-bit words transfers, as used by
+			 * the SPI flash devices.
+			 */
+			if (count >= QSPI_WLEN_MAX_BYTES) {
+				rxlen = QSPI_WLEN_MAX_BYTES;
+			} else {
+				rxlen = min(count, 4);
+			}
+			rx_wlen = rxlen << 3;
+			cmd &= ~QSPI_WLEN_MASK;
+			cmd |= QSPI_WLEN(rx_wlen);
+			break;
+		default:
+			rxlen = wlen;
+			break;
+		}
+
+>>>>>>> upstream/android-13
 		ti_qspi_write(qspi, cmd, QSPI_SPI_CMD_REG);
 		if (ti_qspi_poll_wc(qspi)) {
 			dev_err(qspi->dev, "read timed out\n");
 			return -ETIMEDOUT;
 		}
+<<<<<<< HEAD
 		switch (wlen) {
 		case 1:
 			*rxbuf = readb(qspi->base + QSPI_SPI_DATA_REG);
+=======
+
+		switch (wlen) {
+		case 1:
+			/*
+			 * Optimize the 8-bit words transfers, as used by
+			 * the SPI flash devices.
+			 */
+			if (count >= QSPI_WLEN_MAX_BYTES) {
+				u32 *rxp = (u32 *) rxbuf;
+				rx = readl(qspi->base + QSPI_SPI_DATA_REG_3);
+				*rxp++ = be32_to_cpu(rx);
+				rx = readl(qspi->base + QSPI_SPI_DATA_REG_2);
+				*rxp++ = be32_to_cpu(rx);
+				rx = readl(qspi->base + QSPI_SPI_DATA_REG_1);
+				*rxp++ = be32_to_cpu(rx);
+				rx = readl(qspi->base + QSPI_SPI_DATA_REG);
+				*rxp++ = be32_to_cpu(rx);
+			} else {
+				u8 *rxp = rxbuf;
+				rx = readl(qspi->base + QSPI_SPI_DATA_REG);
+				if (rx_wlen >= 8)
+					*rxp++ = rx >> (rx_wlen - 8);
+				if (rx_wlen >= 16)
+					*rxp++ = rx >> (rx_wlen - 16);
+				if (rx_wlen >= 24)
+					*rxp++ = rx >> (rx_wlen - 24);
+				if (rx_wlen >= 32)
+					*rxp++ = rx;
+			}
+>>>>>>> upstream/android-13
 			break;
 		case 2:
 			*((u16 *)rxbuf) = readw(qspi->base + QSPI_SPI_DATA_REG);
@@ -362,8 +438,13 @@ static int qspi_read_msg(struct ti_qspi *qspi, struct spi_transfer *t,
 			*((u32 *)rxbuf) = readl(qspi->base + QSPI_SPI_DATA_REG);
 			break;
 		}
+<<<<<<< HEAD
 		rxbuf += wlen;
 		count -= wlen;
+=======
+		rxbuf += rxlen;
+		count -= rxlen;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -535,6 +616,38 @@ static void ti_qspi_setup_mmap_read(struct spi_device *spi, u8 opcode,
 		      QSPI_SPI_SETUP_REG(spi->chip_select));
 }
 
+<<<<<<< HEAD
+=======
+static int ti_qspi_adjust_op_size(struct spi_mem *mem, struct spi_mem_op *op)
+{
+	struct ti_qspi *qspi = spi_controller_get_devdata(mem->spi->master);
+	size_t max_len;
+
+	if (op->data.dir == SPI_MEM_DATA_IN) {
+		if (op->addr.val < qspi->mmap_size) {
+			/* Limit MMIO to the mmaped region */
+			if (op->addr.val + op->data.nbytes > qspi->mmap_size) {
+				max_len = qspi->mmap_size - op->addr.val;
+				op->data.nbytes = min((size_t) op->data.nbytes,
+						      max_len);
+			}
+		} else {
+			/*
+			 * Use fallback mode (SW generated transfers) above the
+			 * mmaped region.
+			 * Adjust size to comply with the QSPI max frame length.
+			 */
+			max_len = QSPI_FRAME;
+			max_len -= 1 + op->addr.nbytes + op->dummy.nbytes;
+			op->data.nbytes = min((size_t) op->data.nbytes,
+					      max_len);
+		}
+	}
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int ti_qspi_exec_mem_op(struct spi_mem *mem,
 			       const struct spi_mem_op *op)
 {
@@ -585,6 +698,10 @@ static int ti_qspi_exec_mem_op(struct spi_mem *mem,
 
 static const struct spi_controller_mem_ops ti_qspi_mem_ops = {
 	.exec_op = ti_qspi_exec_mem_op,
+<<<<<<< HEAD
+=======
+	.adjust_op_size = ti_qspi_adjust_op_size,
+>>>>>>> upstream/android-13
 };
 
 static int ti_qspi_start_transfer_one(struct spi_master *master,
@@ -739,7 +856,10 @@ static int ti_qspi_probe(struct platform_device *pdev)
 
 	irq = platform_get_irq(pdev, 0);
 	if (irq < 0) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "no irq resource?\n");
+=======
+>>>>>>> upstream/android-13
 		ret = irq;
 		goto free_master;
 	}

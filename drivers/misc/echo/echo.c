@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * SpanDSP - a series of DSP components for telephony
  *
@@ -14,6 +18,7 @@
  * cells.
  *
  * All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2, as
@@ -27,6 +32,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*! \file */
@@ -78,13 +85,21 @@
        Path Models", IEEE Transactions on communications, COM-25,
        No. 6, June
        1977.
+<<<<<<< HEAD
        http://www.rowetel.com/images/echo/dual_path_paper.pdf
+=======
+       https://www.rowetel.com/images/echo/dual_path_paper.pdf
+>>>>>>> upstream/android-13
 
    [2] The classic, very useful paper that tells you how to
        actually build a real world echo canceller:
 	 Messerschmitt, Hedberg, Cole, Haoui, Winship, "Digital Voice
 	 Echo Canceller with a TMS320020,
+<<<<<<< HEAD
 	 http://www.rowetel.com/images/echo/spra129.pdf
+=======
+	 https://www.rowetel.com/images/echo/spra129.pdf
+>>>>>>> upstream/android-13
 
    [3] I have written a series of blog posts on this work, here is
        Part 1: http://www.rowetel.com/blog/?p=18
@@ -92,7 +107,11 @@
    [4] The source code http://svn.rowetel.com/software/oslec/
 
    [5] A nice reference on LMS filters:
+<<<<<<< HEAD
 	 http://en.wikipedia.org/wiki/Least_mean_squares_filter
+=======
+	 https://en.wikipedia.org/wiki/Least_mean_squares_filter
+>>>>>>> upstream/android-13
 
    Credits:
 

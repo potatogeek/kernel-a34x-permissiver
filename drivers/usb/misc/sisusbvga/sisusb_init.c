@@ -44,10 +44,15 @@
 #include <linux/spinlock.h>
 
 #include "sisusb.h"
+<<<<<<< HEAD
 
 #ifdef INCL_SISUSB_CON
 
 #include "sisusb_init.h"
+=======
+#include "sisusb_init.h"
+#include "sisusb_tables.h"
+>>>>>>> upstream/android-13
 
 /*********************************************/
 /*         POINTER INITIALIZATION            */
@@ -955,5 +960,8 @@ int SiSUSBSetVESAMode(struct SiS_Private *SiS_Pr, unsigned short VModeNo)
 
 	return SiSUSBSetMode(SiS_Pr, ModeNo);
 }
+<<<<<<< HEAD
 
 #endif /* INCL_SISUSB_CON */
+=======
+>>>>>>> upstream/android-13

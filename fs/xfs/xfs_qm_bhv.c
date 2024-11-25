@@ -5,13 +5,20 @@
  */
 #include "xfs.h"
 #include "xfs_fs.h"
+<<<<<<< HEAD
+=======
+#include "xfs_shared.h"
+>>>>>>> upstream/android-13
 #include "xfs_format.h"
 #include "xfs_log_format.h"
 #include "xfs_trans_resv.h"
 #include "xfs_quota.h"
 #include "xfs_mount.h"
 #include "xfs_inode.h"
+<<<<<<< HEAD
 #include "xfs_error.h"
+=======
+>>>>>>> upstream/android-13
 #include "xfs_trans.h"
 #include "xfs_qm.h"
 
@@ -23,6 +30,7 @@ xfs_fill_statvfs_from_dquot(
 {
 	uint64_t		limit;
 
+<<<<<<< HEAD
 	limit = dqp->q_core.d_blk_softlimit ?
 		be64_to_cpu(dqp->q_core.d_blk_softlimit) :
 		be64_to_cpu(dqp->q_core.d_blk_hardlimit);
@@ -41,6 +49,26 @@ xfs_fill_statvfs_from_dquot(
 		statp->f_ffree =
 			(statp->f_files > dqp->q_res_icount) ?
 			 (statp->f_files - dqp->q_res_icount) : 0;
+=======
+	limit = dqp->q_blk.softlimit ?
+		dqp->q_blk.softlimit :
+		dqp->q_blk.hardlimit;
+	if (limit && statp->f_blocks > limit) {
+		statp->f_blocks = limit;
+		statp->f_bfree = statp->f_bavail =
+			(statp->f_blocks > dqp->q_blk.reserved) ?
+			 (statp->f_blocks - dqp->q_blk.reserved) : 0;
+	}
+
+	limit = dqp->q_ino.softlimit ?
+		dqp->q_ino.softlimit :
+		dqp->q_ino.hardlimit;
+	if (limit && statp->f_files > limit) {
+		statp->f_files = limit;
+		statp->f_ffree =
+			(statp->f_files > dqp->q_ino.reserved) ?
+			 (statp->f_files - dqp->q_ino.reserved) : 0;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -54,6 +82,7 @@ xfs_fill_statvfs_from_dquot(
  */
 void
 xfs_qm_statvfs(
+<<<<<<< HEAD
 	xfs_inode_t		*ip,
 	struct kstatfs		*statp)
 {
@@ -61,6 +90,15 @@ xfs_qm_statvfs(
 	xfs_dquot_t		*dqp;
 
 	if (!xfs_qm_dqget(mp, xfs_get_projid(ip), XFS_DQ_PROJ, false, &dqp)) {
+=======
+	struct xfs_inode	*ip,
+	struct kstatfs		*statp)
+{
+	struct xfs_mount	*mp = ip->i_mount;
+	struct xfs_dquot	*dqp;
+
+	if (!xfs_qm_dqget(mp, ip->i_projid, XFS_DQTYPE_PROJ, false, &dqp)) {
+>>>>>>> upstream/android-13
 		xfs_fill_statvfs_from_dquot(statp, dqp);
 		xfs_qm_dqput(dqp);
 	}
@@ -75,7 +113,11 @@ xfs_qm_newmount(
 	uint		quotaondisk;
 	uint		uquotaondisk = 0, gquotaondisk = 0, pquotaondisk = 0;
 
+<<<<<<< HEAD
 	quotaondisk = xfs_sb_version_hasquota(&mp->m_sb) &&
+=======
+	quotaondisk = xfs_has_quota(mp) &&
+>>>>>>> upstream/android-13
 				(mp->m_sb.sb_qflags & XFS_ALL_QUOTA_ACCT);
 
 	if (quotaondisk) {

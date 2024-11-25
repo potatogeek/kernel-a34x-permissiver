@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Network port table
  *
@@ -6,11 +10,15 @@
  * needed to reduce the lookup overhead.
  *
  * Author: Paul Moore <paul@paul-moore.com>
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
  * (c) Copyright Hewlett-Packard Development Company, L.P., 2008
+<<<<<<< HEAD
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License as
@@ -21,6 +29,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _SELINUX_NETPORT_H

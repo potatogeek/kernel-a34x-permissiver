@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2010  Realtek Corporation.
@@ -22,6 +23,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/* Copyright(c) 2009-2010  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #ifndef __RTL8821AE_DEF_H__
 #define __RTL8821AE_DEF_H__
@@ -129,6 +134,7 @@
 
 #define MAX_RX_DMA_BUFFER_SIZE_8812	0x3E80
 
+<<<<<<< HEAD
 #define	C2H_RX_CMD_HDR_LEN					8
 #define	GET_C2H_CMD_CMD_LEN(__prxhdr)		\
 	LE_BITS_TO_4BYTE((__prxhdr), 0, 16)
@@ -160,6 +166,8 @@
 #define	GET_C2H_CMD_FEEDBACK_CCX_SEQ(__pcmdfbhdr)		\
 	LE_BITS_TO_4BYTE(((__pcmdfbhdr) + 4), 20, 12)
 
+=======
+>>>>>>> upstream/android-13
 #define CHIP_BONDING_IDENTIFIER(_value)	(((_value)>>22)&0x3)
 
 #define CHIP_8812				BIT(2)

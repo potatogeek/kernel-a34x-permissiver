@@ -11,15 +11,26 @@
 #include "audio_manager.h"
 #include "audio_manager_private.h"
 
+<<<<<<< HEAD
 static ssize_t manager_sysfs_add_store(
 	struct kobject *kobj, struct kobj_attribute *attr,
 	const char *buf, size_t count)
+=======
+static ssize_t manager_sysfs_add_store(struct kobject *kobj,
+				       struct kobj_attribute *attr,
+				       const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct gb_audio_manager_module_descriptor desc = { {0} };
 
 	int num = sscanf(buf,
+<<<<<<< HEAD
 			"name=%" GB_AUDIO_MANAGER_MODULE_NAME_LEN_SSCANF "s "
 			"vid=%d pid=%d intf_id=%d i/p devices=0x%X o/p devices=0x%X",
+=======
+			"name=%" GB_AUDIO_MANAGER_MODULE_NAME_LEN_SSCANF
+			"s vid=%d pid=%d intf_id=%d i/p devices=0x%X o/p devices=0x%X",
+>>>>>>> upstream/android-13
 			desc.name, &desc.vid, &desc.pid, &desc.intf_id,
 			&desc.ip_devices, &desc.op_devices);
 
@@ -36,9 +47,15 @@ static ssize_t manager_sysfs_add_store(
 static struct kobj_attribute manager_add_attribute =
 	__ATTR(add, 0664, NULL, manager_sysfs_add_store);
 
+<<<<<<< HEAD
 static ssize_t manager_sysfs_remove_store(
 	struct kobject *kobj, struct kobj_attribute *attr,
 	const char *buf, size_t count)
+=======
+static ssize_t manager_sysfs_remove_store(struct kobject *kobj,
+					  struct kobj_attribute *attr,
+					  const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	int id;
 
@@ -57,9 +74,15 @@ static ssize_t manager_sysfs_remove_store(
 static struct kobj_attribute manager_remove_attribute =
 	__ATTR(remove, 0664, NULL, manager_sysfs_remove_store);
 
+<<<<<<< HEAD
 static ssize_t manager_sysfs_dump_store(
 	struct kobject *kobj, struct kobj_attribute *attr,
 	const char *buf, size_t count)
+=======
+static ssize_t manager_sysfs_dump_store(struct kobject *kobj,
+					struct kobj_attribute *attr,
+					const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	int id;
 
@@ -81,8 +104,13 @@ static ssize_t manager_sysfs_dump_store(
 static struct kobj_attribute manager_dump_attribute =
 	__ATTR(dump, 0664, NULL, manager_sysfs_dump_store);
 
+<<<<<<< HEAD
 static void manager_sysfs_init_attribute(
 		struct kobject *kobj, struct kobj_attribute *kattr)
+=======
+static void manager_sysfs_init_attribute(struct kobject *kobj,
+					 struct kobj_attribute *kattr)
+>>>>>>> upstream/android-13
 {
 	int err;
 

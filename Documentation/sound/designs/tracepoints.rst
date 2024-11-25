@@ -34,20 +34,32 @@ substream. In this procedure, PCM hardware parameters are decided by
 interaction between applications and ALSA PCM core. Once decided, runtime of
 the PCM substream keeps the parameters.
 
+<<<<<<< HEAD
 The parameters are described in :c:type:`struct snd_pcm_hw_params`. This
+=======
+The parameters are described in struct snd_pcm_hw_params. This
+>>>>>>> upstream/android-13
 structure includes several types of parameters. Applications set preferable
 value to these parameters, then execute ioctl(2) with SNDRV_PCM_IOCTL_HW_REFINE
 or SNDRV_PCM_IOCTL_HW_PARAMS. The former is used just for refining available
 set of parameters. The latter is used for an actual decision of the parameters.
 
+<<<<<<< HEAD
 The :c:type:`struct snd_pcm_hw_params` structure has below members:
+=======
+The struct snd_pcm_hw_params structure has below members:
+>>>>>>> upstream/android-13
 
 ``flags``
         Configurable. ALSA PCM core and some drivers handle this flag to select
         convenient parameters or change their behaviour.
 ``masks``
         Configurable. This type of parameter is described in
+<<<<<<< HEAD
         :c:type:`struct snd_mask` and represent mask values. As of PCM protocol
+=======
+        struct snd_mask and represent mask values. As of PCM protocol
+>>>>>>> upstream/android-13
         v2.0.13, three types are defined.
 
         - SNDRV_PCM_HW_PARAM_ACCESS
@@ -55,7 +67,11 @@ The :c:type:`struct snd_pcm_hw_params` structure has below members:
         - SNDRV_PCM_HW_PARAM_SUBFORMAT
 ``intervals``
         Configurable. This type of parameter is described in
+<<<<<<< HEAD
         :c:type:`struct snd_interval` and represent values with a range. As of
+=======
+        struct snd_interval and represent values with a range. As of
+>>>>>>> upstream/android-13
         PCM protocol v2.0.13, twelve types are defined.
 
         - SNDRV_PCM_HW_PARAM_SAMPLE_BITS
@@ -78,7 +94,11 @@ The :c:type:`struct snd_pcm_hw_params` structure has below members:
         are going to be changed.
 ``cmask``
         Read-only. After returning from ioctl(2), buffer in user space for
+<<<<<<< HEAD
         :c:type:`struct snd_pcm_hw_params` includes result of each operation.
+=======
+        struct snd_pcm_hw_params includes result of each operation.
+>>>>>>> upstream/android-13
         This mask represents which mask/interval parameter is actually changed.
 ``info``
         Read-only. This represents hardware/driver capabilities as bit flags
@@ -110,10 +130,17 @@ The :c:type:`struct snd_pcm_hw_params` structure has below members:
         value to this parameter but some drivers intentionally set zero with
         a care of hardware design or data transmission protocol.
 
+<<<<<<< HEAD
 ALSA PCM core handles buffer of :c:type:`struct snd_pcm_hw_params` when
 applications execute ioctl(2) with SNDRV_PCM_HW_REFINE or SNDRV_PCM_HW_PARAMS.
 Parameters in the buffer are changed according to
 :c:type:`struct snd_pcm_hardware` and rules of constraints in the runtime. The
+=======
+ALSA PCM core handles buffer of struct snd_pcm_hw_params when
+applications execute ioctl(2) with SNDRV_PCM_HW_REFINE or SNDRV_PCM_HW_PARAMS.
+Parameters in the buffer are changed according to
+struct snd_pcm_hardware and rules of constraints in the runtime. The
+>>>>>>> upstream/android-13
 structure describes capabilities of handled hardware. The rules describes
 dependencies on which a parameter is decided according to several parameters.
 A rule has a callback function, and drivers can register arbitrary functions
@@ -121,17 +148,28 @@ to compute the target parameter. ALSA PCM core registers some rules to the
 runtime as a default.
 
 Each driver can join in the interaction as long as it prepared for two stuffs
+<<<<<<< HEAD
 in a callback of :c:type:`struct snd_pcm_ops.open`.
 
 1. In the callback, drivers are expected to change a member of
    :c:type:`struct snd_pcm_hardware` type in the runtime, according to
+=======
+in a callback of struct snd_pcm_ops.open.
+
+1. In the callback, drivers are expected to change a member of
+   struct snd_pcm_hardware type in the runtime, according to
+>>>>>>> upstream/android-13
    capacities of corresponding hardware.
 2. In the same callback, drivers are also expected to register additional rules
    of constraints into the runtime when several parameters have dependencies
    due to hardware design.
 
 The driver can refers to result of the interaction in a callback of
+<<<<<<< HEAD
 :c:type:`struct snd_pcm_ops.hw_params`, however it should not change the
+=======
+struct snd_pcm_ops.hw_params, however it should not change the
+>>>>>>> upstream/android-13
 content.
 
 Tracepoints in this category are designed to trace changes of the
@@ -163,7 +201,11 @@ fields are different according to type of the parameter. For parameters of mask
 type, the fields represent hexadecimal dump of content of the parameter. For
 parameters of interval type, the fields represent values of each member of
 ``empty``, ``integer``, ``openmin``, ``min``, ``max``, ``openmax`` in
+<<<<<<< HEAD
 :c:type:`struct snd_interval` in this order.
+=======
+struct snd_interval in this order.
+>>>>>>> upstream/android-13
 
 Tracepoints in drivers
 ======================

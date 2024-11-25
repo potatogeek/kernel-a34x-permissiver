@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * SPU core dump code
  *
  * (C) Copyright 2006 IBM Corp.
  *
  * Author: Dwayne Grant McConnell <decimal@us.ibm.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/elf.h>
@@ -34,6 +41,7 @@
 
 #include "spufs.h"
 
+<<<<<<< HEAD
 static ssize_t do_coredump_read(int num, struct spu_context *ctx, void *buffer,
 				size_t size, loff_t *off)
 {
@@ -50,6 +58,8 @@ static ssize_t do_coredump_read(int num, struct spu_context *ctx, void *buffer,
 	return ++ret; /* count trailing NULL */
 }
 
+=======
+>>>>>>> upstream/android-13
 static int spufs_ctx_note_size(struct spu_context *ctx, int dfd)
 {
 	int i, sz, total = 0;
@@ -95,13 +105,28 @@ static int match_context(const void *v, struct file *file, unsigned fd)
  */
 static struct spu_context *coredump_next_context(int *fd)
 {
+<<<<<<< HEAD
+=======
+	struct spu_context *ctx;
+>>>>>>> upstream/android-13
 	struct file *file;
 	int n = iterate_fd(current->files, *fd, match_context, NULL);
 	if (!n)
 		return NULL;
 	*fd = n - 1;
+<<<<<<< HEAD
 	file = fcheck(*fd);
 	return SPUFS_I(file_inode(file))->i_ctx;
+=======
+
+	rcu_read_lock();
+	file = lookup_fd_rcu(*fd);
+	ctx = SPUFS_I(file_inode(file))->i_ctx;
+	get_spu_context(ctx);
+	rcu_read_unlock();
+
+	return ctx;
+>>>>>>> upstream/android-13
 }
 
 int spufs_coredump_extra_notes_size(void)
@@ -112,17 +137,35 @@ int spufs_coredump_extra_notes_size(void)
 	fd = 0;
 	while ((ctx = coredump_next_context(&fd)) != NULL) {
 		rc = spu_acquire_saved(ctx);
+<<<<<<< HEAD
 		if (rc)
 			break;
 		rc = spufs_ctx_note_size(ctx, fd);
 		spu_release_saved(ctx);
 		if (rc < 0)
 			break;
+=======
+		if (rc) {
+			put_spu_context(ctx);
+			break;
+		}
+
+		rc = spufs_ctx_note_size(ctx, fd);
+		spu_release_saved(ctx);
+		if (rc < 0) {
+			put_spu_context(ctx);
+			break;
+		}
+>>>>>>> upstream/android-13
 
 		size += rc;
 
 		/* start searching the next fd next time */
 		fd++;
+<<<<<<< HEAD
+=======
+		put_spu_context(ctx);
+>>>>>>> upstream/android-13
 	}
 
 	return size;
@@ -131,6 +174,7 @@ int spufs_coredump_extra_notes_size(void)
 static int spufs_arch_write_note(struct spu_context *ctx, int i,
 				  struct coredump_params *cprm, int dfd)
 {
+<<<<<<< HEAD
 	loff_t pos = 0;
 	int sz, rc, total = 0;
 	const int bufsz = PAGE_SIZE;
@@ -147,11 +191,20 @@ static int spufs_arch_write_note(struct spu_context *ctx, int i,
 	sz = spufs_coredump_read[i].size;
 
 	sprintf(fullname, "SPU/%d/%s", dfd, name);
+=======
+	size_t sz = spufs_coredump_read[i].size;
+	char fullname[80];
+	struct elf_note en;
+	int ret;
+
+	sprintf(fullname, "SPU/%d/%s", dfd, spufs_coredump_read[i].name);
+>>>>>>> upstream/android-13
 	en.n_namesz = strlen(fullname) + 1;
 	en.n_descsz = sz;
 	en.n_type = NT_SPU;
 
 	if (!dump_emit(cprm, &en, sizeof(en)))
+<<<<<<< HEAD
 		goto Eio;
 
 	if (!dump_emit(cprm, fullname, en.n_namesz))
@@ -183,6 +236,33 @@ out:
 Eio:
 	free_page((unsigned long)buf);
 	return -EIO;
+=======
+		return -EIO;
+	if (!dump_emit(cprm, fullname, en.n_namesz))
+		return -EIO;
+	if (!dump_align(cprm, 4))
+		return -EIO;
+
+	if (spufs_coredump_read[i].dump) {
+		ret = spufs_coredump_read[i].dump(ctx, cprm);
+		if (ret < 0)
+			return ret;
+	} else {
+		char buf[32];
+
+		ret = snprintf(buf, sizeof(buf), "0x%.16llx",
+			       spufs_coredump_read[i].get(ctx));
+		if (ret >= sizeof(buf))
+			return sizeof(buf);
+
+		/* count trailing the NULL: */
+		if (!dump_emit(cprm, buf, ret + 1))
+			return -EIO;
+	}
+
+	dump_skip_to(cprm, roundup(cprm->pos - ret + sz, 4));
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 int spufs_coredump_extra_notes_write(struct coredump_params *cprm)

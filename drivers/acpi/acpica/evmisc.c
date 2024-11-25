@@ -3,7 +3,11 @@
  *
  * Module Name: evmisc - Miscellaneous event manager support functions
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -230,11 +234,23 @@ void acpi_ev_terminate(void)
 		/* Disable all GPEs in all GPE blocks */
 
 		status = acpi_ev_walk_gpe_list(acpi_hw_disable_gpe_block, NULL);
+<<<<<<< HEAD
 
 		status = acpi_ev_remove_global_lock_handler();
 		if (ACPI_FAILURE(status)) {
 			ACPI_ERROR((AE_INFO,
 				    "Could not remove Global Lock handler"));
+=======
+		if (ACPI_FAILURE(status)) {
+			ACPI_EXCEPTION((AE_INFO, status,
+					"Could not disable GPEs in GPE block"));
+		}
+
+		status = acpi_ev_remove_global_lock_handler();
+		if (ACPI_FAILURE(status)) {
+			ACPI_EXCEPTION((AE_INFO, status,
+					"Could not remove Global Lock handler"));
+>>>>>>> upstream/android-13
 		}
 
 		acpi_gbl_events_initialized = FALSE;
@@ -250,6 +266,13 @@ void acpi_ev_terminate(void)
 	/* Deallocate all handler objects installed within GPE info structs */
 
 	status = acpi_ev_walk_gpe_list(acpi_ev_delete_gpe_handlers, NULL);
+<<<<<<< HEAD
+=======
+	if (ACPI_FAILURE(status)) {
+		ACPI_EXCEPTION((AE_INFO, status,
+				"Could not delete GPE handlers"));
+	}
+>>>>>>> upstream/android-13
 
 	/* Return to original mode if necessary */
 

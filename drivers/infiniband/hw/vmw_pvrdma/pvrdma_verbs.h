@@ -70,6 +70,7 @@ enum pvrdma_mtu {
 	PVRDMA_MTU_4096 = 5,
 };
 
+<<<<<<< HEAD
 static inline int pvrdma_mtu_enum_to_int(enum pvrdma_mtu mtu)
 {
 	switch (mtu) {
@@ -94,6 +95,8 @@ static inline enum pvrdma_mtu pvrdma_mtu_int_to_enum(int mtu)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 enum pvrdma_port_state {
 	PVRDMA_PORT_NOP			= 0,
 	PVRDMA_PORT_DOWN		= 1,
@@ -138,6 +141,7 @@ enum pvrdma_port_width {
 	PVRDMA_WIDTH_12X	= 8,
 };
 
+<<<<<<< HEAD
 static inline int pvrdma_width_enum_to_int(enum pvrdma_port_width width)
 {
 	switch (width) {
@@ -149,6 +153,8 @@ static inline int pvrdma_width_enum_to_int(enum pvrdma_port_width width)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 enum pvrdma_port_speed {
 	PVRDMA_SPEED_SDR	= 1,
 	PVRDMA_SPEED_DDR	= 2,
@@ -383,6 +389,7 @@ enum pvrdma_access_flags {
 int pvrdma_query_device(struct ib_device *ibdev,
 			struct ib_device_attr *props,
 			struct ib_udata *udata);
+<<<<<<< HEAD
 int pvrdma_query_port(struct ib_device *ibdev, u8 port,
 		      struct ib_port_attr *props);
 int pvrdma_query_gid(struct ib_device *ibdev, u8 port,
@@ -403,15 +410,39 @@ struct ib_pd *pvrdma_alloc_pd(struct ib_device *ibdev,
 			      struct ib_ucontext *context,
 			      struct ib_udata *udata);
 int pvrdma_dealloc_pd(struct ib_pd *ibpd);
+=======
+int pvrdma_query_port(struct ib_device *ibdev, u32 port,
+		      struct ib_port_attr *props);
+int pvrdma_query_gid(struct ib_device *ibdev, u32 port,
+		     int index, union ib_gid *gid);
+int pvrdma_query_pkey(struct ib_device *ibdev, u32 port,
+		      u16 index, u16 *pkey);
+enum rdma_link_layer pvrdma_port_link_layer(struct ib_device *ibdev,
+					    u32 port);
+int pvrdma_modify_device(struct ib_device *ibdev, int mask,
+			 struct ib_device_modify *props);
+int pvrdma_modify_port(struct ib_device *ibdev, u32 port,
+		       int mask, struct ib_port_modify *props);
+int pvrdma_mmap(struct ib_ucontext *context, struct vm_area_struct *vma);
+int pvrdma_alloc_ucontext(struct ib_ucontext *uctx, struct ib_udata *udata);
+void pvrdma_dealloc_ucontext(struct ib_ucontext *context);
+int pvrdma_alloc_pd(struct ib_pd *pd, struct ib_udata *udata);
+int pvrdma_dealloc_pd(struct ib_pd *ibpd, struct ib_udata *udata);
+>>>>>>> upstream/android-13
 struct ib_mr *pvrdma_get_dma_mr(struct ib_pd *pd, int acc);
 struct ib_mr *pvrdma_reg_user_mr(struct ib_pd *pd, u64 start, u64 length,
 				 u64 virt_addr, int access_flags,
 				 struct ib_udata *udata);
+<<<<<<< HEAD
 int pvrdma_dereg_mr(struct ib_mr *mr);
+=======
+int pvrdma_dereg_mr(struct ib_mr *mr, struct ib_udata *udata);
+>>>>>>> upstream/android-13
 struct ib_mr *pvrdma_alloc_mr(struct ib_pd *pd, enum ib_mr_type mr_type,
 			      u32 max_num_sg);
 int pvrdma_map_mr_sg(struct ib_mr *ibmr, struct scatterlist *sg,
 		     int sg_nents, unsigned int *sg_offset);
+<<<<<<< HEAD
 struct ib_cq *pvrdma_create_cq(struct ib_device *ibdev,
 			       const struct ib_cq_init_attr *attr,
 			       struct ib_ucontext *context,
@@ -434,11 +465,35 @@ int pvrdma_destroy_srq(struct ib_srq *srq);
 struct ib_qp *pvrdma_create_qp(struct ib_pd *pd,
 			       struct ib_qp_init_attr *init_attr,
 			       struct ib_udata *udata);
+=======
+int pvrdma_create_cq(struct ib_cq *ibcq, const struct ib_cq_init_attr *attr,
+		     struct ib_udata *udata);
+int pvrdma_destroy_cq(struct ib_cq *cq, struct ib_udata *udata);
+int pvrdma_poll_cq(struct ib_cq *ibcq, int num_entries, struct ib_wc *wc);
+int pvrdma_req_notify_cq(struct ib_cq *cq, enum ib_cq_notify_flags flags);
+int pvrdma_create_ah(struct ib_ah *ah, struct rdma_ah_init_attr *init_attr,
+		     struct ib_udata *udata);
+int pvrdma_destroy_ah(struct ib_ah *ah, u32 flags);
+
+int pvrdma_create_srq(struct ib_srq *srq, struct ib_srq_init_attr *init_attr,
+		      struct ib_udata *udata);
+int pvrdma_modify_srq(struct ib_srq *ibsrq, struct ib_srq_attr *attr,
+		      enum ib_srq_attr_mask attr_mask, struct ib_udata *udata);
+int pvrdma_query_srq(struct ib_srq *srq, struct ib_srq_attr *srq_attr);
+int pvrdma_destroy_srq(struct ib_srq *srq, struct ib_udata *udata);
+
+int pvrdma_create_qp(struct ib_qp *qp, struct ib_qp_init_attr *init_attr,
+		     struct ib_udata *udata);
+>>>>>>> upstream/android-13
 int pvrdma_modify_qp(struct ib_qp *ibqp, struct ib_qp_attr *attr,
 		     int attr_mask, struct ib_udata *udata);
 int pvrdma_query_qp(struct ib_qp *ibqp, struct ib_qp_attr *qp_attr,
 		    int qp_attr_mask, struct ib_qp_init_attr *qp_init_attr);
+<<<<<<< HEAD
 int pvrdma_destroy_qp(struct ib_qp *qp);
+=======
+int pvrdma_destroy_qp(struct ib_qp *qp, struct ib_udata *udata);
+>>>>>>> upstream/android-13
 int pvrdma_post_send(struct ib_qp *ibqp, const struct ib_send_wr *wr,
 		     const struct ib_send_wr **bad_wr);
 int pvrdma_post_recv(struct ib_qp *ibqp, const struct ib_recv_wr *wr,

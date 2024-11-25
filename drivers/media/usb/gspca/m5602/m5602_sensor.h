@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * USB Driver for ALi m5602 based webcams
  *
@@ -9,11 +13,14 @@
  * Copyright (c) 2006 Willem Duinker
  * v4l2 interface modeled after the V4L2 driver
  * for SN9C10x PC Camera Controllers
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, version 2.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef M5602_SENSOR_H_

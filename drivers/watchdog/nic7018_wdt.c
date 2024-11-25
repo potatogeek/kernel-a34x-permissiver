@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016 National Instruments Corp.
  *
@@ -10,6 +11,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2016 National Instruments Corp.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/acpi.h>
@@ -211,10 +217,14 @@ static int nic7018_probe(struct platform_device *pdev)
 
 	watchdog_set_drvdata(wdd, wdt);
 	watchdog_set_nowayout(wdd, nowayout);
+<<<<<<< HEAD
 
 	ret = watchdog_init_timeout(wdd, timeout, dev);
 	if (ret)
 		dev_warn(dev, "unable to set timeout value, using default\n");
+=======
+	watchdog_init_timeout(wdd, timeout, dev);
+>>>>>>> upstream/android-13
 
 	/* Unlock WDT register */
 	outb(UNLOCK, wdt->io_base + WDT_REG_LOCK);
@@ -222,7 +232,10 @@ static int nic7018_probe(struct platform_device *pdev)
 	ret = watchdog_register_device(wdd);
 	if (ret) {
 		outb(LOCK, wdt->io_base + WDT_REG_LOCK);
+<<<<<<< HEAD
 		dev_err(dev, "failed to register watchdog\n");
+=======
+>>>>>>> upstream/android-13
 		return ret;
 	}
 

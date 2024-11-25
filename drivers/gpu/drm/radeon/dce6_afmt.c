@@ -21,7 +21,12 @@
  *
  */
 #include <linux/hdmi.h>
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+
+#include "dce6_afmt.h"
+>>>>>>> upstream/android-13
 #include "radeon.h"
 #include "radeon_audio.h"
 #include "sid.h"

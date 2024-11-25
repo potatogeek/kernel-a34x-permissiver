@@ -6,12 +6,16 @@
 #include <linux/interrupt.h>
 #include <linux/keyboard.h>
 
+<<<<<<< HEAD
 extern struct tasklet_struct keyboard_tasklet;
 
 extern char *func_table[MAX_NR_FUNC];
 extern char func_buf[];
 extern char *funcbufptr;
 extern int funcbufsize, funcbufleft;
+=======
+extern char *func_table[MAX_NR_FUNC];
+>>>>>>> upstream/android-13
 
 /*
  * kbd->xxx contains the VC-local things (flag settings etc..)
@@ -74,12 +78,15 @@ extern void (*kbd_ledfunc)(unsigned int led);
 extern int set_console(int nr);
 extern void schedule_console_callback(void);
 
+<<<<<<< HEAD
 /* FIXME: review locking for vt.c callers */
 static inline void set_leds(void)
 {
 	tasklet_schedule(&keyboard_tasklet);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline int vc_kbd_mode(struct kbd_struct * kbd, int flag)
 {
 	return ((kbd->modeflags >> flag) & 1);
@@ -138,7 +145,11 @@ static inline void chg_vc_kbd_led(struct kbd_struct * kbd, int flag)
 
 struct console;
 
+<<<<<<< HEAD
 void compute_shiftstate(void);
+=======
+void vt_set_leds_compute_shiftstate(void);
+>>>>>>> upstream/android-13
 
 /* defkeymap.c */
 

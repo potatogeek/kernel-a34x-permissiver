@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * INET		An implementation of the TCP/IP protocol suite for the LINUX
  *		operating system.  INET is implemented using the  BSD Socket
@@ -5,17 +9,23 @@
  *
  *		"Ping" sockets
  *
+<<<<<<< HEAD
  *		This program is free software; you can redistribute it and/or
  *		modify it under the terms of the GNU General Public License
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * Based on ipv4/ping.c code.
  *
  * Authors:	Lorenzo Colitti (IPv6 support)
  *		Vasiliy Kulikov / Openwall (IPv4 implementation, for Linux 2.6),
  *		Pavel Kankovsky (IPv4 implementation, for Linux 2.4.32)
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <net/addrconf.h>
@@ -116,9 +126,16 @@ static int ping_v6_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
 	fl6.flowi6_uid = sk->sk_uid;
 	fl6.fl6_icmp_type = user_icmph.icmp6_type;
 	fl6.fl6_icmp_code = user_icmph.icmp6_code;
+<<<<<<< HEAD
 	security_sk_classify_flow(sk, flowi6_to_flowi(&fl6));
 
 	ipcm6_init_sk(&ipc6, np);
+=======
+	security_sk_classify_flow(sk, flowi6_to_flowi_common(&fl6));
+
+	ipcm6_init_sk(&ipc6, np);
+	ipc6.sockc.mark = sk->sk_mark;
+>>>>>>> upstream/android-13
 	fl6.flowlabel = ip6_make_flowinfo(ipc6.tclass, fl6.flowlabel);
 
 	dst = ip6_sk_dst_lookup_flow(sk, &fl6, daddr, false);

@@ -20,7 +20,11 @@ static int genprobe_new_chip(struct map_info *map, struct chip_probe *cp,
 
 struct mtd_info *mtd_do_chip_probe(struct map_info *map, struct chip_probe *cp)
 {
+<<<<<<< HEAD
 	struct mtd_info *mtd = NULL;
+=======
+	struct mtd_info *mtd;
+>>>>>>> upstream/android-13
 	struct cfi_private *cfi;
 
 	/* First probe the map to see if we have CFI stuff there. */
@@ -135,7 +139,11 @@ static struct cfi_private *genprobe_ident_chips(struct map_info *map, struct chi
 	 * our caller, and copy the appropriate data into them.
 	 */
 
+<<<<<<< HEAD
 	retcfi = kmalloc(sizeof(struct cfi_private) + cfi.numchips * sizeof(struct flchip), GFP_KERNEL);
+=======
+	retcfi = kmalloc(struct_size(retcfi, chips, cfi.numchips), GFP_KERNEL);
+>>>>>>> upstream/android-13
 
 	if (!retcfi) {
 		kfree(cfi.cfiq);

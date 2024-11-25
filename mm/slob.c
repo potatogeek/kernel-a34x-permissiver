@@ -112,13 +112,21 @@ static inline int slob_page_free(struct page *sp)
 
 static void set_slob_page_free(struct page *sp, struct list_head *list)
 {
+<<<<<<< HEAD
 	list_add(&sp->lru, list);
+=======
+	list_add(&sp->slab_list, list);
+>>>>>>> upstream/android-13
 	__SetPageSlobFree(sp);
 }
 
 static inline void clear_slob_page_free(struct page *sp)
 {
+<<<<<<< HEAD
 	list_del(&sp->lru);
+=======
+	list_del(&sp->slab_list);
+>>>>>>> upstream/android-13
 	__ClearPageSlobFree(sp);
 }
 
@@ -190,7 +198,11 @@ static int slob_last(slob_t *s)
 
 static void *slob_new_pages(gfp_t gfp, int order, int node)
 {
+<<<<<<< HEAD
 	void *page;
+=======
+	struct page *page;
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_NUMA
 	if (node != NUMA_NO_NODE)
@@ -202,11 +214,17 @@ static void *slob_new_pages(gfp_t gfp, int order, int node)
 	if (!page)
 		return NULL;
 
+<<<<<<< HEAD
+=======
+	mod_node_page_state(page_pgdat(page), NR_SLAB_UNRECLAIMABLE_B,
+			    PAGE_SIZE << order);
+>>>>>>> upstream/android-13
 	return page_address(page);
 }
 
 static void slob_free_pages(void *b, int order)
 {
+<<<<<<< HEAD
 	if (current->reclaim_state)
 		current->reclaim_state->reclaimed_slab += 1 << order;
 	free_pages((unsigned long)b, order);
@@ -216,15 +234,62 @@ static void slob_free_pages(void *b, int order)
  * Allocate a slob block within a given slob_page sp.
  */
 static void *slob_page_alloc(struct page *sp, size_t size, int align)
+=======
+	struct page *sp = virt_to_page(b);
+
+	if (current->reclaim_state)
+		current->reclaim_state->reclaimed_slab += 1 << order;
+
+	mod_node_page_state(page_pgdat(sp), NR_SLAB_UNRECLAIMABLE_B,
+			    -(PAGE_SIZE << order));
+	__free_pages(sp, order);
+}
+
+/*
+ * slob_page_alloc() - Allocate a slob block within a given slob_page sp.
+ * @sp: Page to look in.
+ * @size: Size of the allocation.
+ * @align: Allocation alignment.
+ * @align_offset: Offset in the allocated block that will be aligned.
+ * @page_removed_from_list: Return parameter.
+ *
+ * Tries to find a chunk of memory at least @size bytes big within @page.
+ *
+ * Return: Pointer to memory if allocated, %NULL otherwise.  If the
+ *         allocation fills up @page then the page is removed from the
+ *         freelist, in this case @page_removed_from_list will be set to
+ *         true (set to false otherwise).
+ */
+static void *slob_page_alloc(struct page *sp, size_t size, int align,
+			      int align_offset, bool *page_removed_from_list)
+>>>>>>> upstream/android-13
 {
 	slob_t *prev, *cur, *aligned = NULL;
 	int delta = 0, units = SLOB_UNITS(size);
 
+<<<<<<< HEAD
 	for (prev = NULL, cur = sp->freelist; ; prev = cur, cur = slob_next(cur)) {
 		slobidx_t avail = slob_units(cur);
 
 		if (align) {
 			aligned = (slob_t *)ALIGN((unsigned long)cur, align);
+=======
+	*page_removed_from_list = false;
+	for (prev = NULL, cur = sp->freelist; ; prev = cur, cur = slob_next(cur)) {
+		slobidx_t avail = slob_units(cur);
+
+		/*
+		 * 'aligned' will hold the address of the slob block so that the
+		 * address 'aligned'+'align_offset' is aligned according to the
+		 * 'align' parameter. This is for kmalloc() which prepends the
+		 * allocated block with its size, so that the block itself is
+		 * aligned when needed.
+		 */
+		if (align) {
+			aligned = (slob_t *)
+				(ALIGN((unsigned long)cur + align_offset, align)
+				 - align_offset);
+>>>>>>> upstream/android-13
 			delta = aligned - cur;
 		}
 		if (avail >= units + delta) { /* room enough? */
@@ -254,8 +319,15 @@ static void *slob_page_alloc(struct page *sp, size_t size, int align)
 			}
 
 			sp->units -= units;
+<<<<<<< HEAD
 			if (!sp->units)
 				clear_slob_page_free(sp);
+=======
+			if (!sp->units) {
+				clear_slob_page_free(sp);
+				*page_removed_from_list = true;
+			}
+>>>>>>> upstream/android-13
 			return cur;
 		}
 		if (slob_last(cur))
@@ -266,6 +338,7 @@ static void *slob_page_alloc(struct page *sp, size_t size, int align)
 /*
  * slob_alloc: entry point into the slob allocator.
  */
+<<<<<<< HEAD
 static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 {
 	struct page *sp;
@@ -273,6 +346,16 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 	struct list_head *slob_list;
 	slob_t *b = NULL;
 	unsigned long flags;
+=======
+static void *slob_alloc(size_t size, gfp_t gfp, int align, int node,
+							int align_offset)
+{
+	struct page *sp;
+	struct list_head *slob_list;
+	slob_t *b = NULL;
+	unsigned long flags;
+	bool _unused;
+>>>>>>> upstream/android-13
 
 	if (size < SLOB_BREAK1)
 		slob_list = &free_slob_small;
@@ -283,7 +366,12 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 
 	spin_lock_irqsave(&slob_lock, flags);
 	/* Iterate through each partially free page, try to find room */
+<<<<<<< HEAD
 	list_for_each_entry(sp, slob_list, lru) {
+=======
+	list_for_each_entry(sp, slob_list, slab_list) {
+		bool page_removed_from_list = false;
+>>>>>>> upstream/android-13
 #ifdef CONFIG_NUMA
 		/*
 		 * If there's a node specification, search for a partial
@@ -296,6 +384,7 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 		if (sp->units < SLOB_UNITS(size))
 			continue;
 
+<<<<<<< HEAD
 		/* Attempt to alloc */
 		prev = sp->lru.prev;
 		b = slob_page_alloc(sp, size, align);
@@ -308,6 +397,27 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 		if (prev != slob_list->prev &&
 				slob_list->next != prev->next)
 			list_move_tail(slob_list, prev->next);
+=======
+		b = slob_page_alloc(sp, size, align, align_offset, &page_removed_from_list);
+		if (!b)
+			continue;
+
+		/*
+		 * If slob_page_alloc() removed sp from the list then we
+		 * cannot call list functions on sp.  If so allocation
+		 * did not fragment the page anyway so optimisation is
+		 * unnecessary.
+		 */
+		if (!page_removed_from_list) {
+			/*
+			 * Improve fragment distribution and reduce our average
+			 * search time by starting our next search here. (see
+			 * Knuth vol 1, sec 2.5, pg 449)
+			 */
+			if (!list_is_first(&sp->slab_list, slob_list))
+				list_rotate_to_front(&sp->slab_list, slob_list);
+		}
+>>>>>>> upstream/android-13
 		break;
 	}
 	spin_unlock_irqrestore(&slob_lock, flags);
@@ -323,10 +433,17 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 		spin_lock_irqsave(&slob_lock, flags);
 		sp->units = SLOB_UNITS(PAGE_SIZE);
 		sp->freelist = b;
+<<<<<<< HEAD
 		INIT_LIST_HEAD(&sp->lru);
 		set_slob(b, SLOB_UNITS(PAGE_SIZE), b + SLOB_UNITS(PAGE_SIZE));
 		set_slob_page_free(sp, slob_list);
 		b = slob_page_alloc(sp, size, align);
+=======
+		INIT_LIST_HEAD(&sp->slab_list);
+		set_slob(b, SLOB_UNITS(PAGE_SIZE), b + SLOB_UNITS(PAGE_SIZE));
+		set_slob_page_free(sp, slob_list);
+		b = slob_page_alloc(sp, size, align, align_offset, &_unused);
+>>>>>>> upstream/android-13
 		BUG_ON(!b);
 		spin_unlock_irqrestore(&slob_lock, flags);
 	}
@@ -420,6 +537,17 @@ out:
 	spin_unlock_irqrestore(&slob_lock, flags);
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PRINTK
+void __kmem_obj_info(struct kmem_obj_info *kpp, void *object, struct page *page)
+{
+	kpp->kp_ptr = object;
+	kpp->kp_page = page;
+}
+#endif
+
+>>>>>>> upstream/android-13
 /*
  * End of slob allocator proper. Begin kmem_cache_alloc and kmalloc frontend.
  */
@@ -428,11 +556,16 @@ static __always_inline void *
 __do_kmalloc_node(size_t size, gfp_t gfp, int node, unsigned long caller)
 {
 	unsigned int *m;
+<<<<<<< HEAD
 	int align = max_t(size_t, ARCH_KMALLOC_MINALIGN, ARCH_SLAB_MINALIGN);
+=======
+	int minalign = max_t(size_t, ARCH_KMALLOC_MINALIGN, ARCH_SLAB_MINALIGN);
+>>>>>>> upstream/android-13
 	void *ret;
 
 	gfp &= gfp_allowed_mask;
 
+<<<<<<< HEAD
 	fs_reclaim_acquire(gfp);
 	fs_reclaim_release(gfp);
 
@@ -441,14 +574,39 @@ __do_kmalloc_node(size_t size, gfp_t gfp, int node, unsigned long caller)
 			return ZERO_SIZE_PTR;
 
 		m = slob_alloc(size + align, gfp, align, node);
+=======
+	might_alloc(gfp);
+
+	if (size < PAGE_SIZE - minalign) {
+		int align = minalign;
+
+		/*
+		 * For power of two sizes, guarantee natural alignment for
+		 * kmalloc()'d objects.
+		 */
+		if (is_power_of_2(size))
+			align = max(minalign, (int) size);
+
+		if (!size)
+			return ZERO_SIZE_PTR;
+
+		m = slob_alloc(size + minalign, gfp, align, node, minalign);
+>>>>>>> upstream/android-13
 
 		if (!m)
 			return NULL;
 		*m = size;
+<<<<<<< HEAD
 		ret = (void *)m + align;
 
 		trace_kmalloc_node(caller, ret,
 				   size, size + align, gfp, node);
+=======
+		ret = (void *)m + minalign;
+
+		trace_kmalloc_node(caller, ret,
+				   size, size + minalign, gfp, node);
+>>>>>>> upstream/android-13
 	} else {
 		unsigned int order = get_order(size);
 
@@ -500,13 +658,27 @@ void kfree(const void *block)
 		int align = max_t(size_t, ARCH_KMALLOC_MINALIGN, ARCH_SLAB_MINALIGN);
 		unsigned int *m = (unsigned int *)(block - align);
 		slob_free(m, *m + align);
+<<<<<<< HEAD
 	} else
 		__free_pages(sp, compound_order(sp));
+=======
+	} else {
+		unsigned int order = compound_order(sp);
+		mod_node_page_state(page_pgdat(sp), NR_SLAB_UNRECLAIMABLE_B,
+				    -(PAGE_SIZE << order));
+		__free_pages(sp, order);
+
+	}
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(kfree);
 
 /* can't use ksize for kmem_cache_alloc memory, only kmalloc */
+<<<<<<< HEAD
 size_t ksize(const void *block)
+=======
+size_t __ksize(const void *block)
+>>>>>>> upstream/android-13
 {
 	struct page *sp;
 	int align;
@@ -518,13 +690,21 @@ size_t ksize(const void *block)
 
 	sp = virt_to_page(block);
 	if (unlikely(!PageSlab(sp)))
+<<<<<<< HEAD
 		return PAGE_SIZE << compound_order(sp);
+=======
+		return page_size(sp);
+>>>>>>> upstream/android-13
 
 	align = max_t(size_t, ARCH_KMALLOC_MINALIGN, ARCH_SLAB_MINALIGN);
 	m = (unsigned int *)(block - align);
 	return SLOB_UNITS(*m) * SLOB_UNIT;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(ksize);
+=======
+EXPORT_SYMBOL(__ksize);
+>>>>>>> upstream/android-13
 
 int __kmem_cache_create(struct kmem_cache *c, slab_flags_t flags)
 {
@@ -542,11 +722,18 @@ static void *slob_alloc_node(struct kmem_cache *c, gfp_t flags, int node)
 
 	flags &= gfp_allowed_mask;
 
+<<<<<<< HEAD
 	fs_reclaim_acquire(flags);
 	fs_reclaim_release(flags);
 
 	if (c->size < PAGE_SIZE) {
 		b = slob_alloc(c->size, flags, c->align, node);
+=======
+	might_alloc(flags);
+
+	if (c->size < PAGE_SIZE) {
+		b = slob_alloc(c->size, flags, c->align, node, 0);
+>>>>>>> upstream/android-13
 		trace_kmem_cache_alloc_node(_RET_IP_, b, c->object_size,
 					    SLOB_UNITS(c->size) * SLOB_UNIT,
 					    flags, node);
@@ -614,7 +801,11 @@ void kmem_cache_free(struct kmem_cache *c, void *b)
 		__kmem_cache_free(b, c->size);
 	}
 
+<<<<<<< HEAD
 	trace_kmem_cache_free(_RET_IP_, b);
+=======
+	trace_kmem_cache_free(_RET_IP_, b, c->name);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(kmem_cache_free);
 

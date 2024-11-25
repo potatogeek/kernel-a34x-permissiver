@@ -1691,7 +1691,11 @@ clean_up:
 static struct platform_driver m66592_driver = {
 	.remove =	m66592_remove,
 	.driver		= {
+<<<<<<< HEAD
 		.name =	(char *) udc_name,
+=======
+		.name =	udc_name,
+>>>>>>> upstream/android-13
 	},
 };
 

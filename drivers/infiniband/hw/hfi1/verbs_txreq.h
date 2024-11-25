@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2016 - 2018 Intel Corporation.
  *
@@ -43,6 +44,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause */
+/*
+ * Copyright(c) 2016 - 2018 Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #ifndef HFI1_VERBS_TXREQ_H
@@ -91,6 +97,7 @@ static inline struct verbs_txreq *get_txreq(struct hfi1_ibdev *dev,
 	tx->mr = NULL;
 	tx->sde = priv->s_sde;
 	tx->psc = priv->s_sendcontext;
+<<<<<<< HEAD
 	/* so that we can test if the sdma decriptors are there */
 	tx->txreq.num_desc = 0;
 	/* Set the header type */
@@ -109,16 +116,37 @@ static inline struct verbs_txreq *get_waiting_verbs_txreq(struct rvt_qp *qp)
 	struct hfi1_qp_priv *priv = qp->priv;
 
 	stx = iowait_get_txhead(&priv->s_iowait);
+=======
+	/* so that we can test if the sdma descriptors are there */
+	tx->txreq.num_desc = 0;
+	/* Set the header type */
+	tx->phdr.hdr.hdr_type = priv->hdr_type;
+	tx->txreq.flags = 0;
+	return tx;
+}
+
+static inline struct verbs_txreq *get_waiting_verbs_txreq(struct iowait_work *w)
+{
+	struct sdma_txreq *stx;
+
+	stx = iowait_get_txhead(w);
+>>>>>>> upstream/android-13
 	if (stx)
 		return container_of(stx, struct verbs_txreq, txreq);
 	return NULL;
 }
 
+<<<<<<< HEAD
 static inline bool verbs_txreq_queued(struct rvt_qp *qp)
 {
 	struct hfi1_qp_priv *priv = qp->priv;
 
 	return iowait_packet_queued(&priv->s_iowait);
+=======
+static inline bool verbs_txreq_queued(struct iowait_work *w)
+{
+	return iowait_packet_queued(w);
+>>>>>>> upstream/android-13
 }
 
 void hfi1_put_txreq(struct verbs_txreq *tx);

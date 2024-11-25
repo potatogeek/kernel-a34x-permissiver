@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
  * Copyright (C) 2004-2006 Red Hat, Inc.  All rights reserved.
@@ -5,6 +6,12 @@
  * This copyrighted material is made available to anyone wishing to use,
  * modify, copy, or redistribute it subject to the terms and conditions
  * of the GNU General Public License version 2.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
+ * Copyright (C) 2004-2006 Red Hat, Inc.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/sched.h>
@@ -24,6 +31,10 @@
 #include "glock.h"
 #include "inode.h"
 #include "meta_io.h"
+<<<<<<< HEAD
+=======
+#include "quota.h"
+>>>>>>> upstream/android-13
 #include "rgrp.h"
 #include "trans.h"
 #include "util.h"
@@ -59,13 +70,23 @@ static struct posix_acl *__gfs2_get_acl(struct inode *inode, int type)
 	return acl;
 }
 
+<<<<<<< HEAD
 struct posix_acl *gfs2_get_acl(struct inode *inode, int type)
+=======
+struct posix_acl *gfs2_get_acl(struct inode *inode, int type, bool rcu)
+>>>>>>> upstream/android-13
 {
 	struct gfs2_inode *ip = GFS2_I(inode);
 	struct gfs2_holder gh;
 	bool need_unlock = false;
 	struct posix_acl *acl;
 
+<<<<<<< HEAD
+=======
+	if (rcu)
+		return ERR_PTR(-ECHILD);
+
+>>>>>>> upstream/android-13
 	if (!gfs2_glock_is_locked_by_me(ip->i_gl)) {
 		int ret = gfs2_glock_nq_init(ip->i_gl, LM_ST_SHARED,
 					     LM_FLAG_ANY, &gh);
@@ -108,7 +129,12 @@ out:
 	return error;
 }
 
+<<<<<<< HEAD
 int gfs2_set_acl(struct inode *inode, struct posix_acl *acl, int type)
+=======
+int gfs2_set_acl(struct user_namespace *mnt_userns, struct inode *inode,
+		 struct posix_acl *acl, int type)
+>>>>>>> upstream/android-13
 {
 	struct gfs2_inode *ip = GFS2_I(inode);
 	struct gfs2_holder gh;
@@ -119,20 +145,32 @@ int gfs2_set_acl(struct inode *inode, struct posix_acl *acl, int type)
 	if (acl && acl->a_count > GFS2_ACL_MAX_ENTRIES(GFS2_SB(inode)))
 		return -E2BIG;
 
+<<<<<<< HEAD
 	ret = gfs2_rsqa_alloc(ip);
+=======
+	ret = gfs2_qa_get(ip);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
 	if (!gfs2_glock_is_locked_by_me(ip->i_gl)) {
 		ret = gfs2_glock_nq_init(ip->i_gl, LM_ST_EXCLUSIVE, 0, &gh);
 		if (ret)
+<<<<<<< HEAD
 			return ret;
+=======
+			goto out;
+>>>>>>> upstream/android-13
 		need_unlock = true;
 	}
 
 	mode = inode->i_mode;
 	if (type == ACL_TYPE_ACCESS && acl) {
+<<<<<<< HEAD
 		ret = posix_acl_update_mode(inode, &mode, &acl);
+=======
+		ret = posix_acl_update_mode(&init_user_ns, inode, &mode, &acl);
+>>>>>>> upstream/android-13
 		if (ret)
 			goto unlock;
 	}
@@ -146,5 +184,10 @@ int gfs2_set_acl(struct inode *inode, struct posix_acl *acl, int type)
 unlock:
 	if (need_unlock)
 		gfs2_glock_dq_uninit(&gh);
+<<<<<<< HEAD
+=======
+out:
+	gfs2_qa_put(ip);
+>>>>>>> upstream/android-13
 	return ret;
 }

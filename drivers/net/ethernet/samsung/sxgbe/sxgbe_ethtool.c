@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* 10G controller driver for Samsung SoCs
  *
  * Copyright (C) 2013 Samsung Electronics Co., Ltd.
  *		http://www.samsung.com
  *
  * Author: Siva Reddy Kallam <siva.kallam@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -33,7 +40,11 @@ struct sxgbe_stats {
 #define SXGBE_STAT(m)						\
 {								\
 	#m,							\
+<<<<<<< HEAD
 	FIELD_SIZEOF(struct sxgbe_extra_stats, m),		\
+=======
+	sizeof_field(struct sxgbe_extra_stats, m),		\
+>>>>>>> upstream/android-13
 	offsetof(struct sxgbe_priv_data, xstats.m)		\
 }
 
@@ -277,7 +288,13 @@ static u32 sxgbe_usec2riwt(u32 usec, struct sxgbe_priv_data *priv)
 }
 
 static int sxgbe_get_coalesce(struct net_device *dev,
+<<<<<<< HEAD
 			      struct ethtool_coalesce *ec)
+=======
+			      struct ethtool_coalesce *ec,
+			      struct kernel_ethtool_coalesce *kernel_coal,
+			      struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct sxgbe_priv_data *priv = netdev_priv(dev);
 
@@ -288,7 +305,13 @@ static int sxgbe_get_coalesce(struct net_device *dev,
 }
 
 static int sxgbe_set_coalesce(struct net_device *dev,
+<<<<<<< HEAD
 			      struct ethtool_coalesce *ec)
+=======
+			      struct ethtool_coalesce *ec,
+			      struct kernel_ethtool_coalesce *kernel_coal,
+			      struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct sxgbe_priv_data *priv = netdev_priv(dev);
 	unsigned int rx_riwt;
@@ -319,7 +342,11 @@ static int sxgbe_get_rss_hash_opts(struct sxgbe_priv_data *priv,
 	case TCP_V4_FLOW:
 	case UDP_V4_FLOW:
 		cmd->data |= RXH_L4_B_0_1 | RXH_L4_B_2_3;
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SCTP_V4_FLOW:
 	case AH_ESP_V4_FLOW:
 	case AH_V4_FLOW:
@@ -330,7 +357,11 @@ static int sxgbe_get_rss_hash_opts(struct sxgbe_priv_data *priv,
 	case TCP_V6_FLOW:
 	case UDP_V6_FLOW:
 		cmd->data |= RXH_L4_B_0_1 | RXH_L4_B_2_3;
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SCTP_V6_FLOW:
 	case AH_ESP_V6_FLOW:
 	case AH_V6_FLOW:
@@ -479,6 +510,10 @@ static int sxgbe_get_regs_len(struct net_device *dev)
 }
 
 static const struct ethtool_ops sxgbe_ethtool_ops = {
+<<<<<<< HEAD
+=======
+	.supported_coalesce_params = ETHTOOL_COALESCE_RX_USECS,
+>>>>>>> upstream/android-13
 	.get_drvinfo = sxgbe_getdrvinfo,
 	.get_msglevel = sxgbe_getmsglevel,
 	.set_msglevel = sxgbe_setmsglevel,

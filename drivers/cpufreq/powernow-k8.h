@@ -1,8 +1,14 @@
+<<<<<<< HEAD
 /*
  *  (c) 2003-2006 Advanced Micro Devices, Inc.
  *  Your use of this code is subject to the terms and conditions of the
  *  GNU general public license version 2. See "COPYING" or
  *  http://www.gnu.org/licenses/gpl.html
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ *  (c) 2003-2006 Advanced Micro Devices, Inc.
+>>>>>>> upstream/android-13
  */
 
 struct powernow_k8_data {

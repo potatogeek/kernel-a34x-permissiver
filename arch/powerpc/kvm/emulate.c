@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -11,6 +12,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright IBM Corp. 2007
  * Copyright 2011 Freescale Semiconductor, Inc.
@@ -61,11 +66,18 @@ void kvmppc_emulate_dec(struct kvm_vcpu *vcpu)
 
 	dec_time = vcpu->arch.dec;
 	/*
+<<<<<<< HEAD
 	 * Guest timebase ticks at the same frequency as host decrementer.
 	 * So use the host decrementer calculations for decrementer emulation.
 	 */
 	dec_time = dec_time << decrementer_clockevent.shift;
 	do_div(dec_time, decrementer_clockevent.mult);
+=======
+	 * Guest timebase ticks at the same frequency as host timebase.
+	 * So use the host timebase calculations for decrementer emulation.
+	 */
+	dec_time = tb_to_ns(dec_time);
+>>>>>>> upstream/android-13
 	dec_nsec = do_div(dec_time, NSEC_PER_SEC);
 	hrtimer_start(&vcpu->arch.dec_timer,
 		ktime_set(dec_time, dec_nsec), HRTIMER_MODE_REL);
@@ -203,7 +215,11 @@ static int kvmppc_emulate_mfspr(struct kvm_vcpu *vcpu, int sprn, int rt)
 
 /* XXX Should probably auto-generate instruction decoding for a particular core
  * from opcode tables in the future. */
+<<<<<<< HEAD
 int kvmppc_emulate_instruction(struct kvm_run *run, struct kvm_vcpu *vcpu)
+=======
+int kvmppc_emulate_instruction(struct kvm_vcpu *vcpu)
+>>>>>>> upstream/android-13
 {
 	u32 inst;
 	int rs, rt, sprn;
@@ -282,8 +298,14 @@ int kvmppc_emulate_instruction(struct kvm_run *run, struct kvm_vcpu *vcpu)
 		 * these are illegal instructions.
 		 */
 		if (inst == KVMPPC_INST_SW_BREAKPOINT) {
+<<<<<<< HEAD
 			run->exit_reason = KVM_EXIT_DEBUG;
 			run->debug.arch.address = kvmppc_get_pc(vcpu);
+=======
+			vcpu->run->exit_reason = KVM_EXIT_DEBUG;
+			vcpu->run->debug.arch.status = 0;
+			vcpu->run->debug.arch.address = kvmppc_get_pc(vcpu);
+>>>>>>> upstream/android-13
 			emulated = EMULATE_EXIT_USER;
 			advance = 0;
 		} else
@@ -296,7 +318,11 @@ int kvmppc_emulate_instruction(struct kvm_run *run, struct kvm_vcpu *vcpu)
 	}
 
 	if (emulated == EMULATE_FAIL) {
+<<<<<<< HEAD
 		emulated = vcpu->kvm->arch.kvm_ops->emulate_op(run, vcpu, inst,
+=======
+		emulated = vcpu->kvm->arch.kvm_ops->emulate_op(vcpu, inst,
+>>>>>>> upstream/android-13
 							       &advance);
 		if (emulated == EMULATE_AGAIN) {
 			advance = 0;

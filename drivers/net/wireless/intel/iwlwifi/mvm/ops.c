@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -66,6 +67,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *****************************************************************************/
+=======
+// SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
+/*
+ * Copyright (C) 2012-2014, 2018-2020 Intel Corporation
+ * Copyright (C) 2013-2015 Intel Mobile Communications GmbH
+ * Copyright (C) 2016-2017 Intel Deutschland GmbH
+ */
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/vmalloc.h>
 #include <net/mac80211.h>
@@ -87,12 +96,19 @@
 #include "fw/api/scan.h"
 #include "time-event.h"
 #include "fw-api.h"
+<<<<<<< HEAD
 #include "fw/api/scan.h"
+=======
+>>>>>>> upstream/android-13
 #include "fw/acpi.h"
 
 #define DRV_DESCRIPTION	"The new Intel(R) wireless AGN driver for Linux"
 MODULE_DESCRIPTION(DRV_DESCRIPTION);
+<<<<<<< HEAD
 MODULE_AUTHOR(DRV_COPYRIGHT " " DRV_AUTHOR);
+=======
+MODULE_AUTHOR(DRV_AUTHOR);
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");
 
 static const struct iwl_op_mode_ops iwl_mvm_ops;
@@ -100,7 +116,10 @@ static const struct iwl_op_mode_ops iwl_mvm_ops_mq;
 
 struct iwl_mvm_mod_params iwlmvm_mod_params = {
 	.power_scheme = IWL_POWER_SCHEME_BPS,
+<<<<<<< HEAD
 	.tfd_q_hang_detect = true
+=======
+>>>>>>> upstream/android-13
 	/* rest of fields are 0 by default */
 };
 
@@ -110,10 +129,13 @@ MODULE_PARM_DESC(init_dbg,
 module_param_named(power_scheme, iwlmvm_mod_params.power_scheme, int, 0444);
 MODULE_PARM_DESC(power_scheme,
 		 "power management scheme: 1-active, 2-balanced, 3-low power, default: 2");
+<<<<<<< HEAD
 module_param_named(tfd_q_hang_detect, iwlmvm_mod_params.tfd_q_hang_detect,
 		   bool, 0444);
 MODULE_PARM_DESC(tfd_q_hang_detect,
 		 "TFD queues hang detection (default: true");
+=======
+>>>>>>> upstream/android-13
 
 /*
  * module init and exit functions
@@ -179,9 +201,18 @@ static void iwl_mvm_nic_config(struct iwl_op_mode *op_mode)
 	 * unrelated errors. Need to further investigate this, but for now
 	 * we'll separate cases.
 	 */
+<<<<<<< HEAD
 	if (mvm->trans->cfg->device_family < IWL_DEVICE_FAMILY_8000)
 		reg_val |= CSR_HW_IF_CONFIG_REG_BIT_RADIO_SI;
 
+=======
+	if (mvm->trans->trans_cfg->device_family < IWL_DEVICE_FAMILY_8000)
+		reg_val |= CSR_HW_IF_CONFIG_REG_BIT_RADIO_SI;
+
+	if (iwl_fw_dbg_is_d3_debug_enabled(&mvm->fwrt))
+		reg_val |= CSR_HW_IF_CONFIG_REG_D3_DEBUG;
+
+>>>>>>> upstream/android-13
 	iwl_trans_set_bits_mask(mvm->trans, CSR_HW_IF_CONFIG_REG,
 				CSR_HW_IF_CONFIG_REG_MSK_MAC_DASH |
 				CSR_HW_IF_CONFIG_REG_MSK_MAC_STEP |
@@ -189,7 +220,12 @@ static void iwl_mvm_nic_config(struct iwl_op_mode *op_mode)
 				CSR_HW_IF_CONFIG_REG_MSK_PHY_STEP |
 				CSR_HW_IF_CONFIG_REG_MSK_PHY_DASH |
 				CSR_HW_IF_CONFIG_REG_BIT_RADIO_SI |
+<<<<<<< HEAD
 				CSR_HW_IF_CONFIG_REG_BIT_MAC_SI,
+=======
+				CSR_HW_IF_CONFIG_REG_BIT_MAC_SI   |
+				CSR_HW_IF_CONFIG_REG_D3_DEBUG,
+>>>>>>> upstream/android-13
 				reg_val);
 
 	IWL_DEBUG_INFO(mvm, "Radio type=0x%x-0x%x-0x%x\n", radio_cfg_type,
@@ -206,6 +242,110 @@ static void iwl_mvm_nic_config(struct iwl_op_mode *op_mode)
 				       ~APMG_PS_CTRL_EARLY_PWR_OFF_RESET_DIS);
 }
 
+<<<<<<< HEAD
+=======
+static void iwl_mvm_rx_monitor_notif(struct iwl_mvm *mvm,
+				     struct iwl_rx_cmd_buffer *rxb)
+{
+	struct iwl_rx_packet *pkt = rxb_addr(rxb);
+	struct iwl_datapath_monitor_notif *notif = (void *)pkt->data;
+	struct ieee80211_supported_band *sband;
+	const struct ieee80211_sta_he_cap *he_cap;
+	struct ieee80211_vif *vif;
+
+	if (notif->type != cpu_to_le32(IWL_DP_MON_NOTIF_TYPE_EXT_CCA))
+		return;
+
+	vif = iwl_mvm_get_vif_by_macid(mvm, notif->mac_id);
+	if (!vif || vif->type != NL80211_IFTYPE_STATION)
+		return;
+
+	if (!vif->bss_conf.chandef.chan ||
+	    vif->bss_conf.chandef.chan->band != NL80211_BAND_2GHZ ||
+	    vif->bss_conf.chandef.width < NL80211_CHAN_WIDTH_40)
+		return;
+
+	if (!vif->bss_conf.assoc)
+		return;
+
+	/* this shouldn't happen *again*, ignore it */
+	if (mvm->cca_40mhz_workaround)
+		return;
+
+	/*
+	 * We'll decrement this on disconnect - so set to 2 since we'll
+	 * still have to disconnect from the current AP first.
+	 */
+	mvm->cca_40mhz_workaround = 2;
+
+	/*
+	 * This capability manipulation isn't really ideal, but it's the
+	 * easiest choice - otherwise we'd have to do some major changes
+	 * in mac80211 to support this, which isn't worth it. This does
+	 * mean that userspace may have outdated information, but that's
+	 * actually not an issue at all.
+	 */
+	sband = mvm->hw->wiphy->bands[NL80211_BAND_2GHZ];
+
+	WARN_ON(!sband->ht_cap.ht_supported);
+	WARN_ON(!(sband->ht_cap.cap & IEEE80211_HT_CAP_SUP_WIDTH_20_40));
+	sband->ht_cap.cap &= ~IEEE80211_HT_CAP_SUP_WIDTH_20_40;
+
+	he_cap = ieee80211_get_he_iftype_cap(sband,
+					     ieee80211_vif_type_p2p(vif));
+
+	if (he_cap) {
+		/* we know that ours is writable */
+		struct ieee80211_sta_he_cap *he = (void *)he_cap;
+
+		WARN_ON(!he->has_he);
+		WARN_ON(!(he->he_cap_elem.phy_cap_info[0] &
+				IEEE80211_HE_PHY_CAP0_CHANNEL_WIDTH_SET_40MHZ_IN_2G));
+		he->he_cap_elem.phy_cap_info[0] &=
+			~IEEE80211_HE_PHY_CAP0_CHANNEL_WIDTH_SET_40MHZ_IN_2G;
+	}
+
+	ieee80211_disconnect(vif, true);
+}
+
+void iwl_mvm_apply_fw_smps_request(struct ieee80211_vif *vif)
+{
+	struct iwl_mvm_vif *mvmvif = iwl_mvm_vif_from_mac80211(vif);
+	struct iwl_mvm *mvm = mvmvif->mvm;
+	enum ieee80211_smps_mode mode = IEEE80211_SMPS_AUTOMATIC;
+
+	if (mvm->fw_static_smps_request &&
+	    vif->bss_conf.chandef.width == NL80211_CHAN_WIDTH_160 &&
+	    vif->bss_conf.he_support)
+		mode = IEEE80211_SMPS_STATIC;
+
+	iwl_mvm_update_smps(mvm, vif, IWL_MVM_SMPS_REQ_FW, mode);
+}
+
+static void iwl_mvm_intf_dual_chain_req(void *data, u8 *mac,
+					struct ieee80211_vif *vif)
+{
+	iwl_mvm_apply_fw_smps_request(vif);
+}
+
+static void iwl_mvm_rx_thermal_dual_chain_req(struct iwl_mvm *mvm,
+					      struct iwl_rx_cmd_buffer *rxb)
+{
+	struct iwl_rx_packet *pkt = rxb_addr(rxb);
+	struct iwl_thermal_dual_chain_request *req = (void *)pkt->data;
+
+	/*
+	 * We could pass it to the iterator data, but also need to remember
+	 * it for new interfaces that are added while in this state.
+	 */
+	mvm->fw_static_smps_request =
+		req->event == cpu_to_le32(THERMAL_DUAL_CHAIN_REQ_DISABLE);
+	ieee80211_iterate_interfaces(mvm->hw,
+				     IEEE80211_IFACE_SKIP_SDATA_NOT_IN_DRIVER,
+				     iwl_mvm_intf_dual_chain_req, NULL);
+}
+
+>>>>>>> upstream/android-13
 /**
  * enum iwl_rx_handler_context context for Rx handler
  * @RX_HANDLER_SYNC : this means that it will be called in the Rx path
@@ -229,15 +369,32 @@ enum iwl_rx_handler_context {
  * @fn: the function is called when notification is received
  */
 struct iwl_rx_handlers {
+<<<<<<< HEAD
 	u16 cmd_id;
+=======
+	u16 cmd_id, min_size;
+>>>>>>> upstream/android-13
 	enum iwl_rx_handler_context context;
 	void (*fn)(struct iwl_mvm *mvm, struct iwl_rx_cmd_buffer *rxb);
 };
 
+<<<<<<< HEAD
 #define RX_HANDLER(_cmd_id, _fn, _context)	\
 	{ .cmd_id = _cmd_id, .fn = _fn, .context = _context }
 #define RX_HANDLER_GRP(_grp, _cmd, _fn, _context)	\
 	{ .cmd_id = WIDE_ID(_grp, _cmd), .fn = _fn, .context = _context }
+=======
+#define RX_HANDLER_NO_SIZE(_cmd_id, _fn, _context)		\
+	{ .cmd_id = _cmd_id, .fn = _fn, .context = _context, }
+#define RX_HANDLER_GRP_NO_SIZE(_grp, _cmd, _fn, _context)	\
+	{ .cmd_id = WIDE_ID(_grp, _cmd), .fn = _fn, .context = _context, }
+#define RX_HANDLER(_cmd_id, _fn, _context, _struct)		\
+	{ .cmd_id = _cmd_id, .fn = _fn,				\
+	  .context = _context, .min_size = sizeof(_struct), }
+#define RX_HANDLER_GRP(_grp, _cmd, _fn, _context, _struct)	\
+	{ .cmd_id = WIDE_ID(_grp, _cmd), .fn = _fn,		\
+	  .context = _context, .min_size = sizeof(_struct), }
+>>>>>>> upstream/android-13
 
 /*
  * Handlers for fw notifications
@@ -247,6 +404,7 @@ struct iwl_rx_handlers {
  * The handler can be one from three contexts, see &iwl_rx_handler_context
  */
 static const struct iwl_rx_handlers iwl_mvm_rx_handlers[] = {
+<<<<<<< HEAD
 	RX_HANDLER(TX_CMD, iwl_mvm_rx_tx_cmd, RX_HANDLER_SYNC),
 	RX_HANDLER(BA_NOTIF, iwl_mvm_rx_ba_notif, RX_HANDLER_SYNC),
 
@@ -312,6 +470,114 @@ static const struct iwl_rx_handlers iwl_mvm_rx_handlers[] = {
 		       iwl_mvm_mu_mimo_grp_notif, RX_HANDLER_SYNC),
 	RX_HANDLER_GRP(DATA_PATH_GROUP, STA_PM_NOTIF,
 		       iwl_mvm_sta_pm_notif, RX_HANDLER_SYNC),
+=======
+	RX_HANDLER(TX_CMD, iwl_mvm_rx_tx_cmd, RX_HANDLER_SYNC,
+		   struct iwl_mvm_tx_resp),
+	RX_HANDLER(BA_NOTIF, iwl_mvm_rx_ba_notif, RX_HANDLER_SYNC,
+		   struct iwl_mvm_ba_notif),
+
+	RX_HANDLER_GRP(DATA_PATH_GROUP, TLC_MNG_UPDATE_NOTIF,
+		       iwl_mvm_tlc_update_notif, RX_HANDLER_SYNC,
+		       struct iwl_tlc_update_notif),
+
+	RX_HANDLER(BT_PROFILE_NOTIFICATION, iwl_mvm_rx_bt_coex_notif,
+		   RX_HANDLER_ASYNC_LOCKED, struct iwl_bt_coex_profile_notif),
+	RX_HANDLER_NO_SIZE(BEACON_NOTIFICATION, iwl_mvm_rx_beacon_notif,
+			   RX_HANDLER_ASYNC_LOCKED),
+	RX_HANDLER_NO_SIZE(STATISTICS_NOTIFICATION, iwl_mvm_rx_statistics,
+			   RX_HANDLER_ASYNC_LOCKED),
+
+	RX_HANDLER(BA_WINDOW_STATUS_NOTIFICATION_ID,
+		   iwl_mvm_window_status_notif, RX_HANDLER_SYNC,
+		   struct iwl_ba_window_status_notif),
+
+	RX_HANDLER(TIME_EVENT_NOTIFICATION, iwl_mvm_rx_time_event_notif,
+		   RX_HANDLER_SYNC, struct iwl_time_event_notif),
+	RX_HANDLER_GRP(MAC_CONF_GROUP, SESSION_PROTECTION_NOTIF,
+		       iwl_mvm_rx_session_protect_notif, RX_HANDLER_SYNC,
+		       struct iwl_mvm_session_prot_notif),
+	RX_HANDLER(MCC_CHUB_UPDATE_CMD, iwl_mvm_rx_chub_update_mcc,
+		   RX_HANDLER_ASYNC_LOCKED, struct iwl_mcc_chub_notif),
+
+	RX_HANDLER(EOSP_NOTIFICATION, iwl_mvm_rx_eosp_notif, RX_HANDLER_SYNC,
+		   struct iwl_mvm_eosp_notification),
+
+	RX_HANDLER(SCAN_ITERATION_COMPLETE,
+		   iwl_mvm_rx_lmac_scan_iter_complete_notif, RX_HANDLER_SYNC,
+		   struct iwl_lmac_scan_complete_notif),
+	RX_HANDLER(SCAN_OFFLOAD_COMPLETE,
+		   iwl_mvm_rx_lmac_scan_complete_notif,
+		   RX_HANDLER_ASYNC_LOCKED, struct iwl_periodic_scan_complete),
+	RX_HANDLER_NO_SIZE(MATCH_FOUND_NOTIFICATION,
+			   iwl_mvm_rx_scan_match_found,
+			   RX_HANDLER_SYNC),
+	RX_HANDLER(SCAN_COMPLETE_UMAC, iwl_mvm_rx_umac_scan_complete_notif,
+		   RX_HANDLER_ASYNC_LOCKED, struct iwl_umac_scan_complete),
+	RX_HANDLER(SCAN_ITERATION_COMPLETE_UMAC,
+		   iwl_mvm_rx_umac_scan_iter_complete_notif, RX_HANDLER_SYNC,
+		   struct iwl_umac_scan_iter_complete_notif),
+
+	RX_HANDLER(CARD_STATE_NOTIFICATION, iwl_mvm_rx_card_state_notif,
+		   RX_HANDLER_SYNC, struct iwl_card_state_notif),
+
+	RX_HANDLER(MISSED_BEACONS_NOTIFICATION, iwl_mvm_rx_missed_beacons_notif,
+		   RX_HANDLER_SYNC, struct iwl_missed_beacons_notif),
+
+	RX_HANDLER(REPLY_ERROR, iwl_mvm_rx_fw_error, RX_HANDLER_SYNC,
+		   struct iwl_error_resp),
+	RX_HANDLER(PSM_UAPSD_AP_MISBEHAVING_NOTIFICATION,
+		   iwl_mvm_power_uapsd_misbehaving_ap_notif, RX_HANDLER_SYNC,
+		   struct iwl_uapsd_misbehaving_ap_notif),
+	RX_HANDLER_NO_SIZE(DTS_MEASUREMENT_NOTIFICATION, iwl_mvm_temp_notif,
+			   RX_HANDLER_ASYNC_LOCKED),
+	RX_HANDLER_GRP_NO_SIZE(PHY_OPS_GROUP, DTS_MEASUREMENT_NOTIF_WIDE,
+			       iwl_mvm_temp_notif, RX_HANDLER_ASYNC_UNLOCKED),
+	RX_HANDLER_GRP(PHY_OPS_GROUP, CT_KILL_NOTIFICATION,
+		       iwl_mvm_ct_kill_notif, RX_HANDLER_SYNC,
+		       struct ct_kill_notif),
+
+	RX_HANDLER(TDLS_CHANNEL_SWITCH_NOTIFICATION, iwl_mvm_rx_tdls_notif,
+		   RX_HANDLER_ASYNC_LOCKED,
+		   struct iwl_tdls_channel_switch_notif),
+	RX_HANDLER(MFUART_LOAD_NOTIFICATION, iwl_mvm_rx_mfuart_notif,
+		   RX_HANDLER_SYNC, struct iwl_mfuart_load_notif_v1),
+	RX_HANDLER_GRP(LOCATION_GROUP, TOF_RESPONDER_STATS,
+		       iwl_mvm_ftm_responder_stats, RX_HANDLER_ASYNC_LOCKED,
+		       struct iwl_ftm_responder_stats),
+
+	RX_HANDLER_GRP_NO_SIZE(LOCATION_GROUP, TOF_RANGE_RESPONSE_NOTIF,
+			       iwl_mvm_ftm_range_resp, RX_HANDLER_ASYNC_LOCKED),
+	RX_HANDLER_GRP_NO_SIZE(LOCATION_GROUP, TOF_LC_NOTIF,
+			       iwl_mvm_ftm_lc_notif, RX_HANDLER_ASYNC_LOCKED),
+
+	RX_HANDLER_GRP(DEBUG_GROUP, MFU_ASSERT_DUMP_NTF,
+		       iwl_mvm_mfu_assert_dump_notif, RX_HANDLER_SYNC,
+		       struct iwl_mfu_assert_dump_notif),
+	RX_HANDLER_GRP(PROT_OFFLOAD_GROUP, STORED_BEACON_NTF,
+		       iwl_mvm_rx_stored_beacon_notif, RX_HANDLER_SYNC,
+		       struct iwl_stored_beacon_notif_v2),
+	RX_HANDLER_GRP(DATA_PATH_GROUP, MU_GROUP_MGMT_NOTIF,
+		       iwl_mvm_mu_mimo_grp_notif, RX_HANDLER_SYNC,
+		       struct iwl_mu_group_mgmt_notif),
+	RX_HANDLER_GRP(DATA_PATH_GROUP, STA_PM_NOTIF,
+		       iwl_mvm_sta_pm_notif, RX_HANDLER_SYNC,
+		       struct iwl_mvm_pm_state_notification),
+	RX_HANDLER_GRP(MAC_CONF_GROUP, PROBE_RESPONSE_DATA_NOTIF,
+		       iwl_mvm_probe_resp_data_notif,
+		       RX_HANDLER_ASYNC_LOCKED,
+		       struct iwl_probe_resp_data_notif),
+	RX_HANDLER_GRP(MAC_CONF_GROUP, CHANNEL_SWITCH_NOA_NOTIF,
+		       iwl_mvm_channel_switch_noa_notif,
+		       RX_HANDLER_SYNC, struct iwl_channel_switch_noa_notif),
+	RX_HANDLER_GRP(DATA_PATH_GROUP, MONITOR_NOTIF,
+		       iwl_mvm_rx_monitor_notif, RX_HANDLER_ASYNC_LOCKED,
+		       struct iwl_datapath_monitor_notif),
+
+	RX_HANDLER_GRP(DATA_PATH_GROUP, THERMAL_DUAL_CHAIN_REQUEST,
+		       iwl_mvm_rx_thermal_dual_chain_req,
+		       RX_HANDLER_ASYNC_LOCKED,
+		       struct iwl_thermal_dual_chain_request),
+>>>>>>> upstream/android-13
 };
 #undef RX_HANDLER
 #undef RX_HANDLER_GRP
@@ -320,7 +586,11 @@ static const struct iwl_rx_handlers iwl_mvm_rx_handlers[] = {
  * Access is done through binary search
  */
 static const struct iwl_hcmd_names iwl_mvm_legacy_names[] = {
+<<<<<<< HEAD
 	HCMD_NAME(MVM_ALIVE),
+=======
+	HCMD_NAME(UCODE_ALIVE_NTFY),
+>>>>>>> upstream/android-13
 	HCMD_NAME(REPLY_ERROR),
 	HCMD_NAME(ECHO_CMD),
 	HCMD_NAME(INIT_COMPLETE_NOTIF),
@@ -330,8 +600,11 @@ static const struct iwl_hcmd_names iwl_mvm_legacy_names[] = {
 	HCMD_NAME(SCAN_REQ_UMAC),
 	HCMD_NAME(SCAN_ABORT_UMAC),
 	HCMD_NAME(SCAN_COMPLETE_UMAC),
+<<<<<<< HEAD
 	HCMD_NAME(TOF_CMD),
 	HCMD_NAME(TOF_NOTIFICATION),
+=======
+>>>>>>> upstream/android-13
 	HCMD_NAME(BA_WINDOW_STATUS_NOTIFICATION_ID),
 	HCMD_NAME(ADD_STA_KEY),
 	HCMD_NAME(ADD_STA),
@@ -387,6 +660,10 @@ static const struct iwl_hcmd_names iwl_mvm_legacy_names[] = {
 	HCMD_NAME(SCAN_ITERATION_COMPLETE_UMAC),
 	HCMD_NAME(REPLY_RX_PHY_CMD),
 	HCMD_NAME(REPLY_RX_MPDU_CMD),
+<<<<<<< HEAD
+=======
+	HCMD_NAME(BAR_FRAME_RELEASE),
+>>>>>>> upstream/android-13
 	HCMD_NAME(FRAME_RELEASE),
 	HCMD_NAME(BA_NOTIF),
 	HCMD_NAME(MCC_UPDATE_CMD),
@@ -400,7 +677,10 @@ static const struct iwl_hcmd_names iwl_mvm_legacy_names[] = {
 	HCMD_NAME(D3_CONFIG_CMD),
 	HCMD_NAME(PROT_OFFLOAD_CONFIG_CMD),
 	HCMD_NAME(OFFLOADS_QUERY_CMD),
+<<<<<<< HEAD
 	HCMD_NAME(REMOTE_WAKE_CONFIG_CMD),
+=======
+>>>>>>> upstream/android-13
 	HCMD_NAME(MATCH_FOUND_NOTIFICATION),
 	HCMD_NAME(DTS_MEASUREMENT_NOTIFICATION),
 	HCMD_NAME(WOWLAN_PATTERNS),
@@ -412,6 +692,10 @@ static const struct iwl_hcmd_names iwl_mvm_legacy_names[] = {
 	HCMD_NAME(SCAN_ITERATION_COMPLETE),
 	HCMD_NAME(D0I3_END_CMD),
 	HCMD_NAME(LTR_CONFIG),
+<<<<<<< HEAD
+=======
+	HCMD_NAME(LDBG_CONFIG_CMD),
+>>>>>>> upstream/android-13
 };
 
 /* Please keep this array *SORTED* by hex value.
@@ -420,12 +704,22 @@ static const struct iwl_hcmd_names iwl_mvm_legacy_names[] = {
 static const struct iwl_hcmd_names iwl_mvm_system_names[] = {
 	HCMD_NAME(SHARED_MEM_CFG_CMD),
 	HCMD_NAME(INIT_EXTENDED_CFG_CMD),
+<<<<<<< HEAD
+=======
+	HCMD_NAME(FW_ERROR_RECOVERY_CMD),
+>>>>>>> upstream/android-13
 };
 
 /* Please keep this array *SORTED* by hex value.
  * Access is done through binary search
  */
 static const struct iwl_hcmd_names iwl_mvm_mac_conf_names[] = {
+<<<<<<< HEAD
+=======
+	HCMD_NAME(CHANNEL_SWITCH_TIME_EVENT_CMD),
+	HCMD_NAME(SESSION_PROTECTION_CMD),
+	HCMD_NAME(SESSION_PROTECTION_NOTIF),
+>>>>>>> upstream/android-13
 	HCMD_NAME(CHANNEL_SWITCH_NOA_NOTIF),
 };
 
@@ -450,6 +744,13 @@ static const struct iwl_hcmd_names iwl_mvm_data_path_names[] = {
 	HCMD_NAME(TRIGGER_RX_QUEUES_NOTIF_CMD),
 	HCMD_NAME(STA_HE_CTXT_CMD),
 	HCMD_NAME(RFH_QUEUE_CONFIG_CMD),
+<<<<<<< HEAD
+=======
+	HCMD_NAME(TLC_MNG_CONFIG_CMD),
+	HCMD_NAME(CHEST_COLLECTOR_FILTER_CONFIG_CMD),
+	HCMD_NAME(MONITOR_NOTIF),
+	HCMD_NAME(THERMAL_DUAL_CHAIN_REQUEST),
+>>>>>>> upstream/android-13
 	HCMD_NAME(STA_PM_NOTIF),
 	HCMD_NAME(MU_GROUP_MGMT_NOTIF),
 	HCMD_NAME(RX_QUEUES_NOTIFICATION),
@@ -458,8 +759,22 @@ static const struct iwl_hcmd_names iwl_mvm_data_path_names[] = {
 /* Please keep this array *SORTED* by hex value.
  * Access is done through binary search
  */
+<<<<<<< HEAD
 static const struct iwl_hcmd_names iwl_mvm_debug_names[] = {
 	HCMD_NAME(MFU_ASSERT_DUMP_NTF),
+=======
+static const struct iwl_hcmd_names iwl_mvm_location_names[] = {
+	HCMD_NAME(TOF_RANGE_REQ_CMD),
+	HCMD_NAME(TOF_CONFIG_CMD),
+	HCMD_NAME(TOF_RANGE_ABORT_CMD),
+	HCMD_NAME(TOF_RANGE_REQ_EXT_CMD),
+	HCMD_NAME(TOF_RESPONDER_CONFIG_CMD),
+	HCMD_NAME(TOF_RESPONDER_DYN_CONFIG_CMD),
+	HCMD_NAME(TOF_LC_NOTIF),
+	HCMD_NAME(TOF_RESPONDER_STATS),
+	HCMD_NAME(TOF_MCSI_DEBUG_NOTIF),
+	HCMD_NAME(TOF_RANGE_RESPONSE_NOTIF),
+>>>>>>> upstream/android-13
 };
 
 /* Please keep this array *SORTED* by hex value.
@@ -475,6 +790,10 @@ static const struct iwl_hcmd_names iwl_mvm_prot_offload_names[] = {
 static const struct iwl_hcmd_names iwl_mvm_regulatory_and_nvm_names[] = {
 	HCMD_NAME(NVM_ACCESS_COMPLETE),
 	HCMD_NAME(NVM_GET_INFO),
+<<<<<<< HEAD
+=======
+	HCMD_NAME(TAS_CONFIG),
+>>>>>>> upstream/android-13
 };
 
 static const struct iwl_hcmd_arr iwl_mvm_groups[] = {
@@ -484,6 +803,10 @@ static const struct iwl_hcmd_arr iwl_mvm_groups[] = {
 	[MAC_CONF_GROUP] = HCMD_ARR(iwl_mvm_mac_conf_names),
 	[PHY_OPS_GROUP] = HCMD_ARR(iwl_mvm_phy_names),
 	[DATA_PATH_GROUP] = HCMD_ARR(iwl_mvm_data_path_names),
+<<<<<<< HEAD
+=======
+	[LOCATION_GROUP] = HCMD_ARR(iwl_mvm_location_names),
+>>>>>>> upstream/android-13
 	[PROT_OFFLOAD_GROUP] = HCMD_ARR(iwl_mvm_prot_offload_names),
 	[REGULATORY_AND_NVM_GROUP] =
 		HCMD_ARR(iwl_mvm_regulatory_and_nvm_names),
@@ -491,7 +814,10 @@ static const struct iwl_hcmd_arr iwl_mvm_groups[] = {
 
 /* this forward declaration can avoid to export the function */
 static void iwl_mvm_async_handlers_wk(struct work_struct *wk);
+<<<<<<< HEAD
 static void iwl_mvm_d0i3_exit_work(struct work_struct *wk);
+=======
+>>>>>>> upstream/android-13
 
 static u32 iwl_mvm_min_backoff(struct iwl_mvm *mvm)
 {
@@ -539,11 +865,14 @@ unlock:
 static int iwl_mvm_fwrt_dump_start(void *ctx)
 {
 	struct iwl_mvm *mvm = ctx;
+<<<<<<< HEAD
 	int ret;
 
 	ret = iwl_mvm_ref_sync(mvm, IWL_MVM_REF_FW_DBG_COLLECT);
 	if (ret)
 		return ret;
+=======
+>>>>>>> upstream/android-13
 
 	mutex_lock(&mvm->mutex);
 
@@ -555,8 +884,11 @@ static void iwl_mvm_fwrt_dump_end(void *ctx)
 	struct iwl_mvm *mvm = ctx;
 
 	mutex_unlock(&mvm->mutex);
+<<<<<<< HEAD
 
 	iwl_mvm_unref(mvm, IWL_MVM_REF_FW_DBG_COLLECT);
+=======
+>>>>>>> upstream/android-13
 }
 
 static bool iwl_mvm_fwrt_fw_running(void *ctx)
@@ -564,12 +896,85 @@ static bool iwl_mvm_fwrt_fw_running(void *ctx)
 	return iwl_mvm_firmware_running(ctx);
 }
 
+<<<<<<< HEAD
+=======
+static int iwl_mvm_fwrt_send_hcmd(void *ctx, struct iwl_host_cmd *host_cmd)
+{
+	struct iwl_mvm *mvm = (struct iwl_mvm *)ctx;
+	int ret;
+
+	mutex_lock(&mvm->mutex);
+	ret = iwl_mvm_send_cmd(mvm, host_cmd);
+	mutex_unlock(&mvm->mutex);
+
+	return ret;
+}
+
+static bool iwl_mvm_d3_debug_enable(void *ctx)
+{
+	return IWL_MVM_D3_DEBUG;
+}
+
+>>>>>>> upstream/android-13
 static const struct iwl_fw_runtime_ops iwl_mvm_fwrt_ops = {
 	.dump_start = iwl_mvm_fwrt_dump_start,
 	.dump_end = iwl_mvm_fwrt_dump_end,
 	.fw_running = iwl_mvm_fwrt_fw_running,
+<<<<<<< HEAD
 };
 
+=======
+	.send_hcmd = iwl_mvm_fwrt_send_hcmd,
+	.d3_debug_enable = iwl_mvm_d3_debug_enable,
+};
+
+static int iwl_mvm_start_get_nvm(struct iwl_mvm *mvm)
+{
+	int ret;
+
+	rtnl_lock();
+	wiphy_lock(mvm->hw->wiphy);
+	mutex_lock(&mvm->mutex);
+
+	ret = iwl_run_init_mvm_ucode(mvm);
+
+	if (ret && ret != -ERFKILL)
+		iwl_fw_dbg_error_collect(&mvm->fwrt, FW_DBG_TRIGGER_DRIVER);
+	if (!ret && iwl_mvm_is_lar_supported(mvm)) {
+		mvm->hw->wiphy->regulatory_flags |= REGULATORY_WIPHY_SELF_MANAGED;
+		ret = iwl_mvm_init_mcc(mvm);
+	}
+
+	if (!iwlmvm_mod_params.init_dbg || !ret)
+		iwl_mvm_stop_device(mvm);
+
+	mutex_unlock(&mvm->mutex);
+	wiphy_unlock(mvm->hw->wiphy);
+	rtnl_unlock();
+
+	if (ret < 0)
+		IWL_ERR(mvm, "Failed to run INIT ucode: %d\n", ret);
+
+	return ret;
+}
+
+static int iwl_mvm_start_post_nvm(struct iwl_mvm *mvm)
+{
+	int ret;
+
+	iwl_mvm_toggle_tx_ant(mvm, &mvm->mgmt_last_antenna_idx);
+
+	ret = iwl_mvm_mac_setup_register(mvm);
+	if (ret)
+		return ret;
+	mvm->hw_registered = true;
+
+	iwl_mvm_dbgfs_register(mvm);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static struct iwl_op_mode *
 iwl_op_mode_mvm_start(struct iwl_trans *trans, const struct iwl_cfg *cfg,
 		      const struct iwl_fw *fw, struct dentry *dbgfs_dir)
@@ -583,6 +988,7 @@ iwl_op_mode_mvm_start(struct iwl_trans *trans, const struct iwl_cfg *cfg,
 	};
 	int err, scan_size;
 	u32 min_backoff;
+<<<<<<< HEAD
 
 	/*
 	 * We use IWL_MVM_STATION_COUNT to check the validity of the station
@@ -590,6 +996,17 @@ iwl_op_mode_mvm_start(struct iwl_trans *trans, const struct iwl_cfg *cfg,
 	 * array size.
 	 */
 	BUILD_BUG_ON(ARRAY_SIZE(mvm->fw_id_to_mac_id) != IWL_MVM_STATION_COUNT);
+=======
+	enum iwl_amsdu_size rb_size_default;
+
+	/*
+	 * We use IWL_MVM_STATION_COUNT_MAX to check the validity of the station
+	 * index all over the driver - check that its value corresponds to the
+	 * array size.
+	 */
+	BUILD_BUG_ON(ARRAY_SIZE(mvm->fw_id_to_mac_id) !=
+		     IWL_MVM_STATION_COUNT_MAX);
+>>>>>>> upstream/android-13
 
 	/********************************
 	 * 1. Allocating and configuring HW data
@@ -600,11 +1017,20 @@ iwl_op_mode_mvm_start(struct iwl_trans *trans, const struct iwl_cfg *cfg,
 	if (!hw)
 		return NULL;
 
+<<<<<<< HEAD
 	if (cfg->max_rx_agg_size)
 		hw->max_rx_aggregation_subframes = cfg->max_rx_agg_size;
 
 	if (cfg->max_tx_agg_size)
 		hw->max_tx_aggregation_subframes = cfg->max_tx_agg_size;
+=======
+	hw->max_rx_aggregation_subframes = IEEE80211_MAX_AMPDU_BUF_HE;
+
+	if (cfg->max_tx_agg_size)
+		hw->max_tx_aggregation_subframes = cfg->max_tx_agg_size;
+	else
+		hw->max_tx_aggregation_subframes = IEEE80211_MAX_AMPDU_BUF_HE;
+>>>>>>> upstream/android-13
 
 	op_mode = hw->priv;
 
@@ -618,13 +1044,23 @@ iwl_op_mode_mvm_start(struct iwl_trans *trans, const struct iwl_cfg *cfg,
 	iwl_fw_runtime_init(&mvm->fwrt, trans, fw, &iwl_mvm_fwrt_ops, mvm,
 			    dbgfs_dir);
 
+<<<<<<< HEAD
+=======
+	iwl_mvm_get_acpi_tables(mvm);
+
+>>>>>>> upstream/android-13
 	mvm->init_status = 0;
 
 	if (iwl_mvm_has_new_rx_api(mvm)) {
 		op_mode->ops = &iwl_mvm_ops_mq;
 		trans->rx_mpdu_cmd_hdr_size =
+<<<<<<< HEAD
 			(trans->cfg->device_family >=
 			 IWL_DEVICE_FAMILY_22560) ?
+=======
+			(trans->trans_cfg->device_family >=
+			 IWL_DEVICE_FAMILY_AX210) ?
+>>>>>>> upstream/android-13
 			sizeof(struct iwl_rx_mpdu_desc) :
 			IWL_RX_DESC_SIZE_V1;
 	} else {
@@ -638,10 +1074,33 @@ iwl_op_mode_mvm_start(struct iwl_trans *trans, const struct iwl_cfg *cfg,
 
 	mvm->fw_restart = iwlwifi_mod_params.fw_restart ? -1 : 0;
 
+<<<<<<< HEAD
 	mvm->aux_queue = IWL_MVM_DQA_AUX_QUEUE;
 	mvm->snif_queue = IWL_MVM_DQA_INJECT_MONITOR_QUEUE;
 	mvm->probe_queue = IWL_MVM_DQA_AP_PROBE_RESP_QUEUE;
 	mvm->p2p_dev_queue = IWL_MVM_DQA_P2P_DEVICE_QUEUE;
+=======
+	if (iwl_mvm_has_new_tx_api(mvm)) {
+		/*
+		 * If we have the new TX/queue allocation API initialize them
+		 * all to invalid numbers. We'll rewrite the ones that we need
+		 * later, but that doesn't happen for all of them all of the
+		 * time (e.g. P2P Device is optional), and if a dynamic queue
+		 * ends up getting number 2 (IWL_MVM_DQA_P2P_DEVICE_QUEUE) then
+		 * iwl_mvm_is_static_queue() erroneously returns true, and we
+		 * might have things getting stuck.
+		 */
+		mvm->aux_queue = IWL_MVM_INVALID_QUEUE;
+		mvm->snif_queue = IWL_MVM_INVALID_QUEUE;
+		mvm->probe_queue = IWL_MVM_INVALID_QUEUE;
+		mvm->p2p_dev_queue = IWL_MVM_INVALID_QUEUE;
+	} else {
+		mvm->aux_queue = IWL_MVM_DQA_AUX_QUEUE;
+		mvm->snif_queue = IWL_MVM_DQA_INJECT_MONITOR_QUEUE;
+		mvm->probe_queue = IWL_MVM_DQA_AP_PROBE_RESP_QUEUE;
+		mvm->p2p_dev_queue = IWL_MVM_DQA_P2P_DEVICE_QUEUE;
+	}
+>>>>>>> upstream/android-13
 
 	mvm->sf_state = SF_UNINIT;
 	if (iwl_mvm_has_unified_ucode(mvm))
@@ -651,12 +1110,16 @@ iwl_op_mode_mvm_start(struct iwl_trans *trans, const struct iwl_cfg *cfg,
 	mvm->drop_bcn_ap_mode = true;
 
 	mutex_init(&mvm->mutex);
+<<<<<<< HEAD
 	mutex_init(&mvm->d0i3_suspend_mutex);
+=======
+>>>>>>> upstream/android-13
 	spin_lock_init(&mvm->async_handlers_lock);
 	INIT_LIST_HEAD(&mvm->time_event_list);
 	INIT_LIST_HEAD(&mvm->aux_roc_te_list);
 	INIT_LIST_HEAD(&mvm->async_handlers_list);
 	spin_lock_init(&mvm->time_event_lock);
+<<<<<<< HEAD
 	spin_lock_init(&mvm->queue_info_lock);
 
 	INIT_WORK(&mvm->async_handlers_wk, iwl_mvm_async_handlers_wk);
@@ -673,6 +1136,22 @@ iwl_op_mode_mvm_start(struct iwl_trans *trans, const struct iwl_cfg *cfg,
 	init_waitqueue_head(&mvm->rx_sync_waitq);
 
 	atomic_set(&mvm->queue_sync_counter, 0);
+=======
+	INIT_LIST_HEAD(&mvm->ftm_initiator.loc_list);
+	INIT_LIST_HEAD(&mvm->ftm_initiator.pasn_list);
+	INIT_LIST_HEAD(&mvm->resp_pasn_list);
+
+	INIT_WORK(&mvm->async_handlers_wk, iwl_mvm_async_handlers_wk);
+	INIT_WORK(&mvm->roc_done_wk, iwl_mvm_roc_done_wk);
+	INIT_DELAYED_WORK(&mvm->tdls_cs.dwork, iwl_mvm_tdls_ch_switch_work);
+	INIT_DELAYED_WORK(&mvm->scan_timeout_dwork, iwl_mvm_scan_timeout_wk);
+	INIT_WORK(&mvm->add_stream_wk, iwl_mvm_add_new_dqa_stream_wk);
+	INIT_LIST_HEAD(&mvm->add_stream_txqs);
+
+	init_waitqueue_head(&mvm->rx_sync_waitq);
+
+	mvm->queue_sync_state = 0;
+>>>>>>> upstream/android-13
 
 	SET_IEEE80211_DEV(mvm->hw, mvm->trans->dev);
 
@@ -684,6 +1163,23 @@ iwl_op_mode_mvm_start(struct iwl_trans *trans, const struct iwl_cfg *cfg,
 
 	INIT_DELAYED_WORK(&mvm->cs_tx_unblock_dwork, iwl_mvm_tx_unblock_dwork);
 
+<<<<<<< HEAD
+=======
+	mvm->cmd_ver.d0i3_resp =
+		iwl_fw_lookup_notif_ver(mvm->fw, LEGACY_GROUP, D0I3_END_CMD,
+					0);
+	/* we only support version 1 */
+	if (WARN_ON_ONCE(mvm->cmd_ver.d0i3_resp > 1))
+		goto out_free;
+
+	mvm->cmd_ver.range_resp =
+		iwl_fw_lookup_notif_ver(mvm->fw, LOCATION_GROUP,
+					TOF_RANGE_RESPONSE_NOTIF, 5);
+	/* we only support up to version 8 */
+	if (WARN_ON_ONCE(mvm->cmd_ver.range_resp > 8))
+		goto out_free;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Populate the state variables that the transport layer needs
 	 * to know about.
@@ -691,8 +1187,21 @@ iwl_op_mode_mvm_start(struct iwl_trans *trans, const struct iwl_cfg *cfg,
 	trans_cfg.op_mode = op_mode;
 	trans_cfg.no_reclaim_cmds = no_reclaim_cmds;
 	trans_cfg.n_no_reclaim_cmds = ARRAY_SIZE(no_reclaim_cmds);
+<<<<<<< HEAD
 	switch (iwlwifi_mod_params.amsdu_size) {
 	case IWL_AMSDU_DEF:
+=======
+
+	if (mvm->trans->trans_cfg->device_family >= IWL_DEVICE_FAMILY_AX210)
+		rb_size_default = IWL_AMSDU_2K;
+	else
+		rb_size_default = IWL_AMSDU_4K;
+
+	switch (iwlwifi_mod_params.amsdu_size) {
+	case IWL_AMSDU_DEF:
+		trans_cfg.rx_buf_size = rb_size_default;
+		break;
+>>>>>>> upstream/android-13
 	case IWL_AMSDU_4K:
 		trans_cfg.rx_buf_size = IWL_AMSDU_4K;
 		break;
@@ -705,6 +1214,7 @@ iwl_op_mode_mvm_start(struct iwl_trans *trans, const struct iwl_cfg *cfg,
 	default:
 		pr_err("%s: Unsupported amsdu_size: %d\n", KBUILD_MODNAME,
 		       iwlwifi_mod_params.amsdu_size);
+<<<<<<< HEAD
 		trans_cfg.rx_buf_size = IWL_AMSDU_4K;
 	}
 
@@ -715,11 +1225,18 @@ iwl_op_mode_mvm_start(struct iwl_trans *trans, const struct iwl_cfg *cfg,
 		iwlmvm_mod_params.power_scheme = IWL_POWER_SCHEME_CAM;
 	} else if (mvm->cfg->mq_rx_supported) {
 		trans_cfg.rx_buf_size = IWL_AMSDU_4K;
+=======
+		trans_cfg.rx_buf_size = rb_size_default;
+>>>>>>> upstream/android-13
 	}
 
 	trans->wide_cmd_header = true;
 	trans_cfg.bc_table_dword =
+<<<<<<< HEAD
 		mvm->trans->cfg->device_family < IWL_DEVICE_FAMILY_22560;
+=======
+		mvm->trans->trans_cfg->device_family < IWL_DEVICE_FAMILY_AX210;
+>>>>>>> upstream/android-13
 
 	trans_cfg.command_groups = iwl_mvm_groups;
 	trans_cfg.command_groups_size = ARRAY_SIZE(iwl_mvm_groups);
@@ -731,8 +1248,11 @@ iwl_op_mode_mvm_start(struct iwl_trans *trans, const struct iwl_cfg *cfg,
 	trans_cfg.cb_data_offs = offsetof(struct ieee80211_tx_info,
 					  driver_data[2]);
 
+<<<<<<< HEAD
 	trans_cfg.sw_csum_tx = IWL_MVM_SW_TX_CSUM_OFFLOAD;
 
+=======
+>>>>>>> upstream/android-13
 	/* Set a short watchdog for the command queue */
 	trans_cfg.cmd_q_wdg_timeout =
 		iwl_mvm_get_wd_timeout(mvm, NULL, false, true);
@@ -741,16 +1261,30 @@ iwl_op_mode_mvm_start(struct iwl_trans *trans, const struct iwl_cfg *cfg,
 		 sizeof(mvm->hw->wiphy->fw_version),
 		 "%s", fw->fw_version);
 
+<<<<<<< HEAD
+=======
+	trans_cfg.fw_reset_handshake = fw_has_capa(&mvm->fw->ucode_capa,
+						   IWL_UCODE_TLV_CAPA_FW_RESET_HANDSHAKE);
+
+>>>>>>> upstream/android-13
 	/* Configure transport layer */
 	iwl_trans_configure(mvm->trans, &trans_cfg);
 
 	trans->rx_mpdu_cmd = REPLY_RX_MPDU_CMD;
+<<<<<<< HEAD
 	trans->dbg_dest_tlv = mvm->fw->dbg_dest_tlv;
 	trans->dbg_dest_reg_num = mvm->fw->dbg_dest_reg_num;
 	memcpy(trans->dbg_conf_tlv, mvm->fw->dbg_conf_tlv,
 	       sizeof(trans->dbg_conf_tlv));
 	trans->dbg_trigger_tlv = mvm->fw->dbg_trigger_tlv;
 	trans->dbg_dump_mask = mvm->fw->dbg_dump_mask;
+=======
+	trans->dbg.dest_tlv = mvm->fw->dbg.dest_tlv;
+	trans->dbg.n_dest_reg = mvm->fw->dbg.n_dest_reg;
+	memcpy(trans->dbg.conf_tlv, mvm->fw->dbg.conf_tlv,
+	       sizeof(trans->dbg.conf_tlv));
+	trans->dbg.trigger_tlv = mvm->fw->dbg.trigger_tlv;
+>>>>>>> upstream/android-13
 
 	trans->iml = mvm->fw->iml;
 	trans->iml_len = mvm->fw->iml_len;
@@ -766,7 +1300,11 @@ iwl_op_mode_mvm_start(struct iwl_trans *trans, const struct iwl_cfg *cfg,
 	}
 
 	IWL_INFO(mvm, "Detected %s, REV=0x%X\n",
+<<<<<<< HEAD
 		 mvm->cfg->name, mvm->trans->hw_rev);
+=======
+		 mvm->trans->name, mvm->trans->hw_rev);
+>>>>>>> upstream/android-13
 
 	if (iwlwifi_mod_params.nvm_file)
 		mvm->nvm_file_name = iwlwifi_mod_params.nvm_file;
@@ -778,6 +1316,7 @@ iwl_op_mode_mvm_start(struct iwl_trans *trans, const struct iwl_cfg *cfg,
 	if (err)
 		goto out_free;
 
+<<<<<<< HEAD
 	mutex_lock(&mvm->mutex);
 	iwl_mvm_ref(mvm, IWL_MVM_REF_INIT_UCODE);
 	err = iwl_run_init_mvm_ucode(mvm, true);
@@ -790,12 +1329,15 @@ iwl_op_mode_mvm_start(struct iwl_trans *trans, const struct iwl_cfg *cfg,
 		goto out_free;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	scan_size = iwl_mvm_scan_size(mvm);
 
 	mvm->scan_cmd = kmalloc(scan_size, GFP_KERNEL);
 	if (!mvm->scan_cmd)
 		goto out_free;
 
+<<<<<<< HEAD
 	/* Set EBS as successful as long as not stated otherwise by the FW. */
 	mvm->last_ebs_successful = true;
 
@@ -811,12 +1353,25 @@ iwl_op_mode_mvm_start(struct iwl_trans *trans, const struct iwl_cfg *cfg,
 	if (err)
 		goto out_unregister;
 
+=======
+	/* invalidate ids to prevent accidental removal of sta_id 0 */
+	mvm->aux_sta.sta_id = IWL_MVM_INVALID_STA;
+	mvm->snif_sta.sta_id = IWL_MVM_INVALID_STA;
+
+	/* Set EBS as successful as long as not stated otherwise by the FW. */
+	mvm->last_ebs_successful = true;
+
+	min_backoff = iwl_mvm_min_backoff(mvm);
+	iwl_mvm_thermal_initialize(mvm, min_backoff);
+
+>>>>>>> upstream/android-13
 	if (!iwl_mvm_has_new_rx_stats_api(mvm))
 		memset(&mvm->rx_stats_v3, 0,
 		       sizeof(struct mvm_statistics_rx_v3));
 	else
 		memset(&mvm->rx_stats, 0, sizeof(struct mvm_statistics_rx));
 
+<<<<<<< HEAD
 	/* The transport always starts with a taken reference, we can
 	 * release it now if d0i3 is supported */
 	if (iwl_mvm_is_d0i3_supported(mvm))
@@ -836,6 +1391,23 @@ iwl_op_mode_mvm_start(struct iwl_trans *trans, const struct iwl_cfg *cfg,
 	iwl_mvm_thermal_exit(mvm);
  out_free:
 	iwl_fw_flush_dump(&mvm->fwrt);
+=======
+	mvm->debugfs_dir = dbgfs_dir;
+
+	if (iwl_mvm_start_get_nvm(mvm))
+		goto out_thermal_exit;
+
+	if (iwl_mvm_start_post_nvm(mvm))
+		goto out_thermal_exit;
+
+	return op_mode;
+
+ out_thermal_exit:
+	iwl_mvm_thermal_exit(mvm);
+ out_free:
+	iwl_fw_flush_dumps(&mvm->fwrt);
+	iwl_fw_runtime_free(&mvm->fwrt);
+>>>>>>> upstream/android-13
 
 	if (iwlmvm_mod_params.init_dbg)
 		return op_mode;
@@ -847,11 +1419,29 @@ iwl_op_mode_mvm_start(struct iwl_trans *trans, const struct iwl_cfg *cfg,
 	return NULL;
 }
 
+<<<<<<< HEAD
+=======
+void iwl_mvm_stop_device(struct iwl_mvm *mvm)
+{
+	lockdep_assert_held(&mvm->mutex);
+
+	iwl_fw_cancel_timestamp(&mvm->fwrt);
+
+	clear_bit(IWL_MVM_STATUS_FIRMWARE_RUNNING, &mvm->status);
+
+	iwl_fw_dbg_stop_sync(&mvm->fwrt);
+	iwl_trans_stop_device(mvm->trans);
+	iwl_free_fw_paging(&mvm->fwrt);
+	iwl_fw_dump_conf_clear(&mvm->fwrt);
+}
+
+>>>>>>> upstream/android-13
 static void iwl_op_mode_mvm_stop(struct iwl_op_mode *op_mode)
 {
 	struct iwl_mvm *mvm = IWL_OP_MODE_GET_MVM(op_mode);
 	int i;
 
+<<<<<<< HEAD
 	/* If d0i3 is supported, we have released the reference that
 	 * the transport started with, so we should take it back now
 	 * that we are leaving.
@@ -859,22 +1449,34 @@ static void iwl_op_mode_mvm_stop(struct iwl_op_mode *op_mode)
 	if (iwl_mvm_is_d0i3_supported(mvm))
 		iwl_trans_ref(mvm->trans);
 
+=======
+>>>>>>> upstream/android-13
 	iwl_mvm_leds_exit(mvm);
 
 	iwl_mvm_thermal_exit(mvm);
 
+<<<<<<< HEAD
 	if (mvm->init_status & IWL_MVM_INIT_STATUS_REG_HW_INIT_COMPLETE) {
 		ieee80211_unregister_hw(mvm->hw);
 		mvm->init_status &= ~IWL_MVM_INIT_STATUS_REG_HW_INIT_COMPLETE;
 	}
+=======
+	ieee80211_unregister_hw(mvm->hw);
+>>>>>>> upstream/android-13
 
 	kfree(mvm->scan_cmd);
 	kfree(mvm->mcast_filter_cmd);
 	mvm->mcast_filter_cmd = NULL;
 
+<<<<<<< HEAD
 #if defined(CONFIG_PM_SLEEP) && defined(CONFIG_IWLWIFI_DEBUGFS)
 	kfree(mvm->d3_resume_sram);
 #endif
+=======
+	kfree(mvm->error_recovery_buf);
+	mvm->error_recovery_buf = NULL;
+
+>>>>>>> upstream/android-13
 	iwl_trans_op_mode_leave(mvm->trans);
 
 	iwl_phy_db_free(mvm->phy_db);
@@ -886,10 +1488,15 @@ static void iwl_op_mode_mvm_stop(struct iwl_op_mode *op_mode)
 
 	cancel_delayed_work_sync(&mvm->tcm.work);
 
+<<<<<<< HEAD
 	iwl_mvm_tof_clean(mvm);
 
 	mutex_destroy(&mvm->mutex);
 	mutex_destroy(&mvm->d0i3_suspend_mutex);
+=======
+	iwl_fw_runtime_free(&mvm->fwrt);
+	mutex_destroy(&mvm->mutex);
+>>>>>>> upstream/android-13
 
 	ieee80211_free_hw(mvm->hw);
 }
@@ -950,6 +1557,7 @@ static inline void iwl_mvm_rx_check_trigger(struct iwl_mvm *mvm,
 	struct iwl_fw_dbg_trigger_cmd *cmds_trig;
 	int i;
 
+<<<<<<< HEAD
 	if (!iwl_fw_dbg_trigger_enabled(mvm->fw, FW_DBG_TRIGGER_FW_NOTIF))
 		return;
 
@@ -959,6 +1567,15 @@ static inline void iwl_mvm_rx_check_trigger(struct iwl_mvm *mvm,
 	if (!iwl_fw_dbg_trigger_check_stop(&mvm->fwrt, NULL, trig))
 		return;
 
+=======
+	trig = iwl_fw_dbg_trigger_on(&mvm->fwrt, NULL,
+				     FW_DBG_TRIGGER_FW_NOTIF);
+	if (!trig)
+		return;
+
+	cmds_trig = (void *)trig->data;
+
+>>>>>>> upstream/android-13
 	for (i = 0; i < ARRAY_SIZE(cmds_trig->cmds); i++) {
 		/* don't collect on CMD 0 */
 		if (!cmds_trig->cmds[i].cmd_id)
@@ -979,8 +1596,17 @@ static void iwl_mvm_rx_common(struct iwl_mvm *mvm,
 			      struct iwl_rx_cmd_buffer *rxb,
 			      struct iwl_rx_packet *pkt)
 {
+<<<<<<< HEAD
 	int i;
 
+=======
+	unsigned int pkt_len = iwl_rx_packet_payload_len(pkt);
+	int i;
+	union iwl_dbg_tlv_tp_data tp_data = { .fw_pkt = pkt };
+
+	iwl_dbg_tlv_time_point(&mvm->fwrt,
+			       IWL_FW_INI_TIME_POINT_FW_RSP_OR_NOTIF, &tp_data);
+>>>>>>> upstream/android-13
 	iwl_mvm_rx_check_trigger(mvm, pkt);
 
 	/*
@@ -997,6 +1623,12 @@ static void iwl_mvm_rx_common(struct iwl_mvm *mvm,
 		if (rx_h->cmd_id != WIDE_ID(pkt->hdr.group_id, pkt->hdr.cmd))
 			continue;
 
+<<<<<<< HEAD
+=======
+		if (unlikely(pkt_len < rx_h->min_size))
+			return;
+
+>>>>>>> upstream/android-13
 		if (rx_h->context == RX_HANDLER_SYNC) {
 			rx_h->fn(mvm, rxb);
 			return;
@@ -1036,9 +1668,15 @@ static void iwl_mvm_rx(struct iwl_op_mode *op_mode,
 		iwl_mvm_rx_common(mvm, rxb, pkt);
 }
 
+<<<<<<< HEAD
 static void iwl_mvm_rx_mq(struct iwl_op_mode *op_mode,
 			  struct napi_struct *napi,
 			  struct iwl_rx_cmd_buffer *rxb)
+=======
+void iwl_mvm_rx_mq(struct iwl_op_mode *op_mode,
+		   struct napi_struct *napi,
+		   struct iwl_rx_cmd_buffer *rxb)
+>>>>>>> upstream/android-13
 {
 	struct iwl_rx_packet *pkt = rxb_addr(rxb);
 	struct iwl_mvm *mvm = IWL_OP_MODE_GET_MVM(op_mode);
@@ -1048,13 +1686,24 @@ static void iwl_mvm_rx_mq(struct iwl_op_mode *op_mode,
 		iwl_mvm_rx_mpdu_mq(mvm, napi, rxb, 0);
 	else if (unlikely(cmd == WIDE_ID(DATA_PATH_GROUP,
 					 RX_QUEUES_NOTIFICATION)))
+<<<<<<< HEAD
 		iwl_mvm_rx_queue_notif(mvm, rxb, 0);
 	else if (cmd == WIDE_ID(LEGACY_GROUP, FRAME_RELEASE))
 		iwl_mvm_rx_frame_release(mvm, napi, rxb, 0);
+=======
+		iwl_mvm_rx_queue_notif(mvm, napi, rxb, 0);
+	else if (cmd == WIDE_ID(LEGACY_GROUP, FRAME_RELEASE))
+		iwl_mvm_rx_frame_release(mvm, napi, rxb, 0);
+	else if (cmd == WIDE_ID(LEGACY_GROUP, BAR_FRAME_RELEASE))
+		iwl_mvm_rx_bar_frame_release(mvm, napi, rxb, 0);
+	else if (cmd == WIDE_ID(DATA_PATH_GROUP, RX_NO_DATA_NOTIF))
+		iwl_mvm_rx_monitor_no_data(mvm, napi, rxb, 0);
+>>>>>>> upstream/android-13
 	else
 		iwl_mvm_rx_common(mvm, rxb, pkt);
 }
 
+<<<<<<< HEAD
 void iwl_mvm_stop_mac_queues(struct iwl_mvm *mvm, unsigned long mq)
 {
 	int q;
@@ -1073,6 +1722,8 @@ void iwl_mvm_stop_mac_queues(struct iwl_mvm *mvm, unsigned long mq)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 static void iwl_mvm_async_cb(struct iwl_op_mode *op_mode,
 			     const struct iwl_device_cmd *cmd)
 {
@@ -1085,6 +1736,7 @@ static void iwl_mvm_async_cb(struct iwl_op_mode *op_mode,
 	iwl_trans_block_txq_ptrs(mvm->trans, false);
 }
 
+<<<<<<< HEAD
 static void iwl_mvm_stop_sw_queue(struct iwl_op_mode *op_mode, int hw_queue)
 {
 	struct iwl_mvm *mvm = IWL_OP_MODE_GET_MVM(op_mode);
@@ -1113,10 +1765,83 @@ void iwl_mvm_start_mac_queues(struct iwl_mvm *mvm, unsigned long mq)
 
 		ieee80211_wake_queue(mvm->hw, q);
 	}
+=======
+static int iwl_mvm_is_static_queue(struct iwl_mvm *mvm, int queue)
+{
+	return queue == mvm->aux_queue || queue == mvm->probe_queue ||
+		queue == mvm->p2p_dev_queue || queue == mvm->snif_queue;
+}
+
+static void iwl_mvm_queue_state_change(struct iwl_op_mode *op_mode,
+				       int hw_queue, bool start)
+{
+	struct iwl_mvm *mvm = IWL_OP_MODE_GET_MVM(op_mode);
+	struct ieee80211_sta *sta;
+	struct ieee80211_txq *txq;
+	struct iwl_mvm_txq *mvmtxq;
+	int i;
+	unsigned long tid_bitmap;
+	struct iwl_mvm_sta *mvmsta;
+	u8 sta_id;
+
+	sta_id = iwl_mvm_has_new_tx_api(mvm) ?
+		mvm->tvqm_info[hw_queue].sta_id :
+		mvm->queue_info[hw_queue].ra_sta_id;
+
+	if (WARN_ON_ONCE(sta_id >= mvm->fw->ucode_capa.num_stations))
+		return;
+
+	rcu_read_lock();
+
+	sta = rcu_dereference(mvm->fw_id_to_mac_id[sta_id]);
+	if (IS_ERR_OR_NULL(sta))
+		goto out;
+	mvmsta = iwl_mvm_sta_from_mac80211(sta);
+
+	if (iwl_mvm_is_static_queue(mvm, hw_queue)) {
+		if (!start)
+			ieee80211_stop_queues(mvm->hw);
+		else if (mvmsta->sta_state != IEEE80211_STA_NOTEXIST)
+			ieee80211_wake_queues(mvm->hw);
+
+		goto out;
+	}
+
+	if (iwl_mvm_has_new_tx_api(mvm)) {
+		int tid = mvm->tvqm_info[hw_queue].txq_tid;
+
+		tid_bitmap = BIT(tid);
+	} else {
+		tid_bitmap = mvm->queue_info[hw_queue].tid_bitmap;
+	}
+
+	for_each_set_bit(i, &tid_bitmap, IWL_MAX_TID_COUNT + 1) {
+		int tid = i;
+
+		if (tid == IWL_MAX_TID_COUNT)
+			tid = IEEE80211_NUM_TIDS;
+
+		txq = sta->txq[tid];
+		mvmtxq = iwl_mvm_txq_from_mac80211(txq);
+		mvmtxq->stopped = !start;
+
+		if (start && mvmsta->sta_state != IEEE80211_STA_NOTEXIST)
+			iwl_mvm_mac_itxq_xmit(mvm->hw, txq);
+	}
+
+out:
+	rcu_read_unlock();
+}
+
+static void iwl_mvm_stop_sw_queue(struct iwl_op_mode *op_mode, int hw_queue)
+{
+	iwl_mvm_queue_state_change(op_mode, hw_queue, false);
+>>>>>>> upstream/android-13
 }
 
 static void iwl_mvm_wake_sw_queue(struct iwl_op_mode *op_mode, int hw_queue)
 {
+<<<<<<< HEAD
 	struct iwl_mvm *mvm = IWL_OP_MODE_GET_MVM(op_mode);
 	unsigned long mq;
 
@@ -1125,6 +1850,9 @@ static void iwl_mvm_wake_sw_queue(struct iwl_op_mode *op_mode, int hw_queue)
 	spin_unlock_bh(&mvm->queue_info_lock);
 
 	iwl_mvm_start_mac_queues(mvm, mq);
+=======
+	iwl_mvm_queue_state_change(op_mode, hw_queue, true);
+>>>>>>> upstream/android-13
 }
 
 static void iwl_mvm_set_rfkill_state(struct iwl_mvm *mvm)
@@ -1150,7 +1878,12 @@ void iwl_mvm_set_hw_ctkill_state(struct iwl_mvm *mvm, bool state)
 static bool iwl_mvm_set_hw_rfkill_state(struct iwl_op_mode *op_mode, bool state)
 {
 	struct iwl_mvm *mvm = IWL_OP_MODE_GET_MVM(op_mode);
+<<<<<<< HEAD
 	bool calibrating = READ_ONCE(mvm->calibrating);
+=======
+	bool rfkill_safe_init_done = READ_ONCE(mvm->rfkill_safe_init_done);
+	bool unified = iwl_mvm_has_unified_ucode(mvm);
+>>>>>>> upstream/android-13
 
 	if (state)
 		set_bit(IWL_MVM_STATUS_HW_RFKILL, &mvm->status);
@@ -1159,6 +1892,7 @@ static bool iwl_mvm_set_hw_rfkill_state(struct iwl_op_mode *op_mode, bool state)
 
 	iwl_mvm_set_rfkill_state(mvm);
 
+<<<<<<< HEAD
 	/* iwl_run_init_mvm_ucode is waiting for results, abort it */
 	if (calibrating)
 		iwl_abort_notification_waits(&mvm->notif_wait);
@@ -1168,6 +1902,24 @@ static bool iwl_mvm_set_hw_rfkill_state(struct iwl_op_mode *op_mode, bool state)
 	 * middle of the calibrations.
 	 */
 	return state && (mvm->fwrt.cur_fw_img != IWL_UCODE_INIT || calibrating);
+=======
+	 /* iwl_run_init_mvm_ucode is waiting for results, abort it. */
+	if (rfkill_safe_init_done)
+		iwl_abort_notification_waits(&mvm->notif_wait);
+
+	/*
+	 * Don't ask the transport to stop the firmware. We'll do it
+	 * after cfg80211 takes us down.
+	 */
+	if (unified)
+		return false;
+
+	/*
+	 * Stop the device if we run OPERATIONAL firmware or if we are in the
+	 * middle of the calibrations.
+	 */
+	return state && rfkill_safe_init_done;
+>>>>>>> upstream/android-13
 }
 
 static void iwl_mvm_free_skb(struct iwl_op_mode *op_mode, struct sk_buff *skb)
@@ -1200,6 +1952,10 @@ static void iwl_mvm_reprobe_wk(struct work_struct *wk)
 void iwl_mvm_nic_restart(struct iwl_mvm *mvm, bool fw_error)
 {
 	iwl_abort_notification_waits(&mvm->notif_wait);
+<<<<<<< HEAD
+=======
+	iwl_dbg_tlv_del_timers(mvm->trans);
+>>>>>>> upstream/android-13
 
 	/*
 	 * This is a bit racy, but worst case we tell mac80211 about
@@ -1220,8 +1976,15 @@ void iwl_mvm_nic_restart(struct iwl_mvm *mvm, bool fw_error)
 	 * can't recover this since we're already half suspended.
 	 */
 	if (!mvm->fw_restart && fw_error) {
+<<<<<<< HEAD
 		iwl_fw_dbg_collect_desc(&mvm->fwrt, &iwl_dump_desc_assert,
 					NULL);
+=======
+		iwl_fw_error_collect(&mvm->fwrt, false);
+	} else if (test_bit(IWL_MVM_STATUS_STARTING,
+			    &mvm->status)) {
+		IWL_ERR(mvm, "Starting mac, retry will be triggered anyway\n");
+>>>>>>> upstream/android-13
 	} else if (test_bit(IWL_MVM_STATUS_IN_HW_RESTART, &mvm->status)) {
 		struct iwl_mvm_reprobe *reprobe;
 
@@ -1246,6 +2009,7 @@ void iwl_mvm_nic_restart(struct iwl_mvm *mvm, bool fw_error)
 		reprobe->dev = get_device(mvm->trans->dev);
 		INIT_WORK(&reprobe->work, iwl_mvm_reprobe_wk);
 		schedule_work(&reprobe->work);
+<<<<<<< HEAD
 	} else if (mvm->fwrt.cur_fw_img == IWL_UCODE_REGULAR &&
 		   mvm->hw_registered) {
 		/* don't let the transport/FW power down */
@@ -1254,15 +2018,74 @@ void iwl_mvm_nic_restart(struct iwl_mvm *mvm, bool fw_error)
 		if (fw_error && mvm->fw_restart > 0)
 			mvm->fw_restart--;
 		set_bit(IWL_MVM_STATUS_HW_RESTART_REQUESTED, &mvm->status);
+=======
+	} else if (test_bit(IWL_MVM_STATUS_HW_RESTART_REQUESTED,
+			    &mvm->status)) {
+		IWL_ERR(mvm, "HW restart already requested, but not started\n");
+	} else if (mvm->fwrt.cur_fw_img == IWL_UCODE_REGULAR &&
+		   mvm->hw_registered &&
+		   !test_bit(STATUS_TRANS_DEAD, &mvm->trans->status)) {
+		/* This should be first thing before trying to collect any
+		 * data to avoid endless loops if any HW error happens while
+		 * collecting debug data.
+		 */
+		set_bit(IWL_MVM_STATUS_HW_RESTART_REQUESTED, &mvm->status);
+
+		if (mvm->fw->ucode_capa.error_log_size) {
+			u32 src_size = mvm->fw->ucode_capa.error_log_size;
+			u32 src_addr = mvm->fw->ucode_capa.error_log_addr;
+			u8 *recover_buf = kzalloc(src_size, GFP_ATOMIC);
+
+			if (recover_buf) {
+				mvm->error_recovery_buf = recover_buf;
+				iwl_trans_read_mem_bytes(mvm->trans,
+							 src_addr,
+							 recover_buf,
+							 src_size);
+			}
+		}
+
+		iwl_fw_error_collect(&mvm->fwrt, false);
+
+		if (fw_error && mvm->fw_restart > 0)
+			mvm->fw_restart--;
+>>>>>>> upstream/android-13
 		ieee80211_restart_hw(mvm->hw);
 	}
 }
 
+<<<<<<< HEAD
 static void iwl_mvm_nic_error(struct iwl_op_mode *op_mode)
 {
 	struct iwl_mvm *mvm = IWL_OP_MODE_GET_MVM(op_mode);
 
 	iwl_mvm_dump_nic_error_log(mvm);
+=======
+static void iwl_mvm_nic_error(struct iwl_op_mode *op_mode, bool sync)
+{
+	struct iwl_mvm *mvm = IWL_OP_MODE_GET_MVM(op_mode);
+
+	if (!test_bit(STATUS_TRANS_DEAD, &mvm->trans->status))
+		iwl_mvm_dump_nic_error_log(mvm);
+
+	if (sync) {
+		iwl_fw_error_collect(&mvm->fwrt, true);
+		/*
+		 * Currently, the only case for sync=true is during
+		 * shutdown, so just stop in this case. If/when that
+		 * changes, we need to be a bit smarter here.
+		 */
+		return;
+	}
+
+	/*
+	 * If the firmware crashes while we're already considering it
+	 * to be dead then don't ask for a restart, that cannot do
+	 * anything useful anyway.
+	 */
+	if (!test_bit(IWL_MVM_STATUS_FIRMWARE_RUNNING, &mvm->status))
+		return;
+>>>>>>> upstream/android-13
 
 	iwl_mvm_nic_restart(mvm, true);
 }
@@ -1275,6 +2098,7 @@ static void iwl_mvm_cmd_queue_full(struct iwl_op_mode *op_mode)
 	iwl_mvm_nic_restart(mvm, true);
 }
 
+<<<<<<< HEAD
 struct iwl_d0i3_iter_data {
 	struct iwl_mvm *mvm;
 	struct ieee80211_vif *connected_vif;
@@ -1684,6 +2508,15 @@ int iwl_mvm_exit_d0i3(struct iwl_op_mode *op_mode)
 
 	iwl_mvm_ref(mvm, IWL_MVM_REF_EXIT_WORK);
 	return _iwl_mvm_exit_d0i3(mvm);
+=======
+static void iwl_op_mode_mvm_time_point(struct iwl_op_mode *op_mode,
+				       enum iwl_fw_ini_time_point tp_id,
+				       union iwl_dbg_tlv_tp_data *tp_data)
+{
+	struct iwl_mvm *mvm = IWL_OP_MODE_GET_MVM(op_mode);
+
+	iwl_dbg_tlv_time_point(&mvm->fwrt, tp_id, tp_data);
+>>>>>>> upstream/android-13
 }
 
 #define IWL_MVM_COMMON_OPS					\
@@ -1696,11 +2529,18 @@ int iwl_mvm_exit_d0i3(struct iwl_op_mode *op_mode)
 	.nic_error = iwl_mvm_nic_error,				\
 	.cmd_queue_full = iwl_mvm_cmd_queue_full,		\
 	.nic_config = iwl_mvm_nic_config,			\
+<<<<<<< HEAD
 	.enter_d0i3 = iwl_mvm_enter_d0i3,			\
 	.exit_d0i3 = iwl_mvm_exit_d0i3,				\
 	/* as we only register one, these MUST be common! */	\
 	.start = iwl_op_mode_mvm_start,				\
 	.stop = iwl_op_mode_mvm_stop
+=======
+	/* as we only register one, these MUST be common! */	\
+	.start = iwl_op_mode_mvm_start,				\
+	.stop = iwl_op_mode_mvm_stop,				\
+	.time_point = iwl_op_mode_mvm_time_point
+>>>>>>> upstream/android-13
 
 static const struct iwl_op_mode_ops iwl_mvm_ops = {
 	IWL_MVM_COMMON_OPS,
@@ -1720,7 +2560,11 @@ static void iwl_mvm_rx_mq_rss(struct iwl_op_mode *op_mode,
 		iwl_mvm_rx_frame_release(mvm, napi, rxb, queue);
 	else if (unlikely(cmd == WIDE_ID(DATA_PATH_GROUP,
 					 RX_QUEUES_NOTIFICATION)))
+<<<<<<< HEAD
 		iwl_mvm_rx_queue_notif(mvm, rxb, queue);
+=======
+		iwl_mvm_rx_queue_notif(mvm, napi, rxb, queue);
+>>>>>>> upstream/android-13
 	else if (likely(cmd == WIDE_ID(LEGACY_GROUP, REPLY_RX_MPDU_CMD)))
 		iwl_mvm_rx_mpdu_mq(mvm, napi, rxb, queue);
 }

@@ -38,6 +38,12 @@
 #include <linux/virtio_ids.h>
 #include <linux/virtio_config.h>
 
+<<<<<<< HEAD
+=======
+/* The feature bitmap for virtio vsock */
+#define VIRTIO_VSOCK_F_SEQPACKET	1	/* SOCK_SEQPACKET supported */
+
+>>>>>>> upstream/android-13
 struct virtio_vsock_config {
 	__le64 guest_cid;
 } __attribute__((packed));
@@ -65,6 +71,10 @@ struct virtio_vsock_hdr {
 
 enum virtio_vsock_type {
 	VIRTIO_VSOCK_TYPE_STREAM = 1,
+<<<<<<< HEAD
+=======
+	VIRTIO_VSOCK_TYPE_SEQPACKET = 2,
+>>>>>>> upstream/android-13
 };
 
 enum virtio_vsock_op {
@@ -91,4 +101,13 @@ enum virtio_vsock_shutdown {
 	VIRTIO_VSOCK_SHUTDOWN_SEND = 2,
 };
 
+<<<<<<< HEAD
+=======
+/* VIRTIO_VSOCK_OP_RW flags values */
+enum virtio_vsock_rw {
+	VIRTIO_VSOCK_SEQ_EOM = 1,
+	VIRTIO_VSOCK_SEQ_EOR = 2,
+};
+
+>>>>>>> upstream/android-13
 #endif /* _UAPI_LINUX_VIRTIO_VSOCK_H */

@@ -17,6 +17,10 @@
 #include <linux/bitmap.h>
 #include <linux/fb.h>
 #include <linux/of.h>
+<<<<<<< HEAD
+=======
+#include <drm/drm_color_mgmt.h>
+>>>>>>> upstream/android-13
 #include <media/v4l2-mediabus.h>
 #include <video/videomode.h>
 
@@ -246,6 +250,12 @@ struct ipu_image {
 	struct v4l2_rect rect;
 	dma_addr_t phys0;
 	dma_addr_t phys1;
+<<<<<<< HEAD
+=======
+	/* chroma plane offset overrides */
+	u32 u_offset;
+	u32 v_offset;
+>>>>>>> upstream/android-13
 };
 
 void ipu_cpmem_zero(struct ipuv3_channel *ch);
@@ -255,7 +265,12 @@ void ipu_cpmem_set_stride(struct ipuv3_channel *ch, int stride);
 void ipu_cpmem_set_high_priority(struct ipuv3_channel *ch);
 void ipu_cpmem_set_buffer(struct ipuv3_channel *ch, int bufnum, dma_addr_t buf);
 void ipu_cpmem_set_uv_offset(struct ipuv3_channel *ch, u32 u_off, u32 v_off);
+<<<<<<< HEAD
 void ipu_cpmem_interlaced_scan(struct ipuv3_channel *ch, int stride);
+=======
+void ipu_cpmem_interlaced_scan(struct ipuv3_channel *ch, int stride,
+			       u32 pixelformat);
+>>>>>>> upstream/android-13
 void ipu_cpmem_set_axi_id(struct ipuv3_channel *ch, u32 id);
 int ipu_cpmem_get_burstsize(struct ipuv3_channel *ch);
 void ipu_cpmem_set_burstsize(struct ipuv3_channel *ch, int burstsize);
@@ -326,6 +341,10 @@ int ipu_dp_enable_channel(struct ipu_dp *dp);
 void ipu_dp_disable_channel(struct ipu_dp *dp, bool sync);
 void ipu_dp_disable(struct ipu_soc *ipu);
 int ipu_dp_setup_channel(struct ipu_dp *dp,
+<<<<<<< HEAD
+=======
+		enum drm_color_encoding ycbcr_enc, enum drm_color_range range,
+>>>>>>> upstream/android-13
 		enum ipu_color_space in, enum ipu_color_space out);
 int ipu_dp_set_window_pos(struct ipu_dp *, u16 x_pos, u16 y_pos);
 int ipu_dp_set_global_alpha(struct ipu_dp *dp, bool enable, u8 alpha,
@@ -345,14 +364,24 @@ int ipu_prg_channel_configure(struct ipuv3_channel *ipu_chan,
 			      unsigned int axi_id,  unsigned int width,
 			      unsigned int height, unsigned int stride,
 			      u32 format, uint64_t modifier, unsigned long *eba);
+<<<<<<< HEAD
+=======
+bool ipu_prg_channel_configure_pending(struct ipuv3_channel *ipu_chan);
+>>>>>>> upstream/android-13
 
 /*
  * IPU CMOS Sensor Interface (csi) functions
  */
 struct ipu_csi;
 int ipu_csi_init_interface(struct ipu_csi *csi,
+<<<<<<< HEAD
 			   struct v4l2_mbus_config *mbus_cfg,
 			   struct v4l2_mbus_framefmt *mbus_fmt);
+=======
+			   const struct v4l2_mbus_config *mbus_cfg,
+			   const struct v4l2_mbus_framefmt *infmt,
+			   const struct v4l2_mbus_framefmt *outfmt);
+>>>>>>> upstream/android-13
 bool ipu_csi_is_interlaced(struct ipu_csi *csi);
 void ipu_csi_get_window(struct ipu_csi *csi, struct v4l2_rect *w);
 void ipu_csi_set_window(struct ipu_csi *csi, struct v4l2_rect *w);
@@ -381,6 +410,7 @@ enum ipu_ic_task {
 	IC_NUM_TASKS,
 };
 
+<<<<<<< HEAD
 struct ipu_ic;
 int ipu_ic_task_init(struct ipu_ic *ic,
 		     int in_width, int in_height,
@@ -389,6 +419,66 @@ int ipu_ic_task_init(struct ipu_ic *ic,
 		     enum ipu_color_space out_cs);
 int ipu_ic_task_graphics_init(struct ipu_ic *ic,
 			      enum ipu_color_space in_g_cs,
+=======
+/*
+ * The parameters that describe a colorspace according to the
+ * Image Converter:
+ *    - Y'CbCr encoding
+ *    - quantization
+ *    - "colorspace" (RGB or YUV).
+ */
+struct ipu_ic_colorspace {
+	enum v4l2_ycbcr_encoding enc;
+	enum v4l2_quantization quant;
+	enum ipu_color_space cs;
+};
+
+static inline void
+ipu_ic_fill_colorspace(struct ipu_ic_colorspace *ic_cs,
+		       enum v4l2_ycbcr_encoding enc,
+		       enum v4l2_quantization quant,
+		       enum ipu_color_space cs)
+{
+	ic_cs->enc = enc;
+	ic_cs->quant = quant;
+	ic_cs->cs = cs;
+}
+
+struct ipu_ic_csc_params {
+	s16 coeff[3][3];	/* signed 9-bit integer coefficients */
+	s16 offset[3];		/* signed 11+2-bit fixed point offset */
+	u8 scale:2;		/* scale coefficients * 2^(scale-1) */
+	bool sat:1;		/* saturate to (16, 235(Y) / 240(U, V)) */
+};
+
+struct ipu_ic_csc {
+	struct ipu_ic_colorspace in_cs;
+	struct ipu_ic_colorspace out_cs;
+	struct ipu_ic_csc_params params;
+};
+
+struct ipu_ic;
+
+int __ipu_ic_calc_csc(struct ipu_ic_csc *csc);
+int ipu_ic_calc_csc(struct ipu_ic_csc *csc,
+		    enum v4l2_ycbcr_encoding in_enc,
+		    enum v4l2_quantization in_quant,
+		    enum ipu_color_space in_cs,
+		    enum v4l2_ycbcr_encoding out_enc,
+		    enum v4l2_quantization out_quant,
+		    enum ipu_color_space out_cs);
+int ipu_ic_task_init(struct ipu_ic *ic,
+		     const struct ipu_ic_csc *csc,
+		     int in_width, int in_height,
+		     int out_width, int out_height);
+int ipu_ic_task_init_rsc(struct ipu_ic *ic,
+			 const struct ipu_ic_csc *csc,
+			 int in_width, int in_height,
+			 int out_width, int out_height,
+			 u32 rsc);
+int ipu_ic_task_graphics_init(struct ipu_ic *ic,
+			      const struct ipu_ic_colorspace *g_in_cs,
+>>>>>>> upstream/android-13
 			      bool galpha_en, u32 galpha,
 			      bool colorkey_en, u32 colorkey);
 void ipu_ic_task_enable(struct ipu_ic *ic);
@@ -428,9 +518,12 @@ int ipu_smfc_set_watermark(struct ipu_smfc *smfc, u32 set_level, u32 clr_level);
 
 enum ipu_color_space ipu_drm_fourcc_to_colorspace(u32 drm_fourcc);
 enum ipu_color_space ipu_pixelformat_to_colorspace(u32 pixelformat);
+<<<<<<< HEAD
 enum ipu_color_space ipu_mbus_code_to_colorspace(u32 mbus_code);
 int ipu_stride_to_bytes(u32 pixel_stride, u32 pixelformat);
 bool ipu_pixelformat_is_planar(u32 pixelformat);
+=======
+>>>>>>> upstream/android-13
 int ipu_degrees_to_rot_mode(enum ipu_rotate_mode *mode, int degrees,
 			    bool hflip, bool vflip);
 int ipu_rot_mode_to_degrees(int *degrees, enum ipu_rotate_mode mode,

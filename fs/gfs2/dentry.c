@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
  * Copyright (C) 2004-2006 Red Hat, Inc.  All rights reserved.
@@ -5,6 +6,12 @@
  * This copyrighted material is made available to anyone wishing to use,
  * modify, copy, or redistribute it subject to the terms and conditions
  * of the GNU General Public License version 2.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
+ * Copyright (C) 2004-2006 Red Hat, Inc.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/spinlock.h>
@@ -41,7 +48,11 @@ static int gfs2_drevalidate(struct dentry *dentry, unsigned int flags)
 	struct inode *inode;
 	struct gfs2_holder d_gh;
 	struct gfs2_inode *ip = NULL;
+<<<<<<< HEAD
 	int error;
+=======
+	int error, valid = 0;
+>>>>>>> upstream/android-13
 	int had_lock = 0;
 
 	if (flags & LOOKUP_RCU)
@@ -54,17 +65,29 @@ static int gfs2_drevalidate(struct dentry *dentry, unsigned int flags)
 
 	if (inode) {
 		if (is_bad_inode(inode))
+<<<<<<< HEAD
 			goto invalid;
 		ip = GFS2_I(inode);
 	}
 
 	if (sdp->sd_lockstruct.ls_ops->lm_mount == NULL)
 		goto valid;
+=======
+			goto out;
+		ip = GFS2_I(inode);
+	}
+
+	if (sdp->sd_lockstruct.ls_ops->lm_mount == NULL) {
+		valid = 1;
+		goto out;
+	}
+>>>>>>> upstream/android-13
 
 	had_lock = (gfs2_glock_is_locked_by_me(dip->i_gl) != NULL);
 	if (!had_lock) {
 		error = gfs2_glock_nq_init(dip->i_gl, LM_ST_SHARED, 0, &d_gh);
 		if (error)
+<<<<<<< HEAD
 			goto fail;
 	} 
 
@@ -101,6 +124,19 @@ fail_gunlock:
 fail:
 	dput(parent);
 	return 0;
+=======
+			goto out;
+	}
+
+	error = gfs2_dir_check(d_inode(parent), &dentry->d_name, ip);
+	valid = inode ? !error : (error == -ENOENT);
+
+	if (!had_lock)
+		gfs2_glock_dq_uninit(&d_gh);
+out:
+	dput(parent);
+	return valid;
+>>>>>>> upstream/android-13
 }
 
 static int gfs2_dhash(const struct dentry *dentry, struct qstr *str)

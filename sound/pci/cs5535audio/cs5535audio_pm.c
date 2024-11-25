@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Power management for audio on multifunction CS5535 companion device
  * Copyright (C) Jaya Kumar
@@ -16,6 +17,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Power management for audio on multifunction CS5535 companion device
+ * Copyright (C) Jaya Kumar
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -62,7 +69,10 @@ static int __maybe_unused snd_cs5535audio_suspend(struct device *dev)
 	int i;
 
 	snd_power_change_state(card, SNDRV_CTL_POWER_D3hot);
+<<<<<<< HEAD
 	snd_pcm_suspend_all(cs5535au->pcm);
+=======
+>>>>>>> upstream/android-13
 	snd_ac97_suspend(cs5535au->ac97);
 	for (i = 0; i < NUM_CS5535AUDIO_DMAS; i++) {
 		struct cs5535audio_dma *dma = &cs5535au->dmas[i];

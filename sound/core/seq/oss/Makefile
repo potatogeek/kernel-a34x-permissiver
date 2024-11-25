@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # Makefile for ALSA
 # Copyright (c) 1999 by Jaroslav Kysela <perex@perex.cz>

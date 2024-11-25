@@ -76,8 +76,13 @@ handler is never re-entered: if the same interrupt arrives, it is queued
 fast: frequently it simply acknowledges the interrupt, marks a 'software
 interrupt' for execution and exits.
 
+<<<<<<< HEAD
 You can tell you are in a hardware interrupt, because
 :c:func:`in_irq()` returns true.
+=======
+You can tell you are in a hardware interrupt, because in_hardirq() returns
+true.
+>>>>>>> upstream/android-13
 
 .. warning::
 
@@ -346,8 +351,13 @@ routine.
 Before inventing your own cache of often-used objects consider using a
 slab cache in ``include/linux/slab.h``
 
+<<<<<<< HEAD
 :c:func:`current()`
 -------------------
+=======
+:c:macro:`current`
+------------------
+>>>>>>> upstream/android-13
 
 Defined in ``include/asm/current.h``
 
@@ -594,6 +604,27 @@ internal implementation issue, and not really an interface. Some
 maintainers and developers may however require EXPORT_SYMBOL_GPL()
 when adding any new APIs or functionality.
 
+<<<<<<< HEAD
+=======
+:c:func:`EXPORT_SYMBOL_NS()`
+----------------------------
+
+Defined in ``include/linux/export.h``
+
+This is the variant of `EXPORT_SYMBOL()` that allows specifying a symbol
+namespace. Symbol Namespaces are documented in
+Documentation/core-api/symbol-namespaces.rst
+
+:c:func:`EXPORT_SYMBOL_NS_GPL()`
+--------------------------------
+
+Defined in ``include/linux/export.h``
+
+This is the variant of `EXPORT_SYMBOL_GPL()` that allows specifying a symbol
+namespace. Symbol Namespaces are documented in
+Documentation/core-api/symbol-namespaces.rst
+
+>>>>>>> upstream/android-13
 Routines and Conventions
 ========================
 
@@ -718,7 +749,11 @@ make a neat patch, there's administrative work to be done:
 -  Usually you want a configuration option for your kernel hack. Edit
    ``Kconfig`` in the appropriate directory. The Config language is
    simple to use by cut and paste, and there's complete documentation in
+<<<<<<< HEAD
    ``Documentation/kbuild/kconfig-language.txt``.
+=======
+   ``Documentation/kbuild/kconfig-language.rst``.
+>>>>>>> upstream/android-13
 
    In your description of the option, make sure you address both the
    expert user and the user who knows nothing about your feature.
@@ -728,7 +763,11 @@ make a neat patch, there's administrative work to be done:
 
 -  Edit the ``Makefile``: the CONFIG variables are exported here so you
    can usually just add a "obj-$(CONFIG_xxx) += xxx.o" line. The syntax
+<<<<<<< HEAD
    is documented in ``Documentation/kbuild/makefiles.txt``.
+=======
+   is documented in ``Documentation/kbuild/makefiles.rst``.
+>>>>>>> upstream/android-13
 
 -  Put yourself in ``CREDITS`` if you've done something noteworthy,
    usually beyond a single file (your name should be at the top of the

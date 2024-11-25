@@ -463,7 +463,11 @@ static struct clk_hw *clk_register_stm32_timer_ker(struct device *dev,
 		spinlock_t *lock)
 {
 	struct timer_ker *element;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	struct clk_hw *hw;
 	int err;
 
@@ -845,10 +849,17 @@ static unsigned long odf_divider_recalc_rate(struct clk_hw *hw,
 	return clk_divider_ops.recalc_rate(hw, parent_rate);
 }
 
+<<<<<<< HEAD
 static long odf_divider_round_rate(struct clk_hw *hw, unsigned long rate,
 		unsigned long *prate)
 {
 	return clk_divider_ops.round_rate(hw, rate, prate);
+=======
+static int odf_divider_determine_rate(struct clk_hw *hw,
+				      struct clk_rate_request *req)
+{
+	return clk_divider_ops.determine_rate(hw, req);
+>>>>>>> upstream/android-13
 }
 
 static int odf_divider_set_rate(struct clk_hw *hw, unsigned long rate,
@@ -875,7 +886,11 @@ static int odf_divider_set_rate(struct clk_hw *hw, unsigned long rate,
 
 static const struct clk_ops odf_divider_ops = {
 	.recalc_rate	= odf_divider_recalc_rate,
+<<<<<<< HEAD
 	.round_rate	= odf_divider_round_rate,
+=======
+	.determine_rate	= odf_divider_determine_rate,
+>>>>>>> upstream/android-13
 	.set_rate	= odf_divider_set_rate,
 };
 
@@ -1216,7 +1231,11 @@ static void __init stm32h7_rcc_init(struct device_node *np)
 	/* get RCC base @ from DT */
 	base = of_iomap(np, 0);
 	if (!base) {
+<<<<<<< HEAD
 		pr_err("%s: unable to map resource", np->name);
+=======
+		pr_err("%pOFn: unable to map resource", np);
+>>>>>>> upstream/android-13
 		goto err_free_clks;
 	}
 

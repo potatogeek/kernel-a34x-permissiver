@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * This file is part of wl1271
  *
  * Copyright (C) 2008-2009 Nokia Corporation
  *
  * Contact: Luciano Coelho <luciano.coelho@nokia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,6 +24,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/interrupt.h>
@@ -200,7 +207,11 @@ static void wl12xx_spi_init(struct device *child)
 
 	spi_sync(to_spi_device(glue->dev), &m);
 
+<<<<<<< HEAD
 	/* Restore chip select configration to normal */
+=======
+	/* Restore chip select configuration to normal */
+>>>>>>> upstream/android-13
 	spi->mode ^= SPI_CS_HIGH;
 	kfree(cmd);
 }
@@ -405,7 +416,11 @@ static int wl12xx_spi_set_power(struct device *child, bool enable)
 	return ret;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * wl12xx_spi_set_block_size
  *
  * This function is not needed for spi mode, but need to be present.
@@ -445,7 +460,10 @@ MODULE_DEVICE_TABLE(of, wlcore_spi_of_match_table);
 /**
  * wlcore_probe_of - DT node parsing.
  * @spi: SPI slave device parameters.
+<<<<<<< HEAD
  * @res: resource parameters.
+=======
+>>>>>>> upstream/android-13
  * @glue: wl12xx SPI bus to slave device glue parameters.
  * @pdev_data: wlcore device parameters
  */

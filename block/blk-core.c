@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 1991, 1992 Linus Torvalds
  * Copyright (C) 1994,      Karl Keyte: Added support for disk statistics
@@ -13,12 +17,22 @@
  */
 #include <linux/kernel.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/backing-dev.h>
 #include <linux/bio.h>
 #include <linux/blkdev.h>
 #include <linux/blk-mq.h>
 #include <linux/highmem.h>
 #include <linux/mm.h>
+=======
+#include <linux/bio.h>
+#include <linux/blkdev.h>
+#include <linux/blk-mq.h>
+#include <linux/blk-pm.h>
+#include <linux/highmem.h>
+#include <linux/mm.h>
+#include <linux/pagemap.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel_stat.h>
 #include <linux/string.h>
 #include <linux/init.h>
@@ -33,9 +47,17 @@
 #include <linux/ratelimit.h>
 #include <linux/pm_runtime.h>
 #include <linux/blk-cgroup.h>
+<<<<<<< HEAD
 #include <linux/debugfs.h>
 #include <linux/bpf.h>
 #include <linux/psi.h>
+=======
+#include <linux/t10-pi.h>
+#include <linux/debugfs.h>
+#include <linux/bpf.h>
+#include <linux/psi.h>
+#include <linux/sched/sysctl.h>
+>>>>>>> upstream/android-13
 #include <linux/blk-crypto.h>
 
 #define CREATE_TRACE_POINTS
@@ -44,6 +66,7 @@
 #include "blk.h"
 #include "blk-mq.h"
 #include "blk-mq-sched.h"
+<<<<<<< HEAD
 #include "blk-rq-qos.h"
 #include "mtk_mmc_block.h"
 
@@ -51,20 +74,36 @@
 struct dentry *blk_debugfs_root;
 #endif
 
+=======
+#include "blk-pm.h"
+#ifndef __GENKSYMS__
+#include "blk-rq-qos.h"
+#endif
+
+struct dentry *blk_debugfs_root;
+
+>>>>>>> upstream/android-13
 EXPORT_TRACEPOINT_SYMBOL_GPL(block_bio_remap);
 EXPORT_TRACEPOINT_SYMBOL_GPL(block_rq_remap);
 EXPORT_TRACEPOINT_SYMBOL_GPL(block_bio_complete);
 EXPORT_TRACEPOINT_SYMBOL_GPL(block_split);
 EXPORT_TRACEPOINT_SYMBOL_GPL(block_unplug);
+<<<<<<< HEAD
+=======
+EXPORT_TRACEPOINT_SYMBOL_GPL(block_rq_insert);
+>>>>>>> upstream/android-13
 
 DEFINE_IDA(blk_queue_ida);
 
 /*
+<<<<<<< HEAD
  * For the allocated request tables
  */
 struct kmem_cache *request_cachep;
 
 /*
+=======
+>>>>>>> upstream/android-13
  * For queue allocation
  */
 struct kmem_cache *blk_requestq_cachep;
@@ -81,11 +120,15 @@ static struct workqueue_struct *kblockd_workqueue;
  */
 void blk_queue_flag_set(unsigned int flag, struct request_queue *q)
 {
+<<<<<<< HEAD
 	unsigned long flags;
 
 	spin_lock_irqsave(q->queue_lock, flags);
 	queue_flag_set(flag, q);
 	spin_unlock_irqrestore(q->queue_lock, flags);
+=======
+	set_bit(flag, &q->queue_flags);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(blk_queue_flag_set);
 
@@ -96,11 +139,15 @@ EXPORT_SYMBOL(blk_queue_flag_set);
  */
 void blk_queue_flag_clear(unsigned int flag, struct request_queue *q)
 {
+<<<<<<< HEAD
 	unsigned long flags;
 
 	spin_lock_irqsave(q->queue_lock, flags);
 	queue_flag_clear(flag, q);
 	spin_unlock_irqrestore(q->queue_lock, flags);
+=======
+	clear_bit(flag, &q->queue_flags);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(blk_queue_flag_clear);
 
@@ -114,6 +161,7 @@ EXPORT_SYMBOL(blk_queue_flag_clear);
  */
 bool blk_queue_flag_test_and_set(unsigned int flag, struct request_queue *q)
 {
+<<<<<<< HEAD
 	unsigned long flags;
 	bool res;
 
@@ -186,17 +234,27 @@ void blk_queue_congestion_threshold(struct request_queue *q)
 	q->nr_congestion_off = nr;
 }
 
+=======
+	return test_and_set_bit(flag, &q->queue_flags);
+}
+EXPORT_SYMBOL_GPL(blk_queue_flag_test_and_set);
+
+>>>>>>> upstream/android-13
 void blk_rq_init(struct request_queue *q, struct request *rq)
 {
 	memset(rq, 0, sizeof(*rq));
 
 	INIT_LIST_HEAD(&rq->queuelist);
+<<<<<<< HEAD
 	INIT_LIST_HEAD(&rq->timeout_list);
 	rq->cpu = -1;
+=======
+>>>>>>> upstream/android-13
 	rq->q = q;
 	rq->__sector = (sector_t) -1;
 	INIT_HLIST_NODE(&rq->hash);
 	RB_CLEAR_NODE(&rq->rb_node);
+<<<<<<< HEAD
 	rq->tag = -1;
 	rq->internal_tag = -1;
 	rq->start_time_ns = ktime_get_ns();
@@ -205,6 +263,55 @@ void blk_rq_init(struct request_queue *q, struct request *rq)
 }
 EXPORT_SYMBOL(blk_rq_init);
 
+=======
+	rq->tag = BLK_MQ_NO_TAG;
+	rq->internal_tag = BLK_MQ_NO_TAG;
+	rq->start_time_ns = ktime_get_ns();
+	rq->part = NULL;
+	blk_crypto_rq_set_defaults(rq);
+}
+EXPORT_SYMBOL(blk_rq_init);
+
+#define REQ_OP_NAME(name) [REQ_OP_##name] = #name
+static const char *const blk_op_name[] = {
+	REQ_OP_NAME(READ),
+	REQ_OP_NAME(WRITE),
+	REQ_OP_NAME(FLUSH),
+	REQ_OP_NAME(DISCARD),
+	REQ_OP_NAME(SECURE_ERASE),
+	REQ_OP_NAME(ZONE_RESET),
+	REQ_OP_NAME(ZONE_RESET_ALL),
+	REQ_OP_NAME(ZONE_OPEN),
+	REQ_OP_NAME(ZONE_CLOSE),
+	REQ_OP_NAME(ZONE_FINISH),
+	REQ_OP_NAME(ZONE_APPEND),
+	REQ_OP_NAME(WRITE_SAME),
+	REQ_OP_NAME(WRITE_ZEROES),
+	REQ_OP_NAME(DRV_IN),
+	REQ_OP_NAME(DRV_OUT),
+};
+#undef REQ_OP_NAME
+
+/**
+ * blk_op_str - Return string XXX in the REQ_OP_XXX.
+ * @op: REQ_OP_XXX.
+ *
+ * Description: Centralize block layer function to convert REQ_OP_XXX into
+ * string format. Useful in the debugging and tracing bio or request. For
+ * invalid REQ_OP_XXX it returns string "UNKNOWN".
+ */
+inline const char *blk_op_str(unsigned int op)
+{
+	const char *op_str = "UNKNOWN";
+
+	if (op < ARRAY_SIZE(blk_op_name) && blk_op_name[op])
+		op_str = blk_op_name[op];
+
+	return op_str;
+}
+EXPORT_SYMBOL_GPL(blk_op_str);
+
+>>>>>>> upstream/android-13
 static const struct {
 	int		errno;
 	const char	*name;
@@ -225,6 +332,13 @@ static const struct {
 	/* device mapper special case, should not leak out: */
 	[BLK_STS_DM_REQUEUE]	= { -EREMCHG, "dm internal retry" },
 
+<<<<<<< HEAD
+=======
+	/* zone device specific errors */
+	[BLK_STS_ZONE_OPEN_RESOURCE]	= { -ETOOMANYREFS, "open zones exceeded" },
+	[BLK_STS_ZONE_ACTIVE_RESOURCE]	= { -EOVERFLOW, "active zones exceeded" },
+
+>>>>>>> upstream/android-13
 	/* everything else not covered above: */
 	[BLK_STS_IOERR]		= { -EIO,	"I/O" },
 };
@@ -252,17 +366,34 @@ int blk_status_to_errno(blk_status_t status)
 }
 EXPORT_SYMBOL_GPL(blk_status_to_errno);
 
+<<<<<<< HEAD
 static void print_req_error(struct request *req, blk_status_t status)
+=======
+static void print_req_error(struct request *req, blk_status_t status,
+		const char *caller)
+>>>>>>> upstream/android-13
 {
 	int idx = (__force int)status;
 
 	if (WARN_ON_ONCE(idx >= ARRAY_SIZE(blk_errors)))
 		return;
 
+<<<<<<< HEAD
 	printk_ratelimited(KERN_ERR "%s: %s error, dev %s, sector %llu\n",
 			   __func__, blk_errors[idx].name, req->rq_disk ?
 			   req->rq_disk->disk_name : "?",
 			   (unsigned long long)blk_rq_pos(req));
+=======
+	printk_ratelimited(KERN_ERR
+		"%s: %s error, dev %s, sector %llu op 0x%x:(%s) flags 0x%x "
+		"phys_seg %u prio class %u\n",
+		caller, blk_errors[idx].name,
+		req->rq_disk ? req->rq_disk->disk_name : "?",
+		blk_rq_pos(req), req_op(req), blk_op_str(req_op(req)),
+		req->cmd_flags & ~REQ_OP_MASK,
+		req->nr_phys_segments,
+		IOPRIO_PRIO_CLASS(req->ioprio));
+>>>>>>> upstream/android-13
 }
 
 static void req_bio_endio(struct request *rq, struct bio *bio,
@@ -276,6 +407,20 @@ static void req_bio_endio(struct request *rq, struct bio *bio,
 
 	bio_advance(bio, nbytes);
 
+<<<<<<< HEAD
+=======
+	if (req_op(rq) == REQ_OP_ZONE_APPEND && error == BLK_STS_OK) {
+		/*
+		 * Partial zone append completions cannot be supported as the
+		 * BIO fragments may end up not being written sequentially.
+		 */
+		if (bio->bi_iter.bi_size)
+			bio->bi_status = BLK_STS_IOERR;
+		else
+			bio->bi_iter.bi_sector = rq->__sector;
+	}
+
+>>>>>>> upstream/android-13
 	/* don't actually finish bio if it's part of flush sequence */
 	if (bio->bi_iter.bi_size == 0 && !(rq->rq_flags & RQF_FLUSH_SEQ))
 		bio_endio(bio);
@@ -295,6 +440,7 @@ void blk_dump_rq_flags(struct request *rq, char *msg)
 }
 EXPORT_SYMBOL(blk_dump_rq_flags);
 
+<<<<<<< HEAD
 #ifdef CONFIG_BLK_IO_VOLUME
 void blk_queue_reset_io_vol(struct request_queue *q)
 {
@@ -719,6 +865,8 @@ void blk_stop_queue(struct request_queue *q)
 }
 EXPORT_SYMBOL(blk_stop_queue);
 
+=======
+>>>>>>> upstream/android-13
 /**
  * blk_sync_queue - cancel any pending callbacks on a queue
  * @q: the queue
@@ -729,7 +877,11 @@ EXPORT_SYMBOL(blk_stop_queue);
  *     A block device may call blk_sync_queue to ensure that any
  *     such activity is cancelled, thus allowing it to release resources
  *     that the callbacks might use. The caller must already have made sure
+<<<<<<< HEAD
  *     that its ->make_request_fn will not re-add plugging prior to calling
+=======
+ *     that its ->submit_bio will not re-add plugging prior to calling
+>>>>>>> upstream/android-13
  *     this function.
  *
  *     This function does not cancel any asynchronous activity arising
@@ -741,6 +893,7 @@ void blk_sync_queue(struct request_queue *q)
 {
 	del_timer_sync(&q->timeout);
 	cancel_work_sync(&q->timeout_work);
+<<<<<<< HEAD
 
 	if (q->mq_ops) {
 		struct blk_mq_hw_ctx *hctx;
@@ -751,6 +904,8 @@ void blk_sync_queue(struct request_queue *q)
 	} else {
 		cancel_delayed_work_sync(&q->delay_work);
 	}
+=======
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(blk_sync_queue);
 
@@ -776,6 +931,7 @@ void blk_clear_pm_only(struct request_queue *q)
 EXPORT_SYMBOL_GPL(blk_clear_pm_only);
 
 /**
+<<<<<<< HEAD
  * __blk_run_queue_uncond - run a queue whether or not it has been stopped
  * @q:	The queue to run
  *
@@ -869,12 +1025,24 @@ void blk_run_queue(struct request_queue *q)
 }
 EXPORT_SYMBOL(blk_run_queue);
 
+=======
+ * blk_put_queue - decrement the request_queue refcount
+ * @q: the request_queue structure to decrement the refcount for
+ *
+ * Decrements the refcount of the request_queue kobject. When this reaches 0
+ * we'll have blk_release_queue() called.
+ *
+ * Context: Any context, but the last reference must not be dropped from
+ *          atomic context.
+ */
+>>>>>>> upstream/android-13
 void blk_put_queue(struct request_queue *q)
 {
 	kobject_put(&q->kobj);
 }
 EXPORT_SYMBOL(blk_put_queue);
 
+<<<<<<< HEAD
 /**
  * __blk_drain_queue - drain requests from request_queue
  * @q: queue to drain
@@ -1023,12 +1191,17 @@ void blk_set_queue_dying(struct request_queue *q)
 {
 	blk_queue_flag_set(QUEUE_FLAG_DYING, q);
 
+=======
+void blk_queue_start_drain(struct request_queue *q)
+{
+>>>>>>> upstream/android-13
 	/*
 	 * When queue DYING flag is set, we need to block new req
 	 * entering queue, so we call blk_freeze_queue_start() to
 	 * prevent I/O from crossing blk_queue_enter().
 	 */
 	blk_freeze_queue_start(q);
+<<<<<<< HEAD
 
 	if (q->mq_ops)
 		blk_mq_wake_waiters(q);
@@ -1078,6 +1251,13 @@ void blk_exit_queue(struct request_queue *q)
 	 */
 	bdi_put(q->backing_dev_info);
 }
+=======
+	if (queue_is_mq(q))
+		blk_mq_wake_waiters(q);
+	/* Make blk_queue_enter() reexamine the DYING flag. */
+	wake_up_all(&q->mq_freeze_wq);
+}
+>>>>>>> upstream/android-13
 
 /**
  * blk_cleanup_queue - shutdown a request queue
@@ -1085,6 +1265,7 @@ void blk_exit_queue(struct request_queue *q)
  *
  * Mark @q DYING, drain all pending requests, mark @q DEAD, destroy and
  * put it.  All future requests will be failed immediately with -ENODEV.
+<<<<<<< HEAD
  */
 void blk_cleanup_queue(struct request_queue *q)
 {
@@ -1165,11 +1346,64 @@ void blk_cleanup_queue(struct request_queue *q)
 		q->queue_lock = &q->__queue_lock;
 	spin_unlock_irq(lock);
 
+=======
+ *
+ * Context: can sleep
+ */
+void blk_cleanup_queue(struct request_queue *q)
+{
+	/* cannot be called from atomic context */
+	might_sleep();
+
+	WARN_ON_ONCE(blk_queue_registered(q));
+
+	/* mark @q DYING, no new request or merges will be allowed afterwards */
+	blk_queue_flag_set(QUEUE_FLAG_DYING, q);
+	blk_queue_start_drain(q);
+
+	blk_queue_flag_set(QUEUE_FLAG_NOMERGES, q);
+	blk_queue_flag_set(QUEUE_FLAG_NOXMERGES, q);
+
+	/*
+	 * Drain all requests queued before DYING marking. Set DEAD flag to
+	 * prevent that blk_mq_run_hw_queues() accesses the hardware queues
+	 * after draining finished.
+	 */
+	blk_freeze_queue(q);
+
+	/* cleanup rq qos structures for queue without disk */
+	rq_qos_exit(q);
+
+	blk_queue_flag_set(QUEUE_FLAG_DEAD, q);
+
+	blk_sync_queue(q);
+	if (queue_is_mq(q)) {
+		blk_mq_cancel_work_sync(q);
+		blk_mq_exit_queue(q);
+	}
+
+	/*
+	 * In theory, request pool of sched_tags belongs to request queue.
+	 * However, the current implementation requires tag_set for freeing
+	 * requests, so free the pool now.
+	 *
+	 * Queue has become frozen, there can't be any in-queue requests, so
+	 * it is safe to free requests now.
+	 */
+	mutex_lock(&q->sysfs_lock);
+	if (q->elevator)
+		blk_mq_sched_free_requests(q);
+	mutex_unlock(&q->sysfs_lock);
+
+	percpu_ref_exit(&q->q_usage_counter);
+
+>>>>>>> upstream/android-13
 	/* @q is and will stay empty, shutdown and put */
 	blk_put_queue(q);
 }
 EXPORT_SYMBOL(blk_cleanup_queue);
 
+<<<<<<< HEAD
 /* Allocate memory local to the request queue */
 static void *alloc_request_simple(gfp_t gfp_mask, void *data)
 {
@@ -1281,10 +1515,47 @@ int blk_queue_enter(struct request_queue *q, blk_mq_req_flags_t flags)
 		if (success)
 			return 0;
 
+=======
+static bool blk_try_enter_queue(struct request_queue *q, bool pm)
+{
+	rcu_read_lock();
+	if (!percpu_ref_tryget_live(&q->q_usage_counter))
+		goto fail;
+
+	/*
+	 * The code that increments the pm_only counter must ensure that the
+	 * counter is globally visible before the queue is unfrozen.
+	 */
+	if (blk_queue_pm_only(q) &&
+	    (!pm || queue_rpm_status(q) == RPM_SUSPENDED))
+		goto fail_put;
+
+	rcu_read_unlock();
+	return true;
+
+fail_put:
+	percpu_ref_put(&q->q_usage_counter);
+fail:
+	rcu_read_unlock();
+	return false;
+}
+
+/**
+ * blk_queue_enter() - try to increase q->q_usage_counter
+ * @q: request queue pointer
+ * @flags: BLK_MQ_REQ_NOWAIT and/or BLK_MQ_REQ_PM
+ */
+int blk_queue_enter(struct request_queue *q, blk_mq_req_flags_t flags)
+{
+	const bool pm = flags & BLK_MQ_REQ_PM;
+
+	while (!blk_try_enter_queue(q, pm)) {
+>>>>>>> upstream/android-13
 		if (flags & BLK_MQ_REQ_NOWAIT)
 			return -EBUSY;
 
 		/*
+<<<<<<< HEAD
 		 * read pair of barrier in blk_freeze_queue_start(),
 		 * we need to order reading __PERCPU_REF_DEAD flag of
 		 * .q_usage_counter and reading .mq_freeze_depth or
@@ -1296,10 +1567,62 @@ int blk_queue_enter(struct request_queue *q, blk_mq_req_flags_t flags)
 		wait_event(q->mq_freeze_wq,
 			   (atomic_read(&q->mq_freeze_depth) == 0 &&
 			    (pm || !blk_queue_pm_only(q))) ||
+=======
+		 * read pair of barrier in blk_freeze_queue_start(), we need to
+		 * order reading __PERCPU_REF_DEAD flag of .q_usage_counter and
+		 * reading .mq_freeze_depth or queue dying flag, otherwise the
+		 * following wait may never return if the two reads are
+		 * reordered.
+		 */
+		smp_rmb();
+		wait_event(q->mq_freeze_wq,
+			   (!q->mq_freeze_depth &&
+			    blk_pm_resume_queue(pm, q)) ||
+>>>>>>> upstream/android-13
 			   blk_queue_dying(q));
 		if (blk_queue_dying(q))
 			return -ENODEV;
 	}
+<<<<<<< HEAD
+=======
+
+	return 0;
+}
+
+static inline int bio_queue_enter(struct bio *bio)
+{
+	struct gendisk *disk = bio->bi_bdev->bd_disk;
+	struct request_queue *q = disk->queue;
+
+	while (!blk_try_enter_queue(q, false)) {
+		if (bio->bi_opf & REQ_NOWAIT) {
+			if (test_bit(GD_DEAD, &disk->state))
+				goto dead;
+			bio_wouldblock_error(bio);
+			return -EBUSY;
+		}
+
+		/*
+		 * read pair of barrier in blk_freeze_queue_start(), we need to
+		 * order reading __PERCPU_REF_DEAD flag of .q_usage_counter and
+		 * reading .mq_freeze_depth or queue dying flag, otherwise the
+		 * following wait may never return if the two reads are
+		 * reordered.
+		 */
+		smp_rmb();
+		wait_event(q->mq_freeze_wq,
+			   (!q->mq_freeze_depth &&
+			    blk_pm_resume_queue(false, q)) ||
+			   test_bit(GD_DEAD, &disk->state));
+		if (test_bit(GD_DEAD, &disk->state))
+			goto dead;
+	}
+
+	return 0;
+dead:
+	bio_io_error(bio);
+	return -ENODEV;
+>>>>>>> upstream/android-13
 }
 
 void blk_queue_exit(struct request_queue *q)
@@ -1322,6 +1645,7 @@ static void blk_rq_timed_out_timer(struct timer_list *t)
 	kblockd_schedule_work(&q->timeout_work);
 }
 
+<<<<<<< HEAD
 static void blk_timeout_work_dummy(struct work_struct *work)
 {
 }
@@ -1341,11 +1665,19 @@ static void blk_timeout_work_dummy(struct work_struct *work)
  */
 struct request_queue *blk_alloc_queue_node(gfp_t gfp_mask, int node_id,
 					   spinlock_t *lock)
+=======
+static void blk_timeout_work(struct work_struct *work)
+{
+}
+
+struct request_queue *blk_alloc_queue(int node_id)
+>>>>>>> upstream/android-13
 {
 	struct request_queue *q;
 	int ret;
 
 	q = kmem_cache_alloc_node(blk_requestq_cachep,
+<<<<<<< HEAD
 				gfp_mask | __GFP_ZERO, node_id);
 	if (!q)
 		return NULL;
@@ -1384,10 +1716,37 @@ struct request_queue *blk_alloc_queue_node(gfp_t gfp_mask, int node_id,
 	timer_setup(&q->timeout, blk_rq_timed_out_timer, 0);
 	INIT_WORK(&q->timeout_work, blk_timeout_work_dummy);
 	INIT_LIST_HEAD(&q->timeout_list);
+=======
+				GFP_KERNEL | __GFP_ZERO, node_id);
+	if (!q)
+		return NULL;
+
+	q->last_merge = NULL;
+
+	q->id = ida_simple_get(&blk_queue_ida, 0, 0, GFP_KERNEL);
+	if (q->id < 0)
+		goto fail_q;
+
+	ret = bioset_init(&q->bio_split, BIO_POOL_SIZE, 0, 0);
+	if (ret)
+		goto fail_id;
+
+	q->stats = blk_alloc_queue_stats();
+	if (!q->stats)
+		goto fail_split;
+
+	q->node = node_id;
+
+	atomic_set(&q->nr_active_requests_shared_sbitmap, 0);
+
+	timer_setup(&q->timeout, blk_rq_timed_out_timer, 0);
+	INIT_WORK(&q->timeout_work, blk_timeout_work);
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&q->icq_list);
 #ifdef CONFIG_BLK_CGROUP
 	INIT_LIST_HEAD(&q->blkg_list);
 #endif
+<<<<<<< HEAD
 	INIT_DELAYED_WORK(&q->delay_work, blk_delay_work);
 
 	kobject_init(&q->kobj, &blk_queue_ktype);
@@ -1411,6 +1770,18 @@ struct request_queue *blk_alloc_queue_node(gfp_t gfp_mask, int node_id,
 	queue_flag_set_unlocked(QUEUE_FLAG_BYPASS, q);
 
 	init_waitqueue_head(&q->mq_freeze_wq);
+=======
+
+	kobject_init(&q->kobj, &blk_queue_ktype);
+
+	mutex_init(&q->debugfs_mutex);
+	mutex_init(&q->sysfs_lock);
+	mutex_init(&q->sysfs_dir_lock);
+	spin_lock_init(&q->queue_lock);
+
+	init_waitqueue_head(&q->mq_freeze_wq);
+	mutex_init(&q->mq_freeze_lock);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Init percpu_ref in atomic mode so that it's faster to shutdown.
@@ -1419,25 +1790,40 @@ struct request_queue *blk_alloc_queue_node(gfp_t gfp_mask, int node_id,
 	if (percpu_ref_init(&q->q_usage_counter,
 				blk_queue_usage_counter_release,
 				PERCPU_REF_INIT_ATOMIC, GFP_KERNEL))
+<<<<<<< HEAD
 		goto fail_bdi;
+=======
+		goto fail_stats;
+>>>>>>> upstream/android-13
 
 	if (blkcg_init_queue(q))
 		goto fail_ref;
 
+<<<<<<< HEAD
 	blk_queue_reset_io_vol(q);
 
 #ifdef CONFIG_BLK_TURBO_WRITE
 	q->tw = NULL;
 #endif
+=======
+	blk_queue_dma_alignment(q, 511);
+	blk_set_default_limits(&q->limits);
+	q->nr_requests = BLKDEV_MAX_RQ;
+>>>>>>> upstream/android-13
 
 	return q;
 
 fail_ref:
 	percpu_ref_exit(&q->q_usage_counter);
+<<<<<<< HEAD
 fail_bdi:
 	blk_free_queue_stats(q->stats);
 fail_stats:
 	bdi_put(q->backing_dev_info);
+=======
+fail_stats:
+	blk_free_queue_stats(q->stats);
+>>>>>>> upstream/android-13
 fail_split:
 	bioset_exit(&q->bio_split);
 fail_id:
@@ -1446,6 +1832,7 @@ fail_q:
 	kmem_cache_free(blk_requestq_cachep, q);
 	return NULL;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(blk_alloc_queue_node);
 
 /**
@@ -1547,6 +1934,17 @@ out_free_flush_queue:
 }
 EXPORT_SYMBOL(blk_init_allocated_queue);
 
+=======
+
+/**
+ * blk_get_queue - increment the request_queue refcount
+ * @q: the request_queue structure to increment the refcount for
+ *
+ * Increment the refcount of the request_queue kobject.
+ *
+ * Context: Any context.
+ */
+>>>>>>> upstream/android-13
 bool blk_get_queue(struct request_queue *q)
 {
 	if (likely(!blk_queue_dying(q))) {
@@ -1558,6 +1956,7 @@ bool blk_get_queue(struct request_queue *q)
 }
 EXPORT_SYMBOL(blk_get_queue);
 
+<<<<<<< HEAD
 static inline void blk_free_request(struct request_list *rl, struct request *rq)
 {
 	if (rq->rq_flags & RQF_ELVPRIV) {
@@ -1958,6 +2357,8 @@ static struct request *blk_old_get_request(struct request_queue *q,
 	return rq;
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * blk_get_request - allocate a request
  * @q: request queue to allocate a request for
@@ -1970,6 +2371,7 @@ struct request *blk_get_request(struct request_queue *q, unsigned int op,
 	struct request *req;
 
 	WARN_ON_ONCE(op & REQ_NOWAIT);
+<<<<<<< HEAD
 	WARN_ON_ONCE(flags & ~(BLK_MQ_REQ_NOWAIT | BLK_MQ_REQ_PREEMPT));
 
 	if (q->mq_ops) {
@@ -1981,11 +2383,19 @@ struct request *blk_get_request(struct request_queue *q, unsigned int op,
 		if (!IS_ERR(req) && q->initialize_rq_fn)
 			q->initialize_rq_fn(req);
 	}
+=======
+	WARN_ON_ONCE(flags & ~(BLK_MQ_REQ_NOWAIT | BLK_MQ_REQ_PM));
+
+	req = blk_mq_alloc_request(q, op, flags);
+	if (!IS_ERR(req) && q->mq_ops->initialize_rq_fn)
+		q->mq_ops->initialize_rq_fn(req);
+>>>>>>> upstream/android-13
 
 	return req;
 }
 EXPORT_SYMBOL(blk_get_request);
 
+<<<<<<< HEAD
 /**
  * blk_requeue_request - put a request back on queue
  * @q:		request queue where request should be inserted
@@ -2474,15 +2884,30 @@ out_unlock:
 	return BLK_QC_T_NONE;
 }
 
+=======
+void blk_put_request(struct request *req)
+{
+	blk_mq_free_request(req);
+}
+EXPORT_SYMBOL(blk_put_request);
+
+>>>>>>> upstream/android-13
 static void handle_bad_sector(struct bio *bio, sector_t maxsector)
 {
 	char b[BDEVNAME_SIZE];
 
+<<<<<<< HEAD
 	printk(KERN_INFO "attempt to access beyond end of device\n");
 	printk(KERN_INFO "%s: rw=%d, want=%Lu, limit=%Lu\n",
 			bio_devname(bio, b), bio->bi_opf,
 			(unsigned long long)bio_end_sector(bio),
 			(long long)maxsector);
+=======
+	pr_info_ratelimited("attempt to access beyond end of device\n"
+			    "%s: rw=%d, want=%llu, limit=%llu\n",
+			    bio_devname(bio, b), bio->bi_opf,
+			    bio_end_sector(bio), maxsector);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_FAIL_MAKE_REQUEST
@@ -2495,9 +2920,15 @@ static int __init setup_fail_make_request(char *str)
 }
 __setup("fail_make_request=", setup_fail_make_request);
 
+<<<<<<< HEAD
 static bool should_fail_request(struct hd_struct *part, unsigned int bytes)
 {
 	return part->make_it_fail && should_fail(&fail_make_request, bytes);
+=======
+static bool should_fail_request(struct block_device *part, unsigned int bytes)
+{
+	return part->bd_make_it_fail && should_fail(&fail_make_request, bytes);
+>>>>>>> upstream/android-13
 }
 
 static int __init fail_make_request_debugfs(void)
@@ -2512,7 +2943,11 @@ late_initcall(fail_make_request_debugfs);
 
 #else /* CONFIG_FAIL_MAKE_REQUEST */
 
+<<<<<<< HEAD
 static inline bool should_fail_request(struct hd_struct *part,
+=======
+static inline bool should_fail_request(struct block_device *part,
+>>>>>>> upstream/android-13
 					unsigned int bytes)
 {
 	return false;
@@ -2520,20 +2955,31 @@ static inline bool should_fail_request(struct hd_struct *part,
 
 #endif /* CONFIG_FAIL_MAKE_REQUEST */
 
+<<<<<<< HEAD
 static inline bool bio_check_ro(struct bio *bio, struct hd_struct *part)
 {
 	const int op = bio_op(bio);
 
 	if (part->policy && op_is_write(op)) {
+=======
+static inline bool bio_check_ro(struct bio *bio)
+{
+	if (op_is_write(bio_op(bio)) && bdev_read_only(bio->bi_bdev)) {
+>>>>>>> upstream/android-13
 		char b[BDEVNAME_SIZE];
 
 		if (op_is_flush(bio->bi_opf) && !bio_sectors(bio))
 			return false;
 
 		WARN_ONCE(1,
+<<<<<<< HEAD
 		       "generic_make_request: Trying to write "
 			"to read-only block-device %s (partno %d)\n",
 			bio_devname(bio, b), part->partno);
+=======
+		       "Trying to write to read-only block-device %s (partno %d)\n",
+			bio_devname(bio, b), bio->bi_bdev->bd_partno);
+>>>>>>> upstream/android-13
 		/* Older lvm-tools actually trigger this */
 		return false;
 	}
@@ -2543,7 +2989,11 @@ static inline bool bio_check_ro(struct bio *bio, struct hd_struct *part)
 
 static noinline int should_fail_bio(struct bio *bio)
 {
+<<<<<<< HEAD
 	if (should_fail_request(&bio->bi_disk->part0, bio->bi_iter.bi_size))
+=======
+	if (should_fail_request(bdev_whole(bio->bi_bdev), bio->bi_iter.bi_size))
+>>>>>>> upstream/android-13
 		return -EIO;
 	return 0;
 }
@@ -2554,8 +3004,14 @@ ALLOW_ERROR_INJECTION(should_fail_bio, ERRNO);
  * This may well happen - the kernel calls bread() without checking the size of
  * the device, e.g., when mounting a file system.
  */
+<<<<<<< HEAD
 static inline int bio_check_eod(struct bio *bio, sector_t maxsector)
 {
+=======
+static inline int bio_check_eod(struct bio *bio)
+{
+	sector_t maxsector = bdev_nr_sectors(bio->bi_bdev);
+>>>>>>> upstream/android-13
 	unsigned int nr_sectors = bio_sectors(bio);
 
 	if (nr_sectors && maxsector &&
@@ -2570,6 +3026,7 @@ static inline int bio_check_eod(struct bio *bio, sector_t maxsector)
 /*
  * Remap block n of partition p to block n+start(p) of the disk.
  */
+<<<<<<< HEAD
 static inline int blk_partition_remap(struct bio *bio)
 {
 	struct hd_struct *p;
@@ -2626,10 +3083,82 @@ generic_make_request_checks(struct bio *bio)
 	 * if queue is not a request based queue.
 	 */
 	if ((bio->bi_opf & REQ_NOWAIT) && !queue_is_rq_based(q))
+=======
+static int blk_partition_remap(struct bio *bio)
+{
+	struct block_device *p = bio->bi_bdev;
+
+	if (unlikely(should_fail_request(p, bio->bi_iter.bi_size)))
+		return -EIO;
+	if (bio_sectors(bio)) {
+		bio->bi_iter.bi_sector += p->bd_start_sect;
+		trace_block_bio_remap(bio, p->bd_dev,
+				      bio->bi_iter.bi_sector -
+				      p->bd_start_sect);
+	}
+	bio_set_flag(bio, BIO_REMAPPED);
+	return 0;
+}
+
+/*
+ * Check write append to a zoned block device.
+ */
+static inline blk_status_t blk_check_zone_append(struct request_queue *q,
+						 struct bio *bio)
+{
+	sector_t pos = bio->bi_iter.bi_sector;
+	int nr_sectors = bio_sectors(bio);
+
+	/* Only applicable to zoned block devices */
+	if (!blk_queue_is_zoned(q))
+		return BLK_STS_NOTSUPP;
+
+	/* The bio sector must point to the start of a sequential zone */
+	if (pos & (blk_queue_zone_sectors(q) - 1) ||
+	    !blk_queue_zone_is_seq(q, pos))
+		return BLK_STS_IOERR;
+
+	/*
+	 * Not allowed to cross zone boundaries. Otherwise, the BIO will be
+	 * split and could result in non-contiguous sectors being written in
+	 * different zones.
+	 */
+	if (nr_sectors > q->limits.chunk_sectors)
+		return BLK_STS_IOERR;
+
+	/* Make sure the BIO is small enough and will not get split */
+	if (nr_sectors > q->limits.max_zone_append_sectors)
+		return BLK_STS_IOERR;
+
+	bio->bi_opf |= REQ_NOMERGE;
+
+	return BLK_STS_OK;
+}
+
+static noinline_for_stack bool submit_bio_checks(struct bio *bio)
+{
+	struct block_device *bdev = bio->bi_bdev;
+	struct request_queue *q = bdev->bd_disk->queue;
+	blk_status_t status = BLK_STS_IOERR;
+	struct blk_plug *plug;
+
+	might_sleep();
+
+	plug = blk_mq_plug(q, bio);
+	if (plug && plug->nowait)
+		bio->bi_opf |= REQ_NOWAIT;
+
+	/*
+	 * For a REQ_NOWAIT based request, return -EOPNOTSUPP
+	 * if queue does not support NOWAIT.
+	 */
+	if ((bio->bi_opf & REQ_NOWAIT) && !blk_queue_nowait(q))
+>>>>>>> upstream/android-13
 		goto not_supported;
 
 	if (should_fail_bio(bio))
 		goto end_io;
+<<<<<<< HEAD
 
 	if (bio->bi_partno) {
 		if (unlikely(blk_partition_remap(bio)))
@@ -2638,23 +3167,46 @@ generic_make_request_checks(struct bio *bio)
 		if (unlikely(bio_check_ro(bio, &bio->bi_disk->part0)))
 			goto end_io;
 		if (unlikely(bio_check_eod(bio, get_capacity(bio->bi_disk))))
+=======
+	if (unlikely(bio_check_ro(bio)))
+		goto end_io;
+	if (!bio_flagged(bio, BIO_REMAPPED)) {
+		if (unlikely(bio_check_eod(bio)))
+			goto end_io;
+		if (bdev->bd_partno && unlikely(blk_partition_remap(bio)))
+>>>>>>> upstream/android-13
 			goto end_io;
 	}
 
 	/*
+<<<<<<< HEAD
 	 * Filter flush bio's early so that make_request based
 	 * drivers without flush support don't have to worry
 	 * about them.
+=======
+	 * Filter flush bio's early so that bio based drivers without flush
+	 * support don't have to worry about them.
+>>>>>>> upstream/android-13
 	 */
 	if (op_is_flush(bio->bi_opf) &&
 	    !test_bit(QUEUE_FLAG_WC, &q->queue_flags)) {
 		bio->bi_opf &= ~(REQ_PREFLUSH | REQ_FUA);
+<<<<<<< HEAD
 		if (!nr_sectors) {
+=======
+		if (!bio_sectors(bio)) {
+>>>>>>> upstream/android-13
 			status = BLK_STS_OK;
 			goto end_io;
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	if (!test_bit(QUEUE_FLAG_POLL, &q->queue_flags))
+		bio_clear_hipri(bio);
+
+>>>>>>> upstream/android-13
 	switch (bio_op(bio)) {
 	case REQ_OP_DISCARD:
 		if (!blk_queue_discard(q))
@@ -2668,11 +3220,30 @@ generic_make_request_checks(struct bio *bio)
 		if (!q->limits.max_write_same_sectors)
 			goto not_supported;
 		break;
+<<<<<<< HEAD
 	case REQ_OP_ZONE_REPORT:
 	case REQ_OP_ZONE_RESET:
 		if (!blk_queue_is_zoned(q))
 			goto not_supported;
 		break;
+=======
+	case REQ_OP_ZONE_APPEND:
+		status = blk_check_zone_append(q, bio);
+		if (status != BLK_STS_OK)
+			goto end_io;
+		break;
+	case REQ_OP_ZONE_RESET:
+	case REQ_OP_ZONE_OPEN:
+	case REQ_OP_ZONE_CLOSE:
+	case REQ_OP_ZONE_FINISH:
+		if (!blk_queue_is_zoned(q))
+			goto not_supported;
+		break;
+	case REQ_OP_ZONE_RESET_ALL:
+		if (!blk_queue_is_zoned(q) || !blk_queue_zone_resetall(q))
+			goto not_supported;
+		break;
+>>>>>>> upstream/android-13
 	case REQ_OP_WRITE_ZEROES:
 		if (!q->limits.max_write_zeroes_sectors)
 			goto not_supported;
@@ -2682,6 +3253,7 @@ generic_make_request_checks(struct bio *bio)
 	}
 
 	/*
+<<<<<<< HEAD
 	 * Various block parts want %current->io_context and lazy ioc
 	 * allocation ends up trading a lot of pain for a small amount of
 	 * memory.  Just allocate it upfront.  This may fail and block
@@ -2694,6 +3266,24 @@ generic_make_request_checks(struct bio *bio)
 
 	if (!bio_flagged(bio, BIO_TRACE_COMPLETION)) {
 		trace_block_bio_queue(q, bio);
+=======
+	 * Various block parts want %current->io_context, so allocate it up
+	 * front rather than dealing with lots of pain to allocate it only
+	 * where needed. This may fail and the block layer knows how to live
+	 * with it.
+	 */
+	if (unlikely(!current->io_context))
+		create_task_io_context(current, GFP_ATOMIC, q->node);
+
+	if (blk_throtl_bio(bio))
+		return false;
+
+	blk_cgroup_bio_start(bio);
+	blkcg_bio_issue_init(bio);
+
+	if (!bio_flagged(bio, BIO_TRACE_COMPLETION)) {
+		trace_block_bio_queue(bio);
+>>>>>>> upstream/android-13
 		/* Now that enqueuing has been traced, we need to trace
 		 * completion as well.
 		 */
@@ -2709,6 +3299,7 @@ end_io:
 	return false;
 }
 
+<<<<<<< HEAD
 /**
  * generic_make_request - hand a buffer to its device driver for I/O
  * @bio:  The bio describing the location in memory and on the device.
@@ -2885,11 +3476,142 @@ blk_qc_t direct_make_request(struct bio *bio)
 	return ret;
 }
 EXPORT_SYMBOL_GPL(direct_make_request);
+=======
+static blk_qc_t __submit_bio(struct bio *bio)
+{
+	struct gendisk *disk = bio->bi_bdev->bd_disk;
+	blk_qc_t ret = BLK_QC_T_NONE;
+
+	if (unlikely(bio_queue_enter(bio) != 0))
+		return BLK_QC_T_NONE;
+
+	if (!submit_bio_checks(bio) || !blk_crypto_bio_prep(&bio))
+		goto queue_exit;
+	if (disk->fops->submit_bio) {
+		ret = disk->fops->submit_bio(bio);
+		goto queue_exit;
+	}
+	return blk_mq_submit_bio(bio);
+
+queue_exit:
+	blk_queue_exit(disk->queue);
+	return ret;
+}
+
+/*
+ * The loop in this function may be a bit non-obvious, and so deserves some
+ * explanation:
+ *
+ *  - Before entering the loop, bio->bi_next is NULL (as all callers ensure
+ *    that), so we have a list with a single bio.
+ *  - We pretend that we have just taken it off a longer list, so we assign
+ *    bio_list to a pointer to the bio_list_on_stack, thus initialising the
+ *    bio_list of new bios to be added.  ->submit_bio() may indeed add some more
+ *    bios through a recursive call to submit_bio_noacct.  If it did, we find a
+ *    non-NULL value in bio_list and re-enter the loop from the top.
+ *  - In this case we really did just take the bio of the top of the list (no
+ *    pretending) and so remove it from bio_list, and call into ->submit_bio()
+ *    again.
+ *
+ * bio_list_on_stack[0] contains bios submitted by the current ->submit_bio.
+ * bio_list_on_stack[1] contains bios that were submitted before the current
+ *	->submit_bio_bio, but that haven't been processed yet.
+ */
+static blk_qc_t __submit_bio_noacct(struct bio *bio)
+{
+	struct bio_list bio_list_on_stack[2];
+	blk_qc_t ret = BLK_QC_T_NONE;
+
+	BUG_ON(bio->bi_next);
+
+	bio_list_init(&bio_list_on_stack[0]);
+	current->bio_list = bio_list_on_stack;
+
+	do {
+		struct request_queue *q = bio->bi_bdev->bd_disk->queue;
+		struct bio_list lower, same;
+
+		/*
+		 * Create a fresh bio_list for all subordinate requests.
+		 */
+		bio_list_on_stack[1] = bio_list_on_stack[0];
+		bio_list_init(&bio_list_on_stack[0]);
+
+		ret = __submit_bio(bio);
+
+		/*
+		 * Sort new bios into those for a lower level and those for the
+		 * same level.
+		 */
+		bio_list_init(&lower);
+		bio_list_init(&same);
+		while ((bio = bio_list_pop(&bio_list_on_stack[0])) != NULL)
+			if (q == bio->bi_bdev->bd_disk->queue)
+				bio_list_add(&same, bio);
+			else
+				bio_list_add(&lower, bio);
+
+		/*
+		 * Now assemble so we handle the lowest level first.
+		 */
+		bio_list_merge(&bio_list_on_stack[0], &lower);
+		bio_list_merge(&bio_list_on_stack[0], &same);
+		bio_list_merge(&bio_list_on_stack[0], &bio_list_on_stack[1]);
+	} while ((bio = bio_list_pop(&bio_list_on_stack[0])));
+
+	current->bio_list = NULL;
+	return ret;
+}
+
+static blk_qc_t __submit_bio_noacct_mq(struct bio *bio)
+{
+	struct bio_list bio_list[2] = { };
+	blk_qc_t ret;
+
+	current->bio_list = bio_list;
+
+	do {
+		ret = __submit_bio(bio);
+	} while ((bio = bio_list_pop(&bio_list[0])));
+
+	current->bio_list = NULL;
+	return ret;
+}
+
+/**
+ * submit_bio_noacct - re-submit a bio to the block device layer for I/O
+ * @bio:  The bio describing the location in memory and on the device.
+ *
+ * This is a version of submit_bio() that shall only be used for I/O that is
+ * resubmitted to lower level drivers by stacking block drivers.  All file
+ * systems and other upper level users of the block layer should use
+ * submit_bio() instead.
+ */
+blk_qc_t submit_bio_noacct(struct bio *bio)
+{
+	/*
+	 * We only want one ->submit_bio to be active at a time, else stack
+	 * usage with stacked devices could be a problem.  Use current->bio_list
+	 * to collect a list of requests submited by a ->submit_bio method while
+	 * it is active, and then process them after it returned.
+	 */
+	if (current->bio_list) {
+		bio_list_add(&current->bio_list[0], bio);
+		return BLK_QC_T_NONE;
+	}
+
+	if (!bio->bi_bdev->bd_disk->fops->submit_bio)
+		return __submit_bio_noacct_mq(bio);
+	return __submit_bio_noacct(bio);
+}
+EXPORT_SYMBOL(submit_bio_noacct);
+>>>>>>> upstream/android-13
 
 /**
  * submit_bio - submit a bio to the block device layer for I/O
  * @bio: The &struct bio which describes the I/O
  *
+<<<<<<< HEAD
  * submit_bio() is very similar in purpose to generic_make_request(), and
  * uses that function to do most of the work. Both are fairly rough
  * interfaces; @bio must be presetup and ready for I/O.
@@ -2900,6 +3622,21 @@ blk_qc_t submit_bio(struct bio *bio)
 	bool workingset_read = false;
 	unsigned long pflags;
 	blk_qc_t ret;
+=======
+ * submit_bio() is used to submit I/O requests to block devices.  It is passed a
+ * fully set up &struct bio that describes the I/O that needs to be done.  The
+ * bio will be send to the device described by the bi_bdev field.
+ *
+ * The success/failure status of the request, along with notification of
+ * completion, is delivered asynchronously through the ->bi_end_io() callback
+ * in @bio.  The bio must NOT be touched by thecaller until ->bi_end_io() has
+ * been called.
+ */
+blk_qc_t submit_bio(struct bio *bio)
+{
+	if (blkcg_punt_bio_submit(bio))
+		return BLK_QC_T_NONE;
+>>>>>>> upstream/android-13
 
 	/*
 	 * If it's a regular read/write or a barrier with data attached,
@@ -2909,13 +3646,19 @@ blk_qc_t submit_bio(struct bio *bio)
 		unsigned int count;
 
 		if (unlikely(bio_op(bio) == REQ_OP_WRITE_SAME))
+<<<<<<< HEAD
 			count = queue_logical_block_size(bio->bi_disk->queue) >> 9;
+=======
+			count = queue_logical_block_size(
+					bio->bi_bdev->bd_disk->queue) >> 9;
+>>>>>>> upstream/android-13
 		else
 			count = bio_sectors(bio);
 
 		if (op_is_write(bio_op(bio))) {
 			count_vm_events(PGPGOUT, count);
 		} else {
+<<<<<<< HEAD
 			if (bio_flagged(bio, BIO_WORKINGSET))
 				workingset_read = true;
 			task_io_account_read(bio->bi_iter.bi_size);
@@ -2964,6 +3707,38 @@ EXPORT_SYMBOL_GPL(blk_poll);
 /**
  * blk_cloned_rq_check_limits - Helper function to check a cloned request
  *                              for new the queue limits
+=======
+			task_io_account_read(bio->bi_iter.bi_size);
+			count_vm_events(PGPGIN, count);
+		}
+	}
+
+	/*
+	 * If we're reading data that is part of the userspace workingset, count
+	 * submission time as memory stall.  When the device is congested, or
+	 * the submitting cgroup IO-throttled, submission can be a significant
+	 * part of overall IO time.
+	 */
+	if (unlikely(bio_op(bio) == REQ_OP_READ &&
+	    bio_flagged(bio, BIO_WORKINGSET))) {
+		unsigned long pflags;
+		blk_qc_t ret;
+
+		psi_memstall_enter(&pflags);
+		ret = submit_bio_noacct(bio);
+		psi_memstall_leave(&pflags);
+
+		return ret;
+	}
+
+	return submit_bio_noacct(bio);
+}
+EXPORT_SYMBOL(submit_bio);
+
+/**
+ * blk_cloned_rq_check_limits - Helper function to check a cloned request
+ *                              for the new queue limits
+>>>>>>> upstream/android-13
  * @q:  the queue
  * @rq: the request being checked
  *
@@ -2978,6 +3753,7 @@ EXPORT_SYMBOL_GPL(blk_poll);
  *    limits when retrying requests on other queues. Those requests need
  *    to be checked against the new queue limits again during dispatch.
  */
+<<<<<<< HEAD
 static int blk_cloned_rq_check_limits(struct request_queue *q,
 				      struct request *rq)
 {
@@ -2999,6 +3775,44 @@ static int blk_cloned_rq_check_limits(struct request_queue *q,
 	}
 
 	return 0;
+=======
+static blk_status_t blk_cloned_rq_check_limits(struct request_queue *q,
+				      struct request *rq)
+{
+	unsigned int max_sectors = blk_queue_get_max_sectors(q, req_op(rq));
+
+	if (blk_rq_sectors(rq) > max_sectors) {
+		/*
+		 * SCSI device does not have a good way to return if
+		 * Write Same/Zero is actually supported. If a device rejects
+		 * a non-read/write command (discard, write same,etc.) the
+		 * low-level device driver will set the relevant queue limit to
+		 * 0 to prevent blk-lib from issuing more of the offending
+		 * operations. Commands queued prior to the queue limit being
+		 * reset need to be completed with BLK_STS_NOTSUPP to avoid I/O
+		 * errors being propagated to upper layers.
+		 */
+		if (max_sectors == 0)
+			return BLK_STS_NOTSUPP;
+
+		printk(KERN_ERR "%s: over max size limit. (%u > %u)\n",
+			__func__, blk_rq_sectors(rq), max_sectors);
+		return BLK_STS_IOERR;
+	}
+
+	/*
+	 * The queue settings related to segment counting may differ from the
+	 * original queue.
+	 */
+	rq->nr_phys_segments = blk_recalc_rq_segments(rq);
+	if (rq->nr_phys_segments > queue_max_segments(q)) {
+		printk(KERN_ERR "%s: over max segments limit. (%hu > %hu)\n",
+			__func__, rq->nr_phys_segments, queue_max_segments(q));
+		return BLK_STS_IOERR;
+	}
+
+	return BLK_STS_OK;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -3008,6 +3822,7 @@ static int blk_cloned_rq_check_limits(struct request_queue *q,
  */
 blk_status_t blk_insert_cloned_request(struct request_queue *q, struct request *rq)
 {
+<<<<<<< HEAD
 	unsigned long flags;
 	int where = ELEVATOR_INSERT_BACK;
 
@@ -3050,6 +3865,30 @@ blk_status_t blk_insert_cloned_request(struct request_queue *q, struct request *
 	spin_unlock_irqrestore(q->queue_lock, flags);
 
 	return BLK_STS_OK;
+=======
+	blk_status_t ret;
+
+	ret = blk_cloned_rq_check_limits(q, rq);
+	if (ret != BLK_STS_OK)
+		return ret;
+
+	if (rq->rq_disk &&
+	    should_fail_request(rq->rq_disk->part0, blk_rq_bytes(rq)))
+		return BLK_STS_IOERR;
+
+	if (blk_crypto_insert_cloned_request(rq))
+		return BLK_STS_IOERR;
+
+	if (blk_queue_io_stat(q))
+		blk_account_io_start(rq);
+
+	/*
+	 * Since we have a scheduler attached on the top device,
+	 * bypass a potential scheduler on the bottom device for
+	 * insert.
+	 */
+	return blk_mq_request_issue_directly(rq, true);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(blk_insert_cloned_request);
 
@@ -3094,6 +3933,7 @@ unsigned int blk_rq_err_bytes(const struct request *rq)
 }
 EXPORT_SYMBOL_GPL(blk_rq_err_bytes);
 
+<<<<<<< HEAD
 void blk_account_io_completion(struct request *req, unsigned int bytes)
 {
 	if (blk_do_io_stat(req)) {
@@ -3104,6 +3944,31 @@ void blk_account_io_completion(struct request *req, unsigned int bytes)
 		cpu = part_stat_lock();
 		part = req->part;
 		part_stat_add(cpu, part, sectors[sgrp], bytes >> 9);
+=======
+static void update_io_ticks(struct block_device *part, unsigned long now,
+		bool end)
+{
+	unsigned long stamp;
+again:
+	stamp = READ_ONCE(part->bd_stamp);
+	if (unlikely(time_after(now, stamp))) {
+		if (likely(cmpxchg(&part->bd_stamp, stamp, now) == stamp))
+			__part_stat_add(part, io_ticks, end ? now - stamp : 1);
+	}
+	if (part->bd_partno) {
+		part = bdev_whole(part);
+		goto again;
+	}
+}
+
+static void blk_account_io_completion(struct request *req, unsigned int bytes)
+{
+	if (req->part && blk_do_io_stat(req)) {
+		const int sgrp = op_stat_group(req_op(req));
+
+		part_stat_lock();
+		part_stat_add(req->part, sectors[sgrp], bytes >> 9);
+>>>>>>> upstream/android-13
 		part_stat_unlock();
 	}
 }
@@ -3115,6 +3980,7 @@ void blk_account_io_done(struct request *req, u64 now)
 	 * normal IO on queueing nor completion.  Accounting the
 	 * containing request is enough.
 	 */
+<<<<<<< HEAD
 	if (blk_do_io_stat(req) && !(req->rq_flags & RQF_FLUSH_SEQ)) {
 		const int sgrp = op_stat_group(req_op(req));
 		struct hd_struct *part;
@@ -3419,6 +4285,111 @@ struct request *blk_fetch_request(struct request_queue *q)
 	return rq;
 }
 EXPORT_SYMBOL(blk_fetch_request);
+=======
+	if (req->part && blk_do_io_stat(req) &&
+	    !(req->rq_flags & RQF_FLUSH_SEQ)) {
+		const int sgrp = op_stat_group(req_op(req));
+
+		part_stat_lock();
+		update_io_ticks(req->part, jiffies, true);
+		part_stat_inc(req->part, ios[sgrp]);
+		part_stat_add(req->part, nsecs[sgrp], now - req->start_time_ns);
+		part_stat_unlock();
+	}
+}
+
+void blk_account_io_start(struct request *rq)
+{
+	if (!blk_do_io_stat(rq))
+		return;
+
+	/* passthrough requests can hold bios that do not have ->bi_bdev set */
+	if (rq->bio && rq->bio->bi_bdev)
+		rq->part = rq->bio->bi_bdev;
+	else
+		rq->part = rq->rq_disk->part0;
+
+	part_stat_lock();
+	update_io_ticks(rq->part, jiffies, false);
+	part_stat_unlock();
+}
+
+static unsigned long __part_start_io_acct(struct block_device *part,
+					  unsigned int sectors, unsigned int op,
+					  unsigned long start_time)
+{
+	const int sgrp = op_stat_group(op);
+
+	part_stat_lock();
+	update_io_ticks(part, start_time, false);
+	part_stat_inc(part, ios[sgrp]);
+	part_stat_add(part, sectors[sgrp], sectors);
+	part_stat_local_inc(part, in_flight[op_is_write(op)]);
+	part_stat_unlock();
+
+	return start_time;
+}
+
+/**
+ * bio_start_io_acct_time - start I/O accounting for bio based drivers
+ * @bio:	bio to start account for
+ * @start_time:	start time that should be passed back to bio_end_io_acct().
+ */
+void bio_start_io_acct_time(struct bio *bio, unsigned long start_time)
+{
+	__part_start_io_acct(bio->bi_bdev, bio_sectors(bio),
+			     bio_op(bio), start_time);
+}
+EXPORT_SYMBOL_GPL(bio_start_io_acct_time);
+
+/**
+ * bio_start_io_acct - start I/O accounting for bio based drivers
+ * @bio:	bio to start account for
+ *
+ * Returns the start time that should be passed back to bio_end_io_acct().
+ */
+unsigned long bio_start_io_acct(struct bio *bio)
+{
+	return __part_start_io_acct(bio->bi_bdev, bio_sectors(bio),
+				    bio_op(bio), jiffies);
+}
+EXPORT_SYMBOL_GPL(bio_start_io_acct);
+
+unsigned long disk_start_io_acct(struct gendisk *disk, unsigned int sectors,
+				 unsigned int op)
+{
+	return __part_start_io_acct(disk->part0, sectors, op, jiffies);
+}
+EXPORT_SYMBOL(disk_start_io_acct);
+
+static void __part_end_io_acct(struct block_device *part, unsigned int op,
+			       unsigned long start_time)
+{
+	const int sgrp = op_stat_group(op);
+	unsigned long now = READ_ONCE(jiffies);
+	unsigned long duration = now - start_time;
+
+	part_stat_lock();
+	update_io_ticks(part, now, true);
+	part_stat_add(part, nsecs[sgrp], jiffies_to_nsecs(duration));
+	part_stat_local_dec(part, in_flight[op_is_write(op)]);
+	part_stat_unlock();
+}
+
+void bio_end_io_acct_remapped(struct bio *bio, unsigned long start_time,
+		struct block_device *orig_bdev)
+{
+	__part_end_io_acct(orig_bdev, bio_op(bio), start_time);
+}
+EXPORT_SYMBOL_GPL(bio_end_io_acct_remapped);
+
+void disk_end_io_acct(struct gendisk *disk, unsigned int op,
+		      unsigned long start_time)
+{
+	__part_end_io_acct(disk->part0, op, start_time);
+}
+EXPORT_SYMBOL(disk_end_io_acct);
+>>>>>>> upstream/android-13
 
 /*
  * Steal bios from a request and add them to a bio list.
@@ -3442,26 +4413,41 @@ void blk_steal_bios(struct bio_list *list, struct request *rq)
 EXPORT_SYMBOL_GPL(blk_steal_bios);
 
 /**
+<<<<<<< HEAD
  * blk_update_request - Special helper function for request stacking drivers
  * @req:      the request being processed
  * @error:    block status code
  * @nr_bytes: number of bytes to complete @req
+=======
+ * blk_update_request - Complete multiple bytes without completing the request
+ * @req:      the request being processed
+ * @error:    block status code
+ * @nr_bytes: number of bytes to complete for @req
+>>>>>>> upstream/android-13
  *
  * Description:
  *     Ends I/O on a number of bytes attached to @req, but doesn't complete
  *     the request structure even if @req doesn't have leftover.
  *     If @req has leftover, sets it up for the next range of segments.
  *
+<<<<<<< HEAD
  *     This special helper function is only for request stacking drivers
  *     (e.g. request-based dm) so that they can handle partial completion.
  *     Actual device drivers should use blk_end_request instead.
  *
+=======
+>>>>>>> upstream/android-13
  *     Passing the result of blk_rq_bytes() as @nr_bytes guarantees
  *     %false return from this function.
  *
  * Note:
+<<<<<<< HEAD
  *	The RQF_SPECIAL_PAYLOAD flag is ignored on purpose in both
  *	blk_rq_bytes() and in blk_update_request().
+=======
+ *	The RQF_SPECIAL_PAYLOAD flag is ignored on purpose in this function
+ *      except in the consistency check at the end of this function.
+>>>>>>> upstream/android-13
  *
  * Return:
  *     %false - this request doesn't have any more data
@@ -3477,9 +4463,21 @@ bool blk_update_request(struct request *req, blk_status_t error,
 	if (!req->bio)
 		return false;
 
+<<<<<<< HEAD
 	if (unlikely(error && !blk_rq_is_passthrough(req) &&
 		     !(req->rq_flags & RQF_QUIET)))
 		print_req_error(req, error);
+=======
+#ifdef CONFIG_BLK_DEV_INTEGRITY
+	if (blk_integrity_rq(req) && req_op(req) == REQ_OP_READ &&
+	    error == BLK_STS_OK)
+		req->q->integrity.profile->complete_fn(req, nr_bytes);
+#endif
+
+	if (unlikely(error && !blk_rq_is_passthrough(req) &&
+		     !(req->rq_flags & RQF_QUIET)))
+		print_req_error(req, error, __func__);
+>>>>>>> upstream/android-13
 
 	blk_account_io_completion(req, nr_bytes);
 
@@ -3538,13 +4536,18 @@ bool blk_update_request(struct request *req, blk_status_t error,
 		}
 
 		/* recalculate the number of segments */
+<<<<<<< HEAD
 		blk_recalc_rq_segments(req);
+=======
+		req->nr_phys_segments = blk_recalc_rq_segments(req);
+>>>>>>> upstream/android-13
 	}
 
 	return true;
 }
 EXPORT_SYMBOL_GPL(blk_update_request);
 
+<<<<<<< HEAD
 static bool blk_update_bidi_request(struct request *rq, blk_status_t error,
 				    unsigned int nr_bytes,
 				    unsigned int bidi_bytes)
@@ -3809,6 +4812,8 @@ void blk_rq_bio_prep(struct request_queue *q, struct request *rq,
 		rq->rq_disk = bio->bi_disk;
 }
 
+=======
+>>>>>>> upstream/android-13
 #if ARCH_IMPLEMENTS_FLUSH_DCACHE_PAGE
 /**
  * rq_flush_dcache_pages - Helper function to flush all pages in a request
@@ -3849,8 +4854,13 @@ EXPORT_SYMBOL_GPL(rq_flush_dcache_pages);
  */
 int blk_lld_busy(struct request_queue *q)
 {
+<<<<<<< HEAD
 	if (q->lld_busy_fn)
 		return q->lld_busy_fn(q);
+=======
+	if (queue_is_mq(q) && q->mq_ops->busy)
+		return q->mq_ops->busy(q);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -3875,6 +4885,7 @@ void blk_rq_unprep_clone(struct request *rq)
 }
 EXPORT_SYMBOL_GPL(blk_rq_unprep_clone);
 
+<<<<<<< HEAD
 /*
  * Copy attributes of the original request to the clone request.
  * The actual data parts (e.g. ->cmd, ->sense) are not copied.
@@ -3893,6 +4904,8 @@ static void __blk_rq_prep_clone(struct request *dst, struct request *src)
 	dst->extra_len = src->extra_len;
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * blk_rq_prep_clone - Helper function to setup clone request
  * @rq: the request to be setup
@@ -3905,8 +4918,11 @@ static void __blk_rq_prep_clone(struct request *dst, struct request *src)
  *
  * Description:
  *     Clones bios in @rq_src to @rq, and copies attributes of @rq_src to @rq.
+<<<<<<< HEAD
  *     The actual data parts of @rq_src (e.g. ->cmd, ->sense)
  *     are not copied, and copying such parts is the caller's responsibility.
+=======
+>>>>>>> upstream/android-13
  *     Also, pages which the original bios are pointing to are not copied
  *     and the cloned bios just point same pages.
  *     So cloned bios must be completed before original bios, which means
@@ -3933,11 +4949,32 @@ int blk_rq_prep_clone(struct request *rq, struct request *rq_src,
 		if (rq->bio) {
 			rq->biotail->bi_next = bio;
 			rq->biotail = bio;
+<<<<<<< HEAD
 		} else
 			rq->bio = rq->biotail = bio;
 	}
 
 	__blk_rq_prep_clone(rq, rq_src);
+=======
+		} else {
+			rq->bio = rq->biotail = bio;
+		}
+		bio = NULL;
+	}
+
+	/* Copy attributes of the original request to the clone request. */
+	rq->__sector = blk_rq_pos(rq_src);
+	rq->__data_len = blk_rq_bytes(rq_src);
+	if (rq_src->rq_flags & RQF_SPECIAL_PAYLOAD) {
+		rq->rq_flags |= RQF_SPECIAL_PAYLOAD;
+		rq->special_vec = rq_src->special_vec;
+	}
+	rq->nr_phys_segments = rq_src->nr_phys_segments;
+	rq->ioprio = rq_src->ioprio;
+
+	if (rq->bio && blk_crypto_rq_bio_prep(rq, rq->bio, gfp_mask) < 0)
+		goto free_and_out;
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -3956,12 +4993,15 @@ int kblockd_schedule_work(struct work_struct *work)
 }
 EXPORT_SYMBOL(kblockd_schedule_work);
 
+<<<<<<< HEAD
 int kblockd_schedule_work_on(int cpu, struct work_struct *work)
 {
 	return queue_work_on(cpu, kblockd_workqueue, work);
 }
 EXPORT_SYMBOL(kblockd_schedule_work_on);
 
+=======
+>>>>>>> upstream/android-13
 int kblockd_mod_delayed_work_on(int cpu, struct delayed_work *dwork,
 				unsigned long delay)
 {
@@ -3974,6 +5014,18 @@ EXPORT_SYMBOL(kblockd_mod_delayed_work_on);
  * @plug:	The &struct blk_plug that needs to be initialized
  *
  * Description:
+<<<<<<< HEAD
+=======
+ *   blk_start_plug() indicates to the block layer an intent by the caller
+ *   to submit multiple I/O requests in a batch.  The block layer may use
+ *   this hint to defer submitting I/Os from the caller until blk_finish_plug()
+ *   is called.  However, the block layer may choose to submit requests
+ *   before a call to blk_finish_plug() if the number of queued I/Os
+ *   exceeds %BLK_MAX_REQUEST_COUNT, or if the size of the I/O is larger than
+ *   %BLK_PLUG_FLUSH_SIZE.  The queued I/Os may also be submitted early if
+ *   the task schedules (see below).
+ *
+>>>>>>> upstream/android-13
  *   Tracking blk_plug inside the task_struct will help with auto-flushing the
  *   pending I/O should the task end up blocking between blk_start_plug() and
  *   blk_finish_plug(). This is important from a performance perspective, but
@@ -3993,9 +5045,18 @@ void blk_start_plug(struct blk_plug *plug)
 	if (tsk->plug)
 		return;
 
+<<<<<<< HEAD
 	INIT_LIST_HEAD(&plug->list);
 	INIT_LIST_HEAD(&plug->mq_list);
 	INIT_LIST_HEAD(&plug->cb_list);
+=======
+	INIT_LIST_HEAD(&plug->mq_list);
+	INIT_LIST_HEAD(&plug->cb_list);
+	plug->rq_count = 0;
+	plug->multiple_queues = false;
+	plug->nowait = false;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Store ordering should not be needed here, since a potential
 	 * preempt will imply a full memory barrier
@@ -4004,6 +5065,7 @@ void blk_start_plug(struct blk_plug *plug)
 }
 EXPORT_SYMBOL(blk_start_plug);
 
+<<<<<<< HEAD
 static int plug_rq_cmp(void *priv, struct list_head *a, struct list_head *b)
 {
 	struct request *rqa = container_of(a, struct request, queuelist);
@@ -4034,6 +5096,8 @@ static void queue_unplugged(struct request_queue *q, unsigned int depth,
 	spin_unlock_irq(q->queue_lock);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void flush_plug_callbacks(struct blk_plug *plug, bool from_schedule)
 {
 	LIST_HEAD(callbacks);
@@ -4078,15 +5142,19 @@ EXPORT_SYMBOL(blk_check_plugged);
 
 void blk_flush_plug_list(struct blk_plug *plug, bool from_schedule)
 {
+<<<<<<< HEAD
 	struct request_queue *q;
 	struct request *rq;
 	LIST_HEAD(list);
 	unsigned int depth;
 
+=======
+>>>>>>> upstream/android-13
 	flush_plug_callbacks(plug, from_schedule);
 
 	if (!list_empty(&plug->mq_list))
 		blk_mq_flush_plug_list(plug, from_schedule);
+<<<<<<< HEAD
 
 	if (list_empty(&plug->list))
 		return;
@@ -4139,6 +5207,20 @@ void blk_flush_plug_list(struct blk_plug *plug, bool from_schedule)
 		queue_unplugged(q, depth, from_schedule);
 }
 
+=======
+}
+
+/**
+ * blk_finish_plug - mark the end of a batch of submitted I/O
+ * @plug:	The &struct blk_plug passed to blk_start_plug()
+ *
+ * Description:
+ * Indicate that a batch of I/O submissions is complete.  This function
+ * must be paired with an initial call to blk_start_plug().  The intent
+ * is to allow the block layer to optimize I/O submission.  See the
+ * documentation for blk_start_plug() for more information.
+ */
+>>>>>>> upstream/android-13
 void blk_finish_plug(struct blk_plug *plug)
 {
 	if (plug != current->plug)
@@ -4149,6 +5231,7 @@ void blk_finish_plug(struct blk_plug *plug)
 }
 EXPORT_SYMBOL(blk_finish_plug);
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 /**
  * blk_pm_runtime_init - Block layer runtime PM initialization routine
@@ -4333,14 +5416,33 @@ void blk_set_runtime_active(struct request_queue *q)
 }
 EXPORT_SYMBOL(blk_set_runtime_active);
 #endif
+=======
+void blk_io_schedule(void)
+{
+	/* Prevent hang_check timer from firing at us during very long I/O */
+	unsigned long timeout = sysctl_hung_task_timeout_secs * HZ / 2;
+
+	if (timeout)
+		io_schedule_timeout(timeout);
+	else
+		io_schedule();
+}
+EXPORT_SYMBOL_GPL(blk_io_schedule);
+>>>>>>> upstream/android-13
 
 int __init blk_dev_init(void)
 {
 	BUILD_BUG_ON(REQ_OP_LAST >= (1 << REQ_OP_BITS));
 	BUILD_BUG_ON(REQ_OP_BITS + REQ_FLAG_BITS > 8 *
+<<<<<<< HEAD
 			FIELD_SIZEOF(struct request, cmd_flags));
 	BUILD_BUG_ON(REQ_OP_BITS + REQ_FLAG_BITS > 8 *
 			FIELD_SIZEOF(struct bio, bi_opf));
+=======
+			sizeof_field(struct request, cmd_flags));
+	BUILD_BUG_ON(REQ_OP_BITS + REQ_FLAG_BITS > 8 *
+			sizeof_field(struct bio, bi_opf));
+>>>>>>> upstream/android-13
 
 	/* used for unplugging and affects IO latency/throughput - HIGHPRI */
 	kblockd_workqueue = alloc_workqueue("kblockd",
@@ -4348,6 +5450,7 @@ int __init blk_dev_init(void)
 	if (!kblockd_workqueue)
 		panic("Failed to create kblockd\n");
 
+<<<<<<< HEAD
 	request_cachep = kmem_cache_create("blkdev_requests",
 			sizeof(struct request), 0, SLAB_PANIC, NULL);
 
@@ -4363,6 +5466,12 @@ int __init blk_dev_init(void)
 
 	if (blk_crypto_fallback_init() < 0)
 		panic("Failed to init blk-crypto-fallback\n");
+=======
+	blk_requestq_cachep = kmem_cache_create("request_queue",
+			sizeof(struct request_queue), 0, SLAB_PANIC, NULL);
+
+	blk_debugfs_root = debugfs_create_dir("block", NULL);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

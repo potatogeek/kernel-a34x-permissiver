@@ -8,7 +8,10 @@
 #include <linux/module.h>
 
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/mvme147hw.h>
 #include <asm/irq.h>
 
@@ -78,7 +81,10 @@ static struct scsi_host_template mvme147_host_template = {
 	.this_id		= 7,
 	.sg_tablesize		= SG_ALL,
 	.cmd_per_lun		= CMD_PER_LUN,
+<<<<<<< HEAD
 	.use_clustering		= ENABLE_CLUSTERING
+=======
+>>>>>>> upstream/android-13
 };
 
 static struct Scsi_Host *mvme147_shost;

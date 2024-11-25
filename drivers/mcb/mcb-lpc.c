@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * MEN Chameleon Bus.
  *
  * Copyright (C) 2014 MEN Mikroelektronik GmbH (www.men.de)
  * Author: Andreas Werner <andreas.werner@men.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; version 2 of the License.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/platform_device.h>
@@ -108,6 +115,7 @@ out_put:
 	return ret;
 }
 
+<<<<<<< HEAD
 static struct resource sc24_fpga_resource = {
 	.start = 0xe000e000,
 	.end = 0xe000e000 + CHAM_HEADER_SIZE,
@@ -119,6 +127,10 @@ static struct resource sc31_fpga_resource = {
 	.end = 0xf000e000 + CHAM_HEADER_SIZE,
 	.flags = IORESOURCE_MEM,
 };
+=======
+static struct resource sc24_fpga_resource = DEFINE_RES_MEM(0xe000e000, CHAM_HEADER_SIZE);
+static struct resource sc31_fpga_resource = DEFINE_RES_MEM(0xf000e000, CHAM_HEADER_SIZE);
+>>>>>>> upstream/android-13
 
 static struct platform_driver mcb_lpc_driver = {
 	.driver		= {
@@ -171,3 +183,7 @@ module_exit(mcb_lpc_exit);
 MODULE_AUTHOR("Andreas Werner <andreas.werner@men.de>");
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("MCB over LPC support");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(MCB);
+>>>>>>> upstream/android-13

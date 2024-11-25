@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+>>>>>>> upstream/android-13
 /*
  * max77693-private.h - Voltage regulator driver for the Maxim 77693
  *
@@ -5,6 +9,7 @@
  *  SangYoung Son <hello.son@samsung.com>
  *
  * This program is not provided / owned by Maxim Integrated Products.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +24,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __LINUX_MFD_MAX77693_PRIV_H
@@ -144,7 +151,11 @@ enum max77693_pmic_reg {
 #define FLASH_INT_FLED1_SHORT	BIT(3)
 #define FLASH_INT_OVER_CURRENT	BIT(4)
 
+<<<<<<< HEAD
 /* Fast charge timer in in hours */
+=======
+/* Fast charge timer in hours */
+>>>>>>> upstream/android-13
 #define DEFAULT_FAST_CHARGE_TIMER		4
 /* microamps */
 #define DEFAULT_TOP_OFF_THRESHOLD_CURRENT	150000

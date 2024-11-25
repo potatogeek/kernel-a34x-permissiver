@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * This file is part of STM32 Crypto driver for Linux.
  *
  * Copyright (C) 2017, STMicroelectronics - All Rights Reserved
  * Author(s): Lionel DEBIEVE <lionel.debieve@st.com> for STMicroelectronics.
+<<<<<<< HEAD
  *
  * License terms: GPL V2.0.
  *
@@ -18,11 +23,17 @@
  * You should have received a copy of the GNU General Public License along with
  * this program. If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
 #include <linux/crypto.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
+=======
+#include <linux/dma-mapping.h>
+>>>>>>> upstream/android-13
 #include <linux/dmaengine.h>
 #include <linux/interrupt.h>
 #include <linux/io.h>
@@ -38,7 +49,12 @@
 #include <crypto/hash.h>
 #include <crypto/md5.h>
 #include <crypto/scatterwalk.h>
+<<<<<<< HEAD
 #include <crypto/sha.h>
+=======
+#include <crypto/sha1.h>
+#include <crypto/sha2.h>
+>>>>>>> upstream/android-13
 #include <crypto/internal/hash.h>
 
 #define HASH_CR				0x00
@@ -181,8 +197,11 @@ struct stm32_hash_dev {
 	u32			dma_mode;
 	u32			dma_maxburst;
 
+<<<<<<< HEAD
 	spinlock_t		lock; /* lock to protect queue */
 
+=======
+>>>>>>> upstream/android-13
 	struct ahash_request	*req;
 	struct crypto_engine	*engine;
 
@@ -354,7 +373,11 @@ static int stm32_hash_xmit_cpu(struct stm32_hash_dev *hdev,
 
 	len32 = DIV_ROUND_UP(length, sizeof(u32));
 
+<<<<<<< HEAD
 	dev_dbg(hdev->dev, "%s: length: %d, final: %x len32 %i\n",
+=======
+	dev_dbg(hdev->dev, "%s: length: %zd, final: %x len32 %i\n",
+>>>>>>> upstream/android-13
 		__func__, length, final, len32);
 
 	hdev->flags |= HASH_FLAGS_CPU;
@@ -463,8 +486,13 @@ static int stm32_hash_xmit_dma(struct stm32_hash_dev *hdev,
 
 	dma_async_issue_pending(hdev->dma_lch);
 
+<<<<<<< HEAD
 	if (!wait_for_completion_interruptible_timeout(&hdev->dma_completion,
 						       msecs_to_jiffies(100)))
+=======
+	if (!wait_for_completion_timeout(&hdev->dma_completion,
+					 msecs_to_jiffies(100)))
+>>>>>>> upstream/android-13
 		err = -ETIMEDOUT;
 
 	if (dma_async_is_tx_complete(hdev->dma_lch, cookie,
@@ -523,6 +551,10 @@ static int stm32_hash_hmac_dma_send(struct stm32_hash_dev *hdev)
 static int stm32_hash_dma_init(struct stm32_hash_dev *hdev)
 {
 	struct dma_slave_config dma_conf;
+<<<<<<< HEAD
+=======
+	struct dma_chan *chan;
+>>>>>>> upstream/android-13
 	int err;
 
 	memset(&dma_conf, 0, sizeof(dma_conf));
@@ -534,11 +566,19 @@ static int stm32_hash_dma_init(struct stm32_hash_dev *hdev)
 	dma_conf.dst_maxburst = hdev->dma_maxburst;
 	dma_conf.device_fc = false;
 
+<<<<<<< HEAD
 	hdev->dma_lch = dma_request_slave_channel(hdev->dev, "in");
 	if (!hdev->dma_lch) {
 		dev_err(hdev->dev, "Couldn't acquire a slave DMA channel.\n");
 		return -EBUSY;
 	}
+=======
+	chan = dma_request_chan(hdev->dev, "in");
+	if (IS_ERR(chan))
+		return PTR_ERR(chan);
+
+	hdev->dma_lch = chan;
+>>>>>>> upstream/android-13
 
 	err = dmaengine_slave_config(hdev->dma_lch, &dma_conf);
 	if (err) {
@@ -763,7 +803,11 @@ static int stm32_hash_final_req(struct stm32_hash_dev *hdev)
 static void stm32_hash_copy_hash(struct ahash_request *req)
 {
 	struct stm32_hash_request_ctx *rctx = ahash_request_ctx(req);
+<<<<<<< HEAD
 	u32 *hash = (u32 *)rctx->digest;
+=======
+	__be32 *hash = (void *)rctx->digest;
+>>>>>>> upstream/android-13
 	unsigned int i, hashsize;
 
 	switch (rctx->flags & HASH_FLAGS_ALGO_MASK) {
@@ -784,7 +828,11 @@ static void stm32_hash_copy_hash(struct ahash_request *req)
 	}
 
 	for (i = 0; i < hashsize / sizeof(u32); i++)
+<<<<<<< HEAD
 		hash[i] = be32_to_cpu(stm32_hash_read(rctx->hdev,
+=======
+		hash[i] = cpu_to_be32(stm32_hash_read(rctx->hdev,
+>>>>>>> upstream/android-13
 						      HASH_HREG(i)));
 }
 
@@ -977,7 +1025,11 @@ static int stm32_hash_export(struct ahash_request *req, void *out)
 
 	pm_runtime_get_sync(hdev->dev);
 
+<<<<<<< HEAD
 	while (!(stm32_hash_read(hdev, HASH_SR) & HASH_SR_DATA_INPUT_READY))
+=======
+	while ((stm32_hash_read(hdev, HASH_SR) & HASH_SR_BUSY))
+>>>>>>> upstream/android-13
 		cpu_relax();
 
 	rctx->hw_context = kmalloc_array(3 + HASH_CSR_REGISTER_NUMBER,
@@ -1466,10 +1518,15 @@ static int stm32_hash_probe(struct platform_device *pdev)
 		return ret;
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(dev, "Cannot get IRQ resource\n");
 		return irq;
 	}
+=======
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 
 	ret = devm_request_threaded_irq(dev, irq, stm32_hash_irq_handler,
 					stm32_hash_irq_thread, IRQF_ONESHOT,
@@ -1480,11 +1537,17 @@ static int stm32_hash_probe(struct platform_device *pdev)
 	}
 
 	hdev->clk = devm_clk_get(&pdev->dev, NULL);
+<<<<<<< HEAD
 	if (IS_ERR(hdev->clk)) {
 		dev_err(dev, "failed to get clock for hash (%lu)\n",
 			PTR_ERR(hdev->clk));
 		return PTR_ERR(hdev->clk);
 	}
+=======
+	if (IS_ERR(hdev->clk))
+		return dev_err_probe(dev, PTR_ERR(hdev->clk),
+				     "failed to get clock for hash\n");
+>>>>>>> upstream/android-13
 
 	ret = clk_prepare_enable(hdev->clk);
 	if (ret) {
@@ -1500,7 +1563,16 @@ static int stm32_hash_probe(struct platform_device *pdev)
 	pm_runtime_enable(dev);
 
 	hdev->rst = devm_reset_control_get(&pdev->dev, NULL);
+<<<<<<< HEAD
 	if (!IS_ERR(hdev->rst)) {
+=======
+	if (IS_ERR(hdev->rst)) {
+		if (PTR_ERR(hdev->rst) == -EPROBE_DEFER) {
+			ret = -EPROBE_DEFER;
+			goto err_reset;
+		}
+	} else {
+>>>>>>> upstream/android-13
 		reset_control_assert(hdev->rst);
 		udelay(2);
 		reset_control_deassert(hdev->rst);
@@ -1511,8 +1583,20 @@ static int stm32_hash_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, hdev);
 
 	ret = stm32_hash_dma_init(hdev);
+<<<<<<< HEAD
 	if (ret)
 		dev_dbg(dev, "DMA mode not available\n");
+=======
+	switch (ret) {
+	case 0:
+		break;
+	case -ENOENT:
+		dev_dbg(dev, "DMA mode not available\n");
+		break;
+	default:
+		goto err_dma;
+	}
+>>>>>>> upstream/android-13
 
 	spin_lock(&stm32_hash.lock);
 	list_add_tail(&hdev->list, &stm32_hash.dev_list);
@@ -1550,10 +1634,17 @@ err_engine:
 	spin_lock(&stm32_hash.lock);
 	list_del(&hdev->list);
 	spin_unlock(&stm32_hash.lock);
+<<<<<<< HEAD
 
 	if (hdev->dma_lch)
 		dma_release_channel(hdev->dma_lch);
 
+=======
+err_dma:
+	if (hdev->dma_lch)
+		dma_release_channel(hdev->dma_lch);
+err_reset:
+>>>>>>> upstream/android-13
 	pm_runtime_disable(dev);
 	pm_runtime_put_noidle(dev);
 
@@ -1564,14 +1655,22 @@ err_engine:
 
 static int stm32_hash_remove(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	static struct stm32_hash_dev *hdev;
+=======
+	struct stm32_hash_dev *hdev;
+>>>>>>> upstream/android-13
 	int ret;
 
 	hdev = platform_get_drvdata(pdev);
 	if (!hdev)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	ret = pm_runtime_get_sync(hdev->dev);
+=======
+	ret = pm_runtime_resume_and_get(hdev->dev);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 

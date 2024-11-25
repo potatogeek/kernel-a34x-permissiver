@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  GPIO interface for IT87xx Super I/O chips
  *
@@ -7,6 +11,7 @@
  *  Based on it87_wdt.c     by Oliver Schuster
  *           gpio-it8761e.c by Denis Turischev
  *           gpio-stmpe.c   by Rabin Vincent
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License 2 as published
@@ -20,6 +25,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; see the file COPYING.  If not, write to
  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -59,6 +66,7 @@
 
 /**
  * struct it87_gpio - it87-specific GPIO chip
+<<<<<<< HEAD
  * @chip the underlying gpio_chip structure
  * @lock a lock to avoid races between operations
  * @io_base base address for gpio ports
@@ -66,6 +74,15 @@
  * @output_base Super I/O register address for Output Enable register
  * @simple_base Super I/O 'Simple I/O' Enable register
  * @simple_size Super IO 'Simple I/O' Enable register size; this is
+=======
+ * @chip: the underlying gpio_chip structure
+ * @lock: a lock to avoid races between operations
+ * @io_base: base address for gpio ports
+ * @io_size: size of the port rage starting from io_base.
+ * @output_base: Super I/O register address for Output Enable register
+ * @simple_base: Super I/O 'Simple I/O' Enable register
+ * @simple_size: Super IO 'Simple I/O' Enable register size; this is
+>>>>>>> upstream/android-13
  *	required because IT87xx chips might only provide Simple I/O
  *	switches on a subset of lines, whereas the others keep the
  *	same status all time.
@@ -137,6 +154,7 @@ static inline int superio_inw(int reg)
 	return val;
 }
 
+<<<<<<< HEAD
 static inline void superio_outw(int val, int reg)
 {
 	outb(reg++, REG);
@@ -145,6 +163,8 @@ static inline void superio_outw(int val, int reg)
 	outb(val, VAL);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void superio_set_mask(int mask, int reg)
 {
 	u8 curr_val = superio_inb(reg);

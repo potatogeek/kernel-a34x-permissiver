@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * arch/powerpc/math-emu/math_efp.c
  *
@@ -12,11 +16,14 @@
  * Description:
  * This file is the exception handler to make E500 SPE instructions
  * fully comply with IEEE-754 floating point standard.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -714,7 +721,11 @@ update_regs:
 illegal:
 	if (have_e500_cpu_a005_erratum) {
 		/* according to e500 cpu a005 erratum, reissue efp inst */
+<<<<<<< HEAD
 		regs->nip -= 4;
+=======
+		regs_add_return_ip(regs, -4);
+>>>>>>> upstream/android-13
 		pr_debug("re-issue efp inst: %08lx\n", speinsn);
 		return 0;
 	}

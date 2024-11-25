@@ -28,7 +28,10 @@
 #include <asm/octeon/cvmx-agl-defs.h>
 
 #define DRV_NAME "octeon_mgmt"
+<<<<<<< HEAD
 #define DRV_VERSION "2.0"
+=======
+>>>>>>> upstream/android-13
 #define DRV_DESCRIPTION \
 	"Cavium Networks Octeon MII (management) port Network Driver"
 
@@ -316,9 +319,15 @@ static void octeon_mgmt_clean_tx_buffers(struct octeon_mgmt *p)
 		netif_wake_queue(p->netdev);
 }
 
+<<<<<<< HEAD
 static void octeon_mgmt_clean_tx_tasklet(unsigned long arg)
 {
 	struct octeon_mgmt *p = (struct octeon_mgmt *)arg;
+=======
+static void octeon_mgmt_clean_tx_tasklet(struct tasklet_struct *t)
+{
+	struct octeon_mgmt *p = from_tasklet(p, t, tx_clean_tasklet);
+>>>>>>> upstream/android-13
 	octeon_mgmt_clean_tx_buffers(p);
 	octeon_mgmt_enable_tx_irq(p);
 }
@@ -795,9 +804,13 @@ static int octeon_mgmt_ioctl(struct net_device *netdev,
 	case SIOCSHWTSTAMP:
 		return octeon_mgmt_ioctl_hwtstamp(netdev, rq, cmd);
 	default:
+<<<<<<< HEAD
 		if (netdev->phydev)
 			return phy_mii_ioctl(netdev->phydev, rq, cmd);
 		return -EINVAL;
+=======
+		return phy_do_ioctl(netdev, rq, cmd);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -964,7 +977,11 @@ static int octeon_mgmt_init_phy(struct net_device *netdev)
 				PHY_INTERFACE_MODE_MII);
 
 	if (!phydev)
+<<<<<<< HEAD
 		return -ENODEV;
+=======
+		return -EPROBE_DEFER;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1085,8 +1102,16 @@ static int octeon_mgmt_open(struct net_device *netdev)
 	/* Set the mode of the interface, RGMII/MII. */
 	if (OCTEON_IS_MODEL(OCTEON_CN6XXX) && netdev->phydev) {
 		union cvmx_agl_prtx_ctl agl_prtx_ctl;
+<<<<<<< HEAD
 		int rgmii_mode = (netdev->phydev->supported &
 				  (SUPPORTED_1000baseT_Half | SUPPORTED_1000baseT_Full)) != 0;
+=======
+		int rgmii_mode =
+			(linkmode_test_bit(ETHTOOL_LINK_MODE_1000baseT_Half_BIT,
+					   netdev->phydev->supported) |
+			 linkmode_test_bit(ETHTOOL_LINK_MODE_1000baseT_Full_BIT,
+					   netdev->phydev->supported)) != 0;
+>>>>>>> upstream/android-13
 
 		agl_prtx_ctl.u64 = cvmx_read_csr(p->agl_prt_ctl);
 		agl_prtx_ctl.s.mode = rgmii_mode ? 0 : 1;
@@ -1219,7 +1244,11 @@ static int octeon_mgmt_open(struct net_device *netdev)
 	 */
 	if (netdev->phydev) {
 		netif_carrier_off(netdev);
+<<<<<<< HEAD
 		phy_start_aneg(netdev->phydev);
+=======
+		phy_start(netdev->phydev);
+>>>>>>> upstream/android-13
 	}
 
 	netif_wake_queue(netdev);
@@ -1247,8 +1276,15 @@ static int octeon_mgmt_stop(struct net_device *netdev)
 	napi_disable(&p->napi);
 	netif_stop_queue(netdev);
 
+<<<<<<< HEAD
 	if (netdev->phydev)
 		phy_disconnect(netdev->phydev);
+=======
+	if (netdev->phydev) {
+		phy_stop(netdev->phydev);
+		phy_disconnect(netdev->phydev);
+	}
+>>>>>>> upstream/android-13
 
 	netif_carrier_off(netdev);
 
@@ -1344,9 +1380,12 @@ static void octeon_mgmt_get_drvinfo(struct net_device *netdev,
 				    struct ethtool_drvinfo *info)
 {
 	strlcpy(info->driver, DRV_NAME, sizeof(info->driver));
+<<<<<<< HEAD
 	strlcpy(info->version, DRV_VERSION, sizeof(info->version));
 	strlcpy(info->fw_version, "N/A", sizeof(info->fw_version));
 	strlcpy(info->bus_info, "N/A", sizeof(info->bus_info));
+=======
+>>>>>>> upstream/android-13
 }
 
 static int octeon_mgmt_nway_reset(struct net_device *dev)
@@ -1374,7 +1413,11 @@ static const struct net_device_ops octeon_mgmt_ops = {
 	.ndo_start_xmit =		octeon_mgmt_xmit,
 	.ndo_set_rx_mode =		octeon_mgmt_set_rx_filtering,
 	.ndo_set_mac_address =		octeon_mgmt_set_mac_address,
+<<<<<<< HEAD
 	.ndo_do_ioctl =			octeon_mgmt_ioctl,
+=======
+	.ndo_eth_ioctl =			octeon_mgmt_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_change_mtu =		octeon_mgmt_change_mtu,
 #ifdef CONFIG_NET_POLL_CONTROLLER
 	.ndo_poll_controller =		octeon_mgmt_poll_controller,
@@ -1386,7 +1429,10 @@ static int octeon_mgmt_probe(struct platform_device *pdev)
 	struct net_device *netdev;
 	struct octeon_mgmt *p;
 	const __be32 *data;
+<<<<<<< HEAD
 	const u8 *mac;
+=======
+>>>>>>> upstream/android-13
 	struct resource *res_mix;
 	struct resource *res_agl;
 	struct resource *res_agl_prt_ctl;
@@ -1492,8 +1538,13 @@ static int octeon_mgmt_probe(struct platform_device *pdev)
 
 	skb_queue_head_init(&p->tx_list);
 	skb_queue_head_init(&p->rx_list);
+<<<<<<< HEAD
 	tasklet_init(&p->tx_clean_tasklet,
 		     octeon_mgmt_clean_tx_tasklet, (unsigned long)p);
+=======
+	tasklet_setup(&p->tx_clean_tasklet,
+		      octeon_mgmt_clean_tx_tasklet);
+>>>>>>> upstream/android-13
 
 	netdev->priv_flags |= IFF_UNICAST_FLT;
 
@@ -1503,11 +1554,16 @@ static int octeon_mgmt_probe(struct platform_device *pdev)
 	netdev->min_mtu = 64 - OCTEON_MGMT_RX_HEADROOM;
 	netdev->max_mtu = 16383 - OCTEON_MGMT_RX_HEADROOM - VLAN_HLEN;
 
+<<<<<<< HEAD
 	mac = of_get_mac_address(pdev->dev.of_node);
 
 	if (mac)
 		memcpy(netdev->dev_addr, mac, ETH_ALEN);
 	else
+=======
+	result = of_get_mac_address(pdev->dev.of_node, netdev->dev_addr);
+	if (result)
+>>>>>>> upstream/android-13
 		eth_hw_addr_random(netdev);
 
 	p->phy_np = of_parse_phandle(pdev->dev.of_node, "phy-handle", 0);
@@ -1521,7 +1577,10 @@ static int octeon_mgmt_probe(struct platform_device *pdev)
 	if (result)
 		goto err;
 
+<<<<<<< HEAD
 	dev_info(&pdev->dev, "Version " DRV_VERSION "\n");
+=======
+>>>>>>> upstream/android-13
 	return 0;
 
 err:
@@ -1558,6 +1617,7 @@ static struct platform_driver octeon_mgmt_driver = {
 	.remove		= octeon_mgmt_remove,
 };
 
+<<<<<<< HEAD
 extern void octeon_mdiobus_force_mod_depencency(void);
 
 static int __init octeon_mgmt_mod_init(void)
@@ -1579,3 +1639,11 @@ MODULE_DESCRIPTION(DRV_DESCRIPTION);
 MODULE_AUTHOR("David Daney");
 MODULE_LICENSE("GPL");
 MODULE_VERSION(DRV_VERSION);
+=======
+module_platform_driver(octeon_mgmt_driver);
+
+MODULE_SOFTDEP("pre: mdio-cavium");
+MODULE_DESCRIPTION(DRV_DESCRIPTION);
+MODULE_AUTHOR("David Daney");
+MODULE_LICENSE("GPL");
+>>>>>>> upstream/android-13

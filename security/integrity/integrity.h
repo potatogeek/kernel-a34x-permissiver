@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2009-2010 IBM Corporation
  *
  * Authors:
  * Mimi Zohar <zohar@us.ibm.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,10 +19,27 @@
 #include <linux/types.h>
 #include <linux/integrity.h>
 #include <crypto/sha.h>
+=======
+ */
+
+#ifdef pr_fmt
+#undef pr_fmt
+#endif
+
+#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+
+#include <linux/types.h>
+#include <linux/integrity.h>
+#include <crypto/sha1.h>
+>>>>>>> upstream/android-13
 #include <linux/key.h>
 #include <linux/audit.h>
 #include <crypto/hash_info.h>
 
+<<<<<<< HEAD
+=======
+struct integrity_label;
+>>>>>>> upstream/android-13
 enum five_file_integrity {
 	FIVE_FILE_UNKNOWN,
 	FIVE_FILE_FAIL,
@@ -46,6 +68,11 @@ enum five_file_integrity {
 #define IMA_NEW_FILE		0x04000000
 #define EVM_IMMUTABLE_DIGSIG	0x08000000
 #define IMA_FAIL_UNVERIFIABLE_SIGS	0x10000000
+<<<<<<< HEAD
+=======
+#define IMA_MODSIG_ALLOWED	0x20000000
+#define IMA_CHECK_BLACKLIST	0x40000000
+>>>>>>> upstream/android-13
 
 #define IMA_DO_MASK		(IMA_MEASURE | IMA_APPRAISE | IMA_AUDIT | \
 				 IMA_HASH | IMA_APPRAISE_SUBMASK)
@@ -93,6 +120,15 @@ enum evm_ima_xattr_type {
 
 struct evm_ima_xattr_data {
 	u8 type;
+<<<<<<< HEAD
+=======
+	u8 data[];
+} __packed;
+
+/* Only used in the EVM HMAC code. */
+struct evm_xattr {
+	struct evm_ima_xattr_data data;
+>>>>>>> upstream/android-13
 	u8 digest[SHA1_DIGEST_SIZE];
 } __packed;
 
@@ -112,7 +148,11 @@ struct ima_digest_data {
 		} ng;
 		u8 data[2];
 	} xattr;
+<<<<<<< HEAD
 	u8 digest[0];
+=======
+	u8 digest[];
+>>>>>>> upstream/android-13
 } __packed;
 
 /*
@@ -124,7 +164,11 @@ struct signature_v2_hdr {
 	uint8_t	hash_algo;	/* Digest algorithm [enum hash_algo] */
 	__be32 keyid;		/* IMA key identifier - not X509/PGP specific */
 	__be16 sig_size;	/* signature size */
+<<<<<<< HEAD
 	uint8_t sig[0];		/* signature payload */
+=======
+	uint8_t sig[];		/* signature payload */
+>>>>>>> upstream/android-13
 } __packed;
 
 /* integrity data associated with an inode */
@@ -161,19 +205,37 @@ int integrity_kernel_read(struct file *file, loff_t offset,
 
 #define INTEGRITY_KEYRING_EVM		0
 #define INTEGRITY_KEYRING_IMA		1
+<<<<<<< HEAD
 #define INTEGRITY_KEYRING_MODULE	2
+=======
+#define INTEGRITY_KEYRING_PLATFORM	2
+>>>>>>> upstream/android-13
 #define INTEGRITY_KEYRING_FIVE		3
 #define INTEGRITY_KEYRING_MAX		4
 
 extern struct dentry *integrity_dir;
 
+<<<<<<< HEAD
+=======
+struct modsig;
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_INTEGRITY_SIGNATURE
 
 int integrity_digsig_verify(const unsigned int id, const char *sig, int siglen,
 			    const char *digest, int digestlen);
+<<<<<<< HEAD
 
 int __init integrity_init_keyring(const unsigned int id);
 int __init integrity_load_x509(const unsigned int id, const char *path);
+=======
+int integrity_modsig_verify(unsigned int id, const struct modsig *modsig);
+
+int __init integrity_init_keyring(const unsigned int id);
+int __init integrity_load_x509(const unsigned int id, const char *path);
+int __init integrity_load_cert(const unsigned int id, const char *source,
+			       const void *data, size_t len, key_perm_t perm);
+>>>>>>> upstream/android-13
 int __init integrity_load_x509_from_mem(const unsigned int id,
 					const char *data, size_t size);
 #else
@@ -185,10 +247,30 @@ static inline int integrity_digsig_verify(const unsigned int id,
 	return -EOPNOTSUPP;
 }
 
+<<<<<<< HEAD
+=======
+static inline int integrity_modsig_verify(unsigned int id,
+					  const struct modsig *modsig)
+{
+	return -EOPNOTSUPP;
+}
+
+>>>>>>> upstream/android-13
 static inline int integrity_init_keyring(const unsigned int id)
 {
 	return 0;
 }
+<<<<<<< HEAD
+=======
+
+static inline int __init integrity_load_cert(const unsigned int id,
+					     const char *source,
+					     const void *data, size_t len,
+					     key_perm_t perm)
+{
+	return 0;
+}
+>>>>>>> upstream/android-13
 #endif /* CONFIG_INTEGRITY_SIGNATURE */
 
 #ifdef CONFIG_INTEGRITY_ASYMMETRIC_KEYS
@@ -202,6 +284,19 @@ static inline int asymmetric_verify(struct key *keyring, const char *sig,
 }
 #endif
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_IMA_APPRAISE_MODSIG
+int ima_modsig_verify(struct key *keyring, const struct modsig *modsig);
+#else
+static inline int ima_modsig_verify(struct key *keyring,
+				    const struct modsig *modsig)
+{
+	return -EOPNOTSUPP;
+}
+#endif
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_IMA_LOAD_X509
 void __init ima_load_x509(void);
 #else
@@ -224,6 +319,14 @@ void integrity_audit_msg(int audit_msgno, struct inode *inode,
 			 const unsigned char *fname, const char *op,
 			 const char *cause, int result, int info);
 
+<<<<<<< HEAD
+=======
+void integrity_audit_message(int audit_msgno, struct inode *inode,
+			     const unsigned char *fname, const char *op,
+			     const char *cause, int result, int info,
+			     int errno);
+
+>>>>>>> upstream/android-13
 static inline struct audit_buffer *
 integrity_audit_log_start(struct audit_context *ctx, gfp_t gfp_mask, int type)
 {
@@ -238,6 +341,17 @@ static inline void integrity_audit_msg(int audit_msgno, struct inode *inode,
 {
 }
 
+<<<<<<< HEAD
+=======
+static inline void integrity_audit_message(int audit_msgno,
+					   struct inode *inode,
+					   const unsigned char *fname,
+					   const char *op, const char *cause,
+					   int result, int info, int errno)
+{
+}
+
+>>>>>>> upstream/android-13
 static inline struct audit_buffer *
 integrity_audit_log_start(struct audit_context *ctx, gfp_t gfp_mask, int type)
 {
@@ -245,3 +359,16 @@ integrity_audit_log_start(struct audit_context *ctx, gfp_t gfp_mask, int type)
 }
 
 #endif
+<<<<<<< HEAD
+=======
+
+#ifdef CONFIG_INTEGRITY_PLATFORM_KEYRING
+void __init add_to_platform_keyring(const char *source, const void *data,
+				    size_t len);
+#else
+static inline void __init add_to_platform_keyring(const char *source,
+						  const void *data, size_t len)
+{
+}
+#endif
+>>>>>>> upstream/android-13

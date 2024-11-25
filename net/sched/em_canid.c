@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * em_canid.c  Ematch rule to match CAN frames according to their CAN IDs
  *
@@ -6,6 +7,12 @@
  *              as published by the Free Software Foundation; either version
  *              2 of the License, or (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * em_canid.c  Ematch rule to match CAN frames according to their CAN IDs
+ *
+>>>>>>> upstream/android-13
  * Idea:       Oliver Hartkopp <oliver.hartkopp@volkswagen.de>
  * Copyright:  (c) 2011 Czech Technical University in Prague
  *             (c) 2011 Volkswagen Group Research
@@ -44,6 +51,10 @@ struct canid_match {
 
 /**
  * em_canid_get_id() - Extracts Can ID out of the sk_buff structure.
+<<<<<<< HEAD
+=======
+ * @skb: buffer to extract Can ID from
+>>>>>>> upstream/android-13
  */
 static canid_t em_canid_get_id(struct sk_buff *skb)
 {

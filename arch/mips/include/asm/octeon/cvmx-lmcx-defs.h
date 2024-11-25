@@ -189,11 +189,14 @@ union cvmx_lmcx_bist_ctl {
 		uint64_t reserved_1_63:63;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_bist_ctl_s cn50xx;
 	struct cvmx_lmcx_bist_ctl_s cn52xx;
 	struct cvmx_lmcx_bist_ctl_s cn52xxp1;
 	struct cvmx_lmcx_bist_ctl_s cn56xx;
 	struct cvmx_lmcx_bist_ctl_s cn56xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_bist_result {
@@ -236,10 +239,13 @@ union cvmx_lmcx_bist_result {
 		uint64_t reserved_9_63:55;
 #endif
 	} cn50xx;
+<<<<<<< HEAD
 	struct cvmx_lmcx_bist_result_s cn52xx;
 	struct cvmx_lmcx_bist_result_s cn52xxp1;
 	struct cvmx_lmcx_bist_result_s cn56xx;
 	struct cvmx_lmcx_bist_result_s cn56xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_char_ctl {
@@ -263,7 +269,10 @@ union cvmx_lmcx_char_ctl {
 		uint64_t reserved_44_63:20;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_char_ctl_s cn61xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_lmcx_char_ctl_cn63xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_42_63:22;
@@ -279,11 +288,14 @@ union cvmx_lmcx_char_ctl {
 		uint64_t reserved_42_63:22;
 #endif
 	} cn63xx;
+<<<<<<< HEAD
 	struct cvmx_lmcx_char_ctl_cn63xx cn63xxp1;
 	struct cvmx_lmcx_char_ctl_s cn66xx;
 	struct cvmx_lmcx_char_ctl_s cn68xx;
 	struct cvmx_lmcx_char_ctl_cn63xx cn68xxp1;
 	struct cvmx_lmcx_char_ctl_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_char_mask0 {
@@ -295,6 +307,7 @@ union cvmx_lmcx_char_mask0 {
 		uint64_t mask:64;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_char_mask0_s cn61xx;
 	struct cvmx_lmcx_char_mask0_s cn63xx;
 	struct cvmx_lmcx_char_mask0_s cn63xxp1;
@@ -302,6 +315,8 @@ union cvmx_lmcx_char_mask0 {
 	struct cvmx_lmcx_char_mask0_s cn68xx;
 	struct cvmx_lmcx_char_mask0_s cn68xxp1;
 	struct cvmx_lmcx_char_mask0_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_char_mask1 {
@@ -315,6 +330,7 @@ union cvmx_lmcx_char_mask1 {
 		uint64_t reserved_8_63:56;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_char_mask1_s cn61xx;
 	struct cvmx_lmcx_char_mask1_s cn63xx;
 	struct cvmx_lmcx_char_mask1_s cn63xxp1;
@@ -322,6 +338,8 @@ union cvmx_lmcx_char_mask1 {
 	struct cvmx_lmcx_char_mask1_s cn68xx;
 	struct cvmx_lmcx_char_mask1_s cn68xxp1;
 	struct cvmx_lmcx_char_mask1_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_char_mask2 {
@@ -333,6 +351,7 @@ union cvmx_lmcx_char_mask2 {
 		uint64_t mask:64;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_char_mask2_s cn61xx;
 	struct cvmx_lmcx_char_mask2_s cn63xx;
 	struct cvmx_lmcx_char_mask2_s cn63xxp1;
@@ -340,6 +359,8 @@ union cvmx_lmcx_char_mask2 {
 	struct cvmx_lmcx_char_mask2_s cn68xx;
 	struct cvmx_lmcx_char_mask2_s cn68xxp1;
 	struct cvmx_lmcx_char_mask2_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_char_mask3 {
@@ -353,6 +374,7 @@ union cvmx_lmcx_char_mask3 {
 		uint64_t reserved_8_63:56;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_char_mask3_s cn61xx;
 	struct cvmx_lmcx_char_mask3_s cn63xx;
 	struct cvmx_lmcx_char_mask3_s cn63xxp1;
@@ -360,6 +382,8 @@ union cvmx_lmcx_char_mask3 {
 	struct cvmx_lmcx_char_mask3_s cn68xx;
 	struct cvmx_lmcx_char_mask3_s cn68xxp1;
 	struct cvmx_lmcx_char_mask3_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_char_mask4 {
@@ -393,6 +417,7 @@ union cvmx_lmcx_char_mask4 {
 		uint64_t reserved_33_63:31;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_char_mask4_s cn61xx;
 	struct cvmx_lmcx_char_mask4_s cn63xx;
 	struct cvmx_lmcx_char_mask4_s cn63xxp1;
@@ -400,6 +425,8 @@ union cvmx_lmcx_char_mask4 {
 	struct cvmx_lmcx_char_mask4_s cn68xx;
 	struct cvmx_lmcx_char_mask4_s cn68xxp1;
 	struct cvmx_lmcx_char_mask4_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_comp_ctl {
@@ -448,9 +475,12 @@ union cvmx_lmcx_comp_ctl {
 		uint64_t reserved_32_63:32;
 #endif
 	} cn30xx;
+<<<<<<< HEAD
 	struct cvmx_lmcx_comp_ctl_cn30xx cn31xx;
 	struct cvmx_lmcx_comp_ctl_cn30xx cn38xx;
 	struct cvmx_lmcx_comp_ctl_cn30xx cn38xxp2;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_lmcx_comp_ctl_cn50xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_32_63:32;
@@ -470,11 +500,14 @@ union cvmx_lmcx_comp_ctl {
 		uint64_t reserved_32_63:32;
 #endif
 	} cn50xx;
+<<<<<<< HEAD
 	struct cvmx_lmcx_comp_ctl_cn50xx cn52xx;
 	struct cvmx_lmcx_comp_ctl_cn50xx cn52xxp1;
 	struct cvmx_lmcx_comp_ctl_cn50xx cn56xx;
 	struct cvmx_lmcx_comp_ctl_cn50xx cn56xxp1;
 	struct cvmx_lmcx_comp_ctl_cn50xx cn58xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_lmcx_comp_ctl_cn58xxp1 {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_32_63:32;
@@ -525,6 +558,7 @@ union cvmx_lmcx_comp_ctl2 {
 		uint64_t reserved_34_63:30;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_comp_ctl2_s cn61xx;
 	struct cvmx_lmcx_comp_ctl2_s cn63xx;
 	struct cvmx_lmcx_comp_ctl2_s cn63xxp1;
@@ -532,6 +566,8 @@ union cvmx_lmcx_comp_ctl2 {
 	struct cvmx_lmcx_comp_ctl2_s cn68xx;
 	struct cvmx_lmcx_comp_ctl2_s cn68xxp1;
 	struct cvmx_lmcx_comp_ctl2_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_config {
@@ -587,7 +623,10 @@ union cvmx_lmcx_config {
 		uint64_t reserved_61_63:3;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_config_s cn61xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_lmcx_config_cn63xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_59_63:5;
@@ -723,9 +762,12 @@ union cvmx_lmcx_config {
 		uint64_t reserved_60_63:4;
 #endif
 	} cn66xx;
+<<<<<<< HEAD
 	struct cvmx_lmcx_config_cn63xx cn68xx;
 	struct cvmx_lmcx_config_cn63xx cn68xxp1;
 	struct cvmx_lmcx_config_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_control {
@@ -787,7 +829,10 @@ union cvmx_lmcx_control {
 		uint64_t scramble_ena:1;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_control_s cn61xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_lmcx_control_cn63xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_24_63:40;
@@ -833,7 +878,10 @@ union cvmx_lmcx_control {
 		uint64_t reserved_24_63:40;
 #endif
 	} cn63xx;
+<<<<<<< HEAD
 	struct cvmx_lmcx_control_cn63xx cn63xxp1;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_lmcx_control_cn66xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t scramble_ena:1;
@@ -938,8 +986,11 @@ union cvmx_lmcx_control {
 		uint64_t reserved_63_63:1;
 #endif
 	} cn68xx;
+<<<<<<< HEAD
 	struct cvmx_lmcx_control_cn68xx cn68xxp1;
 	struct cvmx_lmcx_control_cn66xx cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_ctl {
@@ -1032,7 +1083,10 @@ union cvmx_lmcx_ctl {
 		uint64_t reserved_32_63:32;
 #endif
 	} cn30xx;
+<<<<<<< HEAD
 	struct cvmx_lmcx_ctl_cn30xx cn31xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_lmcx_ctl_cn38xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_32_63:32;
@@ -1076,7 +1130,10 @@ union cvmx_lmcx_ctl {
 		uint64_t reserved_32_63:32;
 #endif
 	} cn38xx;
+<<<<<<< HEAD
 	struct cvmx_lmcx_ctl_cn38xx cn38xxp2;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_lmcx_ctl_cn50xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_32_63:32;
@@ -1165,9 +1222,12 @@ union cvmx_lmcx_ctl {
 		uint64_t reserved_32_63:32;
 #endif
 	} cn52xx;
+<<<<<<< HEAD
 	struct cvmx_lmcx_ctl_cn52xx cn52xxp1;
 	struct cvmx_lmcx_ctl_cn52xx cn56xx;
 	struct cvmx_lmcx_ctl_cn52xx cn56xxp1;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_lmcx_ctl_cn58xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_32_63:32;
@@ -1211,7 +1271,10 @@ union cvmx_lmcx_ctl {
 		uint64_t reserved_32_63:32;
 #endif
 	} cn58xx;
+<<<<<<< HEAD
 	struct cvmx_lmcx_ctl_cn58xx cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_ctl1 {
@@ -1284,9 +1347,12 @@ union cvmx_lmcx_ctl1 {
 		uint64_t reserved_21_63:43;
 #endif
 	} cn52xx;
+<<<<<<< HEAD
 	struct cvmx_lmcx_ctl1_cn52xx cn52xxp1;
 	struct cvmx_lmcx_ctl1_cn52xx cn56xx;
 	struct cvmx_lmcx_ctl1_cn52xx cn56xxp1;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_lmcx_ctl1_cn58xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_10_63:54;
@@ -1300,7 +1366,10 @@ union cvmx_lmcx_ctl1 {
 		uint64_t reserved_10_63:54;
 #endif
 	} cn58xx;
+<<<<<<< HEAD
 	struct cvmx_lmcx_ctl1_cn58xx cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_dclk_cnt {
@@ -1312,6 +1381,7 @@ union cvmx_lmcx_dclk_cnt {
 		uint64_t dclkcnt:64;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_dclk_cnt_s cn61xx;
 	struct cvmx_lmcx_dclk_cnt_s cn63xx;
 	struct cvmx_lmcx_dclk_cnt_s cn63xxp1;
@@ -1319,6 +1389,8 @@ union cvmx_lmcx_dclk_cnt {
 	struct cvmx_lmcx_dclk_cnt_s cn68xx;
 	struct cvmx_lmcx_dclk_cnt_s cn68xxp1;
 	struct cvmx_lmcx_dclk_cnt_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_dclk_cnt_hi {
@@ -1332,6 +1404,7 @@ union cvmx_lmcx_dclk_cnt_hi {
 		uint64_t reserved_32_63:32;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_dclk_cnt_hi_s cn30xx;
 	struct cvmx_lmcx_dclk_cnt_hi_s cn31xx;
 	struct cvmx_lmcx_dclk_cnt_hi_s cn38xx;
@@ -1343,6 +1416,8 @@ union cvmx_lmcx_dclk_cnt_hi {
 	struct cvmx_lmcx_dclk_cnt_hi_s cn56xxp1;
 	struct cvmx_lmcx_dclk_cnt_hi_s cn58xx;
 	struct cvmx_lmcx_dclk_cnt_hi_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_dclk_cnt_lo {
@@ -1356,6 +1431,7 @@ union cvmx_lmcx_dclk_cnt_lo {
 		uint64_t reserved_32_63:32;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_dclk_cnt_lo_s cn30xx;
 	struct cvmx_lmcx_dclk_cnt_lo_s cn31xx;
 	struct cvmx_lmcx_dclk_cnt_lo_s cn38xx;
@@ -1367,6 +1443,8 @@ union cvmx_lmcx_dclk_cnt_lo {
 	struct cvmx_lmcx_dclk_cnt_lo_s cn56xxp1;
 	struct cvmx_lmcx_dclk_cnt_lo_s cn58xx;
 	struct cvmx_lmcx_dclk_cnt_lo_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_dclk_ctl {
@@ -1386,8 +1464,11 @@ union cvmx_lmcx_dclk_ctl {
 		uint64_t reserved_8_63:56;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_dclk_ctl_s cn56xx;
 	struct cvmx_lmcx_dclk_ctl_s cn56xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_ddr2_ctl {
@@ -1474,6 +1555,7 @@ union cvmx_lmcx_ddr2_ctl {
 		uint64_t reserved_32_63:32;
 #endif
 	} cn30xx;
+<<<<<<< HEAD
 	struct cvmx_lmcx_ddr2_ctl_cn30xx cn31xx;
 	struct cvmx_lmcx_ddr2_ctl_s cn38xx;
 	struct cvmx_lmcx_ddr2_ctl_s cn38xxp2;
@@ -1484,6 +1566,8 @@ union cvmx_lmcx_ddr2_ctl {
 	struct cvmx_lmcx_ddr2_ctl_s cn56xxp1;
 	struct cvmx_lmcx_ddr2_ctl_s cn58xx;
 	struct cvmx_lmcx_ddr2_ctl_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_ddr_pll_ctl {
@@ -1515,6 +1599,7 @@ union cvmx_lmcx_ddr_pll_ctl {
 		uint64_t reserved_27_63:37;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_ddr_pll_ctl_s cn61xx;
 	struct cvmx_lmcx_ddr_pll_ctl_s cn63xx;
 	struct cvmx_lmcx_ddr_pll_ctl_s cn63xxp1;
@@ -1522,6 +1607,8 @@ union cvmx_lmcx_ddr_pll_ctl {
 	struct cvmx_lmcx_ddr_pll_ctl_s cn68xx;
 	struct cvmx_lmcx_ddr_pll_ctl_s cn68xxp1;
 	struct cvmx_lmcx_ddr_pll_ctl_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_delay_cfg {
@@ -1539,7 +1626,10 @@ union cvmx_lmcx_delay_cfg {
 		uint64_t reserved_15_63:49;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_delay_cfg_s cn30xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_lmcx_delay_cfg_cn38xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_14_63:50;
@@ -1557,6 +1647,7 @@ union cvmx_lmcx_delay_cfg {
 		uint64_t reserved_14_63:50;
 #endif
 	} cn38xx;
+<<<<<<< HEAD
 	struct cvmx_lmcx_delay_cfg_cn38xx cn50xx;
 	struct cvmx_lmcx_delay_cfg_cn38xx cn52xx;
 	struct cvmx_lmcx_delay_cfg_cn38xx cn52xxp1;
@@ -1564,6 +1655,8 @@ union cvmx_lmcx_delay_cfg {
 	struct cvmx_lmcx_delay_cfg_cn38xx cn56xxp1;
 	struct cvmx_lmcx_delay_cfg_cn38xx cn58xx;
 	struct cvmx_lmcx_delay_cfg_cn38xx cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_dimmx_params {
@@ -1605,6 +1698,7 @@ union cvmx_lmcx_dimmx_params {
 		uint64_t rc15:4;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_dimmx_params_s cn61xx;
 	struct cvmx_lmcx_dimmx_params_s cn63xx;
 	struct cvmx_lmcx_dimmx_params_s cn63xxp1;
@@ -1612,6 +1706,8 @@ union cvmx_lmcx_dimmx_params {
 	struct cvmx_lmcx_dimmx_params_s cn68xx;
 	struct cvmx_lmcx_dimmx_params_s cn68xxp1;
 	struct cvmx_lmcx_dimmx_params_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_dimm_ctl {
@@ -1631,6 +1727,7 @@ union cvmx_lmcx_dimm_ctl {
 		uint64_t reserved_46_63:18;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_dimm_ctl_s cn61xx;
 	struct cvmx_lmcx_dimm_ctl_s cn63xx;
 	struct cvmx_lmcx_dimm_ctl_s cn63xxp1;
@@ -1638,6 +1735,8 @@ union cvmx_lmcx_dimm_ctl {
 	struct cvmx_lmcx_dimm_ctl_s cn68xx;
 	struct cvmx_lmcx_dimm_ctl_s cn68xxp1;
 	struct cvmx_lmcx_dimm_ctl_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_dll_ctl {
@@ -1657,10 +1756,13 @@ union cvmx_lmcx_dll_ctl {
 		uint64_t reserved_8_63:56;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_dll_ctl_s cn52xx;
 	struct cvmx_lmcx_dll_ctl_s cn52xxp1;
 	struct cvmx_lmcx_dll_ctl_s cn56xx;
 	struct cvmx_lmcx_dll_ctl_s cn56xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_dll_ctl2 {
@@ -1684,7 +1786,10 @@ union cvmx_lmcx_dll_ctl2 {
 		uint64_t reserved_16_63:48;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_dll_ctl2_s cn61xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_lmcx_dll_ctl2_cn63xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_15_63:49;
@@ -1702,11 +1807,14 @@ union cvmx_lmcx_dll_ctl2 {
 		uint64_t reserved_15_63:49;
 #endif
 	} cn63xx;
+<<<<<<< HEAD
 	struct cvmx_lmcx_dll_ctl2_cn63xx cn63xxp1;
 	struct cvmx_lmcx_dll_ctl2_cn63xx cn66xx;
 	struct cvmx_lmcx_dll_ctl2_s cn68xx;
 	struct cvmx_lmcx_dll_ctl2_s cn68xxp1;
 	struct cvmx_lmcx_dll_ctl2_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_dll_ctl3 {
@@ -1748,7 +1856,10 @@ union cvmx_lmcx_dll_ctl3 {
 		uint64_t reserved_41_63:23;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_dll_ctl3_s cn61xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_lmcx_dll_ctl3_cn63xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_29_63:35;
@@ -1776,11 +1887,14 @@ union cvmx_lmcx_dll_ctl3 {
 		uint64_t reserved_29_63:35;
 #endif
 	} cn63xx;
+<<<<<<< HEAD
 	struct cvmx_lmcx_dll_ctl3_cn63xx cn63xxp1;
 	struct cvmx_lmcx_dll_ctl3_cn63xx cn66xx;
 	struct cvmx_lmcx_dll_ctl3_s cn68xx;
 	struct cvmx_lmcx_dll_ctl3_s cn68xxp1;
 	struct cvmx_lmcx_dll_ctl3_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_dual_memcfg {
@@ -1800,6 +1914,7 @@ union cvmx_lmcx_dual_memcfg {
 		uint64_t reserved_20_63:44;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_dual_memcfg_s cn50xx;
 	struct cvmx_lmcx_dual_memcfg_s cn52xx;
 	struct cvmx_lmcx_dual_memcfg_s cn52xxp1;
@@ -1807,6 +1922,8 @@ union cvmx_lmcx_dual_memcfg {
 	struct cvmx_lmcx_dual_memcfg_s cn56xxp1;
 	struct cvmx_lmcx_dual_memcfg_s cn58xx;
 	struct cvmx_lmcx_dual_memcfg_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_lmcx_dual_memcfg_cn61xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_19_63:45;
@@ -1820,12 +1937,15 @@ union cvmx_lmcx_dual_memcfg {
 		uint64_t reserved_19_63:45;
 #endif
 	} cn61xx;
+<<<<<<< HEAD
 	struct cvmx_lmcx_dual_memcfg_cn61xx cn63xx;
 	struct cvmx_lmcx_dual_memcfg_cn61xx cn63xxp1;
 	struct cvmx_lmcx_dual_memcfg_cn61xx cn66xx;
 	struct cvmx_lmcx_dual_memcfg_cn61xx cn68xx;
 	struct cvmx_lmcx_dual_memcfg_cn61xx cn68xxp1;
 	struct cvmx_lmcx_dual_memcfg_cn61xx cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_ecc_synd {
@@ -1845,6 +1965,7 @@ union cvmx_lmcx_ecc_synd {
 		uint64_t reserved_32_63:32;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_ecc_synd_s cn30xx;
 	struct cvmx_lmcx_ecc_synd_s cn31xx;
 	struct cvmx_lmcx_ecc_synd_s cn38xx;
@@ -1863,6 +1984,8 @@ union cvmx_lmcx_ecc_synd {
 	struct cvmx_lmcx_ecc_synd_s cn68xx;
 	struct cvmx_lmcx_ecc_synd_s cn68xxp1;
 	struct cvmx_lmcx_ecc_synd_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_fadr {
@@ -1891,6 +2014,7 @@ union cvmx_lmcx_fadr {
 		uint64_t reserved_32_63:32;
 #endif
 	} cn30xx;
+<<<<<<< HEAD
 	struct cvmx_lmcx_fadr_cn30xx cn31xx;
 	struct cvmx_lmcx_fadr_cn30xx cn38xx;
 	struct cvmx_lmcx_fadr_cn30xx cn38xxp2;
@@ -1901,6 +2025,8 @@ union cvmx_lmcx_fadr {
 	struct cvmx_lmcx_fadr_cn30xx cn56xxp1;
 	struct cvmx_lmcx_fadr_cn30xx cn58xx;
 	struct cvmx_lmcx_fadr_cn30xx cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_lmcx_fadr_cn61xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_36_63:28;
@@ -1918,12 +2044,15 @@ union cvmx_lmcx_fadr {
 		uint64_t reserved_36_63:28;
 #endif
 	} cn61xx;
+<<<<<<< HEAD
 	struct cvmx_lmcx_fadr_cn61xx cn63xx;
 	struct cvmx_lmcx_fadr_cn61xx cn63xxp1;
 	struct cvmx_lmcx_fadr_cn61xx cn66xx;
 	struct cvmx_lmcx_fadr_cn61xx cn68xx;
 	struct cvmx_lmcx_fadr_cn61xx cn68xxp1;
 	struct cvmx_lmcx_fadr_cn61xx cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_ifb_cnt {
@@ -1935,6 +2064,7 @@ union cvmx_lmcx_ifb_cnt {
 		uint64_t ifbcnt:64;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_ifb_cnt_s cn61xx;
 	struct cvmx_lmcx_ifb_cnt_s cn63xx;
 	struct cvmx_lmcx_ifb_cnt_s cn63xxp1;
@@ -1942,6 +2072,8 @@ union cvmx_lmcx_ifb_cnt {
 	struct cvmx_lmcx_ifb_cnt_s cn68xx;
 	struct cvmx_lmcx_ifb_cnt_s cn68xxp1;
 	struct cvmx_lmcx_ifb_cnt_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_ifb_cnt_hi {
@@ -1955,6 +2087,7 @@ union cvmx_lmcx_ifb_cnt_hi {
 		uint64_t reserved_32_63:32;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_ifb_cnt_hi_s cn30xx;
 	struct cvmx_lmcx_ifb_cnt_hi_s cn31xx;
 	struct cvmx_lmcx_ifb_cnt_hi_s cn38xx;
@@ -1966,6 +2099,8 @@ union cvmx_lmcx_ifb_cnt_hi {
 	struct cvmx_lmcx_ifb_cnt_hi_s cn56xxp1;
 	struct cvmx_lmcx_ifb_cnt_hi_s cn58xx;
 	struct cvmx_lmcx_ifb_cnt_hi_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_ifb_cnt_lo {
@@ -1979,6 +2114,7 @@ union cvmx_lmcx_ifb_cnt_lo {
 		uint64_t reserved_32_63:32;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_ifb_cnt_lo_s cn30xx;
 	struct cvmx_lmcx_ifb_cnt_lo_s cn31xx;
 	struct cvmx_lmcx_ifb_cnt_lo_s cn38xx;
@@ -1990,6 +2126,8 @@ union cvmx_lmcx_ifb_cnt_lo {
 	struct cvmx_lmcx_ifb_cnt_lo_s cn56xxp1;
 	struct cvmx_lmcx_ifb_cnt_lo_s cn58xx;
 	struct cvmx_lmcx_ifb_cnt_lo_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_int {
@@ -2007,6 +2145,7 @@ union cvmx_lmcx_int {
 		uint64_t reserved_9_63:55;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_int_s cn61xx;
 	struct cvmx_lmcx_int_s cn63xx;
 	struct cvmx_lmcx_int_s cn63xxp1;
@@ -2014,6 +2153,8 @@ union cvmx_lmcx_int {
 	struct cvmx_lmcx_int_s cn68xx;
 	struct cvmx_lmcx_int_s cn68xxp1;
 	struct cvmx_lmcx_int_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_int_en {
@@ -2031,6 +2172,7 @@ union cvmx_lmcx_int_en {
 		uint64_t reserved_3_63:61;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_int_en_s cn61xx;
 	struct cvmx_lmcx_int_en_s cn63xx;
 	struct cvmx_lmcx_int_en_s cn63xxp1;
@@ -2038,6 +2180,8 @@ union cvmx_lmcx_int_en {
 	struct cvmx_lmcx_int_en_s cn68xx;
 	struct cvmx_lmcx_int_en_s cn68xxp1;
 	struct cvmx_lmcx_int_en_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_mem_cfg0 {
@@ -2075,6 +2219,7 @@ union cvmx_lmcx_mem_cfg0 {
 		uint64_t reserved_32_63:32;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_mem_cfg0_s cn30xx;
 	struct cvmx_lmcx_mem_cfg0_s cn31xx;
 	struct cvmx_lmcx_mem_cfg0_s cn38xx;
@@ -2086,6 +2231,8 @@ union cvmx_lmcx_mem_cfg0 {
 	struct cvmx_lmcx_mem_cfg0_s cn56xxp1;
 	struct cvmx_lmcx_mem_cfg0_s cn58xx;
 	struct cvmx_lmcx_mem_cfg0_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_mem_cfg1 {
@@ -2115,8 +2262,11 @@ union cvmx_lmcx_mem_cfg1 {
 		uint64_t reserved_32_63:32;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_mem_cfg1_s cn30xx;
 	struct cvmx_lmcx_mem_cfg1_s cn31xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_lmcx_mem_cfg1_cn38xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_31_63:33;
@@ -2140,6 +2290,7 @@ union cvmx_lmcx_mem_cfg1 {
 		uint64_t reserved_31_63:33;
 #endif
 	} cn38xx;
+<<<<<<< HEAD
 	struct cvmx_lmcx_mem_cfg1_cn38xx cn38xxp2;
 	struct cvmx_lmcx_mem_cfg1_s cn50xx;
 	struct cvmx_lmcx_mem_cfg1_cn38xx cn52xx;
@@ -2148,6 +2299,8 @@ union cvmx_lmcx_mem_cfg1 {
 	struct cvmx_lmcx_mem_cfg1_cn38xx cn56xxp1;
 	struct cvmx_lmcx_mem_cfg1_cn38xx cn58xx;
 	struct cvmx_lmcx_mem_cfg1_cn38xx cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_modereg_params0 {
@@ -2189,6 +2342,7 @@ union cvmx_lmcx_modereg_params0 {
 		uint64_t reserved_25_63:39;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_modereg_params0_s cn61xx;
 	struct cvmx_lmcx_modereg_params0_s cn63xx;
 	struct cvmx_lmcx_modereg_params0_s cn63xxp1;
@@ -2196,6 +2350,8 @@ union cvmx_lmcx_modereg_params0 {
 	struct cvmx_lmcx_modereg_params0_s cn68xx;
 	struct cvmx_lmcx_modereg_params0_s cn68xxp1;
 	struct cvmx_lmcx_modereg_params0_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_modereg_params1 {
@@ -2255,6 +2411,7 @@ union cvmx_lmcx_modereg_params1 {
 		uint64_t reserved_48_63:16;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_modereg_params1_s cn61xx;
 	struct cvmx_lmcx_modereg_params1_s cn63xx;
 	struct cvmx_lmcx_modereg_params1_s cn63xxp1;
@@ -2262,6 +2419,8 @@ union cvmx_lmcx_modereg_params1 {
 	struct cvmx_lmcx_modereg_params1_s cn68xx;
 	struct cvmx_lmcx_modereg_params1_s cn68xxp1;
 	struct cvmx_lmcx_modereg_params1_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_nxm {
@@ -2300,6 +2459,7 @@ union cvmx_lmcx_nxm {
 		uint64_t reserved_8_63:56;
 #endif
 	} cn52xx;
+<<<<<<< HEAD
 	struct cvmx_lmcx_nxm_cn52xx cn56xx;
 	struct cvmx_lmcx_nxm_cn52xx cn58xx;
 	struct cvmx_lmcx_nxm_s cn61xx;
@@ -2309,6 +2469,8 @@ union cvmx_lmcx_nxm {
 	struct cvmx_lmcx_nxm_s cn68xx;
 	struct cvmx_lmcx_nxm_s cn68xxp1;
 	struct cvmx_lmcx_nxm_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_ops_cnt {
@@ -2320,6 +2482,7 @@ union cvmx_lmcx_ops_cnt {
 		uint64_t opscnt:64;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_ops_cnt_s cn61xx;
 	struct cvmx_lmcx_ops_cnt_s cn63xx;
 	struct cvmx_lmcx_ops_cnt_s cn63xxp1;
@@ -2327,6 +2490,8 @@ union cvmx_lmcx_ops_cnt {
 	struct cvmx_lmcx_ops_cnt_s cn68xx;
 	struct cvmx_lmcx_ops_cnt_s cn68xxp1;
 	struct cvmx_lmcx_ops_cnt_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_ops_cnt_hi {
@@ -2340,6 +2505,7 @@ union cvmx_lmcx_ops_cnt_hi {
 		uint64_t reserved_32_63:32;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_ops_cnt_hi_s cn30xx;
 	struct cvmx_lmcx_ops_cnt_hi_s cn31xx;
 	struct cvmx_lmcx_ops_cnt_hi_s cn38xx;
@@ -2351,6 +2517,8 @@ union cvmx_lmcx_ops_cnt_hi {
 	struct cvmx_lmcx_ops_cnt_hi_s cn56xxp1;
 	struct cvmx_lmcx_ops_cnt_hi_s cn58xx;
 	struct cvmx_lmcx_ops_cnt_hi_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_ops_cnt_lo {
@@ -2364,6 +2532,7 @@ union cvmx_lmcx_ops_cnt_lo {
 		uint64_t reserved_32_63:32;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_ops_cnt_lo_s cn30xx;
 	struct cvmx_lmcx_ops_cnt_lo_s cn31xx;
 	struct cvmx_lmcx_ops_cnt_lo_s cn38xx;
@@ -2375,6 +2544,8 @@ union cvmx_lmcx_ops_cnt_lo {
 	struct cvmx_lmcx_ops_cnt_lo_s cn56xxp1;
 	struct cvmx_lmcx_ops_cnt_lo_s cn58xx;
 	struct cvmx_lmcx_ops_cnt_lo_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_phy_ctl {
@@ -2404,8 +2575,11 @@ union cvmx_lmcx_phy_ctl {
 		uint64_t reserved_15_63:49;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_phy_ctl_s cn61xx;
 	struct cvmx_lmcx_phy_ctl_s cn63xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_lmcx_phy_ctl_cn63xxp1 {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_14_63:50;
@@ -2429,10 +2603,13 @@ union cvmx_lmcx_phy_ctl {
 		uint64_t reserved_14_63:50;
 #endif
 	} cn63xxp1;
+<<<<<<< HEAD
 	struct cvmx_lmcx_phy_ctl_s cn66xx;
 	struct cvmx_lmcx_phy_ctl_s cn68xx;
 	struct cvmx_lmcx_phy_ctl_s cn68xxp1;
 	struct cvmx_lmcx_phy_ctl_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_pll_bwctl {
@@ -2448,10 +2625,13 @@ union cvmx_lmcx_pll_bwctl {
 		uint64_t reserved_5_63:59;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_pll_bwctl_s cn30xx;
 	struct cvmx_lmcx_pll_bwctl_s cn31xx;
 	struct cvmx_lmcx_pll_bwctl_s cn38xx;
 	struct cvmx_lmcx_pll_bwctl_s cn38xxp2;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_pll_ctl {
@@ -2520,9 +2700,12 @@ union cvmx_lmcx_pll_ctl {
 		uint64_t reserved_29_63:35;
 #endif
 	} cn50xx;
+<<<<<<< HEAD
 	struct cvmx_lmcx_pll_ctl_s cn52xx;
 	struct cvmx_lmcx_pll_ctl_s cn52xxp1;
 	struct cvmx_lmcx_pll_ctl_cn50xx cn56xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_lmcx_pll_ctl_cn56xxp1 {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_28_63:36;
@@ -2552,8 +2735,11 @@ union cvmx_lmcx_pll_ctl {
 		uint64_t reserved_28_63:36;
 #endif
 	} cn56xxp1;
+<<<<<<< HEAD
 	struct cvmx_lmcx_pll_ctl_cn56xxp1 cn58xx;
 	struct cvmx_lmcx_pll_ctl_cn56xxp1 cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_pll_status {
@@ -2575,12 +2761,15 @@ union cvmx_lmcx_pll_status {
 		uint64_t reserved_32_63:32;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_pll_status_s cn50xx;
 	struct cvmx_lmcx_pll_status_s cn52xx;
 	struct cvmx_lmcx_pll_status_s cn52xxp1;
 	struct cvmx_lmcx_pll_status_s cn56xx;
 	struct cvmx_lmcx_pll_status_s cn56xxp1;
 	struct cvmx_lmcx_pll_status_s cn58xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_lmcx_pll_status_cn58xxp1 {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_2_63:62;
@@ -2615,10 +2804,13 @@ union cvmx_lmcx_read_level_ctl {
 		uint64_t reserved_44_63:20;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_read_level_ctl_s cn52xx;
 	struct cvmx_lmcx_read_level_ctl_s cn52xxp1;
 	struct cvmx_lmcx_read_level_ctl_s cn56xx;
 	struct cvmx_lmcx_read_level_ctl_s cn56xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_read_level_dbg {
@@ -2636,10 +2828,13 @@ union cvmx_lmcx_read_level_dbg {
 		uint64_t reserved_32_63:32;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_read_level_dbg_s cn52xx;
 	struct cvmx_lmcx_read_level_dbg_s cn52xxp1;
 	struct cvmx_lmcx_read_level_dbg_s cn56xx;
 	struct cvmx_lmcx_read_level_dbg_s cn56xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_read_level_rankx {
@@ -2671,10 +2866,13 @@ union cvmx_lmcx_read_level_rankx {
 		uint64_t reserved_38_63:26;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_read_level_rankx_s cn52xx;
 	struct cvmx_lmcx_read_level_rankx_s cn52xxp1;
 	struct cvmx_lmcx_read_level_rankx_s cn56xx;
 	struct cvmx_lmcx_read_level_rankx_s cn56xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_reset_ctl {
@@ -2694,6 +2892,7 @@ union cvmx_lmcx_reset_ctl {
 		uint64_t reserved_4_63:60;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_reset_ctl_s cn61xx;
 	struct cvmx_lmcx_reset_ctl_s cn63xx;
 	struct cvmx_lmcx_reset_ctl_s cn63xxp1;
@@ -2701,6 +2900,8 @@ union cvmx_lmcx_reset_ctl {
 	struct cvmx_lmcx_reset_ctl_s cn68xx;
 	struct cvmx_lmcx_reset_ctl_s cn68xxp1;
 	struct cvmx_lmcx_reset_ctl_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_rlevel_ctl {
@@ -2730,8 +2931,11 @@ union cvmx_lmcx_rlevel_ctl {
 		uint64_t reserved_22_63:42;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_rlevel_ctl_s cn61xx;
 	struct cvmx_lmcx_rlevel_ctl_s cn63xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_lmcx_rlevel_ctl_cn63xxp1 {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_9_63:55;
@@ -2745,10 +2949,13 @@ union cvmx_lmcx_rlevel_ctl {
 		uint64_t reserved_9_63:55;
 #endif
 	} cn63xxp1;
+<<<<<<< HEAD
 	struct cvmx_lmcx_rlevel_ctl_s cn66xx;
 	struct cvmx_lmcx_rlevel_ctl_s cn68xx;
 	struct cvmx_lmcx_rlevel_ctl_s cn68xxp1;
 	struct cvmx_lmcx_rlevel_ctl_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_rlevel_dbg {
@@ -2760,6 +2967,7 @@ union cvmx_lmcx_rlevel_dbg {
 		uint64_t bitmask:64;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_rlevel_dbg_s cn61xx;
 	struct cvmx_lmcx_rlevel_dbg_s cn63xx;
 	struct cvmx_lmcx_rlevel_dbg_s cn63xxp1;
@@ -2767,6 +2975,8 @@ union cvmx_lmcx_rlevel_dbg {
 	struct cvmx_lmcx_rlevel_dbg_s cn68xx;
 	struct cvmx_lmcx_rlevel_dbg_s cn68xxp1;
 	struct cvmx_lmcx_rlevel_dbg_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_rlevel_rankx {
@@ -2798,6 +3008,7 @@ union cvmx_lmcx_rlevel_rankx {
 		uint64_t reserved_56_63:8;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_rlevel_rankx_s cn61xx;
 	struct cvmx_lmcx_rlevel_rankx_s cn63xx;
 	struct cvmx_lmcx_rlevel_rankx_s cn63xxp1;
@@ -2805,6 +3016,8 @@ union cvmx_lmcx_rlevel_rankx {
 	struct cvmx_lmcx_rlevel_rankx_s cn68xx;
 	struct cvmx_lmcx_rlevel_rankx_s cn68xxp1;
 	struct cvmx_lmcx_rlevel_rankx_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_rodt_comp_ctl {
@@ -2826,6 +3039,7 @@ union cvmx_lmcx_rodt_comp_ctl {
 		uint64_t reserved_17_63:47;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_rodt_comp_ctl_s cn50xx;
 	struct cvmx_lmcx_rodt_comp_ctl_s cn52xx;
 	struct cvmx_lmcx_rodt_comp_ctl_s cn52xxp1;
@@ -2833,6 +3047,8 @@ union cvmx_lmcx_rodt_comp_ctl {
 	struct cvmx_lmcx_rodt_comp_ctl_s cn56xxp1;
 	struct cvmx_lmcx_rodt_comp_ctl_s cn58xx;
 	struct cvmx_lmcx_rodt_comp_ctl_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_rodt_ctl {
@@ -2860,6 +3076,7 @@ union cvmx_lmcx_rodt_ctl {
 		uint64_t reserved_32_63:32;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_rodt_ctl_s cn30xx;
 	struct cvmx_lmcx_rodt_ctl_s cn31xx;
 	struct cvmx_lmcx_rodt_ctl_s cn38xx;
@@ -2871,6 +3088,8 @@ union cvmx_lmcx_rodt_ctl {
 	struct cvmx_lmcx_rodt_ctl_s cn56xxp1;
 	struct cvmx_lmcx_rodt_ctl_s cn58xx;
 	struct cvmx_lmcx_rodt_ctl_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_rodt_mask {
@@ -2896,6 +3115,7 @@ union cvmx_lmcx_rodt_mask {
 		uint64_t rodt_d3_r1:8;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_rodt_mask_s cn61xx;
 	struct cvmx_lmcx_rodt_mask_s cn63xx;
 	struct cvmx_lmcx_rodt_mask_s cn63xxp1;
@@ -2903,6 +3123,8 @@ union cvmx_lmcx_rodt_mask {
 	struct cvmx_lmcx_rodt_mask_s cn68xx;
 	struct cvmx_lmcx_rodt_mask_s cn68xxp1;
 	struct cvmx_lmcx_rodt_mask_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_scramble_cfg0 {
@@ -2914,9 +3136,12 @@ union cvmx_lmcx_scramble_cfg0 {
 		uint64_t key:64;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_scramble_cfg0_s cn61xx;
 	struct cvmx_lmcx_scramble_cfg0_s cn66xx;
 	struct cvmx_lmcx_scramble_cfg0_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_scramble_cfg1 {
@@ -2928,9 +3153,12 @@ union cvmx_lmcx_scramble_cfg1 {
 		uint64_t key:64;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_scramble_cfg1_s cn61xx;
 	struct cvmx_lmcx_scramble_cfg1_s cn66xx;
 	struct cvmx_lmcx_scramble_cfg1_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_scrambled_fadr {
@@ -2952,9 +3180,12 @@ union cvmx_lmcx_scrambled_fadr {
 		uint64_t reserved_36_63:28;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_scrambled_fadr_s cn61xx;
 	struct cvmx_lmcx_scrambled_fadr_s cn66xx;
 	struct cvmx_lmcx_scrambled_fadr_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_slot_ctl0 {
@@ -2974,6 +3205,7 @@ union cvmx_lmcx_slot_ctl0 {
 		uint64_t reserved_24_63:40;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_slot_ctl0_s cn61xx;
 	struct cvmx_lmcx_slot_ctl0_s cn63xx;
 	struct cvmx_lmcx_slot_ctl0_s cn63xxp1;
@@ -2981,6 +3213,8 @@ union cvmx_lmcx_slot_ctl0 {
 	struct cvmx_lmcx_slot_ctl0_s cn68xx;
 	struct cvmx_lmcx_slot_ctl0_s cn68xxp1;
 	struct cvmx_lmcx_slot_ctl0_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_slot_ctl1 {
@@ -3000,6 +3234,7 @@ union cvmx_lmcx_slot_ctl1 {
 		uint64_t reserved_24_63:40;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_slot_ctl1_s cn61xx;
 	struct cvmx_lmcx_slot_ctl1_s cn63xx;
 	struct cvmx_lmcx_slot_ctl1_s cn63xxp1;
@@ -3007,6 +3242,8 @@ union cvmx_lmcx_slot_ctl1 {
 	struct cvmx_lmcx_slot_ctl1_s cn68xx;
 	struct cvmx_lmcx_slot_ctl1_s cn68xxp1;
 	struct cvmx_lmcx_slot_ctl1_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_slot_ctl2 {
@@ -3026,6 +3263,7 @@ union cvmx_lmcx_slot_ctl2 {
 		uint64_t reserved_24_63:40;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_slot_ctl2_s cn61xx;
 	struct cvmx_lmcx_slot_ctl2_s cn63xx;
 	struct cvmx_lmcx_slot_ctl2_s cn63xxp1;
@@ -3033,6 +3271,8 @@ union cvmx_lmcx_slot_ctl2 {
 	struct cvmx_lmcx_slot_ctl2_s cn68xx;
 	struct cvmx_lmcx_slot_ctl2_s cn68xxp1;
 	struct cvmx_lmcx_slot_ctl2_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_timing_params0 {
@@ -3095,7 +3335,10 @@ union cvmx_lmcx_timing_params0 {
 		uint64_t reserved_47_63:17;
 #endif
 	} cn61xx;
+<<<<<<< HEAD
 	struct cvmx_lmcx_timing_params0_cn61xx cn63xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_lmcx_timing_params0_cn63xxp1 {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_46_63:18;
@@ -3123,10 +3366,13 @@ union cvmx_lmcx_timing_params0 {
 		uint64_t reserved_46_63:18;
 #endif
 	} cn63xxp1;
+<<<<<<< HEAD
 	struct cvmx_lmcx_timing_params0_cn61xx cn66xx;
 	struct cvmx_lmcx_timing_params0_cn61xx cn68xx;
 	struct cvmx_lmcx_timing_params0_cn61xx cn68xxp1;
 	struct cvmx_lmcx_timing_params0_cn61xx cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_timing_params1 {
@@ -3162,8 +3408,11 @@ union cvmx_lmcx_timing_params1 {
 		uint64_t reserved_47_63:17;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_timing_params1_s cn61xx;
 	struct cvmx_lmcx_timing_params1_s cn63xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_lmcx_timing_params1_cn63xxp1 {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_46_63:18;
@@ -3193,10 +3442,13 @@ union cvmx_lmcx_timing_params1 {
 		uint64_t reserved_46_63:18;
 #endif
 	} cn63xxp1;
+<<<<<<< HEAD
 	struct cvmx_lmcx_timing_params1_s cn66xx;
 	struct cvmx_lmcx_timing_params1_s cn68xx;
 	struct cvmx_lmcx_timing_params1_s cn68xxp1;
 	struct cvmx_lmcx_timing_params1_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_tro_ctl {
@@ -3212,6 +3464,7 @@ union cvmx_lmcx_tro_ctl {
 		uint64_t reserved_33_63:31;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_tro_ctl_s cn61xx;
 	struct cvmx_lmcx_tro_ctl_s cn63xx;
 	struct cvmx_lmcx_tro_ctl_s cn63xxp1;
@@ -3219,6 +3472,8 @@ union cvmx_lmcx_tro_ctl {
 	struct cvmx_lmcx_tro_ctl_s cn68xx;
 	struct cvmx_lmcx_tro_ctl_s cn68xxp1;
 	struct cvmx_lmcx_tro_ctl_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_tro_stat {
@@ -3232,6 +3487,7 @@ union cvmx_lmcx_tro_stat {
 		uint64_t reserved_32_63:32;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_tro_stat_s cn61xx;
 	struct cvmx_lmcx_tro_stat_s cn63xx;
 	struct cvmx_lmcx_tro_stat_s cn63xxp1;
@@ -3239,6 +3495,8 @@ union cvmx_lmcx_tro_stat {
 	struct cvmx_lmcx_tro_stat_s cn68xx;
 	struct cvmx_lmcx_tro_stat_s cn68xxp1;
 	struct cvmx_lmcx_tro_stat_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_wlevel_ctl {
@@ -3260,8 +3518,11 @@ union cvmx_lmcx_wlevel_ctl {
 		uint64_t reserved_22_63:42;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_wlevel_ctl_s cn61xx;
 	struct cvmx_lmcx_wlevel_ctl_s cn63xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_lmcx_wlevel_ctl_cn63xxp1 {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_10_63:54;
@@ -3273,10 +3534,13 @@ union cvmx_lmcx_wlevel_ctl {
 		uint64_t reserved_10_63:54;
 #endif
 	} cn63xxp1;
+<<<<<<< HEAD
 	struct cvmx_lmcx_wlevel_ctl_s cn66xx;
 	struct cvmx_lmcx_wlevel_ctl_s cn68xx;
 	struct cvmx_lmcx_wlevel_ctl_s cn68xxp1;
 	struct cvmx_lmcx_wlevel_ctl_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_wlevel_dbg {
@@ -3292,6 +3556,7 @@ union cvmx_lmcx_wlevel_dbg {
 		uint64_t reserved_12_63:52;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_wlevel_dbg_s cn61xx;
 	struct cvmx_lmcx_wlevel_dbg_s cn63xx;
 	struct cvmx_lmcx_wlevel_dbg_s cn63xxp1;
@@ -3299,6 +3564,8 @@ union cvmx_lmcx_wlevel_dbg {
 	struct cvmx_lmcx_wlevel_dbg_s cn68xx;
 	struct cvmx_lmcx_wlevel_dbg_s cn68xxp1;
 	struct cvmx_lmcx_wlevel_dbg_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_wlevel_rankx {
@@ -3330,6 +3597,7 @@ union cvmx_lmcx_wlevel_rankx {
 		uint64_t reserved_47_63:17;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_wlevel_rankx_s cn61xx;
 	struct cvmx_lmcx_wlevel_rankx_s cn63xx;
 	struct cvmx_lmcx_wlevel_rankx_s cn63xxp1;
@@ -3337,6 +3605,8 @@ union cvmx_lmcx_wlevel_rankx {
 	struct cvmx_lmcx_wlevel_rankx_s cn68xx;
 	struct cvmx_lmcx_wlevel_rankx_s cn68xxp1;
 	struct cvmx_lmcx_wlevel_rankx_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_wodt_ctl0 {
@@ -3363,7 +3633,10 @@ union cvmx_lmcx_wodt_ctl0 {
 		uint64_t reserved_32_63:32;
 #endif
 	} cn30xx;
+<<<<<<< HEAD
 	struct cvmx_lmcx_wodt_ctl0_cn30xx cn31xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_lmcx_wodt_ctl0_cn38xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_32_63:32;
@@ -3387,6 +3660,7 @@ union cvmx_lmcx_wodt_ctl0 {
 		uint64_t reserved_32_63:32;
 #endif
 	} cn38xx;
+<<<<<<< HEAD
 	struct cvmx_lmcx_wodt_ctl0_cn38xx cn38xxp2;
 	struct cvmx_lmcx_wodt_ctl0_cn38xx cn50xx;
 	struct cvmx_lmcx_wodt_ctl0_cn30xx cn52xx;
@@ -3395,6 +3669,8 @@ union cvmx_lmcx_wodt_ctl0 {
 	struct cvmx_lmcx_wodt_ctl0_cn30xx cn56xxp1;
 	struct cvmx_lmcx_wodt_ctl0_cn38xx cn58xx;
 	struct cvmx_lmcx_wodt_ctl0_cn38xx cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_wodt_ctl1 {
@@ -3414,12 +3690,15 @@ union cvmx_lmcx_wodt_ctl1 {
 		uint64_t reserved_32_63:32;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_wodt_ctl1_s cn30xx;
 	struct cvmx_lmcx_wodt_ctl1_s cn31xx;
 	struct cvmx_lmcx_wodt_ctl1_s cn52xx;
 	struct cvmx_lmcx_wodt_ctl1_s cn52xxp1;
 	struct cvmx_lmcx_wodt_ctl1_s cn56xx;
 	struct cvmx_lmcx_wodt_ctl1_s cn56xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_lmcx_wodt_mask {
@@ -3445,6 +3724,7 @@ union cvmx_lmcx_wodt_mask {
 		uint64_t wodt_d3_r1:8;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_lmcx_wodt_mask_s cn61xx;
 	struct cvmx_lmcx_wodt_mask_s cn63xx;
 	struct cvmx_lmcx_wodt_mask_s cn63xxp1;
@@ -3452,6 +3732,8 @@ union cvmx_lmcx_wodt_mask {
 	struct cvmx_lmcx_wodt_mask_s cn68xx;
 	struct cvmx_lmcx_wodt_mask_s cn68xxp1;
 	struct cvmx_lmcx_wodt_mask_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 #endif

@@ -9,14 +9,21 @@
   _sdata = .;
   PROVIDE (sdata = .);
 
+<<<<<<< HEAD
   RODATA
+=======
+  RO_DATA(4096)
+>>>>>>> upstream/android-13
 
   .unprotected : { *(.unprotected) }
   . = ALIGN(4096);
   PROVIDE (_unprotected_end = .);
 
   . = ALIGN(4096);
+<<<<<<< HEAD
   NOTES
+=======
+>>>>>>> upstream/android-13
   EXCEPTION_TABLE(0)
 
   BUG_TABLE
@@ -53,8 +60,11 @@
 	CON_INITCALL
   }
 
+<<<<<<< HEAD
   SECURITY_INIT
 
+=======
+>>>>>>> upstream/android-13
   .exitcall : {
 	__exitcall_begin = .;
 	*(.exitcall.exit)

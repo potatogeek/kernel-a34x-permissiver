@@ -37,7 +37,10 @@
 #include "gmc/gmc_8_2_sh_mask.h"
 #include "oss/oss_3_0_d.h"
 #include "oss/oss_3_0_sh_mask.h"
+<<<<<<< HEAD
 #include "gca/gfx_8_0_sh_mask.h"
+=======
+>>>>>>> upstream/android-13
 #include "dce/dce_10_0_d.h"
 #include "dce/dce_10_0_sh_mask.h"
 #include "smu/smu_7_1_3_d.h"
@@ -516,12 +519,21 @@ static void xgpu_vi_mailbox_flr_work(struct work_struct *work)
 
 	/* wait until RCV_MSG become 3 */
 	if (xgpu_vi_poll_msg(adev, IDH_FLR_NOTIFICATION_CMPL)) {
+<<<<<<< HEAD
 		pr_err("failed to recieve FLR_CMPL\n");
+=======
+		pr_err("failed to receive FLR_CMPL\n");
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	/* Trigger recovery due to world switch failure */
+<<<<<<< HEAD
 	amdgpu_device_gpu_recover(adev, NULL, false);
+=======
+	if (amdgpu_device_should_recover_gpu(adev))
+		amdgpu_device_gpu_recover(adev, NULL);
+>>>>>>> upstream/android-13
 }
 
 static int xgpu_vi_set_mailbox_rcv_irq(struct amdgpu_device *adev,
@@ -579,11 +591,19 @@ int xgpu_vi_mailbox_add_irq_id(struct amdgpu_device *adev)
 {
 	int r;
 
+<<<<<<< HEAD
 	r = amdgpu_irq_add_id(adev, AMDGPU_IH_CLIENTID_LEGACY, 135, &adev->virt.rcv_irq);
 	if (r)
 		return r;
 
 	r = amdgpu_irq_add_id(adev, AMDGPU_IH_CLIENTID_LEGACY, 138, &adev->virt.ack_irq);
+=======
+	r = amdgpu_irq_add_id(adev, AMDGPU_IRQ_CLIENTID_LEGACY, 135, &adev->virt.rcv_irq);
+	if (r)
+		return r;
+
+	r = amdgpu_irq_add_id(adev, AMDGPU_IRQ_CLIENTID_LEGACY, 138, &adev->virt.ack_irq);
+>>>>>>> upstream/android-13
 	if (r) {
 		amdgpu_irq_put(adev, &adev->virt.rcv_irq, 0);
 		return r;

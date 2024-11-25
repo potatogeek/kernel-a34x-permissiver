@@ -60,7 +60,11 @@ static const struct mlxsw_sp1_kvdl_part_info mlxsw_sp1_kvdl_parts_info[] = {
 
 struct mlxsw_sp1_kvdl_part {
 	struct mlxsw_sp1_kvdl_part_info info;
+<<<<<<< HEAD
 	unsigned long usage[0];	/* Entries */
+=======
+	unsigned long usage[];	/* Entries */
+>>>>>>> upstream/android-13
 };
 
 struct mlxsw_sp1_kvdl {

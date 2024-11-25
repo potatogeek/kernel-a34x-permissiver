@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * MPC832x RDB Device Tree Source
  *
  * Copyright 2007 Freescale Semiconductor Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 /dts-v1/;
@@ -253,7 +260,11 @@
 			reg = <0x4c0 0x40>;
 			interrupts = <2>;
 			interrupt-parent = <&qeic>;
+<<<<<<< HEAD
 			gpios = <&qe_pio_d 13 0>;
+=======
+			cs-gpios = <&qe_pio_d 13 0>;
+>>>>>>> upstream/android-13
 			mode = "cpu-qe";
 
 			mmc-slot@0 {
@@ -311,6 +322,7 @@
 			compatible = "fsl,ucc-mdio";
 
 			phy00:ethernet-phy@0 {
+<<<<<<< HEAD
 				interrupt-parent = <&ipic>;
 				interrupts = <0>;
 				reg = <0x0>;
@@ -318,6 +330,11 @@
 			phy04:ethernet-phy@4 {
 				interrupt-parent = <&ipic>;
 				interrupts = <0>;
+=======
+				reg = <0x0>;
+			};
+			phy04:ethernet-phy@4 {
+>>>>>>> upstream/android-13
 				reg = <0x4>;
 			};
 		};

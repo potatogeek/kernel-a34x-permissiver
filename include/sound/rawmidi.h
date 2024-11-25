@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef __SOUND_RAWMIDI_H
 #define __SOUND_RAWMIDI_H
 
 /*
  *  Abstract layer for MIDI v1.0 stream
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
+<<<<<<< HEAD
  *
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -20,6 +25,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <sound/asound.h>
@@ -96,6 +103,11 @@ struct snd_rawmidi_substream {
 	bool opened;			/* open flag */
 	bool append;			/* append flag (merge more streams) */
 	bool active_sensing;		/* send active sensing when close */
+<<<<<<< HEAD
+=======
+	unsigned int framing;		/* whether to frame input data */
+	unsigned int clock_type;	/* clock source to use for input framing */
+>>>>>>> upstream/android-13
 	int use_count;			/* use counter (for output) */
 	size_t bytes;
 	struct snd_rawmidi *rmidi;
@@ -111,6 +123,10 @@ struct snd_rawmidi_file {
 	struct snd_rawmidi *rmidi;
 	struct snd_rawmidi_substream *input;
 	struct snd_rawmidi_substream *output;
+<<<<<<< HEAD
+=======
+	unsigned int user_pversion;	/* supported protocol version */
+>>>>>>> upstream/android-13
 };
 
 struct snd_rawmidi_str {
@@ -172,6 +188,10 @@ int __snd_rawmidi_transmit_peek(struct snd_rawmidi_substream *substream,
 			      unsigned char *buffer, int count);
 int __snd_rawmidi_transmit_ack(struct snd_rawmidi_substream *substream,
 			       int count);
+<<<<<<< HEAD
+=======
+int snd_rawmidi_proceed(struct snd_rawmidi_substream *substream);
+>>>>>>> upstream/android-13
 
 /* main midi functions */
 

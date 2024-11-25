@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * isl29020.c - Intersil  ALS Driver
  *
@@ -5,6 +9,7 @@
  *
  *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+=======
+>>>>>>> upstream/android-13
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
  * Data sheet at: http://www.intersil.com/data/fn/fn6505.pdf
@@ -184,6 +191,10 @@ static int  isl29020_probe(struct i2c_client *client,
 
 static int isl29020_remove(struct i2c_client *client)
 {
+<<<<<<< HEAD
+=======
+	pm_runtime_disable(&client->dev);
+>>>>>>> upstream/android-13
 	sysfs_remove_group(&client->dev.kobj, &m_als_gr);
 	return 0;
 }

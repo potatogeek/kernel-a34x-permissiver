@@ -1,4 +1,5 @@
 #!/bin/sh
+<<<<<<< HEAD
 # gen-insn-x86-dat: generate data for the insn-x86 test
 # Copyright (c) 2015, Intel Corporation.
 #
@@ -10,6 +11,12 @@
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 # FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 # more details.
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+# gen-insn-x86-dat: generate data for the insn-x86 test
+# Copyright (c) 2015, Intel Corporation.
+#
+>>>>>>> upstream/android-13
 
 set -e
 

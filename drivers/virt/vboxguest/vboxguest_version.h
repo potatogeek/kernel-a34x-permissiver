@@ -9,11 +9,19 @@
 #ifndef __VBOX_VERSION_H__
 #define __VBOX_VERSION_H__
 
+<<<<<<< HEAD
 /* Last synced October 4th 2017 */
 #define VBG_VERSION_MAJOR 5
 #define VBG_VERSION_MINOR 2
 #define VBG_VERSION_BUILD 0
 #define VBG_SVN_REV 68940
 #define VBG_VERSION_STRING "5.2.0"
+=======
+#define VBG_VERSION_MAJOR 6
+#define VBG_VERSION_MINOR 0
+#define VBG_VERSION_BUILD 0
+#define VBG_SVN_REV 127566
+#define VBG_VERSION_STRING "6.0.0"
+>>>>>>> upstream/android-13
 
 #endif

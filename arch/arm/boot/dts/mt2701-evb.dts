@@ -14,6 +14,10 @@
 	compatible = "mediatek,mt2701-evb", "mediatek,mt2701";
 
 	memory {
+<<<<<<< HEAD
+=======
+		device_type = "memory";
+>>>>>>> upstream/android-13
 		reg = <0 0x80000000 0 0x40000000>;
 	};
 
@@ -242,9 +246,15 @@
 
 &usb2 {
 	status = "okay";
+<<<<<<< HEAD
 	connector{
 		compatible = "gpio-usb-b-connector";
 		label = "micro-USB";
+=======
+	usb-role-switch;
+	connector{
+		compatible = "gpio-usb-b-connector", "usb-b-connector";
+>>>>>>> upstream/android-13
 		type = "micro";
 		id-gpios = <&pio 44 GPIO_ACTIVE_HIGH>;
 		vbus-supply = <&usb_vbus>;

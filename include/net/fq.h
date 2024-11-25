@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016 Qualcomm Atheros, Inc
  *
  * GPL v2
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2016 Qualcomm Atheros, Inc
+ *
+>>>>>>> upstream/android-13
  * Based on net/sched/sch_fq_codel.c
  */
 #ifndef __NET_SCHED_FQ_H
@@ -20,8 +27,11 @@ struct fq_tin;
  * @flowchain: can be linked to fq_tin's new_flows or old_flows. Used for DRR++
  *	(deficit round robin) based round robin queuing similar to the one
  *	found in net/sched/sch_fq_codel.c
+<<<<<<< HEAD
  * @backlogchain: can be linked to other fq_flow and fq. Used to keep track of
  *	fat flows and efficient head-dropping if packet limit is reached
+=======
+>>>>>>> upstream/android-13
  * @queue: sk_buff queue to hold packets
  * @backlog: number of bytes pending in the queue. The number of packets can be
  *	found in @queue.qlen
@@ -30,7 +40,10 @@ struct fq_tin;
 struct fq_flow {
 	struct fq_tin *tin;
 	struct list_head flowchain;
+<<<<<<< HEAD
 	struct list_head backlogchain;
+=======
+>>>>>>> upstream/android-13
 	struct sk_buff_head queue;
 	u32 backlog;
 	int deficit;
@@ -48,6 +61,11 @@ struct fq_flow {
 struct fq_tin {
 	struct list_head new_flows;
 	struct list_head old_flows;
+<<<<<<< HEAD
+=======
+	struct list_head tin_list;
+	struct fq_flow default_flow;
+>>>>>>> upstream/android-13
 	u32 backlog_bytes;
 	u32 backlog_packets;
 	u32 overlimit;
@@ -60,17 +78,28 @@ struct fq_tin {
 /**
  * struct fq - main container for fair queuing purposes
  *
+<<<<<<< HEAD
  * @backlogs: linked to fq_flows. Used to maintain fat flows for efficient
  *	head-dropping when @backlog reaches @limit
+=======
+>>>>>>> upstream/android-13
  * @limit: max number of packets that can be queued across all flows
  * @backlog: number of packets queued across all flows
  */
 struct fq {
 	struct fq_flow *flows;
+<<<<<<< HEAD
 	struct list_head backlogs;
 	spinlock_t lock;
 	u32 flows_cnt;
 	siphash_key_t	perturbation;
+=======
+	unsigned long *flows_bitmap;
+
+	struct list_head tin_backlog;
+	spinlock_t lock;
+	u32 flows_cnt;
+>>>>>>> upstream/android-13
 	u32 limit;
 	u32 memory_limit;
 	u32 memory_usage;

@@ -10,7 +10,11 @@
 #include <linux/slab.h>
 #include <linux/delay.h>
 #include <linux/device.h>
+<<<<<<< HEAD
 #include <linux/dma-mapping.h>
+=======
+#include <linux/dma-map-ops.h>
+>>>>>>> upstream/android-13
 #include <linux/errno.h>
 #include <linux/iommu-helper.h>
 #include <linux/bitmap.h>
@@ -108,10 +112,16 @@ int iommu_table_init(struct iommu *iommu, int tsbsize,
 	/* Allocate and initialize the free area map.  */
 	sz = num_tsb_entries / 8;
 	sz = (sz + 7UL) & ~7UL;
+<<<<<<< HEAD
 	iommu->tbl.map = kmalloc_node(sz, GFP_KERNEL, numa_node);
 	if (!iommu->tbl.map)
 		return -ENOMEM;
 	memset(iommu->tbl.map, 0, sz);
+=======
+	iommu->tbl.map = kzalloc_node(sz, GFP_KERNEL, numa_node);
+	if (!iommu->tbl.map)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	iommu_tbl_pool_init(&iommu->tbl, num_tsb_entries, IO_PAGE_SHIFT,
 			    (tlb_type != hypervisor ? iommu_flushall : NULL),
@@ -315,7 +325,11 @@ bad:
 bad_no_ctx:
 	if (printk_ratelimit())
 		WARN_ON(1);
+<<<<<<< HEAD
 	return SPARC_MAPPING_ERROR;
+=======
+	return DMA_MAPPING_ERROR;
+>>>>>>> upstream/android-13
 }
 
 static void strbuf_flush(struct strbuf *strbuf, struct iommu *iommu,
@@ -449,7 +463,11 @@ static int dma_4u_map_sg(struct device *dev, struct scatterlist *sglist,
 	iommu = dev->archdata.iommu;
 	strbuf = dev->archdata.stc;
 	if (nelems == 0 || !iommu)
+<<<<<<< HEAD
 		return 0;
+=======
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&iommu->lock, flags);
 
@@ -473,8 +491,12 @@ static int dma_4u_map_sg(struct device *dev, struct scatterlist *sglist,
 	outs->dma_length = 0;
 
 	max_seg_size = dma_get_max_seg_size(dev);
+<<<<<<< HEAD
 	seg_boundary_size = ALIGN(dma_get_seg_boundary(dev) + 1,
 				  IO_PAGE_SIZE) >> IO_PAGE_SHIFT;
+=======
+	seg_boundary_size = dma_get_seg_boundary_nr_pages(dev, IO_PAGE_SHIFT);
+>>>>>>> upstream/android-13
 	base_shift = iommu->tbl.table_map_base >> IO_PAGE_SHIFT;
 	for_each_sg(sglist, s, nelems, i) {
 		unsigned long paddr, npages, entry, out_entry = 0, slen;
@@ -548,7 +570,10 @@ static int dma_4u_map_sg(struct device *dev, struct scatterlist *sglist,
 
 	if (outcount < incount) {
 		outs = sg_next(outs);
+<<<<<<< HEAD
 		outs->dma_address = SPARC_MAPPING_ERROR;
+=======
+>>>>>>> upstream/android-13
 		outs->dma_length = 0;
 	}
 
@@ -574,7 +599,10 @@ iommu_map_failed:
 			iommu_tbl_range_free(&iommu->tbl, vaddr, npages,
 					     IOMMU_ERROR_CODE);
 
+<<<<<<< HEAD
 			s->dma_address = SPARC_MAPPING_ERROR;
+=======
+>>>>>>> upstream/android-13
 			s->dma_length = 0;
 		}
 		if (s == outs)
@@ -582,7 +610,11 @@ iommu_map_failed:
 	}
 	spin_unlock_irqrestore(&iommu->lock, flags);
 
+<<<<<<< HEAD
 	return 0;
+=======
+	return -EINVAL;
+>>>>>>> upstream/android-13
 }
 
 /* If contexts are being used, they are the same in all of the mappings
@@ -742,15 +774,19 @@ static void dma_4u_sync_sg_for_cpu(struct device *dev,
 	spin_unlock_irqrestore(&iommu->lock, flags);
 }
 
+<<<<<<< HEAD
 static int dma_4u_mapping_error(struct device *dev, dma_addr_t dma_addr)
 {
 	return dma_addr == SPARC_MAPPING_ERROR;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int dma_4u_supported(struct device *dev, u64 device_mask)
 {
 	struct iommu *iommu = dev->archdata.iommu;
 
+<<<<<<< HEAD
 	if (device_mask > DMA_BIT_MASK(32))
 		return 0;
 	if ((device_mask & iommu->dma_addr_mask) == iommu->dma_addr_mask)
@@ -760,6 +796,14 @@ static int dma_4u_supported(struct device *dev, u64 device_mask)
 		return pci64_dma_supported(to_pci_dev(dev), device_mask);
 #endif
 	return 0;
+=======
+	if (ali_sound_dma_hack(dev, device_mask))
+		return 1;
+
+	if (device_mask < iommu->dma_addr_mask)
+		return 0;
+	return 1;
+>>>>>>> upstream/android-13
 }
 
 static const struct dma_map_ops sun4u_dma_ops = {
@@ -772,7 +816,10 @@ static const struct dma_map_ops sun4u_dma_ops = {
 	.sync_single_for_cpu	= dma_4u_sync_single_for_cpu,
 	.sync_sg_for_cpu	= dma_4u_sync_sg_for_cpu,
 	.dma_supported		= dma_4u_supported,
+<<<<<<< HEAD
 	.mapping_error		= dma_4u_mapping_error,
+=======
+>>>>>>> upstream/android-13
 };
 
 const struct dma_map_ops *dma_ops = &sun4u_dma_ops;

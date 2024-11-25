@@ -16,18 +16,30 @@
 #define	RF_T_METER_8723B					0x42	/*  */
 
 
+<<<<<<< HEAD
 void ConfigureTxpowerTrack_8723B(PTXPWRTRACK_CFG	pConfig);
 
 void DoIQK_8723B(
 	PDM_ODM_T pDM_Odm,
+=======
+void ConfigureTxpowerTrack_8723B(struct txpwrtrack_cfg *pConfig);
+
+void DoIQK_8723B(
+	struct dm_odm_t *pDM_Odm,
+>>>>>>> upstream/android-13
 	u8 DeltaThermalIndex,
 	u8 ThermalValue,
 	u8 Threshold
 );
 
 void ODM_TxPwrTrackSetPwr_8723B(
+<<<<<<< HEAD
 	PDM_ODM_T pDM_Odm,
 	PWRTRACK_METHOD Method,
+=======
+	struct dm_odm_t *pDM_Odm,
+	enum pwrtrack_method Method,
+>>>>>>> upstream/android-13
 	u8 RFPath,
 	u8 ChannelMappedIndex
 );
@@ -41,12 +53,20 @@ void PHY_IQCalibrate_8723B(
 	u8 RF_Path
 );
 
+<<<<<<< HEAD
 void ODM_SetIQCbyRFpath(PDM_ODM_T pDM_Odm, u32 RFpath);
+=======
+void ODM_SetIQCbyRFpath(struct dm_odm_t *pDM_Odm, u32 RFpath);
+>>>>>>> upstream/android-13
 
 /*  */
 /*  LC calibrate */
 /*  */
+<<<<<<< HEAD
 void PHY_LCCalibrate_8723B(PDM_ODM_T pDM_Odm);
+=======
+void PHY_LCCalibrate_8723B(struct dm_odm_t *pDM_Odm);
+>>>>>>> upstream/android-13
 
 /*  */
 /*  AP calibrate */

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	IPv6 BSD socket options interface
  *	Linux INET6 implementation
@@ -7,11 +11,14 @@
  *
  *	Based on linux/net/ipv4/ip_sockglue.c
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *	FIXME: Make the setsockopt code POSIX compliant: That is
  *
  *	o	Truncate getsockopt returns
@@ -140,8 +147,266 @@ static bool setsockopt_needs_rtnl(int optname)
 	return false;
 }
 
+<<<<<<< HEAD
 static int do_ipv6_setsockopt(struct sock *sk, int level, int optname,
 		    char __user *optval, unsigned int optlen)
+=======
+static int copy_group_source_from_sockptr(struct group_source_req *greqs,
+		sockptr_t optval, int optlen)
+{
+	if (in_compat_syscall()) {
+		struct compat_group_source_req gr32;
+
+		if (optlen < sizeof(gr32))
+			return -EINVAL;
+		if (copy_from_sockptr(&gr32, optval, sizeof(gr32)))
+			return -EFAULT;
+		greqs->gsr_interface = gr32.gsr_interface;
+		greqs->gsr_group = gr32.gsr_group;
+		greqs->gsr_source = gr32.gsr_source;
+	} else {
+		if (optlen < sizeof(*greqs))
+			return -EINVAL;
+		if (copy_from_sockptr(greqs, optval, sizeof(*greqs)))
+			return -EFAULT;
+	}
+
+	return 0;
+}
+
+static int do_ipv6_mcast_group_source(struct sock *sk, int optname,
+		sockptr_t optval, int optlen)
+{
+	struct group_source_req greqs;
+	int omode, add;
+	int ret;
+
+	ret = copy_group_source_from_sockptr(&greqs, optval, optlen);
+	if (ret)
+		return ret;
+
+	if (greqs.gsr_group.ss_family != AF_INET6 ||
+	    greqs.gsr_source.ss_family != AF_INET6)
+		return -EADDRNOTAVAIL;
+
+	if (optname == MCAST_BLOCK_SOURCE) {
+		omode = MCAST_EXCLUDE;
+		add = 1;
+	} else if (optname == MCAST_UNBLOCK_SOURCE) {
+		omode = MCAST_EXCLUDE;
+		add = 0;
+	} else if (optname == MCAST_JOIN_SOURCE_GROUP) {
+		struct sockaddr_in6 *psin6;
+		int retv;
+
+		psin6 = (struct sockaddr_in6 *)&greqs.gsr_group;
+		retv = ipv6_sock_mc_join_ssm(sk, greqs.gsr_interface,
+					     &psin6->sin6_addr,
+					     MCAST_INCLUDE);
+		/* prior join w/ different source is ok */
+		if (retv && retv != -EADDRINUSE)
+			return retv;
+		omode = MCAST_INCLUDE;
+		add = 1;
+	} else /* MCAST_LEAVE_SOURCE_GROUP */ {
+		omode = MCAST_INCLUDE;
+		add = 0;
+	}
+	return ip6_mc_source(add, omode, sk, &greqs);
+}
+
+static int ipv6_set_mcast_msfilter(struct sock *sk, sockptr_t optval,
+		int optlen)
+{
+	struct group_filter *gsf;
+	int ret;
+
+	if (optlen < GROUP_FILTER_SIZE(0))
+		return -EINVAL;
+	if (optlen > sysctl_optmem_max)
+		return -ENOBUFS;
+
+	gsf = memdup_sockptr(optval, optlen);
+	if (IS_ERR(gsf))
+		return PTR_ERR(gsf);
+
+	/* numsrc >= (4G-140)/128 overflow in 32 bits */
+	ret = -ENOBUFS;
+	if (gsf->gf_numsrc >= 0x1ffffffU ||
+	    gsf->gf_numsrc > sysctl_mld_max_msf)
+		goto out_free_gsf;
+
+	ret = -EINVAL;
+	if (GROUP_FILTER_SIZE(gsf->gf_numsrc) > optlen)
+		goto out_free_gsf;
+
+	ret = ip6_mc_msfilter(sk, gsf, gsf->gf_slist_flex);
+out_free_gsf:
+	kfree(gsf);
+	return ret;
+}
+
+static int compat_ipv6_set_mcast_msfilter(struct sock *sk, sockptr_t optval,
+		int optlen)
+{
+	const int size0 = offsetof(struct compat_group_filter, gf_slist_flex);
+	struct compat_group_filter *gf32;
+	void *p;
+	int ret;
+	int n;
+
+	if (optlen < size0)
+		return -EINVAL;
+	if (optlen > sysctl_optmem_max - 4)
+		return -ENOBUFS;
+
+	p = kmalloc(optlen + 4, GFP_KERNEL);
+	if (!p)
+		return -ENOMEM;
+
+	gf32 = p + 4; /* we want ->gf_group and ->gf_slist_flex aligned */
+	ret = -EFAULT;
+	if (copy_from_sockptr(gf32, optval, optlen))
+		goto out_free_p;
+
+	/* numsrc >= (4G-140)/128 overflow in 32 bits */
+	ret = -ENOBUFS;
+	n = gf32->gf_numsrc;
+	if (n >= 0x1ffffffU || n > sysctl_mld_max_msf)
+		goto out_free_p;
+
+	ret = -EINVAL;
+	if (offsetof(struct compat_group_filter, gf_slist_flex[n]) > optlen)
+		goto out_free_p;
+
+	ret = ip6_mc_msfilter(sk, &(struct group_filter){
+			.gf_interface = gf32->gf_interface,
+			.gf_group = gf32->gf_group,
+			.gf_fmode = gf32->gf_fmode,
+			.gf_numsrc = gf32->gf_numsrc}, gf32->gf_slist_flex);
+
+out_free_p:
+	kfree(p);
+	return ret;
+}
+
+static int ipv6_mcast_join_leave(struct sock *sk, int optname,
+		sockptr_t optval, int optlen)
+{
+	struct sockaddr_in6 *psin6;
+	struct group_req greq;
+
+	if (optlen < sizeof(greq))
+		return -EINVAL;
+	if (copy_from_sockptr(&greq, optval, sizeof(greq)))
+		return -EFAULT;
+
+	if (greq.gr_group.ss_family != AF_INET6)
+		return -EADDRNOTAVAIL;
+	psin6 = (struct sockaddr_in6 *)&greq.gr_group;
+	if (optname == MCAST_JOIN_GROUP)
+		return ipv6_sock_mc_join(sk, greq.gr_interface,
+					 &psin6->sin6_addr);
+	return ipv6_sock_mc_drop(sk, greq.gr_interface, &psin6->sin6_addr);
+}
+
+static int compat_ipv6_mcast_join_leave(struct sock *sk, int optname,
+		sockptr_t optval, int optlen)
+{
+	struct compat_group_req gr32;
+	struct sockaddr_in6 *psin6;
+
+	if (optlen < sizeof(gr32))
+		return -EINVAL;
+	if (copy_from_sockptr(&gr32, optval, sizeof(gr32)))
+		return -EFAULT;
+
+	if (gr32.gr_group.ss_family != AF_INET6)
+		return -EADDRNOTAVAIL;
+	psin6 = (struct sockaddr_in6 *)&gr32.gr_group;
+	if (optname == MCAST_JOIN_GROUP)
+		return ipv6_sock_mc_join(sk, gr32.gr_interface,
+					&psin6->sin6_addr);
+	return ipv6_sock_mc_drop(sk, gr32.gr_interface, &psin6->sin6_addr);
+}
+
+static int ipv6_set_opt_hdr(struct sock *sk, int optname, sockptr_t optval,
+		int optlen)
+{
+	struct ipv6_pinfo *np = inet6_sk(sk);
+	struct ipv6_opt_hdr *new = NULL;
+	struct net *net = sock_net(sk);
+	struct ipv6_txoptions *opt;
+	int err;
+
+	/* hop-by-hop / destination options are privileged option */
+	if (optname != IPV6_RTHDR && !ns_capable(net->user_ns, CAP_NET_RAW))
+		return -EPERM;
+
+	/* remove any sticky options header with a zero option
+	 * length, per RFC3542.
+	 */
+	if (optlen > 0) {
+		if (sockptr_is_null(optval))
+			return -EINVAL;
+		if (optlen < sizeof(struct ipv6_opt_hdr) ||
+		    optlen & 0x7 ||
+		    optlen > 8 * 255)
+			return -EINVAL;
+
+		new = memdup_sockptr(optval, optlen);
+		if (IS_ERR(new))
+			return PTR_ERR(new);
+		if (unlikely(ipv6_optlen(new) > optlen)) {
+			kfree(new);
+			return -EINVAL;
+		}
+	}
+
+	opt = rcu_dereference_protected(np->opt, lockdep_sock_is_held(sk));
+	opt = ipv6_renew_options(sk, opt, optname, new);
+	kfree(new);
+	if (IS_ERR(opt))
+		return PTR_ERR(opt);
+
+	/* routing header option needs extra check */
+	err = -EINVAL;
+	if (optname == IPV6_RTHDR && opt && opt->srcrt) {
+		struct ipv6_rt_hdr *rthdr = opt->srcrt;
+		switch (rthdr->type) {
+#if IS_ENABLED(CONFIG_IPV6_MIP6)
+		case IPV6_SRCRT_TYPE_2:
+			if (rthdr->hdrlen != 2 || rthdr->segments_left != 1)
+				goto sticky_done;
+			break;
+#endif
+		case IPV6_SRCRT_TYPE_4:
+		{
+			struct ipv6_sr_hdr *srh =
+				(struct ipv6_sr_hdr *)opt->srcrt;
+
+			if (!seg6_validate_srh(srh, optlen, false))
+				goto sticky_done;
+			break;
+		}
+		default:
+			goto sticky_done;
+		}
+	}
+
+	err = 0;
+	opt = ipv6_update_options(sk, opt);
+sticky_done:
+	if (opt) {
+		atomic_sub(opt->tot_len, &sk->sk_omem_alloc);
+		txopt_put(opt);
+	}
+	return err;
+}
+
+static int do_ipv6_setsockopt(struct sock *sk, int level, int optname,
+		   sockptr_t optval, unsigned int optlen)
+>>>>>>> upstream/android-13
 {
 	struct ipv6_pinfo *np = inet6_sk(sk);
 	struct net *net = sock_net(sk);
@@ -149,11 +414,19 @@ static int do_ipv6_setsockopt(struct sock *sk, int level, int optname,
 	int retv = -ENOPROTOOPT;
 	bool needs_rtnl = setsockopt_needs_rtnl(optname);
 
+<<<<<<< HEAD
 	if (!optval)
 		val = 0;
 	else {
 		if (optlen >= sizeof(int)) {
 			if (get_user(val, (int __user *) optval))
+=======
+	if (sockptr_is_null(optval))
+		val = 0;
+	else {
+		if (optlen >= sizeof(int)) {
+			if (copy_from_sockptr(&val, optval, sizeof(val)))
+>>>>>>> upstream/android-13
 				return -EFAULT;
 		} else
 			val = 0;
@@ -374,8 +647,13 @@ static int do_ipv6_setsockopt(struct sock *sk, int level, int optname,
 		break;
 
 	case IPV6_TRANSPARENT:
+<<<<<<< HEAD
 		if (valbool && !ns_capable(net->user_ns, CAP_NET_ADMIN) &&
 		    !ns_capable(net->user_ns, CAP_NET_RAW)) {
+=======
+		if (valbool && !ns_capable(net->user_ns, CAP_NET_RAW) &&
+		    !ns_capable(net->user_ns, CAP_NET_ADMIN)) {
+>>>>>>> upstream/android-13
 			retv = -EPERM;
 			break;
 		}
@@ -405,6 +683,7 @@ static int do_ipv6_setsockopt(struct sock *sk, int level, int optname,
 	case IPV6_RTHDRDSTOPTS:
 	case IPV6_RTHDR:
 	case IPV6_DSTOPTS:
+<<<<<<< HEAD
 	{
 		struct ipv6_txoptions *opt;
 		struct ipv6_opt_hdr *new = NULL;
@@ -481,6 +760,10 @@ sticky_done:
 		}
 		break;
 	}
+=======
+		retv = ipv6_set_opt_hdr(sk, optname, optval, optlen);
+		break;
+>>>>>>> upstream/android-13
 
 	case IPV6_PKTINFO:
 	{
@@ -488,6 +771,7 @@ sticky_done:
 
 		if (optlen == 0)
 			goto e_inval;
+<<<<<<< HEAD
 		else if (optlen < sizeof(struct in6_pktinfo) || !optval)
 			goto e_inval;
 
@@ -496,6 +780,17 @@ sticky_done:
 				break;
 		}
 		if (sk->sk_bound_dev_if && pkt.ipi6_ifindex != sk->sk_bound_dev_if)
+=======
+		else if (optlen < sizeof(struct in6_pktinfo) ||
+			 sockptr_is_null(optval))
+			goto e_inval;
+
+		if (copy_from_sockptr(&pkt, optval, sizeof(pkt))) {
+			retv = -EFAULT;
+			break;
+		}
+		if (!sk_dev_equal_l3scope(sk, pkt.ipi6_ifindex))
+>>>>>>> upstream/android-13
 			goto e_inval;
 
 		np->sticky_pktinfo.ipi6_ifindex = pkt.ipi6_ifindex;
@@ -534,7 +829,11 @@ sticky_done:
 		refcount_set(&opt->refcnt, 1);
 		opt->tot_len = sizeof(*opt) + optlen;
 		retv = -EFAULT;
+<<<<<<< HEAD
 		if (copy_from_user(opt+1, optval, optlen))
+=======
+		if (copy_from_sockptr(opt + 1, optval, optlen))
+>>>>>>> upstream/android-13
 			goto done;
 
 		msg.msg_controllen = optlen;
@@ -656,7 +955,11 @@ done:
 			break;
 
 		retv = -EFAULT;
+<<<<<<< HEAD
 		if (copy_from_user(&mreq, optval, sizeof(struct ipv6_mreq)))
+=======
+		if (copy_from_sockptr(&mreq, optval, sizeof(struct ipv6_mreq)))
+>>>>>>> upstream/android-13
 			break;
 
 		if (optname == IPV6_ADD_MEMBERSHIP)
@@ -674,7 +977,11 @@ done:
 			goto e_inval;
 
 		retv = -EFAULT;
+<<<<<<< HEAD
 		if (copy_from_user(&mreq, optval, sizeof(struct ipv6_mreq)))
+=======
+		if (copy_from_sockptr(&mreq, optval, sizeof(struct ipv6_mreq)))
+>>>>>>> upstream/android-13
 			break;
 
 		if (optname == IPV6_JOIN_ANYCAST)
@@ -683,6 +990,7 @@ done:
 			retv = ipv6_sock_ac_drop(sk, mreq.ipv6mr_ifindex, &mreq.ipv6mr_acaddr);
 		break;
 	}
+<<<<<<< HEAD
 	case MCAST_JOIN_GROUP:
 	case MCAST_LEAVE_GROUP:
 	{
@@ -708,10 +1016,29 @@ done:
 						 &psin6->sin6_addr);
 		break;
 	}
+=======
+	case IPV6_MULTICAST_ALL:
+		if (optlen < sizeof(int))
+			goto e_inval;
+		np->mc_all = valbool;
+		retv = 0;
+		break;
+
+	case MCAST_JOIN_GROUP:
+	case MCAST_LEAVE_GROUP:
+		if (in_compat_syscall())
+			retv = compat_ipv6_mcast_join_leave(sk, optname, optval,
+							    optlen);
+		else
+			retv = ipv6_mcast_join_leave(sk, optname, optval,
+						     optlen);
+		break;
+>>>>>>> upstream/android-13
 	case MCAST_JOIN_SOURCE_GROUP:
 	case MCAST_LEAVE_SOURCE_GROUP:
 	case MCAST_BLOCK_SOURCE:
 	case MCAST_UNBLOCK_SOURCE:
+<<<<<<< HEAD
 	{
 		struct group_source_req greqs;
 		int omode, add;
@@ -784,11 +1111,31 @@ done:
 
 		break;
 	}
+=======
+		retv = do_ipv6_mcast_group_source(sk, optname, optval, optlen);
+		break;
+	case MCAST_MSFILTER:
+		if (in_compat_syscall())
+			retv = compat_ipv6_set_mcast_msfilter(sk, optval,
+							      optlen);
+		else
+			retv = ipv6_set_mcast_msfilter(sk, optval, optlen);
+		break;
+>>>>>>> upstream/android-13
 	case IPV6_ROUTER_ALERT:
 		if (optlen < sizeof(int))
 			goto e_inval;
 		retv = ip6_ra_control(sk, val);
 		break;
+<<<<<<< HEAD
+=======
+	case IPV6_ROUTER_ALERT_ISOLATE:
+		if (optlen < sizeof(int))
+			goto e_inval;
+		np->rtalert_isolate = valbool;
+		retv = 0;
+		break;
+>>>>>>> upstream/android-13
 	case IPV6_MTU_DISCOVER:
 		if (optlen < sizeof(int))
 			goto e_inval;
@@ -831,6 +1178,7 @@ done:
 		break;
 
 	case IPV6_ADDR_PREFERENCES:
+<<<<<<< HEAD
 	    {
 		unsigned int pref = 0;
 		unsigned int prefmask = ~0;
@@ -892,6 +1240,12 @@ pref_skip_coa:
 
 		break;
 	    }
+=======
+		if (optlen < sizeof(int))
+			goto e_inval;
+		retv = __ip6_sock_set_addr_preferences(sk, val);
+		break;
+>>>>>>> upstream/android-13
 	case IPV6_MINHOPCOUNT:
 		if (optlen < sizeof(int))
 			goto e_inval;
@@ -913,6 +1267,17 @@ pref_skip_coa:
 		np->rxopt.bits.recvfragsize = valbool;
 		retv = 0;
 		break;
+<<<<<<< HEAD
+=======
+	case IPV6_RECVERR_RFC4884:
+		if (optlen < sizeof(int))
+			goto e_inval;
+		if (val < 0 || val > 1)
+			goto e_inval;
+		np->recverr_rfc4884 = valbool;
+		retv = 0;
+		break;
+>>>>>>> upstream/android-13
 	}
 
 	release_sock(sk);
@@ -928,8 +1293,13 @@ e_inval:
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 int ipv6_setsockopt(struct sock *sk, int level, int optname,
 		    char __user *optval, unsigned int optlen)
+=======
+int ipv6_setsockopt(struct sock *sk, int level, int optname, sockptr_t optval,
+		    unsigned int optlen)
+>>>>>>> upstream/android-13
 {
 	int err;
 
@@ -950,6 +1320,7 @@ int ipv6_setsockopt(struct sock *sk, int level, int optname,
 }
 EXPORT_SYMBOL(ipv6_setsockopt);
 
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 int compat_ipv6_setsockopt(struct sock *sk, int level, int optname,
 			   char __user *optval, unsigned int optlen)
@@ -983,6 +1354,8 @@ int compat_ipv6_setsockopt(struct sock *sk, int level, int optname,
 EXPORT_SYMBOL(compat_ipv6_setsockopt);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static int ipv6_getsockopt_sticky(struct sock *sk, struct ipv6_txoptions *opt,
 				  int optname, char __user *optval, int len)
 {
@@ -1017,6 +1390,78 @@ static int ipv6_getsockopt_sticky(struct sock *sk, struct ipv6_txoptions *opt,
 	return len;
 }
 
+<<<<<<< HEAD
+=======
+static int ipv6_get_msfilter(struct sock *sk, void __user *optval,
+		int __user *optlen, int len)
+{
+	const int size0 = offsetof(struct group_filter, gf_slist_flex);
+	struct group_filter __user *p = optval;
+	struct group_filter gsf;
+	int num;
+	int err;
+
+	if (len < size0)
+		return -EINVAL;
+	if (copy_from_user(&gsf, p, size0))
+		return -EFAULT;
+	if (gsf.gf_group.ss_family != AF_INET6)
+		return -EADDRNOTAVAIL;
+	num = gsf.gf_numsrc;
+	lock_sock(sk);
+	err = ip6_mc_msfget(sk, &gsf, p->gf_slist_flex);
+	if (!err) {
+		if (num > gsf.gf_numsrc)
+			num = gsf.gf_numsrc;
+		if (put_user(GROUP_FILTER_SIZE(num), optlen) ||
+		    copy_to_user(p, &gsf, size0))
+			err = -EFAULT;
+	}
+	release_sock(sk);
+	return err;
+}
+
+static int compat_ipv6_get_msfilter(struct sock *sk, void __user *optval,
+		int __user *optlen)
+{
+	const int size0 = offsetof(struct compat_group_filter, gf_slist_flex);
+	struct compat_group_filter __user *p = optval;
+	struct compat_group_filter gf32;
+	struct group_filter gf;
+	int len, err;
+	int num;
+
+	if (get_user(len, optlen))
+		return -EFAULT;
+	if (len < size0)
+		return -EINVAL;
+
+	if (copy_from_user(&gf32, p, size0))
+		return -EFAULT;
+	gf.gf_interface = gf32.gf_interface;
+	gf.gf_fmode = gf32.gf_fmode;
+	num = gf.gf_numsrc = gf32.gf_numsrc;
+	gf.gf_group = gf32.gf_group;
+
+	if (gf.gf_group.ss_family != AF_INET6)
+		return -EADDRNOTAVAIL;
+
+	lock_sock(sk);
+	err = ip6_mc_msfget(sk, &gf, p->gf_slist_flex);
+	release_sock(sk);
+	if (err)
+		return err;
+	if (num > gf.gf_numsrc)
+		num = gf.gf_numsrc;
+	len = GROUP_FILTER_SIZE(num) - (sizeof(gf)-sizeof(gf32));
+	if (put_user(len, optlen) ||
+	    put_user(gf.gf_fmode, &p->gf_fmode) ||
+	    put_user(gf.gf_numsrc, &p->gf_numsrc))
+		return -EFAULT;
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int do_ipv6_getsockopt(struct sock *sk, int level, int optname,
 		    char __user *optval, int __user *optlen, unsigned int flags)
 {
@@ -1040,6 +1485,7 @@ static int do_ipv6_getsockopt(struct sock *sk, int level, int optname,
 		val = sk->sk_family;
 		break;
 	case MCAST_MSFILTER:
+<<<<<<< HEAD
 	{
 		struct group_filter gsf;
 		int err;
@@ -1057,6 +1503,11 @@ static int do_ipv6_getsockopt(struct sock *sk, int level, int optname,
 		return err;
 	}
 
+=======
+		if (in_compat_syscall())
+			return compat_ipv6_get_msfilter(sk, optval, optlen);
+		return ipv6_get_msfilter(sk, optval, optlen, len);
+>>>>>>> upstream/android-13
 	case IPV6_2292PKTOPTIONS:
 	{
 		struct msghdr msg;
@@ -1065,9 +1516,16 @@ static int do_ipv6_getsockopt(struct sock *sk, int level, int optname,
 		if (sk->sk_type != SOCK_STREAM)
 			return -ENOPROTOOPT;
 
+<<<<<<< HEAD
 		msg.msg_control = optval;
 		msg.msg_controllen = len;
 		msg.msg_flags = flags;
+=======
+		msg.msg_control_user = optval;
+		msg.msg_controllen = len;
+		msg.msg_flags = flags;
+		msg.msg_control_is_user = true;
+>>>>>>> upstream/android-13
 
 		lock_sock(sk);
 		skb = np->pktoptions;
@@ -1275,6 +1733,13 @@ static int do_ipv6_getsockopt(struct sock *sk, int level, int optname,
 		val = np->mcast_oif;
 		break;
 
+<<<<<<< HEAD
+=======
+	case IPV6_MULTICAST_ALL:
+		val = np->mc_all;
+		break;
+
+>>>>>>> upstream/android-13
 	case IPV6_UNICAST_IF:
 		val = (__force int)htonl((__u32) np->ucast_oif);
 		break;
@@ -1356,6 +1821,17 @@ static int do_ipv6_getsockopt(struct sock *sk, int level, int optname,
 		val = np->rxopt.bits.recvfragsize;
 		break;
 
+<<<<<<< HEAD
+=======
+	case IPV6_ROUTER_ALERT_ISOLATE:
+		val = np->rtalert_isolate;
+		break;
+
+	case IPV6_RECVERR_RFC4884:
+		val = np->recverr_rfc4884;
+		break;
+
+>>>>>>> upstream/android-13
 	default:
 		return -ENOPROTOOPT;
 	}
@@ -1395,6 +1871,7 @@ int ipv6_getsockopt(struct sock *sk, int level, int optname,
 	return err;
 }
 EXPORT_SYMBOL(ipv6_getsockopt);
+<<<<<<< HEAD
 
 #ifdef CONFIG_COMPAT
 int compat_ipv6_getsockopt(struct sock *sk, int level, int optname,
@@ -1435,3 +1912,5 @@ int compat_ipv6_getsockopt(struct sock *sk, int level, int optname,
 }
 EXPORT_SYMBOL(compat_ipv6_getsockopt);
 #endif
+=======
+>>>>>>> upstream/android-13

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2014-2015 The Linux Foundation. All rights reserved.
  * Copyright (C) 2013 Red Hat
  * Author: Rob Clark <robdclark@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
@@ -17,6 +22,15 @@
  */
 
 #include <drm/drm_print.h>
+=======
+ */
+
+#include <drm/drm_atomic.h>
+#include <drm/drm_damage_helper.h>
+#include <drm/drm_fourcc.h>
+#include <drm/drm_print.h>
+
+>>>>>>> upstream/android-13
 #include "mdp5_kms.h"
 
 struct mdp5_plane {
@@ -46,14 +60,23 @@ static void mdp5_plane_destroy(struct drm_plane *plane)
 {
 	struct mdp5_plane *mdp5_plane = to_mdp5_plane(plane);
 
+<<<<<<< HEAD
 	drm_plane_helper_disable(plane, NULL);
+=======
+>>>>>>> upstream/android-13
 	drm_plane_cleanup(plane);
 
 	kfree(mdp5_plane);
 }
 
+<<<<<<< HEAD
 static void mdp5_plane_install_rotation_property(struct drm_device *dev,
 		struct drm_plane *plane)
+=======
+/* helper to install properties which are common to planes and crtcs */
+static void mdp5_plane_install_properties(struct drm_plane *plane,
+		struct drm_mode_object *obj)
+>>>>>>> upstream/android-13
 {
 	drm_plane_create_rotation_property(plane,
 					   DRM_MODE_ROTATE_0,
@@ -61,6 +84,7 @@ static void mdp5_plane_install_rotation_property(struct drm_device *dev,
 					   DRM_MODE_ROTATE_180 |
 					   DRM_MODE_REFLECT_X |
 					   DRM_MODE_REFLECT_Y);
+<<<<<<< HEAD
 }
 
 /* helper to install properties which are common to planes and crtcs */
@@ -159,6 +183,14 @@ static int mdp5_plane_atomic_get_property(struct drm_plane *plane,
 done:
 	return ret;
 #undef SET_PROPERTY
+=======
+	drm_plane_create_alpha_property(plane);
+	drm_plane_create_blend_mode_property(plane,
+			BIT(DRM_MODE_BLEND_PIXEL_NONE) |
+			BIT(DRM_MODE_BLEND_PREMULTI) |
+			BIT(DRM_MODE_BLEND_COVERAGE));
+	drm_plane_create_zpos_property(plane, 1, 1, 255);
+>>>>>>> upstream/android-13
 }
 
 static void
@@ -174,9 +206,16 @@ mdp5_plane_atomic_print_state(struct drm_printer *p,
 		drm_printf(p, "\tright-hwpipe=%s\n",
 			   pstate->r_hwpipe ? pstate->r_hwpipe->name :
 					      "(null)");
+<<<<<<< HEAD
 	drm_printf(p, "\tpremultiplied=%u\n", pstate->premultiplied);
 	drm_printf(p, "\tzpos=%u\n", pstate->zpos);
 	drm_printf(p, "\talpha=%u\n", pstate->alpha);
+=======
+	drm_printf(p, "\tblend_mode=%u\n", pstate->base.pixel_blend_mode);
+	drm_printf(p, "\tzpos=%u\n", pstate->base.zpos);
+	drm_printf(p, "\tnormalized_zpos=%u\n", pstate->base.normalized_zpos);
+	drm_printf(p, "\talpha=%u\n", pstate->base.alpha);
+>>>>>>> upstream/android-13
 	drm_printf(p, "\tstage=%s\n", stage2name(pstate->stage));
 }
 
@@ -184,6 +223,7 @@ static void mdp5_plane_reset(struct drm_plane *plane)
 {
 	struct mdp5_plane_state *mdp5_state;
 
+<<<<<<< HEAD
 	if (plane->state && plane->state->fb)
 		drm_framebuffer_unreference(plane->state->fb);
 
@@ -202,6 +242,24 @@ static void mdp5_plane_reset(struct drm_plane *plane)
 	mdp5_state->base.plane = plane;
 
 	plane->state = &mdp5_state->base;
+=======
+	if (plane->state)
+		__drm_atomic_helper_plane_destroy_state(plane->state);
+
+	kfree(to_mdp5_plane_state(plane->state));
+	plane->state = NULL;
+	mdp5_state = kzalloc(sizeof(*mdp5_state), GFP_KERNEL);
+	if (!mdp5_state)
+		return;
+
+	if (plane->type == DRM_PLANE_TYPE_PRIMARY)
+		mdp5_state->base.zpos = STAGE_BASE;
+	else
+		mdp5_state->base.zpos = STAGE0 + drm_plane_index(plane);
+	mdp5_state->base.normalized_zpos = mdp5_state->base.zpos;
+
+	__drm_atomic_helper_plane_reset(plane, &mdp5_state->base);
+>>>>>>> upstream/android-13
 }
 
 static struct drm_plane_state *
@@ -228,7 +286,11 @@ static void mdp5_plane_destroy_state(struct drm_plane *plane,
 	struct mdp5_plane_state *pstate = to_mdp5_plane_state(state);
 
 	if (state->fb)
+<<<<<<< HEAD
 		drm_framebuffer_unreference(state->fb);
+=======
+		drm_framebuffer_put(state->fb);
+>>>>>>> upstream/android-13
 
 	kfree(pstate);
 }
@@ -237,8 +299,11 @@ static const struct drm_plane_funcs mdp5_plane_funcs = {
 		.update_plane = drm_atomic_helper_update_plane,
 		.disable_plane = drm_atomic_helper_disable_plane,
 		.destroy = mdp5_plane_destroy,
+<<<<<<< HEAD
 		.atomic_set_property = mdp5_plane_atomic_set_property,
 		.atomic_get_property = mdp5_plane_atomic_get_property,
+=======
+>>>>>>> upstream/android-13
 		.reset = mdp5_plane_reset,
 		.atomic_duplicate_state = mdp5_plane_duplicate_state,
 		.atomic_destroy_state = mdp5_plane_destroy_state,
@@ -412,6 +477,7 @@ static int mdp5_plane_atomic_check_with_state(struct drm_crtc_state *crtc_state,
 }
 
 static int mdp5_plane_atomic_check(struct drm_plane *plane,
+<<<<<<< HEAD
 				   struct drm_plane_state *state)
 {
 	struct drm_crtc *crtc;
@@ -441,34 +507,89 @@ static void mdp5_plane_atomic_update(struct drm_plane *plane,
 		ret = mdp5_plane_mode_set(plane,
 				state->crtc, state->fb,
 				&state->src, &state->dst);
+=======
+				   struct drm_atomic_state *state)
+{
+	struct drm_plane_state *old_plane_state = drm_atomic_get_old_plane_state(state,
+										 plane);
+	struct drm_plane_state *new_plane_state = drm_atomic_get_new_plane_state(state,
+										 plane);
+	struct drm_crtc *crtc;
+	struct drm_crtc_state *crtc_state;
+
+	crtc = new_plane_state->crtc ? new_plane_state->crtc : old_plane_state->crtc;
+	if (!crtc)
+		return 0;
+
+	crtc_state = drm_atomic_get_existing_crtc_state(state,
+							crtc);
+	if (WARN_ON(!crtc_state))
+		return -EINVAL;
+
+	return mdp5_plane_atomic_check_with_state(crtc_state, new_plane_state);
+}
+
+static void mdp5_plane_atomic_update(struct drm_plane *plane,
+				     struct drm_atomic_state *state)
+{
+	struct drm_plane_state *new_state = drm_atomic_get_new_plane_state(state,
+									   plane);
+
+	DBG("%s: update", plane->name);
+
+	if (plane_enabled(new_state)) {
+		int ret;
+
+		ret = mdp5_plane_mode_set(plane,
+				new_state->crtc, new_state->fb,
+				&new_state->src, &new_state->dst);
+>>>>>>> upstream/android-13
 		/* atomic_check should have ensured that this doesn't fail */
 		WARN_ON(ret < 0);
 	}
 }
 
 static int mdp5_plane_atomic_async_check(struct drm_plane *plane,
+<<<<<<< HEAD
 					 struct drm_plane_state *state)
 {
 	struct mdp5_plane_state *mdp5_state = to_mdp5_plane_state(state);
+=======
+					 struct drm_atomic_state *state)
+{
+	struct drm_plane_state *new_plane_state = drm_atomic_get_new_plane_state(state,
+										 plane);
+	struct mdp5_plane_state *mdp5_state = to_mdp5_plane_state(new_plane_state);
+>>>>>>> upstream/android-13
 	struct drm_crtc_state *crtc_state;
 	int min_scale, max_scale;
 	int ret;
 
+<<<<<<< HEAD
 	crtc_state = drm_atomic_get_existing_crtc_state(state->state,
 							state->crtc);
+=======
+	crtc_state = drm_atomic_get_existing_crtc_state(state,
+							new_plane_state->crtc);
+>>>>>>> upstream/android-13
 	if (WARN_ON(!crtc_state))
 		return -EINVAL;
 
 	if (!crtc_state->active)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	mdp5_state = to_mdp5_plane_state(state);
+=======
+	mdp5_state = to_mdp5_plane_state(new_plane_state);
+>>>>>>> upstream/android-13
 
 	/* don't use fast path if we don't have a hwpipe allocated yet */
 	if (!mdp5_state->hwpipe)
 		return -EINVAL;
 
 	/* only allow changing of position(crtc x/y or src x/y) in fast path */
+<<<<<<< HEAD
 	if (plane->state->crtc != state->crtc ||
 	    plane->state->src_w != state->src_w ||
 	    plane->state->src_h != state->src_h ||
@@ -476,12 +597,25 @@ static int mdp5_plane_atomic_async_check(struct drm_plane *plane,
 	    plane->state->crtc_h != state->crtc_h ||
 	    !plane->state->fb ||
 	    plane->state->fb != state->fb)
+=======
+	if (plane->state->crtc != new_plane_state->crtc ||
+	    plane->state->src_w != new_plane_state->src_w ||
+	    plane->state->src_h != new_plane_state->src_h ||
+	    plane->state->crtc_w != new_plane_state->crtc_w ||
+	    plane->state->crtc_h != new_plane_state->crtc_h ||
+	    !plane->state->fb ||
+	    plane->state->fb != new_plane_state->fb)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	min_scale = FRAC_16_16(1, 8);
 	max_scale = FRAC_16_16(8, 1);
 
+<<<<<<< HEAD
 	ret = drm_atomic_helper_check_plane_state(state, crtc_state,
+=======
+	ret = drm_atomic_helper_check_plane_state(new_plane_state, crtc_state,
+>>>>>>> upstream/android-13
 						  min_scale, max_scale,
 						  true, true);
 	if (ret)
@@ -494,15 +628,26 @@ static int mdp5_plane_atomic_async_check(struct drm_plane *plane,
 	 * also assign/unassign the hwpipe(s) tied to the plane. We avoid
 	 * taking the fast path for both these reasons.
 	 */
+<<<<<<< HEAD
 	if (state->visible != plane->state->visible)
+=======
+	if (new_plane_state->visible != plane->state->visible)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	return 0;
 }
 
 static void mdp5_plane_atomic_async_update(struct drm_plane *plane,
+<<<<<<< HEAD
 					   struct drm_plane_state *new_state)
 {
+=======
+					   struct drm_atomic_state *state)
+{
+	struct drm_plane_state *new_state = drm_atomic_get_new_plane_state(state,
+									   plane);
+>>>>>>> upstream/android-13
 	struct drm_framebuffer *old_fb = plane->state->fb;
 
 	plane->state->src_x = new_state->src_x;
@@ -655,14 +800,22 @@ static int calc_scalex_steps(struct drm_plane *plane,
 		uint32_t pixel_format, uint32_t src, uint32_t dest,
 		uint32_t phasex_steps[COMP_MAX])
 {
+<<<<<<< HEAD
 	struct mdp5_kms *mdp5_kms = get_kms(plane);
 	struct device *dev = mdp5_kms->dev->dev;
 	uint32_t phasex_step;
 	unsigned int hsub;
+=======
+	const struct drm_format_info *info = drm_format_info(pixel_format);
+	struct mdp5_kms *mdp5_kms = get_kms(plane);
+	struct device *dev = mdp5_kms->dev->dev;
+	uint32_t phasex_step;
+>>>>>>> upstream/android-13
 	int ret;
 
 	ret = calc_phase_step(src, dest, &phasex_step);
 	if (ret) {
+<<<<<<< HEAD
 		dev_err(dev, "X scaling (%d->%d) failed: %d\n", src, dest, ret);
 		return ret;
 	}
@@ -672,6 +825,15 @@ static int calc_scalex_steps(struct drm_plane *plane,
 	phasex_steps[COMP_0]   = phasex_step;
 	phasex_steps[COMP_3]   = phasex_step;
 	phasex_steps[COMP_1_2] = phasex_step / hsub;
+=======
+		DRM_DEV_ERROR(dev, "X scaling (%d->%d) failed: %d\n", src, dest, ret);
+		return ret;
+	}
+
+	phasex_steps[COMP_0]   = phasex_step;
+	phasex_steps[COMP_3]   = phasex_step;
+	phasex_steps[COMP_1_2] = phasex_step / info->hsub;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -680,14 +842,22 @@ static int calc_scaley_steps(struct drm_plane *plane,
 		uint32_t pixel_format, uint32_t src, uint32_t dest,
 		uint32_t phasey_steps[COMP_MAX])
 {
+<<<<<<< HEAD
 	struct mdp5_kms *mdp5_kms = get_kms(plane);
 	struct device *dev = mdp5_kms->dev->dev;
 	uint32_t phasey_step;
 	unsigned int vsub;
+=======
+	const struct drm_format_info *info = drm_format_info(pixel_format);
+	struct mdp5_kms *mdp5_kms = get_kms(plane);
+	struct device *dev = mdp5_kms->dev->dev;
+	uint32_t phasey_step;
+>>>>>>> upstream/android-13
 	int ret;
 
 	ret = calc_phase_step(src, dest, &phasey_step);
 	if (ret) {
+<<<<<<< HEAD
 		dev_err(dev, "Y scaling (%d->%d) failed: %d\n", src, dest, ret);
 		return ret;
 	}
@@ -697,6 +867,15 @@ static int calc_scaley_steps(struct drm_plane *plane,
 	phasey_steps[COMP_0]   = phasey_step;
 	phasey_steps[COMP_3]   = phasey_step;
 	phasey_steps[COMP_1_2] = phasey_step / vsub;
+=======
+		DRM_DEV_ERROR(dev, "Y scaling (%d->%d) failed: %d\n", src, dest, ret);
+		return ret;
+	}
+
+	phasey_steps[COMP_0]   = phasey_step;
+	phasey_steps[COMP_3]   = phasey_step;
+	phasey_steps[COMP_1_2] = phasey_step / info->vsub;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -704,8 +883,14 @@ static int calc_scaley_steps(struct drm_plane *plane,
 static uint32_t get_scale_config(const struct mdp_format *format,
 		uint32_t src, uint32_t dst, bool horz)
 {
+<<<<<<< HEAD
 	bool scaling = format->is_yuv ? true : (src != dst);
 	uint32_t sub, pix_fmt = format->base.pixel_format;
+=======
+	const struct drm_format_info *info = drm_format_info(format->base.pixel_format);
+	bool scaling = format->is_yuv ? true : (src != dst);
+	uint32_t sub;
+>>>>>>> upstream/android-13
 	uint32_t ya_filter, uv_filter;
 	bool yuv = format->is_yuv;
 
@@ -713,8 +898,12 @@ static uint32_t get_scale_config(const struct mdp_format *format,
 		return 0;
 
 	if (yuv) {
+<<<<<<< HEAD
 		sub = horz ? drm_format_horz_chroma_subsampling(pix_fmt) :
 			     drm_format_vert_chroma_subsampling(pix_fmt);
+=======
+		sub = horz ? info->hsub : info->vsub;
+>>>>>>> upstream/android-13
 		uv_filter = ((src / sub) <= dst) ?
 				   SCALE_FILTER_BIL : SCALE_FILTER_PCMN;
 	}
@@ -759,7 +948,11 @@ static void mdp5_write_pixel_ext(struct mdp5_kms *mdp5_kms, enum mdp5_pipe pipe,
 	uint32_t src_w, int pe_left[COMP_MAX], int pe_right[COMP_MAX],
 	uint32_t src_h, int pe_top[COMP_MAX], int pe_bottom[COMP_MAX])
 {
+<<<<<<< HEAD
 	uint32_t pix_fmt = format->base.pixel_format;
+=======
+	const struct drm_format_info *info = drm_format_info(format->base.pixel_format);
+>>>>>>> upstream/android-13
 	uint32_t lr, tb, req;
 	int i;
 
@@ -768,8 +961,13 @@ static void mdp5_write_pixel_ext(struct mdp5_kms *mdp5_kms, enum mdp5_pipe pipe,
 		uint32_t roi_h = src_h;
 
 		if (format->is_yuv && i == COMP_1_2) {
+<<<<<<< HEAD
 			roi_w /= drm_format_horz_chroma_subsampling(pix_fmt);
 			roi_h /= drm_format_vert_chroma_subsampling(pix_fmt);
+=======
+			roi_w /= info->hsub;
+			roi_h /= info->vsub;
+>>>>>>> upstream/android-13
 		}
 
 		lr  = (pe_left[i] >= 0) ?
@@ -1104,6 +1302,11 @@ struct drm_plane *mdp5_plane_init(struct drm_device *dev,
 
 	mdp5_plane_install_properties(plane, &plane->base);
 
+<<<<<<< HEAD
+=======
+	drm_plane_enable_fb_damage_clips(plane);
+
+>>>>>>> upstream/android-13
 	return plane;
 
 fail:

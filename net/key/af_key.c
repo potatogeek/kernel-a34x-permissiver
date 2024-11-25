@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * net/key/af_key.c	An implementation of PF_KEYv2 sockets.
  *
@@ -6,6 +7,12 @@
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * net/key/af_key.c	An implementation of PF_KEYv2 sockets.
+ *
+>>>>>>> upstream/android-13
  * Authors:	Maxim Giryaev	<gem@asplinux.ru>
  *		David S. Miller	<davem@redhat.com>
  *		Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
@@ -145,7 +152,10 @@ static int pfkey_create(struct net *net, struct socket *sock, int protocol,
 	struct netns_pfkey *net_pfkey = net_generic(net, pfkey_net_id);
 	struct sock *sk;
 	struct pfkey_sock *pfk;
+<<<<<<< HEAD
 	int err;
+=======
+>>>>>>> upstream/android-13
 
 	if (!ns_capable(net->user_ns, CAP_NET_ADMIN))
 		return -EPERM;
@@ -154,10 +164,16 @@ static int pfkey_create(struct net *net, struct socket *sock, int protocol,
 	if (protocol != PF_KEY_V2)
 		return -EPROTONOSUPPORT;
 
+<<<<<<< HEAD
 	err = -ENOMEM;
 	sk = sk_alloc(net, PF_KEY, GFP_KERNEL, &key_proto, kern);
 	if (sk == NULL)
 		goto out;
+=======
+	sk = sk_alloc(net, PF_KEY, GFP_KERNEL, &key_proto, kern);
+	if (sk == NULL)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	pfk = pfkey_sk(sk);
 	mutex_init(&pfk->dump_lock);
@@ -173,8 +189,11 @@ static int pfkey_create(struct net *net, struct socket *sock, int protocol,
 	pfkey_insert(sk);
 
 	return 0;
+<<<<<<< HEAD
 out:
 	return err;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int pfkey_release(struct socket *sock)
@@ -932,8 +951,12 @@ static struct sk_buff *__pfkey_xfrm_state2msg(const struct xfrm_state *x,
 		pfkey_sockaddr_fill(&x->props.saddr, 0,
 				    (struct sockaddr *) (addr + 1),
 				    x->props.family);
+<<<<<<< HEAD
 	if (!addr->sadb_address_prefixlen)
 		BUG();
+=======
+	BUG_ON(!addr->sadb_address_prefixlen);
+>>>>>>> upstream/android-13
 
 	/* dst address */
 	addr = skb_put(skb, sizeof(struct sadb_address) + sockaddr_size);
@@ -948,8 +971,12 @@ static struct sk_buff *__pfkey_xfrm_state2msg(const struct xfrm_state *x,
 		pfkey_sockaddr_fill(&x->id.daddr, 0,
 				    (struct sockaddr *) (addr + 1),
 				    x->props.family);
+<<<<<<< HEAD
 	if (!addr->sadb_address_prefixlen)
 		BUG();
+=======
+	BUG_ON(!addr->sadb_address_prefixlen);
+>>>>>>> upstream/android-13
 
 	if (!xfrm_addr_equal(&x->sel.saddr, &x->props.saddr,
 			     x->props.family)) {
@@ -1709,7 +1736,11 @@ static int pfkey_register(struct sock *sk, struct sk_buff *skb, const struct sad
 
 	xfrm_probe_algs();
 
+<<<<<<< HEAD
 	supp_skb = compose_sadb_supported(hdr, GFP_KERNEL);
+=======
+	supp_skb = compose_sadb_supported(hdr, GFP_KERNEL | __GFP_ZERO);
+>>>>>>> upstream/android-13
 	if (!supp_skb) {
 		if (hdr->sadb_msg_satype != SADB_SATYPE_UNSPEC)
 			pfk->registered &= ~(1<<hdr->sadb_msg_satype);
@@ -2019,7 +2050,11 @@ parse_ipsecrequests(struct xfrm_policy *xp, struct sadb_x_policy *pol)
 
 static inline int pfkey_xfrm_policy2sec_ctx_size(const struct xfrm_policy *xp)
 {
+<<<<<<< HEAD
   struct xfrm_sec_ctx *xfrm_ctx = xp->security;
+=======
+	struct xfrm_sec_ctx *xfrm_ctx = xp->security;
+>>>>>>> upstream/android-13
 
 	if (xfrm_ctx) {
 		int len = sizeof(struct sadb_x_sec_ctx);
@@ -2413,7 +2448,11 @@ static int pfkey_spddelete(struct sock *sk, struct sk_buff *skb, const struct sa
 			return err;
 	}
 
+<<<<<<< HEAD
 	xp = xfrm_policy_bysel_ctx(net, DUMMY_MARK, 0, XFRM_POLICY_TYPE_MAIN,
+=======
+	xp = xfrm_policy_bysel_ctx(net, &dummy_mark, 0, XFRM_POLICY_TYPE_MAIN,
+>>>>>>> upstream/android-13
 				   pol->sadb_x_policy_dir - 1, &sel, pol_ctx,
 				   1, &err);
 	security_xfrm_policy_free(pol_ctx);
@@ -2633,7 +2672,11 @@ static int pfkey_migrate(struct sock *sk, struct sk_buff *skb,
 	}
 
 	return xfrm_migrate(&sel, dir, XFRM_POLICY_TYPE_MAIN, m, i,
+<<<<<<< HEAD
 			    kma ? &k : NULL, net, NULL);
+=======
+			    kma ? &k : NULL, net, NULL, 0);
+>>>>>>> upstream/android-13
 
  out:
 	return err;
@@ -2664,7 +2707,11 @@ static int pfkey_spdget(struct sock *sk, struct sk_buff *skb, const struct sadb_
 		return -EINVAL;
 
 	delete = (hdr->sadb_msg_type == SADB_X_SPDDELETE2);
+<<<<<<< HEAD
 	xp = xfrm_policy_byid(net, DUMMY_MARK, 0, XFRM_POLICY_TYPE_MAIN,
+=======
+	xp = xfrm_policy_byid(net, &dummy_mark, 0, XFRM_POLICY_TYPE_MAIN,
+>>>>>>> upstream/android-13
 			      dir, pol->sadb_x_policy_id, delete, &err);
 	if (xp == NULL)
 		return -ENOENT;
@@ -3747,8 +3794,11 @@ static const struct proto_ops pfkey_ops = {
 	.ioctl		=	sock_no_ioctl,
 	.listen		=	sock_no_listen,
 	.shutdown	=	sock_no_shutdown,
+<<<<<<< HEAD
 	.setsockopt	=	sock_no_setsockopt,
 	.getsockopt	=	sock_no_getsockopt,
+=======
+>>>>>>> upstream/android-13
 	.mmap		=	sock_no_mmap,
 	.sendpage	=	sock_no_sendpage,
 

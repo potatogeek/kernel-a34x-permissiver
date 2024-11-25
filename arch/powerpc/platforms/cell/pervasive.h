@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Cell Pervasive Monitor and Debug interface and HW structures
  *
@@ -5,6 +9,7 @@
  *
  * Authors: Maximino Aguilar (maguilar@us.ibm.com)
  *          David J. Erb (djerb@us.ibm.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +24,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 
@@ -26,9 +33,12 @@
 #define PERVASIVE_H
 
 extern void cbe_pervasive_init(void);
+<<<<<<< HEAD
 extern void cbe_system_error_exception(struct pt_regs *regs);
 extern void cbe_maintenance_exception(struct pt_regs *regs);
 extern void cbe_thermal_exception(struct pt_regs *regs);
+=======
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PPC_IBM_CELL_RESETBUTTON
 extern int cbe_sysreset_hack(void);

@@ -1,9 +1,16 @@
 # SPDX-License-Identifier: GPL-2.0
 obj-$(CONFIG_FB_CMDLINE)          += fb_cmdline.o
+<<<<<<< HEAD
 obj-$(CONFIG_FB_NOTIFY)           += fb_notify.o
 obj-$(CONFIG_FB)                  += fb.o
 fb-y                              := fbmem.o fbmon.o fbcmap.o fbsysfs.o \
                                      modedb.o fbcvt.o
+=======
+obj-$(CONFIG_FB)                  += fb.o
+fb-y                              := fbmem.o fbmon.o fbcmap.o fbsysfs.o \
+                                     modedb.o fbcvt.o
+fb-$(CONFIG_FB_NOTIFY)           += fb_notify.o
+>>>>>>> upstream/android-13
 fb-$(CONFIG_FB_DEFERRED_IO)       += fb_defio.o
 
 ifeq ($(CONFIG_FRAMEBUFFER_CONSOLE),y)
@@ -16,7 +23,10 @@ fb-y				  += fbcon_rotate.o fbcon_cw.o fbcon_ud.o \
 				     fbcon_ccw.o
 endif
 endif
+<<<<<<< HEAD
 fb-objs                           := $(fb-y)
+=======
+>>>>>>> upstream/android-13
 
 obj-$(CONFIG_FB_CFB_FILLRECT)  += cfbfillrect.o
 obj-$(CONFIG_FB_CFB_COPYAREA)  += cfbcopyarea.o

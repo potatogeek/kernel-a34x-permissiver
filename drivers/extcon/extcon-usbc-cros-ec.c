@@ -6,10 +6,18 @@
 
 #include <linux/extcon-provider.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
 #include <linux/mfd/cros_ec.h>
 #include <linux/module.h>
 #include <linux/notifier.h>
 #include <linux/of.h>
+=======
+#include <linux/module.h>
+#include <linux/notifier.h>
+#include <linux/of.h>
+#include <linux/platform_data/cros_ec_commands.h>
+#include <linux/platform_data/cros_ec_proto.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/slab.h>
 #include <linux/sched.h>

@@ -24,7 +24,11 @@
 
 #include <linux/idr.h>
 #include <linux/dma-fence-array.h>
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+
+>>>>>>> upstream/android-13
 
 #include "amdgpu.h"
 #include "amdgpu_trace.h"
@@ -43,7 +47,11 @@ static DEFINE_IDA(amdgpu_pasid_ida);
 /* Helper to free pasid from a fence callback */
 struct amdgpu_pasid_cb {
 	struct dma_fence_cb cb;
+<<<<<<< HEAD
 	unsigned int pasid;
+=======
+	u32 pasid;
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -79,7 +87,11 @@ int amdgpu_pasid_alloc(unsigned int bits)
  * amdgpu_pasid_free - Free a PASID
  * @pasid: PASID to free
  */
+<<<<<<< HEAD
 void amdgpu_pasid_free(unsigned int pasid)
+=======
+void amdgpu_pasid_free(u32 pasid)
+>>>>>>> upstream/android-13
 {
 	trace_amdgpu_pasid_freed(pasid);
 	ida_simple_remove(&amdgpu_pasid_ida, pasid);
@@ -104,15 +116,24 @@ static void amdgpu_pasid_free_cb(struct dma_fence *fence,
  *
  * Free the pasid only after all the fences in resv are signaled.
  */
+<<<<<<< HEAD
 void amdgpu_pasid_free_delayed(struct reservation_object *resv,
 			       unsigned int pasid)
+=======
+void amdgpu_pasid_free_delayed(struct dma_resv *resv,
+			       u32 pasid)
+>>>>>>> upstream/android-13
 {
 	struct dma_fence *fence, **fences;
 	struct amdgpu_pasid_cb *cb;
 	unsigned count;
 	int r;
 
+<<<<<<< HEAD
 	r = reservation_object_get_fences_rcu(resv, NULL, &count, &fences);
+=======
+	r = dma_resv_get_fences(resv, NULL, &count, &fences);
+>>>>>>> upstream/android-13
 	if (r)
 		goto fallback;
 
@@ -156,8 +177,12 @@ fallback:
 	/* Not enough memory for the delayed delete, as last resort
 	 * block for all the fences to complete.
 	 */
+<<<<<<< HEAD
 	reservation_object_wait_timeout_rcu(resv, true, false,
 					    MAX_SCHEDULE_TIMEOUT);
+=======
+	dma_resv_wait_timeout(resv, true, false, MAX_SCHEDULE_TIMEOUT);
+>>>>>>> upstream/android-13
 	amdgpu_pasid_free(pasid);
 }
 
@@ -183,7 +208,11 @@ bool amdgpu_vmid_had_gpu_reset(struct amdgpu_device *adev,
 }
 
 /**
+<<<<<<< HEAD
  * amdgpu_vm_grab_idle - grab idle VMID
+=======
+ * amdgpu_vmid_grab_idle - grab idle VMID
+>>>>>>> upstream/android-13
  *
  * @vm: vm to allocate id for
  * @ring: ring we want to submit job to
@@ -206,16 +235,30 @@ static int amdgpu_vmid_grab_idle(struct amdgpu_vm *vm,
 	int r;
 
 	if (ring->vmid_wait && !dma_fence_is_signaled(ring->vmid_wait))
+<<<<<<< HEAD
 		return amdgpu_sync_fence(adev, sync, ring->vmid_wait, false);
 
 	fences = kmalloc_array(sizeof(void *), id_mgr->num_ids, GFP_KERNEL);
+=======
+		return amdgpu_sync_fence(sync, ring->vmid_wait);
+
+	fences = kmalloc_array(id_mgr->num_ids, sizeof(void *), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!fences)
 		return -ENOMEM;
 
 	/* Check if we have an idle VMID */
 	i = 0;
 	list_for_each_entry((*idle), &id_mgr->ids_lru, list) {
+<<<<<<< HEAD
 		fences[i] = amdgpu_sync_peek_fence(&(*idle)->active, ring);
+=======
+		/* Don't use per engine and per process VMID at the same time */
+		struct amdgpu_ring *r = adev->vm_manager.concurrent_flush ?
+			NULL : ring;
+
+		fences[i] = amdgpu_sync_peek_fence(&(*idle)->active, r);
+>>>>>>> upstream/android-13
 		if (!fences[i])
 			break;
 		++i;
@@ -241,7 +284,11 @@ static int amdgpu_vmid_grab_idle(struct amdgpu_vm *vm,
 			return -ENOMEM;
 		}
 
+<<<<<<< HEAD
 		r = amdgpu_sync_fence(adev, sync, &array->base, false);
+=======
+		r = amdgpu_sync_fence(sync, &array->base);
+>>>>>>> upstream/android-13
 		dma_fence_put(ring->vmid_wait);
 		ring->vmid_wait = &array->base;
 		return r;
@@ -252,13 +299,21 @@ static int amdgpu_vmid_grab_idle(struct amdgpu_vm *vm,
 }
 
 /**
+<<<<<<< HEAD
  * amdgpu_vm_grab_reserved - try to assign reserved VMID
+=======
+ * amdgpu_vmid_grab_reserved - try to assign reserved VMID
+>>>>>>> upstream/android-13
  *
  * @vm: vm to allocate id for
  * @ring: ring we want to submit job to
  * @sync: sync object where we add dependencies
  * @fence: fence protecting ID from reuse
  * @job: job who wants to use the VMID
+<<<<<<< HEAD
+=======
+ * @id: resulting VMID
+>>>>>>> upstream/android-13
  *
  * Try to assign a reserved VMID.
  */
@@ -280,21 +335,38 @@ static int amdgpu_vmid_grab_reserved(struct amdgpu_vm *vm,
 	if (updates && (*id)->flushed_updates &&
 	    updates->context == (*id)->flushed_updates->context &&
 	    !dma_fence_is_later(updates, (*id)->flushed_updates))
+<<<<<<< HEAD
 	    updates = NULL;
 
 	if ((*id)->owner != vm->entity.fence_context ||
+=======
+		updates = NULL;
+
+	if ((*id)->owner != vm->immediate.fence_context ||
+>>>>>>> upstream/android-13
 	    job->vm_pd_addr != (*id)->pd_gpu_addr ||
 	    updates || !(*id)->last_flush ||
 	    ((*id)->last_flush->context != fence_context &&
 	     !dma_fence_is_signaled((*id)->last_flush))) {
 		struct dma_fence *tmp;
 
+<<<<<<< HEAD
+=======
+		/* Don't use per engine and per process VMID at the same time */
+		if (adev->vm_manager.concurrent_flush)
+			ring = NULL;
+
+>>>>>>> upstream/android-13
 		/* to prevent one context starved by another context */
 		(*id)->pd_gpu_addr = 0;
 		tmp = amdgpu_sync_peek_fence(&(*id)->active, ring);
 		if (tmp) {
 			*id = NULL;
+<<<<<<< HEAD
 			r = amdgpu_sync_fence(adev, sync, tmp, false);
+=======
+			r = amdgpu_sync_fence(sync, tmp);
+>>>>>>> upstream/android-13
 			return r;
 		}
 		needs_flush = true;
@@ -303,7 +375,11 @@ static int amdgpu_vmid_grab_reserved(struct amdgpu_vm *vm,
 	/* Good we can use this VMID. Remember this submission as
 	* user of the VMID.
 	*/
+<<<<<<< HEAD
 	r = amdgpu_sync_fence(ring->adev, &(*id)->active, fence, false);
+=======
+	r = amdgpu_sync_fence(&(*id)->active, fence);
+>>>>>>> upstream/android-13
 	if (r)
 		return r;
 
@@ -316,7 +392,11 @@ static int amdgpu_vmid_grab_reserved(struct amdgpu_vm *vm,
 }
 
 /**
+<<<<<<< HEAD
  * amdgpu_vm_grab_used - try to reuse a VMID
+=======
+ * amdgpu_vmid_grab_used - try to reuse a VMID
+>>>>>>> upstream/android-13
  *
  * @vm: vm to allocate id for
  * @ring: ring we want to submit job to
@@ -349,7 +429,11 @@ static int amdgpu_vmid_grab_used(struct amdgpu_vm *vm,
 		struct dma_fence *flushed;
 
 		/* Check all the prerequisites to using this VMID */
+<<<<<<< HEAD
 		if ((*id)->owner != vm->entity.fence_context)
+=======
+		if ((*id)->owner != vm->immediate.fence_context)
+>>>>>>> upstream/android-13
 			continue;
 
 		if ((*id)->pd_gpu_addr != job->vm_pd_addr)
@@ -364,14 +448,22 @@ static int amdgpu_vmid_grab_used(struct amdgpu_vm *vm,
 		if (updates && (!flushed || dma_fence_is_later(updates, flushed)))
 			needs_flush = true;
 
+<<<<<<< HEAD
 		/* Concurrent flushes are only possible starting with Vega10 */
 		if (adev->asic_type < CHIP_VEGA10 && needs_flush)
+=======
+		if (needs_flush && !adev->vm_manager.concurrent_flush)
+>>>>>>> upstream/android-13
 			continue;
 
 		/* Good, we can use this VMID. Remember this submission as
 		 * user of the VMID.
 		 */
+<<<<<<< HEAD
 		r = amdgpu_sync_fence(ring->adev, &(*id)->active, fence, false);
+=======
+		r = amdgpu_sync_fence(&(*id)->active, fence);
+>>>>>>> upstream/android-13
 		if (r)
 			return r;
 
@@ -389,7 +481,11 @@ static int amdgpu_vmid_grab_used(struct amdgpu_vm *vm,
 }
 
 /**
+<<<<<<< HEAD
  * amdgpu_vm_grab_id - allocate the next free VMID
+=======
+ * amdgpu_vmid_grab - allocate the next free VMID
+>>>>>>> upstream/android-13
  *
  * @vm: vm to allocate id for
  * @ring: ring we want to submit job to
@@ -431,8 +527,12 @@ int amdgpu_vmid_grab(struct amdgpu_vm *vm, struct amdgpu_ring *ring,
 			id = idle;
 
 			/* Remember this submission as user of the VMID */
+<<<<<<< HEAD
 			r = amdgpu_sync_fence(ring->adev, &id->active,
 					      fence, false);
+=======
+			r = amdgpu_sync_fence(&id->active, fence);
+>>>>>>> upstream/android-13
 			if (r)
 				goto error;
 
@@ -445,7 +545,11 @@ int amdgpu_vmid_grab(struct amdgpu_vm *vm, struct amdgpu_ring *ring,
 	}
 
 	id->pd_gpu_addr = job->vm_pd_addr;
+<<<<<<< HEAD
 	id->owner = vm->entity.fence_context;
+=======
+	id->owner = vm->immediate.fence_context;
+>>>>>>> upstream/android-13
 
 	if (job->vm_needs_flush) {
 		dma_fence_put(id->last_flush);
@@ -511,6 +615,10 @@ void amdgpu_vmid_free_reserved(struct amdgpu_device *adev,
  * amdgpu_vmid_reset - reset VMID to zero
  *
  * @adev: amdgpu device structure
+<<<<<<< HEAD
+=======
+ * @vmhub: vmhub type
+>>>>>>> upstream/android-13
  * @vmid: vmid number to use
  *
  * Reset saved GDW, GWS and OA to force switch on next flush.
@@ -571,6 +679,12 @@ void amdgpu_vmid_mgr_init(struct amdgpu_device *adev)
 		INIT_LIST_HEAD(&id_mgr->ids_lru);
 		atomic_set(&id_mgr->reserved_vmid_num, 0);
 
+<<<<<<< HEAD
+=======
+		/* manage only VMIDs not used by KFD */
+		id_mgr->num_ids = adev->vm_manager.first_kfd_vmid;
+
+>>>>>>> upstream/android-13
 		/* skip over VMID 0, since it is the system VM */
 		for (j = 1; j < id_mgr->num_ids; ++j) {
 			amdgpu_vmid_reset(adev, i, j);

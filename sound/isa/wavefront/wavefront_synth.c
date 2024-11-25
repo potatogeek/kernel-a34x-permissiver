@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* Copyright (C) by Paul Barton-Davis 1998-1999
  *
  * Some portions of this file are taken from work that is
  * copyright (C) by Hannu Savolainen 1993-1996
+<<<<<<< HEAD
  *
  * This program is distributed under the GNU GENERAL PUBLIC LICENSE (GPL)
  * Version 2 (June 1991). See the "COPYING" file distributed with this software
  * for more info.  
+=======
+>>>>>>> upstream/android-13
  */
 
 /*  
@@ -342,7 +349,12 @@ snd_wavefront_cmd (snd_wavefront_t *dev,
 	int c;
 	struct wavefront_command *wfcmd;
 
+<<<<<<< HEAD
 	if ((wfcmd = wavefront_get_command (cmd)) == NULL) {
+=======
+	wfcmd = wavefront_get_command(cmd);
+	if (!wfcmd) {
+>>>>>>> upstream/android-13
 		snd_printk ("command 0x%x not supported.\n",
 			cmd);
 		return 1;
@@ -394,7 +406,12 @@ snd_wavefront_cmd (snd_wavefront_t *dev,
 
 		for (i = 0; i < wfcmd->read_cnt; i++) {
 
+<<<<<<< HEAD
 			if ((c = wavefront_read (dev)) == -1) {
+=======
+			c = wavefront_read(dev);
+			if (c == -1) {
+>>>>>>> upstream/android-13
 				DPRINT (WF_DEBUG_IO, "bad read for byte "
 						      "%d of 0x%x [%s].\n",
 						      i, cmd, wfcmd->action);
@@ -404,7 +421,12 @@ snd_wavefront_cmd (snd_wavefront_t *dev,
 			/* Now handle errors. Lots of special cases here */
 	    
 			if (c == 0xff) { 
+<<<<<<< HEAD
 				if ((c = wavefront_read (dev)) == -1) {
+=======
+				c = wavefront_read(dev);
+				if (c == -1) {
+>>>>>>> upstream/android-13
 					DPRINT (WF_DEBUG_IO, "bad read for "
 							      "error byte at "
 							      "read byte %d "
@@ -462,9 +484,15 @@ snd_wavefront_cmd (snd_wavefront_t *dev,
 		   of the standard value.
 		*/
 	    
+<<<<<<< HEAD
 		if ((ack = wavefront_read (dev)) == 0) {
 			ack = WF_ACK;
 		}
+=======
+		ack = wavefront_read(dev);
+		if (ack == 0)
+			ack = WF_ACK;
+>>>>>>> upstream/android-13
 	
 		if (ack != WF_ACK) {
 			if (ack == -1) {
@@ -478,7 +506,12 @@ snd_wavefront_cmd (snd_wavefront_t *dev,
 
 				if (ack == 0xff) { /* explicit error */
 		    
+<<<<<<< HEAD
 					if ((err = wavefront_read (dev)) == -1) {
+=======
+					err = wavefront_read(dev);
+					if (err == -1) {
+>>>>>>> upstream/android-13
 						DPRINT (WF_DEBUG_DATA,
 							"cannot read err "
 							"for 0x%x [%s].\n",
@@ -606,9 +639,15 @@ wavefront_delete_sample (snd_wavefront_t *dev, int sample_num)
 	wbuf[0] = sample_num & 0x7f;
 	wbuf[1] = sample_num >> 7;
 
+<<<<<<< HEAD
 	if ((x = snd_wavefront_cmd (dev, WFC_DELETE_SAMPLE, NULL, wbuf)) == 0) {
 		dev->sample_status[sample_num] = WF_ST_EMPTY;
 	}
+=======
+	x = snd_wavefront_cmd(dev, WFC_DELETE_SAMPLE, NULL, wbuf);
+	if (!x)
+		dev->sample_status[sample_num] = WF_ST_EMPTY;
+>>>>>>> upstream/android-13
 
 	return x;
 }
@@ -694,8 +733,14 @@ wavefront_get_patch_status (snd_wavefront_t *dev)
 		patchnum[0] = i & 0x7f;
 		patchnum[1] = i >> 7;
 
+<<<<<<< HEAD
 		if ((x = snd_wavefront_cmd (dev, WFC_UPLOAD_PATCH, patchbuf,
 					patchnum)) == 0) {
+=======
+		x = snd_wavefront_cmd(dev, WFC_UPLOAD_PATCH, patchbuf,
+				      patchnum);
+		if (x == 0) {
+>>>>>>> upstream/android-13
 
 			dev->patch_status[i] |= WF_SLOT_FILLED;
 			p = (wavefront_patch *) patchbuf;
@@ -741,8 +786,14 @@ wavefront_get_program_status (snd_wavefront_t *dev)
 	for (i = 0; i < WF_MAX_PROGRAM; i++) {
 		prognum = i;
 
+<<<<<<< HEAD
 		if ((x = snd_wavefront_cmd (dev, WFC_UPLOAD_PROGRAM, progbuf,
 					&prognum)) == 0) {
+=======
+		x = snd_wavefront_cmd(dev, WFC_UPLOAD_PROGRAM, progbuf,
+				      &prognum);
+		if (x == 0) {
+>>>>>>> upstream/android-13
 
 			dev->prog_status[i] |= WF_SLOT_USED;
 
@@ -791,7 +842,10 @@ wavefront_send_patch (snd_wavefront_t *dev, wavefront_patch_info *header)
 
 	dev->patch_status[header->number] |= WF_SLOT_FILLED;
 
+<<<<<<< HEAD
 	bptr = buf;
+=======
+>>>>>>> upstream/android-13
 	bptr = munge_int32 (header->number, buf, 2);
 	munge_buf ((unsigned char *)&header->hdr.p, bptr, WF_PATCH_BYTES);
     
@@ -898,9 +952,15 @@ wavefront_send_sample (snd_wavefront_t *dev,
 	if (header->number == WAVEFRONT_FIND_FREE_SAMPLE_SLOT) {
 		int x;
 
+<<<<<<< HEAD
 		if ((x = wavefront_find_free_sample (dev)) < 0) {
 			return -ENOMEM;
 		}
+=======
+		x = wavefront_find_free_sample(dev);
+		if (x < 0)
+			return -ENOMEM;
+>>>>>>> upstream/android-13
 		snd_printk ("unspecified sample => %d\n", x);
 		header->number = x;
 	}
@@ -1141,7 +1201,12 @@ wavefront_send_sample (snd_wavefront_t *dev,
 		   nothing to do with DMA at all.
 		*/
 	
+<<<<<<< HEAD
 		if ((dma_ack = wavefront_read (dev)) != WF_DMA_ACK) {
+=======
+		dma_ack = wavefront_read(dev);
+		if (dma_ack != WF_DMA_ACK) {
+>>>>>>> upstream/android-13
 			if (dma_ack == -1) {
 				snd_printk ("upload sample "
 					    "DMA ack timeout\n");
@@ -1286,14 +1351,24 @@ wavefront_fetch_multisample (snd_wavefront_t *dev,
 		char d[2];
 		int val;
 	
+<<<<<<< HEAD
 		if ((val = wavefront_read (dev)) == -1) {
+=======
+		val = wavefront_read(dev);
+		if (val == -1) {
+>>>>>>> upstream/android-13
 			snd_printk ("upload multisample failed "
 				    "during sample loop.\n");
 			return -EIO;
 		}
 		d[0] = val;
 
+<<<<<<< HEAD
 		if ((val = wavefront_read (dev)) == -1) {
+=======
+		val = wavefront_read(dev);
+		if (val == -1) {
+>>>>>>> upstream/android-13
 			snd_printk ("upload multisample failed "
 				    "during sample loop.\n");
 			return -EIO;
@@ -1914,7 +1989,12 @@ wavefront_reset_to_cleanliness (snd_wavefront_t *dev)
 		goto gone_bad;
 	}
 	
+<<<<<<< HEAD
 	if ((hwv[0] = wavefront_read (dev)) == -1) {
+=======
+	hwv[0] = wavefront_read(dev);
+	if (hwv[0] == -1) {
+>>>>>>> upstream/android-13
 		snd_printk ("board not responding correctly.\n");
 		goto gone_bad;
 	}
@@ -1925,7 +2005,12 @@ wavefront_reset_to_cleanliness (snd_wavefront_t *dev)
 		   and tell us about it either way.
 		*/
 		
+<<<<<<< HEAD
 		if ((hwv[0] = wavefront_read (dev)) == -1) {
+=======
+		hwv[0] = wavefront_read(dev);
+		if (hwv[0] == -1) {
+>>>>>>> upstream/android-13
 			snd_printk ("on-board RAM test failed "
 				    "(bad error code).\n");
 		} else {
@@ -1938,7 +2023,12 @@ wavefront_reset_to_cleanliness (snd_wavefront_t *dev)
 
 	/* We're OK, just get the next byte of the HW version response */
 
+<<<<<<< HEAD
 	if ((hwv[1] = wavefront_read (dev)) == -1) {
+=======
+	hwv[1] = wavefront_read(dev);
+	if (hwv[1] == -1) {
+>>>>>>> upstream/android-13
 		snd_printk ("incorrect h/w response.\n");
 		goto gone_bad;
 	}
@@ -2083,9 +2173,15 @@ wavefront_do_reset (snd_wavefront_t *dev)
 	   about it.
 	*/
 	
+<<<<<<< HEAD
 	if ((dev->freemem = wavefront_freemem (dev)) < 0) {
 		goto gone_bad;
 	}
+=======
+	dev->freemem = wavefront_freemem(dev);
+	if (dev->freemem < 0)
+		goto gone_bad;
+>>>>>>> upstream/android-13
 		
 	snd_printk ("available DRAM %dk\n", dev->freemem / 1024);
 

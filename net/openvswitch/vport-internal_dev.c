@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2007-2012 Nicira, Inc.
  *
@@ -14,6 +15,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2007-2012 Nicira, Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/if_vlan.h>
@@ -48,11 +54,18 @@ internal_dev_xmit(struct sk_buff *skb, struct net_device *netdev)
 {
 	int len, err;
 
+<<<<<<< HEAD
 	len = skb->len;
+=======
+	/* store len value because skb can be freed inside ovs_vport_receive() */
+	len = skb->len;
+
+>>>>>>> upstream/android-13
 	rcu_read_lock();
 	err = ovs_vport_receive(internal_dev_priv(netdev)->vport, skb, NULL);
 	rcu_read_unlock();
 
+<<<<<<< HEAD
 	if (likely(!err)) {
 		struct pcpu_sw_netstats *tstats = this_cpu_ptr(netdev->tstats);
 
@@ -63,6 +76,13 @@ internal_dev_xmit(struct sk_buff *skb, struct net_device *netdev)
 	} else {
 		netdev->stats.tx_errors++;
 	}
+=======
+	if (likely(!err))
+		dev_sw_netstats_tx_add(netdev, 1, len);
+	else
+		netdev->stats.tx_errors++;
+
+>>>>>>> upstream/android-13
 	return NETDEV_TX_OK;
 }
 
@@ -96,6 +116,7 @@ static void internal_dev_destructor(struct net_device *dev)
 	ovs_vport_free(vport);
 }
 
+<<<<<<< HEAD
 static void
 internal_get_stats(struct net_device *dev, struct rtnl_link_stats64 *stats)
 {
@@ -126,12 +147,18 @@ internal_get_stats(struct net_device *dev, struct rtnl_link_stats64 *stats)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct net_device_ops internal_dev_netdev_ops = {
 	.ndo_open = internal_dev_open,
 	.ndo_stop = internal_dev_stop,
 	.ndo_start_xmit = internal_dev_xmit,
 	.ndo_set_mac_address = eth_mac_addr,
+<<<<<<< HEAD
 	.ndo_get_stats64 = internal_get_stats,
+=======
+	.ndo_get_stats64 = dev_get_tstats64,
+>>>>>>> upstream/android-13
 };
 
 static struct rtnl_link_ops internal_dev_link_ops __read_mostly = {
@@ -238,7 +265,10 @@ static void internal_dev_destroy(struct vport *vport)
 static netdev_tx_t internal_dev_recv(struct sk_buff *skb)
 {
 	struct net_device *netdev = skb->dev;
+<<<<<<< HEAD
 	struct pcpu_sw_netstats *stats;
+=======
+>>>>>>> upstream/android-13
 
 	if (unlikely(!(netdev->flags & IFF_UP))) {
 		kfree_skb(skb);
@@ -247,18 +277,26 @@ static netdev_tx_t internal_dev_recv(struct sk_buff *skb)
 	}
 
 	skb_dst_drop(skb);
+<<<<<<< HEAD
 	nf_reset(skb);
+=======
+	nf_reset_ct(skb);
+>>>>>>> upstream/android-13
 	secpath_reset(skb);
 
 	skb->pkt_type = PACKET_HOST;
 	skb->protocol = eth_type_trans(skb, netdev);
 	skb_postpull_rcsum(skb, eth_hdr(skb), ETH_HLEN);
+<<<<<<< HEAD
 
 	stats = this_cpu_ptr(netdev->tstats);
 	u64_stats_update_begin(&stats->syncp);
 	stats->rx_packets++;
 	stats->rx_bytes += skb->len;
 	u64_stats_update_end(&stats->syncp);
+=======
+	dev_sw_netstats_rx_add(netdev, skb->len);
+>>>>>>> upstream/android-13
 
 	netif_rx(skb);
 	return NETDEV_TX_OK;

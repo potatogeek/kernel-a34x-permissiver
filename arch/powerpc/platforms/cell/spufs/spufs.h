@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * SPU file system
  *
  * (C) Copyright IBM Deutschland Entwicklung GmbH 2005
  *
  * Author: Arnd Bergmann <arndb@de.ibm.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef SPUFS_H
 #define SPUFS_H
@@ -294,7 +301,10 @@ void spu_del_from_rq(struct spu_context *ctx);
 int spu_activate(struct spu_context *ctx, unsigned long flags);
 void spu_deactivate(struct spu_context *ctx);
 void spu_yield(struct spu_context *ctx);
+<<<<<<< HEAD
 void spu_switch_notify(struct spu *spu, struct spu_context *ctx);
+=======
+>>>>>>> upstream/android-13
 void spu_switch_log_notify(struct spu *spu, struct spu_context *ctx,
 		u32 type, u32 val);
 void spu_set_timeslice(struct spu_context *ctx);
@@ -350,8 +360,12 @@ void spufs_dma_callback(struct spu *spu, int type);
 extern struct spu_coredump_calls spufs_coredump_calls;
 struct spufs_coredump_reader {
 	char *name;
+<<<<<<< HEAD
 	ssize_t (*read)(struct spu_context *ctx,
 			char __user *buffer, size_t size, loff_t *pos);
+=======
+	ssize_t (*dump)(struct spu_context *ctx, struct coredump_params *cprm);
+>>>>>>> upstream/android-13
 	u64 (*get)(struct spu_context *ctx);
 	size_t size;
 };

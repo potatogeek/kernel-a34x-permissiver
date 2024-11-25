@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * hp6x0 Power Management Routines
  *
  * Copyright (c) 2006 Andriy Skulysh <askulsyh@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/init.h>
 #include <linux/suspend.h>

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * pata_ns87410.c 	- National Semiconductor 87410 PATA for new ATA layer
  *			  (C) 2006 Red Hat Inc
@@ -15,6 +16,12 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; see the file COPYING.  If not, write to
  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * pata_ns87410.c 	- National Semiconductor 87410 PATA for new ATA layer
+ *			  (C) 2006 Red Hat Inc
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>

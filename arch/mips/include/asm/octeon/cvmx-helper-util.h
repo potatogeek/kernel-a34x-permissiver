@@ -45,6 +45,7 @@ extern const char
     *cvmx_helper_interface_mode_to_string(cvmx_helper_interface_mode_t mode);
 
 /**
+<<<<<<< HEAD
  * Debug routine to dump the packet structure to the console
  *
  * @work:   Work queue entry containing the packet to dump
@@ -68,6 +69,8 @@ extern int cvmx_helper_setup_red_queue(int queue, int pass_thresh,
 				       int drop_thresh);
 
 /**
+=======
+>>>>>>> upstream/android-13
  * Setup Random Early Drop to automatically begin dropping packets.
  *
  * @pass_thresh:
@@ -146,7 +149,11 @@ static inline int cvmx_helper_get_last_ipd_port(int interface)
  *
  * @work:   Work queue entry with packet to free
  */
+<<<<<<< HEAD
 static inline void cvmx_helper_free_packet_data(cvmx_wqe_t *work)
+=======
+static inline void cvmx_helper_free_packet_data(struct cvmx_wqe *work)
+>>>>>>> upstream/android-13
 {
 	uint64_t number_buffers;
 	union cvmx_buf_ptr buffer_ptr;

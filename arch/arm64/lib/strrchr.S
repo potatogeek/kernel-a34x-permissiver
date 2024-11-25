@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Based on arch/arm/lib/strrchr.S
  *
  * Copyright (C) 1995-2000 Russell King
  * Copyright (C) 2013 ARM Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -15,6 +20,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
@@ -29,7 +36,11 @@
  * Returns:
  *	x0 - address of last occurrence of 'c' or 0
  */
+<<<<<<< HEAD
 WEAK(strrchr)
+=======
+SYM_FUNC_START_WEAK_PI(strrchr)
+>>>>>>> upstream/android-13
 	mov	x3, #0
 	and	w1, w1, #0xff
 1:	ldrb	w2, [x0], #1
@@ -40,4 +51,9 @@ WEAK(strrchr)
 	b	1b
 2:	mov	x0, x3
 	ret
+<<<<<<< HEAD
 ENDPIPROC(strrchr)
+=======
+SYM_FUNC_END_PI(strrchr)
+EXPORT_SYMBOL_NOKASAN(strrchr)
+>>>>>>> upstream/android-13

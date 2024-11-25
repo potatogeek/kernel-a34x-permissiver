@@ -214,7 +214,11 @@ usnic_fwd_alloc_flow(struct usnic_fwd_dev *ufdev, struct filter *filter,
 	if (!flow)
 		return ERR_PTR(-ENOMEM);
 
+<<<<<<< HEAD
 	tlv = pci_alloc_consistent(pdev, tlv_size, &tlv_pa);
+=======
+	tlv = dma_alloc_coherent(&pdev->dev, tlv_size, &tlv_pa, GFP_ATOMIC);
+>>>>>>> upstream/android-13
 	if (!tlv) {
 		usnic_err("Failed to allocate memory\n");
 		status = -ENOMEM;
@@ -258,7 +262,11 @@ usnic_fwd_alloc_flow(struct usnic_fwd_dev *ufdev, struct filter *filter,
 
 out_free_tlv:
 	spin_unlock(&ufdev->lock);
+<<<<<<< HEAD
 	pci_free_consistent(pdev, tlv_size, tlv, tlv_pa);
+=======
+	dma_free_coherent(&pdev->dev, tlv_size, tlv, tlv_pa);
+>>>>>>> upstream/android-13
 	if (!status)
 		return flow;
 out_free_flow:

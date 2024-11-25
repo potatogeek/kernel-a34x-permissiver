@@ -33,9 +33,13 @@
 #include "five.h"
 #include "five_crypto_comp.h"
 #include "five_porting.h"
+<<<<<<< HEAD
 //#include "security/integrity/integrity.h"
 #include "../../integrity/integrity.h"
 #include "five_testing.h"
+=======
+#include "security/integrity/integrity.h"
+>>>>>>> upstream/android-13
 
 struct ahash_completion {
 	struct completion completion;
@@ -51,12 +55,15 @@ MODULE_PARM_DESC(ahash_minsize, "Minimum file size for ahash use");
 static int five_maxorder;
 static unsigned long five_bufsize = PAGE_SIZE;
 
+<<<<<<< HEAD
 __visible_for_testing __mockable struct crypto_shash *call_crypto_alloc_shash(
 		const char *alg_name, u32 type, u32 mask)
 {
 	return crypto_alloc_shash(alg_name, type, mask);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int param_set_bufsize(const char *val, const struct kernel_param *kp)
 {
 	unsigned long long size;
@@ -88,7 +95,11 @@ int __init five_init_crypto(void)
 {
 	long rc;
 
+<<<<<<< HEAD
 	five_shash_tfm = call_crypto_alloc_shash(
+=======
+	five_shash_tfm = crypto_alloc_shash(
+>>>>>>> upstream/android-13
 					hash_algo_name[five_hash_algo], 0, 0);
 	if (IS_ERR(five_shash_tfm)) {
 		rc = PTR_ERR(five_shash_tfm);
@@ -236,7 +247,11 @@ static int ahash_wait(int err, struct ahash_completion *res)
 		wait_for_completion(&res->completion);
 		reinit_completion(&res->completion);
 		err = res->err;
+<<<<<<< HEAD
 		fallthrough;
+=======
+		/* fall through */
+>>>>>>> upstream/android-13
 	default:
 		pr_crit_ratelimited("ahash calculation failed: err: %d\n", err);
 	}

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2011 Instituto Nokia de Tecnologia
  *
  * Authors:
  *    Aloisio Almeida Jr <aloisio.almeida@openbossa.org>
  *    Lauro Ramos Venancio <lauro.venancio@openbossa.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": %s: " fmt, __func__
@@ -61,7 +68,11 @@ static void rawsock_report_error(struct sock *sk, int err)
 
 	sk->sk_shutdown = SHUTDOWN_MASK;
 	sk->sk_err = -err;
+<<<<<<< HEAD
 	sk->sk_error_report(sk);
+=======
+	sk_error_report(sk);
+>>>>>>> upstream/android-13
 
 	rawsock_write_queue_purge(sk);
 }
@@ -152,7 +163,11 @@ static void rawsock_data_exchange_complete(void *context, struct sk_buff *skb,
 {
 	struct sock *sk = (struct sock *) context;
 
+<<<<<<< HEAD
 	BUG_ON(in_irq());
+=======
+	BUG_ON(in_hardirq());
+>>>>>>> upstream/android-13
 
 	pr_debug("sk=%p err=%d\n", sk, err);
 
@@ -288,8 +303,11 @@ static const struct proto_ops rawsock_ops = {
 	.ioctl          = sock_no_ioctl,
 	.listen         = sock_no_listen,
 	.shutdown       = sock_no_shutdown,
+<<<<<<< HEAD
 	.setsockopt     = sock_no_setsockopt,
 	.getsockopt     = sock_no_getsockopt,
+=======
+>>>>>>> upstream/android-13
 	.sendmsg        = rawsock_sendmsg,
 	.recvmsg        = rawsock_recvmsg,
 	.mmap           = sock_no_mmap,
@@ -308,8 +326,11 @@ static const struct proto_ops rawsock_raw_ops = {
 	.ioctl          = sock_no_ioctl,
 	.listen         = sock_no_listen,
 	.shutdown       = sock_no_shutdown,
+<<<<<<< HEAD
 	.setsockopt     = sock_no_setsockopt,
 	.getsockopt     = sock_no_getsockopt,
+=======
+>>>>>>> upstream/android-13
 	.sendmsg        = sock_no_sendmsg,
 	.recvmsg        = rawsock_recvmsg,
 	.mmap           = sock_no_mmap,
@@ -345,7 +366,11 @@ static int rawsock_create(struct net *net, struct socket *sock,
 		return -ESOCKTNOSUPPORT;
 
 	if (sock->type == SOCK_RAW) {
+<<<<<<< HEAD
 		if (!capable(CAP_NET_RAW))
+=======
+		if (!ns_capable(net->user_ns, CAP_NET_RAW))
+>>>>>>> upstream/android-13
 			return -EPERM;
 		sock->ops = &rawsock_raw_ops;
 	} else {

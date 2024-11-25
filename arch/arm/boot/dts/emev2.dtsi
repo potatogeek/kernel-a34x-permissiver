@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
+<<<<<<< HEAD
  * Device Tree Source for the EMEV2 SoC
+=======
+ * Device Tree Source for the Emma Mobile EV2 SoC
+>>>>>>> upstream/android-13
  *
  * Copyright (C) 2012 Renesas Solutions Corp.
  */
@@ -195,7 +199,11 @@
 		clock-names = "sclk";
 	};
 
+<<<<<<< HEAD
 	pfc: pin-controller@e0140200 {
+=======
+	pfc: pinctrl@e0140200 {
+>>>>>>> upstream/android-13
 		compatible = "renesas,pfc-emev2";
 		reg = <0xe0140200 0x100>;
 	};
@@ -212,6 +220,10 @@
 		interrupt-controller;
 		#interrupt-cells = <2>;
 	};
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	gpio1: gpio@e0050080 {
 		compatible = "renesas,em-gio";
 		reg = <0xe0050080 0x2c>, <0xe00500c0 0x20>;
@@ -224,6 +236,10 @@
 		interrupt-controller;
 		#interrupt-cells = <2>;
 	};
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	gpio2: gpio@e0050100 {
 		compatible = "renesas,em-gio";
 		reg = <0xe0050100 0x2c>, <0xe0050140 0x20>;
@@ -236,6 +252,10 @@
 		interrupt-controller;
 		#interrupt-cells = <2>;
 	};
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	gpio3: gpio@e0050180 {
 		compatible = "renesas,em-gio";
 		reg = <0xe0050180 0x2c>, <0xe00501c0 0x20>;
@@ -248,6 +268,10 @@
 		interrupt-controller;
 		#interrupt-cells = <2>;
 	};
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	gpio4: gpio@e0050200 {
 		compatible = "renesas,em-gio";
 		reg = <0xe0050200 0x2c>, <0xe0050240 0x20>;

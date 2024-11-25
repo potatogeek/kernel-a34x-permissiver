@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * TI LP8860 4-Channel LED Driver
  *
  * Copyright (C) 2014 Texas Instruments
  *
  * Author: Dan Murphy <dmurphy@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/i2c.h>
@@ -22,7 +29,10 @@
 #include <linux/of_gpio.h>
 #include <linux/gpio/consumer.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 #include <uapi/linux/uleds.h>
+=======
+>>>>>>> upstream/android-13
 
 #define LP8860_DISP_CL1_BRT_MSB		0x00
 #define LP8860_DISP_CL1_BRT_LSB		0x01
@@ -87,6 +97,7 @@
 
 #define LP8860_CLEAR_FAULTS		0x01
 
+<<<<<<< HEAD
 /**
  * struct lp8860_led -
  * @lock - Lock for reading/writing the device
@@ -97,6 +108,19 @@
  * @enable_gpio - VDDIO/EN gpio to enable communication interface
  * @regulator - LED supply regulator pointer
  * @label - LED label
+=======
+#define LP8860_NAME			"lp8860"
+
+/**
+ * struct lp8860_led
+ * @lock: Lock for reading/writing the device
+ * @client: Pointer to the I2C client
+ * @led_dev: led class device pointer
+ * @regmap: Devices register map
+ * @eeprom_regmap: EEPROM register map
+ * @enable_gpio: VDDIO/EN gpio to enable communication interface
+ * @regulator: LED supply regulator pointer
+>>>>>>> upstream/android-13
  */
 struct lp8860_led {
 	struct mutex lock;
@@ -106,7 +130,10 @@ struct lp8860_led {
 	struct regmap *eeprom_regmap;
 	struct gpio_desc *enable_gpio;
 	struct regulator *regulator;
+<<<<<<< HEAD
 	char label[LED_MAX_NAME_SIZE];
+=======
+>>>>>>> upstream/android-13
 };
 
 struct lp8860_eeprom_reg {
@@ -385,14 +412,21 @@ static int lp8860_probe(struct i2c_client *client,
 {
 	int ret;
 	struct lp8860_led *led;
+<<<<<<< HEAD
 	struct device_node *np = client->dev.of_node;
 	struct device_node *child_node;
 	const char *name;
+=======
+	struct device_node *np = dev_of_node(&client->dev);
+	struct device_node *child_node;
+	struct led_init_data init_data = {};
+>>>>>>> upstream/android-13
 
 	led = devm_kzalloc(&client->dev, sizeof(*led), GFP_KERNEL);
 	if (!led)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	for_each_available_child_of_node(np, child_node) {
 		led->led_dev.default_trigger = of_get_property(child_node,
 						    "linux,default-trigger",
@@ -406,6 +440,11 @@ static int lp8860_probe(struct i2c_client *client,
 			snprintf(led->label, sizeof(led->label),
 				"%s::display_cluster", id->name);
 	}
+=======
+	child_node = of_get_next_available_child(np, NULL);
+	if (!child_node)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	led->enable_gpio = devm_gpiod_get_optional(&client->dev,
 						   "enable", GPIOD_OUT_LOW);
@@ -420,7 +459,10 @@ static int lp8860_probe(struct i2c_client *client,
 		led->regulator = NULL;
 
 	led->client = client;
+<<<<<<< HEAD
 	led->led_dev.name = led->label;
+=======
+>>>>>>> upstream/android-13
 	led->led_dev.brightness_set_blocking = lp8860_brightness_set;
 
 	mutex_init(&led->lock);
@@ -447,7 +489,16 @@ static int lp8860_probe(struct i2c_client *client,
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	ret = devm_led_classdev_register(&client->dev, &led->led_dev);
+=======
+	init_data.fwnode = of_fwnode_handle(child_node);
+	init_data.devicename = LP8860_NAME;
+	init_data.default_label = ":display_cluster";
+
+	ret = devm_led_classdev_register_ext(&client->dev, &led->led_dev,
+					     &init_data);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(&client->dev, "led register err: %d\n", ret);
 		return ret;

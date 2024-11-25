@@ -17,6 +17,7 @@
 #include <asm/cache.h>
 #include <asm/addrspace.h>
 #include <asm/machvec.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
 #include <asm-generic/iomap.h>
 
@@ -24,6 +25,15 @@
 #define __IO_PREFIX     generic
 #include <asm/io_generic.h>
 #include <asm/io_trapped.h>
+=======
+#include <asm/page.h>
+#include <linux/pgtable.h>
+#include <asm-generic/iomap.h>
+
+#define __IO_PREFIX     generic
+#include <asm/io_generic.h>
+#include <asm-generic/pci_iomap.h>
+>>>>>>> upstream/android-13
 #include <mach/mangle-port.h>
 
 #define __raw_writeb(v,a)	(__chk_io_ptr(a), *(volatile u8  __force *)(a) = (v))
@@ -114,12 +124,17 @@ static inline void pfx##reads##bwlq(volatile void __iomem *mem,		\
 __BUILD_MEMORY_STRING(__raw_, b, u8)
 __BUILD_MEMORY_STRING(__raw_, w, u16)
 
+<<<<<<< HEAD
 #ifdef CONFIG_SUPERH32
 void __raw_writesl(void __iomem *addr, const void *data, int longlen);
 void __raw_readsl(const void __iomem *addr, void *data, int longlen);
 #else
 __BUILD_MEMORY_STRING(__raw_, l, u32)
 #endif
+=======
+void __raw_writesl(void __iomem *addr, const void *data, int longlen);
+void __raw_readsl(const void __iomem *addr, void *data, int longlen);
+>>>>>>> upstream/android-13
 
 __BUILD_MEMORY_STRING(__raw_, q, u64)
 
@@ -228,9 +243,12 @@ __BUILD_IOPORT_STRING(q, u64)
 
 #define IO_SPACE_LIMIT 0xffffffff
 
+<<<<<<< HEAD
 /* synco on SH-4A, otherwise a nop */
 #define mmiowb()		wmb()
 
+=======
+>>>>>>> upstream/android-13
 /* We really want to try and get these to memcpy etc */
 void memcpy_fromio(void *, const volatile void __iomem *, unsigned long);
 void memcpy_toio(volatile void __iomem *, const void *, unsigned long);
@@ -249,6 +267,7 @@ unsigned long long poke_real_address_q(unsigned long long addr,
 #define phys_to_virt(address)	(__va(address))
 #endif
 
+<<<<<<< HEAD
 /*
  * On 32-bit SH, we traditionally have the whole physical address space
  * mapped at all times (as MIPS does), so "ioremap()" and "iounmap()" do
@@ -336,16 +355,33 @@ __ioremap_mode(phys_addr_t offset, unsigned long size, pgprot_t prot)
 static inline void __iomem *ioremap(phys_addr_t offset, unsigned long size)
 {
 	return __ioremap_mode(offset, size, PAGE_KERNEL_NOCACHE);
+=======
+#ifdef CONFIG_MMU
+void iounmap(void __iomem *addr);
+void __iomem *__ioremap_caller(phys_addr_t offset, unsigned long size,
+			       pgprot_t prot, void *caller);
+
+static inline void __iomem *ioremap(phys_addr_t offset, unsigned long size)
+{
+	return __ioremap_caller(offset, size, PAGE_KERNEL_NOCACHE,
+			__builtin_return_address(0));
+>>>>>>> upstream/android-13
 }
 
 static inline void __iomem *
 ioremap_cache(phys_addr_t offset, unsigned long size)
 {
+<<<<<<< HEAD
 	return __ioremap_mode(offset, size, PAGE_KERNEL);
+=======
+	return __ioremap_caller(offset, size, PAGE_KERNEL,
+			__builtin_return_address(0));
+>>>>>>> upstream/android-13
 }
 #define ioremap_cache ioremap_cache
 
 #ifdef CONFIG_HAVE_IOREMAP_PROT
+<<<<<<< HEAD
 static inline void __iomem *
 ioremap_prot(phys_addr_t offset, unsigned long size, unsigned long flags)
 {
@@ -377,21 +413,44 @@ static inline void iounmap(void __iomem *addr)
 	__iounmap(addr);
 }
 
+=======
+static inline void __iomem *ioremap_prot(phys_addr_t offset, unsigned long size,
+		unsigned long flags)
+{
+	return __ioremap_caller(offset, size, __pgprot(flags),
+			__builtin_return_address(0));
+}
+#endif /* CONFIG_HAVE_IOREMAP_PROT */
+
+#else /* CONFIG_MMU */
+#define iounmap(addr)		do { } while (0)
+#define ioremap(offset, size)	((void __iomem *)(unsigned long)(offset))
+#endif /* CONFIG_MMU */
+
+#define ioremap_uc	ioremap
+
+>>>>>>> upstream/android-13
 /*
  * Convert a physical pointer to a virtual kernel pointer for /dev/mem
  * access
  */
 #define xlate_dev_mem_ptr(p)	__va(p)
 
+<<<<<<< HEAD
 /*
  * Convert a virtual cached pointer to an uncached pointer
  */
 #define xlate_dev_kmem_ptr(p)	p
 
+=======
+>>>>>>> upstream/android-13
 #define ARCH_HAS_VALID_PHYS_ADDR_RANGE
 int valid_phys_addr_range(phys_addr_t addr, size_t size);
 int valid_mmap_phys_addr_range(unsigned long pfn, size_t size);
 
+<<<<<<< HEAD
 #endif /* __KERNEL__ */
 
+=======
+>>>>>>> upstream/android-13
 #endif /* __ASM_SH_IO_H */

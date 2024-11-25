@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Copyright (C) 2012-2019, Samsung Electronics Co., Ltd.
+=======
+ * Copyright (c) 2013 Samsung Electronics Co., Ltd All Rights Reserved
+>>>>>>> upstream/android-13
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -15,10 +19,22 @@
 #define __TZ_COMMON_H__
 
 #ifndef __USED_BY_TZSL__
+<<<<<<< HEAD
 #include <crypto/sha.h>
 #include <linux/ioctl.h>
 #include <linux/types.h>
 #include <linux/limits.h>
+=======
+#include <linux/ioctl.h>
+#include <linux/types.h>
+#include <linux/version.h>
+#include <linux/limits.h>
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0)
+#include <crypto/sha2.h>
+#else
+#include <crypto/sha.h>
+#endif
+>>>>>>> upstream/android-13
 #else
 #include <stdint.h>
 #include <sys/ioctl.h>

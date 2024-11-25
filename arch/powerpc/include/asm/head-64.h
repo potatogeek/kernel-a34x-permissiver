@@ -16,7 +16,11 @@
 	.section ".head.data.\name\()","a",@progbits
 .endm
 .macro use_ftsec name
+<<<<<<< HEAD
 	.section ".head.text.\name\()"
+=======
+	.section ".head.text.\name\()","ax",@progbits
+>>>>>>> upstream/android-13
 .endm
 
 /*
@@ -128,7 +132,11 @@ name:
 	.if ((start) % (size) != 0);				\
 	.error "Fixed section exception vector misalignment";	\
 	.endif;							\
+<<<<<<< HEAD
 	.if ((size) != 0x20) && ((size) != 0x80) && ((size) != 0x100); \
+=======
+	.if ((size) != 0x20) && ((size) != 0x80) && ((size) != 0x100) && ((size) != 0x1000); \
+>>>>>>> upstream/android-13
 	.error "Fixed section exception vector bad size";	\
 	.endif;							\
 	.if (start) < sname##_start;				\
@@ -169,6 +177,7 @@ name:
 
 #define ABS_ADDR(label) (label - fs_label + fs_start)
 
+<<<<<<< HEAD
 /*
  * Following are the BOOK3S exception handler helper macros.
  * Handlers come in a number of types, and each type has a number of varieties.
@@ -412,6 +421,8 @@ name:
 	EXC_COMMON_BEGIN(name);						\
 	STD_EXCEPTION_COMMON_ASYNC(realvec, name, hdlr);		\
 
+=======
+>>>>>>> upstream/android-13
 #endif /* __ASSEMBLY__ */
 
 #endif	/* _ASM_POWERPC_HEAD_64_H */

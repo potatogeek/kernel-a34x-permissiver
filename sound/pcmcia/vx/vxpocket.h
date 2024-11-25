@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Driver for Digigram VXpocket soundcards
  *
  * Copyright (c) 2002 by Takashi Iwai <tiwai@suse.de>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __VXPOCKET_H
@@ -45,7 +52,11 @@ struct snd_vxpocket {
 
 #define to_vxpocket(x)	container_of(x, struct snd_vxpocket, core)
 
+<<<<<<< HEAD
 extern struct snd_vx_ops snd_vxpocket_ops;
+=======
+extern const struct snd_vx_ops snd_vxpocket_ops;
+>>>>>>> upstream/android-13
 
 void vx_set_mic_boost(struct vx_core *chip, int boost);
 void vx_set_mic_level(struct vx_core *chip, int level);

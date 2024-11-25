@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2007 Patrick McHardy <kaber@trash.net>
  *
@@ -6,6 +7,12 @@
  * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2007 Patrick McHardy <kaber@trash.net>
+ *
+>>>>>>> upstream/android-13
  * The code this is based on carried the following copyright notice:
  * ---
  * (C) Copyright 2001-2006
@@ -24,6 +31,10 @@
 #include <linux/notifier.h>
 #include <linux/netdevice.h>
 #include <linux/etherdevice.h>
+<<<<<<< HEAD
+=======
+#include <linux/net_tstamp.h>
+>>>>>>> upstream/android-13
 #include <linux/ethtool.h>
 #include <linux/if_arp.h>
 #include <linux/if_vlan.h>
@@ -34,10 +45,18 @@
 #include <net/rtnetlink.h>
 #include <net/xfrm.h>
 #include <linux/netpoll.h>
+<<<<<<< HEAD
 
 #define MACVLAN_HASH_BITS	8
 #define MACVLAN_HASH_SIZE	(1<<MACVLAN_HASH_BITS)
 #define MACVLAN_BC_QUEUE_LEN	1000
+=======
+#include <linux/phy.h>
+
+#define MACVLAN_HASH_BITS	8
+#define MACVLAN_HASH_SIZE	(1<<MACVLAN_HASH_BITS)
+#define MACVLAN_DEFAULT_BC_QUEUE_LEN	1000
+>>>>>>> upstream/android-13
 
 #define MACVLAN_F_PASSTHRU	1
 #define MACVLAN_F_ADDRCHANGE	2
@@ -48,6 +67,10 @@ struct macvlan_port {
 	struct list_head	vlans;
 	struct sk_buff_head	bc_queue;
 	struct work_struct	bc_work;
+<<<<<<< HEAD
+=======
+	u32			bc_queue_len_used;
+>>>>>>> upstream/android-13
 	u32			flags;
 	int			count;
 	struct hlist_head	vlan_source_hash[MACVLAN_HASH_SIZE];
@@ -69,6 +92,10 @@ struct macvlan_skb_cb {
 #define MACVLAN_SKB_CB(__skb) ((struct macvlan_skb_cb *)&((__skb)->cb[0]))
 
 static void macvlan_port_destroy(struct net_device *dev);
+<<<<<<< HEAD
+=======
+static void update_port_bc_queue_len(struct macvlan_port *port);
+>>>>>>> upstream/android-13
 
 static inline bool macvlan_passthru(const struct macvlan_port *port)
 {
@@ -119,15 +146,23 @@ static struct macvlan_port *macvlan_port_get_rtnl(const struct net_device *dev)
 	return rtnl_dereference(dev->rx_handler_data);
 }
 
+<<<<<<< HEAD
 #define macvlan_port_exists(dev) (dev->priv_flags & IFF_MACVLAN_PORT)
 
+=======
+>>>>>>> upstream/android-13
 static struct macvlan_dev *macvlan_hash_lookup(const struct macvlan_port *port,
 					       const unsigned char *addr)
 {
 	struct macvlan_dev *vlan;
 	u32 idx = macvlan_eth_hash(addr);
 
+<<<<<<< HEAD
 	hlist_for_each_entry_rcu(vlan, &port->vlan_hash[idx], hlist) {
+=======
+	hlist_for_each_entry_rcu(vlan, &port->vlan_hash[idx], hlist,
+				 lockdep_rtnl_is_held()) {
+>>>>>>> upstream/android-13
 		if (ether_addr_equal_64bits(vlan->dev->dev_addr, addr))
 			return vlan;
 	}
@@ -273,6 +308,7 @@ static void macvlan_broadcast(struct sk_buff *skb,
 	if (skb->protocol == htons(ETH_P_PAUSE))
 		return;
 
+<<<<<<< HEAD
 	for (i = 0; i < MACVLAN_HASH_SIZE; i++) {
 		hlist_for_each_entry_rcu(vlan, &port->vlan_hash[i], hlist) {
 			if (vlan->dev == src || !(vlan->mode & mode))
@@ -292,6 +328,24 @@ static void macvlan_broadcast(struct sk_buff *skb,
 			macvlan_count_rx(vlan, skb->len + ETH_HLEN,
 					 err == NET_RX_SUCCESS, true);
 		}
+=======
+	hash_for_each_rcu(port->vlan_hash, i, vlan, hlist) {
+		if (vlan->dev == src || !(vlan->mode & mode))
+			continue;
+
+		hash = mc_hash(vlan, eth->h_dest);
+		if (!test_bit(hash, vlan->mc_filter))
+			continue;
+
+		err = NET_RX_DROP;
+		nskb = skb_clone(skb, GFP_ATOMIC);
+		if (likely(nskb))
+			err = macvlan_broadcast_one(nskb, vlan, eth,
+					mode == MACVLAN_MODE_BRIDGE) ?:
+			      netif_rx_ni(nskb);
+		macvlan_count_rx(vlan, skb->len + ETH_HLEN,
+				 err == NET_RX_SUCCESS, true);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -337,7 +391,11 @@ static void macvlan_process_broadcast(struct work_struct *w)
 
 		if (src)
 			dev_put(src->dev);
+<<<<<<< HEAD
 		kfree_skb(skb);
+=======
+		consume_skb(skb);
+>>>>>>> upstream/android-13
 
 		cond_resched();
 	}
@@ -357,7 +415,11 @@ static void macvlan_broadcast_enqueue(struct macvlan_port *port,
 	MACVLAN_SKB_CB(nskb)->src = src;
 
 	spin_lock(&port->bc_queue.lock);
+<<<<<<< HEAD
 	if (skb_queue_len(&port->bc_queue) < MACVLAN_BC_QUEUE_LEN) {
+=======
+	if (skb_queue_len(&port->bc_queue) < port->bc_queue_len_used) {
+>>>>>>> upstream/android-13
 		if (src)
 			dev_hold(src->dev);
 		__skb_queue_tail(&port->bc_queue, nskb);
@@ -381,6 +443,7 @@ err:
 static void macvlan_flush_sources(struct macvlan_port *port,
 				  struct macvlan_dev *vlan)
 {
+<<<<<<< HEAD
 	int i;
 
 	for (i = 0; i < MACVLAN_HASH_SIZE; i++) {
@@ -395,6 +458,16 @@ static void macvlan_flush_sources(struct macvlan_port *port,
 				macvlan_hash_del_source(entry);
 		}
 	}
+=======
+	struct macvlan_source_entry *entry;
+	struct hlist_node *next;
+	int i;
+
+	hash_for_each_safe(port->vlan_source_hash, i, next, entry, hlist)
+		if (entry->vlan == vlan)
+			macvlan_hash_del_source(entry);
+
+>>>>>>> upstream/android-13
 	vlan->macaddr_count = 0;
 }
 
@@ -424,18 +497,36 @@ static void macvlan_forward_source_one(struct sk_buff *skb,
 	macvlan_count_rx(vlan, len, ret == NET_RX_SUCCESS, false);
 }
 
+<<<<<<< HEAD
 static void macvlan_forward_source(struct sk_buff *skb,
+=======
+static bool macvlan_forward_source(struct sk_buff *skb,
+>>>>>>> upstream/android-13
 				   struct macvlan_port *port,
 				   const unsigned char *addr)
 {
 	struct macvlan_source_entry *entry;
 	u32 idx = macvlan_eth_hash(addr);
 	struct hlist_head *h = &port->vlan_source_hash[idx];
+<<<<<<< HEAD
 
 	hlist_for_each_entry_rcu(entry, h, hlist) {
 		if (ether_addr_equal_64bits(entry->addr, addr))
 			macvlan_forward_source_one(skb, entry->vlan);
 	}
+=======
+	bool consume = false;
+
+	hlist_for_each_entry_rcu(entry, h, hlist) {
+		if (ether_addr_equal_64bits(entry->addr, addr)) {
+			if (entry->vlan->flags & MACVLAN_FLAG_NODST)
+				consume = true;
+			macvlan_forward_source_one(skb, entry->vlan);
+		}
+	}
+
+	return consume;
+>>>>>>> upstream/android-13
 }
 
 /* called under rcu_read_lock() from netif_receive_skb */
@@ -464,7 +555,14 @@ static rx_handler_result_t macvlan_handle_frame(struct sk_buff **pskb)
 			return RX_HANDLER_CONSUMED;
 		*pskb = skb;
 		eth = eth_hdr(skb);
+<<<<<<< HEAD
 		macvlan_forward_source(skb, port, eth->h_source);
+=======
+		if (macvlan_forward_source(skb, port, eth->h_source)) {
+			kfree_skb(skb);
+			return RX_HANDLER_CONSUMED;
+		}
+>>>>>>> upstream/android-13
 		src = macvlan_hash_lookup(port, eth->h_source);
 		if (src && src->mode != MACVLAN_MODE_VEPA &&
 		    src->mode != MACVLAN_MODE_BRIDGE) {
@@ -483,7 +581,14 @@ static rx_handler_result_t macvlan_handle_frame(struct sk_buff **pskb)
 		return RX_HANDLER_PASS;
 	}
 
+<<<<<<< HEAD
 	macvlan_forward_source(skb, port, eth->h_source);
+=======
+	if (macvlan_forward_source(skb, port, eth->h_source)) {
+		kfree_skb(skb);
+		return RX_HANDLER_CONSUMED;
+	}
+>>>>>>> upstream/android-13
 	if (macvlan_passthru(port))
 		vlan = list_first_or_null_rcu(&port->vlans,
 					      struct macvlan_dev, list);
@@ -549,12 +654,20 @@ xmit_world:
 static inline netdev_tx_t macvlan_netpoll_send_skb(struct macvlan_dev *vlan, struct sk_buff *skb)
 {
 #ifdef CONFIG_NET_POLL_CONTROLLER
+<<<<<<< HEAD
 	if (vlan->netpoll)
 		netpoll_send_skb(vlan->netpoll, skb);
 #else
 	BUG();
 #endif
 	return NETDEV_TX_OK;
+=======
+	return netpoll_send_skb(vlan->netpoll, skb);
+#else
+	BUG();
+	return NETDEV_TX_OK;
+#endif
+>>>>>>> upstream/android-13
 }
 
 static netdev_tx_t macvlan_start_xmit(struct sk_buff *skb,
@@ -752,7 +865,11 @@ static int macvlan_set_mac_address(struct net_device *dev, void *p)
 
 	if (vlan->mode == MACVLAN_MODE_PASSTHRU) {
 		macvlan_set_addr_change(vlan->port);
+<<<<<<< HEAD
 		return dev_set_mac_address(vlan->lowerdev, addr);
+=======
+		return dev_set_mac_address(vlan->lowerdev, addr, NULL);
+>>>>>>> upstream/android-13
 	}
 
 	if (macvlan_addr_busy(vlan->port, addr->sa_data))
@@ -832,6 +949,36 @@ static int macvlan_change_mtu(struct net_device *dev, int new_mtu)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int macvlan_eth_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
+{
+	struct net_device *real_dev = macvlan_dev_real_dev(dev);
+	const struct net_device_ops *ops = real_dev->netdev_ops;
+	struct ifreq ifrr;
+	int err = -EOPNOTSUPP;
+
+	strscpy(ifrr.ifr_name, real_dev->name, IFNAMSIZ);
+	ifrr.ifr_ifru = ifr->ifr_ifru;
+
+	switch (cmd) {
+	case SIOCSHWTSTAMP:
+		if (!net_eq(dev_net(dev), &init_net))
+			break;
+		fallthrough;
+	case SIOCGHWTSTAMP:
+		if (netif_device_present(real_dev) && ops->ndo_eth_ioctl)
+			err = ops->ndo_eth_ioctl(real_dev, &ifrr, cmd);
+		break;
+	}
+
+	if (!err)
+		ifr->ifr_ifru = ifrr.ifr_ifru;
+
+	return err;
+}
+
+>>>>>>> upstream/android-13
 /*
  * macvlan network devices have devices nesting below it and are a special
  * "super class" of normal network devices; split their locks off into a
@@ -854,6 +1001,7 @@ static struct lock_class_key macvlan_netdev_addr_lock_key;
 #define MACVLAN_STATE_MASK \
 	((1<<__LINK_STATE_NOCARRIER) | (1<<__LINK_STATE_DORMANT))
 
+<<<<<<< HEAD
 static int macvlan_get_nest_level(struct net_device *dev)
 {
 	return ((struct macvlan_dev *)netdev_priv(dev))->nest_level;
@@ -865,6 +1013,13 @@ static void macvlan_set_lockdep_class(struct net_device *dev)
 	lockdep_set_class_and_subclass(&dev->addr_list_lock,
 				       &macvlan_netdev_addr_lock_key,
 				       macvlan_get_nest_level(dev));
+=======
+static void macvlan_set_lockdep_class(struct net_device *dev)
+{
+	netdev_lockdep_set_classes(dev);
+	lockdep_set_class(&dev->addr_list_lock,
+			  &macvlan_netdev_addr_lock_key);
+>>>>>>> upstream/android-13
 }
 
 static int macvlan_init(struct net_device *dev)
@@ -884,7 +1039,10 @@ static int macvlan_init(struct net_device *dev)
 	dev->gso_max_size	= lowerdev->gso_max_size;
 	dev->gso_max_segs	= lowerdev->gso_max_segs;
 	dev->hard_header_len	= lowerdev->hard_header_len;
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	macvlan_set_lockdep_class(dev);
 
 	vlan->pcpu_stats = netdev_alloc_pcpu_stats(struct vlan_pcpu_stats);
@@ -971,7 +1129,12 @@ static int macvlan_vlan_rx_kill_vid(struct net_device *dev,
 static int macvlan_fdb_add(struct ndmsg *ndm, struct nlattr *tb[],
 			   struct net_device *dev,
 			   const unsigned char *addr, u16 vid,
+<<<<<<< HEAD
 			   u16 flags)
+=======
+			   u16 flags,
+			   struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct macvlan_dev *vlan = netdev_priv(dev);
 	int err = -EINVAL;
@@ -1029,6 +1192,29 @@ static int macvlan_ethtool_get_link_ksettings(struct net_device *dev,
 	return __ethtool_get_link_ksettings(vlan->lowerdev, cmd);
 }
 
+<<<<<<< HEAD
+=======
+static int macvlan_ethtool_get_ts_info(struct net_device *dev,
+				       struct ethtool_ts_info *info)
+{
+	struct net_device *real_dev = macvlan_dev_real_dev(dev);
+	const struct ethtool_ops *ops = real_dev->ethtool_ops;
+	struct phy_device *phydev = real_dev->phydev;
+
+	if (phy_has_tsinfo(phydev)) {
+		return phy_ts_info(phydev, info);
+	} else if (ops->get_ts_info) {
+		return ops->get_ts_info(real_dev, info);
+	} else {
+		info->so_timestamping = SOF_TIMESTAMPING_RX_SOFTWARE |
+			SOF_TIMESTAMPING_SOFTWARE;
+		info->phc_index = -1;
+	}
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static netdev_features_t macvlan_fix_features(struct net_device *dev,
 					      netdev_features_t features)
 {
@@ -1059,7 +1245,11 @@ static int macvlan_dev_netpoll_setup(struct net_device *dev, struct netpoll_info
 	struct macvlan_dev *vlan = netdev_priv(dev);
 	struct net_device *real_dev = vlan->lowerdev;
 	struct netpoll *netpoll;
+<<<<<<< HEAD
 	int err = 0;
+=======
+	int err;
+>>>>>>> upstream/android-13
 
 	netpoll = kzalloc(sizeof(*netpoll), GFP_KERNEL);
 	err = -ENOMEM;
@@ -1088,7 +1278,11 @@ static void macvlan_dev_netpoll_cleanup(struct net_device *dev)
 
 	vlan->netpoll = NULL;
 
+<<<<<<< HEAD
 	__netpoll_free_async(netpoll);
+=======
+	__netpoll_free(netpoll);
+>>>>>>> upstream/android-13
 }
 #endif	/* CONFIG_NET_POLL_CONTROLLER */
 
@@ -1103,6 +1297,10 @@ static const struct ethtool_ops macvlan_ethtool_ops = {
 	.get_link		= ethtool_op_get_link,
 	.get_link_ksettings	= macvlan_ethtool_get_link_ksettings,
 	.get_drvinfo		= macvlan_ethtool_get_drvinfo,
+<<<<<<< HEAD
+=======
+	.get_ts_info		= macvlan_ethtool_get_ts_info,
+>>>>>>> upstream/android-13
 };
 
 static const struct net_device_ops macvlan_netdev_ops = {
@@ -1112,6 +1310,10 @@ static const struct net_device_ops macvlan_netdev_ops = {
 	.ndo_stop		= macvlan_stop,
 	.ndo_start_xmit		= macvlan_start_xmit,
 	.ndo_change_mtu		= macvlan_change_mtu,
+<<<<<<< HEAD
+=======
+	.ndo_eth_ioctl		= macvlan_eth_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_fix_features	= macvlan_fix_features,
 	.ndo_change_rx_flags	= macvlan_change_rx_flags,
 	.ndo_set_mac_address	= macvlan_set_mac_address,
@@ -1123,7 +1325,10 @@ static const struct net_device_ops macvlan_netdev_ops = {
 	.ndo_fdb_add		= macvlan_fdb_add,
 	.ndo_fdb_del		= macvlan_fdb_del,
 	.ndo_fdb_dump		= ndo_dflt_fdb_dump,
+<<<<<<< HEAD
 	.ndo_get_lock_subclass  = macvlan_get_nest_level,
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_NET_POLL_CONTROLLER
 	.ndo_poll_controller	= macvlan_dev_poll_controller,
 	.ndo_netpoll_setup	= macvlan_dev_netpoll_setup,
@@ -1131,6 +1336,10 @@ static const struct net_device_ops macvlan_netdev_ops = {
 #endif
 	.ndo_get_iflink		= macvlan_dev_get_iflink,
 	.ndo_features_check	= passthru_features_check,
+<<<<<<< HEAD
+=======
+	.ndo_change_proto_down  = dev_change_proto_down_generic,
+>>>>>>> upstream/android-13
 };
 
 void macvlan_common_setup(struct net_device *dev)
@@ -1179,6 +1388,10 @@ static int macvlan_port_create(struct net_device *dev)
 	for (i = 0; i < MACVLAN_HASH_SIZE; i++)
 		INIT_HLIST_HEAD(&port->vlan_source_hash[i]);
 
+<<<<<<< HEAD
+=======
+	port->bc_queue_len_used = 0;
+>>>>>>> upstream/android-13
 	skb_queue_head_init(&port->bc_queue);
 	INIT_WORK(&port->bc_work, macvlan_process_broadcast);
 
@@ -1221,7 +1434,11 @@ static void macvlan_port_destroy(struct net_device *dev)
 
 		sa.sa_family = port->dev->type;
 		memcpy(&sa.sa_data, port->perm_addr, port->dev->addr_len);
+<<<<<<< HEAD
 		dev_set_mac_address(port->dev, &sa);
+=======
+		dev_set_mac_address(port->dev, &sa, NULL);
+>>>>>>> upstream/android-13
 	}
 
 	kfree(port);
@@ -1244,7 +1461,12 @@ static int macvlan_validate(struct nlattr *tb[], struct nlattr *data[],
 		return 0;
 
 	if (data[IFLA_MACVLAN_FLAGS] &&
+<<<<<<< HEAD
 	    nla_get_u16(data[IFLA_MACVLAN_FLAGS]) & ~MACVLAN_FLAG_NOPROMISC)
+=======
+	    nla_get_u16(data[IFLA_MACVLAN_FLAGS]) & ~(MACVLAN_FLAG_NOPROMISC |
+						      MACVLAN_FLAG_NODST))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	if (data[IFLA_MACVLAN_MODE]) {
@@ -1300,7 +1522,11 @@ static int macvlan_validate(struct nlattr *tb[], struct nlattr *data[],
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * reconfigure list of remote source mac address
  * (only for macvlan devices in source mode)
  * Note regarding alignment: all netlink data is aligned to 4 Byte, which
@@ -1343,7 +1569,11 @@ static int macvlan_changelink_sources(struct macvlan_dev *vlan, u32 mode,
 				return ret;
 		}
 
+<<<<<<< HEAD
 		if (!data || !data[IFLA_MACVLAN_MACADDR_DATA])
+=======
+		if (!data[IFLA_MACVLAN_MACADDR_DATA])
+>>>>>>> upstream/android-13
 			return 0;
 
 		head = nla_data(data[IFLA_MACVLAN_MACADDR_DATA]);
@@ -1398,7 +1628,11 @@ int macvlan_common_newlink(struct net *src_net, struct net_device *dev,
 	if (!tb[IFLA_ADDRESS])
 		eth_hw_addr_random(dev);
 
+<<<<<<< HEAD
 	if (!macvlan_port_exists(lowerdev)) {
+=======
+	if (!netif_is_macvlan_port(lowerdev)) {
+>>>>>>> upstream/android-13
 		err = macvlan_port_create(lowerdev);
 		if (err < 0)
 			return err;
@@ -1419,7 +1653,10 @@ int macvlan_common_newlink(struct net *src_net, struct net_device *dev,
 	vlan->dev      = dev;
 	vlan->port     = port;
 	vlan->set_features = MACVLAN_FEATURES;
+<<<<<<< HEAD
 	vlan->nest_level = dev_get_nest_level(lowerdev) + 1;
+=======
+>>>>>>> upstream/android-13
 
 	vlan->mode     = MACVLAN_MODE_VEPA;
 	if (data && data[IFLA_MACVLAN_MODE])
@@ -1448,6 +1685,13 @@ int macvlan_common_newlink(struct net *src_net, struct net_device *dev,
 			goto destroy_macvlan_port;
 	}
 
+<<<<<<< HEAD
+=======
+	vlan->bc_queue_len_req = MACVLAN_DEFAULT_BC_QUEUE_LEN;
+	if (data && data[IFLA_MACVLAN_BC_QUEUE_LEN])
+		vlan->bc_queue_len_req = nla_get_u32(data[IFLA_MACVLAN_BC_QUEUE_LEN]);
+
+>>>>>>> upstream/android-13
 	err = register_netdevice(dev);
 	if (err < 0)
 		goto destroy_macvlan_port;
@@ -1458,6 +1702,10 @@ int macvlan_common_newlink(struct net *src_net, struct net_device *dev,
 		goto unregister_netdev;
 
 	list_add_tail_rcu(&vlan->list, &port->vlans);
+<<<<<<< HEAD
+=======
+	update_port_bc_queue_len(vlan->port);
+>>>>>>> upstream/android-13
 	netif_stacked_transfer_operstate(lowerdev, dev);
 	linkwatch_fire_event(dev);
 
@@ -1491,6 +1739,10 @@ void macvlan_dellink(struct net_device *dev, struct list_head *head)
 	if (vlan->mode == MACVLAN_MODE_SOURCE)
 		macvlan_flush_sources(vlan->port, vlan);
 	list_del_rcu(&vlan->list);
+<<<<<<< HEAD
+=======
+	update_port_bc_queue_len(vlan->port);
+>>>>>>> upstream/android-13
 	unregister_netdevice_queue(dev, head);
 	netdev_upper_dev_unlink(vlan->lowerdev, dev);
 }
@@ -1534,6 +1786,15 @@ static int macvlan_changelink(struct net_device *dev,
 		}
 		vlan->flags = flags;
 	}
+<<<<<<< HEAD
+=======
+
+	if (data && data[IFLA_MACVLAN_BC_QUEUE_LEN]) {
+		vlan->bc_queue_len_req = nla_get_u32(data[IFLA_MACVLAN_BC_QUEUE_LEN]);
+		update_port_bc_queue_len(vlan->port);
+	}
+
+>>>>>>> upstream/android-13
 	if (set_mode)
 		vlan->mode = mode;
 	if (data && data[IFLA_MACVLAN_MACADDR_MODE]) {
@@ -1564,6 +1825,11 @@ static size_t macvlan_get_size(const struct net_device *dev)
 		+ nla_total_size(2) /* IFLA_MACVLAN_FLAGS */
 		+ nla_total_size(4) /* IFLA_MACVLAN_MACADDR_COUNT */
 		+ macvlan_get_size_mac(vlan) /* IFLA_MACVLAN_MACADDR */
+<<<<<<< HEAD
+=======
+		+ nla_total_size(4) /* IFLA_MACVLAN_BC_QUEUE_LEN */
+		+ nla_total_size(4) /* IFLA_MACVLAN_BC_QUEUE_LEN_USED */
+>>>>>>> upstream/android-13
 		);
 }
 
@@ -1587,6 +1853,10 @@ static int macvlan_fill_info(struct sk_buff *skb,
 				const struct net_device *dev)
 {
 	struct macvlan_dev *vlan = netdev_priv(dev);
+<<<<<<< HEAD
+=======
+	struct macvlan_port *port = vlan->port;
+>>>>>>> upstream/android-13
 	int i;
 	struct nlattr *nest;
 
@@ -1597,7 +1867,11 @@ static int macvlan_fill_info(struct sk_buff *skb,
 	if (nla_put_u32(skb, IFLA_MACVLAN_MACADDR_COUNT, vlan->macaddr_count))
 		goto nla_put_failure;
 	if (vlan->macaddr_count > 0) {
+<<<<<<< HEAD
 		nest = nla_nest_start(skb, IFLA_MACVLAN_MACADDR_DATA);
+=======
+		nest = nla_nest_start_noflag(skb, IFLA_MACVLAN_MACADDR_DATA);
+>>>>>>> upstream/android-13
 		if (nest == NULL)
 			goto nla_put_failure;
 
@@ -1607,6 +1881,13 @@ static int macvlan_fill_info(struct sk_buff *skb,
 		}
 		nla_nest_end(skb, nest);
 	}
+<<<<<<< HEAD
+=======
+	if (nla_put_u32(skb, IFLA_MACVLAN_BC_QUEUE_LEN, vlan->bc_queue_len_req))
+		goto nla_put_failure;
+	if (nla_put_u32(skb, IFLA_MACVLAN_BC_QUEUE_LEN_USED, port->bc_queue_len_used))
+		goto nla_put_failure;
+>>>>>>> upstream/android-13
 	return 0;
 
 nla_put_failure:
@@ -1620,6 +1901,11 @@ static const struct nla_policy macvlan_policy[IFLA_MACVLAN_MAX + 1] = {
 	[IFLA_MACVLAN_MACADDR] = { .type = NLA_BINARY, .len = MAX_ADDR_LEN },
 	[IFLA_MACVLAN_MACADDR_DATA] = { .type = NLA_NESTED },
 	[IFLA_MACVLAN_MACADDR_COUNT] = { .type = NLA_U32 },
+<<<<<<< HEAD
+=======
+	[IFLA_MACVLAN_BC_QUEUE_LEN] = { .type = NLA_U32 },
+	[IFLA_MACVLAN_BC_QUEUE_LEN_USED] = { .type = NLA_REJECT },
+>>>>>>> upstream/android-13
 };
 
 int macvlan_link_register(struct rtnl_link_ops *ops)
@@ -1650,6 +1936,21 @@ static struct rtnl_link_ops macvlan_link_ops = {
 	.priv_size      = sizeof(struct macvlan_dev),
 };
 
+<<<<<<< HEAD
+=======
+static void update_port_bc_queue_len(struct macvlan_port *port)
+{
+	u32 max_bc_queue_len_req = 0;
+	struct macvlan_dev *vlan;
+
+	list_for_each_entry(vlan, &port->vlans, list) {
+		if (vlan->bc_queue_len_req > max_bc_queue_len_req)
+			max_bc_queue_len_req = vlan->bc_queue_len_req;
+	}
+	port->bc_queue_len_used = max_bc_queue_len_req;
+}
+
+>>>>>>> upstream/android-13
 static int macvlan_device_event(struct notifier_block *unused,
 				unsigned long event, void *ptr)
 {
@@ -1658,7 +1959,11 @@ static int macvlan_device_event(struct notifier_block *unused,
 	struct macvlan_port *port;
 	LIST_HEAD(list_kill);
 
+<<<<<<< HEAD
 	if (!macvlan_port_exists(dev))
+=======
+	if (!netif_is_macvlan_port(dev))
+>>>>>>> upstream/android-13
 		return NOTIFY_DONE;
 
 	port = macvlan_port_get_rtnl(dev);
@@ -1707,7 +2012,11 @@ static int macvlan_device_event(struct notifier_block *unused,
 		unregister_netdevice_many(&list_kill);
 		break;
 	case NETDEV_PRE_TYPE_CHANGE:
+<<<<<<< HEAD
 		/* Forbid underlaying device to change its type. */
+=======
+		/* Forbid underlying device to change its type. */
+>>>>>>> upstream/android-13
 		return NOTIFY_BAD;
 
 	case NETDEV_NOTIFY_PEERS:

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * linux/percpu-defs.h - basic definitions for percpu areas
  *
@@ -50,7 +54,11 @@
 	PER_CPU_ATTRIBUTES
 
 #define __PCPU_DUMMY_ATTRS						\
+<<<<<<< HEAD
 	__attribute__((section(".discard"), unused))
+=======
+	__section(".discard") __attribute__((unused))
+>>>>>>> upstream/android-13
 
 /*
  * s390 and alpha modules require percpu variables to be defined as
@@ -91,8 +99,12 @@
 	extern __PCPU_DUMMY_ATTRS char __pcpu_unique_##name;		\
 	__PCPU_DUMMY_ATTRS char __pcpu_unique_##name;			\
 	extern __PCPU_ATTRS(sec) __typeof__(type) name;			\
+<<<<<<< HEAD
 	__PCPU_ATTRS(sec) PER_CPU_DEF_ATTRIBUTES __weak			\
 	__typeof__(type) name
+=======
+	__PCPU_ATTRS(sec) __weak __typeof__(type) name
+>>>>>>> upstream/android-13
 #else
 /*
  * Normal declaration and definition macros.
@@ -101,8 +113,12 @@
 	extern __PCPU_ATTRS(sec) __typeof__(type) name
 
 #define DEFINE_PER_CPU_SECTION(type, name, sec)				\
+<<<<<<< HEAD
 	__PCPU_ATTRS(sec) PER_CPU_DEF_ATTRIBUTES			\
 	__typeof__(type) name
+=======
+	__PCPU_ATTRS(sec) __typeof__(type) name
+>>>>>>> upstream/android-13
 #endif
 
 /*
@@ -413,7 +429,11 @@ do {									\
  * instead.
  *
  * If there is no other protection through preempt disable and/or disabling
+<<<<<<< HEAD
  * interupts then one of these RMW operations can show unexpected behavior
+=======
+ * interrupts then one of these RMW operations can show unexpected behavior
+>>>>>>> upstream/android-13
  * because the execution thread was rescheduled on another processor or an
  * interrupt occurred and the same percpu variable was modified from the
  * interrupt context.

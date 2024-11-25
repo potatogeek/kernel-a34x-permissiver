@@ -11,7 +11,11 @@
  *
  * This driver was developed with information provided in FREECOM's USB
  * Programmers Reference Guide.  For further information contact Freecom
+<<<<<<< HEAD
  * (http://www.freecom.de/)
+=======
+ * (https://www.freecom.de/)
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -29,6 +33,10 @@
 MODULE_DESCRIPTION("Driver for Freecom USB/IDE adaptor");
 MODULE_AUTHOR("David Brown <usb-storage@davidb.org>");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(USB_STORAGE);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_USB_STORAGE_DEBUG
 static void pdump(struct us_data *us, void *ibuffer, int length);
@@ -430,7 +438,10 @@ static int freecom_transport(struct scsi_cmnd *srb, struct us_data *us)
 			     us->srb->sc_data_direction);
 		/* Return fail, SCSI seems to handle this better. */
 		return USB_STOR_TRANSPORT_FAILED;
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	return USB_STOR_TRANSPORT_GOOD;

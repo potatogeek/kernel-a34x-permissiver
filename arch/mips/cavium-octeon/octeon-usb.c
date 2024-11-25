@@ -253,17 +253,29 @@ static int dwc3_octeon_config_power(struct device *dev, u64 base)
 		    && gpio <= 31) {
 			gpio_bit.u64 = cvmx_read_csr(CVMX_GPIO_BIT_CFGX(gpio));
 			gpio_bit.s.tx_oe = 1;
+<<<<<<< HEAD
 			gpio_bit.cn73xx.output_sel = (index == 0 ? 0x14 : 0x15);
+=======
+			gpio_bit.s.output_sel = (index == 0 ? 0x14 : 0x15);
+>>>>>>> upstream/android-13
 			cvmx_write_csr(CVMX_GPIO_BIT_CFGX(gpio), gpio_bit.u64);
 		} else if (gpio <= 15) {
 			gpio_bit.u64 = cvmx_read_csr(CVMX_GPIO_BIT_CFGX(gpio));
 			gpio_bit.s.tx_oe = 1;
+<<<<<<< HEAD
 			gpio_bit.cn70xx.output_sel = (index == 0 ? 0x14 : 0x19);
+=======
+			gpio_bit.s.output_sel = (index == 0 ? 0x14 : 0x19);
+>>>>>>> upstream/android-13
 			cvmx_write_csr(CVMX_GPIO_BIT_CFGX(gpio), gpio_bit.u64);
 		} else {
 			gpio_bit.u64 = cvmx_read_csr(CVMX_GPIO_XBIT_CFGX(gpio));
 			gpio_bit.s.tx_oe = 1;
+<<<<<<< HEAD
 			gpio_bit.cn70xx.output_sel = (index == 0 ? 0x14 : 0x19);
+=======
+			gpio_bit.s.output_sel = (index == 0 ? 0x14 : 0x19);
+>>>>>>> upstream/android-13
 			cvmx_write_csr(CVMX_GPIO_XBIT_CFGX(gpio), gpio_bit.u64);
 		}
 
@@ -398,6 +410,10 @@ static int dwc3_octeon_clocks_start(struct device *dev, u64 base)
 	default:
 		dev_err(dev, "Invalid ref_clk %u, using 100000000 instead\n",
 			clock_rate);
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 100000000:
 		mpll_mul = 0x19;
 		if (ref_clk_sel < 2)
@@ -515,6 +531,7 @@ static int __init dwc3_octeon_device_init(void)
 			if (!pdev)
 				return -ENODEV;
 
+<<<<<<< HEAD
 			res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 			if (res == NULL) {
 				put_device(&pdev->dev);
@@ -522,13 +539,19 @@ static int __init dwc3_octeon_device_init(void)
 				return -ENXIO;
 			}
 
+=======
+>>>>>>> upstream/android-13
 			/*
 			 * The code below maps in the registers necessary for
 			 * setting up the clocks and reseting PHYs. We must
 			 * release the resources so the dwc3 subsystem doesn't
 			 * know the difference.
 			 */
+<<<<<<< HEAD
 			base = devm_ioremap_resource(&pdev->dev, res);
+=======
+			base = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
+>>>>>>> upstream/android-13
 			if (IS_ERR(base)) {
 				put_device(&pdev->dev);
 				return PTR_ERR(base);
@@ -543,6 +566,10 @@ static int __init dwc3_octeon_device_init(void)
 			devm_iounmap(&pdev->dev, base);
 			devm_release_mem_region(&pdev->dev, res->start,
 						resource_size(res));
+<<<<<<< HEAD
+=======
+			put_device(&pdev->dev);
+>>>>>>> upstream/android-13
 		}
 	} while (node != NULL);
 

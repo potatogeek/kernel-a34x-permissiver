@@ -152,7 +152,11 @@
 /* The following are PA function descriptors 
  *
  * addr:	the absolute address of the function
+<<<<<<< HEAD
  * gp:		either the data pointer (r27) for non-PIC code or the
+=======
+ * gp:		either the data pointer (r27) for non-PIC code or
+>>>>>>> upstream/android-13
  *		the PLT pointer (r19) for PIC code */
 
 /* Format for the Elf32 Function descriptor */
@@ -305,9 +309,12 @@ typedef elf_fpreg_t elf_fpregset_t[ELF_NFPREG];
 
 struct task_struct;
 
+<<<<<<< HEAD
 extern int dump_task_fpu (struct task_struct *, elf_fpregset_t *);
 #define ELF_CORE_COPY_FPREGS(tsk, elf_fpregs) dump_task_fpu(tsk, elf_fpregs)
 
+=======
+>>>>>>> upstream/android-13
 struct pt_regs;	/* forward declaration... */
 
 

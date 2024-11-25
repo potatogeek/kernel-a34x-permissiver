@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 feature_dir := $(srctree)/tools/build/feature
 
 ifneq ($(OUTPUT),)
@@ -33,6 +37,7 @@ FEATURE_TESTS_BASIC :=                  \
         dwarf_getlocations              \
         eventfd                         \
         fortify-source                  \
+<<<<<<< HEAD
         sync-compare-and-swap           \
         get_current_dir_name            \
         gettid				\
@@ -41,15 +46,27 @@ FEATURE_TESTS_BASIC :=                  \
         gtk2-infobar                    \
         libaudit                        \
         libbfd                          \
+=======
+        get_current_dir_name            \
+        gettid				\
+        glibc                           \
+        libbfd                          \
+        libbfd-buildid			\
+        libcap                          \
+>>>>>>> upstream/android-13
         libelf                          \
         libelf-getphdrnum               \
         libelf-gelf_getnote             \
         libelf-getshdrstrndx            \
+<<<<<<< HEAD
         libelf-mmap                     \
+=======
+>>>>>>> upstream/android-13
         libnuma                         \
         numa_num_possible_cpus          \
         libperl                         \
         libpython                       \
+<<<<<<< HEAD
         libpython-version               \
         libslang                        \
         libcrypto                       \
@@ -58,6 +75,13 @@ FEATURE_TESTS_BASIC :=                  \
         libunwind-x86_64                \
         libunwind-arm                   \
         libunwind-aarch64               \
+=======
+        libslang                        \
+        libslang-include-subdir         \
+        libtraceevent                   \
+        libcrypto                       \
+        libunwind                       \
+>>>>>>> upstream/android-13
         pthread-attr-setaffinity-np     \
         pthread-barrier     		\
         reallocarray                    \
@@ -71,7 +95,14 @@ FEATURE_TESTS_BASIC :=                  \
         sched_getcpu			\
         sdt				\
         setns				\
+<<<<<<< HEAD
         libopencsd
+=======
+        libaio				\
+        libzstd				\
+        disassembler-four-args		\
+        file-handle
+>>>>>>> upstream/android-13
 
 # FEATURE_TESTS_BASIC + FEATURE_TESTS_EXTRA is the complete list
 # of all feature tests
@@ -80,17 +111,39 @@ FEATURE_TESTS_EXTRA :=                  \
          compile-32                     \
          compile-x32                    \
          cplus-demangle                 \
+<<<<<<< HEAD
+=======
+         gtk2                           \
+         gtk2-infobar                   \
+>>>>>>> upstream/android-13
          hello                          \
          libbabeltrace                  \
          libbfd-liberty                 \
          libbfd-liberty-z               \
+<<<<<<< HEAD
+=======
+         libopencsd                     \
+         libunwind-x86                  \
+         libunwind-x86_64               \
+         libunwind-arm                  \
+         libunwind-aarch64              \
+>>>>>>> upstream/android-13
          libunwind-debug-frame          \
          libunwind-debug-frame-arm      \
          libunwind-debug-frame-aarch64  \
          cxx                            \
          llvm                           \
          llvm-version                   \
+<<<<<<< HEAD
          clang
+=======
+         clang                          \
+         libbpf                         \
+         libpfm4                        \
+         libdebuginfod			\
+         clang-bpf-co-re
+
+>>>>>>> upstream/android-13
 
 FEATURE_TESTS ?= $(FEATURE_TESTS_BASIC)
 
@@ -102,22 +155,38 @@ FEATURE_DISPLAY ?=              \
          dwarf                  \
          dwarf_getlocations     \
          glibc                  \
+<<<<<<< HEAD
          gtk2                   \
          libaudit               \
          libbfd                 \
+=======
+         libbfd                 \
+         libbfd-buildid		\
+         libcap                 \
+>>>>>>> upstream/android-13
          libelf                 \
          libnuma                \
          numa_num_possible_cpus \
          libperl                \
          libpython              \
+<<<<<<< HEAD
          libslang               \
+=======
+>>>>>>> upstream/android-13
          libcrypto              \
          libunwind              \
          libdw-dwarf-unwind     \
          zlib                   \
          lzma                   \
          get_cpuid              \
+<<<<<<< HEAD
          bpf
+=======
+         bpf			\
+         libaio			\
+         libzstd		\
+         disassembler-four-args
+>>>>>>> upstream/android-13
 
 # Set FEATURE_CHECK_(C|LD)FLAGS-all for all FEATURE_TESTS features.
 # If in the future we need per-feature checks/flags for features not
@@ -226,6 +295,7 @@ ifeq ($(VF),1)
   feature_verbose := 1
 endif
 
+<<<<<<< HEAD
 ifeq ($(feature_display),1)
   $(info )
   $(info Auto-detecting system features:)
@@ -239,4 +309,26 @@ ifeq ($(feature_verbose),1)
   TMP := $(filter-out $(FEATURE_DISPLAY),$(FEATURE_TESTS))
   $(foreach feat,$(TMP),$(call feature_print_status,$(feat),))
   $(info )
+=======
+feature_display_entries = $(eval $(feature_display_entries_code))
+define feature_display_entries_code
+  ifeq ($(feature_display),1)
+    $(info )
+    $(info Auto-detecting system features:)
+    $(foreach feat,$(FEATURE_DISPLAY),$(call feature_print_status,$(feat),))
+    ifneq ($(feature_verbose),1)
+      $(info )
+    endif
+  endif
+
+  ifeq ($(feature_verbose),1)
+    TMP := $(filter-out $(FEATURE_DISPLAY),$(FEATURE_TESTS))
+    $(foreach feat,$(TMP),$(call feature_print_status,$(feat),))
+    $(info )
+  endif
+endef
+
+ifeq ($(FEATURE_DISPLAY_DEFERRED),)
+  $(call feature_display_entries)
+>>>>>>> upstream/android-13
 endif

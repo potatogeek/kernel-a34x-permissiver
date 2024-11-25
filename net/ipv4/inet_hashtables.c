@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * INET		An implementation of the TCP/IP protocol suite for the LINUX
  *		operating system.  INET is implemented using the BSD Socket
@@ -6,11 +10,14 @@
  *		Generic INET transport hashtables
  *
  * Authors:	Lotsa people, from code originally in tcp
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -19,11 +26,21 @@
 #include <linux/slab.h>
 #include <linux/wait.h>
 #include <linux/vmalloc.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 
 #include <net/addrconf.h>
 #include <net/inet_connection_sock.h>
 #include <net/inet_hashtables.h>
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_IPV6)
+#include <net/inet6_hashtables.h>
+#endif
+>>>>>>> upstream/android-13
 #include <net/secure_seq.h>
 #include <net/ip.h>
 #include <net/tcp.h>
@@ -65,12 +82,21 @@ static u32 sk_ehashfn(const struct sock *sk)
 struct inet_bind_bucket *inet_bind_bucket_create(struct kmem_cache *cachep,
 						 struct net *net,
 						 struct inet_bind_hashbucket *head,
+<<<<<<< HEAD
 						 const unsigned short snum)
+=======
+						 const unsigned short snum,
+						 int l3mdev)
+>>>>>>> upstream/android-13
 {
 	struct inet_bind_bucket *tb = kmem_cache_alloc(cachep, GFP_ATOMIC);
 
 	if (tb) {
 		write_pnet(&tb->ib_net, net);
+<<<<<<< HEAD
+=======
+		tb->l3mdev    = l3mdev;
+>>>>>>> upstream/android-13
 		tb->port      = snum;
 		tb->fastreuse = 0;
 		tb->fastreuseport = 0;
@@ -135,6 +161,10 @@ int __inet_inherit_port(const struct sock *sk, struct sock *child)
 			table->bhash_size);
 	struct inet_bind_hashbucket *head = &table->bhash[bhash];
 	struct inet_bind_bucket *tb;
+<<<<<<< HEAD
+=======
+	int l3mdev;
+>>>>>>> upstream/android-13
 
 	spin_lock(&head->lock);
 	tb = inet_csk(sk)->icsk_bind_hash;
@@ -143,6 +173,11 @@ int __inet_inherit_port(const struct sock *sk, struct sock *child)
 		return -ENOENT;
 	}
 	if (tb->port != port) {
+<<<<<<< HEAD
+=======
+		l3mdev = inet_sk_bound_l3mdev(sk);
+
+>>>>>>> upstream/android-13
 		/* NOTE: using tproxy and redirecting skbs to a proxy
 		 * on a different listener port breaks the assumption
 		 * that the listener socket's icsk_bind_hash is the same
@@ -150,12 +185,21 @@ int __inet_inherit_port(const struct sock *sk, struct sock *child)
 		 * create a new bind bucket for the child here. */
 		inet_bind_bucket_for_each(tb, &head->chain) {
 			if (net_eq(ib_net(tb), sock_net(sk)) &&
+<<<<<<< HEAD
 			    tb->port == port)
+=======
+			    tb->l3mdev == l3mdev && tb->port == port)
+>>>>>>> upstream/android-13
 				break;
 		}
 		if (!tb) {
 			tb = inet_bind_bucket_create(table->bind_bucket_cachep,
+<<<<<<< HEAD
 						     sock_net(sk), head, port);
+=======
+						     sock_net(sk), head, port,
+						     l3mdev);
+>>>>>>> upstream/android-13
 			if (!tb) {
 				spin_unlock(&head->lock);
 				return -ENOMEM;
@@ -226,6 +270,7 @@ static void inet_unhash2(struct inet_hashinfo *h, struct sock *sk)
 
 static inline int compute_score(struct sock *sk, struct net *net,
 				const unsigned short hnum, const __be32 daddr,
+<<<<<<< HEAD
 				const int dif, const int sdif, bool exact_dif)
 {
 	int score = -1;
@@ -249,12 +294,47 @@ static inline int compute_score(struct sock *sk, struct net *net,
 			if (sk->sk_bound_dev_if)
 				score += 4;
 		}
+=======
+				const int dif, const int sdif)
+{
+	int score = -1;
+
+	if (net_eq(sock_net(sk), net) && sk->sk_num == hnum &&
+			!ipv6_only_sock(sk)) {
+		if (sk->sk_rcv_saddr != daddr)
+			return -1;
+
+		if (!inet_sk_bound_dev_eq(net, sk->sk_bound_dev_if, dif, sdif))
+			return -1;
+		score =  sk->sk_bound_dev_if ? 2 : 1;
+
+		if (sk->sk_family == PF_INET)
+			score++;
+>>>>>>> upstream/android-13
 		if (READ_ONCE(sk->sk_incoming_cpu) == raw_smp_processor_id())
 			score++;
 	}
 	return score;
 }
 
+<<<<<<< HEAD
+=======
+static inline struct sock *lookup_reuseport(struct net *net, struct sock *sk,
+					    struct sk_buff *skb, int doff,
+					    __be32 saddr, __be16 sport,
+					    __be32 daddr, unsigned short hnum)
+{
+	struct sock *reuse_sk = NULL;
+	u32 phash;
+
+	if (sk->sk_reuseport) {
+		phash = inet_ehashfn(net, daddr, hnum, saddr, sport);
+		reuse_sk = reuseport_select_sock(sk, phash, skb, doff);
+	}
+	return reuse_sk;
+}
+
+>>>>>>> upstream/android-13
 /*
  * Here are some nice properties to exploit here. The BSD API
  * does not allow a listening sock to specify the remote port nor the
@@ -270,6 +350,7 @@ static struct sock *inet_lhash2_lookup(struct net *net,
 				const __be32 daddr, const unsigned short hnum,
 				const int dif, const int sdif)
 {
+<<<<<<< HEAD
 	bool exact_dif = inet_exact_dif_match(net, skb);
 	struct inet_connection_sock *icsk;
 	struct sock *sk, *result = NULL;
@@ -289,6 +370,21 @@ static struct sock *inet_lhash2_lookup(struct net *net,
 				if (result)
 					return result;
 			}
+=======
+	struct inet_connection_sock *icsk;
+	struct sock *sk, *result = NULL;
+	int score, hiscore = 0;
+
+	inet_lhash2_for_each_icsk_rcu(icsk, &ilb2->head) {
+		sk = (struct sock *)icsk;
+		score = compute_score(sk, net, hnum, daddr, dif, sdif);
+		if (score > hiscore) {
+			result = lookup_reuseport(net, sk, skb, doff,
+						  saddr, sport, daddr, hnum);
+			if (result)
+				return result;
+
+>>>>>>> upstream/android-13
 			result = sk;
 			hiscore = score;
 		}
@@ -297,6 +393,32 @@ static struct sock *inet_lhash2_lookup(struct net *net,
 	return result;
 }
 
+<<<<<<< HEAD
+=======
+static inline struct sock *inet_lookup_run_bpf(struct net *net,
+					       struct inet_hashinfo *hashinfo,
+					       struct sk_buff *skb, int doff,
+					       __be32 saddr, __be16 sport,
+					       __be32 daddr, u16 hnum)
+{
+	struct sock *sk, *reuse_sk;
+	bool no_reuseport;
+
+	if (hashinfo != &tcp_hashinfo)
+		return NULL; /* only TCP is supported */
+
+	no_reuseport = bpf_sk_lookup_run_v4(net, IPPROTO_TCP,
+					    saddr, sport, daddr, hnum, &sk);
+	if (no_reuseport || IS_ERR_OR_NULL(sk))
+		return sk;
+
+	reuse_sk = lookup_reuseport(net, sk, skb, doff, saddr, sport, daddr, hnum);
+	if (reuse_sk)
+		sk = reuse_sk;
+	return sk;
+}
+
+>>>>>>> upstream/android-13
 struct sock *__inet_lookup_listener(struct net *net,
 				    struct inet_hashinfo *hashinfo,
 				    struct sk_buff *skb, int doff,
@@ -304,6 +426,7 @@ struct sock *__inet_lookup_listener(struct net *net,
 				    const __be32 daddr, const unsigned short hnum,
 				    const int dif, const int sdif)
 {
+<<<<<<< HEAD
 	unsigned int hash = inet_lhashfn(net, hnum);
 	struct inet_listen_hashbucket *ilb = &hashinfo->listening_hash[hash];
 	bool exact_dif = inet_exact_dif_match(net, skb);
@@ -325,6 +448,22 @@ struct sock *__inet_lookup_listener(struct net *net,
 	ilb2 = inet_lhash2_bucket(hashinfo, hash2);
 	if (ilb2->count > ilb->count)
 		goto port_lookup;
+=======
+	struct inet_listen_hashbucket *ilb2;
+	struct sock *result = NULL;
+	unsigned int hash2;
+
+	/* Lookup redirect from BPF */
+	if (static_branch_unlikely(&bpf_sk_lookup_enabled)) {
+		result = inet_lookup_run_bpf(net, hashinfo, skb, doff,
+					     saddr, sport, daddr, hnum);
+		if (result)
+			goto done;
+	}
+
+	hash2 = ipv4_portaddr_hash(net, daddr, hnum);
+	ilb2 = inet_lhash2_bucket(hashinfo, hash2);
+>>>>>>> upstream/android-13
 
 	result = inet_lhash2_lookup(net, ilb2, skb, doff,
 				    saddr, sport, daddr, hnum,
@@ -333,6 +472,7 @@ struct sock *__inet_lookup_listener(struct net *net,
 		goto done;
 
 	/* Lookup lhash2 with INADDR_ANY */
+<<<<<<< HEAD
 
 	hash2 = ipv4_portaddr_hash(net, htonl(INADDR_ANY), hnum);
 	ilb2 = inet_lhash2_bucket(hashinfo, hash2);
@@ -363,6 +503,16 @@ port_lookup:
 	}
 done:
 	if (unlikely(IS_ERR(result)))
+=======
+	hash2 = ipv4_portaddr_hash(net, htonl(INADDR_ANY), hnum);
+	ilb2 = inet_lhash2_bucket(hashinfo, hash2);
+
+	result = inet_lhash2_lookup(net, ilb2, skb, doff,
+				    saddr, sport, htonl(INADDR_ANY), hnum,
+				    dif, sdif);
+done:
+	if (IS_ERR(result))
+>>>>>>> upstream/android-13
 		return NULL;
 	return result;
 }
@@ -504,7 +654,11 @@ not_unique:
 	return -EADDRNOTAVAIL;
 }
 
+<<<<<<< HEAD
 static u32 inet_sk_port_offset(const struct sock *sk)
+=======
+static u64 inet_sk_port_offset(const struct sock *sk)
+>>>>>>> upstream/android-13
 {
 	const struct inet_sock *inet = inet_sk(sk);
 
@@ -513,10 +667,59 @@ static u32 inet_sk_port_offset(const struct sock *sk)
 					  inet->inet_dport);
 }
 
+<<<<<<< HEAD
 /* insert a socket into ehash, and eventually remove another one
  * (The another one can be a SYN_RECV or TIMEWAIT
  */
 bool inet_ehash_insert(struct sock *sk, struct sock *osk)
+=======
+/* Searches for an exsiting socket in the ehash bucket list.
+ * Returns true if found, false otherwise.
+ */
+static bool inet_ehash_lookup_by_sk(struct sock *sk,
+				    struct hlist_nulls_head *list)
+{
+	const __portpair ports = INET_COMBINED_PORTS(sk->sk_dport, sk->sk_num);
+	const int sdif = sk->sk_bound_dev_if;
+	const int dif = sk->sk_bound_dev_if;
+	const struct hlist_nulls_node *node;
+	struct net *net = sock_net(sk);
+	struct sock *esk;
+
+	INET_ADDR_COOKIE(acookie, sk->sk_daddr, sk->sk_rcv_saddr);
+
+	sk_nulls_for_each_rcu(esk, node, list) {
+		if (esk->sk_hash != sk->sk_hash)
+			continue;
+		if (sk->sk_family == AF_INET) {
+			if (unlikely(INET_MATCH(esk, net, acookie,
+						sk->sk_daddr,
+						sk->sk_rcv_saddr,
+						ports, dif, sdif))) {
+				return true;
+			}
+		}
+#if IS_ENABLED(CONFIG_IPV6)
+		else if (sk->sk_family == AF_INET6) {
+			if (unlikely(INET6_MATCH(esk, net,
+						 &sk->sk_v6_daddr,
+						 &sk->sk_v6_rcv_saddr,
+						 ports, dif, sdif))) {
+				return true;
+			}
+		}
+#endif
+	}
+	return false;
+}
+
+/* Insert a socket into ehash, and eventually remove another one
+ * (The another one can be a SYN_RECV or TIMEWAIT)
+ * If an existing socket already exists, socket sk is not inserted,
+ * and sets found_dup_sk parameter to true.
+ */
+bool inet_ehash_insert(struct sock *sk, struct sock *osk, bool *found_dup_sk)
+>>>>>>> upstream/android-13
 {
 	struct inet_hashinfo *hashinfo = sk->sk_prot->h.hashinfo;
 	struct hlist_nulls_head *list;
@@ -535,6 +738,7 @@ bool inet_ehash_insert(struct sock *sk, struct sock *osk)
 	if (osk) {
 		WARN_ON_ONCE(sk->sk_hash != osk->sk_hash);
 		ret = sk_nulls_del_node_init_rcu(osk);
+<<<<<<< HEAD
 	}
 	if (ret)
 		__sk_nulls_add_node_rcu(sk, list);
@@ -545,11 +749,34 @@ bool inet_ehash_insert(struct sock *sk, struct sock *osk)
 bool inet_ehash_nolisten(struct sock *sk, struct sock *osk)
 {
 	bool ok = inet_ehash_insert(sk, osk);
+=======
+	} else if (found_dup_sk) {
+		*found_dup_sk = inet_ehash_lookup_by_sk(sk, list);
+		if (*found_dup_sk)
+			ret = false;
+	}
+
+	if (ret)
+		__sk_nulls_add_node_rcu(sk, list);
+
+	spin_unlock(lock);
+
+	return ret;
+}
+
+bool inet_ehash_nolisten(struct sock *sk, struct sock *osk, bool *found_dup_sk)
+{
+	bool ok = inet_ehash_insert(sk, osk, found_dup_sk);
+>>>>>>> upstream/android-13
 
 	if (ok) {
 		sock_prot_inuse_add(sock_net(sk), sk->sk_prot, 1);
 	} else {
+<<<<<<< HEAD
 		percpu_counter_inc(sk->sk_prot->orphan_count);
+=======
+		this_cpu_inc(*sk->sk_prot->orphan_count);
+>>>>>>> upstream/android-13
 		inet_sk_set_state(sk, TCP_CLOSE);
 		sock_set_flag(sk, SOCK_DEAD);
 		inet_csk_destroy_sock(sk);
@@ -588,7 +815,13 @@ int __inet_hash(struct sock *sk, struct sock *osk)
 	int err = 0;
 
 	if (sk->sk_state != TCP_LISTEN) {
+<<<<<<< HEAD
 		inet_ehash_nolisten(sk, osk);
+=======
+		local_bh_disable();
+		inet_ehash_nolisten(sk, osk, NULL);
+		local_bh_enable();
+>>>>>>> upstream/android-13
 		return 0;
 	}
 	WARN_ON(!sk_unhashed(sk));
@@ -620,16 +853,22 @@ int inet_hash(struct sock *sk)
 {
 	int err = 0;
 
+<<<<<<< HEAD
 	if (sk->sk_state != TCP_CLOSE) {
 		local_bh_disable();
 		err = __inet_hash(sk, NULL);
 		local_bh_enable();
 	}
+=======
+	if (sk->sk_state != TCP_CLOSE)
+		err = __inet_hash(sk, NULL);
+>>>>>>> upstream/android-13
 
 	return err;
 }
 EXPORT_SYMBOL_GPL(inet_hash);
 
+<<<<<<< HEAD
 void inet_unhash(struct sock *sk)
 {
 	struct inet_hashinfo *hashinfo = sk->sk_prot->h.hashinfo;
@@ -652,11 +891,24 @@ void inet_unhash(struct sock *sk)
 	if (rcu_access_pointer(sk->sk_reuseport_cb))
 		reuseport_detach_sock(sk);
 	if (ilb) {
+=======
+static void __inet_unhash(struct sock *sk, struct inet_listen_hashbucket *ilb)
+{
+	if (sk_unhashed(sk))
+		return;
+
+	if (rcu_access_pointer(sk->sk_reuseport_cb))
+		reuseport_stop_listen_sock(sk);
+	if (ilb) {
+		struct inet_hashinfo *hashinfo = sk->sk_prot->h.hashinfo;
+
+>>>>>>> upstream/android-13
 		inet_unhash2(hashinfo, sk);
 		ilb->count--;
 	}
 	__sk_nulls_del_node_init_rcu(sk);
 	sock_prot_inuse_add(sock_net(sk), sk->sk_prot, -1);
+<<<<<<< HEAD
 unlock:
 	spin_unlock_bh(lock);
 }
@@ -664,6 +916,52 @@ EXPORT_SYMBOL_GPL(inet_unhash);
 
 int __inet_hash_connect(struct inet_timewait_death_row *death_row,
 		struct sock *sk, u32 port_offset,
+=======
+}
+
+void inet_unhash(struct sock *sk)
+{
+	struct inet_hashinfo *hashinfo = sk->sk_prot->h.hashinfo;
+
+	if (sk_unhashed(sk))
+		return;
+
+	if (sk->sk_state == TCP_LISTEN) {
+		struct inet_listen_hashbucket *ilb;
+
+		ilb = &hashinfo->listening_hash[inet_sk_listen_hashfn(sk)];
+		/* Don't disable bottom halves while acquiring the lock to
+		 * avoid circular locking dependency on PREEMPT_RT.
+		 */
+		spin_lock(&ilb->lock);
+		__inet_unhash(sk, ilb);
+		spin_unlock(&ilb->lock);
+	} else {
+		spinlock_t *lock = inet_ehash_lockp(hashinfo, sk->sk_hash);
+
+		spin_lock_bh(lock);
+		__inet_unhash(sk, NULL);
+		spin_unlock_bh(lock);
+	}
+}
+EXPORT_SYMBOL_GPL(inet_unhash);
+
+/* RFC 6056 3.3.4.  Algorithm 4: Double-Hash Port Selection Algorithm
+ * Note that we use 32bit integers (vs RFC 'short integers')
+ * because 2^16 is not a multiple of num_ephemeral and this
+ * property might be used by clever attacker.
+ * RFC claims using TABLE_LENGTH=10 buckets gives an improvement, though
+ * attacks were since demonstrated, thus we use 65536 instead to really
+ * give more isolation and privacy, at the expense of 256kB of kernel
+ * memory.
+ */
+#define INET_TABLE_PERTURB_SHIFT 16
+#define INET_TABLE_PERTURB_SIZE (1 << INET_TABLE_PERTURB_SHIFT)
+static u32 *table_perturb;
+
+int __inet_hash_connect(struct inet_timewait_death_row *death_row,
+		struct sock *sk, u64 port_offset,
+>>>>>>> upstream/android-13
 		int (*check_established)(struct inet_timewait_death_row *,
 			struct sock *, __u16, struct inet_timewait_sock **))
 {
@@ -675,7 +973,12 @@ int __inet_hash_connect(struct inet_timewait_death_row *death_row,
 	struct inet_bind_bucket *tb;
 	u32 remaining, offset;
 	int ret, i, low, high;
+<<<<<<< HEAD
 	static u32 hint;
+=======
+	int l3mdev;
+	u32 index;
+>>>>>>> upstream/android-13
 
 	if (port) {
 		head = &hinfo->bhash[inet_bhashfn(net, port,
@@ -683,7 +986,11 @@ int __inet_hash_connect(struct inet_timewait_death_row *death_row,
 		tb = inet_csk(sk)->icsk_bind_hash;
 		spin_lock_bh(&head->lock);
 		if (sk_head(&tb->owners) == sk && !sk->sk_bind_node.next) {
+<<<<<<< HEAD
 			inet_ehash_nolisten(sk, NULL);
+=======
+			inet_ehash_nolisten(sk, NULL, NULL);
+>>>>>>> upstream/android-13
 			spin_unlock_bh(&head->lock);
 			return 0;
 		}
@@ -694,13 +1001,28 @@ int __inet_hash_connect(struct inet_timewait_death_row *death_row,
 		return ret;
 	}
 
+<<<<<<< HEAD
+=======
+	l3mdev = inet_sk_bound_l3mdev(sk);
+
+>>>>>>> upstream/android-13
 	inet_get_local_port_range(net, &low, &high);
 	high++; /* [32768, 60999] -> [32768, 61000[ */
 	remaining = high - low;
 	if (likely(remaining > 1))
 		remaining &= ~1U;
 
+<<<<<<< HEAD
 	offset = (hint + port_offset) % remaining;
+=======
+	net_get_random_once(table_perturb,
+			    INET_TABLE_PERTURB_SIZE * sizeof(*table_perturb));
+	index = port_offset & (INET_TABLE_PERTURB_SIZE - 1);
+
+	offset = READ_ONCE(table_perturb[index]) + (port_offset >> 32);
+	offset %= remaining;
+
+>>>>>>> upstream/android-13
 	/* In first pass we try ports of @low parity.
 	 * inet_csk_get_port() does the opposite choice.
 	 */
@@ -720,7 +1042,12 @@ other_parity_scan:
 		 * the established check is already unique enough.
 		 */
 		inet_bind_bucket_for_each(tb, &head->chain) {
+<<<<<<< HEAD
 			if (net_eq(ib_net(tb), net) && tb->port == port) {
+=======
+			if (net_eq(ib_net(tb), net) && tb->l3mdev == l3mdev &&
+			    tb->port == port) {
+>>>>>>> upstream/android-13
 				if (tb->fastreuse >= 0 ||
 				    tb->fastreuseport >= 0)
 					goto next_port;
@@ -733,7 +1060,11 @@ other_parity_scan:
 		}
 
 		tb = inet_bind_bucket_create(hinfo->bind_bucket_cachep,
+<<<<<<< HEAD
 					     net, head, port);
+=======
+					     net, head, port, l3mdev);
+>>>>>>> upstream/android-13
 		if (!tb) {
 			spin_unlock_bh(&head->lock);
 			return -ENOMEM;
@@ -753,13 +1084,27 @@ next_port:
 	return -EADDRNOTAVAIL;
 
 ok:
+<<<<<<< HEAD
 	hint += i + 2;
+=======
+	/* Here we want to add a little bit of randomness to the next source
+	 * port that will be chosen. We use a max() with a random here so that
+	 * on low contention the randomness is maximal and on high contention
+	 * it may be inexistent.
+	 */
+	i = max_t(int, i, (prandom_u32() & 7) * 2);
+	WRITE_ONCE(table_perturb[index], READ_ONCE(table_perturb[index]) + i + 2);
+>>>>>>> upstream/android-13
 
 	/* Head lock still held and bh's disabled */
 	inet_bind_hash(sk, tb, port);
 	if (sk_unhashed(sk)) {
 		inet_sk(sk)->inet_sport = htons(port);
+<<<<<<< HEAD
 		inet_ehash_nolisten(sk, (struct sock *)tw);
+=======
+		inet_ehash_nolisten(sk, (struct sock *)tw, NULL);
+>>>>>>> upstream/android-13
 	}
 	if (tw)
 		inet_twsk_bind_unhash(tw, hinfo);
@@ -776,7 +1121,11 @@ ok:
 int inet_hash_connect(struct inet_timewait_death_row *death_row,
 		      struct sock *sk)
 {
+<<<<<<< HEAD
 	u32 port_offset = 0;
+=======
+	u64 port_offset = 0;
+>>>>>>> upstream/android-13
 
 	if (!inet_sk(sk)->inet_num)
 		port_offset = inet_sk_port_offset(sk);
@@ -800,13 +1149,30 @@ void inet_hashinfo_init(struct inet_hashinfo *h)
 }
 EXPORT_SYMBOL_GPL(inet_hashinfo_init);
 
+<<<<<<< HEAD
+=======
+static void init_hashinfo_lhash2(struct inet_hashinfo *h)
+{
+	int i;
+
+	for (i = 0; i <= h->lhash2_mask; i++) {
+		spin_lock_init(&h->lhash2[i].lock);
+		INIT_HLIST_HEAD(&h->lhash2[i].head);
+		h->lhash2[i].count = 0;
+	}
+}
+
+>>>>>>> upstream/android-13
 void __init inet_hashinfo2_init(struct inet_hashinfo *h, const char *name,
 				unsigned long numentries, int scale,
 				unsigned long low_limit,
 				unsigned long high_limit)
 {
+<<<<<<< HEAD
 	unsigned int i;
 
+=======
+>>>>>>> upstream/android-13
 	h->lhash2 = alloc_large_system_hash(name,
 					    sizeof(*h->lhash2),
 					    numentries,
@@ -816,6 +1182,7 @@ void __init inet_hashinfo2_init(struct inet_hashinfo *h, const char *name,
 					    &h->lhash2_mask,
 					    low_limit,
 					    high_limit);
+<<<<<<< HEAD
 
 	for (i = 0; i <= h->lhash2_mask; i++) {
 		spin_lock_init(&h->lhash2[i].lock);
@@ -824,6 +1191,32 @@ void __init inet_hashinfo2_init(struct inet_hashinfo *h, const char *name,
 	}
 }
 
+=======
+	init_hashinfo_lhash2(h);
+
+	/* this one is used for source ports of outgoing connections */
+	table_perturb = kmalloc_array(INET_TABLE_PERTURB_SIZE,
+				      sizeof(*table_perturb), GFP_KERNEL);
+	if (!table_perturb)
+		panic("TCP: failed to alloc table_perturb");
+}
+
+int inet_hashinfo2_init_mod(struct inet_hashinfo *h)
+{
+	h->lhash2 = kmalloc_array(INET_LHTABLE_SIZE, sizeof(*h->lhash2), GFP_KERNEL);
+	if (!h->lhash2)
+		return -ENOMEM;
+
+	h->lhash2_mask = INET_LHTABLE_SIZE - 1;
+	/* INET_LHTABLE_SIZE must be a power of 2 */
+	BUG_ON(INET_LHTABLE_SIZE & h->lhash2_mask);
+
+	init_hashinfo_lhash2(h);
+	return 0;
+}
+EXPORT_SYMBOL_GPL(inet_hashinfo2_init_mod);
+
+>>>>>>> upstream/android-13
 int inet_ehash_locks_alloc(struct inet_hashinfo *hashinfo)
 {
 	unsigned int locksz = sizeof(spinlock_t);

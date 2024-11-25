@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *
  *  Bluetooth HCI UART driver for Intel devices
  *
  *  Copyright (C) 2015  Intel Corporation
+<<<<<<< HEAD
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -19,6 +24,8 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -64,7 +71,11 @@
 struct hci_lpm_pkt {
 	__u8 opcode;
 	__u8 dlen;
+<<<<<<< HEAD
 	__u8 data[0];
+=======
+	__u8 data[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct intel_device {
@@ -303,7 +314,11 @@ static irqreturn_t intel_irq(int irq, void *dev_id)
 
 static int intel_set_power(struct hci_uart *hu, bool powered)
 {
+<<<<<<< HEAD
 	struct list_head *p;
+=======
+	struct intel_device *idev;
+>>>>>>> upstream/android-13
 	int err = -ENODEV;
 
 	if (!hu->tty->dev)
@@ -311,10 +326,14 @@ static int intel_set_power(struct hci_uart *hu, bool powered)
 
 	mutex_lock(&intel_device_list_lock);
 
+<<<<<<< HEAD
 	list_for_each(p, &intel_device_list) {
 		struct intel_device *idev = list_entry(p, struct intel_device,
 						       list);
 
+=======
+	list_for_each_entry(idev, &intel_device_list, list) {
+>>>>>>> upstream/android-13
 		/* tty device and pdev device should share the same parent
 		 * which is the UART port.
 		 */
@@ -377,19 +396,29 @@ static int intel_set_power(struct hci_uart *hu, bool powered)
 
 static void intel_busy_work(struct work_struct *work)
 {
+<<<<<<< HEAD
 	struct list_head *p;
 	struct intel_data *intel = container_of(work, struct intel_data,
 						busy_work);
+=======
+	struct intel_data *intel = container_of(work, struct intel_data,
+						busy_work);
+	struct intel_device *idev;
+>>>>>>> upstream/android-13
 
 	if (!intel->hu->tty->dev)
 		return;
 
 	/* Link is busy, delay the suspend */
 	mutex_lock(&intel_device_list_lock);
+<<<<<<< HEAD
 	list_for_each(p, &intel_device_list) {
 		struct intel_device *idev = list_entry(p, struct intel_device,
 						       list);
 
+=======
+	list_for_each_entry(idev, &intel_device_list, list) {
+>>>>>>> upstream/android-13
 		if (intel->hu->tty->dev->parent == idev->pdev->dev.parent) {
 			pm_runtime_get(&idev->pdev->dev);
 			pm_runtime_mark_last_busy(&idev->pdev->dev);
@@ -548,7 +577,11 @@ static int intel_setup(struct hci_uart *hu)
 	struct sk_buff *skb;
 	struct intel_version ver;
 	struct intel_boot_params params;
+<<<<<<< HEAD
 	struct list_head *p;
+=======
+	struct intel_device *idev;
+>>>>>>> upstream/android-13
 	const struct firmware *fw;
 	char fwname[64];
 	u32 boot_param;
@@ -599,8 +632,13 @@ static int intel_setup(struct hci_uart *hu)
 	 * is in bootloader mode or if it already has operational firmware
 	 * loaded.
 	 */
+<<<<<<< HEAD
 	 err = btintel_read_version(hdev, &ver);
 	 if (err)
+=======
+	err = btintel_read_version(hdev, &ver);
+	if (err)
+>>>>>>> upstream/android-13
 		return err;
 
 	/* The hardware platform number has a fixed value of 0x37 and
@@ -708,6 +746,7 @@ static int intel_setup(struct hci_uart *hu)
 	case 0x0b:      /* SfP */
 	case 0x0c:      /* WsP */
 		snprintf(fwname, sizeof(fwname), "intel/ibt-%u-%u.sfi",
+<<<<<<< HEAD
 			 le16_to_cpu(ver.hw_variant),
 			 le16_to_cpu(params.dev_revid));
 		break;
@@ -716,6 +755,13 @@ static int intel_setup(struct hci_uart *hu)
 			 le16_to_cpu(ver.hw_variant),
 			 le16_to_cpu(ver.hw_revision),
 			 le16_to_cpu(ver.fw_revision));
+=======
+			 ver.hw_variant, le16_to_cpu(params.dev_revid));
+		break;
+	case 0x12:      /* ThP */
+		snprintf(fwname, sizeof(fwname), "intel/ibt-%u-%u-%u.sfi",
+			 ver.hw_variant, ver.hw_revision, ver.fw_revision);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		bt_dev_err(hdev, "Unsupported Intel hardware variant (%u)",
@@ -737,6 +783,7 @@ static int intel_setup(struct hci_uart *hu)
 	case 0x0b:      /* SfP */
 	case 0x0c:      /* WsP */
 		snprintf(fwname, sizeof(fwname), "intel/ibt-%u-%u.ddc",
+<<<<<<< HEAD
 			 le16_to_cpu(ver.hw_variant),
 			 le16_to_cpu(params.dev_revid));
 		break;
@@ -745,6 +792,13 @@ static int intel_setup(struct hci_uart *hu)
 			 le16_to_cpu(ver.hw_variant),
 			 le16_to_cpu(ver.hw_revision),
 			 le16_to_cpu(ver.fw_revision));
+=======
+			 ver.hw_variant, le16_to_cpu(params.dev_revid));
+		break;
+	case 0x12:      /* ThP */
+		snprintf(fwname, sizeof(fwname), "intel/ibt-%u-%u-%u.ddc",
+			 ver.hw_variant, ver.hw_revision, ver.fw_revision);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		bt_dev_err(hdev, "Unsupported Intel hardware variant (%u)",
@@ -762,7 +816,11 @@ static int intel_setup(struct hci_uart *hu)
 	set_bit(STATE_DOWNLOADING, &intel->flags);
 
 	/* Start firmware downloading and get boot parameter */
+<<<<<<< HEAD
 	err = btintel_download_firmware(hdev, fw, &boot_param);
+=======
+	err = btintel_download_firmware(hdev, &ver, fw, &boot_param);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		goto done;
 
@@ -811,7 +869,14 @@ static int intel_setup(struct hci_uart *hu)
 done:
 	release_firmware(fw);
 
+<<<<<<< HEAD
 	if (err < 0)
+=======
+	/* Check if there was an error and if is not -EALREADY which means the
+	 * firmware has already been loaded.
+	 */
+	if (err < 0 && err != -EALREADY)
+>>>>>>> upstream/android-13
 		return err;
 
 	/* We need to restore the default speed before Intel reset */
@@ -854,6 +919,7 @@ done:
 	 * until further LPM TX notification.
 	 */
 	mutex_lock(&intel_device_list_lock);
+<<<<<<< HEAD
 	list_for_each(p, &intel_device_list) {
 		struct intel_device *dev = list_entry(p, struct intel_device,
 						      list);
@@ -861,6 +927,13 @@ done:
 			break;
 		if (hu->tty->dev->parent == dev->pdev->dev.parent) {
 			if (device_may_wakeup(&dev->pdev->dev)) {
+=======
+	list_for_each_entry(idev, &intel_device_list, list) {
+		if (!hu->tty->dev)
+			break;
+		if (hu->tty->dev->parent == idev->pdev->dev.parent) {
+			if (device_may_wakeup(&idev->pdev->dev)) {
+>>>>>>> upstream/android-13
 				set_bit(STATE_LPM_ENABLED, &intel->flags);
 				set_bit(STATE_TX_ACTIVE, &intel->flags);
 			}
@@ -912,10 +985,15 @@ static int intel_recv_event(struct hci_dev *hdev, struct sk_buff *skb)
 			set_bit(STATE_FIRMWARE_FAILED, &intel->flags);
 
 		if (test_and_clear_bit(STATE_DOWNLOADING, &intel->flags) &&
+<<<<<<< HEAD
 		    test_bit(STATE_FIRMWARE_LOADED, &intel->flags)) {
 			smp_mb__after_atomic();
 			wake_up_bit(&intel->flags, STATE_DOWNLOADING);
 		}
+=======
+		    test_bit(STATE_FIRMWARE_LOADED, &intel->flags))
+			wake_up_bit(&intel->flags, STATE_DOWNLOADING);
+>>>>>>> upstream/android-13
 
 	/* When switching to the operational firmware the device
 	 * sends a vendor specific event indicating that the bootup
@@ -923,10 +1001,15 @@ static int intel_recv_event(struct hci_dev *hdev, struct sk_buff *skb)
 	 */
 	} else if (skb->len == 9 && hdr->evt == 0xff && hdr->plen == 0x07 &&
 		   skb->data[2] == 0x02) {
+<<<<<<< HEAD
 		if (test_and_clear_bit(STATE_BOOTING, &intel->flags)) {
 			smp_mb__after_atomic();
 			wake_up_bit(&intel->flags, STATE_BOOTING);
 		}
+=======
+		if (test_and_clear_bit(STATE_BOOTING, &intel->flags))
+			wake_up_bit(&intel->flags, STATE_BOOTING);
+>>>>>>> upstream/android-13
 	}
 recv:
 	return hci_recv_frame(hdev, skb);
@@ -963,6 +1046,7 @@ static int intel_recv_lpm(struct hci_dev *hdev, struct sk_buff *skb)
 		break;
 	case LPM_OP_SUSPEND_ACK:
 		set_bit(STATE_SUSPENDED, &intel->flags);
+<<<<<<< HEAD
 		if (test_and_clear_bit(STATE_LPM_TRANSACTION, &intel->flags)) {
 			smp_mb__after_atomic();
 			wake_up_bit(&intel->flags, STATE_LPM_TRANSACTION);
@@ -974,6 +1058,15 @@ static int intel_recv_lpm(struct hci_dev *hdev, struct sk_buff *skb)
 			smp_mb__after_atomic();
 			wake_up_bit(&intel->flags, STATE_LPM_TRANSACTION);
 		}
+=======
+		if (test_and_clear_bit(STATE_LPM_TRANSACTION, &intel->flags))
+			wake_up_bit(&intel->flags, STATE_LPM_TRANSACTION);
+		break;
+	case LPM_OP_RESUME_ACK:
+		clear_bit(STATE_SUSPENDED, &intel->flags);
+		if (test_and_clear_bit(STATE_LPM_TRANSACTION, &intel->flags))
+			wake_up_bit(&intel->flags, STATE_LPM_TRANSACTION);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		bt_dev_err(hdev, "Unknown LPM opcode (%02x)", lpm->opcode);
@@ -1022,7 +1115,11 @@ static int intel_recv(struct hci_uart *hu, const void *data, int count)
 static int intel_enqueue(struct hci_uart *hu, struct sk_buff *skb)
 {
 	struct intel_data *intel = hu->priv;
+<<<<<<< HEAD
 	struct list_head *p;
+=======
+	struct intel_device *idev;
+>>>>>>> upstream/android-13
 
 	BT_DBG("hu %p skb %p", hu, skb);
 
@@ -1033,10 +1130,14 @@ static int intel_enqueue(struct hci_uart *hu, struct sk_buff *skb)
 	 * completed before enqueuing any packet.
 	 */
 	mutex_lock(&intel_device_list_lock);
+<<<<<<< HEAD
 	list_for_each(p, &intel_device_list) {
 		struct intel_device *idev = list_entry(p, struct intel_device,
 						       list);
 
+=======
+	list_for_each_entry(idev, &intel_device_list, list) {
+>>>>>>> upstream/android-13
 		if (hu->tty->dev->parent == idev->pdev->dev.parent) {
 			pm_runtime_get_sync(&idev->pdev->dev);
 			pm_runtime_mark_last_busy(&idev->pdev->dev);
@@ -1099,7 +1200,12 @@ static const struct hci_uart_proto intel_proto = {
 #ifdef CONFIG_ACPI
 static const struct acpi_device_id intel_acpi_match[] = {
 	{ "INT33E1", 0 },
+<<<<<<< HEAD
 	{ },
+=======
+	{ "INT33E3", 0 },
+	{ }
+>>>>>>> upstream/android-13
 };
 MODULE_DEVICE_TABLE(acpi, intel_acpi_match);
 #endif
@@ -1161,9 +1267,15 @@ static const struct acpi_gpio_params reset_gpios = { 0, 0, false };
 static const struct acpi_gpio_params host_wake_gpios = { 1, 0, false };
 
 static const struct acpi_gpio_mapping acpi_hci_intel_gpios[] = {
+<<<<<<< HEAD
 	{ "reset-gpios", &reset_gpios, 1 },
 	{ "host-wake-gpios", &host_wake_gpios, 1 },
 	{ },
+=======
+	{ "reset-gpios", &reset_gpios, 1, ACPI_GPIO_QUIRK_ONLY_GPIOIO },
+	{ "host-wake-gpios", &host_wake_gpios, 1, ACPI_GPIO_QUIRK_ONLY_GPIOIO },
+	{ }
+>>>>>>> upstream/android-13
 };
 
 static int intel_probe(struct platform_device *pdev)

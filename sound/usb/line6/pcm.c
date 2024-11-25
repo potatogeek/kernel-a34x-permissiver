@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Line 6 Linux USB driver
  *
  * Copyright (C) 2004-2010 Markus Grabner (grabner@icg.tugraz.at)
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License as
  *	published by the Free Software Foundation, version 2.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -363,6 +370,7 @@ int snd_line6_hw_params(struct snd_pcm_substream *substream,
 	if (ret < 0)
 		goto error;
 
+<<<<<<< HEAD
 	ret = snd_pcm_lib_malloc_pages(substream,
 				       params_buffer_bytes(hw_params));
 	if (ret < 0) {
@@ -370,6 +378,8 @@ int snd_line6_hw_params(struct snd_pcm_substream *substream,
 		goto error;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	pstr->period = params_period_bytes(hw_params);
  error:
 	mutex_unlock(&line6pcm->state_mutex);
@@ -385,7 +395,11 @@ int snd_line6_hw_free(struct snd_pcm_substream *substream)
 	mutex_lock(&line6pcm->state_mutex);
 	line6_buffer_release(line6pcm, pstr, LINE6_STREAM_PCM);
 	mutex_unlock(&line6pcm->state_mutex);
+<<<<<<< HEAD
 	return snd_pcm_lib_free_pages(substream);
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 
@@ -505,10 +519,15 @@ static int snd_line6_new_pcm(struct usb_line6 *line6, struct snd_pcm **pcm_ret)
 	snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_CAPTURE, &snd_line6_capture_ops);
 
 	/* pre-allocation of buffers */
+<<<<<<< HEAD
 	snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_CONTINUOUS,
 					      snd_dma_continuous_data
 					      (GFP_KERNEL), 64 * 1024,
 					      128 * 1024);
+=======
+	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_CONTINUOUS,
+				       NULL, 64 * 1024, 128 * 1024);
+>>>>>>> upstream/android-13
 	return 0;
 }
 

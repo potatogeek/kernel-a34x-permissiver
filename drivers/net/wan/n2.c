@@ -1,13 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * SDL Inc. RISCom/N2 synchronous serial card driver for Linux
  *
  * Copyright (C) 1998-2003 Krzysztof Halasa <khc@pm.waw.pl>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License
  * as published by the Free Software Foundation.
  *
  * For information see <http://www.kernel.org/pub/linux/utils/net/hdlc/>
+=======
+ * For information see <https://www.kernel.org/pub/linux/utils/net/hdlc/>
+>>>>>>> upstream/android-13
  *
  * Note: integrated CSU/DSU/DDS are not supported by this driver
  *
@@ -35,9 +43,14 @@
 #include <asm/io.h>
 #include "hd64570.h"
 
+<<<<<<< HEAD
 
 static const char* version = "SDL RISCom/N2 driver version: 1.15";
 static const char* devname = "RISCom/N2";
+=======
+static const char *version = "SDL RISCom/N2 driver version: 1.15";
+static const char *devname = "RISCom/N2";
+>>>>>>> upstream/android-13
 
 #undef DEBUG_PKT
 #define DEBUG_RINGS
@@ -67,11 +80,17 @@ static char *hw;	/* pointer to hw=xxx command line string */
 #define PCR_ENWIN  4     /* Open window */
 #define PCR_BUS16  8     /* 16-bit bus */
 
+<<<<<<< HEAD
 
 /* Memory Base Address Register */
 #define N2_BAR 2
 
 
+=======
+/* Memory Base Address Register */
+#define N2_BAR 2
+
+>>>>>>> upstream/android-13
 /* Page Scan Register  */
 #define N2_PSR 4
 #define WIN16K       0x00
@@ -81,7 +100,10 @@ static char *hw;	/* pointer to hw=xxx command line string */
 #define PSR_DMAEN    0x80
 #define PSR_PAGEBITS 0x0F
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 /* Modem Control Reg */
 #define N2_MCR 6
 #define CLOCK_OUT_PORT1 0x80
@@ -93,7 +115,10 @@ static char *hw;	/* pointer to hw=xxx command line string */
 #define DTR_PORT1       0x02
 #define DTR_PORT0       0x01
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 typedef struct port_s {
 	struct net_device *dev;
 	struct card_s *card;
@@ -109,9 +134,13 @@ typedef struct port_s {
 	u8 rxs, txs, tmc;	/* SCA registers */
 	u8 phy_node;		/* physical port # - 0 or 1 */
 	u8 log_node;		/* logical port # */
+<<<<<<< HEAD
 }port_t;
 
 
+=======
+} port_t;
+>>>>>>> upstream/android-13
 
 typedef struct card_s {
 	u8 __iomem *winbase;		/* ISA window base address */
@@ -125,13 +154,20 @@ typedef struct card_s {
 
 	port_t ports[2];
 	struct card_s *next_card;
+<<<<<<< HEAD
 }card_t;
 
+=======
+} card_t;
+>>>>>>> upstream/android-13
 
 static card_t *first_card;
 static card_t **new_card = &first_card;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 #define sca_reg(reg, card) (0x8000 | (card)->io | \
 			    ((reg) & 0x0F) | (((reg) & 0xF0) << 6))
 #define sca_in(reg, card)		inb(sca_reg(reg, card))
@@ -147,12 +183,16 @@ static card_t **new_card = &first_card;
 #define get_port(card, port)		((card)->ports[port].valid ? \
 					 &(card)->ports[port] : NULL)
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static __inline__ u8 sca_get_page(card_t *card)
 {
 	return inb(card->io + N2_PSR) & PSR_PAGEBITS;
 }
 
+<<<<<<< HEAD
 
 static __inline__ void openwin(card_t *card, u8 page)
 {
@@ -164,6 +204,17 @@ static __inline__ void openwin(card_t *card, u8 page)
 #include "hd64570.c"
 
 
+=======
+static __inline__ void openwin(card_t *card, u8 page)
+{
+	u8 psr = inb(card->io + N2_PSR);
+
+	outb((psr & ~PSR_PAGEBITS) | page, card->io + N2_PSR);
+}
+
+#include "hd64570.c"
+
+>>>>>>> upstream/android-13
 static void n2_set_iface(port_t *port)
 {
 	card_t *card = port->card;
@@ -173,7 +224,11 @@ static void n2_set_iface(port_t *port)
 	u8 rxs = port->rxs & CLK_BRG_MASK;
 	u8 txs = port->txs & CLK_BRG_MASK;
 
+<<<<<<< HEAD
 	switch(port->settings.clock_type) {
+=======
+	switch (port->settings.clock_type) {
+>>>>>>> upstream/android-13
 	case CLOCK_INT:
 		mcr |= port->phy_node ? CLOCK_OUT_PORT1 : CLOCK_OUT_PORT0;
 		rxs |= CLK_BRG_RX; /* BRG output */
@@ -206,13 +261,21 @@ static void n2_set_iface(port_t *port)
 	sca_set_port(port);
 }
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> upstream/android-13
 static int n2_open(struct net_device *dev)
 {
 	port_t *port = dev_to_port(dev);
 	int io = port->card->io;
+<<<<<<< HEAD
 	u8 mcr = inb(io + N2_MCR) | (port->phy_node ? TX422_PORT1:TX422_PORT0);
+=======
+	u8 mcr = inb(io + N2_MCR) |
+		(port->phy_node ? TX422_PORT1 : TX422_PORT0);
+>>>>>>> upstream/android-13
 	int result;
 
 	result = hdlc_open(dev);
@@ -229,13 +292,21 @@ static int n2_open(struct net_device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> upstream/android-13
 static int n2_close(struct net_device *dev)
 {
 	port_t *port = dev_to_port(dev);
 	int io = port->card->io;
+<<<<<<< HEAD
 	u8 mcr = inb(io+N2_MCR) | (port->phy_node ? TX422_PORT1 : TX422_PORT0);
+=======
+	u8 mcr = inb(io + N2_MCR) |
+		(port->phy_node ? TX422_PORT1 : TX422_PORT0);
+>>>>>>> upstream/android-13
 
 	sca_close(dev);
 	mcr |= port->phy_node ? DTR_PORT1 : DTR_PORT0; /* set DTR OFF */
@@ -244,6 +315,7 @@ static int n2_close(struct net_device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 
 
 static int n2_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
@@ -253,12 +325,18 @@ static int n2_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 	sync_serial_settings __user *line = ifr->ifr_settings.ifs_ifsu.sync;
 	port_t *port = dev_to_port(dev);
 
+=======
+static int n2_siocdevprivate(struct net_device *dev, struct ifreq *ifr,
+			     void __user *data, int cmd)
+{
+>>>>>>> upstream/android-13
 #ifdef DEBUG_RINGS
 	if (cmd == SIOCDEVPRIVATE) {
 		sca_dump_rings(dev);
 		return 0;
 	}
 #endif
+<<<<<<< HEAD
 	if (cmd != SIOCWANDEV)
 		return hdlc_ioctl(dev, ifr, cmd);
 
@@ -267,6 +345,23 @@ static int n2_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 		ifr->ifr_settings.type = IF_IFACE_SYNC_SERIAL;
 		if (ifr->ifr_settings.size < size) {
 			ifr->ifr_settings.size = size; /* data size wanted */
+=======
+	return -EOPNOTSUPP;
+}
+
+static int n2_ioctl(struct net_device *dev, struct if_settings *ifs)
+{
+	const size_t size = sizeof(sync_serial_settings);
+	sync_serial_settings new_line;
+	sync_serial_settings __user *line = ifs->ifs_ifsu.sync;
+	port_t *port = dev_to_port(dev);
+
+	switch (ifs->type) {
+	case IF_GET_IFACE:
+		ifs->type = IF_IFACE_SYNC_SERIAL;
+		if (ifs->size < size) {
+			ifs->size = size; /* data size wanted */
+>>>>>>> upstream/android-13
 			return -ENOBUFS;
 		}
 		if (copy_to_user(line, &port->settings, size))
@@ -274,7 +369,11 @@ static int n2_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 		return 0;
 
 	case IF_IFACE_SYNC_SERIAL:
+<<<<<<< HEAD
 		if(!capable(CAP_NET_ADMIN))
+=======
+		if (!capable(CAP_NET_ADMIN))
+>>>>>>> upstream/android-13
 			return -EPERM;
 
 		if (copy_from_user(&new_line, line, size))
@@ -294,12 +393,19 @@ static int n2_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 		return 0;
 
 	default:
+<<<<<<< HEAD
 		return hdlc_ioctl(dev, ifr, cmd);
 	}
 }
 
 
 
+=======
+		return hdlc_ioctl(dev, ifs);
+	}
+}
+
+>>>>>>> upstream/android-13
 static void n2_destroy_card(card_t *card)
 {
 	int cnt;
@@ -307,6 +413,10 @@ static void n2_destroy_card(card_t *card)
 	for (cnt = 0; cnt < 2; cnt++)
 		if (card->ports[cnt].card) {
 			struct net_device *dev = port_to_dev(&card->ports[cnt]);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 			unregister_hdlc_device(dev);
 		}
 
@@ -331,7 +441,12 @@ static const struct net_device_ops n2_ops = {
 	.ndo_open       = n2_open,
 	.ndo_stop       = n2_close,
 	.ndo_start_xmit = hdlc_start_xmit,
+<<<<<<< HEAD
 	.ndo_do_ioctl   = n2_ioctl,
+=======
+	.ndo_siocwandev = n2_ioctl,
+	.ndo_siocdevprivate = n2_siocdevprivate,
+>>>>>>> upstream/android-13
 };
 
 static int __init n2_run(unsigned long io, unsigned long irq,
@@ -357,7 +472,11 @@ static int __init n2_run(unsigned long io, unsigned long irq,
 	}
 
 	card = kzalloc(sizeof(card_t), GFP_KERNEL);
+<<<<<<< HEAD
 	if (card == NULL)
+=======
+	if (!card)
+>>>>>>> upstream/android-13
 		return -ENOBUFS;
 
 	card->ports[0].dev = alloc_hdlcdev(&card->ports[0]);
@@ -489,11 +608,17 @@ static int __init n2_run(unsigned long io, unsigned long irq,
 	return 0;
 }
 
+<<<<<<< HEAD
 
 
 static int __init n2_init(void)
 {
 	if (hw==NULL) {
+=======
+static int __init n2_init(void)
+{
+	if (!hw) {
+>>>>>>> upstream/android-13
 #ifdef MODULE
 		pr_info("no card initialized\n");
 #endif
@@ -518,7 +643,11 @@ static int __init n2_init(void)
 
 		if (*hw++ != ',')
 			break;
+<<<<<<< HEAD
 		while(1) {
+=======
+		while (1) {
+>>>>>>> upstream/android-13
 			if (*hw == '0' && !valid[0])
 				valid[0] = 1; /* Port 0 enabled */
 			else if (*hw == '1' && !valid[1])
@@ -536,25 +665,39 @@ static int __init n2_init(void)
 
 		if (*hw == '\x0')
 			return first_card ? 0 : -EINVAL;
+<<<<<<< HEAD
 	}while(*hw++ == ':');
+=======
+	} while (*hw++ == ':');
+>>>>>>> upstream/android-13
 
 	pr_err("invalid hardware parameters\n");
 	return first_card ? 0 : -EINVAL;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static void __exit n2_cleanup(void)
 {
 	card_t *card = first_card;
 
 	while (card) {
 		card_t *ptr = card;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		card = card->next_card;
 		n2_destroy_card(ptr);
 	}
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 module_init(n2_init);
 module_exit(n2_cleanup);
 

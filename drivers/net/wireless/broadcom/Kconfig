@@ -1,7 +1,15 @@
+<<<<<<< HEAD
 config WLAN_VENDOR_BROADCOM
 	bool "Broadcom devices"
 	default y
 	---help---
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+config WLAN_VENDOR_BROADCOM
+	bool "Broadcom devices"
+	default y
+	help
+>>>>>>> upstream/android-13
 	  If you have a wireless card belonging to this class, say Y.
 
 	  Note that the answer to this question doesn't directly affect the

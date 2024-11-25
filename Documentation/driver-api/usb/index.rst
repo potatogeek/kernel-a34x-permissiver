@@ -19,6 +19,10 @@ Linux USB API
    dwc3
    writing_musb_glue_layer
    typec
+<<<<<<< HEAD
+=======
+   typec_bus
+>>>>>>> upstream/android-13
    usb3-debug-port
 
 .. only::  subproject and html

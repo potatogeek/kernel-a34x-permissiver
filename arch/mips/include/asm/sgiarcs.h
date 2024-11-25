@@ -12,6 +12,11 @@
 #ifndef _ASM_SGIARCS_H
 #define _ASM_SGIARCS_H
 
+<<<<<<< HEAD
+=======
+#include <linux/kernel.h>
+
+>>>>>>> upstream/android-13
 #include <asm/types.h>
 #include <asm/fw/arc/types.h>
 
@@ -368,13 +373,21 @@ struct linux_smonblock {
 
 #if defined(CONFIG_64BIT) && defined(CONFIG_FW_ARC32)
 
+<<<<<<< HEAD
 #define __arc_clobbers							\
 	"$2", "$3" /* ... */, "$8", "$9", "$10", "$11",				\
 	"$12", "$13", "$14", "$15", "$16", "$24", "$25", "$31"
+=======
+extern long call_o32(long vec, void *stack, ...);
+
+extern u64 o32_stk[4096];
+#define O32_STK	(&o32_stk[ARRAY_SIZE(o32_stk)])
+>>>>>>> upstream/android-13
 
 #define ARC_CALL0(dest)							\
 ({	long __res;							\
 	long __vec = (long) romvec->dest;				\
+<<<<<<< HEAD
 	__asm__ __volatile__(						\
 	"dsubu\t$29, 32\n\t"						\
 	"jalr\t%1\n\t"							\
@@ -384,10 +397,15 @@ struct linux_smonblock {
 	: "1" (__vec)							\
 	: __arc_clobbers, "$4", "$5", "$6", "$7");			\
 	(unsigned long) __res;						\
+=======
+	__res = call_o32(__vec, O32_STK);				\
+	__res;								\
+>>>>>>> upstream/android-13
 })
 
 #define ARC_CALL1(dest, a1)						\
 ({	long __res;							\
+<<<<<<< HEAD
 	register signed int __a1 __asm__("$4") = (int) (long) (a1);	\
 	long __vec = (long) romvec->dest;				\
 	__asm__ __volatile__(						\
@@ -399,10 +417,17 @@ struct linux_smonblock {
 	: "1" (__vec), "r" (__a1)					\
 	: __arc_clobbers, "$5", "$6", "$7");				\
 	(unsigned long) __res;						\
+=======
+	int  __a1 = (int) (long) (a1);					\
+	long __vec = (long) romvec->dest;				\
+	__res = call_o32(__vec, O32_STK, __a1);				\
+	__res;								\
+>>>>>>> upstream/android-13
 })
 
 #define ARC_CALL2(dest, a1, a2)						\
 ({	long __res;							\
+<<<<<<< HEAD
 	register signed int __a1 __asm__("$4") = (int) (long) (a1);	\
 	register signed int __a2 __asm__("$5") = (int) (long) (a2);	\
 	long __vec = (long) romvec->dest;				\
@@ -414,11 +439,18 @@ struct linux_smonblock {
 	: "=r" (__res), "=r" (__vec)					\
 	: "1" (__vec), "r" (__a1), "r" (__a2)				\
 	: __arc_clobbers, "$6", "$7");					\
+=======
+	int  __a1 = (int) (long) (a1);					\
+	int  __a2 = (int) (long) (a2);					\
+	long __vec = (long) romvec->dest;				\
+	__res = call_o32(__vec, O32_STK, __a1, __a2);			\
+>>>>>>> upstream/android-13
 	__res;								\
 })
 
 #define ARC_CALL3(dest, a1, a2, a3)					\
 ({	long __res;							\
+<<<<<<< HEAD
 	register signed int __a1 __asm__("$4") = (int) (long) (a1);	\
 	register signed int __a2 __asm__("$5") = (int) (long) (a2);	\
 	register signed int __a3 __asm__("$6") = (int) (long) (a3);	\
@@ -431,11 +463,19 @@ struct linux_smonblock {
 	: "=r" (__res), "=r" (__vec)					\
 	: "1" (__vec), "r" (__a1), "r" (__a2), "r" (__a3)		\
 	: __arc_clobbers, "$7");					\
+=======
+	int  __a1 = (int) (long) (a1);					\
+	int  __a2 = (int) (long) (a2);					\
+	int  __a3 = (int) (long) (a3);					\
+	long __vec = (long) romvec->dest;				\
+	__res = call_o32(__vec, O32_STK, __a1, __a2, __a3);		\
+>>>>>>> upstream/android-13
 	__res;								\
 })
 
 #define ARC_CALL4(dest, a1, a2, a3, a4)					\
 ({	long __res;							\
+<<<<<<< HEAD
 	register signed int __a1 __asm__("$4") = (int) (long) (a1);	\
 	register signed int __a2 __asm__("$5") = (int) (long) (a2);	\
 	register signed int __a3 __asm__("$6") = (int) (long) (a3);	\
@@ -472,6 +512,26 @@ struct linux_smonblock {
 	  "r" (__a1), "r" (__a2), "r" (__a3), "r" (__a4),		\
 	  "r" (__a5)							\
 	: __arc_clobbers);						\
+=======
+	int  __a1 = (int) (long) (a1);					\
+	int  __a2 = (int) (long) (a2);					\
+	int  __a3 = (int) (long) (a3);					\
+	int  __a4 = (int) (long) (a4);					\
+	long __vec = (long) romvec->dest;				\
+	__res = call_o32(__vec, O32_STK, __a1, __a2, __a3, __a4);	\
+	__res;								\
+})
+
+#define ARC_CALL5(dest, a1, a2, a3, a4, a5)				\
+({	long __res;							\
+	int  __a1 = (int) (long) (a1);					\
+	int  __a2 = (int) (long) (a2);					\
+	int  __a3 = (int) (long) (a3);					\
+	int  __a4 = (int) (long) (a4);					\
+	int  __a5 = (int) (long) (a5);					\
+	long __vec = (long) romvec->dest;				\
+	__res = call_o32(__vec, O32_STK, __a1, __a2, __a3, __a4, __a5);	\
+>>>>>>> upstream/android-13
 	__res;								\
 })
 

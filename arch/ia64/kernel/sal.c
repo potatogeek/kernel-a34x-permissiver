@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * System Abstraction Layer (SAL) interface routines.
  *
@@ -17,6 +21,10 @@
 #include <asm/page.h>
 #include <asm/sal.h>
 #include <asm/pal.h>
+<<<<<<< HEAD
+=======
+#include <asm/xtp.h>
+>>>>>>> upstream/android-13
 
  __cacheline_aligned DEFINE_SPINLOCK(sal_lock);
 unsigned long sal_platform_features;
@@ -109,6 +117,7 @@ check_versions (struct ia64_sal_systab *systab)
 		sal_revision = SAL_VERSION_CODE(2, 8);
 		sal_version = SAL_VERSION_CODE(0, 0);
 	}
+<<<<<<< HEAD
 
 	if (ia64_platform_is("sn2") && (sal_revision == SAL_VERSION_CODE(2, 9)))
 		/*
@@ -116,6 +125,8 @@ check_versions (struct ia64_sal_systab *systab)
 		 * but they actually implement 3.2, so let's fix it here.
 		 */
 		sal_revision = SAL_VERSION_CODE(3, 2);
+=======
+>>>>>>> upstream/android-13
 }
 
 static void __init
@@ -255,7 +266,11 @@ check_sal_cache_flush (void)
 	 * Send ourselves a timer interrupt, wait until it's reported, and see
 	 * if SAL_CACHE_FLUSH drops it.
 	 */
+<<<<<<< HEAD
 	platform_send_ipi(cpu, IA64_TIMER_VECTOR, IA64_IPI_DM_INT, 0);
+=======
+	ia64_send_ipi(cpu, IA64_TIMER_VECTOR, IA64_IPI_DM_INT, 0);
+>>>>>>> upstream/android-13
 
 	while (!ia64_get_irr(IA64_TIMER_VECTOR))
 		cpu_relax();

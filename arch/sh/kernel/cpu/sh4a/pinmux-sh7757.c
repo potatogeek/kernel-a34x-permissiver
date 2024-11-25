@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * SH7757 (B0 step) Pinmux
  *
@@ -7,10 +11,13 @@
  *
  * Based on SH7723 Pinmux
  *  Copyright (C) 2008  Magnus Damm
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bug.h>

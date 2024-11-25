@@ -25,11 +25,19 @@
  */
 #include <linux/hdmi.h>
 #include <linux/gcd.h>
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+
+>>>>>>> upstream/android-13
 #include <drm/radeon_drm.h>
 #include "radeon.h"
 #include "radeon_asic.h"
 #include "radeon_audio.h"
+<<<<<<< HEAD
+=======
+#include "r600.h"
+>>>>>>> upstream/android-13
 #include "r600d.h"
 #include "atom.h"
 

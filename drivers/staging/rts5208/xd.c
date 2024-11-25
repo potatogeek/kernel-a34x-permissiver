@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Driver for Realtek PCI-Express card reader
  *
  * Copyright(c) 2009-2013 Realtek Semiconductor Corp. All rights reserved.
@@ -15,6 +16,14 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses/>.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Driver for Realtek PCI-Express card reader
+ *
+ * Copyright(c) 2009-2013 Realtek Semiconductor Corp. All rights reserved.
+ *
+>>>>>>> upstream/android-13
  * Author:
  *   Wei WANG (wei_wang@realsil.com.cn)
  *   Micky Ching (micky_ching@realsil.com.cn)
@@ -60,9 +69,14 @@ static int xd_set_init_para(struct rtsx_chip *chip)
 		xd_card->xd_clock = CLK_50;
 
 	retval = switch_clock(chip, xd_card->xd_clock);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	return STATUS_SUCCESS;
 }
@@ -73,6 +87,7 @@ static int xd_switch_clock(struct rtsx_chip *chip)
 	int retval;
 
 	retval = select_card(chip, XD_CARD);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
@@ -81,6 +96,14 @@ static int xd_switch_clock(struct rtsx_chip *chip)
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+
+	retval = switch_clock(chip, xd_card->xd_clock);
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	return STATUS_SUCCESS;
 }
@@ -102,9 +125,14 @@ static int xd_read_id(struct rtsx_chip *chip, u8 id_cmd, u8 *id_buf, u8 buf_len)
 		rtsx_add_cmd(chip, READ_REG_CMD, (u16)(XD_ADDRESS1 + i), 0, 0);
 
 	retval = rtsx_send_cmd(chip, XD_CARD, 20);
+<<<<<<< HEAD
 	if (retval < 0) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval < 0)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	ptr = rtsx_get_cmd_data(chip) + 1;
 	if (id_buf && buf_len) {
@@ -173,9 +201,14 @@ static int xd_read_redundant(struct rtsx_chip *chip, u32 page_addr,
 	rtsx_add_cmd(chip, READ_REG_CMD, XD_PARITY, 0, 0);
 
 	retval = rtsx_send_cmd(chip, XD_CARD, 500);
+<<<<<<< HEAD
 	if (retval < 0) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval < 0)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	if (buf && buf_len) {
 		u8 *ptr = rtsx_get_cmd_data(chip) + 1;
@@ -193,9 +226,14 @@ static int xd_read_data_from_ppb(struct rtsx_chip *chip, int offset,
 {
 	int retval, i;
 
+<<<<<<< HEAD
 	if (!buf || (buf_len < 0)) {
 		return STATUS_FAIL;
 	}
+=======
+	if (!buf || (buf_len < 0))
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	rtsx_init_cmd(chip);
 
@@ -220,9 +258,14 @@ static int xd_read_cis(struct rtsx_chip *chip, u32 page_addr, u8 *buf,
 	int retval;
 	u8 reg;
 
+<<<<<<< HEAD
 	if (!buf || (buf_len < 10)) {
 		return STATUS_FAIL;
 	}
+=======
+	if (!buf || (buf_len < 10))
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	rtsx_init_cmd(chip);
 
@@ -246,15 +289,21 @@ static int xd_read_cis(struct rtsx_chip *chip, u32 page_addr, u8 *buf,
 	}
 
 	retval = rtsx_read_register(chip, XD_PAGE_STATUS, &reg);
+<<<<<<< HEAD
 	if (retval) {
 		return retval;
 	}
+=======
+	if (retval)
+		return retval;
+>>>>>>> upstream/android-13
 	if (reg != XD_GPG) {
 		rtsx_clear_xd_error(chip);
 		return STATUS_FAIL;
 	}
 
 	retval = rtsx_read_register(chip, XD_CTL, &reg);
+<<<<<<< HEAD
 	if (retval) {
 		return retval;
 	}
@@ -263,11 +312,20 @@ static int xd_read_cis(struct rtsx_chip *chip, u32 page_addr, u8 *buf,
 		if (retval != STATUS_SUCCESS) {
 			return STATUS_FAIL;
 		}
+=======
+	if (retval)
+		return retval;
+	if (!(reg & XD_ECC1_ERROR) || !(reg & XD_ECC1_UNCORRECTABLE)) {
+		retval = xd_read_data_from_ppb(chip, 0, buf, buf_len);
+		if (retval != STATUS_SUCCESS)
+			return STATUS_FAIL;
+>>>>>>> upstream/android-13
 		if (reg & XD_ECC1_ERROR) {
 			u8 ecc_bit, ecc_byte;
 
 			retval = rtsx_read_register(chip, XD_ECC_BIT1,
 						    &ecc_bit);
+<<<<<<< HEAD
 			if (retval) {
 				return retval;
 			}
@@ -276,6 +334,14 @@ static int xd_read_cis(struct rtsx_chip *chip, u32 page_addr, u8 *buf,
 			if (retval) {
 				return retval;
 			}
+=======
+			if (retval)
+				return retval;
+			retval = rtsx_read_register(chip, XD_ECC_BYTE1,
+						    &ecc_byte);
+			if (retval)
+				return retval;
+>>>>>>> upstream/android-13
 
 			dev_dbg(rtsx_dev(chip), "ECC_BIT1 = 0x%x, ECC_BYTE1 = 0x%x\n",
 				ecc_bit, ecc_byte);
@@ -291,14 +357,20 @@ static int xd_read_cis(struct rtsx_chip *chip, u32 page_addr, u8 *buf,
 		rtsx_clear_xd_error(chip);
 
 		retval = xd_read_data_from_ppb(chip, 256, buf, buf_len);
+<<<<<<< HEAD
 		if (retval != STATUS_SUCCESS) {
 			return STATUS_FAIL;
 		}
+=======
+		if (retval != STATUS_SUCCESS)
+			return STATUS_FAIL;
+>>>>>>> upstream/android-13
 		if (reg & XD_ECC2_ERROR) {
 			u8 ecc_bit, ecc_byte;
 
 			retval = rtsx_read_register(chip, XD_ECC_BIT2,
 						    &ecc_bit);
+<<<<<<< HEAD
 			if (retval) {
 				return retval;
 			}
@@ -307,6 +379,14 @@ static int xd_read_cis(struct rtsx_chip *chip, u32 page_addr, u8 *buf,
 			if (retval) {
 				return retval;
 			}
+=======
+			if (retval)
+				return retval;
+			retval = rtsx_read_register(chip, XD_ECC_BYTE2,
+						    &ecc_byte);
+			if (retval)
+				return retval;
+>>>>>>> upstream/android-13
 
 			dev_dbg(rtsx_dev(chip), "ECC_BIT2 = 0x%x, ECC_BYTE2 = 0x%x\n",
 				ecc_bit, ecc_byte);
@@ -404,38 +484,59 @@ static int xd_pull_ctl_disable(struct rtsx_chip *chip)
 					     XD_D2_PD |
 					     XD_D1_PD |
 					     XD_D0_PD);
+<<<<<<< HEAD
 		if (retval) {
 			return retval;
 		}
+=======
+		if (retval)
+			return retval;
+>>>>>>> upstream/android-13
 		retval = rtsx_write_register(chip, CARD_PULL_CTL2, 0xFF,
 					     XD_D7_PD |
 					     XD_D6_PD |
 					     XD_D5_PD |
 					     XD_D4_PD);
+<<<<<<< HEAD
 		if (retval) {
 			return retval;
 		}
+=======
+		if (retval)
+			return retval;
+>>>>>>> upstream/android-13
 		retval = rtsx_write_register(chip, CARD_PULL_CTL3, 0xFF,
 					     XD_WP_PD |
 					     XD_CE_PD |
 					     XD_CLE_PD |
 					     XD_CD_PU);
+<<<<<<< HEAD
 		if (retval) {
 			return retval;
 		}
+=======
+		if (retval)
+			return retval;
+>>>>>>> upstream/android-13
 		retval = rtsx_write_register(chip, CARD_PULL_CTL4, 0xFF,
 					     XD_RDY_PD |
 					     XD_WE_PD |
 					     XD_RE_PD |
 					     XD_ALE_PD);
+<<<<<<< HEAD
 		if (retval) {
 			return retval;
 		}
+=======
+		if (retval)
+			return retval;
+>>>>>>> upstream/android-13
 		retval = rtsx_write_register(chip, CARD_PULL_CTL5, 0xFF,
 					     MS_INS_PU |
 					     SD_WP_PD |
 					     SD_CD_PU |
 					     SD_CMD_PD);
+<<<<<<< HEAD
 		if (retval) {
 			return retval;
 		}
@@ -444,10 +545,19 @@ static int xd_pull_ctl_disable(struct rtsx_chip *chip)
 		if (retval) {
 			return retval;
 		}
+=======
+		if (retval)
+			return retval;
+		retval = rtsx_write_register(chip, CARD_PULL_CTL6, 0xFF,
+					     MS_D5_PD | MS_D4_PD);
+		if (retval)
+			return retval;
+>>>>>>> upstream/android-13
 	} else if (CHECK_PID(chip, 0x5288)) {
 		if (CHECK_BARO_PKG(chip, QFN)) {
 			retval = rtsx_write_register(chip, CARD_PULL_CTL1,
 						     0xFF, 0x55);
+<<<<<<< HEAD
 			if (retval) {
 				return retval;
 			}
@@ -466,6 +576,22 @@ static int xd_pull_ctl_disable(struct rtsx_chip *chip)
 			if (retval) {
 				return retval;
 			}
+=======
+			if (retval)
+				return retval;
+			retval = rtsx_write_register(chip, CARD_PULL_CTL2,
+						     0xFF, 0x55);
+			if (retval)
+				return retval;
+			retval = rtsx_write_register(chip, CARD_PULL_CTL3,
+						     0xFF, 0x4B);
+			if (retval)
+				return retval;
+			retval = rtsx_write_register(chip, CARD_PULL_CTL4,
+						     0xFF, 0x69);
+			if (retval)
+				return retval;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -479,9 +605,14 @@ static int reset_xd(struct rtsx_chip *chip)
 	u8 *ptr, id_buf[4], redunt[11];
 
 	retval = select_card(chip, XD_CARD);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	rtsx_init_cmd(chip);
 
@@ -505,6 +636,7 @@ static int reset_xd(struct rtsx_chip *chip)
 	rtsx_add_cmd(chip, WRITE_REG_CMD, CARD_OE, XD_OUTPUT_EN, 0);
 
 	retval = rtsx_send_cmd(chip, XD_CARD, 100);
+<<<<<<< HEAD
 	if (retval < 0) {
 		return STATUS_FAIL;
 	}
@@ -514,6 +646,15 @@ static int reset_xd(struct rtsx_chip *chip)
 		if (retval != STATUS_SUCCESS) {
 			return STATUS_FAIL;
 		}
+=======
+	if (retval < 0)
+		return STATUS_FAIL;
+
+	if (!chip->ft2_fast_mode) {
+		retval = card_power_off(chip, XD_CARD);
+		if (retval != STATUS_SUCCESS)
+			return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 		wait_timeout(250);
 
@@ -529,6 +670,7 @@ static int reset_xd(struct rtsx_chip *chip)
 		}
 
 		retval = rtsx_send_cmd(chip, XD_CARD, 100);
+<<<<<<< HEAD
 		if (retval < 0) {
 			return STATUS_FAIL;
 		}
@@ -537,6 +679,14 @@ static int reset_xd(struct rtsx_chip *chip)
 		if (retval != STATUS_SUCCESS) {
 			return STATUS_FAIL;
 		}
+=======
+		if (retval < 0)
+			return STATUS_FAIL;
+
+		retval = card_power_on(chip, XD_CARD);
+		if (retval != STATUS_SUCCESS)
+			return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 #ifdef SUPPORT_OCP
 		wait_timeout(50);
@@ -565,17 +715,27 @@ static int reset_xd(struct rtsx_chip *chip)
 	rtsx_add_cmd(chip, WRITE_REG_CMD, XD_CTL, XD_CE_DISEN, XD_CE_DISEN);
 
 	retval = rtsx_send_cmd(chip, XD_CARD, 100);
+<<<<<<< HEAD
 	if (retval < 0) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval < 0)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	if (!chip->ft2_fast_mode)
 		wait_timeout(200);
 
 	retval = xd_set_init_para(chip);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	/* Read ID to check if the timing setting is right */
 	for (i = 0; i < 4; i++) {
@@ -598,9 +758,14 @@ static int reset_xd(struct rtsx_chip *chip)
 		rtsx_add_cmd(chip, READ_REG_CMD, XD_CTL, 0, 0);
 
 		retval = rtsx_send_cmd(chip, XD_CARD, 100);
+<<<<<<< HEAD
 		if (retval < 0) {
 			return STATUS_FAIL;
 		}
+=======
+		if (retval < 0)
+			return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 		ptr = rtsx_get_cmd_data(chip) + 1;
 
@@ -612,9 +777,14 @@ static int reset_xd(struct rtsx_chip *chip)
 			continue;
 
 		retval = xd_read_id(chip, READ_ID, id_buf, 4);
+<<<<<<< HEAD
 		if (retval != STATUS_SUCCESS) {
 			return STATUS_FAIL;
 		}
+=======
+		if (retval != STATUS_SUCCESS)
+			return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 		dev_dbg(rtsx_dev(chip), "READ_ID: 0x%x 0x%x 0x%x 0x%x\n",
 			id_buf[0], id_buf[1], id_buf[2], id_buf[3]);
@@ -675,13 +845,21 @@ static int reset_xd(struct rtsx_chip *chip)
 			xd_card->zone_cnt = 32;
 			xd_card->capacity = 1024000;
 			break;
+<<<<<<< HEAD
 		case xD_1G_X8_512:
+=======
+		case XD_1G_X8_512:
+>>>>>>> upstream/android-13
 			XD_PAGE_512(xd_card);
 			xd_card->addr_cycle = 4;
 			xd_card->zone_cnt = 64;
 			xd_card->capacity = 2048000;
 			break;
+<<<<<<< HEAD
 		case xD_2G_X8_512:
+=======
+		case XD_2G_X8_512:
+>>>>>>> upstream/android-13
 			XD_PAGE_512(xd_card);
 			xd_card->addr_cycle = 4;
 			xd_card->zone_cnt = 128;
@@ -694,9 +872,14 @@ static int reset_xd(struct rtsx_chip *chip)
 		/* Confirm timing setting */
 		for (j = 0; j < 10; j++) {
 			retval = xd_read_id(chip, READ_ID, id_buf, 4);
+<<<<<<< HEAD
 			if (retval != STATUS_SUCCESS) {
 				return STATUS_FAIL;
 			}
+=======
+			if (retval != STATUS_SUCCESS)
+				return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 			if (id_buf[1] != xd_card->device_code)
 				break;
@@ -715,6 +898,7 @@ static int reset_xd(struct rtsx_chip *chip)
 		return STATUS_FAIL;
 	}
 
+<<<<<<< HEAD
 	retval = xd_read_id(chip, READ_xD_ID, id_buf, 4);
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
@@ -724,14 +908,28 @@ static int reset_xd(struct rtsx_chip *chip)
 	if (id_buf[2] != XD_ID_CODE) {
 		return STATUS_FAIL;
 	}
+=======
+	retval = xd_read_id(chip, READ_XD_ID, id_buf, 4);
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+	dev_dbg(rtsx_dev(chip), "READ_XD_ID: 0x%x 0x%x 0x%x 0x%x\n",
+		id_buf[0], id_buf[1], id_buf[2], id_buf[3]);
+	if (id_buf[2] != XD_ID_CODE)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	/* Search CIS block */
 	for (i = 0; i < 24; i++) {
 		u32 page_addr;
 
+<<<<<<< HEAD
 		if (detect_card_cd(chip, XD_CARD) != STATUS_SUCCESS) {
 			return STATUS_FAIL;
 		}
+=======
+		if (detect_card_cd(chip, XD_CARD) != STATUS_SUCCESS)
+			return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 		page_addr = (u32)i << xd_card->block_shift;
 
@@ -769,9 +967,14 @@ static int reset_xd(struct rtsx_chip *chip)
 			page_addr += j;
 
 			retval = xd_read_cis(chip, page_addr, buf, 10);
+<<<<<<< HEAD
 			if (retval != STATUS_SUCCESS) {
 				return STATUS_FAIL;
 			}
+=======
+			if (retval != STATUS_SUCCESS)
+				return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 			if ((buf[0] == 0x01) && (buf[1] == 0x03) &&
 			    (buf[2] == 0xD9) &&
@@ -841,17 +1044,27 @@ static int xd_init_l2p_tbl(struct rtsx_chip *chip)
 	dev_dbg(rtsx_dev(chip), "%s: zone_cnt = %d\n", __func__,
 		xd_card->zone_cnt);
 
+<<<<<<< HEAD
 	if (xd_card->zone_cnt < 1) {
 		return STATUS_FAIL;
 	}
+=======
+	if (xd_card->zone_cnt < 1)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	size = xd_card->zone_cnt * sizeof(struct zone_entry);
 	dev_dbg(rtsx_dev(chip), "Buffer size for l2p table is %d\n", size);
 
 	xd_card->zone = vmalloc(size);
+<<<<<<< HEAD
 	if (!xd_card->zone) {
 		return STATUS_ERROR;
 	}
+=======
+	if (!xd_card->zone)
+		return STATUS_ERROR;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < xd_card->zone_cnt; i++) {
 		xd_card->zone[i].build_flag = 0;
@@ -1028,6 +1241,7 @@ int reset_xd_card(struct rtsx_chip *chip)
 	xd_card->delay_write.delay_write_flag = 0;
 
 	retval = enable_card_clock(chip, XD_CARD);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
@@ -1041,6 +1255,18 @@ int reset_xd_card(struct rtsx_chip *chip)
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+
+	retval = reset_xd(chip);
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+
+	retval = xd_init_l2p_tbl(chip);
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	return STATUS_SUCCESS;
 }
@@ -1054,9 +1280,14 @@ static int xd_mark_bad_block(struct rtsx_chip *chip, u32 phy_blk)
 
 	dev_dbg(rtsx_dev(chip), "mark block 0x%x as bad block\n", phy_blk);
 
+<<<<<<< HEAD
 	if (phy_blk == BLK_NOT_FOUND) {
 		return STATUS_FAIL;
 	}
+=======
+	if (phy_blk == BLK_NOT_FOUND)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	rtsx_init_cmd(chip);
 
@@ -1107,12 +1338,19 @@ static int xd_init_page(struct rtsx_chip *chip, u32 phy_blk,
 
 	dev_dbg(rtsx_dev(chip), "Init block 0x%x\n", phy_blk);
 
+<<<<<<< HEAD
 	if (start_page > end_page) {
 		return STATUS_FAIL;
 	}
 	if (phy_blk == BLK_NOT_FOUND) {
 		return STATUS_FAIL;
 	}
+=======
+	if (start_page > end_page)
+		return STATUS_FAIL;
+	if (phy_blk == BLK_NOT_FOUND)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	rtsx_init_cmd(chip);
 
@@ -1164,6 +1402,7 @@ static int xd_copy_page(struct rtsx_chip *chip, u32 old_blk, u32 new_blk,
 	dev_dbg(rtsx_dev(chip), "Copy page from block 0x%x to block 0x%x\n",
 		old_blk, new_blk);
 
+<<<<<<< HEAD
 	if (start_page > end_page) {
 		return STATUS_FAIL;
 	}
@@ -1171,6 +1410,13 @@ static int xd_copy_page(struct rtsx_chip *chip, u32 old_blk, u32 new_blk,
 	if ((old_blk == BLK_NOT_FOUND) || (new_blk == BLK_NOT_FOUND)) {
 		return STATUS_FAIL;
 	}
+=======
+	if (start_page > end_page)
+		return STATUS_FAIL;
+
+	if ((old_blk == BLK_NOT_FOUND) || (new_blk == BLK_NOT_FOUND))
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	old_page = (old_blk << xd_card->block_shift) + start_page;
 	new_page = (new_blk << xd_card->block_shift) + start_page;
@@ -1179,9 +1425,14 @@ static int xd_copy_page(struct rtsx_chip *chip, u32 old_blk, u32 new_blk,
 
 	retval = rtsx_write_register(chip, CARD_DATA_SOURCE, 0x01,
 				     PINGPONG_BUFFER);
+<<<<<<< HEAD
 	if (retval) {
 		return retval;
 	}
+=======
+	if (retval)
+		return retval;
+>>>>>>> upstream/android-13
 
 	for (i = start_page; i < end_page; i++) {
 		if (detect_card_cd(chip, XD_CARD) != STATUS_SUCCESS) {
@@ -1216,10 +1467,17 @@ static int xd_copy_page(struct rtsx_chip *chip, u32 old_blk, u32 new_blk,
 					return STATUS_FAIL;
 				}
 
+<<<<<<< HEAD
 				if (((reg & (XD_ECC1_ERROR | XD_ECC1_UNCORRECTABLE)) ==
 						(XD_ECC1_ERROR | XD_ECC1_UNCORRECTABLE)) ||
 					((reg & (XD_ECC2_ERROR | XD_ECC2_UNCORRECTABLE)) ==
 						(XD_ECC2_ERROR | XD_ECC2_UNCORRECTABLE))) {
+=======
+				if (((reg & XD_ECC1_ERROR) &&
+				     (reg & XD_ECC1_UNCORRECTABLE)) ||
+				    ((reg & XD_ECC2_ERROR) &&
+				     (reg & XD_ECC2_UNCORRECTABLE))) {
+>>>>>>> upstream/android-13
 					rtsx_write_register(chip,
 							    XD_PAGE_STATUS,
 							    0xFF,
@@ -1287,9 +1545,14 @@ static int xd_reset_cmd(struct rtsx_chip *chip)
 	rtsx_add_cmd(chip, READ_REG_CMD, XD_CTL, 0, 0);
 
 	retval = rtsx_send_cmd(chip, XD_CARD, 100);
+<<<<<<< HEAD
 	if (retval < 0) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval < 0)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	ptr = rtsx_get_cmd_data(chip) + 1;
 	if (((ptr[0] & READY_FLAG) == READY_STATE) && (ptr[1] & XD_RDY))
@@ -1305,9 +1568,14 @@ static int xd_erase_block(struct rtsx_chip *chip, u32 phy_blk)
 	u8 reg = 0, *ptr;
 	int i, retval;
 
+<<<<<<< HEAD
 	if (phy_blk == BLK_NOT_FOUND) {
 		return STATUS_FAIL;
 	}
+=======
+	if (phy_blk == BLK_NOT_FOUND)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	page_addr = phy_blk << xd_card->block_shift;
 
@@ -1333,9 +1601,14 @@ static int xd_erase_block(struct rtsx_chip *chip, u32 phy_blk)
 			}
 			xd_set_err_code(chip, XD_ERASE_FAIL);
 			retval = xd_reset_cmd(chip);
+<<<<<<< HEAD
 			if (retval != STATUS_SUCCESS) {
 				return STATUS_FAIL;
 			}
+=======
+			if (retval != STATUS_SUCCESS)
+				return STATUS_FAIL;
+>>>>>>> upstream/android-13
 			continue;
 		}
 
@@ -1382,17 +1655,27 @@ static int xd_build_l2p_tbl(struct rtsx_chip *chip, int zone_no)
 
 	if (!zone->l2p_table) {
 		zone->l2p_table = vmalloc(2000);
+<<<<<<< HEAD
 		if (!zone->l2p_table) {
 			goto build_fail;
 		}
+=======
+		if (!zone->l2p_table)
+			goto build_fail;
+>>>>>>> upstream/android-13
 	}
 	memset((u8 *)(zone->l2p_table), 0xff, 2000);
 
 	if (!zone->free_table) {
 		zone->free_table = vmalloc(XD_FREE_TABLE_CNT * 2);
+<<<<<<< HEAD
 		if (!zone->free_table) {
 			goto build_fail;
 		}
+=======
+		if (!zone->free_table)
+			goto build_fail;
+>>>>>>> upstream/android-13
 	}
 	memset((u8 *)(zone->free_table), 0xff, XD_FREE_TABLE_CNT * 2);
 
@@ -1555,9 +1838,14 @@ static int xd_send_cmd(struct rtsx_chip *chip, u8 cmd)
 		     XD_TRANSFER_END, XD_TRANSFER_END);
 
 	retval = rtsx_send_cmd(chip, XD_CARD, 200);
+<<<<<<< HEAD
 	if (retval < 0) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval < 0)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	return STATUS_SUCCESS;
 }
@@ -1636,17 +1924,27 @@ static int xd_read_multiple_pages(struct rtsx_chip *chip, u32 phy_blk,
 
 fail:
 	retval = rtsx_read_register(chip, XD_PAGE_STATUS, &reg_val);
+<<<<<<< HEAD
 	if (retval) {
 		return retval;
 	}
+=======
+	if (retval)
+		return retval;
+>>>>>>> upstream/android-13
 
 	if (reg_val !=  XD_GPG)
 		xd_set_err_code(chip, XD_PRG_ERROR);
 
 	retval = rtsx_read_register(chip, XD_CTL, &reg_val);
+<<<<<<< HEAD
 	if (retval) {
 		return retval;
 	}
+=======
+	if (retval)
+		return retval;
+>>>>>>> upstream/android-13
 
 	if (((reg_val & (XD_ECC1_ERROR | XD_ECC1_UNCORRECTABLE)) ==
 				(XD_ECC1_ERROR | XD_ECC1_UNCORRECTABLE)) ||
@@ -1697,14 +1995,22 @@ static int xd_finish_write(struct rtsx_chip *chip,
 	int retval, zone_no;
 	u16 log_off;
 
+<<<<<<< HEAD
 	dev_dbg(rtsx_dev(chip), "%s ", __func__);
+=======
+>>>>>>> upstream/android-13
 	dev_dbg(rtsx_dev(chip), "old_blk = 0x%x, ", old_blk);
 	dev_dbg(rtsx_dev(chip),	"new_blk = 0x%x, ", new_blk);
 	dev_dbg(rtsx_dev(chip), "log_blk = 0x%x\n", log_blk);
 
+<<<<<<< HEAD
 	if (page_off > xd_card->page_off) {
 		return STATUS_FAIL;
 	}
+=======
+	if (page_off > xd_card->page_off)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	zone_no = (int)(log_blk / 1000);
 	log_off = (u16)(log_blk % 1000);
@@ -1760,9 +2066,14 @@ static int xd_prepare_write(struct rtsx_chip *chip,
 
 	if (page_off) {
 		retval = xd_copy_page(chip, old_blk, new_blk, 0, page_off);
+<<<<<<< HEAD
 		if (retval != STATUS_SUCCESS) {
 			return STATUS_FAIL;
 		}
+=======
+		if (retval != STATUS_SUCCESS)
+			return STATUS_FAIL;
+>>>>>>> upstream/android-13
 	}
 
 	return STATUS_SUCCESS;
@@ -1858,9 +2169,14 @@ static int xd_write_multiple_pages(struct rtsx_chip *chip, u32 old_blk,
 
 fail:
 	retval = rtsx_read_register(chip, XD_DAT, &reg_val);
+<<<<<<< HEAD
 	if (retval) {
 		return retval;
 	}
+=======
+	if (retval)
+		return retval;
+>>>>>>> upstream/android-13
 	if (reg_val & PROGRAM_ERROR) {
 		xd_set_err_code(chip, XD_PRG_ERROR);
 		xd_mark_bad_block(chip, new_blk);
@@ -1878,11 +2194,17 @@ int xd_delay_write(struct rtsx_chip *chip)
 	int retval;
 
 	if (delay_write->delay_write_flag) {
+<<<<<<< HEAD
 		dev_dbg(rtsx_dev(chip), "%s\n", __func__);
 		retval = xd_switch_clock(chip);
 		if (retval != STATUS_SUCCESS) {
 			return STATUS_FAIL;
 		}
+=======
+		retval = xd_switch_clock(chip);
+		if (retval != STATUS_SUCCESS)
+			return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 		delay_write->delay_write_flag = 0;
 		retval = xd_finish_write(chip,
@@ -1890,9 +2212,14 @@ int xd_delay_write(struct rtsx_chip *chip)
 					 delay_write->new_phyblock,
 					 delay_write->logblock,
 					 delay_write->pageoff);
+<<<<<<< HEAD
 		if (retval != STATUS_SUCCESS) {
 			return STATUS_FAIL;
 		}
+=======
+		if (retval != STATUS_SUCCESS)
+			return STATUS_FAIL;
+>>>>>>> upstream/android-13
 	}
 
 	return STATUS_SUCCESS;
@@ -1924,9 +2251,14 @@ int xd_rw(struct scsi_cmnd *srb, struct rtsx_chip *chip,
 	ptr = (u8 *)scsi_sglist(srb);
 
 	retval = xd_switch_clock(chip);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	if (detect_card_cd(chip, XD_CARD) != STATUS_SUCCESS) {
 		chip->card_fail |= XD_CARD;
@@ -2180,6 +2512,7 @@ int xd_power_off_card3v3(struct rtsx_chip *chip)
 	int retval;
 
 	retval = disable_card_clock(chip, XD_CARD);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
@@ -2194,12 +2527,26 @@ int xd_power_off_card3v3(struct rtsx_chip *chip)
 		if (retval != STATUS_SUCCESS) {
 			return STATUS_FAIL;
 		}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+
+	retval = rtsx_write_register(chip, CARD_OE, XD_OUTPUT_EN, 0);
+	if (retval)
+		return retval;
+
+	if (!chip->ft2_fast_mode) {
+		retval = card_power_off(chip, XD_CARD);
+		if (retval != STATUS_SUCCESS)
+			return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 		wait_timeout(50);
 	}
 
 	if (chip->asic_code) {
 		retval = xd_pull_ctl_disable(chip);
+<<<<<<< HEAD
 		if (retval != STATUS_SUCCESS) {
 			return STATUS_FAIL;
 		}
@@ -2208,6 +2555,14 @@ int xd_power_off_card3v3(struct rtsx_chip *chip)
 		if (retval) {
 			return retval;
 		}
+=======
+		if (retval != STATUS_SUCCESS)
+			return STATUS_FAIL;
+	} else {
+		retval = rtsx_write_register(chip, FPGA_PULL_CTL, 0xFF, 0xDF);
+		if (retval)
+			return retval;
+>>>>>>> upstream/android-13
 	}
 
 	return STATUS_SUCCESS;
@@ -2227,9 +2582,14 @@ int release_xd_card(struct rtsx_chip *chip)
 	xd_free_l2p_tbl(chip);
 
 	retval = xd_power_off_card3v3(chip);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	return STATUS_SUCCESS;
 }

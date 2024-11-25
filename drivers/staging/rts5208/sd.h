@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Driver for Realtek PCI-Express card reader
  * Header file
  *
@@ -16,6 +17,14 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses/>.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+/*
+ * Driver for Realtek PCI-Express card reader
+ *
+ * Copyright(c) 2009-2013 Realtek Semiconductor Corp. All rights reserved.
+ *
+>>>>>>> upstream/android-13
  * Author:
  *   Wei WANG (wei_wang@realsil.com.cn)
  *   Micky Ching (micky_ching@realsil.com.cn)
@@ -244,7 +253,11 @@
 #define DCM_LOW_FREQUENCY_MODE   0x01
 
 #define DCM_HIGH_FREQUENCY_MODE_SET  0x0C
+<<<<<<< HEAD
 #define DCM_Low_FREQUENCY_MODE_SET   0x00
+=======
+#define DCM_LOW_FREQUENCY_MODE_SET   0x00
+>>>>>>> upstream/android-13
 
 #define MULTIPLY_BY_1    0x00
 #define MULTIPLY_BY_2    0x01
@@ -285,7 +298,10 @@ void sd_cleanup_work(struct rtsx_chip *chip);
 int sd_power_off_card3v3(struct rtsx_chip *chip);
 int release_sd_card(struct rtsx_chip *chip);
 #ifdef SUPPORT_CPRM
+<<<<<<< HEAD
 int soft_reset_sd_card(struct rtsx_chip *chip);
+=======
+>>>>>>> upstream/android-13
 int ext_sd_send_cmd_get_rsp(struct rtsx_chip *chip, u8 cmd_idx,
 			    u32 arg, u8 rsp_type, u8 *rsp, int rsp_len,
 			    bool special_check);

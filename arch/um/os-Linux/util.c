@@ -1,8 +1,17 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2000 - 2007 Jeff Dike (jdike@{addtoit,linux.intel}.com)
  * Licensed under the GPL
  */
 
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2000 - 2007 Jeff Dike (jdike@{addtoit,linux.intel}.com)
+ */
+
+#include <stdarg.h>
+>>>>>>> upstream/android-13
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -10,7 +19,11 @@
 #include <signal.h>
 #include <string.h>
 #include <termios.h>
+<<<<<<< HEAD
 #include <wait.h>
+=======
+#include <sys/wait.h>
+>>>>>>> upstream/android-13
 #include <sys/mman.h>
 #include <sys/utsname.h>
 #include <init.h>

@@ -49,21 +49,28 @@ BOOT_TARGETS = vmImage zImage
 PHONY += $(BOOT_TARGETS) install
 KBUILD_IMAGE := $(nios2-boot)/vmImage
 
+<<<<<<< HEAD
 ifneq ($(CONFIG_NIOS2_DTB_SOURCE),"")
 	core-y	+= $(nios2-boot)/
 endif
+=======
+core-y	+= $(nios2-boot)/dts/
+>>>>>>> upstream/android-13
 
 all: vmImage
 
 archclean:
 	$(Q)$(MAKE) $(clean)=$(nios2-boot)
 
+<<<<<<< HEAD
 %.dtb: | scripts
 	$(Q)$(MAKE) $(build)=$(nios2-boot) $(nios2-boot)/$@
 
 dtbs:
 	$(Q)$(MAKE) $(build)=$(nios2-boot) $(nios2-boot)/$@
 
+=======
+>>>>>>> upstream/android-13
 $(BOOT_TARGETS): vmlinux
 	$(Q)$(MAKE) $(build)=$(nios2-boot) $(nios2-boot)/$@
 
@@ -76,5 +83,8 @@ define archhelp
   echo  '                     (your) ~/bin/$(INSTALLKERNEL) or'
   echo  '                     (distribution) /sbin/$(INSTALLKERNEL) or'
   echo  '                     install to $$(INSTALL_PATH)'
+<<<<<<< HEAD
   echo  '  dtbs            - Build device tree blobs for enabled boards'
+=======
+>>>>>>> upstream/android-13
 endef

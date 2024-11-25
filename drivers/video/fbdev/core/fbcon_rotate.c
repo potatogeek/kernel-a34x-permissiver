@@ -14,7 +14,10 @@
 #include <linux/fb.h>
 #include <linux/vt_kern.h>
 #include <linux/console.h>
+<<<<<<< HEAD
 #include <linux/font.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/types.h>
 #include "fbcon.h"
 #include "fbcon_rotate.h"
@@ -33,7 +36,11 @@ static int fbcon_rotate_font(struct fb_info *info, struct vc_data *vc)
 
 	src = ops->fontdata = vc->vc_font.data;
 	ops->cur_rotate = ops->p->con_rotate;
+<<<<<<< HEAD
 	len = (!ops->p->userfont) ? 256 : FNTCHARCNT(src);
+=======
+	len = vc->vc_font.charcount;
+>>>>>>> upstream/android-13
 	s_cellsize = ((vc->vc_font.width + 7)/8) *
 		vc->vc_font.height;
 	d_cellsize = s_cellsize;
@@ -110,4 +117,7 @@ void fbcon_set_rotate(struct fbcon_ops *ops)
 		break;
 	}
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(fbcon_set_rotate);
+=======
+>>>>>>> upstream/android-13

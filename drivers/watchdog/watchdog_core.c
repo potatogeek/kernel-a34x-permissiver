@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  *	watchdog_core.c
  *
@@ -16,11 +20,14 @@
  *	  Satyam Sharma <satyam@infradead.org>
  *	  Randy Dunlap <randy.dunlap@oracle.com>
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *	Neither Alan Cox, CymruNet Ltd., Wim Van Sebroeck nor Iguana vzw.
  *	admit liability nor provide warranty for any of this software.
  *	This material is provided "AS-IS" and at no charge.
@@ -38,11 +45,22 @@
 #include <linux/idr.h>		/* For ida_* macros */
 #include <linux/err.h>		/* For IS_ERR macros */
 #include <linux/of.h>		/* For of_get_timeout_sec */
+<<<<<<< HEAD
+=======
+#include <linux/suspend.h>
+>>>>>>> upstream/android-13
 
 #include "watchdog_core.h"	/* For watchdog_dev_register/... */
 
 static DEFINE_IDA(watchdog_ida);
 
+<<<<<<< HEAD
+=======
+static int stop_on_reboot = -1;
+module_param(stop_on_reboot, int, 0444);
+MODULE_PARM_DESC(stop_on_reboot, "Stop watchdogs on reboot (0=keep watching, 1=stop)");
+
+>>>>>>> upstream/android-13
 /*
  * Deferred Registration infrastructure.
  *
@@ -60,11 +78,18 @@ static DEFINE_MUTEX(wtd_deferred_reg_mutex);
 static LIST_HEAD(wtd_deferred_reg_list);
 static bool wtd_deferred_reg_done;
 
+<<<<<<< HEAD
 static int watchdog_deferred_registration_add(struct watchdog_device *wdd)
 {
 	list_add_tail(&wdd->deferred,
 		      &wtd_deferred_reg_list);
 	return 0;
+=======
+static void watchdog_deferred_registration_add(struct watchdog_device *wdd)
+{
+	list_add_tail(&wdd->deferred,
+		      &wtd_deferred_reg_list);
+>>>>>>> upstream/android-13
 }
 
 static void watchdog_deferred_registration_del(struct watchdog_device *wdd)
@@ -105,18 +130,33 @@ static void watchdog_check_min_max_timeout(struct watchdog_device *wdd)
  * timeout module parameter (if it is valid value) or the timeout-sec property
  * (only if it is a valid value and the timeout_parm is out of bounds).
  * If none of them are valid then we keep the old value (which should normally
+<<<<<<< HEAD
  * be the default timeout value).
  *
  * A zero is returned on success and -EINVAL for failure.
+=======
+ * be the default timeout value). Note that for the module parameter, '0' means
+ * 'use default' while it is an invalid value for the timeout-sec property.
+ * It should simply be dropped if you want to use the default value then.
+ *
+ * A zero is returned on success or -EINVAL if all provided values are out of
+ * bounds.
+>>>>>>> upstream/android-13
  */
 int watchdog_init_timeout(struct watchdog_device *wdd,
 				unsigned int timeout_parm, struct device *dev)
 {
+<<<<<<< HEAD
+=======
+	const char *dev_str = wdd->parent ? dev_name(wdd->parent) :
+			      (const char *)wdd->info->identity;
+>>>>>>> upstream/android-13
 	unsigned int t = 0;
 	int ret = 0;
 
 	watchdog_check_min_max_timeout(wdd);
 
+<<<<<<< HEAD
 	/* try to get the timeout module parameter first */
 	if (!watchdog_timeout_invalid(wdd, timeout_parm) && timeout_parm) {
 		wdd->timeout = timeout_parm;
@@ -133,6 +173,33 @@ int watchdog_init_timeout(struct watchdog_device *wdd,
 		wdd->timeout = t;
 	else
 		ret = -EINVAL;
+=======
+	/* check the driver supplied value (likely a module parameter) first */
+	if (timeout_parm) {
+		if (!watchdog_timeout_invalid(wdd, timeout_parm)) {
+			wdd->timeout = timeout_parm;
+			return 0;
+		}
+		pr_err("%s: driver supplied timeout (%u) out of range\n",
+			dev_str, timeout_parm);
+		ret = -EINVAL;
+	}
+
+	/* try to get the timeout_sec property */
+	if (dev && dev->of_node &&
+	    of_property_read_u32(dev->of_node, "timeout-sec", &t) == 0) {
+		if (t && !watchdog_timeout_invalid(wdd, t)) {
+			wdd->timeout = t;
+			return 0;
+		}
+		pr_err("%s: DT supplied timeout (%u) out of range\n", dev_str, t);
+		ret = -EINVAL;
+	}
+
+	if (ret < 0 && wdd->timeout)
+		pr_warn("%s: falling back to default timeout (%u)\n", dev_str,
+			wdd->timeout);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -145,7 +212,11 @@ static int watchdog_reboot_notifier(struct notifier_block *nb,
 
 	wdd = container_of(nb, struct watchdog_device, reboot_nb);
 	if (code == SYS_DOWN || code == SYS_HALT) {
+<<<<<<< HEAD
 		if (watchdog_active(wdd)) {
+=======
+		if (watchdog_active(wdd) || watchdog_hw_running(wdd)) {
+>>>>>>> upstream/android-13
 			int ret;
 
 			ret = wdd->ops->stop(wdd);
@@ -172,6 +243,36 @@ static int watchdog_restart_notifier(struct notifier_block *nb,
 	return NOTIFY_DONE;
 }
 
+<<<<<<< HEAD
+=======
+static int watchdog_pm_notifier(struct notifier_block *nb, unsigned long mode,
+				void *data)
+{
+	struct watchdog_device *wdd;
+	int ret = 0;
+
+	wdd = container_of(nb, struct watchdog_device, pm_nb);
+
+	switch (mode) {
+	case PM_HIBERNATION_PREPARE:
+	case PM_RESTORE_PREPARE:
+	case PM_SUSPEND_PREPARE:
+		ret = watchdog_dev_suspend(wdd);
+		break;
+	case PM_POST_HIBERNATION:
+	case PM_POST_RESTORE:
+	case PM_POST_SUSPEND:
+		ret = watchdog_dev_resume(wdd);
+		break;
+	}
+
+	if (ret)
+		return NOTIFY_BAD;
+
+	return NOTIFY_DONE;
+}
+
+>>>>>>> upstream/android-13
 /**
  * watchdog_set_restart_priority - Change priority of restart handler
  * @wdd: watchdog device
@@ -245,6 +346,17 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	/* Module parameter to force watchdog policy on reboot. */
+	if (stop_on_reboot != -1) {
+		if (stop_on_reboot)
+			set_bit(WDOG_STOP_ON_REBOOT, &wdd->status);
+		else
+			clear_bit(WDOG_STOP_ON_REBOOT, &wdd->status);
+	}
+
+>>>>>>> upstream/android-13
 	if (test_bit(WDOG_STOP_ON_REBOOT, &wdd->status)) {
 		if (!wdd->ops->stop)
 			pr_warn("watchdog%d: stop_on_reboot not supported\n", wdd->id);
@@ -271,6 +383,18 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
 				wdd->id, ret);
 	}
 
+<<<<<<< HEAD
+=======
+	if (test_bit(WDOG_NO_PING_ON_SUSPEND, &wdd->status)) {
+		wdd->pm_nb.notifier_call = watchdog_pm_notifier;
+
+		ret = register_pm_notifier(&wdd->pm_nb);
+		if (ret)
+			pr_warn("watchdog%d: Cannot register pm handler (%d)\n",
+				wdd->id, ret);
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -287,14 +411,32 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
 
 int watchdog_register_device(struct watchdog_device *wdd)
 {
+<<<<<<< HEAD
 	int ret;
+=======
+	const char *dev_str;
+	int ret = 0;
+>>>>>>> upstream/android-13
 
 	mutex_lock(&wtd_deferred_reg_mutex);
 	if (wtd_deferred_reg_done)
 		ret = __watchdog_register_device(wdd);
 	else
+<<<<<<< HEAD
 		ret = watchdog_deferred_registration_add(wdd);
 	mutex_unlock(&wtd_deferred_reg_mutex);
+=======
+		watchdog_deferred_registration_add(wdd);
+	mutex_unlock(&wtd_deferred_reg_mutex);
+
+	if (ret) {
+		dev_str = wdd->parent ? dev_name(wdd->parent) :
+			  (const char *)wdd->info->identity;
+		pr_err("%s: failed to register watchdog device (err = %d)\n",
+			dev_str, ret);
+	}
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 EXPORT_SYMBOL_GPL(watchdog_register_device);

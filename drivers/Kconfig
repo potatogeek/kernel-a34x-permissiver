@@ -1,7 +1,19 @@
 # SPDX-License-Identifier: GPL-2.0
 menu "Device Drivers"
 
+<<<<<<< HEAD
 source "drivers/amba/Kconfig"
+=======
+# Keep I/O buses first
+
+source "drivers/amba/Kconfig"
+source "drivers/eisa/Kconfig"
+source "drivers/pci/Kconfig"
+source "drivers/cxl/Kconfig"
+source "drivers/pcmcia/Kconfig"
+source "drivers/rapidio/Kconfig"
+
+>>>>>>> upstream/android-13
 
 source "drivers/base/Kconfig"
 
@@ -9,6 +21,11 @@ source "drivers/bus/Kconfig"
 
 source "drivers/connector/Kconfig"
 
+<<<<<<< HEAD
+=======
+source "drivers/firmware/Kconfig"
+
+>>>>>>> upstream/android-13
 source "drivers/gnss/Kconfig"
 
 source "drivers/mtd/Kconfig"
@@ -23,12 +40,17 @@ source "drivers/block/Kconfig"
 
 source "drivers/nvme/Kconfig"
 
+<<<<<<< HEAD
 # misc before ide - BLK_DEV_SGIIOC4 depends on SGI_IOC4
 
 source "drivers/misc/Kconfig"
 
 source "drivers/ide/Kconfig"
 
+=======
+source "drivers/misc/Kconfig"
+
+>>>>>>> upstream/android-13
 source "drivers/scsi/Kconfig"
 
 source "drivers/ata/Kconfig"
@@ -47,8 +69,11 @@ source "drivers/net/Kconfig"
 
 source "drivers/isdn/Kconfig"
 
+<<<<<<< HEAD
 source "drivers/lightnvm/Kconfig"
 
+=======
+>>>>>>> upstream/android-13
 # input before char - char/joystick depends on it. As does USB.
 
 source "drivers/input/Kconfig"
@@ -101,8 +126,11 @@ source "drivers/hid/Kconfig"
 
 source "drivers/usb/Kconfig"
 
+<<<<<<< HEAD
 source "drivers/uwb/Kconfig"
 
+=======
+>>>>>>> upstream/android-13
 source "drivers/mmc/Kconfig"
 
 source "drivers/memstick/Kconfig"
@@ -135,10 +163,24 @@ source "drivers/virt/Kconfig"
 
 source "drivers/virtio/Kconfig"
 
+<<<<<<< HEAD
+=======
+source "drivers/vdpa/Kconfig"
+
+source "drivers/vhost/Kconfig"
+
+>>>>>>> upstream/android-13
 source "drivers/hv/Kconfig"
 
 source "drivers/xen/Kconfig"
 
+<<<<<<< HEAD
+=======
+source "drivers/greybus/Kconfig"
+
+source "drivers/comedi/Kconfig"
+
+>>>>>>> upstream/android-13
 source "drivers/staging/Kconfig"
 
 source "drivers/platform/Kconfig"
@@ -181,8 +223,11 @@ source "drivers/ipack/Kconfig"
 
 source "drivers/reset/Kconfig"
 
+<<<<<<< HEAD
 source "drivers/fmc/Kconfig"
 
+=======
+>>>>>>> upstream/android-13
 source "drivers/phy/Kconfig"
 
 source "drivers/powercap/Kconfig"
@@ -225,6 +270,7 @@ source "drivers/slimbus/Kconfig"
 
 source "drivers/interconnect/Kconfig"
 
+<<<<<<< HEAD
 source "drivers/energy_model/Kconfig"
 
 source "drivers/switch/Kconfig"
@@ -254,11 +300,68 @@ source "drivers/samsung/pm/sec_thermistor/Kconfig" # ADDED BY LEGO AUTOMATICALLY
 source "drivers/input/misc/hall/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
 source "drivers/regulator/s2mpb03/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
 source "drivers/battery/common/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+=======
+source "drivers/counter/Kconfig"
+
+source "drivers/bts/Kconfig"
+
+source "drivers/most/Kconfig"
+
+source "drivers/gud/Kconfig"
+
+source "drivers/vision/Kconfig"
+
+source "drivers/samsung/Kconfig"
+
+if EXYNOS_VARIANT1
+source "drivers/Kconfig.variant1"
+endif
+
+source "drivers/sti/Kconfig"
+
+source "drivers/mfd/slsi/s2mf301/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+source "drivers/vibrator/common/vib_info/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+source "drivers/muic/slsi/platform/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+source "drivers/vibrator/common/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+source "drivers/battery/fuelgauge/sm5714_fuelgauge/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+source "drivers/battery/fuelgauge/s2mf301_fuelgauge/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+source "drivers/misc/drb/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+source "drivers/gpu/drm/samsung/panel/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+>>>>>>> upstream/android-13
 source "drivers/sensorhub/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
 source "drivers/sensorhub/debug/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
 source "drivers/sensorhub/sensor/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
 source "drivers/sensorhub/sensorhub/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
 source "drivers/sensorhub/vendor/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+<<<<<<< HEAD
 source "drivers/input/touchscreen/goodix/berlin/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
 source "drivers/sensors_lego/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+=======
+source "drivers/samsung/debug/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+source "drivers/net/dropdump/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+source "drivers/input/input_boost/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+source "drivers/usb/common/vbus_notifier/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+source "drivers/gpu/drm/samsung/panel/tft_common/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+source "drivers/battery/core/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+source "drivers/muic/common/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+source "drivers/usb/typec/slsi/s2mf301/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+source "drivers/usb/typec/manager/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+source "drivers/input/sec_input/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+source "drivers/fingerprint/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+source "drivers/usb/typec/slsi/common/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+source "drivers/battery/charger/sm5714_charger/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+source "drivers/battery/charger/s2mf301_charger/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+source "drivers/usb/typec/common/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+source "drivers/muic/slsi/s2mf301/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+source "drivers/mfd/sm/sm5714/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+source "drivers/input/touchscreen/novatek/nt36523_spi/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+source "drivers/input/touchscreen/ovt/td4150_spi/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+source "drivers/input/touchscreen/ilitek/ili9881x/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+source "drivers/sensors_lego/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+source "drivers/battery/common/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+source "drivers/samsung/pm/sec_thermistor/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+source "drivers/muic/sm/sm5714/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+source "drivers/usb/typec/sm/sm5714/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+source "drivers/vibrator/dc/Kconfig" # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
+>>>>>>> upstream/android-13
 endmenu

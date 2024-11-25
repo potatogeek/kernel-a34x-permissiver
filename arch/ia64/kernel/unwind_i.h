@@ -42,7 +42,11 @@ enum unw_register_index {
 
 struct unw_info_block {
 	u64 header;
+<<<<<<< HEAD
 	u64 desc[0];		/* unwind descriptors */
+=======
+	u64 desc[];		/* unwind descriptors */
+>>>>>>> upstream/android-13
 	/* personality routine and language-specific data follow behind descriptors */
 };
 

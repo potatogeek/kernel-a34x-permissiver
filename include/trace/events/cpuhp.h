@@ -30,7 +30,11 @@ TRACE_EVENT(cpuhp_enter,
 		__entry->fun	= fun;
 	),
 
+<<<<<<< HEAD
 	TP_printk("cpu: %04u target: %3d step: %3d (%pf)",
+=======
+	TP_printk("cpu: %04u target: %3d step: %3d (%ps)",
+>>>>>>> upstream/android-13
 		  __entry->cpu, __entry->target, __entry->idx, __entry->fun)
 );
 
@@ -58,7 +62,11 @@ TRACE_EVENT(cpuhp_multi_enter,
 		__entry->fun	= fun;
 	),
 
+<<<<<<< HEAD
 	TP_printk("cpu: %04u target: %3d step: %3d (%pf)",
+=======
+	TP_printk("cpu: %04u target: %3d step: %3d (%ps)",
+>>>>>>> upstream/android-13
 		  __entry->cpu, __entry->target, __entry->idx, __entry->fun)
 );
 

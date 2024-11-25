@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) ST-Ericsson SA 2010
  *
  * License Terms: GNU General Public License, version 2
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) ST-Ericsson SA 2010
+ *
+>>>>>>> upstream/android-13
  * Author: Rabin Vincent <rabin.vincent@stericsson.com> for ST-Ericsson
  */
 
@@ -84,7 +91,14 @@ static int stmpe_gpio_get_direction(struct gpio_chip *chip,
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	return !(ret & mask);
+=======
+	if (ret & mask)
+		return GPIO_LINE_DIRECTION_OUT;
+
+	return GPIO_LINE_DIRECTION_IN;
+>>>>>>> upstream/android-13
 }
 
 static int stmpe_gpio_direction_output(struct gpio_chip *chip,
@@ -305,7 +319,11 @@ static void stmpe_dbg_show_one(struct seq_file *s,
 			if (ret < 0)
 				return;
 			edge_det = !!(ret & mask);
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case STMPE1801:
 			rise_reg = stmpe->regs[STMPE_IDX_GPRER_LSB + bank];
 			fall_reg = stmpe->regs[STMPE_IDX_GPFER_LSB + bank];
@@ -318,7 +336,11 @@ static void stmpe_dbg_show_one(struct seq_file *s,
 			if (ret < 0)
 				return;
 			fall = !!(ret & mask);
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case STMPE801:
 		case STMPE1600:
 			irqen_reg = stmpe->regs[STMPE_IDX_IEGPIOR_LSB + bank];
@@ -429,6 +451,31 @@ static irqreturn_t stmpe_gpio_irq(int irq, void *dev)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
+=======
+static void stmpe_init_irq_valid_mask(struct gpio_chip *gc,
+				      unsigned long *valid_mask,
+				      unsigned int ngpios)
+{
+	struct stmpe_gpio *stmpe_gpio = gpiochip_get_data(gc);
+	int i;
+
+	if (!stmpe_gpio->norequest_mask)
+		return;
+
+	/* Forbid unused lines to be mapped as IRQs */
+	for (i = 0; i < sizeof(u32); i++) {
+		if (stmpe_gpio->norequest_mask & BIT(i))
+			clear_bit(i, valid_mask);
+	}
+}
+
+static void stmpe_gpio_disable(void *stmpe)
+{
+	stmpe_disable(stmpe, STMPE_BLOCK_GPIO);
+}
+
+>>>>>>> upstream/android-13
 static int stmpe_gpio_probe(struct platform_device *pdev)
 {
 	struct stmpe *stmpe = dev_get_drvdata(pdev->dev.parent);
@@ -441,7 +488,11 @@ static int stmpe_gpio_probe(struct platform_device *pdev)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	stmpe_gpio = kzalloc(sizeof(*stmpe_gpio), GFP_KERNEL);
+=======
+	stmpe_gpio = devm_kzalloc(&pdev->dev, sizeof(*stmpe_gpio), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!stmpe_gpio)
 		return -ENOMEM;
 
@@ -460,8 +511,11 @@ static int stmpe_gpio_probe(struct platform_device *pdev)
 
 	of_property_read_u32(np, "st,norequest-mask",
 			&stmpe_gpio->norequest_mask);
+<<<<<<< HEAD
 	if (stmpe_gpio->norequest_mask)
 		stmpe_gpio->chip.irq.need_valid_mask = true;
+=======
+>>>>>>> upstream/android-13
 
 	irq = platform_get_irq(pdev, 0);
 	if (irq < 0)
@@ -471,6 +525,7 @@ static int stmpe_gpio_probe(struct platform_device *pdev)
 
 	ret = stmpe_enable(stmpe, STMPE_BLOCK_GPIO);
 	if (ret)
+<<<<<<< HEAD
 		goto out_free;
 
 	ret = gpiochip_add_data(&stmpe_gpio->chip, stmpe_gpio);
@@ -480,11 +535,23 @@ static int stmpe_gpio_probe(struct platform_device *pdev)
 	}
 
 	if (irq > 0) {
+=======
+		return ret;
+
+	ret = devm_add_action_or_reset(&pdev->dev, stmpe_gpio_disable, stmpe);
+	if (ret)
+		return ret;
+
+	if (irq > 0) {
+		struct gpio_irq_chip *girq;
+
+>>>>>>> upstream/android-13
 		ret = devm_request_threaded_irq(&pdev->dev, irq, NULL,
 				stmpe_gpio_irq, IRQF_ONESHOT,
 				"stmpe-gpio", stmpe_gpio);
 		if (ret) {
 			dev_err(&pdev->dev, "unable to get irq: %d\n", ret);
+<<<<<<< HEAD
 			goto out_disable;
 		}
 		if (stmpe_gpio->norequest_mask) {
@@ -521,6 +588,24 @@ out_disable:
 out_free:
 	kfree(stmpe_gpio);
 	return ret;
+=======
+			return ret;
+		}
+
+		girq = &stmpe_gpio->chip.irq;
+		girq->chip = &stmpe_gpio_irq_chip;
+		/* This will let us handle the parent IRQ in the driver */
+		girq->parent_handler = NULL;
+		girq->num_parents = 0;
+		girq->parents = NULL;
+		girq->default_type = IRQ_TYPE_NONE;
+		girq->handler = handle_simple_irq;
+		girq->threaded = true;
+		girq->init_valid_mask = stmpe_init_irq_valid_mask;
+	}
+
+	return devm_gpiochip_add_data(&pdev->dev, &stmpe_gpio->chip, stmpe_gpio);
+>>>>>>> upstream/android-13
 }
 
 static struct platform_driver stmpe_gpio_driver = {

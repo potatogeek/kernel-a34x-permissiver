@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) Ericsson AB 2007-2008
  * Copyright (C) ST-Ericsson SA 2008-2010
  * Author: Per Forlin <per.forlin@stericsson.com> for ST-Ericsson
  * Author: Jonas Aaberg <jonas.aberg@stericsson.com> for ST-Ericsson
+<<<<<<< HEAD
  * License terms: GNU General Public License (GPL) version 2
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/dma-mapping.h>
@@ -78,7 +85,11 @@ static int dma40_memcpy_channels[] = {
 	DB8500_DMA_MEMCPY_EV_5,
 };
 
+<<<<<<< HEAD
 /* Default configuration for physcial memcpy */
+=======
+/* Default configuration for physical memcpy */
+>>>>>>> upstream/android-13
 static const struct stedma40_chan_cfg dma40_memcpy_conf_phy = {
 	.mode = STEDMA40_MODE_PHYSICAL,
 	.dir = DMA_MEM_TO_MEM,
@@ -381,6 +392,10 @@ struct d40_desc {
  * struct d40_lcla_pool - LCLA pool settings and data.
  *
  * @base: The virtual address of LCLA. 18 bit aligned.
+<<<<<<< HEAD
+=======
+ * @dma_addr: DMA address, if mapped
+>>>>>>> upstream/android-13
  * @base_unaligned: The orignal kmalloc pointer, if kmalloc is used.
  * This pointer is only there for clean-up on error.
  * @pages: The number of pages needed for all physical channels.
@@ -442,6 +457,10 @@ struct d40_base;
  * @queue: Queued jobs.
  * @prepare_queue: Prepared jobs.
  * @dma_cfg: The client configuration of this dma channel.
+<<<<<<< HEAD
+=======
+ * @slave_config: DMA slave configuration.
+>>>>>>> upstream/android-13
  * @configured: whether the dma_cfg configuration is valid
  * @base: Pointer to the device instance struct.
  * @src_def_cfg: Default cfg register setting for src.
@@ -468,6 +487,10 @@ struct d40_chan {
 	struct list_head		 queue;
 	struct list_head		 prepare_queue;
 	struct stedma40_chan_cfg	 dma_cfg;
+<<<<<<< HEAD
+=======
+	struct dma_slave_config		 slave_config;
+>>>>>>> upstream/android-13
 	bool				 configured;
 	struct d40_base			*base;
 	/* Default register configurations */
@@ -573,7 +596,10 @@ struct d40_base {
 	int				  num_memcpy_chans;
 	int				  num_phy_chans;
 	int				  num_log_chans;
+<<<<<<< HEAD
 	struct device_dma_parameters	  dma_parms;
+=======
+>>>>>>> upstream/android-13
 	struct dma_device		  dma_both;
 	struct dma_device		  dma_slave;
 	struct dma_device		  dma_memcpy;
@@ -625,6 +651,13 @@ static void __iomem *chan_base(struct d40_chan *chan)
 #define chan_err(d40c, format, arg...)		\
 	d40_err(chan2dev(d40c), format, ## arg)
 
+<<<<<<< HEAD
+=======
+static int d40_set_runtime_config_write(struct dma_chan *chan,
+				  struct dma_slave_config *config,
+				  enum dma_transfer_direction direction);
+
+>>>>>>> upstream/android-13
 static int d40_pool_lli_alloc(struct d40_chan *d40c, struct d40_desc *d40d,
 			      int lli_len)
 {
@@ -1565,9 +1598,15 @@ static void dma_tc_handle(struct d40_chan *d40c)
 
 }
 
+<<<<<<< HEAD
 static void dma_tasklet(unsigned long data)
 {
 	struct d40_chan *d40c = (struct d40_chan *) data;
+=======
+static void dma_tasklet(struct tasklet_struct *t)
+{
+	struct d40_chan *d40c = from_tasklet(d40c, t, tasklet);
+>>>>>>> upstream/android-13
 	struct d40_desc *d40d;
 	unsigned long flags;
 	bool callback_active;
@@ -1637,13 +1676,20 @@ static irqreturn_t d40_handle_interrupt(int irq, void *data)
 	u32 row;
 	long chan = -1;
 	struct d40_chan *d40c;
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 	struct d40_base *base = data;
 	u32 *regs = base->regs_interrupt;
 	struct d40_interrupt_lookup *il = base->gen_dmac.il;
 	u32 il_size = base->gen_dmac.il_size;
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&base->interrupt_lock, flags);
+=======
+	spin_lock(&base->interrupt_lock);
+>>>>>>> upstream/android-13
 
 	/* Read interrupt status of both logical and physical channels */
 	for (i = 0; i < il_size; i++)
@@ -1688,7 +1734,11 @@ static irqreturn_t d40_handle_interrupt(int irq, void *data)
 		spin_unlock(&d40c->lock);
 	}
 
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&base->interrupt_lock, flags);
+=======
+	spin_unlock(&base->interrupt_lock);
+>>>>>>> upstream/android-13
 
 	return IRQ_HANDLED;
 }
@@ -2216,6 +2266,11 @@ d40_prep_sg(struct dma_chan *dchan, struct scatterlist *sg_src,
 		return NULL;
 	}
 
+<<<<<<< HEAD
+=======
+	d40_set_runtime_config_write(dchan, &chan->slave_config, direction);
+
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&chan->lock, flags);
 
 	desc = d40_prep_desc(chan, sg_src, sg_len, dma_flags);
@@ -2634,11 +2689,29 @@ dma40_config_to_halfchannel(struct d40_chan *d40c,
 	return 0;
 }
 
+<<<<<<< HEAD
 /* Runtime reconfiguration extension */
+=======
+>>>>>>> upstream/android-13
 static int d40_set_runtime_config(struct dma_chan *chan,
 				  struct dma_slave_config *config)
 {
 	struct d40_chan *d40c = container_of(chan, struct d40_chan, chan);
+<<<<<<< HEAD
+=======
+
+	memcpy(&d40c->slave_config, config, sizeof(*config));
+
+	return 0;
+}
+
+/* Runtime reconfiguration extension */
+static int d40_set_runtime_config_write(struct dma_chan *chan,
+				  struct dma_slave_config *config,
+				  enum dma_transfer_direction direction)
+{
+	struct d40_chan *d40c = container_of(chan, struct d40_chan, chan);
+>>>>>>> upstream/android-13
 	struct stedma40_chan_cfg *cfg = &d40c->dma_cfg;
 	enum dma_slave_buswidth src_addr_width, dst_addr_width;
 	dma_addr_t config_addr;
@@ -2655,7 +2728,11 @@ static int d40_set_runtime_config(struct dma_chan *chan,
 	dst_addr_width = config->dst_addr_width;
 	dst_maxburst = config->dst_maxburst;
 
+<<<<<<< HEAD
 	if (config->direction == DMA_DEV_TO_MEM) {
+=======
+	if (direction == DMA_DEV_TO_MEM) {
+>>>>>>> upstream/android-13
 		config_addr = config->src_addr;
 
 		if (cfg->dir != DMA_DEV_TO_MEM)
@@ -2671,7 +2748,11 @@ static int d40_set_runtime_config(struct dma_chan *chan,
 		if (dst_maxburst == 0)
 			dst_maxburst = src_maxburst;
 
+<<<<<<< HEAD
 	} else if (config->direction == DMA_MEM_TO_DEV) {
+=======
+	} else if (direction == DMA_MEM_TO_DEV) {
+>>>>>>> upstream/android-13
 		config_addr = config->dst_addr;
 
 		if (cfg->dir != DMA_MEM_TO_DEV)
@@ -2689,7 +2770,11 @@ static int d40_set_runtime_config(struct dma_chan *chan,
 	} else {
 		dev_err(d40c->base->dev,
 			"unrecognized channel direction %d\n",
+<<<<<<< HEAD
 			config->direction);
+=======
+			direction);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -2746,12 +2831,20 @@ static int d40_set_runtime_config(struct dma_chan *chan,
 
 	/* These settings will take precedence later */
 	d40c->runtime_addr = config_addr;
+<<<<<<< HEAD
 	d40c->runtime_direction = config->direction;
+=======
+	d40c->runtime_direction = direction;
+>>>>>>> upstream/android-13
 	dev_dbg(d40c->base->dev,
 		"configured channel %s for %s, data width %d/%d, "
 		"maxburst %d/%d elements, LE, no flow control\n",
 		dma_chan_name(chan),
+<<<<<<< HEAD
 		(config->direction == DMA_DEV_TO_MEM) ? "RX" : "TX",
+=======
+		(direction == DMA_DEV_TO_MEM) ? "RX" : "TX",
+>>>>>>> upstream/android-13
 		src_addr_width, dst_addr_width,
 		src_maxburst, dst_maxburst);
 
@@ -2785,8 +2878,12 @@ static void __init d40_chan_init(struct d40_base *base, struct dma_device *dma,
 		INIT_LIST_HEAD(&d40c->client);
 		INIT_LIST_HEAD(&d40c->prepare_queue);
 
+<<<<<<< HEAD
 		tasklet_init(&d40c->tasklet, dma_tasklet,
 			     (unsigned long) d40c);
+=======
+		tasklet_setup(&d40c->tasklet, dma_tasklet);
+>>>>>>> upstream/android-13
 
 		list_add_tail(&d40c->chan.device_node,
 			      &dma->channels);
@@ -2839,7 +2936,11 @@ static int __init d40_dmaengine_init(struct d40_base *base,
 
 	d40_ops_init(base, &base->dma_slave);
 
+<<<<<<< HEAD
 	err = dma_async_device_register(&base->dma_slave);
+=======
+	err = dmaenginem_async_device_register(&base->dma_slave);
+>>>>>>> upstream/android-13
 
 	if (err) {
 		d40_err(base->dev, "Failed to register slave channels\n");
@@ -2854,12 +2955,20 @@ static int __init d40_dmaengine_init(struct d40_base *base,
 
 	d40_ops_init(base, &base->dma_memcpy);
 
+<<<<<<< HEAD
 	err = dma_async_device_register(&base->dma_memcpy);
+=======
+	err = dmaenginem_async_device_register(&base->dma_memcpy);
+>>>>>>> upstream/android-13
 
 	if (err) {
 		d40_err(base->dev,
 			"Failed to register memcpy only channels\n");
+<<<<<<< HEAD
 		goto unregister_slave;
+=======
+		goto exit;
+>>>>>>> upstream/android-13
 	}
 
 	d40_chan_init(base, &base->dma_both, base->phy_chans,
@@ -2871,11 +2980,16 @@ static int __init d40_dmaengine_init(struct d40_base *base,
 	dma_cap_set(DMA_CYCLIC, base->dma_slave.cap_mask);
 
 	d40_ops_init(base, &base->dma_both);
+<<<<<<< HEAD
 	err = dma_async_device_register(&base->dma_both);
+=======
+	err = dmaenginem_async_device_register(&base->dma_both);
+>>>>>>> upstream/android-13
 
 	if (err) {
 		d40_err(base->dev,
 			"Failed to register logical and physical capable channels\n");
+<<<<<<< HEAD
 		goto unregister_memcpy;
 	}
 	return 0;
@@ -2883,6 +2997,11 @@ static int __init d40_dmaengine_init(struct d40_base *base,
 	dma_async_device_unregister(&base->dma_memcpy);
  unregister_slave:
 	dma_async_device_unregister(&base->dma_slave);
+=======
+		goto exit;
+	}
+	return 0;
+>>>>>>> upstream/android-13
  exit:
 	return err;
 }
@@ -3624,7 +3743,10 @@ static int __init d40_probe(struct platform_device *pdev)
 	if (ret)
 		goto destroy_cache;
 
+<<<<<<< HEAD
 	base->dev->dma_parms = &base->dma_parms;
+=======
+>>>>>>> upstream/android-13
 	ret = dma_set_max_seg_size(base->dev, STEDMA40_MAX_SEG_SIZE);
 	if (ret) {
 		d40_err(&pdev->dev, "Failed to set dma max seg size\n");
@@ -3663,6 +3785,12 @@ static int __init d40_probe(struct platform_device *pdev)
 
 	kfree(base->lcla_pool.base_unaligned);
 
+<<<<<<< HEAD
+=======
+	if (base->lcpa_base)
+		iounmap(base->lcpa_base);
+
+>>>>>>> upstream/android-13
 	if (base->phy_lcpa)
 		release_mem_region(base->phy_lcpa,
 				   base->lcpa_size);

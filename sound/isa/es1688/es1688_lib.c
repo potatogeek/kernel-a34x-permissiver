@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
  *  Routines for control of ESS ES1688/688/488 chip
@@ -17,6 +18,12 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
+ *  Routines for control of ESS ES1688/688/488 chip
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -121,7 +128,11 @@ EXPORT_SYMBOL(snd_es1688_reset);
 static int snd_es1688_probe(struct snd_es1688 *chip)
 {
 	unsigned long flags;
+<<<<<<< HEAD
 	unsigned short major, minor, hw;
+=======
+	unsigned short major, minor;
+>>>>>>> upstream/android-13
 	int i;
 
 	/*
@@ -166,14 +177,20 @@ static int snd_es1688_probe(struct snd_es1688 *chip)
 	if (!chip->version)
 		return -ENODEV;	/* probably SB */
 
+<<<<<<< HEAD
 	hw = ES1688_HW_AUTO;
+=======
+>>>>>>> upstream/android-13
 	switch (chip->version & 0xfff0) {
 	case 0x4880:
 		snd_printk(KERN_ERR "[0x%lx] ESS: AudioDrive ES488 detected, "
 			   "but driver is in another place\n", chip->port);
 		return -ENODEV;
 	case 0x6880:
+<<<<<<< HEAD
 		hw = (chip->version & 0x0f) >= 8 ? ES1688_HW_1688 : ES1688_HW_688;
+=======
+>>>>>>> upstream/android-13
 		break;
 	default:
 		snd_printk(KERN_ERR "[0x%lx] ESS: unknown AudioDrive chip "
@@ -197,7 +214,11 @@ static int snd_es1688_probe(struct snd_es1688 *chip)
 
 static int snd_es1688_init(struct snd_es1688 * chip, int enable)
 {
+<<<<<<< HEAD
 	static int irqs[16] = {-1, -1, 0, -1, -1, 1, -1, 2, -1, 0, 3, -1, -1, -1, -1, -1};
+=======
+	static const int irqs[16] = {-1, -1, 0, -1, -1, 1, -1, 2, -1, 0, 3, -1, -1, -1, -1, -1};
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	int cfg, irq_bits, dma, dma_bits, tmp, tmp1;
 
@@ -326,12 +347,15 @@ static void snd_es1688_set_rate(struct snd_es1688 *chip, struct snd_pcm_substrea
 	snd_es1688_write(chip, 0xa2, divider);
 }
 
+<<<<<<< HEAD
 static int snd_es1688_ioctl(struct snd_pcm_substream *substream,
 			    unsigned int cmd, void *arg)
 {
 	return snd_pcm_lib_ioctl(substream, cmd, arg);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int snd_es1688_trigger(struct snd_es1688 *chip, int cmd, unsigned char value)
 {
 	int val;
@@ -358,6 +382,7 @@ static int snd_es1688_trigger(struct snd_es1688 *chip, int cmd, unsigned char va
 	return 0;
 }
 
+<<<<<<< HEAD
 static int snd_es1688_hw_params(struct snd_pcm_substream *substream,
 				struct snd_pcm_hw_params *hw_params)
 {
@@ -369,6 +394,8 @@ static int snd_es1688_hw_free(struct snd_pcm_substream *substream)
 	return snd_pcm_lib_free_pages(substream);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int snd_es1688_playback_prepare(struct snd_pcm_substream *substream)
 {
 	unsigned long flags;
@@ -646,7 +673,11 @@ int snd_es1688_create(struct snd_card *card,
 		      int dma8,
 		      unsigned short hardware)
 {
+<<<<<<< HEAD
 	static struct snd_device_ops ops = {
+=======
+	static const struct snd_device_ops ops = {
+>>>>>>> upstream/android-13
 		.dev_free =	snd_es1688_dev_free,
 	};
                                 
@@ -672,6 +703,10 @@ int snd_es1688_create(struct snd_card *card,
 	}
 
 	chip->irq = irq;
+<<<<<<< HEAD
+=======
+	card->sync_irq = chip->irq;
+>>>>>>> upstream/android-13
 	err = request_dma(dma8, "ES1688");
 
 	if (err < 0) {
@@ -709,9 +744,12 @@ exit:
 static const struct snd_pcm_ops snd_es1688_playback_ops = {
 	.open =			snd_es1688_playback_open,
 	.close =		snd_es1688_playback_close,
+<<<<<<< HEAD
 	.ioctl =		snd_es1688_ioctl,
 	.hw_params =		snd_es1688_hw_params,
 	.hw_free =		snd_es1688_hw_free,
+=======
+>>>>>>> upstream/android-13
 	.prepare =		snd_es1688_playback_prepare,
 	.trigger =		snd_es1688_playback_trigger,
 	.pointer =		snd_es1688_playback_pointer,
@@ -720,9 +758,12 @@ static const struct snd_pcm_ops snd_es1688_playback_ops = {
 static const struct snd_pcm_ops snd_es1688_capture_ops = {
 	.open =			snd_es1688_capture_open,
 	.close =		snd_es1688_capture_close,
+<<<<<<< HEAD
 	.ioctl =		snd_es1688_ioctl,
 	.hw_params =		snd_es1688_hw_params,
 	.hw_free =		snd_es1688_hw_free,
+=======
+>>>>>>> upstream/android-13
 	.prepare =		snd_es1688_capture_prepare,
 	.trigger =		snd_es1688_capture_trigger,
 	.pointer =		snd_es1688_capture_pointer,
@@ -745,9 +786,14 @@ int snd_es1688_pcm(struct snd_card *card, struct snd_es1688 *chip, int device)
 	strcpy(pcm->name, snd_es1688_chip_id(chip));
 	chip->pcm = pcm;
 
+<<<<<<< HEAD
 	snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_DEV,
 					      snd_dma_isa_data(),
 					      64*1024, 64*1024);
+=======
+	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_DEV, card->dev,
+				       64*1024, 64*1024);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -964,7 +1010,11 @@ static int snd_es1688_put_double(struct snd_kcontrol *kcontrol, struct snd_ctl_e
 	return change;
 }
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_es1688_controls[] = {
+=======
+static const struct snd_kcontrol_new snd_es1688_controls[] = {
+>>>>>>> upstream/android-13
 ES1688_DOUBLE("Master Playback Volume", 0, ES1688_MASTER_DEV, ES1688_MASTER_DEV, 4, 0, 15, 0),
 ES1688_DOUBLE("PCM Playback Volume", 0, ES1688_PCM_DEV, ES1688_PCM_DEV, 4, 0, 15, 0),
 ES1688_DOUBLE("Line Playback Volume", 0, ES1688_LINE_DEV, ES1688_LINE_DEV, 4, 0, 15, 0),
@@ -986,7 +1036,11 @@ ES1688_SINGLE("Capture Switch", 0, ES1688_REC_DEV, 4, 1, 1),
 
 #define ES1688_INIT_TABLE_SIZE (sizeof(snd_es1688_init_table)/2)
 
+<<<<<<< HEAD
 static unsigned char snd_es1688_init_table[][2] = {
+=======
+static const unsigned char snd_es1688_init_table[][2] = {
+>>>>>>> upstream/android-13
 	{ ES1688_MASTER_DEV, 0 },
 	{ ES1688_PCM_DEV, 0 },
 	{ ES1688_LINE_DEV, 0 },
@@ -1011,7 +1065,12 @@ int snd_es1688_mixer(struct snd_card *card, struct snd_es1688 *chip)
 	strcpy(card->mixername, snd_es1688_chip_id(chip));
 
 	for (idx = 0; idx < ARRAY_SIZE(snd_es1688_controls); idx++) {
+<<<<<<< HEAD
 		if ((err = snd_ctl_add(card, snd_ctl_new1(&snd_es1688_controls[idx], chip))) < 0)
+=======
+		err = snd_ctl_add(card, snd_ctl_new1(&snd_es1688_controls[idx], chip));
+		if (err < 0)
+>>>>>>> upstream/android-13
 			return err;
 	}
 	for (idx = 0; idx < ES1688_INIT_TABLE_SIZE; idx++) {

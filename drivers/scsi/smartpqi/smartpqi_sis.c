@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *    driver for Microsemi PQI-based storage controllers
  *    Copyright (c) 2016-2017 Microsemi Corporation
@@ -13,6 +14,16 @@
  *    NON INFRINGEMENT.  See the GNU General Public License for more details.
  *
  *    Questions/Comments/Bugfixes to esc.storagedev@microsemi.com
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ *    driver for Microchip PQI-based storage controllers
+ *    Copyright (c) 2019-2021 Microchip Technology Inc. and its subsidiaries
+ *    Copyright (c) 2016-2018 Microsemi Corporation
+ *    Copyright (c) 2016 PMC-Sierra, Inc.
+ *
+ *    Questions/Comments/Bugfixes to storagedev@microchip.com
+>>>>>>> upstream/android-13
  *
  */
 
@@ -34,6 +45,10 @@
 #define SIS_REENABLE_SIS_MODE			0x1
 #define SIS_ENABLE_MSIX				0x40
 #define SIS_ENABLE_INTX				0x80
+<<<<<<< HEAD
+=======
+#define SIS_SOFT_RESET				0x100
+>>>>>>> upstream/android-13
 #define SIS_CMD_READY				0x200
 #define SIS_TRIGGER_SHUTDOWN			0x800000
 #define SIS_PQI_RESET_QUIESCE			0x1000000
@@ -57,12 +72,26 @@
 #define SIS_BASE_STRUCT_REVISION		9
 #define SIS_BASE_STRUCT_ALIGNMENT		16
 
+<<<<<<< HEAD
+=======
+#define SIS_CTRL_KERNEL_FW_TRIAGE		0x3
+>>>>>>> upstream/android-13
 #define SIS_CTRL_KERNEL_UP			0x80
 #define SIS_CTRL_KERNEL_PANIC			0x100
 #define SIS_CTRL_READY_TIMEOUT_SECS		180
 #define SIS_CTRL_READY_RESUME_TIMEOUT_SECS	90
 #define SIS_CTRL_READY_POLL_INTERVAL_MSECS	10
 
+<<<<<<< HEAD
+=======
+enum sis_fw_triage_status {
+	FW_TRIAGE_NOT_STARTED = 0,
+	FW_TRIAGE_STARTED,
+	FW_TRIAGE_COND_INVALID,
+	FW_TRIAGE_COMPLETED
+};
+
+>>>>>>> upstream/android-13
 #pragma pack(1)
 
 /* for use with SIS_CMD_INIT_BASE_STRUCT_ADDRESS command */
@@ -77,7 +106,11 @@ struct sis_base_struct {
 						/* error response data */
 	__le32	error_buffer_element_length;	/* length of each PQI error */
 						/* response buffer element */
+<<<<<<< HEAD
 						/*   in bytes */
+=======
+						/* in bytes */
+>>>>>>> upstream/android-13
 	__le32	error_buffer_num_elements;	/* total number of PQI error */
 						/* response buffers available */
 };
@@ -90,7 +123,11 @@ static int sis_wait_for_ctrl_ready_with_timeout(struct pqi_ctrl_info *ctrl_info,
 	unsigned long timeout;
 	u32 status;
 
+<<<<<<< HEAD
 	timeout = (timeout_secs * HZ) + jiffies;
+=======
+	timeout = (timeout_secs * PQI_HZ) + jiffies;
+>>>>>>> upstream/android-13
 
 	while (1) {
 		status = readl(&ctrl_info->registers->sis_firmware_status);
@@ -152,7 +189,16 @@ bool sis_is_firmware_running(struct pqi_ctrl_info *ctrl_info)
 bool sis_is_kernel_up(struct pqi_ctrl_info *ctrl_info)
 {
 	return readl(&ctrl_info->registers->sis_firmware_status) &
+<<<<<<< HEAD
 				SIS_CTRL_KERNEL_UP;
+=======
+		SIS_CTRL_KERNEL_UP;
+}
+
+u32 sis_get_product_id(struct pqi_ctrl_info *ctrl_info)
+{
+	return readl(&ctrl_info->registers->sis_product_identifier);
+>>>>>>> upstream/android-13
 }
 
 /* used for passing command parameters/results when issuing SIS commands */
@@ -202,7 +248,11 @@ static int sis_send_sync_cmd(struct pqi_ctrl_info *ctrl_info,
 	 * the top of the loop in order to give the controller time to start
 	 * processing the command before we start polling.
 	 */
+<<<<<<< HEAD
 	timeout = (SIS_CMD_COMPLETE_TIMEOUT_SECS * HZ) + jiffies;
+=======
+	timeout = (SIS_CMD_COMPLETE_TIMEOUT_SECS * PQI_HZ) + jiffies;
+>>>>>>> upstream/android-13
 	while (1) {
 		msleep(SIS_CMD_COMPLETE_POLL_INTERVAL_MSECS);
 		doorbell = readl(&registers->sis_ctrl_to_host_doorbell);
@@ -316,9 +366,15 @@ int sis_init_base_struct_addr(struct pqi_ctrl_info *ctrl_info)
 	put_unaligned_le32(ctrl_info->max_io_slots,
 		&base_struct->error_buffer_num_elements);
 
+<<<<<<< HEAD
 	bus_address = pci_map_single(ctrl_info->pci_dev, base_struct,
 		sizeof(*base_struct), PCI_DMA_TODEVICE);
 	if (pci_dma_mapping_error(ctrl_info->pci_dev, bus_address)) {
+=======
+	bus_address = dma_map_single(&ctrl_info->pci_dev->dev, base_struct,
+		sizeof(*base_struct), DMA_TO_DEVICE);
+	if (dma_mapping_error(&ctrl_info->pci_dev->dev, bus_address)) {
+>>>>>>> upstream/android-13
 		rc = -ENOMEM;
 		goto out;
 	}
@@ -331,9 +387,14 @@ int sis_init_base_struct_addr(struct pqi_ctrl_info *ctrl_info)
 	rc = sis_send_sync_cmd(ctrl_info, SIS_CMD_INIT_BASE_STRUCT_ADDRESS,
 		&params);
 
+<<<<<<< HEAD
 	pci_unmap_single(ctrl_info->pci_dev, bus_address, sizeof(*base_struct),
 		PCI_DMA_TODEVICE);
 
+=======
+	dma_unmap_single(&ctrl_info->pci_dev->dev, bus_address,
+			sizeof(*base_struct), DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 out:
 	kfree(base_struct_unaligned);
 
@@ -349,7 +410,11 @@ static int sis_wait_for_doorbell_bit_to_clear(
 	u32 doorbell_register;
 	unsigned long timeout;
 
+<<<<<<< HEAD
 	timeout = (SIS_DOORBELL_BIT_CLEAR_TIMEOUT_SECS * HZ) + jiffies;
+=======
+	timeout = (SIS_DOORBELL_BIT_CLEAR_TIMEOUT_SECS * PQI_HZ) + jiffies;
+>>>>>>> upstream/android-13
 
 	while (1) {
 		doorbell_register =
@@ -421,6 +486,58 @@ u32 sis_read_driver_scratch(struct pqi_ctrl_info *ctrl_info)
 	return readl(&ctrl_info->registers->sis_driver_scratch);
 }
 
+<<<<<<< HEAD
+=======
+static inline enum sis_fw_triage_status
+	sis_read_firmware_triage_status(struct pqi_ctrl_info *ctrl_info)
+{
+	return ((enum sis_fw_triage_status)(readl(&ctrl_info->registers->sis_firmware_status) &
+		SIS_CTRL_KERNEL_FW_TRIAGE));
+}
+
+void sis_soft_reset(struct pqi_ctrl_info *ctrl_info)
+{
+	writel(SIS_SOFT_RESET,
+		&ctrl_info->registers->sis_host_to_ctrl_doorbell);
+}
+
+#define SIS_FW_TRIAGE_STATUS_TIMEOUT_SECS		300
+#define SIS_FW_TRIAGE_STATUS_POLL_INTERVAL_SECS		1
+
+int sis_wait_for_fw_triage_completion(struct pqi_ctrl_info *ctrl_info)
+{
+	int rc;
+	enum sis_fw_triage_status status;
+	unsigned long timeout;
+
+	timeout = (SIS_FW_TRIAGE_STATUS_TIMEOUT_SECS * PQI_HZ) + jiffies;
+	while (1) {
+		status = sis_read_firmware_triage_status(ctrl_info);
+		if (status == FW_TRIAGE_COND_INVALID) {
+			dev_err(&ctrl_info->pci_dev->dev,
+				"firmware triage condition invalid\n");
+			rc = -EINVAL;
+			break;
+		} else if (status == FW_TRIAGE_NOT_STARTED ||
+			status == FW_TRIAGE_COMPLETED) {
+			rc = 0;
+			break;
+		}
+
+		if (time_after(jiffies, timeout)) {
+			dev_err(&ctrl_info->pci_dev->dev,
+				"timed out waiting for firmware triage status\n");
+			rc = -ETIMEDOUT;
+			break;
+		}
+
+		ssleep(SIS_FW_TRIAGE_STATUS_POLL_INTERVAL_SECS);
+	}
+
+	return rc;
+}
+
+>>>>>>> upstream/android-13
 static void __attribute__((unused)) verify_structures(void)
 {
 	BUILD_BUG_ON(offsetof(struct sis_base_struct,

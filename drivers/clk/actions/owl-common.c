@@ -39,7 +39,11 @@ static void owl_clk_set_regmap(const struct owl_clk_desc *desc,
 }
 
 int owl_clk_regmap_init(struct platform_device *pdev,
+<<<<<<< HEAD
 			 const struct owl_clk_desc *desc)
+=======
+			struct owl_clk_desc *desc)
+>>>>>>> upstream/android-13
 {
 	void __iomem *base;
 	struct regmap *regmap;
@@ -57,6 +61,10 @@ int owl_clk_regmap_init(struct platform_device *pdev,
 	}
 
 	owl_clk_set_regmap(desc, regmap);
+<<<<<<< HEAD
+=======
+	desc->regmap = regmap;
+>>>>>>> upstream/android-13
 
 	return 0;
 }

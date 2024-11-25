@@ -59,12 +59,15 @@ Implementing Asynchronous Atomic Commit
 .. kernel-doc:: drivers/gpu/drm/drm_atomic_helper.c
    :doc: implementing nonblocking commit
 
+<<<<<<< HEAD
 Atomic State Reset and Initialization
 -------------------------------------
 
 .. kernel-doc:: drivers/gpu/drm/drm_atomic_helper.c
    :doc: atomic state reset and initialization
 
+=======
+>>>>>>> upstream/android-13
 Helper Functions Reference
 --------------------------
 
@@ -74,6 +77,33 @@ Helper Functions Reference
 .. kernel-doc:: drivers/gpu/drm/drm_atomic_helper.c
    :export:
 
+<<<<<<< HEAD
+=======
+Atomic State Reset and Initialization
+-------------------------------------
+
+.. kernel-doc:: drivers/gpu/drm/drm_atomic_state_helper.c
+   :doc: atomic state reset and initialization
+
+Atomic State Helper Reference
+-----------------------------
+
+.. kernel-doc:: drivers/gpu/drm/drm_atomic_state_helper.c
+   :export:
+
+GEM Atomic Helper Reference
+---------------------------
+
+.. kernel-doc:: drivers/gpu/drm/drm_gem_atomic_helper.c
+   :doc: overview
+
+.. kernel-doc:: include/drm/drm_gem_atomic_helper.h
+   :internal:
+
+.. kernel-doc:: drivers/gpu/drm/drm_gem_atomic_helper.c
+   :export:
+
+>>>>>>> upstream/android-13
 Simple KMS Helper Reference
 ===========================
 
@@ -98,6 +128,15 @@ fbdev Helper Functions Reference
 .. kernel-doc:: drivers/gpu/drm/drm_fb_helper.c
    :export:
 
+<<<<<<< HEAD
+=======
+format Helper Functions Reference
+=================================
+
+.. kernel-doc:: drivers/gpu/drm/drm_format_helper.c
+   :export:
+
+>>>>>>> upstream/android-13
 Framebuffer CMA Helper Functions Reference
 ==========================================
 
@@ -107,8 +146,11 @@ Framebuffer CMA Helper Functions Reference
 .. kernel-doc:: drivers/gpu/drm/drm_fb_cma_helper.c
    :export:
 
+<<<<<<< HEAD
 .. _drm_bridges:
 
+=======
+>>>>>>> upstream/android-13
 Framebuffer GEM Helper Reference
 ================================
 
@@ -118,6 +160,11 @@ Framebuffer GEM Helper Reference
 .. kernel-doc:: drivers/gpu/drm/drm_gem_framebuffer_helper.c
    :export:
 
+<<<<<<< HEAD
+=======
+.. _drm_bridges:
+
+>>>>>>> upstream/android-13
 Bridges
 =======
 
@@ -127,11 +174,25 @@ Overview
 .. kernel-doc:: drivers/gpu/drm/drm_bridge.c
    :doc: overview
 
+<<<<<<< HEAD
 Default bridge callback sequence
 --------------------------------
 
 .. kernel-doc:: drivers/gpu/drm/drm_bridge.c
    :doc: bridge callbacks
+=======
+Bridge Operations
+-----------------
+
+.. kernel-doc:: drivers/gpu/drm/drm_bridge.c
+   :doc: bridge operations
+
+Bridge Connector Helper
+-----------------------
+
+.. kernel-doc:: drivers/gpu/drm/drm_bridge_connector.c
+   :doc: overview
+>>>>>>> upstream/android-13
 
 
 Bridge Helper Reference
@@ -143,6 +204,15 @@ Bridge Helper Reference
 .. kernel-doc:: drivers/gpu/drm/drm_bridge.c
    :export:
 
+<<<<<<< HEAD
+=======
+Bridge Connector Helper Reference
+---------------------------------
+
+.. kernel-doc:: drivers/gpu/drm/drm_bridge_connector.c
+   :export:
+
+>>>>>>> upstream/android-13
 Panel-Bridge Helper Reference
 -----------------------------
 
@@ -166,6 +236,24 @@ Panel Helper Reference
 .. kernel-doc:: drivers/gpu/drm/drm_panel_orientation_quirks.c
    :export:
 
+<<<<<<< HEAD
+=======
+Panel Self Refresh Helper Reference
+===================================
+
+.. kernel-doc:: drivers/gpu/drm/drm_self_refresh_helper.c
+   :doc: overview
+
+.. kernel-doc:: drivers/gpu/drm/drm_self_refresh_helper.c
+   :export:
+
+HDCP Helper Functions Reference
+===============================
+
+.. kernel-doc:: drivers/gpu/drm/drm_hdcp.c
+   :export:
+
+>>>>>>> upstream/android-13
 Display Port Helper Functions Reference
 =======================================
 
@@ -199,18 +287,63 @@ Display Port Dual Mode Adaptor Helper Functions Reference
 .. kernel-doc:: drivers/gpu/drm/drm_dp_dual_mode_helper.c
    :export:
 
+<<<<<<< HEAD
 Display Port MST Helper Functions Reference
 ===========================================
+=======
+Display Port MST Helpers
+========================
+
+Overview
+--------
+>>>>>>> upstream/android-13
 
 .. kernel-doc:: drivers/gpu/drm/drm_dp_mst_topology.c
    :doc: dp mst helper
 
+<<<<<<< HEAD
+=======
+.. kernel-doc:: drivers/gpu/drm/drm_dp_mst_topology.c
+   :doc: Branch device and port refcounting
+
+Functions Reference
+-------------------
+
+>>>>>>> upstream/android-13
 .. kernel-doc:: include/drm/drm_dp_mst_helper.h
    :internal:
 
 .. kernel-doc:: drivers/gpu/drm/drm_dp_mst_topology.c
    :export:
 
+<<<<<<< HEAD
+=======
+Topology Lifetime Internals
+---------------------------
+
+These functions aren't exported to drivers, but are documented here to help make
+the MST topology helpers easier to understand
+
+.. kernel-doc:: drivers/gpu/drm/drm_dp_mst_topology.c
+   :functions: drm_dp_mst_topology_try_get_mstb drm_dp_mst_topology_get_mstb
+               drm_dp_mst_topology_put_mstb
+               drm_dp_mst_topology_try_get_port drm_dp_mst_topology_get_port
+               drm_dp_mst_topology_put_port
+               drm_dp_mst_get_mstb_malloc drm_dp_mst_put_mstb_malloc
+
+MIPI DBI Helper Functions Reference
+===================================
+
+.. kernel-doc:: drivers/gpu/drm/drm_mipi_dbi.c
+   :doc: overview
+
+.. kernel-doc:: include/drm/drm_mipi_dbi.h
+   :internal:
+
+.. kernel-doc:: drivers/gpu/drm/drm_mipi_dbi.c
+   :export:
+
+>>>>>>> upstream/android-13
 MIPI DSI Helper Functions Reference
 ===================================
 
@@ -223,6 +356,21 @@ MIPI DSI Helper Functions Reference
 .. kernel-doc:: drivers/gpu/drm/drm_mipi_dsi.c
    :export:
 
+<<<<<<< HEAD
+=======
+Display Stream Compression Helper Functions Reference
+=====================================================
+
+.. kernel-doc:: drivers/gpu/drm/drm_dsc.c
+   :doc: dsc helpers
+
+.. kernel-doc:: include/drm/drm_dsc.h
+   :internal:
+
+.. kernel-doc:: drivers/gpu/drm/drm_dsc.c
+   :export:
+
+>>>>>>> upstream/android-13
 Output Probing Helper Functions Reference
 =========================================
 
@@ -253,6 +401,7 @@ SCDC Helper Functions Reference
 .. kernel-doc:: drivers/gpu/drm/drm_scdc_helper.c
    :export:
 
+<<<<<<< HEAD
 Rectangle Utilities Reference
 =============================
 
@@ -265,6 +414,8 @@ Rectangle Utilities Reference
 .. kernel-doc:: drivers/gpu/drm/drm_rect.c
    :export:
 
+=======
+>>>>>>> upstream/android-13
 HDMI Infoframes Helper Reference
 ================================
 
@@ -279,6 +430,21 @@ libraries and hence is also included here.
 .. kernel-doc:: drivers/video/hdmi.c
    :export:
 
+<<<<<<< HEAD
+=======
+Rectangle Utilities Reference
+=============================
+
+.. kernel-doc:: include/drm/drm_rect.h
+   :doc: rect utils
+
+.. kernel-doc:: include/drm/drm_rect.h
+   :internal:
+
+.. kernel-doc:: drivers/gpu/drm/drm_rect.c
+   :export:
+
+>>>>>>> upstream/android-13
 Flip-work Helper Reference
 ==========================
 

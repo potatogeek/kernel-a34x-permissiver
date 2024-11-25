@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * IUCV base infrastructure.
  *
@@ -17,6 +21,7 @@
  * Documentation used:
  *    The original source
  *    CP Programming Service, IBM document # SC24-5760
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +36,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define KMSG_COMPONENT "iucv"
@@ -80,6 +87,7 @@ static int iucv_bus_match(struct device *dev, struct device_driver *drv)
 	return 0;
 }
 
+<<<<<<< HEAD
 enum iucv_pm_states {
 	IUCV_PM_INITIAL = 0,
 	IUCV_PM_FREEZING = 1,
@@ -106,6 +114,11 @@ struct bus_type iucv_bus = {
 	.name = "iucv",
 	.match = iucv_bus_match,
 	.pm = &iucv_pm_ops,
+=======
+struct bus_type iucv_bus = {
+	.name = "iucv",
+	.match = iucv_bus_match,
+>>>>>>> upstream/android-13
 };
 EXPORT_SYMBOL(iucv_bus);
 
@@ -141,7 +154,11 @@ static LIST_HEAD(iucv_task_queue);
  * The tasklet for fast delivery of iucv interrupts.
  */
 static void iucv_tasklet_fn(unsigned long);
+<<<<<<< HEAD
 static DECLARE_TASKLET(iucv_tasklet, iucv_tasklet_fn,0);
+=======
+static DECLARE_TASKLET_OLD(iucv_tasklet, iucv_tasklet_fn);
+>>>>>>> upstream/android-13
 
 /*
  * Queue of interrupt buffers for delivery via a work queue
@@ -322,6 +339,7 @@ static union iucv_param *iucv_param_irq[NR_CPUS];
  */
 static inline int __iucv_call_b2f0(int command, union iucv_param *parm)
 {
+<<<<<<< HEAD
 	register unsigned long reg0 asm ("0");
 	register unsigned long reg1 asm ("1");
 	int ccode;
@@ -335,6 +353,21 @@ static inline int __iucv_call_b2f0(int command, union iucv_param *parm)
 		: "=d" (ccode), "=m" (*parm), "+d" (reg0), "+a" (reg1)
 		:  "m" (*parm) : "cc");
 	return ccode;
+=======
+	int cc;
+
+	asm volatile(
+		"	lgr	0,%[reg0]\n"
+		"	lgr	1,%[reg1]\n"
+		"	.long	0xb2f01000\n"
+		"	ipm	%[cc]\n"
+		"	srl	%[cc],28\n"
+		: [cc] "=&d" (cc), "+m" (*parm)
+		: [reg0] "d" ((unsigned long)command),
+		  [reg1] "d" ((unsigned long)parm)
+		: "cc", "0", "1");
+	return cc;
+>>>>>>> upstream/android-13
 }
 
 static inline int iucv_call_b2f0(int command, union iucv_param *parm)
@@ -355,6 +388,7 @@ static inline int iucv_call_b2f0(int command, union iucv_param *parm)
  */
 static int __iucv_query_maxconn(void *param, unsigned long *max_pathid)
 {
+<<<<<<< HEAD
 	register unsigned long reg0 asm ("0");
 	register unsigned long reg1 asm ("1");
 	int ccode;
@@ -368,6 +402,23 @@ static int __iucv_query_maxconn(void *param, unsigned long *max_pathid)
 		: "=d" (ccode), "+d" (reg0), "+d" (reg1) : : "cc");
 	*max_pathid = reg1;
 	return ccode;
+=======
+	unsigned long reg1 = (unsigned long)param;
+	int cc;
+
+	asm volatile (
+		"	lghi	0,%[cmd]\n"
+		"	lgr	1,%[reg1]\n"
+		"	.long	0xb2f01000\n"
+		"	ipm	%[cc]\n"
+		"	srl	%[cc],28\n"
+		"	lgr	%[reg1],1\n"
+		: [cc] "=&d" (cc), [reg1] "+&d" (reg1)
+		: [cmd] "K" (IUCV_QUERY)
+		: "cc", "0", "1");
+	*max_pathid = reg1;
+	return cc;
+>>>>>>> upstream/android-13
 }
 
 static int iucv_query_maxconn(void)
@@ -448,6 +499,7 @@ static void iucv_block_cpu(void *data)
 }
 
 /**
+<<<<<<< HEAD
  * iucv_block_cpu_almost
  * @data: unused
  *
@@ -473,6 +525,8 @@ static void iucv_block_cpu_almost(void *data)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * iucv_declare_cpu
  * @data: unused
  *
@@ -561,14 +615,22 @@ static void iucv_setmask_mp(void)
 {
 	int cpu;
 
+<<<<<<< HEAD
 	get_online_cpus();
+=======
+	cpus_read_lock();
+>>>>>>> upstream/android-13
 	for_each_online_cpu(cpu)
 		/* Enable all cpus with a declared buffer. */
 		if (cpumask_test_cpu(cpu, &iucv_buffer_cpumask) &&
 		    !cpumask_test_cpu(cpu, &iucv_irq_cpumask))
 			smp_call_function_single(cpu, iucv_allow_cpu,
 						 NULL, 1);
+<<<<<<< HEAD
 	put_online_cpus();
+=======
+	cpus_read_unlock();
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -601,7 +663,11 @@ static int iucv_enable(void)
 	size_t alloc_size;
 	int cpu, rc;
 
+<<<<<<< HEAD
 	get_online_cpus();
+=======
+	cpus_read_lock();
+>>>>>>> upstream/android-13
 	rc = -ENOMEM;
 	alloc_size = iucv_max_pathid * sizeof(struct iucv_path);
 	iucv_path_table = kzalloc(alloc_size, GFP_KERNEL);
@@ -614,12 +680,20 @@ static int iucv_enable(void)
 	if (cpumask_empty(&iucv_buffer_cpumask))
 		/* No cpu could declare an iucv buffer. */
 		goto out;
+<<<<<<< HEAD
 	put_online_cpus();
+=======
+	cpus_read_unlock();
+>>>>>>> upstream/android-13
 	return 0;
 out:
 	kfree(iucv_path_table);
 	iucv_path_table = NULL;
+<<<<<<< HEAD
 	put_online_cpus();
+=======
+	cpus_read_unlock();
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -632,11 +706,19 @@ out:
  */
 static void iucv_disable(void)
 {
+<<<<<<< HEAD
 	get_online_cpus();
 	on_each_cpu(iucv_retrieve_cpu, NULL, 1);
 	kfree(iucv_path_table);
 	iucv_path_table = NULL;
 	put_online_cpus();
+=======
+	cpus_read_lock();
+	on_each_cpu(iucv_retrieve_cpu, NULL, 1);
+	kfree(iucv_path_table);
+	iucv_path_table = NULL;
+	cpus_read_unlock();
+>>>>>>> upstream/android-13
 }
 
 static int iucv_cpu_dead(unsigned int cpu)
@@ -845,7 +927,11 @@ static int iucv_reboot_event(struct notifier_block *this,
 	if (cpumask_empty(&iucv_irq_cpumask))
 		return NOTIFY_DONE;
 
+<<<<<<< HEAD
 	get_online_cpus();
+=======
+	cpus_read_lock();
+>>>>>>> upstream/android-13
 	on_each_cpu_mask(&iucv_irq_cpumask, iucv_block_cpu, NULL, 1);
 	preempt_disable();
 	for (i = 0; i < iucv_max_pathid; i++) {
@@ -853,7 +939,11 @@ static int iucv_reboot_event(struct notifier_block *this,
 			iucv_sever_pathid(i, NULL);
 	}
 	preempt_enable();
+<<<<<<< HEAD
 	put_online_cpus();
+=======
+	cpus_read_unlock();
+>>>>>>> upstream/android-13
 	iucv_disable();
 	return NOTIFY_DONE;
 }
@@ -1177,10 +1267,16 @@ int __iucv_message_receive(struct iucv_path *path, struct iucv_message *msg,
 	if (msg->flags & IUCV_IPRMDATA)
 		return iucv_message_receive_iprmdata(path, msg, flags,
 						     buffer, size, residual);
+<<<<<<< HEAD
 	 if (cpumask_empty(&iucv_buffer_cpumask)) {
 		rc = -EIO;
 		goto out;
 	}
+=======
+	if (cpumask_empty(&iucv_buffer_cpumask))
+		return -EIO;
+
+>>>>>>> upstream/android-13
 	parm = iucv_param[smp_processor_id()];
 	memset(parm, 0, sizeof(union iucv_param));
 	parm->db.ipbfadr1 = (u32)(addr_t) buffer;
@@ -1196,7 +1292,10 @@ int __iucv_message_receive(struct iucv_path *path, struct iucv_message *msg,
 		if (residual)
 			*residual = parm->db.ipbfln1f;
 	}
+<<<<<<< HEAD
 out:
+=======
+>>>>>>> upstream/android-13
 	return rc;
 }
 EXPORT_SYMBOL(__iucv_message_receive);
@@ -1698,6 +1797,7 @@ struct iucv_message_pending {
 	u8  iptype;
 	u32 ipmsgid;
 	u32 iptrgcls;
+<<<<<<< HEAD
 	union {
 		u32 iprmmsg1_u32;
 		u8  iprmmsg1[4];
@@ -1706,6 +1806,18 @@ struct iucv_message_pending {
 		u32 ipbfln1f;
 		u8  iprmmsg2[4];
 	} ln1msg2;
+=======
+	struct {
+		union {
+			u32 iprmmsg1_u32;
+			u8  iprmmsg1[4];
+		} ln1msg1;
+		union {
+			u32 ipbfln1f;
+			u8  iprmmsg2[4];
+		} ln1msg2;
+	} rmmsg;
+>>>>>>> upstream/android-13
 	u32 res1[3];
 	u32 ipbfln2f;
 	u8  ippollfg;
@@ -1723,10 +1835,17 @@ static void iucv_message_pending(struct iucv_irq_data *data)
 		msg.id = imp->ipmsgid;
 		msg.class = imp->iptrgcls;
 		if (imp->ipflags1 & IUCV_IPRMDATA) {
+<<<<<<< HEAD
 			memcpy(msg.rmmsg, imp->ln1msg1.iprmmsg1, 8);
 			msg.length = 8;
 		} else
 			msg.length = imp->ln1msg2.ipbfln1f;
+=======
+			memcpy(msg.rmmsg, &imp->rmmsg, 8);
+			msg.length = 8;
+		} else
+			msg.length = imp->rmmsg.ln1msg2.ipbfln1f;
+>>>>>>> upstream/android-13
 		msg.reply_size = imp->ipbfln2f;
 		path->handler->message_pending(path, &msg);
 	}
@@ -1847,6 +1966,7 @@ static void iucv_external_interrupt(struct ext_code ext_code,
 	spin_unlock(&iucv_queue_lock);
 }
 
+<<<<<<< HEAD
 static int iucv_pm_prepare(struct device *dev)
 {
 	int rc = 0;
@@ -1987,6 +2107,8 @@ out:
 	return rc;
 }
 
+=======
+>>>>>>> upstream/android-13
 struct iucv_interface iucv_if = {
 	.message_receive = iucv_message_receive,
 	.__message_receive = __iucv_message_receive,

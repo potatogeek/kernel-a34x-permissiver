@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
  *
@@ -5,6 +6,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
+ *
+>>>>>>> upstream/android-13
  * Amit Bhor, Sameer Dhavale: Codito Technologies 2004
  */
 #ifndef __ASM_ARC_PTRACE_H
@@ -19,11 +26,14 @@
 #ifdef CONFIG_ISA_ARCOMPACT
 struct pt_regs {
 
+<<<<<<< HEAD
 #ifdef CONFIG_ARC_PLAT_EZNPS
 	unsigned long eflags;	/* Extended FLAGS */
 	unsigned long gpa1;	/* General Purpose Aux */
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	/* Real registers */
 	unsigned long bta;	/* bta_l1, bta_l2, erbta */
 
@@ -94,6 +104,12 @@ struct pt_regs {
 #ifdef CONFIG_ARC_HAS_ACCL_REGS
 	unsigned long r58, r59;	/* ACCL/ACCH used by FPU / DSP MPY */
 #endif
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_ARC_DSP_SAVE_RESTORE_REGS
+	unsigned long DSP_CTRL;
+#endif
+>>>>>>> upstream/android-13
 
 	/*------- Below list auto saved by h/w -----------*/
 	unsigned long r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11;

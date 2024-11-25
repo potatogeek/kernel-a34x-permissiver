@@ -9,7 +9,10 @@
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
+<<<<<<< HEAD
 #include <linux/bpf.h>
+=======
+>>>>>>> upstream/android-13
 #include <locale.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -18,7 +21,13 @@
 #include <sys/wait.h>
 
 #include <bpf/bpf.h>
+<<<<<<< HEAD
 #include "bpf_load.h"
+=======
+#include <bpf/libbpf.h>
+
+static int cstate_map_fd, pstate_map_fd;
+>>>>>>> upstream/android-13
 
 #define MAX_CPU			8
 #define MAX_PSTATE_ENTRIES	5
@@ -181,21 +190,64 @@ static void int_exit(int sig)
 {
 	cpu_stat_inject_cpu_idle_event();
 	cpu_stat_inject_cpu_frequency_event();
+<<<<<<< HEAD
 	cpu_stat_update(map_fd[1], map_fd[2]);
+=======
+	cpu_stat_update(cstate_map_fd, pstate_map_fd);
+>>>>>>> upstream/android-13
 	cpu_stat_print();
 	exit(0);
 }
 
 int main(int argc, char **argv)
 {
+<<<<<<< HEAD
+=======
+	struct bpf_link *link = NULL;
+	struct bpf_program *prog;
+	struct bpf_object *obj;
+>>>>>>> upstream/android-13
 	char filename[256];
 	int ret;
 
 	snprintf(filename, sizeof(filename), "%s_kern.o", argv[0]);
+<<<<<<< HEAD
 
 	if (load_bpf_file(filename)) {
 		printf("%s", bpf_log_buf);
 		return 1;
+=======
+	obj = bpf_object__open_file(filename, NULL);
+	if (libbpf_get_error(obj)) {
+		fprintf(stderr, "ERROR: opening BPF object file failed\n");
+		return 0;
+	}
+
+	prog = bpf_object__find_program_by_name(obj, "bpf_prog1");
+	if (!prog) {
+		printf("finding a prog in obj file failed\n");
+		goto cleanup;
+	}
+
+	/* load BPF program */
+	if (bpf_object__load(obj)) {
+		fprintf(stderr, "ERROR: loading BPF object file failed\n");
+		goto cleanup;
+	}
+
+	cstate_map_fd = bpf_object__find_map_fd_by_name(obj, "cstate_duration");
+	pstate_map_fd = bpf_object__find_map_fd_by_name(obj, "pstate_duration");
+	if (cstate_map_fd < 0 || pstate_map_fd < 0) {
+		fprintf(stderr, "ERROR: finding a map in obj file failed\n");
+		goto cleanup;
+	}
+
+	link = bpf_program__attach(prog);
+	if (libbpf_get_error(link)) {
+		fprintf(stderr, "ERROR: bpf_program__attach failed\n");
+		link = NULL;
+		goto cleanup;
+>>>>>>> upstream/android-13
 	}
 
 	ret = cpu_stat_inject_cpu_idle_event();
@@ -210,10 +262,20 @@ int main(int argc, char **argv)
 	signal(SIGTERM, int_exit);
 
 	while (1) {
+<<<<<<< HEAD
 		cpu_stat_update(map_fd[1], map_fd[2]);
+=======
+		cpu_stat_update(cstate_map_fd, pstate_map_fd);
+>>>>>>> upstream/android-13
 		cpu_stat_print();
 		sleep(5);
 	}
 
+<<<<<<< HEAD
+=======
+cleanup:
+	bpf_link__destroy(link);
+	bpf_object__close(obj);
+>>>>>>> upstream/android-13
 	return 0;
 }

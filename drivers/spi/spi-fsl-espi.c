@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Freescale eSPI controller driver.
  *
  * Copyright 2010 Freescale Semiconductor, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/delay.h>
 #include <linux/err.h>
@@ -431,8 +438,12 @@ static int fsl_espi_trans(struct spi_message *m, struct spi_transfer *trans)
 
 	ret = fsl_espi_bufs(spi, trans);
 
+<<<<<<< HEAD
 	if (trans->delay_usecs)
 		udelay(trans->delay_usecs);
+=======
+	spi_transfer_delay_exec(trans);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -440,7 +451,11 @@ static int fsl_espi_trans(struct spi_message *m, struct spi_transfer *trans)
 static int fsl_espi_do_one_msg(struct spi_master *master,
 			       struct spi_message *m)
 {
+<<<<<<< HEAD
 	unsigned int delay_usecs = 0, rx_nbits = 0;
+=======
+	unsigned int rx_nbits = 0, delay_nsecs = 0;
+>>>>>>> upstream/android-13
 	struct spi_transfer *t, trans = {};
 	int ret;
 
@@ -449,8 +464,15 @@ static int fsl_espi_do_one_msg(struct spi_master *master,
 		goto out;
 
 	list_for_each_entry(t, &m->transfers, transfer_list) {
+<<<<<<< HEAD
 		if (t->delay_usecs > delay_usecs)
 			delay_usecs = t->delay_usecs;
+=======
+		unsigned int delay = spi_delay_to_ns(&t->delay, t);
+
+		if (delay > delay_nsecs)
+			delay_nsecs = delay;
+>>>>>>> upstream/android-13
 		if (t->rx_nbits > rx_nbits)
 			rx_nbits = t->rx_nbits;
 	}
@@ -461,7 +483,12 @@ static int fsl_espi_do_one_msg(struct spi_master *master,
 	trans.len = m->frame_length;
 	trans.speed_hz = t->speed_hz;
 	trans.bits_per_word = t->bits_per_word;
+<<<<<<< HEAD
 	trans.delay_usecs = delay_usecs;
+=======
+	trans.delay.value = delay_nsecs;
+	trans.delay.unit = SPI_DELAY_UNIT_NSECS;
+>>>>>>> upstream/android-13
 	trans.rx_nbits = rx_nbits;
 
 	if (trans.len)
@@ -726,7 +753,11 @@ static int fsl_espi_probe(struct device *dev, struct resource *mem,
 	if (ret < 0)
 		goto err_pm;
 
+<<<<<<< HEAD
 	dev_info(dev, "at 0x%p (irq = %u)\n", espi->reg_base, irq);
+=======
+	dev_info(dev, "irq = %u\n", irq);
+>>>>>>> upstream/android-13
 
 	pm_runtime_mark_last_busy(dev);
 	pm_runtime_put_autosuspend(dev);
@@ -799,10 +830,15 @@ static int of_fsl_espi_suspend(struct device *dev)
 	int ret;
 
 	ret = spi_master_suspend(master);
+<<<<<<< HEAD
 	if (ret) {
 		dev_warn(dev, "cannot suspend master\n");
 		return ret;
 	}
+=======
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	return pm_runtime_force_suspend(dev);
 }

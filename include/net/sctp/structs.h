@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /* SCTP kernel implementation
  * (C) Copyright IBM Corp. 2001, 2004
  * Copyright (c) 1999-2000 Cisco, Inc.
@@ -6,6 +10,7 @@
  *
  * This file is part of the SCTP kernel implementation
  *
+<<<<<<< HEAD
  * This SCTP implementation is free software;
  * you can redistribute it and/or modify it under the terms of
  * the GNU General Public License as published by
@@ -22,6 +27,8 @@
  * along with GNU CC; see the file COPYING.  If not, see
  * <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  * Please send any bug reports or fixes you make to the
  * email addresses:
  *    lksctp developers <linux-sctp@vger.kernel.org>
@@ -48,6 +55,10 @@
 #define __sctp_structs_h__
 
 #include <linux/ktime.h>
+<<<<<<< HEAD
+=======
+#include <linux/generic-radix-tree.h>
+>>>>>>> upstream/android-13
 #include <linux/rhashtable-types.h>
 #include <linux/socket.h>	/* linux/in.h needs this!!    */
 #include <linux/in.h>		/* We get struct sockaddr_in. */
@@ -57,7 +68,10 @@
 #include <linux/atomic.h>		/* This gets us atomic counters.  */
 #include <linux/skbuff.h>	/* We need sk_buff_head. */
 #include <linux/workqueue.h>	/* We need tq_struct.	 */
+<<<<<<< HEAD
 #include <linux/flex_array.h>	/* We need flex_array.   */
+=======
+>>>>>>> upstream/android-13
 #include <linux/sctp.h>		/* We need sctp* header structs.  */
 #include <net/sctp/auth.h>	/* We need auth specific structs */
 #include <net/ip.h>		/* For inet_skb_parm */
@@ -96,7 +110,13 @@ struct sctp_stream;
 
 struct sctp_bind_bucket {
 	unsigned short	port;
+<<<<<<< HEAD
 	unsigned short	fastreuse;
+=======
+	signed char	fastreuse;
+	signed char	fastreuseport;
+	kuid_t		fastuid;
+>>>>>>> upstream/android-13
 	struct hlist_node	node;
 	struct hlist_head	owner;
 	struct net	*net;
@@ -190,6 +210,13 @@ struct sctp_sock {
 	 * will be inherited by all new associations.
 	 */
 	__u32 hbinterval;
+<<<<<<< HEAD
+=======
+	__u32 probe_interval;
+
+	__be16 udp_port;
+	__be16 encap_port;
+>>>>>>> upstream/android-13
 
 	/* This is the max_retrans value for new associations. */
 	__u16 pathmaxrxt;
@@ -197,6 +224,12 @@ struct sctp_sock {
 	__u32 flowlabel;
 	__u8  dscp;
 
+<<<<<<< HEAD
+=======
+	__u16 pf_retrans;
+	__u16 ps_retrans;
+
+>>>>>>> upstream/android-13
 	/* The initial Path MTU to use for new associations. */
 	__u32 pathmtu;
 
@@ -207,6 +240,11 @@ struct sctp_sock {
 	/* Flags controlling Heartbeat, SACK delay, and Path MTU Discovery. */
 	__u32 param_flags;
 
+<<<<<<< HEAD
+=======
+	__u32 default_ss;
+
+>>>>>>> upstream/android-13
 	struct sctp_rtoinfo rtoinfo;
 	struct sctp_paddrparams paddrparam;
 	struct sctp_assocparams assocparams;
@@ -215,7 +253,11 @@ struct sctp_sock {
 	 * These two structures must be grouped together for the usercopy
 	 * whitelist region.
 	 */
+<<<<<<< HEAD
 	struct sctp_event_subscribe subscribe;
+=======
+	__u16 subscribe;
+>>>>>>> upstream/android-13
 	struct sctp_initmsg initmsg;
 
 	int user_frag;
@@ -224,22 +266,40 @@ struct sctp_sock {
 	__u32 adaptation_ind;
 	__u32 pd_point;
 	__u16	nodelay:1,
+<<<<<<< HEAD
+=======
+		pf_expose:2,
+>>>>>>> upstream/android-13
 		reuse:1,
 		disable_fragments:1,
 		v4mapped:1,
 		frag_interleave:1,
+<<<<<<< HEAD
 		strm_interleave:1,
+=======
+>>>>>>> upstream/android-13
 		recvrcvinfo:1,
 		recvnxtinfo:1,
 		data_ready_signalled:1;
 
 	atomic_t pd_mode;
+<<<<<<< HEAD
 	/* Receive to here while partial delivery is in effect. */
 	struct sk_buff_head pd_lobby;
 
 	/* These must be the last fields, as they will skipped on copies,
 	 * like on accept and peeloff operations
 	 */
+=======
+
+	/* Fields after this point will be skipped on copies, like on accept
+	 * and peeloff operations
+	 */
+
+	/* Receive to here while partial delivery is in effect. */
+	struct sk_buff_head pd_lobby;
+
+>>>>>>> upstream/android-13
 	struct list_head auto_asconf_list;
 	int do_auto_asconf;
 };
@@ -334,7 +394,11 @@ struct sctp_cookie {
 	 * the association TCB is re-constructed from the cookie.
 	 */
 	__u32 raw_addr_list_len;
+<<<<<<< HEAD
 	struct sctp_init_chunk peer_init[0];
+=======
+	struct sctp_init_chunk peer_init[];
+>>>>>>> upstream/android-13
 };
 
 
@@ -388,6 +452,10 @@ struct sctp_sender_hb_info {
 	union sctp_addr daddr;
 	unsigned long sent_at;
 	__u64 hb_nonce;
+<<<<<<< HEAD
+=======
+	__u32 probe_size;
+>>>>>>> upstream/android-13
 };
 
 int sctp_stream_init(struct sctp_stream *stream, __u16 outcnt, __u16 incnt,
@@ -439,13 +507,18 @@ struct sctp_af {
 	int		(*setsockopt)	(struct sock *sk,
 					 int level,
 					 int optname,
+<<<<<<< HEAD
 					 char __user *optval,
+=======
+					 sockptr_t optval,
+>>>>>>> upstream/android-13
 					 unsigned int optlen);
 	int		(*getsockopt)	(struct sock *sk,
 					 int level,
 					 int optname,
 					 char __user *optval,
 					 int __user *optlen);
+<<<<<<< HEAD
 	int		(*compat_setsockopt)	(struct sock *sk,
 					 int level,
 					 int optname,
@@ -456,6 +529,8 @@ struct sctp_af {
 					 int optname,
 					 char __user *optval,
 					 int __user *optlen);
+=======
+>>>>>>> upstream/android-13
 	void		(*get_dst)	(struct sctp_transport *t,
 					 union sctp_addr *saddr,
 					 struct flowi *fl,
@@ -669,6 +744,10 @@ struct sctp_chunk {
 		data_accepted:1,	/* At least 1 chunk accepted */
 		auth:1,			/* IN: was auth'ed | OUT: needs auth */
 		has_asconf:1,		/* IN: have seen an asconf before */
+<<<<<<< HEAD
+=======
+		pmtu_probe:1,		/* Used by PLPMTUD, can be set in s HB chunk */
+>>>>>>> upstream/android-13
 		tsn_missing_report:2,	/* Data chunk missing counter. */
 		fast_retransmit:2;	/* Is this chunk fast retransmitted? */
 };
@@ -871,6 +950,10 @@ struct sctp_transport {
 	 * the destination address every heartbeat interval.
 	 */
 	unsigned long hbinterval;
+<<<<<<< HEAD
+=======
+	unsigned long probe_interval;
+>>>>>>> upstream/android-13
 
 	/* SACK delay timeout */
 	unsigned long sackdelay;
@@ -893,6 +976,11 @@ struct sctp_transport {
 	 */
 	unsigned long last_time_ecne_reduced;
 
+<<<<<<< HEAD
+=======
+	__be16 encap_port;
+
+>>>>>>> upstream/android-13
 	/* This is the max_retrans value for the transport and will
 	 * be initialized from the assocs value.  This can be changed
 	 * using the SCTP_SET_PEER_ADDR_PARAMS socket option.
@@ -906,7 +994,13 @@ struct sctp_transport {
 	 * and will be initialized from the assocs value.  This can be changed
 	 * using the SCTP_PEER_ADDR_THLDS socket option
 	 */
+<<<<<<< HEAD
 	int pf_retrans;
+=======
+	__u16 pf_retrans;
+	/* Used for primary path switchover. */
+	__u16 ps_retrans;
+>>>>>>> upstream/android-13
 	/* PMTU	      : The current known path MTU.  */
 	__u32 pathmtu;
 
@@ -943,6 +1037,12 @@ struct sctp_transport {
 	/* Timer to handler reconf chunk rtx */
 	struct timer_list reconf_timer;
 
+<<<<<<< HEAD
+=======
+	/* Timer to send a probe HB packet for PLPMTUD */
+	struct timer_list probe_timer;
+
+>>>>>>> upstream/android-13
 	/* Since we're using per-destination retransmission timers
 	 * (see above), we're also using per-destination "transmitted"
 	 * queues.  This probably ought to be a private struct
@@ -985,6 +1085,19 @@ struct sctp_transport {
 		char cacc_saw_newack;
 	} cacc;
 
+<<<<<<< HEAD
+=======
+	struct {
+		__u32 last_rtx_chunks;
+		__u16 pmtu;
+		__u16 probe_size;
+		__u16 probe_high;
+		__u8 probe_count:3;
+		__u8 raise_count:5;
+		__u8 state;
+	} pl; /* plpmtud related */
+
+>>>>>>> upstream/android-13
 	/* 64-bit random number sent with heartbeat. */
 	__u64 hb_nonce;
 
@@ -1002,6 +1115,10 @@ void sctp_transport_free(struct sctp_transport *);
 void sctp_transport_reset_t3_rtx(struct sctp_transport *);
 void sctp_transport_reset_hb_timer(struct sctp_transport *);
 void sctp_transport_reset_reconf_timer(struct sctp_transport *transport);
+<<<<<<< HEAD
+=======
+void sctp_transport_reset_probe_timer(struct sctp_transport *transport);
+>>>>>>> upstream/android-13
 int sctp_transport_hold(struct sctp_transport *);
 void sctp_transport_put(struct sctp_transport *);
 void sctp_transport_update_rto(struct sctp_transport *, __u32);
@@ -1016,6 +1133,11 @@ bool sctp_transport_update_pmtu(struct sctp_transport *t, u32 pmtu);
 void sctp_transport_immediate_rtx(struct sctp_transport *);
 void sctp_transport_dst_release(struct sctp_transport *t);
 void sctp_transport_dst_confirm(struct sctp_transport *t);
+<<<<<<< HEAD
+=======
+bool sctp_transport_pl_send(struct sctp_transport *t);
+bool sctp_transport_pl_recv(struct sctp_transport *t);
+>>>>>>> upstream/android-13
 
 
 /* This is the structure we use to queue packets as they come into
@@ -1131,13 +1253,23 @@ static inline void sctp_outq_cork(struct sctp_outq *q)
  */
 struct sctp_input_cb {
 	union {
+<<<<<<< HEAD
 		struct inet_skb_parm	h4;
 #if IS_ENABLED(CONFIG_IPV6)
 		struct inet6_skb_parm	h6;
+=======
+		struct inet_skb_parm    h4;
+#if IS_ENABLED(CONFIG_IPV6)
+		struct inet6_skb_parm   h6;
+>>>>>>> upstream/android-13
 #endif
 	} header;
 	struct sctp_chunk *chunk;
 	struct sctp_af *af;
+<<<<<<< HEAD
+=======
+	__be16 encap_port;
+>>>>>>> upstream/android-13
 };
 #define SCTP_INPUT_CB(__skb)	((struct sctp_input_cb *)&((__skb)->cb[0]))
 
@@ -1190,6 +1322,11 @@ int sctp_bind_addr_conflict(struct sctp_bind_addr *, const union sctp_addr *,
 			 struct sctp_sock *, struct sctp_sock *);
 int sctp_bind_addr_state(const struct sctp_bind_addr *bp,
 			 const union sctp_addr *addr);
+<<<<<<< HEAD
+=======
+int sctp_bind_addrs_check(struct sctp_sock *sp,
+			  struct sctp_sock *sp2, int cnt2);
+>>>>>>> upstream/android-13
 union sctp_addr *sctp_find_unmatch_addr(struct sctp_bind_addr	*bp,
 					const union sctp_addr	*addrs,
 					int			addrcnt,
@@ -1333,7 +1470,13 @@ struct sctp_endpoint {
 	/* SCTP-AUTH: endpoint shared keys */
 	struct list_head endpoint_shared_keys;
 	__u16 active_key_id;
+<<<<<<< HEAD
 	__u8  auth_enable:1,
+=======
+	__u8  ecn_enable:1,
+	      auth_enable:1,
+	      intl_enable:1,
+>>>>>>> upstream/android-13
 	      prsctp_enable:1,
 	      asconf_enable:1,
 	      reconf_enable:1;
@@ -1349,6 +1492,10 @@ struct sctp_endpoint {
 
 	u32 secid;
 	u32 peer_secid;
+<<<<<<< HEAD
+=======
+	struct rcu_head rcu;
+>>>>>>> upstream/android-13
 };
 
 /* Recover the outter endpoint structure. */
@@ -1364,7 +1511,11 @@ static inline struct sctp_endpoint *sctp_ep(struct sctp_ep_common *base)
 struct sctp_endpoint *sctp_endpoint_new(struct sock *, gfp_t);
 void sctp_endpoint_free(struct sctp_endpoint *);
 void sctp_endpoint_put(struct sctp_endpoint *);
+<<<<<<< HEAD
 void sctp_endpoint_hold(struct sctp_endpoint *);
+=======
+int sctp_endpoint_hold(struct sctp_endpoint *ep);
+>>>>>>> upstream/android-13
 void sctp_endpoint_add_asoc(struct sctp_endpoint *, struct sctp_association *);
 struct sctp_association *sctp_endpoint_lookup_assoc(
 	const struct sctp_endpoint *ep,
@@ -1400,7 +1551,11 @@ struct sctp_stream_priorities {
 	struct list_head prio_sched;
 	/* List of streams scheduled */
 	struct list_head active;
+<<<<<<< HEAD
 	/* The next stream stream in line */
+=======
+	/* The next stream in line */
+>>>>>>> upstream/android-13
 	struct sctp_stream_out_ext *next;
 	__u16 prio;
 };
@@ -1445,8 +1600,14 @@ struct sctp_stream_in {
 };
 
 struct sctp_stream {
+<<<<<<< HEAD
 	struct flex_array *out;
 	struct flex_array *in;
+=======
+	GENRADIX(struct sctp_stream_out) out;
+	GENRADIX(struct sctp_stream_in)	in;
+
+>>>>>>> upstream/android-13
 	__u16 outcnt;
 	__u16 incnt;
 	/* Current stream being sent, if any */
@@ -1461,7 +1622,11 @@ struct sctp_stream {
 		struct {
 			/* List of streams scheduled */
 			struct list_head rr_list;
+<<<<<<< HEAD
 			/* The next stream stream in line */
+=======
+			/* The next stream in line */
+>>>>>>> upstream/android-13
 			struct sctp_stream_out_ext *rr_next;
 		};
 	};
@@ -1469,6 +1634,7 @@ struct sctp_stream {
 };
 
 static inline struct sctp_stream_out *sctp_stream_out(
+<<<<<<< HEAD
 	const struct sctp_stream *stream,
 	__u16 sid)
 {
@@ -1480,6 +1646,19 @@ static inline struct sctp_stream_in *sctp_stream_in(
 	__u16 sid)
 {
 	return flex_array_get(stream->in, sid);
+=======
+	struct sctp_stream *stream,
+	__u16 sid)
+{
+	return genradix_ptr(&stream->out, sid);
+}
+
+static inline struct sctp_stream_in *sctp_stream_in(
+	struct sctp_stream *stream,
+	__u16 sid)
+{
+	return genradix_ptr(&stream->in, sid);
+>>>>>>> upstream/android-13
 }
 
 #define SCTP_SO(s, i) sctp_stream_out((s), (i))
@@ -1689,13 +1868,18 @@ struct sctp_association {
 		__be16 addip_disabled_mask;
 
 		/* These are capabilities which our peer advertised.  */
+<<<<<<< HEAD
 		__u8	ecn_capable:1,      /* Can peer do ECN? */
+=======
+		__u16	ecn_capable:1,      /* Can peer do ECN? */
+>>>>>>> upstream/android-13
 			ipv4_address:1,     /* Peer understands IPv4 addresses? */
 			ipv6_address:1,     /* Peer understands IPv6 addresses? */
 			hostname_address:1, /* Peer understands DNS addresses? */
 			asconf_capable:1,   /* Does peer support ADDIP? */
 			prsctp_capable:1,   /* Can peer do PR-SCTP? */
 			reconf_capable:1,   /* Can peer do RE-CONFIG? */
+<<<<<<< HEAD
 			auth_capable:1;     /* Is peer doing SCTP-AUTH? */
 
 		/* sack_needed : This flag indicates if the next received
@@ -1711,6 +1895,25 @@ struct sctp_association {
 		__u8    sack_needed:1,     /* Do we need to sack the peer? */
 			sack_generation:1,
 			zero_window_announced:1;
+=======
+			intl_capable:1,     /* Can peer do INTERLEAVE */
+			auth_capable:1,     /* Is peer doing SCTP-AUTH? */
+			/* sack_needed:
+			 *   This flag indicates if the next received
+			 *   packet is to be responded to with a
+			 *   SACK. This is initialized to 0.  When a packet
+			 *   is received sack_cnt is incremented. If this value
+			 *   reaches 2 or more, a SACK is sent and the
+			 *   value is reset to 0. Note: This is used only
+			 *   when no DATA chunks are received out of
+			 *   order.  When DATA chunks are out of order,
+			 *   SACK's are not delayed (see Section 6).
+			 */
+			sack_needed:1,     /* Do we need to sack the peer? */
+			sack_generation:1,
+			zero_window_announced:1;
+
+>>>>>>> upstream/android-13
 		__u32	sack_cnt;
 
 		__u32   adaptation_ind;	 /* Adaptation Code point. */
@@ -1769,7 +1972,11 @@ struct sctp_association {
 	int max_burst;
 
 	/* This is the max_retrans value for the association.  This value will
+<<<<<<< HEAD
 	 * be initialized initialized from system defaults, but can be
+=======
+	 * be initialized from system defaults, but can be
+>>>>>>> upstream/android-13
 	 * modified by the SCTP_ASSOCINFO socket option.
 	 */
 	int max_retrans;
@@ -1778,7 +1985,13 @@ struct sctp_association {
 	 * and will be initialized from the assocs value.  This can be
 	 * changed using the SCTP_PEER_ADDR_THLDS socket option
 	 */
+<<<<<<< HEAD
 	int pf_retrans;
+=======
+	__u16 pf_retrans;
+	/* Used for primary path switchover. */
+	__u16 ps_retrans;
+>>>>>>> upstream/android-13
 
 	/* Maximum number of times the endpoint will retransmit INIT  */
 	__u16 max_init_attempts;
@@ -1794,6 +2007,12 @@ struct sctp_association {
 	 * will be inherited by all new transports.
 	 */
 	unsigned long hbinterval;
+<<<<<<< HEAD
+=======
+	unsigned long probe_interval;
+
+	__be16 encap_port;
+>>>>>>> upstream/android-13
 
 	/* This is the max_retrans value for new transports in the
 	 * association.
@@ -2059,10 +2278,15 @@ struct sctp_association {
 
 	__u8 need_ecne:1,	/* Need to send an ECNE Chunk? */
 	     temp:1,		/* Is it a temporary association? */
+<<<<<<< HEAD
 	     force_delay:1,
 	     intl_enable:1,
 	     prsctp_enable:1,
 	     reconf_enable:1;
+=======
+	     pf_expose:2,       /* Expose pf state? */
+	     force_delay:1;
+>>>>>>> upstream/android-13
 
 	__u8 strreset_enable;
 	__u8 strreset_outstanding; /* request param count on the fly */
@@ -2077,6 +2301,11 @@ struct sctp_association {
 
 	int sent_cnt_removable;
 
+<<<<<<< HEAD
+=======
+	__u16 subscribe;
+
+>>>>>>> upstream/android-13
 	__u64 abandoned_unsent[SCTP_PR_INDEX(MAX) + 1];
 	__u64 abandoned_sent[SCTP_PR_INDEX(MAX) + 1];
 

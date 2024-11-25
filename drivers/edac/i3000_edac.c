@@ -273,7 +273,10 @@ static void i3000_check(struct mem_ctl_info *mci)
 {
 	struct i3000_error_info info;
 
+<<<<<<< HEAD
 	edac_dbg(1, "MC%d\n", mci->mc_idx);
+=======
+>>>>>>> upstream/android-13
 	i3000_get_error_info(mci, &info);
 	i3000_process_error_info(mci, &info, 1);
 }
@@ -324,7 +327,11 @@ static int i3000_probe1(struct pci_dev *pdev, int dev_idx)
 
 	pci_read_config_dword(pdev, I3000_MCHBAR, (u32 *) & mchbar);
 	mchbar &= I3000_MCHBAR_MASK;
+<<<<<<< HEAD
 	window = ioremap_nocache(mchbar, I3000_MMR_WINDOW_SIZE);
+=======
+	window = ioremap(mchbar, I3000_MMR_WINDOW_SIZE);
+>>>>>>> upstream/android-13
 	if (!window) {
 		printk(KERN_ERR "i3000: cannot map mmio space at 0x%lx\n",
 			mchbar);
@@ -508,8 +515,13 @@ static int __init i3000_init(void)
 
 	edac_dbg(3, "MC:\n");
 
+<<<<<<< HEAD
        /* Ensure that the OPSTATE is set correctly for POLL or NMI */
        opstate_init();
+=======
+	/* Ensure that the OPSTATE is set correctly for POLL or NMI */
+	opstate_init();
+>>>>>>> upstream/android-13
 
 	pci_rc = pci_register_driver(&i3000_driver);
 	if (pci_rc < 0)

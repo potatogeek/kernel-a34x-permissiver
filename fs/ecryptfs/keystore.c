@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 /**
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  * eCryptfs: Linux filesystem encryption layer
  * In-kernel key management code.  Includes functions to parse and
  * write authentication token-related packets with the underlying
@@ -8,6 +13,7 @@
  *   Author(s): Michael A. Halcrow <mhalcrow@us.ibm.com>
  *              Michael C. Thompson <mcthomps@us.ibm.com>
  *              Trevor S. Highland <trevor.highland@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,6 +29,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  * 02111-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <crypto/hash.h>
@@ -33,16 +41,23 @@
 #include <linux/random.h>
 #include <linux/scatterlist.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 #ifdef CONFIG_ECRYPTFS_FEK_INTEGRITY
 #include <crypto/hash.h>
 #endif
 #include "ecryptfs_kernel.h"
 
 /**
+=======
+#include "ecryptfs_kernel.h"
+
+/*
+>>>>>>> upstream/android-13
  * request_key returned an error instead of a valid key address;
  * determine the type of error, make appropriate log entries, and
  * return an error code.
  */
+<<<<<<< HEAD
 #ifdef CONFIG_ECRYPTFS_FEK_INTEGRITY
 static int calculate_hmac_sha256(u8 *key, u8 ksize, char *plaintext, u8 psize, u8 *output)
 {
@@ -96,6 +111,8 @@ static int calculate_sha256(char *dst, char *src, int len, struct crypto_shash *
 	return rc;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int process_request_key_err(long err_code)
 {
 	int rc = 0;
@@ -606,8 +623,14 @@ out:
 
 /**
  * ecryptfs_find_auth_tok_for_sig
+<<<<<<< HEAD
  * @auth_tok: Set to the matching auth_tok; NULL if not found
  * @crypt_stat: inode crypt_stat crypto context
+=======
+ * @auth_tok_key: key containing the authentication token
+ * @auth_tok: Set to the matching auth_tok; NULL if not found
+ * @mount_crypt_stat: inode crypt_stat crypto context
+>>>>>>> upstream/android-13
  * @sig: Sig of auth_tok to find
  *
  * For now, this function simply looks at the registered auth_tok's
@@ -646,7 +669,11 @@ ecryptfs_find_auth_tok_for_sig(
 	return rc;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * write_tag_70_packet can gobble a lot of stack space. We stuff most
  * of the function's parameters in a kmalloc'd struct to help reduce
  * eCryptfs' overall stack usage.
@@ -674,7 +701,11 @@ struct ecryptfs_write_tag_70_packet_silly_stack {
 	struct shash_desc *hash_desc;
 };
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * write_tag_70_packet - Write encrypted filename (EFN) packet against FNEK
  * @filename: NULL-terminated filename string
  *
@@ -709,11 +740,17 @@ ecryptfs_write_tag_70_packet(char *dest, size_t *remaining_bytes,
 		       mount_crypt_stat->global_default_fnek_sig, rc);
 		goto out;
 	}
+<<<<<<< HEAD
 
 	rc = ecryptfs_get_tfm_and_mutex_for_cipher_name(
 		&s->skcipher_tfm,
 		&s->tfm_mutex, mount_crypt_stat->global_default_fn_cipher_name, mount_crypt_stat->flags);
 
+=======
+	rc = ecryptfs_get_tfm_and_mutex_for_cipher_name(
+		&s->skcipher_tfm,
+		&s->tfm_mutex, mount_crypt_stat->global_default_fn_cipher_name);
+>>>>>>> upstream/android-13
 	if (unlikely(rc)) {
 		printk(KERN_ERR "Internal error whilst attempting to get "
 		       "tfm and mutex for cipher name [%s]; rc = [%d]\n",
@@ -827,7 +864,10 @@ ecryptfs_write_tag_70_packet(char *dest, size_t *remaining_bytes,
 	}
 
 	s->hash_desc->tfm = s->hash_tfm;
+<<<<<<< HEAD
 	s->hash_desc->flags = CRYPTO_TFM_REQ_MAY_SLEEP;
+=======
+>>>>>>> upstream/android-13
 
 	rc = crypto_shash_digest(s->hash_desc,
 				 (u8 *)s->auth_tok->token.password.session_key_encryption_key,
@@ -911,7 +951,11 @@ ecryptfs_write_tag_70_packet(char *dest, size_t *remaining_bytes,
 out_release_free_unlock:
 	crypto_free_shash(s->hash_tfm);
 out_free_unlock:
+<<<<<<< HEAD
 	kzfree(s->block_aligned_filename);
+=======
+	kfree_sensitive(s->block_aligned_filename);
+>>>>>>> upstream/android-13
 out_unlock:
 	mutex_unlock(s->tfm_mutex);
 out:
@@ -920,7 +964,11 @@ out:
 		key_put(auth_tok_key);
 	}
 	skcipher_request_free(s->skcipher_req);
+<<<<<<< HEAD
 	kzfree(s->hash_desc);
+=======
+	kfree_sensitive(s->hash_desc);
+>>>>>>> upstream/android-13
 	kfree(s);
 	return rc;
 }
@@ -946,7 +994,11 @@ struct ecryptfs_parse_tag_70_packet_silly_stack {
 };
 
 /**
+<<<<<<< HEAD
  * parse_tag_70_packet - Parse and process FNEK-encrypted passphrase packet
+=======
+ * ecryptfs_parse_tag_70_packet - Parse and process FNEK-encrypted passphrase packet
+>>>>>>> upstream/android-13
  * @filename: This function kmalloc's the memory for the filename
  * @filename_size: This function sets this to the amount of memory
  *                 kmalloc'd for the filename
@@ -1039,11 +1091,17 @@ ecryptfs_parse_tag_70_packet(char **filename, size_t *filename_size,
 		       rc);
 		goto out;
 	}
+<<<<<<< HEAD
 
 	rc = ecryptfs_get_tfm_and_mutex_for_cipher_name(&s->skcipher_tfm,
 							&s->tfm_mutex,
 							s->cipher_string, mount_crypt_stat->flags);
 
+=======
+	rc = ecryptfs_get_tfm_and_mutex_for_cipher_name(&s->skcipher_tfm,
+							&s->tfm_mutex,
+							s->cipher_string);
+>>>>>>> upstream/android-13
 	if (unlikely(rc)) {
 		printk(KERN_ERR "Internal error whilst attempting to get "
 		       "tfm and mutex for cipher name [%s]; rc = [%d]\n",
@@ -1123,8 +1181,14 @@ ecryptfs_parse_tag_70_packet(char **filename, size_t *filename_size,
 		       "rc = [%d]\n", __func__, rc);
 		goto out_free_unlock;
 	}
+<<<<<<< HEAD
 	while (s->decrypted_filename[s->i] != '\0'
 	       && s->i < s->block_aligned_filename_size)
+=======
+
+	while (s->i < s->block_aligned_filename_size &&
+	       s->decrypted_filename[s->i] != '\0')
+>>>>>>> upstream/android-13
 		s->i++;
 	if (s->i == s->block_aligned_filename_size) {
 		printk(KERN_WARNING "%s: Invalid tag 70 packet; could not "
@@ -1246,7 +1310,11 @@ decrypt_pki_encrypted_session_key(struct ecryptfs_auth_tok *auth_tok,
 	rc = ecryptfs_cipher_code_to_string(crypt_stat->cipher, cipher_code);
 	if (rc) {
 		ecryptfs_printk(KERN_ERR, "Cipher code [%d] is invalid\n",
+<<<<<<< HEAD
 				cipher_code)
+=======
+				cipher_code);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 	crypt_stat->flags |= ECRYPTFS_KEY_VALID;
@@ -1686,9 +1754,15 @@ int ecryptfs_keyring_auth_tok_for_sig(struct key **auth_tok_key,
 	int rc = 0;
 
 	(*auth_tok_key) = request_key(&key_type_user, sig, NULL);
+<<<<<<< HEAD
 	if (!(*auth_tok_key) || IS_ERR(*auth_tok_key)) {
 		(*auth_tok_key) = ecryptfs_get_encrypted_key(sig);
 		if (!(*auth_tok_key) || IS_ERR(*auth_tok_key)) {
+=======
+	if (IS_ERR(*auth_tok_key)) {
+		(*auth_tok_key) = ecryptfs_get_encrypted_key(sig);
+		if (IS_ERR(*auth_tok_key)) {
+>>>>>>> upstream/android-13
 			printk(KERN_ERR "Could not find key with description: [%s]\n",
 			      sig);
 			rc = process_request_key_err(PTR_ERR(*auth_tok_key));
@@ -1725,12 +1799,16 @@ decrypt_passphrase_encrypted_session_key(struct ecryptfs_auth_tok *auth_tok,
 	struct crypto_skcipher *tfm;
 	struct skcipher_request *req = NULL;
 	int rc = 0;
+<<<<<<< HEAD
 	char *hash_key = NULL;
 	char *iv = NULL;
 #ifdef CONFIG_ECRYPTFS_FEK_INTEGRITY
 	unsigned char hmac_hash[FEK_HASH_SIZE];
 	int rz = 0;
 #endif	
+=======
+
+>>>>>>> upstream/android-13
 	if (unlikely(ecryptfs_verbosity > 0)) {
 		ecryptfs_printk(
 			KERN_DEBUG, "Session key encryption key (size [%d]):\n",
@@ -1739,10 +1817,15 @@ decrypt_passphrase_encrypted_session_key(struct ecryptfs_auth_tok *auth_tok,
 			auth_tok->token.password.session_key_encryption_key,
 			auth_tok->token.password.session_key_encryption_key_bytes);
 	}
+<<<<<<< HEAD
 
 	rc = ecryptfs_get_tfm_and_mutex_for_cipher_name(&tfm, &tfm_mutex,
 		crypt_stat->cipher, crypt_stat->mount_crypt_stat->flags);
 
+=======
+	rc = ecryptfs_get_tfm_and_mutex_for_cipher_name(&tfm, &tfm_mutex,
+							crypt_stat->cipher);
+>>>>>>> upstream/android-13
 	if (unlikely(rc)) {
 		printk(KERN_ERR "Internal error whilst attempting to get "
 		       "tfm and mutex for cipher name [%s]; rc = [%d]\n",
@@ -1793,6 +1876,7 @@ decrypt_passphrase_encrypted_session_key(struct ecryptfs_auth_tok *auth_tok,
 		rc = -EINVAL;
 		goto out;
 	}
+<<<<<<< HEAD
 
 	if (crypt_stat->mount_crypt_stat->flags & ECRYPTFS_ENABLE_CC) {
 		hash_key = kmalloc(SHA256_HASH_SIZE, GFP_KERNEL);
@@ -1824,12 +1908,18 @@ decrypt_passphrase_encrypted_session_key(struct ecryptfs_auth_tok *auth_tok,
 				   auth_tok->session_key.encrypted_key_size,
 				   iv);
 
+=======
+	skcipher_request_set_crypt(req, src_sg, dst_sg,
+				   auth_tok->session_key.encrypted_key_size,
+				   NULL);
+>>>>>>> upstream/android-13
 	rc = crypto_skcipher_decrypt(req);
 	mutex_unlock(tfm_mutex);
 	if (unlikely(rc)) {
 		printk(KERN_ERR "Error decrypting; rc = [%d]\n", rc);
 		goto out;
 	}
+<<<<<<< HEAD
 #ifdef CONFIG_ECRYPTFS_FEK_INTEGRITY
 	if(crypt_stat->flags & ECRYPTFS_ENABLE_HMAC) {
 		if (crypt_stat->flags & ECRYPTFS_SUPPORT_HMAC_KEY
@@ -1856,16 +1946,21 @@ decrypt_passphrase_encrypted_session_key(struct ecryptfs_auth_tok *auth_tok,
 		ecryptfs_printk(KERN_INFO, "HMAC HASH is Not Present in SD Card...\n");
 	}
 #endif	
+=======
+>>>>>>> upstream/android-13
 	auth_tok->session_key.flags |= ECRYPTFS_CONTAINS_DECRYPTED_KEY;
 	memcpy(crypt_stat->key, auth_tok->session_key.decrypted_key,
 	       auth_tok->session_key.decrypted_key_size);
 	crypt_stat->flags |= ECRYPTFS_KEY_VALID;
+<<<<<<< HEAD
 
     /* File encryption key CLEAR! */
     memset(auth_tok->session_key.decrypted_key, 0, auth_tok->session_key.decrypted_key_size);
     auth_tok->session_key.decrypted_key_size = 0;
     auth_tok->session_key.flags &= ~ECRYPTFS_CONTAINS_DECRYPTED_KEY;
 
+=======
+>>>>>>> upstream/android-13
 	if (unlikely(ecryptfs_verbosity > 0)) {
 		ecryptfs_printk(KERN_DEBUG, "FEK of size [%zd]:\n",
 				crypt_stat->key_size);
@@ -1874,10 +1969,13 @@ decrypt_passphrase_encrypted_session_key(struct ecryptfs_auth_tok *auth_tok,
 	}
 out:
 	skcipher_request_free(req);
+<<<<<<< HEAD
 	kfree(hash_key);
 	if (iv)
 		memset(iv, 0, ECRYPTFS_DEFAULT_IV_BYTES);
 	kfree(iv);
+=======
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -1913,6 +2011,7 @@ int ecryptfs_parse_packet_set(struct ecryptfs_crypt_stat *crypt_stat,
 	size_t tag_11_packet_size;
 	struct key *auth_tok_key = NULL;
 	int rc = 0;
+<<<<<<< HEAD
 #ifdef CONFIG_ECRYPTFS_FEK_INTEGRITY
 #ifdef CONFIG_SDP
 	char session_key_encryption_key[ECRYPTFS_MAX_KEY_BYTES];
@@ -1921,12 +2020,15 @@ int ecryptfs_parse_packet_set(struct ecryptfs_crypt_stat *crypt_stat,
 	int rz = 0;
 #endif
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	INIT_LIST_HEAD(&auth_tok_list);
 	/* Parse the header to find as many packets as we can; these will be
 	 * added the our &auth_tok_list */
 	next_packet_is_auth_tok_packet = 1;
 	while (next_packet_is_auth_tok_packet) {
+<<<<<<< HEAD
 		size_t max_packet_size;
 		if ((PAGE_SIZE - 8) < i) {
 			printk(KERN_WARNING "%s: Invalid max packet size\n", __func__);
@@ -1934,6 +2036,9 @@ int ecryptfs_parse_packet_set(struct ecryptfs_crypt_stat *crypt_stat,
 			goto out;
 		}
 		max_packet_size = ((PAGE_SIZE - 8) - i);
+=======
+		size_t max_packet_size = ((PAGE_SIZE - 8) - i);
+>>>>>>> upstream/android-13
 
 		switch (src[i]) {
 		case ECRYPTFS_TAG_3_PACKET_TYPE:
@@ -1999,7 +2104,10 @@ int ecryptfs_parse_packet_set(struct ecryptfs_crypt_stat *crypt_stat,
 					"(Tag 11 not allowed by itself)\n");
 			rc = -EIO;
 			goto out_wipe_list;
+<<<<<<< HEAD
 			break;
+=======
+>>>>>>> upstream/android-13
 		default:
 			ecryptfs_printk(KERN_DEBUG, "No packet at offset [%zd] "
 					"of the file header; hex value of "
@@ -2338,7 +2446,10 @@ write_tag_3_packet(char *dest, size_t *remaining_bytes,
 	size_t i;
 	size_t encrypted_session_key_valid = 0;
 	char session_key_encryption_key[ECRYPTFS_MAX_KEY_BYTES];
+<<<<<<< HEAD
 	char session_hmac_key[SEC_ECRYPTFS_HMAC_KEY_SIZE];
+=======
+>>>>>>> upstream/android-13
 	struct scatterlist dst_sg[2];
 	struct scatterlist src_sg[2];
 	struct mutex *tfm_mutex = NULL;
@@ -2350,16 +2461,24 @@ write_tag_3_packet(char *dest, size_t *remaining_bytes,
 	struct crypto_skcipher *tfm;
 	struct skcipher_request *req;
 	int rc = 0;
+<<<<<<< HEAD
 	char *hash_key = NULL;
 	char *iv = NULL;
+=======
+>>>>>>> upstream/android-13
 
 	(*packet_size) = 0;
 	ecryptfs_from_hex(key_rec->sig, auth_tok->token.password.signature,
 			  ECRYPTFS_SIG_SIZE);
+<<<<<<< HEAD
 
 	rc = ecryptfs_get_tfm_and_mutex_for_cipher_name(&tfm, &tfm_mutex,
 		crypt_stat->cipher, crypt_stat->mount_crypt_stat->flags);
 
+=======
+	rc = ecryptfs_get_tfm_and_mutex_for_cipher_name(&tfm, &tfm_mutex,
+							crypt_stat->cipher);
+>>>>>>> upstream/android-13
 	if (unlikely(rc)) {
 		printk(KERN_ERR "Internal error whilst attempting to get "
 		       "tfm and mutex for cipher name [%s]; rc = [%d]\n",
@@ -2369,9 +2488,15 @@ write_tag_3_packet(char *dest, size_t *remaining_bytes,
 	if (mount_crypt_stat->global_default_cipher_key_size == 0) {
 		printk(KERN_WARNING "No key size specified at mount; "
 		       "defaulting to [%d]\n",
+<<<<<<< HEAD
 		       crypto_skcipher_default_keysize(tfm));
 		mount_crypt_stat->global_default_cipher_key_size =
 			crypto_skcipher_default_keysize(tfm);
+=======
+		       crypto_skcipher_max_keysize(tfm));
+		mount_crypt_stat->global_default_cipher_key_size =
+			crypto_skcipher_max_keysize(tfm);
+>>>>>>> upstream/android-13
 	}
 	if (crypt_stat->key_size == 0)
 		crypt_stat->key_size =
@@ -2408,6 +2533,7 @@ write_tag_3_packet(char *dest, size_t *remaining_bytes,
 				auth_tok->token.password.
 				session_key_encryption_key_bytes);
 		memcpy(session_key_encryption_key,
+<<<<<<< HEAD
 			 	auth_tok->token.password.session_key_encryption_key,
 				crypt_stat->key_size);
 						
@@ -2417,6 +2543,10 @@ write_tag_3_packet(char *dest, size_t *remaining_bytes,
 				auth_tok->token.password.session_key_encryption_key + SEC_ECRYPTFS_HMAC_KEY_SIZE,
 				crypt_stat->key_size);
 		}
+=======
+		       auth_tok->token.password.session_key_encryption_key,
+		       crypt_stat->key_size);
+>>>>>>> upstream/android-13
 		ecryptfs_printk(KERN_DEBUG,
 				"Cached session key encryption key:\n");
 		if (ecryptfs_verbosity > 0)
@@ -2426,6 +2556,7 @@ write_tag_3_packet(char *dest, size_t *remaining_bytes,
 		ecryptfs_printk(KERN_DEBUG, "Session key encryption key:\n");
 		ecryptfs_dump_hex(session_key_encryption_key, 16);
 	}
+<<<<<<< HEAD
 #ifdef CONFIG_ECRYPTFS_FEK_INTEGRITY
 	if(crypt_stat->flags & ECRYPTFS_ENABLE_HMAC) {
 		if(crypt_stat->flags & ECRYPTFS_SUPPORT_HMAC_KEY 
@@ -2443,6 +2574,8 @@ write_tag_3_packet(char *dest, size_t *remaining_bytes,
 		}
 	}
 #endif	
+=======
+>>>>>>> upstream/android-13
 	rc = virt_to_scatterlist(crypt_stat->key, key_rec->enc_key_size,
 				 src_sg, 2);
 	if (rc < 1 || rc > 2) {
@@ -2490,6 +2623,7 @@ write_tag_3_packet(char *dest, size_t *remaining_bytes,
 	rc = 0;
 	ecryptfs_printk(KERN_DEBUG, "Encrypting [%zd] bytes of the key\n",
 			crypt_stat->key_size);
+<<<<<<< HEAD
 
 	if (crypt_stat->mount_crypt_stat->flags & ECRYPTFS_ENABLE_CC) {
 		hash_key = kmalloc(SHA256_HASH_SIZE, GFP_KERNEL);
@@ -2511,6 +2645,10 @@ write_tag_3_packet(char *dest, size_t *remaining_bytes,
 	skcipher_request_set_crypt(req, src_sg, dst_sg,
 				   (*key_rec).enc_key_size, iv);
 
+=======
+	skcipher_request_set_crypt(req, src_sg, dst_sg,
+				   (*key_rec).enc_key_size, NULL);
+>>>>>>> upstream/android-13
 	rc = crypto_skcipher_encrypt(req);
 	mutex_unlock(tfm_mutex);
 	skcipher_request_free(req);
@@ -2582,12 +2720,15 @@ out:
 		(*packet_size) = 0;
 	else
 		(*remaining_bytes) -= (*packet_size);
+<<<<<<< HEAD
 
 	kfree(hash_key);
 	if (iv)
 		memset(iv, 0, ECRYPTFS_DEFAULT_IV_BYTES);
 	kfree(iv);
 
+=======
+>>>>>>> upstream/android-13
 	return rc;
 }
 

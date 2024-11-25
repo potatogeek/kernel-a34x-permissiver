@@ -1,10 +1,17 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0+
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 1996, 2003 VIA Networking Technologies, Inc.
  * All rights reserved.
  *
+<<<<<<< HEAD
  * File: key.h
  *
+=======
+>>>>>>> upstream/android-13
  * Purpose: Implement functions for 802.11i Key management
  *
  * Author: Jerry Chen
@@ -25,6 +32,7 @@
 #define KEY_CTL_TKIP        0x02
 #define KEY_CTL_CCMP        0x03
 
+<<<<<<< HEAD
 #define VNT_KEY_DEFAULTKEY	0x1
 #define VNT_KEY_GROUP_ADDRESS	0x2
 #define VNT_KEY_ALLGROUP	0x4
@@ -32,6 +40,16 @@
 #define VNT_KEY_PAIRWISE	0x00
 #define VNT_KEY_ONFLY		0x8000
 #define VNT_KEY_ONFLY_ALL	0x4000
+=======
+#define VNT_KEY_ONFLY_ALL	0x4000
+#define VNT_KEY_ONFLY		0x8000
+#define VNT_KEY_ALLGROUP	0x04
+#define VNT_KEY_GROUP		0x40
+#define VNT_KEY_PAIRWISE	VNT_KEY_ONFLY
+#define VNT_KEY_GROUP_ADDRESS	(VNT_KEY_ALLGROUP | VNT_KEY_GROUP)
+#define VNT_KEY_DEFAULTKEY	(VNT_KEY_GROUP_ADDRESS | VNT_KEY_ONFLY |\
+				VNT_KEY_ONFLY_ALL)
+>>>>>>> upstream/android-13
 
 int vnt_key_init_table(struct vnt_private *priv);
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright © 2006-2007 Intel Corporation
  *
@@ -14,6 +15,12 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright © 2006-2007 Intel Corporation
+ *
+>>>>>>> upstream/android-13
  * Authors:
  *	Eric Anholt <eric@anholt.net>
  *	Dave Airlie <airlied@linux.ie>
@@ -21,6 +28,7 @@
  */
 
 #include <linux/i2c.h>
+<<<<<<< HEAD
 #include <drm/drmP.h>
 
 #include "intel_bios.h"
@@ -29,6 +37,17 @@
 #include "psb_intel_reg.h"
 #include "power.h"
 #include <linux/pm_runtime.h>
+=======
+#include <linux/pm_runtime.h>
+
+#include <drm/drm_simple_kms_helper.h>
+
+#include "intel_bios.h"
+#include "power.h"
+#include "psb_drv.h"
+#include "psb_intel_drv.h"
+#include "psb_intel_reg.h"
+>>>>>>> upstream/android-13
 
 /*
  * LVDS I2C backlight control macros
@@ -227,7 +246,11 @@ static void psb_intel_lvds_set_power(struct drm_device *dev, bool on)
 	        dev_err(dev->dev, "set power, chip off!\n");
 		return;
         }
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> upstream/android-13
 	if (on) {
 		REG_WRITE(PP_CONTROL, REG_READ(PP_CONTROL) |
 			  POWER_TARGET_ON);
@@ -634,6 +657,7 @@ const struct drm_connector_funcs psb_intel_lvds_connector_funcs = {
 	.destroy = psb_intel_lvds_destroy,
 };
 
+<<<<<<< HEAD
 
 static void psb_intel_lvds_enc_destroy(struct drm_encoder *encoder)
 {
@@ -649,6 +673,12 @@ const struct drm_encoder_funcs psb_intel_lvds_enc_funcs = {
 /**
  * psb_intel_lvds_init - setup LVDS connectors on this device
  * @dev: drm device
+=======
+/**
+ * psb_intel_lvds_init - setup LVDS connectors on this device
+ * @dev: drm device
+ * @mode_dev: mode device
+>>>>>>> upstream/android-13
  *
  * Create the connector, register the LVDS DDC bus, and try to figure out what
  * modes we can display on the LVDS panel (if present).
@@ -696,9 +726,13 @@ void psb_intel_lvds_init(struct drm_device *dev,
 			   &psb_intel_lvds_connector_funcs,
 			   DRM_MODE_CONNECTOR_LVDS);
 
+<<<<<<< HEAD
 	drm_encoder_init(dev, encoder,
 			 &psb_intel_lvds_enc_funcs,
 			 DRM_MODE_ENCODER_LVDS, NULL);
+=======
+	drm_simple_encoder_init(dev, encoder, DRM_MODE_ENCODER_LVDS);
+>>>>>>> upstream/android-13
 
 	gma_connector_attach_encoder(gma_connector, gma_encoder);
 	gma_encoder->type = INTEL_OUTPUT_LVDS;
@@ -725,7 +759,11 @@ void psb_intel_lvds_init(struct drm_device *dev,
 	lvds_priv->i2c_bus = psb_intel_i2c_create(dev, GPIOB, "LVDSBLC_B");
 	if (!lvds_priv->i2c_bus) {
 		dev_printk(KERN_ERR,
+<<<<<<< HEAD
 			&dev->pdev->dev, "I2C bus registration failed.\n");
+=======
+			dev->dev, "I2C bus registration failed.\n");
+>>>>>>> upstream/android-13
 		goto failed_blc_i2c;
 	}
 	lvds_priv->i2c_bus->slave_addr = 0x2C;
@@ -744,7 +782,11 @@ void psb_intel_lvds_init(struct drm_device *dev,
 	/* Set up the DDC bus. */
 	lvds_priv->ddc_bus = psb_intel_i2c_create(dev, GPIOC, "LVDSDDC_C");
 	if (!lvds_priv->ddc_bus) {
+<<<<<<< HEAD
 		dev_printk(KERN_ERR, &dev->pdev->dev,
+=======
+		dev_printk(KERN_ERR, dev->dev,
+>>>>>>> upstream/android-13
 			   "DDC bus registration " "failed.\n");
 		goto failed_ddc;
 	}

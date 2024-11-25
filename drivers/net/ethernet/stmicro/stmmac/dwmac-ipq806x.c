@@ -189,9 +189,16 @@ static int ipq806x_gmac_set_speed(struct ipq806x_gmac *gmac, unsigned int speed)
 static int ipq806x_gmac_of_parse(struct ipq806x_gmac *gmac)
 {
 	struct device *dev = &gmac->pdev->dev;
+<<<<<<< HEAD
 
 	gmac->phy_mode = of_get_phy_mode(dev->of_node);
 	if ((int)gmac->phy_mode < 0) {
+=======
+	int ret;
+
+	ret = of_get_phy_mode(dev->of_node, &gmac->phy_mode);
+	if (ret) {
+>>>>>>> upstream/android-13
 		dev_err(dev, "missing phy mode property\n");
 		return -EINVAL;
 	}
@@ -254,7 +261,11 @@ static int ipq806x_gmac_probe(struct platform_device *pdev)
 	if (val)
 		return val;
 
+<<<<<<< HEAD
 	plat_dat = stmmac_probe_config_dt(pdev, &stmmac_res.mac);
+=======
+	plat_dat = stmmac_probe_config_dt(pdev, stmmac_res.mac);
+>>>>>>> upstream/android-13
 	if (IS_ERR(plat_dat))
 		return PTR_ERR(plat_dat);
 
@@ -288,10 +299,14 @@ static int ipq806x_gmac_probe(struct platform_device *pdev)
 		val &= ~NSS_COMMON_GMAC_CTL_PHY_IFACE_SEL;
 		break;
 	default:
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "Unsupported PHY mode: \"%s\"\n",
 			phy_modes(gmac->phy_mode));
 		err = -EINVAL;
 		goto err_remove_config_dt;
+=======
+		goto err_unsupported_phy;
+>>>>>>> upstream/android-13
 	}
 	regmap_write(gmac->nss_common, NSS_COMMON_GMAC_CTL(gmac->id), val);
 
@@ -308,10 +323,14 @@ static int ipq806x_gmac_probe(struct platform_device *pdev)
 			NSS_COMMON_CLK_SRC_CTRL_OFFSET(gmac->id);
 		break;
 	default:
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "Unsupported PHY mode: \"%s\"\n",
 			phy_modes(gmac->phy_mode));
 		err = -EINVAL;
 		goto err_remove_config_dt;
+=======
+		goto err_unsupported_phy;
+>>>>>>> upstream/android-13
 	}
 	regmap_write(gmac->nss_common, NSS_COMMON_CLK_SRC_CTRL, val);
 
@@ -328,8 +347,12 @@ static int ipq806x_gmac_probe(struct platform_device *pdev)
 				NSS_COMMON_CLK_GATE_GMII_TX_EN(gmac->id);
 		break;
 	default:
+<<<<<<< HEAD
 		/* We don't get here; the switch above will have errored out */
 		unreachable();
+=======
+		goto err_unsupported_phy;
+>>>>>>> upstream/android-13
 	}
 	regmap_write(gmac->nss_common, NSS_COMMON_CLK_GATE, val);
 
@@ -360,6 +383,14 @@ static int ipq806x_gmac_probe(struct platform_device *pdev)
 
 	return 0;
 
+<<<<<<< HEAD
+=======
+err_unsupported_phy:
+	dev_err(&pdev->dev, "Unsupported PHY mode: \"%s\"\n",
+		phy_modes(gmac->phy_mode));
+	err = -EINVAL;
+
+>>>>>>> upstream/android-13
 err_remove_config_dt:
 	stmmac_remove_config_dt(pdev, plat_dat);
 

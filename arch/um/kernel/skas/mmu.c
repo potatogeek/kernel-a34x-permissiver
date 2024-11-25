@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015 Thomas Meyer (thomas@m3y3r.de)
  * Copyright (C) 2002 - 2007 Jeff Dike (jdike@{addtoit,linux.intel}.com)
  * Licensed under the GPL
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2015 Thomas Meyer (thomas@m3y3r.de)
+ * Copyright (C) 2002 - 2007 Jeff Dike (jdike@{addtoit,linux.intel}.com)
+>>>>>>> upstream/android-13
  */
 
 #include <linux/mm.h>
@@ -9,12 +16,16 @@
 #include <linux/slab.h>
 
 #include <asm/pgalloc.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/sections.h>
 #include <as-layout.h>
 #include <os.h>
 #include <skas.h>
 
+<<<<<<< HEAD
 static int init_stub_pte(struct mm_struct *mm, unsigned long proc,
 			 unsigned long kernel)
 {
@@ -48,6 +59,8 @@ static int init_stub_pte(struct mm_struct *mm, unsigned long proc,
 	return -ENOMEM;
 }
 
+=======
+>>>>>>> upstream/android-13
 int init_new_context(struct task_struct *task, struct mm_struct *mm)
 {
  	struct mm_context *from_mm = NULL;
@@ -63,12 +76,20 @@ int init_new_context(struct task_struct *task, struct mm_struct *mm)
 	if (current->mm != NULL && current->mm != &init_mm)
 		from_mm = &current->mm->context;
 
+<<<<<<< HEAD
 	block_signals();
+=======
+	block_signals_trace();
+>>>>>>> upstream/android-13
 	if (from_mm)
 		to_mm->id.u.pid = copy_context_skas0(stack,
 						     from_mm->id.u.pid);
 	else to_mm->id.u.pid = start_userspace(stack);
+<<<<<<< HEAD
 	unblock_signals();
+=======
+	unblock_signals_trace();
+>>>>>>> upstream/android-13
 
 	if (to_mm->id.u.pid < 0) {
 		ret = to_mm->id.u.pid;
@@ -91,6 +112,7 @@ int init_new_context(struct task_struct *task, struct mm_struct *mm)
 	return ret;
 }
 
+<<<<<<< HEAD
 void uml_setup_stubs(struct mm_struct *mm)
 {
 	int err, ret;
@@ -137,6 +159,8 @@ void arch_exit_mmap(struct mm_struct *mm)
 	pte_clear(mm, STUB_DATA, pte);
 }
 
+=======
+>>>>>>> upstream/android-13
 void destroy_context(struct mm_struct *mm)
 {
 	struct mm_context *mmu = &mm->context;

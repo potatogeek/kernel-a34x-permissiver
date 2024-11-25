@@ -44,11 +44,15 @@
 
 #include <sys/types.h>
 
+<<<<<<< HEAD
 #ifdef __linux__
 #include "aicdb.h"
 #else
 #include <db.h>
 #endif
+=======
+#include "aicdb.h"
+>>>>>>> upstream/android-13
 #include <fcntl.h>
 #include <inttypes.h>
 #include <regex.h>

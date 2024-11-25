@@ -1,5 +1,9 @@
 /*
  *    Disk Array driver for HP Smart Array SAS controllers
+<<<<<<< HEAD
+=======
+ *    Copyright (c) 2019-2020 Microchip Technology Inc. and its subsidiaries
+>>>>>>> upstream/android-13
  *    Copyright 2016 Microsemi Corporation
  *    Copyright 2014-2015 PMC-Sierra, Inc.
  *    Copyright 2000,2009-2015 Hewlett-Packard Development Company, L.P.
@@ -21,7 +25,10 @@
 #include <linux/interrupt.h>
 #include <linux/types.h>
 #include <linux/pci.h>
+<<<<<<< HEAD
 #include <linux/pci-aspm.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/slab.h>
 #include <linux/delay.h>
@@ -60,7 +67,11 @@
  * HPSA_DRIVER_VERSION must be 3 byte values (0-255) separated by '.'
  * with an optional trailing '-' followed by a byte value (0-255).
  */
+<<<<<<< HEAD
 #define HPSA_DRIVER_VERSION "3.4.20-125"
+=======
+#define HPSA_DRIVER_VERSION "3.4.20-200"
+>>>>>>> upstream/android-13
 #define DRIVER_NAME "HP HPSA Driver (v " HPSA_DRIVER_VERSION ")"
 #define HPSA "hpsa"
 
@@ -73,12 +84,20 @@
 
 /*define how many times we will try a command because of bus resets */
 #define MAX_CMD_RETRIES 3
+<<<<<<< HEAD
+=======
+/* How long to wait before giving up on a command */
+#define HPSA_EH_PTRAID_TIMEOUT (240 * HZ)
+>>>>>>> upstream/android-13
 
 /* Embedded module documentation macros - see modules.h */
 MODULE_AUTHOR("Hewlett-Packard Company");
 MODULE_DESCRIPTION("Driver for HP Smart Array Controller version " \
 	HPSA_DRIVER_VERSION);
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("HP Smart Array Controllers");
+=======
+>>>>>>> upstream/android-13
 MODULE_VERSION(HPSA_DRIVER_VERSION);
 MODULE_LICENSE("GPL");
 MODULE_ALIAS("cciss");
@@ -251,10 +270,22 @@ static int number_of_controllers;
 
 static irqreturn_t do_hpsa_intr_intx(int irq, void *dev_id);
 static irqreturn_t do_hpsa_intr_msi(int irq, void *dev_id);
+<<<<<<< HEAD
 static int hpsa_ioctl(struct scsi_device *dev, int cmd, void __user *arg);
 
 #ifdef CONFIG_COMPAT
 static int hpsa_compat_ioctl(struct scsi_device *dev, int cmd,
+=======
+static int hpsa_ioctl(struct scsi_device *dev, unsigned int cmd,
+		      void __user *arg);
+static int hpsa_passthru_ioctl(struct ctlr_info *h,
+			       IOCTL_Command_struct *iocommand);
+static int hpsa_big_passthru_ioctl(struct ctlr_info *h,
+				   BIG_IOCTL_Command_struct *ioc);
+
+#ifdef CONFIG_COMPAT
+static int hpsa_compat_ioctl(struct scsi_device *dev, unsigned int cmd,
+>>>>>>> upstream/android-13
 	void __user *arg);
 #endif
 
@@ -343,11 +374,14 @@ static inline bool hpsa_is_cmd_idle(struct CommandList *c)
 	return c->scsi_cmd == SCSI_CMD_IDLE;
 }
 
+<<<<<<< HEAD
 static inline bool hpsa_is_pending_event(struct CommandList *c)
 {
 	return c->reset_pending;
 }
 
+=======
+>>>>>>> upstream/android-13
 /* extract sense key, asc, and ascq from sense data.  -1 means invalid. */
 static void decode_sense_data(const u8 *sense_data, int sense_data_len,
 			u8 *sense_key, u8 *asc, u8 *ascq)
@@ -971,7 +1005,10 @@ static struct scsi_host_template hpsa_driver_template = {
 	.scan_finished		= hpsa_scan_finished,
 	.change_queue_depth	= hpsa_change_queue_depth,
 	.this_id		= -1,
+<<<<<<< HEAD
 	.use_clustering		= ENABLE_CLUSTERING,
+=======
+>>>>>>> upstream/android-13
 	.eh_device_reset_handler = hpsa_eh_device_reset_handler,
 	.ioctl			= hpsa_ioctl,
 	.slave_alloc		= hpsa_slave_alloc,
@@ -1150,6 +1187,14 @@ static void __enqueue_cmd_and_start_io(struct ctlr_info *h,
 {
 	dial_down_lockup_detection_during_fw_flash(h, c);
 	atomic_inc(&h->commands_outstanding);
+<<<<<<< HEAD
+=======
+	/*
+	 * Check to see if the command is being retried.
+	 */
+	if (c->device && !c->retry_pending)
+		atomic_inc(&c->device->commands_outstanding);
+>>>>>>> upstream/android-13
 
 	reply_queue = h->reply_map[raw_smp_processor_id()];
 	switch (c->cmd_type) {
@@ -1173,9 +1218,12 @@ static void __enqueue_cmd_and_start_io(struct ctlr_info *h,
 
 static void enqueue_cmd_and_start_io(struct ctlr_info *h, struct CommandList *c)
 {
+<<<<<<< HEAD
 	if (unlikely(hpsa_is_pending_event(c)))
 		return finish_cmd(c);
 
+=======
+>>>>>>> upstream/android-13
 	__enqueue_cmd_and_start_io(h, c, DEFAULT_REPLY_QUEUE);
 }
 
@@ -1334,7 +1382,11 @@ static int hpsa_scsi_add_entry(struct ctlr_info *h,
 		dev_warn(&h->pdev->dev, "physical device with no LUN=0,"
 			" suspect firmware bug or unsupported hardware "
 			"configuration.\n");
+<<<<<<< HEAD
 			return -1;
+=======
+		return -1;
+>>>>>>> upstream/android-13
 	}
 
 lun_assigned:
@@ -1847,25 +1899,50 @@ static int hpsa_find_outstanding_commands_for_dev(struct ctlr_info *h,
 	return count;
 }
 
+<<<<<<< HEAD
+=======
+#define NUM_WAIT 20
+>>>>>>> upstream/android-13
 static void hpsa_wait_for_outstanding_commands_for_dev(struct ctlr_info *h,
 						struct hpsa_scsi_dev_t *device)
 {
 	int cmds = 0;
 	int waits = 0;
+<<<<<<< HEAD
+=======
+	int num_wait = NUM_WAIT;
+
+	if (device->external)
+		num_wait = HPSA_EH_PTRAID_TIMEOUT;
+>>>>>>> upstream/android-13
 
 	while (1) {
 		cmds = hpsa_find_outstanding_commands_for_dev(h, device);
 		if (cmds == 0)
 			break;
+<<<<<<< HEAD
 		if (++waits > 20)
+=======
+		if (++waits > num_wait)
+>>>>>>> upstream/android-13
 			break;
 		msleep(1000);
 	}
 
+<<<<<<< HEAD
 	if (waits > 20)
 		dev_warn(&h->pdev->dev,
 			"%s: removing device with %d outstanding commands!\n",
 			__func__, cmds);
+=======
+	if (waits > num_wait) {
+		dev_warn(&h->pdev->dev,
+			"%s: removing device [%d:%d:%d:%d] with %d outstanding commands!\n",
+			__func__,
+			h->scsi_host->host_no,
+			device->bus, device->target, device->lun, cmds);
+	}
+>>>>>>> upstream/android-13
 }
 
 static void hpsa_remove_device(struct ctlr_info *h,
@@ -2127,6 +2204,10 @@ static int hpsa_slave_alloc(struct scsi_device *sdev)
 }
 
 /* configure scsi device based on internal per-device structure */
+<<<<<<< HEAD
+=======
+#define CTLR_TIMEOUT (120 * HZ)
+>>>>>>> upstream/android-13
 static int hpsa_slave_configure(struct scsi_device *sdev)
 {
 	struct hpsa_scsi_dev_t *sd;
@@ -2136,6 +2217,7 @@ static int hpsa_slave_configure(struct scsi_device *sdev)
 	sdev->no_uld_attach = !sd || !sd->expose_device;
 
 	if (sd) {
+<<<<<<< HEAD
 		if (sd->external)
 			queue_depth = EXTERNAL_QD;
 		else
@@ -2143,6 +2225,24 @@ static int hpsa_slave_configure(struct scsi_device *sdev)
 					sd->queue_depth : sdev->host->can_queue;
 	} else
 		queue_depth = sdev->host->can_queue;
+=======
+		sd->was_removed = 0;
+		queue_depth = sd->queue_depth != 0 ?
+				sd->queue_depth : sdev->host->can_queue;
+		if (sd->external) {
+			queue_depth = EXTERNAL_QD;
+			sdev->eh_timeout = HPSA_EH_PTRAID_TIMEOUT;
+			blk_queue_rq_timeout(sdev->request_queue,
+						HPSA_EH_PTRAID_TIMEOUT);
+		}
+		if (is_hba_lunid(sd->scsi3addr)) {
+			sdev->eh_timeout = CTLR_TIMEOUT;
+			blk_queue_rq_timeout(sdev->request_queue, CTLR_TIMEOUT);
+		}
+	} else {
+		queue_depth = sdev->host->can_queue;
+	}
+>>>>>>> upstream/android-13
 
 	scsi_change_queue_depth(sdev, queue_depth);
 
@@ -2151,7 +2251,16 @@ static int hpsa_slave_configure(struct scsi_device *sdev)
 
 static void hpsa_slave_destroy(struct scsi_device *sdev)
 {
+<<<<<<< HEAD
 	/* nothing to do. */
+=======
+	struct hpsa_scsi_dev_t *hdev = NULL;
+
+	hdev = sdev->hostdata;
+
+	if (hdev)
+		hdev->was_removed = 1;
+>>>>>>> upstream/android-13
 }
 
 static void hpsa_free_ioaccel2_sg_chain_blocks(struct ctlr_info *h)
@@ -2245,8 +2354,13 @@ static int hpsa_map_ioaccel2_sg_chain_block(struct ctlr_info *h,
 
 	chain_block = h->ioaccel2_cmd_sg_list[c->cmdindex];
 	chain_size = le32_to_cpu(cp->sg[0].length);
+<<<<<<< HEAD
 	temp64 = pci_map_single(h->pdev, chain_block, chain_size,
 				PCI_DMA_TODEVICE);
+=======
+	temp64 = dma_map_single(&h->pdev->dev, chain_block, chain_size,
+				DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 	if (dma_mapping_error(&h->pdev->dev, temp64)) {
 		/* prevent subsequent unmapping */
 		cp->sg->address = 0;
@@ -2266,7 +2380,11 @@ static void hpsa_unmap_ioaccel2_sg_chain_block(struct ctlr_info *h,
 	chain_sg = cp->sg;
 	temp64 = le64_to_cpu(chain_sg->address);
 	chain_size = le32_to_cpu(cp->sg[0].length);
+<<<<<<< HEAD
 	pci_unmap_single(h->pdev, temp64, chain_size, PCI_DMA_TODEVICE);
+=======
+	dma_unmap_single(&h->pdev->dev, temp64, chain_size, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 }
 
 static int hpsa_map_sg_chain_block(struct ctlr_info *h,
@@ -2282,8 +2400,13 @@ static int hpsa_map_sg_chain_block(struct ctlr_info *h,
 	chain_len = sizeof(*chain_sg) *
 		(le16_to_cpu(c->Header.SGTotal) - h->max_cmd_sg_entries);
 	chain_sg->Len = cpu_to_le32(chain_len);
+<<<<<<< HEAD
 	temp64 = pci_map_single(h->pdev, chain_block, chain_len,
 				PCI_DMA_TODEVICE);
+=======
+	temp64 = dma_map_single(&h->pdev->dev, chain_block, chain_len,
+				DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 	if (dma_mapping_error(&h->pdev->dev, temp64)) {
 		/* prevent subsequent unmapping */
 		chain_sg->Addr = cpu_to_le64(0);
@@ -2302,8 +2425,13 @@ static void hpsa_unmap_sg_chain_block(struct ctlr_info *h,
 		return;
 
 	chain_sg = &c->SG[h->max_cmd_sg_entries - 1];
+<<<<<<< HEAD
 	pci_unmap_single(h->pdev, le64_to_cpu(chain_sg->Addr),
 			le32_to_cpu(chain_sg->Len), PCI_DMA_TODEVICE);
+=======
+	dma_unmap_single(&h->pdev->dev, le64_to_cpu(chain_sg->Addr),
+			le32_to_cpu(chain_sg->Len), DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 }
 
 
@@ -2373,7 +2501,10 @@ static int handle_ioaccel_mode2_error(struct ctlr_info *h,
 			break;
 		case IOACCEL2_STATUS_SR_UNDERRUN:
 			cmd->result = (DID_OK << 16);		/* host byte */
+<<<<<<< HEAD
 			cmd->result |= (COMMAND_COMPLETE << 8);	/* msg byte */
+=======
+>>>>>>> upstream/android-13
 			ioaccel2_resid = get_unaligned_le32(
 						&c2->error_data.resid_cnt[0]);
 			scsi_set_resid(cmd, ioaccel2_resid);
@@ -2421,13 +2552,23 @@ static int handle_ioaccel_mode2_error(struct ctlr_info *h,
 		break;
 	}
 
+<<<<<<< HEAD
+=======
+	if (dev->in_reset)
+		retry = 0;
+
+>>>>>>> upstream/android-13
 	return retry;	/* retry on raid path? */
 }
 
 static void hpsa_cmd_resolve_events(struct ctlr_info *h,
 		struct CommandList *c)
 {
+<<<<<<< HEAD
 	bool do_wake = false;
+=======
+	struct hpsa_scsi_dev_t *dev = c->device;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Reset c->scsi_cmd here so that the reset handler will know
@@ -2436,6 +2577,7 @@ static void hpsa_cmd_resolve_events(struct ctlr_info *h,
 	 */
 	c->scsi_cmd = SCSI_CMD_IDLE;
 	mb();	/* Declare command idle before checking for pending events. */
+<<<<<<< HEAD
 	if (c->reset_pending) {
 		unsigned long flags;
 		struct hpsa_scsi_dev_t *dev;
@@ -2455,6 +2597,14 @@ static void hpsa_cmd_resolve_events(struct ctlr_info *h,
 
 	if (do_wake)
 		wake_up_all(&h->event_sync_wait_queue);
+=======
+	if (dev) {
+		atomic_dec(&dev->commands_outstanding);
+		if (dev->in_reset &&
+			atomic_read(&dev->commands_outstanding) <= 0)
+			wake_up_all(&h->event_sync_wait_queue);
+	}
+>>>>>>> upstream/android-13
 }
 
 static void hpsa_cmd_resolve_and_free(struct ctlr_info *h,
@@ -2504,6 +2654,14 @@ static void process_ioaccel2_completion(struct ctlr_info *h,
 			hpsa_turn_off_ioaccel_for_device(dev);
 		}
 
+<<<<<<< HEAD
+=======
+		if (dev->in_reset) {
+			cmd->result = DID_RESET << 16;
+			return hpsa_cmd_free_and_done(h, c, cmd);
+		}
+
+>>>>>>> upstream/android-13
 		return hpsa_retry_cmd(h, c);
 	}
 
@@ -2579,8 +2737,18 @@ static void complete_scsi_command(struct CommandList *cp)
 		(c2->sg[0].chain_indicator == IOACCEL2_CHAIN))
 		hpsa_unmap_ioaccel2_sg_chain_block(h, c2);
 
+<<<<<<< HEAD
 	cmd->result = (DID_OK << 16); 		/* host byte */
 	cmd->result |= (COMMAND_COMPLETE << 8);	/* msg byte */
+=======
+	cmd->result = (DID_OK << 16);		/* host byte */
+
+	/* SCSI command has already been cleaned up in SML */
+	if (dev->was_removed) {
+		hpsa_cmd_resolve_and_free(h, cp);
+		return;
+	}
+>>>>>>> upstream/android-13
 
 	if (cp->cmd_type == CMD_IOACCEL2 || cp->cmd_type == CMD_IOACCEL1) {
 		if (dev->physical_device && dev->expose_device &&
@@ -2603,10 +2771,13 @@ static void complete_scsi_command(struct CommandList *cp)
 		return hpsa_cmd_free_and_done(h, cp, cmd);
 	}
 
+<<<<<<< HEAD
 	if ((unlikely(hpsa_is_pending_event(cp))))
 		if (cp->reset_pending)
 			return hpsa_cmd_free_and_done(h, cp, cmd);
 
+=======
+>>>>>>> upstream/android-13
 	if (cp->cmd_type == CMD_IOACCEL2)
 		return process_ioaccel2_completion(h, cp, cmd, dev);
 
@@ -2655,9 +2826,26 @@ static void complete_scsi_command(struct CommandList *cp)
 			decode_sense_data(ei->SenseInfo, sense_data_size,
 				&sense_key, &asc, &ascq);
 		if (ei->ScsiStatus == SAM_STAT_CHECK_CONDITION) {
+<<<<<<< HEAD
 			if (sense_key == ABORTED_COMMAND) {
 				cmd->result |= DID_SOFT_ERROR << 16;
 				break;
+=======
+			switch (sense_key) {
+			case ABORTED_COMMAND:
+				cmd->result |= DID_SOFT_ERROR << 16;
+				break;
+			case UNIT_ATTENTION:
+				if (asc == 0x3F && ascq == 0x0E)
+					h->drv_req_rescan = 1;
+				break;
+			case ILLEGAL_REQUEST:
+				if (asc == 0x25 && ascq == 0x00) {
+					dev->removed = 1;
+					cmd->result = DID_NO_CONNECT << 16;
+				}
+				break;
+>>>>>>> upstream/android-13
 			}
 			break;
 		}
@@ -2767,13 +2955,22 @@ static void complete_scsi_command(struct CommandList *cp)
 	return hpsa_cmd_free_and_done(h, cp, cmd);
 }
 
+<<<<<<< HEAD
 static void hpsa_pci_unmap(struct pci_dev *pdev,
 	struct CommandList *c, int sg_used, int data_direction)
+=======
+static void hpsa_pci_unmap(struct pci_dev *pdev, struct CommandList *c,
+		int sg_used, enum dma_data_direction data_direction)
+>>>>>>> upstream/android-13
 {
 	int i;
 
 	for (i = 0; i < sg_used; i++)
+<<<<<<< HEAD
 		pci_unmap_single(pdev, (dma_addr_t) le64_to_cpu(c->SG[i].Addr),
+=======
+		dma_unmap_single(&pdev->dev, le64_to_cpu(c->SG[i].Addr),
+>>>>>>> upstream/android-13
 				le32_to_cpu(c->SG[i].Len),
 				data_direction);
 }
@@ -2782,17 +2979,29 @@ static int hpsa_map_one(struct pci_dev *pdev,
 		struct CommandList *cp,
 		unsigned char *buf,
 		size_t buflen,
+<<<<<<< HEAD
 		int data_direction)
 {
 	u64 addr64;
 
 	if (buflen == 0 || data_direction == PCI_DMA_NONE) {
+=======
+		enum dma_data_direction data_direction)
+{
+	u64 addr64;
+
+	if (buflen == 0 || data_direction == DMA_NONE) {
+>>>>>>> upstream/android-13
 		cp->Header.SGList = 0;
 		cp->Header.SGTotal = cpu_to_le16(0);
 		return 0;
 	}
 
+<<<<<<< HEAD
 	addr64 = pci_map_single(pdev, buf, buflen, data_direction);
+=======
+	addr64 = dma_map_single(&pdev->dev, buf, buflen, data_direction);
+>>>>>>> upstream/android-13
 	if (dma_mapping_error(&pdev->dev, addr64)) {
 		/* Prevent subsequent unmap of something never mapped */
 		cp->Header.SGList = 0;
@@ -2853,7 +3062,12 @@ static u32 lockup_detected(struct ctlr_info *h)
 
 #define MAX_DRIVER_CMD_RETRIES 25
 static int hpsa_scsi_do_simple_cmd_with_retry(struct ctlr_info *h,
+<<<<<<< HEAD
 	struct CommandList *c, int data_direction, unsigned long timeout_msecs)
+=======
+		struct CommandList *c, enum dma_data_direction data_direction,
+		unsigned long timeout_msecs)
+>>>>>>> upstream/android-13
 {
 	int backoff_time = 10, retry_count = 0;
 	int rc;
@@ -2977,8 +3191,13 @@ static int hpsa_do_receive_diagnostic(struct ctlr_info *h, u8 *scsi3addr,
 		rc = -1;
 		goto out;
 	}
+<<<<<<< HEAD
 	rc = hpsa_scsi_do_simple_cmd_with_retry(h, c,
 		PCI_DMA_FROMDEVICE, NO_TIMEOUT);
+=======
+	rc = hpsa_scsi_do_simple_cmd_with_retry(h, c, DMA_FROM_DEVICE,
+			NO_TIMEOUT);
+>>>>>>> upstream/android-13
 	if (rc)
 		goto out;
 	ei = c->err_info;
@@ -3030,8 +3249,13 @@ static int hpsa_scsi_do_inquiry(struct ctlr_info *h, unsigned char *scsi3addr,
 		rc = -1;
 		goto out;
 	}
+<<<<<<< HEAD
 	rc = hpsa_scsi_do_simple_cmd_with_retry(h, c,
 					PCI_DMA_FROMDEVICE, NO_TIMEOUT);
+=======
+	rc = hpsa_scsi_do_simple_cmd_with_retry(h, c, DMA_FROM_DEVICE,
+			NO_TIMEOUT);
+>>>>>>> upstream/android-13
 	if (rc)
 		goto out;
 	ei = c->err_info;
@@ -3044,7 +3268,11 @@ out:
 	return rc;
 }
 
+<<<<<<< HEAD
 static int hpsa_send_reset(struct ctlr_info *h, unsigned char *scsi3addr,
+=======
+static int hpsa_send_reset(struct ctlr_info *h, struct hpsa_scsi_dev_t *dev,
+>>>>>>> upstream/android-13
 	u8 reset_type, int reply_queue)
 {
 	int rc = IO_OK;
@@ -3052,11 +3280,18 @@ static int hpsa_send_reset(struct ctlr_info *h, unsigned char *scsi3addr,
 	struct ErrorInfo *ei;
 
 	c = cmd_alloc(h);
+<<<<<<< HEAD
 
 
 	/* fill_cmd can't fail here, no data buffer to map. */
 	(void) fill_cmd(c, reset_type, h, NULL, 0, 0,
 			scsi3addr, TYPE_MSG);
+=======
+	c->device = dev;
+
+	/* fill_cmd can't fail here, no data buffer to map. */
+	(void) fill_cmd(c, reset_type, h, NULL, 0, 0, dev->scsi3addr, TYPE_MSG);
+>>>>>>> upstream/android-13
 	rc = hpsa_scsi_do_simple_cmd(h, c, reply_queue, NO_TIMEOUT);
 	if (rc) {
 		dev_warn(&h->pdev->dev, "Failed to send reset command\n");
@@ -3134,9 +3369,14 @@ static bool hpsa_cmd_dev_match(struct ctlr_info *h, struct CommandList *c,
 }
 
 static int hpsa_do_reset(struct ctlr_info *h, struct hpsa_scsi_dev_t *dev,
+<<<<<<< HEAD
 	unsigned char *scsi3addr, u8 reset_type, int reply_queue)
 {
 	int i;
+=======
+	u8 reset_type, int reply_queue)
+{
+>>>>>>> upstream/android-13
 	int rc = 0;
 
 	/* We can really only handle one reset at a time */
@@ -3145,6 +3385,7 @@ static int hpsa_do_reset(struct ctlr_info *h, struct hpsa_scsi_dev_t *dev,
 		return -EINTR;
 	}
 
+<<<<<<< HEAD
 	BUG_ON(atomic_read(&dev->reset_cmds_out) != 0);
 
 	for (i = 0; i < h->nr_cmds; i++) {
@@ -3177,6 +3418,16 @@ static int hpsa_do_reset(struct ctlr_info *h, struct hpsa_scsi_dev_t *dev,
 		wait_event(h->event_sync_wait_queue,
 			atomic_read(&dev->reset_cmds_out) == 0 ||
 			lockup_detected(h));
+=======
+	rc = hpsa_send_reset(h, dev, reset_type, reply_queue);
+	if (!rc) {
+		/* incremented by sending the reset request */
+		atomic_dec(&dev->commands_outstanding);
+		wait_event(h->event_sync_wait_queue,
+			atomic_read(&dev->commands_outstanding) <= 0 ||
+			lockup_detected(h));
+	}
+>>>>>>> upstream/android-13
 
 	if (unlikely(lockup_detected(h))) {
 		dev_warn(&h->pdev->dev,
@@ -3184,10 +3435,15 @@ static int hpsa_do_reset(struct ctlr_info *h, struct hpsa_scsi_dev_t *dev,
 		rc = -ENODEV;
 	}
 
+<<<<<<< HEAD
 	if (unlikely(rc))
 		atomic_set(&dev->reset_cmds_out, 0);
 	else
 		rc = wait_for_device_to_become_ready(h, scsi3addr, 0);
+=======
+	if (!rc)
+		rc = wait_for_device_to_become_ready(h, dev->scsi3addr, 0);
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&h->reset_mutex);
 	return rc;
@@ -3314,8 +3570,13 @@ static int hpsa_get_raid_map(struct ctlr_info *h,
 		cmd_free(h, c);
 		return -1;
 	}
+<<<<<<< HEAD
 	rc = hpsa_scsi_do_simple_cmd_with_retry(h, c,
 					PCI_DMA_FROMDEVICE, NO_TIMEOUT);
+=======
+	rc = hpsa_scsi_do_simple_cmd_with_retry(h, c, DMA_FROM_DEVICE,
+			NO_TIMEOUT);
+>>>>>>> upstream/android-13
 	if (rc)
 		goto out;
 	ei = c->err_info;
@@ -3357,8 +3618,13 @@ static int hpsa_bmic_sense_subsystem_information(struct ctlr_info *h,
 	c->Request.CDB[2] = bmic_device_index & 0xff;
 	c->Request.CDB[9] = (bmic_device_index >> 8) & 0xff;
 
+<<<<<<< HEAD
 	rc = hpsa_scsi_do_simple_cmd_with_retry(h, c,
 				PCI_DMA_FROMDEVICE, NO_TIMEOUT);
+=======
+	rc = hpsa_scsi_do_simple_cmd_with_retry(h, c, DMA_FROM_DEVICE,
+			NO_TIMEOUT);
+>>>>>>> upstream/android-13
 	if (rc)
 		goto out;
 	ei = c->err_info;
@@ -3385,8 +3651,13 @@ static int hpsa_bmic_id_controller(struct ctlr_info *h,
 	if (rc)
 		goto out;
 
+<<<<<<< HEAD
 	rc = hpsa_scsi_do_simple_cmd_with_retry(h, c,
 		PCI_DMA_FROMDEVICE, NO_TIMEOUT);
+=======
+	rc = hpsa_scsi_do_simple_cmd_with_retry(h, c, DMA_FROM_DEVICE,
+			NO_TIMEOUT);
+>>>>>>> upstream/android-13
 	if (rc)
 		goto out;
 	ei = c->err_info;
@@ -3416,7 +3687,11 @@ static int hpsa_bmic_id_physical_device(struct ctlr_info *h,
 	c->Request.CDB[2] = bmic_device_index & 0xff;
 	c->Request.CDB[9] = (bmic_device_index >> 8) & 0xff;
 
+<<<<<<< HEAD
 	hpsa_scsi_do_simple_cmd_with_retry(h, c, PCI_DMA_FROMDEVICE,
+=======
+	hpsa_scsi_do_simple_cmd_with_retry(h, c, DMA_FROM_DEVICE,
+>>>>>>> upstream/android-13
 						NO_TIMEOUT);
 	ei = c->err_info;
 	if (ei->CommandStatus != 0 && ei->CommandStatus != CMD_DATA_UNDERRUN) {
@@ -3445,9 +3720,20 @@ static void hpsa_get_enclosure_info(struct ctlr_info *h,
 	struct ErrorInfo *ei = NULL;
 	struct bmic_sense_storage_box_params *bssbp = NULL;
 	struct bmic_identify_physical_device *id_phys = NULL;
+<<<<<<< HEAD
 	struct ext_report_lun_entry *rle = &rlep->LUN[rle_index];
 	u16 bmic_device_index = 0;
 
+=======
+	struct ext_report_lun_entry *rle;
+	u16 bmic_device_index = 0;
+
+	if (rle_index < 0 || rle_index >= HPSA_MAX_PHYS_LUN)
+		return;
+
+	rle = &rlep->LUN[rle_index];
+
+>>>>>>> upstream/android-13
 	encl_dev->eli =
 		hpsa_get_enclosure_logical_identifier(h, scsi3addr);
 
@@ -3492,7 +3778,11 @@ static void hpsa_get_enclosure_info(struct ctlr_info *h,
 	else
 		c->Request.CDB[5] = 0;
 
+<<<<<<< HEAD
 	rc = hpsa_scsi_do_simple_cmd_with_retry(h, c, PCI_DMA_FROMDEVICE,
+=======
+	rc = hpsa_scsi_do_simple_cmd_with_retry(h, c, DMA_FROM_DEVICE,
+>>>>>>> upstream/android-13
 						NO_TIMEOUT);
 	if (rc)
 		goto out;
@@ -3746,8 +4036,13 @@ static int hpsa_scsi_do_report_luns(struct ctlr_info *h, int logical,
 	}
 	if (extended_response)
 		c->Request.CDB[1] = extended_response;
+<<<<<<< HEAD
 	rc = hpsa_scsi_do_simple_cmd_with_retry(h, c,
 					PCI_DMA_FROMDEVICE, NO_TIMEOUT);
+=======
+	rc = hpsa_scsi_do_simple_cmd_with_retry(h, c, DMA_FROM_DEVICE,
+			NO_TIMEOUT);
+>>>>>>> upstream/android-13
 	if (rc)
 		goto out;
 	ei = c->err_info;
@@ -3872,8 +4167,11 @@ static unsigned char hpsa_volume_offline(struct ctlr_info *h,
 	u8 sense_key, asc, ascq;
 	int sense_len;
 	int rc, ldstat = 0;
+<<<<<<< HEAD
 	u16 cmd_status;
 	u8 scsi_status;
+=======
+>>>>>>> upstream/android-13
 #define ASC_LUN_NOT_READY 0x04
 #define ASCQ_LUN_NOT_READY_FORMAT_IN_PROGRESS 0x04
 #define ASCQ_LUN_NOT_READY_INITIALIZING_CMD_REQ 0x02
@@ -3893,8 +4191,11 @@ static unsigned char hpsa_volume_offline(struct ctlr_info *h,
 	else
 		sense_len = c->err_info->SenseLen;
 	decode_sense_data(sense, sense_len, &sense_key, &asc, &ascq);
+<<<<<<< HEAD
 	cmd_status = c->err_info->CommandStatus;
 	scsi_status = c->err_info->ScsiStatus;
+=======
+>>>>>>> upstream/android-13
 	cmd_free(h, c);
 
 	/* Determine the reason for not ready state */
@@ -3970,6 +4271,7 @@ static int hpsa_update_device_info(struct ctlr_info *h,
 	memset(this_device->device_id, 0,
 		sizeof(this_device->device_id));
 	if (hpsa_get_device_id(h, scsi3addr, this_device->device_id, 8,
+<<<<<<< HEAD
 		sizeof(this_device->device_id)) < 0)
 		dev_err(&h->pdev->dev,
 			"hpsa%d: %s: can't get device id for host %d:C0:T%d:L%d\t%s\t%.16s\n",
@@ -3978,6 +4280,20 @@ static int hpsa_update_device_info(struct ctlr_info *h,
 			this_device->target, this_device->lun,
 			scsi_device_type(this_device->devtype),
 			this_device->model);
+=======
+		sizeof(this_device->device_id)) < 0) {
+		dev_err(&h->pdev->dev,
+			"hpsa%d: %s: can't get device id for [%d:%d:%d:%d]\t%s\t%.16s\n",
+			h->ctlr, __func__,
+			h->scsi_host->host_no,
+			this_device->bus, this_device->target,
+			this_device->lun,
+			scsi_device_type(this_device->devtype),
+			this_device->model);
+		rc = HPSA_LV_FAILED;
+		goto bail_out;
+	}
+>>>>>>> upstream/android-13
 
 	if ((this_device->devtype == TYPE_DISK ||
 		this_device->devtype == TYPE_ZBC) &&
@@ -4124,7 +4440,11 @@ static int hpsa_gather_lun_info(struct ctlr_info *h,
 			"maximum logical LUNs (%d) exceeded.  "
 			"%d LUNs ignored.\n", HPSA_MAX_LUN,
 			*nlogicals - HPSA_MAX_LUN);
+<<<<<<< HEAD
 			*nlogicals = HPSA_MAX_LUN;
+=======
+		*nlogicals = HPSA_MAX_LUN;
+>>>>>>> upstream/android-13
 	}
 	if (*nlogicals + *nphysicals > HPSA_MAX_PHYS_LUN) {
 		dev_warn(&h->pdev->dev,
@@ -4172,6 +4492,12 @@ static void hpsa_get_ioaccel_drive_info(struct ctlr_info *h,
 	int rc;
 	struct ext_report_lun_entry *rle;
 
+<<<<<<< HEAD
+=======
+	if (rle_index < 0 || rle_index >= HPSA_MAX_PHYS_LUN)
+		return;
+
+>>>>>>> upstream/android-13
 	rle = &rlep->LUN[rle_index];
 
 	dev->ioaccel_handle = rle->ioaccel_handle;
@@ -4196,7 +4522,16 @@ static void hpsa_get_path_info(struct hpsa_scsi_dev_t *this_device,
 	struct ReportExtendedLUNdata *rlep, int rle_index,
 	struct bmic_identify_physical_device *id_phys)
 {
+<<<<<<< HEAD
 	struct ext_report_lun_entry *rle = &rlep->LUN[rle_index];
+=======
+	struct ext_report_lun_entry *rle;
+
+	if (rle_index < 0 || rle_index >= HPSA_MAX_PHYS_LUN)
+		return;
+
+	rle = &rlep->LUN[rle_index];
+>>>>>>> upstream/android-13
 
 	if ((rle->device_flags & 0x08) && this_device->ioaccel_handle)
 		this_device->hba_ioaccel_enabled = 1;
@@ -4330,7 +4665,11 @@ static void hpsa_update_scsi_devices(struct ctlr_info *h)
 	u32 ndev_allocated = 0;
 	struct hpsa_scsi_dev_t **currentsd, *this_device, *tmpdevice;
 	int ncurrent = 0;
+<<<<<<< HEAD
 	int i, n_ext_target_devs, ndevs_to_allocate;
+=======
+	int i, ndevs_to_allocate;
+>>>>>>> upstream/android-13
 	int raid_ctlr_position;
 	bool physical_device;
 	DECLARE_BITMAP(lunzerobits, MAX_EXT_TARGETS);
@@ -4395,7 +4734,10 @@ static void hpsa_update_scsi_devices(struct ctlr_info *h)
 		raid_ctlr_position = nphysicals + nlogicals;
 
 	/* adjust our table of devices */
+<<<<<<< HEAD
 	n_ext_target_devs = 0;
+=======
+>>>>>>> upstream/android-13
 	for (i = 0; i < nphysicals + nlogicals + 1; i++) {
 		u8 *lunaddrbytes, is_OBDR = 0;
 		int rc = 0;
@@ -4418,7 +4760,12 @@ static void hpsa_update_scsi_devices(struct ctlr_info *h)
 		/*
 		 * Skip over some devices such as a spare.
 		 */
+<<<<<<< HEAD
 		if (!tmpdevice->external && physical_device) {
+=======
+		if (phys_dev_index >= 0 && !tmpdevice->external &&
+			physical_device) {
+>>>>>>> upstream/android-13
 			skip_device = hpsa_skip_device(h, lunaddrbytes,
 					&physdev_list->LUN[phys_dev_index]);
 			if (skip_device)
@@ -4558,7 +4905,11 @@ static int hpsa_scatter_gather(struct ctlr_info *h,
 		struct scsi_cmnd *cmd)
 {
 	struct scatterlist *sg;
+<<<<<<< HEAD
 	int use_sg, i, sg_limit, chained, last_sg;
+=======
+	int use_sg, i, sg_limit, chained;
+>>>>>>> upstream/android-13
 	struct SGDescriptor *curr_sg;
 
 	BUG_ON(scsi_sg_count(cmd) > h->maxsgentries);
@@ -4580,7 +4931,10 @@ static int hpsa_scatter_gather(struct ctlr_info *h,
 	curr_sg = cp->SG;
 	chained = use_sg > h->max_cmd_sg_entries;
 	sg_limit = chained ? h->max_cmd_sg_entries - 1 : use_sg;
+<<<<<<< HEAD
 	last_sg = scsi_sg_count(cmd) - 1;
+=======
+>>>>>>> upstream/android-13
 	scsi_for_each_sg(cmd, sg, sg_limit, i) {
 		hpsa_set_sg_descriptor(curr_sg, sg);
 		curr_sg++;
@@ -4676,6 +5030,10 @@ static int fixup_ioaccel_cdb(u8 *cdb, int *cdb_len)
 	case WRITE_6:
 	case WRITE_12:
 		is_write = 1;
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case READ_6:
 	case READ_12:
 		if (*cdb_len == 6) {
@@ -4817,6 +5175,12 @@ static int hpsa_scsi_ioaccel_direct_map(struct ctlr_info *h,
 
 	c->phys_disk = dev;
 
+<<<<<<< HEAD
+=======
+	if (dev->in_reset)
+		return -1;
+
+>>>>>>> upstream/android-13
 	return hpsa_scsi_ioaccel_queue_command(h, c, dev->ioaccel_handle,
 		cmd->cmnd, cmd->cmd_len, dev->scsi3addr, dev);
 }
@@ -5007,6 +5371,14 @@ static int hpsa_scsi_ioaccel2_queue_command(struct ctlr_info *h,
 	} else
 		cp->sg_count = (u8) use_sg;
 
+<<<<<<< HEAD
+=======
+	if (phys_disk->in_reset) {
+		cmd->result = DID_RESET << 16;
+		return -1;
+	}
+
+>>>>>>> upstream/android-13
 	enqueue_cmd_and_start_io(h, c);
 	return 0;
 }
@@ -5024,6 +5396,12 @@ static int hpsa_scsi_ioaccel_queue_command(struct ctlr_info *h,
 	if (!c->scsi_cmd->device->hostdata)
 		return -1;
 
+<<<<<<< HEAD
+=======
+	if (phys_disk->in_reset)
+		return -1;
+
+>>>>>>> upstream/android-13
 	/* Try to honor the device's queue depth */
 	if (atomic_inc_return(&phys_disk->ioaccel_cmds_out) >
 					phys_disk->queue_depth) {
@@ -5107,10 +5485,20 @@ static int hpsa_scsi_ioaccel_raid_map(struct ctlr_info *h,
 	if (!dev)
 		return -1;
 
+<<<<<<< HEAD
+=======
+	if (dev->in_reset)
+		return -1;
+
+>>>>>>> upstream/android-13
 	/* check for valid opcode, get LBA and block count */
 	switch (cmd->cmnd[0]) {
 	case WRITE_6:
 		is_write = 1;
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case READ_6:
 		first_block = (((cmd->cmnd[1] & 0x1F) << 16) |
 				(cmd->cmnd[2] << 8) |
@@ -5121,6 +5509,10 @@ static int hpsa_scsi_ioaccel_raid_map(struct ctlr_info *h,
 		break;
 	case WRITE_10:
 		is_write = 1;
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case READ_10:
 		first_block =
 			(((u64) cmd->cmnd[2]) << 24) |
@@ -5133,6 +5525,10 @@ static int hpsa_scsi_ioaccel_raid_map(struct ctlr_info *h,
 		break;
 	case WRITE_12:
 		is_write = 1;
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case READ_12:
 		first_block =
 			(((u64) cmd->cmnd[2]) << 24) |
@@ -5147,6 +5543,10 @@ static int hpsa_scsi_ioaccel_raid_map(struct ctlr_info *h,
 		break;
 	case WRITE_16:
 		is_write = 1;
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case READ_16:
 		first_block =
 			(((u64) cmd->cmnd[2]) << 56) |
@@ -5418,13 +5818,21 @@ static int hpsa_scsi_ioaccel_raid_map(struct ctlr_info *h,
  */
 static int hpsa_ciss_submit(struct ctlr_info *h,
 	struct CommandList *c, struct scsi_cmnd *cmd,
+<<<<<<< HEAD
 	unsigned char scsi3addr[])
+=======
+	struct hpsa_scsi_dev_t *dev)
+>>>>>>> upstream/android-13
 {
 	cmd->host_scribble = (unsigned char *) c;
 	c->cmd_type = CMD_SCSI;
 	c->scsi_cmd = cmd;
 	c->Header.ReplyQueue = 0;  /* unused in simple mode */
+<<<<<<< HEAD
 	memcpy(&c->Header.LUN.LunAddrBytes[0], &scsi3addr[0], 8);
+=======
+	memcpy(&c->Header.LUN.LunAddrBytes[0], &dev->scsi3addr[0], 8);
+>>>>>>> upstream/android-13
 	c->Header.tag = cpu_to_le64((c->cmdindex << DIRECT_LOOKUP_SHIFT));
 
 	/* Fill in the request block... */
@@ -5475,6 +5883,17 @@ static int hpsa_ciss_submit(struct ctlr_info *h,
 		hpsa_cmd_resolve_and_free(h, c);
 		return SCSI_MLQUEUE_HOST_BUSY;
 	}
+<<<<<<< HEAD
+=======
+
+	if (dev->in_reset) {
+		hpsa_cmd_resolve_and_free(h, c);
+		return SCSI_MLQUEUE_HOST_BUSY;
+	}
+
+	c->device = dev;
+
+>>>>>>> upstream/android-13
 	enqueue_cmd_and_start_io(h, c);
 	/* the cmd'll come back via intr handler in complete_scsi_command()  */
 	return 0;
@@ -5527,7 +5946,11 @@ static inline void hpsa_cmd_partial_init(struct ctlr_info *h, int index,
 
 static int hpsa_ioaccel_submit(struct ctlr_info *h,
 		struct CommandList *c, struct scsi_cmnd *cmd,
+<<<<<<< HEAD
 		unsigned char *scsi3addr)
+=======
+		bool retry)
+>>>>>>> upstream/android-13
 {
 	struct hpsa_scsi_dev_t *dev = cmd->device->hostdata;
 	int rc = IO_ACCEL_INELIGIBLE;
@@ -5535,19 +5958,46 @@ static int hpsa_ioaccel_submit(struct ctlr_info *h,
 	if (!dev)
 		return SCSI_MLQUEUE_HOST_BUSY;
 
+<<<<<<< HEAD
 	cmd->host_scribble = (unsigned char *) c;
 
 	if (dev->offload_enabled) {
 		hpsa_cmd_init(h, c->cmdindex, c);
 		c->cmd_type = CMD_SCSI;
 		c->scsi_cmd = cmd;
+=======
+	if (dev->in_reset)
+		return SCSI_MLQUEUE_HOST_BUSY;
+
+	if (hpsa_simple_mode)
+		return IO_ACCEL_INELIGIBLE;
+
+	cmd->host_scribble = (unsigned char *) c;
+
+	if (dev->offload_enabled) {
+		hpsa_cmd_init(h, c->cmdindex, c); /* Zeroes out all fields */
+		c->cmd_type = CMD_SCSI;
+		c->scsi_cmd = cmd;
+		c->device = dev;
+		if (retry) /* Resubmit but do not increment device->commands_outstanding. */
+			c->retry_pending = true;
+>>>>>>> upstream/android-13
 		rc = hpsa_scsi_ioaccel_raid_map(h, c);
 		if (rc < 0)     /* scsi_dma_map failed. */
 			rc = SCSI_MLQUEUE_HOST_BUSY;
 	} else if (dev->hba_ioaccel_enabled) {
+<<<<<<< HEAD
 		hpsa_cmd_init(h, c->cmdindex, c);
 		c->cmd_type = CMD_SCSI;
 		c->scsi_cmd = cmd;
+=======
+		hpsa_cmd_init(h, c->cmdindex, c); /* Zeroes out all fields */
+		c->cmd_type = CMD_SCSI;
+		c->scsi_cmd = cmd;
+		c->device = dev;
+		if (retry) /* Resubmit but do not increment device->commands_outstanding. */
+			c->retry_pending = true;
+>>>>>>> upstream/android-13
 		rc = hpsa_scsi_ioaccel_direct_map(h, c);
 		if (rc < 0)     /* scsi_dma_map failed. */
 			rc = SCSI_MLQUEUE_HOST_BUSY;
@@ -5567,8 +6017,17 @@ static void hpsa_command_resubmit_worker(struct work_struct *work)
 		cmd->result = DID_NO_CONNECT << 16;
 		return hpsa_cmd_free_and_done(c->h, c, cmd);
 	}
+<<<<<<< HEAD
 	if (c->reset_pending)
 		return hpsa_cmd_free_and_done(c->h, c, cmd);
+=======
+
+	if (dev->in_reset) {
+		cmd->result = DID_RESET << 16;
+		return hpsa_cmd_free_and_done(c->h, c, cmd);
+	}
+
+>>>>>>> upstream/android-13
 	if (c->cmd_type == CMD_IOACCEL2) {
 		struct ctlr_info *h = c->h;
 		struct io_accel2_cmd *c2 = &h->ioaccel2_cmd_pool[c->cmdindex];
@@ -5576,7 +6035,12 @@ static void hpsa_command_resubmit_worker(struct work_struct *work)
 
 		if (c2->error_data.serv_response ==
 				IOACCEL2_STATUS_SR_TASK_COMP_SET_FULL) {
+<<<<<<< HEAD
 			rc = hpsa_ioaccel_submit(h, c, cmd, dev->scsi3addr);
+=======
+			/* Resubmit with the retry_pending flag set. */
+			rc = hpsa_ioaccel_submit(h, c, cmd, true);
+>>>>>>> upstream/android-13
 			if (rc == 0)
 				return;
 			if (rc == SCSI_MLQUEUE_HOST_BUSY) {
@@ -5592,7 +6056,20 @@ static void hpsa_command_resubmit_worker(struct work_struct *work)
 		}
 	}
 	hpsa_cmd_partial_init(c->h, c->cmdindex, c);
+<<<<<<< HEAD
 	if (hpsa_ciss_submit(c->h, c, cmd, dev->scsi3addr)) {
+=======
+	/*
+	 * Here we have not come in though queue_command, so we
+	 * can set the retry_pending flag to true for a driver initiated
+	 * retry attempt (I.E. not a SML retry).
+	 * I.E. We are submitting a driver initiated retry.
+	 * Note: hpsa_ciss_submit does not zero out the command fields like
+	 *       ioaccel submit does.
+	 */
+	c->retry_pending = true;
+	if (hpsa_ciss_submit(c->h, c, cmd, dev)) {
+>>>>>>> upstream/android-13
 		/*
 		 * If we get here, it means dma mapping failed. Try
 		 * again via scsi mid layer, which will then get
@@ -5611,14 +6088,21 @@ static int hpsa_scsi_queue_command(struct Scsi_Host *sh, struct scsi_cmnd *cmd)
 {
 	struct ctlr_info *h;
 	struct hpsa_scsi_dev_t *dev;
+<<<<<<< HEAD
 	unsigned char scsi3addr[8];
+=======
+>>>>>>> upstream/android-13
 	struct CommandList *c;
 	int rc = 0;
 
 	/* Get the ptr to our adapter structure out of cmd->host. */
 	h = sdev_to_hba(cmd->device);
 
+<<<<<<< HEAD
 	BUG_ON(cmd->request->tag < 0);
+=======
+	BUG_ON(scsi_cmd_to_rq(cmd)->tag < 0);
+>>>>>>> upstream/android-13
 
 	dev = cmd->device->hostdata;
 	if (!dev) {
@@ -5633,14 +6117,27 @@ static int hpsa_scsi_queue_command(struct Scsi_Host *sh, struct scsi_cmnd *cmd)
 		return 0;
 	}
 
+<<<<<<< HEAD
 	memcpy(scsi3addr, dev->scsi3addr, sizeof(scsi3addr));
 
+=======
+>>>>>>> upstream/android-13
 	if (unlikely(lockup_detected(h))) {
 		cmd->result = DID_NO_CONNECT << 16;
 		cmd->scsi_done(cmd);
 		return 0;
 	}
+<<<<<<< HEAD
 	c = cmd_tagged_alloc(h, cmd);
+=======
+
+	if (dev->in_reset)
+		return SCSI_MLQUEUE_DEVICE_BUSY;
+
+	c = cmd_tagged_alloc(h, cmd);
+	if (c == NULL)
+		return SCSI_MLQUEUE_DEVICE_BUSY;
+>>>>>>> upstream/android-13
 
 	/*
 	 * This is necessary because the SML doesn't zero out this field during
@@ -5651,11 +6148,24 @@ static int hpsa_scsi_queue_command(struct Scsi_Host *sh, struct scsi_cmnd *cmd)
 	/*
 	 * Call alternate submit routine for I/O accelerated commands.
 	 * Retries always go down the normal I/O path.
+<<<<<<< HEAD
 	 */
 	if (likely(cmd->retries == 0 &&
 			!blk_rq_is_passthrough(cmd->request) &&
 			h->acciopath_status)) {
 		rc = hpsa_ioaccel_submit(h, c, cmd, scsi3addr);
+=======
+	 * Note: If cmd->retries is non-zero, then this is a SML
+	 *       initiated retry and not a driver initiated retry.
+	 *       This command has been obtained from cmd_tagged_alloc
+	 *       and is therefore a brand-new command.
+	 */
+	if (likely(cmd->retries == 0 &&
+			!blk_rq_is_passthrough(scsi_cmd_to_rq(cmd)) &&
+			h->acciopath_status)) {
+		/* Submit with the retry_pending flag unset. */
+		rc = hpsa_ioaccel_submit(h, c, cmd, false);
+>>>>>>> upstream/android-13
 		if (rc == 0)
 			return 0;
 		if (rc == SCSI_MLQUEUE_HOST_BUSY) {
@@ -5663,7 +6173,11 @@ static int hpsa_scsi_queue_command(struct Scsi_Host *sh, struct scsi_cmnd *cmd)
 			return SCSI_MLQUEUE_HOST_BUSY;
 		}
 	}
+<<<<<<< HEAD
 	return hpsa_ciss_submit(h, c, cmd, scsi3addr);
+=======
+	return hpsa_ciss_submit(h, c, cmd, dev);
+>>>>>>> upstream/android-13
 }
 
 static void hpsa_scan_complete(struct ctlr_info *h)
@@ -5817,7 +6331,11 @@ static int hpsa_scsi_add_host(struct ctlr_info *h)
  */
 static int hpsa_get_cmd_index(struct scsi_cmnd *scmd)
 {
+<<<<<<< HEAD
 	int idx = scmd->request->tag;
+=======
+	int idx = scsi_cmd_to_rq(scmd)->tag;
+>>>>>>> upstream/android-13
 
 	if (idx < 0)
 		return idx;
@@ -5839,7 +6357,11 @@ static int hpsa_send_test_unit_ready(struct ctlr_info *h,
 	/* Send the Test Unit Ready, fill_cmd can't fail, no mapping */
 	(void) fill_cmd(c, TEST_UNIT_READY, h,
 			NULL, 0, 0, lunaddr, TYPE_CMD);
+<<<<<<< HEAD
 	rc = hpsa_scsi_do_simple_cmd(h, c, reply_queue, DEFAULT_TIMEOUT);
+=======
+	rc = hpsa_scsi_do_simple_cmd(h, c, reply_queue, NO_TIMEOUT);
+>>>>>>> upstream/android-13
 	if (rc)
 		return rc;
 	/* no unmap needed here because no data xfer. */
@@ -5945,8 +6467,14 @@ static int wait_for_device_to_become_ready(struct ctlr_info *h,
 static int hpsa_eh_device_reset_handler(struct scsi_cmnd *scsicmd)
 {
 	int rc = SUCCESS;
+<<<<<<< HEAD
 	struct ctlr_info *h;
 	struct hpsa_scsi_dev_t *dev;
+=======
+	int i;
+	struct ctlr_info *h;
+	struct hpsa_scsi_dev_t *dev = NULL;
+>>>>>>> upstream/android-13
 	u8 reset_type;
 	char msg[48];
 	unsigned long flags;
@@ -6012,9 +6540,25 @@ static int hpsa_eh_device_reset_handler(struct scsi_cmnd *scsicmd)
 		reset_type == HPSA_DEVICE_RESET_MSG ? "logical " : "physical ");
 	hpsa_show_dev_msg(KERN_WARNING, h, dev, msg);
 
+<<<<<<< HEAD
 	/* send a reset to the SCSI LUN which the command was sent to */
 	rc = hpsa_do_reset(h, dev, dev->scsi3addr, reset_type,
 			   DEFAULT_REPLY_QUEUE);
+=======
+	/*
+	 * wait to see if any commands will complete before sending reset
+	 */
+	dev->in_reset = true; /* block any new cmds from OS for this device */
+	for (i = 0; i < 10; i++) {
+		if (atomic_read(&dev->commands_outstanding) > 0)
+			msleep(1000);
+		else
+			break;
+	}
+
+	/* send a reset to the SCSI LUN which the command was sent to */
+	rc = hpsa_do_reset(h, dev, reset_type, DEFAULT_REPLY_QUEUE);
+>>>>>>> upstream/android-13
 	if (rc == 0)
 		rc = SUCCESS;
 	else
@@ -6028,6 +6572,11 @@ static int hpsa_eh_device_reset_handler(struct scsi_cmnd *scsicmd)
 return_reset_status:
 	spin_lock_irqsave(&h->reset_lock, flags);
 	h->reset_in_progress = 0;
+<<<<<<< HEAD
+=======
+	if (dev)
+		dev->in_reset = false;
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&h->reset_lock, flags);
 	return rc;
 }
@@ -6037,6 +6586,10 @@ return_reset_status:
  * at init, and managed by cmd_tagged_alloc() and cmd_tagged_free() using the
  * block request tag as an index into a table of entries.  cmd_tagged_free() is
  * the complement, although cmd_free() may be called instead.
+<<<<<<< HEAD
+=======
+ * This function is only called for new requests from queue_command.
+>>>>>>> upstream/android-13
  */
 static struct CommandList *cmd_tagged_alloc(struct ctlr_info *h,
 					    struct scsi_cmnd *scmd)
@@ -6053,7 +6606,10 @@ static struct CommandList *cmd_tagged_alloc(struct ctlr_info *h,
 		BUG();
 	}
 
+<<<<<<< HEAD
 	atomic_inc(&c->refcount);
+=======
+>>>>>>> upstream/android-13
 	if (unlikely(!hpsa_is_cmd_idle(c))) {
 		/*
 		 * We expect that the SCSI layer will hand us a unique tag
@@ -6061,6 +6617,7 @@ static struct CommandList *cmd_tagged_alloc(struct ctlr_info *h,
 		 * two requests...because if the selected command isn't idle
 		 * then someone is going to be very disappointed.
 		 */
+<<<<<<< HEAD
 		dev_err(&h->pdev->dev,
 			"tag collision (tag=%d) in cmd_tagged_alloc().\n",
 			idx);
@@ -6070,6 +6627,27 @@ static struct CommandList *cmd_tagged_alloc(struct ctlr_info *h,
 	}
 
 	hpsa_cmd_partial_init(h, idx, c);
+=======
+		if (idx != h->last_collision_tag) { /* Print once per tag */
+			dev_warn(&h->pdev->dev,
+				"%s: tag collision (tag=%d)\n", __func__, idx);
+			if (scmd)
+				scsi_print_command(scmd);
+			h->last_collision_tag = idx;
+		}
+		return NULL;
+	}
+
+	atomic_inc(&c->refcount);
+	hpsa_cmd_partial_init(h, idx, c);
+
+	/*
+	 * This is a new command obtained from queue_command so
+	 * there have not been any driver initiated retry attempts.
+	 */
+	c->retry_pending = false;
+
+>>>>>>> upstream/android-13
 	return c;
 }
 
@@ -6136,6 +6714,17 @@ static struct CommandList *cmd_alloc(struct ctlr_info *h)
 		break; /* it's ours now. */
 	}
 	hpsa_cmd_partial_init(h, i, c);
+<<<<<<< HEAD
+=======
+	c->device = NULL;
+
+	/*
+	 * cmd_alloc is for "internal" commands and they are never
+	 * retried.
+	 */
+	c->retry_pending = false;
+
+>>>>>>> upstream/android-13
 	return c;
 }
 
@@ -6158,6 +6747,7 @@ static void cmd_free(struct ctlr_info *h, struct CommandList *c)
 
 #ifdef CONFIG_COMPAT
 
+<<<<<<< HEAD
 static int hpsa_ioctl32_passthru(struct scsi_device *dev, int cmd,
 	void __user *arg)
 {
@@ -6233,6 +6823,72 @@ static int hpsa_ioctl32_big_passthru(struct scsi_device *dev,
 }
 
 static int hpsa_compat_ioctl(struct scsi_device *dev, int cmd, void __user *arg)
+=======
+static int hpsa_ioctl32_passthru(struct scsi_device *dev, unsigned int cmd,
+	void __user *arg)
+{
+	struct ctlr_info *h = sdev_to_hba(dev);
+	IOCTL32_Command_struct __user *arg32 = arg;
+	IOCTL_Command_struct arg64;
+	int err;
+	u32 cp;
+
+	if (!arg)
+		return -EINVAL;
+
+	memset(&arg64, 0, sizeof(arg64));
+	if (copy_from_user(&arg64, arg32, offsetof(IOCTL_Command_struct, buf)))
+		return -EFAULT;
+	if (get_user(cp, &arg32->buf))
+		return -EFAULT;
+	arg64.buf = compat_ptr(cp);
+
+	if (atomic_dec_if_positive(&h->passthru_cmds_avail) < 0)
+		return -EAGAIN;
+	err = hpsa_passthru_ioctl(h, &arg64);
+	atomic_inc(&h->passthru_cmds_avail);
+	if (err)
+		return err;
+	if (copy_to_user(&arg32->error_info, &arg64.error_info,
+			 sizeof(arg32->error_info)))
+		return -EFAULT;
+	return 0;
+}
+
+static int hpsa_ioctl32_big_passthru(struct scsi_device *dev,
+	unsigned int cmd, void __user *arg)
+{
+	struct ctlr_info *h = sdev_to_hba(dev);
+	BIG_IOCTL32_Command_struct __user *arg32 = arg;
+	BIG_IOCTL_Command_struct arg64;
+	int err;
+	u32 cp;
+
+	if (!arg)
+		return -EINVAL;
+	memset(&arg64, 0, sizeof(arg64));
+	if (copy_from_user(&arg64, arg32,
+			   offsetof(BIG_IOCTL32_Command_struct, buf)))
+		return -EFAULT;
+	if (get_user(cp, &arg32->buf))
+		return -EFAULT;
+	arg64.buf = compat_ptr(cp);
+
+	if (atomic_dec_if_positive(&h->passthru_cmds_avail) < 0)
+		return -EAGAIN;
+	err = hpsa_big_passthru_ioctl(h, &arg64);
+	atomic_inc(&h->passthru_cmds_avail);
+	if (err)
+		return err;
+	if (copy_to_user(&arg32->error_info, &arg64.error_info,
+			 sizeof(arg32->error_info)))
+		return -EFAULT;
+	return 0;
+}
+
+static int hpsa_compat_ioctl(struct scsi_device *dev, unsigned int cmd,
+			     void __user *arg)
+>>>>>>> upstream/android-13
 {
 	switch (cmd) {
 	case CCISS_GETPCIINFO:
@@ -6301,14 +6957,21 @@ static int hpsa_getdrivver_ioctl(struct ctlr_info *h, void __user *argp)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int hpsa_passthru_ioctl(struct ctlr_info *h, void __user *argp)
 {
 	IOCTL_Command_struct iocommand;
+=======
+static int hpsa_passthru_ioctl(struct ctlr_info *h,
+			       IOCTL_Command_struct *iocommand)
+{
+>>>>>>> upstream/android-13
 	struct CommandList *c;
 	char *buff = NULL;
 	u64 temp64;
 	int rc = 0;
 
+<<<<<<< HEAD
 	if (!argp)
 		return -EINVAL;
 	if (!capable(CAP_SYS_RAWIO))
@@ -6327,11 +6990,31 @@ static int hpsa_passthru_ioctl(struct ctlr_info *h, void __user *argp)
 			/* Copy the data into the buffer we created */
 			if (copy_from_user(buff, iocommand.buf,
 				iocommand.buf_size)) {
+=======
+	if (!capable(CAP_SYS_RAWIO))
+		return -EPERM;
+	if ((iocommand->buf_size < 1) &&
+	    (iocommand->Request.Type.Direction != XFER_NONE)) {
+		return -EINVAL;
+	}
+	if (iocommand->buf_size > 0) {
+		buff = kmalloc(iocommand->buf_size, GFP_KERNEL);
+		if (buff == NULL)
+			return -ENOMEM;
+		if (iocommand->Request.Type.Direction & XFER_WRITE) {
+			/* Copy the data into the buffer we created */
+			if (copy_from_user(buff, iocommand->buf,
+				iocommand->buf_size)) {
+>>>>>>> upstream/android-13
 				rc = -EFAULT;
 				goto out_kfree;
 			}
 		} else {
+<<<<<<< HEAD
 			memset(buff, 0, iocommand.buf_size);
+=======
+			memset(buff, 0, iocommand->buf_size);
+>>>>>>> upstream/android-13
 		}
 	}
 	c = cmd_alloc(h);
@@ -6341,13 +7024,18 @@ static int hpsa_passthru_ioctl(struct ctlr_info *h, void __user *argp)
 	c->scsi_cmd = SCSI_CMD_BUSY;
 	/* Fill in Command Header */
 	c->Header.ReplyQueue = 0; /* unused in simple mode */
+<<<<<<< HEAD
 	if (iocommand.buf_size > 0) {	/* buffer to fill */
+=======
+	if (iocommand->buf_size > 0) {	/* buffer to fill */
+>>>>>>> upstream/android-13
 		c->Header.SGList = 1;
 		c->Header.SGTotal = cpu_to_le16(1);
 	} else	{ /* no buffers to fill */
 		c->Header.SGList = 0;
 		c->Header.SGTotal = cpu_to_le16(0);
 	}
+<<<<<<< HEAD
 	memcpy(&c->Header.LUN, &iocommand.LUN_info, sizeof(c->Header.LUN));
 
 	/* Fill in Request block */
@@ -6358,6 +7046,18 @@ static int hpsa_passthru_ioctl(struct ctlr_info *h, void __user *argp)
 	if (iocommand.buf_size > 0) {
 		temp64 = pci_map_single(h->pdev, buff,
 			iocommand.buf_size, PCI_DMA_BIDIRECTIONAL);
+=======
+	memcpy(&c->Header.LUN, &iocommand->LUN_info, sizeof(c->Header.LUN));
+
+	/* Fill in Request block */
+	memcpy(&c->Request, &iocommand->Request,
+		sizeof(c->Request));
+
+	/* Fill in the scatter gather information */
+	if (iocommand->buf_size > 0) {
+		temp64 = dma_map_single(&h->pdev->dev, buff,
+			iocommand->buf_size, DMA_BIDIRECTIONAL);
+>>>>>>> upstream/android-13
 		if (dma_mapping_error(&h->pdev->dev, (dma_addr_t) temp64)) {
 			c->SG[0].Addr = cpu_to_le64(0);
 			c->SG[0].Len = cpu_to_le32(0);
@@ -6365,13 +7065,22 @@ static int hpsa_passthru_ioctl(struct ctlr_info *h, void __user *argp)
 			goto out;
 		}
 		c->SG[0].Addr = cpu_to_le64(temp64);
+<<<<<<< HEAD
 		c->SG[0].Len = cpu_to_le32(iocommand.buf_size);
+=======
+		c->SG[0].Len = cpu_to_le32(iocommand->buf_size);
+>>>>>>> upstream/android-13
 		c->SG[0].Ext = cpu_to_le32(HPSA_SG_LAST); /* not chaining */
 	}
 	rc = hpsa_scsi_do_simple_cmd(h, c, DEFAULT_REPLY_QUEUE,
 					NO_TIMEOUT);
+<<<<<<< HEAD
 	if (iocommand.buf_size > 0)
 		hpsa_pci_unmap(h->pdev, c, 1, PCI_DMA_BIDIRECTIONAL);
+=======
+	if (iocommand->buf_size > 0)
+		hpsa_pci_unmap(h->pdev, c, 1, DMA_BIDIRECTIONAL);
+>>>>>>> upstream/android-13
 	check_ioctl_unit_attention(h, c);
 	if (rc) {
 		rc = -EIO;
@@ -6379,6 +7088,7 @@ static int hpsa_passthru_ioctl(struct ctlr_info *h, void __user *argp)
 	}
 
 	/* Copy the error information out */
+<<<<<<< HEAD
 	memcpy(&iocommand.error_info, c->err_info,
 		sizeof(iocommand.error_info));
 	if (copy_to_user(argp, &iocommand, sizeof(iocommand))) {
@@ -6389,6 +7099,14 @@ static int hpsa_passthru_ioctl(struct ctlr_info *h, void __user *argp)
 		iocommand.buf_size > 0) {
 		/* Copy the data out of the buffer we created */
 		if (copy_to_user(iocommand.buf, buff, iocommand.buf_size)) {
+=======
+	memcpy(&iocommand->error_info, c->err_info,
+		sizeof(iocommand->error_info));
+	if ((iocommand->Request.Type.Direction & XFER_READ) &&
+		iocommand->buf_size > 0) {
+		/* Copy the data out of the buffer we created */
+		if (copy_to_user(iocommand->buf, buff, iocommand->buf_size)) {
+>>>>>>> upstream/android-13
 			rc = -EFAULT;
 			goto out;
 		}
@@ -6400,9 +7118,15 @@ out_kfree:
 	return rc;
 }
 
+<<<<<<< HEAD
 static int hpsa_big_passthru_ioctl(struct ctlr_info *h, void __user *argp)
 {
 	BIG_IOCTL_Command_struct *ioc;
+=======
+static int hpsa_big_passthru_ioctl(struct ctlr_info *h,
+				   BIG_IOCTL_Command_struct *ioc)
+{
+>>>>>>> upstream/android-13
 	struct CommandList *c;
 	unsigned char **buff = NULL;
 	int *buff_size = NULL;
@@ -6413,6 +7137,7 @@ static int hpsa_big_passthru_ioctl(struct ctlr_info *h, void __user *argp)
 	u32 sz;
 	BYTE __user *data_ptr;
 
+<<<<<<< HEAD
 	if (!argp)
 		return -EINVAL;
 	if (!capable(CAP_SYS_RAWIO))
@@ -6440,6 +7165,19 @@ static int hpsa_big_passthru_ioctl(struct ctlr_info *h, void __user *argp)
 		status = -EINVAL;
 		goto cleanup1;
 	}
+=======
+	if (!capable(CAP_SYS_RAWIO))
+		return -EPERM;
+
+	if ((ioc->buf_size < 1) &&
+	    (ioc->Request.Type.Direction != XFER_NONE))
+		return -EINVAL;
+	/* Check kmalloc limits  using all SGs */
+	if (ioc->malloc_size > MAX_KMALLOC_SIZE)
+		return -EINVAL;
+	if (ioc->buf_size > ioc->malloc_size * SG_ENTRIES_IN_CMD)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	buff = kcalloc(SG_ENTRIES_IN_CMD, sizeof(char *), GFP_KERNEL);
 	if (!buff) {
 		status = -ENOMEM;
@@ -6483,14 +7221,23 @@ static int hpsa_big_passthru_ioctl(struct ctlr_info *h, void __user *argp)
 	if (ioc->buf_size > 0) {
 		int i;
 		for (i = 0; i < sg_used; i++) {
+<<<<<<< HEAD
 			temp64 = pci_map_single(h->pdev, buff[i],
 				    buff_size[i], PCI_DMA_BIDIRECTIONAL);
+=======
+			temp64 = dma_map_single(&h->pdev->dev, buff[i],
+				    buff_size[i], DMA_BIDIRECTIONAL);
+>>>>>>> upstream/android-13
 			if (dma_mapping_error(&h->pdev->dev,
 							(dma_addr_t) temp64)) {
 				c->SG[i].Addr = cpu_to_le64(0);
 				c->SG[i].Len = cpu_to_le32(0);
 				hpsa_pci_unmap(h->pdev, c, i,
+<<<<<<< HEAD
 					PCI_DMA_BIDIRECTIONAL);
+=======
+					DMA_BIDIRECTIONAL);
+>>>>>>> upstream/android-13
 				status = -ENOMEM;
 				goto cleanup0;
 			}
@@ -6503,7 +7250,11 @@ static int hpsa_big_passthru_ioctl(struct ctlr_info *h, void __user *argp)
 	status = hpsa_scsi_do_simple_cmd(h, c, DEFAULT_REPLY_QUEUE,
 						NO_TIMEOUT);
 	if (sg_used)
+<<<<<<< HEAD
 		hpsa_pci_unmap(h->pdev, c, sg_used, PCI_DMA_BIDIRECTIONAL);
+=======
+		hpsa_pci_unmap(h->pdev, c, sg_used, DMA_BIDIRECTIONAL);
+>>>>>>> upstream/android-13
 	check_ioctl_unit_attention(h, c);
 	if (status) {
 		status = -EIO;
@@ -6512,10 +7263,13 @@ static int hpsa_big_passthru_ioctl(struct ctlr_info *h, void __user *argp)
 
 	/* Copy the error information out */
 	memcpy(&ioc->error_info, c->err_info, sizeof(ioc->error_info));
+<<<<<<< HEAD
 	if (copy_to_user(argp, ioc, sizeof(*ioc))) {
 		status = -EFAULT;
 		goto cleanup0;
 	}
+=======
+>>>>>>> upstream/android-13
 	if ((ioc->Request.Type.Direction & XFER_READ) && ioc->buf_size > 0) {
 		int i;
 
@@ -6541,7 +7295,10 @@ cleanup1:
 		kfree(buff);
 	}
 	kfree(buff_size);
+<<<<<<< HEAD
 	kfree(ioc);
+=======
+>>>>>>> upstream/android-13
 	return status;
 }
 
@@ -6556,6 +7313,7 @@ static void check_ioctl_unit_attention(struct ctlr_info *h,
 /*
  * ioctl
  */
+<<<<<<< HEAD
 static int hpsa_ioctl(struct scsi_device *dev, int cmd, void __user *arg)
 {
 	struct ctlr_info *h;
@@ -6564,6 +7322,14 @@ static int hpsa_ioctl(struct scsi_device *dev, int cmd, void __user *arg)
 
 	h = sdev_to_hba(dev);
 
+=======
+static int hpsa_ioctl(struct scsi_device *dev, unsigned int cmd,
+		      void __user *argp)
+{
+	struct ctlr_info *h = sdev_to_hba(dev);
+	int rc;
+
+>>>>>>> upstream/android-13
 	switch (cmd) {
 	case CCISS_DEREGDISK:
 	case CCISS_REGNEWDISK:
@@ -6574,6 +7340,7 @@ static int hpsa_ioctl(struct scsi_device *dev, int cmd, void __user *arg)
 		return hpsa_getpciinfo_ioctl(h, argp);
 	case CCISS_GETDRIVVER:
 		return hpsa_getdrivver_ioctl(h, argp);
+<<<<<<< HEAD
 	case CCISS_PASSTHRU:
 		if (atomic_dec_if_positive(&h->passthru_cmds_avail) < 0)
 			return -EAGAIN;
@@ -6586,13 +7353,48 @@ static int hpsa_ioctl(struct scsi_device *dev, int cmd, void __user *arg)
 		rc = hpsa_big_passthru_ioctl(h, argp);
 		atomic_inc(&h->passthru_cmds_avail);
 		return rc;
+=======
+	case CCISS_PASSTHRU: {
+		IOCTL_Command_struct iocommand;
+
+		if (!argp)
+			return -EINVAL;
+		if (copy_from_user(&iocommand, argp, sizeof(iocommand)))
+			return -EFAULT;
+		if (atomic_dec_if_positive(&h->passthru_cmds_avail) < 0)
+			return -EAGAIN;
+		rc = hpsa_passthru_ioctl(h, &iocommand);
+		atomic_inc(&h->passthru_cmds_avail);
+		if (!rc && copy_to_user(argp, &iocommand, sizeof(iocommand)))
+			rc = -EFAULT;
+		return rc;
+	}
+	case CCISS_BIG_PASSTHRU: {
+		BIG_IOCTL_Command_struct ioc;
+		if (!argp)
+			return -EINVAL;
+		if (copy_from_user(&ioc, argp, sizeof(ioc)))
+			return -EFAULT;
+		if (atomic_dec_if_positive(&h->passthru_cmds_avail) < 0)
+			return -EAGAIN;
+		rc = hpsa_big_passthru_ioctl(h, &ioc);
+		atomic_inc(&h->passthru_cmds_avail);
+		if (!rc && copy_to_user(argp, &ioc, sizeof(ioc)))
+			rc = -EFAULT;
+		return rc;
+	}
+>>>>>>> upstream/android-13
 	default:
 		return -ENOTTY;
 	}
 }
 
+<<<<<<< HEAD
 static void hpsa_send_host_reset(struct ctlr_info *h, unsigned char *scsi3addr,
 				u8 reset_type)
+=======
+static void hpsa_send_host_reset(struct ctlr_info *h, u8 reset_type)
+>>>>>>> upstream/android-13
 {
 	struct CommandList *c;
 
@@ -6615,7 +7417,11 @@ static int fill_cmd(struct CommandList *c, u8 cmd, struct ctlr_info *h,
 	void *buff, size_t size, u16 page_code, unsigned char *scsi3addr,
 	int cmd_type)
 {
+<<<<<<< HEAD
 	int pci_dir = XFER_NONE;
+=======
+	enum dma_data_direction dir = DMA_NONE;
+>>>>>>> upstream/android-13
 
 	c->cmd_type = CMD_IOCTL_PEND;
 	c->scsi_cmd = SCSI_CMD_BUSY;
@@ -6821,6 +7627,7 @@ static int fill_cmd(struct CommandList *c, u8 cmd, struct ctlr_info *h,
 
 	switch (GET_DIR(c->Request.type_attr_dir)) {
 	case XFER_READ:
+<<<<<<< HEAD
 		pci_dir = PCI_DMA_FROMDEVICE;
 		break;
 	case XFER_WRITE:
@@ -6833,6 +7640,20 @@ static int fill_cmd(struct CommandList *c, u8 cmd, struct ctlr_info *h,
 		pci_dir = PCI_DMA_BIDIRECTIONAL;
 	}
 	if (hpsa_map_one(h->pdev, c, buff, size, pci_dir))
+=======
+		dir = DMA_FROM_DEVICE;
+		break;
+	case XFER_WRITE:
+		dir = DMA_TO_DEVICE;
+		break;
+	case XFER_NONE:
+		dir = DMA_NONE;
+		break;
+	default:
+		dir = DMA_BIDIRECTIONAL;
+	}
+	if (hpsa_map_one(h->pdev, c, buff, size, dir))
+>>>>>>> upstream/android-13
 		return -1;
 	return 0;
 }
@@ -6844,7 +7665,11 @@ static void __iomem *remap_pci_mem(ulong base, ulong size)
 {
 	ulong page_base = ((ulong) base) & PAGE_MASK;
 	ulong page_offs = ((ulong) base) - page_base;
+<<<<<<< HEAD
 	void __iomem *page_remapped = ioremap_nocache(page_base,
+=======
+	void __iomem *page_remapped = ioremap(page_base,
+>>>>>>> upstream/android-13
 		page_offs + size);
 
 	return page_remapped ? (page_remapped + page_offs) : NULL;
@@ -7028,13 +7853,21 @@ static int hpsa_message(struct pci_dev *pdev, unsigned char opcode,
 	 * CCISS commands, so they must be allocated from the lower 4GiB of
 	 * memory.
 	 */
+<<<<<<< HEAD
 	err = pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(32));
+=======
+	err = dma_set_coherent_mask(&pdev->dev, DMA_BIT_MASK(32));
+>>>>>>> upstream/android-13
 	if (err) {
 		iounmap(vaddr);
 		return err;
 	}
 
+<<<<<<< HEAD
 	cmd = pci_alloc_consistent(pdev, cmd_sz, &paddr64);
+=======
+	cmd = dma_alloc_coherent(&pdev->dev, cmd_sz, &paddr64, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (cmd == NULL) {
 		iounmap(vaddr);
 		return -ENOMEM;
@@ -7083,7 +7916,11 @@ static int hpsa_message(struct pci_dev *pdev, unsigned char opcode,
 		return -ETIMEDOUT;
 	}
 
+<<<<<<< HEAD
 	pci_free_consistent(pdev, cmd_sz, cmd, paddr64);
+=======
+	dma_free_coherent(&pdev->dev, cmd_sz, cmd, paddr64);
+>>>>>>> upstream/android-13
 
 	if (tag & HPSA_ERROR_BIT) {
 		dev_err(&pdev->dev, "controller message %02x:%02x failed\n",
@@ -7388,7 +8225,10 @@ static int find_PCI_BAR_index(struct pci_dev *pdev, unsigned long pci_bar_addr)
 				dev_warn(&pdev->dev,
 				       "base address is invalid\n");
 				return -1;
+<<<<<<< HEAD
 				break;
+=======
+>>>>>>> upstream/android-13
 			}
 		}
 		if (offset == pci_bar_addr - PCI_BASE_ADDRESS_0)
@@ -7777,7 +8617,11 @@ static void hpsa_free_pci_init(struct ctlr_info *h)
 	hpsa_disable_interrupt_mode(h);		/* pci_init 2 */
 	/*
 	 * call pci_disable_device before pci_release_regions per
+<<<<<<< HEAD
 	 * Documentation/PCI/pci.txt
+=======
+	 * Documentation/driver-api/pci/pci.rst
+>>>>>>> upstream/android-13
 	 */
 	pci_disable_device(h->pdev);		/* pci_init 1 */
 	pci_release_regions(h->pdev);		/* pci_init 2 */
@@ -7860,7 +8704,11 @@ clean2:	/* intmode+region, pci */
 clean1:
 	/*
 	 * call pci_disable_device before pci_release_regions per
+<<<<<<< HEAD
 	 * Documentation/PCI/pci.txt
+=======
+	 * Documentation/driver-api/pci/pci.rst
+>>>>>>> upstream/android-13
 	 */
 	pci_disable_device(h->pdev);
 	pci_release_regions(h->pdev);
@@ -7950,7 +8798,11 @@ static void hpsa_free_cmd_pool(struct ctlr_info *h)
 	kfree(h->cmd_pool_bits);
 	h->cmd_pool_bits = NULL;
 	if (h->cmd_pool) {
+<<<<<<< HEAD
 		pci_free_consistent(h->pdev,
+=======
+		dma_free_coherent(&h->pdev->dev,
+>>>>>>> upstream/android-13
 				h->nr_cmds * sizeof(struct CommandList),
 				h->cmd_pool,
 				h->cmd_pool_dhandle);
@@ -7958,7 +8810,11 @@ static void hpsa_free_cmd_pool(struct ctlr_info *h)
 		h->cmd_pool_dhandle = 0;
 	}
 	if (h->errinfo_pool) {
+<<<<<<< HEAD
 		pci_free_consistent(h->pdev,
+=======
+		dma_free_coherent(&h->pdev->dev,
+>>>>>>> upstream/android-13
 				h->nr_cmds * sizeof(struct ErrorInfo),
 				h->errinfo_pool,
 				h->errinfo_pool_dhandle);
@@ -7972,12 +8828,21 @@ static int hpsa_alloc_cmd_pool(struct ctlr_info *h)
 	h->cmd_pool_bits = kcalloc(DIV_ROUND_UP(h->nr_cmds, BITS_PER_LONG),
 				   sizeof(unsigned long),
 				   GFP_KERNEL);
+<<<<<<< HEAD
 	h->cmd_pool = pci_alloc_consistent(h->pdev,
 		    h->nr_cmds * sizeof(*h->cmd_pool),
 		    &(h->cmd_pool_dhandle));
 	h->errinfo_pool = pci_alloc_consistent(h->pdev,
 		    h->nr_cmds * sizeof(*h->errinfo_pool),
 		    &(h->errinfo_pool_dhandle));
+=======
+	h->cmd_pool = dma_alloc_coherent(&h->pdev->dev,
+		    h->nr_cmds * sizeof(*h->cmd_pool),
+		    &h->cmd_pool_dhandle, GFP_KERNEL);
+	h->errinfo_pool = dma_alloc_coherent(&h->pdev->dev,
+		    h->nr_cmds * sizeof(*h->errinfo_pool),
+		    &h->errinfo_pool_dhandle, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if ((h->cmd_pool_bits == NULL)
 	    || (h->cmd_pool == NULL)
 	    || (h->errinfo_pool == NULL)) {
@@ -7995,10 +8860,22 @@ clean_up:
 static void hpsa_free_irqs(struct ctlr_info *h)
 {
 	int i;
+<<<<<<< HEAD
 
 	if (!h->msix_vectors || h->intr_mode != PERF_MODE_INT) {
 		/* Single reply queue, only one irq to free */
 		free_irq(pci_irq_vector(h->pdev, 0), &h->q[h->intr_mode]);
+=======
+	int irq_vector = 0;
+
+	if (hpsa_simple_mode)
+		irq_vector = h->intr_mode;
+
+	if (!h->msix_vectors || h->intr_mode != PERF_MODE_INT) {
+		/* Single reply queue, only one irq to free */
+		free_irq(pci_irq_vector(h->pdev, irq_vector),
+				&h->q[h->intr_mode]);
+>>>>>>> upstream/android-13
 		h->q[h->intr_mode] = 0;
 		return;
 	}
@@ -8017,6 +8894,13 @@ static int hpsa_request_irqs(struct ctlr_info *h,
 	irqreturn_t (*intxhandler)(int, void *))
 {
 	int rc, i;
+<<<<<<< HEAD
+=======
+	int irq_vector = 0;
+
+	if (hpsa_simple_mode)
+		irq_vector = h->intr_mode;
+>>>>>>> upstream/android-13
 
 	/*
 	 * initialize h->q[x] = x so that interrupt handlers know which
@@ -8052,14 +8936,22 @@ static int hpsa_request_irqs(struct ctlr_info *h,
 		if (h->msix_vectors > 0 || h->pdev->msi_enabled) {
 			sprintf(h->intrname[0], "%s-msi%s", h->devname,
 				h->msix_vectors ? "x" : "");
+<<<<<<< HEAD
 			rc = request_irq(pci_irq_vector(h->pdev, 0),
+=======
+			rc = request_irq(pci_irq_vector(h->pdev, irq_vector),
+>>>>>>> upstream/android-13
 				msixhandler, 0,
 				h->intrname[0],
 				&h->q[h->intr_mode]);
 		} else {
 			sprintf(h->intrname[h->intr_mode],
 				"%s-intx", h->devname);
+<<<<<<< HEAD
 			rc = request_irq(pci_irq_vector(h->pdev, 0),
+=======
+			rc = request_irq(pci_irq_vector(h->pdev, irq_vector),
+>>>>>>> upstream/android-13
 				intxhandler, IRQF_SHARED,
 				h->intrname[0],
 				&h->q[h->intr_mode]);
@@ -8067,7 +8959,11 @@ static int hpsa_request_irqs(struct ctlr_info *h,
 	}
 	if (rc) {
 		dev_err(&h->pdev->dev, "failed to get irq %d for %s\n",
+<<<<<<< HEAD
 		       pci_irq_vector(h->pdev, 0), h->devname);
+=======
+		       pci_irq_vector(h->pdev, irq_vector), h->devname);
+>>>>>>> upstream/android-13
 		hpsa_free_irqs(h);
 		return -ENODEV;
 	}
@@ -8077,7 +8973,11 @@ static int hpsa_request_irqs(struct ctlr_info *h,
 static int hpsa_kdump_soft_reset(struct ctlr_info *h)
 {
 	int rc;
+<<<<<<< HEAD
 	hpsa_send_host_reset(h, RAID_CTLR_LUNID, HPSA_RESET_TYPE_CONTROLLER);
+=======
+	hpsa_send_host_reset(h, HPSA_RESET_TYPE_CONTROLLER);
+>>>>>>> upstream/android-13
 
 	dev_info(&h->pdev->dev, "Waiting for board to soft reset.\n");
 	rc = hpsa_wait_for_board_state(h->pdev, h->vaddr, BOARD_NOT_READY);
@@ -8104,7 +9004,11 @@ static void hpsa_free_reply_queues(struct ctlr_info *h)
 	for (i = 0; i < h->nreply_queues; i++) {
 		if (!h->reply_queue[i].head)
 			continue;
+<<<<<<< HEAD
 		pci_free_consistent(h->pdev,
+=======
+		dma_free_coherent(&h->pdev->dev,
+>>>>>>> upstream/android-13
 					h->reply_queue_size,
 					h->reply_queue[i].head,
 					h->reply_queue[i].busaddr);
@@ -8133,6 +9037,14 @@ static void hpsa_undo_allocations_after_kdump_soft_reset(struct ctlr_info *h)
 		destroy_workqueue(h->rescan_ctlr_wq);
 		h->rescan_ctlr_wq = NULL;
 	}
+<<<<<<< HEAD
+=======
+	if (h->monitor_ctlr_wq) {
+		destroy_workqueue(h->monitor_ctlr_wq);
+		h->monitor_ctlr_wq = NULL;
+	}
+
+>>>>>>> upstream/android-13
 	kfree(h);				/* init_one 1 */
 }
 
@@ -8481,8 +9393,13 @@ static void hpsa_event_monitor_worker(struct work_struct *work)
 
 	spin_lock_irqsave(&h->lock, flags);
 	if (!h->remove_in_progress)
+<<<<<<< HEAD
 		schedule_delayed_work(&h->event_monitor_work,
 					HPSA_EVENT_MONITOR_INTERVAL);
+=======
+		queue_delayed_work(h->monitor_ctlr_wq, &h->event_monitor_work,
+				HPSA_EVENT_MONITOR_INTERVAL);
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&h->lock, flags);
 }
 
@@ -8527,7 +9444,11 @@ static void hpsa_monitor_ctlr_worker(struct work_struct *work)
 
 	spin_lock_irqsave(&h->lock, flags);
 	if (!h->remove_in_progress)
+<<<<<<< HEAD
 		schedule_delayed_work(&h->monitor_ctlr_work,
+=======
+		queue_delayed_work(h->monitor_ctlr_wq, &h->monitor_ctlr_work,
+>>>>>>> upstream/android-13
 				h->heartbeat_sample_interval);
 	spin_unlock_irqrestore(&h->lock, flags);
 }
@@ -8568,7 +9489,11 @@ static struct ctlr_info *hpda_alloc_ctlr_info(void)
 
 static int hpsa_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 {
+<<<<<<< HEAD
 	int dac, rc;
+=======
+	int rc;
+>>>>>>> upstream/android-13
 	struct ctlr_info *h;
 	int try_soft_reset = 0;
 	unsigned long flags;
@@ -8643,6 +9568,7 @@ reinit_after_soft_reset:
 	number_of_controllers++;
 
 	/* configure PCI DMA stuff */
+<<<<<<< HEAD
 	rc = pci_set_dma_mask(pdev, DMA_BIT_MASK(64));
 	if (rc == 0) {
 		dac = 1;
@@ -8651,6 +9577,12 @@ reinit_after_soft_reset:
 		if (rc == 0) {
 			dac = 0;
 		} else {
+=======
+	rc = dma_set_mask(&pdev->dev, DMA_BIT_MASK(64));
+	if (rc != 0) {
+		rc = dma_set_mask(&pdev->dev, DMA_BIT_MASK(32));
+		if (rc != 0) {
+>>>>>>> upstream/android-13
 			dev_err(&pdev->dev, "no suitable DMA available\n");
 			goto clean3;	/* shost, pci, lu, aer/h */
 		}
@@ -8695,6 +9627,15 @@ reinit_after_soft_reset:
 		goto clean7;	/* aer/h */
 	}
 
+<<<<<<< HEAD
+=======
+	h->monitor_ctlr_wq = hpsa_create_controller_wq(h, "monitor");
+	if (!h->monitor_ctlr_wq) {
+		rc = -ENOMEM;
+		goto clean7;
+	}
+
+>>>>>>> upstream/android-13
 	/*
 	 * At this point, the controller is ready to take commands.
 	 * Now, if reset_devices and the hard reset didn't work, try
@@ -8826,6 +9767,13 @@ clean1:	/* wq/aer/h */
 		destroy_workqueue(h->rescan_ctlr_wq);
 		h->rescan_ctlr_wq = NULL;
 	}
+<<<<<<< HEAD
+=======
+	if (h->monitor_ctlr_wq) {
+		destroy_workqueue(h->monitor_ctlr_wq);
+		h->monitor_ctlr_wq = NULL;
+	}
+>>>>>>> upstream/android-13
 	kfree(h);
 	return rc;
 }
@@ -8848,8 +9796,13 @@ static void hpsa_flush_cache(struct ctlr_info *h)
 		RAID_CTLR_LUNID, TYPE_CMD)) {
 		goto out;
 	}
+<<<<<<< HEAD
 	rc = hpsa_scsi_do_simple_cmd_with_retry(h, c,
 					PCI_DMA_TODEVICE, DEFAULT_TIMEOUT);
+=======
+	rc = hpsa_scsi_do_simple_cmd_with_retry(h, c, DMA_TO_DEVICE,
+			DEFAULT_TIMEOUT);
+>>>>>>> upstream/android-13
 	if (rc)
 		goto out;
 	if (c->err_info->CommandStatus != 0)
@@ -8884,8 +9837,13 @@ static void hpsa_disable_rld_caching(struct ctlr_info *h)
 		RAID_CTLR_LUNID, TYPE_CMD))
 		goto errout;
 
+<<<<<<< HEAD
 	rc = hpsa_scsi_do_simple_cmd_with_retry(h, c,
 		PCI_DMA_FROMDEVICE, NO_TIMEOUT);
+=======
+	rc = hpsa_scsi_do_simple_cmd_with_retry(h, c, DMA_FROM_DEVICE,
+			NO_TIMEOUT);
+>>>>>>> upstream/android-13
 	if ((rc != 0) || (c->err_info->CommandStatus != 0))
 		goto errout;
 
@@ -8896,8 +9854,13 @@ static void hpsa_disable_rld_caching(struct ctlr_info *h)
 		RAID_CTLR_LUNID, TYPE_CMD))
 		goto errout;
 
+<<<<<<< HEAD
 	rc = hpsa_scsi_do_simple_cmd_with_retry(h, c,
 		PCI_DMA_TODEVICE, NO_TIMEOUT);
+=======
+	rc = hpsa_scsi_do_simple_cmd_with_retry(h, c, DMA_TO_DEVICE,
+			NO_TIMEOUT);
+>>>>>>> upstream/android-13
 	if ((rc != 0)  || (c->err_info->CommandStatus != 0))
 		goto errout;
 
@@ -8906,8 +9869,13 @@ static void hpsa_disable_rld_caching(struct ctlr_info *h)
 		RAID_CTLR_LUNID, TYPE_CMD))
 		goto errout;
 
+<<<<<<< HEAD
 	rc = hpsa_scsi_do_simple_cmd_with_retry(h, c,
 		PCI_DMA_FROMDEVICE, NO_TIMEOUT);
+=======
+	rc = hpsa_scsi_do_simple_cmd_with_retry(h, c, DMA_FROM_DEVICE,
+			NO_TIMEOUT);
+>>>>>>> upstream/android-13
 	if ((rc != 0)  || (c->err_info->CommandStatus != 0))
 		goto errout;
 
@@ -8973,6 +9941,10 @@ static void hpsa_remove_one(struct pci_dev *pdev)
 	cancel_delayed_work_sync(&h->event_monitor_work);
 	destroy_workqueue(h->rescan_ctlr_wq);
 	destroy_workqueue(h->resubmit_wq);
+<<<<<<< HEAD
+=======
+	destroy_workqueue(h->monitor_ctlr_wq);
+>>>>>>> upstream/android-13
 
 	hpsa_delete_sas_host(h);
 
@@ -9013,25 +9985,44 @@ static void hpsa_remove_one(struct pci_dev *pdev)
 	hpda_free_ctlr_info(h);				/* init_one 1 */
 }
 
+<<<<<<< HEAD
 static int hpsa_suspend(__attribute__((unused)) struct pci_dev *pdev,
 	__attribute__((unused)) pm_message_t state)
+=======
+static int __maybe_unused hpsa_suspend(
+	__attribute__((unused)) struct device *dev)
+>>>>>>> upstream/android-13
 {
 	return -ENOSYS;
 }
 
+<<<<<<< HEAD
 static int hpsa_resume(__attribute__((unused)) struct pci_dev *pdev)
+=======
+static int __maybe_unused hpsa_resume
+	(__attribute__((unused)) struct device *dev)
+>>>>>>> upstream/android-13
 {
 	return -ENOSYS;
 }
 
+<<<<<<< HEAD
+=======
+static SIMPLE_DEV_PM_OPS(hpsa_pm_ops, hpsa_suspend, hpsa_resume);
+
+>>>>>>> upstream/android-13
 static struct pci_driver hpsa_pci_driver = {
 	.name = HPSA,
 	.probe = hpsa_init_one,
 	.remove = hpsa_remove_one,
 	.id_table = hpsa_pci_device_id,	/* id_table */
 	.shutdown = hpsa_shutdown,
+<<<<<<< HEAD
 	.suspend = hpsa_suspend,
 	.resume = hpsa_resume,
+=======
+	.driver.pm = &hpsa_pm_ops,
+>>>>>>> upstream/android-13
 };
 
 /* Fill in bucket_map[], given nsgs (the max number of
@@ -9220,10 +10211,16 @@ static int hpsa_enter_performant_mode(struct ctlr_info *h, u32 trans_support)
 	} else if (trans_support & CFGTBL_Trans_io_accel2) {
 		u64 cfg_offset, cfg_base_addr_index;
 		u32 bft2_offset, cfg_base_addr;
+<<<<<<< HEAD
 		int rc;
 
 		rc = hpsa_find_cfg_addrs(h->pdev, h->vaddr, &cfg_base_addr,
 			&cfg_base_addr_index, &cfg_offset);
+=======
+
+		hpsa_find_cfg_addrs(h->pdev, h->vaddr, &cfg_base_addr,
+				    &cfg_base_addr_index, &cfg_offset);
+>>>>>>> upstream/android-13
 		BUILD_BUG_ON(offsetof(struct io_accel2_cmd, sg) != 64);
 		bft2[15] = h->ioaccel_maxsg + HPSA_IOACCEL2_HEADER_SZ;
 		calc_bucket_map(bft2, ARRAY_SIZE(bft2), h->ioaccel_maxsg,
@@ -9253,10 +10250,17 @@ static int hpsa_enter_performant_mode(struct ctlr_info *h, u32 trans_support)
 static void hpsa_free_ioaccel1_cmd_and_bft(struct ctlr_info *h)
 {
 	if (h->ioaccel_cmd_pool) {
+<<<<<<< HEAD
 		pci_free_consistent(h->pdev,
 			h->nr_cmds * sizeof(*h->ioaccel_cmd_pool),
 			h->ioaccel_cmd_pool,
 			h->ioaccel_cmd_pool_dhandle);
+=======
+		dma_free_coherent(&h->pdev->dev,
+				  h->nr_cmds * sizeof(*h->ioaccel_cmd_pool),
+				  h->ioaccel_cmd_pool,
+				  h->ioaccel_cmd_pool_dhandle);
+>>>>>>> upstream/android-13
 		h->ioaccel_cmd_pool = NULL;
 		h->ioaccel_cmd_pool_dhandle = 0;
 	}
@@ -9279,9 +10283,15 @@ static int hpsa_alloc_ioaccel1_cmd_and_bft(struct ctlr_info *h)
 	BUILD_BUG_ON(sizeof(struct io_accel1_cmd) %
 			IOACCEL1_COMMANDLIST_ALIGNMENT);
 	h->ioaccel_cmd_pool =
+<<<<<<< HEAD
 		pci_alloc_consistent(h->pdev,
 			h->nr_cmds * sizeof(*h->ioaccel_cmd_pool),
 			&(h->ioaccel_cmd_pool_dhandle));
+=======
+		dma_alloc_coherent(&h->pdev->dev,
+			h->nr_cmds * sizeof(*h->ioaccel_cmd_pool),
+			&h->ioaccel_cmd_pool_dhandle, GFP_KERNEL);
+>>>>>>> upstream/android-13
 
 	h->ioaccel1_blockFetchTable =
 		kmalloc(((h->ioaccel_maxsg + 1) *
@@ -9306,10 +10316,17 @@ static void hpsa_free_ioaccel2_cmd_and_bft(struct ctlr_info *h)
 	hpsa_free_ioaccel2_sg_chain_blocks(h);
 
 	if (h->ioaccel2_cmd_pool) {
+<<<<<<< HEAD
 		pci_free_consistent(h->pdev,
 			h->nr_cmds * sizeof(*h->ioaccel2_cmd_pool),
 			h->ioaccel2_cmd_pool,
 			h->ioaccel2_cmd_pool_dhandle);
+=======
+		dma_free_coherent(&h->pdev->dev,
+				  h->nr_cmds * sizeof(*h->ioaccel2_cmd_pool),
+				  h->ioaccel2_cmd_pool,
+				  h->ioaccel2_cmd_pool_dhandle);
+>>>>>>> upstream/android-13
 		h->ioaccel2_cmd_pool = NULL;
 		h->ioaccel2_cmd_pool_dhandle = 0;
 	}
@@ -9332,9 +10349,15 @@ static int hpsa_alloc_ioaccel2_cmd_and_bft(struct ctlr_info *h)
 	BUILD_BUG_ON(sizeof(struct io_accel2_cmd) %
 			IOACCEL2_COMMANDLIST_ALIGNMENT);
 	h->ioaccel2_cmd_pool =
+<<<<<<< HEAD
 		pci_alloc_consistent(h->pdev,
 			h->nr_cmds * sizeof(*h->ioaccel2_cmd_pool),
 			&(h->ioaccel2_cmd_pool_dhandle));
+=======
+		dma_alloc_coherent(&h->pdev->dev,
+			h->nr_cmds * sizeof(*h->ioaccel2_cmd_pool),
+			&h->ioaccel2_cmd_pool_dhandle, GFP_KERNEL);
+>>>>>>> upstream/android-13
 
 	h->ioaccel2_blockFetchTable =
 		kmalloc(((h->ioaccel_maxsg + 1) *
@@ -9407,9 +10430,16 @@ static int hpsa_put_ctlr_into_performant_mode(struct ctlr_info *h)
 	h->reply_queue_size = h->max_commands * sizeof(u64);
 
 	for (i = 0; i < h->nreply_queues; i++) {
+<<<<<<< HEAD
 		h->reply_queue[i].head = pci_alloc_consistent(h->pdev,
 						h->reply_queue_size,
 						&(h->reply_queue[i].busaddr));
+=======
+		h->reply_queue[i].head = dma_alloc_coherent(&h->pdev->dev,
+						h->reply_queue_size,
+						&h->reply_queue[i].busaddr,
+						GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (!h->reply_queue[i].head) {
 			rc = -ENOMEM;
 			goto clean1;	/* rq, ioaccel */

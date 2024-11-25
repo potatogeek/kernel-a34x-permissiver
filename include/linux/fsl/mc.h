@@ -3,6 +3,10 @@
  * Freescale Management Complex (MC) bus public interface
  *
  * Copyright (C) 2014-2016 Freescale Semiconductor, Inc.
+<<<<<<< HEAD
+=======
+ * Copyright 2019-2020 NXP
+>>>>>>> upstream/android-13
  * Author: German Rivera <German.Rivera@freescale.com>
  *
  */
@@ -12,6 +16,10 @@
 #include <linux/device.h>
 #include <linux/mod_devicetable.h>
 #include <linux/interrupt.h>
+<<<<<<< HEAD
+=======
+#include <uapi/linux/fsl_mc.h>
+>>>>>>> upstream/android-13
 
 #define FSL_MC_VENDOR_FREESCALE	0x1957
 
@@ -148,6 +156,16 @@ struct fsl_mc_obj_desc {
  */
 #define FSL_MC_IS_DPRC	0x0001
 
+<<<<<<< HEAD
+=======
+/* Region flags */
+/* Indicates that region can be mapped as cacheable */
+#define FSL_MC_REGION_CACHEABLE	0x00000001
+
+/* Indicates that region can be mapped as shareable */
+#define FSL_MC_REGION_SHAREABLE	0x00000002
+
+>>>>>>> upstream/android-13
 /**
  * struct fsl_mc_device - MC object device object
  * @dev: Linux driver model device object
@@ -161,6 +179,10 @@ struct fsl_mc_obj_desc {
  * @regions: pointer to array of MMIO region entries
  * @irqs: pointer to array of pointers to interrupts allocated to this device
  * @resource: generic resource associated with this MC object device, if any.
+<<<<<<< HEAD
+=======
+ * @driver_override: driver name to force a match
+>>>>>>> upstream/android-13
  *
  * Generic device object for MC object devices that are "attached" to a
  * MC bus.
@@ -186,20 +208,32 @@ struct fsl_mc_device {
 	struct device dev;
 	u64 dma_mask;
 	u16 flags;
+<<<<<<< HEAD
 	u16 icid;
+=======
+	u32 icid;
+>>>>>>> upstream/android-13
 	u16 mc_handle;
 	struct fsl_mc_io *mc_io;
 	struct fsl_mc_obj_desc obj_desc;
 	struct resource *regions;
 	struct fsl_mc_device_irq **irqs;
 	struct fsl_mc_resource *resource;
+<<<<<<< HEAD
+=======
+	struct device_link *consumer_link;
+	char   *driver_override;
+>>>>>>> upstream/android-13
 };
 
 #define to_fsl_mc_device(_dev) \
 	container_of(_dev, struct fsl_mc_device, dev)
 
+<<<<<<< HEAD
 #define MC_CMD_NUM_OF_PARAMS	7
 
+=======
+>>>>>>> upstream/android-13
 struct mc_cmd_header {
 	u8 src_id;
 	u8 flags_hw;
@@ -209,11 +243,14 @@ struct mc_cmd_header {
 	__le16 cmd_id;
 };
 
+<<<<<<< HEAD
 struct fsl_mc_command {
 	u64 header;
 	u64 params[MC_CMD_NUM_OF_PARAMS];
 };
 
+=======
+>>>>>>> upstream/android-13
 enum mc_cmd_status {
 	MC_CMD_STATUS_OK = 0x0, /* Completed successfully */
 	MC_CMD_STATUS_READY = 0x1, /* Ready to be processed */
@@ -238,11 +275,19 @@ enum mc_cmd_status {
 /* Command completion flag */
 #define MC_CMD_FLAG_INTR_DIS	0x01
 
+<<<<<<< HEAD
 static inline u64 mc_encode_cmd_header(u16 cmd_id,
 				       u32 cmd_flags,
 				       u16 token)
 {
 	u64 header = 0;
+=======
+static inline __le64 mc_encode_cmd_header(u16 cmd_id,
+					  u32 cmd_flags,
+					  u16 token)
+{
+	__le64 header = 0;
+>>>>>>> upstream/android-13
 	struct mc_cmd_header *hdr = (struct mc_cmd_header *)&header;
 
 	hdr->cmd_id = cpu_to_le16(cmd_id);
@@ -338,7 +383,11 @@ struct fsl_mc_io {
 		 * This field is only meaningful if the
 		 * FSL_MC_IO_ATOMIC_CONTEXT_PORTAL flag is set
 		 */
+<<<<<<< HEAD
 		spinlock_t spinlock;	/* serializes mc_send_command() */
+=======
+		raw_spinlock_t spinlock; /* serializes mc_send_command() */
+>>>>>>> upstream/android-13
 	};
 };
 
@@ -351,6 +400,17 @@ int mc_send_command(struct fsl_mc_io *mc_io, struct fsl_mc_command *cmd);
 #define dev_is_fsl_mc(_dev) (0)
 #endif
 
+<<<<<<< HEAD
+=======
+/* Macro to check if a device is a container device */
+#define fsl_mc_is_cont_dev(_dev) (to_fsl_mc_device(_dev)->flags & \
+	FSL_MC_IS_DPRC)
+
+/* Macro to get the container device of a MC device */
+#define fsl_mc_cont_dev(_dev) (fsl_mc_is_cont_dev(_dev) ? \
+	(_dev) : (_dev)->parent)
+
+>>>>>>> upstream/android-13
 /*
  * module_fsl_mc_driver() - Helper macro for drivers that don't do
  * anything special in module init/exit.  This eliminates a lot of
@@ -372,6 +432,25 @@ int __must_check __fsl_mc_driver_register(struct fsl_mc_driver *fsl_mc_driver,
 
 void fsl_mc_driver_unregister(struct fsl_mc_driver *driver);
 
+<<<<<<< HEAD
+=======
+/**
+ * struct fsl_mc_version
+ * @major: Major version number: incremented on API compatibility changes
+ * @minor: Minor version number: incremented on API additions (that are
+ *		backward compatible); reset when major version is incremented
+ * @revision: Internal revision number: incremented on implementation changes
+ *		and/or bug fixes that have no impact on API
+ */
+struct fsl_mc_version {
+	u32 major;
+	u32 minor;
+	u32 revision;
+};
+
+struct fsl_mc_version *fsl_mc_get_version(void);
+
+>>>>>>> upstream/android-13
 int __must_check fsl_mc_portal_allocate(struct fsl_mc_device *mc_dev,
 					u16 mc_io_flags,
 					struct fsl_mc_io **new_mc_io);
@@ -394,6 +473,12 @@ int __must_check fsl_mc_allocate_irqs(struct fsl_mc_device *mc_dev);
 
 void fsl_mc_free_irqs(struct fsl_mc_device *mc_dev);
 
+<<<<<<< HEAD
+=======
+struct fsl_mc_device *fsl_mc_get_endpoint(struct fsl_mc_device *mc_dev,
+					  u16 if_id);
+
+>>>>>>> upstream/android-13
 extern struct bus_type fsl_mc_bus_type;
 
 extern struct device_type fsl_mc_bus_dprc_type;
@@ -405,6 +490,15 @@ extern struct device_type fsl_mc_bus_dpcon_type;
 extern struct device_type fsl_mc_bus_dpmcp_type;
 extern struct device_type fsl_mc_bus_dpmac_type;
 extern struct device_type fsl_mc_bus_dprtc_type;
+<<<<<<< HEAD
+=======
+extern struct device_type fsl_mc_bus_dpseci_type;
+extern struct device_type fsl_mc_bus_dpdmux_type;
+extern struct device_type fsl_mc_bus_dpdcei_type;
+extern struct device_type fsl_mc_bus_dpaiop_type;
+extern struct device_type fsl_mc_bus_dpci_type;
+extern struct device_type fsl_mc_bus_dpdmai_type;
+>>>>>>> upstream/android-13
 
 static inline bool is_fsl_mc_bus_dprc(const struct fsl_mc_device *mc_dev)
 {
@@ -426,6 +520,14 @@ static inline bool is_fsl_mc_bus_dpsw(const struct fsl_mc_device *mc_dev)
 	return mc_dev->dev.type == &fsl_mc_bus_dpsw_type;
 }
 
+<<<<<<< HEAD
+=======
+static inline bool is_fsl_mc_bus_dpdmux(const struct fsl_mc_device *mc_dev)
+{
+	return mc_dev->dev.type == &fsl_mc_bus_dpdmux_type;
+}
+
+>>>>>>> upstream/android-13
 static inline bool is_fsl_mc_bus_dpbp(const struct fsl_mc_device *mc_dev)
 {
 	return mc_dev->dev.type == &fsl_mc_bus_dpbp_type;
@@ -451,6 +553,63 @@ static inline bool is_fsl_mc_bus_dprtc(const struct fsl_mc_device *mc_dev)
 	return mc_dev->dev.type == &fsl_mc_bus_dprtc_type;
 }
 
+<<<<<<< HEAD
+=======
+static inline bool is_fsl_mc_bus_dpseci(const struct fsl_mc_device *mc_dev)
+{
+	return mc_dev->dev.type == &fsl_mc_bus_dpseci_type;
+}
+
+static inline bool is_fsl_mc_bus_dpdcei(const struct fsl_mc_device *mc_dev)
+{
+	return mc_dev->dev.type == &fsl_mc_bus_dpdcei_type;
+}
+
+static inline bool is_fsl_mc_bus_dpaiop(const struct fsl_mc_device *mc_dev)
+{
+	return mc_dev->dev.type == &fsl_mc_bus_dpaiop_type;
+}
+
+static inline bool is_fsl_mc_bus_dpci(const struct fsl_mc_device *mc_dev)
+{
+	return mc_dev->dev.type == &fsl_mc_bus_dpci_type;
+}
+
+static inline bool is_fsl_mc_bus_dpdmai(const struct fsl_mc_device *mc_dev)
+{
+	return mc_dev->dev.type == &fsl_mc_bus_dpdmai_type;
+}
+
+#define DPRC_RESET_OPTION_NON_RECURSIVE                0x00000001
+int dprc_reset_container(struct fsl_mc_io *mc_io,
+			 u32 cmd_flags,
+			 u16 token,
+			 int child_container_id,
+			 u32 options);
+
+int dprc_scan_container(struct fsl_mc_device *mc_bus_dev,
+			bool alloc_interrupts);
+
+void dprc_remove_devices(struct fsl_mc_device *mc_bus_dev,
+			 struct fsl_mc_obj_desc *obj_desc_array,
+			 int num_child_objects_in_mc);
+
+int dprc_cleanup(struct fsl_mc_device *mc_dev);
+
+int dprc_setup(struct fsl_mc_device *mc_dev);
+
+/**
+ * Maximum number of total IRQs that can be pre-allocated for an MC bus'
+ * IRQ pool
+ */
+#define FSL_MC_IRQ_POOL_MAX_TOTAL_IRQS	256
+
+int fsl_mc_populate_irq_pool(struct fsl_mc_device *mc_bus_dev,
+			     unsigned int irq_count);
+
+void fsl_mc_cleanup_irq_pool(struct fsl_mc_device *mc_bus_dev);
+
+>>>>>>> upstream/android-13
 /*
  * Data Path Buffer Pool (DPBP) API
  * Contains initialization APIs and runtime control APIs for DPBP

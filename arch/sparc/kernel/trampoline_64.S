@@ -6,6 +6,10 @@
  */
 
 
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 #include <asm/head.h>
 #include <asm/asi.h>
 #include <asm/lsu.h>
@@ -13,7 +17,10 @@
 #include <asm/dcu.h>
 #include <asm/pstate.h>
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/spitfire.h>
 #include <asm/processor.h>
 #include <asm/thread_info.h>

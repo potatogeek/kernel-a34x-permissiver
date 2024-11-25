@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2005-2014 Brocade Communications Systems, Inc.
  * Copyright (c) 2014- QLogic Corporation.
@@ -5,6 +9,7 @@
  * www.qlogic.com
  *
  * Linux driver for QLogic BR-series Fibre Channel Host Bus Adapter.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License (GPL) Version 2 as
@@ -14,6 +19,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __BFA_DEFS_SVC_H__
@@ -879,7 +886,11 @@ enum bfa_port_linkstate_rsn {
 
 /*
  * Initially flash content may be fff. On making LUN mask enable and disable
+<<<<<<< HEAD
  * state chnage.  when report lun command is being processed it goes from
+=======
+ * state change.  when report lun command is being processed it goes from
+>>>>>>> upstream/android-13
  * BFA_LUN_MASK_ACTIVE to BFA_LUN_MASK_FETCH and comes back to
  * BFA_LUN_MASK_ACTIVE.
  */

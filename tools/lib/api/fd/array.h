@@ -21,19 +21,40 @@ struct fdarray {
 	int	       nr_alloc;
 	int	       nr_autogrow;
 	struct pollfd *entries;
+<<<<<<< HEAD
 	union {
 		int    idx;
 		void   *ptr;
 	} *priv;
 };
 
+=======
+	struct priv {
+		union {
+			int    idx;
+			void   *ptr;
+		};
+		unsigned int flags;
+	} *priv;
+};
+
+enum fdarray_flags {
+	fdarray_flag__default	    = 0x00000000,
+	fdarray_flag__nonfilterable = 0x00000001
+};
+
+>>>>>>> upstream/android-13
 void fdarray__init(struct fdarray *fda, int nr_autogrow);
 void fdarray__exit(struct fdarray *fda);
 
 struct fdarray *fdarray__new(int nr_alloc, int nr_autogrow);
 void fdarray__delete(struct fdarray *fda);
 
+<<<<<<< HEAD
 int fdarray__add(struct fdarray *fda, int fd, short revents);
+=======
+int fdarray__add(struct fdarray *fda, int fd, short revents, enum fdarray_flags flags);
+>>>>>>> upstream/android-13
 int fdarray__poll(struct fdarray *fda, int timeout);
 int fdarray__filter(struct fdarray *fda, short revents,
 		    void (*entry_destructor)(struct fdarray *fda, int fd, void *arg),

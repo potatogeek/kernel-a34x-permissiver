@@ -541,6 +541,10 @@ static int qe_ep_init(struct qe_udc *udc,
 			case USB_SPEED_HIGH:
 			if ((max == 128) || (max == 256) || (max == 512))
 				break;
+<<<<<<< HEAD
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 			default:
 				switch (max) {
 				case 4:
@@ -562,9 +566,17 @@ static int qe_ep_init(struct qe_udc *udc,
 			case USB_SPEED_HIGH:
 				if (max <= 1024)
 					break;
+<<<<<<< HEAD
 			case USB_SPEED_FULL:
 				if (max <= 64)
 					break;
+=======
+				fallthrough;
+			case USB_SPEED_FULL:
+				if (max <= 64)
+					break;
+				fallthrough;
+>>>>>>> upstream/android-13
 			default:
 				if (max <= 8)
 					break;
@@ -579,9 +591,17 @@ static int qe_ep_init(struct qe_udc *udc,
 			case USB_SPEED_HIGH:
 				if (max <= 1024)
 					break;
+<<<<<<< HEAD
 			case USB_SPEED_FULL:
 				if (max <= 1023)
 					break;
+=======
+				fallthrough;
+			case USB_SPEED_FULL:
+				if (max <= 1023)
+					break;
+				fallthrough;
+>>>>>>> upstream/android-13
 			default:
 				goto en_done;
 			}
@@ -605,6 +625,10 @@ static int qe_ep_init(struct qe_udc *udc,
 				default:
 					goto en_done;
 				}
+<<<<<<< HEAD
+=======
+				fallthrough;
+>>>>>>> upstream/android-13
 			case USB_SPEED_LOW:
 				switch (max) {
 				case 1:
@@ -923,9 +947,15 @@ static int qe_ep_rxframe_handle(struct qe_ep *ep)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void ep_rx_tasklet(unsigned long data)
 {
 	struct qe_udc *udc = (struct qe_udc *)data;
+=======
+static void ep_rx_tasklet(struct tasklet_struct *t)
+{
+	struct qe_udc *udc = from_tasklet(udc, t, rx_tasklet);
+>>>>>>> upstream/android-13
 	struct qe_ep *ep;
 	struct qe_frame *pframe;
 	struct qe_bd __iomem *bd;
@@ -2553,8 +2583,12 @@ static int qe_udc_probe(struct platform_device *ofdev)
 					DMA_TO_DEVICE);
 	}
 
+<<<<<<< HEAD
 	tasklet_init(&udc->rx_tasklet, ep_rx_tasklet,
 			(unsigned long)udc);
+=======
+	tasklet_setup(&udc->rx_tasklet, ep_rx_tasklet);
+>>>>>>> upstream/android-13
 	/* request irq and disable DR  */
 	udc->usb_irq = irq_of_parse_and_map(np, 0);
 	if (!udc->usb_irq) {

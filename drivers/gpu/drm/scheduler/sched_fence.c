@@ -22,9 +22,17 @@
  */
 
 #include <linux/kthread.h>
+<<<<<<< HEAD
 #include <linux/wait.h>
 #include <linux/sched.h>
 #include <drm/drmP.h>
+=======
+#include <linux/module.h>
+#include <linux/sched.h>
+#include <linux/slab.h>
+#include <linux/wait.h>
+
+>>>>>>> upstream/android-13
 #include <drm/gpu_scheduler.h>
 
 static struct kmem_cache *sched_fence_slab;
@@ -99,7 +107,11 @@ static void drm_sched_fence_free(struct rcu_head *rcu)
 /**
  * drm_sched_fence_release_scheduled - callback that fence can be freed
  *
+<<<<<<< HEAD
  * @fence: fence
+=======
+ * @f: fence
+>>>>>>> upstream/android-13
  *
  * This function is called when the reference count becomes zero.
  * It just RCU schedules freeing up the fence.
@@ -126,13 +138,21 @@ static void drm_sched_fence_release_finished(struct dma_fence *f)
 	dma_fence_put(&fence->scheduled);
 }
 
+<<<<<<< HEAD
 const struct dma_fence_ops drm_sched_fence_ops_scheduled = {
+=======
+static const struct dma_fence_ops drm_sched_fence_ops_scheduled = {
+>>>>>>> upstream/android-13
 	.get_driver_name = drm_sched_fence_get_driver_name,
 	.get_timeline_name = drm_sched_fence_get_timeline_name,
 	.release = drm_sched_fence_release_scheduled,
 };
 
+<<<<<<< HEAD
 const struct dma_fence_ops drm_sched_fence_ops_finished = {
+=======
+static const struct dma_fence_ops drm_sched_fence_ops_finished = {
+>>>>>>> upstream/android-13
 	.get_driver_name = drm_sched_fence_get_driver_name,
 	.get_timeline_name = drm_sched_fence_get_timeline_name,
 	.release = drm_sched_fence_release_finished,

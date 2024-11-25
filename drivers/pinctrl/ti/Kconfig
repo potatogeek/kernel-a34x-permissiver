@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 config PINCTRL_TI_IODELAY
 	tristate "TI IODelay Module pinconf driver"
 	depends on OF && (SOC_DRA7XX || COMPILE_TEST)

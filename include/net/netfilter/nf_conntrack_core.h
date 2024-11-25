@@ -14,21 +14,37 @@
 #define _NF_CONNTRACK_CORE_H
 
 #include <linux/netfilter.h>
+<<<<<<< HEAD
 #include <net/netfilter/nf_conntrack_l4proto.h>
 #include <net/netfilter/nf_conntrack_ecache.h>
+=======
+#include <net/netfilter/nf_conntrack.h>
+#include <net/netfilter/nf_conntrack_ecache.h>
+#include <net/netfilter/nf_conntrack_l4proto.h>
+>>>>>>> upstream/android-13
 
 /* This header is used to share core functionality between the
    standalone connection tracking module, and the compatibility layer's use
    of connection tracking. */
+<<<<<<< HEAD
 unsigned int nf_conntrack_in(struct net *net, u_int8_t pf, unsigned int hooknum,
 			     struct sk_buff *skb);
+=======
+
+unsigned int nf_conntrack_in(struct sk_buff *skb,
+			     const struct nf_hook_state *state);
+>>>>>>> upstream/android-13
 
 int nf_conntrack_init_net(struct net *net);
 void nf_conntrack_cleanup_net(struct net *net);
 void nf_conntrack_cleanup_net_list(struct list_head *net_exit_list);
 
+<<<<<<< HEAD
 int nf_conntrack_proto_pernet_init(struct net *net);
 void nf_conntrack_proto_pernet_fini(struct net *net);
+=======
+void nf_conntrack_proto_pernet_init(struct net *net);
+>>>>>>> upstream/android-13
 
 int nf_conntrack_proto_init(void);
 void nf_conntrack_proto_fini(void);
@@ -40,8 +56,12 @@ void nf_conntrack_init_end(void);
 void nf_conntrack_cleanup_end(void);
 
 bool nf_ct_invert_tuple(struct nf_conntrack_tuple *inverse,
+<<<<<<< HEAD
 			const struct nf_conntrack_tuple *orig,
 			const struct nf_conntrack_l4proto *l4proto);
+=======
+			const struct nf_conntrack_tuple *orig);
+>>>>>>> upstream/android-13
 
 /* Find a connection corresponding to a tuple. */
 struct nf_conntrack_tuple_hash *
@@ -66,6 +86,12 @@ static inline int nf_conntrack_confirm(struct sk_buff *skb)
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+unsigned int nf_confirm(struct sk_buff *skb, unsigned int protoff,
+			struct nf_conn *ct, enum ip_conntrack_info ctinfo);
+
+>>>>>>> upstream/android-13
 void print_tuple(struct seq_file *s, const struct nf_conntrack_tuple *tuple,
 		 const struct nf_conntrack_l4proto *proto);
 

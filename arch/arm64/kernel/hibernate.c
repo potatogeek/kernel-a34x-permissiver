@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*:
  * Hibernate support specific for ARM64
  *
@@ -11,18 +15,27 @@
  *  https://patchwork.kernel.org/patch/96442/
  *
  * Copyright (C) 2006 Rafael J. Wysocki <rjw@sisk.pl>
+<<<<<<< HEAD
  *
  * License terms: GNU General Public License (GPL) version 2
+=======
+>>>>>>> upstream/android-13
  */
 #define pr_fmt(x) "hibernate: " x
 #include <linux/cpu.h>
 #include <linux/kvm_host.h>
+<<<<<<< HEAD
 #include <linux/mm.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/pm.h>
 #include <linux/sched.h>
 #include <linux/suspend.h>
 #include <linux/utsname.h>
+<<<<<<< HEAD
 #include <linux/version.h>
+=======
+>>>>>>> upstream/android-13
 
 #include <asm/barrier.h>
 #include <asm/cacheflush.h>
@@ -32,14 +45,22 @@
 #include <asm/kexec.h>
 #include <asm/memory.h>
 #include <asm/mmu_context.h>
+<<<<<<< HEAD
 #include <asm/pgalloc.h>
 #include <asm/pgtable.h>
 #include <asm/pgtable-hwdef.h>
+=======
+#include <asm/mte.h>
+>>>>>>> upstream/android-13
 #include <asm/sections.h>
 #include <asm/smp.h>
 #include <asm/smp_plat.h>
 #include <asm/suspend.h>
 #include <asm/sysreg.h>
+<<<<<<< HEAD
+=======
+#include <asm/trans_pgd.h>
+>>>>>>> upstream/android-13
 #include <asm/virt.h>
 
 /*
@@ -167,6 +188,7 @@ int arch_hibernation_header_restore(void *addr)
 		sleep_cpu = -EINVAL;
 		return -EINVAL;
 	}
+<<<<<<< HEAD
 	if (!cpu_online(sleep_cpu)) {
 		pr_info("Hibernated on a CPU that is offline! Bringing CPU up.\n");
 		ret = cpu_up(sleep_cpu);
@@ -175,6 +197,13 @@ int arch_hibernation_header_restore(void *addr)
 			sleep_cpu = -EINVAL;
 			return ret;
 		}
+=======
+
+	ret = bringup_hibernate_cpu(sleep_cpu);
+	if (ret) {
+		sleep_cpu = -EINVAL;
+		return ret;
+>>>>>>> upstream/android-13
 	}
 
 	resume_hdr = *hdr;
@@ -183,9 +212,20 @@ int arch_hibernation_header_restore(void *addr)
 }
 EXPORT_SYMBOL(arch_hibernation_header_restore);
 
+<<<<<<< HEAD
 /*
  * Copies length bytes, starting at src_start into an new page,
  * perform cache maintentance, then maps it at the specified address low
+=======
+static void *hibernate_page_alloc(void *arg)
+{
+	return (void *)get_safe_page((__force gfp_t)(unsigned long)arg);
+}
+
+/*
+ * Copies length bytes, starting at src_start into an new page,
+ * perform cache maintenance, then maps it at the specified address low
+>>>>>>> upstream/android-13
  * address as executable.
  *
  * This is used by hibernate to copy the code it needs to execute when
@@ -196,6 +236,7 @@ EXPORT_SYMBOL(arch_hibernation_header_restore);
  * page system.
  */
 static int create_safe_exec_page(void *src_start, size_t length,
+<<<<<<< HEAD
 				 unsigned long dst_addr,
 				 phys_addr_t *phys_dst_addr,
 				 void *(*allocator)(gfp_t mask),
@@ -255,6 +296,28 @@ static int create_safe_exec_page(void *src_start, size_t length,
 
 	ptep = pte_offset_kernel(pmdp, dst_addr);
 	set_pte(ptep, pfn_pte(virt_to_pfn(dst), PAGE_KERNEL_EXEC));
+=======
+				 phys_addr_t *phys_dst_addr)
+{
+	struct trans_pgd_info trans_info = {
+		.trans_alloc_page	= hibernate_page_alloc,
+		.trans_alloc_arg	= (__force void *)GFP_ATOMIC,
+	};
+
+	void *page = (void *)get_safe_page(GFP_ATOMIC);
+	phys_addr_t trans_ttbr0;
+	unsigned long t0sz;
+	int rc;
+
+	if (!page)
+		return -ENOMEM;
+
+	memcpy(page, src_start, length);
+	caches_clean_inval_pou((unsigned long)page, (unsigned long)page + length);
+	rc = trans_pgd_idmap_page(&trans_info, &trans_ttbr0, &t0sz, page);
+	if (rc)
+		return rc;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Load our new page tables. A strict BBM approach requires that we
@@ -265,6 +328,7 @@ static int create_safe_exec_page(void *src_start, size_t length,
 	 * page, but TLBs may contain stale ASID-tagged entries (e.g. for EFI
 	 * runtime services), while for a userspace-driven test_resume cycle it
 	 * points to userspace page tables (and we must point it at a zero page
+<<<<<<< HEAD
 	 * ourselves). Elsewhere we only (un)install the idmap with preemption
 	 * disabled, so T0SZ should be as required regardless.
 	 */
@@ -280,6 +344,139 @@ out:
 }
 
 #define dcache_clean_range(start, end)	__flush_dcache_area(start, (end - start))
+=======
+	 * ourselves).
+	 *
+	 * We change T0SZ as part of installing the idmap. This is undone by
+	 * cpu_uninstall_idmap() in __cpu_suspend_exit().
+	 */
+	cpu_set_reserved_ttbr0();
+	local_flush_tlb_all();
+	__cpu_set_tcr_t0sz(t0sz);
+	write_sysreg(trans_ttbr0, ttbr0_el1);
+	isb();
+
+	*phys_dst_addr = virt_to_phys(page);
+
+	return 0;
+}
+
+#ifdef CONFIG_ARM64_MTE
+
+static DEFINE_XARRAY(mte_pages);
+
+static int save_tags(struct page *page, unsigned long pfn)
+{
+	void *tag_storage, *ret;
+
+	tag_storage = mte_allocate_tag_storage();
+	if (!tag_storage)
+		return -ENOMEM;
+
+	mte_save_page_tags(page_address(page), tag_storage);
+
+	ret = xa_store(&mte_pages, pfn, tag_storage, GFP_KERNEL);
+	if (WARN(xa_is_err(ret), "Failed to store MTE tags")) {
+		mte_free_tag_storage(tag_storage);
+		return xa_err(ret);
+	} else if (WARN(ret, "swsusp: %s: Duplicate entry", __func__)) {
+		mte_free_tag_storage(ret);
+	}
+
+	return 0;
+}
+
+static void swsusp_mte_free_storage(void)
+{
+	XA_STATE(xa_state, &mte_pages, 0);
+	void *tags;
+
+	xa_lock(&mte_pages);
+	xas_for_each(&xa_state, tags, ULONG_MAX) {
+		mte_free_tag_storage(tags);
+	}
+	xa_unlock(&mte_pages);
+
+	xa_destroy(&mte_pages);
+}
+
+static int swsusp_mte_save_tags(void)
+{
+	struct zone *zone;
+	unsigned long pfn, max_zone_pfn;
+	int ret = 0;
+	int n = 0;
+
+	if (!system_supports_mte())
+		return 0;
+
+	for_each_populated_zone(zone) {
+		max_zone_pfn = zone_end_pfn(zone);
+		for (pfn = zone->zone_start_pfn; pfn < max_zone_pfn; pfn++) {
+			struct page *page = pfn_to_online_page(pfn);
+
+			if (!page)
+				continue;
+
+			if (!test_bit(PG_mte_tagged, &page->flags))
+				continue;
+
+			ret = save_tags(page, pfn);
+			if (ret) {
+				swsusp_mte_free_storage();
+				goto out;
+			}
+
+			n++;
+		}
+	}
+	pr_info("Saved %d MTE pages\n", n);
+
+out:
+	return ret;
+}
+
+static void swsusp_mte_restore_tags(void)
+{
+	XA_STATE(xa_state, &mte_pages, 0);
+	int n = 0;
+	void *tags;
+
+	xa_lock(&mte_pages);
+	xas_for_each(&xa_state, tags, ULONG_MAX) {
+		unsigned long pfn = xa_state.xa_index;
+		struct page *page = pfn_to_online_page(pfn);
+
+		/*
+		 * It is not required to invoke page_kasan_tag_reset(page)
+		 * at this point since the tags stored in page->flags are
+		 * already restored.
+		 */
+		mte_restore_page_tags(page_address(page), tags);
+
+		mte_free_tag_storage(tags);
+		n++;
+	}
+	xa_unlock(&mte_pages);
+
+	pr_info("Restored %d MTE pages\n", n);
+
+	xa_destroy(&mte_pages);
+}
+
+#else	/* CONFIG_ARM64_MTE */
+
+static int swsusp_mte_save_tags(void)
+{
+	return 0;
+}
+
+static void swsusp_mte_restore_tags(void)
+{
+}
+
+#endif	/* CONFIG_ARM64_MTE */
+>>>>>>> upstream/android-13
 
 int swsusp_arch_suspend(void)
 {
@@ -298,10 +495,18 @@ int swsusp_arch_suspend(void)
 		/* make the crash dump kernel image visible/saveable */
 		crash_prepare_suspend();
 
+<<<<<<< HEAD
+=======
+		ret = swsusp_mte_save_tags();
+		if (ret)
+			return ret;
+
+>>>>>>> upstream/android-13
 		sleep_cpu = smp_processor_id();
 		ret = swsusp_save();
 	} else {
 		/* Clean kernel core startup/idle code to PoC*/
+<<<<<<< HEAD
 		dcache_clean_range(__mmuoff_data_start, __mmuoff_data_end);
 		dcache_clean_range(__idmap_text_start, __idmap_text_end);
 
@@ -311,6 +516,24 @@ int swsusp_arch_suspend(void)
 			dcache_clean_range(__hyp_text_start, __hyp_text_end);
 		}
 
+=======
+		dcache_clean_inval_poc((unsigned long)__mmuoff_data_start,
+				    (unsigned long)__mmuoff_data_end);
+		dcache_clean_inval_poc((unsigned long)__idmap_text_start,
+				    (unsigned long)__idmap_text_end);
+
+		/* Clean kvm setup code to PoC? */
+		if (el2_reset_needed()) {
+			dcache_clean_inval_poc(
+				(unsigned long)__hyp_idmap_text_start,
+				(unsigned long)__hyp_idmap_text_end);
+			dcache_clean_inval_poc((unsigned long)__hyp_text_start,
+					    (unsigned long)__hyp_text_end);
+		}
+
+		swsusp_mte_restore_tags();
+
+>>>>>>> upstream/android-13
 		/* make the crash dump kernel image protected again */
 		crash_post_resume();
 
@@ -328,11 +551,15 @@ int swsusp_arch_suspend(void)
 		 * mitigation off behind our back, let's set the state
 		 * to what we expect it to be.
 		 */
+<<<<<<< HEAD
 		switch (arm64_get_ssbd_state()) {
 		case ARM64_SSBD_FORCE_ENABLE:
 		case ARM64_SSBD_KERNEL:
 			arm64_set_ssbd_mitigation(true);
 		}
+=======
+		spectre_v4_enable_mitigation(NULL);
+>>>>>>> upstream/android-13
 	}
 
 	local_daif_restore(flags);
@@ -340,6 +567,7 @@ int swsusp_arch_suspend(void)
 	return ret;
 }
 
+<<<<<<< HEAD
 static void _copy_pte(pte_t *dst_ptep, pte_t *src_ptep, unsigned long addr)
 {
 	pte_t pte = READ_ONCE(*src_ptep);
@@ -477,6 +705,8 @@ static int copy_page_tables(pgd_t *dst_pgdp, unsigned long start,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Setup then Resume from the hibernate image using swsusp_arch_suspend_exit().
  *
@@ -485,6 +715,7 @@ static int copy_page_tables(pgd_t *dst_pgdp, unsigned long start,
  */
 int swsusp_arch_resume(void)
 {
+<<<<<<< HEAD
 	int rc = 0;
 	void *zero_page;
 	size_t exit_size;
@@ -492,12 +723,25 @@ int swsusp_arch_resume(void)
 	phys_addr_t phys_hibernate_exit;
 	void __noreturn (*hibernate_exit)(phys_addr_t, phys_addr_t, void *,
 					  void *, phys_addr_t, phys_addr_t);
+=======
+	int rc;
+	void *zero_page;
+	size_t exit_size;
+	pgd_t *tmp_pg_dir;
+	void __noreturn (*hibernate_exit)(phys_addr_t, phys_addr_t, void *,
+					  void *, phys_addr_t, phys_addr_t);
+	struct trans_pgd_info trans_info = {
+		.trans_alloc_page	= hibernate_page_alloc,
+		.trans_alloc_arg	= (void *)GFP_ATOMIC,
+	};
+>>>>>>> upstream/android-13
 
 	/*
 	 * Restoring the memory image will overwrite the ttbr1 page tables.
 	 * Create a second copy of just the linear map, and use this when
 	 * restoring.
 	 */
+<<<<<<< HEAD
 	tmp_pg_dir = (pgd_t *)get_safe_page(GFP_ATOMIC);
 	if (!tmp_pg_dir) {
 		pr_err("Failed to allocate memory for temporary page tables.\n");
@@ -507,6 +751,12 @@ int swsusp_arch_resume(void)
 	rc = copy_page_tables(tmp_pg_dir, PAGE_OFFSET, 0);
 	if (rc)
 		goto out;
+=======
+	rc = trans_pgd_create_copy(&trans_info, &tmp_pg_dir, PAGE_OFFSET,
+				   PAGE_END);
+	if (rc)
+		return rc;
+>>>>>>> upstream/android-13
 
 	/*
 	 * We need a zero page that is zero before & after resume in order to
@@ -515,6 +765,7 @@ int swsusp_arch_resume(void)
 	zero_page = (void *)get_safe_page(GFP_ATOMIC);
 	if (!zero_page) {
 		pr_err("Failed to allocate zero page.\n");
+<<<<<<< HEAD
 		rc = -ENOMEM;
 		goto out;
 	}
@@ -524,25 +775,42 @@ int swsusp_arch_resume(void)
 	 * still has disastrous affects.
 	 */
 	hibernate_exit = (void *)PAGE_SIZE;
+=======
+		return -ENOMEM;
+	}
+
+>>>>>>> upstream/android-13
 	exit_size = __hibernate_exit_text_end - __hibernate_exit_text_start;
 	/*
 	 * Copy swsusp_arch_suspend_exit() to a safe page. This will generate
 	 * a new set of ttbr0 page tables and load them.
 	 */
 	rc = create_safe_exec_page(__hibernate_exit_text_start, exit_size,
+<<<<<<< HEAD
 				   (unsigned long)hibernate_exit,
 				   &phys_hibernate_exit,
 				   (void *)get_safe_page, GFP_ATOMIC);
 	if (rc) {
 		pr_err("Failed to create safe executable page for hibernate_exit code.\n");
 		goto out;
+=======
+				   (phys_addr_t *)&hibernate_exit);
+	if (rc) {
+		pr_err("Failed to create safe executable page for hibernate_exit code.\n");
+		return rc;
+>>>>>>> upstream/android-13
 	}
 
 	/*
 	 * The hibernate exit text contains a set of el2 vectors, that will
 	 * be executed at el2 with the mmu off in order to reload hyp-stub.
 	 */
+<<<<<<< HEAD
 	__flush_dcache_area(hibernate_exit, exit_size);
+=======
+	dcache_clean_inval_poc((unsigned long)hibernate_exit,
+			    (unsigned long)hibernate_exit + exit_size);
+>>>>>>> upstream/android-13
 
 	/*
 	 * KASLR will cause the el2 vectors to be in a different location in
@@ -551,7 +819,11 @@ int swsusp_arch_resume(void)
 	 * We can skip this step if we booted at EL1, or are running with VHE.
 	 */
 	if (el2_reset_needed()) {
+<<<<<<< HEAD
 		phys_addr_t el2_vectors = phys_hibernate_exit;  /* base */
+=======
+		phys_addr_t el2_vectors = (phys_addr_t)hibernate_exit;
+>>>>>>> upstream/android-13
 		el2_vectors += hibernate_el2_vectors -
 			       __hibernate_exit_text_start;     /* offset */
 
@@ -562,8 +834,12 @@ int swsusp_arch_resume(void)
 		       resume_hdr.reenter_kernel, restore_pblist,
 		       resume_hdr.__hyp_stub_vectors, virt_to_phys(zero_page));
 
+<<<<<<< HEAD
 out:
 	return rc;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 int hibernate_resume_nonboot_cpu_disable(void)

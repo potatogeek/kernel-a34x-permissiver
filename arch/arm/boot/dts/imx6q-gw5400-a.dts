@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2013 Gateworks Corporation
  *
@@ -7,6 +8,11 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2013 Gateworks Corporation
+>>>>>>> upstream/android-13
  */
 
 /dts-v1/;
@@ -61,6 +67,10 @@
 	};
 
 	memory@10000000 {
+<<<<<<< HEAD
+=======
+		device_type = "memory";
+>>>>>>> upstream/android-13
 		reg = <0x10000000 0x40000000>;
 	};
 
@@ -137,7 +147,11 @@
 };
 
 &ecspi1 {
+<<<<<<< HEAD
 	cs-gpios = <&gpio3 19 GPIO_ACTIVE_HIGH>;
+=======
+	cs-gpios = <&gpio3 19 GPIO_ACTIVE_LOW>;
+>>>>>>> upstream/android-13
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_ecspi1>;
 	status = "okay";

@@ -142,13 +142,23 @@ fail:
  * inode->i_mutex: don't care
  */
 struct posix_acl *
+<<<<<<< HEAD
 ext4_get_acl(struct inode *inode, int type)
+=======
+ext4_get_acl(struct inode *inode, int type, bool rcu)
+>>>>>>> upstream/android-13
 {
 	int name_index;
 	char *value = NULL;
 	struct posix_acl *acl;
 	int retval;
 
+<<<<<<< HEAD
+=======
+	if (rcu)
+		return ERR_PTR(-ECHILD);
+
+>>>>>>> upstream/android-13
 	switch (type) {
 	case ACL_TYPE_ACCESS:
 		name_index = EXT4_XATTR_INDEX_POSIX_ACL_ACCESS;
@@ -215,15 +225,25 @@ __ext4_set_acl(handle_t *handle, struct inode *inode, int type,
 				      value, size, xattr_flags);
 
 	kfree(value);
+<<<<<<< HEAD
 	if (!error) {
 		set_cached_acl(inode, type, acl);
 	}
+=======
+	if (!error)
+		set_cached_acl(inode, type, acl);
+>>>>>>> upstream/android-13
 
 	return error;
 }
 
 int
+<<<<<<< HEAD
 ext4_set_acl(struct inode *inode, struct posix_acl *acl, int type)
+=======
+ext4_set_acl(struct user_namespace *mnt_userns, struct inode *inode,
+	     struct posix_acl *acl, int type)
+>>>>>>> upstream/android-13
 {
 	handle_t *handle;
 	int error, credits, retries = 0;
@@ -243,22 +263,41 @@ retry:
 	handle = ext4_journal_start(inode, EXT4_HT_XATTR, credits);
 	if (IS_ERR(handle))
 		return PTR_ERR(handle);
+<<<<<<< HEAD
 
 	if ((type == ACL_TYPE_ACCESS) && acl) {
 		error = posix_acl_update_mode(inode, &mode, &acl);
 		if (error)
 			goto out_stop;
 		update_mode = 1;
+=======
+	ext4_fc_start_update(inode);
+
+	if ((type == ACL_TYPE_ACCESS) && acl) {
+		error = posix_acl_update_mode(mnt_userns, inode, &mode, &acl);
+		if (error)
+			goto out_stop;
+		if (mode != inode->i_mode)
+			update_mode = 1;
+>>>>>>> upstream/android-13
 	}
 
 	error = __ext4_set_acl(handle, inode, type, acl, 0 /* xattr_flags */);
 	if (!error && update_mode) {
 		inode->i_mode = mode;
 		inode->i_ctime = current_time(inode);
+<<<<<<< HEAD
 		ext4_mark_inode_dirty(handle, inode);
 	}
 out_stop:
 	ext4_journal_stop(handle);
+=======
+		error = ext4_mark_inode_dirty(handle, inode);
+	}
+out_stop:
+	ext4_journal_stop(handle);
+	ext4_fc_stop_update(inode);
+>>>>>>> upstream/android-13
 	if (error == -ENOSPC && ext4_should_retry_alloc(inode->i_sb, &retries))
 		goto retry;
 	return error;
@@ -284,12 +323,22 @@ ext4_init_acl(handle_t *handle, struct inode *inode, struct inode *dir)
 		error = __ext4_set_acl(handle, inode, ACL_TYPE_DEFAULT,
 				       default_acl, XATTR_CREATE);
 		posix_acl_release(default_acl);
+<<<<<<< HEAD
+=======
+	} else {
+		inode->i_default_acl = NULL;
+>>>>>>> upstream/android-13
 	}
 	if (acl) {
 		if (!error)
 			error = __ext4_set_acl(handle, inode, ACL_TYPE_ACCESS,
 					       acl, XATTR_CREATE);
 		posix_acl_release(acl);
+<<<<<<< HEAD
+=======
+	} else {
+		inode->i_acl = NULL;
+>>>>>>> upstream/android-13
 	}
 	return error;
 }

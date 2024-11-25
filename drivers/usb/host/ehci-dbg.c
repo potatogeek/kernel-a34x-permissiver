@@ -823,7 +823,11 @@ static ssize_t fill_registers_buffer(struct debug_buffer *buf)
 				break;
 			case 0:		/* illegal reserved capability */
 				cap = 0;
+<<<<<<< HEAD
 				/* FALLTHROUGH */
+=======
+				fallthrough;
+>>>>>>> upstream/android-13
 			default:		/* unknown */
 				break;
 			}

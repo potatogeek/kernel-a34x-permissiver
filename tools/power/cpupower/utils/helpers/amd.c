@@ -13,7 +13,12 @@
 #define MSR_AMD_PSTATE		0xc0010064
 #define MSR_AMD_PSTATE_LIMIT	0xc0010061
 
+<<<<<<< HEAD
 union msr_pstate {
+=======
+union core_pstate {
+	/* pre fam 17h: */
+>>>>>>> upstream/android-13
 	struct {
 		unsigned fid:6;
 		unsigned did:3;
@@ -26,7 +31,12 @@ union msr_pstate {
 		unsigned idddiv:2;
 		unsigned res3:21;
 		unsigned en:1;
+<<<<<<< HEAD
 	} bits;
+=======
+	} pstate;
+	/* since fam 17h: */
+>>>>>>> upstream/android-13
 	struct {
 		unsigned fid:8;
 		unsigned did:6;
@@ -35,6 +45,7 @@ union msr_pstate {
 		unsigned idddiv:2;
 		unsigned res1:31;
 		unsigned en:1;
+<<<<<<< HEAD
 	} fam17h_bits;
 	unsigned long long val;
 };
@@ -49,15 +60,36 @@ static int get_did(int family, union msr_pstate pstate)
 		t = pstate.fam17h_bits.did;
 	else
 		t = pstate.bits.did;
+=======
+	} pstatedef;
+	unsigned long long val;
+};
+
+static int get_did(union core_pstate pstate)
+{
+	int t;
+
+	if (cpupower_cpu_info.caps & CPUPOWER_CAP_AMD_PSTATEDEF)
+		t = pstate.pstatedef.did;
+	else if (cpupower_cpu_info.family == 0x12)
+		t = pstate.val & 0xf;
+	else
+		t = pstate.pstate.did;
+>>>>>>> upstream/android-13
 
 	return t;
 }
 
+<<<<<<< HEAD
 static int get_cof(int family, union msr_pstate pstate)
+=======
+static int get_cof(union core_pstate pstate)
+>>>>>>> upstream/android-13
 {
 	int t;
 	int fid, did, cof;
 
+<<<<<<< HEAD
 	did = get_did(family, pstate);
 	if (family == 0x17) {
 		fid = pstate.fam17h_bits.fid;
@@ -66,6 +98,16 @@ static int get_cof(int family, union msr_pstate pstate)
 		t = 0x10;
 		fid = pstate.bits.fid;
 		if (family == 0x11)
+=======
+	did = get_did(pstate);
+	if (cpupower_cpu_info.caps & CPUPOWER_CAP_AMD_PSTATEDEF) {
+		fid = pstate.pstatedef.fid;
+		cof = 200 * fid / did;
+	} else {
+		t = 0x10;
+		fid = pstate.pstate.fid;
+		if (cpupower_cpu_info.family == 0x11)
+>>>>>>> upstream/android-13
 			t = 0x8;
 		cof = (100 * (fid + t)) >> did;
 	}
@@ -74,8 +116,12 @@ static int get_cof(int family, union msr_pstate pstate)
 
 /* Needs:
  * cpu          -> the cpu that gets evaluated
+<<<<<<< HEAD
  * cpu_family   -> The cpu's family (0x10, 0x12,...)
  * boots_states -> how much boost states the machines support
+=======
+ * boost_states -> how much boost states the machines support
+>>>>>>> upstream/android-13
  *
  * Fills up:
  * pstates -> a pointer to an array of size MAX_HW_PSTATES
@@ -85,6 +131,7 @@ static int get_cof(int family, union msr_pstate pstate)
  *
  * returns zero on success, -1 on failure
  */
+<<<<<<< HEAD
 int decode_pstates(unsigned int cpu, unsigned int cpu_family,
 		   int boost_states, unsigned long *pstates, int *no)
 {
@@ -97,12 +144,26 @@ int decode_pstates(unsigned int cpu, unsigned int cpu_family,
 	   Otherwise frequencies are exported via ACPI tables.
 	*/
 	if (cpu_family < 0x10 || cpu_family == 0x14)
+=======
+int decode_pstates(unsigned int cpu, int boost_states,
+		   unsigned long *pstates, int *no)
+{
+	int i, psmax;
+	union core_pstate pstate;
+	unsigned long long val;
+
+	/* Only read out frequencies from HW if HW Pstate is supported,
+	 * otherwise frequencies are exported via ACPI tables.
+	 */
+	if (!(cpupower_cpu_info.caps & CPUPOWER_CAP_AMD_HW_PSTATE))
+>>>>>>> upstream/android-13
 		return -1;
 
 	if (read_msr(cpu, MSR_AMD_PSTATE_LIMIT, &val))
 		return -1;
 
 	psmax = (val >> 4) & 0x7;
+<<<<<<< HEAD
 
 	if (read_msr(cpu, MSR_AMD_PSTATE_STATUS, &val))
 		return -1;
@@ -110,6 +171,8 @@ int decode_pstates(unsigned int cpu, unsigned int cpu_family,
 	pscur = val & 0x7;
 
 	pscur += boost_states;
+=======
+>>>>>>> upstream/android-13
 	psmax += boost_states;
 	for (i = 0; i <= psmax; i++) {
 		if (i >= MAX_HW_PSTATES) {
@@ -119,12 +182,21 @@ int decode_pstates(unsigned int cpu, unsigned int cpu_family,
 		}
 		if (read_msr(cpu, MSR_AMD_PSTATE + i, &pstate.val))
 			return -1;
+<<<<<<< HEAD
 		if ((cpu_family == 0x17) && (!pstate.fam17h_bits.en))
 			continue;
 		else if (!pstate.bits.en)
 			continue;
 
 		pstates[i] = get_cof(cpu_family, pstate);
+=======
+
+		/* The enabled bit (bit 63) is common for all families */
+		if (!pstate.pstatedef.en)
+			continue;
+
+		pstates[i] = get_cof(pstate);
+>>>>>>> upstream/android-13
 	}
 	*no = i;
 	return 0;

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * sound/soc/codecs/wm8782.c
  * simple, strap-pin configured 24bit 2ch ADC
@@ -6,6 +10,7 @@
  * Author: Johannes Stezenbach <js@sig21.net>
  *
  * based on ad73311.c
+<<<<<<< HEAD
  * Copyright:	Analog Device Inc.
  * Author:	Cliff Cai <cliff.cai@analog.com>
  *
@@ -13,6 +18,10 @@
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+ * Copyright:	Analog Devices Inc.
+ * Author:	Cliff Cai <cliff.cai@analog.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -20,6 +29,10 @@
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/device.h>
+<<<<<<< HEAD
+=======
+#include <linux/regulator/consumer.h>
+>>>>>>> upstream/android-13
 #include <sound/core.h>
 #include <sound/pcm.h>
 #include <sound/ac97_codec.h>
@@ -50,7 +63,55 @@ static struct snd_soc_dai_driver wm8782_dai = {
 	},
 };
 
+<<<<<<< HEAD
 static const struct snd_soc_component_driver soc_component_dev_wm8782 = {
+=======
+/* regulator power supply names */
+static const char *supply_names[] = {
+	"Vdda", /* analog supply, 2.7V - 3.6V */
+	"Vdd",  /* digital supply, 2.7V - 5.5V */
+};
+
+struct wm8782_priv {
+	struct regulator_bulk_data supplies[ARRAY_SIZE(supply_names)];
+};
+
+static int wm8782_soc_probe(struct snd_soc_component *component)
+{
+	struct wm8782_priv *priv = snd_soc_component_get_drvdata(component);
+	return regulator_bulk_enable(ARRAY_SIZE(priv->supplies), priv->supplies);
+}
+
+static void wm8782_soc_remove(struct snd_soc_component *component)
+{
+	struct wm8782_priv *priv = snd_soc_component_get_drvdata(component);
+	regulator_bulk_disable(ARRAY_SIZE(priv->supplies), priv->supplies);
+}
+
+#ifdef CONFIG_PM
+static int wm8782_soc_suspend(struct snd_soc_component *component)
+{
+	struct wm8782_priv *priv = snd_soc_component_get_drvdata(component);
+	regulator_bulk_disable(ARRAY_SIZE(priv->supplies), priv->supplies);
+	return 0;
+}
+
+static int wm8782_soc_resume(struct snd_soc_component *component)
+{
+	struct wm8782_priv *priv = snd_soc_component_get_drvdata(component);
+	return regulator_bulk_enable(ARRAY_SIZE(priv->supplies), priv->supplies);
+}
+#else
+#define wm8782_soc_suspend      NULL
+#define wm8782_soc_resume       NULL
+#endif /* CONFIG_PM */
+
+static const struct snd_soc_component_driver soc_component_dev_wm8782 = {
+	.probe			= wm8782_soc_probe,
+	.remove			= wm8782_soc_remove,
+	.suspend		= wm8782_soc_suspend,
+	.resume			= wm8782_soc_resume,
+>>>>>>> upstream/android-13
 	.dapm_widgets		= wm8782_dapm_widgets,
 	.num_dapm_widgets	= ARRAY_SIZE(wm8782_dapm_widgets),
 	.dapm_routes		= wm8782_dapm_routes,
@@ -63,6 +124,27 @@ static const struct snd_soc_component_driver soc_component_dev_wm8782 = {
 
 static int wm8782_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
+=======
+	struct device *dev = &pdev->dev;
+	struct wm8782_priv *priv;
+	int ret, i;
+
+	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
+	if (!priv)
+		return -ENOMEM;
+
+	dev_set_drvdata(dev, priv);
+
+	for (i = 0; i < ARRAY_SIZE(supply_names); i++)
+		priv->supplies[i].supply = supply_names[i];
+
+	ret = devm_regulator_bulk_get(dev, ARRAY_SIZE(priv->supplies),
+				      priv->supplies);
+	if (ret < 0)
+		return ret;
+
+>>>>>>> upstream/android-13
 	return devm_snd_soc_register_component(&pdev->dev,
 			&soc_component_dev_wm8782, &wm8782_dai, 1);
 }

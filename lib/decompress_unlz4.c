@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Wrapper for decompressing LZ4-compressed kernel, initramfs, and initrd
  *
  * Copyright (C) 2013, LG Electronics, Kyungsik Lee <kyungsik.lee@lge.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifdef STATIC
@@ -115,6 +122,12 @@ STATIC inline int INIT unlz4(u8 *input, long in_len,
 				error("data corrupted");
 				goto exit_2;
 			}
+<<<<<<< HEAD
+=======
+		} else if (size < 4) {
+			/* empty or end-of-file */
+			goto exit_3;
+>>>>>>> upstream/android-13
 		}
 
 		chunksize = get_unaligned_le32(inp);
@@ -128,6 +141,13 @@ STATIC inline int INIT unlz4(u8 *input, long in_len,
 			continue;
 		}
 
+<<<<<<< HEAD
+=======
+		if (!fill && chunksize == 0) {
+			/* empty or end-of-file */
+			goto exit_3;
+		}
+>>>>>>> upstream/android-13
 
 		if (posp)
 			*posp += 4;
@@ -187,6 +207,10 @@ STATIC inline int INIT unlz4(u8 *input, long in_len,
 		}
 	}
 
+<<<<<<< HEAD
+=======
+exit_3:
+>>>>>>> upstream/android-13
 	ret = 0;
 exit_2:
 	if (!input)

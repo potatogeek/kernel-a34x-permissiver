@@ -12,6 +12,7 @@
 #include <asm/frame.h>
 
 	.code64
+<<<<<<< HEAD
 	.section .entry.text, "ax"
 
 #ifdef CC_USING_FENTRY
@@ -30,13 +31,24 @@ EXPORT_SYMBOL(mcount)
 /* Save just function stack frame (rip and rbp) */
 #  define MCOUNT_FRAME_SIZE	(8+16)
 # endif
+=======
+	.section .text, "ax"
+
+#ifdef CONFIG_FRAME_POINTER
+/* Save parent and function stack frames (rip and rbp) */
+#  define MCOUNT_FRAME_SIZE	(8+16*2)
+>>>>>>> upstream/android-13
 #else
 /* No need to save a stack frame */
 # define MCOUNT_FRAME_SIZE	0
 #endif /* CONFIG_FRAME_POINTER */
 
 /* Size of stack used to save mcount regs in save_mcount_regs */
+<<<<<<< HEAD
 #define MCOUNT_REG_SIZE		(SS+8 + MCOUNT_FRAME_SIZE)
+=======
+#define MCOUNT_REG_SIZE		(FRAME_SIZE + MCOUNT_FRAME_SIZE)
+>>>>>>> upstream/android-13
 
 /*
  * gcc -pg option adds a call to 'mcount' in most functions.
@@ -76,17 +88,24 @@ EXPORT_SYMBOL(mcount)
 	 * fentry is called before the stack frame is set up, where as mcount
 	 * is called afterward.
 	 */
+<<<<<<< HEAD
 #ifdef CC_USING_FENTRY
+=======
+
+>>>>>>> upstream/android-13
 	/* Save the parent pointer (skip orig rbp and our return address) */
 	pushq \added+8*2(%rsp)
 	pushq %rbp
 	movq %rsp, %rbp
 	/* Save the return address (now skip orig rbp, rbp and parent) */
 	pushq \added+8*3(%rsp)
+<<<<<<< HEAD
 #else
 	/* Can't assume that rip is before this (unless added was zero) */
 	pushq \added+8(%rsp)
 #endif
+=======
+>>>>>>> upstream/android-13
 	pushq %rbp
 	movq %rsp, %rbp
 #endif /* CONFIG_FRAME_POINTER */
@@ -94,7 +113,11 @@ EXPORT_SYMBOL(mcount)
 	/*
 	 * We add enough stack to save all regs.
 	 */
+<<<<<<< HEAD
 	subq $(MCOUNT_REG_SIZE - MCOUNT_FRAME_SIZE), %rsp
+=======
+	subq $(FRAME_SIZE), %rsp
+>>>>>>> upstream/android-13
 	movq %rax, RAX(%rsp)
 	movq %rcx, RCX(%rsp)
 	movq %rdx, RDX(%rsp)
@@ -102,6 +125,10 @@ EXPORT_SYMBOL(mcount)
 	movq %rdi, RDI(%rsp)
 	movq %r8, R8(%rsp)
 	movq %r9, R9(%rsp)
+<<<<<<< HEAD
+=======
+	movq $0, ORIG_RAX(%rsp)
+>>>>>>> upstream/android-13
 	/*
 	 * Save the original RBP. Even though the mcount ABI does not
 	 * require this, it helps out callers.
@@ -114,12 +141,16 @@ EXPORT_SYMBOL(mcount)
 	movq %rdx, RBP(%rsp)
 
 	/* Copy the parent address into %rsi (second parameter) */
+<<<<<<< HEAD
 #ifdef CC_USING_FENTRY
 	movq MCOUNT_REG_SIZE+8+\added(%rsp), %rsi
 #else
 	/* %rdx contains original %rbp */
 	movq 8(%rdx), %rsi
 #endif
+=======
+	movq MCOUNT_REG_SIZE+8+\added(%rsp), %rsi
+>>>>>>> upstream/android-13
 
 	 /* Move RIP to its proper location */
 	movq MCOUNT_REG_SIZE+\added(%rsp), %rdi
@@ -133,7 +164,15 @@ EXPORT_SYMBOL(mcount)
 	subq $MCOUNT_INSN_SIZE, %rdi
 	.endm
 
+<<<<<<< HEAD
 .macro restore_mcount_regs
+=======
+.macro restore_mcount_regs save=0
+
+	/* ftrace_regs_caller or frame pointers require this */
+	movq RBP(%rsp), %rbp
+
+>>>>>>> upstream/android-13
 	movq R9(%rsp), %r9
 	movq R8(%rsp), %r8
 	movq RDI(%rsp), %rdi
@@ -142,15 +181,20 @@ EXPORT_SYMBOL(mcount)
 	movq RCX(%rsp), %rcx
 	movq RAX(%rsp), %rax
 
+<<<<<<< HEAD
 	/* ftrace_regs_caller can modify %rbp */
 	movq RBP(%rsp), %rbp
 
 	addq $MCOUNT_REG_SIZE, %rsp
+=======
+	addq $MCOUNT_REG_SIZE-\save, %rsp
+>>>>>>> upstream/android-13
 
 	.endm
 
 #ifdef CONFIG_DYNAMIC_FTRACE
 
+<<<<<<< HEAD
 ENTRY(function_hook)
 	retq
 ENDPROC(function_hook)
@@ -169,6 +213,38 @@ GLOBAL(ftrace_caller_op_ptr)
 GLOBAL(ftrace_call)
 	call ftrace_stub
 
+=======
+SYM_FUNC_START(__fentry__)
+	RET
+SYM_FUNC_END(__fentry__)
+EXPORT_SYMBOL(__fentry__)
+
+SYM_FUNC_START(ftrace_caller)
+	/* save_mcount_regs fills in first two parameters */
+	save_mcount_regs
+
+	/* Stack - skipping return address of ftrace_caller */
+	leaq MCOUNT_REG_SIZE+8(%rsp), %rcx
+	movq %rcx, RSP(%rsp)
+
+SYM_INNER_LABEL(ftrace_caller_op_ptr, SYM_L_GLOBAL)
+	/* Load the ftrace_ops into the 3rd parameter */
+	movq function_trace_op(%rip), %rdx
+
+	/* regs go into 4th parameter */
+	leaq (%rsp), %rcx
+
+	/* Only ops with REGS flag set should have CS register set */
+	movq $0, CS(%rsp)
+
+SYM_INNER_LABEL(ftrace_call, SYM_L_GLOBAL)
+	call ftrace_stub
+
+	/* Handlers can change the RIP */
+	movq RIP(%rsp), %rax
+	movq %rax, MCOUNT_REG_SIZE(%rsp)
+
+>>>>>>> upstream/android-13
 	restore_mcount_regs
 
 	/*
@@ -176,15 +252,27 @@ GLOBAL(ftrace_call)
 	 * think twice before adding any new code or changing the
 	 * layout here.
 	 */
+<<<<<<< HEAD
 GLOBAL(ftrace_epilogue)
 
 #ifdef CONFIG_FUNCTION_GRAPH_TRACER
 GLOBAL(ftrace_graph_call)
+=======
+SYM_INNER_LABEL(ftrace_caller_end, SYM_L_GLOBAL)
+
+	jmp ftrace_epilogue
+SYM_FUNC_END(ftrace_caller);
+
+SYM_FUNC_START(ftrace_epilogue)
+#ifdef CONFIG_FUNCTION_GRAPH_TRACER
+SYM_INNER_LABEL(ftrace_graph_call, SYM_L_GLOBAL)
+>>>>>>> upstream/android-13
 	jmp ftrace_stub
 #endif
 
 /*
  * This is weak to keep gas from relaxing the jumps.
+<<<<<<< HEAD
  * It is also used to copy the retq for trampolines.
  */
 WEAK(ftrace_stub)
@@ -192,6 +280,16 @@ WEAK(ftrace_stub)
 ENDPROC(ftrace_caller)
 
 ENTRY(ftrace_regs_caller)
+=======
+ * It is also used to copy the RET for trampolines.
+ */
+SYM_INNER_LABEL_ALIGN(ftrace_stub, SYM_L_WEAK)
+	UNWIND_HINT_FUNC
+	RET
+SYM_FUNC_END(ftrace_epilogue)
+
+SYM_FUNC_START(ftrace_regs_caller)
+>>>>>>> upstream/android-13
 	/* Save the current flags before any operations that can change them */
 	pushfq
 
@@ -199,7 +297,11 @@ ENTRY(ftrace_regs_caller)
 	save_mcount_regs 8
 	/* save_mcount_regs fills in first two parameters */
 
+<<<<<<< HEAD
 GLOBAL(ftrace_regs_caller_op_ptr)
+=======
+SYM_INNER_LABEL(ftrace_regs_caller_op_ptr, SYM_L_GLOBAL)
+>>>>>>> upstream/android-13
 	/* Load the ftrace_ops into the 3rd parameter */
 	movq function_trace_op(%rip), %rdx
 
@@ -228,7 +330,11 @@ GLOBAL(ftrace_regs_caller_op_ptr)
 	/* regs go into 4th parameter */
 	leaq (%rsp), %rcx
 
+<<<<<<< HEAD
 GLOBAL(ftrace_regs_call)
+=======
+SYM_INNER_LABEL(ftrace_regs_call, SYM_L_GLOBAL)
+>>>>>>> upstream/android-13
 	call ftrace_stub
 
 	/* Copy flags back to SS, to restore them */
@@ -247,8 +353,24 @@ GLOBAL(ftrace_regs_call)
 	movq R10(%rsp), %r10
 	movq RBX(%rsp), %rbx
 
+<<<<<<< HEAD
 	restore_mcount_regs
 
+=======
+	movq ORIG_RAX(%rsp), %rax
+	movq %rax, MCOUNT_REG_SIZE-8(%rsp)
+
+	/*
+	 * If ORIG_RAX is anything but zero, make this a call to that.
+	 * See arch_ftrace_set_direct_caller().
+	 */
+	movq ORIG_RAX(%rsp), %rax
+	testq	%rax, %rax
+SYM_INNER_LABEL(ftrace_regs_caller_jmp, SYM_L_GLOBAL)
+	jnz	1f
+
+	restore_mcount_regs
+>>>>>>> upstream/android-13
 	/* Restore flags */
 	popfq
 
@@ -258,16 +380,38 @@ GLOBAL(ftrace_regs_call)
 	 * The trampoline will add the code to jump
 	 * to the return.
 	 */
+<<<<<<< HEAD
 GLOBAL(ftrace_regs_caller_end)
 
 	jmp ftrace_epilogue
 
 ENDPROC(ftrace_regs_caller)
+=======
+SYM_INNER_LABEL(ftrace_regs_caller_end, SYM_L_GLOBAL)
+	jmp ftrace_epilogue
+
+	/* Swap the flags with orig_rax */
+1:	movq MCOUNT_REG_SIZE(%rsp), %rdi
+	movq %rdi, MCOUNT_REG_SIZE-8(%rsp)
+	movq %rax, MCOUNT_REG_SIZE(%rsp)
+
+	restore_mcount_regs 8
+	/* Restore flags */
+	popfq
+	UNWIND_HINT_FUNC
+	jmp	ftrace_epilogue
+
+SYM_FUNC_END(ftrace_regs_caller)
+>>>>>>> upstream/android-13
 
 
 #else /* ! CONFIG_DYNAMIC_FTRACE */
 
+<<<<<<< HEAD
 ENTRY(function_hook)
+=======
+SYM_FUNC_START(__fentry__)
+>>>>>>> upstream/android-13
 	cmpq $ftrace_stub, ftrace_trace_function
 	jnz trace
 
@@ -280,8 +424,13 @@ fgraph_trace:
 	jnz ftrace_graph_caller
 #endif
 
+<<<<<<< HEAD
 GLOBAL(ftrace_stub)
 	retq
+=======
+SYM_INNER_LABEL(ftrace_stub, SYM_L_GLOBAL)
+	RET
+>>>>>>> upstream/android-13
 
 trace:
 	/* save_mcount_regs fills in first two parameters */
@@ -294,6 +443,7 @@ trace:
 	 * function tracing is enabled.
 	 */
 	movq ftrace_trace_function, %r8
+<<<<<<< HEAD
 	CALL_NOSPEC %r8
 	restore_mcount_regs
 
@@ -315,15 +465,39 @@ ENTRY(ftrace_graph_caller)
 	/* ftrace does sanity checks against frame pointers */
 	movq (%rdx), %rdx
 #endif
+=======
+	CALL_NOSPEC r8
+	restore_mcount_regs
+
+	jmp fgraph_trace
+SYM_FUNC_END(__fentry__)
+EXPORT_SYMBOL(__fentry__)
+#endif /* CONFIG_DYNAMIC_FTRACE */
+
+#ifdef CONFIG_FUNCTION_GRAPH_TRACER
+SYM_FUNC_START(ftrace_graph_caller)
+	/* Saves rbp into %rdx and fills first parameter  */
+	save_mcount_regs
+
+	leaq MCOUNT_REG_SIZE+8(%rsp), %rsi
+	movq $0, %rdx	/* No framepointers needed */
+>>>>>>> upstream/android-13
 	call	prepare_ftrace_return
 
 	restore_mcount_regs
 
+<<<<<<< HEAD
 	retq
 ENDPROC(ftrace_graph_caller)
 
 ENTRY(return_to_handler)
 	UNWIND_HINT_EMPTY
+=======
+	RET
+SYM_FUNC_END(ftrace_graph_caller)
+
+SYM_FUNC_START(return_to_handler)
+>>>>>>> upstream/android-13
 	subq  $24, %rsp
 
 	/* Save the return values */
@@ -337,6 +511,11 @@ ENTRY(return_to_handler)
 	movq 8(%rsp), %rdx
 	movq (%rsp), %rax
 	addq $24, %rsp
+<<<<<<< HEAD
 	JMP_NOSPEC %rdi
 END(return_to_handler)
+=======
+	JMP_NOSPEC rdi
+SYM_FUNC_END(return_to_handler)
+>>>>>>> upstream/android-13
 #endif

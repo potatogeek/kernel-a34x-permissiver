@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * CAN driver for PEAK System USB adapters
  * Derived from the PCAN project file driver/src/pcan_usb_core.c
@@ -6,6 +10,7 @@
  * Copyright (C) 2010-2012 Stephane Grosjean <s.grosjean@peak-system.com>
  *
  * Many thanks to Klaus Hitschler <klaus.hitschler@gmx.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published
@@ -15,6 +20,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/init.h>
 #include <linux/signal.h>
@@ -22,6 +29,10 @@
 #include <linux/module.h>
 #include <linux/netdevice.h>
 #include <linux/usb.h>
+<<<<<<< HEAD
+=======
+#include <linux/ethtool.h>
+>>>>>>> upstream/android-13
 
 #include <linux/can.h>
 #include <linux/can/dev.h>
@@ -34,6 +45,7 @@ MODULE_DESCRIPTION("CAN driver for PEAK-System USB adapters");
 MODULE_LICENSE("GPL v2");
 
 /* Table of devices that work with this driver */
+<<<<<<< HEAD
 static struct usb_device_id peak_usb_table[] = {
 	{USB_DEVICE(PCAN_USB_VENDOR_ID, PCAN_USB_PRODUCT_ID)},
 	{USB_DEVICE(PCAN_USB_VENDOR_ID, PCAN_USBPRO_PRODUCT_ID)},
@@ -42,10 +54,35 @@ static struct usb_device_id peak_usb_table[] = {
 	{USB_DEVICE(PCAN_USB_VENDOR_ID, PCAN_USBCHIP_PRODUCT_ID)},
 	{USB_DEVICE(PCAN_USB_VENDOR_ID, PCAN_USBX6_PRODUCT_ID)},
 	{} /* Terminating entry */
+=======
+static const struct usb_device_id peak_usb_table[] = {
+	{
+		USB_DEVICE(PCAN_USB_VENDOR_ID, PCAN_USB_PRODUCT_ID),
+		.driver_info = (kernel_ulong_t)&pcan_usb,
+	}, {
+		USB_DEVICE(PCAN_USB_VENDOR_ID, PCAN_USBPRO_PRODUCT_ID),
+		.driver_info = (kernel_ulong_t)&pcan_usb_pro,
+	}, {
+		USB_DEVICE(PCAN_USB_VENDOR_ID, PCAN_USBFD_PRODUCT_ID),
+		.driver_info = (kernel_ulong_t)&pcan_usb_fd,
+	}, {
+		USB_DEVICE(PCAN_USB_VENDOR_ID, PCAN_USBPROFD_PRODUCT_ID),
+		.driver_info = (kernel_ulong_t)&pcan_usb_pro_fd,
+	}, {
+		USB_DEVICE(PCAN_USB_VENDOR_ID, PCAN_USBCHIP_PRODUCT_ID),
+		.driver_info = (kernel_ulong_t)&pcan_usb_chip,
+	}, {
+		USB_DEVICE(PCAN_USB_VENDOR_ID, PCAN_USBX6_PRODUCT_ID),
+		.driver_info = (kernel_ulong_t)&pcan_usb_x6,
+	}, {
+		/* Terminating entry */
+	}
+>>>>>>> upstream/android-13
 };
 
 MODULE_DEVICE_TABLE(usb, peak_usb_table);
 
+<<<<<<< HEAD
 /* List of supported PCAN-USB adapters (NULL terminated list) */
 static const struct peak_usb_adapter *const peak_usb_adapters_list[] = {
 	&pcan_usb,
@@ -56,6 +93,8 @@ static const struct peak_usb_adapter *const peak_usb_adapters_list[] = {
 	&pcan_usb_x6,
 };
 
+=======
+>>>>>>> upstream/android-13
 /*
  * dump memory
  */
@@ -303,20 +342,36 @@ static void peak_usb_write_bulk_callback(struct urb *urb)
 		netif_trans_update(netdev);
 		break;
 
+<<<<<<< HEAD
 	default:
 		if (net_ratelimit())
 			netdev_err(netdev, "Tx urb aborted (%d)\n",
 				   urb->status);
+=======
+>>>>>>> upstream/android-13
 	case -EPROTO:
 	case -ENOENT:
 	case -ECONNRESET:
 	case -ESHUTDOWN:
+<<<<<<< HEAD
 
+=======
+		break;
+
+	default:
+		if (net_ratelimit())
+			netdev_err(netdev, "Tx urb aborted (%d)\n",
+				   urb->status);
+>>>>>>> upstream/android-13
 		break;
 	}
 
 	/* should always release echo skb and corresponding context */
+<<<<<<< HEAD
 	can_get_echo_skb(netdev, context->echo_index);
+=======
+	can_get_echo_skb(netdev, context->echo_index, NULL);
+>>>>>>> upstream/android-13
 	context->echo_index = PCAN_USB_MAX_TX_URBS;
 
 	/* do wakeup tx queue in case of success only */
@@ -372,13 +427,21 @@ static netdev_tx_t peak_usb_ndo_start_xmit(struct sk_buff *skb,
 
 	usb_anchor_urb(urb, &dev->tx_submitted);
 
+<<<<<<< HEAD
 	can_put_echo_skb(skb, netdev, context->echo_index);
+=======
+	can_put_echo_skb(skb, netdev, context->echo_index, 0);
+>>>>>>> upstream/android-13
 
 	atomic_inc(&dev->active_tx_urbs);
 
 	err = usb_submit_urb(urb, GFP_ATOMIC);
 	if (err) {
+<<<<<<< HEAD
 		can_free_echo_skb(netdev, context->echo_index);
+=======
+		can_free_echo_skb(netdev, context->echo_index, NULL);
+>>>>>>> upstream/android-13
 
 		usb_unanchor_urb(urb);
 
@@ -394,7 +457,11 @@ static netdev_tx_t peak_usb_ndo_start_xmit(struct sk_buff *skb,
 		default:
 			netdev_warn(netdev, "tx urb submitting failed err=%d\n",
 				    err);
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case -ENOENT:
 			/* cable unplugged */
 			stats->tx_dropped++;
@@ -630,6 +697,10 @@ static int peak_usb_ndo_stop(struct net_device *netdev)
 	/* can set bus off now */
 	if (dev->adapter->dev_set_bus) {
 		int err = dev->adapter->dev_set_bus(dev, 0);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		if (err)
 			return err;
 	}
@@ -827,6 +898,12 @@ static int peak_usb_create_dev(const struct peak_usb_adapter *peak_usb_adapter,
 
 	netdev->flags |= IFF_ECHO; /* we support local echo */
 
+<<<<<<< HEAD
+=======
+	/* add ethtool support */
+	netdev->ethtool_ops = peak_usb_adapter->ethtool_ops;
+
+>>>>>>> upstream/android-13
 	init_usb_anchor(&dev->rx_submitted);
 
 	init_usb_anchor(&dev->tx_submitted);
@@ -930,6 +1007,7 @@ static void peak_usb_disconnect(struct usb_interface *intf)
 static int peak_usb_probe(struct usb_interface *intf,
 			  const struct usb_device_id *id)
 {
+<<<<<<< HEAD
 	struct usb_device *usb_dev = interface_to_usbdev(intf);
 	const u16 usb_id_product = le16_to_cpu(usb_dev->descriptor.idProduct);
 	const struct peak_usb_adapter *peak_usb_adapter = NULL;
@@ -948,6 +1026,13 @@ static int peak_usb_probe(struct usb_interface *intf,
 			PCAN_USB_DRIVER_NAME, usb_id_product);
 		return -ENODEV;
 	}
+=======
+	const struct peak_usb_adapter *peak_usb_adapter;
+	int i, err = -ENOMEM;
+
+	/* get corresponding PCAN-USB adapter */
+	peak_usb_adapter = (const struct peak_usb_adapter *)id->driver_info;
+>>>>>>> upstream/android-13
 
 	/* got corresponding adapter: check if it handles current interface */
 	if (peak_usb_adapter->intf_probe) {

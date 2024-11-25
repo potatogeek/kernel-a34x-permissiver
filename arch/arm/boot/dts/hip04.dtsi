@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Hisilicon Ltd. HiP04 SoC
  *
@@ -9,6 +10,16 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * HiSilicon Ltd. HiP04 SoC
+ *
+ * Copyright (C) 2013-2014 HiSilicon Ltd.
+ * Copyright (C) 2013-2014 Linaro Ltd.
+ *
+ * Author: Haojian Zhuang <haojian.zhuang@linaro.org>
+>>>>>>> upstream/android-13
  */
 
 / {
@@ -216,7 +227,11 @@
 		};
 
 		sysctrl: sysctrl {
+<<<<<<< HEAD
 			compatible = "hisilicon,sysctrl";
+=======
+			compatible = "hisilicon,sysctrl", "syscon";
+>>>>>>> upstream/android-13
 			reg = <0x3e00000 0x00100000>;
 		};
 
@@ -229,8 +244,13 @@
 			compatible = "arm,sp804", "arm,primecell";
 			reg = <0x3000000 0x1000>;
 			interrupts = <0 224 4>;
+<<<<<<< HEAD
 			clocks = <&clk_50m>, <&clk_50m>;
 			clock-names = "apb_pclk";
+=======
+			clocks = <&clk_50m>, <&clk_50m>, <&clk_50m>;
+			clock-names = "timer0clk", "timer1clk", "apb_pclk";
+>>>>>>> upstream/android-13
 		};
 
 		arm-pmu {
@@ -253,12 +273,21 @@
 				     <0 79 4>;
 		};
 
+<<<<<<< HEAD
 		uart0: uart@4007000 {
 			compatible = "snps,dw-apb-uart";
 			reg = <0x4007000 0x1000>;
 			interrupts = <0 381 4>;
 			clocks = <&clk_168m>;
 			clock-names = "uartclk";
+=======
+		uart0: serial@4007000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0x4007000 0x1000>;
+			interrupts = <0 381 4>;
+			clocks = <&clk_168m>, <&clk_168m>;
+			clock-names = "baudclk", "apb_pclk";
+>>>>>>> upstream/android-13
 			reg-shift = <2>;
 			status = "disabled";
 		};
@@ -277,10 +306,18 @@
 
 		clocks = <&clk_375m>;
 		clock-names = "apb_pclk";
+<<<<<<< HEAD
 		port {
 			etb0_in_port: endpoint@0 {
 				slave-mode;
 				remote-endpoint = <&replicator0_out_port0>;
+=======
+		in-ports {
+			port {
+				etb0_in_port: endpoint@0 {
+					remote-endpoint = <&replicator0_out_port0>;
+				};
+>>>>>>> upstream/android-13
 			};
 		};
 	};
@@ -291,10 +328,18 @@
 
 		clocks = <&clk_375m>;
 		clock-names = "apb_pclk";
+<<<<<<< HEAD
 		port {
 			etb1_in_port: endpoint@0 {
 				slave-mode;
 				remote-endpoint = <&replicator1_out_port0>;
+=======
+		in-ports {
+			port {
+				etb1_in_port: endpoint@0 {
+					remote-endpoint = <&replicator1_out_port0>;
+				};
+>>>>>>> upstream/android-13
 			};
 		};
 	};
@@ -305,10 +350,18 @@
 
 		clocks = <&clk_375m>;
 		clock-names = "apb_pclk";
+<<<<<<< HEAD
 		port {
 			etb2_in_port: endpoint@0 {
 				slave-mode;
 				remote-endpoint = <&replicator2_out_port0>;
+=======
+		in-ports {
+			port {
+				etb2_in_port: endpoint@0 {
+					remote-endpoint = <&replicator2_out_port0>;
+				};
+>>>>>>> upstream/android-13
 			};
 		};
 	};
@@ -319,10 +372,18 @@
 
 		clocks = <&clk_375m>;
 		clock-names = "apb_pclk";
+<<<<<<< HEAD
 		port {
 			etb3_in_port: endpoint@0 {
 				slave-mode;
 				remote-endpoint = <&replicator3_out_port0>;
+=======
+		in-ports {
+			port {
+				etb3_in_port: endpoint@0 {
+					remote-endpoint = <&replicator3_out_port0>;
+				};
+>>>>>>> upstream/android-13
 			};
 		};
 	};
@@ -333,10 +394,18 @@
 
 		clocks = <&clk_375m>;
 		clock-names = "apb_pclk";
+<<<<<<< HEAD
 		port {
 			tpiu_in_port: endpoint@0 {
 				slave-mode;
 				remote-endpoint = <&funnel4_out_port0>;
+=======
+		in-ports {
+			port {
+				tpiu_in_port: endpoint@0 {
+					remote-endpoint = <&funnel4_out_port0>;
+				};
+>>>>>>> upstream/android-13
 			};
 		};
 	};
@@ -345,9 +414,15 @@
 		/* non-configurable replicators don't show up on the
 		 * AMBA bus.  As such no need to add "arm,primecell".
 		 */
+<<<<<<< HEAD
 		compatible = "arm,coresight-replicator";
 
 		ports {
+=======
+		compatible = "arm,coresight-static-replicator";
+
+		out-ports {
+>>>>>>> upstream/android-13
 			#address-cells = <1>;
 			#size-cells = <0>;
 
@@ -365,12 +440,20 @@
 					remote-endpoint = <&funnel4_in_port0>;
 				};
 			};
+<<<<<<< HEAD
 
 			/* replicator input port */
 			port@2 {
 				reg = <0>;
 				replicator0_in_port0: endpoint {
 					slave-mode;
+=======
+		};
+
+		in-ports {
+			port {
+				replicator0_in_port0: endpoint {
+>>>>>>> upstream/android-13
 					remote-endpoint = <&funnel0_out_port0>;
 				};
 			};
@@ -381,9 +464,15 @@
 		/* non-configurable replicators don't show up on the
 		 * AMBA bus.  As such no need to add "arm,primecell".
 		 */
+<<<<<<< HEAD
 		compatible = "arm,coresight-replicator";
 
 		ports {
+=======
+		compatible = "arm,coresight-static-replicator";
+
+		out-ports {
+>>>>>>> upstream/android-13
 			#address-cells = <1>;
 			#size-cells = <0>;
 
@@ -401,12 +490,20 @@
 					remote-endpoint = <&funnel4_in_port1>;
 				};
 			};
+<<<<<<< HEAD
 
 			/* replicator input port */
 			port@2 {
 				reg = <0>;
 				replicator1_in_port0: endpoint {
 					slave-mode;
+=======
+		};
+
+		in-ports {
+			port {
+				replicator1_in_port0: endpoint {
+>>>>>>> upstream/android-13
 					remote-endpoint = <&funnel1_out_port0>;
 				};
 			};
@@ -417,6 +514,7 @@
 		/* non-configurable replicators don't show up on the
 		 * AMBA bus.  As such no need to add "arm,primecell".
 		 */
+<<<<<<< HEAD
 		compatible = "arm,coresight-replicator";
 
 		ports {
@@ -424,6 +522,14 @@
 			#size-cells = <0>;
 
 			/* replicator output ports */
+=======
+		compatible = "arm,coresight-static-replicator";
+
+		out-ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+>>>>>>> upstream/android-13
 			port@0 {
 				reg = <0>;
 				replicator2_out_port0: endpoint {
@@ -437,12 +543,20 @@
 					remote-endpoint = <&funnel4_in_port2>;
 				};
 			};
+<<<<<<< HEAD
 
 			/* replicator input port */
 			port@2 {
 				reg = <0>;
 				replicator2_in_port0: endpoint {
 					slave-mode;
+=======
+		};
+
+		in-ports {
+			port {
+				replicator2_in_port0: endpoint {
+>>>>>>> upstream/android-13
 					remote-endpoint = <&funnel2_out_port0>;
 				};
 			};
@@ -453,6 +567,7 @@
 		/* non-configurable replicators don't show up on the
 		 * AMBA bus.  As such no need to add "arm,primecell".
 		 */
+<<<<<<< HEAD
 		compatible = "arm,coresight-replicator";
 
 		ports {
@@ -460,6 +575,14 @@
 			#size-cells = <0>;
 
 			/* replicator output ports */
+=======
+		compatible = "arm,coresight-static-replicator";
+
+		out-ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+>>>>>>> upstream/android-13
 			port@0 {
 				reg = <0>;
 				replicator3_out_port0: endpoint {
@@ -473,12 +596,20 @@
 					remote-endpoint = <&funnel4_in_port3>;
 				};
 			};
+<<<<<<< HEAD
 
 			/* replicator input port */
 			port@2 {
 				reg = <0>;
 				replicator3_in_port0: endpoint {
 					slave-mode;
+=======
+		};
+
+		in-ports {
+			port {
+				replicator3_in_port0: endpoint {
+>>>>>>> upstream/android-13
 					remote-endpoint = <&funnel3_out_port0>;
 				};
 			};
@@ -486,11 +617,16 @@
 	};
 
 	funnel@0,e3c41000 {
+<<<<<<< HEAD
 		compatible = "arm,coresight-funnel", "arm,primecell";
+=======
+		compatible = "arm,coresight-dynamic-funnel", "arm,primecell";
+>>>>>>> upstream/android-13
 		reg = <0 0xe3c41000 0 0x1000>;
 
 		clocks = <&clk_375m>;
 		clock-names = "apb_pclk";
+<<<<<<< HEAD
 		ports {
 			#address-cells = <1>;
 			#size-cells = <0>;
@@ -498,41 +634,75 @@
 			/* funnel output port */
 			port@0 {
 				reg = <0>;
+=======
+		out-ports {
+			port {
+>>>>>>> upstream/android-13
 				funnel0_out_port0: endpoint {
 					remote-endpoint =
 						<&replicator0_in_port0>;
 				};
 			};
+<<<<<<< HEAD
 
 			/* funnel input ports */
 			port@1 {
 				reg = <0>;
 				funnel0_in_port0: endpoint {
 					slave-mode;
+=======
+		};
+
+		in-ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+				funnel0_in_port0: endpoint {
+>>>>>>> upstream/android-13
 					remote-endpoint = <&ptm0_out_port>;
 				};
 			};
 
+<<<<<<< HEAD
 			port@2 {
 				reg = <1>;
 				funnel0_in_port1: endpoint {
 					slave-mode;
+=======
+			port@1 {
+				reg = <1>;
+				funnel0_in_port1: endpoint {
+>>>>>>> upstream/android-13
 					remote-endpoint = <&ptm1_out_port>;
 				};
 			};
 
+<<<<<<< HEAD
 			port@3 {
 				reg = <2>;
 				funnel0_in_port2: endpoint {
 					slave-mode;
+=======
+			port@2 {
+				reg = <2>;
+				funnel0_in_port2: endpoint {
+>>>>>>> upstream/android-13
 					remote-endpoint = <&ptm2_out_port>;
 				};
 			};
 
+<<<<<<< HEAD
 			port@4 {
 				reg = <3>;
 				funnel0_in_port3: endpoint {
 					slave-mode;
+=======
+			port@3 {
+				reg = <3>;
+				funnel0_in_port3: endpoint {
+>>>>>>> upstream/android-13
 					remote-endpoint = <&ptm3_out_port>;
 				};
 			};
@@ -540,11 +710,16 @@
 	};
 
 	funnel@0,e3c81000 {
+<<<<<<< HEAD
 		compatible = "arm,coresight-funnel", "arm,primecell";
+=======
+		compatible = "arm,coresight-dynamic-funnel", "arm,primecell";
+>>>>>>> upstream/android-13
 		reg = <0 0xe3c81000 0 0x1000>;
 
 		clocks = <&clk_375m>;
 		clock-names = "apb_pclk";
+<<<<<<< HEAD
 		ports {
 			#address-cells = <1>;
 			#size-cells = <0>;
@@ -552,41 +727,75 @@
 			/* funnel output port */
 			port@0 {
 				reg = <0>;
+=======
+		out-ports {
+			port {
+>>>>>>> upstream/android-13
 				funnel1_out_port0: endpoint {
 					remote-endpoint =
 						<&replicator1_in_port0>;
 				};
 			};
+<<<<<<< HEAD
 
 			/* funnel input ports */
 			port@1 {
 				reg = <0>;
 				funnel1_in_port0: endpoint {
 					slave-mode;
+=======
+		};
+
+		in-ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+				funnel1_in_port0: endpoint {
+>>>>>>> upstream/android-13
 					remote-endpoint = <&ptm4_out_port>;
 				};
 			};
 
+<<<<<<< HEAD
 			port@2 {
 				reg = <1>;
 				funnel1_in_port1: endpoint {
 					slave-mode;
+=======
+			port@1 {
+				reg = <1>;
+				funnel1_in_port1: endpoint {
+>>>>>>> upstream/android-13
 					remote-endpoint = <&ptm5_out_port>;
 				};
 			};
 
+<<<<<<< HEAD
 			port@3 {
 				reg = <2>;
 				funnel1_in_port2: endpoint {
 					slave-mode;
+=======
+			port@2 {
+				reg = <2>;
+				funnel1_in_port2: endpoint {
+>>>>>>> upstream/android-13
 					remote-endpoint = <&ptm6_out_port>;
 				};
 			};
 
+<<<<<<< HEAD
 			port@4 {
 				reg = <3>;
 				funnel1_in_port3: endpoint {
 					slave-mode;
+=======
+			port@3 {
+				reg = <3>;
+				funnel1_in_port3: endpoint {
+>>>>>>> upstream/android-13
 					remote-endpoint = <&ptm7_out_port>;
 				};
 			};
@@ -594,11 +803,16 @@
 	};
 
 	funnel@0,e3cc1000 {
+<<<<<<< HEAD
 		compatible = "arm,coresight-funnel", "arm,primecell";
+=======
+		compatible = "arm,coresight-dynamic-funnel", "arm,primecell";
+>>>>>>> upstream/android-13
 		reg = <0 0xe3cc1000 0 0x1000>;
 
 		clocks = <&clk_375m>;
 		clock-names = "apb_pclk";
+<<<<<<< HEAD
 		ports {
 			#address-cells = <1>;
 			#size-cells = <0>;
@@ -606,41 +820,75 @@
 			/* funnel output port */
 			port@0 {
 				reg = <0>;
+=======
+		out-ports {
+			port {
+>>>>>>> upstream/android-13
 				funnel2_out_port0: endpoint {
 					remote-endpoint =
 						<&replicator2_in_port0>;
 				};
 			};
+<<<<<<< HEAD
 
 			/* funnel input ports */
 			port@1 {
 				reg = <0>;
 				funnel2_in_port0: endpoint {
 					slave-mode;
+=======
+		};
+
+		in-ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+				funnel2_in_port0: endpoint {
+>>>>>>> upstream/android-13
 					remote-endpoint = <&ptm8_out_port>;
 				};
 			};
 
+<<<<<<< HEAD
 			port@2 {
 				reg = <1>;
 				funnel2_in_port1: endpoint {
 					slave-mode;
+=======
+			port@1 {
+				reg = <1>;
+				funnel2_in_port1: endpoint {
+>>>>>>> upstream/android-13
 					remote-endpoint = <&ptm9_out_port>;
 				};
 			};
 
+<<<<<<< HEAD
 			port@3 {
 				reg = <2>;
 				funnel2_in_port2: endpoint {
 					slave-mode;
+=======
+			port@2 {
+				reg = <2>;
+				funnel2_in_port2: endpoint {
+>>>>>>> upstream/android-13
 					remote-endpoint = <&ptm10_out_port>;
 				};
 			};
 
+<<<<<<< HEAD
 			port@4 {
 				reg = <3>;
 				funnel2_in_port3: endpoint {
 					slave-mode;
+=======
+			port@3 {
+				reg = <3>;
+				funnel2_in_port3: endpoint {
+>>>>>>> upstream/android-13
 					remote-endpoint = <&ptm11_out_port>;
 				};
 			};
@@ -648,11 +896,16 @@
 	};
 
 	funnel@0,e3d01000 {
+<<<<<<< HEAD
 		compatible = "arm,coresight-funnel", "arm,primecell";
+=======
+		compatible = "arm,coresight-dynamic-funnel", "arm,primecell";
+>>>>>>> upstream/android-13
 		reg = <0 0xe3d01000 0 0x1000>;
 
 		clocks = <&clk_375m>;
 		clock-names = "apb_pclk";
+<<<<<<< HEAD
 		ports {
 			#address-cells = <1>;
 			#size-cells = <0>;
@@ -660,41 +913,75 @@
 			/* funnel output port */
 			port@0 {
 				reg = <0>;
+=======
+		out-ports {
+			port {
+>>>>>>> upstream/android-13
 				funnel3_out_port0: endpoint {
 					remote-endpoint =
 						<&replicator3_in_port0>;
 				};
 			};
+<<<<<<< HEAD
 
 			/* funnel input ports */
 			port@1 {
 				reg = <0>;
 				funnel3_in_port0: endpoint {
 					slave-mode;
+=======
+		};
+
+		in-ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+				funnel3_in_port0: endpoint {
+>>>>>>> upstream/android-13
 					remote-endpoint = <&ptm12_out_port>;
 				};
 			};
 
+<<<<<<< HEAD
 			port@2 {
 				reg = <1>;
 				funnel3_in_port1: endpoint {
 					slave-mode;
+=======
+			port@1 {
+				reg = <1>;
+				funnel3_in_port1: endpoint {
+>>>>>>> upstream/android-13
 					remote-endpoint = <&ptm13_out_port>;
 				};
 			};
 
+<<<<<<< HEAD
 			port@3 {
 				reg = <2>;
 				funnel3_in_port2: endpoint {
 					slave-mode;
+=======
+			port@2 {
+				reg = <2>;
+				funnel3_in_port2: endpoint {
+>>>>>>> upstream/android-13
 					remote-endpoint = <&ptm14_out_port>;
 				};
 			};
 
+<<<<<<< HEAD
 			port@4 {
 				reg = <3>;
 				funnel3_in_port3: endpoint {
 					slave-mode;
+=======
+			port@3 {
+				reg = <3>;
+				funnel3_in_port3: endpoint {
+>>>>>>> upstream/android-13
 					remote-endpoint = <&ptm15_out_port>;
 				};
 			};
@@ -702,11 +989,16 @@
 	};
 
 	funnel@0,e3c04000 {
+<<<<<<< HEAD
 		compatible = "arm,coresight-funnel", "arm,primecell";
+=======
+		compatible = "arm,coresight-dynamic-funnel", "arm,primecell";
+>>>>>>> upstream/android-13
 		reg = <0 0xe3c04000 0 0x1000>;
 
 		clocks = <&clk_375m>;
 		clock-names = "apb_pclk";
+<<<<<<< HEAD
 		ports {
 			#address-cells = <1>;
 			#size-cells = <0>;
@@ -714,43 +1006,77 @@
 			/* funnel output port */
 			port@0 {
 				reg = <0>;
+=======
+		out-ports {
+			port {
+>>>>>>> upstream/android-13
 				funnel4_out_port0: endpoint {
 					remote-endpoint = <&tpiu_in_port>;
 				};
 			};
+<<<<<<< HEAD
 
 			/* funnel input ports */
 			port@1 {
 				reg = <0>;
 				funnel4_in_port0: endpoint {
 					slave-mode;
+=======
+		};
+
+		in-ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+				funnel4_in_port0: endpoint {
+>>>>>>> upstream/android-13
 					remote-endpoint =
 						<&replicator0_out_port1>;
 				};
 			};
 
+<<<<<<< HEAD
 			port@2 {
 				reg = <1>;
 				funnel4_in_port1: endpoint {
 					slave-mode;
+=======
+			port@1 {
+				reg = <1>;
+				funnel4_in_port1: endpoint {
+>>>>>>> upstream/android-13
 					remote-endpoint =
 						<&replicator1_out_port1>;
 				};
 			};
 
+<<<<<<< HEAD
 			port@3 {
 				reg = <2>;
 				funnel4_in_port2: endpoint {
 					slave-mode;
+=======
+			port@2 {
+				reg = <2>;
+				funnel4_in_port2: endpoint {
+>>>>>>> upstream/android-13
 					remote-endpoint =
 						<&replicator2_out_port1>;
 				};
 			};
 
+<<<<<<< HEAD
 			port@4 {
 				reg = <3>;
 				funnel4_in_port3: endpoint {
 					slave-mode;
+=======
+			port@3 {
+				reg = <3>;
+				funnel4_in_port3: endpoint {
+>>>>>>> upstream/android-13
 					remote-endpoint =
 						<&replicator3_out_port1>;
 				};
@@ -765,9 +1091,17 @@
 		clocks = <&clk_375m>;
 		clock-names = "apb_pclk";
 		cpu = <&CPU0>;
+<<<<<<< HEAD
 		port {
 			ptm0_out_port: endpoint {
 				remote-endpoint = <&funnel0_in_port0>;
+=======
+		out-ports {
+			port {
+				ptm0_out_port: endpoint {
+					remote-endpoint = <&funnel0_in_port0>;
+				};
+>>>>>>> upstream/android-13
 			};
 		};
 	};
@@ -779,9 +1113,17 @@
 		clocks = <&clk_375m>;
 		clock-names = "apb_pclk";
 		cpu = <&CPU1>;
+<<<<<<< HEAD
 		port {
 			ptm1_out_port: endpoint {
 				remote-endpoint = <&funnel0_in_port1>;
+=======
+		out-ports {
+			port {
+				ptm1_out_port: endpoint {
+					remote-endpoint = <&funnel0_in_port1>;
+				};
+>>>>>>> upstream/android-13
 			};
 		};
 	};
@@ -793,9 +1135,17 @@
 		clocks = <&clk_375m>;
 		clock-names = "apb_pclk";
 		cpu = <&CPU2>;
+<<<<<<< HEAD
 		port {
 			ptm2_out_port: endpoint {
 				remote-endpoint = <&funnel0_in_port2>;
+=======
+		out-ports {
+			port {
+				ptm2_out_port: endpoint {
+					remote-endpoint = <&funnel0_in_port2>;
+				};
+>>>>>>> upstream/android-13
 			};
 		};
 	};
@@ -807,9 +1157,17 @@
 		clocks = <&clk_375m>;
 		clock-names = "apb_pclk";
 		cpu = <&CPU3>;
+<<<<<<< HEAD
 		port {
 			ptm3_out_port: endpoint {
 				remote-endpoint = <&funnel0_in_port3>;
+=======
+		out-ports {
+			port {
+				ptm3_out_port: endpoint {
+					remote-endpoint = <&funnel0_in_port3>;
+				};
+>>>>>>> upstream/android-13
 			};
 		};
 	};
@@ -821,9 +1179,17 @@
 		clocks = <&clk_375m>;
 		clock-names = "apb_pclk";
 		cpu = <&CPU4>;
+<<<<<<< HEAD
 		port {
 			ptm4_out_port: endpoint {
 				remote-endpoint = <&funnel1_in_port0>;
+=======
+		out-ports {
+			port {
+				ptm4_out_port: endpoint {
+					remote-endpoint = <&funnel1_in_port0>;
+				};
+>>>>>>> upstream/android-13
 			};
 		};
 	};
@@ -835,9 +1201,17 @@
 		clocks = <&clk_375m>;
 		clock-names = "apb_pclk";
 		cpu = <&CPU5>;
+<<<<<<< HEAD
 		port {
 			ptm5_out_port: endpoint {
 				remote-endpoint = <&funnel1_in_port1>;
+=======
+		out-ports {
+			port {
+				ptm5_out_port: endpoint {
+					remote-endpoint = <&funnel1_in_port1>;
+				};
+>>>>>>> upstream/android-13
 			};
 		};
 	};
@@ -849,9 +1223,17 @@
 		clocks = <&clk_375m>;
 		clock-names = "apb_pclk";
 		cpu = <&CPU6>;
+<<<<<<< HEAD
 		port {
 			ptm6_out_port: endpoint {
 				remote-endpoint = <&funnel1_in_port2>;
+=======
+		out-ports {
+			port {
+				ptm6_out_port: endpoint {
+					remote-endpoint = <&funnel1_in_port2>;
+				};
+>>>>>>> upstream/android-13
 			};
 		};
 	};
@@ -863,9 +1245,17 @@
 		clocks = <&clk_375m>;
 		clock-names = "apb_pclk";
 		cpu = <&CPU7>;
+<<<<<<< HEAD
 		port {
 			ptm7_out_port: endpoint {
 				remote-endpoint = <&funnel1_in_port3>;
+=======
+		out-ports {
+			port {
+				ptm7_out_port: endpoint {
+					remote-endpoint = <&funnel1_in_port3>;
+				};
+>>>>>>> upstream/android-13
 			};
 		};
 	};
@@ -877,9 +1267,17 @@
 		clocks = <&clk_375m>;
 		clock-names = "apb_pclk";
 		cpu = <&CPU8>;
+<<<<<<< HEAD
 		port {
 			ptm8_out_port: endpoint {
 				remote-endpoint = <&funnel2_in_port0>;
+=======
+		out-ports {
+			port {
+				ptm8_out_port: endpoint {
+					remote-endpoint = <&funnel2_in_port0>;
+				};
+>>>>>>> upstream/android-13
 			};
 		};
 	};
@@ -890,9 +1288,17 @@
 		clocks = <&clk_375m>;
 		clock-names = "apb_pclk";
 		cpu = <&CPU9>;
+<<<<<<< HEAD
 		port {
 			ptm9_out_port: endpoint {
 				remote-endpoint = <&funnel2_in_port1>;
+=======
+		out-ports {
+			port {
+				ptm9_out_port: endpoint {
+					remote-endpoint = <&funnel2_in_port1>;
+				};
+>>>>>>> upstream/android-13
 			};
 		};
 	};
@@ -904,9 +1310,17 @@
 		clocks = <&clk_375m>;
 		clock-names = "apb_pclk";
 		cpu = <&CPU10>;
+<<<<<<< HEAD
 		port {
 			ptm10_out_port: endpoint {
 				remote-endpoint = <&funnel2_in_port2>;
+=======
+		out-ports {
+			port {
+				ptm10_out_port: endpoint {
+					remote-endpoint = <&funnel2_in_port2>;
+				};
+>>>>>>> upstream/android-13
 			};
 		};
 	};
@@ -918,9 +1332,17 @@
 		clocks = <&clk_375m>;
 		clock-names = "apb_pclk";
 		cpu = <&CPU11>;
+<<<<<<< HEAD
 		port {
 			ptm11_out_port: endpoint {
 				remote-endpoint = <&funnel2_in_port3>;
+=======
+		out-ports {
+			port {
+				ptm11_out_port: endpoint {
+					remote-endpoint = <&funnel2_in_port3>;
+				};
+>>>>>>> upstream/android-13
 			};
 		};
 	};
@@ -932,9 +1354,17 @@
 		clocks = <&clk_375m>;
 		clock-names = "apb_pclk";
 		cpu = <&CPU12>;
+<<<<<<< HEAD
 		port {
 			ptm12_out_port: endpoint {
 				remote-endpoint = <&funnel3_in_port0>;
+=======
+		out-ports {
+			port {
+				ptm12_out_port: endpoint {
+					remote-endpoint = <&funnel3_in_port0>;
+				};
+>>>>>>> upstream/android-13
 			};
 		};
 	};
@@ -946,9 +1376,17 @@
 		clocks = <&clk_375m>;
 		clock-names = "apb_pclk";
 		cpu = <&CPU13>;
+<<<<<<< HEAD
 		port {
 			ptm13_out_port: endpoint {
 				remote-endpoint = <&funnel3_in_port1>;
+=======
+		out-ports {
+			port {
+				ptm13_out_port: endpoint {
+					remote-endpoint = <&funnel3_in_port1>;
+				};
+>>>>>>> upstream/android-13
 			};
 		};
 	};
@@ -960,9 +1398,17 @@
 		clocks = <&clk_375m>;
 		clock-names = "apb_pclk";
 		cpu = <&CPU14>;
+<<<<<<< HEAD
 		port {
 			ptm14_out_port: endpoint {
 				remote-endpoint = <&funnel3_in_port2>;
+=======
+		out-ports {
+			port {
+				ptm14_out_port: endpoint {
+					remote-endpoint = <&funnel3_in_port2>;
+				};
+>>>>>>> upstream/android-13
 			};
 		};
 	};
@@ -974,9 +1420,17 @@
 		clocks = <&clk_375m>;
 		clock-names = "apb_pclk";
 		cpu = <&CPU15>;
+<<<<<<< HEAD
 		port {
 			ptm15_out_port: endpoint {
 				remote-endpoint = <&funnel3_in_port3>;
+=======
+		out-ports {
+			port {
+				ptm15_out_port: endpoint {
+					remote-endpoint = <&funnel3_in_port3>;
+				};
+>>>>>>> upstream/android-13
 			};
 		};
 	};

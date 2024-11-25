@@ -1,8 +1,15 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 /**
  * dwc3-omap.c - OMAP Specific Glue layer
  *
  * Copyright (C) 2010-2011 Texas Instruments Incorporated - http://www.ti.com
+=======
+/*
+ * dwc3-omap.c - OMAP Specific Glue layer
+ *
+ * Copyright (C) 2010-2011 Texas Instruments Incorporated - https://www.ti.com
+>>>>>>> upstream/android-13
  *
  * Authors: Felipe Balbi <balbi@ti.com>,
  *	    Sebastian Andrzej Siewior <bigeasy@linutronix.de>
@@ -14,7 +21,10 @@
 #include <linux/irq.h>
 #include <linux/interrupt.h>
 #include <linux/platform_device.h>
+<<<<<<< HEAD
 #include <linux/platform_data/dwc3-omap.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/pm_runtime.h>
 #include <linux/dma-mapping.h>
 #include <linux/ioport.h>
@@ -106,6 +116,15 @@
 #define USBOTGSS_UTMI_OTG_CTRL_SESSVALID	BIT(2)
 #define USBOTGSS_UTMI_OTG_CTRL_VBUSVALID	BIT(1)
 
+<<<<<<< HEAD
+=======
+enum dwc3_omap_utmi_mode {
+	DWC3_OMAP_UTMI_MODE_UNKNOWN = 0,
+	DWC3_OMAP_UTMI_MODE_HW,
+	DWC3_OMAP_UTMI_MODE_SW,
+};
+
+>>>>>>> upstream/android-13
 struct dwc3_omap {
 	struct device		*dev;
 
@@ -237,7 +256,11 @@ static void dwc3_omap_set_mailbox(struct dwc3_omap *omap,
 		break;
 
 	case OMAP_DWC3_ID_FLOAT:
+<<<<<<< HEAD
 		if (omap->vbus_reg)
+=======
+		if (omap->vbus_reg && regulator_is_enabled(omap->vbus_reg))
+>>>>>>> upstream/android-13
 			regulator_disable(omap->vbus_reg);
 		val = dwc3_omap_read_utmi_ctrl(omap);
 		val |= USBOTGSS_UTMI_OTG_CTRL_IDDIG;
@@ -451,15 +474,21 @@ static int dwc3_omap_probe(struct platform_device *pdev)
 	struct device_node	*node = pdev->dev.of_node;
 
 	struct dwc3_omap	*omap;
+<<<<<<< HEAD
 	struct resource		*res;
+=======
+>>>>>>> upstream/android-13
 	struct device		*dev = &pdev->dev;
 	struct regulator	*vbus_reg = NULL;
 
 	int			ret;
 	int			irq;
 
+<<<<<<< HEAD
 	u32			reg;
 
+=======
+>>>>>>> upstream/android-13
 	void __iomem		*base;
 
 	if (!node) {
@@ -474,6 +503,7 @@ static int dwc3_omap_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, omap);
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(dev, "missing IRQ resource: %d\n", irq);
 		return irq;
@@ -481,6 +511,12 @@ static int dwc3_omap_probe(struct platform_device *pdev)
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	base = devm_ioremap_resource(dev, res);
+=======
+	if (irq < 0)
+		return irq;
+
+	base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(base))
 		return PTR_ERR(base);
 
@@ -507,9 +543,12 @@ static int dwc3_omap_probe(struct platform_device *pdev)
 	dwc3_omap_map_offset(omap);
 	dwc3_omap_set_utmi_mode(omap);
 
+<<<<<<< HEAD
 	/* check the DMA Status */
 	reg = dwc3_omap_readl(omap->base, USBOTGSS_SYSCONFIG);
 
+=======
+>>>>>>> upstream/android-13
 	ret = dwc3_omap_extcon_register(omap);
 	if (ret < 0)
 		goto err1;

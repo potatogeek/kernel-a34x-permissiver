@@ -1,9 +1,16 @@
+<<<<<<< HEAD
 /* QLogic qed NIC Driver
  * Copyright (c) 2015 QLogic Corporation
  *
  * This software is available under the terms of the GNU General Public License
  * (GPL) Version 2, available from the file COPYING in the main directory of
  * this source tree.
+=======
+/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause) */
+/* QLogic qed NIC Driver
+ * Copyright (c) 2015 QLogic Corporation
+ * Copyright (c) 2019-2020 Marvell International Ltd.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _QED_DEBUGFS_H
@@ -17,11 +24,19 @@ enum qed_dbg_features {
 	DBG_FEATURE_IGU_FIFO,
 	DBG_FEATURE_PROTECTION_OVERRIDE,
 	DBG_FEATURE_FW_ASSERTS,
+<<<<<<< HEAD
+=======
+	DBG_FEATURE_ILT,
+>>>>>>> upstream/android-13
 	DBG_FEATURE_NUM
 };
 
 /* Forward Declaration */
 struct qed_dev;
+<<<<<<< HEAD
+=======
+struct qed_hwfn;
+>>>>>>> upstream/android-13
 
 int qed_dbg_grc(struct qed_dev *cdev, void *buffer, u32 *num_dumped_bytes);
 int qed_dbg_grc_size(struct qed_dev *cdev);
@@ -40,6 +55,11 @@ int qed_dbg_protection_override_size(struct qed_dev *cdev);
 int qed_dbg_fw_asserts(struct qed_dev *cdev, void *buffer,
 		       u32 *num_dumped_bytes);
 int qed_dbg_fw_asserts_size(struct qed_dev *cdev);
+<<<<<<< HEAD
+=======
+int qed_dbg_ilt(struct qed_dev *cdev, void *buffer, u32 *num_dumped_bytes);
+int qed_dbg_ilt_size(struct qed_dev *cdev);
+>>>>>>> upstream/android-13
 int qed_dbg_mcp_trace(struct qed_dev *cdev, void *buffer,
 		      u32 *num_dumped_bytes);
 int qed_dbg_mcp_trace_size(struct qed_dev *cdev);

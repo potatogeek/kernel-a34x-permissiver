@@ -41,7 +41,11 @@
  * If we are asked to block we wait on all the oldest fence of all
  * rings. We just wait for any of those fence to complete.
  */
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+
+>>>>>>> upstream/android-13
 #include "radeon.h"
 
 static void radeon_sa_bo_remove_locked(struct radeon_sa_bo *sa_bo);

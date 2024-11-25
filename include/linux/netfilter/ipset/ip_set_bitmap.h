@@ -12,6 +12,7 @@ enum {
 	IPSET_ADD_START_STORED_TIMEOUT,
 };
 
+<<<<<<< HEAD
 /* Common functions */
 
 static inline u32
@@ -26,4 +27,6 @@ range_to_mask(u32 from, u32 to, u8 *bits)
 	return mask;
 }
 
+=======
+>>>>>>> upstream/android-13
 #endif /* __IP_SET_BITMAP_H */

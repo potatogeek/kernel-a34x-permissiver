@@ -11,8 +11,23 @@
 
 #include <linux/const.h>
 
+<<<<<<< HEAD
 #ifndef __ASSEMBLY__
 #include <asm-generic/4level-fixup.h>
+=======
+#define PMD_SHIFT		18
+#define PMD_SIZE        	(1UL << PMD_SHIFT)
+#define PMD_MASK        	(~(PMD_SIZE-1))
+#define PMD_ALIGN(__addr) 	(((__addr) + ~PMD_MASK) & PMD_MASK)
+
+#define PGDIR_SHIFT     	24
+#define PGDIR_SIZE      	(1UL << PGDIR_SHIFT)
+#define PGDIR_MASK      	(~(PGDIR_SIZE-1))
+#define PGDIR_ALIGN(__addr) 	(((__addr) + ~PGDIR_MASK) & PGDIR_MASK)
+
+#ifndef __ASSEMBLY__
+#include <asm-generic/pgtable-nopud.h>
+>>>>>>> upstream/android-13
 
 #include <linux/spinlock.h>
 #include <linux/mm_types.h>
@@ -34,6 +49,7 @@ unsigned long __init bootmem_init(unsigned long *pages_avail);
 #define pmd_ERROR(e)   __builtin_trap()
 #define pgd_ERROR(e)   __builtin_trap()
 
+<<<<<<< HEAD
 #define PMD_SHIFT		22
 #define PMD_SIZE        	(1UL << PMD_SHIFT)
 #define PMD_MASK        	(~(PMD_SIZE-1))
@@ -46,6 +62,12 @@ unsigned long __init bootmem_init(unsigned long *pages_avail);
 #define PTRS_PER_PGD    	SRMMU_PTRS_PER_PGD
 #define USER_PTRS_PER_PGD	PAGE_OFFSET / SRMMU_PGDIR_SIZE
 #define FIRST_USER_ADDRESS	0UL
+=======
+#define PTRS_PER_PTE    	64
+#define PTRS_PER_PMD    	64
+#define PTRS_PER_PGD    	256
+#define USER_PTRS_PER_PGD	PAGE_OFFSET / PGDIR_SIZE
+>>>>>>> upstream/android-13
 #define PTE_SIZE		(PTRS_PER_PTE*4)
 
 #define PAGE_NONE	SRMMU_PAGE_NONE
@@ -132,6 +154,7 @@ static inline struct page *pmd_page(pmd_t pmd)
 	return pfn_to_page((pmd_val(pmd) & SRMMU_PTD_PMASK) >> (PAGE_SHIFT-4));
 }
 
+<<<<<<< HEAD
 static inline unsigned long pgd_page_vaddr(pgd_t pgd)
 {
 	if (srmmu_device_memory(pgd_val(pgd))) {
@@ -139,6 +162,32 @@ static inline unsigned long pgd_page_vaddr(pgd_t pgd)
 	} else {
 		unsigned long v = pgd_val(pgd) & SRMMU_PTD_PMASK;
 		return (unsigned long)__nocache_va(v << 4);
+=======
+static inline unsigned long __pmd_page(pmd_t pmd)
+{
+	unsigned long v;
+
+	if (srmmu_device_memory(pmd_val(pmd)))
+		BUG();
+
+	v = pmd_val(pmd) & SRMMU_PTD_PMASK;
+	return (unsigned long)__nocache_va(v << 4);
+}
+
+static inline unsigned long pmd_page_vaddr(pmd_t pmd)
+{
+	unsigned long v = pmd_val(pmd) & SRMMU_PTD_PMASK;
+	return (unsigned long)__nocache_va(v << 4);
+}
+
+static inline pmd_t *pud_pgtable(pud_t pud)
+{
+	if (srmmu_device_memory(pud_val(pud))) {
+		return (pmd_t *)~0;
+	} else {
+		unsigned long v = pud_val(pud) & SRMMU_PTD_PMASK;
+		return (pmd_t *)__nocache_va(v << 4);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -179,6 +228,7 @@ static inline int pmd_none(pmd_t pmd)
 
 static inline void pmd_clear(pmd_t *pmdp)
 {
+<<<<<<< HEAD
 	int i;
 	for (i = 0; i < PTRS_PER_PTE/SRMMU_REAL_PTRS_PER_PTE; i++)
 		set_pte((pte_t *)&pmdp->pmdv[i], __pte(0));
@@ -202,6 +252,29 @@ static inline int pgd_present(pgd_t pgd)
 static inline void pgd_clear(pgd_t *pgdp)
 {
 	set_pte((pte_t *)pgdp, __pte(0));
+=======
+	set_pte((pte_t *)&pmd_val(*pmdp), __pte(0));
+}
+
+static inline int pud_none(pud_t pud)
+{
+	return !(pud_val(pud) & 0xFFFFFFF);
+}
+
+static inline int pud_bad(pud_t pud)
+{
+	return (pud_val(pud) & SRMMU_ET_MASK) != SRMMU_ET_PTD;
+}
+
+static inline int pud_present(pud_t pud)
+{
+	return ((pud_val(pud) & SRMMU_ET_MASK) == SRMMU_ET_PTD);
+}
+
+static inline void pud_clear(pud_t *pudp)
+{
+	set_pte((pte_t *)pudp, __pte(0));
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -223,11 +296,14 @@ static inline int pte_young(pte_t pte)
 	return pte_val(pte) & SRMMU_REF;
 }
 
+<<<<<<< HEAD
 static inline int pte_special(pte_t pte)
 {
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline pte_t pte_wrprotect(pte_t pte)
 {
 	return __pte(pte_val(pte) & ~SRMMU_WRITE);
@@ -258,8 +334,11 @@ static inline pte_t pte_mkyoung(pte_t pte)
 	return __pte(pte_val(pte) | SRMMU_REF);
 }
 
+<<<<<<< HEAD
 #define pte_mkspecial(pte)    (pte)
 
+=======
+>>>>>>> upstream/android-13
 #define pfn_pte(pfn, prot)		mk_pte(pfn_to_page(pfn), prot)
 
 static inline unsigned long pte_pfn(pte_t pte)
@@ -310,6 +389,7 @@ static inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
 		pgprot_val(newprot));
 }
 
+<<<<<<< HEAD
 #define pgd_index(address) ((address) >> PGDIR_SHIFT)
 
 /* to find an entry in a page-table-directory */
@@ -333,6 +413,10 @@ pte_t *pte_offset_kernel(pmd_t * dir, unsigned long address);
  */
 #define pte_offset_map(d, a)		pte_offset_kernel(d,a)
 #define pte_unmap(pte)		do{}while(0)
+=======
+/* only used by the huge vmap code, should never be called */
+#define pud_page(pud)			NULL
+>>>>>>> upstream/android-13
 
 struct seq_file;
 void mmu_info(struct seq_file *m);
@@ -422,7 +506,11 @@ static inline int io_remap_pfn_range(struct vm_area_struct *vma,
 
 	return remap_pfn_range(vma, from, phys_base >> PAGE_SHIFT, size, prot);
 }
+<<<<<<< HEAD
 #define io_remap_pfn_range io_remap_pfn_range 
+=======
+#define io_remap_pfn_range io_remap_pfn_range
+>>>>>>> upstream/android-13
 
 #define __HAVE_ARCH_PTEP_SET_ACCESS_FLAGS
 #define ptep_set_access_flags(__vma, __address, __ptep, __entry, __dirty) \
@@ -435,8 +523,11 @@ static inline int io_remap_pfn_range(struct vm_area_struct *vma,
 	__changed;							  \
 })
 
+<<<<<<< HEAD
 #include <asm-generic/pgtable.h>
 
+=======
+>>>>>>> upstream/android-13
 #endif /* !(__ASSEMBLY__) */
 
 #define VMALLOC_START           _AC(0xfe600000,UL)
@@ -445,9 +536,13 @@ static inline int io_remap_pfn_range(struct vm_area_struct *vma,
 /* We provide our own get_unmapped_area to cope with VA holes for userland */
 #define HAVE_ARCH_UNMAPPED_AREA
 
+<<<<<<< HEAD
 /*
  * No page table caches to initialise
  */
 #define pgtable_cache_init()	do { } while (0)
+=======
+#define pmd_pgtable(pmd)	((pgtable_t)__pmd_page(pmd))
+>>>>>>> upstream/android-13
 
 #endif /* !(_SPARC_PGTABLE_H) */

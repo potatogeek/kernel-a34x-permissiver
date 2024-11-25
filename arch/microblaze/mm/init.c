@@ -7,10 +7,17 @@
  * for more details.
  */
 
+<<<<<<< HEAD
 #include <linux/bootmem.h>
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/memblock.h>
+=======
+#include <linux/dma-map-ops.h>
+#include <linux/memblock.h>
+#include <linux/init.h>
+#include <linux/kernel.h>
+>>>>>>> upstream/android-13
 #include <linux/mm.h> /* mem_init */
 #include <linux/initrd.h>
 #include <linux/pagemap.h>
@@ -29,11 +36,14 @@
 /* Use for MMU and noMMU because of PCI generic code */
 int mem_init_done;
 
+<<<<<<< HEAD
 #ifndef CONFIG_MMU
 unsigned int __page_offset;
 EXPORT_SYMBOL(__page_offset);
 #endif /* CONFIG_MMU */
 
+=======
+>>>>>>> upstream/android-13
 char *klimit = _end;
 
 /*
@@ -46,6 +56,7 @@ unsigned long memory_size;
 EXPORT_SYMBOL(memory_size);
 unsigned long lowmem_size;
 
+<<<<<<< HEAD
 #ifdef CONFIG_HIGHMEM
 pte_t *kmap_pte;
 EXPORT_SYMBOL(kmap_pte);
@@ -58,17 +69,29 @@ static inline pte_t *virt_to_kpte(unsigned long vaddr)
 			vaddr), vaddr);
 }
 
+=======
+EXPORT_SYMBOL(min_low_pfn);
+EXPORT_SYMBOL(max_low_pfn);
+
+#ifdef CONFIG_HIGHMEM
+>>>>>>> upstream/android-13
 static void __init highmem_init(void)
 {
 	pr_debug("%x\n", (u32)PKMAP_BASE);
 	map_page(PKMAP_BASE, 0, 0);	/* XXX gross */
 	pkmap_page_table = virt_to_kpte(PKMAP_BASE);
+<<<<<<< HEAD
 
 	kmap_pte = virt_to_kpte(__fix_to_virt(FIX_KMAP_BEGIN));
 	kmap_prot = PAGE_KERNEL;
 }
 
 static void highmem_setup(void)
+=======
+}
+
+static void __meminit highmem_setup(void)
+>>>>>>> upstream/android-13
 {
 	unsigned long pfn;
 
@@ -88,13 +111,19 @@ static void highmem_setup(void)
 static void __init paging_init(void)
 {
 	unsigned long zones_size[MAX_NR_ZONES];
+<<<<<<< HEAD
 #ifdef CONFIG_MMU
+=======
+>>>>>>> upstream/android-13
 	int idx;
 
 	/* Setup fixmaps */
 	for (idx = 0; idx < __end_of_fixed_addresses; idx++)
 		clear_fixmap(idx);
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	/* Clean every zones */
 	memset(zones_size, 0, sizeof(zones_size));
@@ -109,11 +138,16 @@ static void __init paging_init(void)
 #endif
 
 	/* We don't have holes in memory map */
+<<<<<<< HEAD
 	free_area_init_nodes(zones_size);
+=======
+	free_area_init(zones_size);
+>>>>>>> upstream/android-13
 }
 
 void __init setup_memory(void)
 {
+<<<<<<< HEAD
 	struct memblock_region *reg;
 
 #ifndef CONFIG_MMU
@@ -148,6 +182,8 @@ void __init setup_memory(void)
 			+ kernel_align_size, kernel_align_size);
 	memblock_reserve(kernel_align_start, kernel_align_size);
 #endif
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Kernel:
 	 * start: base phys address of kernel - page align
@@ -170,6 +206,7 @@ void __init setup_memory(void)
 	pr_info("%s: max_low_pfn: %#lx\n", __func__, max_low_pfn);
 	pr_info("%s: max_pfn: %#lx\n", __func__, max_pfn);
 
+<<<<<<< HEAD
 	/* Add active regions with valid PFNs */
 	for_each_memblock(memory, reg) {
 		unsigned long start_pfn, end_pfn;
@@ -199,16 +236,26 @@ void free_initmem(void)
 	free_initmem_default(-1);
 }
 
+=======
+	paging_init();
+}
+
+>>>>>>> upstream/android-13
 void __init mem_init(void)
 {
 	high_memory = (void *)__va(memory_start + lowmem_size - 1);
 
 	/* this will put all memory onto the freelists */
+<<<<<<< HEAD
 	free_all_bootmem();
+=======
+	memblock_free_all();
+>>>>>>> upstream/android-13
 #ifdef CONFIG_HIGHMEM
 	highmem_setup();
 #endif
 
+<<<<<<< HEAD
 	mem_init_print_info(NULL);
 #ifdef CONFIG_MMU
 	pr_info("Kernel virtual memory layout:\n");
@@ -231,6 +278,11 @@ int page_is_ram(unsigned long pfn)
 	return __range_ok(pfn, 0);
 }
 #else
+=======
+	mem_init_done = 1;
+}
+
+>>>>>>> upstream/android-13
 int page_is_ram(unsigned long pfn)
 {
 	return pfn < max_low_pfn;
@@ -355,6 +407,7 @@ asmlinkage void __init mmu_init(void)
 	/* This will also cause that unflatten device tree will be allocated
 	 * inside 768MB limit */
 	memblock_set_current_limit(memory_start + lowmem_size - 1);
+<<<<<<< HEAD
 }
 
 /* This is only called until mem_init is done. */
@@ -369,11 +422,20 @@ void __init *early_get_page(void)
 }
 
 #endif /* CONFIG_MMU */
+=======
+
+	parse_early_param();
+
+	/* CMA initialization */
+	dma_contiguous_reserve(memory_start + lowmem_size - 1);
+}
+>>>>>>> upstream/android-13
 
 void * __ref zalloc_maybe_bootmem(size_t size, gfp_t mask)
 {
 	void *p;
 
+<<<<<<< HEAD
 	if (mem_init_done)
 		p = kzalloc(size, mask);
 	else {
@@ -381,5 +443,16 @@ void * __ref zalloc_maybe_bootmem(size_t size, gfp_t mask)
 		if (p)
 			memset(p, 0, size);
 	}
+=======
+	if (mem_init_done) {
+		p = kzalloc(size, mask);
+	} else {
+		p = memblock_alloc(size, SMP_CACHE_BYTES);
+		if (!p)
+			panic("%s: Failed to allocate %zu bytes\n",
+			      __func__, size);
+	}
+
+>>>>>>> upstream/android-13
 	return p;
 }

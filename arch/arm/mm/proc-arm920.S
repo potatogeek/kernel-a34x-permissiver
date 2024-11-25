@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/mm/proc-arm920.S: MMU functions for ARM920
  *
@@ -5,6 +9,7 @@
  *  Copyright (C) 2000 Deep Blue Solutions Ltd.
  *  hacked for non-paged-MM by Hyok S. Choi, 2003.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -20,6 +25,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *
+=======
+>>>>>>> upstream/android-13
  * These are the low level assembler for performing cache and TLB
  * functions on the arm920.
  *
@@ -27,10 +34,17 @@
  */
 #include <linux/linkage.h>
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <asm/assembler.h>
 #include <asm/hwcap.h>
 #include <asm/pgtable-hwdef.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+#include <asm/assembler.h>
+#include <asm/hwcap.h>
+#include <asm/pgtable-hwdef.h>
+>>>>>>> upstream/android-13
 #include <asm/page.h>
 #include <asm/ptrace.h>
 #include "proc-macros.S"
@@ -448,7 +462,11 @@ arm920_crval:
 
 	.align
 
+<<<<<<< HEAD
 	.section ".proc.info.init", #alloc
+=======
+	.section ".proc.info.init", "a"
+>>>>>>> upstream/android-13
 
 	.type	__arm920_proc_info,#object
 __arm920_proc_info:

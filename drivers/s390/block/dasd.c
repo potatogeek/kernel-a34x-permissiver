@@ -63,20 +63,29 @@ void dasd_int_handler(struct ccw_device *, unsigned long, struct irb *);
 MODULE_AUTHOR("Holger Smolinski <Holger.Smolinski@de.ibm.com>");
 MODULE_DESCRIPTION("Linux on S/390 DASD device driver,"
 		   " Copyright IBM Corp. 2000");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("dasd");
+=======
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");
 
 /*
  * SECTION: prototypes for static functions of dasd.c
  */
 static int  dasd_alloc_queue(struct dasd_block *);
+<<<<<<< HEAD
 static void dasd_setup_queue(struct dasd_block *);
+=======
+>>>>>>> upstream/android-13
 static void dasd_free_queue(struct dasd_block *);
 static int dasd_flush_block_queue(struct dasd_block *);
 static void dasd_device_tasklet(unsigned long);
 static void dasd_block_tasklet(unsigned long);
 static void do_kick_device(struct work_struct *);
+<<<<<<< HEAD
 static void do_restore_device(struct work_struct *);
+=======
+>>>>>>> upstream/android-13
 static void do_reload_device(struct work_struct *);
 static void do_requeue_requests(struct work_struct *);
 static void dasd_return_cqr_cb(struct dasd_ccw_req *, void *);
@@ -120,9 +129,24 @@ struct dasd_device *dasd_alloc_device(void)
 		kfree(device);
 		return ERR_PTR(-ENOMEM);
 	}
+<<<<<<< HEAD
 
 	dasd_init_chunklist(&device->ccw_chunks, device->ccw_mem, PAGE_SIZE*2);
 	dasd_init_chunklist(&device->erp_chunks, device->erp_mem, PAGE_SIZE);
+=======
+	/* Get two pages for ese format. */
+	device->ese_mem = (void *)__get_free_pages(GFP_ATOMIC | GFP_DMA, 1);
+	if (!device->ese_mem) {
+		free_page((unsigned long) device->erp_mem);
+		free_pages((unsigned long) device->ccw_mem, 1);
+		kfree(device);
+		return ERR_PTR(-ENOMEM);
+	}
+
+	dasd_init_chunklist(&device->ccw_chunks, device->ccw_mem, PAGE_SIZE*2);
+	dasd_init_chunklist(&device->erp_chunks, device->erp_mem, PAGE_SIZE);
+	dasd_init_chunklist(&device->ese_chunks, device->ese_mem, PAGE_SIZE * 2);
+>>>>>>> upstream/android-13
 	spin_lock_init(&device->mem_lock);
 	atomic_set(&device->tasklet_scheduled, 0);
 	tasklet_init(&device->tasklet, dasd_device_tasklet,
@@ -130,7 +154,10 @@ struct dasd_device *dasd_alloc_device(void)
 	INIT_LIST_HEAD(&device->ccw_queue);
 	timer_setup(&device->timer, dasd_device_timeout, 0);
 	INIT_WORK(&device->kick_work, do_kick_device);
+<<<<<<< HEAD
 	INIT_WORK(&device->restore_device, do_restore_device);
+=======
+>>>>>>> upstream/android-13
 	INIT_WORK(&device->reload_device, do_reload_device);
 	INIT_WORK(&device->requeue_requests, do_requeue_requests);
 	device->state = DASD_STATE_NEW;
@@ -146,6 +173,10 @@ struct dasd_device *dasd_alloc_device(void)
 void dasd_free_device(struct dasd_device *device)
 {
 	kfree(device->private);
+<<<<<<< HEAD
+=======
+	free_pages((unsigned long) device->ese_mem, 1);
+>>>>>>> upstream/android-13
 	free_page((unsigned long) device->erp_mem);
 	free_pages((unsigned long) device->ccw_mem, 1);
 	kfree(device);
@@ -169,6 +200,11 @@ struct dasd_block *dasd_alloc_block(void)
 		     (unsigned long) block);
 	INIT_LIST_HEAD(&block->ccw_queue);
 	spin_lock_init(&block->queue_lock);
+<<<<<<< HEAD
+=======
+	INIT_LIST_HEAD(&block->format_list);
+	spin_lock_init(&block->format_lock);
+>>>>>>> upstream/android-13
 	timer_setup(&block->timer, dasd_block_timeout, 0);
 	spin_lock_init(&block->profile.lock);
 
@@ -348,7 +384,12 @@ static int dasd_state_basic_to_ready(struct dasd_device *device)
 			}
 			return rc;
 		}
+<<<<<<< HEAD
 		dasd_setup_queue(block);
+=======
+		if (device->discipline->setup_blk_queue)
+			device->discipline->setup_blk_queue(block);
+>>>>>>> upstream/android-13
 		set_capacity(block->gdp,
 			     block->blocks << block->s2b_shift);
 		device->state = DASD_STATE_READY;
@@ -418,14 +459,18 @@ static int dasd_state_unfmt_to_basic(struct dasd_device *device)
 static int
 dasd_state_ready_to_online(struct dasd_device * device)
 {
+<<<<<<< HEAD
 	struct gendisk *disk;
 	struct disk_part_iter piter;
 	struct hd_struct *part;
 
+=======
+>>>>>>> upstream/android-13
 	device->state = DASD_STATE_ONLINE;
 	if (device->block) {
 		dasd_schedule_block_bh(device->block);
 		if ((device->features & DASD_FEATURE_USERAW)) {
+<<<<<<< HEAD
 			disk = device->block->gdp;
 			kobject_uevent(&disk_to_dev(disk)->kobj, KOBJ_CHANGE);
 			return 0;
@@ -435,6 +480,13 @@ dasd_state_ready_to_online(struct dasd_device * device)
 		while ((part = disk_part_iter_next(&piter)))
 			kobject_uevent(&part_to_dev(part)->kobj, KOBJ_CHANGE);
 		disk_part_iter_exit(&piter);
+=======
+			kobject_uevent(&disk_to_dev(device->block->gdp)->kobj,
+					KOBJ_CHANGE);
+			return 0;
+		}
+		disk_uevent(device->block->bdev->bd_disk, KOBJ_CHANGE);
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
@@ -445,9 +497,12 @@ dasd_state_ready_to_online(struct dasd_device * device)
 static int dasd_state_online_to_ready(struct dasd_device *device)
 {
 	int rc;
+<<<<<<< HEAD
 	struct gendisk *disk;
 	struct disk_part_iter piter;
 	struct hd_struct *part;
+=======
+>>>>>>> upstream/android-13
 
 	if (device->discipline->online_to_ready) {
 		rc = device->discipline->online_to_ready(device);
@@ -456,6 +511,7 @@ static int dasd_state_online_to_ready(struct dasd_device *device)
 	}
 
 	device->state = DASD_STATE_READY;
+<<<<<<< HEAD
 	if (device->block && !(device->features & DASD_FEATURE_USERAW)) {
 		disk = device->block->bdev->bd_disk;
 		disk_part_iter_init(&piter, disk, DISK_PITER_INCL_PART0);
@@ -463,6 +519,10 @@ static int dasd_state_online_to_ready(struct dasd_device *device)
 			kobject_uevent(&part_to_dev(part)->kobj, KOBJ_CHANGE);
 		disk_part_iter_exit(&piter);
 	}
+=======
+	if (device->block && !(device->features & DASD_FEATURE_USERAW))
+		disk_uevent(device->block->bdev->bd_disk, KOBJ_CHANGE);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -609,6 +669,7 @@ void dasd_reload_device(struct dasd_device *device)
 EXPORT_SYMBOL(dasd_reload_device);
 
 /*
+<<<<<<< HEAD
  * dasd_restore_device will schedule a call do do_restore_device to the kernel
  * event daemon.
  */
@@ -629,6 +690,8 @@ void dasd_restore_device(struct dasd_device *device)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Set the target state for a device and starts the state change.
  */
 void dasd_set_target_state(struct dasd_device *device, int target)
@@ -648,7 +711,10 @@ void dasd_set_target_state(struct dasd_device *device, int target)
 	mutex_unlock(&device->state_mutex);
 	dasd_put_device(device);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(dasd_set_target_state);
+=======
+>>>>>>> upstream/android-13
 
 /*
  * Enable devices with device numbers in [from..to].
@@ -1192,6 +1258,7 @@ static int dasd_hosts_show(struct seq_file *m, void *v)
 	return rc;
 }
 
+<<<<<<< HEAD
 static int dasd_hosts_open(struct inode *inode, struct file *file)
 {
 	struct dasd_device *device = inode->i_private;
@@ -1206,6 +1273,9 @@ static const struct file_operations dasd_hosts_fops = {
 	.llseek		= seq_lseek,
 	.release	= single_release,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(dasd_hosts);
+>>>>>>> upstream/android-13
 
 static void dasd_hosts_exit(struct dasd_device *device)
 {
@@ -1271,6 +1341,52 @@ struct dasd_ccw_req *dasd_smalloc_request(int magic, int cplength, int datasize,
 }
 EXPORT_SYMBOL(dasd_smalloc_request);
 
+<<<<<<< HEAD
+=======
+struct dasd_ccw_req *dasd_fmalloc_request(int magic, int cplength,
+					  int datasize,
+					  struct dasd_device *device)
+{
+	struct dasd_ccw_req *cqr;
+	unsigned long flags;
+	int size, cqr_size;
+	char *data;
+
+	cqr_size = (sizeof(*cqr) + 7L) & -8L;
+	size = cqr_size;
+	if (cplength > 0)
+		size += cplength * sizeof(struct ccw1);
+	if (datasize > 0)
+		size += datasize;
+
+	spin_lock_irqsave(&device->mem_lock, flags);
+	cqr = dasd_alloc_chunk(&device->ese_chunks, size);
+	spin_unlock_irqrestore(&device->mem_lock, flags);
+	if (!cqr)
+		return ERR_PTR(-ENOMEM);
+	memset(cqr, 0, sizeof(*cqr));
+	data = (char *)cqr + cqr_size;
+	cqr->cpaddr = NULL;
+	if (cplength > 0) {
+		cqr->cpaddr = data;
+		data += cplength * sizeof(struct ccw1);
+		memset(cqr->cpaddr, 0, cplength * sizeof(struct ccw1));
+	}
+	cqr->data = NULL;
+	if (datasize > 0) {
+		cqr->data = data;
+		memset(cqr->data, 0, datasize);
+	}
+
+	cqr->magic = magic;
+	set_bit(DASD_CQR_FLAGS_USE_ERP, &cqr->flags);
+	dasd_get_device(device);
+
+	return cqr;
+}
+EXPORT_SYMBOL(dasd_fmalloc_request);
+
+>>>>>>> upstream/android-13
 void dasd_sfree_request(struct dasd_ccw_req *cqr, struct dasd_device *device)
 {
 	unsigned long flags;
@@ -1282,6 +1398,20 @@ void dasd_sfree_request(struct dasd_ccw_req *cqr, struct dasd_device *device)
 }
 EXPORT_SYMBOL(dasd_sfree_request);
 
+<<<<<<< HEAD
+=======
+void dasd_ffree_request(struct dasd_ccw_req *cqr, struct dasd_device *device)
+{
+	unsigned long flags;
+
+	spin_lock_irqsave(&device->mem_lock, flags);
+	dasd_free_chunk(&device->ese_chunks, cqr);
+	spin_unlock_irqrestore(&device->mem_lock, flags);
+	dasd_put_device(device);
+}
+EXPORT_SYMBOL(dasd_ffree_request);
+
+>>>>>>> upstream/android-13
 /*
  * Check discipline magic in cqr.
  */
@@ -1409,6 +1539,16 @@ int dasd_start_IO(struct dasd_ccw_req *cqr)
 		if (!cqr->lpm)
 			cqr->lpm = dasd_path_get_opm(device);
 	}
+<<<<<<< HEAD
+=======
+	/*
+	 * remember the amount of formatted tracks to prevent double format on
+	 * ESE devices
+	 */
+	if (cqr->block)
+		cqr->trkcount = atomic_read(&cqr->block->trkcount);
+
+>>>>>>> upstream/android-13
 	if (cqr->cpmode == 1) {
 		rc = ccw_device_tm_start(device->cdev, cqr->cpaddr,
 					 (long) cqr, cqr->lpm);
@@ -1461,7 +1601,10 @@ int dasd_start_IO(struct dasd_ccw_req *cqr)
 			      "start_IO: -EIO device gone, retry");
 		break;
 	case -EINVAL:
+<<<<<<< HEAD
 		/* most likely caused in power management context */
+=======
+>>>>>>> upstream/android-13
 		DBF_DEV_EVENT(DBF_WARNING, device, "%s",
 			      "start_IO: -EINVAL device currently "
 			      "not accessible");
@@ -1586,17 +1729,58 @@ static int dasd_check_hpf_error(struct irb *irb)
 	     irb->scsw.tm.sesq == SCSW_SESQ_PATH_NOFCX));
 }
 
+<<<<<<< HEAD
+=======
+static int dasd_ese_needs_format(struct dasd_block *block, struct irb *irb)
+{
+	struct dasd_device *device = NULL;
+	u8 *sense = NULL;
+
+	if (!block)
+		return 0;
+	device = block->base;
+	if (!device || !device->discipline->is_ese)
+		return 0;
+	if (!device->discipline->is_ese(device))
+		return 0;
+
+	sense = dasd_get_sense(irb);
+	if (!sense)
+		return 0;
+
+	return !!(sense[1] & SNS1_NO_REC_FOUND) ||
+		!!(sense[1] & SNS1_FILE_PROTECTED) ||
+		scsw_cstat(&irb->scsw) == SCHN_STAT_INCORR_LEN;
+}
+
+static int dasd_ese_oos_cond(u8 *sense)
+{
+	return sense[0] & SNS0_EQUIPMENT_CHECK &&
+		sense[1] & SNS1_PERM_ERR &&
+		sense[1] & SNS1_WRITE_INHIBITED &&
+		sense[25] == 0x01;
+}
+
+>>>>>>> upstream/android-13
 /*
  * Interrupt handler for "normal" ssch-io based dasd devices.
  */
 void dasd_int_handler(struct ccw_device *cdev, unsigned long intparm,
 		      struct irb *irb)
 {
+<<<<<<< HEAD
 	struct dasd_ccw_req *cqr, *next;
+=======
+	struct dasd_ccw_req *cqr, *next, *fcqr;
+>>>>>>> upstream/android-13
 	struct dasd_device *device;
 	unsigned long now;
 	int nrf_suppressed = 0;
 	int fp_suppressed = 0;
+<<<<<<< HEAD
+=======
+	struct request *req;
+>>>>>>> upstream/android-13
 	u8 *sense = NULL;
 	int expires;
 
@@ -1654,6 +1838,20 @@ void dasd_int_handler(struct ccw_device *cdev, unsigned long intparm,
 				test_bit(DASD_CQR_SUPPRESS_FP, &cqr->flags);
 			nrf_suppressed = (sense[1] & SNS1_NO_REC_FOUND) &&
 				test_bit(DASD_CQR_SUPPRESS_NRF, &cqr->flags);
+<<<<<<< HEAD
+=======
+
+			/*
+			 * Extent pool probably out-of-space.
+			 * Stop device and check exhaust level.
+			 */
+			if (dasd_ese_oos_cond(sense)) {
+				dasd_generic_space_exhaust(device, cqr);
+				device->discipline->ext_pool_exhaust(device, cqr);
+				dasd_put_device(device);
+				return;
+			}
+>>>>>>> upstream/android-13
 		}
 		if (!(fp_suppressed || nrf_suppressed))
 			device->discipline->dump_sense_dbf(device, irb, "int");
@@ -1685,6 +1883,45 @@ void dasd_int_handler(struct ccw_device *cdev, unsigned long intparm,
 		return;
 	}
 
+<<<<<<< HEAD
+=======
+	if (dasd_ese_needs_format(cqr->block, irb)) {
+		req = dasd_get_callback_data(cqr);
+		if (!req) {
+			cqr->status = DASD_CQR_ERROR;
+			return;
+		}
+		if (rq_data_dir(req) == READ) {
+			device->discipline->ese_read(cqr, irb);
+			cqr->status = DASD_CQR_SUCCESS;
+			cqr->stopclk = now;
+			dasd_device_clear_timer(device);
+			dasd_schedule_device_bh(device);
+			return;
+		}
+		fcqr = device->discipline->ese_format(device, cqr, irb);
+		if (IS_ERR(fcqr)) {
+			if (PTR_ERR(fcqr) == -EINVAL) {
+				cqr->status = DASD_CQR_ERROR;
+				return;
+			}
+			/*
+			 * If we can't format now, let the request go
+			 * one extra round. Maybe we can format later.
+			 */
+			cqr->status = DASD_CQR_QUEUED;
+			dasd_schedule_device_bh(device);
+			return;
+		} else {
+			fcqr->status = DASD_CQR_QUEUED;
+			cqr->status = DASD_CQR_QUEUED;
+			list_add(&fcqr->devlist, &device->ccw_queue);
+			dasd_schedule_device_bh(device);
+			return;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	/* Check for clear pending */
 	if (cqr->status == DASD_CQR_CLEAR_PENDING &&
 	    scsw_fctl(&irb->scsw) & SCSW_FCTL_CLEAR_FUNC) {
@@ -1923,7 +2160,11 @@ static void __dasd_device_check_expire(struct dasd_device *device)
 static int __dasd_device_is_unusable(struct dasd_device *device,
 				     struct dasd_ccw_req *cqr)
 {
+<<<<<<< HEAD
 	int mask = ~(DASD_STOPPED_DC_WAIT | DASD_UNRESUMED_PM);
+=======
+	int mask = ~(DASD_STOPPED_DC_WAIT | DASD_STOPPED_NOSPC);
+>>>>>>> upstream/android-13
 
 	if (test_bit(DASD_FLAG_OFFLINE, &device->flags) &&
 	    !test_bit(DASD_FLAG_SAFE_OFFLINE_RUNNING, &device->flags)) {
@@ -1982,6 +2223,7 @@ static void __dasd_device_start_head(struct dasd_device *device)
 
 static void __dasd_device_check_path_events(struct dasd_device *device)
 {
+<<<<<<< HEAD
 	int rc;
 
 	if (!dasd_path_get_tbvpm(device))
@@ -1996,6 +2238,26 @@ static void __dasd_device_check_path_events(struct dasd_device *device)
 		dasd_device_set_timer(device, 50);
 	else
 		dasd_path_clear_all_verify(device);
+=======
+	__u8 tbvpm, fcsecpm;
+	int rc;
+
+	tbvpm = dasd_path_get_tbvpm(device);
+	fcsecpm = dasd_path_get_fcsecpm(device);
+
+	if (!tbvpm && !fcsecpm)
+		return;
+
+	if (device->stopped & ~(DASD_STOPPED_DC_WAIT))
+		return;
+	rc = device->discipline->pe_handler(device, tbvpm, fcsecpm);
+	if (rc) {
+		dasd_device_set_timer(device, 50);
+	} else {
+		dasd_path_clear_all_verify(device);
+		dasd_path_clear_all_fcsec(device);
+	}
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -2425,6 +2687,18 @@ int dasd_sleep_on_queue(struct list_head *ccw_queue)
 EXPORT_SYMBOL(dasd_sleep_on_queue);
 
 /*
+<<<<<<< HEAD
+=======
+ * Start requests from a ccw_queue and wait interruptible for their completion.
+ */
+int dasd_sleep_on_queue_interruptible(struct list_head *ccw_queue)
+{
+	return _dasd_sleep_on_queue(ccw_queue, 1);
+}
+EXPORT_SYMBOL(dasd_sleep_on_queue_interruptible);
+
+/*
+>>>>>>> upstream/android-13
  * Queue a request to the tail of the device ccw_queue and wait
  * interruptible for it's completion.
  */
@@ -2622,11 +2896,19 @@ static void __dasd_cleanup_cqr(struct dasd_ccw_req *cqr)
 {
 	struct request *req;
 	blk_status_t error = BLK_STS_OK;
+<<<<<<< HEAD
+=======
+	unsigned int proc_bytes;
+>>>>>>> upstream/android-13
 	int status;
 
 	req = (struct request *) cqr->callback_data;
 	dasd_profile_end(cqr->block, cqr, req);
 
+<<<<<<< HEAD
+=======
+	proc_bytes = cqr->proc_bytes;
+>>>>>>> upstream/android-13
 	status = cqr->block->base->discipline->free_cp(cqr, req);
 	if (status < 0)
 		error = errno_to_blk_status(status);
@@ -2657,7 +2939,21 @@ static void __dasd_cleanup_cqr(struct dasd_ccw_req *cqr)
 		blk_mq_end_request(req, error);
 		blk_mq_run_hw_queues(req->q, true);
 	} else {
+<<<<<<< HEAD
 		blk_mq_complete_request(req);
+=======
+		/*
+		 * Partial completed requests can happen with ESE devices.
+		 * During read we might have gotten a NRF error and have to
+		 * complete a request partially.
+		 */
+		if (proc_bytes) {
+			blk_update_request(req, BLK_STS_OK, proc_bytes);
+			blk_mq_requeue_request(req, true);
+		} else if (likely(!blk_should_fake_timeout(req->q))) {
+			blk_mq_complete_request(req);
+		}
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -3150,6 +3446,7 @@ static int dasd_alloc_queue(struct dasd_block *block)
 }
 
 /*
+<<<<<<< HEAD
  * Allocate and initialize request queue.
  */
 static void dasd_setup_queue(struct dasd_block *block)
@@ -3199,6 +3496,8 @@ static void dasd_setup_queue(struct dasd_block *block)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Deactivate and free request queue.
  */
 static void dasd_free_queue(struct dasd_block *block)
@@ -3303,6 +3602,10 @@ dasd_device_operations = {
 	.ioctl		= dasd_ioctl,
 	.compat_ioctl	= dasd_ioctl,
 	.getgeo		= dasd_getgeo,
+<<<<<<< HEAD
+=======
+	.set_read_only	= dasd_set_read_only,
+>>>>>>> upstream/android-13
 };
 
 /*******************************************************************************
@@ -3316,10 +3619,15 @@ dasd_exit(void)
 	dasd_proc_exit();
 #endif
 	dasd_eer_exit();
+<<<<<<< HEAD
         if (dasd_page_cache != NULL) {
 		kmem_cache_destroy(dasd_page_cache);
 		dasd_page_cache = NULL;
 	}
+=======
+	kmem_cache_destroy(dasd_page_cache);
+	dasd_page_cache = NULL;
+>>>>>>> upstream/android-13
 	dasd_gendisk_exit();
 	dasd_devmap_exit();
 	if (dasd_debug_area != NULL) {
@@ -3376,6 +3684,7 @@ static void dasd_generic_auto_online(void *data, async_cookie_t cookie)
  * Initial attempt at a probe function. this can be simplified once
  * the other detection code is gone.
  */
+<<<<<<< HEAD
 int dasd_generic_probe(struct ccw_device *cdev,
 		       struct dasd_discipline *discipline)
 {
@@ -3388,6 +3697,10 @@ int dasd_generic_probe(struct ccw_device *cdev,
 				"sysfs entries");
 		return ret;
 	}
+=======
+int dasd_generic_probe(struct ccw_device *cdev)
+{
+>>>>>>> upstream/android-13
 	cdev->handler = &dasd_int_handler;
 
 	/*
@@ -3428,15 +3741,24 @@ void dasd_generic_remove(struct ccw_device *cdev)
 	struct dasd_block *block;
 
 	device = dasd_device_from_cdev(cdev);
+<<<<<<< HEAD
 	if (IS_ERR(device)) {
 		dasd_remove_sysfs_files(cdev);
 		return;
 	}
+=======
+	if (IS_ERR(device))
+		return;
+
+>>>>>>> upstream/android-13
 	if (test_and_set_bit(DASD_FLAG_OFFLINE, &device->flags) &&
 	    !test_bit(DASD_FLAG_SAFE_OFFLINE_RUNNING, &device->flags)) {
 		/* Already doing offline processing */
 		dasd_put_device(device);
+<<<<<<< HEAD
 		dasd_remove_sysfs_files(cdev);
+=======
+>>>>>>> upstream/android-13
 		return;
 	}
 	/*
@@ -3455,8 +3777,11 @@ void dasd_generic_remove(struct ccw_device *cdev)
 	 */
 	if (block)
 		dasd_free_block(block);
+<<<<<<< HEAD
 
 	dasd_remove_sysfs_files(cdev);
+=======
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(dasd_generic_remove);
 
@@ -3698,11 +4023,14 @@ int dasd_generic_path_operational(struct dasd_device *device)
 		 "operational\n");
 	DBF_DEV_EVENT(DBF_WARNING, device, "%s", "path operational");
 	dasd_device_remove_stop_bits(device, DASD_STOPPED_DC_WAIT);
+<<<<<<< HEAD
 	if (device->stopped & DASD_UNRESUMED_PM) {
 		dasd_device_remove_stop_bits(device, DASD_UNRESUMED_PM);
 		dasd_restore_device(device);
 		return 1;
 	}
+=======
+>>>>>>> upstream/android-13
 	dasd_schedule_device_bh(device);
 	if (device->block) {
 		dasd_schedule_block_bh(device->block);
@@ -3779,6 +4107,13 @@ void dasd_generic_path_event(struct ccw_device *cdev, int *path_event)
 			if (device->discipline->kick_validate)
 				device->discipline->kick_validate(device);
 		}
+<<<<<<< HEAD
+=======
+		if (path_event[chp] & PE_PATH_FCES_EVENT) {
+			dasd_path_fcsec_update(device, chp);
+			dasd_schedule_device_bh(device);
+		}
+>>>>>>> upstream/android-13
 	}
 	hpfpm = dasd_path_get_hpfpm(device);
 	ifccpm = dasd_path_get_ifccpm(device);
@@ -3827,6 +4162,46 @@ int dasd_generic_verify_path(struct dasd_device *device, __u8 lpm)
 }
 EXPORT_SYMBOL_GPL(dasd_generic_verify_path);
 
+<<<<<<< HEAD
+=======
+void dasd_generic_space_exhaust(struct dasd_device *device,
+				struct dasd_ccw_req *cqr)
+{
+	dasd_eer_write(device, NULL, DASD_EER_NOSPC);
+
+	if (device->state < DASD_STATE_BASIC)
+		return;
+
+	if (cqr->status == DASD_CQR_IN_IO ||
+	    cqr->status == DASD_CQR_CLEAR_PENDING) {
+		cqr->status = DASD_CQR_QUEUED;
+		cqr->retries++;
+	}
+	dasd_device_set_stop_bits(device, DASD_STOPPED_NOSPC);
+	dasd_device_clear_timer(device);
+	dasd_schedule_device_bh(device);
+}
+EXPORT_SYMBOL_GPL(dasd_generic_space_exhaust);
+
+void dasd_generic_space_avail(struct dasd_device *device)
+{
+	dev_info(&device->cdev->dev, "Extent pool space is available\n");
+	DBF_DEV_EVENT(DBF_WARNING, device, "%s", "space available");
+
+	dasd_device_remove_stop_bits(device, DASD_STOPPED_NOSPC);
+	dasd_schedule_device_bh(device);
+
+	if (device->block) {
+		dasd_schedule_block_bh(device->block);
+		if (device->block->request_queue)
+			blk_mq_run_hw_queues(device->block->request_queue, true);
+	}
+	if (!device->stopped)
+		wake_up(&generic_waitq);
+}
+EXPORT_SYMBOL_GPL(dasd_generic_space_avail);
+
+>>>>>>> upstream/android-13
 /*
  * clear active requests and requeue them to block layer if possible
  */
@@ -3925,6 +4300,7 @@ void dasd_schedule_requeue(struct dasd_device *device)
 }
 EXPORT_SYMBOL(dasd_schedule_requeue);
 
+<<<<<<< HEAD
 int dasd_generic_pm_freeze(struct ccw_device *cdev)
 {
 	struct dasd_device *device = dasd_device_from_cdev(cdev);
@@ -3987,12 +4363,18 @@ EXPORT_SYMBOL_GPL(dasd_generic_restore_device);
 
 static struct dasd_ccw_req *dasd_generic_build_rdc(struct dasd_device *device,
 						   void *rdc_buffer,
+=======
+static struct dasd_ccw_req *dasd_generic_build_rdc(struct dasd_device *device,
+>>>>>>> upstream/android-13
 						   int rdc_buffer_size,
 						   int magic)
 {
 	struct dasd_ccw_req *cqr;
 	struct ccw1 *ccw;
+<<<<<<< HEAD
 	unsigned long *idaw;
+=======
+>>>>>>> upstream/android-13
 
 	cqr = dasd_smalloc_request(magic, 1 /* RDC */, rdc_buffer_size, device,
 				   NULL);
@@ -4007,6 +4389,7 @@ static struct dasd_ccw_req *dasd_generic_build_rdc(struct dasd_device *device,
 
 	ccw = cqr->cpaddr;
 	ccw->cmd_code = CCW_CMD_RDC;
+<<<<<<< HEAD
 	if (idal_is_needed(rdc_buffer, rdc_buffer_size)) {
 		idaw = (unsigned long *) (cqr->data);
 		ccw->cda = (__u32)(addr_t) idaw;
@@ -4017,6 +4400,10 @@ static struct dasd_ccw_req *dasd_generic_build_rdc(struct dasd_device *device,
 		ccw->flags = 0;
 	}
 
+=======
+	ccw->cda = (__u32)(addr_t) cqr->data;
+	ccw->flags = 0;
+>>>>>>> upstream/android-13
 	ccw->count = rdc_buffer_size;
 	cqr->startdev = device;
 	cqr->memdev = device;
@@ -4034,12 +4421,21 @@ int dasd_generic_read_dev_chars(struct dasd_device *device, int magic,
 	int ret;
 	struct dasd_ccw_req *cqr;
 
+<<<<<<< HEAD
 	cqr = dasd_generic_build_rdc(device, rdc_buffer, rdc_buffer_size,
 				     magic);
+=======
+	cqr = dasd_generic_build_rdc(device, rdc_buffer_size, magic);
+>>>>>>> upstream/android-13
 	if (IS_ERR(cqr))
 		return PTR_ERR(cqr);
 
 	ret = dasd_sleep_on(cqr);
+<<<<<<< HEAD
+=======
+	if (ret == 0)
+		memcpy(rdc_buffer, cqr->data, rdc_buffer_size);
+>>>>>>> upstream/android-13
 	dasd_sfree_request(cqr, cqr->memdev);
 	return ret;
 }

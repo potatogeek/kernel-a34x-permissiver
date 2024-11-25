@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /* atl2.h -- atl2 driver definitions
  *
  * Copyright(c) 2007 Atheros Corporation. All rights reserved.
@@ -6,6 +10,7 @@
  *
  * Derived from Intel e1000 driver
  * Copyright(c) 1999 - 2005 Intel Corporation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -20,6 +25,8 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 59
  * Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ATL2_H_
@@ -260,7 +267,11 @@ struct tx_pkt_status {
 	unsigned multi_col:1;
 	unsigned late_col:1;
 	unsigned abort_col:1;
+<<<<<<< HEAD
 	unsigned underun:1;	/* current packet is aborted
+=======
+	unsigned underrun:1;	/* current packet is aborted
+>>>>>>> upstream/android-13
 				 * due to txram underrun */
 	unsigned:3;		/* reserved */
 	unsigned update:1;	/* always 1'b1 in tx_status_buf */

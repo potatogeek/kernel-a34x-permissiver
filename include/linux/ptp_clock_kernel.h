@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * PTP 1588 clock support
  *
  * Copyright (C) 2010 OMICRON electronics GmbH
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _PTP_CLOCK_KERNEL_H_
@@ -24,7 +31,27 @@
 #include <linux/device.h>
 #include <linux/pps_kernel.h>
 #include <linux/ptp_clock.h>
+<<<<<<< HEAD
 
+=======
+#include <linux/timecounter.h>
+#include <linux/skbuff.h>
+
+#define PTP_CLOCK_NAME_LEN	32
+/**
+ * struct ptp_clock_request - request PTP clock event
+ *
+ * @type:   The type of the request.
+ *	    EXTTS:  Configure external trigger timestamping
+ *	    PEROUT: Configure periodic output signal (e.g. PPS)
+ *	    PPS:    trigger internal PPS event for input
+ *	            into kernel PPS subsystem
+ * @extts:  describes configuration for external trigger timestamping.
+ *          This is only valid when event == PTP_CLK_REQ_EXTTS.
+ * @perout: describes configuration for periodic output.
+ *	    This is only valid when event == PTP_CLK_REQ_PEROUT.
+ */
+>>>>>>> upstream/android-13
 
 struct ptp_clock_request {
 	enum {
@@ -39,8 +66,22 @@ struct ptp_clock_request {
 };
 
 struct system_device_crosststamp;
+<<<<<<< HEAD
 /**
  * struct ptp_clock_info - decribes a PTP hardware clock
+=======
+
+/**
+ * struct ptp_system_timestamp - system time corresponding to a PHC timestamp
+ */
+struct ptp_system_timestamp {
+	struct timespec64 pre_ts;
+	struct timespec64 post_ts;
+};
+
+/**
+ * struct ptp_clock_info - describes a PTP hardware clock
+>>>>>>> upstream/android-13
  *
  * @owner:     The clock driver should set to THIS_MODULE.
  * @name:      A short "friendly name" to identify the clock and to
@@ -69,12 +110,33 @@ struct system_device_crosststamp;
  *            parameter delta: Desired frequency offset from nominal frequency
  *            in parts per billion
  *
+<<<<<<< HEAD
+=======
+ * @adjphase:  Adjusts the phase offset of the hardware clock.
+ *             parameter delta: Desired change in nanoseconds.
+ *
+>>>>>>> upstream/android-13
  * @adjtime:  Shifts the time of the hardware clock.
  *            parameter delta: Desired change in nanoseconds.
  *
  * @gettime64:  Reads the current time from the hardware clock.
+<<<<<<< HEAD
  *              parameter ts: Holds the result.
  *
+=======
+ *              This method is deprecated.  New drivers should implement
+ *              the @gettimex64 method instead.
+ *              parameter ts: Holds the result.
+ *
+ * @gettimex64:  Reads the current time from the hardware clock and optionally
+ *               also the system clock.
+ *               parameter ts: Holds the PHC timestamp.
+ *               parameter sts: If not NULL, it holds a pair of timestamps from
+ *               the system clock. The first reading is made right before
+ *               reading the lowest bits of the PHC timestamp and the second
+ *               reading immediately follows that.
+ *
+>>>>>>> upstream/android-13
  * @getcrosststamp:  Reads the current time from the hardware clock and
  *                   system clock simultaneously.
  *                   parameter cts: Contains timestamp (device,system) pair,
@@ -99,10 +161,17 @@ struct system_device_crosststamp;
  *            parameter func: the desired function to use.
  *            parameter chan: the function channel index to use.
  *
+<<<<<<< HEAD
  * @do_work:  Request driver to perform auxiliary (periodic) operations
  *	      Driver should return delay of the next auxiliary work scheduling
  *	      time (>=0) or negative value in case further scheduling
  *	      is not required.
+=======
+ * @do_aux_work:  Request driver to perform auxiliary (periodic) operations
+ *                Driver should return delay of the next auxiliary work
+ *                scheduling time (>=0) or negative value in case further
+ *                scheduling is not required.
+>>>>>>> upstream/android-13
  *
  * Drivers should embed their ptp_clock_info within a private
  * structure, obtaining a reference to it using container_of().
@@ -112,7 +181,11 @@ struct system_device_crosststamp;
 
 struct ptp_clock_info {
 	struct module *owner;
+<<<<<<< HEAD
 	char name[16];
+=======
+	char name[PTP_CLOCK_NAME_LEN];
+>>>>>>> upstream/android-13
 	s32 max_adj;
 	int n_alarm;
 	int n_ext_ts;
@@ -122,8 +195,16 @@ struct ptp_clock_info {
 	struct ptp_pin_desc *pin_config;
 	int (*adjfine)(struct ptp_clock_info *ptp, long scaled_ppm);
 	int (*adjfreq)(struct ptp_clock_info *ptp, s32 delta);
+<<<<<<< HEAD
 	int (*adjtime)(struct ptp_clock_info *ptp, s64 delta);
 	int (*gettime64)(struct ptp_clock_info *ptp, struct timespec64 *ts);
+=======
+	int (*adjphase)(struct ptp_clock_info *ptp, s32 phase);
+	int (*adjtime)(struct ptp_clock_info *ptp, s64 delta);
+	int (*gettime64)(struct ptp_clock_info *ptp, struct timespec64 *ts);
+	int (*gettimex64)(struct ptp_clock_info *ptp, struct timespec64 *ts,
+			  struct ptp_system_timestamp *sts);
+>>>>>>> upstream/android-13
 	int (*getcrosststamp)(struct ptp_clock_info *ptp,
 			      struct system_device_crosststamp *cts);
 	int (*settime64)(struct ptp_clock_info *p, const struct timespec64 *ts);
@@ -161,7 +242,37 @@ struct ptp_clock_event {
 	};
 };
 
+<<<<<<< HEAD
 #if IS_REACHABLE(CONFIG_PTP_1588_CLOCK)
+=======
+/**
+ * scaled_ppm_to_ppb() - convert scaled ppm to ppb
+ *
+ * @ppm:    Parts per million, but with a 16 bit binary fractional field
+ */
+static inline long scaled_ppm_to_ppb(long ppm)
+{
+	/*
+	 * The 'freq' field in the 'struct timex' is in parts per
+	 * million, but with a 16 bit binary fractional field.
+	 *
+	 * We want to calculate
+	 *
+	 *    ppb = scaled_ppm * 1000 / 2^16
+	 *
+	 * which simplifies to
+	 *
+	 *    ppb = scaled_ppm * 125 / 2^13
+	 */
+	s64 ppb = 1 + ppm;
+
+	ppb *= 125;
+	ppb >>= 13;
+	return (long)ppb;
+}
+
+#if IS_ENABLED(CONFIG_PTP_1588_CLOCK)
+>>>>>>> upstream/android-13
 
 /**
  * ptp_clock_register() - register a PTP hardware clock driver
@@ -207,6 +318,15 @@ extern int ptp_clock_index(struct ptp_clock *ptp);
 /**
  * ptp_find_pin() - obtain the pin index of a given auxiliary function
  *
+<<<<<<< HEAD
+=======
+ * The caller must hold ptp_clock::pincfg_mux.  Drivers do not have
+ * access to that mutex as ptp_clock is an opaque type.  However, the
+ * core code acquires the mutex before invoking the driver's
+ * ptp_clock_info::enable() callback, and so drivers may call this
+ * function from that context.
+ *
+>>>>>>> upstream/android-13
  * @ptp:    The clock obtained from ptp_clock_register().
  * @func:   One of the ptp_pin_function enumerated values.
  * @chan:   The particular functional channel to find.
@@ -218,6 +338,22 @@ int ptp_find_pin(struct ptp_clock *ptp,
 		 enum ptp_pin_function func, unsigned int chan);
 
 /**
+<<<<<<< HEAD
+=======
+ * ptp_find_pin_unlocked() - wrapper for ptp_find_pin()
+ *
+ * This function acquires the ptp_clock::pincfg_mux mutex before
+ * invoking ptp_find_pin().  Instead of using this function, drivers
+ * should most likely call ptp_find_pin() directly from their
+ * ptp_clock_info::enable() method.
+ *
+ */
+
+int ptp_find_pin_unlocked(struct ptp_clock *ptp,
+			  enum ptp_pin_function func, unsigned int chan);
+
+/**
+>>>>>>> upstream/android-13
  * ptp_schedule_worker() - schedule ptp auxiliary work
  *
  * @ptp:    The clock obtained from ptp_clock_register().
@@ -227,6 +363,16 @@ int ptp_find_pin(struct ptp_clock *ptp,
 
 int ptp_schedule_worker(struct ptp_clock *ptp, unsigned long delay);
 
+<<<<<<< HEAD
+=======
+/**
+ * ptp_cancel_worker_sync() - cancel ptp auxiliary clock
+ *
+ * @ptp:     The clock obtained from ptp_clock_register().
+ */
+void ptp_cancel_worker_sync(struct ptp_clock *ptp);
+
+>>>>>>> upstream/android-13
 #else
 static inline struct ptp_clock *ptp_clock_register(struct ptp_clock_info *info,
 						   struct device *parent)
@@ -244,7 +390,63 @@ static inline int ptp_find_pin(struct ptp_clock *ptp,
 static inline int ptp_schedule_worker(struct ptp_clock *ptp,
 				      unsigned long delay)
 { return -EOPNOTSUPP; }
+<<<<<<< HEAD
 
 #endif
 
+=======
+static inline void ptp_cancel_worker_sync(struct ptp_clock *ptp)
+{ }
+#endif
+
+#if IS_BUILTIN(CONFIG_PTP_1588_CLOCK)
+/*
+ * These are called by the network core, and don't work if PTP is in
+ * a loadable module.
+ */
+
+/**
+ * ptp_get_vclocks_index() - get all vclocks index on pclock, and
+ *                           caller is responsible to free memory
+ *                           of vclock_index
+ *
+ * @pclock_index: phc index of ptp pclock.
+ * @vclock_index: pointer to pointer of vclock index.
+ *
+ * return number of vclocks.
+ */
+int ptp_get_vclocks_index(int pclock_index, int **vclock_index);
+
+/**
+ * ptp_convert_timestamp() - convert timestamp to a ptp vclock time
+ *
+ * @hwtstamps:    skb_shared_hwtstamps structure pointer
+ * @vclock_index: phc index of ptp vclock.
+ *
+ * Returns converted timestamp, or 0 on error.
+ */
+ktime_t ptp_convert_timestamp(const struct skb_shared_hwtstamps *hwtstamps,
+			      int vclock_index);
+#else
+static inline int ptp_get_vclocks_index(int pclock_index, int **vclock_index)
+{ return 0; }
+static inline ktime_t ptp_convert_timestamp(const struct skb_shared_hwtstamps *hwtstamps,
+					    int vclock_index)
+{ return 0; }
+
+#endif
+
+static inline void ptp_read_system_prets(struct ptp_system_timestamp *sts)
+{
+	if (sts)
+		ktime_get_real_ts64(&sts->pre_ts);
+}
+
+static inline void ptp_read_system_postts(struct ptp_system_timestamp *sts)
+{
+	if (sts)
+		ktime_get_real_ts64(&sts->post_ts);
+}
+
+>>>>>>> upstream/android-13
 #endif

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * A hwmon driver for the IBM System Director Active Energy Manager (AEM)
  * temperature/power/energy sensors and capping functionality.
  * Copyright (C) 2008 IBM
  *
  * Author: Darrick J. Wong <darrick.wong@oracle.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -101,7 +108,11 @@ static struct platform_driver aem_driver = {
 struct aem_ipmi_data {
 	struct completion	read_complete;
 	struct ipmi_addr	address;
+<<<<<<< HEAD
 	ipmi_user_t		user;
+=======
+	struct ipmi_user	*user;
+>>>>>>> upstream/android-13
 	int			interface;
 
 	struct kernel_ipmi_msg	tx_message;
@@ -232,7 +243,11 @@ struct aem_read_sensor_req {
 
 struct aem_read_sensor_resp {
 	struct aem_iana_id	id;
+<<<<<<< HEAD
 	u8			bytes[0];
+=======
+	u8			bytes[];
+>>>>>>> upstream/android-13
 } __packed;
 
 /* Data structures to talk to the IPMI layer */
@@ -813,25 +828,41 @@ static void aem_bmc_gone(int iface)
 /* sysfs support functions */
 
 /* AEM device name */
+<<<<<<< HEAD
 static ssize_t show_name(struct device *dev, struct device_attribute *devattr,
+=======
+static ssize_t name_show(struct device *dev, struct device_attribute *devattr,
+>>>>>>> upstream/android-13
 			 char *buf)
 {
 	struct aem_data *data = dev_get_drvdata(dev);
 
 	return sprintf(buf, "%s%d\n", DRVNAME, data->ver_major);
 }
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(name, S_IRUGO, show_name, NULL, 0);
 
 /* AEM device version */
 static ssize_t show_version(struct device *dev,
 			    struct device_attribute *devattr,
 			    char *buf)
+=======
+static SENSOR_DEVICE_ATTR_RO(name, name, 0);
+
+/* AEM device version */
+static ssize_t version_show(struct device *dev,
+			    struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct aem_data *data = dev_get_drvdata(dev);
 
 	return sprintf(buf, "%d.%d\n", data->ver_major, data->ver_minor);
 }
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(version, S_IRUGO, show_version, NULL, 0);
+=======
+static SENSOR_DEVICE_ATTR_RO(version, version, 0);
+>>>>>>> upstream/android-13
 
 /* Display power use */
 static ssize_t aem_show_power(struct device *dev,
@@ -931,7 +962,11 @@ static int aem_register_sensors(struct aem_data *data,
 	while (ro->label) {
 		sysfs_attr_init(&sensors->dev_attr.attr);
 		sensors->dev_attr.attr.name = ro->label;
+<<<<<<< HEAD
 		sensors->dev_attr.attr.mode = S_IRUGO;
+=======
+		sensors->dev_attr.attr.mode = 0444;
+>>>>>>> upstream/android-13
 		sensors->dev_attr.show = ro->show;
 		sensors->index = ro->index;
 
@@ -948,7 +983,11 @@ static int aem_register_sensors(struct aem_data *data,
 	while (rw->label) {
 		sysfs_attr_init(&sensors->dev_attr.attr);
 		sensors->dev_attr.attr.name = rw->label;
+<<<<<<< HEAD
 		sensors->dev_attr.attr.mode = S_IRUGO | S_IWUSR;
+=======
+		sensors->dev_attr.attr.mode = 0644;
+>>>>>>> upstream/android-13
 		sensors->dev_attr.show = rw->show;
 		sensors->dev_attr.store = rw->set;
 		sensors->index = rw->index;

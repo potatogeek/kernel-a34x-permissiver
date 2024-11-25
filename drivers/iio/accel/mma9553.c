@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Freescale MMA9553L Intelligent Pedometer driver
  * Copyright (c) 2014, Intel Corporation.
@@ -10,6 +11,12 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Freescale MMA9553L Intelligent Pedometer driver
+ * Copyright (c) 2014, Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -1111,7 +1118,10 @@ static int mma9553_probe(struct i2c_client *client,
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &client->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->channels = mma9553_channels;
 	indio_dev->num_channels = ARRAY_SIZE(mma9553_channels);
 	indio_dev->name = name;
@@ -1143,12 +1153,22 @@ static int mma9553_probe(struct i2c_client *client,
 	ret = iio_device_register(indio_dev);
 	if (ret < 0) {
 		dev_err(&client->dev, "unable to register iio device\n");
+<<<<<<< HEAD
 		goto out_poweroff;
+=======
+		goto err_pm_cleanup;
+>>>>>>> upstream/android-13
 	}
 
 	dev_dbg(&indio_dev->dev, "Registered device %s\n", name);
 	return 0;
 
+<<<<<<< HEAD
+=======
+err_pm_cleanup:
+	pm_runtime_dont_use_autosuspend(&client->dev);
+	pm_runtime_disable(&client->dev);
+>>>>>>> upstream/android-13
 out_poweroff:
 	mma9551_set_device_state(client, false);
 	return ret;
@@ -1163,7 +1183,10 @@ static int mma9553_remove(struct i2c_client *client)
 
 	pm_runtime_disable(&client->dev);
 	pm_runtime_set_suspended(&client->dev);
+<<<<<<< HEAD
 	pm_runtime_put_noidle(&client->dev);
+=======
+>>>>>>> upstream/android-13
 
 	mutex_lock(&data->mutex);
 	mma9551_set_device_state(data->client, false);

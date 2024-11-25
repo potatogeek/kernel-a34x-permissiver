@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Twofish for CryptoAPI
  *
@@ -12,6 +16,7 @@
  * code and thus put it in the public domain. The subsequent authors 
  * have put this under the GNU General Public License.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -26,6 +31,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
+=======
+>>>>>>> upstream/android-13
  * This code is a "clean room" implementation, written from the paper
  * _Twofish: A 128-Bit Block Cipher_ by Bruce Schneier, John Kelsey,
  * Doug Whiting, David Wagner, Chris Hall, and Niels Ferguson, available
@@ -37,7 +44,11 @@
  * Third Edition.
  */
 
+<<<<<<< HEAD
 #include <asm/byteorder.h>
+=======
+#include <asm/unaligned.h>
+>>>>>>> upstream/android-13
 #include <crypto/twofish.h>
 #include <linux/module.h>
 #include <linux/init.h>
@@ -96,11 +107,19 @@
  * whitening subkey number m. */
 
 #define INPACK(n, x, m) \
+<<<<<<< HEAD
    x = le32_to_cpu(src[n]) ^ ctx->w[m]
 
 #define OUTUNPACK(n, x, m) \
    x ^= ctx->w[m]; \
    dst[n] = cpu_to_le32(x)
+=======
+   x = get_unaligned_le32(in + (n) * 4) ^ ctx->w[m]
+
+#define OUTUNPACK(n, x, m) \
+   x ^= ctx->w[m]; \
+   put_unaligned_le32(x, out + (n) * 4)
+>>>>>>> upstream/android-13
 
 
 
@@ -108,8 +127,11 @@
 static void twofish_encrypt(struct crypto_tfm *tfm, u8 *out, const u8 *in)
 {
 	struct twofish_ctx *ctx = crypto_tfm_ctx(tfm);
+<<<<<<< HEAD
 	const __le32 *src = (const __le32 *)in;
 	__le32 *dst = (__le32 *)out;
+=======
+>>>>>>> upstream/android-13
 
 	/* The four 32-bit chunks of the text. */
 	u32 a, b, c, d;
@@ -145,8 +167,11 @@ static void twofish_encrypt(struct crypto_tfm *tfm, u8 *out, const u8 *in)
 static void twofish_decrypt(struct crypto_tfm *tfm, u8 *out, const u8 *in)
 {
 	struct twofish_ctx *ctx = crypto_tfm_ctx(tfm);
+<<<<<<< HEAD
 	const __le32 *src = (const __le32 *)in;
 	__le32 *dst = (__le32 *)out;
+=======
+>>>>>>> upstream/android-13
   
 	/* The four 32-bit chunks of the text. */
 	u32 a, b, c, d;
@@ -185,7 +210,10 @@ static struct crypto_alg alg = {
 	.cra_flags          =   CRYPTO_ALG_TYPE_CIPHER,
 	.cra_blocksize      =   TF_BLOCK_SIZE,
 	.cra_ctxsize        =   sizeof(struct twofish_ctx),
+<<<<<<< HEAD
 	.cra_alignmask      =	3,
+=======
+>>>>>>> upstream/android-13
 	.cra_module         =   THIS_MODULE,
 	.cra_u              =   { .cipher = {
 	.cia_min_keysize    =   TF_MIN_KEY_SIZE,
@@ -205,7 +233,11 @@ static void __exit twofish_mod_fini(void)
 	crypto_unregister_alg(&alg);
 }
 
+<<<<<<< HEAD
 module_init(twofish_mod_init);
+=======
+subsys_initcall(twofish_mod_init);
+>>>>>>> upstream/android-13
 module_exit(twofish_mod_fini);
 
 MODULE_LICENSE("GPL");

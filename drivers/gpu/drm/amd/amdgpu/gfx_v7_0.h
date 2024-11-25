@@ -24,7 +24,10 @@
 #ifndef __GFX_V7_0_H__
 #define __GFX_V7_0_H__
 
+<<<<<<< HEAD
 extern const struct amdgpu_ip_block_version gfx_v7_0_ip_block;
+=======
+>>>>>>> upstream/android-13
 extern const struct amdgpu_ip_block_version gfx_v7_1_ip_block;
 extern const struct amdgpu_ip_block_version gfx_v7_2_ip_block;
 extern const struct amdgpu_ip_block_version gfx_v7_3_ip_block;

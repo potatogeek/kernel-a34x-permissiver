@@ -12,9 +12,12 @@
 #include "xfs_bit.h"
 #include "xfs_sb.h"
 #include "xfs_mount.h"
+<<<<<<< HEAD
 #include "xfs_defer.h"
 #include "xfs_da_format.h"
 #include "xfs_da_btree.h"
+=======
+>>>>>>> upstream/android-13
 #include "xfs_inode.h"
 #include "xfs_dir2.h"
 #include "xfs_ialloc.h"
@@ -27,14 +30,23 @@
 #include "xfs_error.h"
 #include "xfs_quota.h"
 #include "xfs_fsops.h"
+<<<<<<< HEAD
 #include "xfs_trace.h"
+=======
+>>>>>>> upstream/android-13
 #include "xfs_icache.h"
 #include "xfs_sysfs.h"
 #include "xfs_rmap_btree.h"
 #include "xfs_refcount_btree.h"
 #include "xfs_reflink.h"
 #include "xfs_extent_busy.h"
+<<<<<<< HEAD
 
+=======
+#include "xfs_health.h"
+#include "xfs_trace.h"
+#include "xfs_ag.h"
+>>>>>>> upstream/android-13
 
 static DEFINE_MUTEX(xfs_uuid_table_mutex);
 static int xfs_uuid_table_size;
@@ -64,7 +76,11 @@ xfs_uuid_mount(
 	/* Publish UUID in struct super_block */
 	uuid_copy(&mp->m_super->s_uuid, uuid);
 
+<<<<<<< HEAD
 	if (mp->m_flags & XFS_MOUNT_NOUUID)
+=======
+	if (xfs_has_nouuid(mp))
+>>>>>>> upstream/android-13
 		return 0;
 
 	if (uuid_is_null(uuid)) {
@@ -83,9 +99,15 @@ xfs_uuid_mount(
 	}
 
 	if (hole < 0) {
+<<<<<<< HEAD
 		xfs_uuid_table = kmem_realloc(xfs_uuid_table,
 			(xfs_uuid_table_size + 1) * sizeof(*xfs_uuid_table),
 			KM_SLEEP);
+=======
+		xfs_uuid_table = krealloc(xfs_uuid_table,
+			(xfs_uuid_table_size + 1) * sizeof(*xfs_uuid_table),
+			GFP_KERNEL | __GFP_NOFAIL);
+>>>>>>> upstream/android-13
 		hole = xfs_uuid_table_size++;
 	}
 	xfs_uuid_table[hole] = *uuid;
@@ -106,7 +128,11 @@ xfs_uuid_unmount(
 	uuid_t			*uuid = &mp->m_sb.sb_uuid;
 	int			i;
 
+<<<<<<< HEAD
 	if (mp->m_flags & XFS_MOUNT_NOUUID)
+=======
+	if (xfs_has_nouuid(mp))
+>>>>>>> upstream/android-13
 		return;
 
 	mutex_lock(&xfs_uuid_table_mutex);
@@ -122,6 +148,7 @@ xfs_uuid_unmount(
 	mutex_unlock(&xfs_uuid_table_mutex);
 }
 
+<<<<<<< HEAD
 
 STATIC void
 __xfs_free_perag(
@@ -155,6 +182,8 @@ xfs_free_perag(
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Check size of device based on the (data/realtime) block count.
  * Note: this check is used by the growfs code as well as mount.
@@ -173,6 +202,7 @@ xfs_sb_validate_fsb_count(
 	return 0;
 }
 
+<<<<<<< HEAD
 int
 xfs_initialize_perag(
 	xfs_mount_t	*mp,
@@ -255,6 +285,8 @@ out_unwind_new_pags:
 	return error;
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * xfs_readsb
  *
@@ -307,7 +339,11 @@ reread:
 	/*
 	 * Initialize the mount structure from the superblock.
 	 */
+<<<<<<< HEAD
 	xfs_sb_from_disk(sbp, XFS_BUF_TO_SBP(bp));
+=======
+	xfs_sb_from_disk(sbp, bp->b_addr);
+>>>>>>> upstream/android-13
 
 	/*
 	 * If we haven't validated the superblock, do so now before we try
@@ -342,6 +378,10 @@ reread:
 		goto reread;
 	}
 
+<<<<<<< HEAD
+=======
+	mp->m_features |= xfs_sb_version_to_features(sbp);
+>>>>>>> upstream/android-13
 	xfs_reinit_percpu_counters(mp);
 
 	/* no need to be quiet anymore, so reset the buf ops */
@@ -357,6 +397,7 @@ release_buf:
 }
 
 /*
+<<<<<<< HEAD
  * Update alignment values based on mount options and sb values
  */
 STATIC int
@@ -417,11 +458,96 @@ xfs_update_alignment(xfs_mount_t *mp)
 		    xfs_sb_version_hasdalign(&mp->m_sb)) {
 			mp->m_dalign = sbp->sb_unit;
 			mp->m_swidth = sbp->sb_width;
+=======
+ * If the sunit/swidth change would move the precomputed root inode value, we
+ * must reject the ondisk change because repair will stumble over that.
+ * However, we allow the mount to proceed because we never rejected this
+ * combination before.  Returns true to update the sb, false otherwise.
+ */
+static inline int
+xfs_check_new_dalign(
+	struct xfs_mount	*mp,
+	int			new_dalign,
+	bool			*update_sb)
+{
+	struct xfs_sb		*sbp = &mp->m_sb;
+	xfs_ino_t		calc_ino;
+
+	calc_ino = xfs_ialloc_calc_rootino(mp, new_dalign);
+	trace_xfs_check_new_dalign(mp, new_dalign, calc_ino);
+
+	if (sbp->sb_rootino == calc_ino) {
+		*update_sb = true;
+		return 0;
+	}
+
+	xfs_warn(mp,
+"Cannot change stripe alignment; would require moving root inode.");
+
+	/*
+	 * XXX: Next time we add a new incompat feature, this should start
+	 * returning -EINVAL to fail the mount.  Until then, spit out a warning
+	 * that we're ignoring the administrator's instructions.
+	 */
+	xfs_warn(mp, "Skipping superblock stripe alignment update.");
+	*update_sb = false;
+	return 0;
+}
+
+/*
+ * If we were provided with new sunit/swidth values as mount options, make sure
+ * that they pass basic alignment and superblock feature checks, and convert
+ * them into the same units (FSB) that everything else expects.  This step
+ * /must/ be done before computing the inode geometry.
+ */
+STATIC int
+xfs_validate_new_dalign(
+	struct xfs_mount	*mp)
+{
+	if (mp->m_dalign == 0)
+		return 0;
+
+	/*
+	 * If stripe unit and stripe width are not multiples
+	 * of the fs blocksize turn off alignment.
+	 */
+	if ((BBTOB(mp->m_dalign) & mp->m_blockmask) ||
+	    (BBTOB(mp->m_swidth) & mp->m_blockmask)) {
+		xfs_warn(mp,
+	"alignment check failed: sunit/swidth vs. blocksize(%d)",
+			mp->m_sb.sb_blocksize);
+		return -EINVAL;
+	} else {
+		/*
+		 * Convert the stripe unit and width to FSBs.
+		 */
+		mp->m_dalign = XFS_BB_TO_FSBT(mp, mp->m_dalign);
+		if (mp->m_dalign && (mp->m_sb.sb_agblocks % mp->m_dalign)) {
+			xfs_warn(mp,
+		"alignment check failed: sunit/swidth vs. agsize(%d)",
+				 mp->m_sb.sb_agblocks);
+			return -EINVAL;
+		} else if (mp->m_dalign) {
+			mp->m_swidth = XFS_BB_TO_FSBT(mp, mp->m_swidth);
+		} else {
+			xfs_warn(mp,
+		"alignment check failed: sunit(%d) less than bsize(%d)",
+				 mp->m_dalign, mp->m_sb.sb_blocksize);
+			return -EINVAL;
+		}
+	}
+
+	if (!xfs_has_dalign(mp)) {
+		xfs_warn(mp,
+"cannot change alignment: superblock does not support data alignment");
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
 }
 
+<<<<<<< HEAD
 /*
  * Set the maximum inode count for this filesystem
  */
@@ -483,6 +609,36 @@ xfs_set_rw_sizes(xfs_mount_t *mp)
 		mp->m_writeio_log = writeio_log;
 	}
 	mp->m_writeio_blocks = 1 << (mp->m_writeio_log - sbp->sb_blocklog);
+=======
+/* Update alignment values based on mount options and sb values. */
+STATIC int
+xfs_update_alignment(
+	struct xfs_mount	*mp)
+{
+	struct xfs_sb		*sbp = &mp->m_sb;
+
+	if (mp->m_dalign) {
+		bool		update_sb;
+		int		error;
+
+		if (sbp->sb_unit == mp->m_dalign &&
+		    sbp->sb_width == mp->m_swidth)
+			return 0;
+
+		error = xfs_check_new_dalign(mp, mp->m_dalign, &update_sb);
+		if (error || !update_sb)
+			return error;
+
+		sbp->sb_unit = mp->m_dalign;
+		sbp->sb_width = mp->m_swidth;
+		mp->m_update_sb = true;
+	} else if (!xfs_has_noalign(mp) && xfs_has_dalign(mp)) {
+		mp->m_dalign = sbp->sb_unit;
+		mp->m_swidth = sbp->sb_width;
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -492,6 +648,7 @@ void
 xfs_set_low_space_thresholds(
 	struct xfs_mount	*mp)
 {
+<<<<<<< HEAD
 	int i;
 
 	for (i = 0; i < XFS_LOWSP_MAX; i++) {
@@ -525,6 +682,21 @@ xfs_set_inoalignment(xfs_mount_t *mp)
 		mp->m_sinoalign = 0;
 }
 
+=======
+	uint64_t		dblocks = mp->m_sb.sb_dblocks;
+	uint64_t		rtexts = mp->m_sb.sb_rextents;
+	int			i;
+
+	do_div(dblocks, 100);
+	do_div(rtexts, 100);
+
+	for (i = 0; i < XFS_LOWSP_MAX; i++) {
+		mp->m_low_space[i] = dblocks * (i + 1);
+		mp->m_low_rtexts[i] = rtexts * (i + 1);
+	}
+}
+
+>>>>>>> upstream/android-13
 /*
  * Check that the data (and log if separate) is an ok size.
  */
@@ -635,11 +807,19 @@ xfs_check_summary_counts(
 	 * counters.  If any of them are obviously incorrect, we can recompute
 	 * them from the AGF headers in the next step.
 	 */
+<<<<<<< HEAD
 	if (XFS_LAST_UNMOUNT_WAS_CLEAN(mp) &&
 	    (mp->m_sb.sb_fdblocks > mp->m_sb.sb_dblocks ||
 	     !xfs_verify_icount(mp, mp->m_sb.sb_icount) ||
 	     mp->m_sb.sb_ifree > mp->m_sb.sb_icount))
 		mp->m_flags |= XFS_MOUNT_BAD_SUMMARY;
+=======
+	if (xfs_is_clean(mp) &&
+	    (mp->m_sb.sb_fdblocks > mp->m_sb.sb_dblocks ||
+	     !xfs_verify_icount(mp, mp->m_sb.sb_icount) ||
+	     mp->m_sb.sb_ifree > mp->m_sb.sb_icount))
+		xfs_fs_mark_sick(mp, XFS_SICK_FS_COUNTERS);
+>>>>>>> upstream/android-13
 
 	/*
 	 * We can safely re-initialise incore superblock counters from the
@@ -652,15 +832,78 @@ xfs_check_summary_counts(
 	 * superblock to be correct and we don't need to do anything here.
 	 * Otherwise, recalculate the summary counters.
 	 */
+<<<<<<< HEAD
 	if ((!xfs_sb_version_haslazysbcount(&mp->m_sb) ||
 	     XFS_LAST_UNMOUNT_WAS_CLEAN(mp)) &&
 	    !(mp->m_flags & XFS_MOUNT_BAD_SUMMARY))
+=======
+	if ((!xfs_has_lazysbcount(mp) || xfs_is_clean(mp)) &&
+	    !xfs_fs_has_sickness(mp, XFS_SICK_FS_COUNTERS))
+>>>>>>> upstream/android-13
 		return 0;
 
 	return xfs_initialize_perag_data(mp, mp->m_sb.sb_agcount);
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * Flush and reclaim dirty inodes in preparation for unmount. Inodes and
+ * internal inode structures can be sitting in the CIL and AIL at this point,
+ * so we need to unpin them, write them back and/or reclaim them before unmount
+ * can proceed.  In other words, callers are required to have inactivated all
+ * inodes.
+ *
+ * An inode cluster that has been freed can have its buffer still pinned in
+ * memory because the transaction is still sitting in a iclog. The stale inodes
+ * on that buffer will be pinned to the buffer until the transaction hits the
+ * disk and the callbacks run. Pushing the AIL will skip the stale inodes and
+ * may never see the pinned buffer, so nothing will push out the iclog and
+ * unpin the buffer.
+ *
+ * Hence we need to force the log to unpin everything first. However, log
+ * forces don't wait for the discards they issue to complete, so we have to
+ * explicitly wait for them to complete here as well.
+ *
+ * Then we can tell the world we are unmounting so that error handling knows
+ * that the filesystem is going away and we should error out anything that we
+ * have been retrying in the background.  This will prevent never-ending
+ * retries in AIL pushing from hanging the unmount.
+ *
+ * Finally, we can push the AIL to clean all the remaining dirty objects, then
+ * reclaim the remaining inodes that are still in memory at this point in time.
+ */
+static void
+xfs_unmount_flush_inodes(
+	struct xfs_mount	*mp)
+{
+	xfs_log_force(mp, XFS_LOG_SYNC);
+	xfs_extent_busy_wait_all(mp);
+	flush_workqueue(xfs_discard_wq);
+
+	set_bit(XFS_OPSTATE_UNMOUNTING, &mp->m_opstate);
+
+	xfs_ail_push_all_sync(mp->m_ail);
+	xfs_inodegc_stop(mp);
+	cancel_delayed_work_sync(&mp->m_reclaim_work);
+	xfs_reclaim_inodes(mp);
+	xfs_health_unmount(mp);
+}
+
+static void
+xfs_mount_setup_inode_geom(
+	struct xfs_mount	*mp)
+{
+	struct xfs_ino_geometry *igeo = M_IGEO(mp);
+
+	igeo->attr_fork_offset = xfs_bmap_compute_attr_offset(mp);
+	ASSERT(igeo->attr_fork_offset < XFS_LITINO(mp));
+
+	xfs_ialloc_setup_geometry(mp);
+}
+
+/*
+>>>>>>> upstream/android-13
  * This function does the following on an initial mount of a file system:
  *	- reads the superblock from disk and init the mount struct
  *	- if we're a 32-bit kernel, do a size check on the superblock
@@ -676,6 +919,10 @@ xfs_mountfs(
 {
 	struct xfs_sb		*sbp = &(mp->m_sb);
 	struct xfs_inode	*rip;
+<<<<<<< HEAD
+=======
+	struct xfs_ino_geometry	*igeo = M_IGEO(mp);
+>>>>>>> upstream/android-13
 	uint64_t		resblks;
 	uint			quotamount = 0;
 	uint			quotaflags = 0;
@@ -703,6 +950,7 @@ xfs_mountfs(
 		xfs_warn(mp, "correcting sb_features alignment problem");
 		sbp->sb_features2 |= sbp->sb_bad_features2;
 		mp->m_update_sb = true;
+<<<<<<< HEAD
 
 		/*
 		 * Re-check for ATTR2 in case it was found in bad_features2
@@ -722,36 +970,75 @@ xfs_mountfs(
 		if (!sbp->sb_features2)
 			mp->m_update_sb = true;
 	}
+=======
+	}
+
+>>>>>>> upstream/android-13
 
 	/* always use v2 inodes by default now */
 	if (!(mp->m_sb.sb_versionnum & XFS_SB_VERSION_NLINKBIT)) {
 		mp->m_sb.sb_versionnum |= XFS_SB_VERSION_NLINKBIT;
+<<<<<<< HEAD
+=======
+		mp->m_features |= XFS_FEAT_NLINK;
+>>>>>>> upstream/android-13
 		mp->m_update_sb = true;
 	}
 
 	/*
+<<<<<<< HEAD
 	 * Check if sb_agblocks is aligned at stripe boundary
 	 * If sb_agblocks is NOT aligned turn off m_dalign since
 	 * allocator alignment is within an ag, therefore ag has
 	 * to be aligned at stripe boundary.
 	 */
 	error = xfs_update_alignment(mp);
+=======
+	 * If we were given new sunit/swidth options, do some basic validation
+	 * checks and convert the incore dalign and swidth values to the
+	 * same units (FSB) that everything else uses.  This /must/ happen
+	 * before computing the inode geometry.
+	 */
+	error = xfs_validate_new_dalign(mp);
+>>>>>>> upstream/android-13
 	if (error)
 		goto out;
 
 	xfs_alloc_compute_maxlevels(mp);
 	xfs_bmap_compute_maxlevels(mp, XFS_DATA_FORK);
 	xfs_bmap_compute_maxlevels(mp, XFS_ATTR_FORK);
+<<<<<<< HEAD
 	xfs_ialloc_compute_maxlevels(mp);
 	xfs_rmapbt_compute_maxlevels(mp);
 	xfs_refcountbt_compute_maxlevels(mp);
 
 	xfs_set_maxicount(mp);
+=======
+	xfs_mount_setup_inode_geom(mp);
+	xfs_rmapbt_compute_maxlevels(mp);
+	xfs_refcountbt_compute_maxlevels(mp);
+
+	/*
+	 * Check if sb_agblocks is aligned at stripe boundary.  If sb_agblocks
+	 * is NOT aligned turn off m_dalign since allocator alignment is within
+	 * an ag, therefore ag has to be aligned at stripe boundary.  Note that
+	 * we must compute the free space and rmap btree geometry before doing
+	 * this.
+	 */
+	error = xfs_update_alignment(mp);
+	if (error)
+		goto out;
+>>>>>>> upstream/android-13
 
 	/* enable fail_at_unmount as default */
 	mp->m_fail_unmount = true;
 
+<<<<<<< HEAD
 	error = xfs_sysfs_init(&mp->m_kobj, &xfs_mp_ktype, NULL, mp->m_fsname);
+=======
+	error = xfs_sysfs_init(&mp->m_kobj, &xfs_mp_ktype,
+			       NULL, mp->m_super->s_id);
+>>>>>>> upstream/android-13
 	if (error)
 		goto out;
 
@@ -773,14 +1060,24 @@ xfs_mountfs(
 		goto out_remove_errortag;
 
 	/*
+<<<<<<< HEAD
 	 * Set the minimum read and write sizes
 	 */
 	xfs_set_rw_sizes(mp);
+=======
+	 * Update the preferred write size based on the information from the
+	 * on-disk superblock.
+	 */
+	mp->m_allocsize_log =
+		max_t(uint32_t, sbp->sb_blocklog, mp->m_allocsize_log);
+	mp->m_allocsize_blocks = 1U << (mp->m_allocsize_log - sbp->sb_blocklog);
+>>>>>>> upstream/android-13
 
 	/* set the low space thresholds for dynamic preallocation */
 	xfs_set_low_space_thresholds(mp);
 
 	/*
+<<<<<<< HEAD
 	 * Set the inode cluster size.
 	 * This may still be overridden by the file system
 	 * block size if it is larger than the chosen cluster size.
@@ -800,10 +1097,13 @@ xfs_mountfs(
 	}
 
 	/*
+=======
+>>>>>>> upstream/android-13
 	 * If enabled, sparse inode chunk alignment is expected to match the
 	 * cluster size. Full inode chunk alignment must match the chunk size,
 	 * but that is checked on sb read verification...
 	 */
+<<<<<<< HEAD
 	if (xfs_sb_version_hassparseinodes(&mp->m_sb) &&
 	    mp->m_sb.sb_spino_align !=
 			XFS_B_TO_FSBT(mp, mp->m_inode_cluster_size)) {
@@ -811,16 +1111,28 @@ xfs_mountfs(
 	"Sparse inode block alignment (%u) must match cluster size (%llu).",
 			 mp->m_sb.sb_spino_align,
 			 XFS_B_TO_FSBT(mp, mp->m_inode_cluster_size));
+=======
+	if (xfs_has_sparseinodes(mp) &&
+	    mp->m_sb.sb_spino_align !=
+			XFS_B_TO_FSBT(mp, igeo->inode_cluster_size_raw)) {
+		xfs_warn(mp,
+	"Sparse inode block alignment (%u) must match cluster size (%llu).",
+			 mp->m_sb.sb_spino_align,
+			 XFS_B_TO_FSBT(mp, igeo->inode_cluster_size_raw));
+>>>>>>> upstream/android-13
 		error = -EINVAL;
 		goto out_remove_uuid;
 	}
 
 	/*
+<<<<<<< HEAD
 	 * Set inode alignment fields
 	 */
 	xfs_set_inoalignment(mp);
 
 	/*
+=======
+>>>>>>> upstream/android-13
 	 * Check that the data (and log if separate) is an ok size.
 	 */
 	error = xfs_check_sizes(mp);
@@ -865,13 +1177,25 @@ xfs_mountfs(
 		goto out_free_dir;
 	}
 
+<<<<<<< HEAD
 	if (!sbp->sb_logblocks) {
 		xfs_warn(mp, "no log defined");
 		XFS_ERROR_REPORT("xfs_mountfs", XFS_ERRLEVEL_LOW, mp);
+=======
+	if (XFS_IS_CORRUPT(mp, !sbp->sb_logblocks)) {
+		xfs_warn(mp, "no log defined");
+>>>>>>> upstream/android-13
 		error = -EFSCORRUPTED;
 		goto out_free_perag;
 	}
 
+<<<<<<< HEAD
+=======
+	error = xfs_inodegc_register_shrinker(mp);
+	if (error)
+		goto out_fail_wait;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Log's mount-time initialization. The first part of recovery can place
 	 * some items on the AIL, to be handled when recovery is finished or
@@ -882,7 +1206,11 @@ xfs_mountfs(
 			      XFS_FSB_TO_BB(mp, sbp->sb_logblocks));
 	if (error) {
 		xfs_warn(mp, "log mount failed");
+<<<<<<< HEAD
 		goto out_fail_wait;
+=======
+		goto out_inodegc_shrinker;
+>>>>>>> upstream/android-13
 	}
 
 	/* Make sure the summary counts are ok. */
@@ -890,6 +1218,26 @@ xfs_mountfs(
 	if (error)
 		goto out_log_dealloc;
 
+<<<<<<< HEAD
+=======
+	/* Enable background inode inactivation workers. */
+	xfs_inodegc_start(mp);
+	xfs_blockgc_start(mp);
+
+	/*
+	 * Now that we've recovered any pending superblock feature bit
+	 * additions, we can finish setting up the attr2 behaviour for the
+	 * mount. The noattr2 option overrides the superblock flag, so only
+	 * check the superblock feature flag if the mount option is not set.
+	 */
+	if (xfs_has_noattr2(mp)) {
+		mp->m_features &= ~XFS_FEAT_ATTR2;
+	} else if (!xfs_has_attr2(mp) &&
+		   (mp->m_sb.sb_features2 & XFS_SB_VERSION2_ATTR2BIT)) {
+		mp->m_features |= XFS_FEAT_ATTR2;
+	}
+
+>>>>>>> upstream/android-13
 	/*
 	 * Get and sanity-check the root inode.
 	 * Save the pointer to it in the mount structure.
@@ -905,12 +1253,19 @@ xfs_mountfs(
 
 	ASSERT(rip != NULL);
 
+<<<<<<< HEAD
 	if (unlikely(!S_ISDIR(VFS_I(rip)->i_mode))) {
 		xfs_warn(mp, "corrupted root inode %llu: not a directory",
 			(unsigned long long)rip->i_ino);
 		xfs_iunlock(rip, XFS_ILOCK_EXCL);
 		XFS_ERROR_REPORT("xfs_mountfs_int(2)", XFS_ERRLEVEL_LOW,
 				 mp);
+=======
+	if (XFS_IS_CORRUPT(mp, !S_ISDIR(VFS_I(rip)->i_mode))) {
+		xfs_warn(mp, "corrupted root inode %llu: not a directory",
+			(unsigned long long)rip->i_ino);
+		xfs_iunlock(rip, XFS_ILOCK_EXCL);
+>>>>>>> upstream/android-13
 		error = -EFSCORRUPTED;
 		goto out_rele_rip;
 	}
@@ -935,7 +1290,11 @@ xfs_mountfs(
 	 * the next remount into writeable mode.  Otherwise we would never
 	 * perform the update e.g. for the root filesystem.
 	 */
+<<<<<<< HEAD
 	if (mp->m_update_sb && !(mp->m_flags & XFS_MOUNT_RDONLY)) {
+=======
+	if (mp->m_update_sb && !xfs_is_readonly(mp)) {
+>>>>>>> upstream/android-13
 		error = xfs_sync_sb(mp, false);
 		if (error) {
 			xfs_warn(mp, "failed to write sb changes");
@@ -946,13 +1305,20 @@ xfs_mountfs(
 	/*
 	 * Initialise the XFS quota management subsystem for this mount
 	 */
+<<<<<<< HEAD
 	if (XFS_IS_QUOTA_RUNNING(mp)) {
+=======
+	if (XFS_IS_QUOTA_ON(mp)) {
+>>>>>>> upstream/android-13
 		error = xfs_qm_newmount(mp, &quotamount, &quotaflags);
 		if (error)
 			goto out_rtunmount;
 	} else {
+<<<<<<< HEAD
 		ASSERT(!XFS_IS_QUOTA_ON(mp));
 
+=======
+>>>>>>> upstream/android-13
 		/*
 		 * If a file system had quotas running earlier, but decided to
 		 * mount without -o uquota/pquota/gquota options, revoke the
@@ -969,9 +1335,23 @@ xfs_mountfs(
 	/*
 	 * Finish recovering the file system.  This part needed to be delayed
 	 * until after the root and real-time bitmap inodes were consistently
+<<<<<<< HEAD
 	 * read in.
 	 */
 	error = xfs_log_mount_finish(mp);
+=======
+	 * read in.  Temporarily create per-AG space reservations for metadata
+	 * btree shape changes because space freeing transactions (for inode
+	 * inactivation) require the per-AG reservation in lieu of reserving
+	 * blocks.
+	 */
+	error = xfs_fs_reserve_ag_blocks(mp);
+	if (error && error == -ENOSPC)
+		xfs_warn(mp,
+	"ENOSPC reserving per-AG metadata pool, log recovery may fail.");
+	error = xfs_log_mount_finish(mp);
+	xfs_fs_unreserve_ag_blocks(mp);
+>>>>>>> upstream/android-13
 	if (error) {
 		xfs_warn(mp, "log mount finish failed");
 		goto out_rtunmount;
@@ -986,10 +1366,15 @@ xfs_mountfs(
 	 * We use the same quiesce mechanism as the rw->ro remount, as they are
 	 * semantically identical operations.
 	 */
+<<<<<<< HEAD
 	if ((mp->m_flags & (XFS_MOUNT_RDONLY|XFS_MOUNT_NORECOVERY)) ==
 							XFS_MOUNT_RDONLY) {
 		xfs_quiesce_attr(mp);
 	}
+=======
+	if (xfs_is_readonly(mp) && !xfs_has_norecovery(mp))
+		xfs_log_clean(mp);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Complete the quota initialisation, post-log-replay component.
@@ -1012,7 +1397,11 @@ xfs_mountfs(
 	 * This may drive us straight to ENOSPC on mount, but that implies
 	 * we were already there on the last unmount. Warn if this occurs.
 	 */
+<<<<<<< HEAD
 	if (!(mp->m_flags & XFS_MOUNT_RDONLY)) {
+=======
+	if (!xfs_is_readonly(mp)) {
+>>>>>>> upstream/android-13
 		resblks = xfs_default_resblks(mp);
 		error = xfs_reserve_blocks(mp, &resblks, NULL);
 		if (error)
@@ -1046,8 +1435,22 @@ xfs_mountfs(
 	xfs_irele(rip);
 	/* Clean out dquots that might be in memory after quotacheck. */
 	xfs_qm_unmount(mp);
+<<<<<<< HEAD
 	/*
 	 * Cancel all delayed reclaim work and reclaim the inodes directly.
+=======
+
+	/*
+	 * Inactivate all inodes that might still be in memory after a log
+	 * intent recovery failure so that reclaim can free them.  Metadata
+	 * inodes and the root directory shouldn't need inactivation, but the
+	 * mount failed for some reason, so pull down all the state and flee.
+	 */
+	xfs_inodegc_flush(mp);
+
+	/*
+	 * Flush all inode reclamation work and flush the log.
+>>>>>>> upstream/android-13
 	 * We have to do this /after/ rtunmount and qm_unmount because those
 	 * two will have scheduled delayed reclaim for the rt/quota inodes.
 	 *
@@ -1057,6 +1460,7 @@ xfs_mountfs(
 	 * qm_unmount_quotas and therefore rely on qm_unmount to release the
 	 * quota inodes.
 	 */
+<<<<<<< HEAD
 	cancel_delayed_work_sync(&mp->m_reclaim_work);
 	xfs_reclaim_inodes(mp, SYNC_WAIT);
  out_log_dealloc:
@@ -1066,6 +1470,17 @@ xfs_mountfs(
 	if (mp->m_logdev_targp && mp->m_logdev_targp != mp->m_ddev_targp)
 		xfs_wait_buftarg(mp->m_logdev_targp);
 	xfs_wait_buftarg(mp->m_ddev_targp);
+=======
+	xfs_unmount_flush_inodes(mp);
+ out_log_dealloc:
+	xfs_log_mount_cancel(mp);
+ out_inodegc_shrinker:
+	unregister_shrinker(&mp->m_inodegc_shrinker);
+ out_fail_wait:
+	if (mp->m_logdev_targp && mp->m_logdev_targp != mp->m_ddev_targp)
+		xfs_buftarg_drain(mp->m_logdev_targp);
+	xfs_buftarg_drain(mp->m_ddev_targp);
+>>>>>>> upstream/android-13
  out_free_perag:
 	xfs_free_perag(mp);
  out_free_dir:
@@ -1095,12 +1510,27 @@ xfs_unmountfs(
 	uint64_t		resblks;
 	int			error;
 
+<<<<<<< HEAD
 	xfs_icache_disable_reclaim(mp);
+=======
+	/*
+	 * Perform all on-disk metadata updates required to inactivate inodes
+	 * that the VFS evicted earlier in the unmount process.  Freeing inodes
+	 * and discarding CoW fork preallocations can cause shape changes to
+	 * the free inode and refcount btrees, respectively, so we must finish
+	 * this before we discard the metadata space reservations.  Metadata
+	 * inodes and the root directory do not require inactivation.
+	 */
+	xfs_inodegc_flush(mp);
+
+	xfs_blockgc_stop(mp);
+>>>>>>> upstream/android-13
 	xfs_fs_unreserve_ag_blocks(mp);
 	xfs_qm_unmount_quotas(mp);
 	xfs_rtunmount_inodes(mp);
 	xfs_irele(mp->m_rootip);
 
+<<<<<<< HEAD
 	/*
 	 * We can potentially deadlock here if we have an inode cluster
 	 * that has been freed has its buffer still pinned in memory because
@@ -1141,6 +1571,9 @@ xfs_unmountfs(
 	 */
 	cancel_delayed_work_sync(&mp->m_reclaim_work);
 	xfs_reclaim_inodes(mp, SYNC_WAIT);
+=======
+	xfs_unmount_flush_inodes(mp);
+>>>>>>> upstream/android-13
 
 	xfs_qm_unmount(mp);
 
@@ -1164,12 +1597,15 @@ xfs_unmountfs(
 		xfs_warn(mp, "Unable to free reserved block pool. "
 				"Freespace may not be correct on next mount.");
 
+<<<<<<< HEAD
 	error = xfs_log_sbcount(mp);
 	if (error)
 		xfs_warn(mp, "Unable to update superblock counters. "
 				"Freespace may not be correct on next mount.");
 
 
+=======
+>>>>>>> upstream/android-13
 	xfs_log_unmount(mp);
 	xfs_da_unmount(mp);
 	xfs_uuid_unmount(mp);
@@ -1177,6 +1613,10 @@ xfs_unmountfs(
 #if defined(DEBUG)
 	xfs_errortag_clearall(mp);
 #endif
+<<<<<<< HEAD
+=======
+	unregister_shrinker(&mp->m_inodegc_shrinker);
+>>>>>>> upstream/android-13
 	xfs_free_perag(mp);
 
 	xfs_errortag_del(mp);
@@ -1198,12 +1638,17 @@ xfs_fs_writable(
 {
 	ASSERT(level > SB_UNFROZEN);
 	if ((mp->m_super->s_writers.frozen >= level) ||
+<<<<<<< HEAD
 	    XFS_FORCED_SHUTDOWN(mp) || (mp->m_flags & XFS_MOUNT_RDONLY))
+=======
+	    xfs_is_shutdown(mp) || xfs_is_readonly(mp))
+>>>>>>> upstream/android-13
 		return false;
 
 	return true;
 }
 
+<<<<<<< HEAD
 /*
  * xfs_log_sbcount
  *
@@ -1271,6 +1716,8 @@ xfs_mod_ifree(
  * we get near to ENOSPC and we have to be very accurate with our updates.
  */
 #define XFS_FDBLOCKS_BATCH	1024
+=======
+>>>>>>> upstream/android-13
 int
 xfs_mod_fdblocks(
 	struct xfs_mount	*mp,
@@ -1280,6 +1727,10 @@ xfs_mod_fdblocks(
 	int64_t			lcounter;
 	long long		res_used;
 	s32			batch;
+<<<<<<< HEAD
+=======
+	uint64_t		set_aside;
+>>>>>>> upstream/android-13
 
 	if (delta > 0) {
 		/*
@@ -1319,8 +1770,25 @@ xfs_mod_fdblocks(
 	else
 		batch = XFS_FDBLOCKS_BATCH;
 
+<<<<<<< HEAD
 	percpu_counter_add_batch(&mp->m_fdblocks, delta, batch);
 	if (__percpu_counter_compare(&mp->m_fdblocks, mp->m_alloc_set_aside,
+=======
+	/*
+	 * Set aside allocbt blocks because these blocks are tracked as free
+	 * space but not available for allocation. Technically this means that a
+	 * single reservation cannot consume all remaining free space, but the
+	 * ratio of allocbt blocks to usable free blocks should be rather small.
+	 * The tradeoff without this is that filesystems that maintain high
+	 * perag block reservations can over reserve physical block availability
+	 * and fail physical allocation, which leads to much more serious
+	 * problems (i.e. transaction abort, pagecache discards, etc.) than
+	 * slightly premature -ENOSPC.
+	 */
+	set_aside = mp->m_alloc_set_aside + atomic64_read(&mp->m_allocbt_blks);
+	percpu_counter_add_batch(&mp->m_fdblocks, delta, batch);
+	if (__percpu_counter_compare(&mp->m_fdblocks, set_aside,
+>>>>>>> upstream/android-13
 				     XFS_FDBLOCKS_BATCH) >= 0) {
 		/* we had space! */
 		return 0;
@@ -1341,10 +1809,16 @@ xfs_mod_fdblocks(
 		spin_unlock(&mp->m_sb_lock);
 		return 0;
 	}
+<<<<<<< HEAD
 	printk_once(KERN_WARNING
 		"Filesystem \"%s\": reserve blocks depleted! "
 		"Consider increasing reserve pool size.",
 		mp->m_fsname);
+=======
+	xfs_warn_once(mp,
+"Reserve blocks depleted! Consider increasing reserve pool size.");
+
+>>>>>>> upstream/android-13
 fdblocks_enospc:
 	spin_unlock(&mp->m_sb_lock);
 	return -ENOSPC;
@@ -1369,6 +1843,7 @@ xfs_mod_frextents(
 }
 
 /*
+<<<<<<< HEAD
  * xfs_getsb() is called to obtain the buffer for the superblock.
  * The buffer is returned locked and read in from disk.
  * The buffer should be released with a call to xfs_brelse().
@@ -1396,6 +1871,8 @@ xfs_getsb(
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Used to free the superblock along various error paths.
  */
 void
@@ -1433,10 +1910,148 @@ void
 xfs_force_summary_recalc(
 	struct xfs_mount	*mp)
 {
+<<<<<<< HEAD
 	if (!xfs_sb_version_haslazysbcount(&mp->m_sb))
 		return;
 
 	spin_lock(&mp->m_sb_lock);
 	mp->m_flags |= XFS_MOUNT_BAD_SUMMARY;
 	spin_unlock(&mp->m_sb_lock);
+=======
+	if (!xfs_has_lazysbcount(mp))
+		return;
+
+	xfs_fs_mark_sick(mp, XFS_SICK_FS_COUNTERS);
+}
+
+/*
+ * Enable a log incompat feature flag in the primary superblock.  The caller
+ * cannot have any other transactions in progress.
+ */
+int
+xfs_add_incompat_log_feature(
+	struct xfs_mount	*mp,
+	uint32_t		feature)
+{
+	struct xfs_dsb		*dsb;
+	int			error;
+
+	ASSERT(hweight32(feature) == 1);
+	ASSERT(!(feature & XFS_SB_FEAT_INCOMPAT_LOG_UNKNOWN));
+
+	/*
+	 * Force the log to disk and kick the background AIL thread to reduce
+	 * the chances that the bwrite will stall waiting for the AIL to unpin
+	 * the primary superblock buffer.  This isn't a data integrity
+	 * operation, so we don't need a synchronous push.
+	 */
+	error = xfs_log_force(mp, XFS_LOG_SYNC);
+	if (error)
+		return error;
+	xfs_ail_push_all(mp->m_ail);
+
+	/*
+	 * Lock the primary superblock buffer to serialize all callers that
+	 * are trying to set feature bits.
+	 */
+	xfs_buf_lock(mp->m_sb_bp);
+	xfs_buf_hold(mp->m_sb_bp);
+
+	if (xfs_is_shutdown(mp)) {
+		error = -EIO;
+		goto rele;
+	}
+
+	if (xfs_sb_has_incompat_log_feature(&mp->m_sb, feature))
+		goto rele;
+
+	/*
+	 * Write the primary superblock to disk immediately, because we need
+	 * the log_incompat bit to be set in the primary super now to protect
+	 * the log items that we're going to commit later.
+	 */
+	dsb = mp->m_sb_bp->b_addr;
+	xfs_sb_to_disk(dsb, &mp->m_sb);
+	dsb->sb_features_log_incompat |= cpu_to_be32(feature);
+	error = xfs_bwrite(mp->m_sb_bp);
+	if (error)
+		goto shutdown;
+
+	/*
+	 * Add the feature bits to the incore superblock before we unlock the
+	 * buffer.
+	 */
+	xfs_sb_add_incompat_log_features(&mp->m_sb, feature);
+	xfs_buf_relse(mp->m_sb_bp);
+
+	/* Log the superblock to disk. */
+	return xfs_sync_sb(mp, false);
+shutdown:
+	xfs_force_shutdown(mp, SHUTDOWN_META_IO_ERROR);
+rele:
+	xfs_buf_relse(mp->m_sb_bp);
+	return error;
+}
+
+/*
+ * Clear all the log incompat flags from the superblock.
+ *
+ * The caller cannot be in a transaction, must ensure that the log does not
+ * contain any log items protected by any log incompat bit, and must ensure
+ * that there are no other threads that depend on the state of the log incompat
+ * feature flags in the primary super.
+ *
+ * Returns true if the superblock is dirty.
+ */
+bool
+xfs_clear_incompat_log_features(
+	struct xfs_mount	*mp)
+{
+	bool			ret = false;
+
+	if (!xfs_has_crc(mp) ||
+	    !xfs_sb_has_incompat_log_feature(&mp->m_sb,
+				XFS_SB_FEAT_INCOMPAT_LOG_ALL) ||
+	    xfs_is_shutdown(mp))
+		return false;
+
+	/*
+	 * Update the incore superblock.  We synchronize on the primary super
+	 * buffer lock to be consistent with the add function, though at least
+	 * in theory this shouldn't be necessary.
+	 */
+	xfs_buf_lock(mp->m_sb_bp);
+	xfs_buf_hold(mp->m_sb_bp);
+
+	if (xfs_sb_has_incompat_log_feature(&mp->m_sb,
+				XFS_SB_FEAT_INCOMPAT_LOG_ALL)) {
+		xfs_info(mp, "Clearing log incompat feature flags.");
+		xfs_sb_remove_incompat_log_features(&mp->m_sb);
+		ret = true;
+	}
+
+	xfs_buf_relse(mp->m_sb_bp);
+	return ret;
+}
+
+/*
+ * Update the in-core delayed block counter.
+ *
+ * We prefer to update the counter without having to take a spinlock for every
+ * counter update (i.e. batching).  Each change to delayed allocation
+ * reservations can change can easily exceed the default percpu counter
+ * batching, so we use a larger batch factor here.
+ *
+ * Note that we don't currently have any callers requiring fast summation
+ * (e.g. percpu_counter_read) so we can use a big batch value here.
+ */
+#define XFS_DELALLOC_BATCH	(4096)
+void
+xfs_mod_delalloc(
+	struct xfs_mount	*mp,
+	int64_t			delta)
+{
+	percpu_counter_add_batch(&mp->m_delalloc_blks, delta,
+			XFS_DELALLOC_BATCH);
+>>>>>>> upstream/android-13
 }

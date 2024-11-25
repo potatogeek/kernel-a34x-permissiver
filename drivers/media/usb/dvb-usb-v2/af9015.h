@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * DVB USB Linux driver for Afatech AF9015 DVB-T USB2.0 receiver
  *
  * Copyright (C) 2007 Antti Palosaari <crope@iki.fi>
  *
  * Thanks to Afatech who kindly provided information.
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -15,6 +20,8 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef AF9015_H

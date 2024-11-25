@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Common PowerQUICC II code.
  *
@@ -7,6 +11,7 @@
  * Based on code by Vitaly Bordug <vbordug@ru.mvista.com>
  * pq2_restart fix by Wade Farnsworth <wfarnsworth@mvista.com>
  * Copyright (c) 2006 MontaVista Software, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
@@ -14,6 +19,12 @@
  * option) any later version.
  */
 
+=======
+ */
+
+#include <linux/kprobes.h>
+
+>>>>>>> upstream/android-13
 #include <asm/cpm2.h>
 #include <asm/io.h>
 #include <asm/pci-bridge.h>
@@ -33,6 +44,10 @@ void __noreturn pq2_restart(char *cmd)
 
 	panic("Restart failed\n");
 }
+<<<<<<< HEAD
+=======
+NOKPROBE_SYMBOL(pq2_restart)
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PCI
 static int pq2_pci_exclude_device(struct pci_controller *hose,

@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * ADF4350/ADF4351 SPI PLL driver
  *
  * Copyright 2012-2013 Analog Devices Inc.
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef IIO_PLL_ADF4350_H_
@@ -104,9 +111,12 @@
  * @r2_user_settings:	User defined settings for ADF4350/1 REGISTER_2.
  * @r3_user_settings:	User defined settings for ADF4350/1 REGISTER_3.
  * @r4_user_settings:	User defined settings for ADF4350/1 REGISTER_4.
+<<<<<<< HEAD
  * @gpio_lock_detect:	Optional, if set with a valid GPIO number,
  *			pll lock state is tested upon read.
  *			If not used - set to -1.
+=======
+>>>>>>> upstream/android-13
  */
 
 struct adf4350_platform_data {
@@ -122,7 +132,10 @@ struct adf4350_platform_data {
 	unsigned		r2_user_settings;
 	unsigned		r3_user_settings;
 	unsigned		r4_user_settings;
+<<<<<<< HEAD
 	int			gpio_lock_detect;
+=======
+>>>>>>> upstream/android-13
 };
 
 #endif /* IIO_PLL_ADF4350_H_ */

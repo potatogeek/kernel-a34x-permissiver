@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * MIPI DSI Bus
  *
  * Copyright (C) 2012-2013, Samsung Electronics, Co., Ltd.
  * Andrzej Hajda <a.hajda@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __DRM_MIPI_DSI_H__
@@ -22,18 +29,24 @@ struct drm_dsc_picture_parameter_set;
 #define MIPI_DSI_MSG_REQ_ACK	BIT(0)
 /* use Low Power Mode to transmit message */
 #define MIPI_DSI_MSG_USE_LPM	BIT(1)
+<<<<<<< HEAD
 /* read mipi_dsi_msg.ctrl and unicast to only that ctrls */
 #define MIPI_DSI_MSG_UNICAST	BIT(2)
 /* Stack all commands until lastcommand bit and trigger all in one go */
 #define MIPI_DSI_MSG_LASTCOMMAND BIT(3)
+=======
+>>>>>>> upstream/android-13
 
 /**
  * struct mipi_dsi_msg - read/write DSI buffer
  * @channel: virtual channel id
  * @type: payload data type
  * @flags: flags controlling this message transmission
+<<<<<<< HEAD
  * @ctrl: ctrl index to transmit on
  * @wait_ms: duration in ms to wait after message transmission
+=======
+>>>>>>> upstream/android-13
  * @tx_len: length of @tx_buf
  * @tx_buf: data to be written
  * @rx_len: length of @rx_buf
@@ -43,8 +56,11 @@ struct mipi_dsi_msg {
 	u8 channel;
 	u8 type;
 	u16 flags;
+<<<<<<< HEAD
 	u32 ctrl;
 	u32 wait_ms;
+=======
+>>>>>>> upstream/android-13
 
 	size_t tx_len;
 	const void *tx_buf;
@@ -91,6 +107,14 @@ int mipi_dsi_create_packet(struct mipi_dsi_packet *packet,
  * Note that typically DSI packet transmission is atomic, so the .transfer()
  * function will seldomly return anything other than the number of bytes
  * contained in the transmit buffer on success.
+<<<<<<< HEAD
+=======
+ *
+ * Also note that those callbacks can be called no matter the state the
+ * host is in. Drivers that need the underlying device to be powered to
+ * perform these operations will first need to make sure it's been
+ * properly enabled.
+>>>>>>> upstream/android-13
  */
 struct mipi_dsi_host_ops {
 	int (*attach)(struct mipi_dsi_host *host,
@@ -130,6 +154,7 @@ struct mipi_dsi_host *of_find_mipi_dsi_host_by_node(struct device_node *node);
 /* enable hsync-end packets in vsync-pulse and v-porch area */
 #define MIPI_DSI_MODE_VIDEO_HSE		BIT(4)
 /* disable hfront-porch area */
+<<<<<<< HEAD
 #define MIPI_DSI_MODE_VIDEO_HFP		BIT(5)
 /* disable hback-porch area */
 #define MIPI_DSI_MODE_VIDEO_HBP		BIT(6)
@@ -139,14 +164,28 @@ struct mipi_dsi_host *of_find_mipi_dsi_host_by_node(struct device_node *node);
 #define MIPI_DSI_MODE_VSYNC_FLUSH	BIT(8)
 /* disable EoT packets in HS mode */
 #define MIPI_DSI_MODE_EOT_PACKET	BIT(9)
+=======
+#define MIPI_DSI_MODE_VIDEO_NO_HFP	BIT(5)
+/* disable hback-porch area */
+#define MIPI_DSI_MODE_VIDEO_NO_HBP	BIT(6)
+/* disable hsync-active area */
+#define MIPI_DSI_MODE_VIDEO_NO_HSA	BIT(7)
+/* flush display FIFO on vsync pulse */
+#define MIPI_DSI_MODE_VSYNC_FLUSH	BIT(8)
+/* disable EoT packets in HS mode */
+#define MIPI_DSI_MODE_NO_EOT_PACKET	BIT(9)
+>>>>>>> upstream/android-13
 /* device supports non-continuous clock behavior (DSI spec 5.6.1) */
 #define MIPI_DSI_CLOCK_NON_CONTINUOUS	BIT(10)
 /* transmit data in low power */
 #define MIPI_DSI_MODE_LPM		BIT(11)
+<<<<<<< HEAD
 /* disable BLLP area */
 #define MIPI_DSI_MODE_VIDEO_BLLP	BIT(12)
 /* disable EOF BLLP area */
 #define MIPI_DSI_MODE_VIDEO_EOF_BLLP	BIT(13)
+=======
+>>>>>>> upstream/android-13
 
 enum mipi_dsi_pixel_format {
 	MIPI_DSI_FMT_RGB888,
@@ -181,6 +220,15 @@ struct mipi_dsi_device_info {
  * @format: pixel format for video mode
  * @lanes: number of active data lanes
  * @mode_flags: DSI operation mode related flags
+<<<<<<< HEAD
+=======
+ * @hs_rate: maximum lane frequency for high speed mode in hertz, this should
+ * be set to the real limits of the hardware, zero is only accepted for
+ * legacy drivers
+ * @lp_rate: maximum lane frequency for low power mode in hertz, this should
+ * be set to the real limits of the hardware, zero is only accepted for
+ * legacy drivers
+>>>>>>> upstream/android-13
  */
 struct mipi_dsi_device {
 	struct mipi_dsi_host *host;
@@ -191,6 +239,11 @@ struct mipi_dsi_device {
 	unsigned int lanes;
 	enum mipi_dsi_pixel_format format;
 	unsigned long mode_flags;
+<<<<<<< HEAD
+=======
+	unsigned long hs_rate;
+	unsigned long lp_rate;
+>>>>>>> upstream/android-13
 };
 
 #define MIPI_DSI_MODULE_PREFIX "mipi-dsi:"

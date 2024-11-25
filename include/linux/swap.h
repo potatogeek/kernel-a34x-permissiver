@@ -10,14 +10,26 @@
 #include <linux/sched.h>
 #include <linux/node.h>
 #include <linux/fs.h>
+<<<<<<< HEAD
 #include <linux/atomic.h>
 #include <linux/page-flags.h>
+=======
+#include <linux/pagemap.h>
+#include <linux/atomic.h>
+#include <linux/page-flags.h>
+#include <uapi/linux/mempolicy.h>
+>>>>>>> upstream/android-13
 #include <asm/page.h>
 
 struct notifier_block;
 
 struct bio;
 
+<<<<<<< HEAD
+=======
+struct pagevec;
+
+>>>>>>> upstream/android-13
 #define SWAP_FLAG_PREFER	0x8000	/* set if swap priority specified */
 #define SWAP_FLAG_PRIO_MASK	0x7fff
 #define SWAP_FLAG_PRIO_SHIFT	0
@@ -30,6 +42,11 @@ struct bio;
 				 SWAP_FLAG_DISCARD_PAGES)
 #define SWAP_BATCH 64
 
+<<<<<<< HEAD
+=======
+int kswapd (void *p);
+
+>>>>>>> upstream/android-13
 static inline int current_is_kswapd(void)
 {
 	return current->flags & PF_KSWAPD;
@@ -58,12 +75,26 @@ static inline int current_is_kswapd(void)
  * migrate part of a process memory to device memory.
  *
  * When a page is migrated from CPU to device, we set the CPU page table entry
+<<<<<<< HEAD
  * to a special SWP_DEVICE_* entry.
  */
 #ifdef CONFIG_DEVICE_PRIVATE
 #define SWP_DEVICE_NUM 2
 #define SWP_DEVICE_WRITE (MAX_SWAPFILES+SWP_HWPOISON_NUM+SWP_MIGRATION_NUM)
 #define SWP_DEVICE_READ (MAX_SWAPFILES+SWP_HWPOISON_NUM+SWP_MIGRATION_NUM+1)
+=======
+ * to a special SWP_DEVICE_{READ|WRITE} entry.
+ *
+ * When a page is mapped by the device for exclusive access we set the CPU page
+ * table entries to special SWP_DEVICE_EXCLUSIVE_* entries.
+ */
+#ifdef CONFIG_DEVICE_PRIVATE
+#define SWP_DEVICE_NUM 4
+#define SWP_DEVICE_WRITE (MAX_SWAPFILES+SWP_HWPOISON_NUM+SWP_MIGRATION_NUM)
+#define SWP_DEVICE_READ (MAX_SWAPFILES+SWP_HWPOISON_NUM+SWP_MIGRATION_NUM+1)
+#define SWP_DEVICE_EXCLUSIVE_WRITE (MAX_SWAPFILES+SWP_HWPOISON_NUM+SWP_MIGRATION_NUM+2)
+#define SWP_DEVICE_EXCLUSIVE_READ (MAX_SWAPFILES+SWP_HWPOISON_NUM+SWP_MIGRATION_NUM+3)
+>>>>>>> upstream/android-13
 #else
 #define SWP_DEVICE_NUM 0
 #endif
@@ -128,6 +159,13 @@ union swap_header {
  */
 struct reclaim_state {
 	unsigned long reclaimed_slab;
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_LRU_GEN
+	/* per-thread mm walk data */
+	struct lru_gen_mm_walk *mm_walk;
+#endif
+>>>>>>> upstream/android-13
 };
 
 #ifdef __KERNEL__
@@ -146,7 +184,11 @@ struct zone;
  * We always assume that blocks are of size PAGE_SIZE.
  */
 struct swap_extent {
+<<<<<<< HEAD
 	struct list_head list;
+=======
+	struct rb_node rb_node;
+>>>>>>> upstream/android-13
 	pgoff_t start_page;
 	pgoff_t nr_pages;
 	sector_t start_block;
@@ -167,6 +209,7 @@ enum {
 	SWP_SOLIDSTATE	= (1 << 4),	/* blkdev seeks are cheap */
 	SWP_CONTINUED	= (1 << 5),	/* swap_map has count continuation */
 	SWP_BLKDEV	= (1 << 6),	/* its a block device */
+<<<<<<< HEAD
 	SWP_FILE	= (1 << 7),	/* set after swap_activate success */
 	SWP_AREA_DISCARD = (1 << 8),	/* single-time swap area discards */
 	SWP_PAGE_DISCARD = (1 << 9),	/* freed swap page-cluster discards */
@@ -174,17 +217,41 @@ enum {
 	SWP_SYNCHRONOUS_IO = (1 << 11),	/* synchronous IO is efficient */
 					/* add others here before... */
 	SWP_SCANNING	= (1 << 12),	/* refcount in scan_swap_map */
+=======
+	SWP_ACTIVATED	= (1 << 7),	/* set after swap_activate success */
+	SWP_FS_OPS	= (1 << 8),	/* swapfile operations go through fs */
+	SWP_AREA_DISCARD = (1 << 9),	/* single-time swap area discards */
+	SWP_PAGE_DISCARD = (1 << 10),	/* freed swap page-cluster discards */
+	SWP_STABLE_WRITES = (1 << 11),	/* no overwrite PG_writeback pages */
+	SWP_SYNCHRONOUS_IO = (1 << 12),	/* synchronous IO is efficient */
+					/* add others here before... */
+	SWP_SCANNING	= (1 << 14),	/* refcount in scan_swap_map */
+>>>>>>> upstream/android-13
 };
 
 #define SWAP_CLUSTER_MAX 32UL
 #define COMPACT_CLUSTER_MAX SWAP_CLUSTER_MAX
 
+<<<<<<< HEAD
 #define SWAP_MAP_MAX	0x3e	/* Max duplication count, in first swap_map */
 #define SWAP_MAP_BAD	0x3f	/* Note pageblock is bad, in first swap_map */
 #define SWAP_HAS_CACHE	0x40	/* Flag page is cached, in first swap_map */
 #define SWAP_CONT_MAX	0x7f	/* Max count, in each swap_map continuation */
 #define COUNT_CONTINUED	0x80	/* See swap_map continuation for full count */
 #define SWAP_MAP_SHMEM	0xbf	/* Owned by shmem/tmpfs, in first swap_map */
+=======
+/* Bit flag in swap_map */
+#define SWAP_HAS_CACHE	0x40	/* Flag page is cached, in first swap_map */
+#define COUNT_CONTINUED	0x80	/* Flag swap_map continuation for full count */
+
+/* Special value in first swap_map */
+#define SWAP_MAP_MAX	0x3e	/* Max count */
+#define SWAP_MAP_BAD	0x3f	/* Note page is bad */
+#define SWAP_MAP_SHMEM	0xbf	/* Owned by shmem/tmpfs */
+
+/* Special value in each swap_map continuation */
+#define SWAP_CONT_MAX	0x7f	/* Max count */
+>>>>>>> upstream/android-13
 
 /*
  * We use this to track usage of a cluster. A cluster is a block of swap disk
@@ -229,6 +296,10 @@ struct swap_cluster_list {
  * The in-memory structure used to track swap areas.
  */
 struct swap_info_struct {
+<<<<<<< HEAD
+=======
+	struct percpu_ref users;	/* indicate and keep swap device valid. */
+>>>>>>> upstream/android-13
 	unsigned long	flags;		/* SWP_USED etc: see above */
 	signed short	prio;		/* swap priority of this type */
 	struct plist_node list;		/* entry in swap_active_head */
@@ -243,12 +314,22 @@ struct swap_info_struct {
 	unsigned int inuse_pages;	/* number of those currently in use */
 	unsigned int cluster_next;	/* likely index for next allocation */
 	unsigned int cluster_nr;	/* countdown to next cluster search */
+<<<<<<< HEAD
 	struct percpu_cluster __percpu *percpu_cluster; /* per cpu's swap location */
 	struct swap_extent *curr_swap_extent;
 	struct swap_extent first_swap_extent;
 	struct block_device *bdev;	/* swap device or bdev of swap file */
 	struct file *swap_file;		/* seldom referenced */
 	unsigned int old_block_size;	/* seldom referenced */
+=======
+	unsigned int __percpu *cluster_next_cpu; /*percpu index for next allocation */
+	struct percpu_cluster __percpu *percpu_cluster; /* per cpu's swap location */
+	struct rb_root swap_extent_root;/* root of the swap extent rbtree */
+	struct block_device *bdev;	/* swap device or bdev of swap file */
+	struct file *swap_file;		/* seldom referenced */
+	unsigned int old_block_size;	/* seldom referenced */
+	struct completion comp;		/* seldom referenced */
+>>>>>>> upstream/android-13
 #ifdef CONFIG_FRONTSWAP
 	unsigned long *frontswap_map;	/* frontswap in-use, one bit per page */
 	atomic_t frontswap_pages;	/* frontswap pages in-use counter */
@@ -272,9 +353,14 @@ struct swap_info_struct {
 					 */
 	struct work_struct discard_work; /* discard worker */
 	struct swap_cluster_list discard_clusters; /* discard clusters list */
+<<<<<<< HEAD
 	unsigned int write_pending;
 	unsigned int max_writes;
 	struct plist_node avail_lists[0]; /*
+=======
+	ANDROID_VENDOR_DATA(1);
+	struct plist_node avail_lists[]; /*
+>>>>>>> upstream/android-13
 					   * entries in swap_avail_heads, one
 					   * entry per node.
 					   * Must be last as the number of the
@@ -306,6 +392,7 @@ struct vma_swap_readahead {
 };
 
 /* linux/mm/workingset.c */
+<<<<<<< HEAD
 void *workingset_eviction(struct address_space *mapping, struct page *page);
 void workingset_refault(struct page *page, void *shadow);
 void workingset_activation(struct page *page);
@@ -327,12 +414,30 @@ extern unsigned long totalram_pages;
 extern unsigned long totalreserve_pages;
 extern unsigned long nr_free_buffer_pages(void);
 extern unsigned long nr_free_pagecache_pages(void);
+=======
+void workingset_age_nonresident(struct lruvec *lruvec, unsigned long nr_pages);
+void *workingset_eviction(struct page *page, struct mem_cgroup *target_memcg);
+void workingset_refault(struct page *page, void *shadow);
+void workingset_activation(struct page *page);
+
+/* Only track the nodes of mappings with shadow entries */
+void workingset_update_node(struct xa_node *node);
+#define mapping_set_update(xas, mapping) do {				\
+	if (!dax_mapping(mapping) && !shmem_mapping(mapping))		\
+		xas_set_update(xas, workingset_update_node);		\
+} while (0)
+
+/* linux/mm/page_alloc.c */
+extern unsigned long totalreserve_pages;
+extern unsigned long nr_free_buffer_pages(void);
+>>>>>>> upstream/android-13
 
 /* Definition of global_zone_page_state not available yet */
 #define nr_free_pages() global_zone_page_state(NR_FREE_PAGES)
 
 
 /* linux/mm/swap.c */
+<<<<<<< HEAD
 extern void lru_cache_add(struct page *);
 extern void lru_cache_add_anon(struct page *page);
 extern void lru_cache_add_file(struct page *page);
@@ -356,12 +461,50 @@ static inline void lru_cache_add_active_or_unevictable(struct page *page,
 {
 	return __lru_cache_add_active_or_unevictable(page, vma->vm_flags);
 }
+=======
+extern void lru_note_cost(struct lruvec *lruvec, bool file,
+			  unsigned int nr_pages);
+extern void lru_note_cost_page(struct page *);
+extern void lru_cache_add(struct page *);
+extern void mark_page_accessed(struct page *);
+
+extern atomic_t lru_disable_count;
+
+static inline bool lru_cache_disabled(void)
+{
+	return atomic_read(&lru_disable_count);
+}
+
+static inline void lru_cache_enable(void)
+{
+	atomic_dec(&lru_disable_count);
+}
+
+extern void lru_cache_disable(void);
+extern void lru_add_drain(void);
+extern void lru_add_drain_cpu(int cpu);
+extern void lru_add_drain_cpu_zone(struct zone *zone);
+extern void lru_add_drain_all(void);
+extern void rotate_reclaimable_page(struct page *page);
+extern void activate_page(struct page *page);
+extern void deactivate_file_page(struct page *page);
+extern void deactivate_page(struct page *page);
+extern void mark_page_lazyfree(struct page *page);
+extern void swap_setup(void);
+
+extern void lru_cache_add_inactive_or_unevictable(struct page *page,
+						struct vm_area_struct *vma);
+>>>>>>> upstream/android-13
 
 /* linux/mm/vmscan.c */
 extern unsigned long zone_reclaimable_pages(struct zone *zone);
 extern unsigned long try_to_free_pages(struct zonelist *zonelist, int order,
 					gfp_t gfp_mask, nodemask_t *mask);
+<<<<<<< HEAD
 extern int __isolate_lru_page(struct page *page, isolate_mode_t mode);
+=======
+extern bool __isolate_lru_page_prepare(struct page *page, isolate_mode_t mode);
+>>>>>>> upstream/android-13
 extern unsigned long try_to_free_mem_cgroup_pages(struct mem_cgroup *memcg,
 						  unsigned long nr_pages,
 						  gfp_t gfp_mask,
@@ -373,8 +516,13 @@ extern unsigned long mem_cgroup_shrink_node(struct mem_cgroup *mem,
 extern unsigned long shrink_all_memory(unsigned long nr_pages);
 extern int vm_swappiness;
 extern int remove_mapping(struct address_space *mapping, struct page *page);
+<<<<<<< HEAD
 extern unsigned long vm_total_pages;
 
+=======
+
+extern unsigned long reclaim_pages(struct list_head *page_list);
+>>>>>>> upstream/android-13
 #ifdef CONFIG_NUMA
 extern int node_reclaim_mode;
 extern int sysctl_min_unmapped_ratio;
@@ -383,10 +531,22 @@ extern int sysctl_min_slab_ratio;
 #define node_reclaim_mode 0
 #endif
 
+<<<<<<< HEAD
 extern int page_evictable(struct page *page);
 extern void check_move_unevictable_pages(struct page **, int nr_pages);
 
 extern int kswapd_run(int nid);
+=======
+static inline bool node_reclaim_enabled(void)
+{
+	/* Is any node_reclaim_mode bit set? */
+	return node_reclaim_mode & (RECLAIM_ZONE|RECLAIM_WRITE|RECLAIM_UNMAP);
+}
+
+extern void check_move_unevictable_pages(struct pagevec *pvec);
+
+extern void kswapd_run(int nid);
+>>>>>>> upstream/android-13
 extern void kswapd_stop(int nid);
 
 #ifdef CONFIG_SWAP
@@ -414,6 +574,7 @@ extern struct address_space *swapper_spaces[];
 #define swap_address_space(entry)			    \
 	(&swapper_spaces[swp_type(entry)][swp_offset(entry) \
 		>> SWAP_ADDRESS_SPACE_SHIFT])
+<<<<<<< HEAD
 extern unsigned long total_swapcache_pages(void);
 extern void show_swap_cache_info(void);
 extern int add_to_swap(struct page *page);
@@ -421,11 +582,33 @@ extern int add_to_swap_cache(struct page *, swp_entry_t, gfp_t);
 extern int __add_to_swap_cache(struct page *page, swp_entry_t entry);
 extern void __delete_from_swap_cache(struct page *);
 extern void delete_from_swap_cache(struct page *);
+=======
+static inline unsigned long total_swapcache_pages(void)
+{
+	return global_node_page_state(NR_SWAPCACHE);
+}
+
+extern void show_swap_cache_info(void);
+extern int add_to_swap(struct page *page);
+extern void *get_shadow_from_swap_cache(swp_entry_t entry);
+extern int add_to_swap_cache(struct page *page, swp_entry_t entry,
+			gfp_t gfp, void **shadowp);
+extern void __delete_from_swap_cache(struct page *page,
+			swp_entry_t entry, void *shadow);
+extern void delete_from_swap_cache(struct page *);
+extern void clear_shadow_from_swap_cache(int type, unsigned long begin,
+				unsigned long end);
+extern void free_swap_cache(struct page *);
+>>>>>>> upstream/android-13
 extern void free_page_and_swap_cache(struct page *);
 extern void free_pages_and_swap_cache(struct page **, int);
 extern struct page *lookup_swap_cache(swp_entry_t entry,
 				      struct vm_area_struct *vma,
 				      unsigned long addr);
+<<<<<<< HEAD
+=======
+struct page *find_get_incore_page(struct address_space *mapping, pgoff_t index);
+>>>>>>> upstream/android-13
 extern struct page *read_swap_cache_async(swp_entry_t, gfp_t,
 			struct vm_area_struct *vma, unsigned long addr,
 			bool do_poll);
@@ -437,7 +620,10 @@ extern struct page *swap_cluster_readahead(swp_entry_t entry, gfp_t flag,
 extern struct page *swapin_readahead(swp_entry_t entry, gfp_t flag,
 				struct vm_fault *vmf);
 
+<<<<<<< HEAD
 extern bool swap_use_vma_readmore(void);
+=======
+>>>>>>> upstream/android-13
 /* linux/mm/swapfile.c */
 extern atomic_long_t nr_swap_pages;
 extern long total_swap_pages;
@@ -467,12 +653,21 @@ extern int swapcache_prepare(swp_entry_t);
 extern void swap_free(swp_entry_t);
 extern void swapcache_free_entries(swp_entry_t *entries, int n);
 extern int free_swap_and_cache(swp_entry_t);
+<<<<<<< HEAD
 extern int swap_type_of(dev_t, sector_t, struct block_device **);
 extern unsigned int count_swap_pages(int, int);
 extern sector_t map_swap_page(struct page *, struct block_device **);
 extern sector_t swapdev_block(int, pgoff_t);
 extern int page_swapcount(struct page *);
 extern int __swap_count(struct swap_info_struct *si, swp_entry_t entry);
+=======
+int swap_type_of(dev_t device, sector_t offset);
+int find_first_swap(dev_t *device);
+extern unsigned int count_swap_pages(int, int);
+extern sector_t swapdev_block(int, pgoff_t);
+extern int page_swapcount(struct page *);
+extern int __swap_count(swp_entry_t entry);
+>>>>>>> upstream/android-13
 extern int __swp_swapcount(swp_entry_t entry);
 extern int swp_swapcount(swp_entry_t entry);
 extern struct swap_info_struct *page_swap_info(struct page *);
@@ -482,6 +677,16 @@ extern int try_to_free_swap(struct page *);
 struct backing_dev_info;
 extern int init_swap_address_space(unsigned int type, unsigned long nr_pages);
 extern void exit_swap_address_space(unsigned int type);
+<<<<<<< HEAD
+=======
+extern struct swap_info_struct *get_swap_device(swp_entry_t entry);
+sector_t swap_page_sector(struct page *page);
+
+static inline void put_swap_device(struct swap_info_struct *si)
+{
+	percpu_ref_put(&si->users);
+}
+>>>>>>> upstream/android-13
 
 #else /* CONFIG_SWAP */
 
@@ -495,7 +700,24 @@ static inline struct swap_info_struct *swp_swap_info(swp_entry_t entry)
 	return NULL;
 }
 
+<<<<<<< HEAD
 #define swap_address_space(entry)		(NULL)
+=======
+static inline struct swap_info_struct *get_swap_device(swp_entry_t entry)
+{
+	return NULL;
+}
+
+static inline void put_swap_device(struct swap_info_struct *si)
+{
+}
+
+static inline struct address_space *swap_address_space(swp_entry_t entry)
+{
+	return NULL;
+}
+
+>>>>>>> upstream/android-13
 #define get_nr_swap_pages()			0L
 #define total_swap_pages			0L
 #define total_swapcache_pages()			0UL
@@ -510,12 +732,24 @@ static inline struct swap_info_struct *swp_swap_info(swp_entry_t entry)
 #define free_pages_and_swap_cache(pages, nr) \
 	release_pages((pages), (nr));
 
+<<<<<<< HEAD
+=======
+static inline void free_swap_cache(struct page *page)
+{
+}
+
+>>>>>>> upstream/android-13
 static inline void show_swap_cache_info(void)
 {
 }
 
+<<<<<<< HEAD
 #define free_swap_and_cache(e) ({(is_migration_entry(e) || is_device_private_entry(e));})
 #define swapcache_prepare(e) ({(is_migration_entry(e) || is_device_private_entry(e));})
+=======
+/* used to sanity check ptes in zap_pte_range when CONFIG_SWAP=0 */
+#define free_swap_and_cache(e) is_pfn_swap_entry(e)
+>>>>>>> upstream/android-13
 
 static inline int add_swap_count_continuation(swp_entry_t swp, gfp_t gfp_mask)
 {
@@ -563,18 +797,42 @@ static inline struct page *lookup_swap_cache(swp_entry_t swp,
 	return NULL;
 }
 
+<<<<<<< HEAD
+=======
+static inline
+struct page *find_get_incore_page(struct address_space *mapping, pgoff_t index)
+{
+	return find_get_page(mapping, index);
+}
+
+>>>>>>> upstream/android-13
 static inline int add_to_swap(struct page *page)
 {
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline int add_to_swap_cache(struct page *page, swp_entry_t entry,
 							gfp_t gfp_mask)
+=======
+static inline void *get_shadow_from_swap_cache(swp_entry_t entry)
+{
+	return NULL;
+}
+
+static inline int add_to_swap_cache(struct page *page, swp_entry_t entry,
+					gfp_t gfp_mask, void **shadowp)
+>>>>>>> upstream/android-13
 {
 	return -1;
 }
 
+<<<<<<< HEAD
 static inline void __delete_from_swap_cache(struct page *page)
+=======
+static inline void __delete_from_swap_cache(struct page *page,
+					swp_entry_t entry, void *shadow)
+>>>>>>> upstream/android-13
 {
 }
 
@@ -582,12 +840,24 @@ static inline void delete_from_swap_cache(struct page *page)
 {
 }
 
+<<<<<<< HEAD
+=======
+static inline void clear_shadow_from_swap_cache(int type, unsigned long begin,
+				unsigned long end)
+{
+}
+
+>>>>>>> upstream/android-13
 static inline int page_swapcount(struct page *page)
 {
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline int __swap_count(struct swap_info_struct *si, swp_entry_t entry)
+=======
+static inline int __swap_count(swp_entry_t entry)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
@@ -636,7 +906,11 @@ static inline int mem_cgroup_swappiness(struct mem_cgroup *memcg)
 		return vm_swappiness;
 
 	/* root ? */
+<<<<<<< HEAD
 	if (mem_cgroup_disabled() || !memcg->css.parent)
+=======
+	if (mem_cgroup_disabled() || mem_cgroup_is_root(memcg))
+>>>>>>> upstream/android-13
 		return vm_swappiness;
 
 	return memcg->swappiness;
@@ -649,19 +923,50 @@ static inline int mem_cgroup_swappiness(struct mem_cgroup *mem)
 #endif
 
 #if defined(CONFIG_SWAP) && defined(CONFIG_MEMCG) && defined(CONFIG_BLK_CGROUP)
+<<<<<<< HEAD
 extern void mem_cgroup_throttle_swaprate(struct mem_cgroup *memcg, int node,
 					 gfp_t gfp_mask);
 #else
 static inline void mem_cgroup_throttle_swaprate(struct mem_cgroup *memcg,
 						int node, gfp_t gfp_mask)
+=======
+extern void __cgroup_throttle_swaprate(struct page *page, gfp_t gfp_mask);
+static inline  void cgroup_throttle_swaprate(struct page *page, gfp_t gfp_mask)
+{
+	if (mem_cgroup_disabled())
+		return;
+	__cgroup_throttle_swaprate(page, gfp_mask);
+}
+#else
+static inline void cgroup_throttle_swaprate(struct page *page, gfp_t gfp_mask)
+>>>>>>> upstream/android-13
 {
 }
 #endif
 
 #ifdef CONFIG_MEMCG_SWAP
 extern void mem_cgroup_swapout(struct page *page, swp_entry_t entry);
+<<<<<<< HEAD
 extern int mem_cgroup_try_charge_swap(struct page *page, swp_entry_t entry);
 extern void mem_cgroup_uncharge_swap(swp_entry_t entry, unsigned int nr_pages);
+=======
+extern int __mem_cgroup_try_charge_swap(struct page *page, swp_entry_t entry);
+static inline int mem_cgroup_try_charge_swap(struct page *page, swp_entry_t entry)
+{
+	if (mem_cgroup_disabled())
+		return 0;
+	return __mem_cgroup_try_charge_swap(page, entry);
+}
+
+extern void __mem_cgroup_uncharge_swap(swp_entry_t entry, unsigned int nr_pages);
+static inline void mem_cgroup_uncharge_swap(swp_entry_t entry, unsigned int nr_pages)
+{
+	if (mem_cgroup_disabled())
+		return;
+	__mem_cgroup_uncharge_swap(entry, nr_pages);
+}
+
+>>>>>>> upstream/android-13
 extern long mem_cgroup_get_nr_swap_pages(struct mem_cgroup *memcg);
 extern bool mem_cgroup_swap_full(struct page *page);
 #else
@@ -691,5 +996,21 @@ static inline bool mem_cgroup_swap_full(struct page *page)
 }
 #endif
 
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_ZRAM)
+enum zram_oem_func_cmds {
+	ZRAM_APP_LAUNCH_NOTIFY,
+	ZRAM_ADD_TO_WRITEBACK_LIST,
+	ZRAM_WRITEBACK_LIST,
+	ZRAM_ALLOC_WRITEBACK_BUFFER,
+	ZRAM_FREE_WRITEBACK_BUFFER,
+	ZRAM_IS_WRITEBACK_ENTRY,
+};
+typedef unsigned long (*zram_oem_func)(int, void *, unsigned long);
+extern zram_oem_func zram_oem_fn;
+extern unsigned long zram_oem_fn_nocfi(int cmd, void *priv, unsigned long param);
+#endif
+>>>>>>> upstream/android-13
 #endif /* __KERNEL__*/
 #endif /* _LINUX_SWAP_H */

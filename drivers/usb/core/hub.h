@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * usb hub driver head file
  *
@@ -70,6 +74,11 @@ struct usb_hub {
 	struct delayed_work	leds;
 	struct delayed_work	init_work;
 	struct work_struct      events;
+<<<<<<< HEAD
+=======
+	spinlock_t		irq_urb_lock;
+	struct timer_list	irq_urb_retry;
+>>>>>>> upstream/android-13
 	struct usb_port		**ports;
 };
 
@@ -146,8 +155,15 @@ static inline unsigned hub_power_on_good_delay(struct usb_hub *hub)
 {
 	unsigned delay = hub->descriptor->bPwrOn2PwrGood * 2;
 
+<<<<<<< HEAD
 	/* Wait at least 100 msec for power to become stable */
 	return max(delay, 100U);
+=======
+	if (!hub->hdev->parent)	/* root hub */
+		return delay;
+	else /* Wait at least 100 msec for power to become stable */
+		return max(delay, 100U);
+>>>>>>> upstream/android-13
 }
 
 static inline int hub_port_debounce_be_connected(struct usb_hub *hub,

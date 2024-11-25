@@ -118,7 +118,11 @@ gv100_disp_wndw_mthd_base = {
 
 const struct nv50_disp_chan_mthd
 gv100_disp_wndw_mthd = {
+<<<<<<< HEAD
 	.name = "Base",
+=======
+	.name = "Window",
+>>>>>>> upstream/android-13
 	.addr = 0x001000,
 	.prev = 0x000800,
 	.data = {

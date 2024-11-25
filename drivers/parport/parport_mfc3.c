@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* Low-level parallel port routines for the Multiface 3 card
  *
  * Author: Joerg Dorchain <joerg@dorchain.net>
@@ -69,11 +73,14 @@
 #define MAX_MFC 5
 
 #undef DEBUG
+<<<<<<< HEAD
 #ifdef DEBUG
 #define DPRINTK printk
 #else
 static inline int DPRINTK(void *nothing, ...) {return 0;}
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static struct parport *this_port[MAX_MFC] = {NULL, };
 static volatile int dummy; /* for trigger readds */
@@ -83,7 +90,11 @@ static struct parport_operations pp_mfc3_ops;
 
 static void mfc3_write_data(struct parport *p, unsigned char data)
 {
+<<<<<<< HEAD
 DPRINTK(KERN_DEBUG "write_data %c\n",data);
+=======
+	pr_debug("write_data %c\n", data);
+>>>>>>> upstream/android-13
 
 	dummy = pia(p)->pprb; /* clears irq bit */
 	/* Triggers also /STROBE.*/
@@ -127,13 +138,21 @@ static unsigned char control_mfc3_to_pc(unsigned char control)
 
 static void mfc3_write_control(struct parport *p, unsigned char control)
 {
+<<<<<<< HEAD
 DPRINTK(KERN_DEBUG "write_control %02x\n",control);
+=======
+	pr_debug("write_control %02x\n", control);
+>>>>>>> upstream/android-13
 	pia(p)->ppra = (pia(p)->ppra & 0x1f) | control_pc_to_mfc3(control);
 }
 	
 static unsigned char mfc3_read_control( struct parport *p)
 {
+<<<<<<< HEAD
 DPRINTK(KERN_DEBUG "read_control \n");
+=======
+	pr_debug("read_control\n");
+>>>>>>> upstream/android-13
 	return control_mfc3_to_pc(pia(p)->ppra & 0xe0);
 }
 
@@ -141,7 +160,11 @@ static unsigned char mfc3_frob_control( struct parport *p, unsigned char mask, u
 {
 	unsigned char old;
 
+<<<<<<< HEAD
 DPRINTK(KERN_DEBUG "frob_control mask %02x, value %02x\n",mask,val);
+=======
+	pr_debug("frob_control mask %02x, value %02x\n", mask, val);
+>>>>>>> upstream/android-13
 	old = mfc3_read_control(p);
 	mfc3_write_control(p, (old & ~mask) ^ val);
 	return old;
@@ -170,7 +193,11 @@ static unsigned char mfc3_read_status(struct parport *p)
 	unsigned char status;
 
 	status = status_mfc3_to_pc(pia(p)->ppra & 0x1f);
+<<<<<<< HEAD
 DPRINTK(KERN_DEBUG "read_status %02x\n", status);
+=======
+	pr_debug("read_status %02x\n", status);
+>>>>>>> upstream/android-13
 	return status;
 }
 
@@ -201,7 +228,11 @@ static void mfc3_disable_irq(struct parport *p)
 
 static void mfc3_data_forward(struct parport *p)
 {
+<<<<<<< HEAD
 	DPRINTK(KERN_DEBUG "forward\n");
+=======
+	pr_debug("forward\n");
+>>>>>>> upstream/android-13
 	pia(p)->crb &= ~PIA_DDR; /* make data direction register visible */
 	pia(p)->pddrb = 255; /* all pins output */
 	pia(p)->crb |= PIA_DDR; /* make data register visible - default */
@@ -209,7 +240,11 @@ static void mfc3_data_forward(struct parport *p)
 
 static void mfc3_data_reverse(struct parport *p)
 {
+<<<<<<< HEAD
 	DPRINTK(KERN_DEBUG "reverse\n");
+=======
+	pr_debug("reverse\n");
+>>>>>>> upstream/android-13
 	pia(p)->crb &= ~PIA_DDR; /* make data direction register visible */
 	pia(p)->pddrb = 0; /* all pins input */
 	pia(p)->crb |= PIA_DDR; /* make data register visible - default */
@@ -324,7 +359,11 @@ static int __init parport_mfc3_init(void)
 		p->dev = &z->dev;
 
 		this_port[pias++] = p;
+<<<<<<< HEAD
 		printk(KERN_INFO "%s: Multiface III port using irq\n", p->name);
+=======
+		pr_info("%s: Multiface III port using irq\n", p->name);
+>>>>>>> upstream/android-13
 		/* XXX: set operating mode */
 
 		p->private_data = (void *)piabase;
@@ -363,7 +402,10 @@ static void __exit parport_mfc3_exit(void)
 
 MODULE_AUTHOR("Joerg Dorchain <joerg@dorchain.net>");
 MODULE_DESCRIPTION("Parport Driver for Multiface 3 expansion cards Parallel Port");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("Multiface 3 Parallel Port");
+=======
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");
 
 module_init(parport_mfc3_init)

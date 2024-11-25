@@ -32,6 +32,10 @@
 #include <linux/vfs.h>
 #include <linux/random.h>
 #include <linux/mount.h>
+<<<<<<< HEAD
+=======
+#include <uapi/linux/mount.h>
+>>>>>>> upstream/android-13
 #include <linux/namei.h>
 #include <linux/quotaops.h>
 #include <linux/seq_file.h>
@@ -43,7 +47,11 @@
 #include <linux/uaccess.h>
 #include <linux/iversion.h>
 #include <linux/unicode.h>
+<<<<<<< HEAD
 
+=======
+#include <linux/part_stat.h>
+>>>>>>> upstream/android-13
 #include <linux/kthread.h>
 #include <linux/freezer.h>
 
@@ -54,21 +62,34 @@
 #include "acl.h"
 #include "mballoc.h"
 #include "fsmap.h"
+<<<<<<< HEAD
 #include "../mount.h"
+=======
+>>>>>>> upstream/android-13
 
 #define CREATE_TRACE_POINTS
 #include <trace/events/ext4.h>
 
+<<<<<<< HEAD
 extern void (*ufs_debug_func)(void *);
 
 static struct ext4_lazy_init *ext4_li_info;
 static struct mutex ext4_li_mtx;
+=======
+static struct ext4_lazy_init *ext4_li_info;
+static DEFINE_MUTEX(ext4_li_mtx);
+>>>>>>> upstream/android-13
 static struct ratelimit_state ext4_mount_msg_ratelimit;
 
 static int ext4_load_journal(struct super_block *, struct ext4_super_block *,
 			     unsigned long journal_devnum);
 static int ext4_show_options(struct seq_file *seq, struct dentry *root);
+<<<<<<< HEAD
 static int ext4_commit_super(struct super_block *sb, int sync);
+=======
+static void ext4_update_super(struct super_block *sb);
+static int ext4_commit_super(struct super_block *sb);
+>>>>>>> upstream/android-13
 static int ext4_mark_recovery_complete(struct super_block *sb,
 					struct ext4_super_block *es);
 static int ext4_clear_journal_err(struct super_block *sb,
@@ -82,7 +103,10 @@ static struct dentry *ext4_mount(struct file_system_type *fs_type, int flags,
 		       const char *dev_name, void *data);
 static inline int ext2_feature_set_ok(struct super_block *sb);
 static inline int ext3_feature_set_ok(struct super_block *sb);
+<<<<<<< HEAD
 static int ext4_feature_set_ok(struct super_block *sb, int readonly);
+=======
+>>>>>>> upstream/android-13
 static void ext4_destroy_lazyinit_thread(void);
 static void ext4_unregister_li_request(struct super_block *sb);
 static void ext4_clear_request_list(void);
@@ -92,6 +116,7 @@ static struct inode *ext4_get_journal_inode(struct super_block *sb,
 /*
  * Lock ordering
  *
+<<<<<<< HEAD
  * Note the difference between i_mmap_sem (EXT4_I(inode)->i_mmap_sem) and
  * i_mmap_rwsem (inode->i_mmap_rwsem)!
  *
@@ -101,16 +126,34 @@ static struct inode *ext4_get_journal_inode(struct super_block *sb,
  *
  * buffered write path:
  * sb_start_write -> i_mutex -> mmap_sem
+=======
+ * page fault path:
+ * mmap_lock -> sb_start_pagefault -> invalidate_lock (r) -> transaction start
+ *   -> page lock -> i_data_sem (rw)
+ *
+ * buffered write path:
+ * sb_start_write -> i_mutex -> mmap_lock
+>>>>>>> upstream/android-13
  * sb_start_write -> i_mutex -> transaction start -> page lock ->
  *   i_data_sem (rw)
  *
  * truncate:
+<<<<<<< HEAD
  * sb_start_write -> i_mutex -> i_mmap_sem (w) -> i_mmap_rwsem (w) -> page lock
  * sb_start_write -> i_mutex -> i_mmap_sem (w) -> transaction start ->
  *   i_data_sem (rw)
  *
  * direct IO:
  * sb_start_write -> i_mutex -> mmap_sem
+=======
+ * sb_start_write -> i_mutex -> invalidate_lock (w) -> i_mmap_rwsem (w) ->
+ *   page lock
+ * sb_start_write -> i_mutex -> invalidate_lock (w) -> transaction start ->
+ *   i_data_sem (rw)
+ *
+ * direct IO:
+ * sb_start_write -> i_mutex -> mmap_lock
+>>>>>>> upstream/android-13
  * sb_start_write -> i_mutex -> transaction start -> i_data_sem (rw)
  *
  * writepages:
@@ -144,12 +187,80 @@ MODULE_ALIAS_FS("ext3");
 MODULE_ALIAS("ext3");
 #define IS_EXT3_SB(sb) ((sb)->s_bdev->bd_holder == &ext3_fs_type)
 
+<<<<<<< HEAD
 /*
  * This works like sb_bread() except it uses ERR_PTR for error
+=======
+
+static inline void __ext4_read_bh(struct buffer_head *bh, int op_flags,
+				  bh_end_io_t *end_io)
+{
+	/*
+	 * buffer's verified bit is no longer valid after reading from
+	 * disk again due to write out error, clear it to make sure we
+	 * recheck the buffer contents.
+	 */
+	clear_buffer_verified(bh);
+
+	bh->b_end_io = end_io ? end_io : end_buffer_read_sync;
+	get_bh(bh);
+	submit_bh(REQ_OP_READ, op_flags, bh);
+}
+
+void ext4_read_bh_nowait(struct buffer_head *bh, int op_flags,
+			 bh_end_io_t *end_io)
+{
+	BUG_ON(!buffer_locked(bh));
+
+	if (ext4_buffer_uptodate(bh)) {
+		unlock_buffer(bh);
+		return;
+	}
+	__ext4_read_bh(bh, op_flags, end_io);
+}
+
+int ext4_read_bh(struct buffer_head *bh, int op_flags, bh_end_io_t *end_io)
+{
+	BUG_ON(!buffer_locked(bh));
+
+	if (ext4_buffer_uptodate(bh)) {
+		unlock_buffer(bh);
+		return 0;
+	}
+
+	__ext4_read_bh(bh, op_flags, end_io);
+
+	wait_on_buffer(bh);
+	if (buffer_uptodate(bh))
+		return 0;
+	return -EIO;
+}
+
+int ext4_read_bh_lock(struct buffer_head *bh, int op_flags, bool wait)
+{
+	if (trylock_buffer(bh)) {
+		if (wait)
+			return ext4_read_bh(bh, op_flags, NULL);
+		ext4_read_bh_nowait(bh, op_flags, NULL);
+		return 0;
+	}
+	if (wait) {
+		wait_on_buffer(bh);
+		if (buffer_uptodate(bh))
+			return 0;
+		return -EIO;
+	}
+	return 0;
+}
+
+/*
+ * This works like __bread_gfp() except it uses ERR_PTR for error
+>>>>>>> upstream/android-13
  * returns.  Currently with sb_bread it's impossible to distinguish
  * between ENOMEM and EIO situations (since both result in a NULL
  * return.
  */
+<<<<<<< HEAD
 struct buffer_head *
 ext4_sb_bread(struct super_block *sb, sector_t block, int op_flags)
 {
@@ -165,6 +276,49 @@ ext4_sb_bread(struct super_block *sb, sector_t block, int op_flags)
 		return bh;
 	put_bh(bh);
 	return ERR_PTR(-EIO);
+=======
+static struct buffer_head *__ext4_sb_bread_gfp(struct super_block *sb,
+					       sector_t block, int op_flags,
+					       gfp_t gfp)
+{
+	struct buffer_head *bh;
+	int ret;
+
+	bh = sb_getblk_gfp(sb, block, gfp);
+	if (bh == NULL)
+		return ERR_PTR(-ENOMEM);
+	if (ext4_buffer_uptodate(bh))
+		return bh;
+
+	ret = ext4_read_bh_lock(bh, REQ_META | op_flags, true);
+	if (ret) {
+		put_bh(bh);
+		return ERR_PTR(ret);
+	}
+	return bh;
+}
+
+struct buffer_head *ext4_sb_bread(struct super_block *sb, sector_t block,
+				   int op_flags)
+{
+	return __ext4_sb_bread_gfp(sb, block, op_flags, __GFP_MOVABLE);
+}
+
+struct buffer_head *ext4_sb_bread_unmovable(struct super_block *sb,
+					    sector_t block)
+{
+	return __ext4_sb_bread_gfp(sb, block, 0, 0);
+}
+
+void ext4_sb_breadahead_unmovable(struct super_block *sb, sector_t block)
+{
+	struct buffer_head *bh = sb_getblk_gfp(sb, block, 0);
+
+	if (likely(bh)) {
+		ext4_read_bh_lock(bh, REQ_RAHEAD, false);
+		brelse(bh);
+	}
+>>>>>>> upstream/android-13
 }
 
 static int ext4_verify_csum_type(struct super_block *sb,
@@ -207,6 +361,7 @@ void ext4_superblock_csum_set(struct super_block *sb)
 	es->s_checksum = ext4_superblock_csum(sb, es);
 }
 
+<<<<<<< HEAD
 void *ext4_kvmalloc(size_t size, gfp_t flags)
 {
 	void *ret;
@@ -227,6 +382,8 @@ void *ext4_kvzalloc(size_t size, gfp_t flags)
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 ext4_fsblk_t ext4_block_bitmap(struct super_block *sb,
 			       struct ext4_group_desc *bg)
 {
@@ -339,10 +496,15 @@ void ext4_itable_unused_set(struct super_block *sb,
 		bg->bg_itable_unused_hi = cpu_to_le16(count >> 16);
 }
 
+<<<<<<< HEAD
 static void __ext4_update_tstamp(__le32 *lo, __u8 *hi)
 {
 	time64_t now = ktime_get_real_seconds();
 
+=======
+static void __ext4_update_tstamp(__le32 *lo, __u8 *hi, time64_t now)
+{
+>>>>>>> upstream/android-13
 	now = clamp_val(now, 0, (1ull << 40) - 1);
 
 	*lo = cpu_to_le32(lower_32_bits(now));
@@ -354,6 +516,7 @@ static time64_t __ext4_get_tstamp(__le32 *lo, __u8 *hi)
 	return ((time64_t)(*hi) << 32) + le32_to_cpu(*lo);
 }
 #define ext4_update_tstamp(es, tstamp) \
+<<<<<<< HEAD
 	__ext4_update_tstamp(&(es)->tstamp, &(es)->tstamp ## _hi)
 #define ext4_get_tstamp(es, tstamp) \
 	__ext4_get_tstamp(&(es)->tstamp, &(es)->tstamp ## _hi)
@@ -396,6 +559,13 @@ static void save_error_info(struct super_block *sb, const char *func,
 		ext4_commit_super(sb, 1);
 }
 
+=======
+	__ext4_update_tstamp(&(es)->tstamp, &(es)->tstamp ## _hi, \
+			     ktime_get_real_seconds())
+#define ext4_get_tstamp(es, tstamp) \
+	__ext4_get_tstamp(&(es)->tstamp, &(es)->tstamp ## _hi)
+
+>>>>>>> upstream/android-13
 /*
  * The del_gendisk() function uninitializes the disk-specific data
  * structures, including the bdi structure, without telling anyone
@@ -435,14 +605,167 @@ static void ext4_journal_commit_callback(journal_t *journal, transaction_t *txn)
 	spin_unlock(&sbi->s_md_lock);
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * This writepage callback for write_cache_pages()
+ * takes care of a few cases after page cleaning.
+ *
+ * write_cache_pages() already checks for dirty pages
+ * and calls clear_page_dirty_for_io(), which we want,
+ * to write protect the pages.
+ *
+ * However, we may have to redirty a page (see below.)
+ */
+static int ext4_journalled_writepage_callback(struct page *page,
+					      struct writeback_control *wbc,
+					      void *data)
+{
+	transaction_t *transaction = (transaction_t *) data;
+	struct buffer_head *bh, *head;
+	struct journal_head *jh;
+
+	bh = head = page_buffers(page);
+	do {
+		/*
+		 * We have to redirty a page in these cases:
+		 * 1) If buffer is dirty, it means the page was dirty because it
+		 * contains a buffer that needs checkpointing. So the dirty bit
+		 * needs to be preserved so that checkpointing writes the buffer
+		 * properly.
+		 * 2) If buffer is not part of the committing transaction
+		 * (we may have just accidentally come across this buffer because
+		 * inode range tracking is not exact) or if the currently running
+		 * transaction already contains this buffer as well, dirty bit
+		 * needs to be preserved so that the buffer gets writeprotected
+		 * properly on running transaction's commit.
+		 */
+		jh = bh2jh(bh);
+		if (buffer_dirty(bh) ||
+		    (jh && (jh->b_transaction != transaction ||
+			    jh->b_next_transaction))) {
+			redirty_page_for_writepage(wbc, page);
+			goto out;
+		}
+	} while ((bh = bh->b_this_page) != head);
+
+out:
+	return AOP_WRITEPAGE_ACTIVATE;
+}
+
+static int ext4_journalled_submit_inode_data_buffers(struct jbd2_inode *jinode)
+{
+	struct address_space *mapping = jinode->i_vfs_inode->i_mapping;
+	struct writeback_control wbc = {
+		.sync_mode =  WB_SYNC_ALL,
+		.nr_to_write = LONG_MAX,
+		.range_start = jinode->i_dirty_start,
+		.range_end = jinode->i_dirty_end,
+        };
+
+	return write_cache_pages(mapping, &wbc,
+				 ext4_journalled_writepage_callback,
+				 jinode->i_transaction);
+}
+
+static int ext4_journal_submit_inode_data_buffers(struct jbd2_inode *jinode)
+{
+	int ret;
+
+	if (ext4_should_journal_data(jinode->i_vfs_inode))
+		ret = ext4_journalled_submit_inode_data_buffers(jinode);
+	else
+		ret = jbd2_journal_submit_inode_data_buffers(jinode);
+
+	return ret;
+}
+
+static int ext4_journal_finish_inode_data_buffers(struct jbd2_inode *jinode)
+{
+	int ret = 0;
+
+	if (!ext4_should_journal_data(jinode->i_vfs_inode))
+		ret = jbd2_journal_finish_inode_data_buffers(jinode);
+
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 static bool system_going_down(void)
 {
 	return system_state == SYSTEM_HALT || system_state == SYSTEM_POWER_OFF
 		|| system_state == SYSTEM_RESTART;
 }
 
+<<<<<<< HEAD
 /* @fs.sec -- ed6287f38b4c758f36cd7864940cdbd81e26efee -- */
 extern int ignore_fs_panic;
+=======
+struct ext4_err_translation {
+	int code;
+	int errno;
+};
+
+#define EXT4_ERR_TRANSLATE(err) { .code = EXT4_ERR_##err, .errno = err }
+
+static struct ext4_err_translation err_translation[] = {
+	EXT4_ERR_TRANSLATE(EIO),
+	EXT4_ERR_TRANSLATE(ENOMEM),
+	EXT4_ERR_TRANSLATE(EFSBADCRC),
+	EXT4_ERR_TRANSLATE(EFSCORRUPTED),
+	EXT4_ERR_TRANSLATE(ENOSPC),
+	EXT4_ERR_TRANSLATE(ENOKEY),
+	EXT4_ERR_TRANSLATE(EROFS),
+	EXT4_ERR_TRANSLATE(EFBIG),
+	EXT4_ERR_TRANSLATE(EEXIST),
+	EXT4_ERR_TRANSLATE(ERANGE),
+	EXT4_ERR_TRANSLATE(EOVERFLOW),
+	EXT4_ERR_TRANSLATE(EBUSY),
+	EXT4_ERR_TRANSLATE(ENOTDIR),
+	EXT4_ERR_TRANSLATE(ENOTEMPTY),
+	EXT4_ERR_TRANSLATE(ESHUTDOWN),
+	EXT4_ERR_TRANSLATE(EFAULT),
+};
+
+static int ext4_errno_to_code(int errno)
+{
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(err_translation); i++)
+		if (err_translation[i].errno == errno)
+			return err_translation[i].code;
+	return EXT4_ERR_UNKNOWN;
+}
+
+static void save_error_info(struct super_block *sb, int error,
+			    __u32 ino, __u64 block,
+			    const char *func, unsigned int line)
+{
+	struct ext4_sb_info *sbi = EXT4_SB(sb);
+
+	/* We default to EFSCORRUPTED error... */
+	if (error == 0)
+		error = EFSCORRUPTED;
+
+	spin_lock(&sbi->s_error_lock);
+	sbi->s_add_error_count++;
+	sbi->s_last_error_code = error;
+	sbi->s_last_error_line = line;
+	sbi->s_last_error_ino = ino;
+	sbi->s_last_error_block = block;
+	sbi->s_last_error_func = func;
+	sbi->s_last_error_time = ktime_get_real_seconds();
+	if (!sbi->s_first_error_time) {
+		sbi->s_first_error_code = error;
+		sbi->s_first_error_line = line;
+		sbi->s_first_error_ino = ino;
+		sbi->s_first_error_block = block;
+		sbi->s_first_error_func = func;
+		sbi->s_first_error_time = sbi->s_last_error_time;
+	}
+	spin_unlock(&sbi->s_error_lock);
+}
+>>>>>>> upstream/android-13
 
 /* Deal with the reporting of failure conditions on a filesystem such as
  * inconsistencies detected or read IO failures.
@@ -457,6 +780,7 @@ extern int ignore_fs_panic;
  * We'll just use the jbd2_journal_abort() error code to record an error in
  * the journal instead.  On recovery, the journal will complain about
  * that error until we've noted it down and cleared it.
+<<<<<<< HEAD
  */
 
 /* @fs.sec -- 10e386db3959e3c02220744400a053e7807e07ad -- */
@@ -473,11 +797,52 @@ static void ext4_handle_error(struct super_block *sb, char *buf)
 	EXT4_SB(sb)->s_mount_flags |= EXT4_MF_FS_ABORTED;
 	if (journal)
 		jbd2_journal_abort(journal, -EIO);
+=======
+ *
+ * If force_ro is set, we unconditionally force the filesystem into an
+ * ABORT|READONLY state, unless the error response on the fs has been set to
+ * panic in which case we take the easy way out and panic immediately. This is
+ * used to deal with unrecoverable failures such as journal IO errors or ENOMEM
+ * at a critical moment in log management.
+ */
+static void ext4_handle_error(struct super_block *sb, bool force_ro, int error,
+			      __u32 ino, __u64 block,
+			      const char *func, unsigned int line)
+{
+	journal_t *journal = EXT4_SB(sb)->s_journal;
+	bool continue_fs = !force_ro && test_opt(sb, ERRORS_CONT);
+
+	EXT4_SB(sb)->s_mount_state |= EXT4_ERROR_FS;
+	if (test_opt(sb, WARN_ON_ERROR))
+		WARN_ON_ONCE(1);
+
+	if (!continue_fs && !sb_rdonly(sb)) {
+		ext4_set_mount_flag(sb, EXT4_MF_FS_ABORTED);
+		if (journal)
+			jbd2_journal_abort(journal, -EIO);
+	}
+
+	if (!bdev_read_only(sb->s_bdev)) {
+		save_error_info(sb, error, ino, block, func, line);
+		/*
+		 * In case the fs should keep running, we need to writeout
+		 * superblock through the journal. Due to lock ordering
+		 * constraints, it may not be safe to do it right here so we
+		 * defer superblock flushing to a workqueue.
+		 */
+		if (continue_fs && journal)
+			schedule_work(&EXT4_SB(sb)->s_error_work);
+		else
+			ext4_commit_super(sb);
+	}
+
+>>>>>>> upstream/android-13
 	/*
 	 * We force ERRORS_RO behavior when system is rebooting. Otherwise we
 	 * could panic during 'reboot -f' as the underlying device got already
 	 * disabled.
 	 */
+<<<<<<< HEAD
 	if (test_opt(sb, ERRORS_RO) || system_going_down()) {
 		ext4_msg(sb, KERN_CRIT, "Remounting filesystem read-only");
 		/*
@@ -494,6 +859,72 @@ static void ext4_handle_error(struct super_block *sb, char *buf)
 			ufs_debug_func(NULL);
 		panic("EXT4(%s:%s\n", sb->s_id, buf?buf:"no message)");
 	}
+=======
+	if (test_opt(sb, ERRORS_PANIC) && !system_going_down()) {
+		panic("EXT4-fs (device %s): panic forced after error\n",
+			sb->s_id);
+	}
+
+	if (sb_rdonly(sb) || continue_fs)
+		return;
+
+	ext4_msg(sb, KERN_CRIT, "Remounting filesystem read-only");
+	/*
+	 * Make sure updated value of ->s_mount_flags will be visible before
+	 * ->s_flags update
+	 */
+	smp_wmb();
+	sb->s_flags |= SB_RDONLY;
+}
+
+static void flush_stashed_error_work(struct work_struct *work)
+{
+	struct ext4_sb_info *sbi = container_of(work, struct ext4_sb_info,
+						s_error_work);
+	journal_t *journal = sbi->s_journal;
+	handle_t *handle;
+
+	/*
+	 * If the journal is still running, we have to write out superblock
+	 * through the journal to avoid collisions of other journalled sb
+	 * updates.
+	 *
+	 * We use directly jbd2 functions here to avoid recursing back into
+	 * ext4 error handling code during handling of previous errors.
+	 */
+	if (!sb_rdonly(sbi->s_sb) && journal) {
+		struct buffer_head *sbh = sbi->s_sbh;
+		handle = jbd2_journal_start(journal, 1);
+		if (IS_ERR(handle))
+			goto write_directly;
+		if (jbd2_journal_get_write_access(handle, sbh)) {
+			jbd2_journal_stop(handle);
+			goto write_directly;
+		}
+		ext4_update_super(sbi->s_sb);
+		if (buffer_write_io_error(sbh) || !buffer_uptodate(sbh)) {
+			ext4_msg(sbi->s_sb, KERN_ERR, "previous I/O error to "
+				 "superblock detected");
+			clear_buffer_write_io_error(sbh);
+			set_buffer_uptodate(sbh);
+		}
+
+		if (jbd2_journal_dirty_metadata(handle, sbh)) {
+			jbd2_journal_stop(handle);
+			goto write_directly;
+		}
+		jbd2_journal_stop(handle);
+		ext4_notify_error_sysfs(sbi);
+		return;
+	}
+write_directly:
+	/*
+	 * Write through journal failed. Write sb directly to get error info
+	 * out and hope for the best.
+	 */
+	ext4_commit_super(sbi->s_sb);
+	ext4_notify_error_sysfs(sbi);
+>>>>>>> upstream/android-13
 }
 
 #define ext4_error_ratelimit(sb)					\
@@ -501,11 +932,19 @@ static void ext4_handle_error(struct super_block *sb, char *buf)
 			     "EXT4-fs error")
 
 void __ext4_error(struct super_block *sb, const char *function,
+<<<<<<< HEAD
 		  unsigned int line, const char *fmt, ...)
 {
 	struct va_format vaf;
 	va_list args;
 	char *page_buf = NULL;
+=======
+		  unsigned int line, bool force_ro, int error, __u64 block,
+		  const char *fmt, ...)
+{
+	struct va_format vaf;
+	va_list args;
+>>>>>>> upstream/android-13
 
 	if (unlikely(ext4_forced_shutdown(EXT4_SB(sb))))
 		return;
@@ -518,6 +957,7 @@ void __ext4_error(struct super_block *sb, const char *function,
 		printk(KERN_CRIT
 		       "EXT4-fs error (device %s): %s:%d: comm %s: %pV\n",
 		       sb->s_id, function, line, current->comm, &vaf);
+<<<<<<< HEAD
 		page_buf = (char *)__get_free_page(GFP_ATOMIC);
 		if (page_buf)
 			sprintf(page_buf, "%s:%u:%pV)"
@@ -536,19 +976,34 @@ void __ext4_error(struct super_block *sb, const char *function,
 
 void __ext4_error_inode(struct inode *inode, const char *function,
 			unsigned int line, ext4_fsblk_t block,
+=======
+		va_end(args);
+	}
+	ext4_handle_error(sb, force_ro, error, 0, block, function, line);
+}
+
+void __ext4_error_inode(struct inode *inode, const char *function,
+			unsigned int line, ext4_fsblk_t block, int error,
+>>>>>>> upstream/android-13
 			const char *fmt, ...)
 {
 	va_list args;
 	struct va_format vaf;
+<<<<<<< HEAD
 	struct ext4_super_block *es = EXT4_SB(inode->i_sb)->s_es;
 	char *page_buf = NULL;
+=======
+>>>>>>> upstream/android-13
 
 	if (unlikely(ext4_forced_shutdown(EXT4_SB(inode->i_sb))))
 		return;
 
 	trace_ext4_error(inode->i_sb, function, line);
+<<<<<<< HEAD
 	es->s_last_error_ino = cpu_to_le32(inode->i_ino);
 	es->s_last_error_block = cpu_to_le64(block);
+=======
+>>>>>>> upstream/android-13
 	if (ext4_error_ratelimit(inode->i_sb)) {
 		va_start(args, fmt);
 		vaf.fmt = fmt;
@@ -563,6 +1018,7 @@ void __ext4_error_inode(struct inode *inode, const char *function,
 			       "inode #%lu: comm %s: %pV\n",
 			       inode->i_sb->s_id, function, line, inode->i_ino,
 			       current->comm, &vaf);
+<<<<<<< HEAD
 		page_buf = (char *)__get_free_page(GFP_ATOMIC);
 		if (page_buf)
 			sprintf(page_buf, "%s:%u:%pV)"
@@ -577,6 +1033,12 @@ void __ext4_error_inode(struct inode *inode, const char *function,
 	ext4_handle_error(inode->i_sb, page_buf);
 	if (page_buf)
 		free_page((unsigned long)page_buf);
+=======
+		va_end(args);
+	}
+	ext4_handle_error(inode->i_sb, false, error, inode->i_ino, block,
+			  function, line);
+>>>>>>> upstream/android-13
 }
 
 void __ext4_error_file(struct file *file, const char *function,
@@ -585,17 +1047,25 @@ void __ext4_error_file(struct file *file, const char *function,
 {
 	va_list args;
 	struct va_format vaf;
+<<<<<<< HEAD
 	struct ext4_super_block *es;
 	struct inode *inode = file_inode(file);
 	char pathname[80], *path;
 	char *page_buf = NULL;
+=======
+	struct inode *inode = file_inode(file);
+	char pathname[80], *path;
+>>>>>>> upstream/android-13
 
 	if (unlikely(ext4_forced_shutdown(EXT4_SB(inode->i_sb))))
 		return;
 
 	trace_ext4_error(inode->i_sb, function, line);
+<<<<<<< HEAD
 	es = EXT4_SB(inode->i_sb)->s_es;
 	es->s_last_error_ino = cpu_to_le32(inode->i_ino);
+=======
+>>>>>>> upstream/android-13
 	if (ext4_error_ratelimit(inode->i_sb)) {
 		path = file_path(file, pathname, sizeof(pathname));
 		if (IS_ERR(path))
@@ -615,6 +1085,7 @@ void __ext4_error_file(struct file *file, const char *function,
 			       "comm %s: path %s: %pV\n",
 			       inode->i_sb->s_id, function, line, inode->i_ino,
 			       current->comm, path, &vaf);
+<<<<<<< HEAD
 		page_buf = (char *)__get_free_page(GFP_ATOMIC);
 		if (page_buf)
 			sprintf(page_buf, "%s:%u:%pV)"
@@ -629,6 +1100,12 @@ void __ext4_error_file(struct file *file, const char *function,
 	ext4_handle_error(inode->i_sb, page_buf);
 	if (page_buf)
 		free_page((unsigned long)page_buf);
+=======
+		va_end(args);
+	}
+	ext4_handle_error(inode->i_sb, false, EFSCORRUPTED, inode->i_ino, block,
+			  function, line);
+>>>>>>> upstream/android-13
 }
 
 const char *ext4_decode_error(struct super_block *sb, int errno,
@@ -679,7 +1156,10 @@ void __ext4_std_error(struct super_block *sb, const char *function,
 {
 	char nbuf[16];
 	const char *errstr;
+<<<<<<< HEAD
 	char *page_buf = NULL;
+=======
+>>>>>>> upstream/android-13
 
 	if (unlikely(ext4_forced_shutdown(EXT4_SB(sb))))
 		return;
@@ -696,6 +1176,7 @@ void __ext4_std_error(struct super_block *sb, const char *function,
 		       sb->s_id, function, line, errstr);
 	}
 
+<<<<<<< HEAD
 	save_error_info(sb, function, line);
 	page_buf = (char *)__get_free_page(GFP_ATOMIC);
 	if (page_buf)
@@ -760,6 +1241,9 @@ void __ext4_abort(struct super_block *sb, const char *function,
 			ufs_debug_func(NULL);
 		panic("EXT4-fs panic from previous error\n");
 	}
+=======
+	ext4_handle_error(sb, false, -errno, 0, 0, function, line);
+>>>>>>> upstream/android-13
 }
 
 void __ext4_msg(struct super_block *sb,
@@ -768,6 +1252,10 @@ void __ext4_msg(struct super_block *sb,
 	struct va_format vaf;
 	va_list args;
 
+<<<<<<< HEAD
+=======
+	atomic_inc(&EXT4_SB(sb)->s_msg_count);
+>>>>>>> upstream/android-13
 	if (!___ratelimit(&(EXT4_SB(sb)->s_msg_ratelimit_state), "EXT4-fs"))
 		return;
 
@@ -778,9 +1266,18 @@ void __ext4_msg(struct super_block *sb,
 	va_end(args);
 }
 
+<<<<<<< HEAD
 #define ext4_warning_ratelimit(sb)					\
 		___ratelimit(&(EXT4_SB(sb)->s_warning_ratelimit_state),	\
 			     "EXT4-fs warning")
+=======
+static int ext4_warning_ratelimit(struct super_block *sb)
+{
+	atomic_inc(&EXT4_SB(sb)->s_warning_count);
+	return ___ratelimit(&(EXT4_SB(sb)->s_warning_ratelimit_state),
+			    "EXT4-fs warning");
+}
+>>>>>>> upstream/android-13
 
 void __ext4_warning(struct super_block *sb, const char *function,
 		    unsigned int line, const char *fmt, ...)
@@ -826,17 +1323,23 @@ __acquires(bitlock)
 {
 	struct va_format vaf;
 	va_list args;
+<<<<<<< HEAD
 	struct ext4_super_block *es = EXT4_SB(sb)->s_es;
 	char *page_buf = NULL;
+=======
+>>>>>>> upstream/android-13
 
 	if (unlikely(ext4_forced_shutdown(EXT4_SB(sb))))
 		return;
 
 	trace_ext4_error(sb, function, line);
+<<<<<<< HEAD
 	es->s_last_error_ino = cpu_to_le32(ino);
 	es->s_last_error_block = cpu_to_le64(block);
 	__save_error_info(sb, function, line);
 
+=======
+>>>>>>> upstream/android-13
 	if (ext4_error_ratelimit(sb)) {
 		va_start(args, fmt);
 		vaf.fmt = fmt;
@@ -849,6 +1352,7 @@ __acquires(bitlock)
 			printk(KERN_CONT "block %llu:",
 			       (unsigned long long) block);
 		printk(KERN_CONT "%pV\n", &vaf);
+<<<<<<< HEAD
 		page_buf = (char *)__get_free_page(GFP_ATOMIC);
 		if (page_buf)
 			sprintf(page_buf, "%s:%u:%pV)"
@@ -873,6 +1377,24 @@ __acquires(bitlock)
 	ext4_handle_error(sb, page_buf);
 	if (page_buf)
 		free_page((unsigned long)page_buf);
+=======
+		va_end(args);
+	}
+
+	if (test_opt(sb, ERRORS_CONT)) {
+		if (test_opt(sb, WARN_ON_ERROR))
+			WARN_ON_ONCE(1);
+		EXT4_SB(sb)->s_mount_state |= EXT4_ERROR_FS;
+		if (!bdev_read_only(sb->s_bdev)) {
+			save_error_info(sb, EFSCORRUPTED, ino, block, function,
+					line);
+			schedule_work(&EXT4_SB(sb)->s_error_work);
+		}
+		return;
+	}
+	ext4_unlock_group(sb, grp);
+	ext4_handle_error(sb, false, EFSCORRUPTED, ino, block, function, line);
+>>>>>>> upstream/android-13
 	/*
 	 * We only get here in the ERRORS_RO case; relocking the group
 	 * may be dangerous, but nothing bad will happen since the
@@ -949,7 +1471,10 @@ void ext4_update_dynamic_rev(struct super_block *sb)
 static struct block_device *ext4_blkdev_get(dev_t dev, struct super_block *sb)
 {
 	struct block_device *bdev;
+<<<<<<< HEAD
 	char b[BDEVNAME_SIZE];
+=======
+>>>>>>> upstream/android-13
 
 	bdev = blkdev_get_by_dev(dev, FMODE_READ|FMODE_WRITE|FMODE_EXCL, sb);
 	if (IS_ERR(bdev))
@@ -957,8 +1482,14 @@ static struct block_device *ext4_blkdev_get(dev_t dev, struct super_block *sb)
 	return bdev;
 
 fail:
+<<<<<<< HEAD
 	ext4_msg(sb, KERN_ERR, "failed to open journal device %s: %ld",
 			__bdevname(dev, b), PTR_ERR(bdev));
+=======
+	ext4_msg(sb, KERN_ERR,
+		 "failed to open journal device unknown-block(%u,%u) %ld",
+		 MAJOR(dev), MINOR(dev), PTR_ERR(bdev));
+>>>>>>> upstream/android-13
 	return NULL;
 }
 
@@ -973,10 +1504,17 @@ static void ext4_blkdev_put(struct block_device *bdev)
 static void ext4_blkdev_remove(struct ext4_sb_info *sbi)
 {
 	struct block_device *bdev;
+<<<<<<< HEAD
 	bdev = sbi->journal_bdev;
 	if (bdev) {
 		ext4_blkdev_put(bdev);
 		sbi->journal_bdev = NULL;
+=======
+	bdev = sbi->s_journal_bdev;
+	if (bdev) {
+		ext4_blkdev_put(bdev);
+		sbi->s_journal_bdev = NULL;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1041,20 +1579,49 @@ static void ext4_put_super(struct super_block *sb)
 	int aborted = 0;
 	int i, err;
 
+<<<<<<< HEAD
 	ext4_unregister_li_request(sb);
 	ext4_quota_off_umount(sb);
 
 	destroy_workqueue(sbi->rsv_conversion_wq);
+=======
+	/*
+	 * Unregister sysfs before destroying jbd2 journal.
+	 * Since we could still access attr_journal_task attribute via sysfs
+	 * path which could have sbi->s_journal->j_task as NULL
+	 * Unregister sysfs before flush sbi->s_error_work.
+	 * Since user may read /proc/fs/ext4/xx/mb_groups during umount, If
+	 * read metadata verify failed then will queue error work.
+	 * flush_stashed_error_work will call start_this_handle may trigger
+	 * BUG_ON.
+	 */
+	ext4_unregister_sysfs(sb);
+
+	ext4_unregister_li_request(sb);
+	ext4_quota_off_umount(sb);
+
+	flush_work(&sbi->s_error_work);
+	destroy_workqueue(sbi->rsv_conversion_wq);
+	ext4_release_orphan_info(sb);
+>>>>>>> upstream/android-13
 
 	if (sbi->s_journal) {
 		aborted = is_journal_aborted(sbi->s_journal);
 		err = jbd2_journal_destroy(sbi->s_journal);
 		sbi->s_journal = NULL;
+<<<<<<< HEAD
 		if ((err < 0) && !aborted)
 			ext4_abort(sb, "Couldn't clean up the journal");
 	}
 
 	ext4_unregister_sysfs(sb);
+=======
+		if ((err < 0) && !aborted) {
+			ext4_abort(sb, -err, "Couldn't clean up the journal");
+		}
+	}
+
+>>>>>>> upstream/android-13
 	ext4_es_unregister_shrinker(sbi);
 	del_timer_sync(&sbi->s_err_report);
 	ext4_release_system_zone(sb);
@@ -1063,10 +1630,18 @@ static void ext4_put_super(struct super_block *sb)
 
 	if (!sb_rdonly(sb) && !aborted) {
 		ext4_clear_feature_journal_needs_recovery(sb);
+<<<<<<< HEAD
 		es->s_state = cpu_to_le16(sbi->s_mount_state);
 	}
 	if (!sb_rdonly(sb))
 		ext4_commit_super(sb, 1);
+=======
+		ext4_clear_feature_orphan_present(sb);
+		es->s_state = cpu_to_le16(sbi->s_mount_state);
+	}
+	if (!sb_rdonly(sb))
+		ext4_commit_super(sb);
+>>>>>>> upstream/android-13
 
 	rcu_read_lock();
 	group_desc = rcu_dereference(sbi->s_group_desc);
@@ -1084,6 +1659,10 @@ static void ext4_put_super(struct super_block *sb)
 	percpu_counter_destroy(&sbi->s_freeinodes_counter);
 	percpu_counter_destroy(&sbi->s_dirs_counter);
 	percpu_counter_destroy(&sbi->s_dirtyclusters_counter);
+<<<<<<< HEAD
+=======
+	percpu_counter_destroy(&sbi->s_sra_exceeded_retry_limit);
+>>>>>>> upstream/android-13
 	percpu_free_rwsem(&sbi->s_writepages_rwsem);
 #ifdef CONFIG_QUOTA
 	for (i = 0; i < EXT4_MAXQUOTAS; i++)
@@ -1096,16 +1675,25 @@ static void ext4_put_super(struct super_block *sb)
 	 * in-memory list had better be clean by this point. */
 	if (!list_empty(&sbi->s_orphan))
 		dump_orphan_list(sb, sbi);
+<<<<<<< HEAD
 	J_ASSERT(list_empty(&sbi->s_orphan));
 
 	sync_blockdev(sb->s_bdev);
 	invalidate_bdev(sb->s_bdev);
 	if (sbi->journal_bdev && sbi->journal_bdev != sb->s_bdev) {
+=======
+	ASSERT(list_empty(&sbi->s_orphan));
+
+	sync_blockdev(sb->s_bdev);
+	invalidate_bdev(sb->s_bdev);
+	if (sbi->s_journal_bdev && sbi->s_journal_bdev != sb->s_bdev) {
+>>>>>>> upstream/android-13
 		/*
 		 * Invalidate the journal device's buffers.  We don't want them
 		 * floating about in memory - the physical journal device may
 		 * hotswapped, and it breaks the `ro-after' testing code.
 		 */
+<<<<<<< HEAD
 		sync_blockdev(sbi->journal_bdev);
 		invalidate_bdev(sbi->journal_bdev);
 		ext4_blkdev_remove(sbi);
@@ -1120,6 +1708,21 @@ static void ext4_put_super(struct super_block *sb)
 	}
 	if (sbi->s_mmp_tsk)
 		kthread_stop(sbi->s_mmp_tsk);
+=======
+		sync_blockdev(sbi->s_journal_bdev);
+		invalidate_bdev(sbi->s_journal_bdev);
+		ext4_blkdev_remove(sbi);
+	}
+
+	ext4_xattr_destroy_cache(sbi->s_ea_inode_cache);
+	sbi->s_ea_inode_cache = NULL;
+
+	ext4_xattr_destroy_cache(sbi->s_ea_block_cache);
+	sbi->s_ea_block_cache = NULL;
+
+	ext4_stop_mmpd(sbi);
+
+>>>>>>> upstream/android-13
 	brelse(sbi->s_sbh);
 	sb->s_fs_info = NULL;
 	/*
@@ -1132,7 +1735,11 @@ static void ext4_put_super(struct super_block *sb)
 		crypto_free_shash(sbi->s_chksum_driver);
 	kfree(sbi->s_blockgroup_lock);
 	fs_put_dax(sbi->s_daxdev);
+<<<<<<< HEAD
 	fscrypt_free_dummy_context(&sbi->s_dummy_enc_ctx);
+=======
+	fscrypt_free_dummy_policy(&sbi->s_dummy_enc_policy);
+>>>>>>> upstream/android-13
 #ifdef CONFIG_UNICODE
 	utf8_unload(sb->s_encoding);
 #endif
@@ -1155,6 +1762,10 @@ static struct inode *ext4_alloc_inode(struct super_block *sb)
 	inode_set_iversion(&ei->vfs_inode, 1);
 	spin_lock_init(&ei->i_raw_lock);
 	INIT_LIST_HEAD(&ei->i_prealloc_list);
+<<<<<<< HEAD
+=======
+	atomic_set(&ei->i_prealloc_active, 0);
+>>>>>>> upstream/android-13
 	spin_lock_init(&ei->i_prealloc_lock);
 	ext4_es_init_tree(&ei->i_es_tree);
 	rwlock_init(&ei->i_es_lock);
@@ -1163,9 +1774,14 @@ static struct inode *ext4_alloc_inode(struct super_block *sb)
 	ei->i_es_shk_nr = 0;
 	ei->i_es_shrink_lblk = 0;
 	ei->i_reserved_data_blocks = 0;
+<<<<<<< HEAD
 	ei->i_da_metadata_calc_len = 0;
 	ei->i_da_metadata_calc_last_lblock = 0;
 	spin_lock_init(&(ei->i_block_reservation_lock));
+=======
+	spin_lock_init(&(ei->i_block_reservation_lock));
+	ext4_init_pending_tree(&ei->i_pending_tree);
+>>>>>>> upstream/android-13
 #ifdef CONFIG_QUOTA
 	ei->i_reserved_quota = 0;
 	memset(&ei->i_dquot, 0, sizeof(ei->i_dquot));
@@ -1177,6 +1793,11 @@ static struct inode *ext4_alloc_inode(struct super_block *sb)
 	ei->i_datasync_tid = 0;
 	atomic_set(&ei->i_unwritten, 0);
 	INIT_WORK(&ei->i_rsv_conversion_work, ext4_end_io_rsv_work);
+<<<<<<< HEAD
+=======
+	ext4_fc_init_inode(&ei->vfs_inode);
+	mutex_init(&ei->i_fc_lock);
+>>>>>>> upstream/android-13
 	return &ei->vfs_inode;
 }
 
@@ -1191,12 +1812,22 @@ static int ext4_drop_inode(struct inode *inode)
 	return drop;
 }
 
+<<<<<<< HEAD
 static void ext4_i_callback(struct rcu_head *head)
 {
 	struct inode *inode = container_of(head, struct inode, i_rcu);
 
 	fscrypt_free_inode(inode);
 
+=======
+static void ext4_free_in_core_inode(struct inode *inode)
+{
+	fscrypt_free_inode(inode);
+	if (!list_empty(&(EXT4_I(inode)->i_fc_list))) {
+		pr_warn("%s: inode %ld still in fc list",
+			__func__, inode->i_ino);
+	}
+>>>>>>> upstream/android-13
 	kmem_cache_free(ext4_inode_cachep, EXT4_I(inode));
 }
 
@@ -1211,7 +1842,16 @@ static void ext4_destroy_inode(struct inode *inode)
 				true);
 		dump_stack();
 	}
+<<<<<<< HEAD
 	call_rcu(&inode->i_rcu, ext4_i_callback);
+=======
+
+	if (EXT4_I(inode)->i_reserved_data_blocks)
+		ext4_msg(inode->i_sb, KERN_ERR,
+			 "Inode %lu (%p): i_reserved_data_blocks (%u) not cleared!",
+			 inode->i_ino, EXT4_I(inode),
+			 EXT4_I(inode)->i_reserved_data_blocks);
+>>>>>>> upstream/android-13
 }
 
 static void init_once(void *foo)
@@ -1221,8 +1861,13 @@ static void init_once(void *foo)
 	INIT_LIST_HEAD(&ei->i_orphan);
 	init_rwsem(&ei->xattr_sem);
 	init_rwsem(&ei->i_data_sem);
+<<<<<<< HEAD
 	init_rwsem(&ei->i_mmap_sem);
 	inode_init_once(&ei->vfs_inode);
+=======
+	inode_init_once(&ei->vfs_inode);
+	ext4_fc_init_inode(&ei->vfs_inode);
+>>>>>>> upstream/android-13
 }
 
 static int __init init_inodecache(void)
@@ -1251,11 +1896,20 @@ static void destroy_inodecache(void)
 
 void ext4_clear_inode(struct inode *inode)
 {
+<<<<<<< HEAD
 	invalidate_inode_buffers(inode);
 	clear_inode(inode);
 	dquot_drop(inode);
 	ext4_discard_preallocations(inode);
 	ext4_es_remove_extent(inode, 0, EXT_MAX_BLOCKS);
+=======
+	ext4_fc_del(inode);
+	invalidate_inode_buffers(inode);
+	clear_inode(inode);
+	ext4_discard_preallocations(inode, 0);
+	ext4_es_remove_extent(inode, 0, EXT_MAX_BLOCKS);
+	dquot_drop(inode);
+>>>>>>> upstream/android-13
 	if (EXT4_I(inode)->jinode) {
 		jbd2_journal_release_jbd_inode(EXT4_JOURNAL(inode),
 					       EXT4_I(inode)->jinode);
@@ -1310,6 +1964,7 @@ static int ext4_nfs_commit_metadata(struct inode *inode)
 	return ext4_write_inode(inode, &wbc);
 }
 
+<<<<<<< HEAD
 /*
  * Try to release metadata pages (indirect blocks, directories) which are
  * mapped via the block device.  Since these pages could have journal heads
@@ -1330,6 +1985,8 @@ static int bdev_try_to_free_page(struct super_block *sb, struct page *page,
 	return try_to_free_buffers(page);
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_FS_ENCRYPTION
 static int ext4_get_context(struct inode *inode, void *ctx, size_t len)
 {
@@ -1355,6 +2012,12 @@ static int ext4_set_context(struct inode *inode, const void *ctx, size_t len,
 	if (WARN_ON_ONCE(IS_DAX(inode) && i_size_read(inode)))
 		return -EINVAL;
 
+<<<<<<< HEAD
+=======
+	if (ext4_test_inode_flag(inode, EXT4_INODE_DAX))
+		return -EOPNOTSUPP;
+
+>>>>>>> upstream/android-13
 	res = ext4_convert_inline_data(inode);
 	if (res)
 		return res;
@@ -1380,7 +2043,11 @@ static int ext4_set_context(struct inode *inode, const void *ctx, size_t len,
 			 * Update inode->i_flags - S_ENCRYPTED will be enabled,
 			 * S_DAX may be disabled
 			 */
+<<<<<<< HEAD
 			ext4_set_inode_flags(inode);
+=======
+			ext4_set_inode_flags(inode, false);
+>>>>>>> upstream/android-13
 		}
 		return res;
 	}
@@ -1407,7 +2074,11 @@ retry:
 		 * Update inode->i_flags - S_ENCRYPTED will be enabled,
 		 * S_DAX may be disabled
 		 */
+<<<<<<< HEAD
 		ext4_set_inode_flags(inode);
+=======
+		ext4_set_inode_flags(inode, false);
+>>>>>>> upstream/android-13
 		res = ext4_mark_inode_dirty(handle, inode);
 		if (res)
 			EXT4_ERROR_INODE(inode, "Failed to mark inode dirty");
@@ -1421,10 +2092,16 @@ retry:
 	return res;
 }
 
+<<<<<<< HEAD
 static const union fscrypt_context *
 ext4_get_dummy_context(struct super_block *sb)
 {
 	return EXT4_SB(sb)->s_dummy_enc_ctx.ctx;
+=======
+static const union fscrypt_policy *ext4_get_dummy_policy(struct super_block *sb)
+{
+	return EXT4_SB(sb)->s_dummy_enc_policy.policy;
+>>>>>>> upstream/android-13
 }
 
 static bool ext4_has_stable_inodes(struct super_block *sb)
@@ -1439,21 +2116,31 @@ static void ext4_get_ino_and_lblk_bits(struct super_block *sb,
 	*lblk_bits_ret = 8 * sizeof(ext4_lblk_t);
 }
 
+<<<<<<< HEAD
 static bool ext4_inline_crypt_enabled(struct super_block *sb)
 {
 	return test_opt(sb, INLINECRYPT);
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct fscrypt_operations ext4_cryptops = {
 	.key_prefix		= "ext4:",
 	.get_context		= ext4_get_context,
 	.set_context		= ext4_set_context,
+<<<<<<< HEAD
 	.get_dummy_context	= ext4_get_dummy_context,
 	.empty_dir		= ext4_empty_dir,
 	.max_namelen		= EXT4_NAME_LEN,
 	.has_stable_inodes	= ext4_has_stable_inodes,
 	.get_ino_and_lblk_bits	= ext4_get_ino_and_lblk_bits,
 	.inline_crypt_enabled	= ext4_inline_crypt_enabled,
+=======
+	.get_dummy_policy	= ext4_get_dummy_policy,
+	.empty_dir		= ext4_empty_dir,
+	.has_stable_inodes	= ext4_has_stable_inodes,
+	.get_ino_and_lblk_bits	= ext4_get_ino_and_lblk_bits,
+>>>>>>> upstream/android-13
 };
 #endif
 
@@ -1468,15 +2155,21 @@ static int ext4_mark_dquot_dirty(struct dquot *dquot);
 static int ext4_write_info(struct super_block *sb, int type);
 static int ext4_quota_on(struct super_block *sb, int type, int format_id,
 			 const struct path *path);
+<<<<<<< HEAD
 static int ext4_quota_on_mount(struct super_block *sb, int type);
+=======
+>>>>>>> upstream/android-13
 static ssize_t ext4_quota_read(struct super_block *sb, int type, char *data,
 			       size_t len, loff_t off);
 static ssize_t ext4_quota_write(struct super_block *sb, int type,
 				const char *data, size_t len, loff_t off);
 static int ext4_quota_enable(struct super_block *sb, int type, int format_id,
 			     unsigned int flags);
+<<<<<<< HEAD
 static int ext4_enable_quotas(struct super_block *sb);
 static int ext4_get_next_id(struct super_block *sb, struct kqid *qid);
+=======
+>>>>>>> upstream/android-13
 
 static struct dquot **ext4_get_dquots(struct inode *inode)
 {
@@ -1494,7 +2187,11 @@ static const struct dquot_operations ext4_quota_operations = {
 	.destroy_dquot		= dquot_destroy,
 	.get_projid		= ext4_get_projid,
 	.get_inode_usage	= ext4_get_inode_usage,
+<<<<<<< HEAD
 	.get_next_id		= ext4_get_next_id,
+=======
+	.get_next_id		= dquot_get_next_id,
+>>>>>>> upstream/android-13
 };
 
 static const struct quotactl_ops ext4_qctl_operations = {
@@ -1511,6 +2208,10 @@ static const struct quotactl_ops ext4_qctl_operations = {
 
 static const struct super_operations ext4_sops = {
 	.alloc_inode	= ext4_alloc_inode,
+<<<<<<< HEAD
+=======
+	.free_inode	= ext4_free_in_core_inode,
+>>>>>>> upstream/android-13
 	.destroy_inode	= ext4_destroy_inode,
 	.write_inode	= ext4_write_inode,
 	.dirty_inode	= ext4_dirty_inode,
@@ -1528,7 +2229,10 @@ static const struct super_operations ext4_sops = {
 	.quota_write	= ext4_quota_write,
 	.get_dquots	= ext4_get_dquots,
 #endif
+<<<<<<< HEAD
 	.bdev_try_to_free_page = bdev_try_to_free_page,
+=======
+>>>>>>> upstream/android-13
 };
 
 static const struct export_operations ext4_export_ops = {
@@ -1552,7 +2256,12 @@ enum {
 	Opt_usrjquota, Opt_grpjquota, Opt_offusrjquota, Opt_offgrpjquota,
 	Opt_jqfmt_vfsold, Opt_jqfmt_vfsv0, Opt_jqfmt_vfsv1, Opt_quota,
 	Opt_noquota, Opt_barrier, Opt_nobarrier, Opt_err,
+<<<<<<< HEAD
 	Opt_usrquota, Opt_grpquota, Opt_prjquota, Opt_i_version, Opt_dax,
+=======
+	Opt_usrquota, Opt_grpquota, Opt_prjquota, Opt_i_version,
+	Opt_dax, Opt_dax_always, Opt_dax_inode, Opt_dax_never,
+>>>>>>> upstream/android-13
 	Opt_stripe, Opt_delalloc, Opt_nodelalloc, Opt_warn_on_error,
 	Opt_nowarn_on_error, Opt_mblk_io_submit,
 	Opt_lazytime, Opt_nolazytime, Opt_debug_want_extra_isize,
@@ -1561,6 +2270,13 @@ enum {
 	Opt_dioread_nolock, Opt_dioread_lock,
 	Opt_discard, Opt_nodiscard, Opt_init_itable, Opt_noinit_itable,
 	Opt_max_dir_size_kb, Opt_nojournal_checksum, Opt_nombcache,
+<<<<<<< HEAD
+=======
+	Opt_no_prefetch_block_bitmaps, Opt_mb_optimize_scan,
+#ifdef CONFIG_EXT4_DEBUG
+	Opt_fc_debug_max_replay, Opt_fc_debug_force
+#endif
+>>>>>>> upstream/android-13
 };
 
 static const match_table_t tokens = {
@@ -1619,6 +2335,12 @@ static const match_table_t tokens = {
 	{Opt_nobarrier, "nobarrier"},
 	{Opt_i_version, "i_version"},
 	{Opt_dax, "dax"},
+<<<<<<< HEAD
+=======
+	{Opt_dax_always, "dax=always"},
+	{Opt_dax_inode, "dax=inode"},
+	{Opt_dax_never, "dax=never"},
+>>>>>>> upstream/android-13
 	{Opt_stripe, "stripe=%u"},
 	{Opt_delalloc, "delalloc"},
 	{Opt_warn_on_error, "warn_on_error"},
@@ -1637,18 +2359,35 @@ static const match_table_t tokens = {
 	{Opt_auto_da_alloc, "auto_da_alloc"},
 	{Opt_noauto_da_alloc, "noauto_da_alloc"},
 	{Opt_dioread_nolock, "dioread_nolock"},
+<<<<<<< HEAD
+=======
+	{Opt_dioread_lock, "nodioread_nolock"},
+>>>>>>> upstream/android-13
 	{Opt_dioread_lock, "dioread_lock"},
 	{Opt_discard, "discard"},
 	{Opt_nodiscard, "nodiscard"},
 	{Opt_init_itable, "init_itable=%u"},
 	{Opt_init_itable, "init_itable"},
 	{Opt_noinit_itable, "noinit_itable"},
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_EXT4_DEBUG
+	{Opt_fc_debug_force, "fc_debug_force"},
+	{Opt_fc_debug_max_replay, "fc_debug_max_replay=%u"},
+#endif
+>>>>>>> upstream/android-13
 	{Opt_max_dir_size_kb, "max_dir_size_kb=%u"},
 	{Opt_test_dummy_encryption, "test_dummy_encryption=%s"},
 	{Opt_test_dummy_encryption, "test_dummy_encryption"},
 	{Opt_inlinecrypt, "inlinecrypt"},
 	{Opt_nombcache, "nombcache"},
 	{Opt_nombcache, "no_mbcache"},	/* for backward compatibility */
+<<<<<<< HEAD
+=======
+	{Opt_removed, "prefetch_block_bitmaps"},
+	{Opt_no_prefetch_block_bitmaps, "no_prefetch_block_bitmaps"},
+	{Opt_mb_optimize_scan, "mb_optimize_scan=%d"},
+>>>>>>> upstream/android-13
 	{Opt_removed, "check=none"},	/* mount option from ext2/3 */
 	{Opt_removed, "nocheck"},	/* mount option from ext2/3 */
 	{Opt_removed, "reservation"},	/* mount option from ext2/3 */
@@ -1681,6 +2420,11 @@ static ext4_fsblk_t get_sb_block(void **data)
 }
 
 #define DEFAULT_JOURNAL_IOPRIO (IOPRIO_PRIO_VALUE(IOPRIO_CLASS_BE, 3))
+<<<<<<< HEAD
+=======
+#define DEFAULT_MB_OPTIMIZE_SCAN	(-1)
+
+>>>>>>> upstream/android-13
 static const char deprecated_msg[] =
 	"Mount option \"%s\" will be removed by %s\n"
 	"Contact linux-ext4@vger.kernel.org if you think we should keep it.\n";
@@ -1767,6 +2511,11 @@ static int clear_qf_name(struct super_block *sb, int qtype)
 #define MOPT_NO_EXT3	0x0200
 #define MOPT_EXT4_ONLY	(MOPT_NO_EXT2 | MOPT_NO_EXT3)
 #define MOPT_STRING	0x0400
+<<<<<<< HEAD
+=======
+#define MOPT_SKIP	0x0800
+#define	MOPT_2		0x1000
+>>>>>>> upstream/android-13
 
 static const struct mount_opts {
 	int	token;
@@ -1816,7 +2565,17 @@ static const struct mount_opts {
 	{Opt_min_batch_time, 0, MOPT_GTE0},
 	{Opt_inode_readahead_blks, 0, MOPT_GTE0},
 	{Opt_init_itable, 0, MOPT_GTE0},
+<<<<<<< HEAD
 	{Opt_dax, EXT4_MOUNT_DAX, MOPT_SET},
+=======
+	{Opt_dax, EXT4_MOUNT_DAX_ALWAYS, MOPT_SET | MOPT_SKIP},
+	{Opt_dax_always, EXT4_MOUNT_DAX_ALWAYS,
+		MOPT_EXT4_ONLY | MOPT_SET | MOPT_SKIP},
+	{Opt_dax_inode, EXT4_MOUNT2_DAX_INODE,
+		MOPT_EXT4_ONLY | MOPT_SET | MOPT_SKIP},
+	{Opt_dax_never, EXT4_MOUNT2_DAX_NEVER,
+		MOPT_EXT4_ONLY | MOPT_SET | MOPT_SKIP},
+>>>>>>> upstream/android-13
 	{Opt_stripe, 0, MOPT_GTE0},
 	{Opt_resuid, 0, MOPT_GTE0},
 	{Opt_resgid, 0, MOPT_GTE0},
@@ -1858,12 +2617,24 @@ static const struct mount_opts {
 	{Opt_jqfmt_vfsv1, QFMT_VFS_V1, MOPT_QFMT},
 	{Opt_max_dir_size_kb, 0, MOPT_GTE0},
 	{Opt_test_dummy_encryption, 0, MOPT_STRING},
+<<<<<<< HEAD
 #ifdef CONFIG_FS_ENCRYPTION_INLINE_CRYPT
 	{Opt_inlinecrypt, EXT4_MOUNT_INLINECRYPT, MOPT_SET},
 #else
 	{Opt_inlinecrypt, EXT4_MOUNT_INLINECRYPT, MOPT_NOSUPPORT},
 #endif
 	{Opt_nombcache, EXT4_MOUNT_NO_MBCACHE, MOPT_SET},
+=======
+	{Opt_nombcache, EXT4_MOUNT_NO_MBCACHE, MOPT_SET},
+	{Opt_no_prefetch_block_bitmaps, EXT4_MOUNT_NO_PREFETCH_BLOCK_BITMAPS,
+	 MOPT_SET},
+	{Opt_mb_optimize_scan, EXT4_MOUNT2_MB_OPTIMIZE_SCAN, MOPT_GTE0},
+#ifdef CONFIG_EXT4_DEBUG
+	{Opt_fc_debug_force, EXT4_MOUNT2_JOURNAL_FAST_COMMIT,
+	 MOPT_SET | MOPT_2 | MOPT_EXT4_ONLY},
+	{Opt_fc_debug_max_replay, 0, MOPT_GTE0},
+#endif
+>>>>>>> upstream/android-13
 	{Opt_err, 0, 0}
 };
 
@@ -1912,12 +2683,21 @@ static int ext4_set_test_dummy_encryption(struct super_block *sb,
 	 * needed to allow it to be set or changed during remount.  We do allow
 	 * it to be specified during remount, but only if there is no change.
 	 */
+<<<<<<< HEAD
 	if (is_remount && !sbi->s_dummy_enc_ctx.ctx) {
+=======
+	if (is_remount && !sbi->s_dummy_enc_policy.policy) {
+>>>>>>> upstream/android-13
 		ext4_msg(sb, KERN_WARNING,
 			 "Can't set test_dummy_encryption on remount");
 		return -1;
 	}
+<<<<<<< HEAD
 	err = fscrypt_set_test_dummy_encryption(sb, arg, &sbi->s_dummy_enc_ctx);
+=======
+	err = fscrypt_set_test_dummy_encryption(sb, arg->from,
+						&sbi->s_dummy_enc_policy);
+>>>>>>> upstream/android-13
 	if (err) {
 		if (err == -EEXIST)
 			ext4_msg(sb, KERN_WARNING,
@@ -1939,9 +2719,21 @@ static int ext4_set_test_dummy_encryption(struct super_block *sb,
 	return 1;
 }
 
+<<<<<<< HEAD
 static int handle_mount_opt(struct super_block *sb, char *opt, int token,
 			    substring_t *args, unsigned long *journal_devnum,
 			    unsigned int *journal_ioprio, int is_remount)
+=======
+struct ext4_parsed_options {
+	unsigned long journal_devnum;
+	unsigned int journal_ioprio;
+	int mb_optimize_scan;
+};
+
+static int handle_mount_opt(struct super_block *sb, char *opt, int token,
+			    substring_t *args, struct ext4_parsed_options *parsed_opts,
+			    int is_remount)
+>>>>>>> upstream/android-13
 {
 	struct ext4_sb_info *sbi = EXT4_SB(sb);
 	const struct mount_opts *m;
@@ -1970,7 +2762,11 @@ static int handle_mount_opt(struct super_block *sb, char *opt, int token,
 		ext4_msg(sb, KERN_WARNING, "Ignoring removed %s option", opt);
 		return 1;
 	case Opt_abort:
+<<<<<<< HEAD
 		sbi->s_mount_flags |= EXT4_MF_FS_ABORTED;
+=======
+		ext4_set_mount_flag(sb, EXT4_MF_FS_ABORTED);
+>>>>>>> upstream/android-13
 		return 1;
 	case Opt_i_version:
 		sb->s_flags |= SB_I_VERSION;
@@ -1981,6 +2777,16 @@ static int handle_mount_opt(struct super_block *sb, char *opt, int token,
 	case Opt_nolazytime:
 		sb->s_flags &= ~SB_LAZYTIME;
 		return 1;
+<<<<<<< HEAD
+=======
+	case Opt_inlinecrypt:
+#ifdef CONFIG_FS_ENCRYPTION_INLINE_CRYPT
+		sb->s_flags |= SB_INLINECRYPT;
+#else
+		ext4_msg(sb, KERN_ERR, "inline encryption not supported");
+#endif
+		return 1;
+>>>>>>> upstream/android-13
 	}
 
 	for (m = ext4_mount_opts; m->token != Opt_err; m++)
@@ -2029,6 +2835,16 @@ static int handle_mount_opt(struct super_block *sb, char *opt, int token,
 	} else if (token == Opt_commit) {
 		if (arg == 0)
 			arg = JBD2_DEFAULT_MAX_COMMIT_AGE;
+<<<<<<< HEAD
+=======
+		else if (arg > INT_MAX / HZ) {
+			ext4_msg(sb, KERN_ERR,
+				 "Invalid commit interval %d, "
+				 "must be smaller than %d",
+				 arg, INT_MAX / HZ);
+			return -1;
+		}
+>>>>>>> upstream/android-13
 		sbi->s_commit_interval = HZ * arg;
 	} else if (token == Opt_debug_want_extra_isize) {
 		if ((arg & 1) ||
@@ -2058,6 +2874,13 @@ static int handle_mount_opt(struct super_block *sb, char *opt, int token,
 		sbi->s_li_wait_mult = arg;
 	} else if (token == Opt_max_dir_size_kb) {
 		sbi->s_max_dir_size_kb = arg;
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_EXT4_DEBUG
+	} else if (token == Opt_fc_debug_max_replay) {
+		sbi->s_fc_debug_max_replay = arg;
+#endif
+>>>>>>> upstream/android-13
 	} else if (token == Opt_stripe) {
 		sbi->s_stripe = arg;
 	} else if (token == Opt_resuid) {
@@ -2080,7 +2903,11 @@ static int handle_mount_opt(struct super_block *sb, char *opt, int token,
 				 "Cannot specify journal on remount");
 			return -1;
 		}
+<<<<<<< HEAD
 		*journal_devnum = arg;
+=======
+		parsed_opts->journal_devnum = arg;
+>>>>>>> upstream/android-13
 	} else if (token == Opt_journal_path) {
 		char *journal_path;
 		struct inode *journal_inode;
@@ -2116,7 +2943,11 @@ static int handle_mount_opt(struct super_block *sb, char *opt, int token,
 			return -1;
 		}
 
+<<<<<<< HEAD
 		*journal_devnum = new_encode_dev(journal_inode->i_rdev);
+=======
+		parsed_opts->journal_devnum = new_encode_dev(journal_inode->i_rdev);
+>>>>>>> upstream/android-13
 		path_put(&path);
 		kfree(journal_path);
 	} else if (token == Opt_journal_ioprio) {
@@ -2125,7 +2956,11 @@ static int handle_mount_opt(struct super_block *sb, char *opt, int token,
 				 " (must be 0-7)");
 			return -1;
 		}
+<<<<<<< HEAD
 		*journal_ioprio =
+=======
+		parsed_opts->journal_ioprio =
+>>>>>>> upstream/android-13
 			IOPRIO_PRIO_VALUE(IOPRIO_CLASS_BE, arg);
 	} else if (token == Opt_test_dummy_encryption) {
 		return ext4_set_test_dummy_encryption(sb, opt, &args[0],
@@ -2159,6 +2994,7 @@ static int handle_mount_opt(struct super_block *sb, char *opt, int token,
 		}
 		sbi->s_jquota_fmt = m->mount_opt;
 #endif
+<<<<<<< HEAD
 	} else if (token == Opt_dax) {
 #ifdef CONFIG_FS_DAX
 		if (is_remount && test_opt(sb, DAX)) {
@@ -2176,12 +3012,74 @@ static int handle_mount_opt(struct super_block *sb, char *opt, int token,
 			sbi->s_mount_opt |= m->mount_opt;
 #else
 		ext4_msg(sb, KERN_INFO, "dax option not supported");
+=======
+	} else if (token == Opt_dax || token == Opt_dax_always ||
+		   token == Opt_dax_inode || token == Opt_dax_never) {
+#ifdef CONFIG_FS_DAX
+		switch (token) {
+		case Opt_dax:
+		case Opt_dax_always:
+			if (is_remount &&
+			    (!(sbi->s_mount_opt & EXT4_MOUNT_DAX_ALWAYS) ||
+			     (sbi->s_mount_opt2 & EXT4_MOUNT2_DAX_NEVER))) {
+			fail_dax_change_remount:
+				ext4_msg(sb, KERN_ERR, "can't change "
+					 "dax mount option while remounting");
+				return -1;
+			}
+			if (is_remount &&
+			    (test_opt(sb, DATA_FLAGS) ==
+			     EXT4_MOUNT_JOURNAL_DATA)) {
+				    ext4_msg(sb, KERN_ERR, "can't mount with "
+					     "both data=journal and dax");
+				    return -1;
+			}
+			ext4_msg(sb, KERN_WARNING,
+				"DAX enabled. Warning: EXPERIMENTAL, use at your own risk");
+			sbi->s_mount_opt |= EXT4_MOUNT_DAX_ALWAYS;
+			sbi->s_mount_opt2 &= ~EXT4_MOUNT2_DAX_NEVER;
+			break;
+		case Opt_dax_never:
+			if (is_remount &&
+			    (!(sbi->s_mount_opt2 & EXT4_MOUNT2_DAX_NEVER) ||
+			     (sbi->s_mount_opt & EXT4_MOUNT_DAX_ALWAYS)))
+				goto fail_dax_change_remount;
+			sbi->s_mount_opt2 |= EXT4_MOUNT2_DAX_NEVER;
+			sbi->s_mount_opt &= ~EXT4_MOUNT_DAX_ALWAYS;
+			break;
+		case Opt_dax_inode:
+			if (is_remount &&
+			    ((sbi->s_mount_opt & EXT4_MOUNT_DAX_ALWAYS) ||
+			     (sbi->s_mount_opt2 & EXT4_MOUNT2_DAX_NEVER) ||
+			     !(sbi->s_mount_opt2 & EXT4_MOUNT2_DAX_INODE)))
+				goto fail_dax_change_remount;
+			sbi->s_mount_opt &= ~EXT4_MOUNT_DAX_ALWAYS;
+			sbi->s_mount_opt2 &= ~EXT4_MOUNT2_DAX_NEVER;
+			/* Strictly for printing options */
+			sbi->s_mount_opt2 |= EXT4_MOUNT2_DAX_INODE;
+			break;
+		}
+#else
+		ext4_msg(sb, KERN_INFO, "dax option not supported");
+		sbi->s_mount_opt2 |= EXT4_MOUNT2_DAX_NEVER;
+		sbi->s_mount_opt &= ~EXT4_MOUNT_DAX_ALWAYS;
+>>>>>>> upstream/android-13
 		return -1;
 #endif
 	} else if (token == Opt_data_err_abort) {
 		sbi->s_mount_opt |= m->mount_opt;
 	} else if (token == Opt_data_err_ignore) {
 		sbi->s_mount_opt &= ~m->mount_opt;
+<<<<<<< HEAD
+=======
+	} else if (token == Opt_mb_optimize_scan) {
+		if (arg != 0 && arg != 1) {
+			ext4_msg(sb, KERN_WARNING,
+				 "mb_optimize_scan should be set to 0 or 1.");
+			return -1;
+		}
+		parsed_opts->mb_optimize_scan = arg;
+>>>>>>> upstream/android-13
 	} else {
 		if (!args->from)
 			arg = 1;
@@ -2193,20 +3091,41 @@ static int handle_mount_opt(struct super_block *sb, char *opt, int token,
 			WARN_ON(1);
 			return -1;
 		}
+<<<<<<< HEAD
 		if (arg != 0)
 			sbi->s_mount_opt |= m->mount_opt;
 		else
 			sbi->s_mount_opt &= ~m->mount_opt;
+=======
+		if (m->flags & MOPT_2) {
+			if (arg != 0)
+				sbi->s_mount_opt2 |= m->mount_opt;
+			else
+				sbi->s_mount_opt2 &= ~m->mount_opt;
+		} else {
+			if (arg != 0)
+				sbi->s_mount_opt |= m->mount_opt;
+			else
+				sbi->s_mount_opt &= ~m->mount_opt;
+		}
+>>>>>>> upstream/android-13
 	}
 	return 1;
 }
 
 static int parse_options(char *options, struct super_block *sb,
+<<<<<<< HEAD
 			 unsigned long *journal_devnum,
 			 unsigned int *journal_ioprio,
 			 int is_remount)
 {
 	struct ext4_sb_info *sbi = EXT4_SB(sb);
+=======
+			 struct ext4_parsed_options *ret_opts,
+			 int is_remount)
+{
+	struct ext4_sb_info __maybe_unused *sbi = EXT4_SB(sb);
+>>>>>>> upstream/android-13
 	char *p, __maybe_unused *usr_qf_name, __maybe_unused *grp_qf_name;
 	substring_t args[MAX_OPT_ARGS];
 	int token;
@@ -2223,8 +3142,13 @@ static int parse_options(char *options, struct super_block *sb,
 		 */
 		args[0].to = args[0].from = NULL;
 		token = match_token(p, tokens, args);
+<<<<<<< HEAD
 		if (handle_mount_opt(sb, p, token, args, journal_devnum,
 				     journal_ioprio, is_remount) < 0)
+=======
+		if (handle_mount_opt(sb, p, token, args, ret_opts,
+				     is_remount) < 0)
+>>>>>>> upstream/android-13
 			return 0;
 	}
 #ifdef CONFIG_QUOTA
@@ -2263,12 +3187,19 @@ static int parse_options(char *options, struct super_block *sb,
 	if (test_opt(sb, DIOREAD_NOLOCK)) {
 		int blocksize =
 			BLOCK_SIZE << le32_to_cpu(sbi->s_es->s_log_block_size);
+<<<<<<< HEAD
 
 		if (blocksize < PAGE_SIZE) {
 			ext4_msg(sb, KERN_ERR, "can't mount with "
 				 "dioread_nolock if block size != PAGE_SIZE");
 			return 0;
 		}
+=======
+		if (blocksize < PAGE_SIZE)
+			ext4_msg(sb, KERN_WARNING, "Warning: mounting with an "
+				 "experimental mount option 'dioread_nolock' "
+				 "for blocksize < PAGE_SIZE");
+>>>>>>> upstream/android-13
 	}
 	return 1;
 }
@@ -2341,7 +3272,11 @@ static int _ext4_show_options(struct seq_file *seq, struct super_block *sb,
 	for (m = ext4_mount_opts; m->token != Opt_err; m++) {
 		int want_set = m->flags & MOPT_SET;
 		if (((m->flags & (MOPT_SET|MOPT_CLEAR)) == 0) ||
+<<<<<<< HEAD
 		    (m->flags & MOPT_CLEAR_ERR))
+=======
+		    (m->flags & MOPT_CLEAR_ERR) || m->flags & MOPT_SKIP)
+>>>>>>> upstream/android-13
 			continue;
 		if (!nodefs && !(m->mount_opt & (sbi->s_mount_opt ^ def_mount_opt)))
 			continue; /* skip if same as the default */
@@ -2401,6 +3336,22 @@ static int _ext4_show_options(struct seq_file *seq, struct super_block *sb,
 
 	fscrypt_show_test_dummy_encryption(seq, sep, sb);
 
+<<<<<<< HEAD
+=======
+	if (sb->s_flags & SB_INLINECRYPT)
+		SEQ_OPTS_PUTS("inlinecrypt");
+
+	if (test_opt(sb, DAX_ALWAYS)) {
+		if (IS_EXT2_SB(sb))
+			SEQ_OPTS_PUTS("dax");
+		else
+			SEQ_OPTS_PUTS("dax=always");
+	} else if (test_opt2(sb, DAX_NEVER)) {
+		SEQ_OPTS_PUTS("dax=never");
+	} else if (test_opt2(sb, DAX_INODE)) {
+		SEQ_OPTS_PUTS("dax=inode");
+	}
+>>>>>>> upstream/android-13
 	ext4_show_quota_options(seq, sb);
 	return 0;
 }
@@ -2460,10 +3411,20 @@ static int ext4_setup_super(struct super_block *sb, struct ext4_super_block *es,
 		es->s_max_mnt_count = cpu_to_le16(EXT4_DFL_MAX_MNT_COUNT);
 	le16_add_cpu(&es->s_mnt_count, 1);
 	ext4_update_tstamp(es, s_mtime);
+<<<<<<< HEAD
 	if (sbi->s_journal)
 		ext4_set_feature_journal_needs_recovery(sb);
 
 	err = ext4_commit_super(sb, 1);
+=======
+	if (sbi->s_journal) {
+		ext4_set_feature_journal_needs_recovery(sb);
+		if (ext4_has_feature_orphan_file(sb))
+			ext4_set_feature_orphan_present(sb);
+	}
+
+	err = ext4_commit_super(sb);
+>>>>>>> upstream/android-13
 done:
 	if (test_opt(sb, DEBUG))
 		printk(KERN_INFO "[EXT4 FS bs=%lu, gc=%u, "
@@ -2743,6 +3704,7 @@ static int ext4_check_descriptors(struct super_block *sb,
 	return 1;
 }
 
+<<<<<<< HEAD
 /* ext4_orphan_cleanup() walks a singly-linked list of inodes (starting at
  * the superblock) which were deleted from all directories, but held open by
  * a process at the time of a crash.  We walk the list and try to delete these
@@ -2899,6 +3861,8 @@ static void ext4_orphan_cleanup(struct super_block *sb,
 	sb->s_flags = s_flags; /* Restore SB_RDONLY status */
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Maximal extent format file size.
  * Resulting logical blkno at s_maxbytes must fit in our on-disk
@@ -2919,6 +3883,7 @@ static loff_t ext4_max_size(int blkbits, int has_huge_files)
 	loff_t res;
 	loff_t upper_limit = MAX_LFS_FILESIZE;
 
+<<<<<<< HEAD
 	/* small i_blocks in vfs inode? */
 	if (!has_huge_files || sizeof(blkcnt_t) < sizeof(u64)) {
 		/*
@@ -2926,6 +3891,11 @@ static loff_t ext4_max_size(int blkbits, int has_huge_files)
 		 * i_block represent total blocks in 512 bytes
 		 * 32 == size of vfs inode i_blocks * 8
 		 */
+=======
+	BUILD_BUG_ON(sizeof(blkcnt_t) < sizeof(u64));
+
+	if (!has_huge_files) {
+>>>>>>> upstream/android-13
 		upper_limit = (1LL << 32) - 1;
 
 		/* total blocks in file system block size */
@@ -2955,22 +3925,38 @@ static loff_t ext4_max_size(int blkbits, int has_huge_files)
  */
 static loff_t ext4_max_bitmap_size(int bits, int has_huge_files)
 {
+<<<<<<< HEAD
 	loff_t res = EXT4_NDIR_BLOCKS;
 	int meta_blocks;
 	loff_t upper_limit;
 	/* This is calculated to be the largest file size for a dense, block
+=======
+	unsigned long long upper_limit, res = EXT4_NDIR_BLOCKS;
+	int meta_blocks;
+
+	/*
+	 * This is calculated to be the largest file size for a dense, block
+>>>>>>> upstream/android-13
 	 * mapped file such that the file's total number of 512-byte sectors,
 	 * including data and all indirect blocks, does not exceed (2^48 - 1).
 	 *
 	 * __u32 i_blocks_lo and _u16 i_blocks_high represent the total
 	 * number of 512-byte sectors of the file.
 	 */
+<<<<<<< HEAD
 
 	if (!has_huge_files || sizeof(blkcnt_t) < sizeof(u64)) {
 		/*
 		 * !has_huge_files or CONFIG_LBDAF not enabled implies that
 		 * the inode i_block field represents total file blocks in
 		 * 2^32 512-byte sectors == size of vfs inode i_blocks * 8
+=======
+	if (!has_huge_files) {
+		/*
+		 * !has_huge_files or implies that the inode i_block field
+		 * represents total file blocks in 2^32 512-byte sectors ==
+		 * size of vfs inode i_blocks * 8
+>>>>>>> upstream/android-13
 		 */
 		upper_limit = (1LL << 32) - 1;
 
@@ -3008,7 +3994,11 @@ static loff_t ext4_max_bitmap_size(int bits, int has_huge_files)
 	if (res > MAX_LFS_FILESIZE)
 		res = MAX_LFS_FILESIZE;
 
+<<<<<<< HEAD
 	return res;
+=======
+	return (loff_t)res;
+>>>>>>> upstream/android-13
 }
 
 static ext4_fsblk_t descriptor_loc(struct super_block *sb,
@@ -3082,7 +4072,11 @@ static unsigned long ext4_get_stripe_size(struct ext4_sb_info *sbi)
  * Returns 1 if this filesystem can be mounted as requested,
  * 0 if it cannot be.
  */
+<<<<<<< HEAD
 static int ext4_feature_set_ok(struct super_block *sb, int readonly)
+=======
+int ext4_feature_set_ok(struct super_block *sb, int readonly)
+>>>>>>> upstream/android-13
 {
 	if (ext4_has_unknown_ext4_incompat_features(sb)) {
 		ext4_msg(sb, KERN_ERR,
@@ -3119,6 +4113,7 @@ static int ext4_feature_set_ok(struct super_block *sb, int readonly)
 				~EXT4_FEATURE_RO_COMPAT_SUPP));
 		return 0;
 	}
+<<<<<<< HEAD
 	/*
 	 * Large file size enabled file system can only be mounted
 	 * read-write on 32-bit systems if kernel is built with CONFIG_LBDAF
@@ -3131,6 +4126,8 @@ static int ext4_feature_set_ok(struct super_block *sb, int readonly)
 			return 0;
 		}
 	}
+=======
+>>>>>>> upstream/android-13
 	if (ext4_has_feature_bigalloc(sb) && !ext4_has_feature_extents(sb)) {
 		ext4_msg(sb, KERN_ERR,
 			 "Can't support bigalloc feature without "
@@ -3200,6 +4197,7 @@ static void print_daily_error_info(struct timer_list *t)
 static int ext4_run_li_request(struct ext4_li_request *elr)
 {
 	struct ext4_group_desc *gdp = NULL;
+<<<<<<< HEAD
 	ext4_group_t group, ngroups;
 	struct super_block *sb;
 	unsigned long timeout = 0;
@@ -3209,6 +4207,36 @@ static int ext4_run_li_request(struct ext4_li_request *elr)
 	ngroups = EXT4_SB(sb)->s_groups_count;
 
 	for (group = elr->lr_next_group; group < ngroups; group++) {
+=======
+	struct super_block *sb = elr->lr_super;
+	ext4_group_t ngroups = EXT4_SB(sb)->s_groups_count;
+	ext4_group_t group = elr->lr_next_group;
+	unsigned int prefetch_ios = 0;
+	int ret = 0;
+	u64 start_time;
+
+	if (elr->lr_mode == EXT4_LI_MODE_PREFETCH_BBITMAP) {
+		elr->lr_next_group = ext4_mb_prefetch(sb, group,
+				EXT4_SB(sb)->s_mb_prefetch, &prefetch_ios);
+		if (prefetch_ios)
+			ext4_mb_prefetch_fini(sb, elr->lr_next_group,
+					      prefetch_ios);
+		trace_ext4_prefetch_bitmaps(sb, group, elr->lr_next_group,
+					    prefetch_ios);
+		if (group >= elr->lr_next_group) {
+			ret = 1;
+			if (elr->lr_first_not_zeroed != ngroups &&
+			    !sb_rdonly(sb) && test_opt(sb, INIT_INODE_TABLE)) {
+				elr->lr_next_group = elr->lr_first_not_zeroed;
+				elr->lr_mode = EXT4_LI_MODE_ITABLE;
+				ret = 0;
+			}
+		}
+		return ret;
+	}
+
+	for (; group < ngroups; group++) {
+>>>>>>> upstream/android-13
 		gdp = ext4_get_group_desc(sb, group, NULL);
 		if (!gdp) {
 			ret = 1;
@@ -3223,6 +4251,7 @@ static int ext4_run_li_request(struct ext4_li_request *elr)
 		ret = 1;
 
 	if (!ret) {
+<<<<<<< HEAD
 		timeout = jiffies;
 		ret = ext4_init_inode_table(sb, group,
 					    elr->lr_timeout ? 0 : 1);
@@ -3230,6 +4259,15 @@ static int ext4_run_li_request(struct ext4_li_request *elr)
 			timeout = (jiffies - timeout) *
 				  elr->lr_sbi->s_li_wait_mult;
 			elr->lr_timeout = timeout;
+=======
+		start_time = ktime_get_real_ns();
+		ret = ext4_init_inode_table(sb, group,
+					    elr->lr_timeout ? 0 : 1);
+		trace_ext4_lazy_itable_init(sb, group);
+		if (elr->lr_timeout == 0) {
+			elr->lr_timeout = nsecs_to_jiffies((ktime_get_real_ns() - start_time) *
+				EXT4_SB(elr->lr_super)->s_li_wait_mult);
+>>>>>>> upstream/android-13
 		}
 		elr->lr_next_sched = jiffies + elr->lr_timeout;
 		elr->lr_next_group = group + 1;
@@ -3243,6 +4281,7 @@ static int ext4_run_li_request(struct ext4_li_request *elr)
  */
 static void ext4_remove_li_request(struct ext4_li_request *elr)
 {
+<<<<<<< HEAD
 	struct ext4_sb_info *sbi;
 
 	if (!elr)
@@ -3252,6 +4291,13 @@ static void ext4_remove_li_request(struct ext4_li_request *elr)
 
 	list_del(&elr->lr_request);
 	sbi->s_li_request = NULL;
+=======
+	if (!elr)
+		return;
+
+	list_del(&elr->lr_request);
+	EXT4_SB(elr->lr_super)->s_li_request = NULL;
+>>>>>>> upstream/android-13
 	kfree(elr);
 }
 
@@ -3460,7 +4506,10 @@ static int ext4_li_info_new(void)
 static struct ext4_li_request *ext4_li_request_new(struct super_block *sb,
 					    ext4_group_t start)
 {
+<<<<<<< HEAD
 	struct ext4_sb_info *sbi = EXT4_SB(sb);
+=======
+>>>>>>> upstream/android-13
 	struct ext4_li_request *elr;
 
 	elr = kzalloc(sizeof(*elr), GFP_KERNEL);
@@ -3468,8 +4517,18 @@ static struct ext4_li_request *ext4_li_request_new(struct super_block *sb,
 		return NULL;
 
 	elr->lr_super = sb;
+<<<<<<< HEAD
 	elr->lr_sbi = sbi;
 	elr->lr_next_group = start;
+=======
+	elr->lr_first_not_zeroed = start;
+	if (test_opt(sb, NO_PREFETCH_BLOCK_BITMAPS)) {
+		elr->lr_mode = EXT4_LI_MODE_ITABLE;
+		elr->lr_next_group = start;
+	} else {
+		elr->lr_mode = EXT4_LI_MODE_PREFETCH_BBITMAP;
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * Randomize first schedule time of the request to
@@ -3499,8 +4558,14 @@ int ext4_register_li_request(struct super_block *sb,
 		goto out;
 	}
 
+<<<<<<< HEAD
 	if (first_not_zeroed == ngroups || sb_rdonly(sb) ||
 	    !test_opt(sb, INIT_INODE_TABLE))
+=======
+	if (test_opt(sb, NO_PREFETCH_BLOCK_BITMAPS) &&
+	    (first_not_zeroed == ngroups || sb_rdonly(sb) ||
+	     !test_opt(sb, INIT_INODE_TABLE)))
+>>>>>>> upstream/android-13
 		goto out;
 
 	elr = ext4_li_request_new(sb, first_not_zeroed);
@@ -3617,9 +4682,17 @@ static int count_overhead(struct super_block *sb, ext4_group_t grp,
 	ext4_fsblk_t		first_block, last_block, b;
 	ext4_group_t		i, ngroups = ext4_get_groups_count(sb);
 	int			s, j, count = 0;
+<<<<<<< HEAD
 
 	if (!ext4_has_feature_bigalloc(sb))
 		return (ext4_bg_has_super(sb, grp) + ext4_bg_num_gdb(sb, grp) +
+=======
+	int			has_super = ext4_bg_has_super(sb, grp);
+
+	if (!ext4_has_feature_bigalloc(sb))
+		return (has_super + ext4_bg_num_gdb(sb, grp) +
+			(has_super ? le16_to_cpu(sbi->s_es->s_reserved_gdt_blocks) : 0) +
+>>>>>>> upstream/android-13
 			sbi->s_itb_per_group + 2);
 
 	first_block = le32_to_cpu(sbi->s_es->s_first_data_block) +
@@ -3711,8 +4784,13 @@ int ext4_calculate_overhead(struct super_block *sb)
 	 * Add the internal journal blocks whether the journal has been
 	 * loaded or not
 	 */
+<<<<<<< HEAD
 	if (sbi->s_journal && !sbi->journal_bdev)
 		overhead += EXT4_NUM_B2C(sbi, sbi->s_journal->j_maxlen);
+=======
+	if (sbi->s_journal && !sbi->s_journal_bdev)
+		overhead += EXT4_NUM_B2C(sbi, sbi->s_journal->j_total_len);
+>>>>>>> upstream/android-13
 	else if (ext4_has_feature_journal(sb) && !sbi->s_journal && j_inum) {
 		/* j_inum for internal journal is non-zero */
 		j_inode = ext4_get_journal_inode(sb, j_inum);
@@ -3760,6 +4838,38 @@ static void ext4_set_resv_clusters(struct super_block *sb)
 	atomic64_set(&sbi->s_resv_clusters, resv_clusters);
 }
 
+<<<<<<< HEAD
+=======
+static const char *ext4_quota_mode(struct super_block *sb)
+{
+#ifdef CONFIG_QUOTA
+	if (!ext4_quota_capable(sb))
+		return "none";
+
+	if (EXT4_SB(sb)->s_journal && ext4_is_quota_journalled(sb))
+		return "journalled";
+	else
+		return "writeback";
+#else
+	return "disabled";
+#endif
+}
+
+static void ext4_setup_csum_trigger(struct super_block *sb,
+				    enum ext4_journal_trigger_type type,
+				    void (*trigger)(
+					struct jbd2_buffer_trigger_type *type,
+					struct buffer_head *bh,
+					void *mapped_data,
+					size_t size))
+{
+	struct ext4_sb_info *sbi = EXT4_SB(sb);
+
+	sbi->s_journal_triggers[type].sb = sb;
+	sbi->s_journal_triggers[type].tr_triggers.t_frozen = trigger;
+}
+
+>>>>>>> upstream/android-13
 static int ext4_fill_super(struct super_block *sb, void *data, int silent)
 {
 	struct dax_device *dax_dev = fs_dax_get_by_bdev(sb->s_bdev);
@@ -3772,7 +4882,10 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
 	ext4_fsblk_t sb_block = get_sb_block(&data);
 	ext4_fsblk_t logical_sb_block;
 	unsigned long offset = 0;
+<<<<<<< HEAD
 	unsigned long journal_devnum = 0;
+=======
+>>>>>>> upstream/android-13
 	unsigned long def_mount_opts;
 	struct inode *root;
 	const char *descr;
@@ -3780,11 +4893,24 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
 	int blocksize, clustersize;
 	unsigned int db_count;
 	unsigned int i;
+<<<<<<< HEAD
 	int needs_recovery, has_huge_files, has_bigalloc;
 	__u64 blocks_count;
 	int err = 0;
 	unsigned int journal_ioprio = DEFAULT_JOURNAL_IOPRIO;
 	ext4_group_t first_not_zeroed;
+=======
+	int needs_recovery, has_huge_files;
+	__u64 blocks_count;
+	int err = 0;
+	ext4_group_t first_not_zeroed;
+	struct ext4_parsed_options parsed_opts;
+
+	/* Set defaults for the variables that will be set during parsing */
+	parsed_opts.journal_ioprio = DEFAULT_JOURNAL_IOPRIO;
+	parsed_opts.journal_devnum = 0;
+	parsed_opts.mb_optimize_scan = DEFAULT_MB_OPTIMIZE_SCAN;
+>>>>>>> upstream/android-13
 
 	if ((data && !orig_data) || !sbi)
 		goto out_free_base;
@@ -3799,9 +4925,14 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
 	sbi->s_sb = sb;
 	sbi->s_inode_readahead_blks = EXT4_DEF_INODE_READAHEAD_BLKS;
 	sbi->s_sb_block = sb_block;
+<<<<<<< HEAD
 	if (sb->s_bdev->bd_part)
 		sbi->s_sectors_written_start =
 			part_stat_read(sb->s_bdev->bd_part, sectors[STAT_WRITE]);
+=======
+	sbi->s_sectors_written_start =
+		part_stat_read(sb->s_bdev, sectors[STAT_WRITE]);
+>>>>>>> upstream/android-13
 
 	/* Cleanup superblock name */
 	strreplace(sb->s_id, '/', '!');
@@ -3825,8 +4956,15 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
 		logical_sb_block = sb_block;
 	}
 
+<<<<<<< HEAD
 	if (!(bh = sb_bread_unmovable(sb, logical_sb_block))) {
 		ext4_msg(sb, KERN_ERR, "unable to read superblock");
+=======
+	bh = ext4_sb_bread_unmovable(sb, logical_sb_block);
+	if (IS_ERR(bh)) {
+		ext4_msg(sb, KERN_ERR, "unable to read superblock");
+		ret = PTR_ERR(bh);
+>>>>>>> upstream/android-13
 		goto out_fail;
 	}
 	/*
@@ -3853,6 +4991,11 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
 		silent = 1;
 		goto cantfind_ext4;
 	}
+<<<<<<< HEAD
+=======
+	ext4_setup_csum_trigger(sb, EXT4_JTR_ORPHAN_FILE,
+				ext4_orphan_file_block_trigger);
+>>>>>>> upstream/android-13
 
 	/* Load the checksum driver */
 	sbi->s_chksum_driver = crypto_alloc_shash("crc32c", 0, 0);
@@ -3893,6 +5036,11 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
 #ifdef CONFIG_EXT4_FS_POSIX_ACL
 	set_opt(sb, POSIX_ACL);
 #endif
+<<<<<<< HEAD
+=======
+	if (ext4_has_feature_fast_commit(sb))
+		set_opt2(sb, JOURNAL_FAST_COMMIT);
+>>>>>>> upstream/android-13
 	/* don't forget to enable journal_csum when metadata_csum is enabled. */
 	if (ext4_has_metadata_csum(sb))
 		set_opt(sb, JOURNAL_CHECKSUM);
@@ -3938,6 +5086,7 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
 	 */
 	sbi->s_li_wait_mult = EXT4_DEF_LI_WAIT_MULT;
 
+<<<<<<< HEAD
 	blocksize = BLOCK_SIZE << le32_to_cpu(es->s_log_block_size);
 	if (blocksize < EXT4_MIN_BLOCK_SIZE ||
 	    blocksize > EXT4_MAX_BLOCK_SIZE) {
@@ -3946,6 +5095,27 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
 			 blocksize, le32_to_cpu(es->s_log_block_size));
 		goto failed_mount;
 	}
+=======
+	if (le32_to_cpu(es->s_log_block_size) >
+	    (EXT4_MAX_BLOCK_LOG_SIZE - EXT4_MIN_BLOCK_LOG_SIZE)) {
+		ext4_msg(sb, KERN_ERR,
+			 "Invalid log block size: %u",
+			 le32_to_cpu(es->s_log_block_size));
+		goto failed_mount;
+	}
+	if (le32_to_cpu(es->s_log_cluster_size) >
+	    (EXT4_MAX_CLUSTER_LOG_SIZE - EXT4_MIN_BLOCK_LOG_SIZE)) {
+		ext4_msg(sb, KERN_ERR,
+			 "Invalid log cluster size: %u",
+			 le32_to_cpu(es->s_log_cluster_size));
+		goto failed_mount;
+	}
+
+	blocksize = EXT4_MIN_BLOCK_SIZE << le32_to_cpu(es->s_log_block_size);
+
+	if (blocksize == PAGE_SIZE)
+		set_opt(sb, DIOREAD_NOLOCK);
+>>>>>>> upstream/android-13
 
 	if (le32_to_cpu(es->s_rev_level) == EXT4_GOOD_OLD_REV) {
 		sbi->s_inode_size = EXT4_GOOD_OLD_INODE_SIZE;
@@ -3976,9 +5146,18 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
 		if (sbi->s_inode_size >= offsetof(struct ext4_inode, i_atime_extra) +
 			sizeof(((struct ext4_inode *)0)->i_atime_extra)) {
 			sb->s_time_gran = 1;
+<<<<<<< HEAD
 		} else {
 			sb->s_time_gran = NSEC_PER_SEC;
 		}
+=======
+			sb->s_time_max = EXT4_EXTRA_TIMESTAMP_MAX;
+		} else {
+			sb->s_time_gran = NSEC_PER_SEC;
+			sb->s_time_max = EXT4_NON_EXTRA_TIMESTAMP_MAX;
+		}
+		sb->s_time_min = EXT4_TIMESTAMP_MIN;
+>>>>>>> upstream/android-13
 	}
 	if (sbi->s_inode_size > EXT4_GOOD_OLD_INODE_SIZE) {
 		sbi->s_want_extra_isize = sizeof(struct ext4_inode) -
@@ -4013,8 +5192,12 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
 					      GFP_KERNEL);
 		if (!s_mount_opts)
 			goto failed_mount;
+<<<<<<< HEAD
 		if (!parse_options(s_mount_opts, sb, &journal_devnum,
 				   &journal_ioprio, 0)) {
+=======
+		if (!parse_options(s_mount_opts, sb, &parsed_opts, 0)) {
+>>>>>>> upstream/android-13
 			ext4_msg(sb, KERN_WARNING,
 				 "failed to parse options in superblock: %s",
 				 s_mount_opts);
@@ -4022,8 +5205,12 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
 		kfree(s_mount_opts);
 	}
 	sbi->s_def_mount_opt = sbi->s_mount_opt;
+<<<<<<< HEAD
 	if (!parse_options((char *) data, sb, &journal_devnum,
 			   &journal_ioprio, 0))
+=======
+	if (!parse_options((char *) data, sb, &parsed_opts, 0))
+>>>>>>> upstream/android-13
 		goto failed_mount;
 
 #ifdef CONFIG_UNICODE
@@ -4058,20 +5245,31 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
 #endif
 
 	if (test_opt(sb, DATA_FLAGS) == EXT4_MOUNT_JOURNAL_DATA) {
+<<<<<<< HEAD
 		printk_once(KERN_WARNING "EXT4-fs: Warning: mounting "
 			    "with data=journal disables delayed "
 			    "allocation and O_DIRECT support!\n");
+=======
+		printk_once(KERN_WARNING "EXT4-fs: Warning: mounting with data=journal disables delayed allocation, dioread_nolock, O_DIRECT and fast_commit support!\n");
+		/* can't mount with both data=journal and dioread_nolock. */
+		clear_opt(sb, DIOREAD_NOLOCK);
+		clear_opt2(sb, JOURNAL_FAST_COMMIT);
+>>>>>>> upstream/android-13
 		if (test_opt2(sb, EXPLICIT_DELALLOC)) {
 			ext4_msg(sb, KERN_ERR, "can't mount with "
 				 "both data=journal and delalloc");
 			goto failed_mount;
 		}
+<<<<<<< HEAD
 		if (test_opt(sb, DIOREAD_NOLOCK)) {
 			ext4_msg(sb, KERN_ERR, "can't mount with "
 				 "both data=journal and dioread_nolock");
 			goto failed_mount;
 		}
 		if (test_opt(sb, DAX)) {
+=======
+		if (test_opt(sb, DAX_ALWAYS)) {
+>>>>>>> upstream/android-13
 			ext4_msg(sb, KERN_ERR, "can't mount with "
 				 "both data=journal and dax");
 			goto failed_mount;
@@ -4163,6 +5361,7 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
 	if (!ext4_feature_set_ok(sb, (sb_rdonly(sb))))
 		goto failed_mount;
 
+<<<<<<< HEAD
 	if (le32_to_cpu(es->s_log_block_size) >
 	    (EXT4_MAX_BLOCK_LOG_SIZE - EXT4_MIN_BLOCK_LOG_SIZE)) {
 		ext4_msg(sb, KERN_ERR,
@@ -4178,6 +5377,8 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
 		goto failed_mount;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (le16_to_cpu(sbi->s_es->s_reserved_gdt_blocks) > (blocksize / 4)) {
 		ext4_msg(sb, KERN_ERR,
 			 "Number of reserved GDT blocks insanely large: %d",
@@ -4185,6 +5386,7 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
 		goto failed_mount;
 	}
 
+<<<<<<< HEAD
 	if (sbi->s_mount_opt & EXT4_MOUNT_DAX) {
 		if (ext4_has_feature_inline_data(sb)) {
 			ext4_msg(sb, KERN_ERR, "Cannot use DAX on a filesystem"
@@ -4195,6 +5397,22 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
 			ext4_msg(sb, KERN_ERR,
 				"DAX unsupported by block device. Turning off DAX.");
 			sbi->s_mount_opt &= ~EXT4_MOUNT_DAX;
+=======
+	if (dax_supported(dax_dev, sb->s_bdev, blocksize, 0,
+			bdev_nr_sectors(sb->s_bdev)))
+		set_bit(EXT4_FLAGS_BDEV_IS_DAX, &sbi->s_ext4_flags);
+
+	if (sbi->s_mount_opt & EXT4_MOUNT_DAX_ALWAYS) {
+		if (ext4_has_feature_inline_data(sb)) {
+			ext4_msg(sb, KERN_ERR, "Cannot use DAX on a filesystem"
+					" that may contain inline data");
+			goto failed_mount;
+		}
+		if (!test_bit(EXT4_FLAGS_BDEV_IS_DAX, &sbi->s_ext4_flags)) {
+			ext4_msg(sb, KERN_ERR,
+				"DAX unsupported by block device.");
+			goto failed_mount;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -4205,10 +5423,20 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
 	}
 
 	if (sb->s_blocksize != blocksize) {
+<<<<<<< HEAD
+=======
+		/*
+		 * bh must be released before kill_bdev(), otherwise
+		 * it won't be freed and its page also. kill_bdev()
+		 * is called by sb_set_blocksize().
+		 */
+		brelse(bh);
+>>>>>>> upstream/android-13
 		/* Validate the filesystem blocksize */
 		if (!sb_set_blocksize(sb, blocksize)) {
 			ext4_msg(sb, KERN_ERR, "bad block size %d",
 					blocksize);
+<<<<<<< HEAD
 			goto failed_mount;
 		}
 
@@ -4219,6 +5447,20 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
 		if (!bh) {
 			ext4_msg(sb, KERN_ERR,
 			       "Can't read superblock on 2nd try");
+=======
+			bh = NULL;
+			goto failed_mount;
+		}
+
+		logical_sb_block = sb_block * EXT4_MIN_BLOCK_SIZE;
+		offset = do_div(logical_sb_block, blocksize);
+		bh = ext4_sb_bread_unmovable(sb, logical_sb_block);
+		if (IS_ERR(bh)) {
+			ext4_msg(sb, KERN_ERR,
+			       "Can't read superblock on 2nd try");
+			ret = PTR_ERR(bh);
+			bh = NULL;
+>>>>>>> upstream/android-13
 			goto failed_mount;
 		}
 		es = (struct ext4_super_block *)(bh->b_data + offset);
@@ -4291,8 +5533,12 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
 
 	/* Handle clustersize */
 	clustersize = BLOCK_SIZE << le32_to_cpu(es->s_log_cluster_size);
+<<<<<<< HEAD
 	has_bigalloc = ext4_has_feature_bigalloc(sb);
 	if (has_bigalloc) {
+=======
+	if (ext4_has_feature_bigalloc(sb)) {
+>>>>>>> upstream/android-13
 		if (clustersize < blocksize) {
 			ext4_msg(sb, KERN_ERR,
 				 "cluster size (%d) smaller than "
@@ -4348,8 +5594,11 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
 	if (err) {
 		ext4_msg(sb, KERN_ERR, "filesystem"
 			 " too large to mount safely on this system");
+<<<<<<< HEAD
 		if (sizeof(sector_t) < 8)
 			ext4_msg(sb, KERN_WARNING, "CONFIG_LBDAF not enabled");
+=======
+>>>>>>> upstream/android-13
 		goto failed_mount;
 	}
 
@@ -4433,18 +5682,31 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
 	/* Pre-read the descriptors into the buffer cache */
 	for (i = 0; i < db_count; i++) {
 		block = descriptor_loc(sb, logical_sb_block, i);
+<<<<<<< HEAD
 		sb_breadahead_unmovable(sb, block);
+=======
+		ext4_sb_breadahead_unmovable(sb, block);
+>>>>>>> upstream/android-13
 	}
 
 	for (i = 0; i < db_count; i++) {
 		struct buffer_head *bh;
 
 		block = descriptor_loc(sb, logical_sb_block, i);
+<<<<<<< HEAD
 		bh = sb_bread_unmovable(sb, block);
 		if (!bh) {
 			ext4_msg(sb, KERN_ERR,
 			       "can't read group descriptor %d", i);
 			db_count = i;
+=======
+		bh = ext4_sb_bread_unmovable(sb, block);
+		if (IS_ERR(bh)) {
+			ext4_msg(sb, KERN_ERR,
+			       "can't read group descriptor %d", i);
+			db_count = i;
+			ret = PTR_ERR(bh);
+>>>>>>> upstream/android-13
 			goto failed_mount2;
 		}
 		rcu_read_lock();
@@ -4459,6 +5721,11 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
 	}
 
 	timer_setup(&sbi->s_err_report, print_daily_error_info, 0);
+<<<<<<< HEAD
+=======
+	spin_lock_init(&sbi->s_error_lock);
+	INIT_WORK(&sbi->s_error_work, flush_stashed_error_work);
+>>>>>>> upstream/android-13
 
 	/* Register extent status tree shrinker */
 	if (ext4_es_register_shrinker(sbi))
@@ -4492,9 +5759,35 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
 	INIT_LIST_HEAD(&sbi->s_orphan); /* unlinked but open files */
 	mutex_init(&sbi->s_orphan_lock);
 
+<<<<<<< HEAD
 	sb->s_root = NULL;
 
 	needs_recovery = (es->s_last_orphan != 0 ||
+=======
+	/* Initialize fast commit stuff */
+	atomic_set(&sbi->s_fc_subtid, 0);
+	INIT_LIST_HEAD(&sbi->s_fc_q[FC_Q_MAIN]);
+	INIT_LIST_HEAD(&sbi->s_fc_q[FC_Q_STAGING]);
+	INIT_LIST_HEAD(&sbi->s_fc_dentry_q[FC_Q_MAIN]);
+	INIT_LIST_HEAD(&sbi->s_fc_dentry_q[FC_Q_STAGING]);
+	sbi->s_fc_bytes = 0;
+	ext4_clear_mount_flag(sb, EXT4_MF_FC_INELIGIBLE);
+	sbi->s_fc_ineligible_tid = 0;
+	spin_lock_init(&sbi->s_fc_lock);
+	memset(&sbi->s_fc_stats, 0, sizeof(sbi->s_fc_stats));
+	sbi->s_fc_replay_state.fc_regions = NULL;
+	sbi->s_fc_replay_state.fc_regions_size = 0;
+	sbi->s_fc_replay_state.fc_regions_used = 0;
+	sbi->s_fc_replay_state.fc_regions_valid = 0;
+	sbi->s_fc_replay_state.fc_modified_inodes = NULL;
+	sbi->s_fc_replay_state.fc_modified_inodes_size = 0;
+	sbi->s_fc_replay_state.fc_modified_inodes_used = 0;
+
+	sb->s_root = NULL;
+
+	needs_recovery = (es->s_last_orphan != 0 ||
+			  ext4_has_feature_orphan_present(sb) ||
+>>>>>>> upstream/android-13
 			  ext4_has_feature_journal_needs_recovery(sb));
 
 	if (ext4_has_feature_mmp(sb) && !sb_rdonly(sb))
@@ -4506,7 +5799,11 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
 	 * root first: it may be modified in the journal!
 	 */
 	if (!test_opt(sb, NOLOAD) && ext4_has_feature_journal(sb)) {
+<<<<<<< HEAD
 		err = ext4_load_journal(sb, es, journal_devnum);
+=======
+		err = ext4_load_journal(sb, es, parsed_opts.journal_devnum);
+>>>>>>> upstream/android-13
 		if (err)
 			goto failed_mount3a;
 	} else if (test_opt(sb, NOLOAD) && !sb_rdonly(sb) &&
@@ -4541,6 +5838,10 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
 		sbi->s_def_mount_opt &= ~EXT4_MOUNT_JOURNAL_CHECKSUM;
 		clear_opt(sb, JOURNAL_CHECKSUM);
 		clear_opt(sb, DATA_FLAGS);
+<<<<<<< HEAD
+=======
+		clear_opt2(sb, JOURNAL_FAST_COMMIT);
+>>>>>>> upstream/android-13
 		sbi->s_journal = NULL;
 		needs_recovery = 0;
 		goto no_journal;
@@ -4559,6 +5860,17 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
 		goto failed_mount_wq;
 	}
 
+<<<<<<< HEAD
+=======
+	if (test_opt2(sb, JOURNAL_FAST_COMMIT) &&
+		!jbd2_journal_set_features(EXT4_SB(sb)->s_journal, 0, 0,
+					  JBD2_FEATURE_INCOMPAT_FAST_COMMIT)) {
+		ext4_msg(sb, KERN_ERR,
+			"Failed to set fast commit journal feature");
+		goto failed_mount_wq;
+	}
+
+>>>>>>> upstream/android-13
 	/* We have now updated the journal if required, so we can
 	 * validate the data journaling mode. */
 	switch (test_opt(sb, DATA_FLAGS)) {
@@ -4585,6 +5897,10 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
 			       "requested data journaling mode");
 			goto failed_mount_wq;
 		}
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
@@ -4596,9 +5912,18 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
 		goto failed_mount_wq;
 	}
 
+<<<<<<< HEAD
 	set_task_ioprio(sbi->s_journal->j_task, journal_ioprio);
 
 	sbi->s_journal->j_commit_callback = ext4_journal_commit_callback;
+=======
+	set_task_ioprio(sbi->s_journal->j_task, parsed_opts.journal_ioprio);
+
+	sbi->s_journal->j_submit_inode_data_buffers =
+		ext4_journal_submit_inode_data_buffers;
+	sbi->s_journal->j_finish_inode_data_buffers =
+		ext4_journal_finish_inode_data_buffers;
+>>>>>>> upstream/android-13
 
 no_journal:
 	if (!test_opt(sb, NO_MBCACHE)) {
@@ -4619,6 +5944,7 @@ no_journal:
 		}
 	}
 
+<<<<<<< HEAD
 	if ((DUMMY_ENCRYPTION_ENABLED(sbi) || ext4_has_feature_encrypt(sb)) &&
 	    (blocksize != PAGE_SIZE)) {
 		ext4_msg(sb, KERN_ERR,
@@ -4626,6 +5952,8 @@ no_journal:
 		goto failed_mount_wq;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (ext4_has_feature_verity(sb) && blocksize != PAGE_SIZE) {
 		ext4_msg(sb, KERN_ERR, "Unsupported blocksize for fs-verity");
 		goto failed_mount_wq;
@@ -4634,16 +5962,35 @@ no_journal:
 	if (DUMMY_ENCRYPTION_ENABLED(sbi) && !sb_rdonly(sb) &&
 	    !ext4_has_feature_encrypt(sb)) {
 		ext4_set_feature_encrypt(sb);
+<<<<<<< HEAD
 		ext4_commit_super(sb, 1);
+=======
+		ext4_commit_super(sb);
+>>>>>>> upstream/android-13
 	}
 
 	/*
 	 * Get the # of file system overhead blocks from the
 	 * superblock if present.
 	 */
+<<<<<<< HEAD
 	if (es->s_overhead_clusters)
 		sbi->s_overhead = le32_to_cpu(es->s_overhead_clusters);
 	else {
+=======
+	sbi->s_overhead = le32_to_cpu(es->s_overhead_clusters);
+	/* ignore the precalculated value if it is ridiculous */
+	if (sbi->s_overhead > ext4_blocks_count(es))
+		sbi->s_overhead = 0;
+	/*
+	 * If the bigalloc feature is not enabled recalculating the
+	 * overhead doesn't take long, so we might as well just redo
+	 * it to make sure we are using the correct value.
+	 */
+	if (!ext4_has_feature_bigalloc(sb))
+		sbi->s_overhead = 0;
+	if (sbi->s_overhead == 0) {
+>>>>>>> upstream/android-13
 		err = ext4_calculate_overhead(sb);
 		if (err)
 			goto failed_mount_wq;
@@ -4703,8 +6050,27 @@ no_journal:
 			goto failed_mount4a;
 		}
 	}
+<<<<<<< HEAD
 
 	ext4_ext_init(sb);
+=======
+	ext4_fc_replay_cleanup(sb);
+
+	ext4_ext_init(sb);
+
+	/*
+	 * Enable optimize_scan if number of groups is > threshold. This can be
+	 * turned off by passing "mb_optimize_scan=0". This can also be
+	 * turned on forcefully by passing "mb_optimize_scan=1".
+	 */
+	if (parsed_opts.mb_optimize_scan == 1)
+		set_opt2(sb, MB_OPTIMIZE_SCAN);
+	else if (parsed_opts.mb_optimize_scan == 0)
+		clear_opt2(sb, MB_OPTIMIZE_SCAN);
+	else if (sbi->s_groups_count >= MB_DEFAULT_LINEAR_SCAN_THRESHOLD)
+		set_opt2(sb, MB_OPTIMIZE_SCAN);
+
+>>>>>>> upstream/android-13
 	err = ext4_mb_init(sb);
 	if (err) {
 		ext4_msg(sb, KERN_ERR, "failed to initialize mballoc (%d)",
@@ -4712,19 +6078,47 @@ no_journal:
 		goto failed_mount5;
 	}
 
+<<<<<<< HEAD
 	block = ext4_count_free_clusters(sb);
 	ext4_free_blocks_count_set(sbi->s_es, 
 				   EXT4_C2B(sbi, block));
 	ext4_superblock_csum_set(sb);
+=======
+	/*
+	 * We can only set up the journal commit callback once
+	 * mballoc is initialized
+	 */
+	if (sbi->s_journal)
+		sbi->s_journal->j_commit_callback =
+			ext4_journal_commit_callback;
+
+	block = ext4_count_free_clusters(sb);
+	ext4_free_blocks_count_set(sbi->s_es,
+				   EXT4_C2B(sbi, block));
+>>>>>>> upstream/android-13
 	err = percpu_counter_init(&sbi->s_freeclusters_counter, block,
 				  GFP_KERNEL);
 	if (!err) {
 		unsigned long freei = ext4_count_free_inodes(sb);
 		sbi->s_es->s_free_inodes_count = cpu_to_le32(freei);
+<<<<<<< HEAD
 		ext4_superblock_csum_set(sb);
 		err = percpu_counter_init(&sbi->s_freeinodes_counter, freei,
 					  GFP_KERNEL);
 	}
+=======
+		err = percpu_counter_init(&sbi->s_freeinodes_counter, freei,
+					  GFP_KERNEL);
+	}
+	/*
+	 * Update the checksum after updating free space/inode
+	 * counters.  Otherwise the superblock can have an incorrect
+	 * checksum in the buffer cache until it is written out and
+	 * e2fsprogs programs trying to open a file system immediately
+	 * after it is mounted can fail.
+	 */
+	ext4_superblock_csum_set(sb);
+>>>>>>> upstream/android-13
 	if (!err)
 		err = percpu_counter_init(&sbi->s_dirs_counter,
 					  ext4_count_dirs(sb), GFP_KERNEL);
@@ -4732,6 +6126,12 @@ no_journal:
 		err = percpu_counter_init(&sbi->s_dirtyclusters_counter, 0,
 					  GFP_KERNEL);
 	if (!err)
+<<<<<<< HEAD
+=======
+		err = percpu_counter_init(&sbi->s_sra_exceeded_retry_limit, 0,
+					  GFP_KERNEL);
+	if (!err)
+>>>>>>> upstream/android-13
 		err = percpu_init_rwsem(&sbi->s_writepages_rwsem);
 
 	if (err) {
@@ -4744,6 +6144,10 @@ no_journal:
 			ext4_msg(sb, KERN_ERR,
 			       "unable to initialize "
 			       "flex_bg meta info!");
+<<<<<<< HEAD
+=======
+			ret = -ENOMEM;
+>>>>>>> upstream/android-13
 			goto failed_mount6;
 		}
 
@@ -4755,15 +6159,36 @@ no_journal:
 	if (err)
 		goto failed_mount7;
 
+<<<<<<< HEAD
+=======
+	err = ext4_init_orphan_info(sb);
+	if (err)
+		goto failed_mount8;
+>>>>>>> upstream/android-13
 #ifdef CONFIG_QUOTA
 	/* Enable quota usage during mount. */
 	if (ext4_has_feature_quota(sb) && !sb_rdonly(sb)) {
 		err = ext4_enable_quotas(sb);
 		if (err)
+<<<<<<< HEAD
 			goto failed_mount8;
 	}
 #endif  /* CONFIG_QUOTA */
 
+=======
+			goto failed_mount9;
+	}
+#endif  /* CONFIG_QUOTA */
+
+	/*
+	 * Save the original bdev mapping's wb_err value which could be
+	 * used to detect the metadata async write error.
+	 */
+	spin_lock_init(&sbi->s_bdev_wb_lock);
+	errseq_check_and_advance(&sb->s_bdev->bd_inode->i_mapping->wb_err,
+				 &sbi->s_bdev_wb_err);
+	sb->s_bdev->bd_super = sb;
+>>>>>>> upstream/android-13
 	EXT4_SB(sb)->s_mount_state |= EXT4_ORPHAN_FS;
 	ext4_orphan_cleanup(sb, es);
 	EXT4_SB(sb)->s_mount_state &= ~EXT4_ORPHAN_FS;
@@ -4771,7 +6196,11 @@ no_journal:
 		ext4_msg(sb, KERN_INFO, "recovery complete");
 		err = ext4_mark_recovery_complete(sb, es);
 		if (err)
+<<<<<<< HEAD
 			goto failed_mount8;
+=======
+			goto failed_mount9;
+>>>>>>> upstream/android-13
 	}
 	if (EXT4_SB(sb)->s_journal) {
 		if (test_opt(sb, DATA_FLAGS) == EXT4_MOUNT_JOURNAL_DATA)
@@ -4793,10 +6222,18 @@ no_journal:
 
 	if (___ratelimit(&ext4_mount_msg_ratelimit, "EXT4-fs mount"))
 		ext4_msg(sb, KERN_INFO, "mounted filesystem with%s. "
+<<<<<<< HEAD
 			 "Opts: %.*s%s%s", descr,
 			 (int) sizeof(sbi->s_es->s_mount_opts),
 			 sbi->s_es->s_mount_opts,
 			 *sbi->s_es->s_mount_opts ? "; " : "", orig_data);
+=======
+			 "Opts: %.*s%s%s. Quota mode: %s.", descr,
+			 (int) sizeof(sbi->s_es->s_mount_opts),
+			 sbi->s_es->s_mount_opts,
+			 *sbi->s_es->s_mount_opts ? "; " : "", orig_data,
+			 ext4_quota_mode(sb));
+>>>>>>> upstream/android-13
 
 	if (es->s_error_count)
 		mod_timer(&sbi->s_err_report, jiffies + 300*HZ); /* 5 minutes */
@@ -4805,6 +6242,11 @@ no_journal:
 	ratelimit_state_init(&sbi->s_err_ratelimit_state, 5 * HZ, 10);
 	ratelimit_state_init(&sbi->s_warning_ratelimit_state, 5 * HZ, 10);
 	ratelimit_state_init(&sbi->s_msg_ratelimit_state, 5 * HZ, 10);
+<<<<<<< HEAD
+=======
+	atomic_set(&sbi->s_warning_count, 0);
+	atomic_set(&sbi->s_msg_count, 0);
+>>>>>>> upstream/android-13
 
 	kfree(orig_data);
 	return 0;
@@ -4814,6 +6256,11 @@ cantfind_ext4:
 		ext4_msg(sb, KERN_ERR, "VFS: Can't find ext4 filesystem");
 	goto failed_mount;
 
+<<<<<<< HEAD
+=======
+failed_mount9:
+	ext4_release_orphan_info(sb);
+>>>>>>> upstream/android-13
 failed_mount8:
 	ext4_unregister_sysfs(sb);
 	kobject_put(&sbi->s_kobj);
@@ -4833,6 +6280,10 @@ failed_mount6:
 	percpu_counter_destroy(&sbi->s_freeinodes_counter);
 	percpu_counter_destroy(&sbi->s_dirs_counter);
 	percpu_counter_destroy(&sbi->s_dirtyclusters_counter);
+<<<<<<< HEAD
+=======
+	percpu_counter_destroy(&sbi->s_sra_exceeded_retry_limit);
+>>>>>>> upstream/android-13
 	percpu_free_rwsem(&sbi->s_writepages_rwsem);
 failed_mount5:
 	ext4_ext_release(sb);
@@ -4845,6 +6296,7 @@ failed_mount4:
 	if (EXT4_SB(sb)->rsv_conversion_wq)
 		destroy_workqueue(EXT4_SB(sb)->rsv_conversion_wq);
 failed_mount_wq:
+<<<<<<< HEAD
 	if (sbi->s_ea_inode_cache) {
 		ext4_xattr_destroy_cache(sbi->s_ea_inode_cache);
 		sbi->s_ea_inode_cache = NULL;
@@ -4854,15 +6306,33 @@ failed_mount_wq:
 		sbi->s_ea_block_cache = NULL;
 	}
 	if (sbi->s_journal) {
+=======
+	ext4_xattr_destroy_cache(sbi->s_ea_inode_cache);
+	sbi->s_ea_inode_cache = NULL;
+
+	ext4_xattr_destroy_cache(sbi->s_ea_block_cache);
+	sbi->s_ea_block_cache = NULL;
+
+	if (sbi->s_journal) {
+		/* flush s_error_work before journal destroy. */
+		flush_work(&sbi->s_error_work);
+>>>>>>> upstream/android-13
 		jbd2_journal_destroy(sbi->s_journal);
 		sbi->s_journal = NULL;
 	}
 failed_mount3a:
 	ext4_es_unregister_shrinker(sbi);
 failed_mount3:
+<<<<<<< HEAD
 	del_timer_sync(&sbi->s_err_report);
 	if (sbi->s_mmp_tsk)
 		kthread_stop(sbi->s_mmp_tsk);
+=======
+	/* flush s_error_work before sbi destroy */
+	flush_work(&sbi->s_error_work);
+	del_timer_sync(&sbi->s_err_report);
+	ext4_stop_mmpd(sbi);
+>>>>>>> upstream/android-13
 failed_mount2:
 	rcu_read_lock();
 	group_desc = rcu_dereference(sbi->s_group_desc);
@@ -4871,8 +6341,11 @@ failed_mount2:
 	kvfree(group_desc);
 	rcu_read_unlock();
 failed_mount:
+<<<<<<< HEAD
 	printk(KERN_ERR "printing data of superblock-bh\n");
 	print_bh(sb, bh, 0, EXT4_BLOCK_SIZE(sb));
+=======
+>>>>>>> upstream/android-13
 	if (sbi->s_chksum_driver)
 		crypto_free_shash(sbi->s_chksum_driver);
 
@@ -4882,11 +6355,20 @@ failed_mount:
 
 #ifdef CONFIG_QUOTA
 	for (i = 0; i < EXT4_MAXQUOTAS; i++)
+<<<<<<< HEAD
 		kfree(sbi->s_qf_names[i]);
 #endif
 	fscrypt_free_dummy_context(&sbi->s_dummy_enc_ctx);
 	ext4_blkdev_remove(sbi);
 	brelse(bh);
+=======
+		kfree(get_qf_name(sb, sbi, i));
+#endif
+	fscrypt_free_dummy_policy(&sbi->s_dummy_enc_policy);
+	/* ext4_blkdev_remove() calls kill_bdev(), release bh before it. */
+	brelse(bh);
+	ext4_blkdev_remove(sbi);
+>>>>>>> upstream/android-13
 out_fail:
 	sb->s_fs_info = NULL;
 	kfree(sbi->s_blockgroup_lock);
@@ -4909,6 +6391,10 @@ static void ext4_init_journal_params(struct super_block *sb, journal_t *journal)
 	journal->j_commit_interval = sbi->s_commit_interval;
 	journal->j_min_batch_time = sbi->s_min_batch_time;
 	journal->j_max_batch_time = sbi->s_max_batch_time;
+<<<<<<< HEAD
+=======
+	ext4_fc_init(sb, journal);
+>>>>>>> upstream/android-13
 
 	write_lock(&journal->j_state_lock);
 	if (test_opt(sb, BARRIER))
@@ -5051,9 +6537,13 @@ static journal_t *ext4_get_dev_journal(struct super_block *sb,
 		goto out_bdev;
 	}
 	journal->j_private = sb;
+<<<<<<< HEAD
 	ll_rw_block(REQ_OP_READ, REQ_META | REQ_PRIO, 1, &journal->j_sb_buffer);
 	wait_on_buffer(journal->j_sb_buffer);
 	if (!buffer_uptodate(journal->j_sb_buffer)) {
+=======
+	if (ext4_read_bh_lock(journal->j_sb_buffer, REQ_META | REQ_PRIO, true)) {
+>>>>>>> upstream/android-13
 		ext4_msg(sb, KERN_ERR, "I/O error on journal device");
 		goto out_journal;
 	}
@@ -5063,7 +6553,11 @@ static journal_t *ext4_get_dev_journal(struct super_block *sb,
 			be32_to_cpu(journal->j_superblock->s_nr_users));
 		goto out_journal;
 	}
+<<<<<<< HEAD
 	EXT4_SB(sb)->journal_bdev = bdev;
+=======
+	EXT4_SB(sb)->s_journal_bdev = bdev;
+>>>>>>> upstream/android-13
 	ext4_init_journal_params(sb, journal);
 	return journal;
 
@@ -5178,7 +6672,11 @@ static int ext4_load_journal(struct super_block *sb,
 		es->s_journal_dev = cpu_to_le32(journal_devnum);
 
 		/* Make sure we flush the recovery flag to disk. */
+<<<<<<< HEAD
 		ext4_commit_super(sb, 1);
+=======
+		ext4_commit_super(sb);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -5188,6 +6686,7 @@ err_out:
 	return err;
 }
 
+<<<<<<< HEAD
 static int ext4_commit_super(struct super_block *sb, int sync)
 {
 	struct ext4_super_block *es = EXT4_SB(sb)->s_es;
@@ -5206,6 +6705,16 @@ static int ext4_commit_super(struct super_block *sb, int sync)
 		return -EIO;
 	}
 
+=======
+/* Copy state of EXT4_SB(sb) into buffer for on-disk superblock */
+static void ext4_update_super(struct super_block *sb)
+{
+	struct ext4_sb_info *sbi = EXT4_SB(sb);
+	struct ext4_super_block *es = sbi->s_es;
+	struct buffer_head *sbh = sbi->s_sbh;
+
+	lock_buffer(sbh);
+>>>>>>> upstream/android-13
 	/*
 	 * If the file system is mounted read-only, don't update the
 	 * superblock write time.  This avoids updating the superblock
@@ -5218,6 +6727,7 @@ static int ext4_commit_super(struct super_block *sb, int sync)
 	 */
 	if (!(sb->s_flags & SB_RDONLY))
 		ext4_update_tstamp(es, s_wtime);
+<<<<<<< HEAD
 	if (sb->s_bdev->bd_part)
 		es->s_kbytes_written =
 			cpu_to_le64(EXT4_SB(sb)->s_kbytes_written +
@@ -5239,6 +6749,76 @@ static int ext4_commit_super(struct super_block *sb, int sync)
 	ext4_superblock_csum_set(sb);
 	if (sync)
 		lock_buffer(sbh);
+=======
+	es->s_kbytes_written =
+		cpu_to_le64(sbi->s_kbytes_written +
+		    ((part_stat_read(sb->s_bdev, sectors[STAT_WRITE]) -
+		      sbi->s_sectors_written_start) >> 1));
+	if (percpu_counter_initialized(&sbi->s_freeclusters_counter))
+		ext4_free_blocks_count_set(es,
+			EXT4_C2B(sbi, percpu_counter_sum_positive(
+				&sbi->s_freeclusters_counter)));
+	if (percpu_counter_initialized(&sbi->s_freeinodes_counter))
+		es->s_free_inodes_count =
+			cpu_to_le32(percpu_counter_sum_positive(
+				&sbi->s_freeinodes_counter));
+	/* Copy error information to the on-disk superblock */
+	spin_lock(&sbi->s_error_lock);
+	if (sbi->s_add_error_count > 0) {
+		es->s_state |= cpu_to_le16(EXT4_ERROR_FS);
+		if (!es->s_first_error_time && !es->s_first_error_time_hi) {
+			__ext4_update_tstamp(&es->s_first_error_time,
+					     &es->s_first_error_time_hi,
+					     sbi->s_first_error_time);
+			strncpy(es->s_first_error_func, sbi->s_first_error_func,
+				sizeof(es->s_first_error_func));
+			es->s_first_error_line =
+				cpu_to_le32(sbi->s_first_error_line);
+			es->s_first_error_ino =
+				cpu_to_le32(sbi->s_first_error_ino);
+			es->s_first_error_block =
+				cpu_to_le64(sbi->s_first_error_block);
+			es->s_first_error_errcode =
+				ext4_errno_to_code(sbi->s_first_error_code);
+		}
+		__ext4_update_tstamp(&es->s_last_error_time,
+				     &es->s_last_error_time_hi,
+				     sbi->s_last_error_time);
+		strncpy(es->s_last_error_func, sbi->s_last_error_func,
+			sizeof(es->s_last_error_func));
+		es->s_last_error_line = cpu_to_le32(sbi->s_last_error_line);
+		es->s_last_error_ino = cpu_to_le32(sbi->s_last_error_ino);
+		es->s_last_error_block = cpu_to_le64(sbi->s_last_error_block);
+		es->s_last_error_errcode =
+				ext4_errno_to_code(sbi->s_last_error_code);
+		/*
+		 * Start the daily error reporting function if it hasn't been
+		 * started already
+		 */
+		if (!es->s_error_count)
+			mod_timer(&sbi->s_err_report, jiffies + 24*60*60*HZ);
+		le32_add_cpu(&es->s_error_count, sbi->s_add_error_count);
+		sbi->s_add_error_count = 0;
+	}
+	spin_unlock(&sbi->s_error_lock);
+
+	ext4_superblock_csum_set(sb);
+	unlock_buffer(sbh);
+}
+
+static int ext4_commit_super(struct super_block *sb)
+{
+	struct buffer_head *sbh = EXT4_SB(sb)->s_sbh;
+	int error = 0;
+
+	if (!sbh)
+		return -EINVAL;
+	if (block_device_ejected(sb))
+		return -ENODEV;
+
+	ext4_update_super(sb);
+
+>>>>>>> upstream/android-13
 	if (buffer_write_io_error(sbh) || !buffer_uptodate(sbh)) {
 		/*
 		 * Oh, dear.  A previous attempt to write the
@@ -5253,6 +6833,7 @@ static int ext4_commit_super(struct super_block *sb, int sync)
 		clear_buffer_write_io_error(sbh);
 		set_buffer_uptodate(sbh);
 	}
+<<<<<<< HEAD
 	mark_buffer_dirty(sbh);
 	if (sync) {
 		unlock_buffer(sbh);
@@ -5264,6 +6845,17 @@ static int ext4_commit_super(struct super_block *sb, int sync)
 			clear_buffer_write_io_error(sbh);
 			set_buffer_uptodate(sbh);
 		}
+=======
+	BUFFER_TRACE(sbh, "marking dirty");
+	mark_buffer_dirty(sbh);
+	error = __sync_dirty_buffer(sbh,
+		REQ_SYNC | (test_opt(sb, BARRIER) ? REQ_FUA : 0));
+	if (buffer_write_io_error(sbh)) {
+		ext4_msg(sb, KERN_ERR, "I/O error while writing "
+		       "superblock");
+		clear_buffer_write_io_error(sbh);
+		set_buffer_uptodate(sbh);
+>>>>>>> upstream/android-13
 	}
 	return error;
 }
@@ -5288,6 +6880,7 @@ static int ext4_mark_recovery_complete(struct super_block *sb,
 		return 0;
 	}
 	jbd2_journal_lock_updates(journal);
+<<<<<<< HEAD
 	err = jbd2_journal_flush(journal);
 	if (err < 0)
 		goto out;
@@ -5295,6 +6888,22 @@ static int ext4_mark_recovery_complete(struct super_block *sb,
 	if (ext4_has_feature_journal_needs_recovery(sb) && sb_rdonly(sb)) {
 		ext4_clear_feature_journal_needs_recovery(sb);
 		ext4_commit_super(sb, 1);
+=======
+	err = jbd2_journal_flush(journal, 0);
+	if (err < 0)
+		goto out;
+
+	if (sb_rdonly(sb) && (ext4_has_feature_journal_needs_recovery(sb) ||
+	    ext4_has_feature_orphan_present(sb))) {
+		if (!ext4_orphan_file_empty(sb)) {
+			ext4_error(sb, "Orphan file not empty on read-only fs.");
+			err = -EFSCORRUPTED;
+			goto out;
+		}
+		ext4_clear_feature_journal_needs_recovery(sb);
+		ext4_clear_feature_orphan_present(sb);
+		ext4_commit_super(sb);
+>>>>>>> upstream/android-13
 	}
 out:
 	jbd2_journal_unlock_updates(journal);
@@ -5336,7 +6945,11 @@ static int ext4_clear_journal_err(struct super_block *sb,
 
 		EXT4_SB(sb)->s_mount_state |= EXT4_ERROR_FS;
 		es->s_state |= cpu_to_le16(EXT4_ERROR_FS);
+<<<<<<< HEAD
 		ext4_commit_super(sb, 1);
+=======
+		ext4_commit_super(sb);
+>>>>>>> upstream/android-13
 
 		jbd2_journal_clear_err(journal);
 		jbd2_journal_update_sb_errno(journal);
@@ -5396,7 +7009,11 @@ static int ext4_sync_fs(struct super_block *sb, int wait)
 		needs_barrier = true;
 	if (needs_barrier) {
 		int err;
+<<<<<<< HEAD
 		err = blkdev_issue_flush(sb->s_bdev, GFP_KERNEL, NULL);
+=======
+		err = blkdev_issue_flush(sb->s_bdev);
+>>>>>>> upstream/android-13
 		if (!ret)
 			ret = err;
 	}
@@ -5430,15 +7047,27 @@ static int ext4_freeze(struct super_block *sb)
 		 * Don't clear the needs_recovery flag if we failed to
 		 * flush the journal.
 		 */
+<<<<<<< HEAD
 		error = jbd2_journal_flush(journal);
+=======
+		error = jbd2_journal_flush(journal, 0);
+>>>>>>> upstream/android-13
 		if (error < 0)
 			goto out;
 
 		/* Journal blocked and flushed, clear needs_recovery flag. */
 		ext4_clear_feature_journal_needs_recovery(sb);
+<<<<<<< HEAD
 	}
 
 	error = ext4_commit_super(sb, 1);
+=======
+		if (ext4_orphan_file_empty(sb))
+			ext4_clear_feature_orphan_present(sb);
+	}
+
+	error = ext4_commit_super(sb);
+>>>>>>> upstream/android-13
 out:
 	if (journal)
 		/* we rely on upper layer to stop further updates */
@@ -5458,9 +7087,17 @@ static int ext4_unfreeze(struct super_block *sb)
 	if (EXT4_SB(sb)->s_journal) {
 		/* Reset the needs_recovery flag before the fs is unlocked. */
 		ext4_set_feature_journal_needs_recovery(sb);
+<<<<<<< HEAD
 	}
 
 	ext4_commit_super(sb, 1);
+=======
+		if (ext4_has_feature_orphan_file(sb))
+			ext4_set_feature_orphan_present(sb);
+	}
+
+	ext4_commit_super(sb);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -5488,13 +7125,23 @@ static int ext4_remount(struct super_block *sb, int *flags, char *data)
 	struct ext4_mount_options old_opts;
 	int enable_quota = 0;
 	ext4_group_t g;
+<<<<<<< HEAD
 	unsigned int journal_ioprio = DEFAULT_JOURNAL_IOPRIO;
+=======
+>>>>>>> upstream/android-13
 	int err = 0;
 #ifdef CONFIG_QUOTA
 	int i, j;
 	char *to_free[EXT4_MAXQUOTAS];
 #endif
 	char *orig_data = kstrdup(data, GFP_KERNEL);
+<<<<<<< HEAD
+=======
+	struct ext4_parsed_options parsed_opts;
+
+	parsed_opts.journal_ioprio = DEFAULT_JOURNAL_IOPRIO;
+	parsed_opts.journal_devnum = 0;
+>>>>>>> upstream/android-13
 
 	if (data && !orig_data)
 		return -ENOMEM;
@@ -5525,7 +7172,12 @@ static int ext4_remount(struct super_block *sb, int *flags, char *data)
 			old_opts.s_qf_names[i] = NULL;
 #endif
 	if (sbi->s_journal && sbi->s_journal->j_task->io_context)
+<<<<<<< HEAD
 		journal_ioprio = sbi->s_journal->j_task->io_context->ioprio;
+=======
+		parsed_opts.journal_ioprio =
+			sbi->s_journal->j_task->io_context->ioprio;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Some options can be enabled by ext4 and/or by VFS mount flag
@@ -5535,7 +7187,11 @@ static int ext4_remount(struct super_block *sb, int *flags, char *data)
 	vfs_flags = SB_LAZYTIME | SB_I_VERSION;
 	sb->s_flags = (sb->s_flags & ~vfs_flags) | (*flags & vfs_flags);
 
+<<<<<<< HEAD
 	if (!parse_options(data, sb, NULL, &journal_ioprio, 1)) {
+=======
+	if (!parse_options(data, sb, &parsed_opts, 1)) {
+>>>>>>> upstream/android-13
 		err = -EINVAL;
 		goto restore_opts;
 	}
@@ -5575,8 +7231,13 @@ static int ext4_remount(struct super_block *sb, int *flags, char *data)
 		goto restore_opts;
 	}
 
+<<<<<<< HEAD
 	if (sbi->s_mount_flags & EXT4_MF_FS_ABORTED)
 		ext4_abort(sb, "Abort forced by user");
+=======
+	if (ext4_test_mount_flag(sb, EXT4_MF_FS_ABORTED))
+		ext4_abort(sb, EXT4_ERR_ESHUTDOWN, "Abort forced by user");
+>>>>>>> upstream/android-13
 
 	sb->s_flags = (sb->s_flags & ~SB_POSIXACL) |
 		(test_opt(sb, POSIX_ACL) ? SB_POSIXACL : 0);
@@ -5585,11 +7246,22 @@ static int ext4_remount(struct super_block *sb, int *flags, char *data)
 
 	if (sbi->s_journal) {
 		ext4_init_journal_params(sb, sbi->s_journal);
+<<<<<<< HEAD
 		set_task_ioprio(sbi->s_journal->j_task, journal_ioprio);
 	}
 
 	if ((bool)(*flags & SB_RDONLY) != sb_rdonly(sb)) {
 		if (sbi->s_mount_flags & EXT4_MF_FS_ABORTED) {
+=======
+		set_task_ioprio(sbi->s_journal->j_task, parsed_opts.journal_ioprio);
+	}
+
+	/* Flush outstanding errors before changing fs state */
+	flush_work(&sbi->s_error_work);
+
+	if ((bool)(*flags & SB_RDONLY) != sb_rdonly(sb)) {
+		if (ext4_test_mount_flag(sb, EXT4_MF_FS_ABORTED)) {
+>>>>>>> upstream/android-13
 			err = -EROFS;
 			goto restore_opts;
 		}
@@ -5624,8 +7296,11 @@ static int ext4_remount(struct super_block *sb, int *flags, char *data)
 				 */
 				ext4_mark_recovery_complete(sb, es);
 			}
+<<<<<<< HEAD
 			if (sbi->s_mmp_tsk)
 				kthread_stop(sbi->s_mmp_tsk);
+=======
+>>>>>>> upstream/android-13
 		} else {
 			/* Make sure we can mount this feature set readwrite */
 			if (ext4_has_feature_readonly(sb) ||
@@ -5656,7 +7331,11 @@ static int ext4_remount(struct super_block *sb, int *flags, char *data)
 			 * around from a previously readonly bdev mount,
 			 * require a full umount/remount for now.
 			 */
+<<<<<<< HEAD
 			if (es->s_last_orphan) {
+=======
+			if (es->s_last_orphan || !ext4_orphan_file_empty(sb)) {
+>>>>>>> upstream/android-13
 				ext4_msg(sb, KERN_WARNING, "Couldn't "
 				       "remount RDWR because of unprocessed "
 				       "orphan inode list.  Please "
@@ -5710,14 +7389,22 @@ static int ext4_remount(struct super_block *sb, int *flags, char *data)
 	 * Releasing of existing data is done when we are sure remount will
 	 * succeed.
 	 */
+<<<<<<< HEAD
 	if (test_opt(sb, BLOCK_VALIDITY) && !sbi->system_blks) {
+=======
+	if (test_opt(sb, BLOCK_VALIDITY) && !sbi->s_system_blks) {
+>>>>>>> upstream/android-13
 		err = ext4_setup_system_zone(sb);
 		if (err)
 			goto restore_opts;
 	}
 
 	if (sbi->s_journal == NULL && !(old_sb_flags & SB_RDONLY)) {
+<<<<<<< HEAD
 		err = ext4_commit_super(sb, 1);
+=======
+		err = ext4_commit_super(sb);
+>>>>>>> upstream/android-13
 		if (err)
 			goto restore_opts;
 	}
@@ -5736,9 +7423,18 @@ static int ext4_remount(struct super_block *sb, int *flags, char *data)
 		}
 	}
 #endif
+<<<<<<< HEAD
 	if (!test_opt(sb, BLOCK_VALIDITY) && sbi->system_blks)
 		ext4_release_system_zone(sb);
 
+=======
+	if (!test_opt(sb, BLOCK_VALIDITY) && sbi->s_system_blks)
+		ext4_release_system_zone(sb);
+
+	if (!ext4_has_feature_mmp(sb) || sb_rdonly(sb))
+		ext4_stop_mmpd(sbi);
+
+>>>>>>> upstream/android-13
 	/*
 	 * Some options can be enabled by ext4 and/or by VFS mount flag
 	 * either way we need to make sure it matches in both *flags and
@@ -5746,7 +7442,12 @@ static int ext4_remount(struct super_block *sb, int *flags, char *data)
 	 */
 	*flags = (*flags & ~vfs_flags) | (sb->s_flags & vfs_flags);
 
+<<<<<<< HEAD
 	ext4_msg(sb, KERN_INFO, "re-mounted. Opts: %s", orig_data);
+=======
+	ext4_msg(sb, KERN_INFO, "re-mounted. Opts: %s. Quota mode: %s.",
+		 orig_data, ext4_quota_mode(sb));
+>>>>>>> upstream/android-13
 	kfree(orig_data);
 	return 0;
 
@@ -5759,7 +7460,11 @@ restore_opts:
 	sbi->s_commit_interval = old_opts.s_commit_interval;
 	sbi->s_min_batch_time = old_opts.s_min_batch_time;
 	sbi->s_max_batch_time = old_opts.s_max_batch_time;
+<<<<<<< HEAD
 	if (!test_opt(sb, BLOCK_VALIDITY) && sbi->system_blks)
+=======
+	if (!test_opt(sb, BLOCK_VALIDITY) && sbi->s_system_blks)
+>>>>>>> upstream/android-13
 		ext4_release_system_zone(sb);
 #ifdef CONFIG_QUOTA
 	sbi->s_jquota_fmt = old_opts.s_jquota_fmt;
@@ -5771,6 +7476,11 @@ restore_opts:
 	for (i = 0; i < EXT4_MAXQUOTAS; i++)
 		kfree(to_free[i]);
 #endif
+<<<<<<< HEAD
+=======
+	if (!ext4_has_feature_mmp(sb) || sb_rdonly(sb))
+		ext4_stop_mmpd(sbi);
+>>>>>>> upstream/android-13
 	kfree(orig_data);
 	return err;
 }
@@ -5790,9 +7500,16 @@ static int ext4_statfs_project(struct super_block *sb,
 		return PTR_ERR(dquot);
 	spin_lock(&dquot->dq_dqb_lock);
 
+<<<<<<< HEAD
 	limit = (dquot->dq_dqb.dqb_bsoftlimit ?
 		 dquot->dq_dqb.dqb_bsoftlimit :
 		 dquot->dq_dqb.dqb_bhardlimit) >> sb->s_blocksize_bits;
+=======
+	limit = min_not_zero(dquot->dq_dqb.dqb_bsoftlimit,
+			     dquot->dq_dqb.dqb_bhardlimit);
+	limit >>= sb->s_blocksize_bits;
+
+>>>>>>> upstream/android-13
 	if (limit && buf->f_blocks > limit) {
 		curblock = (dquot->dq_dqb.dqb_curspace +
 			    dquot->dq_dqb.dqb_rsvspace) >> sb->s_blocksize_bits;
@@ -5802,9 +7519,14 @@ static int ext4_statfs_project(struct super_block *sb,
 			 (buf->f_blocks - curblock) : 0;
 	}
 
+<<<<<<< HEAD
 	limit = dquot->dq_dqb.dqb_isoftlimit ?
 		dquot->dq_dqb.dqb_isoftlimit :
 		dquot->dq_dqb.dqb_ihardlimit;
+=======
+	limit = min_not_zero(dquot->dq_dqb.dqb_isoftlimit,
+			     dquot->dq_dqb.dqb_ihardlimit);
+>>>>>>> upstream/android-13
 	if (limit && buf->f_files > limit) {
 		buf->f_files = limit;
 		buf->f_ffree =
@@ -5824,7 +7546,10 @@ static int ext4_statfs(struct dentry *dentry, struct kstatfs *buf)
 	struct ext4_sb_info *sbi = EXT4_SB(sb);
 	struct ext4_super_block *es = sbi->s_es;
 	ext4_fsblk_t overhead = 0, resv_blocks;
+<<<<<<< HEAD
 	u64 fsid;
+=======
+>>>>>>> upstream/android-13
 	s64 bfree;
 	resv_blocks = EXT4_C2B(sbi, atomic64_read(&sbi->s_resv_clusters));
 
@@ -5845,10 +7570,14 @@ static int ext4_statfs(struct dentry *dentry, struct kstatfs *buf)
 	buf->f_files = le32_to_cpu(es->s_inodes_count);
 	buf->f_ffree = percpu_counter_sum_positive(&sbi->s_freeinodes_counter);
 	buf->f_namelen = EXT4_NAME_LEN;
+<<<<<<< HEAD
 	fsid = le64_to_cpup((void *)es->s_uuid) ^
 	       le64_to_cpup((void *)es->s_uuid + sizeof(u64));
 	buf->f_fsid.val[0] = fsid & 0xFFFFFFFFUL;
 	buf->f_fsid.val[1] = (fsid >> 32) & 0xFFFFFFFFUL;
+=======
+	buf->f_fsid = uuid_to_fsid(es->s_uuid);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_QUOTA
 	if (ext4_test_inode_flag(dentry->d_inode, EXT4_INODE_PROJINHERIT) &&
@@ -5926,11 +7655,16 @@ static int ext4_release_dquot(struct dquot *dquot)
 static int ext4_mark_dquot_dirty(struct dquot *dquot)
 {
 	struct super_block *sb = dquot->dq_sb;
+<<<<<<< HEAD
 	struct ext4_sb_info *sbi = EXT4_SB(sb);
 
 	/* Are we journaling quotas? */
 	if (ext4_has_feature_quota(sb) ||
 	    sbi->s_qf_names[USRQUOTA] || sbi->s_qf_names[GRPQUOTA]) {
+=======
+
+	if (ext4_is_quota_journalled(sb)) {
+>>>>>>> upstream/android-13
 		dquot_mark_dquot_dirty(dquot);
 		return ext4_write_dquot(dquot);
 	} else {
@@ -5954,6 +7688,7 @@ static int ext4_write_info(struct super_block *sb, int type)
 	return ret;
 }
 
+<<<<<<< HEAD
 /*
  * Turn on quotas during mount time - we need to find
  * the quota file and such...
@@ -5964,6 +7699,8 @@ static int ext4_quota_on_mount(struct super_block *sb, int type)
 					EXT4_SB(sb)->s_jquota_fmt, type);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void lockdep_set_quota_inode(struct inode *inode, int subclass)
 {
 	struct ext4_inode_info *ei = EXT4_I(inode);
@@ -6024,7 +7761,11 @@ static int ext4_quota_on(struct super_block *sb, int type, int format_id,
 		 * otherwise be livelocked...
 		 */
 		jbd2_journal_lock_updates(EXT4_SB(sb)->s_journal);
+<<<<<<< HEAD
 		err = jbd2_journal_flush(EXT4_SB(sb)->s_journal);
+=======
+		err = jbd2_journal_flush(EXT4_SB(sb)->s_journal, 0);
+>>>>>>> upstream/android-13
 		jbd2_journal_unlock_updates(EXT4_SB(sb)->s_journal);
 		if (err)
 			return err;
@@ -6032,10 +7773,14 @@ static int ext4_quota_on(struct super_block *sb, int type, int format_id,
 
 	lockdep_set_quota_inode(path->dentry->d_inode, I_DATA_SEM_QUOTA);
 	err = dquot_quota_on(sb, type, format_id, path);
+<<<<<<< HEAD
 	if (err) {
 		lockdep_set_quota_inode(path->dentry->d_inode,
 					     I_DATA_SEM_NORMAL);
 	} else {
+=======
+	if (!err) {
+>>>>>>> upstream/android-13
 		struct inode *inode = d_inode(path->dentry);
 		handle_t *handle;
 
@@ -6051,11 +7796,24 @@ static int ext4_quota_on(struct super_block *sb, int type, int format_id,
 		EXT4_I(inode)->i_flags |= EXT4_NOATIME_FL | EXT4_IMMUTABLE_FL;
 		inode_set_flags(inode, S_NOATIME | S_IMMUTABLE,
 				S_NOATIME | S_IMMUTABLE);
+<<<<<<< HEAD
 		ext4_mark_inode_dirty(handle, inode);
 		ext4_journal_stop(handle);
 	unlock_inode:
 		inode_unlock(inode);
 	}
+=======
+		err = ext4_mark_inode_dirty(handle, inode);
+		ext4_journal_stop(handle);
+	unlock_inode:
+		inode_unlock(inode);
+		if (err)
+			dquot_quota_off(sb, type);
+	}
+	if (err)
+		lockdep_set_quota_inode(path->dentry->d_inode,
+					     I_DATA_SEM_NORMAL);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -6084,7 +7842,11 @@ static int ext4_quota_enable(struct super_block *sb, int type, int format_id,
 	/* Don't account quota for quota files to avoid recursion */
 	qf_inode->i_flags |= S_NOQUOTA;
 	lockdep_set_quota_inode(qf_inode, I_DATA_SEM_QUOTA);
+<<<<<<< HEAD
 	err = dquot_enable(qf_inode, type, format_id, flags);
+=======
+	err = dquot_load_quota_inode(qf_inode, type, format_id, flags);
+>>>>>>> upstream/android-13
 	if (err)
 		lockdep_set_quota_inode(qf_inode, I_DATA_SEM_NORMAL);
 	iput(qf_inode);
@@ -6093,7 +7855,11 @@ static int ext4_quota_enable(struct super_block *sb, int type, int format_id,
 }
 
 /* Enable usage tracking for all quota types. */
+<<<<<<< HEAD
 static int ext4_enable_quotas(struct super_block *sb)
+=======
+int ext4_enable_quotas(struct super_block *sb)
+>>>>>>> upstream/android-13
 {
 	int type, err = 0;
 	unsigned long qf_inums[EXT4_MAXQUOTAS] = {
@@ -6118,8 +7884,24 @@ static int ext4_enable_quotas(struct super_block *sb)
 					"Failed to enable quota tracking "
 					"(type=%d, err=%d). Please run "
 					"e2fsck to fix.", type, err);
+<<<<<<< HEAD
 				for (type--; type >= 0; type--)
 					dquot_quota_off(sb, type);
+=======
+				for (type--; type >= 0; type--) {
+					struct inode *inode;
+
+					inode = sb_dqopt(sb)->files[type];
+					if (inode)
+						inode = igrab(inode);
+					dquot_quota_off(sb, type);
+					if (inode) {
+						lockdep_set_quota_inode(inode,
+							I_DATA_SEM_NORMAL);
+						iput(inode);
+					}
+				}
+>>>>>>> upstream/android-13
 
 				return err;
 			}
@@ -6153,12 +7935,23 @@ static int ext4_quota_off(struct super_block *sb, int type)
 	 * this is not a hard failure and quotas are already disabled.
 	 */
 	handle = ext4_journal_start(inode, EXT4_HT_QUOTA, 1);
+<<<<<<< HEAD
 	if (IS_ERR(handle))
 		goto out_unlock;
 	EXT4_I(inode)->i_flags &= ~(EXT4_NOATIME_FL | EXT4_IMMUTABLE_FL);
 	inode_set_flags(inode, 0, S_NOATIME | S_IMMUTABLE);
 	inode->i_mtime = inode->i_ctime = current_time(inode);
 	ext4_mark_inode_dirty(handle, inode);
+=======
+	if (IS_ERR(handle)) {
+		err = PTR_ERR(handle);
+		goto out_unlock;
+	}
+	EXT4_I(inode)->i_flags &= ~(EXT4_NOATIME_FL | EXT4_IMMUTABLE_FL);
+	inode_set_flags(inode, 0, S_NOATIME | S_IMMUTABLE);
+	inode->i_mtime = inode->i_ctime = current_time(inode);
+	err = ext4_mark_inode_dirty(handle, inode);
+>>>>>>> upstream/android-13
 	ext4_journal_stop(handle);
 out_unlock:
 	inode_unlock(inode);
@@ -6216,12 +8009,20 @@ static ssize_t ext4_quota_write(struct super_block *sb, int type,
 {
 	struct inode *inode = sb_dqopt(sb)->files[type];
 	ext4_lblk_t blk = off >> EXT4_BLOCK_SIZE_BITS(sb);
+<<<<<<< HEAD
 	int err, offset = off & (sb->s_blocksize - 1);
+=======
+	int err = 0, err2 = 0, offset = off & (sb->s_blocksize - 1);
+>>>>>>> upstream/android-13
 	int retries = 0;
 	struct buffer_head *bh;
 	handle_t *handle = journal_current_handle();
 
+<<<<<<< HEAD
 	if (EXT4_SB(sb)->s_journal && !handle) {
+=======
+	if (!handle) {
+>>>>>>> upstream/android-13
 		ext4_msg(sb, KERN_WARNING, "Quota write (off=%llu, len=%llu)"
 			" cancelled because transaction is not started",
 			(unsigned long long)off, (unsigned long long)len);
@@ -6242,14 +8043,22 @@ static ssize_t ext4_quota_write(struct super_block *sb, int type,
 		bh = ext4_bread(handle, inode, blk,
 				EXT4_GET_BLOCKS_CREATE |
 				EXT4_GET_BLOCKS_METADATA_NOFAIL);
+<<<<<<< HEAD
 	} while (IS_ERR(bh) && (PTR_ERR(bh) == -ENOSPC) &&
+=======
+	} while (PTR_ERR(bh) == -ENOSPC &&
+>>>>>>> upstream/android-13
 		 ext4_should_retry_alloc(inode->i_sb, &retries));
 	if (IS_ERR(bh))
 		return PTR_ERR(bh);
 	if (!bh)
 		goto out;
 	BUFFER_TRACE(bh, "get write access");
+<<<<<<< HEAD
 	err = ext4_journal_get_write_access(handle, bh);
+=======
+	err = ext4_journal_get_write_access(handle, sb, bh, EXT4_JTR_NONE);
+>>>>>>> upstream/android-13
 	if (err) {
 		brelse(bh);
 		return err;
@@ -6264,6 +8073,7 @@ out:
 	if (inode->i_size < off + len) {
 		i_size_write(inode, off + len);
 		EXT4_I(inode)->i_disksize = inode->i_size;
+<<<<<<< HEAD
 		ext4_mark_inode_dirty(handle, inode);
 	}
 	return len;
@@ -6360,6 +8170,16 @@ void print_block_data(struct super_block *sb, sector_t blocknr,
 	printk(KERN_ERR "-------------------------------------------------\n");
 }
 
+=======
+		err2 = ext4_mark_inode_dirty(handle, inode);
+		if (unlikely(err2 && !err))
+			err = err2;
+	}
+	return err ? err : len;
+}
+#endif
+
+>>>>>>> upstream/android-13
 static struct dentry *ext4_mount(struct file_system_type *fs_type, int flags,
 		       const char *dev_name, void *data)
 {
@@ -6427,7 +8247,11 @@ static struct file_system_type ext4_fs_type = {
 	.name		= "ext4",
 	.mount		= ext4_mount,
 	.kill_sb	= kill_block_super,
+<<<<<<< HEAD
 	.fs_flags	= FS_REQUIRES_DEV,
+=======
+	.fs_flags	= FS_REQUIRES_DEV | FS_ALLOW_IDMAP,
+>>>>>>> upstream/android-13
 };
 MODULE_ALIAS_FS("ext4");
 
@@ -6440,7 +8264,10 @@ static int __init ext4_init_fs(void)
 
 	ratelimit_state_init(&ext4_mount_msg_ratelimit, 30 * HZ, 64);
 	ext4_li_info = NULL;
+<<<<<<< HEAD
 	mutex_init(&ext4_li_mtx);
+=======
+>>>>>>> upstream/android-13
 
 	/* Build-time check for flags consistency */
 	ext4_check_flag_values();
@@ -6452,6 +8279,13 @@ static int __init ext4_init_fs(void)
 	if (err)
 		return err;
 
+<<<<<<< HEAD
+=======
+	err = ext4_init_pending();
+	if (err)
+		goto out7;
+
+>>>>>>> upstream/android-13
 	err = ext4_init_post_read_processing();
 	if (err)
 		goto out6;
@@ -6474,6 +8308,14 @@ static int __init ext4_init_fs(void)
 	err = init_inodecache();
 	if (err)
 		goto out1;
+<<<<<<< HEAD
+=======
+
+	err = ext4_fc_init_dentry_cache();
+	if (err)
+		goto out05;
+
+>>>>>>> upstream/android-13
 	register_as_ext3();
 	register_as_ext2();
 	err = register_filesystem(&ext4_fs_type);
@@ -6484,6 +8326,11 @@ static int __init ext4_init_fs(void)
 out:
 	unregister_as_ext2();
 	unregister_as_ext3();
+<<<<<<< HEAD
+=======
+	ext4_fc_destroy_dentry_cache();
+out05:
+>>>>>>> upstream/android-13
 	destroy_inodecache();
 out1:
 	ext4_exit_mballoc();
@@ -6496,6 +8343,11 @@ out4:
 out5:
 	ext4_exit_post_read_processing();
 out6:
+<<<<<<< HEAD
+=======
+	ext4_exit_pending();
+out7:
+>>>>>>> upstream/android-13
 	ext4_exit_es();
 
 	return err;
@@ -6507,6 +8359,10 @@ static void __exit ext4_exit_fs(void)
 	unregister_as_ext2();
 	unregister_as_ext3();
 	unregister_filesystem(&ext4_fs_type);
+<<<<<<< HEAD
+=======
+	ext4_fc_destroy_dentry_cache();
+>>>>>>> upstream/android-13
 	destroy_inodecache();
 	ext4_exit_mballoc();
 	ext4_exit_sysfs();
@@ -6514,11 +8370,19 @@ static void __exit ext4_exit_fs(void)
 	ext4_exit_pageio();
 	ext4_exit_post_read_processing();
 	ext4_exit_es();
+<<<<<<< HEAD
+=======
+	ext4_exit_pending();
+>>>>>>> upstream/android-13
 }
 
 MODULE_AUTHOR("Remy Card, Stephen Tweedie, Andrew Morton, Andreas Dilger, Theodore Ts'o and others");
 MODULE_DESCRIPTION("Fourth Extended Filesystem");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 MODULE_SOFTDEP("pre: crc32c");
 module_init(ext4_init_fs)
 module_exit(ext4_exit_fs)

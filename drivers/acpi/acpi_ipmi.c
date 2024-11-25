@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  acpi_ipmi.c - ACPI IPMI opregion
  *
  *  Copyright (C) 2010, 2013 Intel Corporation
  *    Author: Zhao Yakui <yakui.zhao@intel.com>
  *            Lv Zheng <lv.zheng@intel.com>
+<<<<<<< HEAD
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
@@ -18,6 +23,8 @@
  *  General Public License for more details.
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -46,7 +53,11 @@ struct acpi_ipmi_device {
 	spinlock_t tx_msg_lock;
 	acpi_handle handle;
 	struct device *dev;
+<<<<<<< HEAD
 	ipmi_user_t user_interface;
+=======
+	struct ipmi_user *user_interface;
+>>>>>>> upstream/android-13
 	int ipmi_ifnum; /* IPMI interface number */
 	long curr_msgid;
 	bool dead;
@@ -125,7 +136,11 @@ ipmi_dev_alloc(int iface, struct device *dev, acpi_handle handle)
 {
 	struct acpi_ipmi_device *ipmi_device;
 	int err;
+<<<<<<< HEAD
 	ipmi_user_t user;
+=======
+	struct ipmi_user *user;
+>>>>>>> upstream/android-13
 
 	ipmi_device = kzalloc(sizeof(*ipmi_device), GFP_KERNEL);
 	if (!ipmi_device)
@@ -491,7 +506,10 @@ err_lock:
 	ipmi_dev_release(ipmi_device);
 err_ref:
 	put_device(smi_data.dev);
+<<<<<<< HEAD
 	return;
+=======
+>>>>>>> upstream/android-13
 }
 
 static void ipmi_bmc_gone(int iface)
@@ -611,9 +629,20 @@ static int __init acpi_ipmi_init(void)
 		pr_warn("Can't register IPMI opregion space handle\n");
 		return -EINVAL;
 	}
+<<<<<<< HEAD
 	result = ipmi_smi_watcher_register(&driver_data.bmc_events);
 	if (result)
 		pr_err("Can't register IPMI system interface watcher\n");
+=======
+
+	result = ipmi_smi_watcher_register(&driver_data.bmc_events);
+	if (result) {
+		acpi_remove_address_space_handler(ACPI_ROOT_OBJECT,
+										  ACPI_ADR_SPACE_IPMI,
+										  &acpi_ipmi_space_handler);
+		pr_err("Can't register IPMI system interface watcher\n");
+	}
+>>>>>>> upstream/android-13
 
 	return result;
 }

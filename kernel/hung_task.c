@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Detect Hung Task
  *
@@ -14,13 +18,25 @@
 #include <linux/kthread.h>
 #include <linux/lockdep.h>
 #include <linux/export.h>
+<<<<<<< HEAD
+=======
+#include <linux/panic_notifier.h>
+>>>>>>> upstream/android-13
 #include <linux/sysctl.h>
 #include <linux/suspend.h>
 #include <linux/utsname.h>
 #include <linux/sched/signal.h>
 #include <linux/sched/debug.h>
+<<<<<<< HEAD
 
 #include <trace/events/sched.h>
+=======
+#include <linux/sched/sysctl.h>
+
+#include <trace/events/sched.h>
+#undef CREATE_TRACE_POINTS
+#include <trace/hooks/hung_task.h>
+>>>>>>> upstream/android-13
 
 /*
  * The number of tasks checked:
@@ -51,9 +67,24 @@ int __read_mostly sysctl_hung_task_warnings = 10;
 static int __read_mostly did_panic;
 static bool hung_task_show_lock;
 static bool hung_task_call_panic;
+<<<<<<< HEAD
 
 static struct task_struct *watchdog_task;
 
+=======
+static bool hung_task_show_all_bt;
+
+static struct task_struct *watchdog_task;
+
+#ifdef CONFIG_SMP
+/*
+ * Should we dump all CPUs backtraces in a hung task event?
+ * Defaults to 0, can be changed via sysctl.
+ */
+unsigned int __read_mostly sysctl_hung_task_all_cpu_backtrace;
+#endif /* CONFIG_SMP */
+
+>>>>>>> upstream/android-13
 /*
  * Should we panic (and reboot, if panic_timeout= is set) when a
  * hung task is detected:
@@ -61,6 +92,7 @@ static struct task_struct *watchdog_task;
 unsigned int __read_mostly sysctl_hung_task_panic =
 				CONFIG_BOOTPARAM_HUNG_TASK_PANIC_VALUE;
 
+<<<<<<< HEAD
 static int __init hung_task_panic_setup(char *str)
 {
 	int rc = kstrtouint(str, 0, &sysctl_hung_task_panic);
@@ -71,6 +103,8 @@ static int __init hung_task_panic_setup(char *str)
 }
 __setup("hung_task_panic=", hung_task_panic_setup);
 
+=======
+>>>>>>> upstream/android-13
 static int
 hung_task_panic(struct notifier_block *this, unsigned long event, void *ptr)
 {
@@ -91,8 +125,13 @@ static void check_hung_task(struct task_struct *t, unsigned long timeout)
 	 * Ensure the task is not frozen.
 	 * Also, skip vfork and any other user process that freezer should skip.
 	 */
+<<<<<<< HEAD
 	if (unlikely(t->flags & (PF_FROZEN | PF_FREEZER_SKIP)))
 	    return;
+=======
+	if (unlikely(frozen_or_skipped(t)))
+		return;
+>>>>>>> upstream/android-13
 
 	/*
 	 * When a freshly created task is scheduled once, changes its state to
@@ -126,7 +165,11 @@ static void check_hung_task(struct task_struct *t, unsigned long timeout)
 		if (sysctl_hung_task_warnings > 0)
 			sysctl_hung_task_warnings--;
 		pr_err("INFO: task %s:%d blocked for more than %ld seconds.\n",
+<<<<<<< HEAD
 			t->comm, t->pid, timeout);
+=======
+		       t->comm, t->pid, (jiffies - t->last_switch_time) / HZ);
+>>>>>>> upstream/android-13
 		pr_err("      %s %s %.*s\n",
 			print_tainted(), init_utsname()->release,
 			(int)strcspn(init_utsname()->version, " "),
@@ -135,6 +178,12 @@ static void check_hung_task(struct task_struct *t, unsigned long timeout)
 			" disables this message.\n");
 		sched_show_task(t);
 		hung_task_show_lock = true;
+<<<<<<< HEAD
+=======
+
+		if (sysctl_hung_task_all_cpu_backtrace)
+			hung_task_show_all_bt = true;
+>>>>>>> upstream/android-13
 	}
 
 	touch_nmi_watchdog();
@@ -173,6 +222,10 @@ static void check_hung_uninterruptible_tasks(unsigned long timeout)
 	int max_count = sysctl_hung_task_check_count;
 	unsigned long last_break = jiffies;
 	struct task_struct *g, *t;
+<<<<<<< HEAD
+=======
+	bool need_check = true;
+>>>>>>> upstream/android-13
 
 	/*
 	 * If the system crashed already then all bets are off,
@@ -191,18 +244,39 @@ static void check_hung_uninterruptible_tasks(unsigned long timeout)
 				goto unlock;
 			last_break = jiffies;
 		}
+<<<<<<< HEAD
 		/* use "==" to skip the TASK_KILLABLE tasks waiting on NFS */
 		if (t->state == TASK_UNINTERRUPTIBLE)
 			check_hung_task(t, timeout);
 	}
+=======
+		trace_android_vh_check_uninterruptible_tasks(t, timeout, &need_check);
+		if (need_check)
+			/* use "==" to skip the TASK_KILLABLE tasks waiting on NFS */
+			if (READ_ONCE(t->__state) == TASK_UNINTERRUPTIBLE)
+				check_hung_task(t, timeout);
+	}
+	trace_android_vh_check_uninterruptible_tasks_dn(NULL);
+>>>>>>> upstream/android-13
  unlock:
 	rcu_read_unlock();
 	if (hung_task_show_lock)
 		debug_show_all_locks();
+<<<<<<< HEAD
 	if (hung_task_call_panic) {
 		trigger_all_cpu_backtrace();
 		panic("hung_task: blocked tasks");
 	}
+=======
+
+	if (hung_task_show_all_bt) {
+		hung_task_show_all_bt = false;
+		trigger_all_cpu_backtrace();
+	}
+
+	if (hung_task_call_panic)
+		panic("hung_task: blocked tasks");
+>>>>>>> upstream/android-13
 }
 
 static long hung_timeout_jiffies(unsigned long last_checked,
@@ -217,8 +291,12 @@ static long hung_timeout_jiffies(unsigned long last_checked,
  * Process updating of timeout sysctl
  */
 int proc_dohung_task_timeout_secs(struct ctl_table *table, int write,
+<<<<<<< HEAD
 				  void __user *buffer,
 				  size_t *lenp, loff_t *ppos)
+=======
+				  void *buffer, size_t *lenp, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	int ret;
 

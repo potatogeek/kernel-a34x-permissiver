@@ -17,9 +17,17 @@ struct wcnss_vreg_info {
 	bool super_turbo;
 };
 
+<<<<<<< HEAD
 int qcom_iris_enable(struct qcom_iris *iris);
 void qcom_iris_disable(struct qcom_iris *iris);
 
 void qcom_wcnss_assign_iris(struct qcom_wcnss *wcnss, struct qcom_iris *iris, bool use_48mhz_xo);
 
+=======
+struct qcom_iris *qcom_iris_probe(struct device *parent, bool *use_48mhz_xo);
+void qcom_iris_remove(struct qcom_iris *iris);
+int qcom_iris_enable(struct qcom_iris *iris);
+void qcom_iris_disable(struct qcom_iris *iris);
+
+>>>>>>> upstream/android-13
 #endif

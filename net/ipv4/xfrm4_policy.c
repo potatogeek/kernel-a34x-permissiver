@@ -12,7 +12,10 @@
 #include <linux/err.h>
 #include <linux/kernel.h>
 #include <linux/inetdevice.h>
+<<<<<<< HEAD
 #include <linux/if_tunnel.h>
+=======
+>>>>>>> upstream/android-13
 #include <net/dst.h>
 #include <net/xfrm.h>
 #include <net/ip.h>
@@ -69,6 +72,7 @@ static int xfrm4_get_saddr(struct net *net, int oif,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int xfrm4_get_tos(const struct flowi *fl)
 {
 	return IPTOS_RT_MASK & fl->u.ip4.flowi4_tos; /* Strip ECN bits */
@@ -80,6 +84,8 @@ static int xfrm4_init_path(struct xfrm_dst *path, struct dst_entry *dst,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int xfrm4_fill_dst(struct xfrm_dst *xdst, struct net_device *dev,
 			  const struct flowi *fl)
 {
@@ -97,8 +103,17 @@ static int xfrm4_fill_dst(struct xfrm_dst *xdst, struct net_device *dev,
 	xdst->u.rt.rt_flags = rt->rt_flags & (RTCF_BROADCAST | RTCF_MULTICAST |
 					      RTCF_LOCAL);
 	xdst->u.rt.rt_type = rt->rt_type;
+<<<<<<< HEAD
 	xdst->u.rt.rt_gateway = rt->rt_gateway;
 	xdst->u.rt.rt_uses_gateway = rt->rt_uses_gateway;
+=======
+	xdst->u.rt.rt_uses_gateway = rt->rt_uses_gateway;
+	xdst->u.rt.rt_gw_family = rt->rt_gw_family;
+	if (rt->rt_gw_family == AF_INET)
+		xdst->u.rt.rt_gw4 = rt->rt_gw4;
+	else if (rt->rt_gw_family == AF_INET6)
+		xdst->u.rt.rt_gw6 = rt->rt_gw6;
+>>>>>>> upstream/android-13
 	xdst->u.rt.rt_pmtu = rt->rt_pmtu;
 	xdst->u.rt.rt_mtu_locked = rt->rt_mtu_locked;
 	INIT_LIST_HEAD(&xdst->u.rt.rt_uncached);
@@ -107,6 +122,7 @@ static int xfrm4_fill_dst(struct xfrm_dst *xdst, struct net_device *dev,
 	return 0;
 }
 
+<<<<<<< HEAD
 static void
 _decode_session4(struct sk_buff *skb, struct flowi *fl, int reverse)
 {
@@ -221,6 +237,8 @@ _decode_session4(struct sk_buff *skb, struct flowi *fl, int reverse)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 static void xfrm4_update_pmtu(struct dst_entry *dst, struct sock *sk,
 			      struct sk_buff *skb, u32 mtu,
 			      bool confirm_neigh)
@@ -274,9 +292,12 @@ static const struct xfrm_policy_afinfo xfrm4_policy_afinfo = {
 	.dst_ops =		&xfrm4_dst_ops_template,
 	.dst_lookup =		xfrm4_dst_lookup,
 	.get_saddr =		xfrm4_get_saddr,
+<<<<<<< HEAD
 	.decode_session =	_decode_session4,
 	.get_tos =		xfrm4_get_tos,
 	.init_path =		xfrm4_init_path,
+=======
+>>>>>>> upstream/android-13
 	.fill_dst =		xfrm4_fill_dst,
 	.blackhole_route =	ipv4_blackhole_route,
 };

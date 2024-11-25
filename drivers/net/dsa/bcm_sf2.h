@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Broadcom Starfighter2 private context
  *
  * Copyright (C) 2014, Broadcom Corporation
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __BCM_SF2_H
@@ -22,6 +29,10 @@
 #include <linux/types.h>
 #include <linux/bitops.h>
 #include <linux/if_vlan.h>
+<<<<<<< HEAD
+=======
+#include <linux/reset.h>
+>>>>>>> upstream/android-13
 
 #include <net/dsa.h>
 
@@ -47,7 +58,13 @@ struct bcm_sf2_hw_params {
 #define BCM_SF2_REGS_NUM	6
 
 struct bcm_sf2_port_status {
+<<<<<<< HEAD
 	unsigned int link;
+=======
+	phy_interface_t mode;
+	unsigned int link;
+	bool enabled;
+>>>>>>> upstream/android-13
 };
 
 struct bcm_sf2_cfp_priv {
@@ -56,6 +73,10 @@ struct bcm_sf2_cfp_priv {
 	DECLARE_BITMAP(used, CFP_NUM_RULES);
 	DECLARE_BITMAP(unique, CFP_NUM_RULES);
 	unsigned int rules_cnt;
+<<<<<<< HEAD
+=======
+	struct list_head rules_list;
+>>>>>>> upstream/android-13
 };
 
 struct bcm_sf2_priv {
@@ -67,11 +88,20 @@ struct bcm_sf2_priv {
 	void __iomem			*fcb;
 	void __iomem			*acb;
 
+<<<<<<< HEAD
+=======
+	struct reset_control		*rcdev;
+
+>>>>>>> upstream/android-13
 	/* Register offsets indirection tables */
 	u32 				type;
 	const u16			*reg_offsets;
 	unsigned int			core_reg_align;
 	unsigned int			num_cfp_rules;
+<<<<<<< HEAD
+=======
+	unsigned int			num_crossbar_int_ports;
+>>>>>>> upstream/android-13
 
 	/* spinlock protecting access to the indirect registers */
 	spinlock_t			indir_lock;
@@ -86,9 +116,12 @@ struct bcm_sf2_priv {
 	/* Backing b53_device */
 	struct b53_device		*dev;
 
+<<<<<<< HEAD
 	/* Mutex protecting access to the MIB counters */
 	struct mutex			stats_mutex;
 
+=======
+>>>>>>> upstream/android-13
 	struct bcm_sf2_hw_params	hw_params;
 
 	struct bcm_sf2_port_status	port_sts[DSA_MAX_PORTS];
@@ -96,6 +129,12 @@ struct bcm_sf2_priv {
 	/* Mask of ports enabled for Wake-on-LAN */
 	u32				wol_ports_mask;
 
+<<<<<<< HEAD
+=======
+	struct clk			*clk;
+	struct clk			*clk_mdiv;
+
+>>>>>>> upstream/android-13
 	/* MoCA port location */
 	int				moca_port;
 
@@ -213,5 +252,15 @@ int bcm_sf2_get_rxnfc(struct dsa_switch *ds, int port,
 int bcm_sf2_set_rxnfc(struct dsa_switch *ds, int port,
 		      struct ethtool_rxnfc *nfc);
 int bcm_sf2_cfp_rst(struct bcm_sf2_priv *priv);
+<<<<<<< HEAD
+=======
+void bcm_sf2_cfp_exit(struct dsa_switch *ds);
+int bcm_sf2_cfp_resume(struct dsa_switch *ds);
+void bcm_sf2_cfp_get_strings(struct dsa_switch *ds, int port,
+			     u32 stringset, uint8_t *data);
+void bcm_sf2_cfp_get_ethtool_stats(struct dsa_switch *ds, int port,
+				   uint64_t *data);
+int bcm_sf2_cfp_get_sset_count(struct dsa_switch *ds, int port, int sset);
+>>>>>>> upstream/android-13
 
 #endif /* __BCM_SF2_H */

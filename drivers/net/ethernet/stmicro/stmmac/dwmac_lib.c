@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*******************************************************************************
   Copyright (C) 2007-2009  STMicroelectronics Ltd
 
@@ -12,6 +13,12 @@
 
   The full GNU General Public License is included in this distribution in
   the file called "COPYING".
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*******************************************************************************
+  Copyright (C) 2007-2009  STMicroelectronics Ltd
+
+>>>>>>> upstream/android-13
 
   Author: Giuseppe Cavallaro <peppe.cavallaro@st.com>
 *******************************************************************************/
@@ -26,12 +33,16 @@
 int dwmac_dma_reset(void __iomem *ioaddr)
 {
 	u32 value = readl(ioaddr + DMA_BUS_MODE);
+<<<<<<< HEAD
 	int err;
+=======
+>>>>>>> upstream/android-13
 
 	/* DMA SW reset */
 	value |= DMA_BUS_MODE_SFT_RESET;
 	writel(value, ioaddr + DMA_BUS_MODE);
 
+<<<<<<< HEAD
 	err = readl_poll_timeout(ioaddr + DMA_BUS_MODE, value,
 				 !(value & DMA_BUS_MODE_SFT_RESET),
 				 10000, 100000);
@@ -39,6 +50,11 @@ int dwmac_dma_reset(void __iomem *ioaddr)
 		return -EBUSY;
 
 	return 0;
+=======
+	return readl_poll_timeout(ioaddr + DMA_BUS_MODE, value,
+				 !(value & DMA_BUS_MODE_SFT_RESET),
+				 10000, 200000);
+>>>>>>> upstream/android-13
 }
 
 /* CSR1 enables the transmit DMA to check for new descriptor */
@@ -47,6 +63,7 @@ void dwmac_enable_dma_transmission(void __iomem *ioaddr)
 	writel(1, ioaddr + DMA_XMT_POLL_DEMAND);
 }
 
+<<<<<<< HEAD
 void dwmac_enable_dma_irq(void __iomem *ioaddr, u32 chan)
 {
 	writel(DMA_INTR_DEFAULT_MASK, ioaddr + DMA_INTR_ENA);
@@ -55,6 +72,30 @@ void dwmac_enable_dma_irq(void __iomem *ioaddr, u32 chan)
 void dwmac_disable_dma_irq(void __iomem *ioaddr, u32 chan)
 {
 	writel(0, ioaddr + DMA_INTR_ENA);
+=======
+void dwmac_enable_dma_irq(void __iomem *ioaddr, u32 chan, bool rx, bool tx)
+{
+	u32 value = readl(ioaddr + DMA_INTR_ENA);
+
+	if (rx)
+		value |= DMA_INTR_DEFAULT_RX;
+	if (tx)
+		value |= DMA_INTR_DEFAULT_TX;
+
+	writel(value, ioaddr + DMA_INTR_ENA);
+}
+
+void dwmac_disable_dma_irq(void __iomem *ioaddr, u32 chan, bool rx, bool tx)
+{
+	u32 value = readl(ioaddr + DMA_INTR_ENA);
+
+	if (rx)
+		value &= ~DMA_INTR_DEFAULT_RX;
+	if (tx)
+		value &= ~DMA_INTR_DEFAULT_TX;
+
+	writel(value, ioaddr + DMA_INTR_ENA);
+>>>>>>> upstream/android-13
 }
 
 void dwmac_dma_start_tx(void __iomem *ioaddr, u32 chan)
@@ -156,7 +197,11 @@ static void show_rx_process_state(unsigned int status)
 #endif
 
 int dwmac_dma_interrupt(void __iomem *ioaddr,
+<<<<<<< HEAD
 			struct stmmac_extra_stats *x, u32 chan)
+=======
+			struct stmmac_extra_stats *x, u32 chan, u32 dir)
+>>>>>>> upstream/android-13
 {
 	int ret = 0;
 	/* read the status register (CSR5) */
@@ -168,6 +213,15 @@ int dwmac_dma_interrupt(void __iomem *ioaddr,
 	show_tx_process_state(intr_status);
 	show_rx_process_state(intr_status);
 #endif
+<<<<<<< HEAD
+=======
+
+	if (dir == DMA_DIR_RX)
+		intr_status &= DMA_STATUS_MSK_RX;
+	else if (dir == DMA_DIR_TX)
+		intr_status &= DMA_STATUS_MSK_TX;
+
+>>>>>>> upstream/android-13
 	/* ABNORMAL interrupts */
 	if (unlikely(intr_status & DMA_STATUS_AIS)) {
 		if (unlikely(intr_status & DMA_STATUS_UNF)) {

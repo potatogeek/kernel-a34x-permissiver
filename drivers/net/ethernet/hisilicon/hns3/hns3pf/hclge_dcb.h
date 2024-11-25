@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0+
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+>>>>>>> upstream/android-13
 // Copyright (c) 2016-2017 Hisilicon Limited.
 
 #ifndef __HCLGE_DCB_H__

@@ -9,15 +9,22 @@
 
 #include <linux/sizes.h>
 
+<<<<<<< HEAD
 #include <asm-generic/vmlinux.lds.h>
+=======
+#include <asm/vmlinux.lds.h>
+>>>>>>> upstream/android-13
 #include <asm/cache.h>
 #include <asm/thread_info.h>
 #include <asm/memory.h>
 #include <asm/mpu.h>
 #include <asm/page.h>
 
+<<<<<<< HEAD
 #include "vmlinux.lds.h"
 
+=======
+>>>>>>> upstream/android-13
 OUTPUT_ARCH(arm)
 ENTRY(stext)
 
@@ -42,6 +49,13 @@ SECTIONS
 		ARM_DISCARD
 		*(.alt.smp.init)
 		*(.pv_table)
+<<<<<<< HEAD
+=======
+#ifndef CONFIG_ARM_UNWIND
+		*(.ARM.exidx) *(.ARM.exidx.*)
+		*(.ARM.extab) *(.ARM.extab.*)
+#endif
+>>>>>>> upstream/android-13
 	}
 
 	. = XIP_VIRT_ADDR(CONFIG_XIP_PHYS_ADDR);
@@ -70,8 +84,11 @@ SECTIONS
 	ARM_UNWIND_SECTIONS
 #endif
 
+<<<<<<< HEAD
 	NOTES
 
+=======
+>>>>>>> upstream/android-13
 	_etext = .;			/* End of text and rodata section */
 
 	ARM_VECTORS
@@ -96,7 +113,10 @@ SECTIONS
 		INIT_SETUP(16)
 		INIT_CALLS
 		CON_INITCALL
+<<<<<<< HEAD
 		SECURITY_INITCALL
+=======
+>>>>>>> upstream/android-13
 		INIT_RAM_FS
 	}
 
@@ -115,7 +135,11 @@ SECTIONS
 
 	. = ALIGN(THREAD_SIZE);
 	_sdata = .;
+<<<<<<< HEAD
 	RW_DATA_SECTION(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
+=======
+	RW_DATA(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
+>>>>>>> upstream/android-13
 	.data.ro_after_init : AT(ADDR(.data.ro_after_init) - LOAD_OFFSET) {
 		*(.data..ro_after_init)
 	}
@@ -155,6 +179,13 @@ SECTIONS
 	_end = .;
 
 	STABS_DEBUG
+<<<<<<< HEAD
+=======
+	DWARF_DEBUG
+	ARM_DETAILS
+
+	ARM_ASSERTS
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -165,6 +196,7 @@ SECTIONS
 ASSERT((__proc_info_end - __proc_info_begin), "missing CPU support")
 ASSERT((__arch_info_end - __arch_info_begin), "no machine record defined")
 
+<<<<<<< HEAD
 /*
  * The HYP init code can't be more than a page long,
  * and should not cross a page boundary.
@@ -173,6 +205,8 @@ ASSERT((__arch_info_end - __arch_info_begin), "no machine record defined")
 ASSERT(__hyp_idmap_text_end - (__hyp_idmap_text_start & PAGE_MASK) <= PAGE_SIZE,
 	"HYP init code too big or misaligned")
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_XIP_DEFLATED_DATA
 /*
  * The .bss is used as a stack area for __inflate_kernel_data() whose stack
@@ -181,7 +215,11 @@ ASSERT(__hyp_idmap_text_end - (__hyp_idmap_text_start & PAGE_MASK) <= PAGE_SIZE,
 ASSERT((_end - __bss_start) >= 12288, ".bss too small for CONFIG_XIP_DEFLATED_DATA")
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_ARM_MPU
+=======
+#if defined(CONFIG_ARM_MPU) && !defined(CONFIG_COMPILE_TEST)
+>>>>>>> upstream/android-13
 /*
  * Due to PMSAv7 restriction on base address and size we have to
  * enforce minimal alignment restrictions. It was seen that weaker

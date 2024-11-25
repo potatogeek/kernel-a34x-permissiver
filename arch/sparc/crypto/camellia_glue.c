@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* Glue code for CAMELLIA encryption optimized for sparc64 crypto opcodes.
  *
  * Copyright (C) 2012 David S. Miller <davem@davemloft.net>
@@ -11,6 +15,10 @@
 #include <linux/mm.h>
 #include <linux/types.h>
 #include <crypto/algapi.h>
+<<<<<<< HEAD
+=======
+#include <crypto/internal/skcipher.h>
+>>>>>>> upstream/android-13
 
 #include <asm/fpumacro.h>
 #include <asm/pstate.h>
@@ -37,12 +45,18 @@ static int camellia_set_key(struct crypto_tfm *tfm, const u8 *_in_key,
 {
 	struct camellia_sparc64_ctx *ctx = crypto_tfm_ctx(tfm);
 	const u32 *in_key = (const u32 *) _in_key;
+<<<<<<< HEAD
 	u32 *flags = &tfm->crt_flags;
 
 	if (key_len != 16 && key_len != 24 && key_len != 32) {
 		*flags |= CRYPTO_TFM_RES_BAD_KEY_LEN;
 		return -EINVAL;
 	}
+=======
+
+	if (key_len != 16 && key_len != 24 && key_len != 32)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	ctx->key_len = key_len;
 
@@ -51,6 +65,15 @@ static int camellia_set_key(struct crypto_tfm *tfm, const u8 *_in_key,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int camellia_set_key_skcipher(struct crypto_skcipher *tfm,
+				     const u8 *in_key, unsigned int key_len)
+{
+	return camellia_set_key(crypto_skcipher_tfm(tfm), in_key, key_len);
+}
+
+>>>>>>> upstream/android-13
 extern void camellia_sparc64_crypt(const u64 *key, const u32 *input,
 				   u32 *output, unsigned int key_len);
 
@@ -80,6 +103,7 @@ typedef void ecb_crypt_op(const u64 *input, u64 *output, unsigned int len,
 extern ecb_crypt_op camellia_sparc64_ecb_crypt_3_grand_rounds;
 extern ecb_crypt_op camellia_sparc64_ecb_crypt_4_grand_rounds;
 
+<<<<<<< HEAD
 #define CAMELLIA_BLOCK_MASK	(~(CAMELLIA_BLOCK_SIZE - 1))
 
 static int __ecb_crypt(struct blkcipher_desc *desc,
@@ -90,21 +114,38 @@ static int __ecb_crypt(struct blkcipher_desc *desc,
 	struct blkcipher_walk walk;
 	ecb_crypt_op *op;
 	const u64 *key;
+=======
+static int __ecb_crypt(struct skcipher_request *req, bool encrypt)
+{
+	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
+	const struct camellia_sparc64_ctx *ctx = crypto_skcipher_ctx(tfm);
+	struct skcipher_walk walk;
+	ecb_crypt_op *op;
+	const u64 *key;
+	unsigned int nbytes;
+>>>>>>> upstream/android-13
 	int err;
 
 	op = camellia_sparc64_ecb_crypt_3_grand_rounds;
 	if (ctx->key_len != 16)
 		op = camellia_sparc64_ecb_crypt_4_grand_rounds;
 
+<<<<<<< HEAD
 	blkcipher_walk_init(&walk, dst, src, nbytes);
 	err = blkcipher_walk_virt(desc, &walk);
 	desc->flags &= ~CRYPTO_TFM_REQ_MAY_SLEEP;
+=======
+	err = skcipher_walk_virt(&walk, req, true);
+	if (err)
+		return err;
+>>>>>>> upstream/android-13
 
 	if (encrypt)
 		key = &ctx->encrypt_key[0];
 	else
 		key = &ctx->decrypt_key[0];
 	camellia_sparc64_load_keys(key, ctx->key_len);
+<<<<<<< HEAD
 	while ((nbytes = walk.nbytes)) {
 		unsigned int block_len = nbytes & CAMELLIA_BLOCK_MASK;
 
@@ -118,11 +159,18 @@ static int __ecb_crypt(struct blkcipher_desc *desc,
 		}
 		nbytes &= CAMELLIA_BLOCK_SIZE - 1;
 		err = blkcipher_walk_done(desc, &walk, nbytes);
+=======
+	while ((nbytes = walk.nbytes) != 0) {
+		op(walk.src.virt.addr, walk.dst.virt.addr,
+		   round_down(nbytes, CAMELLIA_BLOCK_SIZE), key);
+		err = skcipher_walk_done(&walk, nbytes % CAMELLIA_BLOCK_SIZE);
+>>>>>>> upstream/android-13
 	}
 	fprs_write(0);
 	return err;
 }
 
+<<<<<<< HEAD
 static int ecb_encrypt(struct blkcipher_desc *desc,
 		       struct scatterlist *dst, struct scatterlist *src,
 		       unsigned int nbytes)
@@ -135,6 +183,16 @@ static int ecb_decrypt(struct blkcipher_desc *desc,
 		       unsigned int nbytes)
 {
 	return __ecb_crypt(desc, dst, src, nbytes, false);
+=======
+static int ecb_encrypt(struct skcipher_request *req)
+{
+	return __ecb_crypt(req, true);
+}
+
+static int ecb_decrypt(struct skcipher_request *req)
+{
+	return __ecb_crypt(req, false);
+>>>>>>> upstream/android-13
 }
 
 typedef void cbc_crypt_op(const u64 *input, u64 *output, unsigned int len,
@@ -145,6 +203,7 @@ extern cbc_crypt_op camellia_sparc64_cbc_encrypt_4_grand_rounds;
 extern cbc_crypt_op camellia_sparc64_cbc_decrypt_3_grand_rounds;
 extern cbc_crypt_op camellia_sparc64_cbc_decrypt_4_grand_rounds;
 
+<<<<<<< HEAD
 static int cbc_encrypt(struct blkcipher_desc *desc,
 		       struct scatterlist *dst, struct scatterlist *src,
 		       unsigned int nbytes)
@@ -153,12 +212,23 @@ static int cbc_encrypt(struct blkcipher_desc *desc,
 	struct blkcipher_walk walk;
 	cbc_crypt_op *op;
 	const u64 *key;
+=======
+static int cbc_encrypt(struct skcipher_request *req)
+{
+	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
+	const struct camellia_sparc64_ctx *ctx = crypto_skcipher_ctx(tfm);
+	struct skcipher_walk walk;
+	cbc_crypt_op *op;
+	const u64 *key;
+	unsigned int nbytes;
+>>>>>>> upstream/android-13
 	int err;
 
 	op = camellia_sparc64_cbc_encrypt_3_grand_rounds;
 	if (ctx->key_len != 16)
 		op = camellia_sparc64_cbc_encrypt_4_grand_rounds;
 
+<<<<<<< HEAD
 	blkcipher_walk_init(&walk, dst, src, nbytes);
 	err = blkcipher_walk_virt(desc, &walk);
 	desc->flags &= ~CRYPTO_TFM_REQ_MAY_SLEEP;
@@ -179,11 +249,24 @@ static int cbc_encrypt(struct blkcipher_desc *desc,
 		}
 		nbytes &= CAMELLIA_BLOCK_SIZE - 1;
 		err = blkcipher_walk_done(desc, &walk, nbytes);
+=======
+	err = skcipher_walk_virt(&walk, req, true);
+	if (err)
+		return err;
+
+	key = &ctx->encrypt_key[0];
+	camellia_sparc64_load_keys(key, ctx->key_len);
+	while ((nbytes = walk.nbytes) != 0) {
+		op(walk.src.virt.addr, walk.dst.virt.addr,
+		   round_down(nbytes, CAMELLIA_BLOCK_SIZE), key, walk.iv);
+		err = skcipher_walk_done(&walk, nbytes % CAMELLIA_BLOCK_SIZE);
+>>>>>>> upstream/android-13
 	}
 	fprs_write(0);
 	return err;
 }
 
+<<<<<<< HEAD
 static int cbc_decrypt(struct blkcipher_desc *desc,
 		       struct scatterlist *dst, struct scatterlist *src,
 		       unsigned int nbytes)
@@ -192,12 +275,23 @@ static int cbc_decrypt(struct blkcipher_desc *desc,
 	struct blkcipher_walk walk;
 	cbc_crypt_op *op;
 	const u64 *key;
+=======
+static int cbc_decrypt(struct skcipher_request *req)
+{
+	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
+	const struct camellia_sparc64_ctx *ctx = crypto_skcipher_ctx(tfm);
+	struct skcipher_walk walk;
+	cbc_crypt_op *op;
+	const u64 *key;
+	unsigned int nbytes;
+>>>>>>> upstream/android-13
 	int err;
 
 	op = camellia_sparc64_cbc_decrypt_3_grand_rounds;
 	if (ctx->key_len != 16)
 		op = camellia_sparc64_cbc_decrypt_4_grand_rounds;
 
+<<<<<<< HEAD
 	blkcipher_walk_init(&walk, dst, src, nbytes);
 	err = blkcipher_walk_virt(desc, &walk);
 	desc->flags &= ~CRYPTO_TFM_REQ_MAY_SLEEP;
@@ -218,12 +312,28 @@ static int cbc_decrypt(struct blkcipher_desc *desc,
 		}
 		nbytes &= CAMELLIA_BLOCK_SIZE - 1;
 		err = blkcipher_walk_done(desc, &walk, nbytes);
+=======
+	err = skcipher_walk_virt(&walk, req, true);
+	if (err)
+		return err;
+
+	key = &ctx->decrypt_key[0];
+	camellia_sparc64_load_keys(key, ctx->key_len);
+	while ((nbytes = walk.nbytes) != 0) {
+		op(walk.src.virt.addr, walk.dst.virt.addr,
+		   round_down(nbytes, CAMELLIA_BLOCK_SIZE), key, walk.iv);
+		err = skcipher_walk_done(&walk, nbytes % CAMELLIA_BLOCK_SIZE);
+>>>>>>> upstream/android-13
 	}
 	fprs_write(0);
 	return err;
 }
 
+<<<<<<< HEAD
 static struct crypto_alg algs[] = { {
+=======
+static struct crypto_alg cipher_alg = {
+>>>>>>> upstream/android-13
 	.cra_name		= "camellia",
 	.cra_driver_name	= "camellia-sparc64",
 	.cra_priority		= SPARC_CR_OPCODE_PRIORITY,
@@ -241,6 +351,7 @@ static struct crypto_alg algs[] = { {
 			.cia_decrypt		= camellia_decrypt
 		}
 	}
+<<<<<<< HEAD
 }, {
 	.cra_name		= "ecb(camellia)",
 	.cra_driver_name	= "ecb-camellia-sparc64",
@@ -281,6 +392,39 @@ static struct crypto_alg algs[] = { {
 		},
 	},
 }
+=======
+};
+
+static struct skcipher_alg skcipher_algs[] = {
+	{
+		.base.cra_name		= "ecb(camellia)",
+		.base.cra_driver_name	= "ecb-camellia-sparc64",
+		.base.cra_priority	= SPARC_CR_OPCODE_PRIORITY,
+		.base.cra_blocksize	= CAMELLIA_BLOCK_SIZE,
+		.base.cra_ctxsize	= sizeof(struct camellia_sparc64_ctx),
+		.base.cra_alignmask	= 7,
+		.base.cra_module	= THIS_MODULE,
+		.min_keysize		= CAMELLIA_MIN_KEY_SIZE,
+		.max_keysize		= CAMELLIA_MAX_KEY_SIZE,
+		.setkey			= camellia_set_key_skcipher,
+		.encrypt		= ecb_encrypt,
+		.decrypt		= ecb_decrypt,
+	}, {
+		.base.cra_name		= "cbc(camellia)",
+		.base.cra_driver_name	= "cbc-camellia-sparc64",
+		.base.cra_priority	= SPARC_CR_OPCODE_PRIORITY,
+		.base.cra_blocksize	= CAMELLIA_BLOCK_SIZE,
+		.base.cra_ctxsize	= sizeof(struct camellia_sparc64_ctx),
+		.base.cra_alignmask	= 7,
+		.base.cra_module	= THIS_MODULE,
+		.min_keysize		= CAMELLIA_MIN_KEY_SIZE,
+		.max_keysize		= CAMELLIA_MAX_KEY_SIZE,
+		.ivsize			= CAMELLIA_BLOCK_SIZE,
+		.setkey			= camellia_set_key_skcipher,
+		.encrypt		= cbc_encrypt,
+		.decrypt		= cbc_decrypt,
+	}
+>>>>>>> upstream/android-13
 };
 
 static bool __init sparc64_has_camellia_opcode(void)
@@ -299,6 +443,7 @@ static bool __init sparc64_has_camellia_opcode(void)
 
 static int __init camellia_sparc64_mod_init(void)
 {
+<<<<<<< HEAD
 	int i;
 
 	for (i = 0; i < ARRAY_SIZE(algs); i++)
@@ -310,11 +455,33 @@ static int __init camellia_sparc64_mod_init(void)
 	}
 	pr_info("sparc64 camellia opcodes not available.\n");
 	return -ENODEV;
+=======
+	int err;
+
+	if (!sparc64_has_camellia_opcode()) {
+		pr_info("sparc64 camellia opcodes not available.\n");
+		return -ENODEV;
+	}
+	pr_info("Using sparc64 camellia opcodes optimized CAMELLIA implementation\n");
+	err = crypto_register_alg(&cipher_alg);
+	if (err)
+		return err;
+	err = crypto_register_skciphers(skcipher_algs,
+					ARRAY_SIZE(skcipher_algs));
+	if (err)
+		crypto_unregister_alg(&cipher_alg);
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static void __exit camellia_sparc64_mod_fini(void)
 {
+<<<<<<< HEAD
 	crypto_unregister_algs(algs, ARRAY_SIZE(algs));
+=======
+	crypto_unregister_alg(&cipher_alg);
+	crypto_unregister_skciphers(skcipher_algs, ARRAY_SIZE(skcipher_algs));
+>>>>>>> upstream/android-13
 }
 
 module_init(camellia_sparc64_mod_init);

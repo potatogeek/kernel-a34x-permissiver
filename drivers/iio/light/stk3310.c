@@ -1,12 +1,20 @@
+<<<<<<< HEAD
 /**
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  * Sensortek STK3310/STK3311 Ambient Light and Proximity Sensor
  *
  * Copyright (c) 2015, Intel Corporation.
  *
+<<<<<<< HEAD
  * This file is subject to the terms and conditions of version 2 of
  * the GNU General Public License. See the file COPYING in the main
  * directory of this archive for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * IIO driver for STK3310/STK3311. 7-bit I2C address: 0x48.
  */
 
@@ -40,6 +48,11 @@
 
 #define STK3310_CHIP_ID_VAL			0x13
 #define STK3311_CHIP_ID_VAL			0x1D
+<<<<<<< HEAD
+=======
+#define STK3311X_CHIP_ID_VAL			0x12
+#define STK3335_CHIP_ID_VAL			0x51
+>>>>>>> upstream/android-13
 #define STK3310_PSINT_EN			0x01
 #define STK3310_PS_MAX_VAL			0xFFFF
 
@@ -454,7 +467,13 @@ static int stk3310_init(struct iio_dev *indio_dev)
 		return ret;
 
 	if (chipid != STK3310_CHIP_ID_VAL &&
+<<<<<<< HEAD
 	    chipid != STK3311_CHIP_ID_VAL) {
+=======
+	    chipid != STK3311_CHIP_ID_VAL &&
+	    chipid != STK3311X_CHIP_ID_VAL &&
+	    chipid != STK3335_CHIP_ID_VAL) {
+>>>>>>> upstream/android-13
 		dev_err(&client->dev, "invalid chip id: 0x%x\n", chipid);
 		return -ENODEV;
 	}
@@ -488,7 +507,11 @@ static bool stk3310_is_volatile_reg(struct device *dev, unsigned int reg)
 	}
 }
 
+<<<<<<< HEAD
 static struct regmap_config stk3310_regmap_config = {
+=======
+static const struct regmap_config stk3310_regmap_config = {
+>>>>>>> upstream/android-13
 	.name = STK3310_REGMAP_NAME,
 	.reg_bits = 8,
 	.val_bits = 8,
@@ -545,9 +568,14 @@ static irqreturn_t stk3310_irq_event_handler(int irq, void *private)
 	mutex_lock(&data->lock);
 	ret = regmap_field_read(data->reg_flag_nf, &dir);
 	if (ret < 0) {
+<<<<<<< HEAD
 		dev_err(&data->client->dev, "register read failed\n");
 		mutex_unlock(&data->lock);
 		return ret;
+=======
+		dev_err(&data->client->dev, "register read failed: %d\n", ret);
+		goto out;
+>>>>>>> upstream/android-13
 	}
 	event = IIO_UNMOD_EVENT_CODE(IIO_PROXIMITY, 1,
 				     IIO_EV_TYPE_THRESH,
@@ -559,6 +587,10 @@ static irqreturn_t stk3310_irq_event_handler(int irq, void *private)
 	ret = regmap_field_write(data->reg_flag_psint, 0);
 	if (ret < 0)
 		dev_err(&data->client->dev, "failed to reset interrupts\n");
+<<<<<<< HEAD
+=======
+out:
+>>>>>>> upstream/android-13
 	mutex_unlock(&data->lock);
 
 	return IRQ_HANDLED;
@@ -586,7 +618,10 @@ static int stk3310_probe(struct i2c_client *client,
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &client->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->info = &stk3310_info;
 	indio_dev->name = STK3310_DRIVER_NAME;
 	indio_dev->modes = INDIO_DIRECT_MODE;
@@ -666,6 +701,10 @@ static SIMPLE_DEV_PM_OPS(stk3310_pm_ops, stk3310_suspend, stk3310_resume);
 static const struct i2c_device_id stk3310_i2c_id[] = {
 	{"STK3310", 0},
 	{"STK3311", 0},
+<<<<<<< HEAD
+=======
+	{"STK3335", 0},
+>>>>>>> upstream/android-13
 	{}
 };
 MODULE_DEVICE_TABLE(i2c, stk3310_i2c_id);
@@ -673,14 +712,33 @@ MODULE_DEVICE_TABLE(i2c, stk3310_i2c_id);
 static const struct acpi_device_id stk3310_acpi_id[] = {
 	{"STK3310", 0},
 	{"STK3311", 0},
+<<<<<<< HEAD
+=======
+	{"STK3335", 0},
+>>>>>>> upstream/android-13
 	{}
 };
 
 MODULE_DEVICE_TABLE(acpi, stk3310_acpi_id);
 
+<<<<<<< HEAD
 static struct i2c_driver stk3310_driver = {
 	.driver = {
 		.name = "stk3310",
+=======
+static const struct of_device_id stk3310_of_match[] = {
+	{ .compatible = "sensortek,stk3310", },
+	{ .compatible = "sensortek,stk3311", },
+	{ .compatible = "sensortek,stk3335", },
+	{}
+};
+MODULE_DEVICE_TABLE(of, stk3310_of_match);
+
+static struct i2c_driver stk3310_driver = {
+	.driver = {
+		.name = "stk3310",
+		.of_match_table = stk3310_of_match,
+>>>>>>> upstream/android-13
 		.pm = STK3310_PM_OPS,
 		.acpi_match_table = ACPI_PTR(stk3310_acpi_id),
 	},

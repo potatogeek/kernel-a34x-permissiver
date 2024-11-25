@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  Copyright (c) 2008-2014 STMicroelectronics Limited
  *
@@ -6,9 +10,12 @@
  *          Lee Jones <lee.jones@linaro.org>
  *
  *  SPI master mode controller driver, used in STMicroelectronics devices.
+<<<<<<< HEAD
  *
  *  May be copied or modified under the terms of the GNU General Public
  *  License Version 2.0 only.  See linux/COPYING for more information.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -300,7 +307,10 @@ static int spi_st_probe(struct platform_device *pdev)
 {
 	struct device_node *np = pdev->dev.of_node;
 	struct spi_master *master;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	struct spi_st *spi_st;
 	int irq, ret = 0;
 	u32 var;
@@ -333,8 +343,12 @@ static int spi_st_probe(struct platform_device *pdev)
 	init_completion(&spi_st->done);
 
 	/* Get resources */
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	spi_st->base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	spi_st->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(spi_st->base)) {
 		ret = PTR_ERR(spi_st->base);
 		goto clk_disable;

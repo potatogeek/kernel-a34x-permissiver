@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2002 Roman Zippel <zippel@linux-m68k.org>
  * Released under the terms of the GNU GPL v2.0.
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2002 Roman Zippel <zippel@linux-m68k.org>
+>>>>>>> upstream/android-13
  */
 
 #include <ctype.h>
@@ -9,6 +15,10 @@
 #include <string.h>
 
 #include "lkc.h"
+<<<<<<< HEAD
+=======
+#include "internal.h"
+>>>>>>> upstream/android-13
 
 static const char nohelp_text[] = "There is no help available for this option.";
 
@@ -65,7 +75,12 @@ void menu_add_entry(struct symbol *sym)
 struct menu *menu_add_menu(void)
 {
 	last_entry_ptr = &current_entry->list;
+<<<<<<< HEAD
 	return current_menu = current_entry;
+=======
+	current_menu = current_entry;
+	return current_menu;
+>>>>>>> upstream/android-13
 }
 
 void menu_end_menu(void)
@@ -124,14 +139,28 @@ void menu_set_type(int type)
 		sym_type_name(sym->type), sym_type_name(type));
 }
 
+<<<<<<< HEAD
 static struct property *menu_add_prop(enum prop_type type, char *prompt, struct expr *expr, struct expr *dep)
 {
 	struct property *prop = prop_alloc(type, current_entry->sym);
 
+=======
+static struct property *menu_add_prop(enum prop_type type, struct expr *expr,
+				      struct expr *dep)
+{
+	struct property *prop;
+
+	prop = xmalloc(sizeof(*prop));
+	memset(prop, 0, sizeof(*prop));
+	prop->type = type;
+	prop->file = current_file;
+	prop->lineno = zconf_lineno();
+>>>>>>> upstream/android-13
 	prop->menu = current_entry;
 	prop->expr = expr;
 	prop->visible.expr = dep;
 
+<<<<<<< HEAD
 	if (prompt) {
 		if (isspace(*prompt)) {
 			prop_warn(prop, "leading whitespace ignored");
@@ -170,13 +199,68 @@ static struct property *menu_add_prop(enum prop_type type, char *prompt, struct 
 		current_entry->prompt = prop;
 	}
 	prop->text = prompt;
+=======
+	/* append property to the prop list of symbol */
+	if (current_entry->sym) {
+		struct property **propp;
+
+		for (propp = &current_entry->sym->prop;
+		     *propp;
+		     propp = &(*propp)->next)
+			;
+		*propp = prop;
+	}
+>>>>>>> upstream/android-13
 
 	return prop;
 }
 
+<<<<<<< HEAD
 struct property *menu_add_prompt(enum prop_type type, char *prompt, struct expr *dep)
 {
 	return menu_add_prop(type, prompt, NULL, dep);
+=======
+struct property *menu_add_prompt(enum prop_type type, char *prompt,
+				 struct expr *dep)
+{
+	struct property *prop = menu_add_prop(type, NULL, dep);
+
+	if (isspace(*prompt)) {
+		prop_warn(prop, "leading whitespace ignored");
+		while (isspace(*prompt))
+			prompt++;
+	}
+	if (current_entry->prompt)
+		prop_warn(prop, "prompt redefined");
+
+	/* Apply all upper menus' visibilities to actual prompts. */
+	if (type == P_PROMPT) {
+		struct menu *menu = current_entry;
+
+		while ((menu = menu->parent) != NULL) {
+			struct expr *dup_expr;
+
+			if (!menu->visibility)
+				continue;
+			/*
+			 * Do not add a reference to the menu's visibility
+			 * expression but use a copy of it. Otherwise the
+			 * expression reduction functions will modify
+			 * expressions that have multiple references which
+			 * can cause unwanted side effects.
+			 */
+			dup_expr = expr_copy(menu->visibility);
+
+			prop->visible.expr = expr_alloc_and(prop->visible.expr,
+							    dup_expr);
+		}
+	}
+
+	current_entry->prompt = prop;
+	prop->text = prompt;
+
+	return prop;
+>>>>>>> upstream/android-13
 }
 
 void menu_add_visibility(struct expr *expr)
@@ -187,11 +271,16 @@ void menu_add_visibility(struct expr *expr)
 
 void menu_add_expr(enum prop_type type, struct expr *expr, struct expr *dep)
 {
+<<<<<<< HEAD
 	menu_add_prop(type, NULL, expr, dep);
+=======
+	menu_add_prop(type, expr, dep);
+>>>>>>> upstream/android-13
 }
 
 void menu_add_symbol(enum prop_type type, struct symbol *sym, struct expr *dep)
 {
+<<<<<<< HEAD
 	menu_add_prop(type, NULL, expr_alloc_symbol(sym), dep);
 }
 
@@ -218,6 +307,9 @@ void menu_add_option(int token, char *arg)
 		current_entry->sym->flags |= SYMBOL_ALLNOCONFIG_Y;
 		break;
 	}
+=======
+	menu_add_prop(type, expr_alloc_symbol(sym), dep);
+>>>>>>> upstream/android-13
 }
 
 static int menu_validate_number(struct symbol *sym, struct symbol *sym2)
@@ -329,12 +421,19 @@ void menu_finalize(struct menu *parent)
 			 * choice value symbols.
 			 */
 			parentdep = expr_alloc_symbol(sym);
+<<<<<<< HEAD
 		} else if (parent->prompt)
 			/* Menu node for 'menu' */
 			parentdep = parent->prompt->visible.expr;
 		else
 			/* Menu node for 'if' */
 			parentdep = parent->dep;
+=======
+		} else {
+			/* Menu node for 'menu', 'if' */
+			parentdep = parent->dep;
+		}
+>>>>>>> upstream/android-13
 
 		/* For each child menu node... */
 		for (menu = parent->list; menu; menu = menu->next) {
@@ -701,6 +800,24 @@ const char *menu_get_help(struct menu *menu)
 		return "";
 }
 
+<<<<<<< HEAD
+=======
+static void get_def_str(struct gstr *r, struct menu *menu)
+{
+	str_printf(r, "Defined at %s:%d\n",
+		   menu->file->name, menu->lineno);
+}
+
+static void get_dep_str(struct gstr *r, struct expr *expr, const char *prefix)
+{
+	if (!expr_is_yes(expr)) {
+		str_append(r, prefix);
+		expr_gstr_print(expr, r);
+		str_append(r, "\n");
+	}
+}
+
+>>>>>>> upstream/android-13
 static void get_prompt_str(struct gstr *r, struct property *prop,
 			   struct list_head *head)
 {
@@ -708,7 +825,24 @@ static void get_prompt_str(struct gstr *r, struct property *prop,
 	struct menu *submenu[8], *menu, *location = NULL;
 	struct jump_key *jump = NULL;
 
+<<<<<<< HEAD
 	str_printf(r, "Prompt: %s\n", prop->text);
+=======
+	str_printf(r, "  Prompt: %s\n", prop->text);
+
+	get_dep_str(r, prop->menu->dep, "  Depends on: ");
+	/*
+	 * Most prompts in Linux have visibility that exactly matches their
+	 * dependencies. For these, we print only the dependencies to improve
+	 * readability. However, prompts with inline "if" expressions and
+	 * prompts with a parent that has a "visible if" expression have
+	 * differing dependencies and visibility. In these rare cases, we
+	 * print both.
+	 */
+	if (!expr_eq(prop->menu->dep, prop->visible.expr))
+		get_dep_str(r, prop->visible.expr, "  Visible if: ");
+
+>>>>>>> upstream/android-13
 	menu = prop->menu->parent;
 	for (i = 0; menu != &rootmenu && i < 8; menu = menu->parent) {
 		bool accessible = menu_is_visible(menu);
@@ -758,6 +892,7 @@ static void get_prompt_str(struct gstr *r, struct property *prop,
 	}
 }
 
+<<<<<<< HEAD
 /*
  * get property of type P_SYMBOL
  */
@@ -770,6 +905,8 @@ static struct property *get_symbol_prop(struct symbol *sym)
 	return prop;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void get_symbol_props_str(struct gstr *r, struct symbol *sym,
 				 enum prop_type tok, const char *prefix)
 {
@@ -809,6 +946,7 @@ static void get_symbol_str(struct gstr *r, struct symbol *sym,
 			}
 		}
 	}
+<<<<<<< HEAD
 	for_all_prompts(sym, prop)
 		get_prompt_str(r, prop, head);
 
@@ -835,6 +973,36 @@ static void get_symbol_str(struct gstr *r, struct symbol *sym,
 		expr_gstr_print_revdep(sym->implied.expr, r, yes, "  Implied by [y]:\n");
 		expr_gstr_print_revdep(sym->implied.expr, r, mod, "  Implied by [m]:\n");
 		expr_gstr_print_revdep(sym->implied.expr, r, no, "  Implied by [n]:\n");
+=======
+
+	/* Print the definitions with prompts before the ones without */
+	for_all_properties(sym, prop, P_SYMBOL) {
+		if (prop->menu->prompt) {
+			get_def_str(r, prop->menu);
+			get_prompt_str(r, prop->menu->prompt, head);
+		}
+	}
+
+	for_all_properties(sym, prop, P_SYMBOL) {
+		if (!prop->menu->prompt) {
+			get_def_str(r, prop->menu);
+			get_dep_str(r, prop->menu->dep, "  Depends on: ");
+		}
+	}
+
+	get_symbol_props_str(r, sym, P_SELECT, "Selects: ");
+	if (sym->rev_dep.expr) {
+		expr_gstr_print_revdep(sym->rev_dep.expr, r, yes, "Selected by [y]:\n");
+		expr_gstr_print_revdep(sym->rev_dep.expr, r, mod, "Selected by [m]:\n");
+		expr_gstr_print_revdep(sym->rev_dep.expr, r, no, "Selected by [n]:\n");
+	}
+
+	get_symbol_props_str(r, sym, P_IMPLY, "Implies: ");
+	if (sym->implied.expr) {
+		expr_gstr_print_revdep(sym->implied.expr, r, yes, "Implied by [y]:\n");
+		expr_gstr_print_revdep(sym->implied.expr, r, mod, "Implied by [m]:\n");
+		expr_gstr_print_revdep(sym->implied.expr, r, no, "Implied by [n]:\n");
+>>>>>>> upstream/android-13
 	}
 
 	str_append(r, "\n\n");

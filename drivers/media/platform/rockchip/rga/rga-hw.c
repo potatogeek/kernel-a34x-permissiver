@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) Fuzhou Rockchip Electronics Co.Ltd
  * Author: Jacob Chen <jacob-chen@iotwrt.com>
@@ -10,6 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) Fuzhou Rockchip Electronics Co.Ltd
+ * Author: Jacob Chen <jacob-chen@iotwrt.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/pm_runtime.h>
@@ -259,7 +266,11 @@ static void rga_cmd_set_trans_info(struct rga_ctx *ctx)
 	}
 
 	/*
+<<<<<<< HEAD
 	 * Cacluate the up/down scaling mode/factor.
+=======
+	 * Calculate the up/down scaling mode/factor.
+>>>>>>> upstream/android-13
 	 *
 	 * RGA used to scale the picture first, and then rotate second,
 	 * so we need to swap the w/h when rotate degree is 90/270.
@@ -307,7 +318,11 @@ static void rga_cmd_set_trans_info(struct rga_ctx *ctx)
 	}
 
 	/*
+<<<<<<< HEAD
 	 * Cacluate the framebuffer virtual strides and active size,
+=======
+	 * Calculate the framebuffer virtual strides and active size,
+>>>>>>> upstream/android-13
 	 * note that the step of vir_stride / vir_width is 4 byte words
 	 */
 	src_vir_info.data.vir_stride = ctx->in.stride >> 2;
@@ -321,7 +336,11 @@ static void rga_cmd_set_trans_info(struct rga_ctx *ctx)
 	dst_act_info.data.act_width = dst_w - 1;
 
 	/*
+<<<<<<< HEAD
 	 * Cacluate the source framebuffer base address with offset pixel.
+=======
+	 * Calculate the source framebuffer base address with offset pixel.
+>>>>>>> upstream/android-13
 	 */
 	src_offsets = rga_get_addr_offset(&ctx->in, src_x, src_y,
 					  src_w, src_h);

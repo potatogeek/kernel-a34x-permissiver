@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Renesas R-Car H2 System Controller
  *
  * Copyright (C) 2016 Glider bvba
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -9,6 +14,10 @@
  */
 
 #include <linux/bug.h>
+=======
+ */
+
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 
 #include <dt-bindings/power/r8a7790-sysc.h>

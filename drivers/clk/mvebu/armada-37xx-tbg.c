@@ -1,17 +1,28 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * Marvell Armada 37xx SoC Time Base Generator clocks
  *
  * Copyright (C) 2016 Marvell
  *
  * Gregory CLEMENT <gregory.clement@free-electrons.com>
+<<<<<<< HEAD
  *
  * This file is licensed under the terms of the GNU General Public
  * License version 2 or later. This program is licensed "as is"
  * without any warranty of any kind, whether express or implied.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk-provider.h>
 #include <linux/clk.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/of.h>
 #include <linux/of_address.h>
 #include <linux/platform_device.h>
@@ -99,12 +110,20 @@ static int armada_3700_tbg_clock_probe(struct platform_device *pdev)
 	hw_tbg_data->num = NUM_TBG;
 	platform_set_drvdata(pdev, hw_tbg_data);
 
+<<<<<<< HEAD
 	parent = devm_clk_get(dev, NULL);
+=======
+	parent = clk_get(dev, NULL);
+>>>>>>> upstream/android-13
 	if (IS_ERR(parent)) {
 		dev_err(dev, "Could get the clock parent\n");
 		return -EINVAL;
 	}
 	parent_name = __clk_get_name(parent);
+<<<<<<< HEAD
+=======
+	clk_put(parent);
+>>>>>>> upstream/android-13
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	reg = devm_ioremap_resource(dev, res);

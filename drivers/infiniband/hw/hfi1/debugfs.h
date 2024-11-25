@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #ifndef _HFI1_DEBUGFS_H
 #define _HFI1_DEBUGFS_H
 /*
@@ -58,6 +59,17 @@ do { \
 	if (!ent) \
 		pr_warn("create of %s failed\n", __name); \
 } while (0)
+=======
+/* SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause */
+/*
+ * Copyright(c) 2015, 2016, 2018 Intel Corporation.
+ */
+
+#ifndef _HFI1_DEBUGFS_H
+#define _HFI1_DEBUGFS_H
+
+struct hfi1_ibdev;
+>>>>>>> upstream/android-13
 
 #define DEBUGFS_SEQ_FILE_OPS(name) \
 static const struct seq_operations _##name##_seq_ops = { \
@@ -89,8 +101,11 @@ static const struct file_operations _##name##_file_ops = { \
 	.release = seq_release \
 }
 
+<<<<<<< HEAD
 #define DEBUGFS_SEQ_FILE_CREATE(name, parent, data) \
 	DEBUGFS_FILE_CREATE(#name, parent, data, &_##name##_file_ops, 0444)
+=======
+>>>>>>> upstream/android-13
 
 ssize_t hfi1_seq_read(struct file *file, char __user *buf, size_t size,
 		      loff_t *ppos);

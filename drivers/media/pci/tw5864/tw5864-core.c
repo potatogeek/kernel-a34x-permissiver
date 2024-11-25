@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  TW5864 driver - core functions
  *
  *  Copyright (C) 2016 Bluecherry, LLC <maintainers@bluecherrydvr.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -74,7 +81,11 @@ module_param_array(video_nr, int, NULL, 0444);
 MODULE_PARM_DESC(video_nr, "video devices numbers array");
 
 /*
+<<<<<<< HEAD
  * Please add any new PCI IDs to: http://pci-ids.ucw.cz.  This keeps
+=======
+ * Please add any new PCI IDs to: https://pci-ids.ucw.cz.  This keeps
+>>>>>>> upstream/android-13
  * the PCI ID database up to date.  Note that the entries must be
  * added under vendor 0x1797 (Techwell Inc.) as subsystem IDs.
  */

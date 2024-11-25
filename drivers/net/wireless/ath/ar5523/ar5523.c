@@ -74,7 +74,11 @@ static void ar5523_read_reply(struct ar5523 *ar, struct ar5523_cmd_hdr *hdr,
 
 	if (cmd->odata) {
 		if (cmd->olen < olen) {
+<<<<<<< HEAD
 			ar5523_err(ar, "olen to small %d < %d\n",
+=======
+			ar5523_err(ar, "olen too small %d < %d\n",
+>>>>>>> upstream/android-13
 				   cmd->olen, olen);
 			cmd->olen = 0;
 			cmd->res = -EOVERFLOW;
@@ -153,6 +157,13 @@ static void ar5523_cmd_rx_cb(struct urb *urb)
 			ar5523_err(ar, "Invalid reply to WDCMSG_TARGET_START");
 			return;
 		}
+<<<<<<< HEAD
+=======
+		if (!cmd->odata) {
+			ar5523_err(ar, "Unexpected WDCMSG_TARGET_START reply");
+			return;
+		}
+>>>>>>> upstream/android-13
 		memcpy(cmd->odata, hdr + 1, sizeof(u32));
 		cmd->olen = sizeof(u32);
 		cmd->res = 0;

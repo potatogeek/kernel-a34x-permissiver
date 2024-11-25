@@ -541,6 +541,7 @@ static int picdev_slave_read(struct kvm_vcpu *vcpu, struct kvm_io_device *dev,
 			    addr, len, val);
 }
 
+<<<<<<< HEAD
 static int picdev_eclr_write(struct kvm_vcpu *vcpu, struct kvm_io_device *dev,
 			     gpa_t addr, int len, const void *val)
 {
@@ -552,6 +553,19 @@ static int picdev_eclr_read(struct kvm_vcpu *vcpu, struct kvm_io_device *dev,
 			    gpa_t addr, int len, void *val)
 {
 	return picdev_read(container_of(dev, struct kvm_pic, dev_eclr),
+=======
+static int picdev_elcr_write(struct kvm_vcpu *vcpu, struct kvm_io_device *dev,
+			     gpa_t addr, int len, const void *val)
+{
+	return picdev_write(container_of(dev, struct kvm_pic, dev_elcr),
+			    addr, len, val);
+}
+
+static int picdev_elcr_read(struct kvm_vcpu *vcpu, struct kvm_io_device *dev,
+			    gpa_t addr, int len, void *val)
+{
+	return picdev_read(container_of(dev, struct kvm_pic, dev_elcr),
+>>>>>>> upstream/android-13
 			    addr, len, val);
 }
 
@@ -577,9 +591,15 @@ static const struct kvm_io_device_ops picdev_slave_ops = {
 	.write    = picdev_slave_write,
 };
 
+<<<<<<< HEAD
 static const struct kvm_io_device_ops picdev_eclr_ops = {
 	.read     = picdev_eclr_read,
 	.write    = picdev_eclr_write,
+=======
+static const struct kvm_io_device_ops picdev_elcr_ops = {
+	.read     = picdev_elcr_read,
+	.write    = picdev_elcr_write,
+>>>>>>> upstream/android-13
 };
 
 int kvm_pic_init(struct kvm *kvm)
@@ -587,7 +607,11 @@ int kvm_pic_init(struct kvm *kvm)
 	struct kvm_pic *s;
 	int ret;
 
+<<<<<<< HEAD
 	s = kzalloc(sizeof(struct kvm_pic), GFP_KERNEL);
+=======
+	s = kzalloc(sizeof(struct kvm_pic), GFP_KERNEL_ACCOUNT);
+>>>>>>> upstream/android-13
 	if (!s)
 		return -ENOMEM;
 	spin_lock_init(&s->lock);
@@ -602,7 +626,11 @@ int kvm_pic_init(struct kvm *kvm)
 	 */
 	kvm_iodevice_init(&s->dev_master, &picdev_master_ops);
 	kvm_iodevice_init(&s->dev_slave, &picdev_slave_ops);
+<<<<<<< HEAD
 	kvm_iodevice_init(&s->dev_eclr, &picdev_eclr_ops);
+=======
+	kvm_iodevice_init(&s->dev_elcr, &picdev_elcr_ops);
+>>>>>>> upstream/android-13
 	mutex_lock(&kvm->slots_lock);
 	ret = kvm_io_bus_register_dev(kvm, KVM_PIO_BUS, 0x20, 2,
 				      &s->dev_master);
@@ -613,7 +641,11 @@ int kvm_pic_init(struct kvm *kvm)
 	if (ret < 0)
 		goto fail_unreg_2;
 
+<<<<<<< HEAD
 	ret = kvm_io_bus_register_dev(kvm, KVM_PIO_BUS, 0x4d0, 2, &s->dev_eclr);
+=======
+	ret = kvm_io_bus_register_dev(kvm, KVM_PIO_BUS, 0x4d0, 2, &s->dev_elcr);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		goto fail_unreg_1;
 
@@ -647,7 +679,11 @@ void kvm_pic_destroy(struct kvm *kvm)
 	mutex_lock(&kvm->slots_lock);
 	kvm_io_bus_unregister_dev(vpic->kvm, KVM_PIO_BUS, &vpic->dev_master);
 	kvm_io_bus_unregister_dev(vpic->kvm, KVM_PIO_BUS, &vpic->dev_slave);
+<<<<<<< HEAD
 	kvm_io_bus_unregister_dev(vpic->kvm, KVM_PIO_BUS, &vpic->dev_eclr);
+=======
+	kvm_io_bus_unregister_dev(vpic->kvm, KVM_PIO_BUS, &vpic->dev_elcr);
+>>>>>>> upstream/android-13
 	mutex_unlock(&kvm->slots_lock);
 
 	kvm->arch.vpic = NULL;

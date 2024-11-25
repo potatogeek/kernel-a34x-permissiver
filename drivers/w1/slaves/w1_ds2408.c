@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *	w1_ds2408.c - w1 family 29 (DS2408) driver
  *
  * Copyright (c) 2010 Jean-Francois Dagenais <dagenaisj@sonatest.com>
+<<<<<<< HEAD
  *
  * This source code is licensed under the GNU General Public License,
  * Version 2. See the file COPYING for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -138,14 +145,45 @@ static ssize_t status_control_read(struct file *filp, struct kobject *kobj,
 		W1_F29_REG_CONTROL_AND_STATUS, buf);
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_W1_SLAVE_DS2408_READBACK
+static bool optional_read_back_valid(struct w1_slave *sl, u8 expected)
+{
+	u8 w1_buf[3];
+
+	if (w1_reset_resume_command(sl->master))
+		return false;
+
+	w1_buf[0] = W1_F29_FUNC_READ_PIO_REGS;
+	w1_buf[1] = W1_F29_REG_OUTPUT_LATCH_STATE;
+	w1_buf[2] = 0;
+
+	w1_write_block(sl->master, w1_buf, 3);
+
+	return (w1_read_8(sl->master) == expected);
+}
+#else
+static bool optional_read_back_valid(struct w1_slave *sl, u8 expected)
+{
+	return true;
+}
+#endif
+
+>>>>>>> upstream/android-13
 static ssize_t output_write(struct file *filp, struct kobject *kobj,
 			    struct bin_attribute *bin_attr, char *buf,
 			    loff_t off, size_t count)
 {
 	struct w1_slave *sl = kobj_to_w1_slave(kobj);
 	u8 w1_buf[3];
+<<<<<<< HEAD
 	u8 readBack;
 	unsigned int retries = W1_F29_RETRIES;
+=======
+	unsigned int retries = W1_F29_RETRIES;
+	ssize_t bytes_written = -EIO;
+>>>>>>> upstream/android-13
 
 	if (count != 1 || off != 0)
 		return -EFAULT;
@@ -155,6 +193,7 @@ static ssize_t output_write(struct file *filp, struct kobject *kobj,
 	dev_dbg(&sl->dev, "mutex locked");
 
 	if (w1_reset_select_slave(sl))
+<<<<<<< HEAD
 		goto error;
 
 	while (retries--) {
@@ -203,6 +242,35 @@ error:
 	dev_dbg(&sl->dev, "mutex unlocked in error, retries:%d", retries);
 
 	return -EIO;
+=======
+		goto out;
+
+	do {
+		w1_buf[0] = W1_F29_FUNC_CHANN_ACCESS_WRITE;
+		w1_buf[1] = *buf;
+		w1_buf[2] = ~(*buf);
+
+		w1_write_block(sl->master, w1_buf, 3);
+
+		if (w1_read_8(sl->master) == W1_F29_SUCCESS_CONFIRM_BYTE &&
+		    optional_read_back_valid(sl, *buf)) {
+			bytes_written = 1;
+			goto out;
+		}
+
+		if (w1_reset_resume_command(sl->master))
+			goto out; /* unrecoverable error */
+		/* try again, the slave is ready for a command */
+	} while (--retries);
+
+out:
+	mutex_unlock(&sl->master->bus_mutex);
+
+	dev_dbg(&sl->dev, "%s, mutex unlocked retries:%d\n",
+		(bytes_written > 0) ? "succeeded" : "error", retries);
+
+	return bytes_written;
+>>>>>>> upstream/android-13
 }
 
 
@@ -336,7 +404,11 @@ static const struct attribute_group *w1_f29_groups[] = {
 	NULL,
 };
 
+<<<<<<< HEAD
 static struct w1_family_ops w1_f29_fops = {
+=======
+static const struct w1_family_ops w1_f29_fops = {
+>>>>>>> upstream/android-13
 	.add_slave      = w1_f29_disable_test_mode,
 	.groups		= w1_f29_groups,
 };

@@ -321,7 +321,10 @@ mptctl_do_taskmgmt(MPT_ADAPTER *ioc, u8 tm_type, u8 bus_id, u8 target_id)
 	int		 ii;
 	int		 retval;
 	unsigned long	 timeout;
+<<<<<<< HEAD
 	unsigned long	 time_count;
+=======
+>>>>>>> upstream/android-13
 	u16		 iocstatus;
 
 
@@ -383,7 +386,10 @@ mptctl_do_taskmgmt(MPT_ADAPTER *ioc, u8 tm_type, u8 bus_id, u8 target_id)
 		ioc->name, tm_type, timeout));
 
 	INITIALIZE_MGMT_STATUS(ioc->taskmgmt_cmds.status)
+<<<<<<< HEAD
 	time_count = jiffies;
+=======
+>>>>>>> upstream/android-13
 	if ((ioc->facts.IOCCapabilities & MPI_IOCFACTS_CAPABILITY_HIGH_PRI_Q) &&
 	    (ioc->facts.MsgVersion >= MPI_VERSION_01_05))
 		mpt_put_msg_frame_hi_pri(mptctl_taskmgmt_id, ioc, mf);
@@ -565,7 +571,11 @@ mptctl_event_process(MPT_ADAPTER *ioc, EventNotificationReply_t *pEvReply)
 	 * TODO - this define is not in MPI spec yet,
 	 * but they plan to set it to 0x21
 	 */
+<<<<<<< HEAD
 	 if (event == 0x21 ) {
+=======
+	if (event == 0x21) {
+>>>>>>> upstream/android-13
 		ioc->aen_event_read_flag=1;
 		dctlprintk(ioc, printk(MYIOC_s_DEBUG_FMT "Raised SIGIO to application\n",
 		    ioc->name));
@@ -1369,7 +1379,10 @@ mptctl_gettargetinfo (MPT_ADAPTER *ioc, unsigned long arg)
 	int			lun;
 	int			maxWordsLeft;
 	int			numBytes;
+<<<<<<< HEAD
 	u8			port;
+=======
+>>>>>>> upstream/android-13
 	struct scsi_device 	*sdev;
 
 	if (copy_from_user(&karg, uarg, sizeof(struct mpt_ioctl_targetinfo))) {
@@ -1381,6 +1394,7 @@ mptctl_gettargetinfo (MPT_ADAPTER *ioc, unsigned long arg)
 
 	dctlprintk(ioc, printk(MYIOC_s_DEBUG_FMT "mptctl_gettargetinfo called.\n",
 	    ioc->name));
+<<<<<<< HEAD
 	/* Get the port number and set the maximum number of bytes
 	 * in the returned structure.
 	 * Ignore the port setting.
@@ -1388,6 +1402,10 @@ mptctl_gettargetinfo (MPT_ADAPTER *ioc, unsigned long arg)
 	numBytes = karg.hdr.maxDataSize - sizeof(mpt_ioctl_header);
 	maxWordsLeft = numBytes/sizeof(int);
 	port = karg.hdr.port;
+=======
+	numBytes = karg.hdr.maxDataSize - sizeof(mpt_ioctl_header);
+	maxWordsLeft = numBytes/sizeof(int);
+>>>>>>> upstream/android-13
 
 	if (maxWordsLeft <= 0) {
 		printk(MYIOC_s_ERR_FMT "%s@%d::mptctl_gettargetinfo() - no memory available!\n",
@@ -2593,7 +2611,11 @@ mptctl_hp_targetinfo(MPT_ADAPTER *ioc, unsigned long arg)
        /* Get the data transfer speeds
         */
 	data_sz = ioc->spi_data.sdp0length * 4;
+<<<<<<< HEAD
 	pg0_alloc = (SCSIDevicePage0_t *) pci_alloc_consistent(ioc->pcidev, data_sz, &page_dma);
+=======
+	pg0_alloc = pci_alloc_consistent(ioc->pcidev, data_sz, &page_dma);
+>>>>>>> upstream/android-13
 	if (pg0_alloc) {
 		hdr.PageVersion = ioc->spi_data.sdp0version;
 		hdr.PageLength = data_sz;
@@ -2657,8 +2679,12 @@ mptctl_hp_targetinfo(MPT_ADAPTER *ioc, unsigned long arg)
 		/* Issue the second config page request */
 		cfg.action = MPI_CONFIG_ACTION_PAGE_READ_CURRENT;
 		data_sz = (int) cfg.cfghdr.hdr->PageLength * 4;
+<<<<<<< HEAD
 		pg3_alloc = (SCSIDevicePage3_t *) pci_alloc_consistent(
 							ioc->pcidev, data_sz, &page_dma);
+=======
+		pg3_alloc = pci_alloc_consistent(ioc->pcidev, data_sz, &page_dma);
+>>>>>>> upstream/android-13
 		if (pg3_alloc) {
 			cfg.physAddr = page_dma;
 			cfg.pageAddr = (karg.hdr.channel << 8) | karg.hdr.id;

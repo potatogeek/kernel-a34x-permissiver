@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/drivers/mtd/maps/pci.c
  *
  *  Copyright (C) 2001 Russell King, All rights reserved.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Generic PCI memory map driver.  We support the following boards:
  *  - Intel IQ80310 ATU.
  *  - Intel EBSA285 (blank rom programming mode). Tested working 27/09/2001
@@ -93,11 +100,19 @@ intel_iq80310_init(struct pci_dev *dev, struct map_pci_info *map)
 	u32 win_base;
 
 	map->map.bankwidth = 1;
+<<<<<<< HEAD
 	map->map.read = mtd_pci_read8,
 	map->map.write = mtd_pci_write8,
 
 	map->map.size     = 0x00800000;
 	map->base         = ioremap_nocache(pci_resource_start(dev, 0),
+=======
+	map->map.read = mtd_pci_read8;
+	map->map.write = mtd_pci_write8;
+
+	map->map.size     = 0x00800000;
+	map->base         = ioremap(pci_resource_start(dev, 0),
+>>>>>>> upstream/android-13
 					    pci_resource_len(dev, 0));
 
 	if (!map->base)
@@ -188,10 +203,17 @@ intel_dc21285_init(struct pci_dev *dev, struct map_pci_info *map)
 		return -ENXIO;
 
 	map->map.bankwidth = 4;
+<<<<<<< HEAD
 	map->map.read = mtd_pci_read32,
 	map->map.write = mtd_pci_write32,
 	map->map.size     = len;
 	map->base         = ioremap_nocache(base, len);
+=======
+	map->map.read = mtd_pci_read32;
+	map->map.write = mtd_pci_write32;
+	map->map.size     = len;
+	map->base         = ioremap(base, len);
+>>>>>>> upstream/android-13
 
 	if (!map->base)
 		return -ENOMEM;

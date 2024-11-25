@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * wakeirq.c - Device wakeirq helper functions
  *
@@ -11,6 +12,10 @@
  * GNU General Public License for more details.
  */
 
+=======
+// SPDX-License-Identifier: GPL-2.0
+/* Device wakeirq helper functions */
+>>>>>>> upstream/android-13
 #include <linux/device.h>
 #include <linux/interrupt.h>
 #include <linux/irq.h>
@@ -23,6 +28,7 @@
 /**
  * dev_pm_attach_wake_irq - Attach device interrupt as a wake IRQ
  * @dev: Device entry
+<<<<<<< HEAD
  * @irq: Device wake-up capable interrupt
  * @wirq: Wake irq specific data
  *
@@ -31,6 +37,13 @@
  */
 static int dev_pm_attach_wake_irq(struct device *dev, int irq,
 				  struct wake_irq *wirq)
+=======
+ * @wirq: Wake irq specific data
+ *
+ * Internal function to attach a dedicated wake-up interrupt as a wake IRQ.
+ */
+static int dev_pm_attach_wake_irq(struct device *dev, struct wake_irq *wirq)
+>>>>>>> upstream/android-13
 {
 	unsigned long flags;
 
@@ -76,7 +89,11 @@ int dev_pm_set_wake_irq(struct device *dev, int irq)
 	wirq->dev = dev;
 	wirq->irq = irq;
 
+<<<<<<< HEAD
 	err = dev_pm_attach_wake_irq(dev, irq, wirq);
+=======
+	err = dev_pm_attach_wake_irq(dev, wirq);
+>>>>>>> upstream/android-13
 	if (err)
 		kfree(wirq);
 
@@ -193,7 +210,10 @@ int dev_pm_set_dedicated_wake_irq(struct device *dev, int irq)
 
 	wirq->dev = dev;
 	wirq->irq = irq;
+<<<<<<< HEAD
 	irq_set_status_flags(irq, IRQ_NOAUTOEN);
+=======
+>>>>>>> upstream/android-13
 
 	/* Prevent deferred spurious wakeirqs with disable_irq_nosync() */
 	irq_set_status_flags(irq, IRQ_DISABLE_UNLAZY);
@@ -203,11 +223,20 @@ int dev_pm_set_dedicated_wake_irq(struct device *dev, int irq)
 	 * so we use a threaded irq.
 	 */
 	err = request_threaded_irq(irq, NULL, handle_threaded_wake_irq,
+<<<<<<< HEAD
 				   IRQF_ONESHOT, wirq->name, wirq);
 	if (err)
 		goto err_free_name;
 
 	err = dev_pm_attach_wake_irq(dev, irq, wirq);
+=======
+				   IRQF_ONESHOT | IRQF_NO_AUTOEN,
+				   wirq->name, wirq);
+	if (err)
+		goto err_free_name;
+
+	err = dev_pm_attach_wake_irq(dev, wirq);
+>>>>>>> upstream/android-13
 	if (err)
 		goto err_free_irq;
 
@@ -283,7 +312,11 @@ void dev_pm_enable_wake_irq_check(struct device *dev,
 {
 	struct wake_irq *wirq = dev->power.wakeirq;
 
+<<<<<<< HEAD
 	if (!wirq || !((wirq->status & WAKE_IRQ_DEDICATED_MASK)))
+=======
+	if (!wirq || !(wirq->status & WAKE_IRQ_DEDICATED_MASK))
+>>>>>>> upstream/android-13
 		return;
 
 	if (likely(wirq->status & WAKE_IRQ_DEDICATED_MANAGED)) {
@@ -310,7 +343,11 @@ void dev_pm_disable_wake_irq_check(struct device *dev)
 {
 	struct wake_irq *wirq = dev->power.wakeirq;
 
+<<<<<<< HEAD
 	if (!wirq || !((wirq->status & WAKE_IRQ_DEDICATED_MASK)))
+=======
+	if (!wirq || !(wirq->status & WAKE_IRQ_DEDICATED_MASK))
+>>>>>>> upstream/android-13
 		return;
 
 	if (wirq->status & WAKE_IRQ_DEDICATED_MANAGED)

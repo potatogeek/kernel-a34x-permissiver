@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2012 Alexandre Pereira da Silva <aletes.xgr@gmail.com>
  *
@@ -5,6 +6,11 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2012 Alexandre Pereira da Silva <aletes.xgr@gmail.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -102,7 +108,10 @@ static const struct pwm_ops lpc32xx_pwm_ops = {
 static int lpc32xx_pwm_probe(struct platform_device *pdev)
 {
 	struct lpc32xx_pwm_chip *lpc32xx;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 	u32 val;
 
@@ -110,8 +119,12 @@ static int lpc32xx_pwm_probe(struct platform_device *pdev)
 	if (!lpc32xx)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	lpc32xx->base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	lpc32xx->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(lpc32xx->base))
 		return PTR_ERR(lpc32xx->base);
 
@@ -122,14 +135,25 @@ static int lpc32xx_pwm_probe(struct platform_device *pdev)
 	lpc32xx->chip.dev = &pdev->dev;
 	lpc32xx->chip.ops = &lpc32xx_pwm_ops;
 	lpc32xx->chip.npwm = 1;
+<<<<<<< HEAD
 	lpc32xx->chip.base = -1;
 
 	ret = pwmchip_add(&lpc32xx->chip);
+=======
+
+	/* If PWM is disabled, configure the output to the default value */
+	val = readl(lpc32xx->base + (lpc32xx->chip.pwms[0].hwpwm << 2));
+	val &= ~PWM_PIN_LEVEL;
+	writel(val, lpc32xx->base + (lpc32xx->chip.pwms[0].hwpwm << 2));
+
+	ret = devm_pwmchip_add(&pdev->dev, &lpc32xx->chip);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(&pdev->dev, "failed to add PWM chip, error %d\n", ret);
 		return ret;
 	}
 
+<<<<<<< HEAD
 	/* When PWM is disable, configure the output to the default value */
 	val = readl(lpc32xx->base + (lpc32xx->chip.pwms[0].hwpwm << 2));
 	val &= ~PWM_PIN_LEVEL;
@@ -151,6 +175,11 @@ static int lpc32xx_pwm_remove(struct platform_device *pdev)
 	return pwmchip_remove(&lpc32xx->chip);
 }
 
+=======
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static const struct of_device_id lpc32xx_pwm_dt_ids[] = {
 	{ .compatible = "nxp,lpc3220-pwm", },
 	{ /* sentinel */ }
@@ -163,7 +192,10 @@ static struct platform_driver lpc32xx_pwm_driver = {
 		.of_match_table = lpc32xx_pwm_dt_ids,
 	},
 	.probe = lpc32xx_pwm_probe,
+<<<<<<< HEAD
 	.remove = lpc32xx_pwm_remove,
+=======
+>>>>>>> upstream/android-13
 };
 module_platform_driver(lpc32xx_pwm_driver);
 

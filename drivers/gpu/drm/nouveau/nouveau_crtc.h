@@ -27,6 +27,11 @@
 #ifndef __NOUVEAU_CRTC_H__
 #define __NOUVEAU_CRTC_H__
 
+<<<<<<< HEAD
+=======
+#include <drm/drm_crtc.h>
+
+>>>>>>> upstream/android-13
 #include <nvif/notify.h>
 
 struct nouveau_crtc {

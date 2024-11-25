@@ -2,7 +2,10 @@
 #include <linux/bitops.h>
 #include <linux/serial_core.h>
 #include <linux/io.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+>>>>>>> upstream/android-13
 
 #define SCI_MAJOR		204
 #define SCI_MINOR_START		8
@@ -32,6 +35,10 @@ enum {
 	SCCKS,				/* BRG Clock Select Register */
 	HSRTRGR,			/* Rx FIFO Data Count Trigger Register */
 	HSTTRGR,			/* Tx FIFO Data Count Trigger Register */
+<<<<<<< HEAD
+=======
+	SEMR,				/* Serial extended mode register */
+>>>>>>> upstream/android-13
 
 	SCIx_NR_REGS,
 };

@@ -105,6 +105,18 @@ pmu_load(struct nv50_devinit *init, u8 type, bool post,
 	return pmu_exec(init, pmu.init_addr_pmu), 0;
 }
 
+<<<<<<< HEAD
+=======
+void
+gm200_devinit_preos(struct nv50_devinit *init, bool post)
+{
+	/* Optional: Execute PRE_OS application on PMU, which should at
+	 * least take care of fans until a full PMU has been loaded.
+	 */
+	pmu_load(init, 0x01, post, NULL, NULL);
+}
+
+>>>>>>> upstream/android-13
 int
 gm200_devinit_post(struct nvkm_devinit *base, bool post)
 {
@@ -156,10 +168,14 @@ gm200_devinit_post(struct nvkm_devinit *base, bool post)
 			return -ETIMEDOUT;
 	}
 
+<<<<<<< HEAD
 	/* Optional: Execute PRE_OS application on PMU, which should at
 	 * least take care of fans until a full PMU has been loaded.
 	 */
 	pmu_load(init, 0x01, post, NULL, NULL);
+=======
+	gm200_devinit_preos(init, post);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -173,8 +189,15 @@ gm200_devinit = {
 };
 
 int
+<<<<<<< HEAD
 gm200_devinit_new(struct nvkm_device *device, int index,
 		struct nvkm_devinit **pinit)
 {
 	return nv50_devinit_new_(&gm200_devinit, device, index, pinit);
+=======
+gm200_devinit_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+		  struct nvkm_devinit **pinit)
+{
+	return nv50_devinit_new_(&gm200_devinit, device, type, inst, pinit);
+>>>>>>> upstream/android-13
 }

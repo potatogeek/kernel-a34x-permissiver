@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Unified UUID/GUID definition
  *
  * Copyright (C) 2009, 2016 Intel Corp.
  *	Huang Ying <ying.huang@intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -48,6 +55,19 @@ void generate_random_uuid(unsigned char uuid[16])
 }
 EXPORT_SYMBOL(generate_random_uuid);
 
+<<<<<<< HEAD
+=======
+void generate_random_guid(unsigned char guid[16])
+{
+	get_random_bytes(guid, 16);
+	/* Set GUID version to 4 --- truly random generation */
+	guid[7] = (guid[7] & 0x0F) | 0x40;
+	/* Set the GUID variant to DCE */
+	guid[8] = (guid[8] & 0x3F) | 0x80;
+}
+EXPORT_SYMBOL(generate_random_guid);
+
+>>>>>>> upstream/android-13
 static void __uuid_gen_common(__u8 b[16])
 {
 	prandom_bytes(b, 16);

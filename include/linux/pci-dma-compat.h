@@ -24,7 +24,11 @@ static inline void *
 pci_zalloc_consistent(struct pci_dev *hwdev, size_t size,
 		      dma_addr_t *dma_handle)
 {
+<<<<<<< HEAD
 	return dma_zalloc_coherent(&hwdev->dev, size, dma_handle, GFP_ATOMIC);
+=======
+	return dma_alloc_coherent(&hwdev->dev, size, dma_handle, GFP_ATOMIC);
+>>>>>>> upstream/android-13
 }
 
 static inline void
@@ -119,6 +123,7 @@ static inline int pci_set_consistent_dma_mask(struct pci_dev *dev, u64 mask)
 {
 	return dma_set_coherent_mask(&dev->dev, mask);
 }
+<<<<<<< HEAD
 
 static inline int pci_set_dma_max_seg_size(struct pci_dev *dev,
 					   unsigned int size)
@@ -131,17 +136,22 @@ static inline int pci_set_dma_seg_boundary(struct pci_dev *dev,
 {
 	return dma_set_seg_boundary(&dev->dev, mask);
 }
+=======
+>>>>>>> upstream/android-13
 #else
 static inline int pci_set_dma_mask(struct pci_dev *dev, u64 mask)
 { return -EIO; }
 static inline int pci_set_consistent_dma_mask(struct pci_dev *dev, u64 mask)
 { return -EIO; }
+<<<<<<< HEAD
 static inline int pci_set_dma_max_seg_size(struct pci_dev *dev,
 					   unsigned int size)
 { return -EIO; }
 static inline int pci_set_dma_seg_boundary(struct pci_dev *dev,
 					   unsigned long mask)
 { return -EIO; }
+=======
+>>>>>>> upstream/android-13
 #endif
 
 #endif

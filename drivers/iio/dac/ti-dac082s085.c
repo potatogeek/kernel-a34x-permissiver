@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ti-dac082s085.c - Texas Instruments 8/10/12-bit 2/4-channel DAC driver
  *
  * Copyright (C) 2017 KUNBUS GmbH
  *
+<<<<<<< HEAD
  * http://www.ti.com/lit/ds/symlink/dac082s085.pdf
  * http://www.ti.com/lit/ds/symlink/dac102s085.pdf
  * http://www.ti.com/lit/ds/symlink/dac122s085.pdf
@@ -13,10 +18,22 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (version 2) as
  * published by the Free Software Foundation.
+=======
+ * https://www.ti.com/lit/ds/symlink/dac082s085.pdf
+ * https://www.ti.com/lit/ds/symlink/dac102s085.pdf
+ * https://www.ti.com/lit/ds/symlink/dac122s085.pdf
+ * https://www.ti.com/lit/ds/symlink/dac084s085.pdf
+ * https://www.ti.com/lit/ds/symlink/dac104s085.pdf
+ * https://www.ti.com/lit/ds/symlink/dac124s085.pdf
+>>>>>>> upstream/android-13
  */
 
 #include <linux/iio/iio.h>
 #include <linux/module.h>
+<<<<<<< HEAD
+=======
+#include <linux/mod_devicetable.h>
+>>>>>>> upstream/android-13
 #include <linux/regulator/consumer.h>
 #include <linux/spi/spi.h>
 
@@ -123,7 +140,11 @@ static ssize_t ti_dac_read_powerdown(struct iio_dev *indio_dev,
 {
 	struct ti_dac_chip *ti_dac = iio_priv(indio_dev);
 
+<<<<<<< HEAD
 	return sprintf(buf, "%d\n", ti_dac->powerdown);
+=======
+	return sysfs_emit(buf, "%d\n", ti_dac->powerdown);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t ti_dac_write_powerdown(struct iio_dev *indio_dev,
@@ -271,7 +292,10 @@ static int ti_dac_probe(struct spi_device *spi)
 	if (!indio_dev)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->info = &ti_dac_info;
 	indio_dev->name = spi->modalias;
 	indio_dev->modes = INDIO_DIRECT_MODE;
@@ -328,7 +352,10 @@ static int ti_dac_remove(struct spi_device *spi)
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF
+=======
+>>>>>>> upstream/android-13
 static const struct of_device_id ti_dac_of_id[] = {
 	{ .compatible = "ti,dac082s085" },
 	{ .compatible = "ti,dac102s085" },
@@ -339,7 +366,10 @@ static const struct of_device_id ti_dac_of_id[] = {
 	{ }
 };
 MODULE_DEVICE_TABLE(of, ti_dac_of_id);
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static const struct spi_device_id ti_dac_spi_id[] = {
 	{ "dac082s085", dual_8bit  },
@@ -355,7 +385,11 @@ MODULE_DEVICE_TABLE(spi, ti_dac_spi_id);
 static struct spi_driver ti_dac_driver = {
 	.driver = {
 		.name		= "ti-dac082s085",
+<<<<<<< HEAD
 		.of_match_table	= of_match_ptr(ti_dac_of_id),
+=======
+		.of_match_table	= ti_dac_of_id,
+>>>>>>> upstream/android-13
 	},
 	.probe	  = ti_dac_probe,
 	.remove   = ti_dac_remove,

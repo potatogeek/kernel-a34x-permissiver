@@ -34,6 +34,7 @@
 
 clockgen: global-utilities@e1000 {
 	compatible = "fsl,qoriq-clockgen-2.0";
+<<<<<<< HEAD
 	ranges = <0x0 0xe1000 0x1000>;
 	reg = <0xe1000 0x1000>;
 	#address-cells = <1>;
@@ -66,4 +67,8 @@ clockgen: global-utilities@e1000 {
 		clocks = <&sysclk>;
 		clock-output-names = "platform-pll", "platform-pll-div2";
 	};
+=======
+	reg = <0xe1000 0x1000>;
+	#clock-cells = <2>;
+>>>>>>> upstream/android-13
 };

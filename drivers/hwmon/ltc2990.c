@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver for Linear Technology LTC2990 power monitor
  *
  * Copyright (C) 2014 Topic Embedded Products
  * Author: Mike Looijmans <mike.looijmans@topic.nl>
+<<<<<<< HEAD
  *
  * License: GPLv2
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
@@ -14,7 +21,11 @@
 #include <linux/i2c.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/of.h>
+=======
+#include <linux/property.h>
+>>>>>>> upstream/android-13
 
 #define LTC2990_STATUS	0x00
 #define LTC2990_CONTROL	0x01
@@ -136,7 +147,11 @@ static int ltc2990_get_value(struct i2c_client *i2c, int index, int *result)
 	return 0;
 }
 
+<<<<<<< HEAD
 static ssize_t ltc2990_show_value(struct device *dev,
+=======
+static ssize_t ltc2990_value_show(struct device *dev,
+>>>>>>> upstream/android-13
 				  struct device_attribute *da, char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
@@ -148,13 +163,21 @@ static ssize_t ltc2990_show_value(struct device *dev,
 	if (unlikely(ret < 0))
 		return ret;
 
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%d\n", value);
+=======
+	return sysfs_emit(buf, "%d\n", value);
+>>>>>>> upstream/android-13
 }
 
 static umode_t ltc2990_attrs_visible(struct kobject *kobj,
 				     struct attribute *a, int n)
 {
+<<<<<<< HEAD
 	struct device *dev = container_of(kobj, struct device, kobj);
+=======
+	struct device *dev = kobj_to_dev(kobj);
+>>>>>>> upstream/android-13
 	struct ltc2990_data *data = dev_get_drvdata(dev);
 	struct device_attribute *da =
 			container_of(a, struct device_attribute, attr);
@@ -170,6 +193,7 @@ static umode_t ltc2990_attrs_visible(struct kobject *kobj,
 	return 0;
 }
 
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(temp1_input, S_IRUGO, ltc2990_show_value, NULL,
 			  LTC2990_TEMP1);
 static SENSOR_DEVICE_ATTR(temp2_input, S_IRUGO, ltc2990_show_value, NULL,
@@ -190,6 +214,18 @@ static SENSOR_DEVICE_ATTR(in3_input, S_IRUGO, ltc2990_show_value, NULL,
 			  LTC2990_IN3);
 static SENSOR_DEVICE_ATTR(in4_input, S_IRUGO, ltc2990_show_value, NULL,
 			  LTC2990_IN4);
+=======
+static SENSOR_DEVICE_ATTR_RO(temp1_input, ltc2990_value, LTC2990_TEMP1);
+static SENSOR_DEVICE_ATTR_RO(temp2_input, ltc2990_value, LTC2990_TEMP2);
+static SENSOR_DEVICE_ATTR_RO(temp3_input, ltc2990_value, LTC2990_TEMP3);
+static SENSOR_DEVICE_ATTR_RO(curr1_input, ltc2990_value, LTC2990_CURR1);
+static SENSOR_DEVICE_ATTR_RO(curr2_input, ltc2990_value, LTC2990_CURR2);
+static SENSOR_DEVICE_ATTR_RO(in0_input, ltc2990_value, LTC2990_IN0);
+static SENSOR_DEVICE_ATTR_RO(in1_input, ltc2990_value, LTC2990_IN1);
+static SENSOR_DEVICE_ATTR_RO(in2_input, ltc2990_value, LTC2990_IN2);
+static SENSOR_DEVICE_ATTR_RO(in3_input, ltc2990_value, LTC2990_IN3);
+static SENSOR_DEVICE_ATTR_RO(in4_input, ltc2990_value, LTC2990_IN4);
+>>>>>>> upstream/android-13
 
 static struct attribute *ltc2990_attrs[] = {
 	&sensor_dev_attr_temp1_input.dev_attr.attr,
@@ -211,13 +247,20 @@ static const struct attribute_group ltc2990_group = {
 };
 __ATTRIBUTE_GROUPS(ltc2990);
 
+<<<<<<< HEAD
 static int ltc2990_i2c_probe(struct i2c_client *i2c,
 			     const struct i2c_device_id *id)
+=======
+static int ltc2990_i2c_probe(struct i2c_client *i2c)
+>>>>>>> upstream/android-13
 {
 	int ret;
 	struct device *hwmon_dev;
 	struct ltc2990_data *data;
+<<<<<<< HEAD
 	struct device_node *of_node = i2c->dev.of_node;
+=======
+>>>>>>> upstream/android-13
 
 	if (!i2c_check_functionality(i2c->adapter, I2C_FUNC_SMBUS_BYTE_DATA |
 				     I2C_FUNC_SMBUS_WORD_DATA))
@@ -229,9 +272,16 @@ static int ltc2990_i2c_probe(struct i2c_client *i2c,
 
 	data->i2c = i2c;
 
+<<<<<<< HEAD
 	if (of_node) {
 		ret = of_property_read_u32_array(of_node, "lltc,meas-mode",
 						 data->mode, 2);
+=======
+	if (dev_fwnode(&i2c->dev)) {
+		ret = device_property_read_u32_array(&i2c->dev,
+						     "lltc,meas-mode",
+						     data->mode, 2);
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			return ret;
 
@@ -280,7 +330,11 @@ static struct i2c_driver ltc2990_i2c_driver = {
 	.driver = {
 		.name = "ltc2990",
 	},
+<<<<<<< HEAD
 	.probe    = ltc2990_i2c_probe,
+=======
+	.probe_new = ltc2990_i2c_probe,
+>>>>>>> upstream/android-13
 	.id_table = ltc2990_i2c_id,
 };
 

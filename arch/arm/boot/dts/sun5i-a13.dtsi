@@ -42,17 +42,25 @@
  *     OTHER DEALINGS IN THE SOFTWARE.
  */
 
+<<<<<<< HEAD
 #include "skeleton.dtsi"
 
+=======
+>>>>>>> upstream/android-13
 #include "sun5i.dtsi"
 
 #include <dt-bindings/thermal/thermal.h>
 
 / {
+<<<<<<< HEAD
 	interrupt-parent = <&intc>;
 
 	thermal-zones {
 		cpu_thermal {
+=======
+	thermal-zones {
+		cpu-thermal {
+>>>>>>> upstream/android-13
 			/* milliseconds */
 			polling-delay-passive = <250>;
 			polling-delay = <1000>;
@@ -88,7 +96,11 @@
 		allwinner,pipelines = <&fe0>;
 	};
 
+<<<<<<< HEAD
 	soc@1c00000 {
+=======
+	soc {
+>>>>>>> upstream/android-13
 		pwm: pwm@1c20e00 {
 			compatible = "allwinner,sun5i-a13-pwm";
 			reg = <0x01c20e00 0xc>;

@@ -165,8 +165,13 @@ int mls_level_isvalid(struct policydb *p, struct mls_level *l)
 
 	if (!l->sens || l->sens > p->p_levels.nprim)
 		return 0;
+<<<<<<< HEAD
 	levdatum = hashtab_search(p->p_levels.table,
 				  sym_name(p, SYM_LEVELS, l->sens - 1));
+=======
+	levdatum = symtab_search(&p->p_levels,
+				 sym_name(p, SYM_LEVELS, l->sens - 1));
+>>>>>>> upstream/android-13
 	if (!levdatum)
 		return 0;
 
@@ -293,7 +298,11 @@ int mls_context_to_sid(struct policydb *pol,
 			*(next_cat++) = '\0';
 
 		/* Parse sensitivity. */
+<<<<<<< HEAD
 		levdatum = hashtab_search(pol->p_levels.table, sensitivity);
+=======
+		levdatum = symtab_search(&pol->p_levels, sensitivity);
+>>>>>>> upstream/android-13
 		if (!levdatum)
 			return -EINVAL;
 		context->range.level[l].sens = levdatum->level->sens;
@@ -312,7 +321,11 @@ int mls_context_to_sid(struct policydb *pol,
 				*rngptr++ = '\0';
 			}
 
+<<<<<<< HEAD
 			catdatum = hashtab_search(pol->p_cats.table, cur_cat);
+=======
+			catdatum = symtab_search(&pol->p_cats, cur_cat);
+>>>>>>> upstream/android-13
 			if (!catdatum)
 				return -EINVAL;
 
@@ -325,7 +338,11 @@ int mls_context_to_sid(struct policydb *pol,
 			if (rngptr == NULL)
 				continue;
 
+<<<<<<< HEAD
 			rngdatum = hashtab_search(pol->p_cats.table, rngptr);
+=======
+			rngdatum = symtab_search(&pol->p_cats, rngptr);
+>>>>>>> upstream/android-13
 			if (!rngdatum)
 				return -EINVAL;
 
@@ -458,9 +475,16 @@ int mls_convert_context(struct policydb *oldp,
 		return 0;
 
 	for (l = 0; l < 2; l++) {
+<<<<<<< HEAD
 		levdatum = hashtab_search(newp->p_levels.table,
 					  sym_name(oldp, SYM_LEVELS,
 						   oldc->range.level[l].sens - 1));
+=======
+		char *name = sym_name(oldp, SYM_LEVELS,
+				      oldc->range.level[l].sens - 1);
+
+		levdatum = symtab_search(&newp->p_levels, name);
+>>>>>>> upstream/android-13
 
 		if (!levdatum)
 			return -EINVAL;
@@ -470,8 +494,13 @@ int mls_convert_context(struct policydb *oldp,
 					      node, i) {
 			int rc;
 
+<<<<<<< HEAD
 			catdatum = hashtab_search(newp->p_cats.table,
 						  sym_name(oldp, SYM_CATS, i));
+=======
+			catdatum = symtab_search(&newp->p_cats,
+						 sym_name(oldp, SYM_CATS, i));
+>>>>>>> upstream/android-13
 			if (!catdatum)
 				return -EINVAL;
 			rc = ebitmap_set_bit(&newc->range.level[l].cat,
@@ -506,7 +535,11 @@ int mls_compute_sid(struct policydb *p,
 		rtr.source_type = scontext->type;
 		rtr.target_type = tcontext->type;
 		rtr.target_class = tclass;
+<<<<<<< HEAD
 		r = hashtab_search(p->range_tr, &rtr);
+=======
+		r = policydb_rangetr_search(p, &rtr);
+>>>>>>> upstream/android-13
 		if (r)
 			return mls_range_set(newcontext, r);
 
@@ -529,11 +562,22 @@ int mls_compute_sid(struct policydb *p,
 			return mls_context_cpy_high(newcontext, tcontext);
 		case DEFAULT_TARGET_LOW_HIGH:
 			return mls_context_cpy(newcontext, tcontext);
+<<<<<<< HEAD
 		}
 
 		/* Fallthrough */
 	case AVTAB_CHANGE:
 		if ((tclass == p->process_class) || (sock == true))
+=======
+		case DEFAULT_GLBLUB:
+			return mls_context_glblub(newcontext,
+						  scontext, tcontext);
+		}
+
+		fallthrough;
+	case AVTAB_CHANGE:
+		if ((tclass == p->process_class) || sock)
+>>>>>>> upstream/android-13
 			/* Use the process MLS attributes. */
 			return mls_context_cpy(newcontext, scontext);
 		else
@@ -542,8 +586,11 @@ int mls_compute_sid(struct policydb *p,
 	case AVTAB_MEMBER:
 		/* Use the process effective MLS attributes. */
 		return mls_context_cpy_low(newcontext, scontext);
+<<<<<<< HEAD
 
 	/* fall through */
+=======
+>>>>>>> upstream/android-13
 	}
 	return -EINVAL;
 }

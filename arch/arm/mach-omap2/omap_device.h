@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * omap_device headers
  *
@@ -9,10 +13,13 @@
  * Pandita, Sakari Poussa, Anand Sawant, Santosh Shilimkar, Richard
  * Woodruff
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * This type of functionality should be implemented as a proper
  * omap_bus/omap_device in Linux.
  *
@@ -71,10 +78,13 @@ int omap_device_idle(struct platform_device *pdev);
 
 /* Core code interface */
 
+<<<<<<< HEAD
 struct platform_device *omap_device_build(const char *pdev_name, int pdev_id,
 					  struct omap_hwmod *oh, void *pdata,
 					  int pdata_len);
 
+=======
+>>>>>>> upstream/android-13
 struct omap_device *omap_device_alloc(struct platform_device *pdev,
 				      struct omap_hwmod **ohs, int oh_cnt);
 void omap_device_delete(struct omap_device *od);

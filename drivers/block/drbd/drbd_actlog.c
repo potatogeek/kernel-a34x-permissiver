@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
    drbd_actlog.c
 
@@ -7,6 +11,7 @@
    Copyright (C) 2003-2008, Philipp Reisner <philipp.reisner@linbit.com>.
    Copyright (C) 2003-2008, Lars Ellenberg <lars.ellenberg@linbit.com>.
 
+<<<<<<< HEAD
    drbd is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2, or (at your option)
@@ -20,6 +25,8 @@
    You should have received a copy of the GNU General Public License
    along with drbd; see the file COPYING.  If not, write to
    the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
 
  */
 
@@ -150,7 +157,11 @@ static int _drbd_md_sync_page_io(struct drbd_device *device,
 		op_flags |= REQ_FUA | REQ_PREFLUSH;
 	op_flags |= REQ_SYNC;
 
+<<<<<<< HEAD
 	bio = bio_alloc_drbd(GFP_NOIO);
+=======
+	bio = bio_alloc_bioset(GFP_NOIO, 1, &drbd_md_io_bio_set);
+>>>>>>> upstream/android-13
 	bio_set_dev(bio, bdev->md_bdev);
 	bio->bi_iter.bi_sector = sector;
 	err = -EIO;
@@ -877,7 +888,11 @@ int __drbd_change_sync(struct drbd_device *device, sector_t sector, int size,
 	if (!get_ldev(device))
 		return 0; /* no disk, no metadata, no bitmap to manipulate bits in */
 
+<<<<<<< HEAD
 	nr_sectors = drbd_get_capacity(device->this_bdev);
+=======
+	nr_sectors = get_capacity(device->vdisk);
+>>>>>>> upstream/android-13
 	esector = sector + (size >> 9) - 1;
 
 	if (!expect(sector < nr_sectors))

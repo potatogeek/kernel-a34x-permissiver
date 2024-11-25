@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * QNX4 file system, Linux implementation.
  *
@@ -28,14 +32,22 @@
 static const struct super_operations qnx4_sops;
 
 static struct inode *qnx4_alloc_inode(struct super_block *sb);
+<<<<<<< HEAD
 static void qnx4_destroy_inode(struct inode *inode);
+=======
+static void qnx4_free_inode(struct inode *inode);
+>>>>>>> upstream/android-13
 static int qnx4_remount(struct super_block *sb, int *flags, char *data);
 static int qnx4_statfs(struct dentry *, struct kstatfs *);
 
 static const struct super_operations qnx4_sops =
 {
 	.alloc_inode	= qnx4_alloc_inode,
+<<<<<<< HEAD
 	.destroy_inode	= qnx4_destroy_inode,
+=======
+	.free_inode	= qnx4_free_inode,
+>>>>>>> upstream/android-13
 	.statfs		= qnx4_statfs,
 	.remount_fs	= qnx4_remount,
 };
@@ -136,8 +148,12 @@ static int qnx4_statfs(struct dentry *dentry, struct kstatfs *buf)
 	buf->f_bfree   = qnx4_count_free_blocks(sb);
 	buf->f_bavail  = buf->f_bfree;
 	buf->f_namelen = QNX4_NAME_MAX;
+<<<<<<< HEAD
 	buf->f_fsid.val[0] = (u32)id;
 	buf->f_fsid.val[1] = (u32)(id >> 32);
+=======
+	buf->f_fsid    = u64_to_fsid(id);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -200,6 +216,11 @@ static int qnx4_fill_super(struct super_block *s, void *data, int silent)
 	s->s_op = &qnx4_sops;
 	s->s_magic = QNX4_SUPER_MAGIC;
 	s->s_flags |= SB_RDONLY;	/* Yup, read-only yet */
+<<<<<<< HEAD
+=======
+	s->s_time_min = 0;
+	s->s_time_max = U32_MAX;
+>>>>>>> upstream/android-13
 
 	/* Check the superblock signature. Since the qnx4 code is
 	   dangerous, we should leave as quickly as possible
@@ -342,6 +363,7 @@ static struct inode *qnx4_alloc_inode(struct super_block *sb)
 	return &ei->vfs_inode;
 }
 
+<<<<<<< HEAD
 static void qnx4_i_callback(struct rcu_head *head)
 {
 	struct inode *inode = container_of(head, struct inode, i_rcu);
@@ -353,6 +375,13 @@ static void qnx4_destroy_inode(struct inode *inode)
 	call_rcu(&inode->i_rcu, qnx4_i_callback);
 }
 
+=======
+static void qnx4_free_inode(struct inode *inode)
+{
+	kmem_cache_free(qnx4_inode_cachep, qnx4_i(inode));
+}
+
+>>>>>>> upstream/android-13
 static void init_once(void *foo)
 {
 	struct qnx4_inode_info *ei = (struct qnx4_inode_info *) foo;
@@ -424,4 +453,8 @@ static void __exit exit_qnx4_fs(void)
 module_init(init_qnx4_fs)
 module_exit(exit_qnx4_fs)
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 

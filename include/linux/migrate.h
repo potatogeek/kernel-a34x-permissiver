@@ -10,6 +10,11 @@
 typedef struct page *new_page_t(struct page *page, unsigned long private);
 typedef void free_page_t(struct page *page, unsigned long private);
 
+<<<<<<< HEAD
+=======
+struct migration_target_control;
+
+>>>>>>> upstream/android-13
 /*
  * Return values from addresss_space_operations.migratepage():
  * - negative errno on page migration failure;
@@ -17,6 +22,14 @@ typedef void free_page_t(struct page *page, unsigned long private);
  */
 #define MIGRATEPAGE_SUCCESS		0
 
+<<<<<<< HEAD
+=======
+/*
+ * Keep sync with:
+ * - macro MIGRATE_REASON in include/trace/events/migrate.h
+ * - migrate_reason_names[MR_TYPES] in mm/debug.c
+ */
+>>>>>>> upstream/android-13
 enum migrate_reason {
 	MR_COMPACTION,
 	MR_MEMORY_FAILURE,
@@ -25,6 +38,7 @@ enum migrate_reason {
 	MR_MEMPOLICY_MBIND,
 	MR_NUMA_MISPLACED,
 	MR_CONTIG_RANGE,
+<<<<<<< HEAD
 	MR_TYPES
 };
 
@@ -58,6 +72,14 @@ static inline struct page *new_page_nodemask(struct page *page,
 
 	return new_page;
 }
+=======
+	MR_LONGTERM_PIN,
+	MR_DEMOTION,
+	MR_TYPES
+};
+
+extern const char *migrate_reason_names[MR_TYPES];
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_MIGRATION
 
@@ -66,25 +88,38 @@ extern int migrate_page(struct address_space *mapping,
 			struct page *newpage, struct page *page,
 			enum migrate_mode mode);
 extern int migrate_pages(struct list_head *l, new_page_t new, free_page_t free,
+<<<<<<< HEAD
 		unsigned long private, enum migrate_mode mode, int reason);
 extern int isolate_movable_page(struct page *page, isolate_mode_t mode);
 extern void putback_movable_page(struct page *page);
 
 extern int migrate_prep(void);
 extern int migrate_prep_local(void);
+=======
+		unsigned long private, enum migrate_mode mode, int reason,
+		unsigned int *ret_succeeded);
+extern struct page *alloc_migration_target(struct page *page, unsigned long private);
+extern int isolate_movable_page(struct page *page, isolate_mode_t mode);
+
+>>>>>>> upstream/android-13
 extern void migrate_page_states(struct page *newpage, struct page *page);
 extern void migrate_page_copy(struct page *newpage, struct page *page);
 extern int migrate_huge_page_move_mapping(struct address_space *mapping,
 				  struct page *newpage, struct page *page);
 extern int migrate_page_move_mapping(struct address_space *mapping,
+<<<<<<< HEAD
 		struct page *newpage, struct page *page,
 		struct buffer_head *head, enum migrate_mode mode,
 		int extra_count);
+=======
+		struct page *newpage, struct page *page, int extra_count);
+>>>>>>> upstream/android-13
 #else
 
 static inline void putback_movable_pages(struct list_head *l) {}
 static inline int migrate_pages(struct list_head *l, new_page_t new,
 		free_page_t free, unsigned long private, enum migrate_mode mode,
+<<<<<<< HEAD
 		int reason)
 	{ return -ENOSYS; }
 static inline int isolate_movable_page(struct page *page, isolate_mode_t mode)
@@ -93,6 +128,16 @@ static inline int isolate_movable_page(struct page *page, isolate_mode_t mode)
 static inline int migrate_prep(void) { return -ENOSYS; }
 static inline int migrate_prep_local(void) { return -ENOSYS; }
 
+=======
+		int reason, unsigned int *ret_succeeded)
+	{ return -ENOSYS; }
+static inline struct page *alloc_migration_target(struct page *page,
+		unsigned long private)
+	{ return NULL; }
+static inline int isolate_movable_page(struct page *page, isolate_mode_t mode)
+	{ return -EBUSY; }
+
+>>>>>>> upstream/android-13
 static inline void migrate_page_states(struct page *newpage, struct page *page)
 {
 }
@@ -105,7 +150,10 @@ static inline int migrate_huge_page_move_mapping(struct address_space *mapping,
 {
 	return -ENOSYS;
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 #endif /* CONFIG_MIGRATION */
 
 #ifdef CONFIG_COMPACTION
@@ -113,7 +161,11 @@ extern int PageMovable(struct page *page);
 extern void __SetPageMovable(struct page *page, struct address_space *mapping);
 extern void __ClearPageMovable(struct page *page);
 #else
+<<<<<<< HEAD
 static inline int PageMovable(struct page *page) { return 0; };
+=======
+static inline int PageMovable(struct page *page) { return 0; }
+>>>>>>> upstream/android-13
 static inline void __SetPageMovable(struct page *page,
 				struct address_space *mapping)
 {
@@ -124,6 +176,7 @@ static inline void __ClearPageMovable(struct page *page)
 #endif
 
 #ifdef CONFIG_NUMA_BALANCING
+<<<<<<< HEAD
 extern bool pmd_trans_migrating(pmd_t pmd);
 extern int migrate_misplaced_page(struct page *page,
 				  struct vm_fault *vmf, int node);
@@ -134,11 +187,19 @@ static inline bool pmd_trans_migrating(pmd_t pmd)
 }
 static inline int migrate_misplaced_page(struct page *page,
 					 struct vm_fault *vmf, int node)
+=======
+extern int migrate_misplaced_page(struct page *page,
+				  struct vm_area_struct *vma, int node);
+#else
+static inline int migrate_misplaced_page(struct page *page,
+					 struct vm_area_struct *vma, int node)
+>>>>>>> upstream/android-13
 {
 	return -EAGAIN; /* can't migrate now */
 }
 #endif /* CONFIG_NUMA_BALANCING */
 
+<<<<<<< HEAD
 #if defined(CONFIG_NUMA_BALANCING) && defined(CONFIG_TRANSPARENT_HUGEPAGE)
 extern int migrate_misplaced_transhuge_page(struct mm_struct *mm,
 			struct vm_area_struct *vma,
@@ -157,6 +218,8 @@ static inline int migrate_misplaced_transhuge_page(struct mm_struct *mm,
 #endif /* CONFIG_NUMA_BALANCING && CONFIG_TRANSPARENT_HUGEPAGE*/
 
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_MIGRATION
 
 /*
@@ -168,8 +231,11 @@ static inline int migrate_misplaced_transhuge_page(struct mm_struct *mm,
 #define MIGRATE_PFN_MIGRATE	(1UL << 1)
 #define MIGRATE_PFN_LOCKED	(1UL << 2)
 #define MIGRATE_PFN_WRITE	(1UL << 3)
+<<<<<<< HEAD
 #define MIGRATE_PFN_DEVICE	(1UL << 4)
 #define MIGRATE_PFN_ERROR	(1UL << 5)
+=======
+>>>>>>> upstream/android-13
 #define MIGRATE_PFN_SHIFT	6
 
 static inline struct page *migrate_pfn_to_page(unsigned long mpfn)
@@ -184,6 +250,7 @@ static inline unsigned long migrate_pfn(unsigned long pfn)
 	return (pfn << MIGRATE_PFN_SHIFT) | MIGRATE_PFN_VALID;
 }
 
+<<<<<<< HEAD
 /*
  * struct migrate_vma_ops - migrate operation callback
  *
@@ -285,6 +352,53 @@ static inline int migrate_vma(const struct migrate_vma_ops *ops,
 	return -EINVAL;
 }
 #endif /* IS_ENABLED(CONFIG_MIGRATE_VMA_HELPER) */
+=======
+enum migrate_vma_direction {
+	MIGRATE_VMA_SELECT_SYSTEM = 1 << 0,
+	MIGRATE_VMA_SELECT_DEVICE_PRIVATE = 1 << 1,
+};
+
+struct migrate_vma {
+	struct vm_area_struct	*vma;
+	/*
+	 * Both src and dst array must be big enough for
+	 * (end - start) >> PAGE_SHIFT entries.
+	 *
+	 * The src array must not be modified by the caller after
+	 * migrate_vma_setup(), and must not change the dst array after
+	 * migrate_vma_pages() returns.
+	 */
+	unsigned long		*dst;
+	unsigned long		*src;
+	unsigned long		cpages;
+	unsigned long		npages;
+	unsigned long		start;
+	unsigned long		end;
+
+	/*
+	 * Set to the owner value also stored in page->pgmap->owner for
+	 * migrating out of device private memory. The flags also need to
+	 * be set to MIGRATE_VMA_SELECT_DEVICE_PRIVATE.
+	 * The caller should always set this field when using mmu notifier
+	 * callbacks to avoid device MMU invalidations for device private
+	 * pages that are not being migrated.
+	 */
+	void			*pgmap_owner;
+	unsigned long		flags;
+};
+
+int migrate_vma_setup(struct migrate_vma *args);
+void migrate_vma_pages(struct migrate_vma *migrate);
+void migrate_vma_finalize(struct migrate_vma *migrate);
+int next_demotion_node(int node);
+
+#else /* CONFIG_MIGRATION disabled: */
+
+static inline int next_demotion_node(int node)
+{
+	return NUMA_NO_NODE;
+}
+>>>>>>> upstream/android-13
 
 #endif /* CONFIG_MIGRATION */
 

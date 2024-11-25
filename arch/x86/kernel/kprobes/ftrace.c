@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Dynamic Ftrace based Kprobes Optimization
  *
@@ -15,6 +16,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Dynamic Ftrace based Kprobes Optimization
+ *
+>>>>>>> upstream/android-13
  * Copyright (C) Hitachi Ltd., 2012
  */
 #include <linux/kprobes.h>
@@ -25,6 +32,7 @@
 
 #include "common.h"
 
+<<<<<<< HEAD
 /* Ftrace callback handler for kprobes -- called under preepmt disabed */
 void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
 			   struct ftrace_ops *ops, struct pt_regs *regs)
@@ -36,6 +44,25 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
 	p = get_kprobe((kprobe_opcode_t *)ip);
 	if (unlikely(!p) || kprobe_disabled(p))
 		return;
+=======
+/* Ftrace callback handler for kprobes -- called under preempt disabled */
+void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
+			   struct ftrace_ops *ops, struct ftrace_regs *fregs)
+{
+	struct pt_regs *regs = ftrace_get_regs(fregs);
+	struct kprobe *p;
+	struct kprobe_ctlblk *kcb;
+	int bit;
+
+	bit = ftrace_test_recursion_trylock(ip, parent_ip);
+	if (bit < 0)
+		return;
+
+	preempt_disable_notrace();
+	p = get_kprobe((kprobe_opcode_t *)ip);
+	if (unlikely(!p) || kprobe_disabled(p))
+		goto out;
+>>>>>>> upstream/android-13
 
 	kcb = get_kprobe_ctlblk();
 	if (kprobe_running()) {
@@ -65,6 +92,12 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
 		 */
 		__this_cpu_write(current_kprobe, NULL);
 	}
+<<<<<<< HEAD
+=======
+out:
+	preempt_enable_notrace();
+	ftrace_test_recursion_unlock(bit);
+>>>>>>> upstream/android-13
 }
 NOKPROBE_SYMBOL(kprobe_ftrace_handler);
 

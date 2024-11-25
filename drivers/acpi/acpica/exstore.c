@@ -3,7 +3,11 @@
  *
  * Module Name: exstore - AML Interpreter object store support
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -96,7 +100,11 @@ acpi_ex_store(union acpi_operand_object *source_desc,
 			return_ACPI_STATUS(AE_OK);
 		}
 
+<<<<<<< HEAD
 		/*lint -fallthrough */
+=======
+		ACPI_FALLTHROUGH;
+>>>>>>> upstream/android-13
 
 	default:
 
@@ -422,7 +430,11 @@ acpi_ex_store_object_to_node(union acpi_operand_object *source_desc,
 				break;
 			}
 
+<<<<<<< HEAD
 			/* Fallthrough */
+=======
+			ACPI_FALLTHROUGH;
+>>>>>>> upstream/android-13
 
 		case ACPI_TYPE_DEVICE:
 		case ACPI_TYPE_EVENT:

@@ -5,10 +5,20 @@ Description:
 		The STM32 ADC can be configured to use external trigger sources
 		(e.g. timers, pwm or exti gpio). Then, it can be tuned to start
 		conversions on external trigger by either:
+<<<<<<< HEAD
 		- "rising-edge"
 		- "falling-edge"
 		- "both-edges".
 		Reading returns current trigger polarity.
+=======
+
+		- "rising-edge"
+		- "falling-edge"
+		- "both-edges".
+
+		Reading returns current trigger polarity.
+
+>>>>>>> upstream/android-13
 		Writing value before enabling conversions sets trigger polarity.
 
 What:		/sys/bus/iio/devices/triggerX/trigger_polarity_available

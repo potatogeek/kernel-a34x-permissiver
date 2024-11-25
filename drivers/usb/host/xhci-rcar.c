@@ -6,6 +6,10 @@
  */
 
 #include <linux/firmware.h>
+<<<<<<< HEAD
+=======
+#include <linux/iopoll.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/platform_device.h>
 #include <linux/of.h>
@@ -107,6 +111,7 @@ static int xhci_rcar_is_gen2(struct device *dev)
 		of_device_is_compatible(node, "renesas,rcar-gen2-xhci");
 }
 
+<<<<<<< HEAD
 static int xhci_rcar_is_gen3(struct device *dev)
 {
 	struct device_node *node = dev->of_node;
@@ -116,6 +121,8 @@ static int xhci_rcar_is_gen3(struct device *dev)
 		of_device_is_compatible(node, "renesas,rcar-gen3-xhci");
 }
 
+=======
+>>>>>>> upstream/android-13
 void xhci_rcar_start(struct usb_hcd *hcd)
 {
 	u32 temp;
@@ -136,13 +143,27 @@ static int xhci_rcar_download_firmware(struct usb_hcd *hcd)
 	void __iomem *regs = hcd->regs;
 	struct xhci_plat_priv *priv = hcd_to_xhci_priv(hcd);
 	const struct firmware *fw;
+<<<<<<< HEAD
 	int retval, index, j, time;
 	int timeout = 10000;
+=======
+	int retval, index, j;
+>>>>>>> upstream/android-13
 	u32 data, val, temp;
 	u32 quirks = 0;
 	const struct soc_device_attribute *attr;
 	const char *firmware_name;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * According to the datasheet, "Upon the completion of FW Download,
+	 * there is no need to write or reload FW".
+	 */
+	if (readl(regs + RCAR_USB3_DL_CTRL) & RCAR_USB3_DL_CTRL_FW_SUCCESS)
+		return 0;
+
+>>>>>>> upstream/android-13
 	attr = soc_device_match(rcar_quirks_match);
 	if (attr)
 		quirks = (uintptr_t)attr->data;
@@ -175,6 +196,7 @@ static int xhci_rcar_download_firmware(struct usb_hcd *hcd)
 		temp |= RCAR_USB3_DL_CTRL_FW_SET_DATA0;
 		writel(temp, regs + RCAR_USB3_DL_CTRL);
 
+<<<<<<< HEAD
 		for (time = 0; time < timeout; time++) {
 			val = readl(regs + RCAR_USB3_DL_CTRL);
 			if ((val & RCAR_USB3_DL_CTRL_FW_SET_DATA0) == 0)
@@ -185,12 +207,20 @@ static int xhci_rcar_download_firmware(struct usb_hcd *hcd)
 			retval = -ETIMEDOUT;
 			break;
 		}
+=======
+		retval = readl_poll_timeout_atomic(regs + RCAR_USB3_DL_CTRL,
+				val, !(val & RCAR_USB3_DL_CTRL_FW_SET_DATA0),
+				1, 10000);
+		if (retval < 0)
+			break;
+>>>>>>> upstream/android-13
 	}
 
 	temp = readl(regs + RCAR_USB3_DL_CTRL);
 	temp &= ~RCAR_USB3_DL_CTRL_ENABLE;
 	writel(temp, regs + RCAR_USB3_DL_CTRL);
 
+<<<<<<< HEAD
 	for (time = 0; time < timeout; time++) {
 		val = readl(regs + RCAR_USB3_DL_CTRL);
 		if (val & RCAR_USB3_DL_CTRL_FW_SUCCESS) {
@@ -201,6 +231,10 @@ static int xhci_rcar_download_firmware(struct usb_hcd *hcd)
 	}
 	if (time == timeout)
 		retval = -ETIMEDOUT;
+=======
+	retval = readl_poll_timeout_atomic((regs + RCAR_USB3_DL_CTRL),
+			val, val & RCAR_USB3_DL_CTRL_FW_SUCCESS, 1, 10000);
+>>>>>>> upstream/android-13
 
 	release_firmware(fw);
 
@@ -209,6 +243,7 @@ static int xhci_rcar_download_firmware(struct usb_hcd *hcd)
 
 static bool xhci_rcar_wait_for_pll_active(struct usb_hcd *hcd)
 {
+<<<<<<< HEAD
 	int timeout = 1000;
 	u32 val, mask = RCAR_USB3_AXH_STA_PLL_ACTIVE_MASK;
 
@@ -221,17 +256,29 @@ static bool xhci_rcar_wait_for_pll_active(struct usb_hcd *hcd)
 	}
 
 	return false;
+=======
+	int retval;
+	u32 val, mask = RCAR_USB3_AXH_STA_PLL_ACTIVE_MASK;
+
+	retval = readl_poll_timeout_atomic(hcd->regs + RCAR_USB3_AXH_STA,
+			val, (val & mask) == mask, 1, 1000);
+	return !retval;
+>>>>>>> upstream/android-13
 }
 
 /* This function needs to initialize a "phy" of usb before */
 int xhci_rcar_init_quirk(struct usb_hcd *hcd)
 {
+<<<<<<< HEAD
 	struct xhci_hcd *xhci = hcd_to_xhci(hcd);
 
+=======
+>>>>>>> upstream/android-13
 	/* If hcd->regs is NULL, we don't just call the following function */
 	if (!hcd->regs)
 		return 0;
 
+<<<<<<< HEAD
 	/*
 	 * On R-Car Gen2 and Gen3, the AC64 bit (bit 0) of HCCPARAMS1 is set
 	 * to 1. However, these SoCs don't support 64-bit address memory
@@ -252,6 +299,11 @@ int xhci_rcar_init_quirk(struct usb_hcd *hcd)
 		return -ETIMEDOUT;
 
 	xhci->quirks |= XHCI_TRUST_TX_LENGTH;
+=======
+	if (!xhci_rcar_wait_for_pll_active(hcd))
+		return -ETIMEDOUT;
+
+>>>>>>> upstream/android-13
 	return xhci_rcar_download_firmware(hcd);
 }
 

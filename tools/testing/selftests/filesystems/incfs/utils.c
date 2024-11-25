@@ -81,6 +81,19 @@ int mount_fs(const char *mount_dir, const char *backing_dir,
 	return result;
 }
 
+<<<<<<< HEAD
+=======
+int umount_fs(const char *mount_dir)
+{
+	int result;
+
+	result = umount(mount_dir);
+	if (result != 0)
+		perror("Error unmounting fs.");
+	return result;
+}
+
+>>>>>>> upstream/android-13
 int mount_fs_opt(const char *mount_dir, const char *backing_dir,
 		 const char *opt, bool remount)
 {
@@ -116,6 +129,12 @@ size_t format_signature(void **buf, const char *root_hash, const char *add_data)
 	size_t size = sizeof(struct signature_blob) + strlen(add_data) + 1;
 	struct signature_blob *sb = malloc(size);
 
+<<<<<<< HEAD
+=======
+	if (!sb)
+		return 0;
+
+>>>>>>> upstream/android-13
 	*sb = (struct signature_blob){
 		.version = INCFS_SIGNATURE_VERSION,
 		.hash_section_size = sizeof(struct hash_section),
@@ -126,7 +145,11 @@ size_t format_signature(void **buf, const char *root_hash, const char *add_data)
 				.salt_size = 0,
 				.hash_size = SHA256_DIGEST_SIZE,
 			},
+<<<<<<< HEAD
 		.signing_section_size = sizeof(uint32_t) + strlen(add_data) + 1,
+=======
+		.signing_section_size = strlen(add_data) + 1,
+>>>>>>> upstream/android-13
 	};
 
 	memcpy(sb->hash_section.hash, root_hash, SHA256_DIGEST_SIZE);

@@ -25,15 +25,23 @@
  *
  **************************************************************************/
 
+<<<<<<< HEAD
 
 #include <drm/drmP.h>
 #include "vmwgfx_drv.h"
 
+=======
+>>>>>>> upstream/android-13
 #include <drm/ttm/ttm_placement.h>
 
 #include "device_include/svga_overlay.h"
 #include "device_include/svga_escape.h"
 
+<<<<<<< HEAD
+=======
+#include "vmwgfx_drv.h"
+
+>>>>>>> upstream/android-13
 #define VMW_MAX_NUM_STREAMS 1
 #define VMW_OVERLAY_CAP_MASK (SVGA_FIFO_CAP_VIDEO | SVGA_FIFO_CAP_ESCAPE)
 
@@ -44,7 +52,11 @@ struct vmw_stream {
 	struct drm_vmw_control_stream_arg saved;
 };
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Overlay control
  */
 struct vmw_overlay {
@@ -87,7 +99,11 @@ static inline void fill_flush(struct vmw_escape_video_flush *cmd,
 	cmd->flush.streamId = stream_id;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Send put command to hw.
  *
  * Returns
@@ -124,7 +140,11 @@ static int vmw_overlay_send_put(struct vmw_private *dev_priv,
 
 	fifo_size = sizeof(*cmds) + sizeof(*flush) + sizeof(*items) * num_items;
 
+<<<<<<< HEAD
 	cmds = vmw_fifo_reserve(dev_priv, fifo_size);
+=======
+	cmds = VMW_CMD_RESERVE(dev_priv, fifo_size);
+>>>>>>> upstream/android-13
 	/* hardware has hung, can't do anything here */
 	if (!cmds)
 		return -ENOMEM;
@@ -171,12 +191,20 @@ static int vmw_overlay_send_put(struct vmw_private *dev_priv,
 
 	fill_flush(flush, arg->stream_id);
 
+<<<<<<< HEAD
 	vmw_fifo_commit(dev_priv, fifo_size);
+=======
+	vmw_cmd_commit(dev_priv, fifo_size);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Send stop command to hw.
  *
  * Returns
@@ -194,7 +222,11 @@ static int vmw_overlay_send_stop(struct vmw_private *dev_priv,
 	int ret;
 
 	for (;;) {
+<<<<<<< HEAD
 		cmds = vmw_fifo_reserve(dev_priv, sizeof(*cmds));
+=======
+		cmds = VMW_CMD_RESERVE(dev_priv, sizeof(*cmds));
+>>>>>>> upstream/android-13
 		if (cmds)
 			break;
 
@@ -213,12 +245,20 @@ static int vmw_overlay_send_stop(struct vmw_private *dev_priv,
 	cmds->body.items[0].value = false;
 	fill_flush(&cmds->flush, stream_id);
 
+<<<<<<< HEAD
 	vmw_fifo_commit(dev_priv, sizeof(*cmds));
+=======
+	vmw_cmd_commit(dev_priv, sizeof(*cmds));
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Move a buffer to vram or gmr if @pin is set, else unpin the buffer.
  *
  * With the introduction of screen objects buffers could now be
@@ -237,7 +277,11 @@ static int vmw_overlay_move_buffer(struct vmw_private *dev_priv,
 	return vmw_bo_pin_in_vram_or_gmr(dev_priv, buf, inter);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Stop or pause a stream.
  *
  * If the stream is paused the no evict flag is removed from the buffer
@@ -287,7 +331,11 @@ static int vmw_overlay_stop(struct vmw_private *dev_priv,
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Update a stream and send any put or stop fifo commands needed.
  *
  * The caller must hold the overlay lock.
@@ -355,6 +403,7 @@ static int vmw_overlay_update_stream(struct vmw_private *dev_priv,
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
  * Stop all streams.
  *
@@ -387,6 +436,9 @@ int vmw_overlay_stop_all(struct vmw_private *dev_priv)
 }
 
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Try to resume all paused streams.
  *
  * Used by the kms code after moving a new scanout buffer to vram.
@@ -420,7 +472,11 @@ int vmw_overlay_resume_all(struct vmw_private *dev_priv)
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Pauses all active streams.
  *
  * Used by the kms code when moving a new scanout buffer to vram.
@@ -454,7 +510,11 @@ int vmw_overlay_pause_all(struct vmw_private *dev_priv)
 static bool vmw_overlay_available(const struct vmw_private *dev_priv)
 {
 	return (dev_priv->overlay_priv != NULL &&
+<<<<<<< HEAD
 		((dev_priv->fifo.capabilities & VMW_OVERLAY_CAP_MASK) ==
+=======
+		((vmw_fifo_caps(dev_priv) & VMW_OVERLAY_CAP_MASK) ==
+>>>>>>> upstream/android-13
 		 VMW_OVERLAY_CAP_MASK));
 }
 

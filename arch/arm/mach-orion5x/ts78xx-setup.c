@@ -16,8 +16,12 @@
 #include <linux/platform_device.h>
 #include <linux/mv643xx_eth.h>
 #include <linux/ata_platform.h>
+<<<<<<< HEAD
 #include <linux/mtd/rawnand.h>
 #include <linux/mtd/partitions.h>
+=======
+#include <linux/mtd/platnand.h>
+>>>>>>> upstream/android-13
 #include <linux/timeriomem-rng.h>
 #include <asm/mach-types.h>
 #include <asm/mach/arch.h>
@@ -131,11 +135,17 @@ static void ts78xx_ts_rtc_unload(void)
  * NAND_CLE: bit 1 -> bit 1
  * NAND_ALE: bit 2 -> bit 0
  */
+<<<<<<< HEAD
 static void ts78xx_ts_nand_cmd_ctrl(struct mtd_info *mtd, int cmd,
 			unsigned int ctrl)
 {
 	struct nand_chip *this = mtd_to_nand(mtd);
 
+=======
+static void ts78xx_ts_nand_cmd_ctrl(struct nand_chip *this, int cmd,
+				    unsigned int ctrl)
+{
+>>>>>>> upstream/android-13
 	if (ctrl & NAND_CTRL_CHANGE) {
 		unsigned char bits;
 
@@ -147,19 +157,33 @@ static void ts78xx_ts_nand_cmd_ctrl(struct mtd_info *mtd, int cmd,
 	}
 
 	if (cmd != NAND_CMD_NONE)
+<<<<<<< HEAD
 		writeb(cmd, this->IO_ADDR_W);
 }
 
 static int ts78xx_ts_nand_dev_ready(struct mtd_info *mtd)
+=======
+		writeb(cmd, this->legacy.IO_ADDR_W);
+}
+
+static int ts78xx_ts_nand_dev_ready(struct nand_chip *chip)
+>>>>>>> upstream/android-13
 {
 	return readb(TS_NAND_CTRL) & 0x20;
 }
 
+<<<<<<< HEAD
 static void ts78xx_ts_nand_write_buf(struct mtd_info *mtd,
 			const uint8_t *buf, int len)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
 	void __iomem *io_base = chip->IO_ADDR_W;
+=======
+static void ts78xx_ts_nand_write_buf(struct nand_chip *chip,
+				     const uint8_t *buf, int len)
+{
+	void __iomem *io_base = chip->legacy.IO_ADDR_W;
+>>>>>>> upstream/android-13
 	unsigned long off = ((unsigned long)buf & 3);
 	int sz;
 
@@ -182,11 +206,18 @@ static void ts78xx_ts_nand_write_buf(struct mtd_info *mtd,
 		writesb(io_base, buf, len);
 }
 
+<<<<<<< HEAD
 static void ts78xx_ts_nand_read_buf(struct mtd_info *mtd,
 			uint8_t *buf, int len)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
 	void __iomem *io_base = chip->IO_ADDR_R;
+=======
+static void ts78xx_ts_nand_read_buf(struct nand_chip *chip,
+				    uint8_t *buf, int len)
+{
+	void __iomem *io_base = chip->legacy.IO_ADDR_R;
+>>>>>>> upstream/android-13
 	unsigned long off = ((unsigned long)buf & 3);
 	int sz;
 
@@ -403,7 +434,10 @@ static int ts78xx_fpga_load_devices(void)
 
 static int ts78xx_fpga_unload_devices(void)
 {
+<<<<<<< HEAD
 	int ret = 0;
+=======
+>>>>>>> upstream/android-13
 
 	if (ts78xx_fpga.supports.ts_rtc.present == 1)
 		ts78xx_ts_rtc_unload();
@@ -412,7 +446,11 @@ static int ts78xx_fpga_unload_devices(void)
 	if (ts78xx_fpga.supports.ts_rng.present == 1)
 		ts78xx_ts_rng_unload();
 
+<<<<<<< HEAD
 	return ret;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int ts78xx_fpga_load(void)

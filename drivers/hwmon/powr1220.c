@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * powr1220.c - Driver for the Lattice POWR1220 programmable power supply
  * and monitor. Users can read all ADC inputs along with their labels
  * using the sysfs nodes.
  *
+<<<<<<< HEAD
  * Copyright (c) 2014 Echo360 http://www.echo360.com
  * Scott Kanowitz <skanowitz@echo360.com> <scott.kanowitz@gmail.com>
  *
@@ -15,6 +20,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+ * Copyright (c) 2014 Echo360 https://www.echo360.com
+ * Scott Kanowitz <skanowitz@echo360.com> <scott.kanowitz@gmail.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -177,8 +186,14 @@ exit:
 }
 
 /* Shows the voltage associated with the specified ADC channel */
+<<<<<<< HEAD
 static ssize_t powr1220_show_voltage(struct device *dev,
 	struct device_attribute *dev_attr, char *buf)
+=======
+static ssize_t powr1220_voltage_show(struct device *dev,
+				     struct device_attribute *dev_attr,
+				     char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(dev_attr);
 	int adc_val = powr1220_read_adc(dev, attr->index);
@@ -190,8 +205,13 @@ static ssize_t powr1220_show_voltage(struct device *dev,
 }
 
 /* Shows the maximum setting associated with the specified ADC channel */
+<<<<<<< HEAD
 static ssize_t powr1220_show_max(struct device *dev,
 	struct device_attribute *dev_attr, char *buf)
+=======
+static ssize_t powr1220_max_show(struct device *dev,
+				 struct device_attribute *dev_attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(dev_attr);
 	struct powr1220_data *data = dev_get_drvdata(dev);
@@ -200,14 +220,21 @@ static ssize_t powr1220_show_max(struct device *dev,
 }
 
 /* Shows the label associated with the specified ADC channel */
+<<<<<<< HEAD
 static ssize_t powr1220_show_label(struct device *dev,
 	struct device_attribute *dev_attr, char *buf)
+=======
+static ssize_t powr1220_label_show(struct device *dev,
+				   struct device_attribute *dev_attr,
+				   char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(dev_attr);
 
 	return sprintf(buf, "%s\n", input_names[attr->index]);
 }
 
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(in0_input, S_IRUGO, powr1220_show_voltage, NULL,
 	VMON1);
 static SENSOR_DEVICE_ATTR(in1_input, S_IRUGO, powr1220_show_voltage, NULL,
@@ -294,6 +321,52 @@ static SENSOR_DEVICE_ATTR(in12_label, S_IRUGO, powr1220_show_label, NULL,
 	VCCA);
 static SENSOR_DEVICE_ATTR(in13_label, S_IRUGO, powr1220_show_label, NULL,
 	VCCINP);
+=======
+static SENSOR_DEVICE_ATTR_RO(in0_input, powr1220_voltage, VMON1);
+static SENSOR_DEVICE_ATTR_RO(in1_input, powr1220_voltage, VMON2);
+static SENSOR_DEVICE_ATTR_RO(in2_input, powr1220_voltage, VMON3);
+static SENSOR_DEVICE_ATTR_RO(in3_input, powr1220_voltage, VMON4);
+static SENSOR_DEVICE_ATTR_RO(in4_input, powr1220_voltage, VMON5);
+static SENSOR_DEVICE_ATTR_RO(in5_input, powr1220_voltage, VMON6);
+static SENSOR_DEVICE_ATTR_RO(in6_input, powr1220_voltage, VMON7);
+static SENSOR_DEVICE_ATTR_RO(in7_input, powr1220_voltage, VMON8);
+static SENSOR_DEVICE_ATTR_RO(in8_input, powr1220_voltage, VMON9);
+static SENSOR_DEVICE_ATTR_RO(in9_input, powr1220_voltage, VMON10);
+static SENSOR_DEVICE_ATTR_RO(in10_input, powr1220_voltage, VMON11);
+static SENSOR_DEVICE_ATTR_RO(in11_input, powr1220_voltage, VMON12);
+static SENSOR_DEVICE_ATTR_RO(in12_input, powr1220_voltage, VCCA);
+static SENSOR_DEVICE_ATTR_RO(in13_input, powr1220_voltage, VCCINP);
+
+static SENSOR_DEVICE_ATTR_RO(in0_highest, powr1220_max, VMON1);
+static SENSOR_DEVICE_ATTR_RO(in1_highest, powr1220_max, VMON2);
+static SENSOR_DEVICE_ATTR_RO(in2_highest, powr1220_max, VMON3);
+static SENSOR_DEVICE_ATTR_RO(in3_highest, powr1220_max, VMON4);
+static SENSOR_DEVICE_ATTR_RO(in4_highest, powr1220_max, VMON5);
+static SENSOR_DEVICE_ATTR_RO(in5_highest, powr1220_max, VMON6);
+static SENSOR_DEVICE_ATTR_RO(in6_highest, powr1220_max, VMON7);
+static SENSOR_DEVICE_ATTR_RO(in7_highest, powr1220_max, VMON8);
+static SENSOR_DEVICE_ATTR_RO(in8_highest, powr1220_max, VMON9);
+static SENSOR_DEVICE_ATTR_RO(in9_highest, powr1220_max, VMON10);
+static SENSOR_DEVICE_ATTR_RO(in10_highest, powr1220_max, VMON11);
+static SENSOR_DEVICE_ATTR_RO(in11_highest, powr1220_max, VMON12);
+static SENSOR_DEVICE_ATTR_RO(in12_highest, powr1220_max, VCCA);
+static SENSOR_DEVICE_ATTR_RO(in13_highest, powr1220_max, VCCINP);
+
+static SENSOR_DEVICE_ATTR_RO(in0_label, powr1220_label, VMON1);
+static SENSOR_DEVICE_ATTR_RO(in1_label, powr1220_label, VMON2);
+static SENSOR_DEVICE_ATTR_RO(in2_label, powr1220_label, VMON3);
+static SENSOR_DEVICE_ATTR_RO(in3_label, powr1220_label, VMON4);
+static SENSOR_DEVICE_ATTR_RO(in4_label, powr1220_label, VMON5);
+static SENSOR_DEVICE_ATTR_RO(in5_label, powr1220_label, VMON6);
+static SENSOR_DEVICE_ATTR_RO(in6_label, powr1220_label, VMON7);
+static SENSOR_DEVICE_ATTR_RO(in7_label, powr1220_label, VMON8);
+static SENSOR_DEVICE_ATTR_RO(in8_label, powr1220_label, VMON9);
+static SENSOR_DEVICE_ATTR_RO(in9_label, powr1220_label, VMON10);
+static SENSOR_DEVICE_ATTR_RO(in10_label, powr1220_label, VMON11);
+static SENSOR_DEVICE_ATTR_RO(in11_label, powr1220_label, VMON12);
+static SENSOR_DEVICE_ATTR_RO(in12_label, powr1220_label, VCCA);
+static SENSOR_DEVICE_ATTR_RO(in13_label, powr1220_label, VCCINP);
+>>>>>>> upstream/android-13
 
 static struct attribute *powr1220_attrs[] = {
 	&sensor_dev_attr_in0_input.dev_attr.attr,
@@ -346,8 +419,12 @@ static struct attribute *powr1220_attrs[] = {
 
 ATTRIBUTE_GROUPS(powr1220);
 
+<<<<<<< HEAD
 static int powr1220_probe(struct i2c_client *client,
 		const struct i2c_device_id *id)
+=======
+static int powr1220_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct powr1220_data *data;
 	struct device *hwmon_dev;
@@ -380,7 +457,11 @@ static struct i2c_driver powr1220_driver = {
 	.driver = {
 		.name	= "powr1220",
 	},
+<<<<<<< HEAD
 	.probe		= powr1220_probe,
+=======
+	.probe_new	= powr1220_probe,
+>>>>>>> upstream/android-13
 	.id_table	= powr1220_ids,
 };
 

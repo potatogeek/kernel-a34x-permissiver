@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright 2012 Freescale Semiconductor, Inc.
  *
  * Author: Fabio Estevam <fabio.estevam@freescale.com>
+<<<<<<< HEAD
  *
  * The code contained herein is licensed under the GNU General Public
  * License. You may obtain a copy of the GNU General Public License
@@ -9,6 +14,8 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+>>>>>>> upstream/android-13
  */
 
 /dts-v1/;
@@ -26,10 +33,17 @@
 
 	apb@80000000 {
 		apbh@80000000 {
+<<<<<<< HEAD
 			ssp0: ssp@80010000 {
 				compatible = "fsl,imx23-mmc";
 				pinctrl-names = "default";
 				pinctrl-0 = <&mmc0_4bit_pins_a &mmc0_pins_fixup>;
+=======
+			ssp0: spi@80010000 {
+				compatible = "fsl,imx23-mmc";
+				pinctrl-names = "default";
+				pinctrl-0 = <&mmc0_4bit_pins_a &mmc0_sck_cfg>;
+>>>>>>> upstream/android-13
 				bus-width = <4>;
 				broken-cd;
 				status = "okay";
@@ -60,7 +74,11 @@
 				};
 			};
 
+<<<<<<< HEAD
 			ssp1: ssp@80034000 {
+=======
+			ssp1: spi@80034000 {
+>>>>>>> upstream/android-13
 				#address-cells = <1>;
 				#size-cells = <0>;
 				compatible = "fsl,imx23-spi";

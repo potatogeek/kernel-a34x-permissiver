@@ -19,8 +19,12 @@
 #include <linux/mmc/host.h>
 #include <linux/module.h>
 #include <linux/mtd/mtd.h>
+<<<<<<< HEAD
 #include <linux/mtd/rawnand.h>
 #include <linux/mtd/partitions.h>
+=======
+#include <linux/mtd/platnand.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/smsc911x.h>
 #include <linux/wm97xx.h>
@@ -149,11 +153,20 @@ static void __init db1300_gpio_config(void)
 
 /**********************************************************************/
 
+<<<<<<< HEAD
 static void au1300_nand_cmd_ctrl(struct mtd_info *mtd, int cmd,
 				 unsigned int ctrl)
 {
 	struct nand_chip *this = mtd_to_nand(mtd);
 	unsigned long ioaddr = (unsigned long)this->IO_ADDR_W;
+=======
+static u64 au1300_all_dmamask = DMA_BIT_MASK(32);
+
+static void au1300_nand_cmd_ctrl(struct nand_chip *this, int cmd,
+				 unsigned int ctrl)
+{
+	unsigned long ioaddr = (unsigned long)this->legacy.IO_ADDR_W;
+>>>>>>> upstream/android-13
 
 	ioaddr &= 0xffffff00;
 
@@ -165,14 +178,24 @@ static void au1300_nand_cmd_ctrl(struct mtd_info *mtd, int cmd,
 		/* assume we want to r/w real data  by default */
 		ioaddr += MEM_STNAND_DATA;
 	}
+<<<<<<< HEAD
 	this->IO_ADDR_R = this->IO_ADDR_W = (void __iomem *)ioaddr;
 	if (cmd != NAND_CMD_NONE) {
 		__raw_writeb(cmd, this->IO_ADDR_W);
+=======
+	this->legacy.IO_ADDR_R = this->legacy.IO_ADDR_W = (void __iomem *)ioaddr;
+	if (cmd != NAND_CMD_NONE) {
+		__raw_writeb(cmd, this->legacy.IO_ADDR_W);
+>>>>>>> upstream/android-13
 		wmb();
 	}
 }
 
+<<<<<<< HEAD
 static int au1300_nand_device_ready(struct mtd_info *mtd)
+=======
+static int au1300_nand_device_ready(struct nand_chip *this)
+>>>>>>> upstream/android-13
 {
 	return alchemy_rdsmem(AU1000_MEM_STSTAT) & 1;
 }
@@ -440,6 +463,11 @@ static struct resource db1300_ide_res[] = {
 
 static struct platform_device db1300_ide_dev = {
 	.dev	= {
+<<<<<<< HEAD
+=======
+		.dma_mask		= &au1300_all_dmamask,
+		.coherent_dma_mask	= DMA_BIT_MASK(32),
+>>>>>>> upstream/android-13
 		.platform_data	= &db1300_ide_info,
 	},
 	.name		= "pata_platform",
@@ -562,7 +590,13 @@ static struct resource au1300_sd1_res[] = {
 
 static struct platform_device db1300_sd1_dev = {
 	.dev = {
+<<<<<<< HEAD
 		.platform_data	= &db1300_sd1_platdata,
+=======
+		.dma_mask		= &au1300_all_dmamask,
+		.coherent_dma_mask	= DMA_BIT_MASK(32),
+		.platform_data		= &db1300_sd1_platdata,
+>>>>>>> upstream/android-13
 	},
 	.name		= "au1xxx-mmc",
 	.id		= 1,
@@ -627,7 +661,13 @@ static struct resource au1300_sd0_res[] = {
 
 static struct platform_device db1300_sd0_dev = {
 	.dev = {
+<<<<<<< HEAD
 		.platform_data	= &db1300_sd0_platdata,
+=======
+		.dma_mask		= &au1300_all_dmamask,
+		.coherent_dma_mask	= DMA_BIT_MASK(32),
+		.platform_data		= &db1300_sd0_platdata,
+>>>>>>> upstream/android-13
 	},
 	.name		= "au1xxx-mmc",
 	.id		= 0,
@@ -654,10 +694,24 @@ static struct platform_device db1300_i2sdma_dev = {
 
 static struct platform_device db1300_sndac97_dev = {
 	.name		= "db1300-ac97",
+<<<<<<< HEAD
+=======
+	.dev = {
+		.dma_mask		= &au1300_all_dmamask,
+		.coherent_dma_mask	= DMA_BIT_MASK(32),
+	},
+>>>>>>> upstream/android-13
 };
 
 static struct platform_device db1300_sndi2s_dev = {
 	.name		= "db1300-i2s",
+<<<<<<< HEAD
+=======
+	.dev = {
+		.dma_mask		= &au1300_all_dmamask,
+		.coherent_dma_mask	= DMA_BIT_MASK(32),
+	},
+>>>>>>> upstream/android-13
 };
 
 /**********************************************************************/
@@ -702,13 +756,20 @@ static struct resource au1300_lcd_res[] = {
 	}
 };
 
+<<<<<<< HEAD
 static u64 au1300_lcd_dmamask = DMA_BIT_MASK(32);
+=======
+>>>>>>> upstream/android-13
 
 static struct platform_device db1300_lcd_dev = {
 	.name		= "au1200-lcd",
 	.id		= 0,
 	.dev = {
+<<<<<<< HEAD
 		.dma_mask		= &au1300_lcd_dmamask,
+=======
+		.dma_mask		= &au1300_all_dmamask,
+>>>>>>> upstream/android-13
 		.coherent_dma_mask	= DMA_BIT_MASK(32),
 		.platform_data		= &db1300fb_pd,
 	},
@@ -718,6 +779,10 @@ static struct platform_device db1300_lcd_dev = {
 
 /**********************************************************************/
 
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_TOUCHSCREEN_WM97XX)
+>>>>>>> upstream/android-13
 static void db1300_wm97xx_irqen(struct wm97xx *wm, int enable)
 {
 	if (enable)
@@ -749,6 +814,15 @@ static int db1300_wm97xx_probe(struct platform_device *pdev)
 
 	return wm97xx_register_mach_ops(wm, &db1300_wm97xx_ops);
 }
+<<<<<<< HEAD
+=======
+#else
+static int db1300_wm97xx_probe(struct platform_device *pdev)
+{
+	return -ENODEV;
+}
+#endif
+>>>>>>> upstream/android-13
 
 static struct platform_driver db1300_wm97xx_driver = {
 	.driver.name	= "wm97xx-touch",

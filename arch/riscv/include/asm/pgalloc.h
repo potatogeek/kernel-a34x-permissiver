@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2009 Chen Liqin <liqin.chen@sunplusct.com>
  * Copyright (C) 2012 Regents of the University of California
@@ -10,6 +11,12 @@
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *   GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2009 Chen Liqin <liqin.chen@sunplusct.com>
+ * Copyright (C) 2012 Regents of the University of California
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_RISCV_PGALLOC_H
@@ -18,6 +25,12 @@
 #include <linux/mm.h>
 #include <asm/tlb.h>
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_MMU
+#include <asm-generic/pgalloc.h>
+
+>>>>>>> upstream/android-13
 static inline void pmd_populate_kernel(struct mm_struct *mm,
 	pmd_t *pmd, pte_t *pte)
 {
@@ -43,8 +56,11 @@ static inline void pud_populate(struct mm_struct *mm, pud_t *pud, pmd_t *pmd)
 }
 #endif /* __PAGETABLE_PMD_FOLDED */
 
+<<<<<<< HEAD
 #define pmd_pgtable(pmd)	pmd_page(pmd)
 
+=======
+>>>>>>> upstream/android-13
 static inline pgd_t *pgd_alloc(struct mm_struct *mm)
 {
 	pgd_t *pgd;
@@ -60,6 +76,7 @@ static inline pgd_t *pgd_alloc(struct mm_struct *mm)
 	return pgd;
 }
 
+<<<<<<< HEAD
 static inline void pgd_free(struct mm_struct *mm, pgd_t *pgd)
 {
 	free_page((unsigned long)pgd);
@@ -78,10 +95,15 @@ static inline void pmd_free(struct mm_struct *mm, pmd_t *pmd)
 	free_page((unsigned long)pmd);
 }
 
+=======
+#ifndef __PAGETABLE_PMD_FOLDED
+
+>>>>>>> upstream/android-13
 #define __pmd_free_tlb(tlb, pmd, addr)  pmd_free((tlb)->mm, pmd)
 
 #endif /* __PAGETABLE_PMD_FOLDED */
 
+<<<<<<< HEAD
 static inline pte_t *pte_alloc_one_kernel(struct mm_struct *mm,
 	unsigned long address)
 {
@@ -120,5 +142,13 @@ do {                                    \
 static inline void check_pgt_cache(void)
 {
 }
+=======
+#define __pte_free_tlb(tlb, pte, buf)   \
+do {                                    \
+	pgtable_pte_page_dtor(pte);     \
+	tlb_remove_page((tlb), pte);    \
+} while (0)
+#endif /* CONFIG_MMU */
+>>>>>>> upstream/android-13
 
 #endif /* _ASM_RISCV_PGALLOC_H */

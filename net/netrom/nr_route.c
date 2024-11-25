@@ -1,8 +1,13 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright Jonathan Naylor G4KLX (g4klx@g4klx.demon.co.uk)
  * Copyright Alan Cox GW4PTS (alan@lxorguk.ukuu.org.uk)
@@ -266,9 +271,16 @@ static int __must_check nr_add_node(ax25_address *nr, const char *mnemonic,
 	case 3:
 		re_sort_routes(nr_node, 0, 1);
 		re_sort_routes(nr_node, 1, 2);
+<<<<<<< HEAD
 		/* fall through */
 	case 2:
 		re_sort_routes(nr_node, 0, 1);
+=======
+		fallthrough;
+	case 2:
+		re_sort_routes(nr_node, 0, 1);
+		break;
+>>>>>>> upstream/android-13
 	case 1:
 		break;
 	}
@@ -359,9 +371,16 @@ static int nr_del_node(ax25_address *callsign, ax25_address *neighbour, struct n
 				switch (i) {
 				case 0:
 					nr_node->routes[0] = nr_node->routes[1];
+<<<<<<< HEAD
 					/* fall through */
 				case 1:
 					nr_node->routes[1] = nr_node->routes[2];
+=======
+					fallthrough;
+				case 1:
+					nr_node->routes[1] = nr_node->routes[2];
+					fallthrough;
+>>>>>>> upstream/android-13
 				case 2:
 					break;
 				}
@@ -482,9 +501,16 @@ static int nr_dec_obs(void)
 				switch (i) {
 				case 0:
 					s->routes[0] = s->routes[1];
+<<<<<<< HEAD
 					/* Fallthrough */
 				case 1:
 					s->routes[1] = s->routes[2];
+=======
+					fallthrough;
+				case 1:
+					s->routes[1] = s->routes[2];
+					break;
+>>>>>>> upstream/android-13
 				case 2:
 					break;
 				}
@@ -529,9 +555,16 @@ void nr_rt_device_down(struct net_device *dev)
 						switch (i) {
 						case 0:
 							t->routes[0] = t->routes[1];
+<<<<<<< HEAD
 							/* fall through */
 						case 1:
 							t->routes[1] = t->routes[2];
+=======
+							fallthrough;
+						case 1:
+							t->routes[1] = t->routes[2];
+							break;
+>>>>>>> upstream/android-13
 						case 2:
 							break;
 						}
@@ -581,8 +614,12 @@ struct net_device *nr_dev_first(void)
 			if (first == NULL || strncmp(dev->name, first->name, 3) < 0)
 				first = dev;
 	}
+<<<<<<< HEAD
 	if (first)
 		dev_hold(first);
+=======
+	dev_hold(first);
+>>>>>>> upstream/android-13
 	rcu_read_unlock();
 
 	return first;
@@ -842,6 +879,10 @@ int nr_route_frame(struct sk_buff *skb, ax25_cb *ax25)
 #ifdef CONFIG_PROC_FS
 
 static void *nr_node_start(struct seq_file *seq, loff_t *pos)
+<<<<<<< HEAD
+=======
+	__acquires(&nr_node_list_lock)
+>>>>>>> upstream/android-13
 {
 	spin_lock_bh(&nr_node_list_lock);
 	return seq_hlist_start_head(&nr_node_list, *pos);
@@ -853,6 +894,10 @@ static void *nr_node_next(struct seq_file *seq, void *v, loff_t *pos)
 }
 
 static void nr_node_stop(struct seq_file *seq, void *v)
+<<<<<<< HEAD
+=======
+	__releases(&nr_node_list_lock)
+>>>>>>> upstream/android-13
 {
 	spin_unlock_bh(&nr_node_list_lock);
 }
@@ -897,6 +942,10 @@ const struct seq_operations nr_node_seqops = {
 };
 
 static void *nr_neigh_start(struct seq_file *seq, loff_t *pos)
+<<<<<<< HEAD
+=======
+	__acquires(&nr_neigh_list_lock)
+>>>>>>> upstream/android-13
 {
 	spin_lock_bh(&nr_neigh_list_lock);
 	return seq_hlist_start_head(&nr_neigh_list, *pos);
@@ -908,6 +957,10 @@ static void *nr_neigh_next(struct seq_file *seq, void *v, loff_t *pos)
 }
 
 static void nr_neigh_stop(struct seq_file *seq, void *v)
+<<<<<<< HEAD
+=======
+	__releases(&nr_neigh_list_lock)
+>>>>>>> upstream/android-13
 {
 	spin_unlock_bh(&nr_neigh_list_lock);
 }

@@ -382,7 +382,12 @@ static int imx6sx_pinctrl_probe(struct platform_device *pdev)
 static struct platform_driver imx6sx_pinctrl_driver = {
 	.driver = {
 		.name = "imx6sx-pinctrl",
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(imx6sx_pinctrl_of_match),
+=======
+		.of_match_table = imx6sx_pinctrl_of_match,
+		.suppress_bind_attrs = true,
+>>>>>>> upstream/android-13
 	},
 	.probe = imx6sx_pinctrl_probe,
 };

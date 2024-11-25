@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef _ASM_POWERPC_PROBES_H
 #define _ASM_POWERPC_PROBES_H
 #ifdef __KERNEL__
 /*
  * Definitions common to probes files
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -18,6 +23,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
+=======
+>>>>>>> upstream/android-13
  * Copyright IBM Corporation, 2012
  */
 #include <linux/types.h>
@@ -47,14 +54,22 @@ typedef u32 ppc_opcode_t;
 /* Enable single stepping for the current task */
 static inline void enable_single_step(struct pt_regs *regs)
 {
+<<<<<<< HEAD
 	regs->msr |= MSR_SINGLESTEP;
+=======
+	regs_set_return_msr(regs, regs->msr | MSR_SINGLESTEP);
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PPC_ADV_DEBUG_REGS
 	/*
 	 * We turn off Critical Input Exception(CE) to ensure that the single
 	 * step will be for the instruction we have the probe on; if we don't,
 	 * it is possible we'd get the single step reported for CE.
 	 */
+<<<<<<< HEAD
 	regs->msr &= ~MSR_CE;
+=======
+	regs_set_return_msr(regs, regs->msr & ~MSR_CE);
+>>>>>>> upstream/android-13
 	mtspr(SPRN_DBCR0, mfspr(SPRN_DBCR0) | DBCR0_IC | DBCR0_IDM);
 #ifdef CONFIG_PPC_47x
 	isync();

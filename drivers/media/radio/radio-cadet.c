@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* radio-cadet.c - A video4linux driver for the ADS Cadet AM/FM Radio Card
  *
  * by Fred Gleason <fredg@wava.com>
@@ -353,12 +357,18 @@ static ssize_t cadet_read(struct file *file, char __user *data, size_t count, lo
 static int vidioc_querycap(struct file *file, void *priv,
 				struct v4l2_capability *v)
 {
+<<<<<<< HEAD
 	strlcpy(v->driver, "ADS Cadet", sizeof(v->driver));
 	strlcpy(v->card, "ADS Cadet", sizeof(v->card));
 	strlcpy(v->bus_info, "ISA:radio-cadet", sizeof(v->bus_info));
 	v->device_caps = V4L2_CAP_TUNER | V4L2_CAP_RADIO |
 			  V4L2_CAP_READWRITE | V4L2_CAP_RDS_CAPTURE;
 	v->capabilities = v->device_caps | V4L2_CAP_DEVICE_CAPS;
+=======
+	strscpy(v->driver, "ADS Cadet", sizeof(v->driver));
+	strscpy(v->card, "ADS Cadet", sizeof(v->card));
+	strscpy(v->bus_info, "ISA:radio-cadet", sizeof(v->bus_info));
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -370,7 +380,11 @@ static int vidioc_g_tuner(struct file *file, void *priv,
 	if (v->index)
 		return -EINVAL;
 	v->type = V4L2_TUNER_RADIO;
+<<<<<<< HEAD
 	strlcpy(v->name, "Radio", sizeof(v->name));
+=======
+	strscpy(v->name, "Radio", sizeof(v->name));
+>>>>>>> upstream/android-13
 	v->capability = bands[0].capability | bands[1].capability;
 	v->rangelow = bands[0].rangelow;	   /* 520 kHz (start of AM band) */
 	v->rangehigh = bands[1].rangehigh;    /* 108.0 MHz (end of FM band) */
@@ -595,7 +609,11 @@ static int __init cadet_init(void)
 	struct v4l2_ctrl_handler *hdl;
 	int res = -ENODEV;
 
+<<<<<<< HEAD
 	strlcpy(v4l2_dev->name, "cadet", sizeof(v4l2_dev->name));
+=======
+	strscpy(v4l2_dev->name, "cadet", sizeof(v4l2_dev->name));
+>>>>>>> upstream/android-13
 	mutex_init(&dev->lock);
 
 	/* If a probe was requested then probe ISAPnP first (safest) */
@@ -639,12 +657,21 @@ static int __init cadet_init(void)
 	dev->is_fm_band = true;
 	dev->curfreq = bands[dev->is_fm_band].rangelow;
 	cadet_setfreq(dev, dev->curfreq);
+<<<<<<< HEAD
 	strlcpy(dev->vdev.name, v4l2_dev->name, sizeof(dev->vdev.name));
+=======
+	strscpy(dev->vdev.name, v4l2_dev->name, sizeof(dev->vdev.name));
+>>>>>>> upstream/android-13
 	dev->vdev.v4l2_dev = v4l2_dev;
 	dev->vdev.fops = &cadet_fops;
 	dev->vdev.ioctl_ops = &cadet_ioctl_ops;
 	dev->vdev.release = video_device_release_empty;
 	dev->vdev.lock = &dev->lock;
+<<<<<<< HEAD
+=======
+	dev->vdev.device_caps = V4L2_CAP_TUNER | V4L2_CAP_RADIO |
+				V4L2_CAP_READWRITE | V4L2_CAP_RDS_CAPTURE;
+>>>>>>> upstream/android-13
 	video_set_drvdata(&dev->vdev, dev);
 
 	res = video_register_device(&dev->vdev, VFL_TYPE_RADIO, radio_nr);

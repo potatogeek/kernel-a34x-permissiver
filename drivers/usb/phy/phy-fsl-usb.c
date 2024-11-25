@@ -65,7 +65,11 @@ struct fsl_otg_timer *b_data_pulse_tmr, *b_vbus_pulse_tmr, *b_srp_fail_tmr,
 
 static struct list_head active_timers;
 
+<<<<<<< HEAD
 static struct fsl_otg_config fsl_otg_initdata = {
+=======
+static const struct fsl_otg_config fsl_otg_initdata = {
+>>>>>>> upstream/android-13
 	.otg_port = 1,
 };
 
@@ -873,6 +877,11 @@ int usb_otg_start(struct platform_device *pdev)
 
 	/* request irq */
 	p_otg->irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
+=======
+	if (p_otg->irq < 0)
+		return p_otg->irq;
+>>>>>>> upstream/android-13
 	status = request_irq(p_otg->irq, fsl_otg_isr,
 				IRQF_SHARED, driver_name, p_otg);
 	if (status) {
@@ -911,10 +920,17 @@ int usb_otg_start(struct platform_device *pdev)
 		break;
 	case FSL_USB2_PHY_UTMI_WIDE:
 		temp |= PORTSC_PTW_16BIT;
+<<<<<<< HEAD
 		/* fall through */
 	case FSL_USB2_PHY_UTMI:
 		temp |= PORTSC_PTS_UTMI;
 		/* fall through */
+=======
+		fallthrough;
+	case FSL_USB2_PHY_UTMI:
+		temp |= PORTSC_PTS_UTMI;
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
@@ -957,6 +973,7 @@ int usb_otg_start(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 /*
  * state file in sysfs
  */
@@ -1105,6 +1122,8 @@ static const struct file_operations otg_fops = {
 	.release = fsl_otg_release,
 };
 
+=======
+>>>>>>> upstream/android-13
 static int fsl_otg_probe(struct platform_device *pdev)
 {
 	int ret;
@@ -1126,6 +1145,7 @@ static int fsl_otg_probe(struct platform_device *pdev)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	ret = register_chrdev(FSL_OTG_MAJOR, FSL_OTG_NAME, &otg_fops);
 	if (ret) {
 		dev_err(&pdev->dev, "unable to register FSL OTG device\n");
@@ -1136,6 +1156,8 @@ static int fsl_otg_probe(struct platform_device *pdev)
 	if (ret)
 		dev_warn(&pdev->dev, "Can't register sysfs attribute\n");
 
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -1152,10 +1174,13 @@ static int fsl_otg_remove(struct platform_device *pdev)
 	kfree(fsl_otg_dev->phy.otg);
 	kfree(fsl_otg_dev);
 
+<<<<<<< HEAD
 	device_remove_file(&pdev->dev, &dev_attr_fsl_usb2_otg_state);
 
 	unregister_chrdev(FSL_OTG_MAJOR, FSL_OTG_NAME);
 
+=======
+>>>>>>> upstream/android-13
 	if (pdata->exit)
 		pdata->exit(pdev);
 

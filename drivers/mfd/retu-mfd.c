@@ -45,7 +45,11 @@ struct retu_dev {
 	struct regmap_irq_chip_data	*irq_data;
 };
 
+<<<<<<< HEAD
 static struct resource retu_pwrbutton_res[] = {
+=======
+static const struct resource retu_pwrbutton_res[] = {
+>>>>>>> upstream/android-13
 	{
 		.name	= "retu-pwrbutton",
 		.start	= RETU_INT_PWR,
@@ -84,7 +88,11 @@ static struct regmap_irq_chip retu_irq_chip = {
 /* Retu device registered for the power off. */
 static struct retu_dev *retu_pm_power_off;
 
+<<<<<<< HEAD
 static struct resource tahvo_usb_res[] = {
+=======
+static const struct resource tahvo_usb_res[] = {
+>>>>>>> upstream/android-13
 	{
 		.name	= "tahvo-usb",
 		.start	= TAHVO_INT_VBUS,

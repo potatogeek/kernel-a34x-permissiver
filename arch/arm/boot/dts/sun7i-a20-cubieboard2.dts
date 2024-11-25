@@ -74,15 +74,24 @@
 
 	leds {
 		compatible = "gpio-leds";
+<<<<<<< HEAD
 		pinctrl-names = "default";
 		pinctrl-0 = <&led_pins_cubieboard2>;
 
 		blue {
+=======
+
+		led-0 {
+>>>>>>> upstream/android-13
 			label = "cubieboard2:blue:usr";
 			gpios = <&pio 7 21 GPIO_ACTIVE_HIGH>;
 		};
 
+<<<<<<< HEAD
 		green {
+=======
+		led-1 {
+>>>>>>> upstream/android-13
 			label = "cubieboard2:green:usr";
 			gpios = <&pio 7 20 GPIO_ACTIVE_HIGH>;
 		};
@@ -116,6 +125,7 @@
 
 &gmac {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&gmac_pins_mii_a>;
 	phy = <&phy1>;
 	phy-mode = "mii";
@@ -124,6 +134,12 @@
 	phy1: ethernet-phy@1 {
 		reg = <1>;
 	};
+=======
+	pinctrl-0 = <&gmac_mii_pins>;
+	phy-handle = <&phy1>;
+	phy-mode = "mii";
+	status = "okay";
+>>>>>>> upstream/android-13
 };
 
 &hdmi {
@@ -137,8 +153,11 @@
 };
 
 &i2c0 {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c0_pins_a>;
+=======
+>>>>>>> upstream/android-13
 	status = "okay";
 
 	axp209: pmic@34 {
@@ -149,26 +168,45 @@
 };
 
 &i2c1 {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c1_pins_a>;
+=======
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
 &ir0 {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&ir0_rx_pins_a>;
+=======
+	pinctrl-0 = <&ir0_rx_pin>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
 &mmc0 {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&mmc0_pins_a>;
+=======
+>>>>>>> upstream/android-13
 	vmmc-supply = <&reg_vcc3v3>;
 	bus-width = <4>;
 	cd-gpios = <&pio 7 1 GPIO_ACTIVE_LOW>; /* PH1 */
 	status = "okay";
 };
 
+<<<<<<< HEAD
+=======
+&gmac_mdio {
+	phy1: ethernet-phy@1 {
+		reg = <1>;
+	};
+};
+
+>>>>>>> upstream/android-13
 &ohci0 {
 	status = "okay";
 };
@@ -181,6 +219,7 @@
 	status = "okay";
 };
 
+<<<<<<< HEAD
 &pio {
 	led_pins_cubieboard2: led_pins@0 {
 		pins = "PH20", "PH21";
@@ -194,6 +233,8 @@
 	};
 };
 
+=======
+>>>>>>> upstream/android-13
 &reg_ahci_5v {
 	status = "okay";
 };
@@ -239,7 +280,11 @@
 
 &uart0 {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&uart0_pins_a>;
+=======
+	pinctrl-0 = <&uart0_pb_pins>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
@@ -249,9 +294,13 @@
 };
 
 &usbphy {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&usb0_id_detect_pin>;
 	usb0_id_det-gpio = <&pio 7 4 GPIO_ACTIVE_HIGH>; /* PH4 */
+=======
+	usb0_id_det-gpios = <&pio 7 4 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; /* PH4 */
+>>>>>>> upstream/android-13
 	usb1_vbus-supply = <&reg_usb1_vbus>;
 	usb2_vbus-supply = <&reg_usb2_vbus>;
 	status = "okay";

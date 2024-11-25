@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 1997-1998 Transmeta Corporation -- All Rights Reserved
  * Copyright 2005-2006 Ian Kent <raven@themaw.net>
@@ -5,6 +6,12 @@
  * This file is part of the Linux kernel and is made available under
  * the terms of the GNU General Public License, version 2, or at your
  * option, any later version, incorporated herein by reference.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 1997-1998 Transmeta Corporation -- All Rights Reserved
+ * Copyright 2005-2006 Ian Kent <raven@themaw.net>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/seq_file.h>
@@ -36,7 +43,11 @@ void autofs_clean_ino(struct autofs_info *ino)
 
 void autofs_free_ino(struct autofs_info *ino)
 {
+<<<<<<< HEAD
 	kfree(ino);
+=======
+	kfree_rcu(ino, rcu);
+>>>>>>> upstream/android-13
 }
 
 void autofs_kill_sb(struct super_block *sb)
@@ -82,16 +93,32 @@ static int autofs_show_options(struct seq_file *m, struct dentry *root)
 	seq_printf(m, ",maxproto=%d", sbi->max_proto);
 
 	if (autofs_type_offset(sbi->type))
+<<<<<<< HEAD
 		seq_printf(m, ",offset");
 	else if (autofs_type_direct(sbi->type))
 		seq_printf(m, ",direct");
 	else
 		seq_printf(m, ",indirect");
+=======
+		seq_puts(m, ",offset");
+	else if (autofs_type_direct(sbi->type))
+		seq_puts(m, ",direct");
+	else
+		seq_puts(m, ",indirect");
+	if (sbi->flags & AUTOFS_SBI_STRICTEXPIRE)
+		seq_puts(m, ",strictexpire");
+	if (sbi->flags & AUTOFS_SBI_IGNORE)
+		seq_puts(m, ",ignore");
+>>>>>>> upstream/android-13
 #ifdef CONFIG_CHECKPOINT_RESTORE
 	if (sbi->pipe)
 		seq_printf(m, ",pipe_ino=%ld", file_inode(sbi->pipe)->i_ino);
 	else
+<<<<<<< HEAD
 		seq_printf(m, ",pipe_ino=-1");
+=======
+		seq_puts(m, ",pipe_ino=-1");
+>>>>>>> upstream/android-13
 #endif
 	return 0;
 }
@@ -109,7 +136,12 @@ static const struct super_operations autofs_sops = {
 };
 
 enum {Opt_err, Opt_fd, Opt_uid, Opt_gid, Opt_pgrp, Opt_minproto, Opt_maxproto,
+<<<<<<< HEAD
 	Opt_indirect, Opt_direct, Opt_offset};
+=======
+	Opt_indirect, Opt_direct, Opt_offset, Opt_strictexpire,
+	Opt_ignore};
+>>>>>>> upstream/android-13
 
 static const match_table_t tokens = {
 	{Opt_fd, "fd=%u"},
@@ -121,16 +153,28 @@ static const match_table_t tokens = {
 	{Opt_indirect, "indirect"},
 	{Opt_direct, "direct"},
 	{Opt_offset, "offset"},
+<<<<<<< HEAD
 	{Opt_err, NULL}
 };
 
 static int parse_options(char *options, int *pipefd, kuid_t *uid, kgid_t *gid,
 			 int *pgrp, bool *pgrp_set, unsigned int *type,
 			 int *minproto, int *maxproto)
+=======
+	{Opt_strictexpire, "strictexpire"},
+	{Opt_ignore, "ignore"},
+	{Opt_err, NULL}
+};
+
+static int parse_options(char *options,
+			 struct inode *root, int *pgrp, bool *pgrp_set,
+			 struct autofs_sb_info *sbi)
+>>>>>>> upstream/android-13
 {
 	char *p;
 	substring_t args[MAX_OPT_ARGS];
 	int option;
+<<<<<<< HEAD
 
 	*uid = current_uid();
 	*gid = current_gid();
@@ -139,6 +183,19 @@ static int parse_options(char *options, int *pipefd, kuid_t *uid, kgid_t *gid,
 	*maxproto = AUTOFS_MAX_PROTO_VERSION;
 
 	*pipefd = -1;
+=======
+	int pipefd = -1;
+	kuid_t uid;
+	kgid_t gid;
+
+	root->i_uid = current_uid();
+	root->i_gid = current_gid();
+
+	sbi->min_proto = AUTOFS_MIN_PROTO_VERSION;
+	sbi->max_proto = AUTOFS_MAX_PROTO_VERSION;
+
+	sbi->pipefd = -1;
+>>>>>>> upstream/android-13
 
 	if (!options)
 		return 1;
@@ -152,22 +209,42 @@ static int parse_options(char *options, int *pipefd, kuid_t *uid, kgid_t *gid,
 		token = match_token(p, tokens, args);
 		switch (token) {
 		case Opt_fd:
+<<<<<<< HEAD
 			if (match_int(args, pipefd))
 				return 1;
+=======
+			if (match_int(args, &pipefd))
+				return 1;
+			sbi->pipefd = pipefd;
+>>>>>>> upstream/android-13
 			break;
 		case Opt_uid:
 			if (match_int(args, &option))
 				return 1;
+<<<<<<< HEAD
 			*uid = make_kuid(current_user_ns(), option);
 			if (!uid_valid(*uid))
 				return 1;
+=======
+			uid = make_kuid(current_user_ns(), option);
+			if (!uid_valid(uid))
+				return 1;
+			root->i_uid = uid;
+>>>>>>> upstream/android-13
 			break;
 		case Opt_gid:
 			if (match_int(args, &option))
 				return 1;
+<<<<<<< HEAD
 			*gid = make_kgid(current_user_ns(), option);
 			if (!gid_valid(*gid))
 				return 1;
+=======
+			gid = make_kgid(current_user_ns(), option);
+			if (!gid_valid(gid))
+				return 1;
+			root->i_gid = gid;
+>>>>>>> upstream/android-13
 			break;
 		case Opt_pgrp:
 			if (match_int(args, &option))
@@ -178,11 +255,16 @@ static int parse_options(char *options, int *pipefd, kuid_t *uid, kgid_t *gid,
 		case Opt_minproto:
 			if (match_int(args, &option))
 				return 1;
+<<<<<<< HEAD
 			*minproto = option;
+=======
+			sbi->min_proto = option;
+>>>>>>> upstream/android-13
 			break;
 		case Opt_maxproto:
 			if (match_int(args, &option))
 				return 1;
+<<<<<<< HEAD
 			*maxproto = option;
 			break;
 		case Opt_indirect:
@@ -193,12 +275,34 @@ static int parse_options(char *options, int *pipefd, kuid_t *uid, kgid_t *gid,
 			break;
 		case Opt_offset:
 			set_autofs_type_offset(type);
+=======
+			sbi->max_proto = option;
+			break;
+		case Opt_indirect:
+			set_autofs_type_indirect(&sbi->type);
+			break;
+		case Opt_direct:
+			set_autofs_type_direct(&sbi->type);
+			break;
+		case Opt_offset:
+			set_autofs_type_offset(&sbi->type);
+			break;
+		case Opt_strictexpire:
+			sbi->flags |= AUTOFS_SBI_STRICTEXPIRE;
+			break;
+		case Opt_ignore:
+			sbi->flags |= AUTOFS_SBI_IGNORE;
+>>>>>>> upstream/android-13
 			break;
 		default:
 			return 1;
 		}
 	}
+<<<<<<< HEAD
 	return (*pipefd < 0);
+=======
+	return (sbi->pipefd < 0);
+>>>>>>> upstream/android-13
 }
 
 int autofs_fill_super(struct super_block *s, void *data, int silent)
@@ -206,7 +310,10 @@ int autofs_fill_super(struct super_block *s, void *data, int silent)
 	struct inode *root_inode;
 	struct dentry *root;
 	struct file *pipe;
+<<<<<<< HEAD
 	int pipefd;
+=======
+>>>>>>> upstream/android-13
 	struct autofs_sb_info *sbi;
 	struct autofs_info *ino;
 	int pgrp = 0;
@@ -222,12 +329,19 @@ int autofs_fill_super(struct super_block *s, void *data, int silent)
 	sbi->magic = AUTOFS_SBI_MAGIC;
 	sbi->pipefd = -1;
 	sbi->pipe = NULL;
+<<<<<<< HEAD
 	sbi->catatonic = 1;
+=======
+>>>>>>> upstream/android-13
 	sbi->exp_timeout = 0;
 	sbi->oz_pgrp = NULL;
 	sbi->sb = s;
 	sbi->version = 0;
 	sbi->sub_version = 0;
+<<<<<<< HEAD
+=======
+	sbi->flags = AUTOFS_SBI_CATATONIC;
+>>>>>>> upstream/android-13
 	set_autofs_type_indirect(&sbi->type);
 	sbi->min_proto = 0;
 	sbi->max_proto = 0;
@@ -264,9 +378,13 @@ int autofs_fill_super(struct super_block *s, void *data, int silent)
 	root->d_fsdata = ino;
 
 	/* Can this call block? */
+<<<<<<< HEAD
 	if (parse_options(data, &pipefd, &root_inode->i_uid, &root_inode->i_gid,
 			  &pgrp, &pgrp_set, &sbi->type, &sbi->min_proto,
 			  &sbi->max_proto)) {
+=======
+	if (parse_options(data, root_inode, &pgrp, &pgrp_set, sbi)) {
+>>>>>>> upstream/android-13
 		pr_err("called with bogus options\n");
 		goto fail_dput;
 	}
@@ -305,8 +423,14 @@ int autofs_fill_super(struct super_block *s, void *data, int silent)
 	root_inode->i_fop = &autofs_root_operations;
 	root_inode->i_op = &autofs_dir_inode_operations;
 
+<<<<<<< HEAD
 	pr_debug("pipe fd = %d, pgrp = %u\n", pipefd, pid_nr(sbi->oz_pgrp));
 	pipe = fget(pipefd);
+=======
+	pr_debug("pipe fd = %d, pgrp = %u\n",
+		 sbi->pipefd, pid_nr(sbi->oz_pgrp));
+	pipe = fget(sbi->pipefd);
+>>>>>>> upstream/android-13
 
 	if (!pipe) {
 		pr_err("could not open pipe file descriptor\n");
@@ -316,8 +440,12 @@ int autofs_fill_super(struct super_block *s, void *data, int silent)
 	if (ret < 0)
 		goto fail_fput;
 	sbi->pipe = pipe;
+<<<<<<< HEAD
 	sbi->pipefd = pipefd;
 	sbi->catatonic = 0;
+=======
+	sbi->flags &= ~AUTOFS_SBI_CATATONIC;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Success! Install the root dentry now to indicate completion.

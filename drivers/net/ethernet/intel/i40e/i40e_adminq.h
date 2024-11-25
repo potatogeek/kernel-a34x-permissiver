@@ -85,8 +85,13 @@ struct i40e_adminq_info {
 
 /**
  * i40e_aq_rc_to_posix - convert errors to user-land codes
+<<<<<<< HEAD
  * aq_ret: AdminQ handler error code can override aq_rc
  * aq_rc: AdminQ firmware error code to convert
+=======
+ * @aq_ret: AdminQ handler error code can override aq_rc
+ * @aq_rc: AdminQ firmware error code to convert
+>>>>>>> upstream/android-13
  **/
 static inline int i40e_aq_rc_to_posix(int aq_ret, int aq_rc)
 {

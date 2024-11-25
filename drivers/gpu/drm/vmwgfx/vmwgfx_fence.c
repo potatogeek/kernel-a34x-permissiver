@@ -25,7 +25,12 @@
  *
  **************************************************************************/
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+#include <linux/sched/signal.h>
+
+>>>>>>> upstream/android-13
 #include "vmwgfx_drv.h"
 
 #define VMW_FENCE_WRAP (1 << 31)
@@ -57,6 +62,7 @@ struct vmw_user_fence {
 /**
  * struct vmw_event_fence_action - fence action that delivers a drm event.
  *
+<<<<<<< HEAD
  * @e: A struct drm_pending_event that controls the event delivery.
  * @action: A struct vmw_fence_action to hook up to a fence.
  * @fence: A referenced pointer to the fence to keep it alive while @action
@@ -64,6 +70,13 @@ struct vmw_user_fence {
  * @dev: Pointer to a struct drm_device so we can access the event stuff.
  * @kref: Both @e and @action has destructors, so we need to refcount.
  * @size: Size accounted for this object.
+=======
+ * @action: A struct vmw_fence_action to hook up to a fence.
+ * @event: A pointer to the pending event.
+ * @fence: A referenced pointer to the fence to keep it alive while @action
+ * hangs on it.
+ * @dev: Pointer to a struct drm_device so we can access the event stuff.
+>>>>>>> upstream/android-13
  * @tv_sec: If non-null, the variable pointed to will be assigned
  * current time tv_sec val when the fence signals.
  * @tv_usec: Must be set if @tv_sec is set, and the variable pointed to will
@@ -86,7 +99,27 @@ fman_from_fence(struct vmw_fence_obj *fence)
 	return container_of(fence->base.lock, struct vmw_fence_manager, lock);
 }
 
+<<<<<<< HEAD
 /**
+=======
+static u32 vmw_fence_goal_read(struct vmw_private *vmw)
+{
+	if ((vmw->capabilities2 & SVGA_CAP2_EXTRA_REGS) != 0)
+		return vmw_read(vmw, SVGA_REG_FENCE_GOAL);
+	else
+		return vmw_fifo_mem_read(vmw, SVGA_FIFO_FENCE_GOAL);
+}
+
+static void vmw_fence_goal_write(struct vmw_private *vmw, u32 value)
+{
+	if ((vmw->capabilities2 & SVGA_CAP2_EXTRA_REGS) != 0)
+		vmw_write(vmw, SVGA_REG_FENCE_GOAL, value);
+	else
+		vmw_fifo_mem_write(vmw, SVGA_FIFO_FENCE_GOAL, value);
+}
+
+/*
+>>>>>>> upstream/android-13
  * Note on fencing subsystem usage of irqs:
  * Typically the vmw_fences_update function is called
  *
@@ -140,6 +173,7 @@ static bool vmw_fence_enable_signaling(struct dma_fence *f)
 	struct vmw_fence_manager *fman = fman_from_fence(fence);
 	struct vmw_private *dev_priv = fman->dev_priv;
 
+<<<<<<< HEAD
 	u32 *fifo_mem = dev_priv->mmio_virt;
 	u32 seqno = vmw_mmio_read(fifo_mem + SVGA_FIFO_FENCE);
 	if (seqno - fence->base.seqno < VMW_FENCE_WRAP)
@@ -147,6 +181,12 @@ static bool vmw_fence_enable_signaling(struct dma_fence *f)
 
 	vmw_fifo_ping_host(dev_priv, SVGA_SYNC_GENERIC);
 
+=======
+	u32 seqno = vmw_fence_read(dev_priv);
+	if (seqno - fence->base.seqno < VMW_FENCE_WRAP)
+		return false;
+
+>>>>>>> upstream/android-13
 	return true;
 }
 
@@ -179,11 +219,20 @@ static long vmw_fence_wait(struct dma_fence *f, bool intr, signed long timeout)
 	if (likely(vmw_fence_obj_signaled(fence)))
 		return timeout;
 
+<<<<<<< HEAD
 	vmw_fifo_ping_host(dev_priv, SVGA_SYNC_GENERIC);
+=======
+>>>>>>> upstream/android-13
 	vmw_seqno_waiter_add(dev_priv);
 
 	spin_lock(f->lock);
 
+<<<<<<< HEAD
+=======
+	if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &f->flags))
+		goto out;
+
+>>>>>>> upstream/android-13
 	if (intr && signal_pending(current)) {
 		ret = -ERESTARTSYS;
 		goto out;
@@ -247,7 +296,11 @@ static const struct dma_fence_ops vmw_fence_ops = {
 };
 
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Execute signal actions on fences recently signaled.
  * This is done from a workqueue so we don't have to execute
  * signal actions from atomic context.
@@ -306,7 +359,12 @@ struct vmw_fence_manager *vmw_fence_manager_init(struct vmw_private *dev_priv)
 	INIT_LIST_HEAD(&fman->cleanup_list);
 	INIT_WORK(&fman->work, &vmw_fence_work_func);
 	fman->fifo_down = true;
+<<<<<<< HEAD
 	fman->user_fence_size = ttm_round_pot(sizeof(struct vmw_user_fence));
+=======
+	fman->user_fence_size = ttm_round_pot(sizeof(struct vmw_user_fence)) +
+		TTM_OBJ_EXTRA_SIZE;
+>>>>>>> upstream/android-13
 	fman->fence_size = ttm_round_pot(sizeof(struct vmw_fence_obj));
 	fman->event_fence_action_size =
 		ttm_round_pot(sizeof(struct vmw_event_fence_action));
@@ -396,14 +454,21 @@ static bool vmw_fence_goal_new_locked(struct vmw_fence_manager *fman,
 				      u32 passed_seqno)
 {
 	u32 goal_seqno;
+<<<<<<< HEAD
 	u32 *fifo_mem;
+=======
+>>>>>>> upstream/android-13
 	struct vmw_fence_obj *fence;
 
 	if (likely(!fman->seqno_valid))
 		return false;
 
+<<<<<<< HEAD
 	fifo_mem = fman->dev_priv->mmio_virt;
 	goal_seqno = vmw_mmio_read(fifo_mem + SVGA_FIFO_FENCE_GOAL);
+=======
+	goal_seqno = vmw_fence_goal_read(fman->dev_priv);
+>>>>>>> upstream/android-13
 	if (likely(passed_seqno - goal_seqno >= VMW_FENCE_WRAP))
 		return false;
 
@@ -411,8 +476,13 @@ static bool vmw_fence_goal_new_locked(struct vmw_fence_manager *fman,
 	list_for_each_entry(fence, &fman->fence_list, head) {
 		if (!list_empty(&fence->seq_passed_actions)) {
 			fman->seqno_valid = true;
+<<<<<<< HEAD
 			vmw_mmio_write(fence->base.seqno,
 				       fifo_mem + SVGA_FIFO_FENCE_GOAL);
+=======
+			vmw_fence_goal_write(fman->dev_priv,
+					     fence->base.seqno);
+>>>>>>> upstream/android-13
 			break;
 		}
 	}
@@ -440,18 +510,29 @@ static bool vmw_fence_goal_check_locked(struct vmw_fence_obj *fence)
 {
 	struct vmw_fence_manager *fman = fman_from_fence(fence);
 	u32 goal_seqno;
+<<<<<<< HEAD
 	u32 *fifo_mem;
+=======
+>>>>>>> upstream/android-13
 
 	if (dma_fence_is_signaled_locked(&fence->base))
 		return false;
 
+<<<<<<< HEAD
 	fifo_mem = fman->dev_priv->mmio_virt;
 	goal_seqno = vmw_mmio_read(fifo_mem + SVGA_FIFO_FENCE_GOAL);
+=======
+	goal_seqno = vmw_fence_goal_read(fman->dev_priv);
+>>>>>>> upstream/android-13
 	if (likely(fman->seqno_valid &&
 		   goal_seqno - fence->base.seqno < VMW_FENCE_WRAP))
 		return false;
 
+<<<<<<< HEAD
 	vmw_mmio_write(fence->base.seqno, fifo_mem + SVGA_FIFO_FENCE_GOAL);
+=======
+	vmw_fence_goal_write(fman->dev_priv, fence->base.seqno);
+>>>>>>> upstream/android-13
 	fman->seqno_valid = true;
 
 	return true;
@@ -463,9 +544,14 @@ static void __vmw_fences_update(struct vmw_fence_manager *fman)
 	struct list_head action_list;
 	bool needs_rerun;
 	uint32_t seqno, new_seqno;
+<<<<<<< HEAD
 	u32 *fifo_mem = fman->dev_priv->mmio_virt;
 
 	seqno = vmw_mmio_read(fifo_mem + SVGA_FIFO_FENCE);
+=======
+
+	seqno = vmw_fence_read(fman->dev_priv);
+>>>>>>> upstream/android-13
 rerun:
 	list_for_each_entry_safe(fence, next_fence, &fman->fence_list, head) {
 		if (seqno - fence->base.seqno < VMW_FENCE_WRAP) {
@@ -487,7 +573,11 @@ rerun:
 
 	needs_rerun = vmw_fence_goal_new_locked(fman, seqno);
 	if (unlikely(needs_rerun)) {
+<<<<<<< HEAD
 		new_seqno = vmw_mmio_read(fifo_mem + SVGA_FIFO_FENCE);
+=======
+		new_seqno = vmw_fence_read(fman->dev_priv);
+>>>>>>> upstream/android-13
 		if (new_seqno != seqno) {
 			seqno = new_seqno;
 			goto rerun;
@@ -510,7 +600,11 @@ bool vmw_fence_obj_signaled(struct vmw_fence_obj *fence)
 	struct vmw_fence_manager *fman = fman_from_fence(fence);
 
 	if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->base.flags))
+<<<<<<< HEAD
 		return 1;
+=======
+		return true;
+>>>>>>> upstream/android-13
 
 	vmw_fences_update(fman);
 
@@ -530,6 +624,7 @@ int vmw_fence_obj_wait(struct vmw_fence_obj *fence, bool lazy,
 		return ret;
 }
 
+<<<<<<< HEAD
 void vmw_fence_obj_flush(struct vmw_fence_obj *fence)
 {
 	struct vmw_private *dev_priv = fman_from_fence(fence)->dev_priv;
@@ -537,6 +632,8 @@ void vmw_fence_obj_flush(struct vmw_fence_obj *fence)
 	vmw_fifo_ping_host(dev_priv, SVGA_SYNC_GENERIC);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void vmw_fence_destroy(struct vmw_fence_obj *fence)
 {
 	dma_fence_free(&fence->base);
@@ -650,7 +747,11 @@ int vmw_user_fence_create(struct drm_file *file_priv,
 	}
 
 	*p_fence = &ufence->fence;
+<<<<<<< HEAD
 	*p_handle = ufence->base.hash.key;
+=======
+	*p_handle = ufence->base.handle;
+>>>>>>> upstream/android-13
 
 	return 0;
 out_err:
@@ -707,7 +808,11 @@ int vmw_wait_dma_fence(struct vmw_fence_manager *fman,
 }
 
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * vmw_fence_fifo_down - signal all unsignaled fence objects.
  */
 
@@ -905,13 +1010,19 @@ static void vmw_event_fence_action_seq_passed(struct vmw_fence_action *action)
 		container_of(action, struct vmw_event_fence_action, action);
 	struct drm_device *dev = eaction->dev;
 	struct drm_pending_event *event = eaction->event;
+<<<<<<< HEAD
 	struct drm_file *file_priv;
 
+=======
+>>>>>>> upstream/android-13
 
 	if (unlikely(event == NULL))
 		return;
 
+<<<<<<< HEAD
 	file_priv = event->file_priv;
+=======
+>>>>>>> upstream/android-13
 	spin_lock_irq(&dev->event_lock);
 
 	if (likely(eaction->tv_sec != NULL)) {
@@ -950,8 +1061,13 @@ static void vmw_event_fence_action_cleanup(struct vmw_fence_action *action)
 /**
  * vmw_fence_obj_add_action - Add an action to a fence object.
  *
+<<<<<<< HEAD
  * @fence - The fence object.
  * @action - The action to add.
+=======
+ * @fence: The fence object.
+ * @action: The action to add.
+>>>>>>> upstream/android-13
  *
  * Note that the action callbacks may be executed before this function
  * returns.
@@ -996,13 +1112,24 @@ static void vmw_fence_obj_add_action(struct vmw_fence_obj *fence,
 }
 
 /**
+<<<<<<< HEAD
  * vmw_event_fence_action_create - Post an event for sending when a fence
+=======
+ * vmw_event_fence_action_queue - Post an event for sending when a fence
+>>>>>>> upstream/android-13
  * object seqno has passed.
  *
  * @file_priv: The file connection on which the event should be posted.
  * @fence: The fence object on which to post the event.
  * @event: Event to be posted. This event should've been alloced
  * using k[mz]alloc, and should've been completely initialized.
+<<<<<<< HEAD
+=======
+ * @tv_sec: If non-null, the variable pointed to will be assigned
+ * current time tv_sec val when the fence signals.
+ * @tv_usec: Must be set if @tv_sec is set, and the variable pointed to will
+ * be assigned the current time tv_usec val when the fence signals.
+>>>>>>> upstream/android-13
  * @interruptible: Interruptible waits if possible.
  *
  * As a side effect, the object pointed to by @event may have been
@@ -1031,7 +1158,11 @@ int vmw_event_fence_action_queue(struct drm_file *file_priv,
 	eaction->action.type = VMW_ACTION_EVENT;
 
 	eaction->fence = vmw_fence_obj_reference(fence);
+<<<<<<< HEAD
 	eaction->dev = fman->dev_priv->dev;
+=======
+	eaction->dev = &fman->dev_priv->drm;
+>>>>>>> upstream/android-13
 	eaction->tv_sec = tv_sec;
 	eaction->tv_usec = tv_usec;
 
@@ -1053,7 +1184,11 @@ static int vmw_event_fence_action_create(struct drm_file *file_priv,
 {
 	struct vmw_event_fence_pending *event;
 	struct vmw_fence_manager *fman = fman_from_fence(fence);
+<<<<<<< HEAD
 	struct drm_device *dev = fman->dev_priv->dev;
+=======
+	struct drm_device *dev = &fman->dev_priv->drm;
+>>>>>>> upstream/android-13
 	int ret;
 
 	event = kzalloc(sizeof(*event), GFP_KERNEL);
@@ -1137,7 +1272,11 @@ int vmw_fence_event_ioctl(struct drm_device *dev, void *data,
 					  "object.\n");
 				goto out_no_ref_obj;
 			}
+<<<<<<< HEAD
 			handle = base->hash.key;
+=======
+			handle = base->handle;
+>>>>>>> upstream/android-13
 		}
 		ttm_base_object_unref(&base);
 	}
@@ -1169,7 +1308,11 @@ int vmw_fence_event_ioctl(struct drm_device *dev, void *data,
 	}
 
 	vmw_execbuf_copy_fence_user(dev_priv, vmw_fp, 0, user_fence_rep, fence,
+<<<<<<< HEAD
 				    handle, -1, NULL);
+=======
+				    handle, -1);
+>>>>>>> upstream/android-13
 	vmw_fence_obj_unreference(&fence);
 	return 0;
 out_no_create:

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * This file is part of UBIFS.
  *
  * Copyright (C) 2006-2008 Nokia Corporation.
  * Copyright (C) 2006, 2007 University of Szeged, Hungary
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
@@ -17,6 +22,8 @@
  * this program; if not, write to the Free Software Foundation, Inc., 51
  * Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  * Authors: Adrian Hunter
  *          Artem Bityutskiy (Битюцкий Артём)
  *          Zoltan Sogor
@@ -71,6 +78,27 @@ static struct ubifs_compressor zlib_compr = {
 };
 #endif
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_UBIFS_FS_ZSTD
+static DEFINE_MUTEX(zstd_enc_mutex);
+static DEFINE_MUTEX(zstd_dec_mutex);
+
+static struct ubifs_compressor zstd_compr = {
+	.compr_type = UBIFS_COMPR_ZSTD,
+	.comp_mutex = &zstd_enc_mutex,
+	.decomp_mutex = &zstd_dec_mutex,
+	.name = "zstd",
+	.capi_name = "zstd",
+};
+#else
+static struct ubifs_compressor zstd_compr = {
+	.compr_type = UBIFS_COMPR_ZSTD,
+	.name = "zstd",
+};
+#endif
+
+>>>>>>> upstream/android-13
 /* All UBIFS compressors */
 struct ubifs_compressor *ubifs_compressors[UBIFS_COMPR_TYPES_CNT];
 
@@ -228,6 +256,7 @@ int __init ubifs_compressors_init(void)
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	err = compr_init(&zlib_compr);
 	if (err)
 		goto out_lzo;
@@ -235,6 +264,21 @@ int __init ubifs_compressors_init(void)
 	ubifs_compressors[UBIFS_COMPR_NONE] = &none_compr;
 	return 0;
 
+=======
+	err = compr_init(&zstd_compr);
+	if (err)
+		goto out_lzo;
+
+	err = compr_init(&zlib_compr);
+	if (err)
+		goto out_zstd;
+
+	ubifs_compressors[UBIFS_COMPR_NONE] = &none_compr;
+	return 0;
+
+out_zstd:
+	compr_exit(&zstd_compr);
+>>>>>>> upstream/android-13
 out_lzo:
 	compr_exit(&lzo_compr);
 	return err;
@@ -247,4 +291,8 @@ void ubifs_compressors_exit(void)
 {
 	compr_exit(&lzo_compr);
 	compr_exit(&zlib_compr);
+<<<<<<< HEAD
+=======
+	compr_exit(&zstd_compr);
+>>>>>>> upstream/android-13
 }

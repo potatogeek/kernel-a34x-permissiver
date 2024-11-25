@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Driver for the NXP SAA7164 PCIe bridge
  *
  *  Copyright (c) 2010-2015 Steven Toth <stoth@kernellabs.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "saa7164.h"
@@ -258,7 +265,11 @@ int saa7164_enum_input(struct file *file, void *priv, struct v4l2_input *i)
 	if (i->index >= 7)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	strcpy(i->name, inputs[i->index]);
+=======
+	strscpy(i->name, inputs[i->index], sizeof(i->name));
+>>>>>>> upstream/android-13
 
 	if (i->index == 0)
 		i->type = V4L2_INPUT_TYPE_TUNER;
@@ -325,7 +336,11 @@ int saa7164_g_tuner(struct file *file, void *priv, struct v4l2_tuner *t)
 	if (0 != t->index)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	strcpy(t->name, "tuner");
+=======
+	strscpy(t->name, "tuner", sizeof(t->name));
+>>>>>>> upstream/android-13
 	t->capability = V4L2_TUNER_CAP_NORM | V4L2_TUNER_CAP_STEREO;
 	t->rangelow = SAA7164_TV_MIN_FREQ;
 	t->rangehigh = SAA7164_TV_MAX_FREQ;
@@ -497,6 +512,7 @@ static int vidioc_querycap(struct file *file, void  *priv,
 	struct saa7164_port *port = fh->port;
 	struct saa7164_dev *dev = port->dev;
 
+<<<<<<< HEAD
 	strcpy(cap->driver, dev->name);
 	strlcpy(cap->card, saa7164_boards[dev->board].name,
 		sizeof(cap->card));
@@ -511,6 +527,15 @@ static int vidioc_querycap(struct file *file, void  *priv,
 		V4L2_CAP_VBI_CAPTURE |
 		V4L2_CAP_DEVICE_CAPS;
 
+=======
+	strscpy(cap->driver, dev->name, sizeof(cap->driver));
+	strscpy(cap->card, saa7164_boards[dev->board].name,
+		sizeof(cap->card));
+	sprintf(cap->bus_info, "PCI:%s", pci_name(dev->pci));
+	cap->capabilities = V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_READWRITE |
+			    V4L2_CAP_TUNER | V4L2_CAP_VBI_CAPTURE |
+			    V4L2_CAP_DEVICE_CAPS;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -520,7 +545,10 @@ static int vidioc_enum_fmt_vid_cap(struct file *file, void  *priv,
 	if (f->index != 0)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	strlcpy(f->description, "MPEG", sizeof(f->description));
+=======
+>>>>>>> upstream/android-13
 	f->pixelformat = V4L2_PIX_FMT_MPEG;
 
 	return 0;
@@ -983,6 +1011,11 @@ static struct video_device saa7164_mpeg_template = {
 	.ioctl_ops     = &mpeg_ioctl_ops,
 	.minor         = -1,
 	.tvnorms       = SAA7164_NORMS,
+<<<<<<< HEAD
+=======
+	.device_caps   = V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_READWRITE |
+			 V4L2_CAP_TUNER,
+>>>>>>> upstream/android-13
 };
 
 static struct video_device *saa7164_encoder_alloc(
@@ -1103,7 +1136,11 @@ int saa7164_encoder_register(struct saa7164_port *port)
 	v4l2_ctrl_handler_setup(hdl);
 	video_set_drvdata(port->v4l_device, port);
 	result = video_register_device(port->v4l_device,
+<<<<<<< HEAD
 		VFL_TYPE_GRABBER, -1);
+=======
+		VFL_TYPE_VIDEO, -1);
+>>>>>>> upstream/android-13
 	if (result < 0) {
 		printk(KERN_INFO "%s: can't register mpeg device\n",
 			dev->name);

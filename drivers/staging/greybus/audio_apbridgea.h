@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * Copyright (c) 2015-2016 Google Inc.
@@ -25,6 +26,11 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+=======
+/* SPDX-License-Identifier: BSD-3-Clause */
+/*
+ * Copyright (c) 2015-2016 Google Inc.
+>>>>>>> upstream/android-13
  */
 /*
  * This is a special protocol for configuring communication over the
@@ -89,7 +95,11 @@
 struct audio_apbridgea_hdr {
 	__u8	type;
 	__le16	i2s_port;
+<<<<<<< HEAD
 	__u8	data[0];
+=======
+	__u8	data[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct audio_apbridgea_set_config_request {

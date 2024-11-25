@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * itg3200_core.c -- support InvenSense ITG3200
  *                   Digital 3-Axis Gyroscope driver
@@ -6,10 +10,13 @@
  * Copyright (c) 2011 Manuel Stahl <manuel.stahl@iis.fraunhofer.de>
  * Copyright (c) 2012 Thorsten Nowak <thorsten.nowak@iis.fraunhofer.de>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * TODO:
  * - Support digital low pass filter
  * - Support power management
@@ -18,7 +25,10 @@
 #include <linux/interrupt.h>
 #include <linux/irq.h>
 #include <linux/i2c.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/stat.h>
 #include <linux/module.h>
@@ -157,7 +167,11 @@ static int itg3200_write_raw(struct iio_dev *indio_dev,
 					  t);
 
 		mutex_unlock(&indio_dev->mlock);
+<<<<<<< HEAD
 	return ret;
+=======
+		return ret;
+>>>>>>> upstream/android-13
 
 	default:
 		return -EINVAL;
@@ -242,6 +256,23 @@ err_ret:
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static const struct iio_mount_matrix *
+itg3200_get_mount_matrix(const struct iio_dev *indio_dev,
+			  const struct iio_chan_spec *chan)
+{
+	struct itg3200 *data = iio_priv(indio_dev);
+
+	return &data->orientation;
+}
+
+static const struct iio_chan_spec_ext_info itg3200_ext_info[] = {
+	IIO_MOUNT_MATRIX(IIO_SHARED_BY_DIR, itg3200_get_mount_matrix),
+	{ }
+};
+
+>>>>>>> upstream/android-13
 #define ITG3200_ST						\
 	{ .sign = 's', .realbits = 16, .storagebits = 16, .endianness = IIO_BE }
 
@@ -255,6 +286,10 @@ err_ret:
 	.address = ITG3200_REG_GYRO_ ## _mod ## OUT_H, \
 	.scan_index = ITG3200_SCAN_GYRO_ ## _mod, \
 	.scan_type = ITG3200_ST, \
+<<<<<<< HEAD
+=======
+	.ext_info = itg3200_ext_info, \
+>>>>>>> upstream/android-13
 }
 
 static const struct iio_chan_spec itg3200_channels[] = {
@@ -297,10 +332,20 @@ static int itg3200_probe(struct i2c_client *client,
 
 	st = iio_priv(indio_dev);
 
+<<<<<<< HEAD
 	i2c_set_clientdata(client, indio_dev);
 	st->i2c = client;
 
 	indio_dev->dev.parent = &client->dev;
+=======
+	ret = iio_read_mount_matrix(&client->dev, &st->orientation);
+	if (ret)
+		return ret;
+
+	i2c_set_clientdata(client, indio_dev);
+	st->i2c = client;
+
+>>>>>>> upstream/android-13
 	indio_dev->name = client->dev.driver->name;
 	indio_dev->channels = itg3200_channels;
 	indio_dev->num_channels = ARRAY_SIZE(itg3200_channels);

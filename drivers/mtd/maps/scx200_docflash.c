@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* linux/drivers/mtd/maps/scx200_docflash.c
 
    Copyright (c) 2001,2002 Christer Weinigel <wingel@nano-system.com>
@@ -216,6 +220,7 @@ static void __exit cleanup_scx200_docflash(void)
 
 module_init(init_scx200_docflash);
 module_exit(cleanup_scx200_docflash);
+<<<<<<< HEAD
 
 /*
     Local variables:
@@ -223,3 +228,5 @@ module_exit(cleanup_scx200_docflash);
         c-basic-offset: 8
     End:
 */
+=======
+>>>>>>> upstream/android-13

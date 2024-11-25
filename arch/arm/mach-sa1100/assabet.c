@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/arch/arm/mach-sa1100/assabet.c
  *
  * Author: Nicolas Pitre
  *
  * This file contains all Assabet-specific tweaks.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/init.h>
 #include <linux/kernel.h>
@@ -15,6 +22,10 @@
 #include <linux/errno.h>
 #include <linux/gpio/gpio-reg.h>
 #include <linux/gpio/machine.h>
+<<<<<<< HEAD
+=======
+#include <linux/gpio_keys.h>
+>>>>>>> upstream/android-13
 #include <linux/ioport.h>
 #include <linux/platform_data/sa11x0-serial.h>
 #include <linux/regulator/fixed.h>
@@ -36,7 +47,10 @@
 #include <asm/setup.h>
 #include <asm/page.h>
 #include <asm/pgtable-hwdef.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/tlbflush.h>
 
 #include <asm/mach/arch.h>
@@ -468,7 +482,84 @@ static struct regulator_consumer_supply assabet_cf_vcc_consumers[] = {
 static struct fixed_voltage_config assabet_cf_vcc_pdata __initdata = {
 	.supply_name = "cf-power",
 	.microvolts = 3300000,
+<<<<<<< HEAD
 	.enable_high = 1,
+=======
+};
+
+static struct gpiod_lookup_table assabet_cf_vcc_gpio_table = {
+	.dev_id = "reg-fixed-voltage.0",
+	.table = {
+		GPIO_LOOKUP("assabet", 0, NULL, GPIO_ACTIVE_HIGH),
+		{ },
+	},
+};
+
+static struct gpio_led assabet_leds[] __initdata = {
+	{
+		.name = "assabet:red",
+		.default_trigger = "cpu0",
+		.active_low = 1,
+		.default_state = LEDS_GPIO_DEFSTATE_KEEP,
+	}, {
+		.name = "assabet:green",
+		.default_trigger = "heartbeat",
+		.active_low = 1,
+		.default_state = LEDS_GPIO_DEFSTATE_KEEP,
+	},
+};
+
+static const struct gpio_led_platform_data assabet_leds_pdata __initconst = {
+	.num_leds = ARRAY_SIZE(assabet_leds),
+	.leds = assabet_leds,
+};
+
+static struct gpio_keys_button assabet_keys_buttons[] = {
+	{
+		.gpio = 0,
+		.irq = IRQ_GPIO0,
+		.desc = "gpio0",
+		.wakeup = 1,
+		.can_disable = 1,
+		.debounce_interval = 5,
+	}, {
+		.gpio = 1,
+		.irq = IRQ_GPIO1,
+		.desc = "gpio1",
+		.wakeup = 1,
+		.can_disable = 1,
+		.debounce_interval = 5,
+	},
+};
+
+static const struct gpio_keys_platform_data assabet_keys_pdata = {
+	.buttons = assabet_keys_buttons,
+	.nbuttons = ARRAY_SIZE(assabet_keys_buttons),
+	.rep = 0,
+};
+
+static struct gpiod_lookup_table assabet_uart1_gpio_table = {
+	.dev_id = "sa11x0-uart.1",
+	.table = {
+		GPIO_LOOKUP("assabet", 16, "dtr", GPIO_ACTIVE_LOW),
+		GPIO_LOOKUP("assabet", 17, "rts", GPIO_ACTIVE_LOW),
+		GPIO_LOOKUP("assabet", 25, "dcd", GPIO_ACTIVE_LOW),
+		GPIO_LOOKUP("assabet", 26, "cts", GPIO_ACTIVE_LOW),
+		GPIO_LOOKUP("assabet", 27, "dsr", GPIO_ACTIVE_LOW),
+		{ },
+	},
+};
+
+static struct gpiod_lookup_table assabet_uart3_gpio_table = {
+	.dev_id = "sa11x0-uart.3",
+	.table = {
+		GPIO_LOOKUP("assabet", 28, "cts", GPIO_ACTIVE_LOW),
+		GPIO_LOOKUP("assabet", 29, "dsr", GPIO_ACTIVE_LOW),
+		GPIO_LOOKUP("assabet", 30, "dcd", GPIO_ACTIVE_LOW),
+		GPIO_LOOKUP("assabet", 31, "rng", GPIO_ACTIVE_LOW),
+		{ },
+	},
+>>>>>>> upstream/android-13
 };
 
 static void __init assabet_init(void)
@@ -517,12 +608,33 @@ static void __init assabet_init(void)
 			neponset_resources, ARRAY_SIZE(neponset_resources));
 #endif
 	} else {
+<<<<<<< HEAD
 		sa11x0_register_fixed_regulator(0, &assabet_cf_vcc_pdata,
 					 assabet_cf_vcc_consumers,
 					 ARRAY_SIZE(assabet_cf_vcc_consumers));
 
 	}
 
+=======
+		gpiod_add_lookup_table(&assabet_uart1_gpio_table);
+		gpiod_add_lookup_table(&assabet_uart3_gpio_table);
+		gpiod_add_lookup_table(&assabet_cf_vcc_gpio_table);
+
+		sa11x0_register_fixed_regulator(0, &assabet_cf_vcc_pdata,
+					assabet_cf_vcc_consumers,
+					ARRAY_SIZE(assabet_cf_vcc_consumers),
+					true);
+
+	}
+
+	platform_device_register_resndata(NULL, "gpio-keys", 0,
+					  NULL, 0,
+					  &assabet_keys_pdata,
+					  sizeof(assabet_keys_pdata));
+
+	gpio_led_register_device(-1, &assabet_leds_pdata);
+
+>>>>>>> upstream/android-13
 #ifndef ASSABET_PAL_VIDEO
 	sa11x0_register_lcd(&lq039q2ds54_info);
 #else
@@ -550,7 +662,11 @@ static void __init map_sa1100_gpio_regs( void )
 	int prot = PMD_TYPE_SECT | PMD_SECT_AP_WRITE | PMD_DOMAIN(DOMAIN_IO);
 	pmd_t *pmd;
 
+<<<<<<< HEAD
 	pmd = pmd_offset(pud_offset(pgd_offset_k(virt), virt), virt);
+=======
+	pmd = pmd_off_k(virt);
+>>>>>>> upstream/android-13
 	*pmd = __pmd(phys | prot);
 	flush_pmd_entry(pmd);
 }
@@ -570,7 +686,11 @@ static void __init map_sa1100_gpio_regs( void )
  */
 static void __init get_assabet_scr(void)
 {
+<<<<<<< HEAD
 	unsigned long uninitialized_var(scr), i;
+=======
+	unsigned long scr, i;
+>>>>>>> upstream/android-13
 
 	GPDR |= 0x3fc;			/* Configure GPIO 9:2 as outputs */
 	GPSR = 0x3fc;			/* Write 0xFF to GPIO 9:2 */
@@ -598,6 +718,7 @@ static void assabet_uart_pm(struct uart_port *port, u_int state, u_int oldstate)
 {
 	if (port->mapbase == _Ser1UTCR0) {
 		if (state)
+<<<<<<< HEAD
 			ASSABET_BCR_clear(ASSABET_BCR_RS232EN |
 					  ASSABET_BCR_COM_RTS |
 					  ASSABET_BCR_COM_DTR);
@@ -666,6 +787,15 @@ static u_int assabet_get_mctrl(struct uart_port *port)
 static struct sa1100_port_fns assabet_port_fns __initdata = {
 	.set_mctrl	= assabet_set_mctrl,
 	.get_mctrl	= assabet_get_mctrl,
+=======
+			ASSABET_BCR_clear(ASSABET_BCR_RS232EN);
+		else
+			ASSABET_BCR_set(ASSABET_BCR_RS232EN);
+	}
+}
+
+static struct sa1100_port_fns assabet_port_fns __initdata = {
+>>>>>>> upstream/android-13
 	.pm		= assabet_uart_pm,
 };
 
@@ -716,6 +846,7 @@ static void __init assabet_map_io(void)
 	sa1100_register_uart(2, 3);
 }
 
+<<<<<<< HEAD
 /* LEDs */
 #if defined(CONFIG_NEW_LEDS) && defined(CONFIG_LEDS_CLASS)
 struct assabet_led {
@@ -800,6 +931,8 @@ static int __init assabet_leds_init(void)
 fs_initcall(assabet_leds_init);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 void __init assabet_init_irq(void)
 {
 	unsigned int assabet_gpio_base;
@@ -819,7 +952,12 @@ void __init assabet_init_irq(void)
 	 */
 	assabet_gpio_base = assabet_init_gpio((void *)&ASSABET_BCR, def_val);
 
+<<<<<<< HEAD
 	assabet_cf_vcc_pdata.gpio = assabet_gpio_base + 0;
+=======
+	assabet_leds[0].gpio = assabet_gpio_base + 13;
+	assabet_leds[1].gpio = assabet_gpio_base + 14;
+>>>>>>> upstream/android-13
 }
 
 MACHINE_START(ASSABET, "Intel-Assabet")

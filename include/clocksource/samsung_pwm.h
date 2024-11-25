@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2013 Samsung Electronics Co., Ltd.
  *
@@ -12,6 +13,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2013 Samsung Electronics Co., Ltd.
+>>>>>>> upstream/android-13
  */
 #ifndef __CLOCKSOURCE_SAMSUNG_PWM_H
 #define __CLOCKSOURCE_SAMSUNG_PWM_H
@@ -38,6 +44,11 @@ struct samsung_pwm_variant {
 };
 
 void samsung_pwm_clocksource_init(void __iomem *base,
+<<<<<<< HEAD
 		unsigned int *irqs, struct samsung_pwm_variant *variant);
+=======
+				  unsigned int *irqs,
+				  const struct samsung_pwm_variant *variant);
+>>>>>>> upstream/android-13
 
 #endif /* __CLOCKSOURCE_SAMSUNG_PWM_H */

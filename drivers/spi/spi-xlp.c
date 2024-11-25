@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2003-2015 Broadcom Corporation
  * All Rights Reserved
@@ -10,6 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2003-2015 Broadcom Corporation
+ * All Rights Reserved
+>>>>>>> upstream/android-13
  */
 #include <linux/acpi.h>
 #include <linux/clk.h>
@@ -378,7 +385,10 @@ static int xlp_spi_probe(struct platform_device *pdev)
 {
 	struct spi_master *master;
 	struct xlp_spi_priv *xspi;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	struct clk *clk;
 	int irq, err;
 
@@ -386,16 +396,25 @@ static int xlp_spi_probe(struct platform_device *pdev)
 	if (!xspi)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	xspi->base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	xspi->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(xspi->base))
 		return PTR_ERR(xspi->base);
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(&pdev->dev, "no IRQ resource found: %d\n", irq);
 		return irq;
 	}
+=======
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 	err = devm_request_irq(&pdev->dev, irq, xlp_spi_interrupt, 0,
 			pdev->name, xspi);
 	if (err) {

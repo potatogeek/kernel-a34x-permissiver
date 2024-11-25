@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2012 Sascha Hauer, Uwe Kleine-König, Steffen Trumtrar
  * and Markus Pargmann, Pengutronix
@@ -8,6 +9,12 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2012 Sascha Hauer, Uwe Kleine-König, Steffen Trumtrar
+ * and Markus Pargmann, Pengutronix
+>>>>>>> upstream/android-13
  */
 
 /dts-v1/;
@@ -24,8 +31,13 @@
 };
 
 &cspi1 {
+<<<<<<< HEAD
 	cs-gpios = <&gpio4 28 GPIO_ACTIVE_HIGH>,
 		   <&gpio4 27 GPIO_ACTIVE_HIGH>;
+=======
+	cs-gpios = <&gpio4 28 GPIO_ACTIVE_LOW>,
+		   <&gpio4 27 GPIO_ACTIVE_LOW>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 

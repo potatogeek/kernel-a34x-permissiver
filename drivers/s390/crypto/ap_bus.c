@@ -1,11 +1,19 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
+<<<<<<< HEAD
  * Copyright IBM Corp. 2006, 2012
+=======
+ * Copyright IBM Corp. 2006, 2021
+>>>>>>> upstream/android-13
  * Author(s): Cornelia Huck <cornelia.huck@de.ibm.com>
  *	      Martin Schwidefsky <schwidefsky@de.ibm.com>
  *	      Ralph Wuerthner <rwuerthn@de.ibm.com>
  *	      Felix Beck <felix.beck@de.ibm.com>
  *	      Holger Dengler <hd@linux.vnet.ibm.com>
+<<<<<<< HEAD
+=======
+ *	      Harald Freudenberger <freude@linux.ibm.com>
+>>>>>>> upstream/android-13
  *
  * Adjunct processor bus.
  */
@@ -18,13 +26,20 @@
 #include <linux/init.h>
 #include <linux/delay.h>
 #include <linux/err.h>
+<<<<<<< HEAD
+=======
+#include <linux/freezer.h>
+>>>>>>> upstream/android-13
 #include <linux/interrupt.h>
 #include <linux/workqueue.h>
 #include <linux/slab.h>
 #include <linux/notifier.h>
 #include <linux/kthread.h>
 #include <linux/mutex.h>
+<<<<<<< HEAD
 #include <linux/suspend.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/airq.h>
 #include <linux/atomic.h>
 #include <asm/isc.h>
@@ -60,6 +75,7 @@ static char *aqm_str;
 module_param_named(aqmask, aqm_str, charp, 0440);
 MODULE_PARM_DESC(aqmask, "AP bus domain mask.");
 
+<<<<<<< HEAD
 static struct device *ap_root_device;
 
 DEFINE_SPINLOCK(ap_list_lock);
@@ -74,6 +90,34 @@ static DEFINE_MUTEX(ap_perms_mutex);
 
 static struct ap_config_info *ap_configuration;
 static bool initialised;
+=======
+atomic_t ap_max_msg_size = ATOMIC_INIT(AP_DEFAULT_MAX_MSG_SIZE);
+EXPORT_SYMBOL(ap_max_msg_size);
+
+static struct device *ap_root_device;
+
+/* Hashtable of all queue devices on the AP bus */
+DEFINE_HASHTABLE(ap_queues, 8);
+/* lock used for the ap_queues hashtable */
+DEFINE_SPINLOCK(ap_queues_lock);
+
+/* Default permissions (ioctl, card and domain masking) */
+struct ap_perms ap_perms;
+EXPORT_SYMBOL(ap_perms);
+DEFINE_MUTEX(ap_perms_mutex);
+EXPORT_SYMBOL(ap_perms_mutex);
+
+/* # of bus scans since init */
+static atomic64_t ap_scan_bus_count;
+
+/* # of bindings complete since init */
+static atomic64_t ap_bindings_complete_count = ATOMIC64_INIT(0);
+
+/* completion for initial APQN bindings complete */
+static DECLARE_COMPLETION(ap_init_apqn_bindings_complete);
+
+static struct ap_config_info *ap_qci_info;
+>>>>>>> upstream/android-13
 
 /*
  * AP bus related debug feature things.
@@ -92,7 +136,11 @@ static DECLARE_WORK(ap_scan_work, ap_scan_bus);
  * Tasklet & timer for AP request polling and interrupts
  */
 static void ap_tasklet_fn(unsigned long);
+<<<<<<< HEAD
 static DECLARE_TASKLET(ap_tasklet, ap_tasklet_fn, 0);
+=======
+static DECLARE_TASKLET_OLD(ap_tasklet, ap_tasklet_fn);
+>>>>>>> upstream/android-13
 static DECLARE_WAIT_QUEUE_HEAD(ap_poll_wait);
 static struct task_struct *ap_poll_kthread;
 static DEFINE_MUTEX(ap_poll_thread_mutex);
@@ -104,6 +152,7 @@ static struct hrtimer ap_poll_timer;
  */
 static unsigned long long poll_timeout = 250000;
 
+<<<<<<< HEAD
 /* Suspend flag */
 static int ap_suspend_flag;
 /* Maximum domain id */
@@ -120,6 +169,19 @@ static struct bus_type ap_bus_type;
 static void ap_interrupt_handler(struct airq_struct *airq);
 
 static int ap_airq_flag;
+=======
+/* Maximum domain id, if not given via qci */
+static int ap_max_domain_id = 15;
+/* Maximum adapter id, if not given via qci */
+static int ap_max_adapter_id = 63;
+
+static struct bus_type ap_bus_type;
+
+/* Adapter interrupt definitions */
+static void ap_interrupt_handler(struct airq_struct *airq, bool floating);
+
+static bool ap_irq_flag;
+>>>>>>> upstream/android-13
 
 static struct airq_struct ap_airq = {
 	.handler = ap_interrupt_handler,
@@ -127,6 +189,7 @@ static struct airq_struct ap_airq = {
 };
 
 /**
+<<<<<<< HEAD
  * ap_using_interrupts() - Returns non-zero if interrupt support is
  * available.
  */
@@ -136,6 +199,8 @@ static inline int ap_using_interrupts(void)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * ap_airq_ptr() - Get the address of the adapter interrupt indicator
  *
  * Returns the address of the local-summary-indicator of the adapter
@@ -144,7 +209,11 @@ static inline int ap_using_interrupts(void)
  */
 void *ap_airq_ptr(void)
 {
+<<<<<<< HEAD
 	if (ap_using_interrupts())
+=======
+	if (ap_irq_flag)
+>>>>>>> upstream/android-13
 		return ap_airq.lsi_ptr;
 	return NULL;
 }
@@ -160,12 +229,21 @@ static int ap_interrupts_available(void)
 }
 
 /**
+<<<<<<< HEAD
  * ap_configuration_available(): Test if AP configuration
  * information is available.
  *
  * Returns 1 if AP configuration information is available.
  */
 static int ap_configuration_available(void)
+=======
+ * ap_qci_available(): Test if AP configuration
+ * information can be queried via QCI subfunction.
+ *
+ * Returns 1 if subfunction PQAP(QCI) is available.
+ */
+static int ap_qci_available(void)
+>>>>>>> upstream/android-13
 {
 	return test_facility(12);
 }
@@ -188,27 +266,43 @@ static int ap_apft_available(void)
  */
 static inline int ap_qact_available(void)
 {
+<<<<<<< HEAD
 	if (ap_configuration)
 		return ap_configuration->qact;
+=======
+	if (ap_qci_info)
+		return ap_qci_info->qact;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 /*
+<<<<<<< HEAD
  * ap_query_configuration(): Fetch cryptographic config info
+=======
+ * ap_fetch_qci_info(): Fetch cryptographic config info
+>>>>>>> upstream/android-13
  *
  * Returns the ap configuration info fetched via PQAP(QCI).
  * On success 0 is returned, on failure a negative errno
  * is returned, e.g. if the PQAP(QCI) instruction is not
  * available, the return value will be -EOPNOTSUPP.
  */
+<<<<<<< HEAD
 static inline int ap_query_configuration(struct ap_config_info *info)
 {
 	if (!ap_configuration_available())
+=======
+static inline int ap_fetch_qci_info(struct ap_config_info *info)
+{
+	if (!ap_qci_available())
+>>>>>>> upstream/android-13
 		return -EOPNOTSUPP;
 	if (!info)
 		return -EINVAL;
 	return ap_qci(info);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(ap_query_configuration);
 
 /**
@@ -227,6 +321,43 @@ static void ap_init_configuration(void)
 		ap_configuration = NULL;
 		return;
 	}
+=======
+
+/**
+ * ap_init_qci_info(): Allocate and query qci config info.
+ * Does also update the static variables ap_max_domain_id
+ * and ap_max_adapter_id if this info is available.
+ */
+static void __init ap_init_qci_info(void)
+{
+	if (!ap_qci_available()) {
+		AP_DBF_INFO("%s QCI not supported\n", __func__);
+		return;
+	}
+
+	ap_qci_info = kzalloc(sizeof(*ap_qci_info), GFP_KERNEL);
+	if (!ap_qci_info)
+		return;
+	if (ap_fetch_qci_info(ap_qci_info) != 0) {
+		kfree(ap_qci_info);
+		ap_qci_info = NULL;
+		return;
+	}
+	AP_DBF_INFO("%s successful fetched initial qci info\n", __func__);
+
+	if (ap_qci_info->apxa) {
+		if (ap_qci_info->Na) {
+			ap_max_adapter_id = ap_qci_info->Na;
+			AP_DBF_INFO("%s new ap_max_adapter_id is %d\n",
+				    __func__, ap_max_adapter_id);
+		}
+		if (ap_qci_info->Nd) {
+			ap_max_domain_id = ap_qci_info->Nd;
+			AP_DBF_INFO("%s new ap_max_domain_id is %d\n",
+				    __func__, ap_max_domain_id);
+		}
+	}
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -240,7 +371,10 @@ static inline int ap_test_config(unsigned int *field, unsigned int nr)
 
 /*
  * ap_test_config_card_id(): Test, whether an AP card ID is configured.
+<<<<<<< HEAD
  * @id AP card ID
+=======
+>>>>>>> upstream/android-13
  *
  * Returns 0 if the card is not configured
  *	   1 if the card is configured or
@@ -248,6 +382,7 @@ static inline int ap_test_config(unsigned int *field, unsigned int nr)
  */
 static inline int ap_test_config_card_id(unsigned int id)
 {
+<<<<<<< HEAD
 	if (!ap_configuration)	/* QCI not supported */
 		/* only ids 0...3F may be probed */
 		return id < 0x40 ? 1 : 0;
@@ -257,11 +392,24 @@ static inline int ap_test_config_card_id(unsigned int id)
 /*
  * ap_test_config_domain(): Test, whether an AP usage domain is configured.
  * @domain AP usage domain ID
+=======
+	if (id > ap_max_adapter_id)
+		return 0;
+	if (ap_qci_info)
+		return ap_test_config(ap_qci_info->apm, id);
+	return 1;
+}
+
+/*
+ * ap_test_config_usage_domain(): Test, whether an AP usage domain
+ * is configured.
+>>>>>>> upstream/android-13
  *
  * Returns 0 if the usage domain is not configured
  *	   1 if the usage domain is configured or
  *	     if the configuration information is not available
  */
+<<<<<<< HEAD
 static inline int ap_test_config_domain(unsigned int domain)
 {
 	if (!ap_configuration)	/* QCI not supported */
@@ -302,20 +450,109 @@ static int ap_query_queue(ap_qid_t qid, int *queue_depth, int *device_type,
 		switch (*device_type) {
 			/* For CEX2 and CEX3 the available functions
 			 * are not refrected by the facilities bits.
+=======
+int ap_test_config_usage_domain(unsigned int domain)
+{
+	if (domain > ap_max_domain_id)
+		return 0;
+	if (ap_qci_info)
+		return ap_test_config(ap_qci_info->aqm, domain);
+	return 1;
+}
+EXPORT_SYMBOL(ap_test_config_usage_domain);
+
+/*
+ * ap_test_config_ctrl_domain(): Test, whether an AP control domain
+ * is configured.
+ * @domain AP control domain ID
+ *
+ * Returns 1 if the control domain is configured
+ *	   0 in all other cases
+ */
+int ap_test_config_ctrl_domain(unsigned int domain)
+{
+	if (!ap_qci_info || domain > ap_max_domain_id)
+		return 0;
+	return ap_test_config(ap_qci_info->adm, domain);
+}
+EXPORT_SYMBOL(ap_test_config_ctrl_domain);
+
+/*
+ * ap_queue_info(): Check and get AP queue info.
+ * Returns true if TAPQ succeeded and the info is filled or
+ * false otherwise.
+ */
+static bool ap_queue_info(ap_qid_t qid, int *q_type, unsigned int *q_fac,
+			  int *q_depth, int *q_ml, bool *q_decfg)
+{
+	struct ap_queue_status status;
+	union {
+		unsigned long value;
+		struct {
+			unsigned int fac   : 32; /* facility bits */
+			unsigned int at	   :  8; /* ap type */
+			unsigned int _res1 :  8;
+			unsigned int _res2 :  4;
+			unsigned int ml	   :  4; /* apxl ml */
+			unsigned int _res3 :  4;
+			unsigned int qd	   :  4; /* queue depth */
+		} tapq_gr2;
+	} tapq_info;
+
+	tapq_info.value = 0;
+
+	/* make sure we don't run into a specifiation exception */
+	if (AP_QID_CARD(qid) > ap_max_adapter_id ||
+	    AP_QID_QUEUE(qid) > ap_max_domain_id)
+		return false;
+
+	/* call TAPQ on this APQN */
+	status = ap_test_queue(qid, ap_apft_available(), &tapq_info.value);
+	switch (status.response_code) {
+	case AP_RESPONSE_NORMAL:
+	case AP_RESPONSE_RESET_IN_PROGRESS:
+	case AP_RESPONSE_DECONFIGURED:
+	case AP_RESPONSE_CHECKSTOPPED:
+	case AP_RESPONSE_BUSY:
+		/*
+		 * According to the architecture in all these cases the
+		 * info should be filled. All bits 0 is not possible as
+		 * there is at least one of the mode bits set.
+		 */
+		if (WARN_ON_ONCE(!tapq_info.value))
+			return false;
+		*q_type = tapq_info.tapq_gr2.at;
+		*q_fac = tapq_info.tapq_gr2.fac;
+		*q_depth = tapq_info.tapq_gr2.qd;
+		*q_ml = tapq_info.tapq_gr2.ml;
+		*q_decfg = status.response_code == AP_RESPONSE_DECONFIGURED;
+		switch (*q_type) {
+			/* For CEX2 and CEX3 the available functions
+			 * are not reflected by the facilities bits.
+>>>>>>> upstream/android-13
 			 * Instead it is coded into the type. So here
 			 * modify the function bits based on the type.
 			 */
 		case AP_DEVICE_TYPE_CEX2A:
 		case AP_DEVICE_TYPE_CEX3A:
+<<<<<<< HEAD
 			*facilities |= 0x08000000;
 			break;
 		case AP_DEVICE_TYPE_CEX2C:
 		case AP_DEVICE_TYPE_CEX3C:
 			*facilities |= 0x10000000;
+=======
+			*q_fac |= 0x08000000;
+			break;
+		case AP_DEVICE_TYPE_CEX2C:
+		case AP_DEVICE_TYPE_CEX3C:
+			*q_fac |= 0x10000000;
+>>>>>>> upstream/android-13
 			break;
 		default:
 			break;
 		}
+<<<<<<< HEAD
 		return 0;
 	case AP_RESPONSE_Q_NOT_AVAIL:
 	case AP_RESPONSE_DECONFIGURED:
@@ -332,20 +569,43 @@ static int ap_query_queue(ap_qid_t qid, int *queue_depth, int *device_type,
 }
 
 void ap_wait(enum ap_wait wait)
+=======
+		return true;
+	default:
+		/*
+		 * A response code which indicates, there is no info available.
+		 */
+		return false;
+	}
+}
+
+void ap_wait(enum ap_sm_wait wait)
+>>>>>>> upstream/android-13
 {
 	ktime_t hr_time;
 
 	switch (wait) {
+<<<<<<< HEAD
 	case AP_WAIT_AGAIN:
 	case AP_WAIT_INTERRUPT:
 		if (ap_using_interrupts())
+=======
+	case AP_SM_WAIT_AGAIN:
+	case AP_SM_WAIT_INTERRUPT:
+		if (ap_irq_flag)
+>>>>>>> upstream/android-13
 			break;
 		if (ap_poll_kthread) {
 			wake_up(&ap_poll_wait);
 			break;
 		}
+<<<<<<< HEAD
 		/* Fall through */
 	case AP_WAIT_TIMEOUT:
+=======
+		fallthrough;
+	case AP_SM_WAIT_TIMEOUT:
+>>>>>>> upstream/android-13
 		spin_lock_bh(&ap_poll_timer_lock);
 		if (!hrtimer_is_queued(&ap_poll_timer)) {
 			hr_time = poll_timeout;
@@ -354,7 +614,11 @@ void ap_wait(enum ap_wait wait)
 		}
 		spin_unlock_bh(&ap_poll_timer_lock);
 		break;
+<<<<<<< HEAD
 	case AP_WAIT_NONE:
+=======
+	case AP_SM_WAIT_NONE:
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
@@ -370,10 +634,15 @@ void ap_request_timeout(struct timer_list *t)
 {
 	struct ap_queue *aq = from_timer(aq, t, timeout);
 
+<<<<<<< HEAD
 	if (ap_suspend_flag)
 		return;
 	spin_lock_bh(&aq->lock);
 	ap_wait(ap_sm_event(aq, AP_EVENT_TIMEOUT));
+=======
+	spin_lock_bh(&aq->lock);
+	ap_wait(ap_sm_event(aq, AP_SM_EVENT_TIMEOUT));
+>>>>>>> upstream/android-13
 	spin_unlock_bh(&aq->lock);
 }
 
@@ -385,20 +654,33 @@ void ap_request_timeout(struct timer_list *t)
  */
 static enum hrtimer_restart ap_poll_timeout(struct hrtimer *unused)
 {
+<<<<<<< HEAD
 	if (!ap_suspend_flag)
 		tasklet_schedule(&ap_tasklet);
+=======
+	tasklet_schedule(&ap_tasklet);
+>>>>>>> upstream/android-13
 	return HRTIMER_NORESTART;
 }
 
 /**
  * ap_interrupt_handler() - Schedule ap_tasklet on interrupt
  * @airq: pointer to adapter interrupt descriptor
+<<<<<<< HEAD
  */
 static void ap_interrupt_handler(struct airq_struct *airq)
 {
 	inc_irq_stat(IRQIO_APB);
 	if (!ap_suspend_flag)
 		tasklet_schedule(&ap_tasklet);
+=======
+ * @floating: ignored
+ */
+static void ap_interrupt_handler(struct airq_struct *airq, bool floating)
+{
+	inc_irq_stat(IRQIO_APB);
+	tasklet_schedule(&ap_tasklet);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -409,14 +691,21 @@ static void ap_interrupt_handler(struct airq_struct *airq)
  */
 static void ap_tasklet_fn(unsigned long dummy)
 {
+<<<<<<< HEAD
 	struct ap_card *ac;
 	struct ap_queue *aq;
 	enum ap_wait wait = AP_WAIT_NONE;
+=======
+	int bkt;
+	struct ap_queue *aq;
+	enum ap_sm_wait wait = AP_SM_WAIT_NONE;
+>>>>>>> upstream/android-13
 
 	/* Reset the indicator if interrupts are used. Thus new interrupts can
 	 * be received. Doing it in the beginning of the tasklet is therefor
 	 * important that no requests on any AP get lost.
 	 */
+<<<<<<< HEAD
 	if (ap_using_interrupts())
 		xchg(ap_airq.lsi_ptr, 0);
 
@@ -429,12 +718,25 @@ static void ap_tasklet_fn(unsigned long dummy)
 		}
 	}
 	spin_unlock_bh(&ap_list_lock);
+=======
+	if (ap_irq_flag)
+		xchg(ap_airq.lsi_ptr, 0);
+
+	spin_lock_bh(&ap_queues_lock);
+	hash_for_each(ap_queues, bkt, aq, hnode) {
+		spin_lock_bh(&aq->lock);
+		wait = min(wait, ap_sm_event_loop(aq, AP_SM_EVENT_POLL));
+		spin_unlock_bh(&aq->lock);
+	}
+	spin_unlock_bh(&ap_queues_lock);
+>>>>>>> upstream/android-13
 
 	ap_wait(wait);
 }
 
 static int ap_pending_requests(void)
 {
+<<<<<<< HEAD
 	struct ap_card *ac;
 	struct ap_queue *aq;
 
@@ -448,6 +750,19 @@ static int ap_pending_requests(void)
 		}
 	}
 	spin_unlock_bh(&ap_list_lock);
+=======
+	int bkt;
+	struct ap_queue *aq;
+
+	spin_lock_bh(&ap_queues_lock);
+	hash_for_each(ap_queues, bkt, aq, hnode) {
+		if (aq->queue_count == 0)
+			continue;
+		spin_unlock_bh(&ap_queues_lock);
+		return 1;
+	}
+	spin_unlock_bh(&ap_queues_lock);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -470,7 +785,11 @@ static int ap_poll_thread(void *data)
 	while (!kthread_should_stop()) {
 		add_wait_queue(&ap_poll_wait, &wait);
 		set_current_state(TASK_INTERRUPTIBLE);
+<<<<<<< HEAD
 		if (ap_suspend_flag || !ap_pending_requests()) {
+=======
+		if (!ap_pending_requests()) {
+>>>>>>> upstream/android-13
 			schedule();
 			try_to_freeze();
 		}
@@ -491,7 +810,11 @@ static int ap_poll_thread_start(void)
 {
 	int rc;
 
+<<<<<<< HEAD
 	if (ap_using_interrupts() || ap_poll_kthread)
+=======
+	if (ap_irq_flag || ap_poll_kthread)
+>>>>>>> upstream/android-13
 		return 0;
 	mutex_lock(&ap_poll_thread_mutex);
 	ap_poll_kthread = kthread_run(ap_poll_thread, NULL, "appoll");
@@ -554,6 +877,7 @@ static int ap_bus_match(struct device *dev, struct device_driver *drv)
  */
 static int ap_uevent(struct device *dev, struct kobj_uevent_env *env)
 {
+<<<<<<< HEAD
 	struct ap_device *ap_dev = to_ap_dev(dev);
 	int retval = 0;
 
@@ -615,6 +939,176 @@ static int __ap_queue_devices_unregister(struct device *dev, void *dummy)
 		device_unregister(dev);
 	return 0;
 }
+=======
+	int rc = 0;
+	struct ap_device *ap_dev = to_ap_dev(dev);
+
+	/* Uevents from ap bus core don't need extensions to the env */
+	if (dev == ap_root_device)
+		return 0;
+
+	if (is_card_dev(dev)) {
+		struct ap_card *ac = to_ap_card(&ap_dev->device);
+
+		/* Set up DEV_TYPE environment variable. */
+		rc = add_uevent_var(env, "DEV_TYPE=%04X", ap_dev->device_type);
+		if (rc)
+			return rc;
+		/* Add MODALIAS= */
+		rc = add_uevent_var(env, "MODALIAS=ap:t%02X", ap_dev->device_type);
+		if (rc)
+			return rc;
+
+		/* Add MODE=<accel|cca|ep11> */
+		if (ap_test_bit(&ac->functions, AP_FUNC_ACCEL))
+			rc = add_uevent_var(env, "MODE=accel");
+		else if (ap_test_bit(&ac->functions, AP_FUNC_COPRO))
+			rc = add_uevent_var(env, "MODE=cca");
+		else if (ap_test_bit(&ac->functions, AP_FUNC_EP11))
+			rc = add_uevent_var(env, "MODE=ep11");
+		if (rc)
+			return rc;
+	} else {
+		struct ap_queue *aq = to_ap_queue(&ap_dev->device);
+
+		/* Add MODE=<accel|cca|ep11> */
+		if (ap_test_bit(&aq->card->functions, AP_FUNC_ACCEL))
+			rc = add_uevent_var(env, "MODE=accel");
+		else if (ap_test_bit(&aq->card->functions, AP_FUNC_COPRO))
+			rc = add_uevent_var(env, "MODE=cca");
+		else if (ap_test_bit(&aq->card->functions, AP_FUNC_EP11))
+			rc = add_uevent_var(env, "MODE=ep11");
+		if (rc)
+			return rc;
+	}
+
+	return 0;
+}
+
+static void ap_send_init_scan_done_uevent(void)
+{
+	char *envp[] = { "INITSCAN=done", NULL };
+
+	kobject_uevent_env(&ap_root_device->kobj, KOBJ_CHANGE, envp);
+}
+
+static void ap_send_bindings_complete_uevent(void)
+{
+	char buf[32];
+	char *envp[] = { "BINDINGS=complete", buf, NULL };
+
+	snprintf(buf, sizeof(buf), "COMPLETECOUNT=%llu",
+		 atomic64_inc_return(&ap_bindings_complete_count));
+	kobject_uevent_env(&ap_root_device->kobj, KOBJ_CHANGE, envp);
+}
+
+void ap_send_config_uevent(struct ap_device *ap_dev, bool cfg)
+{
+	char buf[16];
+	char *envp[] = { buf, NULL };
+
+	snprintf(buf, sizeof(buf), "CONFIG=%d", cfg ? 1 : 0);
+
+	kobject_uevent_env(&ap_dev->device.kobj, KOBJ_CHANGE, envp);
+}
+EXPORT_SYMBOL(ap_send_config_uevent);
+
+void ap_send_online_uevent(struct ap_device *ap_dev, int online)
+{
+	char buf[16];
+	char *envp[] = { buf, NULL };
+
+	snprintf(buf, sizeof(buf), "ONLINE=%d", online ? 1 : 0);
+
+	kobject_uevent_env(&ap_dev->device.kobj, KOBJ_CHANGE, envp);
+}
+EXPORT_SYMBOL(ap_send_online_uevent);
+
+/*
+ * calc # of bound APQNs
+ */
+
+struct __ap_calc_ctrs {
+	unsigned int apqns;
+	unsigned int bound;
+};
+
+static int __ap_calc_helper(struct device *dev, void *arg)
+{
+	struct __ap_calc_ctrs *pctrs = (struct __ap_calc_ctrs *) arg;
+
+	if (is_queue_dev(dev)) {
+		pctrs->apqns++;
+		if (dev->driver)
+			pctrs->bound++;
+	}
+
+	return 0;
+}
+
+static void ap_calc_bound_apqns(unsigned int *apqns, unsigned int *bound)
+{
+	struct __ap_calc_ctrs ctrs;
+
+	memset(&ctrs, 0, sizeof(ctrs));
+	bus_for_each_dev(&ap_bus_type, NULL, (void *) &ctrs, __ap_calc_helper);
+
+	*apqns = ctrs.apqns;
+	*bound = ctrs.bound;
+}
+
+/*
+ * After initial ap bus scan do check if all existing APQNs are
+ * bound to device drivers.
+ */
+static void ap_check_bindings_complete(void)
+{
+	unsigned int apqns, bound;
+
+	if (atomic64_read(&ap_scan_bus_count) >= 1) {
+		ap_calc_bound_apqns(&apqns, &bound);
+		if (bound == apqns) {
+			if (!completion_done(&ap_init_apqn_bindings_complete)) {
+				complete_all(&ap_init_apqn_bindings_complete);
+				AP_DBF(DBF_INFO, "%s complete\n", __func__);
+			}
+			ap_send_bindings_complete_uevent();
+		}
+	}
+}
+
+/*
+ * Interface to wait for the AP bus to have done one initial ap bus
+ * scan and all detected APQNs have been bound to device drivers.
+ * If these both conditions are not fulfilled, this function blocks
+ * on a condition with wait_for_completion_interruptible_timeout().
+ * If these both conditions are fulfilled (before the timeout hits)
+ * the return value is 0. If the timeout (in jiffies) hits instead
+ * -ETIME is returned. On failures negative return values are
+ * returned to the caller.
+ */
+int ap_wait_init_apqn_bindings_complete(unsigned long timeout)
+{
+	long l;
+
+	if (completion_done(&ap_init_apqn_bindings_complete))
+		return 0;
+
+	if (timeout)
+		l = wait_for_completion_interruptible_timeout(
+			&ap_init_apqn_bindings_complete, timeout);
+	else
+		l = wait_for_completion_interruptible(
+			&ap_init_apqn_bindings_complete);
+	if (l < 0)
+		return l == -ERESTARTSYS ? -EINTR : l;
+	else if (l == 0 && timeout)
+		return -ETIME;
+
+	return 0;
+}
+EXPORT_SYMBOL(ap_wait_init_apqn_bindings_complete);
+>>>>>>> upstream/android-13
 
 static int __ap_queue_devices_with_id_unregister(struct device *dev, void *data)
 {
@@ -624,6 +1118,7 @@ static int __ap_queue_devices_with_id_unregister(struct device *dev, void *data)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void ap_bus_resume(void)
 {
 	int rc;
@@ -687,6 +1182,8 @@ static struct bus_type ap_bus_type = {
 	.pm = &ap_bus_pm_ops,
 };
 
+=======
+>>>>>>> upstream/android-13
 static int __ap_revise_reserved(struct device *dev, void *dummy)
 {
 	int rc, card, queue, devres, drvres;
@@ -701,8 +1198,13 @@ static int __ap_revise_reserved(struct device *dev, void *dummy)
 		drvres = to_ap_drv(dev->driver)->flags
 			& AP_DRIVER_FLAG_DEFAULT;
 		if (!!devres != !!drvres) {
+<<<<<<< HEAD
 			AP_DBF(DBF_DEBUG, "reprobing queue=%02x.%04x\n",
 			       card, queue);
+=======
+			AP_DBF_DBG("reprobing queue=%02x.%04x\n",
+				   card, queue);
+>>>>>>> upstream/android-13
 			rc = device_reprobe(dev);
 		}
 	}
@@ -759,7 +1261,14 @@ static int ap_device_probe(struct device *dev)
 {
 	struct ap_device *ap_dev = to_ap_dev(dev);
 	struct ap_driver *ap_drv = to_ap_drv(dev->driver);
+<<<<<<< HEAD
 	int card, queue, devres, drvres, rc;
+=======
+	int card, queue, devres, drvres, rc = -ENODEV;
+
+	if (!get_device(dev))
+		return rc;
+>>>>>>> upstream/android-13
 
 	if (is_queue_dev(dev)) {
 		/*
@@ -776,6 +1285,7 @@ static int ap_device_probe(struct device *dev)
 		mutex_unlock(&ap_perms_mutex);
 		drvres = ap_drv->flags & AP_DRIVER_FLAG_DEFAULT;
 		if (!!devres != !!drvres)
+<<<<<<< HEAD
 			return -ENODEV;
 		/* (re-)init queue's state machine */
 		ap_queue_reinit_state(to_ap_queue(dev));
@@ -827,17 +1337,94 @@ static int ap_device_remove(struct device *dev)
 	return 0;
 }
 
+=======
+			goto out;
+	}
+
+	/* Add queue/card to list of active queues/cards */
+	spin_lock_bh(&ap_queues_lock);
+	if (is_queue_dev(dev))
+		hash_add(ap_queues, &to_ap_queue(dev)->hnode,
+			 to_ap_queue(dev)->qid);
+	spin_unlock_bh(&ap_queues_lock);
+
+	rc = ap_drv->probe ? ap_drv->probe(ap_dev) : -ENODEV;
+
+	if (rc) {
+		spin_lock_bh(&ap_queues_lock);
+		if (is_queue_dev(dev))
+			hash_del(&to_ap_queue(dev)->hnode);
+		spin_unlock_bh(&ap_queues_lock);
+	} else
+		ap_check_bindings_complete();
+
+out:
+	if (rc)
+		put_device(dev);
+	return rc;
+}
+
+static void ap_device_remove(struct device *dev)
+{
+	struct ap_device *ap_dev = to_ap_dev(dev);
+	struct ap_driver *ap_drv = to_ap_drv(dev->driver);
+
+	/* prepare ap queue device removal */
+	if (is_queue_dev(dev))
+		ap_queue_prepare_remove(to_ap_queue(dev));
+
+	/* driver's chance to clean up gracefully */
+	if (ap_drv->remove)
+		ap_drv->remove(ap_dev);
+
+	/* now do the ap queue device remove */
+	if (is_queue_dev(dev))
+		ap_queue_remove(to_ap_queue(dev));
+
+	/* Remove queue/card from list of active queues/cards */
+	spin_lock_bh(&ap_queues_lock);
+	if (is_queue_dev(dev))
+		hash_del(&to_ap_queue(dev)->hnode);
+	spin_unlock_bh(&ap_queues_lock);
+
+	put_device(dev);
+}
+
+struct ap_queue *ap_get_qdev(ap_qid_t qid)
+{
+	int bkt;
+	struct ap_queue *aq;
+
+	spin_lock_bh(&ap_queues_lock);
+	hash_for_each(ap_queues, bkt, aq, hnode) {
+		if (aq->qid == qid) {
+			get_device(&aq->ap_dev.device);
+			spin_unlock_bh(&ap_queues_lock);
+			return aq;
+		}
+	}
+	spin_unlock_bh(&ap_queues_lock);
+
+	return NULL;
+}
+EXPORT_SYMBOL(ap_get_qdev);
+
+>>>>>>> upstream/android-13
 int ap_driver_register(struct ap_driver *ap_drv, struct module *owner,
 		       char *name)
 {
 	struct device_driver *drv = &ap_drv->driver;
 
+<<<<<<< HEAD
 	if (!initialised)
 		return -ENODEV;
 
 	drv->bus = &ap_bus_type;
 	drv->probe = ap_device_probe;
 	drv->remove = ap_device_remove;
+=======
+	drv->bus = &ap_bus_type;
+>>>>>>> upstream/android-13
 	drv->owner = owner;
 	drv->name = name;
 	return driver_register(drv);
@@ -852,8 +1439,11 @@ EXPORT_SYMBOL(ap_driver_unregister);
 
 void ap_bus_force_rescan(void)
 {
+<<<<<<< HEAD
 	if (ap_suspend_flag)
 		return;
+=======
+>>>>>>> upstream/android-13
 	/* processing a asynchronous bus rescan */
 	del_timer(&ap_config_timer);
 	queue_work(system_long_wq, &ap_scan_work);
@@ -862,6 +1452,19 @@ void ap_bus_force_rescan(void)
 EXPORT_SYMBOL(ap_bus_force_rescan);
 
 /*
+<<<<<<< HEAD
+=======
+* A config change has happened, force an ap bus rescan.
+*/
+void ap_bus_cfg_chg(void)
+{
+	AP_DBF_DBG("%s config change, forcing bus rescan\n", __func__);
+
+	ap_bus_force_rescan();
+}
+
+/*
+>>>>>>> upstream/android-13
  * hex2bitmap() - parse hex mask string and set bitmap.
  * Valid strings are "0x012345678" with at least one valid hex number.
  * Rest of the bitmap to the right is padded with 0. No spaces allowed
@@ -949,6 +1552,7 @@ static int modify_bitmap(const char *str, unsigned long *bitmap, int bits)
 	return 0;
 }
 
+<<<<<<< HEAD
 /*
  * process_mask_arg() - parse a bitmap string and clear/set the
  * bits in the bitmap accordingly. The string may be given as
@@ -964,6 +1568,11 @@ static int modify_bitmap(const char *str, unsigned long *bitmap, int bits)
 static int process_mask_arg(const char *str,
 			    unsigned long *bitmap, int bits,
 			    struct mutex *lock)
+=======
+int ap_parse_mask_str(const char *str,
+		      unsigned long *bitmap, int bits,
+		      struct mutex *lock)
+>>>>>>> upstream/android-13
 {
 	unsigned long *newmap, size;
 	int rc;
@@ -994,6 +1603,10 @@ static int process_mask_arg(const char *str,
 	kfree(newmap);
 	return rc;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL(ap_parse_mask_str);
+>>>>>>> upstream/android-13
 
 /*
  * AP bus attributes.
@@ -1001,7 +1614,11 @@ static int process_mask_arg(const char *str,
 
 static ssize_t ap_domain_show(struct bus_type *bus, char *buf)
 {
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%d\n", ap_domain_index);
+=======
+	return scnprintf(buf, PAGE_SIZE, "%d\n", ap_domain_index);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t ap_domain_store(struct bus_type *bus,
@@ -1013,11 +1630,19 @@ static ssize_t ap_domain_store(struct bus_type *bus,
 	    domain < 0 || domain > ap_max_domain_id ||
 	    !test_bit_inv(domain, ap_perms.aqm))
 		return -EINVAL;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	spin_lock_bh(&ap_domain_lock);
 	ap_domain_index = domain;
 	spin_unlock_bh(&ap_domain_lock);
 
+<<<<<<< HEAD
 	AP_DBF(DBF_DEBUG, "stored new default domain=%d\n", domain);
+=======
+	AP_DBF_INFO("stored new default domain=%d\n", domain);
+>>>>>>> upstream/android-13
 
 	return count;
 }
@@ -1026,6 +1651,7 @@ static BUS_ATTR_RW(ap_domain);
 
 static ssize_t ap_control_domain_mask_show(struct bus_type *bus, char *buf)
 {
+<<<<<<< HEAD
 	if (!ap_configuration)	/* QCI not supported */
 		return snprintf(buf, PAGE_SIZE, "not supported\n");
 
@@ -1035,12 +1661,24 @@ static ssize_t ap_control_domain_mask_show(struct bus_type *bus, char *buf)
 			ap_configuration->adm[2], ap_configuration->adm[3],
 			ap_configuration->adm[4], ap_configuration->adm[5],
 			ap_configuration->adm[6], ap_configuration->adm[7]);
+=======
+	if (!ap_qci_info)	/* QCI not supported */
+		return scnprintf(buf, PAGE_SIZE, "not supported\n");
+
+	return scnprintf(buf, PAGE_SIZE,
+			 "0x%08x%08x%08x%08x%08x%08x%08x%08x\n",
+			 ap_qci_info->adm[0], ap_qci_info->adm[1],
+			 ap_qci_info->adm[2], ap_qci_info->adm[3],
+			 ap_qci_info->adm[4], ap_qci_info->adm[5],
+			 ap_qci_info->adm[6], ap_qci_info->adm[7]);
+>>>>>>> upstream/android-13
 }
 
 static BUS_ATTR_RO(ap_control_domain_mask);
 
 static ssize_t ap_usage_domain_mask_show(struct bus_type *bus, char *buf)
 {
+<<<<<<< HEAD
 	if (!ap_configuration)	/* QCI not supported */
 		return snprintf(buf, PAGE_SIZE, "not supported\n");
 
@@ -1050,21 +1688,58 @@ static ssize_t ap_usage_domain_mask_show(struct bus_type *bus, char *buf)
 			ap_configuration->aqm[2], ap_configuration->aqm[3],
 			ap_configuration->aqm[4], ap_configuration->aqm[5],
 			ap_configuration->aqm[6], ap_configuration->aqm[7]);
+=======
+	if (!ap_qci_info)	/* QCI not supported */
+		return scnprintf(buf, PAGE_SIZE, "not supported\n");
+
+	return scnprintf(buf, PAGE_SIZE,
+			 "0x%08x%08x%08x%08x%08x%08x%08x%08x\n",
+			 ap_qci_info->aqm[0], ap_qci_info->aqm[1],
+			 ap_qci_info->aqm[2], ap_qci_info->aqm[3],
+			 ap_qci_info->aqm[4], ap_qci_info->aqm[5],
+			 ap_qci_info->aqm[6], ap_qci_info->aqm[7]);
+>>>>>>> upstream/android-13
 }
 
 static BUS_ATTR_RO(ap_usage_domain_mask);
 
+<<<<<<< HEAD
 static ssize_t ap_interrupts_show(struct bus_type *bus, char *buf)
 {
 	return snprintf(buf, PAGE_SIZE, "%d\n",
 			ap_using_interrupts() ? 1 : 0);
+=======
+static ssize_t ap_adapter_mask_show(struct bus_type *bus, char *buf)
+{
+	if (!ap_qci_info)	/* QCI not supported */
+		return scnprintf(buf, PAGE_SIZE, "not supported\n");
+
+	return scnprintf(buf, PAGE_SIZE,
+			 "0x%08x%08x%08x%08x%08x%08x%08x%08x\n",
+			 ap_qci_info->apm[0], ap_qci_info->apm[1],
+			 ap_qci_info->apm[2], ap_qci_info->apm[3],
+			 ap_qci_info->apm[4], ap_qci_info->apm[5],
+			 ap_qci_info->apm[6], ap_qci_info->apm[7]);
+}
+
+static BUS_ATTR_RO(ap_adapter_mask);
+
+static ssize_t ap_interrupts_show(struct bus_type *bus, char *buf)
+{
+	return scnprintf(buf, PAGE_SIZE, "%d\n",
+			 ap_irq_flag ? 1 : 0);
+>>>>>>> upstream/android-13
 }
 
 static BUS_ATTR_RO(ap_interrupts);
 
 static ssize_t config_time_show(struct bus_type *bus, char *buf)
 {
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%d\n", ap_config_time);
+=======
+	return scnprintf(buf, PAGE_SIZE, "%d\n", ap_config_time);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t config_time_store(struct bus_type *bus,
@@ -1083,7 +1758,11 @@ static BUS_ATTR_RW(config_time);
 
 static ssize_t poll_thread_show(struct bus_type *bus, char *buf)
 {
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%d\n", ap_poll_kthread ? 1 : 0);
+=======
+	return scnprintf(buf, PAGE_SIZE, "%d\n", ap_poll_kthread ? 1 : 0);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t poll_thread_store(struct bus_type *bus,
@@ -1106,7 +1785,11 @@ static BUS_ATTR_RW(poll_thread);
 
 static ssize_t poll_timeout_show(struct bus_type *bus, char *buf)
 {
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%llu\n", poll_timeout);
+=======
+	return scnprintf(buf, PAGE_SIZE, "%llu\n", poll_timeout);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t poll_timeout_store(struct bus_type *bus, const char *buf,
@@ -1135,6 +1818,7 @@ static BUS_ATTR_RW(poll_timeout);
 
 static ssize_t ap_max_domain_id_show(struct bus_type *bus, char *buf)
 {
+<<<<<<< HEAD
 	int max_domain_id;
 
 	if (ap_configuration)
@@ -1142,20 +1826,40 @@ static ssize_t ap_max_domain_id_show(struct bus_type *bus, char *buf)
 	else
 		max_domain_id = 15;
 	return snprintf(buf, PAGE_SIZE, "%d\n", max_domain_id);
+=======
+	return scnprintf(buf, PAGE_SIZE, "%d\n", ap_max_domain_id);
+>>>>>>> upstream/android-13
 }
 
 static BUS_ATTR_RO(ap_max_domain_id);
 
+<<<<<<< HEAD
+=======
+static ssize_t ap_max_adapter_id_show(struct bus_type *bus, char *buf)
+{
+	return scnprintf(buf, PAGE_SIZE, "%d\n", ap_max_adapter_id);
+}
+
+static BUS_ATTR_RO(ap_max_adapter_id);
+
+>>>>>>> upstream/android-13
 static ssize_t apmask_show(struct bus_type *bus, char *buf)
 {
 	int rc;
 
 	if (mutex_lock_interruptible(&ap_perms_mutex))
 		return -ERESTARTSYS;
+<<<<<<< HEAD
 	rc = snprintf(buf, PAGE_SIZE,
 		      "0x%016lx%016lx%016lx%016lx\n",
 		      ap_perms.apm[0], ap_perms.apm[1],
 		      ap_perms.apm[2], ap_perms.apm[3]);
+=======
+	rc = scnprintf(buf, PAGE_SIZE,
+		       "0x%016lx%016lx%016lx%016lx\n",
+		       ap_perms.apm[0], ap_perms.apm[1],
+		       ap_perms.apm[2], ap_perms.apm[3]);
+>>>>>>> upstream/android-13
 	mutex_unlock(&ap_perms_mutex);
 
 	return rc;
@@ -1166,7 +1870,11 @@ static ssize_t apmask_store(struct bus_type *bus, const char *buf,
 {
 	int rc;
 
+<<<<<<< HEAD
 	rc = process_mask_arg(buf, ap_perms.apm, AP_DEVICES, &ap_perms_mutex);
+=======
+	rc = ap_parse_mask_str(buf, ap_perms.apm, AP_DEVICES, &ap_perms_mutex);
+>>>>>>> upstream/android-13
 	if (rc)
 		return rc;
 
@@ -1183,10 +1891,17 @@ static ssize_t aqmask_show(struct bus_type *bus, char *buf)
 
 	if (mutex_lock_interruptible(&ap_perms_mutex))
 		return -ERESTARTSYS;
+<<<<<<< HEAD
 	rc = snprintf(buf, PAGE_SIZE,
 		      "0x%016lx%016lx%016lx%016lx\n",
 		      ap_perms.aqm[0], ap_perms.aqm[1],
 		      ap_perms.aqm[2], ap_perms.aqm[3]);
+=======
+	rc = scnprintf(buf, PAGE_SIZE,
+		       "0x%016lx%016lx%016lx%016lx\n",
+		       ap_perms.aqm[0], ap_perms.aqm[1],
+		       ap_perms.aqm[2], ap_perms.aqm[3]);
+>>>>>>> upstream/android-13
 	mutex_unlock(&ap_perms_mutex);
 
 	return rc;
@@ -1197,7 +1912,11 @@ static ssize_t aqmask_store(struct bus_type *bus, const char *buf,
 {
 	int rc;
 
+<<<<<<< HEAD
 	rc = process_mask_arg(buf, ap_perms.aqm, AP_DOMAINS, &ap_perms_mutex);
+=======
+	rc = ap_parse_mask_str(buf, ap_perms.aqm, AP_DOMAINS, &ap_perms_mutex);
+>>>>>>> upstream/android-13
 	if (rc)
 		return rc;
 
@@ -1208,6 +1927,7 @@ static ssize_t aqmask_store(struct bus_type *bus, const char *buf,
 
 static BUS_ATTR_RW(aqmask);
 
+<<<<<<< HEAD
 static struct bus_attribute *const ap_bus_attrs[] = {
 	&bus_attr_ap_domain,
 	&bus_attr_ap_control_domain_mask,
@@ -1221,6 +1941,59 @@ static struct bus_attribute *const ap_bus_attrs[] = {
 	&bus_attr_aqmask,
 	NULL,
 };
+=======
+static ssize_t scans_show(struct bus_type *bus, char *buf)
+{
+	return scnprintf(buf, PAGE_SIZE, "%llu\n",
+			 atomic64_read(&ap_scan_bus_count));
+}
+
+static BUS_ATTR_RO(scans);
+
+static ssize_t bindings_show(struct bus_type *bus, char *buf)
+{
+	int rc;
+	unsigned int apqns, n;
+
+	ap_calc_bound_apqns(&apqns, &n);
+	if (atomic64_read(&ap_scan_bus_count) >= 1 && n == apqns)
+		rc = scnprintf(buf, PAGE_SIZE, "%u/%u (complete)\n", n, apqns);
+	else
+		rc = scnprintf(buf, PAGE_SIZE, "%u/%u\n", n, apqns);
+
+	return rc;
+}
+
+static BUS_ATTR_RO(bindings);
+
+static struct attribute *ap_bus_attrs[] = {
+	&bus_attr_ap_domain.attr,
+	&bus_attr_ap_control_domain_mask.attr,
+	&bus_attr_ap_usage_domain_mask.attr,
+	&bus_attr_ap_adapter_mask.attr,
+	&bus_attr_config_time.attr,
+	&bus_attr_poll_thread.attr,
+	&bus_attr_ap_interrupts.attr,
+	&bus_attr_poll_timeout.attr,
+	&bus_attr_ap_max_domain_id.attr,
+	&bus_attr_ap_max_adapter_id.attr,
+	&bus_attr_apmask.attr,
+	&bus_attr_aqmask.attr,
+	&bus_attr_scans.attr,
+	&bus_attr_bindings.attr,
+	NULL,
+};
+ATTRIBUTE_GROUPS(ap_bus);
+
+static struct bus_type ap_bus_type = {
+	.name = "ap",
+	.bus_groups = ap_bus_groups,
+	.match = &ap_bus_match,
+	.uevent = &ap_uevent,
+	.probe = ap_device_probe,
+	.remove = ap_device_remove,
+};
+>>>>>>> upstream/android-13
 
 /**
  * ap_select_domain(): Select an AP domain if possible and we haven't
@@ -1228,6 +2001,7 @@ static struct bus_attribute *const ap_bus_attrs[] = {
  */
 static void ap_select_domain(void)
 {
+<<<<<<< HEAD
 	int count, max_count, best_domain;
 	struct ap_queue_status status;
 	int i, j;
@@ -1236,10 +2010,20 @@ static void ap_select_domain(void)
 	 * We want to use a single domain. Either the one specified with
 	 * the "domain=" parameter or the domain with the maximum number
 	 * of devices.
+=======
+	struct ap_queue_status status;
+	int card, dom;
+
+	/*
+	 * Choose the default domain. Either the one specified with
+	 * the "domain=" parameter or the first domain with at least
+	 * one valid APQN.
+>>>>>>> upstream/android-13
 	 */
 	spin_lock_bh(&ap_domain_lock);
 	if (ap_domain_index >= 0) {
 		/* Domain has already been selected. */
+<<<<<<< HEAD
 		spin_unlock_bh(&ap_domain_lock);
 		return;
 	}
@@ -1269,6 +2053,33 @@ static void ap_select_domain(void)
 		ap_domain_index = best_domain;
 		AP_DBF(DBF_DEBUG, "new ap_domain_index=%d\n", ap_domain_index);
 	}
+=======
+		goto out;
+	}
+	for (dom = 0; dom <= ap_max_domain_id; dom++) {
+		if (!ap_test_config_usage_domain(dom) ||
+		    !test_bit_inv(dom, ap_perms.aqm))
+			continue;
+		for (card = 0; card <= ap_max_adapter_id; card++) {
+			if (!ap_test_config_card_id(card) ||
+			    !test_bit_inv(card, ap_perms.apm))
+				continue;
+			status = ap_test_queue(AP_MKQID(card, dom),
+					       ap_apft_available(),
+					       NULL);
+			if (status.response_code == AP_RESPONSE_NORMAL)
+				break;
+		}
+		if (card <= ap_max_adapter_id)
+			break;
+	}
+	if (dom <= ap_max_domain_id) {
+		ap_domain_index = dom;
+		AP_DBF_INFO("%s new default domain is %d\n",
+			    __func__, ap_domain_index);
+	}
+out:
+>>>>>>> upstream/android-13
 	spin_unlock_bh(&ap_domain_lock);
 }
 
@@ -1282,6 +2093,7 @@ static int ap_get_compatible_type(ap_qid_t qid, int rawtype, unsigned int func)
 	int comp_type = 0;
 
 	/* < CEX2A is not supported */
+<<<<<<< HEAD
 	if (rawtype < AP_DEVICE_TYPE_CEX2A)
 		return 0;
 	/* up to CEX6 known and fully supported */
@@ -1291,12 +2103,27 @@ static int ap_get_compatible_type(ap_qid_t qid, int rawtype, unsigned int func)
 	 * unknown new type > CEX6, check for compatibility
 	 * to the highest known and supported type which is
 	 * currently CEX6 with the help of the QACT function.
+=======
+	if (rawtype < AP_DEVICE_TYPE_CEX2A) {
+		AP_DBF_WARN("get_comp_type queue=%02x.%04x unsupported type %d\n",
+			    AP_QID_CARD(qid), AP_QID_QUEUE(qid), rawtype);
+		return 0;
+	}
+	/* up to CEX7 known and fully supported */
+	if (rawtype <= AP_DEVICE_TYPE_CEX7)
+		return rawtype;
+	/*
+	 * unknown new type > CEX7, check for compatibility
+	 * to the highest known and supported type which is
+	 * currently CEX7 with the help of the QACT function.
+>>>>>>> upstream/android-13
 	 */
 	if (ap_qact_available()) {
 		struct ap_queue_status status;
 		union ap_qact_ap_info apinfo = {0};
 
 		apinfo.mode = (func >> 26) & 0x07;
+<<<<<<< HEAD
 		apinfo.cat = AP_DEVICE_TYPE_CEX6;
 		status = ap_qact(qid, 0, &apinfo);
 		if (status.response_code == AP_RESPONSE_NORMAL
@@ -1310,10 +2137,27 @@ static int ap_get_compatible_type(ap_qid_t qid, int rawtype, unsigned int func)
 	else if (comp_type != rawtype)
 		AP_DBF(DBF_INFO, "queue=%02x.%04x map type %d to %d\n",
 		       AP_QID_CARD(qid), AP_QID_QUEUE(qid), rawtype, comp_type);
+=======
+		apinfo.cat = AP_DEVICE_TYPE_CEX7;
+		status = ap_qact(qid, 0, &apinfo);
+		if (status.response_code == AP_RESPONSE_NORMAL
+		    && apinfo.cat >= AP_DEVICE_TYPE_CEX2A
+		    && apinfo.cat <= AP_DEVICE_TYPE_CEX7)
+			comp_type = apinfo.cat;
+	}
+	if (!comp_type)
+		AP_DBF_WARN("get_comp_type queue=%02x.%04x unable to map type %d\n",
+			    AP_QID_CARD(qid), AP_QID_QUEUE(qid), rawtype);
+	else if (comp_type != rawtype)
+		AP_DBF_INFO("get_comp_type queue=%02x.%04x map type %d to %d\n",
+			    AP_QID_CARD(qid), AP_QID_QUEUE(qid),
+			    rawtype, comp_type);
+>>>>>>> upstream/android-13
 	return comp_type;
 }
 
 /*
+<<<<<<< HEAD
  * helper function to be used with bus_find_dev
  * matches for the card device with the given id
  */
@@ -1326,10 +2170,26 @@ static int __match_card_device_with_id(struct device *dev, void *data)
  * matches for the queue device with a given qid
  */
 static int __match_queue_device_with_qid(struct device *dev, void *data)
+=======
+ * Helper function to be used with bus_find_dev
+ * matches for the card device with the given id
+ */
+static int __match_card_device_with_id(struct device *dev, const void *data)
+{
+	return is_card_dev(dev) && to_ap_card(dev)->id == (int)(long)(void *) data;
+}
+
+/*
+ * Helper function to be used with bus_find_dev
+ * matches for the queue device with a given qid
+ */
+static int __match_queue_device_with_qid(struct device *dev, const void *data)
+>>>>>>> upstream/android-13
 {
 	return is_queue_dev(dev) && to_ap_queue(dev)->qid == (int)(long) data;
 }
 
+<<<<<<< HEAD
 /**
  * ap_scan_bus(): Scan the AP bus for new devices
  * Runs periodically, workqueue timer (ap_config_time)
@@ -1365,11 +2225,66 @@ static void ap_scan_bus(struct work_struct *unused)
 					(void *)(long) id,
 					__ap_queue_devices_with_id_unregister);
 				/* now remove the card device */
+=======
+/*
+ * Helper function to be used with bus_find_dev
+ * matches any queue device with given queue id
+ */
+static int __match_queue_device_with_queue_id(struct device *dev, const void *data)
+{
+	return is_queue_dev(dev)
+		&& AP_QID_QUEUE(to_ap_queue(dev)->qid) == (int)(long) data;
+}
+
+/*
+ * Helper function for ap_scan_bus().
+ * Remove card device and associated queue devices.
+ */
+static inline void ap_scan_rm_card_dev_and_queue_devs(struct ap_card *ac)
+{
+	bus_for_each_dev(&ap_bus_type, NULL,
+			 (void *)(long) ac->id,
+			 __ap_queue_devices_with_id_unregister);
+	device_unregister(&ac->ap_dev.device);
+}
+
+/*
+ * Helper function for ap_scan_bus().
+ * Does the scan bus job for all the domains within
+ * a valid adapter given by an ap_card ptr.
+ */
+static inline void ap_scan_domains(struct ap_card *ac)
+{
+	bool decfg;
+	ap_qid_t qid;
+	unsigned int func;
+	struct device *dev;
+	struct ap_queue *aq;
+	int rc, dom, depth, type, ml;
+
+	/*
+	 * Go through the configuration for the domains and compare them
+	 * to the existing queue devices. Also take care of the config
+	 * and error state for the queue devices.
+	 */
+
+	for (dom = 0; dom <= ap_max_domain_id; dom++) {
+		qid = AP_MKQID(ac->id, dom);
+		dev = bus_find_device(&ap_bus_type, NULL,
+				      (void *)(long) qid,
+				      __match_queue_device_with_qid);
+		aq = dev ? to_ap_queue(dev) : NULL;
+		if (!ap_test_config_usage_domain(dom)) {
+			if (dev) {
+				AP_DBF_INFO("%s(%d,%d) not in config any more, rm queue device\n",
+					    __func__, ac->id, dom);
+>>>>>>> upstream/android-13
 				device_unregister(dev);
 				put_device(dev);
 			}
 			continue;
 		}
+<<<<<<< HEAD
 		/* According to the configuration there should be a card
 		 * device, so check if there is at least one valid queue
 		 * and maybe create queue devices and the card device.
@@ -1467,14 +2382,296 @@ static void ap_scan_bus(struct work_struct *unused)
 		AP_DBF(DBF_INFO,
 		       "no queue device with default domain %d available\n",
 		       ap_domain_index);
+=======
+		/* domain is valid, get info from this APQN */
+		if (!ap_queue_info(qid, &type, &func, &depth, &ml, &decfg)) {
+			if (aq) {
+				AP_DBF_INFO(
+					"%s(%d,%d) ap_queue_info() not successful, rm queue device\n",
+					__func__, ac->id, dom);
+				device_unregister(dev);
+				put_device(dev);
+			}
+			continue;
+		}
+		/* if no queue device exists, create a new one */
+		if (!aq) {
+			aq = ap_queue_create(qid, ac->ap_dev.device_type);
+			if (!aq) {
+				AP_DBF_WARN("%s(%d,%d) ap_queue_create() failed\n",
+					    __func__, ac->id, dom);
+				continue;
+			}
+			aq->card = ac;
+			aq->config = !decfg;
+			dev = &aq->ap_dev.device;
+			dev->bus = &ap_bus_type;
+			dev->parent = &ac->ap_dev.device;
+			dev_set_name(dev, "%02x.%04x", ac->id, dom);
+			/* register queue device */
+			rc = device_register(dev);
+			if (rc) {
+				AP_DBF_WARN("%s(%d,%d) device_register() failed\n",
+					    __func__, ac->id, dom);
+				goto put_dev_and_continue;
+			}
+			/* get it and thus adjust reference counter */
+			get_device(dev);
+			if (decfg)
+				AP_DBF_INFO("%s(%d,%d) new (decfg) queue device created\n",
+					    __func__, ac->id, dom);
+			else
+				AP_DBF_INFO("%s(%d,%d) new queue device created\n",
+					    __func__, ac->id, dom);
+			goto put_dev_and_continue;
+		}
+		/* Check config state on the already existing queue device */
+		spin_lock_bh(&aq->lock);
+		if (decfg && aq->config) {
+			/* config off this queue device */
+			aq->config = false;
+			if (aq->dev_state > AP_DEV_STATE_UNINITIATED) {
+				aq->dev_state = AP_DEV_STATE_ERROR;
+				aq->last_err_rc = AP_RESPONSE_DECONFIGURED;
+			}
+			spin_unlock_bh(&aq->lock);
+			AP_DBF_INFO("%s(%d,%d) queue device config off\n",
+				    __func__, ac->id, dom);
+			ap_send_config_uevent(&aq->ap_dev, aq->config);
+			/* 'receive' pending messages with -EAGAIN */
+			ap_flush_queue(aq);
+			goto put_dev_and_continue;
+		}
+		if (!decfg && !aq->config) {
+			/* config on this queue device */
+			aq->config = true;
+			if (aq->dev_state > AP_DEV_STATE_UNINITIATED) {
+				aq->dev_state = AP_DEV_STATE_OPERATING;
+				aq->sm_state = AP_SM_STATE_RESET_START;
+			}
+			spin_unlock_bh(&aq->lock);
+			AP_DBF_INFO("%s(%d,%d) queue device config on\n",
+				    __func__, ac->id, dom);
+			ap_send_config_uevent(&aq->ap_dev, aq->config);
+			goto put_dev_and_continue;
+		}
+		/* handle other error states */
+		if (!decfg && aq->dev_state == AP_DEV_STATE_ERROR) {
+			spin_unlock_bh(&aq->lock);
+			/* 'receive' pending messages with -EAGAIN */
+			ap_flush_queue(aq);
+			/* re-init (with reset) the queue device */
+			ap_queue_init_state(aq);
+			AP_DBF_INFO("%s(%d,%d) queue device reinit enforced\n",
+				    __func__, ac->id, dom);
+			goto put_dev_and_continue;
+		}
+		spin_unlock_bh(&aq->lock);
+put_dev_and_continue:
+		put_device(dev);
+	}
+}
+
+/*
+ * Helper function for ap_scan_bus().
+ * Does the scan bus job for the given adapter id.
+ */
+static inline void ap_scan_adapter(int ap)
+{
+	bool decfg;
+	ap_qid_t qid;
+	unsigned int func;
+	struct device *dev;
+	struct ap_card *ac;
+	int rc, dom, depth, type, comp_type, ml;
+
+	/* Is there currently a card device for this adapter ? */
+	dev = bus_find_device(&ap_bus_type, NULL,
+			      (void *)(long) ap,
+			      __match_card_device_with_id);
+	ac = dev ? to_ap_card(dev) : NULL;
+
+	/* Adapter not in configuration ? */
+	if (!ap_test_config_card_id(ap)) {
+		if (ac) {
+			AP_DBF_INFO("%s(%d) ap not in config any more, rm card and queue devices\n",
+				    __func__, ap);
+			ap_scan_rm_card_dev_and_queue_devs(ac);
+			put_device(dev);
+		}
+		return;
+	}
+
+	/*
+	 * Adapter ap is valid in the current configuration. So do some checks:
+	 * If no card device exists, build one. If a card device exists, check
+	 * for type and functions changed. For all this we need to find a valid
+	 * APQN first.
+	 */
+
+	for (dom = 0; dom <= ap_max_domain_id; dom++)
+		if (ap_test_config_usage_domain(dom)) {
+			qid = AP_MKQID(ap, dom);
+			if (ap_queue_info(qid, &type, &func,
+					  &depth, &ml, &decfg))
+				break;
+		}
+	if (dom > ap_max_domain_id) {
+		/* Could not find a valid APQN for this adapter */
+		if (ac) {
+			AP_DBF_INFO(
+				"%s(%d) no type info (no APQN found), rm card and queue devices\n",
+				__func__, ap);
+			ap_scan_rm_card_dev_and_queue_devs(ac);
+			put_device(dev);
+		} else {
+			AP_DBF_DBG("%s(%d) no type info (no APQN found), ignored\n",
+				   __func__, ap);
+		}
+		return;
+	}
+	if (!type) {
+		/* No apdater type info available, an unusable adapter */
+		if (ac) {
+			AP_DBF_INFO("%s(%d) no valid type (0) info, rm card and queue devices\n",
+				    __func__, ap);
+			ap_scan_rm_card_dev_and_queue_devs(ac);
+			put_device(dev);
+		} else {
+			AP_DBF_DBG("%s(%d) no valid type (0) info, ignored\n",
+				   __func__, ap);
+		}
+		return;
+	}
+
+	if (ac) {
+		/* Check APQN against existing card device for changes */
+		if (ac->raw_hwtype != type) {
+			AP_DBF_INFO("%s(%d) hwtype %d changed, rm card and queue devices\n",
+				    __func__, ap, type);
+			ap_scan_rm_card_dev_and_queue_devs(ac);
+			put_device(dev);
+			ac = NULL;
+		} else if (ac->functions != func) {
+			AP_DBF_INFO("%s(%d) functions 0x%08x changed, rm card and queue devices\n",
+				    __func__, ap, type);
+			ap_scan_rm_card_dev_and_queue_devs(ac);
+			put_device(dev);
+			ac = NULL;
+		} else {
+			if (decfg && ac->config) {
+				ac->config = false;
+				AP_DBF_INFO("%s(%d) card device config off\n",
+					    __func__, ap);
+				ap_send_config_uevent(&ac->ap_dev, ac->config);
+			}
+			if (!decfg && !ac->config) {
+				ac->config = true;
+				AP_DBF_INFO("%s(%d) card device config on\n",
+					    __func__, ap);
+				ap_send_config_uevent(&ac->ap_dev, ac->config);
+			}
+		}
+	}
+
+	if (!ac) {
+		/* Build a new card device */
+		comp_type = ap_get_compatible_type(qid, type, func);
+		if (!comp_type) {
+			AP_DBF_WARN("%s(%d) type %d, can't get compatibility type\n",
+				    __func__, ap, type);
+			return;
+		}
+		ac = ap_card_create(ap, depth, type, comp_type, func, ml);
+		if (!ac) {
+			AP_DBF_WARN("%s(%d) ap_card_create() failed\n",
+				    __func__, ap);
+			return;
+		}
+		ac->config = !decfg;
+		dev = &ac->ap_dev.device;
+		dev->bus = &ap_bus_type;
+		dev->parent = ap_root_device;
+		dev_set_name(dev, "card%02x", ap);
+		/* maybe enlarge ap_max_msg_size to support this card */
+		if (ac->maxmsgsize > atomic_read(&ap_max_msg_size)) {
+			atomic_set(&ap_max_msg_size, ac->maxmsgsize);
+			AP_DBF_INFO("%s(%d) ap_max_msg_size update to %d byte\n",
+				    __func__, ap, atomic_read(&ap_max_msg_size));
+		}
+		/* Register the new card device with AP bus */
+		rc = device_register(dev);
+		if (rc) {
+			AP_DBF_WARN("%s(%d) device_register() failed\n",
+				    __func__, ap);
+			put_device(dev);
+			return;
+		}
+		/* get it and thus adjust reference counter */
+		get_device(dev);
+		if (decfg)
+			AP_DBF_INFO("%s(%d) new (decfg) card device type=%d func=0x%08x created\n",
+				    __func__, ap, type, func);
+		else
+			AP_DBF_INFO("%s(%d) new card device type=%d func=0x%08x created\n",
+				    __func__, ap, type, func);
+	}
+
+	/* Verify the domains and the queue devices for this card */
+	ap_scan_domains(ac);
+
+	/* release the card device */
+	put_device(&ac->ap_dev.device);
+}
+
+/**
+ * ap_scan_bus(): Scan the AP bus for new devices
+ * Runs periodically, workqueue timer (ap_config_time)
+ * @unused: Unused pointer.
+ */
+static void ap_scan_bus(struct work_struct *unused)
+{
+	int ap;
+
+	ap_fetch_qci_info(ap_qci_info);
+	ap_select_domain();
+
+	AP_DBF_DBG("%s running\n", __func__);
+
+	/* loop over all possible adapters */
+	for (ap = 0; ap <= ap_max_adapter_id; ap++)
+		ap_scan_adapter(ap);
+
+	/* check if there is at least one queue available with default domain */
+	if (ap_domain_index >= 0) {
+		struct device *dev =
+			bus_find_device(&ap_bus_type, NULL,
+					(void *)(long) ap_domain_index,
+					__match_queue_device_with_queue_id);
+		if (dev)
+			put_device(dev);
+		else
+			AP_DBF_INFO("no queue device with default domain %d available\n",
+				    ap_domain_index);
+	}
+
+	if (atomic64_inc_return(&ap_scan_bus_count) == 1) {
+		AP_DBF(DBF_DEBUG, "%s init scan complete\n", __func__);
+		ap_send_init_scan_done_uevent();
+		ap_check_bindings_complete();
+	}
+>>>>>>> upstream/android-13
 
 	mod_timer(&ap_config_timer, jiffies + ap_config_time * HZ);
 }
 
 static void ap_config_timeout(struct timer_list *unused)
 {
+<<<<<<< HEAD
 	if (ap_suspend_flag)
 		return;
+=======
+>>>>>>> upstream/android-13
 	queue_work(system_long_wq, &ap_scan_work);
 }
 
@@ -1491,21 +2688,35 @@ static int __init ap_debug_init(void)
 static void __init ap_perms_init(void)
 {
 	/* all resources useable if no kernel parameter string given */
+<<<<<<< HEAD
+=======
+	memset(&ap_perms.ioctlm, 0xFF, sizeof(ap_perms.ioctlm));
+>>>>>>> upstream/android-13
 	memset(&ap_perms.apm, 0xFF, sizeof(ap_perms.apm));
 	memset(&ap_perms.aqm, 0xFF, sizeof(ap_perms.aqm));
 
 	/* apm kernel parameter string */
 	if (apm_str) {
 		memset(&ap_perms.apm, 0, sizeof(ap_perms.apm));
+<<<<<<< HEAD
 		process_mask_arg(apm_str, ap_perms.apm, AP_DEVICES,
 				 &ap_perms_mutex);
+=======
+		ap_parse_mask_str(apm_str, ap_perms.apm, AP_DEVICES,
+				  &ap_perms_mutex);
+>>>>>>> upstream/android-13
 	}
 
 	/* aqm kernel parameter string */
 	if (aqm_str) {
 		memset(&ap_perms.aqm, 0, sizeof(ap_perms.aqm));
+<<<<<<< HEAD
 		process_mask_arg(aqm_str, ap_perms.aqm, AP_DOMAINS,
 				 &ap_perms_mutex);
+=======
+		ap_parse_mask_str(aqm_str, ap_perms.aqm, AP_DOMAINS,
+				  &ap_perms_mutex);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1516,8 +2727,12 @@ static void __init ap_perms_init(void)
  */
 static int __init ap_module_init(void)
 {
+<<<<<<< HEAD
 	int max_domain_id;
 	int rc, i;
+=======
+	int rc;
+>>>>>>> upstream/android-13
 
 	rc = ap_debug_init();
 	if (rc)
@@ -1528,6 +2743,7 @@ static int __init ap_module_init(void)
 		return -ENODEV;
 	}
 
+<<<<<<< HEAD
 	/* set up the AP permissions (ap and aq masks) */
 	ap_perms_init();
 
@@ -1540,12 +2756,26 @@ static int __init ap_module_init(void)
 	else
 		max_domain_id = 15;
 	if (ap_domain_index < -1 || ap_domain_index > max_domain_id ||
+=======
+	/* init ap_queue hashtable */
+	hash_init(ap_queues);
+
+	/* set up the AP permissions (ioctls, ap and aq masks) */
+	ap_perms_init();
+
+	/* Get AP configuration data if available */
+	ap_init_qci_info();
+
+	/* check default domain setting */
+	if (ap_domain_index < -1 || ap_domain_index > ap_max_domain_id ||
+>>>>>>> upstream/android-13
 	    (ap_domain_index >= 0 &&
 	     !test_bit_inv(ap_domain_index, ap_perms.aqm))) {
 		pr_warn("%d is not a valid cryptographic domain\n",
 			ap_domain_index);
 		ap_domain_index = -1;
 	}
+<<<<<<< HEAD
 	/* In resume callback we need to know if the user had set the domain.
 	 * If so, we can not just reset it.
 	 */
@@ -1555,23 +2785,37 @@ static int __init ap_module_init(void)
 	if (ap_interrupts_available()) {
 		rc = register_adapter_interrupt(&ap_airq);
 		ap_airq_flag = (rc == 0);
+=======
+
+	/* enable interrupts if available */
+	if (ap_interrupts_available()) {
+		rc = register_adapter_interrupt(&ap_airq);
+		ap_irq_flag = (rc == 0);
+>>>>>>> upstream/android-13
 	}
 
 	/* Create /sys/bus/ap. */
 	rc = bus_register(&ap_bus_type);
 	if (rc)
 		goto out;
+<<<<<<< HEAD
 	for (i = 0; ap_bus_attrs[i]; i++) {
 		rc = bus_create_file(&ap_bus_type, ap_bus_attrs[i]);
 		if (rc)
 			goto out_bus;
 	}
+=======
+>>>>>>> upstream/android-13
 
 	/* Create /sys/devices/ap. */
 	ap_root_device = root_device_register("ap");
 	rc = PTR_ERR_OR_ZERO(ap_root_device);
 	if (rc)
 		goto out_bus;
+<<<<<<< HEAD
+=======
+	ap_root_device->bus = &ap_bus_type;
+>>>>>>> upstream/android-13
 
 	/* Setup the AP bus rescan timer. */
 	timer_setup(&ap_config_timer, ap_config_timeout, 0);
@@ -1582,7 +2826,10 @@ static int __init ap_module_init(void)
 	 */
 	if (MACHINE_IS_VM)
 		poll_timeout = 1500000;
+<<<<<<< HEAD
 	spin_lock_init(&ap_poll_timer_lock);
+=======
+>>>>>>> upstream/android-13
 	hrtimer_init(&ap_poll_timer, CLOCK_MONOTONIC, HRTIMER_MODE_ABS);
 	ap_poll_timer.function = ap_poll_timeout;
 
@@ -1593,6 +2840,7 @@ static int __init ap_module_init(void)
 			goto out_work;
 	}
 
+<<<<<<< HEAD
 	rc = register_pm_notifier(&ap_power_notifier);
 	if (rc)
 		goto out_pm;
@@ -1604,10 +2852,17 @@ static int __init ap_module_init(void)
 
 out_pm:
 	ap_poll_thread_stop();
+=======
+	queue_work(system_long_wq, &ap_scan_work);
+
+	return 0;
+
+>>>>>>> upstream/android-13
 out_work:
 	hrtimer_cancel(&ap_poll_timer);
 	root_device_unregister(ap_root_device);
 out_bus:
+<<<<<<< HEAD
 	while (i--)
 		bus_remove_file(&ap_bus_type, ap_bus_attrs[i]);
 	bus_unregister(&ap_bus_type);
@@ -1615,6 +2870,13 @@ out:
 	if (ap_using_interrupts())
 		unregister_adapter_interrupt(&ap_airq);
 	kfree(ap_configuration);
+=======
+	bus_unregister(&ap_bus_type);
+out:
+	if (ap_irq_flag)
+		unregister_adapter_interrupt(&ap_airq);
+	kfree(ap_qci_info);
+>>>>>>> upstream/android-13
 	return rc;
 }
 device_initcall(ap_module_init);

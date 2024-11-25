@@ -75,7 +75,11 @@ FPU_fsqrt_arg_0:
 
 
 .text
+<<<<<<< HEAD
 ENTRY(wm_sqrt)
+=======
+SYM_FUNC_START(wm_sqrt)
+>>>>>>> upstream/android-13
 	pushl	%ebp
 	movl	%esp,%ebp
 #ifndef NON_REENTRANT_FPU
@@ -469,4 +473,8 @@ sqrt_more_prec_large:
 /* Our estimate is too large */
 	movl	$0x7fffff00,%eax
 	jmp	sqrt_round_result
+<<<<<<< HEAD
 ENDPROC(wm_sqrt)
+=======
+SYM_FUNC_END(wm_sqrt)
+>>>>>>> upstream/android-13

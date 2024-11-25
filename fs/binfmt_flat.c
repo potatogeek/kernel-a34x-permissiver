@@ -42,6 +42,14 @@
 #include <asm/unaligned.h>
 #include <asm/cacheflush.h>
 #include <asm/page.h>
+<<<<<<< HEAD
+=======
+#include <asm/flat.h>
+
+#ifndef flat_get_relocate_addr
+#define flat_get_relocate_addr(rel)	(rel)
+#endif
+>>>>>>> upstream/android-13
 
 /****************************************************************************/
 
@@ -63,6 +71,21 @@
 #define RELOC_FAILED 0xff00ff01		/* Relocation incorrect somewhere */
 #define UNLOADED_LIB 0x7ff000ff		/* Placeholder for unused library */
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_BINFMT_SHARED_FLAT
+#define	MAX_SHARED_LIBS			(4)
+#else
+#define	MAX_SHARED_LIBS			(1)
+#endif
+
+#ifdef CONFIG_BINFMT_FLAT_NO_DATA_START_OFFSET
+#define DATA_START_OFFSET_WORDS		(0)
+#else
+#define DATA_START_OFFSET_WORDS		(MAX_SHARED_LIBS)
+#endif
+
+>>>>>>> upstream/android-13
 struct lib_info {
 	struct {
 		unsigned long start_code;		/* Start of text segment */
@@ -120,12 +143,18 @@ static int create_flat_tables(struct linux_binprm *bprm, unsigned long arg_start
 
 	sp -= bprm->envc + 1;
 	sp -= bprm->argc + 1;
+<<<<<<< HEAD
 	sp -= flat_argvp_envp_on_stack() ? 2 : 0;
+=======
+	if (IS_ENABLED(CONFIG_BINFMT_FLAT_ARGVP_ENVP_ON_STACK))
+		sp -= 2; /* argvp + envp */
+>>>>>>> upstream/android-13
 	sp -= 1;  /* &argc */
 
 	current->mm->start_stack = (unsigned long)sp & -FLAT_STACK_ALIGN;
 	sp = (unsigned long __user *)current->mm->start_stack;
 
+<<<<<<< HEAD
 	__put_user(bprm->argc, sp++);
 	if (flat_argvp_envp_on_stack()) {
 		unsigned long argv, envp;
@@ -133,28 +162,58 @@ static int create_flat_tables(struct linux_binprm *bprm, unsigned long arg_start
 		envp = (unsigned long)(sp + 2 + bprm->argc + 1);
 		__put_user(argv, sp++);
 		__put_user(envp, sp++);
+=======
+	if (put_user(bprm->argc, sp++))
+		return -EFAULT;
+	if (IS_ENABLED(CONFIG_BINFMT_FLAT_ARGVP_ENVP_ON_STACK)) {
+		unsigned long argv, envp;
+		argv = (unsigned long)(sp + 2);
+		envp = (unsigned long)(sp + 2 + bprm->argc + 1);
+		if (put_user(argv, sp++) || put_user(envp, sp++))
+			return -EFAULT;
+>>>>>>> upstream/android-13
 	}
 
 	current->mm->arg_start = (unsigned long)p;
 	for (i = bprm->argc; i > 0; i--) {
+<<<<<<< HEAD
 		__put_user((unsigned long)p, sp++);
+=======
+		if (put_user((unsigned long)p, sp++))
+			return -EFAULT;
+>>>>>>> upstream/android-13
 		len = strnlen_user(p, MAX_ARG_STRLEN);
 		if (!len || len > MAX_ARG_STRLEN)
 			return -EINVAL;
 		p += len;
 	}
+<<<<<<< HEAD
 	__put_user(0, sp++);
+=======
+	if (put_user(0, sp++))
+		return -EFAULT;
+>>>>>>> upstream/android-13
 	current->mm->arg_end = (unsigned long)p;
 
 	current->mm->env_start = (unsigned long) p;
 	for (i = bprm->envc; i > 0; i--) {
+<<<<<<< HEAD
 		__put_user((unsigned long)p, sp++);
+=======
+		if (put_user((unsigned long)p, sp++))
+			return -EFAULT;
+>>>>>>> upstream/android-13
 		len = strnlen_user(p, MAX_ARG_STRLEN);
 		if (!len || len > MAX_ARG_STRLEN)
 			return -EINVAL;
 		p += len;
 	}
+<<<<<<< HEAD
 	__put_user(0, sp++);
+=======
+	if (put_user(0, sp++))
+		return -EFAULT;
+>>>>>>> upstream/android-13
 	current->mm->env_end = (unsigned long)p;
 
 	return 0;
@@ -345,7 +404,11 @@ calc_reloc(unsigned long r, struct lib_info *p, int curid, int internalp)
 	start_code = p->lib_list[id].start_code;
 	text_len = p->lib_list[id].text_len;
 
+<<<<<<< HEAD
 	if (!flat_reloc_valid(r, start_brk - start_data + text_len)) {
+=======
+	if (r > start_brk - start_data + text_len) {
+>>>>>>> upstream/android-13
 		pr_err("reloc outside program 0x%lx (0 - 0x%lx/0x%lx)",
 		       r, start_brk-start_data+text_len, text_len);
 		goto failed;
@@ -368,6 +431,10 @@ failed:
 
 /****************************************************************************/
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_BINFMT_FLAT_OLD
+>>>>>>> upstream/android-13
 static void old_reloc(unsigned long rl)
 {
 	static const char *segment[] = { "TEXT", "DATA", "BSS", "*UNKNOWN*" };
@@ -405,6 +472,10 @@ static void old_reloc(unsigned long rl)
 
 	pr_debug("Relocation became %lx\n", val);
 }
+<<<<<<< HEAD
+=======
+#endif /* CONFIG_BINFMT_FLAT_OLD */
+>>>>>>> upstream/android-13
 
 /****************************************************************************/
 
@@ -415,8 +486,13 @@ static int load_flat_file(struct linux_binprm *bprm,
 	unsigned long textpos, datapos, realdatastart;
 	u32 text_len, data_len, bss_len, stack_len, full_data, flags;
 	unsigned long len, memp, memp_size, extra, rlim;
+<<<<<<< HEAD
 	u32 __user *reloc, *rp;
 	struct inode *inode;
+=======
+	__be32 __user *reloc;
+	u32 __user *rp;
+>>>>>>> upstream/android-13
 	int i, rev, relocs;
 	loff_t fpos;
 	unsigned long start_code, end_code;
@@ -424,7 +500,10 @@ static int load_flat_file(struct linux_binprm *bprm,
 	int ret;
 
 	hdr = ((struct flat_hdr *) bprm->buf);		/* exec-header */
+<<<<<<< HEAD
 	inode = file_inode(bprm->file);
+=======
+>>>>>>> upstream/android-13
 
 	text_len  = ntohl(hdr->data_start);
 	data_len  = ntohl(hdr->data_end) - ntohl(hdr->data_start);
@@ -454,6 +533,10 @@ static int load_flat_file(struct linux_binprm *bprm,
 	if (flags & FLAT_FLAG_KTRACE)
 		pr_info("Loading file: %s\n", bprm->filename);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_BINFMT_FLAT_OLD
+>>>>>>> upstream/android-13
 	if (rev != FLAT_VERSION && rev != OLD_FLAT_VERSION) {
 		pr_err("bad flat file version 0x%x (supported 0x%lx and 0x%lx)\n",
 		       rev, FLAT_VERSION, OLD_FLAT_VERSION);
@@ -470,6 +553,26 @@ static int load_flat_file(struct linux_binprm *bprm,
 	}
 
 	/*
+<<<<<<< HEAD
+=======
+	 * fix up the flags for the older format,  there were all kinds
+	 * of endian hacks,  this only works for the simple cases
+	 */
+	if (rev == OLD_FLAT_VERSION &&
+	   (flags || IS_ENABLED(CONFIG_BINFMT_FLAT_OLD_ALWAYS_RAM)))
+		flags = FLAT_FLAG_RAM;
+
+#else /* CONFIG_BINFMT_FLAT_OLD */
+	if (rev != FLAT_VERSION) {
+		pr_err("bad flat file version 0x%x (supported 0x%lx)\n",
+		       rev, FLAT_VERSION);
+		ret = -ENOEXEC;
+		goto err;
+	}
+#endif /* !CONFIG_BINFMT_FLAT_OLD */
+
+	/*
+>>>>>>> upstream/android-13
 	 * Make sure the header params are sane.
 	 * 28 bits (256 MB) is way more than reasonable in this case.
 	 * If some top bits are set we have probable binary corruption.
@@ -480,6 +583,7 @@ static int load_flat_file(struct linux_binprm *bprm,
 		goto err;
 	}
 
+<<<<<<< HEAD
 	/*
 	 * fix up the flags for the older format,  there were all kinds
 	 * of endian hacks,  this only works for the simple cases
@@ -487,6 +591,8 @@ static int load_flat_file(struct linux_binprm *bprm,
 	if (rev == OLD_FLAT_VERSION && flat_old_ram_flag(flags))
 		flags = FLAT_FLAG_RAM;
 
+=======
+>>>>>>> upstream/android-13
 #ifndef CONFIG_BINFMT_ZFLAT
 	if (flags & (FLAT_FLAG_GZIP|FLAT_FLAG_GZDATA)) {
 		pr_err("Support for ZFLAT executables is not enabled.\n");
@@ -510,7 +616,11 @@ static int load_flat_file(struct linux_binprm *bprm,
 
 	/* Flush all traces of the currently running executable */
 	if (id == 0) {
+<<<<<<< HEAD
 		ret = flush_old_exec(bprm);
+=======
+		ret = begin_new_exec(bprm);
+>>>>>>> upstream/android-13
 		if (ret)
 			goto err;
 
@@ -538,7 +648,11 @@ static int load_flat_file(struct linux_binprm *bprm,
 		pr_debug("ROM mapping of file (we hope)\n");
 
 		textpos = vm_mmap(bprm->file, 0, text_len, PROT_READ|PROT_EXEC,
+<<<<<<< HEAD
 				  MAP_PRIVATE|MAP_EXECUTABLE, 0);
+=======
+				  MAP_PRIVATE, 0);
+>>>>>>> upstream/android-13
 		if (!textpos || IS_ERR_VALUE(textpos)) {
 			ret = textpos;
 			if (!textpos)
@@ -547,7 +661,12 @@ static int load_flat_file(struct linux_binprm *bprm,
 			goto err;
 		}
 
+<<<<<<< HEAD
 		len = data_len + extra + MAX_SHARED_LIBS * sizeof(unsigned long);
+=======
+		len = data_len + extra +
+			DATA_START_OFFSET_WORDS * sizeof(unsigned long);
+>>>>>>> upstream/android-13
 		len = PAGE_ALIGN(len);
 		realdatastart = vm_mmap(NULL, 0, len,
 			PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE, 0);
@@ -562,7 +681,11 @@ static int load_flat_file(struct linux_binprm *bprm,
 			goto err;
 		}
 		datapos = ALIGN(realdatastart +
+<<<<<<< HEAD
 				MAX_SHARED_LIBS * sizeof(unsigned long),
+=======
+				DATA_START_OFFSET_WORDS * sizeof(unsigned long),
+>>>>>>> upstream/android-13
 				FLAT_DATA_ALIGN);
 
 		pr_debug("Allocated data+bss+stack (%u bytes): %lx\n",
@@ -587,13 +710,22 @@ static int load_flat_file(struct linux_binprm *bprm,
 			goto err;
 		}
 
+<<<<<<< HEAD
 		reloc = (u32 __user *)
+=======
+		reloc = (__be32 __user *)
+>>>>>>> upstream/android-13
 			(datapos + (ntohl(hdr->reloc_start) - text_len));
 		memp = realdatastart;
 		memp_size = len;
 	} else {
 
+<<<<<<< HEAD
 		len = text_len + data_len + extra + MAX_SHARED_LIBS * sizeof(u32);
+=======
+		len = text_len + data_len + extra +
+			DATA_START_OFFSET_WORDS * sizeof(u32);
+>>>>>>> upstream/android-13
 		len = PAGE_ALIGN(len);
 		textpos = vm_mmap(NULL, 0, len,
 			PROT_READ | PROT_EXEC | PROT_WRITE, MAP_PRIVATE, 0);
@@ -609,10 +741,17 @@ static int load_flat_file(struct linux_binprm *bprm,
 
 		realdatastart = textpos + ntohl(hdr->data_start);
 		datapos = ALIGN(realdatastart +
+<<<<<<< HEAD
 				MAX_SHARED_LIBS * sizeof(u32),
 				FLAT_DATA_ALIGN);
 
 		reloc = (u32 __user *)
+=======
+				DATA_START_OFFSET_WORDS * sizeof(u32),
+				FLAT_DATA_ALIGN);
+
+		reloc = (__be32 __user *)
+>>>>>>> upstream/android-13
 			(datapos + (ntohl(hdr->reloc_start) - text_len));
 		memp = textpos;
 		memp_size = len;
@@ -685,7 +824,11 @@ static int load_flat_file(struct linux_binprm *bprm,
 			ret = result;
 			pr_err("Unable to read code+data+bss, errno %d\n", ret);
 			vm_munmap(textpos, text_len + data_len + extra +
+<<<<<<< HEAD
 				MAX_SHARED_LIBS * sizeof(u32));
+=======
+				  DATA_START_OFFSET_WORDS * sizeof(u32));
+>>>>>>> upstream/android-13
 			goto err;
 		}
 	}
@@ -775,20 +918,32 @@ static int load_flat_file(struct linux_binprm *bprm,
 	 * __start to address 4 so that is okay).
 	 */
 	if (rev > OLD_FLAT_VERSION) {
+<<<<<<< HEAD
 		u32 __maybe_unused persistent = 0;
 		for (i = 0; i < relocs; i++) {
 			u32 addr, relval;
+=======
+		for (i = 0; i < relocs; i++) {
+			u32 addr, relval;
+			__be32 tmp;
+>>>>>>> upstream/android-13
 
 			/*
 			 * Get the address of the pointer to be
 			 * relocated (of course, the address has to be
 			 * relocated first).
 			 */
+<<<<<<< HEAD
 			if (get_user(relval, reloc + i))
 				return -EFAULT;
 			relval = ntohl(relval);
 			if (flat_set_persistent(relval, &persistent))
 				continue;
+=======
+			if (get_user(tmp, reloc + i))
+				return -EFAULT;
+			relval = ntohl(tmp);
+>>>>>>> upstream/android-13
 			addr = flat_get_relocate_addr(relval);
 			rp = (u32 __user *)calc_reloc(addr, libinfo, id, 1);
 			if (rp == (u32 __user *)RELOC_FAILED) {
@@ -797,8 +952,12 @@ static int load_flat_file(struct linux_binprm *bprm,
 			}
 
 			/* Get the pointer's value.  */
+<<<<<<< HEAD
 			ret = flat_get_addr_from_rp(rp, relval, flags,
 							&addr, &persistent);
+=======
+			ret = flat_get_addr_from_rp(rp, relval, flags, &addr);
+>>>>>>> upstream/android-13
 			if (unlikely(ret))
 				goto err;
 
@@ -807,8 +966,18 @@ static int load_flat_file(struct linux_binprm *bprm,
 				 * Do the relocation.  PIC relocs in the data section are
 				 * already in target order
 				 */
+<<<<<<< HEAD
 				if ((flags & FLAT_FLAG_GOTPIC) == 0)
 					addr = ntohl(addr);
+=======
+				if ((flags & FLAT_FLAG_GOTPIC) == 0) {
+					/*
+					 * Meh, the same value can have a different
+					 * byte order based on a flag..
+					 */
+					addr = ntohl((__force __be32)addr);
+				}
+>>>>>>> upstream/android-13
 				addr = calc_reloc(addr, libinfo, id, 0);
 				if (addr == RELOC_FAILED) {
 					ret = -ENOEXEC;
@@ -821,6 +990,7 @@ static int load_flat_file(struct linux_binprm *bprm,
 					goto err;
 			}
 		}
+<<<<<<< HEAD
 	} else {
 		for (i = 0; i < relocs; i++) {
 			u32 relval;
@@ -832,6 +1002,20 @@ static int load_flat_file(struct linux_binprm *bprm,
 	}
 
 	flush_icache_range(start_code, end_code);
+=======
+#ifdef CONFIG_BINFMT_FLAT_OLD
+	} else {
+		for (i = 0; i < relocs; i++) {
+			__be32 relval;
+			if (get_user(relval, reloc + i))
+				return -EFAULT;
+			old_reloc(ntohl(relval));
+		}
+#endif /* CONFIG_BINFMT_FLAT_OLD */
+	}
+
+	flush_icache_user_range(start_code, end_code);
+>>>>>>> upstream/android-13
 
 	/* zero the BSS,  BRK and stack areas */
 	if (clear_user((void __user *)(datapos + data_len), bss_len +
@@ -940,8 +1124,11 @@ static int load_flat_binary(struct linux_binprm *bprm)
 		}
 	}
 
+<<<<<<< HEAD
 	install_exec_creds(bprm);
 
+=======
+>>>>>>> upstream/android-13
 	set_binfmt(&flat_format);
 
 #ifdef CONFIG_MMU
@@ -975,7 +1162,12 @@ static int load_flat_binary(struct linux_binprm *bprm)
 			unsigned long __user *sp;
 			current->mm->start_stack -= sizeof(unsigned long);
 			sp = (unsigned long __user *)current->mm->start_stack;
+<<<<<<< HEAD
 			__put_user(start_addr, sp);
+=======
+			if (put_user(start_addr, sp))
+				return -EFAULT;
+>>>>>>> upstream/android-13
 			start_addr = libinfo.lib_list[i].entry;
 		}
 	}

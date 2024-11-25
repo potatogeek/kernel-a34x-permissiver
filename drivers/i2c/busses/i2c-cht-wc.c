@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Intel CHT Whiskey Cove PMIC I2C Master driver
  * Copyright (C) 2017 Hans de Goede <hdegoede@redhat.com>
  *
  * Based on various non upstream patches to support the CHT Whiskey Cove PMIC:
  * Copyright (C) 2011 - 2014 Intel Corporation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version
@@ -14,6 +19,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/acpi.h>
@@ -289,6 +296,13 @@ static const struct property_entry bq24190_props[] = {
 	{ }
 };
 
+<<<<<<< HEAD
+=======
+static const struct software_node bq24190_node = {
+	.properties = bq24190_props,
+};
+
+>>>>>>> upstream/android-13
 static struct regulator_consumer_supply fusb302_consumer = {
 	.supply = "vbus",
 	/* Must match fusb302 dev_name in intel_cht_int33fe.c */
@@ -317,16 +331,25 @@ static int cht_wc_i2c_adap_i2c_probe(struct platform_device *pdev)
 		.type = "bq24190",
 		.addr = 0x6b,
 		.dev_name = "bq24190",
+<<<<<<< HEAD
 		.properties = bq24190_props,
+=======
+		.swnode = &bq24190_node,
+>>>>>>> upstream/android-13
 		.platform_data = &bq24190_pdata,
 	};
 	int ret, reg, irq;
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(&pdev->dev, "Error missing irq resource\n");
 		return -EINVAL;
 	}
+=======
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 
 	adap = devm_kzalloc(&pdev->dev, sizeof(*adap), GFP_KERNEL);
 	if (!adap)
@@ -361,8 +384,12 @@ static int cht_wc_i2c_adap_i2c_probe(struct platform_device *pdev)
 		return ret;
 
 	/* Alloc and register client IRQ */
+<<<<<<< HEAD
 	adap->irq_domain = irq_domain_add_linear(pdev->dev.of_node, 1,
 						 &irq_domain_simple_ops, NULL);
+=======
+	adap->irq_domain = irq_domain_add_linear(NULL, 1, &irq_domain_simple_ops, NULL);
+>>>>>>> upstream/android-13
 	if (!adap->irq_domain)
 		return -ENOMEM;
 
@@ -397,9 +424,15 @@ static int cht_wc_i2c_adap_i2c_probe(struct platform_device *pdev)
 	 */
 	if (acpi_dev_present("INT33FE", NULL, -1)) {
 		board_info.irq = adap->client_irq;
+<<<<<<< HEAD
 		adap->client = i2c_new_device(&adap->adapter, &board_info);
 		if (!adap->client) {
 			ret = -ENOMEM;
+=======
+		adap->client = i2c_new_client_device(&adap->adapter, &board_info);
+		if (IS_ERR(adap->client)) {
+			ret = PTR_ERR(adap->client);
+>>>>>>> upstream/android-13
 			goto del_adapter;
 		}
 	}
@@ -418,8 +451,12 @@ static int cht_wc_i2c_adap_i2c_remove(struct platform_device *pdev)
 {
 	struct cht_wc_i2c_adap *adap = platform_get_drvdata(pdev);
 
+<<<<<<< HEAD
 	if (adap->client)
 		i2c_unregister_device(adap->client);
+=======
+	i2c_unregister_device(adap->client);
+>>>>>>> upstream/android-13
 	i2c_del_adapter(&adap->adapter);
 	irq_domain_remove(adap->irq_domain);
 

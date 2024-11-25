@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * arch/arm64/include/asm/arch_timer.h
  *
  * Copyright (C) 2012 ARM Ltd.
  * Author: Marc Zyngier <marc.zyngier@arm.com>
+<<<<<<< HEAD
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -15,11 +20,17 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __ASM_ARCH_TIMER_H
 #define __ASM_ARCH_TIMER_H
 
 #include <asm/barrier.h>
+<<<<<<< HEAD
+=======
+#include <asm/hwcap.h>
+>>>>>>> upstream/android-13
 #include <asm/sysreg.h>
 
 #include <linux/bug.h>
@@ -31,11 +42,31 @@
 #include <clocksource/arm_arch_timer.h>
 
 #if IS_ENABLED(CONFIG_ARM_ARCH_TIMER_OOL_WORKAROUND)
+<<<<<<< HEAD
 extern struct static_key_false arch_timer_read_ool_enabled;
 #define needs_unstable_timer_counter_workaround() \
 	static_branch_unlikely(&arch_timer_read_ool_enabled)
 #else
 #define needs_unstable_timer_counter_workaround()  false
+=======
+#define has_erratum_handler(h)						\
+	({								\
+		const struct arch_timer_erratum_workaround *__wa;	\
+		__wa = __this_cpu_read(timer_unstable_counter_workaround); \
+		(__wa && __wa->h);					\
+	})
+
+#define erratum_handler(h)						\
+	({								\
+		const struct arch_timer_erratum_workaround *__wa;	\
+		__wa = __this_cpu_read(timer_unstable_counter_workaround); \
+		(__wa && __wa->h) ? __wa->h : arch_timer_##h;		\
+	})
+
+#else
+#define has_erratum_handler(h)			   false
+#define erratum_handler(h)			   (arch_timer_##h)
+>>>>>>> upstream/android-13
 #endif
 
 enum arch_timer_erratum_match_type {
@@ -56,11 +87,16 @@ struct arch_timer_erratum_workaround {
 	u64 (*read_cntvct_el0)(void);
 	int (*set_next_event_phys)(unsigned long, struct clock_event_device *);
 	int (*set_next_event_virt)(unsigned long, struct clock_event_device *);
+<<<<<<< HEAD
+=======
+	bool disable_compat_vdso;
+>>>>>>> upstream/android-13
 };
 
 DECLARE_PER_CPU(const struct arch_timer_erratum_workaround *,
 		timer_unstable_counter_workaround);
 
+<<<<<<< HEAD
 #define arch_timer_reg_read_stable(reg)					\
 ({									\
 	u64 _val;							\
@@ -78,6 +114,39 @@ DECLARE_PER_CPU(const struct arch_timer_erratum_workaround *,
 	}								\
 	_val;								\
 })
+=======
+/* inline sysreg accessors that make erratum_handler() work */
+static inline notrace u32 arch_timer_read_cntp_tval_el0(void)
+{
+	return read_sysreg(cntp_tval_el0);
+}
+
+static inline notrace u32 arch_timer_read_cntv_tval_el0(void)
+{
+	return read_sysreg(cntv_tval_el0);
+}
+
+static inline notrace u64 arch_timer_read_cntpct_el0(void)
+{
+	return read_sysreg(cntpct_el0);
+}
+
+static inline notrace u64 arch_timer_read_cntvct_el0(void)
+{
+	return read_sysreg(cntvct_el0);
+}
+
+#define arch_timer_reg_read_stable(reg)					\
+	({								\
+		u64 _val;						\
+									\
+		preempt_disable_notrace();				\
+		_val = erratum_handler(read_ ## reg)();			\
+		preempt_enable_notrace();				\
+									\
+		_val;							\
+	})
+>>>>>>> upstream/android-13
 
 /*
  * These register accessors are marked inline so the compiler can
@@ -148,6 +217,7 @@ static inline void arch_timer_set_cntkctl(u32 cntkctl)
 	isb();
 }
 
+<<<<<<< HEAD
 /*
  * Ensure that reads of the counter are treated the same as memory reads
  * for the purposes of ordering by subsequent memory barriers.
@@ -168,6 +238,9 @@ static inline void arch_timer_set_cntkctl(u32 cntkctl)
 } while (0)
 
 static inline u64 arch_counter_get_cntpct(void)
+=======
+static __always_inline u64 __arch_counter_get_cntpct_stable(void)
+>>>>>>> upstream/android-13
 {
 	u64 cnt;
 
@@ -177,7 +250,21 @@ static inline u64 arch_counter_get_cntpct(void)
 	return cnt;
 }
 
+<<<<<<< HEAD
 static inline u64 arch_counter_get_cntvct(void)
+=======
+static __always_inline u64 __arch_counter_get_cntpct(void)
+{
+	u64 cnt;
+
+	isb();
+	cnt = read_sysreg(cntpct_el0);
+	arch_counter_enforce_ordering(cnt);
+	return cnt;
+}
+
+static __always_inline u64 __arch_counter_get_cntvct_stable(void)
+>>>>>>> upstream/android-13
 {
 	u64 cnt;
 
@@ -187,11 +274,38 @@ static inline u64 arch_counter_get_cntvct(void)
 	return cnt;
 }
 
+<<<<<<< HEAD
 #undef arch_counter_enforce_ordering
+=======
+static __always_inline u64 __arch_counter_get_cntvct(void)
+{
+	u64 cnt;
+
+	isb();
+	cnt = read_sysreg(cntvct_el0);
+	arch_counter_enforce_ordering(cnt);
+	return cnt;
+}
+>>>>>>> upstream/android-13
 
 static inline int arch_timer_arch_init(void)
 {
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static inline void arch_timer_set_evtstrm_feature(void)
+{
+	cpu_set_named_feature(EVTSTRM);
+#ifdef CONFIG_COMPAT
+	compat_elf_hwcap |= COMPAT_HWCAP_EVTSTRM;
+#endif
+}
+
+static inline bool arch_timer_have_evtstrm_feature(void)
+{
+	return cpu_have_named_feature(EVTSTRM);
+}
+>>>>>>> upstream/android-13
 #endif

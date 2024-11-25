@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  * Copyright(c) 2008 - 2010 Realtek Corporation. All rights reserved.
  *
@@ -18,6 +19,14 @@
  * Contact Information:
  * wlanfae <wlanfae@realtek.com>
  *****************************************************************************/
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * Copyright(c) 2008 - 2010 Realtek Corporation. All rights reserved.
+ *
+ * Contact Information: wlanfae <wlanfae@realtek.com>
+ */
+>>>>>>> upstream/android-13
 #ifndef _RTL8192E_H
 #define _RTL8192E_H
 

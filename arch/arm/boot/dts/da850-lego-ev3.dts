@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Device tree for LEGO MINDSTORMS EV3
  *
  * Copyright (C) 2017 David Lechner <david@lechnology.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 /dts-v1/;
@@ -125,6 +132,18 @@
 		amp-supply = <&amp>;
 	};
 
+<<<<<<< HEAD
+=======
+	cvdd: regulator0 {
+		compatible = "regulator-fixed";
+		regulator-name = "cvdd";
+		regulator-min-microvolt = <1200000>;
+		regulator-max-microvolt = <1200000>;
+		regulator-always-on;
+		regulator-boot-on;
+	};
+
+>>>>>>> upstream/android-13
 	/*
 	 * This is a 5V current limiting regulator that is shared by USB,
 	 * the sensor (input) ports, the motor (output) ports and the A/DC.
@@ -204,6 +223,30 @@
 	clock-frequency = <24000000>;
 };
 
+<<<<<<< HEAD
+=======
+&cpu {
+	cpu-supply = <&cvdd>;
+};
+
+/* since we have a fixed regulator, we can't run at these points */
+&opp_100 {
+	status = "disabled";
+};
+
+&opp_200 {
+	status = "disabled";
+};
+
+/*
+ * The SoC is actually the 456MHz version, but because of the fixed regulator
+ * This is the fastest we can go.
+ */
+&opp_375 {
+	status = "okay";
+};
+
+>>>>>>> upstream/android-13
 &pmx_core {
 	status = "okay";
 
@@ -352,7 +395,12 @@
 		compatible = "ti,ads7957";
 		reg = <3>;
 		#io-channel-cells = <1>;
+<<<<<<< HEAD
 		spi-max-frequency = <10000000>;
+=======
+		spi-max-frequency = <1000000>;
+		ti,spi-wdelay = <63>;
+>>>>>>> upstream/android-13
 		vref-supply = <&adc_ref>;
 	};
 };

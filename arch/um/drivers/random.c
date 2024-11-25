@@ -11,6 +11,10 @@
 #include <linux/fs.h>
 #include <linux/interrupt.h>
 #include <linux/miscdevice.h>
+<<<<<<< HEAD
+=======
+#include <linux/hw_random.h>
+>>>>>>> upstream/android-13
 #include <linux/delay.h>
 #include <linux/uaccess.h>
 #include <init.h>
@@ -18,6 +22,7 @@
 #include <os.h>
 
 /*
+<<<<<<< HEAD
  * core module and version information
  */
 #define RNG_VERSION "1.0.0"
@@ -25,11 +30,18 @@
 
 #define RNG_MISCDEV_MINOR		183 /* official */
 
+=======
+ * core module information
+ */
+#define RNG_MODULE_NAME "hw_random"
+
+>>>>>>> upstream/android-13
 /* Changed at init time, in the non-modular case, and at module load
  * time, in the module case.  Presumably, the module subsystem
  * protects against a module being loaded twice at the same time.
  */
 static int random_fd = -1;
+<<<<<<< HEAD
 static DECLARE_WAIT_QUEUE_HEAD(host_read_wait);
 
 static int rng_dev_open (struct inode *inode, struct file *filp)
@@ -113,6 +125,38 @@ static struct miscdevice rng_miscdev = {
 static irqreturn_t random_interrupt(int irq, void *data)
 {
 	wake_up(&host_read_wait);
+=======
+static struct hwrng hwrng = { 0, };
+static DECLARE_COMPLETION(have_data);
+
+static int rng_dev_read(struct hwrng *rng, void *buf, size_t max, bool block)
+{
+	int ret;
+
+	for (;;) {
+		ret = os_read_file(random_fd, buf, max);
+		if (block && ret == -EAGAIN) {
+			add_sigio_fd(random_fd);
+
+			ret = wait_for_completion_killable(&have_data);
+
+			ignore_sigio_fd(random_fd);
+			deactivate_fd(random_fd, RANDOM_IRQ);
+
+			if (ret < 0)
+				break;
+		} else {
+			break;
+		}
+	}
+
+	return ret != -EAGAIN ? ret : 0;
+}
+
+static irqreturn_t random_interrupt(int irq, void *data)
+{
+	complete(&have_data);
+>>>>>>> upstream/android-13
 
 	return IRQ_HANDLED;
 }
@@ -129,6 +173,7 @@ static int __init rng_init (void)
 		goto out;
 
 	random_fd = err;
+<<<<<<< HEAD
 
 	err = um_request_irq(RANDOM_IRQ, random_fd, IRQ_READ, random_interrupt,
 			     0, "random", NULL);
@@ -141,6 +186,21 @@ static int __init rng_init (void)
 	if (err) {
 		printk (KERN_ERR RNG_MODULE_NAME ": misc device register "
 			"failed\n");
+=======
+	err = um_request_irq(RANDOM_IRQ, random_fd, IRQ_READ, random_interrupt,
+			     0, "random", NULL);
+	if (err < 0)
+		goto err_out_cleanup_hw;
+
+	sigio_broken(random_fd);
+	hwrng.name = RNG_MODULE_NAME;
+	hwrng.read = rng_dev_read;
+	hwrng.quality = 1024;
+
+	err = hwrng_register(&hwrng);
+	if (err) {
+		pr_err(RNG_MODULE_NAME " registering failed (%d)\n", err);
+>>>>>>> upstream/android-13
 		goto err_out_cleanup_hw;
 	}
 out:
@@ -164,8 +224,13 @@ static void cleanup(void)
 
 static void __exit rng_cleanup(void)
 {
+<<<<<<< HEAD
 	os_close_file(random_fd);
 	misc_deregister (&rng_miscdev);
+=======
+	hwrng_unregister(&hwrng);
+	os_close_file(random_fd);
+>>>>>>> upstream/android-13
 }
 
 module_init (rng_init);

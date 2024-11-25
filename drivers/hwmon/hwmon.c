@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * hwmon.c - part of lm_sensors, Linux kernel modules for hardware monitoring
  *
  * This file defines the sysfs class "hwmon", for use by sensors drivers.
  *
  * Copyright (C) 2005 Mark M. Hoffman <mhoffman@lightlink.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -18,12 +25,22 @@
 #include <linux/gfp.h>
 #include <linux/hwmon.h>
 #include <linux/idr.h>
+<<<<<<< HEAD
+=======
+#include <linux/list.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/pci.h>
 #include <linux/slab.h>
 #include <linux/string.h>
 #include <linux/thermal.h>
 
+<<<<<<< HEAD
+=======
+#define CREATE_TRACE_POINTS
+#include <trace/events/hwmon.h>
+
+>>>>>>> upstream/android-13
 #define HWMON_ID_PREFIX "hwmon"
 #define HWMON_ID_FORMAT HWMON_ID_PREFIX "%d"
 
@@ -31,7 +48,11 @@ struct hwmon_device {
 	const char *name;
 	struct device dev;
 	const struct hwmon_chip_info *chip;
+<<<<<<< HEAD
 
+=======
+	struct list_head tzdata;
+>>>>>>> upstream/android-13
 	struct attribute_group group;
 	const struct attribute_group **groups;
 };
@@ -55,12 +76,21 @@ struct hwmon_device_attribute {
 
 /*
  * Thermal zone information
+<<<<<<< HEAD
  * In addition to the reference to the hwmon device,
  * also provides the sensor index.
  */
 struct hwmon_thermal_data {
 	struct device *dev;		/* Reference to hwmon device */
 	int index;			/* sensor index */
+=======
+ */
+struct hwmon_thermal_data {
+	struct list_head node;		/* hwmon tzdata list entry */
+	struct device *dev;		/* Reference to hwmon device */
+	int index;			/* sensor index */
+	struct thermal_zone_device *tzd;/* thermal zone device */
+>>>>>>> upstream/android-13
 };
 
 static ssize_t
@@ -78,7 +108,11 @@ static struct attribute *hwmon_dev_attrs[] = {
 static umode_t hwmon_dev_name_is_visible(struct kobject *kobj,
 					 struct attribute *attr, int n)
 {
+<<<<<<< HEAD
 	struct device *dev = container_of(kobj, struct device, kobj);
+=======
+	struct device *dev = kobj_to_dev(kobj);
+>>>>>>> upstream/android-13
 
 	if (to_hwmon_device(dev)->name == NULL)
 		return 0;
@@ -134,9 +168,13 @@ static DEFINE_IDA(hwmon_ida);
  * The complex conditional is necessary to avoid a cyclic dependency
  * between hwmon and thermal_sys modules.
  */
+<<<<<<< HEAD
 #if IS_REACHABLE(CONFIG_THERMAL) && defined(CONFIG_THERMAL_OF) && \
 	(!defined(CONFIG_THERMAL_HWMON) || \
 	 !(defined(MODULE) && IS_MODULE(CONFIG_THERMAL)))
+=======
+#ifdef CONFIG_THERMAL_OF
+>>>>>>> upstream/android-13
 static int hwmon_thermal_get_temp(void *data, int *temp)
 {
 	struct hwmon_thermal_data *tdata = data;
@@ -154,6 +192,7 @@ static int hwmon_thermal_get_temp(void *data, int *temp)
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct thermal_zone_of_device_ops hwmon_thermal_ops = {
 	.get_temp = hwmon_thermal_get_temp,
 };
@@ -162,6 +201,59 @@ static int hwmon_thermal_add_sensor(struct device *dev, int index)
 {
 	struct hwmon_thermal_data *tdata;
 	struct thermal_zone_device *tzd;
+=======
+static int hwmon_thermal_set_trips(void *data, int low, int high)
+{
+	struct hwmon_thermal_data *tdata = data;
+	struct hwmon_device *hwdev = to_hwmon_device(tdata->dev);
+	const struct hwmon_chip_info *chip = hwdev->chip;
+	const struct hwmon_channel_info **info = chip->info;
+	unsigned int i;
+	int err;
+
+	if (!chip->ops->write)
+		return 0;
+
+	for (i = 0; info[i] && info[i]->type != hwmon_temp; i++)
+		continue;
+
+	if (!info[i])
+		return 0;
+
+	if (info[i]->config[tdata->index] & HWMON_T_MIN) {
+		err = chip->ops->write(tdata->dev, hwmon_temp,
+				       hwmon_temp_min, tdata->index, low);
+		if (err && err != -EOPNOTSUPP)
+			return err;
+	}
+
+	if (info[i]->config[tdata->index] & HWMON_T_MAX) {
+		err = chip->ops->write(tdata->dev, hwmon_temp,
+				       hwmon_temp_max, tdata->index, high);
+		if (err && err != -EOPNOTSUPP)
+			return err;
+	}
+
+	return 0;
+}
+
+static const struct thermal_zone_of_device_ops hwmon_thermal_ops = {
+	.get_temp = hwmon_thermal_get_temp,
+	.set_trips = hwmon_thermal_set_trips,
+};
+
+static void hwmon_thermal_remove_sensor(void *data)
+{
+	list_del(data);
+}
+
+static int hwmon_thermal_add_sensor(struct device *dev, int index)
+{
+	struct hwmon_device *hwdev = to_hwmon_device(dev);
+	struct hwmon_thermal_data *tdata;
+	struct thermal_zone_device *tzd;
+	int err;
+>>>>>>> upstream/android-13
 
 	tdata = devm_kzalloc(dev, sizeof(*tdata), GFP_KERNEL);
 	if (!tdata)
@@ -172,6 +264,7 @@ static int hwmon_thermal_add_sensor(struct device *dev, int index)
 
 	tzd = devm_thermal_zone_of_sensor_register(dev, index, tdata,
 						   &hwmon_thermal_ops);
+<<<<<<< HEAD
 	/*
 	 * If CONFIG_THERMAL_OF is disabled, this returns -ENODEV,
 	 * so ignore that error but forward any other error.
@@ -188,6 +281,88 @@ static int hwmon_thermal_add_sensor(struct device *dev, int index)
 }
 #endif /* IS_REACHABLE(CONFIG_THERMAL) && ... */
 
+=======
+	if (IS_ERR(tzd)) {
+		if (PTR_ERR(tzd) != -ENODEV)
+			return PTR_ERR(tzd);
+		dev_info(dev, "temp%d_input not attached to any thermal zone\n",
+			 index + 1);
+		devm_kfree(dev, tdata);
+		return 0;
+	}
+
+	err = devm_add_action(dev, hwmon_thermal_remove_sensor, &tdata->node);
+	if (err)
+		return err;
+
+	tdata->tzd = tzd;
+	list_add(&tdata->node, &hwdev->tzdata);
+
+	return 0;
+}
+
+static int hwmon_thermal_register_sensors(struct device *dev)
+{
+	struct hwmon_device *hwdev = to_hwmon_device(dev);
+	const struct hwmon_chip_info *chip = hwdev->chip;
+	const struct hwmon_channel_info **info = chip->info;
+	void *drvdata = dev_get_drvdata(dev);
+	int i;
+
+	for (i = 1; info[i]; i++) {
+		int j;
+
+		if (info[i]->type != hwmon_temp)
+			continue;
+
+		for (j = 0; info[i]->config[j]; j++) {
+			int err;
+
+			if (!(info[i]->config[j] & HWMON_T_INPUT) ||
+			    !chip->ops->is_visible(drvdata, hwmon_temp,
+						   hwmon_temp_input, j))
+				continue;
+
+			err = hwmon_thermal_add_sensor(dev, j);
+			if (err)
+				return err;
+		}
+	}
+
+	return 0;
+}
+
+static void hwmon_thermal_notify(struct device *dev, int index)
+{
+	struct hwmon_device *hwdev = to_hwmon_device(dev);
+	struct hwmon_thermal_data *tzdata;
+
+	list_for_each_entry(tzdata, &hwdev->tzdata, node) {
+		if (tzdata->index == index) {
+			thermal_zone_device_update(tzdata->tzd,
+						   THERMAL_EVENT_UNSPECIFIED);
+		}
+	}
+}
+
+#else
+static int hwmon_thermal_register_sensors(struct device *dev)
+{
+	return 0;
+}
+
+static void hwmon_thermal_notify(struct device *dev, int index) { }
+
+#endif /* IS_REACHABLE(CONFIG_THERMAL) && ... */
+
+static int hwmon_attr_base(enum hwmon_sensor_types type)
+{
+	if (type == hwmon_in || type == hwmon_intrusion)
+		return 0;
+	return 1;
+}
+
+>>>>>>> upstream/android-13
 /* sysfs attribute management */
 
 static ssize_t hwmon_attr_show(struct device *dev,
@@ -202,6 +377,12 @@ static ssize_t hwmon_attr_show(struct device *dev,
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
+=======
+	trace_hwmon_attr_show(hattr->index + hwmon_attr_base(hattr->type),
+			      hattr->name, val);
+
+>>>>>>> upstream/android-13
 	return sprintf(buf, "%ld\n", val);
 }
 
@@ -210,6 +391,10 @@ static ssize_t hwmon_attr_show_string(struct device *dev,
 				      char *buf)
 {
 	struct hwmon_device_attribute *hattr = to_hwmon_attr(devattr);
+<<<<<<< HEAD
+=======
+	enum hwmon_sensor_types type = hattr->type;
+>>>>>>> upstream/android-13
 	const char *s;
 	int ret;
 
@@ -218,6 +403,12 @@ static ssize_t hwmon_attr_show_string(struct device *dev,
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
+=======
+	trace_hwmon_attr_show_string(hattr->index + hwmon_attr_base(type),
+				     hattr->name, s);
+
+>>>>>>> upstream/android-13
 	return sprintf(buf, "%s\n", s);
 }
 
@@ -238,6 +429,7 @@ static ssize_t hwmon_attr_store(struct device *dev,
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	return count;
 }
 
@@ -246,6 +438,12 @@ static int hwmon_attr_base(enum hwmon_sensor_types type)
 	if (type == hwmon_in)
 		return 0;
 	return 1;
+=======
+	trace_hwmon_attr_store(hattr->index + hwmon_attr_base(hattr->type),
+			       hattr->name, val);
+
+	return count;
+>>>>>>> upstream/android-13
 }
 
 static bool is_string_attr(enum hwmon_sensor_types type, u32 attr)
@@ -270,7 +468,11 @@ static struct attribute *hwmon_genattr(const void *drvdata,
 	struct device_attribute *dattr;
 	struct attribute *a;
 	umode_t mode;
+<<<<<<< HEAD
 	char *name;
+=======
+	const char *name;
+>>>>>>> upstream/android-13
 	bool is_string = is_string_attr(type, attr);
 
 	/* The attribute is invisible if there is no template string */
@@ -281,10 +483,17 @@ static struct attribute *hwmon_genattr(const void *drvdata,
 	if (!mode)
 		return ERR_PTR(-ENOENT);
 
+<<<<<<< HEAD
 	if ((mode & S_IRUGO) && ((is_string && !ops->read_string) ||
 				 (!is_string && !ops->read)))
 		return ERR_PTR(-EINVAL);
 	if ((mode & S_IWUGO) && !ops->write)
+=======
+	if ((mode & 0444) && ((is_string && !ops->read_string) ||
+				 (!is_string && !ops->read)))
+		return ERR_PTR(-EINVAL);
+	if ((mode & 0222) && !ops->write)
+>>>>>>> upstream/android-13
 		return ERR_PTR(-EINVAL);
 
 	hattr = kzalloc(sizeof(*hattr), GFP_KERNEL);
@@ -292,7 +501,11 @@ static struct attribute *hwmon_genattr(const void *drvdata,
 		return ERR_PTR(-ENOMEM);
 
 	if (type == hwmon_chip) {
+<<<<<<< HEAD
 		name = (char *)template;
+=======
+		name = template;
+>>>>>>> upstream/android-13
 	} else {
 		scnprintf(hattr->name, sizeof(hattr->name), template,
 			  index + hwmon_attr_base(type));
@@ -327,9 +540,21 @@ static const char * const hwmon_chip_attrs[] = {
 	[hwmon_chip_power_reset_history] = "power_reset_history",
 	[hwmon_chip_update_interval] = "update_interval",
 	[hwmon_chip_alarms] = "alarms",
+<<<<<<< HEAD
 };
 
 static const char * const hwmon_temp_attr_templates[] = {
+=======
+	[hwmon_chip_samples] = "samples",
+	[hwmon_chip_curr_samples] = "curr_samples",
+	[hwmon_chip_in_samples] = "in_samples",
+	[hwmon_chip_power_samples] = "power_samples",
+	[hwmon_chip_temp_samples] = "temp_samples",
+};
+
+static const char * const hwmon_temp_attr_templates[] = {
+	[hwmon_temp_enable] = "temp%d_enable",
+>>>>>>> upstream/android-13
 	[hwmon_temp_input] = "temp%d_input",
 	[hwmon_temp_type] = "temp%d_type",
 	[hwmon_temp_lcrit] = "temp%d_lcrit",
@@ -354,9 +579,18 @@ static const char * const hwmon_temp_attr_templates[] = {
 	[hwmon_temp_lowest] = "temp%d_lowest",
 	[hwmon_temp_highest] = "temp%d_highest",
 	[hwmon_temp_reset_history] = "temp%d_reset_history",
+<<<<<<< HEAD
 };
 
 static const char * const hwmon_in_attr_templates[] = {
+=======
+	[hwmon_temp_rated_min] = "temp%d_rated_min",
+	[hwmon_temp_rated_max] = "temp%d_rated_max",
+};
+
+static const char * const hwmon_in_attr_templates[] = {
+	[hwmon_in_enable] = "in%d_enable",
+>>>>>>> upstream/android-13
 	[hwmon_in_input] = "in%d_input",
 	[hwmon_in_min] = "in%d_min",
 	[hwmon_in_max] = "in%d_max",
@@ -372,9 +606,18 @@ static const char * const hwmon_in_attr_templates[] = {
 	[hwmon_in_max_alarm] = "in%d_max_alarm",
 	[hwmon_in_lcrit_alarm] = "in%d_lcrit_alarm",
 	[hwmon_in_crit_alarm] = "in%d_crit_alarm",
+<<<<<<< HEAD
 };
 
 static const char * const hwmon_curr_attr_templates[] = {
+=======
+	[hwmon_in_rated_min] = "in%d_rated_min",
+	[hwmon_in_rated_max] = "in%d_rated_max",
+};
+
+static const char * const hwmon_curr_attr_templates[] = {
+	[hwmon_curr_enable] = "curr%d_enable",
+>>>>>>> upstream/android-13
 	[hwmon_curr_input] = "curr%d_input",
 	[hwmon_curr_min] = "curr%d_min",
 	[hwmon_curr_max] = "curr%d_max",
@@ -390,9 +633,18 @@ static const char * const hwmon_curr_attr_templates[] = {
 	[hwmon_curr_max_alarm] = "curr%d_max_alarm",
 	[hwmon_curr_lcrit_alarm] = "curr%d_lcrit_alarm",
 	[hwmon_curr_crit_alarm] = "curr%d_crit_alarm",
+<<<<<<< HEAD
 };
 
 static const char * const hwmon_power_attr_templates[] = {
+=======
+	[hwmon_curr_rated_min] = "curr%d_rated_min",
+	[hwmon_curr_rated_max] = "curr%d_rated_max",
+};
+
+static const char * const hwmon_power_attr_templates[] = {
+	[hwmon_power_enable] = "power%d_enable",
+>>>>>>> upstream/android-13
 	[hwmon_power_average] = "power%d_average",
 	[hwmon_power_average_interval] = "power%d_average_interval",
 	[hwmon_power_average_interval_max] = "power%d_interval_max",
@@ -421,14 +673,27 @@ static const char * const hwmon_power_attr_templates[] = {
 	[hwmon_power_max_alarm] = "power%d_max_alarm",
 	[hwmon_power_lcrit_alarm] = "power%d_lcrit_alarm",
 	[hwmon_power_crit_alarm] = "power%d_crit_alarm",
+<<<<<<< HEAD
 };
 
 static const char * const hwmon_energy_attr_templates[] = {
+=======
+	[hwmon_power_rated_min] = "power%d_rated_min",
+	[hwmon_power_rated_max] = "power%d_rated_max",
+};
+
+static const char * const hwmon_energy_attr_templates[] = {
+	[hwmon_energy_enable] = "energy%d_enable",
+>>>>>>> upstream/android-13
 	[hwmon_energy_input] = "energy%d_input",
 	[hwmon_energy_label] = "energy%d_label",
 };
 
 static const char * const hwmon_humidity_attr_templates[] = {
+<<<<<<< HEAD
+=======
+	[hwmon_humidity_enable] = "humidity%d_enable",
+>>>>>>> upstream/android-13
 	[hwmon_humidity_input] = "humidity%d_input",
 	[hwmon_humidity_label] = "humidity%d_label",
 	[hwmon_humidity_min] = "humidity%d_min",
@@ -437,9 +702,18 @@ static const char * const hwmon_humidity_attr_templates[] = {
 	[hwmon_humidity_max_hyst] = "humidity%d_max_hyst",
 	[hwmon_humidity_alarm] = "humidity%d_alarm",
 	[hwmon_humidity_fault] = "humidity%d_fault",
+<<<<<<< HEAD
 };
 
 static const char * const hwmon_fan_attr_templates[] = {
+=======
+	[hwmon_humidity_rated_min] = "humidity%d_rated_min",
+	[hwmon_humidity_rated_max] = "humidity%d_rated_max",
+};
+
+static const char * const hwmon_fan_attr_templates[] = {
+	[hwmon_fan_enable] = "fan%d_enable",
+>>>>>>> upstream/android-13
 	[hwmon_fan_input] = "fan%d_input",
 	[hwmon_fan_label] = "fan%d_label",
 	[hwmon_fan_min] = "fan%d_min",
@@ -460,6 +734,14 @@ static const char * const hwmon_pwm_attr_templates[] = {
 	[hwmon_pwm_freq] = "pwm%d_freq",
 };
 
+<<<<<<< HEAD
+=======
+static const char * const hwmon_intrusion_attr_templates[] = {
+	[hwmon_intrusion_alarm] = "intrusion%d_alarm",
+	[hwmon_intrusion_beep]  = "intrusion%d_beep",
+};
+
+>>>>>>> upstream/android-13
 static const char * const *__templates[] = {
 	[hwmon_chip] = hwmon_chip_attrs,
 	[hwmon_temp] = hwmon_temp_attr_templates,
@@ -470,6 +752,10 @@ static const char * const *__templates[] = {
 	[hwmon_humidity] = hwmon_humidity_attr_templates,
 	[hwmon_fan] = hwmon_fan_attr_templates,
 	[hwmon_pwm] = hwmon_pwm_attr_templates,
+<<<<<<< HEAD
+=======
+	[hwmon_intrusion] = hwmon_intrusion_attr_templates,
+>>>>>>> upstream/android-13
 };
 
 static const int __templates_size[] = {
@@ -482,8 +768,43 @@ static const int __templates_size[] = {
 	[hwmon_humidity] = ARRAY_SIZE(hwmon_humidity_attr_templates),
 	[hwmon_fan] = ARRAY_SIZE(hwmon_fan_attr_templates),
 	[hwmon_pwm] = ARRAY_SIZE(hwmon_pwm_attr_templates),
+<<<<<<< HEAD
 };
 
+=======
+	[hwmon_intrusion] = ARRAY_SIZE(hwmon_intrusion_attr_templates),
+};
+
+int hwmon_notify_event(struct device *dev, enum hwmon_sensor_types type,
+		       u32 attr, int channel)
+{
+	char sattr[MAX_SYSFS_ATTR_NAME_LENGTH];
+	const char * const *templates;
+	const char *template;
+	int base;
+
+	if (type >= ARRAY_SIZE(__templates))
+		return -EINVAL;
+	if (attr >= __templates_size[type])
+		return -EINVAL;
+
+	templates = __templates[type];
+	template = templates[attr];
+
+	base = hwmon_attr_base(type);
+
+	scnprintf(sattr, MAX_SYSFS_ATTR_NAME_LENGTH, template, base + channel);
+	sysfs_notify(&dev->kobj, NULL, sattr);
+	kobject_uevent(&dev->kobj, KOBJ_CHANGE);
+
+	if (type == hwmon_temp)
+		hwmon_thermal_notify(dev, channel);
+
+	return 0;
+}
+EXPORT_SYMBOL_GPL(hwmon_notify_event);
+
+>>>>>>> upstream/android-13
 static int hwmon_num_channel_attrs(const struct hwmon_channel_info *info)
 {
 	int i, n;
@@ -569,7 +890,11 @@ __hwmon_device_register(struct device *dev, const char *name, void *drvdata,
 {
 	struct hwmon_device *hwdev;
 	struct device *hdev;
+<<<<<<< HEAD
 	int i, j, err, id;
+=======
+	int i, err, id;
+>>>>>>> upstream/android-13
 
 	/* Complain about invalid characters in hwmon name attribute */
 	if (name && (!strlen(name) || strpbrk(name, "-* \t\n")))
@@ -631,12 +956,22 @@ __hwmon_device_register(struct device *dev, const char *name, void *drvdata,
 	dev_set_drvdata(hdev, drvdata);
 	dev_set_name(hdev, HWMON_ID_FORMAT, id);
 	err = device_register(hdev);
+<<<<<<< HEAD
 	if (err)
 		goto free_hwmon;
+=======
+	if (err) {
+		put_device(hdev);
+		goto ida_remove;
+	}
+
+	INIT_LIST_HEAD(&hwdev->tzdata);
+>>>>>>> upstream/android-13
 
 	if (dev && dev->of_node && chip && chip->ops->read &&
 	    chip->info[0]->type == hwmon_chip &&
 	    (chip->info[0]->config[0] & HWMON_C_REGISTER_TZ)) {
+<<<<<<< HEAD
 		const struct hwmon_channel_info **info = chip->info;
 
 		for (i = 1; info[i]; i++) {
@@ -655,6 +990,16 @@ __hwmon_device_register(struct device *dev, const char *name, void *drvdata,
 					}
 				}
 			}
+=======
+		err = hwmon_thermal_register_sensors(hdev);
+		if (err) {
+			device_unregister(hdev);
+			/*
+			 * Don't worry about hwdev; hwmon_dev_release(), called
+			 * from device_unregister(), will free it.
+			 */
+			goto ida_remove;
+>>>>>>> upstream/android-13
 		}
 	}
 

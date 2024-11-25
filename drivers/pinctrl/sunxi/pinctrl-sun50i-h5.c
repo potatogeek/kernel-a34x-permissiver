@@ -19,7 +19,10 @@
 #include <linux/platform_device.h>
 #include <linux/of.h>
 #include <linux/of_device.h>
+<<<<<<< HEAD
 #include <linux/of_irq.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/pinctrl/pinctrl.h>
 
 #include "pinctrl-sunxi.h"
@@ -549,7 +552,21 @@ static const struct sunxi_pinctrl_desc sun50i_h5_pinctrl_data = {
 
 static int sun50i_h5_pinctrl_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	switch (of_irq_count(pdev->dev.of_node)) {
+=======
+	int ret;
+
+	ret = platform_irq_count(pdev);
+	if (ret < 0) {
+		if (ret != -EPROBE_DEFER)
+			dev_err(&pdev->dev, "Couldn't determine irq count: %pe\n",
+				ERR_PTR(ret));
+		return ret;
+	}
+
+	switch (ret) {
+>>>>>>> upstream/android-13
 	case 2:
 		dev_warn(&pdev->dev,
 			 "Your device tree's pinctrl node is broken, which has no IRQ of PG bank routed.\n");

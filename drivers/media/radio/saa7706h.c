@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * saa7706.c Philips SAA7706H Car Radio DSP driver
  * Copyright (c) 2009 Intel Corporation
@@ -10,6 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * saa7706.c Philips SAA7706H Car Radio DSP driver
+ * Copyright (c) 2009 Intel Corporation
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>

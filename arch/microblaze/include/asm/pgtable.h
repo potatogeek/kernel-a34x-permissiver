@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2008-2009 Michal Simek <monstr@monstr.eu>
  * Copyright (C) 2008-2009 PetaLogix
  * Copyright (C) 2006 Atmark Techno, Inc.
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License. See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_MICROBLAZE_PGTABLE_H
@@ -17,6 +24,7 @@
 extern int mem_init_done;
 #endif
 
+<<<<<<< HEAD
 #ifndef CONFIG_MMU
 
 #define pgd_present(pgd)	(1) /* pages are always present on non MMU */
@@ -64,6 +72,9 @@ extern int mem_init_done;
 #include <asm-generic/4level-fixup.h>
 
 #define __PAGETABLE_PMD_FOLDED 1
+=======
+#include <asm-generic/pgtable-nopmd.h>
+>>>>>>> upstream/android-13
 
 #ifdef __KERNEL__
 #ifndef __ASSEMBLY__
@@ -74,8 +85,11 @@ extern int mem_init_done;
 #include <asm/mmu.h>
 #include <asm/page.h>
 
+<<<<<<< HEAD
 #define FIRST_USER_ADDRESS	0UL
 
+=======
+>>>>>>> upstream/android-13
 extern unsigned long va_to_phys(unsigned long address);
 extern pte_t *va_to_pte(unsigned long address);
 
@@ -84,10 +98,13 @@ extern pte_t *va_to_pte(unsigned long address);
  * Undefined behaviour if not..
  */
 
+<<<<<<< HEAD
 static inline int pte_special(pte_t pte)	{ return 0; }
 
 static inline pte_t pte_mkspecial(pte_t pte)	{ return pte; }
 
+=======
+>>>>>>> upstream/android-13
 /* Start and end of the vmalloc area. */
 /* Make sure to map the vmalloc area above the pinned kernel memory area
    of 32Mb.  */
@@ -140,6 +157,7 @@ static inline pte_t pte_mkspecial(pte_t pte)	{ return pte; }
  *
  */
 
+<<<<<<< HEAD
 /* PMD_SHIFT determines the size of the area mapped by the PTE pages */
 #define PMD_SHIFT	(PAGE_SHIFT + PTE_SHIFT)
 #define PMD_SIZE	(1UL << PMD_SHIFT)
@@ -147,6 +165,10 @@ static inline pte_t pte_mkspecial(pte_t pte)	{ return pte; }
 
 /* PGDIR_SHIFT determines what a top-level page table entry can map */
 #define PGDIR_SHIFT	PMD_SHIFT
+=======
+/* PGDIR_SHIFT determines what a top-level page table entry can map */
+#define PGDIR_SHIFT	(PAGE_SHIFT + PTE_SHIFT)
+>>>>>>> upstream/android-13
 #define PGDIR_SIZE	(1UL << PGDIR_SHIFT)
 #define PGDIR_MASK	(~(PGDIR_SIZE-1))
 
@@ -167,9 +189,12 @@ static inline pte_t pte_mkspecial(pte_t pte)	{ return pte; }
 #define pte_ERROR(e) \
 	printk(KERN_ERR "%s:%d: bad pte "PTE_FMT".\n", \
 		__FILE__, __LINE__, pte_val(e))
+<<<<<<< HEAD
 #define pmd_ERROR(e) \
 	printk(KERN_ERR "%s:%d: bad pmd %08lx.\n", \
 		__FILE__, __LINE__, pmd_val(e))
+=======
+>>>>>>> upstream/android-13
 #define pgd_ERROR(e) \
 	printk(KERN_ERR "%s:%d: bad pgd %08lx.\n", \
 		__FILE__, __LINE__, pgd_val(e))
@@ -200,7 +225,11 @@ static inline pte_t pte_mkspecial(pte_t pte)	{ return pte; }
  * is cleared in the TLB miss handler before the TLB entry is loaded.
  * - All other bits of the PTE are loaded into TLBLO without
  *  * modification, leaving us only the bits 20, 21, 24, 25, 26, 30 for
+<<<<<<< HEAD
  * software PTE bits.  We actually use use bits 21, 24, 25, and
+=======
+ * software PTE bits.  We actually use bits 21, 24, 25, and
+>>>>>>> upstream/android-13
  * 30 respectively for the software bits: ACCESSED, DIRTY, RW, and
  * PRESENT.
  */
@@ -316,6 +345,7 @@ extern unsigned long empty_zero_page[1024];
 
 #ifndef __ASSEMBLY__
 /*
+<<<<<<< HEAD
  * The "pgd_xxx()" functions here are trivial for a folded two-level
  * setup: the pgd is never bad, and a pmd always exists (as it's folded
  * into the pgd entry)
@@ -328,6 +358,8 @@ static inline int pgd_present(pgd_t pgd)	{ return 1; }
 	((unsigned long) __va(pgd_val(pgd) & PAGE_MASK))
 
 /*
+=======
+>>>>>>> upstream/android-13
  * The following only work if pte_present() is true.
  * Undefined behaviour if not..
  */
@@ -469,11 +501,19 @@ static inline void ptep_mkdirty(struct mm_struct *mm,
 /* Convert pmd entry to page */
 /* our pmd entry is an effective address of pte table*/
 /* returns effective address of the pmd entry*/
+<<<<<<< HEAD
 #define pmd_page_kernel(pmd)	((unsigned long) (pmd_val(pmd) & PAGE_MASK))
+=======
+static inline unsigned long pmd_page_vaddr(pmd_t pmd)
+{
+	return ((unsigned long) (pmd_val(pmd) & PAGE_MASK));
+}
+>>>>>>> upstream/android-13
 
 /* returns struct *page of the pmd entry*/
 #define pmd_page(pmd)	(pfn_to_page(__pa(pmd_val(pmd)) >> PAGE_SHIFT))
 
+<<<<<<< HEAD
 /* to find an entry in a kernel page-table-directory */
 #define pgd_offset_k(address) pgd_offset(&init_mm, address)
 
@@ -496,6 +536,9 @@ static inline pmd_t *pmd_offset(pgd_t *dir, unsigned long address)
 	((pte_t *) kmap_atomic(pmd_page(*(dir))) + pte_index(addr))
 
 #define pte_unmap(pte)		kunmap_atomic(pte)
+=======
+/* Find an entry in the third-level page table.. */
+>>>>>>> upstream/android-13
 
 extern pgd_t swapper_pg_dir[PTRS_PER_PGD];
 
@@ -526,11 +569,14 @@ extern unsigned long iopa(unsigned long addr);
 /* Needs to be defined here and not in linux/mm.h, as it is arch dependent */
 #define kern_addr_valid(addr)	(1)
 
+<<<<<<< HEAD
 /*
  * No page table caches to initialise
  */
 #define pgtable_cache_init()	do { } while (0)
 
+=======
+>>>>>>> upstream/android-13
 void do_page_fault(struct pt_regs *regs, unsigned long address,
 		   unsigned long error_code);
 
@@ -541,6 +587,7 @@ extern int mem_init_done;
 
 asmlinkage void __init mmu_init(void);
 
+<<<<<<< HEAD
 void __init *early_get_page(void);
 
 #endif /* __ASSEMBLY__ */
@@ -555,6 +602,14 @@ extern unsigned long ioremap_bot, ioremap_base;
 
 unsigned long consistent_virt_to_pfn(void *vaddr);
 
+=======
+#endif /* __ASSEMBLY__ */
+#endif /* __KERNEL__ */
+
+#ifndef __ASSEMBLY__
+extern unsigned long ioremap_bot, ioremap_base;
+
+>>>>>>> upstream/android-13
 void setup_memory(void);
 #endif /* __ASSEMBLY__ */
 

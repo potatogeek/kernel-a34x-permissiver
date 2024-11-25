@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* DVB USB compliant linux driver for GL861 USB2.0 devices.
  *
  *	This program is free software; you can redistribute it and/or modify it
@@ -9,6 +10,16 @@
 #include <linux/string.h>
 
 #include "gl861.h"
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* DVB USB compliant linux driver for GL861 USB2.0 devices.
+ *
+ * see Documentation/driver-api/media/drivers/dvb-usb.rst for more information
+ */
+#include <linux/string.h>
+
+#include "dvb_usb.h"
+>>>>>>> upstream/android-13
 
 #include "zl10353.h"
 #include "qt1010.h"
@@ -17,6 +28,7 @@
 
 DVB_DEFINE_MOD_OPT_ADAPTER_NR(adapter_nr);
 
+<<<<<<< HEAD
 static int gl861_i2c_msg(struct dvb_usb_device *d, u8 addr,
 			 u8 *wbuf, u16 wlen, u8 *rbuf, u16 rlen)
 {
@@ -97,13 +109,164 @@ static int gl861_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msg[],
 }
 
 static u32 gl861_i2c_func(struct i2c_adapter *adapter)
+=======
+struct gl861 {
+	/* USB control message buffer */
+	u8 buf[16];
+
+	struct i2c_adapter *demod_sub_i2c;
+	struct i2c_client  *i2c_client_demod;
+	struct i2c_client  *i2c_client_tuner;
+};
+
+#define CMD_WRITE_SHORT     0x01
+#define CMD_READ            0x02
+#define CMD_WRITE           0x03
+
+static int gl861_ctrl_msg(struct dvb_usb_device *d, u8 request, u16 value,
+			  u16 index, void *data, u16 size)
+{
+	struct gl861 *ctx = d_to_priv(d);
+	struct usb_interface *intf = d->intf;
+	int ret;
+	unsigned int pipe;
+	u8 requesttype;
+
+	mutex_lock(&d->usb_mutex);
+
+	switch (request) {
+	case CMD_WRITE:
+		memcpy(ctx->buf, data, size);
+		fallthrough;
+	case CMD_WRITE_SHORT:
+		pipe = usb_sndctrlpipe(d->udev, 0);
+		requesttype = USB_TYPE_VENDOR | USB_DIR_OUT;
+		break;
+	case CMD_READ:
+		pipe = usb_rcvctrlpipe(d->udev, 0);
+		requesttype = USB_TYPE_VENDOR | USB_DIR_IN;
+		break;
+	default:
+		ret = -EINVAL;
+		goto err_mutex_unlock;
+	}
+
+	ret = usb_control_msg(d->udev, pipe, request, requesttype, value,
+			      index, ctx->buf, size, 200);
+	dev_dbg(&intf->dev, "%d | %02x %02x %*ph %*ph %*ph %s %*ph\n",
+		ret, requesttype, request, 2, &value, 2, &index, 2, &size,
+		(requesttype & USB_DIR_IN) ? "<<<" : ">>>", size, ctx->buf);
+	if (ret < 0)
+		goto err_mutex_unlock;
+
+	if (request == CMD_READ)
+		memcpy(data, ctx->buf, size);
+
+	usleep_range(1000, 2000); /* Avoid I2C errors */
+
+	mutex_unlock(&d->usb_mutex);
+
+	return 0;
+
+err_mutex_unlock:
+	mutex_unlock(&d->usb_mutex);
+	dev_dbg(&intf->dev, "failed %d\n", ret);
+	return ret;
+}
+
+static int gl861_short_write(struct dvb_usb_device *d, u8 addr, u8 reg, u8 val)
+{
+	return gl861_ctrl_msg(d, CMD_WRITE_SHORT,
+			      (addr << 9) | val, reg, NULL, 0);
+}
+
+static int gl861_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg msg[],
+				 int num)
+{
+	struct dvb_usb_device *d = i2c_get_adapdata(adap);
+	struct usb_interface *intf = d->intf;
+	struct gl861 *ctx = d_to_priv(d);
+	int ret;
+	u8 request, *data;
+	u16 value, index, size;
+
+	/* XXX: I2C adapter maximum data lengths are not tested */
+	if (num == 1 && !(msg[0].flags & I2C_M_RD)) {
+		/* I2C write */
+		if (msg[0].len < 2 || msg[0].len > sizeof(ctx->buf)) {
+			ret = -EOPNOTSUPP;
+			goto err;
+		}
+
+		value = (msg[0].addr << 1) << 8;
+		index = msg[0].buf[0];
+
+		if (msg[0].len == 2) {
+			request = CMD_WRITE_SHORT;
+			value |= msg[0].buf[1];
+			size = 0;
+			data = NULL;
+		} else {
+			request = CMD_WRITE;
+			size = msg[0].len - 1;
+			data = &msg[0].buf[1];
+		}
+
+		ret = gl861_ctrl_msg(d, request, value, index, data, size);
+	} else if (num == 2 && !(msg[0].flags & I2C_M_RD) &&
+		   (msg[1].flags & I2C_M_RD)) {
+		/* I2C write + read */
+		if (msg[0].len > 1 || msg[1].len > sizeof(ctx->buf)) {
+			ret = -EOPNOTSUPP;
+			goto err;
+		}
+
+		value = (msg[0].addr << 1) << 8;
+		index = msg[0].buf[0];
+		request = CMD_READ;
+
+		ret = gl861_ctrl_msg(d, request, value, index,
+				     msg[1].buf, msg[1].len);
+	} else if (num == 1 && (msg[0].flags & I2C_M_RD)) {
+		/* I2C read */
+		if (msg[0].len > sizeof(ctx->buf)) {
+			ret = -EOPNOTSUPP;
+			goto err;
+		}
+		value = (msg[0].addr << 1) << 8;
+		index = 0x0100;
+		request = CMD_READ;
+
+		ret = gl861_ctrl_msg(d, request, value, index,
+				     msg[0].buf, msg[0].len);
+	} else {
+		/* Unsupported I2C message */
+		dev_dbg(&intf->dev, "unknown i2c msg, num %u\n", num);
+		ret = -EOPNOTSUPP;
+	}
+	if (ret)
+		goto err;
+
+	return num;
+err:
+	dev_dbg(&intf->dev, "failed %d\n", ret);
+	return ret;
+}
+
+static u32 gl861_i2c_functionality(struct i2c_adapter *adapter)
+>>>>>>> upstream/android-13
 {
 	return I2C_FUNC_I2C;
 }
 
 static struct i2c_algorithm gl861_i2c_algo = {
+<<<<<<< HEAD
 	.master_xfer   = gl861_i2c_xfer,
 	.functionality = gl861_i2c_func,
+=======
+	.master_xfer   = gl861_i2c_master_xfer,
+	.functionality = gl861_i2c_functionality,
+>>>>>>> upstream/android-13
 };
 
 /* Callbacks for DVB USB */
@@ -152,6 +315,11 @@ static struct dvb_usb_device_properties gl861_props = {
 	.owner = THIS_MODULE,
 	.adapter_nr = adapter_nr,
 
+<<<<<<< HEAD
+=======
+	.size_of_priv = sizeof(struct gl861),
+
+>>>>>>> upstream/android-13
 	.i2c_algo = &gl861_i2c_algo,
 	.frontend_attach = gl861_frontend_attach,
 	.tuner_attach = gl861_tuner_attach,
@@ -169,6 +337,7 @@ static struct dvb_usb_device_properties gl861_props = {
 /*
  * For Friio
  */
+<<<<<<< HEAD
 
 struct friio_priv {
 	struct i2c_adapter *demod_sub_i2c;
@@ -177,6 +346,8 @@ struct friio_priv {
 	struct i2c_adapter tuner_adap;
 };
 
+=======
+>>>>>>> upstream/android-13
 struct friio_config {
 	struct i2c_board_info demod_info;
 	struct tc90522_config demod_cfg;
@@ -187,6 +358,7 @@ struct friio_config {
 
 static const struct friio_config friio_config = {
 	.demod_info = { I2C_BOARD_INFO(TC90522_I2C_DEV_TER, 0x18), },
+<<<<<<< HEAD
 	.tuner_info = { I2C_BOARD_INFO("tua6034_friio", 0x60), },
 };
 
@@ -314,6 +486,12 @@ static struct i2c_algorithm friio_tuner_i2c_algo = {
 	.master_xfer   = friio_tuner_i2c_xfer,
 	.functionality = gl861_i2c_func,
 };
+=======
+	.demod_cfg = { .split_tuner_read_i2c = true, },
+	.tuner_info = { I2C_BOARD_INFO("tua6034_friio", 0x60), },
+};
+
+>>>>>>> upstream/android-13
 
 /* GPIO control in Friio */
 
@@ -357,7 +535,11 @@ static int friio_ext_ctl(struct dvb_usb_device *d,
 	ret += i2c_transfer(&d->i2c_adap, &msg, 1);
 
 	/* send 32bit(satur, R, G, B) data in serial */
+<<<<<<< HEAD
 	mask = 1 << 31;
+=======
+	mask = 1UL << 31;
+>>>>>>> upstream/android-13
 	for (i = 0; i < 32; i++) {
 		buf[1] = power | FRIIO_CTL_STROBE;
 		if (sat_color & mask)
@@ -381,9 +563,17 @@ static int friio_ext_ctl(struct dvb_usb_device *d,
 /* init/config of gl861 for Friio */
 /* NOTE:
  * This function cannot be moved to friio_init()/dvb_usbv2_init(),
+<<<<<<< HEAD
  * because the init defined here must be done before any activities like I2C,
  * but friio_init() is called by dvb-usbv2 after {_frontend, _tuner}_attach(),
  * where I2C communication is used.
+=======
+ * because the init defined here includes a whole device reset,
+ * it must be run early before any activities like I2C,
+ * but friio_init() is called by dvb-usbv2 after {_frontend, _tuner}_attach(),
+ * where I2C communication is used.
+ * In addition, this reset is required in reset_resume() as well.
+>>>>>>> upstream/android-13
  * Thus this function is set to be called from _power_ctl().
  *
  * Since it will be called on the early init stage
@@ -393,7 +583,11 @@ static int friio_ext_ctl(struct dvb_usb_device *d,
 static int friio_reset(struct dvb_usb_device *d)
 {
 	int i, ret;
+<<<<<<< HEAD
 	u8 wbuf[2], rbuf[2];
+=======
+	u8 wbuf[1], rbuf[2];
+>>>>>>> upstream/android-13
 
 	static const u8 friio_init_cmds[][2] = {
 		{0x33, 0x08}, {0x37, 0x40}, {0x3a, 0x1f}, {0x3b, 0xff},
@@ -405,16 +599,24 @@ static int friio_reset(struct dvb_usb_device *d)
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	wbuf[0] = 0x11;
 	wbuf[1] = 0x02;
 	ret = gl861_i2c_msg(d, 0x00, wbuf, 2, NULL, 0);
+=======
+	ret = gl861_short_write(d, 0x00, 0x11, 0x02);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 	usleep_range(2000, 3000);
 
+<<<<<<< HEAD
 	wbuf[0] = 0x11;
 	wbuf[1] = 0x00;
 	ret = gl861_i2c_msg(d, 0x00, wbuf, 2, NULL, 0);
+=======
+	ret = gl861_short_write(d, 0x00, 0x11, 0x00);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 
@@ -424,14 +626,23 @@ static int friio_reset(struct dvb_usb_device *d)
 	 */
 
 	usleep_range(1000, 2000);
+<<<<<<< HEAD
 	wbuf[0] = 0x03;
 	wbuf[1] = 0x80;
 	ret = gl861_i2c_write_ex(d, 0x09, wbuf, 2);
+=======
+	wbuf[0] = 0x80;
+	ret = gl861_ctrl_msg(d, CMD_WRITE, 0x09 << 9, 0x03, wbuf, 1);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 
 	usleep_range(2000, 3000);
+<<<<<<< HEAD
 	ret = gl861_i2c_read_ex(d, 0x09, rbuf, 2);
+=======
+	ret = gl861_ctrl_msg(d, CMD_READ, 0x09 << 9, 0x0100, rbuf, 2);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 	if (rbuf[0] != 0xff || rbuf[1] != 0xff)
@@ -439,17 +650,27 @@ static int friio_reset(struct dvb_usb_device *d)
 
 
 	usleep_range(1000, 2000);
+<<<<<<< HEAD
 	ret = gl861_i2c_write_ex(d, 0x48, wbuf, 2);
+=======
+	wbuf[0] = 0x80;
+	ret = gl861_ctrl_msg(d, CMD_WRITE, 0x48 << 9, 0x03, wbuf, 1);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 
 	usleep_range(2000, 3000);
+<<<<<<< HEAD
 	ret = gl861_i2c_read_ex(d, 0x48, rbuf, 2);
+=======
+	ret = gl861_ctrl_msg(d, CMD_READ, 0x48 << 9, 0x0100, rbuf, 2);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 	if (rbuf[0] != 0xff || rbuf[1] != 0xff)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	wbuf[0] = 0x30;
 	wbuf[1] = 0x04;
 	ret = gl861_i2c_msg(d, 0x00, wbuf, 2, NULL, 0);
@@ -465,12 +686,28 @@ static int friio_reset(struct dvb_usb_device *d)
 	wbuf[0] = 0x06;
 	wbuf[1] = 0x0f;
 	ret = gl861_i2c_msg(d, 0x00, wbuf, 2, NULL, 0);
+=======
+	ret = gl861_short_write(d, 0x00, 0x30, 0x04);
+	if (ret < 0)
+		return ret;
+
+	ret = gl861_short_write(d, 0x00, 0x00, 0x01);
+	if (ret < 0)
+		return ret;
+
+	ret = gl861_short_write(d, 0x00, 0x06, 0x0f);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 
 	for (i = 0; i < ARRAY_SIZE(friio_init_cmds); i++) {
+<<<<<<< HEAD
 		ret = gl861_i2c_msg(d, 0x00, (u8 *)friio_init_cmds[i], 2,
 				      NULL, 0);
+=======
+		ret = gl861_short_write(d, 0x00, friio_init_cmds[i][0],
+					friio_init_cmds[i][1]);
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			return ret;
 	}
@@ -492,9 +729,16 @@ static int friio_frontend_attach(struct dvb_usb_adapter *adap)
 	struct dvb_usb_device *d;
 	struct tc90522_config cfg;
 	struct i2c_client *cl;
+<<<<<<< HEAD
 	struct friio_priv *priv;
 
 	info = &friio_config.demod_info;
+=======
+	struct gl861 *priv;
+
+	info = &friio_config.demod_info;
+	cfg = friio_config.demod_cfg;
+>>>>>>> upstream/android-13
 	d = adap_to_d(adap);
 	cl = dvb_module_probe("tc90522", info->type,
 			      &d->i2c_adap, info->addr, &cfg);
@@ -502,6 +746,7 @@ static int friio_frontend_attach(struct dvb_usb_adapter *adap)
 		return -ENODEV;
 	adap->fe[0] = cfg.fe;
 
+<<<<<<< HEAD
 	/* ignore cfg.tuner_i2c and create new one */
 	priv = adap_to_priv(adap);
 	priv->i2c_client_demod = cl;
@@ -513,14 +758,26 @@ static int friio_frontend_attach(struct dvb_usb_adapter *adap)
 	i2c_set_adapdata(&priv->tuner_adap, d);
 
 	return i2c_add_adapter(&priv->tuner_adap);
+=======
+	priv = adap_to_priv(adap);
+	priv->i2c_client_demod = cl;
+	priv->demod_sub_i2c = cfg.tuner_i2c;
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int friio_frontend_detach(struct dvb_usb_adapter *adap)
 {
+<<<<<<< HEAD
 	struct friio_priv *priv;
 
 	priv = adap_to_priv(adap);
 	i2c_del_adapter(&priv->tuner_adap);
+=======
+	struct gl861 *priv;
+
+	priv = adap_to_priv(adap);
+>>>>>>> upstream/android-13
 	dvb_module_release(priv->i2c_client_demod);
 	return 0;
 }
@@ -530,7 +787,11 @@ static int friio_tuner_attach(struct dvb_usb_adapter *adap)
 	const struct i2c_board_info *info;
 	struct dvb_pll_config cfg;
 	struct i2c_client *cl;
+<<<<<<< HEAD
 	struct friio_priv *priv;
+=======
+	struct gl861 *priv;
+>>>>>>> upstream/android-13
 
 	priv = adap_to_priv(adap);
 	info = &friio_config.tuner_info;
@@ -547,7 +808,11 @@ static int friio_tuner_attach(struct dvb_usb_adapter *adap)
 
 static int friio_tuner_detach(struct dvb_usb_adapter *adap)
 {
+<<<<<<< HEAD
 	struct friio_priv *priv;
+=======
+	struct gl861 *priv;
+>>>>>>> upstream/android-13
 
 	priv = adap_to_priv(adap);
 	dvb_module_release(priv->i2c_client_tuner);
@@ -558,7 +823,11 @@ static int friio_init(struct dvb_usb_device *d)
 {
 	int i;
 	int ret;
+<<<<<<< HEAD
 	struct friio_priv *priv;
+=======
+	struct gl861 *priv;
+>>>>>>> upstream/android-13
 
 	static const u8 demod_init[][2] = {
 		{0x01, 0x40}, {0x04, 0x38}, {0x05, 0x40}, {0x07, 0x40},
@@ -610,7 +879,11 @@ static struct dvb_usb_device_properties friio_props = {
 	.owner = THIS_MODULE,
 	.adapter_nr = adapter_nr,
 
+<<<<<<< HEAD
 	.size_of_priv = sizeof(struct friio_priv),
+=======
+	.size_of_priv = sizeof(struct gl861),
+>>>>>>> upstream/android-13
 
 	.i2c_algo = &gl861_i2c_algo,
 	.power_ctrl = friio_power_ctrl,
@@ -633,7 +906,11 @@ static struct dvb_usb_device_properties friio_props = {
 static const struct usb_device_id gl861_id_table[] = {
 	{ DVB_USB_DEVICE(USB_VID_MSI, USB_PID_MSI_MEGASKY580_55801,
 		&gl861_props, "MSI Mega Sky 55801 DVB-T USB2.0", NULL) },
+<<<<<<< HEAD
 	{ DVB_USB_DEVICE(USB_VID_ALINK, USB_VID_ALINK_DTU,
+=======
+	{ DVB_USB_DEVICE(USB_VID_ALINK, USB_PID_ALINK_DTU,
+>>>>>>> upstream/android-13
 		&gl861_props, "A-LINK DTU DVB-T USB2.0", NULL) },
 	{ DVB_USB_DEVICE(USB_VID_774, USB_PID_FRIIO_WHITE,
 		&friio_props, "774 Friio White ISDB-T USB2.0", NULL) },

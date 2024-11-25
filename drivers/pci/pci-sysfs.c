@@ -39,7 +39,11 @@ field##_show(struct device *dev, struct device_attribute *attr, char *buf)				\
 	struct pci_dev *pdev;						\
 									\
 	pdev = to_pci_dev(dev);						\
+<<<<<<< HEAD
 	return sprintf(buf, format_string, pdev->field);		\
+=======
+	return sysfs_emit(buf, format_string, pdev->field);		\
+>>>>>>> upstream/android-13
 }									\
 static DEVICE_ATTR_RO(field)
 
@@ -56,7 +60,11 @@ static ssize_t broken_parity_status_show(struct device *dev,
 					 char *buf)
 {
 	struct pci_dev *pdev = to_pci_dev(dev);
+<<<<<<< HEAD
 	return sprintf(buf, "%u\n", pdev->broken_parity_status);
+=======
+	return sysfs_emit(buf, "%u\n", pdev->broken_parity_status);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t broken_parity_status_store(struct device *dev,
@@ -124,15 +132,34 @@ static ssize_t cpulistaffinity_show(struct device *dev,
 }
 static DEVICE_ATTR_RO(cpulistaffinity);
 
+<<<<<<< HEAD
+=======
+static ssize_t power_state_show(struct device *dev,
+				struct device_attribute *attr, char *buf)
+{
+	struct pci_dev *pdev = to_pci_dev(dev);
+
+	return sysfs_emit(buf, "%s\n", pci_power_name(pdev->current_state));
+}
+static DEVICE_ATTR_RO(power_state);
+
+>>>>>>> upstream/android-13
 /* show resources */
 static ssize_t resource_show(struct device *dev, struct device_attribute *attr,
 			     char *buf)
 {
 	struct pci_dev *pci_dev = to_pci_dev(dev);
+<<<<<<< HEAD
 	char *str = buf;
 	int i;
 	int max;
 	resource_size_t start, end;
+=======
+	int i;
+	int max;
+	resource_size_t start, end;
+	size_t len = 0;
+>>>>>>> upstream/android-13
 
 	if (pci_dev->subordinate)
 		max = DEVICE_COUNT_RESOURCE;
@@ -142,12 +169,21 @@ static ssize_t resource_show(struct device *dev, struct device_attribute *attr,
 	for (i = 0; i < max; i++) {
 		struct resource *res =  &pci_dev->resource[i];
 		pci_resource_to_user(pci_dev, i, res, &start, &end);
+<<<<<<< HEAD
 		str += sprintf(str, "0x%016llx 0x%016llx 0x%016llx\n",
 			       (unsigned long long)start,
 			       (unsigned long long)end,
 			       (unsigned long long)res->flags);
 	}
 	return (str - buf);
+=======
+		len += sysfs_emit_at(buf, len, "0x%016llx 0x%016llx 0x%016llx\n",
+				     (unsigned long long)start,
+				     (unsigned long long)end,
+				     (unsigned long long)res->flags);
+	}
+	return len;
+>>>>>>> upstream/android-13
 }
 static DEVICE_ATTR_RO(resource);
 
@@ -156,7 +192,12 @@ static ssize_t max_link_speed_show(struct device *dev,
 {
 	struct pci_dev *pdev = to_pci_dev(dev);
 
+<<<<<<< HEAD
 	return sprintf(buf, "%s\n", PCIE_SPEED2STR(pcie_get_speed_cap(pdev)));
+=======
+	return sysfs_emit(buf, "%s\n",
+			  pci_speed_string(pcie_get_speed_cap(pdev)));
+>>>>>>> upstream/android-13
 }
 static DEVICE_ATTR_RO(max_link_speed);
 
@@ -165,7 +206,11 @@ static ssize_t max_link_width_show(struct device *dev,
 {
 	struct pci_dev *pdev = to_pci_dev(dev);
 
+<<<<<<< HEAD
 	return sprintf(buf, "%u\n", pcie_get_width_cap(pdev));
+=======
+	return sysfs_emit(buf, "%u\n", pcie_get_width_cap(pdev));
+>>>>>>> upstream/android-13
 }
 static DEVICE_ATTR_RO(max_link_width);
 
@@ -175,12 +220,17 @@ static ssize_t current_link_speed_show(struct device *dev,
 	struct pci_dev *pci_dev = to_pci_dev(dev);
 	u16 linkstat;
 	int err;
+<<<<<<< HEAD
 	const char *speed;
+=======
+	enum pci_bus_speed speed;
+>>>>>>> upstream/android-13
 
 	err = pcie_capability_read_word(pci_dev, PCI_EXP_LNKSTA, &linkstat);
 	if (err)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	switch (linkstat & PCI_EXP_LNKSTA_CLS) {
 	case PCI_EXP_LNKSTA_CLS_16_0GB:
 		speed = "16 GT/s";
@@ -199,6 +249,11 @@ static ssize_t current_link_speed_show(struct device *dev,
 	}
 
 	return sprintf(buf, "%s\n", speed);
+=======
+	speed = pcie_link_speed[linkstat & PCI_EXP_LNKSTA_CLS];
+
+	return sysfs_emit(buf, "%s\n", pci_speed_string(speed));
+>>>>>>> upstream/android-13
 }
 static DEVICE_ATTR_RO(current_link_speed);
 
@@ -213,7 +268,11 @@ static ssize_t current_link_width_show(struct device *dev,
 	if (err)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	return sprintf(buf, "%u\n",
+=======
+	return sysfs_emit(buf, "%u\n",
+>>>>>>> upstream/android-13
 		(linkstat & PCI_EXP_LNKSTA_NLW) >> PCI_EXP_LNKSTA_NLW_SHIFT);
 }
 static DEVICE_ATTR_RO(current_link_width);
@@ -230,7 +289,11 @@ static ssize_t secondary_bus_number_show(struct device *dev,
 	if (err)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	return sprintf(buf, "%u\n", sec_bus);
+=======
+	return sysfs_emit(buf, "%u\n", sec_bus);
+>>>>>>> upstream/android-13
 }
 static DEVICE_ATTR_RO(secondary_bus_number);
 
@@ -246,7 +309,11 @@ static ssize_t subordinate_bus_number_show(struct device *dev,
 	if (err)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	return sprintf(buf, "%u\n", sub_bus);
+=======
+	return sysfs_emit(buf, "%u\n", sub_bus);
+>>>>>>> upstream/android-13
 }
 static DEVICE_ATTR_RO(subordinate_bus_number);
 
@@ -256,7 +323,11 @@ static ssize_t ari_enabled_show(struct device *dev,
 {
 	struct pci_dev *pci_dev = to_pci_dev(dev);
 
+<<<<<<< HEAD
 	return sprintf(buf, "%u\n", pci_ari_enabled(pci_dev->bus));
+=======
+	return sysfs_emit(buf, "%u\n", pci_ari_enabled(pci_dev->bus));
+>>>>>>> upstream/android-13
 }
 static DEVICE_ATTR_RO(ari_enabled);
 
@@ -265,11 +336,19 @@ static ssize_t modalias_show(struct device *dev, struct device_attribute *attr,
 {
 	struct pci_dev *pci_dev = to_pci_dev(dev);
 
+<<<<<<< HEAD
 	return sprintf(buf, "pci:v%08Xd%08Xsv%08Xsd%08Xbc%02Xsc%02Xi%02X\n",
 		       pci_dev->vendor, pci_dev->device,
 		       pci_dev->subsystem_vendor, pci_dev->subsystem_device,
 		       (u8)(pci_dev->class >> 16), (u8)(pci_dev->class >> 8),
 		       (u8)(pci_dev->class));
+=======
+	return sysfs_emit(buf, "pci:v%08Xd%08Xsv%08Xsd%08Xbc%02Xsc%02Xi%02X\n",
+			  pci_dev->vendor, pci_dev->device,
+			  pci_dev->subsystem_vendor, pci_dev->subsystem_device,
+			  (u8)(pci_dev->class >> 16), (u8)(pci_dev->class >> 8),
+			  (u8)(pci_dev->class));
+>>>>>>> upstream/android-13
 }
 static DEVICE_ATTR_RO(modalias);
 
@@ -307,7 +386,11 @@ static ssize_t enable_show(struct device *dev, struct device_attribute *attr,
 	struct pci_dev *pdev;
 
 	pdev = to_pci_dev(dev);
+<<<<<<< HEAD
 	return sprintf(buf, "%u\n", atomic_read(&pdev->enable_cnt));
+=======
+	return sysfs_emit(buf, "%u\n", atomic_read(&pdev->enable_cnt));
+>>>>>>> upstream/android-13
 }
 static DEVICE_ATTR_RW(enable);
 
@@ -343,7 +426,11 @@ static ssize_t numa_node_store(struct device *dev,
 static ssize_t numa_node_show(struct device *dev, struct device_attribute *attr,
 			      char *buf)
 {
+<<<<<<< HEAD
 	return sprintf(buf, "%d\n", dev->numa_node);
+=======
+	return sysfs_emit(buf, "%d\n", dev->numa_node);
+>>>>>>> upstream/android-13
 }
 static DEVICE_ATTR_RW(numa_node);
 #endif
@@ -353,7 +440,11 @@ static ssize_t dma_mask_bits_show(struct device *dev,
 {
 	struct pci_dev *pdev = to_pci_dev(dev);
 
+<<<<<<< HEAD
 	return sprintf(buf, "%d\n", fls64(pdev->dma_mask));
+=======
+	return sysfs_emit(buf, "%d\n", fls64(pdev->dma_mask));
+>>>>>>> upstream/android-13
 }
 static DEVICE_ATTR_RO(dma_mask_bits);
 
@@ -361,7 +452,11 @@ static ssize_t consistent_dma_mask_bits_show(struct device *dev,
 					     struct device_attribute *attr,
 					     char *buf)
 {
+<<<<<<< HEAD
 	return sprintf(buf, "%d\n", fls64(dev->coherent_dma_mask));
+=======
+	return sysfs_emit(buf, "%d\n", fls64(dev->coherent_dma_mask));
+>>>>>>> upstream/android-13
 }
 static DEVICE_ATTR_RO(consistent_dma_mask_bits);
 
@@ -371,9 +466,15 @@ static ssize_t msi_bus_show(struct device *dev, struct device_attribute *attr,
 	struct pci_dev *pdev = to_pci_dev(dev);
 	struct pci_bus *subordinate = pdev->subordinate;
 
+<<<<<<< HEAD
 	return sprintf(buf, "%u\n", subordinate ?
 		       !(subordinate->bus_flags & PCI_BUS_FLAGS_NO_MSI)
 			   : !pdev->no_msi);
+=======
+	return sysfs_emit(buf, "%u\n", subordinate ?
+			  !(subordinate->bus_flags & PCI_BUS_FLAGS_NO_MSI)
+			    : !pdev->no_msi);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t msi_bus_store(struct device *dev, struct device_attribute *attr,
@@ -412,8 +513,12 @@ static ssize_t msi_bus_store(struct device *dev, struct device_attribute *attr,
 }
 static DEVICE_ATTR_RW(msi_bus);
 
+<<<<<<< HEAD
 static ssize_t bus_rescan_store(struct bus_type *bus, const char *buf,
 				size_t count)
+=======
+static ssize_t rescan_store(struct bus_type *bus, const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	unsigned long val;
 	struct pci_bus *b = NULL;
@@ -429,7 +534,11 @@ static ssize_t bus_rescan_store(struct bus_type *bus, const char *buf,
 	}
 	return count;
 }
+<<<<<<< HEAD
 static BUS_ATTR(rescan, (S_IWUSR|S_IWGRP), NULL, bus_rescan_store);
+=======
+static BUS_ATTR_WO(rescan);
+>>>>>>> upstream/android-13
 
 static struct attribute *pci_bus_attrs[] = {
 	&bus_attr_rescan.attr,
@@ -462,9 +571,14 @@ static ssize_t dev_rescan_store(struct device *dev,
 	}
 	return count;
 }
+<<<<<<< HEAD
 static struct device_attribute dev_rescan_attr = __ATTR(rescan,
 							(S_IWUSR|S_IWGRP),
 							NULL, dev_rescan_store);
+=======
+static struct device_attribute dev_attr_dev_rescan = __ATTR(rescan, 0200, NULL,
+							    dev_rescan_store);
+>>>>>>> upstream/android-13
 
 static ssize_t remove_store(struct device *dev, struct device_attribute *attr,
 			    const char *buf, size_t count)
@@ -478,6 +592,7 @@ static ssize_t remove_store(struct device *dev, struct device_attribute *attr,
 		pci_stop_and_remove_bus_device_locked(to_pci_dev(dev));
 	return count;
 }
+<<<<<<< HEAD
 static struct device_attribute dev_remove_attr = __ATTR_IGNORE_LOCKDEP(remove,
 							(S_IWUSR|S_IWGRP),
 							NULL, remove_store);
@@ -485,6 +600,14 @@ static struct device_attribute dev_remove_attr = __ATTR_IGNORE_LOCKDEP(remove,
 static ssize_t dev_bus_rescan_store(struct device *dev,
 				    struct device_attribute *attr,
 				    const char *buf, size_t count)
+=======
+static DEVICE_ATTR_IGNORE_LOCKDEP(remove, 0220, NULL,
+				  remove_store);
+
+static ssize_t bus_rescan_store(struct device *dev,
+				struct device_attribute *attr,
+				const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	unsigned long val;
 	struct pci_bus *bus = to_pci_bus(dev);
@@ -502,7 +625,12 @@ static ssize_t dev_bus_rescan_store(struct device *dev,
 	}
 	return count;
 }
+<<<<<<< HEAD
 static DEVICE_ATTR(rescan, (S_IWUSR|S_IWGRP), NULL, dev_bus_rescan_store);
+=======
+static struct device_attribute dev_attr_bus_rescan = __ATTR(rescan, 0200, NULL,
+							    bus_rescan_store);
+>>>>>>> upstream/android-13
 
 #if defined(CONFIG_PM) && defined(CONFIG_ACPI)
 static ssize_t d3cold_allowed_store(struct device *dev,
@@ -530,7 +658,11 @@ static ssize_t d3cold_allowed_show(struct device *dev,
 				   struct device_attribute *attr, char *buf)
 {
 	struct pci_dev *pdev = to_pci_dev(dev);
+<<<<<<< HEAD
 	return sprintf(buf, "%u\n", pdev->d3cold_allowed);
+=======
+	return sysfs_emit(buf, "%u\n", pdev->d3cold_allowed);
+>>>>>>> upstream/android-13
 }
 static DEVICE_ATTR_RW(d3cold_allowed);
 #endif
@@ -544,11 +676,16 @@ static ssize_t devspec_show(struct device *dev,
 
 	if (np == NULL)
 		return 0;
+<<<<<<< HEAD
 	return sprintf(buf, "%pOF", np);
+=======
+	return sysfs_emit(buf, "%pOF\n", np);
+>>>>>>> upstream/android-13
 }
 static DEVICE_ATTR_RO(devspec);
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_PCI_IOV
 static ssize_t sriov_totalvfs_show(struct device *dev,
 				   struct device_attribute *attr,
@@ -697,6 +834,8 @@ static struct device_attribute sriov_drivers_autoprobe_attr =
 		       sriov_drivers_autoprobe_show, sriov_drivers_autoprobe_store);
 #endif /* CONFIG_PCI_IOV */
 
+=======
+>>>>>>> upstream/android-13
 static ssize_t driver_override_store(struct device *dev,
 				     struct device_attribute *attr,
 				     const char *buf, size_t count)
@@ -738,13 +877,21 @@ static ssize_t driver_override_show(struct device *dev,
 	ssize_t len;
 
 	device_lock(dev);
+<<<<<<< HEAD
 	len = snprintf(buf, PAGE_SIZE, "%s\n", pdev->driver_override);
+=======
+	len = sysfs_emit(buf, "%s\n", pdev->driver_override);
+>>>>>>> upstream/android-13
 	device_unlock(dev);
 	return len;
 }
 static DEVICE_ATTR_RW(driver_override);
 
 static struct attribute *pci_dev_attrs[] = {
+<<<<<<< HEAD
+=======
+	&dev_attr_power_state.attr,
+>>>>>>> upstream/android-13
 	&dev_attr_resource.attr,
 	&dev_attr_vendor.attr,
 	&dev_attr_device.attr,
@@ -790,7 +937,11 @@ static struct attribute *pcie_dev_attrs[] = {
 };
 
 static struct attribute *pcibus_attrs[] = {
+<<<<<<< HEAD
 	&dev_attr_rescan.attr,
+=======
+	&dev_attr_bus_rescan.attr,
+>>>>>>> upstream/android-13
 	&dev_attr_cpuaffinity.attr,
 	&dev_attr_cpulistaffinity.attr,
 	NULL,
@@ -812,6 +963,7 @@ static ssize_t boot_vga_show(struct device *dev, struct device_attribute *attr,
 	struct pci_dev *vga_dev = vga_default_device();
 
 	if (vga_dev)
+<<<<<<< HEAD
 		return sprintf(buf, "%u\n", (pdev == vga_dev));
 
 	return sprintf(buf, "%u\n",
@@ -819,6 +971,15 @@ static ssize_t boot_vga_show(struct device *dev, struct device_attribute *attr,
 		   IORESOURCE_ROM_SHADOW));
 }
 static struct device_attribute vga_attr = __ATTR_RO(boot_vga);
+=======
+		return sysfs_emit(buf, "%u\n", (pdev == vga_dev));
+
+	return sysfs_emit(buf, "%u\n",
+			  !!(pdev->resource[PCI_ROM_RESOURCE].flags &
+			     IORESOURCE_ROM_SHADOW));
+}
+static DEVICE_ATTR_RO(boot_vga);
+>>>>>>> upstream/android-13
 
 static ssize_t pci_read_config(struct file *filp, struct kobject *kobj,
 			       struct bin_attribute *bin_attr, char *buf,
@@ -872,6 +1033,10 @@ static ssize_t pci_read_config(struct file *filp, struct kobject *kobj,
 		data[off - init_off + 3] = (val >> 24) & 0xff;
 		off += 4;
 		size -= 4;
+<<<<<<< HEAD
+=======
+		cond_resched();
+>>>>>>> upstream/android-13
 	}
 
 	if (size >= 2) {
@@ -904,6 +1069,14 @@ static ssize_t pci_write_config(struct file *filp, struct kobject *kobj,
 	unsigned int size = count;
 	loff_t init_off = off;
 	u8 *data = (u8 *) buf;
+<<<<<<< HEAD
+=======
+	int ret;
+
+	ret = security_locked_down(LOCKDOWN_PCI_ACCESS);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	if (off > dev->cfg_size)
 		return 0;
@@ -956,6 +1129,32 @@ static ssize_t pci_write_config(struct file *filp, struct kobject *kobj,
 
 	return count;
 }
+<<<<<<< HEAD
+=======
+static BIN_ATTR(config, 0644, pci_read_config, pci_write_config, 0);
+
+static struct bin_attribute *pci_dev_config_attrs[] = {
+	&bin_attr_config,
+	NULL,
+};
+
+static umode_t pci_dev_config_attr_is_visible(struct kobject *kobj,
+					      struct bin_attribute *a, int n)
+{
+	struct pci_dev *pdev = to_pci_dev(kobj_to_dev(kobj));
+
+	a->size = PCI_CFG_SPACE_SIZE;
+	if (pdev->cfg_size > PCI_CFG_SPACE_SIZE)
+		a->size = PCI_CFG_SPACE_EXP_SIZE;
+
+	return a->attr.mode;
+}
+
+static const struct attribute_group pci_dev_config_attr_group = {
+	.bin_attrs = pci_dev_config_attrs,
+	.is_bin_visible = pci_dev_config_attr_is_visible,
+};
+>>>>>>> upstream/android-13
 
 #ifdef HAVE_PCI_LEGACY
 /**
@@ -1075,6 +1274,12 @@ void pci_create_legacy_files(struct pci_bus *b)
 {
 	int error;
 
+<<<<<<< HEAD
+=======
+	if (!sysfs_initialized)
+		return;
+
+>>>>>>> upstream/android-13
 	b->legacy_io = kcalloc(2, sizeof(struct bin_attribute),
 			       GFP_ATOMIC);
 	if (!b->legacy_io)
@@ -1083,10 +1288,18 @@ void pci_create_legacy_files(struct pci_bus *b)
 	sysfs_bin_attr_init(b->legacy_io);
 	b->legacy_io->attr.name = "legacy_io";
 	b->legacy_io->size = 0xffff;
+<<<<<<< HEAD
 	b->legacy_io->attr.mode = S_IRUSR | S_IWUSR;
 	b->legacy_io->read = pci_read_legacy_io;
 	b->legacy_io->write = pci_write_legacy_io;
 	b->legacy_io->mmap = pci_mmap_legacy_io;
+=======
+	b->legacy_io->attr.mode = 0600;
+	b->legacy_io->read = pci_read_legacy_io;
+	b->legacy_io->write = pci_write_legacy_io;
+	b->legacy_io->mmap = pci_mmap_legacy_io;
+	b->legacy_io->f_mapping = iomem_get_mapping;
+>>>>>>> upstream/android-13
 	pci_adjust_legacy_attr(b, pci_mmap_io);
 	error = device_create_bin_file(&b->dev, b->legacy_io);
 	if (error)
@@ -1097,8 +1310,14 @@ void pci_create_legacy_files(struct pci_bus *b)
 	sysfs_bin_attr_init(b->legacy_mem);
 	b->legacy_mem->attr.name = "legacy_mem";
 	b->legacy_mem->size = 1024*1024;
+<<<<<<< HEAD
 	b->legacy_mem->attr.mode = S_IRUSR | S_IWUSR;
 	b->legacy_mem->mmap = pci_mmap_legacy_mem;
+=======
+	b->legacy_mem->attr.mode = 0600;
+	b->legacy_mem->mmap = pci_mmap_legacy_mem;
+	b->legacy_mem->f_mapping = iomem_get_mapping;
+>>>>>>> upstream/android-13
 	pci_adjust_legacy_attr(b, pci_mmap_mem);
 	error = device_create_bin_file(&b->dev, b->legacy_mem);
 	if (error)
@@ -1112,8 +1331,12 @@ legacy_io_err:
 	kfree(b->legacy_io);
 	b->legacy_io = NULL;
 kzalloc_err:
+<<<<<<< HEAD
 	printk(KERN_WARNING "pci: warning: could not create legacy I/O port and ISA memory resources to sysfs\n");
 	return;
+=======
+	dev_warn(&b->dev, "could not create legacy I/O port and ISA memory resources in sysfs\n");
+>>>>>>> upstream/android-13
 }
 
 void pci_remove_legacy_files(struct pci_bus *b)
@@ -1166,6 +1389,14 @@ static int pci_mmap_resource(struct kobject *kobj, struct bin_attribute *attr,
 	int bar = (unsigned long)attr->private;
 	enum pci_mmap_state mmap_type;
 	struct resource *res = &pdev->resource[bar];
+<<<<<<< HEAD
+=======
+	int ret;
+
+	ret = security_locked_down(LOCKDOWN_PCI_ACCESS);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	if (res->flags & IORESOURCE_MEM && iomem_is_exclusive(res->start))
 		return -EINVAL;
@@ -1242,6 +1473,15 @@ static ssize_t pci_write_resource_io(struct file *filp, struct kobject *kobj,
 				     struct bin_attribute *attr, char *buf,
 				     loff_t off, size_t count)
 {
+<<<<<<< HEAD
+=======
+	int ret;
+
+	ret = security_locked_down(LOCKDOWN_PCI_ACCESS);
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	return pci_resource_io(filp, kobj, attr, buf, off, count, true);
 }
 
@@ -1256,7 +1496,11 @@ static void pci_remove_resource_files(struct pci_dev *pdev)
 {
 	int i;
 
+<<<<<<< HEAD
 	for (i = 0; i < PCI_ROM_RESOURCE; i++) {
+=======
+	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
+>>>>>>> upstream/android-13
 		struct bin_attribute *res_attr;
 
 		res_attr = pdev->res_attr[i];
@@ -1304,8 +1548,15 @@ static int pci_create_attr(struct pci_dev *pdev, int num, int write_combine)
 			res_attr->mmap = pci_mmap_resource_uc;
 		}
 	}
+<<<<<<< HEAD
 	res_attr->attr.name = res_attr_name;
 	res_attr->attr.mode = S_IRUSR | S_IWUSR;
+=======
+	if (res_attr->mmap)
+		res_attr->f_mapping = iomem_get_mapping;
+	res_attr->attr.name = res_attr_name;
+	res_attr->attr.mode = 0600;
+>>>>>>> upstream/android-13
 	res_attr->size = pci_resource_len(pdev, num);
 	res_attr->private = (void *)(unsigned long)num;
 	retval = sysfs_create_bin_file(&pdev->dev.kobj, res_attr);
@@ -1327,7 +1578,11 @@ static int pci_create_resource_files(struct pci_dev *pdev)
 	int retval;
 
 	/* Expose the PCI resources from this device as files */
+<<<<<<< HEAD
 	for (i = 0; i < PCI_ROM_RESOURCE; i++) {
+=======
+	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
+>>>>>>> upstream/android-13
 
 		/* skip empty resources */
 		if (!pci_resource_len(pdev, i))
@@ -1345,10 +1600,17 @@ static int pci_create_resource_files(struct pci_dev *pdev)
 	}
 	return 0;
 }
+<<<<<<< HEAD
 #else /* !HAVE_PCI_MMAP */
 int __weak pci_create_resource_files(struct pci_dev *dev) { return 0; }
 void __weak pci_remove_resource_files(struct pci_dev *dev) { return; }
 #endif /* HAVE_PCI_MMAP */
+=======
+#else /* !(defined(HAVE_PCI_MMAP) || defined(ARCH_GENERIC_PCI_MMAP_RESOURCE)) */
+int __weak pci_create_resource_files(struct pci_dev *dev) { return 0; }
+void __weak pci_remove_resource_files(struct pci_dev *dev) { return; }
+#endif
+>>>>>>> upstream/android-13
 
 /**
  * pci_write_rom - used to enable access to the PCI ROM display
@@ -1414,6 +1676,7 @@ static ssize_t pci_read_rom(struct file *filp, struct kobject *kobj,
 
 	return count;
 }
+<<<<<<< HEAD
 
 static const struct bin_attribute pci_config_attr = {
 	.attr =	{
@@ -1433,6 +1696,34 @@ static const struct bin_attribute pcie_config_attr = {
 	.size = PCI_CFG_SPACE_EXP_SIZE,
 	.read = pci_read_config,
 	.write = pci_write_config,
+=======
+static BIN_ATTR(rom, 0600, pci_read_rom, pci_write_rom, 0);
+
+static struct bin_attribute *pci_dev_rom_attrs[] = {
+	&bin_attr_rom,
+	NULL,
+};
+
+static umode_t pci_dev_rom_attr_is_visible(struct kobject *kobj,
+					   struct bin_attribute *a, int n)
+{
+	struct pci_dev *pdev = to_pci_dev(kobj_to_dev(kobj));
+	size_t rom_size;
+
+	/* If the device has a ROM, try to expose it in sysfs. */
+	rom_size = pci_resource_len(pdev, PCI_ROM_RESOURCE);
+	if (!rom_size)
+		return 0;
+
+	a->size = rom_size;
+
+	return a->attr.mode;
+}
+
+static const struct attribute_group pci_dev_rom_attr_group = {
+	.bin_attrs = pci_dev_rom_attrs,
+	.is_bin_visible = pci_dev_rom_attr_is_visible,
+>>>>>>> upstream/android-13
 };
 
 static ssize_t reset_store(struct device *dev, struct device_attribute *attr,
@@ -1456,6 +1747,7 @@ static ssize_t reset_store(struct device *dev, struct device_attribute *attr,
 
 	return count;
 }
+<<<<<<< HEAD
 
 static struct device_attribute reset_attr = __ATTR(reset, 0200, NULL, reset_store);
 
@@ -1555,6 +1847,37 @@ static void pci_remove_capabilities_sysfs(struct pci_dev *dev)
 		device_remove_file(&dev->dev, &reset_attr);
 		dev->reset_fn = 0;
 	}
+=======
+static DEVICE_ATTR_WO(reset);
+
+static struct attribute *pci_dev_reset_attrs[] = {
+	&dev_attr_reset.attr,
+	NULL,
+};
+
+static umode_t pci_dev_reset_attr_is_visible(struct kobject *kobj,
+					     struct attribute *a, int n)
+{
+	struct pci_dev *pdev = to_pci_dev(kobj_to_dev(kobj));
+
+	if (!pci_reset_supported(pdev))
+		return 0;
+
+	return a->mode;
+}
+
+static const struct attribute_group pci_dev_reset_attr_group = {
+	.attrs = pci_dev_reset_attrs,
+	.is_visible = pci_dev_reset_attr_is_visible,
+};
+
+int __must_check pci_create_sysfs_dev_files(struct pci_dev *pdev)
+{
+	if (!sysfs_initialized)
+		return -EACCES;
+
+	return pci_create_resource_files(pdev);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1568,6 +1891,7 @@ void pci_remove_sysfs_dev_files(struct pci_dev *pdev)
 	if (!sysfs_initialized)
 		return;
 
+<<<<<<< HEAD
 	pci_remove_capabilities_sysfs(pdev);
 
 	if (pdev->cfg_size > PCI_CFG_SPACE_SIZE)
@@ -1584,11 +1908,18 @@ void pci_remove_sysfs_dev_files(struct pci_dev *pdev)
 	}
 
 	pci_remove_firmware_label_files(pdev);
+=======
+	pci_remove_resource_files(pdev);
+>>>>>>> upstream/android-13
 }
 
 static int __init pci_sysfs_init(void)
 {
 	struct pci_dev *pdev = NULL;
+<<<<<<< HEAD
+=======
+	struct pci_bus *pbus = NULL;
+>>>>>>> upstream/android-13
 	int retval;
 
 	sysfs_initialized = 1;
@@ -1600,12 +1931,22 @@ static int __init pci_sysfs_init(void)
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	while ((pbus = pci_find_next_bus(pbus)))
+		pci_create_legacy_files(pbus);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 late_initcall(pci_sysfs_init);
 
 static struct attribute *pci_dev_dev_attrs[] = {
+<<<<<<< HEAD
 	&vga_attr.attr,
+=======
+	&dev_attr_boot_vga.attr,
+>>>>>>> upstream/android-13
 	NULL,
 };
 
@@ -1615,7 +1956,11 @@ static umode_t pci_dev_attrs_are_visible(struct kobject *kobj,
 	struct device *dev = kobj_to_dev(kobj);
 	struct pci_dev *pdev = to_pci_dev(dev);
 
+<<<<<<< HEAD
 	if (a == &vga_attr.attr)
+=======
+	if (a == &dev_attr_boot_vga.attr)
+>>>>>>> upstream/android-13
 		if ((pdev->class >> 8) != PCI_CLASS_DISPLAY_VGA)
 			return 0;
 
@@ -1623,8 +1968,13 @@ static umode_t pci_dev_attrs_are_visible(struct kobject *kobj,
 }
 
 static struct attribute *pci_dev_hp_attrs[] = {
+<<<<<<< HEAD
 	&dev_remove_attr.attr,
 	&dev_rescan_attr.attr,
+=======
+	&dev_attr_remove.attr,
+	&dev_attr_dev_rescan.attr,
+>>>>>>> upstream/android-13
 	NULL,
 };
 
@@ -1670,6 +2020,7 @@ static const struct attribute_group pci_dev_group = {
 
 const struct attribute_group *pci_dev_groups[] = {
 	&pci_dev_group,
+<<<<<<< HEAD
 	NULL,
 };
 
@@ -1688,6 +2039,19 @@ static const struct attribute_group pcie_dev_group = {
 
 const struct attribute_group *pcie_dev_groups[] = {
 	&pcie_dev_group,
+=======
+	&pci_dev_config_attr_group,
+	&pci_dev_rom_attr_group,
+	&pci_dev_reset_attr_group,
+	&pci_dev_reset_method_attr_group,
+	&pci_dev_vpd_attr_group,
+#ifdef CONFIG_DMI
+	&pci_dev_smbios_attr_group,
+#endif
+#ifdef CONFIG_ACPI
+	&pci_dev_acpi_attr_group,
+#endif
+>>>>>>> upstream/android-13
 	NULL,
 };
 
@@ -1696,6 +2060,7 @@ static const struct attribute_group pci_dev_hp_attr_group = {
 	.is_visible = pci_dev_hp_attrs_are_visible,
 };
 
+<<<<<<< HEAD
 #ifdef CONFIG_PCI_IOV
 static struct attribute *sriov_dev_attrs[] = {
 	&sriov_totalvfs_attr.attr,
@@ -1724,6 +2089,8 @@ static const struct attribute_group sriov_dev_attr_group = {
 };
 #endif /* CONFIG_PCI_IOV */
 
+=======
+>>>>>>> upstream/android-13
 static const struct attribute_group pci_dev_attr_group = {
 	.attrs = pci_dev_dev_attrs,
 	.is_visible = pci_dev_attrs_are_visible,
@@ -1743,13 +2110,24 @@ static const struct attribute_group *pci_dev_attr_groups[] = {
 	&pci_dev_attr_group,
 	&pci_dev_hp_attr_group,
 #ifdef CONFIG_PCI_IOV
+<<<<<<< HEAD
 	&sriov_dev_attr_group,
+=======
+	&sriov_pf_dev_attr_group,
+	&sriov_vf_dev_attr_group,
+>>>>>>> upstream/android-13
 #endif
 	&pci_bridge_attr_group,
 	&pcie_dev_attr_group,
 #ifdef CONFIG_PCIEAER
 	&aer_stats_attr_group,
 #endif
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PCIEASPM
+	&aspm_ctrl_attr_group,
+#endif
+>>>>>>> upstream/android-13
 	NULL,
 };
 

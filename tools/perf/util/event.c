@@ -1,16 +1,30 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
 #include <dirent.h>
+=======
+>>>>>>> upstream/android-13
 #include <errno.h>
 #include <fcntl.h>
 #include <inttypes.h>
 #include <linux/kernel.h>
 #include <linux/types.h>
+<<<<<<< HEAD
+=======
+#include <perf/cpumap.h>
+>>>>>>> upstream/android-13
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <uapi/linux/mman.h> /* To get things like MAP_HUGETLB even on older libc headers */
+<<<<<<< HEAD
 #include <api/fs/fs.h>
 #include <linux/perf_event.h>
+=======
+#include <linux/perf_event.h>
+#include <linux/zalloc.h>
+#include "cpumap.h"
+#include "dso.h"
+>>>>>>> upstream/android-13
 #include "event.h"
 #include "debug.h"
 #include "hist.h"
@@ -20,10 +34,26 @@
 #include "strlist.h"
 #include "thread.h"
 #include "thread_map.h"
+<<<<<<< HEAD
 #include "sane_ctype.h"
 #include "symbol/kallsyms.h"
 #include "asm/bug.h"
 #include "stat.h"
+=======
+#include "time-utils.h"
+#include <linux/ctype.h>
+#include "map.h"
+#include "util/namespaces.h"
+#include "symbol.h"
+#include "symbol/kallsyms.h"
+#include "asm/bug.h"
+#include "stat.h"
+#include "session.h"
+#include "bpf-event.h"
+#include "print_binary.h"
+#include "tool.h"
+#include "../perf.h"
+>>>>>>> upstream/android-13
 
 static const char *perf_event__names[] = {
 	[0]					= "TOTAL",
@@ -43,6 +73,13 @@ static const char *perf_event__names[] = {
 	[PERF_RECORD_SWITCH]			= "SWITCH",
 	[PERF_RECORD_SWITCH_CPU_WIDE]		= "SWITCH_CPU_WIDE",
 	[PERF_RECORD_NAMESPACES]		= "NAMESPACES",
+<<<<<<< HEAD
+=======
+	[PERF_RECORD_KSYMBOL]			= "KSYMBOL",
+	[PERF_RECORD_BPF_EVENT]			= "BPF_EVENT",
+	[PERF_RECORD_CGROUP]			= "CGROUP",
+	[PERF_RECORD_TEXT_POKE]			= "TEXT_POKE",
+>>>>>>> upstream/android-13
 	[PERF_RECORD_HEADER_ATTR]		= "ATTR",
 	[PERF_RECORD_HEADER_EVENT_TYPE]		= "EVENT_TYPE",
 	[PERF_RECORD_HEADER_TRACING_DATA]	= "TRACING_DATA",
@@ -60,6 +97,7 @@ static const char *perf_event__names[] = {
 	[PERF_RECORD_EVENT_UPDATE]		= "EVENT_UPDATE",
 	[PERF_RECORD_TIME_CONV]			= "TIME_CONV",
 	[PERF_RECORD_HEADER_FEATURE]		= "FEATURE",
+<<<<<<< HEAD
 };
 
 static const char *perf_ns__names[] = {
@@ -70,6 +108,9 @@ static const char *perf_ns__names[] = {
 	[USER_NS_INDEX]		= "user",
 	[MNT_NS_INDEX]		= "mnt",
 	[CGROUP_NS_INDEX]	= "cgroup",
+=======
+	[PERF_RECORD_COMPRESSED]		= "COMPRESSED",
+>>>>>>> upstream/android-13
 };
 
 const char *perf_event__name(unsigned int id)
@@ -81,6 +122,7 @@ const char *perf_event__name(unsigned int id)
 	return perf_event__names[id];
 }
 
+<<<<<<< HEAD
 static const char *perf_ns__name(unsigned int id)
 {
 	if (id >= ARRAY_SIZE(perf_ns__names))
@@ -861,6 +903,8 @@ free_dirent:
 	return err;
 }
 
+=======
+>>>>>>> upstream/android-13
 struct process_symbol_args {
 	const char *name;
 	u64	   start;
@@ -895,6 +939,7 @@ int kallsyms__get_function_start(const char *kallsyms_filename,
 	return 0;
 }
 
+<<<<<<< HEAD
 int __weak perf_event__synthesize_extra_kmaps(struct perf_tool *tool __maybe_unused,
 					      perf_event__handler_t process __maybe_unused,
 					      struct machine *machine __maybe_unused)
@@ -1218,6 +1263,10 @@ int perf_event__synthesize_stat_round(struct perf_tool *tool,
 
 void perf_event__read_stat_config(struct perf_stat_config *config,
 				  struct stat_config_event *event)
+=======
+void perf_event__read_stat_config(struct perf_stat_config *config,
+				  struct perf_record_stat_config *event)
+>>>>>>> upstream/android-13
 {
 	unsigned i;
 
@@ -1234,7 +1283,11 @@ void perf_event__read_stat_config(struct perf_stat_config *config,
 		CASE(INTERVAL,  interval)
 #undef CASE
 		default:
+<<<<<<< HEAD
 			pr_warning("unknown stat config term %" PRIu64 "\n",
+=======
+			pr_warning("unknown stat config term %" PRI_lu64 "\n",
+>>>>>>> upstream/android-13
 				   event->data[i].tag);
 		}
 	}
@@ -1279,6 +1332,15 @@ size_t perf_event__fprintf_namespaces(union perf_event *event, FILE *fp)
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+size_t perf_event__fprintf_cgroup(union perf_event *event, FILE *fp)
+{
+	return fprintf(fp, " cgroup: %" PRI_lu64 " %s\n",
+		       event->cgroup.id, event->cgroup.path);
+}
+
+>>>>>>> upstream/android-13
 int perf_event__process_comm(struct perf_tool *tool __maybe_unused,
 			     union perf_event *event,
 			     struct perf_sample *sample,
@@ -1295,6 +1357,17 @@ int perf_event__process_namespaces(struct perf_tool *tool __maybe_unused,
 	return machine__process_namespaces_event(machine, event, sample);
 }
 
+<<<<<<< HEAD
+=======
+int perf_event__process_cgroup(struct perf_tool *tool __maybe_unused,
+			       union perf_event *event,
+			       struct perf_sample *sample,
+			       struct machine *machine)
+{
+	return machine__process_cgroup_event(machine, event, sample);
+}
+
+>>>>>>> upstream/android-13
 int perf_event__process_lost(struct perf_tool *tool __maybe_unused,
 			     union perf_event *event,
 			     struct perf_sample *sample,
@@ -1335,9 +1408,39 @@ int perf_event__process_switch(struct perf_tool *tool __maybe_unused,
 	return machine__process_switch_event(machine, event);
 }
 
+<<<<<<< HEAD
 size_t perf_event__fprintf_mmap(union perf_event *event, FILE *fp)
 {
 	return fprintf(fp, " %d/%d: [%#" PRIx64 "(%#" PRIx64 ") @ %#" PRIx64 "]: %c %s\n",
+=======
+int perf_event__process_ksymbol(struct perf_tool *tool __maybe_unused,
+				union perf_event *event,
+				struct perf_sample *sample __maybe_unused,
+				struct machine *machine)
+{
+	return machine__process_ksymbol(machine, event, sample);
+}
+
+int perf_event__process_bpf(struct perf_tool *tool __maybe_unused,
+			    union perf_event *event,
+			    struct perf_sample *sample,
+			    struct machine *machine)
+{
+	return machine__process_bpf(machine, event, sample);
+}
+
+int perf_event__process_text_poke(struct perf_tool *tool __maybe_unused,
+				  union perf_event *event,
+				  struct perf_sample *sample,
+				  struct machine *machine)
+{
+	return machine__process_text_poke(machine, event, sample);
+}
+
+size_t perf_event__fprintf_mmap(union perf_event *event, FILE *fp)
+{
+	return fprintf(fp, " %d/%d: [%#" PRI_lx64 "(%#" PRI_lx64 ") @ %#" PRI_lx64 "]: %c %s\n",
+>>>>>>> upstream/android-13
 		       event->mmap.pid, event->mmap.tid, event->mmap.start,
 		       event->mmap.len, event->mmap.pgoff,
 		       (event->header.misc & PERF_RECORD_MISC_MMAP_DATA) ? 'r' : 'x',
@@ -1346,6 +1449,7 @@ size_t perf_event__fprintf_mmap(union perf_event *event, FILE *fp)
 
 size_t perf_event__fprintf_mmap2(union perf_event *event, FILE *fp)
 {
+<<<<<<< HEAD
 	return fprintf(fp, " %d/%d: [%#" PRIx64 "(%#" PRIx64 ") @ %#" PRIx64
 			   " %02x:%02x %"PRIu64" %"PRIu64"]: %c%c%c%c %s\n",
 		       event->mmap2.pid, event->mmap2.tid, event->mmap2.start,
@@ -1357,11 +1461,47 @@ size_t perf_event__fprintf_mmap2(union perf_event *event, FILE *fp)
 		       (event->mmap2.prot & PROT_EXEC) ? 'x' : '-',
 		       (event->mmap2.flags & MAP_SHARED) ? 's' : 'p',
 		       event->mmap2.filename);
+=======
+	if (event->header.misc & PERF_RECORD_MISC_MMAP_BUILD_ID) {
+		char sbuild_id[SBUILD_ID_SIZE];
+		struct build_id bid;
+
+		build_id__init(&bid, event->mmap2.build_id,
+			       event->mmap2.build_id_size);
+		build_id__sprintf(&bid, sbuild_id);
+
+		return fprintf(fp, " %d/%d: [%#" PRI_lx64 "(%#" PRI_lx64 ") @ %#" PRI_lx64
+				   " <%s>]: %c%c%c%c %s\n",
+			       event->mmap2.pid, event->mmap2.tid, event->mmap2.start,
+			       event->mmap2.len, event->mmap2.pgoff, sbuild_id,
+			       (event->mmap2.prot & PROT_READ) ? 'r' : '-',
+			       (event->mmap2.prot & PROT_WRITE) ? 'w' : '-',
+			       (event->mmap2.prot & PROT_EXEC) ? 'x' : '-',
+			       (event->mmap2.flags & MAP_SHARED) ? 's' : 'p',
+			       event->mmap2.filename);
+	} else {
+		return fprintf(fp, " %d/%d: [%#" PRI_lx64 "(%#" PRI_lx64 ") @ %#" PRI_lx64
+				   " %02x:%02x %"PRI_lu64" %"PRI_lu64"]: %c%c%c%c %s\n",
+			       event->mmap2.pid, event->mmap2.tid, event->mmap2.start,
+			       event->mmap2.len, event->mmap2.pgoff, event->mmap2.maj,
+			       event->mmap2.min, event->mmap2.ino,
+			       event->mmap2.ino_generation,
+			       (event->mmap2.prot & PROT_READ) ? 'r' : '-',
+			       (event->mmap2.prot & PROT_WRITE) ? 'w' : '-',
+			       (event->mmap2.prot & PROT_EXEC) ? 'x' : '-',
+			       (event->mmap2.flags & MAP_SHARED) ? 's' : 'p',
+			       event->mmap2.filename);
+	}
+>>>>>>> upstream/android-13
 }
 
 size_t perf_event__fprintf_thread_map(union perf_event *event, FILE *fp)
 {
+<<<<<<< HEAD
 	struct thread_map *threads = thread_map__new_event(&event->thread_map);
+=======
+	struct perf_thread_map *threads = thread_map__new_event(&event->thread_map);
+>>>>>>> upstream/android-13
 	size_t ret;
 
 	ret = fprintf(fp, " nr: ");
@@ -1371,13 +1511,21 @@ size_t perf_event__fprintf_thread_map(union perf_event *event, FILE *fp)
 	else
 		ret += fprintf(fp, "failed to get threads from event\n");
 
+<<<<<<< HEAD
 	thread_map__put(threads);
+=======
+	perf_thread_map__put(threads);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 size_t perf_event__fprintf_cpu_map(union perf_event *event, FILE *fp)
 {
+<<<<<<< HEAD
 	struct cpu_map *cpus = cpu_map__new_data(&event->cpu_map.data);
+=======
+	struct perf_cpu_map *cpus = cpu_map__new_data(&event->cpu_map.data);
+>>>>>>> upstream/android-13
 	size_t ret;
 
 	ret = fprintf(fp, ": ");
@@ -1387,7 +1535,11 @@ size_t perf_event__fprintf_cpu_map(union perf_event *event, FILE *fp)
 	else
 		ret += fprintf(fp, "failed to get cpumap from event\n");
 
+<<<<<<< HEAD
 	cpu_map__put(cpus);
+=======
+	perf_cpu_map__put(cpus);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -1432,7 +1584,11 @@ int perf_event__process_exit(struct perf_tool *tool __maybe_unused,
 
 size_t perf_event__fprintf_aux(union perf_event *event, FILE *fp)
 {
+<<<<<<< HEAD
 	return fprintf(fp, " offset: %#"PRIx64" size: %#"PRIx64" flags: %#"PRIx64" [%s%s%s]\n",
+=======
+	return fprintf(fp, " offset: %#"PRI_lx64" size: %#"PRI_lx64" flags: %#"PRI_lx64" [%s%s%s]\n",
+>>>>>>> upstream/android-13
 		       event->aux.aux_offset, event->aux.aux_size,
 		       event->aux.flags,
 		       event->aux.flags & PERF_AUX_FLAG_TRUNCATED ? "T" : "",
@@ -1456,7 +1612,11 @@ size_t perf_event__fprintf_switch(union perf_event *event, FILE *fp)
 	if (event->header.type == PERF_RECORD_SWITCH)
 		return fprintf(fp, " %s\n", in_out);
 
+<<<<<<< HEAD
 	return fprintf(fp, " %s  %s pid/tid: %5u/%-5u\n",
+=======
+	return fprintf(fp, " %s  %s pid/tid: %5d/%-5d\n",
+>>>>>>> upstream/android-13
 		       in_out, out ? "next" : "prev",
 		       event->context_switch.next_prev_pid,
 		       event->context_switch.next_prev_tid);
@@ -1464,10 +1624,76 @@ size_t perf_event__fprintf_switch(union perf_event *event, FILE *fp)
 
 static size_t perf_event__fprintf_lost(union perf_event *event, FILE *fp)
 {
+<<<<<<< HEAD
 	return fprintf(fp, " lost %" PRIu64 "\n", event->lost.lost);
 }
 
 size_t perf_event__fprintf(union perf_event *event, FILE *fp)
+=======
+	return fprintf(fp, " lost %" PRI_lu64 "\n", event->lost.lost);
+}
+
+size_t perf_event__fprintf_ksymbol(union perf_event *event, FILE *fp)
+{
+	return fprintf(fp, " addr %" PRI_lx64 " len %u type %u flags 0x%x name %s\n",
+		       event->ksymbol.addr, event->ksymbol.len,
+		       event->ksymbol.ksym_type,
+		       event->ksymbol.flags, event->ksymbol.name);
+}
+
+size_t perf_event__fprintf_bpf(union perf_event *event, FILE *fp)
+{
+	return fprintf(fp, " type %u, flags %u, id %u\n",
+		       event->bpf.type, event->bpf.flags, event->bpf.id);
+}
+
+static int text_poke_printer(enum binary_printer_ops op, unsigned int val,
+			     void *extra, FILE *fp)
+{
+	bool old = *(bool *)extra;
+
+	switch ((int)op) {
+	case BINARY_PRINT_LINE_BEGIN:
+		return fprintf(fp, "            %s bytes:", old ? "Old" : "New");
+	case BINARY_PRINT_NUM_DATA:
+		return fprintf(fp, " %02x", val);
+	case BINARY_PRINT_LINE_END:
+		return fprintf(fp, "\n");
+	default:
+		return 0;
+	}
+}
+
+size_t perf_event__fprintf_text_poke(union perf_event *event, struct machine *machine, FILE *fp)
+{
+	struct perf_record_text_poke_event *tp = &event->text_poke;
+	size_t ret;
+	bool old;
+
+	ret = fprintf(fp, " %" PRI_lx64 " ", tp->addr);
+	if (machine) {
+		struct addr_location al;
+
+		al.map = maps__find(&machine->kmaps, tp->addr);
+		if (al.map && map__load(al.map) >= 0) {
+			al.addr = al.map->map_ip(al.map, tp->addr);
+			al.sym = map__find_symbol(al.map, al.addr);
+			if (al.sym)
+				ret += symbol__fprintf_symname_offs(al.sym, &al, fp);
+		}
+	}
+	ret += fprintf(fp, " old len %u new len %u\n", tp->old_len, tp->new_len);
+	old = true;
+	ret += binary__fprintf(tp->bytes, tp->old_len, 16, text_poke_printer,
+			       &old, fp);
+	old = false;
+	ret += binary__fprintf(tp->bytes + tp->old_len, tp->new_len, 16,
+			       text_poke_printer, &old, fp);
+	return ret;
+}
+
+size_t perf_event__fprintf(union perf_event *event, struct machine *machine, FILE *fp)
+>>>>>>> upstream/android-13
 {
 	size_t ret = fprintf(fp, "PERF_RECORD_%s",
 			     perf_event__name(event->header.type));
@@ -1486,6 +1712,12 @@ size_t perf_event__fprintf(union perf_event *event, FILE *fp)
 	case PERF_RECORD_NAMESPACES:
 		ret += perf_event__fprintf_namespaces(event, fp);
 		break;
+<<<<<<< HEAD
+=======
+	case PERF_RECORD_CGROUP:
+		ret += perf_event__fprintf_cgroup(event, fp);
+		break;
+>>>>>>> upstream/android-13
 	case PERF_RECORD_MMAP2:
 		ret += perf_event__fprintf_mmap2(event, fp);
 		break;
@@ -1502,6 +1734,18 @@ size_t perf_event__fprintf(union perf_event *event, FILE *fp)
 	case PERF_RECORD_LOST:
 		ret += perf_event__fprintf_lost(event, fp);
 		break;
+<<<<<<< HEAD
+=======
+	case PERF_RECORD_KSYMBOL:
+		ret += perf_event__fprintf_ksymbol(event, fp);
+		break;
+	case PERF_RECORD_BPF_EVENT:
+		ret += perf_event__fprintf_bpf(event, fp);
+		break;
+	case PERF_RECORD_TEXT_POKE:
+		ret += perf_event__fprintf_text_poke(event, machine, fp);
+		break;
+>>>>>>> upstream/android-13
 	default:
 		ret += fprintf(fp, "\n");
 	}
@@ -1520,11 +1764,19 @@ int perf_event__process(struct perf_tool *tool __maybe_unused,
 struct map *thread__find_map(struct thread *thread, u8 cpumode, u64 addr,
 			     struct addr_location *al)
 {
+<<<<<<< HEAD
 	struct map_groups *mg = thread->mg;
 	struct machine *machine = mg->machine;
 	bool load_map = false;
 
 	al->machine = machine;
+=======
+	struct maps *maps = thread->maps;
+	struct machine *machine = maps->machine;
+	bool load_map = false;
+
+	al->maps = maps;
+>>>>>>> upstream/android-13
 	al->thread = thread;
 	al->addr = addr;
 	al->cpumode = cpumode;
@@ -1537,13 +1789,21 @@ struct map *thread__find_map(struct thread *thread, u8 cpumode, u64 addr,
 
 	if (cpumode == PERF_RECORD_MISC_KERNEL && perf_host) {
 		al->level = 'k';
+<<<<<<< HEAD
 		mg = &machine->kmaps;
+=======
+		al->maps = maps = &machine->kmaps;
+>>>>>>> upstream/android-13
 		load_map = true;
 	} else if (cpumode == PERF_RECORD_MISC_USER && perf_host) {
 		al->level = '.';
 	} else if (cpumode == PERF_RECORD_MISC_GUEST_KERNEL && perf_guest) {
 		al->level = 'g';
+<<<<<<< HEAD
 		mg = &machine->kmaps;
+=======
+		al->maps = maps = &machine->kmaps;
+>>>>>>> upstream/android-13
 		load_map = true;
 	} else if (cpumode == PERF_RECORD_MISC_GUEST_USER && perf_guest) {
 		al->level = 'u';
@@ -1563,7 +1823,11 @@ struct map *thread__find_map(struct thread *thread, u8 cpumode, u64 addr,
 		return NULL;
 	}
 
+<<<<<<< HEAD
 	al->map = map_groups__find(mg, al->addr);
+=======
+	al->map = maps__find(maps, al->addr);
+>>>>>>> upstream/android-13
 	if (al->map != NULL) {
 		/*
 		 * Kernel maps might be changed when loading symbols so loading
@@ -1586,7 +1850,11 @@ struct map *thread__find_map_fb(struct thread *thread, u8 cpumode, u64 addr,
 				struct addr_location *al)
 {
 	struct map *map = thread__find_map(thread, cpumode, addr, al);
+<<<<<<< HEAD
 	struct machine *machine = thread->mg->machine;
+=======
+	struct machine *machine = thread->maps->machine;
+>>>>>>> upstream/android-13
 	u8 addr_cpumode = machine__addr_cpumode(machine, cpumode, addr);
 
 	if (map || addr_cpumode == cpumode)
@@ -1613,6 +1881,22 @@ struct symbol *thread__find_symbol_fb(struct thread *thread, u8 cpumode,
 	return al->sym;
 }
 
+<<<<<<< HEAD
+=======
+static bool check_address_range(struct intlist *addr_list, int addr_range,
+				unsigned long addr)
+{
+	struct int_node *pos;
+
+	intlist__for_each_entry(pos, addr_list) {
+		if (addr >= pos->i && addr < pos->i + addr_range)
+			return true;
+	}
+
+	return false;
+}
+
+>>>>>>> upstream/android-13
 /*
  * Callers need to drop the reference to al->thread, obtained in
  * machine__findnew_thread()
@@ -1664,10 +1948,41 @@ int machine__resolve(struct machine *machine, struct addr_location *al,
 		al->filtered |= (1 << HIST_FILTER__DSO);
 	}
 
+<<<<<<< HEAD
 	if (symbol_conf.sym_list &&
 		(!al->sym || !strlist__has_entry(symbol_conf.sym_list,
 						al->sym->name))) {
 		al->filtered |= (1 << HIST_FILTER__SYMBOL);
+=======
+	if (symbol_conf.sym_list) {
+		int ret = 0;
+		char al_addr_str[32];
+		size_t sz = sizeof(al_addr_str);
+
+		if (al->sym) {
+			ret = strlist__has_entry(symbol_conf.sym_list,
+						al->sym->name);
+		}
+		if (!ret && al->sym) {
+			snprintf(al_addr_str, sz, "0x%"PRIx64,
+				al->map->unmap_ip(al->map, al->sym->start));
+			ret = strlist__has_entry(symbol_conf.sym_list,
+						al_addr_str);
+		}
+		if (!ret && symbol_conf.addr_list && al->map) {
+			unsigned long addr = al->map->unmap_ip(al->map, al->addr);
+
+			ret = intlist__has_entry(symbol_conf.addr_list, addr);
+			if (!ret && symbol_conf.addr_range) {
+				ret = check_address_range(symbol_conf.addr_list,
+							  symbol_conf.addr_range,
+							  addr);
+			}
+		}
+
+		if (!ret)
+			al->filtered |= (1 << HIST_FILTER__SYMBOL);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;

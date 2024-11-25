@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2010 NXP Semiconductors
  *
@@ -9,6 +10,11 @@
  *  You should have received a copy of the GNU General Public License along
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (C) 2010 NXP Semiconductors
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -47,8 +53,11 @@
 
 #define LPC32XX_RTC_KEY_ONSW_LOADVAL	0xB5C13F27
 
+<<<<<<< HEAD
 #define RTC_NAME "rtc-lpc32xx"
 
+=======
+>>>>>>> upstream/android-13
 #define rtc_readl(dev, reg) \
 	__raw_readl((dev)->rtc_base + (reg))
 #define rtc_writel(dev, reg, val) \
@@ -68,14 +77,25 @@ static int lpc32xx_rtc_read_time(struct device *dev, struct rtc_time *time)
 	struct lpc32xx_rtc *rtc = dev_get_drvdata(dev);
 
 	elapsed_sec = rtc_readl(rtc, LPC32XX_RTC_UCOUNT);
+<<<<<<< HEAD
 	rtc_time_to_tm(elapsed_sec, time);
+=======
+	rtc_time64_to_tm(elapsed_sec, time);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int lpc32xx_rtc_set_mmss(struct device *dev, unsigned long secs)
 {
 	struct lpc32xx_rtc *rtc = dev_get_drvdata(dev);
+=======
+static int lpc32xx_rtc_set_time(struct device *dev, struct rtc_time *time)
+{
+	struct lpc32xx_rtc *rtc = dev_get_drvdata(dev);
+	u32 secs = rtc_tm_to_time64(time);
+>>>>>>> upstream/android-13
 	u32 tmp;
 
 	spin_lock_irq(&rtc->lock);
@@ -97,7 +117,11 @@ static int lpc32xx_rtc_read_alarm(struct device *dev,
 {
 	struct lpc32xx_rtc *rtc = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	rtc_time_to_tm(rtc_readl(rtc, LPC32XX_RTC_MATCH0), &wkalrm->time);
+=======
+	rtc_time64_to_tm(rtc_readl(rtc, LPC32XX_RTC_MATCH0), &wkalrm->time);
+>>>>>>> upstream/android-13
 	wkalrm->enabled = rtc->alarm_enabled;
 	wkalrm->pending = !!(rtc_readl(rtc, LPC32XX_RTC_INTSTAT) &
 		LPC32XX_RTC_INTSTAT_MATCH0);
@@ -111,6 +135,7 @@ static int lpc32xx_rtc_set_alarm(struct device *dev,
 	struct lpc32xx_rtc *rtc = dev_get_drvdata(dev);
 	unsigned long alarmsecs;
 	u32 tmp;
+<<<<<<< HEAD
 	int ret;
 
 	ret = rtc_tm_to_time(&wkalrm->time, &alarmsecs);
@@ -118,6 +143,10 @@ static int lpc32xx_rtc_set_alarm(struct device *dev,
 		dev_warn(dev, "Failed to convert time: %d\n", ret);
 		return ret;
 	}
+=======
+
+	alarmsecs = rtc_tm_to_time64(&wkalrm->time);
+>>>>>>> upstream/android-13
 
 	spin_lock_irq(&rtc->lock);
 
@@ -191,7 +220,11 @@ static irqreturn_t lpc32xx_rtc_alarm_interrupt(int irq, void *dev)
 
 static const struct rtc_class_ops lpc32xx_rtc_ops = {
 	.read_time		= lpc32xx_rtc_read_time,
+<<<<<<< HEAD
 	.set_mmss		= lpc32xx_rtc_set_mmss,
+=======
+	.set_time		= lpc32xx_rtc_set_time,
+>>>>>>> upstream/android-13
 	.read_alarm		= lpc32xx_rtc_read_alarm,
 	.set_alarm		= lpc32xx_rtc_set_alarm,
 	.alarm_irq_enable	= lpc32xx_rtc_alarm_irq_enable,
@@ -199,6 +232,7 @@ static const struct rtc_class_ops lpc32xx_rtc_ops = {
 
 static int lpc32xx_rtc_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct resource *res;
 	struct lpc32xx_rtc *rtc;
 	int rtcirq;
@@ -210,14 +244,24 @@ static int lpc32xx_rtc_probe(struct platform_device *pdev)
 		rtcirq = -1;
 	}
 
+=======
+	struct lpc32xx_rtc *rtc;
+	int err;
+	u32 tmp;
+
+>>>>>>> upstream/android-13
 	rtc = devm_kzalloc(&pdev->dev, sizeof(*rtc), GFP_KERNEL);
 	if (unlikely(!rtc))
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	rtc->irq = rtcirq;
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	rtc->rtc_base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	rtc->rtc_base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(rtc->rtc_base))
 		return PTR_ERR(rtc->rtc_base);
 
@@ -256,18 +300,38 @@ static int lpc32xx_rtc_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, rtc);
 
+<<<<<<< HEAD
 	rtc->rtc = devm_rtc_device_register(&pdev->dev, RTC_NAME,
 					&lpc32xx_rtc_ops, THIS_MODULE);
 	if (IS_ERR(rtc->rtc)) {
 		dev_err(&pdev->dev, "Can't get RTC\n");
 		return PTR_ERR(rtc->rtc);
 	}
+=======
+	rtc->rtc = devm_rtc_allocate_device(&pdev->dev);
+	if (IS_ERR(rtc->rtc))
+		return PTR_ERR(rtc->rtc);
+
+	rtc->rtc->ops = &lpc32xx_rtc_ops;
+	rtc->rtc->range_max = U32_MAX;
+
+	err = devm_rtc_register_device(rtc->rtc);
+	if (err)
+		return err;
+>>>>>>> upstream/android-13
 
 	/*
 	 * IRQ is enabled after device registration in case alarm IRQ
 	 * is pending upon suspend exit.
 	 */
+<<<<<<< HEAD
 	if (rtc->irq >= 0) {
+=======
+	rtc->irq = platform_get_irq(pdev, 0);
+	if (rtc->irq < 0) {
+		dev_warn(&pdev->dev, "Can't get interrupt resource\n");
+	} else {
+>>>>>>> upstream/android-13
 		if (devm_request_irq(&pdev->dev, rtc->irq,
 				     lpc32xx_rtc_alarm_interrupt,
 				     0, pdev->name, rtc) < 0) {
@@ -281,6 +345,7 @@ static int lpc32xx_rtc_probe(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int lpc32xx_rtc_remove(struct platform_device *pdev)
 {
 	struct lpc32xx_rtc *rtc = platform_get_drvdata(pdev);
@@ -291,6 +356,8 @@ static int lpc32xx_rtc_remove(struct platform_device *pdev)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM
 static int lpc32xx_rtc_suspend(struct device *dev)
 {
@@ -372,9 +439,14 @@ MODULE_DEVICE_TABLE(of, lpc32xx_rtc_match);
 
 static struct platform_driver lpc32xx_rtc_driver = {
 	.probe		= lpc32xx_rtc_probe,
+<<<<<<< HEAD
 	.remove		= lpc32xx_rtc_remove,
 	.driver = {
 		.name	= RTC_NAME,
+=======
+	.driver = {
+		.name	= "rtc-lpc32xx",
+>>>>>>> upstream/android-13
 		.pm	= LPC32XX_RTC_PM_OPS,
 		.of_match_table = of_match_ptr(lpc32xx_rtc_match),
 	},

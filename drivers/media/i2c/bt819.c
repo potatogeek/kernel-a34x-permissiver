@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  bt819 - BT819A VideoStream Decoder (Rockwell Part)
  *
@@ -12,6 +16,7 @@
  *
  * This code was modify/ported from the saa7111 driver written
  * by Dave Perks.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +27,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -164,12 +171,21 @@ static int bt819_init(struct v4l2_subdev *sd)
 		0x0e, 0xb4,	/* 0x0e Chroma Gain (V) msb */
 		0x0f, 0x00,	/* 0x0f Hue control */
 		0x12, 0x04,	/* 0x12 Output Format */
+<<<<<<< HEAD
 		0x13, 0x20,	/* 0x13 Vertial Scaling msb 0x00
 					   chroma comb OFF, line drop scaling, interlace scaling
 					   BUG? Why does turning the chroma comb on fuck up color?
 					   Bug in the bt819 stepping on my board?
 					*/
 		0x14, 0x00,	/* 0x14 Vertial Scaling lsb */
+=======
+		0x13, 0x20,	/* 0x13 Vertical Scaling msb 0x00
+					   chroma comb OFF, line drop scaling, interlace scaling
+					   BUG? Why does turning the chroma comb on screw up color?
+					   Bug in the bt819 stepping on my board?
+					*/
+		0x14, 0x00,	/* 0x14 Vertical Scaling lsb */
+>>>>>>> upstream/android-13
 		0x16, 0x07,	/* 0x16 Video Timing Polarity
 					   ACTIVE=active low
 					   FIELD: high=odd,

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *   Driver for Midiman Portman2x4 parallel port midi interface
  *
  *   Copyright (c) by Levent Guendogdu <levon@feature-it.com>
  *
+<<<<<<< HEAD
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
  *   the Free Software Foundation; either version 2 of the License, or
@@ -17,6 +22,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  * ChangeLog
  * Jan 24 2007 Matthias Koenig <mkoenig@suse.de>
  *      - cleanup and rewrite
@@ -70,7 +77,10 @@ MODULE_PARM_DESC(enable, "Enable " CARD_NAME " soundcard.");
 MODULE_AUTHOR("Levent Guendogdu, Tobias Gehrig, Matthias Koenig");
 MODULE_DESCRIPTION("Midiman Portman2x4");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{{Midiman,Portman2x4}}");
+=======
+>>>>>>> upstream/android-13
 
 /*********************************************************************
  * Chip specific
@@ -470,7 +480,11 @@ static int portman_probe(struct parport *p)
 
 	/* Set for RXDATA0 where no damage will be done. */
 	/* 5 */
+<<<<<<< HEAD
 	parport_write_control(p, RXDATA0 + STROBE);	/* Write Strobe=1 to command reg. */
+=======
+	parport_write_control(p, RXDATA0 | STROBE);	/* Write Strobe=1 to command reg. */
+>>>>>>> upstream/android-13
 
 	/* 6 */
 	if ((parport_read_status(p) & ESTB) != ESTB)
@@ -480,7 +494,11 @@ static int portman_probe(struct parport *p)
 	parport_write_control(p, 0);	/* Reset Strobe=0. */
 
 	/* Check if Tx circuitry is functioning properly.  If initialized 
+<<<<<<< HEAD
 	 * unit TxEmpty is false, send out char and see if if goes true.
+=======
+	 * unit TxEmpty is false, send out char and see if it goes true.
+>>>>>>> upstream/android-13
 	 */
 	/* 8 */
 	parport_write_control(p, TXDATA0);	/* Tx channel 0, strobe off. */
@@ -763,7 +781,12 @@ static int snd_portman_probe(struct platform_device *pdev)
 		goto free_pardev;
 	}
 
+<<<<<<< HEAD
 	if ((err = portman_create(card, pardev, &pm)) < 0) {
+=======
+	err = portman_create(card, pardev, &pm);
+	if (err < 0) {
+>>>>>>> upstream/android-13
 		snd_printd("Cannot create main component\n");
 		goto release_pardev;
 	}
@@ -776,19 +799,34 @@ static int snd_portman_probe(struct platform_device *pdev)
 		goto __err;
 	}
 	
+<<<<<<< HEAD
 	if ((err = snd_portman_rawmidi_create(card)) < 0) {
+=======
+	err = snd_portman_rawmidi_create(card);
+	if (err < 0) {
+>>>>>>> upstream/android-13
 		snd_printd("Creating Rawmidi component failed\n");
 		goto __err;
 	}
 
 	/* init device */
+<<<<<<< HEAD
 	if ((err = portman_device_init(pm)) < 0)
+=======
+	err = portman_device_init(pm);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		goto __err;
 
 	platform_set_drvdata(pdev, card);
 
 	/* At this point card will be usable */
+<<<<<<< HEAD
 	if ((err = snd_card_register(card)) < 0) {
+=======
+	err = snd_card_register(card);
+	if (err < 0) {
+>>>>>>> upstream/android-13
 		snd_printd("Cannot register card\n");
 		goto __err;
 	}
@@ -845,7 +883,12 @@ static int __init snd_portman_module_init(void)
 {
 	int err;
 
+<<<<<<< HEAD
 	if ((err = platform_driver_register(&snd_portman_driver)) < 0)
+=======
+	err = platform_driver_register(&snd_portman_driver);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 
 	if (parport_register_driver(&portman_parport_driver) != 0) {

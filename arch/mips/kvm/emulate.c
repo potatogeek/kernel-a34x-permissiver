@@ -15,7 +15,11 @@
 #include <linux/kvm_host.h>
 #include <linux/vmalloc.h>
 #include <linux/fs.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/random.h>
 #include <asm/page.h>
 #include <asm/cacheflush.h>
@@ -30,7 +34,10 @@
 #define CONFIG_MIPS_MT
 
 #include "interrupt.h"
+<<<<<<< HEAD
 #include "commpage.h"
+=======
+>>>>>>> upstream/android-13
 
 #include "trace.h"
 
@@ -64,7 +71,11 @@ static int kvm_compute_return_epc(struct kvm_vcpu *vcpu, unsigned long instpc,
 		switch (insn.r_format.func) {
 		case jalr_op:
 			arch->gprs[insn.r_format.rd] = epc + 8;
+<<<<<<< HEAD
 			/* Fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case jr_op:
 			nextpc = arch->gprs[insn.r_format.rs];
 			break;
@@ -140,6 +151,10 @@ static int kvm_compute_return_epc(struct kvm_vcpu *vcpu, unsigned long instpc,
 		/* These are unconditional and in j_format. */
 	case jal_op:
 		arch->gprs[31] = instpc + 8;
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case j_op:
 		epc += 4;
 		epc >>= 28;
@@ -275,7 +290,12 @@ int kvm_get_badinstr(u32 *opc, struct kvm_vcpu *vcpu, u32 *out)
 		*out = vcpu->arch.host_cp0_badinstr;
 		return 0;
 	} else {
+<<<<<<< HEAD
 		return kvm_get_inst(opc, vcpu, out);
+=======
+		WARN_ONCE(1, "CPU doesn't have BadInstr register\n");
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -296,7 +316,12 @@ int kvm_get_badinstrp(u32 *opc, struct kvm_vcpu *vcpu, u32 *out)
 		*out = vcpu->arch.host_cp0_badinstrp;
 		return 0;
 	} else {
+<<<<<<< HEAD
 		return kvm_get_inst(opc, vcpu, out);
+=======
+		WARN_ONCE(1, "CPU doesn't have BadInstrp register\n");
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -720,7 +745,11 @@ void kvm_mips_write_compare(struct kvm_vcpu *vcpu, u32 compare, bool ack)
 	 * preemption until the new value is written to prevent restore of a
 	 * GTOffset corresponding to the old CP0_Compare value.
 	 */
+<<<<<<< HEAD
 	if (IS_ENABLED(CONFIG_KVM_MIPS_VZ) && delta > 0) {
+=======
+	if (delta > 0) {
+>>>>>>> upstream/android-13
 		preempt_disable();
 		write_c0_gtoffset(compare - read_c0_count());
 		back_to_back_c0_hazard();
@@ -733,7 +762,11 @@ void kvm_mips_write_compare(struct kvm_vcpu *vcpu, u32 compare, bool ack)
 
 	if (ack)
 		kvm_mips_callbacks->dequeue_timer_int(vcpu);
+<<<<<<< HEAD
 	else if (IS_ENABLED(CONFIG_KVM_MIPS_VZ))
+=======
+	else
+>>>>>>> upstream/android-13
 		/*
 		 * With VZ, writing CP0_Compare acks (clears) CP0_Cause.TI, so
 		 * preserve guest CP0_Cause.TI if we don't want to ack it.
@@ -742,6 +775,7 @@ void kvm_mips_write_compare(struct kvm_vcpu *vcpu, u32 compare, bool ack)
 
 	kvm_write_c0_guest_compare(cop0, compare);
 
+<<<<<<< HEAD
 	if (IS_ENABLED(CONFIG_KVM_MIPS_VZ)) {
 		if (delta > 0)
 			preempt_enable();
@@ -751,6 +785,15 @@ void kvm_mips_write_compare(struct kvm_vcpu *vcpu, u32 compare, bool ack)
 		if (!ack && cause & CAUSEF_TI)
 			kvm_write_c0_guest_cause(cop0, cause);
 	}
+=======
+	if (delta > 0)
+		preempt_enable();
+
+	back_to_back_c0_hazard();
+
+	if (!ack && cause & CAUSEF_TI)
+		kvm_write_c0_guest_cause(cop0, cause);
+>>>>>>> upstream/android-13
 
 	/* resume_hrtimer() takes care of timer interrupts > count */
 	if (!dc)
@@ -761,7 +804,11 @@ void kvm_mips_write_compare(struct kvm_vcpu *vcpu, u32 compare, bool ack)
 	 * until after the new CP0_Compare is written, otherwise new guest
 	 * CP0_Count could hit new guest CP0_Compare.
 	 */
+<<<<<<< HEAD
 	if (IS_ENABLED(CONFIG_KVM_MIPS_VZ) && delta <= 0)
+=======
+	if (delta <= 0)
+>>>>>>> upstream/android-13
 		write_c0_gtoffset(compare - read_c0_count());
 }
 
@@ -942,6 +989,7 @@ enum hrtimer_restart kvm_mips_count_timeout(struct kvm_vcpu *vcpu)
 	return HRTIMER_RESTART;
 }
 
+<<<<<<< HEAD
 enum emulation_result kvm_mips_emul_eret(struct kvm_vcpu *vcpu)
 {
 	struct mips_coproc *cop0 = vcpu->arch.cop0;
@@ -965,6 +1013,8 @@ enum emulation_result kvm_mips_emul_eret(struct kvm_vcpu *vcpu)
 	return er;
 }
 
+=======
+>>>>>>> upstream/android-13
 enum emulation_result kvm_mips_emul_wait(struct kvm_vcpu *vcpu)
 {
 	kvm_debug("[%#lx] !!!WAIT!!! (%#lx)\n", vcpu->arch.pc,
@@ -990,6 +1040,7 @@ enum emulation_result kvm_mips_emul_wait(struct kvm_vcpu *vcpu)
 	return EMULATE_DONE;
 }
 
+<<<<<<< HEAD
 static void kvm_mips_change_entryhi(struct kvm_vcpu *vcpu,
 				    unsigned long entryhi)
 {
@@ -1604,6 +1655,18 @@ enum emulation_result kvm_mips_emulate_store(union mips_instruction inst,
 	enum emulation_result er;
 	u32 rt;
 	void *data = run->mmio.data;
+=======
+enum emulation_result kvm_mips_emulate_store(union mips_instruction inst,
+					     u32 cause,
+					     struct kvm_vcpu *vcpu)
+{
+	int r;
+	enum emulation_result er;
+	u32 rt;
+	struct kvm_run *run = vcpu->run;
+	void *data = run->mmio.data;
+	unsigned int imme;
+>>>>>>> upstream/android-13
 	unsigned long curr_pc;
 
 	/*
@@ -1623,7 +1686,11 @@ enum emulation_result kvm_mips_emulate_store(union mips_instruction inst,
 		goto out_fail;
 
 	switch (inst.i_format.opcode) {
+<<<<<<< HEAD
 #if defined(CONFIG_64BIT) && defined(CONFIG_KVM_MIPS_VZ)
+=======
+#if defined(CONFIG_64BIT)
+>>>>>>> upstream/android-13
 	case sd_op:
 		run->mmio.len = 8;
 		*(u64 *)data = vcpu->arch.gprs[rt];
@@ -1661,15 +1728,240 @@ enum emulation_result kvm_mips_emulate_store(union mips_instruction inst,
 			  vcpu->arch.gprs[rt], *(u8 *)data);
 		break;
 
+<<<<<<< HEAD
+=======
+	case swl_op:
+		run->mmio.phys_addr = kvm_mips_callbacks->gva_to_gpa(
+					vcpu->arch.host_cp0_badvaddr) & (~0x3);
+		run->mmio.len = 4;
+		imme = vcpu->arch.host_cp0_badvaddr & 0x3;
+		switch (imme) {
+		case 0:
+			*(u32 *)data = ((*(u32 *)data) & 0xffffff00) |
+					(vcpu->arch.gprs[rt] >> 24);
+			break;
+		case 1:
+			*(u32 *)data = ((*(u32 *)data) & 0xffff0000) |
+					(vcpu->arch.gprs[rt] >> 16);
+			break;
+		case 2:
+			*(u32 *)data = ((*(u32 *)data) & 0xff000000) |
+					(vcpu->arch.gprs[rt] >> 8);
+			break;
+		case 3:
+			*(u32 *)data = vcpu->arch.gprs[rt];
+			break;
+		default:
+			break;
+		}
+
+		kvm_debug("[%#lx] OP_SWL: eaddr: %#lx, gpr: %#lx, data: %#x\n",
+			  vcpu->arch.pc, vcpu->arch.host_cp0_badvaddr,
+			  vcpu->arch.gprs[rt], *(u32 *)data);
+		break;
+
+	case swr_op:
+		run->mmio.phys_addr = kvm_mips_callbacks->gva_to_gpa(
+					vcpu->arch.host_cp0_badvaddr) & (~0x3);
+		run->mmio.len = 4;
+		imme = vcpu->arch.host_cp0_badvaddr & 0x3;
+		switch (imme) {
+		case 0:
+			*(u32 *)data = vcpu->arch.gprs[rt];
+			break;
+		case 1:
+			*(u32 *)data = ((*(u32 *)data) & 0xff) |
+					(vcpu->arch.gprs[rt] << 8);
+			break;
+		case 2:
+			*(u32 *)data = ((*(u32 *)data) & 0xffff) |
+					(vcpu->arch.gprs[rt] << 16);
+			break;
+		case 3:
+			*(u32 *)data = ((*(u32 *)data) & 0xffffff) |
+					(vcpu->arch.gprs[rt] << 24);
+			break;
+		default:
+			break;
+		}
+
+		kvm_debug("[%#lx] OP_SWR: eaddr: %#lx, gpr: %#lx, data: %#x\n",
+			  vcpu->arch.pc, vcpu->arch.host_cp0_badvaddr,
+			  vcpu->arch.gprs[rt], *(u32 *)data);
+		break;
+
+#if defined(CONFIG_64BIT)
+	case sdl_op:
+		run->mmio.phys_addr = kvm_mips_callbacks->gva_to_gpa(
+					vcpu->arch.host_cp0_badvaddr) & (~0x7);
+
+		run->mmio.len = 8;
+		imme = vcpu->arch.host_cp0_badvaddr & 0x7;
+		switch (imme) {
+		case 0:
+			*(u64 *)data = ((*(u64 *)data) & 0xffffffffffffff00) |
+					((vcpu->arch.gprs[rt] >> 56) & 0xff);
+			break;
+		case 1:
+			*(u64 *)data = ((*(u64 *)data) & 0xffffffffffff0000) |
+					((vcpu->arch.gprs[rt] >> 48) & 0xffff);
+			break;
+		case 2:
+			*(u64 *)data = ((*(u64 *)data) & 0xffffffffff000000) |
+					((vcpu->arch.gprs[rt] >> 40) & 0xffffff);
+			break;
+		case 3:
+			*(u64 *)data = ((*(u64 *)data) & 0xffffffff00000000) |
+					((vcpu->arch.gprs[rt] >> 32) & 0xffffffff);
+			break;
+		case 4:
+			*(u64 *)data = ((*(u64 *)data) & 0xffffff0000000000) |
+					((vcpu->arch.gprs[rt] >> 24) & 0xffffffffff);
+			break;
+		case 5:
+			*(u64 *)data = ((*(u64 *)data) & 0xffff000000000000) |
+					((vcpu->arch.gprs[rt] >> 16) & 0xffffffffffff);
+			break;
+		case 6:
+			*(u64 *)data = ((*(u64 *)data) & 0xff00000000000000) |
+					((vcpu->arch.gprs[rt] >> 8) & 0xffffffffffffff);
+			break;
+		case 7:
+			*(u64 *)data = vcpu->arch.gprs[rt];
+			break;
+		default:
+			break;
+		}
+
+		kvm_debug("[%#lx] OP_SDL: eaddr: %#lx, gpr: %#lx, data: %llx\n",
+			  vcpu->arch.pc, vcpu->arch.host_cp0_badvaddr,
+			  vcpu->arch.gprs[rt], *(u64 *)data);
+		break;
+
+	case sdr_op:
+		run->mmio.phys_addr = kvm_mips_callbacks->gva_to_gpa(
+					vcpu->arch.host_cp0_badvaddr) & (~0x7);
+
+		run->mmio.len = 8;
+		imme = vcpu->arch.host_cp0_badvaddr & 0x7;
+		switch (imme) {
+		case 0:
+			*(u64 *)data = vcpu->arch.gprs[rt];
+			break;
+		case 1:
+			*(u64 *)data = ((*(u64 *)data) & 0xff) |
+					(vcpu->arch.gprs[rt] << 8);
+			break;
+		case 2:
+			*(u64 *)data = ((*(u64 *)data) & 0xffff) |
+					(vcpu->arch.gprs[rt] << 16);
+			break;
+		case 3:
+			*(u64 *)data = ((*(u64 *)data) & 0xffffff) |
+					(vcpu->arch.gprs[rt] << 24);
+			break;
+		case 4:
+			*(u64 *)data = ((*(u64 *)data) & 0xffffffff) |
+					(vcpu->arch.gprs[rt] << 32);
+			break;
+		case 5:
+			*(u64 *)data = ((*(u64 *)data) & 0xffffffffff) |
+					(vcpu->arch.gprs[rt] << 40);
+			break;
+		case 6:
+			*(u64 *)data = ((*(u64 *)data) & 0xffffffffffff) |
+					(vcpu->arch.gprs[rt] << 48);
+			break;
+		case 7:
+			*(u64 *)data = ((*(u64 *)data) & 0xffffffffffffff) |
+					(vcpu->arch.gprs[rt] << 56);
+			break;
+		default:
+			break;
+		}
+
+		kvm_debug("[%#lx] OP_SDR: eaddr: %#lx, gpr: %#lx, data: %llx\n",
+			  vcpu->arch.pc, vcpu->arch.host_cp0_badvaddr,
+			  vcpu->arch.gprs[rt], *(u64 *)data);
+		break;
+#endif
+
+#ifdef CONFIG_CPU_LOONGSON64
+	case sdc2_op:
+		rt = inst.loongson3_lsdc2_format.rt;
+		switch (inst.loongson3_lsdc2_format.opcode1) {
+		/*
+		 * Loongson-3 overridden sdc2 instructions.
+		 * opcode1              instruction
+		 *   0x0          gssbx: store 1 bytes from GPR
+		 *   0x1          gsshx: store 2 bytes from GPR
+		 *   0x2          gsswx: store 4 bytes from GPR
+		 *   0x3          gssdx: store 8 bytes from GPR
+		 */
+		case 0x0:
+			run->mmio.len = 1;
+			*(u8 *)data = vcpu->arch.gprs[rt];
+
+			kvm_debug("[%#lx] OP_GSSBX: eaddr: %#lx, gpr: %#lx, data: %#x\n",
+				  vcpu->arch.pc, vcpu->arch.host_cp0_badvaddr,
+				  vcpu->arch.gprs[rt], *(u8 *)data);
+			break;
+		case 0x1:
+			run->mmio.len = 2;
+			*(u16 *)data = vcpu->arch.gprs[rt];
+
+			kvm_debug("[%#lx] OP_GSSSHX: eaddr: %#lx, gpr: %#lx, data: %#x\n",
+				  vcpu->arch.pc, vcpu->arch.host_cp0_badvaddr,
+				  vcpu->arch.gprs[rt], *(u16 *)data);
+			break;
+		case 0x2:
+			run->mmio.len = 4;
+			*(u32 *)data = vcpu->arch.gprs[rt];
+
+			kvm_debug("[%#lx] OP_GSSWX: eaddr: %#lx, gpr: %#lx, data: %#x\n",
+				  vcpu->arch.pc, vcpu->arch.host_cp0_badvaddr,
+				  vcpu->arch.gprs[rt], *(u32 *)data);
+			break;
+		case 0x3:
+			run->mmio.len = 8;
+			*(u64 *)data = vcpu->arch.gprs[rt];
+
+			kvm_debug("[%#lx] OP_GSSDX: eaddr: %#lx, gpr: %#lx, data: %#llx\n",
+				  vcpu->arch.pc, vcpu->arch.host_cp0_badvaddr,
+				  vcpu->arch.gprs[rt], *(u64 *)data);
+			break;
+		default:
+			kvm_err("Godson Extended GS-Store not yet supported (inst=0x%08x)\n",
+				inst.word);
+			break;
+		}
+		break;
+#endif
+>>>>>>> upstream/android-13
 	default:
 		kvm_err("Store not yet supported (inst=0x%08x)\n",
 			inst.word);
 		goto out_fail;
 	}
 
+<<<<<<< HEAD
 	run->mmio.is_write = 1;
 	vcpu->mmio_needed = 1;
 	vcpu->mmio_is_write = 1;
+=======
+	vcpu->mmio_needed = 1;
+	run->mmio.is_write = 1;
+	vcpu->mmio_is_write = 1;
+
+	r = kvm_io_bus_write(vcpu, KVM_MMIO_BUS,
+			run->mmio.phys_addr, run->mmio.len, data);
+
+	if (!r) {
+		vcpu->mmio_needed = 0;
+		return EMULATE_DONE;
+	}
+
+>>>>>>> upstream/android-13
 	return EMULATE_DO_MMIO;
 
 out_fail:
@@ -1679,12 +1971,23 @@ out_fail:
 }
 
 enum emulation_result kvm_mips_emulate_load(union mips_instruction inst,
+<<<<<<< HEAD
 					    u32 cause, struct kvm_run *run,
 					    struct kvm_vcpu *vcpu)
 {
 	enum emulation_result er;
 	unsigned long curr_pc;
 	u32 op, rt;
+=======
+					    u32 cause, struct kvm_vcpu *vcpu)
+{
+	struct kvm_run *run = vcpu->run;
+	int r;
+	enum emulation_result er;
+	unsigned long curr_pc;
+	u32 op, rt;
+	unsigned int imme;
+>>>>>>> upstream/android-13
 
 	rt = inst.i_format.rt;
 	op = inst.i_format.opcode;
@@ -1710,14 +2013,22 @@ enum emulation_result kvm_mips_emulate_load(union mips_instruction inst,
 
 	vcpu->mmio_needed = 2;	/* signed */
 	switch (op) {
+<<<<<<< HEAD
 #if defined(CONFIG_64BIT) && defined(CONFIG_KVM_MIPS_VZ)
+=======
+#if defined(CONFIG_64BIT)
+>>>>>>> upstream/android-13
 	case ld_op:
 		run->mmio.len = 8;
 		break;
 
 	case lwu_op:
 		vcpu->mmio_needed = 1;	/* unsigned */
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 #endif
 	case lw_op:
 		run->mmio.len = 4;
@@ -1725,18 +2036,187 @@ enum emulation_result kvm_mips_emulate_load(union mips_instruction inst,
 
 	case lhu_op:
 		vcpu->mmio_needed = 1;	/* unsigned */
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case lh_op:
 		run->mmio.len = 2;
 		break;
 
 	case lbu_op:
 		vcpu->mmio_needed = 1;	/* unsigned */
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case lb_op:
 		run->mmio.len = 1;
 		break;
 
+<<<<<<< HEAD
+=======
+	case lwl_op:
+		run->mmio.phys_addr = kvm_mips_callbacks->gva_to_gpa(
+					vcpu->arch.host_cp0_badvaddr) & (~0x3);
+
+		run->mmio.len = 4;
+		imme = vcpu->arch.host_cp0_badvaddr & 0x3;
+		switch (imme) {
+		case 0:
+			vcpu->mmio_needed = 3;	/* 1 byte */
+			break;
+		case 1:
+			vcpu->mmio_needed = 4;	/* 2 bytes */
+			break;
+		case 2:
+			vcpu->mmio_needed = 5;	/* 3 bytes */
+			break;
+		case 3:
+			vcpu->mmio_needed = 6;	/* 4 bytes */
+			break;
+		default:
+			break;
+		}
+		break;
+
+	case lwr_op:
+		run->mmio.phys_addr = kvm_mips_callbacks->gva_to_gpa(
+					vcpu->arch.host_cp0_badvaddr) & (~0x3);
+
+		run->mmio.len = 4;
+		imme = vcpu->arch.host_cp0_badvaddr & 0x3;
+		switch (imme) {
+		case 0:
+			vcpu->mmio_needed = 7;	/* 4 bytes */
+			break;
+		case 1:
+			vcpu->mmio_needed = 8;	/* 3 bytes */
+			break;
+		case 2:
+			vcpu->mmio_needed = 9;	/* 2 bytes */
+			break;
+		case 3:
+			vcpu->mmio_needed = 10;	/* 1 byte */
+			break;
+		default:
+			break;
+		}
+		break;
+
+#if defined(CONFIG_64BIT)
+	case ldl_op:
+		run->mmio.phys_addr = kvm_mips_callbacks->gva_to_gpa(
+					vcpu->arch.host_cp0_badvaddr) & (~0x7);
+
+		run->mmio.len = 8;
+		imme = vcpu->arch.host_cp0_badvaddr & 0x7;
+		switch (imme) {
+		case 0:
+			vcpu->mmio_needed = 11;	/* 1 byte */
+			break;
+		case 1:
+			vcpu->mmio_needed = 12;	/* 2 bytes */
+			break;
+		case 2:
+			vcpu->mmio_needed = 13;	/* 3 bytes */
+			break;
+		case 3:
+			vcpu->mmio_needed = 14;	/* 4 bytes */
+			break;
+		case 4:
+			vcpu->mmio_needed = 15;	/* 5 bytes */
+			break;
+		case 5:
+			vcpu->mmio_needed = 16;	/* 6 bytes */
+			break;
+		case 6:
+			vcpu->mmio_needed = 17;	/* 7 bytes */
+			break;
+		case 7:
+			vcpu->mmio_needed = 18;	/* 8 bytes */
+			break;
+		default:
+			break;
+		}
+		break;
+
+	case ldr_op:
+		run->mmio.phys_addr = kvm_mips_callbacks->gva_to_gpa(
+					vcpu->arch.host_cp0_badvaddr) & (~0x7);
+
+		run->mmio.len = 8;
+		imme = vcpu->arch.host_cp0_badvaddr & 0x7;
+		switch (imme) {
+		case 0:
+			vcpu->mmio_needed = 19;	/* 8 bytes */
+			break;
+		case 1:
+			vcpu->mmio_needed = 20;	/* 7 bytes */
+			break;
+		case 2:
+			vcpu->mmio_needed = 21;	/* 6 bytes */
+			break;
+		case 3:
+			vcpu->mmio_needed = 22;	/* 5 bytes */
+			break;
+		case 4:
+			vcpu->mmio_needed = 23;	/* 4 bytes */
+			break;
+		case 5:
+			vcpu->mmio_needed = 24;	/* 3 bytes */
+			break;
+		case 6:
+			vcpu->mmio_needed = 25;	/* 2 bytes */
+			break;
+		case 7:
+			vcpu->mmio_needed = 26;	/* 1 byte */
+			break;
+		default:
+			break;
+		}
+		break;
+#endif
+
+#ifdef CONFIG_CPU_LOONGSON64
+	case ldc2_op:
+		rt = inst.loongson3_lsdc2_format.rt;
+		switch (inst.loongson3_lsdc2_format.opcode1) {
+		/*
+		 * Loongson-3 overridden ldc2 instructions.
+		 * opcode1              instruction
+		 *   0x0          gslbx: store 1 bytes from GPR
+		 *   0x1          gslhx: store 2 bytes from GPR
+		 *   0x2          gslwx: store 4 bytes from GPR
+		 *   0x3          gsldx: store 8 bytes from GPR
+		 */
+		case 0x0:
+			run->mmio.len = 1;
+			vcpu->mmio_needed = 27;	/* signed */
+			break;
+		case 0x1:
+			run->mmio.len = 2;
+			vcpu->mmio_needed = 28;	/* signed */
+			break;
+		case 0x2:
+			run->mmio.len = 4;
+			vcpu->mmio_needed = 29;	/* signed */
+			break;
+		case 0x3:
+			run->mmio.len = 8;
+			vcpu->mmio_needed = 30;	/* signed */
+			break;
+		default:
+			kvm_err("Godson Extended GS-Load for float not yet supported (inst=0x%08x)\n",
+				inst.word);
+			break;
+		}
+		break;
+#endif
+
+>>>>>>> upstream/android-13
 	default:
 		kvm_err("Load not yet supported (inst=0x%08x)\n",
 			inst.word);
@@ -1746,6 +2226,7 @@ enum emulation_result kvm_mips_emulate_load(union mips_instruction inst,
 
 	run->mmio.is_write = 0;
 	vcpu->mmio_is_write = 0;
+<<<<<<< HEAD
 	return EMULATE_DO_MMIO;
 }
 
@@ -2578,6 +3059,24 @@ emulate_ri:
 enum emulation_result kvm_mips_complete_mmio_load(struct kvm_vcpu *vcpu,
 						  struct kvm_run *run)
 {
+=======
+
+	r = kvm_io_bus_read(vcpu, KVM_MMIO_BUS,
+			run->mmio.phys_addr, run->mmio.len, run->mmio.data);
+
+	if (!r) {
+		kvm_mips_complete_mmio_load(vcpu);
+		vcpu->mmio_needed = 0;
+		return EMULATE_DONE;
+	}
+
+	return EMULATE_DO_MMIO;
+}
+
+enum emulation_result kvm_mips_complete_mmio_load(struct kvm_vcpu *vcpu)
+{
+	struct kvm_run *run = vcpu->run;
+>>>>>>> upstream/android-13
 	unsigned long *gpr = &vcpu->arch.gprs[vcpu->arch.io_gpr];
 	enum emulation_result er = EMULATE_DONE;
 
@@ -2592,6 +3091,7 @@ enum emulation_result kvm_mips_complete_mmio_load(struct kvm_vcpu *vcpu,
 
 	switch (run->mmio.len) {
 	case 8:
+<<<<<<< HEAD
 		*gpr = *(s64 *)run->mmio.data;
 		break;
 
@@ -2614,12 +3114,134 @@ enum emulation_result kvm_mips_complete_mmio_load(struct kvm_vcpu *vcpu,
 			*gpr = *(s8 *) run->mmio.data;
 		else
 			*gpr = *(u8 *) run->mmio.data;
+=======
+		switch (vcpu->mmio_needed) {
+		case 11:
+			*gpr = (vcpu->arch.gprs[vcpu->arch.io_gpr] & 0xffffffffffffff) |
+				(((*(s64 *)run->mmio.data) & 0xff) << 56);
+			break;
+		case 12:
+			*gpr = (vcpu->arch.gprs[vcpu->arch.io_gpr] & 0xffffffffffff) |
+				(((*(s64 *)run->mmio.data) & 0xffff) << 48);
+			break;
+		case 13:
+			*gpr = (vcpu->arch.gprs[vcpu->arch.io_gpr] & 0xffffffffff) |
+				(((*(s64 *)run->mmio.data) & 0xffffff) << 40);
+			break;
+		case 14:
+			*gpr = (vcpu->arch.gprs[vcpu->arch.io_gpr] & 0xffffffff) |
+				(((*(s64 *)run->mmio.data) & 0xffffffff) << 32);
+			break;
+		case 15:
+			*gpr = (vcpu->arch.gprs[vcpu->arch.io_gpr] & 0xffffff) |
+				(((*(s64 *)run->mmio.data) & 0xffffffffff) << 24);
+			break;
+		case 16:
+			*gpr = (vcpu->arch.gprs[vcpu->arch.io_gpr] & 0xffff) |
+				(((*(s64 *)run->mmio.data) & 0xffffffffffff) << 16);
+			break;
+		case 17:
+			*gpr = (vcpu->arch.gprs[vcpu->arch.io_gpr] & 0xff) |
+				(((*(s64 *)run->mmio.data) & 0xffffffffffffff) << 8);
+			break;
+		case 18:
+		case 19:
+			*gpr = *(s64 *)run->mmio.data;
+			break;
+		case 20:
+			*gpr = (vcpu->arch.gprs[vcpu->arch.io_gpr] & 0xff00000000000000) |
+				((((*(s64 *)run->mmio.data)) >> 8) & 0xffffffffffffff);
+			break;
+		case 21:
+			*gpr = (vcpu->arch.gprs[vcpu->arch.io_gpr] & 0xffff000000000000) |
+				((((*(s64 *)run->mmio.data)) >> 16) & 0xffffffffffff);
+			break;
+		case 22:
+			*gpr = (vcpu->arch.gprs[vcpu->arch.io_gpr] & 0xffffff0000000000) |
+				((((*(s64 *)run->mmio.data)) >> 24) & 0xffffffffff);
+			break;
+		case 23:
+			*gpr = (vcpu->arch.gprs[vcpu->arch.io_gpr] & 0xffffffff00000000) |
+				((((*(s64 *)run->mmio.data)) >> 32) & 0xffffffff);
+			break;
+		case 24:
+			*gpr = (vcpu->arch.gprs[vcpu->arch.io_gpr] & 0xffffffffff000000) |
+				((((*(s64 *)run->mmio.data)) >> 40) & 0xffffff);
+			break;
+		case 25:
+			*gpr = (vcpu->arch.gprs[vcpu->arch.io_gpr] & 0xffffffffffff0000) |
+				((((*(s64 *)run->mmio.data)) >> 48) & 0xffff);
+			break;
+		case 26:
+			*gpr = (vcpu->arch.gprs[vcpu->arch.io_gpr] & 0xffffffffffffff00) |
+				((((*(s64 *)run->mmio.data)) >> 56) & 0xff);
+			break;
+		default:
+			*gpr = *(s64 *)run->mmio.data;
+		}
+		break;
+
+	case 4:
+		switch (vcpu->mmio_needed) {
+		case 1:
+			*gpr = *(u32 *)run->mmio.data;
+			break;
+		case 2:
+			*gpr = *(s32 *)run->mmio.data;
+			break;
+		case 3:
+			*gpr = (vcpu->arch.gprs[vcpu->arch.io_gpr] & 0xffffff) |
+				(((*(s32 *)run->mmio.data) & 0xff) << 24);
+			break;
+		case 4:
+			*gpr = (vcpu->arch.gprs[vcpu->arch.io_gpr] & 0xffff) |
+				(((*(s32 *)run->mmio.data) & 0xffff) << 16);
+			break;
+		case 5:
+			*gpr = (vcpu->arch.gprs[vcpu->arch.io_gpr] & 0xff) |
+				(((*(s32 *)run->mmio.data) & 0xffffff) << 8);
+			break;
+		case 6:
+		case 7:
+			*gpr = *(s32 *)run->mmio.data;
+			break;
+		case 8:
+			*gpr = (vcpu->arch.gprs[vcpu->arch.io_gpr] & 0xff000000) |
+				((((*(s32 *)run->mmio.data)) >> 8) & 0xffffff);
+			break;
+		case 9:
+			*gpr = (vcpu->arch.gprs[vcpu->arch.io_gpr] & 0xffff0000) |
+				((((*(s32 *)run->mmio.data)) >> 16) & 0xffff);
+			break;
+		case 10:
+			*gpr = (vcpu->arch.gprs[vcpu->arch.io_gpr] & 0xffffff00) |
+				((((*(s32 *)run->mmio.data)) >> 24) & 0xff);
+			break;
+		default:
+			*gpr = *(s32 *)run->mmio.data;
+		}
+		break;
+
+	case 2:
+		if (vcpu->mmio_needed == 1)
+			*gpr = *(u16 *)run->mmio.data;
+		else
+			*gpr = *(s16 *)run->mmio.data;
+
+		break;
+	case 1:
+		if (vcpu->mmio_needed == 1)
+			*gpr = *(u8 *)run->mmio.data;
+		else
+			*gpr = *(s8 *)run->mmio.data;
+>>>>>>> upstream/android-13
 		break;
 	}
 
 done:
 	return er;
 }
+<<<<<<< HEAD
 
 static enum emulation_result kvm_mips_emulate_exc(u32 cause,
 						  u32 *opc,
@@ -2827,3 +3449,5 @@ enum emulation_result kvm_mips_handle_tlbmiss(u32 cause,
 
 	return er;
 }
+=======
+>>>>>>> upstream/android-13

@@ -27,8 +27,14 @@
 
 #include <linux/firmware.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/drm.h>
+=======
+
+#include <drm/drm.h>
+#include <drm/drm_drv.h>
+>>>>>>> upstream/android-13
 
 #include "amdgpu.h"
 #include "amdgpu_pm.h"
@@ -80,11 +86,25 @@ MODULE_FIRMWARE(FIRMWARE_VEGA12);
 MODULE_FIRMWARE(FIRMWARE_VEGA20);
 
 static void amdgpu_vce_idle_work_handler(struct work_struct *work);
+<<<<<<< HEAD
 
 /**
  * amdgpu_vce_init - allocate memory, load vce firmware
  *
  * @adev: amdgpu_device pointer
+=======
+static int amdgpu_vce_get_create_msg(struct amdgpu_ring *ring, uint32_t handle,
+				     struct amdgpu_bo *bo,
+				     struct dma_fence **fence);
+static int amdgpu_vce_get_destroy_msg(struct amdgpu_ring *ring, uint32_t handle,
+				      bool direct, struct dma_fence **fence);
+
+/**
+ * amdgpu_vce_sw_init - allocate memory, load vce firmware
+ *
+ * @adev: amdgpu_device pointer
+ * @size: size for the new BO
+>>>>>>> upstream/android-13
  *
  * First step to get VCE online, allocate memory and load the firmware
  */
@@ -173,7 +193,11 @@ int amdgpu_vce_sw_init(struct amdgpu_device *adev, unsigned long size)
 	version_major = (ucode_version >> 20) & 0xfff;
 	version_minor = (ucode_version >> 8) & 0xfff;
 	binary_id = ucode_version & 0xff;
+<<<<<<< HEAD
 	DRM_INFO("Found VCE firmware Version: %hhd.%hhd Binary ID: %hhd\n",
+=======
+	DRM_INFO("Found VCE firmware Version: %d.%d Binary ID: %d\n",
+>>>>>>> upstream/android-13
 		version_major, version_minor, binary_id);
 	adev->vce.fw_version = ((version_major << 24) | (version_minor << 16) |
 				(binary_id << 8));
@@ -198,7 +222,11 @@ int amdgpu_vce_sw_init(struct amdgpu_device *adev, unsigned long size)
 }
 
 /**
+<<<<<<< HEAD
  * amdgpu_vce_fini - free memory
+=======
+ * amdgpu_vce_sw_fini - free memory
+>>>>>>> upstream/android-13
  *
  * @adev: amdgpu_device pointer
  *
@@ -234,12 +262,22 @@ int amdgpu_vce_sw_fini(struct amdgpu_device *adev)
 int amdgpu_vce_entity_init(struct amdgpu_device *adev)
 {
 	struct amdgpu_ring *ring;
+<<<<<<< HEAD
 	struct drm_sched_rq *rq;
 	int r;
 
 	ring = &adev->vce.ring[0];
 	rq = &ring->sched.sched_rq[DRM_SCHED_PRIORITY_NORMAL];
 	r = drm_sched_entity_init(&adev->vce.entity, &rq, 1, NULL);
+=======
+	struct drm_gpu_scheduler *sched;
+	int r;
+
+	ring = &adev->vce.ring[0];
+	sched = &ring->sched;
+	r = drm_sched_entity_init(&adev->vce.entity, DRM_SCHED_PRIORITY_NORMAL,
+				  &sched, 1, NULL);
+>>>>>>> upstream/android-13
 	if (r != 0) {
 		DRM_ERROR("Failed setting up VCE run queue.\n");
 		return r;
@@ -285,7 +323,11 @@ int amdgpu_vce_resume(struct amdgpu_device *adev)
 	void *cpu_addr;
 	const struct common_firmware_header *hdr;
 	unsigned offset;
+<<<<<<< HEAD
 	int r;
+=======
+	int r, idx;
+>>>>>>> upstream/android-13
 
 	if (adev->vce.vcpu_bo == NULL)
 		return -EINVAL;
@@ -305,8 +347,17 @@ int amdgpu_vce_resume(struct amdgpu_device *adev)
 
 	hdr = (const struct common_firmware_header *)adev->vce.fw->data;
 	offset = le32_to_cpu(hdr->ucode_array_offset_bytes);
+<<<<<<< HEAD
 	memcpy_toio(cpu_addr, adev->vce.fw->data + offset,
 		    adev->vce.fw->size - offset);
+=======
+
+	if (drm_dev_enter(&adev->ddev, &idx)) {
+		memcpy_toio(cpu_addr, adev->vce.fw->data + offset,
+			    adev->vce.fw->size - offset);
+		drm_dev_exit(idx);
+	}
+>>>>>>> upstream/android-13
 
 	amdgpu_bo_kunmap(adev->vce.vcpu_bo);
 
@@ -421,30 +472,54 @@ void amdgpu_vce_free_handles(struct amdgpu_device *adev, struct drm_file *filp)
 /**
  * amdgpu_vce_get_create_msg - generate a VCE create msg
  *
+<<<<<<< HEAD
  * @adev: amdgpu_device pointer
  * @ring: ring we should submit the msg to
  * @handle: VCE session handle to use
+=======
+ * @ring: ring we should submit the msg to
+ * @handle: VCE session handle to use
+ * @bo: amdgpu object for which we query the offset
+>>>>>>> upstream/android-13
  * @fence: optional fence to return
  *
  * Open up a stream for HW test
  */
+<<<<<<< HEAD
 int amdgpu_vce_get_create_msg(struct amdgpu_ring *ring, uint32_t handle,
 			      struct dma_fence **fence)
+=======
+static int amdgpu_vce_get_create_msg(struct amdgpu_ring *ring, uint32_t handle,
+				     struct amdgpu_bo *bo,
+				     struct dma_fence **fence)
+>>>>>>> upstream/android-13
 {
 	const unsigned ib_size_dw = 1024;
 	struct amdgpu_job *job;
 	struct amdgpu_ib *ib;
 	struct dma_fence *f = NULL;
+<<<<<<< HEAD
 	uint64_t dummy;
 	int i, r;
 
 	r = amdgpu_job_alloc_with_ib(ring->adev, ib_size_dw * 4, &job);
+=======
+	uint64_t addr;
+	int i, r;
+
+	r = amdgpu_job_alloc_with_ib(ring->adev, ib_size_dw * 4,
+				     AMDGPU_IB_POOL_DIRECT, &job);
+>>>>>>> upstream/android-13
 	if (r)
 		return r;
 
 	ib = &job->ibs[0];
 
+<<<<<<< HEAD
 	dummy = ib->gpu_addr + 1024;
+=======
+	addr = amdgpu_bo_gpu_offset(bo);
+>>>>>>> upstream/android-13
 
 	/* stitch together an VCE create msg */
 	ib->length_dw = 0;
@@ -476,8 +551,13 @@ int amdgpu_vce_get_create_msg(struct amdgpu_ring *ring, uint32_t handle,
 
 	ib->ptr[ib->length_dw++] = 0x00000014; /* len */
 	ib->ptr[ib->length_dw++] = 0x05000005; /* feedback buffer */
+<<<<<<< HEAD
 	ib->ptr[ib->length_dw++] = upper_32_bits(dummy);
 	ib->ptr[ib->length_dw++] = dummy;
+=======
+	ib->ptr[ib->length_dw++] = upper_32_bits(addr);
+	ib->ptr[ib->length_dw++] = addr;
+>>>>>>> upstream/android-13
 	ib->ptr[ib->length_dw++] = 0x00000001;
 
 	for (i = ib->length_dw; i < ib_size_dw; ++i)
@@ -500,15 +580,26 @@ err:
 /**
  * amdgpu_vce_get_destroy_msg - generate a VCE destroy msg
  *
+<<<<<<< HEAD
  * @adev: amdgpu_device pointer
  * @ring: ring we should submit the msg to
  * @handle: VCE session handle to use
+=======
+ * @ring: ring we should submit the msg to
+ * @handle: VCE session handle to use
+ * @direct: direct or delayed pool
+>>>>>>> upstream/android-13
  * @fence: optional fence to return
  *
  * Close up a stream for HW test or if userspace failed to do so
  */
+<<<<<<< HEAD
 int amdgpu_vce_get_destroy_msg(struct amdgpu_ring *ring, uint32_t handle,
 			       bool direct, struct dma_fence **fence)
+=======
+static int amdgpu_vce_get_destroy_msg(struct amdgpu_ring *ring, uint32_t handle,
+				      bool direct, struct dma_fence **fence)
+>>>>>>> upstream/android-13
 {
 	const unsigned ib_size_dw = 1024;
 	struct amdgpu_job *job;
@@ -516,7 +607,13 @@ int amdgpu_vce_get_destroy_msg(struct amdgpu_ring *ring, uint32_t handle,
 	struct dma_fence *f = NULL;
 	int i, r;
 
+<<<<<<< HEAD
 	r = amdgpu_job_alloc_with_ib(ring->adev, ib_size_dw * 4, &job);
+=======
+	r = amdgpu_job_alloc_with_ib(ring->adev, ib_size_dw * 4,
+				     direct ? AMDGPU_IB_POOL_DIRECT :
+				     AMDGPU_IB_POOL_DELAYED, &job);
+>>>>>>> upstream/android-13
 	if (r)
 		return r;
 
@@ -562,9 +659,16 @@ err:
 }
 
 /**
+<<<<<<< HEAD
  * amdgpu_vce_cs_validate_bo - make sure not to cross 4GB boundary
  *
  * @p: parser context
+=======
+ * amdgpu_vce_validate_bo - make sure not to cross 4GB boundary
+ *
+ * @p: parser context
+ * @ib_idx: indirect buffer to use
+>>>>>>> upstream/android-13
  * @lo: address of lower dword
  * @hi: address of higher dword
  * @size: minimum size
@@ -614,9 +718,17 @@ static int amdgpu_vce_validate_bo(struct amdgpu_cs_parser *p, uint32_t ib_idx,
  * amdgpu_vce_cs_reloc - command submission relocation
  *
  * @p: parser context
+<<<<<<< HEAD
  * @lo: address of lower dword
  * @hi: address of higher dword
  * @size: minimum size
+=======
+ * @ib_idx: indirect buffer to use
+ * @lo: address of lower dword
+ * @hi: address of higher dword
+ * @size: minimum size
+ * @index: bs/fb index
+>>>>>>> upstream/android-13
  *
  * Patch relocation inside command stream with real buffer address
  */
@@ -644,7 +756,11 @@ static int amdgpu_vce_cs_reloc(struct amdgpu_cs_parser *p, uint32_t ib_idx,
 
 	if ((addr + (uint64_t)size) >
 	    (mapping->last + 1) * AMDGPU_GPU_PAGE_SIZE) {
+<<<<<<< HEAD
 		DRM_ERROR("BO to small for addr 0x%010Lx %d %d\n",
+=======
+		DRM_ERROR("BO too small for addr 0x%010Lx %d %d\n",
+>>>>>>> upstream/android-13
 			  addr, lo, hi);
 		return -EINVAL;
 	}
@@ -700,10 +816,17 @@ static int amdgpu_vce_validate_handle(struct amdgpu_cs_parser *p,
 }
 
 /**
+<<<<<<< HEAD
  * amdgpu_vce_cs_parse - parse and validate the command stream
  *
  * @p: parser context
  *
+=======
+ * amdgpu_vce_ring_parse_cs - parse and validate the command stream
+ *
+ * @p: parser context
+ * @ib_idx: indirect buffer to use
+>>>>>>> upstream/android-13
  */
 int amdgpu_vce_ring_parse_cs(struct amdgpu_cs_parser *p, uint32_t ib_idx)
 {
@@ -936,10 +1059,17 @@ out:
 }
 
 /**
+<<<<<<< HEAD
  * amdgpu_vce_cs_parse_vm - parse the command stream in VM mode
  *
  * @p: parser context
  *
+=======
+ * amdgpu_vce_ring_parse_cs_vm - parse the command stream in VM mode
+ *
+ * @p: parser context
+ * @ib_idx: indirect buffer to use
+>>>>>>> upstream/android-13
  */
 int amdgpu_vce_ring_parse_cs_vm(struct amdgpu_cs_parser *p, uint32_t ib_idx)
 {
@@ -1029,11 +1159,23 @@ out:
  * amdgpu_vce_ring_emit_ib - execute indirect buffer
  *
  * @ring: engine to use
+<<<<<<< HEAD
  * @ib: the IB to execute
  *
  */
 void amdgpu_vce_ring_emit_ib(struct amdgpu_ring *ring, struct amdgpu_ib *ib,
 			     unsigned vmid, bool ctx_switch)
+=======
+ * @job: job to retrieve vmid from
+ * @ib: the IB to execute
+ * @flags: unused
+ *
+ */
+void amdgpu_vce_ring_emit_ib(struct amdgpu_ring *ring,
+				struct amdgpu_job *job,
+				struct amdgpu_ib *ib,
+				uint32_t flags)
+>>>>>>> upstream/android-13
 {
 	amdgpu_ring_write(ring, VCE_CMD_IB);
 	amdgpu_ring_write(ring, lower_32_bits(ib->gpu_addr));
@@ -1045,7 +1187,13 @@ void amdgpu_vce_ring_emit_ib(struct amdgpu_ring *ring, struct amdgpu_ib *ib,
  * amdgpu_vce_ring_emit_fence - add a fence command to the ring
  *
  * @ring: engine to use
+<<<<<<< HEAD
  * @fence: the fence
+=======
+ * @addr: address
+ * @seq: sequence number
+ * @flags: fence related flags
+>>>>>>> upstream/android-13
  *
  */
 void amdgpu_vce_ring_emit_fence(struct amdgpu_ring *ring, u64 addr, u64 seq,
@@ -1079,11 +1227,16 @@ int amdgpu_vce_ring_test_ring(struct amdgpu_ring *ring)
 		return 0;
 
 	r = amdgpu_ring_alloc(ring, 16);
+<<<<<<< HEAD
 	if (r) {
 		DRM_ERROR("amdgpu: vce failed to lock ring %d (%d).\n",
 			  ring->idx, r);
 		return r;
 	}
+=======
+	if (r)
+		return r;
+>>>>>>> upstream/android-13
 
 	rptr = amdgpu_ring_get_rptr(ring);
 
@@ -1093,6 +1246,7 @@ int amdgpu_vce_ring_test_ring(struct amdgpu_ring *ring)
 	for (i = 0; i < timeout; i++) {
 		if (amdgpu_ring_get_rptr(ring) != rptr)
 			break;
+<<<<<<< HEAD
 		DRM_UDELAY(1);
 	}
 
@@ -1104,6 +1258,13 @@ int amdgpu_vce_ring_test_ring(struct amdgpu_ring *ring)
 			  ring->idx);
 		r = -ETIMEDOUT;
 	}
+=======
+		udelay(1);
+	}
+
+	if (i >= timeout)
+		r = -ETIMEDOUT;
+>>>>>>> upstream/android-13
 
 	return r;
 }
@@ -1112,17 +1273,26 @@ int amdgpu_vce_ring_test_ring(struct amdgpu_ring *ring)
  * amdgpu_vce_ring_test_ib - test if VCE IBs are working
  *
  * @ring: the engine to test on
+<<<<<<< HEAD
+=======
+ * @timeout: timeout value in jiffies, or MAX_SCHEDULE_TIMEOUT
+>>>>>>> upstream/android-13
  *
  */
 int amdgpu_vce_ring_test_ib(struct amdgpu_ring *ring, long timeout)
 {
 	struct dma_fence *fence = NULL;
+<<<<<<< HEAD
+=======
+	struct amdgpu_bo *bo = NULL;
+>>>>>>> upstream/android-13
 	long r;
 
 	/* skip vce ring1/2 ib test for now, since it's not reliable */
 	if (ring != &ring->adev->vce.ring[0])
 		return 0;
 
+<<<<<<< HEAD
 	r = amdgpu_vce_get_create_msg(ring, 1, NULL);
 	if (r) {
 		DRM_ERROR("amdgpu: failed to get create msg (%ld).\n", r);
@@ -1147,5 +1317,31 @@ int amdgpu_vce_ring_test_ib(struct amdgpu_ring *ring, long timeout)
 	}
 error:
 	dma_fence_put(fence);
+=======
+	r = amdgpu_bo_create_reserved(ring->adev, 512, PAGE_SIZE,
+				      AMDGPU_GEM_DOMAIN_VRAM,
+				      &bo, NULL, NULL);
+	if (r)
+		return r;
+
+	r = amdgpu_vce_get_create_msg(ring, 1, bo, NULL);
+	if (r)
+		goto error;
+
+	r = amdgpu_vce_get_destroy_msg(ring, 1, true, &fence);
+	if (r)
+		goto error;
+
+	r = dma_fence_wait_timeout(fence, false, timeout);
+	if (r == 0)
+		r = -ETIMEDOUT;
+	else if (r > 0)
+		r = 0;
+
+error:
+	dma_fence_put(fence);
+	amdgpu_bo_unreserve(bo);
+	amdgpu_bo_free_kernel(&bo, NULL, NULL);
+>>>>>>> upstream/android-13
 	return r;
 }

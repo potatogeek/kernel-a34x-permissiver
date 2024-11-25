@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * MIPS floating point support
  * Copyright (C) 1994-2000 Algorithmics Ltd.
  *
+<<<<<<< HEAD
  *  This program is free software; you can distribute it and/or modify it
  *  under the terms of the GNU General Public License (Version 2) as
  *  published by the Free Software Foundation.
@@ -15,6 +20,8 @@
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA.
  *
+=======
+>>>>>>> upstream/android-13
  *  Nov 7, 2000
  *  Modification to allow integration with Linux kernel
  *
@@ -80,6 +87,17 @@ union ieee754sp ieee754sp_maddf(union ieee754sp z, union ieee754sp x,
 				union ieee754sp y);
 union ieee754sp ieee754sp_msubf(union ieee754sp z, union ieee754sp x,
 				union ieee754sp y);
+<<<<<<< HEAD
+=======
+union ieee754sp ieee754sp_madd(union ieee754sp z, union ieee754sp x,
+				union ieee754sp y);
+union ieee754sp ieee754sp_msub(union ieee754sp z, union ieee754sp x,
+				union ieee754sp y);
+union ieee754sp ieee754sp_nmadd(union ieee754sp z, union ieee754sp x,
+				union ieee754sp y);
+union ieee754sp ieee754sp_nmsub(union ieee754sp z, union ieee754sp x,
+				union ieee754sp y);
+>>>>>>> upstream/android-13
 int ieee754sp_2008class(union ieee754sp x);
 union ieee754sp ieee754sp_fmin(union ieee754sp x, union ieee754sp y);
 union ieee754sp ieee754sp_fmina(union ieee754sp x, union ieee754sp y);
@@ -115,6 +133,17 @@ union ieee754dp ieee754dp_maddf(union ieee754dp z, union ieee754dp x,
 				union ieee754dp y);
 union ieee754dp ieee754dp_msubf(union ieee754dp z, union ieee754dp x,
 				union ieee754dp y);
+<<<<<<< HEAD
+=======
+union ieee754dp ieee754dp_madd(union ieee754dp z, union ieee754dp x,
+				union ieee754dp y);
+union ieee754dp ieee754dp_msub(union ieee754dp z, union ieee754dp x,
+				union ieee754dp y);
+union ieee754dp ieee754dp_nmadd(union ieee754dp z, union ieee754dp x,
+				union ieee754dp y);
+union ieee754dp ieee754dp_nmsub(union ieee754dp z, union ieee754dp x,
+				union ieee754dp y);
+>>>>>>> upstream/android-13
 int ieee754dp_2008class(union ieee754dp x);
 union ieee754dp ieee754dp_fmin(union ieee754dp x, union ieee754dp y);
 union ieee754dp ieee754dp_fmina(union ieee754dp x, union ieee754dp y);

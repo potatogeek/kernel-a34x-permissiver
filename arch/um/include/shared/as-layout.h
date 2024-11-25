@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2007 Jeff Dike (jdike@{addtoit,linux.intel}.com)
  * Licensed under the GPL
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * Copyright (C) 2007 Jeff Dike (jdike@{addtoit,linux.intel}.com)
+>>>>>>> upstream/android-13
  */
 
 #ifndef __START_H__
@@ -20,6 +26,7 @@
  * 'UL' and other type specifiers unilaterally.  We
  * use the following macros to deal with this.
  */
+<<<<<<< HEAD
 
 #ifdef __ASSEMBLY__
 #define _UML_AC(X, Y)	(Y)
@@ -32,6 +39,12 @@
 #define STUB_CODE _UML_AC((unsigned long), STUB_START)
 #define STUB_DATA _UML_AC((unsigned long), STUB_CODE + UM_KERN_PAGE_SIZE)
 #define STUB_END _UML_AC((unsigned long), STUB_DATA + UM_KERN_PAGE_SIZE)
+=======
+#define STUB_START stub_start
+#define STUB_CODE STUB_START
+#define STUB_DATA (STUB_CODE + UM_KERN_PAGE_SIZE)
+#define STUB_END (STUB_DATA + UM_KERN_PAGE_SIZE)
+>>>>>>> upstream/android-13
 
 #ifndef __ASSEMBLY__
 
@@ -54,6 +67,10 @@ extern unsigned long long highmem;
 extern unsigned long brk_start;
 
 extern unsigned long host_task_size;
+<<<<<<< HEAD
+=======
+extern unsigned long stub_start;
+>>>>>>> upstream/android-13
 
 extern int linux_main(int argc, char **argv);
 extern void uml_finishsetup(void);

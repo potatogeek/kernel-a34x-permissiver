@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Support for the Broadcom BCM3510 ATSC demodulator (1st generation Air2PC)
  *
  *  Copyright (C) 2001-5, B2C2 inc.
  *
  *  GPL/Linux driver written by Patrick Boettcher <patrick.boettcher@posteo.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +19,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef BCM3510_H
 #define BCM3510_H

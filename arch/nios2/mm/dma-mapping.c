@@ -18,8 +18,13 @@
 #include <linux/cache.h>
 #include <asm/cacheflush.h>
 
+<<<<<<< HEAD
 void arch_sync_dma_for_device(struct device *dev, phys_addr_t paddr,
 		size_t size, enum dma_data_direction dir)
+=======
+void arch_sync_dma_for_device(phys_addr_t paddr, size_t size,
+		enum dma_data_direction dir)
+>>>>>>> upstream/android-13
 {
 	void *vaddr = phys_to_virt(paddr);
 
@@ -42,8 +47,13 @@ void arch_sync_dma_for_device(struct device *dev, phys_addr_t paddr,
 	}
 }
 
+<<<<<<< HEAD
 void arch_sync_dma_for_cpu(struct device *dev, phys_addr_t paddr,
 		size_t size, enum dma_data_direction dir)
+=======
+void arch_sync_dma_for_cpu(phys_addr_t paddr, size_t size,
+		enum dma_data_direction dir)
+>>>>>>> upstream/android-13
 {
 	void *vaddr = phys_to_virt(paddr);
 
@@ -60,6 +70,7 @@ void arch_sync_dma_for_cpu(struct device *dev, phys_addr_t paddr,
 	}
 }
 
+<<<<<<< HEAD
 void *arch_dma_alloc(struct device *dev, size_t size, dma_addr_t *dma_handle,
 		gfp_t gfp, unsigned long attrs)
 {
@@ -88,4 +99,20 @@ void arch_dma_free(struct device *dev, size_t size, void *vaddr,
 	unsigned long addr = (unsigned long) CAC_ADDR((unsigned long) vaddr);
 
 	free_pages(addr, get_order(size));
+=======
+void arch_dma_prep_coherent(struct page *page, size_t size)
+{
+	unsigned long start = (unsigned long)page_address(page);
+
+	flush_dcache_range(start, start + size);
+}
+
+void *arch_dma_set_uncached(void *ptr, size_t size)
+{
+	unsigned long addr = (unsigned long)ptr;
+
+	addr |= CONFIG_NIOS2_IO_REGION_BASE;
+
+	return (void *)ptr;
+>>>>>>> upstream/android-13
 }

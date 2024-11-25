@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Copyright (c) 2014 Redpine Signals Inc.
  *
  * Permission to use, copy, modify, and/or distribute this software for any
@@ -230,6 +234,72 @@ static int rsi_register_rates_channels(struct rsi_hw *adapter, int band)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int rsi_mac80211_hw_scan_start(struct ieee80211_hw *hw,
+				      struct ieee80211_vif *vif,
+				      struct ieee80211_scan_request *hw_req)
+{
+	struct cfg80211_scan_request *scan_req = &hw_req->req;
+	struct rsi_hw *adapter = hw->priv;
+	struct rsi_common *common = adapter->priv;
+	struct ieee80211_bss_conf *bss = &vif->bss_conf;
+
+	rsi_dbg(INFO_ZONE, "***** Hardware scan start *****\n");
+	common->mac_ops_resumed = false;
+
+	if (common->fsm_state != FSM_MAC_INIT_DONE)
+		return -ENODEV;
+
+	if ((common->wow_flags & RSI_WOW_ENABLED) ||
+	    scan_req->n_channels == 0)
+		return -EINVAL;
+
+	/* Scan already in progress. So return */
+	if (common->bgscan_en)
+		return -EBUSY;
+
+	/* If STA is not connected, return with special value 1, in order
+	 * to start sw_scan in mac80211
+	 */
+	if (!bss->assoc)
+		return 1;
+
+	mutex_lock(&common->mutex);
+	common->hwscan = scan_req;
+	if (!rsi_send_bgscan_params(common, RSI_START_BGSCAN)) {
+		if (!rsi_send_bgscan_probe_req(common, vif)) {
+			rsi_dbg(INFO_ZONE, "Background scan started...\n");
+			common->bgscan_en = true;
+		}
+	}
+	mutex_unlock(&common->mutex);
+
+	return 0;
+}
+
+static void rsi_mac80211_cancel_hw_scan(struct ieee80211_hw *hw,
+					struct ieee80211_vif *vif)
+{
+	struct rsi_hw *adapter = hw->priv;
+	struct rsi_common *common = adapter->priv;
+	struct cfg80211_scan_info info;
+
+	rsi_dbg(INFO_ZONE, "***** Hardware scan stop *****\n");
+	mutex_lock(&common->mutex);
+
+	if (common->bgscan_en) {
+		if (!rsi_send_bgscan_params(common, RSI_STOP_BGSCAN))
+			common->bgscan_en = false;
+		info.aborted = false;
+		ieee80211_scan_completed(adapter->hw, &info);
+		rsi_dbg(INFO_ZONE, "Back ground scan cancelled\n");
+	}
+	common->hwscan = NULL;
+	mutex_unlock(&common->mutex);
+}
+
+>>>>>>> upstream/android-13
 /**
  * rsi_mac80211_detach() - This function is used to de-initialize the
  *			   Mac80211 stack.
@@ -309,6 +379,13 @@ static void rsi_mac80211_tx(struct ieee80211_hw *hw,
 {
 	struct rsi_hw *adapter = hw->priv;
 	struct rsi_common *common = adapter->priv;
+<<<<<<< HEAD
+=======
+	struct ieee80211_hdr *wlh = (struct ieee80211_hdr *)skb->data;
+
+	if (ieee80211_is_auth(wlh->frame_control))
+		common->mac_ops_resumed = false;
+>>>>>>> upstream/android-13
 
 	rsi_core_xmit(common, skb);
 }
@@ -443,7 +520,10 @@ static int rsi_mac80211_add_interface(struct ieee80211_hw *hw,
 	if ((vif->type == NL80211_IFTYPE_AP) ||
 	    (vif->type == NL80211_IFTYPE_P2P_GO)) {
 		rsi_send_rx_filter_frame(common, DISALLOW_BEACONS);
+<<<<<<< HEAD
 		common->min_rate = RSI_RATE_AUTO;
+=======
+>>>>>>> upstream/android-13
 		for (i = 0; i < common->max_stations; i++)
 			common->stations[i].sta = NULL;
 	}
@@ -616,7 +696,12 @@ static int rsi_mac80211_config(struct ieee80211_hw *hw,
 	}
 
 	/* Power save parameters */
+<<<<<<< HEAD
 	if (changed & IEEE80211_CONF_CHANGE_PS) {
+=======
+	if ((changed & IEEE80211_CONF_CHANGE_PS) &&
+	    !common->mac_ops_resumed) {
+>>>>>>> upstream/android-13
 		struct ieee80211_vif *vif, *sta_vif = NULL;
 		unsigned long flags;
 		int i, set_ps = 1;
@@ -663,7 +748,11 @@ static int rsi_mac80211_config(struct ieee80211_hw *hw,
 /**
  * rsi_get_connected_channel() - This function is used to get the current
  *				 connected channel number.
+<<<<<<< HEAD
  * @adapter: Pointer to the adapter structure.
+=======
+ * @vif: Pointer to the ieee80211_vif structure.
+>>>>>>> upstream/android-13
  *
  * Return: Current connected AP's channel number is returned.
  */
@@ -749,6 +838,7 @@ static void rsi_mac80211_bss_info_changed(struct ieee80211_hw *hw,
 		adapter->ps_info.dtim_interval_duration = bss->dtim_period;
 		adapter->ps_info.listen_interval = conf->listen_interval;
 
+<<<<<<< HEAD
 	/* If U-APSD is updated, send ps parameters to firmware */
 	if (bss->assoc) {
 		if (common->uapsd_bitmap) {
@@ -758,17 +848,52 @@ static void rsi_mac80211_bss_info_changed(struct ieee80211_hw *hw,
 	} else {
 		common->uapsd_bitmap = 0;
 	}
+=======
+		/* If U-APSD is updated, send ps parameters to firmware */
+		if (bss->assoc) {
+			if (common->uapsd_bitmap) {
+				rsi_dbg(INFO_ZONE, "Configuring UAPSD\n");
+				rsi_conf_uapsd(adapter, vif);
+			}
+		} else {
+			common->uapsd_bitmap = 0;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	if (changed & BSS_CHANGED_CQM) {
 		common->cqm_info.last_cqm_event_rssi = 0;
 		common->cqm_info.rssi_thold = bss_conf->cqm_rssi_thold;
 		common->cqm_info.rssi_hyst = bss_conf->cqm_rssi_hyst;
+<<<<<<< HEAD
 		rsi_dbg(INFO_ZONE, "RSSI throld & hysteresis are: %d %d\n",
+=======
+		rsi_dbg(INFO_ZONE, "RSSI threshold & hysteresis are: %d %d\n",
+>>>>>>> upstream/android-13
 			common->cqm_info.rssi_thold,
 			common->cqm_info.rssi_hyst);
 	}
 
+<<<<<<< HEAD
+=======
+	if (changed & BSS_CHANGED_BEACON_INT) {
+		rsi_dbg(INFO_ZONE, "%s: Changed Beacon interval: %d\n",
+			__func__, bss_conf->beacon_int);
+		if (common->beacon_interval != bss->beacon_int) {
+			common->beacon_interval = bss->beacon_int;
+			if (vif->type == NL80211_IFTYPE_AP) {
+				struct vif_priv *vif_info = (struct vif_priv *)vif->drv_priv;
+
+				rsi_set_vap_capabilities(common, RSI_OPMODE_AP,
+							 vif->addr, vif_info->vap_id,
+							 VAP_UPDATE);
+			}
+		}
+		adapter->ps_info.listen_interval =
+			bss->beacon_int * adapter->ps_info.num_bcns_per_lis_int;
+	}
+
+>>>>>>> upstream/android-13
 	if ((changed & BSS_CHANGED_BEACON_ENABLED) &&
 	    ((vif->type == NL80211_IFTYPE_AP) ||
 	     (vif->type == NL80211_IFTYPE_P2P_GO))) {
@@ -787,7 +912,11 @@ static void rsi_mac80211_bss_info_changed(struct ieee80211_hw *hw,
 /**
  * rsi_mac80211_conf_filter() - This function configure the device's RX filter.
  * @hw: Pointer to the ieee80211_hw structure.
+<<<<<<< HEAD
  * @changed: Changed flags set.
+=======
+ * @changed_flags: Changed flags set.
+>>>>>>> upstream/android-13
  * @total_flags: Total initial flags set.
  * @multicast: Multicast.
  *
@@ -868,6 +997,10 @@ static int rsi_mac80211_conf_tx(struct ieee80211_hw *hw,
  * @hw: Pointer to the ieee80211_hw structure.
  * @vif: Pointer to the ieee80211_vif structure.
  * @key: Pointer to the ieee80211_key_conf structure.
+<<<<<<< HEAD
+=======
+ * @sta: Pointer to the ieee80211_sta structure.
+>>>>>>> upstream/android-13
  *
  * Return: status: 0 on success, negative error codes on failure.
  */
@@ -925,7 +1058,11 @@ static int rsi_hal_key_config(struct ieee80211_hw *hw,
 	if (status)
 		return status;
 
+<<<<<<< HEAD
 	if (vif->type == NL80211_IFTYPE_STATION && key->key &&
+=======
+	if (vif->type == NL80211_IFTYPE_STATION &&
+>>>>>>> upstream/android-13
 	    (key->cipher == WLAN_CIPHER_SUITE_WEP104 ||
 	     key->cipher == WLAN_CIPHER_SUITE_WEP40)) {
 		if (!rsi_send_block_unblock_frame(adapter->priv, false))
@@ -959,7 +1096,10 @@ static int rsi_mac80211_set_key(struct ieee80211_hw *hw,
 	mutex_lock(&common->mutex);
 	switch (cmd) {
 	case SET_KEY:
+<<<<<<< HEAD
 		secinfo->security_enable = true;
+=======
+>>>>>>> upstream/android-13
 		status = rsi_hal_key_config(hw, vif, key, sta);
 		if (status) {
 			mutex_unlock(&common->mutex);
@@ -978,8 +1118,11 @@ static int rsi_mac80211_set_key(struct ieee80211_hw *hw,
 		break;
 
 	case DISABLE_KEY:
+<<<<<<< HEAD
 		if (vif->type == NL80211_IFTYPE_STATION)
 			secinfo->security_enable = false;
+=======
+>>>>>>> upstream/android-13
 		rsi_dbg(ERR_ZONE, "%s: RSI del key\n", __func__);
 		memset(key, 0, sizeof(struct ieee80211_key_conf));
 		status = rsi_hal_key_config(hw, vif, key, sta);
@@ -1072,8 +1215,12 @@ static int rsi_mac80211_ampdu_action(struct ieee80211_hw *hw,
 		else if ((vif->type == NL80211_IFTYPE_AP) ||
 			 (vif->type == NL80211_IFTYPE_P2P_GO))
 			rsta->seq_start[tid] = seq_no;
+<<<<<<< HEAD
 		ieee80211_start_tx_ba_cb_irqsafe(vif, sta->addr, tid);
 		status = 0;
+=======
+		status = IEEE80211_AMPDU_TX_START_IMMEDIATE;
+>>>>>>> upstream/android-13
 		break;
 
 	case IEEE80211_AMPDU_TX_STOP_CONT:
@@ -1146,6 +1293,7 @@ static int rsi_mac80211_set_rate_mask(struct ieee80211_hw *hw,
 				      struct ieee80211_vif *vif,
 				      const struct cfg80211_bitrate_mask *mask)
 {
+<<<<<<< HEAD
 	struct rsi_hw *adapter = hw->priv;
 	struct rsi_common *common = adapter->priv;
 	enum nl80211_band band = hw->conf.chandef.chan->band;
@@ -1160,6 +1308,34 @@ static int rsi_mac80211_set_rate_mask(struct ieee80211_hw *hw,
 		common->fixedrate_mask[band] =
 			mask->control[band].legacy;
 	}
+=======
+	const unsigned int mcs_offset = ARRAY_SIZE(rsi_rates);
+	struct rsi_hw *adapter = hw->priv;
+	struct rsi_common *common = adapter->priv;
+	int i;
+
+	mutex_lock(&common->mutex);
+
+	for (i = 0; i < ARRAY_SIZE(common->rate_config); i++) {
+		struct rsi_rate_config *cfg = &common->rate_config[i];
+		u32 bm;
+
+		bm = mask->control[i].legacy | (mask->control[i].ht_mcs[0] << mcs_offset);
+		if (hweight32(bm) == 1) { /* single rate */
+			int rate_index = ffs(bm) - 1;
+
+			if (rate_index < mcs_offset)
+				cfg->fixed_hw_rate = rsi_rates[rate_index].hw_value;
+			else
+				cfg->fixed_hw_rate = rsi_mcsrates[rate_index - mcs_offset];
+			cfg->fixed_enabled = true;
+		} else {
+			cfg->configured_mask = bm;
+			cfg->fixed_enabled = false;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	mutex_unlock(&common->mutex);
 
 	return 0;
@@ -1170,6 +1346,10 @@ static int rsi_mac80211_set_rate_mask(struct ieee80211_hw *hw,
  * @common: Pointer to the driver private structure.
  * @bssid: pointer to the bssid.
  * @rssi: RSSI value.
+<<<<<<< HEAD
+=======
+ * @vif: Pointer to the ieee80211_vif structure.
+>>>>>>> upstream/android-13
  */
 static void rsi_perform_cqm(struct rsi_common *common,
 			    u8 *bssid,
@@ -1271,7 +1451,11 @@ static void rsi_fill_rx_status(struct ieee80211_hw *hw,
 }
 
 /**
+<<<<<<< HEAD
  * rsi_indicate_pkt_to_os() - This function sends recieved packet to mac80211.
+=======
+ * rsi_indicate_pkt_to_os() - This function sends received packet to mac80211.
+>>>>>>> upstream/android-13
  * @common: Pointer to the driver private structure.
  * @skb: Pointer to the socket buffer structure.
  *
@@ -1295,6 +1479,7 @@ void rsi_indicate_pkt_to_os(struct rsi_common *common,
 	ieee80211_rx_irqsafe(hw, skb);
 }
 
+<<<<<<< HEAD
 static void rsi_set_min_rate(struct ieee80211_hw *hw,
 			     struct ieee80211_sta *sta,
 			     struct rsi_common *common)
@@ -1335,6 +1520,8 @@ static void rsi_set_min_rate(struct ieee80211_hw *hw,
 		common->min_rate = 0xffff;
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * rsi_mac80211_sta_add() - This function notifies driver about a peer getting
  *			    connected.
@@ -1433,9 +1620,15 @@ static int rsi_mac80211_sta_add(struct ieee80211_hw *hw,
 
 	if ((vif->type == NL80211_IFTYPE_STATION) ||
 	    (vif->type == NL80211_IFTYPE_P2P_CLIENT)) {
+<<<<<<< HEAD
 		rsi_set_min_rate(hw, sta, common);
 		if (sta->ht_cap.ht_supported) {
 			common->vif_info[0].is_ht = true;
+=======
+		common->bitrate_mask[common->band] = sta->supp_rates[common->band];
+		common->vif_info[0].is_ht = sta->ht_cap.ht_supported;
+		if (sta->ht_cap.ht_supported) {
+>>>>>>> upstream/android-13
 			common->bitrate_mask[NL80211_BAND_2GHZ] =
 					sta->supp_rates[NL80211_BAND_2GHZ];
 			if ((sta->ht_cap.cap & IEEE80211_HT_CAP_SGI_20) ||
@@ -1509,7 +1702,10 @@ static int rsi_mac80211_sta_remove(struct ieee80211_hw *hw,
 		bss->qos = sta->wme;
 		common->bitrate_mask[NL80211_BAND_2GHZ] = 0;
 		common->bitrate_mask[NL80211_BAND_5GHZ] = 0;
+<<<<<<< HEAD
 		common->min_rate = 0xffff;
+=======
+>>>>>>> upstream/android-13
 		common->vif_info[0].is_ht = false;
 		common->vif_info[0].sgi = false;
 		common->vif_info[0].seq_start = 0;
@@ -1750,7 +1946,12 @@ out:
 	return status;
 }
 
+<<<<<<< HEAD
 static int rsi_mac80211_cancel_roc(struct ieee80211_hw *hw)
+=======
+static int rsi_mac80211_cancel_roc(struct ieee80211_hw *hw,
+				   struct ieee80211_vif *vif)
+>>>>>>> upstream/android-13
 {
 	struct rsi_hw *adapter = hw->priv;
 	struct rsi_common *common = adapter->priv;
@@ -1834,6 +2035,13 @@ int rsi_config_wowlan(struct rsi_hw *adapter, struct cfg80211_wowlan *wowlan)
 		return 0;
 	}
 	rsi_dbg(INFO_ZONE, "TRIGGERS %x\n", triggers);
+<<<<<<< HEAD
+=======
+
+	if (common->coex_mode > 1)
+		rsi_disable_ps(adapter, adapter->vifs[0]);
+
+>>>>>>> upstream/android-13
 	rsi_send_wowlan_request(common, triggers, 1);
 
 	/**
@@ -1877,8 +2085,18 @@ static int rsi_mac80211_resume(struct ieee80211_hw *hw)
 
 	rsi_dbg(INFO_ZONE, "%s: mac80211 resume\n", __func__);
 
+<<<<<<< HEAD
 	if (common->hibernate_resume)
 		return 0;
+=======
+	if (common->hibernate_resume) {
+		common->mac_ops_resumed = true;
+		/* Device need a complete restart of all MAC operations.
+		 * returning 1 will serve this purpose.
+		 */
+		return 1;
+	}
+>>>>>>> upstream/android-13
 
 	mutex_lock(&common->mutex);
 	rsi_send_wowlan_request(common, 0, 0);
@@ -1918,6 +2136,11 @@ static const struct ieee80211_ops mac80211_ops = {
 	.suspend = rsi_mac80211_suspend,
 	.resume  = rsi_mac80211_resume,
 #endif
+<<<<<<< HEAD
+=======
+	.hw_scan = rsi_mac80211_hw_scan_start,
+	.cancel_hw_scan = rsi_mac80211_cancel_hw_scan,
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -2005,6 +2228,12 @@ int rsi_mac80211_attach(struct rsi_common *common)
 	common->max_stations = wiphy->max_ap_assoc_sta;
 	rsi_dbg(ERR_ZONE, "Max Stations Allowed = %d\n", common->max_stations);
 	hw->sta_data_size = sizeof(struct rsi_sta);
+<<<<<<< HEAD
+=======
+
+	wiphy->max_scan_ssids = RSI_MAX_SCAN_SSIDS;
+	wiphy->max_scan_ie_len = RSI_MAX_SCAN_IE_LEN;
+>>>>>>> upstream/android-13
 	wiphy->flags = WIPHY_FLAG_REPORTS_OBSS;
 	wiphy->flags |= WIPHY_FLAG_AP_UAPSD;
 	wiphy->features |= NL80211_FEATURE_INACTIVITY_TIMER;

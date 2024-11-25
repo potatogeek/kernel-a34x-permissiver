@@ -20,6 +20,7 @@
 
 #include <prom.h>
 
+<<<<<<< HEAD
 void __init prom_init(void)
 {
 	unsigned char *memsize_str;
@@ -37,6 +38,8 @@ void __init prom_init(void)
 	add_memory_region(0, memsize, BOOT_MEM_RAM);
 }
 
+=======
+>>>>>>> upstream/android-13
 void prom_putchar(char c)
 {
 	if (alchemy_get_cputype() == ALCHEMY_CPU_AU1300)

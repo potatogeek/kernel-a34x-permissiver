@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /* CacheFiles tracepoints
  *
  * Copyright (C) 2016 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public Licence
  * as published by the Free Software Foundation; either version
  * 2 of the Licence, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #undef TRACE_SYSTEM
 #define TRACE_SYSTEM cachefiles
@@ -82,20 +89,34 @@ TRACE_EVENT(cachefiles_ref,
 
 	    /* Note that obj may be NULL */
 	    TP_STRUCT__entry(
+<<<<<<< HEAD
 		    __field(struct cachefiles_object *,		obj		)
 		    __field(struct fscache_cookie *,		cookie		)
+=======
+		    __field(unsigned int,			obj		)
+		    __field(unsigned int,			cookie		)
+>>>>>>> upstream/android-13
 		    __field(enum cachefiles_obj_ref_trace,	why		)
 		    __field(int,				usage		)
 			     ),
 
 	    TP_fast_assign(
+<<<<<<< HEAD
 		    __entry->obj	= obj;
 		    __entry->cookie	= cookie;
+=======
+		    __entry->obj	= obj->fscache.debug_id;
+		    __entry->cookie	= cookie->debug_id;
+>>>>>>> upstream/android-13
 		    __entry->usage	= usage;
 		    __entry->why	= why;
 			   ),
 
+<<<<<<< HEAD
 	    TP_printk("c=%p o=%p u=%d %s",
+=======
+	    TP_printk("c=%08x o=%08x u=%d %s",
+>>>>>>> upstream/android-13
 		      __entry->cookie, __entry->obj, __entry->usage,
 		      __print_symbolic(__entry->why, cachefiles_obj_ref_traces))
 	    );
@@ -108,18 +129,30 @@ TRACE_EVENT(cachefiles_lookup,
 	    TP_ARGS(obj, de, inode),
 
 	    TP_STRUCT__entry(
+<<<<<<< HEAD
 		    __field(struct cachefiles_object *,	obj	)
+=======
+		    __field(unsigned int,		obj	)
+>>>>>>> upstream/android-13
 		    __field(struct dentry *,		de	)
 		    __field(struct inode *,		inode	)
 			     ),
 
 	    TP_fast_assign(
+<<<<<<< HEAD
 		    __entry->obj	= obj;
+=======
+		    __entry->obj	= obj->fscache.debug_id;
+>>>>>>> upstream/android-13
 		    __entry->de		= de;
 		    __entry->inode	= inode;
 			   ),
 
+<<<<<<< HEAD
 	    TP_printk("o=%p d=%p i=%p",
+=======
+	    TP_printk("o=%08x d=%p i=%p",
+>>>>>>> upstream/android-13
 		      __entry->obj, __entry->de, __entry->inode)
 	    );
 
@@ -130,18 +163,30 @@ TRACE_EVENT(cachefiles_mkdir,
 	    TP_ARGS(obj, de, ret),
 
 	    TP_STRUCT__entry(
+<<<<<<< HEAD
 		    __field(struct cachefiles_object *,	obj	)
+=======
+		    __field(unsigned int,		obj	)
+>>>>>>> upstream/android-13
 		    __field(struct dentry *,		de	)
 		    __field(int,			ret	)
 			     ),
 
 	    TP_fast_assign(
+<<<<<<< HEAD
 		    __entry->obj	= obj;
+=======
+		    __entry->obj	= obj->fscache.debug_id;
+>>>>>>> upstream/android-13
 		    __entry->de		= de;
 		    __entry->ret	= ret;
 			   ),
 
+<<<<<<< HEAD
 	    TP_printk("o=%p d=%p r=%u",
+=======
+	    TP_printk("o=%08x d=%p r=%u",
+>>>>>>> upstream/android-13
 		      __entry->obj, __entry->de, __entry->ret)
 	    );
 
@@ -152,18 +197,30 @@ TRACE_EVENT(cachefiles_create,
 	    TP_ARGS(obj, de, ret),
 
 	    TP_STRUCT__entry(
+<<<<<<< HEAD
 		    __field(struct cachefiles_object *,	obj	)
+=======
+		    __field(unsigned int,		obj	)
+>>>>>>> upstream/android-13
 		    __field(struct dentry *,		de	)
 		    __field(int,			ret	)
 			     ),
 
 	    TP_fast_assign(
+<<<<<<< HEAD
 		    __entry->obj	= obj;
+=======
+		    __entry->obj	= obj->fscache.debug_id;
+>>>>>>> upstream/android-13
 		    __entry->de		= de;
 		    __entry->ret	= ret;
 			   ),
 
+<<<<<<< HEAD
 	    TP_printk("o=%p d=%p r=%u",
+=======
+	    TP_printk("o=%08x d=%p r=%u",
+>>>>>>> upstream/android-13
 		      __entry->obj, __entry->de, __entry->ret)
 	    );
 
@@ -176,18 +233,30 @@ TRACE_EVENT(cachefiles_unlink,
 
 	    /* Note that obj may be NULL */
 	    TP_STRUCT__entry(
+<<<<<<< HEAD
 		    __field(struct cachefiles_object *,	obj		)
+=======
+		    __field(unsigned int,		obj		)
+>>>>>>> upstream/android-13
 		    __field(struct dentry *,		de		)
 		    __field(enum fscache_why_object_killed, why		)
 			     ),
 
 	    TP_fast_assign(
+<<<<<<< HEAD
 		    __entry->obj	= obj;
+=======
+		    __entry->obj	= obj ? obj->fscache.debug_id : UINT_MAX;
+>>>>>>> upstream/android-13
 		    __entry->de		= de;
 		    __entry->why	= why;
 			   ),
 
+<<<<<<< HEAD
 	    TP_printk("o=%p d=%p w=%s",
+=======
+	    TP_printk("o=%08x d=%p w=%s",
+>>>>>>> upstream/android-13
 		      __entry->obj, __entry->de,
 		      __print_symbolic(__entry->why, cachefiles_obj_kill_traces))
 	    );
@@ -202,20 +271,32 @@ TRACE_EVENT(cachefiles_rename,
 
 	    /* Note that obj may be NULL */
 	    TP_STRUCT__entry(
+<<<<<<< HEAD
 		    __field(struct cachefiles_object *,	obj		)
+=======
+		    __field(unsigned int,		obj		)
+>>>>>>> upstream/android-13
 		    __field(struct dentry *,		de		)
 		    __field(struct dentry *,		to		)
 		    __field(enum fscache_why_object_killed, why		)
 			     ),
 
 	    TP_fast_assign(
+<<<<<<< HEAD
 		    __entry->obj	= obj;
+=======
+		    __entry->obj	= obj ? obj->fscache.debug_id : UINT_MAX;
+>>>>>>> upstream/android-13
 		    __entry->de		= de;
 		    __entry->to		= to;
 		    __entry->why	= why;
 			   ),
 
+<<<<<<< HEAD
 	    TP_printk("o=%p d=%p t=%p w=%s",
+=======
+	    TP_printk("o=%08x d=%p t=%p w=%s",
+>>>>>>> upstream/android-13
 		      __entry->obj, __entry->de, __entry->to,
 		      __print_symbolic(__entry->why, cachefiles_obj_kill_traces))
 	    );
@@ -228,16 +309,28 @@ TRACE_EVENT(cachefiles_mark_active,
 
 	    /* Note that obj may be NULL */
 	    TP_STRUCT__entry(
+<<<<<<< HEAD
 		    __field(struct cachefiles_object *,	obj		)
+=======
+		    __field(unsigned int,		obj		)
+>>>>>>> upstream/android-13
 		    __field(struct dentry *,		de		)
 			     ),
 
 	    TP_fast_assign(
+<<<<<<< HEAD
 		    __entry->obj	= obj;
 		    __entry->de		= de;
 			   ),
 
 	    TP_printk("o=%p d=%p",
+=======
+		    __entry->obj	= obj->fscache.debug_id;
+		    __entry->de		= de;
+			   ),
+
+	    TP_printk("o=%08x d=%p",
+>>>>>>> upstream/android-13
 		      __entry->obj, __entry->de)
 	    );
 
@@ -250,22 +343,38 @@ TRACE_EVENT(cachefiles_wait_active,
 
 	    /* Note that obj may be NULL */
 	    TP_STRUCT__entry(
+<<<<<<< HEAD
 		    __field(struct cachefiles_object *,	obj		)
 		    __field(struct dentry *,		de		)
 		    __field(struct cachefiles_object *,	xobj		)
+=======
+		    __field(unsigned int,		obj		)
+		    __field(unsigned int,		xobj		)
+		    __field(struct dentry *,		de		)
+>>>>>>> upstream/android-13
 		    __field(u16,			flags		)
 		    __field(u16,			fsc_flags	)
 			     ),
 
 	    TP_fast_assign(
+<<<<<<< HEAD
 		    __entry->obj	= obj;
 		    __entry->de		= de;
 		    __entry->xobj	= xobj;
+=======
+		    __entry->obj	= obj->fscache.debug_id;
+		    __entry->de		= de;
+		    __entry->xobj	= xobj->fscache.debug_id;
+>>>>>>> upstream/android-13
 		    __entry->flags	= xobj->flags;
 		    __entry->fsc_flags	= xobj->fscache.flags;
 			   ),
 
+<<<<<<< HEAD
 	    TP_printk("o=%p d=%p wo=%p wf=%x wff=%x",
+=======
+	    TP_printk("o=%08x d=%p wo=%08x wf=%x wff=%x",
+>>>>>>> upstream/android-13
 		      __entry->obj, __entry->de, __entry->xobj,
 		      __entry->flags, __entry->fsc_flags)
 	    );
@@ -279,18 +388,30 @@ TRACE_EVENT(cachefiles_mark_inactive,
 
 	    /* Note that obj may be NULL */
 	    TP_STRUCT__entry(
+<<<<<<< HEAD
 		    __field(struct cachefiles_object *,	obj		)
+=======
+		    __field(unsigned int,		obj		)
+>>>>>>> upstream/android-13
 		    __field(struct dentry *,		de		)
 		    __field(struct inode *,		inode		)
 			     ),
 
 	    TP_fast_assign(
+<<<<<<< HEAD
 		    __entry->obj	= obj;
+=======
+		    __entry->obj	= obj->fscache.debug_id;
+>>>>>>> upstream/android-13
 		    __entry->de		= de;
 		    __entry->inode	= inode;
 			   ),
 
+<<<<<<< HEAD
 	    TP_printk("o=%p d=%p i=%p",
+=======
+	    TP_printk("o=%08x d=%p i=%p",
+>>>>>>> upstream/android-13
 		      __entry->obj, __entry->de, __entry->inode)
 	    );
 
@@ -303,18 +424,30 @@ TRACE_EVENT(cachefiles_mark_buried,
 
 	    /* Note that obj may be NULL */
 	    TP_STRUCT__entry(
+<<<<<<< HEAD
 		    __field(struct cachefiles_object *,	obj		)
+=======
+		    __field(unsigned int,		obj		)
+>>>>>>> upstream/android-13
 		    __field(struct dentry *,		de		)
 		    __field(enum fscache_why_object_killed, why		)
 			     ),
 
 	    TP_fast_assign(
+<<<<<<< HEAD
 		    __entry->obj	= obj;
+=======
+		    __entry->obj	= obj ? obj->fscache.debug_id : UINT_MAX;
+>>>>>>> upstream/android-13
 		    __entry->de		= de;
 		    __entry->why	= why;
 			   ),
 
+<<<<<<< HEAD
 	    TP_printk("o=%p d=%p w=%s",
+=======
+	    TP_printk("o=%08x d=%p w=%s",
+>>>>>>> upstream/android-13
 		      __entry->obj, __entry->de,
 		      __print_symbolic(__entry->why, cachefiles_obj_kill_traces))
 	    );

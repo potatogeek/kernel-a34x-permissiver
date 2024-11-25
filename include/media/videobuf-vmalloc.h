@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * helper functions for vmalloc capture buffers
  *
@@ -7,10 +11,13 @@
  * to touch the video data.
  *
  * (c) 2007 Mauro Carvalho Chehab, <mchehab@kernel.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _VIDEOBUF_VMALLOC_H
 #define _VIDEOBUF_VMALLOC_H

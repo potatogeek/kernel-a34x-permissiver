@@ -10,6 +10,10 @@
 #include <linux/notifier.h>
 #include <linux/sched/signal.h>
 #include <linux/sched/hotplug.h>
+<<<<<<< HEAD
+=======
+#include <linux/sched/isolation.h>
+>>>>>>> upstream/android-13
 #include <linux/sched/task.h>
 #include <linux/sched/smt.h>
 #include <linux/unistd.h>
@@ -30,7 +34,15 @@
 #include <linux/smpboot.h>
 #include <linux/relay.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 #include <linux/percpu-rwsem.h>
+=======
+#include <linux/scs.h>
+#include <linux/percpu-rwsem.h>
+#include <linux/cpuset.h>
+#include <uapi/linux/sched/types.h>
+#include <linux/sec_debug.h>
+>>>>>>> upstream/android-13
 
 #include <trace/events/power.h>
 #define CREATE_TRACE_POINTS
@@ -39,14 +51,28 @@
 #include "smpboot.h"
 
 /**
+<<<<<<< HEAD
  * cpuhp_cpu_state - Per cpu hotplug state storage
  * @state:	The current cpu state
  * @target:	The target state
+=======
+ * struct cpuhp_cpu_state - Per cpu hotplug state storage
+ * @state:	The current cpu state
+ * @target:	The target state
+ * @fail:	Current CPU hotplug callback state
+>>>>>>> upstream/android-13
  * @thread:	Pointer to the hotplug thread
  * @should_run:	Thread should execute
  * @rollback:	Perform a rollback
  * @single:	Single callback invocation
  * @bringup:	Single callback bringup or teardown selector
+<<<<<<< HEAD
+=======
+ * @cpu:	CPU number
+ * @node:	Remote CPU node; for multi-instance, do a
+ *		single entry callback for install/remove
+ * @last:	For multi-instance rollback, remember how far we got
+>>>>>>> upstream/android-13
  * @cb_state:	The state for a single callback (install/uninstall)
  * @result:	Result of the operation
  * @done_up:	Signal completion to the issuer of the task for cpu-up
@@ -62,7 +88,10 @@ struct cpuhp_cpu_state {
 	bool			rollback;
 	bool			single;
 	bool			bringup;
+<<<<<<< HEAD
 	bool			booted_once;
+=======
+>>>>>>> upstream/android-13
 	struct hlist_node	*node;
 	struct hlist_node	*last;
 	enum cpuhp_state	cb_state;
@@ -76,6 +105,13 @@ static DEFINE_PER_CPU(struct cpuhp_cpu_state, cpuhp_state) = {
 	.fail = CPUHP_INVALID,
 };
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_SMP
+cpumask_t cpus_booted_once_mask;
+#endif
+
+>>>>>>> upstream/android-13
 #if defined(CONFIG_LOCKDEP) && defined(CONFIG_SMP)
 static struct lockdep_map cpuhp_state_up_map =
 	STATIC_LOCKDEP_MAP_INIT("cpuhp_state-up", &cpuhp_state_up_map);
@@ -100,11 +136,19 @@ static inline void cpuhp_lock_release(bool bringup) { }
 #endif
 
 /**
+<<<<<<< HEAD
  * cpuhp_step - Hotplug state machine step
+=======
+ * struct cpuhp_step - Hotplug state machine step
+>>>>>>> upstream/android-13
  * @name:	Name of the step
  * @startup:	Startup function of the step
  * @teardown:	Teardown function of the step
  * @cant_stop:	Bringup/teardown can't be stopped at this step
+<<<<<<< HEAD
+=======
+ * @multi_instance:	State has multiple instances which get added afterwards
+>>>>>>> upstream/android-13
  */
 struct cpuhp_step {
 	const char		*name;
@@ -118,7 +162,13 @@ struct cpuhp_step {
 		int		(*multi)(unsigned int cpu,
 					 struct hlist_node *node);
 	} teardown;
+<<<<<<< HEAD
 	struct hlist_head	list;
+=======
+	/* private: */
+	struct hlist_head	list;
+	/* public: */
+>>>>>>> upstream/android-13
 	bool			cant_stop;
 	bool			multi_instance;
 };
@@ -131,8 +181,18 @@ static struct cpuhp_step *cpuhp_get_step(enum cpuhp_state state)
 	return cpuhp_hp_states + state;
 }
 
+<<<<<<< HEAD
 /**
  * cpuhp_invoke_callback _ Invoke the callbacks for a given state
+=======
+static bool cpuhp_step_empty(bool bringup, struct cpuhp_step *step)
+{
+	return bringup ? !step->startup.single : !step->teardown.single;
+}
+
+/**
+ * cpuhp_invoke_callback - Invoke the callbacks for a given state
+>>>>>>> upstream/android-13
  * @cpu:	The cpu for which the callback should be invoked
  * @state:	The state to do callbacks for
  * @bringup:	True if the bringup callback should be invoked
@@ -140,6 +200,11 @@ static struct cpuhp_step *cpuhp_get_step(enum cpuhp_state state)
  * @lastp:	For multi-instance rollback, remember how far we got
  *
  * Called from cpu hotplug and from the state register machinery.
+<<<<<<< HEAD
+=======
+ *
+ * Return: %0 on success or a negative errno code
+>>>>>>> upstream/android-13
  */
 static int cpuhp_invoke_callback(unsigned int cpu, enum cpuhp_state state,
 				 bool bringup, struct hlist_node *node,
@@ -153,6 +218,7 @@ static int cpuhp_invoke_callback(unsigned int cpu, enum cpuhp_state state,
 
 	if (st->fail == state) {
 		st->fail = CPUHP_INVALID;
+<<<<<<< HEAD
 
 		if (!(bringup ? step->startup.single : step->teardown.single))
 			return 0;
@@ -165,14 +231,31 @@ static int cpuhp_invoke_callback(unsigned int cpu, enum cpuhp_state state,
 		cb = bringup ? step->startup.single : step->teardown.single;
 		if (!cb)
 			return 0;
+=======
+		return -EAGAIN;
+	}
+
+	if (cpuhp_step_empty(bringup, step)) {
+		WARN_ON_ONCE(1);
+		return 0;
+	}
+
+	if (!step->multi_instance) {
+		WARN_ON_ONCE(lastp && *lastp);
+		cb = bringup ? step->startup.single : step->teardown.single;
+
+>>>>>>> upstream/android-13
 		trace_cpuhp_enter(cpu, st->target, state, cb);
 		ret = cb(cpu);
 		trace_cpuhp_exit(cpu, st->state, state, ret);
 		return ret;
 	}
 	cbm = bringup ? step->startup.multi : step->teardown.multi;
+<<<<<<< HEAD
 	if (!cbm)
 		return 0;
+=======
+>>>>>>> upstream/android-13
 
 	/* Single invocation for instance add/remove */
 	if (node) {
@@ -238,7 +321,13 @@ static bool cpuhp_is_ap_state(enum cpuhp_state state)
 static inline void wait_for_ap_thread(struct cpuhp_cpu_state *st, bool bringup)
 {
 	struct completion *done = bringup ? &st->done_up : &st->done_down;
+<<<<<<< HEAD
 	wait_for_completion(done);
+=======
+	secdbg_dtsk_built_set_data(DTYPE_CPUHP, (void *)st->thread);
+	wait_for_completion(done);
+	secdbg_dtsk_built_clear_data();
+>>>>>>> upstream/android-13
 }
 
 static inline void complete_ap_thread(struct cpuhp_cpu_state *st, bool bringup)
@@ -326,6 +415,26 @@ void lockdep_assert_cpus_held(void)
 	percpu_rwsem_assert_held(&cpu_hotplug_lock);
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_LOCKDEP
+int lockdep_is_cpus_held(void)
+{
+	return percpu_rwsem_is_held(&cpu_hotplug_lock);
+}
+#endif
+
+static void lockdep_acquire_cpus_lock(void)
+{
+	rwsem_acquire(&cpu_hotplug_lock.dep_map, 0, 0, _THIS_IP_);
+}
+
+static void lockdep_release_cpus_lock(void)
+{
+	rwsem_release(&cpu_hotplug_lock.dep_map, _THIS_IP_);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Wait for currently running CPU hotplug operations to complete (if any) and
  * disable future CPU hotplug (from sysfs). The 'cpu_add_remove_lock' protects
@@ -355,6 +464,20 @@ void cpu_hotplug_enable(void)
 	cpu_maps_update_done();
 }
 EXPORT_SYMBOL_GPL(cpu_hotplug_enable);
+<<<<<<< HEAD
+=======
+
+#else
+
+static void lockdep_acquire_cpus_lock(void)
+{
+}
+
+static void lockdep_release_cpus_lock(void)
+{
+}
+
+>>>>>>> upstream/android-13
 #endif	/* CONFIG_HOTPLUG_CPU */
 
 /*
@@ -368,8 +491,12 @@ enum cpuhp_smt_control cpu_smt_control __read_mostly = CPU_SMT_ENABLED;
 
 void __init cpu_smt_disable(bool force)
 {
+<<<<<<< HEAD
 	if (cpu_smt_control == CPU_SMT_FORCE_DISABLED ||
 		cpu_smt_control == CPU_SMT_NOT_SUPPORTED)
+=======
+	if (!cpu_smt_possible())
+>>>>>>> upstream/android-13
 		return;
 
 	if (force) {
@@ -409,33 +536,79 @@ static inline bool cpu_smt_allowed(unsigned int cpu)
 	/*
 	 * On x86 it's required to boot all logical CPUs at least once so
 	 * that the init code can get a chance to set CR4.MCE on each
+<<<<<<< HEAD
 	 * CPU. Otherwise, a broadacasted MCE observing CR4.MCE=0b on any
 	 * core will shutdown the machine.
 	 */
 	return !per_cpu(cpuhp_state, cpu).booted_once;
 }
+=======
+	 * CPU. Otherwise, a broadcasted MCE observing CR4.MCE=0b on any
+	 * core will shutdown the machine.
+	 */
+	return !cpumask_test_cpu(cpu, &cpus_booted_once_mask);
+}
+
+/* Returns true if SMT is not supported of forcefully (irreversibly) disabled */
+bool cpu_smt_possible(void)
+{
+	return cpu_smt_control != CPU_SMT_FORCE_DISABLED &&
+		cpu_smt_control != CPU_SMT_NOT_SUPPORTED;
+}
+EXPORT_SYMBOL_GPL(cpu_smt_possible);
+>>>>>>> upstream/android-13
 #else
 static inline bool cpu_smt_allowed(unsigned int cpu) { return true; }
 #endif
 
 static inline enum cpuhp_state
+<<<<<<< HEAD
 cpuhp_set_state(struct cpuhp_cpu_state *st, enum cpuhp_state target)
 {
 	enum cpuhp_state prev_state = st->state;
+=======
+cpuhp_set_state(int cpu, struct cpuhp_cpu_state *st, enum cpuhp_state target)
+{
+	enum cpuhp_state prev_state = st->state;
+	bool bringup = st->state < target;
+>>>>>>> upstream/android-13
 
 	st->rollback = false;
 	st->last = NULL;
 
 	st->target = target;
 	st->single = false;
+<<<<<<< HEAD
 	st->bringup = st->state < target;
+=======
+	st->bringup = bringup;
+	if (cpu_dying(cpu) != !bringup)
+		set_cpu_dying(cpu, !bringup);
+>>>>>>> upstream/android-13
 
 	return prev_state;
 }
 
 static inline void
+<<<<<<< HEAD
 cpuhp_reset_state(struct cpuhp_cpu_state *st, enum cpuhp_state prev_state)
 {
+=======
+cpuhp_reset_state(int cpu, struct cpuhp_cpu_state *st,
+		  enum cpuhp_state prev_state)
+{
+	bool bringup = !st->bringup;
+
+	st->target = prev_state;
+
+	/*
+	 * Already rolling back. No need invert the bringup value or to change
+	 * the current state.
+	 */
+	if (st->rollback)
+		return;
+
+>>>>>>> upstream/android-13
 	st->rollback = true;
 
 	/*
@@ -449,8 +622,14 @@ cpuhp_reset_state(struct cpuhp_cpu_state *st, enum cpuhp_state prev_state)
 			st->state++;
 	}
 
+<<<<<<< HEAD
 	st->target = prev_state;
 	st->bringup = !st->bringup;
+=======
+	st->bringup = bringup;
+	if (cpu_dying(cpu) != !bringup)
+		set_cpu_dying(cpu, !bringup);
+>>>>>>> upstream/android-13
 }
 
 /* Regular hotplug invocation of the AP hotplug thread */
@@ -470,15 +649,27 @@ static void __cpuhp_kick_ap(struct cpuhp_cpu_state *st)
 	wait_for_ap_thread(st, st->bringup);
 }
 
+<<<<<<< HEAD
 static int cpuhp_kick_ap(struct cpuhp_cpu_state *st, enum cpuhp_state target)
+=======
+static int cpuhp_kick_ap(int cpu, struct cpuhp_cpu_state *st,
+			 enum cpuhp_state target)
+>>>>>>> upstream/android-13
 {
 	enum cpuhp_state prev_state;
 	int ret;
 
+<<<<<<< HEAD
 	prev_state = cpuhp_set_state(st, target);
 	__cpuhp_kick_ap(st);
 	if ((ret = st->result)) {
 		cpuhp_reset_state(st, prev_state);
+=======
+	prev_state = cpuhp_set_state(cpu, st, target);
+	__cpuhp_kick_ap(st);
+	if ((ret = st->result)) {
+		cpuhp_reset_state(cpu, st, prev_state);
+>>>>>>> upstream/android-13
 		__cpuhp_kick_ap(st);
 	}
 
@@ -500,7 +691,11 @@ static int bringup_wait_for_ap(unsigned int cpu)
 	/*
 	 * SMT soft disabling on X86 requires to bring the CPU out of the
 	 * BIOS 'wait for SIPI' state in order to set the CR4.MCE bit.  The
+<<<<<<< HEAD
 	 * CPU marked itself as booted_once in cpu_notify_starting() so the
+=======
+	 * CPU marked itself as booted_once in notify_cpu_starting() so the
+>>>>>>> upstream/android-13
 	 * cpu_smt_allowed() check will now return false if this is not the
 	 * primary sibling.
 	 */
@@ -510,7 +705,11 @@ static int bringup_wait_for_ap(unsigned int cpu)
 	if (st->target <= CPUHP_AP_ONLINE_IDLE)
 		return 0;
 
+<<<<<<< HEAD
 	return cpuhp_kick_ap(st, st->target);
+=======
+	return cpuhp_kick_ap(cpu, st, st->target);
+>>>>>>> upstream/android-13
 }
 
 static int bringup_cpu(unsigned int cpu)
@@ -519,6 +718,15 @@ static int bringup_cpu(unsigned int cpu)
 	int ret;
 
 	/*
+<<<<<<< HEAD
+=======
+	 * Reset stale stack state from the last time this CPU was online.
+	 */
+	scs_task_reset(idle);
+	kasan_unpoison_task_stack(idle);
+
+	/*
+>>>>>>> upstream/android-13
 	 * Some architectures have to walk the irq descriptors to
 	 * setup the vector space for the cpu which comes online.
 	 * Prevent irq alloc/free across the bringup.
@@ -552,10 +760,60 @@ static int finish_cpu(unsigned int cpu)
  * Hotplug state machine related functions
  */
 
+<<<<<<< HEAD
 static void undo_cpu_up(unsigned int cpu, struct cpuhp_cpu_state *st)
 {
 	for (st->state--; st->state > st->target; st->state--)
 		cpuhp_invoke_callback(cpu, st->state, false, NULL, NULL);
+=======
+/*
+ * Get the next state to run. Empty ones will be skipped. Returns true if a
+ * state must be run.
+ *
+ * st->state will be modified ahead of time, to match state_to_run, as if it
+ * has already ran.
+ */
+static bool cpuhp_next_state(bool bringup,
+			     enum cpuhp_state *state_to_run,
+			     struct cpuhp_cpu_state *st,
+			     enum cpuhp_state target)
+{
+	do {
+		if (bringup) {
+			if (st->state >= target)
+				return false;
+
+			*state_to_run = ++st->state;
+		} else {
+			if (st->state <= target)
+				return false;
+
+			*state_to_run = st->state--;
+		}
+
+		if (!cpuhp_step_empty(bringup, cpuhp_get_step(*state_to_run)))
+			break;
+	} while (true);
+
+	return true;
+}
+
+static int cpuhp_invoke_callback_range(bool bringup,
+				       unsigned int cpu,
+				       struct cpuhp_cpu_state *st,
+				       enum cpuhp_state target)
+{
+	enum cpuhp_state state;
+	int err = 0;
+
+	while (cpuhp_next_state(bringup, &state, st, target)) {
+		err = cpuhp_invoke_callback(cpu, state, bringup, NULL, NULL);
+		if (err)
+			break;
+	}
+
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static inline bool can_rollback_cpu(struct cpuhp_cpu_state *st)
@@ -578,6 +836,7 @@ static int cpuhp_up_callbacks(unsigned int cpu, struct cpuhp_cpu_state *st,
 	enum cpuhp_state prev_state = st->state;
 	int ret = 0;
 
+<<<<<<< HEAD
 	while (st->state < target) {
 		st->state++;
 		ret = cpuhp_invoke_callback(cpu, st->state, true, NULL, NULL);
@@ -588,6 +847,18 @@ static int cpuhp_up_callbacks(unsigned int cpu, struct cpuhp_cpu_state *st,
 			}
 			break;
 		}
+=======
+	ret = cpuhp_invoke_callback_range(true, cpu, st, target);
+	if (ret) {
+		pr_debug("CPU UP failed (%d) CPU %u state %s (%d)\n",
+			 ret, cpu, cpuhp_get_step(st->state)->name,
+			 st->state);
+
+		cpuhp_reset_state(cpu, st, prev_state);
+		if (can_rollback_cpu(st))
+			WARN_ON(cpuhp_invoke_callback_range(false, cpu, st,
+							    prev_state));
+>>>>>>> upstream/android-13
 	}
 	return ret;
 }
@@ -639,12 +910,22 @@ static void cpuhp_thread_fun(unsigned int cpu)
 	 */
 	smp_mb();
 
+<<<<<<< HEAD
+=======
+	/*
+	 * The BP holds the hotplug lock, but we're now running on the AP,
+	 * ensure that anybody asserting the lock is held, will actually find
+	 * it so.
+	 */
+	lockdep_acquire_cpus_lock();
+>>>>>>> upstream/android-13
 	cpuhp_lock_acquire(bringup);
 
 	if (st->single) {
 		state = st->cb_state;
 		st->should_run = false;
 	} else {
+<<<<<<< HEAD
 		if (bringup) {
 			st->state++;
 			state = st->state;
@@ -656,6 +937,11 @@ static void cpuhp_thread_fun(unsigned int cpu)
 			st->should_run = (st->state > st->target);
 			WARN_ON_ONCE(st->state < st->target);
 		}
+=======
+		st->should_run = cpuhp_next_state(bringup, &state, st, st->target);
+		if (!st->should_run)
+			goto end;
+>>>>>>> upstream/android-13
 	}
 
 	WARN_ON_ONCE(!cpuhp_is_ap_state(state));
@@ -683,7 +969,13 @@ static void cpuhp_thread_fun(unsigned int cpu)
 		st->should_run = false;
 	}
 
+<<<<<<< HEAD
 	cpuhp_lock_release(bringup);
+=======
+end:
+	cpuhp_lock_release(bringup);
+	lockdep_release_cpus_lock();
+>>>>>>> upstream/android-13
 
 	if (!st->should_run)
 		complete_ap_thread(st, bringup);
@@ -754,7 +1046,11 @@ static int cpuhp_kick_ap_work(unsigned int cpu)
 	cpuhp_lock_release(true);
 
 	trace_cpuhp_enter(cpu, st->target, prev_state, cpuhp_kick_ap_work);
+<<<<<<< HEAD
 	ret = cpuhp_kick_ap(st, st->target);
+=======
+	ret = cpuhp_kick_ap(cpu, st, st->target);
+>>>>>>> upstream/android-13
 	trace_cpuhp_exit(cpu, st->state, prev_state, ret);
 
 	return ret;
@@ -775,6 +1071,55 @@ void __init cpuhp_threads_init(void)
 	kthread_unpark(this_cpu_read(cpuhp_state.thread));
 }
 
+<<<<<<< HEAD
+=======
+/*
+ *
+ * Serialize hotplug trainwrecks outside of the cpu_hotplug_lock
+ * protected region.
+ *
+ * The operation is still serialized against concurrent CPU hotplug via
+ * cpu_add_remove_lock, i.e. CPU map protection.  But it is _not_
+ * serialized against other hotplug related activity like adding or
+ * removing of state callbacks and state instances, which invoke either the
+ * startup or the teardown callback of the affected state.
+ *
+ * This is required for subsystems which are unfixable vs. CPU hotplug and
+ * evade lock inversion problems by scheduling work which has to be
+ * completed _before_ cpu_up()/_cpu_down() returns.
+ *
+ * Don't even think about adding anything to this for any new code or even
+ * drivers. It's only purpose is to keep existing lock order trainwrecks
+ * working.
+ *
+ * For cpu_down() there might be valid reasons to finish cleanups which are
+ * not required to be done under cpu_hotplug_lock, but that's a different
+ * story and would be not invoked via this.
+ */
+static void cpu_up_down_serialize_trainwrecks(bool tasks_frozen)
+{
+	/*
+	 * cpusets delegate hotplug operations to a worker to "solve" the
+	 * lock order problems. Wait for the worker, but only if tasks are
+	 * _not_ frozen (suspend, hibernate) as that would wait forever.
+	 *
+	 * The wait is required because otherwise the hotplug operation
+	 * returns with inconsistent state, which could even be observed in
+	 * user space when a new CPU is brought up. The CPU plug uevent
+	 * would be delivered and user space reacting on it would fail to
+	 * move tasks to the newly plugged CPU up to the point where the
+	 * work has finished because up to that point the newly plugged CPU
+	 * is not assignable in cpusets/cgroups. On unplug that's not
+	 * necessarily a visible issue, but it is still inconsistent state,
+	 * which is the real problem which needs to be "fixed". This can't
+	 * prevent the transient state between scheduling the work and
+	 * returning from waiting for it.
+	 */
+	if (!tasks_frozen)
+		cpuset_wait_for_hotplug();
+}
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_HOTPLUG_CPU
 #ifndef arch_clear_mm_cpumask_cpu
 #define arch_clear_mm_cpumask_cpu(cpu, mm) cpumask_clear_cpu(cpu, mm_cpumask(mm))
@@ -835,6 +1180,7 @@ static int take_cpu_down(void *_param)
 		return err;
 
 	/*
+<<<<<<< HEAD
 	 * We get here while we are in CPUHP_TEARDOWN_CPU state and we must not
 	 * do this step again.
 	 */
@@ -851,6 +1197,25 @@ static int take_cpu_down(void *_param)
 
 	/* Give up timekeeping duties */
 	tick_handover_do_timer();
+=======
+	 * Must be called from CPUHP_TEARDOWN_CPU, which means, as we are going
+	 * down, that the current state is CPUHP_TEARDOWN_CPU - 1.
+	 */
+	WARN_ON(st->state != (CPUHP_TEARDOWN_CPU - 1));
+
+	/* Invoke the former CPU_DYING callbacks */
+	ret = cpuhp_invoke_callback_range(false, cpu, st, target);
+
+	/*
+	 * DYING must not fail!
+	 */
+	WARN_ON_ONCE(ret);
+
+	/* Give up timekeeping duties */
+	tick_handover_do_timer();
+	/* Remove CPU from timer broadcasting */
+	tick_offline_cpu(cpu);
+>>>>>>> upstream/android-13
 	/* Park the stopper thread */
 	stop_machine_park(cpu);
 	return 0;
@@ -862,7 +1227,11 @@ static int takedown_cpu(unsigned int cpu)
 	int err;
 
 	/* Park the smpboot threads */
+<<<<<<< HEAD
 	kthread_park(per_cpu_ptr(&cpuhp_state, cpu)->thread);
+=======
+	kthread_park(st->thread);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Prevent irq alloc/free while the dying cpu reorganizes the
@@ -878,7 +1247,11 @@ static int takedown_cpu(unsigned int cpu)
 		/* CPU refused to die */
 		irq_unlock_sparse();
 		/* Unpark the hotplug thread so we can rollback there */
+<<<<<<< HEAD
 		kthread_unpark(per_cpu_ptr(&cpuhp_state, cpu)->thread);
+=======
+		kthread_unpark(st->thread);
+>>>>>>> upstream/android-13
 		return err;
 	}
 	BUG_ON(cpu_online(cpu));
@@ -927,18 +1300,22 @@ void cpuhp_report_idle_dead(void)
 				 cpuhp_complete_idle_dead, st, 0);
 }
 
+<<<<<<< HEAD
 static void undo_cpu_down(unsigned int cpu, struct cpuhp_cpu_state *st)
 {
 	for (st->state++; st->state < st->target; st->state++)
 		cpuhp_invoke_callback(cpu, st->state, true, NULL, NULL);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int cpuhp_down_callbacks(unsigned int cpu, struct cpuhp_cpu_state *st,
 				enum cpuhp_state target)
 {
 	enum cpuhp_state prev_state = st->state;
 	int ret = 0;
 
+<<<<<<< HEAD
 	for (; st->state > target; st->state--) {
 		ret = cpuhp_invoke_callback(cpu, st->state, false, NULL, NULL);
 		if (ret) {
@@ -948,6 +1325,21 @@ static int cpuhp_down_callbacks(unsigned int cpu, struct cpuhp_cpu_state *st,
 			break;
 		}
 	}
+=======
+	ret = cpuhp_invoke_callback_range(false, cpu, st, target);
+	if (ret) {
+		pr_debug("CPU DOWN failed (%d) CPU %u state %s (%d)\n",
+			 ret, cpu, cpuhp_get_step(st->state)->name,
+			 st->state);
+
+		cpuhp_reset_state(cpu, st, prev_state);
+
+		if (st->state < prev_state)
+			WARN_ON(cpuhp_invoke_callback_range(true, cpu, st,
+							    prev_state));
+	}
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -968,7 +1360,11 @@ static int __ref _cpu_down(unsigned int cpu, int tasks_frozen,
 
 	cpuhp_tasks_frozen = tasks_frozen;
 
+<<<<<<< HEAD
 	prev_state = cpuhp_set_state(st, target);
+=======
+	prev_state = cpuhp_set_state(cpu, st, target);
+>>>>>>> upstream/android-13
 	/*
 	 * If the current CPU state is in the range of the AP hotplug thread,
 	 * then we need to kick the thread.
@@ -997,9 +1393,19 @@ static int __ref _cpu_down(unsigned int cpu, int tasks_frozen,
 	 * to do the further cleanups.
 	 */
 	ret = cpuhp_down_callbacks(cpu, st, target);
+<<<<<<< HEAD
 	if (ret && st->state == CPUHP_TEARDOWN_CPU && st->state < prev_state) {
 		cpuhp_reset_state(st, prev_state);
 		__cpuhp_kick_ap(st);
+=======
+	if (ret && st->state < prev_state) {
+		if (st->state == CPUHP_TEARDOWN_CPU) {
+			cpuhp_reset_state(cpu, st, prev_state);
+			__cpuhp_kick_ap(st);
+		} else {
+			WARN(1, "DEAD callback error for CPU%d", cpu);
+		}
+>>>>>>> upstream/android-13
 	}
 
 out:
@@ -1010,6 +1416,10 @@ out:
 	 */
 	lockup_detector_cleanup();
 	arch_smt_update();
+<<<<<<< HEAD
+=======
+	cpu_up_down_serialize_trainwrecks(tasks_frozen);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -1020,7 +1430,11 @@ static int cpu_down_maps_locked(unsigned int cpu, enum cpuhp_state target)
 	return _cpu_down(cpu, 0, target);
 }
 
+<<<<<<< HEAD
 static int do_cpu_down(unsigned int cpu, enum cpuhp_state target)
+=======
+static int cpu_down(unsigned int cpu, enum cpuhp_state target)
+>>>>>>> upstream/android-13
 {
 	int err;
 
@@ -1030,11 +1444,82 @@ static int do_cpu_down(unsigned int cpu, enum cpuhp_state target)
 	return err;
 }
 
+<<<<<<< HEAD
 int cpu_down(unsigned int cpu)
 {
 	return do_cpu_down(cpu, CPUHP_OFFLINE);
 }
 EXPORT_SYMBOL(cpu_down);
+=======
+/**
+ * cpu_device_down - Bring down a cpu device
+ * @dev: Pointer to the cpu device to offline
+ *
+ * This function is meant to be used by device core cpu subsystem only.
+ *
+ * Other subsystems should use remove_cpu() instead.
+ *
+ * Return: %0 on success or a negative errno code
+ */
+int cpu_device_down(struct device *dev)
+{
+	return cpu_down(dev->id, CPUHP_OFFLINE);
+}
+
+int remove_cpu(unsigned int cpu)
+{
+	int ret;
+
+	lock_device_hotplug();
+	ret = device_offline(get_cpu_device(cpu));
+	unlock_device_hotplug();
+
+	return ret;
+}
+EXPORT_SYMBOL_GPL(remove_cpu);
+
+void smp_shutdown_nonboot_cpus(unsigned int primary_cpu)
+{
+	unsigned int cpu;
+	int error;
+
+	cpu_maps_update_begin();
+
+	/*
+	 * Make certain the cpu I'm about to reboot on is online.
+	 *
+	 * This is inline to what migrate_to_reboot_cpu() already do.
+	 */
+	if (!cpu_online(primary_cpu))
+		primary_cpu = cpumask_first(cpu_online_mask);
+
+	for_each_online_cpu(cpu) {
+		if (cpu == primary_cpu)
+			continue;
+
+		error = cpu_down_maps_locked(cpu, CPUHP_OFFLINE);
+		if (error) {
+			pr_err("Failed to offline CPU%d - error=%d",
+				cpu, error);
+			break;
+		}
+	}
+
+	/*
+	 * Ensure all but the reboot CPU are offline.
+	 */
+	BUG_ON(num_online_cpus() > 1);
+
+	/*
+	 * Make sure the CPUs won't be enabled by someone else after this
+	 * point. Kexec will reboot to a new kernel shortly resetting
+	 * everything along the way.
+	 */
+	cpu_hotplug_disabled++;
+
+	cpu_maps_update_done();
+}
+>>>>>>> upstream/android-13
 
 #else
 #define takedown_cpu		NULL
@@ -1054,6 +1539,7 @@ void notify_cpu_starting(unsigned int cpu)
 	int ret;
 
 	rcu_cpu_starting(cpu);	/* Enables RCU usage on this CPU. */
+<<<<<<< HEAD
 	st->booted_once = true;
 	while (st->state < target) {
 		st->state++;
@@ -1063,6 +1549,15 @@ void notify_cpu_starting(unsigned int cpu)
 		 */
 		WARN_ON_ONCE(ret);
 	}
+=======
+	cpumask_set_cpu(cpu, &cpus_booted_once_mask);
+	ret = cpuhp_invoke_callback_range(true, cpu, st, target);
+
+	/*
+	 * STARTING must not fail!
+	 */
+	WARN_ON_ONCE(ret);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1088,6 +1583,28 @@ void cpuhp_online_idle(enum cpuhp_state state)
 	complete_ap_thread(st, true);
 }
 
+<<<<<<< HEAD
+=======
+static int switch_to_rt_policy(void)
+{
+	struct sched_param param = { .sched_priority = MAX_RT_PRIO - 1 };
+	unsigned int policy = current->policy;
+
+	if (policy == SCHED_NORMAL)
+		/* Switch to SCHED_FIFO from SCHED_NORMAL. */
+		return sched_setscheduler_nocheck(current, SCHED_FIFO, &param);
+	else
+		return 1;
+}
+
+static int switch_to_fair_policy(void)
+{
+	struct sched_param param = { .sched_priority = 0 };
+
+	return sched_setscheduler_nocheck(current, SCHED_NORMAL, &param);
+}
+
+>>>>>>> upstream/android-13
 /* Requires cpu_add_remove_lock to be held */
 static int _cpu_up(unsigned int cpu, int tasks_frozen, enum cpuhp_state target)
 {
@@ -1103,8 +1620,13 @@ static int _cpu_up(unsigned int cpu, int tasks_frozen, enum cpuhp_state target)
 	}
 
 	/*
+<<<<<<< HEAD
 	 * The caller of do_cpu_up might have raced with another
 	 * caller. Ignore it for now.
+=======
+	 * The caller of cpu_up() might have raced with another
+	 * caller. Nothing to do.
+>>>>>>> upstream/android-13
 	 */
 	if (st->state >= target)
 		goto out;
@@ -1120,7 +1642,11 @@ static int _cpu_up(unsigned int cpu, int tasks_frozen, enum cpuhp_state target)
 
 	cpuhp_tasks_frozen = tasks_frozen;
 
+<<<<<<< HEAD
 	cpuhp_set_state(st, target);
+=======
+	cpuhp_set_state(cpu, st, target);
+>>>>>>> upstream/android-13
 	/*
 	 * If the current CPU state is in the range of the AP hotplug thread,
 	 * then we need to kick the thread once more.
@@ -1145,12 +1671,23 @@ static int _cpu_up(unsigned int cpu, int tasks_frozen, enum cpuhp_state target)
 out:
 	cpus_write_unlock();
 	arch_smt_update();
+<<<<<<< HEAD
 	return ret;
 }
 
 static int do_cpu_up(unsigned int cpu, enum cpuhp_state target)
 {
 	int err = 0;
+=======
+	cpu_up_down_serialize_trainwrecks(tasks_frozen);
+	return ret;
+}
+
+static int cpu_up(unsigned int cpu, enum cpuhp_state target)
+{
+	int err = 0;
+	int switch_err;
+>>>>>>> upstream/android-13
 
 	if (!cpu_possible(cpu)) {
 		pr_err("can't online cpu %d because it is not configured as may-hotadd at boot time\n",
@@ -1161,9 +1698,27 @@ static int do_cpu_up(unsigned int cpu, enum cpuhp_state target)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	err = try_online_node(cpu_to_node(cpu));
 	if (err)
 		return err;
+=======
+	/*
+	 * CPU hotplug operations consists of many steps and each step
+	 * calls a callback of core kernel subsystem. CPU hotplug-in
+	 * operation may get preempted by other CFS tasks and whole
+	 * operation of cpu hotplug in CPU gets delayed. Switch the
+	 * current task to SCHED_FIFO from SCHED_NORMAL, so that
+	 * hotplug in operation may complete quickly in heavy loaded
+	 * conditions and new CPU will start handle the workload.
+	 */
+
+	switch_err = switch_to_rt_policy();
+
+	err = try_online_node(cpu_to_node(cpu));
+	if (err)
+		goto switch_out;
+>>>>>>> upstream/android-13
 
 	cpu_maps_update_begin();
 
@@ -1179,6 +1734,7 @@ static int do_cpu_up(unsigned int cpu, enum cpuhp_state target)
 	err = _cpu_up(cpu, 0, target);
 out:
 	cpu_maps_update_done();
+<<<<<<< HEAD
 	return err;
 }
 
@@ -1187,6 +1743,82 @@ int cpu_up(unsigned int cpu)
 	return do_cpu_up(cpu, CPUHP_ONLINE);
 }
 EXPORT_SYMBOL_GPL(cpu_up);
+=======
+switch_out:
+	if (!switch_err) {
+		switch_err = switch_to_fair_policy();
+		if (switch_err)
+			pr_err("Hotplug policy switch err=%d Task %s pid=%d\n",
+				switch_err, current->comm, current->pid);
+	}
+
+	return err;
+}
+
+/**
+ * cpu_device_up - Bring up a cpu device
+ * @dev: Pointer to the cpu device to online
+ *
+ * This function is meant to be used by device core cpu subsystem only.
+ *
+ * Other subsystems should use add_cpu() instead.
+ *
+ * Return: %0 on success or a negative errno code
+ */
+int cpu_device_up(struct device *dev)
+{
+	return cpu_up(dev->id, CPUHP_ONLINE);
+}
+
+int add_cpu(unsigned int cpu)
+{
+	int ret;
+
+	lock_device_hotplug();
+	ret = device_online(get_cpu_device(cpu));
+	unlock_device_hotplug();
+
+	return ret;
+}
+EXPORT_SYMBOL_GPL(add_cpu);
+
+/**
+ * bringup_hibernate_cpu - Bring up the CPU that we hibernated on
+ * @sleep_cpu: The cpu we hibernated on and should be brought up.
+ *
+ * On some architectures like arm64, we can hibernate on any CPU, but on
+ * wake up the CPU we hibernated on might be offline as a side effect of
+ * using maxcpus= for example.
+ *
+ * Return: %0 on success or a negative errno code
+ */
+int bringup_hibernate_cpu(unsigned int sleep_cpu)
+{
+	int ret;
+
+	if (!cpu_online(sleep_cpu)) {
+		pr_info("Hibernated on a CPU that is offline! Bringing CPU up.\n");
+		ret = cpu_up(sleep_cpu, CPUHP_ONLINE);
+		if (ret) {
+			pr_err("Failed to bring hibernate-CPU up!\n");
+			return ret;
+		}
+	}
+	return 0;
+}
+
+void bringup_nonboot_cpus(unsigned int setup_max_cpus)
+{
+	unsigned int cpu;
+
+	for_each_present_cpu(cpu) {
+		if (num_online_cpus() >= setup_max_cpus)
+			break;
+		if (!cpu_online(cpu))
+			cpu_up(cpu, CPUHP_ONLINE);
+	}
+}
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PM_SLEEP_SMP
 static cpumask_var_t frozen_cpus;
@@ -1196,8 +1828,20 @@ int freeze_secondary_cpus(int primary)
 	int cpu, error = 0;
 
 	cpu_maps_update_begin();
+<<<<<<< HEAD
 	if (!cpu_online(primary))
 		primary = cpumask_first(cpu_online_mask);
+=======
+	if (primary == -1) {
+		primary = cpumask_first(cpu_online_mask);
+		if (!housekeeping_cpu(primary, HK_FLAG_TIMER))
+			primary = housekeeping_any_cpu(HK_FLAG_TIMER);
+	} else {
+		if (!cpu_online(primary))
+			primary = cpumask_first(cpu_online_mask);
+	}
+
+>>>>>>> upstream/android-13
 	/*
 	 * We take down all of the non-boot CPUs in one shot to avoid races
 	 * with the userspace trying to use the CPU hotplug at the same time
@@ -1208,6 +1852,16 @@ int freeze_secondary_cpus(int primary)
 	for_each_online_cpu(cpu) {
 		if (cpu == primary)
 			continue;
+<<<<<<< HEAD
+=======
+
+		if (pm_wakeup_pending()) {
+			pr_info("Wakeup pending. Abort CPU freeze\n");
+			error = -EBUSY;
+			break;
+		}
+
+>>>>>>> upstream/android-13
 		trace_suspend_resume(TPS("CPU_OFF"), cpu, true);
 		error = _cpu_down(cpu, 1, CPUHP_OFFLINE);
 		trace_suspend_resume(TPS("CPU_OFF"), cpu, false);
@@ -1226,8 +1880,13 @@ int freeze_secondary_cpus(int primary)
 
 	/*
 	 * Make sure the CPUs won't be enabled by someone else. We need to do
+<<<<<<< HEAD
 	 * this even in case of failure as all disable_nonboot_cpus() users are
 	 * supposed to do enable_nonboot_cpus() on the failure path.
+=======
+	 * this even in case of failure as all freeze_secondary_cpus() users are
+	 * supposed to do thaw_secondary_cpus() on the failure path.
+>>>>>>> upstream/android-13
 	 */
 	cpu_hotplug_disabled++;
 
@@ -1235,6 +1894,7 @@ int freeze_secondary_cpus(int primary)
 	return error;
 }
 
+<<<<<<< HEAD
 void __weak arch_enable_nonboot_cpus_begin(void)
 {
 }
@@ -1247,6 +1907,19 @@ void enable_nonboot_cpus(void)
 {
 	int cpu, error;
 	struct device *cpu_device;
+=======
+void __weak arch_thaw_secondary_cpus_begin(void)
+{
+}
+
+void __weak arch_thaw_secondary_cpus_end(void)
+{
+}
+
+void thaw_secondary_cpus(void)
+{
+	int cpu, error;
+>>>>>>> upstream/android-13
 
 	/* Allow everyone to use the CPU hotplug again */
 	cpu_maps_update_begin();
@@ -1256,7 +1929,11 @@ void enable_nonboot_cpus(void)
 
 	pr_info("Enabling non-boot CPUs ...\n");
 
+<<<<<<< HEAD
 	arch_enable_nonboot_cpus_begin();
+=======
+	arch_thaw_secondary_cpus_begin();
+>>>>>>> upstream/android-13
 
 	for_each_cpu(cpu, frozen_cpus) {
 		trace_suspend_resume(TPS("CPU_ON"), cpu, true);
@@ -1264,18 +1941,25 @@ void enable_nonboot_cpus(void)
 		trace_suspend_resume(TPS("CPU_ON"), cpu, false);
 		if (!error) {
 			pr_info("CPU%d is up\n", cpu);
+<<<<<<< HEAD
 			cpu_device = get_cpu_device(cpu);
 			if (!cpu_device)
 				pr_err("%s: failed to get cpu%d device\n",
 				       __func__, cpu);
 			else
 				kobject_uevent(&cpu_device->kobj, KOBJ_ONLINE);
+=======
+>>>>>>> upstream/android-13
 			continue;
 		}
 		pr_warn("Error taking CPU%d up: %d\n", cpu, error);
 	}
 
+<<<<<<< HEAD
 	arch_enable_nonboot_cpus_end();
+=======
+	arch_thaw_secondary_cpus_end();
+>>>>>>> upstream/android-13
 
 	cpumask_clear(frozen_cpus);
 out:
@@ -1443,7 +2127,11 @@ static struct cpuhp_step cpuhp_hp_states[] = {
 		.name			= "ap:online",
 	},
 	/*
+<<<<<<< HEAD
 	 * Handled on controll processor until the plugged processor manages
+=======
+	 * Handled on control processor until the plugged processor manages
+>>>>>>> upstream/android-13
 	 * this itself.
 	 */
 	[CPUHP_TEARDOWN_CPU] = {
@@ -1452,6 +2140,16 @@ static struct cpuhp_step cpuhp_hp_states[] = {
 		.teardown.single	= takedown_cpu,
 		.cant_stop		= true,
 	},
+<<<<<<< HEAD
+=======
+
+	[CPUHP_AP_SCHED_WAIT_EMPTY] = {
+		.name			= "sched:waitempty",
+		.startup.single		= NULL,
+		.teardown.single	= sched_cpu_wait_empty,
+	},
+
+>>>>>>> upstream/android-13
 	/* Handle smpboot threads park/unpark */
 	[CPUHP_AP_SMPBOOT_THREADS] = {
 		.name			= "smpboot/threads:online",
@@ -1600,8 +2298,12 @@ static int cpuhp_issue_call(int cpu, enum cpuhp_state state, bool bringup,
 	 * If there's nothing to do, we done.
 	 * Relies on the union for multi_instance.
 	 */
+<<<<<<< HEAD
 	if ((bringup && !sp->startup.single) ||
 	    (!bringup && !sp->teardown.single))
+=======
+	if (cpuhp_step_empty(bringup, sp))
+>>>>>>> upstream/android-13
 		return 0;
 	/*
 	 * The non AP bound callbacks can fail on bringup. On teardown
@@ -1703,6 +2405,10 @@ EXPORT_SYMBOL_GPL(__cpuhp_state_add_instance);
 /**
  * __cpuhp_setup_state_cpuslocked - Setup the callbacks for an hotplug machine state
  * @state:		The state to setup
+<<<<<<< HEAD
+=======
+ * @name:		Name of the step
+>>>>>>> upstream/android-13
  * @invoke:		If true, the startup function is invoked for cpus where
  *			cpu state >= @state
  * @startup:		startup callback function
@@ -1711,9 +2417,15 @@ EXPORT_SYMBOL_GPL(__cpuhp_state_add_instance);
  *			added afterwards.
  *
  * The caller needs to hold cpus read locked while calling this function.
+<<<<<<< HEAD
  * Returns:
  *   On success:
  *      Positive state number if @state is CPUHP_AP_ONLINE_DYN
+=======
+ * Return:
+ *   On success:
+ *      Positive state number if @state is CPUHP_AP_ONLINE_DYN;
+>>>>>>> upstream/android-13
  *      0 for all other states
  *   On failure: proper (negative) error code
  */
@@ -1886,6 +2598,7 @@ void __cpuhp_remove_state(enum cpuhp_state state, bool invoke)
 }
 EXPORT_SYMBOL(__cpuhp_remove_state);
 
+<<<<<<< HEAD
 #if defined(CONFIG_SYSFS) && defined(CONFIG_HOTPLUG_CPU)
 static ssize_t show_cpuhp_state(struct device *dev,
 				struct device_attribute *attr, char *buf)
@@ -2053,6 +2766,9 @@ show_smt_control(struct device *dev, struct device_attribute *attr, char *buf)
 	return snprintf(buf, PAGE_SIZE - 2, "%s\n", smt_states[cpu_smt_control]);
 }
 
+=======
+#ifdef CONFIG_HOTPLUG_SMT
+>>>>>>> upstream/android-13
 static void cpuhp_offline_cpu_device(unsigned int cpu)
 {
 	struct device *dev = get_cpu_device(cpu);
@@ -2122,10 +2838,183 @@ int cpuhp_smt_enable(void)
 	cpu_maps_update_done();
 	return ret;
 }
+<<<<<<< HEAD
 
 static ssize_t
 store_smt_control(struct device *dev, struct device_attribute *attr,
 		  const char *buf, size_t count)
+=======
+#endif
+
+#if defined(CONFIG_SYSFS) && defined(CONFIG_HOTPLUG_CPU)
+static ssize_t state_show(struct device *dev,
+			  struct device_attribute *attr, char *buf)
+{
+	struct cpuhp_cpu_state *st = per_cpu_ptr(&cpuhp_state, dev->id);
+
+	return sprintf(buf, "%d\n", st->state);
+}
+static DEVICE_ATTR_RO(state);
+
+static ssize_t target_store(struct device *dev, struct device_attribute *attr,
+			    const char *buf, size_t count)
+{
+	struct cpuhp_cpu_state *st = per_cpu_ptr(&cpuhp_state, dev->id);
+	struct cpuhp_step *sp;
+	int target, ret;
+
+	ret = kstrtoint(buf, 10, &target);
+	if (ret)
+		return ret;
+
+#ifdef CONFIG_CPU_HOTPLUG_STATE_CONTROL
+	if (target < CPUHP_OFFLINE || target > CPUHP_ONLINE)
+		return -EINVAL;
+#else
+	if (target != CPUHP_OFFLINE && target != CPUHP_ONLINE)
+		return -EINVAL;
+#endif
+
+	ret = lock_device_hotplug_sysfs();
+	if (ret)
+		return ret;
+
+	mutex_lock(&cpuhp_state_mutex);
+	sp = cpuhp_get_step(target);
+	ret = !sp->name || sp->cant_stop ? -EINVAL : 0;
+	mutex_unlock(&cpuhp_state_mutex);
+	if (ret)
+		goto out;
+
+	if (st->state < target)
+		ret = cpu_up(dev->id, target);
+	else
+		ret = cpu_down(dev->id, target);
+out:
+	unlock_device_hotplug();
+	return ret ? ret : count;
+}
+
+static ssize_t target_show(struct device *dev,
+			   struct device_attribute *attr, char *buf)
+{
+	struct cpuhp_cpu_state *st = per_cpu_ptr(&cpuhp_state, dev->id);
+
+	return sprintf(buf, "%d\n", st->target);
+}
+static DEVICE_ATTR_RW(target);
+
+static ssize_t fail_store(struct device *dev, struct device_attribute *attr,
+			  const char *buf, size_t count)
+{
+	struct cpuhp_cpu_state *st = per_cpu_ptr(&cpuhp_state, dev->id);
+	struct cpuhp_step *sp;
+	int fail, ret;
+
+	ret = kstrtoint(buf, 10, &fail);
+	if (ret)
+		return ret;
+
+	if (fail == CPUHP_INVALID) {
+		st->fail = fail;
+		return count;
+	}
+
+	if (fail < CPUHP_OFFLINE || fail > CPUHP_ONLINE)
+		return -EINVAL;
+
+	/*
+	 * Cannot fail STARTING/DYING callbacks.
+	 */
+	if (cpuhp_is_atomic_state(fail))
+		return -EINVAL;
+
+	/*
+	 * DEAD callbacks cannot fail...
+	 * ... neither can CPUHP_BRINGUP_CPU during hotunplug. The latter
+	 * triggering STARTING callbacks, a failure in this state would
+	 * hinder rollback.
+	 */
+	if (fail <= CPUHP_BRINGUP_CPU && st->state > CPUHP_BRINGUP_CPU)
+		return -EINVAL;
+
+	/*
+	 * Cannot fail anything that doesn't have callbacks.
+	 */
+	mutex_lock(&cpuhp_state_mutex);
+	sp = cpuhp_get_step(fail);
+	if (!sp->startup.single && !sp->teardown.single)
+		ret = -EINVAL;
+	mutex_unlock(&cpuhp_state_mutex);
+	if (ret)
+		return ret;
+
+	st->fail = fail;
+
+	return count;
+}
+
+static ssize_t fail_show(struct device *dev,
+			 struct device_attribute *attr, char *buf)
+{
+	struct cpuhp_cpu_state *st = per_cpu_ptr(&cpuhp_state, dev->id);
+
+	return sprintf(buf, "%d\n", st->fail);
+}
+
+static DEVICE_ATTR_RW(fail);
+
+static struct attribute *cpuhp_cpu_attrs[] = {
+	&dev_attr_state.attr,
+	&dev_attr_target.attr,
+	&dev_attr_fail.attr,
+	NULL
+};
+
+static const struct attribute_group cpuhp_cpu_attr_group = {
+	.attrs = cpuhp_cpu_attrs,
+	.name = "hotplug",
+	NULL
+};
+
+static ssize_t states_show(struct device *dev,
+				 struct device_attribute *attr, char *buf)
+{
+	ssize_t cur, res = 0;
+	int i;
+
+	mutex_lock(&cpuhp_state_mutex);
+	for (i = CPUHP_OFFLINE; i <= CPUHP_ONLINE; i++) {
+		struct cpuhp_step *sp = cpuhp_get_step(i);
+
+		if (sp->name) {
+			cur = sprintf(buf, "%3d: %s\n", i, sp->name);
+			buf += cur;
+			res += cur;
+		}
+	}
+	mutex_unlock(&cpuhp_state_mutex);
+	return res;
+}
+static DEVICE_ATTR_RO(states);
+
+static struct attribute *cpuhp_cpu_root_attrs[] = {
+	&dev_attr_states.attr,
+	NULL
+};
+
+static const struct attribute_group cpuhp_cpu_root_attr_group = {
+	.attrs = cpuhp_cpu_root_attrs,
+	.name = "hotplug",
+	NULL
+};
+
+#ifdef CONFIG_HOTPLUG_SMT
+
+static ssize_t
+__store_smt_control(struct device *dev, struct device_attribute *attr,
+		    const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	int ctrlval, ret;
 
@@ -2163,6 +3052,7 @@ store_smt_control(struct device *dev, struct device_attribute *attr,
 	unlock_device_hotplug();
 	return ret ? ret : count;
 }
+<<<<<<< HEAD
 static DEVICE_ATTR(control, 0644, show_smt_control, store_smt_control);
 
 static ssize_t
@@ -2173,6 +3063,47 @@ show_smt_active(struct device *dev, struct device_attribute *attr, char *buf)
 	return snprintf(buf, PAGE_SIZE - 2, "%d\n", active);
 }
 static DEVICE_ATTR(active, 0444, show_smt_active, NULL);
+=======
+
+#else /* !CONFIG_HOTPLUG_SMT */
+static ssize_t
+__store_smt_control(struct device *dev, struct device_attribute *attr,
+		    const char *buf, size_t count)
+{
+	return -ENODEV;
+}
+#endif /* CONFIG_HOTPLUG_SMT */
+
+static const char *smt_states[] = {
+	[CPU_SMT_ENABLED]		= "on",
+	[CPU_SMT_DISABLED]		= "off",
+	[CPU_SMT_FORCE_DISABLED]	= "forceoff",
+	[CPU_SMT_NOT_SUPPORTED]		= "notsupported",
+	[CPU_SMT_NOT_IMPLEMENTED]	= "notimplemented",
+};
+
+static ssize_t control_show(struct device *dev,
+			    struct device_attribute *attr, char *buf)
+{
+	const char *state = smt_states[cpu_smt_control];
+
+	return snprintf(buf, PAGE_SIZE - 2, "%s\n", state);
+}
+
+static ssize_t control_store(struct device *dev, struct device_attribute *attr,
+			     const char *buf, size_t count)
+{
+	return __store_smt_control(dev, attr, buf, count);
+}
+static DEVICE_ATTR_RW(control);
+
+static ssize_t active_show(struct device *dev,
+			   struct device_attribute *attr, char *buf)
+{
+	return snprintf(buf, PAGE_SIZE - 2, "%d\n", sched_smt_active());
+}
+static DEVICE_ATTR_RO(active);
+>>>>>>> upstream/android-13
 
 static struct attribute *cpuhp_smt_attrs[] = {
 	&dev_attr_control.attr,
@@ -2186,21 +3117,32 @@ static const struct attribute_group cpuhp_smt_attr_group = {
 	NULL
 };
 
+<<<<<<< HEAD
 static int __init cpu_smt_state_init(void)
+=======
+static int __init cpu_smt_sysfs_init(void)
+>>>>>>> upstream/android-13
 {
 	return sysfs_create_group(&cpu_subsys.dev_root->kobj,
 				  &cpuhp_smt_attr_group);
 }
 
+<<<<<<< HEAD
 #else
 static inline int cpu_smt_state_init(void) { return 0; }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static int __init cpuhp_sysfs_init(void)
 {
 	int cpu, ret;
 
+<<<<<<< HEAD
 	ret = cpu_smt_state_init();
+=======
+	ret = cpu_smt_sysfs_init();
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -2221,7 +3163,11 @@ static int __init cpuhp_sysfs_init(void)
 	return 0;
 }
 device_initcall(cpuhp_sysfs_init);
+<<<<<<< HEAD
 #endif
+=======
+#endif /* CONFIG_SYSFS && CONFIG_HOTPLUG_CPU */
+>>>>>>> upstream/android-13
 
 /*
  * cpu_bit_bitmap[] is a special, "compressed" data structure that
@@ -2268,8 +3214,16 @@ EXPORT_SYMBOL(__cpu_present_mask);
 struct cpumask __cpu_active_mask __read_mostly;
 EXPORT_SYMBOL(__cpu_active_mask);
 
+<<<<<<< HEAD
 struct cpumask __cpu_isolated_mask __read_mostly;
 EXPORT_SYMBOL(__cpu_isolated_mask);
+=======
+struct cpumask __cpu_dying_mask __read_mostly;
+EXPORT_SYMBOL(__cpu_dying_mask);
+
+atomic_t __num_online_cpus __read_mostly;
+EXPORT_SYMBOL(__num_online_cpus);
+>>>>>>> upstream/android-13
 
 void init_cpu_present(const struct cpumask *src)
 {
@@ -2286,6 +3240,30 @@ void init_cpu_online(const struct cpumask *src)
 	cpumask_copy(&__cpu_online_mask, src);
 }
 
+<<<<<<< HEAD
+=======
+void set_cpu_online(unsigned int cpu, bool online)
+{
+	/*
+	 * atomic_inc/dec() is required to handle the horrid abuse of this
+	 * function by the reboot and kexec code which invoke it from
+	 * IPI/NMI broadcasts when shutting down CPUs. Invocation from
+	 * regular CPU hotplug is properly serialized.
+	 *
+	 * Note, that the fact that __num_online_cpus is of type atomic_t
+	 * does not protect readers which are not serialized against
+	 * concurrent hotplug operations.
+	 */
+	if (online) {
+		if (!cpumask_test_and_set_cpu(cpu, &__cpu_online_mask))
+			atomic_inc(&__num_online_cpus);
+	} else {
+		if (cpumask_test_and_clear_cpu(cpu, &__cpu_online_mask))
+			atomic_dec(&__num_online_cpus);
+	}
+}
+
+>>>>>>> upstream/android-13
 /*
  * Activate the first processor.
  */
@@ -2310,7 +3288,11 @@ void __init boot_cpu_init(void)
 void __init boot_cpu_hotplug_init(void)
 {
 #ifdef CONFIG_SMP
+<<<<<<< HEAD
 	this_cpu_write(cpuhp_state.booted_once, true);
+=======
+	cpumask_set_cpu(smp_processor_id(), &cpus_booted_once_mask);
+>>>>>>> upstream/android-13
 #endif
 	this_cpu_write(cpuhp_state.state, CPUHP_ONLINE);
 }

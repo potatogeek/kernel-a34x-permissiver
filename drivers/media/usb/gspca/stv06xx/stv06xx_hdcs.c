@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2001 Jean-Fredric Clere, Nikolas Zimmermann, Georg Acher
  *		      Mark Cave-Ayland, Carlo E Prelz, Dick Streefland
@@ -5,6 +9,7 @@
  * Copyright (c) 2008 Erik Andrén
  * Copyright (c) 2008 Chia-I Wu
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -15,6 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * P/N 861037:      Sensor HDCS1000        ASIC STV0600
  * P/N 861050-0010: Sensor HDCS1000        ASIC STV0600
  * P/N 861050-0020: Sensor Photobit PB100  ASIC STV0600-1 - QuickCam Express

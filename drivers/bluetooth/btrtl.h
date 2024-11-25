@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  Bluetooth support for Realtek devices
  *
  *  Copyright (C) 2015 Endless Mobile, Inc.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define RTL_FRAG_LEN 252
@@ -48,13 +55,21 @@ struct rtl_epatch_header {
 struct rtl_vendor_config_entry {
 	__le16 offset;
 	__u8 len;
+<<<<<<< HEAD
 	__u8 data[0];
+=======
+	__u8 data[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct rtl_vendor_config {
 	__le32 signature;
 	__le16 total_len;
+<<<<<<< HEAD
 	struct rtl_vendor_config_entry entry[0];
+=======
+	struct rtl_vendor_config_entry entry[];
+>>>>>>> upstream/android-13
 } __packed;
 
 #if IS_ENABLED(CONFIG_BT_RTL)
@@ -64,6 +79,11 @@ struct btrtl_device_info *btrtl_initialize(struct hci_dev *hdev,
 void btrtl_free(struct btrtl_device_info *btrtl_dev);
 int btrtl_download_firmware(struct hci_dev *hdev,
 			    struct btrtl_device_info *btrtl_dev);
+<<<<<<< HEAD
+=======
+void btrtl_set_quirks(struct hci_dev *hdev,
+		      struct btrtl_device_info *btrtl_dev);
+>>>>>>> upstream/android-13
 int btrtl_setup_realtek(struct hci_dev *hdev);
 int btrtl_shutdown_realtek(struct hci_dev *hdev);
 int btrtl_get_uart_settings(struct hci_dev *hdev,
@@ -89,6 +109,14 @@ static inline int btrtl_download_firmware(struct hci_dev *hdev,
 	return -EOPNOTSUPP;
 }
 
+<<<<<<< HEAD
+=======
+static inline void btrtl_set_quirks(struct hci_dev *hdev,
+				    struct btrtl_device_info *btrtl_dev)
+{
+}
+
+>>>>>>> upstream/android-13
 static inline int btrtl_setup_realtek(struct hci_dev *hdev)
 {
 	return -EOPNOTSUPP;

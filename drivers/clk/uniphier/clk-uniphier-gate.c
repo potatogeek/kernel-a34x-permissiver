@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016 Socionext Inc.
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
@@ -11,6 +12,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2016 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk-provider.h>
@@ -71,7 +78,11 @@ struct clk_hw *uniphier_clk_register_gate(struct device *dev,
 				const struct uniphier_clk_gate_data *data)
 {
 	struct uniphier_clk_gate *gate;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	int ret;
 
 	gate = devm_kzalloc(dev, sizeof(*gate), GFP_KERNEL);

@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 /**
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  * IBM Accelerator Family 'GenWQE'
  *
  * (C) Copyright IBM Corp. 2013
@@ -7,6 +12,7 @@
  * Author: Joerg-Stephan Vogt <jsvogt@de.ibm.com>
  * Author: Michael Jung <mijung@gmx.net>
  * Author: Michael Ruettger <michael@ibmra.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (version 2 only)
@@ -16,6 +22,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -27,7 +35,10 @@
  */
 
 #include <linux/types.h>
+<<<<<<< HEAD
 #include <linux/module.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/sched.h>
 #include <linux/wait.h>
 #include <linux/pci.h>
@@ -253,10 +264,19 @@ static int ddcb_requ_finished(struct genwqe_dev *cd, struct ddcb_requ *req)
 		(cd->card_state != GENWQE_CARD_USED);
 }
 
+<<<<<<< HEAD
+=======
+#define RET_DDCB_APPENDED 1
+#define RET_DDCB_TAPPED   2
+>>>>>>> upstream/android-13
 /**
  * enqueue_ddcb() - Enqueue a DDCB
  * @cd:         pointer to genwqe device descriptor
  * @queue:	queue this operation should be done on
+<<<<<<< HEAD
+=======
+ * @pddcb:      pointer to ddcb structure
+>>>>>>> upstream/android-13
  * @ddcb_no:    pointer to ddcb number being tapped
  *
  * Start execution of DDCB by tapping or append to queue via NEXT
@@ -268,9 +288,12 @@ static int ddcb_requ_finished(struct genwqe_dev *cd, struct ddcb_requ *req)
  * Return: 1 if new DDCB is appended to previous
  *         2 if DDCB queue is tapped via register/simulation
  */
+<<<<<<< HEAD
 #define RET_DDCB_APPENDED 1
 #define RET_DDCB_TAPPED   2
 
+=======
+>>>>>>> upstream/android-13
 static int enqueue_ddcb(struct genwqe_dev *cd, struct ddcb_queue *queue,
 			struct ddcb *pddcb, int ddcb_no)
 {
@@ -325,6 +348,11 @@ static int enqueue_ddcb(struct genwqe_dev *cd, struct ddcb_queue *queue,
 
 /**
  * copy_ddcb_results() - Copy output state from real DDCB to request
+<<<<<<< HEAD
+=======
+ * @req:        pointer to requested DDCB parameters
+ * @ddcb_no:    pointer to ddcb number being tapped
+>>>>>>> upstream/android-13
  *
  * Copy DDCB ASV to request struct. There is no endian
  * conversion made, since data structure in ASV is still
@@ -363,8 +391,14 @@ static void copy_ddcb_results(struct ddcb_requ *req, int ddcb_no)
 }
 
 /**
+<<<<<<< HEAD
  * genwqe_check_ddcb_queue() - Checks DDCB queue for completed work equests.
  * @cd:         pointer to genwqe device descriptor
+=======
+ * genwqe_check_ddcb_queue() - Checks DDCB queue for completed work requests.
+ * @cd:         pointer to genwqe device descriptor
+ * @queue:	queue to be checked
+>>>>>>> upstream/android-13
  *
  * Return: Number of DDCBs which were finished
  */
@@ -504,7 +538,11 @@ int __genwqe_wait_ddcb(struct genwqe_dev *cd, struct ddcb_requ *req)
 
 	/*
 	 * We need to distinguish 3 cases here:
+<<<<<<< HEAD
 	 *   1. rc == 0              timeout occured
+=======
+	 *   1. rc == 0              timeout occurred
+>>>>>>> upstream/android-13
 	 *   2. rc == -ERESTARTSYS   signal received
 	 *   3. rc > 0               remaining jiffies condition is true
 	 */
@@ -562,6 +600,11 @@ int __genwqe_wait_ddcb(struct genwqe_dev *cd, struct ddcb_requ *req)
 /**
  * get_next_ddcb() - Get next available DDCB
  * @cd:         pointer to genwqe device descriptor
+<<<<<<< HEAD
+=======
+ * @queue:      DDCB queue
+ * @num:        internal DDCB number
+>>>>>>> upstream/android-13
  *
  * DDCB's content is completely cleared but presets for PRE and
  * SEQNUM. This function must only be called when ddcb_lock is held.
@@ -909,7 +952,11 @@ int __genwqe_enqueue_ddcb(struct genwqe_dev *cd, struct ddcb_requ *req,
 /**
  * __genwqe_execute_raw_ddcb() - Setup and execute DDCB
  * @cd:         pointer to genwqe device descriptor
+<<<<<<< HEAD
  * @req:        user provided DDCB request
+=======
+ * @cmd:        user provided DDCB command
+>>>>>>> upstream/android-13
  * @f_flags:    file mode: blocking, non-blocking
  */
 int __genwqe_execute_raw_ddcb(struct genwqe_dev *cd,
@@ -974,6 +1021,10 @@ int __genwqe_execute_raw_ddcb(struct genwqe_dev *cd,
 
 /**
  * genwqe_next_ddcb_ready() - Figure out if the next DDCB is already finished
+<<<<<<< HEAD
+=======
+ * @cd:         pointer to genwqe device descriptor
+>>>>>>> upstream/android-13
  *
  * We use this as condition for our wait-queue code.
  */
@@ -985,7 +1036,11 @@ static int genwqe_next_ddcb_ready(struct genwqe_dev *cd)
 
 	spin_lock_irqsave(&queue->ddcb_lock, flags);
 
+<<<<<<< HEAD
 	if (queue_empty(queue)) { /* emtpy queue */
+=======
+	if (queue_empty(queue)) { /* empty queue */
+>>>>>>> upstream/android-13
 		spin_unlock_irqrestore(&queue->ddcb_lock, flags);
 		return 0;
 	}
@@ -1002,9 +1057,16 @@ static int genwqe_next_ddcb_ready(struct genwqe_dev *cd)
 
 /**
  * genwqe_ddcbs_in_flight() - Check how many DDCBs are in flight
+<<<<<<< HEAD
  *
  * Keep track on the number of DDCBs which ware currently in the
  * queue. This is needed for statistics as well as conditon if we want
+=======
+ * @cd:         pointer to genwqe device descriptor
+ *
+ * Keep track on the number of DDCBs which ware currently in the
+ * queue. This is needed for statistics as well as condition if we want
+>>>>>>> upstream/android-13
  * to wait or better do polling in case of no interrupts available.
  */
 int genwqe_ddcbs_in_flight(struct genwqe_dev *cd)
@@ -1093,7 +1155,11 @@ static int setup_ddcb_queue(struct genwqe_dev *cd, struct ddcb_queue *queue)
 				queue->ddcb_daddr);
 	queue->ddcb_vaddr = NULL;
 	queue->ddcb_daddr = 0ull;
+<<<<<<< HEAD
 	return -ENODEV;
+=======
+	return rc;
+>>>>>>> upstream/android-13
 
 }
 
@@ -1180,6 +1246,10 @@ static irqreturn_t genwqe_vf_isr(int irq, void *dev_id)
 
 /**
  * genwqe_card_thread() - Work thread for the DDCB queue
+<<<<<<< HEAD
+=======
+ * @data:         pointer to genwqe device descriptor
+>>>>>>> upstream/android-13
  *
  * The idea is to check if there are DDCBs in processing. If there are
  * some finished DDCBs, we process them and wakeup the
@@ -1188,7 +1258,11 @@ static irqreturn_t genwqe_vf_isr(int irq, void *dev_id)
  */
 static int genwqe_card_thread(void *data)
 {
+<<<<<<< HEAD
 	int should_stop = 0, rc = 0;
+=======
+	int should_stop = 0;
+>>>>>>> upstream/android-13
 	struct genwqe_dev *cd = (struct genwqe_dev *)data;
 
 	while (!kthread_should_stop()) {
@@ -1196,12 +1270,20 @@ static int genwqe_card_thread(void *data)
 		genwqe_check_ddcb_queue(cd, &cd->queue);
 
 		if (GENWQE_POLLING_ENABLED) {
+<<<<<<< HEAD
 			rc = wait_event_interruptible_timeout(
+=======
+			wait_event_interruptible_timeout(
+>>>>>>> upstream/android-13
 				cd->queue_waitq,
 				genwqe_ddcbs_in_flight(cd) ||
 				(should_stop = kthread_should_stop()), 1);
 		} else {
+<<<<<<< HEAD
 			rc = wait_event_interruptible_timeout(
+=======
+			wait_event_interruptible_timeout(
+>>>>>>> upstream/android-13
 				cd->queue_waitq,
 				genwqe_next_ddcb_ready(cd) ||
 				(should_stop = kthread_should_stop()), HZ);
@@ -1308,6 +1390,10 @@ int genwqe_setup_service_layer(struct genwqe_dev *cd)
 
 /**
  * queue_wake_up_all() - Handles fatal error case
+<<<<<<< HEAD
+=======
+ * @cd:         pointer to genwqe device descriptor
+>>>>>>> upstream/android-13
  *
  * The PCI device got unusable and we have to stop all pending
  * requests as fast as we can. The code after this must purge the
@@ -1332,6 +1418,10 @@ static int queue_wake_up_all(struct genwqe_dev *cd)
 
 /**
  * genwqe_finish_queue() - Remove any genwqe devices and user-interfaces
+<<<<<<< HEAD
+=======
+ * @cd:         pointer to genwqe device descriptor
+>>>>>>> upstream/android-13
  *
  * Relies on the pre-condition that there are no users of the card
  * device anymore e.g. with open file-descriptors.

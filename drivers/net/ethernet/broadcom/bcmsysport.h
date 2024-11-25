@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Broadcom BCM7xxx System Port Ethernet MAC driver
  *
  * Copyright (C) 2014 Broadcom Corporation
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __BCM_SYSPORT_H
@@ -14,7 +21,13 @@
 #include <linux/bitmap.h>
 #include <linux/ethtool.h>
 #include <linux/if_vlan.h>
+<<<<<<< HEAD
 #include <linux/net_dim.h>
+=======
+#include <linux/dim.h>
+
+#include "unimac.h"
+>>>>>>> upstream/android-13
 
 /* Receive/transmit descriptor format */
 #define DESC_ADDR_HI_STATUS_LEN	0x00
@@ -216,6 +229,7 @@ struct bcm_rsb {
 /* UniMAC offset and defines */
 #define SYS_PORT_UMAC_OFFSET		0x800
 
+<<<<<<< HEAD
 #define UMAC_CMD			0x008
 #define  CMD_TX_EN			(1 << 0)
 #define  CMD_RX_EN			(1 << 1)
@@ -249,6 +263,8 @@ struct bcm_rsb {
 
 #define UMAC_TX_FLUSH			0x334
 
+=======
+>>>>>>> upstream/android-13
 #define UMAC_MIB_START			0x400
 
 /* There is a 0xC gap between the end of RX and beginning of TX stats and then
@@ -516,12 +532,15 @@ struct bcm_rsb {
 
 #define TDMA_DEBUG			0x64c
 
+<<<<<<< HEAD
 /* Transmit/Receive descriptor */
 struct dma_desc {
 	u32	addr_status_len;
 	u32	addr_lo;
 };
 
+=======
+>>>>>>> upstream/android-13
 /* Number of Receive hardware descriptor words */
 #define SP_NUM_HW_RX_DESC_WORDS		1024
 #define SP_LT_NUM_HW_RX_DESC_WORDS	256
@@ -530,7 +549,11 @@ struct dma_desc {
 #define SP_NUM_TX_DESC			1536
 #define SP_LT_NUM_TX_DESC		256
 
+<<<<<<< HEAD
 #define WORDS_PER_DESC			(sizeof(struct dma_desc) / sizeof(u32))
+=======
+#define WORDS_PER_DESC			2
+>>>>>>> upstream/android-13
 
 /* Rx/Tx common counter group.*/
 struct bcm_sysport_pkt_counters {
@@ -608,6 +631,11 @@ struct bcm_sysport_mib {
 	u32 alloc_rx_buff_failed;
 	u32 rx_dma_failed;
 	u32 tx_dma_failed;
+<<<<<<< HEAD
+=======
+	u32 tx_realloc_tsb;
+	u32 tx_realloc_tsb_failed;
+>>>>>>> upstream/android-13
 };
 
 /* HW maintains a large list of counters */
@@ -709,14 +737,21 @@ struct bcm_sysport_net_dim {
 	u16			event_ctr;
 	unsigned long		packets;
 	unsigned long		bytes;
+<<<<<<< HEAD
 	struct net_dim		dim;
+=======
+	struct dim		dim;
+>>>>>>> upstream/android-13
 };
 
 /* Software view of the TX ring */
 struct bcm_sysport_tx_ring {
 	spinlock_t	lock;		/* Ring lock for tx reclaim/xmit */
 	struct napi_struct napi;	/* NAPI per tx queue */
+<<<<<<< HEAD
 	dma_addr_t	desc_dma;	/* DMA cookie */
+=======
+>>>>>>> upstream/android-13
 	unsigned int	index;		/* Ring index */
 	unsigned int	size;		/* Ring current size */
 	unsigned int	alloc_size;	/* Ring one-time allocated size */
@@ -725,7 +760,10 @@ struct bcm_sysport_tx_ring {
 	unsigned int	c_index;	/* Last consumer index */
 	unsigned int	clean_index;	/* Current clean index */
 	struct bcm_sysport_cb *cbs;	/* Transmit control blocks */
+<<<<<<< HEAD
 	struct dma_desc	*desc_cpu;	/* CPU view of the descriptor */
+=======
+>>>>>>> upstream/android-13
 	struct bcm_sysport_priv *priv;	/* private context backpointer */
 	unsigned long	packets;	/* packets statistics */
 	unsigned long	bytes;		/* bytes statistics */
@@ -751,6 +789,10 @@ struct bcm_sysport_priv {
 	int			wol_irq;
 
 	/* Transmit rings */
+<<<<<<< HEAD
+=======
+	spinlock_t		desc_lock;
+>>>>>>> upstream/android-13
 	struct bcm_sysport_tx_ring *tx_rings;
 
 	/* Receive queue */
@@ -779,6 +821,11 @@ struct bcm_sysport_priv {
 	u32			wolopts;
 	u8			sopass[SOPASS_MAX];
 	unsigned int		wol_irq_disabled:1;
+<<<<<<< HEAD
+=======
+	struct clk		*clk;
+	struct clk		*wol_clk;
+>>>>>>> upstream/android-13
 
 	/* MIB related fields */
 	struct bcm_sysport_mib	mib;
@@ -786,6 +833,10 @@ struct bcm_sysport_priv {
 	/* Ethtool */
 	u32			msg_enable;
 	DECLARE_BITMAP(filters, RXCHK_BRCM_TAG_MAX);
+<<<<<<< HEAD
+=======
+	u32			filters_loc[RXCHK_BRCM_TAG_MAX];
+>>>>>>> upstream/android-13
 
 	struct bcm_sysport_stats64	stats64;
 
@@ -793,9 +844,14 @@ struct bcm_sysport_priv {
 	struct u64_stats_sync	syncp;
 
 	/* map information between switch port queues and local queues */
+<<<<<<< HEAD
 	struct notifier_block	dsa_notifier;
 	unsigned int		per_port_num_tx_queues;
 	unsigned long		queue_bitmap;
+=======
+	struct notifier_block	netdev_notifier;
+	unsigned int		per_port_num_tx_queues;
+>>>>>>> upstream/android-13
 	struct bcm_sysport_tx_ring *ring_map[DSA_MAX_PORTS * 8];
 
 };

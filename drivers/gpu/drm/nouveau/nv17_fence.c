@@ -21,15 +21,28 @@
  *
  * Authors: Ben Skeggs <bskeggs@redhat.com>
  */
+<<<<<<< HEAD
 
 #include <nvif/os.h>
 #include <nvif/class.h>
 #include <nvif/cl0002.h>
 
+=======
+>>>>>>> upstream/android-13
 #include "nouveau_drv.h"
 #include "nouveau_dma.h"
 #include "nv10_fence.h"
 
+<<<<<<< HEAD
+=======
+#include <nvif/push006c.h>
+
+#include <nvif/class.h>
+#include <nvif/cl0002.h>
+
+#include <nvhw/class/cl176e.h>
+
+>>>>>>> upstream/android-13
 int
 nv17_fence_sync(struct nouveau_fence *fence,
 		struct nouveau_channel *prev, struct nouveau_channel *chan)
@@ -37,6 +50,11 @@ nv17_fence_sync(struct nouveau_fence *fence,
 	struct nouveau_cli *cli = (void *)prev->user.client;
 	struct nv10_fence_priv *priv = chan->drm->fence;
 	struct nv10_fence_chan *fctx = chan->fence;
+<<<<<<< HEAD
+=======
+	struct nvif_push *ppush = prev->chan.push;
+	struct nvif_push *npush = chan->chan.push;
+>>>>>>> upstream/android-13
 	u32 value;
 	int ret;
 
@@ -48,6 +66,7 @@ nv17_fence_sync(struct nouveau_fence *fence,
 	priv->sequence += 2;
 	spin_unlock(&priv->lock);
 
+<<<<<<< HEAD
 	ret = RING_SPACE(prev, 5);
 	if (!ret) {
 		BEGIN_NV04(prev, 0, NV11_SUBCHAN_DMA_SEMAPHORE, 4);
@@ -65,6 +84,23 @@ nv17_fence_sync(struct nouveau_fence *fence,
 		OUT_RING  (chan, value + 1);
 		OUT_RING  (chan, value + 2);
 		FIRE_RING (chan);
+=======
+	ret = PUSH_WAIT(ppush, 5);
+	if (!ret) {
+		PUSH_MTHD(ppush, NV176E, SET_CONTEXT_DMA_SEMAPHORE, fctx->sema.handle,
+					 SEMAPHORE_OFFSET, 0,
+					 SEMAPHORE_ACQUIRE, value + 0,
+					 SEMAPHORE_RELEASE, value + 1);
+		PUSH_KICK(ppush);
+	}
+
+	if (!ret && !(ret = PUSH_WAIT(npush, 5))) {
+		PUSH_MTHD(npush, NV176E, SET_CONTEXT_DMA_SEMAPHORE, fctx->sema.handle,
+					 SEMAPHORE_OFFSET, 0,
+					 SEMAPHORE_ACQUIRE, value + 1,
+					 SEMAPHORE_RELEASE, value + 2);
+		PUSH_KICK(npush);
+>>>>>>> upstream/android-13
 	}
 
 	mutex_unlock(&cli->mutex);
@@ -75,10 +111,17 @@ static int
 nv17_fence_context_new(struct nouveau_channel *chan)
 {
 	struct nv10_fence_priv *priv = chan->drm->fence;
+<<<<<<< HEAD
 	struct nv10_fence_chan *fctx;
 	struct ttm_mem_reg *reg = &priv->bo->bo.mem;
 	u32 start = reg->start * PAGE_SIZE;
 	u32 limit = start + reg->size - 1;
+=======
+	struct ttm_resource *reg = priv->bo->bo.resource;
+	struct nv10_fence_chan *fctx;
+	u32 start = reg->start * PAGE_SIZE;
+	u32 limit = start + priv->bo->bo.base.size - 1;
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 	fctx = chan->fence = kzalloc(sizeof(*fctx), GFP_KERNEL);
@@ -90,7 +133,12 @@ nv17_fence_context_new(struct nouveau_channel *chan)
 	fctx->base.read = nv10_fence_read;
 	fctx->base.sync = nv17_fence_sync;
 
+<<<<<<< HEAD
 	ret = nvif_object_init(&chan->user, NvSema, NV_DMA_FROM_MEMORY,
+=======
+	ret = nvif_object_ctor(&chan->user, "fenceCtxDma", NvSema,
+			       NV_DMA_FROM_MEMORY,
+>>>>>>> upstream/android-13
 			       &(struct nv_dma_v0) {
 					.target = NV_DMA_V0_TARGET_VRAM,
 					.access = NV_DMA_V0_ACCESS_RDWR,
@@ -127,10 +175,18 @@ nv17_fence_create(struct nouveau_drm *drm)
 	priv->base.context_del = nv10_fence_context_del;
 	spin_lock_init(&priv->lock);
 
+<<<<<<< HEAD
 	ret = nouveau_bo_new(&drm->client, 4096, 0x1000, TTM_PL_FLAG_VRAM,
 			     0, 0x0000, NULL, NULL, &priv->bo);
 	if (!ret) {
 		ret = nouveau_bo_pin(priv->bo, TTM_PL_FLAG_VRAM, false);
+=======
+	ret = nouveau_bo_new(&drm->client, 4096, 0x1000,
+			     NOUVEAU_GEM_DOMAIN_VRAM,
+			     0, 0x0000, NULL, NULL, &priv->bo);
+	if (!ret) {
+		ret = nouveau_bo_pin(priv->bo, NOUVEAU_GEM_DOMAIN_VRAM, false);
+>>>>>>> upstream/android-13
 		if (!ret) {
 			ret = nouveau_bo_map(priv->bo);
 			if (ret)

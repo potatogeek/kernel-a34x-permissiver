@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 /* Copyright (C) 2011-2018  B.A.T.M.A.N. contributors:
  *
  * Linus Lüssing, Marek Lindner
@@ -14,6 +15,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+/* Copyright (C) B.A.T.M.A.N. contributors:
+ *
+ * Linus Lüssing, Marek Lindner
+>>>>>>> upstream/android-13
  */
 
 #include "bat_v_elp.h"
@@ -30,8 +36,15 @@
 #include <linux/jiffies.h>
 #include <linux/kernel.h>
 #include <linux/kref.h>
+<<<<<<< HEAD
 #include <linux/netdevice.h>
 #include <linux/nl80211.h>
+=======
+#include <linux/minmax.h>
+#include <linux/netdevice.h>
+#include <linux/nl80211.h>
+#include <linux/prandom.h>
+>>>>>>> upstream/android-13
 #include <linux/random.h>
 #include <linux/rculist.h>
 #include <linux/rcupdate.h>
@@ -61,7 +74,11 @@ static void batadv_v_elp_start_timer(struct batadv_hard_iface *hard_iface)
 	unsigned int msecs;
 
 	msecs = atomic_read(&hard_iface->bat_v.elp_interval) - BATADV_JITTER;
+<<<<<<< HEAD
 	msecs += prandom_u32() % (2 * BATADV_JITTER);
+=======
+	msecs += prandom_u32_max(2 * BATADV_JITTER);
+>>>>>>> upstream/android-13
 
 	queue_delayed_work(batadv_event_workqueue, &hard_iface->bat_v.elp_wq,
 			   msecs_to_jiffies(msecs));
@@ -72,7 +89,11 @@ static void batadv_v_elp_start_timer(struct batadv_hard_iface *hard_iface)
  * @neigh: the neighbour for which the throughput has to be obtained
  *
  * Return: The throughput towards the given neighbour in multiples of 100kpbs
+<<<<<<< HEAD
  *         (a value of '1' equals to 0.1Mbps, '10' equals 1Mbps, etc).
+=======
+ *         (a value of '1' equals 0.1Mbps, '10' equals 1Mbps, etc).
+>>>>>>> upstream/android-13
  */
 static u32 batadv_v_elp_get_throughput(struct batadv_hardif_neigh_node *neigh)
 {
@@ -119,10 +140,24 @@ static u32 batadv_v_elp_get_throughput(struct batadv_hardif_neigh_node *neigh)
 		}
 		if (ret)
 			goto default_throughput;
+<<<<<<< HEAD
 		if (!(sinfo.filled & BIT(NL80211_STA_INFO_EXPECTED_THROUGHPUT)))
 			goto default_throughput;
 
 		return sinfo.expected_throughput / 100;
+=======
+
+		if (sinfo.filled & BIT(NL80211_STA_INFO_EXPECTED_THROUGHPUT))
+			return sinfo.expected_throughput / 100;
+
+		/* try to estimate the expected throughput based on reported tx
+		 * rates
+		 */
+		if (sinfo.filled & BIT(NL80211_STA_INFO_TX_BITRATE))
+			return cfg80211_calculate_bitrate(&sinfo.txrate) / 3;
+
+		goto default_throughput;
+>>>>>>> upstream/android-13
 	}
 
 	/* if not a wifi interface, check if this device provides data via
@@ -188,8 +223,13 @@ void batadv_v_elp_throughput_metric_update(struct work_struct *work)
  *
  * Sends a predefined number of unicast wifi packets to a given neighbour in
  * order to trigger the throughput estimation on this link by the RC algorithm.
+<<<<<<< HEAD
  * Packets are sent only if there there is not enough payload unicast traffic
  * towards this neighbour..
+=======
+ * Packets are sent only if there is not enough payload unicast traffic towards
+ * this neighbour..
+>>>>>>> upstream/android-13
  *
  * Return: True on success and false in case of error during skb preparation.
  */
@@ -249,7 +289,11 @@ batadv_v_elp_wifi_neigh_probe(struct batadv_hardif_neigh_node *neigh)
  * batadv_v_elp_periodic_work() - ELP periodic task per interface
  * @work: work queue item
  *
+<<<<<<< HEAD
  * Emits broadcast ELP message in regular intervals.
+=======
+ * Emits broadcast ELP messages in regular intervals.
+>>>>>>> upstream/android-13
  */
 static void batadv_v_elp_periodic_work(struct work_struct *work)
 {
@@ -489,6 +533,7 @@ static void batadv_v_elp_neigh_update(struct batadv_priv *bat_priv,
 	hardif_neigh->bat_v.elp_interval = ntohl(elp_packet->elp_interval);
 
 hardif_free:
+<<<<<<< HEAD
 	if (hardif_neigh)
 		batadv_hardif_neigh_put(hardif_neigh);
 neigh_free:
@@ -497,6 +542,13 @@ neigh_free:
 orig_free:
 	if (orig_neigh)
 		batadv_orig_node_put(orig_neigh);
+=======
+	batadv_hardif_neigh_put(hardif_neigh);
+neigh_free:
+	batadv_neigh_node_put(neigh);
+orig_free:
+	batadv_orig_node_put(orig_neigh);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -504,7 +556,11 @@ orig_free:
  * @skb: the received packet
  * @if_incoming: the interface this packet was received through
  *
+<<<<<<< HEAD
  * Return: NET_RX_SUCCESS and consumes the skb if the packet was peoperly
+=======
+ * Return: NET_RX_SUCCESS and consumes the skb if the packet was properly
+>>>>>>> upstream/android-13
  * processed or NET_RX_DROP in case of failure.
  */
 int batadv_v_elp_packet_recv(struct sk_buff *skb,

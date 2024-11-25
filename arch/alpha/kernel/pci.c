@@ -18,7 +18,11 @@
 #include <linux/init.h>
 #include <linux/ioport.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/cache.h>
 #include <linux/slab.h>
@@ -392,7 +396,14 @@ alloc_pci_controller(void)
 {
 	struct pci_controller *hose;
 
+<<<<<<< HEAD
 	hose = alloc_bootmem(sizeof(*hose));
+=======
+	hose = memblock_alloc(sizeof(*hose), SMP_CACHE_BYTES);
+	if (!hose)
+		panic("%s: Failed to allocate %zu bytes\n", __func__,
+		      sizeof(*hose));
+>>>>>>> upstream/android-13
 
 	*hose_tail = hose;
 	hose_tail = &hose->next;
@@ -403,7 +414,17 @@ alloc_pci_controller(void)
 struct resource * __init
 alloc_resource(void)
 {
+<<<<<<< HEAD
 	return alloc_bootmem(sizeof(struct resource));
+=======
+	void *ptr = memblock_alloc(sizeof(struct resource), SMP_CACHE_BYTES);
+
+	if (!ptr)
+		panic("%s: Failed to allocate %zu bytes\n", __func__,
+		      sizeof(struct resource));
+
+	return ptr;
+>>>>>>> upstream/android-13
 }
 
 

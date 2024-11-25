@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * drivers/cpufreq/cpufreq_governor.h
  *
@@ -8,10 +12,13 @@
  *		(C) 2003 Jun Nakajima <jun.nakajima@intel.com>
  *		(C) 2009 Alexander Clouter <alex@digriz.org.uk>
  *		(c) 2012 Viresh Kumar <viresh.kumar@linaro.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _CPUFREQ_GOVERNOR_H
@@ -159,7 +166,11 @@ void cpufreq_dbs_governor_limits(struct cpufreq_policy *policy);
 #define CPUFREQ_DBS_GOVERNOR_INITIALIZER(_name_)			\
 	{								\
 		.name = _name_,						\
+<<<<<<< HEAD
 		.dynamic_switching = true,				\
+=======
+		.flags = CPUFREQ_GOV_DYNAMIC_SWITCHING,			\
+>>>>>>> upstream/android-13
 		.owner = THIS_MODULE,					\
 		.init = cpufreq_dbs_governor_init,			\
 		.exit = cpufreq_dbs_governor_exit,			\

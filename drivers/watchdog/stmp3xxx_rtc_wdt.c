@@ -89,6 +89,7 @@ static struct notifier_block wdt_notifier = {
 
 static int stmp3xxx_wdt_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	int ret;
 
 	watchdog_set_drvdata(&stmp3xxx_wdd, &pdev->dev);
@@ -107,13 +108,35 @@ static int stmp3xxx_wdt_probe(struct platform_device *pdev)
 
 	dev_info(&pdev->dev, "initialized watchdog with heartbeat %ds\n",
 			stmp3xxx_wdd.timeout);
+=======
+	struct device *dev = &pdev->dev;
+	int ret;
+
+	watchdog_set_drvdata(&stmp3xxx_wdd, dev);
+
+	stmp3xxx_wdd.timeout = clamp_t(unsigned, heartbeat, 1, STMP3XXX_MAX_TIMEOUT);
+	stmp3xxx_wdd.parent = dev;
+
+	ret = devm_watchdog_register_device(dev, &stmp3xxx_wdd);
+	if (ret < 0)
+		return ret;
+
+	if (register_reboot_notifier(&wdt_notifier))
+		dev_warn(dev, "cannot register reboot notifier\n");
+
+	dev_info(dev, "initialized watchdog with heartbeat %ds\n",
+		 stmp3xxx_wdd.timeout);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int stmp3xxx_wdt_remove(struct platform_device *pdev)
 {
 	unregister_reboot_notifier(&wdt_notifier);
+<<<<<<< HEAD
 	watchdog_unregister_device(&stmp3xxx_wdd);
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 

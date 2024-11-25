@@ -15,6 +15,10 @@
 
 #include "bnxt_hsi.h"
 #include "bnxt.h"
+<<<<<<< HEAD
+=======
+#include "bnxt_hwrm.h"
+>>>>>>> upstream/android-13
 #include "bnxt_vfr.h"
 #include "bnxt_devlink.h"
 #include "bnxt_tc.h"
@@ -27,6 +31,7 @@
 static int hwrm_cfa_vfr_alloc(struct bnxt *bp, u16 vf_idx,
 			      u16 *tx_cfa_action, u16 *rx_cfa_code)
 {
+<<<<<<< HEAD
 	struct hwrm_cfa_vfr_alloc_output *resp = bp->hwrm_cmd_resp_addr;
 	struct hwrm_cfa_vfr_alloc_input req = { 0 };
 	int rc;
@@ -47,11 +52,35 @@ static int hwrm_cfa_vfr_alloc(struct bnxt *bp, u16 vf_idx,
 	}
 
 	mutex_unlock(&bp->hwrm_cmd_lock);
+=======
+	struct hwrm_cfa_vfr_alloc_output *resp;
+	struct hwrm_cfa_vfr_alloc_input *req;
+	int rc;
+
+	rc = hwrm_req_init(bp, req, HWRM_CFA_VFR_ALLOC);
+	if (!rc) {
+		req->vf_id = cpu_to_le16(vf_idx);
+		sprintf(req->vfr_name, "vfr%d", vf_idx);
+
+		resp = hwrm_req_hold(bp, req);
+		rc = hwrm_req_send(bp, req);
+		if (!rc) {
+			*tx_cfa_action = le16_to_cpu(resp->tx_cfa_action);
+			*rx_cfa_code = le16_to_cpu(resp->rx_cfa_code);
+			netdev_dbg(bp->dev, "tx_cfa_action=0x%x, rx_cfa_code=0x%x",
+				   *tx_cfa_action, *rx_cfa_code);
+		}
+		hwrm_req_drop(bp, req);
+	}
+	if (rc)
+		netdev_info(bp->dev, "%s error rc=%d\n", __func__, rc);
+>>>>>>> upstream/android-13
 	return rc;
 }
 
 static int hwrm_cfa_vfr_free(struct bnxt *bp, u16 vf_idx)
 {
+<<<<<<< HEAD
 	struct hwrm_cfa_vfr_free_input req = { 0 };
 	int rc;
 
@@ -61,12 +90,25 @@ static int hwrm_cfa_vfr_free(struct bnxt *bp, u16 vf_idx)
 	rc = hwrm_send_message(bp, &req, sizeof(req), HWRM_CMD_TIMEOUT);
 	if (rc)
 		netdev_info(bp->dev, "%s error rc=%d", __func__, rc);
+=======
+	struct hwrm_cfa_vfr_free_input *req;
+	int rc;
+
+	rc = hwrm_req_init(bp, req, HWRM_CFA_VFR_FREE);
+	if (!rc) {
+		sprintf(req->vfr_name, "vfr%d", vf_idx);
+		rc = hwrm_req_send(bp, req);
+	}
+	if (rc)
+		netdev_info(bp->dev, "%s error rc=%d\n", __func__, rc);
+>>>>>>> upstream/android-13
 	return rc;
 }
 
 static int bnxt_hwrm_vfr_qcfg(struct bnxt *bp, struct bnxt_vf_rep *vf_rep,
 			      u16 *max_mtu)
 {
+<<<<<<< HEAD
 	struct hwrm_func_qcfg_output *resp = bp->hwrm_cmd_resp_addr;
 	struct hwrm_func_qcfg_input req = {0};
 	u16 mtu;
@@ -78,6 +120,20 @@ static int bnxt_hwrm_vfr_qcfg(struct bnxt *bp, struct bnxt_vf_rep *vf_rep,
 	mutex_lock(&bp->hwrm_cmd_lock);
 
 	rc = _hwrm_send_message(bp, &req, sizeof(req), HWRM_CMD_TIMEOUT);
+=======
+	struct hwrm_func_qcfg_output *resp;
+	struct hwrm_func_qcfg_input *req;
+	u16 mtu;
+	int rc;
+
+	rc = hwrm_req_init(bp, req, HWRM_FUNC_QCFG);
+	if (rc)
+		return rc;
+
+	req->fid = cpu_to_le16(bp->pf.vf[vf_rep->vf_idx].fw_fid);
+	resp = hwrm_req_hold(bp, req);
+	rc = hwrm_req_send(bp, req);
+>>>>>>> upstream/android-13
 	if (!rc) {
 		mtu = le16_to_cpu(resp->max_mtu_configured);
 		if (!mtu)
@@ -85,7 +141,11 @@ static int bnxt_hwrm_vfr_qcfg(struct bnxt *bp, struct bnxt_vf_rep *vf_rep,
 		else
 			*max_mtu = mtu;
 	}
+<<<<<<< HEAD
 	mutex_unlock(&bp->hwrm_cmd_lock);
+=======
+	hwrm_req_drop(bp, req);
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -161,6 +221,7 @@ static int bnxt_vf_rep_setup_tc_block_cb(enum tc_setup_type type,
 	}
 }
 
+<<<<<<< HEAD
 static int bnxt_vf_rep_setup_tc_block(struct net_device *dev,
 				      struct tc_block_offload *f)
 {
@@ -182,13 +243,27 @@ static int bnxt_vf_rep_setup_tc_block(struct net_device *dev,
 		return -EOPNOTSUPP;
 	}
 }
+=======
+static LIST_HEAD(bnxt_vf_block_cb_list);
+>>>>>>> upstream/android-13
 
 static int bnxt_vf_rep_setup_tc(struct net_device *dev, enum tc_setup_type type,
 				void *type_data)
 {
+<<<<<<< HEAD
 	switch (type) {
 	case TC_SETUP_BLOCK:
 		return bnxt_vf_rep_setup_tc_block(dev, type_data);
+=======
+	struct bnxt_vf_rep *vf_rep = netdev_priv(dev);
+
+	switch (type) {
+	case TC_SETUP_BLOCK:
+		return flow_block_cb_setup_simple(type_data,
+						  &bnxt_vf_block_cb_list,
+						  bnxt_vf_rep_setup_tc_block_cb,
+						  vf_rep, vf_rep, true);
+>>>>>>> upstream/android-13
 	default:
 		return -EOPNOTSUPP;
 	}
@@ -209,9 +284,13 @@ struct net_device *bnxt_get_vf_rep(struct bnxt *bp, u16 cfa_code)
 void bnxt_vf_rep_rx(struct bnxt *bp, struct sk_buff *skb)
 {
 	struct bnxt_vf_rep *vf_rep = netdev_priv(skb->dev);
+<<<<<<< HEAD
 	struct bnxt_vf_rep_stats *rx_stats;
 
 	rx_stats = &vf_rep->rx_stats;
+=======
+
+>>>>>>> upstream/android-13
 	vf_rep->rx_stats.bytes += skb->len;
 	vf_rep->rx_stats.packets++;
 
@@ -236,17 +315,25 @@ static void bnxt_vf_rep_get_drvinfo(struct net_device *dev,
 				    struct ethtool_drvinfo *info)
 {
 	strlcpy(info->driver, DRV_MODULE_NAME, sizeof(info->driver));
+<<<<<<< HEAD
 	strlcpy(info->version, DRV_MODULE_VERSION, sizeof(info->version));
 }
 
 static int bnxt_vf_rep_port_attr_get(struct net_device *dev,
 				     struct switchdev_attr *attr)
+=======
+}
+
+static int bnxt_vf_rep_get_port_parent_id(struct net_device *dev,
+					  struct netdev_phys_item_id *ppid)
+>>>>>>> upstream/android-13
 {
 	struct bnxt_vf_rep *vf_rep = netdev_priv(dev);
 
 	/* as only PORT_PARENT_ID is supported currently use common code
 	 * between PF and VF-rep for now.
 	 */
+<<<<<<< HEAD
 	return bnxt_port_attr_get(vf_rep->bp, attr);
 }
 
@@ -254,6 +341,11 @@ static const struct switchdev_ops bnxt_vf_rep_switchdev_ops = {
 	.switchdev_port_attr_get	= bnxt_vf_rep_port_attr_get
 };
 
+=======
+	return bnxt_get_port_parent_id(vf_rep->bp->dev, ppid);
+}
+
+>>>>>>> upstream/android-13
 static const struct ethtool_ops bnxt_vf_rep_ethtool_ops = {
 	.get_drvinfo		= bnxt_vf_rep_get_drvinfo
 };
@@ -264,6 +356,10 @@ static const struct net_device_ops bnxt_vf_rep_netdev_ops = {
 	.ndo_start_xmit		= bnxt_vf_rep_xmit,
 	.ndo_get_stats64	= bnxt_vf_rep_get_stats64,
 	.ndo_setup_tc		= bnxt_vf_rep_setup_tc,
+<<<<<<< HEAD
+=======
+	.ndo_get_port_parent_id	= bnxt_vf_rep_get_port_parent_id,
+>>>>>>> upstream/android-13
 	.ndo_get_phys_port_name = bnxt_vf_rep_get_phys_port_name
 };
 
@@ -305,8 +401,31 @@ void bnxt_vf_reps_open(struct bnxt *bp)
 	if (bp->eswitch_mode != DEVLINK_ESWITCH_MODE_SWITCHDEV)
 		return;
 
+<<<<<<< HEAD
 	for (i = 0; i < pci_num_vf(bp->pdev); i++)
 		bnxt_vf_rep_open(bp->vf_reps[i]->dev);
+=======
+	for (i = 0; i < pci_num_vf(bp->pdev); i++) {
+		/* Open the VF-Rep only if it is allocated in the FW */
+		if (bp->vf_reps[i]->tx_cfa_action != CFA_HANDLE_INVALID)
+			bnxt_vf_rep_open(bp->vf_reps[i]->dev);
+	}
+}
+
+static void __bnxt_free_one_vf_rep(struct bnxt *bp, struct bnxt_vf_rep *vf_rep)
+{
+	if (!vf_rep)
+		return;
+
+	if (vf_rep->dst) {
+		dst_release((struct dst_entry *)vf_rep->dst);
+		vf_rep->dst = NULL;
+	}
+	if (vf_rep->tx_cfa_action != CFA_HANDLE_INVALID) {
+		hwrm_cfa_vfr_free(bp, vf_rep->vf_idx);
+		vf_rep->tx_cfa_action = CFA_HANDLE_INVALID;
+	}
+>>>>>>> upstream/android-13
 }
 
 static void __bnxt_vf_reps_destroy(struct bnxt *bp)
@@ -318,11 +437,15 @@ static void __bnxt_vf_reps_destroy(struct bnxt *bp)
 	for (i = 0; i < num_vfs; i++) {
 		vf_rep = bp->vf_reps[i];
 		if (vf_rep) {
+<<<<<<< HEAD
 			dst_release((struct dst_entry *)vf_rep->dst);
 
 			if (vf_rep->tx_cfa_action != CFA_HANDLE_INVALID)
 				hwrm_cfa_vfr_free(bp, vf_rep->vf_idx);
 
+=======
+			__bnxt_free_one_vf_rep(bp, vf_rep);
+>>>>>>> upstream/android-13
 			if (vf_rep->dev) {
 				/* if register_netdev failed, then netdev_ops
 				 * would have been set to NULL
@@ -371,6 +494,83 @@ void bnxt_vf_reps_destroy(struct bnxt *bp)
 	__bnxt_vf_reps_destroy(bp);
 }
 
+<<<<<<< HEAD
+=======
+/* Free the VF-Reps in firmware, during firmware hot-reset processing.
+ * Note that the VF-Rep netdevs are still active (not unregistered) during
+ * this process. As the mode transition from SWITCHDEV to LEGACY happens
+ * under the rtnl_lock() this routine is safe under the rtnl_lock().
+ */
+void bnxt_vf_reps_free(struct bnxt *bp)
+{
+	u16 num_vfs = pci_num_vf(bp->pdev);
+	int i;
+
+	if (bp->eswitch_mode != DEVLINK_ESWITCH_MODE_SWITCHDEV)
+		return;
+
+	for (i = 0; i < num_vfs; i++)
+		__bnxt_free_one_vf_rep(bp, bp->vf_reps[i]);
+}
+
+static int bnxt_alloc_vf_rep(struct bnxt *bp, struct bnxt_vf_rep *vf_rep,
+			     u16 *cfa_code_map)
+{
+	/* get cfa handles from FW */
+	if (hwrm_cfa_vfr_alloc(bp, vf_rep->vf_idx, &vf_rep->tx_cfa_action,
+			       &vf_rep->rx_cfa_code))
+		return -ENOLINK;
+
+	cfa_code_map[vf_rep->rx_cfa_code] = vf_rep->vf_idx;
+	vf_rep->dst = metadata_dst_alloc(0, METADATA_HW_PORT_MUX, GFP_KERNEL);
+	if (!vf_rep->dst)
+		return -ENOMEM;
+
+	/* only cfa_action is needed to mux a packet while TXing */
+	vf_rep->dst->u.port_info.port_id = vf_rep->tx_cfa_action;
+	vf_rep->dst->u.port_info.lower_dev = bp->dev;
+
+	return 0;
+}
+
+/* Allocate the VF-Reps in firmware, during firmware hot-reset processing.
+ * Note that the VF-Rep netdevs are still active (not unregistered) during
+ * this process. As the mode transition from SWITCHDEV to LEGACY happens
+ * under the rtnl_lock() this routine is safe under the rtnl_lock().
+ */
+int bnxt_vf_reps_alloc(struct bnxt *bp)
+{
+	u16 *cfa_code_map = bp->cfa_code_map, num_vfs = pci_num_vf(bp->pdev);
+	struct bnxt_vf_rep *vf_rep;
+	int rc, i;
+
+	if (bp->eswitch_mode != DEVLINK_ESWITCH_MODE_SWITCHDEV)
+		return 0;
+
+	if (!cfa_code_map)
+		return -EINVAL;
+
+	for (i = 0; i < MAX_CFA_CODE; i++)
+		cfa_code_map[i] = VF_IDX_INVALID;
+
+	for (i = 0; i < num_vfs; i++) {
+		vf_rep = bp->vf_reps[i];
+		vf_rep->vf_idx = i;
+
+		rc = bnxt_alloc_vf_rep(bp, vf_rep, cfa_code_map);
+		if (rc)
+			goto err;
+	}
+
+	return 0;
+
+err:
+	netdev_info(bp->dev, "%s error=%d\n", __func__, rc);
+	bnxt_vf_reps_free(bp);
+	return rc;
+}
+
+>>>>>>> upstream/android-13
 /* Use the OUI of the PF's perm addr and report the same mac addr
  * for the same VF-rep each time
  */
@@ -394,7 +594,10 @@ static void bnxt_vf_rep_netdev_init(struct bnxt *bp, struct bnxt_vf_rep *vf_rep,
 
 	dev->netdev_ops = &bnxt_vf_rep_netdev_ops;
 	dev->ethtool_ops = &bnxt_vf_rep_ethtool_ops;
+<<<<<<< HEAD
 	SWITCHDEV_SET_OPS(dev, &bnxt_vf_rep_switchdev_ops);
+=======
+>>>>>>> upstream/android-13
 	/* Just inherit all the featues of the parent PF as the VF-R
 	 * uses the RX/TX rings of the parent PF
 	 */
@@ -412,6 +615,7 @@ static void bnxt_vf_rep_netdev_init(struct bnxt *bp, struct bnxt_vf_rep *vf_rep,
 	dev->min_mtu = ETH_ZLEN;
 }
 
+<<<<<<< HEAD
 static int bnxt_pcie_dsn_get(struct bnxt *bp, u8 dsn[])
 {
 	struct pci_dev *pdev = bp->pdev;
@@ -432,6 +636,8 @@ static int bnxt_pcie_dsn_get(struct bnxt *bp, u8 dsn[])
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int bnxt_vf_reps_create(struct bnxt *bp)
 {
 	u16 *cfa_code_map = NULL, num_vfs = pci_num_vf(bp->pdev);
@@ -439,6 +645,12 @@ static int bnxt_vf_reps_create(struct bnxt *bp)
 	struct net_device *dev;
 	int rc, i;
 
+<<<<<<< HEAD
+=======
+	if (!(bp->flags & BNXT_FLAG_DSN_VALID))
+		return -ENODEV;
+
+>>>>>>> upstream/android-13
 	bp->vf_reps = kcalloc(num_vfs, sizeof(vf_rep), GFP_KERNEL);
 	if (!bp->vf_reps)
 		return -ENOMEM;
@@ -467,6 +679,7 @@ static int bnxt_vf_reps_create(struct bnxt *bp)
 		vf_rep->vf_idx = i;
 		vf_rep->tx_cfa_action = CFA_HANDLE_INVALID;
 
+<<<<<<< HEAD
 		/* get cfa handles from FW */
 		rc = hwrm_cfa_vfr_alloc(bp, vf_rep->vf_idx,
 					&vf_rep->tx_cfa_action,
@@ -486,6 +699,11 @@ static int bnxt_vf_reps_create(struct bnxt *bp)
 		/* only cfa_action is needed to mux a packet while TXing */
 		vf_rep->dst->u.port_info.port_id = vf_rep->tx_cfa_action;
 		vf_rep->dst->u.port_info.lower_dev = bp->dev;
+=======
+		rc = bnxt_alloc_vf_rep(bp, vf_rep, cfa_code_map);
+		if (rc)
+			goto err;
+>>>>>>> upstream/android-13
 
 		bnxt_vf_rep_netdev_init(bp, vf_rep, dev);
 		rc = register_netdev(dev);
@@ -496,11 +714,14 @@ static int bnxt_vf_reps_create(struct bnxt *bp)
 		}
 	}
 
+<<<<<<< HEAD
 	/* Read the adapter's DSN to use as the eswitch switch_id */
 	rc = bnxt_pcie_dsn_get(bp, bp->switch_id);
 	if (rc)
 		goto err;
 
+=======
+>>>>>>> upstream/android-13
 	/* publish cfa_code_map only after all VF-reps have been initialized */
 	bp->cfa_code_map = cfa_code_map;
 	bp->eswitch_mode = DEVLINK_ESWITCH_MODE_SWITCHDEV;
@@ -508,7 +729,11 @@ static int bnxt_vf_reps_create(struct bnxt *bp)
 	return 0;
 
 err:
+<<<<<<< HEAD
 	netdev_info(bp->dev, "%s error=%d", __func__, rc);
+=======
+	netdev_info(bp->dev, "%s error=%d\n", __func__, rc);
+>>>>>>> upstream/android-13
 	kfree(cfa_code_map);
 	__bnxt_vf_reps_destroy(bp);
 	return rc;
@@ -523,14 +748,23 @@ int bnxt_dl_eswitch_mode_get(struct devlink *devlink, u16 *mode)
 	return 0;
 }
 
+<<<<<<< HEAD
 int bnxt_dl_eswitch_mode_set(struct devlink *devlink, u16 mode)
+=======
+int bnxt_dl_eswitch_mode_set(struct devlink *devlink, u16 mode,
+			     struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct bnxt *bp = bnxt_get_bp_from_dl(devlink);
 	int rc = 0;
 
 	mutex_lock(&bp->sriov_lock);
 	if (bp->eswitch_mode == mode) {
+<<<<<<< HEAD
 		netdev_info(bp->dev, "already in %s eswitch mode",
+=======
+		netdev_info(bp->dev, "already in %s eswitch mode\n",
+>>>>>>> upstream/android-13
 			    mode == DEVLINK_ESWITCH_MODE_LEGACY ?
 			    "legacy" : "switchdev");
 		rc = -EINVAL;
@@ -550,7 +784,11 @@ int bnxt_dl_eswitch_mode_set(struct devlink *devlink, u16 mode)
 		}
 
 		if (pci_num_vf(bp->pdev) == 0) {
+<<<<<<< HEAD
 			netdev_info(bp->dev, "Enable VFs before setting switchdev mode");
+=======
+			netdev_info(bp->dev, "Enable VFs before setting switchdev mode\n");
+>>>>>>> upstream/android-13
 			rc = -EPERM;
 			goto done;
 		}

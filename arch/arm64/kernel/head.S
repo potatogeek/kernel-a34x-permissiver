@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Low-level CPU initialisation
  * Based on arch/arm/kernel/head.S
@@ -6,6 +10,7 @@
  * Copyright (C) 2003-2012 ARM Ltd.
  * Authors:	Catalin Marinas <catalin.marinas@arm.com>
  *		Will Deacon <will.deacon@arm.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -18,24 +23,44 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <linux/irqchip/arm-gic-v3.h>
 
 #include <asm/assembler.h>
 #include <asm/boot.h>
+=======
+#include <linux/pgtable.h>
+
+#include <asm/asm_pointer_auth.h>
+#include <asm/assembler.h>
+#include <asm/boot.h>
+#include <asm/bug.h>
+>>>>>>> upstream/android-13
 #include <asm/ptrace.h>
 #include <asm/asm-offsets.h>
 #include <asm/cache.h>
 #include <asm/cputype.h>
+<<<<<<< HEAD
 #include <asm/elf.h>
+=======
+#include <asm/el2_setup.h>
+#include <asm/elf.h>
+#include <asm/image.h>
+>>>>>>> upstream/android-13
 #include <asm/kernel-pgtable.h>
 #include <asm/kvm_arm.h>
 #include <asm/memory.h>
 #include <asm/pgtable-hwdef.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/page.h>
 #include <asm/scs.h>
 #include <asm/smp.h>
@@ -45,6 +70,7 @@
 
 #include "efi-header.S"
 
+<<<<<<< HEAD
 #define __PHYS_OFFSET	(KERNEL_START - TEXT_OFFSET)
 
 #if (TEXT_OFFSET & 0xfff) != 0
@@ -53,6 +79,12 @@
 #error PAGE_OFFSET must be at least 2MB aligned
 #elif TEXT_OFFSET > 0x1fffff
 #error TEXT_OFFSET must be less than 2MB
+=======
+#define __PHYS_OFFSET	KERNEL_START
+
+#if (PAGE_OFFSET & 0x1fffff) != 0
+#error PAGE_OFFSET must be at least 2MB aligned
+>>>>>>> upstream/android-13
 #endif
 
 /*
@@ -64,13 +96,18 @@
  *   x0 = physical address to the FDT blob.
  *
  * This code is mostly position independent so you call this at
+<<<<<<< HEAD
  * __pa(PAGE_OFFSET + TEXT_OFFSET).
+=======
+ * __pa(PAGE_OFFSET).
+>>>>>>> upstream/android-13
  *
  * Note that the callee-saved registers are used for storing variables
  * that are useful before the MMU is enabled. The allocations are described
  * in the entry routines.
  */
 	__HEAD
+<<<<<<< HEAD
 _head:
 	/*
 	 * DO NOT MODIFY. Image header expected by Linux boot-loaders.
@@ -87,6 +124,14 @@ _head:
 	.long	0				// reserved
 #endif
 	le64sym	_kernel_offset_le		// Image load offset from start of RAM, little-endian
+=======
+	/*
+	 * DO NOT MODIFY. Image header expected by Linux boot-loaders.
+	 */
+	efi_signature_nop			// special NOP to identity as PE/COFF executable
+	b	primary_entry			// branch to kernel start, magic
+	.quad	0				// Image load offset from start of RAM, little-endian
+>>>>>>> upstream/android-13
 	le64sym	_kernel_size_le			// Effective size of kernel image, little-endian
 	le64sym	_kernel_flags_le		// Informative flags, little-endian
 	.quad	0				// reserved
@@ -96,6 +141,7 @@ _head:
 	.quad	0xecefecef			// Magic number for proca ta
 #endif
 	.quad	0				// reserved
+<<<<<<< HEAD
 	.ascii	"ARM\x64"			// Magic number
 #ifdef CONFIG_EFI
 	.long	pe_header - _head		// Offset to the PE header.
@@ -105,6 +151,12 @@ pe_header:
 #else
 	.long	0				// reserved
 #endif
+=======
+	.ascii	ARM64_IMAGE_MAGIC		// Magic number
+	.long	.Lpe_header_offset		// Offset to the PE header.
+
+	__EFI_PE_HEADER
+>>>>>>> upstream/android-13
 
 	__INIT
 
@@ -113,6 +165,7 @@ pe_header:
 	 * primary lowlevel boot path:
 	 *
 	 *  Register   Scope                      Purpose
+<<<<<<< HEAD
 	 *  x21        stext() .. start_kernel()  FDT pointer passed at boot in x0
 	 *  x23        stext() .. start_kernel()  physical misalignment/KASLR offset
 	 *  x28        __create_page_tables()     callee preserved temp register
@@ -123,6 +176,17 @@ pe_header:
 ENTRY(stext)
 	bl	preserve_boot_args
 	bl	el2_setup			// Drop to EL1, w0=cpu_boot_mode
+=======
+	 *  x21        primary_entry() .. start_kernel()        FDT pointer passed at boot in x0
+	 *  x23        primary_entry() .. start_kernel()        physical misalignment/KASLR offset
+	 *  x28        __create_page_tables()                   callee preserved temp register
+	 *  x19/x20    __primary_switch()                       callee preserved temp registers
+	 *  x24        __primary_switch() .. relocate_kernel()  current RELR displacement
+	 */
+SYM_CODE_START(primary_entry)
+	bl	preserve_boot_args
+	bl	init_kernel_el			// w0=cpu_boot_mode
+>>>>>>> upstream/android-13
 	adrp	x23, __PHYS_OFFSET
 	and	x23, x23, MIN_KIMG_ALIGN - 1	// KASLR offset, defaults to 0
 	bl	set_cpu_boot_mode_flag
@@ -135,12 +199,20 @@ ENTRY(stext)
 	 */
 	bl	__cpu_setup			// initialise processor
 	b	__primary_switch
+<<<<<<< HEAD
 ENDPROC(stext)
+=======
+SYM_CODE_END(primary_entry)
+>>>>>>> upstream/android-13
 
 /*
  * Preserve the arguments passed by the bootloader in x0 .. x3
  */
+<<<<<<< HEAD
 preserve_boot_args:
+=======
+SYM_CODE_START_LOCAL(preserve_boot_args)
+>>>>>>> upstream/android-13
 	mov	x21, x0				// x21=FDT
 
 	adr_l	x0, boot_args			// record the contents of
@@ -150,9 +222,15 @@ preserve_boot_args:
 	dmb	sy				// needed before dc ivac with
 						// MMU off
 
+<<<<<<< HEAD
 	mov	x1, #0x20			// 4 x 8 bytes
 	b	__inval_dcache_area		// tail call
 ENDPROC(preserve_boot_args)
+=======
+	add	x1, x0, #0x20			// 4 x 8 bytes
+	b	dcache_inval_poc		// tail call
+SYM_CODE_END(preserve_boot_args)
+>>>>>>> upstream/android-13
 
 /*
  * Macro to create a table entry to the next page.
@@ -209,7 +287,11 @@ ENDPROC(preserve_boot_args)
  * to be composed of multiple pages. (This effectively scales the end index).
  *
  *	vstart:	virtual address of start of range
+<<<<<<< HEAD
  *	vend:	virtual address of end of range
+=======
+ *	vend:	virtual address of end of range - we map [vstart, vend]
+>>>>>>> upstream/android-13
  *	shift:	shift used to transform virtual address into index
  *	ptrs:	number of entries in page table
  *	istart:	index in table corresponding to vstart
@@ -228,7 +310,11 @@ ENDPROC(preserve_boot_args)
 	and	\iend, \iend, \istart	// iend = (vend >> shift) & (ptrs - 1)
 	mov	\istart, \ptrs
 	mul	\istart, \istart, \count
+<<<<<<< HEAD
 	add	\iend, \iend, \istart	// iend += (count - 1) * ptrs
+=======
+	add	\iend, \iend, \istart	// iend += count * ptrs
+>>>>>>> upstream/android-13
 					// our entries span multiple tables
 
 	lsr	\istart, \vstart, \shift
@@ -246,17 +332,30 @@ ENDPROC(preserve_boot_args)
  *
  *	tbl:	location of page table
  *	rtbl:	address to be used for first level page table entry (typically tbl + PAGE_SIZE)
+<<<<<<< HEAD
  *	vstart:	start address to map
  *	vend:	end address to map - we map [vstart, vend]
+=======
+ *	vstart:	virtual address of start of range
+ *	vend:	virtual address of end of range - we map [vstart, vend - 1]
+>>>>>>> upstream/android-13
  *	flags:	flags to use to map last level entries
  *	phys:	physical address corresponding to vstart - physical memory is contiguous
  *	pgds:	the number of pgd entries
  *
  * Temporaries:	istart, iend, tmp, count, sv - these need to be different registers
+<<<<<<< HEAD
  * Preserves:	vstart, vend, flags
  * Corrupts:	tbl, rtbl, istart, iend, tmp, count, sv
  */
 	.macro map_memory, tbl, rtbl, vstart, vend, flags, phys, pgds, istart, iend, tmp, count, sv
+=======
+ * Preserves:	vstart, flags
+ * Corrupts:	tbl, rtbl, vend, istart, iend, tmp, count, sv
+ */
+	.macro map_memory, tbl, rtbl, vstart, vend, flags, phys, pgds, istart, iend, tmp, count, sv
+	sub \vend, \vend, #1
+>>>>>>> upstream/android-13
 	add \rtbl, \tbl, #PAGE_SIZE
 	mov \sv, \rtbl
 	mov \count, #0
@@ -290,6 +389,7 @@ ENDPROC(preserve_boot_args)
  *   - first few MB of the kernel linear mapping to jump to once the MMU has
  *     been enabled
  */
+<<<<<<< HEAD
 __create_page_tables:
 	mov	x28, lr
 
@@ -307,6 +407,26 @@ __create_page_tables:
 	 */
 	adrp	x0, idmap_pg_dir
 	adrp	x1, swapper_pg_end
+=======
+SYM_FUNC_START_LOCAL(__create_page_tables)
+	mov	x28, lr
+
+	/*
+	 * Invalidate the init page tables to avoid potential dirty cache lines
+	 * being evicted. Other page tables are allocated in rodata as part of
+	 * the kernel image, and thus are clean to the PoC per the boot
+	 * protocol.
+	 */
+	adrp	x0, init_pg_dir
+	adrp	x1, init_pg_end
+	bl	dcache_inval_poc
+
+	/*
+	 * Clear the init page tables.
+	 */
+	adrp	x0, init_pg_dir
+	adrp	x1, init_pg_end
+>>>>>>> upstream/android-13
 	sub	x1, x1, x0
 1:	stp	xzr, xzr, [x0], #16
 	stp	xzr, xzr, [x0], #16
@@ -323,6 +443,22 @@ __create_page_tables:
 	adrp	x0, idmap_pg_dir
 	adrp	x3, __idmap_text_start		// __pa(__idmap_text_start)
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_ARM64_VA_BITS_52
+	mrs_s	x6, SYS_ID_AA64MMFR2_EL1
+	and	x6, x6, #(0xf << ID_AA64MMFR2_LVA_SHIFT)
+	mov	x5, #52
+	cbnz	x6, 1f
+#endif
+	mov	x5, #VA_BITS_MIN
+1:
+	adr_l	x6, vabits_actual
+	str	x5, [x6]
+	dmb	sy
+	dc	ivac, x6		// Invalidate potentially stale cache line
+
+>>>>>>> upstream/android-13
 	/*
 	 * VA_BITS may be too small to allow for an ID mapping to be created
 	 * that covers system RAM if that is located sufficiently high in the
@@ -337,7 +473,11 @@ __create_page_tables:
 	 */
 	adrp	x5, __idmap_text_end
 	clz	x5, x5
+<<<<<<< HEAD
 	cmp	x5, TCR_T0SZ(VA_BITS)	// default T0SZ small enough?
+=======
+	cmp	x5, TCR_T0SZ(VA_BITS_MIN) // default T0SZ small enough?
+>>>>>>> upstream/android-13
 	b.ge	1f			// .. then skip VA range extension
 
 	adr_l	x6, idmap_t0sz
@@ -372,7 +512,10 @@ __create_page_tables:
 #endif
 1:
 	ldr_l	x4, idmap_ptrs_per_pgd
+<<<<<<< HEAD
 	mov	x5, x3				// __pa(__idmap_text_start)
+=======
+>>>>>>> upstream/android-13
 	adr_l	x6, __idmap_text_end		// __pa(__idmap_text_end)
 
 	map_memory x0, x1, x3, x6, x7, x3, x4, x10, x11, x12, x13, x14
@@ -380,8 +523,13 @@ __create_page_tables:
 	/*
 	 * Map the kernel image (starting with PHYS_OFFSET).
 	 */
+<<<<<<< HEAD
 	adrp	x0, swapper_pg_dir
 	mov_q	x5, KIMAGE_VADDR + TEXT_OFFSET	// compile time __va(_text)
+=======
+	adrp	x0, init_pg_dir
+	mov_q	x5, KIMAGE_VADDR		// compile time __va(_text)
+>>>>>>> upstream/android-13
 	add	x5, x5, x23			// add KASLR displacement
 	mov	x4, PTRS_PER_PGD
 	adrp	x6, _end			// runtime __pa(_end)
@@ -393,6 +541,7 @@ __create_page_tables:
 
 	/*
 	 * Since the page tables have been populated with non-cacheable
+<<<<<<< HEAD
 	 * accesses (MMU disabled), invalidate the idmap and swapper page
 	 * tables again to remove any speculatively loaded cache lines.
 	 */
@@ -405,22 +554,72 @@ __create_page_tables:
 	ret	x28
 ENDPROC(__create_page_tables)
 	.ltorg
+=======
+	 * accesses (MMU disabled), invalidate those tables again to
+	 * remove any speculatively loaded cache lines.
+	 */
+	dmb	sy
+
+	adrp	x0, idmap_pg_dir
+	adrp	x1, idmap_pg_end
+	bl	dcache_inval_poc
+
+	adrp	x0, init_pg_dir
+	adrp	x1, init_pg_end
+	bl	dcache_inval_poc
+
+	ret	x28
+SYM_FUNC_END(__create_page_tables)
+
+	/*
+	 * Initialize CPU registers with task-specific and cpu-specific context.
+	 *
+	 * Create a final frame record at task_pt_regs(current)->stackframe, so
+	 * that the unwinder can identify the final frame record of any task by
+	 * its location in the task stack. We reserve the entire pt_regs space
+	 * for consistency with user tasks and kthreads.
+	 */
+	.macro	init_cpu_task tsk, tmp1, tmp2
+	msr	sp_el0, \tsk
+
+	ldr	\tmp1, [\tsk, #TSK_STACK]
+	add	sp, \tmp1, #THREAD_SIZE
+	sub	sp, sp, #PT_REGS_SIZE
+
+	stp	xzr, xzr, [sp, #S_STACKFRAME]
+	add	x29, sp, #S_STACKFRAME
+
+	scs_load \tsk
+
+	adr_l	\tmp1, __per_cpu_offset
+	ldr	w\tmp2, [\tsk, #TSK_CPU]
+	ldr	\tmp1, [\tmp1, \tmp2, lsl #3]
+	set_this_cpu_offset \tmp1
+	.endm
+>>>>>>> upstream/android-13
 
 /*
  * The following fragment of code is executed with the MMU enabled.
  *
  *   x0 = __PHYS_OFFSET
  */
+<<<<<<< HEAD
 __primary_switched:
 	adrp	x4, init_thread_union
 	add	sp, x4, #THREAD_SIZE
 	adr_l	x5, init_task
 	msr	sp_el0, x5			// Save thread_info
+=======
+SYM_FUNC_START_LOCAL(__primary_switched)
+	adr_l	x4, init_task
+	init_cpu_task x4, x5, x6
+>>>>>>> upstream/android-13
 
 	adr_l	x8, vectors			// load VBAR_EL1 with virtual
 	msr	vbar_el1, x8			// vector table address
 	isb
 
+<<<<<<< HEAD
 	stp	xzr, x30, [sp, #-16]!
 	mov	x29, sp
 
@@ -428,6 +627,11 @@ __primary_switched:
 	adr_l	x18, init_shadow_call_stack	// Set shadow call stack
 #endif
 
+=======
+	stp	x29, x30, [sp, #-16]!
+	mov	x29, sp
+
+>>>>>>> upstream/android-13
 	str_l	x21, __fdt_pointer, x5		// Save FDT pointer
 
 	ldr_l	x4, kimage_vaddr		// Save the offset between
@@ -442,6 +646,7 @@ __primary_switched:
 	bl	__pi_memset
 	dsb	ishst				// Make zero page visible to PTW
 
+<<<<<<< HEAD
 #ifdef CONFIG_KASAN
 	bl	kasan_early_init
 #endif
@@ -449,6 +654,17 @@ __primary_switched:
 	tst	x23, ~(MIN_KIMG_ALIGN - 1)	// already running randomized?
 	b.ne	0f
 	mov	x0, x21				// pass FDT address in x0
+=======
+#if defined(CONFIG_KASAN_GENERIC) || defined(CONFIG_KASAN_SW_TAGS)
+	bl	kasan_early_init
+#endif
+	mov	x0, x21				// pass FDT address in x0
+	bl	early_fdt_map			// Try mapping the FDT early
+	bl	init_feature_override		// Parse cpu feature overrides
+#ifdef CONFIG_RANDOMIZE_BASE
+	tst	x23, ~(MIN_KIMG_ALIGN - 1)	// already running randomized?
+	b.ne	0f
+>>>>>>> upstream/android-13
 	bl	kaslr_early_init		// parse FDT for KASLR options
 	cbz	x0, 0f				// KASLR disabled? just proceed
 	orr	x23, x23, x0			// record KASLR offset
@@ -456,11 +672,26 @@ __primary_switched:
 	ret					// to __primary_switch()
 0:
 #endif
+<<<<<<< HEAD
 	add	sp, sp, #16
 	mov	x29, #0
 	mov	x30, #0
 	b	start_kernel
 ENDPROC(__primary_switched)
+=======
+	bl	switch_to_vhe			// Prefer VHE if possible
+	ldp	x29, x30, [sp], #16
+	bl	start_kernel
+	ASM_BUG()
+SYM_FUNC_END(__primary_switched)
+
+	.pushsection ".rodata", "a"
+SYM_DATA_START(kimage_vaddr)
+	.quad		_text
+SYM_DATA_END(kimage_vaddr)
+EXPORT_SYMBOL(kimage_vaddr)
+	.popsection
+>>>>>>> upstream/android-13
 
 /*
  * end early head section, begin head code that is also used for
@@ -468,16 +699,27 @@ ENDPROC(__primary_switched)
  */
 	.section ".idmap.text","awx"
 
+<<<<<<< HEAD
 ENTRY(kimage_vaddr)
 	.quad		_text - TEXT_OFFSET
 
 /*
  * If we're fortunate enough to boot at EL2, ensure that the world is
  * sane before dropping to EL1.
+=======
+/*
+ * Starting from EL2 or EL1, configure the CPU to execute at the highest
+ * reachable EL supported by the kernel in a chosen default state. If dropping
+ * from EL2 to EL1, configure EL2 before configuring EL1.
+ *
+ * Since we cannot always rely on ERET synchronizing writes to sysregs (e.g. if
+ * SCTLR_ELx.EOS is clear), we place an ISB prior to ERET.
+>>>>>>> upstream/android-13
  *
  * Returns either BOOT_CPU_MODE_EL1 or BOOT_CPU_MODE_EL2 in w0 if
  * booted in EL1 or EL2 respectively.
  */
+<<<<<<< HEAD
 ENTRY(el2_setup)
 	msr	SPsel, #1			// We want to use SP_EL{1,2}
 	mrs	x0, CurrentEL
@@ -640,21 +882,100 @@ install_el2_stub:
 	mov	w0, #BOOT_CPU_MODE_EL2		// This CPU booted in EL2
 	eret
 ENDPROC(el2_setup)
+=======
+SYM_FUNC_START(init_kernel_el)
+	mrs	x0, CurrentEL
+	cmp	x0, #CurrentEL_EL2
+	b.eq	init_el2
+
+SYM_INNER_LABEL(init_el1, SYM_L_LOCAL)
+	mov_q	x0, INIT_SCTLR_EL1_MMU_OFF
+	msr	sctlr_el1, x0
+	isb
+	mov_q	x0, INIT_PSTATE_EL1
+	msr	spsr_el1, x0
+	msr	elr_el1, lr
+	mov	w0, #BOOT_CPU_MODE_EL1
+	eret
+
+SYM_INNER_LABEL(init_el2, SYM_L_LOCAL)
+	mov_q	x0, HCR_HOST_NVHE_FLAGS
+	msr	hcr_el2, x0
+	isb
+
+	init_el2_state
+
+	/* Hypervisor stub */
+	adr_l	x0, __hyp_stub_vectors
+	msr	vbar_el2, x0
+	isb
+
+	/*
+	 * Fruity CPUs seem to have HCR_EL2.E2H set to RES1,
+	 * making it impossible to start in nVHE mode. Is that
+	 * compliant with the architecture? Absolutely not!
+	 */
+	mrs	x0, hcr_el2
+	and	x0, x0, #HCR_E2H
+	cbz	x0, 1f
+
+	/* Switching to VHE requires a sane SCTLR_EL1 as a start */
+	mov_q	x0, INIT_SCTLR_EL1_MMU_OFF
+	msr_s	SYS_SCTLR_EL12, x0
+
+	/*
+	 * Force an eret into a helper "function", and let it return
+	 * to our original caller... This makes sure that we have
+	 * initialised the basic PSTATE state.
+	 */
+	mov	x0, #INIT_PSTATE_EL2
+	msr	spsr_el1, x0
+	adr	x0, __cpu_stick_to_vhe
+	msr	elr_el1, x0
+	eret
+
+1:
+	mov_q	x0, INIT_SCTLR_EL1_MMU_OFF
+	msr	sctlr_el1, x0
+
+	msr	elr_el2, lr
+	mov	w0, #BOOT_CPU_MODE_EL2
+	eret
+
+__cpu_stick_to_vhe:
+	mov	x0, #HVC_VHE_RESTART
+	hvc	#0
+	mov	x0, #BOOT_CPU_MODE_EL2
+	ret
+SYM_FUNC_END(init_kernel_el)
+>>>>>>> upstream/android-13
 
 /*
  * Sets the __boot_cpu_mode flag depending on the CPU boot mode passed
  * in w0. See arch/arm64/include/asm/virt.h for more info.
  */
+<<<<<<< HEAD
 set_cpu_boot_mode_flag:
+=======
+SYM_FUNC_START_LOCAL(set_cpu_boot_mode_flag)
+>>>>>>> upstream/android-13
 	adr_l	x1, __boot_cpu_mode
 	cmp	w0, #BOOT_CPU_MODE_EL2
 	b.ne	1f
 	add	x1, x1, #4
+<<<<<<< HEAD
 1:	str	w0, [x1]			// This CPU has booted in EL1
 	dmb	sy
 	dc	ivac, x1			// Invalidate potentially stale cache line
 	ret
 ENDPROC(set_cpu_boot_mode_flag)
+=======
+1:	str	w0, [x1]			// Save CPU boot mode
+	dmb	sy
+	dc	ivac, x1			// Invalidate potentially stale cache line
+	ret
+SYM_FUNC_END(set_cpu_boot_mode_flag)
+>>>>>>> upstream/android-13
 
 /*
  * These values are written with the MMU off, but read with the MMU on.
@@ -670,15 +991,28 @@ ENDPROC(set_cpu_boot_mode_flag)
  * This is not in .bss, because we set it sufficiently early that the boot-time
  * zeroing of .bss would clobber it.
  */
+<<<<<<< HEAD
 ENTRY(__boot_cpu_mode)
 	.long	BOOT_CPU_MODE_EL2
 	.long	BOOT_CPU_MODE_EL1
+=======
+SYM_DATA_START(__boot_cpu_mode)
+	.long	BOOT_CPU_MODE_EL2
+	.long	BOOT_CPU_MODE_EL1
+SYM_DATA_END(__boot_cpu_mode)
+>>>>>>> upstream/android-13
 /*
  * The booting CPU updates the failed status @__early_cpu_boot_status,
  * with MMU turned off.
  */
+<<<<<<< HEAD
 ENTRY(__early_cpu_boot_status)
 	.quad 	0
+=======
+SYM_DATA_START(__early_cpu_boot_status)
+	.quad 	0
+SYM_DATA_END(__early_cpu_boot_status)
+>>>>>>> upstream/android-13
 
 	.popsection
 
@@ -686,8 +1020,13 @@ ENTRY(__early_cpu_boot_status)
 	 * This provides a "holding pen" for platforms to hold all secondary
 	 * cores are held until we're ready for them to initialise.
 	 */
+<<<<<<< HEAD
 ENTRY(secondary_holding_pen)
 	bl	el2_setup			// Drop to EL1, w0=cpu_boot_mode
+=======
+SYM_FUNC_START(secondary_holding_pen)
+	bl	init_kernel_el			// w0=cpu_boot_mode
+>>>>>>> upstream/android-13
 	bl	set_cpu_boot_mode_flag
 	mrs	x0, mpidr_el1
 	mov_q	x1, MPIDR_HWID_BITMASK
@@ -698,12 +1037,17 @@ pen:	ldr	x4, [x3]
 	b.eq	secondary_startup
 	wfe
 	b	pen
+<<<<<<< HEAD
 ENDPROC(secondary_holding_pen)
+=======
+SYM_FUNC_END(secondary_holding_pen)
+>>>>>>> upstream/android-13
 
 	/*
 	 * Secondary entry point that jumps straight into the kernel. Only to
 	 * be used where CPUs are brought online dynamically by the kernel.
 	 */
+<<<<<<< HEAD
 ENTRY(secondary_entry)
 	bl	el2_setup			// Drop to EL1
 	bl	set_cpu_boot_mode_flag
@@ -722,11 +1066,34 @@ secondary_startup:
 ENDPROC(secondary_startup)
 
 __secondary_switched:
+=======
+SYM_FUNC_START(secondary_entry)
+	bl	init_kernel_el			// w0=cpu_boot_mode
+	bl	set_cpu_boot_mode_flag
+	b	secondary_startup
+SYM_FUNC_END(secondary_entry)
+
+SYM_FUNC_START_LOCAL(secondary_startup)
+	/*
+	 * Common entry point for secondary CPUs.
+	 */
+	bl	switch_to_vhe
+	bl	__cpu_secondary_check52bitva
+	bl	__cpu_setup			// initialise processor
+	adrp	x1, swapper_pg_dir
+	bl	__enable_mmu
+	ldr	x8, =__secondary_switched
+	br	x8
+SYM_FUNC_END(secondary_startup)
+
+SYM_FUNC_START_LOCAL(__secondary_switched)
+>>>>>>> upstream/android-13
 	adr_l	x5, vectors
 	msr	vbar_el1, x5
 	isb
 
 	adr_l	x0, secondary_data
+<<<<<<< HEAD
 	ldr	x1, [x0, #CPU_BOOT_STACK]	// get secondary_data.stack
 	mov	sp, x1
 	ldr	x2, [x0, #CPU_BOOT_TASK]
@@ -739,6 +1106,26 @@ __secondary_switched:
 	mov	x30, #0
 	b	secondary_start_kernel
 ENDPROC(__secondary_switched)
+=======
+	ldr	x2, [x0, #CPU_BOOT_TASK]
+	cbz	x2, __secondary_too_slow
+
+	init_cpu_task x2, x1, x3
+
+#ifdef CONFIG_ARM64_PTR_AUTH
+	ptrauth_keys_init_cpu x2, x3, x4, x5
+#endif
+
+	bl	secondary_start_kernel
+	ASM_BUG()
+SYM_FUNC_END(__secondary_switched)
+
+SYM_FUNC_START_LOCAL(__secondary_too_slow)
+	wfe
+	wfi
+	b	__secondary_too_slow
+SYM_FUNC_END(__secondary_too_slow)
+>>>>>>> upstream/android-13
 
 /*
  * The booting CPU updates the failed status @__early_cpu_boot_status,
@@ -762,6 +1149,10 @@ ENDPROC(__secondary_switched)
  * Enable the MMU.
  *
  *  x0  = SCTLR_EL1 value for turning on the MMU.
+<<<<<<< HEAD
+=======
+ *  x1  = TTBR1_EL1 value
+>>>>>>> upstream/android-13
  *
  * Returns to the caller via x30/lr. This requires the caller to be covered
  * by the .idmap.text section.
@@ -769,6 +1160,7 @@ ENDPROC(__secondary_switched)
  * Checks if the selected granule size is supported by the CPU.
  * If it isn't, park the CPU
  */
+<<<<<<< HEAD
 ENTRY(__enable_mmu)
 	mrs	x1, ID_AA64MMFR0_EL1
 	ubfx	x2, x1, #ID_AA64MMFR0_TGRAN_SHIFT, 4
@@ -798,6 +1190,32 @@ ENDPROC(__enable_mmu)
 ENTRY(__cpu_secondary_check52bitva)
 #ifdef CONFIG_ARM64_52BIT_VA
 	ldr_l	x0, vabits_user
+=======
+SYM_FUNC_START(__enable_mmu)
+	mrs	x2, ID_AA64MMFR0_EL1
+	ubfx	x2, x2, #ID_AA64MMFR0_TGRAN_SHIFT, 4
+	cmp     x2, #ID_AA64MMFR0_TGRAN_SUPPORTED_MIN
+	b.lt    __no_granule_support
+	cmp     x2, #ID_AA64MMFR0_TGRAN_SUPPORTED_MAX
+	b.gt    __no_granule_support
+	update_early_cpu_boot_status 0, x2, x3
+	adrp	x2, idmap_pg_dir
+	phys_to_ttbr x1, x1
+	phys_to_ttbr x2, x2
+	msr	ttbr0_el1, x2			// load TTBR0
+	offset_ttbr1 x1, x3
+	msr	ttbr1_el1, x1			// load TTBR1
+	isb
+
+	set_sctlr_el1	x0
+
+	ret
+SYM_FUNC_END(__enable_mmu)
+
+SYM_FUNC_START(__cpu_secondary_check52bitva)
+#ifdef CONFIG_ARM64_VA_BITS_52
+	ldr_l	x0, vabits_actual
+>>>>>>> upstream/android-13
 	cmp	x0, #52
 	b.ne	2f
 
@@ -805,6 +1223,7 @@ ENTRY(__cpu_secondary_check52bitva)
 	and	x0, x0, #(0xf << ID_AA64MMFR2_LVA_SHIFT)
 	cbnz	x0, 2f
 
+<<<<<<< HEAD
 	adr_l	x0, va52mismatch
 	mov	w1, #1
 	strb	w1, [x0]
@@ -812,25 +1231,45 @@ ENTRY(__cpu_secondary_check52bitva)
 	dc	ivac, x0	// Invalidate potentially stale cache line
 
 	update_early_cpu_boot_status CPU_STUCK_IN_KERNEL, x0, x1
+=======
+	update_early_cpu_boot_status \
+		CPU_STUCK_IN_KERNEL | CPU_STUCK_REASON_52_BIT_VA, x0, x1
+>>>>>>> upstream/android-13
 1:	wfe
 	wfi
 	b	1b
 
 #endif
 2:	ret
+<<<<<<< HEAD
 ENDPROC(__cpu_secondary_check52bitva)
 
 __no_granule_support:
 	/* Indicate that this CPU can't boot and is stuck in the kernel */
 	update_early_cpu_boot_status CPU_STUCK_IN_KERNEL, x1, x2
+=======
+SYM_FUNC_END(__cpu_secondary_check52bitva)
+
+SYM_FUNC_START_LOCAL(__no_granule_support)
+	/* Indicate that this CPU can't boot and is stuck in the kernel */
+	update_early_cpu_boot_status \
+		CPU_STUCK_IN_KERNEL | CPU_STUCK_REASON_NO_GRAN, x1, x2
+>>>>>>> upstream/android-13
 1:
 	wfe
 	wfi
 	b	1b
+<<<<<<< HEAD
 ENDPROC(__no_granule_support)
 
 #ifdef CONFIG_RELOCATABLE
 __relocate_kernel:
+=======
+SYM_FUNC_END(__no_granule_support)
+
+#ifdef CONFIG_RELOCATABLE
+SYM_FUNC_START_LOCAL(__relocate_kernel)
+>>>>>>> upstream/android-13
 	/*
 	 * Iterate over each entry in the relocation table, and apply the
 	 * relocations in place.
@@ -932,15 +1371,26 @@ __relocate_kernel:
 #endif
 	ret
 
+<<<<<<< HEAD
 ENDPROC(__relocate_kernel)
 #endif
 
 __primary_switch:
+=======
+SYM_FUNC_END(__relocate_kernel)
+#endif
+
+SYM_FUNC_START_LOCAL(__primary_switch)
+>>>>>>> upstream/android-13
 #ifdef CONFIG_RANDOMIZE_BASE
 	mov	x19, x0				// preserve new SCTLR_EL1 value
 	mrs	x20, sctlr_el1			// preserve old SCTLR_EL1 value
 #endif
 
+<<<<<<< HEAD
+=======
+	adrp	x1, init_pg_dir
+>>>>>>> upstream/android-13
 	bl	__enable_mmu
 #ifdef CONFIG_RELOCATABLE
 #ifdef CONFIG_RELR
@@ -966,11 +1416,15 @@ __primary_switch:
 	dsb	nsh
 	isb
 
+<<<<<<< HEAD
 	msr	sctlr_el1, x19			// re-enable the MMU
 	isb
 	ic	iallu				// flush instructions fetched
 	dsb	nsh				// via old mapping
 	isb
+=======
+	set_sctlr_el1	x19			// re-enable the MMU
+>>>>>>> upstream/android-13
 
 	bl	__relocate_kernel
 #endif
@@ -978,4 +1432,8 @@ __primary_switch:
 	ldr	x8, =__primary_switched
 	adrp	x0, __PHYS_OFFSET
 	br	x8
+<<<<<<< HEAD
 ENDPROC(__primary_switch)
+=======
+SYM_FUNC_END(__primary_switch)
+>>>>>>> upstream/android-13

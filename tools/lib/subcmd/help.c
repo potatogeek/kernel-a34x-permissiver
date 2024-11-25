@@ -65,12 +65,23 @@ void exclude_cmds(struct cmdnames *cmds, struct cmdnames *excludes)
 	ci = cj = ei = 0;
 	while (ci < cmds->cnt && ei < excludes->cnt) {
 		cmp = strcmp(cmds->names[ci]->name, excludes->names[ei]->name);
+<<<<<<< HEAD
 		if (cmp < 0)
 			cmds->names[cj++] = cmds->names[ci++];
 		else if (cmp == 0)
 			ci++, ei++;
 		else if (cmp > 0)
 			ei++;
+=======
+		if (cmp < 0) {
+			cmds->names[cj++] = cmds->names[ci++];
+		} else if (cmp == 0) {
+			ci++;
+			ei++;
+		} else if (cmp > 0) {
+			ei++;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	while (ci < cmds->cnt)

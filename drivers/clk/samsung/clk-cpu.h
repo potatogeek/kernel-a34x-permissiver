@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014 Samsung Electronics Co., Ltd.
  *
@@ -5,6 +6,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ *
+>>>>>>> upstream/android-13
  * Common Clock Framework support for all PLL's in Samsung platforms
 */
 
@@ -49,7 +56,11 @@ struct exynos_cpuclk_cfg_data {
  */
 struct exynos_cpuclk {
 	struct clk_hw				hw;
+<<<<<<< HEAD
 	struct clk_hw				*alt_parent;
+=======
+	const struct clk_hw			*alt_parent;
+>>>>>>> upstream/android-13
 	void __iomem				*ctrl_base;
 	spinlock_t				*lock;
 	const struct exynos_cpuclk_cfg_data	*cfg;
@@ -65,9 +76,15 @@ struct exynos_cpuclk {
 #define CLK_CPU_HAS_E5433_REGS_LAYOUT	(1 << 2)
 };
 
+<<<<<<< HEAD
 extern int __init exynos_register_cpu_clock(struct samsung_clk_provider *ctx,
 			unsigned int lookup_id, const char *name,
 			const char *parent, const char *alt_parent,
+=======
+int __init exynos_register_cpu_clock(struct samsung_clk_provider *ctx,
+			unsigned int lookup_id, const char *name,
+			const struct clk_hw *parent, const struct clk_hw *alt_parent,
+>>>>>>> upstream/android-13
 			unsigned long offset,
 			const struct exynos_cpuclk_cfg_data *cfg,
 			unsigned long num_cfgs, unsigned long flags);

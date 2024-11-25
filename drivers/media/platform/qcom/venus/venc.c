@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2012-2016, The Linux Foundation. All rights reserved.
  * Copyright (C) 2017 Linaro Ltd.
@@ -11,6 +12,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2012-2016, The Linux Foundation. All rights reserved.
+ * Copyright (C) 2017 Linaro Ltd.
+>>>>>>> upstream/android-13
  */
 #include <linux/clk.h>
 #include <linux/module.h>
@@ -19,7 +26,11 @@
 #include <linux/pm_runtime.h>
 #include <linux/slab.h>
 #include <media/v4l2-mem2mem.h>
+<<<<<<< HEAD
 #include <media/videobuf2-dma-sg.h>
+=======
+#include <media/videobuf2-dma-contig.h>
+>>>>>>> upstream/android-13
 #include <media/v4l2-ioctl.h>
 #include <media/v4l2-event.h>
 #include <media/v4l2-ctrls.h>
@@ -29,6 +40,10 @@
 #include "core.h"
 #include "helpers.h"
 #include "venc.h"
+<<<<<<< HEAD
+=======
+#include "pm_helpers.h"
+>>>>>>> upstream/android-13
 
 #define NUM_B_FRAMES_MAX	4
 
@@ -121,6 +136,7 @@ find_format_by_index(struct venus_inst *inst, unsigned int index, u32 type)
 static int venc_v4l2_to_hfi(int id, int value)
 {
 	switch (id) {
+<<<<<<< HEAD
 	case V4L2_CID_MPEG_VIDEO_MPEG4_LEVEL:
 		switch (value) {
 		case V4L2_MPEG_VIDEO_MPEG4_LEVEL_0:
@@ -195,6 +211,8 @@ static int venc_v4l2_to_hfi(int id, int value)
 		case V4L2_MPEG_VIDEO_H264_LEVEL_5_1:
 			return HFI_H264_LEVEL_51;
 		}
+=======
+>>>>>>> upstream/android-13
 	case V4L2_CID_MPEG_VIDEO_H264_ENTROPY_MODE:
 		switch (value) {
 		case V4L2_MPEG_VIDEO_H264_ENTROPY_MODE_CAVLC:
@@ -203,6 +221,7 @@ static int venc_v4l2_to_hfi(int id, int value)
 		case V4L2_MPEG_VIDEO_H264_ENTROPY_MODE_CABAC:
 			return HFI_H264_ENTROPY_CABAC;
 		}
+<<<<<<< HEAD
 	case V4L2_CID_MPEG_VIDEO_VP8_PROFILE:
 		switch (value) {
 		case 0:
@@ -215,6 +234,8 @@ static int venc_v4l2_to_hfi(int id, int value)
 		case 3:
 			return HFI_VPX_PROFILE_VERSION_3;
 		}
+=======
+>>>>>>> upstream/android-13
 	case V4L2_CID_MPEG_VIDEO_H264_LOOP_FILTER_MODE:
 		switch (value) {
 		case V4L2_MPEG_VIDEO_H264_LOOP_FILTER_MODE_ENABLED:
@@ -225,6 +246,7 @@ static int venc_v4l2_to_hfi(int id, int value)
 		case V4L2_MPEG_VIDEO_H264_LOOP_FILTER_MODE_DISABLED_AT_SLICE_BOUNDARY:
 			return HFI_H264_DB_MODE_SKIP_SLICE_BOUNDARY;
 		}
+<<<<<<< HEAD
 	case V4L2_CID_MPEG_VIDEO_HEVC_PROFILE:
 		switch (value) {
 		case V4L2_MPEG_VIDEO_HEVC_PROFILE_MAIN:
@@ -265,6 +287,8 @@ static int venc_v4l2_to_hfi(int id, int value)
 		case V4L2_MPEG_VIDEO_HEVC_LEVEL_6_2:
 			return HFI_HEVC_LEVEL_62;
 		}
+=======
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -273,9 +297,15 @@ static int venc_v4l2_to_hfi(int id, int value)
 static int
 venc_querycap(struct file *file, void *fh, struct v4l2_capability *cap)
 {
+<<<<<<< HEAD
 	strlcpy(cap->driver, "qcom-venus", sizeof(cap->driver));
 	strlcpy(cap->card, "Qualcomm Venus video encoder", sizeof(cap->card));
 	strlcpy(cap->bus_info, "platform:qcom-venus", sizeof(cap->bus_info));
+=======
+	strscpy(cap->driver, "qcom-venus", sizeof(cap->driver));
+	strscpy(cap->card, "Qualcomm Venus video encoder", sizeof(cap->card));
+	strscpy(cap->bus_info, "platform:qcom-venus", sizeof(cap->bus_info));
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -303,6 +333,10 @@ venc_try_fmt_common(struct venus_inst *inst, struct v4l2_format *f)
 	struct v4l2_pix_format_mplane *pixmp = &f->fmt.pix_mp;
 	struct v4l2_plane_pix_format *pfmt = pixmp->plane_fmt;
 	const struct venus_format *fmt;
+<<<<<<< HEAD
+=======
+	u32 sizeimage;
+>>>>>>> upstream/android-13
 
 	memset(pfmt[0].reserved, 0, sizeof(pfmt[0].reserved));
 	memset(pixmp->reserved, 0, sizeof(pixmp->reserved));
@@ -316,6 +350,11 @@ venc_try_fmt_common(struct venus_inst *inst, struct v4l2_format *f)
 		else
 			return NULL;
 		fmt = find_format(inst, pixmp->pixelformat, f->type);
+<<<<<<< HEAD
+=======
+		if (!fmt)
+			return NULL;
+>>>>>>> upstream/android-13
 	}
 
 	pixmp->width = clamp(pixmp->width, frame_width_min(inst),
@@ -323,8 +362,15 @@ venc_try_fmt_common(struct venus_inst *inst, struct v4l2_format *f)
 	pixmp->height = clamp(pixmp->height, frame_height_min(inst),
 			      frame_height_max(inst));
 
+<<<<<<< HEAD
 	if (f->type == V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE)
 		pixmp->height = ALIGN(pixmp->height, 32);
+=======
+	if (f->type == V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE) {
+		pixmp->width = ALIGN(pixmp->width, 128);
+		pixmp->height = ALIGN(pixmp->height, 32);
+	}
+>>>>>>> upstream/android-13
 
 	pixmp->width = ALIGN(pixmp->width, 2);
 	pixmp->height = ALIGN(pixmp->height, 2);
@@ -334,9 +380,16 @@ venc_try_fmt_common(struct venus_inst *inst, struct v4l2_format *f)
 	pixmp->num_planes = fmt->num_planes;
 	pixmp->flags = 0;
 
+<<<<<<< HEAD
 	pfmt[0].sizeimage = venus_helper_get_framesz(pixmp->pixelformat,
 						     pixmp->width,
 						     pixmp->height);
+=======
+	sizeimage = venus_helper_get_framesz(pixmp->pixelformat,
+					     pixmp->width,
+					     pixmp->height);
+	pfmt[0].sizeimage = max(ALIGN(pfmt[0].sizeimage, SZ_4K), sizeimage);
+>>>>>>> upstream/android-13
 
 	if (f->type == V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE)
 		pfmt[0].bytesperline = ALIGN(pixmp->width, 128);
@@ -363,6 +416,17 @@ static int venc_s_fmt(struct file *file, void *fh, struct v4l2_format *f)
 	const struct venus_format *fmt;
 	struct v4l2_format format;
 	u32 pixfmt_out = 0, pixfmt_cap = 0;
+<<<<<<< HEAD
+=======
+	struct vb2_queue *q;
+
+	q = v4l2_m2m_get_vq(inst->m2m_ctx, f->type);
+	if (!q)
+		return -EINVAL;
+
+	if (vb2_is_busy(q))
+		return -EBUSY;
+>>>>>>> upstream/android-13
 
 	orig_pixmp = *pixmp;
 
@@ -408,8 +472,15 @@ static int venc_s_fmt(struct file *file, void *fh, struct v4l2_format *f)
 
 	if (f->type == V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE)
 		inst->fmt_out = fmt;
+<<<<<<< HEAD
 	else if (f->type == V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE)
 		inst->fmt_cap = fmt;
+=======
+	else if (f->type == V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE) {
+		inst->fmt_cap = fmt;
+		inst->output_buf_size = pixmp->plane_fmt[0].sizeimage;
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -457,6 +528,7 @@ venc_g_selection(struct file *file, void *fh, struct v4l2_selection *s)
 	switch (s->target) {
 	case V4L2_SEL_TGT_CROP_DEFAULT:
 	case V4L2_SEL_TGT_CROP_BOUNDS:
+<<<<<<< HEAD
 		s->r.width = inst->width;
 		s->r.height = inst->height;
 		break;
@@ -464,6 +536,15 @@ venc_g_selection(struct file *file, void *fh, struct v4l2_selection *s)
 		s->r.width = inst->out_width;
 		s->r.height = inst->out_height;
 		break;
+=======
+		s->r.width = inst->out_width;
+		s->r.height = inst->out_height;
+		break;
+	case V4L2_SEL_TGT_CROP:
+		s->r.width = inst->width;
+		s->r.height = inst->height;
+		break;
+>>>>>>> upstream/android-13
 	default:
 		return -EINVAL;
 	}
@@ -482,12 +563,28 @@ venc_s_selection(struct file *file, void *fh, struct v4l2_selection *s)
 	if (s->type != V4L2_BUF_TYPE_VIDEO_OUTPUT)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	switch (s->target) {
 	case V4L2_SEL_TGT_CROP:
 		if (s->r.width != inst->out_width ||
 		    s->r.height != inst->out_height ||
 		    s->r.top != 0 || s->r.left != 0)
 			return -EINVAL;
+=======
+	if (s->r.width > inst->out_width ||
+	    s->r.height > inst->out_height)
+		return -EINVAL;
+
+	s->r.width = ALIGN(s->r.width, 2);
+	s->r.height = ALIGN(s->r.height, 2);
+
+	switch (s->target) {
+	case V4L2_SEL_TGT_CROP:
+		s->r.top = 0;
+		s->r.left = 0;
+		inst->width = s->r.width;
+		inst->height = s->r.height;
+>>>>>>> upstream/android-13
 		break;
 	default:
 		return -EINVAL;
@@ -580,6 +677,10 @@ static int venc_enum_frameintervals(struct file *file, void *fh,
 {
 	struct venus_inst *inst = to_inst(file);
 	const struct venus_format *fmt;
+<<<<<<< HEAD
+=======
+	unsigned int framerate_factor = 1;
+>>>>>>> upstream/android-13
 
 	fival->type = V4L2_FRMIVAL_TYPE_STEPWISE;
 
@@ -604,20 +705,39 @@ static int venc_enum_frameintervals(struct file *file, void *fh,
 	    fival->height < frame_height_min(inst))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	fival->stepwise.min.numerator = 1;
 	fival->stepwise.min.denominator = frate_max(inst);
 	fival->stepwise.max.numerator = 1;
 	fival->stepwise.max.denominator = frate_min(inst);
 	fival->stepwise.step.numerator = 1;
 	fival->stepwise.step.denominator = frate_max(inst);
+=======
+	if (IS_V1(inst->core)) {
+		/* framerate is reported in 1/65535 fps unit */
+		framerate_factor = (1 << 16);
+	}
+
+	fival->stepwise.min.numerator = 1;
+	fival->stepwise.min.denominator = frate_max(inst) / framerate_factor;
+	fival->stepwise.max.numerator = 1;
+	fival->stepwise.max.denominator = frate_min(inst) / framerate_factor;
+	fival->stepwise.step.numerator = 1;
+	fival->stepwise.step.denominator = frate_max(inst) / framerate_factor;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static const struct v4l2_ioctl_ops venc_ioctl_ops = {
 	.vidioc_querycap = venc_querycap,
+<<<<<<< HEAD
 	.vidioc_enum_fmt_vid_cap_mplane = venc_enum_fmt,
 	.vidioc_enum_fmt_vid_out_mplane = venc_enum_fmt,
+=======
+	.vidioc_enum_fmt_vid_cap = venc_enum_fmt,
+	.vidioc_enum_fmt_vid_out = venc_enum_fmt,
+>>>>>>> upstream/android-13
 	.vidioc_s_fmt_vid_cap_mplane = venc_s_fmt,
 	.vidioc_s_fmt_vid_out_mplane = venc_s_fmt,
 	.vidioc_g_fmt_vid_cap_mplane = venc_g_fmt,
@@ -647,6 +767,7 @@ static int venc_set_properties(struct venus_inst *inst)
 {
 	struct venc_controls *ctr = &inst->controls.enc;
 	struct hfi_intra_period intra_period;
+<<<<<<< HEAD
 	struct hfi_profile_level pl;
 	struct hfi_framerate frate;
 	struct hfi_bitrate brate;
@@ -659,6 +780,21 @@ static int venc_set_properties(struct venus_inst *inst)
 		return ret;
 
 	ret = venus_helper_set_core_usage(inst, VIDC_CORE_ID_2);
+=======
+	struct hfi_framerate frate;
+	struct hfi_bitrate brate;
+	struct hfi_idr_period idrp;
+	struct hfi_quantization quant;
+	struct hfi_quantization_range quant_range;
+	struct hfi_enable en;
+	struct hfi_ltr_mode ltr_mode;
+	struct hfi_intra_refresh intra_refresh = {};
+	u32 ptype, rate_control, bitrate;
+	u32 profile, level;
+	int ret;
+
+	ret = venus_helper_set_work_mode(inst);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -674,6 +810,10 @@ static int venc_set_properties(struct venus_inst *inst)
 		struct hfi_h264_vui_timing_info info;
 		struct hfi_h264_entropy_control entropy;
 		struct hfi_h264_db_control deblock;
+<<<<<<< HEAD
+=======
+		struct hfi_h264_8x8_transform h264_transform;
+>>>>>>> upstream/android-13
 
 		ptype = HFI_PROPERTY_PARAM_VENC_H264_VUI_TIMING_INFO;
 		info.enable = 1;
@@ -704,6 +844,7 @@ static int venc_set_properties(struct venus_inst *inst)
 		ret = hfi_session_set_property(inst, ptype, &deblock);
 		if (ret)
 			return ret;
+<<<<<<< HEAD
 	}
 
 	/* IDR periodicity, n:
@@ -716,6 +857,63 @@ static int venc_set_properties(struct venus_inst *inst)
 	ret = hfi_session_set_property(inst, ptype, &idrp);
 	if (ret)
 		return ret;
+=======
+
+		ptype = HFI_PROPERTY_PARAM_VENC_H264_TRANSFORM_8X8;
+		h264_transform.enable_type = 0;
+		if (ctr->profile.h264 == V4L2_MPEG_VIDEO_H264_PROFILE_HIGH ||
+		    ctr->profile.h264 == V4L2_MPEG_VIDEO_H264_PROFILE_CONSTRAINED_HIGH)
+			h264_transform.enable_type = ctr->h264_8x8_transform;
+
+		ret = hfi_session_set_property(inst, ptype, &h264_transform);
+		if (ret)
+			return ret;
+
+	}
+
+	if (inst->fmt_cap->pixfmt == V4L2_PIX_FMT_H264 ||
+	    inst->fmt_cap->pixfmt == V4L2_PIX_FMT_HEVC) {
+		/* IDR periodicity, n:
+		 * n = 0 - only the first I-frame is IDR frame
+		 * n = 1 - all I-frames will be IDR frames
+		 * n > 1 - every n-th I-frame will be IDR frame
+		 */
+		ptype = HFI_PROPERTY_CONFIG_VENC_IDR_PERIOD;
+		idrp.idr_period = 0;
+		ret = hfi_session_set_property(inst, ptype, &idrp);
+		if (ret)
+			return ret;
+	}
+
+	if (inst->fmt_cap->pixfmt == V4L2_PIX_FMT_HEVC) {
+		struct hfi_hdr10_pq_sei hdr10;
+		unsigned int c;
+
+		ptype = HFI_PROPERTY_PARAM_VENC_HDR10_PQ_SEI;
+
+		for (c = 0; c < 3; c++) {
+			hdr10.mastering.display_primaries_x[c] =
+				ctr->mastering.display_primaries_x[c];
+			hdr10.mastering.display_primaries_y[c] =
+				ctr->mastering.display_primaries_y[c];
+		}
+
+		hdr10.mastering.white_point_x = ctr->mastering.white_point_x;
+		hdr10.mastering.white_point_y = ctr->mastering.white_point_y;
+		hdr10.mastering.max_display_mastering_luminance =
+			ctr->mastering.max_display_mastering_luminance;
+		hdr10.mastering.min_display_mastering_luminance =
+			ctr->mastering.min_display_mastering_luminance;
+
+		hdr10.cll.max_content_light = ctr->cll.max_content_light_level;
+		hdr10.cll.max_pic_average_light =
+			ctr->cll.max_pic_average_light_level;
+
+		ret = hfi_session_set_property(inst, ptype, &hdr10);
+		if (ret)
+			return ret;
+	}
+>>>>>>> upstream/android-13
 
 	if (ctr->num_b_frames) {
 		u32 max_num_b_frames = NUM_B_FRAMES_MAX;
@@ -734,16 +932,42 @@ static int venc_set_properties(struct venus_inst *inst)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	if (ctr->bitrate_mode == V4L2_MPEG_VIDEO_BITRATE_MODE_VBR)
 		rate_control = HFI_RATE_CONTROL_VBR_CFR;
 	else
 		rate_control = HFI_RATE_CONTROL_CBR_CFR;
+=======
+	if (!ctr->rc_enable)
+		rate_control = HFI_RATE_CONTROL_OFF;
+	else if (ctr->bitrate_mode == V4L2_MPEG_VIDEO_BITRATE_MODE_VBR)
+		rate_control = ctr->frame_skip_mode ? HFI_RATE_CONTROL_VBR_VFR :
+						      HFI_RATE_CONTROL_VBR_CFR;
+	else if (ctr->bitrate_mode == V4L2_MPEG_VIDEO_BITRATE_MODE_CBR)
+		rate_control = ctr->frame_skip_mode ? HFI_RATE_CONTROL_CBR_VFR :
+						      HFI_RATE_CONTROL_CBR_CFR;
+	else if (ctr->bitrate_mode == V4L2_MPEG_VIDEO_BITRATE_MODE_CQ)
+		rate_control = HFI_RATE_CONTROL_CQ;
+>>>>>>> upstream/android-13
 
 	ptype = HFI_PROPERTY_PARAM_VENC_RATE_CONTROL;
 	ret = hfi_session_set_property(inst, ptype, &rate_control);
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
+=======
+	if (rate_control == HFI_RATE_CONTROL_CQ && ctr->const_quality) {
+		struct hfi_heic_frame_quality quality = {};
+
+		ptype = HFI_PROPERTY_CONFIG_HEIC_FRAME_QUALITY;
+		quality.frame_quality = ctr->const_quality;
+		ret = hfi_session_set_property(inst, ptype, &quality);
+		if (ret)
+			return ret;
+	}
+
+>>>>>>> upstream/android-13
 	if (!ctr->bitrate)
 		bitrate = 64000;
 	else
@@ -757,6 +981,22 @@ static int venc_set_properties(struct venus_inst *inst)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
+=======
+	if (inst->fmt_cap->pixfmt == V4L2_PIX_FMT_H264 ||
+	    inst->fmt_cap->pixfmt == V4L2_PIX_FMT_HEVC) {
+		ptype = HFI_PROPERTY_CONFIG_VENC_SYNC_FRAME_SEQUENCE_HEADER;
+		if (ctr->header_mode == V4L2_MPEG_VIDEO_HEADER_MODE_SEPARATE)
+			en.enable = 0;
+		else
+			en.enable = 1;
+
+		ret = hfi_session_set_property(inst, ptype, &en);
+		if (ret)
+			return ret;
+	}
+
+>>>>>>> upstream/android-13
 	if (!ctr->bitrate_peak)
 		bitrate *= 2;
 	else
@@ -770,6 +1010,7 @@ static int venc_set_properties(struct venus_inst *inst)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	if (inst->fmt_cap->pixfmt == V4L2_PIX_FMT_H264) {
 		profile = venc_v4l2_to_hfi(V4L2_CID_MPEG_VIDEO_H264_PROFILE,
 					   ctr->profile.h264);
@@ -802,6 +1043,115 @@ static int venc_set_properties(struct venus_inst *inst)
 	if (ret)
 		return ret;
 
+=======
+	ptype = HFI_PROPERTY_PARAM_VENC_SESSION_QP;
+	if (inst->fmt_cap->pixfmt == V4L2_PIX_FMT_HEVC) {
+		quant.qp_i = ctr->hevc_i_qp;
+		quant.qp_p = ctr->hevc_p_qp;
+		quant.qp_b = ctr->hevc_b_qp;
+	} else {
+		quant.qp_i = ctr->h264_i_qp;
+		quant.qp_p = ctr->h264_p_qp;
+		quant.qp_b = ctr->h264_b_qp;
+	}
+	quant.layer_id = 0;
+	ret = hfi_session_set_property(inst, ptype, &quant);
+	if (ret)
+		return ret;
+
+	ptype = HFI_PROPERTY_PARAM_VENC_SESSION_QP_RANGE;
+	if (inst->fmt_cap->pixfmt == V4L2_PIX_FMT_HEVC) {
+		quant_range.min_qp = ctr->hevc_min_qp;
+		quant_range.max_qp = ctr->hevc_max_qp;
+	} else {
+		quant_range.min_qp = ctr->h264_min_qp;
+		quant_range.max_qp = ctr->h264_max_qp;
+	}
+	quant_range.layer_id = 0;
+	ret = hfi_session_set_property(inst, ptype, &quant_range);
+	if (ret)
+		return ret;
+
+	ptype = HFI_PROPERTY_PARAM_VENC_LTRMODE;
+	ltr_mode.ltr_count = ctr->ltr_count;
+	ltr_mode.ltr_mode = HFI_LTR_MODE_MANUAL;
+	ltr_mode.trust_mode = 1;
+	ret = hfi_session_set_property(inst, ptype, &ltr_mode);
+	if (ret)
+		return ret;
+
+	switch (inst->hfi_codec) {
+	case HFI_VIDEO_CODEC_H264:
+		profile = ctr->profile.h264;
+		level = ctr->level.h264;
+		break;
+	case HFI_VIDEO_CODEC_MPEG4:
+		profile = ctr->profile.mpeg4;
+		level = ctr->level.mpeg4;
+		break;
+	case HFI_VIDEO_CODEC_VP8:
+		profile = ctr->profile.vp8;
+		level = 0;
+		break;
+	case HFI_VIDEO_CODEC_VP9:
+		profile = ctr->profile.vp9;
+		level = ctr->level.vp9;
+		break;
+	case HFI_VIDEO_CODEC_HEVC:
+		profile = ctr->profile.hevc;
+		level = ctr->level.hevc;
+		break;
+	case HFI_VIDEO_CODEC_MPEG2:
+	default:
+		profile = 0;
+		level = 0;
+		break;
+	}
+
+	ret = venus_helper_set_profile_level(inst, profile, level);
+	if (ret)
+		return ret;
+
+	if (inst->fmt_cap->pixfmt == V4L2_PIX_FMT_H264 ||
+	    inst->fmt_cap->pixfmt == V4L2_PIX_FMT_HEVC) {
+		struct hfi_enable en = {};
+
+		ptype = HFI_PROPERTY_PARAM_VENC_H264_GENERATE_AUDNAL;
+
+		if (ctr->aud_enable)
+			en.enable = 1;
+
+		ret = hfi_session_set_property(inst, ptype, &en);
+	}
+
+	if ((inst->fmt_cap->pixfmt == V4L2_PIX_FMT_H264 ||
+	     inst->fmt_cap->pixfmt == V4L2_PIX_FMT_HEVC) &&
+	    (rate_control == HFI_RATE_CONTROL_CBR_VFR ||
+	     rate_control == HFI_RATE_CONTROL_CBR_CFR)) {
+		intra_refresh.mode = HFI_INTRA_REFRESH_NONE;
+		intra_refresh.cir_mbs = 0;
+
+		if (ctr->intra_refresh_period) {
+			u32 mbs;
+
+			mbs = ALIGN(inst->width, 16) * ALIGN(inst->height, 16);
+			mbs /= 16 * 16;
+			if (mbs % ctr->intra_refresh_period)
+				mbs++;
+			mbs /= ctr->intra_refresh_period;
+
+			intra_refresh.mode = HFI_INTRA_REFRESH_RANDOM;
+			intra_refresh.cir_mbs = mbs;
+		}
+
+		ptype = HFI_PROPERTY_PARAM_VENC_INTRA_REFRESH;
+
+		ret = hfi_session_set_property(inst, ptype, &intra_refresh);
+		if (ret)
+			return ret;
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -809,10 +1159,24 @@ static int venc_init_session(struct venus_inst *inst)
 {
 	int ret;
 
+<<<<<<< HEAD
 	ret = hfi_session_init(inst, inst->fmt_cap->pixfmt);
 	if (ret)
 		return ret;
 
+=======
+	ret = venus_helper_session_init(inst);
+	if (ret == -EALREADY)
+		return 0;
+	else if (ret)
+		return ret;
+
+	ret = venus_helper_set_stride(inst, inst->out_width,
+				      inst->out_height);
+	if (ret)
+		goto deinit;
+
+>>>>>>> upstream/android-13
 	ret = venus_helper_set_input_resolution(inst, inst->width,
 						inst->height);
 	if (ret)
@@ -843,6 +1207,7 @@ static int venc_out_num_buffers(struct venus_inst *inst, unsigned int *num)
 	struct hfi_buffer_requirements bufreq;
 	int ret;
 
+<<<<<<< HEAD
 	ret = venc_init_session(inst);
 	if (ret)
 		return ret;
@@ -854,6 +1219,15 @@ static int venc_out_num_buffers(struct venus_inst *inst, unsigned int *num)
 	hfi_session_deinit(inst);
 
 	return ret;
+=======
+	ret = venus_helper_get_bufreq(inst, HFI_BUFFER_INPUT, &bufreq);
+	if (ret)
+		return ret;
+
+	*num = bufreq.count_actual;
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int venc_queue_setup(struct vb2_queue *q,
@@ -862,7 +1236,11 @@ static int venc_queue_setup(struct vb2_queue *q,
 {
 	struct venus_inst *inst = vb2_get_drv_priv(q);
 	unsigned int num, min = 4;
+<<<<<<< HEAD
 	int ret = 0;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (*num_planes) {
 		if (q->type == V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE &&
@@ -884,6 +1262,16 @@ static int venc_queue_setup(struct vb2_queue *q,
 		return 0;
 	}
 
+<<<<<<< HEAD
+=======
+	mutex_lock(&inst->lock);
+	ret = venc_init_session(inst);
+	mutex_unlock(&inst->lock);
+
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	switch (q->type) {
 	case V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE:
 		*num_planes = inst->fmt_out->num_planes;
@@ -897,8 +1285,13 @@ static int venc_queue_setup(struct vb2_queue *q,
 		inst->num_input_bufs = *num_buffers;
 
 		sizes[0] = venus_helper_get_framesz(inst->fmt_out->pixfmt,
+<<<<<<< HEAD
 						    inst->width,
 						    inst->height);
+=======
+						    inst->out_width,
+						    inst->out_height);
+>>>>>>> upstream/android-13
 		inst->input_buf_size = sizes[0];
 		break;
 	case V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE:
@@ -908,6 +1301,10 @@ static int venc_queue_setup(struct vb2_queue *q,
 		sizes[0] = venus_helper_get_framesz(inst->fmt_cap->pixfmt,
 						    inst->width,
 						    inst->height);
+<<<<<<< HEAD
+=======
+		sizes[0] = max(sizes[0], inst->output_buf_size);
+>>>>>>> upstream/android-13
 		inst->output_buf_size = sizes[0];
 		break;
 	default:
@@ -918,6 +1315,52 @@ static int venc_queue_setup(struct vb2_queue *q,
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static int venc_buf_init(struct vb2_buffer *vb)
+{
+	struct venus_inst *inst = vb2_get_drv_priv(vb->vb2_queue);
+
+	inst->buf_count++;
+
+	return venus_helper_vb2_buf_init(vb);
+}
+
+static void venc_release_session(struct venus_inst *inst)
+{
+	int ret;
+
+	mutex_lock(&inst->lock);
+
+	ret = hfi_session_deinit(inst);
+	if (ret || inst->session_error)
+		hfi_session_abort(inst);
+
+	mutex_unlock(&inst->lock);
+
+	venus_pm_load_scale(inst);
+	INIT_LIST_HEAD(&inst->registeredbufs);
+	venus_pm_release_core(inst);
+}
+
+static void venc_buf_cleanup(struct vb2_buffer *vb)
+{
+	struct venus_inst *inst = vb2_get_drv_priv(vb->vb2_queue);
+	struct vb2_v4l2_buffer *vbuf = to_vb2_v4l2_buffer(vb);
+	struct venus_buffer *buf = to_venus_buffer(vbuf);
+
+	mutex_lock(&inst->lock);
+	if (vb->type == V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE)
+		if (!list_empty(&inst->registeredbufs))
+			list_del_init(&buf->reg_list);
+	mutex_unlock(&inst->lock);
+
+	inst->buf_count--;
+	if (!inst->buf_count)
+		venc_release_session(inst);
+}
+
+>>>>>>> upstream/android-13
 static int venc_verify_conf(struct venus_inst *inst)
 {
 	enum hfi_version ver = inst->core->res->hfi_version;
@@ -968,6 +1411,7 @@ static int venc_start_streaming(struct vb2_queue *q, unsigned int count)
 	inst->sequence_cap = 0;
 	inst->sequence_out = 0;
 
+<<<<<<< HEAD
 	ret = venc_init_session(inst);
 	if (ret)
 		goto bufs_done;
@@ -979,24 +1423,50 @@ static int venc_start_streaming(struct vb2_queue *q, unsigned int count)
 	ret = venc_verify_conf(inst);
 	if (ret)
 		goto deinit_sess;
+=======
+	ret = venus_pm_acquire_core(inst);
+	if (ret)
+		goto error;
+
+	ret = venc_set_properties(inst);
+	if (ret)
+		goto error;
+
+	ret = venc_verify_conf(inst);
+	if (ret)
+		goto error;
+>>>>>>> upstream/android-13
 
 	ret = venus_helper_set_num_bufs(inst, inst->num_input_bufs,
 					inst->num_output_bufs, 0);
 	if (ret)
+<<<<<<< HEAD
 		goto deinit_sess;
 
 	ret = venus_helper_vb2_start_streaming(inst);
 	if (ret)
 		goto deinit_sess;
+=======
+		goto error;
+
+	ret = venus_helper_vb2_start_streaming(inst);
+	if (ret)
+		goto error;
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&inst->lock);
 
 	return 0;
 
+<<<<<<< HEAD
 deinit_sess:
 	hfi_session_deinit(inst);
 bufs_done:
 	venus_helper_buffers_done(inst, VB2_BUF_STATE_QUEUED);
+=======
+error:
+	venus_helper_buffers_done(inst, q->type, VB2_BUF_STATE_QUEUED);
+>>>>>>> upstream/android-13
 	if (q->type == V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE)
 		inst->streamon_out = 0;
 	else
@@ -1005,6 +1475,7 @@ bufs_done:
 	return ret;
 }
 
+<<<<<<< HEAD
 static const struct vb2_ops venc_vb2_ops = {
 	.queue_setup = venc_queue_setup,
 	.buf_init = venus_helper_vb2_buf_init,
@@ -1012,6 +1483,25 @@ static const struct vb2_ops venc_vb2_ops = {
 	.start_streaming = venc_start_streaming,
 	.stop_streaming = venus_helper_vb2_stop_streaming,
 	.buf_queue = venus_helper_vb2_buf_queue,
+=======
+static void venc_vb2_buf_queue(struct vb2_buffer *vb)
+{
+	struct venus_inst *inst = vb2_get_drv_priv(vb->vb2_queue);
+
+	mutex_lock(&inst->lock);
+	venus_helper_vb2_buf_queue(vb);
+	mutex_unlock(&inst->lock);
+}
+
+static const struct vb2_ops venc_vb2_ops = {
+	.queue_setup = venc_queue_setup,
+	.buf_init = venc_buf_init,
+	.buf_cleanup = venc_buf_cleanup,
+	.buf_prepare = venus_helper_vb2_buf_prepare,
+	.start_streaming = venc_start_streaming,
+	.stop_streaming = venus_helper_vb2_stop_streaming,
+	.buf_queue = venc_vb2_buf_queue,
+>>>>>>> upstream/android-13
 };
 
 static void venc_buf_done(struct venus_inst *inst, unsigned int buf_type,
@@ -1074,10 +1564,17 @@ static int m2m_queue_init(void *priv, struct vb2_queue *src_vq,
 	int ret;
 
 	src_vq->type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
+<<<<<<< HEAD
 	src_vq->io_modes = VB2_MMAP | VB2_DMABUF;
 	src_vq->timestamp_flags = V4L2_BUF_FLAG_TIMESTAMP_COPY;
 	src_vq->ops = &venc_vb2_ops;
 	src_vq->mem_ops = &vb2_dma_sg_memops;
+=======
+	src_vq->io_modes = VB2_MMAP | VB2_USERPTR | VB2_DMABUF;
+	src_vq->timestamp_flags = V4L2_BUF_FLAG_TIMESTAMP_COPY;
+	src_vq->ops = &venc_vb2_ops;
+	src_vq->mem_ops = &vb2_dma_contig_memops;
+>>>>>>> upstream/android-13
 	src_vq->drv_priv = inst;
 	src_vq->buf_struct_size = sizeof(struct venus_buffer);
 	src_vq->allow_zero_bytesused = 1;
@@ -1090,15 +1587,23 @@ static int m2m_queue_init(void *priv, struct vb2_queue *src_vq,
 		return ret;
 
 	dst_vq->type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
+<<<<<<< HEAD
 	dst_vq->io_modes = VB2_MMAP | VB2_DMABUF;
 	dst_vq->timestamp_flags = V4L2_BUF_FLAG_TIMESTAMP_COPY;
 	dst_vq->ops = &venc_vb2_ops;
 	dst_vq->mem_ops = &vb2_dma_sg_memops;
+=======
+	dst_vq->io_modes = VB2_MMAP | VB2_USERPTR | VB2_DMABUF;
+	dst_vq->timestamp_flags = V4L2_BUF_FLAG_TIMESTAMP_COPY;
+	dst_vq->ops = &venc_vb2_ops;
+	dst_vq->mem_ops = &vb2_dma_contig_memops;
+>>>>>>> upstream/android-13
 	dst_vq->drv_priv = inst;
 	dst_vq->buf_struct_size = sizeof(struct venus_buffer);
 	dst_vq->allow_zero_bytesused = 1;
 	dst_vq->min_buffers_needed = 1;
 	dst_vq->dev = inst->core->dev;
+<<<<<<< HEAD
 	ret = vb2_queue_init(dst_vq);
 	if (ret) {
 		vb2_queue_release(src_vq);
@@ -1106,11 +1611,18 @@ static int m2m_queue_init(void *priv, struct vb2_queue *src_vq,
 	}
 
 	return 0;
+=======
+	return vb2_queue_init(dst_vq);
+>>>>>>> upstream/android-13
 }
 
 static void venc_inst_init(struct venus_inst *inst)
 {
+<<<<<<< HEAD
 	inst->fmt_cap = &venc_formats[2];
+=======
+	inst->fmt_cap = &venc_formats[3];
+>>>>>>> upstream/android-13
 	inst->fmt_out = &venc_formats[0];
 	inst->width = 1280;
 	inst->height = ALIGN(720, 32);
@@ -1140,12 +1652,23 @@ static int venc_open(struct file *file)
 
 	inst->core = core;
 	inst->session_type = VIDC_SESSION_TYPE_ENC;
+<<<<<<< HEAD
 
 	venus_helper_init_instance(inst);
 
 	ret = pm_runtime_get_sync(core->dev_enc);
 	if (ret < 0)
 		goto err_free_inst;
+=======
+	inst->clk_data.core_id = VIDC_CORE_ID_DEFAULT;
+	inst->core_acquired = false;
+
+	venus_helper_init_instance(inst);
+
+	ret = pm_runtime_resume_and_get(core->dev_enc);
+	if (ret < 0)
+		goto err_free;
+>>>>>>> upstream/android-13
 
 	ret = venc_ctrl_init(inst);
 	if (ret)
@@ -1190,7 +1713,11 @@ err_ctrl_deinit:
 	venc_ctrl_deinit(inst);
 err_put_sync:
 	pm_runtime_put_sync(core->dev_enc);
+<<<<<<< HEAD
 err_free_inst:
+=======
+err_free:
+>>>>>>> upstream/android-13
 	kfree(inst);
 	return ret;
 }
@@ -1236,6 +1763,7 @@ static int venc_probe(struct platform_device *pdev)
 	if (!core)
 		return -EPROBE_DEFER;
 
+<<<<<<< HEAD
 	if (IS_V3(core) || IS_V4(core)) {
 		core->core1_clk = devm_clk_get(dev, "core");
 		if (IS_ERR(core->core1_clk))
@@ -1250,11 +1778,25 @@ static int venc_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, core);
 
+=======
+	platform_set_drvdata(pdev, core);
+
+	if (core->pm_ops->venc_get) {
+		ret = core->pm_ops->venc_get(dev);
+		if (ret)
+			return ret;
+	}
+
+>>>>>>> upstream/android-13
 	vdev = video_device_alloc();
 	if (!vdev)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	strlcpy(vdev->name, "qcom-venus-encoder", sizeof(vdev->name));
+=======
+	strscpy(vdev->name, "qcom-venus-encoder", sizeof(vdev->name));
+>>>>>>> upstream/android-13
 	vdev->release = video_device_release;
 	vdev->fops = &venc_fops;
 	vdev->ioctl_ops = &venc_ioctl_ops;
@@ -1262,7 +1804,11 @@ static int venc_probe(struct platform_device *pdev)
 	vdev->v4l2_dev = &core->v4l2_dev;
 	vdev->device_caps = V4L2_CAP_VIDEO_M2M_MPLANE | V4L2_CAP_STREAMING;
 
+<<<<<<< HEAD
 	ret = video_register_device(vdev, VFL_TYPE_GRABBER, -1);
+=======
+	ret = video_register_device(vdev, VFL_TYPE_VIDEO, -1);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto err_vdev_release;
 
@@ -1286,12 +1832,19 @@ static int venc_remove(struct platform_device *pdev)
 	video_unregister_device(core->vdev_enc);
 	pm_runtime_disable(core->dev_enc);
 
+<<<<<<< HEAD
+=======
+	if (core->pm_ops->venc_put)
+		core->pm_ops->venc_put(core->dev_enc);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static __maybe_unused int venc_runtime_suspend(struct device *dev)
 {
 	struct venus_core *core = dev_get_drvdata(dev);
+<<<<<<< HEAD
 	int ret;
 
 	if (IS_V1(core))
@@ -1307,11 +1860,21 @@ static __maybe_unused int venc_runtime_suspend(struct device *dev)
 	clk_disable_unprepare(core->core1_clk);
 
 	return venus_helper_power_enable(core, VIDC_SESSION_TYPE_ENC, false);
+=======
+	const struct venus_pm_ops *pm_ops = core->pm_ops;
+	int ret = 0;
+
+	if (pm_ops->venc_power)
+		ret = pm_ops->venc_power(dev, POWER_OFF);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static __maybe_unused int venc_runtime_resume(struct device *dev)
 {
 	struct venus_core *core = dev_get_drvdata(dev);
+<<<<<<< HEAD
 	int ret;
 
 	if (IS_V1(core))
@@ -1337,6 +1900,14 @@ err_unprepare_core1:
 	clk_disable_unprepare(core->core1_clk);
 err_power_disable:
 	venus_helper_power_enable(core, VIDC_SESSION_TYPE_ENC, false);
+=======
+	const struct venus_pm_ops *pm_ops = core->pm_ops;
+	int ret = 0;
+
+	if (pm_ops->venc_power)
+		ret = pm_ops->venc_power(dev, POWER_ON);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 

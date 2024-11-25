@@ -93,7 +93,11 @@ static int vio_device_probe(struct device *dev)
 	return drv->probe(vdev, id);
 }
 
+<<<<<<< HEAD
 static int vio_device_remove(struct device *dev)
+=======
+static void vio_device_remove(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct vio_dev *vdev = to_vio_dev(dev);
 	struct vio_driver *drv = to_vio_driver(dev->driver);
@@ -105,10 +109,15 @@ static int vio_device_remove(struct device *dev)
 		 * routines to do so at the moment. TBD
 		 */
 
+<<<<<<< HEAD
 		return drv->remove(vdev);
 	}
 
 	return 1;
+=======
+		drv->remove(vdev);
+	}
+>>>>>>> upstream/android-13
 }
 
 static ssize_t devspec_show(struct device *dev,
@@ -193,7 +202,11 @@ show_pciobppath_attr(struct device *dev, struct device_attribute *attr,
 	vdev = to_vio_dev(dev);
 	dp = vdev->dp;
 
+<<<<<<< HEAD
 	return snprintf (buf, PAGE_SIZE, "%s\n", dp->full_name);
+=======
+	return scnprintf(buf, PAGE_SIZE, "%pOF\n", dp);
+>>>>>>> upstream/android-13
 }
 
 static DEVICE_ATTR(obppath, S_IRUSR | S_IRGRP | S_IROTH,
@@ -366,12 +379,18 @@ static struct vio_dev *vio_create_one(struct mdesc_handle *hp, u64 mp,
 	if (parent == NULL) {
 		dp = cdev_node;
 	} else if (to_vio_dev(parent) == root_vdev) {
+<<<<<<< HEAD
 		dp = of_get_next_child(cdev_node, NULL);
 		while (dp) {
 			if (!strcmp(dp->type, type))
 				break;
 
 			dp = of_get_next_child(cdev_node, dp);
+=======
+		for_each_child_of_node(cdev_node, dp) {
+			if (of_node_is_type(dp, type))
+				break;
+>>>>>>> upstream/android-13
 		}
 	} else {
 		dp = to_vio_dev(parent)->dp;

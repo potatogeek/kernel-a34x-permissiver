@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 /*
  * da9210-regulator.h - Regulator definitions for DA9210
@@ -17,6 +18,12 @@
  * License along with this library; if not, write to the
  * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
  * Boston, MA  02110-1301, USA.
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+/*
+ * da9210-regulator.h - Regulator definitions for DA9210
+ * Copyright (C) 2013  Dialog Semiconductor Ltd.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __DA9210_REGISTERS_H__

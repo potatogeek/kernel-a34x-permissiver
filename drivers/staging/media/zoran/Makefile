@@ -1,5 +1,9 @@
 # SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 zr36067-objs	:=	zoran_procfs.o zoran_device.o \
+=======
+zr36067-objs	:=	zoran_device.o \
+>>>>>>> upstream/android-13
 			zoran_driver.o zoran_card.o
 
 obj-$(CONFIG_VIDEO_ZORAN) += zr36067.o videocodec.o

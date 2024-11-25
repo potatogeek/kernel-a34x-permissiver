@@ -1,8 +1,12 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 
 #include <linux/kernel.h>
 #include <linux/init.h>
@@ -58,11 +62,14 @@ void nft_fib4_eval_type(const struct nft_expr *expr, struct nft_regs *regs,
 }
 EXPORT_SYMBOL_GPL(nft_fib4_eval_type);
 
+<<<<<<< HEAD
 static int get_ifindex(const struct net_device *dev)
 {
 	return dev ? dev->ifindex : 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 void nft_fib4_eval(const struct nft_expr *expr, struct nft_regs *regs,
 		   const struct nft_pktinfo *pkt)
 {
@@ -76,10 +83,14 @@ void nft_fib4_eval(const struct nft_expr *expr, struct nft_regs *regs,
 		.flowi4_iif = LOOPBACK_IFINDEX,
 	};
 	const struct net_device *oif;
+<<<<<<< HEAD
 	struct net_device *found;
 #ifdef CONFIG_IP_ROUTE_MULTIPATH
 	int i;
 #endif
+=======
+	const struct net_device *found;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Do not set flowi4_oif, it restricts results (for example, asking
@@ -97,8 +108,12 @@ void nft_fib4_eval(const struct nft_expr *expr, struct nft_regs *regs,
 
 	if (nft_hook(pkt) == NF_INET_PRE_ROUTING &&
 	    nft_fib_is_loopback(pkt->skb, nft_in(pkt))) {
+<<<<<<< HEAD
 		nft_fib_store_result(dest, priv, pkt,
 				     nft_in(pkt)->ifindex);
+=======
+		nft_fib_store_result(dest, priv, nft_in(pkt));
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -111,8 +126,12 @@ void nft_fib4_eval(const struct nft_expr *expr, struct nft_regs *regs,
 	if (ipv4_is_zeronet(iph->saddr)) {
 		if (ipv4_is_lbcast(iph->daddr) ||
 		    ipv4_is_local_multicast(iph->daddr)) {
+<<<<<<< HEAD
 			nft_fib_store_result(dest, priv, pkt,
 					     get_ifindex(pkt->skb->dev));
+=======
+			nft_fib_store_result(dest, priv, pkt->skb->dev);
+>>>>>>> upstream/android-13
 			return;
 		}
 	}
@@ -146,6 +165,7 @@ void nft_fib4_eval(const struct nft_expr *expr, struct nft_regs *regs,
 
        if (!oif) {
                found = FIB_RES_DEV(res);
+<<<<<<< HEAD
                goto ok;
        }
 
@@ -176,6 +196,16 @@ ok:
 		WARN_ON_ONCE(1);
 		break;
 	}
+=======
+	} else {
+		if (!fib_info_nh_uses_dev(res.fi, oif))
+			return;
+
+		found = oif;
+	}
+
+	nft_fib_store_result(dest, priv, found);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(nft_fib4_eval);
 
@@ -246,3 +276,7 @@ module_exit(nft_fib4_module_exit);
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Florian Westphal <fw@strlen.de>");
 MODULE_ALIAS_NFT_AF_EXPR(2, "fib");
+<<<<<<< HEAD
+=======
+MODULE_DESCRIPTION("nftables fib / ip route lookup support");
+>>>>>>> upstream/android-13

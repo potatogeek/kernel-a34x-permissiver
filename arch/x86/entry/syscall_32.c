@@ -4,6 +4,7 @@
 #include <linux/linkage.h>
 #include <linux/sys.h>
 #include <linux/cache.h>
+<<<<<<< HEAD
 #include <asm/asm-offsets.h>
 #include <asm/syscall.h>
 
@@ -28,5 +29,24 @@ __visible const sys_call_ptr_t ia32_sys_call_table[__NR_syscall_compat_max+1] = 
 	 * when the & below is removed.
 	 */
 	[0 ... __NR_syscall_compat_max] = &__sys_ni_syscall,
+=======
+#include <linux/syscalls.h>
+#include <asm/syscall.h>
+
+#ifdef CONFIG_IA32_EMULATION
+#define __SYSCALL_WITH_COMPAT(nr, native, compat)	__SYSCALL(nr, compat)
+#else
+#define __SYSCALL_WITH_COMPAT(nr, native, compat)	__SYSCALL(nr, native)
+#endif
+
+#define __SYSCALL(nr, sym) extern long __ia32_##sym(const struct pt_regs *);
+
+#include <asm/syscalls_32.h>
+#undef __SYSCALL
+
+#define __SYSCALL(nr, sym) __ia32_##sym,
+
+__visible const sys_call_ptr_t ia32_sys_call_table[] = {
+>>>>>>> upstream/android-13
 #include <asm/syscalls_32.h>
 };

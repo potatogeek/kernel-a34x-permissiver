@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Common code for Freescale MMA955x Intelligent Sensor Platform drivers
  * Copyright (c) 2014, Intel Corporation.
@@ -10,6 +11,12 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Common code for Freescale MMA955x Intelligent Sensor Platform drivers
+ * Copyright (c) 2014, Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _MMA9551_CORE_H_

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver For Marvell Two-channel DMA Engine
  *
  * Copyright: Marvell International Ltd.
+<<<<<<< HEAD
  *
  * The code contained herein is licensed under the GNU General Public
  * License. You may obtain a copy of the GNU General Public License
  * Version 2 or later at the following locations:
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -116,6 +123,10 @@ struct mmp_tdma_chan {
 	u32				burst_sz;
 	enum dma_slave_buswidth		buswidth;
 	enum dma_status			status;
+<<<<<<< HEAD
+=======
+	struct dma_slave_config		slave_config;
+>>>>>>> upstream/android-13
 
 	int				idx;
 	enum mmp_tdma_type		type;
@@ -139,6 +150,13 @@ struct mmp_tdma_device {
 
 #define to_mmp_tdma_chan(dchan) container_of(dchan, struct mmp_tdma_chan, chan)
 
+<<<<<<< HEAD
+=======
+static int mmp_tdma_config_write(struct dma_chan *chan,
+				 enum dma_transfer_direction dir,
+				 struct dma_slave_config *dmaengine_cfg);
+
+>>>>>>> upstream/android-13
 static void mmp_tdma_chan_set_desc(struct mmp_tdma_chan *tdmac, dma_addr_t phys)
 {
 	writel(phys, tdmac->reg_base + TDNDPR);
@@ -234,7 +252,11 @@ static int mmp_tdma_config_chan(struct dma_chan *chan)
 			tdcr |= TDCR_BURSTSZ_128B;
 			break;
 		default:
+<<<<<<< HEAD
 			dev_err(tdmac->dev, "mmp_tdma: unknown burst size.\n");
+=======
+			dev_err(tdmac->dev, "unknown burst size.\n");
+>>>>>>> upstream/android-13
 			return -EINVAL;
 		}
 
@@ -249,7 +271,11 @@ static int mmp_tdma_config_chan(struct dma_chan *chan)
 			tdcr |= TDCR_SSZ_32_BITS;
 			break;
 		default:
+<<<<<<< HEAD
 			dev_err(tdmac->dev, "mmp_tdma: unknown bus size.\n");
+=======
+			dev_err(tdmac->dev, "unknown bus size.\n");
+>>>>>>> upstream/android-13
 			return -EINVAL;
 		}
 	} else if (tdmac->type == PXA910_SQU) {
@@ -275,7 +301,11 @@ static int mmp_tdma_config_chan(struct dma_chan *chan)
 			tdcr |= TDCR_BURSTSZ_SQU_32B;
 			break;
 		default:
+<<<<<<< HEAD
 			dev_err(tdmac->dev, "mmp_tdma: unknown burst size.\n");
+=======
+			dev_err(tdmac->dev, "unknown burst size.\n");
+>>>>>>> upstream/android-13
 			return -EINVAL;
 		}
 	}
@@ -345,9 +375,15 @@ static irqreturn_t mmp_tdma_int_handler(int irq, void *dev_id)
 		return IRQ_NONE;
 }
 
+<<<<<<< HEAD
 static void dma_do_tasklet(unsigned long data)
 {
 	struct mmp_tdma_chan *tdmac = (struct mmp_tdma_chan *)data;
+=======
+static void dma_do_tasklet(struct tasklet_struct *t)
+{
+	struct mmp_tdma_chan *tdmac = from_tasklet(tdmac, t, tasklet);
+>>>>>>> upstream/android-13
 
 	dmaengine_desc_get_callback_invoke(&tdmac->desc, NULL);
 }
@@ -428,8 +464,20 @@ static struct dma_async_tx_descriptor *mmp_tdma_prep_dma_cyclic(
 	int num_periods = buf_len / period_len;
 	int i = 0, buf = 0;
 
+<<<<<<< HEAD
 	if (tdmac->status != DMA_COMPLETE)
 		return NULL;
+=======
+	if (!is_slave_direction(direction)) {
+		dev_err(tdmac->dev, "unsupported transfer direction\n");
+		return NULL;
+	}
+
+	if (tdmac->status != DMA_COMPLETE) {
+		dev_err(tdmac->dev, "controller busy");
+		return NULL;
+	}
+>>>>>>> upstream/android-13
 
 	if (period_len > TDMA_MAX_XFER_BYTES) {
 		dev_err(tdmac->dev,
@@ -444,6 +492,12 @@ static struct dma_async_tx_descriptor *mmp_tdma_prep_dma_cyclic(
 	if (!desc)
 		goto err_out;
 
+<<<<<<< HEAD
+=======
+	if (mmp_tdma_config_write(chan, direction, &tdmac->slave_config))
+		goto err_out;
+
+>>>>>>> upstream/android-13
 	while (buf < buf_len) {
 		desc = &tdmac->desc_arr[i];
 
@@ -497,7 +551,22 @@ static int mmp_tdma_config(struct dma_chan *chan,
 {
 	struct mmp_tdma_chan *tdmac = to_mmp_tdma_chan(chan);
 
+<<<<<<< HEAD
 	if (dmaengine_cfg->direction == DMA_DEV_TO_MEM) {
+=======
+	memcpy(&tdmac->slave_config, dmaengine_cfg, sizeof(*dmaengine_cfg));
+
+	return 0;
+}
+
+static int mmp_tdma_config_write(struct dma_chan *chan,
+				 enum dma_transfer_direction dir,
+				 struct dma_slave_config *dmaengine_cfg)
+{
+	struct mmp_tdma_chan *tdmac = to_mmp_tdma_chan(chan);
+
+	if (dir == DMA_DEV_TO_MEM) {
+>>>>>>> upstream/android-13
 		tdmac->dev_addr = dmaengine_cfg->src_addr;
 		tdmac->burst_sz = dmaengine_cfg->src_maxburst;
 		tdmac->buswidth = dmaengine_cfg->src_addr_width;
@@ -506,7 +575,11 @@ static int mmp_tdma_config(struct dma_chan *chan,
 		tdmac->burst_sz = dmaengine_cfg->dst_maxburst;
 		tdmac->buswidth = dmaengine_cfg->dst_addr_width;
 	}
+<<<<<<< HEAD
 	tdmac->dir = dmaengine_cfg->direction;
+=======
+	tdmac->dir = dir;
+>>>>>>> upstream/android-13
 
 	return mmp_tdma_config_chan(chan);
 }
@@ -532,9 +605,15 @@ static void mmp_tdma_issue_pending(struct dma_chan *chan)
 
 static int mmp_tdma_remove(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct mmp_tdma_device *tdev = platform_get_drvdata(pdev);
 
 	dma_async_device_unregister(&tdev->device);
+=======
+	if (pdev->dev.of_node)
+		of_dma_controller_free(pdev->dev.of_node);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -564,7 +643,11 @@ static int mmp_tdma_chan_init(struct mmp_tdma_device *tdev,
 	tdmac->pool	   = pool;
 	tdmac->status = DMA_COMPLETE;
 	tdev->tdmac[tdmac->idx] = tdmac;
+<<<<<<< HEAD
 	tasklet_init(&tdmac->tasklet, dma_do_tasklet, (unsigned long)tdmac);
+=======
+	tasklet_setup(&tdmac->tasklet, dma_do_tasklet);
+>>>>>>> upstream/android-13
 
 	/* add the channel to tdma_chan list */
 	list_add_tail(&tdmac->chan.device_node,
@@ -573,18 +656,24 @@ static int mmp_tdma_chan_init(struct mmp_tdma_device *tdev,
 }
 
 struct mmp_tdma_filter_param {
+<<<<<<< HEAD
 	struct device_node *of_node;
+=======
+>>>>>>> upstream/android-13
 	unsigned int chan_id;
 };
 
 static bool mmp_tdma_filter_fn(struct dma_chan *chan, void *fn_param)
 {
 	struct mmp_tdma_filter_param *param = fn_param;
+<<<<<<< HEAD
 	struct mmp_tdma_chan *tdmac = to_mmp_tdma_chan(chan);
 	struct dma_device *pdma_device = tdmac->chan.device;
 
 	if (pdma_device->dev->of_node != param->of_node)
 		return false;
+=======
+>>>>>>> upstream/android-13
 
 	if (chan->chan_id != param->chan_id)
 		return false;
@@ -602,13 +691,21 @@ static struct dma_chan *mmp_tdma_xlate(struct of_phandle_args *dma_spec,
 	if (dma_spec->args_count != 1)
 		return NULL;
 
+<<<<<<< HEAD
 	param.of_node = ofdma->of_node;
+=======
+>>>>>>> upstream/android-13
 	param.chan_id = dma_spec->args[0];
 
 	if (param.chan_id >= TDMA_CHANNEL_NUM)
 		return NULL;
 
+<<<<<<< HEAD
 	return dma_request_channel(mask, mmp_tdma_filter_fn, &param);
+=======
+	return __dma_request_channel(&mask, mmp_tdma_filter_fn, &param,
+				     ofdma->of_node);
+>>>>>>> upstream/android-13
 }
 
 static const struct of_device_id mmp_tdma_dt_ids[] = {
@@ -666,7 +763,11 @@ static int mmp_tdma_probe(struct platform_device *pdev)
 	if (irq_num != chan_num) {
 		irq = platform_get_irq(pdev, 0);
 		ret = devm_request_irq(&pdev->dev, irq,
+<<<<<<< HEAD
 			mmp_tdma_int_handler, 0, "tdma", tdev);
+=======
+			mmp_tdma_int_handler, IRQF_SHARED, "tdma", tdev);
+>>>>>>> upstream/android-13
 		if (ret)
 			return ret;
 	}
@@ -695,10 +796,28 @@ static int mmp_tdma_probe(struct platform_device *pdev)
 	tdev->device.device_terminate_all = mmp_tdma_terminate_all;
 	tdev->device.copy_align = DMAENGINE_ALIGN_8_BYTES;
 
+<<<<<<< HEAD
 	dma_set_mask(&pdev->dev, DMA_BIT_MASK(64));
 	platform_set_drvdata(pdev, tdev);
 
 	ret = dma_async_device_register(&tdev->device);
+=======
+	tdev->device.directions = BIT(DMA_DEV_TO_MEM) | BIT(DMA_MEM_TO_DEV);
+	if (type == MMP_AUD_TDMA) {
+		tdev->device.max_burst = SZ_128;
+		tdev->device.src_addr_widths = BIT(DMA_SLAVE_BUSWIDTH_4_BYTES);
+		tdev->device.dst_addr_widths = BIT(DMA_SLAVE_BUSWIDTH_4_BYTES);
+	} else if (type == PXA910_SQU) {
+		tdev->device.max_burst = SZ_32;
+	}
+	tdev->device.residue_granularity = DMA_RESIDUE_GRANULARITY_BURST;
+	tdev->device.descriptor_reuse = true;
+
+	dma_set_mask(&pdev->dev, DMA_BIT_MASK(64));
+	platform_set_drvdata(pdev, tdev);
+
+	ret = dmaenginem_async_device_register(&tdev->device);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(tdev->device.dev, "unable to register\n");
 		return ret;
@@ -710,7 +829,11 @@ static int mmp_tdma_probe(struct platform_device *pdev)
 		if (ret) {
 			dev_err(tdev->device.dev,
 				"failed to register controller\n");
+<<<<<<< HEAD
 			dma_async_device_unregister(&tdev->device);
+=======
+			return ret;
+>>>>>>> upstream/android-13
 		}
 	}
 

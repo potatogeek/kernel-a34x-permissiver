@@ -1,9 +1,16 @@
+<<<<<<< HEAD
 /*
  *         Copyright (c) 2007 by Silicon Motion, Inc. (SMI)
  *
  *  All rights are reserved. Reproduction or in part is prohibited
  *  without the written consent of the copyright owner.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ *         Copyright (c) 2007 by Silicon Motion, Inc. (SMI)
+ *
+>>>>>>> upstream/android-13
  *  swi2c.h --- SM750/SM718 DDK
  *  This file contains the definitions for i2c using software
  *  implementation.

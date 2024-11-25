@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	X.25 Packet Layer release 002
  *
@@ -7,12 +11,15 @@
  *
  *	This code REQUIRES 2.1.15 or higher
  *
+<<<<<<< HEAD
  *	This module:
  *		This module is free software; you can redistribute it and/or
  *		modify it under the terms of the GNU General Public License
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *	History
  *	X.25 001	Split from x25_subr.c
  *	mar/20/00	Daniela Squassoni Disabling/enabling of facilities
@@ -103,7 +110,11 @@ int x25_parse_facilities(struct sk_buff *skb, struct x25_facilities *facilities,
 					*vc_fac_mask |= X25_MASK_REVERSE;
 					break;
 				}
+<<<<<<< HEAD
 				/*fall through */
+=======
+				fallthrough;
+>>>>>>> upstream/android-13
 			case X25_FAC_THROUGHPUT:
 				facilities->throughput = p[1];
 				*vc_fac_mask |= X25_MASK_THROUGHPUT;

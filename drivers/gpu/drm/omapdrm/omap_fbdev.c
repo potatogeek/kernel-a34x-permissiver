@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/
  * Author: Rob Clark <rob@ti.com>
@@ -17,6 +18,19 @@
 
 #include <drm/drm_crtc.h>
 #include <drm/drm_fb_helper.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2011 Texas Instruments Incorporated - https://www.ti.com/
+ * Author: Rob Clark <rob@ti.com>
+ */
+
+#include <drm/drm_crtc.h>
+#include <drm/drm_util.h>
+#include <drm/drm_fb_helper.h>
+#include <drm/drm_file.h>
+#include <drm/drm_fourcc.h>
+>>>>>>> upstream/android-13
 
 #include "omap_drv.h"
 
@@ -78,7 +92,11 @@ fallback:
 	return drm_fb_helper_pan_display(var, fbi);
 }
 
+<<<<<<< HEAD
 static struct fb_ops omap_fb_ops = {
+=======
+static const struct fb_ops omap_fb_ops = {
+>>>>>>> upstream/android-13
 	.owner = THIS_MODULE,
 
 	.fb_check_var	= drm_fb_helper_check_var,
@@ -86,8 +104,11 @@ static struct fb_ops omap_fb_ops = {
 	.fb_setcmap	= drm_fb_helper_setcmap,
 	.fb_blank	= drm_fb_helper_blank,
 	.fb_pan_display = omap_fbdev_pan_display,
+<<<<<<< HEAD
 	.fb_debug_enter = drm_fb_helper_debug_enter,
 	.fb_debug_leave = drm_fb_helper_debug_leave,
+=======
+>>>>>>> upstream/android-13
 	.fb_ioctl	= drm_fb_helper_ioctl,
 
 	.fb_read = drm_fb_helper_sys_read,
@@ -150,7 +171,11 @@ static int omap_fbdev_create(struct drm_fb_helper *helper,
 		/* note: if fb creation failed, we can't rely on fb destroy
 		 * to unref the bo:
 		 */
+<<<<<<< HEAD
 		drm_gem_object_unreference_unlocked(fbdev->bo);
+=======
+		drm_gem_object_put(fbdev->bo);
+>>>>>>> upstream/android-13
 		ret = PTR_ERR(fb);
 		goto fail;
 	}
@@ -182,6 +207,7 @@ static int omap_fbdev_create(struct drm_fb_helper *helper,
 	fbdev->fb = fb;
 	helper->fb = fb;
 
+<<<<<<< HEAD
 	fbi->par = helper;
 	fbi->fbops = &omap_fb_ops;
 
@@ -189,6 +215,11 @@ static int omap_fbdev_create(struct drm_fb_helper *helper,
 
 	drm_fb_helper_fill_fix(fbi, fb->pitches[0], fb->format->depth);
 	drm_fb_helper_fill_var(fbi, helper, sizes->fb_width, sizes->fb_height);
+=======
+	fbi->fbops = &omap_fb_ops;
+
+	drm_fb_helper_fill_info(fbi, helper, sizes);
+>>>>>>> upstream/android-13
 
 	dev->mode_config.fb_base = dma_addr;
 
@@ -243,7 +274,11 @@ void omap_fbdev_init(struct drm_device *dev)
 	struct drm_fb_helper *helper;
 	int ret = 0;
 
+<<<<<<< HEAD
 	if (!priv->num_crtcs || !priv->num_connectors)
+=======
+	if (!priv->num_pipes)
+>>>>>>> upstream/android-13
 		return;
 
 	fbdev = kzalloc(sizeof(*fbdev), GFP_KERNEL);
@@ -256,6 +291,7 @@ void omap_fbdev_init(struct drm_device *dev)
 
 	drm_fb_helper_prepare(dev, helper, &omap_fb_helper_funcs);
 
+<<<<<<< HEAD
 	ret = drm_fb_helper_init(dev, helper, priv->num_connectors);
 	if (ret)
 		goto fail;
@@ -264,6 +300,12 @@ void omap_fbdev_init(struct drm_device *dev)
 	if (ret)
 		goto fini;
 
+=======
+	ret = drm_fb_helper_init(dev, helper);
+	if (ret)
+		goto fail;
+
+>>>>>>> upstream/android-13
 	ret = drm_fb_helper_initial_config(helper, 32);
 	if (ret)
 		goto fini;

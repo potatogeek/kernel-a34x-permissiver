@@ -21,7 +21,11 @@
 	};
 
 	chosen {
+<<<<<<< HEAD
 		bootargs = "earlyprintk ignore_loglevel root=/dev/nfs ip=dhcp rw";
+=======
+		bootargs = "earlyprintk ignore_loglevel root=/dev/nfs ip=on rw";
+>>>>>>> upstream/android-13
 		stdout-path = "serial0:115200n8";
 	};
 
@@ -60,8 +64,12 @@
 
 		enable-gpio = <&pfc 74 GPIO_ACTIVE_HIGH>;
 		gpios = <&pfc 17 GPIO_ACTIVE_HIGH>;
+<<<<<<< HEAD
 		states = <3300000 0
 			  1800000 1>;
+=======
+		states = <3300000 0>, <1800000 1>;
+>>>>>>> upstream/android-13
 
 		enable-active-high;
 	};

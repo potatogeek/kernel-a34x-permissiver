@@ -15,6 +15,7 @@ KernelVersion:	4.3
 Contact:	Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Description:	If running under Xen:
 		Describes mode that Xen's performance-monitoring unit (PMU)
+<<<<<<< HEAD
 		uses. Accepted values are
 			"off"  -- PMU is disabled
 			"self" -- The guest can profile itself
@@ -23,6 +24,19 @@ Description:	If running under Xen:
 			"all" --  The guest can profile itself, the hypervisor
 				  and all other guests. Only available to
 				  privileged guests.
+=======
+		uses. Accepted values are:
+
+			======    ============================================
+			"off"     PMU is disabled
+			"self"    The guest can profile itself
+			"hv"      The guest can profile itself and, if it is
+				  privileged (e.g. dom0), the hypervisor
+			"all"     The guest can profile itself, the hypervisor
+				  and all other guests. Only available to
+				  privileged guests.
+			======    ============================================
+>>>>>>> upstream/android-13
 
 What:           /sys/hypervisor/pmu/pmu_features
 Date:           August 2015

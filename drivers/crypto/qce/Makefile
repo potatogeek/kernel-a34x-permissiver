@@ -2,6 +2,14 @@
 obj-$(CONFIG_CRYPTO_DEV_QCE) += qcrypto.o
 qcrypto-objs := core.o \
 		common.o \
+<<<<<<< HEAD
 		dma.o \
 		sha.o \
 		ablkcipher.o
+=======
+		dma.o
+
+qcrypto-$(CONFIG_CRYPTO_DEV_QCE_SHA) += sha.o
+qcrypto-$(CONFIG_CRYPTO_DEV_QCE_SKCIPHER) += skcipher.o
+qcrypto-$(CONFIG_CRYPTO_DEV_QCE_AEAD) += aead.o
+>>>>>>> upstream/android-13

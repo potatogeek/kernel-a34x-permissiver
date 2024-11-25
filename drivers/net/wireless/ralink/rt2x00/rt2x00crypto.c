@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 	Copyright (C) 2004 - 2009 Ivo van Doorn <IvDoorn@gmail.com>
 	<http://rt2x00.serialmonkey.com>
 
+<<<<<<< HEAD
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation; either version 2 of the License, or
@@ -14,6 +19,8 @@
 
 	You should have received a copy of the GNU General Public License
 	along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -190,7 +197,11 @@ void rt2x00crypto_rx_insert_iv(struct sk_buff *skb,
 	 * Make room for new data. There are 2 possibilities
 	 * either the alignment is already present between
 	 * the 802.11 header and payload. In that case we
+<<<<<<< HEAD
 	 * we have to move the header less then the iv_len
+=======
+	 * have to move the header less than the iv_len
+>>>>>>> upstream/android-13
 	 * since we can use the already available l2pad bytes
 	 * for the iv data.
 	 * When the alignment must be added manually we must

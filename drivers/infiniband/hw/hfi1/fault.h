@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #ifndef _HFI1_FAULT_H
 #define _HFI1_FAULT_H
 /*
@@ -46,6 +47,16 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
+=======
+/* SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause */
+/*
+ * Copyright(c) 2018 Intel Corporation.
+ */
+
+#ifndef _HFI1_FAULT_H
+#define _HFI1_FAULT_H
+
+>>>>>>> upstream/android-13
 #include <linux/fault-inject.h>
 #include <linux/dcache.h>
 #include <linux/bitops.h>

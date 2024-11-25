@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2000 - 2007 Jeff Dike (jdike@{addtoit,linux.intel}.com)
  * Licensed under the GPL
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2000 - 2007 Jeff Dike (jdike@{addtoit,linux.intel}.com)
+>>>>>>> upstream/android-13
  */
 
 #include <linux/stddef.h>
@@ -26,6 +32,7 @@ void flush_thread(void)
 
 	arch_flush_thread(&current->thread.arch);
 
+<<<<<<< HEAD
 	ret = unmap(&current->mm->context.id, 0, STUB_START, 0, &data);
 	ret = ret || unmap(&current->mm->context.id, STUB_END,
 			   host_task_size - STUB_END, 1, &data);
@@ -33,6 +40,13 @@ void flush_thread(void)
 		printk(KERN_ERR "flush_thread - clearing address space failed, "
 		       "err = %d\n", ret);
 		force_sig(SIGKILL, current);
+=======
+	ret = unmap(&current->mm->context.id, 0, TASK_SIZE, 1, &data);
+	if (ret) {
+		printk(KERN_ERR "flush_thread - clearing address space failed, "
+		       "err = %d\n", ret);
+		force_sig(SIGKILL);
+>>>>>>> upstream/android-13
 	}
 	get_safe_registers(current_pt_regs()->regs.gp,
 			   current_pt_regs()->regs.fp);

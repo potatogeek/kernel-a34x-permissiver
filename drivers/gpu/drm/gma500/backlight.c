@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * GMA500 Backlight Interface
  *
  * Copyright (c) 2009-2011, Intel Corporation.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
  * version 2, as published by the Free Software Foundation.
@@ -18,6 +23,9 @@
  *
  * Authors: Eric Knopp
  *
+=======
+ * Authors: Eric Knopp
+>>>>>>> upstream/android-13
  */
 
 #include "psb_drv.h"
@@ -55,7 +63,11 @@ void gma_backlight_disable(struct drm_device *dev)
 		dev_priv->backlight_device->props.brightness = 0;
 		do_gma_backlight_set(dev);
 	}
+<<<<<<< HEAD
 #endif	
+=======
+#endif
+>>>>>>> upstream/android-13
 }
 
 void gma_backlight_set(struct drm_device *dev, int v)
@@ -67,7 +79,11 @@ void gma_backlight_set(struct drm_device *dev, int v)
 		dev_priv->backlight_device->props.brightness = v;
 		do_gma_backlight_set(dev);
 	}
+<<<<<<< HEAD
 #endif	
+=======
+#endif
+>>>>>>> upstream/android-13
 }
 
 int gma_backlight_init(struct drm_device *dev)

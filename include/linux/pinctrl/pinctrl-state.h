@@ -3,6 +3,12 @@
  * Standard pin control state definitions
  */
 
+<<<<<<< HEAD
+=======
+#ifndef __LINUX_PINCTRL_PINCTRL_STATE_H
+#define __LINUX_PINCTRL_PINCTRL_STATE_H
+
+>>>>>>> upstream/android-13
 /**
  * @PINCTRL_STATE_DEFAULT: the state the pinctrl handle shall be put
  *	into as default, usually this means the pins are up and ready to
@@ -31,3 +37,8 @@
 #define PINCTRL_STATE_INIT "init"
 #define PINCTRL_STATE_IDLE "idle"
 #define PINCTRL_STATE_SLEEP "sleep"
+<<<<<<< HEAD
+=======
+
+#endif /* __LINUX_PINCTRL_PINCTRL_STATE_H */
+>>>>>>> upstream/android-13

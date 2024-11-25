@@ -1,21 +1,37 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * platform_device.h - generic, centralized driver model
  *
  * Copyright (c) 2001-2003 Patrick Mochel <mochel@osdl.org>
  *
+<<<<<<< HEAD
  * This file is released under the GPLv2
  *
  * See Documentation/driver-model/ for more information.
+=======
+ * See Documentation/driver-api/driver-model/ for more information.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _PLATFORM_DEVICE_H_
 #define _PLATFORM_DEVICE_H_
 
 #include <linux/device.h>
+<<<<<<< HEAD
+=======
+#include <linux/android_kabi.h>
+>>>>>>> upstream/android-13
 
 #define PLATFORM_DEVID_NONE	(-1)
 #define PLATFORM_DEVID_AUTO	(-2)
 
+<<<<<<< HEAD
+=======
+struct irq_affinity;
+>>>>>>> upstream/android-13
 struct mfd_cell;
 struct property_entry;
 struct platform_device_id;
@@ -25,6 +41,11 @@ struct platform_device {
 	int		id;
 	bool		id_auto;
 	struct device	dev;
+<<<<<<< HEAD
+=======
+	u64		platform_dma_mask;
+	struct device_dma_parameters dma_parms;
+>>>>>>> upstream/android-13
 	u32		num_resources;
 	struct resource	*resource;
 
@@ -36,10 +57,20 @@ struct platform_device {
 
 	/* arch specific additions */
 	struct pdev_archdata	archdata;
+<<<<<<< HEAD
+=======
+
+	ANDROID_KABI_RESERVE(1);
+	ANDROID_KABI_RESERVE(2);
+>>>>>>> upstream/android-13
 };
 
 #define platform_get_device_id(pdev)	((pdev)->id_entry)
 
+<<<<<<< HEAD
+=======
+#define dev_is_platform(dev) ((dev)->bus == &platform_bus_type)
+>>>>>>> upstream/android-13
 #define to_platform_device(x) container_of((x), struct platform_device, dev)
 
 extern int platform_device_register(struct platform_device *);
@@ -48,20 +79,57 @@ extern void platform_device_unregister(struct platform_device *);
 extern struct bus_type platform_bus_type;
 extern struct device platform_bus;
 
+<<<<<<< HEAD
 extern void arch_setup_pdev_archdata(struct platform_device *);
 extern struct resource *platform_get_resource(struct platform_device *,
 					      unsigned int, unsigned int);
 extern int platform_get_irq(struct platform_device *, unsigned int);
 extern int platform_irq_count(struct platform_device *);
+=======
+extern struct resource *platform_get_resource(struct platform_device *,
+					      unsigned int, unsigned int);
+extern struct resource *platform_get_mem_or_io(struct platform_device *,
+					       unsigned int);
+
+extern struct device *
+platform_find_device_by_driver(struct device *start,
+			       const struct device_driver *drv);
+extern void __iomem *
+devm_platform_get_and_ioremap_resource(struct platform_device *pdev,
+				unsigned int index, struct resource **res);
+extern void __iomem *
+devm_platform_ioremap_resource(struct platform_device *pdev,
+			       unsigned int index);
+extern void __iomem *
+devm_platform_ioremap_resource_byname(struct platform_device *pdev,
+				      const char *name);
+extern int platform_get_irq(struct platform_device *, unsigned int);
+extern int platform_get_irq_optional(struct platform_device *, unsigned int);
+extern int platform_irq_count(struct platform_device *);
+extern int devm_platform_get_irqs_affinity(struct platform_device *dev,
+					   struct irq_affinity *affd,
+					   unsigned int minvec,
+					   unsigned int maxvec,
+					   int **irqs);
+>>>>>>> upstream/android-13
 extern struct resource *platform_get_resource_byname(struct platform_device *,
 						     unsigned int,
 						     const char *);
 extern int platform_get_irq_byname(struct platform_device *, const char *);
+<<<<<<< HEAD
+=======
+extern int platform_get_irq_byname_optional(struct platform_device *dev,
+					    const char *name);
+>>>>>>> upstream/android-13
 extern int platform_add_devices(struct platform_device **, int);
 
 struct platform_device_info {
 		struct device *parent;
 		struct fwnode_handle *fwnode;
+<<<<<<< HEAD
+=======
+		bool of_node_reused;
+>>>>>>> upstream/android-13
 
 		const char *name;
 		int id;
@@ -73,7 +141,13 @@ struct platform_device_info {
 		size_t size_data;
 		u64 dma_mask;
 
+<<<<<<< HEAD
 		struct property_entry *properties;
+=======
+		const struct property_entry *properties;
+
+		ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 extern struct platform_device *platform_device_register_full(
 		const struct platform_device_info *pdevinfo);
@@ -171,8 +245,11 @@ extern int platform_device_add_resources(struct platform_device *pdev,
 					 unsigned int num);
 extern int platform_device_add_data(struct platform_device *pdev,
 				    const void *data, size_t size);
+<<<<<<< HEAD
 extern int platform_device_add_properties(struct platform_device *pdev,
 				const struct property_entry *properties);
+=======
+>>>>>>> upstream/android-13
 extern int platform_device_add(struct platform_device *pdev);
 extern void platform_device_del(struct platform_device *pdev);
 extern void platform_device_put(struct platform_device *pdev);
@@ -186,6 +263,11 @@ struct platform_driver {
 	struct device_driver driver;
 	const struct platform_device_id *id_table;
 	bool prevent_deferred_probe;
+<<<<<<< HEAD
+=======
+
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 
 #define to_platform_driver(drv)	(container_of((drv), struct platform_driver, \
@@ -284,6 +366,7 @@ void platform_unregister_drivers(struct platform_driver * const *drivers,
 #define platform_register_drivers(drivers, count) \
 	__platform_register_drivers(drivers, count, THIS_MODULE)
 
+<<<<<<< HEAD
 /* early platform driver interface */
 struct early_platform_driver {
 	const char *class_str;
@@ -336,6 +419,8 @@ static inline char *early_platform_driver_setup_func(void)		\
 }
 #endif /* MODULE */
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_SUSPEND
 extern int platform_pm_suspend(struct device *dev);
 extern int platform_pm_resume(struct device *dev);
@@ -370,4 +455,22 @@ extern int platform_dma_configure(struct device *dev);
 #define USE_PLATFORM_PM_SLEEP_OPS
 #endif
 
+<<<<<<< HEAD
+=======
+#ifndef CONFIG_SUPERH
+/*
+ * REVISIT: This stub is needed for all non-SuperH users of early platform
+ * drivers. It should go away once we introduce the new platform_device-based
+ * early driver framework.
+ */
+static inline int is_sh_early_platform_device(struct platform_device *pdev)
+{
+	return 0;
+}
+#endif /* CONFIG_SUPERH */
+
+/* For now only SuperH uses it */
+void early_platform_cleanup(void);
+
+>>>>>>> upstream/android-13
 #endif /* _PLATFORM_DEVICE_H_ */

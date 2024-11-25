@@ -1,18 +1,29 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * sha1-ce-core.S - SHA-1 secure hash using ARMv8 Crypto Extensions
  *
  * Copyright (C) 2015 Linaro Ltd.
  * Author: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
 #include <asm/assembler.h>
 
 	.text
+<<<<<<< HEAD
+=======
+	.arch		armv8-a
+>>>>>>> upstream/android-13
 	.fpu		crypto-neon-fp-armv8
 
 	k0		.req	q0

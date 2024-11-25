@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
+<<<<<<< HEAD
  *  zcrypt 2.1.0
  *
+=======
+>>>>>>> upstream/android-13
  *  Copyright IBM Corp. 2001, 2012
  *  Author(s): Robert Burroughs
  *	       Eric Rossman (edrossma@us.ibm.com)
@@ -42,22 +45,40 @@ static ssize_t online_show(struct device *dev,
 			   struct device_attribute *attr,
 			   char *buf)
 {
+<<<<<<< HEAD
 	struct zcrypt_queue *zq = to_ap_queue(dev)->private;
 
 	return snprintf(buf, PAGE_SIZE, "%d\n", zq->online);
+=======
+	struct zcrypt_queue *zq = dev_get_drvdata(dev);
+	struct ap_queue *aq = to_ap_queue(dev);
+	int online = aq->config && zq->online ? 1 : 0;
+
+	return scnprintf(buf, PAGE_SIZE, "%d\n", online);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t online_store(struct device *dev,
 			    struct device_attribute *attr,
 			    const char *buf, size_t count)
 {
+<<<<<<< HEAD
 	struct zcrypt_queue *zq = to_ap_queue(dev)->private;
+=======
+	struct zcrypt_queue *zq = dev_get_drvdata(dev);
+	struct ap_queue *aq = to_ap_queue(dev);
+>>>>>>> upstream/android-13
 	struct zcrypt_card *zc = zq->zcard;
 	int online;
 
 	if (sscanf(buf, "%d\n", &online) != 1 || online < 0 || online > 1)
 		return -EINVAL;
 
+<<<<<<< HEAD
+=======
+	if (online && (!aq->config || !aq->card->config))
+		return -ENODEV;
+>>>>>>> upstream/android-13
 	if (online && !zc->online)
 		return -EINVAL;
 	zq->online = online;
@@ -67,6 +88,11 @@ static ssize_t online_store(struct device *dev,
 		   AP_QID_QUEUE(zq->queue->qid),
 		   online);
 
+<<<<<<< HEAD
+=======
+	ap_send_online_uevent(&aq->ap_dev, online);
+
+>>>>>>> upstream/android-13
 	if (!online)
 		ap_flush_queue(zq->queue);
 	return count;
@@ -78,9 +104,15 @@ static ssize_t load_show(struct device *dev,
 			 struct device_attribute *attr,
 			 char *buf)
 {
+<<<<<<< HEAD
 	struct zcrypt_queue *zq = to_ap_queue(dev)->private;
 
 	return snprintf(buf, PAGE_SIZE, "%d\n", atomic_read(&zq->load));
+=======
+	struct zcrypt_queue *zq = dev_get_drvdata(dev);
+
+	return scnprintf(buf, PAGE_SIZE, "%d\n", atomic_read(&zq->load));
+>>>>>>> upstream/android-13
 }
 
 static DEVICE_ATTR_RO(load);
@@ -95,6 +127,7 @@ static const struct attribute_group zcrypt_queue_attr_group = {
 	.attrs = zcrypt_queue_attrs,
 };
 
+<<<<<<< HEAD
 void zcrypt_queue_force_online(struct zcrypt_queue *zq, int online)
 {
 	zq->online = online;
@@ -103,16 +136,37 @@ void zcrypt_queue_force_online(struct zcrypt_queue *zq, int online)
 }
 
 struct zcrypt_queue *zcrypt_queue_alloc(size_t max_response_size)
+=======
+bool zcrypt_queue_force_online(struct zcrypt_queue *zq, int online)
+{
+	if (!!zq->online != !!online) {
+		zq->online = online;
+		if (!online)
+			ap_flush_queue(zq->queue);
+		return true;
+	}
+	return false;
+}
+
+struct zcrypt_queue *zcrypt_queue_alloc(size_t reply_buf_size)
+>>>>>>> upstream/android-13
 {
 	struct zcrypt_queue *zq;
 
 	zq = kzalloc(sizeof(struct zcrypt_queue), GFP_KERNEL);
 	if (!zq)
 		return NULL;
+<<<<<<< HEAD
 	zq->reply.message = kmalloc(max_response_size, GFP_KERNEL);
 	if (!zq->reply.message)
 		goto out_free;
 	zq->reply.length = max_response_size;
+=======
+	zq->reply.msg = kmalloc(reply_buf_size, GFP_KERNEL);
+	if (!zq->reply.msg)
+		goto out_free;
+	zq->reply.bufsize = reply_buf_size;
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&zq->list);
 	kref_init(&zq->refcount);
 	return zq;
@@ -125,7 +179,11 @@ EXPORT_SYMBOL(zcrypt_queue_alloc);
 
 void zcrypt_queue_free(struct zcrypt_queue *zq)
 {
+<<<<<<< HEAD
 	kfree(zq->reply.message);
+=======
+	kfree(zq->reply.msg);
+>>>>>>> upstream/android-13
 	kfree(zq);
 }
 EXPORT_SYMBOL(zcrypt_queue_free);
@@ -161,7 +219,11 @@ int zcrypt_queue_register(struct zcrypt_queue *zq)
 	int rc;
 
 	spin_lock(&zcrypt_list_lock);
+<<<<<<< HEAD
 	zc = zq->queue->card->private;
+=======
+	zc = dev_get_drvdata(&zq->queue->card->ap_dev.device);
+>>>>>>> upstream/android-13
 	zcrypt_card_get(zc);
 	zq->zcard = zc;
 	zq->online = 1;	/* New devices are online by default. */
@@ -170,14 +232,20 @@ int zcrypt_queue_register(struct zcrypt_queue *zq)
 		   AP_QID_CARD(zq->queue->qid), AP_QID_QUEUE(zq->queue->qid));
 
 	list_add_tail(&zq->list, &zc->zqueues);
+<<<<<<< HEAD
 	zcrypt_device_count++;
+=======
+>>>>>>> upstream/android-13
 	spin_unlock(&zcrypt_list_lock);
 
 	rc = sysfs_create_group(&zq->queue->ap_dev.device.kobj,
 				&zcrypt_queue_attr_group);
 	if (rc)
 		goto out;
+<<<<<<< HEAD
 	get_device(&zq->queue->ap_dev.device);
+=======
+>>>>>>> upstream/android-13
 
 	if (zq->ops->rng) {
 		rc = zcrypt_rng_device_add();
@@ -189,7 +257,10 @@ int zcrypt_queue_register(struct zcrypt_queue *zq)
 out_unregister:
 	sysfs_remove_group(&zq->queue->ap_dev.device.kobj,
 			   &zcrypt_queue_attr_group);
+<<<<<<< HEAD
 	put_device(&zq->queue->ap_dev.device);
+=======
+>>>>>>> upstream/android-13
 out:
 	spin_lock(&zcrypt_list_lock);
 	list_del_init(&zq->list);
@@ -215,14 +286,22 @@ void zcrypt_queue_unregister(struct zcrypt_queue *zq)
 	zc = zq->zcard;
 	spin_lock(&zcrypt_list_lock);
 	list_del_init(&zq->list);
+<<<<<<< HEAD
 	zcrypt_device_count--;
 	spin_unlock(&zcrypt_list_lock);
 	zcrypt_card_put(zc);
+=======
+	spin_unlock(&zcrypt_list_lock);
+>>>>>>> upstream/android-13
 	if (zq->ops->rng)
 		zcrypt_rng_device_remove();
 	sysfs_remove_group(&zq->queue->ap_dev.device.kobj,
 			   &zcrypt_queue_attr_group);
+<<<<<<< HEAD
 	put_device(&zq->queue->ap_dev.device);
+=======
+	zcrypt_card_put(zc);
+>>>>>>> upstream/android-13
 	zcrypt_queue_put(zq);
 }
 EXPORT_SYMBOL(zcrypt_queue_unregister);

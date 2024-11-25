@@ -5,6 +5,10 @@
  */
 
 #include <linux/module.h>
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 #include <linux/kernel.h>
 #include <linux/types.h>
@@ -34,7 +38,10 @@
 #include <asm/io.h>
 #include <asm/openprom.h>
 #include <asm/oplib.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 
 #include "sunbmac.h"
 
@@ -209,13 +216,21 @@ static void bigmac_clean_rings(struct bigmac *bp)
 	}
 }
 
+<<<<<<< HEAD
 static void bigmac_init_rings(struct bigmac *bp, int from_irq)
+=======
+static void bigmac_init_rings(struct bigmac *bp, bool non_blocking)
+>>>>>>> upstream/android-13
 {
 	struct bmac_init_block *bb = bp->bmac_block;
 	int i;
 	gfp_t gfp_flags = GFP_KERNEL;
 
+<<<<<<< HEAD
 	if (from_irq || in_interrupt())
+=======
+	if (non_blocking)
+>>>>>>> upstream/android-13
 		gfp_flags = GFP_ATOMIC;
 
 	bp->rx_new = bp->rx_old = bp->tx_new = bp->tx_old = 0;
@@ -489,7 +504,11 @@ static void bigmac_tcvr_init(struct bigmac *bp)
 	}
 }
 
+<<<<<<< HEAD
 static int bigmac_init_hw(struct bigmac *, int);
+=======
+static int bigmac_init_hw(struct bigmac *, bool);
+>>>>>>> upstream/android-13
 
 static int try_next_permutation(struct bigmac *bp, void __iomem *tregs)
 {
@@ -549,7 +568,11 @@ static void bigmac_timer(struct timer_list *t)
 				if (ret == -1) {
 					printk(KERN_ERR "%s: Link down, cable problem?\n",
 					       bp->dev->name);
+<<<<<<< HEAD
 					ret = bigmac_init_hw(bp, 0);
+=======
+					ret = bigmac_init_hw(bp, true);
+>>>>>>> upstream/android-13
 					if (ret) {
 						printk(KERN_ERR "%s: Error, cannot re-init the "
 						       "BigMAC.\n", bp->dev->name);
@@ -617,7 +640,11 @@ static void bigmac_begin_auto_negotiation(struct bigmac *bp)
 	add_timer(&bp->bigmac_timer);
 }
 
+<<<<<<< HEAD
 static int bigmac_init_hw(struct bigmac *bp, int from_irq)
+=======
+static int bigmac_init_hw(struct bigmac *bp, bool non_blocking)
+>>>>>>> upstream/android-13
 {
 	void __iomem *gregs        = bp->gregs;
 	void __iomem *cregs        = bp->creg;
@@ -635,7 +662,11 @@ static int bigmac_init_hw(struct bigmac *bp, int from_irq)
 	qec_init(bp);
 
 	/* Alloc and reset the tx/rx descriptor chains. */
+<<<<<<< HEAD
 	bigmac_init_rings(bp, from_irq);
+=======
+	bigmac_init_rings(bp, non_blocking);
+>>>>>>> upstream/android-13
 
 	/* Initialize the PHY. */
 	bigmac_tcvr_init(bp);
@@ -749,7 +780,11 @@ static void bigmac_is_medium_rare(struct bigmac *bp, u32 qec_status, u32 bmac_st
 	}
 
 	printk(" RESET\n");
+<<<<<<< HEAD
 	bigmac_init_hw(bp, 1);
+=======
+	bigmac_init_hw(bp, true);
+>>>>>>> upstream/android-13
 }
 
 /* BigMAC transmit complete service routines. */
@@ -781,7 +816,11 @@ static void bigmac_tx(struct bigmac *bp)
 
 		DTX(("skb(%p) ", skb));
 		bp->tx_skbs[elem] = NULL;
+<<<<<<< HEAD
 		dev_kfree_skb_irq(skb);
+=======
+		dev_consume_skb_irq(skb);
+>>>>>>> upstream/android-13
 
 		elem = NEXT_TX(elem);
 	}
@@ -921,7 +960,11 @@ static int bigmac_open(struct net_device *dev)
 		return ret;
 	}
 	timer_setup(&bp->bigmac_timer, bigmac_timer, 0);
+<<<<<<< HEAD
 	ret = bigmac_init_hw(bp, 0);
+=======
+	ret = bigmac_init_hw(bp, false);
+>>>>>>> upstream/android-13
 	if (ret)
 		free_irq(dev->irq, bp);
 	return ret;
@@ -941,11 +984,19 @@ static int bigmac_close(struct net_device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void bigmac_tx_timeout(struct net_device *dev)
 {
 	struct bigmac *bp = netdev_priv(dev);
 
 	bigmac_init_hw(bp, 0);
+=======
+static void bigmac_tx_timeout(struct net_device *dev, unsigned int txqueue)
+{
+	struct bigmac *bp = netdev_priv(dev);
+
+	bigmac_init_hw(bp, true);
+>>>>>>> upstream/android-13
 	netif_wake_queue(dev);
 }
 

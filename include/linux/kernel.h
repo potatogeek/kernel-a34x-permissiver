@@ -2,12 +2,19 @@
 #ifndef _LINUX_KERNEL_H
 #define _LINUX_KERNEL_H
 
+<<<<<<< HEAD
 #include <stdarg.h>
+=======
+#include <linux/stdarg.h>
+#include <linux/align.h>
+#include <linux/limits.h>
+>>>>>>> upstream/android-13
 #include <linux/linkage.h>
 #include <linux/stddef.h>
 #include <linux/types.h>
 #include <linux/compiler.h>
 #include <linux/bitops.h>
+<<<<<<< HEAD
 #include <linux/log2.h>
 #include <linux/typecheck.h>
 #include <linux/printk.h>
@@ -15,6 +22,20 @@
 #include <asm/byteorder.h>
 #include <uapi/linux/kernel.h>
 #include <linux/limits.h>
+=======
+#include <linux/kstrtox.h>
+#include <linux/log2.h>
+#include <linux/math.h>
+#include <linux/minmax.h>
+#include <linux/typecheck.h>
+#include <linux/panic.h>
+#include <linux/printk.h>
+#include <linux/build_bug.h>
+#include <linux/static_call_types.h>
+#include <asm/byteorder.h>
+
+#include <uapi/linux/kernel.h>
+>>>>>>> upstream/android-13
 
 #define STACK_MAGIC	0xdeadbeef
 
@@ -26,6 +47,7 @@
  */
 #define REPEAT_BYTE(x)	((~0ul / 0xff) * (x))
 
+<<<<<<< HEAD
 /* @a is a power of 2 value */
 #define ALIGN(x, a)		__ALIGN_KERNEL((x), (a))
 #define ALIGN_DOWN(x, a)	__ALIGN_KERNEL((x) - ((a) - 1), (a))
@@ -33,6 +55,8 @@
 #define PTR_ALIGN(p, a)		((typeof(p))ALIGN((unsigned long)(p), (a)))
 #define IS_ALIGNED(x, a)		(((x) & ((typeof(x))(a) - 1)) == 0)
 
+=======
+>>>>>>> upstream/android-13
 /* generic data direction definitions */
 #define READ			0
 #define WRITE			1
@@ -43,6 +67,11 @@
  */
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]) + __must_be_array(arr))
 
+<<<<<<< HEAD
+=======
+#define PTR_IF(cond, ptr)	((cond) ? (ptr) : NULL)
+
+>>>>>>> upstream/android-13
 #define u64_to_user_ptr(x) (		\
 {					\
 	typecheck(u64, (x));		\
@@ -50,6 +79,7 @@
 }					\
 )
 
+<<<<<<< HEAD
 /*
  * This looks more complex than it should be. But we need to
  * get the type for the ~ right in round_down (it needs to be
@@ -172,10 +202,14 @@
 }							\
 )
 
+=======
+#define typeof_member(T, m)	typeof(((T*)0)->m)
+>>>>>>> upstream/android-13
 
 #define _RET_IP_		(unsigned long)__builtin_return_address(0)
 #define _THIS_IP_  ({ __label__ __here; __here: (unsigned long)&&__here; })
 
+<<<<<<< HEAD
 #ifdef CONFIG_LBDAF
 # include <asm/div64.h>
 # define sector_div(a, b) do_div(a, b)
@@ -190,6 +224,8 @@
 )
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /**
  * upper_32_bits - return bits 32-63 of a number
  * @n: the number we're accessing
@@ -204,6 +240,7 @@
  * lower_32_bits - return bits 0-31 of a number
  * @n: the number we're accessing
  */
+<<<<<<< HEAD
 #define lower_32_bits(n) ((u32)(n))
 
 struct completion;
@@ -220,11 +257,64 @@ extern int _cond_resched(void);
 #ifdef CONFIG_DEBUG_ATOMIC_SLEEP
   void ___might_sleep(const char *file, int line, int preempt_offset);
   void __might_sleep(const char *file, int line, int preempt_offset);
+=======
+#define lower_32_bits(n) ((u32)((n) & 0xffffffff))
+
+/**
+ * upper_16_bits - return bits 16-31 of a number
+ * @n: the number we're accessing
+ */
+#define upper_16_bits(n) ((u16)((n) >> 16))
+
+/**
+ * lower_16_bits - return bits 0-15 of a number
+ * @n: the number we're accessing
+ */
+#define lower_16_bits(n) ((u16)((n) & 0xffff))
+
+struct completion;
+struct user;
+
+#ifdef CONFIG_PREEMPT_VOLUNTARY
+
+extern int __cond_resched(void);
+# define might_resched() __cond_resched()
+
+#elif defined(CONFIG_PREEMPT_DYNAMIC)
+
+extern int __cond_resched(void);
+
+DECLARE_STATIC_CALL(might_resched, __cond_resched);
+
+static __always_inline void might_resched(void)
+{
+	static_call_mod(might_resched)();
+}
+
+#else
+
+# define might_resched() do { } while (0)
+
+#endif /* CONFIG_PREEMPT_* */
+
+#ifdef CONFIG_DEBUG_ATOMIC_SLEEP
+extern void ___might_sleep(const char *file, int line, int preempt_offset);
+extern void __might_sleep(const char *file, int line, int preempt_offset);
+extern void __cant_sleep(const char *file, int line, int preempt_offset);
+extern void __cant_migrate(const char *file, int line);
+
+>>>>>>> upstream/android-13
 /**
  * might_sleep - annotation for functions that can sleep
  *
  * this macro will print a stack trace if it is executed in an atomic
+<<<<<<< HEAD
  * context (spinlock, irq-handler, ...).
+=======
+ * context (spinlock, irq-handler, ...). Additional sections where blocking is
+ * not allowed can be annotated with non_block_start() and non_block_end()
+ * pairs.
+>>>>>>> upstream/android-13
  *
  * This is a useful debugging help to be able to catch problems early and not
  * be bitten later when the calling function happens to sleep when it is not
@@ -232,18 +322,67 @@ extern int _cond_resched(void);
  */
 # define might_sleep() \
 	do { __might_sleep(__FILE__, __LINE__, 0); might_resched(); } while (0)
+<<<<<<< HEAD
 # define sched_annotate_sleep()	(current->task_state_change = 0)
+=======
+/**
+ * cant_sleep - annotation for functions that cannot sleep
+ *
+ * this macro will print a stack trace if it is executed with preemption enabled
+ */
+# define cant_sleep() \
+	do { __cant_sleep(__FILE__, __LINE__, 0); } while (0)
+# define sched_annotate_sleep()	(current->task_state_change = 0)
+
+/**
+ * cant_migrate - annotation for functions that cannot migrate
+ *
+ * Will print a stack trace if executed in code which is migratable
+ */
+# define cant_migrate()							\
+	do {								\
+		if (IS_ENABLED(CONFIG_SMP))				\
+			__cant_migrate(__FILE__, __LINE__);		\
+	} while (0)
+
+/**
+ * non_block_start - annotate the start of section where sleeping is prohibited
+ *
+ * This is on behalf of the oom reaper, specifically when it is calling the mmu
+ * notifiers. The problem is that if the notifier were to block on, for example,
+ * mutex_lock() and if the process which holds that mutex were to perform a
+ * sleeping memory allocation, the oom reaper is now blocked on completion of
+ * that memory allocation. Other blocking calls like wait_event() pose similar
+ * issues.
+ */
+# define non_block_start() (current->non_block_count++)
+/**
+ * non_block_end - annotate the end of section where sleeping is prohibited
+ *
+ * Closes a section opened by non_block_start().
+ */
+# define non_block_end() WARN_ON(current->non_block_count-- == 0)
+>>>>>>> upstream/android-13
 #else
   static inline void ___might_sleep(const char *file, int line,
 				   int preempt_offset) { }
   static inline void __might_sleep(const char *file, int line,
 				   int preempt_offset) { }
 # define might_sleep() do { might_resched(); } while (0)
+<<<<<<< HEAD
 # define sched_annotate_sleep() do { } while (0)
+=======
+# define cant_sleep() do { } while (0)
+# define cant_migrate()		do { } while (0)
+# define sched_annotate_sleep() do { } while (0)
+# define non_block_start() do { } while (0)
+# define non_block_end() do { } while (0)
+>>>>>>> upstream/android-13
 #endif
 
 #define might_sleep_if(cond) do { if (cond) might_sleep(); } while (0)
 
+<<<<<<< HEAD
 /**
  * abs - return absolute value of an argument
  * @x: the value.  If it is unsigned type, it is converted to signed type first.
@@ -286,6 +425,8 @@ static inline u32 reciprocal_scale(u32 val, u32 ep_ro)
 	return (u32)(((u64) val * ep_ro) >> 32);
 }
 
+=======
+>>>>>>> upstream/android-13
 #if defined(CONFIG_MMU) && \
 	(defined(CONFIG_PROVE_LOCKING) || defined(CONFIG_DEBUG_ATOMIC_SLEEP))
 #define might_fault() __might_fault(__FILE__, __LINE__)
@@ -294,6 +435,7 @@ void __might_fault(const char *file, int line);
 static inline void might_fault(void) { }
 #endif
 
+<<<<<<< HEAD
 extern struct atomic_notifier_head panic_notifier_list;
 extern void (*vendor_panic_cb)(u64 sp);
 extern long (*panic_blink)(int state);
@@ -447,6 +589,11 @@ extern long simple_strtol(const char *,char **,unsigned int);
 extern unsigned long long simple_strtoull(const char *,char **,unsigned int);
 extern long long simple_strtoll(const char *,char **,unsigned int);
 
+=======
+void do_exit(long error_code) __noreturn;
+void complete_and_exit(struct completion *, long) __noreturn;
+
+>>>>>>> upstream/android-13
 extern int num_to_str(char *buf, int size,
 		      unsigned long long num, unsigned int width);
 
@@ -474,6 +621,11 @@ int sscanf(const char *, const char *, ...);
 extern __scanf(2, 0)
 int vsscanf(const char *, const char *, va_list);
 
+<<<<<<< HEAD
+=======
+extern int no_hash_pointers_enable(char *str);
+
+>>>>>>> upstream/android-13
 extern int get_option(char **str, int *pint);
 extern char *get_options(const char *str, int nints, int *ints);
 extern unsigned long long memparse(const char *ptr, char **retptr);
@@ -487,6 +639,7 @@ extern int __kernel_text_address(unsigned long addr);
 extern int kernel_text_address(unsigned long addr);
 extern int func_ptr_is_kernel_text(void *ptr);
 
+<<<<<<< HEAD
 unsigned long int_sqrt(unsigned long);
 
 #if BITS_PER_LONG < 64
@@ -535,6 +688,10 @@ enum lockdep_ok {
 extern void add_taint(unsigned flag, enum lockdep_ok);
 extern int test_taint(unsigned flag);
 extern unsigned long get_taint(void);
+=======
+extern void bust_spinlocks(int yes);
+
+>>>>>>> upstream/android-13
 extern int root_mountflags;
 
 extern bool early_boot_irqs_disabled;
@@ -553,6 +710,7 @@ extern enum system_states {
 	SYSTEM_SUSPEND,
 } system_state;
 
+<<<<<<< HEAD
 /* This cannot be an enum because some may be used in assembly source. */
 #define TAINT_PROPRIETARY_MODULE	0
 #define TAINT_FORCED_MODULE		1
@@ -582,6 +740,8 @@ struct taint_flag {
 
 extern const struct taint_flag taint_flags[TAINT_FLAGS_COUNT];
 
+=======
+>>>>>>> upstream/android-13
 extern const char hex_asc[];
 #define hex_asc_lo(x)	hex_asc[((x) & 0x0f)]
 #define hex_asc_hi(x)	hex_asc[((x) & 0xf0) >> 4]
@@ -604,7 +764,15 @@ static inline char *hex_byte_pack_upper(char *buf, u8 byte)
 	return buf;
 }
 
+<<<<<<< HEAD
 extern int hex_to_bin(char ch);
+=======
+#ifdef __GENKSYMS__
+extern int hex_to_bin(char ch);
+#else
+extern int hex_to_bin(unsigned char ch);
+#endif
+>>>>>>> upstream/android-13
 extern int __must_check hex2bin(u8 *dst, const char *src, size_t count);
 extern char *bin2hex(char *dst, const void *src, size_t count);
 
@@ -637,6 +805,25 @@ enum ftrace_dump_mode {
 };
 
 #ifdef CONFIG_TRACING
+<<<<<<< HEAD
+=======
+void tracing_mark_write_helper(int type, const char *str);
+#define TRACING_MARK_TYPE_BEGIN 0
+#define TRACING_MARK_TYPE_END 1
+#define TRACING_MARK_BUF_SIZE 256
+#define __tracing_mark(type, fmt, args...)			\
+do {								\
+	char buf[TRACING_MARK_BUF_SIZE];			\
+	snprintf(buf, TRACING_MARK_BUF_SIZE, fmt, ##args);	\
+	tracing_mark_write_helper(type, buf);				\
+} while (0)
+#define tracing_mark_begin(fmt, args...)			\
+	__tracing_mark(TRACING_MARK_TYPE_BEGIN, fmt, ##args)
+#define tracing_mark_end()					\
+	__tracing_mark(TRACING_MARK_TYPE_END, "")
+#define tracing_mark_end_debug(fmt, args...)			\
+	__tracing_mark(TRACING_MARK_TYPE_END, fmt, ##args)
+>>>>>>> upstream/android-13
 void tracing_on(void);
 void tracing_off(void);
 int tracing_is_on(void);
@@ -698,7 +885,11 @@ do {							\
 #define do_trace_printk(fmt, args...)					\
 do {									\
 	static const char *trace_printk_fmt __used			\
+<<<<<<< HEAD
 		__attribute__((section("__trace_printk_fmt"))) =	\
+=======
+		__section("__trace_printk_fmt") =			\
+>>>>>>> upstream/android-13
 		__builtin_constant_p(fmt) ? fmt : NULL;			\
 									\
 	__trace_printk_check_format(fmt, ##args);			\
@@ -742,7 +933,11 @@ int __trace_printk(unsigned long ip, const char *fmt, ...);
 
 #define trace_puts(str) ({						\
 	static const char *trace_printk_fmt __used			\
+<<<<<<< HEAD
 		__attribute__((section("__trace_printk_fmt"))) =	\
+=======
+		__section("__trace_printk_fmt") =			\
+>>>>>>> upstream/android-13
 		__builtin_constant_p(str) ? str : NULL;			\
 									\
 	if (__builtin_constant_p(str))					\
@@ -764,7 +959,11 @@ extern void trace_dump_stack(int skip);
 do {									\
 	if (__builtin_constant_p(fmt)) {				\
 		static const char *trace_printk_fmt __used		\
+<<<<<<< HEAD
 		  __attribute__((section("__trace_printk_fmt"))) =	\
+=======
+		  __section("__trace_printk_fmt") =			\
+>>>>>>> upstream/android-13
 			__builtin_constant_p(fmt) ? fmt : NULL;		\
 									\
 		__ftrace_vbprintk(_THIS_IP_, trace_printk_fmt, vargs);	\
@@ -780,6 +979,12 @@ __ftrace_vprintk(unsigned long ip, const char *fmt, va_list ap);
 
 extern void ftrace_dump(enum ftrace_dump_mode oops_dump_mode);
 #else
+<<<<<<< HEAD
+=======
+#define tracing_mark_begin(fmt, args...) { }
+#define tracing_mark_end() { }
+#define tracing_mark_end_debug(fmt, args...) { }
+>>>>>>> upstream/android-13
 static inline void tracing_start(void) { }
 static inline void tracing_stop(void) { }
 static inline void trace_dump_stack(int skip) { }
@@ -803,6 +1008,7 @@ ftrace_vprintk(const char *fmt, va_list ap)
 static inline void ftrace_dump(enum ftrace_dump_mode oops_dump_mode) { }
 #endif /* CONFIG_TRACING */
 
+<<<<<<< HEAD
 /*
  * min()/max()/clamp() macros must accomplish three things:
  *
@@ -952,6 +1158,8 @@ static inline void ftrace_dump(enum ftrace_dump_mode oops_dump_mode) { }
 #define swap(a, b) \
 	do { typeof(a) __tmp = (a); (a) = (b); (b) = __tmp; } while (0)
 
+=======
+>>>>>>> upstream/android-13
 /* This counts to 12. Any more, it will return 13th argument. */
 #define __COUNT_ARGS(_0, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _n, X...) _n
 #define COUNT_ARGS(X...) __COUNT_ARGS(, ##X, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0)

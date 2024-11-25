@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /* SCTP kernel Implementation
  * (C) Copyright IBM Corp. 2001, 2004
  * Copyright (C) 1999-2001 Cisco, Motorola
@@ -6,6 +10,7 @@
  *
  * These are the definitions needed for the command object.
  *
+<<<<<<< HEAD
  * This SCTP implementation  is free software;
  * you can redistribute it and/or modify it under the terms of
  * the GNU General Public License as published by
@@ -22,6 +27,8 @@
  * along with GNU CC; see the file COPYING.  If not, see
  * <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  * Please send any bug reports or fixes you make to the
  * email address(es):
  *    lksctp developers <linux-sctp@vger.kernel.org>
@@ -74,6 +81,10 @@ enum sctp_verb {
 	SCTP_CMD_HB_TIMERS_START,    /* Start the heartbeat timers. */
 	SCTP_CMD_HB_TIMER_UPDATE,    /* Update a heartbeat timers.  */
 	SCTP_CMD_HB_TIMERS_STOP,     /* Stop the heartbeat timers.  */
+<<<<<<< HEAD
+=======
+	SCTP_CMD_PROBE_TIMER_UPDATE, /* Update a probe timer.  */
+>>>>>>> upstream/android-13
 	SCTP_CMD_TRANSPORT_HB_SENT,  /* Reset the status of a transport. */
 	SCTP_CMD_TRANSPORT_IDLE,     /* Do manipulations on idle transport */
 	SCTP_CMD_TRANSPORT_ON,       /* Mark the transport as active. */
@@ -83,7 +94,10 @@ enum sctp_verb {
 	SCTP_CMD_ASSOC_FAILED,	 /* Handle association failure. */
 	SCTP_CMD_DISCARD_PACKET, /* Discard the whole packet. */
 	SCTP_CMD_GEN_SHUTDOWN,   /* Generate a SHUTDOWN chunk. */
+<<<<<<< HEAD
 	SCTP_CMD_UPDATE_ASSOC,   /* Update association information. */
+=======
+>>>>>>> upstream/android-13
 	SCTP_CMD_PURGE_OUTQUEUE, /* Purge all data waiting to be sent. */
 	SCTP_CMD_SETUP_T2,       /* Hi-level, setup T2-shutdown parms.  */
 	SCTP_CMD_RTO_PENDING,	 /* Set transport's rto_pending. */

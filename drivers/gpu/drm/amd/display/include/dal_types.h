@@ -34,6 +34,12 @@ struct dc_bios;
 
 enum dce_version {
 	DCE_VERSION_UNKNOWN = (-1),
+<<<<<<< HEAD
+=======
+	DCE_VERSION_6_0,
+	DCE_VERSION_6_1,
+	DCE_VERSION_6_4,
+>>>>>>> upstream/android-13
 	DCE_VERSION_8_0,
 	DCE_VERSION_8_1,
 	DCE_VERSION_8_3,
@@ -42,8 +48,22 @@ enum dce_version {
 	DCE_VERSION_11_2,
 	DCE_VERSION_11_22,
 	DCE_VERSION_12_0,
+<<<<<<< HEAD
 	DCE_VERSION_MAX,
 	DCN_VERSION_1_0,
+=======
+	DCE_VERSION_12_1,
+	DCE_VERSION_MAX,
+	DCN_VERSION_1_0,
+	DCN_VERSION_1_01,
+	DCN_VERSION_2_0,
+	DCN_VERSION_2_1,
+	DCN_VERSION_3_0,
+	DCN_VERSION_3_01,
+	DCN_VERSION_3_02,
+	DCN_VERSION_3_03,
+	DCN_VERSION_3_1,
+>>>>>>> upstream/android-13
 	DCN_VERSION_MAX
 };
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright © 2014-2017 Broadcom
  *
@@ -9,6 +10,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright © 2014-2017 Broadcom
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt)	KBUILD_MODNAME ": " fmt
@@ -132,7 +138,11 @@ static int brcmstb_waketmr_gettime(struct device *dev,
 
 	wktmr_read(timer, &now);
 
+<<<<<<< HEAD
 	rtc_time_to_tm(now.sec, tm);
+=======
+	rtc_time64_to_tm(now.sec, tm);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -208,7 +218,10 @@ static int brcmstb_waketmr_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct brcmstb_waketmr *timer;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	timer = devm_kzalloc(dev, sizeof(*timer), GFP_KERNEL);
@@ -218,8 +231,12 @@ static int brcmstb_waketmr_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, timer);
 	timer->dev = dev;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	timer->base = devm_ioremap_resource(dev, res);
+=======
+	timer->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(timer->base))
 		return PTR_ERR(timer->base);
 
@@ -262,11 +279,17 @@ static int brcmstb_waketmr_probe(struct platform_device *pdev)
 	timer->rtc->ops = &brcmstb_waketmr_ops;
 	timer->rtc->range_max = U32_MAX;
 
+<<<<<<< HEAD
 	ret = rtc_register_device(timer->rtc);
 	if (ret) {
 		dev_err(dev, "unable to register device\n");
 		goto err_notifier;
 	}
+=======
+	ret = devm_rtc_register_device(timer->rtc);
+	if (ret)
+		goto err_notifier;
+>>>>>>> upstream/android-13
 
 	dev_info(dev, "registered, with irq %d\n", timer->irq);
 
@@ -276,8 +299,12 @@ err_notifier:
 	unregister_reboot_notifier(&timer->reboot_notifier);
 
 err_clk:
+<<<<<<< HEAD
 	if (timer->clk)
 		clk_disable_unprepare(timer->clk);
+=======
+	clk_disable_unprepare(timer->clk);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -319,7 +346,11 @@ static int brcmstb_waketmr_resume(struct device *dev)
 static SIMPLE_DEV_PM_OPS(brcmstb_waketmr_pm_ops,
 			 brcmstb_waketmr_suspend, brcmstb_waketmr_resume);
 
+<<<<<<< HEAD
 static const struct of_device_id brcmstb_waketmr_of_match[] = {
+=======
+static const __maybe_unused struct of_device_id brcmstb_waketmr_of_match[] = {
+>>>>>>> upstream/android-13
 	{ .compatible = "brcm,brcmstb-waketimer" },
 	{ /* sentinel */ },
 };

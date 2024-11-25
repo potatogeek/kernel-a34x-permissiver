@@ -1,2 +1,10 @@
+<<<<<<< HEAD
 nvkm-y += nvkm/engine/sec2/base.o
 nvkm-y += nvkm/engine/sec2/gp102.o
+=======
+# SPDX-License-Identifier: MIT
+nvkm-y += nvkm/engine/sec2/base.o
+nvkm-y += nvkm/engine/sec2/gp102.o
+nvkm-y += nvkm/engine/sec2/gp108.o
+nvkm-y += nvkm/engine/sec2/tu102.o
+>>>>>>> upstream/android-13

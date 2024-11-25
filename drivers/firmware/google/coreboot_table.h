@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * coreboot_table.h
  *
@@ -6,6 +10,7 @@
  * Copyright 2014 Gerd Hoffmann <kraxel@redhat.com>
  * Copyright 2017 Google Inc.
  * Copyright 2017 Samuel Holland <samuel@sholland.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License v2.0 as published by
@@ -15,12 +20,18 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __COREBOOT_TABLE_H
 #define __COREBOOT_TABLE_H
 
+<<<<<<< HEAD
 #include <linux/io.h>
+=======
+#include <linux/device.h>
+>>>>>>> upstream/android-13
 
 /* Coreboot table header structure */
 struct coreboot_table_header {
@@ -80,7 +91,11 @@ struct coreboot_device {
 /* A driver for handling devices described in coreboot tables. */
 struct coreboot_driver {
 	int (*probe)(struct coreboot_device *);
+<<<<<<< HEAD
 	int (*remove)(struct coreboot_device *);
+=======
+	void (*remove)(struct coreboot_device *);
+>>>>>>> upstream/android-13
 	struct device_driver drv;
 	u32 tag;
 };
@@ -91,10 +106,21 @@ int coreboot_driver_register(struct coreboot_driver *driver);
 /* Unregister a driver that uses the data from a coreboot table. */
 void coreboot_driver_unregister(struct coreboot_driver *driver);
 
+<<<<<<< HEAD
 /* Initialize coreboot table module given a pointer to iomem */
 int coreboot_table_init(struct device *dev, void __iomem *ptr);
 
 /* Cleanup coreboot table module */
 int coreboot_table_exit(void);
+=======
+/* module_coreboot_driver() - Helper macro for drivers that don't do
+ * anything special in module init/exit.  This eliminates a lot of
+ * boilerplate.  Each module may only use this macro once, and
+ * calling it replaces module_init() and module_exit()
+ */
+#define module_coreboot_driver(__coreboot_driver) \
+	module_driver(__coreboot_driver, coreboot_driver_register, \
+			coreboot_driver_unregister)
+>>>>>>> upstream/android-13
 
 #endif /* __COREBOOT_TABLE_H */

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * CMAC: Cipher Block Mode for Authentication
  *
@@ -8,6 +12,7 @@
  * Based on crypto/xcbc.c:
  *  Copyright © 2006 USAGI/WIDE Project,
  *   Author: Kazunori Miyazawa <miyazawa@linux-ipv6.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,11 @@
  *
  */
 
+=======
+ */
+
+#include <crypto/internal/cipher.h>
+>>>>>>> upstream/android-13
 #include <crypto/internal/hash.h>
 #include <linux/err.h>
 #include <linux/kernel.h>
@@ -206,7 +216,11 @@ static int cmac_init_tfm(struct crypto_tfm *tfm)
 {
 	struct crypto_cipher *cipher;
 	struct crypto_instance *inst = (void *)tfm->__crt_alg;
+<<<<<<< HEAD
 	struct crypto_spawn *spawn = crypto_instance_ctx(inst);
+=======
+	struct crypto_cipher_spawn *spawn = crypto_instance_ctx(inst);
+>>>>>>> upstream/android-13
 	struct cmac_tfm_ctx *ctx = crypto_tfm_ctx(tfm);
 
 	cipher = crypto_spawn_cipher(spawn);
@@ -227,6 +241,7 @@ static void cmac_exit_tfm(struct crypto_tfm *tfm)
 static int cmac_create(struct crypto_template *tmpl, struct rtattr **tb)
 {
 	struct shash_instance *inst;
+<<<<<<< HEAD
 	struct crypto_alg *alg;
 	unsigned long alignmask;
 	int err;
@@ -239,6 +254,28 @@ static int cmac_create(struct crypto_template *tmpl, struct rtattr **tb)
 				  CRYPTO_ALG_TYPE_MASK);
 	if (IS_ERR(alg))
 		return PTR_ERR(alg);
+=======
+	struct crypto_cipher_spawn *spawn;
+	struct crypto_alg *alg;
+	unsigned long alignmask;
+	u32 mask;
+	int err;
+
+	err = crypto_check_attr_type(tb, CRYPTO_ALG_TYPE_SHASH, &mask);
+	if (err)
+		return err;
+
+	inst = kzalloc(sizeof(*inst) + sizeof(*spawn), GFP_KERNEL);
+	if (!inst)
+		return -ENOMEM;
+	spawn = shash_instance_ctx(inst);
+
+	err = crypto_grab_cipher(spawn, shash_crypto_instance(inst),
+				 crypto_attr_alg_name(tb[1]), 0, mask);
+	if (err)
+		goto err_free_inst;
+	alg = crypto_spawn_cipher_alg(spawn);
+>>>>>>> upstream/android-13
 
 	switch (alg->cra_blocksize) {
 	case 16:
@@ -246,6 +283,7 @@ static int cmac_create(struct crypto_template *tmpl, struct rtattr **tb)
 		break;
 	default:
 		err = -EINVAL;
+<<<<<<< HEAD
 		goto out_put_alg;
 	}
 
@@ -259,6 +297,14 @@ static int cmac_create(struct crypto_template *tmpl, struct rtattr **tb)
 				CRYPTO_ALG_TYPE_MASK);
 	if (err)
 		goto out_free_inst;
+=======
+		goto err_free_inst;
+	}
+
+	err = crypto_inst_setname(shash_crypto_instance(inst), tmpl->name, alg);
+	if (err)
+		goto err_free_inst;
+>>>>>>> upstream/android-13
 
 	alignmask = alg->cra_alignmask;
 	inst->alg.base.cra_alignmask = alignmask;
@@ -285,6 +331,7 @@ static int cmac_create(struct crypto_template *tmpl, struct rtattr **tb)
 	inst->alg.final = crypto_cmac_digest_final;
 	inst->alg.setkey = crypto_cmac_digest_setkey;
 
+<<<<<<< HEAD
 	err = shash_register_instance(tmpl, inst);
 	if (err) {
 out_free_inst:
@@ -293,13 +340,25 @@ out_free_inst:
 
 out_put_alg:
 	crypto_mod_put(alg);
+=======
+	inst->free = shash_free_singlespawn_instance;
+
+	err = shash_register_instance(tmpl, inst);
+	if (err) {
+err_free_inst:
+		shash_free_singlespawn_instance(inst);
+	}
+>>>>>>> upstream/android-13
 	return err;
 }
 
 static struct crypto_template crypto_cmac_tmpl = {
 	.name = "cmac",
 	.create = cmac_create,
+<<<<<<< HEAD
 	.free = shash_free_instance,
+=======
+>>>>>>> upstream/android-13
 	.module = THIS_MODULE,
 };
 
@@ -313,9 +372,17 @@ static void __exit crypto_cmac_module_exit(void)
 	crypto_unregister_template(&crypto_cmac_tmpl);
 }
 
+<<<<<<< HEAD
 module_init(crypto_cmac_module_init);
+=======
+subsys_initcall(crypto_cmac_module_init);
+>>>>>>> upstream/android-13
 module_exit(crypto_cmac_module_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("CMAC keyed hash algorithm");
 MODULE_ALIAS_CRYPTO("cmac");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(CRYPTO_INTERNAL);
+>>>>>>> upstream/android-13

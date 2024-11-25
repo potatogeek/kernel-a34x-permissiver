@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Calxeda Highbank AHCI SATA platform driver
  * Copyright 2012 Calxeda, Inc.
  *
  * based on the AHCI SATA platform driver by Jeff Garzik and Anton Vorontsov
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -15,6 +20,8 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/gfp.h>
@@ -31,8 +38,12 @@
 #include <linux/interrupt.h>
 #include <linux/delay.h>
 #include <linux/export.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
 #include <linux/of_gpio.h>
+=======
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 
 #include "ahci.h"
 
@@ -85,7 +96,11 @@ struct ecx_plat_data {
 	/* number of extra clocks that the SGPIO PIC controller expects */
 	u32		pre_clocks;
 	u32		post_clocks;
+<<<<<<< HEAD
 	unsigned	sgpio_gpio[SGPIO_PINS];
+=======
+	struct gpio_desc *sgpio_gpiod[SGPIO_PINS];
+>>>>>>> upstream/android-13
 	u32		sgpio_pattern;
 	u32		port_to_sgpio[SGPIO_PORTS];
 };
@@ -131,9 +146,15 @@ static void ecx_parse_sgpio(struct ecx_plat_data *pdata, u32 port, u32 state)
  */
 static void ecx_led_cycle_clock(struct ecx_plat_data *pdata)
 {
+<<<<<<< HEAD
 	gpio_set_value(pdata->sgpio_gpio[SCLOCK], 1);
 	udelay(50);
 	gpio_set_value(pdata->sgpio_gpio[SCLOCK], 0);
+=======
+	gpiod_set_value(pdata->sgpio_gpiod[SCLOCK], 1);
+	udelay(50);
+	gpiod_set_value(pdata->sgpio_gpiod[SCLOCK], 0);
+>>>>>>> upstream/android-13
 	udelay(50);
 }
 
@@ -164,15 +185,25 @@ static ssize_t ecx_transmit_led_message(struct ata_port *ap, u32 state,
 	for (i = 0; i < pdata->pre_clocks; i++)
 		ecx_led_cycle_clock(pdata);
 
+<<<<<<< HEAD
 	gpio_set_value(pdata->sgpio_gpio[SLOAD], 1);
 	ecx_led_cycle_clock(pdata);
 	gpio_set_value(pdata->sgpio_gpio[SLOAD], 0);
+=======
+	gpiod_set_value(pdata->sgpio_gpiod[SLOAD], 1);
+	ecx_led_cycle_clock(pdata);
+	gpiod_set_value(pdata->sgpio_gpiod[SLOAD], 0);
+>>>>>>> upstream/android-13
 	/*
 	 * bit-bang out the SGPIO pattern, by consuming a bit and then
 	 * clocking it out.
 	 */
 	for (i = 0; i < (SGPIO_SIGNALS * pdata->n_ports); i++) {
+<<<<<<< HEAD
 		gpio_set_value(pdata->sgpio_gpio[SDATA], sgpio_out & 1);
+=======
+		gpiod_set_value(pdata->sgpio_gpiod[SDATA], sgpio_out & 1);
+>>>>>>> upstream/android-13
 		sgpio_out >>= 1;
 		ecx_led_cycle_clock(pdata);
 	}
@@ -193,6 +224,7 @@ static void highbank_set_em_messages(struct device *dev,
 	struct device_node *np = dev->of_node;
 	struct ecx_plat_data *pdata = hpriv->plat_data;
 	int i;
+<<<<<<< HEAD
 	int err;
 
 	for (i = 0; i < SGPIO_PINS; i++) {
@@ -208,6 +240,21 @@ static void highbank_set_em_messages(struct device *dev,
 			return;
 		}
 		gpio_direction_output(pdata->sgpio_gpio[i], 1);
+=======
+
+	for (i = 0; i < SGPIO_PINS; i++) {
+		struct gpio_desc *gpiod;
+
+		gpiod = devm_gpiod_get_index(dev, "calxeda,sgpio", i,
+					     GPIOD_OUT_HIGH);
+		if (IS_ERR(gpiod)) {
+			dev_err(dev, "failed to get GPIO %d\n", i);
+			continue;
+		}
+		gpiod_set_consumer_name(gpiod, "CX SGPIO");
+
+		pdata->sgpio_gpiod[i] = gpiod;
+>>>>>>> upstream/android-13
 	}
 	of_property_read_u32_array(np, "calxeda,led-order",
 						pdata->port_to_sgpio,
@@ -483,10 +530,19 @@ static int ahci_highbank_probe(struct platform_device *pdev)
 	}
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq <= 0) {
 		dev_err(dev, "no irq\n");
 		return -EINVAL;
 	}
+=======
+	if (irq < 0) {
+		dev_err(dev, "no irq\n");
+		return irq;
+	}
+	if (!irq)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	hpriv = devm_kzalloc(dev, sizeof(*hpriv), GFP_KERNEL);
 	if (!hpriv) {
@@ -585,7 +641,10 @@ static int ahci_highbank_suspend(struct device *dev)
 	struct ahci_host_priv *hpriv = host->private_data;
 	void __iomem *mmio = hpriv->mmio;
 	u32 ctl;
+<<<<<<< HEAD
 	int rc;
+=======
+>>>>>>> upstream/android-13
 
 	if (hpriv->flags & AHCI_HFLAG_NO_SUSPEND) {
 		dev_err(dev, "firmware update required for suspend/resume\n");
@@ -602,11 +661,15 @@ static int ahci_highbank_suspend(struct device *dev)
 	writel(ctl, mmio + HOST_CTL);
 	readl(mmio + HOST_CTL); /* flush */
 
+<<<<<<< HEAD
 	rc = ata_host_suspend(host, PMSG_SUSPEND);
 	if (rc)
 		return rc;
 
 	return 0;
+=======
+	return ata_host_suspend(host, PMSG_SUSPEND);
+>>>>>>> upstream/android-13
 }
 
 static int ahci_highbank_resume(struct device *dev)

@@ -1,15 +1,24 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver for TI BQ32000 RTC.
  *
  * Copyright (C) 2009 Semihalf.
  * Copyright (C) 2014 Pavel Machek <pavel@denx.de>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
  * You can get hardware description at
  * http://www.ti.com/lit/ds/symlink/bq32000.pdf
+=======
+ * You can get hardware description at
+ * https://www.ti.com/lit/ds/symlink/bq32000.pdf
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -314,7 +323,11 @@ static const struct i2c_device_id bq32k_id[] = {
 };
 MODULE_DEVICE_TABLE(i2c, bq32k_id);
 
+<<<<<<< HEAD
 static const struct of_device_id bq32k_of_match[] = {
+=======
+static const __maybe_unused struct of_device_id bq32k_of_match[] = {
+>>>>>>> upstream/android-13
 	{ .compatible = "ti,bq32000" },
 	{ }
 };

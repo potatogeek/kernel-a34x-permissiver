@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * net/sched/cls_u32.c	Ugly (or Universal) 32bit key Packet Classifier.
  *
@@ -6,6 +7,12 @@
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * net/sched/cls_u32.c	Ugly (or Universal) 32bit key Packet Classifier.
+ *
+>>>>>>> upstream/android-13
  * Authors:	Alexey Kuznetsov, <kuznet@ms2.inr.ac.ru>
  *
  *	The filters are packed to hash tables of key nodes
@@ -24,9 +31,12 @@
  *	pure RSVP doesn't need such a general approach and can use
  *	much simpler (and faster) schemes, sort of cls_rsvp.c.
  *
+<<<<<<< HEAD
  *	JHS: We should remove the CONFIG_NET_CLS_IND from here
  *	eventually when the meta match extension is made available
  *
+=======
+>>>>>>> upstream/android-13
  *	nfmark match added by Catalin(ux aka Dino) BOIE <catab at umbrella.ro>
  */
 
@@ -52,9 +62,13 @@ struct tc_u_knode {
 	u32			handle;
 	struct tc_u_hnode __rcu	*ht_up;
 	struct tcf_exts		exts;
+<<<<<<< HEAD
 #ifdef CONFIG_NET_CLS_IND
 	int			ifindex;
 #endif
+=======
+	int			ifindex;
+>>>>>>> upstream/android-13
 	u8			fshift;
 	struct tcf_result	res;
 	struct tc_u_hnode __rcu	*ht_down;
@@ -68,7 +82,10 @@ struct tc_u_knode {
 	u32			mask;
 	u32 __percpu		*pcpu_success;
 #endif
+<<<<<<< HEAD
 	struct tcf_proto	*tp;
+=======
+>>>>>>> upstream/android-13
 	struct rcu_work		rwork;
 	/* The 'sel' field MUST be the last field in structure to allow for
 	 * tc_u32_keys allocated at end of structure.
@@ -80,16 +97,27 @@ struct tc_u_hnode {
 	struct tc_u_hnode __rcu	*next;
 	u32			handle;
 	u32			prio;
+<<<<<<< HEAD
 	struct tc_u_common	*tp_c;
 	int			refcnt;
 	unsigned int		divisor;
 	struct idr		handle_idr;
+=======
+	int			refcnt;
+	unsigned int		divisor;
+	struct idr		handle_idr;
+	bool			is_root;
+>>>>>>> upstream/android-13
 	struct rcu_head		rcu;
 	u32			flags;
 	/* The 'ht' field MUST be the last field in structure to allow for
 	 * more entries allocated at end of structure.
 	 */
+<<<<<<< HEAD
 	struct tc_u_knode __rcu	*ht[1];
+=======
+	struct tc_u_knode __rcu	*ht[];
+>>>>>>> upstream/android-13
 };
 
 struct tc_u_common {
@@ -98,7 +126,11 @@ struct tc_u_common {
 	int			refcnt;
 	struct idr		handle_idr;
 	struct hlist_node	hnode;
+<<<<<<< HEAD
 	struct rcu_head		rcu;
+=======
+	long			knodes;
+>>>>>>> upstream/android-13
 };
 
 static inline unsigned int u32_hash_fold(__be32 key,
@@ -181,12 +213,18 @@ check_terminal:
 			if (n->sel.flags & TC_U32_TERMINAL) {
 
 				*res = n->res;
+<<<<<<< HEAD
 #ifdef CONFIG_NET_CLS_IND
+=======
+>>>>>>> upstream/android-13
 				if (!tcf_match_indev(skb, n->ifindex)) {
 					n = rcu_dereference_bh(n->next);
 					goto next_knode;
 				}
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_CLS_U32_PERF
 				__this_cpu_inc(n->pf->rhit);
 #endif
@@ -344,6 +382,7 @@ static void *tc_u_common_ptr(const struct tcf_proto *tp)
 		return block->q;
 }
 
+<<<<<<< HEAD
 static unsigned int tc_u_hash(const struct tcf_proto *tp)
 {
 	return hash_ptr(tc_u_common_ptr(tp), U32_HASH_SHIFT);
@@ -357,6 +396,18 @@ static struct tc_u_common *tc_u_common_find(const struct tcf_proto *tp)
 	h = tc_u_hash(tp);
 	hlist_for_each_entry(tc, &tc_u_common_hash[h], hnode) {
 		if (tc->ptr == tc_u_common_ptr(tp))
+=======
+static struct hlist_head *tc_u_hash(void *key)
+{
+	return tc_u_common_hash + hash_ptr(key, U32_HASH_SHIFT);
+}
+
+static struct tc_u_common *tc_u_common_find(void *key)
+{
+	struct tc_u_common *tc;
+	hlist_for_each_entry(tc, tc_u_hash(key), hnode) {
+		if (tc->ptr == key)
+>>>>>>> upstream/android-13
 			return tc;
 	}
 	return NULL;
@@ -365,38 +416,64 @@ static struct tc_u_common *tc_u_common_find(const struct tcf_proto *tp)
 static int u32_init(struct tcf_proto *tp)
 {
 	struct tc_u_hnode *root_ht;
+<<<<<<< HEAD
 	struct tc_u_common *tp_c;
 	unsigned int h;
 
 	tp_c = tc_u_common_find(tp);
 
 	root_ht = kzalloc(sizeof(*root_ht), GFP_KERNEL);
+=======
+	void *key = tc_u_common_ptr(tp);
+	struct tc_u_common *tp_c = tc_u_common_find(key);
+
+	root_ht = kzalloc(struct_size(root_ht, ht, 1), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (root_ht == NULL)
 		return -ENOBUFS;
 
 	root_ht->refcnt++;
 	root_ht->handle = tp_c ? gen_new_htid(tp_c, root_ht) : 0x80000000;
 	root_ht->prio = tp->prio;
+<<<<<<< HEAD
 	idr_init(&root_ht->handle_idr);
 
 	if (tp_c == NULL) {
 		tp_c = kzalloc(sizeof(*tp_c), GFP_KERNEL);
+=======
+	root_ht->is_root = true;
+	idr_init(&root_ht->handle_idr);
+
+	if (tp_c == NULL) {
+		tp_c = kzalloc(struct_size(tp_c, hlist->ht, 1), GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (tp_c == NULL) {
 			kfree(root_ht);
 			return -ENOBUFS;
 		}
+<<<<<<< HEAD
 		tp_c->ptr = tc_u_common_ptr(tp);
 		INIT_HLIST_NODE(&tp_c->hnode);
 		idr_init(&tp_c->handle_idr);
 
 		h = tc_u_hash(tp);
 		hlist_add_head(&tp_c->hnode, &tc_u_common_hash[h]);
+=======
+		tp_c->ptr = key;
+		INIT_HLIST_NODE(&tp_c->hnode);
+		idr_init(&tp_c->handle_idr);
+
+		hlist_add_head(&tp_c->hnode, tc_u_hash(key));
+>>>>>>> upstream/android-13
 	}
 
 	tp_c->refcnt++;
 	RCU_INIT_POINTER(root_ht->next, tp_c->hlist);
 	rcu_assign_pointer(tp_c->hlist, root_ht);
+<<<<<<< HEAD
 	root_ht->tp_c = tp_c;
+=======
+>>>>>>> upstream/android-13
 
 	root_ht->refcnt++;
 	rcu_assign_pointer(tp->root, root_ht);
@@ -404,15 +481,30 @@ static int u32_init(struct tcf_proto *tp)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int u32_destroy_key(struct tcf_proto *tp, struct tc_u_knode *n,
 			   bool free_pf)
+=======
+static void __u32_destroy_key(struct tc_u_knode *n)
+>>>>>>> upstream/android-13
 {
 	struct tc_u_hnode *ht = rtnl_dereference(n->ht_down);
 
 	tcf_exts_destroy(&n->exts);
+<<<<<<< HEAD
 	tcf_exts_put_net(&n->exts);
 	if (ht && --ht->refcnt == 0)
 		kfree(ht);
+=======
+	if (ht && --ht->refcnt == 0)
+		kfree(ht);
+	kfree(n);
+}
+
+static void u32_destroy_key(struct tc_u_knode *n, bool free_pf)
+{
+	tcf_exts_put_net(&n->exts);
+>>>>>>> upstream/android-13
 #ifdef CONFIG_CLS_U32_PERF
 	if (free_pf)
 		free_percpu(n->pf);
@@ -421,8 +513,12 @@ static int u32_destroy_key(struct tcf_proto *tp, struct tc_u_knode *n,
 	if (free_pf)
 		free_percpu(n->pcpu_success);
 #endif
+<<<<<<< HEAD
 	kfree(n);
 	return 0;
+=======
+	__u32_destroy_key(n);
+>>>>>>> upstream/android-13
 }
 
 /* u32_delete_key_rcu should be called when free'ing a copied
@@ -439,7 +535,11 @@ static void u32_delete_key_work(struct work_struct *work)
 					      struct tc_u_knode,
 					      rwork);
 	rtnl_lock();
+<<<<<<< HEAD
 	u32_destroy_key(key->tp, key, false);
+=======
+	u32_destroy_key(key, false);
+>>>>>>> upstream/android-13
 	rtnl_unlock();
 }
 
@@ -456,12 +556,20 @@ static void u32_delete_key_freepf_work(struct work_struct *work)
 					      struct tc_u_knode,
 					      rwork);
 	rtnl_lock();
+<<<<<<< HEAD
 	u32_destroy_key(key->tp, key, true);
+=======
+	u32_destroy_key(key, true);
+>>>>>>> upstream/android-13
 	rtnl_unlock();
 }
 
 static int u32_delete_key(struct tcf_proto *tp, struct tc_u_knode *key)
 {
+<<<<<<< HEAD
+=======
+	struct tc_u_common *tp_c = tp->data;
+>>>>>>> upstream/android-13
 	struct tc_u_knode __rcu **kp;
 	struct tc_u_knode *pkp;
 	struct tc_u_hnode *ht = rtnl_dereference(key->ht_up);
@@ -472,6 +580,10 @@ static int u32_delete_key(struct tcf_proto *tp, struct tc_u_knode *key)
 		     kp = &pkp->next, pkp = rtnl_dereference(*kp)) {
 			if (pkp == key) {
 				RCU_INIT_POINTER(*kp, key->next);
+<<<<<<< HEAD
+=======
+				tp_c->knodes--;
+>>>>>>> upstream/android-13
 
 				tcf_unbind_filter(tp, &key->res);
 				idr_remove(&ht->handle_idr, key->handle);
@@ -497,7 +609,11 @@ static void u32_clear_hw_hnode(struct tcf_proto *tp, struct tc_u_hnode *h,
 	cls_u32.hnode.handle = h->handle;
 	cls_u32.hnode.prio = h->prio;
 
+<<<<<<< HEAD
 	tc_setup_cb_call(block, NULL, TC_SETUP_CLSU32, &cls_u32, false);
+=======
+	tc_setup_cb_call(block, TC_SETUP_CLSU32, &cls_u32, false, true);
+>>>>>>> upstream/android-13
 }
 
 static int u32_replace_hw_hnode(struct tcf_proto *tp, struct tc_u_hnode *h,
@@ -515,7 +631,11 @@ static int u32_replace_hw_hnode(struct tcf_proto *tp, struct tc_u_hnode *h,
 	cls_u32.hnode.handle = h->handle;
 	cls_u32.hnode.prio = h->prio;
 
+<<<<<<< HEAD
 	err = tc_setup_cb_call(block, NULL, TC_SETUP_CLSU32, &cls_u32, skip_sw);
+=======
+	err = tc_setup_cb_call(block, TC_SETUP_CLSU32, &cls_u32, skip_sw, true);
+>>>>>>> upstream/android-13
 	if (err < 0) {
 		u32_clear_hw_hnode(tp, h, NULL);
 		return err;
@@ -539,8 +659,13 @@ static void u32_remove_hw_knode(struct tcf_proto *tp, struct tc_u_knode *n,
 	cls_u32.command = TC_CLSU32_DELETE_KNODE;
 	cls_u32.knode.handle = n->handle;
 
+<<<<<<< HEAD
 	tc_setup_cb_call(block, NULL, TC_SETUP_CLSU32, &cls_u32, false);
 	tcf_block_offload_dec(block, &n->flags);
+=======
+	tc_setup_cb_destroy(block, tp, TC_SETUP_CLSU32, &cls_u32, false,
+			    &n->flags, &n->in_hw_count, true);
+>>>>>>> upstream/android-13
 }
 
 static int u32_replace_hw_knode(struct tcf_proto *tp, struct tc_u_knode *n,
@@ -564,10 +689,15 @@ static int u32_replace_hw_knode(struct tcf_proto *tp, struct tc_u_knode *n,
 	cls_u32.knode.mask = 0;
 #endif
 	cls_u32.knode.sel = &n->sel;
+<<<<<<< HEAD
+=======
+	cls_u32.knode.res = &n->res;
+>>>>>>> upstream/android-13
 	cls_u32.knode.exts = &n->exts;
 	if (n->ht_down)
 		cls_u32.knode.link_handle = ht->handle;
 
+<<<<<<< HEAD
 	err = tc_setup_cb_call(block, NULL, TC_SETUP_CLSU32, &cls_u32, skip_sw);
 	if (err < 0) {
 		u32_remove_hw_knode(tp, n, NULL);
@@ -575,6 +705,13 @@ static int u32_replace_hw_knode(struct tcf_proto *tp, struct tc_u_knode *n,
 	} else if (err > 0) {
 		n->in_hw_count = err;
 		tcf_block_offload_inc(block, &n->flags);
+=======
+	err = tc_setup_cb_add(block, tp, TC_SETUP_CLSU32, &cls_u32, skip_sw,
+			      &n->flags, &n->in_hw_count, true);
+	if (err) {
+		u32_remove_hw_knode(tp, n, NULL);
+		return err;
+>>>>>>> upstream/android-13
 	}
 
 	if (skip_sw && !(n->flags & TCA_CLS_FLAGS_IN_HW))
@@ -586,6 +723,10 @@ static int u32_replace_hw_knode(struct tcf_proto *tp, struct tc_u_knode *n,
 static void u32_clear_hnode(struct tcf_proto *tp, struct tc_u_hnode *ht,
 			    struct netlink_ext_ack *extack)
 {
+<<<<<<< HEAD
+=======
+	struct tc_u_common *tp_c = tp->data;
+>>>>>>> upstream/android-13
 	struct tc_u_knode *n;
 	unsigned int h;
 
@@ -593,13 +734,21 @@ static void u32_clear_hnode(struct tcf_proto *tp, struct tc_u_hnode *ht,
 		while ((n = rtnl_dereference(ht->ht[h])) != NULL) {
 			RCU_INIT_POINTER(ht->ht[h],
 					 rtnl_dereference(n->next));
+<<<<<<< HEAD
+=======
+			tp_c->knodes--;
+>>>>>>> upstream/android-13
 			tcf_unbind_filter(tp, &n->res);
 			u32_remove_hw_knode(tp, n, extack);
 			idr_remove(&ht->handle_idr, n->handle);
 			if (tcf_exts_get_net(&n->exts))
 				tcf_queue_work(&n->rwork, u32_delete_key_freepf_work);
 			else
+<<<<<<< HEAD
 				u32_destroy_key(n->tp, n, true);
+=======
+				u32_destroy_key(n, true);
+>>>>>>> upstream/android-13
 		}
 	}
 }
@@ -632,6 +781,7 @@ static int u32_destroy_hnode(struct tcf_proto *tp, struct tc_u_hnode *ht,
 	return -ENOENT;
 }
 
+<<<<<<< HEAD
 static bool ht_empty(struct tc_u_hnode *ht)
 {
 	unsigned int h;
@@ -644,6 +794,10 @@ static bool ht_empty(struct tc_u_hnode *ht)
 }
 
 static void u32_destroy(struct tcf_proto *tp, struct netlink_ext_ack *extack)
+=======
+static void u32_destroy(struct tcf_proto *tp, bool rtnl_held,
+			struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct tc_u_common *tp_c = tp->data;
 	struct tc_u_hnode *root_ht = rtnl_dereference(tp->root);
@@ -677,6 +831,7 @@ static void u32_destroy(struct tcf_proto *tp, struct netlink_ext_ack *extack)
 }
 
 static int u32_delete(struct tcf_proto *tp, void *arg, bool *last,
+<<<<<<< HEAD
 		      struct netlink_ext_ack *extack)
 {
 	struct tc_u_hnode *ht = arg;
@@ -687,13 +842,25 @@ static int u32_delete(struct tcf_proto *tp, void *arg, bool *last,
 	if (ht == NULL)
 		goto out;
 
+=======
+		      bool rtnl_held, struct netlink_ext_ack *extack)
+{
+	struct tc_u_hnode *ht = arg;
+	struct tc_u_common *tp_c = tp->data;
+	int ret = 0;
+
+>>>>>>> upstream/android-13
 	if (TC_U32_KEY(ht->handle)) {
 		u32_remove_hw_knode(tp, (struct tc_u_knode *)ht, extack);
 		ret = u32_delete_key(tp, (struct tc_u_knode *)ht);
 		goto out;
 	}
 
+<<<<<<< HEAD
 	if (root_ht == ht) {
+=======
+	if (ht->is_root) {
+>>>>>>> upstream/android-13
 		NL_SET_ERR_MSG_MOD(extack, "Not allowed to delete root node");
 		return -EINVAL;
 	}
@@ -706,6 +873,7 @@ static int u32_delete(struct tcf_proto *tp, void *arg, bool *last,
 	}
 
 out:
+<<<<<<< HEAD
 	*last = true;
 	if (root_ht) {
 		if (root_ht->refcnt > 2) {
@@ -738,6 +906,9 @@ out:
 	}
 
 ret:
+=======
+	*last = tp_c->refcnt == 1 && tp_c->knodes == 0;
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -768,14 +939,24 @@ static const struct nla_policy u32_policy[TCA_U32_MAX + 1] = {
 };
 
 static int u32_set_parms(struct net *net, struct tcf_proto *tp,
+<<<<<<< HEAD
 			 unsigned long base, struct tc_u_hnode *ht,
 			 struct tc_u_knode *n, struct nlattr **tb,
 			 struct nlattr *est, bool ovr,
+=======
+			 unsigned long base,
+			 struct tc_u_knode *n, struct nlattr **tb,
+			 struct nlattr *est, u32 flags,
+>>>>>>> upstream/android-13
 			 struct netlink_ext_ack *extack)
 {
 	int err;
 
+<<<<<<< HEAD
 	err = tcf_exts_validate(net, tp, tb, est, &n->exts, ovr, extack);
+=======
+	err = tcf_exts_validate(net, tp, tb, est, &n->exts, flags, extack);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -789,12 +970,23 @@ static int u32_set_parms(struct net *net, struct tcf_proto *tp,
 		}
 
 		if (handle) {
+<<<<<<< HEAD
 			ht_down = u32_lookup_ht(ht->tp_c, handle);
+=======
+			ht_down = u32_lookup_ht(tp->data, handle);
+>>>>>>> upstream/android-13
 
 			if (!ht_down) {
 				NL_SET_ERR_MSG_MOD(extack, "Link hash table not found");
 				return -EINVAL;
 			}
+<<<<<<< HEAD
+=======
+			if (ht_down->is_root) {
+				NL_SET_ERR_MSG_MOD(extack, "Not linking to root node");
+				return -EINVAL;
+			}
+>>>>>>> upstream/android-13
 			ht_down->refcnt++;
 		}
 
@@ -809,7 +1001,10 @@ static int u32_set_parms(struct net *net, struct tcf_proto *tp,
 		tcf_bind_filter(tp, &n->res, base);
 	}
 
+<<<<<<< HEAD
 #ifdef CONFIG_NET_CLS_IND
+=======
+>>>>>>> upstream/android-13
 	if (tb[TCA_U32_INDEV]) {
 		int ret;
 		ret = tcf_change_indev(net, tb[TCA_U32_INDEV], extack);
@@ -817,7 +1012,10 @@ static int u32_set_parms(struct net *net, struct tcf_proto *tp,
 			return -EINVAL;
 		n->ifindex = ret;
 	}
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -848,16 +1046,24 @@ static void u32_replace_knode(struct tcf_proto *tp, struct tc_u_common *tp_c,
 	rcu_assign_pointer(*ins, n);
 }
 
+<<<<<<< HEAD
 static struct tc_u_knode *u32_init_knode(struct tcf_proto *tp,
+=======
+static struct tc_u_knode *u32_init_knode(struct net *net, struct tcf_proto *tp,
+>>>>>>> upstream/android-13
 					 struct tc_u_knode *n)
 {
 	struct tc_u_hnode *ht = rtnl_dereference(n->ht_down);
 	struct tc_u32_sel *s = &n->sel;
 	struct tc_u_knode *new;
 
+<<<<<<< HEAD
 	new = kzalloc(sizeof(*n) + s->nkeys*sizeof(struct tc_u32_key),
 		      GFP_KERNEL);
 
+=======
+	new = kzalloc(struct_size(new, sel.keys, s->nkeys), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!new)
 		return NULL;
 
@@ -865,18 +1071,25 @@ static struct tc_u_knode *u32_init_knode(struct tcf_proto *tp,
 	new->handle = n->handle;
 	RCU_INIT_POINTER(new->ht_up, n->ht_up);
 
+<<<<<<< HEAD
 #ifdef CONFIG_NET_CLS_IND
 	new->ifindex = n->ifindex;
 #endif
+=======
+	new->ifindex = n->ifindex;
+>>>>>>> upstream/android-13
 	new->fshift = n->fshift;
 	new->res = n->res;
 	new->flags = n->flags;
 	RCU_INIT_POINTER(new->ht_down, ht);
 
+<<<<<<< HEAD
 	/* bump reference count as long as we hold pointer to structure */
 	if (ht)
 		ht->refcnt++;
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_CLS_U32_PERF
 	/* Statistics may be incremented by readers during update
 	 * so we must keep them in tact. When the node is later destroyed
@@ -891,20 +1104,37 @@ static struct tc_u_knode *u32_init_knode(struct tcf_proto *tp,
 	/* Similarly success statistics must be moved as pointers */
 	new->pcpu_success = n->pcpu_success;
 #endif
+<<<<<<< HEAD
 	new->tp = tp;
 	memcpy(&new->sel, s, sizeof(*s) + s->nkeys*sizeof(struct tc_u32_key));
 
 	if (tcf_exts_init(&new->exts, TCA_U32_ACT, TCA_U32_POLICE)) {
+=======
+	memcpy(&new->sel, s, struct_size(s, keys, s->nkeys));
+
+	if (tcf_exts_init(&new->exts, net, TCA_U32_ACT, TCA_U32_POLICE)) {
+>>>>>>> upstream/android-13
 		kfree(new);
 		return NULL;
 	}
 
+<<<<<<< HEAD
+=======
+	/* bump reference count as long as we hold pointer to structure */
+	if (ht)
+		ht->refcnt++;
+
+>>>>>>> upstream/android-13
 	return new;
 }
 
 static int u32_change(struct net *net, struct sk_buff *in_skb,
 		      struct tcf_proto *tp, unsigned long base, u32 handle,
+<<<<<<< HEAD
 		      struct nlattr **tca, void **arg, bool ovr,
+=======
+		      struct nlattr **tca, void **arg, u32 flags,
+>>>>>>> upstream/android-13
 		      struct netlink_ext_ack *extack)
 {
 	struct tc_u_common *tp_c = tp->data;
@@ -913,12 +1143,18 @@ static int u32_change(struct net *net, struct sk_buff *in_skb,
 	struct tc_u32_sel *s;
 	struct nlattr *opt = tca[TCA_OPTIONS];
 	struct nlattr *tb[TCA_U32_MAX + 1];
+<<<<<<< HEAD
 	u32 htid, flags = 0;
 	size_t sel_size;
 	int err;
 #ifdef CONFIG_CLS_U32_PERF
 	size_t size;
 #endif
+=======
+	u32 htid, userflags = 0;
+	size_t sel_size;
+	int err;
+>>>>>>> upstream/android-13
 
 	if (!opt) {
 		if (handle) {
@@ -929,13 +1165,23 @@ static int u32_change(struct net *net, struct sk_buff *in_skb,
 		}
 	}
 
+<<<<<<< HEAD
 	err = nla_parse_nested(tb, TCA_U32_MAX, opt, u32_policy, extack);
+=======
+	err = nla_parse_nested_deprecated(tb, TCA_U32_MAX, opt, u32_policy,
+					  extack);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
 	if (tb[TCA_U32_FLAGS]) {
+<<<<<<< HEAD
 		flags = nla_get_u32(tb[TCA_U32_FLAGS]);
 		if (!tc_flags_valid(flags)) {
+=======
+		userflags = nla_get_u32(tb[TCA_U32_FLAGS]);
+		if (!tc_flags_valid(userflags)) {
+>>>>>>> upstream/android-13
 			NL_SET_ERR_MSG_MOD(extack, "Invalid filter flags");
 			return -EINVAL;
 		}
@@ -950,12 +1196,17 @@ static int u32_change(struct net *net, struct sk_buff *in_skb,
 			return -EINVAL;
 		}
 
+<<<<<<< HEAD
 		if ((n->flags ^ flags) &
+=======
+		if ((n->flags ^ userflags) &
+>>>>>>> upstream/android-13
 		    ~(TCA_CLS_FLAGS_IN_HW | TCA_CLS_FLAGS_NOT_IN_HW)) {
 			NL_SET_ERR_MSG_MOD(extack, "Key node flags do not match passed flags");
 			return -EINVAL;
 		}
 
+<<<<<<< HEAD
 		new = u32_init_knode(tp, n);
 		if (!new)
 			return -ENOMEM;
@@ -966,12 +1217,27 @@ static int u32_change(struct net *net, struct sk_buff *in_skb,
 
 		if (err) {
 			u32_destroy_key(tp, new, false);
+=======
+		new = u32_init_knode(net, tp, n);
+		if (!new)
+			return -ENOMEM;
+
+		err = u32_set_parms(net, tp, base, new, tb,
+				    tca[TCA_RATE], flags, extack);
+
+		if (err) {
+			__u32_destroy_key(new);
+>>>>>>> upstream/android-13
 			return err;
 		}
 
 		err = u32_replace_hw_knode(tp, new, flags, extack);
 		if (err) {
+<<<<<<< HEAD
 			u32_destroy_key(tp, new, false);
+=======
+			__u32_destroy_key(new);
+>>>>>>> upstream/android-13
 			return err;
 		}
 
@@ -988,7 +1254,15 @@ static int u32_change(struct net *net, struct sk_buff *in_skb,
 	if (tb[TCA_U32_DIVISOR]) {
 		unsigned int divisor = nla_get_u32(tb[TCA_U32_DIVISOR]);
 
+<<<<<<< HEAD
 		if (--divisor > 0x100) {
+=======
+		if (!is_power_of_2(divisor)) {
+			NL_SET_ERR_MSG_MOD(extack, "Divisor is not a power of 2");
+			return -EINVAL;
+		}
+		if (divisor-- > 0x100) {
+>>>>>>> upstream/android-13
 			NL_SET_ERR_MSG_MOD(extack, "Exceeded maximum 256 hash buckets");
 			return -EINVAL;
 		}
@@ -996,7 +1270,11 @@ static int u32_change(struct net *net, struct sk_buff *in_skb,
 			NL_SET_ERR_MSG_MOD(extack, "Divisor can only be used on a hash table");
 			return -EINVAL;
 		}
+<<<<<<< HEAD
 		ht = kzalloc(sizeof(*ht) + divisor*sizeof(void *), GFP_KERNEL);
+=======
+		ht = kzalloc(struct_size(ht, ht, divisor + 1), GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (ht == NULL)
 			return -ENOBUFS;
 		if (handle == 0) {
@@ -1013,15 +1291,24 @@ static int u32_change(struct net *net, struct sk_buff *in_skb,
 				return err;
 			}
 		}
+<<<<<<< HEAD
 		ht->tp_c = tp_c;
+=======
+>>>>>>> upstream/android-13
 		ht->refcnt = 1;
 		ht->divisor = divisor;
 		ht->handle = handle;
 		ht->prio = tp->prio;
 		idr_init(&ht->handle_idr);
+<<<<<<< HEAD
 		ht->flags = flags;
 
 		err = u32_replace_hw_hnode(tp, ht, flags, extack);
+=======
+		ht->flags = userflags;
+
+		err = u32_replace_hw_hnode(tp, ht, userflags, extack);
+>>>>>>> upstream/android-13
 		if (err) {
 			idr_remove(&tp_c->handle_idr, handle);
 			kfree(ht);
@@ -1083,15 +1370,24 @@ static int u32_change(struct net *net, struct sk_buff *in_skb,
 		goto erridr;
 	}
 
+<<<<<<< HEAD
 	n = kzalloc(offsetof(typeof(*n), sel) + sel_size, GFP_KERNEL);
+=======
+	n = kzalloc(struct_size(n, sel.keys, s->nkeys), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (n == NULL) {
 		err = -ENOBUFS;
 		goto erridr;
 	}
 
 #ifdef CONFIG_CLS_U32_PERF
+<<<<<<< HEAD
 	size = sizeof(struct tc_u32_pcnt) + s->nkeys * sizeof(u64);
 	n->pf = __alloc_percpu(size, __alignof__(struct tc_u32_pcnt));
+=======
+	n->pf = __alloc_percpu(struct_size(n->pf, kcnts, s->nkeys),
+			       __alignof__(struct tc_u32_pcnt));
+>>>>>>> upstream/android-13
 	if (!n->pf) {
 		err = -ENOBUFS;
 		goto errfree;
@@ -1102,10 +1398,16 @@ static int u32_change(struct net *net, struct sk_buff *in_skb,
 	RCU_INIT_POINTER(n->ht_up, ht);
 	n->handle = handle;
 	n->fshift = s->hmask ? ffs(ntohl(s->hmask)) - 1 : 0;
+<<<<<<< HEAD
 	n->flags = flags;
 	n->tp = tp;
 
 	err = tcf_exts_init(&n->exts, TCA_U32_ACT, TCA_U32_POLICE);
+=======
+	n->flags = userflags;
+
+	err = tcf_exts_init(&n->exts, net, TCA_U32_ACT, TCA_U32_POLICE);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		goto errout;
 
@@ -1125,7 +1427,11 @@ static int u32_change(struct net *net, struct sk_buff *in_skb,
 	}
 #endif
 
+<<<<<<< HEAD
 	err = u32_set_parms(net, tp, base, ht, n, tb, tca[TCA_RATE], ovr,
+=======
+	err = u32_set_parms(net, tp, base, n, tb, tca[TCA_RATE], flags,
+>>>>>>> upstream/android-13
 			    extack);
 	if (err == 0) {
 		struct tc_u_knode __rcu **ins;
@@ -1146,6 +1452,10 @@ static int u32_change(struct net *net, struct sk_buff *in_skb,
 
 		RCU_INIT_POINTER(n->next, pins);
 		rcu_assign_pointer(*ins, n);
+<<<<<<< HEAD
+=======
+		tp_c->knodes++;
+>>>>>>> upstream/android-13
 		*arg = n;
 		return 0;
 	}
@@ -1167,7 +1477,12 @@ erridr:
 	return err;
 }
 
+<<<<<<< HEAD
 static void u32_walk(struct tcf_proto *tp, struct tcf_walker *arg)
+=======
+static void u32_walk(struct tcf_proto *tp, struct tcf_walker *arg,
+		     bool rtnl_held)
+>>>>>>> upstream/android-13
 {
 	struct tc_u_common *tp_c = tp->data;
 	struct tc_u_hnode *ht;
@@ -1208,7 +1523,11 @@ static void u32_walk(struct tcf_proto *tp, struct tcf_walker *arg)
 }
 
 static int u32_reoffload_hnode(struct tcf_proto *tp, struct tc_u_hnode *ht,
+<<<<<<< HEAD
 			       bool add, tc_setup_cb_t *cb, void *cb_priv,
+=======
+			       bool add, flow_setup_cb_t *cb, void *cb_priv,
+>>>>>>> upstream/android-13
 			       struct netlink_ext_ack *extack)
 {
 	struct tc_cls_u32_offload cls_u32 = {};
@@ -1228,13 +1547,20 @@ static int u32_reoffload_hnode(struct tcf_proto *tp, struct tc_u_hnode *ht,
 }
 
 static int u32_reoffload_knode(struct tcf_proto *tp, struct tc_u_knode *n,
+<<<<<<< HEAD
 			       bool add, tc_setup_cb_t *cb, void *cb_priv,
+=======
+			       bool add, flow_setup_cb_t *cb, void *cb_priv,
+>>>>>>> upstream/android-13
 			       struct netlink_ext_ack *extack)
 {
 	struct tc_u_hnode *ht = rtnl_dereference(n->ht_down);
 	struct tcf_block *block = tp->chain->block;
 	struct tc_cls_u32_offload cls_u32 = {};
+<<<<<<< HEAD
 	int err;
+=======
+>>>>>>> upstream/android-13
 
 	tc_cls_common_offload_init(&cls_u32.common, tp, n->flags, extack);
 	cls_u32.command = add ?
@@ -1251,11 +1577,16 @@ static int u32_reoffload_knode(struct tcf_proto *tp, struct tc_u_knode *n,
 		cls_u32.knode.mask = 0;
 #endif
 		cls_u32.knode.sel = &n->sel;
+<<<<<<< HEAD
+=======
+		cls_u32.knode.res = &n->res;
+>>>>>>> upstream/android-13
 		cls_u32.knode.exts = &n->exts;
 		if (n->ht_down)
 			cls_u32.knode.link_handle = ht->handle;
 	}
 
+<<<<<<< HEAD
 	err = cb(TC_SETUP_CLSU32, &cls_u32, cb_priv);
 	if (err) {
 		if (add && tc_skip_sw(n->flags))
@@ -1269,6 +1600,14 @@ static int u32_reoffload_knode(struct tcf_proto *tp, struct tc_u_knode *n,
 }
 
 static int u32_reoffload(struct tcf_proto *tp, bool add, tc_setup_cb_t *cb,
+=======
+	return tc_setup_cb_reoffload(block, tp, add, cb, TC_SETUP_CLSU32,
+				     &cls_u32, cb_priv, &n->flags,
+				     &n->in_hw_count);
+}
+
+static int u32_reoffload(struct tcf_proto *tp, bool add, flow_setup_cb_t *cb,
+>>>>>>> upstream/android-13
 			 void *cb_priv, struct netlink_ext_ack *extack)
 {
 	struct tc_u_common *tp_c = tp->data;
@@ -1329,7 +1668,11 @@ static void u32_bind_class(void *fh, u32 classid, unsigned long cl, void *q,
 }
 
 static int u32_dump(struct net *net, struct tcf_proto *tp, void *fh,
+<<<<<<< HEAD
 		    struct sk_buff *skb, struct tcmsg *t)
+=======
+		    struct sk_buff *skb, struct tcmsg *t, bool rtnl_held)
+>>>>>>> upstream/android-13
 {
 	struct tc_u_knode *n = fh;
 	struct tc_u_hnode *ht_up, *ht_down;
@@ -1340,7 +1683,11 @@ static int u32_dump(struct net *net, struct tcf_proto *tp, void *fh,
 
 	t->tcm_handle = n->handle;
 
+<<<<<<< HEAD
 	nest = nla_nest_start(skb, TCA_OPTIONS);
+=======
+	nest = nla_nest_start_noflag(skb, TCA_OPTIONS);
+>>>>>>> upstream/android-13
 	if (nest == NULL)
 		goto nla_put_failure;
 
@@ -1356,8 +1703,12 @@ static int u32_dump(struct net *net, struct tcf_proto *tp, void *fh,
 		int cpu;
 #endif
 
+<<<<<<< HEAD
 		if (nla_put(skb, TCA_U32_SEL,
 			    sizeof(n->sel) + n->sel.nkeys*sizeof(struct tc_u32_key),
+=======
+		if (nla_put(skb, TCA_U32_SEL, struct_size(&n->sel, keys, n->sel.nkeys),
+>>>>>>> upstream/android-13
 			    &n->sel))
 			goto nla_put_failure;
 
@@ -1400,18 +1751,26 @@ static int u32_dump(struct net *net, struct tcf_proto *tp, void *fh,
 		if (tcf_exts_dump(skb, &n->exts) < 0)
 			goto nla_put_failure;
 
+<<<<<<< HEAD
 #ifdef CONFIG_NET_CLS_IND
+=======
+>>>>>>> upstream/android-13
 		if (n->ifindex) {
 			struct net_device *dev;
 			dev = __dev_get_by_index(net, n->ifindex);
 			if (dev && nla_put_string(skb, TCA_U32_INDEV, dev->name))
 				goto nla_put_failure;
 		}
+<<<<<<< HEAD
 #endif
 #ifdef CONFIG_CLS_U32_PERF
 		gpf = kzalloc(sizeof(struct tc_u32_pcnt) +
 			      n->sel.nkeys * sizeof(u64),
 			      GFP_KERNEL);
+=======
+#ifdef CONFIG_CLS_U32_PERF
+		gpf = kzalloc(struct_size(gpf, kcnts, n->sel.nkeys), GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (!gpf)
 			goto nla_put_failure;
 
@@ -1425,9 +1784,13 @@ static int u32_dump(struct net *net, struct tcf_proto *tp, void *fh,
 				gpf->kcnts[i] += pf->kcnts[i];
 		}
 
+<<<<<<< HEAD
 		if (nla_put_64bit(skb, TCA_U32_PCNT,
 				  sizeof(struct tc_u32_pcnt) +
 				  n->sel.nkeys * sizeof(u64),
+=======
+		if (nla_put_64bit(skb, TCA_U32_PCNT, struct_size(gpf, kcnts, n->sel.nkeys),
+>>>>>>> upstream/android-13
 				  gpf, TCA_U32_PAD)) {
 			kfree(gpf);
 			goto nla_put_failure;
@@ -1471,9 +1834,13 @@ static int __init init_u32(void)
 #ifdef CONFIG_CLS_U32_PERF
 	pr_info("    Performance counters on\n");
 #endif
+<<<<<<< HEAD
 #ifdef CONFIG_NET_CLS_IND
 	pr_info("    input device check on\n");
 #endif
+=======
+	pr_info("    input device check on\n");
+>>>>>>> upstream/android-13
 #ifdef CONFIG_NET_CLS_ACT
 	pr_info("    Actions configured\n");
 #endif

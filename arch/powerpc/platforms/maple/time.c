@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  (c) Copyright 2004 Benjamin Herrenschmidt (benh@kernel.crashing.org),
  *                     IBM Corp. 
@@ -7,6 +8,12 @@
  *  as published by the Free Software Foundation; either version
  *  2 of the License, or (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  (c) Copyright 2004 Benjamin Herrenschmidt (benh@kernel.crashing.org),
+ *                     IBM Corp. 
+>>>>>>> upstream/android-13
  */
 
 #undef DEBUG
@@ -28,7 +35,10 @@
 #include <asm/sections.h>
 #include <asm/prom.h>
 #include <asm/io.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/machdep.h>
 #include <asm/time.h>
 

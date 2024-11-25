@@ -49,6 +49,7 @@ static struct rc_map_table pinnacle_color[] = {
 	{ 0x4c, KEY_STOP },
 	{ 0x54, KEY_NEXT },
 
+<<<<<<< HEAD
 	{ 0x69, KEY_0 },
 	{ 0x6a, KEY_1 },
 	{ 0x6b, KEY_2 },
@@ -59,6 +60,18 @@ static struct rc_map_table pinnacle_color[] = {
 	{ 0x70, KEY_7 },
 	{ 0x71, KEY_8 },
 	{ 0x72, KEY_9 },
+=======
+	{ 0x69, KEY_NUMERIC_0 },
+	{ 0x6a, KEY_NUMERIC_1 },
+	{ 0x6b, KEY_NUMERIC_2 },
+	{ 0x6c, KEY_NUMERIC_3 },
+	{ 0x6d, KEY_NUMERIC_4 },
+	{ 0x6e, KEY_NUMERIC_5 },
+	{ 0x6f, KEY_NUMERIC_6 },
+	{ 0x70, KEY_NUMERIC_7 },
+	{ 0x71, KEY_NUMERIC_8 },
+	{ 0x72, KEY_NUMERIC_9 },
+>>>>>>> upstream/android-13
 
 	{ 0x74, KEY_CHANNEL },
 	{ 0x0a, KEY_BACKSPACE },

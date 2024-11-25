@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * APM X-Gene SLIMpro MailBox Driver
  *
  * Copyright (c) 2015, Applied Micro Circuits Corporation
  * Author: Feng Kan fkan@apm.com
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/acpi.h>
 #include <linux/delay.h>
@@ -64,10 +71,17 @@ struct slimpro_mbox_chan {
 /**
  * X-Gene SlimPRO Mailbox controller data
  *
+<<<<<<< HEAD
  * X-Gene SlimPRO Mailbox controller has 8 commnunication channels.
  * Each channel has a separate IRQ number assgined to it.
  *
  * @mb_ctrl:	Representation of the commnunication channel controller
+=======
+ * X-Gene SlimPRO Mailbox controller has 8 communication channels.
+ * Each channel has a separate IRQ number assigned to it.
+ *
+ * @mb_ctrl:	Representation of the communication channel controller
+>>>>>>> upstream/android-13
  * @mc:		Array of SlimPRO mailbox channels of the controller
  * @chans:	Array of mailbox communication channels
  *
@@ -224,7 +238,11 @@ static int slimpro_mbox_probe(struct platform_device *pdev)
 	ctx->mb_ctrl.ops = &slimpro_mbox_ops;
 	ctx->mb_ctrl.num_chans = i;
 
+<<<<<<< HEAD
 	rc = mbox_controller_register(&ctx->mb_ctrl);
+=======
+	rc = devm_mbox_controller_register(&pdev->dev, &ctx->mb_ctrl);
+>>>>>>> upstream/android-13
 	if (rc) {
 		dev_err(&pdev->dev,
 			"APM X-Gene SLIMpro MailBox register failed:%d\n", rc);
@@ -235,6 +253,7 @@ static int slimpro_mbox_probe(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int slimpro_mbox_remove(struct platform_device *pdev)
 {
 	struct slimpro_mbox *smb = platform_get_drvdata(pdev);
@@ -243,6 +262,8 @@ static int slimpro_mbox_remove(struct platform_device *pdev)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct of_device_id slimpro_of_match[] = {
 	{.compatible = "apm,xgene-slimpro-mbox" },
 	{ },
@@ -259,7 +280,10 @@ MODULE_DEVICE_TABLE(acpi, slimpro_acpi_ids);
 
 static struct platform_driver slimpro_mbox_driver = {
 	.probe	= slimpro_mbox_probe,
+<<<<<<< HEAD
 	.remove = slimpro_mbox_remove,
+=======
+>>>>>>> upstream/android-13
 	.driver	= {
 		.name = "xgene-slimpro-mbox",
 		.of_match_table = of_match_ptr(slimpro_of_match),

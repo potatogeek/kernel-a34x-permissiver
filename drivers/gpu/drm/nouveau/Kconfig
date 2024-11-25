@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 config DRM_NOUVEAU
 	tristate "Nouveau (NVIDIA) cards"
 	depends on DRM && PCI && MMU
@@ -5,24 +6,47 @@ config DRM_NOUVEAU
 	select DRM_KMS_HELPER
 	select DRM_TTM
 	select FB_BACKLIGHT if DRM_NOUVEAU_BACKLIGHT
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+config DRM_NOUVEAU
+	tristate "Nouveau (NVIDIA) cards"
+	depends on DRM && PCI && MMU
+	select IOMMU_API
+	select FW_LOADER
+	select DRM_KMS_HELPER
+	select DRM_TTM
+	select DRM_TTM_HELPER
+	select BACKLIGHT_CLASS_DEVICE if DRM_NOUVEAU_BACKLIGHT
+>>>>>>> upstream/android-13
 	select ACPI_VIDEO if ACPI && X86 && BACKLIGHT_CLASS_DEVICE && INPUT
 	select X86_PLATFORM_DEVICES if ACPI && X86
 	select ACPI_WMI if ACPI && X86
 	select MXM_WMI if ACPI && X86
 	select POWER_SUPPLY
 	# Similar to i915, we need to select ACPI_VIDEO and it's dependencies
+<<<<<<< HEAD
 	select BACKLIGHT_LCD_SUPPORT if ACPI && X86
+=======
+>>>>>>> upstream/android-13
 	select BACKLIGHT_CLASS_DEVICE if ACPI && X86
 	select INPUT if ACPI && X86
 	select THERMAL if ACPI && X86
 	select ACPI_VIDEO if ACPI && X86
+<<<<<<< HEAD
+=======
+	select SND_HDA_COMPONENT if SND_HDA_CORE
+>>>>>>> upstream/android-13
 	help
 	  Choose this option for open-source NVIDIA support.
 
 config NOUVEAU_LEGACY_CTX_SUPPORT
 	bool "Nouveau legacy context support"
 	depends on DRM_NOUVEAU
+<<<<<<< HEAD
 	select DRM_VM
+=======
+	select DRM_LEGACY
+>>>>>>> upstream/android-13
 	default y
 	help
 	  There was a version of the nouveau DDX that relied on legacy
@@ -74,6 +98,17 @@ config NOUVEAU_DEBUG_MMU
 	help
 	  Say Y here if you want to enable verbose MMU debug output.
 
+<<<<<<< HEAD
+=======
+config NOUVEAU_DEBUG_PUSH
+	bool "Enable additional push buffer debugging"
+	depends on DRM_NOUVEAU
+	default n
+	help
+	  Say Y here if you want to enable verbose push buffer debug output
+	  and sanity checks.
+
+>>>>>>> upstream/android-13
 config DRM_NOUVEAU_BACKLIGHT
 	bool "Support for backlight control"
 	depends on DRM_NOUVEAU
@@ -81,3 +116,19 @@ config DRM_NOUVEAU_BACKLIGHT
 	help
 	  Say Y here if you want to control the backlight of your display
 	  (e.g. a laptop panel).
+<<<<<<< HEAD
+=======
+
+config DRM_NOUVEAU_SVM
+	bool "(EXPERIMENTAL) Enable SVM (Shared Virtual Memory) support"
+	depends on DEVICE_PRIVATE
+	depends on DRM_NOUVEAU
+	depends on MMU
+	depends on STAGING
+	select HMM_MIRROR
+	select MMU_NOTIFIER
+	default n
+	help
+	  Say Y here if you want to enable experimental support for
+	  Shared Virtual Memory (SVM).
+>>>>>>> upstream/android-13

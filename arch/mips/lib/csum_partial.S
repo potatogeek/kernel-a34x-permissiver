@@ -279,7 +279,12 @@ EXPORT_SYMBOL(csum_partial)
 #endif
 
 	/* odd buffer alignment? */
+<<<<<<< HEAD
 #if defined(CONFIG_CPU_MIPSR2) || defined(CONFIG_CPU_LOONGSON3)
+=======
+#if defined(CONFIG_CPU_MIPSR2) || defined(CONFIG_CPU_MIPSR5) || \
+    defined(CONFIG_CPU_LOONGSON64)
+>>>>>>> upstream/android-13
 	.set	push
 	.set	arch=mips32r2
 	wsbh	v1, sum
@@ -307,8 +312,13 @@ EXPORT_SYMBOL(csum_partial)
 /*
  * checksum and copy routines based on memcpy.S
  *
+<<<<<<< HEAD
  *	csum_partial_copy_nocheck(src, dst, len, sum)
  *	__csum_partial_copy_kernel(src, dst, len, sum, errp)
+=======
+ *	csum_partial_copy_nocheck(src, dst, len)
+ *	__csum_partial_copy_kernel(src, dst, len)
+>>>>>>> upstream/android-13
  *
  * See "Spec" in memcpy.S for details.	Unlike __copy_user, all
  * function in this file use the standard calling convention.
@@ -317,6 +327,7 @@ EXPORT_SYMBOL(csum_partial)
 #define src a0
 #define dst a1
 #define len a2
+<<<<<<< HEAD
 #define psum a3
 #define sum v0
 #define odd t8
@@ -337,6 +348,13 @@ EXPORT_SYMBOL(csum_partial)
  *
  * The exception handlers for stores stores -EFAULT to errptr and return.
  * These handlers do not need to overwrite any data.
+=======
+#define sum v0
+#define odd t8
+
+/*
+ * All exception handlers simply return 0.
+>>>>>>> upstream/android-13
  */
 
 /* Instruction type */
@@ -357,11 +375,19 @@ EXPORT_SYMBOL(csum_partial)
  * addr    : Address
  * handler : Exception handler
  */
+<<<<<<< HEAD
 #define EXC(insn, type, reg, addr, handler)	\
 	.if \mode == LEGACY_MODE;		\
 9:		insn reg, addr;			\
 		.section __ex_table,"a";	\
 		PTR	9b, handler;		\
+=======
+#define EXC(insn, type, reg, addr)		\
+	.if \mode == LEGACY_MODE;		\
+9:		insn reg, addr;			\
+		.section __ex_table,"a";	\
+		PTR_WD	9b, .L_exc;		\
+>>>>>>> upstream/android-13
 		.previous;			\
 	/* This is enabled in EVA mode */	\
 	.else;					\
@@ -370,7 +396,11 @@ EXPORT_SYMBOL(csum_partial)
 		    ((\to == USEROP) && (type == ST_INSN));	\
 9:			__BUILD_EVA_INSN(insn##e, reg, addr);	\
 			.section __ex_table,"a";		\
+<<<<<<< HEAD
 			PTR	9b, handler;			\
+=======
+			PTR_WD	9b, .L_exc;			\
+>>>>>>> upstream/android-13
 			.previous;				\
 		.else;						\
 			/* EVA without exception */		\
@@ -383,6 +413,7 @@ EXPORT_SYMBOL(csum_partial)
 #ifdef USE_DOUBLE
 
 #define LOADK	ld /* No exception */
+<<<<<<< HEAD
 #define LOAD(reg, addr, handler)	EXC(ld, LD_INSN, reg, addr, handler)
 #define LOADBU(reg, addr, handler)	EXC(lbu, LD_INSN, reg, addr, handler)
 #define LOADL(reg, addr, handler)	EXC(ldl, LD_INSN, reg, addr, handler)
@@ -391,6 +422,16 @@ EXPORT_SYMBOL(csum_partial)
 #define STOREL(reg, addr, handler)	EXC(sdl, ST_INSN, reg, addr, handler)
 #define STORER(reg, addr, handler)	EXC(sdr, ST_INSN, reg, addr, handler)
 #define STORE(reg, addr, handler)	EXC(sd, ST_INSN, reg, addr, handler)
+=======
+#define LOAD(reg, addr)		EXC(ld, LD_INSN, reg, addr)
+#define LOADBU(reg, addr)	EXC(lbu, LD_INSN, reg, addr)
+#define LOADL(reg, addr)	EXC(ldl, LD_INSN, reg, addr)
+#define LOADR(reg, addr)	EXC(ldr, LD_INSN, reg, addr)
+#define STOREB(reg, addr)	EXC(sb, ST_INSN, reg, addr)
+#define STOREL(reg, addr)	EXC(sdl, ST_INSN, reg, addr)
+#define STORER(reg, addr)	EXC(sdr, ST_INSN, reg, addr)
+#define STORE(reg, addr)	EXC(sd, ST_INSN, reg, addr)
+>>>>>>> upstream/android-13
 #define ADD    daddu
 #define SUB    dsubu
 #define SRL    dsrl
@@ -403,6 +444,7 @@ EXPORT_SYMBOL(csum_partial)
 #else
 
 #define LOADK	lw /* No exception */
+<<<<<<< HEAD
 #define LOAD(reg, addr, handler)	EXC(lw, LD_INSN, reg, addr, handler)
 #define LOADBU(reg, addr, handler)	EXC(lbu, LD_INSN, reg, addr, handler)
 #define LOADL(reg, addr, handler)	EXC(lwl, LD_INSN, reg, addr, handler)
@@ -411,6 +453,16 @@ EXPORT_SYMBOL(csum_partial)
 #define STOREL(reg, addr, handler)	EXC(swl, ST_INSN, reg, addr, handler)
 #define STORER(reg, addr, handler)	EXC(swr, ST_INSN, reg, addr, handler)
 #define STORE(reg, addr, handler)	EXC(sw, ST_INSN, reg, addr, handler)
+=======
+#define LOAD(reg, addr)		EXC(lw, LD_INSN, reg, addr)
+#define LOADBU(reg, addr)	EXC(lbu, LD_INSN, reg, addr)
+#define LOADL(reg, addr)	EXC(lwl, LD_INSN, reg, addr)
+#define LOADR(reg, addr)	EXC(lwr, LD_INSN, reg, addr)
+#define STOREB(reg, addr)	EXC(sb, ST_INSN, reg, addr)
+#define STOREL(reg, addr)	EXC(swl, ST_INSN, reg, addr)
+#define STORER(reg, addr)	EXC(swr, ST_INSN, reg, addr)
+#define STORE(reg, addr)	EXC(sw, ST_INSN, reg, addr)
+>>>>>>> upstream/android-13
 #define ADD    addu
 #define SUB    subu
 #define SRL    srl
@@ -449,6 +501,7 @@ EXPORT_SYMBOL(csum_partial)
 	.set	at=v1
 #endif
 
+<<<<<<< HEAD
 	.macro __BUILD_CSUM_PARTIAL_COPY_USER mode, from, to, __nocheck
 
 	PTR_ADDU	AT, src, len	/* See (1) above. */
@@ -465,6 +518,11 @@ EXPORT_SYMBOL(csum_partial)
 	EXPORT_SYMBOL(csum_partial_copy_nocheck)
 	.endif
 	move	sum, zero
+=======
+	.macro __BUILD_CSUM_PARTIAL_COPY_USER mode, from, to
+
+	li	sum, -1
+>>>>>>> upstream/android-13
 	move	odd, zero
 	/*
 	 * Note: dst & src may be unaligned, len may be 0
@@ -496,6 +554,7 @@ EXPORT_SYMBOL(csum_partial)
 	SUB	len, 8*NBYTES		# subtract here for bgez loop
 	.align	4
 1:
+<<<<<<< HEAD
 	LOAD(t0, UNIT(0)(src), .Ll_exc\@)
 	LOAD(t1, UNIT(1)(src), .Ll_exc_copy\@)
 	LOAD(t2, UNIT(2)(src), .Ll_exc_copy\@)
@@ -521,6 +580,33 @@ EXPORT_SYMBOL(csum_partial)
 	STORE(t6, UNIT(6)(dst),	.Ls_exc\@)
 	ADDC(t6, t7)
 	STORE(t7, UNIT(7)(dst),	.Ls_exc\@)
+=======
+	LOAD(t0, UNIT(0)(src))
+	LOAD(t1, UNIT(1)(src))
+	LOAD(t2, UNIT(2)(src))
+	LOAD(t3, UNIT(3)(src))
+	LOAD(t4, UNIT(4)(src))
+	LOAD(t5, UNIT(5)(src))
+	LOAD(t6, UNIT(6)(src))
+	LOAD(t7, UNIT(7)(src))
+	SUB	len, len, 8*NBYTES
+	ADD	src, src, 8*NBYTES
+	STORE(t0, UNIT(0)(dst))
+	ADDC(t0, t1)
+	STORE(t1, UNIT(1)(dst))
+	ADDC(sum, t0)
+	STORE(t2, UNIT(2)(dst))
+	ADDC(t2, t3)
+	STORE(t3, UNIT(3)(dst))
+	ADDC(sum, t2)
+	STORE(t4, UNIT(4)(dst))
+	ADDC(t4, t5)
+	STORE(t5, UNIT(5)(dst))
+	ADDC(sum, t4)
+	STORE(t6, UNIT(6)(dst))
+	ADDC(t6, t7)
+	STORE(t7, UNIT(7)(dst))
+>>>>>>> upstream/android-13
 	ADDC(sum, t6)
 	.set	reorder				/* DADDI_WAR */
 	ADD	dst, dst, 8*NBYTES
@@ -540,6 +626,7 @@ EXPORT_SYMBOL(csum_partial)
 	/*
 	 * len >= 4*NBYTES
 	 */
+<<<<<<< HEAD
 	LOAD(t0, UNIT(0)(src), .Ll_exc\@)
 	LOAD(t1, UNIT(1)(src), .Ll_exc_copy\@)
 	LOAD(t2, UNIT(2)(src), .Ll_exc_copy\@)
@@ -553,6 +640,21 @@ EXPORT_SYMBOL(csum_partial)
 	STORE(t2, UNIT(2)(dst),	.Ls_exc\@)
 	ADDC(t2, t3)
 	STORE(t3, UNIT(3)(dst),	.Ls_exc\@)
+=======
+	LOAD(t0, UNIT(0)(src))
+	LOAD(t1, UNIT(1)(src))
+	LOAD(t2, UNIT(2)(src))
+	LOAD(t3, UNIT(3)(src))
+	SUB	len, len, 4*NBYTES
+	ADD	src, src, 4*NBYTES
+	STORE(t0, UNIT(0)(dst))
+	ADDC(t0, t1)
+	STORE(t1, UNIT(1)(dst))
+	ADDC(sum, t0)
+	STORE(t2, UNIT(2)(dst))
+	ADDC(t2, t3)
+	STORE(t3, UNIT(3)(dst))
+>>>>>>> upstream/android-13
 	ADDC(sum, t2)
 	.set	reorder				/* DADDI_WAR */
 	ADD	dst, dst, 4*NBYTES
@@ -565,10 +667,17 @@ EXPORT_SYMBOL(csum_partial)
 	beq	rem, len, .Lcopy_bytes\@
 	 nop
 1:
+<<<<<<< HEAD
 	LOAD(t0, 0(src), .Ll_exc\@)
 	ADD	src, src, NBYTES
 	SUB	len, len, NBYTES
 	STORE(t0, 0(dst), .Ls_exc\@)
+=======
+	LOAD(t0, 0(src))
+	ADD	src, src, NBYTES
+	SUB	len, len, NBYTES
+	STORE(t0, 0(dst))
+>>>>>>> upstream/android-13
 	ADDC(sum, t0)
 	.set	reorder				/* DADDI_WAR */
 	ADD	dst, dst, NBYTES
@@ -591,10 +700,17 @@ EXPORT_SYMBOL(csum_partial)
 	 ADD	t1, dst, len	# t1 is just past last byte of dst
 	li	bits, 8*NBYTES
 	SLL	rem, len, 3	# rem = number of bits to keep
+<<<<<<< HEAD
 	LOAD(t0, 0(src), .Ll_exc\@)
 	SUB	bits, bits, rem # bits = number of bits to discard
 	SHIFT_DISCARD t0, t0, bits
 	STREST(t0, -1(t1), .Ls_exc\@)
+=======
+	LOAD(t0, 0(src))
+	SUB	bits, bits, rem # bits = number of bits to discard
+	SHIFT_DISCARD t0, t0, bits
+	STREST(t0, -1(t1))
+>>>>>>> upstream/android-13
 	SHIFT_DISCARD_REVERT t0, t0, bits
 	.set reorder
 	ADDC(sum, t0)
@@ -611,12 +727,21 @@ EXPORT_SYMBOL(csum_partial)
 	 * Set match = (src and dst have same alignment)
 	 */
 #define match rem
+<<<<<<< HEAD
 	LDFIRST(t3, FIRST(0)(src), .Ll_exc\@)
 	ADD	t2, zero, NBYTES
 	LDREST(t3, REST(0)(src), .Ll_exc_copy\@)
 	SUB	t2, t2, t1	# t2 = number of bytes copied
 	xor	match, t0, t1
 	STFIRST(t3, FIRST(0)(dst), .Ls_exc\@)
+=======
+	LDFIRST(t3, FIRST(0)(src))
+	ADD	t2, zero, NBYTES
+	LDREST(t3, REST(0)(src))
+	SUB	t2, t2, t1	# t2 = number of bytes copied
+	xor	match, t0, t1
+	STFIRST(t3, FIRST(0)(dst))
+>>>>>>> upstream/android-13
 	SLL	t4, t1, 3		# t4 = number of bits to discard
 	SHIFT_DISCARD t3, t3, t4
 	/* no SHIFT_DISCARD_REVERT to handle odd buffer properly */
@@ -638,6 +763,7 @@ EXPORT_SYMBOL(csum_partial)
  * It's OK to load FIRST(N+1) before REST(N) because the two addresses
  * are to the same unit (unless src is aligned, but it's not).
  */
+<<<<<<< HEAD
 	LDFIRST(t0, FIRST(0)(src), .Ll_exc\@)
 	LDFIRST(t1, FIRST(1)(src), .Ll_exc_copy\@)
 	SUB	len, len, 4*NBYTES
@@ -647,10 +773,22 @@ EXPORT_SYMBOL(csum_partial)
 	LDFIRST(t3, FIRST(3)(src), .Ll_exc_copy\@)
 	LDREST(t2, REST(2)(src), .Ll_exc_copy\@)
 	LDREST(t3, REST(3)(src), .Ll_exc_copy\@)
+=======
+	LDFIRST(t0, FIRST(0)(src))
+	LDFIRST(t1, FIRST(1)(src))
+	SUB	len, len, 4*NBYTES
+	LDREST(t0, REST(0)(src))
+	LDREST(t1, REST(1)(src))
+	LDFIRST(t2, FIRST(2)(src))
+	LDFIRST(t3, FIRST(3)(src))
+	LDREST(t2, REST(2)(src))
+	LDREST(t3, REST(3)(src))
+>>>>>>> upstream/android-13
 	ADD	src, src, 4*NBYTES
 #ifdef CONFIG_CPU_SB1
 	nop				# improves slotting
 #endif
+<<<<<<< HEAD
 	STORE(t0, UNIT(0)(dst),	.Ls_exc\@)
 	ADDC(t0, t1)
 	STORE(t1, UNIT(1)(dst),	.Ls_exc\@)
@@ -658,6 +796,15 @@ EXPORT_SYMBOL(csum_partial)
 	STORE(t2, UNIT(2)(dst),	.Ls_exc\@)
 	ADDC(t2, t3)
 	STORE(t3, UNIT(3)(dst),	.Ls_exc\@)
+=======
+	STORE(t0, UNIT(0)(dst))
+	ADDC(t0, t1)
+	STORE(t1, UNIT(1)(dst))
+	ADDC(sum, t0)
+	STORE(t2, UNIT(2)(dst))
+	ADDC(t2, t3)
+	STORE(t3, UNIT(3)(dst))
+>>>>>>> upstream/android-13
 	ADDC(sum, t2)
 	.set	reorder				/* DADDI_WAR */
 	ADD	dst, dst, 4*NBYTES
@@ -670,11 +817,19 @@ EXPORT_SYMBOL(csum_partial)
 	beq	rem, len, .Lcopy_bytes\@
 	 nop
 1:
+<<<<<<< HEAD
 	LDFIRST(t0, FIRST(0)(src), .Ll_exc\@)
 	LDREST(t0, REST(0)(src), .Ll_exc_copy\@)
 	ADD	src, src, NBYTES
 	SUB	len, len, NBYTES
 	STORE(t0, 0(dst), .Ls_exc\@)
+=======
+	LDFIRST(t0, FIRST(0)(src))
+	LDREST(t0, REST(0)(src))
+	ADD	src, src, NBYTES
+	SUB	len, len, NBYTES
+	STORE(t0, 0(dst))
+>>>>>>> upstream/android-13
 	ADDC(sum, t0)
 	.set	reorder				/* DADDI_WAR */
 	ADD	dst, dst, NBYTES
@@ -695,11 +850,18 @@ EXPORT_SYMBOL(csum_partial)
 #endif
 	move	t2, zero	# partial word
 	li	t3, SHIFT_START # shift
+<<<<<<< HEAD
 /* use .Ll_exc_copy here to return correct sum on fault */
 #define COPY_BYTE(N)			\
 	LOADBU(t0, N(src), .Ll_exc_copy\@);	\
 	SUB	len, len, 1;		\
 	STOREB(t0, N(dst), .Ls_exc\@);	\
+=======
+#define COPY_BYTE(N)			\
+	LOADBU(t0, N(src));		\
+	SUB	len, len, 1;		\
+	STOREB(t0, N(dst));		\
+>>>>>>> upstream/android-13
 	SLLV	t0, t0, t3;		\
 	addu	t3, SHIFT_INC;		\
 	beqz	len, .Lcopy_bytes_done\@; \
@@ -713,9 +875,15 @@ EXPORT_SYMBOL(csum_partial)
 	COPY_BYTE(4)
 	COPY_BYTE(5)
 #endif
+<<<<<<< HEAD
 	LOADBU(t0, NBYTES-2(src), .Ll_exc_copy\@)
 	SUB	len, len, 1
 	STOREB(t0, NBYTES-2(dst), .Ls_exc\@)
+=======
+	LOADBU(t0, NBYTES-2(src))
+	SUB	len, len, 1
+	STOREB(t0, NBYTES-2(dst))
+>>>>>>> upstream/android-13
 	SLLV	t0, t0, t3
 	or	t2, t0
 .Lcopy_bytes_done\@:
@@ -732,7 +900,12 @@ EXPORT_SYMBOL(csum_partial)
 	addu	sum, v1
 #endif
 
+<<<<<<< HEAD
 #if defined(CONFIG_CPU_MIPSR2) || defined(CONFIG_CPU_LOONGSON3)
+=======
+#if defined(CONFIG_CPU_MIPSR2) || defined(CONFIG_CPU_MIPSR5) || \
+    defined(CONFIG_CPU_LOONGSON64)
+>>>>>>> upstream/android-13
 	.set	push
 	.set	arch=mips32r2
 	wsbh	v1, sum
@@ -751,6 +924,7 @@ EXPORT_SYMBOL(csum_partial)
 #endif
 	.set	pop
 	.set reorder
+<<<<<<< HEAD
 	ADDC32(sum, psum)
 	jr	ra
 	.set noreorder
@@ -827,12 +1001,26 @@ EXPORT_SYMBOL(csum_partial)
 
 LEAF(__csum_partial_copy_kernel)
 EXPORT_SYMBOL(__csum_partial_copy_kernel)
+=======
+	jr	ra
+	.set noreorder
+	.endm
+
+	.set noreorder
+.L_exc:
+	jr	ra
+	 li	v0, 0
+
+FEXPORT(__csum_partial_copy_nocheck)
+EXPORT_SYMBOL(__csum_partial_copy_nocheck)
+>>>>>>> upstream/android-13
 #ifndef CONFIG_EVA
 FEXPORT(__csum_partial_copy_to_user)
 EXPORT_SYMBOL(__csum_partial_copy_to_user)
 FEXPORT(__csum_partial_copy_from_user)
 EXPORT_SYMBOL(__csum_partial_copy_from_user)
 #endif
+<<<<<<< HEAD
 __BUILD_CSUM_PARTIAL_COPY_USER LEGACY_MODE USEROP USEROP 1
 END(__csum_partial_copy_kernel)
 
@@ -843,5 +1031,16 @@ END(__csum_partial_copy_to_user)
 
 LEAF(__csum_partial_copy_from_user)
 __BUILD_CSUM_PARTIAL_COPY_USER EVA_MODE USEROP KERNELOP 0
+=======
+__BUILD_CSUM_PARTIAL_COPY_USER LEGACY_MODE USEROP USEROP
+
+#ifdef CONFIG_EVA
+LEAF(__csum_partial_copy_to_user)
+__BUILD_CSUM_PARTIAL_COPY_USER EVA_MODE KERNELOP USEROP
+END(__csum_partial_copy_to_user)
+
+LEAF(__csum_partial_copy_from_user)
+__BUILD_CSUM_PARTIAL_COPY_USER EVA_MODE USEROP KERNELOP
+>>>>>>> upstream/android-13
 END(__csum_partial_copy_from_user)
 #endif

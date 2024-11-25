@@ -2,7 +2,11 @@
 /*
  * Copyright 2019 Google LLC
  */
+<<<<<<< HEAD
 #include <crypto/sha.h>
+=======
+#include <crypto/sha2.h>
+>>>>>>> upstream/android-13
 #include <crypto/hash.h>
 #include <linux/err.h>
 #include <linux/version.h>

@@ -1,4 +1,5 @@
 #!/bin/bash
+<<<<<<< HEAD
 #
 # Kernel-version-dependent shell functions for the rest of the scripts.
 #
@@ -19,6 +20,15 @@
 # Copyright (C) IBM Corporation, 2013
 #
 # Authors: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
+=======
+# SPDX-License-Identifier: GPL-2.0+
+#
+# Kernel-version-dependent shell functions for the rest of the scripts.
+#
+# Copyright (C) IBM Corporation, 2013
+#
+# Authors: Paul E. McKenney <paulmck@linux.ibm.com>
+>>>>>>> upstream/android-13
 
 # rcutorture_param_n_barrier_cbs bootparam-string
 #

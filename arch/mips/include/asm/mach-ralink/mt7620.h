@@ -1,7 +1,12 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+>>>>>>> upstream/android-13
  *
  * Parts of this file are based on Ralink's 2.6.21 BSP
  *
@@ -85,6 +90,7 @@
 #define MT7620_DDR2_SIZE_MIN		32
 #define MT7620_DDR2_SIZE_MAX		256
 
+<<<<<<< HEAD
 #define MT7620_GPIO_MODE_UART0_SHIFT	2
 #define MT7620_GPIO_MODE_UART0_MASK	0x7
 #define MT7620_GPIO_MODE_UART0(x)	((x) << MT7620_GPIO_MODE_UART0_SHIFT)
@@ -131,6 +137,15 @@
 #define MT7620_GPIO_MODE_JTAG		15
 #define MT7620_GPIO_MODE_EPHY		15
 #define MT7620_GPIO_MODE_PA		20
+=======
+extern enum ralink_soc_type ralink_soc;
+
+static inline int is_mt76x8(void)
+{
+	return ralink_soc == MT762X_SOC_MT7628AN ||
+	       ralink_soc == MT762X_SOC_MT7688;
+}
+>>>>>>> upstream/android-13
 
 static inline int mt7620_get_eco(void)
 {

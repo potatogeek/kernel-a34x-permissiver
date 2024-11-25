@@ -54,6 +54,7 @@
 #include <linux/workqueue.h>
 
 #define USB_VENDOR_APPLE        0x05ac
+<<<<<<< HEAD
 #define USB_PRODUCT_IPHONE      0x1290
 #define USB_PRODUCT_IPHONE_3G   0x1292
 #define USB_PRODUCT_IPHONE_3GS  0x1294
@@ -65,6 +66,8 @@
 #define USB_PRODUCT_IPHONE_4_VZW 0x129c
 #define USB_PRODUCT_IPHONE_4S	0x12a0
 #define USB_PRODUCT_IPHONE_5	0x12a8
+=======
+>>>>>>> upstream/android-13
 
 #define IPHETH_USBINTF_CLASS    255
 #define IPHETH_USBINTF_SUBCLASS 253
@@ -88,6 +91,7 @@
 #define IPHETH_CARRIER_ON       0x04
 
 static const struct usb_device_id ipheth_table[] = {
+<<<<<<< HEAD
 	{ USB_DEVICE_AND_INTERFACE_INFO(
 		USB_VENDOR_APPLE, USB_PRODUCT_IPHONE,
 		IPHETH_USBINTF_CLASS, IPHETH_USBINTF_SUBCLASS,
@@ -132,6 +136,11 @@ static const struct usb_device_id ipheth_table[] = {
 		USB_VENDOR_APPLE, USB_PRODUCT_IPHONE_5,
 		IPHETH_USBINTF_CLASS, IPHETH_USBINTF_SUBCLASS,
 		IPHETH_USBINTF_PROTO) },
+=======
+	{ USB_VENDOR_AND_INTERFACE_INFO(USB_VENDOR_APPLE, IPHETH_USBINTF_CLASS,
+					IPHETH_USBINTF_SUBCLASS,
+					IPHETH_USBINTF_PROTO) },
+>>>>>>> upstream/android-13
 	{ }
 };
 MODULE_DEVICE_TABLE(usb, ipheth_table);
@@ -173,7 +182,11 @@ static int ipheth_alloc_urbs(struct ipheth_device *iphone)
 	if (tx_buf == NULL)
 		goto free_rx_urb;
 
+<<<<<<< HEAD
 	rx_buf = usb_alloc_coherent(iphone->udev, IPHETH_BUF_SIZE,
+=======
+	rx_buf = usb_alloc_coherent(iphone->udev, IPHETH_BUF_SIZE + IPHETH_IP_ALIGN,
+>>>>>>> upstream/android-13
 				    GFP_KERNEL, &rx_urb->transfer_dma);
 	if (rx_buf == NULL)
 		goto free_tx_buf;
@@ -198,7 +211,11 @@ error_nomem:
 
 static void ipheth_free_urbs(struct ipheth_device *iphone)
 {
+<<<<<<< HEAD
 	usb_free_coherent(iphone->udev, IPHETH_BUF_SIZE, iphone->rx_buf,
+=======
+	usb_free_coherent(iphone->udev, IPHETH_BUF_SIZE + IPHETH_IP_ALIGN, iphone->rx_buf,
+>>>>>>> upstream/android-13
 			  iphone->rx_urb->transfer_dma);
 	usb_free_coherent(iphone->udev, IPHETH_BUF_SIZE, iphone->tx_buf,
 			  iphone->tx_urb->transfer_dma);
@@ -293,8 +310,11 @@ static int ipheth_carrier_set(struct ipheth_device *dev)
 	struct usb_device *udev;
 	int retval;
 
+<<<<<<< HEAD
 	if (!dev)
 		return 0;
+=======
+>>>>>>> upstream/android-13
 	if (!dev->confirmed_pairing)
 		return 0;
 
@@ -371,7 +391,11 @@ static int ipheth_rx_submit(struct ipheth_device *dev, gfp_t mem_flags)
 
 	usb_fill_bulk_urb(dev->rx_urb, udev,
 			  usb_rcvbulkpipe(udev, dev->bulk_in),
+<<<<<<< HEAD
 			  dev->rx_buf, IPHETH_BUF_SIZE,
+=======
+			  dev->rx_buf, IPHETH_BUF_SIZE + IPHETH_IP_ALIGN,
+>>>>>>> upstream/android-13
 			  ipheth_rcvbulk_callback,
 			  dev);
 	dev->rx_urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
@@ -412,7 +436,11 @@ static int ipheth_close(struct net_device *net)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int ipheth_tx(struct sk_buff *skb, struct net_device *net)
+=======
+static netdev_tx_t ipheth_tx(struct sk_buff *skb, struct net_device *net)
+>>>>>>> upstream/android-13
 {
 	struct ipheth_device *dev = netdev_priv(net);
 	struct usb_device *udev = dev->udev;
@@ -454,7 +482,11 @@ static int ipheth_tx(struct sk_buff *skb, struct net_device *net)
 	return NETDEV_TX_OK;
 }
 
+<<<<<<< HEAD
 static void ipheth_tx_timeout(struct net_device *net)
+=======
+static void ipheth_tx_timeout(struct net_device *net, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct ipheth_device *dev = netdev_priv(net);
 
@@ -497,7 +529,11 @@ static int ipheth_probe(struct usb_interface *intf,
 
 	netdev->netdev_ops = &ipheth_netdev_ops;
 	netdev->watchdog_timeo = IPHETH_TX_TIMEOUT;
+<<<<<<< HEAD
 	strcpy(netdev->name, "eth%d");
+=======
+	strscpy(netdev->name, "eth%d", sizeof(netdev->name));
+>>>>>>> upstream/android-13
 
 	dev = netdev_priv(netdev);
 	dev->udev = udev;

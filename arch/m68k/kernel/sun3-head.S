@@ -88,9 +88,12 @@ kpt:
         .long 0
 availmem:
         .long 0
+<<<<<<< HEAD
 | todo: remove next two. --m
 is_medusa:
         .long 0
 m68k_pgtable_cachemode:
         .long 0
 
+=======
+>>>>>>> upstream/android-13

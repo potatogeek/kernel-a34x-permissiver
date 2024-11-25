@@ -120,7 +120,11 @@ extern void get_pci_node_path(struct pci_dev *dev, struct hardware_path *path);
 extern void init_parisc_bus(void);
 extern struct device *hwpath_to_device(struct hardware_path *modpath);
 extern void device_to_hwpath(struct device *dev, struct hardware_path *path);
+<<<<<<< HEAD
 
+=======
+extern int machine_has_merced_bus(void);
+>>>>>>> upstream/android-13
 
 /* inventory.c: */
 extern void do_memory_inventory(void);

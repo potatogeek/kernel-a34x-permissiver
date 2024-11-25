@@ -1,7 +1,15 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
+<<<<<<< HEAD
  * Copyright (C) 2019 MediaTek Inc.
  * Author Chunfeng Yun <chunfeng.yun@mediatek.com>
+=======
+ * mtu3_debug.h - debug header
+ *
+ * Copyright (C) 2019 MediaTek Inc.
+ *
+ * Author: Chunfeng Yun <chunfeng.yun@mediatek.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __MTU3_DEBUG_H__
@@ -9,12 +17,20 @@
 
 #include <linux/debugfs.h>
 
+<<<<<<< HEAD
+=======
+struct ssusb_mtk;
+
+>>>>>>> upstream/android-13
 #define MTU3_DEBUGFS_NAME_LEN 32
 
 struct mtu3_regset {
 	char name[MTU3_DEBUGFS_NAME_LEN];
 	struct debugfs_regset32 regset;
+<<<<<<< HEAD
 	size_t nregs;
+=======
+>>>>>>> upstream/android-13
 };
 
 struct mtu3_file_map {

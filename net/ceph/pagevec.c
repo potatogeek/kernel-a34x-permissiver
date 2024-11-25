@@ -10,6 +10,7 @@
 
 #include <linux/ceph/libceph.h>
 
+<<<<<<< HEAD
 /*
  * build a vector of user pages
  */
@@ -43,6 +44,8 @@ fail:
 }
 EXPORT_SYMBOL(ceph_get_direct_page_vector);
 
+=======
+>>>>>>> upstream/android-13
 void ceph_put_page_vector(struct page **pages, int num_pages, bool dirty)
 {
 	int i;

@@ -1,4 +1,8 @@
 #!/bin/bash
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 
 # udelay() test script
 #
@@ -8,6 +12,7 @@
 #
 # Copyright (C) 2014 Google, Inc.
 #
+<<<<<<< HEAD
 # This software is licensed under the terms of the GNU General Public
 # License version 2, as published by the Free Software Foundation, and
 # may be copied, distributed, and modified under those terms.
@@ -16,6 +21,8 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
 
 MODULE_NAME=udelay_test
 UDELAY_PATH=/sys/kernel/debug/udelay_test

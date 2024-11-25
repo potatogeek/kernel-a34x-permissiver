@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  * Copyright(c) 2008 - 2010 Realtek Corporation. All rights reserved.
  *
@@ -13,6 +14,14 @@
  * wlanfae <wlanfae@realtek.com>
  *****************************************************************************/
 
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright(c) 2008 - 2010 Realtek Corporation. All rights reserved.
+ *
+ * Contact Information: wlanfae <wlanfae@realtek.com>
+ */
+>>>>>>> upstream/android-13
 #include <linux/string.h>
 #include "rtl_core.h"
 #include "rtl_wx.h"
@@ -739,7 +748,11 @@ static int _rtl92e_wx_set_enc(struct net_device *dev,
 
 		else if (wrqu->encoding.length == 0xd) {
 			ieee->pairwise_key_type = KEY_TYPE_WEP104;
+<<<<<<< HEAD
 				rtl92e_enable_hw_security_config(dev);
+=======
+			rtl92e_enable_hw_security_config(dev);
+>>>>>>> upstream/android-13
 			rtl92e_set_key(dev, key_idx, key_idx, KEY_TYPE_WEP104,
 				       zero_addr[key_idx], 0, hwkey);
 			rtl92e_set_swcam(dev, key_idx, key_idx, KEY_TYPE_WEP104,
@@ -1050,9 +1063,15 @@ static int _rtl92e_wx_set_promisc_mode(struct net_device *dev,
 					(bPromiscuousOn) ? (true) : (false);
 		ieee->IntelPromiscuousModeInfo.bFilterSourceStationFrame =
 			(bFilterSourceStationFrame) ? (true) : (false);
+<<<<<<< HEAD
 			(bPromiscuousOn) ?
 			(rtllib_EnableIntelPromiscuousMode(dev, false)) :
 			(rtllib_DisableIntelPromiscuousMode(dev, false));
+=======
+		(bPromiscuousOn) ?
+		(rtllib_EnableIntelPromiscuousMode(dev, false)) :
+		(rtllib_DisableIntelPromiscuousMode(dev, false));
+>>>>>>> upstream/android-13
 
 		netdev_info(dev,
 			    "=======>%s(), on = %d, filter src sta = %d\n",

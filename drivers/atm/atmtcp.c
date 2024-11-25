@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* drivers/atm/atmtcp.c - ATM over TCP "device" driver */
 
 /* Written 1997-2000 by Werner Almesberger, EPFL LRC/ICA */
@@ -326,7 +330,11 @@ done:
  */
 
 
+<<<<<<< HEAD
 static struct atmdev_ops atmtcp_v_dev_ops = {
+=======
+static const struct atmdev_ops atmtcp_v_dev_ops = {
+>>>>>>> upstream/android-13
 	.dev_close	= atmtcp_v_dev_close,
 	.open		= atmtcp_v_open,
 	.close		= atmtcp_v_close,

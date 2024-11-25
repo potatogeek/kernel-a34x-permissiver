@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* cpwd.c - driver implementation for hardware watchdog
  * timers found on Sun Microsystems CP1400 and CP1500 boards.
  *
@@ -25,6 +29,10 @@
 #include <linux/interrupt.h>
 #include <linux/ioport.h>
 #include <linux/timer.h>
+<<<<<<< HEAD
+=======
+#include <linux/compat.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/mutex.h>
 #include <linux/io.h>
@@ -170,7 +178,10 @@ MODULE_PARM_DESC(wd2_timeout, "Default watchdog2 timeout in 1/10secs");
 MODULE_AUTHOR("Eric Brower <ebrower@usa.net>");
 MODULE_DESCRIPTION("Hardware watchdog driver for Sun Microsystems CP1400/1500");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("watchdog");
+=======
+>>>>>>> upstream/android-13
 
 static void cpwd_writew(u16 val, void __iomem *addr)
 {
@@ -394,7 +405,11 @@ static int cpwd_open(struct inode *inode, struct file *f)
 
 	mutex_unlock(&cpwd_mutex);
 
+<<<<<<< HEAD
 	return nonseekable_open(inode, f);
+=======
+	return stream_open(inode, f);
+>>>>>>> upstream/android-13
 }
 
 static int cpwd_release(struct inode *inode, struct file *file)
@@ -472,6 +487,7 @@ static long cpwd_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 	return 0;
 }
 
+<<<<<<< HEAD
 static long cpwd_compat_ioctl(struct file *file, unsigned int cmd,
 			      unsigned long arg)
 {
@@ -493,6 +509,11 @@ static long cpwd_compat_ioctl(struct file *file, unsigned int cmd,
 	}
 
 	return rval;
+=======
+static long cpwd_compat_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+{
+	return cpwd_ioctl(file, cmd, (unsigned long)compat_ptr(arg));
+>>>>>>> upstream/android-13
 }
 
 static ssize_t cpwd_write(struct file *file, const char __user *buf,
@@ -570,6 +591,11 @@ static int cpwd_probe(struct platform_device *op)
 	if (str_prop)
 		p->timeout = simple_strtoul(str_prop, NULL, 10);
 
+<<<<<<< HEAD
+=======
+	of_node_put(options);
+
+>>>>>>> upstream/android-13
 	/* CP1400s seem to have broken PLD implementations-- the
 	 * interrupt_mask register cannot be written, so no timer
 	 * interrupts can be masked within the PLD.

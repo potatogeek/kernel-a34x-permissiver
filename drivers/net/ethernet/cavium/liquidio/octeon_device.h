@@ -316,6 +316,11 @@ struct octdev_props {
 	 * device pointer (used for OS specific calls).
 	 */
 	int    rx_on;
+<<<<<<< HEAD
+=======
+	int    fec;
+	int    fec_boot;
+>>>>>>> upstream/android-13
 	int    napi_enabled;
 	int    gmxport;
 	struct net_device *netdev;
@@ -397,6 +402,11 @@ struct octeon_sriov_info {
 
 	int	vf_linkstate[MAX_POSSIBLE_VFS];
 
+<<<<<<< HEAD
+=======
+	bool    vf_spoofchk[MAX_POSSIBLE_VFS];
+
+>>>>>>> upstream/android-13
 	u64	vf_drv_loaded_mask;
 };
 
@@ -607,6 +617,12 @@ struct octeon_device {
 	u8  speed_boot;
 	u8  speed_setting;
 	u8  no_speed_setting;
+<<<<<<< HEAD
+=======
+
+	u32    vfstats_poll;
+#define LIO_VFSTATS_POLL 10
+>>>>>>> upstream/android-13
 };
 
 #define  OCT_DRV_ONLINE 1
@@ -705,6 +721,7 @@ struct octeon_device *lio_get_device(u32 octeon_id);
  */
 int lio_get_device_id(void *dev);
 
+<<<<<<< HEAD
 static inline u16 OCTEON_MAJOR_REV(struct octeon_device *oct)
 {
 	u16 rev = (oct->rev_id & 0xC) >> 2;
@@ -717,6 +734,8 @@ static inline u16 OCTEON_MINOR_REV(struct octeon_device *oct)
 	return oct->rev_id & 0x3;
 }
 
+=======
+>>>>>>> upstream/android-13
 /** Read windowed register.
  *  @param  oct   -  pointer to the Octeon device.
  *  @param  addr  -  Address of the register to read.

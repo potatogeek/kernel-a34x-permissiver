@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /******************************************************************************
  *
  * Copyright(c) 2007 - 2010 Realtek Corporation. All rights reserved.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -15,6 +20,8 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
  *
+=======
+>>>>>>> upstream/android-13
  * Modifications for inclusion into the Linux staging tree are
  * Copyright(c) 2010 Larry Finger. All rights reserved.
  *
@@ -84,6 +91,7 @@ struct fw_priv {   /*8-bytes alignment required*/
 	unsigned char regulatory_class_3; /*regulatory class bit map 3*/
 	unsigned char rfintfs;    /* 0:SWSI, 1:HWSI, 2:HWPI*/
 	unsigned char def_nettype;
+<<<<<<< HEAD
 	unsigned char turboMode;
 	unsigned char lowPowerMode;/* 0: normal mode, 1: low power mode*/
 	/*--- long word 2 ----*/
@@ -91,6 +99,15 @@ struct fw_priv {   /*8-bytes alignment required*/
 	unsigned char mp_mode; /* 1: for MP use, 0: for normal driver */
 	unsigned char vcsType; /* 0:off 1:on 2:auto */
 	unsigned char vcsMode; /* 1:RTS/CTS 2:CTS to self */
+=======
+	unsigned char turbo_mode;
+	unsigned char low_power_mode;/* 0: normal mode, 1: low power mode*/
+	/*--- long word 2 ----*/
+	unsigned char lbk_mode; /*0x00: normal, 0x03: MACLBK, 0x01: PHYLBK*/
+	unsigned char mp_mode; /* 1: for MP use, 0: for normal driver */
+	unsigned char vcs_type; /* 0:off 1:on 2:auto */
+	unsigned char vcs_mode; /* 1:RTS/CTS 2:CTS to self */
+>>>>>>> upstream/android-13
 	unsigned char rsvd022;
 	unsigned char rsvd023;
 	unsigned char rsvd024;

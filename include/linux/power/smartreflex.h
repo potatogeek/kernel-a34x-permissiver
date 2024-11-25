@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * OMAP Smartreflex Defines and Routines
  *
@@ -11,10 +15,13 @@
  *
  * Copyright (C) 2007 Texas Instruments, Inc.
  * Lesly A M <x0080970@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __POWER_SMARTREFLEX_H
@@ -158,6 +165,10 @@ struct omap_sr {
 	struct voltagedomain		*voltdm;
 	struct dentry			*dbg_dir;
 	unsigned int			irq;
+<<<<<<< HEAD
+=======
+	struct clk			*fck;
+>>>>>>> upstream/android-13
 	int				srid;
 	int				ip_type;
 	int				nvalue_count;
@@ -172,6 +183,10 @@ struct omap_sr {
 	u32				senp_mod;
 	u32				senn_mod;
 	void __iomem			*base;
+<<<<<<< HEAD
+=======
+	unsigned long			enabled:1;
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -306,9 +321,12 @@ void omap_sr_enable(struct voltagedomain *voltdm);
 void omap_sr_disable(struct voltagedomain *voltdm);
 void omap_sr_disable_reset_volt(struct voltagedomain *voltdm);
 
+<<<<<<< HEAD
 /* API to register the pmic specific data with the smartreflex driver. */
 void omap_sr_register_pmic(struct omap_sr_pmic_data *pmic_data);
 
+=======
+>>>>>>> upstream/android-13
 /* Smartreflex driver hooks to be called from Smartreflex class driver */
 int sr_enable(struct omap_sr *sr, unsigned long volt);
 void sr_disable(struct omap_sr *sr);
@@ -323,7 +341,10 @@ static inline void omap_sr_enable(struct voltagedomain *voltdm) {}
 static inline void omap_sr_disable(struct voltagedomain *voltdm) {}
 static inline void omap_sr_disable_reset_volt(
 		struct voltagedomain *voltdm) {}
+<<<<<<< HEAD
 static inline void omap_sr_register_pmic(
 		struct omap_sr_pmic_data *pmic_data) {}
+=======
+>>>>>>> upstream/android-13
 #endif
 #endif

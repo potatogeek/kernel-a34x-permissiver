@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2013 Red Hat
  * Author: Rob Clark <robdclark@gmail.com>
@@ -21,6 +22,22 @@
 #include <drm/drm_mode.h>
 
 #include "mdp4_kms.h"
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2013 Red Hat
+ * Author: Rob Clark <robdclark@gmail.com>
+ */
+
+#include <drm/drm_crtc.h>
+#include <drm/drm_flip_work.h>
+#include <drm/drm_mode.h>
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_vblank.h>
+
+#include "mdp4_kms.h"
+#include "msm_gem.h"
+>>>>>>> upstream/android-13
 
 struct mdp4_crtc {
 	struct drm_crtc base;
@@ -128,8 +145,13 @@ static void unref_cursor_worker(struct drm_flip_work *work, void *val)
 	struct mdp4_kms *mdp4_kms = get_kms(&mdp4_crtc->base);
 	struct msm_kms *kms = &mdp4_kms->base.base;
 
+<<<<<<< HEAD
 	msm_gem_put_iova(val, kms->aspace);
 	drm_gem_object_put_unlocked(val);
+=======
+	msm_gem_unpin_iova(val, kms->aspace);
+	drm_gem_object_put(val);
+>>>>>>> upstream/android-13
 }
 
 static void mdp4_crtc_destroy(struct drm_crtc *crtc)
@@ -244,6 +266,7 @@ static void mdp4_crtc_mode_set_nofb(struct drm_crtc *crtc)
 
 	mode = &crtc->state->adjusted_mode;
 
+<<<<<<< HEAD
 	DBG("%s: set mode: %d:\"%s\" %d %d %d %d %d %d %d %d %d %d 0x%x 0x%x",
 			mdp4_crtc->name, mode->base.id, mode->name,
 			mode->vrefresh, mode->clock,
@@ -252,6 +275,10 @@ static void mdp4_crtc_mode_set_nofb(struct drm_crtc *crtc)
 			mode->vdisplay, mode->vsync_start,
 			mode->vsync_end, mode->vtotal,
 			mode->type, mode->flags);
+=======
+	DBG("%s: set mode: " DRM_MODE_FMT,
+			mdp4_crtc->name, DRM_MODE_ARG(mode));
+>>>>>>> upstream/android-13
 
 	mdp4_write(mdp4_kms, REG_MDP4_DMA_SRC_SIZE(dma),
 			MDP4_DMA_SRC_SIZE_WIDTH(mode->hdisplay) |
@@ -280,7 +307,11 @@ static void mdp4_crtc_mode_set_nofb(struct drm_crtc *crtc)
 }
 
 static void mdp4_crtc_atomic_disable(struct drm_crtc *crtc,
+<<<<<<< HEAD
 				     struct drm_crtc_state *old_state)
+=======
+				     struct drm_atomic_state *state)
+>>>>>>> upstream/android-13
 {
 	struct mdp4_crtc *mdp4_crtc = to_mdp4_crtc(crtc);
 	struct mdp4_kms *mdp4_kms = get_kms(crtc);
@@ -300,7 +331,11 @@ static void mdp4_crtc_atomic_disable(struct drm_crtc *crtc,
 }
 
 static void mdp4_crtc_atomic_enable(struct drm_crtc *crtc,
+<<<<<<< HEAD
 				    struct drm_crtc_state *old_state)
+=======
+				    struct drm_atomic_state *state)
+>>>>>>> upstream/android-13
 {
 	struct mdp4_crtc *mdp4_crtc = to_mdp4_crtc(crtc);
 	struct mdp4_kms *mdp4_kms = get_kms(crtc);
@@ -323,7 +358,11 @@ static void mdp4_crtc_atomic_enable(struct drm_crtc *crtc,
 }
 
 static int mdp4_crtc_atomic_check(struct drm_crtc *crtc,
+<<<<<<< HEAD
 		struct drm_crtc_state *state)
+=======
+		struct drm_atomic_state *state)
+>>>>>>> upstream/android-13
 {
 	struct mdp4_crtc *mdp4_crtc = to_mdp4_crtc(crtc);
 	DBG("%s: check", mdp4_crtc->name);
@@ -332,14 +371,22 @@ static int mdp4_crtc_atomic_check(struct drm_crtc *crtc,
 }
 
 static void mdp4_crtc_atomic_begin(struct drm_crtc *crtc,
+<<<<<<< HEAD
 				   struct drm_crtc_state *old_crtc_state)
+=======
+				   struct drm_atomic_state *state)
+>>>>>>> upstream/android-13
 {
 	struct mdp4_crtc *mdp4_crtc = to_mdp4_crtc(crtc);
 	DBG("%s: begin", mdp4_crtc->name);
 }
 
 static void mdp4_crtc_atomic_flush(struct drm_crtc *crtc,
+<<<<<<< HEAD
 				   struct drm_crtc_state *old_crtc_state)
+=======
+				   struct drm_atomic_state *state)
+>>>>>>> upstream/android-13
 {
 	struct mdp4_crtc *mdp4_crtc = to_mdp4_crtc(crtc);
 	struct drm_device *dev = crtc->dev;
@@ -384,7 +431,11 @@ static void update_cursor(struct drm_crtc *crtc)
 		if (next_bo) {
 			/* take a obj ref + iova ref when we start scanning out: */
 			drm_gem_object_get(next_bo);
+<<<<<<< HEAD
 			msm_gem_get_iova(next_bo, kms->aspace, &iova);
+=======
+			msm_gem_get_and_pin_iova(next_bo, kms->aspace, &iova);
+>>>>>>> upstream/android-13
 
 			/* enable cursor: */
 			mdp4_write(mdp4_kms, REG_MDP4_DMA_CURSOR_SIZE(dma),
@@ -429,7 +480,11 @@ static int mdp4_crtc_cursor_set(struct drm_crtc *crtc,
 	int ret;
 
 	if ((width > CURSOR_WIDTH) || (height > CURSOR_HEIGHT)) {
+<<<<<<< HEAD
 		dev_err(dev->dev, "bad cursor size: %dx%d\n", width, height);
+=======
+		DRM_DEV_ERROR(dev->dev, "bad cursor size: %dx%d\n", width, height);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -442,7 +497,11 @@ static int mdp4_crtc_cursor_set(struct drm_crtc *crtc,
 	}
 
 	if (cursor_bo) {
+<<<<<<< HEAD
 		ret = msm_gem_get_iova(cursor_bo, kms->aspace, &iova);
+=======
+		ret = msm_gem_get_and_pin_iova(cursor_bo, kms->aspace, &iova);
+>>>>>>> upstream/android-13
 		if (ret)
 			goto fail;
 	} else {
@@ -468,7 +527,11 @@ static int mdp4_crtc_cursor_set(struct drm_crtc *crtc,
 	return 0;
 
 fail:
+<<<<<<< HEAD
 	drm_gem_object_put_unlocked(cursor_bo);
+=======
+	drm_gem_object_put(cursor_bo);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -497,6 +560,11 @@ static const struct drm_crtc_funcs mdp4_crtc_funcs = {
 	.reset = drm_atomic_helper_crtc_reset,
 	.atomic_duplicate_state = drm_atomic_helper_crtc_duplicate_state,
 	.atomic_destroy_state = drm_atomic_helper_crtc_destroy_state,
+<<<<<<< HEAD
+=======
+	.enable_vblank  = msm_crtc_enable_vblank,
+	.disable_vblank = msm_crtc_disable_vblank,
+>>>>>>> upstream/android-13
 };
 
 static const struct drm_crtc_helper_funcs mdp4_crtc_helper_funcs = {

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Glue Code for the AVX assembler implemention of the Cast5 Cipher
  *
@@ -22,6 +23,16 @@
  */
 
 #include <asm/crypto/glue_helper.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Glue Code for the AVX assembler implementation of the Cast5 Cipher
+ *
+ * Copyright (C) 2012 Johannes Goetzfried
+ *     <Johannes.Goetzfried@informatik.stud.uni-erlangen.de>
+ */
+
+>>>>>>> upstream/android-13
 #include <crypto/algapi.h>
 #include <crypto/cast5.h>
 #include <crypto/internal/simd.h>
@@ -30,6 +41,11 @@
 #include <linux/module.h>
 #include <linux/types.h>
 
+<<<<<<< HEAD
+=======
+#include "ecb_cbc_helpers.h"
+
+>>>>>>> upstream/android-13
 #define CAST5_PARALLEL_BLOCKS 16
 
 asmlinkage void cast5_ecb_enc_16way(struct cast5_ctx *ctx, u8 *dst,
@@ -38,8 +54,11 @@ asmlinkage void cast5_ecb_dec_16way(struct cast5_ctx *ctx, u8 *dst,
 				    const u8 *src);
 asmlinkage void cast5_cbc_dec_16way(struct cast5_ctx *ctx, u8 *dst,
 				    const u8 *src);
+<<<<<<< HEAD
 asmlinkage void cast5_ctr_16way(struct cast5_ctx *ctx, u8 *dst, const u8 *src,
 				__be64 *iv);
+=======
+>>>>>>> upstream/android-13
 
 static int cast5_setkey_skcipher(struct crypto_skcipher *tfm, const u8 *key,
 				 unsigned int keylen)
@@ -47,6 +66,7 @@ static int cast5_setkey_skcipher(struct crypto_skcipher *tfm, const u8 *key,
 	return cast5_setkey(&tfm->base, key, keylen);
 }
 
+<<<<<<< HEAD
 static inline bool cast5_fpu_begin(bool fpu_enabled, struct skcipher_walk *walk,
 				   unsigned int nbytes)
 {
@@ -115,15 +135,31 @@ done:
 static int ecb_encrypt(struct skcipher_request *req)
 {
 	return ecb_crypt(req, true);
+=======
+static int ecb_encrypt(struct skcipher_request *req)
+{
+	ECB_WALK_START(req, CAST5_BLOCK_SIZE, CAST5_PARALLEL_BLOCKS);
+	ECB_BLOCK(CAST5_PARALLEL_BLOCKS, cast5_ecb_enc_16way);
+	ECB_BLOCK(1, __cast5_encrypt);
+	ECB_WALK_END();
+>>>>>>> upstream/android-13
 }
 
 static int ecb_decrypt(struct skcipher_request *req)
 {
+<<<<<<< HEAD
 	return ecb_crypt(req, false);
+=======
+	ECB_WALK_START(req, CAST5_BLOCK_SIZE, CAST5_PARALLEL_BLOCKS);
+	ECB_BLOCK(CAST5_PARALLEL_BLOCKS, cast5_ecb_dec_16way);
+	ECB_BLOCK(1, __cast5_decrypt);
+	ECB_WALK_END();
+>>>>>>> upstream/android-13
 }
 
 static int cbc_encrypt(struct skcipher_request *req)
 {
+<<<<<<< HEAD
 	const unsigned int bsize = CAST5_BLOCK_SIZE;
 	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
 	struct cast5_ctx *ctx = crypto_skcipher_ctx(tfm);
@@ -206,10 +242,16 @@ done:
 	*(u64 *)walk->iv = last_iv;
 
 	return nbytes;
+=======
+	CBC_WALK_START(req, CAST5_BLOCK_SIZE, -1);
+	CBC_ENC_BLOCK(__cast5_encrypt);
+	CBC_WALK_END();
+>>>>>>> upstream/android-13
 }
 
 static int cbc_decrypt(struct skcipher_request *req)
 {
+<<<<<<< HEAD
 	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
 	struct cast5_ctx *ctx = crypto_skcipher_ctx(tfm);
 	bool fpu_enabled = false;
@@ -313,6 +355,12 @@ static int ctr_crypt(struct skcipher_request *req)
 	}
 
 	return err;
+=======
+	CBC_WALK_START(req, CAST5_BLOCK_SIZE, CAST5_PARALLEL_BLOCKS);
+	CBC_DEC_BLOCK(CAST5_PARALLEL_BLOCKS, cast5_cbc_dec_16way);
+	CBC_DEC_BLOCK(1, __cast5_decrypt);
+	CBC_WALK_END();
+>>>>>>> upstream/android-13
 }
 
 static struct skcipher_alg cast5_algs[] = {
@@ -343,6 +391,7 @@ static struct skcipher_alg cast5_algs[] = {
 		.setkey			= cast5_setkey_skcipher,
 		.encrypt		= cbc_encrypt,
 		.decrypt		= cbc_decrypt,
+<<<<<<< HEAD
 	}, {
 		.base.cra_name		= "__ctr(cast5)",
 		.base.cra_driver_name	= "__ctr-cast5-avx",
@@ -358,6 +407,8 @@ static struct skcipher_alg cast5_algs[] = {
 		.setkey			= cast5_setkey_skcipher,
 		.encrypt		= ctr_crypt,
 		.decrypt		= ctr_crypt,
+=======
+>>>>>>> upstream/android-13
 	}
 };
 

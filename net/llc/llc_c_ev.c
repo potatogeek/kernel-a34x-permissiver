@@ -608,7 +608,11 @@ int llc_conn_ev_qlfy_p_flag_eq_1(struct sock *sk, struct sk_buff *skb)
 }
 
 /**
+<<<<<<< HEAD
  *	conn_ev_qlfy_last_frame_eq_1 - checks if frame is last in tx window
+=======
+ *	llc_conn_ev_qlfy_last_frame_eq_1 - checks if frame is last in tx window
+>>>>>>> upstream/android-13
  *	@sk: current connection structure.
  *	@skb: current event.
  *
@@ -624,7 +628,11 @@ int llc_conn_ev_qlfy_last_frame_eq_1(struct sock *sk, struct sk_buff *skb)
 }
 
 /**
+<<<<<<< HEAD
  *	conn_ev_qlfy_last_frame_eq_0 - checks if frame isn't last in tx window
+=======
+ *	llc_conn_ev_qlfy_last_frame_eq_0 - checks if frame isn't last in tx window
+>>>>>>> upstream/android-13
  *	@sk: current connection structure.
  *	@skb: current event.
  *

@@ -44,7 +44,11 @@ static inline int liblockdep_pthread_rwlock_rdlock(liblockdep_pthread_rwlock_t *
 
 static inline int liblockdep_pthread_rwlock_unlock(liblockdep_pthread_rwlock_t *lock)
 {
+<<<<<<< HEAD
 	lock_release(&lock->dep_map, 0, (unsigned long)_RET_IP_);
+=======
+	lock_release(&lock->dep_map, (unsigned long)_RET_IP_);
+>>>>>>> upstream/android-13
 	return pthread_rwlock_unlock(&lock->rwlock);
 }
 
@@ -60,10 +64,17 @@ static inline int liblockdep_pthread_rwlock_tryrdlock(liblockdep_pthread_rwlock_
 	return pthread_rwlock_tryrdlock(&lock->rwlock) == 0 ? 1 : 0;
 }
 
+<<<<<<< HEAD
 static inline int liblockdep_pthread_rwlock_trywlock(liblockdep_pthread_rwlock_t *lock)
 {
 	lock_acquire(&lock->dep_map, 0, 1, 0, 1, NULL, (unsigned long)_RET_IP_);
 	return pthread_rwlock_trywlock(&lock->rwlock) == 0 ? 1 : 0;
+=======
+static inline int liblockdep_pthread_rwlock_trywrlock(liblockdep_pthread_rwlock_t *lock)
+{
+	lock_acquire(&lock->dep_map, 0, 1, 0, 1, NULL, (unsigned long)_RET_IP_);
+	return pthread_rwlock_trywrlock(&lock->rwlock) == 0 ? 1 : 0;
+>>>>>>> upstream/android-13
 }
 
 static inline int liblockdep_rwlock_destroy(liblockdep_pthread_rwlock_t *lock)
@@ -79,7 +90,11 @@ static inline int liblockdep_rwlock_destroy(liblockdep_pthread_rwlock_t *lock)
 #define pthread_rwlock_unlock		liblockdep_pthread_rwlock_unlock
 #define pthread_rwlock_wrlock		liblockdep_pthread_rwlock_wrlock
 #define pthread_rwlock_tryrdlock	liblockdep_pthread_rwlock_tryrdlock
+<<<<<<< HEAD
 #define pthread_rwlock_trywlock		liblockdep_pthread_rwlock_trywlock
+=======
+#define pthread_rwlock_trywrlock	liblockdep_pthread_rwlock_trywrlock
+>>>>>>> upstream/android-13
 #define pthread_rwlock_destroy		liblockdep_rwlock_destroy
 
 #endif

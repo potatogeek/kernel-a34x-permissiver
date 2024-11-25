@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * iteration_check.c: test races having to do with radix tree iteration
  * Copyright (c) 2016 Intel Corporation
@@ -13,11 +14,20 @@
  * more details.
  */
 #include <linux/radix-tree.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * iteration_check.c: test races having to do with xarray iteration
+ * Copyright (c) 2016 Intel Corporation
+ * Author: Ross Zwisler <ross.zwisler@linux.intel.com>
+ */
+>>>>>>> upstream/android-13
 #include <pthread.h>
 #include "test.h"
 
 #define NUM_THREADS	5
 #define MAX_IDX		100
+<<<<<<< HEAD
 #define TAG		0
 #define NEW_TAG		1
 
@@ -29,12 +39,49 @@ static bool test_complete;
 static int max_order;
 
 /* relentlessly fill the tree with tagged entries */
+=======
+#define TAG		XA_MARK_0
+#define NEW_TAG		XA_MARK_1
+
+static pthread_t threads[NUM_THREADS];
+static unsigned int seeds[3];
+static DEFINE_XARRAY(array);
+static bool test_complete;
+static int max_order;
+
+void my_item_insert(struct xarray *xa, unsigned long index)
+{
+	XA_STATE(xas, xa, index);
+	struct item *item = item_create(index, 0);
+	int order;
+
+retry:
+	xas_lock(&xas);
+	for (order = max_order; order >= 0; order--) {
+		xas_set_order(&xas, index, order);
+		item->order = order;
+		if (xas_find_conflict(&xas))
+			continue;
+		xas_store(&xas, item);
+		xas_set_mark(&xas, TAG);
+		break;
+	}
+	xas_unlock(&xas);
+	if (xas_nomem(&xas, GFP_KERNEL))
+		goto retry;
+	if (order < 0)
+		free(item);
+}
+
+/* relentlessly fill the array with tagged entries */
+>>>>>>> upstream/android-13
 static void *add_entries_fn(void *arg)
 {
 	rcu_register_thread();
 
 	while (!test_complete) {
 		unsigned long pgoff;
+<<<<<<< HEAD
 		int order;
 
 		for (pgoff = 0; pgoff < MAX_IDX; pgoff++) {
@@ -47,6 +94,11 @@ static void *add_entries_fn(void *arg)
 				}
 			}
 			pthread_mutex_unlock(&tree_lock);
+=======
+
+		for (pgoff = 0; pgoff < MAX_IDX; pgoff++) {
+			my_item_insert(&array, pgoff);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -56,6 +108,7 @@ static void *add_entries_fn(void *arg)
 }
 
 /*
+<<<<<<< HEAD
  * Iterate over the tagged entries, doing a radix_tree_iter_retry() as we find
  * things that have been removed and randomly resetting our iteration to the
  * next chunk with radix_tree_iter_resume().  Both radix_tree_iter_retry() and
@@ -66,10 +119,20 @@ static void *tagged_iteration_fn(void *arg)
 {
 	struct radix_tree_iter iter;
 	void **slot;
+=======
+ * Iterate over tagged entries, retrying when we find ourselves in a deleted
+ * node and randomly pausing the iteration.
+ */
+static void *tagged_iteration_fn(void *arg)
+{
+	XA_STATE(xas, &array, 0);
+	void *entry;
+>>>>>>> upstream/android-13
 
 	rcu_register_thread();
 
 	while (!test_complete) {
+<<<<<<< HEAD
 		rcu_read_lock();
 		radix_tree_for_each_tagged(slot, &tree, &iter, 0, TAG) {
 			void *entry = radix_tree_deref_slot(slot);
@@ -83,6 +146,16 @@ static void *tagged_iteration_fn(void *arg)
 
 			if (rand_r(&seeds[0]) % 50 == 0) {
 				slot = radix_tree_iter_resume(slot, &iter);
+=======
+		xas_set(&xas, 0);
+		rcu_read_lock();
+		xas_for_each_marked(&xas, entry, ULONG_MAX, TAG) {
+			if (xas_retry(&xas, entry))
+				continue;
+
+			if (rand_r(&seeds[0]) % 50 == 0) {
+				xas_pause(&xas);
+>>>>>>> upstream/android-13
 				rcu_read_unlock();
 				rcu_barrier();
 				rcu_read_lock();
@@ -97,6 +170,7 @@ static void *tagged_iteration_fn(void *arg)
 }
 
 /*
+<<<<<<< HEAD
  * Iterate over the entries, doing a radix_tree_iter_retry() as we find things
  * that have been removed and randomly resetting our iteration to the next
  * chunk with radix_tree_iter_resume().  Both radix_tree_iter_retry() and
@@ -107,10 +181,20 @@ static void *untagged_iteration_fn(void *arg)
 {
 	struct radix_tree_iter iter;
 	void **slot;
+=======
+ * Iterate over the entries, retrying when we find ourselves in a deleted
+ * node and randomly pausing the iteration.
+ */
+static void *untagged_iteration_fn(void *arg)
+{
+	XA_STATE(xas, &array, 0);
+	void *entry;
+>>>>>>> upstream/android-13
 
 	rcu_register_thread();
 
 	while (!test_complete) {
+<<<<<<< HEAD
 		rcu_read_lock();
 		radix_tree_for_each_slot(slot, &tree, &iter, 0) {
 			void *entry = radix_tree_deref_slot(slot);
@@ -124,6 +208,16 @@ static void *untagged_iteration_fn(void *arg)
 
 			if (rand_r(&seeds[1]) % 50 == 0) {
 				slot = radix_tree_iter_resume(slot, &iter);
+=======
+		xas_set(&xas, 0);
+		rcu_read_lock();
+		xas_for_each(&xas, entry, ULONG_MAX) {
+			if (xas_retry(&xas, entry))
+				continue;
+
+			if (rand_r(&seeds[1]) % 50 == 0) {
+				xas_pause(&xas);
+>>>>>>> upstream/android-13
 				rcu_read_unlock();
 				rcu_barrier();
 				rcu_read_lock();
@@ -138,7 +232,11 @@ static void *untagged_iteration_fn(void *arg)
 }
 
 /*
+<<<<<<< HEAD
  * Randomly remove entries to help induce radix_tree_iter_retry() calls in the
+=======
+ * Randomly remove entries to help induce retries in the
+>>>>>>> upstream/android-13
  * two iteration functions.
  */
 static void *remove_entries_fn(void *arg)
@@ -147,12 +245,22 @@ static void *remove_entries_fn(void *arg)
 
 	while (!test_complete) {
 		int pgoff;
+<<<<<<< HEAD
 
 		pgoff = rand_r(&seeds[2]) % MAX_IDX;
 
 		pthread_mutex_lock(&tree_lock);
 		item_delete(&tree, pgoff);
 		pthread_mutex_unlock(&tree_lock);
+=======
+		struct item *item;
+
+		pgoff = rand_r(&seeds[2]) % MAX_IDX;
+
+		item = xa_erase(&array, pgoff);
+		if (item)
+			item_free(item, pgoff);
+>>>>>>> upstream/android-13
 	}
 
 	rcu_unregister_thread();
@@ -165,8 +273,12 @@ static void *tag_entries_fn(void *arg)
 	rcu_register_thread();
 
 	while (!test_complete) {
+<<<<<<< HEAD
 		tag_tagged_items(&tree, &tree_lock, 0, MAX_IDX, 10, TAG,
 					NEW_TAG);
+=======
+		tag_tagged_items(&array, 0, MAX_IDX, 10, TAG, NEW_TAG);
+>>>>>>> upstream/android-13
 	}
 	rcu_unregister_thread();
 	return NULL;
@@ -217,5 +329,9 @@ void iteration_test(unsigned order, unsigned test_duration)
 		}
 	}
 
+<<<<<<< HEAD
 	item_kill_tree(&tree);
+=======
+	item_kill_tree(&array);
+>>>>>>> upstream/android-13
 }

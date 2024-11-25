@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -11,6 +12,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright IBM Corp. 2007
  * Copyright 2011 Freescale Semiconductor, Inc.
@@ -248,7 +253,11 @@ _GLOBAL(kvmppc_resume_host)
 	/* Switch to kernel stack and jump to handler. */
 	LOAD_REG_ADDR(r3, kvmppc_handle_exit)
 	mtctr	r3
+<<<<<<< HEAD
 	lwz	r3, HOST_RUN(r1)
+=======
+	mr	r3, r4
+>>>>>>> upstream/android-13
 	lwz	r2, HOST_R2(r1)
 	mr	r14, r4 /* Save vcpu pointer. */
 
@@ -348,6 +357,7 @@ heavyweight_exit:
 
 
 /* Registers:
+<<<<<<< HEAD
  *  r3: kvm_run pointer
  *  r4: vcpu pointer
  */
@@ -357,6 +367,16 @@ _GLOBAL(__kvmppc_vcpu_run)
 
 	/* Save host state to stack. */
 	stw	r3, HOST_RUN(r1)
+=======
+ *  r3: vcpu pointer
+ */
+_GLOBAL(__kvmppc_vcpu_run)
+	stwu	r1, -HOST_STACK_SIZE(r1)
+	stw	r1, VCPU_HOST_STACK(r3)	/* Save stack pointer to vcpu. */
+
+	/* Save host state to stack. */
+	mr	r4, r3
+>>>>>>> upstream/android-13
 	mflr	r3
 	stw	r3, HOST_STACK_LR(r1)
 	mfcr	r5

@@ -5,8 +5,11 @@
 #include <linux/pkt_cls.h>
 #include <linux/types.h>
 
+<<<<<<< HEAD
 #define TCA_ACT_NAT 9
 
+=======
+>>>>>>> upstream/android-13
 enum {
 	TCA_NAT_UNSPEC,
 	TCA_NAT_PARMS,

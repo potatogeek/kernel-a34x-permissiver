@@ -8,6 +8,7 @@
  */
 
 #include <linux/linkage.h>
+<<<<<<< HEAD
 #include <asm/segment.h>
 #include <asm/msr.h>
 #include <asm/processor-flags.h>
@@ -43,6 +44,14 @@ ENTRY(efi_call)
 	pushq %rbp
 	movq %rsp, %rbp
 	SAVE_XMM
+=======
+#include <asm/nospec-branch.h>
+
+SYM_FUNC_START(__efi_call)
+	pushq %rbp
+	movq %rsp, %rbp
+	and $~0xf, %rsp
+>>>>>>> upstream/android-13
 	mov 16(%rbp), %rax
 	subq $48, %rsp
 	mov %r9, 32(%rsp)
@@ -50,9 +59,16 @@ ENTRY(efi_call)
 	mov %r8, %r9
 	mov %rcx, %r8
 	mov %rsi, %rcx
+<<<<<<< HEAD
 	call *%rdi
 	addq $48, %rsp
 	RESTORE_XMM
 	popq %rbp
 	ret
 ENDPROC(efi_call)
+=======
+	CALL_NOSPEC rdi
+	leave
+	RET
+SYM_FUNC_END(__efi_call)
+>>>>>>> upstream/android-13

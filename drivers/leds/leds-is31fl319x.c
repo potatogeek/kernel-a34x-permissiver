@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright 2015-16 Golden Delicious Computers
  *
  * Author: Nikolaus Schaller <hns@goldelico.com>
  *
+<<<<<<< HEAD
  * This file is subject to the terms and conditions of version 2 of
  * the GNU General Public License.  See the file COPYING in the main
  * directory of this archive for more details.
@@ -10,6 +15,10 @@
  * LED driver for the IS31FL319{0,1,3,6,9} to drive 1, 3, 6 or 9 light
  * effect LEDs.
  *
+=======
+ * LED driver for the IS31FL319{0,1,3,6,9} to drive 1, 3, 6 or 9 light
+ * effect LEDs.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -20,6 +29,11 @@
 #include <linux/of_device.h>
 #include <linux/regmap.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
+=======
+#include <linux/delay.h>
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 
 /* register numbers */
 #define IS31FL319X_SHUTDOWN		0x00
@@ -65,6 +79,10 @@
 struct is31fl319x_chip {
 	const struct is31fl319x_chipdef *cdef;
 	struct i2c_client               *client;
+<<<<<<< HEAD
+=======
+	struct gpio_desc		*shutdown_gpio;
+>>>>>>> upstream/android-13
 	struct regmap                   *regmap;
 	struct mutex                    lock;
 	u32                             audio_gain_db;
@@ -203,14 +221,19 @@ static int is31fl319x_parse_child_dt(const struct device *dev,
 static int is31fl319x_parse_dt(struct device *dev,
 			       struct is31fl319x_chip *is31)
 {
+<<<<<<< HEAD
 	struct device_node *np = dev->of_node, *child;
 	const struct of_device_id *of_dev_id;
+=======
+	struct device_node *np = dev_of_node(dev), *child;
+>>>>>>> upstream/android-13
 	int count;
 	int ret;
 
 	if (!np)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	of_dev_id = of_match_device(of_is31fl319x_match, dev);
 	if (!of_dev_id) {
 		dev_err(dev, "Failed to match device with supported chips\n");
@@ -223,6 +246,22 @@ static int is31fl319x_parse_dt(struct device *dev,
 
 	dev_dbg(dev, "probe %s with %d leds defined in DT\n",
 		of_dev_id->compatible, count);
+=======
+	is31->shutdown_gpio = devm_gpiod_get_optional(dev,
+						"shutdown",
+						GPIOD_OUT_HIGH);
+	if (IS_ERR(is31->shutdown_gpio)) {
+		ret = PTR_ERR(is31->shutdown_gpio);
+		dev_err(dev, "Failed to get shutdown gpio: %d\n", ret);
+		return ret;
+	}
+
+	is31->cdef = device_get_match_data(dev);
+
+	count = of_get_available_child_count(np);
+
+	dev_dbg(dev, "probing with %d leds defined in DT\n", count);
+>>>>>>> upstream/android-13
 
 	if (!count || count > is31->cdef->num_leds) {
 		dev_err(dev, "Number of leds defined must be between 1 and %u\n",
@@ -230,7 +269,11 @@ static int is31fl319x_parse_dt(struct device *dev,
 		return -ENODEV;
 	}
 
+<<<<<<< HEAD
 	for_each_child_of_node(np, child) {
+=======
+	for_each_available_child_of_node(np, child) {
+>>>>>>> upstream/android-13
 		struct is31fl319x_led *led;
 		u32 reg;
 
@@ -337,12 +380,19 @@ static int is31fl319x_probe(struct i2c_client *client,
 {
 	struct is31fl319x_chip *is31;
 	struct device *dev = &client->dev;
+<<<<<<< HEAD
 	struct i2c_adapter *adapter = to_i2c_adapter(dev->parent);
+=======
+>>>>>>> upstream/android-13
 	int err;
 	int i = 0;
 	u32 aggregated_led_microamp = IS31FL319X_CURRENT_MAX;
 
+<<<<<<< HEAD
 	if (!i2c_check_functionality(adapter, I2C_FUNC_I2C))
+=======
+	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
+>>>>>>> upstream/android-13
 		return -EIO;
 
 	is31 = devm_kzalloc(&client->dev, sizeof(*is31), GFP_KERNEL);
@@ -355,6 +405,15 @@ static int is31fl319x_probe(struct i2c_client *client,
 	if (err)
 		goto free_mutex;
 
+<<<<<<< HEAD
+=======
+	if (is31->shutdown_gpio) {
+		gpiod_direction_output(is31->shutdown_gpio, 0);
+		mdelay(5);
+		gpiod_direction_output(is31->shutdown_gpio, 1);
+	}
+
+>>>>>>> upstream/android-13
 	is31->client = client;
 	is31->regmap = devm_regmap_init_i2c(client, &regmap_config);
 	if (IS_ERR(is31->regmap)) {

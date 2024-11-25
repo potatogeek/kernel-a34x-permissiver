@@ -90,18 +90,27 @@ int qib_pcie_init(struct pci_dev *pdev, const struct pci_device_id *ent)
 		goto bail;
 	}
 
+<<<<<<< HEAD
 	ret = pci_set_dma_mask(pdev, DMA_BIT_MASK(64));
+=======
+	ret = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
+>>>>>>> upstream/android-13
 	if (ret) {
 		/*
 		 * If the 64 bit setup fails, try 32 bit.  Some systems
 		 * do not setup 64 bit maps on systems with 2GB or less
 		 * memory installed.
 		 */
+<<<<<<< HEAD
 		ret = pci_set_dma_mask(pdev, DMA_BIT_MASK(32));
+=======
+		ret = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32));
+>>>>>>> upstream/android-13
 		if (ret) {
 			qib_devinfo(pdev, "Unable to set DMA mask: %d\n", ret);
 			goto bail;
 		}
+<<<<<<< HEAD
 		ret = pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(32));
 	} else
 		ret = pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(64));
@@ -109,6 +118,8 @@ int qib_pcie_init(struct pci_dev *pdev, const struct pci_device_id *ent)
 		qib_early_err(&pdev->dev,
 			      "Unable to set DMA consistent mask: %d\n", ret);
 		goto bail;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	pci_set_master(pdev);
@@ -145,7 +156,11 @@ int qib_pcie_ddinit(struct qib_devdata *dd, struct pci_dev *pdev,
 	addr = pci_resource_start(pdev, 0);
 	len = pci_resource_len(pdev, 0);
 
+<<<<<<< HEAD
 	dd->kregbase = ioremap_nocache(addr, len);
+=======
+	dd->kregbase = ioremap(addr, len);
+>>>>>>> upstream/android-13
 	if (!dd->kregbase)
 		return -ENOMEM;
 
@@ -188,7 +203,11 @@ void qib_pcie_ddcleanup(struct qib_devdata *dd)
 	pci_set_drvdata(dd->pcidev, NULL);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * We save the msi lo and hi values, so we can restore them after
  * chip reset (the kernel PCI infrastructure doesn't yet handle that
  * correctly.
@@ -387,7 +406,11 @@ void qib_pcie_reenable(struct qib_devdata *dd, u16 cmd, u8 iline, u8 cline)
 
 static int qib_pcie_coalesce;
 module_param_named(pcie_coalesce, qib_pcie_coalesce, int, S_IRUGO);
+<<<<<<< HEAD
 MODULE_PARM_DESC(pcie_coalesce, "tune PCIe colescing on some Intel chipsets");
+=======
+MODULE_PARM_DESC(pcie_coalesce, "tune PCIe coalescing on some Intel chipsets");
+>>>>>>> upstream/android-13
 
 /*
  * Enable PCIe completion and data coalescing, on Intel 5x00 and 7300
@@ -597,7 +620,10 @@ qib_pci_resume(struct pci_dev *pdev)
 	struct qib_devdata *dd = pci_get_drvdata(pdev);
 
 	qib_devinfo(pdev, "QIB resume function called\n");
+<<<<<<< HEAD
 	pci_cleanup_aer_uncorrect_error_status(pdev);
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Running jobs will fail, since it's asynchronous
 	 * unlike sysfs-requested reset.   Better than

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* 
  * Generate definitions needed by assembly language modules.
  * This code generates raw asm output which is post-processed to extract
@@ -11,6 +15,7 @@
  *    Copyright (C) 2001 Richard Hirst <rhirst at parisc-linux.org>
  *    Copyright (C) 2002 Randolph Chung <tausq with parisc-linux.org>
  *    Copyright (C) 2003 James Bottomley <jejb at parisc-linux.org>
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -25,6 +30,8 @@
  *    You should have received a copy of the GNU General Public License
  *    along with this program; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -33,8 +40,13 @@
 #include <linux/ptrace.h>
 #include <linux/hardirq.h>
 #include <linux/kbuild.h>
+<<<<<<< HEAD
 
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+
+>>>>>>> upstream/android-13
 #include <asm/ptrace.h>
 #include <asm/processor.h>
 #include <asm/pdc.h>
@@ -55,7 +67,10 @@
 int main(void)
 {
 	DEFINE(TASK_THREAD_INFO, offsetof(struct task_struct, stack));
+<<<<<<< HEAD
 	DEFINE(TASK_STATE, offsetof(struct task_struct, state));
+=======
+>>>>>>> upstream/android-13
 	DEFINE(TASK_FLAGS, offsetof(struct task_struct, flags));
 	DEFINE(TASK_SIGPENDING, offsetof(struct task_struct, pending));
 	DEFINE(TASK_PTRACE, offsetof(struct task_struct, ptrace));
@@ -244,7 +259,10 @@ int main(void)
 	DEFINE(TI_TASK, offsetof(struct thread_info, task));
 	DEFINE(TI_FLAGS, offsetof(struct thread_info, flags));
 	DEFINE(TI_CPU, offsetof(struct thread_info, cpu));
+<<<<<<< HEAD
 	DEFINE(TI_SEGMENT, offsetof(struct thread_info, addr_limit));
+=======
+>>>>>>> upstream/android-13
 	DEFINE(TI_PRE_COUNT, offsetof(struct thread_info, preempt_count));
 	DEFINE(THREAD_SZ, sizeof(struct thread_info));
 	/* THREAD_SZ_ALGN includes space for a stack frame. */
@@ -281,7 +299,10 @@ int main(void)
 	DEFINE(ASM_BITS_PER_PGD, BITS_PER_PGD);
 	DEFINE(ASM_BITS_PER_PMD, BITS_PER_PMD);
 	DEFINE(ASM_BITS_PER_PTE, BITS_PER_PTE);
+<<<<<<< HEAD
 	DEFINE(ASM_PGD_PMD_OFFSET, -(PAGE_SIZE << PGD_ORDER));
+=======
+>>>>>>> upstream/android-13
 	DEFINE(ASM_PMD_ENTRY, ((PAGE_OFFSET & PMD_MASK) >> PMD_SHIFT));
 	DEFINE(ASM_PGD_ENTRY, PAGE_OFFSET >> PGDIR_SHIFT);
 	DEFINE(ASM_PGD_ENTRY_SIZE, PGD_ENTRY_SIZE);

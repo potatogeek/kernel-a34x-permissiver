@@ -29,11 +29,17 @@
 
 #include <linux/firmware.h>
 #include <linux/ihex.h>
+<<<<<<< HEAD
 #include <linux/platform_device.h>
 #include <linux/module.h>
 
 #include <drm/drmP.h>
 #include <drm/mga_drm.h>
+=======
+#include <linux/module.h>
+#include <linux/platform_device.h>
+
+>>>>>>> upstream/android-13
 #include "mga_drv.h"
 
 #define FIRMWARE_G200 "matrox/g200_warp.fw"

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	Linux NET3:	IP/IP protocol decoder.
  *
@@ -16,12 +20,15 @@
  *              Carlos Picoto   :       GRE over IP support
  *		Alexey Kuznetsov:	Reworked. Really, now it is truncated version of ipv4/ip_gre.c.
  *					I do not want to merge them together.
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 /* tunnel.c: an IP tunnel driver
@@ -140,6 +147,16 @@ static int ipip_err(struct sk_buff *skb, u32 info)
 	struct ip_tunnel *t;
 	int err = 0;
 
+<<<<<<< HEAD
+=======
+	t = ip_tunnel_lookup(itn, skb->dev->ifindex, TUNNEL_NO_KEY,
+			     iph->daddr, iph->saddr, 0);
+	if (!t) {
+		err = -ENOENT;
+		goto out;
+	}
+
+>>>>>>> upstream/android-13
 	switch (type) {
 	case ICMP_DEST_UNREACH:
 		switch (code) {
@@ -167,6 +184,7 @@ static int ipip_err(struct sk_buff *skb, u32 info)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	t = ip_tunnel_lookup(itn, skb->dev->ifindex, TUNNEL_NO_KEY,
 			     iph->daddr, iph->saddr, 0);
 	if (!t) {
@@ -177,11 +195,19 @@ static int ipip_err(struct sk_buff *skb, u32 info)
 	if (type == ICMP_DEST_UNREACH && code == ICMP_FRAG_NEEDED) {
 		ipv4_update_pmtu(skb, net, info, t->parms.link, 0,
 				 iph->protocol, 0);
+=======
+	if (type == ICMP_DEST_UNREACH && code == ICMP_FRAG_NEEDED) {
+		ipv4_update_pmtu(skb, net, info, t->parms.link, iph->protocol);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
 	if (type == ICMP_REDIRECT) {
+<<<<<<< HEAD
 		ipv4_redirect(skb, net, t->parms.link, 0, iph->protocol, 0);
+=======
+		ipv4_redirect(skb, net, t->parms.link, iph->protocol);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
@@ -248,6 +274,11 @@ static int ipip_tunnel_rcv(struct sk_buff *skb, u8 ipproto)
 			if (!tun_dst)
 				return 0;
 		}
+<<<<<<< HEAD
+=======
+		skb_reset_mac_header(skb);
+
+>>>>>>> upstream/android-13
 		return ip_tunnel_rcv(tunnel, skb, tpi, tun_dst, log_ecn_error);
 	}
 
@@ -306,7 +337,11 @@ static netdev_tx_t ipip_tunnel_xmit(struct sk_buff *skb,
 	skb_set_inner_ipproto(skb, ipproto);
 
 	if (tunnel->collect_md)
+<<<<<<< HEAD
 		ip_md_tunnel_xmit(skb, dev, ipproto);
+=======
+		ip_md_tunnel_xmit(skb, dev, ipproto, 0);
+>>>>>>> upstream/android-13
 	else
 		ip_tunnel_xmit(skb, dev, tiph, ipproto);
 	return NETDEV_TX_OK;
@@ -333,6 +368,7 @@ static bool ipip_tunnel_ioctl_verify_protocol(u8 ipproto)
 }
 
 static int
+<<<<<<< HEAD
 ipip_tunnel_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 {
 	int err = 0;
@@ -358,16 +394,38 @@ ipip_tunnel_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 		return -EFAULT;
 
 	return 0;
+=======
+ipip_tunnel_ctl(struct net_device *dev, struct ip_tunnel_parm *p, int cmd)
+{
+	if (cmd == SIOCADDTUNNEL || cmd == SIOCCHGTUNNEL) {
+		if (p->iph.version != 4 ||
+		    !ipip_tunnel_ioctl_verify_protocol(p->iph.protocol) ||
+		    p->iph.ihl != 5 || (p->iph.frag_off & htons(~IP_DF)))
+			return -EINVAL;
+	}
+
+	p->i_key = p->o_key = 0;
+	p->i_flags = p->o_flags = 0;
+	return ip_tunnel_ctl(dev, p, cmd);
+>>>>>>> upstream/android-13
 }
 
 static const struct net_device_ops ipip_netdev_ops = {
 	.ndo_init       = ipip_tunnel_init,
 	.ndo_uninit     = ip_tunnel_uninit,
 	.ndo_start_xmit	= ipip_tunnel_xmit,
+<<<<<<< HEAD
 	.ndo_do_ioctl	= ipip_tunnel_ioctl,
 	.ndo_change_mtu = ip_tunnel_change_mtu,
 	.ndo_get_stats64 = ip_tunnel_get_stats64,
 	.ndo_get_iflink = ip_tunnel_get_iflink,
+=======
+	.ndo_siocdevprivate = ip_tunnel_siocdevprivate,
+	.ndo_change_mtu = ip_tunnel_change_mtu,
+	.ndo_get_stats64 = dev_get_tstats64,
+	.ndo_get_iflink = ip_tunnel_get_iflink,
+	.ndo_tunnel_ctl	= ipip_tunnel_ctl,
+>>>>>>> upstream/android-13
 };
 
 #define IPIP_FEATURES (NETIF_F_SG |		\
@@ -379,6 +437,10 @@ static const struct net_device_ops ipip_netdev_ops = {
 static void ipip_tunnel_setup(struct net_device *dev)
 {
 	dev->netdev_ops		= &ipip_netdev_ops;
+<<<<<<< HEAD
+=======
+	dev->header_ops		= &ip_tunnel_header_ops;
+>>>>>>> upstream/android-13
 
 	dev->type		= ARPHRD_TUNNEL;
 	dev->flags		= IFF_NOARP;

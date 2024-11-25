@@ -24,7 +24,10 @@
 #include "kfd_device_queue_manager.h"
 #include "gca/gfx_8_0_enum.h"
 #include "gca/gfx_8_0_sh_mask.h"
+<<<<<<< HEAD
 #include "gca/gfx_8_0_enum.h"
+=======
+>>>>>>> upstream/android-13
 #include "oss/oss_3_0_sh_mask.h"
 
 static bool set_cache_memory_policy_vi(struct device_queue_manager *dqm,
@@ -55,6 +58,10 @@ void device_queue_manager_init_vi(
 	asic_ops->set_cache_memory_policy = set_cache_memory_policy_vi;
 	asic_ops->update_qpd = update_qpd_vi;
 	asic_ops->init_sdma_vm = init_sdma_vm;
+<<<<<<< HEAD
+=======
+	asic_ops->mqd_manager_init = mqd_manager_init_vi;
+>>>>>>> upstream/android-13
 }
 
 void device_queue_manager_init_vi_tonga(
@@ -63,6 +70,10 @@ void device_queue_manager_init_vi_tonga(
 	asic_ops->set_cache_memory_policy = set_cache_memory_policy_vi_tonga;
 	asic_ops->update_qpd = update_qpd_vi_tonga;
 	asic_ops->init_sdma_vm = init_sdma_vm_tonga;
+<<<<<<< HEAD
+=======
+	asic_ops->mqd_manager_init = mqd_manager_init_vi_tonga;
+>>>>>>> upstream/android-13
 }
 
 static uint32_t compute_sh_mem_bases_64bit(unsigned int top_address_nybble)

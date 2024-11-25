@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *
  * Intel Management Engine Interface (Intel MEI) Linux driver
@@ -12,6 +13,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (c) 2012-2019, Intel Corporation. All rights reserved.
+ * Intel Management Engine Interface (Intel MEI) Linux driver
+>>>>>>> upstream/android-13
  */
 
 #include <linux/export.h>
@@ -133,12 +140,20 @@ int mei_reset(struct mei_device *dev)
 
 	/* enter reset flow */
 	interrupts_enabled = state != MEI_DEV_POWER_DOWN;
+<<<<<<< HEAD
 	dev->dev_state = MEI_DEV_RESETTING;
+=======
+	mei_set_devstate(dev, MEI_DEV_RESETTING);
+>>>>>>> upstream/android-13
 
 	dev->reset_count++;
 	if (dev->reset_count > MEI_MAX_CONSEC_RESET) {
 		dev_err(dev->dev, "reset: reached maximal consecutive resets: disabling the device\n");
+<<<<<<< HEAD
 		dev->dev_state = MEI_DEV_DISABLED;
+=======
+		mei_set_devstate(dev, MEI_DEV_DISABLED);
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	}
 
@@ -151,7 +166,11 @@ int mei_reset(struct mei_device *dev)
 
 	mei_hbm_reset(dev);
 
+<<<<<<< HEAD
 	dev->rd_msg_hdr = 0;
+=======
+	memset(dev->rd_msg_hdr, 0, sizeof(dev->rd_msg_hdr));
+>>>>>>> upstream/android-13
 
 	if (ret) {
 		dev_err(dev->dev, "hw_reset failed ret = %d\n", ret);
@@ -160,7 +179,11 @@ int mei_reset(struct mei_device *dev)
 
 	if (state == MEI_DEV_POWER_DOWN) {
 		dev_dbg(dev->dev, "powering down: end of reset\n");
+<<<<<<< HEAD
 		dev->dev_state = MEI_DEV_DISABLED;
+=======
+		mei_set_devstate(dev, MEI_DEV_DISABLED);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
@@ -172,11 +195,19 @@ int mei_reset(struct mei_device *dev)
 
 	dev_dbg(dev->dev, "link is established start sending messages.\n");
 
+<<<<<<< HEAD
 	dev->dev_state = MEI_DEV_INIT_CLIENTS;
 	ret = mei_hbm_start_req(dev);
 	if (ret) {
 		dev_err(dev->dev, "hbm_start failed ret = %d\n", ret);
 		dev->dev_state = MEI_DEV_RESETTING;
+=======
+	mei_set_devstate(dev, MEI_DEV_INIT_CLIENTS);
+	ret = mei_hbm_start_req(dev);
+	if (ret) {
+		dev_err(dev->dev, "hbm_start failed ret = %d\n", ret);
+		mei_set_devstate(dev, MEI_DEV_RESETTING);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
@@ -200,13 +231,23 @@ int mei_start(struct mei_device *dev)
 	/* acknowledge interrupt and stop interrupts */
 	mei_clear_interrupts(dev);
 
+<<<<<<< HEAD
 	mei_hw_config(dev);
+=======
+	ret = mei_hw_config(dev);
+	if (ret)
+		goto err;
+>>>>>>> upstream/android-13
 
 	dev_dbg(dev->dev, "reset in start the mei device.\n");
 
 	dev->reset_count = 0;
 	do {
+<<<<<<< HEAD
 		dev->dev_state = MEI_DEV_INITIALIZING;
+=======
+		mei_set_devstate(dev, MEI_DEV_INITIALIZING);
+>>>>>>> upstream/android-13
 		ret = mei_reset(dev);
 
 		if (ret == -ENODEV || dev->dev_state == MEI_DEV_DISABLED) {
@@ -241,7 +282,11 @@ int mei_start(struct mei_device *dev)
 	return 0;
 err:
 	dev_err(dev->dev, "link layer initialization failed.\n");
+<<<<<<< HEAD
 	dev->dev_state = MEI_DEV_DISABLED;
+=======
+	mei_set_devstate(dev, MEI_DEV_DISABLED);
+>>>>>>> upstream/android-13
 	mutex_unlock(&dev->device_lock);
 	return -ENODEV;
 }
@@ -260,7 +305,11 @@ int mei_restart(struct mei_device *dev)
 
 	mutex_lock(&dev->device_lock);
 
+<<<<<<< HEAD
 	dev->dev_state = MEI_DEV_POWER_UP;
+=======
+	mei_set_devstate(dev, MEI_DEV_POWER_UP);
+>>>>>>> upstream/android-13
 	dev->reset_count = 0;
 
 	err = mei_reset(dev);
@@ -311,9 +360,18 @@ void mei_stop(struct mei_device *dev)
 	dev_dbg(dev->dev, "stopping the device.\n");
 
 	mutex_lock(&dev->device_lock);
+<<<<<<< HEAD
 	dev->dev_state = MEI_DEV_POWER_DOWN;
 	mutex_unlock(&dev->device_lock);
 	mei_cl_bus_remove_devices(dev);
+=======
+	mei_set_devstate(dev, MEI_DEV_POWERING_DOWN);
+	mutex_unlock(&dev->device_lock);
+	mei_cl_bus_remove_devices(dev);
+	mutex_lock(&dev->device_lock);
+	mei_set_devstate(dev, MEI_DEV_POWER_DOWN);
+	mutex_unlock(&dev->device_lock);
+>>>>>>> upstream/android-13
 
 	mei_cancel_work(dev);
 
@@ -324,7 +382,11 @@ void mei_stop(struct mei_device *dev)
 
 	mei_reset(dev);
 	/* move device to disabled state unconditionally */
+<<<<<<< HEAD
 	dev->dev_state = MEI_DEV_DISABLED;
+=======
+	mei_set_devstate(dev, MEI_DEV_DISABLED);
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&dev->device_lock);
 }

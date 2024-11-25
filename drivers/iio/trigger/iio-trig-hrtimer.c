@@ -1,8 +1,14 @@
+<<<<<<< HEAD
 /**
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  * The industrial I/O periodic hrtimer trigger driver
  *
  * Copyright (C) Intuitive Aerial AB
  * Written by Marten Svanfeldt, marten@intuitiveaerial.com
+<<<<<<< HEAD
  * Copyright (C) 2012, Analog Device Inc.
  *	Author: Lars-Peter Clausen <lars@metafoo.de>
  * Copyright (C) 2015, Intel Corporation
@@ -11,6 +17,11 @@
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
  *
+=======
+ * Copyright (C) 2012, Analog Devices Inc.
+ *	Author: Lars-Peter Clausen <lars@metafoo.de>
+ * Copyright (C) 2015, Intel Corporation
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/slab.h>
@@ -20,13 +31,23 @@
 #include <linux/iio/trigger.h>
 #include <linux/iio/sw_trigger.h>
 
+<<<<<<< HEAD
+=======
+/* Defined locally, not in time64.h yet. */
+#define PSEC_PER_SEC   1000000000000LL
+
+>>>>>>> upstream/android-13
 /* default sampling frequency - 100Hz */
 #define HRTIMER_DEFAULT_SAMPLING_FREQUENCY 100
 
 struct iio_hrtimer_info {
 	struct iio_sw_trigger swt;
 	struct hrtimer timer;
+<<<<<<< HEAD
 	unsigned long sampling_frequency;
+=======
+	int sampling_frequency[2];
+>>>>>>> upstream/android-13
 	ktime_t period;
 };
 
@@ -42,7 +63,13 @@ ssize_t iio_hrtimer_show_sampling_frequency(struct device *dev,
 	struct iio_trigger *trig = to_iio_trigger(dev);
 	struct iio_hrtimer_info *info = iio_trigger_get_drvdata(trig);
 
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%lu\n", info->sampling_frequency);
+=======
+	return iio_format_value(buf, IIO_VAL_INT_PLUS_MICRO,
+			ARRAY_SIZE(info->sampling_frequency),
+			info->sampling_frequency);
+>>>>>>> upstream/android-13
 }
 
 static
@@ -52,6 +79,7 @@ ssize_t iio_hrtimer_store_sampling_frequency(struct device *dev,
 {
 	struct iio_trigger *trig = to_iio_trigger(dev);
 	struct iio_hrtimer_info *info = iio_trigger_get_drvdata(trig);
+<<<<<<< HEAD
 	unsigned long val;
 	int ret;
 
@@ -64,6 +92,28 @@ ssize_t iio_hrtimer_store_sampling_frequency(struct device *dev,
 
 	info->sampling_frequency = val;
 	info->period = NSEC_PER_SEC / val;
+=======
+	unsigned long long val;
+	u64 period;
+	int integer, fract, ret;
+
+	ret = iio_str_to_fixpoint(buf, 100, &integer, &fract);
+	if (ret)
+		return ret;
+	if (integer < 0 || fract < 0)
+		return -ERANGE;
+
+	val = fract + 1000ULL * integer;  /* mHz */
+
+	if (!val || val > UINT_MAX)
+		return -EINVAL;
+
+	info->sampling_frequency[0] = integer;  /* Hz */
+	info->sampling_frequency[1] = fract * 1000;  /* uHz */
+	period = PSEC_PER_SEC;
+	do_div(period, val);
+	info->period = period;  /* nS */
+>>>>>>> upstream/android-13
 
 	return len;
 }
@@ -106,7 +156,11 @@ static int iio_trig_hrtimer_set_state(struct iio_trigger *trig, bool state)
 
 	if (state)
 		hrtimer_start(&trig_info->timer, trig_info->period,
+<<<<<<< HEAD
 			      HRTIMER_MODE_REL);
+=======
+			      HRTIMER_MODE_REL_HARD);
+>>>>>>> upstream/android-13
 	else
 		hrtimer_cancel(&trig_info->timer);
 
@@ -126,7 +180,11 @@ static struct iio_sw_trigger *iio_trig_hrtimer_probe(const char *name)
 	if (!trig_info)
 		return ERR_PTR(-ENOMEM);
 
+<<<<<<< HEAD
 	trig_info->swt.trigger = iio_trigger_alloc("%s", name);
+=======
+	trig_info->swt.trigger = iio_trigger_alloc(NULL, "%s", name);
+>>>>>>> upstream/android-13
 	if (!trig_info->swt.trigger) {
 		ret = -ENOMEM;
 		goto err_free_trig_info;
@@ -136,11 +194,19 @@ static struct iio_sw_trigger *iio_trig_hrtimer_probe(const char *name)
 	trig_info->swt.trigger->ops = &iio_hrtimer_trigger_ops;
 	trig_info->swt.trigger->dev.groups = iio_hrtimer_attr_groups;
 
+<<<<<<< HEAD
 	hrtimer_init(&trig_info->timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
 	trig_info->timer.function = iio_hrtimer_trig_handler;
 
 	trig_info->sampling_frequency = HRTIMER_DEFAULT_SAMPLING_FREQUENCY;
 	trig_info->period = NSEC_PER_SEC / trig_info->sampling_frequency;
+=======
+	hrtimer_init(&trig_info->timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL_HARD);
+	trig_info->timer.function = iio_hrtimer_trig_handler;
+
+	trig_info->sampling_frequency[0] = HRTIMER_DEFAULT_SAMPLING_FREQUENCY;
+	trig_info->period = NSEC_PER_SEC / trig_info->sampling_frequency[0];
+>>>>>>> upstream/android-13
 
 	ret = iio_trigger_register(trig_info->swt.trigger);
 	if (ret)

@@ -414,7 +414,11 @@ static ssize_t mon_text_read_t(struct file *file, char __user *buf,
 
 		mon_text_read_head_t(rp, &ptr, ep);
 		mon_text_read_statset(rp, &ptr, ep);
+<<<<<<< HEAD
 		ptr.cnt += snprintf(ptr.pbuf + ptr.cnt, ptr.limit - ptr.cnt,
+=======
+		ptr.cnt += scnprintf(ptr.pbuf + ptr.cnt, ptr.limit - ptr.cnt,
+>>>>>>> upstream/android-13
 		    " %d", ep->length);
 		mon_text_read_data(rp, &ptr, ep);
 
@@ -462,7 +466,11 @@ static ssize_t mon_text_read_u(struct file *file, char __user *buf,
 		} else {
 			mon_text_read_statset(rp, &ptr, ep);
 		}
+<<<<<<< HEAD
 		ptr.cnt += snprintf(ptr.pbuf + ptr.cnt, ptr.limit - ptr.cnt,
+=======
+		ptr.cnt += scnprintf(ptr.pbuf + ptr.cnt, ptr.limit - ptr.cnt,
+>>>>>>> upstream/android-13
 		    " %d", ep->length);
 		mon_text_read_data(rp, &ptr, ep);
 
@@ -520,7 +528,11 @@ static void mon_text_read_head_t(struct mon_reader_text *rp,
 	case USB_ENDPOINT_XFER_CONTROL:	utype = 'C'; break;
 	default: /* PIPE_BULK */  utype = 'B';
 	}
+<<<<<<< HEAD
 	p->cnt += snprintf(p->pbuf + p->cnt, p->limit - p->cnt,
+=======
+	p->cnt += scnprintf(p->pbuf + p->cnt, p->limit - p->cnt,
+>>>>>>> upstream/android-13
 	    "%lx %u %c %c%c:%03u:%02u",
 	    ep->id, ep->tstamp, ep->type,
 	    utype, udir, ep->devnum, ep->epnum);
@@ -538,7 +550,11 @@ static void mon_text_read_head_u(struct mon_reader_text *rp,
 	case USB_ENDPOINT_XFER_CONTROL:	utype = 'C'; break;
 	default: /* PIPE_BULK */  utype = 'B';
 	}
+<<<<<<< HEAD
 	p->cnt += snprintf(p->pbuf + p->cnt, p->limit - p->cnt,
+=======
+	p->cnt += scnprintf(p->pbuf + p->cnt, p->limit - p->cnt,
+>>>>>>> upstream/android-13
 	    "%lx %u %c %c%c:%d:%03u:%u",
 	    ep->id, ep->tstamp, ep->type,
 	    utype, udir, ep->busnum, ep->devnum, ep->epnum);
@@ -549,7 +565,11 @@ static void mon_text_read_statset(struct mon_reader_text *rp,
 {
 
 	if (ep->setup_flag == 0) {   /* Setup packet is present and captured */
+<<<<<<< HEAD
 		p->cnt += snprintf(p->pbuf + p->cnt, p->limit - p->cnt,
+=======
+		p->cnt += scnprintf(p->pbuf + p->cnt, p->limit - p->cnt,
+>>>>>>> upstream/android-13
 		    " s %02x %02x %04x %04x %04x",
 		    ep->setup[0],
 		    ep->setup[1],
@@ -557,10 +577,17 @@ static void mon_text_read_statset(struct mon_reader_text *rp,
 		    (ep->setup[5] << 8) | ep->setup[4],
 		    (ep->setup[7] << 8) | ep->setup[6]);
 	} else if (ep->setup_flag != '-') { /* Unable to capture setup packet */
+<<<<<<< HEAD
 		p->cnt += snprintf(p->pbuf + p->cnt, p->limit - p->cnt,
 		    " %c __ __ ____ ____ ____", ep->setup_flag);
 	} else {                     /* No setup for this kind of URB */
 		p->cnt += snprintf(p->pbuf + p->cnt, p->limit - p->cnt,
+=======
+		p->cnt += scnprintf(p->pbuf + p->cnt, p->limit - p->cnt,
+		    " %c __ __ ____ ____ ____", ep->setup_flag);
+	} else {                     /* No setup for this kind of URB */
+		p->cnt += scnprintf(p->pbuf + p->cnt, p->limit - p->cnt,
+>>>>>>> upstream/android-13
 		    " %d", ep->status);
 	}
 }
@@ -568,7 +595,11 @@ static void mon_text_read_statset(struct mon_reader_text *rp,
 static void mon_text_read_intstat(struct mon_reader_text *rp,
 	struct mon_text_ptr *p, const struct mon_event_text *ep)
 {
+<<<<<<< HEAD
 	p->cnt += snprintf(p->pbuf + p->cnt, p->limit - p->cnt,
+=======
+	p->cnt += scnprintf(p->pbuf + p->cnt, p->limit - p->cnt,
+>>>>>>> upstream/android-13
 	    " %d:%d", ep->status, ep->interval);
 }
 
@@ -576,10 +607,17 @@ static void mon_text_read_isostat(struct mon_reader_text *rp,
 	struct mon_text_ptr *p, const struct mon_event_text *ep)
 {
 	if (ep->type == 'S') {
+<<<<<<< HEAD
 		p->cnt += snprintf(p->pbuf + p->cnt, p->limit - p->cnt,
 		    " %d:%d:%d", ep->status, ep->interval, ep->start_frame);
 	} else {
 		p->cnt += snprintf(p->pbuf + p->cnt, p->limit - p->cnt,
+=======
+		p->cnt += scnprintf(p->pbuf + p->cnt, p->limit - p->cnt,
+		    " %d:%d:%d", ep->status, ep->interval, ep->start_frame);
+	} else {
+		p->cnt += scnprintf(p->pbuf + p->cnt, p->limit - p->cnt,
+>>>>>>> upstream/android-13
 		    " %d:%d:%d:%d",
 		    ep->status, ep->interval, ep->start_frame, ep->error_count);
 	}
@@ -592,7 +630,11 @@ static void mon_text_read_isodesc(struct mon_reader_text *rp,
 	int i;
 	const struct mon_iso_desc *dp;
 
+<<<<<<< HEAD
 	p->cnt += snprintf(p->pbuf + p->cnt, p->limit - p->cnt,
+=======
+	p->cnt += scnprintf(p->pbuf + p->cnt, p->limit - p->cnt,
+>>>>>>> upstream/android-13
 	    " %d", ep->numdesc);
 	ndesc = ep->numdesc;
 	if (ndesc > ISODESC_MAX)
@@ -601,7 +643,11 @@ static void mon_text_read_isodesc(struct mon_reader_text *rp,
 		ndesc = 0;
 	dp = ep->isodesc;
 	for (i = 0; i < ndesc; i++) {
+<<<<<<< HEAD
 		p->cnt += snprintf(p->pbuf + p->cnt, p->limit - p->cnt,
+=======
+		p->cnt += scnprintf(p->pbuf + p->cnt, p->limit - p->cnt,
+>>>>>>> upstream/android-13
 		    " %d:%u:%u", dp->status, dp->offset, dp->length);
 		dp++;
 	}
@@ -614,12 +660,17 @@ static void mon_text_read_data(struct mon_reader_text *rp,
 
 	if ((data_len = ep->length) > 0) {
 		if (ep->data_flag == 0) {
+<<<<<<< HEAD
 			p->cnt += snprintf(p->pbuf + p->cnt, p->limit - p->cnt,
+=======
+			p->cnt += scnprintf(p->pbuf + p->cnt, p->limit - p->cnt,
+>>>>>>> upstream/android-13
 			    " =");
 			if (data_len >= DATA_MAX)
 				data_len = DATA_MAX;
 			for (i = 0; i < data_len; i++) {
 				if (i % 4 == 0) {
+<<<<<<< HEAD
 					p->cnt += snprintf(p->pbuf + p->cnt,
 					    p->limit - p->cnt,
 					    " ");
@@ -636,6 +687,24 @@ static void mon_text_read_data(struct mon_reader_text *rp,
 		}
 	} else {
 		p->cnt += snprintf(p->pbuf + p->cnt, p->limit - p->cnt, "\n");
+=======
+					p->cnt += scnprintf(p->pbuf + p->cnt,
+					    p->limit - p->cnt,
+					    " ");
+				}
+				p->cnt += scnprintf(p->pbuf + p->cnt,
+				    p->limit - p->cnt,
+				    "%02x", ep->data[i]);
+			}
+			p->cnt += scnprintf(p->pbuf + p->cnt, p->limit - p->cnt,
+			    "\n");
+		} else {
+			p->cnt += scnprintf(p->pbuf + p->cnt, p->limit - p->cnt,
+			    " %c\n", ep->data_flag);
+		}
+	} else {
+		p->cnt += scnprintf(p->pbuf + p->cnt, p->limit - p->cnt, "\n");
+>>>>>>> upstream/android-13
 	}
 }
 

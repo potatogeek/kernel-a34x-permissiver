@@ -8,3 +8,7 @@ ubifs-y += recovery.o ioctl.o lpt_commit.o tnc_misc.o debug.o
 ubifs-y += misc.o
 ubifs-$(CONFIG_FS_ENCRYPTION) += crypto.o
 ubifs-$(CONFIG_UBIFS_FS_XATTR) += xattr.o
+<<<<<<< HEAD
+=======
+ubifs-$(CONFIG_UBIFS_FS_AUTHENTICATION) += auth.o
+>>>>>>> upstream/android-13

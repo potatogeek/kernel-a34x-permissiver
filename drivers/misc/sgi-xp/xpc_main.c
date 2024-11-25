@@ -3,6 +3,10 @@
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
  *
+<<<<<<< HEAD
+=======
+ * (C) Copyright 2020 Hewlett Packard Enterprise Development LP
+>>>>>>> upstream/android-13
  * Copyright (c) 2004-2009 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
@@ -59,16 +63,28 @@
 
 /* define two XPC debug device structures to be used with dev_dbg() et al */
 
+<<<<<<< HEAD
 struct device_driver xpc_dbg_name = {
 	.name = "xpc"
 };
 
 struct device xpc_part_dbg_subname = {
+=======
+static struct device_driver xpc_dbg_name = {
+	.name = "xpc"
+};
+
+static struct device xpc_part_dbg_subname = {
+>>>>>>> upstream/android-13
 	.init_name = "",	/* set to "part" at xpc_init() time */
 	.driver = &xpc_dbg_name
 };
 
+<<<<<<< HEAD
 struct device xpc_chan_dbg_subname = {
+=======
+static struct device xpc_chan_dbg_subname = {
+>>>>>>> upstream/android-13
 	.init_name = "",	/* set to "chan" at xpc_init() time */
 	.driver = &xpc_dbg_name
 };
@@ -178,7 +194,11 @@ xpc_timeout_partition_disengage(struct timer_list *t)
 
 	DBUG_ON(time_is_after_jiffies(part->disengage_timeout));
 
+<<<<<<< HEAD
 	(void)xpc_partition_disengaged(part);
+=======
+	xpc_partition_disengaged_from_timer(part);
+>>>>>>> upstream/android-13
 
 	DBUG_ON(part->disengage_timeout != 0);
 	DBUG_ON(xpc_arch_ops.partition_engaged(XPC_PARTID(part)));
@@ -206,7 +226,11 @@ xpc_start_hb_beater(void)
 {
 	xpc_arch_ops.heartbeat_init();
 	timer_setup(&xpc_hb_timer, xpc_hb_beater, 0);
+<<<<<<< HEAD
 	xpc_hb_beater(0);
+=======
+	xpc_hb_beater(NULL);
+>>>>>>> upstream/android-13
 }
 
 static void
@@ -279,6 +303,7 @@ xpc_hb_checker(void *ignore)
 
 			dev_dbg(xpc_part, "checking remote heartbeats\n");
 			xpc_check_remote_hb();
+<<<<<<< HEAD
 
 			/*
 			 * On sn2 we need to periodically recheck to ensure no
@@ -286,6 +311,8 @@ xpc_hb_checker(void *ignore)
 			 */
 			if (is_shub())
 				force_IRQ = 1;
+=======
+>>>>>>> upstream/android-13
 		}
 
 		/* check for outstanding IRQs */
@@ -1050,9 +1077,13 @@ xpc_do_exit(enum xp_retval reason)
 
 	xpc_teardown_partitions();
 
+<<<<<<< HEAD
 	if (is_shub())
 		xpc_exit_sn2();
 	else if (is_uv())
+=======
+	if (is_uv_system())
+>>>>>>> upstream/android-13
 		xpc_exit_uv();
 }
 
@@ -1182,7 +1213,11 @@ xpc_system_die(struct notifier_block *nb, unsigned long event, void *_die_args)
 		if (!xpc_kdebug_ignore)
 			break;
 
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case DIE_MCA_MONARCH_ENTER:
 	case DIE_INIT_MONARCH_ENTER:
 		xpc_arch_ops.offline_heartbeat();
@@ -1193,7 +1228,11 @@ xpc_system_die(struct notifier_block *nb, unsigned long event, void *_die_args)
 		if (!xpc_kdebug_ignore)
 			break;
 
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case DIE_MCA_MONARCH_LEAVE:
 	case DIE_INIT_MONARCH_LEAVE:
 		xpc_arch_ops.online_heartbeat();
@@ -1226,7 +1265,11 @@ xpc_system_die(struct notifier_block *nb, unsigned long event, void *_die_args)
 	return NOTIFY_DONE;
 }
 
+<<<<<<< HEAD
 int __init
+=======
+static int __init
+>>>>>>> upstream/android-13
 xpc_init(void)
 {
 	int ret;
@@ -1235,6 +1278,7 @@ xpc_init(void)
 	dev_set_name(xpc_part, "part");
 	dev_set_name(xpc_chan, "chan");
 
+<<<<<<< HEAD
 	if (is_shub()) {
 		/*
 		 * The ia64-sn2 architecture supports at most 64 partitions.
@@ -1250,6 +1294,9 @@ xpc_init(void)
 		}
 
 	} else if (is_uv()) {
+=======
+	if (is_uv_system()) {
+>>>>>>> upstream/android-13
 		ret = xpc_init_uv();
 
 	} else {
@@ -1335,16 +1382,24 @@ out_2:
 
 	xpc_teardown_partitions();
 out_1:
+<<<<<<< HEAD
 	if (is_shub())
 		xpc_exit_sn2();
 	else if (is_uv())
+=======
+	if (is_uv_system())
+>>>>>>> upstream/android-13
 		xpc_exit_uv();
 	return ret;
 }
 
 module_init(xpc_init);
 
+<<<<<<< HEAD
 void __exit
+=======
+static void __exit
+>>>>>>> upstream/android-13
 xpc_exit(void)
 {
 	xpc_do_exit(xpUnloading);

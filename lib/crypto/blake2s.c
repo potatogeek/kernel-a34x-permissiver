@@ -15,6 +15,7 @@
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/bug.h>
+<<<<<<< HEAD
 #include <asm/unaligned.h>
 
 bool blake2s_selftest(void);
@@ -51,12 +52,25 @@ void blake2s_update(struct blake2s_state *state, const u8 *in, size_t inlen)
 	}
 	memcpy(state->buf + state->buflen, in, inlen);
 	state->buflen += inlen;
+=======
+
+#if IS_ENABLED(CONFIG_CRYPTO_ARCH_HAVE_LIB_BLAKE2S)
+#  define blake2s_compress blake2s_compress_arch
+#else
+#  define blake2s_compress blake2s_compress_generic
+#endif
+
+void blake2s_update(struct blake2s_state *state, const u8 *in, size_t inlen)
+{
+	__blake2s_update(state, in, inlen, blake2s_compress);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(blake2s_update);
 
 void blake2s_final(struct blake2s_state *state, u8 *out)
 {
 	WARN_ON(IS_ENABLED(DEBUG) && !out);
+<<<<<<< HEAD
 	blake2s_set_lastblock(state);
 	memset(state->buf + state->buflen, 0,
 	       BLAKE2S_BLOCK_SIZE - state->buflen); /* Padding */
@@ -66,6 +80,9 @@ void blake2s_final(struct blake2s_state *state, u8 *out)
 		blake2s_compress_generic(state, state->buf, 1, state->buflen);
 	cpu_to_le32_array(state->h, ARRAY_SIZE(state->h));
 	memcpy(out, state->h, state->outlen);
+=======
+	__blake2s_final(state, out, blake2s_compress);
+>>>>>>> upstream/android-13
 	memzero_explicit(state, sizeof(*state));
 }
 EXPORT_SYMBOL(blake2s_final);
@@ -107,7 +124,11 @@ void blake2s256_hmac(u8 *out, const u8 *in, const u8 *key, const size_t inlen,
 }
 EXPORT_SYMBOL(blake2s256_hmac);
 
+<<<<<<< HEAD
 static int __init mod_init(void)
+=======
+static int __init blake2s_mod_init(void)
+>>>>>>> upstream/android-13
 {
 	if (!IS_ENABLED(CONFIG_CRYPTO_MANAGER_DISABLE_TESTS) &&
 	    WARN_ON(!blake2s_selftest()))
@@ -115,12 +136,21 @@ static int __init mod_init(void)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void __exit mod_exit(void)
 {
 }
 
 module_init(mod_init);
 module_exit(mod_exit);
+=======
+static void __exit blake2s_mod_exit(void)
+{
+}
+
+module_init(blake2s_mod_init);
+module_exit(blake2s_mod_exit);
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL v2");
 MODULE_DESCRIPTION("BLAKE2s hash function");
 MODULE_AUTHOR("Jason A. Donenfeld <Jason@zx2c4.com>");

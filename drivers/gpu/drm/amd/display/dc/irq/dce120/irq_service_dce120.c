@@ -23,6 +23,11 @@
  *
  */
 
+<<<<<<< HEAD
+=======
+#include <linux/slab.h>
+
+>>>>>>> upstream/android-13
 #include "dm_services.h"
 
 #include "include/logger_interface.h"
@@ -84,6 +89,14 @@ static const struct irq_source_info_funcs vblank_irq_info_funcs = {
 	.ack = NULL
 };
 
+<<<<<<< HEAD
+=======
+static const struct irq_source_info_funcs vupdate_irq_info_funcs = {
+	.set = NULL,
+	.ack = NULL
+};
+
+>>>>>>> upstream/android-13
 #define BASE_INNER(seg) \
 	DCE_BASE__INST0_SEG ## seg
 
@@ -140,7 +153,11 @@ static const struct irq_source_info_funcs vblank_irq_info_funcs = {
 		IRQ_REG_ENTRY(CRTC, reg_num,\
 			CRTC_INTERRUPT_CONTROL, CRTC_V_UPDATE_INT_MSK,\
 			CRTC_V_UPDATE_INT_STATUS, CRTC_V_UPDATE_INT_CLEAR),\
+<<<<<<< HEAD
 		.funcs = &vblank_irq_info_funcs\
+=======
+		.funcs = &vupdate_irq_info_funcs\
+>>>>>>> upstream/android-13
 	}
 
 #define vblank_int_entry(reg_num)\
@@ -266,7 +283,11 @@ static const struct irq_service_funcs irq_service_funcs_dce120 = {
 		.to_dal_irq_source = to_dal_irq_source_dce110
 };
 
+<<<<<<< HEAD
 static void construct(
+=======
+static void dce120_irq_construct(
+>>>>>>> upstream/android-13
 	struct irq_service *irq_service,
 	struct irq_service_init_data *init_data)
 {
@@ -285,6 +306,10 @@ struct irq_service *dal_irq_service_dce120_create(
 	if (!irq_service)
 		return NULL;
 
+<<<<<<< HEAD
 	construct(irq_service, init_data);
+=======
+	dce120_irq_construct(irq_service, init_data);
+>>>>>>> upstream/android-13
 	return irq_service;
 }

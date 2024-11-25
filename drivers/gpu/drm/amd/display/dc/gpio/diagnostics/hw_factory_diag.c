@@ -28,6 +28,10 @@
  */
 
 #include "dm_services.h"
+<<<<<<< HEAD
+=======
+#include "hw_factory_diag.h"
+>>>>>>> upstream/android-13
 #include "include/gpio_types.h"
 #include "../hw_factory.h"
 
@@ -38,6 +42,7 @@
 #include "../hw_gpio.h"
 #include "../hw_ddc.h"
 #include "../hw_hpd.h"
+<<<<<<< HEAD
 
 /* function table */
 static const struct hw_factory_funcs funcs = {
@@ -47,6 +52,15 @@ static const struct hw_factory_funcs funcs = {
 	.create_hpd = NULL,
 	.create_sync = NULL,
 	.create_gsl = NULL,
+=======
+#include "../hw_generic.h"
+
+/* function table */
+static const struct hw_factory_funcs funcs = {
+	.init_ddc_data = NULL,
+	.init_generic = NULL,
+	.init_hpd = NULL,
+>>>>>>> upstream/android-13
 };
 
 void dal_hw_factory_diag_fpga_init(struct hw_factory *factory)

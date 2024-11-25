@@ -2,6 +2,7 @@
 #ifndef __MACH_MX35_H__
 #define __MACH_MX35_H__
 
+<<<<<<< HEAD
 /*
  * IRAM
  */
@@ -187,5 +188,19 @@
 #define MX35_DMA_REQ_SSI1_TX0   29
 
 #define MX35_PROD_SIGNATURE		0x1	/* For MX31 */
+=======
+#define MX35_AIPS1_BASE_ADDR		0x43f00000
+#define MX35_AIPS1_SIZE			SZ_1M
+#define MX35_SPBA0_BASE_ADDR		0x50000000
+#define MX35_SPBA0_SIZE			SZ_1M
+#define MX35_AIPS2_BASE_ADDR		0x53f00000
+#define MX35_AIPS2_SIZE			SZ_1M
+#define MX35_AVIC_BASE_ADDR		0x68000000
+#define MX35_AVIC_SIZE			SZ_1M
+#define MX35_X_MEMC_BASE_ADDR		0xb8000000
+#define MX35_X_MEMC_SIZE		SZ_64K
+
+#define MX35_IO_P2V(x)			IMX_IO_P2V(x)
+>>>>>>> upstream/android-13
 
 #endif /* ifndef __MACH_MX35_H__ */

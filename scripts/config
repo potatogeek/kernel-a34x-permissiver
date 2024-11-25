@@ -223,6 +223,10 @@ while [ "$1" != "" ] ; do
 		;;
 
 	*)
+<<<<<<< HEAD
+=======
+		echo "bad command: $CMD" >&2
+>>>>>>> upstream/android-13
 		usage
 		;;
 	esac

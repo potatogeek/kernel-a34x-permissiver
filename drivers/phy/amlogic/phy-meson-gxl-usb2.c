@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Meson GXL and GXM USB2 PHY driver
  *
  * Copyright (C) 2017 Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -9,6 +14,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -120,8 +127,15 @@ static int phy_meson_gxl_usb2_init(struct phy *phy)
 		return ret;
 
 	ret = clk_prepare_enable(priv->clk);
+<<<<<<< HEAD
 	if (ret)
 		return ret;
+=======
+	if (ret) {
+		reset_control_rearm(priv->reset);
+		return ret;
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -131,6 +145,10 @@ static int phy_meson_gxl_usb2_exit(struct phy *phy)
 	struct phy_meson_gxl_usb2_priv *priv = phy_get_drvdata(phy);
 
 	clk_disable_unprepare(priv->clk);
+<<<<<<< HEAD
+=======
+	reset_control_rearm(priv->reset);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -164,7 +182,12 @@ static int phy_meson_gxl_usb2_set_mode(struct phy *phy,
 				   U2P_R0_DM_PULLDOWN);
 		regmap_update_bits(priv->regmap, U2P_R0, U2P_R0_DP_PULLDOWN,
 				   U2P_R0_DP_PULLDOWN);
+<<<<<<< HEAD
 		regmap_update_bits(priv->regmap, U2P_R0, U2P_R0_ID_PULLUP, 0);
+=======
+		regmap_update_bits(priv->regmap, U2P_R0, U2P_R0_ID_PULLUP,
+				   U2P_R0_ID_PULLUP);
+>>>>>>> upstream/android-13
 		break;
 
 	case PHY_MODE_USB_DEVICE:
@@ -236,7 +259,10 @@ static int phy_meson_gxl_usb2_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct phy_provider *phy_provider;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	struct phy_meson_gxl_usb2_priv *priv;
 	struct phy *phy;
 	void __iomem *base;
@@ -248,8 +274,12 @@ static int phy_meson_gxl_usb2_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, priv);
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	base = devm_ioremap_resource(dev, res);
+=======
+	base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(base))
 		return PTR_ERR(base);
 
@@ -261,6 +291,7 @@ static int phy_meson_gxl_usb2_probe(struct platform_device *pdev)
 	if (IS_ERR(priv->regmap))
 		return PTR_ERR(priv->regmap);
 
+<<<<<<< HEAD
 	priv->clk = devm_clk_get(dev, "phy");
 	if (IS_ERR(priv->clk)) {
 		ret = PTR_ERR(priv->clk);
@@ -269,6 +300,11 @@ static int phy_meson_gxl_usb2_probe(struct platform_device *pdev)
 		else
 			return ret;
 	}
+=======
+	priv->clk = devm_clk_get_optional(dev, "phy");
+	if (IS_ERR(priv->clk))
+		return PTR_ERR(priv->clk);
+>>>>>>> upstream/android-13
 
 	priv->reset = devm_reset_control_get_optional_shared(dev, "phy");
 	if (IS_ERR(priv->reset))

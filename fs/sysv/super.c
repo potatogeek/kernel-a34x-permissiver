@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/fs/sysv/inode.c
  *
@@ -312,7 +316,10 @@ static int complete_read_super(struct super_block *sb, int silent, int size)
 
 	flavour_setup[sbi->s_type](sbi, &sb->s_max_links);
 	
+<<<<<<< HEAD
 	sbi->s_truncate = 1;
+=======
+>>>>>>> upstream/android-13
 	sbi->s_ndatazones = sbi->s_nzones - sbi->s_firstdatazone;
 	sbi->s_inodes_per_block = bsize >> 6;
 	sbi->s_inodes_per_block_1 = (bsize >> 6)-1;
@@ -334,8 +341,11 @@ static int complete_read_super(struct super_block *sb, int silent, int size)
 	sb->s_op = &sysv_sops;
 	if (sbi->s_forced_ro)
 		sb->s_flags |= SB_RDONLY;
+<<<<<<< HEAD
 	if (sbi->s_truncate)
 		sb->s_d_op = &sysv_dentry_operations;
+=======
+>>>>>>> upstream/android-13
 	root_inode = sysv_iget(sb, SYSV_ROOT_INO);
 	if (IS_ERR(root_inode)) {
 		printk("SysV FS: get root inode failed\n");
@@ -370,7 +380,12 @@ static int sysv_fill_super(struct super_block *sb, void *data, int silent)
 	sbi->s_block_base = 0;
 	mutex_init(&sbi->s_lock);
 	sb->s_fs_info = sbi;
+<<<<<<< HEAD
 
+=======
+	sb->s_time_min = 0;
+	sb->s_time_max = U32_MAX;
+>>>>>>> upstream/android-13
 	sb_set_blocksize(sb, BLOCK_SIZE);
 
 	for (i = 0; i < ARRAY_SIZE(flavours) && !size; i++) {
@@ -489,6 +504,11 @@ static int v7_fill_super(struct super_block *sb, void *data, int silent)
 	sbi->s_type = FSTYPE_V7;
 	mutex_init(&sbi->s_lock);
 	sb->s_fs_info = sbi;
+<<<<<<< HEAD
+=======
+	sb->s_time_min = 0;
+	sb->s_time_max = U32_MAX;
+>>>>>>> upstream/android-13
 	
 	sb_set_blocksize(sb, 512);
 
@@ -591,3 +611,7 @@ static void __exit exit_sysv_fs(void)
 module_init(init_sysv_fs)
 module_exit(exit_sysv_fs)
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13

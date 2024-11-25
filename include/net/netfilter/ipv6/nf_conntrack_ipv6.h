@@ -2,6 +2,7 @@
 #ifndef _NF_CONNTRACK_IPV6_H
 #define _NF_CONNTRACK_IPV6_H
 
+<<<<<<< HEAD
 extern const struct nf_conntrack_l3proto nf_conntrack_l3proto_ipv6;
 
 extern const struct nf_conntrack_l4proto nf_conntrack_l4proto_tcp6;
@@ -19,5 +20,8 @@ extern const struct nf_conntrack_l4proto nf_conntrack_l4proto_udplite6;
 
 #include <linux/sysctl.h>
 extern struct ctl_table nf_ct_ipv6_sysctl_table[];
+=======
+extern const struct nf_conntrack_l4proto nf_conntrack_l4proto_icmpv6;
+>>>>>>> upstream/android-13
 
 #endif /* _NF_CONNTRACK_IPV6_H*/

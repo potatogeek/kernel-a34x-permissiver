@@ -1,11 +1,18 @@
 #!/bin/bash
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 
 # objdiff - a small script for validating that a commit or series of commits
 # didn't change object code.
 #
 # Copyright 2014, Jason Cooper <jason@lakedaemon.net>
 #
+<<<<<<< HEAD
 # Licensed under the terms of the GNU GPL version 2
+=======
+>>>>>>> upstream/android-13
 
 # usage example:
 #

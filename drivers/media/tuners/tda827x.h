@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
   /*
      DVB Driver for Philips tda827x / tda827xa Silicon tuners
 
      (c) 2005 Hartmut Hackmann
      (c) 2007 Michael Krufky
 
+<<<<<<< HEAD
      This program is free software; you can redistribute it and/or modify
      it under the terms of the GNU General Public License as published by
      the Free Software Foundation; either version 2 of the License, or
@@ -18,6 +23,8 @@
      You should have received a copy of the GNU General Public License
      along with this program; if not, write to the Free Software
      Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
 
   */
 
@@ -43,12 +50,21 @@ struct tda827x_config
 
 
 /**
+<<<<<<< HEAD
  * Attach a tda827x tuner to the supplied frontend structure.
  *
  * @param fe Frontend to attach to.
  * @param addr i2c address of the tuner.
  * @param i2c i2c adapter to use.
  * @param cfg optional callback function pointers.
+=======
+ * tda827x_attach() - Attach a tda827x tuner to the supplied frontend structure
+ *
+ * @fe: Frontend to attach to.
+ * @addr: i2c address of the tuner.
+ * @i2c: i2c adapter to use.
+ * @cfg: optional callback function pointers.
+>>>>>>> upstream/android-13
  * @return FE pointer on success, NULL on failure.
  */
 #if IS_REACHABLE(CONFIG_MEDIA_TUNER_TDA827X)

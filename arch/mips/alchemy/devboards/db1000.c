@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * DBAu1000/1500/1100 PBAu1100/1500 board support
  *
  * Copyright 2000, 2008 MontaVista Software Inc.
  * Author: MontaVista Software, Inc. <source@mvista.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -82,6 +89,11 @@ static int db1500_map_pci_irq(const struct pci_dev *d, u8 slot, u8 pin)
 	return -1;
 }
 
+<<<<<<< HEAD
+=======
+static u64 au1xxx_all_dmamask = DMA_BIT_MASK(32);
+
+>>>>>>> upstream/android-13
 static struct resource alchemy_pci_host_res[] = {
 	[0] = {
 		.start	= AU1500_PCI_PHYS_ADDR,
@@ -120,13 +132,20 @@ static struct resource au1100_lcd_resources[] = {
 	}
 };
 
+<<<<<<< HEAD
 static u64 au1100_lcd_dmamask = DMA_BIT_MASK(32);
 
+=======
+>>>>>>> upstream/android-13
 static struct platform_device au1100_lcd_device = {
 	.name		= "au1100-lcd",
 	.id		= 0,
 	.dev = {
+<<<<<<< HEAD
 		.dma_mask		= &au1100_lcd_dmamask,
+=======
+		.dma_mask		= &au1xxx_all_dmamask,
+>>>>>>> upstream/android-13
 		.coherent_dma_mask	= DMA_BIT_MASK(32),
 	},
 	.num_resources	= ARRAY_SIZE(au1100_lcd_resources),
@@ -170,6 +189,13 @@ static struct platform_device db1x00_codec_dev = {
 
 static struct platform_device db1x00_audio_dev = {
 	.name		= "db1000-audio",
+<<<<<<< HEAD
+=======
+	.dev = {
+		.dma_mask		= &au1xxx_all_dmamask,
+		.coherent_dma_mask	= DMA_BIT_MASK(32),
+	},
+>>>>>>> upstream/android-13
 };
 
 /******************************************************************************/
@@ -338,13 +364,20 @@ static struct resource au1100_mmc0_resources[] = {
 	}
 };
 
+<<<<<<< HEAD
 static u64 au1xxx_mmc_dmamask =	 DMA_BIT_MASK(32);
 
+=======
+>>>>>>> upstream/android-13
 static struct platform_device db1100_mmc0_dev = {
 	.name		= "au1xxx-mmc",
 	.id		= 0,
 	.dev = {
+<<<<<<< HEAD
 		.dma_mask		= &au1xxx_mmc_dmamask,
+=======
+		.dma_mask		= &au1xxx_all_dmamask,
+>>>>>>> upstream/android-13
 		.coherent_dma_mask	= DMA_BIT_MASK(32),
 		.platform_data		= &db1100_mmc_platdata[0],
 	},
@@ -379,7 +412,11 @@ static struct platform_device db1100_mmc1_dev = {
 	.name		= "au1xxx-mmc",
 	.id		= 1,
 	.dev = {
+<<<<<<< HEAD
 		.dma_mask		= &au1xxx_mmc_dmamask,
+=======
+		.dma_mask		= &au1xxx_all_dmamask,
+>>>>>>> upstream/android-13
 		.coherent_dma_mask	= DMA_BIT_MASK(32),
 		.platform_data		= &db1100_mmc_platdata[1],
 	},
@@ -389,6 +426,7 @@ static struct platform_device db1100_mmc1_dev = {
 
 /******************************************************************************/
 
+<<<<<<< HEAD
 static void db1000_irda_set_phy_mode(int mode)
 {
 	unsigned short mask = BCSR_RESETS_IRDA_MODE_MASK | BCSR_RESETS_FIR_SEL;
@@ -441,6 +479,8 @@ static struct platform_device db1000_irda_dev = {
 
 /******************************************************************************/
 
+=======
+>>>>>>> upstream/android-13
 static struct ads7846_platform_data db1100_touch_pd = {
 	.model		= 7846,
 	.vref_mv	= 3300,
@@ -468,6 +508,11 @@ static struct platform_device db1100_spi_dev = {
 	.id		= 0,
 	.dev		= {
 		.platform_data	= &db1100_spictl_pd,
+<<<<<<< HEAD
+=======
+		.dma_mask		= &au1xxx_all_dmamask,
+		.coherent_dma_mask	= DMA_BIT_MASK(32),
+>>>>>>> upstream/android-13
 	},
 };
 
@@ -497,15 +542,21 @@ static struct platform_device *db1x00_devs[] = {
 	&db1x00_audio_dev,
 };
 
+<<<<<<< HEAD
 static struct platform_device *db1000_devs[] = {
 	&db1000_irda_dev,
 };
 
+=======
+>>>>>>> upstream/android-13
 static struct platform_device *db1100_devs[] = {
 	&au1100_lcd_device,
 	&db1100_mmc0_dev,
 	&db1100_mmc1_dev,
+<<<<<<< HEAD
 	&db1000_irda_dev,
+=======
+>>>>>>> upstream/android-13
 };
 
 int __init db1000_dev_setup(void)
@@ -565,7 +616,10 @@ int __init db1000_dev_setup(void)
 		d1 = 3; /* GPIO number, NOT irq! */
 		s0 = AU1000_GPIO1_INT;
 		s1 = AU1000_GPIO4_INT;
+<<<<<<< HEAD
 		platform_add_devices(db1000_devs, ARRAY_SIZE(db1000_devs));
+=======
+>>>>>>> upstream/android-13
 	} else if ((board == BCSR_WHOAMI_PB1500) ||
 		   (board == BCSR_WHOAMI_PB1500R2)) {
 		c0 = AU1500_GPIO203_INT;

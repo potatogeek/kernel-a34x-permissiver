@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright 2010-2011 Calxeda, Inc.
  * Copyright 2012 Pavel Machek <pavel@denx.de>
  * Based on platsmp.c, Copyright (C) 2002 ARM Ltd.
  * Copyright (C) 2012 Altera Corporation
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -15,6 +20,8 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/delay.h>
 #include <linux/init.h>
@@ -31,14 +38,22 @@
 
 static int socfpga_boot_secondary(unsigned int cpu, struct task_struct *idle)
 {
+<<<<<<< HEAD
 	int trampoline_size = &secondary_trampoline_end - &secondary_trampoline;
+=======
+	int trampoline_size = secondary_trampoline_end - secondary_trampoline;
+>>>>>>> upstream/android-13
 
 	if (socfpga_cpu1start_addr) {
 		/* This will put CPU #1 into reset. */
 		writel(RSTMGR_MPUMODRST_CPU1,
 		       rst_manager_base_addr + SOCFPGA_RSTMGR_MODMPURST);
 
+<<<<<<< HEAD
 		memcpy(phys_to_virt(0), &secondary_trampoline, trampoline_size);
+=======
+		memcpy(phys_to_virt(0), secondary_trampoline, trampoline_size);
+>>>>>>> upstream/android-13
 
 		writel(__pa_symbol(secondary_startup),
 		       sys_manager_base_addr + (socfpga_cpu1start_addr & 0x000000ff));
@@ -56,12 +71,20 @@ static int socfpga_boot_secondary(unsigned int cpu, struct task_struct *idle)
 
 static int socfpga_a10_boot_secondary(unsigned int cpu, struct task_struct *idle)
 {
+<<<<<<< HEAD
 	int trampoline_size = &secondary_trampoline_end - &secondary_trampoline;
+=======
+	int trampoline_size = secondary_trampoline_end - secondary_trampoline;
+>>>>>>> upstream/android-13
 
 	if (socfpga_cpu1start_addr) {
 		writel(RSTMGR_MPUMODRST_CPU1, rst_manager_base_addr +
 		       SOCFPGA_A10_RSTMGR_MODMPURST);
+<<<<<<< HEAD
 		memcpy(phys_to_virt(0), &secondary_trampoline, trampoline_size);
+=======
+		memcpy(phys_to_virt(0), secondary_trampoline, trampoline_size);
+>>>>>>> upstream/android-13
 
 		writel(__pa_symbol(secondary_startup),
 		       sys_manager_base_addr + (socfpga_cpu1start_addr & 0x00000fff));

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2004-2007 Freescale Semiconductor, Inc. All Rights Reserved.
  * Copyright (C) 2008 by Sascha Hauer <kernel@pengutronix.de>
@@ -15,6 +16,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright 2004-2007 Freescale Semiconductor, Inc. All Rights Reserved.
+ * Copyright (C) 2008 by Sascha Hauer <kernel@pengutronix.de>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __ARCH_ARM_MACH_MX3_CRM_REGS_H__

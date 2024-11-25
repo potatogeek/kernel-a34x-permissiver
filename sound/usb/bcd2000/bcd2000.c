@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Behringer BCD2000 driver
  *
  *   Copyright (C) 2014 Mario Kicherer (dev@kicherer.org)
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *   GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -34,9 +41,15 @@ static const struct usb_device_id id_table[] = {
 	{ },
 };
 
+<<<<<<< HEAD
 static unsigned char device_cmd_prefix[] = {0x03, 0x00};
 
 static unsigned char bcd2000_init_sequence[] = {
+=======
+static const unsigned char device_cmd_prefix[] = {0x03, 0x00};
+
+static const unsigned char bcd2000_init_sequence[] = {
+>>>>>>> upstream/android-13
 	0x07, 0x00, 0x00, 0x00, 0x78, 0x48, 0x1c, 0x81,
 	0xc4, 0x00, 0x00, 0x00, 0x5e, 0x53, 0x4a, 0xf7,
 	0x18, 0xfa, 0x11, 0xff, 0x6c, 0xf3, 0x90, 0xff,
@@ -309,7 +322,11 @@ static int bcd2000_init_midi(struct bcd2000 *bcd2k)
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	strlcpy(rmidi->name, bcd2k->card->shortname, sizeof(rmidi->name));
+=======
+	strscpy(rmidi->name, bcd2k->card->shortname, sizeof(rmidi->name));
+>>>>>>> upstream/android-13
 
 	rmidi->info_flags = SNDRV_RAWMIDI_INFO_DUPLEX;
 	rmidi->private_data = bcd2k;

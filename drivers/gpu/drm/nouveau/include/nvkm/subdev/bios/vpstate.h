@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
+=======
+/* SPDX-License-Identifier: MIT */
+>>>>>>> upstream/android-13
 #ifndef __NVBIOS_VPSTATE_H__
 #define __NVBIOS_VPSTATE_H__
 struct nvbios_vpstate_header {

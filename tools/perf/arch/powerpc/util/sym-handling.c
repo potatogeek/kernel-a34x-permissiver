@@ -1,17 +1,27 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright (C) 2015 Naveen N. Rao, IBM Corporation
  */
 
+<<<<<<< HEAD
 #include "debug.h"
+=======
+#include "dso.h"
+>>>>>>> upstream/android-13
 #include "symbol.h"
 #include "map.h"
 #include "probe-event.h"
 #include "probe-file.h"
 
+<<<<<<< HEAD
 #ifdef HAVE_LIBELF_SUPPORT
 bool elf__needs_adjust_symbols(GElf_Ehdr ehdr)
 {
@@ -22,6 +32,8 @@ bool elf__needs_adjust_symbols(GElf_Ehdr ehdr)
 
 #endif
 
+=======
+>>>>>>> upstream/android-13
 int arch__choose_best_symbol(struct symbol *syma,
 			     struct symbol *symb __maybe_unused)
 {

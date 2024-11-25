@@ -5,6 +5,7 @@ GPU Driver Documentation
 .. toctree::
 
    amdgpu
+<<<<<<< HEAD
    i915
    meson
    pl111
@@ -15,6 +16,22 @@ GPU Driver Documentation
    vc4
    bridge/dw-hdmi
    xen-front
+=======
+   amdgpu-dc
+   i915
+   mcde
+   meson
+   pl111
+   tegra
+   tve200
+   v3d
+   vc4
+   vkms
+   bridge/dw-hdmi
+   xen-front
+   afbc
+   komeda-kms
+>>>>>>> upstream/android-13
 
 .. only::  subproject and html
 

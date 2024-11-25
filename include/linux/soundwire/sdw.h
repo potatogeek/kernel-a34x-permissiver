@@ -1,9 +1,20 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: (GPL-2.0 OR BSD-3-Clause)
 // Copyright(c) 2015-17 Intel Corporation.
+=======
+/* SPDX-License-Identifier: (GPL-2.0 OR BSD-3-Clause) */
+/* Copyright(c) 2015-17 Intel Corporation. */
+>>>>>>> upstream/android-13
 
 #ifndef __SOUNDWIRE_H
 #define __SOUNDWIRE_H
 
+<<<<<<< HEAD
+=======
+#include <linux/mod_devicetable.h>
+#include <linux/bitfield.h>
+
+>>>>>>> upstream/android-13
 struct sdw_bus;
 struct sdw_slave;
 
@@ -36,10 +47,40 @@ struct sdw_slave;
 #define SDW_FRAME_CTRL_BITS		48
 #define SDW_MAX_DEVICES			11
 
+<<<<<<< HEAD
 #define SDW_VALID_PORT_RANGE(n)		(n <= 14 && n >= 1)
 
 #define SDW_DAI_ID_RANGE_START		100
 #define SDW_DAI_ID_RANGE_END		200
+=======
+#define SDW_MAX_PORTS			15
+#define SDW_VALID_PORT_RANGE(n)		((n) < SDW_MAX_PORTS && (n) >= 1)
+
+enum {
+	SDW_PORT_DIRN_SINK = 0,
+	SDW_PORT_DIRN_SOURCE,
+	SDW_PORT_DIRN_MAX,
+};
+
+/*
+ * constants for flow control, ports and transport
+ *
+ * these are bit masks as devices can have multiple capabilities
+ */
+
+/*
+ * flow modes for SDW port. These can be isochronous, tx controlled,
+ * rx controlled or async
+ */
+#define SDW_PORT_FLOW_MODE_ISOCH	0
+#define SDW_PORT_FLOW_MODE_TX_CNTRL	BIT(0)
+#define SDW_PORT_FLOW_MODE_RX_CNTRL	BIT(1)
+#define SDW_PORT_FLOW_MODE_ASYNC	GENMASK(1, 0)
+
+/* sample packaging for block. It can be per port or per channel */
+#define SDW_BLOCK_PACKG_PER_PORT	BIT(0)
+#define SDW_BLOCK_PACKG_PER_CH		BIT(1)
+>>>>>>> upstream/android-13
 
 /**
  * enum sdw_slave_status - Slave status
@@ -56,6 +97,24 @@ enum sdw_slave_status {
 };
 
 /**
+<<<<<<< HEAD
+=======
+ * enum sdw_clk_stop_type: clock stop operations
+ *
+ * @SDW_CLK_PRE_PREPARE: pre clock stop prepare
+ * @SDW_CLK_POST_PREPARE: post clock stop prepare
+ * @SDW_CLK_PRE_DEPREPARE: pre clock stop de-prepare
+ * @SDW_CLK_POST_DEPREPARE: post clock stop de-prepare
+ */
+enum sdw_clk_stop_type {
+	SDW_CLK_PRE_PREPARE = 0,
+	SDW_CLK_POST_PREPARE,
+	SDW_CLK_PRE_DEPREPARE,
+	SDW_CLK_POST_DEPREPARE,
+};
+
+/**
+>>>>>>> upstream/android-13
  * enum sdw_command_response - Command response as defined by SDW spec
  * @SDW_CMD_OK: cmd was successful
  * @SDW_CMD_IGNORED: cmd was ignored
@@ -76,6 +135,23 @@ enum sdw_command_response {
 	SDW_CMD_FAIL_OTHER = 4,
 };
 
+<<<<<<< HEAD
+=======
+/* block group count enum */
+enum sdw_dpn_grouping {
+	SDW_BLK_GRP_CNT_1 = 0,
+	SDW_BLK_GRP_CNT_2 = 1,
+	SDW_BLK_GRP_CNT_3 = 2,
+	SDW_BLK_GRP_CNT_4 = 3,
+};
+
+/* block packing mode enum */
+enum sdw_dpn_pkg_mode {
+	SDW_BLK_PKG_PER_PORT = 0,
+	SDW_BLK_PKG_PER_CHANNEL = 1
+};
+
+>>>>>>> upstream/android-13
 /**
  * enum sdw_stream_type: data stream type
  *
@@ -100,6 +176,29 @@ enum sdw_data_direction {
 	SDW_DATA_DIR_TX = 1,
 };
 
+<<<<<<< HEAD
+=======
+/**
+ * enum sdw_port_data_mode: Data Port mode
+ *
+ * @SDW_PORT_DATA_MODE_NORMAL: Normal data mode where audio data is received
+ * and transmitted.
+ * @SDW_PORT_DATA_MODE_PRBS: Test mode which uses a PRBS generator to produce
+ * a pseudo random data pattern that is transferred
+ * @SDW_PORT_DATA_MODE_STATIC_0: Simple test mode which uses static value of
+ * logic 0. The encoding will result in no signal transitions
+ * @SDW_PORT_DATA_MODE_STATIC_1: Simple test mode which uses static value of
+ * logic 1. The encoding will result in signal transitions at every bitslot
+ * owned by this Port
+ */
+enum sdw_port_data_mode {
+	SDW_PORT_DATA_MODE_NORMAL = 0,
+	SDW_PORT_DATA_MODE_PRBS = 1,
+	SDW_PORT_DATA_MODE_STATIC_0 = 2,
+	SDW_PORT_DATA_MODE_STATIC_1 = 3,
+};
+
+>>>>>>> upstream/android-13
 /*
  * SDW properties, defined in MIPI DisCo spec v1.0
  */
@@ -153,10 +252,18 @@ enum sdw_clk_stop_mode {
  * (inclusive)
  * @num_words: number of wordlengths supported
  * @words: wordlengths supported
+<<<<<<< HEAD
  * @flow_controlled: Slave implementation results in an OK_NotReady
  * response
  * @simple_ch_prep_sm: If channel prepare sequence is required
  * @device_interrupts: If implementation-defined interrupts are supported
+=======
+ * @BRA_flow_controlled: Slave implementation results in an OK_NotReady
+ * response
+ * @simple_ch_prep_sm: If channel prepare sequence is required
+ * @imp_def_interrupts: If set, each bit corresponds to support for
+ * implementation-defined interrupts
+>>>>>>> upstream/android-13
  *
  * The wordlengths are specified by Spec as max, min AND number of
  * discrete values, implementation can define based on the wordlengths they
@@ -167,9 +274,15 @@ struct sdw_dp0_prop {
 	u32 min_word;
 	u32 num_words;
 	u32 *words;
+<<<<<<< HEAD
 	bool flow_controlled;
 	bool simple_ch_prep_sm;
 	bool device_interrupts;
+=======
+	bool BRA_flow_controlled;
+	bool simple_ch_prep_sm;
+	bool imp_def_interrupts;
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -219,18 +332,31 @@ struct sdw_dpn_audio_mode {
  * @simple_ch_prep_sm: If the port supports simplified channel prepare state
  * machine
  * @ch_prep_timeout: Port-specific timeout value, in milliseconds
+<<<<<<< HEAD
  * @device_interrupts: If set, each bit corresponds to support for
  * implementation-defined interrupts
  * @max_ch: Maximum channels supported
  * @min_ch: Minimum channels supported
  * @num_ch: Number of discrete channels supported
  * @ch: Discrete channels supported
+=======
+ * @imp_def_interrupts: If set, each bit corresponds to support for
+ * implementation-defined interrupts
+ * @max_ch: Maximum channels supported
+ * @min_ch: Minimum channels supported
+ * @num_channels: Number of discrete channels supported
+ * @channels: Discrete channels supported
+>>>>>>> upstream/android-13
  * @num_ch_combinations: Number of channel combinations supported
  * @ch_combinations: Channel combinations supported
  * @modes: SDW mode supported
  * @max_async_buffer: Number of samples that this port can buffer in
  * asynchronous modes
  * @block_pack_mode: Type of block port mode supported
+<<<<<<< HEAD
+=======
+ * @read_only_wordlength: Read Only wordlength field in DPN_BlockCtrl1 register
+>>>>>>> upstream/android-13
  * @port_encoding: Payload Channel Sample encoding schemes supported
  * @audio_modes: Audio modes supported
  */
@@ -244,16 +370,28 @@ struct sdw_dpn_prop {
 	u32 max_grouping;
 	bool simple_ch_prep_sm;
 	u32 ch_prep_timeout;
+<<<<<<< HEAD
 	u32 device_interrupts;
 	u32 max_ch;
 	u32 min_ch;
 	u32 num_ch;
 	u32 *ch;
+=======
+	u32 imp_def_interrupts;
+	u32 max_ch;
+	u32 min_ch;
+	u32 num_channels;
+	u32 *channels;
+>>>>>>> upstream/android-13
 	u32 num_ch_combinations;
 	u32 *ch_combinations;
 	u32 modes;
 	u32 max_async_buffer;
 	bool block_pack_mode;
+<<<<<<< HEAD
+=======
+	bool read_only_wordlength;
+>>>>>>> upstream/android-13
 	u32 port_encoding;
 	struct sdw_dpn_audio_mode *audio_modes;
 };
@@ -285,6 +423,12 @@ struct sdw_dpn_prop {
  * @dp0_prop: Data Port 0 properties
  * @src_dpn_prop: Source Data Port N properties
  * @sink_dpn_prop: Sink Data Port N properties
+<<<<<<< HEAD
+=======
+ * @scp_int1_mask: SCP_INT1_MASK desired settings
+ * @quirks: bitmask identifying deltas from the MIPI specification
+ * @is_sdca: the Slave supports the SDCA specification
+>>>>>>> upstream/android-13
  */
 struct sdw_slave_prop {
 	u32 mipi_revision;
@@ -306,6 +450,7 @@ struct sdw_slave_prop {
 	struct sdw_dp0_prop *dp0_prop;
 	struct sdw_dpn_prop *src_dpn_prop;
 	struct sdw_dpn_prop *sink_dpn_prop;
+<<<<<<< HEAD
 };
 
 /**
@@ -335,14 +480,78 @@ struct sdw_master_prop {
 	u32 *clk_gears;
 	u32 num_freq;
 	u32 *freq;
+=======
+	u8 scp_int1_mask;
+	u32 quirks;
+	bool is_sdca;
+};
+
+#define SDW_SLAVE_QUIRKS_INVALID_INITIAL_PARITY	BIT(0)
+
+/**
+ * struct sdw_master_prop - Master properties
+ * @revision: MIPI spec version of the implementation
+ * @clk_stop_modes: Bitmap, bit N set when clock-stop-modeN supported
+ * @max_clk_freq: Maximum Bus clock frequency, in Hz
+ * @num_clk_gears: Number of clock gears supported
+ * @clk_gears: Clock gears supported
+ * @num_clk_freq: Number of clock frequencies supported, in Hz
+ * @clk_freq: Clock frequencies supported, in Hz
+ * @default_frame_rate: Controller default Frame rate, in Hz
+ * @default_row: Number of rows
+ * @default_col: Number of columns
+ * @dynamic_frame: Dynamic frame shape supported
+ * @err_threshold: Number of times that software may retry sending a single
+ * command
+ * @mclk_freq: clock reference passed to SoundWire Master, in Hz.
+ * @hw_disabled: if true, the Master is not functional, typically due to pin-mux
+ * @quirks: bitmask identifying optional behavior beyond the scope of the MIPI specification
+ */
+struct sdw_master_prop {
+	u32 revision;
+	u32 clk_stop_modes;
+	u32 max_clk_freq;
+	u32 num_clk_gears;
+	u32 *clk_gears;
+	u32 num_clk_freq;
+	u32 *clk_freq;
+>>>>>>> upstream/android-13
 	u32 default_frame_rate;
 	u32 default_row;
 	u32 default_col;
 	bool dynamic_frame;
 	u32 err_threshold;
+<<<<<<< HEAD
 	struct sdw_dpn_prop *dpn_prop;
 };
 
+=======
+	u32 mclk_freq;
+	bool hw_disabled;
+	u64 quirks;
+};
+
+/* Definitions for Master quirks */
+
+/*
+ * In a number of platforms bus clashes are reported after a hardware
+ * reset but without any explanations or evidence of a real problem.
+ * The following quirk will discard all initial bus clash interrupts
+ * but will leave the detection on should real bus clashes happen
+ */
+#define SDW_MASTER_QUIRKS_CLEAR_INITIAL_CLASH	BIT(0)
+
+/*
+ * Some Slave devices have known issues with incorrect parity errors
+ * reported after a hardware reset. However during integration unexplained
+ * parity errors can be reported by Slave devices, possibly due to electrical
+ * issues at the Master level.
+ * The following quirk will discard all initial parity errors but will leave
+ * the detection on should real parity errors happen.
+ */
+#define SDW_MASTER_QUIRKS_CLEAR_INITIAL_PARITY	BIT(1)
+
+>>>>>>> upstream/android-13
 int sdw_master_read_prop(struct sdw_bus *bus);
 int sdw_slave_read_prop(struct sdw_slave *slave);
 
@@ -350,12 +559,21 @@ int sdw_slave_read_prop(struct sdw_slave *slave);
  * SDW Slave Structures and APIs
  */
 
+<<<<<<< HEAD
+=======
+#define SDW_IGNORED_UNIQUE_ID 0xFF
+
+>>>>>>> upstream/android-13
 /**
  * struct sdw_slave_id - Slave ID
  * @mfg_id: MIPI Manufacturer ID
  * @part_id: Device Part ID
+<<<<<<< HEAD
  * @class_id: MIPI Class ID, unused now.
  * Currently a placeholder in MIPI SoundWire Spec
+=======
+ * @class_id: MIPI Class ID (defined starting with SoundWire 1.2 spec)
+>>>>>>> upstream/android-13
  * @unique_id: Device unique ID
  * @sdw_version: SDW version implemented
  *
@@ -365,16 +583,59 @@ struct sdw_slave_id {
 	__u16 mfg_id;
 	__u16 part_id;
 	__u8 class_id;
+<<<<<<< HEAD
 	__u8 unique_id:4;
 	__u8 sdw_version:4;
 };
 
 /**
  * struct sdw_slave_intr_status - Slave interrupt status
+=======
+	__u8 unique_id;
+	__u8 sdw_version:4;
+};
+
+/*
+ * Helper macros to extract the MIPI-defined IDs
+ *
+ * Spec definition
+ *   Register		Bit	Contents
+ *   DevId_0 [7:4]	47:44	sdw_version
+ *   DevId_0 [3:0]	43:40	unique_id
+ *   DevId_1		39:32	mfg_id [15:8]
+ *   DevId_2		31:24	mfg_id [7:0]
+ *   DevId_3		23:16	part_id [15:8]
+ *   DevId_4		15:08	part_id [7:0]
+ *   DevId_5		07:00	class_id
+ *
+ * The MIPI DisCo for SoundWire defines in addition the link_id as bits 51:48
+ */
+#define SDW_DISCO_LINK_ID_MASK	GENMASK_ULL(51, 48)
+#define SDW_VERSION_MASK	GENMASK_ULL(47, 44)
+#define SDW_UNIQUE_ID_MASK	GENMASK_ULL(43, 40)
+#define SDW_MFG_ID_MASK		GENMASK_ULL(39, 24)
+#define SDW_PART_ID_MASK	GENMASK_ULL(23, 8)
+#define SDW_CLASS_ID_MASK	GENMASK_ULL(7, 0)
+
+#define SDW_DISCO_LINK_ID(addr)	FIELD_GET(SDW_DISCO_LINK_ID_MASK, addr)
+#define SDW_VERSION(addr)	FIELD_GET(SDW_VERSION_MASK, addr)
+#define SDW_UNIQUE_ID(addr)	FIELD_GET(SDW_UNIQUE_ID_MASK, addr)
+#define SDW_MFG_ID(addr)	FIELD_GET(SDW_MFG_ID_MASK, addr)
+#define SDW_PART_ID(addr)	FIELD_GET(SDW_PART_ID_MASK, addr)
+#define SDW_CLASS_ID(addr)	FIELD_GET(SDW_CLASS_ID_MASK, addr)
+
+/**
+ * struct sdw_slave_intr_status - Slave interrupt status
+ * @sdca_cascade: set if the Slave device reports an SDCA interrupt
+>>>>>>> upstream/android-13
  * @control_port: control port status
  * @port: data port status
  */
 struct sdw_slave_intr_status {
+<<<<<<< HEAD
+=======
+	bool sdca_cascade;
+>>>>>>> upstream/android-13
 	u8 control_port;
 	u8 port[15];
 };
@@ -446,6 +707,13 @@ enum sdw_port_prep_ops {
  * @bandwidth: Current bandwidth
  * @col: Active columns
  * @row: Active rows
+<<<<<<< HEAD
+=======
+ * @s_data_mode: NORMAL, STATIC or PRBS mode for all Slave ports
+ * @m_data_mode: NORMAL, STATIC or PRBS mode for all Master ports. The value
+ * should be the same to detect transmission issues, but can be different to
+ * test the interrupt reports
+>>>>>>> upstream/android-13
  */
 struct sdw_bus_params {
 	enum sdw_reg_bank curr_bank;
@@ -455,6 +723,11 @@ struct sdw_bus_params {
 	unsigned int bandwidth;
 	unsigned int col;
 	unsigned int row;
+<<<<<<< HEAD
+=======
+	int s_data_mode;
+	int m_data_mode;
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -466,10 +739,15 @@ struct sdw_bus_params {
  * @update_status: Update Slave status
  * @bus_config: Update the bus config for Slave
  * @port_prep: Prepare the port with parameters
+<<<<<<< HEAD
+=======
+ * @clk_stop: handle imp-def sequences before and after prepare and de-prepare
+>>>>>>> upstream/android-13
  */
 struct sdw_slave_ops {
 	int (*read_prop)(struct sdw_slave *sdw);
 	int (*interrupt_callback)(struct sdw_slave *slave,
+<<<<<<< HEAD
 			struct sdw_slave_intr_status *status);
 	int (*update_status)(struct sdw_slave *slave,
 			enum sdw_slave_status status);
@@ -478,6 +756,20 @@ struct sdw_slave_ops {
 	int (*port_prep)(struct sdw_slave *slave,
 			struct sdw_prepare_ch *prepare_ch,
 			enum sdw_port_prep_ops pre_ops);
+=======
+				  struct sdw_slave_intr_status *status);
+	int (*update_status)(struct sdw_slave *slave,
+			     enum sdw_slave_status status);
+	int (*bus_config)(struct sdw_slave *slave,
+			  struct sdw_bus_params *params);
+	int (*port_prep)(struct sdw_slave *slave,
+			 struct sdw_prepare_ch *prepare_ch,
+			 enum sdw_port_prep_ops pre_ops);
+	int (*clk_stop)(struct sdw_slave *slave,
+			enum sdw_clk_stop_mode mode,
+			enum sdw_clk_stop_type type);
+
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -488,9 +780,36 @@ struct sdw_slave_ops {
  * @bus: Bus handle
  * @ops: Slave callback ops
  * @prop: Slave properties
+<<<<<<< HEAD
  * @node: node for bus list
  * @port_ready: Port ready completion flag for each Slave port
  * @dev_num: Device Number assigned by Bus
+=======
+ * @debugfs: Slave debugfs
+ * @node: node for bus list
+ * @port_ready: Port ready completion flag for each Slave port
+ * @m_port_map: static Master port map for each Slave port
+ * @dev_num: Current Device Number, values can be 0 or dev_num_sticky
+ * @dev_num_sticky: one-time static Device Number assigned by Bus
+ * @probed: boolean tracking driver state
+ * @probe_complete: completion utility to control potential races
+ * on startup between driver probe/initialization and SoundWire
+ * Slave state changes/implementation-defined interrupts
+ * @enumeration_complete: completion utility to control potential races
+ * on startup between device enumeration and read/write access to the
+ * Slave device
+ * @initialization_complete: completion utility to control potential races
+ * on startup between device enumeration and settings being restored
+ * @unattach_request: mask field to keep track why the Slave re-attached and
+ * was re-initialized. This is useful to deal with potential race conditions
+ * between the Master suspending and the codec resuming, and make sure that
+ * when the Master triggered a reset the Slave is properly enumerated and
+ * initialized
+ * @first_interrupt_done: status flag tracking if the interrupt handling
+ * for a Slave happens for the first time after enumeration
+ * @is_mockup_device: status flag used to squelch errors in the command/control
+ * protocol for SoundWire mockup devices
+>>>>>>> upstream/android-13
  */
 struct sdw_slave {
 	struct sdw_slave_id id;
@@ -499,13 +818,47 @@ struct sdw_slave {
 	struct sdw_bus *bus;
 	const struct sdw_slave_ops *ops;
 	struct sdw_slave_prop prop;
+<<<<<<< HEAD
 	struct list_head node;
 	struct completion *port_ready;
 	u16 dev_num;
+=======
+#ifdef CONFIG_DEBUG_FS
+	struct dentry *debugfs;
+#endif
+	struct list_head node;
+	struct completion port_ready[SDW_MAX_PORTS];
+	unsigned int m_port_map[SDW_MAX_PORTS];
+	u16 dev_num;
+	u16 dev_num_sticky;
+	bool probed;
+	struct completion probe_complete;
+	struct completion enumeration_complete;
+	struct completion initialization_complete;
+	u32 unattach_request;
+	bool first_interrupt_done;
+	bool is_mockup_device;
+>>>>>>> upstream/android-13
 };
 
 #define dev_to_sdw_dev(_dev) container_of(_dev, struct sdw_slave, dev)
 
+<<<<<<< HEAD
+=======
+/**
+ * struct sdw_master_device - SoundWire 'Master Device' representation
+ * @dev: Linux device for this Master
+ * @bus: Bus handle shortcut
+ */
+struct sdw_master_device {
+	struct device dev;
+	struct sdw_bus *bus;
+};
+
+#define dev_to_sdw_master_device(d)	\
+	container_of(d, struct sdw_master_device, dev)
+
+>>>>>>> upstream/android-13
 struct sdw_driver {
 	const char *name;
 
@@ -520,10 +873,21 @@ struct sdw_driver {
 	struct device_driver driver;
 };
 
+<<<<<<< HEAD
 #define SDW_SLAVE_ENTRY(_mfg_id, _part_id, _drv_data) \
 	{ .mfg_id = (_mfg_id), .part_id = (_part_id), \
 	  .driver_data = (unsigned long)(_drv_data) }
 
+=======
+#define SDW_SLAVE_ENTRY_EXT(_mfg_id, _part_id, _version, _c_id, _drv_data) \
+	{ .mfg_id = (_mfg_id), .part_id = (_part_id),		\
+	  .sdw_version = (_version), .class_id = (_c_id),	\
+	  .driver_data = (unsigned long)(_drv_data) }
+
+#define SDW_SLAVE_ENTRY(_mfg_id, _part_id, _drv_data)	\
+	SDW_SLAVE_ENTRY_EXT((_mfg_id), (_part_id), 0, 0, (_drv_data))
+
+>>>>>>> upstream/android-13
 int sdw_handle_slave_status(struct sdw_bus *bus,
 			enum sdw_slave_status status[]);
 
@@ -635,6 +999,10 @@ struct sdw_defer {
 /**
  * struct sdw_master_ops - Master driver ops
  * @read_prop: Read Master properties
+<<<<<<< HEAD
+=======
+ * @override_adr: Override value read from firmware (quirk for buggy firmware)
+>>>>>>> upstream/android-13
  * @xfer_msg: Transfer message callback
  * @xfer_msg_defer: Defer version of transfer message callback
  * @reset_page_addr: Reset the SCP page address registers
@@ -644,7 +1012,12 @@ struct sdw_defer {
  */
 struct sdw_master_ops {
 	int (*read_prop)(struct sdw_bus *bus);
+<<<<<<< HEAD
 
+=======
+	u64 (*override_adr)
+			(struct sdw_bus *bus, u64 addr);
+>>>>>>> upstream/android-13
 	enum sdw_command_response (*xfer_msg)
 			(struct sdw_bus *bus, struct sdw_msg *msg);
 	enum sdw_command_response (*xfer_msg_defer)
@@ -661,13 +1034,24 @@ struct sdw_master_ops {
 
 /**
  * struct sdw_bus - SoundWire bus
+<<<<<<< HEAD
  * @dev: Master linux device
  * @link_id: Link id number, can be 0 to N, unique for each Master
+=======
+ * @dev: Shortcut to &bus->md->dev to avoid changing the entire code.
+ * @md: Master device
+ * @link_id: Link id number, can be 0 to N, unique for each Master
+ * @id: bus system-wide unique id
+>>>>>>> upstream/android-13
  * @slaves: list of Slaves on this bus
  * @assigned: Bitmap for Slave device numbers.
  * Bit set implies used number, bit clear implies unused number.
  * @bus_lock: bus lock
  * @msg_lock: message lock
+<<<<<<< HEAD
+=======
+ * @compute_params: points to Bus resource management implementation
+>>>>>>> upstream/android-13
  * @ops: Master callback ops
  * @port_ops: Master port callback ops
  * @params: Current bus parameters
@@ -675,6 +1059,7 @@ struct sdw_master_ops {
  * @m_rt_list: List of Master instance of all stream(s) running on Bus. This
  * is used to compute and program bus bandwidth, clock, frame shape,
  * transport and port parameters
+<<<<<<< HEAD
  * @defer_msg: Defer message
  * @clk_stop_timeout: Clock stop timeout computed
  * @bank_switch_timeout: Bank switch timeout computed
@@ -682,15 +1067,40 @@ struct sdw_master_ops {
 struct sdw_bus {
 	struct device *dev;
 	unsigned int link_id;
+=======
+ * @debugfs: Bus debugfs
+ * @defer_msg: Defer message
+ * @clk_stop_timeout: Clock stop timeout computed
+ * @bank_switch_timeout: Bank switch timeout computed
+ * @multi_link: Store bus property that indicates if multi links
+ * are supported. This flag is populated by drivers after reading
+ * appropriate firmware (ACPI/DT).
+ * @hw_sync_min_links: Number of links used by a stream above which
+ * hardware-based synchronization is required. This value is only
+ * meaningful if multi_link is set. If set to 1, hardware-based
+ * synchronization will be used even if a stream only uses a single
+ * SoundWire segment.
+ */
+struct sdw_bus {
+	struct device *dev;
+	struct sdw_master_device *md;
+	unsigned int link_id;
+	int id;
+>>>>>>> upstream/android-13
 	struct list_head slaves;
 	DECLARE_BITMAP(assigned, SDW_MAX_DEVICES);
 	struct mutex bus_lock;
 	struct mutex msg_lock;
+<<<<<<< HEAD
+=======
+	int (*compute_params)(struct sdw_bus *bus);
+>>>>>>> upstream/android-13
 	const struct sdw_master_ops *ops;
 	const struct sdw_master_port_ops *port_ops;
 	struct sdw_bus_params params;
 	struct sdw_master_prop prop;
 	struct list_head m_rt_list;
+<<<<<<< HEAD
 	struct sdw_defer defer_msg;
 	unsigned int clk_stop_timeout;
 	u32 bank_switch_timeout;
@@ -698,6 +1108,21 @@ struct sdw_bus {
 
 int sdw_add_bus_master(struct sdw_bus *bus);
 void sdw_delete_bus_master(struct sdw_bus *bus);
+=======
+#ifdef CONFIG_DEBUG_FS
+	struct dentry *debugfs;
+#endif
+	struct sdw_defer defer_msg;
+	unsigned int clk_stop_timeout;
+	u32 bank_switch_timeout;
+	bool multi_link;
+	int hw_sync_min_links;
+};
+
+int sdw_bus_master_add(struct sdw_bus *bus, struct device *parent,
+		       struct fwnode_handle *fwnode);
+void sdw_bus_master_delete(struct sdw_bus *bus);
+>>>>>>> upstream/android-13
 
 /**
  * sdw_port_config: Master or Slave Port configuration
@@ -768,6 +1193,7 @@ struct sdw_stream_params {
  * @params: Stream parameters
  * @state: Current state of the stream
  * @type: Stream type PCM or PDM
+<<<<<<< HEAD
  * @m_rt: Master runtime
  */
 struct sdw_stream_runtime {
@@ -780,6 +1206,27 @@ struct sdw_stream_runtime {
 
 struct sdw_stream_runtime *sdw_alloc_stream(char *stream_name);
 void sdw_release_stream(struct sdw_stream_runtime *stream);
+=======
+ * @master_list: List of Master runtime(s) in this stream.
+ * master_list can contain only one m_rt per Master instance
+ * for a stream
+ * @m_rt_count: Count of Master runtime(s) in this stream
+ */
+struct sdw_stream_runtime {
+	const char *name;
+	struct sdw_stream_params params;
+	enum sdw_stream_state state;
+	enum sdw_stream_type type;
+	struct list_head master_list;
+	int m_rt_count;
+};
+
+struct sdw_stream_runtime *sdw_alloc_stream(const char *stream_name);
+void sdw_release_stream(struct sdw_stream_runtime *stream);
+
+int sdw_compute_params(struct sdw_bus *bus);
+
+>>>>>>> upstream/android-13
 int sdw_stream_add_master(struct sdw_bus *bus,
 		struct sdw_stream_config *stream_config,
 		struct sdw_port_config *port_config,
@@ -794,16 +1241,39 @@ int sdw_stream_remove_master(struct sdw_bus *bus,
 		struct sdw_stream_runtime *stream);
 int sdw_stream_remove_slave(struct sdw_slave *slave,
 		struct sdw_stream_runtime *stream);
+<<<<<<< HEAD
+=======
+int sdw_startup_stream(void *sdw_substream);
+>>>>>>> upstream/android-13
 int sdw_prepare_stream(struct sdw_stream_runtime *stream);
 int sdw_enable_stream(struct sdw_stream_runtime *stream);
 int sdw_disable_stream(struct sdw_stream_runtime *stream);
 int sdw_deprepare_stream(struct sdw_stream_runtime *stream);
+<<<<<<< HEAD
+=======
+void sdw_shutdown_stream(void *sdw_substream);
+int sdw_bus_prep_clk_stop(struct sdw_bus *bus);
+int sdw_bus_clk_stop(struct sdw_bus *bus);
+int sdw_bus_exit_clk_stop(struct sdw_bus *bus);
+>>>>>>> upstream/android-13
 
 /* messaging and data APIs */
 
 int sdw_read(struct sdw_slave *slave, u32 addr);
 int sdw_write(struct sdw_slave *slave, u32 addr, u8 value);
+<<<<<<< HEAD
 int sdw_nread(struct sdw_slave *slave, u32 addr, size_t count, u8 *val);
 int sdw_nwrite(struct sdw_slave *slave, u32 addr, size_t count, u8 *val);
+=======
+int sdw_write_no_pm(struct sdw_slave *slave, u32 addr, u8 value);
+int sdw_read_no_pm(struct sdw_slave *slave, u32 addr);
+int sdw_nread(struct sdw_slave *slave, u32 addr, size_t count, u8 *val);
+int sdw_nwrite(struct sdw_slave *slave, u32 addr, size_t count, const u8 *val);
+int sdw_update(struct sdw_slave *slave, u32 addr, u8 mask, u8 val);
+int sdw_update_no_pm(struct sdw_slave *slave, u32 addr, u8 mask, u8 val);
+
+int sdw_compare_devid(struct sdw_slave *slave, struct sdw_slave_id id);
+void sdw_extract_slave_id(struct sdw_bus *bus, u64 addr, struct sdw_slave_id *id);
+>>>>>>> upstream/android-13
 
 #endif /* __SOUNDWIRE_H */

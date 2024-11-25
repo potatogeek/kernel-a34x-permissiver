@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Fault injection for both 32 and 64bit guests.
  *
@@ -7,6 +11,7 @@
  * Based on arch/arm/kvm/emulate.c
  * Copyright (C) 2012 - Virtual Open Systems and Columbia University
  * Author: Christoffer Dall <c.dall@virtualopensystems.com>
+<<<<<<< HEAD
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -19,12 +24,15 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kvm_host.h>
 #include <asm/kvm_emulate.h>
 #include <asm/esr.h>
 
+<<<<<<< HEAD
 #define CURRENT_EL_SP_EL0_VECTOR	0x0
 #define CURRENT_EL_SP_ELx_VECTOR	0x200
 #define LOWER_EL_AArch64_VECTOR		0x400
@@ -121,17 +129,25 @@ static unsigned long get_except64_pstate(struct kvm_vcpu *vcpu)
 	return new;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void inject_abt64(struct kvm_vcpu *vcpu, bool is_iabt, unsigned long addr)
 {
 	unsigned long cpsr = *vcpu_cpsr(vcpu);
 	bool is_aarch32 = vcpu_mode_is_32bit(vcpu);
 	u32 esr = 0;
 
+<<<<<<< HEAD
 	vcpu_write_elr_el1(vcpu, *vcpu_pc(vcpu));
 	*vcpu_pc(vcpu) = get_except_vector(vcpu, except_type_sync);
 
 	*vcpu_cpsr(vcpu) = get_except64_pstate(vcpu);
 	vcpu_write_spsr(vcpu, cpsr);
+=======
+	vcpu->arch.flags |= (KVM_ARM64_EXCEPT_AA64_EL1		|
+			     KVM_ARM64_EXCEPT_AA64_ELx_SYNC	|
+			     KVM_ARM64_PENDING_EXCEPTION);
+>>>>>>> upstream/android-13
 
 	vcpu_write_sys_reg(vcpu, addr, FAR_EL1);
 
@@ -159,6 +175,7 @@ static void inject_abt64(struct kvm_vcpu *vcpu, bool is_iabt, unsigned long addr
 
 static void inject_undef64(struct kvm_vcpu *vcpu)
 {
+<<<<<<< HEAD
 	unsigned long cpsr = *vcpu_cpsr(vcpu);
 	u32 esr = (ESR_ELx_EC_UNKNOWN << ESR_ELx_EC_SHIFT);
 
@@ -167,6 +184,13 @@ static void inject_undef64(struct kvm_vcpu *vcpu)
 
 	*vcpu_cpsr(vcpu) = get_except64_pstate(vcpu);
 	vcpu_write_spsr(vcpu, cpsr);
+=======
+	u32 esr = (ESR_ELx_EC_UNKNOWN << ESR_ELx_EC_SHIFT);
+
+	vcpu->arch.flags |= (KVM_ARM64_EXCEPT_AA64_EL1		|
+			     KVM_ARM64_EXCEPT_AA64_ELx_SYNC	|
+			     KVM_ARM64_PENDING_EXCEPTION);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Build an unknown exception, depending on the instruction
@@ -178,9 +202,62 @@ static void inject_undef64(struct kvm_vcpu *vcpu)
 	vcpu_write_sys_reg(vcpu, esr, ESR_EL1);
 }
 
+<<<<<<< HEAD
 /**
  * kvm_inject_dabt - inject a data abort into the guest
  * @vcpu: The VCPU to receive the undefined exception
+=======
+#define DFSR_FSC_EXTABT_LPAE	0x10
+#define DFSR_FSC_EXTABT_nLPAE	0x08
+#define DFSR_LPAE		BIT(9)
+#define TTBCR_EAE		BIT(31)
+
+static void inject_undef32(struct kvm_vcpu *vcpu)
+{
+	vcpu->arch.flags |= (KVM_ARM64_EXCEPT_AA32_UND |
+			     KVM_ARM64_PENDING_EXCEPTION);
+}
+
+/*
+ * Modelled after TakeDataAbortException() and TakePrefetchAbortException
+ * pseudocode.
+ */
+static void inject_abt32(struct kvm_vcpu *vcpu, bool is_pabt, u32 addr)
+{
+	u64 far;
+	u32 fsr;
+
+	/* Give the guest an IMPLEMENTATION DEFINED exception */
+	if (vcpu_read_sys_reg(vcpu, TCR_EL1) & TTBCR_EAE) {
+		fsr = DFSR_LPAE | DFSR_FSC_EXTABT_LPAE;
+	} else {
+		/* no need to shuffle FS[4] into DFSR[10] as its 0 */
+		fsr = DFSR_FSC_EXTABT_nLPAE;
+	}
+
+	far = vcpu_read_sys_reg(vcpu, FAR_EL1);
+
+	if (is_pabt) {
+		vcpu->arch.flags |= (KVM_ARM64_EXCEPT_AA32_IABT |
+				     KVM_ARM64_PENDING_EXCEPTION);
+		far &= GENMASK(31, 0);
+		far |= (u64)addr << 32;
+		vcpu_write_sys_reg(vcpu, fsr, IFSR32_EL2);
+	} else { /* !iabt */
+		vcpu->arch.flags |= (KVM_ARM64_EXCEPT_AA32_DABT |
+				     KVM_ARM64_PENDING_EXCEPTION);
+		far &= GENMASK(63, 32);
+		far |= addr;
+		vcpu_write_sys_reg(vcpu, fsr, ESR_EL1);
+	}
+
+	vcpu_write_sys_reg(vcpu, far, FAR_EL1);
+}
+
+/**
+ * kvm_inject_dabt - inject a data abort into the guest
+ * @vcpu: The VCPU to receive the data abort
+>>>>>>> upstream/android-13
  * @addr: The address to report in the DFAR
  *
  * It is assumed that this code is called from the VCPU thread and that the
@@ -189,14 +266,22 @@ static void inject_undef64(struct kvm_vcpu *vcpu)
 void kvm_inject_dabt(struct kvm_vcpu *vcpu, unsigned long addr)
 {
 	if (vcpu_el1_is_32bit(vcpu))
+<<<<<<< HEAD
 		kvm_inject_dabt32(vcpu, addr);
+=======
+		inject_abt32(vcpu, false, addr);
+>>>>>>> upstream/android-13
 	else
 		inject_abt64(vcpu, false, addr);
 }
 
 /**
  * kvm_inject_pabt - inject a prefetch abort into the guest
+<<<<<<< HEAD
  * @vcpu: The VCPU to receive the undefined exception
+=======
+ * @vcpu: The VCPU to receive the prefetch abort
+>>>>>>> upstream/android-13
  * @addr: The address to report in the DFAR
  *
  * It is assumed that this code is called from the VCPU thread and that the
@@ -205,13 +290,21 @@ void kvm_inject_dabt(struct kvm_vcpu *vcpu, unsigned long addr)
 void kvm_inject_pabt(struct kvm_vcpu *vcpu, unsigned long addr)
 {
 	if (vcpu_el1_is_32bit(vcpu))
+<<<<<<< HEAD
 		kvm_inject_pabt32(vcpu, addr);
+=======
+		inject_abt32(vcpu, true, addr);
+>>>>>>> upstream/android-13
 	else
 		inject_abt64(vcpu, true, addr);
 }
 
 /**
  * kvm_inject_undefined - inject an undefined instruction into the guest
+<<<<<<< HEAD
+=======
+ * @vcpu: The vCPU in which to inject the exception
+>>>>>>> upstream/android-13
  *
  * It is assumed that this code is called from the VCPU thread and that the
  * VCPU therefore is not currently executing guest code.
@@ -219,7 +312,11 @@ void kvm_inject_pabt(struct kvm_vcpu *vcpu, unsigned long addr)
 void kvm_inject_undefined(struct kvm_vcpu *vcpu)
 {
 	if (vcpu_el1_is_32bit(vcpu))
+<<<<<<< HEAD
 		kvm_inject_undef32(vcpu);
+=======
+		inject_undef32(vcpu);
+>>>>>>> upstream/android-13
 	else
 		inject_undef64(vcpu);
 }

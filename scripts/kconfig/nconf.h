@@ -1,9 +1,17 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2008 Nir Tzachar <nir.tzachar@gmail.com?
  * Released under the terms of the GNU GPL v2.0.
  *
  * Derived from menuconfig.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * Copyright (C) 2008 Nir Tzachar <nir.tzachar@gmail.com>
+ *
+ * Derived from menuconfig.
+>>>>>>> upstream/android-13
  */
 
 #include <ctype.h>
@@ -33,6 +41,7 @@
 		typeof(b) _b = b;\
 		_a < _b ? _a : _b; })
 
+<<<<<<< HEAD
 typedef enum {
 	NORMAL = 1,
 	MAIN_HEADING,
@@ -57,6 +66,28 @@ typedef enum {
 	ATTR_MAX
 } attributes_t;
 extern attributes_t attributes[];
+=======
+extern int attr_normal;
+extern int attr_main_heading;
+extern int attr_main_menu_box;
+extern int attr_main_menu_fore;
+extern int attr_main_menu_back;
+extern int attr_main_menu_grey;
+extern int attr_main_menu_heading;
+extern int attr_scrollwin_text;
+extern int attr_scrollwin_heading;
+extern int attr_scrollwin_box;
+extern int attr_dialog_text;
+extern int attr_dialog_menu_fore;
+extern int attr_dialog_menu_back;
+extern int attr_dialog_box;
+extern int attr_input_box;
+extern int attr_input_heading;
+extern int attr_input_text;
+extern int attr_input_field;
+extern int attr_function_text;
+extern int attr_function_highlight;
+>>>>>>> upstream/android-13
 
 typedef enum {
 	F_HELP = 1,
@@ -73,12 +104,16 @@ typedef enum {
 void set_colors(void);
 
 /* this changes the windows attributes !!! */
+<<<<<<< HEAD
 void print_in_middle(WINDOW *win,
 		int starty,
 		int startx,
 		int width,
 		const char *string,
 		chtype color);
+=======
+void print_in_middle(WINDOW *win, int y, int width, const char *str, int attrs);
+>>>>>>> upstream/android-13
 int get_line_length(const char *line);
 int get_line_no(const char *text);
 const char *get_line(const char *text, int line_no);

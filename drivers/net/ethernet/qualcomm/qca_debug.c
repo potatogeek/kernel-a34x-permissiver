@@ -60,6 +60,12 @@ static const char qcaspi_gstrings_stats[][ETH_GSTRING_LEN] = {
 	"Write buffer misses",
 	"Transmit ring full",
 	"SPI errors",
+<<<<<<< HEAD
+=======
+	"Write verify errors",
+	"Buffer available errors",
+	"Bad signature",
+>>>>>>> upstream/android-13
 };
 
 #ifdef CONFIG_DEBUG_FS
@@ -124,6 +130,7 @@ qcaspi_info_show(struct seq_file *s, void *what)
 
 	return 0;
 }
+<<<<<<< HEAD
 
 static int
 qcaspi_info_open(struct inode *inode, struct file *file)
@@ -137,10 +144,14 @@ static const struct file_operations qcaspi_info_ops = {
 	.llseek = seq_lseek,
 	.release = single_release,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(qcaspi_info);
+>>>>>>> upstream/android-13
 
 void
 qcaspi_init_device_debugfs(struct qcaspi *qca)
 {
+<<<<<<< HEAD
 	struct dentry *device_root;
 
 	device_root = debugfs_create_dir(dev_name(&qca->net_dev->dev), NULL);
@@ -153,6 +164,13 @@ qcaspi_init_device_debugfs(struct qcaspi *qca)
 	}
 	debugfs_create_file("info", S_IFREG | 0444, device_root, qca,
 			    &qcaspi_info_ops);
+=======
+	qca->device_root = debugfs_create_dir(dev_name(&qca->net_dev->dev),
+					      NULL);
+
+	debugfs_create_file("info", S_IFREG | 0444, qca->device_root, qca,
+			    &qcaspi_info_fops);
+>>>>>>> upstream/android-13
 }
 
 void

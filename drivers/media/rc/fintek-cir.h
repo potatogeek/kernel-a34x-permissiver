@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Driver for Feature Integration Technology Inc. (aka Fintek) LPC CIR
  *
@@ -6,6 +10,7 @@
  * Special thanks to Fintek for providing hardware and spec sheets.
  * This driver is based upon the nuvoton, ite and ene drivers for
  * similar hardware.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,6 +21,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/spinlock.h>
@@ -176,7 +183,11 @@ struct fintek_dev {
 #define CIR_CR_IRCS		0x05 /* Before host writes command to IR, host
 					must set to 1. When host finshes write
 					command to IR, host must clear to 0. */
+<<<<<<< HEAD
 #define CIR_CR_COMMAND_DATA	0x06 /* Host read or write comand data */
+=======
+#define CIR_CR_COMMAND_DATA	0x06 /* Host read or write command data */
+>>>>>>> upstream/android-13
 #define CIR_CR_CLASS		0x07 /* 0xff = rx-only, 0x66 = rx + 2 tx,
 					0x33 = rx + 1 tx */
 #define CIR_CR_DEV_EN		0x30 /* bit0 = 1 enables CIR */

@@ -27,6 +27,11 @@
  * Pre-requisites: headers required by header of this unit
  */
 
+<<<<<<< HEAD
+=======
+#include <linux/slab.h>
+
+>>>>>>> upstream/android-13
 #include "dm_services.h"
 
 #include "include/gpio_interface.h"
@@ -61,6 +66,7 @@ enum gpio_result dal_gpio_open_ex(
 	enum gpio_mode mode)
 {
 	if (gpio->pin) {
+<<<<<<< HEAD
 		ASSERT_CRITICAL(false);
 		return GPIO_RESULT_ALREADY_OPENED;
 	}
@@ -69,6 +75,20 @@ enum gpio_result dal_gpio_open_ex(
 
 	return dal_gpio_service_open(
 		gpio->service, gpio->id, gpio->en, mode, &gpio->pin);
+=======
+		BREAK_TO_DEBUGGER();
+		return GPIO_RESULT_ALREADY_OPENED;
+	}
+
+	// No action if allocation failed during gpio construct
+	if (!gpio->hw_container.ddc) {
+		BREAK_TO_DEBUGGER();
+		return GPIO_RESULT_NON_SPECIFIC_ERROR;
+	}
+	gpio->mode = mode;
+
+	return dal_gpio_service_open(gpio);
+>>>>>>> upstream/android-13
 }
 
 enum gpio_result dal_gpio_get_value(
@@ -101,6 +121,21 @@ enum gpio_mode dal_gpio_get_mode(
 	return gpio->mode;
 }
 
+<<<<<<< HEAD
+=======
+enum gpio_result dal_gpio_lock_pin(
+	struct gpio *gpio)
+{
+	return dal_gpio_service_lock(gpio->service, gpio->id, gpio->en);
+}
+
+enum gpio_result dal_gpio_unlock_pin(
+	struct gpio *gpio)
+{
+	return dal_gpio_service_unlock(gpio->service, gpio->id, gpio->en);
+}
+
+>>>>>>> upstream/android-13
 enum gpio_result dal_gpio_change_mode(
 	struct gpio *gpio,
 	enum gpio_mode mode)
@@ -217,6 +252,24 @@ enum gpio_pin_output_state dal_gpio_get_output_state(
 	return gpio->output_state;
 }
 
+<<<<<<< HEAD
+=======
+struct hw_ddc *dal_gpio_get_ddc(struct gpio *gpio)
+{
+	return gpio->hw_container.ddc;
+}
+
+struct hw_hpd *dal_gpio_get_hpd(struct gpio *gpio)
+{
+	return gpio->hw_container.hpd;
+}
+
+struct hw_generic *dal_gpio_get_generic(struct gpio *gpio)
+{
+	return gpio->hw_container.generic;
+}
+
+>>>>>>> upstream/android-13
 void dal_gpio_close(
 	struct gpio *gpio)
 {
@@ -253,6 +306,33 @@ struct gpio *dal_gpio_create(
 	gpio->mode = GPIO_MODE_UNKNOWN;
 	gpio->output_state = output_state;
 
+<<<<<<< HEAD
+=======
+	//initialize hw_container union based on id
+	switch (gpio->id) {
+	case GPIO_ID_DDC_DATA:
+		gpio->service->factory.funcs->init_ddc_data(&gpio->hw_container.ddc, service->ctx, id, en);
+		break;
+	case GPIO_ID_DDC_CLOCK:
+		gpio->service->factory.funcs->init_ddc_data(&gpio->hw_container.ddc, service->ctx, id, en);
+		break;
+	case GPIO_ID_GENERIC:
+		gpio->service->factory.funcs->init_generic(&gpio->hw_container.generic, service->ctx, id, en);
+		break;
+	case GPIO_ID_HPD:
+		gpio->service->factory.funcs->init_hpd(&gpio->hw_container.hpd, service->ctx, id, en);
+		break;
+	// TODO: currently gpio for sync and gsl does not get created, might need it later
+	case GPIO_ID_SYNC:
+		break;
+	case GPIO_ID_GSL:
+		break;
+	default:
+		ASSERT_CRITICAL(false);
+		gpio->pin = NULL;
+	}
+
+>>>>>>> upstream/android-13
 	return gpio;
 }
 
@@ -264,7 +344,36 @@ void dal_gpio_destroy(
 		return;
 	}
 
+<<<<<<< HEAD
 	dal_gpio_close(*gpio);
+=======
+	switch ((*gpio)->id) {
+	case GPIO_ID_DDC_DATA:
+		kfree((*gpio)->hw_container.ddc);
+		(*gpio)->hw_container.ddc = NULL;
+		break;
+	case GPIO_ID_DDC_CLOCK:
+		//TODO: might want to change it to init_ddc_clock
+		kfree((*gpio)->hw_container.ddc);
+		(*gpio)->hw_container.ddc = NULL;
+		break;
+	case GPIO_ID_GENERIC:
+		kfree((*gpio)->hw_container.generic);
+		(*gpio)->hw_container.generic = NULL;
+		break;
+	case GPIO_ID_HPD:
+		kfree((*gpio)->hw_container.hpd);
+		(*gpio)->hw_container.hpd = NULL;
+		break;
+	// TODO: currently gpio for sync and gsl does not get created, might need it later
+	case GPIO_ID_SYNC:
+		break;
+	case GPIO_ID_GSL:
+		break;
+	default:
+		break;
+	}
+>>>>>>> upstream/android-13
 
 	kfree(*gpio);
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (c) 2014 Broadcom Corporation
  *
  * Permission to use, copy, modify, and/or distribute this software for any
@@ -11,6 +12,11 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2014 Broadcom Corporation
+>>>>>>> upstream/android-13
  */
 
 
@@ -36,10 +42,17 @@
 #define BRCMF_FLOWRING_HASH_STA(fifo, ifidx) (fifo + ifidx * 16)
 
 static const u8 brcmf_flowring_prio2fifo[] = {
+<<<<<<< HEAD
 	1,
 	0,
 	0,
 	1,
+=======
+	0,
+	1,
+	1,
+	0,
+>>>>>>> upstream/android-13
 	2,
 	2,
 	3,

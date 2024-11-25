@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * timberdale.c timberdale FPGA MFD driver
  * Copyright (c) 2009 Intel Corporation
@@ -14,6 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * timberdale.c timberdale FPGA MFD driver
+ * Copyright (c) 2009 Intel Corporation
+>>>>>>> upstream/android-13
  */
 
 /* Supports:
@@ -635,17 +642,28 @@ static const struct mfd_cell timberdale_cells_bar2[] = {
 	},
 };
 
+<<<<<<< HEAD
 static ssize_t show_fw_ver(struct device *dev, struct device_attribute *attr,
 	char *buf)
 {
 	struct pci_dev *pdev = to_pci_dev(dev);
 	struct timberdale_device *priv = pci_get_drvdata(pdev);
+=======
+static ssize_t fw_ver_show(struct device *dev,
+			   struct device_attribute *attr, char *buf)
+{
+	struct timberdale_device *priv = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 
 	return sprintf(buf, "%d.%d.%d\n", priv->fw.major, priv->fw.minor,
 		priv->fw.config);
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(fw_ver, S_IRUGO, show_fw_ver, NULL);
+=======
+static DEVICE_ATTR_RO(fw_ver);
+>>>>>>> upstream/android-13
 
 /*--------------------------------------------------------------------------*/
 

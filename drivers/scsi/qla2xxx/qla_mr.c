@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 /*
  * QLogic Fibre Channel HBA Driver
  * Copyright (c)  2003-2014 QLogic Corporation
  *
  * See LICENSE.qla2xxx for copyright and licensing details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * QLogic Fibre Channel HBA Driver
+ * Copyright (c)  2003-2014 QLogic Corporation
+>>>>>>> upstream/android-13
  */
 #include "qla_def.h"
 #include <linux/delay.h>
@@ -10,7 +17,10 @@
 #include <linux/pci.h>
 #include <linux/ratelimit.h>
 #include <linux/vmalloc.h>
+<<<<<<< HEAD
 #include <linux/bsg-lib.h>
+=======
+>>>>>>> upstream/android-13
 #include <scsi/scsi_tcq.h>
 #include <linux/utsname.h>
 
@@ -47,17 +57,27 @@ qlafx00_mailbox_command(scsi_qla_host_t *vha, struct mbx_cmd_32 *mcp)
 	uint8_t		io_lock_on;
 	uint16_t	command = 0;
 	uint32_t	*iptr;
+<<<<<<< HEAD
 	uint32_t __iomem *optr;
+=======
+	__le32 __iomem *optr;
+>>>>>>> upstream/android-13
 	uint32_t	cnt;
 	uint32_t	mboxes;
 	unsigned long	wait_time;
 	struct qla_hw_data *ha = vha->hw;
 	scsi_qla_host_t *base_vha = pci_get_drvdata(ha->pdev);
 
+<<<<<<< HEAD
 	if (ha->pdev->error_state > pci_channel_io_frozen) {
 		ql_log(ql_log_warn, vha, 0x115c,
 		    "error_state is greater than pci_channel_io_frozen, "
 		    "exiting.\n");
+=======
+	if (ha->pdev->error_state == pci_channel_io_perm_failure) {
+		ql_log(ql_log_warn, vha, 0x115c,
+		    "PCI channel failed permanently, exiting.\n");
+>>>>>>> upstream/android-13
 		return QLA_FUNCTION_TIMEOUT;
 	}
 
@@ -111,7 +131,11 @@ qlafx00_mailbox_command(scsi_qla_host_t *vha, struct mbx_cmd_32 *mcp)
 	spin_lock_irqsave(&ha->hardware_lock, flags);
 
 	/* Load mailbox registers. */
+<<<<<<< HEAD
 	optr = (uint32_t __iomem *)&reg->ispfx00.mailbox0;
+=======
+	optr = &reg->ispfx00.mailbox0;
+>>>>>>> upstream/android-13
 
 	iptr = mcp->mb;
 	command = mcp->mb[0];
@@ -119,7 +143,11 @@ qlafx00_mailbox_command(scsi_qla_host_t *vha, struct mbx_cmd_32 *mcp)
 
 	for (cnt = 0; cnt < ha->mbx_count; cnt++) {
 		if (mboxes & BIT_0)
+<<<<<<< HEAD
 			WRT_REG_DWORD(optr, *iptr);
+=======
+			wrt_reg_dword(optr, *iptr);
+>>>>>>> upstream/android-13
 
 		mboxes >>= 1;
 		optr++;
@@ -149,7 +177,12 @@ qlafx00_mailbox_command(scsi_qla_host_t *vha, struct mbx_cmd_32 *mcp)
 		QLAFX00_SET_HST_INTR(ha, ha->mbx_intr_code);
 		spin_unlock_irqrestore(&ha->hardware_lock, flags);
 
+<<<<<<< HEAD
 		wait_for_completion_timeout(&ha->mbx_intr_comp, mcp->tov * HZ);
+=======
+		WARN_ON_ONCE(wait_for_completion_timeout(&ha->mbx_intr_comp,
+							 mcp->tov * HZ) != 0);
+>>>>>>> upstream/android-13
 	} else {
 		ql_dbg(ql_dbg_mbx, vha, 0x112c,
 		    "Cmd=%x Polling Mode.\n", command);
@@ -273,9 +306,15 @@ premature_exit:
 
 	if (rval) {
 		ql_log(ql_log_warn, base_vha, 0x1163,
+<<<<<<< HEAD
 		    "**** Failed mbx[0]=%x, mb[1]=%x, mb[2]=%x, "
 		    "mb[3]=%x, cmd=%x ****.\n",
 		    mcp->mb[0], mcp->mb[1], mcp->mb[2], mcp->mb[3], command);
+=======
+		       "**** Failed=%x mbx[0]=%x, mb[1]=%x, mb[2]=%x, mb[3]=%x, cmd=%x ****.\n",
+		       rval, mcp->mb[0], mcp->mb[1], mcp->mb[2], mcp->mb[3],
+		       command);
+>>>>>>> upstream/android-13
 	} else {
 		ql_dbg(ql_dbg_mbx, base_vha, 0x1164, "Done %s.\n", __func__);
 	}
@@ -518,7 +557,11 @@ qlafx00_pci_config(scsi_qla_host_t *vha)
 }
 
 /**
+<<<<<<< HEAD
  * qlafx00_warm_reset() - Perform warm reset of iSA(CPUs being reset on SOC).
+=======
+ * qlafx00_soc_cpu_reset() - Perform warm reset of iSA(CPUs being reset on SOC).
+>>>>>>> upstream/android-13
  * @vha: HA context
  *
  */
@@ -629,6 +672,7 @@ qlafx00_soc_cpu_reset(scsi_qla_host_t *vha)
  *
  * Returns 0 on success.
  */
+<<<<<<< HEAD
 void
 qlafx00_soft_reset(scsi_qla_host_t *vha)
 {
@@ -640,6 +684,22 @@ qlafx00_soft_reset(scsi_qla_host_t *vha)
 
 	ha->isp_ops->disable_intrs(ha);
 	qlafx00_soc_cpu_reset(vha);
+=======
+int
+qlafx00_soft_reset(scsi_qla_host_t *vha)
+{
+	struct qla_hw_data *ha = vha->hw;
+	int rval = QLA_FUNCTION_FAILED;
+
+	if (unlikely(pci_channel_offline(ha->pdev) &&
+	    ha->flags.pci_channel_io_perm_failure))
+		return rval;
+
+	ha->isp_ops->disable_intrs(ha);
+	qlafx00_soc_cpu_reset(vha);
+
+	return QLA_SUCCESS;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -674,6 +734,7 @@ qlafx00_config_rings(struct scsi_qla_host *vha)
 	struct qla_hw_data *ha = vha->hw;
 	struct device_reg_fx00 __iomem *reg = &ha->iobase->ispfx00;
 
+<<<<<<< HEAD
 	WRT_REG_DWORD(&reg->req_q_in, 0);
 	WRT_REG_DWORD(&reg->req_q_out, 0);
 
@@ -693,6 +754,25 @@ qlafx00_pci_info_str(struct scsi_qla_host *vha, char *str)
 		strcpy(str, "PCIe iSA");
 		return str;
 	}
+=======
+	wrt_reg_dword(&reg->req_q_in, 0);
+	wrt_reg_dword(&reg->req_q_out, 0);
+
+	wrt_reg_dword(&reg->rsp_q_in, 0);
+	wrt_reg_dword(&reg->rsp_q_out, 0);
+
+	/* PCI posting */
+	rd_reg_dword(&reg->rsp_q_out);
+}
+
+char *
+qlafx00_pci_info_str(struct scsi_qla_host *vha, char *str, size_t str_len)
+{
+	struct qla_hw_data *ha = vha->hw;
+
+	if (pci_is_pcie(ha->pdev))
+		strlcpy(str, "PCIe iSA", str_len);
+>>>>>>> upstream/android-13
 	return str;
 }
 
@@ -740,6 +820,7 @@ qlafx00_lun_reset(fc_port_t *fcport, uint64_t l, int tag)
 }
 
 int
+<<<<<<< HEAD
 qlafx00_loop_reset(scsi_qla_host_t *vha)
 {
 	int ret;
@@ -763,6 +844,8 @@ qlafx00_loop_reset(scsi_qla_host_t *vha)
 }
 
 int
+=======
+>>>>>>> upstream/android-13
 qlafx00_iospace_config(struct qla_hw_data *ha)
 {
 	if (pci_request_selected_regions(ha->pdev, ha->bars,
@@ -788,7 +871,11 @@ qlafx00_iospace_config(struct qla_hw_data *ha)
 	}
 
 	ha->cregbase =
+<<<<<<< HEAD
 	    ioremap_nocache(pci_resource_start(ha->pdev, 0), BAR0_LEN_FX00);
+=======
+	    ioremap(pci_resource_start(ha->pdev, 0), BAR0_LEN_FX00);
+>>>>>>> upstream/android-13
 	if (!ha->cregbase) {
 		ql_log_pci(ql_log_fatal, ha->pdev, 0x0128,
 		    "cannot remap MMIO (%s), aborting\n", pci_name(ha->pdev));
@@ -809,7 +896,11 @@ qlafx00_iospace_config(struct qla_hw_data *ha)
 	}
 
 	ha->iobase =
+<<<<<<< HEAD
 	    ioremap_nocache(pci_resource_start(ha->pdev, 2), BAR2_LEN_FX00);
+=======
+	    ioremap(pci_resource_start(ha->pdev, 2), BAR2_LEN_FX00);
+>>>>>>> upstream/android-13
 	if (!ha->iobase) {
 		ql_log_pci(ql_log_fatal, ha->pdev, 0x012b,
 		    "cannot remap MMIO (%s), aborting\n", pci_name(ha->pdev));
@@ -912,9 +1003,15 @@ qlafx00_init_fw_ready(scsi_qla_host_t *vha)
 	/* 30 seconds wait - Adjust if required */
 	wait_time = 30;
 
+<<<<<<< HEAD
 	pseudo_aen = RD_REG_DWORD(&reg->pseudoaen);
 	if (pseudo_aen == 1) {
 		aenmbx7 = RD_REG_DWORD(&reg->initval7);
+=======
+	pseudo_aen = rd_reg_dword(&reg->pseudoaen);
+	if (pseudo_aen == 1) {
+		aenmbx7 = rd_reg_dword(&reg->initval7);
+>>>>>>> upstream/android-13
 		ha->mbx_intr_code = MSW(aenmbx7);
 		ha->rqstq_intr_code = LSW(aenmbx7);
 		rval = qlafx00_driver_shutdown(vha, 10);
@@ -925,7 +1022,11 @@ qlafx00_init_fw_ready(scsi_qla_host_t *vha)
 	/* wait time before firmware ready */
 	wtime = jiffies + (wait_time * HZ);
 	do {
+<<<<<<< HEAD
 		aenmbx = RD_REG_DWORD(&reg->aenmailbox0);
+=======
+		aenmbx = rd_reg_dword(&reg->aenmailbox0);
+>>>>>>> upstream/android-13
 		barrier();
 		ql_dbg(ql_dbg_mbx, vha, 0x0133,
 		    "aenmbx: 0x%x\n", aenmbx);
@@ -944,6 +1045,7 @@ qlafx00_init_fw_ready(scsi_qla_host_t *vha)
 
 		case MBA_FW_RESTART_CMPLT:
 			/* Set the mbx and rqstq intr code */
+<<<<<<< HEAD
 			aenmbx7 = RD_REG_DWORD(&reg->aenmailbox7);
 			ha->mbx_intr_code = MSW(aenmbx7);
 			ha->rqstq_intr_code = LSW(aenmbx7);
@@ -953,6 +1055,17 @@ qlafx00_init_fw_ready(scsi_qla_host_t *vha)
 			ha->rsp_que_len = RD_REG_DWORD(&reg->aenmailbox6);
 			WRT_REG_DWORD(&reg->aenmailbox0, 0);
 			RD_REG_DWORD_RELAXED(&reg->aenmailbox0);
+=======
+			aenmbx7 = rd_reg_dword(&reg->aenmailbox7);
+			ha->mbx_intr_code = MSW(aenmbx7);
+			ha->rqstq_intr_code = LSW(aenmbx7);
+			ha->req_que_off = rd_reg_dword(&reg->aenmailbox1);
+			ha->rsp_que_off = rd_reg_dword(&reg->aenmailbox3);
+			ha->req_que_len = rd_reg_dword(&reg->aenmailbox5);
+			ha->rsp_que_len = rd_reg_dword(&reg->aenmailbox6);
+			wrt_reg_dword(&reg->aenmailbox0, 0);
+			rd_reg_dword_relaxed(&reg->aenmailbox0);
+>>>>>>> upstream/android-13
 			ql_dbg(ql_dbg_init, vha, 0x0134,
 			    "f/w returned mbx_intr_code: 0x%x, "
 			    "rqstq_intr_code: 0x%x\n",
@@ -982,6 +1095,7 @@ qlafx00_init_fw_ready(scsi_qla_host_t *vha)
 			 * 3. issue Get FW State Mbox cmd to determine fw state
 			 * Set the mbx and rqstq intr code from Shadow Regs
 			 */
+<<<<<<< HEAD
 			aenmbx7 = RD_REG_DWORD(&reg->initval7);
 			ha->mbx_intr_code = MSW(aenmbx7);
 			ha->rqstq_intr_code = LSW(aenmbx7);
@@ -989,6 +1103,15 @@ qlafx00_init_fw_ready(scsi_qla_host_t *vha)
 			ha->rsp_que_off = RD_REG_DWORD(&reg->initval3);
 			ha->req_que_len = RD_REG_DWORD(&reg->initval5);
 			ha->rsp_que_len = RD_REG_DWORD(&reg->initval6);
+=======
+			aenmbx7 = rd_reg_dword(&reg->initval7);
+			ha->mbx_intr_code = MSW(aenmbx7);
+			ha->rqstq_intr_code = LSW(aenmbx7);
+			ha->req_que_off = rd_reg_dword(&reg->initval1);
+			ha->rsp_que_off = rd_reg_dword(&reg->initval3);
+			ha->req_que_len = rd_reg_dword(&reg->initval5);
+			ha->rsp_que_len = rd_reg_dword(&reg->initval6);
+>>>>>>> upstream/android-13
 			ql_dbg(ql_dbg_init, vha, 0x0135,
 			    "f/w returned mbx_intr_code: 0x%x, "
 			    "rqstq_intr_code: 0x%x\n",
@@ -1034,7 +1157,11 @@ qlafx00_init_fw_ready(scsi_qla_host_t *vha)
 			if (time_after_eq(jiffies, wtime)) {
 				ql_dbg(ql_dbg_init, vha, 0x0137,
 				    "Init f/w failed: aen[7]: 0x%x\n",
+<<<<<<< HEAD
 				    RD_REG_DWORD(&reg->aenmailbox7));
+=======
+				    rd_reg_dword(&reg->aenmailbox7));
+>>>>>>> upstream/android-13
 				rval = QLA_FUNCTION_FAILED;
 				done = true;
 				break;
@@ -1138,8 +1265,13 @@ qlafx00_find_all_targets(scsi_qla_host_t *vha,
 
 	ql_dbg(ql_dbg_disc + ql_dbg_init, vha, 0x2088,
 	    "Listing Target bit map...\n");
+<<<<<<< HEAD
 	ql_dump_buffer(ql_dbg_disc + ql_dbg_init, vha,
 	    0x2089, (uint8_t *)ha->gid_list, 32);
+=======
+	ql_dump_buffer(ql_dbg_disc + ql_dbg_init, vha, 0x2089,
+	    ha->gid_list, 32);
+>>>>>>> upstream/android-13
 
 	/* Allocate temporary rmtport for any new rmtports discovered. */
 	new_fcport = qla2x00_alloc_fcport(vha, GFP_KERNEL);
@@ -1209,9 +1341,15 @@ qlafx00_find_all_targets(scsi_qla_host_t *vha,
 				    " Existing TGT-ID %x did not get "
 				    " offline event from firmware.\n",
 				    fcport->old_tgt_id);
+<<<<<<< HEAD
 				qla2x00_mark_device_lost(vha, fcport, 0, 0);
 				set_bit(LOOP_RESYNC_NEEDED, &vha->dpc_flags);
 				kfree(new_fcport);
+=======
+				qla2x00_mark_device_lost(vha, fcport, 0);
+				set_bit(LOOP_RESYNC_NEEDED, &vha->dpc_flags);
+				qla2x00_free_fcport(new_fcport);
+>>>>>>> upstream/android-13
 				return rval;
 			}
 			break;
@@ -1229,7 +1367,11 @@ qlafx00_find_all_targets(scsi_qla_host_t *vha,
 			return QLA_MEMORY_ALLOC_FAILED;
 	}
 
+<<<<<<< HEAD
 	kfree(new_fcport);
+=======
+	qla2x00_free_fcport(new_fcport);
+>>>>>>> upstream/android-13
 	return rval;
 }
 
@@ -1273,7 +1415,11 @@ qlafx00_configure_all_targets(scsi_qla_host_t *vha)
 
 		if (atomic_read(&fcport->state) == FCS_DEVICE_LOST) {
 			if (fcport->port_type != FCT_INITIATOR)
+<<<<<<< HEAD
 				qla2x00_mark_device_lost(vha, fcport, 0, 0);
+=======
+				qla2x00_mark_device_lost(vha, fcport, 0);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -1297,7 +1443,11 @@ qlafx00_configure_all_targets(scsi_qla_host_t *vha)
 	/* Free all new device structures not processed. */
 	list_for_each_entry_safe(fcport, rmptemp, &new_fcports, list) {
 		list_del(&fcport->list);
+<<<<<<< HEAD
 		kfree(fcport);
+=======
+		qla2x00_free_fcport(fcport);
+>>>>>>> upstream/android-13
 	}
 
 	return rval;
@@ -1320,6 +1470,10 @@ qlafx00_configure_devices(scsi_qla_host_t *vha)
 {
 	int  rval;
 	unsigned long flags;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	rval = QLA_SUCCESS;
 
 	flags = vha->dpc_flags;
@@ -1427,7 +1581,11 @@ qlafx00_init_response_q_entries(struct rsp_que *rsp)
 	pkt = rsp->ring_ptr;
 	for (cnt = 0; cnt < rsp->length; cnt++) {
 		pkt->signature = RESPONSE_PROCESSED;
+<<<<<<< HEAD
 		WRT_REG_DWORD((void __force __iomem *)&pkt->signature,
+=======
+		wrt_reg_dword((void __force __iomem *)&pkt->signature,
+>>>>>>> upstream/android-13
 		    RESPONSE_PROCESSED);
 		pkt++;
 	}
@@ -1443,6 +1601,7 @@ qlafx00_rescan_isp(scsi_qla_host_t *vha)
 
 	qla2x00_request_irqs(ha, ha->rsp_q_map[0]);
 
+<<<<<<< HEAD
 	aenmbx7 = RD_REG_DWORD(&reg->aenmailbox7);
 	ha->mbx_intr_code = MSW(aenmbx7);
 	ha->rqstq_intr_code = LSW(aenmbx7);
@@ -1450,6 +1609,15 @@ qlafx00_rescan_isp(scsi_qla_host_t *vha)
 	ha->rsp_que_off = RD_REG_DWORD(&reg->aenmailbox3);
 	ha->req_que_len = RD_REG_DWORD(&reg->aenmailbox5);
 	ha->rsp_que_len = RD_REG_DWORD(&reg->aenmailbox6);
+=======
+	aenmbx7 = rd_reg_dword(&reg->aenmailbox7);
+	ha->mbx_intr_code = MSW(aenmbx7);
+	ha->rqstq_intr_code = LSW(aenmbx7);
+	ha->req_que_off = rd_reg_dword(&reg->aenmailbox1);
+	ha->rsp_que_off = rd_reg_dword(&reg->aenmailbox3);
+	ha->req_que_len = rd_reg_dword(&reg->aenmailbox5);
+	ha->rsp_que_len = rd_reg_dword(&reg->aenmailbox6);
+>>>>>>> upstream/android-13
 
 	ql_dbg(ql_dbg_disc, vha, 0x2094,
 	    "fw returned mbx_intr_code: 0x%x, rqstq_intr_code: 0x%x "
@@ -1494,7 +1662,11 @@ qlafx00_timer_routine(scsi_qla_host_t *vha)
 		    (!test_bit(UNLOADING, &vha->dpc_flags)) &&
 		    (!test_bit(ABORT_ISP_ACTIVE, &vha->dpc_flags)) &&
 		    (ha->mr.fw_hbt_en)) {
+<<<<<<< HEAD
 			fw_heart_beat = RD_REG_DWORD(&reg->fwheartbeat);
+=======
+			fw_heart_beat = rd_reg_dword(&reg->fwheartbeat);
+>>>>>>> upstream/android-13
 			if (fw_heart_beat != ha->mr.old_fw_hbt_cnt) {
 				ha->mr.old_fw_hbt_cnt = fw_heart_beat;
 				ha->mr.fw_hbt_miss_cnt = 0;
@@ -1514,7 +1686,11 @@ qlafx00_timer_routine(scsi_qla_host_t *vha)
 
 	if (test_bit(FX00_RESET_RECOVERY, &vha->dpc_flags)) {
 		/* Reset recovery to be performed in timer routine */
+<<<<<<< HEAD
 		aenmbx0 = RD_REG_DWORD(&reg->aenmailbox0);
+=======
+		aenmbx0 = rd_reg_dword(&reg->aenmailbox0);
+>>>>>>> upstream/android-13
 		if (ha->mr.fw_reset_timer_exp) {
 			set_bit(ISP_ABORT_NEEDED, &vha->dpc_flags);
 			qla2xxx_wake_dpc(vha);
@@ -1704,15 +1880,25 @@ qlafx00_tgt_detach(struct scsi_qla_host *vha, int tgt_id)
 	if (!fcport)
 		return;
 
+<<<<<<< HEAD
 	qla2x00_mark_device_lost(vha, fcport, 0, 0);
+=======
+	qla2x00_mark_device_lost(vha, fcport, 0);
+>>>>>>> upstream/android-13
 
 	return;
 }
 
+<<<<<<< HEAD
 int
 qlafx00_process_aen(struct scsi_qla_host *vha, struct qla_work_evt *evt)
 {
 	int rval = 0;
+=======
+void
+qlafx00_process_aen(struct scsi_qla_host *vha, struct qla_work_evt *evt)
+{
+>>>>>>> upstream/android-13
 	uint32_t aen_code, aen_data;
 
 	aen_code = FCH_EVT_VENDOR_UNIQUE;
@@ -1738,7 +1924,11 @@ qlafx00_process_aen(struct scsi_qla_host *vha, struct qla_work_evt *evt)
 				set_bit(LOOP_RESYNC_NEEDED, &vha->dpc_flags);
 			} else if (evt->u.aenfx.mbx[2] == 2) {
 				vha->device_flags |= DFLG_NO_CABLE;
+<<<<<<< HEAD
 				qla2x00_mark_all_devices_lost(vha, 1);
+=======
+				qla2x00_mark_all_devices_lost(vha);
+>>>>>>> upstream/android-13
 			}
 		}
 		break;
@@ -1763,8 +1953,11 @@ qlafx00_process_aen(struct scsi_qla_host *vha, struct qla_work_evt *evt)
 
 	fc_host_post_event(vha->host, fc_get_event_number(),
 	    aen_code, aen_data);
+<<<<<<< HEAD
 
 	return rval;
+=======
+>>>>>>> upstream/android-13
 }
 
 static void
@@ -1795,10 +1988,15 @@ qla2x00_fxdisc_iocb_timeout(void *data)
 	complete(&lio->u.fxiocb.fxiocb_comp);
 }
 
+<<<<<<< HEAD
 static void
 qla2x00_fxdisc_sp_done(void *ptr, int res)
 {
 	srb_t *sp = ptr;
+=======
+static void qla2x00_fxdisc_sp_done(srb_t *sp, int res)
+{
+>>>>>>> upstream/android-13
 	struct srb_iocb *lio = &sp->u.iocb_cmd;
 
 	complete(&lio->u.fxiocb.fxiocb_comp);
@@ -1815,17 +2013,29 @@ qlafx00_fx_disc(scsi_qla_host_t *vha, fc_port_t *fcport, uint16_t fx_type)
 	struct register_host_info *preg_hsi;
 	struct new_utsname *p_sysid = NULL;
 
+<<<<<<< HEAD
+=======
+	/* ref: INIT */
+>>>>>>> upstream/android-13
 	sp = qla2x00_get_sp(vha, fcport, GFP_KERNEL);
 	if (!sp)
 		goto done;
 
 	sp->type = SRB_FXIOCB_DCMD;
 	sp->name = "fxdisc";
+<<<<<<< HEAD
 
 	fdisc = &sp->u.iocb_cmd;
 	fdisc->timeout = qla2x00_fxdisc_iocb_timeout;
 	qla2x00_init_timer(sp, FXDISC_TIMEOUT);
 
+=======
+	qla2x00_init_async_sp(sp, FXDISC_TIMEOUT,
+			      qla2x00_fxdisc_sp_done);
+	sp->u.iocb_cmd.timeout = qla2x00_fxdisc_iocb_timeout;
+
+	fdisc = &sp->u.iocb_cmd;
+>>>>>>> upstream/android-13
 	switch (fx_type) {
 	case FXDISC_GET_CONFIG_INFO:
 	fdisc->u.fxiocb.flags =
@@ -1877,6 +2087,7 @@ qlafx00_fx_disc(scsi_qla_host_t *vha, fc_port_t *fcport, uint16_t fx_type)
 			phost_info = &preg_hsi->hsi;
 			memset(preg_hsi, 0, sizeof(struct register_host_info));
 			phost_info->os_type = OS_TYPE_LINUX;
+<<<<<<< HEAD
 			strncpy(phost_info->sysname,
 			    p_sysid->sysname, SYSNAME_LENGTH);
 			strncpy(phost_info->nodename,
@@ -1893,6 +2104,24 @@ qlafx00_fx_disc(scsi_qla_host_t *vha, fc_port_t *fcport, uint16_t fx_type)
 			    p_sysid->domainname, DOMNAME_LENGTH);
 			strncpy(phost_info->hostdriver,
 			    QLA2XXX_VERSION, VERSION_LENGTH);
+=======
+			strlcpy(phost_info->sysname, p_sysid->sysname,
+				sizeof(phost_info->sysname));
+			strlcpy(phost_info->nodename, p_sysid->nodename,
+				sizeof(phost_info->nodename));
+			if (!strcmp(phost_info->nodename, "(none)"))
+				ha->mr.host_info_resend = true;
+			strlcpy(phost_info->release, p_sysid->release,
+				sizeof(phost_info->release));
+			strlcpy(phost_info->version, p_sysid->version,
+				sizeof(phost_info->version));
+			strlcpy(phost_info->machine, p_sysid->machine,
+				sizeof(phost_info->machine));
+			strlcpy(phost_info->domainname, p_sysid->domainname,
+				sizeof(phost_info->domainname));
+			strlcpy(phost_info->hostdriver, QLA2XXX_VERSION,
+				sizeof(phost_info->hostdriver));
+>>>>>>> upstream/android-13
 			preg_hsi->utc = (uint64_t)ktime_get_real_seconds();
 			ql_dbg(ql_dbg_init, vha, 0x0149,
 			    "ISP%04X: Host registration with firmware\n",
@@ -1913,8 +2142,12 @@ qlafx00_fx_disc(scsi_qla_host_t *vha, fc_port_t *fcport, uint16_t fx_type)
 			    phost_info->domainname,
 			    phost_info->hostdriver);
 			ql_dump_buffer(ql_dbg_init + ql_dbg_disc, vha, 0x014d,
+<<<<<<< HEAD
 			    (uint8_t *)phost_info,
 			    sizeof(struct host_system_info));
+=======
+			    phost_info, sizeof(*phost_info));
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -1927,7 +2160,10 @@ qlafx00_fx_disc(scsi_qla_host_t *vha, fc_port_t *fcport, uint16_t fx_type)
 	}
 
 	fdisc->u.fxiocb.req_func_type = cpu_to_le16(fx_type);
+<<<<<<< HEAD
 	sp->done = qla2x00_fxdisc_sp_done;
+=======
+>>>>>>> upstream/android-13
 
 	rval = qla2x00_start_sp(sp);
 	if (rval != QLA_SUCCESS)
@@ -1938,8 +2174,15 @@ qlafx00_fx_disc(scsi_qla_host_t *vha, fc_port_t *fcport, uint16_t fx_type)
 	if (fx_type == FXDISC_GET_CONFIG_INFO) {
 		struct config_info_data *pinfo =
 		    (struct config_info_data *) fdisc->u.fxiocb.rsp_addr;
+<<<<<<< HEAD
 		strcpy(vha->hw->model_number, pinfo->model_num);
 		strcpy(vha->hw->model_desc, pinfo->model_description);
+=======
+		strlcpy(vha->hw->model_number, pinfo->model_num,
+			ARRAY_SIZE(vha->hw->model_number));
+		strlcpy(vha->hw->model_desc, pinfo->model_description,
+			ARRAY_SIZE(vha->hw->model_desc));
+>>>>>>> upstream/android-13
 		memcpy(&vha->hw->mr.symbolic_name, pinfo->symbolic_name,
 		    sizeof(vha->hw->mr.symbolic_name));
 		memcpy(&vha->hw->mr.serial_num, pinfo->serial_num,
@@ -1968,7 +2211,11 @@ qlafx00_fx_disc(scsi_qla_host_t *vha, fc_port_t *fcport, uint16_t fx_type)
 		vha->d_id.b.al_pa = pinfo->port_id[2];
 		qlafx00_update_host_attr(vha, pinfo);
 		ql_dump_buffer(ql_dbg_init + ql_dbg_buffer, vha, 0x0141,
+<<<<<<< HEAD
 		    (uint8_t *)pinfo, 16);
+=======
+		    pinfo, 16);
+>>>>>>> upstream/android-13
 	} else if (fx_type == FXDISC_GET_TGT_NODE_INFO) {
 		struct qlafx00_tgt_node_info *pinfo =
 		    (struct qlafx00_tgt_node_info *) fdisc->u.fxiocb.rsp_addr;
@@ -1976,12 +2223,20 @@ qlafx00_fx_disc(scsi_qla_host_t *vha, fc_port_t *fcport, uint16_t fx_type)
 		memcpy(fcport->port_name, pinfo->tgt_node_wwpn, WWN_SIZE);
 		fcport->port_type = FCT_TARGET;
 		ql_dump_buffer(ql_dbg_init + ql_dbg_buffer, vha, 0x0144,
+<<<<<<< HEAD
 		    (uint8_t *)pinfo, 16);
+=======
+		    pinfo, 16);
+>>>>>>> upstream/android-13
 	} else if (fx_type == FXDISC_GET_TGT_NODE_LIST) {
 		struct qlafx00_tgt_node_info *pinfo =
 		    (struct qlafx00_tgt_node_info *) fdisc->u.fxiocb.rsp_addr;
 		ql_dump_buffer(ql_dbg_init + ql_dbg_buffer, vha, 0x0146,
+<<<<<<< HEAD
 		    (uint8_t *)pinfo, 16);
+=======
+		    pinfo, 16);
+>>>>>>> upstream/android-13
 		memcpy(vha->hw->gid_list, pinfo, QLAFX00_TGT_NODE_LIST_SIZE);
 	} else if (fx_type == FXDISC_ABORT_IOCTL)
 		fdisc->u.fxiocb.result =
@@ -2001,7 +2256,12 @@ done_unmap_req:
 		dma_free_coherent(&ha->pdev->dev, fdisc->u.fxiocb.req_len,
 		    fdisc->u.fxiocb.req_addr, fdisc->u.fxiocb.req_dma_handle);
 done_free_sp:
+<<<<<<< HEAD
 	sp->free(sp);
+=======
+	/* ref: INIT */
+	kref_put(&sp->cmd_kref, qla2x00_sp_release);
+>>>>>>> upstream/android-13
 done:
 	return rval;
 }
@@ -2212,7 +2472,11 @@ qlafx00_ioctl_iosb_entry(scsi_qla_host_t *vha, struct req_que *req,
 	struct bsg_job *bsg_job;
 	struct fc_bsg_reply *bsg_reply;
 	struct srb_iocb *iocb_job;
+<<<<<<< HEAD
 	int res;
+=======
+	int res = 0;
+>>>>>>> upstream/android-13
 	struct qla_mt_iocb_rsp_fx00 fstatus;
 	uint8_t	*fw_sts_ptr;
 
@@ -2248,18 +2512,30 @@ qlafx00_ioctl_iosb_entry(scsi_qla_host_t *vha, struct req_que *req,
 
 		fw_sts_ptr = bsg_job->reply + sizeof(struct fc_bsg_reply);
 
+<<<<<<< HEAD
 		memcpy(fw_sts_ptr, (uint8_t *)&fstatus,
 		    sizeof(struct qla_mt_iocb_rsp_fx00));
+=======
+		memcpy(fw_sts_ptr, &fstatus, sizeof(fstatus));
+>>>>>>> upstream/android-13
 		bsg_job->reply_len = sizeof(struct fc_bsg_reply) +
 			sizeof(struct qla_mt_iocb_rsp_fx00) + sizeof(uint8_t);
 
 		ql_dump_buffer(ql_dbg_user + ql_dbg_verbose,
+<<<<<<< HEAD
 		    sp->fcport->vha, 0x5080,
 		    (uint8_t *)pkt, sizeof(struct ioctl_iocb_entry_fx00));
 
 		ql_dump_buffer(ql_dbg_user + ql_dbg_verbose,
 		    sp->fcport->vha, 0x5074,
 		    (uint8_t *)fw_sts_ptr, sizeof(struct qla_mt_iocb_rsp_fx00));
+=======
+		    sp->vha, 0x5080, pkt, sizeof(*pkt));
+
+		ql_dump_buffer(ql_dbg_user + ql_dbg_verbose,
+		    sp->vha, 0x5074,
+		    fw_sts_ptr, sizeof(fstatus));
+>>>>>>> upstream/android-13
 
 		res = bsg_reply->result = DID_OK << 16;
 		bsg_reply->reply_payload_rcv_len =
@@ -2514,7 +2790,11 @@ check_scsi_status:
 		    atomic_read(&fcport->state));
 
 		if (atomic_read(&fcport->state) == FCS_ONLINE)
+<<<<<<< HEAD
 			qla2x00_mark_device_lost(fcport->vha, fcport, 1, 1);
+=======
+			qla2x00_mark_device_lost(fcport->vha, fcport, 1);
+>>>>>>> upstream/android-13
 		break;
 
 	case CS_ABORTED:
@@ -2540,6 +2820,11 @@ check_scsi_status:
 
 	if (rsp->status_srb == NULL)
 		sp->done(sp, res);
+<<<<<<< HEAD
+=======
+	else
+		WARN_ON_ONCE(true);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -2597,7 +2882,11 @@ qlafx00_status_cont_entry(struct rsp_que *rsp, sts_cont_entry_t *pkt)
 
 		/* Move sense data. */
 		ql_dump_buffer(ql_dbg_io + ql_dbg_buffer, vha, 0x304e,
+<<<<<<< HEAD
 		    (uint8_t *)pkt, sizeof(sts_cont_entry_t));
+=======
+		    pkt, sizeof(*pkt));
+>>>>>>> upstream/android-13
 		memcpy(sense_ptr, pkt->data, sense_sz);
 		ql_dump_buffer(ql_dbg_io + ql_dbg_buffer, vha, 0x304a,
 		    sense_ptr, sense_sz);
@@ -2617,6 +2906,11 @@ qlafx00_status_cont_entry(struct rsp_que *rsp, sts_cont_entry_t *pkt)
 	if (sense_len == 0) {
 		rsp->status_srb = NULL;
 		sp->done(sp, cp->result);
+<<<<<<< HEAD
+=======
+	} else {
+		WARN_ON_ONCE(true);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -2624,7 +2918,11 @@ qlafx00_status_cont_entry(struct rsp_que *rsp, sts_cont_entry_t *pkt)
  * qlafx00_multistatus_entry() - Process Multi response queue entries.
  * @vha: SCSI driver HA context
  * @rsp: response queue
+<<<<<<< HEAD
  * @pkt:
+=======
+ * @pkt: received packet
+>>>>>>> upstream/android-13
  */
 static void
 qlafx00_multistatus_entry(struct scsi_qla_host *vha,
@@ -2681,12 +2979,19 @@ qlafx00_multistatus_entry(struct scsi_qla_host *vha,
  * @vha: SCSI driver HA context
  * @rsp: response queue
  * @pkt: Entry pointer
+<<<<<<< HEAD
  * @estatus:
  * @etype:
  */
 static void
 qlafx00_error_entry(scsi_qla_host_t *vha, struct rsp_que *rsp,
 		    struct sts_entry_fx00 *pkt, uint8_t estatus, uint8_t etype)
+=======
+ */
+static void
+qlafx00_error_entry(scsi_qla_host_t *vha, struct rsp_que *rsp,
+		    struct sts_entry_fx00 *pkt)
+>>>>>>> upstream/android-13
 {
 	srb_t *sp;
 	struct qla_hw_data *ha = vha->hw;
@@ -2695,9 +3000,12 @@ qlafx00_error_entry(scsi_qla_host_t *vha, struct rsp_que *rsp,
 	struct req_que *req = NULL;
 	int res = DID_ERROR << 16;
 
+<<<<<<< HEAD
 	ql_dbg(ql_dbg_async, vha, 0x507f,
 	    "type of error status in response: 0x%x\n", estatus);
 
+=======
+>>>>>>> upstream/android-13
 	req = ha->req_q_map[que];
 
 	sp = qla2x00_get_sp_from_handle(vha, func, req, pkt);
@@ -2724,7 +3032,11 @@ qlafx00_process_response_queue(struct scsi_qla_host *vha,
 	uint16_t lreq_q_in = 0;
 	uint16_t lreq_q_out = 0;
 
+<<<<<<< HEAD
 	lreq_q_in = RD_REG_DWORD(rsp->rsp_q_in);
+=======
+	lreq_q_in = rd_reg_dword(rsp->rsp_q_in);
+>>>>>>> upstream/android-13
 	lreq_q_out = rsp->ring_index;
 
 	while (lreq_q_in != lreq_q_out) {
@@ -2745,9 +3057,17 @@ qlafx00_process_response_queue(struct scsi_qla_host *vha,
 
 		if (pkt->entry_status != 0 &&
 		    pkt->entry_type != IOCTL_IOSB_TYPE_FX00) {
+<<<<<<< HEAD
 			qlafx00_error_entry(vha, rsp,
 			    (struct sts_entry_fx00 *)pkt, pkt->entry_status,
 			    pkt->entry_type);
+=======
+			ql_dbg(ql_dbg_async, vha, 0x507f,
+			       "type of error status in response: 0x%x\n",
+			       pkt->entry_status);
+			qlafx00_error_entry(vha, rsp,
+					    (struct sts_entry_fx00 *)pkt);
+>>>>>>> upstream/android-13
 			continue;
 		}
 
@@ -2784,7 +3104,11 @@ qlafx00_process_response_queue(struct scsi_qla_host *vha,
 	}
 
 	/* Adjust ring index */
+<<<<<<< HEAD
 	WRT_REG_DWORD(rsp->rsp_q_out, rsp->ring_index);
+=======
+	wrt_reg_dword(rsp->rsp_q_out, rsp->ring_index);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -2815,9 +3139,15 @@ qlafx00_async_event(scsi_qla_host_t *vha)
 		break;
 
 	case QLAFX00_MBA_PORT_UPDATE:		/* Port database update */
+<<<<<<< HEAD
 		ha->aenmb[1] = RD_REG_DWORD(&reg->aenmailbox1);
 		ha->aenmb[2] = RD_REG_DWORD(&reg->aenmailbox2);
 		ha->aenmb[3] = RD_REG_DWORD(&reg->aenmailbox3);
+=======
+		ha->aenmb[1] = rd_reg_dword(&reg->aenmailbox1);
+		ha->aenmb[2] = rd_reg_dword(&reg->aenmailbox2);
+		ha->aenmb[3] = rd_reg_dword(&reg->aenmailbox3);
+>>>>>>> upstream/android-13
 		ql_dbg(ql_dbg_async, vha, 0x5077,
 		    "Asynchronous port Update received "
 		    "aenmb[0]: %x, aenmb[1]: %x, aenmb[2]: %x, aenmb[3]: %x\n",
@@ -2847,6 +3177,7 @@ qlafx00_async_event(scsi_qla_host_t *vha)
 		break;
 
 	default:
+<<<<<<< HEAD
 		ha->aenmb[1] = RD_REG_WORD(&reg->aenmailbox1);
 		ha->aenmb[2] = RD_REG_WORD(&reg->aenmailbox2);
 		ha->aenmb[3] = RD_REG_WORD(&reg->aenmailbox3);
@@ -2854,6 +3185,15 @@ qlafx00_async_event(scsi_qla_host_t *vha)
 		ha->aenmb[5] = RD_REG_WORD(&reg->aenmailbox5);
 		ha->aenmb[6] = RD_REG_WORD(&reg->aenmailbox6);
 		ha->aenmb[7] = RD_REG_WORD(&reg->aenmailbox7);
+=======
+		ha->aenmb[1] = rd_reg_dword(&reg->aenmailbox1);
+		ha->aenmb[2] = rd_reg_dword(&reg->aenmailbox2);
+		ha->aenmb[3] = rd_reg_dword(&reg->aenmailbox3);
+		ha->aenmb[4] = rd_reg_dword(&reg->aenmailbox4);
+		ha->aenmb[5] = rd_reg_dword(&reg->aenmailbox5);
+		ha->aenmb[6] = rd_reg_dword(&reg->aenmailbox6);
+		ha->aenmb[7] = rd_reg_dword(&reg->aenmailbox7);
+>>>>>>> upstream/android-13
 		ql_dbg(ql_dbg_async, vha, 0x5078,
 		    "AEN:%04x %04x %04x %04x :%04x %04x %04x %04x\n",
 		    ha->aenmb[0], ha->aenmb[1], ha->aenmb[2], ha->aenmb[3],
@@ -2865,15 +3205,25 @@ qlafx00_async_event(scsi_qla_host_t *vha)
 }
 
 /**
+<<<<<<< HEAD
  * qlafx00x_mbx_completion() - Process mailbox command completions.
  * @vha: SCSI driver HA context
  * @mb0:
+=======
+ * qlafx00_mbx_completion() - Process mailbox command completions.
+ * @vha: SCSI driver HA context
+ * @mb0: value to be written into mailbox register 0
+>>>>>>> upstream/android-13
  */
 static void
 qlafx00_mbx_completion(scsi_qla_host_t *vha, uint32_t mb0)
 {
 	uint16_t	cnt;
+<<<<<<< HEAD
 	uint32_t __iomem *wptr;
+=======
+	__le32 __iomem *wptr;
+>>>>>>> upstream/android-13
 	struct qla_hw_data *ha = vha->hw;
 	struct device_reg_fx00 __iomem *reg = &ha->iobase->ispfx00;
 
@@ -2883,17 +3233,28 @@ qlafx00_mbx_completion(scsi_qla_host_t *vha, uint32_t mb0)
 	/* Load return mailbox registers. */
 	ha->flags.mbox_int = 1;
 	ha->mailbox_out32[0] = mb0;
+<<<<<<< HEAD
 	wptr = (uint32_t __iomem *)&reg->mailbox17;
 
 	for (cnt = 1; cnt < ha->mbx_count; cnt++) {
 		ha->mailbox_out32[cnt] = RD_REG_DWORD(wptr);
+=======
+	wptr = &reg->mailbox17;
+
+	for (cnt = 1; cnt < ha->mbx_count; cnt++) {
+		ha->mailbox_out32[cnt] = rd_reg_dword(wptr);
+>>>>>>> upstream/android-13
 		wptr++;
 	}
 }
 
 /**
  * qlafx00_intr_handler() - Process interrupts for the ISPFX00.
+<<<<<<< HEAD
  * @irq:
+=======
+ * @irq: interrupt number
+>>>>>>> upstream/android-13
  * @dev_id: SCSI driver HA context
  *
  * Called by system whenever the host adapter generates an interrupt.
@@ -2940,13 +3301,21 @@ qlafx00_intr_handler(int irq, void *dev_id)
 			break;
 
 		if (stat & QLAFX00_INTR_MB_CMPLT) {
+<<<<<<< HEAD
 			mb[0] = RD_REG_WORD(&reg->mailbox16);
+=======
+			mb[0] = rd_reg_dword(&reg->mailbox16);
+>>>>>>> upstream/android-13
 			qlafx00_mbx_completion(vha, mb[0]);
 			status |= MBX_INTERRUPT;
 			clr_intr |= QLAFX00_INTR_MB_CMPLT;
 		}
 		if (intr_stat & QLAFX00_INTR_ASYNC_CMPLT) {
+<<<<<<< HEAD
 			ha->aenmb[0] = RD_REG_WORD(&reg->aenmailbox0);
+=======
+			ha->aenmb[0] = rd_reg_dword(&reg->aenmailbox0);
+>>>>>>> upstream/android-13
 			qlafx00_async_event(vha);
 			clr_intr |= QLAFX00_INTR_ASYNC_CMPLT;
 		}
@@ -2995,7 +3364,11 @@ qlafx00_build_scsi_iocbs(srb_t *sp, struct cmd_type_7_fx00 *cmd_pkt,
 			 uint16_t tot_dsds, struct cmd_type_7_fx00 *lcmd_pkt)
 {
 	uint16_t	avail_dsds;
+<<<<<<< HEAD
 	__le32 *cur_dsd;
+=======
+	struct dsd64	*cur_dsd;
+>>>>>>> upstream/android-13
 	scsi_qla_host_t	*vha;
 	struct scsi_cmnd *cmd;
 	struct scatterlist *sg;
@@ -3031,12 +3404,19 @@ qlafx00_build_scsi_iocbs(srb_t *sp, struct cmd_type_7_fx00 *cmd_pkt,
 
 	/* One DSD is available in the Command Type 3 IOCB */
 	avail_dsds = 1;
+<<<<<<< HEAD
 	cur_dsd = (__le32 *)&lcmd_pkt->dseg_0_address;
 
 	/* Load data segments */
 	scsi_for_each_sg(cmd, sg, tot_dsds, i) {
 		dma_addr_t	sle_dma;
 
+=======
+	cur_dsd = &lcmd_pkt->dsd;
+
+	/* Load data segments */
+	scsi_for_each_sg(cmd, sg, tot_dsds, i) {
+>>>>>>> upstream/android-13
 		/* Allocate additional continuation packets? */
 		if (avail_dsds == 0) {
 			/*
@@ -3046,26 +3426,42 @@ qlafx00_build_scsi_iocbs(srb_t *sp, struct cmd_type_7_fx00 *cmd_pkt,
 			memset(&lcont_pkt, 0, REQUEST_ENTRY_SIZE);
 			cont_pkt =
 			    qlafx00_prep_cont_type1_iocb(req, &lcont_pkt);
+<<<<<<< HEAD
 			cur_dsd = (__le32 *)lcont_pkt.dseg_0_address;
+=======
+			cur_dsd = lcont_pkt.dsd;
+>>>>>>> upstream/android-13
 			avail_dsds = 5;
 			cont = 1;
 		}
 
+<<<<<<< HEAD
 		sle_dma = sg_dma_address(sg);
 		*cur_dsd++ = cpu_to_le32(LSD(sle_dma));
 		*cur_dsd++ = cpu_to_le32(MSD(sle_dma));
 		*cur_dsd++ = cpu_to_le32(sg_dma_len(sg));
+=======
+		append_dsd64(&cur_dsd, sg);
+>>>>>>> upstream/android-13
 		avail_dsds--;
 		if (avail_dsds == 0 && cont == 1) {
 			cont = 0;
 			memcpy_toio((void __iomem *)cont_pkt, &lcont_pkt,
+<<<<<<< HEAD
 			    REQUEST_ENTRY_SIZE);
+=======
+			    sizeof(lcont_pkt));
+>>>>>>> upstream/android-13
 		}
 
 	}
 	if (avail_dsds != 0 && cont == 1) {
 		memcpy_toio((void __iomem *)cont_pkt, &lcont_pkt,
+<<<<<<< HEAD
 		    REQUEST_ENTRY_SIZE);
+=======
+		    sizeof(lcont_pkt));
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -3080,7 +3476,10 @@ qlafx00_start_scsi(srb_t *sp)
 {
 	int		nseg;
 	unsigned long   flags;
+<<<<<<< HEAD
 	uint32_t        index;
+=======
+>>>>>>> upstream/android-13
 	uint32_t	handle;
 	uint16_t	cnt;
 	uint16_t	req_cnt;
@@ -3104,6 +3503,7 @@ qlafx00_start_scsi(srb_t *sp)
 	/* Acquire ring specific lock */
 	spin_lock_irqsave(&ha->hardware_lock, flags);
 
+<<<<<<< HEAD
 	/* Check for room in outstanding command list. */
 	handle = req->current_outstanding_cmd;
 	for (index = 1; index < req->num_outstanding_cmds; index++) {
@@ -3114,6 +3514,10 @@ qlafx00_start_scsi(srb_t *sp)
 			break;
 	}
 	if (index == req->num_outstanding_cmds)
+=======
+	handle = qla2xxx_get_next_handle(req);
+	if (handle == 0)
+>>>>>>> upstream/android-13
 		goto queuing_error;
 
 	/* Map the sg table so we have an accurate count of sg entries needed */
@@ -3128,7 +3532,11 @@ qlafx00_start_scsi(srb_t *sp)
 	tot_dsds = nseg;
 	req_cnt = qla24xx_calc_iocbs(vha, tot_dsds);
 	if (req->cnt < (req_cnt + 2)) {
+<<<<<<< HEAD
 		cnt = RD_REG_DWORD_RELAXED(req->req_q_out);
+=======
+		cnt = rd_reg_dword_relaxed(req->req_q_out);
+>>>>>>> upstream/android-13
 
 		if (req->ring_index < cnt)
 			req->cnt = cnt - req->ring_index;
@@ -3150,7 +3558,11 @@ qlafx00_start_scsi(srb_t *sp)
 
 	memset(&lcmd_pkt, 0, REQUEST_ENTRY_SIZE);
 
+<<<<<<< HEAD
 	lcmd_pkt.handle = MAKE_HANDLE(req->id, sp->handle);
+=======
+	lcmd_pkt.handle = make_handle(req->id, sp->handle);
+>>>>>>> upstream/android-13
 	lcmd_pkt.reserved_0 = 0;
 	lcmd_pkt.port_path_ctrl = 0;
 	lcmd_pkt.reserved_1 = 0;
@@ -3175,9 +3587,15 @@ qlafx00_start_scsi(srb_t *sp)
 	lcmd_pkt.entry_status = (uint8_t) rsp->id;
 
 	ql_dump_buffer(ql_dbg_io + ql_dbg_buffer, vha, 0x302e,
+<<<<<<< HEAD
 	    (uint8_t *)cmd->cmnd, cmd->cmd_len);
 	ql_dump_buffer(ql_dbg_io + ql_dbg_buffer, vha, 0x3032,
 	    (uint8_t *)&lcmd_pkt, REQUEST_ENTRY_SIZE);
+=======
+	    cmd->cmnd, cmd->cmd_len);
+	ql_dump_buffer(ql_dbg_io + ql_dbg_buffer, vha, 0x3032,
+	    &lcmd_pkt, sizeof(lcmd_pkt));
+>>>>>>> upstream/android-13
 
 	memcpy_toio((void __iomem *)cmd_pkt, &lcmd_pkt, REQUEST_ENTRY_SIZE);
 	wmb();
@@ -3193,7 +3611,11 @@ qlafx00_start_scsi(srb_t *sp)
 	sp->flags |= SRB_DMA_VALID;
 
 	/* Set chip new ring index. */
+<<<<<<< HEAD
 	WRT_REG_DWORD(req->req_q_in, req->ring_index);
+=======
+	wrt_reg_dword(req->req_q_in, req->ring_index);
+>>>>>>> upstream/android-13
 	QLAFX00_SET_HST_INTR(ha, ha->rqstq_intr_code);
 
 	spin_unlock_irqrestore(&ha->hardware_lock, flags);
@@ -3220,7 +3642,11 @@ qlafx00_tm_iocb(srb_t *sp, struct tsk_mgmt_entry_fx00 *ptm_iocb)
 	memset(&tm_iocb, 0, sizeof(struct tsk_mgmt_entry_fx00));
 	tm_iocb.entry_type = TSK_MGMT_IOCB_TYPE_FX00;
 	tm_iocb.entry_count = 1;
+<<<<<<< HEAD
 	tm_iocb.handle = cpu_to_le32(MAKE_HANDLE(req->id, sp->handle));
+=======
+	tm_iocb.handle = make_handle(req->id, sp->handle);
+>>>>>>> upstream/android-13
 	tm_iocb.reserved_0 = 0;
 	tm_iocb.tgt_id = cpu_to_le16(sp->fcport->tgt_id);
 	tm_iocb.control_flags = cpu_to_le32(fxio->u.tmf.flags);
@@ -3230,7 +3656,11 @@ qlafx00_tm_iocb(srb_t *sp, struct tsk_mgmt_entry_fx00 *ptm_iocb)
 		    sizeof(struct scsi_lun));
 	}
 
+<<<<<<< HEAD
 	memcpy((void *)ptm_iocb, &tm_iocb,
+=======
+	memcpy(ptm_iocb, &tm_iocb,
+>>>>>>> upstream/android-13
 	    sizeof(struct tsk_mgmt_entry_fx00));
 	wmb();
 }
@@ -3246,6 +3676,7 @@ qlafx00_abort_iocb(srb_t *sp, struct abort_iocb_entry_fx00 *pabt_iocb)
 	memset(&abt_iocb, 0, sizeof(struct abort_iocb_entry_fx00));
 	abt_iocb.entry_type = ABORT_IOCB_TYPE_FX00;
 	abt_iocb.entry_count = 1;
+<<<<<<< HEAD
 	abt_iocb.handle = cpu_to_le32(MAKE_HANDLE(req->id, sp->handle));
 	abt_iocb.abort_handle =
 	    cpu_to_le32(MAKE_HANDLE(req->id, fxio->u.abt.cmd_hndl));
@@ -3253,6 +3684,14 @@ qlafx00_abort_iocb(srb_t *sp, struct abort_iocb_entry_fx00 *pabt_iocb)
 	abt_iocb.req_que_no = cpu_to_le16(req->id);
 
 	memcpy((void *)pabt_iocb, &abt_iocb,
+=======
+	abt_iocb.handle = make_handle(req->id, sp->handle);
+	abt_iocb.abort_handle = make_handle(req->id, fxio->u.abt.cmd_hndl);
+	abt_iocb.tgt_id_sts = cpu_to_le16(sp->fcport->tgt_id);
+	abt_iocb.req_que_no = cpu_to_le16(req->id);
+
+	memcpy(pabt_iocb, &abt_iocb,
+>>>>>>> upstream/android-13
 	    sizeof(struct abort_iocb_entry_fx00));
 	wmb();
 }
@@ -3269,7 +3708,11 @@ qlafx00_fxdisc_iocb(srb_t *sp, struct fxdisc_entry_fx00 *pfxiocb)
 
 	memset(&fx_iocb, 0, sizeof(struct fxdisc_entry_fx00));
 	fx_iocb.entry_type = FX00_IOCB_TYPE;
+<<<<<<< HEAD
 	fx_iocb.handle = cpu_to_le32(sp->handle);
+=======
+	fx_iocb.handle = sp->handle;
+>>>>>>> upstream/android-13
 	fx_iocb.entry_count = entry_cnt;
 
 	if (sp->type == SRB_FXIOCB_DCMD) {
@@ -3285,11 +3728,17 @@ qlafx00_fxdisc_iocb(srb_t *sp, struct fxdisc_entry_fx00 *pfxiocb)
 			fx_iocb.req_dsdcnt = cpu_to_le16(1);
 			fx_iocb.req_xfrcnt =
 			    cpu_to_le16(fxio->u.fxiocb.req_len);
+<<<<<<< HEAD
 			fx_iocb.dseg_rq_address[0] =
 			    cpu_to_le32(LSD(fxio->u.fxiocb.req_dma_handle));
 			fx_iocb.dseg_rq_address[1] =
 			    cpu_to_le32(MSD(fxio->u.fxiocb.req_dma_handle));
 			fx_iocb.dseg_rq_len =
+=======
+			put_unaligned_le64(fxio->u.fxiocb.req_dma_handle,
+					   &fx_iocb.dseg_rq[0].address);
+			fx_iocb.dseg_rq[0].length =
+>>>>>>> upstream/android-13
 			    cpu_to_le32(fxio->u.fxiocb.req_len);
 		}
 
@@ -3297,11 +3746,17 @@ qlafx00_fxdisc_iocb(srb_t *sp, struct fxdisc_entry_fx00 *pfxiocb)
 			fx_iocb.rsp_dsdcnt = cpu_to_le16(1);
 			fx_iocb.rsp_xfrcnt =
 			    cpu_to_le16(fxio->u.fxiocb.rsp_len);
+<<<<<<< HEAD
 			fx_iocb.dseg_rsp_address[0] =
 			    cpu_to_le32(LSD(fxio->u.fxiocb.rsp_dma_handle));
 			fx_iocb.dseg_rsp_address[1] =
 			    cpu_to_le32(MSD(fxio->u.fxiocb.rsp_dma_handle));
 			fx_iocb.dseg_rsp_len =
+=======
+			put_unaligned_le64(fxio->u.fxiocb.rsp_dma_handle,
+					   &fx_iocb.dseg_rsp[0].address);
+			fx_iocb.dseg_rsp[0].length =
+>>>>>>> upstream/android-13
 			    cpu_to_le32(fxio->u.fxiocb.rsp_len);
 		}
 
@@ -3311,6 +3766,10 @@ qlafx00_fxdisc_iocb(srb_t *sp, struct fxdisc_entry_fx00 *pfxiocb)
 		fx_iocb.flags = fxio->u.fxiocb.flags;
 	} else {
 		struct scatterlist *sg;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		bsg_job = sp->u.bsg_job;
 		bsg_request = bsg_job->request;
 		piocb_rqst = (struct qla_mt_iocb_rqst_fx00 *)
@@ -3330,19 +3789,30 @@ qlafx00_fxdisc_iocb(srb_t *sp, struct fxdisc_entry_fx00 *pfxiocb)
 			int avail_dsds, tot_dsds;
 			cont_a64_entry_t lcont_pkt;
 			cont_a64_entry_t *cont_pkt = NULL;
+<<<<<<< HEAD
 			__le32 *cur_dsd;
+=======
+			struct dsd64 *cur_dsd;
+>>>>>>> upstream/android-13
 			int index = 0, cont = 0;
 
 			fx_iocb.req_dsdcnt =
 			    cpu_to_le16(bsg_job->request_payload.sg_cnt);
 			tot_dsds =
 			    bsg_job->request_payload.sg_cnt;
+<<<<<<< HEAD
 			cur_dsd = (__le32 *)&fx_iocb.dseg_rq_address[0];
 			avail_dsds = 1;
 			for_each_sg(bsg_job->request_payload.sg_list, sg,
 			    tot_dsds, index) {
 				dma_addr_t sle_dma;
 
+=======
+			cur_dsd = &fx_iocb.dseg_rq[0];
+			avail_dsds = 1;
+			for_each_sg(bsg_job->request_payload.sg_list, sg,
+			    tot_dsds, index) {
+>>>>>>> upstream/android-13
 				/* Allocate additional continuation packets? */
 				if (avail_dsds == 0) {
 					/*
@@ -3354,17 +3824,25 @@ qlafx00_fxdisc_iocb(srb_t *sp, struct fxdisc_entry_fx00 *pfxiocb)
 					cont_pkt =
 					    qlafx00_prep_cont_type1_iocb(
 						sp->vha->req, &lcont_pkt);
+<<<<<<< HEAD
 					cur_dsd = (__le32 *)
 					    lcont_pkt.dseg_0_address;
+=======
+					cur_dsd = lcont_pkt.dsd;
+>>>>>>> upstream/android-13
 					avail_dsds = 5;
 					cont = 1;
 					entry_cnt++;
 				}
 
+<<<<<<< HEAD
 				sle_dma = sg_dma_address(sg);
 				*cur_dsd++   = cpu_to_le32(LSD(sle_dma));
 				*cur_dsd++   = cpu_to_le32(MSD(sle_dma));
 				*cur_dsd++   = cpu_to_le32(sg_dma_len(sg));
+=======
+				append_dsd64(&cur_dsd, sg);
+>>>>>>> upstream/android-13
 				avail_dsds--;
 
 				if (avail_dsds == 0 && cont == 1) {
@@ -3392,19 +3870,30 @@ qlafx00_fxdisc_iocb(srb_t *sp, struct fxdisc_entry_fx00 *pfxiocb)
 			int avail_dsds, tot_dsds;
 			cont_a64_entry_t lcont_pkt;
 			cont_a64_entry_t *cont_pkt = NULL;
+<<<<<<< HEAD
 			__le32 *cur_dsd;
+=======
+			struct dsd64 *cur_dsd;
+>>>>>>> upstream/android-13
 			int index = 0, cont = 0;
 
 			fx_iocb.rsp_dsdcnt =
 			   cpu_to_le16(bsg_job->reply_payload.sg_cnt);
 			tot_dsds = bsg_job->reply_payload.sg_cnt;
+<<<<<<< HEAD
 			cur_dsd = (__le32 *)&fx_iocb.dseg_rsp_address[0];
+=======
+			cur_dsd = &fx_iocb.dseg_rsp[0];
+>>>>>>> upstream/android-13
 			avail_dsds = 1;
 
 			for_each_sg(bsg_job->reply_payload.sg_list, sg,
 			    tot_dsds, index) {
+<<<<<<< HEAD
 				dma_addr_t sle_dma;
 
+=======
+>>>>>>> upstream/android-13
 				/* Allocate additional continuation packets? */
 				if (avail_dsds == 0) {
 					/*
@@ -3416,17 +3905,25 @@ qlafx00_fxdisc_iocb(srb_t *sp, struct fxdisc_entry_fx00 *pfxiocb)
 					cont_pkt =
 					    qlafx00_prep_cont_type1_iocb(
 						sp->vha->req, &lcont_pkt);
+<<<<<<< HEAD
 					cur_dsd = (__le32 *)
 					    lcont_pkt.dseg_0_address;
+=======
+					cur_dsd = lcont_pkt.dsd;
+>>>>>>> upstream/android-13
 					avail_dsds = 5;
 					cont = 1;
 					entry_cnt++;
 				}
 
+<<<<<<< HEAD
 				sle_dma = sg_dma_address(sg);
 				*cur_dsd++   = cpu_to_le32(LSD(sle_dma));
 				*cur_dsd++   = cpu_to_le32(MSD(sle_dma));
 				*cur_dsd++   = cpu_to_le32(sg_dma_len(sg));
+=======
+				append_dsd64(&cur_dsd, sg);
+>>>>>>> upstream/android-13
 				avail_dsds--;
 
 				if (avail_dsds == 0 && cont == 1) {
@@ -3457,10 +3954,16 @@ qlafx00_fxdisc_iocb(srb_t *sp, struct fxdisc_entry_fx00 *pfxiocb)
 	}
 
 	ql_dump_buffer(ql_dbg_user + ql_dbg_verbose,
+<<<<<<< HEAD
 	    sp->vha, 0x3047,
 	    (uint8_t *)&fx_iocb, sizeof(struct fxdisc_entry_fx00));
 
 	memcpy_toio((void __iomem *)pfxiocb, &fx_iocb,
 	    sizeof(struct fxdisc_entry_fx00));
+=======
+	    sp->vha, 0x3047, &fx_iocb, sizeof(fx_iocb));
+
+	memcpy_toio((void __iomem *)pfxiocb, &fx_iocb, sizeof(fx_iocb));
+>>>>>>> upstream/android-13
 	wmb();
 }

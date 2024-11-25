@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
     tuner-i2c.h - i2c interface for different tuners
 
     Copyright (C) 2007 Michael Krufky (mkrufky@linuxtv.org)
 
+<<<<<<< HEAD
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -16,6 +21,8 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
 */
 
 #ifndef __TUNER_I2C_H__
@@ -145,8 +152,15 @@ static inline int tuner_i2c_xfer_send_recv(struct tuner_i2c_props *props,
 	}								\
 	if (0 == __ret) {						\
 		state = kzalloc(sizeof(type), GFP_KERNEL);		\
+<<<<<<< HEAD
 		if (NULL == state)					\
 			goto __fail;					\
+=======
+		if (!state) {						\
+			__ret = -ENOMEM;				\
+			goto __fail;					\
+		}							\
+>>>>>>> upstream/android-13
 		state->i2c_props.addr = i2caddr;			\
 		state->i2c_props.adap = i2cadap;			\
 		state->i2c_props.name = devname;			\

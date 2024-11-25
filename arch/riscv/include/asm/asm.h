@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015 Regents of the University of California
  *
@@ -9,6 +10,11 @@
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *   GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2015 Regents of the University of California
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_RISCV_ASM_H
@@ -30,6 +36,11 @@
 
 #define REG_L		__REG_SEL(ld, lw)
 #define REG_S		__REG_SEL(sd, sw)
+<<<<<<< HEAD
+=======
+#define REG_SC		__REG_SEL(sc.d, sc.w)
+#define REG_ASM		__REG_SEL(.dword, .word)
+>>>>>>> upstream/android-13
 #define SZREG		__REG_SEL(8, 4)
 #define LGREG		__REG_SEL(3, 2)
 

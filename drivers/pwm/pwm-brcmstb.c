@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Broadcom BCM7038 PWM driver
  * Author: Florian Fainelli
  *
  * Copyright (C) 2015 Broadcom Corporation
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt)	KBUILD_MODNAME ": " fmt
@@ -243,7 +250,10 @@ MODULE_DEVICE_TABLE(of, brcmstb_pwm_of_match);
 static int brcmstb_pwm_probe(struct platform_device *pdev)
 {
 	struct brcmstb_pwm *p;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	p = devm_kzalloc(&pdev->dev, sizeof(*p), GFP_KERNEL);
@@ -268,11 +278,17 @@ static int brcmstb_pwm_probe(struct platform_device *pdev)
 
 	p->chip.dev = &pdev->dev;
 	p->chip.ops = &brcmstb_pwm_ops;
+<<<<<<< HEAD
 	p->chip.base = -1;
 	p->chip.npwm = 2;
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	p->base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	p->chip.npwm = 2;
+
+	p->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(p->base)) {
 		ret = PTR_ERR(p->base);
 		goto out_clk;
@@ -294,12 +310,20 @@ out_clk:
 static int brcmstb_pwm_remove(struct platform_device *pdev)
 {
 	struct brcmstb_pwm *p = platform_get_drvdata(pdev);
+<<<<<<< HEAD
 	int ret;
 
 	ret = pwmchip_remove(&p->chip);
 	clk_disable_unprepare(p->clk);
 
 	return ret;
+=======
+
+	pwmchip_remove(&p->chip);
+	clk_disable_unprepare(p->clk);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_PM_SLEEP

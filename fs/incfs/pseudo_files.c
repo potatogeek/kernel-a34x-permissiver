@@ -9,6 +9,10 @@
 #include <linux/namei.h>
 #include <linux/poll.h>
 #include <linux/syscalls.h>
+<<<<<<< HEAD
+=======
+#include <linux/fdtable.h>
+>>>>>>> upstream/android-13
 
 #include <uapi/linux/incrementalfs.h>
 
@@ -147,8 +151,17 @@ static long ioctl_permit_fill(struct file *f, void __user *arg)
 		return -EFAULT;
 
 	file = fget(permit_fill.file_descriptor);
+<<<<<<< HEAD
 	if (IS_ERR(file))
 		return PTR_ERR(file);
+=======
+	if (IS_ERR_OR_NULL(file)) {
+		if (!file)
+			return -ENOENT;
+
+		return PTR_ERR(file);
+	}
+>>>>>>> upstream/android-13
 
 	if (file->f_op != &incfs_file_ops) {
 		error = -EPERM;
@@ -193,7 +206,11 @@ retry_deleg:
 	inode_lock(inode);
 	newattrs.ia_mode = (mode & S_IALLUGO) | (inode->i_mode & ~S_IALLUGO);
 	newattrs.ia_valid = ATTR_MODE | ATTR_CTIME;
+<<<<<<< HEAD
 	error = notify_change(dentry, &newattrs, &delegated_inode);
+=======
+	error = notify_change(&init_user_ns, dentry, &newattrs, &delegated_inode);
+>>>>>>> upstream/android-13
 	inode_unlock(inode);
 	if (delegated_inode) {
 		error = break_deleg_wait(&delegated_inode);
@@ -263,7 +280,11 @@ static int dir_relative_path_resolve(
 		LOOKUP_FOLLOW | LOOKUP_DIRECTORY, result_path, NULL);
 
 out:
+<<<<<<< HEAD
 	ksys_close(dir_fd);
+=======
+	close_fd(dir_fd);
+>>>>>>> upstream/android-13
 	if (error)
 		pr_debug("Error: %d\n", error);
 	return error;
@@ -585,8 +606,13 @@ static long ioctl_create_file(struct file *file,
 	/* Creating a file in the .index dir. */
 	index_dir_inode = d_inode(mi->mi_index_dir);
 	inode_lock_nested(index_dir_inode, I_MUTEX_PARENT);
+<<<<<<< HEAD
 	error = vfs_create(index_dir_inode, index_file_dentry, args.mode | 0222,
 			   true);
+=======
+	error = vfs_create(&init_user_ns, index_dir_inode, index_file_dentry,
+			   args.mode | 0222, true);
+>>>>>>> upstream/android-13
 	inode_unlock(index_dir_inode);
 
 	if (error)
@@ -603,7 +629,11 @@ static long ioctl_create_file(struct file *file,
 	}
 
 	/* Save the file's ID as an xattr for easy fetching in future. */
+<<<<<<< HEAD
 	error = vfs_setxattr(index_file_dentry, INCFS_XATTR_ID_NAME,
+=======
+	error = vfs_setxattr(&init_user_ns, index_file_dentry, INCFS_XATTR_ID_NAME,
+>>>>>>> upstream/android-13
 		file_id_str, strlen(file_id_str), XATTR_CREATE);
 	if (error) {
 		pr_debug("incfs: vfs_setxattr err:%d\n", error);
@@ -612,7 +642,11 @@ static long ioctl_create_file(struct file *file,
 
 	/* Save the file's size as an xattr for easy fetching in future. */
 	size_attr_value = cpu_to_le64(args.size);
+<<<<<<< HEAD
 	error = vfs_setxattr(index_file_dentry, INCFS_XATTR_SIZE_NAME,
+=======
+	error = vfs_setxattr(&init_user_ns, index_file_dentry, INCFS_XATTR_SIZE_NAME,
+>>>>>>> upstream/android-13
 		(char *)&size_attr_value, sizeof(size_attr_value),
 		XATTR_CREATE);
 	if (error) {
@@ -640,7 +674,11 @@ static long ioctl_create_file(struct file *file,
 			goto out;
 		}
 
+<<<<<<< HEAD
 		error = vfs_setxattr(index_file_dentry,
+=======
+		error = vfs_setxattr(&init_user_ns, index_file_dentry,
+>>>>>>> upstream/android-13
 				INCFS_XATTR_METADATA_NAME,
 				attr_value, args.file_attr_len,
 				XATTR_CREATE);
@@ -808,7 +846,11 @@ static long ioctl_create_mapped_file(struct file *file, void __user *arg)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	error = vfs_getxattr(source_file_dentry, INCFS_XATTR_SIZE_NAME,
+=======
+	error = vfs_getxattr(&init_user_ns, source_file_dentry, INCFS_XATTR_SIZE_NAME,
+>>>>>>> upstream/android-13
 			     (char *)&size_attr_value, sizeof(size_attr_value));
 	if (error < 0)
 		goto out;
@@ -858,7 +900,12 @@ static long ioctl_create_mapped_file(struct file *file, void __user *arg)
 
 	parent_inode = d_inode(parent_dir_path.dentry);
 	inode_lock_nested(parent_inode, I_MUTEX_PARENT);
+<<<<<<< HEAD
 	error = vfs_create(parent_inode, file_dentry, args.mode | 0222, true);
+=======
+	error = vfs_create(&init_user_ns, parent_inode, file_dentry,
+			   args.mode | 0222, true);
+>>>>>>> upstream/android-13
 	inode_unlock(parent_inode);
 	if (error)
 		goto out;
@@ -871,7 +918,11 @@ static long ioctl_create_mapped_file(struct file *file, void __user *arg)
 
 	/* Save the file's size as an xattr for easy fetching in future. */
 	size_attr_value = cpu_to_le64(args.size);
+<<<<<<< HEAD
 	error = vfs_setxattr(file_dentry, INCFS_XATTR_SIZE_NAME,
+=======
+	error = vfs_setxattr(&init_user_ns, file_dentry, INCFS_XATTR_SIZE_NAME,
+>>>>>>> upstream/android-13
 		(char *)&size_attr_value, sizeof(size_attr_value),
 		XATTR_CREATE);
 	if (error) {
@@ -1302,7 +1353,11 @@ static bool get_pseudo_inode(int ino, struct inode *inode)
 	inode->i_size = 0;
 	inode->i_ino = ino;
 	inode->i_private = NULL;
+<<<<<<< HEAD
 	inode_init_owner(inode, NULL, S_IFREG | READ_WRITE_FILE_MODE);
+=======
+	inode_init_owner(&init_user_ns, inode, NULL, S_IFREG | READ_WRITE_FILE_MODE);
+>>>>>>> upstream/android-13
 	inode->i_op = &incfs_file_inode_ops;
 	inode->i_fop = pseudo_file_operations[i];
 	return true;

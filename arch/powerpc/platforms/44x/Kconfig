@@ -2,28 +2,47 @@
 config PPC_47x
 	bool "Support for 47x variant"
 	depends on 44x
+<<<<<<< HEAD
 	default n
 	select MPIC
 	help
 	  This option enables support for the 47x family of processors and is
 	  not currently compatible with other 44x or 46x varients
+=======
+	select MPIC
+	help
+	  This option enables support for the 47x family of processors and is
+	  not currently compatible with other 44x or 46x variants
+>>>>>>> upstream/android-13
 
 config BAMBOO
 	bool "Bamboo"
 	depends on 44x
+<<<<<<< HEAD
 	default n
 	select PPC44x_SIMPLE
 	select 440EP
 	select PCI
+=======
+	select PPC44x_SIMPLE
+	select 440EP
+	select FORCE_PCI
+>>>>>>> upstream/android-13
 	help
 	  This option enables support for the IBM PPC440EP evaluation board.
 
 config BLUESTONE
 	bool "Bluestone"
 	depends on 44x
+<<<<<<< HEAD
 	default n
 	select PPC44x_SIMPLE
 	select APM821xx
+=======
+	select PPC44x_SIMPLE
+	select APM821xx
+	select FORCE_PCI
+>>>>>>> upstream/android-13
 	select PCI_MSI
 	select PPC4xx_MSI
 	select PPC4xx_PCI_EXPRESS
@@ -36,12 +55,17 @@ config EBONY
 	depends on 44x
 	default y
 	select 440GP
+<<<<<<< HEAD
 	select PCI
+=======
+	select FORCE_PCI
+>>>>>>> upstream/android-13
 	select OF_RTC
 	help
 	  This option enables support for the IBM PPC440GP evaluation board.
 
 config SAM440EP
+<<<<<<< HEAD
         bool "Sam440ep"
 	depends on 44x
         default n
@@ -49,11 +73,22 @@ config SAM440EP
         select PCI
         help
           This option enables support for the ACube Sam440ep board.
+=======
+	bool "Sam440ep"
+	depends on 44x
+	select 440EP
+	select FORCE_PCI
+	help
+	  This option enables support for the ACube Sam440ep board.
+>>>>>>> upstream/android-13
 
 config SEQUOIA
 	bool "Sequoia"
 	depends on 44x
+<<<<<<< HEAD
 	default n
+=======
+>>>>>>> upstream/android-13
 	select PPC44x_SIMPLE
 	select 440EPX
 	help
@@ -62,10 +97,16 @@ config SEQUOIA
 config TAISHAN
 	bool "Taishan"
 	depends on 44x
+<<<<<<< HEAD
 	default n
 	select PPC44x_SIMPLE
 	select 440GX
 	select PCI
+=======
+	select PPC44x_SIMPLE
+	select 440GX
+	select FORCE_PCI
+>>>>>>> upstream/android-13
 	help
 	  This option enables support for the AMCC PPC440GX "Taishan"
 	  evaluation board.
@@ -73,10 +114,16 @@ config TAISHAN
 config KATMAI
 	bool "Katmai"
 	depends on 44x
+<<<<<<< HEAD
 	default n
 	select PPC44x_SIMPLE
 	select 440SPe
 	select PCI
+=======
+	select PPC44x_SIMPLE
+	select 440SPe
+	select FORCE_PCI
+>>>>>>> upstream/android-13
 	select PPC4xx_PCI_EXPRESS
 	select PCI_MSI
 	select PPC4xx_MSI
@@ -86,17 +133,26 @@ config KATMAI
 config RAINIER
 	bool "Rainier"
 	depends on 44x
+<<<<<<< HEAD
 	default n
 	select PPC44x_SIMPLE
 	select 440GRX
 	select PCI
+=======
+	select PPC44x_SIMPLE
+	select 440GRX
+	select FORCE_PCI
+>>>>>>> upstream/android-13
 	help
 	  This option enables support for the AMCC PPC440GRX evaluation board.
 
 config WARP
 	bool "PIKA Warp"
 	depends on 44x
+<<<<<<< HEAD
 	default n
+=======
+>>>>>>> upstream/android-13
 	select 440EP
 	help
 	  This option enables support for the PIKA Warp(tm) Appliance. The Warp
@@ -109,10 +165,16 @@ config WARP
 config ARCHES
 	bool "Arches"
 	depends on 44x
+<<<<<<< HEAD
 	default n
 	select PPC44x_SIMPLE
 	select 460EX # Odd since it uses 460GT but the effects are the same
 	select PCI
+=======
+	select PPC44x_SIMPLE
+	select 460EX # Odd since it uses 460GT but the effects are the same
+	select FORCE_PCI
+>>>>>>> upstream/android-13
 	select PPC4xx_PCI_EXPRESS
 	help
 	  This option enables support for the AMCC Dual PPC460GT evaluation board.
@@ -120,9 +182,14 @@ config ARCHES
 config CANYONLANDS
 	bool "Canyonlands"
 	depends on 44x
+<<<<<<< HEAD
 	default n
 	select 460EX
 	select PCI
+=======
+	select 460EX
+	select FORCE_PCI
+>>>>>>> upstream/android-13
 	select PPC4xx_PCI_EXPRESS
 	select PCI_MSI
 	select PPC4xx_MSI
@@ -134,10 +201,16 @@ config CANYONLANDS
 config GLACIER
 	bool "Glacier"
 	depends on 44x
+<<<<<<< HEAD
 	default n
 	select PPC44x_SIMPLE
 	select 460EX # Odd since it uses 460GT but the effects are the same
 	select PCI
+=======
+	select PPC44x_SIMPLE
+	select 460EX # Odd since it uses 460GT but the effects are the same
+	select FORCE_PCI
+>>>>>>> upstream/android-13
 	select PPC4xx_PCI_EXPRESS
 	select IBM_EMAC_RGMII if IBM_EMAC
 	select IBM_EMAC_ZMII if IBM_EMAC
@@ -147,10 +220,16 @@ config GLACIER
 config REDWOOD
 	bool "Redwood"
 	depends on 44x
+<<<<<<< HEAD
 	default n
 	select PPC44x_SIMPLE
 	select 460SX
 	select PCI
+=======
+	select PPC44x_SIMPLE
+	select 460SX
+	select FORCE_PCI
+>>>>>>> upstream/android-13
 	select PPC4xx_PCI_EXPRESS
 	select PCI_MSI
 	select PPC4xx_MSI
@@ -160,10 +239,16 @@ config REDWOOD
 config EIGER
 	bool "Eiger"
 	depends on 44x
+<<<<<<< HEAD
 	default n
 	select PPC44x_SIMPLE
 	select 460SX
 	select PCI
+=======
+	select PPC44x_SIMPLE
+	select 460SX
+	select FORCE_PCI
+>>>>>>> upstream/android-13
 	select PPC4xx_PCI_EXPRESS
 	select IBM_EMAC_RGMII if IBM_EMAC
 	help
@@ -172,18 +257,28 @@ config EIGER
 config YOSEMITE
 	bool "Yosemite"
 	depends on 44x
+<<<<<<< HEAD
 	default n
 	select PPC44x_SIMPLE
 	select 440EP
 	select PCI
+=======
+	select PPC44x_SIMPLE
+	select 440EP
+	select FORCE_PCI
+>>>>>>> upstream/android-13
 	help
 	  This option enables support for the AMCC PPC440EP evaluation board.
 
 config ISS4xx
 	bool "ISS 4xx Simulator"
+<<<<<<< HEAD
 	depends on (44x || 40x)
 	default n
 	select 405GP if 40x
+=======
+	depends on 44x
+>>>>>>> upstream/android-13
 	select 440GP if 44x && !PPC_47x
 	select PPC_FPU
 	select OF_RTC
@@ -193,9 +288,15 @@ config ISS4xx
 config CURRITUCK
 	bool "IBM Currituck (476fpe) Support"
 	depends on PPC_47x
+<<<<<<< HEAD
 	default n
 	select SWIOTLB
 	select 476FPE
+=======
+	select SWIOTLB
+	select 476FPE
+	select FORCE_PCI
+>>>>>>> upstream/android-13
 	select PPC4xx_PCI_EXPRESS
 	help
 	  This option enables support for the IBM Currituck (476fpe) evaluation board
@@ -203,7 +304,10 @@ config CURRITUCK
 config FSP2
 	bool "IBM FSP2 (476fpe) Support"
 	depends on PPC_47x
+<<<<<<< HEAD
 	default n
+=======
+>>>>>>> upstream/android-13
 	select 476FPE
 	select IBM_EMAC_EMAC4 if IBM_EMAC
 	select IBM_EMAC_RGMII if IBM_EMAC
@@ -215,25 +319,38 @@ config FSP2
 config AKEBONO
 	bool "IBM Akebono (476gtr) Support"
 	depends on PPC_47x
+<<<<<<< HEAD
 	default n
 	select SWIOTLB
 	select 476FPE
 	select PPC4xx_PCI_EXPRESS
+=======
+	select SWIOTLB
+	select 476FPE
+	select PPC4xx_PCI_EXPRESS
+	select FORCE_PCI
+>>>>>>> upstream/android-13
 	select PCI_MSI
 	select PPC4xx_HSTA_MSI
 	select I2C
 	select I2C_IBM_IIC
+<<<<<<< HEAD
 	select NETDEVICES
 	select ETHERNET
 	select NET_VENDOR_IBM
+=======
+>>>>>>> upstream/android-13
 	select IBM_EMAC_EMAC4 if IBM_EMAC
 	select USB if USB_SUPPORT
 	select USB_OHCI_HCD_PLATFORM if USB_OHCI_HCD
 	select USB_EHCI_HCD_PLATFORM if USB_EHCI_HCD
+<<<<<<< HEAD
 	select MMC_SDHCI
 	select MMC_SDHCI_PLTFM
 	select ATA
 	select SATA_AHCI_PLATFORM
+=======
+>>>>>>> upstream/android-13
 	help
 	  This option enables support for the IBM Akebono (476gtr) evaluation board
 
@@ -241,14 +358,21 @@ config AKEBONO
 config ICON
 	bool "Icon"
 	depends on 44x
+<<<<<<< HEAD
 	default n
 	select PPC44x_SIMPLE
 	select 440SPe
 	select PCI
+=======
+	select PPC44x_SIMPLE
+	select 440SPe
+	select FORCE_PCI
+>>>>>>> upstream/android-13
 	select PPC4xx_PCI_EXPRESS
 	help
 	  This option enables support for the AMCC PPC440SPe evaluation board.
 
+<<<<<<< HEAD
 config XILINX_VIRTEX440_GENERIC_BOARD
 	bool "Generic Xilinx Virtex 5 FXT board support"
 	depends on 44x
@@ -281,6 +405,11 @@ config PPC44x_SIMPLE
 	bool "Simple PowerPC 44x board support"
 	depends on 44x
 	default n
+=======
+config PPC44x_SIMPLE
+	bool "Simple PowerPC 44x board support"
+	depends on 44x
+>>>>>>> upstream/android-13
 	help
 	  This option enables the simple PowerPC 44x platform support.
 
@@ -291,6 +420,7 @@ config PPC4xx_GPIO
 	help
 	  Enable gpiolib support for ppc440 based boards
 
+<<<<<<< HEAD
 config PPC4xx_OCM
 	bool "PPC4xx On Chip Memory (OCM) support"
 	depends on 4xx
@@ -299,6 +429,8 @@ config PPC4xx_OCM
 	  Enable OCM support for PowerPC 4xx platforms with on chip memory,
 	  OCM provides the fast place for memory access to improve performance.
 
+=======
+>>>>>>> upstream/android-13
 # 44x specific CPU modules, selected based on the board above.
 config 440EP
 	bool
@@ -381,6 +513,7 @@ config 476FPE_ERR46
 config IBM440EP_ERR42
 	bool
 
+<<<<<<< HEAD
 # Xilinx specific config options.
 config XILINX_VIRTEX
 	bool
@@ -391,3 +524,5 @@ config XILINX_VIRTEX_5_FXT
 	bool
 	select XILINX_VIRTEX
 
+=======
+>>>>>>> upstream/android-13

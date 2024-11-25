@@ -51,6 +51,10 @@
 #include <linux/rwsem.h>
 #include <linux/xattr.h>
 #include <linux/exportfs.h>
+<<<<<<< HEAD
+=======
+#include <linux/hashtable.h>
+>>>>>>> upstream/android-13
 
 #include <asm/unaligned.h>
 
@@ -105,8 +109,15 @@ enum orangefs_vfs_op_states {
 extern int orangefs_init_acl(struct inode *inode, struct inode *dir);
 extern const struct xattr_handler *orangefs_xattr_handlers[];
 
+<<<<<<< HEAD
 extern struct posix_acl *orangefs_get_acl(struct inode *inode, int type);
 extern int orangefs_set_acl(struct inode *inode, struct posix_acl *acl, int type);
+=======
+extern struct posix_acl *orangefs_get_acl(struct inode *inode, int type, bool rcu);
+extern int orangefs_set_acl(struct user_namespace *mnt_userns,
+			    struct inode *inode, struct posix_acl *acl,
+			    int type);
+>>>>>>> upstream/android-13
 
 /*
  * orangefs data structures
@@ -192,7 +203,17 @@ struct orangefs_inode_s {
 	sector_t last_failed_block_index_read;
 
 	unsigned long getattr_time;
+<<<<<<< HEAD
 	u32 getattr_mask;
+=======
+	unsigned long mapping_time;
+	int attr_valid;
+	kuid_t attr_uid;
+	kgid_t attr_gid;
+	unsigned long bitlock;
+
+	DECLARE_HASHTABLE(xattr_cache, 4);
+>>>>>>> upstream/android-13
 };
 
 /* per superblock private orangefs info */
@@ -217,10 +238,32 @@ struct orangefs_stats {
 	unsigned long writes;
 };
 
+<<<<<<< HEAD
 extern struct orangefs_stats orangefs_stats;
 
 /*
  * NOTE: See Documentation/filesystems/porting for information
+=======
+struct orangefs_cached_xattr {
+	struct hlist_node node;
+	char key[ORANGEFS_MAX_XATTR_NAMELEN];
+	char val[ORANGEFS_MAX_XATTR_VALUELEN];
+	ssize_t length;
+	unsigned long timeout;
+};
+
+struct orangefs_write_range {
+	loff_t pos;
+	size_t len;
+	kuid_t uid;
+	kgid_t gid;
+};
+
+extern struct orangefs_stats orangefs_stats;
+
+/*
+ * NOTE: See Documentation/filesystems/porting.rst for information
+>>>>>>> upstream/android-13
  * on implementing FOO_I and properly accessing fs private data
  */
 static inline struct orangefs_inode_s *ORANGEFS_I(struct inode *inode)
@@ -329,18 +372,33 @@ void fsid_key_table_finalize(void);
 /*
  * defined in inode.c
  */
+<<<<<<< HEAD
+=======
+vm_fault_t orangefs_page_mkwrite(struct vm_fault *);
+>>>>>>> upstream/android-13
 struct inode *orangefs_new_inode(struct super_block *sb,
 			      struct inode *dir,
 			      int mode,
 			      dev_t dev,
 			      struct orangefs_object_kref *ref);
 
+<<<<<<< HEAD
 int orangefs_setattr(struct dentry *dentry, struct iattr *iattr);
 
 int orangefs_getattr(const struct path *path, struct kstat *stat,
 		     u32 request_mask, unsigned int flags);
 
 int orangefs_permission(struct inode *inode, int mask);
+=======
+int __orangefs_setattr(struct inode *, struct iattr *);
+int orangefs_setattr(struct user_namespace *, struct dentry *, struct iattr *);
+
+int orangefs_getattr(struct user_namespace *mnt_userns, const struct path *path,
+		     struct kstat *stat, u32 request_mask, unsigned int flags);
+
+int orangefs_permission(struct user_namespace *mnt_userns,
+			struct inode *inode, int mask);
+>>>>>>> upstream/android-13
 
 int orangefs_update_time(struct inode *, struct timespec64 *, int);
 
@@ -355,11 +413,14 @@ ssize_t orangefs_listxattr(struct dentry *dentry, char *buffer, size_t size);
 struct inode *orangefs_iget(struct super_block *sb,
 			 struct orangefs_object_kref *ref);
 
+<<<<<<< HEAD
 ssize_t orangefs_inode_read(struct inode *inode,
 			    struct iov_iter *iter,
 			    loff_t *offset,
 			    loff_t readahead_size);
 
+=======
+>>>>>>> upstream/android-13
 /*
  * defined in devorangefs-req.c
  */
@@ -371,6 +432,19 @@ int is_daemon_in_service(void);
 bool __is_daemon_in_service(void);
 
 /*
+<<<<<<< HEAD
+=======
+ * defined in file.c
+ */
+int orangefs_revalidate_mapping(struct inode *);
+ssize_t wait_for_direct_io(enum ORANGEFS_io_type, struct inode *, loff_t *,
+    struct iov_iter *, size_t, loff_t, struct orangefs_write_range *, int *,
+    struct file *);
+ssize_t do_readv_writev(enum ORANGEFS_io_type, struct file *, loff_t *,
+    struct iov_iter *);
+
+/*
+>>>>>>> upstream/android-13
  * defined in orangefs-utils.c
  */
 __s32 fsid_of_op(struct orangefs_kernel_op_s *op);
@@ -386,12 +460,23 @@ int orangefs_inode_setxattr(struct inode *inode,
 			 size_t size,
 			 int flags);
 
+<<<<<<< HEAD
 int orangefs_inode_getattr(struct inode *inode, int new, int bypass,
     u32 request_mask);
 
 int orangefs_inode_check_changed(struct inode *inode);
 
 int orangefs_inode_setattr(struct inode *inode, struct iattr *iattr);
+=======
+#define ORANGEFS_GETATTR_NEW 1
+#define ORANGEFS_GETATTR_SIZE 2
+
+int orangefs_inode_getattr(struct inode *, int);
+
+int orangefs_inode_check_changed(struct inode *inode);
+
+int orangefs_inode_setattr(struct inode *inode);
+>>>>>>> upstream/android-13
 
 bool orangefs_cancel_op_in_progress(struct orangefs_kernel_op_s *op);
 
@@ -400,6 +485,10 @@ int orangefs_normalize_to_errno(__s32 error_code);
 extern struct mutex orangefs_request_mutex;
 extern int op_timeout_secs;
 extern int slot_timeout_secs;
+<<<<<<< HEAD
+=======
+extern int orangefs_cache_timeout_msecs;
+>>>>>>> upstream/android-13
 extern int orangefs_dcache_timeout_msecs;
 extern int orangefs_getattr_timeout_msecs;
 extern struct list_head orangefs_superblocks;
@@ -426,6 +515,10 @@ extern const struct dentry_operations orangefs_dentry_operations;
 #define ORANGEFS_OP_CANCELLATION  4   /* this is a cancellation */
 #define ORANGEFS_OP_NO_MUTEX      8   /* don't acquire request_mutex */
 #define ORANGEFS_OP_ASYNC         16  /* Queue it, but don't wait */
+<<<<<<< HEAD
+=======
+#define ORANGEFS_OP_WRITEBACK     32
+>>>>>>> upstream/android-13
 
 int service_operation(struct orangefs_kernel_op_s *op,
 		      const char *op_name,

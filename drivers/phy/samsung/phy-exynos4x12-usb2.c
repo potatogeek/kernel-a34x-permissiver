@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Samsung SoC USB 1.1/2.0 PHY driver - Exynos 4x12 support
  *
  * Copyright (C) 2013 Samsung Electronics Co., Ltd.
  * Author: Kamil Debski <k.debski@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>

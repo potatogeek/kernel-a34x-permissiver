@@ -260,8 +260,38 @@
 };
 
 &soc {
+<<<<<<< HEAD
 	sdhci@f9824900 {
 		status = "ok";
+=======
+	usb@f9a55000 {
+		status = "okay";
+
+		phys = <&usb_hs1_phy>;
+		phy-select = <&tcsr 0xb000 0>;
+		extcon = <&smbb>, <&usb_id>;
+		vbus-supply = <&chg_otg>;
+
+		hnp-disable;
+		srp-disable;
+		adp-disable;
+
+		ulpi {
+			phy@a {
+				status = "okay";
+
+				v1p8-supply = <&pm8941_l6>;
+				v3p3-supply = <&pm8941_l24>;
+
+				extcon = <&smbb>;
+				qcom,init-seq = /bits/ 8 <0x1 0x64>;
+			};
+		};
+	};
+
+	sdhci@f9824900 {
+		status = "okay";
+>>>>>>> upstream/android-13
 
 		vmmc-supply = <&pm8941_l20>;
 		vqmmc-supply = <&pm8941_s3>;
@@ -274,7 +304,11 @@
 	};
 
 	sdhci@f98a4900 {
+<<<<<<< HEAD
 		status = "ok";
+=======
+		status = "okay";
+>>>>>>> upstream/android-13
 
 		bus-width = <4>;
 
@@ -288,14 +322,22 @@
 	};
 
 	serial@f991e000 {
+<<<<<<< HEAD
 		status = "ok";
+=======
+		status = "okay";
+>>>>>>> upstream/android-13
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&blsp1_uart2_pin_a>;
 	};
 
 	i2c@f9924000 {
+<<<<<<< HEAD
 		status = "ok";
+=======
+		status = "okay";
+>>>>>>> upstream/android-13
 
 		clock-frequency = <355000>;
 		qcom,src-freq = <50000000>;
@@ -439,7 +481,11 @@
 		};
 
 		coincell@2800 {
+<<<<<<< HEAD
 			status = "ok";
+=======
+			status = "okay";
+>>>>>>> upstream/android-13
 			qcom,rset-ohms = <2100>;
 			qcom,vset-millivolts = <3000>;
 		};
@@ -447,7 +493,11 @@
 
 	pm8941@1 {
 		wled@d800 {
+<<<<<<< HEAD
 			status = "ok";
+=======
+			status = "okay";
+>>>>>>> upstream/android-13
 
 			qcom,cs-out;
 			qcom,current-limit = <20>;

@@ -10,6 +10,10 @@
 #include <linux/module.h>
 #include <linux/of_irq.h>
 #include <linux/of_platform.h>
+<<<<<<< HEAD
+=======
+#include <linux/pinctrl/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/pm_runtime.h>
 #include <linux/serial_8250.h>
@@ -18,36 +22,53 @@
 #include <linux/dma-mapping.h>
 #include <linux/tty.h>
 #include <linux/tty_flip.h>
+<<<<<<< HEAD
 #include <linux/delay.h>
 #include "mt-plat/mtk_printk_ctrl.h"
+=======
+>>>>>>> upstream/android-13
 
 #include "8250.h"
 
 #define MTK_UART_HIGHS		0x09	/* Highspeed register */
 #define MTK_UART_SAMPLE_COUNT	0x0a	/* Sample count register */
 #define MTK_UART_SAMPLE_POINT	0x0b	/* Sample point register */
+<<<<<<< HEAD
 #define MTK_UART_AUTOBAUD	0x0c	/* Auto Baud Monitor */
 #define MTK_UART_RATE_FIX	0x0d	/* UART Rate Fix Register */
 #define MTK_UART_GUARD		0x0f	/* Guard time added register */
 #define MTK_UART_ESCAPE_DAT	0x10	/* Escape Character register */
 #define MTK_UART_ESCAPE_EN	0x11	/* Escape Enable register */
 #define MTK_UART_SLEEP_EN	0x12	/* Sleep Enable register */
+=======
+#define MTK_UART_RATE_FIX	0x0d	/* UART Rate Fix Register */
+#define MTK_UART_ESCAPE_DAT	0x10	/* Escape Character register */
+#define MTK_UART_ESCAPE_EN	0x11	/* Escape Enable register */
+>>>>>>> upstream/android-13
 #define MTK_UART_DMA_EN		0x13	/* DMA Enable register */
 #define MTK_UART_RXTRI_AD	0x14	/* RX Trigger address */
 #define MTK_UART_FRACDIV_L	0x15	/* Fractional divider LSB address */
 #define MTK_UART_FRACDIV_M	0x16	/* Fractional divider MSB address */
+<<<<<<< HEAD
 #define MTK_UART_FCR_RD		0x17	/* Fifo control register */
 #define MTK_UART_DEBUG0	0x18
 #define MTK_UART_SLEEP_REQ	0x2d	/* Sleep request register */
 #define MTK_UART_SLEEP_ACK	0x2e	/* Sleep ack register */
+=======
+#define MTK_UART_DEBUG0	0x18
+>>>>>>> upstream/android-13
 #define MTK_UART_IER_XOFFI	0x20	/* Enable XOFF character interrupt */
 #define MTK_UART_IER_RTSI	0x40	/* Enable RTS Modem status interrupt */
 #define MTK_UART_IER_CTSI	0x80	/* Enable CTS Modem status interrupt */
 
+<<<<<<< HEAD
 #define MTK_UART_DLL  0x24
 #define MTK_UART_DLH  0x25
 #define MTK_UART_FEATURE_SEL  0x27
 #define MTK_UART_EFR    0x26
+=======
+#define MTK_UART_EFR		38	/* I/O: Extended Features Register */
+>>>>>>> upstream/android-13
 #define MTK_UART_EFR_EN		0x10	/* Enable enhancement feature */
 #define MTK_UART_EFR_RTS	0x40	/* Enable hardware rx flow control */
 #define MTK_UART_EFR_CTS	0x80	/* Enable hardware tx flow control */
@@ -59,17 +80,25 @@
 #define MTK_UART_DMA_EN_TX	0x2
 #define MTK_UART_DMA_EN_RX	0x5
 
+<<<<<<< HEAD
 #define MTK_UART_SEND_SLEEP_REQ	0x1	/* Request uart to sleep */
 #define MTK_UART_SLEEP_ACK_IDLE	0x1	/* uart in idle state */
 #define MTK_UART_WAIT_ACK_TIMES	50
+=======
+>>>>>>> upstream/android-13
 #define MTK_UART_ESCAPE_CHAR	0x77	/* Escape char added under sw fc */
 #define MTK_UART_RX_SIZE	0x8000
 #define MTK_UART_TX_TRIGGER	1
 #define MTK_UART_RX_TRIGGER	MTK_UART_RX_SIZE
 
+<<<<<<< HEAD
 #ifdef CONFIG_CONSOLE_LOCK_DURATION_DETECT
 char uart_write_statbuf[256];
 #endif
+=======
+#define MTK_UART_XON1		40	/* I/O: Xon character 1 */
+#define MTK_UART_XOFF1		42	/* I/O: Xoff character 1 */
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_SERIAL_8250_DMA
 enum dma_rx_status {
@@ -79,6 +108,7 @@ enum dma_rx_status {
 };
 #endif
 
+<<<<<<< HEAD
 struct mtk8250_reg {
 	unsigned int ier;
 	unsigned int mcr;
@@ -106,17 +136,26 @@ struct mtk8250_reg {
 	unsigned int fcr_rd;
 	unsigned int rx_sel;
 };
+=======
+>>>>>>> upstream/android-13
 struct mtk8250_data {
 	int			line;
 	unsigned int		rx_pos;
 	unsigned int		clk_count;
 	struct clk		*uart_clk;
 	struct clk		*bus_clk;
+<<<<<<< HEAD
 	struct mtk8250_reg	reg;
+=======
+>>>>>>> upstream/android-13
 	struct uart_8250_dma	*dma;
 #ifdef CONFIG_SERIAL_8250_DMA
 	enum dma_rx_status	rx_status;
 #endif
+<<<<<<< HEAD
+=======
+	int			rx_wakeup_irq;
+>>>>>>> upstream/android-13
 };
 
 /* flow control mode */
@@ -138,10 +177,19 @@ static void mtk8250_dma_rx_complete(void *param)
 	struct dma_tx_state state;
 	int copied, total, cnt;
 	unsigned char *ptr;
+<<<<<<< HEAD
+=======
+	unsigned long flags;
+>>>>>>> upstream/android-13
 
 	if (data->rx_status == DMA_RX_SHUTDOWN)
 		return;
 
+<<<<<<< HEAD
+=======
+	spin_lock_irqsave(&up->port.lock, flags);
+
+>>>>>>> upstream/android-13
 	dmaengine_tx_status(dma->rxchan, dma->rx_cookie, &state);
 	total = dma->rx_size - state.residue;
 	cnt = total;
@@ -165,6 +213,11 @@ static void mtk8250_dma_rx_complete(void *param)
 	tty_flip_buffer_push(tty_port);
 
 	mtk8250_rx_dma(up);
+<<<<<<< HEAD
+=======
+
+	spin_unlock_irqrestore(&up->port.lock, flags);
+>>>>>>> upstream/android-13
 }
 
 static void mtk8250_rx_dma(struct uart_8250_port *up)
@@ -209,7 +262,11 @@ static void mtk8250_dma_enable(struct uart_8250_port *up)
 		   MTK_UART_DMA_EN_RX | MTK_UART_DMA_EN_TX);
 
 	serial_out(up, UART_LCR, UART_LCR_CONF_MODE_B);
+<<<<<<< HEAD
 	serial_out(up, UART_EFR, UART_EFR_ECB);
+=======
+	serial_out(up, MTK_UART_EFR, UART_EFR_ECB);
+>>>>>>> upstream/android-13
 	serial_out(up, UART_LCR, lcr);
 
 	if (dmaengine_slave_config(dma->rxchan, &dma->rxconf) != 0)
@@ -269,19 +326,35 @@ static void mtk8250_enable_intrs(struct uart_8250_port *up, int mask)
 static void mtk8250_set_flow_ctrl(struct uart_8250_port *up, int mode)
 {
 	struct uart_port *port = &up->port;
+<<<<<<< HEAD
 
 	serial_out(up, MTK_UART_FEATURE_SEL, 1);
 	serial_out(up, MTK_UART_EFR, UART_EFR_ECB);
 	serial_out(up, MTK_UART_FEATURE_SEL, 0);
+=======
+	int lcr = serial_in(up, UART_LCR);
+
+	serial_out(up, UART_LCR, UART_LCR_CONF_MODE_B);
+	serial_out(up, MTK_UART_EFR, UART_EFR_ECB);
+	serial_out(up, UART_LCR, lcr);
+	lcr = serial_in(up, UART_LCR);
+>>>>>>> upstream/android-13
 
 	switch (mode) {
 	case MTK_UART_FC_NONE:
 		serial_out(up, MTK_UART_ESCAPE_DAT, MTK_UART_ESCAPE_CHAR);
 		serial_out(up, MTK_UART_ESCAPE_EN, 0x00);
+<<<<<<< HEAD
 		serial_out(up, MTK_UART_FEATURE_SEL, 1);
 		serial_out(up, MTK_UART_EFR, serial_in(up, MTK_UART_EFR) &
 			(~(MTK_UART_EFR_HW_FC | MTK_UART_EFR_SW_FC_MASK)));
 		serial_out(up, MTK_UART_FEATURE_SEL, 0);
+=======
+		serial_out(up, UART_LCR, UART_LCR_CONF_MODE_B);
+		serial_out(up, MTK_UART_EFR, serial_in(up, MTK_UART_EFR) &
+			(~(MTK_UART_EFR_HW_FC | MTK_UART_EFR_SW_FC_MASK)));
+		serial_out(up, UART_LCR, lcr);
+>>>>>>> upstream/android-13
 		mtk8250_disable_intrs(up, MTK_UART_IER_XOFFI |
 			MTK_UART_IER_RTSI | MTK_UART_IER_CTSI);
 		break;
@@ -290,14 +363,22 @@ static void mtk8250_set_flow_ctrl(struct uart_8250_port *up, int mode)
 		serial_out(up, MTK_UART_ESCAPE_DAT, MTK_UART_ESCAPE_CHAR);
 		serial_out(up, MTK_UART_ESCAPE_EN, 0x00);
 		serial_out(up, UART_MCR, UART_MCR_RTS);
+<<<<<<< HEAD
 		serial_out(up, MTK_UART_FEATURE_SEL, 1);
+=======
+		serial_out(up, UART_LCR, UART_LCR_CONF_MODE_B);
+>>>>>>> upstream/android-13
 
 		/*enable hw flow control*/
 		serial_out(up, MTK_UART_EFR, MTK_UART_EFR_HW_FC |
 			(serial_in(up, MTK_UART_EFR) &
 			(~(MTK_UART_EFR_HW_FC | MTK_UART_EFR_SW_FC_MASK))));
 
+<<<<<<< HEAD
 		serial_out(up, MTK_UART_FEATURE_SEL, 0);
+=======
+		serial_out(up, UART_LCR, lcr);
+>>>>>>> upstream/android-13
 		mtk8250_disable_intrs(up, MTK_UART_IER_XOFFI);
 		mtk8250_enable_intrs(up, MTK_UART_IER_CTSI | MTK_UART_IER_RTSI);
 		break;
@@ -305,16 +386,26 @@ static void mtk8250_set_flow_ctrl(struct uart_8250_port *up, int mode)
 	case MTK_UART_FC_SW:	/*MTK software flow control */
 		serial_out(up, MTK_UART_ESCAPE_DAT, MTK_UART_ESCAPE_CHAR);
 		serial_out(up, MTK_UART_ESCAPE_EN, 0x01);
+<<<<<<< HEAD
 		serial_out(up, MTK_UART_FEATURE_SEL, 1);
+=======
+		serial_out(up, UART_LCR, UART_LCR_CONF_MODE_B);
+>>>>>>> upstream/android-13
 
 		/*enable sw flow control */
 		serial_out(up, MTK_UART_EFR, MTK_UART_EFR_XON1_XOFF1 |
 			(serial_in(up, MTK_UART_EFR) &
 			(~(MTK_UART_EFR_HW_FC | MTK_UART_EFR_SW_FC_MASK))));
 
+<<<<<<< HEAD
 		serial_out(up, UART_XON1, START_CHAR(port->state->port.tty));
 		serial_out(up, UART_XOFF1, STOP_CHAR(port->state->port.tty));
 		serial_out(up, MTK_UART_FEATURE_SEL, 0);
+=======
+		serial_out(up, MTK_UART_XON1, START_CHAR(port->state->port.tty));
+		serial_out(up, MTK_UART_XOFF1, STOP_CHAR(port->state->port.tty));
+		serial_out(up, UART_LCR, lcr);
+>>>>>>> upstream/android-13
 		mtk8250_disable_intrs(up, MTK_UART_IER_CTSI|MTK_UART_IER_RTSI);
 		mtk8250_enable_intrs(up, MTK_UART_IER_XOFFI);
 		break;
@@ -324,6 +415,7 @@ static void mtk8250_set_flow_ctrl(struct uart_8250_port *up, int mode)
 }
 
 static void
+<<<<<<< HEAD
 mtk8250_set_divisor(struct uart_port *port, unsigned int baud,
 			unsigned int quot, unsigned int quot_frac)
 {
@@ -334,6 +426,8 @@ mtk8250_set_divisor(struct uart_port *port, unsigned int baud,
 }
 
 static void
+=======
+>>>>>>> upstream/android-13
 mtk8250_set_termios(struct uart_port *port, struct ktermios *termios,
 			struct ktermios *old)
 {
@@ -410,6 +504,16 @@ mtk8250_set_termios(struct uart_port *port, struct ktermios *termios,
 	 */
 	uart_update_timeout(port, termios->c_cflag, baud);
 
+<<<<<<< HEAD
+=======
+	/* set DLAB we have cval saved in up->lcr from the call to the core */
+	serial_port_out(port, UART_LCR, up->lcr | UART_LCR_DLAB);
+	serial_dl_write(up, quot);
+
+	/* reset DLAB */
+	serial_port_out(port, UART_LCR, up->lcr);
+
+>>>>>>> upstream/android-13
 	if (baud >= 115200) {
 		unsigned int tmp;
 
@@ -432,8 +536,11 @@ mtk8250_set_termios(struct uart_port *port, struct ktermios *termios,
 		serial_port_out(port, MTK_UART_FRACDIV_M, 0x00);
 	}
 
+<<<<<<< HEAD
 	mtk8250_set_divisor(port, baud, quot, fraction);
 
+=======
+>>>>>>> upstream/android-13
 	if ((termios->c_cflag & CRTSCTS) && (!(termios->c_iflag & CRTSCTS)))
 		mode = MTK_UART_FC_HW;
 	else if (termios->c_iflag & CRTSCTS)
@@ -452,6 +559,7 @@ mtk8250_set_termios(struct uart_port *port, struct ktermios *termios,
 		tty_termios_encode_baud_rate(termios, baud, baud);
 }
 
+<<<<<<< HEAD
 static int mtk8250_handle_irq(struct uart_port *port)
 {
 	struct uart_8250_port *up = up_to_u8250p(port);
@@ -476,6 +584,8 @@ static int mtk8250_handle_irq(struct uart_port *port)
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int __maybe_unused mtk8250_runtime_suspend(struct device *dev)
 {
 	struct mtk8250_data *data = dev_get_drvdata(dev);
@@ -568,6 +678,12 @@ static int mtk8250_probe_of(struct platform_device *pdev, struct uart_port *p,
 	if (dmacnt == 2) {
 		data->dma = devm_kzalloc(&pdev->dev, sizeof(*data->dma),
 					 GFP_KERNEL);
+<<<<<<< HEAD
+=======
+		if (!data->dma)
+			return -ENOMEM;
+
+>>>>>>> upstream/android-13
 		data->dma->fn = mtk8250_dma_filter;
 		data->dma->rx_size = MTK_UART_RX_SIZE;
 		data->dma->rxconf.src_maxburst = MTK_UART_RX_TRIGGER;
@@ -581,6 +697,7 @@ static int mtk8250_probe_of(struct platform_device *pdev, struct uart_port *p,
 static int mtk8250_probe(struct platform_device *pdev)
 {
 	struct uart_8250_port uart = {};
+<<<<<<< HEAD
 	struct resource *regs = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	struct resource *irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
 	struct mtk8250_data *data;
@@ -588,6 +705,19 @@ static int mtk8250_probe(struct platform_device *pdev)
 
 	if (!regs || !irq) {
 		dev_err(&pdev->dev, "no registers/irq defined\n");
+=======
+	struct mtk8250_data *data;
+	struct resource *regs;
+	int irq, err;
+
+	irq = platform_get_irq(pdev, 0);
+	if (irq < 0)
+		return irq;
+
+	regs = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+	if (!regs) {
+		dev_err(&pdev->dev, "no registers defined\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -611,7 +741,11 @@ static int mtk8250_probe(struct platform_device *pdev)
 
 	spin_lock_init(&uart.port.lock);
 	uart.port.mapbase = regs->start;
+<<<<<<< HEAD
 	uart.port.irq = irq->start;
+=======
+	uart.port.irq = irq;
+>>>>>>> upstream/android-13
 	uart.port.pm = mtk8250_do_pm;
 	uart.port.type = PORT_16550;
 	uart.port.flags = UPF_BOOT_AUTOCONF | UPF_FIXED_PORT;
@@ -622,8 +756,11 @@ static int mtk8250_probe(struct platform_device *pdev)
 	uart.port.shutdown = mtk8250_shutdown;
 	uart.port.startup = mtk8250_startup;
 	uart.port.set_termios = mtk8250_set_termios;
+<<<<<<< HEAD
 	uart.port.handle_irq = mtk8250_handle_irq;
 	uart.port.set_divisor = mtk8250_set_divisor;
+=======
+>>>>>>> upstream/android-13
 	uart.port.uartclk = clk_get_rate(data->uart_clk);
 #ifdef CONFIG_SERIAL_8250_DMA
 	if (data->dma)
@@ -639,6 +776,7 @@ static int mtk8250_probe(struct platform_device *pdev)
 	pm_runtime_enable(&pdev->dev);
 	err = mtk8250_runtime_resume(&pdev->dev);
 	if (err)
+<<<<<<< HEAD
 		return err;
 
 	data->line = serial8250_register_8250_port(&uart);
@@ -646,6 +784,24 @@ static int mtk8250_probe(struct platform_device *pdev)
 		return data->line;
 
 	return 0;
+=======
+		goto err_pm_disable;
+
+	data->line = serial8250_register_8250_port(&uart);
+	if (data->line < 0) {
+		err = data->line;
+		goto err_pm_disable;
+	}
+
+	data->rx_wakeup_irq = platform_get_irq_optional(pdev, 1);
+
+	return 0;
+
+err_pm_disable:
+	pm_runtime_disable(&pdev->dev);
+
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static int mtk8250_remove(struct platform_device *pdev)
@@ -665,6 +821,7 @@ static int mtk8250_remove(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM_SLEEP
 static int __maybe_unused mtk8250_suspend(struct device *dev)
 {
@@ -672,18 +829,52 @@ static int __maybe_unused mtk8250_suspend(struct device *dev)
 
 	serial8250_suspend_port(data->line);
 
+=======
+static int __maybe_unused mtk8250_suspend(struct device *dev)
+{
+	struct mtk8250_data *data = dev_get_drvdata(dev);
+	int irq = data->rx_wakeup_irq;
+	int err;
+
+	serial8250_suspend_port(data->line);
+
+	pinctrl_pm_select_sleep_state(dev);
+	if (irq >= 0) {
+		err = enable_irq_wake(irq);
+		if (err) {
+			dev_err(dev,
+				"failed to enable irq wake on IRQ %d: %d\n",
+				irq, err);
+			pinctrl_pm_select_default_state(dev);
+			serial8250_resume_port(data->line);
+			return err;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int __maybe_unused mtk8250_resume(struct device *dev)
 {
 	struct mtk8250_data *data = dev_get_drvdata(dev);
+<<<<<<< HEAD
+=======
+	int irq = data->rx_wakeup_irq;
+
+	if (irq >= 0)
+		disable_irq_wake(irq);
+	pinctrl_pm_select_default_state(dev);
+>>>>>>> upstream/android-13
 
 	serial8250_resume_port(data->line);
 
 	return 0;
 }
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static const struct dev_pm_ops mtk8250_pm_ops = {
 	SET_SYSTEM_SLEEP_PM_OPS(mtk8250_suspend, mtk8250_resume)
@@ -716,6 +907,10 @@ static int __init early_mtk8250_setup(struct earlycon_device *device,
 		return -ENODEV;
 
 	device->port.iotype = UPIO_MEM32;
+<<<<<<< HEAD
+=======
+	device->port.regshift = 2;
+>>>>>>> upstream/android-13
 
 	return early_serial8250_setup(device, NULL);
 }

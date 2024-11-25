@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  *  util.c
  *
  *  ORIGINAL AUTHOR: Savio Lam (lam836@cs.cuhk.hk)
  *  MODIFIED FOR LINUX KERNEL CONFIG BY: William Roadcap (roadcap@cfw.com)
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -17,6 +22,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <stdarg.h>
@@ -376,7 +383,11 @@ void print_title(WINDOW *dialog, const char *title, int width)
 /*
  * Print a string of text in a window, automatically wrap around to the
  * next line if the string is too long to fit on one line. Newline
+<<<<<<< HEAD
  * characters '\n' are propperly processed.  We start on a new line
+=======
+ * characters '\n' are properly processed.  We start on a new line
+>>>>>>> upstream/android-13
  * if there is no room for at least 4 nonblanks following a double-space.
  */
 void print_autowrap(WINDOW * win, const char *prompt, int width, int y, int x)
@@ -554,7 +565,11 @@ int first_alpha(const char *string, const char *exempt)
  * lxdialog suggest <ESC> <ESC> which is correctly translated to two
  * times esc. But then we need to ignore the second esc to avoid stepping
  * out one menu too much. Filter away all escaped key sequences since
+<<<<<<< HEAD
  * keypad(FALSE) turn off ncurses support for escape sequences - and thats
+=======
+ * keypad(FALSE) turn off ncurses support for escape sequences - and that's
+>>>>>>> upstream/android-13
  * needed to make notimeout() do as expected.
  */
 int on_key_esc(WINDOW *win)

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Extensible SAL Interface (ESI) support routines.
  *
@@ -18,10 +22,13 @@ MODULE_LICENSE("GPL");
 
 #define MODULE_NAME	"esi"
 
+<<<<<<< HEAD
 #define ESI_TABLE_GUID					\
     EFI_GUID(0x43EA58DC, 0xCF28, 0x4b06, 0xB3,		\
 	     0x91, 0xB7, 0x50, 0x59, 0x34, 0x2B, 0xD4)
 
+=======
+>>>>>>> upstream/android-13
 enum esi_systab_entry_type {
 	ESI_DESC_ENTRY_POINT = 0
 };
@@ -47,6 +54,7 @@ struct pdesc {
 
 static struct ia64_sal_systab *esi_systab;
 
+<<<<<<< HEAD
 static int __init esi_init (void)
 {
 	efi_config_table_t *config_tables;
@@ -68,6 +76,20 @@ static int __init esi_init (void)
 		return -ENODEV;
 
 	systab = __va(esi);
+=======
+extern unsigned long esi_phys;
+
+static int __init esi_init (void)
+{
+	struct ia64_sal_systab *systab;
+	char *p;
+	int i;
+
+	if (esi_phys == EFI_INVALID_TABLE_ADDR)
+		return -ENODEV;
+
+	systab = __va(esi_phys);
+>>>>>>> upstream/android-13
 
 	if (strncmp(systab->signature, "ESIT", 4) != 0) {
 		printk(KERN_ERR "bad signature in ESI system table!");

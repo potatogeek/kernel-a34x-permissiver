@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  *	Advantech Single Board Computer WDT driver
  *
@@ -9,11 +13,14 @@
  *	(c) Copyright 1996 Alan Cox <alan@lxorguk.ukuu.org.uk>,
  *						All Rights Reserved.
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *	Neither Alan Cox nor CymruNet Ltd. admit liability nor provide
  *	warranty for any of this software. This material is provided
  *	"AS-IS" and at no charge.
@@ -181,7 +188,11 @@ static long advwdt_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 		if (advwdt_set_heartbeat(new_timeout))
 			return -EINVAL;
 		advwdt_ping();
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case WDIOC_GETTIMEOUT:
 		return put_user(timeout, p);
 	default:
@@ -199,7 +210,11 @@ static int advwdt_open(struct inode *inode, struct file *file)
 	 */
 
 	advwdt_ping();
+<<<<<<< HEAD
 	return nonseekable_open(inode, file);
+=======
+	return stream_open(inode, file);
+>>>>>>> upstream/android-13
 }
 
 static int advwdt_close(struct inode *inode, struct file *file)
@@ -224,6 +239,10 @@ static const struct file_operations advwdt_fops = {
 	.llseek		= no_llseek,
 	.write		= advwdt_write,
 	.unlocked_ioctl	= advwdt_ioctl,
+<<<<<<< HEAD
+=======
+	.compat_ioctl	= compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 	.open		= advwdt_open,
 	.release	= advwdt_close,
 };

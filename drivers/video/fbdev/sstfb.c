@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/drivers/video/sstfb.c -- voodoo graphics frame buffer
  *
@@ -732,7 +736,11 @@ static ssize_t show_vgapass(struct device *device, struct device_attribute *attr
 {
 	struct fb_info *info = dev_get_drvdata(device);
 	struct sstfb_par *par = info->par;
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%d\n", par->vgapass);
+=======
+	return sprintf(buf, "%d\n", par->vgapass);
+>>>>>>> upstream/android-13
 }
 
 static struct device_attribute device_attrs[] = {
@@ -1306,7 +1314,11 @@ static int sstfb_setup(char *options)
 }
 
 
+<<<<<<< HEAD
 static struct fb_ops sstfb_ops = {
+=======
+static const struct fb_ops sstfb_ops = {
+>>>>>>> upstream/android-13
 	.owner		= THIS_MODULE,
 	.fb_check_var	= sstfb_check_var,
 	.fb_set_par	= sstfb_set_par,
@@ -1362,14 +1374,22 @@ static int sstfb_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 		goto fail_fb_mem;
 	}
 
+<<<<<<< HEAD
 	par->mmio_vbase = ioremap_nocache(fix->mmio_start,
+=======
+	par->mmio_vbase = ioremap(fix->mmio_start,
+>>>>>>> upstream/android-13
 					fix->mmio_len);
 	if (!par->mmio_vbase) {
 		printk(KERN_ERR "sstfb: cannot remap register area %#lx\n",
 		        fix->mmio_start);
 		goto fail_mmio_remap;
 	}
+<<<<<<< HEAD
 	info->screen_base = ioremap_nocache(fix->smem_start, 0x400000);
+=======
+	info->screen_base = ioremap(fix->smem_start, 0x400000);
+>>>>>>> upstream/android-13
 	if (!info->screen_base) {
 		printk(KERN_ERR "sstfb: cannot remap framebuffer %#lx\n",
 		        fix->smem_start);
@@ -1389,7 +1409,11 @@ static int sstfb_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	        fix->smem_start, info->screen_base,
 	        fix->smem_len >> 20);
 
+<<<<<<< HEAD
 	f_ddprintk("regbase_virt: %#lx\n", par->mmio_vbase);
+=======
+	f_ddprintk("regbase_virt: %p\n", par->mmio_vbase);
+>>>>>>> upstream/android-13
 	f_ddprintk("membase_phys: %#lx\n", fix->smem_start);
 	f_ddprintk("fbbase_virt: %p\n", info->screen_base);
 

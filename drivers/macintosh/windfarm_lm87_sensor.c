@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Windfarm PowerMac thermal control. LM87 sensor
  *
  * Copyright 2012 Benjamin Herrenschmidt, IBM Corp.
+<<<<<<< HEAD
  *
  * Released under the term of the GNU GPL v2.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -110,8 +117,13 @@ static int wf_lm87_probe(struct i2c_client *client,
 	 * the Xserve G5 has several lm87's. However, for now we only
 	 * care about the internal temperature sensor
 	 */
+<<<<<<< HEAD
 	while ((np = of_get_next_child(client->dev.of_node, np)) != NULL) {
 		if (strcmp(np->name, "int-temp"))
+=======
+	for_each_child_of_node(client->dev.of_node, np) {
+		if (!of_node_name_eq(np, "int-temp"))
+>>>>>>> upstream/android-13
 			continue;
 		loc = of_get_property(np, "location", NULL);
 		if (!loc)
@@ -126,8 +138,13 @@ static int wf_lm87_probe(struct i2c_client *client,
 		}
 	}
 	if (!name) {
+<<<<<<< HEAD
 		pr_warning("wf_lm87: Unsupported sensor %pOF\n",
 			   client->dev.of_node);
+=======
+		pr_warn("wf_lm87: Unsupported sensor %pOF\n",
+			client->dev.of_node);
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	}
 
@@ -151,8 +168,11 @@ static int wf_lm87_remove(struct i2c_client *client)
 {
 	struct wf_lm87_sensor *lm = i2c_get_clientdata(client);
 
+<<<<<<< HEAD
 	DBG("wf_lm87: i2c detatch called for %s\n", lm->sens.name);
 
+=======
+>>>>>>> upstream/android-13
 	/* Mark client detached */
 	lm->i2c = NULL;
 

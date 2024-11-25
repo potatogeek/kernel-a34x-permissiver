@@ -192,6 +192,7 @@ static const struct seq_operations seq_applstats_ops = {
 
 // ---------------------------------------------------------------------------
 
+<<<<<<< HEAD
 static void *capi_driver_start(struct seq_file *seq, loff_t *pos)
 	__acquires(&capi_drivers_lock)
 {
@@ -223,6 +224,18 @@ static const struct seq_operations seq_capi_driver_ops = {
 	.next	= capi_driver_next,
 	.stop	= capi_driver_stop,
 	.show	= capi_driver_show,
+=======
+/* /proc/capi/drivers is always empty */
+static ssize_t empty_read(struct file *file, char __user *buf,
+			  size_t size, loff_t *off)
+{
+	return 0;
+}
+
+static const struct proc_ops empty_proc_ops = {
+	.proc_read	= empty_read,
+	.proc_lseek	= default_llseek,
+>>>>>>> upstream/android-13
 };
 
 // ---------------------------------------------------------------------------
@@ -236,10 +249,17 @@ kcapi_proc_init(void)
 	proc_create_seq("capi/contrstats",   0, NULL, &seq_contrstats_ops);
 	proc_create_seq("capi/applications", 0, NULL, &seq_applications_ops);
 	proc_create_seq("capi/applstats",    0, NULL, &seq_applstats_ops);
+<<<<<<< HEAD
 	proc_create_seq("capi/driver",       0, NULL, &seq_capi_driver_ops);
 }
 
 void __exit
+=======
+	proc_create("capi/driver",           0, NULL, &empty_proc_ops);
+}
+
+void
+>>>>>>> upstream/android-13
 kcapi_proc_exit(void)
 {
 	remove_proc_entry("capi/driver",       NULL);

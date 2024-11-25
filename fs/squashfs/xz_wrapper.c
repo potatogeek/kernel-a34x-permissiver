@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Squashfs - a compressed read only filesystem for Linux
  *
  * Copyright (c) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010
  * Phillip Lougher <phillip@squashfs.org.uk>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2,
@@ -18,12 +23,18 @@
  * along with this program; if not, write to the Free Software
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+=======
+>>>>>>> upstream/android-13
  * xz_wrapper.c
  */
 
 
 #include <linux/mutex.h>
+<<<<<<< HEAD
 #include <linux/buffer_head.h>
+=======
+#include <linux/bio.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/xz.h>
 #include <linux/bitops.h>
@@ -130,11 +141,20 @@ static void squashfs_xz_free(void *strm)
 
 
 static int squashfs_xz_uncompress(struct squashfs_sb_info *msblk, void *strm,
+<<<<<<< HEAD
 	struct buffer_head **bh, int b, int offset, int length,
 	struct squashfs_page_actor *output)
 {
 	enum xz_ret xz_err;
 	int avail, total = 0, k = 0;
+=======
+	struct bio *bio, int offset, int length,
+	struct squashfs_page_actor *output)
+{
+	struct bvec_iter_all iter_all = {};
+	struct bio_vec *bvec = bvec_init_iter_all(&iter_all);
+	int total = 0, error = 0;
+>>>>>>> upstream/android-13
 	struct squashfs_xz *stream = strm;
 
 	xz_dec_reset(stream->state);
@@ -144,11 +164,31 @@ static int squashfs_xz_uncompress(struct squashfs_sb_info *msblk, void *strm,
 	stream->buf.out_size = PAGE_SIZE;
 	stream->buf.out = squashfs_first_page(output);
 
+<<<<<<< HEAD
 	do {
 		if (stream->buf.in_pos == stream->buf.in_size && k < b) {
 			avail = min(length, msblk->devblksize - offset);
 			length -= avail;
 			stream->buf.in = bh[k]->b_data + offset;
+=======
+	for (;;) {
+		enum xz_ret xz_err;
+
+		if (stream->buf.in_pos == stream->buf.in_size) {
+			const void *data;
+			int avail;
+
+			if (!bio_next_segment(bio, &iter_all)) {
+				/* XZ_STREAM_END must be reached. */
+				error = -EIO;
+				break;
+			}
+
+			avail = min(length, ((int)bvec->bv_len) - offset);
+			data = bvec_virt(bvec);
+			length -= avail;
+			stream->buf.in = data + offset;
+>>>>>>> upstream/android-13
 			stream->buf.in_size = avail;
 			stream->buf.in_pos = 0;
 			offset = 0;
@@ -163,6 +203,7 @@ static int squashfs_xz_uncompress(struct squashfs_sb_info *msblk, void *strm,
 		}
 
 		xz_err = xz_dec_run(stream->state, &stream->buf);
+<<<<<<< HEAD
 
 		if (stream->buf.in_pos == stream->buf.in_size && k < b)
 			put_bh(bh[k++]);
@@ -180,6 +221,19 @@ out:
 		put_bh(bh[k]);
 
 	return -EIO;
+=======
+		if (xz_err == XZ_STREAM_END)
+			break;
+		if (xz_err != XZ_OK) {
+			error = -EIO;
+			break;
+		}
+	}
+
+	squashfs_finish_page(output);
+
+	return error ? error : total + stream->buf.out_pos;
+>>>>>>> upstream/android-13
 }
 
 const struct squashfs_decompressor squashfs_xz_comp_ops = {

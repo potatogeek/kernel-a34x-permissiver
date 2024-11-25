@@ -74,7 +74,11 @@ static inline int arch_load_niai4(int *lock)
 {
 	int owner;
 
+<<<<<<< HEAD
 	asm volatile(
+=======
+	asm_inline volatile(
+>>>>>>> upstream/android-13
 		ALTERNATIVE("", ".long 0xb2fa0040", 49)	/* NIAI 4 */
 		"	l	%0,%1\n"
 		: "=d" (owner) : "Q" (*lock) : "memory");
@@ -85,7 +89,11 @@ static inline int arch_cmpxchg_niai8(int *lock, int old, int new)
 {
 	int expected = old;
 
+<<<<<<< HEAD
 	asm volatile(
+=======
+	asm_inline volatile(
+>>>>>>> upstream/android-13
 		ALTERNATIVE("", ".long 0xb2fa0080", 49)	/* NIAI 8 */
 		"	cs	%0,%3,%1\n"
 		: "=d" (old), "=Q" (*lock)
@@ -242,7 +250,10 @@ static inline void arch_spin_lock_classic(arch_spinlock_t *lp)
 
 void arch_spin_lock_wait(arch_spinlock_t *lp)
 {
+<<<<<<< HEAD
 	/* Use classic spinlocks + niai if the steal time is >= 10% */
+=======
+>>>>>>> upstream/android-13
 	if (test_cpu_flag(CIF_DEDICATED_CPU))
 		arch_spin_lock_queued(lp);
 	else

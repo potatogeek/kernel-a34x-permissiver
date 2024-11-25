@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *	Low-Level PCI Support for PC
  *
@@ -18,6 +22,10 @@
 #include <asm/smp.h>
 #include <asm/pci_x86.h>
 #include <asm/setup.h>
+<<<<<<< HEAD
+=======
+#include <asm/irqdomain.h>
+>>>>>>> upstream/android-13
 
 unsigned int pci_probe = PCI_PROBE_BIOS | PCI_PROBE_CONF1 | PCI_PROBE_CONF2 |
 				PCI_PROBE_MMCONF;
@@ -134,7 +142,11 @@ static void pcibios_fixup_device_resources(struct pci_dev *dev)
 		* resource so the kernel doesn't attempt to assign
 		* it later on in pci_assign_unassigned_resources
 		*/
+<<<<<<< HEAD
 		for (bar = 0; bar <= PCI_STD_RESOURCE_END; bar++) {
+=======
+		for (bar = 0; bar < PCI_STD_NUM_BARS; bar++) {
+>>>>>>> upstream/android-13
 			bar_r = &dev->resource[bar];
 			if (bar_r->start == 0 && bar_r->end != 0) {
 				bar_r->flags = 0;
@@ -624,6 +636,7 @@ unsigned int pcibios_assign_all_busses(void)
 	return (pci_probe & PCI_ASSIGN_ALL_BUSSES) ? 1 : 0;
 }
 
+<<<<<<< HEAD
 #if defined(CONFIG_X86_DEV_DMA_OPS) && defined(CONFIG_PCI_DOMAINS)
 static LIST_HEAD(dma_domain_list);
 static DEFINE_SPINLOCK(dma_domain_list_lock);
@@ -661,6 +674,8 @@ static void set_dma_domain_ops(struct pci_dev *pdev)
 static void set_dma_domain_ops(struct pci_dev *pdev) {}
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static void set_dev_domain_options(struct pci_dev *pdev)
 {
 	if (is_vmd(pdev->bus))
@@ -669,8 +684,14 @@ static void set_dev_domain_options(struct pci_dev *pdev)
 
 int pcibios_add_device(struct pci_dev *dev)
 {
+<<<<<<< HEAD
 	struct setup_data *data;
 	struct pci_setup_rom *rom;
+=======
+	struct pci_setup_rom *rom;
+	struct irq_domain *msidom;
+	struct setup_data *data;
+>>>>>>> upstream/android-13
 	u64 pa_data;
 
 	pa_data = boot_params.hdr.setup_data;
@@ -696,8 +717,26 @@ int pcibios_add_device(struct pci_dev *dev)
 		pa_data = data->next;
 		memunmap(data);
 	}
+<<<<<<< HEAD
 	set_dma_domain_ops(dev);
 	set_dev_domain_options(dev);
+=======
+	set_dev_domain_options(dev);
+
+	/*
+	 * Setup the initial MSI domain of the device. If the underlying
+	 * bus has a PCI/MSI irqdomain associated use the bus domain,
+	 * otherwise set the default domain. This ensures that special irq
+	 * domains e.g. VMD are preserved. The default ensures initial
+	 * operation if irq remapping is not active. If irq remapping is
+	 * active it will overwrite the domain pointer when the device is
+	 * associated to a remapping domain.
+	 */
+	msidom = dev_get_msi_domain(&dev->bus->dev);
+	if (!msidom)
+		msidom = x86_pci_msi_default_domain;
+	dev_set_msi_domain(&dev->dev, msidom);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -735,3 +774,16 @@ int pci_ext_cfg_avail(void)
 	else
 		return 0;
 }
+<<<<<<< HEAD
+=======
+
+#if IS_ENABLED(CONFIG_VMD)
+struct pci_dev *pci_real_dma_dev(struct pci_dev *dev)
+{
+	if (is_vmd(dev->bus))
+		return to_pci_sysdata(dev->bus)->vmd_dev;
+
+	return dev;
+}
+#endif
+>>>>>>> upstream/android-13

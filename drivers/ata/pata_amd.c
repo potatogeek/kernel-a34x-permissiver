@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * pata_amd.c 	- AMD PATA for new ATA layer
  *			  (C) 2005-2006 Red Hat Inc
@@ -166,7 +170,10 @@ static int amd_cable_detect(struct ata_port *ap)
 /**
  *	amd_fifo_setup		-	set the PIO FIFO for ATA/ATAPI
  *	@ap: ATA interface
+<<<<<<< HEAD
  *	@adev: ATA device
+=======
+>>>>>>> upstream/android-13
  *
  *	Set the PCI fifo for this device according to the devices present
  *	on the bus at this point in time. We need to turn the post write buffer
@@ -319,8 +326,14 @@ static unsigned long nv_mode_filter(struct ata_device *dev,
 }
 
 /**
+<<<<<<< HEAD
  *	nv_probe_init	-	cable detection
  *	@lin: ATA link
+=======
+ *	nv_pre_reset	-	cable detection
+ *	@link: ATA link
+ *	@deadline: deadline jiffies for the operation
+>>>>>>> upstream/android-13
  *
  *	Perform cable detection. The BIOS stores this in PCI config
  *	space for us.

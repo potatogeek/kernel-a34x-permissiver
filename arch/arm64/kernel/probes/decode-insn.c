@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * arch/arm64/kernel/probes/decode-insn.c
  *
  * Copyright (C) 2013 Linaro Limited.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -11,6 +16,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -37,7 +44,12 @@ static bool __kprobes aarch64_insn_is_steppable(u32 insn)
 		    aarch64_insn_is_msr_imm(insn) ||
 		    aarch64_insn_is_msr_reg(insn) ||
 		    aarch64_insn_is_exception(insn) ||
+<<<<<<< HEAD
 		    aarch64_insn_is_eret(insn))
+=======
+		    aarch64_insn_is_eret(insn) ||
+		    aarch64_insn_is_eret_auth(insn))
+>>>>>>> upstream/android-13
 			return false;
 
 		/*
@@ -50,11 +62,21 @@ static bool __kprobes aarch64_insn_is_steppable(u32 insn)
 			     != AARCH64_INSN_SPCLREG_DAIF;
 
 		/*
+<<<<<<< HEAD
 		 * The HINT instruction is is problematic when single-stepping,
 		 * except for the NOP case.
 		 */
 		if (aarch64_insn_is_hint(insn))
 			return aarch64_insn_is_nop(insn);
+=======
+		 * The HINT instruction is steppable only if it is in whitelist
+		 * and the rest of other such instructions are blocked for
+		 * single stepping as they may cause exception or other
+		 * unintended behaviour.
+		 */
+		if (aarch64_insn_is_hint(insn))
+			return aarch64_insn_is_steppable_hint(insn);
+>>>>>>> upstream/android-13
 
 		return true;
 	}

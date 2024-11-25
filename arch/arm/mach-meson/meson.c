@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014 Carlo Caione <carlo@caione.org>
  *
@@ -11,6 +12,11 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2014 Carlo Caione <carlo@caione.org>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/of_platform.h>

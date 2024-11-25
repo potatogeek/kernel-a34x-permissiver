@@ -65,7 +65,11 @@ EXPORT_SYMBOL_GPL(inet_peer_base_init);
 #define PEER_MAX_GC 32
 
 /* Exported for sysctl_net_ipv4.  */
+<<<<<<< HEAD
 int inet_peer_threshold __read_mostly = 65536 + 128;	/* start to throw entries more
+=======
+int inet_peer_threshold __read_mostly;	/* start to throw entries more
+>>>>>>> upstream/android-13
 					 * aggressively at this stage */
 int inet_peer_minttl __read_mostly = 120 * HZ;	/* TTL under high load: 120 sec */
 int inet_peer_maxttl __read_mostly = 10 * 60 * HZ;	/* usual time to live: 10 min */
@@ -73,6 +77,7 @@ int inet_peer_maxttl __read_mostly = 10 * 60 * HZ;	/* usual time to live: 10 min
 /* Called from ip_output.c:ip_init  */
 void __init inet_initpeers(void)
 {
+<<<<<<< HEAD
 	struct sysinfo si;
 
 	/* Use the straight interface to information about memory. */
@@ -87,6 +92,15 @@ void __init inet_initpeers(void)
 		inet_peer_threshold >>= 1; /* about 512KB */
 	if (si.totalram <= (8192*1024)/PAGE_SIZE)
 		inet_peer_threshold >>= 2; /* about 128KB */
+=======
+	u64 nr_entries;
+
+	 /* 1% of physical memory */
+	nr_entries = div64_ul((u64)totalram_pages() << PAGE_SHIFT,
+			      100 * L1_CACHE_ALIGN(sizeof(struct inet_peer)));
+
+	inet_peer_threshold = clamp_val(nr_entries, 4096, 65536 + 128);
+>>>>>>> upstream/android-13
 
 	peer_cachep = kmem_cache_create("inet_peer_cache",
 			sizeof(struct inet_peer),

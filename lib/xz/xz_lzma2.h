@@ -2,7 +2,11 @@
  * LZMA2 definitions
  *
  * Authors: Lasse Collin <lasse.collin@tukaani.org>
+<<<<<<< HEAD
  *          Igor Pavlov <http://7-zip.org/>
+=======
+ *          Igor Pavlov <https://7-zip.org/>
+>>>>>>> upstream/android-13
  *
  * This file has been put into the public domain.
  * You can do whatever you want with this file.

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/arch/arm/mach-pxa/mxm8x10.c
  *
@@ -13,15 +17,22 @@
  * 2010-01-09: Edwin Peer <epeer@tmtservices.co.za>
  * 	       Hennie van der Merwe <hvdmerwe@tmtservices.co.za>
  *             rework for upstream merge
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/serial_8250.h>
 #include <linux/dm9000.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/machine.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_data/i2c-pxa.h>
 
 #include <linux/platform_data/mtd-nand-pxa3xx.h>
@@ -326,13 +337,33 @@ static mfp_cfg_t mfp_cfg[] __initdata = {
 static struct pxamci_platform_data mxm_8x10_mci_platform_data = {
 	.ocr_mask = MMC_VDD_32_33 | MMC_VDD_33_34,
 	.detect_delay_ms = 10,
+<<<<<<< HEAD
 	.gpio_card_detect = MXM_8X10_SD_nCD,
 	.gpio_card_ro = MXM_8X10_SD_WP,
 	.gpio_power = -1
+=======
+};
+
+static struct gpiod_lookup_table mxm_8x10_mci_gpio_table = {
+	.dev_id = "pxa2xx-mci.0",
+	.table = {
+		/* Card detect on GPIO 72 */
+		GPIO_LOOKUP("gpio-pxa", MXM_8X10_SD_nCD,
+			    "cd", GPIO_ACTIVE_LOW),
+		/* Write protect on GPIO 84 */
+		GPIO_LOOKUP("gpio-pxa", MXM_8X10_SD_WP,
+			    "wp", GPIO_ACTIVE_LOW),
+		{ },
+	},
+>>>>>>> upstream/android-13
 };
 
 void __init mxm_8x10_mmc_init(void)
 {
+<<<<<<< HEAD
+=======
+	gpiod_add_lookup_table(&mxm_8x10_mci_gpio_table);
+>>>>>>> upstream/android-13
 	pxa_set_mci_info(&mxm_8x10_mci_platform_data);
 }
 #endif

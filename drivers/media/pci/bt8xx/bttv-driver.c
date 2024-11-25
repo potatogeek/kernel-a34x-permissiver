@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 
     bttv - Bt848 frame grabber driver
@@ -19,6 +23,7 @@
     Copyright (C) 2005, 2006 Michael H. Schimek <mschimek@gmx.at>
     Sponsored by OPQ Systems AB
 
+<<<<<<< HEAD
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -32,6 +37,8 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
 */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -515,77 +522,113 @@ static const unsigned int BTTV_TVNORMS = ARRAY_SIZE(bttv_tvnorms);
    packed pixel formats must come first */
 static const struct bttv_format formats[] = {
 	{
+<<<<<<< HEAD
 		.name     = "8 bpp, gray",
+=======
+>>>>>>> upstream/android-13
 		.fourcc   = V4L2_PIX_FMT_GREY,
 		.btformat = BT848_COLOR_FMT_Y8,
 		.depth    = 8,
 		.flags    = FORMAT_FLAGS_PACKED,
 	},{
+<<<<<<< HEAD
 		.name     = "8 bpp, dithered color",
+=======
+>>>>>>> upstream/android-13
 		.fourcc   = V4L2_PIX_FMT_HI240,
 		.btformat = BT848_COLOR_FMT_RGB8,
 		.depth    = 8,
 		.flags    = FORMAT_FLAGS_PACKED | FORMAT_FLAGS_DITHER,
 	},{
+<<<<<<< HEAD
 		.name     = "15 bpp RGB, le",
+=======
+>>>>>>> upstream/android-13
 		.fourcc   = V4L2_PIX_FMT_RGB555,
 		.btformat = BT848_COLOR_FMT_RGB15,
 		.depth    = 16,
 		.flags    = FORMAT_FLAGS_PACKED,
 	},{
+<<<<<<< HEAD
 		.name     = "15 bpp RGB, be",
+=======
+>>>>>>> upstream/android-13
 		.fourcc   = V4L2_PIX_FMT_RGB555X,
 		.btformat = BT848_COLOR_FMT_RGB15,
 		.btswap   = 0x03, /* byteswap */
 		.depth    = 16,
 		.flags    = FORMAT_FLAGS_PACKED,
 	},{
+<<<<<<< HEAD
 		.name     = "16 bpp RGB, le",
+=======
+>>>>>>> upstream/android-13
 		.fourcc   = V4L2_PIX_FMT_RGB565,
 		.btformat = BT848_COLOR_FMT_RGB16,
 		.depth    = 16,
 		.flags    = FORMAT_FLAGS_PACKED,
 	},{
+<<<<<<< HEAD
 		.name     = "16 bpp RGB, be",
+=======
+>>>>>>> upstream/android-13
 		.fourcc   = V4L2_PIX_FMT_RGB565X,
 		.btformat = BT848_COLOR_FMT_RGB16,
 		.btswap   = 0x03, /* byteswap */
 		.depth    = 16,
 		.flags    = FORMAT_FLAGS_PACKED,
 	},{
+<<<<<<< HEAD
 		.name     = "24 bpp RGB, le",
+=======
+>>>>>>> upstream/android-13
 		.fourcc   = V4L2_PIX_FMT_BGR24,
 		.btformat = BT848_COLOR_FMT_RGB24,
 		.depth    = 24,
 		.flags    = FORMAT_FLAGS_PACKED,
 	},{
+<<<<<<< HEAD
 		.name     = "32 bpp RGB, le",
+=======
+>>>>>>> upstream/android-13
 		.fourcc   = V4L2_PIX_FMT_BGR32,
 		.btformat = BT848_COLOR_FMT_RGB32,
 		.depth    = 32,
 		.flags    = FORMAT_FLAGS_PACKED,
 	},{
+<<<<<<< HEAD
 		.name     = "32 bpp RGB, be",
+=======
+>>>>>>> upstream/android-13
 		.fourcc   = V4L2_PIX_FMT_RGB32,
 		.btformat = BT848_COLOR_FMT_RGB32,
 		.btswap   = 0x0f, /* byte+word swap */
 		.depth    = 32,
 		.flags    = FORMAT_FLAGS_PACKED,
 	},{
+<<<<<<< HEAD
 		.name     = "4:2:2, packed, YUYV",
+=======
+>>>>>>> upstream/android-13
 		.fourcc   = V4L2_PIX_FMT_YUYV,
 		.btformat = BT848_COLOR_FMT_YUY2,
 		.depth    = 16,
 		.flags    = FORMAT_FLAGS_PACKED,
 	},{
+<<<<<<< HEAD
 		.name     = "4:2:2, packed, UYVY",
+=======
+>>>>>>> upstream/android-13
 		.fourcc   = V4L2_PIX_FMT_UYVY,
 		.btformat = BT848_COLOR_FMT_YUY2,
 		.btswap   = 0x03, /* byteswap */
 		.depth    = 16,
 		.flags    = FORMAT_FLAGS_PACKED,
 	},{
+<<<<<<< HEAD
 		.name     = "4:2:2, planar, Y-Cb-Cr",
+=======
+>>>>>>> upstream/android-13
 		.fourcc   = V4L2_PIX_FMT_YUV422P,
 		.btformat = BT848_COLOR_FMT_YCrCb422,
 		.depth    = 16,
@@ -593,7 +636,10 @@ static const struct bttv_format formats[] = {
 		.hshift   = 1,
 		.vshift   = 0,
 	},{
+<<<<<<< HEAD
 		.name     = "4:2:0, planar, Y-Cb-Cr",
+=======
+>>>>>>> upstream/android-13
 		.fourcc   = V4L2_PIX_FMT_YUV420,
 		.btformat = BT848_COLOR_FMT_YCrCb422,
 		.depth    = 12,
@@ -601,7 +647,10 @@ static const struct bttv_format formats[] = {
 		.hshift   = 1,
 		.vshift   = 1,
 	},{
+<<<<<<< HEAD
 		.name     = "4:2:0, planar, Y-Cr-Cb",
+=======
+>>>>>>> upstream/android-13
 		.fourcc   = V4L2_PIX_FMT_YVU420,
 		.btformat = BT848_COLOR_FMT_YCrCb422,
 		.depth    = 12,
@@ -609,7 +658,10 @@ static const struct bttv_format formats[] = {
 		.hshift   = 1,
 		.vshift   = 1,
 	},{
+<<<<<<< HEAD
 		.name     = "4:1:1, planar, Y-Cb-Cr",
+=======
+>>>>>>> upstream/android-13
 		.fourcc   = V4L2_PIX_FMT_YUV411P,
 		.btformat = BT848_COLOR_FMT_YCrCb411,
 		.depth    = 12,
@@ -617,7 +669,10 @@ static const struct bttv_format formats[] = {
 		.hshift   = 2,
 		.vshift   = 0,
 	},{
+<<<<<<< HEAD
 		.name     = "4:1:0, planar, Y-Cb-Cr",
+=======
+>>>>>>> upstream/android-13
 		.fourcc   = V4L2_PIX_FMT_YUV410,
 		.btformat = BT848_COLOR_FMT_YCrCb411,
 		.depth    = 9,
@@ -625,7 +680,10 @@ static const struct bttv_format formats[] = {
 		.hshift   = 2,
 		.vshift   = 2,
 	},{
+<<<<<<< HEAD
 		.name     = "4:1:0, planar, Y-Cr-Cb",
+=======
+>>>>>>> upstream/android-13
 		.fourcc   = V4L2_PIX_FMT_YVU410,
 		.btformat = BT848_COLOR_FMT_YCrCb411,
 		.depth    = 9,
@@ -633,7 +691,10 @@ static const struct bttv_format formats[] = {
 		.hshift   = 2,
 		.vshift   = 2,
 	},{
+<<<<<<< HEAD
 		.name     = "raw scanlines",
+=======
+>>>>>>> upstream/android-13
 		.fourcc   = -1,
 		.btformat = BT848_COLOR_FMT_RAW,
 		.depth    = 8,
@@ -2040,7 +2101,10 @@ limit_scaled_size_lock       (struct bttv_fh *               fh,
 	max_width = max_width & width_mask;
 
 	/* Max. scale factor is 16:1 for frames, 8:1 for fields. */
+<<<<<<< HEAD
 	min_height = min_height;
+=======
+>>>>>>> upstream/android-13
 	/* Min. scale factor is 1:1. */
 	max_height >>= !V4L2_FIELD_HAS_BOTH(field);
 
@@ -2089,7 +2153,10 @@ verify_window_lock(struct bttv_fh *fh, struct v4l2_window *win,
 {
 	enum v4l2_field field;
 	unsigned int width_mask;
+<<<<<<< HEAD
 	int rc;
+=======
+>>>>>>> upstream/android-13
 
 	if (win->w.width < 48)
 		win->w.width = 48;
@@ -2142,6 +2209,7 @@ verify_window_lock(struct bttv_fh *fh, struct v4l2_window *win,
 	win->w.width -= win->w.left & ~width_mask;
 	win->w.left = (win->w.left - width_mask - 1) & width_mask;
 
+<<<<<<< HEAD
 	rc = limit_scaled_size_lock(fh, &win->w.width, &win->w.height,
 			       field, width_mask,
 			       /* width_bias: round down */ 0,
@@ -2149,6 +2217,12 @@ verify_window_lock(struct bttv_fh *fh, struct v4l2_window *win,
 	if (0 != rc)
 		return rc;
 	return 0;
+=======
+	return limit_scaled_size_lock(fh, &win->w.width, &win->w.height,
+				      field, width_mask,
+				      /* width_bias: round down */ 0,
+				      adjust_size, adjust_crop);
+>>>>>>> upstream/android-13
 }
 
 static int setup_window_lock(struct bttv_fh *fh, struct bttv *btv,
@@ -2174,12 +2248,17 @@ static int setup_window_lock(struct bttv_fh *fh, struct bttv *btv,
 	clips = kmalloc(size,GFP_KERNEL);
 	if (NULL == clips)
 		return -ENOMEM;
+<<<<<<< HEAD
 	if (n > 0) {
 		if (copy_from_user(clips,win->clips,sizeof(struct v4l2_clip)*n)) {
 			kfree(clips);
 			return -EFAULT;
 		}
 	}
+=======
+	if (n > 0)
+		memcpy(clips, win->clips, sizeof(struct v4l2_clip) * n);
+>>>>>>> upstream/android-13
 
 	/* clip against screen */
 	if (NULL != btv->fbuf.base)
@@ -2363,7 +2442,11 @@ static int bttv_try_fmt_vid_cap(struct file *file, void *priv,
 			field = V4L2_FIELD_SEQ_TB;
 			break;
 		}
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default: /* FIELD_ANY case */
 		height2 = btv->crop[!!fh->do_crop].rect.height >> 1;
 		field = (f->fmt.pix.height > height2)
@@ -2436,7 +2519,11 @@ static int bttv_s_fmt_vid_cap(struct file *file, void *priv,
 
 	f->fmt.pix.field = field;
 
+<<<<<<< HEAD
 	/* update our state informations */
+=======
+	/* update our state information */
+>>>>>>> upstream/android-13
 	fh->fmt              = fmt;
 	fh->cap.field        = f->fmt.pix.field;
 	fh->cap.last         = V4L2_FIELD_NONE;
@@ -2466,13 +2553,17 @@ static int bttv_s_fmt_vid_overlay(struct file *file, void *priv,
 static int bttv_querycap(struct file *file, void  *priv,
 				struct v4l2_capability *cap)
 {
+<<<<<<< HEAD
 	struct video_device *vdev = video_devdata(file);
+=======
+>>>>>>> upstream/android-13
 	struct bttv_fh *fh = priv;
 	struct bttv *btv = fh->btv;
 
 	if (0 == v4l2)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	strlcpy(cap->driver, "bttv", sizeof(cap->driver));
 	strlcpy(cap->card, btv->video_dev.name, sizeof(cap->card));
 	snprintf(cap->bus_info, sizeof(cap->bus_info),
@@ -2482,12 +2573,28 @@ static int bttv_querycap(struct file *file, void  *priv,
 		V4L2_CAP_READWRITE |
 		V4L2_CAP_STREAMING |
 		V4L2_CAP_DEVICE_CAPS;
+=======
+	strscpy(cap->driver, "bttv", sizeof(cap->driver));
+	strscpy(cap->card, btv->video_dev.name, sizeof(cap->card));
+	snprintf(cap->bus_info, sizeof(cap->bus_info),
+		 "PCI:%s", pci_name(btv->c.pci));
+	cap->capabilities = V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_READWRITE |
+			    V4L2_CAP_STREAMING | V4L2_CAP_DEVICE_CAPS;
+>>>>>>> upstream/android-13
 	if (no_overlay <= 0)
 		cap->capabilities |= V4L2_CAP_VIDEO_OVERLAY;
 	if (video_is_registered(&btv->vbi_dev))
 		cap->capabilities |= V4L2_CAP_VBI_CAPTURE;
+<<<<<<< HEAD
 	if (video_is_registered(&btv->radio_dev))
 		cap->capabilities |= V4L2_CAP_RADIO;
+=======
+	if (video_is_registered(&btv->radio_dev)) {
+		cap->capabilities |= V4L2_CAP_RADIO;
+		if (btv->has_tea575x)
+			cap->capabilities |= V4L2_CAP_HW_FREQ_SEEK;
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * No need to lock here: those vars are initialized during board
@@ -2497,6 +2604,7 @@ static int bttv_querycap(struct file *file, void  *priv,
 		cap->capabilities |= V4L2_CAP_RDS_CAPTURE;
 	if (btv->tuner_type != TUNER_ABSENT)
 		cap->capabilities |= V4L2_CAP_TUNER;
+<<<<<<< HEAD
 	if (vdev->vfl_type == VFL_TYPE_GRABBER)
 		cap->device_caps = cap->capabilities &
 			(V4L2_CAP_VIDEO_CAPTURE |
@@ -2518,6 +2626,8 @@ static int bttv_querycap(struct file *file, void  *priv,
 		if (btv->has_tea575x)
 			cap->device_caps |= V4L2_CAP_HW_FREQ_SEEK;
 	}
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -2535,7 +2645,10 @@ static int bttv_enum_fmt_cap_ovr(struct v4l2_fmtdesc *f)
 		return -EINVAL;
 
 	f->pixelformat = formats[i].fourcc;
+<<<<<<< HEAD
 	strlcpy(f->description, formats[i].name, sizeof(f->description));
+=======
+>>>>>>> upstream/android-13
 
 	return i;
 }
@@ -2782,7 +2895,11 @@ static int bttv_g_tuner(struct file *file, void *priv,
 	t->rxsubchans = V4L2_TUNER_SUB_MONO;
 	t->capability = V4L2_TUNER_CAP_NORM;
 	bttv_call_all(btv, tuner, g_tuner, t);
+<<<<<<< HEAD
 	strcpy(t->name, "Television");
+=======
+	strscpy(t->name, "Television", sizeof(t->name));
+>>>>>>> upstream/android-13
 	t->type       = V4L2_TUNER_ANALOG_TV;
 	if (btread(BT848_DSTATUS)&BT848_DSTATUS_HLOC)
 		t->signal = 0xffff;
@@ -2793,12 +2910,18 @@ static int bttv_g_tuner(struct file *file, void *priv,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int bttv_cropcap(struct file *file, void *priv,
 				struct v4l2_cropcap *cap)
+=======
+static int bttv_g_pixelaspect(struct file *file, void *priv,
+			      int type, struct v4l2_fract *f)
+>>>>>>> upstream/android-13
 {
 	struct bttv_fh *fh = priv;
 	struct bttv *btv = fh->btv;
 
+<<<<<<< HEAD
 	if (cap->type != V4L2_BUF_TYPE_VIDEO_CAPTURE &&
 	    cap->type != V4L2_BUF_TYPE_VIDEO_OVERLAY)
 		return -EINVAL;
@@ -2806,6 +2929,13 @@ static int bttv_cropcap(struct file *file, void *priv,
 	/* defrect and bounds are set via g_selection */
 	cap->pixelaspect = bttv_tvnorms[btv->tvnorm].cropcap.pixelaspect;
 
+=======
+	if (type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
+		return -EINVAL;
+
+	/* defrect and bounds are set via g_selection */
+	*f = bttv_tvnorms[btv->tvnorm].cropcap.pixelaspect;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -3020,7 +3150,11 @@ static int bttv_open(struct file *file)
 
 	dprintk("open dev=%s\n", video_device_node_name(vdev));
 
+<<<<<<< HEAD
 	if (vdev->vfl_type == VFL_TYPE_GRABBER) {
+=======
+	if (vdev->vfl_type == VFL_TYPE_VIDEO) {
+>>>>>>> upstream/android-13
 		type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	} else if (vdev->vfl_type == VFL_TYPE_VBI) {
 		type = V4L2_BUF_TYPE_VBI_CAPTURE;
@@ -3067,7 +3201,11 @@ static int bttv_open(struct file *file)
 	   V4L2 apps we now reset the cropping parameters as seen through
 	   this fh, which is to say VIDIOC_G_SELECTION and scaling limit checks
 	   will use btv->crop[0], the default cropping parameters for the
+<<<<<<< HEAD
 	   current video standard, and VIDIOC_S_FMT will not implicitely
+=======
+	   current video standard, and VIDIOC_S_FMT will not implicitly
+>>>>>>> upstream/android-13
 	   change the cropping parameters until VIDIOC_S_SELECTION has been
 	   called. */
 	fh->do_crop = !reset_crop; /* module parameter */
@@ -3163,7 +3301,11 @@ static const struct v4l2_ioctl_ops bttv_ioctl_ops = {
 	.vidioc_g_fmt_vbi_cap           = bttv_g_fmt_vbi_cap,
 	.vidioc_try_fmt_vbi_cap         = bttv_try_fmt_vbi_cap,
 	.vidioc_s_fmt_vbi_cap           = bttv_s_fmt_vbi_cap,
+<<<<<<< HEAD
 	.vidioc_cropcap                 = bttv_cropcap,
+=======
+	.vidioc_g_pixelaspect           = bttv_g_pixelaspect,
+>>>>>>> upstream/android-13
 	.vidioc_reqbufs                 = bttv_reqbufs,
 	.vidioc_querybuf                = bttv_querybuf,
 	.vidioc_qbuf                    = bttv_qbuf,
@@ -3243,7 +3385,11 @@ static int radio_release(struct file *file)
 
 	btv->radio_user--;
 
+<<<<<<< HEAD
 	bttv_call_all(btv, core, ioctl, SAA6588_CMD_CLOSE, &cmd);
+=======
+	bttv_call_all(btv, core, command, SAA6588_CMD_CLOSE, &cmd);
+>>>>>>> upstream/android-13
 
 	if (btv->radio_user == 0)
 		btv->has_radio_tuner = 0;
@@ -3257,7 +3403,11 @@ static int radio_g_tuner(struct file *file, void *priv, struct v4l2_tuner *t)
 
 	if (0 != t->index)
 		return -EINVAL;
+<<<<<<< HEAD
 	strcpy(t->name, "Radio");
+=======
+	strscpy(t->name, "Radio", sizeof(t->name));
+>>>>>>> upstream/android-13
 	t->type = V4L2_TUNER_RADIO;
 	radio_enable(btv);
 
@@ -3324,7 +3474,11 @@ static ssize_t radio_read(struct file *file, char __user *data,
 	cmd.result = -ENODEV;
 	radio_enable(btv);
 
+<<<<<<< HEAD
 	bttv_call_all(btv, core, ioctl, SAA6588_CMD_READ, &cmd);
+=======
+	bttv_call_all(btv, core, command, SAA6588_CMD_READ, &cmd);
+>>>>>>> upstream/android-13
 
 	return cmd.result;
 }
@@ -3345,7 +3499,11 @@ static __poll_t radio_poll(struct file *file, poll_table *wait)
 	cmd.instance = file;
 	cmd.event_list = wait;
 	cmd.poll_mask = res;
+<<<<<<< HEAD
 	bttv_call_all(btv, core, ioctl, SAA6588_CMD_POLL, &cmd);
+=======
+	bttv_call_all(btv, core, command, SAA6588_CMD_POLL, &cmd);
+>>>>>>> upstream/android-13
 
 	return cmd.poll_mask;
 }
@@ -3603,9 +3761,13 @@ static void
 bttv_irq_wakeup_video(struct bttv *btv, struct bttv_buffer_set *wakeup,
 		      struct bttv_buffer_set *curr, unsigned int state)
 {
+<<<<<<< HEAD
 	struct timeval ts;
 
 	v4l2_get_timestamp(&ts);
+=======
+	u64 ts = ktime_get_ns();
+>>>>>>> upstream/android-13
 
 	if (wakeup->top == wakeup->bottom) {
 		if (NULL != wakeup->top && curr->top != wakeup->top) {
@@ -3646,7 +3808,11 @@ bttv_irq_wakeup_vbi(struct bttv *btv, struct bttv_buffer *wakeup,
 	if (NULL == wakeup)
 		return;
 
+<<<<<<< HEAD
 	v4l2_get_timestamp(&wakeup->vb.ts);
+=======
+	wakeup->vb.ts = ktime_get_ns();
+>>>>>>> upstream/android-13
 	wakeup->vb.field_count = btv->field_count;
 	wakeup->vb.state = state;
 	wake_up(&wakeup->vb.done);
@@ -3716,7 +3882,11 @@ bttv_irq_wakeup_top(struct bttv *btv)
 	btv->curr.top = NULL;
 	bttv_risc_hook(btv, RISC_SLOT_O_FIELD, NULL, 0);
 
+<<<<<<< HEAD
 	v4l2_get_timestamp(&wakeup->vb.ts);
+=======
+	wakeup->vb.ts = ktime_get_ns();
+>>>>>>> upstream/android-13
 	wakeup->vb.field_count = btv->field_count;
 	wakeup->vb.state = VIDEOBUF_DONE;
 	wake_up(&wakeup->vb.done);
@@ -3956,8 +4126,19 @@ static int bttv_register_video(struct bttv *btv)
 
 	/* video */
 	vdev_init(btv, &btv->video_dev, &bttv_video_template, "video");
+<<<<<<< HEAD
 
 	if (video_register_device(&btv->video_dev, VFL_TYPE_GRABBER,
+=======
+	btv->video_dev.device_caps = V4L2_CAP_VIDEO_CAPTURE |
+				     V4L2_CAP_READWRITE | V4L2_CAP_STREAMING;
+	if (btv->tuner_type != TUNER_ABSENT)
+		btv->video_dev.device_caps |= V4L2_CAP_TUNER;
+	if (no_overlay <= 0)
+		btv->video_dev.device_caps |= V4L2_CAP_VIDEO_OVERLAY;
+
+	if (video_register_device(&btv->video_dev, VFL_TYPE_VIDEO,
+>>>>>>> upstream/android-13
 				  video_nr[btv->c.nr]) < 0)
 		goto err;
 	pr_info("%d: registered device %s\n",
@@ -3970,6 +4151,13 @@ static int bttv_register_video(struct bttv *btv)
 
 	/* vbi */
 	vdev_init(btv, &btv->vbi_dev, &bttv_video_template, "vbi");
+<<<<<<< HEAD
+=======
+	btv->vbi_dev.device_caps = V4L2_CAP_VBI_CAPTURE | V4L2_CAP_READWRITE |
+				   V4L2_CAP_STREAMING;
+	if (btv->tuner_type != TUNER_ABSENT)
+		btv->vbi_dev.device_caps |= V4L2_CAP_TUNER;
+>>>>>>> upstream/android-13
 
 	if (video_register_device(&btv->vbi_dev, VFL_TYPE_VBI,
 				  vbi_nr[btv->c.nr]) < 0)
@@ -3981,6 +4169,15 @@ static int bttv_register_video(struct bttv *btv)
 		return 0;
 	/* radio */
 	vdev_init(btv, &btv->radio_dev, &radio_template, "radio");
+<<<<<<< HEAD
+=======
+	btv->radio_dev.device_caps = V4L2_CAP_RADIO | V4L2_CAP_TUNER;
+	if (btv->has_saa6588)
+		btv->radio_dev.device_caps |= V4L2_CAP_READWRITE |
+					      V4L2_CAP_RDS_CAPTURE;
+	if (btv->has_tea575x)
+		btv->radio_dev.device_caps |= V4L2_CAP_HW_FREQ_SEEK;
+>>>>>>> upstream/android-13
 	btv->radio_dev.ctrl_handler = &btv->radio_ctrl_handler;
 	if (video_register_device(&btv->radio_dev, VFL_TYPE_RADIO,
 				  radio_nr[btv->c.nr]) < 0)
@@ -4058,7 +4255,11 @@ static int bttv_probe(struct pci_dev *dev, const struct pci_device_id *pci_id)
 		result = -EIO;
 		goto free_mem;
 	}
+<<<<<<< HEAD
 	if (pci_set_dma_mask(dev, DMA_BIT_MASK(32))) {
+=======
+	if (dma_set_mask(&dev->dev, DMA_BIT_MASK(32))) {
+>>>>>>> upstream/android-13
 		pr_warn("%d: No suitable DMA available\n", btv->c.nr);
 		result = -EIO;
 		goto free_mem;
@@ -4312,15 +4513,25 @@ static void bttv_remove(struct pci_dev *pci_dev)
 	return;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 static int bttv_suspend(struct pci_dev *pci_dev, pm_message_t state)
 {
 	struct v4l2_device *v4l2_dev = pci_get_drvdata(pci_dev);
+=======
+static int __maybe_unused bttv_suspend(struct device *dev)
+{
+	struct v4l2_device *v4l2_dev = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	struct bttv *btv = to_bttv(v4l2_dev);
 	struct bttv_buffer_set idle;
 	unsigned long flags;
 
+<<<<<<< HEAD
 	dprintk("%d: suspend %d\n", btv->c.nr, state.event);
+=======
+	dprintk("%d: suspend\n", btv->c.nr);
+>>>>>>> upstream/android-13
 
 	/* stop dma + irqs */
 	spin_lock_irqsave(&btv->s_lock,flags);
@@ -4340,6 +4551,7 @@ static int bttv_suspend(struct pci_dev *pci_dev, pm_message_t state)
 	btv->state.gpio_enable = btread(BT848_GPIO_OUT_EN);
 	btv->state.gpio_data   = gpio_read();
 
+<<<<<<< HEAD
 	/* save pci state */
 	pci_save_state(pci_dev);
 	if (0 != pci_set_power_state(pci_dev, pci_choose_state(pci_dev, state))) {
@@ -4376,6 +4588,21 @@ static int bttv_resume(struct pci_dev *pci_dev)
 	}
 
 	pci_restore_state(pci_dev);
+=======
+	btv->state.disabled = 1;
+	return 0;
+}
+
+static int __maybe_unused bttv_resume(struct device *dev)
+{
+	struct v4l2_device *v4l2_dev = dev_get_drvdata(dev);
+	struct bttv *btv = to_bttv(v4l2_dev);
+	unsigned long flags;
+
+	dprintk("%d: resume\n", btv->c.nr);
+
+	btv->state.disabled = 0;
+>>>>>>> upstream/android-13
 
 	/* restore bt878 state */
 	bttv_reinit_bt848(btv);
@@ -4393,7 +4620,10 @@ static int bttv_resume(struct pci_dev *pci_dev)
 	spin_unlock_irqrestore(&btv->s_lock,flags);
 	return 0;
 }
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static const struct pci_device_id bttv_pci_tbl[] = {
 	{PCI_VDEVICE(BROOKTREE, PCI_DEVICE_ID_BT848), 0},
@@ -4406,6 +4636,7 @@ static const struct pci_device_id bttv_pci_tbl[] = {
 
 MODULE_DEVICE_TABLE(pci, bttv_pci_tbl);
 
+<<<<<<< HEAD
 static struct pci_driver bttv_pci_driver = {
 	.name     = "bttv",
 	.id_table = bttv_pci_tbl,
@@ -4415,6 +4646,18 @@ static struct pci_driver bttv_pci_driver = {
 	.suspend  = bttv_suspend,
 	.resume   = bttv_resume,
 #endif
+=======
+static SIMPLE_DEV_PM_OPS(bttv_pm_ops,
+			 bttv_suspend,
+			 bttv_resume);
+
+static struct pci_driver bttv_pci_driver = {
+	.name      = "bttv",
+	.id_table  = bttv_pci_tbl,
+	.probe     = bttv_probe,
+	.remove    = bttv_remove,
+	.driver.pm = &bttv_pm_ops,
+>>>>>>> upstream/android-13
 };
 
 static int __init bttv_init_module(void)

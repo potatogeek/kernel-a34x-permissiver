@@ -319,9 +319,13 @@ static void mcf_rx_chars(struct mcf_uart *pp)
 		uart_insert_char(port, status, MCFUART_USR_RXOVERRUN, ch, flag);
 	}
 
+<<<<<<< HEAD
 	spin_unlock(&port->lock);
 	tty_flip_buffer_push(&port->state->port);
 	spin_lock(&port->lock);
+=======
+	tty_flip_buffer_push(&port->state->port);
+>>>>>>> upstream/android-13
 }
 
 /****************************************************************************/
@@ -632,6 +636,10 @@ static int mcf_probe(struct platform_device *pdev)
 		port->ops = &mcf_uart_ops;
 		port->flags = UPF_BOOT_AUTOCONF;
 		port->rs485_config = mcf_config_rs485;
+<<<<<<< HEAD
+=======
+		port->has_sysrq = IS_ENABLED(CONFIG_SERIAL_MCF_CONSOLE);
+>>>>>>> upstream/android-13
 
 		uart_add_one_port(&mcf_driver, port);
 	}

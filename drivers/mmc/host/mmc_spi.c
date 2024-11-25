@@ -1,5 +1,11 @@
+<<<<<<< HEAD
 /*
  * mmc_spi.c - Access SD/MMC cards through SPI master controllers
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Access SD/MMC cards through SPI master controllers
+>>>>>>> upstream/android-13
  *
  * (C) Copyright 2005, Intec Automation,
  *		Mike Lavender (mike@steroidmicros)
@@ -8,6 +14,7 @@
  *		Hans-Peter Nilsson (hp@axis.com)
  * (C) Copyright 2007, ATRON electronic GmbH,
  *		Jan Nikitenko <jan.nikitenko@gmail.com>
+<<<<<<< HEAD
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -23,6 +30,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/sched.h>
 #include <linux/delay.h>
@@ -91,6 +100,7 @@
 
 #define MMC_SPI_BLOCKSIZE	512
 
+<<<<<<< HEAD
 
 /* These fixed timeouts come from the latest SD specs, which say to ignore
  * the CSD values.  The R1B value is for card erase (e.g. the "I forgot the
@@ -99,6 +109,10 @@
  * shorter timeouts ... but why bother?
  */
 #define r1b_timeout		(HZ * 3)
+=======
+#define MMC_SPI_R1B_TIMEOUT_MS	3000
+#define MMC_SPI_INIT_TIMEOUT_MS	3000
+>>>>>>> upstream/android-13
 
 /* One of the critical speed parameters is the amount of data which may
  * be transferred in one command. If this value is too low, the SD card
@@ -197,10 +211,17 @@ mmc_spi_readbytes(struct mmc_spi_host *host, unsigned len)
 static int mmc_spi_skip(struct mmc_spi_host *host, unsigned long timeout,
 			unsigned n, u8 byte)
 {
+<<<<<<< HEAD
 	u8		*cp = host->data->status;
 	unsigned long start = jiffies;
 
 	while (1) {
+=======
+	u8 *cp = host->data->status;
+	unsigned long start = jiffies;
+
+	do {
+>>>>>>> upstream/android-13
 		int		status;
 		unsigned	i;
 
@@ -213,6 +234,7 @@ static int mmc_spi_skip(struct mmc_spi_host *host, unsigned long timeout,
 				return cp[i];
 		}
 
+<<<<<<< HEAD
 		if (time_is_before_jiffies(start + timeout))
 			break;
 
@@ -223,6 +245,11 @@ static int mmc_spi_skip(struct mmc_spi_host *host, unsigned long timeout,
 		if (time_is_before_jiffies(start+1))
 			schedule();
 	}
+=======
+		/* If we need long timeouts, we may release the CPU */
+		cond_resched();
+	} while (time_is_after_jiffies(start + timeout));
+>>>>>>> upstream/android-13
 	return -ETIMEDOUT;
 }
 
@@ -262,6 +289,10 @@ static char *maptype(struct mmc_command *cmd)
 static int mmc_spi_response_get(struct mmc_spi_host *host,
 		struct mmc_command *cmd, int cs_on)
 {
+<<<<<<< HEAD
+=======
+	unsigned long timeout_ms;
+>>>>>>> upstream/android-13
 	u8	*cp = host->data->status;
 	u8	*end = cp + host->t.len;
 	int	value = 0;
@@ -360,8 +391,16 @@ checkstatus:
 		/* maybe we read all the busy tokens already */
 		while (cp < end && *cp == 0)
 			cp++;
+<<<<<<< HEAD
 		if (cp == end)
 			mmc_spi_wait_unbusy(host, r1b_timeout);
+=======
+		if (cp == end) {
+			timeout_ms = cmd->busy_timeout ? cmd->busy_timeout :
+				MMC_SPI_R1B_TIMEOUT_MS;
+			mmc_spi_wait_unbusy(host, msecs_to_jiffies(timeout_ms));
+		}
+>>>>>>> upstream/android-13
 		break;
 
 	/* SPI R2 == R1 + second status byte; SEND_STATUS
@@ -415,7 +454,11 @@ checkstatus:
 
 	default:
 		dev_dbg(&host->spi->dev, "bad response type %04x\n",
+<<<<<<< HEAD
 				mmc_spi_resp_type(cmd));
+=======
+			mmc_spi_resp_type(cmd));
+>>>>>>> upstream/android-13
 		if (value >= 0)
 			value = -EINVAL;
 		goto done;
@@ -467,8 +510,13 @@ mmc_spi_command_send(struct mmc_spi_host *host,
 	memset(cp, 0xff, sizeof(data->status));
 
 	cp[1] = 0x40 | cmd->opcode;
+<<<<<<< HEAD
 	put_unaligned_be32(cmd->arg, cp+2);
 	cp[6] = crc7_be(0, cp+1, 5) | 0x01;
+=======
+	put_unaligned_be32(cmd->arg, cp + 2);
+	cp[6] = crc7_be(0, cp + 1, 5) | 0x01;
+>>>>>>> upstream/android-13
 	cp += 7;
 
 	/* Then, read up to 13 bytes (while writing all-ones):
@@ -520,7 +568,11 @@ mmc_spi_command_send(struct mmc_spi_host *host,
 		/* else:  R1 (most commands) */
 	}
 
+<<<<<<< HEAD
 	dev_dbg(&host->spi->dev, "  mmc_spi: CMD%d, resp %s\n",
+=======
+	dev_dbg(&host->spi->dev, "  CMD%d, resp %s\n",
+>>>>>>> upstream/android-13
 		cmd->opcode, maptype(cmd));
 
 	/* send command, leaving chipselect active */
@@ -642,9 +694,13 @@ mmc_spi_setup_data_message(
 	if (multiple || direction == DMA_TO_DEVICE) {
 		t = &host->early_status;
 		memset(t, 0, sizeof(*t));
+<<<<<<< HEAD
 		t->len = (direction == DMA_TO_DEVICE)
 				? sizeof(scratch->status)
 				: 1;
+=======
+		t->len = (direction == DMA_TO_DEVICE) ? sizeof(scratch->status) : 1;
+>>>>>>> upstream/android-13
 		t->tx_buf = host->ones;
 		t->tx_dma = host->ones_dma;
 		t->rx_buf = scratch->status;
@@ -677,8 +733,12 @@ mmc_spi_writeblock(struct mmc_spi_host *host, struct spi_transfer *t,
 	u32			pattern;
 
 	if (host->mmc->use_spi_crc)
+<<<<<<< HEAD
 		scratch->crc_val = cpu_to_be16(
 				crc_itu_t(0, t->tx_buf, t->len));
+=======
+		scratch->crc_val = cpu_to_be16(crc_itu_t(0, t->tx_buf, t->len));
+>>>>>>> upstream/android-13
 	if (host->dma_dev)
 		dma_sync_single_for_device(host->dma_dev,
 				host->data_dma, sizeof(*scratch),
@@ -859,9 +919,15 @@ mmc_spi_readblock(struct mmc_spi_host *host, struct spi_transfer *t,
 
 		be16_to_cpus(&scratch->crc_val);
 		if (scratch->crc_val != crc) {
+<<<<<<< HEAD
 			dev_dbg(&spi->dev, "read - crc error: crc_val=0x%04x, "
 					"computed=0x%04x len=%d\n",
 					scratch->crc_val, crc, t->len);
+=======
+			dev_dbg(&spi->dev,
+				"read - crc error: crc_val=0x%04x, computed=0x%04x len=%d\n",
+				scratch->crc_val, crc, t->len);
+>>>>>>> upstream/android-13
 			return -EILSEQ;
 		}
 	}
@@ -901,14 +967,24 @@ mmc_spi_data_do(struct mmc_spi_host *host, struct mmc_command *cmd,
 	else
 		clock_rate = spi->max_speed_hz;
 
+<<<<<<< HEAD
 	timeout = data->timeout_ns +
 		  data->timeout_clks * 1000000 / clock_rate;
 	timeout = usecs_to_jiffies((unsigned int)(timeout / 1000)) + 1;
+=======
+	timeout = data->timeout_ns / 1000 +
+		  data->timeout_clks * 1000000 / clock_rate;
+	timeout = usecs_to_jiffies((unsigned int)timeout) + 1;
+>>>>>>> upstream/android-13
 
 	/* Handle scatterlist segments one at a time, with synch for
 	 * each 512-byte block
 	 */
+<<<<<<< HEAD
 	for (sg = data->sg, n_sg = data->sg_len; n_sg; n_sg--, sg++) {
+=======
+	for_each_sg(data->sg, sg, data->sg_len, n_sg) {
+>>>>>>> upstream/android-13
 		int			status = 0;
 		dma_addr_t		dma_addr = 0;
 		void			*kmap_addr;
@@ -947,11 +1023,16 @@ mmc_spi_data_do(struct mmc_spi_host *host, struct mmc_command *cmd,
 		while (length) {
 			t->len = min(length, blk_size);
 
+<<<<<<< HEAD
 			dev_dbg(&host->spi->dev,
 				"    mmc_spi: %s block, %d bytes\n",
 				(direction == DMA_TO_DEVICE)
 				? "write"
 				: "read",
+=======
+			dev_dbg(&host->spi->dev, "    %s block, %d bytes\n",
+				(direction == DMA_TO_DEVICE) ? "write" : "read",
+>>>>>>> upstream/android-13
 				t->len);
 
 			if (direction == DMA_TO_DEVICE)
@@ -970,7 +1051,11 @@ mmc_spi_data_do(struct mmc_spi_host *host, struct mmc_command *cmd,
 
 		/* discard mappings */
 		if (direction == DMA_FROM_DEVICE)
+<<<<<<< HEAD
 			flush_kernel_dcache_page(sg_page(sg));
+=======
+			flush_dcache_page(sg_page(sg));
+>>>>>>> upstream/android-13
 		kunmap(sg_page(sg));
 		if (dma_dev)
 			dma_unmap_page(dma_dev, dma_addr, PAGE_SIZE, dir);
@@ -978,8 +1063,12 @@ mmc_spi_data_do(struct mmc_spi_host *host, struct mmc_command *cmd,
 		if (status < 0) {
 			data->error = status;
 			dev_dbg(&spi->dev, "%s status %d\n",
+<<<<<<< HEAD
 				(direction == DMA_TO_DEVICE)
 					? "write" : "read",
+=======
+				(direction == DMA_TO_DEVICE) ? "write" : "read",
+>>>>>>> upstream/android-13
 				status);
 			break;
 		}
@@ -996,7 +1085,11 @@ mmc_spi_data_do(struct mmc_spi_host *host, struct mmc_command *cmd,
 		int		tmp;
 		const unsigned	statlen = sizeof(scratch->status);
 
+<<<<<<< HEAD
 		dev_dbg(&spi->dev, "    mmc_spi: STOP_TRAN\n");
+=======
+		dev_dbg(&spi->dev, "    STOP_TRAN\n");
+>>>>>>> upstream/android-13
 
 		/* Tweak the per-block message we set up earlier by morphing
 		 * it to hold single buffer with the token followed by some
@@ -1138,7 +1231,11 @@ static void mmc_spi_initsequence(struct mmc_spi_host *host)
 	/* Try to be very sure any previous command has completed;
 	 * wait till not-busy, skip debris from any old commands.
 	 */
+<<<<<<< HEAD
 	mmc_spi_wait_unbusy(host, r1b_timeout);
+=======
+	mmc_spi_wait_unbusy(host, msecs_to_jiffies(MMC_SPI_INIT_TIMEOUT_MS));
+>>>>>>> upstream/android-13
 	mmc_spi_readbytes(host, 10);
 
 	/*
@@ -1197,7 +1294,11 @@ static void mmc_spi_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 
 		canpower = host->pdata && host->pdata->setpower;
 
+<<<<<<< HEAD
 		dev_dbg(&host->spi->dev, "mmc_spi: power %s (%d)%s\n",
+=======
+		dev_dbg(&host->spi->dev, "power %s (%d)%s\n",
+>>>>>>> upstream/android-13
 				mmc_powerstring(ios->power_mode),
 				ios->vdd,
 				canpower ? ", can switch" : "");
@@ -1258,8 +1359,12 @@ static void mmc_spi_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 				mres = spi_setup(host->spi);
 				if (mres < 0)
 					dev_dbg(&host->spi->dev,
+<<<<<<< HEAD
 						"switch back to SPI mode 3"
 						" failed\n");
+=======
+						"switch back to SPI mode 3 failed\n");
+>>>>>>> upstream/android-13
 			}
 		}
 
@@ -1271,8 +1376,12 @@ static void mmc_spi_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 
 		host->spi->max_speed_hz = ios->clock;
 		status = spi_setup(host->spi);
+<<<<<<< HEAD
 		dev_dbg(&host->spi->dev,
 			"mmc_spi:  clock to %d Hz, %d\n",
+=======
+		dev_dbg(&host->spi->dev, "  clock to %d Hz, %d\n",
+>>>>>>> upstream/android-13
 			host->spi->max_speed_hz, status);
 	}
 }
@@ -1301,6 +1410,55 @@ mmc_spi_detect_irq(int irq, void *mmc)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_HAS_DMA
+static int mmc_spi_dma_alloc(struct mmc_spi_host *host)
+{
+	struct spi_device *spi = host->spi;
+	struct device *dev;
+
+	if (!spi->master->dev.parent->dma_mask)
+		return 0;
+
+	dev = spi->master->dev.parent;
+
+	host->ones_dma = dma_map_single(dev, host->ones, MMC_SPI_BLOCKSIZE,
+					DMA_TO_DEVICE);
+	if (dma_mapping_error(dev, host->ones_dma))
+		return -ENOMEM;
+
+	host->data_dma = dma_map_single(dev, host->data, sizeof(*host->data),
+					DMA_BIDIRECTIONAL);
+	if (dma_mapping_error(dev, host->data_dma)) {
+		dma_unmap_single(dev, host->ones_dma, MMC_SPI_BLOCKSIZE,
+				 DMA_TO_DEVICE);
+		return -ENOMEM;
+	}
+
+	dma_sync_single_for_cpu(dev, host->data_dma, sizeof(*host->data),
+				DMA_BIDIRECTIONAL);
+
+	host->dma_dev = dev;
+	return 0;
+}
+
+static void mmc_spi_dma_free(struct mmc_spi_host *host)
+{
+	if (!host->dma_dev)
+		return;
+
+	dma_unmap_single(host->dma_dev, host->ones_dma, MMC_SPI_BLOCKSIZE,
+			 DMA_TO_DEVICE);
+	dma_unmap_single(host->dma_dev, host->data_dma,	sizeof(*host->data),
+			 DMA_BIDIRECTIONAL);
+}
+#else
+static inline int mmc_spi_dma_alloc(struct mmc_spi_host *host) { return 0; }
+static inline void mmc_spi_dma_free(struct mmc_spi_host *host) {}
+#endif
+
+>>>>>>> upstream/android-13
 static int mmc_spi_probe(struct spi_device *spi)
 {
 	void			*ones;
@@ -1374,6 +1532,11 @@ static int mmc_spi_probe(struct spi_device *spi)
 
 	host->ones = ones;
 
+<<<<<<< HEAD
+=======
+	dev_set_drvdata(&spi->dev, mmc);
+
+>>>>>>> upstream/android-13
 	/* Platform data is used to hook up things like card sensing
 	 * and power switching gpios.
 	 */
@@ -1390,13 +1553,17 @@ static int mmc_spi_probe(struct spi_device *spi)
 			host->powerup_msecs = 250;
 	}
 
+<<<<<<< HEAD
 	dev_set_drvdata(&spi->dev, mmc);
 
+=======
+>>>>>>> upstream/android-13
 	/* preallocate dma buffers */
 	host->data = kmalloc(sizeof(*host->data), GFP_KERNEL);
 	if (!host->data)
 		goto fail_nobuf1;
 
+<<<<<<< HEAD
 	if (spi->master->dev.parent->dma_mask) {
 		struct device	*dev = spi->master->dev.parent;
 
@@ -1414,6 +1581,11 @@ static int mmc_spi_probe(struct spi_device *spi)
 				host->data_dma, sizeof(*host->data),
 				DMA_BIDIRECTIONAL);
 	}
+=======
+	status = mmc_spi_dma_alloc(host);
+	if (status)
+		goto fail_dma;
+>>>>>>> upstream/android-13
 
 	/* setup message for status/busy readback */
 	spi_message_init(&host->readback);
@@ -1443,6 +1615,7 @@ static int mmc_spi_probe(struct spi_device *spi)
 	if (status != 0)
 		goto fail_add_host;
 
+<<<<<<< HEAD
 	if (host->pdata && host->pdata->flags & MMC_SPI_USE_CD_GPIO) {
 		status = mmc_gpio_request_cd(mmc, host->pdata->cd_gpio,
 					     host->pdata->cd_debounce);
@@ -1450,6 +1623,18 @@ static int mmc_spi_probe(struct spi_device *spi)
 			goto fail_add_host;
 
 		/* The platform has a CD GPIO signal that may support
+=======
+	/*
+	 * Index 0 is card detect
+	 * Old boardfiles were specifying 1 ms as debounce
+	 */
+	status = mmc_gpiod_request_cd(mmc, NULL, 0, false, 1000);
+	if (status == -EPROBE_DEFER)
+		goto fail_add_host;
+	if (!status) {
+		/*
+		 * The platform has a CD GPIO signal that may support
+>>>>>>> upstream/android-13
 		 * interrupts, so let mmc_gpiod_request_cd_irq() decide
 		 * if polling is needed or not.
 		 */
@@ -1458,12 +1643,21 @@ static int mmc_spi_probe(struct spi_device *spi)
 	}
 	mmc_detect_change(mmc, 0);
 
+<<<<<<< HEAD
 	if (host->pdata && host->pdata->flags & MMC_SPI_USE_RO_GPIO) {
 		has_ro = true;
 		status = mmc_gpio_request_ro(mmc, host->pdata->ro_gpio);
 		if (status != 0)
 			goto fail_add_host;
 	}
+=======
+	/* Index 1 is write protect/read only */
+	status = mmc_gpiod_request_ro(mmc, NULL, 1, 0);
+	if (status == -EPROBE_DEFER)
+		goto fail_add_host;
+	if (!status)
+		has_ro = true;
+>>>>>>> upstream/android-13
 
 	dev_info(&spi->dev, "SD/MMC host %s%s%s%s%s\n",
 			dev_name(&mmc->class_dev),
@@ -1476,6 +1670,7 @@ static int mmc_spi_probe(struct spi_device *spi)
 	return 0;
 
 fail_add_host:
+<<<<<<< HEAD
 	mmc_remove_host (mmc);
 fail_glue_init:
 	if (host->dma_dev)
@@ -1493,6 +1688,16 @@ fail_nobuf1:
 	mmc_spi_put_pdata(spi);
 	dev_set_drvdata(&spi->dev, NULL);
 
+=======
+	mmc_remove_host(mmc);
+fail_glue_init:
+	mmc_spi_dma_free(host);
+fail_dma:
+	kfree(host->data);
+fail_nobuf1:
+	mmc_spi_put_pdata(spi);
+	mmc_free_host(mmc);
+>>>>>>> upstream/android-13
 nomem:
 	kfree(ones);
 	return status;
@@ -1502,6 +1707,7 @@ nomem:
 static int mmc_spi_remove(struct spi_device *spi)
 {
 	struct mmc_host		*mmc = dev_get_drvdata(&spi->dev);
+<<<<<<< HEAD
 	struct mmc_spi_host	*host;
 
 	if (mmc) {
@@ -1531,6 +1737,32 @@ static int mmc_spi_remove(struct spi_device *spi)
 	return 0;
 }
 
+=======
+	struct mmc_spi_host	*host = mmc_priv(mmc);
+
+	/* prevent new mmc_detect_change() calls */
+	if (host->pdata && host->pdata->exit)
+		host->pdata->exit(&spi->dev, mmc);
+
+	mmc_remove_host(mmc);
+
+	mmc_spi_dma_free(host);
+	kfree(host->data);
+	kfree(host->ones);
+
+	spi->max_speed_hz = mmc->f_max;
+	mmc_spi_put_pdata(spi);
+	mmc_free_host(mmc);
+	return 0;
+}
+
+static const struct spi_device_id mmc_spi_dev_ids[] = {
+	{ "mmc-spi-slot"},
+	{ },
+};
+MODULE_DEVICE_TABLE(spi, mmc_spi_dev_ids);
+
+>>>>>>> upstream/android-13
 static const struct of_device_id mmc_spi_of_match_table[] = {
 	{ .compatible = "mmc-spi-slot", },
 	{},
@@ -1542,14 +1774,22 @@ static struct spi_driver mmc_spi_driver = {
 		.name =		"mmc_spi",
 		.of_match_table = mmc_spi_of_match_table,
 	},
+<<<<<<< HEAD
+=======
+	.id_table =	mmc_spi_dev_ids,
+>>>>>>> upstream/android-13
 	.probe =	mmc_spi_probe,
 	.remove =	mmc_spi_remove,
 };
 
 module_spi_driver(mmc_spi_driver);
 
+<<<<<<< HEAD
 MODULE_AUTHOR("Mike Lavender, David Brownell, "
 		"Hans-Peter Nilsson, Jan Nikitenko");
+=======
+MODULE_AUTHOR("Mike Lavender, David Brownell, Hans-Peter Nilsson, Jan Nikitenko");
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("SPI SD/MMC host driver");
 MODULE_LICENSE("GPL");
 MODULE_ALIAS("spi:mmc_spi");

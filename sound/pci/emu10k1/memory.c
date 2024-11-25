@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
  *  Copyright (c) by Takashi Iwai <tiwai@suse.de>
  *
  *  EMU10K1 memory page allocation (PTB area)
+<<<<<<< HEAD
  *
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -19,6 +24,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/pci.h>
@@ -184,6 +191,7 @@ static int unmap_memblk(struct snd_emu10k1 *emu, struct snd_emu10k1_memblk *blk)
 	struct snd_emu10k1_memblk *q;
 
 	/* calculate the expected size of empty region */
+<<<<<<< HEAD
 	if ((p = blk->mapped_link.prev) != &emu->mapped_link_head) {
 		q = get_emu10k1_memblk(p, mapped_link);
 		start_page = q->mapped_page + q->pages;
@@ -194,6 +202,22 @@ static int unmap_memblk(struct snd_emu10k1 *emu, struct snd_emu10k1_memblk *blk)
 		end_page = q->mapped_page;
 	} else
 		end_page = (emu->address_mode ? MAX_ALIGN_PAGES1 : MAX_ALIGN_PAGES0);
+=======
+	p = blk->mapped_link.prev;
+	if (p != &emu->mapped_link_head) {
+		q = get_emu10k1_memblk(p, mapped_link);
+		start_page = q->mapped_page + q->pages;
+	} else {
+		start_page = 1;
+	}
+	p = blk->mapped_link.next;
+	if (p != &emu->mapped_link_head) {
+		q = get_emu10k1_memblk(p, mapped_link);
+		end_page = q->mapped_page;
+	} else {
+		end_page = (emu->address_mode ? MAX_ALIGN_PAGES1 : MAX_ALIGN_PAGES0);
+	}
+>>>>>>> upstream/android-13
 
 	/* remove links */
 	list_del(&blk->mapped_link);
@@ -282,7 +306,12 @@ int snd_emu10k1_memblk_map(struct snd_emu10k1 *emu, struct snd_emu10k1_memblk *b
 		spin_unlock_irqrestore(&emu->memblk_lock, flags);
 		return 0;
 	}
+<<<<<<< HEAD
 	if ((err = map_memblk(emu, blk)) < 0) {
+=======
+	err = map_memblk(emu, blk);
+	if (err < 0) {
+>>>>>>> upstream/android-13
 		/* no enough page - try to unmap some blocks */
 		/* starting from the oldest block */
 		p = emu->mapped_order_link_head.next;
@@ -390,7 +419,11 @@ int snd_emu10k1_alloc_pages_maybe_wider(struct snd_emu10k1 *emu, size_t size,
 					struct snd_dma_buffer *dmab)
 {
 	if (emu->iommu_workaround) {
+<<<<<<< HEAD
 		size_t npages = (size + PAGE_SIZE - 1) / PAGE_SIZE;
+=======
+		size_t npages = DIV_ROUND_UP(size, PAGE_SIZE);
+>>>>>>> upstream/android-13
 		size_t size_real = npages * PAGE_SIZE;
 
 		/*
@@ -402,7 +435,11 @@ int snd_emu10k1_alloc_pages_maybe_wider(struct snd_emu10k1 *emu, size_t size,
 	}
 
 	return snd_dma_alloc_pages(SNDRV_DMA_TYPE_DEV,
+<<<<<<< HEAD
 				   snd_dma_pci_data(emu->pci), size, dmab);
+=======
+				   &emu->pci->dev, size, dmab);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -469,13 +506,23 @@ static void get_single_page_range(struct snd_util_memhdr *hdr,
 	struct snd_emu10k1_memblk *q;
 	int first_page, last_page;
 	first_page = blk->first_page;
+<<<<<<< HEAD
 	if ((p = blk->mem.list.prev) != &hdr->block) {
+=======
+	p = blk->mem.list.prev;
+	if (p != &hdr->block) {
+>>>>>>> upstream/android-13
 		q = get_emu10k1_memblk(p, mem.list);
 		if (q->last_page == first_page)
 			first_page++;  /* first page was already allocated */
 	}
 	last_page = blk->last_page;
+<<<<<<< HEAD
 	if ((p = blk->mem.list.next) != &hdr->block) {
+=======
+	p = blk->mem.list.next;
+	if (p != &hdr->block) {
+>>>>>>> upstream/android-13
 		q = get_emu10k1_memblk(p, mem.list);
 		if (q->first_page == last_page)
 			last_page--; /* last page was already allocated */
@@ -492,7 +539,11 @@ static void __synth_free_pages(struct snd_emu10k1 *emu, int first_page,
 	int page;
 
 	dmab.dev.type = SNDRV_DMA_TYPE_DEV;
+<<<<<<< HEAD
 	dmab.dev.dev = snd_dma_pci_data(emu->pci);
+=======
+	dmab.dev.dev = &emu->pci->dev;
+>>>>>>> upstream/android-13
 
 	for (page = first_page; page <= last_page; page++) {
 		if (emu->page_ptr_table[page] == NULL)

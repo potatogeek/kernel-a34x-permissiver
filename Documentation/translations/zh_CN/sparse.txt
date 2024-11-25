@@ -6,7 +6,11 @@ communicating in English you can also ask the Chinese maintainer for
 help.  Contact the Chinese maintainer if this translation is outdated
 or if there is a problem with the translation.
 
+<<<<<<< HEAD
 Chinese maintainer: Li Yang <leo@zh-kernel.org>
+=======
+Chinese maintainer: Li Yang <leoyang.li@nxp.com>
+>>>>>>> upstream/android-13
 ---------------------------------------------------------------------
 Documentation/dev-tools/sparse.rst 的中文翻译
 
@@ -14,8 +18,13 @@ Documentation/dev-tools/sparse.rst 的中文翻译
 交流有困难的话，也可以向中文版维护者求助。如果本翻译更新不及时或者翻
 译存在问题，请联系中文版维护者。
 
+<<<<<<< HEAD
 中文版维护者： 李阳  Li Yang <leo@zh-kernel.org>
 中文版翻译者： 李阳  Li Yang <leo@zh-kernel.org>
+=======
+中文版维护者： 李阳  Li Yang <leoyang.li@nxp.com>
+中文版翻译者： 李阳  Li Yang <leoyang.li@nxp.com>
+>>>>>>> upstream/android-13
 
 
 以下为正文
@@ -73,10 +82,13 @@ __bitwise"类型。
 
 	git://git.kernel.org/pub/scm/linux/kernel/git/josh/sparse.git
 
+<<<<<<< HEAD
 DaveJ 把每小时自动生成的 git 源码树 tar 包放在以下地址：
 
 	http://www.codemonkey.org.uk/projects/git-snapshots/sparse/
 
+=======
+>>>>>>> upstream/android-13
 一旦你下载了源码，只要以普通用户身份运行：
 
 	make

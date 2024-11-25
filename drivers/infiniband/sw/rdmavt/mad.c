@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2016 Intel Corporation.
  *
@@ -43,6 +44,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause
+/*
+ * Copyright(c) 2016 Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include <rdma/ib_mad.h>
@@ -56,8 +62,16 @@
  * @port_num: the port number this packet came in on, 1 based from ib core
  * @in_wc: the work completion entry for this packet
  * @in_grh: the global route header for this packet
+<<<<<<< HEAD
  * @in_mad: the incoming MAD
  * @out_mad: any outgoing MAD reply
+=======
+ * @in: the incoming MAD
+ * @in_mad_size: size of the incoming MAD reply
+ * @out: any outgoing MAD reply
+ * @out_mad_size: size of the outgoing MAD reply
+ * @out_mad_pkey_index: unused
+>>>>>>> upstream/android-13
  *
  * Note that the verbs framework has already done the MAD sanity checks,
  * and hop count/pointer updating for IB_MGMT_CLASS_SUBN_DIRECTED_ROUTE
@@ -67,7 +81,11 @@
  *
  * Return: IB_MAD_RESULT_SUCCESS or error
  */
+<<<<<<< HEAD
 int rvt_process_mad(struct ib_device *ibdev, int mad_flags, u8 port_num,
+=======
+int rvt_process_mad(struct ib_device *ibdev, int mad_flags, u32 port_num,
+>>>>>>> upstream/android-13
 		    const struct ib_wc *in_wc, const struct ib_grh *in_grh,
 		    const struct ib_mad_hdr *in, size_t in_mad_size,
 		    struct ib_mad_hdr *out, size_t *out_mad_size,
@@ -79,9 +97,12 @@ int rvt_process_mad(struct ib_device *ibdev, int mad_flags, u8 port_num,
 	 * future may choose to implement this but it should not be made into a
 	 * requirement.
 	 */
+<<<<<<< HEAD
 	if (ibport_num_to_idx(ibdev, port_num) < 0)
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	return IB_MAD_RESULT_FAILURE;
 }
 
@@ -160,7 +181,12 @@ void rvt_free_mad_agents(struct rvt_dev_info *rdi)
 			ib_unregister_mad_agent(agent);
 		}
 		if (rvp->sm_ah) {
+<<<<<<< HEAD
 			rdma_destroy_ah(&rvp->sm_ah->ibah);
+=======
+			rdma_destroy_ah(&rvp->sm_ah->ibah,
+					RDMA_DESTROY_AH_SLEEPABLE);
+>>>>>>> upstream/android-13
 			rvp->sm_ah = NULL;
 		}
 

@@ -144,6 +144,7 @@ cpte:	bne	csum_partial_end_cruft			! yep, handle it
 cpout:	retl						! get outta here
 	 mov	%o2, %o0				! return computed csum
 
+<<<<<<< HEAD
 	.globl __csum_partial_copy_start, __csum_partial_copy_end
 __csum_partial_copy_start:
 
@@ -182,6 +183,16 @@ __csum_partial_copy_start:
         .section __ex_table,ALLOC;		\
         .align  4;                              \
         .word   start, 0, end, handler;         \
+=======
+/* Work around cpp -rob */
+#define ALLOC #alloc
+#define EXECINSTR #execinstr
+#define EX(x,y)					\
+98:     x,y;                                    \
+        .section __ex_table,ALLOC;		\
+        .align  4;                              \
+        .word   98b, cc_fault;                   \
+>>>>>>> upstream/android-13
         .text;                                  \
         .align  4
 
@@ -192,6 +203,7 @@ __csum_partial_copy_start:
 	 * please check the fixup code below as well.
 	 */
 #define CSUMCOPY_BIGCHUNK_ALIGNED(src, dst, sum, off, t0, t1, t2, t3, t4, t5, t6, t7)	\
+<<<<<<< HEAD
 	ldd	[src + off + 0x00], t0;							\
 	ldd	[src + off + 0x08], t2;							\
 	addxcc	t0, sum, sum;								\
@@ -206,6 +218,22 @@ __csum_partial_copy_start:
 	std	t4, [dst + off + 0x10];							\
 	addxcc	t5, sum, sum;								\
 	std	t6, [dst + off + 0x18];							\
+=======
+	EX(ldd	[src + off + 0x00], t0);						\
+	EX(ldd	[src + off + 0x08], t2);						\
+	addxcc	t0, sum, sum;								\
+	EX(ldd	[src + off + 0x10], t4);						\
+	addxcc	t1, sum, sum;								\
+	EX(ldd	[src + off + 0x18], t6);						\
+	addxcc	t2, sum, sum;								\
+	EX(std	t0, [dst + off + 0x00]);						\
+	addxcc	t3, sum, sum;								\
+	EX(std	t2, [dst + off + 0x08]);						\
+	addxcc	t4, sum, sum;								\
+	EX(std	t4, [dst + off + 0x10]);						\
+	addxcc	t5, sum, sum;								\
+	EX(std	t6, [dst + off + 0x18]);						\
+>>>>>>> upstream/android-13
 	addxcc	t6, sum, sum;								\
 	addxcc	t7, sum, sum;
 
@@ -214,6 +242,7 @@ __csum_partial_copy_start:
 	 * Viking MXCC into streaming mode.  Ho hum...
 	 */
 #define CSUMCOPY_BIGCHUNK(src, dst, sum, off, t0, t1, t2, t3, t4, t5, t6, t7)	\
+<<<<<<< HEAD
 	ldd	[src + off + 0x00], t0;						\
 	ldd	[src + off + 0x08], t2;						\
 	ldd	[src + off + 0x10], t4;						\
@@ -233,10 +262,32 @@ __csum_partial_copy_start:
 	st	t6, [dst + off + 0x18];						\
 	addxcc	t6, sum, sum;							\
 	st	t7, [dst + off + 0x1c];						\
+=======
+	EX(ldd	[src + off + 0x00], t0);					\
+	EX(ldd	[src + off + 0x08], t2);					\
+	EX(ldd	[src + off + 0x10], t4);					\
+	EX(ldd	[src + off + 0x18], t6);					\
+	EX(st	t0, [dst + off + 0x00]);					\
+	addxcc	t0, sum, sum;							\
+	EX(st	t1, [dst + off + 0x04]);					\
+	addxcc	t1, sum, sum;							\
+	EX(st	t2, [dst + off + 0x08]);					\
+	addxcc	t2, sum, sum;							\
+	EX(st	t3, [dst + off + 0x0c]);					\
+	addxcc	t3, sum, sum;							\
+	EX(st	t4, [dst + off + 0x10]);					\
+	addxcc	t4, sum, sum;							\
+	EX(st	t5, [dst + off + 0x14]);					\
+	addxcc	t5, sum, sum;							\
+	EX(st	t6, [dst + off + 0x18]);					\
+	addxcc	t6, sum, sum;							\
+	EX(st	t7, [dst + off + 0x1c]);					\
+>>>>>>> upstream/android-13
 	addxcc	t7, sum, sum;
 
 	/* Yuck, 6 superscalar cycles... */
 #define CSUMCOPY_LASTCHUNK(src, dst, sum, off, t0, t1, t2, t3)	\
+<<<<<<< HEAD
 	ldd	[src - off - 0x08], t0;				\
 	ldd	[src - off - 0x00], t2;				\
 	addxcc	t0, sum, sum;					\
@@ -247,16 +298,33 @@ __csum_partial_copy_start:
 	st	t2, [dst - off - 0x00];				\
 	addxcc	t3, sum, sum;					\
 	st	t3, [dst - off + 0x04];
+=======
+	EX(ldd	[src - off - 0x08], t0);			\
+	EX(ldd	[src - off - 0x00], t2);			\
+	addxcc	t0, sum, sum;					\
+	EX(st	t0, [dst - off - 0x08]);			\
+	addxcc	t1, sum, sum;					\
+	EX(st	t1, [dst - off - 0x04]);			\
+	addxcc	t2, sum, sum;					\
+	EX(st	t2, [dst - off - 0x00]);			\
+	addxcc	t3, sum, sum;					\
+	EX(st	t3, [dst - off + 0x04]);
+>>>>>>> upstream/android-13
 
 	/* Handle the end cruft code out of band for better cache patterns. */
 cc_end_cruft:
 	be	1f
 	 andcc	%o3, 4, %g0
+<<<<<<< HEAD
 	EX(ldd	[%o0 + 0x00], %g2, and %o3, 0xf)
+=======
+	EX(ldd	[%o0 + 0x00], %g2)
+>>>>>>> upstream/android-13
 	add	%o1, 8, %o1
 	addcc	%g2, %g7, %g7
 	add	%o0, 8, %o0
 	addxcc	%g3, %g7, %g7
+<<<<<<< HEAD
 	EX2(st	%g2, [%o1 - 0x08])
 	addx	%g0, %g7, %g7
 	andcc	%o3, 4, %g0
@@ -267,6 +335,18 @@ cc_end_cruft:
 	add	%o1, 4, %o1
 	addcc	%g2, %g7, %g7
 	EX2(st	%g2, [%o1 - 0x04])
+=======
+	EX(st	%g2, [%o1 - 0x08])
+	addx	%g0, %g7, %g7
+	andcc	%o3, 4, %g0
+	EX(st	%g3, [%o1 - 0x04])
+1:	be	1f
+	 andcc	%o3, 3, %o3
+	EX(ld	[%o0 + 0x00], %g2)
+	add	%o1, 4, %o1
+	addcc	%g2, %g7, %g7
+	EX(st	%g2, [%o1 - 0x04])
+>>>>>>> upstream/android-13
 	addx	%g0, %g7, %g7
 	andcc	%o3, 3, %g0
 	add	%o0, 4, %o0
@@ -276,6 +356,7 @@ cc_end_cruft:
 	 subcc	%o3, 2, %o3
 	b	4f
 	 or	%g0, %g0, %o4
+<<<<<<< HEAD
 2:	EX(lduh	[%o0 + 0x00], %o4, add %o3, 2)
 	add	%o0, 2, %o0
 	EX2(sth	%o4, [%o1 + 0x00])
@@ -284,6 +365,16 @@ cc_end_cruft:
 	sll	%o4, 16, %o4
 4:	EX(ldub	[%o0 + 0x00], %o5, add %g0, 1)
 	EX2(stb	%o5, [%o1 + 0x00])
+=======
+2:	EX(lduh	[%o0 + 0x00], %o4)
+	add	%o0, 2, %o0
+	EX(sth	%o4, [%o1 + 0x00])
+	be	6f
+	 add	%o1, 2, %o1
+	sll	%o4, 16, %o4
+4:	EX(ldub	[%o0 + 0x00], %o5)
+	EX(stb	%o5, [%o1 + 0x00])
+>>>>>>> upstream/android-13
 	sll	%o5, 8, %o5
 	or	%o5, %o4, %o4
 6:	addcc	%o4, %g7, %g7
@@ -306,9 +397,15 @@ cc_dword_align:
 	 andcc	%o0, 0x2, %g0
 	be	1f
 	 andcc	%o0, 0x4, %g0
+<<<<<<< HEAD
 	EX(lduh	[%o0 + 0x00], %g4, add %g1, 0)
 	sub	%g1, 2, %g1
 	EX2(sth	%g4, [%o1 + 0x00])
+=======
+	EX(lduh	[%o0 + 0x00], %g4)
+	sub	%g1, 2, %g1
+	EX(sth	%g4, [%o1 + 0x00])
+>>>>>>> upstream/android-13
 	add	%o0, 2, %o0
 	sll	%g4, 16, %g4
 	addcc	%g4, %g7, %g7
@@ -322,9 +419,15 @@ cc_dword_align:
 	or	%g3, %g7, %g7
 1:	be	3f
 	 andcc	%g1, 0xffffff80, %g0
+<<<<<<< HEAD
 	EX(ld	[%o0 + 0x00], %g4, add %g1, 0)
 	sub	%g1, 4, %g1
 	EX2(st	%g4, [%o1 + 0x00])
+=======
+	EX(ld	[%o0 + 0x00], %g4)
+	sub	%g1, 4, %g1
+	EX(st	%g4, [%o1 + 0x00])
+>>>>>>> upstream/android-13
 	add	%o0, 4, %o0
 	addcc	%g4, %g7, %g7
 	add	%o1, 4, %o1
@@ -354,7 +457,10 @@ __csum_partial_copy_sparc_generic:
 	CSUMCOPY_BIGCHUNK(%o0,%o1,%g7,0x20,%o4,%o5,%g2,%g3,%g4,%g5,%o2,%o3)
 	CSUMCOPY_BIGCHUNK(%o0,%o1,%g7,0x40,%o4,%o5,%g2,%g3,%g4,%g5,%o2,%o3)
 	CSUMCOPY_BIGCHUNK(%o0,%o1,%g7,0x60,%o4,%o5,%g2,%g3,%g4,%g5,%o2,%o3)
+<<<<<<< HEAD
 10:	EXT(5b, 10b, 20f)		! note for exception handling
+=======
+>>>>>>> upstream/android-13
 	sub	%g1, 128, %g1		! detract from length
 	addx	%g0, %g7, %g7		! add in last carry bit
 	andcc	%g1, 0xffffff80, %g0	! more to csum?
@@ -379,8 +485,12 @@ cctbl:	CSUMCOPY_LASTCHUNK(%o0,%o1,%g7,0x68,%g2,%g3,%g4,%g5)
 	CSUMCOPY_LASTCHUNK(%o0,%o1,%g7,0x28,%g2,%g3,%g4,%g5)
 	CSUMCOPY_LASTCHUNK(%o0,%o1,%g7,0x18,%g2,%g3,%g4,%g5)
 	CSUMCOPY_LASTCHUNK(%o0,%o1,%g7,0x08,%g2,%g3,%g4,%g5)
+<<<<<<< HEAD
 12:	EXT(cctbl, 12b, 22f)		! note for exception table handling
 	addx	%g0, %g7, %g7
+=======
+12:	addx	%g0, %g7, %g7
+>>>>>>> upstream/android-13
 	andcc	%o3, 0xf, %g0		! check for low bits set
 ccte:	bne	cc_end_cruft		! something left, handle it out of band
 	 andcc	%o3, 8, %g0		! begin checks for that code
@@ -390,7 +500,10 @@ ccdbl:	CSUMCOPY_BIGCHUNK_ALIGNED(%o0,%o1,%g7,0x00,%o4,%o5,%g2,%g3,%g4,%g5,%o2,%o
 	CSUMCOPY_BIGCHUNK_ALIGNED(%o0,%o1,%g7,0x20,%o4,%o5,%g2,%g3,%g4,%g5,%o2,%o3)
 	CSUMCOPY_BIGCHUNK_ALIGNED(%o0,%o1,%g7,0x40,%o4,%o5,%g2,%g3,%g4,%g5,%o2,%o3)
 	CSUMCOPY_BIGCHUNK_ALIGNED(%o0,%o1,%g7,0x60,%o4,%o5,%g2,%g3,%g4,%g5,%o2,%o3)
+<<<<<<< HEAD
 11:	EXT(ccdbl, 11b, 21f)		! note for exception table handling
+=======
+>>>>>>> upstream/android-13
 	sub	%g1, 128, %g1		! detract from length
 	addx	%g0, %g7, %g7		! add in last carry bit
 	andcc	%g1, 0xffffff80, %g0	! more to csum?
@@ -407,9 +520,15 @@ ccslow:	cmp	%g1, 0
 	be,a	1f
 	 srl	%g1, 1, %g4		
 	sub	%g1, 1, %g1	
+<<<<<<< HEAD
 	EX(ldub	[%o0], %g5, add %g1, 1)
 	add	%o0, 1, %o0	
 	EX2(stb	%g5, [%o1])
+=======
+	EX(ldub	[%o0], %g5)
+	add	%o0, 1, %o0	
+	EX(stb	%g5, [%o1])
+>>>>>>> upstream/android-13
 	srl	%g1, 1, %g4
 	add	%o1, 1, %o1
 1:	cmp	%g4, 0		
@@ -418,6 +537,7 @@ ccslow:	cmp	%g1, 0
 	andcc	%o0, 2, %g0	
 	be,a	1f
 	 srl	%g4, 1, %g4
+<<<<<<< HEAD
 	EX(lduh	[%o0], %o4, add %g1, 0)
 	sub	%g1, 2, %g1	
 	srl	%o4, 8, %g2
@@ -425,12 +545,22 @@ ccslow:	cmp	%g1, 0
 	EX2(stb	%g2, [%o1])
 	add	%o4, %g5, %g5
 	EX2(stb	%o4, [%o1 + 1])
+=======
+	EX(lduh	[%o0], %o4)
+	sub	%g1, 2, %g1	
+	srl	%o4, 8, %g2
+	sub	%g4, 1, %g4	
+	EX(stb	%g2, [%o1])
+	add	%o4, %g5, %g5
+	EX(stb	%o4, [%o1 + 1])
+>>>>>>> upstream/android-13
 	add	%o0, 2, %o0	
 	srl	%g4, 1, %g4
 	add	%o1, 2, %o1
 1:	cmp	%g4, 0		
 	be,a	2f
 	 andcc	%g1, 2, %g0
+<<<<<<< HEAD
 	EX3(ld	[%o0], %o4)
 5:	srl	%o4, 24, %g2
 	srl	%o4, 16, %g3
@@ -441,11 +571,27 @@ ccslow:	cmp	%g1, 0
 	EX2(stb	%g2, [%o1 + 2])
 	addcc	%o4, %g5, %g5
 	EX2(stb	%o4, [%o1 + 3])
+=======
+	EX(ld	[%o0], %o4)
+5:	srl	%o4, 24, %g2
+	srl	%o4, 16, %g3
+	EX(stb	%g2, [%o1])
+	srl	%o4, 8, %g2
+	EX(stb	%g3, [%o1 + 1])
+	add	%o0, 4, %o0
+	EX(stb	%g2, [%o1 + 2])
+	addcc	%o4, %g5, %g5
+	EX(stb	%o4, [%o1 + 3])
+>>>>>>> upstream/android-13
 	addx	%g5, %g0, %g5	! I am now to lazy to optimize this (question it
 	add	%o1, 4, %o1	! is worthy). Maybe some day - with the sll/srl
 	subcc	%g4, 1, %g4	! tricks
 	bne,a	5b
+<<<<<<< HEAD
 	 EX3(ld	[%o0], %o4)
+=======
+	 EX(ld	[%o0], %o4)
+>>>>>>> upstream/android-13
 	sll	%g5, 16, %g2
 	srl	%g5, 16, %g5
 	srl	%g2, 16, %g2
@@ -453,6 +599,7 @@ ccslow:	cmp	%g1, 0
 	add	%g2, %g5, %g5 
 2:	be,a	3f		
 	 andcc	%g1, 1, %g0
+<<<<<<< HEAD
 	EX(lduh	[%o0], %o4, and %g1, 3)
 	andcc	%g1, 1, %g0
 	srl	%o4, 8, %g2
@@ -466,6 +613,21 @@ ccslow:	cmp	%g1, 0
 	EX(ldub	[%o0], %g2, add %g0, 1)
 	sll	%g2, 8, %o4	
 	EX2(stb	%g2, [%o1])
+=======
+	EX(lduh	[%o0], %o4)
+	andcc	%g1, 1, %g0
+	srl	%o4, 8, %g2
+	add	%o0, 2, %o0	
+	EX(stb	%g2, [%o1])
+	add	%g5, %o4, %g5
+	EX(stb	%o4, [%o1 + 1])
+	add	%o1, 2, %o1
+3:	be,a	1f		
+	 sll	%g5, 16, %o4
+	EX(ldub	[%o0], %g2)
+	sll	%g2, 8, %o4	
+	EX(stb	%g2, [%o1])
+>>>>>>> upstream/android-13
 	add	%g5, %o4, %g5
 	sll	%g5, 16, %o4
 1:	addcc	%o4, %g5, %g5
@@ -481,11 +643,15 @@ ccslow:	cmp	%g1, 0
 4:	addcc	%g7, %g5, %g7
 	retl	
 	 addx	%g0, %g7, %o0
+<<<<<<< HEAD
 __csum_partial_copy_end:
+=======
+>>>>>>> upstream/android-13
 
 /* We do these strange calculations for the csum_*_from_user case only, ie.
  * we only bother with faults on loads... */
 
+<<<<<<< HEAD
 /* o2 = ((g2%20)&3)*8
  * o3 = g1 - (g2/20)*32 - o2 */
 20:
@@ -591,3 +757,8 @@ __csum_partial_copy_end:
         .align 4
         .word 5b,2
 	.word 6b,2
+=======
+cc_fault:
+	ret
+	 clr	%o0
+>>>>>>> upstream/android-13

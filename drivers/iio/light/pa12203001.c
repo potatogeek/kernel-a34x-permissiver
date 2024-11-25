@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2015 Intel Corporation
  *
  * Driver for TXC PA12203001 Proximity and Ambient Light Sensor.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  * To do: Interrupt support.
  */
 
@@ -188,9 +195,13 @@ static int pa12203001_set_power_state(struct pa12203001_data *data, bool on,
 	}
 
 	if (on) {
+<<<<<<< HEAD
 		ret = pm_runtime_get_sync(&data->client->dev);
 		if (ret < 0)
 			pm_runtime_put_noidle(&data->client->dev);
+=======
+		ret = pm_runtime_resume_and_get(&data->client->dev);
+>>>>>>> upstream/android-13
 
 	} else {
 		pm_runtime_mark_last_busy(&data->client->dev);
@@ -364,7 +375,10 @@ static int pa12203001_probe(struct i2c_client *client,
 
 	mutex_init(&data->lock);
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &client->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->info = &pa12203001_info;
 	indio_dev->name = PA12203001_DRIVER_NAME;
 	indio_dev->channels = pa12203001_channels;

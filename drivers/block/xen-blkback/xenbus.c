@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*  Xenbus code for blkif backend
     Copyright (C) 2005 Rusty Russell <rusty@rustcorp.com.au>
     Copyright (C) 2005 XenSource Ltd
 
+<<<<<<< HEAD
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -11,12 +16,17 @@
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
 
 */
 
 #define pr_fmt(fmt) "xen-blkback: " fmt
 
+<<<<<<< HEAD
 #include <stdarg.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/kthread.h>
 #include <xen/events.h>
@@ -152,8 +162,12 @@ static int xen_blkif_alloc_rings(struct xen_blkif *blkif)
 		INIT_LIST_HEAD(&ring->pending_free);
 		INIT_LIST_HEAD(&ring->persistent_purge_list);
 		INIT_WORK(&ring->persistent_purge_work, xen_blkbk_unmap_purged_grants);
+<<<<<<< HEAD
 		spin_lock_init(&ring->free_pages_lock);
 		INIT_LIST_HEAD(&ring->free_pages);
+=======
+		gnttab_page_cache_init(&ring->free_pages);
+>>>>>>> upstream/android-13
 
 		spin_lock_init(&ring->pending_free_lock);
 		init_waitqueue_head(&ring->pending_free_wq);
@@ -198,6 +212,12 @@ static int xen_blkif_map(struct xen_blkif_ring *ring, grant_ref_t *gref,
 {
 	int err;
 	struct xen_blkif *blkif = ring->blkif;
+<<<<<<< HEAD
+=======
+	const struct blkif_common_sring *sring_common;
+	RING_IDX rsp_prod, req_prod;
+	unsigned int size;
+>>>>>>> upstream/android-13
 
 	/* Already connected through? */
 	if (ring->irq)
@@ -208,6 +228,7 @@ static int xen_blkif_map(struct xen_blkif_ring *ring, grant_ref_t *gref,
 	if (err < 0)
 		return err;
 
+<<<<<<< HEAD
 	switch (blkif->blk_protocol) {
 	case BLKIF_PROTOCOL_NATIVE:
 	{
@@ -215,28 +236,62 @@ static int xen_blkif_map(struct xen_blkif_ring *ring, grant_ref_t *gref,
 		sring = (struct blkif_sring *)ring->blk_ring;
 		BACK_RING_INIT(&ring->blk_rings.native, sring,
 			       XEN_PAGE_SIZE * nr_grefs);
+=======
+	sring_common = (struct blkif_common_sring *)ring->blk_ring;
+	rsp_prod = READ_ONCE(sring_common->rsp_prod);
+	req_prod = READ_ONCE(sring_common->req_prod);
+
+	switch (blkif->blk_protocol) {
+	case BLKIF_PROTOCOL_NATIVE:
+	{
+		struct blkif_sring *sring_native =
+			(struct blkif_sring *)ring->blk_ring;
+
+		BACK_RING_ATTACH(&ring->blk_rings.native, sring_native,
+				 rsp_prod, XEN_PAGE_SIZE * nr_grefs);
+		size = __RING_SIZE(sring_native, XEN_PAGE_SIZE * nr_grefs);
+>>>>>>> upstream/android-13
 		break;
 	}
 	case BLKIF_PROTOCOL_X86_32:
 	{
+<<<<<<< HEAD
 		struct blkif_x86_32_sring *sring_x86_32;
 		sring_x86_32 = (struct blkif_x86_32_sring *)ring->blk_ring;
 		BACK_RING_INIT(&ring->blk_rings.x86_32, sring_x86_32,
 			       XEN_PAGE_SIZE * nr_grefs);
+=======
+		struct blkif_x86_32_sring *sring_x86_32 =
+			(struct blkif_x86_32_sring *)ring->blk_ring;
+
+		BACK_RING_ATTACH(&ring->blk_rings.x86_32, sring_x86_32,
+				 rsp_prod, XEN_PAGE_SIZE * nr_grefs);
+		size = __RING_SIZE(sring_x86_32, XEN_PAGE_SIZE * nr_grefs);
+>>>>>>> upstream/android-13
 		break;
 	}
 	case BLKIF_PROTOCOL_X86_64:
 	{
+<<<<<<< HEAD
 		struct blkif_x86_64_sring *sring_x86_64;
 		sring_x86_64 = (struct blkif_x86_64_sring *)ring->blk_ring;
 		BACK_RING_INIT(&ring->blk_rings.x86_64, sring_x86_64,
 			       XEN_PAGE_SIZE * nr_grefs);
+=======
+		struct blkif_x86_64_sring *sring_x86_64 =
+			(struct blkif_x86_64_sring *)ring->blk_ring;
+
+		BACK_RING_ATTACH(&ring->blk_rings.x86_64, sring_x86_64,
+				 rsp_prod, XEN_PAGE_SIZE * nr_grefs);
+		size = __RING_SIZE(sring_x86_64, XEN_PAGE_SIZE * nr_grefs);
+>>>>>>> upstream/android-13
 		break;
 	}
 	default:
 		BUG();
 	}
 
+<<<<<<< HEAD
 	err = bind_interdomain_evtchn_to_irqhandler_lateeoi(blkif->domid,
 			evtchn, xen_blkif_be_int, 0, "blkif-backend", ring);
 	if (err < 0) {
@@ -247,6 +302,24 @@ static int xen_blkif_map(struct xen_blkif_ring *ring, grant_ref_t *gref,
 	ring->irq = err;
 
 	return 0;
+=======
+	err = -EIO;
+	if (req_prod - rsp_prod > size)
+		goto fail;
+
+	err = bind_interdomain_evtchn_to_irqhandler_lateeoi(blkif->be->dev,
+			evtchn, xen_blkif_be_int, 0, "blkif-backend", ring);
+	if (err < 0)
+		goto fail;
+	ring->irq = err;
+
+	return 0;
+
+fail:
+	xenbus_unmap_ring_vfree(blkif->be->dev, ring->blk_ring);
+	ring->blk_rings.common.sring = NULL;
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static int xen_blkif_disconnect(struct xen_blkif *blkif)
@@ -307,8 +380,12 @@ static int xen_blkif_disconnect(struct xen_blkif *blkif)
 		BUG_ON(atomic_read(&ring->persistent_gnt_in_use) != 0);
 		BUG_ON(!list_empty(&ring->persistent_purge_list));
 		BUG_ON(!RB_EMPTY_ROOT(&ring->persistent_gnts));
+<<<<<<< HEAD
 		BUG_ON(!list_empty(&ring->free_pages));
 		BUG_ON(ring->free_pages_num != 0);
+=======
+		BUG_ON(ring->free_pages.num_pages != 0);
+>>>>>>> upstream/android-13
 		BUG_ON(ring->persistent_gnt_c != 0);
 		WARN_ON(i != (XEN_BLKIF_REQS_PER_PAGE * blkif->nr_ring_pages));
 		ring->active = false;
@@ -351,6 +428,15 @@ int __init xen_blkif_interface_init(void)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+void xen_blkif_interface_fini(void)
+{
+	kmem_cache_destroy(xen_blkif_cachep);
+	xen_blkif_cachep = NULL;
+}
+
+>>>>>>> upstream/android-13
 /*
  *  sysfs interface for VBD I/O requests
  */
@@ -450,7 +536,10 @@ static void xenvbd_sysfs_delif(struct xenbus_device *dev)
 	device_remove_file(&dev->dev, &dev_attr_physical_device);
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static void xen_vbd_free(struct xen_vbd *vbd)
 {
 	if (vbd->bdev)
@@ -458,6 +547,15 @@ static void xen_vbd_free(struct xen_vbd *vbd)
 	vbd->bdev = NULL;
 }
 
+<<<<<<< HEAD
+=======
+/* Enable the persistent grants feature. */
+static bool feature_persistent = true;
+module_param(feature_persistent, bool, 0644);
+MODULE_PARM_DESC(feature_persistent,
+		"Enables the persistent grants feature");
+
+>>>>>>> upstream/android-13
 static int xen_vbd_create(struct xen_blkif *blkif, blkif_vdev_t handle,
 			  unsigned major, unsigned minor, int readonly,
 			  int cdrom)
@@ -503,10 +601,19 @@ static int xen_vbd_create(struct xen_blkif *blkif, blkif_vdev_t handle,
 	if (q && blk_queue_secure_erase(q))
 		vbd->discard_secure = true;
 
+<<<<<<< HEAD
+=======
+	vbd->feature_gnt_persistent = feature_persistent;
+
+>>>>>>> upstream/android-13
 	pr_debug("Successful creation of handle=%04x (dom=%u)\n",
 		handle, blkif->domid);
 	return 0;
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 static int xen_blkbk_remove(struct xenbus_device *dev)
 {
 	struct backend_info *be = dev_get_drvdata(&dev->dev);
@@ -590,6 +697,10 @@ static void xen_blkbk_discard(struct xenbus_transaction xbt, struct backend_info
 	if (err)
 		dev_warn(&dev->dev, "writing feature-discard (%d)", err);
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 int xen_blkbk_barrier(struct xenbus_transaction xbt,
 		      struct backend_info *be, int state)
 {
@@ -675,7 +786,10 @@ fail:
 	return err;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Callback received when the hotplug scripts have placed the physical-device
  * node.  Read it and the mode node, and create a vbd.  If the frontend is
@@ -767,7 +881,10 @@ static void backend_changed(struct xenbus_watch *watch,
 	}
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Callback received when the frontend's state changes.
  */
@@ -828,7 +945,11 @@ static void frontend_changed(struct xenbus_device *dev,
 		xenbus_switch_state(dev, XenbusStateClosed);
 		if (xenbus_dev_is_online(dev))
 			break;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 		/* if not online */
 	case XenbusStateUnknown:
 		/* implies xen_blkif_disconnect() via xen_blkbk_remove() */
@@ -842,10 +963,35 @@ static void frontend_changed(struct xenbus_device *dev,
 	}
 }
 
+<<<<<<< HEAD
 
 /* ** Connection ** */
 
 
+=======
+/* Once a memory pressure is detected, squeeze free page pools for a while. */
+static unsigned int buffer_squeeze_duration_ms = 10;
+module_param_named(buffer_squeeze_duration_ms,
+		buffer_squeeze_duration_ms, int, 0644);
+MODULE_PARM_DESC(buffer_squeeze_duration_ms,
+"Duration in ms to squeeze pages buffer when a memory pressure is detected");
+
+/*
+ * Callback received when the memory pressure is detected.
+ */
+static void reclaim_memory(struct xenbus_device *dev)
+{
+	struct backend_info *be = dev_get_drvdata(&dev->dev);
+
+	if (!be)
+		return;
+	be->blkif->buffer_squeeze_end = jiffies +
+		msecs_to_jiffies(buffer_squeeze_duration_ms);
+}
+
+/* ** Connection ** */
+
+>>>>>>> upstream/android-13
 /*
  * Write the physical details regarding the block device to the store, and
  * switch to Connected state.
@@ -873,7 +1019,12 @@ again:
 
 	xen_blkbk_barrier(xbt, be, be->blkif->vbd.flush_support);
 
+<<<<<<< HEAD
 	err = xenbus_printf(xbt, dev->nodename, "feature-persistent", "%u", 1);
+=======
+	err = xenbus_printf(xbt, dev->nodename, "feature-persistent", "%u",
+			be->blkif->vbd.feature_gnt_persistent);
+>>>>>>> upstream/android-13
 	if (err) {
 		xenbus_dev_fatal(dev, err, "writing %s/feature-persistent",
 				 dev->nodename);
@@ -937,7 +1088,11 @@ static int read_per_ring_refs(struct xen_blkif_ring *ring, const char *dir)
 	int err, i, j;
 	struct xen_blkif *blkif = ring->blkif;
 	struct xenbus_device *dev = blkif->be->dev;
+<<<<<<< HEAD
 	unsigned int ring_page_order, nr_grefs, evtchn;
+=======
+	unsigned int nr_grefs, evtchn;
+>>>>>>> upstream/android-13
 
 	err = xenbus_scanf(XBT_NIL, dir, "event-channel", "%u",
 			  &evtchn);
@@ -947,6 +1102,7 @@ static int read_per_ring_refs(struct xen_blkif_ring *ring, const char *dir)
 		return err;
 	}
 
+<<<<<<< HEAD
 	err = xenbus_scanf(XBT_NIL, dev->otherend, "ring-page-order", "%u",
 			  &ring_page_order);
 	if (err != 1) {
@@ -984,6 +1140,35 @@ static int read_per_ring_refs(struct xen_blkif_ring *ring, const char *dir)
 		}
 	}
 	blkif->nr_ring_pages = nr_grefs;
+=======
+	nr_grefs = blkif->nr_ring_pages;
+
+	if (unlikely(!nr_grefs)) {
+		WARN_ON(true);
+		return -EINVAL;
+	}
+
+	for (i = 0; i < nr_grefs; i++) {
+		char ring_ref_name[RINGREF_NAME_LEN];
+
+		if (blkif->multi_ref)
+			snprintf(ring_ref_name, RINGREF_NAME_LEN, "ring-ref%u", i);
+		else {
+			WARN_ON(i != 0);
+			snprintf(ring_ref_name, RINGREF_NAME_LEN, "ring-ref");
+		}
+
+		err = xenbus_scanf(XBT_NIL, dir, ring_ref_name,
+				   "%u", &ring_ref[i]);
+
+		if (err != 1) {
+			err = -EINVAL;
+			xenbus_dev_fatal(dev, err, "reading %s/%s",
+					 dir, ring_ref_name);
+			return err;
+		}
+	}
+>>>>>>> upstream/android-13
 
 	err = -ENOMEM;
 	for (i = 0; i < nr_grefs * XEN_BLKIF_REQS_PER_PAGE; i++) {
@@ -1034,35 +1219,64 @@ fail:
 static int connect_ring(struct backend_info *be)
 {
 	struct xenbus_device *dev = be->dev;
+<<<<<<< HEAD
 	unsigned int pers_grants;
+=======
+	struct xen_blkif *blkif = be->blkif;
+>>>>>>> upstream/android-13
 	char protocol[64] = "";
 	int err, i;
 	char *xspath;
 	size_t xspathsize;
 	const size_t xenstore_path_ext_size = 11; /* sufficient for "/queue-NNN" */
 	unsigned int requested_num_queues = 0;
+<<<<<<< HEAD
 
 	pr_debug("%s %s\n", __func__, dev->otherend);
 
 	be->blkif->blk_protocol = BLKIF_PROTOCOL_DEFAULT;
+=======
+	unsigned int ring_page_order;
+
+	pr_debug("%s %s\n", __func__, dev->otherend);
+
+	blkif->blk_protocol = BLKIF_PROTOCOL_DEFAULT;
+>>>>>>> upstream/android-13
 	err = xenbus_scanf(XBT_NIL, dev->otherend, "protocol",
 			   "%63s", protocol);
 	if (err <= 0)
 		strcpy(protocol, "unspecified, assuming default");
 	else if (0 == strcmp(protocol, XEN_IO_PROTO_ABI_NATIVE))
+<<<<<<< HEAD
 		be->blkif->blk_protocol = BLKIF_PROTOCOL_NATIVE;
 	else if (0 == strcmp(protocol, XEN_IO_PROTO_ABI_X86_32))
 		be->blkif->blk_protocol = BLKIF_PROTOCOL_X86_32;
 	else if (0 == strcmp(protocol, XEN_IO_PROTO_ABI_X86_64))
 		be->blkif->blk_protocol = BLKIF_PROTOCOL_X86_64;
+=======
+		blkif->blk_protocol = BLKIF_PROTOCOL_NATIVE;
+	else if (0 == strcmp(protocol, XEN_IO_PROTO_ABI_X86_32))
+		blkif->blk_protocol = BLKIF_PROTOCOL_X86_32;
+	else if (0 == strcmp(protocol, XEN_IO_PROTO_ABI_X86_64))
+		blkif->blk_protocol = BLKIF_PROTOCOL_X86_64;
+>>>>>>> upstream/android-13
 	else {
 		xenbus_dev_fatal(dev, err, "unknown fe protocol %s", protocol);
 		return -ENOSYS;
 	}
+<<<<<<< HEAD
 	pers_grants = xenbus_read_unsigned(dev->otherend, "feature-persistent",
 					   0);
 	be->blkif->vbd.feature_gnt_persistent = pers_grants;
 	be->blkif->vbd.overflow_max_grants = 0;
+=======
+	if (blkif->vbd.feature_gnt_persistent)
+		blkif->vbd.feature_gnt_persistent =
+			xenbus_read_unsigned(dev->otherend,
+					"feature-persistent", 0);
+
+	blkif->vbd.overflow_max_grants = 0;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Read the number of hardware queues from frontend.
@@ -1078,6 +1292,7 @@ static int connect_ring(struct backend_info *be)
 				requested_num_queues, xenblk_max_queues);
 		return -ENOSYS;
 	}
+<<<<<<< HEAD
 	be->blkif->nr_rings = requested_num_queues;
 	if (xen_blkif_alloc_rings(be->blkif))
 		return -ENOMEM;
@@ -1088,6 +1303,35 @@ static int connect_ring(struct backend_info *be)
 
 	if (be->blkif->nr_rings == 1)
 		return read_per_ring_refs(&be->blkif->rings[0], dev->otherend);
+=======
+	blkif->nr_rings = requested_num_queues;
+	if (xen_blkif_alloc_rings(blkif))
+		return -ENOMEM;
+
+	pr_info("%s: using %d queues, protocol %d (%s) %s\n", dev->nodename,
+		 blkif->nr_rings, blkif->blk_protocol, protocol,
+		 blkif->vbd.feature_gnt_persistent ? "persistent grants" : "");
+
+	err = xenbus_scanf(XBT_NIL, dev->otherend, "ring-page-order", "%u",
+			   &ring_page_order);
+	if (err != 1) {
+		blkif->nr_ring_pages = 1;
+		blkif->multi_ref = false;
+	} else if (ring_page_order <= xen_blkif_max_ring_order) {
+		blkif->nr_ring_pages = 1 << ring_page_order;
+		blkif->multi_ref = true;
+	} else {
+		err = -EINVAL;
+		xenbus_dev_fatal(dev, err,
+				 "requested ring page order %d exceed max:%d",
+				 ring_page_order,
+				 xen_blkif_max_ring_order);
+		return err;
+	}
+
+	if (blkif->nr_rings == 1)
+		return read_per_ring_refs(&blkif->rings[0], dev->otherend);
+>>>>>>> upstream/android-13
 	else {
 		xspathsize = strlen(dev->otherend) + xenstore_path_ext_size;
 		xspath = kmalloc(xspathsize, GFP_KERNEL);
@@ -1096,10 +1340,17 @@ static int connect_ring(struct backend_info *be)
 			return -ENOMEM;
 		}
 
+<<<<<<< HEAD
 		for (i = 0; i < be->blkif->nr_rings; i++) {
 			memset(xspath, 0, xspathsize);
 			snprintf(xspath, xspathsize, "%s/queue-%u", dev->otherend, i);
 			err = read_per_ring_refs(&be->blkif->rings[i], xspath);
+=======
+		for (i = 0; i < blkif->nr_rings; i++) {
+			memset(xspath, 0, xspathsize);
+			snprintf(xspath, xspathsize, "%s/queue-%u", dev->otherend, i);
+			err = read_per_ring_refs(&blkif->rings[i], xspath);
+>>>>>>> upstream/android-13
 			if (err) {
 				kfree(xspath);
 				return err;
@@ -1119,10 +1370,24 @@ static struct xenbus_driver xen_blkbk_driver = {
 	.ids  = xen_blkbk_ids,
 	.probe = xen_blkbk_probe,
 	.remove = xen_blkbk_remove,
+<<<<<<< HEAD
 	.otherend_changed = frontend_changed
+=======
+	.otherend_changed = frontend_changed,
+	.allow_rebind = true,
+	.reclaim_memory = reclaim_memory,
+>>>>>>> upstream/android-13
 };
 
 int xen_blkif_xenbus_init(void)
 {
 	return xenbus_register_backend(&xen_blkbk_driver);
 }
+<<<<<<< HEAD
+=======
+
+void xen_blkif_xenbus_fini(void)
+{
+	xenbus_unregister_driver(&xen_blkbk_driver);
+}
+>>>>>>> upstream/android-13

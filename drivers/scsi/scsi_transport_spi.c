@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* 
  *  Parallel SCSI (SPI) transport specific attributes exported to sysfs.
  *
  *  Copyright (c) 2003 Silicon Graphics, Inc.  All rights reserved.
  *  Copyright (c) 2004, 2005 James Bottomley <James.Bottomley@SteelEye.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/ctype.h>
 #include <linux/init.h>
@@ -140,7 +147,11 @@ static int spi_execute(struct scsi_device *sdev, const void *cmd,
 				      REQ_FAILFAST_TRANSPORT |
 				      REQ_FAILFAST_DRIVER,
 				      RQF_PM, NULL);
+<<<<<<< HEAD
 		if (driver_byte(result) != DRIVER_SENSE ||
+=======
+		if (result < 0 || !scsi_sense_valid(sshdr) ||
+>>>>>>> upstream/android-13
 		    sshdr->sense_key != UNIT_ATTENTION)
 			break;
 	}
@@ -1243,7 +1254,11 @@ int spi_populate_tag_msg(unsigned char *msg, struct scsi_cmnd *cmd)
 {
         if (cmd->flags & SCMD_TAGGED) {
 		*msg++ = SIMPLE_QUEUE_TAG;
+<<<<<<< HEAD
         	*msg++ = cmd->request->tag;
+=======
+		*msg++ = scsi_cmd_to_rq(cmd)->tag;
+>>>>>>> upstream/android-13
         	return 2;
 	}
 

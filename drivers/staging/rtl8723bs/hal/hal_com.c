@@ -4,7 +4,10 @@
  * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
  *
  ******************************************************************************/
+<<<<<<< HEAD
 #define _HAL_COM_C_
+=======
+>>>>>>> upstream/android-13
 
 #include <linux/kernel.h>
 #include <drv_types.h>
@@ -18,10 +21,15 @@ u8 rtw_hal_data_init(struct adapter *padapter)
 	if (is_primary_adapter(padapter)) {	/* if (padapter->isprimary) */
 		padapter->hal_data_sz = sizeof(struct hal_com_data);
 		padapter->HalData = vzalloc(padapter->hal_data_sz);
+<<<<<<< HEAD
 		if (padapter->HalData == NULL) {
 			DBG_8192C("cannot alloc memory for HAL DATA\n");
 			return _FAIL;
 		}
+=======
+		if (!padapter->HalData)
+			return _FAIL;
+>>>>>>> upstream/android-13
 	}
 	return _SUCCESS;
 }
@@ -30,7 +38,10 @@ void rtw_hal_data_deinit(struct adapter *padapter)
 {
 	if (is_primary_adapter(padapter)) {	/* if (padapter->isprimary) */
 		if (padapter->HalData) {
+<<<<<<< HEAD
 			phy_free_filebuf(padapter);
+=======
+>>>>>>> upstream/android-13
 			vfree(padapter->HalData);
 			padapter->HalData = NULL;
 			padapter->hal_data_sz = 0;
@@ -39,6 +50,7 @@ void rtw_hal_data_deinit(struct adapter *padapter)
 }
 
 
+<<<<<<< HEAD
 void dump_chip_info(HAL_VERSION	ChipVersion)
 {
 	int cnt = 0;
@@ -84,6 +96,46 @@ void dump_chip_info(HAL_VERSION	ChipVersion)
 	cnt += sprintf((buf+cnt), "RomVer(%d)\n", ChipVersion.ROMVer);
 
 	DBG_871X("%s", buf);
+=======
+void dump_chip_info(struct hal_version	ChipVersion)
+{
+	char buf[128];
+	size_t cnt = 0;
+
+	cnt += scnprintf(buf + cnt, sizeof(buf) - cnt, "Chip Version Info: CHIP_8723B_%s_",
+			IS_NORMAL_CHIP(ChipVersion) ? "Normal_Chip" : "Test_Chip");
+
+	if (IS_CHIP_VENDOR_TSMC(ChipVersion))
+		cnt += scnprintf(buf + cnt, sizeof(buf) - cnt, "TSMC_");
+	else if (IS_CHIP_VENDOR_UMC(ChipVersion))
+		cnt += scnprintf(buf + cnt, sizeof(buf) - cnt, "UMC_");
+	else if (IS_CHIP_VENDOR_SMIC(ChipVersion))
+		cnt += scnprintf(buf + cnt, sizeof(buf) - cnt, "SMIC_");
+
+	if (IS_A_CUT(ChipVersion))
+		cnt += scnprintf(buf + cnt, sizeof(buf) - cnt, "A_CUT_");
+	else if (IS_B_CUT(ChipVersion))
+		cnt += scnprintf(buf + cnt, sizeof(buf) - cnt, "B_CUT_");
+	else if (IS_C_CUT(ChipVersion))
+		cnt += scnprintf(buf + cnt, sizeof(buf) - cnt, "C_CUT_");
+	else if (IS_D_CUT(ChipVersion))
+		cnt += scnprintf(buf + cnt, sizeof(buf) - cnt, "D_CUT_");
+	else if (IS_E_CUT(ChipVersion))
+		cnt += scnprintf(buf + cnt, sizeof(buf) - cnt, "E_CUT_");
+	else if (IS_I_CUT(ChipVersion))
+		cnt += scnprintf(buf + cnt, sizeof(buf) - cnt, "I_CUT_");
+	else if (IS_J_CUT(ChipVersion))
+		cnt += scnprintf(buf + cnt, sizeof(buf) - cnt, "J_CUT_");
+	else if (IS_K_CUT(ChipVersion))
+		cnt += scnprintf(buf + cnt, sizeof(buf) - cnt, "K_CUT_");
+	else
+		cnt += scnprintf(buf + cnt, sizeof(buf) - cnt,
+				"UNKNOWN_CUT(%d)_", ChipVersion.CUTVersion);
+
+	cnt += scnprintf(buf + cnt, sizeof(buf) - cnt, "1T1R_");
+
+	cnt += scnprintf(buf + cnt, sizeof(buf) - cnt, "RomVer(%d)\n", ChipVersion.ROMVer);
+>>>>>>> upstream/android-13
 }
 
 
@@ -125,15 +177,24 @@ u8 hal_com_config_channel_plan(
 	if (0xFF == hw_channel_plan)
 		AutoLoadFail = true;
 
+<<<<<<< HEAD
 	if (false == AutoLoadFail) {
+=======
+	if (!AutoLoadFail) {
+>>>>>>> upstream/android-13
 		u8 hw_chnlPlan;
 
 		hw_chnlPlan = hw_channel_plan & (~EEPROM_CHANNEL_PLAN_BY_HW_MASK);
 		if (rtw_is_channel_plan_valid(hw_chnlPlan)) {
+<<<<<<< HEAD
 #ifndef CONFIG_SW_CHANNEL_PLAN
 			if (hw_channel_plan & EEPROM_CHANNEL_PLAN_BY_HW_MASK)
 				pHalData->bDisableSWChannelPlan = true;
 #endif /*  !CONFIG_SW_CHANNEL_PLAN */
+=======
+			if (hw_channel_plan & EEPROM_CHANNEL_PLAN_BY_HW_MASK)
+				pHalData->bDisableSWChannelPlan = true;
+>>>>>>> upstream/android-13
 
 			chnlPlan = hw_chnlPlan;
 		}
@@ -148,6 +209,7 @@ u8 hal_com_config_channel_plan(
 	return chnlPlan;
 }
 
+<<<<<<< HEAD
 bool HAL_IsLegalChannel(struct adapter *Adapter, u32 Channel)
 {
 	bool bLegalChannel = true;
@@ -163,6 +225,17 @@ bool HAL_IsLegalChannel(struct adapter *Adapter, u32 Channel)
 	} else {
 		bLegalChannel = false;
 		DBG_871X("Channel is Invalid !!!\n");
+=======
+bool HAL_IsLegalChannel(struct adapter *adapter, u32 Channel)
+{
+	bool bLegalChannel = true;
+
+	if ((Channel <= 14) && (Channel >= 1)) {
+		if (is_supported_24g(adapter->registrypriv.wireless_mode) == false)
+			bLegalChannel = false;
+	} else {
+		bLegalChannel = false;
+>>>>>>> upstream/android-13
 	}
 
 	return bLegalChannel;
@@ -233,6 +306,7 @@ u8 MRateToHwRate(u8 rate)
 	case MGN_MCS7:
 		ret = DESC_RATEMCS7;
 		break;
+<<<<<<< HEAD
 	case MGN_MCS8:
 		ret = DESC_RATEMCS8;
 		break;
@@ -425,6 +499,8 @@ u8 MRateToHwRate(u8 rate)
 	case MGN_VHT4SS_MCS9:
 		ret = DESC_RATEVHTSS4MCS9;
 		break;
+=======
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
@@ -497,6 +573,7 @@ u8 HwRateToMRate(u8 rate)
 	case DESC_RATEMCS7:
 		ret_rate = MGN_MCS7;
 		break;
+<<<<<<< HEAD
 	case DESC_RATEMCS8:
 		ret_rate = MGN_MCS8;
 		break;
@@ -692,6 +769,9 @@ u8 HwRateToMRate(u8 rate)
 
 	default:
 		DBG_871X("HwRateToMRate(): Non supported Rate [%x]!!!\n", rate);
+=======
+	default:
+>>>>>>> upstream/android-13
 		break;
 	}
 
@@ -909,7 +989,11 @@ s32 c2h_evt_read_88xx(struct adapter *adapter, u8 *buf)
 	int i;
 	u8 trigger;
 
+<<<<<<< HEAD
 	if (buf == NULL)
+=======
+	if (!buf)
+>>>>>>> upstream/android-13
 		goto exit;
 
 	trigger = rtw_read8(adapter, REG_C2HEVT_CLEAR);
@@ -927,6 +1011,7 @@ s32 c2h_evt_read_88xx(struct adapter *adapter, u8 *buf)
 	c2h_evt->seq = rtw_read8(adapter, REG_C2HEVT_CMD_SEQ_88XX);
 	c2h_evt->plen = rtw_read8(adapter, REG_C2HEVT_CMD_LEN_88XX);
 
+<<<<<<< HEAD
 	RT_PRINT_DATA(
 		_module_hal_init_c_,
 		_drv_info_,
@@ -944,13 +1029,18 @@ s32 c2h_evt_read_88xx(struct adapter *adapter, u8 *buf)
 		trigger
 	);
 
+=======
+>>>>>>> upstream/android-13
 	/* Read the content */
 	for (i = 0; i < c2h_evt->plen; i++)
 		c2h_evt->payload[i] = rtw_read8(adapter, REG_C2HEVT_MSG_NORMAL + 2 + i);
 
+<<<<<<< HEAD
 	RT_PRINT_DATA(_module_hal_init_c_, _drv_info_, "c2h_evt_read(): Command Content:\n",
 		c2h_evt->payload, c2h_evt->plen);
 
+=======
+>>>>>>> upstream/android-13
 	ret = _SUCCESS;
 
 clear_evt:
@@ -963,6 +1053,7 @@ exit:
 	return ret;
 }
 
+<<<<<<< HEAD
 
 u8  rtw_hal_networktype_to_raid(struct adapter *adapter, struct sta_info *psta)
 {
@@ -975,14 +1066,26 @@ u8 rtw_get_mgntframe_raid(struct adapter *adapter, unsigned char network_type)
 	u8 raid;
 	raid = (network_type & WIRELESS_11B) ? RATEID_IDX_B : RATEID_IDX_G;
 	return raid;
+=======
+u8 rtw_get_mgntframe_raid(struct adapter *adapter, unsigned char network_type)
+{
+	return (network_type & WIRELESS_11B) ? RATEID_IDX_B : RATEID_IDX_G;
+>>>>>>> upstream/android-13
 }
 
 void rtw_hal_update_sta_rate_mask(struct adapter *padapter, struct sta_info *psta)
 {
+<<<<<<< HEAD
 	u8 i, rf_type, limit;
 	u32 tx_ra_bitmap;
 
 	if (psta == NULL)
+=======
+	u8 i, limit;
+	u32 tx_ra_bitmap;
+
+	if (!psta)
+>>>>>>> upstream/android-13
 		return;
 
 	tx_ra_bitmap = 0;
@@ -995,6 +1098,7 @@ void rtw_hal_update_sta_rate_mask(struct adapter *padapter, struct sta_info *pst
 
 	/* n mode ra_bitmap */
 	if (psta->htpriv.ht_option) {
+<<<<<<< HEAD
 		rtw_hal_get_hwreg(padapter, HW_VAR_RF_TYPE, (u8 *)(&rf_type));
 		if (rf_type == RF_2T2R)
 			limit = 16; /*  2R */
@@ -1003,6 +1107,12 @@ void rtw_hal_update_sta_rate_mask(struct adapter *padapter, struct sta_info *pst
 
 		for (i = 0; i < limit; i++) {
 			if (psta->htpriv.ht_cap.supp_mcs_set[i/8] & BIT(i%8))
+=======
+		limit = 8; /*   1R */
+
+		for (i = 0; i < limit; i++) {
+			if (psta->htpriv.ht_cap.mcs.rx_mask[i/8] & BIT(i%8))
+>>>>>>> upstream/android-13
 				tx_ra_bitmap |= BIT(i+12);
 		}
 	}
@@ -1018,7 +1128,11 @@ void hw_var_port_switch(struct adapter *adapter)
 void SetHwReg(struct adapter *adapter, u8 variable, u8 *val)
 {
 	struct hal_com_data *hal_data = GET_HAL_DATA(adapter);
+<<<<<<< HEAD
 	DM_ODM_T *odm = &(hal_data->odmpriv);
+=======
+	struct dm_odm_t *odm = &(hal_data->odmpriv);
+>>>>>>> upstream/android-13
 
 	switch (variable) {
 	case HW_VAR_PORT_SWITCH:
@@ -1085,12 +1199,18 @@ void SetHwReg(struct adapter *adapter, u8 variable, u8 *val)
 		/* TODO - Is something needed here? */
 		break;
 	default:
+<<<<<<< HEAD
 		DBG_871X_LEVEL(
 			_drv_always_,
 			FUNC_ADPT_FMT" variable(%d) not defined!\n",
 			FUNC_ADPT_ARG(adapter),
 			variable
 		);
+=======
+		netdev_dbg(adapter->pnetdev,
+			   FUNC_ADPT_FMT " variable(%d) not defined!\n",
+			   FUNC_ADPT_ARG(adapter), variable);
+>>>>>>> upstream/android-13
 		break;
 	}
 }
@@ -1098,7 +1218,11 @@ void SetHwReg(struct adapter *adapter, u8 variable, u8 *val)
 void GetHwReg(struct adapter *adapter, u8 variable, u8 *val)
 {
 	struct hal_com_data *hal_data = GET_HAL_DATA(adapter);
+<<<<<<< HEAD
 	DM_ODM_T *odm = &(hal_data->odmpriv);
+=======
+	struct dm_odm_t *odm = &(hal_data->odmpriv);
+>>>>>>> upstream/android-13
 
 	switch (variable) {
 	case HW_VAR_BASIC_RATE:
@@ -1107,6 +1231,7 @@ void GetHwReg(struct adapter *adapter, u8 variable, u8 *val)
 	case HW_VAR_DM_FLAG:
 		*((u32 *)val) = odm->SupportAbility;
 		break;
+<<<<<<< HEAD
 	case HW_VAR_RF_TYPE:
 		*((u8 *)val) = hal_data->rf_type;
 		break;
@@ -1117,6 +1242,12 @@ void GetHwReg(struct adapter *adapter, u8 variable, u8 *val)
 			FUNC_ADPT_ARG(adapter),
 			variable
 		);
+=======
+	default:
+		netdev_dbg(adapter->pnetdev,
+			   FUNC_ADPT_FMT " variable(%d) not defined!\n",
+			   FUNC_ADPT_ARG(adapter), variable);
+>>>>>>> upstream/android-13
 		break;
 	}
 }
@@ -1125,6 +1256,7 @@ void GetHwReg(struct adapter *adapter, u8 variable, u8 *val)
 
 
 u8 SetHalDefVar(
+<<<<<<< HEAD
 	struct adapter *adapter, enum HAL_DEF_VARIABLE variable, void *value
 )
 {
@@ -1149,6 +1281,19 @@ u8 SetHalDefVar(
 			DBG_871X("RxRate = %s, RSSI_A = %d(%%), RSSI_B = %d(%%)\n",
 				HDATA_RATE(odm->RxRate), odm->RSSI_A, odm->RSSI_B);
 
+=======
+	struct adapter *adapter, enum hal_def_variable variable, void *value
+)
+{
+	struct hal_com_data *hal_data = GET_HAL_DATA(adapter);
+	struct dm_odm_t *odm = &(hal_data->odmpriv);
+	u8 bResult = _SUCCESS;
+
+	switch (variable) {
+	case HAL_DEF_DBG_RX_INFO_DUMP:
+
+		if (odm->bLinked) {
+>>>>>>> upstream/android-13
 			#ifdef DBG_RX_SIGNAL_DISPLAY_RAW_DATA
 			rtw_dump_raw_rssi_info(adapter);
 			#endif
@@ -1167,27 +1312,42 @@ u8 SetHalDefVar(
 
 		if (dm_func == 0) { /* disable all dynamic func */
 			odm->SupportAbility = DYNAMIC_FUNC_DISABLE;
+<<<<<<< HEAD
 			DBG_8192C("==> Disable all dynamic function...\n");
 		} else if (dm_func == 1) {/* disable DIG */
 			odm->SupportAbility  &= (~DYNAMIC_BB_DIG);
 			DBG_8192C("==> Disable DIG...\n");
+=======
+		} else if (dm_func == 1) {/* disable DIG */
+			odm->SupportAbility  &= (~DYNAMIC_BB_DIG);
+>>>>>>> upstream/android-13
 		} else if (dm_func == 2) {/* disable High power */
 			odm->SupportAbility  &= (~DYNAMIC_BB_DYNAMIC_TXPWR);
 		} else if (dm_func == 3) {/* disable tx power tracking */
 			odm->SupportAbility  &= (~DYNAMIC_RF_CALIBRATION);
+<<<<<<< HEAD
 			DBG_8192C("==> Disable tx power tracking...\n");
+=======
+>>>>>>> upstream/android-13
 		} else if (dm_func == 4) {/* disable BT coexistence */
 			dm->DMFlag &= (~DYNAMIC_FUNC_BT);
 		} else if (dm_func == 5) {/* disable antenna diversity */
 			odm->SupportAbility  &= (~DYNAMIC_BB_ANT_DIV);
 		} else if (dm_func == 6) {/* turn on all dynamic func */
 			if (!(odm->SupportAbility  & DYNAMIC_BB_DIG)) {
+<<<<<<< HEAD
 				DIG_T	*pDigTable = &odm->DM_DigTable;
+=======
+				struct dig_t	*pDigTable = &odm->DM_DigTable;
+>>>>>>> upstream/android-13
 				pDigTable->CurIGValue = rtw_read8(adapter, 0xc50);
 			}
 			dm->DMFlag |= DYNAMIC_FUNC_BT;
 			odm->SupportAbility = DYNAMIC_ALL_FUNC_ENABLE;
+<<<<<<< HEAD
 			DBG_8192C("==> Turn on all dynamic function...\n");
+=======
+>>>>>>> upstream/android-13
 		}
 	}
 		break;
@@ -1201,7 +1361,13 @@ u8 SetHalDefVar(
 		hal_data->AntDetection = *((u8 *)value);
 		break;
 	default:
+<<<<<<< HEAD
 		DBG_871X_LEVEL(_drv_always_, "%s: [WARNING] HAL_DEF_VARIABLE(%d) not defined!\n", __func__, variable);
+=======
+		netdev_dbg(adapter->pnetdev,
+			   "%s: [WARNING] HAL_DEF_VARIABLE(%d) not defined!\n",
+			   __func__, variable);
+>>>>>>> upstream/android-13
 		bResult = _FAIL;
 		break;
 	}
@@ -1210,11 +1376,18 @@ u8 SetHalDefVar(
 }
 
 u8 GetHalDefVar(
+<<<<<<< HEAD
 	struct adapter *adapter, enum HAL_DEF_VARIABLE variable, void *value
 )
 {
 	struct hal_com_data *hal_data = GET_HAL_DATA(adapter);
 	DM_ODM_T *odm = &(hal_data->odmpriv);
+=======
+	struct adapter *adapter, enum hal_def_variable variable, void *value
+)
+{
+	struct hal_com_data *hal_data = GET_HAL_DATA(adapter);
+>>>>>>> upstream/android-13
 	u8 bResult = _SUCCESS;
 
 	switch (variable) {
@@ -1226,17 +1399,24 @@ u8 GetHalDefVar(
 
 			pmlmepriv = &adapter->mlmepriv;
 			pstapriv = &adapter->stapriv;
+<<<<<<< HEAD
 			psta = rtw_get_stainfo(pstapriv, pmlmepriv->cur_network.network.MacAddress);
+=======
+			psta = rtw_get_stainfo(pstapriv, pmlmepriv->cur_network.network.mac_address);
+>>>>>>> upstream/android-13
 			if (psta)
 				*((int *)value) = psta->rssi_stat.UndecoratedSmoothedPWDB;
 		}
 		break;
+<<<<<<< HEAD
 	case HW_DEF_ODM_DBG_FLAG:
 		*((u64 *)value) = odm->DebugComponents;
 		break;
 	case HW_DEF_ODM_DBG_LEVEL:
 		*((u32 *)value) = odm->DebugLevel;
 		break;
+=======
+>>>>>>> upstream/android-13
 	case HAL_DEF_DBG_DM_FUNC:
 		*((u32 *)value) = hal_data->odmpriv.SupportAbility;
 		break;
@@ -1256,7 +1436,13 @@ u8 GetHalDefVar(
 		*((u32 *)value) = PAGE_SIZE_128;
 		break;
 	default:
+<<<<<<< HEAD
 		DBG_871X_LEVEL(_drv_always_, "%s: [WARNING] HAL_DEF_VARIABLE(%d) not defined!\n", __func__, variable);
+=======
+		netdev_dbg(adapter->pnetdev,
+			   "%s: [WARNING] HAL_DEF_VARIABLE(%d) not defined!\n",
+			   __func__, variable);
+>>>>>>> upstream/android-13
 		bResult = _FAIL;
 		break;
 	}
@@ -1266,12 +1452,17 @@ u8 GetHalDefVar(
 
 void GetHalODMVar(
 	struct adapter *Adapter,
+<<<<<<< HEAD
 	enum HAL_ODM_VARIABLE eVariable,
+=======
+	enum hal_odm_variable eVariable,
+>>>>>>> upstream/android-13
 	void *pValue1,
 	void *pValue2
 )
 {
 	switch (eVariable) {
+<<<<<<< HEAD
 #if defined(CONFIG_SIGNAL_DISPLAY_DBM) && defined(CONFIG_BACKGROUND_NOISE_MONITOR)
 	case HAL_ODM_NOISE_MONITOR:
 		{
@@ -1286,6 +1477,8 @@ void GetHalODMVar(
 		}
 		break;
 #endif/* ifdef CONFIG_BACKGROUND_NOISE_MONITOR */
+=======
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
@@ -1293,23 +1486,36 @@ void GetHalODMVar(
 
 void SetHalODMVar(
 	struct adapter *Adapter,
+<<<<<<< HEAD
 	enum HAL_ODM_VARIABLE eVariable,
+=======
+	enum hal_odm_variable eVariable,
+>>>>>>> upstream/android-13
 	void *pValue1,
 	bool bSet
 )
 {
 	struct hal_com_data	*pHalData = GET_HAL_DATA(Adapter);
+<<<<<<< HEAD
 	PDM_ODM_T podmpriv = &pHalData->odmpriv;
+=======
+	struct dm_odm_t *podmpriv = &pHalData->odmpriv;
+>>>>>>> upstream/android-13
 	/* _irqL irqL; */
 	switch (eVariable) {
 	case HAL_ODM_STA_INFO:
 		{
 			struct sta_info *psta = pValue1;
 			if (bSet) {
+<<<<<<< HEAD
 				DBG_8192C("### Set STA_(%d) info ###\n", psta->mac_id);
 				ODM_CmnInfoPtrArrayHook(podmpriv, ODM_CMNINFO_STA_STATUS, psta->mac_id, psta);
 			} else {
 				DBG_8192C("### Clean STA_(%d) info ###\n", psta->mac_id);
+=======
+				ODM_CmnInfoPtrArrayHook(podmpriv, ODM_CMNINFO_STA_STATUS, psta->mac_id, psta);
+			} else {
+>>>>>>> upstream/android-13
 				/* spin_lock_bh(&pHalData->odm_stainfo_lock); */
 				ODM_CmnInfoPtrArrayHook(podmpriv, ODM_CMNINFO_STA_STATUS, psta->mac_id, NULL);
 
@@ -1323,6 +1529,7 @@ void SetHalODMVar(
 	case HAL_ODM_WIFI_DISPLAY_STATE:
 			ODM_CmnInfoUpdate(podmpriv, ODM_CMNINFO_WIFI_DISPLAY, bSet);
 		break;
+<<<<<<< HEAD
 	#if defined(CONFIG_SIGNAL_DISPLAY_DBM) && defined(CONFIG_BACKGROUND_NOISE_MONITOR)
 	case HAL_ODM_NOISE_MONITOR:
 		{
@@ -1344,6 +1551,8 @@ void SetHalODMVar(
 		}
 		break;
 	#endif/* ifdef CONFIG_BACKGROUND_NOISE_MONITOR */
+=======
+>>>>>>> upstream/android-13
 
 	default:
 		break;
@@ -1389,11 +1598,19 @@ bool IsHexDigit(char chTmp)
 u32 MapCharToHexDigit(char chTmp)
 {
 	if (chTmp >= '0' && chTmp <= '9')
+<<<<<<< HEAD
 		return (chTmp - '0');
 	else if (chTmp >= 'a' && chTmp <= 'f')
 		return (10 + (chTmp - 'a'));
 	else if (chTmp >= 'A' && chTmp <= 'F')
 		return (10 + (chTmp - 'A'));
+=======
+		return chTmp - '0';
+	else if (chTmp >= 'a' && chTmp <= 'f')
+		return 10 + (chTmp - 'a');
+	else if (chTmp >= 'A' && chTmp <= 'F')
+		return 10 + (chTmp - 'A');
+>>>>>>> upstream/android-13
 	else
 		return 0;
 }
@@ -1407,11 +1624,16 @@ bool GetHexValueFromString(char *szStr, u32 *pu4bVal, u32 *pu4bMove)
 	char *szScan = szStr;
 
 	/*  Check input parameter. */
+<<<<<<< HEAD
 	if (szStr == NULL || pu4bVal == NULL || pu4bMove == NULL) {
 		DBG_871X("GetHexValueFromString(): Invalid input arguments! szStr: %p, pu4bVal: %p, pu4bMove: %p\n",
 			 szStr, pu4bVal, pu4bMove);
 		return false;
 	}
+=======
+	if (!szStr || !pu4bVal || !pu4bMove)
+		return false;
+>>>>>>> upstream/android-13
 
 	/*  Initialize output. */
 	*pu4bMove = 0;
@@ -1585,8 +1807,11 @@ void linked_info_dump(struct adapter *padapter, u8 benable)
 	if (padapter->bLinkInfoDump == benable)
 		return;
 
+<<<<<<< HEAD
 	DBG_871X("%s %s\n", __func__, (benable) ? "enable" : "disable");
 
+=======
+>>>>>>> upstream/android-13
 	if (benable) {
 		pwrctrlpriv->org_power_mgnt = pwrctrlpriv->power_mgnt;/* keep org value */
 		rtw_pm_set_lps(padapter, PS_MODE_ACTIVE);
@@ -1608,16 +1833,24 @@ void rtw_get_raw_rssi_info(void *sel, struct adapter *padapter)
 	struct hal_com_data *pHalData = GET_HAL_DATA(padapter);
 	struct rx_raw_rssi *psample_pkt_rssi = &padapter->recvpriv.raw_rssi_info;
 
+<<<<<<< HEAD
 	DBG_871X_SEL_NL(
 		sel,
 		"RxRate = %s, PWDBALL = %d(%%), rx_pwr_all = %d(dBm)\n",
 		HDATA_RATE(psample_pkt_rssi->data_rate),
 		psample_pkt_rssi->pwdball, psample_pkt_rssi->pwr_all
 	);
+=======
+	netdev_dbg(padapter->pnetdev,
+		   "RxRate = %s, PWDBALL = %d(%%), rx_pwr_all = %d(dBm)\n",
+		   HDATA_RATE(psample_pkt_rssi->data_rate),
+		   psample_pkt_rssi->pwdball, psample_pkt_rssi->pwr_all);
+>>>>>>> upstream/android-13
 
 	isCCKrate = psample_pkt_rssi->data_rate <= DESC_RATE11M;
 
 	if (isCCKrate)
+<<<<<<< HEAD
 		psample_pkt_rssi->mimo_singal_strength[0] = psample_pkt_rssi->pwdball;
 
 	for (rf_path = 0; rf_path < pHalData->NumTotalRFPath; rf_path++) {
@@ -1635,6 +1868,22 @@ void rtw_get_raw_rssi_info(void *sel, struct adapter *padapter)
 				psample_pkt_rssi->ofdm_pwr[rf_path],
 				psample_pkt_rssi->ofdm_snr[rf_path]
 			);
+=======
+		psample_pkt_rssi->mimo_signal_strength[0] = psample_pkt_rssi->pwdball;
+
+	for (rf_path = 0; rf_path < pHalData->NumTotalRFPath; rf_path++) {
+		netdev_dbg(padapter->pnetdev,
+			   "RF_PATH_%d =>signal_strength:%d(%%), signal_quality:%d(%%)\n",
+			   rf_path,
+			   psample_pkt_rssi->mimo_signal_strength[rf_path],
+			   psample_pkt_rssi->mimo_signal_quality[rf_path]);
+
+		if (!isCCKrate) {
+			netdev_dbg(padapter->pnetdev,
+				   "\trx_ofdm_pwr:%d(dBm), rx_ofdm_snr:%d(dB)\n",
+				   psample_pkt_rssi->ofdm_pwr[rf_path],
+				   psample_pkt_rssi->ofdm_snr[rf_path]);
+>>>>>>> upstream/android-13
 		}
 	}
 }
@@ -1644,19 +1893,28 @@ void rtw_dump_raw_rssi_info(struct adapter *padapter)
 	u8 isCCKrate, rf_path;
 	struct hal_com_data *pHalData =  GET_HAL_DATA(padapter);
 	struct rx_raw_rssi *psample_pkt_rssi = &padapter->recvpriv.raw_rssi_info;
+<<<<<<< HEAD
 	DBG_871X("============ RAW Rx Info dump ===================\n");
 	DBG_871X("RxRate = %s, PWDBALL = %d(%%), rx_pwr_all = %d(dBm)\n",
 			HDATA_RATE(psample_pkt_rssi->data_rate), psample_pkt_rssi->pwdball, psample_pkt_rssi->pwr_all);
+=======
+>>>>>>> upstream/android-13
 
 	isCCKrate = psample_pkt_rssi->data_rate <= DESC_RATE11M;
 
 	if (isCCKrate)
+<<<<<<< HEAD
 		psample_pkt_rssi->mimo_singal_strength[0] = psample_pkt_rssi->pwdball;
 
 	for (rf_path = 0; rf_path < pHalData->NumTotalRFPath; rf_path++) {
 		DBG_871X("RF_PATH_%d =>singal_strength:%d(%%), singal_quality:%d(%%)"
 			, rf_path, psample_pkt_rssi->mimo_singal_strength[rf_path], psample_pkt_rssi->mimo_singal_quality[rf_path]);
 
+=======
+		psample_pkt_rssi->mimo_signal_strength[0] = psample_pkt_rssi->pwdball;
+
+	for (rf_path = 0; rf_path < pHalData->NumTotalRFPath; rf_path++) {
+>>>>>>> upstream/android-13
 		if (!isCCKrate) {
 			printk(", rx_ofdm_pwr:%d(dBm), rx_ofdm_snr:%d(dB)\n",
 			psample_pkt_rssi->ofdm_pwr[rf_path], psample_pkt_rssi->ofdm_snr[rf_path]);
@@ -1682,8 +1940,13 @@ void rtw_store_phy_info(struct adapter *padapter, union recv_frame *prframe)
 	psample_pkt_rssi->pwr_all = pPhyInfo->recv_signal_power;
 
 	for (rf_path = 0; rf_path < pHalData->NumTotalRFPath; rf_path++) {
+<<<<<<< HEAD
 		psample_pkt_rssi->mimo_singal_strength[rf_path] = pPhyInfo->rx_mimo_signal_strength[rf_path];
 		psample_pkt_rssi->mimo_singal_quality[rf_path] = pPhyInfo->rx_mimo_signal_quality[rf_path];
+=======
+		psample_pkt_rssi->mimo_signal_strength[rf_path] = pPhyInfo->rx_mimo_signal_strength[rf_path];
+		psample_pkt_rssi->mimo_signal_quality[rf_path] = pPhyInfo->rx_mimo_signal_quality[rf_path];
+>>>>>>> upstream/android-13
 		if (!isCCKrate) {
 			psample_pkt_rssi->ofdm_pwr[rf_path] = pPhyInfo->RxPwr[rf_path];
 			psample_pkt_rssi->ofdm_snr[rf_path] = pPhyInfo->RxSNR[rf_path];
@@ -1711,6 +1974,7 @@ void rtw_bb_rf_gain_offset(struct adapter *padapter)
 	u32 res, i = 0;
 	u32 *Array = Array_kfreemap;
 	u32 v1 = 0, v2 = 0, target = 0;
+<<<<<<< HEAD
 	/* DBG_871X("+%s value: 0x%02x+\n", __func__, value); */
 
 	if (value & BIT4) {
@@ -1720,25 +1984,43 @@ void rtw_bb_rf_gain_offset(struct adapter *padapter)
 			res = rtw_hal_read_rfreg(padapter, RF_PATH_A, 0x7f, 0xffffffff);
 			res &= 0xfff87fff;
 			DBG_871X("Offset RF Gain. before reg 0x7f = 0x%08x\n", res);
+=======
+
+	if (value & BIT4) {
+		if (padapter->eeprompriv.EEPROMRFGainVal != 0xff) {
+			res = rtw_hal_read_rfreg(padapter, RF_PATH_A, 0x7f, 0xffffffff);
+			res &= 0xfff87fff;
+>>>>>>> upstream/android-13
 			/* res &= 0xfff87fff; */
 			for (i = 0; i < ARRAY_SIZE(Array_kfreemap); i += 2) {
 				v1 = Array[i];
 				v2 = Array[i+1];
 				if (v1 == padapter->eeprompriv.EEPROMRFGainVal) {
+<<<<<<< HEAD
 					DBG_871X("Offset RF Gain. got v1 = 0x%x , v2 = 0x%x\n", v1, v2);
+=======
+>>>>>>> upstream/android-13
 					target = v2;
 					break;
 				}
 			}
+<<<<<<< HEAD
 			DBG_871X("padapter->eeprompriv.EEPROMRFGainVal = 0x%x , Gain offset Target Value = 0x%x\n", padapter->eeprompriv.EEPROMRFGainVal, target);
+=======
+>>>>>>> upstream/android-13
 			PHY_SetRFReg(padapter, RF_PATH_A, REG_RF_BB_GAIN_OFFSET, BIT18|BIT17|BIT16|BIT15, target);
 
 			/* res |= (padapter->eeprompriv.EEPROMRFGainVal & 0x0f)<< 15; */
 			/* rtw_hal_write_rfreg(padapter, RF_PATH_A, REG_RF_BB_GAIN_OFFSET, RF_GAIN_OFFSET_MASK, res); */
 			res = rtw_hal_read_rfreg(padapter, RF_PATH_A, 0x7f, 0xffffffff);
+<<<<<<< HEAD
 			DBG_871X("Offset RF Gain. After reg 0x7f = 0x%08x\n", res);
 		} else
 			DBG_871X("Offset RF Gain.  padapter->eeprompriv.EEPROMRFGainVal = 0x%x	!= 0xff, didn't run Kfree\n", padapter->eeprompriv.EEPROMRFGainVal);
 	} else
 		DBG_871X("Using the default RF gain.\n");
+=======
+		}
+	}
+>>>>>>> upstream/android-13
 }

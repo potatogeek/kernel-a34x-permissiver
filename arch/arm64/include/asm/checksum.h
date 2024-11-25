@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016 ARM Ltd.
  *
@@ -12,11 +13,25 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2016 ARM Ltd.
+>>>>>>> upstream/android-13
  */
 #ifndef __ASM_CHECKSUM_H
 #define __ASM_CHECKSUM_H
 
+<<<<<<< HEAD
 #include <linux/types.h>
+=======
+#include <linux/in6.h>
+
+#define _HAVE_ARCH_IPV6_CSUM
+__sum16 csum_ipv6_magic(const struct in6_addr *saddr,
+			const struct in6_addr *daddr,
+			__u32 len, __u8 proto, __wsum sum);
+>>>>>>> upstream/android-13
 
 static inline __sum16 csum_fold(__wsum csum)
 {
@@ -43,10 +58,20 @@ static inline __sum16 ip_fast_csum(const void *iph, unsigned int ihl)
 	} while (--n > 0);
 
 	sum += ((sum >> 32) | (sum << 32));
+<<<<<<< HEAD
 	return csum_fold((__force u32)(sum >> 32));
 }
 #define ip_fast_csum ip_fast_csum
 
+=======
+	return csum_fold((__force __wsum)(sum >> 32));
+}
+#define ip_fast_csum ip_fast_csum
+
+extern unsigned int do_csum(const unsigned char *buff, int len);
+#define do_csum do_csum
+
+>>>>>>> upstream/android-13
 #include <asm-generic/checksum.h>
 
 #endif	/* __ASM_CHECKSUM_H */

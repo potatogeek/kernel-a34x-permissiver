@@ -23,7 +23,10 @@ Optional properties:
 		      Numbers smaller than 1000000 or greater than 16000000
 		      are invalid. Missing the property will set the SPI
 		      frequency to 8000000 Hertz.
+<<<<<<< HEAD
 - local-mac-address : see ./ethernet.txt
+=======
+>>>>>>> upstream/android-13
 - qca,legacy-mode   : Set the SPI data transfer of the QCA7000 to legacy mode.
 		      In this mode the SPI master must toggle the chip select
 		      between each data word. In burst mode these gaps aren't
@@ -31,6 +34,12 @@ Optional properties:
 		      the QCA7000 is setup via GPIO pin strapping. If the
 		      property is missing the driver defaults to burst mode.
 
+<<<<<<< HEAD
+=======
+The MAC address will be determined using the optional properties
+defined in ethernet.txt.
+
+>>>>>>> upstream/android-13
 SPI Example:
 
 /* Freescale i.MX28 SPI master*/
@@ -66,7 +75,11 @@ Required properties:
 Optional properties:
 - local-mac-address : see ./ethernet.txt
 - current-speed     : current baud rate of QCA7000 which defaults to 115200
+<<<<<<< HEAD
 		      if absent, see also ../serial/slave-device.txt
+=======
+		      if absent, see also ../serial/serial.yaml
+>>>>>>> upstream/android-13
 
 UART Example:
 

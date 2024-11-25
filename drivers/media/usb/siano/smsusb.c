@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /****************************************************************
 
 Siano Mobile Silicon, Inc.
 MDTV receiver kernel modules.
 Copyright (C) 2005-2009, Uri Shkolnik, Anatoly Greenblat
 
+<<<<<<< HEAD
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 2 of the License, or
@@ -16,6 +21,8 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
 
 ****************************************************************/
 
@@ -75,7 +82,11 @@ static int smsusb_submit_urb(struct smsusb_device_t *dev,
 			     struct smsusb_urb_t *surb);
 
 /*
+<<<<<<< HEAD
  * Completing URB's callback handler - bottom half (proccess context)
+=======
+ * Completing URB's callback handler - bottom half (process context)
+>>>>>>> upstream/android-13
  * submits the URB prepared on smsusb_onresponse()
  */
 static void do_submit_urb(struct work_struct *work)
@@ -225,10 +236,16 @@ static int smsusb_sendrequest(void *context, void *buffer, size_t size)
 		return -ENOENT;
 	}
 
+<<<<<<< HEAD
 	phdr = kmalloc(size, GFP_KERNEL);
 	if (!phdr)
 		return -ENOMEM;
 	memcpy(phdr, buffer, size);
+=======
+	phdr = kmemdup(buffer, size, GFP_KERNEL);
+	if (!phdr)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	pr_debug("sending %s(%d) size: %d\n",
 		  smscore_translate_msg(phdr->msg_type), phdr->msg_type,
@@ -442,7 +459,11 @@ static int smsusb_init_device(struct usb_interface *intf, int board_id)
 		break;
 	case SMS_UNKNOWN_TYPE:
 		pr_err("Unspecified sms device type!\n");
+<<<<<<< HEAD
 		/* fall-thru */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		dev->buffer_size = USB2_BUFFER_SIZE;
 		dev->response_alignment = align;

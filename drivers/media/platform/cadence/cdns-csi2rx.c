@@ -81,7 +81,10 @@ struct csi2rx_priv {
 	struct media_pad		pads[CSI2RX_PAD_MAX];
 
 	/* Remote source */
+<<<<<<< HEAD
 	struct v4l2_async_subdev	asd;
+=======
+>>>>>>> upstream/android-13
 	struct v4l2_subdev		*source_subdev;
 	int				source_pad;
 };
@@ -283,6 +286,10 @@ static int csi2rx_get_resources(struct csi2rx_priv *csi2rx,
 	struct resource *res;
 	unsigned char i;
 	u32 dev_cfg;
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	csi2rx->base = devm_ioremap_resource(&pdev->dev, res);
@@ -316,7 +323,16 @@ static int csi2rx_get_resources(struct csi2rx_priv *csi2rx,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	clk_prepare_enable(csi2rx->p_clk);
+=======
+	ret = clk_prepare_enable(csi2rx->p_clk);
+	if (ret) {
+		dev_err(&pdev->dev, "Couldn't prepare and enable P clock\n");
+		return ret;
+	}
+
+>>>>>>> upstream/android-13
 	dev_cfg = readl(csi2rx->base + CSI2RX_DEVICE_CFG_REG);
 	clk_disable_unprepare(csi2rx->p_clk);
 
@@ -361,7 +377,12 @@ static int csi2rx_get_resources(struct csi2rx_priv *csi2rx,
 
 static int csi2rx_parse_dt(struct csi2rx_priv *csi2rx)
 {
+<<<<<<< HEAD
 	struct v4l2_fwnode_endpoint v4l2_ep;
+=======
+	struct v4l2_fwnode_endpoint v4l2_ep = { .bus_type = 0 };
+	struct v4l2_async_subdev *asd;
+>>>>>>> upstream/android-13
 	struct fwnode_handle *fwh;
 	struct device_node *ep;
 	int ret;
@@ -378,7 +399,11 @@ static int csi2rx_parse_dt(struct csi2rx_priv *csi2rx)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	if (v4l2_ep.bus_type != V4L2_MBUS_CSI2) {
+=======
+	if (v4l2_ep.bus_type != V4L2_MBUS_CSI2_DPHY) {
+>>>>>>> upstream/android-13
 		dev_err(csi2rx->dev, "Unsupported media bus type: 0x%x\n",
 			v4l2_ep.bus_type);
 		of_node_put(ep);
@@ -395,6 +420,7 @@ static int csi2rx_parse_dt(struct csi2rx_priv *csi2rx)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	csi2rx->asd.match.fwnode = fwnode_graph_get_remote_port_parent(fwh);
 	csi2rx->asd.match_type = V4L2_ASYNC_MATCH_FWNODE;
 	of_node_put(ep);
@@ -411,6 +437,25 @@ static int csi2rx_parse_dt(struct csi2rx_priv *csi2rx)
 
 	return v4l2_async_subdev_notifier_register(&csi2rx->subdev,
 						   &csi2rx->notifier);
+=======
+	v4l2_async_notifier_init(&csi2rx->notifier);
+
+	asd = v4l2_async_notifier_add_fwnode_remote_subdev(&csi2rx->notifier,
+							   fwh,
+							   struct v4l2_async_subdev);
+	of_node_put(ep);
+	if (IS_ERR(asd))
+		return PTR_ERR(asd);
+
+	csi2rx->notifier.ops = &csi2rx_notifier_ops;
+
+	ret = v4l2_async_subdev_notifier_register(&csi2rx->subdev,
+						  &csi2rx->notifier);
+	if (ret)
+		v4l2_async_notifier_cleanup(&csi2rx->notifier);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int csi2rx_probe(struct platform_device *pdev)
@@ -450,11 +495,19 @@ static int csi2rx_probe(struct platform_device *pdev)
 	ret = media_entity_pads_init(&csi2rx->subdev.entity, CSI2RX_PAD_MAX,
 				     csi2rx->pads);
 	if (ret)
+<<<<<<< HEAD
 		goto err_free_priv;
 
 	ret = v4l2_async_register_subdev(&csi2rx->subdev);
 	if (ret < 0)
 		goto err_free_priv;
+=======
+		goto err_cleanup;
+
+	ret = v4l2_async_register_subdev(&csi2rx->subdev);
+	if (ret < 0)
+		goto err_cleanup;
+>>>>>>> upstream/android-13
 
 	dev_info(&pdev->dev,
 		 "Probed CSI2RX with %u/%u lanes, %u streams, %s D-PHY\n",
@@ -463,6 +516,11 @@ static int csi2rx_probe(struct platform_device *pdev)
 
 	return 0;
 
+<<<<<<< HEAD
+=======
+err_cleanup:
+	v4l2_async_notifier_cleanup(&csi2rx->notifier);
+>>>>>>> upstream/android-13
 err_free_priv:
 	kfree(csi2rx);
 	return ret;

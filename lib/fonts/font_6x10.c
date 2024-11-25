@@ -3083,6 +3083,10 @@ const struct font_desc font_6x10 = {
 	.name	= "6x10",
 	.width	= 6,
 	.height	= 10,
+<<<<<<< HEAD
+=======
+	.charcount = 256,
+>>>>>>> upstream/android-13
 	.data	= fontdata_6x10.data,
 	.pref	= 0,
 };

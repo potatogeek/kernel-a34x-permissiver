@@ -56,6 +56,7 @@ static u64 get_snooze_timeout(struct cpuidle_device *dev,
 		return default_snooze_timeout;
 
 	for (i = index + 1; i < drv->state_count; i++) {
+<<<<<<< HEAD
 		struct cpuidle_state *s = &drv->states[i];
 		struct cpuidle_state_usage *su = &dev->states_usage[i];
 
@@ -63,6 +64,12 @@ static u64 get_snooze_timeout(struct cpuidle_device *dev,
 			continue;
 
 		return s->target_residency * tb_ticks_per_usec;
+=======
+		if (dev->states_usage[i].disable)
+			continue;
+
+		return drv->states[i].target_residency * tb_ticks_per_usec;
+>>>>>>> upstream/android-13
 	}
 
 	return default_snooze_timeout;
@@ -144,7 +151,11 @@ static int stop_loop(struct cpuidle_device *dev,
 		     struct cpuidle_driver *drv,
 		     int index)
 {
+<<<<<<< HEAD
 	power9_idle_type(stop_psscr_table[index].val,
+=======
+	arch300_idle_type(stop_psscr_table[index].val,
+>>>>>>> upstream/android-13
 			 stop_psscr_table[index].mask);
 	return index;
 }
@@ -247,6 +258,7 @@ static inline void add_powernv_state(int index, const char *name,
 	stop_psscr_table[index].mask = psscr_mask;
 }
 
+<<<<<<< HEAD
 /*
  * Returns 0 if prop1_len == prop2_len. Else returns -1
  */
@@ -261,6 +273,8 @@ static inline int validate_dt_prop_sizes(const char *prop1, int prop1_len,
 	return -1;
 }
 
+=======
+>>>>>>> upstream/android-13
 extern u32 pnv_get_supported_cpuidle_states(void);
 static int powernv_add_idle_states(void)
 {

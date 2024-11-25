@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+>>>>>>> upstream/android-13
 /*
  * sama5d3xmb_cmp.dts - Device Tree file for SAMA5D3x CMP mother board
  *
  *  Copyright (C) 2016 Atmel,
+<<<<<<< HEAD
  *
  * This file is dual-licensed: you can use it either under the terms
  * of the GPL or the X11 license, at your option. Note that this dual
@@ -40,6 +45,8 @@
  *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *     OTHER DEALINGS IN THE SOFTWARE.
+=======
+>>>>>>> upstream/android-13
  */
 #include "sama5d3xcm_cmp.dtsi"
 
@@ -82,7 +89,11 @@
 				wm8904: wm8904@1a {
 					compatible = "wlf,wm8904";
 					reg = <0x1a>;
+<<<<<<< HEAD
 					clocks = <&pck0>;
+=======
+					clocks = <&pmc PMC_TYPE_SYSTEM 8>;
+>>>>>>> upstream/android-13
 					clock-names = "mclk";
 				};
 			};
@@ -96,9 +107,15 @@
 					resetb-gpios = <&pioE 24 GPIO_ACTIVE_LOW>;
 					pwdn-gpios = <&pioE 29 GPIO_ACTIVE_HIGH>;
 					/* use pck1 for the master clock of ov2640 */
+<<<<<<< HEAD
 					clocks = <&pck1>;
 					clock-names = "xvclk";
 					assigned-clocks = <&pck1>;
+=======
+					clocks = <&pmc PMC_TYPE_SYSTEM 9>;
+					clock-names = "xvclk";
+					assigned-clocks = <&pmc PMC_TYPE_SYSTEM 9>;
+>>>>>>> upstream/android-13
 					assigned-clock-rates = <25000000>;
 
 					port {

@@ -2,8 +2,11 @@
 #ifndef _LINUX_SUNRPC_RPC_PIPE_FS_H
 #define _LINUX_SUNRPC_RPC_PIPE_FS_H
 
+<<<<<<< HEAD
 #ifdef __KERNEL__
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/workqueue.h>
 
 struct rpc_pipe_dir_head {
@@ -133,4 +136,7 @@ extern void unregister_rpc_pipefs(void);
 extern bool gssd_running(struct net *net);
 
 #endif
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13

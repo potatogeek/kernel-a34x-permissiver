@@ -277,15 +277,23 @@ static void brcmstb_gpio_irq_bank_handler(struct brcmstb_gpio_bank *bank)
 	unsigned long status;
 
 	while ((status = brcmstb_gpio_get_active_irqs(bank))) {
+<<<<<<< HEAD
 		unsigned int irq, offset;
+=======
+		unsigned int offset;
+>>>>>>> upstream/android-13
 
 		for_each_set_bit(offset, &status, 32) {
 			if (offset >= bank->width)
 				dev_warn(&priv->pdev->dev,
 					 "IRQ for invalid GPIO (bank=%d, offset=%d)\n",
 					 bank->id, offset);
+<<<<<<< HEAD
 			irq = irq_linear_revmap(domain, hwbase + offset);
 			generic_handle_irq(irq);
+=======
+			generic_handle_domain_irq(domain, hwbase + offset);
+>>>>>>> upstream/android-13
 		}
 	}
 }
@@ -636,10 +644,15 @@ static int brcmstb_gpio_probe(struct platform_device *pdev)
 
 	if (of_property_read_bool(np, "interrupt-controller")) {
 		priv->parent_irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 		if (priv->parent_irq <= 0) {
 			dev_err(dev, "Couldn't get IRQ");
 			return -ENOENT;
 		}
+=======
+		if (priv->parent_irq <= 0)
+			return -ENOENT;
+>>>>>>> upstream/android-13
 	} else {
 		priv->parent_irq = -ENOENT;
 	}
@@ -718,6 +731,10 @@ static int brcmstb_gpio_probe(struct platform_device *pdev)
 		gc->of_xlate = brcmstb_gpio_of_xlate;
 		/* not all ngpio lines are valid, will use bank width later */
 		gc->ngpio = MAX_GPIO_PER_BANK;
+<<<<<<< HEAD
+=======
+		gc->offset = bank->id * MAX_GPIO_PER_BANK;
+>>>>>>> upstream/android-13
 		if (priv->parent_irq > 0)
 			gc->to_irq = brcmstb_gpio_to_irq;
 

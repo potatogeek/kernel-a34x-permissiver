@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * INET		An implementation of the TCP/IP protocol suite for the LINUX
  *		operating system.  INET is implemented using the  BSD Socket
@@ -14,7 +18,10 @@
  *		Jorge Cwik, <jorge@laser.satlink.net>
  *		Arnt Gulbrandsen, <agulbra@nvg.unit.no>
  *
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  * Fixes:
  *		Alan Cox	:	Commented a couple of minor bits of surplus code
  *		Alan Cox	:	Undefining IP_FORWARD doesn't include the code
@@ -96,8 +103,11 @@
  *		Jos Vos		:	Do accounting *before* call_in_firewall
  *	Willy Konynenberg	:	Transparent proxying support
  *
+<<<<<<< HEAD
  *
  *
+=======
+>>>>>>> upstream/android-13
  * To Fix:
  *		IP fragmentation wants rewriting cleanly. The RFC815 algorithm is much more efficient
  *		and could be made very efficient with the addition of some virtual memory hacks to permit
@@ -106,11 +116,14 @@
  *		interleaved copy algorithm so that fragmenting has a one copy overhead. Actual packet
  *		output should probably do its own fragmentation at the UDP/RAW layer. TCP shouldn't cause
  *		fragmentation anyway.
+<<<<<<< HEAD
  *
  *		This program is free software; you can redistribute it and/or
  *		modify it under the terms of the GNU General Public License
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "IPv4: " fmt
@@ -130,6 +143,10 @@
 #include <linux/inetdevice.h>
 #include <linux/netdevice.h>
 #include <linux/etherdevice.h>
+<<<<<<< HEAD
+=======
+#include <linux/indirect_call_wrapper.h>
+>>>>>>> upstream/android-13
 
 #include <net/snmp.h>
 #include <net/ip.h>
@@ -188,6 +205,11 @@ bool ip_call_ra_chain(struct sk_buff *skb)
 	return false;
 }
 
+<<<<<<< HEAD
+=======
+INDIRECT_CALLABLE_DECLARE(int udp_rcv(struct sk_buff *));
+INDIRECT_CALLABLE_DECLARE(int tcp_v4_rcv(struct sk_buff *));
+>>>>>>> upstream/android-13
 void ip_protocol_deliver_rcu(struct net *net, struct sk_buff *skb, int protocol)
 {
 	const struct net_protocol *ipprot;
@@ -203,9 +225,16 @@ resubmit:
 				kfree_skb(skb);
 				return;
 			}
+<<<<<<< HEAD
 			nf_reset(skb);
 		}
 		ret = ipprot->handler(skb);
+=======
+			nf_reset_ct(skb);
+		}
+		ret = INDIRECT_CALL_2(ipprot->handler, tcp_v4_rcv, udp_rcv,
+				      skb);
+>>>>>>> upstream/android-13
 		if (ret < 0) {
 			protocol = -ret;
 			goto resubmit;
@@ -256,6 +285,10 @@ int ip_local_deliver(struct sk_buff *skb)
 		       net, NULL, skb, skb->dev, NULL,
 		       ip_local_deliver_finish);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL(ip_local_deliver);
+>>>>>>> upstream/android-13
 
 static inline bool ip_rcv_options(struct sk_buff *skb, struct net_device *dev)
 {
@@ -305,14 +338,39 @@ drop:
 	return true;
 }
 
+<<<<<<< HEAD
 static int ip_rcv_finish_core(struct net *net, struct sock *sk,
 			      struct sk_buff *skb, struct net_device *dev)
+=======
+static bool ip_can_use_hint(const struct sk_buff *skb, const struct iphdr *iph,
+			    const struct sk_buff *hint)
+{
+	return hint && !skb_dst(skb) && ip_hdr(hint)->daddr == iph->daddr &&
+	       ip_hdr(hint)->tos == iph->tos;
+}
+
+INDIRECT_CALLABLE_DECLARE(int udp_v4_early_demux(struct sk_buff *));
+INDIRECT_CALLABLE_DECLARE(int tcp_v4_early_demux(struct sk_buff *));
+static int ip_rcv_finish_core(struct net *net, struct sock *sk,
+			      struct sk_buff *skb, struct net_device *dev,
+			      const struct sk_buff *hint)
+>>>>>>> upstream/android-13
 {
 	const struct iphdr *iph = ip_hdr(skb);
 	int (*edemux)(struct sk_buff *skb);
 	struct rtable *rt;
 	int err;
 
+<<<<<<< HEAD
+=======
+	if (ip_can_use_hint(skb, iph, hint)) {
+		err = ip_route_use_hint(skb, iph->daddr, iph->saddr, iph->tos,
+					dev, hint);
+		if (unlikely(err))
+			goto drop_error;
+	}
+
+>>>>>>> upstream/android-13
 	if (net->ipv4.sysctl_ip_early_demux &&
 	    !skb_dst(skb) &&
 	    !skb->sk &&
@@ -322,7 +380,12 @@ static int ip_rcv_finish_core(struct net *net, struct sock *sk,
 
 		ipprot = rcu_dereference(inet_protos[protocol]);
 		if (ipprot && (edemux = READ_ONCE(ipprot->early_demux))) {
+<<<<<<< HEAD
 			err = edemux(skb);
+=======
+			err = INDIRECT_CALL_2(edemux, tcp_v4_early_demux,
+					      udp_v4_early_demux, skb);
+>>>>>>> upstream/android-13
 			if (unlikely(err))
 				goto drop_error;
 			/* must reload iph, skb->head might have changed */
@@ -408,7 +471,11 @@ static int ip_rcv_finish(struct net *net, struct sock *sk, struct sk_buff *skb)
 	if (!skb)
 		return NET_RX_SUCCESS;
 
+<<<<<<< HEAD
 	ret = ip_rcv_finish_core(net, sk, skb, dev);
+=======
+	ret = ip_rcv_finish_core(net, sk, skb, dev, NULL);
+>>>>>>> upstream/android-13
 	if (ret != NET_RX_DROP)
 		ret = dst_input(skb);
 	return ret;
@@ -428,7 +495,10 @@ static struct sk_buff *ip_rcv_core(struct sk_buff *skb, struct net *net)
 	if (skb->pkt_type == PACKET_OTHERHOST)
 		goto drop;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	__IP_UPD_PO_STATS(net, IPSTATS_MIB_IN, skb->len);
 
 	skb = skb_share_check(skb, GFP_ATOMIC);
@@ -495,7 +565,12 @@ static struct sk_buff *ip_rcv_core(struct sk_buff *skb, struct net *net)
 	IPCB(skb)->iif = skb->skb_iif;
 
 	/* Must drop socket now because of tproxy. */
+<<<<<<< HEAD
 	skb_orphan(skb);
+=======
+	if (!skb_sk_is_prefetched(skb))
+		skb_orphan(skb);
+>>>>>>> upstream/android-13
 
 	return skb;
 
@@ -520,6 +595,10 @@ int ip_rcv(struct sk_buff *skb, struct net_device *dev, struct packet_type *pt,
 	skb = ip_rcv_core(skb, net);
 	if (skb == NULL)
 		return NET_RX_DROP;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	return NF_HOOK(NFPROTO_IPV4, NF_INET_PRE_ROUTING,
 		       net, NULL, skb, dev, NULL,
 		       ip_rcv_finish);
@@ -530,20 +609,41 @@ static void ip_sublist_rcv_finish(struct list_head *head)
 	struct sk_buff *skb, *next;
 
 	list_for_each_entry_safe(skb, next, head, list) {
+<<<<<<< HEAD
 		list_del(&skb->list);
 		/* Handle ip{6}_forward case, as sch_direct_xmit have
 		 * another kind of SKB-list usage (see validate_xmit_skb_list)
 		 */
 		skb->next = NULL;
+=======
+		skb_list_del_init(skb);
+>>>>>>> upstream/android-13
 		dst_input(skb);
 	}
 }
 
+<<<<<<< HEAD
 static void ip_list_rcv_finish(struct net *net, struct sock *sk,
 			       struct list_head *head)
 {
 	struct dst_entry *curr_dst = NULL;
 	struct sk_buff *skb, *next;
+=======
+static struct sk_buff *ip_extract_route_hint(const struct net *net,
+					     struct sk_buff *skb, int rt_type)
+{
+	if (fib4_has_custom_rules(net) || rt_type == RTN_BROADCAST)
+		return NULL;
+
+	return skb;
+}
+
+static void ip_list_rcv_finish(struct net *net, struct sock *sk,
+			       struct list_head *head)
+{
+	struct sk_buff *skb, *next, *hint = NULL;
+	struct dst_entry *curr_dst = NULL;
+>>>>>>> upstream/android-13
 	struct list_head sublist;
 
 	INIT_LIST_HEAD(&sublist);
@@ -558,11 +658,21 @@ static void ip_list_rcv_finish(struct net *net, struct sock *sk,
 		skb = l3mdev_ip_rcv(skb);
 		if (!skb)
 			continue;
+<<<<<<< HEAD
 		if (ip_rcv_finish_core(net, sk, skb, dev) == NET_RX_DROP)
+=======
+		if (ip_rcv_finish_core(net, sk, skb, dev, hint) == NET_RX_DROP)
+>>>>>>> upstream/android-13
 			continue;
 
 		dst = skb_dst(skb);
 		if (curr_dst != dst) {
+<<<<<<< HEAD
+=======
+			hint = ip_extract_route_hint(net, skb,
+					       ((struct rtable *)dst)->rt_type);
+
+>>>>>>> upstream/android-13
 			/* dispatch old sublist */
 			if (!list_empty(&sublist))
 				ip_sublist_rcv_finish(&sublist);
@@ -615,5 +725,10 @@ void ip_list_rcv(struct list_head *head, struct packet_type *pt,
 		list_add_tail(&skb->list, &sublist);
 	}
 	/* dispatch final sublist */
+<<<<<<< HEAD
 	ip_sublist_rcv(&sublist, curr_dev, curr_net);
+=======
+	if (!list_empty(&sublist))
+		ip_sublist_rcv(&sublist, curr_dev, curr_net);
+>>>>>>> upstream/android-13
 }

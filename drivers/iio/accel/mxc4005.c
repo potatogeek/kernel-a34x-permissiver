@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * 3-axis accelerometer driver for MXC4005XC Memsic sensor
  *
  * Copyright (c) 2014, Intel Corporation.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -11,6 +16,8 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -64,7 +71,15 @@ struct mxc4005_data {
 	struct mutex mutex;
 	struct regmap *regmap;
 	struct iio_trigger *dready_trig;
+<<<<<<< HEAD
 	__be16 buffer[8];
+=======
+	/* Ensure timestamp is naturally aligned */
+	struct {
+		__be16 chans[3];
+		s64 timestamp __aligned(8);
+	} scan;
+>>>>>>> upstream/android-13
 	bool trigger_enabled;
 };
 
@@ -143,7 +158,11 @@ static int mxc4005_read_xyz(struct mxc4005_data *data)
 	int ret;
 
 	ret = regmap_bulk_read(data->regmap, MXC4005_REG_XOUT_UPPER,
+<<<<<<< HEAD
 			       (u8 *) data->buffer, sizeof(data->buffer));
+=======
+			       data->scan.chans, sizeof(data->scan.chans));
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(data->dev, "failed to read axes\n");
 		return ret;
@@ -158,7 +177,11 @@ static int mxc4005_read_axis(struct mxc4005_data *data,
 	__be16 reg;
 	int ret;
 
+<<<<<<< HEAD
 	ret = regmap_bulk_read(data->regmap, addr, (u8 *) &reg, sizeof(reg));
+=======
+	ret = regmap_bulk_read(data->regmap, addr, &reg, sizeof(reg));
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(data->dev, "failed to read reg %02x\n", addr);
 		return ret;
@@ -309,7 +332,11 @@ static irqreturn_t mxc4005_trigger_handler(int irq, void *private)
 	if (ret < 0)
 		goto err;
 
+<<<<<<< HEAD
 	iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
+=======
+	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
+>>>>>>> upstream/android-13
 					   pf->timestamp);
 
 err:
@@ -318,19 +345,28 @@ err:
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static int mxc4005_clr_intr(struct mxc4005_data *data)
+=======
+static void mxc4005_clr_intr(struct mxc4005_data *data)
+>>>>>>> upstream/android-13
 {
 	int ret;
 
 	/* clear interrupt */
 	ret = regmap_write(data->regmap, MXC4005_REG_INT_CLR1,
 			   MXC4005_REG_INT_CLR1_BIT_DRDYC);
+<<<<<<< HEAD
 	if (ret < 0) {
 		dev_err(data->dev, "failed to write to reg_int_clr1\n");
 		return ret;
 	}
 
 	return 0;
+=======
+	if (ret < 0)
+		dev_err(data->dev, "failed to write to reg_int_clr1\n");
+>>>>>>> upstream/android-13
 }
 
 static int mxc4005_set_trigger_state(struct iio_trigger *trig,
@@ -361,20 +397,34 @@ static int mxc4005_set_trigger_state(struct iio_trigger *trig,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int mxc4005_trigger_try_reen(struct iio_trigger *trig)
+=======
+static void mxc4005_trigger_reen(struct iio_trigger *trig)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *indio_dev = iio_trigger_get_drvdata(trig);
 	struct mxc4005_data *data = iio_priv(indio_dev);
 
 	if (!data->dready_trig)
+<<<<<<< HEAD
 		return 0;
 
 	return mxc4005_clr_intr(data);
+=======
+		return;
+
+	mxc4005_clr_intr(data);
+>>>>>>> upstream/android-13
 }
 
 static const struct iio_trigger_ops mxc4005_trigger_ops = {
 	.set_trigger_state = mxc4005_set_trigger_state,
+<<<<<<< HEAD
 	.try_reenable = mxc4005_trigger_try_reen,
+=======
+	.reenable = mxc4005_trigger_reen,
+>>>>>>> upstream/android-13
 };
 
 static int mxc4005_chip_init(struct mxc4005_data *data)
@@ -424,7 +474,10 @@ static int mxc4005_probe(struct i2c_client *client,
 
 	mutex_init(&data->mutex);
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &client->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->channels = mxc4005_channels;
 	indio_dev->num_channels = ARRAY_SIZE(mxc4005_channels);
 	indio_dev->available_scan_masks = mxc4005_scan_masks;
@@ -432,7 +485,11 @@ static int mxc4005_probe(struct i2c_client *client,
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->info = &mxc4005_info;
 
+<<<<<<< HEAD
 	ret = iio_triggered_buffer_setup(indio_dev,
+=======
+	ret = devm_iio_triggered_buffer_setup(&client->dev, indio_dev,
+>>>>>>> upstream/android-13
 					 iio_pollfunc_store_time,
 					 mxc4005_trigger_handler,
 					 NULL);
@@ -446,7 +503,11 @@ static int mxc4005_probe(struct i2c_client *client,
 		data->dready_trig = devm_iio_trigger_alloc(&client->dev,
 							   "%s-dev%d",
 							   indio_dev->name,
+<<<<<<< HEAD
 							   indio_dev->id);
+=======
+							   iio_device_id(indio_dev));
+>>>>>>> upstream/android-13
 		if (!data->dready_trig)
 			return -ENOMEM;
 
@@ -460,14 +521,21 @@ static int mxc4005_probe(struct i2c_client *client,
 		if (ret) {
 			dev_err(&client->dev,
 				"failed to init threaded irq\n");
+<<<<<<< HEAD
 			goto err_buffer_cleanup;
 		}
 
 		data->dready_trig->dev.parent = &client->dev;
+=======
+			return ret;
+		}
+
+>>>>>>> upstream/android-13
 		data->dready_trig->ops = &mxc4005_trigger_ops;
 		iio_trigger_set_drvdata(data->dready_trig, indio_dev);
 		indio_dev->trig = data->dready_trig;
 		iio_trigger_get(indio_dev->trig);
+<<<<<<< HEAD
 		ret = iio_trigger_register(data->dready_trig);
 		if (ret) {
 			dev_err(&client->dev,
@@ -505,16 +573,36 @@ static int mxc4005_remove(struct i2c_client *client)
 		iio_trigger_unregister(data->dready_trig);
 
 	return 0;
+=======
+		ret = devm_iio_trigger_register(&client->dev,
+						data->dready_trig);
+		if (ret) {
+			dev_err(&client->dev,
+				"failed to register trigger\n");
+			return ret;
+		}
+	}
+
+	return devm_iio_device_register(&client->dev, indio_dev);
+>>>>>>> upstream/android-13
 }
 
 static const struct acpi_device_id mxc4005_acpi_match[] = {
 	{"MXC4005",	0},
+<<<<<<< HEAD
+=======
+	{"MXC6655",	0},
+>>>>>>> upstream/android-13
 	{ },
 };
 MODULE_DEVICE_TABLE(acpi, mxc4005_acpi_match);
 
 static const struct i2c_device_id mxc4005_id[] = {
 	{"mxc4005",	0},
+<<<<<<< HEAD
+=======
+	{"mxc6655",	0},
+>>>>>>> upstream/android-13
 	{ },
 };
 MODULE_DEVICE_TABLE(i2c, mxc4005_id);
@@ -525,7 +613,10 @@ static struct i2c_driver mxc4005_driver = {
 		.acpi_match_table = ACPI_PTR(mxc4005_acpi_match),
 	},
 	.probe		= mxc4005_probe,
+<<<<<<< HEAD
 	.remove		= mxc4005_remove,
+=======
+>>>>>>> upstream/android-13
 	.id_table	= mxc4005_id,
 };
 

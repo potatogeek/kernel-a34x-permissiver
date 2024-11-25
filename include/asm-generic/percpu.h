@@ -62,10 +62,13 @@ extern void setup_per_cpu_areas(void);
 #define PER_CPU_ATTRIBUTES
 #endif
 
+<<<<<<< HEAD
 #ifndef PER_CPU_DEF_ATTRIBUTES
 #define PER_CPU_DEF_ATTRIBUTES
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #define raw_cpu_generic_read(pcp)					\
 ({									\
 	*raw_cpu_ptr(&(pcp));						\
@@ -78,7 +81,11 @@ do {									\
 
 #define raw_cpu_generic_add_return(pcp, val)				\
 ({									\
+<<<<<<< HEAD
 	typeof(&(pcp)) __p = raw_cpu_ptr(&(pcp));			\
+=======
+	typeof(pcp) *__p = raw_cpu_ptr(&(pcp));				\
+>>>>>>> upstream/android-13
 									\
 	*__p += val;							\
 	*__p;								\
@@ -86,7 +93,11 @@ do {									\
 
 #define raw_cpu_generic_xchg(pcp, nval)					\
 ({									\
+<<<<<<< HEAD
 	typeof(&(pcp)) __p = raw_cpu_ptr(&(pcp));			\
+=======
+	typeof(pcp) *__p = raw_cpu_ptr(&(pcp));				\
+>>>>>>> upstream/android-13
 	typeof(pcp) __ret;						\
 	__ret = *__p;							\
 	*__p = nval;							\
@@ -95,7 +106,11 @@ do {									\
 
 #define raw_cpu_generic_cmpxchg(pcp, oval, nval)			\
 ({									\
+<<<<<<< HEAD
 	typeof(&(pcp)) __p = raw_cpu_ptr(&(pcp));			\
+=======
+	typeof(pcp) *__p = raw_cpu_ptr(&(pcp));				\
+>>>>>>> upstream/android-13
 	typeof(pcp) __ret;						\
 	__ret = *__p;							\
 	if (__ret == (oval))						\
@@ -105,8 +120,13 @@ do {									\
 
 #define raw_cpu_generic_cmpxchg_double(pcp1, pcp2, oval1, oval2, nval1, nval2) \
 ({									\
+<<<<<<< HEAD
 	typeof(&(pcp1)) __p1 = raw_cpu_ptr(&(pcp1));			\
 	typeof(&(pcp2)) __p2 = raw_cpu_ptr(&(pcp2));			\
+=======
+	typeof(pcp1) *__p1 = raw_cpu_ptr(&(pcp1));			\
+	typeof(pcp2) *__p2 = raw_cpu_ptr(&(pcp2));			\
+>>>>>>> upstream/android-13
 	int __ret = 0;							\
 	if (*__p1 == (oval1) && *__p2  == (oval2)) {			\
 		*__p1 = nval1;						\
@@ -118,21 +138,38 @@ do {									\
 
 #define __this_cpu_generic_read_nopreempt(pcp)				\
 ({									\
+<<<<<<< HEAD
 	typeof(pcp) __ret;						\
 	preempt_disable_notrace();					\
 	__ret = READ_ONCE(*raw_cpu_ptr(&(pcp)));			\
 	preempt_enable_notrace();					\
 	__ret;								\
+=======
+	typeof(pcp) ___ret;						\
+	preempt_disable_notrace();					\
+	___ret = READ_ONCE(*raw_cpu_ptr(&(pcp)));			\
+	preempt_enable_notrace();					\
+	___ret;								\
+>>>>>>> upstream/android-13
 })
 
 #define __this_cpu_generic_read_noirq(pcp)				\
 ({									\
+<<<<<<< HEAD
 	typeof(pcp) __ret;						\
 	unsigned long __flags;						\
 	raw_local_irq_save(__flags);					\
 	__ret = raw_cpu_generic_read(pcp);				\
 	raw_local_irq_restore(__flags);					\
 	__ret;								\
+=======
+	typeof(pcp) ___ret;						\
+	unsigned long ___flags;						\
+	raw_local_irq_save(___flags);					\
+	___ret = raw_cpu_generic_read(pcp);				\
+	raw_local_irq_restore(___flags);				\
+	___ret;								\
+>>>>>>> upstream/android-13
 })
 
 #define this_cpu_generic_read(pcp)					\

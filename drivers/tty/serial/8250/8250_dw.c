@@ -19,6 +19,11 @@
 #include <linux/of_irq.h>
 #include <linux/of_platform.h>
 #include <linux/platform_device.h>
+<<<<<<< HEAD
+=======
+#include <linux/workqueue.h>
+#include <linux/notifier.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/acpi.h>
 #include <linux/clk.h>
@@ -27,6 +32,7 @@
 
 #include <asm/byteorder.h>
 
+<<<<<<< HEAD
 #include "8250.h"
 
 /* Offsets for the DesignWare specific registers */
@@ -50,25 +56,44 @@
 #define DW_UART_CPR_FIFO_MODE		(0xff << 16)
 /* Helper for fifo size calculation */
 #define DW_UART_CPR_FIFO_SIZE(a)	(((a >> 16) & 0xff) * 16)
+=======
+#include "8250_dwlib.h"
+
+/* Offsets for the DesignWare specific registers */
+#define DW_UART_USR	0x1f /* UART Status Register */
+>>>>>>> upstream/android-13
 
 /* DesignWare specific register fields */
 #define DW_UART_MCR_SIRE		BIT(6)
 
 struct dw8250_data {
+<<<<<<< HEAD
 	u8			usr_reg;
 	u8			dlf_size;
 	int			line;
+=======
+	struct dw8250_port_data	data;
+
+	u8			usr_reg;
+>>>>>>> upstream/android-13
 	int			msr_mask_on;
 	int			msr_mask_off;
 	struct clk		*clk;
 	struct clk		*pclk;
+<<<<<<< HEAD
 	struct reset_control	*rst;
 	struct uart_8250_dma	dma;
+=======
+	struct notifier_block	clk_notifier;
+	struct work_struct	clk_work;
+	struct reset_control	*rst;
+>>>>>>> upstream/android-13
 
 	unsigned int		skip_autocfg:1;
 	unsigned int		uart_16550_compatible:1;
 };
 
+<<<<<<< HEAD
 static inline u32 dw8250_readl_ext(struct uart_port *p, int offset)
 {
 	if (p->iotype == UPIO_MEM32BE)
@@ -82,11 +107,30 @@ static inline void dw8250_writel_ext(struct uart_port *p, int offset, u32 reg)
 		iowrite32be(reg, p->membase + offset);
 	else
 		writel(reg, p->membase + offset);
+=======
+static inline struct dw8250_data *to_dw8250_data(struct dw8250_port_data *data)
+{
+	return container_of(data, struct dw8250_data, data);
+}
+
+static inline struct dw8250_data *clk_to_dw8250_data(struct notifier_block *nb)
+{
+	return container_of(nb, struct dw8250_data, clk_notifier);
+}
+
+static inline struct dw8250_data *work_to_dw8250_data(struct work_struct *work)
+{
+	return container_of(work, struct dw8250_data, clk_work);
+>>>>>>> upstream/android-13
 }
 
 static inline int dw8250_modify_msr(struct uart_port *p, int offset, int value)
 {
+<<<<<<< HEAD
 	struct dw8250_data *d = p->private_data;
+=======
+	struct dw8250_data *d = to_dw8250_data(p->private_data);
+>>>>>>> upstream/android-13
 
 	/* Override any modem control signals if needed */
 	if (offset == UART_MSR) {
@@ -160,7 +204,11 @@ static void dw8250_tx_wait_empty(struct uart_port *p)
 
 static void dw8250_serial_out38x(struct uart_port *p, int offset, int value)
 {
+<<<<<<< HEAD
 	struct dw8250_data *d = p->private_data;
+=======
+	struct dw8250_data *d = to_dw8250_data(p->private_data);
+>>>>>>> upstream/android-13
 
 	/* Allow the TX to drain before we reconfigure */
 	if (offset == UART_LCR)
@@ -175,7 +223,11 @@ static void dw8250_serial_out38x(struct uart_port *p, int offset, int value)
 
 static void dw8250_serial_out(struct uart_port *p, int offset, int value)
 {
+<<<<<<< HEAD
 	struct dw8250_data *d = p->private_data;
+=======
+	struct dw8250_data *d = to_dw8250_data(p->private_data);
+>>>>>>> upstream/android-13
 
 	writeb(value, p->membase + (offset << p->regshift));
 
@@ -202,7 +254,11 @@ static unsigned int dw8250_serial_inq(struct uart_port *p, int offset)
 
 static void dw8250_serial_outq(struct uart_port *p, int offset, int value)
 {
+<<<<<<< HEAD
 	struct dw8250_data *d = p->private_data;
+=======
+	struct dw8250_data *d = to_dw8250_data(p->private_data);
+>>>>>>> upstream/android-13
 
 	value &= 0xff;
 	__raw_writeq(value, p->membase + (offset << p->regshift));
@@ -216,7 +272,11 @@ static void dw8250_serial_outq(struct uart_port *p, int offset, int value)
 
 static void dw8250_serial_out32(struct uart_port *p, int offset, int value)
 {
+<<<<<<< HEAD
 	struct dw8250_data *d = p->private_data;
+=======
+	struct dw8250_data *d = to_dw8250_data(p->private_data);
+>>>>>>> upstream/android-13
 
 	writel(value, p->membase + (offset << p->regshift));
 
@@ -233,7 +293,11 @@ static unsigned int dw8250_serial_in32(struct uart_port *p, int offset)
 
 static void dw8250_serial_out32be(struct uart_port *p, int offset, int value)
 {
+<<<<<<< HEAD
 	struct dw8250_data *d = p->private_data;
+=======
+	struct dw8250_data *d = to_dw8250_data(p->private_data);
+>>>>>>> upstream/android-13
 
 	iowrite32be(value, p->membase + (offset << p->regshift));
 
@@ -252,7 +316,11 @@ static unsigned int dw8250_serial_in32be(struct uart_port *p, int offset)
 static int dw8250_handle_irq(struct uart_port *p)
 {
 	struct uart_8250_port *up = up_to_u8250p(p);
+<<<<<<< HEAD
 	struct dw8250_data *d = p->private_data;
+=======
+	struct dw8250_data *d = to_dw8250_data(p->private_data);
+>>>>>>> upstream/android-13
 	unsigned int iir = p->serial_in(p, UART_IIR);
 	unsigned int status;
 	unsigned long flags;
@@ -290,6 +358,49 @@ static int dw8250_handle_irq(struct uart_port *p)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void dw8250_clk_work_cb(struct work_struct *work)
+{
+	struct dw8250_data *d = work_to_dw8250_data(work);
+	struct uart_8250_port *up;
+	unsigned long rate;
+
+	rate = clk_get_rate(d->clk);
+	if (rate <= 0)
+		return;
+
+	up = serial8250_get_port(d->data.line);
+
+	serial8250_update_uartclk(&up->port, rate);
+}
+
+static int dw8250_clk_notifier_cb(struct notifier_block *nb,
+				  unsigned long event, void *data)
+{
+	struct dw8250_data *d = clk_to_dw8250_data(nb);
+
+	/*
+	 * We have no choice but to defer the uartclk update due to two
+	 * deadlocks. First one is caused by a recursive mutex lock which
+	 * happens when clk_set_rate() is called from dw8250_set_termios().
+	 * Second deadlock is more tricky and is caused by an inverted order of
+	 * the clk and tty-port mutexes lock. It happens if clock rate change
+	 * is requested asynchronously while set_termios() is executed between
+	 * tty-port mutex lock and clk_set_rate() function invocation and
+	 * vise-versa. Anyway if we didn't have the reference clock alteration
+	 * in the dw8250_set_termios() method we wouldn't have needed this
+	 * deferred event handling complication.
+	 */
+	if (event == POST_RATE_CHANGE) {
+		queue_work(system_unbound_wq, &d->clk_work);
+		return NOTIFY_OK;
+	}
+
+	return NOTIFY_DONE;
+}
+
+>>>>>>> upstream/android-13
 static void
 dw8250_do_pm(struct uart_port *port, unsigned int state, unsigned int old)
 {
@@ -305,6 +416,7 @@ dw8250_do_pm(struct uart_port *port, unsigned int state, unsigned int old)
 static void dw8250_set_termios(struct uart_port *p, struct ktermios *termios,
 			       struct ktermios *old)
 {
+<<<<<<< HEAD
 	unsigned int baud = tty_termios_baud_rate(termios);
 	struct dw8250_data *d = p->private_data;
 	long rate;
@@ -327,6 +439,29 @@ static void dw8250_set_termios(struct uart_port *p, struct ktermios *termios,
 		p->uartclk = rate;
 
 out:
+=======
+	unsigned long newrate = tty_termios_baud_rate(termios) * 16;
+	struct dw8250_data *d = to_dw8250_data(p->private_data);
+	long rate;
+	int ret;
+
+	clk_disable_unprepare(d->clk);
+	rate = clk_round_rate(d->clk, newrate);
+	if (rate > 0) {
+		/*
+		 * Premilinary set the uartclk to the new clock rate so the
+		 * clock update event handler caused by the clk_set_rate()
+		 * calling wouldn't actually update the UART divisor since
+		 * we about to do this anyway.
+		 */
+		swap(p->uartclk, rate);
+		ret = clk_set_rate(d->clk, newrate);
+		if (ret)
+			swap(p->uartclk, rate);
+	}
+	clk_prepare_enable(d->clk);
+
+>>>>>>> upstream/android-13
 	p->status &= ~UPSTAT_AUTOCTS;
 	if (termios->c_cflag & CRTSCTS)
 		p->status |= UPSTAT_AUTOCTS;
@@ -368,6 +503,7 @@ static bool dw8250_idma_filter(struct dma_chan *chan, void *param)
 	return param == chan->device->dev;
 }
 
+<<<<<<< HEAD
 /*
  * divisor = div(I) + div(F)
  * "I" means integer, "F" means fractional
@@ -399,6 +535,8 @@ static void dw8250_set_divisor(struct uart_port *p, unsigned int baud,
 	serial8250_do_set_divisor(p, baud, quot, quot_frac);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void dw8250_quirks(struct uart_port *p, struct dw8250_data *data)
 {
 	if (p->dev->of_node) {
@@ -437,6 +575,7 @@ static void dw8250_quirks(struct uart_port *p, struct dw8250_data *data)
 	/* Platforms with iDMA 64-bit */
 	if (platform_get_resource_byname(to_platform_device(p->dev),
 					 IORESOURCE_MEM, "lpss_priv")) {
+<<<<<<< HEAD
 		data->dma.rx_param = p->dev->parent;
 		data->dma.tx_param = p->dev->parent;
 		data->dma.fn = dw8250_idma_filter;
@@ -498,6 +637,22 @@ static int dw8250_probe(struct platform_device *pdev)
 	struct uart_port *p = &uart.port;
 	struct device *dev = &pdev->dev;
 	struct dw8250_data *data;
+=======
+		data->data.dma.rx_param = p->dev->parent;
+		data->data.dma.tx_param = p->dev->parent;
+		data->data.dma.fn = dw8250_idma_filter;
+	}
+}
+
+static int dw8250_probe(struct platform_device *pdev)
+{
+	struct uart_8250_port uart = {}, *up = &uart;
+	struct resource *regs = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+	struct uart_port *p = &up->port;
+	struct device *dev = &pdev->dev;
+	struct dw8250_data *data;
+	int irq;
+>>>>>>> upstream/android-13
 	int err;
 	u32 val;
 
@@ -506,11 +661,17 @@ static int dw8250_probe(struct platform_device *pdev)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	if (irq < 0) {
 		if (irq != -EPROBE_DEFER)
 			dev_err(dev, "cannot get irq\n");
 		return irq;
 	}
+=======
+	irq = platform_get_irq(pdev, 0);
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 
 	spin_lock_init(&p->lock);
 	p->mapbase	= regs->start;
@@ -534,9 +695,15 @@ static int dw8250_probe(struct platform_device *pdev)
 	if (!data)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	data->dma.fn = dw8250_fallback_dma_filter;
 	data->usr_reg = DW_UART_USR;
 	p->private_data = data;
+=======
+	data->data.dma.fn = dw8250_fallback_dma_filter;
+	data->usr_reg = DW_UART_USR;
+	p->private_data = &data->data;
+>>>>>>> upstream/android-13
 
 	data->uart_16550_compatible = device_property_read_bool(dev,
 						"snps,uart-16550-compatible");
@@ -580,6 +747,7 @@ static int dw8250_probe(struct platform_device *pdev)
 	device_property_read_u32(dev, "clock-frequency", &p->uartclk);
 
 	/* If there is separate baudclk, get the rate from it. */
+<<<<<<< HEAD
 	data->clk = devm_clk_get(dev, "baudclk");
 	if (IS_ERR(data->clk) && PTR_ERR(data->clk) != -EPROBE_DEFER)
 		data->clk = devm_clk_get(dev, NULL);
@@ -593,6 +761,23 @@ static int dw8250_probe(struct platform_device *pdev)
 		else
 			p->uartclk = clk_get_rate(data->clk);
 	}
+=======
+	data->clk = devm_clk_get_optional(dev, "baudclk");
+	if (data->clk == NULL)
+		data->clk = devm_clk_get_optional(dev, NULL);
+	if (IS_ERR(data->clk))
+		return PTR_ERR(data->clk);
+
+	INIT_WORK(&data->clk_work, dw8250_clk_work_cb);
+	data->clk_notifier.notifier_call = dw8250_clk_notifier_cb;
+
+	err = clk_prepare_enable(data->clk);
+	if (err)
+		dev_warn(dev, "could not enable optional baudclk: %d\n", err);
+
+	if (data->clk)
+		p->uartclk = clk_get_rate(data->clk);
+>>>>>>> upstream/android-13
 
 	/* If no clock rate is defined, fail. */
 	if (!p->uartclk) {
@@ -601,6 +786,7 @@ static int dw8250_probe(struct platform_device *pdev)
 		goto err_clk;
 	}
 
+<<<<<<< HEAD
 	data->pclk = devm_clk_get(dev, "apb_pclk");
 	if (IS_ERR(data->pclk) && PTR_ERR(data->pclk) == -EPROBE_DEFER) {
 		err = -EPROBE_DEFER;
@@ -612,6 +798,18 @@ static int dw8250_probe(struct platform_device *pdev)
 			dev_err(dev, "could not enable apb_pclk\n");
 			goto err_clk;
 		}
+=======
+	data->pclk = devm_clk_get_optional(dev, "apb_pclk");
+	if (IS_ERR(data->pclk)) {
+		err = PTR_ERR(data->pclk);
+		goto err_clk;
+	}
+
+	err = clk_prepare_enable(data->pclk);
+	if (err) {
+		dev_err(dev, "could not enable apb_pclk\n");
+		goto err_clk;
+>>>>>>> upstream/android-13
 	}
 
 	data->rst = devm_reset_control_get_optional_exclusive(dev, NULL);
@@ -632,6 +830,7 @@ static int dw8250_probe(struct platform_device *pdev)
 
 	/* If we have a valid fifosize, try hooking up DMA */
 	if (p->fifosize) {
+<<<<<<< HEAD
 		data->dma.rxconf.src_maxburst = p->fifosize / 4;
 		data->dma.txconf.dst_maxburst = p->fifosize / 4;
 		uart.dma = &data->dma;
@@ -643,6 +842,32 @@ static int dw8250_probe(struct platform_device *pdev)
 		goto err_reset;
 	}
 
+=======
+		data->data.dma.rxconf.src_maxburst = p->fifosize / 4;
+		data->data.dma.txconf.dst_maxburst = p->fifosize / 4;
+		up->dma = &data->data.dma;
+	}
+
+	data->data.line = serial8250_register_8250_port(up);
+	if (data->data.line < 0) {
+		err = data->data.line;
+		goto err_reset;
+	}
+
+	/*
+	 * Some platforms may provide a reference clock shared between several
+	 * devices. In this case any clock state change must be known to the
+	 * UART port at least post factum.
+	 */
+	if (data->clk) {
+		err = clk_notifier_register(data->clk, &data->clk_notifier);
+		if (err)
+			dev_warn(p->dev, "Failed to set the clock notifier\n");
+		else
+			queue_work(system_unbound_wq, &data->clk_work);
+	}
+
+>>>>>>> upstream/android-13
 	platform_set_drvdata(pdev, data);
 
 	pm_runtime_set_active(dev);
@@ -654,12 +879,19 @@ err_reset:
 	reset_control_assert(data->rst);
 
 err_pclk:
+<<<<<<< HEAD
 	if (!IS_ERR(data->pclk))
 		clk_disable_unprepare(data->pclk);
 
 err_clk:
 	if (!IS_ERR(data->clk))
 		clk_disable_unprepare(data->clk);
+=======
+	clk_disable_unprepare(data->pclk);
+
+err_clk:
+	clk_disable_unprepare(data->clk);
+>>>>>>> upstream/android-13
 
 	return err;
 }
@@ -667,6 +899,7 @@ err_clk:
 static int dw8250_remove(struct platform_device *pdev)
 {
 	struct dw8250_data *data = platform_get_drvdata(pdev);
+<<<<<<< HEAD
 
 	pm_runtime_get_sync(&pdev->dev);
 
@@ -682,6 +915,28 @@ static int dw8250_remove(struct platform_device *pdev)
 
 	pm_runtime_disable(&pdev->dev);
 	pm_runtime_put_noidle(&pdev->dev);
+=======
+	struct device *dev = &pdev->dev;
+
+	pm_runtime_get_sync(dev);
+
+	if (data->clk) {
+		clk_notifier_unregister(data->clk, &data->clk_notifier);
+
+		flush_work(&data->clk_work);
+	}
+
+	serial8250_unregister_port(data->data.line);
+
+	reset_control_assert(data->rst);
+
+	clk_disable_unprepare(data->pclk);
+
+	clk_disable_unprepare(data->clk);
+
+	pm_runtime_disable(dev);
+	pm_runtime_put_noidle(dev);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -691,7 +946,11 @@ static int dw8250_suspend(struct device *dev)
 {
 	struct dw8250_data *data = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	serial8250_suspend_port(data->line);
+=======
+	serial8250_suspend_port(data->data.line);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -700,7 +959,11 @@ static int dw8250_resume(struct device *dev)
 {
 	struct dw8250_data *data = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	serial8250_resume_port(data->line);
+=======
+	serial8250_resume_port(data->data.line);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -711,11 +974,17 @@ static int dw8250_runtime_suspend(struct device *dev)
 {
 	struct dw8250_data *data = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	if (!IS_ERR(data->clk))
 		clk_disable_unprepare(data->clk);
 
 	if (!IS_ERR(data->pclk))
 		clk_disable_unprepare(data->pclk);
+=======
+	clk_disable_unprepare(data->clk);
+
+	clk_disable_unprepare(data->pclk);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -724,11 +993,17 @@ static int dw8250_runtime_resume(struct device *dev)
 {
 	struct dw8250_data *data = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	if (!IS_ERR(data->pclk))
 		clk_prepare_enable(data->pclk);
 
 	if (!IS_ERR(data->clk))
 		clk_prepare_enable(data->clk);
+=======
+	clk_prepare_enable(data->pclk);
+
+	clk_prepare_enable(data->clk);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -758,6 +1033,10 @@ static const struct acpi_device_id dw8250_acpi_match[] = {
 	{ "APMC0D08", 0},
 	{ "AMD0020", 0 },
 	{ "AMDI0020", 0 },
+<<<<<<< HEAD
+=======
+	{ "AMDI0022", 0 },
+>>>>>>> upstream/android-13
 	{ "BRCM2032", 0 },
 	{ "HISI0031", 0 },
 	{ },
@@ -769,7 +1048,11 @@ static struct platform_driver dw8250_platform_driver = {
 		.name		= "dw-apb-uart",
 		.pm		= &dw8250_pm_ops,
 		.of_match_table	= dw8250_of_match,
+<<<<<<< HEAD
 		.acpi_match_table = ACPI_PTR(dw8250_acpi_match),
+=======
+		.acpi_match_table = dw8250_acpi_match,
+>>>>>>> upstream/android-13
 	},
 	.probe			= dw8250_probe,
 	.remove			= dw8250_remove,

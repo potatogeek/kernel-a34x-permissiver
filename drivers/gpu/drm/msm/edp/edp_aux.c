@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014-2015, The Linux Foundation. All rights reserved.
  *
@@ -9,6 +10,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2014-2015, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include "edp.h"
@@ -192,9 +198,15 @@ unlock_exit:
 	return ret;
 }
 
+<<<<<<< HEAD
 void *msm_edp_aux_init(struct device *dev, void __iomem *regbase,
 	struct drm_dp_aux **drm_aux)
 {
+=======
+void *msm_edp_aux_init(struct msm_edp *edp, void __iomem *regbase, struct drm_dp_aux **drm_aux)
+{
+	struct device *dev = &edp->pdev->dev;
+>>>>>>> upstream/android-13
 	struct edp_aux *aux = NULL;
 	int ret;
 
@@ -209,6 +221,10 @@ void *msm_edp_aux_init(struct device *dev, void __iomem *regbase,
 
 	aux->drm_aux.name = "msm_edp_aux";
 	aux->drm_aux.dev = dev;
+<<<<<<< HEAD
+=======
+	aux->drm_aux.drm_dev = edp->dev;
+>>>>>>> upstream/android-13
 	aux->drm_aux.transfer = edp_aux_transfer;
 	ret = drm_dp_aux_register(&aux->drm_aux);
 	if (ret) {

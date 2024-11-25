@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 #ifndef _ACKVEC_H
 #define _ACKVEC_H
 /*
@@ -6,9 +10,12 @@
  *  An implementation of Ack Vectors for the DCCP protocol
  *  Copyright (c) 2007 University of Aberdeen, Scotland, UK
  *  Copyright (c) 2005 Arnaldo Carvalho de Melo <acme@mandriva.com>
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or modify it
  *	under the terms of the GNU General Public License version 2 as
  *	published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/dccp.h>

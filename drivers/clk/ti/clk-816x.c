@@ -73,6 +73,10 @@ static const char *enable_init_clks[] = {
 	"ddr_pll_clk1",
 	"ddr_pll_clk2",
 	"ddr_pll_clk3",
+<<<<<<< HEAD
+=======
+	"sysclk6_ck",
+>>>>>>> upstream/android-13
 };
 
 int __init dm816x_dt_clk_init(void)

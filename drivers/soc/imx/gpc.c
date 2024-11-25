@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2015-2017 Pengutronix, Lucas Stach <kernel@pengutronix.de>
  * Copyright 2011-2013 Freescale Semiconductor, Inc.
@@ -8,6 +9,12 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright 2015-2017 Pengutronix, Lucas Stach <kernel@pengutronix.de>
+ * Copyright 2011-2013 Freescale Semiconductor, Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -41,7 +48,11 @@
 #define GPU_VPU_PUP_REQ		BIT(1)
 #define GPU_VPU_PDN_REQ		BIT(0)
 
+<<<<<<< HEAD
 #define GPC_CLK_MAX		6
+=======
+#define GPC_CLK_MAX		7
+>>>>>>> upstream/android-13
 
 #define PGC_DOMAIN_FLAG_NO_PD		BIT(0)
 
@@ -248,6 +259,10 @@ builtin_platform_driver(imx_pgc_power_domain_driver)
 #define GPC_PGC_DOMAIN_ARM	0
 #define GPC_PGC_DOMAIN_PU	1
 #define GPC_PGC_DOMAIN_DISPLAY	2
+<<<<<<< HEAD
+=======
+#define GPC_PGC_DOMAIN_PCI	3
+>>>>>>> upstream/android-13
 
 static struct genpd_power_state imx6_pm_domain_pu_state = {
 	.power_off_latency_ns = 25000,
@@ -255,12 +270,21 @@ static struct genpd_power_state imx6_pm_domain_pu_state = {
 };
 
 static struct imx_pm_domain imx_gpc_domains[] = {
+<<<<<<< HEAD
 	{
+=======
+	[GPC_PGC_DOMAIN_ARM] = {
+>>>>>>> upstream/android-13
 		.base = {
 			.name = "ARM",
 			.flags = GENPD_FLAG_ALWAYS_ON,
 		},
+<<<<<<< HEAD
 	}, {
+=======
+	},
+	[GPC_PGC_DOMAIN_PU] = {
+>>>>>>> upstream/android-13
 		.base = {
 			.name = "PU",
 			.power_off = imx6_pm_domain_power_off,
@@ -270,7 +294,12 @@ static struct imx_pm_domain imx_gpc_domains[] = {
 		},
 		.reg_offs = 0x260,
 		.cntr_pdn_bit = 0,
+<<<<<<< HEAD
 	}, {
+=======
+	},
+	[GPC_PGC_DOMAIN_DISPLAY] = {
+>>>>>>> upstream/android-13
 		.base = {
 			.name = "DISPLAY",
 			.power_off = imx6_pm_domain_power_off,
@@ -278,7 +307,12 @@ static struct imx_pm_domain imx_gpc_domains[] = {
 		},
 		.reg_offs = 0x240,
 		.cntr_pdn_bit = 4,
+<<<<<<< HEAD
 	}, {
+=======
+	},
+	[GPC_PGC_DOMAIN_PCI] = {
+>>>>>>> upstream/android-13
 		.base = {
 			.name = "PCI",
 			.power_off = imx6_pm_domain_power_off,
@@ -350,8 +384,13 @@ static const struct regmap_config imx_gpc_regmap_config = {
 };
 
 static struct generic_pm_domain *imx_gpc_onecell_domains[] = {
+<<<<<<< HEAD
 	&imx_gpc_domains[0].base,
 	&imx_gpc_domains[1].base,
+=======
+	&imx_gpc_domains[GPC_PGC_DOMAIN_ARM].base,
+	&imx_gpc_domains[GPC_PGC_DOMAIN_PU].base,
+>>>>>>> upstream/android-13
 };
 
 static struct genpd_onecell_data imx_gpc_onecell_data = {
@@ -410,7 +449,10 @@ static int imx_gpc_probe(struct platform_device *pdev)
 	const struct imx_gpc_dt_data *of_id_data = of_id->data;
 	struct device_node *pgc_node;
 	struct regmap *regmap;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	void __iomem *base;
 	int ret;
 
@@ -421,8 +463,12 @@ static int imx_gpc_probe(struct platform_device *pdev)
 	    !pgc_node)
 		return 0;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(base))
 		return PTR_ERR(base);
 
@@ -435,10 +481,26 @@ static int imx_gpc_probe(struct platform_device *pdev)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	/* Disable PU power down in normal operation if ERR009619 is present */
 	if (of_id_data->err009619_present)
 		imx_gpc_domains[GPC_PGC_DOMAIN_PU].base.flags |=
 				GENPD_FLAG_ALWAYS_ON;
+=======
+	/*
+	 * Disable PU power down by runtime PM if ERR009619 is present.
+	 *
+	 * The PRE clock will be paused for several cycles when turning on the
+	 * PU domain LDO from power down state. If PRE is in use at that time,
+	 * the IPU/PRG cannot get the correct display data from the PRE.
+	 *
+	 * This is not a concern when the whole system enters suspend state, so
+	 * it's safe to power down PU in this case.
+	 */
+	if (of_id_data->err009619_present)
+		imx_gpc_domains[GPC_PGC_DOMAIN_PU].base.flags |=
+				GENPD_FLAG_RPM_ALWAYS_ON;
+>>>>>>> upstream/android-13
 
 	/* Keep DISP always on if ERR006287 is present */
 	if (of_id_data->err006287_present)

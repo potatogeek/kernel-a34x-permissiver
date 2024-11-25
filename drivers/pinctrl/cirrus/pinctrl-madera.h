@@ -1,12 +1,19 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Pinctrl for Cirrus Logic Madera codecs
  *
  * Copyright (C) 2016-2017 Cirrus Logic
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by the
  * Free Software Foundation; version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef PINCTRL_MADERA_H
@@ -34,8 +41,16 @@ struct madera_pin_private {
 	struct pinctrl_dev *pctl;
 };
 
+<<<<<<< HEAD
 extern const struct madera_pin_chip cs47l35_pin_chip;
 extern const struct madera_pin_chip cs47l85_pin_chip;
 extern const struct madera_pin_chip cs47l90_pin_chip;
+=======
+extern const struct madera_pin_chip cs47l15_pin_chip;
+extern const struct madera_pin_chip cs47l35_pin_chip;
+extern const struct madera_pin_chip cs47l85_pin_chip;
+extern const struct madera_pin_chip cs47l90_pin_chip;
+extern const struct madera_pin_chip cs47l92_pin_chip;
+>>>>>>> upstream/android-13
 
 #endif

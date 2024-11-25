@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  *	This is part of rtl8187 OpenSource driver
  *	Copyright (C) Andrea Merello 2004-2005  <andrea.merello@gmail.com>
@@ -21,6 +25,7 @@
 
 #define EPROM_DELAY 10
 
+<<<<<<< HEAD
 #define EPROM_ANAPARAM_ADDRLWORD 0xd
 #define EPROM_ANAPARAM_ADDRHWORD 0xe
 
@@ -39,4 +44,6 @@
 #define EPROM_TXPW2 0x1b
 #define EPROM_TXPW1 0x3d
 
+=======
+>>>>>>> upstream/android-13
 int eprom_read(struct net_device *dev, u32 addr); /* reads a 16 bits word */

@@ -51,6 +51,12 @@ static const struct v4l2_file_operations ivtv_v4l2_enc_fops = {
 	.write = ivtv_v4l2_write,
 	.open = ivtv_v4l2_open,
 	.unlocked_ioctl = video_ioctl2,
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_COMPAT
+	.compat_ioctl32 = video_ioctl2, /* for ivtv_default() */
+#endif
+>>>>>>> upstream/android-13
 	.release = ivtv_v4l2_close,
 	.poll = ivtv_v4l2_enc_poll,
 };
@@ -61,6 +67,12 @@ static const struct v4l2_file_operations ivtv_v4l2_dec_fops = {
 	.write = ivtv_v4l2_write,
 	.open = ivtv_v4l2_open,
 	.unlocked_ioctl = video_ioctl2,
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_COMPAT
+	.compat_ioctl32 = video_ioctl2, /* for ivtv_default() */
+#endif
+>>>>>>> upstream/android-13
 	.release = ivtv_v4l2_close,
 	.poll = ivtv_v4l2_dec_poll,
 };
@@ -69,6 +81,12 @@ static const struct v4l2_file_operations ivtv_v4l2_radio_fops = {
 	.owner = THIS_MODULE,
 	.open = ivtv_v4l2_open,
 	.unlocked_ioctl = video_ioctl2,
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_COMPAT
+	.compat_ioctl32 = video_ioctl2, /* for ivtv_default() */
+#endif
+>>>>>>> upstream/android-13
 	.release = ivtv_v4l2_close,
 	.poll = ivtv_v4l2_enc_poll,
 };
@@ -90,7 +108,11 @@ static struct {
 } ivtv_stream_info[] = {
 	{	/* IVTV_ENC_STREAM_TYPE_MPG */
 		"encoder MPG",
+<<<<<<< HEAD
 		VFL_TYPE_GRABBER, 0,
+=======
+		VFL_TYPE_VIDEO, 0,
+>>>>>>> upstream/android-13
 		PCI_DMA_FROMDEVICE, 0,
 		V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_TUNER |
 			V4L2_CAP_AUDIO | V4L2_CAP_READWRITE,
@@ -98,7 +120,11 @@ static struct {
 	},
 	{	/* IVTV_ENC_STREAM_TYPE_YUV */
 		"encoder YUV",
+<<<<<<< HEAD
 		VFL_TYPE_GRABBER, IVTV_V4L2_ENC_YUV_OFFSET,
+=======
+		VFL_TYPE_VIDEO, IVTV_V4L2_ENC_YUV_OFFSET,
+>>>>>>> upstream/android-13
 		PCI_DMA_FROMDEVICE, 0,
 		V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_TUNER |
 			V4L2_CAP_AUDIO | V4L2_CAP_READWRITE,
@@ -114,7 +140,11 @@ static struct {
 	},
 	{	/* IVTV_ENC_STREAM_TYPE_PCM */
 		"encoder PCM",
+<<<<<<< HEAD
 		VFL_TYPE_GRABBER, IVTV_V4L2_ENC_PCM_OFFSET,
+=======
+		VFL_TYPE_VIDEO, IVTV_V4L2_ENC_PCM_OFFSET,
+>>>>>>> upstream/android-13
 		PCI_DMA_FROMDEVICE, 0,
 		V4L2_CAP_TUNER | V4L2_CAP_AUDIO | V4L2_CAP_READWRITE,
 		&ivtv_v4l2_enc_fops
@@ -128,10 +158,16 @@ static struct {
 	},
 	{	/* IVTV_DEC_STREAM_TYPE_MPG */
 		"decoder MPG",
+<<<<<<< HEAD
 		VFL_TYPE_GRABBER, IVTV_V4L2_DEC_MPG_OFFSET,
 		PCI_DMA_TODEVICE, 0,
 		V4L2_CAP_VIDEO_OUTPUT | V4L2_CAP_AUDIO | V4L2_CAP_READWRITE |
 		V4L2_CAP_VIDEO_OUTPUT_OVERLAY,
+=======
+		VFL_TYPE_VIDEO, IVTV_V4L2_DEC_MPG_OFFSET,
+		PCI_DMA_TODEVICE, 0,
+		V4L2_CAP_VIDEO_OUTPUT | V4L2_CAP_AUDIO | V4L2_CAP_READWRITE,
+>>>>>>> upstream/android-13
 		&ivtv_v4l2_dec_fops
 	},
 	{	/* IVTV_DEC_STREAM_TYPE_VBI */
@@ -150,10 +186,16 @@ static struct {
 	},
 	{	/* IVTV_DEC_STREAM_TYPE_YUV */
 		"decoder YUV",
+<<<<<<< HEAD
 		VFL_TYPE_GRABBER, IVTV_V4L2_DEC_YUV_OFFSET,
 		PCI_DMA_TODEVICE, 0,
 		V4L2_CAP_VIDEO_OUTPUT | V4L2_CAP_AUDIO | V4L2_CAP_READWRITE |
 		V4L2_CAP_VIDEO_OUTPUT_OVERLAY,
+=======
+		VFL_TYPE_VIDEO, IVTV_V4L2_DEC_YUV_OFFSET,
+		PCI_DMA_TODEVICE, 0,
+		V4L2_CAP_VIDEO_OUTPUT | V4L2_CAP_AUDIO | V4L2_CAP_READWRITE,
+>>>>>>> upstream/android-13
 		&ivtv_v4l2_dec_fops
 	}
 };
@@ -169,7 +211,11 @@ static void ivtv_stream_init(struct ivtv *itv, int type)
 	s->itv = itv;
 	s->type = type;
 	s->name = ivtv_stream_info[type].name;
+<<<<<<< HEAD
 	s->caps = ivtv_stream_info[type].v4l2_caps;
+=======
+	s->vdev.device_caps = ivtv_stream_info[type].v4l2_caps;
+>>>>>>> upstream/android-13
 
 	if (ivtv_stream_info[type].pio)
 		s->dma = PCI_DMA_NONE;
@@ -292,6 +338,14 @@ static int ivtv_reg_dev(struct ivtv *itv, int type)
 		if (s_mpg->vdev.v4l2_dev)
 			num = s_mpg->vdev.num + ivtv_stream_info[type].num_offset;
 	}
+<<<<<<< HEAD
+=======
+	if (itv->osd_video_pbase && (type == IVTV_DEC_STREAM_TYPE_YUV ||
+				     type == IVTV_DEC_STREAM_TYPE_MPG)) {
+		s->vdev.device_caps |= V4L2_CAP_VIDEO_OUTPUT_OVERLAY;
+		itv->v4l2_cap |= V4L2_CAP_VIDEO_OUTPUT_OVERLAY;
+	}
+>>>>>>> upstream/android-13
 	video_set_drvdata(&s->vdev, s);
 
 	/* Register device. First try the desired minor, then any free one. */
@@ -303,7 +357,11 @@ static int ivtv_reg_dev(struct ivtv *itv, int type)
 	name = video_device_node_name(&s->vdev);
 
 	switch (vfl_type) {
+<<<<<<< HEAD
 	case VFL_TYPE_GRABBER:
+=======
+	case VFL_TYPE_VIDEO:
+>>>>>>> upstream/android-13
 		IVTV_INFO("Registered device %s for %s (%d kB)\n",
 			name, s->name, itv->options.kilobytes[type]);
 		break;

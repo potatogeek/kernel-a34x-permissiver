@@ -22,6 +22,13 @@
 #ifndef DRM_DISPLAYID_H
 #define DRM_DISPLAYID_H
 
+<<<<<<< HEAD
+=======
+#include <linux/types.h>
+
+struct edid;
+
+>>>>>>> upstream/android-13
 #define DATA_BLOCK_PRODUCT_ID 0x00
 #define DATA_BLOCK_DISPLAY_PARAMETERS 0x01
 #define DATA_BLOCK_COLOR_CHARACTERISTICS 0x02
@@ -52,7 +59,11 @@
 #define PRODUCT_TYPE_REPEATER 5
 #define PRODUCT_TYPE_DIRECT_DRIVE 6
 
+<<<<<<< HEAD
 struct displayid_hdr {
+=======
+struct displayid_header {
+>>>>>>> upstream/android-13
 	u8 rev;
 	u8 bytes;
 	u8 prod_id;
@@ -89,6 +100,7 @@ struct displayid_detailed_timings_1 {
 
 struct displayid_detailed_timing_block {
 	struct displayid_block base;
+<<<<<<< HEAD
 	struct displayid_detailed_timings_1 timings[0];
 };
 
@@ -99,5 +111,27 @@ struct displayid_detailed_timing_block {
 	     (block)->num_bytes > 0; \
 	     (idx) += (block)->num_bytes + sizeof(struct displayid_block), \
 	     (block) = (struct displayid_block *)&(displayid)[idx])
+=======
+	struct displayid_detailed_timings_1 timings[];
+};
+
+/* DisplayID iteration */
+struct displayid_iter {
+	const struct edid *edid;
+
+	const u8 *section;
+	int length;
+	int idx;
+	int ext_index;
+};
+
+void displayid_iter_edid_begin(const struct edid *edid,
+			       struct displayid_iter *iter);
+const struct displayid_block *
+__displayid_iter_next(struct displayid_iter *iter);
+#define displayid_iter_for_each(__block, __iter) \
+	while (((__block) = __displayid_iter_next(__iter)))
+void displayid_iter_end(struct displayid_iter *iter);
+>>>>>>> upstream/android-13
 
 #endif

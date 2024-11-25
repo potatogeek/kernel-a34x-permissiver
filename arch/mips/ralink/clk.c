@@ -1,7 +1,12 @@
+<<<<<<< HEAD
 /*
  *  This program is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU General Public License version 2 as published
  *  by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  *
  *  Copyright (C) 2011 Gabor Juhos <juhosg@openwrt.org>
  *  Copyright (C) 2013 John Crispin <john@phrozen.org>
@@ -12,11 +17,16 @@
 #include <linux/export.h>
 #include <linux/clkdev.h>
 #include <linux/clk.h>
+<<<<<<< HEAD
+=======
+#include <linux/clk-provider.h>
+>>>>>>> upstream/android-13
 
 #include <asm/time.h>
 
 #include "common.h"
 
+<<<<<<< HEAD
 struct clk {
 	struct clk_lookup cl;
 	unsigned long rate;
@@ -25,10 +35,16 @@ struct clk {
 void ralink_clk_add(const char *dev, unsigned long rate)
 {
 	struct clk *clk = kzalloc(sizeof(struct clk), GFP_KERNEL);
+=======
+void ralink_clk_add(const char *dev, unsigned long rate)
+{
+	struct clk *clk = clk_register_fixed_rate(NULL, dev, NULL, 0, rate);
+>>>>>>> upstream/android-13
 
 	if (!clk)
 		panic("failed to add clock");
 
+<<<<<<< HEAD
 	clk->cl.dev_id = dev;
 	clk->cl.clk = clk;
 
@@ -72,6 +88,11 @@ long clk_round_rate(struct clk *clk, unsigned long rate)
 }
 EXPORT_SYMBOL_GPL(clk_round_rate);
 
+=======
+	clkdev_create(clk, NULL, "%s", dev);
+}
+
+>>>>>>> upstream/android-13
 void __init plat_time_init(void)
 {
 	struct clk *clk;

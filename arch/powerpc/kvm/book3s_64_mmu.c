@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -11,6 +12,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright SUSE Linux Products GmbH 2009
  *
@@ -35,6 +40,7 @@
 #define dprintk(X...) do { } while(0)
 #endif
 
+<<<<<<< HEAD
 static void kvmppc_mmu_book3s_64_reset_msr(struct kvm_vcpu *vcpu)
 {
 	unsigned long msr = vcpu->arch.intr_msr;
@@ -49,6 +55,8 @@ static void kvmppc_mmu_book3s_64_reset_msr(struct kvm_vcpu *vcpu)
 	kvmppc_set_msr(vcpu, msr);
 }
 
+=======
+>>>>>>> upstream/android-13
 static struct kvmppc_slb *kvmppc_mmu_book3s_64_find_slbe(
 				struct kvm_vcpu *vcpu,
 				gva_t eaddr)
@@ -221,7 +229,11 @@ static int kvmppc_mmu_book3s_64_xlate(struct kvm_vcpu *vcpu, gva_t eaddr,
 	hva_t ptegp;
 	u64 pteg[16];
 	u64 avpn = 0;
+<<<<<<< HEAD
 	u64 v, r;
+=======
+	u64 r;
+>>>>>>> upstream/android-13
 	u64 v_val, v_mask;
 	u64 eaddr_mask;
 	int i;
@@ -310,7 +322,10 @@ do_second:
 		goto do_second;
 	}
 
+<<<<<<< HEAD
 	v = be64_to_cpu(pteg[i]);
+=======
+>>>>>>> upstream/android-13
 	r = be64_to_cpu(pteg[i+1]);
 	pp = (r & HPTE_R_PP) | key;
 	if (r & HPTE_R_PP0)
@@ -336,7 +351,11 @@ do_second:
 	case 2:
 	case 6:
 		gpte->may_write = true;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 3:
 	case 5:
 	case 7:
@@ -435,6 +454,22 @@ static void kvmppc_mmu_book3s_64_slbmte(struct kvm_vcpu *vcpu, u64 rs, u64 rb)
 	kvmppc_mmu_map_segment(vcpu, esid << SID_SHIFT);
 }
 
+<<<<<<< HEAD
+=======
+static int kvmppc_mmu_book3s_64_slbfee(struct kvm_vcpu *vcpu, gva_t eaddr,
+				       ulong *ret_slb)
+{
+	struct kvmppc_slb *slbe = kvmppc_mmu_book3s_64_find_slbe(vcpu, eaddr);
+
+	if (slbe) {
+		*ret_slb = slbe->origv;
+		return 0;
+	}
+	*ret_slb = 0;
+	return -ENOENT;
+}
+
+>>>>>>> upstream/android-13
 static u64 kvmppc_mmu_book3s_64_slbmfee(struct kvm_vcpu *vcpu, u64 slb_nr)
 {
 	struct kvmppc_slb *slbe;
@@ -670,10 +705,17 @@ void kvmppc_mmu_book3s_64_init(struct kvm_vcpu *vcpu)
 	mmu->slbmte = kvmppc_mmu_book3s_64_slbmte;
 	mmu->slbmfee = kvmppc_mmu_book3s_64_slbmfee;
 	mmu->slbmfev = kvmppc_mmu_book3s_64_slbmfev;
+<<<<<<< HEAD
 	mmu->slbie = kvmppc_mmu_book3s_64_slbie;
 	mmu->slbia = kvmppc_mmu_book3s_64_slbia;
 	mmu->xlate = kvmppc_mmu_book3s_64_xlate;
 	mmu->reset_msr = kvmppc_mmu_book3s_64_reset_msr;
+=======
+	mmu->slbfee = kvmppc_mmu_book3s_64_slbfee;
+	mmu->slbie = kvmppc_mmu_book3s_64_slbie;
+	mmu->slbia = kvmppc_mmu_book3s_64_slbia;
+	mmu->xlate = kvmppc_mmu_book3s_64_xlate;
+>>>>>>> upstream/android-13
 	mmu->tlbie = kvmppc_mmu_book3s_64_tlbie;
 	mmu->esid_to_vsid = kvmppc_mmu_book3s_64_esid_to_vsid;
 	mmu->ea_to_vp = kvmppc_mmu_book3s_64_ea_to_vp;

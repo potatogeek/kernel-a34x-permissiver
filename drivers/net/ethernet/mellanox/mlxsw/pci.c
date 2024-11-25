@@ -102,6 +102,10 @@ struct mlxsw_pci_queue_type_group {
 struct mlxsw_pci {
 	struct pci_dev *pdev;
 	u8 __iomem *hw_addr;
+<<<<<<< HEAD
+=======
+	u64 free_running_clock_offset;
+>>>>>>> upstream/android-13
 	struct mlxsw_pci_queue_type_group queues[MLXSW_PCI_QUEUE_TYPE_COUNT];
 	u32 doorbell_offset;
 	struct mlxsw_core *core;
@@ -283,15 +287,32 @@ static dma_addr_t __mlxsw_pci_queue_page_get(struct mlxsw_pci_queue *q,
 static int mlxsw_pci_sdq_init(struct mlxsw_pci *mlxsw_pci, char *mbox,
 			      struct mlxsw_pci_queue *q)
 {
+<<<<<<< HEAD
+=======
+	int tclass;
+	int lp;
+>>>>>>> upstream/android-13
 	int i;
 	int err;
 
 	q->producer_counter = 0;
 	q->consumer_counter = 0;
+<<<<<<< HEAD
 
 	/* Set CQ of same number of this SDQ. */
 	mlxsw_cmd_mbox_sw2hw_dq_cq_set(mbox, q->num);
 	mlxsw_cmd_mbox_sw2hw_dq_sdq_tclass_set(mbox, 3);
+=======
+	tclass = q->num == MLXSW_PCI_SDQ_EMAD_INDEX ? MLXSW_PCI_SDQ_EMAD_TC :
+						      MLXSW_PCI_SDQ_CTL_TC;
+	lp = q->num == MLXSW_PCI_SDQ_EMAD_INDEX ? MLXSW_CMD_MBOX_SW2HW_DQ_SDQ_LP_IGNORE_WQE :
+						  MLXSW_CMD_MBOX_SW2HW_DQ_SDQ_LP_WQE;
+
+	/* Set CQ of same number of this SDQ. */
+	mlxsw_cmd_mbox_sw2hw_dq_cq_set(mbox, q->num);
+	mlxsw_cmd_mbox_sw2hw_dq_sdq_lp_set(mbox, lp);
+	mlxsw_cmd_mbox_sw2hw_dq_sdq_tclass_set(mbox, tclass);
+>>>>>>> upstream/android-13
 	mlxsw_cmd_mbox_sw2hw_dq_log2_dq_sz_set(mbox, 3); /* 8 pages */
 	for (i = 0; i < MLXSW_PCI_AQ_PAGES; i++) {
 		dma_addr_t mapaddr = __mlxsw_pci_queue_page_get(q, i);
@@ -319,8 +340,13 @@ static int mlxsw_pci_wqe_frag_map(struct mlxsw_pci *mlxsw_pci, char *wqe,
 	struct pci_dev *pdev = mlxsw_pci->pdev;
 	dma_addr_t mapaddr;
 
+<<<<<<< HEAD
 	mapaddr = pci_map_single(pdev, frag_data, frag_len, direction);
 	if (unlikely(pci_dma_mapping_error(pdev, mapaddr))) {
+=======
+	mapaddr = dma_map_single(&pdev->dev, frag_data, frag_len, direction);
+	if (unlikely(dma_mapping_error(&pdev->dev, mapaddr))) {
+>>>>>>> upstream/android-13
 		dev_err_ratelimited(&pdev->dev, "failed to dma map tx frag\n");
 		return -EIO;
 	}
@@ -338,7 +364,11 @@ static void mlxsw_pci_wqe_frag_unmap(struct mlxsw_pci *mlxsw_pci, char *wqe,
 
 	if (!frag_len)
 		return;
+<<<<<<< HEAD
 	pci_unmap_single(pdev, mapaddr, frag_len, direction);
+=======
+	dma_unmap_single(&pdev->dev, mapaddr, frag_len, direction);
+>>>>>>> upstream/android-13
 }
 
 static int mlxsw_pci_rdq_skb_alloc(struct mlxsw_pci *mlxsw_pci,
@@ -349,13 +379,19 @@ static int mlxsw_pci_rdq_skb_alloc(struct mlxsw_pci *mlxsw_pci,
 	struct sk_buff *skb;
 	int err;
 
+<<<<<<< HEAD
 	elem_info->u.rdq.skb = NULL;
+=======
+>>>>>>> upstream/android-13
 	skb = netdev_alloc_skb_ip_align(NULL, buf_len);
 	if (!skb)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	/* Assume that wqe was previously zeroed. */
 
+=======
+>>>>>>> upstream/android-13
 	err = mlxsw_pci_wqe_frag_map(mlxsw_pci, wqe, 0, skb->data,
 				     buf_len, DMA_FROM_DEVICE);
 	if (err)
@@ -507,17 +543,38 @@ static void mlxsw_pci_cqe_sdq_handle(struct mlxsw_pci *mlxsw_pci,
 {
 	struct pci_dev *pdev = mlxsw_pci->pdev;
 	struct mlxsw_pci_queue_elem_info *elem_info;
+<<<<<<< HEAD
+=======
+	struct mlxsw_tx_info tx_info;
+>>>>>>> upstream/android-13
 	char *wqe;
 	struct sk_buff *skb;
 	int i;
 
 	spin_lock(&q->lock);
 	elem_info = mlxsw_pci_queue_elem_info_consumer_get(q);
+<<<<<<< HEAD
+=======
+	tx_info = mlxsw_skb_cb(elem_info->u.sdq.skb)->tx_info;
+>>>>>>> upstream/android-13
 	skb = elem_info->u.sdq.skb;
 	wqe = elem_info->elem;
 	for (i = 0; i < MLXSW_PCI_WQE_SG_ENTRIES; i++)
 		mlxsw_pci_wqe_frag_unmap(mlxsw_pci, wqe, i, DMA_TO_DEVICE);
+<<<<<<< HEAD
 	dev_kfree_skb_any(skb);
+=======
+
+	if (unlikely(!tx_info.is_emad &&
+		     skb_shinfo(skb)->tx_flags & SKBTX_HW_TSTAMP)) {
+		mlxsw_core_ptp_transmitted(mlxsw_pci->core, skb,
+					   tx_info.local_port);
+		skb = NULL;
+	}
+
+	if (skb)
+		dev_kfree_skb_any(skb);
+>>>>>>> upstream/android-13
 	elem_info->u.sdq.skb = NULL;
 
 	if (q->consumer_counter++ != consumer_counter_limit)
@@ -525,6 +582,58 @@ static void mlxsw_pci_cqe_sdq_handle(struct mlxsw_pci *mlxsw_pci,
 	spin_unlock(&q->lock);
 }
 
+<<<<<<< HEAD
+=======
+static void mlxsw_pci_cqe_rdq_md_tx_port_init(struct sk_buff *skb,
+					      const char *cqe)
+{
+	struct mlxsw_skb_cb *cb = mlxsw_skb_cb(skb);
+
+	if (mlxsw_pci_cqe2_tx_lag_get(cqe)) {
+		cb->rx_md_info.tx_port_is_lag = true;
+		cb->rx_md_info.tx_lag_id = mlxsw_pci_cqe2_tx_lag_id_get(cqe);
+		cb->rx_md_info.tx_lag_port_index =
+			mlxsw_pci_cqe2_tx_lag_subport_get(cqe);
+	} else {
+		cb->rx_md_info.tx_port_is_lag = false;
+		cb->rx_md_info.tx_sys_port =
+			mlxsw_pci_cqe2_tx_system_port_get(cqe);
+	}
+
+	if (cb->rx_md_info.tx_sys_port != MLXSW_PCI_CQE2_TX_PORT_MULTI_PORT &&
+	    cb->rx_md_info.tx_sys_port != MLXSW_PCI_CQE2_TX_PORT_INVALID)
+		cb->rx_md_info.tx_port_valid = 1;
+	else
+		cb->rx_md_info.tx_port_valid = 0;
+}
+
+static void mlxsw_pci_cqe_rdq_md_init(struct sk_buff *skb, const char *cqe)
+{
+	struct mlxsw_skb_cb *cb = mlxsw_skb_cb(skb);
+
+	cb->rx_md_info.tx_congestion = mlxsw_pci_cqe2_mirror_cong_get(cqe);
+	if (cb->rx_md_info.tx_congestion != MLXSW_PCI_CQE2_MIRROR_CONG_INVALID)
+		cb->rx_md_info.tx_congestion_valid = 1;
+	else
+		cb->rx_md_info.tx_congestion_valid = 0;
+	cb->rx_md_info.tx_congestion <<= MLXSW_PCI_CQE2_MIRROR_CONG_SHIFT;
+
+	cb->rx_md_info.latency = mlxsw_pci_cqe2_mirror_latency_get(cqe);
+	if (cb->rx_md_info.latency != MLXSW_PCI_CQE2_MIRROR_LATENCY_INVALID)
+		cb->rx_md_info.latency_valid = 1;
+	else
+		cb->rx_md_info.latency_valid = 0;
+
+	cb->rx_md_info.tx_tc = mlxsw_pci_cqe2_mirror_tclass_get(cqe);
+	if (cb->rx_md_info.tx_tc != MLXSW_PCI_CQE2_MIRROR_TCLASS_INVALID)
+		cb->rx_md_info.tx_tc_valid = 1;
+	else
+		cb->rx_md_info.tx_tc_valid = 0;
+
+	mlxsw_pci_cqe_rdq_md_tx_port_init(skb, cqe);
+}
+
+>>>>>>> upstream/android-13
 static void mlxsw_pci_cqe_rdq_handle(struct mlxsw_pci *mlxsw_pci,
 				     struct mlxsw_pci_queue *q,
 				     u16 consumer_counter_limit,
@@ -532,22 +641,44 @@ static void mlxsw_pci_cqe_rdq_handle(struct mlxsw_pci *mlxsw_pci,
 {
 	struct pci_dev *pdev = mlxsw_pci->pdev;
 	struct mlxsw_pci_queue_elem_info *elem_info;
+<<<<<<< HEAD
 	char *wqe;
 	struct sk_buff *skb;
 	struct mlxsw_rx_info rx_info;
+=======
+	struct mlxsw_rx_info rx_info = {};
+	char wqe[MLXSW_PCI_WQE_SIZE];
+	struct sk_buff *skb;
+>>>>>>> upstream/android-13
 	u16 byte_count;
 	int err;
 
 	elem_info = mlxsw_pci_queue_elem_info_consumer_get(q);
+<<<<<<< HEAD
 	skb = elem_info->u.sdq.skb;
 	if (!skb)
 		return;
 	wqe = elem_info->elem;
 	mlxsw_pci_wqe_frag_unmap(mlxsw_pci, wqe, 0, DMA_FROM_DEVICE);
+=======
+	skb = elem_info->u.rdq.skb;
+	memcpy(wqe, elem_info->elem, MLXSW_PCI_WQE_SIZE);
+>>>>>>> upstream/android-13
 
 	if (q->consumer_counter++ != consumer_counter_limit)
 		dev_dbg_ratelimited(&pdev->dev, "Consumer counter does not match limit in RDQ\n");
 
+<<<<<<< HEAD
+=======
+	err = mlxsw_pci_rdq_skb_alloc(mlxsw_pci, elem_info);
+	if (err) {
+		dev_err_ratelimited(&pdev->dev, "Failed to alloc skb for RDQ\n");
+		goto out;
+	}
+
+	mlxsw_pci_wqe_frag_unmap(mlxsw_pci, wqe, 0, DMA_FROM_DEVICE);
+
+>>>>>>> upstream/android-13
 	if (mlxsw_pci_cqe_lag_get(cqe_v, cqe)) {
 		rx_info.is_lag = true;
 		rx_info.u.lag_id = mlxsw_pci_cqe_lag_id_get(cqe_v, cqe);
@@ -560,16 +691,40 @@ static void mlxsw_pci_cqe_rdq_handle(struct mlxsw_pci *mlxsw_pci,
 
 	rx_info.trap_id = mlxsw_pci_cqe_trap_id_get(cqe);
 
+<<<<<<< HEAD
+=======
+	if (rx_info.trap_id == MLXSW_TRAP_ID_DISCARD_INGRESS_ACL ||
+	    rx_info.trap_id == MLXSW_TRAP_ID_DISCARD_EGRESS_ACL) {
+		u32 cookie_index = 0;
+
+		if (mlxsw_pci->max_cqe_ver >= MLXSW_PCI_CQE_V2)
+			cookie_index = mlxsw_pci_cqe2_user_def_val_orig_pkt_len_get(cqe);
+		mlxsw_skb_cb(skb)->rx_md_info.cookie_index = cookie_index;
+	} else if (rx_info.trap_id >= MLXSW_TRAP_ID_MIRROR_SESSION0 &&
+		   rx_info.trap_id <= MLXSW_TRAP_ID_MIRROR_SESSION7 &&
+		   mlxsw_pci->max_cqe_ver >= MLXSW_PCI_CQE_V2) {
+		rx_info.mirror_reason = mlxsw_pci_cqe2_mirror_reason_get(cqe);
+		mlxsw_pci_cqe_rdq_md_init(skb, cqe);
+	} else if (rx_info.trap_id == MLXSW_TRAP_ID_PKT_SAMPLE &&
+		   mlxsw_pci->max_cqe_ver >= MLXSW_PCI_CQE_V2) {
+		mlxsw_pci_cqe_rdq_md_tx_port_init(skb, cqe);
+	}
+
+>>>>>>> upstream/android-13
 	byte_count = mlxsw_pci_cqe_byte_count_get(cqe);
 	if (mlxsw_pci_cqe_crc_get(cqe_v, cqe))
 		byte_count -= ETH_FCS_LEN;
 	skb_put(skb, byte_count);
 	mlxsw_core_skb_receive(mlxsw_pci->core, skb, &rx_info);
 
+<<<<<<< HEAD
 	memset(wqe, 0, q->elem_size);
 	err = mlxsw_pci_rdq_skb_alloc(mlxsw_pci, elem_info);
 	if (err)
 		dev_dbg_ratelimited(&pdev->dev, "Failed to alloc skb for RDQ\n");
+=======
+out:
+>>>>>>> upstream/android-13
 	/* Everything is set up, ring doorbell to pass elem to HW */
 	q->producer_counter++;
 	mlxsw_pci_queue_doorbell_producer_ring(mlxsw_pci, q);
@@ -592,9 +747,15 @@ static char *mlxsw_pci_cq_sw_cqe_get(struct mlxsw_pci_queue *q)
 	return elem;
 }
 
+<<<<<<< HEAD
 static void mlxsw_pci_cq_tasklet(unsigned long data)
 {
 	struct mlxsw_pci_queue *q = (struct mlxsw_pci_queue *) data;
+=======
+static void mlxsw_pci_cq_tasklet(struct tasklet_struct *t)
+{
+	struct mlxsw_pci_queue *q = from_tasklet(q, t, tasklet);
+>>>>>>> upstream/android-13
 	struct mlxsw_pci *mlxsw_pci = q->pci;
 	char *cqe;
 	int items = 0;
@@ -705,9 +866,15 @@ static char *mlxsw_pci_eq_sw_eqe_get(struct mlxsw_pci_queue *q)
 	return elem;
 }
 
+<<<<<<< HEAD
 static void mlxsw_pci_eq_tasklet(unsigned long data)
 {
 	struct mlxsw_pci_queue *q = (struct mlxsw_pci_queue *) data;
+=======
+static void mlxsw_pci_eq_tasklet(struct tasklet_struct *t)
+{
+	struct mlxsw_pci_queue *q = from_tasklet(q, t, tasklet);
+>>>>>>> upstream/android-13
 	struct mlxsw_pci *mlxsw_pci = q->pci;
 	u8 cq_count = mlxsw_pci_cq_count(mlxsw_pci);
 	unsigned long active_cqns[BITS_TO_LONGS(MLXSW_PCI_CQS_MAX)];
@@ -764,7 +931,11 @@ struct mlxsw_pci_queue_ops {
 		    struct mlxsw_pci_queue *q);
 	void (*fini)(struct mlxsw_pci *mlxsw_pci,
 		     struct mlxsw_pci_queue *q);
+<<<<<<< HEAD
 	void (*tasklet)(unsigned long data);
+=======
+	void (*tasklet)(struct tasklet_struct *t);
+>>>>>>> upstream/android-13
 	u16 (*elem_count_f)(const struct mlxsw_pci_queue *q);
 	u8 (*elem_size_f)(const struct mlxsw_pci_queue *q);
 	u16 elem_count;
@@ -827,6 +998,7 @@ static int mlxsw_pci_queue_init(struct mlxsw_pci *mlxsw_pci, char *mbox,
 	q->pci = mlxsw_pci;
 
 	if (q_ops->tasklet)
+<<<<<<< HEAD
 		tasklet_init(&q->tasklet, q_ops->tasklet, (unsigned long) q);
 
 	mem_item->size = MLXSW_PCI_AQ_SIZE;
@@ -836,6 +1008,16 @@ static int mlxsw_pci_queue_init(struct mlxsw_pci *mlxsw_pci, char *mbox,
 	if (!mem_item->buf)
 		return -ENOMEM;
 	memset(mem_item->buf, 0, mem_item->size);
+=======
+		tasklet_setup(&q->tasklet, q_ops->tasklet);
+
+	mem_item->size = MLXSW_PCI_AQ_SIZE;
+	mem_item->buf = dma_alloc_coherent(&mlxsw_pci->pdev->dev,
+					   mem_item->size, &mem_item->mapaddr,
+					   GFP_KERNEL);
+	if (!mem_item->buf)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	q->elem_info = kcalloc(q->count, sizeof(*q->elem_info), GFP_KERNEL);
 	if (!q->elem_info) {
@@ -863,8 +1045,13 @@ static int mlxsw_pci_queue_init(struct mlxsw_pci *mlxsw_pci, char *mbox,
 err_q_ops_init:
 	kfree(q->elem_info);
 err_elem_info_alloc:
+<<<<<<< HEAD
 	pci_free_consistent(mlxsw_pci->pdev, mem_item->size,
 			    mem_item->buf, mem_item->mapaddr);
+=======
+	dma_free_coherent(&mlxsw_pci->pdev->dev, mem_item->size,
+			  mem_item->buf, mem_item->mapaddr);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -876,8 +1063,13 @@ static void mlxsw_pci_queue_fini(struct mlxsw_pci *mlxsw_pci,
 
 	q_ops->fini(mlxsw_pci, q);
 	kfree(q->elem_info);
+<<<<<<< HEAD
 	pci_free_consistent(mlxsw_pci->pdev, mem_item->size,
 			    mem_item->buf, mem_item->mapaddr);
+=======
+	dma_free_coherent(&mlxsw_pci->pdev->dev, mem_item->size,
+			  mem_item->buf, mem_item->mapaddr);
+>>>>>>> upstream/android-13
 }
 
 static int mlxsw_pci_queue_group_init(struct mlxsw_pci *mlxsw_pci, char *mbox,
@@ -952,6 +1144,10 @@ static int mlxsw_pci_aqs_init(struct mlxsw_pci *mlxsw_pci, char *mbox)
 	eq_log2sz = mlxsw_cmd_mbox_query_aq_cap_log_max_eq_sz_get(mbox);
 
 	if (num_sdqs + num_rdqs > num_cqs ||
+<<<<<<< HEAD
+=======
+	    num_sdqs < MLXSW_PCI_SDQS_MIN ||
+>>>>>>> upstream/android-13
 	    num_cqs > MLXSW_PCI_CQS_MAX || num_eqs != MLXSW_PCI_EQS_COUNT) {
 		dev_err(&pdev->dev, "Unsupported number of queues\n");
 		return -EINVAL;
@@ -1039,6 +1235,7 @@ mlxsw_pci_config_profile_swid_config(struct mlxsw_pci *mlxsw_pci,
 	mlxsw_cmd_mbox_config_profile_swid_config_mask_set(mbox, index, mask);
 }
 
+<<<<<<< HEAD
 static int mlxsw_pci_resources_query(struct mlxsw_pci *mlxsw_pci, char *mbox,
 				     struct mlxsw_res *res)
 {
@@ -1075,6 +1272,8 @@ static int mlxsw_pci_resources_query(struct mlxsw_pci *mlxsw_pci, char *mbox,
 	return -EIO;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int
 mlxsw_pci_profile_get_kvd_sizes(const struct mlxsw_pci *mlxsw_pci,
 				const struct mlxsw_config_profile *profile,
@@ -1204,6 +1403,15 @@ static int mlxsw_pci_config_profile(struct mlxsw_pci *mlxsw_pci, char *mbox,
 		mlxsw_cmd_mbox_config_profile_kvd_hash_double_size_set(mbox,
 					MLXSW_RES_GET(res, KVD_DOUBLE_SIZE));
 	}
+<<<<<<< HEAD
+=======
+	if (profile->used_kvh_xlt_cache_mode) {
+		mlxsw_cmd_mbox_config_profile_set_kvh_xlt_cache_mode_set(
+			mbox, 1);
+		mlxsw_cmd_mbox_config_profile_kvh_xlt_cache_mode_set(
+			mbox, profile->kvh_xlt_cache_mode);
+	}
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < MLXSW_CONFIG_PROFILE_SWID_COUNT; i++)
 		mlxsw_pci_config_profile_swid_config(mlxsw_pci, mbox, i,
@@ -1217,6 +1425,33 @@ static int mlxsw_pci_config_profile(struct mlxsw_pci *mlxsw_pci, char *mbox,
 	return mlxsw_cmd_config_profile_set(mlxsw_pci->core, mbox);
 }
 
+<<<<<<< HEAD
+=======
+static int mlxsw_pci_boardinfo_xm_process(struct mlxsw_pci *mlxsw_pci,
+					  struct mlxsw_bus_info *bus_info,
+					  char *mbox)
+{
+	int count = mlxsw_cmd_mbox_boardinfo_xm_num_local_ports_get(mbox);
+	int i;
+
+	if (!mlxsw_cmd_mbox_boardinfo_xm_exists_get(mbox))
+		return 0;
+
+	bus_info->xm_exists = true;
+
+	if (count > MLXSW_BUS_INFO_XM_LOCAL_PORTS_MAX) {
+		dev_err(&mlxsw_pci->pdev->dev, "Invalid number of XM local ports\n");
+		return -EINVAL;
+	}
+	bus_info->xm_local_ports_count = count;
+	for (i = 0; i < count; i++)
+		bus_info->xm_local_ports[i] =
+			mlxsw_cmd_mbox_boardinfo_xm_local_port_entry_get(mbox,
+									 i);
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int mlxsw_pci_boardinfo(struct mlxsw_pci *mlxsw_pci, char *mbox)
 {
 	struct mlxsw_bus_info *bus_info = &mlxsw_pci->bus_info;
@@ -1228,7 +1463,12 @@ static int mlxsw_pci_boardinfo(struct mlxsw_pci *mlxsw_pci, char *mbox)
 		return err;
 	mlxsw_cmd_mbox_boardinfo_vsd_memcpy_from(mbox, bus_info->vsd);
 	mlxsw_cmd_mbox_boardinfo_psid_memcpy_from(mbox, bus_info->psid);
+<<<<<<< HEAD
 	return 0;
+=======
+
+	return mlxsw_pci_boardinfo_xm_process(mlxsw_pci, bus_info, mbox);
+>>>>>>> upstream/android-13
 }
 
 static int mlxsw_pci_fw_area_init(struct mlxsw_pci *mlxsw_pci, char *mbox,
@@ -1250,9 +1490,15 @@ static int mlxsw_pci_fw_area_init(struct mlxsw_pci *mlxsw_pci, char *mbox,
 		mem_item = &mlxsw_pci->fw_area.items[i];
 
 		mem_item->size = MLXSW_PCI_PAGE_SIZE;
+<<<<<<< HEAD
 		mem_item->buf = pci_alloc_consistent(mlxsw_pci->pdev,
 						     mem_item->size,
 						     &mem_item->mapaddr);
+=======
+		mem_item->buf = dma_alloc_coherent(&mlxsw_pci->pdev->dev,
+						   mem_item->size,
+						   &mem_item->mapaddr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (!mem_item->buf) {
 			err = -ENOMEM;
 			goto err_alloc;
@@ -1281,8 +1527,13 @@ err_alloc:
 	for (i--; i >= 0; i--) {
 		mem_item = &mlxsw_pci->fw_area.items[i];
 
+<<<<<<< HEAD
 		pci_free_consistent(mlxsw_pci->pdev, mem_item->size,
 				    mem_item->buf, mem_item->mapaddr);
+=======
+		dma_free_coherent(&mlxsw_pci->pdev->dev, mem_item->size,
+				  mem_item->buf, mem_item->mapaddr);
+>>>>>>> upstream/android-13
 	}
 	kfree(mlxsw_pci->fw_area.items);
 	return err;
@@ -1298,8 +1549,13 @@ static void mlxsw_pci_fw_area_fini(struct mlxsw_pci *mlxsw_pci)
 	for (i = 0; i < mlxsw_pci->fw_area.count; i++) {
 		mem_item = &mlxsw_pci->fw_area.items[i];
 
+<<<<<<< HEAD
 		pci_free_consistent(mlxsw_pci->pdev, mem_item->size,
 				    mem_item->buf, mem_item->mapaddr);
+=======
+		dma_free_coherent(&mlxsw_pci->pdev->dev, mem_item->size,
+				  mem_item->buf, mem_item->mapaddr);
+>>>>>>> upstream/android-13
 	}
 	kfree(mlxsw_pci->fw_area.items);
 }
@@ -1324,8 +1580,13 @@ static int mlxsw_pci_mbox_alloc(struct mlxsw_pci *mlxsw_pci,
 	int err = 0;
 
 	mbox->size = MLXSW_CMD_MBOX_SIZE;
+<<<<<<< HEAD
 	mbox->buf = pci_alloc_consistent(pdev, MLXSW_CMD_MBOX_SIZE,
 					 &mbox->mapaddr);
+=======
+	mbox->buf = dma_alloc_coherent(&pdev->dev, MLXSW_CMD_MBOX_SIZE,
+				       &mbox->mapaddr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!mbox->buf) {
 		dev_err(&pdev->dev, "Failed allocating memory for mailbox\n");
 		err = -ENOMEM;
@@ -1339,21 +1600,65 @@ static void mlxsw_pci_mbox_free(struct mlxsw_pci *mlxsw_pci,
 {
 	struct pci_dev *pdev = mlxsw_pci->pdev;
 
+<<<<<<< HEAD
 	pci_free_consistent(pdev, MLXSW_CMD_MBOX_SIZE, mbox->buf,
 			    mbox->mapaddr);
+=======
+	dma_free_coherent(&pdev->dev, MLXSW_CMD_MBOX_SIZE, mbox->buf,
+			  mbox->mapaddr);
+}
+
+static int mlxsw_pci_sys_ready_wait(struct mlxsw_pci *mlxsw_pci,
+				    const struct pci_device_id *id,
+				    u32 *p_sys_status)
+{
+	unsigned long end;
+	u32 val;
+
+	/* We must wait for the HW to become responsive. */
+	msleep(MLXSW_PCI_SW_RESET_WAIT_MSECS);
+
+	end = jiffies + msecs_to_jiffies(MLXSW_PCI_SW_RESET_TIMEOUT_MSECS);
+	do {
+		val = mlxsw_pci_read32(mlxsw_pci, FW_READY);
+		if ((val & MLXSW_PCI_FW_READY_MASK) == MLXSW_PCI_FW_READY_MAGIC)
+			return 0;
+		cond_resched();
+	} while (time_before(jiffies, end));
+
+	*p_sys_status = val & MLXSW_PCI_FW_READY_MASK;
+
+	return -EBUSY;
+>>>>>>> upstream/android-13
 }
 
 static int mlxsw_pci_sw_reset(struct mlxsw_pci *mlxsw_pci,
 			      const struct pci_device_id *id)
 {
+<<<<<<< HEAD
 	unsigned long end;
 	char mrsr_pl[MLXSW_REG_MRSR_LEN];
 	int err;
 
+=======
+	struct pci_dev *pdev = mlxsw_pci->pdev;
+	char mrsr_pl[MLXSW_REG_MRSR_LEN];
+	u32 sys_status;
+	int err;
+
+	err = mlxsw_pci_sys_ready_wait(mlxsw_pci, id, &sys_status);
+	if (err) {
+		dev_err(&pdev->dev, "Failed to reach system ready status before reset. Status is 0x%x\n",
+			sys_status);
+		return err;
+	}
+
+>>>>>>> upstream/android-13
 	mlxsw_reg_mrsr_pack(mrsr_pl);
 	err = mlxsw_reg_write(mlxsw_pci->core, MLXSW_REG(mrsr), mrsr_pl);
 	if (err)
 		return err;
+<<<<<<< HEAD
 	if (id->device == PCI_DEVICE_ID_MELLANOX_SWITCHX2) {
 		msleep(MLXSW_PCI_SW_RESET_TIMEOUT_MSECS);
 		return 0;
@@ -1371,6 +1676,17 @@ static int mlxsw_pci_sw_reset(struct mlxsw_pci *mlxsw_pci,
 		cond_resched();
 	} while (time_before(jiffies, end));
 	return -EBUSY;
+=======
+
+	err = mlxsw_pci_sys_ready_wait(mlxsw_pci, id, &sys_status);
+	if (err) {
+		dev_err(&pdev->dev, "Failed to reach system ready status after reset. Status is 0x%x\n",
+			sys_status);
+		return err;
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int mlxsw_pci_alloc_irq_vectors(struct mlxsw_pci *mlxsw_pci)
@@ -1398,15 +1714,19 @@ static int mlxsw_pci_init(void *bus_priv, struct mlxsw_core *mlxsw_core,
 	u16 num_pages;
 	int err;
 
+<<<<<<< HEAD
 	mutex_init(&mlxsw_pci->cmd.lock);
 	init_waitqueue_head(&mlxsw_pci->cmd.wait);
 
+=======
+>>>>>>> upstream/android-13
 	mlxsw_pci->core = mlxsw_core;
 
 	mbox = mlxsw_cmd_mbox_alloc();
 	if (!mbox)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	err = mlxsw_pci_mbox_alloc(mlxsw_pci, &mlxsw_pci->cmd.in_mbox);
 	if (err)
 		goto mbox_put;
@@ -1415,6 +1735,8 @@ static int mlxsw_pci_init(void *bus_priv, struct mlxsw_core *mlxsw_core,
 	if (err)
 		goto err_out_mbox_alloc;
 
+=======
+>>>>>>> upstream/android-13
 	err = mlxsw_pci_sw_reset(mlxsw_pci, mlxsw_pci->id);
 	if (err)
 		goto err_sw_reset;
@@ -1450,6 +1772,18 @@ static int mlxsw_pci_init(void *bus_priv, struct mlxsw_core *mlxsw_core,
 	mlxsw_pci->doorbell_offset =
 		mlxsw_cmd_mbox_query_fw_doorbell_page_offset_get(mbox);
 
+<<<<<<< HEAD
+=======
+	if (mlxsw_cmd_mbox_query_fw_fr_rn_clk_bar_get(mbox) != 0) {
+		dev_err(&pdev->dev, "Unsupported free running clock BAR queried from hw\n");
+		err = -EINVAL;
+		goto err_fr_rn_clk_bar;
+	}
+
+	mlxsw_pci->free_running_clock_offset =
+		mlxsw_cmd_mbox_query_fw_free_running_clock_offset_get(mbox);
+
+>>>>>>> upstream/android-13
 	num_pages = mlxsw_cmd_mbox_query_fw_fw_pages_get(mbox);
 	err = mlxsw_pci_fw_area_init(mlxsw_pci, mbox, num_pages);
 	if (err)
@@ -1459,7 +1793,11 @@ static int mlxsw_pci_init(void *bus_priv, struct mlxsw_core *mlxsw_core,
 	if (err)
 		goto err_boardinfo;
 
+<<<<<<< HEAD
 	err = mlxsw_pci_resources_query(mlxsw_pci, mbox, res);
+=======
+	err = mlxsw_core_resources_query(mlxsw_core, mbox, res);
+>>>>>>> upstream/android-13
 	if (err)
 		goto err_query_resources;
 
@@ -1505,15 +1843,22 @@ err_query_resources:
 err_boardinfo:
 	mlxsw_pci_fw_area_fini(mlxsw_pci);
 err_fw_area_init:
+<<<<<<< HEAD
+=======
+err_fr_rn_clk_bar:
+>>>>>>> upstream/android-13
 err_doorbell_page_bar:
 err_iface_rev:
 err_query_fw:
 	mlxsw_pci_free_irq_vectors(mlxsw_pci);
 err_alloc_irq:
 err_sw_reset:
+<<<<<<< HEAD
 	mlxsw_pci_mbox_free(mlxsw_pci, &mlxsw_pci->cmd.out_mbox);
 err_out_mbox_alloc:
 	mlxsw_pci_mbox_free(mlxsw_pci, &mlxsw_pci->cmd.in_mbox);
+=======
+>>>>>>> upstream/android-13
 mbox_put:
 	mlxsw_cmd_mbox_free(mbox);
 	return err;
@@ -1527,15 +1872,30 @@ static void mlxsw_pci_fini(void *bus_priv)
 	mlxsw_pci_aqs_fini(mlxsw_pci);
 	mlxsw_pci_fw_area_fini(mlxsw_pci);
 	mlxsw_pci_free_irq_vectors(mlxsw_pci);
+<<<<<<< HEAD
 	mlxsw_pci_mbox_free(mlxsw_pci, &mlxsw_pci->cmd.out_mbox);
 	mlxsw_pci_mbox_free(mlxsw_pci, &mlxsw_pci->cmd.in_mbox);
+=======
+>>>>>>> upstream/android-13
 }
 
 static struct mlxsw_pci_queue *
 mlxsw_pci_sdq_pick(struct mlxsw_pci *mlxsw_pci,
 		   const struct mlxsw_tx_info *tx_info)
 {
+<<<<<<< HEAD
 	u8 sdqn = tx_info->local_port % mlxsw_pci_sdq_count(mlxsw_pci);
+=======
+	u8 ctl_sdq_count = mlxsw_pci_sdq_count(mlxsw_pci) - 1;
+	u8 sdqn;
+
+	if (tx_info->is_emad) {
+		sdqn = MLXSW_PCI_SDQ_EMAD_INDEX;
+	} else {
+		BUILD_BUG_ON(MLXSW_PCI_SDQ_EMAD_INDEX != 0);
+		sdqn = 1 + (tx_info->local_port % ctl_sdq_count);
+	}
+>>>>>>> upstream/android-13
 
 	return mlxsw_pci_sdq_get(mlxsw_pci, sdqn);
 }
@@ -1573,11 +1933,19 @@ static int mlxsw_pci_skb_transmit(void *bus_priv, struct sk_buff *skb,
 		err = -EAGAIN;
 		goto unlock;
 	}
+<<<<<<< HEAD
+=======
+	mlxsw_skb_cb(skb)->tx_info = *tx_info;
+>>>>>>> upstream/android-13
 	elem_info->u.sdq.skb = skb;
 
 	wqe = elem_info->elem;
 	mlxsw_pci_wqe_c_set(wqe, 1); /* always report completion */
+<<<<<<< HEAD
 	mlxsw_pci_wqe_lp_set(wqe, !!tx_info->is_emad);
+=======
+	mlxsw_pci_wqe_lp_set(wqe, 0);
+>>>>>>> upstream/android-13
 	mlxsw_pci_wqe_type_set(wqe, MLXSW_PCI_WQE_TYPE_ETHERNET);
 
 	err = mlxsw_pci_wqe_frag_map(mlxsw_pci, wqe, 0, skb->data,
@@ -1596,6 +1964,12 @@ static int mlxsw_pci_skb_transmit(void *bus_priv, struct sk_buff *skb,
 			goto unmap_frags;
 	}
 
+<<<<<<< HEAD
+=======
+	if (unlikely(skb_shinfo(skb)->tx_flags & SKBTX_HW_TSTAMP))
+		skb_shinfo(skb)->tx_flags |= SKBTX_IN_PROGRESS;
+
+>>>>>>> upstream/android-13
 	/* Set unused sq entries byte count to zero. */
 	for (i++; i < MLXSW_PCI_WQE_SG_ENTRIES; i++)
 		mlxsw_pci_wqe_byte_count_set(wqe, i, 0);
@@ -1708,6 +2082,27 @@ static int mlxsw_pci_cmd_exec(void *bus_priv, u16 opcode, u8 opcode_mod,
 	return err;
 }
 
+<<<<<<< HEAD
+=======
+static u32 mlxsw_pci_read_frc_h(void *bus_priv)
+{
+	struct mlxsw_pci *mlxsw_pci = bus_priv;
+	u64 frc_offset;
+
+	frc_offset = mlxsw_pci->free_running_clock_offset;
+	return mlxsw_pci_read32(mlxsw_pci, FREE_RUNNING_CLOCK_H(frc_offset));
+}
+
+static u32 mlxsw_pci_read_frc_l(void *bus_priv)
+{
+	struct mlxsw_pci *mlxsw_pci = bus_priv;
+	u64 frc_offset;
+
+	frc_offset = mlxsw_pci->free_running_clock_offset;
+	return mlxsw_pci_read32(mlxsw_pci, FREE_RUNNING_CLOCK_L(frc_offset));
+}
+
+>>>>>>> upstream/android-13
 static const struct mlxsw_bus mlxsw_pci_bus = {
 	.kind			= "pci",
 	.init			= mlxsw_pci_init,
@@ -1715,14 +2110,56 @@ static const struct mlxsw_bus mlxsw_pci_bus = {
 	.skb_transmit_busy	= mlxsw_pci_skb_transmit_busy,
 	.skb_transmit		= mlxsw_pci_skb_transmit,
 	.cmd_exec		= mlxsw_pci_cmd_exec,
+<<<<<<< HEAD
 	.features		= MLXSW_BUS_F_TXRX | MLXSW_BUS_F_RESET,
 };
 
+=======
+	.read_frc_h		= mlxsw_pci_read_frc_h,
+	.read_frc_l		= mlxsw_pci_read_frc_l,
+	.features		= MLXSW_BUS_F_TXRX | MLXSW_BUS_F_RESET,
+};
+
+static int mlxsw_pci_cmd_init(struct mlxsw_pci *mlxsw_pci)
+{
+	int err;
+
+	mutex_init(&mlxsw_pci->cmd.lock);
+	init_waitqueue_head(&mlxsw_pci->cmd.wait);
+
+	err = mlxsw_pci_mbox_alloc(mlxsw_pci, &mlxsw_pci->cmd.in_mbox);
+	if (err)
+		goto err_in_mbox_alloc;
+
+	err = mlxsw_pci_mbox_alloc(mlxsw_pci, &mlxsw_pci->cmd.out_mbox);
+	if (err)
+		goto err_out_mbox_alloc;
+
+	return 0;
+
+err_out_mbox_alloc:
+	mlxsw_pci_mbox_free(mlxsw_pci, &mlxsw_pci->cmd.in_mbox);
+err_in_mbox_alloc:
+	mutex_destroy(&mlxsw_pci->cmd.lock);
+	return err;
+}
+
+static void mlxsw_pci_cmd_fini(struct mlxsw_pci *mlxsw_pci)
+{
+	mlxsw_pci_mbox_free(mlxsw_pci, &mlxsw_pci->cmd.out_mbox);
+	mlxsw_pci_mbox_free(mlxsw_pci, &mlxsw_pci->cmd.in_mbox);
+	mutex_destroy(&mlxsw_pci->cmd.lock);
+}
+
+>>>>>>> upstream/android-13
 static int mlxsw_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 {
 	const char *driver_name = pdev->driver->name;
 	struct mlxsw_pci *mlxsw_pci;
+<<<<<<< HEAD
 	bool called_again = false;
+=======
+>>>>>>> upstream/android-13
 	int err;
 
 	mlxsw_pci = kzalloc(sizeof(*mlxsw_pci), GFP_KERNEL);
@@ -1741,6 +2178,7 @@ static int mlxsw_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 		goto err_pci_request_regions;
 	}
 
+<<<<<<< HEAD
 	err = pci_set_dma_mask(pdev, DMA_BIT_MASK(64));
 	if (!err) {
 		err = pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(64));
@@ -1752,6 +2190,13 @@ static int mlxsw_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 		err = pci_set_dma_mask(pdev, DMA_BIT_MASK(32));
 		if (err) {
 			dev_err(&pdev->dev, "pci_set_dma_mask failed\n");
+=======
+	err = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
+	if (err) {
+		err = dma_set_mask(&pdev->dev, DMA_BIT_MASK(32));
+		if (err) {
+			dev_err(&pdev->dev, "dma_set_mask failed\n");
+>>>>>>> upstream/android-13
 			goto err_pci_set_dma_mask;
 		}
 	}
@@ -1774,6 +2219,7 @@ static int mlxsw_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	mlxsw_pci->pdev = pdev;
 	pci_set_drvdata(pdev, mlxsw_pci);
 
+<<<<<<< HEAD
 	mlxsw_pci->bus_info.device_kind = driver_name;
 	mlxsw_pci->bus_info.device_name = pci_name(mlxsw_pci->pdev);
 	mlxsw_pci->bus_info.dev = &pdev->dev;
@@ -1791,6 +2237,22 @@ again:
 		called_again = true;
 		goto again;
 	} else if (err) {
+=======
+	err = mlxsw_pci_cmd_init(mlxsw_pci);
+	if (err)
+		goto err_pci_cmd_init;
+
+	mlxsw_pci->bus_info.device_kind = driver_name;
+	mlxsw_pci->bus_info.device_name = pci_name(mlxsw_pci->pdev);
+	mlxsw_pci->bus_info.dev = &pdev->dev;
+	mlxsw_pci->bus_info.read_frc_capable = true;
+	mlxsw_pci->id = id;
+
+	err = mlxsw_core_bus_device_register(&mlxsw_pci->bus_info,
+					     &mlxsw_pci_bus, mlxsw_pci, false,
+					     NULL, NULL);
+	if (err) {
+>>>>>>> upstream/android-13
 		dev_err(&pdev->dev, "cannot register bus device\n");
 		goto err_bus_device_register;
 	}
@@ -1798,6 +2260,11 @@ again:
 	return 0;
 
 err_bus_device_register:
+<<<<<<< HEAD
+=======
+	mlxsw_pci_cmd_fini(mlxsw_pci);
+err_pci_cmd_init:
+>>>>>>> upstream/android-13
 	iounmap(mlxsw_pci->hw_addr);
 err_ioremap:
 err_pci_resource_len_check:
@@ -1815,6 +2282,10 @@ static void mlxsw_pci_remove(struct pci_dev *pdev)
 	struct mlxsw_pci *mlxsw_pci = pci_get_drvdata(pdev);
 
 	mlxsw_core_bus_device_unregister(mlxsw_pci->core, false);
+<<<<<<< HEAD
+=======
+	mlxsw_pci_cmd_fini(mlxsw_pci);
+>>>>>>> upstream/android-13
 	iounmap(mlxsw_pci->hw_addr);
 	pci_release_regions(mlxsw_pci->pdev);
 	pci_disable_device(mlxsw_pci->pdev);
@@ -1825,6 +2296,10 @@ int mlxsw_pci_driver_register(struct pci_driver *pci_driver)
 {
 	pci_driver->probe = mlxsw_pci_probe;
 	pci_driver->remove = mlxsw_pci_remove;
+<<<<<<< HEAD
+=======
+	pci_driver->shutdown = mlxsw_pci_remove;
+>>>>>>> upstream/android-13
 	return pci_register_driver(pci_driver);
 }
 EXPORT_SYMBOL(mlxsw_pci_driver_register);

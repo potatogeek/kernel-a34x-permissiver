@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * pluto2.c - Satelco Easywatch Mobile Terrestrial Receiver [DVB-T]
  *
@@ -6,6 +10,7 @@
  * based on pluto2.c 1.10 - http://instinct-wp8.no-ip.org/pluto/
  *	by Dany Salman <salmandany@yahoo.fr>
  *	Copyright (c) 2004 TDF
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/i2c.h>
@@ -633,7 +640,11 @@ static int pluto2_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 
 	/* i2c */
 	i2c_set_adapdata(&pluto->i2c_adap, pluto);
+<<<<<<< HEAD
 	strcpy(pluto->i2c_adap.name, DRIVER_NAME);
+=======
+	strscpy(pluto->i2c_adap.name, DRIVER_NAME, sizeof(pluto->i2c_adap.name));
+>>>>>>> upstream/android-13
 	pluto->i2c_adap.owner = THIS_MODULE;
 	pluto->i2c_adap.dev.parent = &pdev->dev;
 	pluto->i2c_adap.algo_data = &pluto->i2c_bit;

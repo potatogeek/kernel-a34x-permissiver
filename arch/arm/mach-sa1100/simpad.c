@@ -18,7 +18,10 @@
 #include <linux/mtd/partitions.h>
 #include <linux/io.h>
 #include <linux/gpio/driver.h>
+<<<<<<< HEAD
 #include <linux/gpio/machine.h>
+=======
+>>>>>>> upstream/android-13
 
 #include <mach/hardware.h>
 #include <asm/setup.h>

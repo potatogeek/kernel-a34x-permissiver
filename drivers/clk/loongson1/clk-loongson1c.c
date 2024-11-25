@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016 Yang Ling <gnaygnil@gmail.com>
  *
@@ -5,10 +6,19 @@
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2016 Yang Ling <gnaygnil@gmail.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clkdev.h>
 #include <linux/clk-provider.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 
 #include <loongson1.h>
 #include "clk.h"
@@ -40,6 +50,10 @@ static const struct clk_div_table ahb_div_table[] = {
 	[1] = { .val = 1, .div = 4 },
 	[2] = { .val = 2, .div = 3 },
 	[3] = { .val = 3, .div = 3 },
+<<<<<<< HEAD
+=======
+	[4] = { /* sentinel */ }
+>>>>>>> upstream/android-13
 };
 
 void __init ls1x_clk_init(void)

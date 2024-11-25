@@ -11,7 +11,10 @@
 /* Intel specific MSRs */
 #define MSR_IA32_PERF_STATUS		0x198
 #define MSR_IA32_MISC_ENABLES		0x1a0
+<<<<<<< HEAD
 #define MSR_IA32_ENERGY_PERF_BIAS	0x1b0
+=======
+>>>>>>> upstream/android-13
 #define MSR_NEHALEM_TURBO_RATIO_LIMIT	0x1ad
 
 /*
@@ -73,6 +76,7 @@ int write_msr(int cpu, unsigned int idx, unsigned long long val)
 	return -1;
 }
 
+<<<<<<< HEAD
 int msr_intel_get_perf_bias(unsigned int cpu)
 {
 	unsigned long long val;
@@ -100,6 +104,8 @@ int msr_intel_set_perf_bias(unsigned int cpu, unsigned int val)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 unsigned long long msr_intel_get_turbo_ratio(unsigned int cpu)
 {
 	unsigned long long val;

@@ -58,7 +58,11 @@
 &emac {
 	pinctrl-names = "default";
 	pinctrl-0 = <&emac_pins>;
+<<<<<<< HEAD
 	phy = <&phy1>;
+=======
+	phy-handle = <&phy1>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 

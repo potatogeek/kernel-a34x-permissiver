@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * pata_mpiix.c 	- Intel MPIIX PATA for new ATA layer
  *			  (C) 2005-2006 Red Hat Inc

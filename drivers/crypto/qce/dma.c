@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2012-2014, The Linux Foundation. All rights reserved.
  *
@@ -9,6 +10,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2012-2014, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/dmaengine.h>
@@ -20,11 +26,19 @@ int qce_dma_request(struct device *dev, struct qce_dma_data *dma)
 {
 	int ret;
 
+<<<<<<< HEAD
 	dma->txchan = dma_request_slave_channel_reason(dev, "tx");
 	if (IS_ERR(dma->txchan))
 		return PTR_ERR(dma->txchan);
 
 	dma->rxchan = dma_request_slave_channel_reason(dev, "rx");
+=======
+	dma->txchan = dma_request_chan(dev, "tx");
+	if (IS_ERR(dma->txchan))
+		return PTR_ERR(dma->txchan);
+
+	dma->rxchan = dma_request_chan(dev, "rx");
+>>>>>>> upstream/android-13
 	if (IS_ERR(dma->rxchan)) {
 		ret = PTR_ERR(dma->rxchan);
 		goto error_rx;
@@ -55,9 +69,17 @@ void qce_dma_release(struct qce_dma_data *dma)
 }
 
 struct scatterlist *
+<<<<<<< HEAD
 qce_sgtable_add(struct sg_table *sgt, struct scatterlist *new_sgl)
 {
 	struct scatterlist *sg = sgt->sgl, *sg_last = NULL;
+=======
+qce_sgtable_add(struct sg_table *sgt, struct scatterlist *new_sgl,
+		unsigned int max_len)
+{
+	struct scatterlist *sg = sgt->sgl, *sg_last = NULL;
+	unsigned int new_len;
+>>>>>>> upstream/android-13
 
 	while (sg) {
 		if (!sg_page(sg))
@@ -68,12 +90,22 @@ qce_sgtable_add(struct sg_table *sgt, struct scatterlist *new_sgl)
 	if (!sg)
 		return ERR_PTR(-EINVAL);
 
+<<<<<<< HEAD
 	while (new_sgl && sg) {
 		sg_set_page(sg, sg_page(new_sgl), new_sgl->length,
 			    new_sgl->offset);
 		sg_last = sg;
 		sg = sg_next(sg);
 		new_sgl = sg_next(new_sgl);
+=======
+	while (new_sgl && sg && max_len) {
+		new_len = new_sgl->length > max_len ? max_len : new_sgl->length;
+		sg_set_page(sg, sg_page(new_sgl), new_len, new_sgl->offset);
+		sg_last = sg;
+		sg = sg_next(sg);
+		new_sgl = sg_next(new_sgl);
+		max_len -= new_len;
+>>>>>>> upstream/android-13
 	}
 
 	return sg_last;

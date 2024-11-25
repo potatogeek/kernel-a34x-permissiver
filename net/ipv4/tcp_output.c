@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * INET		An implementation of the TCP/IP protocol suite for the LINUX
  *		operating system.  INET is implemented using the  BSD Socket
@@ -37,6 +41,10 @@
 #define pr_fmt(fmt) "TCP: " fmt
 
 #include <net/tcp.h>
+<<<<<<< HEAD
+=======
+#include <net/mptcp.h>
+>>>>>>> upstream/android-13
 
 #include <linux/compiler.h>
 #include <linux/gfp.h>
@@ -45,6 +53,20 @@
 
 #include <trace/events/tcp.h>
 
+<<<<<<< HEAD
+=======
+/* Refresh clocks of a TCP socket,
+ * ensuring monotically increasing values.
+ */
+void tcp_mstamp_refresh(struct tcp_sock *tp)
+{
+	u64 val = tcp_clock_ns();
+
+	tp->tcp_clock_cache = val;
+	tp->tcp_mstamp = div_u64(val, NSEC_PER_USEC);
+}
+
+>>>>>>> upstream/android-13
 static bool tcp_write_xmit(struct sock *sk, unsigned int mss_now, int nonagle,
 			   int push_one, gfp_t gfp);
 
@@ -55,7 +77,11 @@ static void tcp_event_new_data_sent(struct sock *sk, struct sk_buff *skb)
 	struct tcp_sock *tp = tcp_sk(sk);
 	unsigned int prior_packets = tp->packets_out;
 
+<<<<<<< HEAD
 	tp->snd_nxt = TCP_SKB_CB(skb)->end_seq;
+=======
+	WRITE_ONCE(tp->snd_nxt, TCP_SKB_CB(skb)->end_seq);
+>>>>>>> upstream/android-13
 
 	__skb_unlink(skb, &sk->sk_write_queue);
 	tcp_rbtree_insert(&sk->tcp_rtx_queue, skb);
@@ -69,6 +95,10 @@ static void tcp_event_new_data_sent(struct sock *sk, struct sk_buff *skb)
 
 	NET_ADD_STATS(sock_net(sk), LINUX_MIB_TCPORIGDATASENT,
 		      tcp_skb_pcount(skb));
+<<<<<<< HEAD
+=======
+	tcp_check_space(sk);
+>>>>>>> upstream/android-13
 }
 
 /* SND.NXT, if window was not shrunk or the amount of shrunk was less than one
@@ -153,6 +183,7 @@ static void tcp_event_data_sent(struct tcp_sock *tp,
 	if (tcp_packets_in_flight(tp) == 0)
 		tcp_ca_event(sk, CA_EVENT_TX_START);
 
+<<<<<<< HEAD
 	tp->lsndtime = now;
 
 	/* If it is a reply for ato after last received
@@ -160,6 +191,18 @@ static void tcp_event_data_sent(struct tcp_sock *tp,
 	 */
 	if ((u32)(now - icsk->icsk_ack.lrcvtime) < icsk->icsk_ack.ato)
 		icsk->icsk_ack.pingpong = 1;
+=======
+	/* If this is the first data packet sent in response to the
+	 * previous received data,
+	 * and it is a reply for ato after last received packet,
+	 * increase pingpong count.
+	 */
+	if (before(tp->lsndtime, icsk->icsk_ack.lrcvtime) &&
+	    (u32)(now - icsk->icsk_ack.lrcvtime) < icsk->icsk_ack.ato)
+		inet_csk_inc_pingpong_cnt(sk);
+
+	tp->lsndtime = now;
+>>>>>>> upstream/android-13
 }
 
 /* Account for an ACK we sent. */
@@ -168,10 +211,17 @@ static inline void tcp_event_ack_sent(struct sock *sk, unsigned int pkts,
 {
 	struct tcp_sock *tp = tcp_sk(sk);
 
+<<<<<<< HEAD
 	if (unlikely(tp->compressed_ack > TCP_FASTRETRANS_THRESH)) {
 		NET_ADD_STATS(sock_net(sk), LINUX_MIB_TCPACKCOMPRESSED,
 			      tp->compressed_ack - TCP_FASTRETRANS_THRESH);
 		tp->compressed_ack = TCP_FASTRETRANS_THRESH;
+=======
+	if (unlikely(tp->compressed_ack)) {
+		NET_ADD_STATS(sock_net(sk), LINUX_MIB_TCPACKCOMPRESSED,
+			      tp->compressed_ack);
+		tp->compressed_ack = 0;
+>>>>>>> upstream/android-13
 		if (hrtimer_try_to_cancel(&tp->compressed_ack_timer) == 1)
 			__sock_put(sk);
 	}
@@ -221,16 +271,25 @@ void tcp_select_initial_window(const struct sock *sk, int __space, __u32 mss,
 	if (init_rcv_wnd)
 		*rcv_wnd = min(*rcv_wnd, init_rcv_wnd * mss);
 
+<<<<<<< HEAD
 	(*rcv_wscale) = 0;
+=======
+	*rcv_wscale = 0;
+>>>>>>> upstream/android-13
 	if (wscale_ok) {
 		/* Set window scaling on max possible window */
 		space = max_t(u32, space, sock_net(sk)->ipv4.sysctl_tcp_rmem[2]);
 		space = max_t(u32, space, sysctl_rmem_max);
 		space = min_t(u32, space, *window_clamp);
+<<<<<<< HEAD
 		while (space > U16_MAX && (*rcv_wscale) < TCP_MAX_WSCALE) {
 			space >>= 1;
 			(*rcv_wscale)++;
 		}
+=======
+		*rcv_wscale = clamp_t(int, ilog2(space) - 15,
+				      0, TCP_MAX_WSCALE);
+>>>>>>> upstream/android-13
 	}
 	/* Set the clamp no higher than max representable value */
 	(*window_clamp) = min_t(__u32, U16_MAX << (*rcv_wscale), *window_clamp);
@@ -401,6 +460,10 @@ static inline bool tcp_urg_mode(const struct tcp_sock *tp)
 #define OPTION_WSCALE		(1 << 3)
 #define OPTION_FAST_OPEN_COOKIE	(1 << 8)
 #define OPTION_SMC		(1 << 9)
+<<<<<<< HEAD
+=======
+#define OPTION_MPTCP		(1 << 10)
+>>>>>>> upstream/android-13
 
 static void smc_options_write(__be32 *ptr, u16 *options)
 {
@@ -423,11 +486,169 @@ struct tcp_out_options {
 	u8 ws;			/* window scale, 0 to disable */
 	u8 num_sack_blocks;	/* number of SACK blocks to include */
 	u8 hash_size;		/* bytes in hash_location */
+<<<<<<< HEAD
 	__u8 *hash_location;	/* temporary pointer, overloaded */
 	__u32 tsval, tsecr;	/* need to include OPTION_TS */
 	struct tcp_fastopen_cookie *fastopen_cookie;	/* Fast open cookie */
 };
 
+=======
+	u8 bpf_opt_len;		/* length of BPF hdr option */
+	__u8 *hash_location;	/* temporary pointer, overloaded */
+	__u32 tsval, tsecr;	/* need to include OPTION_TS */
+	struct tcp_fastopen_cookie *fastopen_cookie;	/* Fast open cookie */
+	struct mptcp_out_options mptcp;
+};
+
+static void mptcp_options_write(__be32 *ptr, const struct tcp_sock *tp,
+				struct tcp_out_options *opts)
+{
+#if IS_ENABLED(CONFIG_MPTCP)
+	if (unlikely(OPTION_MPTCP & opts->options))
+		mptcp_write_options(ptr, tp, &opts->mptcp);
+#endif
+}
+
+#ifdef CONFIG_CGROUP_BPF
+static int bpf_skops_write_hdr_opt_arg0(struct sk_buff *skb,
+					enum tcp_synack_type synack_type)
+{
+	if (unlikely(!skb))
+		return BPF_WRITE_HDR_TCP_CURRENT_MSS;
+
+	if (unlikely(synack_type == TCP_SYNACK_COOKIE))
+		return BPF_WRITE_HDR_TCP_SYNACK_COOKIE;
+
+	return 0;
+}
+
+/* req, syn_skb and synack_type are used when writing synack */
+static void bpf_skops_hdr_opt_len(struct sock *sk, struct sk_buff *skb,
+				  struct request_sock *req,
+				  struct sk_buff *syn_skb,
+				  enum tcp_synack_type synack_type,
+				  struct tcp_out_options *opts,
+				  unsigned int *remaining)
+{
+	struct bpf_sock_ops_kern sock_ops;
+	int err;
+
+	if (likely(!BPF_SOCK_OPS_TEST_FLAG(tcp_sk(sk),
+					   BPF_SOCK_OPS_WRITE_HDR_OPT_CB_FLAG)) ||
+	    !*remaining)
+		return;
+
+	/* *remaining has already been aligned to 4 bytes, so *remaining >= 4 */
+
+	/* init sock_ops */
+	memset(&sock_ops, 0, offsetof(struct bpf_sock_ops_kern, temp));
+
+	sock_ops.op = BPF_SOCK_OPS_HDR_OPT_LEN_CB;
+
+	if (req) {
+		/* The listen "sk" cannot be passed here because
+		 * it is not locked.  It would not make too much
+		 * sense to do bpf_setsockopt(listen_sk) based
+		 * on individual connection request also.
+		 *
+		 * Thus, "req" is passed here and the cgroup-bpf-progs
+		 * of the listen "sk" will be run.
+		 *
+		 * "req" is also used here for fastopen even the "sk" here is
+		 * a fullsock "child" sk.  It is to keep the behavior
+		 * consistent between fastopen and non-fastopen on
+		 * the bpf programming side.
+		 */
+		sock_ops.sk = (struct sock *)req;
+		sock_ops.syn_skb = syn_skb;
+	} else {
+		sock_owned_by_me(sk);
+
+		sock_ops.is_fullsock = 1;
+		sock_ops.sk = sk;
+	}
+
+	sock_ops.args[0] = bpf_skops_write_hdr_opt_arg0(skb, synack_type);
+	sock_ops.remaining_opt_len = *remaining;
+	/* tcp_current_mss() does not pass a skb */
+	if (skb)
+		bpf_skops_init_skb(&sock_ops, skb, 0);
+
+	err = BPF_CGROUP_RUN_PROG_SOCK_OPS_SK(&sock_ops, sk);
+
+	if (err || sock_ops.remaining_opt_len == *remaining)
+		return;
+
+	opts->bpf_opt_len = *remaining - sock_ops.remaining_opt_len;
+	/* round up to 4 bytes */
+	opts->bpf_opt_len = (opts->bpf_opt_len + 3) & ~3;
+
+	*remaining -= opts->bpf_opt_len;
+}
+
+static void bpf_skops_write_hdr_opt(struct sock *sk, struct sk_buff *skb,
+				    struct request_sock *req,
+				    struct sk_buff *syn_skb,
+				    enum tcp_synack_type synack_type,
+				    struct tcp_out_options *opts)
+{
+	u8 first_opt_off, nr_written, max_opt_len = opts->bpf_opt_len;
+	struct bpf_sock_ops_kern sock_ops;
+	int err;
+
+	if (likely(!max_opt_len))
+		return;
+
+	memset(&sock_ops, 0, offsetof(struct bpf_sock_ops_kern, temp));
+
+	sock_ops.op = BPF_SOCK_OPS_WRITE_HDR_OPT_CB;
+
+	if (req) {
+		sock_ops.sk = (struct sock *)req;
+		sock_ops.syn_skb = syn_skb;
+	} else {
+		sock_owned_by_me(sk);
+
+		sock_ops.is_fullsock = 1;
+		sock_ops.sk = sk;
+	}
+
+	sock_ops.args[0] = bpf_skops_write_hdr_opt_arg0(skb, synack_type);
+	sock_ops.remaining_opt_len = max_opt_len;
+	first_opt_off = tcp_hdrlen(skb) - max_opt_len;
+	bpf_skops_init_skb(&sock_ops, skb, first_opt_off);
+
+	err = BPF_CGROUP_RUN_PROG_SOCK_OPS_SK(&sock_ops, sk);
+
+	if (err)
+		nr_written = 0;
+	else
+		nr_written = max_opt_len - sock_ops.remaining_opt_len;
+
+	if (nr_written < max_opt_len)
+		memset(skb->data + first_opt_off + nr_written, TCPOPT_NOP,
+		       max_opt_len - nr_written);
+}
+#else
+static void bpf_skops_hdr_opt_len(struct sock *sk, struct sk_buff *skb,
+				  struct request_sock *req,
+				  struct sk_buff *syn_skb,
+				  enum tcp_synack_type synack_type,
+				  struct tcp_out_options *opts,
+				  unsigned int *remaining)
+{
+}
+
+static void bpf_skops_write_hdr_opt(struct sock *sk, struct sk_buff *skb,
+				    struct request_sock *req,
+				    struct sk_buff *syn_skb,
+				    enum tcp_synack_type synack_type,
+				    struct tcp_out_options *opts)
+{
+}
+#endif
+
+>>>>>>> upstream/android-13
 /* Write previously computed TCP options to the packet.
  *
  * Beware: Something in the Internet is very sensitive to the ordering of
@@ -536,6 +757,11 @@ static void tcp_options_write(__be32 *ptr, struct tcp_sock *tp,
 	}
 
 	smc_options_write(ptr, &options);
+<<<<<<< HEAD
+=======
+
+	mptcp_options_write(ptr, tp, opts);
+>>>>>>> upstream/android-13
 }
 
 static void smc_set_option(const struct tcp_sock *tp,
@@ -571,6 +797,25 @@ static void smc_set_option_cond(const struct tcp_sock *tp,
 #endif
 }
 
+<<<<<<< HEAD
+=======
+static void mptcp_set_option_cond(const struct request_sock *req,
+				  struct tcp_out_options *opts,
+				  unsigned int *remaining)
+{
+	if (rsk_is_mptcp(req)) {
+		unsigned int size;
+
+		if (mptcp_synack_options(req, &size, &opts->mptcp)) {
+			if (*remaining >= size) {
+				opts->options |= OPTION_MPTCP;
+				*remaining -= size;
+			}
+		}
+	}
+}
+
+>>>>>>> upstream/android-13
 /* Compute TCP options for SYN packets. This is not the final
  * network wire format yet.
  */
@@ -584,7 +829,12 @@ static unsigned int tcp_syn_options(struct sock *sk, struct sk_buff *skb,
 
 	*md5 = NULL;
 #ifdef CONFIG_TCP_MD5SIG
+<<<<<<< HEAD
 	if (unlikely(rcu_access_pointer(tp->md5sig_info))) {
+=======
+	if (static_branch_unlikely(&tcp_md5_needed) &&
+	    rcu_access_pointer(tp->md5sig_info)) {
+>>>>>>> upstream/android-13
 		*md5 = tp->af_specific->md5_lookup(sk, sk);
 		if (*md5) {
 			opts->options |= OPTION_MD5;
@@ -639,6 +889,20 @@ static unsigned int tcp_syn_options(struct sock *sk, struct sk_buff *skb,
 
 	smc_set_option(tp, opts, &remaining);
 
+<<<<<<< HEAD
+=======
+	if (sk_is_mptcp(sk)) {
+		unsigned int size;
+
+		if (mptcp_syn_options(sk, skb, &size, &opts->mptcp)) {
+			opts->options |= OPTION_MPTCP;
+			remaining -= size;
+		}
+	}
+
+	bpf_skops_hdr_opt_len(sk, skb, NULL, NULL, 0, opts, &remaining);
+
+>>>>>>> upstream/android-13
 	return MAX_TCP_OPTION_SPACE - remaining;
 }
 
@@ -649,7 +913,12 @@ static unsigned int tcp_synack_options(const struct sock *sk,
 				       struct tcp_out_options *opts,
 				       const struct tcp_md5sig_key *md5,
 				       struct tcp_fastopen_cookie *foc,
+<<<<<<< HEAD
 				       enum tcp_synack_type synack_type)
+=======
+				       enum tcp_synack_type synack_type,
+				       struct sk_buff *syn_skb)
+>>>>>>> upstream/android-13
 {
 	struct inet_request_sock *ireq = inet_rsk(req);
 	unsigned int remaining = MAX_TCP_OPTION_SPACE;
@@ -702,8 +971,18 @@ static unsigned int tcp_synack_options(const struct sock *sk,
 		}
 	}
 
+<<<<<<< HEAD
 	smc_set_option_cond(tcp_sk(sk), ireq, opts, &remaining);
 
+=======
+	mptcp_set_option_cond(req, opts, &remaining);
+
+	smc_set_option_cond(tcp_sk(sk), ireq, opts, &remaining);
+
+	bpf_skops_hdr_opt_len((struct sock *)sk, skb, req, syn_skb,
+			      synack_type, opts, &remaining);
+
+>>>>>>> upstream/android-13
 	return MAX_TCP_OPTION_SPACE - remaining;
 }
 
@@ -722,7 +1001,12 @@ static unsigned int tcp_established_options(struct sock *sk, struct sk_buff *skb
 
 	*md5 = NULL;
 #ifdef CONFIG_TCP_MD5SIG
+<<<<<<< HEAD
 	if (unlikely(rcu_access_pointer(tp->md5sig_info))) {
+=======
+	if (static_branch_unlikely(&tcp_md5_needed) &&
+	    rcu_access_pointer(tp->md5sig_info)) {
+>>>>>>> upstream/android-13
 		*md5 = tp->af_specific->md5_lookup(sk, sk);
 		if (*md5) {
 			opts->options |= OPTION_MD5;
@@ -738,16 +1022,58 @@ static unsigned int tcp_established_options(struct sock *sk, struct sk_buff *skb
 		size += TCPOLEN_TSTAMP_ALIGNED;
 	}
 
+<<<<<<< HEAD
 	eff_sacks = tp->rx_opt.num_sacks + tp->rx_opt.dsack;
 	if (unlikely(eff_sacks)) {
 		const unsigned int remaining = MAX_TCP_OPTION_SPACE - size;
+=======
+	/* MPTCP options have precedence over SACK for the limited TCP
+	 * option space because a MPTCP connection would be forced to
+	 * fall back to regular TCP if a required multipath option is
+	 * missing. SACK still gets a chance to use whatever space is
+	 * left.
+	 */
+	if (sk_is_mptcp(sk)) {
+		unsigned int remaining = MAX_TCP_OPTION_SPACE - size;
+		unsigned int opt_size = 0;
+
+		if (mptcp_established_options(sk, skb, &opt_size, remaining,
+					      &opts->mptcp)) {
+			opts->options |= OPTION_MPTCP;
+			size += opt_size;
+		}
+	}
+
+	eff_sacks = tp->rx_opt.num_sacks + tp->rx_opt.dsack;
+	if (unlikely(eff_sacks)) {
+		const unsigned int remaining = MAX_TCP_OPTION_SPACE - size;
+		if (unlikely(remaining < TCPOLEN_SACK_BASE_ALIGNED +
+					 TCPOLEN_SACK_PERBLOCK))
+			return size;
+
+>>>>>>> upstream/android-13
 		opts->num_sack_blocks =
 			min_t(unsigned int, eff_sacks,
 			      (remaining - TCPOLEN_SACK_BASE_ALIGNED) /
 			      TCPOLEN_SACK_PERBLOCK);
+<<<<<<< HEAD
 		if (likely(opts->num_sack_blocks))
 			size += TCPOLEN_SACK_BASE_ALIGNED +
 				opts->num_sack_blocks * TCPOLEN_SACK_PERBLOCK;
+=======
+
+		size += TCPOLEN_SACK_BASE_ALIGNED +
+			opts->num_sack_blocks * TCPOLEN_SACK_PERBLOCK;
+	}
+
+	if (unlikely(BPF_SOCK_OPS_TEST_FLAG(tp,
+					    BPF_SOCK_OPS_WRITE_HDR_OPT_CB_FLAG))) {
+		unsigned int remaining = MAX_TCP_OPTION_SPACE - size;
+
+		bpf_skops_hdr_opt_len(sk, skb, NULL, NULL, 0, opts, &remaining);
+
+		size = MAX_TCP_OPTION_SPACE - remaining;
+>>>>>>> upstream/android-13
 	}
 
 	return size;
@@ -807,9 +1133,15 @@ static void tcp_tsq_handler(struct sock *sk)
  * transferring tsq->head because tcp_wfree() might
  * interrupt us (non NAPI drivers)
  */
+<<<<<<< HEAD
 static void tcp_tasklet_func(unsigned long data)
 {
 	struct tsq_tasklet *tsq = (struct tsq_tasklet *)data;
+=======
+static void tcp_tasklet_func(struct tasklet_struct *t)
+{
+	struct tsq_tasklet *tsq = from_tasklet(tsq,  t, tasklet);
+>>>>>>> upstream/android-13
 	LIST_HEAD(list);
 	unsigned long flags;
 	struct list_head *q, *n;
@@ -894,9 +1226,13 @@ void __init tcp_tasklet_init(void)
 		struct tsq_tasklet *tsq = &per_cpu(tsq_tasklet, i);
 
 		INIT_LIST_HEAD(&tsq->head);
+<<<<<<< HEAD
 		tasklet_init(&tsq->tasklet,
 			     tcp_tasklet_func,
 			     (unsigned long)tsq);
+=======
+		tasklet_setup(&tsq->tasklet, tcp_tasklet_func);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -966,6 +1302,7 @@ enum hrtimer_restart tcp_pace_kick(struct hrtimer *timer)
 	return HRTIMER_NORESTART;
 }
 
+<<<<<<< HEAD
 static void tcp_internal_pacing(struct sock *sk, const struct sk_buff *skb)
 {
 	u64 len_ns;
@@ -991,6 +1328,36 @@ static void tcp_update_skb_after_send(struct tcp_sock *tp, struct sk_buff *skb)
 	list_move_tail(&skb->tcp_tsorted_anchor, &tp->tsorted_sent_queue);
 }
 
+=======
+static void tcp_update_skb_after_send(struct sock *sk, struct sk_buff *skb,
+				      u64 prior_wstamp)
+{
+	struct tcp_sock *tp = tcp_sk(sk);
+
+	if (sk->sk_pacing_status != SK_PACING_NONE) {
+		unsigned long rate = sk->sk_pacing_rate;
+
+		/* Original sch_fq does not pace first 10 MSS
+		 * Note that tp->data_segs_out overflows after 2^32 packets,
+		 * this is a minor annoyance.
+		 */
+		if (rate != ~0UL && rate && tp->data_segs_out >= 10) {
+			u64 len_ns = div64_ul((u64)skb->len * NSEC_PER_SEC, rate);
+			u64 credit = tp->tcp_wstamp_ns - prior_wstamp;
+
+			/* take into account OS jitter */
+			len_ns -= min_t(u64, len_ns / 2, credit);
+			tp->tcp_wstamp_ns += len_ns;
+		}
+	}
+	list_move_tail(&skb->tcp_tsorted_anchor, &tp->tsorted_sent_queue);
+}
+
+INDIRECT_CALLABLE_DECLARE(int ip_queue_xmit(struct sock *sk, struct sk_buff *skb, struct flowi *fl));
+INDIRECT_CALLABLE_DECLARE(int inet6_csk_xmit(struct sock *sk, struct sk_buff *skb, struct flowi *fl));
+INDIRECT_CALLABLE_DECLARE(void tcp_v4_send_check(struct sock *sk, struct sk_buff *skb));
+
+>>>>>>> upstream/android-13
 /* This routine actually transmits TCP packets queued in by
  * tcp_do_sendmsg().  This is used by both the initial
  * transmission and possible later retransmissions.
@@ -1014,11 +1381,21 @@ static int __tcp_transmit_skb(struct sock *sk, struct sk_buff *skb,
 	struct sk_buff *oskb = NULL;
 	struct tcp_md5sig_key *md5;
 	struct tcphdr *th;
+<<<<<<< HEAD
+=======
+	u64 prior_wstamp;
+>>>>>>> upstream/android-13
 	int err;
 
 	BUG_ON(!skb || !tcp_skb_pcount(skb));
 	tp = tcp_sk(sk);
+<<<<<<< HEAD
 
+=======
+	prior_wstamp = tp->tcp_wstamp_ns;
+	tp->tcp_wstamp_ns = max(tp->tcp_wstamp_ns, tp->tcp_clock_cache);
+	skb->skb_mstamp_ns = tp->tcp_wstamp_ns;
+>>>>>>> upstream/android-13
 	if (clone_it) {
 		TCP_SKB_CB(skb)->tx.in_flight = TCP_SKB_CB(skb)->end_seq
 			- tp->snd_una;
@@ -1038,17 +1415,39 @@ static int __tcp_transmit_skb(struct sock *sk, struct sk_buff *skb,
 		 */
 		skb->dev = NULL;
 	}
+<<<<<<< HEAD
 	skb->skb_mstamp = tp->tcp_mstamp;
+=======
+>>>>>>> upstream/android-13
 
 	inet = inet_sk(sk);
 	tcb = TCP_SKB_CB(skb);
 	memset(&opts, 0, sizeof(opts));
 
+<<<<<<< HEAD
 	if (unlikely(tcb->tcp_flags & TCPHDR_SYN))
 		tcp_options_size = tcp_syn_options(sk, skb, &opts, &md5);
 	else
 		tcp_options_size = tcp_established_options(sk, skb, &opts,
 							   &md5);
+=======
+	if (unlikely(tcb->tcp_flags & TCPHDR_SYN)) {
+		tcp_options_size = tcp_syn_options(sk, skb, &opts, &md5);
+	} else {
+		tcp_options_size = tcp_established_options(sk, skb, &opts,
+							   &md5);
+		/* Force a PSH flag on all (GSO) packets to expedite GRO flush
+		 * at receiver : This slightly improve GRO performance.
+		 * Note that we do not force the PSH flag for non GSO packets,
+		 * because they might be sent under high congestion events,
+		 * and in this case it is better to delay the delivery of 1-MSS
+		 * packets and thus the corresponding ACK packet that would
+		 * release the following packet.
+		 */
+		if (tcp_skb_pcount(skb) > 1)
+			tcb->tcp_flags |= TCPHDR_PSH;
+	}
+>>>>>>> upstream/android-13
 	tcp_header_size = tcp_options_size + sizeof(struct tcphdr);
 
 	/* if no packet is in qdisc/device queue, then allow XPS to select
@@ -1073,7 +1472,10 @@ static int __tcp_transmit_skb(struct sock *sk, struct sk_buff *skb,
 	skb_orphan(skb);
 	skb->sk = sk;
 	skb->destructor = skb_is_tcp_pure_ack(skb) ? __sock_wfree : tcp_wfree;
+<<<<<<< HEAD
 	skb_set_hash_from_sk(skb, sk);
+=======
+>>>>>>> upstream/android-13
 	refcount_add(skb->truesize, &sk->sk_wmem_alloc);
 
 	skb_set_dst_pending_confirm(skb, sk->sk_dst_pending_confirm);
@@ -1101,7 +1503,10 @@ static int __tcp_transmit_skb(struct sock *sk, struct sk_buff *skb,
 		}
 	}
 
+<<<<<<< HEAD
 	tcp_options_write((__be32 *)(th + 1), tp, &opts);
+=======
+>>>>>>> upstream/android-13
 	skb_shinfo(skb)->gso_type = sk->sk_gso_type;
 	if (likely(!(tcb->tcp_flags & TCPHDR_SYN))) {
 		th->window      = htons(tcp_select_window(sk));
@@ -1112,6 +1517,12 @@ static int __tcp_transmit_skb(struct sock *sk, struct sk_buff *skb,
 		 */
 		th->window	= htons(min(tp->rcv_wnd, 65535U));
 	}
+<<<<<<< HEAD
+=======
+
+	tcp_options_write((__be32 *)(th + 1), tp, &opts);
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_TCP_MD5SIG
 	/* Calculate the MD5 hash, as we have all we need now */
 	if (md5) {
@@ -1121,7 +1532,16 @@ static int __tcp_transmit_skb(struct sock *sk, struct sk_buff *skb,
 	}
 #endif
 
+<<<<<<< HEAD
 	icsk->icsk_af_ops->send_check(sk, skb);
+=======
+	/* BPF prog is the last one writing header option */
+	bpf_skops_write_hdr_opt(sk, skb, NULL, NULL, 0, &opts);
+
+	INDIRECT_CALL_INET(icsk->icsk_af_ops->send_check,
+			   tcp_v6_send_check, tcp_v4_send_check,
+			   sk, skb);
+>>>>>>> upstream/android-13
 
 	if (likely(tcb->tcp_flags & TCPHDR_ACK))
 		tcp_event_ack_sent(sk, tcp_skb_pcount(skb), rcv_nxt);
@@ -1130,7 +1550,10 @@ static int __tcp_transmit_skb(struct sock *sk, struct sk_buff *skb,
 		tcp_event_data_sent(tp, sk);
 		tp->data_segs_out += tcp_skb_pcount(skb);
 		tp->bytes_sent += skb->len - tcp_header_size;
+<<<<<<< HEAD
 		tcp_internal_pacing(sk, skb);
+=======
+>>>>>>> upstream/android-13
 	}
 
 	if (after(tcb->end_seq, tp->snd_nxt) || tcb->seq == tcb->end_seq)
@@ -1138,25 +1561,45 @@ static int __tcp_transmit_skb(struct sock *sk, struct sk_buff *skb,
 			      tcp_skb_pcount(skb));
 
 	tp->segs_out += tcp_skb_pcount(skb);
+<<<<<<< HEAD
+=======
+	skb_set_hash_from_sk(skb, sk);
+>>>>>>> upstream/android-13
 	/* OK, its time to fill skb_shinfo(skb)->gso_{segs|size} */
 	skb_shinfo(skb)->gso_segs = tcp_skb_pcount(skb);
 	skb_shinfo(skb)->gso_size = tcp_skb_mss(skb);
 
+<<<<<<< HEAD
 	/* Our usage of tstamp should remain private */
 	skb->tstamp = 0;
+=======
+	/* Leave earliest departure time in skb->tstamp (skb->skb_mstamp_ns) */
+>>>>>>> upstream/android-13
 
 	/* Cleanup our debris for IP stacks */
 	memset(skb->cb, 0, max(sizeof(struct inet_skb_parm),
 			       sizeof(struct inet6_skb_parm)));
 
+<<<<<<< HEAD
 	err = icsk->icsk_af_ops->queue_xmit(sk, skb, &inet->cork.fl);
+=======
+	tcp_add_tx_delay(skb, tp);
+
+	err = INDIRECT_CALL_INET(icsk->icsk_af_ops->queue_xmit,
+				 inet6_csk_xmit, ip_queue_xmit,
+				 sk, skb, &inet->cork.fl);
+>>>>>>> upstream/android-13
 
 	if (unlikely(err > 0)) {
 		tcp_enter_cwr(sk);
 		err = net_xmit_eval(err);
 	}
 	if (!err && oskb) {
+<<<<<<< HEAD
 		tcp_update_skb_after_send(tp, oskb);
+=======
+		tcp_update_skb_after_send(sk, oskb, prior_wstamp);
+>>>>>>> upstream/android-13
 		tcp_rate_skb_sent(sk, oskb);
 	}
 	return err;
@@ -1182,7 +1625,11 @@ static void tcp_queue_skb(struct sock *sk, struct sk_buff *skb)
 	WRITE_ONCE(tp->write_seq, TCP_SKB_CB(skb)->end_seq);
 	__skb_header_release(skb);
 	tcp_add_write_queue_tail(sk, skb);
+<<<<<<< HEAD
 	sk->sk_wmem_queued += skb->truesize;
+=======
+	sk_wmem_queued_add(sk, skb->truesize);
+>>>>>>> upstream/android-13
 	sk_mem_charge(sk, skb->truesize);
 }
 
@@ -1307,15 +1754,26 @@ int tcp_fragment(struct sock *sk, enum tcp_queue tcp_queue,
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	if (skb_unclone(skb, gfp))
+=======
+	if (skb_unclone_keeptruesize(skb, gfp))
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 
 	/* Get a new skb... force flag on. */
 	buff = sk_stream_alloc_skb(sk, nsize, gfp, true);
 	if (!buff)
 		return -ENOMEM; /* We'll just try again later. */
+<<<<<<< HEAD
 
 	sk->sk_wmem_queued += buff->truesize;
+=======
+	skb_copy_decrypted(buff, skb);
+	mptcp_skb_ext_copy(buff, skb);
+
+	sk_wmem_queued_add(sk, buff->truesize);
+>>>>>>> upstream/android-13
 	sk_mem_charge(sk, buff->truesize);
 	nlen = skb->len - len - nsize;
 	buff->truesize += nlen;
@@ -1396,7 +1854,11 @@ static int __pskb_trim_head(struct sk_buff *skb, int len)
 		} else {
 			shinfo->frags[k] = shinfo->frags[i];
 			if (eat) {
+<<<<<<< HEAD
 				shinfo->frags[k].page_offset += eat;
+=======
+				skb_frag_off_add(&shinfo->frags[k], eat);
+>>>>>>> upstream/android-13
 				skb_frag_size_sub(&shinfo->frags[k], eat);
 				eat = 0;
 			}
@@ -1415,7 +1877,11 @@ int tcp_trim_head(struct sock *sk, struct sk_buff *skb, u32 len)
 {
 	u32 delta_truesize;
 
+<<<<<<< HEAD
 	if (skb_unclone(skb, GFP_ATOMIC))
+=======
+	if (skb_unclone_keeptruesize(skb, GFP_ATOMIC))
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 
 	delta_truesize = __pskb_trim_head(skb, len);
@@ -1425,9 +1891,14 @@ int tcp_trim_head(struct sock *sk, struct sk_buff *skb, u32 len)
 
 	if (delta_truesize) {
 		skb->truesize	   -= delta_truesize;
+<<<<<<< HEAD
 		sk->sk_wmem_queued -= delta_truesize;
 		sk_mem_uncharge(sk, delta_truesize);
 		sock_set_flag(sk, SOCK_QUEUE_SHRUNK);
+=======
+		sk_wmem_queued_add(sk, -delta_truesize);
+		sk_mem_uncharge(sk, delta_truesize);
+>>>>>>> upstream/android-13
 	}
 
 	/* Any change of skb->len requires recalculation of tso factor. */
@@ -1476,6 +1947,10 @@ int tcp_mtu_to_mss(struct sock *sk, int pmtu)
 	return __tcp_mtu_to_mss(sk, pmtu) -
 	       (tcp_sk(sk)->tcp_header_len - sizeof(struct tcphdr));
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL(tcp_mtu_to_mss);
+>>>>>>> upstream/android-13
 
 /* Inverse of above */
 int tcp_mss_to_mtu(struct sock *sk, int mss)
@@ -1706,8 +2181,14 @@ static u32 tcp_tso_autosize(const struct sock *sk, unsigned int mss_now,
 {
 	u32 bytes, segs;
 
+<<<<<<< HEAD
 	bytes = min(sk->sk_pacing_rate >> sk->sk_pacing_shift,
 		    sk->sk_gso_max_size - 1 - MAX_TCP_HEADER);
+=======
+	bytes = min_t(unsigned long,
+		      sk->sk_pacing_rate >> READ_ONCE(sk->sk_pacing_shift),
+		      sk->sk_gso_max_size - 1 - MAX_TCP_HEADER);
+>>>>>>> upstream/android-13
 
 	/* Goal is to send at least one packet per ms,
 	 * not one big TSO packet every 100 ms.
@@ -1853,23 +2334,43 @@ static bool tcp_snd_wnd_test(const struct tcp_sock *tp,
  * know that all the data is in scatter-gather pages, and that the
  * packet has never been sent out before (and thus is not cloned).
  */
+<<<<<<< HEAD
 static int tso_fragment(struct sock *sk, enum tcp_queue tcp_queue,
 			struct sk_buff *skb, unsigned int len,
 			unsigned int mss_now, gfp_t gfp)
 {
 	struct sk_buff *buff;
 	int nlen = skb->len - len;
+=======
+static int tso_fragment(struct sock *sk, struct sk_buff *skb, unsigned int len,
+			unsigned int mss_now, gfp_t gfp)
+{
+	int nlen = skb->len - len;
+	struct sk_buff *buff;
+>>>>>>> upstream/android-13
 	u8 flags;
 
 	/* All of a TSO frame must be composed of paged data.  */
 	if (skb->len != skb->data_len)
+<<<<<<< HEAD
 		return tcp_fragment(sk, tcp_queue, skb, len, mss_now, gfp);
+=======
+		return tcp_fragment(sk, TCP_FRAG_IN_WRITE_QUEUE,
+				    skb, len, mss_now, gfp);
+>>>>>>> upstream/android-13
 
 	buff = sk_stream_alloc_skb(sk, 0, gfp, true);
 	if (unlikely(!buff))
 		return -ENOMEM;
+<<<<<<< HEAD
 
 	sk->sk_wmem_queued += buff->truesize;
+=======
+	skb_copy_decrypted(buff, skb);
+	mptcp_skb_ext_copy(buff, skb);
+
+	sk_wmem_queued_add(sk, buff->truesize);
+>>>>>>> upstream/android-13
 	sk_mem_charge(sk, buff->truesize);
 	buff->truesize += nlen;
 	skb->truesize -= nlen;
@@ -1899,7 +2400,11 @@ static int tso_fragment(struct sock *sk, enum tcp_queue tcp_queue,
 
 	/* Link BUFF into the send queue. */
 	__skb_header_release(buff);
+<<<<<<< HEAD
 	tcp_insert_write_queue_after(skb, buff, sk, tcp_queue);
+=======
+	tcp_insert_write_queue_after(skb, buff, sk, TCP_FRAG_IN_WRITE_QUEUE);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1915,18 +2420,35 @@ static bool tcp_tso_should_defer(struct sock *sk, struct sk_buff *skb,
 				 u32 max_segs)
 {
 	const struct inet_connection_sock *icsk = inet_csk(sk);
+<<<<<<< HEAD
 	u32 age, send_win, cong_win, limit, in_flight;
 	struct tcp_sock *tp = tcp_sk(sk);
 	struct sk_buff *head;
 	int win_divisor;
+=======
+	u32 send_win, cong_win, limit, in_flight;
+	struct tcp_sock *tp = tcp_sk(sk);
+	struct sk_buff *head;
+	int win_divisor;
+	s64 delta;
+>>>>>>> upstream/android-13
 
 	if (icsk->icsk_ca_state >= TCP_CA_Recovery)
 		goto send_now;
 
 	/* Avoid bursty behavior by allowing defer
+<<<<<<< HEAD
 	 * only if the last write was recent.
 	 */
 	if ((s32)(tcp_jiffies32 - tp->lsndtime) > 0)
+=======
+	 * only if the last write was recent (1 ms).
+	 * Note that tp->tcp_wstamp_ns can be in the future if we have
+	 * packets waiting in a qdisc or device for EDT delivery.
+	 */
+	delta = tp->tcp_clock_cache - tp->tcp_wstamp_ns - NSEC_PER_MSEC;
+	if (delta > 0)
+>>>>>>> upstream/android-13
 		goto send_now;
 
 	in_flight = tcp_packets_in_flight(tp);
@@ -1973,9 +2495,15 @@ static bool tcp_tso_should_defer(struct sock *sk, struct sk_buff *skb,
 	head = tcp_rtx_queue_head(sk);
 	if (!head)
 		goto send_now;
+<<<<<<< HEAD
 	age = tcp_stamp_us_delta(tp->tcp_mstamp, head->skb_mstamp);
 	/* If next ACK is likely to come too late (half srtt), do not defer */
 	if (age < (tp->srtt_us >> 4))
+=======
+	delta = tp->tcp_clock_cache - head->tstamp;
+	/* If next ACK is likely to come too late (half srtt), do not defer */
+	if ((s64)(delta - (u64)NSEC_PER_USEC * (tp->srtt_us >> 4)) < 0)
+>>>>>>> upstream/android-13
 		goto send_now;
 
 	/* Ok, it looks like it is advisable to defer.
@@ -1997,7 +2525,12 @@ static bool tcp_tso_should_defer(struct sock *sk, struct sk_buff *skb,
 	}
 
 	/* If this packet won't get more data, do not wait. */
+<<<<<<< HEAD
 	if (TCP_SKB_CB(skb)->tcp_flags & TCPHDR_FIN)
+=======
+	if ((TCP_SKB_CB(skb)->tcp_flags & TCPHDR_FIN) ||
+	    TCP_SKB_CB(skb)->eor)
+>>>>>>> upstream/android-13
 		goto send_now;
 
 	return true;
@@ -2128,10 +2661,19 @@ static int tcp_mtu_probe(struct sock *sk)
 	nskb = sk_stream_alloc_skb(sk, probe_size, GFP_ATOMIC, false);
 	if (!nskb)
 		return -1;
+<<<<<<< HEAD
 	sk->sk_wmem_queued += nskb->truesize;
 	sk_mem_charge(sk, nskb->truesize);
 
 	skb = tcp_send_head(sk);
+=======
+	sk_wmem_queued_add(sk, nskb->truesize);
+	sk_mem_charge(sk, nskb->truesize);
+
+	skb = tcp_send_head(sk);
+	skb_copy_decrypted(nskb, skb);
+	mptcp_skb_ext_copy(nskb, skb);
+>>>>>>> upstream/android-13
 
 	TCP_SKB_CB(nskb)->seq = TCP_SKB_CB(skb)->seq;
 	TCP_SKB_CB(nskb)->end_seq = TCP_SKB_CB(skb)->seq + probe_size;
@@ -2197,10 +2739,30 @@ static int tcp_mtu_probe(struct sock *sk)
 	return -1;
 }
 
+<<<<<<< HEAD
 static bool tcp_pacing_check(const struct sock *sk)
 {
 	return tcp_needs_internal_pacing(sk) &&
 	       hrtimer_is_queued(&tcp_sk(sk)->pacing_timer);
+=======
+static bool tcp_pacing_check(struct sock *sk)
+{
+	struct tcp_sock *tp = tcp_sk(sk);
+
+	if (!tcp_needs_internal_pacing(sk))
+		return false;
+
+	if (tp->tcp_wstamp_ns <= tp->tcp_clock_cache)
+		return false;
+
+	if (!hrtimer_is_queued(&tp->pacing_timer)) {
+		hrtimer_start(&tp->pacing_timer,
+			      ns_to_ktime(tp->tcp_wstamp_ns),
+			      HRTIMER_MODE_ABS_PINNED_SOFT);
+		sock_hold(sk);
+	}
+	return true;
+>>>>>>> upstream/android-13
 }
 
 /* TCP Small Queues :
@@ -2217,11 +2779,36 @@ static bool tcp_pacing_check(const struct sock *sk)
 static bool tcp_small_queue_check(struct sock *sk, const struct sk_buff *skb,
 				  unsigned int factor)
 {
+<<<<<<< HEAD
 	unsigned int limit;
 
 	limit = max_t(u32, sk->sk_pacing_rate >> sk->sk_pacing_shift,
 		      sock_net(sk)->ipv4.sysctl_tcp_limit_output_bytes);
 
+=======
+	unsigned long limit;
+
+	limit = max_t(unsigned long,
+		      2 * skb->truesize,
+		      sk->sk_pacing_rate >> READ_ONCE(sk->sk_pacing_shift));
+	if (sk->sk_pacing_status == SK_PACING_NONE)
+		limit = min_t(unsigned long, limit,
+			      sock_net(sk)->ipv4.sysctl_tcp_limit_output_bytes);
+	limit <<= factor;
+
+	if (static_branch_unlikely(&tcp_tx_delay_enabled) &&
+	    tcp_sk(sk)->tcp_tx_delay) {
+		u64 extra_bytes = (u64)sk->sk_pacing_rate * tcp_sk(sk)->tcp_tx_delay;
+
+		/* TSQ is based on skb truesize sum (sk_wmem_alloc), so we
+		 * approximate our needs assuming an ~100% skb->truesize overhead.
+		 * USEC_PER_SEC is approximated by 2^20.
+		 * do_div(extra_bytes, USEC_PER_SEC/2) is replaced by a right shift.
+		 */
+		extra_bytes >>= (20 - 1);
+		limit += extra_bytes;
+	}
+>>>>>>> upstream/android-13
 	if (refcount_read(&sk->sk_wmem_alloc) > limit) {
 		/* Always send skb if rtx queue is empty.
 		 * No need to wait for TX completion to call us back,
@@ -2327,18 +2914,32 @@ static bool tcp_write_xmit(struct sock *sk, unsigned int mss_now, int nonagle,
 	while ((skb = tcp_send_head(sk))) {
 		unsigned int limit;
 
+<<<<<<< HEAD
+=======
+		if (unlikely(tp->repair) && tp->repair_queue == TCP_SEND_QUEUE) {
+			/* "skb_mstamp_ns" is used as a start point for the retransmit timer */
+			skb->skb_mstamp_ns = tp->tcp_wstamp_ns = tp->tcp_clock_cache;
+			list_move_tail(&skb->tcp_tsorted_anchor, &tp->tsorted_sent_queue);
+			tcp_init_tso_segs(skb, mss_now);
+			goto repair; /* Skip network transmission */
+		}
+
+>>>>>>> upstream/android-13
 		if (tcp_pacing_check(sk))
 			break;
 
 		tso_segs = tcp_init_tso_segs(skb, mss_now);
 		BUG_ON(!tso_segs);
 
+<<<<<<< HEAD
 		if (unlikely(tp->repair) && tp->repair_queue == TCP_SEND_QUEUE) {
 			/* "skb_mstamp" is used as a start point for the retransmit timer */
 			tcp_update_skb_after_send(tp, skb);
 			goto repair; /* Skip network transmission */
 		}
 
+=======
+>>>>>>> upstream/android-13
 		cwnd_quota = tcp_cwnd_test(tp, skb);
 		if (!cwnd_quota) {
 			if (push_one == 2)
@@ -2374,8 +2975,12 @@ static bool tcp_write_xmit(struct sock *sk, unsigned int mss_now, int nonagle,
 						    nonagle);
 
 		if (skb->len > limit &&
+<<<<<<< HEAD
 		    unlikely(tso_fragment(sk, TCP_FRAG_IN_WRITE_QUEUE,
 					  skb, limit, mss_now, gfp)))
+=======
+		    unlikely(tso_fragment(sk, skb, limit, mss_now, gfp)))
+>>>>>>> upstream/android-13
 			break;
 
 		if (tcp_small_queue_check(sk, skb, 0))
@@ -2436,7 +3041,11 @@ bool tcp_schedule_loss_probe(struct sock *sk, bool advancing_rto)
 	/* Don't do any loss probe on a Fast Open connection before 3WHS
 	 * finishes.
 	 */
+<<<<<<< HEAD
 	if (tp->fastopen_rsk)
+=======
+	if (rcu_access_pointer(tp->fastopen_rsk))
+>>>>>>> upstream/android-13
 		return false;
 
 	early_retrans = sock_net(sk)->ipv4.sysctl_tcp_early_retrans;
@@ -2470,8 +3079,12 @@ bool tcp_schedule_loss_probe(struct sock *sk, bool advancing_rto)
 	if (rto_delta_us > 0)
 		timeout = min_t(u32, timeout, usecs_to_jiffies(rto_delta_us));
 
+<<<<<<< HEAD
 	inet_csk_reset_xmit_timer(sk, ICSK_TIME_LOSS_PROBE, timeout,
 				  TCP_RTO_MAX);
+=======
+	tcp_reset_xmit_timer(sk, ICSK_TIME_LOSS_PROBE, timeout, TCP_RTO_MAX);
+>>>>>>> upstream/android-13
 	return true;
 }
 
@@ -2479,6 +3092,7 @@ bool tcp_schedule_loss_probe(struct sock *sk, bool advancing_rto)
  * a packet is still in a qdisc or driver queue.
  * In this case, there is very little point doing a retransmit !
  */
+<<<<<<< HEAD
 static bool skb_still_in_host_queue(const struct sock *sk,
 				    const struct sk_buff *skb)
 {
@@ -2486,6 +3100,19 @@ static bool skb_still_in_host_queue(const struct sock *sk,
 		NET_INC_STATS(sock_net(sk),
 			      LINUX_MIB_TCPSPURIOUS_RTX_HOSTQUEUES);
 		return true;
+=======
+static bool skb_still_in_host_queue(struct sock *sk,
+				    const struct sk_buff *skb)
+{
+	if (unlikely(skb_fclone_busy(sk, skb))) {
+		set_bit(TSQ_THROTTLED, &sk->sk_tsq_flags);
+		smp_mb__after_atomic();
+		if (skb_fclone_busy(sk, skb)) {
+			NET_INC_STATS(sock_net(sk),
+				      LINUX_MIB_TCPSPURIOUS_RTX_HOSTQUEUES);
+			return true;
+		}
+>>>>>>> upstream/android-13
 	}
 	return false;
 }
@@ -2652,8 +3279,17 @@ u32 __tcp_select_window(struct sock *sk)
 	int mss = icsk->icsk_ack.rcv_mss;
 	int free_space = tcp_space(sk);
 	int allowed_space = tcp_full_space(sk);
+<<<<<<< HEAD
 	int full_space = min_t(int, tp->window_clamp, allowed_space);
 	int window;
+=======
+	int full_space, window;
+
+	if (sk_is_mptcp(sk))
+		mptcp_space(sk, &free_space, &allowed_space);
+
+	full_space = min_t(int, tp->window_clamp, allowed_space);
+>>>>>>> upstream/android-13
 
 	if (unlikely(mss > full_space)) {
 		mss = full_space;
@@ -2810,7 +3446,11 @@ static void tcp_retrans_try_collapse(struct sock *sk, struct sk_buff *to,
 		if (!tcp_can_collapse(sk, skb))
 			break;
 
+<<<<<<< HEAD
 		if (!tcp_skb_can_collapse_to(to))
+=======
+		if (!tcp_skb_can_collapse(to, skb))
+>>>>>>> upstream/android-13
 			break;
 
 		space -= skb->len;
@@ -2847,6 +3487,7 @@ int __tcp_retransmit_skb(struct sock *sk, struct sk_buff *skb, int segs)
 	if (icsk->icsk_mtup.probe_size)
 		icsk->icsk_mtup.probe_size = 0;
 
+<<<<<<< HEAD
 	/* Do not sent more than we queued. 1/4 is reserved for possible
 	 * copying overhead: fragmentation, tunneling, mangling etc.
 	 */
@@ -2855,6 +3496,8 @@ int __tcp_retransmit_skb(struct sock *sk, struct sk_buff *skb, int segs)
 		  sk->sk_sndbuf))
 		return -EAGAIN;
 
+=======
+>>>>>>> upstream/android-13
 	if (skb_still_in_host_queue(sk, skb))
 		return -EBUSY;
 
@@ -2887,7 +3530,11 @@ int __tcp_retransmit_skb(struct sock *sk, struct sk_buff *skb, int segs)
 				 cur_mss, GFP_ATOMIC))
 			return -ENOMEM; /* We'll try again later. */
 	} else {
+<<<<<<< HEAD
 		if (skb_unclone(skb, GFP_ATOMIC))
+=======
+		if (skb_unclone_keeptruesize(skb, GFP_ATOMIC))
+>>>>>>> upstream/android-13
 			return -ENOMEM;
 
 		diff = tcp_skb_pcount(skb);
@@ -2921,24 +3568,48 @@ int __tcp_retransmit_skb(struct sock *sk, struct sk_buff *skb, int segs)
 
 		tcp_skb_tsorted_save(skb) {
 			nskb = __pskb_copy(skb, MAX_TCP_HEADER, GFP_ATOMIC);
+<<<<<<< HEAD
 			err = nskb ? tcp_transmit_skb(sk, nskb, 0, GFP_ATOMIC) :
 				     -ENOBUFS;
 		} tcp_skb_tsorted_restore(skb);
 
 		if (!err) {
 			tcp_update_skb_after_send(tp, skb);
+=======
+			if (nskb) {
+				nskb->dev = NULL;
+				err = tcp_transmit_skb(sk, nskb, 0, GFP_ATOMIC);
+			} else {
+				err = -ENOBUFS;
+			}
+		} tcp_skb_tsorted_restore(skb);
+
+		if (!err) {
+			tcp_update_skb_after_send(sk, skb, tp->tcp_wstamp_ns);
+>>>>>>> upstream/android-13
 			tcp_rate_skb_sent(sk, skb);
 		}
 	} else {
 		err = tcp_transmit_skb(sk, skb, 1, GFP_ATOMIC);
 	}
 
+<<<<<<< HEAD
+=======
+	/* To avoid taking spuriously low RTT samples based on a timestamp
+	 * for a transmit that never happened, always mark EVER_RETRANS
+	 */
+	TCP_SKB_CB(skb)->sacked |= TCPCB_EVER_RETRANS;
+
+>>>>>>> upstream/android-13
 	if (BPF_SOCK_OPS_TEST_FLAG(tp, BPF_SOCK_OPS_RETRANS_CB_FLAG))
 		tcp_call_bpf_3arg(sk, BPF_SOCK_OPS_RETRANS_CB,
 				  TCP_SKB_CB(skb)->seq, segs, err);
 
 	if (likely(!err)) {
+<<<<<<< HEAD
 		TCP_SKB_CB(skb)->sacked |= TCPCB_EVER_RETRANS;
+=======
+>>>>>>> upstream/android-13
 		trace_tcp_retransmit_skb(sk, skb);
 	} else if (err != -EBUSY) {
 		NET_ADD_STATS(sock_net(sk), LINUX_MIB_TCPRETRANSFAIL, segs);
@@ -2959,6 +3630,7 @@ int tcp_retransmit_skb(struct sock *sk, struct sk_buff *skb, int segs)
 #endif
 		TCP_SKB_CB(skb)->sacked |= TCPCB_RETRANS;
 		tp->retrans_out += tcp_skb_pcount(skb);
+<<<<<<< HEAD
 
 		/* Save stamp of the first retransmit. */
 		if (!tp->retrans_stamp)
@@ -2966,6 +3638,14 @@ int tcp_retransmit_skb(struct sock *sk, struct sk_buff *skb, int segs)
 
 	}
 
+=======
+	}
+
+	/* Save stamp of the first (attempted) retransmit. */
+	if (!tp->retrans_stamp)
+		tp->retrans_stamp = tcp_skb_timestamp(skb);
+
+>>>>>>> upstream/android-13
 	if (tp->undo_retrans < 0)
 		tp->undo_retrans = 0;
 	tp->undo_retrans += tcp_skb_pcount(skb);
@@ -2982,6 +3662,10 @@ void tcp_xmit_retransmit_queue(struct sock *sk)
 	const struct inet_connection_sock *icsk = inet_csk(sk);
 	struct sk_buff *skb, *rtx_head, *hole = NULL;
 	struct tcp_sock *tp = tcp_sk(sk);
+<<<<<<< HEAD
+=======
+	bool rearm_timer = false;
+>>>>>>> upstream/android-13
 	u32 max_segs;
 	int mib_idx;
 
@@ -3004,7 +3688,11 @@ void tcp_xmit_retransmit_queue(struct sock *sk)
 
 		segs = tp->snd_cwnd - tcp_packets_in_flight(tp);
 		if (segs <= 0)
+<<<<<<< HEAD
 			return;
+=======
+			break;
+>>>>>>> upstream/android-13
 		sacked = TCP_SKB_CB(skb)->sacked;
 		/* In case tcp_shift_skb_data() have aggregated large skbs,
 		 * we need to make sure not sending too bigs TSO packets
@@ -3029,10 +3717,17 @@ void tcp_xmit_retransmit_queue(struct sock *sk)
 			continue;
 
 		if (tcp_small_queue_check(sk, skb, 1))
+<<<<<<< HEAD
 			return;
 
 		if (tcp_retransmit_skb(sk, skb, segs))
 			return;
+=======
+			break;
+
+		if (tcp_retransmit_skb(sk, skb, segs))
+			break;
+>>>>>>> upstream/android-13
 
 		NET_ADD_STATS(sock_net(sk), mib_idx, tcp_skb_pcount(skb));
 
@@ -3041,10 +3736,20 @@ void tcp_xmit_retransmit_queue(struct sock *sk)
 
 		if (skb == rtx_head &&
 		    icsk->icsk_pending != ICSK_TIME_REO_TIMEOUT)
+<<<<<<< HEAD
 			inet_csk_reset_xmit_timer(sk, ICSK_TIME_RETRANS,
 						  inet_csk(sk)->icsk_rto,
 						  TCP_RTO_MAX);
 	}
+=======
+			rearm_timer = true;
+
+	}
+	if (rearm_timer)
+		tcp_reset_xmit_timer(sk, ICSK_TIME_RETRANS,
+				     inet_csk(sk)->icsk_rto,
+				     TCP_RTO_MAX);
+>>>>>>> upstream/android-13
 }
 
 /* We allow to exceed memory limits for FIN packets to expedite
@@ -3065,7 +3770,12 @@ void sk_forced_mem_schedule(struct sock *sk, int size)
 	sk_memory_allocated_add(sk, amt);
 
 	if (mem_cgroup_sockets_enabled && sk->sk_memcg)
+<<<<<<< HEAD
 		mem_cgroup_charge_skmem(sk->sk_memcg, amt);
+=======
+		mem_cgroup_charge_skmem(sk->sk_memcg, amt,
+					gfp_memcg_charge() | __GFP_NOFAIL);
+>>>>>>> upstream/android-13
 }
 
 /* Send a FIN. The caller locks the socket for us.
@@ -3073,7 +3783,11 @@ void sk_forced_mem_schedule(struct sock *sk, int size)
  */
 void tcp_send_fin(struct sock *sk)
 {
+<<<<<<< HEAD
 	struct sk_buff *skb, *tskb = tcp_write_queue_tail(sk);
+=======
+	struct sk_buff *skb, *tskb, *tail = tcp_write_queue_tail(sk);
+>>>>>>> upstream/android-13
 	struct tcp_sock *tp = tcp_sk(sk);
 
 	/* Optimization, tack on the FIN if we have one skb in write queue and
@@ -3081,31 +3795,52 @@ void tcp_send_fin(struct sock *sk)
 	 * Note: in the latter case, FIN packet will be sent after a timeout,
 	 * as TCP stack thinks it has already been transmitted.
 	 */
+<<<<<<< HEAD
+=======
+	tskb = tail;
+>>>>>>> upstream/android-13
 	if (!tskb && tcp_under_memory_pressure(sk))
 		tskb = skb_rb_last(&sk->tcp_rtx_queue);
 
 	if (tskb) {
+<<<<<<< HEAD
 coalesce:
 		TCP_SKB_CB(tskb)->tcp_flags |= TCPHDR_FIN;
 		TCP_SKB_CB(tskb)->end_seq++;
 		tp->write_seq++;
 		if (tcp_write_queue_empty(sk)) {
+=======
+		TCP_SKB_CB(tskb)->tcp_flags |= TCPHDR_FIN;
+		TCP_SKB_CB(tskb)->end_seq++;
+		tp->write_seq++;
+		if (!tail) {
+>>>>>>> upstream/android-13
 			/* This means tskb was already sent.
 			 * Pretend we included the FIN on previous transmit.
 			 * We need to set tp->snd_nxt to the value it would have
 			 * if FIN had been sent. This is because retransmit path
 			 * does not change tp->snd_nxt.
 			 */
+<<<<<<< HEAD
 			tp->snd_nxt++;
+=======
+			WRITE_ONCE(tp->snd_nxt, tp->snd_nxt + 1);
+>>>>>>> upstream/android-13
 			return;
 		}
 	} else {
 		skb = alloc_skb_fclone(MAX_TCP_HEADER, sk->sk_allocation);
+<<<<<<< HEAD
 		if (unlikely(!skb)) {
 			if (tskb)
 				goto coalesce;
 			return;
 		}
+=======
+		if (unlikely(!skb))
+			return;
+
+>>>>>>> upstream/android-13
 		INIT_LIST_HEAD(&skb->tcp_tsorted_anchor);
 		skb_reserve(skb, MAX_TCP_HEADER);
 		sk_forced_mem_schedule(sk, skb->truesize);
@@ -3179,7 +3914,11 @@ int tcp_send_synack(struct sock *sk)
 			tcp_rtx_queue_unlink_and_free(skb, sk);
 			__skb_header_release(nskb);
 			tcp_rbtree_insert(&sk->tcp_rtx_queue, nskb);
+<<<<<<< HEAD
 			sk->sk_wmem_queued += nskb->truesize;
+=======
+			sk_wmem_queued_add(sk, nskb->truesize);
+>>>>>>> upstream/android-13
 			sk_mem_charge(sk, nskb->truesize);
 			skb = nskb;
 		}
@@ -3191,6 +3930,7 @@ int tcp_send_synack(struct sock *sk)
 }
 
 /**
+<<<<<<< HEAD
  * tcp_make_synack - Prepare a SYN-ACK.
  * sk: listener socket
  * dst: dst entry attached to the SYNACK
@@ -3198,11 +3938,26 @@ int tcp_send_synack(struct sock *sk)
  *
  * Allocate one skb and build a SYNACK packet.
  * @dst is consumed : Caller should not use it again.
+=======
+ * tcp_make_synack - Allocate one skb and build a SYNACK packet.
+ * @sk: listener socket
+ * @dst: dst entry attached to the SYNACK. It is consumed and caller
+ *       should not use it again.
+ * @req: request_sock pointer
+ * @foc: cookie for tcp fast open
+ * @synack_type: Type of synack to prepare
+ * @syn_skb: SYN packet just received.  It could be NULL for rtx case.
+>>>>>>> upstream/android-13
  */
 struct sk_buff *tcp_make_synack(const struct sock *sk, struct dst_entry *dst,
 				struct request_sock *req,
 				struct tcp_fastopen_cookie *foc,
+<<<<<<< HEAD
 				enum tcp_synack_type synack_type)
+=======
+				enum tcp_synack_type synack_type,
+				struct sk_buff *syn_skb)
+>>>>>>> upstream/android-13
 {
 	struct inet_request_sock *ireq = inet_rsk(req);
 	const struct tcp_sock *tp = tcp_sk(sk);
@@ -3212,6 +3967,10 @@ struct sk_buff *tcp_make_synack(const struct sock *sk, struct dst_entry *dst,
 	int tcp_header_size;
 	struct tcphdr *th;
 	int mss;
+<<<<<<< HEAD
+=======
+	u64 now;
+>>>>>>> upstream/android-13
 
 	skb = alloc_skb(MAX_TCP_HEADER, GFP_ATOMIC);
 	if (unlikely(!skb)) {
@@ -3243,20 +4002,42 @@ struct sk_buff *tcp_make_synack(const struct sock *sk, struct dst_entry *dst,
 	mss = tcp_mss_clamp(tp, dst_metric_advmss(dst));
 
 	memset(&opts, 0, sizeof(opts));
+<<<<<<< HEAD
 #ifdef CONFIG_SYN_COOKIES
 	if (unlikely(req->cookie_ts))
 		skb->skb_mstamp = cookie_init_timestamp(req);
 	else
 #endif
 		skb->skb_mstamp = tcp_clock_us();
+=======
+	now = tcp_clock_ns();
+#ifdef CONFIG_SYN_COOKIES
+	if (unlikely(synack_type == TCP_SYNACK_COOKIE && ireq->tstamp_ok))
+		skb->skb_mstamp_ns = cookie_init_timestamp(req, now);
+	else
+#endif
+	{
+		skb->skb_mstamp_ns = now;
+		if (!tcp_rsk(req)->snt_synack) /* Timestamp first SYNACK */
+			tcp_rsk(req)->snt_synack = tcp_skb_timestamp_us(skb);
+	}
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_TCP_MD5SIG
 	rcu_read_lock();
 	md5 = tcp_rsk(req)->af_specific->req_md5_lookup(sk, req_to_sk(req));
 #endif
 	skb_set_hash(skb, tcp_rsk(req)->txhash, PKT_HASH_TYPE_L4);
+<<<<<<< HEAD
 	tcp_header_size = tcp_synack_options(sk, req, mss, skb, &opts, md5,
 					     foc, synack_type) + sizeof(*th);
+=======
+	/* bpf program will be interested in the tcp_flags */
+	TCP_SKB_CB(skb)->tcp_flags = TCPHDR_SYN | TCPHDR_ACK;
+	tcp_header_size = tcp_synack_options(sk, req, mss, skb, &opts, md5,
+					     foc, synack_type,
+					     syn_skb) + sizeof(*th);
+>>>>>>> upstream/android-13
 
 	skb_push(skb, tcp_header_size);
 	skb_reset_transport_header(skb);
@@ -3288,8 +4069,17 @@ struct sk_buff *tcp_make_synack(const struct sock *sk, struct dst_entry *dst,
 	rcu_read_unlock();
 #endif
 
+<<<<<<< HEAD
 	/* Do not fool tcpdump (if any), clean our debris */
 	skb->tstamp = 0;
+=======
+	bpf_skops_write_hdr_opt((struct sock *)sk, skb, req, syn_skb,
+				synack_type, &opts);
+
+	skb->skb_mstamp_ns = now;
+	tcp_add_tx_delay(skb, tp);
+
+>>>>>>> upstream/android-13
 	return skb;
 }
 EXPORT_SYMBOL(tcp_make_synack);
@@ -3305,8 +4095,13 @@ static void tcp_ca_dst_init(struct sock *sk, const struct dst_entry *dst)
 
 	rcu_read_lock();
 	ca = tcp_ca_find_key(ca_key);
+<<<<<<< HEAD
 	if (likely(ca && try_module_get(ca->owner))) {
 		module_put(icsk->icsk_ca_ops->owner);
+=======
+	if (likely(ca && bpf_try_module_get(ca, ca->owner))) {
+		bpf_module_put(icsk->icsk_ca_ops, icsk->icsk_ca_ops->owner);
+>>>>>>> upstream/android-13
 		icsk->icsk_ca_dst_locked = tcp_ca_dst_locked(dst);
 		icsk->icsk_ca_ops = ca;
 	}
@@ -3376,7 +4171,11 @@ static void tcp_connect_init(struct sock *sk)
 	tp->snd_una = tp->write_seq;
 	tp->snd_sml = tp->write_seq;
 	tp->snd_up = tp->write_seq;
+<<<<<<< HEAD
 	tp->snd_nxt = tp->write_seq;
+=======
+	WRITE_ONCE(tp->snd_nxt, tp->write_seq);
+>>>>>>> upstream/android-13
 
 	if (likely(!tp->repair))
 		tp->rcv_nxt = 0;
@@ -3397,7 +4196,11 @@ static void tcp_connect_queue_skb(struct sock *sk, struct sk_buff *skb)
 
 	tcb->end_seq += skb->len;
 	__skb_header_release(skb);
+<<<<<<< HEAD
 	sk->sk_wmem_queued += skb->truesize;
+=======
+	sk_wmem_queued_add(sk, skb->truesize);
+>>>>>>> upstream/android-13
 	sk_mem_charge(sk, skb->truesize);
 	WRITE_ONCE(tp->write_seq, tcb->end_seq);
 	tp->packets_out += tcp_skb_pcount(skb);
@@ -3412,6 +4215,10 @@ static void tcp_connect_queue_skb(struct sock *sk, struct sk_buff *skb)
  */
 static int tcp_send_syn_data(struct sock *sk, struct sk_buff *syn)
 {
+<<<<<<< HEAD
+=======
+	struct inet_connection_sock *icsk = inet_csk(sk);
+>>>>>>> upstream/android-13
 	struct tcp_sock *tp = tcp_sk(sk);
 	struct tcp_fastopen_request *fo = tp->fastopen_req;
 	int space, err = 0;
@@ -3426,8 +4233,15 @@ static int tcp_send_syn_data(struct sock *sk, struct sk_buff *syn)
 	 * private TCP options. The cost is reduced data space in SYN :(
 	 */
 	tp->rx_opt.mss_clamp = tcp_mss_clamp(tp, tp->rx_opt.mss_clamp);
+<<<<<<< HEAD
 
 	space = __tcp_mtu_to_mss(sk, inet_csk(sk)->icsk_pmtu_cookie) -
+=======
+	/* Sync mss_cache after updating the mss_clamp */
+	tcp_sync_mss(sk, icsk->icsk_pmtu_cookie);
+
+	space = __tcp_mtu_to_mss(sk, icsk->icsk_pmtu_cookie) -
+>>>>>>> upstream/android-13
 		MAX_TCP_OPTION_SPACE;
 
 	space = min_t(size_t, space, fo->size);
@@ -3452,6 +4266,10 @@ static int tcp_send_syn_data(struct sock *sk, struct sk_buff *syn)
 			skb_trim(syn_data, copied);
 			space = copied;
 		}
+<<<<<<< HEAD
+=======
+		skb_zcopy_set(syn_data, fo->uarg, NULL);
+>>>>>>> upstream/android-13
 	}
 	/* No more data pending in inet_wait_for_connect() */
 	if (space == fo->size)
@@ -3464,7 +4282,11 @@ static int tcp_send_syn_data(struct sock *sk, struct sk_buff *syn)
 
 	err = tcp_transmit_skb(sk, syn_data, 1, sk->sk_allocation);
 
+<<<<<<< HEAD
 	syn->skb_mstamp = syn_data->skb_mstamp;
+=======
+	syn->skb_mstamp_ns = syn_data->skb_mstamp_ns;
+>>>>>>> upstream/android-13
 
 	/* Now full SYN+DATA was cloned and sent (or not),
 	 * remove the SYN from the original skb (syn_data)
@@ -3535,11 +4357,19 @@ int tcp_connect(struct sock *sk)
 	/* We change tp->snd_nxt after the tcp_transmit_skb() call
 	 * in order to make this packet get counted in tcpOutSegs.
 	 */
+<<<<<<< HEAD
 	tp->snd_nxt = tp->write_seq;
 	tp->pushed_seq = tp->write_seq;
 	buff = tcp_send_head(sk);
 	if (unlikely(buff)) {
 		tp->snd_nxt	= TCP_SKB_CB(buff)->seq;
+=======
+	WRITE_ONCE(tp->snd_nxt, tp->write_seq);
+	tp->pushed_seq = tp->write_seq;
+	buff = tcp_send_head(sk);
+	if (unlikely(buff)) {
+		WRITE_ONCE(tp->snd_nxt, TCP_SKB_CB(buff)->seq);
+>>>>>>> upstream/android-13
 		tp->pushed_seq	= TCP_SKB_CB(buff)->seq;
 	}
 	TCP_INC_STATS(sock_net(sk), TCP_MIB_ACTIVEOPENS);
@@ -3565,7 +4395,11 @@ void tcp_send_delayed_ack(struct sock *sk)
 		const struct tcp_sock *tp = tcp_sk(sk);
 		int max_ato = HZ / 2;
 
+<<<<<<< HEAD
 		if (icsk->icsk_ack.pingpong ||
+=======
+		if (inet_csk_in_pingpong_mode(sk) ||
+>>>>>>> upstream/android-13
 		    (icsk->icsk_ack.pending & ICSK_ACK_PUSHED))
 			max_ato = TCP_DELACK_MAX;
 
@@ -3586,16 +4420,26 @@ void tcp_send_delayed_ack(struct sock *sk)
 		ato = min(ato, max_ato);
 	}
 
+<<<<<<< HEAD
+=======
+	ato = min_t(u32, ato, inet_csk(sk)->icsk_delack_max);
+
+>>>>>>> upstream/android-13
 	/* Stay within the limit we were given */
 	timeout = jiffies + ato;
 
 	/* Use new timeout only if there wasn't a older one earlier. */
 	if (icsk->icsk_ack.pending & ICSK_ACK_TIMER) {
+<<<<<<< HEAD
 		/* If delack timer was blocked or is about to expire,
 		 * send ACK now.
 		 */
 		if (icsk->icsk_ack.blocked ||
 		    time_before_eq(icsk->icsk_ack.timeout, jiffies + (ato >> 2))) {
+=======
+		/* If delack timer is about to expire, send ACK now. */
+		if (time_before_eq(icsk->icsk_ack.timeout, jiffies + (ato >> 2))) {
+>>>>>>> upstream/android-13
 			tcp_send_ack(sk);
 			return;
 		}
@@ -3624,10 +4468,22 @@ void __tcp_send_ack(struct sock *sk, u32 rcv_nxt)
 	buff = alloc_skb(MAX_TCP_HEADER,
 			 sk_gfp_mask(sk, GFP_ATOMIC | __GFP_NOWARN));
 	if (unlikely(!buff)) {
+<<<<<<< HEAD
 		inet_csk_schedule_ack(sk);
 		inet_csk(sk)->icsk_ack.ato = TCP_ATO_MIN;
 		inet_csk_reset_xmit_timer(sk, ICSK_TIME_DACK,
 					  TCP_DELACK_MAX, TCP_RTO_MAX);
+=======
+		struct inet_connection_sock *icsk = inet_csk(sk);
+		unsigned long delay;
+
+		delay = TCP_DELACK_MAX << icsk->icsk_ack.retry;
+		if (delay < TCP_RTO_MAX)
+			icsk->icsk_ack.retry++;
+		inet_csk_schedule_ack(sk);
+		icsk->icsk_ack.ato = TCP_ATO_MIN;
+		inet_csk_reset_xmit_timer(sk, ICSK_TIME_DACK, delay, TCP_RTO_MAX);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -3746,7 +4602,11 @@ void tcp_send_probe0(struct sock *sk)
 	struct inet_connection_sock *icsk = inet_csk(sk);
 	struct tcp_sock *tp = tcp_sk(sk);
 	struct net *net = sock_net(sk);
+<<<<<<< HEAD
 	unsigned long probe_max;
+=======
+	unsigned long timeout;
+>>>>>>> upstream/android-13
 	int err;
 
 	err = tcp_write_wakeup(sk, LINUX_MIB_TCPWINPROBE);
@@ -3755,6 +4615,7 @@ void tcp_send_probe0(struct sock *sk)
 		/* Cancel probe timer, if it is not required. */
 		icsk->icsk_probes_out = 0;
 		icsk->icsk_backoff = 0;
+<<<<<<< HEAD
 		return;
 	}
 
@@ -3777,6 +4638,26 @@ void tcp_send_probe0(struct sock *sk)
 	inet_csk_reset_xmit_timer(sk, ICSK_TIME_PROBE0,
 				  tcp_probe0_when(sk, probe_max),
 				  TCP_RTO_MAX);
+=======
+		icsk->icsk_probes_tstamp = 0;
+		return;
+	}
+
+	icsk->icsk_probes_out++;
+	if (err <= 0) {
+		if (icsk->icsk_backoff < net->ipv4.sysctl_tcp_retries2)
+			icsk->icsk_backoff++;
+		timeout = tcp_probe0_when(sk, TCP_RTO_MAX);
+	} else {
+		/* If packet was not sent due to local congestion,
+		 * Let senders fight for local resources conservatively.
+		 */
+		timeout = TCP_RESOURCE_PROBE_INTERVAL;
+	}
+
+	timeout = tcp_clamp_probe0_to_user_timeout(sk, timeout);
+	tcp_reset_xmit_timer(sk, ICSK_TIME_PROBE0, timeout, TCP_RTO_MAX);
+>>>>>>> upstream/android-13
 }
 
 int tcp_rtx_synack(const struct sock *sk, struct request_sock *req)
@@ -3786,7 +4667,12 @@ int tcp_rtx_synack(const struct sock *sk, struct request_sock *req)
 	int res;
 
 	tcp_rsk(req)->txhash = net_tx_rndhash();
+<<<<<<< HEAD
 	res = af_ops->send_synack(sk, NULL, &fl, req, NULL, TCP_SYNACK_NORMAL);
+=======
+	res = af_ops->send_synack(sk, NULL, &fl, req, NULL, TCP_SYNACK_NORMAL,
+				  NULL);
+>>>>>>> upstream/android-13
 	if (!res) {
 		__TCP_INC_STATS(sock_net(sk), TCP_MIB_RETRANSSEGS);
 		__NET_INC_STATS(sock_net(sk), LINUX_MIB_TCPSYNRETRANS);

@@ -2,10 +2,18 @@
 /*
  * Driver for the NXP ISP1761 device controller
  *
+<<<<<<< HEAD
+=======
+ * Copyright 2021 Linaro, Rui Miguel Silva
+>>>>>>> upstream/android-13
  * Copyright 2014 Ideas on Board Oy
  *
  * Contacts:
  *	Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+<<<<<<< HEAD
+=======
+ *	Rui Miguel Silva <rui.silva@linaro.org>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/interrupt.h>
@@ -45,6 +53,7 @@ static inline struct isp1760_request *req_to_udc_req(struct usb_request *req)
 	return container_of(req, struct isp1760_request, req);
 }
 
+<<<<<<< HEAD
 static inline u32 isp1760_udc_read(struct isp1760_udc *udc, u16 reg)
 {
 	return isp1760_read32(udc->regs, reg);
@@ -55,6 +64,64 @@ static inline void isp1760_udc_write(struct isp1760_udc *udc, u16 reg, u32 val)
 	isp1760_write32(udc->regs, reg, val);
 }
 
+=======
+static u32 isp1760_udc_read(struct isp1760_udc *udc, u16 field)
+{
+	return isp1760_field_read(udc->fields, field);
+}
+
+static void isp1760_udc_write(struct isp1760_udc *udc, u16 field, u32 val)
+{
+	isp1760_field_write(udc->fields, field, val);
+}
+
+static u32 isp1760_udc_read_raw(struct isp1760_udc *udc, u16 reg)
+{
+	__le32 val;
+
+	regmap_raw_read(udc->regs, reg, &val, 4);
+
+	return le32_to_cpu(val);
+}
+
+static u16 isp1760_udc_read_raw16(struct isp1760_udc *udc, u16 reg)
+{
+	__le16 val;
+
+	regmap_raw_read(udc->regs, reg, &val, 2);
+
+	return le16_to_cpu(val);
+}
+
+static void isp1760_udc_write_raw(struct isp1760_udc *udc, u16 reg, u32 val)
+{
+	__le32 val_le = cpu_to_le32(val);
+
+	regmap_raw_write(udc->regs, reg, &val_le, 4);
+}
+
+static void isp1760_udc_write_raw16(struct isp1760_udc *udc, u16 reg, u16 val)
+{
+	__le16 val_le = cpu_to_le16(val);
+
+	regmap_raw_write(udc->regs, reg, &val_le, 2);
+}
+
+static void isp1760_udc_set(struct isp1760_udc *udc, u32 field)
+{
+	isp1760_udc_write(udc, field, 0xFFFFFFFF);
+}
+
+static void isp1760_udc_clear(struct isp1760_udc *udc, u32 field)
+{
+	isp1760_udc_write(udc, field, 0);
+}
+
+static bool isp1760_udc_is_set(struct isp1760_udc *udc, u32 field)
+{
+	return !!isp1760_udc_read(udc, field);
+}
+>>>>>>> upstream/android-13
 /* -----------------------------------------------------------------------------
  * Endpoint Management
  */
@@ -75,16 +142,32 @@ static struct isp1760_ep *isp1760_udc_find_ep(struct isp1760_udc *udc,
 	return NULL;
 }
 
+<<<<<<< HEAD
 static void __isp1760_udc_select_ep(struct isp1760_ep *ep, int dir)
 {
 	isp1760_udc_write(ep->udc, DC_EPINDEX,
 			  DC_ENDPIDX(ep->addr & USB_ENDPOINT_NUMBER_MASK) |
 			  (dir == USB_DIR_IN ? DC_EPDIR : 0));
+=======
+static void __isp1760_udc_select_ep(struct isp1760_udc *udc,
+				    struct isp1760_ep *ep, int dir)
+{
+	isp1760_udc_write(udc, DC_ENDPIDX, ep->addr & USB_ENDPOINT_NUMBER_MASK);
+
+	if (dir == USB_DIR_IN)
+		isp1760_udc_set(udc, DC_EPDIR);
+	else
+		isp1760_udc_clear(udc, DC_EPDIR);
+>>>>>>> upstream/android-13
 }
 
 /**
  * isp1760_udc_select_ep - Select an endpoint for register access
  * @ep: The endpoint
+<<<<<<< HEAD
+=======
+ * @udc: Reference to the device controller
+>>>>>>> upstream/android-13
  *
  * The ISP1761 endpoint registers are banked. This function selects the target
  * endpoint for banked register access. The selection remains valid until the
@@ -93,9 +176,16 @@ static void __isp1760_udc_select_ep(struct isp1760_ep *ep, int dir)
  *
  * Called with the UDC spinlock held.
  */
+<<<<<<< HEAD
 static void isp1760_udc_select_ep(struct isp1760_ep *ep)
 {
 	__isp1760_udc_select_ep(ep, ep->addr & USB_ENDPOINT_DIR_MASK);
+=======
+static void isp1760_udc_select_ep(struct isp1760_udc *udc,
+				  struct isp1760_ep *ep)
+{
+	__isp1760_udc_select_ep(udc, ep, ep->addr & USB_ENDPOINT_DIR_MASK);
+>>>>>>> upstream/android-13
 }
 
 /* Called with the UDC spinlock held. */
@@ -108,9 +198,19 @@ static void isp1760_udc_ctrl_send_status(struct isp1760_ep *ep, int dir)
 	 * the direction opposite to the data stage data packets, we thus need
 	 * to select the OUT/IN endpoint for IN/OUT transfers.
 	 */
+<<<<<<< HEAD
 	isp1760_udc_write(udc, DC_EPINDEX, DC_ENDPIDX(0) |
 			  (dir == USB_DIR_IN ? 0 : DC_EPDIR));
 	isp1760_udc_write(udc, DC_CTRLFUNC, DC_STATUS);
+=======
+	if (dir == USB_DIR_IN)
+		isp1760_udc_clear(udc, DC_EPDIR);
+	else
+		isp1760_udc_set(udc, DC_EPDIR);
+
+	isp1760_udc_write(udc, DC_ENDPIDX, 1);
+	isp1760_udc_set(udc, DC_STATUS);
+>>>>>>> upstream/android-13
 
 	/*
 	 * The hardware will terminate the request automatically and go back to
@@ -157,10 +257,17 @@ static void isp1760_udc_ctrl_send_stall(struct isp1760_ep *ep)
 	spin_lock_irqsave(&udc->lock, flags);
 
 	/* Stall both the IN and OUT endpoints. */
+<<<<<<< HEAD
 	__isp1760_udc_select_ep(ep, USB_DIR_OUT);
 	isp1760_udc_write(udc, DC_CTRLFUNC, DC_STALL);
 	__isp1760_udc_select_ep(ep, USB_DIR_IN);
 	isp1760_udc_write(udc, DC_CTRLFUNC, DC_STALL);
+=======
+	__isp1760_udc_select_ep(udc, ep, USB_DIR_OUT);
+	isp1760_udc_set(udc, DC_STALL);
+	__isp1760_udc_select_ep(udc, ep, USB_DIR_IN);
+	isp1760_udc_set(udc, DC_STALL);
+>>>>>>> upstream/android-13
 
 	/* A protocol stall completes the control transaction. */
 	udc->ep0_state = ISP1760_CTRL_SETUP;
@@ -181,8 +288,13 @@ static bool isp1760_udc_receive(struct isp1760_ep *ep,
 	u32 *buf;
 	int i;
 
+<<<<<<< HEAD
 	isp1760_udc_select_ep(ep);
 	len = isp1760_udc_read(udc, DC_BUFLEN) & DC_DATACOUNT_MASK;
+=======
+	isp1760_udc_select_ep(udc, ep);
+	len = isp1760_udc_read(udc, DC_BUFLEN);
+>>>>>>> upstream/android-13
 
 	dev_dbg(udc->isp->dev, "%s: received %u bytes (%u/%u done)\n",
 		__func__, len, req->req.actual, req->req.length);
@@ -198,7 +310,11 @@ static bool isp1760_udc_receive(struct isp1760_ep *ep,
 		 * datasheet doesn't clearly document how this should be
 		 * handled.
 		 */
+<<<<<<< HEAD
 		isp1760_udc_write(udc, DC_CTRLFUNC, DC_CLBUF);
+=======
+		isp1760_udc_set(udc, DC_CLBUF);
+>>>>>>> upstream/android-13
 		return false;
 	}
 
@@ -209,9 +325,15 @@ static bool isp1760_udc_receive(struct isp1760_ep *ep,
 	 * the next packet might be removed from the FIFO.
 	 */
 	for (i = len; i > 2; i -= 4, ++buf)
+<<<<<<< HEAD
 		*buf = le32_to_cpu(isp1760_udc_read(udc, DC_DATAPORT));
 	if (i > 0)
 		*(u16 *)buf = le16_to_cpu(readw(udc->regs + DC_DATAPORT));
+=======
+		*buf = isp1760_udc_read_raw(udc, ISP176x_DC_DATAPORT);
+	if (i > 0)
+		*(u16 *)buf = isp1760_udc_read_raw16(udc, ISP176x_DC_DATAPORT);
+>>>>>>> upstream/android-13
 
 	req->req.actual += len;
 
@@ -253,7 +375,11 @@ static void isp1760_udc_transmit(struct isp1760_ep *ep,
 		__func__, req->packet_size, req->req.actual,
 		req->req.length);
 
+<<<<<<< HEAD
 	__isp1760_udc_select_ep(ep, USB_DIR_IN);
+=======
+	__isp1760_udc_select_ep(udc, ep, USB_DIR_IN);
+>>>>>>> upstream/android-13
 
 	if (req->packet_size)
 		isp1760_udc_write(udc, DC_BUFLEN, req->packet_size);
@@ -265,6 +391,7 @@ static void isp1760_udc_transmit(struct isp1760_ep *ep,
 	 * the FIFO for this kind of conditions, but doesn't seem to work.
 	 */
 	for (i = req->packet_size; i > 2; i -= 4, ++buf)
+<<<<<<< HEAD
 		isp1760_udc_write(udc, DC_DATAPORT, cpu_to_le32(*buf));
 	if (i > 0)
 		writew(cpu_to_le16(*(u16 *)buf), udc->regs + DC_DATAPORT);
@@ -273,6 +400,16 @@ static void isp1760_udc_transmit(struct isp1760_ep *ep,
 		isp1760_udc_write(udc, DC_CTRLFUNC, DC_DSEN);
 	if (!req->packet_size)
 		isp1760_udc_write(udc, DC_CTRLFUNC, DC_VENDP);
+=======
+		isp1760_udc_write_raw(udc, ISP176x_DC_DATAPORT, *buf);
+	if (i > 0)
+		isp1760_udc_write_raw16(udc, ISP176x_DC_DATAPORT, *(u16 *)buf);
+
+	if (ep->addr == 0)
+		isp1760_udc_set(udc, DC_DSEN);
+	if (!req->packet_size)
+		isp1760_udc_set(udc, DC_VENDP);
+>>>>>>> upstream/android-13
 }
 
 static void isp1760_ep_rx_ready(struct isp1760_ep *ep)
@@ -408,6 +545,7 @@ static int __isp1760_udc_set_halt(struct isp1760_ep *ep, bool halt)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	isp1760_udc_select_ep(ep);
 	isp1760_udc_write(udc, DC_CTRLFUNC, halt ? DC_STALL : 0);
 
@@ -421,6 +559,26 @@ static int __isp1760_udc_set_halt(struct isp1760_ep *ep, bool halt)
 
 		isp1760_udc_write(udc, DC_EPTYPE, eptype & ~DC_EPENABLE);
 		isp1760_udc_write(udc, DC_EPTYPE, eptype);
+=======
+	isp1760_udc_select_ep(udc, ep);
+
+	if (halt)
+		isp1760_udc_set(udc, DC_STALL);
+	else
+		isp1760_udc_clear(udc, DC_STALL);
+
+	if (ep->addr == 0) {
+		/* When halting the control endpoint, stall both IN and OUT. */
+		__isp1760_udc_select_ep(udc, ep, USB_DIR_IN);
+		if (halt)
+			isp1760_udc_set(udc, DC_STALL);
+		else
+			isp1760_udc_clear(udc, DC_STALL);
+	} else if (!halt) {
+		/* Reset the data PID by cycling the endpoint enable bit. */
+		isp1760_udc_clear(udc, DC_EPENABLE);
+		isp1760_udc_set(udc, DC_EPENABLE);
+>>>>>>> upstream/android-13
 
 		/*
 		 * Disabling the endpoint emptied the transmit FIFO, fill it
@@ -479,12 +637,23 @@ static int isp1760_udc_get_status(struct isp1760_udc *udc,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	isp1760_udc_write(udc, DC_EPINDEX, DC_ENDPIDX(0) | DC_EPDIR);
 	isp1760_udc_write(udc, DC_BUFLEN, 2);
 
 	writew(cpu_to_le16(status), udc->regs + DC_DATAPORT);
 
 	isp1760_udc_write(udc, DC_CTRLFUNC, DC_DSEN);
+=======
+	isp1760_udc_set(udc, DC_EPDIR);
+	isp1760_udc_write(udc, DC_ENDPIDX, 1);
+
+	isp1760_udc_write(udc, DC_BUFLEN, 2);
+
+	isp1760_udc_write_raw16(udc, ISP176x_DC_DATAPORT, status);
+
+	isp1760_udc_set(udc, DC_DSEN);
+>>>>>>> upstream/android-13
 
 	dev_dbg(udc->isp->dev, "%s: status 0x%04x\n", __func__, status);
 
@@ -508,7 +677,12 @@ static int isp1760_udc_set_address(struct isp1760_udc *udc, u16 addr)
 	usb_gadget_set_state(&udc->gadget, addr ? USB_STATE_ADDRESS :
 			     USB_STATE_DEFAULT);
 
+<<<<<<< HEAD
 	isp1760_udc_write(udc, DC_ADDRESS, DC_DEVEN | addr);
+=======
+	isp1760_udc_write(udc, DC_DEVADDR, addr);
+	isp1760_udc_set(udc, DC_DEVEN);
+>>>>>>> upstream/android-13
 
 	spin_lock(&udc->lock);
 	isp1760_udc_ctrl_send_status(&udc->ep[0], USB_DIR_OUT);
@@ -650,9 +824,15 @@ static void isp1760_ep0_setup(struct isp1760_udc *udc)
 
 	spin_lock(&udc->lock);
 
+<<<<<<< HEAD
 	isp1760_udc_write(udc, DC_EPINDEX, DC_EP0SETUP);
 
 	count = isp1760_udc_read(udc, DC_BUFLEN) & DC_DATACOUNT_MASK;
+=======
+	isp1760_udc_set(udc, DC_EP0SETUP);
+
+	count = isp1760_udc_read(udc, DC_BUFLEN);
+>>>>>>> upstream/android-13
 	if (count != sizeof(req)) {
 		spin_unlock(&udc->lock);
 
@@ -663,8 +843,13 @@ static void isp1760_ep0_setup(struct isp1760_udc *udc)
 		return;
 	}
 
+<<<<<<< HEAD
 	req.data[0] = isp1760_udc_read(udc, DC_DATAPORT);
 	req.data[1] = isp1760_udc_read(udc, DC_DATAPORT);
+=======
+	req.data[0] = isp1760_udc_read_raw(udc, ISP176x_DC_DATAPORT);
+	req.data[1] = isp1760_udc_read_raw(udc, ISP176x_DC_DATAPORT);
+>>>>>>> upstream/android-13
 
 	if (udc->ep0_state != ISP1760_CTRL_SETUP) {
 		spin_unlock(&udc->lock);
@@ -732,6 +917,7 @@ static int isp1760_ep_enable(struct usb_ep *ep,
 
 	switch (usb_endpoint_type(desc)) {
 	case USB_ENDPOINT_XFER_ISOC:
+<<<<<<< HEAD
 		type = DC_ENDPTYP_ISOC;
 		break;
 	case USB_ENDPOINT_XFER_BULK:
@@ -739,6 +925,15 @@ static int isp1760_ep_enable(struct usb_ep *ep,
 		break;
 	case USB_ENDPOINT_XFER_INT:
 		type = DC_ENDPTYP_INTERRUPT;
+=======
+		type = ISP176x_DC_ENDPTYP_ISOC;
+		break;
+	case USB_ENDPOINT_XFER_BULK:
+		type = ISP176x_DC_ENDPTYP_BULK;
+		break;
+	case USB_ENDPOINT_XFER_INT:
+		type = ISP176x_DC_ENDPTYP_INTERRUPT;
+>>>>>>> upstream/android-13
 		break;
 	case USB_ENDPOINT_XFER_CONTROL:
 	default:
@@ -755,10 +950,20 @@ static int isp1760_ep_enable(struct usb_ep *ep,
 	uep->halted = false;
 	uep->wedged = false;
 
+<<<<<<< HEAD
 	isp1760_udc_select_ep(uep);
 	isp1760_udc_write(udc, DC_EPMAXPKTSZ, uep->maxpacket);
 	isp1760_udc_write(udc, DC_BUFLEN, uep->maxpacket);
 	isp1760_udc_write(udc, DC_EPTYPE, DC_EPENABLE | type);
+=======
+	isp1760_udc_select_ep(udc, uep);
+
+	isp1760_udc_write(udc, DC_FFOSZ, uep->maxpacket);
+	isp1760_udc_write(udc, DC_BUFLEN, uep->maxpacket);
+
+	isp1760_udc_write(udc, DC_ENDPTYP, type);
+	isp1760_udc_set(udc, DC_EPENABLE);
+>>>>>>> upstream/android-13
 
 	spin_unlock_irqrestore(&udc->lock, flags);
 
@@ -786,8 +991,14 @@ static int isp1760_ep_disable(struct usb_ep *ep)
 	uep->desc = NULL;
 	uep->maxpacket = 0;
 
+<<<<<<< HEAD
 	isp1760_udc_select_ep(uep);
 	isp1760_udc_write(udc, DC_EPTYPE, 0);
+=======
+	isp1760_udc_select_ep(udc, uep);
+	isp1760_udc_clear(udc, DC_EPENABLE);
+	isp1760_udc_clear(udc, DC_ENDPTYP);
+>>>>>>> upstream/android-13
 
 	/* TODO Synchronize with the IRQ handler */
 
@@ -864,8 +1075,13 @@ static int isp1760_ep_queue(struct usb_ep *ep, struct usb_request *_req,
 
 		case ISP1760_CTRL_DATA_OUT:
 			list_add_tail(&req->queue, &uep->queue);
+<<<<<<< HEAD
 			__isp1760_udc_select_ep(uep, USB_DIR_OUT);
 			isp1760_udc_write(udc, DC_CTRLFUNC, DC_DSEN);
+=======
+			__isp1760_udc_select_ep(udc, uep, USB_DIR_OUT);
+			isp1760_udc_set(udc, DC_DSEN);
+>>>>>>> upstream/android-13
 			break;
 
 		case ISP1760_CTRL_STATUS:
@@ -1025,14 +1241,23 @@ static void isp1760_ep_fifo_flush(struct usb_ep *ep)
 
 	spin_lock_irqsave(&udc->lock, flags);
 
+<<<<<<< HEAD
 	isp1760_udc_select_ep(uep);
+=======
+	isp1760_udc_select_ep(udc, uep);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Set the CLBUF bit twice to flush both buffers in case double
 	 * buffering is enabled.
 	 */
+<<<<<<< HEAD
 	isp1760_udc_write(udc, DC_CTRLFUNC, DC_CLBUF);
 	isp1760_udc_write(udc, DC_CTRLFUNC, DC_CLBUF);
+=======
+	isp1760_udc_set(udc, DC_CLBUF);
+	isp1760_udc_set(udc, DC_CLBUF);
+>>>>>>> upstream/android-13
 
 	spin_unlock_irqrestore(&udc->lock, flags);
 }
@@ -1082,6 +1307,13 @@ static void isp1760_udc_disconnect(struct isp1760_udc *udc)
 
 static void isp1760_udc_init_hw(struct isp1760_udc *udc)
 {
+<<<<<<< HEAD
+=======
+	u32 intconf = udc->is_isp1763 ? ISP1763_DC_INTCONF : ISP176x_DC_INTCONF;
+	u32 intena = udc->is_isp1763 ? ISP1763_DC_INTENABLE :
+						ISP176x_DC_INTENABLE;
+
+>>>>>>> upstream/android-13
 	/*
 	 * The device controller currently shares its interrupt with the host
 	 * controller, the DC_IRQ polarity and signaling mode are ignored. Set
@@ -1091,6 +1323,7 @@ static void isp1760_udc_init_hw(struct isp1760_udc *udc)
 	 * ACK tokens only (and NYET for the out pipe). The default
 	 * configuration also generates an interrupt on the first NACK token.
 	 */
+<<<<<<< HEAD
 	isp1760_udc_write(udc, DC_INTCONF, DC_CDBGMOD_ACK | DC_DDBGMODIN_ACK |
 			  DC_DDBGMODOUT_ACK_NYET);
 
@@ -1099,11 +1332,28 @@ static void isp1760_udc_init_hw(struct isp1760_udc *udc)
 			  DC_IEPRXTX(2) | DC_IEPRXTX(1) | DC_IEPRXTX(0) |
 			  DC_IEP0SETUP | DC_IEVBUS | DC_IERESM | DC_IESUSP |
 			  DC_IEHS_STA | DC_IEBRST);
+=======
+	isp1760_reg_write(udc->regs, intconf,
+			  ISP176x_DC_CDBGMOD_ACK | ISP176x_DC_DDBGMODIN_ACK |
+			  ISP176x_DC_DDBGMODOUT_ACK);
+
+	isp1760_reg_write(udc->regs, intena, DC_IEPRXTX(7) |
+			  DC_IEPRXTX(6) | DC_IEPRXTX(5) | DC_IEPRXTX(4) |
+			  DC_IEPRXTX(3) | DC_IEPRXTX(2) | DC_IEPRXTX(1) |
+			  DC_IEPRXTX(0) | ISP176x_DC_IEP0SETUP |
+			  ISP176x_DC_IEVBUS | ISP176x_DC_IERESM |
+			  ISP176x_DC_IESUSP | ISP176x_DC_IEHS_STA |
+			  ISP176x_DC_IEBRST);
+>>>>>>> upstream/android-13
 
 	if (udc->connected)
 		isp1760_set_pullup(udc->isp, true);
 
+<<<<<<< HEAD
 	isp1760_udc_write(udc, DC_ADDRESS, DC_DEVEN);
+=======
+	isp1760_udc_set(udc, DC_DEVEN);
+>>>>>>> upstream/android-13
 }
 
 static void isp1760_udc_reset(struct isp1760_udc *udc)
@@ -1152,7 +1402,11 @@ static int isp1760_udc_get_frame(struct usb_gadget *gadget)
 {
 	struct isp1760_udc *udc = gadget_to_udc(gadget);
 
+<<<<<<< HEAD
 	return isp1760_udc_read(udc, DC_FRAMENUM) & ((1 << 11) - 1);
+=======
+	return isp1760_udc_read(udc, DC_FRAMENUM);
+>>>>>>> upstream/android-13
 }
 
 static int isp1760_udc_wakeup(struct usb_gadget *gadget)
@@ -1219,7 +1473,11 @@ static int isp1760_udc_start(struct usb_gadget *gadget,
 	usb_gadget_set_state(&udc->gadget, USB_STATE_ATTACHED);
 
 	/* DMA isn't supported yet, don't enable the DMA clock. */
+<<<<<<< HEAD
 	isp1760_udc_write(udc, DC_MODE, DC_GLINTENA);
+=======
+	isp1760_udc_set(udc, DC_GLINTENA);
+>>>>>>> upstream/android-13
 
 	isp1760_udc_init_hw(udc);
 
@@ -1232,13 +1490,21 @@ static int isp1760_udc_start(struct usb_gadget *gadget,
 static int isp1760_udc_stop(struct usb_gadget *gadget)
 {
 	struct isp1760_udc *udc = gadget_to_udc(gadget);
+<<<<<<< HEAD
+=======
+	u32 mode_reg = udc->is_isp1763 ? ISP1763_DC_MODE : ISP176x_DC_MODE;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 
 	dev_dbg(udc->isp->dev, "%s\n", __func__);
 
 	del_timer_sync(&udc->vbus_timer);
 
+<<<<<<< HEAD
 	isp1760_udc_write(udc, DC_MODE, 0);
+=======
+	isp1760_reg_write(udc->regs, mode_reg, 0);
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&udc->lock, flags);
 	udc->driver = NULL;
@@ -1260,17 +1526,43 @@ static const struct usb_gadget_ops isp1760_udc_ops = {
  * Interrupt Handling
  */
 
+<<<<<<< HEAD
+=======
+static u32 isp1760_udc_irq_get_status(struct isp1760_udc *udc)
+{
+	u32 status;
+
+	if (udc->is_isp1763) {
+		status = isp1760_reg_read(udc->regs, ISP1763_DC_INTERRUPT)
+			& isp1760_reg_read(udc->regs, ISP1763_DC_INTENABLE);
+		isp1760_reg_write(udc->regs, ISP1763_DC_INTERRUPT, status);
+	} else {
+		status = isp1760_reg_read(udc->regs, ISP176x_DC_INTERRUPT)
+			& isp1760_reg_read(udc->regs, ISP176x_DC_INTENABLE);
+		isp1760_reg_write(udc->regs, ISP176x_DC_INTERRUPT, status);
+	}
+
+	return status;
+}
+
+>>>>>>> upstream/android-13
 static irqreturn_t isp1760_udc_irq(int irq, void *dev)
 {
 	struct isp1760_udc *udc = dev;
 	unsigned int i;
 	u32 status;
 
+<<<<<<< HEAD
 	status = isp1760_udc_read(udc, DC_INTERRUPT)
 	       & isp1760_udc_read(udc, DC_INTENABLE);
 	isp1760_udc_write(udc, DC_INTERRUPT, status);
 
 	if (status & DC_IEVBUS) {
+=======
+	status = isp1760_udc_irq_get_status(udc);
+
+	if (status & ISP176x_DC_IEVBUS) {
+>>>>>>> upstream/android-13
 		dev_dbg(udc->isp->dev, "%s(VBUS)\n", __func__);
 		/* The VBUS interrupt is only triggered when VBUS appears. */
 		spin_lock(&udc->lock);
@@ -1278,7 +1570,11 @@ static irqreturn_t isp1760_udc_irq(int irq, void *dev)
 		spin_unlock(&udc->lock);
 	}
 
+<<<<<<< HEAD
 	if (status & DC_IEBRST) {
+=======
+	if (status & ISP176x_DC_IEBRST) {
+>>>>>>> upstream/android-13
 		dev_dbg(udc->isp->dev, "%s(BRST)\n", __func__);
 
 		isp1760_udc_reset(udc);
@@ -1298,29 +1594,49 @@ static irqreturn_t isp1760_udc_irq(int irq, void *dev)
 		}
 	}
 
+<<<<<<< HEAD
 	if (status & DC_IEP0SETUP) {
+=======
+	if (status & ISP176x_DC_IEP0SETUP) {
+>>>>>>> upstream/android-13
 		dev_dbg(udc->isp->dev, "%s(EP0SETUP)\n", __func__);
 
 		isp1760_ep0_setup(udc);
 	}
 
+<<<<<<< HEAD
 	if (status & DC_IERESM) {
+=======
+	if (status & ISP176x_DC_IERESM) {
+>>>>>>> upstream/android-13
 		dev_dbg(udc->isp->dev, "%s(RESM)\n", __func__);
 		isp1760_udc_resume(udc);
 	}
 
+<<<<<<< HEAD
 	if (status & DC_IESUSP) {
 		dev_dbg(udc->isp->dev, "%s(SUSP)\n", __func__);
 
 		spin_lock(&udc->lock);
 		if (!(isp1760_udc_read(udc, DC_MODE) & DC_VBUSSTAT))
+=======
+	if (status & ISP176x_DC_IESUSP) {
+		dev_dbg(udc->isp->dev, "%s(SUSP)\n", __func__);
+
+		spin_lock(&udc->lock);
+		if (!isp1760_udc_is_set(udc, DC_VBUSSTAT))
+>>>>>>> upstream/android-13
 			isp1760_udc_disconnect(udc);
 		else
 			isp1760_udc_suspend(udc);
 		spin_unlock(&udc->lock);
 	}
 
+<<<<<<< HEAD
 	if (status & DC_IEHS_STA) {
+=======
+	if (status & ISP176x_DC_IEHS_STA) {
+>>>>>>> upstream/android-13
 		dev_dbg(udc->isp->dev, "%s(HS_STA)\n", __func__);
 		udc->gadget.speed = USB_SPEED_HIGH;
 	}
@@ -1335,7 +1651,11 @@ static void isp1760_udc_vbus_poll(struct timer_list *t)
 
 	spin_lock_irqsave(&udc->lock, flags);
 
+<<<<<<< HEAD
 	if (!(isp1760_udc_read(udc, DC_MODE) & DC_VBUSSTAT))
+=======
+	if (!(isp1760_udc_is_set(udc, DC_VBUSSTAT)))
+>>>>>>> upstream/android-13
 		isp1760_udc_disconnect(udc);
 	else if (udc->gadget.state >= USB_STATE_POWERED)
 		mod_timer(&udc->vbus_timer,
@@ -1403,6 +1723,10 @@ static void isp1760_udc_init_eps(struct isp1760_udc *udc)
 
 static int isp1760_udc_init(struct isp1760_udc *udc)
 {
+<<<<<<< HEAD
+=======
+	u32 mode_reg = udc->is_isp1763 ? ISP1763_DC_MODE : ISP176x_DC_MODE;
+>>>>>>> upstream/android-13
 	u16 scratch;
 	u32 chipid;
 
@@ -1413,7 +1737,12 @@ static int isp1760_udc_init(struct isp1760_udc *udc)
 	 * and scratch register contents must match the expected values.
 	 */
 	isp1760_udc_write(udc, DC_SCRATCH, 0xbabe);
+<<<<<<< HEAD
 	chipid = isp1760_udc_read(udc, DC_CHIPID);
+=======
+	chipid = isp1760_udc_read(udc, DC_CHIP_ID_HIGH) << 16;
+	chipid |= isp1760_udc_read(udc, DC_CHIP_ID_LOW);
+>>>>>>> upstream/android-13
 	scratch = isp1760_udc_read(udc, DC_SCRATCH);
 
 	if (scratch != 0xbabe) {
@@ -1423,15 +1752,26 @@ static int isp1760_udc_init(struct isp1760_udc *udc)
 		return -ENODEV;
 	}
 
+<<<<<<< HEAD
 	if (chipid != 0x00011582 && chipid != 0x00158210) {
+=======
+	if (chipid != 0x00011582 && chipid != 0x00158210 &&
+	    chipid != 0x00176320) {
+>>>>>>> upstream/android-13
 		dev_err(udc->isp->dev, "udc: invalid chip ID 0x%08x\n", chipid);
 		return -ENODEV;
 	}
 
 	/* Reset the device controller. */
+<<<<<<< HEAD
 	isp1760_udc_write(udc, DC_MODE, DC_SFRESET);
 	usleep_range(10000, 11000);
 	isp1760_udc_write(udc, DC_MODE, 0);
+=======
+	isp1760_udc_set(udc, DC_SFRESET);
+	usleep_range(10000, 11000);
+	isp1760_reg_write(udc->regs, mode_reg, 0);
+>>>>>>> upstream/android-13
 	usleep_range(10000, 11000);
 
 	return 0;
@@ -1445,7 +1785,10 @@ int isp1760_udc_register(struct isp1760_device *isp, int irq,
 
 	udc->irq = -1;
 	udc->isp = isp;
+<<<<<<< HEAD
 	udc->regs = isp->regs;
+=======
+>>>>>>> upstream/android-13
 
 	spin_lock_init(&udc->lock);
 	timer_setup(&udc->vbus_timer, isp1760_udc_vbus_poll, 0);

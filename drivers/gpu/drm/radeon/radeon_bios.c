@@ -25,6 +25,7 @@
  *          Alex Deucher
  *          Jerome Glisse
  */
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include "radeon_reg.h"
 #include "radeon.h"
@@ -32,6 +33,19 @@
 
 #include <linux/slab.h>
 #include <linux/acpi.h>
+=======
+
+#include <linux/acpi.h>
+#include <linux/pci.h>
+#include <linux/slab.h>
+
+#include <drm/drm_device.h>
+
+#include "atom.h"
+#include "radeon.h"
+#include "radeon_reg.h"
+
+>>>>>>> upstream/android-13
 /*
  * BIOS.
  */
@@ -201,7 +215,11 @@ static bool radeon_atrm_get_bios(struct radeon_device *rdev)
 			continue;
 
 		status = acpi_get_handle(dhandle, "ATRM", &atrm_handle);
+<<<<<<< HEAD
 		if (!ACPI_FAILURE(status)) {
+=======
+		if (ACPI_SUCCESS(status)) {
+>>>>>>> upstream/android-13
 			found = true;
 			break;
 		}
@@ -214,7 +232,11 @@ static bool radeon_atrm_get_bios(struct radeon_device *rdev)
 				continue;
 
 			status = acpi_get_handle(dhandle, "ATRM", &atrm_handle);
+<<<<<<< HEAD
 			if (!ACPI_FAILURE(status)) {
+=======
+			if (ACPI_SUCCESS(status)) {
+>>>>>>> upstream/android-13
 				found = true;
 				break;
 			}
@@ -524,7 +546,11 @@ static bool legacy_read_disabled_bios(struct radeon_device *rdev)
 	crtc_ext_cntl = RREG32(RADEON_CRTC_EXT_CNTL);
 	fp2_gen_cntl = 0;
 
+<<<<<<< HEAD
 	if (rdev->ddev->pdev->device == PCI_DEVICE_ID_ATI_RADEON_QY) {
+=======
+	if (rdev->pdev->device == PCI_DEVICE_ID_ATI_RADEON_QY) {
+>>>>>>> upstream/android-13
 		fp2_gen_cntl = RREG32(RADEON_FP2_GEN_CNTL);
 	}
 
@@ -561,7 +587,11 @@ static bool legacy_read_disabled_bios(struct radeon_device *rdev)
 		(RADEON_CRTC_SYNC_TRISTAT |
 		 RADEON_CRTC_DISPLAY_DIS)));
 
+<<<<<<< HEAD
 	if (rdev->ddev->pdev->device == PCI_DEVICE_ID_ATI_RADEON_QY) {
+=======
+	if (rdev->pdev->device == PCI_DEVICE_ID_ATI_RADEON_QY) {
+>>>>>>> upstream/android-13
 		WREG32(RADEON_FP2_GEN_CNTL, (fp2_gen_cntl & ~RADEON_FP2_ON));
 	}
 
@@ -579,7 +609,11 @@ static bool legacy_read_disabled_bios(struct radeon_device *rdev)
 		WREG32(RADEON_CRTC2_GEN_CNTL, crtc2_gen_cntl);
 	}
 	WREG32(RADEON_CRTC_EXT_CNTL, crtc_ext_cntl);
+<<<<<<< HEAD
 	if (rdev->ddev->pdev->device == PCI_DEVICE_ID_ATI_RADEON_QY) {
+=======
+	if (rdev->pdev->device == PCI_DEVICE_ID_ATI_RADEON_QY) {
+>>>>>>> upstream/android-13
 		WREG32(RADEON_FP2_GEN_CNTL, fp2_gen_cntl);
 	}
 	return r;
@@ -668,6 +702,7 @@ bool radeon_get_bios(struct radeon_device *rdev)
 	uint16_t tmp;
 
 	r = radeon_atrm_get_bios(rdev);
+<<<<<<< HEAD
 	if (r == false)
 		r = radeon_acpi_vfct_bios(rdev);
 	if (r == false)
@@ -679,6 +714,19 @@ bool radeon_get_bios(struct radeon_device *rdev)
 	if (r == false)
 		r = radeon_read_platform_bios(rdev);
 	if (r == false || rdev->bios == NULL) {
+=======
+	if (!r)
+		r = radeon_acpi_vfct_bios(rdev);
+	if (!r)
+		r = igp_read_bios_from_vram(rdev);
+	if (!r)
+		r = radeon_read_bios(rdev);
+	if (!r)
+		r = radeon_read_disabled_bios(rdev);
+	if (!r)
+		r = radeon_read_platform_bios(rdev);
+	if (!r || rdev->bios == NULL) {
+>>>>>>> upstream/android-13
 		DRM_ERROR("Unable to locate a BIOS ROM\n");
 		rdev->bios = NULL;
 		return false;

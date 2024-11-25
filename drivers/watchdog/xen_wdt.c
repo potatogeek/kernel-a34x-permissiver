@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	Xen Watchdog Driver
  *
  *	(c) Copyright 2010 Novell, Inc.
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define DRV_NAME	"xen_wdt"
@@ -122,15 +129,24 @@ static struct watchdog_device xen_wdt_dev = {
 
 static int xen_wdt_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
+=======
+	struct device *dev = &pdev->dev;
+>>>>>>> upstream/android-13
 	struct sched_watchdog wd = { .id = ~0 };
 	int ret = HYPERVISOR_sched_op(SCHEDOP_watchdog, &wd);
 
 	if (ret == -ENOSYS) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "watchdog not supported by hypervisor\n");
+=======
+		dev_err(dev, "watchdog not supported by hypervisor\n");
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	}
 
 	if (ret != -EINVAL) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "unexpected hypervisor error (%d)\n", ret);
 		return -ENODEV;
 	}
@@ -138,10 +154,18 @@ static int xen_wdt_probe(struct platform_device *pdev)
 	if (watchdog_init_timeout(&xen_wdt_dev, timeout, NULL))
 		dev_info(&pdev->dev, "timeout value invalid, using %d\n",
 			xen_wdt_dev.timeout);
+=======
+		dev_err(dev, "unexpected hypervisor error (%d)\n", ret);
+		return -ENODEV;
+	}
+
+	watchdog_init_timeout(&xen_wdt_dev, timeout, NULL);
+>>>>>>> upstream/android-13
 	watchdog_set_nowayout(&xen_wdt_dev, nowayout);
 	watchdog_stop_on_reboot(&xen_wdt_dev);
 	watchdog_stop_on_unregister(&xen_wdt_dev);
 
+<<<<<<< HEAD
 	ret = devm_watchdog_register_device(&pdev->dev, &xen_wdt_dev);
 	if (ret) {
 		dev_err(&pdev->dev, "cannot register watchdog device (%d)\n",
@@ -151,6 +175,14 @@ static int xen_wdt_probe(struct platform_device *pdev)
 
 	dev_info(&pdev->dev, "initialized (timeout=%ds, nowayout=%d)\n",
 		xen_wdt_dev.timeout, nowayout);
+=======
+	ret = devm_watchdog_register_device(dev, &xen_wdt_dev);
+	if (ret)
+		return ret;
+
+	dev_info(dev, "initialized (timeout=%ds, nowayout=%d)\n",
+		 xen_wdt_dev.timeout, nowayout);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

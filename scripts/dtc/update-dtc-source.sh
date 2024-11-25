@@ -32,11 +32,20 @@ DTC_UPSTREAM_PATH=`pwd`/../dtc
 DTC_LINUX_PATH=`pwd`/scripts/dtc
 
 DTC_SOURCE="checks.c data.c dtc.c dtc.h flattree.c fstree.c livetree.c srcpos.c \
+<<<<<<< HEAD
 		srcpos.h treesource.c util.c util.h version_gen.h yamltree.c Makefile.dtc \
 		dtc-lexer.l dtc-parser.y"
 LIBFDT_SOURCE="Makefile.libfdt fdt.c fdt.h fdt_addresses.c fdt_empty_tree.c \
 		fdt_overlay.c fdt_ro.c fdt_rw.c fdt_strerror.c fdt_sw.c \
 		fdt_wip.c libfdt.h libfdt_env.h libfdt_internal.h"
+=======
+		srcpos.h treesource.c util.c util.h version_gen.h yamltree.c \
+		dtc-lexer.l dtc-parser.y"
+LIBFDT_SOURCE="fdt.c fdt.h fdt_addresses.c fdt_empty_tree.c \
+		fdt_overlay.c fdt_ro.c fdt_rw.c fdt_strerror.c fdt_sw.c \
+		fdt_wip.c libfdt.h libfdt_env.h libfdt_internal.h"
+FDTOVERLAY_SOURCE=fdtoverlay.c
+>>>>>>> upstream/android-13
 
 get_last_dtc_version() {
 	git log --oneline scripts/dtc/ | grep 'upstream' | head -1 | sed -e 's/^.* \(.*\)/\1/'
@@ -54,7 +63,11 @@ dtc_log=$(git log --oneline ${last_dtc_ver}..)
 
 # Copy the files into the Linux tree
 cd $DTC_LINUX_PATH
+<<<<<<< HEAD
 for f in $DTC_SOURCE; do
+=======
+for f in $DTC_SOURCE $FDTOVERLAY_SOURCE; do
+>>>>>>> upstream/android-13
 	cp ${DTC_UPSTREAM_PATH}/${f} ${f}
 	git add ${f}
 done

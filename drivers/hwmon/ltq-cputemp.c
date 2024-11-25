@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Lantiq cpu temperature sensor driver
  *
  * Copyright (C) 2017 Florian Eckert <fe@dev.tdt.de>
@@ -14,6 +15,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/* Lantiq cpu temperature sensor driver
+ *
+ * Copyright (C) 2017 Florian Eckert <fe@dev.tdt.de>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
@@ -77,6 +84,7 @@ static umode_t ltq_is_visible(const void *_data, enum hwmon_sensor_types type,
 	}
 }
 
+<<<<<<< HEAD
 static const u32 ltq_chip_config[] = {
 	HWMON_C_REGISTER_TZ,
 	0
@@ -100,6 +108,13 @@ static const struct hwmon_channel_info ltq_temp = {
 static const struct hwmon_channel_info *ltq_info[] = {
 	&ltq_chip,
 	&ltq_temp,
+=======
+static const struct hwmon_channel_info *ltq_info[] = {
+	HWMON_CHANNEL_INFO(chip,
+			   HWMON_C_REGISTER_TZ),
+	HWMON_CHANNEL_INFO(temp,
+			   HWMON_T_INPUT),
+>>>>>>> upstream/android-13
 	NULL
 };
 

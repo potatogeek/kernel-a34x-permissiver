@@ -59,8 +59,11 @@
 #define DATA_PTR	%rsi	/* 2nd arg */
 #define NUM_BLKS	%rdx	/* 3rd arg */
 
+<<<<<<< HEAD
 #define RSPSAVE		%rax
 
+=======
+>>>>>>> upstream/android-13
 /* gcc conversion */
 #define FRAME_SIZE	32	/* space for 2x16 bytes */
 
@@ -95,8 +98,14 @@
  */
 .text
 .align 32
+<<<<<<< HEAD
 ENTRY(sha1_ni_transform)
 	mov		%rsp, RSPSAVE
+=======
+SYM_FUNC_START(sha1_ni_transform)
+	push		%rbp
+	mov		%rsp, %rbp
+>>>>>>> upstream/android-13
 	sub		$FRAME_SIZE, %rsp
 	and		$~0xF, %rsp
 
@@ -288,10 +297,18 @@ ENTRY(sha1_ni_transform)
 	pextrd		$3, E0, 1*16(DIGEST_PTR)
 
 .Ldone_hash:
+<<<<<<< HEAD
 	mov		RSPSAVE, %rsp
 
 	ret
 ENDPROC(sha1_ni_transform)
+=======
+	mov		%rbp, %rsp
+	pop		%rbp
+
+	RET
+SYM_FUNC_END(sha1_ni_transform)
+>>>>>>> upstream/android-13
 
 .section	.rodata.cst16.PSHUFFLE_BYTE_FLIP_MASK, "aM", @progbits, 16
 .align 16

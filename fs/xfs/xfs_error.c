@@ -4,6 +4,10 @@
  * All Rights Reserved.
  */
 #include "xfs.h"
+<<<<<<< HEAD
+=======
+#include "xfs_shared.h"
+>>>>>>> upstream/android-13
 #include "xfs_format.h"
 #include "xfs_fs.h"
 #include "xfs_log_format.h"
@@ -51,6 +55,14 @@ static unsigned int xfs_errortag_random_default[] = {
 	XFS_RANDOM_BUF_LRU_REF,
 	XFS_RANDOM_FORCE_SCRUB_REPAIR,
 	XFS_RANDOM_FORCE_SUMMARY_RECALC,
+<<<<<<< HEAD
+=======
+	XFS_RANDOM_IUNLINK_FALLBACK,
+	XFS_RANDOM_BUF_IOERROR,
+	XFS_RANDOM_REDUCE_MAX_IEXTENTS,
+	XFS_RANDOM_BMAP_ALLOC_MINLEN_EXTENT,
+	XFS_RANDOM_AG_RESV_FAIL,
+>>>>>>> upstream/android-13
 };
 
 struct xfs_errortag_attr {
@@ -159,6 +171,14 @@ XFS_ERRORTAG_ATTR_RW(log_item_pin,	XFS_ERRTAG_LOG_ITEM_PIN);
 XFS_ERRORTAG_ATTR_RW(buf_lru_ref,	XFS_ERRTAG_BUF_LRU_REF);
 XFS_ERRORTAG_ATTR_RW(force_repair,	XFS_ERRTAG_FORCE_SCRUB_REPAIR);
 XFS_ERRORTAG_ATTR_RW(bad_summary,	XFS_ERRTAG_FORCE_SUMMARY_RECALC);
+<<<<<<< HEAD
+=======
+XFS_ERRORTAG_ATTR_RW(iunlink_fallback,	XFS_ERRTAG_IUNLINK_FALLBACK);
+XFS_ERRORTAG_ATTR_RW(buf_ioerror,	XFS_ERRTAG_BUF_IOERROR);
+XFS_ERRORTAG_ATTR_RW(reduce_max_iextents,	XFS_ERRTAG_REDUCE_MAX_IEXTENTS);
+XFS_ERRORTAG_ATTR_RW(bmap_alloc_minlen_extent,	XFS_ERRTAG_BMAP_ALLOC_MINLEN_EXTENT);
+XFS_ERRORTAG_ATTR_RW(ag_resv_fail, XFS_ERRTAG_AG_RESV_FAIL);
+>>>>>>> upstream/android-13
 
 static struct attribute *xfs_errortag_attrs[] = {
 	XFS_ERRORTAG_ATTR_LIST(noerror),
@@ -195,6 +215,14 @@ static struct attribute *xfs_errortag_attrs[] = {
 	XFS_ERRORTAG_ATTR_LIST(buf_lru_ref),
 	XFS_ERRORTAG_ATTR_LIST(force_repair),
 	XFS_ERRORTAG_ATTR_LIST(bad_summary),
+<<<<<<< HEAD
+=======
+	XFS_ERRORTAG_ATTR_LIST(iunlink_fallback),
+	XFS_ERRORTAG_ATTR_LIST(buf_ioerror),
+	XFS_ERRORTAG_ATTR_LIST(reduce_max_iextents),
+	XFS_ERRORTAG_ATTR_LIST(bmap_alloc_minlen_extent),
+	XFS_ERRORTAG_ATTR_LIST(ag_resv_fail),
+>>>>>>> upstream/android-13
 	NULL,
 };
 
@@ -209,7 +237,11 @@ xfs_errortag_init(
 	struct xfs_mount	*mp)
 {
 	mp->m_errortag = kmem_zalloc(sizeof(unsigned int) * XFS_ERRTAG_MAX,
+<<<<<<< HEAD
 			KM_SLEEP | KM_MAYFAIL);
+=======
+			KM_MAYFAIL);
+>>>>>>> upstream/android-13
 	if (!mp->m_errortag)
 		return -ENOMEM;
 
@@ -253,7 +285,11 @@ xfs_errortag_test(
 
 	xfs_warn_ratelimited(mp,
 "Injecting error (%s) at file %s, line %d, on filesystem \"%s\"",
+<<<<<<< HEAD
 			expression, file, line, mp->m_fsname);
+=======
+			expression, file, line, mp->m_super->s_id);
+>>>>>>> upstream/android-13
 	return true;
 }
 
@@ -286,6 +322,11 @@ xfs_errortag_add(
 	struct xfs_mount	*mp,
 	unsigned int		error_tag)
 {
+<<<<<<< HEAD
+=======
+	BUILD_BUG_ON(ARRAY_SIZE(xfs_errortag_random_default) != XFS_ERRTAG_MAX);
+
+>>>>>>> upstream/android-13
 	if (error_tag >= XFS_ERRTAG_MAX)
 		return -EINVAL;
 
@@ -325,19 +366,54 @@ xfs_corruption_error(
 	const char		*tag,
 	int			level,
 	struct xfs_mount	*mp,
+<<<<<<< HEAD
 	void			*buf,
+=======
+	const void		*buf,
+>>>>>>> upstream/android-13
 	size_t			bufsize,
 	const char		*filename,
 	int			linenum,
 	xfs_failaddr_t		failaddr)
 {
+<<<<<<< HEAD
 	if (level <= xfs_error_level)
+=======
+	if (buf && level <= xfs_error_level)
+>>>>>>> upstream/android-13
 		xfs_hex_dump(buf, bufsize);
 	xfs_error_report(tag, level, mp, filename, linenum, failaddr);
 	xfs_alert(mp, "Corruption detected. Unmount and run xfs_repair");
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * Complain about the kinds of metadata corruption that we can't detect from a
+ * verifier, such as incorrect inter-block relationship data.  Does not set
+ * bp->b_error.
+ *
+ * Call xfs_buf_mark_corrupt, not this function.
+ */
+void
+xfs_buf_corruption_error(
+	struct xfs_buf		*bp,
+	xfs_failaddr_t		fa)
+{
+	struct xfs_mount	*mp = bp->b_mount;
+
+	xfs_alert_tag(mp, XFS_PTAG_VERIFIER_ERROR,
+		  "Metadata corruption detected at %pS, %s block 0x%llx",
+		  fa, bp->b_ops->name, xfs_buf_daddr(bp));
+
+	xfs_alert(mp, "Unmount and run xfs_repair");
+
+	if (xfs_error_level >= XFS_ERRLEVEL_HIGH)
+		xfs_stack_trace();
+}
+
+/*
+>>>>>>> upstream/android-13
  * Warnings specifically for verifier errors.  Differentiate CRC vs. invalid
  * values, and omit the stack trace unless the error level is tuned high.
  */
@@ -346,20 +422,35 @@ xfs_buf_verifier_error(
 	struct xfs_buf		*bp,
 	int			error,
 	const char		*name,
+<<<<<<< HEAD
 	void			*buf,
 	size_t			bufsz,
 	xfs_failaddr_t		failaddr)
 {
 	struct xfs_mount	*mp = bp->b_target->bt_mount;
+=======
+	const void		*buf,
+	size_t			bufsz,
+	xfs_failaddr_t		failaddr)
+{
+	struct xfs_mount	*mp = bp->b_mount;
+>>>>>>> upstream/android-13
 	xfs_failaddr_t		fa;
 	int			sz;
 
 	fa = failaddr ? failaddr : __return_address;
 	__xfs_buf_ioerror(bp, error, fa);
 
+<<<<<<< HEAD
 	xfs_alert(mp, "Metadata %s detected at %pS, %s block 0x%llx %s",
 		  bp->b_error == -EFSBADCRC ? "CRC error" : "corruption",
 		  fa, bp->b_ops->name, bp->b_bn, name);
+=======
+	xfs_alert_tag(mp, XFS_PTAG_VERIFIER_ERROR,
+		  "Metadata %s detected at %pS, %s block 0x%llx %s",
+		  bp->b_error == -EFSBADCRC ? "CRC error" : "corruption",
+		  fa, bp->b_ops->name, xfs_buf_daddr(bp), name);
+>>>>>>> upstream/android-13
 
 	xfs_alert(mp, "Unmount and run xfs_repair");
 
@@ -397,7 +488,11 @@ xfs_inode_verifier_error(
 	struct xfs_inode	*ip,
 	int			error,
 	const char		*name,
+<<<<<<< HEAD
 	void			*buf,
+=======
+	const void		*buf,
+>>>>>>> upstream/android-13
 	size_t			bufsz,
 	xfs_failaddr_t		failaddr)
 {

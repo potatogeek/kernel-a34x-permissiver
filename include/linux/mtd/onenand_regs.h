@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  linux/include/linux/mtd/onenand_regs.h
  *
@@ -5,10 +9,13 @@
  *
  *  Copyright (C) 2005-2007 Samsung Electronics
  *  Kyungmin Park <kyungmin.park@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __ONENAND_REG_H
@@ -80,6 +87,10 @@
 #define ONENAND_DEVICE_DENSITY_1Gb	(0x003)
 #define ONENAND_DEVICE_DENSITY_2Gb	(0x004)
 #define ONENAND_DEVICE_DENSITY_4Gb	(0x005)
+<<<<<<< HEAD
+=======
+#define ONENAND_DEVICE_DENSITY_8Gb	(0x006)
+>>>>>>> upstream/android-13
 
 /*
  * Version ID Register F002h (R)

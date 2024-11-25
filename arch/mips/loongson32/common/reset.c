@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2011 Zhang, Keguang <keguang.zhang@gmail.com>
  *
@@ -5,6 +6,11 @@
  * under  the terms of	the GNU General	 Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2011 Zhang, Keguang <keguang.zhang@gmail.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/io.h>
@@ -41,7 +47,11 @@ static void ls1x_power_off(void)
 
 static int __init ls1x_reboot_setup(void)
 {
+<<<<<<< HEAD
 	wdt_reg_base = ioremap_nocache(LS1X_WDT_BASE, (SZ_4 + SZ_8));
+=======
+	wdt_reg_base = ioremap(LS1X_WDT_BASE, (SZ_4 + SZ_8));
+>>>>>>> upstream/android-13
 	if (!wdt_reg_base)
 		panic("Failed to remap watchdog registers");
 

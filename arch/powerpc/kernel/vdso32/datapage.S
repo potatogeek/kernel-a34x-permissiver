@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Access to the shared data page by the vDSO & syscall map
  *
  * Copyright (C) 2004 Benjamin Herrenschmuidt (benh@kernel.crashing.org), IBM Corp.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <asm/processor.h>
@@ -14,6 +21,7 @@
 #include <asm/asm-offsets.h>
 #include <asm/unistd.h>
 #include <asm/vdso.h>
+<<<<<<< HEAD
 
 	.text
 	.global	__kernel_datapage_offset;
@@ -42,6 +50,11 @@ data_page_branch:
 	blr
   .cfi_endproc
 V_FUNCTION_END(__get_datapage)
+=======
+#include <asm/vdso_datapage.h>
+
+	.text
+>>>>>>> upstream/android-13
 
 /*
  * void *__kernel_get_syscall_map(unsigned int *syscall_count) ;
@@ -56,11 +69,18 @@ V_FUNCTION_BEGIN(__kernel_get_syscall_map)
   .cfi_startproc
 	mflr	r12
   .cfi_register lr,r12
+<<<<<<< HEAD
 	mr	r4,r3
 	bl	__get_datapage@local
 	mtlr	r12
 	addi	r3,r3,CFG_SYSCALL_MAP32
 	cmpli	cr0,r4,0
+=======
+	mr.	r4,r3
+	get_datapage	r3
+	mtlr	r12
+	addi	r3,r3,CFG_SYSCALL_MAP32
+>>>>>>> upstream/android-13
 	beqlr
 	li	r0,NR_syscalls
 	stw	r0,0(r4)
@@ -78,7 +98,11 @@ V_FUNCTION_BEGIN(__kernel_get_tbfreq)
   .cfi_startproc
 	mflr	r12
   .cfi_register lr,r12
+<<<<<<< HEAD
 	bl	__get_datapage@local
+=======
+	get_datapage	r3
+>>>>>>> upstream/android-13
 	lwz	r4,(CFG_TB_TICKS_PER_SEC + 4)(r3)
 	lwz	r3,CFG_TB_TICKS_PER_SEC(r3)
 	mtlr	r12

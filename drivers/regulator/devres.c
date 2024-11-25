@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * devres.c  --  Voltage/Current Regulator framework devres implementation.
  *
  * Copyright 2013 Linaro Ltd
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute  it and/or modify it
  *  under  the terms of  the GNU General  Public License as published by the
  *  Free Software Foundation;  either version 2 of the  License, or (at your
  *  option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -46,8 +53,13 @@ static struct regulator *_devm_regulator_get(struct device *dev, const char *id,
 
 /**
  * devm_regulator_get - Resource managed regulator_get()
+<<<<<<< HEAD
  * @dev: device for regulator "consumer"
  * @id: Supply name or regulator ID.
+=======
+ * @dev: device to supply
+ * @id:  supply name or regulator ID.
+>>>>>>> upstream/android-13
  *
  * Managed regulator_get(). Regulators returned from this function are
  * automatically regulator_put() on driver detach. See regulator_get() for more
@@ -61,8 +73,13 @@ EXPORT_SYMBOL_GPL(devm_regulator_get);
 
 /**
  * devm_regulator_get_exclusive - Resource managed regulator_get_exclusive()
+<<<<<<< HEAD
  * @dev: device for regulator "consumer"
  * @id: Supply name or regulator ID.
+=======
+ * @dev: device to supply
+ * @id:  supply name or regulator ID.
+>>>>>>> upstream/android-13
  *
  * Managed regulator_get_exclusive(). Regulators returned from this function
  * are automatically regulator_put() on driver detach. See regulator_get() for
@@ -77,8 +94,13 @@ EXPORT_SYMBOL_GPL(devm_regulator_get_exclusive);
 
 /**
  * devm_regulator_get_optional - Resource managed regulator_get_optional()
+<<<<<<< HEAD
  * @dev: device for regulator "consumer"
  * @id: Supply name or regulator ID.
+=======
+ * @dev: device to supply
+ * @id:  supply name or regulator ID.
+>>>>>>> upstream/android-13
  *
  * Managed regulator_get_optional(). Regulators returned from this
  * function are automatically regulator_put() on driver detach. See
@@ -135,9 +157,15 @@ static void devm_regulator_bulk_release(struct device *dev, void *res)
 /**
  * devm_regulator_bulk_get - managed get multiple regulator consumers
  *
+<<<<<<< HEAD
  * @dev:           Device to supply
  * @num_consumers: Number of consumers to register
  * @consumers:     Configuration of consumers; clients are stored here.
+=======
+ * @dev:           device to supply
+ * @num_consumers: number of consumers to register
+ * @consumers:     configuration of consumers; clients are stored here.
+>>>>>>> upstream/android-13
  *
  * @return 0 on success, an errno on failure.
  *
@@ -178,8 +206,14 @@ static void devm_rdev_release(struct device *dev, void *res)
 
 /**
  * devm_regulator_register - Resource managed regulator_register()
+<<<<<<< HEAD
  * @regulator_desc: regulator to register
  * @config: runtime configuration for regulator
+=======
+ * @dev:            device to supply
+ * @regulator_desc: regulator to register
+ * @config:         runtime configuration for regulator
+>>>>>>> upstream/android-13
  *
  * Called by regulator drivers to register a regulator.  Returns a
  * valid pointer to struct regulator_dev on success or an ERR_PTR() on
@@ -209,6 +243,7 @@ struct regulator_dev *devm_regulator_register(struct device *dev,
 }
 EXPORT_SYMBOL_GPL(devm_regulator_register);
 
+<<<<<<< HEAD
 static int devm_rdev_match(struct device *dev, void *res, void *data)
 {
 	struct regulator_dev **r = res;
@@ -237,6 +272,8 @@ void devm_regulator_unregister(struct device *dev, struct regulator_dev *rdev)
 }
 EXPORT_SYMBOL_GPL(devm_regulator_unregister);
 
+=======
+>>>>>>> upstream/android-13
 struct regulator_supply_alias_match {
 	struct device *dev;
 	const char *id;
@@ -262,10 +299,17 @@ static void devm_regulator_destroy_supply_alias(struct device *dev, void *res)
  * devm_regulator_register_supply_alias - Resource managed
  * regulator_register_supply_alias()
  *
+<<<<<<< HEAD
  * @dev: device that will be given as the regulator "consumer"
  * @id: Supply name or regulator ID
  * @alias_dev: device that should be used to lookup the supply
  * @alias_id: Supply name or regulator ID that should be used to lookup the
+=======
+ * @dev:       device to supply
+ * @id:        supply name or regulator ID
+ * @alias_dev: device that should be used to lookup the supply
+ * @alias_id:  supply name or regulator ID that should be used to lookup the
+>>>>>>> upstream/android-13
  * supply
  *
  * The supply alias will automatically be unregistered when the source
@@ -299,6 +343,7 @@ int devm_regulator_register_supply_alias(struct device *dev, const char *id,
 }
 EXPORT_SYMBOL_GPL(devm_regulator_register_supply_alias);
 
+<<<<<<< HEAD
 /**
  * devm_regulator_unregister_supply_alias - Resource managed
  * regulator_unregister_supply_alias()
@@ -312,6 +357,10 @@ EXPORT_SYMBOL_GPL(devm_regulator_register_supply_alias);
  * will ensure that the resource is freed.
  */
 void devm_regulator_unregister_supply_alias(struct device *dev, const char *id)
+=======
+static void devm_regulator_unregister_supply_alias(struct device *dev,
+						   const char *id)
+>>>>>>> upstream/android-13
 {
 	struct regulator_supply_alias_match match;
 	int rc;
@@ -324,18 +373,30 @@ void devm_regulator_unregister_supply_alias(struct device *dev, const char *id)
 	if (rc != 0)
 		WARN_ON(rc);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(devm_regulator_unregister_supply_alias);
+=======
+>>>>>>> upstream/android-13
 
 /**
  * devm_regulator_bulk_register_supply_alias - Managed register
  * multiple aliases
  *
+<<<<<<< HEAD
  * @dev: device that will be given as the regulator "consumer"
  * @id: List of supply names or regulator IDs
  * @alias_dev: device that should be used to lookup the supply
  * @alias_id: List of supply names or regulator IDs that should be used to
  * lookup the supply
  * @num_id: Number of aliases to register
+=======
+ * @dev:       device to supply
+ * @id:        list of supply names or regulator IDs
+ * @alias_dev: device that should be used to lookup the supply
+ * @alias_id:  list of supply names or regulator IDs that should be used to
+ *             lookup the supply
+ * @num_id:    number of aliases to register
+>>>>>>> upstream/android-13
  *
  * @return 0 on success, an errno on failure.
  *
@@ -376,6 +437,7 @@ err:
 }
 EXPORT_SYMBOL_GPL(devm_regulator_bulk_register_supply_alias);
 
+<<<<<<< HEAD
 /**
  * devm_regulator_bulk_unregister_supply_alias - Managed unregister
  * multiple aliases
@@ -400,6 +462,8 @@ void devm_regulator_bulk_unregister_supply_alias(struct device *dev,
 }
 EXPORT_SYMBOL_GPL(devm_regulator_bulk_unregister_supply_alias);
 
+=======
+>>>>>>> upstream/android-13
 struct regulator_notifier_match {
 	struct regulator *regulator;
 	struct notifier_block *nb;
@@ -426,7 +490,11 @@ static void devm_regulator_destroy_notifier(struct device *dev, void *res)
  * regulator_register_notifier
  *
  * @regulator: regulator source
+<<<<<<< HEAD
  * @nb: notifier block
+=======
+ * @nb:        notifier block
+>>>>>>> upstream/android-13
  *
  * The notifier will be registers under the consumer device and be
  * automatically be unregistered when the source device is unbound.
@@ -463,7 +531,11 @@ EXPORT_SYMBOL_GPL(devm_regulator_register_notifier);
  * regulator_unregister_notifier()
  *
  * @regulator: regulator source
+<<<<<<< HEAD
  * @nb: notifier block
+=======
+ * @nb:        notifier block
+>>>>>>> upstream/android-13
  *
  * Unregister a notifier registered with devm_regulator_register_notifier().
  * Normally this function will not need to be called and the resource
@@ -484,3 +556,58 @@ void devm_regulator_unregister_notifier(struct regulator *regulator,
 		WARN_ON(rc);
 }
 EXPORT_SYMBOL_GPL(devm_regulator_unregister_notifier);
+<<<<<<< HEAD
+=======
+
+static void regulator_irq_helper_drop(void *res)
+{
+	regulator_irq_helper_cancel(&res);
+}
+
+/**
+ * devm_regulator_irq_helper - resource managed registration of IRQ based
+ * regulator event/error notifier
+ *
+ * @dev:		device to which lifetime the helper's lifetime is
+ *			bound.
+ * @d:			IRQ helper descriptor.
+ * @irq:		IRQ used to inform events/errors to be notified.
+ * @irq_flags:		Extra IRQ flags to be OR'ed with the default
+ *			IRQF_ONESHOT when requesting the (threaded) irq.
+ * @common_errs:	Errors which can be flagged by this IRQ for all rdevs.
+ *			When IRQ is re-enabled these errors will be cleared
+ *			from all associated regulators
+ * @per_rdev_errs:	Optional error flag array describing errors specific
+ *			for only some of the regulators. These errors will be
+ *			or'ed with common errors. If this is given the array
+ *			should contain rdev_amount flags. Can be set to NULL
+ *			if there is no regulator specific error flags for this
+ *			IRQ.
+ * @rdev:		Array of pointers to regulators associated with this
+ *			IRQ.
+ * @rdev_amount:	Amount of regulators associated with this IRQ.
+ *
+ * Return: handle to irq_helper or an ERR_PTR() encoded error code.
+ */
+void *devm_regulator_irq_helper(struct device *dev,
+				const struct regulator_irq_desc *d, int irq,
+				int irq_flags, int common_errs,
+				int *per_rdev_errs,
+				struct regulator_dev **rdev, int rdev_amount)
+{
+	void *ptr;
+	int ret;
+
+	ptr = regulator_irq_helper(dev, d, irq, irq_flags, common_errs,
+				    per_rdev_errs, rdev, rdev_amount);
+	if (IS_ERR(ptr))
+		return ptr;
+
+	ret = devm_add_action_or_reset(dev, regulator_irq_helper_drop, ptr);
+	if (ret)
+		return ERR_PTR(ret);
+
+	return ptr;
+}
+EXPORT_SYMBOL_GPL(devm_regulator_irq_helper);
+>>>>>>> upstream/android-13

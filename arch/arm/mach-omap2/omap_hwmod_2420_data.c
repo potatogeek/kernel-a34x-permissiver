@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * omap_hwmod_2420_data.c - hardware modules present on the OMAP2420 chips
  *
@@ -5,16 +9,22 @@
  * Copyright (C) 2012 Texas Instruments, Inc.
  * Paul Walmsley
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * XXX handle crossbar/shared link difference for L3?
  * XXX these should be marked initdata for multi-OMAP kernels
  */
 
 #include <linux/platform_data/i2c-omap.h>
+<<<<<<< HEAD
 #include <linux/omap-dma.h>
+=======
+>>>>>>> upstream/android-13
 
 #include "omap_hwmod.h"
 #include "l3_2xxx.h"
@@ -91,7 +101,10 @@ static struct omap_hwmod_class_sysconfig i2c_sysc = {
 static struct omap_hwmod_class i2c_class = {
 	.name		= "i2c",
 	.sysc		= &i2c_sysc,
+<<<<<<< HEAD
 	.rev		= OMAP_I2C_IP_VERSION_1,
+=======
+>>>>>>> upstream/android-13
 	.reset		= &omap_i2c_reset,
 };
 
@@ -130,6 +143,7 @@ static struct omap_hwmod omap2420_i2c2_hwmod = {
 	.flags		= HWMOD_16BIT_REG,
 };
 
+<<<<<<< HEAD
 /* dma attributes */
 static struct omap_dma_dev_attr dma_dev_attr = {
 	.dev_caps  = RESERVE_CHANNEL | DMA_LINKED_LCH | GLOBAL_PRIORITY |
@@ -145,6 +159,8 @@ static struct omap_hwmod omap2420_dma_system_hwmod = {
 	.flags		= HWMOD_NO_IDLEST,
 };
 
+=======
+>>>>>>> upstream/android-13
 /* mailbox */
 static struct omap_hwmod omap2420_mailbox_hwmod = {
 	.name		= "mailbox",
@@ -284,6 +300,7 @@ static struct omap_hwmod_ocp_if omap2420_l3__dsp = {
 	.user		= OCP_USER_MPU | OCP_USER_SDMA,
 };
 
+<<<<<<< HEAD
 /* l4_wkup -> timer1 */
 static struct omap_hwmod_ocp_if omap2420_l4_wkup__timer1 = {
 	.master		= &omap2xxx_l4_wkup_hwmod,
@@ -292,6 +309,8 @@ static struct omap_hwmod_ocp_if omap2420_l4_wkup__timer1 = {
 	.user		= OCP_USER_MPU | OCP_USER_SDMA,
 };
 
+=======
+>>>>>>> upstream/android-13
 /* l4_wkup -> wd_timer2 */
 static struct omap_hwmod_ocp_if omap2420_l4_wkup__wd_timer2 = {
 	.master		= &omap2xxx_l4_wkup_hwmod,
@@ -332,6 +351,7 @@ static struct omap_hwmod_ocp_if omap2420_l4_wkup__gpio4 = {
 	.user		= OCP_USER_MPU | OCP_USER_SDMA,
 };
 
+<<<<<<< HEAD
 /* dma_system -> L3 */
 static struct omap_hwmod_ocp_if omap2420_dma_system__l3 = {
 	.master		= &omap2420_dma_system_hwmod,
@@ -348,6 +368,8 @@ static struct omap_hwmod_ocp_if omap2420_l4_core__dma_system = {
 	.user		= OCP_USER_MPU | OCP_USER_SDMA,
 };
 
+=======
+>>>>>>> upstream/android-13
 /* l4_core -> mailbox */
 static struct omap_hwmod_ocp_if omap2420_l4_core__mailbox = {
 	.master		= &omap2xxx_l4_core_hwmod,
@@ -388,6 +410,7 @@ static struct omap_hwmod_ocp_if omap2420_l4_core__hdq1w = {
 	.flags		= OMAP_FIREWALL_L4 | OCPIF_SWSUP_IDLE,
 };
 
+<<<<<<< HEAD
 
 /* l4_wkup -> 32ksync_counter */
 static struct omap_hwmod_ocp_if omap2420_l4_wkup__counter_32k = {
@@ -397,6 +420,8 @@ static struct omap_hwmod_ocp_if omap2420_l4_wkup__counter_32k = {
 	.user		= OCP_USER_MPU | OCP_USER_SDMA,
 };
 
+=======
+>>>>>>> upstream/android-13
 static struct omap_hwmod_ocp_if omap2420_l3__gpmc = {
 	.master		= &omap2xxx_l3_main_hwmod,
 	.slave		= &omap2xxx_gpmc_hwmod,
@@ -418,8 +443,11 @@ static struct omap_hwmod_ocp_if *omap2420_hwmod_ocp_ifs[] __initdata = {
 	&omap2420_l4_core__i2c2,
 	&omap2420_l3__iva,
 	&omap2420_l3__dsp,
+<<<<<<< HEAD
 	&omap2420_l4_wkup__timer1,
 	&omap2xxx_l4_core__timer2,
+=======
+>>>>>>> upstream/android-13
 	&omap2xxx_l4_core__timer3,
 	&omap2xxx_l4_core__timer4,
 	&omap2xxx_l4_core__timer5,
@@ -439,8 +467,11 @@ static struct omap_hwmod_ocp_if *omap2420_hwmod_ocp_ifs[] __initdata = {
 	&omap2420_l4_wkup__gpio2,
 	&omap2420_l4_wkup__gpio3,
 	&omap2420_l4_wkup__gpio4,
+<<<<<<< HEAD
 	&omap2420_dma_system__l3,
 	&omap2420_l4_core__dma_system,
+=======
+>>>>>>> upstream/android-13
 	&omap2420_l4_core__mailbox,
 	&omap2420_l4_core__mcbsp1,
 	&omap2420_l4_core__mcbsp2,
@@ -449,7 +480,10 @@ static struct omap_hwmod_ocp_if *omap2420_hwmod_ocp_ifs[] __initdata = {
 	&omap2xxx_l4_core__sham,
 	&omap2xxx_l4_core__aes,
 	&omap2420_l4_core__hdq1w,
+<<<<<<< HEAD
 	&omap2420_l4_wkup__counter_32k,
+=======
+>>>>>>> upstream/android-13
 	&omap2420_l3__gpmc,
 	NULL,
 };

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Kernel execution entry point code.
  *
@@ -21,6 +25,7 @@
  * 	   	debbie_chu@mvista.com
  *    Copyright 2002-2005 MontaVista Software, Inc.
  *      PowerPC 44x support, Matt Porter <mporter@kernel.crashing.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
@@ -33,6 +38,15 @@
 #include <asm/page.h>
 #include <asm/mmu.h>
 #include <asm/pgtable.h>
+=======
+ */
+
+#include <linux/init.h>
+#include <linux/pgtable.h>
+#include <asm/processor.h>
+#include <asm/page.h>
+#include <asm/mmu.h>
+>>>>>>> upstream/android-13
 #include <asm/cputable.h>
 #include <asm/thread_info.h>
 #include <asm/ppc_asm.h>
@@ -40,6 +54,10 @@
 #include <asm/ptrace.h>
 #include <asm/synch.h>
 #include <asm/export.h>
+<<<<<<< HEAD
+=======
+#include <asm/code-patching-asm.h>
+>>>>>>> upstream/android-13
 #include "head_booke.h"
 
 
@@ -73,7 +91,11 @@ _ENTRY(_start);
  * address.
  * r21 will be loaded with the physical runtime address of _stext
  */
+<<<<<<< HEAD
 	bl	0f				/* Get our runtime address */
+=======
+	bcl	20,31,$+4			/* Get our runtime address */
+>>>>>>> upstream/android-13
 0:	mflr	r21				/* Make it accessible */
 	addis	r21,r21,(_stext - 0b)@ha
 	addi	r21,r21,(_stext - 0b)@l 	/* Get our current runtime base */
@@ -202,6 +224,12 @@ _ENTRY(_start);
 /*
  * Decide what sort of machine this is and initialize the MMU.
  */
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_KASAN
+	bl	kasan_early_init
+#endif
+>>>>>>> upstream/android-13
 	li	r3,0
 	mr	r4,r31
 	bl	machine_init
@@ -263,8 +291,12 @@ interrupt_base:
 	INSTRUCTION_STORAGE_EXCEPTION
 
 	/* External Input Interrupt */
+<<<<<<< HEAD
 	EXCEPTION(0x0500, BOOKE_INTERRUPT_EXTERNAL, ExternalInput, \
 		  do_IRQ, EXC_XFER_LITE)
+=======
+	EXCEPTION(0x0500, BOOKE_INTERRUPT_EXTERNAL, ExternalInput, do_IRQ)
+>>>>>>> upstream/android-13
 
 	/* Alignment Interrupt */
 	ALIGNMENT_EXCEPTION
@@ -277,6 +309,7 @@ interrupt_base:
 	FP_UNAVAILABLE_EXCEPTION
 #else
 	EXCEPTION(0x2010, BOOKE_INTERRUPT_FP_UNAVAIL, \
+<<<<<<< HEAD
 		  FloatingPointUnavailable, unknown_exception, EXC_XFER_EE)
 #endif
 	/* System Call Interrupt */
@@ -287,14 +320,29 @@ interrupt_base:
 	/* Auxiliary Processor Unavailable Interrupt */
 	EXCEPTION(0x2020, BOOKE_INTERRUPT_AP_UNAVAIL, \
 		  AuxillaryProcessorUnavailable, unknown_exception, EXC_XFER_EE)
+=======
+		  FloatingPointUnavailable, unknown_exception)
+#endif
+	/* System Call Interrupt */
+	START_EXCEPTION(SystemCall)
+	SYSCALL_ENTRY   0xc00 BOOKE_INTERRUPT_SYSCALL
+
+	/* Auxiliary Processor Unavailable Interrupt */
+	EXCEPTION(0x2020, BOOKE_INTERRUPT_AP_UNAVAIL, \
+		  AuxillaryProcessorUnavailable, unknown_exception)
+>>>>>>> upstream/android-13
 
 	/* Decrementer Interrupt */
 	DECREMENTER_EXCEPTION
 
 	/* Fixed Internal Timer Interrupt */
 	/* TODO: Add FIT support */
+<<<<<<< HEAD
 	EXCEPTION(0x1010, BOOKE_INTERRUPT_FIT, FixedIntervalTimer, \
 		  unknown_exception, EXC_XFER_EE)
+=======
+	EXCEPTION(0x1010, BOOKE_INTERRUPT_FIT, FixedIntervalTimer, unknown_exception)
+>>>>>>> upstream/android-13
 
 	/* Watchdog Timer Interrupt */
 	/* TODO: Add watchdog support */
@@ -377,15 +425,25 @@ interrupt_base:
 	/* Load the next available TLB index */
 	lwz	r13,tlb_44x_index@l(r10)
 
+<<<<<<< HEAD
 	bne	2f			/* Bail if permission mismach */
+=======
+	bne	2f			/* Bail if permission mismatch */
+>>>>>>> upstream/android-13
 
 	/* Increment, rollover, and store TLB index */
 	addi	r13,r13,1
 
+<<<<<<< HEAD
 	/* Compare with watermark (instruction gets patched) */
 	.globl tlb_44x_patch_hwater_D
 tlb_44x_patch_hwater_D:
 	cmpwi	0,r13,1			/* reserve entries */
+=======
+	patch_site 0f, patch__tlb_44x_hwater_D
+	/* Compare with watermark (instruction gets patched) */
+0:	cmpwi	0,r13,1			/* reserve entries */
+>>>>>>> upstream/android-13
 	ble	5f
 	li	r13,0
 5:
@@ -473,15 +531,25 @@ tlb_44x_patch_hwater_D:
 	/* Load the next available TLB index */
 	lwz	r13,tlb_44x_index@l(r10)
 
+<<<<<<< HEAD
 	bne	2f			/* Bail if permission mismach */
+=======
+	bne	2f			/* Bail if permission mismatch */
+>>>>>>> upstream/android-13
 
 	/* Increment, rollover, and store TLB index */
 	addi	r13,r13,1
 
+<<<<<<< HEAD
 	/* Compare with watermark (instruction gets patched) */
 	.globl tlb_44x_patch_hwater_I
 tlb_44x_patch_hwater_I:
 	cmpwi	0,r13,1			/* reserve entries */
+=======
+	patch_site 0f, patch__tlb_44x_hwater_I
+	/* Compare with watermark (instruction gets patched) */
+0:	cmpwi	0,r13,1			/* reserve entries */
+>>>>>>> upstream/android-13
 	ble	5f
 	li	r13,0
 5:
@@ -537,6 +605,13 @@ finish_tlb_load_44x:
 	andi.	r10,r12,_PAGE_USER		/* User page ? */
 	beq	1f				/* nope, leave U bits empty */
 	rlwimi	r11,r11,3,26,28			/* yes, copy S bits to U */
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PPC_KUEP
+0:	rlwinm	r11,r11,0,~PPC44x_TLB_SX	/* Clear SX if User page */
+	patch_site 0b, patch__tlb_44x_kuep
+#endif
+>>>>>>> upstream/android-13
 1:	tlbwe	r11,r13,PPC44x_TLB_ATTRIB	/* Write ATTRIB */
 
 	/* Done...restore registers and get out of here.
@@ -748,6 +823,13 @@ finish_tlb_load_47x:
 	andi.	r10,r12,_PAGE_USER		/* User page ? */
 	beq	1f				/* nope, leave U bits empty */
 	rlwimi	r11,r11,3,26,28			/* yes, copy S bits to U */
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PPC_KUEP
+0:	rlwinm	r11,r11,0,~PPC47x_TLB2_SX	/* Clear SX if User page */
+	patch_site 0b, patch__tlb_47x_kuep
+#endif
+>>>>>>> upstream/android-13
 1:	tlbwe	r11,r13,2
 
 	/* Done...restore registers and get out of here.
@@ -785,6 +867,7 @@ _GLOBAL(__fixup_440A_mcheck)
 	sync
 	blr
 
+<<<<<<< HEAD
 _GLOBAL(set_context)
 
 #ifdef CONFIG_BDI_SWITCH
@@ -799,6 +882,8 @@ _GLOBAL(set_context)
 	isync			/* Force context change */
 	blr
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Init CPU state. This is called at boot time or for secondary CPUs
  * to setup initial TLB entries, setup IVORs, etc...
@@ -864,7 +949,11 @@ _GLOBAL(init_cpu_state)
 wmmucr:	mtspr	SPRN_MMUCR,r3			/* Put MMUCR */
 	sync
 
+<<<<<<< HEAD
 	bl	invstr				/* Find our address */
+=======
+	bcl	20,31,$+4			/* Find our address */
+>>>>>>> upstream/android-13
 invstr:	mflr	r5				/* Make it accessible */
 	tlbsx	r23,0,r5			/* Find entry we are in */
 	li	r4,0				/* Start at TLB entry 0 */
@@ -1020,10 +1109,17 @@ _GLOBAL(start_secondary_47x)
 
 	/* Now we can get our task struct and real stack pointer */
 
+<<<<<<< HEAD
 	/* Get current_thread_info and current */
 	lis	r1,secondary_ti@ha
 	lwz	r1,secondary_ti@l(r1)
 	lwz	r2,TI_TASK(r1)
+=======
+	/* Get current's stack and current */
+	lis	r2,secondary_current@ha
+	lwz	r2,secondary_current@l(r2)
+	lwz	r1,TASK_STACK(r2)
+>>>>>>> upstream/android-13
 
 	/* Current stack pointer */
 	addi	r1,r1,THREAD_SIZE-STACK_FRAME_OVERHEAD
@@ -1056,7 +1152,11 @@ head_start_47x:
 	sync
 
 	/* Find the entry we are running from */
+<<<<<<< HEAD
 	bl	1f
+=======
+	bcl	20,31,$+4
+>>>>>>> upstream/android-13
 1:	mflr	r23
 	tlbsx	r23,0,r23
 	tlbre	r24,r23,0
@@ -1244,6 +1344,7 @@ head_start_common:
 	isync
 	blr
 
+<<<<<<< HEAD
 /*
  * We put a few things here that have to be page-aligned. This stuff
  * goes at the beginning of the data segment, which is page-aligned.
@@ -1272,6 +1373,10 @@ abatron_pteptrs:
 	.space	8
 
 #ifdef CONFIG_SMP
+=======
+#ifdef CONFIG_SMP
+	.data
+>>>>>>> upstream/android-13
 	.align	12
 temp_boot_stack:
 	.space	1024

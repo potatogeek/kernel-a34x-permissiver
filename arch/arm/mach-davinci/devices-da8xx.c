@@ -1,22 +1,36 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * DA8XX/OMAP L1XX platform device data
  *
  * Copyright (c) 2007-2009, MontaVista Software, Inc. <source@mvista.com>
  * Derived from code that was:
  *	Copyright (C) 2006 Komal Shah <komal_shah802003@yahoo.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/ahci_platform.h>
 #include <linux/clk-provider.h>
 #include <linux/clk.h>
 #include <linux/clkdev.h>
+<<<<<<< HEAD
 #include <linux/dma-contiguous.h>
 #include <linux/dmaengine.h>
 #include <linux/init.h>
+=======
+#include <linux/dma-map-ops.h>
+#include <linux/dmaengine.h>
+#include <linux/init.h>
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/reboot.h>
 #include <linux/serial_8250.h>
@@ -24,10 +38,17 @@
 #include <mach/common.h>
 #include <mach/cputype.h>
 #include <mach/da8xx.h>
+<<<<<<< HEAD
 #include <mach/time.h>
 
 #include "asp.h"
 #include "cpuidle.h"
+=======
+
+#include "asp.h"
+#include "cpuidle.h"
+#include "irqs.h"
+>>>>>>> upstream/android-13
 #include "sram.h"
 
 #define DA8XX_TPCC_BASE			0x01c00000
@@ -64,7 +85,11 @@ void __iomem *da8xx_syscfg1_base;
 static struct plat_serial8250_port da8xx_serial0_pdata[] = {
 	{
 		.mapbase	= DA8XX_UART0_BASE,
+<<<<<<< HEAD
 		.irq		= IRQ_DA8XX_UARTINT0,
+=======
+		.irq		= DAVINCI_INTC_IRQ(IRQ_DA8XX_UARTINT0),
+>>>>>>> upstream/android-13
 		.flags		= UPF_BOOT_AUTOCONF | UPF_SKIP_TEST |
 					UPF_IOREMAP,
 		.iotype		= UPIO_MEM,
@@ -77,7 +102,11 @@ static struct plat_serial8250_port da8xx_serial0_pdata[] = {
 static struct plat_serial8250_port da8xx_serial1_pdata[] = {
 	{
 		.mapbase	= DA8XX_UART1_BASE,
+<<<<<<< HEAD
 		.irq		= IRQ_DA8XX_UARTINT1,
+=======
+		.irq		= DAVINCI_INTC_IRQ(IRQ_DA8XX_UARTINT1),
+>>>>>>> upstream/android-13
 		.flags		= UPF_BOOT_AUTOCONF | UPF_SKIP_TEST |
 					UPF_IOREMAP,
 		.iotype		= UPIO_MEM,
@@ -90,7 +119,11 @@ static struct plat_serial8250_port da8xx_serial1_pdata[] = {
 static struct plat_serial8250_port da8xx_serial2_pdata[] = {
 	{
 		.mapbase	= DA8XX_UART2_BASE,
+<<<<<<< HEAD
 		.irq		= IRQ_DA8XX_UARTINT2,
+=======
+		.irq		= DAVINCI_INTC_IRQ(IRQ_DA8XX_UARTINT2),
+>>>>>>> upstream/android-13
 		.flags		= UPF_BOOT_AUTOCONF | UPF_SKIP_TEST |
 					UPF_IOREMAP,
 		.iotype		= UPIO_MEM,
@@ -171,12 +204,20 @@ static struct resource da8xx_edma0_resources[] = {
 	},
 	{
 		.name	= "edma3_ccint",
+<<<<<<< HEAD
 		.start	= IRQ_DA8XX_CCINT0,
+=======
+		.start	= DAVINCI_INTC_IRQ(IRQ_DA8XX_CCINT0),
+>>>>>>> upstream/android-13
 		.flags	= IORESOURCE_IRQ,
 	},
 	{
 		.name	= "edma3_ccerrint",
+<<<<<<< HEAD
 		.start	= IRQ_DA8XX_CCERRINT,
+=======
+		.start	= DAVINCI_INTC_IRQ(IRQ_DA8XX_CCERRINT),
+>>>>>>> upstream/android-13
 		.flags	= IORESOURCE_IRQ,
 	},
 };
@@ -196,12 +237,20 @@ static struct resource da850_edma1_resources[] = {
 	},
 	{
 		.name	= "edma3_ccint",
+<<<<<<< HEAD
 		.start	= IRQ_DA850_CCINT1,
+=======
+		.start	= DAVINCI_INTC_IRQ(IRQ_DA850_CCINT1),
+>>>>>>> upstream/android-13
 		.flags	= IORESOURCE_IRQ,
 	},
 	{
 		.name	= "edma3_ccerrint",
+<<<<<<< HEAD
 		.start	= IRQ_DA850_CCERRINT1,
+=======
+		.start	= DAVINCI_INTC_IRQ(IRQ_DA850_CCERRINT1),
+>>>>>>> upstream/android-13
 		.flags	= IORESOURCE_IRQ,
 	},
 };
@@ -306,8 +355,13 @@ static struct resource da8xx_i2c_resources0[] = {
 		.flags	= IORESOURCE_MEM,
 	},
 	{
+<<<<<<< HEAD
 		.start	= IRQ_DA8XX_I2CINT0,
 		.end	= IRQ_DA8XX_I2CINT0,
+=======
+		.start	= DAVINCI_INTC_IRQ(IRQ_DA8XX_I2CINT0),
+		.end	= DAVINCI_INTC_IRQ(IRQ_DA8XX_I2CINT0),
+>>>>>>> upstream/android-13
 		.flags	= IORESOURCE_IRQ,
 	},
 };
@@ -326,8 +380,13 @@ static struct resource da8xx_i2c_resources1[] = {
 		.flags	= IORESOURCE_MEM,
 	},
 	{
+<<<<<<< HEAD
 		.start	= IRQ_DA8XX_I2CINT1,
 		.end	= IRQ_DA8XX_I2CINT1,
+=======
+		.start	= DAVINCI_INTC_IRQ(IRQ_DA8XX_I2CINT1),
+		.end	= DAVINCI_INTC_IRQ(IRQ_DA8XX_I2CINT1),
+>>>>>>> upstream/android-13
 		.flags	= IORESOURCE_IRQ,
 	},
 };
@@ -382,6 +441,7 @@ static struct resource da8xx_emac_resources[] = {
 		.flags	= IORESOURCE_MEM,
 	},
 	{
+<<<<<<< HEAD
 		.start	= IRQ_DA8XX_C0_RX_THRESH_PULSE,
 		.end	= IRQ_DA8XX_C0_RX_THRESH_PULSE,
 		.flags	= IORESOURCE_IRQ,
@@ -399,6 +459,25 @@ static struct resource da8xx_emac_resources[] = {
 	{
 		.start	= IRQ_DA8XX_C0_MISC_PULSE,
 		.end	= IRQ_DA8XX_C0_MISC_PULSE,
+=======
+		.start	= DAVINCI_INTC_IRQ(IRQ_DA8XX_C0_RX_THRESH_PULSE),
+		.end	= DAVINCI_INTC_IRQ(IRQ_DA8XX_C0_RX_THRESH_PULSE),
+		.flags	= IORESOURCE_IRQ,
+	},
+	{
+		.start	= DAVINCI_INTC_IRQ(IRQ_DA8XX_C0_RX_PULSE),
+		.end	= DAVINCI_INTC_IRQ(IRQ_DA8XX_C0_RX_PULSE),
+		.flags	= IORESOURCE_IRQ,
+	},
+	{
+		.start	= DAVINCI_INTC_IRQ(IRQ_DA8XX_C0_TX_PULSE),
+		.end	= DAVINCI_INTC_IRQ(IRQ_DA8XX_C0_TX_PULSE),
+		.flags	= IORESOURCE_IRQ,
+	},
+	{
+		.start	= DAVINCI_INTC_IRQ(IRQ_DA8XX_C0_MISC_PULSE),
+		.end	= DAVINCI_INTC_IRQ(IRQ_DA8XX_C0_MISC_PULSE),
+>>>>>>> upstream/android-13
 		.flags	= IORESOURCE_IRQ,
 	},
 };
@@ -470,7 +549,11 @@ static struct resource da830_mcasp1_resources[] = {
 	},
 	{
 		.name	= "common",
+<<<<<<< HEAD
 		.start	= IRQ_DA8XX_MCASPINT,
+=======
+		.start	= DAVINCI_INTC_IRQ(IRQ_DA8XX_MCASPINT),
+>>>>>>> upstream/android-13
 		.flags	= IORESOURCE_IRQ,
 	},
 };
@@ -505,7 +588,11 @@ static struct resource da830_mcasp2_resources[] = {
 	},
 	{
 		.name	= "common",
+<<<<<<< HEAD
 		.start	= IRQ_DA8XX_MCASPINT,
+=======
+		.start	= DAVINCI_INTC_IRQ(IRQ_DA8XX_MCASPINT),
+>>>>>>> upstream/android-13
 		.flags	= IORESOURCE_IRQ,
 	},
 };
@@ -540,7 +627,11 @@ static struct resource da850_mcasp_resources[] = {
 	},
 	{
 		.name	= "common",
+<<<<<<< HEAD
 		.start	= IRQ_DA8XX_MCASPINT,
+=======
+		.start	= DAVINCI_INTC_IRQ(IRQ_DA8XX_MCASPINT),
+>>>>>>> upstream/android-13
 		.flags	= IORESOURCE_IRQ,
 	},
 };
@@ -588,6 +679,7 @@ static struct resource da8xx_pruss_resources[] = {
 		.flags	= IORESOURCE_MEM,
 	},
 	{
+<<<<<<< HEAD
 		.start	= IRQ_DA8XX_EVTOUT0,
 		.end	= IRQ_DA8XX_EVTOUT0,
 		.flags	= IORESOURCE_IRQ,
@@ -625,6 +717,45 @@ static struct resource da8xx_pruss_resources[] = {
 	{
 		.start	= IRQ_DA8XX_EVTOUT7,
 		.end	= IRQ_DA8XX_EVTOUT7,
+=======
+		.start	= DAVINCI_INTC_IRQ(IRQ_DA8XX_EVTOUT0),
+		.end	= DAVINCI_INTC_IRQ(IRQ_DA8XX_EVTOUT0),
+		.flags	= IORESOURCE_IRQ,
+	},
+	{
+		.start	= DAVINCI_INTC_IRQ(IRQ_DA8XX_EVTOUT1),
+		.end	= DAVINCI_INTC_IRQ(IRQ_DA8XX_EVTOUT1),
+		.flags	= IORESOURCE_IRQ,
+	},
+	{
+		.start	= DAVINCI_INTC_IRQ(IRQ_DA8XX_EVTOUT2),
+		.end	= DAVINCI_INTC_IRQ(IRQ_DA8XX_EVTOUT2),
+		.flags	= IORESOURCE_IRQ,
+	},
+	{
+		.start	= DAVINCI_INTC_IRQ(IRQ_DA8XX_EVTOUT3),
+		.end	= DAVINCI_INTC_IRQ(IRQ_DA8XX_EVTOUT3),
+		.flags	= IORESOURCE_IRQ,
+	},
+	{
+		.start	= DAVINCI_INTC_IRQ(IRQ_DA8XX_EVTOUT4),
+		.end	= DAVINCI_INTC_IRQ(IRQ_DA8XX_EVTOUT4),
+		.flags	= IORESOURCE_IRQ,
+	},
+	{
+		.start	= DAVINCI_INTC_IRQ(IRQ_DA8XX_EVTOUT5),
+		.end	= DAVINCI_INTC_IRQ(IRQ_DA8XX_EVTOUT5),
+		.flags	= IORESOURCE_IRQ,
+	},
+	{
+		.start	= DAVINCI_INTC_IRQ(IRQ_DA8XX_EVTOUT6),
+		.end	= DAVINCI_INTC_IRQ(IRQ_DA8XX_EVTOUT6),
+		.flags	= IORESOURCE_IRQ,
+	},
+	{
+		.start	= DAVINCI_INTC_IRQ(IRQ_DA8XX_EVTOUT7),
+		.end	= DAVINCI_INTC_IRQ(IRQ_DA8XX_EVTOUT7),
+>>>>>>> upstream/android-13
 		.flags	= IORESOURCE_IRQ,
 	},
 };
@@ -674,8 +805,13 @@ static struct resource da8xx_lcdc_resources[] = {
 		.flags  = IORESOURCE_MEM,
 	},
 	[1] = { /* interrupt */
+<<<<<<< HEAD
 		.start  = IRQ_DA8XX_LCDINT,
 		.end    = IRQ_DA8XX_LCDINT,
+=======
+		.start  = DAVINCI_INTC_IRQ(IRQ_DA8XX_LCDINT),
+		.end    = DAVINCI_INTC_IRQ(IRQ_DA8XX_LCDINT),
+>>>>>>> upstream/android-13
 		.flags  = IORESOURCE_IRQ,
 	},
 };
@@ -703,6 +839,7 @@ static struct resource da8xx_gpio_resources[] = {
 		.flags	= IORESOURCE_MEM,
 	},
 	{ /* interrupt */
+<<<<<<< HEAD
 		.start	= IRQ_DA8XX_GPIO0,
 		.end	= IRQ_DA8XX_GPIO0,
 		.flags	= IORESOURCE_IRQ,
@@ -745,6 +882,50 @@ static struct resource da8xx_gpio_resources[] = {
 	{
 		.start	= IRQ_DA8XX_GPIO8,
 		.end	= IRQ_DA8XX_GPIO8,
+=======
+		.start	= DAVINCI_INTC_IRQ(IRQ_DA8XX_GPIO0),
+		.end	= DAVINCI_INTC_IRQ(IRQ_DA8XX_GPIO0),
+		.flags	= IORESOURCE_IRQ,
+	},
+	{
+		.start	= DAVINCI_INTC_IRQ(IRQ_DA8XX_GPIO1),
+		.end	= DAVINCI_INTC_IRQ(IRQ_DA8XX_GPIO1),
+		.flags	= IORESOURCE_IRQ,
+	},
+	{
+		.start	= DAVINCI_INTC_IRQ(IRQ_DA8XX_GPIO2),
+		.end	= DAVINCI_INTC_IRQ(IRQ_DA8XX_GPIO2),
+		.flags	= IORESOURCE_IRQ,
+	},
+	{
+		.start	= DAVINCI_INTC_IRQ(IRQ_DA8XX_GPIO3),
+		.end	= DAVINCI_INTC_IRQ(IRQ_DA8XX_GPIO3),
+		.flags	= IORESOURCE_IRQ,
+	},
+	{
+		.start	= DAVINCI_INTC_IRQ(IRQ_DA8XX_GPIO4),
+		.end	= DAVINCI_INTC_IRQ(IRQ_DA8XX_GPIO4),
+		.flags	= IORESOURCE_IRQ,
+	},
+	{
+		.start	= DAVINCI_INTC_IRQ(IRQ_DA8XX_GPIO5),
+		.end	= DAVINCI_INTC_IRQ(IRQ_DA8XX_GPIO5),
+		.flags	= IORESOURCE_IRQ,
+	},
+	{
+		.start	= DAVINCI_INTC_IRQ(IRQ_DA8XX_GPIO6),
+		.end	= DAVINCI_INTC_IRQ(IRQ_DA8XX_GPIO6),
+		.flags	= IORESOURCE_IRQ,
+	},
+	{
+		.start	= DAVINCI_INTC_IRQ(IRQ_DA8XX_GPIO7),
+		.end	= DAVINCI_INTC_IRQ(IRQ_DA8XX_GPIO7),
+		.flags	= IORESOURCE_IRQ,
+	},
+	{
+		.start	= DAVINCI_INTC_IRQ(IRQ_DA8XX_GPIO8),
+		.end	= DAVINCI_INTC_IRQ(IRQ_DA8XX_GPIO8),
+>>>>>>> upstream/android-13
 		.flags	= IORESOURCE_IRQ,
 	},
 };
@@ -769,8 +950,13 @@ static struct resource da8xx_mmcsd0_resources[] = {
 		.flags	= IORESOURCE_MEM,
 	},
 	{		/* interrupt */
+<<<<<<< HEAD
 		.start	= IRQ_DA8XX_MMCSDINT0,
 		.end	= IRQ_DA8XX_MMCSDINT0,
+=======
+		.start	= DAVINCI_INTC_IRQ(IRQ_DA8XX_MMCSDINT0),
+		.end	= DAVINCI_INTC_IRQ(IRQ_DA8XX_MMCSDINT0),
+>>>>>>> upstream/android-13
 		.flags	= IORESOURCE_IRQ,
 	},
 };
@@ -796,8 +982,13 @@ static struct resource da850_mmcsd1_resources[] = {
 		.flags	= IORESOURCE_MEM,
 	},
 	{		/* interrupt */
+<<<<<<< HEAD
 		.start	= IRQ_DA850_MMCSDINT0_1,
 		.end	= IRQ_DA850_MMCSDINT0_1,
+=======
+		.start	= DAVINCI_INTC_IRQ(IRQ_DA850_MMCSDINT0_1),
+		.end	= DAVINCI_INTC_IRQ(IRQ_DA850_MMCSDINT0_1),
+>>>>>>> upstream/android-13
 		.flags	= IORESOURCE_IRQ,
 	},
 };
@@ -848,8 +1039,13 @@ static struct resource da8xx_rproc_resources[] = {
 		.flags		= IORESOURCE_MEM,
 	},
 	{ /* dsp irq */
+<<<<<<< HEAD
 		.start		= IRQ_DA8XX_CHIPINT0,
 		.end		= IRQ_DA8XX_CHIPINT0,
+=======
+		.start		= DAVINCI_INTC_IRQ(IRQ_DA8XX_CHIPINT0),
+		.end		= DAVINCI_INTC_IRQ(IRQ_DA8XX_CHIPINT0),
+>>>>>>> upstream/android-13
 		.flags		= IORESOURCE_IRQ,
 	},
 };
@@ -887,6 +1083,10 @@ early_param("rproc_mem", early_rproc_mem);
 
 void __init da8xx_rproc_reserve_cma(void)
 {
+<<<<<<< HEAD
+=======
+	struct cma *cma;
+>>>>>>> upstream/android-13
 	int ret;
 
 	if (!rproc_base || !rproc_size) {
@@ -900,6 +1100,7 @@ void __init da8xx_rproc_reserve_cma(void)
 	pr_info("%s: reserving 0x%lx @ 0x%lx...\n",
 		__func__, rproc_size, (unsigned long)rproc_base);
 
+<<<<<<< HEAD
 	ret = dma_declare_contiguous(&da8xx_dsp.dev, rproc_size, rproc_base, 0);
 	if (ret)
 		pr_err("%s: dma_declare_contiguous failed %d\n", __func__, ret);
@@ -907,6 +1108,18 @@ void __init da8xx_rproc_reserve_cma(void)
 		rproc_mem_inited = true;
 }
 
+=======
+	ret = dma_contiguous_reserve_area(rproc_size, rproc_base, 0, &cma,
+			true);
+	if (ret) {
+		pr_err("%s: dma_contiguous_reserve_area failed %d\n",
+			__func__, ret);
+		return;
+	}
+	da8xx_dsp.dev.cma_area = cma;
+	rproc_mem_inited = true;
+}
+>>>>>>> upstream/android-13
 #else
 
 void __init da8xx_rproc_reserve_cma(void)
@@ -939,6 +1152,7 @@ static struct resource da8xx_rtc_resources[] = {
 		.flags		= IORESOURCE_MEM,
 	},
 	{ /* timer irq */
+<<<<<<< HEAD
 		.start		= IRQ_DA8XX_RTC,
 		.end		= IRQ_DA8XX_RTC,
 		.flags		= IORESOURCE_IRQ,
@@ -946,6 +1160,15 @@ static struct resource da8xx_rtc_resources[] = {
 	{ /* alarm irq */
 		.start		= IRQ_DA8XX_RTC,
 		.end		= IRQ_DA8XX_RTC,
+=======
+		.start		= DAVINCI_INTC_IRQ(IRQ_DA8XX_RTC),
+		.end		= DAVINCI_INTC_IRQ(IRQ_DA8XX_RTC),
+		.flags		= IORESOURCE_IRQ,
+	},
+	{ /* alarm irq */
+		.start		= DAVINCI_INTC_IRQ(IRQ_DA8XX_RTC),
+		.end		= DAVINCI_INTC_IRQ(IRQ_DA8XX_RTC),
+>>>>>>> upstream/android-13
 		.flags		= IORESOURCE_IRQ,
 	},
 };
@@ -1012,8 +1235,13 @@ static struct resource da8xx_spi0_resources[] = {
 		.flags	= IORESOURCE_MEM,
 	},
 	[1] = {
+<<<<<<< HEAD
 		.start	= IRQ_DA8XX_SPINT0,
 		.end	= IRQ_DA8XX_SPINT0,
+=======
+		.start	= DAVINCI_INTC_IRQ(IRQ_DA8XX_SPINT0),
+		.end	= DAVINCI_INTC_IRQ(IRQ_DA8XX_SPINT0),
+>>>>>>> upstream/android-13
 		.flags	= IORESOURCE_IRQ,
 	},
 };
@@ -1025,8 +1253,13 @@ static struct resource da8xx_spi1_resources[] = {
 		.flags	= IORESOURCE_MEM,
 	},
 	[1] = {
+<<<<<<< HEAD
 		.start	= IRQ_DA8XX_SPINT1,
 		.end	= IRQ_DA8XX_SPINT1,
+=======
+		.start	= DAVINCI_INTC_IRQ(IRQ_DA8XX_SPINT1),
+		.end	= DAVINCI_INTC_IRQ(IRQ_DA8XX_SPINT1),
+>>>>>>> upstream/android-13
 		.flags	= IORESOURCE_IRQ,
 	},
 };
@@ -1106,7 +1339,11 @@ static struct resource da850_sata_resources[] = {
 		.flags	= IORESOURCE_MEM,
 	},
 	{
+<<<<<<< HEAD
 		.start	= IRQ_DA850_SATAINT,
+=======
+		.start	= DAVINCI_INTC_IRQ(IRQ_DA850_SATAINT),
+>>>>>>> upstream/android-13
 		.flags	= IORESOURCE_IRQ,
 	},
 };

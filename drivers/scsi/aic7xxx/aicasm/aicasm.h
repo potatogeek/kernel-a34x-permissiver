@@ -42,11 +42,15 @@
  * $FreeBSD$
  */
 
+<<<<<<< HEAD
 #ifdef __linux__
 #include "../queue.h"
 #else
 #include <sys/queue.h>
 #endif
+=======
+#include "../queue.h"
+>>>>>>> upstream/android-13
 
 #ifndef TRUE
 #define TRUE 1

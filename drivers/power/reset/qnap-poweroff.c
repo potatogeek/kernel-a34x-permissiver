@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * QNAP Turbo NAS Board power off. Can also be used on Synology devices.
  *
@@ -7,18 +11,24 @@
  *
  * Copyright (C) 2009  Martin Michlmayr <tbm@cyrius.com>
  * Copyright (C) 2008  Byron Bradley <byron.bbradley@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/platform_device.h>
 #include <linux/serial_reg.h>
+<<<<<<< HEAD
 #include <linux/kallsyms.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/of.h>
 #include <linux/io.h>
 #include <linux/clk.h>
@@ -79,7 +89,10 @@ static int qnap_power_off_probe(struct platform_device *pdev)
 	struct device_node *np = pdev->dev.of_node;
 	struct resource *res;
 	struct clk *clk;
+<<<<<<< HEAD
 	char symname[KSYM_NAME_LEN];
+=======
+>>>>>>> upstream/android-13
 
 	const struct of_device_id *match =
 		of_match_node(qnap_power_off_of_match_table, np);
@@ -108,10 +121,15 @@ static int qnap_power_off_probe(struct platform_device *pdev)
 
 	/* Check that nothing else has already setup a handler */
 	if (pm_power_off) {
+<<<<<<< HEAD
 		lookup_symbol_name((ulong)pm_power_off, symname);
 		dev_err(&pdev->dev,
 			"pm_power_off already claimed %p %s",
 			pm_power_off, symname);
+=======
+		dev_err(&pdev->dev, "pm_power_off already claimed for %ps",
+			pm_power_off);
+>>>>>>> upstream/android-13
 		return -EBUSY;
 	}
 	pm_power_off = qnap_power_off;

@@ -54,8 +54,11 @@
 };
 
 &i2c1 {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c1_pins_a>;
+=======
+>>>>>>> upstream/android-13
 	status = "okay";
 
 	ft5406ee8: touchscreen@38 {
@@ -73,21 +76,33 @@
 	vref-supply = <&reg_aldo3>;
 	status = "okay";
 
+<<<<<<< HEAD
 	button@200 {
+=======
+	button-200 {
+>>>>>>> upstream/android-13
 		label = "Volume Down";
 		linux,code = <KEY_VOLUMEDOWN>;
 		channel = <0>;
 		voltage = <200000>;
 	};
 
+<<<<<<< HEAD
 	button@900 {
+=======
+	button-900 {
+>>>>>>> upstream/android-13
 		label = "Volume Up";
 		linux,code = <KEY_VOLUMEUP>;
 		channel = <0>;
 		voltage = <900000>;
 	};
 
+<<<<<<< HEAD
 	button@1200 {
+=======
+	button-1200 {
+>>>>>>> upstream/android-13
 		label = "Back";
 		linux,code = <KEY_BACK>;
 		channel = <0>;

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2015, 2016 Intel Corporation.
  *
@@ -43,6 +44,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause
+/*
+ * Copyright(c) 2015, 2016 Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -231,7 +237,11 @@ static int i2c_bus_write(struct hfi1_devdata *dd, struct hfi1_i2c_bus *i2c,
 		break;
 	case 2:
 		offset_bytes[1] = (offset >> 8) & 0xff;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 1:
 		num_msgs = 2;
 		offset_bytes[0] = offset & 0xff;
@@ -242,7 +252,11 @@ static int i2c_bus_write(struct hfi1_devdata *dd, struct hfi1_i2c_bus *i2c,
 		msgs[0].buf = offset_bytes;
 
 		msgs[1].addr = slave_addr;
+<<<<<<< HEAD
 		msgs[1].flags = I2C_M_NOSTART,
+=======
+		msgs[1].flags = I2C_M_NOSTART;
+>>>>>>> upstream/android-13
 		msgs[1].len = len;
 		msgs[1].buf = data;
 		break;
@@ -279,7 +293,11 @@ static int i2c_bus_read(struct hfi1_devdata *dd, struct hfi1_i2c_bus *bus,
 		break;
 	case 2:
 		offset_bytes[1] = (offset >> 8) & 0xff;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 1:
 		num_msgs = 2;
 		offset_bytes[0] = offset & 0xff;
@@ -290,7 +308,11 @@ static int i2c_bus_read(struct hfi1_devdata *dd, struct hfi1_i2c_bus *bus,
 		msgs[0].buf = offset_bytes;
 
 		msgs[1].addr = slave_addr;
+<<<<<<< HEAD
 		msgs[1].flags = I2C_M_RD,
+=======
+		msgs[1].flags = I2C_M_RD;
+>>>>>>> upstream/android-13
 		msgs[1].len = len;
 		msgs[1].buf = data;
 		break;

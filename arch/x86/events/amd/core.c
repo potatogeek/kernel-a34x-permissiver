@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #include <linux/perf_event.h>
 #include <linux/export.h>
 #include <linux/types.h>
@@ -13,6 +17,13 @@
 static DEFINE_PER_CPU(unsigned long, perf_nmi_tstamp);
 static unsigned long perf_nmi_window;
 
+<<<<<<< HEAD
+=======
+/* AMD Event 0xFFF: Merge.  Used with Large Increment per Cycle events */
+#define AMD_MERGE_EVENT ((0xFULL << 32) | 0xFFULL)
+#define AMD_MERGE_EVENT_ENABLE (AMD_MERGE_EVENT | ARCH_PERFMON_EVENTSEL_ENABLE)
+
+>>>>>>> upstream/android-13
 static __initconst const u64 amd_hw_cache_event_ids
 				[PERF_COUNT_HW_CACHE_MAX]
 				[PERF_COUNT_HW_CACHE_OP_MAX]
@@ -301,6 +312,28 @@ static inline int amd_pmu_addr_offset(int index, bool eventsel)
 	return offset;
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * AMD64 events are detected based on their event codes.
+ */
+static inline unsigned int amd_get_event_code(struct hw_perf_event *hwc)
+{
+	return ((hwc->config >> 24) & 0x0f00) | (hwc->config & 0x00ff);
+}
+
+static inline bool amd_is_pair_event_code(struct hw_perf_event *hwc)
+{
+	if (!(x86_pmu.flags & PMU_FL_PAIR))
+		return false;
+
+	switch (amd_get_event_code(hwc)) {
+	case 0x003:	return true;	/* Retired SSE/AVX FLOPs */
+	default:	return false;
+	}
+}
+
+>>>>>>> upstream/android-13
 static int amd_core_hw_config(struct perf_event *event)
 {
 	if (event->attr.exclude_host && event->attr.exclude_guest)
@@ -316,6 +349,7 @@ static int amd_core_hw_config(struct perf_event *event)
 	else if (event->attr.exclude_guest)
 		event->hw.config |= AMD64_EVENTSEL_HOSTONLY;
 
+<<<<<<< HEAD
 	return 0;
 }
 
@@ -325,6 +359,12 @@ static int amd_core_hw_config(struct perf_event *event)
 static inline unsigned int amd_get_event_code(struct hw_perf_event *hwc)
 {
 	return ((hwc->config >> 24) & 0x0f00) | (hwc->config & 0x00ff);
+=======
+	if ((x86_pmu.flags & PMU_FL_PAIR) && amd_is_pair_event_code(&event->hw))
+		event->hw.flags |= PERF_X86_EVENT_PAIR;
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static inline int amd_is_nb_event(struct hw_perf_event *hwc)
@@ -519,7 +559,11 @@ static void amd_pmu_cpu_starting(int cpu)
 	if (!x86_pmu.amd_nb_constraints)
 		return;
 
+<<<<<<< HEAD
 	nb_id = amd_get_nb_id(cpu);
+=======
+	nb_id = topology_die_id(cpu);
+>>>>>>> upstream/android-13
 	WARN_ON_ONCE(nb_id == BAD_APICID);
 
 	for_each_online_cpu(i) {
@@ -604,7 +648,11 @@ static void amd_pmu_disable_all(void)
 	/*
 	 * Check each counter for overflow and wait for it to be reset by the
 	 * NMI if it has overflowed. This relies on the fact that all active
+<<<<<<< HEAD
 	 * counters are always enabled when this function is caled and
+=======
+	 * counters are always enabled when this function is called and
+>>>>>>> upstream/android-13
 	 * ARCH_PERFMON_EVENTSEL_INT is always set.
 	 */
 	for (idx = 0; idx < x86_pmu.num_counters; idx++) {
@@ -652,6 +700,7 @@ static void amd_pmu_disable_event(struct perf_event *event)
  */
 static int amd_pmu_handle_irq(struct pt_regs *regs)
 {
+<<<<<<< HEAD
 	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
 	int active, handled;
 
@@ -661,6 +710,9 @@ static int amd_pmu_handle_irq(struct pt_regs *regs)
 	 * inactive (through x86_pmu_stop).
 	 */
 	active = __bitmap_weight(cpuc->active_mask, X86_PMC_IDX_MAX);
+=======
+	int handled;
+>>>>>>> upstream/android-13
 
 	/* Process any counter overflows */
 	handled = x86_pmu_handle_irq(regs);
@@ -670,8 +722,12 @@ static int amd_pmu_handle_irq(struct pt_regs *regs)
 	 * NMIs will be claimed if arriving within that window.
 	 */
 	if (handled) {
+<<<<<<< HEAD
 		this_cpu_write(perf_nmi_tstamp,
 			       jiffies + perf_nmi_window);
+=======
+		this_cpu_write(perf_nmi_tstamp, jiffies + perf_nmi_window);
+>>>>>>> upstream/android-13
 
 		return handled;
 	}
@@ -864,6 +920,32 @@ amd_get_event_constraints_f15h(struct cpu_hw_events *cpuc, int idx,
 	}
 }
 
+<<<<<<< HEAD
+=======
+static struct event_constraint pair_constraint;
+
+static struct event_constraint *
+amd_get_event_constraints_f17h(struct cpu_hw_events *cpuc, int idx,
+			       struct perf_event *event)
+{
+	struct hw_perf_event *hwc = &event->hw;
+
+	if (amd_is_pair_event_code(hwc))
+		return &pair_constraint;
+
+	return &unconstrained;
+}
+
+static void amd_put_event_constraints_f17h(struct cpu_hw_events *cpuc,
+					   struct perf_event *event)
+{
+	struct hw_perf_event *hwc = &event->hw;
+
+	if (is_counter_pair(hwc))
+		--cpuc->n_pair;
+}
+
+>>>>>>> upstream/android-13
 static ssize_t amd_event_sysfs_show(char *page, u64 config)
 {
 	u64 event = (config & ARCH_PERFMON_EVENTSEL_EVENT) |
@@ -907,6 +989,7 @@ static __initconst const struct x86_pmu amd_pmu = {
 
 static int __init amd_core_pmu_init(void)
 {
+<<<<<<< HEAD
 	if (!boot_cpu_has(X86_FEATURE_PERFCTR_CORE))
 		return 0;
 
@@ -930,6 +1013,17 @@ static int __init amd_core_pmu_init(void)
 		return -ENODEV;
 	}
 
+=======
+	u64 even_ctr_mask = 0ULL;
+	int i;
+
+	if (!boot_cpu_has(X86_FEATURE_PERFCTR_CORE))
+		return 0;
+
+	/* Avoid calculating the value each time in the NMI handler */
+	perf_nmi_window = msecs_to_jiffies(100);
+
+>>>>>>> upstream/android-13
 	/*
 	 * If core performance counter extensions exists, we must use
 	 * MSR_F15H_PERF_CTL/MSR_F15H_PERF_CTR msrs. See also
@@ -944,6 +1038,35 @@ static int __init amd_core_pmu_init(void)
 	 */
 	x86_pmu.amd_nb_constraints = 0;
 
+<<<<<<< HEAD
+=======
+	if (boot_cpu_data.x86 == 0x15) {
+		pr_cont("Fam15h ");
+		x86_pmu.get_event_constraints = amd_get_event_constraints_f15h;
+	}
+	if (boot_cpu_data.x86 >= 0x17) {
+		pr_cont("Fam17h+ ");
+		/*
+		 * Family 17h and compatibles have constraints for Large
+		 * Increment per Cycle events: they may only be assigned an
+		 * even numbered counter that has a consecutive adjacent odd
+		 * numbered counter following it.
+		 */
+		for (i = 0; i < x86_pmu.num_counters - 1; i += 2)
+			even_ctr_mask |= 1 << i;
+
+		pair_constraint = (struct event_constraint)
+				    __EVENT_CONSTRAINT(0, even_ctr_mask, 0,
+				    x86_pmu.num_counters / 2, 0,
+				    PERF_X86_EVENT_PAIR);
+
+		x86_pmu.get_event_constraints = amd_get_event_constraints_f17h;
+		x86_pmu.put_event_constraints = amd_put_event_constraints_f17h;
+		x86_pmu.perf_ctr_pair_en = AMD_MERGE_EVENT_ENABLE;
+		x86_pmu.flags |= PMU_FL_PAIR;
+	}
+
+>>>>>>> upstream/android-13
 	pr_cont("core perfctr, ");
 	return 0;
 }

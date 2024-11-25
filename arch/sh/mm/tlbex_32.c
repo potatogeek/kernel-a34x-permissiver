@@ -23,6 +23,10 @@ handle_tlbmiss(struct pt_regs *regs, unsigned long error_code,
 	       unsigned long address)
 {
 	pgd_t *pgd;
+<<<<<<< HEAD
+=======
+	p4d_t *p4d;
+>>>>>>> upstream/android-13
 	pud_t *pud;
 	pmd_t *pmd;
 	pte_t *pte;
@@ -42,7 +46,14 @@ handle_tlbmiss(struct pt_regs *regs, unsigned long error_code,
 		pgd = pgd_offset(current->mm, address);
 	}
 
+<<<<<<< HEAD
 	pud = pud_offset(pgd, address);
+=======
+	p4d = p4d_offset(pgd, address);
+	if (p4d_none_or_clear_bad(p4d))
+		return 1;
+	pud = pud_offset(p4d, address);
+>>>>>>> upstream/android-13
 	if (pud_none_or_clear_bad(pud))
 		return 1;
 	pmd = pmd_offset(pud, address);

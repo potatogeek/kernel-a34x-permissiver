@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014 Emilio López
  * Emilio López <emilio@elopez.com.ar>
@@ -6,6 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2014 Emilio López
+ * Emilio López <emilio@elopez.com.ar>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitmap.h>
@@ -311,7 +318,11 @@ static void set_pchan_interrupt(struct sun4i_dma_dev *priv,
 	spin_unlock_irqrestore(&priv->lock, flags);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Execute pending operations on a vchan
  *
  * When given a vchan, this function will try to acquire a suitable
@@ -423,7 +434,11 @@ static int sanitize_config(struct dma_slave_config *sconfig,
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Generate a promise, to be used in a normal DMA contract.
  *
  * A NDMA promise contains all the information required to program the
@@ -490,7 +505,11 @@ fail:
 	return NULL;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Generate a promise, to be used in a dedicated DMA contract.
  *
  * A DDMA promise contains all the information required to program the
@@ -547,7 +566,11 @@ fail:
 	return NULL;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Generate a contract
  *
  * Contracts function as DMA descriptors. As our hardware does not support
@@ -569,7 +592,11 @@ static struct sun4i_dma_contract *generate_dma_contract(void)
 	return contract;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Get next promise on a cyclic transfer
  *
  * Cyclic contracts contain a series of promises which are executed on a
@@ -593,7 +620,11 @@ get_next_cyclic_promise(struct sun4i_dma_contract *contract)
 	return promise;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Free a contract and all its associated promises
  */
 static void sun4i_dma_free_contract(struct virt_dma_desc *vd)
@@ -673,12 +704,17 @@ sun4i_dma_prep_dma_cyclic(struct dma_chan *chan, dma_addr_t buf, size_t len,
 	dma_addr_t src, dest;
 	u32 endpoints;
 	int nr_periods, offset, plength, i;
+<<<<<<< HEAD
+=======
+	u8 ram_type, io_mode, linear_mode;
+>>>>>>> upstream/android-13
 
 	if (!is_slave_direction(dir)) {
 		dev_err(chan2dev(chan), "Invalid DMA direction\n");
 		return NULL;
 	}
 
+<<<<<<< HEAD
 	if (vchan->is_dedicated) {
 		/*
 		 * As we are using this just for audio data, we need to use
@@ -691,12 +727,15 @@ sun4i_dma_prep_dma_cyclic(struct dma_chan *chan, dma_addr_t buf, size_t len,
 		return NULL;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	contract = generate_dma_contract();
 	if (!contract)
 		return NULL;
 
 	contract->is_cyclic = 1;
 
+<<<<<<< HEAD
 	/* Figure out the endpoints and the address we need */
 	if (dir == DMA_MEM_TO_DEV) {
 		src = buf;
@@ -710,6 +749,32 @@ sun4i_dma_prep_dma_cyclic(struct dma_chan *chan, dma_addr_t buf, size_t len,
 		endpoints = SUN4I_DMA_CFG_SRC_DRQ_TYPE(vchan->endpoint) |
 			    SUN4I_DMA_CFG_SRC_ADDR_MODE(SUN4I_NDMA_ADDR_MODE_IO) |
 			    SUN4I_DMA_CFG_DST_DRQ_TYPE(SUN4I_NDMA_DRQ_TYPE_SDRAM);
+=======
+	if (vchan->is_dedicated) {
+		io_mode = SUN4I_DDMA_ADDR_MODE_IO;
+		linear_mode = SUN4I_DDMA_ADDR_MODE_LINEAR;
+		ram_type = SUN4I_DDMA_DRQ_TYPE_SDRAM;
+	} else {
+		io_mode = SUN4I_NDMA_ADDR_MODE_IO;
+		linear_mode = SUN4I_NDMA_ADDR_MODE_LINEAR;
+		ram_type = SUN4I_NDMA_DRQ_TYPE_SDRAM;
+	}
+
+	if (dir == DMA_MEM_TO_DEV) {
+		src = buf;
+		dest = sconfig->dst_addr;
+		endpoints = SUN4I_DMA_CFG_DST_DRQ_TYPE(vchan->endpoint) |
+			    SUN4I_DMA_CFG_DST_ADDR_MODE(io_mode) |
+			    SUN4I_DMA_CFG_SRC_DRQ_TYPE(ram_type) |
+			    SUN4I_DMA_CFG_SRC_ADDR_MODE(linear_mode);
+	} else {
+		src = sconfig->src_addr;
+		dest = buf;
+		endpoints = SUN4I_DMA_CFG_DST_DRQ_TYPE(ram_type) |
+			    SUN4I_DMA_CFG_DST_ADDR_MODE(linear_mode) |
+			    SUN4I_DMA_CFG_SRC_DRQ_TYPE(vchan->endpoint) |
+			    SUN4I_DMA_CFG_SRC_ADDR_MODE(io_mode);
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -751,8 +816,18 @@ sun4i_dma_prep_dma_cyclic(struct dma_chan *chan, dma_addr_t buf, size_t len,
 			dest = buf + offset;
 
 		/* Make the promise */
+<<<<<<< HEAD
 		promise = generate_ndma_promise(chan, src, dest,
 						plength, sconfig, dir);
+=======
+		if (vchan->is_dedicated)
+			promise = generate_ddma_promise(chan, src, dest,
+							plength, sconfig);
+		else
+			promise = generate_ndma_promise(chan, src, dest,
+							plength, sconfig, dir);
+
+>>>>>>> upstream/android-13
 		if (!promise) {
 			/* TODO: should we free everything? */
 			return NULL;
@@ -889,12 +964,20 @@ static int sun4i_dma_terminate_all(struct dma_chan *chan)
 	}
 
 	spin_lock_irqsave(&vchan->vc.lock, flags);
+<<<<<<< HEAD
 	vchan_dma_desc_free_list(&vchan->vc, &head);
+=======
+>>>>>>> upstream/android-13
 	/* Clear these so the vchan is usable again */
 	vchan->processing = NULL;
 	vchan->pchan = NULL;
 	spin_unlock_irqrestore(&vchan->vc.lock, flags);
 
+<<<<<<< HEAD
+=======
+	vchan_dma_desc_free_list(&vchan->vc, &head);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1040,9 +1123,14 @@ handle_pending:
 			 * Move the promise into the completed list now that
 			 * we're done with it
 			 */
+<<<<<<< HEAD
 			list_del(&vchan->processing->list);
 			list_add_tail(&vchan->processing->list,
 				      &contract->completed_demands);
+=======
+			list_move_tail(&vchan->processing->list,
+				       &contract->completed_demands);
+>>>>>>> upstream/android-13
 
 			/*
 			 * Cyclic DMA transfers are special:
@@ -1136,10 +1224,15 @@ static int sun4i_dma_probe(struct platform_device *pdev)
 		return PTR_ERR(priv->base);
 
 	priv->irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (priv->irq < 0) {
 		dev_err(&pdev->dev, "Cannot claim IRQ\n");
 		return priv->irq;
 	}
+=======
+	if (priv->irq < 0)
+		return priv->irq;
+>>>>>>> upstream/android-13
 
 	priv->clk = devm_clk_get(&pdev->dev, NULL);
 	if (IS_ERR(priv->clk)) {

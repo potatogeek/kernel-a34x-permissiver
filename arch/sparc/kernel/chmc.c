@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* chmc.c: Driver for UltraSPARC-III memory controller.
  *
  * Copyright (C) 2001, 2007, 2008 David S. Miller (davem@davemloft.net)
@@ -464,8 +468,13 @@ static int jbusmc_probe(struct platform_device *op)
 
 	mc_list_add(&p->list);
 
+<<<<<<< HEAD
 	printk(KERN_INFO PFX "UltraSPARC-IIIi memory controller at %s\n",
 	       op->dev.of_node->full_name);
+=======
+	printk(KERN_INFO PFX "UltraSPARC-IIIi memory controller at %pOF\n",
+	       op->dev.of_node);
+>>>>>>> upstream/android-13
 
 	dev_set_drvdata(&op->dev, p);
 
@@ -747,8 +756,13 @@ static int chmc_probe(struct platform_device *op)
 
 	mc_list_add(&p->list);
 
+<<<<<<< HEAD
 	printk(KERN_INFO PFX "UltraSPARC-III memory controller at %s [%s]\n",
 	       dp->full_name,
+=======
+	printk(KERN_INFO PFX "UltraSPARC-III memory controller at %pOF [%s]\n",
+	       dp,
+>>>>>>> upstream/android-13
 	       (p->layout_size ? "ACTIVE" : "INACTIVE"));
 
 	dev_set_drvdata(&op->dev, p);

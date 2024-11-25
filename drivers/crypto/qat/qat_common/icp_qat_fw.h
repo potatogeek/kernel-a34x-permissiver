@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
   This file is provided under a dual BSD/GPLv2 license.  When using or
   redistributing this file, you may do so under either license.
@@ -44,6 +45,10 @@
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+=======
+/* SPDX-License-Identifier: (BSD-3-Clause OR GPL-2.0-only) */
+/* Copyright(c) 2014 - 2020 Intel Corporation */
+>>>>>>> upstream/android-13
 #ifndef _ICP_QAT_FW_H_
 #define _ICP_QAT_FW_H_
 #include <linux/types.h>
@@ -89,6 +94,7 @@ enum icp_qat_fw_comn_request_id {
 struct icp_qat_fw_comn_req_hdr_cd_pars {
 	union {
 		struct {
+<<<<<<< HEAD
 			uint64_t content_desc_addr;
 			uint16_t content_desc_resrvd1;
 			uint8_t content_desc_params_sz;
@@ -97,11 +103,22 @@ struct icp_qat_fw_comn_req_hdr_cd_pars {
 		} s;
 		struct {
 			uint32_t serv_specif_fields[4];
+=======
+			__u64 content_desc_addr;
+			__u16 content_desc_resrvd1;
+			__u8 content_desc_params_sz;
+			__u8 content_desc_hdr_resrvd2;
+			__u32 content_desc_resrvd3;
+		} s;
+		struct {
+			__u32 serv_specif_fields[4];
+>>>>>>> upstream/android-13
 		} s1;
 	} u;
 };
 
 struct icp_qat_fw_comn_req_mid {
+<<<<<<< HEAD
 	uint64_t opaque_data;
 	uint64_t src_data_addr;
 	uint64_t dest_data_addr;
@@ -124,6 +141,30 @@ struct icp_qat_fw_comn_req_hdr {
 
 struct icp_qat_fw_comn_req_rqpars {
 	uint32_t serv_specif_rqpars_lw[ICP_QAT_FW_NUM_LONGWORDS_13];
+=======
+	__u64 opaque_data;
+	__u64 src_data_addr;
+	__u64 dest_data_addr;
+	__u32 src_length;
+	__u32 dst_length;
+};
+
+struct icp_qat_fw_comn_req_cd_ctrl {
+	__u32 content_desc_ctrl_lw[ICP_QAT_FW_NUM_LONGWORDS_5];
+};
+
+struct icp_qat_fw_comn_req_hdr {
+	__u8 resrvd1;
+	__u8 service_cmd_id;
+	__u8 service_type;
+	__u8 hdr_flags;
+	__u16 serv_specif_flags;
+	__u16 comn_req_flags;
+};
+
+struct icp_qat_fw_comn_req_rqpars {
+	__u32 serv_specif_rqpars_lw[ICP_QAT_FW_NUM_LONGWORDS_13];
+>>>>>>> upstream/android-13
 };
 
 struct icp_qat_fw_comn_req {
@@ -135,6 +176,7 @@ struct icp_qat_fw_comn_req {
 };
 
 struct icp_qat_fw_comn_error {
+<<<<<<< HEAD
 	uint8_t xlat_err_code;
 	uint8_t cmp_err_code;
 };
@@ -147,12 +189,31 @@ struct icp_qat_fw_comn_resp_hdr {
 	struct icp_qat_fw_comn_error comn_error;
 	uint8_t comn_status;
 	uint8_t cmd_id;
+=======
+	__u8 xlat_err_code;
+	__u8 cmp_err_code;
+};
+
+struct icp_qat_fw_comn_resp_hdr {
+	__u8 resrvd1;
+	__u8 service_id;
+	__u8 response_type;
+	__u8 hdr_flags;
+	struct icp_qat_fw_comn_error comn_error;
+	__u8 comn_status;
+	__u8 cmd_id;
+>>>>>>> upstream/android-13
 };
 
 struct icp_qat_fw_comn_resp {
 	struct icp_qat_fw_comn_resp_hdr comn_hdr;
+<<<<<<< HEAD
 	uint64_t opaque_data;
 	uint32_t resrvd[ICP_QAT_FW_NUM_LONGWORDS_4];
+=======
+	__u64 opaque_data;
+	__u32 resrvd[ICP_QAT_FW_NUM_LONGWORDS_4];
+>>>>>>> upstream/android-13
 };
 
 #define ICP_QAT_FW_COMN_REQ_FLAG_SET 1

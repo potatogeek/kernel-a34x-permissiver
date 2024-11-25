@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * AppArmor security module
  *
@@ -5,11 +9,14 @@
  *
  * Copyright (C) 1998-2008 Novell/SUSE
  * Copyright 2009-2010 Canonical Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, version 2 of the
  * License.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/ctype.h>
@@ -296,13 +303,21 @@ void aa_apply_modes_to_perms(struct aa_profile *profile, struct aa_perms *perms)
 	switch (AUDIT_MODE(profile)) {
 	case AUDIT_ALL:
 		perms->audit = ALL_PERMS_MASK;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case AUDIT_NOQUIET:
 		perms->quiet = 0;
 		break;
 	case AUDIT_QUIET:
 		perms->audit = 0;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case AUDIT_QUIET_DENIED:
 		perms->quiet = ALL_PERMS_MASK;
 		break;

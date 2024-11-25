@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * vpd_decode.c
  *
  * Google VPD decoding routines.
  *
  * Copyright 2017 Google Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License v2.0 as published by
@@ -17,6 +22,10 @@
 
 #include <linux/export.h>
 
+=======
+ */
+
+>>>>>>> upstream/android-13
 #include "vpd_decode.h"
 
 static int vpd_decode_len(const u32 max_len, const u8 *in,

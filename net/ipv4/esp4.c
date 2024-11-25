@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #define pr_fmt(fmt) "IPsec: " fmt
 
 #include <crypto/aead.h>
@@ -17,6 +21,11 @@
 #include <net/icmp.h>
 #include <net/protocol.h>
 #include <net/udp.h>
+<<<<<<< HEAD
+=======
+#include <net/tcp.h>
+#include <net/espintcp.h>
+>>>>>>> upstream/android-13
 
 #include <linux/highmem.h>
 
@@ -32,8 +41,11 @@ struct esp_output_extra {
 
 #define ESP_SKB_CB(__skb) ((struct esp_skb_cb *)&((__skb)->cb[0]))
 
+<<<<<<< HEAD
 static u32 esp4_get_mtu(struct xfrm_state *x, int mtu);
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Allocate an AEAD request structure with extra space for SG and IV.
  *
@@ -96,7 +108,10 @@ static inline struct scatterlist *esp_req_sg(struct crypto_aead *aead,
 
 static void esp_ssg_unref(struct xfrm_state *x, void *tmp)
 {
+<<<<<<< HEAD
 	struct esp_output_extra *extra = esp_tmp_extra(tmp);
+=======
+>>>>>>> upstream/android-13
 	struct crypto_aead *aead = x->data;
 	int extralen = 0;
 	u8 *iv;
@@ -104,9 +119,14 @@ static void esp_ssg_unref(struct xfrm_state *x, void *tmp)
 	struct scatterlist *sg;
 
 	if (x->props.flags & XFRM_STATE_ESN)
+<<<<<<< HEAD
 		extralen += sizeof(*extra);
 
 	extra = esp_tmp_extra(tmp);
+=======
+		extralen += sizeof(struct esp_output_extra);
+
+>>>>>>> upstream/android-13
 	iv = esp_tmp_iv(aead, tmp, extralen);
 	req = esp_tmp_req(aead, iv);
 
@@ -118,6 +138,135 @@ static void esp_ssg_unref(struct xfrm_state *x, void *tmp)
 			put_page(sg_page(sg));
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_INET_ESPINTCP
+struct esp_tcp_sk {
+	struct sock *sk;
+	struct rcu_head rcu;
+};
+
+static void esp_free_tcp_sk(struct rcu_head *head)
+{
+	struct esp_tcp_sk *esk = container_of(head, struct esp_tcp_sk, rcu);
+
+	sock_put(esk->sk);
+	kfree(esk);
+}
+
+static struct sock *esp_find_tcp_sk(struct xfrm_state *x)
+{
+	struct xfrm_encap_tmpl *encap = x->encap;
+	struct esp_tcp_sk *esk;
+	__be16 sport, dport;
+	struct sock *nsk;
+	struct sock *sk;
+
+	sk = rcu_dereference(x->encap_sk);
+	if (sk && sk->sk_state == TCP_ESTABLISHED)
+		return sk;
+
+	spin_lock_bh(&x->lock);
+	sport = encap->encap_sport;
+	dport = encap->encap_dport;
+	nsk = rcu_dereference_protected(x->encap_sk,
+					lockdep_is_held(&x->lock));
+	if (sk && sk == nsk) {
+		esk = kmalloc(sizeof(*esk), GFP_ATOMIC);
+		if (!esk) {
+			spin_unlock_bh(&x->lock);
+			return ERR_PTR(-ENOMEM);
+		}
+		RCU_INIT_POINTER(x->encap_sk, NULL);
+		esk->sk = sk;
+		call_rcu(&esk->rcu, esp_free_tcp_sk);
+	}
+	spin_unlock_bh(&x->lock);
+
+	sk = inet_lookup_established(xs_net(x), &tcp_hashinfo, x->id.daddr.a4,
+				     dport, x->props.saddr.a4, sport, 0);
+	if (!sk)
+		return ERR_PTR(-ENOENT);
+
+	if (!tcp_is_ulp_esp(sk)) {
+		sock_put(sk);
+		return ERR_PTR(-EINVAL);
+	}
+
+	spin_lock_bh(&x->lock);
+	nsk = rcu_dereference_protected(x->encap_sk,
+					lockdep_is_held(&x->lock));
+	if (encap->encap_sport != sport ||
+	    encap->encap_dport != dport) {
+		sock_put(sk);
+		sk = nsk ?: ERR_PTR(-EREMCHG);
+	} else if (sk == nsk) {
+		sock_put(sk);
+	} else {
+		rcu_assign_pointer(x->encap_sk, sk);
+	}
+	spin_unlock_bh(&x->lock);
+
+	return sk;
+}
+
+static int esp_output_tcp_finish(struct xfrm_state *x, struct sk_buff *skb)
+{
+	struct sock *sk;
+	int err;
+
+	rcu_read_lock();
+
+	sk = esp_find_tcp_sk(x);
+	err = PTR_ERR_OR_ZERO(sk);
+	if (err)
+		goto out;
+
+	bh_lock_sock(sk);
+	if (sock_owned_by_user(sk))
+		err = espintcp_queue_out(sk, skb);
+	else
+		err = espintcp_push_skb(sk, skb);
+	bh_unlock_sock(sk);
+
+out:
+	rcu_read_unlock();
+	return err;
+}
+
+static int esp_output_tcp_encap_cb(struct net *net, struct sock *sk,
+				   struct sk_buff *skb)
+{
+	struct dst_entry *dst = skb_dst(skb);
+	struct xfrm_state *x = dst->xfrm;
+
+	return esp_output_tcp_finish(x, skb);
+}
+
+static int esp_output_tail_tcp(struct xfrm_state *x, struct sk_buff *skb)
+{
+	int err;
+
+	local_bh_disable();
+	err = xfrm_trans_queue_net(xs_net(x), skb, esp_output_tcp_encap_cb);
+	local_bh_enable();
+
+	/* EINPROGRESS just happens to do the right thing.  It
+	 * actually means that the skb has been consumed and
+	 * isn't coming back.
+	 */
+	return err ?: -EINPROGRESS;
+}
+#else
+static int esp_output_tail_tcp(struct xfrm_state *x, struct sk_buff *skb)
+{
+	kfree_skb(skb);
+
+	return -EOPNOTSUPP;
+}
+#endif
+
+>>>>>>> upstream/android-13
 static void esp_output_done(struct crypto_async_request *base, int err)
 {
 	struct sk_buff *skb = base->data;
@@ -125,10 +274,20 @@ static void esp_output_done(struct crypto_async_request *base, int err)
 	void *tmp;
 	struct xfrm_state *x;
 
+<<<<<<< HEAD
 	if (xo && (xo->flags & XFRM_DEV_RESUME))
 		x = skb->sp->xvec[skb->sp->len - 1];
 	else
 		x = skb_dst(skb)->xfrm;
+=======
+	if (xo && (xo->flags & XFRM_DEV_RESUME)) {
+		struct sec_path *sp = skb_sec_path(skb);
+
+		x = sp->xvec[sp->len - 1];
+	} else {
+		x = skb_dst(skb)->xfrm;
+	}
+>>>>>>> upstream/android-13
 
 	tmp = ESP_SKB_CB(skb)->tmp;
 	esp_ssg_unref(x, tmp);
@@ -145,7 +304,15 @@ static void esp_output_done(struct crypto_async_request *base, int err)
 		secpath_reset(skb);
 		xfrm_dev_resume(skb);
 	} else {
+<<<<<<< HEAD
 		xfrm_output_resume(skb, err);
+=======
+		if (!err &&
+		    x->encap && x->encap->encap_type == TCP_ENCAP_ESPINTCP)
+			esp_output_tail_tcp(x, skb);
+		else
+			xfrm_output_resume(skb, err);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -175,7 +342,11 @@ static struct ip_esp_hdr *esp_output_set_extra(struct sk_buff *skb,
 					       struct esp_output_extra *extra)
 {
 	/* For ESN we move the header forward by 4 bytes to
+<<<<<<< HEAD
 	 * accomodate the high bits.  We will move it back after
+=======
+	 * accommodate the high bits.  We will move it back after
+>>>>>>> upstream/android-13
 	 * encryption.
 	 */
 	if ((x->props.flags & XFRM_STATE_ESN)) {
@@ -207,6 +378,7 @@ static void esp_output_done_esn(struct crypto_async_request *base, int err)
 	esp_output_done(base, err);
 }
 
+<<<<<<< HEAD
 static void esp_output_fill_trailer(u8 *tail, int tfclen, int plen, __u8 proto)
 {
 	/* Fill padding... */
@@ -233,12 +405,89 @@ static int esp_output_udp_encap(struct xfrm_state *x, struct sk_buff *skb, struc
 	struct ip_esp_hdr *esph = esp->esph;
 	unsigned int len;
 
+=======
+static struct ip_esp_hdr *esp_output_udp_encap(struct sk_buff *skb,
+					       int encap_type,
+					       struct esp_info *esp,
+					       __be16 sport,
+					       __be16 dport)
+{
+	struct udphdr *uh;
+	__be32 *udpdata32;
+	unsigned int len;
+
+	len = skb->len + esp->tailen - skb_transport_offset(skb);
+	if (len + sizeof(struct iphdr) > IP_MAX_MTU)
+		return ERR_PTR(-EMSGSIZE);
+
+	uh = (struct udphdr *)esp->esph;
+	uh->source = sport;
+	uh->dest = dport;
+	uh->len = htons(len);
+	uh->check = 0;
+
+	*skb_mac_header(skb) = IPPROTO_UDP;
+
+	if (encap_type == UDP_ENCAP_ESPINUDP_NON_IKE) {
+		udpdata32 = (__be32 *)(uh + 1);
+		udpdata32[0] = udpdata32[1] = 0;
+		return (struct ip_esp_hdr *)(udpdata32 + 2);
+	}
+
+	return (struct ip_esp_hdr *)(uh + 1);
+}
+
+#ifdef CONFIG_INET_ESPINTCP
+static struct ip_esp_hdr *esp_output_tcp_encap(struct xfrm_state *x,
+						    struct sk_buff *skb,
+						    struct esp_info *esp)
+{
+	__be16 *lenp = (void *)esp->esph;
+	struct ip_esp_hdr *esph;
+	unsigned int len;
+	struct sock *sk;
+
+	len = skb->len + esp->tailen - skb_transport_offset(skb);
+	if (len > IP_MAX_MTU)
+		return ERR_PTR(-EMSGSIZE);
+
+	rcu_read_lock();
+	sk = esp_find_tcp_sk(x);
+	rcu_read_unlock();
+
+	if (IS_ERR(sk))
+		return ERR_CAST(sk);
+
+	*lenp = htons(len);
+	esph = (struct ip_esp_hdr *)(lenp + 1);
+
+	return esph;
+}
+#else
+static struct ip_esp_hdr *esp_output_tcp_encap(struct xfrm_state *x,
+						    struct sk_buff *skb,
+						    struct esp_info *esp)
+{
+	return ERR_PTR(-EOPNOTSUPP);
+}
+#endif
+
+static int esp_output_encap(struct xfrm_state *x, struct sk_buff *skb,
+			    struct esp_info *esp)
+{
+	struct xfrm_encap_tmpl *encap = x->encap;
+	struct ip_esp_hdr *esph;
+	__be16 sport, dport;
+	int encap_type;
+
+>>>>>>> upstream/android-13
 	spin_lock_bh(&x->lock);
 	sport = encap->encap_sport;
 	dport = encap->encap_dport;
 	encap_type = encap->encap_type;
 	spin_unlock_bh(&x->lock);
 
+<<<<<<< HEAD
 	len = skb->len + esp->tailen - skb_transport_offset(skb);
 	if (len + sizeof(struct iphdr) >= IP_MAX_MTU)
 		return -EMSGSIZE;
@@ -262,6 +511,22 @@ static int esp_output_udp_encap(struct xfrm_state *x, struct sk_buff *skb, struc
 	}
 
 	*skb_mac_header(skb) = IPPROTO_UDP;
+=======
+	switch (encap_type) {
+	default:
+	case UDP_ENCAP_ESPINUDP:
+	case UDP_ENCAP_ESPINUDP_NON_IKE:
+		esph = esp_output_udp_encap(skb, encap_type, esp, sport, dport);
+		break;
+	case TCP_ENCAP_ESPINTCP:
+		esph = esp_output_tcp_encap(x, skb, esp);
+		break;
+	}
+
+	if (IS_ERR(esph))
+		return PTR_ERR(esph);
+
+>>>>>>> upstream/android-13
 	esp->esph = esph;
 
 	return 0;
@@ -276,14 +541,27 @@ int esp_output_head(struct xfrm_state *x, struct sk_buff *skb, struct esp_info *
 	struct sk_buff *trailer;
 	int tailen = esp->tailen;
 
+<<<<<<< HEAD
 	/* this is non-NULL only with UDP Encapsulation */
 	if (x->encap) {
 		int err = esp_output_udp_encap(x, skb, esp);
+=======
+	/* this is non-NULL only with TCP/UDP Encapsulation */
+	if (x->encap) {
+		int err = esp_output_encap(x, skb, esp);
+>>>>>>> upstream/android-13
 
 		if (err < 0)
 			return err;
 	}
 
+<<<<<<< HEAD
+=======
+	if (ALIGN(tailen, L1_CACHE_BYTES) > PAGE_SIZE ||
+	    ALIGN(skb->data_len, L1_CACHE_BYTES) > PAGE_SIZE)
+		goto cow;
+
+>>>>>>> upstream/android-13
 	if (!skb_cloned(skb)) {
 		if (tailen <= skb_tailroom(skb)) {
 			nfrags = 1;
@@ -467,6 +745,12 @@ int esp_output_tail(struct xfrm_state *x, struct sk_buff *skb, struct esp_info *
 	if (sg != dsg)
 		esp_ssg_unref(x, tmp);
 
+<<<<<<< HEAD
+=======
+	if (!err && x->encap && x->encap->encap_type == TCP_ENCAP_ESPINTCP)
+		err = esp_output_tail_tcp(x, skb);
+
+>>>>>>> upstream/android-13
 error_free:
 	kfree(tmp);
 error:
@@ -497,7 +781,11 @@ static int esp_output(struct xfrm_state *x, struct sk_buff *skb)
 		struct xfrm_dst *dst = (struct xfrm_dst *)skb_dst(skb);
 		u32 padto;
 
+<<<<<<< HEAD
 		padto = min(x->tfcpad, esp4_get_mtu(x, dst->child_mtu_cached));
+=======
+		padto = min(x->tfcpad, xfrm_state_mtu(x, dst->child_mtu_cached));
+>>>>>>> upstream/android-13
 		if (skb->len < padto)
 			esp.tfclen = padto - skb->len;
 	}
@@ -578,7 +866,11 @@ int esp_input_done2(struct sk_buff *skb, int err)
 	int hlen = sizeof(struct ip_esp_hdr) + crypto_aead_ivsize(aead);
 	int ihl;
 
+<<<<<<< HEAD
 	if (!xo || (xo && !(xo->flags & CRYPTO_DONE)))
+=======
+	if (!xo || !(xo->flags & CRYPTO_DONE))
+>>>>>>> upstream/android-13
 		kfree(ESP_SKB_CB(skb)->tmp);
 
 	if (unlikely(err))
@@ -593,7 +885,27 @@ int esp_input_done2(struct sk_buff *skb, int err)
 
 	if (x->encap) {
 		struct xfrm_encap_tmpl *encap = x->encap;
+<<<<<<< HEAD
 		struct udphdr *uh = (void *)(skb_network_header(skb) + ihl);
+=======
+		struct tcphdr *th = (void *)(skb_network_header(skb) + ihl);
+		struct udphdr *uh = (void *)(skb_network_header(skb) + ihl);
+		__be16 source;
+
+		switch (x->encap->encap_type) {
+		case TCP_ENCAP_ESPINTCP:
+			source = th->source;
+			break;
+		case UDP_ENCAP_ESPINUDP:
+		case UDP_ENCAP_ESPINUDP_NON_IKE:
+			source = uh->source;
+			break;
+		default:
+			WARN_ON_ONCE(1);
+			err = -EINVAL;
+			goto out;
+		}
+>>>>>>> upstream/android-13
 
 		/*
 		 * 1) if the NAT-T peer's IP or port changed then
@@ -602,11 +914,19 @@ int esp_input_done2(struct sk_buff *skb, int err)
 		 *    SRC ports.
 		 */
 		if (iph->saddr != x->props.saddr.a4 ||
+<<<<<<< HEAD
 		    uh->source != encap->encap_sport) {
 			xfrm_address_t ipaddr;
 
 			ipaddr.a4 = iph->saddr;
 			km_new_mapping(x, &ipaddr, uh->source);
+=======
+		    source != encap->encap_sport) {
+			xfrm_address_t ipaddr;
+
+			ipaddr.a4 = iph->saddr;
+			km_new_mapping(x, &ipaddr, source);
+>>>>>>> upstream/android-13
 
 			/* XXX: perhaps add an extra
 			 * policy check here, to see
@@ -662,7 +982,11 @@ static void esp_input_set_header(struct sk_buff *skb, __be32 *seqhi)
 	struct ip_esp_hdr *esph;
 
 	/* For ESN we move the header forward by 4 bytes to
+<<<<<<< HEAD
 	 * accomodate the high bits.  We will move it back after
+=======
+	 * accommodate the high bits.  We will move it back after
+>>>>>>> upstream/android-13
 	 * decryption.
 	 */
 	if ((x->props.flags & XFRM_STATE_ESN)) {
@@ -688,12 +1012,19 @@ static void esp_input_done_esn(struct crypto_async_request *base, int err)
  */
 static int esp_input(struct xfrm_state *x, struct sk_buff *skb)
 {
+<<<<<<< HEAD
 	struct ip_esp_hdr *esph;
+=======
+>>>>>>> upstream/android-13
 	struct crypto_aead *aead = x->data;
 	struct aead_request *req;
 	struct sk_buff *trailer;
 	int ivlen = crypto_aead_ivsize(aead);
+<<<<<<< HEAD
 	int elen = skb->len - sizeof(*esph) - ivlen;
+=======
+	int elen = skb->len - sizeof(struct ip_esp_hdr) - ivlen;
+>>>>>>> upstream/android-13
 	int nfrags;
 	int assoclen;
 	int seqhilen;
@@ -703,13 +1034,21 @@ static int esp_input(struct xfrm_state *x, struct sk_buff *skb)
 	struct scatterlist *sg;
 	int err = -EINVAL;
 
+<<<<<<< HEAD
 	if (!pskb_may_pull(skb, sizeof(*esph) + ivlen))
+=======
+	if (!pskb_may_pull(skb, sizeof(struct ip_esp_hdr) + ivlen))
+>>>>>>> upstream/android-13
 		goto out;
 
 	if (elen <= 0)
 		goto out;
 
+<<<<<<< HEAD
 	assoclen = sizeof(*esph);
+=======
+	assoclen = sizeof(struct ip_esp_hdr);
+>>>>>>> upstream/android-13
 	seqhilen = 0;
 
 	if (x->props.flags & XFRM_STATE_ESN) {
@@ -780,6 +1119,7 @@ out:
 	return err;
 }
 
+<<<<<<< HEAD
 static u32 esp4_get_mtu(struct xfrm_state *x, int mtu)
 {
 	struct crypto_aead *aead = x->data;
@@ -802,6 +1142,8 @@ static u32 esp4_get_mtu(struct xfrm_state *x, int mtu)
 		 net_adj) & ~(blksize - 1)) + net_adj - 2;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int esp4_err(struct sk_buff *skb, u32 info)
 {
 	struct net *net = dev_net(skb->dev);
@@ -813,6 +1155,10 @@ static int esp4_err(struct sk_buff *skb, u32 info)
 	case ICMP_DEST_UNREACH:
 		if (icmp_hdr(skb)->code != ICMP_FRAG_NEEDED)
 			return 0;
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	case ICMP_REDIRECT:
 		break;
 	default:
@@ -825,9 +1171,15 @@ static int esp4_err(struct sk_buff *skb, u32 info)
 		return 0;
 
 	if (icmp_hdr(skb)->type == ICMP_DEST_UNREACH)
+<<<<<<< HEAD
 		ipv4_update_pmtu(skb, net, info, 0, 0, IPPROTO_ESP, 0);
 	else
 		ipv4_redirect(skb, net, 0, 0, IPPROTO_ESP, 0);
+=======
+		ipv4_update_pmtu(skb, net, info, 0, IPPROTO_ESP);
+	else
+		ipv4_redirect(skb, net, 0, IPPROTO_ESP);
+>>>>>>> upstream/android-13
 	xfrm_state_put(x);
 
 	return 0;
@@ -1004,6 +1356,17 @@ static int esp_init_state(struct xfrm_state *x)
 		case UDP_ENCAP_ESPINUDP_NON_IKE:
 			x->props.header_len += sizeof(struct udphdr) + 2 * sizeof(u32);
 			break;
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_INET_ESPINTCP
+		case TCP_ENCAP_ESPINTCP:
+			/* only the length field, TCP encap is done by
+			 * the socket
+			 */
+			x->props.header_len += 2;
+			break;
+#endif
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -1021,13 +1384,19 @@ static int esp4_rcv_cb(struct sk_buff *skb, int err)
 
 static const struct xfrm_type esp_type =
 {
+<<<<<<< HEAD
 	.description	= "ESP4",
+=======
+>>>>>>> upstream/android-13
 	.owner		= THIS_MODULE,
 	.proto	     	= IPPROTO_ESP,
 	.flags		= XFRM_TYPE_REPLAY_PROT,
 	.init_state	= esp_init_state,
 	.destructor	= esp_destroy,
+<<<<<<< HEAD
 	.get_mtu	= esp4_get_mtu,
+=======
+>>>>>>> upstream/android-13
 	.input		= esp_input,
 	.output		= esp_output,
 };
@@ -1058,8 +1427,12 @@ static void __exit esp4_fini(void)
 {
 	if (xfrm4_protocol_deregister(&esp4_protocol, IPPROTO_ESP) < 0)
 		pr_info("%s: can't remove protocol\n", __func__);
+<<<<<<< HEAD
 	if (xfrm_unregister_type(&esp_type, AF_INET) < 0)
 		pr_info("%s: can't remove xfrm type\n", __func__);
+=======
+	xfrm_unregister_type(&esp_type, AF_INET);
+>>>>>>> upstream/android-13
 }
 
 module_init(esp4_init);

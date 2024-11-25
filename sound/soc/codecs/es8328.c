@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * es8328.c  --  ES8328 ALSA SoC Audio driver
  *
  * Copyright 2014 Sutajio Ko-Usagi PTE LTD
  *
  * Author: Sean Cross <xobs@kosagi.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -102,7 +109,10 @@ static SOC_ENUM_SINGLE_DECL(adcpol,
 
 static const DECLARE_TLV_DB_SCALE(play_tlv, -3000, 100, 0);
 static const DECLARE_TLV_DB_SCALE(dac_adc_tlv, -9600, 50, 0);
+<<<<<<< HEAD
 static const DECLARE_TLV_DB_SCALE(pga_tlv, 0, 300, 0);
+=======
+>>>>>>> upstream/android-13
 static const DECLARE_TLV_DB_SCALE(bypass_tlv, -1500, 300, 0);
 static const DECLARE_TLV_DB_SCALE(mic_tlv, 0, 300, 0);
 
@@ -453,7 +463,11 @@ static const struct snd_soc_dapm_route es8328_dapm_routes[] = {
 	{ "ROUT2", NULL, "Right Out 2" },
 };
 
+<<<<<<< HEAD
 static int es8328_mute(struct snd_soc_dai *dai, int mute)
+=======
+static int es8328_mute(struct snd_soc_dai *dai, int mute, int direction)
+>>>>>>> upstream/android-13
 {
 	return snd_soc_component_update_bits(dai->component, ES8328_DACCONTROL3,
 			ES8328_DACCONTROL3_DACMUTE,
@@ -566,14 +580,22 @@ static int es8328_set_sysclk(struct snd_soc_dai *codec_dai,
 		break;
 	case 22579200:
 		mclkdiv2 = 1;
+<<<<<<< HEAD
 		/* fallthru */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 11289600:
 		es8328->sysclk_constraints = &constraints_11289;
 		es8328->mclk_ratios = ratios_11289;
 		break;
 	case 24576000:
 		mclkdiv2 = 1;
+<<<<<<< HEAD
 		/* fallthru */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 12288000:
 		es8328->sysclk_constraints = &constraints_12288;
 		es8328->mclk_ratios = ratios_12288;
@@ -696,9 +718,16 @@ static int es8328_set_bias_level(struct snd_soc_component *component,
 static const struct snd_soc_dai_ops es8328_dai_ops = {
 	.startup	= es8328_startup,
 	.hw_params	= es8328_hw_params,
+<<<<<<< HEAD
 	.digital_mute	= es8328_mute,
 	.set_sysclk	= es8328_set_sysclk,
 	.set_fmt	= es8328_set_dai_fmt,
+=======
+	.mute_stream	= es8328_mute,
+	.set_sysclk	= es8328_set_sysclk,
+	.set_fmt	= es8328_set_dai_fmt,
+	.no_capture_mute = 1,
+>>>>>>> upstream/android-13
 };
 
 static struct snd_soc_dai_driver es8328_dai = {
@@ -718,7 +747,11 @@ static struct snd_soc_dai_driver es8328_dai = {
 		.formats = ES8328_FORMATS,
 	},
 	.ops = &es8328_dai_ops,
+<<<<<<< HEAD
 	.symmetric_rates = 1,
+=======
+	.symmetric_rate = 1,
+>>>>>>> upstream/android-13
 };
 
 static int es8328_suspend(struct snd_soc_component *component)
@@ -812,8 +845,12 @@ static void es8328_remove(struct snd_soc_component *component)
 
 	es8328 = snd_soc_component_get_drvdata(component);
 
+<<<<<<< HEAD
 	if (es8328->clk)
 		clk_disable_unprepare(es8328->clk);
+=======
+	clk_disable_unprepare(es8328->clk);
+>>>>>>> upstream/android-13
 
 	regulator_bulk_disable(ARRAY_SIZE(es8328->supplies),
 			       es8328->supplies);
@@ -824,7 +861,12 @@ const struct regmap_config es8328_regmap_config = {
 	.val_bits	= 8,
 	.max_register	= ES8328_REG_MAX,
 	.cache_type	= REGCACHE_RBTREE,
+<<<<<<< HEAD
 	.use_single_rw	= true,
+=======
+	.use_single_read = true,
+	.use_single_write = true,
+>>>>>>> upstream/android-13
 };
 EXPORT_SYMBOL_GPL(es8328_regmap_config);
 

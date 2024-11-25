@@ -71,9 +71,14 @@ struct urb *usb_alloc_urb(int iso_packets, gfp_t mem_flags)
 {
 	struct urb *urb;
 
+<<<<<<< HEAD
 	urb = kmalloc(sizeof(struct urb) +
 		iso_packets * sizeof(struct usb_iso_packet_descriptor),
 		mem_flags);
+=======
+	urb = kmalloc(struct_size(urb, iso_frame_desc, iso_packets),
+		      mem_flags);
+>>>>>>> upstream/android-13
 	if (!urb)
 		return NULL;
 	usb_init_urb(urb);
@@ -193,6 +198,31 @@ static const int pipetypes[4] = {
 };
 
 /**
+<<<<<<< HEAD
+=======
+ * usb_pipe_type_check - sanity check of a specific pipe for a usb device
+ * @dev: struct usb_device to be checked
+ * @pipe: pipe to check
+ *
+ * This performs a light-weight sanity check for the endpoint in the
+ * given usb device.  It returns 0 if the pipe is valid for the specific usb
+ * device, otherwise a negative error code.
+ */
+int usb_pipe_type_check(struct usb_device *dev, unsigned int pipe)
+{
+	const struct usb_host_endpoint *ep;
+
+	ep = usb_pipe_endpoint(dev, pipe);
+	if (!ep)
+		return -EINVAL;
+	if (usb_pipetype(pipe) != pipetypes[usb_endpoint_type(&ep->desc)])
+		return -EINVAL;
+	return 0;
+}
+EXPORT_SYMBOL_GPL(usb_pipe_type_check);
+
+/**
+>>>>>>> upstream/android-13
  * usb_urb_ep_type_check - sanity check of endpoint in the given urb
  * @urb: urb to be checked
  *
@@ -202,6 +232,7 @@ static const int pipetypes[4] = {
  */
 int usb_urb_ep_type_check(const struct urb *urb)
 {
+<<<<<<< HEAD
 	const struct usb_host_endpoint *ep;
 
 	ep = usb_pipe_endpoint(urb->dev, urb->pipe);
@@ -210,6 +241,9 @@ int usb_urb_ep_type_check(const struct urb *urb)
 	if (usb_pipetype(urb->pipe) != pipetypes[usb_endpoint_type(&ep->desc)])
 		return -EINVAL;
 	return 0;
+=======
+	return usb_pipe_type_check(urb->dev, urb->pipe);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(usb_urb_ep_type_check);
 
@@ -393,6 +427,18 @@ int usb_submit_urb(struct urb *urb, gfp_t mem_flags)
 			return -ENOEXEC;
 		is_out = !(setup->bRequestType & USB_DIR_IN) ||
 				!setup->wLength;
+<<<<<<< HEAD
+=======
+		dev_WARN_ONCE(&dev->dev, (usb_pipeout(urb->pipe) != is_out),
+				"BOGUS control dir, pipe %x doesn't match bRequestType %x\n",
+				urb->pipe, setup->bRequestType);
+		if (le16_to_cpu(setup->wLength) != urb->transfer_buffer_length) {
+			dev_dbg(&dev->dev, "BOGUS control len %d doesn't match transfer length %d\n",
+					le16_to_cpu(setup->wLength),
+					urb->transfer_buffer_length);
+			return -EBADR;
+		}
+>>>>>>> upstream/android-13
 	} else {
 		is_out = usb_endpoint_dir_out(&ep->desc);
 	}
@@ -475,7 +521,11 @@ int usb_submit_urb(struct urb *urb, gfp_t mem_flags)
 	 */
 
 	/* Check that the pipe's type matches the endpoint's type */
+<<<<<<< HEAD
 	if (usb_urb_ep_type_check(urb))
+=======
+	if (usb_pipe_type_check(urb->dev, urb->pipe))
+>>>>>>> upstream/android-13
 		dev_WARN(&dev->dev, "BOGUS urb xfer, pipe %x != type %x\n",
 			usb_pipetype(urb->pipe), pipetypes[xfertype]);
 
@@ -487,7 +537,11 @@ int usb_submit_urb(struct urb *urb, gfp_t mem_flags)
 	case USB_ENDPOINT_XFER_INT:
 		if (is_out)
 			allowed |= URB_ZERO_PACKET;
+<<<<<<< HEAD
 		/* FALLTHROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:			/* all non-iso endpoints */
 		if (!is_out)
 			allowed |= URB_SHORT_NOT_OK;
@@ -520,7 +574,11 @@ int usb_submit_urb(struct urb *urb, gfp_t mem_flags)
 			if ((urb->interval < 6)
 				&& (xfertype == USB_ENDPOINT_XFER_INT))
 				return -EINVAL;
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		default:
 			if (urb->interval <= 0)
 				return -EINVAL;
@@ -692,6 +750,15 @@ void usb_kill_urb(struct urb *urb)
 	if (!(urb && urb->dev && urb->ep))
 		return;
 	atomic_inc(&urb->reject);
+<<<<<<< HEAD
+=======
+	/*
+	 * Order the write of urb->reject above before the read
+	 * of urb->use_count below.  Pairs with the barriers in
+	 * __usb_hcd_giveback_urb() and usb_hcd_submit_urb().
+	 */
+	smp_mb__after_atomic();
+>>>>>>> upstream/android-13
 
 	usb_hcd_unlink_urb(urb, -ENOENT);
 	wait_event(usb_kill_urb_queue, atomic_read(&urb->use_count) == 0);
@@ -733,6 +800,15 @@ void usb_poison_urb(struct urb *urb)
 	if (!urb)
 		return;
 	atomic_inc(&urb->reject);
+<<<<<<< HEAD
+=======
+	/*
+	 * Order the write of urb->reject above before the read
+	 * of urb->use_count below.  Pairs with the barriers in
+	 * __usb_hcd_giveback_urb() and usb_hcd_submit_urb().
+	 */
+	smp_mb__after_atomic();
+>>>>>>> upstream/android-13
 
 	if (!urb->dev || !urb->ep)
 		return;

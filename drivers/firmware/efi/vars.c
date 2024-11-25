@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * Originally from efivars.c
  *
  * Copyright (C) 2001,2003,2004 Dell <Matt_Domsch@dell.com>
  * Copyright (C) 2004 Intel Corporation <matthew.e.tolentino@intel.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/capability.h>
@@ -45,10 +52,13 @@ static struct efivars *__efivars;
  */
 static DEFINE_SEMAPHORE(efivars_lock);
 
+<<<<<<< HEAD
 static bool efivar_wq_enabled = true;
 DECLARE_WORK(efivar_work, NULL);
 EXPORT_SYMBOL_GPL(efivar_work);
 
+=======
+>>>>>>> upstream/android-13
 static bool
 validate_device_path(efi_char16_t *var_name, int match, u8 *buffer,
 		     unsigned long len)
@@ -404,6 +414,7 @@ static void dup_variable_bug(efi_char16_t *str16, efi_guid_t *vendor_guid,
 	size_t i, len8 = len16 / sizeof(efi_char16_t);
 	char *str8;
 
+<<<<<<< HEAD
 	/*
 	 * Disable the workqueue since the algorithm it uses for
 	 * detecting new variables won't work with this buggy
@@ -411,6 +422,8 @@ static void dup_variable_bug(efi_char16_t *str16, efi_guid_t *vendor_guid,
 	 */
 	efivar_wq_enabled = false;
 
+=======
+>>>>>>> upstream/android-13
 	str8 = kzalloc(len8, GFP_KERNEL);
 	if (!str8)
 		return;
@@ -427,7 +440,10 @@ static void dup_variable_bug(efi_char16_t *str16, efi_guid_t *vendor_guid,
  * efivar_init - build the initial list of EFI variables
  * @func: callback function to invoke for every variable
  * @data: function-specific data to pass to @func
+<<<<<<< HEAD
  * @atomic: do we need to execute the @func-loop atomically?
+=======
+>>>>>>> upstream/android-13
  * @duplicates: error if we encounter duplicates on @head?
  * @head: initialised head of variable list
  *
@@ -510,6 +526,13 @@ int efivar_init(int (*func)(efi_char16_t *, efi_guid_t, unsigned long, void *),
 			}
 
 			break;
+<<<<<<< HEAD
+=======
+		case EFI_UNSUPPORTED:
+			err = -EOPNOTSUPP;
+			status = EFI_NOT_FOUND;
+			break;
+>>>>>>> upstream/android-13
 		case EFI_NOT_FOUND:
 			break;
 		default:
@@ -763,6 +786,10 @@ int efivar_entry_set_safe(efi_char16_t *name, efi_guid_t vendor, u32 attributes,
 {
 	const struct efivar_operations *ops;
 	efi_status_t status;
+<<<<<<< HEAD
+=======
+	unsigned long varsize;
+>>>>>>> upstream/android-13
 
 	if (!__efivars)
 		return -EINVAL;
@@ -785,6 +812,7 @@ int efivar_entry_set_safe(efi_char16_t *name, efi_guid_t vendor, u32 attributes,
 		return efivar_entry_set_nonblocking(name, vendor, attributes,
 						    size, data);
 
+<<<<<<< HEAD
 	if (!block) {
 		if (down_trylock(&efivars_lock))
 			return -EBUSY;
@@ -794,6 +822,19 @@ int efivar_entry_set_safe(efi_char16_t *name, efi_guid_t vendor, u32 attributes,
 	}
 
 	status = check_var_size(attributes, size + ucs2_strsize(name, 1024));
+=======
+	varsize = size + ucs2_strsize(name, 1024);
+	if (!block) {
+		if (down_trylock(&efivars_lock))
+			return -EBUSY;
+		status = check_var_size_nonblocking(attributes, varsize);
+	} else {
+		if (down_interruptible(&efivars_lock))
+			return -EINTR;
+		status = check_var_size(attributes, varsize);
+	}
+
+>>>>>>> upstream/android-13
 	if (status != EFI_SUCCESS) {
 		up(&efivars_lock);
 		return -ENOSPC;
@@ -1084,7 +1125,11 @@ EXPORT_SYMBOL_GPL(efivar_entry_iter_end);
  * entry on the list. It is safe for @func to remove entries in the
  * list via efivar_entry_delete().
  *
+<<<<<<< HEAD
  * You MUST call efivar_enter_iter_begin() before this function, and
+=======
+ * You MUST call efivar_entry_iter_begin() before this function, and
+>>>>>>> upstream/android-13
  * efivar_entry_iter_end() afterwards.
  *
  * It is possible to begin iteration from an arbitrary entry within
@@ -1171,6 +1216,7 @@ struct kobject *efivars_kobject(void)
 EXPORT_SYMBOL_GPL(efivars_kobject);
 
 /**
+<<<<<<< HEAD
  * efivar_run_worker - schedule the efivar worker thread
  */
 void efivar_run_worker(void)
@@ -1181,6 +1227,8 @@ void efivar_run_worker(void)
 EXPORT_SYMBOL_GPL(efivar_run_worker);
 
 /**
+=======
+>>>>>>> upstream/android-13
  * efivars_register - register an efivars
  * @efivars: efivars to register
  * @ops: efivars operations
@@ -1242,3 +1290,12 @@ out:
 	return rv;
 }
 EXPORT_SYMBOL_GPL(efivars_unregister);
+<<<<<<< HEAD
+=======
+
+int efivar_supports_writes(void)
+{
+	return __efivars && __efivars->ops->set_variable;
+}
+EXPORT_SYMBOL_GPL(efivar_supports_writes);
+>>>>>>> upstream/android-13

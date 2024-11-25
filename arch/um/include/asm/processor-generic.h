@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /* 
  * Copyright (C) 2000 - 2007 Jeff Dike (jdike@{addtoit,linux.intel}.com)
  * Licensed under the GPL
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/* 
+ * Copyright (C) 2000 - 2007 Jeff Dike (jdike@{addtoit,linux.intel}.com)
+>>>>>>> upstream/android-13
  */
 
 #ifndef __UM_PROCESSOR_GENERIC_H
@@ -16,6 +22,11 @@ struct task_struct;
 
 #include <linux/prefetch.h>
 
+<<<<<<< HEAD
+=======
+#include <asm/cpufeatures.h>
+
+>>>>>>> upstream/android-13
 struct mm_struct;
 
 struct thread_struct {
@@ -90,12 +101,24 @@ extern void start_thread(struct pt_regs *regs, unsigned long entry,
 struct cpuinfo_um {
 	unsigned long loops_per_jiffy;
 	int ipi_pipe[2];
+<<<<<<< HEAD
+=======
+	int cache_alignment;
+	union {
+		__u32		x86_capability[NCAPINTS + NBUGINTS];
+		unsigned long	x86_capability_alignment;
+	};
+>>>>>>> upstream/android-13
 };
 
 extern struct cpuinfo_um boot_cpu_data;
 
 #define cpu_data (&boot_cpu_data)
 #define current_cpu_data boot_cpu_data
+<<<<<<< HEAD
+=======
+#define cache_line_size()	(boot_cpu_data.cache_alignment)
+>>>>>>> upstream/android-13
 
 #define KSTK_REG(tsk, reg) get_thread_reg(reg, &tsk->thread.switch_buf)
 extern unsigned long get_wchan(struct task_struct *p);

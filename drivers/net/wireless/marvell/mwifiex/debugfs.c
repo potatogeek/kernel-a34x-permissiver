@@ -1,10 +1,19 @@
 /*
+<<<<<<< HEAD
  * Marvell Wireless LAN device driver: debugfs
  *
  * Copyright (C) 2011-2014, Marvell International Ltd.
  *
  * This software file (the "File") is distributed by Marvell International
  * Ltd. under the terms of the GNU General Public License Version 2, June 1991
+=======
+ * NXP Wireless LAN device driver: debugfs
+ *
+ * Copyright 2011-2020 NXP
+ *
+ * This software file (the "File") is distributed by NXP
+ * under the terms of the GNU General Public License Version 2, June 1991
+>>>>>>> upstream/android-13
  * (the "License").  You may use, redistribute and/or modify this File in
  * accordance with the terms and conditions of the License, a copy of which
  * is available by writing to the Free Software Foundation, Inc.,
@@ -922,9 +931,14 @@ mwifiex_reset_write(struct file *file,
 }
 
 #define MWIFIEX_DFS_ADD_FILE(name) do {                                 \
+<<<<<<< HEAD
 	if (!debugfs_create_file(#name, 0644, priv->dfs_dev_dir,        \
 			priv, &mwifiex_dfs_##name##_fops))              \
 		return;                                                 \
+=======
+	debugfs_create_file(#name, 0644, priv->dfs_dev_dir, priv,       \
+			    &mwifiex_dfs_##name##_fops);                \
+>>>>>>> upstream/android-13
 } while (0);
 
 #define MWIFIEX_DFS_FILE_OPS(name)                                      \

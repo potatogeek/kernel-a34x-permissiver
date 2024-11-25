@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Merged with mainline ieee80211.h in Aug 2004.  Original ieee802_11
  * remains copyright by the original authors
@@ -13,11 +17,14 @@
  * <jketreno@linux.intel.com>
  * Copyright (c) 2004-2005, Intel Corporation
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation. See README and COPYING for
  * more details.
  *
+=======
+>>>>>>> upstream/android-13
  * API Version History
  * 1.0.x -- Initial version
  * 1.1.x -- Added radiotap, QoS, TIM, libipw_geo APIs,
@@ -64,8 +71,12 @@
 extern u32 libipw_debug_level;
 #define LIBIPW_DEBUG(level, fmt, args...) \
 do { if (libipw_debug_level & (level)) \
+<<<<<<< HEAD
   printk(KERN_DEBUG "libipw: %c %s " fmt, \
          in_interrupt() ? 'I' : 'U', __func__ , ## args); } while (0)
+=======
+  printk(KERN_DEBUG "libipw: %s " fmt, __func__ , ## args); } while (0)
+>>>>>>> upstream/android-13
 #else
 #define LIBIPW_DEBUG(level, fmt, args...) do {} while (0)
 #endif				/* CONFIG_LIBIPW_DEBUG */
@@ -338,7 +349,11 @@ struct libipw_hdr_1addr {
 	__le16 frame_ctl;
 	__le16 duration_id;
 	u8 addr1[ETH_ALEN];
+<<<<<<< HEAD
 	u8 payload[0];
+=======
+	u8 payload[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct libipw_hdr_2addr {
@@ -346,7 +361,11 @@ struct libipw_hdr_2addr {
 	__le16 duration_id;
 	u8 addr1[ETH_ALEN];
 	u8 addr2[ETH_ALEN];
+<<<<<<< HEAD
 	u8 payload[0];
+=======
+	u8 payload[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct libipw_hdr_3addr {
@@ -356,7 +375,11 @@ struct libipw_hdr_3addr {
 	u8 addr2[ETH_ALEN];
 	u8 addr3[ETH_ALEN];
 	__le16 seq_ctl;
+<<<<<<< HEAD
 	u8 payload[0];
+=======
+	u8 payload[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct libipw_hdr_4addr {
@@ -367,7 +390,11 @@ struct libipw_hdr_4addr {
 	u8 addr3[ETH_ALEN];
 	__le16 seq_ctl;
 	u8 addr4[ETH_ALEN];
+<<<<<<< HEAD
 	u8 payload[0];
+=======
+	u8 payload[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct libipw_hdr_3addrqos {
@@ -384,7 +411,11 @@ struct libipw_hdr_3addrqos {
 struct libipw_info_element {
 	u8 id;
 	u8 len;
+<<<<<<< HEAD
 	u8 data[0];
+=======
+	u8 data[];
+>>>>>>> upstream/android-13
 } __packed;
 
 /*
@@ -410,7 +441,11 @@ struct libipw_auth {
 	__le16 transaction;
 	__le16 status;
 	/* challenge */
+<<<<<<< HEAD
 	struct libipw_info_element info_element[0];
+=======
+	struct libipw_info_element info_element[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct libipw_channel_switch {
@@ -446,7 +481,11 @@ struct libipw_disassoc {
 struct libipw_probe_request {
 	struct libipw_hdr_3addr header;
 	/* SSID, supported rates */
+<<<<<<< HEAD
 	struct libipw_info_element info_element[0];
+=======
+	struct libipw_info_element info_element[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct libipw_probe_response {
@@ -456,7 +495,11 @@ struct libipw_probe_response {
 	__le16 capability;
 	/* SSID, supported rates, FH params, DS params,
 	 * CF params, IBSS params, TIM (if beacon), RSN */
+<<<<<<< HEAD
 	struct libipw_info_element info_element[0];
+=======
+	struct libipw_info_element info_element[];
+>>>>>>> upstream/android-13
 } __packed;
 
 /* Alias beacon for probe_response */
@@ -467,7 +510,11 @@ struct libipw_assoc_request {
 	__le16 capability;
 	__le16 listen_interval;
 	/* SSID, supported rates, RSN */
+<<<<<<< HEAD
 	struct libipw_info_element info_element[0];
+=======
+	struct libipw_info_element info_element[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct libipw_reassoc_request {
@@ -475,7 +522,11 @@ struct libipw_reassoc_request {
 	__le16 capability;
 	__le16 listen_interval;
 	u8 current_ap[ETH_ALEN];
+<<<<<<< HEAD
 	struct libipw_info_element info_element[0];
+=======
+	struct libipw_info_element info_element[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct libipw_assoc_response {
@@ -484,7 +535,11 @@ struct libipw_assoc_response {
 	__le16 status;
 	__le16 aid;
 	/* supported rates */
+<<<<<<< HEAD
 	struct libipw_info_element info_element[0];
+=======
+	struct libipw_info_element info_element[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct libipw_txb {
@@ -494,7 +549,11 @@ struct libipw_txb {
 	u8 reserved;
 	u16 frag_size;
 	u16 payload_size;
+<<<<<<< HEAD
 	struct sk_buff *fragments[0];
+=======
+	struct sk_buff *fragments[];
+>>>>>>> upstream/android-13
 };
 
 /* SWEEP TABLE ENTRIES NUMBER */
@@ -598,7 +657,11 @@ struct libipw_ibss_dfs {
 	struct libipw_info_element ie;
 	u8 owner[ETH_ALEN];
 	u8 recovery_interval;
+<<<<<<< HEAD
 	struct libipw_channel_map channel_map[0];
+=======
+	struct libipw_channel_map channel_map[];
+>>>>>>> upstream/android-13
 };
 
 struct libipw_csa {
@@ -834,7 +897,11 @@ struct libipw_device {
 
 	/* This must be the last item so that it points to the data
 	 * allocated beyond this structure by alloc_libipw */
+<<<<<<< HEAD
 	u8 priv[0];
+=======
+	u8 priv[];
+>>>>>>> upstream/android-13
 };
 
 #define IEEE_A            (1<<0)

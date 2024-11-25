@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * rtc-rc5t583.c -- RICOH RC5T583 Real Time Clock
  *
  * Copyright (c) 2012, NVIDIA CORPORATION.  All rights reserved.
  * Author: Venu Byravarasu <vbyravarasu@nvidia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -15,6 +20,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. */
+=======
+ */
+>>>>>>> upstream/android-13
 
 #include <linux/kernel.h>
 #include <linux/errno.h>

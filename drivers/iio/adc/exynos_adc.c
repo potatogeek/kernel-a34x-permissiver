@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  exynos_adc.c - Support for ADC in EXYNOS SoCs
  *
  *  8 ~ 10 channel, 10/12-bit ADC
  *
  *  Copyright (C) 2013 Naveen Krishna Chatradhi <ch.naveen@samsung.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,6 +25,11 @@
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+=======
+ */
+
+#include <linux/compiler.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/platform_device.h>
 #include <linux/interrupt.h>
@@ -148,9 +158,27 @@ struct exynos_adc {
 	u32			value;
 	unsigned int            version;
 
+<<<<<<< HEAD
 	bool			read_ts;
 	u32			ts_x;
 	u32			ts_y;
+=======
+	bool			ts_enabled;
+
+	bool			read_ts;
+	u32			ts_x;
+	u32			ts_y;
+
+	/*
+	 * Lock to protect from potential concurrent access to the
+	 * completion callback during a manual conversion. For this driver
+	 * a wait-callback is used to wait for the conversion result,
+	 * so in the meantime no other read request (or conversion start)
+	 * must be performed, otherwise it would interfere with the
+	 * current conversion result.
+	 */
+	struct mutex		lock;
+>>>>>>> upstream/android-13
 };
 
 struct exynos_adc_data {
@@ -462,9 +490,12 @@ static void exynos_adc_exynos7_init_hw(struct exynos_adc *info)
 {
 	u32 con1, con2;
 
+<<<<<<< HEAD
 	if (info->data->needs_adc_phy)
 		regmap_write(info->pmu_map, info->data->phy_offset, 1);
 
+=======
+>>>>>>> upstream/android-13
 	con1 = ADC_V2_CON1_SOFT_RESET;
 	writel(con1, ADC_V2_CON1(info->regs));
 
@@ -544,10 +575,28 @@ static int exynos_read_raw(struct iio_dev *indio_dev,
 	unsigned long timeout;
 	int ret;
 
+<<<<<<< HEAD
 	if (mask != IIO_CHAN_INFO_RAW)
 		return -EINVAL;
 
 	mutex_lock(&indio_dev->mlock);
+=======
+	if (mask == IIO_CHAN_INFO_SCALE) {
+		ret = regulator_get_voltage(info->vdd);
+		if (ret < 0)
+			return ret;
+
+		/* Regulator voltage is in uV, but need mV */
+		*val = ret / 1000;
+		*val2 = info->data->mask;
+
+		return IIO_VAL_FRACTIONAL;
+	} else if (mask != IIO_CHAN_INFO_RAW) {
+		return -EINVAL;
+	}
+
+	mutex_lock(&info->lock);
+>>>>>>> upstream/android-13
 	reinit_completion(&info->completion);
 
 	/* Select the channel to be used and Trigger conversion */
@@ -567,7 +616,11 @@ static int exynos_read_raw(struct iio_dev *indio_dev,
 		ret = IIO_VAL_INT;
 	}
 
+<<<<<<< HEAD
 	mutex_unlock(&indio_dev->mlock);
+=======
+	mutex_unlock(&info->lock);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -578,7 +631,11 @@ static int exynos_read_s3c64xx_ts(struct iio_dev *indio_dev, int *x, int *y)
 	unsigned long timeout;
 	int ret;
 
+<<<<<<< HEAD
 	mutex_lock(&indio_dev->mlock);
+=======
+	mutex_lock(&info->lock);
+>>>>>>> upstream/android-13
 	info->read_ts = true;
 
 	reinit_completion(&info->completion);
@@ -603,7 +660,11 @@ static int exynos_read_s3c64xx_ts(struct iio_dev *indio_dev, int *x, int *y)
 	}
 
 	info->read_ts = false;
+<<<<<<< HEAD
 	mutex_unlock(&indio_dev->mlock);
+=======
+	mutex_unlock(&info->lock);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -646,7 +707,11 @@ static irqreturn_t exynos_ts_isr(int irq, void *dev_id)
 	bool pressed;
 	int ret;
 
+<<<<<<< HEAD
 	while (info->input->users) {
+=======
+	while (READ_ONCE(info->ts_enabled)) {
+>>>>>>> upstream/android-13
 		ret = exynos_read_s3c64xx_ts(dev, &x, &y);
 		if (ret == -ETIMEDOUT)
 			break;
@@ -664,7 +729,11 @@ static irqreturn_t exynos_ts_isr(int irq, void *dev_id)
 		input_sync(info->input);
 
 		usleep_range(1000, 1100);
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 
 	writel(0, ADC_V1_CLRINTPNDNUP(info->regs));
 
@@ -696,6 +765,10 @@ static const struct iio_info exynos_adc_iio_info = {
 	.channel = _index,				\
 	.address = _index,				\
 	.info_mask_separate = BIT(IIO_CHAN_INFO_RAW),	\
+<<<<<<< HEAD
+=======
+	.info_mask_shared_by_all = BIT(IIO_CHAN_INFO_SCALE),	\
+>>>>>>> upstream/android-13
 	.datasheet_name = _id,				\
 }
 
@@ -725,6 +798,10 @@ static int exynos_adc_ts_open(struct input_dev *dev)
 {
 	struct exynos_adc *info = input_get_drvdata(dev);
 
+<<<<<<< HEAD
+=======
+	WRITE_ONCE(info->ts_enabled, true);
+>>>>>>> upstream/android-13
 	enable_irq(info->tsirq);
 
 	return 0;
@@ -734,6 +811,10 @@ static void exynos_adc_ts_close(struct input_dev *dev)
 {
 	struct exynos_adc *info = input_get_drvdata(dev);
 
+<<<<<<< HEAD
+=======
+	WRITE_ONCE(info->ts_enabled, false);
+>>>>>>> upstream/android-13
 	disable_irq(info->tsirq);
 }
 
@@ -767,9 +848,15 @@ static int exynos_adc_ts_init(struct exynos_adc *info)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	disable_irq(info->tsirq);
 	ret = request_threaded_irq(info->tsirq, NULL, exynos_ts_isr,
 				   IRQF_ONESHOT, "touchscreen", info);
+=======
+	ret = request_threaded_irq(info->tsirq, NULL, exynos_ts_isr,
+				   IRQF_ONESHOT | IRQF_NO_AUTOEN,
+				   "touchscreen", info);
+>>>>>>> upstream/android-13
 	if (ret)
 		input_unregister_device(info->input);
 
@@ -782,9 +869,14 @@ static int exynos_adc_probe(struct platform_device *pdev)
 	struct device_node *np = pdev->dev.of_node;
 	struct s3c2410_ts_mach_info *pdata = dev_get_platdata(&pdev->dev);
 	struct iio_dev *indio_dev = NULL;
+<<<<<<< HEAD
 	struct resource	*mem;
 	bool has_ts = false;
 	int ret = -ENODEV;
+=======
+	bool has_ts = false;
+	int ret;
+>>>>>>> upstream/android-13
 	int irq;
 
 	indio_dev = devm_iio_device_alloc(&pdev->dev, sizeof(struct exynos_adc));
@@ -801,8 +893,12 @@ static int exynos_adc_probe(struct platform_device *pdev)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	info->regs = devm_ioremap_resource(&pdev->dev, mem);
+=======
+	info->regs = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(info->regs))
 		return PTR_ERR(info->regs);
 
@@ -818,10 +914,15 @@ static int exynos_adc_probe(struct platform_device *pdev)
 	}
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(&pdev->dev, "no irq resource?\n");
 		return irq;
 	}
+=======
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 	info->irq = irq;
 
 	irq = platform_get_irq(pdev, 1);
@@ -852,11 +953,17 @@ static int exynos_adc_probe(struct platform_device *pdev)
 	}
 
 	info->vdd = devm_regulator_get(&pdev->dev, "vdd");
+<<<<<<< HEAD
 	if (IS_ERR(info->vdd)) {
 		dev_err(&pdev->dev, "failed getting regulator, err = %ld\n",
 							PTR_ERR(info->vdd));
 		return PTR_ERR(info->vdd);
 	}
+=======
+	if (IS_ERR(info->vdd))
+		return dev_err_probe(&pdev->dev, PTR_ERR(info->vdd),
+				     "failed getting regulator");
+>>>>>>> upstream/android-13
 
 	ret = regulator_enable(info->vdd);
 	if (ret)
@@ -873,13 +980,21 @@ static int exynos_adc_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, indio_dev);
 
 	indio_dev->name = dev_name(&pdev->dev);
+<<<<<<< HEAD
 	indio_dev->dev.parent = &pdev->dev;
 	indio_dev->dev.of_node = pdev->dev.of_node;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->info = &exynos_adc_iio_info;
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->channels = exynos_adc_iio_channels;
 	indio_dev->num_channels = info->data->num_channels;
 
+<<<<<<< HEAD
+=======
+	mutex_init(&info->lock);
+
+>>>>>>> upstream/android-13
 	ret = request_irq(info->irq, exynos_adc_isr,
 					0, dev_name(&pdev->dev), info);
 	if (ret < 0) {

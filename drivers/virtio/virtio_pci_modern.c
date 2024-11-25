@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Virtio PCI driver - modern (virtio 1.0) device support
  *
@@ -11,14 +15,18 @@
  *  Anthony Liguori  <aliguori@us.ibm.com>
  *  Rusty Russell <rusty@rustcorp.com.au>
  *  Michael S. Tsirkin <mst@redhat.com>
+<<<<<<< HEAD
  *
  * This work is licensed under the terms of the GNU GPL, version 2 or later.
  * See the COPYING file in the top-level directory.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
 #define VIRTIO_PCI_NO_LEGACY
+<<<<<<< HEAD
 #include "virtio_pci_common.h"
 
 /*
@@ -151,6 +159,16 @@ static u64 vp_get_features(struct virtio_device *vdev)
 	features |= ((u64)vp_ioread32(&vp_dev->common->device_feature) << 32);
 
 	return features;
+=======
+#define VIRTIO_RING_NO_LEGACY
+#include "virtio_pci_common.h"
+
+static u64 vp_get_features(struct virtio_device *vdev)
+{
+	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+
+	return vp_modern_get_features(&vp_dev->mdev);
+>>>>>>> upstream/android-13
 }
 
 static void vp_transport_features(struct virtio_device *vdev, u64 features)
@@ -181,10 +199,14 @@ static int vp_finalize_features(struct virtio_device *vdev)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	vp_iowrite32(0, &vp_dev->common->guest_feature_select);
 	vp_iowrite32((u32)vdev->features, &vp_dev->common->guest_feature);
 	vp_iowrite32(1, &vp_dev->common->guest_feature_select);
 	vp_iowrite32(vdev->features >> 32, &vp_dev->common->guest_feature);
+=======
+	vp_modern_set_features(&vp_dev->mdev, vdev->features);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -194,10 +216,16 @@ static void vp_get(struct virtio_device *vdev, unsigned offset,
 		   void *buf, unsigned len)
 {
 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+<<<<<<< HEAD
+=======
+	struct virtio_pci_modern_device *mdev = &vp_dev->mdev;
+	void __iomem *device = mdev->device;
+>>>>>>> upstream/android-13
 	u8 b;
 	__le16 w;
 	__le32 l;
 
+<<<<<<< HEAD
 	BUG_ON(offset + len > vp_dev->device_len);
 
 	switch (len) {
@@ -217,6 +245,27 @@ static void vp_get(struct virtio_device *vdev, unsigned offset,
 		l = cpu_to_le32(ioread32(vp_dev->device + offset));
 		memcpy(buf, &l, sizeof l);
 		l = cpu_to_le32(ioread32(vp_dev->device + offset + sizeof l));
+=======
+	BUG_ON(offset + len > mdev->device_len);
+
+	switch (len) {
+	case 1:
+		b = ioread8(device + offset);
+		memcpy(buf, &b, sizeof b);
+		break;
+	case 2:
+		w = cpu_to_le16(ioread16(device + offset));
+		memcpy(buf, &w, sizeof w);
+		break;
+	case 4:
+		l = cpu_to_le32(ioread32(device + offset));
+		memcpy(buf, &l, sizeof l);
+		break;
+	case 8:
+		l = cpu_to_le32(ioread32(device + offset));
+		memcpy(buf, &l, sizeof l);
+		l = cpu_to_le32(ioread32(device + offset + sizeof l));
+>>>>>>> upstream/android-13
 		memcpy(buf + sizeof l, &l, sizeof l);
 		break;
 	default:
@@ -230,15 +279,25 @@ static void vp_set(struct virtio_device *vdev, unsigned offset,
 		   const void *buf, unsigned len)
 {
 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+<<<<<<< HEAD
+=======
+	struct virtio_pci_modern_device *mdev = &vp_dev->mdev;
+	void __iomem *device = mdev->device;
+>>>>>>> upstream/android-13
 	u8 b;
 	__le16 w;
 	__le32 l;
 
+<<<<<<< HEAD
 	BUG_ON(offset + len > vp_dev->device_len);
+=======
+	BUG_ON(offset + len > mdev->device_len);
+>>>>>>> upstream/android-13
 
 	switch (len) {
 	case 1:
 		memcpy(&b, buf, sizeof b);
+<<<<<<< HEAD
 		iowrite8(b, vp_dev->device + offset);
 		break;
 	case 2:
@@ -254,6 +313,23 @@ static void vp_set(struct virtio_device *vdev, unsigned offset,
 		iowrite32(le32_to_cpu(l), vp_dev->device + offset);
 		memcpy(&l, buf + sizeof l, sizeof l);
 		iowrite32(le32_to_cpu(l), vp_dev->device + offset + sizeof l);
+=======
+		iowrite8(b, device + offset);
+		break;
+	case 2:
+		memcpy(&w, buf, sizeof w);
+		iowrite16(le16_to_cpu(w), device + offset);
+		break;
+	case 4:
+		memcpy(&l, buf, sizeof l);
+		iowrite32(le32_to_cpu(l), device + offset);
+		break;
+	case 8:
+		memcpy(&l, buf, sizeof l);
+		iowrite32(le32_to_cpu(l), device + offset);
+		memcpy(&l, buf + sizeof l, sizeof l);
+		iowrite32(le32_to_cpu(l), device + offset + sizeof l);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		BUG();
@@ -263,35 +339,63 @@ static void vp_set(struct virtio_device *vdev, unsigned offset,
 static u32 vp_generation(struct virtio_device *vdev)
 {
 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+<<<<<<< HEAD
 	return vp_ioread8(&vp_dev->common->config_generation);
+=======
+
+	return vp_modern_generation(&vp_dev->mdev);
+>>>>>>> upstream/android-13
 }
 
 /* config->{get,set}_status() implementations */
 static u8 vp_get_status(struct virtio_device *vdev)
 {
 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+<<<<<<< HEAD
 	return vp_ioread8(&vp_dev->common->device_status);
+=======
+
+	return vp_modern_get_status(&vp_dev->mdev);
+>>>>>>> upstream/android-13
 }
 
 static void vp_set_status(struct virtio_device *vdev, u8 status)
 {
 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+<<<<<<< HEAD
 	/* We should never be setting status to 0. */
 	BUG_ON(status == 0);
 	vp_iowrite8(status, &vp_dev->common->device_status);
+=======
+
+	/* We should never be setting status to 0. */
+	BUG_ON(status == 0);
+	vp_modern_set_status(&vp_dev->mdev, status);
+>>>>>>> upstream/android-13
 }
 
 static void vp_reset(struct virtio_device *vdev)
 {
 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+<<<<<<< HEAD
 	/* 0 status means a reset. */
 	vp_iowrite8(0, &vp_dev->common->device_status);
+=======
+	struct virtio_pci_modern_device *mdev = &vp_dev->mdev;
+
+	/* 0 status means a reset. */
+	vp_modern_set_status(mdev, 0);
+>>>>>>> upstream/android-13
 	/* After writing 0 to device_status, the driver MUST wait for a read of
 	 * device_status to return 0 before reinitializing the device.
 	 * This will flush out the status write, and flush in device writes,
 	 * including MSI-X interrupts, if any.
 	 */
+<<<<<<< HEAD
 	while (vp_ioread8(&vp_dev->common->device_status))
+=======
+	while (vp_modern_get_status(mdev))
+>>>>>>> upstream/android-13
 		msleep(1);
 	/* Flush pending VQ/configuration callbacks. */
 	vp_synchronize_vectors(vdev);
@@ -299,11 +403,15 @@ static void vp_reset(struct virtio_device *vdev)
 
 static u16 vp_config_vector(struct virtio_pci_device *vp_dev, u16 vector)
 {
+<<<<<<< HEAD
 	/* Setup the vector used for configuration events */
 	vp_iowrite16(vector, &vp_dev->common->msix_config);
 	/* Verify we had enough resources to assign the vector */
 	/* Will also flush the write out to device */
 	return vp_ioread16(&vp_dev->common->msix_config);
+=======
+	return vp_modern_config_vector(&vp_dev->mdev, vector);
+>>>>>>> upstream/android-13
 }
 
 static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
@@ -314,6 +422,7 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
 				  bool ctx,
 				  u16 msix_vec)
 {
+<<<<<<< HEAD
 	struct virtio_pci_common_cfg __iomem *cfg = vp_dev->common;
 	struct virtqueue *vq;
 	u16 num, off;
@@ -328,6 +437,20 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
 	/* Check if queue is either not available or already active. */
 	num = vp_ioread16(&cfg->queue_size);
 	if (!num || vp_ioread16(&cfg->queue_enable))
+=======
+
+	struct virtio_pci_modern_device *mdev = &vp_dev->mdev;
+	struct virtqueue *vq;
+	u16 num;
+	int err;
+
+	if (index >= vp_modern_get_num_queues(mdev))
+		return ERR_PTR(-ENOENT);
+
+	/* Check if queue is either not available or already active. */
+	num = vp_modern_get_queue_size(mdev, index);
+	if (!num || vp_modern_get_queue_enable(mdev, index))
+>>>>>>> upstream/android-13
 		return ERR_PTR(-ENOENT);
 
 	if (num & (num - 1)) {
@@ -335,9 +458,12 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
 		return ERR_PTR(-EINVAL);
 	}
 
+<<<<<<< HEAD
 	/* get offset of notification word for this vq */
 	off = vp_ioread16(&cfg->queue_notify_off);
 
+=======
+>>>>>>> upstream/android-13
 	info->msix_vector = msix_vec;
 
 	/* create the vring */
@@ -349,6 +475,7 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
 		return ERR_PTR(-ENOMEM);
 
 	/* activate the queue */
+<<<<<<< HEAD
 	vp_iowrite16(virtqueue_get_vring_size(vq), &cfg->queue_size);
 	vp_iowrite64_twopart(virtqueue_get_desc_addr(vq),
 			     &cfg->queue_desc_lo, &cfg->queue_desc_hi);
@@ -378,14 +505,26 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
 					  NULL);
 	}
 
+=======
+	vp_modern_set_queue_size(mdev, index, virtqueue_get_vring_size(vq));
+	vp_modern_queue_address(mdev, index, virtqueue_get_desc_addr(vq),
+				virtqueue_get_avail_addr(vq),
+				virtqueue_get_used_addr(vq));
+
+	vq->priv = (void __force *)vp_modern_map_vq_notify(mdev, index, NULL);
+>>>>>>> upstream/android-13
 	if (!vq->priv) {
 		err = -ENOMEM;
 		goto err_map_notify;
 	}
 
 	if (msix_vec != VIRTIO_MSI_NO_VECTOR) {
+<<<<<<< HEAD
 		vp_iowrite16(msix_vec, &cfg->queue_msix_vector);
 		msix_vec = vp_ioread16(&cfg->queue_msix_vector);
+=======
+		msix_vec = vp_modern_queue_vector(mdev, index, msix_vec);
+>>>>>>> upstream/android-13
 		if (msix_vec == VIRTIO_MSI_NO_VECTOR) {
 			err = -EBUSY;
 			goto err_assign_vector;
@@ -395,8 +534,13 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
 	return vq;
 
 err_assign_vector:
+<<<<<<< HEAD
 	if (!vp_dev->notify_base)
 		pci_iounmap(vp_dev->pci_dev, (void __iomem __force *)vq->priv);
+=======
+	if (!mdev->notify_base)
+		pci_iounmap(mdev->pci_dev, (void __iomem __force *)vq->priv);
+>>>>>>> upstream/android-13
 err_map_notify:
 	vring_del_virtqueue(vq);
 	return ERR_PTR(err);
@@ -418,10 +562,15 @@ static int vp_modern_find_vqs(struct virtio_device *vdev, unsigned nvqs,
 	/* Select and activate all queues. Has to be done last: once we do
 	 * this, there's no way to go back except reset.
 	 */
+<<<<<<< HEAD
 	list_for_each_entry(vq, &vdev->vqs, list) {
 		vp_iowrite16(vq->index, &vp_dev->common->queue_select);
 		vp_iowrite16(1, &vp_dev->common->queue_enable);
 	}
+=======
+	list_for_each_entry(vq, &vdev->vqs, list)
+		vp_modern_set_queue_enable(&vp_dev->mdev, vq->index, true);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -430,6 +579,7 @@ static void del_vq(struct virtio_pci_vq_info *info)
 {
 	struct virtqueue *vq = info->vq;
 	struct virtio_pci_device *vp_dev = to_vp_device(vq->vdev);
+<<<<<<< HEAD
 
 	vp_iowrite16(vq->index, &vp_dev->common->queue_select);
 
@@ -442,10 +592,122 @@ static void del_vq(struct virtio_pci_vq_info *info)
 
 	if (!vp_dev->notify_base)
 		pci_iounmap(vp_dev->pci_dev, (void __force __iomem *)vq->priv);
+=======
+	struct virtio_pci_modern_device *mdev = &vp_dev->mdev;
+
+	if (vp_dev->msix_enabled)
+		vp_modern_queue_vector(mdev, vq->index,
+				       VIRTIO_MSI_NO_VECTOR);
+
+	if (!mdev->notify_base)
+		pci_iounmap(mdev->pci_dev, (void __force __iomem *)vq->priv);
+>>>>>>> upstream/android-13
 
 	vring_del_virtqueue(vq);
 }
 
+<<<<<<< HEAD
+=======
+static int virtio_pci_find_shm_cap(struct pci_dev *dev, u8 required_id,
+				   u8 *bar, u64 *offset, u64 *len)
+{
+	int pos;
+
+	for (pos = pci_find_capability(dev, PCI_CAP_ID_VNDR); pos > 0;
+	     pos = pci_find_next_capability(dev, pos, PCI_CAP_ID_VNDR)) {
+		u8 type, cap_len, id, res_bar;
+		u32 tmp32;
+		u64 res_offset, res_length;
+
+		pci_read_config_byte(dev, pos + offsetof(struct virtio_pci_cap,
+							 cfg_type), &type);
+		if (type != VIRTIO_PCI_CAP_SHARED_MEMORY_CFG)
+			continue;
+
+		pci_read_config_byte(dev, pos + offsetof(struct virtio_pci_cap,
+							 cap_len), &cap_len);
+		if (cap_len != sizeof(struct virtio_pci_cap64)) {
+			dev_err(&dev->dev, "%s: shm cap with bad size offset:"
+				" %d size: %d\n", __func__, pos, cap_len);
+			continue;
+		}
+
+		pci_read_config_byte(dev, pos + offsetof(struct virtio_pci_cap,
+							 id), &id);
+		if (id != required_id)
+			continue;
+
+		pci_read_config_byte(dev, pos + offsetof(struct virtio_pci_cap,
+							 bar), &res_bar);
+		if (res_bar >= PCI_STD_NUM_BARS)
+			continue;
+
+		/* Type and ID match, and the BAR value isn't reserved.
+		 * Looks good.
+		 */
+
+		/* Read the lower 32bit of length and offset */
+		pci_read_config_dword(dev, pos + offsetof(struct virtio_pci_cap,
+							  offset), &tmp32);
+		res_offset = tmp32;
+		pci_read_config_dword(dev, pos + offsetof(struct virtio_pci_cap,
+							  length), &tmp32);
+		res_length = tmp32;
+
+		/* and now the top half */
+		pci_read_config_dword(dev,
+				      pos + offsetof(struct virtio_pci_cap64,
+						     offset_hi), &tmp32);
+		res_offset |= ((u64)tmp32) << 32;
+		pci_read_config_dword(dev,
+				      pos + offsetof(struct virtio_pci_cap64,
+						     length_hi), &tmp32);
+		res_length |= ((u64)tmp32) << 32;
+
+		*bar = res_bar;
+		*offset = res_offset;
+		*len = res_length;
+
+		return pos;
+	}
+	return 0;
+}
+
+static bool vp_get_shm_region(struct virtio_device *vdev,
+			      struct virtio_shm_region *region, u8 id)
+{
+	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+	struct pci_dev *pci_dev = vp_dev->pci_dev;
+	u8 bar;
+	u64 offset, len;
+	phys_addr_t phys_addr;
+	size_t bar_len;
+
+	if (!virtio_pci_find_shm_cap(pci_dev, id, &bar, &offset, &len))
+		return false;
+
+	phys_addr = pci_resource_start(pci_dev, bar);
+	bar_len = pci_resource_len(pci_dev, bar);
+
+	if ((offset + len) < offset) {
+		dev_err(&pci_dev->dev, "%s: cap offset+len overflow detected\n",
+			__func__);
+		return false;
+	}
+
+	if (offset + len > bar_len) {
+		dev_err(&pci_dev->dev, "%s: bar shorter than cap offset+len\n",
+			__func__);
+		return false;
+	}
+
+	region->len = len;
+	region->addr = (u64) phys_addr + offset;
+
+	return true;
+}
+
+>>>>>>> upstream/android-13
 static const struct virtio_config_ops virtio_pci_config_nodev_ops = {
 	.get		= NULL,
 	.set		= NULL,
@@ -460,6 +722,10 @@ static const struct virtio_config_ops virtio_pci_config_nodev_ops = {
 	.bus_name	= vp_bus_name,
 	.set_vq_affinity = vp_set_vq_affinity,
 	.get_vq_affinity = vp_get_vq_affinity,
+<<<<<<< HEAD
+=======
+	.get_shm_region  = vp_get_shm_region,
+>>>>>>> upstream/android-13
 };
 
 static const struct virtio_config_ops virtio_pci_config_ops = {
@@ -476,6 +742,7 @@ static const struct virtio_config_ops virtio_pci_config_ops = {
 	.bus_name	= vp_bus_name,
 	.set_vq_affinity = vp_set_vq_affinity,
 	.get_vq_affinity = vp_get_vq_affinity,
+<<<<<<< HEAD
 };
 
 /**
@@ -705,10 +972,33 @@ int virtio_pci_modern_probe(struct virtio_pci_device *vp_dev)
 	} else {
 		vp_dev->vdev.config = &virtio_pci_config_nodev_ops;
 	}
+=======
+	.get_shm_region  = vp_get_shm_region,
+};
+
+/* the PCI probing function */
+int virtio_pci_modern_probe(struct virtio_pci_device *vp_dev)
+{
+	struct virtio_pci_modern_device *mdev = &vp_dev->mdev;
+	struct pci_dev *pci_dev = vp_dev->pci_dev;
+	int err;
+
+	mdev->pci_dev = pci_dev;
+
+	err = vp_modern_probe(mdev);
+	if (err)
+		return err;
+
+	if (mdev->device)
+		vp_dev->vdev.config = &virtio_pci_config_ops;
+	else
+		vp_dev->vdev.config = &virtio_pci_config_nodev_ops;
+>>>>>>> upstream/android-13
 
 	vp_dev->config_vector = vp_config_vector;
 	vp_dev->setup_vq = setup_vq;
 	vp_dev->del_vq = del_vq;
+<<<<<<< HEAD
 
 	return 0;
 
@@ -721,10 +1011,17 @@ err_map_isr:
 	pci_iounmap(pci_dev, vp_dev->common);
 err_map_common:
 	return err;
+=======
+	vp_dev->isr = mdev->isr;
+	vp_dev->vdev.id = mdev->id;
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 void virtio_pci_modern_remove(struct virtio_pci_device *vp_dev)
 {
+<<<<<<< HEAD
 	struct pci_dev *pci_dev = vp_dev->pci_dev;
 
 	if (vp_dev->device)
@@ -734,4 +1031,9 @@ void virtio_pci_modern_remove(struct virtio_pci_device *vp_dev)
 	pci_iounmap(pci_dev, vp_dev->isr);
 	pci_iounmap(pci_dev, vp_dev->common);
 	pci_release_selected_regions(pci_dev, vp_dev->modern_bars);
+=======
+	struct virtio_pci_modern_device *mdev = &vp_dev->mdev;
+
+	vp_modern_remove(mdev);
+>>>>>>> upstream/android-13
 }

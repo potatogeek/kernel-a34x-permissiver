@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* jazz_esp.c: ESP front-end for MIPS JAZZ systems.
  *
  * Copyright (C) 2007 Thomas Bogendörfer (tsbogend@alpha.frankende)
@@ -38,6 +42,7 @@ static u8 jazz_esp_read8(struct esp *esp, unsigned long reg)
 	return *(volatile u8 *)(esp->regs + reg);
 }
 
+<<<<<<< HEAD
 static dma_addr_t jazz_esp_map_single(struct esp *esp, void *buf,
 				      size_t sz, int dir)
 {
@@ -62,6 +67,8 @@ static void jazz_esp_unmap_sg(struct esp *esp, struct scatterlist *sg,
 	dma_unmap_sg(esp->dev, sg, num_sg, dir);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int jazz_esp_irq_pending(struct esp *esp)
 {
 	if (jazz_esp_read8(esp, ESP_STATUS) & ESP_STAT_INTR)
@@ -117,10 +124,13 @@ static int jazz_esp_dma_error(struct esp *esp)
 static const struct esp_driver_ops jazz_esp_ops = {
 	.esp_write8	=	jazz_esp_write8,
 	.esp_read8	=	jazz_esp_read8,
+<<<<<<< HEAD
 	.map_single	=	jazz_esp_map_single,
 	.map_sg		=	jazz_esp_map_sg,
 	.unmap_single	=	jazz_esp_unmap_single,
 	.unmap_sg	=	jazz_esp_unmap_sg,
+=======
+>>>>>>> upstream/android-13
 	.irq_pending	=	jazz_esp_irq_pending,
 	.reset_dma	=	jazz_esp_reset_dma,
 	.dma_drain	=	jazz_esp_dma_drain,
@@ -184,7 +194,11 @@ static int esp_jazz_probe(struct platform_device *dev)
 
 	dev_set_drvdata(&dev->dev, esp);
 
+<<<<<<< HEAD
 	err = scsi_esp_register(esp, &dev->dev);
+=======
+	err = scsi_esp_register(esp);
+>>>>>>> upstream/android-13
 	if (err)
 		goto fail_free_irq;
 
@@ -230,6 +244,7 @@ static struct platform_driver esp_jazz_driver = {
 		.name	= "jazz_esp",
 	},
 };
+<<<<<<< HEAD
 
 static int __init jazz_esp_init(void)
 {
@@ -240,11 +255,17 @@ static void __exit jazz_esp_exit(void)
 {
 	platform_driver_unregister(&esp_jazz_driver);
 }
+=======
+module_platform_driver(esp_jazz_driver);
+>>>>>>> upstream/android-13
 
 MODULE_DESCRIPTION("JAZZ ESP SCSI driver");
 MODULE_AUTHOR("Thomas Bogendoerfer (tsbogend@alpha.franken.de)");
 MODULE_LICENSE("GPL");
 MODULE_VERSION(DRV_VERSION);
+<<<<<<< HEAD
 
 module_init(jazz_esp_init);
 module_exit(jazz_esp_exit);
+=======
+>>>>>>> upstream/android-13

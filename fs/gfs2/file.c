@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
  * Copyright (C) 2004-2006 Red Hat, Inc.  All rights reserved.
@@ -5,10 +6,20 @@
  * This copyrighted material is made available to anyone wishing to use,
  * modify, copy, or redistribute it subject to the terms and conditions
  * of the GNU General Public License version 2.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
+ * Copyright (C) 2004-2006 Red Hat, Inc.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
 #include <linux/spinlock.h>
+<<<<<<< HEAD
+=======
+#include <linux/compat.h>
+>>>>>>> upstream/android-13
 #include <linux/completion.h>
 #include <linux/buffer_head.h>
 #include <linux/pagemap.h>
@@ -27,6 +38,10 @@
 #include <linux/dlm_plock.h>
 #include <linux/delay.h>
 #include <linux/backing-dev.h>
+<<<<<<< HEAD
+=======
+#include <linux/fileattr.h>
+>>>>>>> upstream/android-13
 
 #include "gfs2.h"
 #include "incore.h"
@@ -120,8 +135,13 @@ static int gfs2_readdir(struct file *file, struct dir_context *ctx)
 	return error;
 }
 
+<<<<<<< HEAD
 /**
  * fsflag_gfs2flag
+=======
+/*
+ * struct fsflag_gfs2flag
+>>>>>>> upstream/android-13
  *
  * The FS_JOURNAL_DATA_FL flag maps to GFS2_DIF_INHERIT_JDATA for directories,
  * and to GFS2_DIF_JDATA for non-directories.
@@ -139,6 +159,7 @@ static struct {
 	{FS_JOURNAL_DATA_FL, GFS2_DIF_JDATA | GFS2_DIF_INHERIT_JDATA},
 };
 
+<<<<<<< HEAD
 static int gfs2_get_flags(struct file *filp, u32 __user *ptr)
 {
 	struct inode *inode = file_inode(filp);
@@ -146,12 +167,41 @@ static int gfs2_get_flags(struct file *filp, u32 __user *ptr)
 	struct gfs2_holder gh;
 	int i, error;
 	u32 gfsflags, fsflags = 0;
+=======
+static inline u32 gfs2_gfsflags_to_fsflags(struct inode *inode, u32 gfsflags)
+{
+	int i;
+	u32 fsflags = 0;
+
+	if (S_ISDIR(inode->i_mode))
+		gfsflags &= ~GFS2_DIF_JDATA;
+	else
+		gfsflags &= ~GFS2_DIF_INHERIT_JDATA;
+
+	for (i = 0; i < ARRAY_SIZE(fsflag_gfs2flag); i++)
+		if (gfsflags & fsflag_gfs2flag[i].gfsflag)
+			fsflags |= fsflag_gfs2flag[i].fsflag;
+	return fsflags;
+}
+
+int gfs2_fileattr_get(struct dentry *dentry, struct fileattr *fa)
+{
+	struct inode *inode = d_inode(dentry);
+	struct gfs2_inode *ip = GFS2_I(inode);
+	struct gfs2_holder gh;
+	int error;
+	u32 fsflags;
+
+	if (d_is_special(dentry))
+		return -ENOTTY;
+>>>>>>> upstream/android-13
 
 	gfs2_holder_init(ip->i_gl, LM_ST_SHARED, 0, &gh);
 	error = gfs2_glock_nq(&gh);
 	if (error)
 		goto out_uninit;
 
+<<<<<<< HEAD
 	gfsflags = ip->i_diskflags;
 	if (S_ISDIR(inode->i_mode))
 		gfsflags &= ~GFS2_DIF_JDATA;
@@ -163,6 +213,11 @@ static int gfs2_get_flags(struct file *filp, u32 __user *ptr)
 
 	if (put_user(fsflags, ptr))
 		error = -EFAULT;
+=======
+	fsflags = gfs2_gfsflags_to_fsflags(inode, ip->i_diskflags);
+
+	fileattr_fill_flags(fa, fsflags);
+>>>>>>> upstream/android-13
 
 	gfs2_glock_dq(&gh);
 out_uninit:
@@ -200,6 +255,7 @@ void gfs2_set_inode_flags(struct inode *inode)
 
 /**
  * do_gfs2_set_flags - set flags on an inode
+<<<<<<< HEAD
  * @filp: file pointer
  * @reqflags: The flags to set
  * @mask: Indicates which flags are valid
@@ -208,6 +264,17 @@ void gfs2_set_inode_flags(struct inode *inode)
 static int do_gfs2_set_flags(struct file *filp, u32 reqflags, u32 mask)
 {
 	struct inode *inode = file_inode(filp);
+=======
+ * @inode: The inode
+ * @reqflags: The flags to set
+ * @mask: Indicates which flags are valid
+ * @fsflags: The FS_* inode flags passed in
+ *
+ */
+static int do_gfs2_set_flags(struct inode *inode, u32 reqflags, u32 mask,
+			     const u32 fsflags)
+{
+>>>>>>> upstream/android-13
 	struct gfs2_inode *ip = GFS2_I(inode);
 	struct gfs2_sbd *sdp = GFS2_SB(inode);
 	struct buffer_head *bh;
@@ -215,6 +282,7 @@ static int do_gfs2_set_flags(struct file *filp, u32 reqflags, u32 mask)
 	int error;
 	u32 new_flags, flags;
 
+<<<<<<< HEAD
 	error = mnt_want_write_file(filp);
 	if (error)
 		return error;
@@ -226,6 +294,11 @@ static int do_gfs2_set_flags(struct file *filp, u32 reqflags, u32 mask)
 	error = -EACCES;
 	if (!inode_owner_or_capable(inode))
 		goto out;
+=======
+	error = gfs2_glock_nq_init(ip->i_gl, LM_ST_EXCLUSIVE, 0, &gh);
+	if (error)
+		return error;
+>>>>>>> upstream/android-13
 
 	error = 0;
 	flags = ip->i_diskflags;
@@ -238,11 +311,16 @@ static int do_gfs2_set_flags(struct file *filp, u32 reqflags, u32 mask)
 		goto out;
 	if (IS_APPEND(inode) && (new_flags & GFS2_DIF_APPENDONLY))
 		goto out;
+<<<<<<< HEAD
 	if (((new_flags ^ flags) & GFS2_DIF_IMMUTABLE) &&
 	    !capable(CAP_LINUX_IMMUTABLE))
 		goto out;
 	if (!IS_IMMUTABLE(inode)) {
 		error = gfs2_permission(inode, MAY_WRITE);
+=======
+	if (!IS_IMMUTABLE(inode)) {
+		error = gfs2_permission(&init_user_ns, inode, MAY_WRITE);
+>>>>>>> upstream/android-13
 		if (error)
 			goto out;
 	}
@@ -277,6 +355,7 @@ out_trans_end:
 	gfs2_trans_end(sdp);
 out:
 	gfs2_glock_dq_uninit(&gh);
+<<<<<<< HEAD
 out_drop_write:
 	mnt_drop_write_file(filp);
 	return error;
@@ -291,6 +370,24 @@ static int gfs2_set_flags(struct file *filp, u32 __user *ptr)
 
 	if (get_user(fsflags, ptr))
 		return -EFAULT;
+=======
+	return error;
+}
+
+int gfs2_fileattr_set(struct user_namespace *mnt_userns,
+		      struct dentry *dentry, struct fileattr *fa)
+{
+	struct inode *inode = d_inode(dentry);
+	u32 fsflags = fa->flags, gfsflags = 0;
+	u32 mask;
+	int i;
+
+	if (d_is_special(dentry))
+		return -ENOTTY;
+
+	if (fileattr_has_fsx(fa))
+		return -EOPNOTSUPP;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < ARRAY_SIZE(fsflag_gfs2flag); i++) {
 		if (fsflags & fsflag_gfs2flag[i].fsflag) {
@@ -311,12 +408,28 @@ static int gfs2_set_flags(struct file *filp, u32 __user *ptr)
 		mask &= ~(GFS2_DIF_TOPDIR | GFS2_DIF_INHERIT_JDATA);
 	}
 
+<<<<<<< HEAD
 	return do_gfs2_set_flags(filp, gfsflags, mask);
+=======
+	return do_gfs2_set_flags(inode, gfsflags, mask, fsflags);
+}
+
+static int gfs2_getlabel(struct file *filp, char __user *label)
+{
+	struct inode *inode = file_inode(filp);
+	struct gfs2_sbd *sdp = GFS2_SB(inode);
+
+	if (copy_to_user(label, sdp->sd_sb.sb_locktable, GFS2_LOCKNAME_LEN))
+		return -EFAULT;
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static long gfs2_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 {
 	switch(cmd) {
+<<<<<<< HEAD
 	case FS_IOC_GETFLAGS:
 		return gfs2_get_flags(filp, (u32 __user *)arg);
 	case FS_IOC_SETFLAGS:
@@ -327,6 +440,35 @@ static long gfs2_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 	return -ENOTTY;
 }
 
+=======
+	case FITRIM:
+		return gfs2_fitrim(filp, (void __user *)arg);
+	case FS_IOC_GETFSLABEL:
+		return gfs2_getlabel(filp, (char __user *)arg);
+	}
+
+	return -ENOTTY;
+}
+
+#ifdef CONFIG_COMPAT
+static long gfs2_compat_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
+{
+	switch(cmd) {
+	/* Keep this list in sync with gfs2_ioctl */
+	case FITRIM:
+	case FS_IOC_GETFSLABEL:
+		break;
+	default:
+		return -ENOIOCTLCMD;
+	}
+
+	return gfs2_ioctl(filp, cmd, (unsigned long)compat_ptr(arg));
+}
+#else
+#define gfs2_compat_ioctl NULL
+#endif
+
+>>>>>>> upstream/android-13
 /**
  * gfs2_size_hint - Give a hint to the size of a write request
  * @filep: The struct file
@@ -347,6 +489,7 @@ static void gfs2_size_hint(struct file *filep, loff_t offset, size_t size)
 	size_t blks = (size + sdp->sd_sb.sb_bsize - 1) >> sdp->sd_sb.sb_bsize_shift;
 	int hint = min_t(size_t, INT_MAX, blks);
 
+<<<<<<< HEAD
 	if (hint > atomic_read(&ip->i_res.rs_sizehint))
 		atomic_set(&ip->i_res.rs_sizehint, hint);
 }
@@ -377,12 +520,47 @@ static int gfs2_allocate_page_backing(struct page *page)
 		size -= bh.b_size;
 		lblock += (bh.b_size >> inode->i_blkbits);
 	} while(size > 0);
+=======
+	if (hint > atomic_read(&ip->i_sizehint))
+		atomic_set(&ip->i_sizehint, hint);
+}
+
+/**
+ * gfs2_allocate_page_backing - Allocate blocks for a write fault
+ * @page: The (locked) page to allocate backing for
+ * @length: Size of the allocation
+ *
+ * We try to allocate all the blocks required for the page in one go.  This
+ * might fail for various reasons, so we keep trying until all the blocks to
+ * back this page are allocated.  If some of the blocks are already allocated,
+ * that is ok too.
+ */
+static int gfs2_allocate_page_backing(struct page *page, unsigned int length)
+{
+	u64 pos = page_offset(page);
+
+	do {
+		struct iomap iomap = { };
+
+		if (gfs2_iomap_alloc(page->mapping->host, pos, length, &iomap))
+			return -EIO;
+
+		if (length < iomap.length)
+			iomap.length = length;
+		length -= iomap.length;
+		pos += iomap.length;
+	} while (length > 0);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 /**
  * gfs2_page_mkwrite - Make a shared, mmap()ed, page writable
+<<<<<<< HEAD
  * @vma: The virtual memory area
+=======
+>>>>>>> upstream/android-13
  * @vmf: The virtual memory fault containing the page to become writable
  *
  * When the page becomes writable, we need to ensure that we have
@@ -396,6 +574,7 @@ static vm_fault_t gfs2_page_mkwrite(struct vm_fault *vmf)
 	struct gfs2_inode *ip = GFS2_I(inode);
 	struct gfs2_sbd *sdp = GFS2_SB(inode);
 	struct gfs2_alloc_parms ap = { .aflags = 0, };
+<<<<<<< HEAD
 	unsigned long last_index;
 	u64 pos = page->index << PAGE_SHIFT;
 	unsigned int data_blocks, ind_blocks, rblocks;
@@ -415,10 +594,36 @@ static vm_fault_t gfs2_page_mkwrite(struct vm_fault *vmf)
 	ret = gfs2_glock_nq(&gh);
 	if (ret)
 		goto out_uninit;
+=======
+	u64 offset = page_offset(page);
+	unsigned int data_blocks, ind_blocks, rblocks;
+	vm_fault_t ret = VM_FAULT_LOCKED;
+	struct gfs2_holder gh;
+	unsigned int length;
+	loff_t size;
+	int err;
+
+	sb_start_pagefault(inode->i_sb);
+
+	gfs2_holder_init(ip->i_gl, LM_ST_EXCLUSIVE, 0, &gh);
+	err = gfs2_glock_nq(&gh);
+	if (err) {
+		ret = block_page_mkwrite_return(err);
+		goto out_uninit;
+	}
+
+	/* Check page index against inode size */
+	size = i_size_read(inode);
+	if (offset >= size) {
+		ret = VM_FAULT_SIGBUS;
+		goto out_unlock;
+	}
+>>>>>>> upstream/android-13
 
 	/* Update file times before taking page lock */
 	file_update_time(vmf->vma->vm_file);
 
+<<<<<<< HEAD
 	set_bit(GLF_DIRTY, &ip->i_gl->gl_flags);
 	set_bit(GIF_SW_PAGED, &ip->i_flags);
 
@@ -426,11 +631,35 @@ static vm_fault_t gfs2_page_mkwrite(struct vm_fault *vmf)
 		lock_page(page);
 		if (!PageUptodate(page) || page->mapping != inode->i_mapping) {
 			ret = -EAGAIN;
+=======
+	/* page is wholly or partially inside EOF */
+	if (size - offset < PAGE_SIZE)
+		length = size - offset;
+	else
+		length = PAGE_SIZE;
+
+	gfs2_size_hint(vmf->vma->vm_file, offset, length);
+
+	set_bit(GLF_DIRTY, &ip->i_gl->gl_flags);
+	set_bit(GIF_SW_PAGED, &ip->i_flags);
+
+	/*
+	 * iomap_writepage / iomap_writepages currently don't support inline
+	 * files, so always unstuff here.
+	 */
+
+	if (!gfs2_is_stuffed(ip) &&
+	    !gfs2_write_alloc_required(ip, offset, length)) {
+		lock_page(page);
+		if (!PageUptodate(page) || page->mapping != inode->i_mapping) {
+			ret = VM_FAULT_NOPAGE;
+>>>>>>> upstream/android-13
 			unlock_page(page);
 		}
 		goto out_unlock;
 	}
 
+<<<<<<< HEAD
 	ret = gfs2_rindex_update(sdp);
 	if (ret)
 		goto out_unlock;
@@ -443,6 +672,26 @@ static vm_fault_t gfs2_page_mkwrite(struct vm_fault *vmf)
 	ret = gfs2_inplace_reserve(ip, &ap);
 	if (ret)
 		goto out_quota_unlock;
+=======
+	err = gfs2_rindex_update(sdp);
+	if (err) {
+		ret = block_page_mkwrite_return(err);
+		goto out_unlock;
+	}
+
+	gfs2_write_calc_reserv(ip, length, &data_blocks, &ind_blocks);
+	ap.target = data_blocks + ind_blocks;
+	err = gfs2_quota_lock_check(ip, &ap);
+	if (err) {
+		ret = block_page_mkwrite_return(err);
+		goto out_unlock;
+	}
+	err = gfs2_inplace_reserve(ip, &ap);
+	if (err) {
+		ret = block_page_mkwrite_return(err);
+		goto out_quota_unlock;
+	}
+>>>>>>> upstream/android-13
 
 	rblocks = RES_DINODE + ind_blocks;
 	if (gfs2_is_jdata(ip))
@@ -451,6 +700,7 @@ static vm_fault_t gfs2_page_mkwrite(struct vm_fault *vmf)
 		rblocks += RES_STATFS + RES_QUOTA;
 		rblocks += gfs2_rg_blocks(ip, data_blocks + ind_blocks);
 	}
+<<<<<<< HEAD
 	ret = gfs2_trans_begin(sdp, rblocks, 0);
 	if (ret)
 		goto out_trans_fail;
@@ -480,6 +730,40 @@ static vm_fault_t gfs2_page_mkwrite(struct vm_fault *vmf)
 out_trans_end:
 	if (ret)
 		unlock_page(page);
+=======
+	err = gfs2_trans_begin(sdp, rblocks, 0);
+	if (err) {
+		ret = block_page_mkwrite_return(err);
+		goto out_trans_fail;
+	}
+
+	/* Unstuff, if required, and allocate backing blocks for page */
+	if (gfs2_is_stuffed(ip)) {
+		err = gfs2_unstuff_dinode(ip);
+		if (err) {
+			ret = block_page_mkwrite_return(err);
+			goto out_trans_end;
+		}
+	}
+
+	lock_page(page);
+	/* If truncated, we must retry the operation, we may have raced
+	 * with the glock demotion code.
+	 */
+	if (!PageUptodate(page) || page->mapping != inode->i_mapping) {
+		ret = VM_FAULT_NOPAGE;
+		goto out_page_locked;
+	}
+
+	err = gfs2_allocate_page_backing(page, length);
+	if (err)
+		ret = block_page_mkwrite_return(err);
+
+out_page_locked:
+	if (ret != VM_FAULT_LOCKED)
+		unlock_page(page);
+out_trans_end:
+>>>>>>> upstream/android-13
 	gfs2_trans_end(sdp);
 out_trans_fail:
 	gfs2_inplace_release(ip);
@@ -489,6 +773,7 @@ out_unlock:
 	gfs2_glock_dq(&gh);
 out_uninit:
 	gfs2_holder_uninit(&gh);
+<<<<<<< HEAD
 	if (ret == 0) {
 		set_page_dirty(page);
 		wait_for_stable_page(page);
@@ -500,12 +785,49 @@ out:
 
 static const struct vm_operations_struct gfs2_vm_ops = {
 	.fault = filemap_fault,
+=======
+	if (ret == VM_FAULT_LOCKED) {
+		set_page_dirty(page);
+		wait_for_stable_page(page);
+	}
+	sb_end_pagefault(inode->i_sb);
+	return ret;
+}
+
+static vm_fault_t gfs2_fault(struct vm_fault *vmf)
+{
+	struct inode *inode = file_inode(vmf->vma->vm_file);
+	struct gfs2_inode *ip = GFS2_I(inode);
+	struct gfs2_holder gh;
+	vm_fault_t ret;
+	int err;
+
+	gfs2_holder_init(ip->i_gl, LM_ST_SHARED, 0, &gh);
+	err = gfs2_glock_nq(&gh);
+	if (err) {
+		ret = block_page_mkwrite_return(err);
+		goto out_uninit;
+	}
+	ret = filemap_fault(vmf);
+	gfs2_glock_dq(&gh);
+out_uninit:
+	gfs2_holder_uninit(&gh);
+	return ret;
+}
+
+static const struct vm_operations_struct gfs2_vm_ops = {
+	.fault = gfs2_fault,
+>>>>>>> upstream/android-13
 	.map_pages = filemap_map_pages,
 	.page_mkwrite = gfs2_page_mkwrite,
 };
 
 /**
+<<<<<<< HEAD
  * gfs2_mmap -
+=======
+ * gfs2_mmap
+>>>>>>> upstream/android-13
  * @file: The file to map
  * @vma: The VMA which described the mapping
  *
@@ -570,7 +892,21 @@ int gfs2_open_common(struct inode *inode, struct file *file)
 
 	gfs2_assert_warn(GFS2_SB(inode), !file->private_data);
 	file->private_data = fp;
+<<<<<<< HEAD
 	return 0;
+=======
+	if (file->f_mode & FMODE_WRITE) {
+		ret = gfs2_qa_get(GFS2_I(inode));
+		if (ret)
+			goto fail;
+	}
+	return 0;
+
+fail:
+	kfree(file->private_data);
+	file->private_data = NULL;
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -625,10 +961,18 @@ static int gfs2_release(struct inode *inode, struct file *file)
 	kfree(file->private_data);
 	file->private_data = NULL;
 
+<<<<<<< HEAD
 	if (!(file->f_mode & FMODE_WRITE))
 		return 0;
 
 	gfs2_rsqa_delete(ip, &inode->i_writecount);
+=======
+	if (file->f_mode & FMODE_WRITE) {
+		if (gfs2_rs_active(&ip->i_res))
+			gfs2_rs_delete(ip);
+		gfs2_qa_put(ip);
+	}
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -658,7 +1002,11 @@ static int gfs2_fsync(struct file *file, loff_t start, loff_t end,
 {
 	struct address_space *mapping = file->f_mapping;
 	struct inode *inode = mapping->host;
+<<<<<<< HEAD
 	int sync_state = inode->i_state & I_DIRTY_ALL;
+=======
+	int sync_state = inode->i_state & I_DIRTY;
+>>>>>>> upstream/android-13
 	struct gfs2_inode *ip = GFS2_I(inode);
 	int ret = 0, ret1 = 0;
 
@@ -671,7 +1019,11 @@ static int gfs2_fsync(struct file *file, loff_t start, loff_t end,
 	if (!gfs2_is_jdata(ip))
 		sync_state &= ~I_DIRTY_PAGES;
 	if (datasync)
+<<<<<<< HEAD
 		sync_state &= ~(I_DIRTY_SYNC | I_DIRTY_TIME);
+=======
+		sync_state &= ~I_DIRTY_SYNC;
+>>>>>>> upstream/android-13
 
 	if (sync_state) {
 		ret = sync_inode_metadata(inode, 1);
@@ -690,6 +1042,7 @@ static int gfs2_fsync(struct file *file, loff_t start, loff_t end,
 	return ret ? ret : ret1;
 }
 
+<<<<<<< HEAD
 static ssize_t gfs2_file_direct_read(struct kiocb *iocb, struct iov_iter *to)
 {
 	struct file *file = iocb->ki_filp;
@@ -715,16 +1068,133 @@ out_uninit:
 }
 
 static ssize_t gfs2_file_direct_write(struct kiocb *iocb, struct iov_iter *from)
+=======
+static inline bool should_fault_in_pages(ssize_t ret, struct iov_iter *i,
+					 size_t *prev_count,
+					 size_t *window_size)
+{
+	char __user *p = i->iov[0].iov_base + i->iov_offset;
+	size_t count = iov_iter_count(i);
+	int pages = 1;
+
+	if (likely(!count))
+		return false;
+	if (ret <= 0 && ret != -EFAULT)
+		return false;
+	if (!iter_is_iovec(i))
+		return false;
+
+	if (*prev_count != count || !*window_size) {
+		int pages, nr_dirtied;
+
+		pages = min_t(int, BIO_MAX_VECS,
+			      DIV_ROUND_UP(iov_iter_count(i), PAGE_SIZE));
+		nr_dirtied = max(current->nr_dirtied_pause -
+				 current->nr_dirtied, 1);
+		pages = min(pages, nr_dirtied);
+	}
+
+	*prev_count = count;
+	*window_size = (size_t)PAGE_SIZE * pages - offset_in_page(p);
+	return true;
+}
+
+static ssize_t gfs2_file_direct_read(struct kiocb *iocb, struct iov_iter *to,
+				     struct gfs2_holder *gh)
+{
+	struct file *file = iocb->ki_filp;
+	struct gfs2_inode *ip = GFS2_I(file->f_mapping->host);
+	size_t prev_count = 0, window_size = 0;
+	size_t written = 0;
+	ssize_t ret;
+
+	/*
+	 * In this function, we disable page faults when we're holding the
+	 * inode glock while doing I/O.  If a page fault occurs, we indicate
+	 * that the inode glock may be dropped, fault in the pages manually,
+	 * and retry.
+	 *
+	 * Unlike generic_file_read_iter, for reads, iomap_dio_rw can trigger
+	 * physical as well as manual page faults, and we need to disable both
+	 * kinds.
+	 *
+	 * For direct I/O, gfs2 takes the inode glock in deferred mode.  This
+	 * locking mode is compatible with other deferred holders, so multiple
+	 * processes and nodes can do direct I/O to a file at the same time.
+	 * There's no guarantee that reads or writes will be atomic.  Any
+	 * coordination among readers and writers needs to happen externally.
+	 */
+
+	if (!iov_iter_count(to))
+		return 0; /* skip atime */
+
+	gfs2_holder_init(ip->i_gl, LM_ST_DEFERRED, 0, gh);
+retry:
+	ret = gfs2_glock_nq(gh);
+	if (ret)
+		goto out_uninit;
+retry_under_glock:
+	pagefault_disable();
+	to->nofault = true;
+	ret = iomap_dio_rw(iocb, to, &gfs2_iomap_ops, NULL,
+			   IOMAP_DIO_PARTIAL, written);
+	to->nofault = false;
+	pagefault_enable();
+	if (ret > 0)
+		written = ret;
+
+	if (should_fault_in_pages(ret, to, &prev_count, &window_size)) {
+		size_t leftover;
+
+		gfs2_holder_allow_demote(gh);
+		leftover = fault_in_iov_iter_writeable(to, window_size);
+		gfs2_holder_disallow_demote(gh);
+		if (leftover != window_size) {
+			if (!gfs2_holder_queued(gh))
+				goto retry;
+			goto retry_under_glock;
+		}
+	}
+	if (gfs2_holder_queued(gh))
+		gfs2_glock_dq(gh);
+out_uninit:
+	gfs2_holder_uninit(gh);
+	if (ret < 0)
+		return ret;
+	return written;
+}
+
+static ssize_t gfs2_file_direct_write(struct kiocb *iocb, struct iov_iter *from,
+				      struct gfs2_holder *gh)
+>>>>>>> upstream/android-13
 {
 	struct file *file = iocb->ki_filp;
 	struct inode *inode = file->f_mapping->host;
 	struct gfs2_inode *ip = GFS2_I(inode);
+<<<<<<< HEAD
 	size_t len = iov_iter_count(from);
 	loff_t offset = iocb->ki_pos;
 	struct gfs2_holder gh;
 	ssize_t ret;
 
 	/*
+=======
+	size_t prev_count = 0, window_size = 0;
+	size_t read = 0;
+	ssize_t ret;
+
+	/*
+	 * In this function, we disable page faults when we're holding the
+	 * inode glock while doing I/O.  If a page fault occurs, we indicate
+	 * that the inode glock may be dropped, fault in the pages manually,
+	 * and retry.
+	 *
+	 * For writes, iomap_dio_rw only triggers manual page faults, so we
+	 * don't need to disable physical ones.
+	 */
+
+	/*
+>>>>>>> upstream/android-13
 	 * Deferred lock, even if its a write, since we do no allocation on
 	 * this path. All we need to change is the atime, and this lock mode
 	 * ensures that other nodes have flushed their buffered read caches
@@ -732,6 +1202,7 @@ static ssize_t gfs2_file_direct_write(struct kiocb *iocb, struct iov_iter *from)
 	 * unfortunately, have the option of only flushing a range like the
 	 * VFS does.
 	 */
+<<<<<<< HEAD
 	gfs2_holder_init(ip->i_gl, LM_ST_DEFERRED, 0, &gh);
 	ret = gfs2_glock_nq(&gh);
 	if (ret)
@@ -748,19 +1219,207 @@ out:
 out_uninit:
 	gfs2_holder_uninit(&gh);
 	return ret;
+=======
+	gfs2_holder_init(ip->i_gl, LM_ST_DEFERRED, 0, gh);
+retry:
+	ret = gfs2_glock_nq(gh);
+	if (ret)
+		goto out_uninit;
+retry_under_glock:
+	/* Silently fall back to buffered I/O when writing beyond EOF */
+	if (iocb->ki_pos + iov_iter_count(from) > i_size_read(&ip->i_inode))
+		goto out;
+
+	from->nofault = true;
+	ret = iomap_dio_rw(iocb, from, &gfs2_iomap_ops, NULL,
+			   IOMAP_DIO_PARTIAL, read);
+	from->nofault = false;
+
+	if (ret == -ENOTBLK)
+		ret = 0;
+	if (ret > 0)
+		read = ret;
+
+	if (should_fault_in_pages(ret, from, &prev_count, &window_size)) {
+		size_t leftover;
+
+		gfs2_holder_allow_demote(gh);
+		leftover = fault_in_iov_iter_readable(from, window_size);
+		gfs2_holder_disallow_demote(gh);
+		if (leftover != window_size) {
+			if (!gfs2_holder_queued(gh))
+				goto retry;
+			goto retry_under_glock;
+		}
+	}
+out:
+	if (gfs2_holder_queued(gh))
+		gfs2_glock_dq(gh);
+out_uninit:
+	gfs2_holder_uninit(gh);
+	if (ret < 0)
+		return ret;
+	return read;
+>>>>>>> upstream/android-13
 }
 
 static ssize_t gfs2_file_read_iter(struct kiocb *iocb, struct iov_iter *to)
 {
+<<<<<<< HEAD
 	ssize_t ret;
 
 	if (iocb->ki_flags & IOCB_DIRECT) {
 		ret = gfs2_file_direct_read(iocb, to);
+=======
+	struct gfs2_inode *ip;
+	struct gfs2_holder gh;
+	size_t prev_count = 0, window_size = 0;
+	size_t written = 0;
+	ssize_t ret;
+
+	/*
+	 * In this function, we disable page faults when we're holding the
+	 * inode glock while doing I/O.  If a page fault occurs, we indicate
+	 * that the inode glock may be dropped, fault in the pages manually,
+	 * and retry.
+	 */
+
+	if (iocb->ki_flags & IOCB_DIRECT) {
+		ret = gfs2_file_direct_read(iocb, to, &gh);
+>>>>>>> upstream/android-13
 		if (likely(ret != -ENOTBLK))
 			return ret;
 		iocb->ki_flags &= ~IOCB_DIRECT;
 	}
+<<<<<<< HEAD
 	return generic_file_read_iter(iocb, to);
+=======
+	iocb->ki_flags |= IOCB_NOIO;
+	ret = generic_file_read_iter(iocb, to);
+	iocb->ki_flags &= ~IOCB_NOIO;
+	if (ret >= 0) {
+		if (!iov_iter_count(to))
+			return ret;
+		written = ret;
+	} else {
+		if (ret != -EAGAIN)
+			return ret;
+		if (iocb->ki_flags & IOCB_NOWAIT)
+			return ret;
+	}
+	ip = GFS2_I(iocb->ki_filp->f_mapping->host);
+	gfs2_holder_init(ip->i_gl, LM_ST_SHARED, 0, &gh);
+retry:
+	ret = gfs2_glock_nq(&gh);
+	if (ret)
+		goto out_uninit;
+retry_under_glock:
+	pagefault_disable();
+	ret = generic_file_read_iter(iocb, to);
+	pagefault_enable();
+	if (ret > 0)
+		written += ret;
+
+	if (should_fault_in_pages(ret, to, &prev_count, &window_size)) {
+		size_t leftover;
+
+		gfs2_holder_allow_demote(&gh);
+		leftover = fault_in_iov_iter_writeable(to, window_size);
+		gfs2_holder_disallow_demote(&gh);
+		if (leftover != window_size) {
+			if (!gfs2_holder_queued(&gh)) {
+				if (written)
+					goto out_uninit;
+				goto retry;
+			}
+			goto retry_under_glock;
+		}
+	}
+	if (gfs2_holder_queued(&gh))
+		gfs2_glock_dq(&gh);
+out_uninit:
+	gfs2_holder_uninit(&gh);
+	return written ? written : ret;
+}
+
+static ssize_t gfs2_file_buffered_write(struct kiocb *iocb,
+					struct iov_iter *from,
+					struct gfs2_holder *gh)
+{
+	struct file *file = iocb->ki_filp;
+	struct inode *inode = file_inode(file);
+	struct gfs2_inode *ip = GFS2_I(inode);
+	struct gfs2_sbd *sdp = GFS2_SB(inode);
+	struct gfs2_holder *statfs_gh = NULL;
+	size_t prev_count = 0, window_size = 0;
+	size_t read = 0;
+	ssize_t ret;
+
+	/*
+	 * In this function, we disable page faults when we're holding the
+	 * inode glock while doing I/O.  If a page fault occurs, we indicate
+	 * that the inode glock may be dropped, fault in the pages manually,
+	 * and retry.
+	 */
+
+	if (inode == sdp->sd_rindex) {
+		statfs_gh = kmalloc(sizeof(*statfs_gh), GFP_NOFS);
+		if (!statfs_gh)
+			return -ENOMEM;
+	}
+
+	gfs2_holder_init(ip->i_gl, LM_ST_EXCLUSIVE, 0, gh);
+retry:
+	ret = gfs2_glock_nq(gh);
+	if (ret)
+		goto out_uninit;
+retry_under_glock:
+	if (inode == sdp->sd_rindex) {
+		struct gfs2_inode *m_ip = GFS2_I(sdp->sd_statfs_inode);
+
+		ret = gfs2_glock_nq_init(m_ip->i_gl, LM_ST_EXCLUSIVE,
+					 GL_NOCACHE, statfs_gh);
+		if (ret)
+			goto out_unlock;
+	}
+
+	current->backing_dev_info = inode_to_bdi(inode);
+	pagefault_disable();
+	ret = iomap_file_buffered_write(iocb, from, &gfs2_iomap_ops);
+	pagefault_enable();
+	current->backing_dev_info = NULL;
+	if (ret > 0) {
+		iocb->ki_pos += ret;
+		read += ret;
+	}
+
+	if (inode == sdp->sd_rindex)
+		gfs2_glock_dq_uninit(statfs_gh);
+
+	if (should_fault_in_pages(ret, from, &prev_count, &window_size)) {
+		size_t leftover;
+
+		gfs2_holder_allow_demote(gh);
+		leftover = fault_in_iov_iter_readable(from, window_size);
+		gfs2_holder_disallow_demote(gh);
+		if (leftover != window_size) {
+			if (!gfs2_holder_queued(gh)) {
+				if (read)
+					goto out_uninit;
+				goto retry;
+			}
+			goto retry_under_glock;
+		}
+	}
+out_unlock:
+	if (gfs2_holder_queued(gh))
+		gfs2_glock_dq(gh);
+out_uninit:
+	gfs2_holder_uninit(gh);
+	if (statfs_gh)
+		kfree(statfs_gh);
+	return read ? read : ret;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -780,6 +1439,7 @@ static ssize_t gfs2_file_write_iter(struct kiocb *iocb, struct iov_iter *from)
 	struct file *file = iocb->ki_filp;
 	struct inode *inode = file_inode(file);
 	struct gfs2_inode *ip = GFS2_I(inode);
+<<<<<<< HEAD
 	ssize_t ret;
 
 	ret = gfs2_rsqa_alloc(ip);
@@ -791,6 +1451,14 @@ static ssize_t gfs2_file_write_iter(struct kiocb *iocb, struct iov_iter *from)
 	if (iocb->ki_flags & IOCB_APPEND) {
 		struct gfs2_holder gh;
 
+=======
+	struct gfs2_holder gh;
+	ssize_t ret;
+
+	gfs2_size_hint(file, iocb->ki_pos, iov_iter_count(from));
+
+	if (iocb->ki_flags & IOCB_APPEND) {
+>>>>>>> upstream/android-13
 		ret = gfs2_glock_nq_init(ip->i_gl, LM_ST_SHARED, 0, &gh);
 		if (ret)
 			return ret;
@@ -814,16 +1482,29 @@ static ssize_t gfs2_file_write_iter(struct kiocb *iocb, struct iov_iter *from)
 		struct address_space *mapping = file->f_mapping;
 		ssize_t buffered, ret2;
 
+<<<<<<< HEAD
 		ret = gfs2_file_direct_write(iocb, from);
+=======
+		ret = gfs2_file_direct_write(iocb, from, &gh);
+>>>>>>> upstream/android-13
 		if (ret < 0 || !iov_iter_count(from))
 			goto out_unlock;
 
 		iocb->ki_flags |= IOCB_DSYNC;
+<<<<<<< HEAD
 		current->backing_dev_info = inode_to_bdi(inode);
 		buffered = iomap_file_buffered_write(iocb, from, &gfs2_iomap_ops);
 		current->backing_dev_info = NULL;
 		if (unlikely(buffered <= 0))
 			goto out_unlock;
+=======
+		buffered = gfs2_file_buffered_write(iocb, from, &gh);
+		if (unlikely(buffered <= 0)) {
+			if (!ret)
+				ret = buffered;
+			goto out_unlock;
+		}
+>>>>>>> upstream/android-13
 
 		/*
 		 * We need to ensure that the page cache pages are written to
@@ -832,7 +1513,10 @@ static ssize_t gfs2_file_write_iter(struct kiocb *iocb, struct iov_iter *from)
 		 * the direct I/O range as we don't know if the buffered pages
 		 * made it to disk.
 		 */
+<<<<<<< HEAD
 		iocb->ki_pos += buffered;
+=======
+>>>>>>> upstream/android-13
 		ret2 = generic_write_sync(iocb, buffered);
 		invalidate_mapping_pages(mapping,
 				(iocb->ki_pos - buffered) >> PAGE_SHIFT,
@@ -840,6 +1524,7 @@ static ssize_t gfs2_file_write_iter(struct kiocb *iocb, struct iov_iter *from)
 		if (!ret || ret2 > 0)
 			ret += ret2;
 	} else {
+<<<<<<< HEAD
 		current->backing_dev_info = inode_to_bdi(inode);
 		ret = iomap_file_buffered_write(iocb, from, &gfs2_iomap_ops);
 		current->backing_dev_info = NULL;
@@ -847,6 +1532,11 @@ static ssize_t gfs2_file_write_iter(struct kiocb *iocb, struct iov_iter *from)
 			iocb->ki_pos += ret;
 			ret = generic_write_sync(iocb, ret);
 		}
+=======
+		ret = gfs2_file_buffered_write(iocb, from, &gh);
+		if (likely(ret > 0))
+			ret = generic_write_sync(iocb, ret);
+>>>>>>> upstream/android-13
 	}
 
 out_unlock:
@@ -870,7 +1560,11 @@ static int fallocate_chunk(struct inode *inode, loff_t offset, loff_t len,
 	gfs2_trans_add_meta(ip->i_gl, dibh);
 
 	if (gfs2_is_stuffed(ip)) {
+<<<<<<< HEAD
 		error = gfs2_unstuff_dinode(ip, NULL);
+=======
+		error = gfs2_unstuff_dinode(ip);
+>>>>>>> upstream/android-13
 		if (unlikely(error))
 			goto out;
 	}
@@ -878,8 +1572,12 @@ static int fallocate_chunk(struct inode *inode, loff_t offset, loff_t len,
 	while (offset < end) {
 		struct iomap iomap = { };
 
+<<<<<<< HEAD
 		error = gfs2_iomap_get_alloc(inode, offset, end - offset,
 					     &iomap);
+=======
+		error = gfs2_iomap_alloc(inode, offset, end - offset, &iomap);
+>>>>>>> upstream/android-13
 		if (error)
 			goto out;
 		offset = iomap.offset + iomap.length;
@@ -897,6 +1595,10 @@ out:
 	brelse(dibh);
 	return error;
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 /**
  * calc_max_reserv() - Reverse of write_calc_reserv. Given a number of
  *                     blocks, determine how many bytes can be written.
@@ -998,8 +1700,13 @@ static long __gfs2_fallocate(struct file *file, int mode, loff_t offset, loff_t 
 			goto out_qunlock;
 
 		/* check if the selected rgrp limits our max_blks further */
+<<<<<<< HEAD
 		if (ap.allowed && ap.allowed < max_blks)
 			max_blks = ap.allowed;
+=======
+		if (ip->i_res.rs_reserved < max_blks)
+			max_blks = ip->i_res.rs_reserved;
+>>>>>>> upstream/android-13
 
 		/* Almost done. Calculate bytes that can be written using
 		 * max_blks. We also recompute max_bytes, data_blocks and
@@ -1013,7 +1720,11 @@ static long __gfs2_fallocate(struct file *file, int mode, loff_t offset, loff_t 
 			rblocks += data_blocks ? data_blocks : 1;
 
 		error = gfs2_trans_begin(sdp, rblocks,
+<<<<<<< HEAD
 					 PAGE_SIZE/sdp->sd_sb.sb_bsize);
+=======
+					 PAGE_SIZE >> inode->i_blkbits);
+>>>>>>> upstream/android-13
 		if (error)
 			goto out_trans_fail;
 
@@ -1029,11 +1740,18 @@ static long __gfs2_fallocate(struct file *file, int mode, loff_t offset, loff_t 
 		gfs2_quota_unlock(ip);
 	}
 
+<<<<<<< HEAD
 	if (!(mode & FALLOC_FL_KEEP_SIZE) && (pos + count) > inode->i_size) {
 		i_size_write(inode, pos + count);
 		file_update_time(file);
 		mark_inode_dirty(inode);
 	}
+=======
+	if (!(mode & FALLOC_FL_KEEP_SIZE) && (pos + count) > inode->i_size)
+		i_size_write(inode, pos + count);
+	file_update_time(file);
+	mark_inode_dirty(inode);
+>>>>>>> upstream/android-13
 
 	if ((file->f_flags & O_DSYNC) || IS_SYNC(file->f_mapping->host))
 		return vfs_fsync_range(file, pos, pos + count - 1,
@@ -1082,17 +1800,24 @@ static long gfs2_fallocate(struct file *file, int mode, loff_t offset, loff_t le
 	if (mode & FALLOC_FL_PUNCH_HOLE) {
 		ret = __gfs2_punch_hole(file, offset, len);
 	} else {
+<<<<<<< HEAD
 		ret = gfs2_rsqa_alloc(ip);
 		if (ret)
 			goto out_putw;
 
 		ret = __gfs2_fallocate(file, mode, offset, len);
 
+=======
+		ret = __gfs2_fallocate(file, mode, offset, len);
+>>>>>>> upstream/android-13
 		if (ret)
 			gfs2_rs_deltree(&ip->i_res);
 	}
 
+<<<<<<< HEAD
 out_putw:
+=======
+>>>>>>> upstream/android-13
 	put_write_access(inode);
 out_unlock:
 	gfs2_glock_dq(&gh);
@@ -1106,6 +1831,7 @@ static ssize_t gfs2_file_splice_write(struct pipe_inode_info *pipe,
 				      struct file *out, loff_t *ppos,
 				      size_t len, unsigned int flags)
 {
+<<<<<<< HEAD
 	int error;
 	struct gfs2_inode *ip = GFS2_I(out->f_mapping->host);
 
@@ -1116,6 +1842,14 @@ static ssize_t gfs2_file_splice_write(struct pipe_inode_info *pipe,
 	gfs2_size_hint(out, *ppos, len);
 
 	return iter_file_splice_write(pipe, out, ppos, len, flags);
+=======
+	ssize_t ret;
+
+	gfs2_size_hint(out, *ppos, len);
+
+	ret = iter_file_splice_write(pipe, out, ppos, len, flags);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_GFS2_FS_LOCKING_DLM
@@ -1137,15 +1871,22 @@ static int gfs2_lock(struct file *file, int cmd, struct file_lock *fl)
 
 	if (!(fl->fl_flags & FL_POSIX))
 		return -ENOLCK;
+<<<<<<< HEAD
 	if (__mandatory_lock(&ip->i_inode) && fl->fl_type != F_UNLCK)
 		return -ENOLCK;
 
+=======
+>>>>>>> upstream/android-13
 	if (cmd == F_CANCELLK) {
 		/* Hack: */
 		cmd = F_SETLK;
 		fl->fl_type = F_UNLCK;
 	}
+<<<<<<< HEAD
 	if (unlikely(test_bit(SDF_SHUTDOWN, &sdp->sd_flags))) {
+=======
+	if (unlikely(gfs2_withdrawn(sdp))) {
+>>>>>>> upstream/android-13
 		if (fl->fl_type == F_UNLCK)
 			locks_lock_file_wait(file, fl);
 		return -EIO;
@@ -1175,6 +1916,7 @@ static int do_flock(struct file *file, int cmd, struct file_lock *fl)
 	mutex_lock(&fp->f_fl_mutex);
 
 	if (gfs2_holder_initialized(fl_gh)) {
+<<<<<<< HEAD
 		if (fl_gh->gh_state == state)
 			goto out;
 		locks_lock_file_wait(file,
@@ -1182,6 +1924,15 @@ static int do_flock(struct file *file, int cmd, struct file_lock *fl)
 					     .fl_type = F_UNLCK,
 					     .fl_flags = FL_FLOCK
 				     });
+=======
+		struct file_lock request;
+		if (fl_gh->gh_state == state)
+			goto out;
+		locks_init_lock(&request);
+		request.fl_type = F_UNLCK;
+		request.fl_flags = FL_FLOCK;
+		locks_lock_file_wait(file, &request);
+>>>>>>> upstream/android-13
 		gfs2_glock_dq(fl_gh);
 		gfs2_holder_reinit(state, flags, fl_gh);
 	} else {
@@ -1256,7 +2007,13 @@ const struct file_operations gfs2_file_fops = {
 	.llseek		= gfs2_llseek,
 	.read_iter	= gfs2_file_read_iter,
 	.write_iter	= gfs2_file_write_iter,
+<<<<<<< HEAD
 	.unlocked_ioctl	= gfs2_ioctl,
+=======
+	.iopoll		= iomap_dio_iopoll,
+	.unlocked_ioctl	= gfs2_ioctl,
+	.compat_ioctl	= gfs2_compat_ioctl,
+>>>>>>> upstream/android-13
 	.mmap		= gfs2_mmap,
 	.open		= gfs2_open,
 	.release	= gfs2_release,
@@ -1272,6 +2029,10 @@ const struct file_operations gfs2_file_fops = {
 const struct file_operations gfs2_dir_fops = {
 	.iterate_shared	= gfs2_readdir,
 	.unlocked_ioctl	= gfs2_ioctl,
+<<<<<<< HEAD
+=======
+	.compat_ioctl	= gfs2_compat_ioctl,
+>>>>>>> upstream/android-13
 	.open		= gfs2_open,
 	.release	= gfs2_release,
 	.fsync		= gfs2_fsync,
@@ -1286,7 +2047,13 @@ const struct file_operations gfs2_file_fops_nolock = {
 	.llseek		= gfs2_llseek,
 	.read_iter	= gfs2_file_read_iter,
 	.write_iter	= gfs2_file_write_iter,
+<<<<<<< HEAD
 	.unlocked_ioctl	= gfs2_ioctl,
+=======
+	.iopoll		= iomap_dio_iopoll,
+	.unlocked_ioctl	= gfs2_ioctl,
+	.compat_ioctl	= gfs2_compat_ioctl,
+>>>>>>> upstream/android-13
 	.mmap		= gfs2_mmap,
 	.open		= gfs2_open,
 	.release	= gfs2_release,
@@ -1300,6 +2067,10 @@ const struct file_operations gfs2_file_fops_nolock = {
 const struct file_operations gfs2_dir_fops_nolock = {
 	.iterate_shared	= gfs2_readdir,
 	.unlocked_ioctl	= gfs2_ioctl,
+<<<<<<< HEAD
+=======
+	.compat_ioctl	= gfs2_compat_ioctl,
+>>>>>>> upstream/android-13
 	.open		= gfs2_open,
 	.release	= gfs2_release,
 	.fsync		= gfs2_fsync,

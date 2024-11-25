@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Promise PATA TX2/TX4/TX2000/133 IDE driver for pdc20268 to pdc20277.
  *
@@ -6,6 +7,12 @@
  *  as published by the Free Software Foundation; either version
  *  2 of the License, or (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Promise PATA TX2/TX4/TX2000/133 IDE driver for pdc20268 to pdc20277.
+ *
+>>>>>>> upstream/android-13
  *  Ported to libata by:
  *  Albert Lee <albertcc@tw.ibm.com> IBM Corporation
  *
@@ -15,12 +22,18 @@
  *  Author: Frank Tiernan (frankt@promise.com)
  *  Released under terms of General Public License
  *
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  *  libata documentation is available via 'make {ps|pdf}docs',
  *  as Documentation/driver-api/libata.rst
  *
  *  Hardware information only available under NDA.
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -202,7 +215,11 @@ static inline void __iomem *dev_mmio(struct ata_port *ap, struct ata_device *ade
 }
 
 /**
+<<<<<<< HEAD
  *	pdc2027x_pata_cable_detect - Probe host controller cable detect info
+=======
+ *	pdc2027x_cable_detect - Probe host controller cable detect info
+>>>>>>> upstream/android-13
  *	@ap: Port for which cable detect info is desired
  *
  *	Read 80c cable indicator from Promise extended register.
@@ -257,7 +274,11 @@ static int pdc2027x_prereset(struct ata_link *link, unsigned long deadline)
 }
 
 /**
+<<<<<<< HEAD
  *	pdc2720x_mode_filter	-	mode selection filter
+=======
+ *	pdc2027x_mode_filter	-	mode selection filter
+>>>>>>> upstream/android-13
  *	@adev: ATA device
  *	@mask: list of modes proposed
  *
@@ -509,11 +530,19 @@ retry:
 }
 
 /**
+<<<<<<< HEAD
  * adjust_pll - Adjust the PLL input clock in Hz.
  *
  * @pdc_controller: controller specific information
  * @host: target ATA host
  * @pll_clock: The input of PLL in HZ
+=======
+ * pdc_adjust_pll - Adjust the PLL input clock in Hz.
+ *
+ * @host: target ATA host
+ * @pll_clock: The input of PLL in HZ
+ * @board_idx: board identifier
+>>>>>>> upstream/android-13
  */
 static void pdc_adjust_pll(struct ata_host *host, long pll_clock, unsigned int board_idx)
 {
@@ -596,7 +625,11 @@ static void pdc_adjust_pll(struct ata_host *host, long pll_clock, unsigned int b
 }
 
 /**
+<<<<<<< HEAD
  * detect_pll_input_clock - Detect the PLL input clock in Hz.
+=======
+ * pdc_detect_pll_input_clock - Detect the PLL input clock in Hz.
+>>>>>>> upstream/android-13
  * @host: target ATA host
  * Ex. 16949000 on 33MHz PCI bus for pdc20275.
  *     Half of the PCI clock.
@@ -728,11 +761,15 @@ static int pdc2027x_init_one(struct pci_dev *pdev,
 		return rc;
 	host->iomap = pcim_iomap_table(pdev);
 
+<<<<<<< HEAD
 	rc = dma_set_mask(&pdev->dev, ATA_DMA_MASK);
 	if (rc)
 		return rc;
 
 	rc = dma_set_coherent_mask(&pdev->dev, ATA_DMA_MASK);
+=======
+	rc = dma_set_mask_and_coherent(&pdev->dev, ATA_DMA_MASK);
+>>>>>>> upstream/android-13
 	if (rc)
 		return rc;
 

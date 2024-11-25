@@ -5,12 +5,19 @@
 #include <linux/err.h>
 #include <linux/gpio/driver.h>
 #include <linux/gpio/gpio-reg.h>
+<<<<<<< HEAD
+=======
+#include <linux/gpio/machine.h>
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/ioport.h>
 #include <linux/irq.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/platform_data/sa11x0-serial.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/pm.h>
 #include <linux/serial_core.h>
@@ -20,7 +27,11 @@
 #include <asm/mach-types.h>
 #include <asm/mach/map.h>
 #include <asm/hardware/sa1111.h>
+<<<<<<< HEAD
 #include <asm/sizes.h>
+=======
+#include <linux/sizes.h>
+>>>>>>> upstream/android-13
 
 #include <mach/hardware.h>
 #include <mach/assabet.h>
@@ -48,6 +59,7 @@
 #define IRR_SA1111	(1 << 2)
 
 #define NCR_NGPIO	7
+<<<<<<< HEAD
 
 #define MDM_CTL0_RTS1	(1 << 0)
 #define MDM_CTL0_DTR1	(1 << 1)
@@ -65,6 +77,10 @@
 
 #define AUD_SEL_1341	(1 << 0)
 #define AUD_MUTE_1341	(1 << 1)
+=======
+#define MDM_CTL0_NGPIO	4
+#define MDM_CTL1_NGPIO	6
+>>>>>>> upstream/android-13
 #define AUD_NGPIO	2
 
 extern void sa1110_mb_disable(void);
@@ -96,6 +112,46 @@ struct neponset_drvdata {
 	struct gpio_chip *gpio[4];
 };
 
+<<<<<<< HEAD
+=======
+static struct gpiod_lookup_table neponset_uart1_gpio_table = {
+	.dev_id = "sa11x0-uart.1",
+	.table = {
+		GPIO_LOOKUP("neponset-mdm-ctl0", 2, "rts", GPIO_ACTIVE_LOW),
+		GPIO_LOOKUP("neponset-mdm-ctl0", 3, "dtr", GPIO_ACTIVE_LOW),
+		GPIO_LOOKUP("neponset-mdm-ctl1", 3, "cts", GPIO_ACTIVE_LOW),
+		GPIO_LOOKUP("neponset-mdm-ctl1", 4, "dsr", GPIO_ACTIVE_LOW),
+		GPIO_LOOKUP("neponset-mdm-ctl1", 5, "dcd", GPIO_ACTIVE_LOW),
+		{ },
+	},
+};
+
+static struct gpiod_lookup_table neponset_uart3_gpio_table = {
+	.dev_id = "sa11x0-uart.3",
+	.table = {
+		GPIO_LOOKUP("neponset-mdm-ctl0", 0, "rts", GPIO_ACTIVE_LOW),
+		GPIO_LOOKUP("neponset-mdm-ctl0", 1, "dtr", GPIO_ACTIVE_LOW),
+		GPIO_LOOKUP("neponset-mdm-ctl1", 0, "cts", GPIO_ACTIVE_LOW),
+		GPIO_LOOKUP("neponset-mdm-ctl1", 1, "dsr", GPIO_ACTIVE_LOW),
+		GPIO_LOOKUP("neponset-mdm-ctl1", 2, "dcd", GPIO_ACTIVE_LOW),
+		{ },
+	},
+};
+
+static struct gpiod_lookup_table neponset_pcmcia_table = {
+	.dev_id = "1800",
+	.table = {
+		GPIO_LOOKUP("sa1111", 1, "a0vcc", GPIO_ACTIVE_HIGH),
+		GPIO_LOOKUP("sa1111", 0, "a1vcc", GPIO_ACTIVE_HIGH),
+		GPIO_LOOKUP("neponset-ncr", 5, "a0vpp", GPIO_ACTIVE_HIGH),
+		GPIO_LOOKUP("neponset-ncr", 6, "a1vpp", GPIO_ACTIVE_HIGH),
+		GPIO_LOOKUP("sa1111", 2, "b0vcc", GPIO_ACTIVE_HIGH),
+		GPIO_LOOKUP("sa1111", 3, "b1vcc", GPIO_ACTIVE_HIGH),
+		{ },
+	},
+};
+
+>>>>>>> upstream/android-13
 static struct neponset_drvdata *nep;
 
 void neponset_ncr_frob(unsigned int mask, unsigned int val)
@@ -110,6 +166,7 @@ void neponset_ncr_frob(unsigned int mask, unsigned int val)
 }
 EXPORT_SYMBOL(neponset_ncr_frob);
 
+<<<<<<< HEAD
 static void neponset_set_mctrl(struct uart_port *port, u_int mctrl)
 {
 	struct neponset_drvdata *n = nep;
@@ -173,6 +230,8 @@ static struct sa1100_port_fns neponset_port_fns = {
 	.get_mctrl	= neponset_get_mctrl,
 };
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Install handler for Neponset IRQ.  Note that we have to loop here
  * since the ETHERNET and USAR IRQs are level based, and we need to
@@ -374,6 +433,13 @@ static int neponset_probe(struct platform_device *dev)
 			   d->base + AUD_CTL, AUD_NGPIO, false,
 			   neponset_aud_names);
 
+<<<<<<< HEAD
+=======
+	gpiod_add_lookup_table(&neponset_uart1_gpio_table);
+	gpiod_add_lookup_table(&neponset_uart3_gpio_table);
+	gpiod_add_lookup_table(&neponset_pcmcia_table);
+
+>>>>>>> upstream/android-13
 	/*
 	 * We would set IRQ_GPIO25 to be a wake-up IRQ, but unfortunately
 	 * something on the Neponset activates this IRQ on sleep (eth?)
@@ -386,8 +452,11 @@ static int neponset_probe(struct platform_device *dev)
 		 d->irq_base, d->irq_base + NEP_IRQ_NR - 1);
 	nep = d;
 
+<<<<<<< HEAD
 	sa1100_register_uart_fns(&neponset_port_fns);
 
+=======
+>>>>>>> upstream/android-13
 	/* Ensure that the memory bus request/grant signals are setup */
 	sa1110_mb_disable();
 
@@ -424,6 +493,14 @@ static int neponset_remove(struct platform_device *dev)
 		platform_device_unregister(d->sa1111);
 	if (!IS_ERR(d->smc91x))
 		platform_device_unregister(d->smc91x);
+<<<<<<< HEAD
+=======
+
+	gpiod_remove_lookup_table(&neponset_pcmcia_table);
+	gpiod_remove_lookup_table(&neponset_uart3_gpio_table);
+	gpiod_remove_lookup_table(&neponset_uart1_gpio_table);
+
+>>>>>>> upstream/android-13
 	irq_set_chained_handler(irq, NULL);
 	irq_free_descs(d->irq_base, NEP_IRQ_NR);
 	nep = NULL;

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2010 Broadcom Corporation
  *
@@ -12,6 +13,11 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2010 Broadcom Corporation
+>>>>>>> upstream/android-13
  */
 
 #ifndef	_BRCMU_WIFI_H_
@@ -239,8 +245,16 @@ static inline bool ac_bitmap_tst(u8 bitmap, int prec)
 #define WPA2_AUTH_RESERVED4	0x0400
 #define WPA2_AUTH_RESERVED5	0x0800
 #define WPA2_AUTH_1X_SHA256	0x1000  /* 1X with SHA256 key derivation */
+<<<<<<< HEAD
 #define WPA2_AUTH_PSK_SHA256	0x8000	/* PSK with SHA256 key derivation */
 
+=======
+#define WPA2_AUTH_FT		0x4000	/* Fast BSS Transition */
+#define WPA2_AUTH_PSK_SHA256	0x8000	/* PSK with SHA256 key derivation */
+
+#define WPA3_AUTH_SAE_PSK	0x40000	/* SAE with 4-way handshake */
+
+>>>>>>> upstream/android-13
 #define DOT11_DEFAULT_RTS_LEN		2347
 #define DOT11_DEFAULT_FRAG_LEN		2346
 

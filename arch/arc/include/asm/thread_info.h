@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
  *
@@ -5,6 +6,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
+ *
+>>>>>>> upstream/android-13
  * Vineetg: Oct 2009
  *  No need for ARC specific thread_info allocator (kmalloc/free). This is
  *  anyways one page allocation, thus slab alloc can be short-circuited and
@@ -82,6 +89,10 @@ static inline __attribute_const__ struct thread_info *current_thread_info(void)
 #define TIF_SIGPENDING		2	/* signal pending */
 #define TIF_NEED_RESCHED	3	/* rescheduling necessary */
 #define TIF_SYSCALL_AUDIT	4	/* syscall auditing active */
+<<<<<<< HEAD
+=======
+#define TIF_NOTIFY_SIGNAL	5	/* signal notifications exist */
+>>>>>>> upstream/android-13
 #define TIF_SYSCALL_TRACE	15	/* syscall trace active */
 
 /* true if poll_idle() is polling TIF_NEED_RESCHED */
@@ -92,11 +103,19 @@ static inline __attribute_const__ struct thread_info *current_thread_info(void)
 #define _TIF_SIGPENDING		(1<<TIF_SIGPENDING)
 #define _TIF_NEED_RESCHED	(1<<TIF_NEED_RESCHED)
 #define _TIF_SYSCALL_AUDIT	(1<<TIF_SYSCALL_AUDIT)
+<<<<<<< HEAD
+=======
+#define _TIF_NOTIFY_SIGNAL	(1<<TIF_NOTIFY_SIGNAL)
+>>>>>>> upstream/android-13
 #define _TIF_MEMDIE		(1<<TIF_MEMDIE)
 
 /* work to do on interrupt/exception return */
 #define _TIF_WORK_MASK		(_TIF_NEED_RESCHED | _TIF_SIGPENDING | \
+<<<<<<< HEAD
 				 _TIF_NOTIFY_RESUME)
+=======
+				 _TIF_NOTIFY_RESUME | _TIF_NOTIFY_SIGNAL)
+>>>>>>> upstream/android-13
 
 /*
  * _TIF_ALLWORK_MASK includes SYSCALL_TRACE, but we don't need it.

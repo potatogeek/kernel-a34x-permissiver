@@ -4,6 +4,7 @@
 
 #include <linux/netlink.h>
 #include <linux/capability.h>
+<<<<<<< HEAD
 #include <net/netlink.h>
 #include <uapi/linux/netfilter/nfnetlink.h>
 
@@ -22,6 +23,41 @@ struct nfnl_callback {
 			  struct netlink_ext_ack *extack);
 	const struct nla_policy *policy;	/* netlink attribute policy */
 	const u_int16_t attr_count;		/* number of nlattr's */
+=======
+#include <linux/android_kabi.h>
+#include <net/netlink.h>
+#include <uapi/linux/netfilter/nfnetlink.h>
+
+struct nfnl_info {
+	struct net		*net;
+	struct sock		*sk;
+	const struct nlmsghdr	*nlh;
+	const struct nfgenmsg	*nfmsg;
+	struct netlink_ext_ack	*extack;
+};
+
+enum nfnl_callback_type {
+	NFNL_CB_UNSPEC	= 0,
+	NFNL_CB_MUTEX,
+	NFNL_CB_RCU,
+	NFNL_CB_BATCH,
+};
+
+struct nfnl_callback {
+	int (*call)(struct sk_buff *skb, const struct nfnl_info *info,
+		    const struct nlattr * const cda[]);
+	const struct nla_policy	*policy;
+	enum nfnl_callback_type	type;
+	__u16			attr_count;
+
+	ANDROID_KABI_RESERVE(1);
+};
+
+enum nfnl_abort_action {
+	NFNL_ABORT_NONE		= 0,
+	NFNL_ABORT_AUTOLOAD,
+	NFNL_ABORT_VALIDATE,
+>>>>>>> upstream/android-13
 };
 
 struct nfnetlink_subsystem {
@@ -31,9 +67,18 @@ struct nfnetlink_subsystem {
 	const struct nfnl_callback *cb;	/* callback for individual types */
 	struct module *owner;
 	int (*commit)(struct net *net, struct sk_buff *skb);
+<<<<<<< HEAD
 	int (*abort)(struct net *net, struct sk_buff *skb);
 	void (*cleanup)(struct net *net);
 	bool (*valid_genid)(struct net *net, u32 genid);
+=======
+	int (*abort)(struct net *net, struct sk_buff *skb,
+		     enum nfnl_abort_action action);
+	void (*cleanup)(struct net *net);
+	bool (*valid_genid)(struct net *net, u32 genid);
+
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 
 int nfnetlink_subsys_register(const struct nfnetlink_subsystem *n);
@@ -44,12 +89,47 @@ int nfnetlink_send(struct sk_buff *skb, struct net *net, u32 portid,
 		   unsigned int group, int echo, gfp_t flags);
 int nfnetlink_set_err(struct net *net, u32 portid, u32 group, int error);
 int nfnetlink_unicast(struct sk_buff *skb, struct net *net, u32 portid);
+<<<<<<< HEAD
+=======
+void nfnetlink_broadcast(struct net *net, struct sk_buff *skb, __u32 portid,
+			 __u32 group, gfp_t allocation);
+>>>>>>> upstream/android-13
 
 static inline u16 nfnl_msg_type(u8 subsys, u8 msg_type)
 {
 	return subsys << 8 | msg_type;
 }
 
+<<<<<<< HEAD
+=======
+static inline void nfnl_fill_hdr(struct nlmsghdr *nlh, u8 family, u8 version,
+				 __be16 res_id)
+{
+	struct nfgenmsg *nfmsg;
+
+	nfmsg = nlmsg_data(nlh);
+	nfmsg->nfgen_family = family;
+	nfmsg->version = version;
+	nfmsg->res_id = res_id;
+}
+
+static inline struct nlmsghdr *nfnl_msg_put(struct sk_buff *skb, u32 portid,
+					    u32 seq, int type, int flags,
+					    u8 family, u8 version,
+					    __be16 res_id)
+{
+	struct nlmsghdr *nlh;
+
+	nlh = nlmsg_put(skb, portid, seq, type, sizeof(struct nfgenmsg), flags);
+	if (!nlh)
+		return NULL;
+
+	nfnl_fill_hdr(nlh, family, version, res_id);
+
+	return nlh;
+}
+
+>>>>>>> upstream/android-13
 void nfnl_lock(__u8 subsys_id);
 void nfnl_unlock(__u8 subsys_id);
 #ifdef CONFIG_PROVE_LOCKING

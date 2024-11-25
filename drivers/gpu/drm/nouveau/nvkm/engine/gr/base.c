@@ -25,6 +25,36 @@
 
 #include <engine/fifo.h>
 
+<<<<<<< HEAD
+=======
+u32
+nvkm_gr_ctxsw_inst(struct nvkm_device *device)
+{
+	struct nvkm_gr *gr = device->gr;
+	if (gr && gr->func->ctxsw.inst)
+		return gr->func->ctxsw.inst(gr);
+	return 0;
+}
+
+int
+nvkm_gr_ctxsw_resume(struct nvkm_device *device)
+{
+	struct nvkm_gr *gr = device->gr;
+	if (gr && gr->func->ctxsw.resume)
+		return gr->func->ctxsw.resume(gr);
+	return 0;
+}
+
+int
+nvkm_gr_ctxsw_pause(struct nvkm_device *device)
+{
+	struct nvkm_gr *gr = device->gr;
+	if (gr && gr->func->ctxsw.pause)
+		return gr->func->ctxsw.pause(gr);
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static bool
 nvkm_gr_chsw_load(struct nvkm_engine *engine)
 {
@@ -148,8 +178,15 @@ nvkm_gr = {
 
 int
 nvkm_gr_ctor(const struct nvkm_gr_func *func, struct nvkm_device *device,
+<<<<<<< HEAD
 	     int index, bool enable, struct nvkm_gr *gr)
 {
 	gr->func = func;
 	return nvkm_engine_ctor(&nvkm_gr, device, index, enable, &gr->engine);
+=======
+	     enum nvkm_subdev_type type, int inst, bool enable, struct nvkm_gr *gr)
+{
+	gr->func = func;
+	return nvkm_engine_ctor(&nvkm_gr, device, type, inst, enable, &gr->engine);
+>>>>>>> upstream/android-13
 }

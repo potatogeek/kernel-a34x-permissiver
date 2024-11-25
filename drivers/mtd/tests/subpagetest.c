@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2006-2007 Nokia Corporation
  *
@@ -17,6 +18,14 @@
  * Test sub-page read and write on MTD device.
  * Author: Adrian Hunter <ext-adrian.hunter@nokia.com>
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2006-2007 Nokia Corporation
+ *
+ * Test sub-page read and write on MTD device.
+ * Author: Adrian Hunter <ext-adrian.hunter@nokia.com>
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt

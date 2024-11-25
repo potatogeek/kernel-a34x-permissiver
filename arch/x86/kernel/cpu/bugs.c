@@ -15,6 +15,11 @@
 #include <linux/nospec.h>
 #include <linux/prctl.h>
 #include <linux/sched/smt.h>
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+#include <linux/bpf.h>
+>>>>>>> upstream/android-13
 
 #include <asm/spec-ctrl.h>
 #include <asm/cmdline.h>
@@ -26,11 +31,18 @@
 #include <asm/vmx.h>
 #include <asm/paravirt.h>
 #include <asm/alternative.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/set_memory.h>
 #include <asm/intel-family.h>
 #include <asm/e820/api.h>
 #include <asm/hypervisor.h>
+<<<<<<< HEAD
+=======
+#include <asm/tlbflush.h>
+>>>>>>> upstream/android-13
 
 #include "cpu.h"
 
@@ -42,6 +54,10 @@ static void __init mds_select_mitigation(void);
 static void __init mds_print_mitigation(void);
 static void __init taa_select_mitigation(void);
 static void __init srbds_select_mitigation(void);
+<<<<<<< HEAD
+=======
+static void __init l1d_flush_select_mitigation(void);
+>>>>>>> upstream/android-13
 
 /* The base value of the SPEC_CTRL MSR that always has to be preserved. */
 u64 x86_spec_ctrl_base;
@@ -75,6 +91,16 @@ EXPORT_SYMBOL_GPL(mds_user_clear);
 DEFINE_STATIC_KEY_FALSE(mds_idle_clear);
 EXPORT_SYMBOL_GPL(mds_idle_clear);
 
+<<<<<<< HEAD
+=======
+/*
+ * Controls whether l1d flush based mitigations are enabled,
+ * based on hw features and admin setting via boot parameter
+ * defaults to false
+ */
+DEFINE_STATIC_KEY_FALSE(switch_mm_cond_l1d_flush);
+
+>>>>>>> upstream/android-13
 void __init check_bugs(void)
 {
 	identify_boot_cpu();
@@ -110,6 +136,10 @@ void __init check_bugs(void)
 	mds_select_mitigation();
 	taa_select_mitigation();
 	srbds_select_mitigation();
+<<<<<<< HEAD
+=======
+	l1d_flush_select_mitigation();
+>>>>>>> upstream/android-13
 
 	/*
 	 * As MDS and TAA mitigations are inter-related, print MDS
@@ -288,6 +318,16 @@ early_param("mds", mds_cmdline);
 #undef pr_fmt
 #define pr_fmt(fmt)	"TAA: " fmt
 
+<<<<<<< HEAD
+=======
+enum taa_mitigations {
+	TAA_MITIGATION_OFF,
+	TAA_MITIGATION_UCODE_NEEDED,
+	TAA_MITIGATION_VERW,
+	TAA_MITIGATION_TSX_DISABLED,
+};
+
+>>>>>>> upstream/android-13
 /* Default mitigation for TAA-affected CPUs */
 static enum taa_mitigations taa_mitigation __ro_after_init = TAA_MITIGATION_VERW;
 static bool taa_nosmt __ro_after_init;
@@ -484,6 +524,37 @@ static int __init srbds_parse_cmdline(char *str)
 early_param("srbds", srbds_parse_cmdline);
 
 #undef pr_fmt
+<<<<<<< HEAD
+=======
+#define pr_fmt(fmt)     "L1D Flush : " fmt
+
+enum l1d_flush_mitigations {
+	L1D_FLUSH_OFF = 0,
+	L1D_FLUSH_ON,
+};
+
+static enum l1d_flush_mitigations l1d_flush_mitigation __initdata = L1D_FLUSH_OFF;
+
+static void __init l1d_flush_select_mitigation(void)
+{
+	if (!l1d_flush_mitigation || !boot_cpu_has(X86_FEATURE_FLUSH_L1D))
+		return;
+
+	static_branch_enable(&switch_mm_cond_l1d_flush);
+	pr_info("Conditional flush on switch_mm() enabled\n");
+}
+
+static int __init l1d_flush_parse_cmdline(char *str)
+{
+	if (!strcmp(str, "on"))
+		l1d_flush_mitigation = L1D_FLUSH_ON;
+
+	return 0;
+}
+early_param("l1d_flush", l1d_flush_parse_cmdline);
+
+#undef pr_fmt
+>>>>>>> upstream/android-13
 #define pr_fmt(fmt)     "Spectre V1 : " fmt
 
 enum spectre_v1_mitigation {
@@ -536,14 +607,22 @@ static void __init spectre_v1_select_mitigation(void)
 		 * If FSGSBASE is enabled, the user can put a kernel address in
 		 * GS, in which case SMAP provides no protection.
 		 *
+<<<<<<< HEAD
 		 * [ NOTE: Don't check for X86_FEATURE_FSGSBASE until the
 		 *	   FSGSBASE enablement patches have been merged. ]
 		 *
+=======
+>>>>>>> upstream/android-13
 		 * If FSGSBASE is disabled, the user can only put a user space
 		 * address in GS.  That makes an attack harder, but still
 		 * possible if there's no SMAP protection.
 		 */
+<<<<<<< HEAD
 		if (!smap_works_speculatively()) {
+=======
+		if (boot_cpu_has(X86_FEATURE_FSGSBASE) ||
+		    !smap_works_speculatively()) {
+>>>>>>> upstream/android-13
 			/*
 			 * Mitigation can be provided from SWAPGS itself or
 			 * PTI as the CR3 write in the Meltdown mitigation
@@ -607,6 +686,35 @@ static inline const char *spectre_v2_module_string(void)
 static inline const char *spectre_v2_module_string(void) { return ""; }
 #endif
 
+<<<<<<< HEAD
+=======
+#define SPECTRE_V2_LFENCE_MSG "WARNING: LFENCE mitigation is not recommended for this CPU, data leaks possible!\n"
+#define SPECTRE_V2_EIBRS_EBPF_MSG "WARNING: Unprivileged eBPF is enabled with eIBRS on, data leaks possible via Spectre v2 BHB attacks!\n"
+#define SPECTRE_V2_EIBRS_LFENCE_EBPF_SMT_MSG "WARNING: Unprivileged eBPF is enabled with eIBRS+LFENCE mitigation and SMT, data leaks possible via Spectre v2 BHB attacks!\n"
+
+#ifdef CONFIG_BPF_SYSCALL
+void unpriv_ebpf_notify(int new_state)
+{
+	if (new_state)
+		return;
+
+	/* Unprivileged eBPF is enabled */
+
+	switch (spectre_v2_enabled) {
+	case SPECTRE_V2_EIBRS:
+		pr_err(SPECTRE_V2_EIBRS_EBPF_MSG);
+		break;
+	case SPECTRE_V2_EIBRS_LFENCE:
+		if (sched_smt_active())
+			pr_err(SPECTRE_V2_EIBRS_LFENCE_EBPF_SMT_MSG);
+		break;
+	default:
+		break;
+	}
+}
+#endif
+
+>>>>>>> upstream/android-13
 static inline bool match_option(const char *arg, int arglen, const char *opt)
 {
 	int len = strlen(opt);
@@ -621,7 +729,14 @@ enum spectre_v2_mitigation_cmd {
 	SPECTRE_V2_CMD_FORCE,
 	SPECTRE_V2_CMD_RETPOLINE,
 	SPECTRE_V2_CMD_RETPOLINE_GENERIC,
+<<<<<<< HEAD
 	SPECTRE_V2_CMD_RETPOLINE_AMD,
+=======
+	SPECTRE_V2_CMD_RETPOLINE_LFENCE,
+	SPECTRE_V2_CMD_EIBRS,
+	SPECTRE_V2_CMD_EIBRS_RETPOLINE,
+	SPECTRE_V2_CMD_EIBRS_LFENCE,
+>>>>>>> upstream/android-13
 };
 
 enum spectre_v2_user_cmd {
@@ -694,6 +809,16 @@ spectre_v2_parse_user_cmdline(enum spectre_v2_mitigation_cmd v2_cmd)
 	return SPECTRE_V2_USER_CMD_AUTO;
 }
 
+<<<<<<< HEAD
+=======
+static inline bool spectre_v2_in_eibrs_mode(enum spectre_v2_mitigation mode)
+{
+	return (mode == SPECTRE_V2_EIBRS ||
+		mode == SPECTRE_V2_EIBRS_RETPOLINE ||
+		mode == SPECTRE_V2_EIBRS_LFENCE);
+}
+
+>>>>>>> upstream/android-13
 static void __init
 spectre_v2_user_select_mitigation(enum spectre_v2_mitigation_cmd v2_cmd)
 {
@@ -756,10 +881,19 @@ spectre_v2_user_select_mitigation(enum spectre_v2_mitigation_cmd v2_cmd)
 	}
 
 	/*
+<<<<<<< HEAD
 	 * If enhanced IBRS is enabled or SMT impossible, STIBP is not
 	 * required.
 	 */
 	if (!smt_possible || spectre_v2_enabled == SPECTRE_V2_IBRS_ENHANCED)
+=======
+	 * If no STIBP, enhanced IBRS is enabled or SMT impossible, STIBP is not
+	 * required.
+	 */
+	if (!boot_cpu_has(X86_FEATURE_STIBP) ||
+	    !smt_possible ||
+	    spectre_v2_in_eibrs_mode(spectre_v2_enabled))
+>>>>>>> upstream/android-13
 		return;
 
 	/*
@@ -771,12 +905,15 @@ spectre_v2_user_select_mitigation(enum spectre_v2_mitigation_cmd v2_cmd)
 	    boot_cpu_has(X86_FEATURE_AMD_STIBP_ALWAYS_ON))
 		mode = SPECTRE_V2_USER_STRICT_PREFERRED;
 
+<<<<<<< HEAD
 	/*
 	 * If STIBP is not available, clear the STIBP mode.
 	 */
 	if (!boot_cpu_has(X86_FEATURE_STIBP))
 		mode = SPECTRE_V2_USER_NONE;
 
+=======
+>>>>>>> upstream/android-13
 	spectre_v2_user_stibp = mode;
 
 set_mode:
@@ -785,9 +922,17 @@ set_mode:
 
 static const char * const spectre_v2_strings[] = {
 	[SPECTRE_V2_NONE]			= "Vulnerable",
+<<<<<<< HEAD
 	[SPECTRE_V2_RETPOLINE_GENERIC]		= "Mitigation: Full generic retpoline",
 	[SPECTRE_V2_RETPOLINE_AMD]		= "Mitigation: Full AMD retpoline",
 	[SPECTRE_V2_IBRS_ENHANCED]		= "Mitigation: Enhanced IBRS",
+=======
+	[SPECTRE_V2_RETPOLINE]			= "Mitigation: Retpolines",
+	[SPECTRE_V2_LFENCE]			= "Mitigation: LFENCE",
+	[SPECTRE_V2_EIBRS]			= "Mitigation: Enhanced IBRS",
+	[SPECTRE_V2_EIBRS_LFENCE]		= "Mitigation: Enhanced IBRS + LFENCE",
+	[SPECTRE_V2_EIBRS_RETPOLINE]		= "Mitigation: Enhanced IBRS + Retpolines",
+>>>>>>> upstream/android-13
 };
 
 static const struct {
@@ -798,8 +943,17 @@ static const struct {
 	{ "off",		SPECTRE_V2_CMD_NONE,		  false },
 	{ "on",			SPECTRE_V2_CMD_FORCE,		  true  },
 	{ "retpoline",		SPECTRE_V2_CMD_RETPOLINE,	  false },
+<<<<<<< HEAD
 	{ "retpoline,amd",	SPECTRE_V2_CMD_RETPOLINE_AMD,	  false },
 	{ "retpoline,generic",	SPECTRE_V2_CMD_RETPOLINE_GENERIC, false },
+=======
+	{ "retpoline,amd",	SPECTRE_V2_CMD_RETPOLINE_LFENCE,  false },
+	{ "retpoline,lfence",	SPECTRE_V2_CMD_RETPOLINE_LFENCE,  false },
+	{ "retpoline,generic",	SPECTRE_V2_CMD_RETPOLINE_GENERIC, false },
+	{ "eibrs",		SPECTRE_V2_CMD_EIBRS,		  false },
+	{ "eibrs,lfence",	SPECTRE_V2_CMD_EIBRS_LFENCE,	  false },
+	{ "eibrs,retpoline",	SPECTRE_V2_CMD_EIBRS_RETPOLINE,	  false },
+>>>>>>> upstream/android-13
 	{ "auto",		SPECTRE_V2_CMD_AUTO,		  false },
 };
 
@@ -836,6 +990,7 @@ static enum spectre_v2_mitigation_cmd __init spectre_v2_parse_cmdline(void)
 	}
 
 	if ((cmd == SPECTRE_V2_CMD_RETPOLINE ||
+<<<<<<< HEAD
 	     cmd == SPECTRE_V2_CMD_RETPOLINE_AMD ||
 	     cmd == SPECTRE_V2_CMD_RETPOLINE_GENERIC) &&
 	    !IS_ENABLED(CONFIG_RETPOLINE)) {
@@ -846,6 +1001,32 @@ static enum spectre_v2_mitigation_cmd __init spectre_v2_parse_cmdline(void)
 	if (cmd == SPECTRE_V2_CMD_RETPOLINE_AMD &&
 	    boot_cpu_data.x86_vendor != X86_VENDOR_AMD) {
 		pr_err("retpoline,amd selected but CPU is not AMD. Switching to AUTO select\n");
+=======
+	     cmd == SPECTRE_V2_CMD_RETPOLINE_LFENCE ||
+	     cmd == SPECTRE_V2_CMD_RETPOLINE_GENERIC ||
+	     cmd == SPECTRE_V2_CMD_EIBRS_LFENCE ||
+	     cmd == SPECTRE_V2_CMD_EIBRS_RETPOLINE) &&
+	    !IS_ENABLED(CONFIG_RETPOLINE)) {
+		pr_err("%s selected but not compiled in. Switching to AUTO select\n",
+		       mitigation_options[i].option);
+		return SPECTRE_V2_CMD_AUTO;
+	}
+
+	if ((cmd == SPECTRE_V2_CMD_EIBRS ||
+	     cmd == SPECTRE_V2_CMD_EIBRS_LFENCE ||
+	     cmd == SPECTRE_V2_CMD_EIBRS_RETPOLINE) &&
+	    !boot_cpu_has(X86_FEATURE_IBRS_ENHANCED)) {
+		pr_err("%s selected but CPU doesn't have eIBRS. Switching to AUTO select\n",
+		       mitigation_options[i].option);
+		return SPECTRE_V2_CMD_AUTO;
+	}
+
+	if ((cmd == SPECTRE_V2_CMD_RETPOLINE_LFENCE ||
+	     cmd == SPECTRE_V2_CMD_EIBRS_LFENCE) &&
+	    !boot_cpu_has(X86_FEATURE_LFENCE_RDTSC)) {
+		pr_err("%s selected, but CPU doesn't have a serializing LFENCE. Switching to AUTO select\n",
+		       mitigation_options[i].option);
+>>>>>>> upstream/android-13
 		return SPECTRE_V2_CMD_AUTO;
 	}
 
@@ -854,6 +1035,19 @@ static enum spectre_v2_mitigation_cmd __init spectre_v2_parse_cmdline(void)
 	return cmd;
 }
 
+<<<<<<< HEAD
+=======
+static enum spectre_v2_mitigation __init spectre_v2_select_retpoline(void)
+{
+	if (!IS_ENABLED(CONFIG_RETPOLINE)) {
+		pr_err("Kernel not compiled with retpoline; no mitigation available!");
+		return SPECTRE_V2_NONE;
+	}
+
+	return SPECTRE_V2_RETPOLINE;
+}
+
+>>>>>>> upstream/android-13
 static void __init spectre_v2_select_mitigation(void)
 {
 	enum spectre_v2_mitigation_cmd cmd = spectre_v2_parse_cmdline();
@@ -874,6 +1068,7 @@ static void __init spectre_v2_select_mitigation(void)
 	case SPECTRE_V2_CMD_FORCE:
 	case SPECTRE_V2_CMD_AUTO:
 		if (boot_cpu_has(X86_FEATURE_IBRS_ENHANCED)) {
+<<<<<<< HEAD
 			mode = SPECTRE_V2_IBRS_ENHANCED;
 			/* Force it so VMEXIT will restore correctly */
 			x86_spec_ctrl_base |= SPEC_CTRL_IBRS;
@@ -916,6 +1111,66 @@ retpoline_auto:
 	}
 
 specv2_set_mode:
+=======
+			mode = SPECTRE_V2_EIBRS;
+			break;
+		}
+
+		mode = spectre_v2_select_retpoline();
+		break;
+
+	case SPECTRE_V2_CMD_RETPOLINE_LFENCE:
+		pr_err(SPECTRE_V2_LFENCE_MSG);
+		mode = SPECTRE_V2_LFENCE;
+		break;
+
+	case SPECTRE_V2_CMD_RETPOLINE_GENERIC:
+		mode = SPECTRE_V2_RETPOLINE;
+		break;
+
+	case SPECTRE_V2_CMD_RETPOLINE:
+		mode = spectre_v2_select_retpoline();
+		break;
+
+	case SPECTRE_V2_CMD_EIBRS:
+		mode = SPECTRE_V2_EIBRS;
+		break;
+
+	case SPECTRE_V2_CMD_EIBRS_LFENCE:
+		mode = SPECTRE_V2_EIBRS_LFENCE;
+		break;
+
+	case SPECTRE_V2_CMD_EIBRS_RETPOLINE:
+		mode = SPECTRE_V2_EIBRS_RETPOLINE;
+		break;
+	}
+
+	if (mode == SPECTRE_V2_EIBRS && unprivileged_ebpf_enabled())
+		pr_err(SPECTRE_V2_EIBRS_EBPF_MSG);
+
+	if (spectre_v2_in_eibrs_mode(mode)) {
+		/* Force it so VMEXIT will restore correctly */
+		x86_spec_ctrl_base |= SPEC_CTRL_IBRS;
+		wrmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
+	}
+
+	switch (mode) {
+	case SPECTRE_V2_NONE:
+	case SPECTRE_V2_EIBRS:
+		break;
+
+	case SPECTRE_V2_LFENCE:
+	case SPECTRE_V2_EIBRS_LFENCE:
+		setup_force_cpu_cap(X86_FEATURE_RETPOLINE_LFENCE);
+		fallthrough;
+
+	case SPECTRE_V2_RETPOLINE:
+	case SPECTRE_V2_EIBRS_RETPOLINE:
+		setup_force_cpu_cap(X86_FEATURE_RETPOLINE);
+		break;
+	}
+
+>>>>>>> upstream/android-13
 	spectre_v2_enabled = mode;
 	pr_info("%s\n", spectre_v2_strings[mode]);
 
@@ -941,7 +1196,11 @@ specv2_set_mode:
 	 * the CPU supports Enhanced IBRS, kernel might un-intentionally not
 	 * enable IBRS around firmware calls.
 	 */
+<<<<<<< HEAD
 	if (boot_cpu_has(X86_FEATURE_IBRS) && mode != SPECTRE_V2_IBRS_ENHANCED) {
+=======
+	if (boot_cpu_has(X86_FEATURE_IBRS) && !spectre_v2_in_eibrs_mode(mode)) {
+>>>>>>> upstream/android-13
 		setup_force_cpu_cap(X86_FEATURE_USE_IBRS_FW);
 		pr_info("Enabling Restricted Speculation for firmware calls\n");
 	}
@@ -1007,10 +1266,21 @@ static void update_mds_branch_idle(void)
 #define MDS_MSG_SMT "MDS CPU bug present and SMT on, data leak possible. See https://www.kernel.org/doc/html/latest/admin-guide/hw-vuln/mds.html for more details.\n"
 #define TAA_MSG_SMT "TAA CPU bug present and SMT on, data leak possible. See https://www.kernel.org/doc/html/latest/admin-guide/hw-vuln/tsx_async_abort.html for more details.\n"
 
+<<<<<<< HEAD
 void arch_smt_update(void)
 {
 	mutex_lock(&spec_ctrl_mutex);
 
+=======
+void cpu_bugs_smt_update(void)
+{
+	mutex_lock(&spec_ctrl_mutex);
+
+	if (sched_smt_active() && unprivileged_ebpf_enabled() &&
+	    spectre_v2_enabled == SPECTRE_V2_EIBRS_LFENCE)
+		pr_warn_once(SPECTRE_V2_EIBRS_LFENCE_EBPF_SMT_MSG);
+
+>>>>>>> upstream/android-13
 	switch (spectre_v2_user_stibp) {
 	case SPECTRE_V2_USER_NONE:
 		break;
@@ -1211,6 +1481,27 @@ static void task_update_spec_tif(struct task_struct *tsk)
 		speculation_ctrl_update_current();
 }
 
+<<<<<<< HEAD
+=======
+static int l1d_flush_prctl_set(struct task_struct *task, unsigned long ctrl)
+{
+
+	if (!static_branch_unlikely(&switch_mm_cond_l1d_flush))
+		return -EPERM;
+
+	switch (ctrl) {
+	case PR_SPEC_ENABLE:
+		set_ti_thread_flag(&task->thread_info, TIF_SPEC_L1D_FLUSH);
+		return 0;
+	case PR_SPEC_DISABLE:
+		clear_ti_thread_flag(&task->thread_info, TIF_SPEC_L1D_FLUSH);
+		return 0;
+	default:
+		return -ERANGE;
+	}
+}
+
+>>>>>>> upstream/android-13
 static int ssb_prctl_set(struct task_struct *task, unsigned long ctrl)
 {
 	if (ssb_mode != SPEC_STORE_BYPASS_PRCTL &&
@@ -1223,15 +1514,34 @@ static int ssb_prctl_set(struct task_struct *task, unsigned long ctrl)
 		if (task_spec_ssb_force_disable(task))
 			return -EPERM;
 		task_clear_spec_ssb_disable(task);
+<<<<<<< HEAD
+=======
+		task_clear_spec_ssb_noexec(task);
+>>>>>>> upstream/android-13
 		task_update_spec_tif(task);
 		break;
 	case PR_SPEC_DISABLE:
 		task_set_spec_ssb_disable(task);
+<<<<<<< HEAD
+=======
+		task_clear_spec_ssb_noexec(task);
+>>>>>>> upstream/android-13
 		task_update_spec_tif(task);
 		break;
 	case PR_SPEC_FORCE_DISABLE:
 		task_set_spec_ssb_disable(task);
 		task_set_spec_ssb_force_disable(task);
+<<<<<<< HEAD
+=======
+		task_clear_spec_ssb_noexec(task);
+		task_update_spec_tif(task);
+		break;
+	case PR_SPEC_DISABLE_NOEXEC:
+		if (task_spec_ssb_force_disable(task))
+			return -EPERM;
+		task_set_spec_ssb_disable(task);
+		task_set_spec_ssb_noexec(task);
+>>>>>>> upstream/android-13
 		task_update_spec_tif(task);
 		break;
 	default:
@@ -1310,6 +1620,11 @@ int arch_prctl_spec_ctrl_set(struct task_struct *task, unsigned long which,
 		return ssb_prctl_set(task, ctrl);
 	case PR_SPEC_INDIRECT_BRANCH:
 		return ib_prctl_set(task, ctrl);
+<<<<<<< HEAD
+=======
+	case PR_SPEC_L1D_FLUSH:
+		return l1d_flush_prctl_set(task, ctrl);
+>>>>>>> upstream/android-13
 	default:
 		return -ENODEV;
 	}
@@ -1326,6 +1641,20 @@ void arch_seccomp_spec_mitigate(struct task_struct *task)
 }
 #endif
 
+<<<<<<< HEAD
+=======
+static int l1d_flush_prctl_get(struct task_struct *task)
+{
+	if (!static_branch_unlikely(&switch_mm_cond_l1d_flush))
+		return PR_SPEC_FORCE_DISABLE;
+
+	if (test_ti_thread_flag(&task->thread_info, TIF_SPEC_L1D_FLUSH))
+		return PR_SPEC_PRCTL | PR_SPEC_ENABLE;
+	else
+		return PR_SPEC_PRCTL | PR_SPEC_DISABLE;
+}
+
+>>>>>>> upstream/android-13
 static int ssb_prctl_get(struct task_struct *task)
 {
 	switch (ssb_mode) {
@@ -1335,6 +1664,11 @@ static int ssb_prctl_get(struct task_struct *task)
 	case SPEC_STORE_BYPASS_PRCTL:
 		if (task_spec_ssb_force_disable(task))
 			return PR_SPEC_PRCTL | PR_SPEC_FORCE_DISABLE;
+<<<<<<< HEAD
+=======
+		if (task_spec_ssb_noexec(task))
+			return PR_SPEC_PRCTL | PR_SPEC_DISABLE_NOEXEC;
+>>>>>>> upstream/android-13
 		if (task_spec_ssb_disable(task))
 			return PR_SPEC_PRCTL | PR_SPEC_DISABLE;
 		return PR_SPEC_PRCTL | PR_SPEC_ENABLE;
@@ -1374,6 +1708,11 @@ int arch_prctl_spec_ctrl_get(struct task_struct *task, unsigned long which)
 		return ssb_prctl_get(task);
 	case PR_SPEC_INDIRECT_BRANCH:
 		return ib_prctl_get(task);
+<<<<<<< HEAD
+=======
+	case PR_SPEC_L1D_FLUSH:
+		return l1d_flush_prctl_get(task);
+>>>>>>> upstream/android-13
 	default:
 		return -ENODEV;
 	}
@@ -1426,6 +1765,7 @@ static void override_cache_bits(struct cpuinfo_x86 *c)
 	case INTEL_FAM6_WESTMERE:
 	case INTEL_FAM6_SANDYBRIDGE:
 	case INTEL_FAM6_IVYBRIDGE:
+<<<<<<< HEAD
 	case INTEL_FAM6_HASWELL_CORE:
 	case INTEL_FAM6_HASWELL_ULT:
 	case INTEL_FAM6_HASWELL_GT3E:
@@ -1435,6 +1775,17 @@ static void override_cache_bits(struct cpuinfo_x86 *c)
 	case INTEL_FAM6_SKYLAKE_DESKTOP:
 	case INTEL_FAM6_KABYLAKE_MOBILE:
 	case INTEL_FAM6_KABYLAKE_DESKTOP:
+=======
+	case INTEL_FAM6_HASWELL:
+	case INTEL_FAM6_HASWELL_L:
+	case INTEL_FAM6_HASWELL_G:
+	case INTEL_FAM6_BROADWELL:
+	case INTEL_FAM6_BROADWELL_G:
+	case INTEL_FAM6_SKYLAKE_L:
+	case INTEL_FAM6_SKYLAKE:
+	case INTEL_FAM6_KABYLAKE_L:
+	case INTEL_FAM6_KABYLAKE:
+>>>>>>> upstream/android-13
 		if (c->x86_cache_bits < 44)
 			c->x86_cache_bits = 44;
 		break;
@@ -1549,7 +1900,16 @@ static ssize_t l1tf_show_state(char *buf)
 
 static ssize_t itlb_multihit_show_state(char *buf)
 {
+<<<<<<< HEAD
 	if (itlb_multihit_kvm_mitigation)
+=======
+	if (!boot_cpu_has(X86_FEATURE_MSR_IA32_FEAT_CTL) ||
+	    !boot_cpu_has(X86_FEATURE_VMX))
+		return sprintf(buf, "KVM: Mitigation: VMX unsupported\n");
+	else if (!(cr4_read_shadow() & X86_CR4_VMXE))
+		return sprintf(buf, "KVM: Mitigation: VMX disabled\n");
+	else if (itlb_multihit_kvm_mitigation)
+>>>>>>> upstream/android-13
 		return sprintf(buf, "KVM: Mitigation: Split huge pages\n");
 	else
 		return sprintf(buf, "KVM: Vulnerable\n");
@@ -1600,7 +1960,11 @@ static ssize_t tsx_async_abort_show_state(char *buf)
 
 static char *stibp_state(void)
 {
+<<<<<<< HEAD
 	if (spectre_v2_enabled == SPECTRE_V2_IBRS_ENHANCED)
+=======
+	if (spectre_v2_in_eibrs_mode(spectre_v2_enabled))
+>>>>>>> upstream/android-13
 		return "";
 
 	switch (spectre_v2_user_stibp) {
@@ -1630,6 +1994,30 @@ static char *ibpb_state(void)
 	return "";
 }
 
+<<<<<<< HEAD
+=======
+static ssize_t spectre_v2_show_state(char *buf)
+{
+	if (spectre_v2_enabled == SPECTRE_V2_LFENCE)
+		return sprintf(buf, "Vulnerable: LFENCE\n");
+
+	if (spectre_v2_enabled == SPECTRE_V2_EIBRS && unprivileged_ebpf_enabled())
+		return sprintf(buf, "Vulnerable: eIBRS with unprivileged eBPF\n");
+
+	if (sched_smt_active() && unprivileged_ebpf_enabled() &&
+	    spectre_v2_enabled == SPECTRE_V2_EIBRS_LFENCE)
+		return sprintf(buf, "Vulnerable: eIBRS+LFENCE with unprivileged eBPF and SMT\n");
+
+	return sprintf(buf, "%s%s%s%s%s%s\n",
+		       spectre_v2_strings[spectre_v2_enabled],
+		       ibpb_state(),
+		       boot_cpu_has(X86_FEATURE_USE_IBRS_FW) ? ", IBRS_FW" : "",
+		       stibp_state(),
+		       boot_cpu_has(X86_FEATURE_RSB_CTXSW) ? ", RSB filling" : "",
+		       spectre_v2_module_string());
+}
+
+>>>>>>> upstream/android-13
 static ssize_t srbds_show_state(char *buf)
 {
 	return sprintf(buf, "%s\n", srbds_strings[srbds_mitigation]);
@@ -1655,12 +2043,16 @@ static ssize_t cpu_show_common(struct device *dev, struct device_attribute *attr
 		return sprintf(buf, "%s\n", spectre_v1_strings[spectre_v1_mitigation]);
 
 	case X86_BUG_SPECTRE_V2:
+<<<<<<< HEAD
 		return sprintf(buf, "%s%s%s%s%s%s\n", spectre_v2_strings[spectre_v2_enabled],
 			       ibpb_state(),
 			       boot_cpu_has(X86_FEATURE_USE_IBRS_FW) ? ", IBRS_FW" : "",
 			       stibp_state(),
 			       boot_cpu_has(X86_FEATURE_RSB_CTXSW) ? ", RSB filling" : "",
 			       spectre_v2_module_string());
+=======
+		return spectre_v2_show_state(buf);
+>>>>>>> upstream/android-13
 
 	case X86_BUG_SPEC_STORE_BYPASS:
 		return sprintf(buf, "%s\n", ssb_strings[ssb_mode]);

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016 Mellanox Technologies Ltd. All rights reserved.
  * Copyright (c) 2015 System Fabric Works, Inc. All rights reserved.
@@ -29,6 +30,12 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+// SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB
+/*
+ * Copyright (c) 2016 Mellanox Technologies Ltd. All rights reserved.
+ * Copyright (c) 2015 System Fabric Works, Inc. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <rdma/ib_pack.h>
@@ -114,13 +121,28 @@ struct rxe_wr_opcode_info rxe_wr_opcode_info[] = {
 	[IB_WR_LOCAL_INV]				= {
 		.name	= "IB_WR_LOCAL_INV",
 		.mask	= {
+<<<<<<< HEAD
 			[IB_QPT_RC]	= WR_REG_MASK,
+=======
+			[IB_QPT_RC]	= WR_LOCAL_OP_MASK,
+>>>>>>> upstream/android-13
 		},
 	},
 	[IB_WR_REG_MR]					= {
 		.name	= "IB_WR_REG_MR",
 		.mask	= {
+<<<<<<< HEAD
 			[IB_QPT_RC]	= WR_REG_MASK,
+=======
+			[IB_QPT_RC]	= WR_LOCAL_OP_MASK,
+		},
+	},
+	[IB_WR_BIND_MW]					= {
+		.name	= "IB_WR_BIND_MW",
+		.mask	= {
+			[IB_QPT_RC]	= WR_LOCAL_OP_MASK,
+			[IB_QPT_UC]	= WR_LOCAL_OP_MASK,
+>>>>>>> upstream/android-13
 		},
 	},
 };
@@ -137,7 +159,11 @@ struct rxe_opcode_info rxe_opcode[RXE_NUM_OPCODE] = {
 		}
 	},
 	[IB_OPCODE_RC_SEND_MIDDLE]		= {
+<<<<<<< HEAD
 		.name	= "IB_OPCODE_RC_SEND_MIDDLE]",
+=======
+		.name	= "IB_OPCODE_RC_SEND_MIDDLE",
+>>>>>>> upstream/android-13
 		.mask	= RXE_PAYLOAD_MASK | RXE_REQ_MASK | RXE_SEND_MASK
 				| RXE_MIDDLE_MASK,
 		.length = RXE_BTH_BYTES,

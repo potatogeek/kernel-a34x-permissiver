@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016 Felix Fietkau <nbd@nbd.name>
  *
@@ -12,6 +13,11 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (C) 2016 Felix Fietkau <nbd@nbd.name>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -20,4 +26,10 @@
 #define CREATE_TRACE_POINTS
 #include "trace.h"
 
+<<<<<<< HEAD
+=======
+EXPORT_TRACEPOINT_SYMBOL_GPL(mac_txdone);
+EXPORT_TRACEPOINT_SYMBOL_GPL(dev_irq);
+
+>>>>>>> upstream/android-13
 #endif

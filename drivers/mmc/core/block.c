@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Block driver for media (i.e., flash cards)
  *
@@ -27,6 +31,10 @@
 #include <linux/errno.h>
 #include <linux/hdreg.h>
 #include <linux/kdev_t.h>
+<<<<<<< HEAD
+=======
+#include <linux/kref.h>
+>>>>>>> upstream/android-13
 #include <linux/blkdev.h>
 #include <linux/cdev.h>
 #include <linux/mutex.h>
@@ -38,7 +46,10 @@
 #include <linux/pm_runtime.h>
 #include <linux/idr.h>
 #include <linux/debugfs.h>
+<<<<<<< HEAD
 #include <linux/elevator.h>
+=======
+>>>>>>> upstream/android-13
 
 #include <linux/mmc/ioctl.h>
 #include <linux/mmc/card.h>
@@ -47,6 +58,7 @@
 #include <linux/mmc/sd.h>
 
 #include <linux/uaccess.h>
+<<<<<<< HEAD
 #include <uapi/linux/sched/types.h>
 
 #if IS_ENABLED(CONFIG_SEC_ABC)
@@ -54,6 +66,11 @@
 #endif
 
 #include "mtk_mmc_block.h"
+=======
+
+#include <trace/hooks/mmc.h>
+
+>>>>>>> upstream/android-13
 #include "queue.h"
 #include "block.h"
 #include "core.h"
@@ -64,7 +81,10 @@
 #include "mmc_ops.h"
 #include "quirks.h"
 #include "sd_ops.h"
+<<<<<<< HEAD
 #include "mmc_crypto.h"
+=======
+>>>>>>> upstream/android-13
 
 MODULE_ALIAS("mmc:block");
 #ifdef MODULE_PARAM_PREFIX
@@ -79,7 +99,10 @@ MODULE_ALIAS("mmc:block");
  * ample.
  */
 #define MMC_BLK_TIMEOUT_MS  (10 * 1000)
+<<<<<<< HEAD
 #define MMC_SANITIZE_REQ_TIMEOUT 240000
+=======
+>>>>>>> upstream/android-13
 #define MMC_EXTRACT_INDEX_FROM_ARG(x) ((x & 0x00FF0000) >> 16)
 #define MMC_EXTRACT_VALUE_FROM_ARG(x) ((x & 0x0000FF00) >> 8)
 
@@ -87,10 +110,13 @@ MODULE_ALIAS("mmc:block");
 				  (rq_data_dir(req) == WRITE))
 static DEFINE_MUTEX(block_mutex);
 
+<<<<<<< HEAD
 #ifdef CONFIG_MACH_MT6739
 #define CONFIG_MMC_SD_IOSCHED "kyber"
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /*
  * The defaults come from config options but can be overriden by module
  * or bootarg options.
@@ -109,6 +135,51 @@ static int max_devices;
 static DEFINE_IDA(mmc_blk_ida);
 static DEFINE_IDA(mmc_rpmb_ida);
 
+<<<<<<< HEAD
+=======
+struct mmc_blk_busy_data {
+	struct mmc_card *card;
+	u32 status;
+};
+
+/*
+ * There is one mmc_blk_data per slot.
+ */
+struct mmc_blk_data {
+	struct device	*parent;
+	struct gendisk	*disk;
+	struct mmc_queue queue;
+	struct list_head part;
+	struct list_head rpmbs;
+
+	unsigned int	flags;
+#define MMC_BLK_CMD23	(1 << 0)	/* Can do SET_BLOCK_COUNT for multiblock */
+#define MMC_BLK_REL_WR	(1 << 1)	/* MMC Reliable write support */
+
+	struct kref	kref;
+	unsigned int	read_only;
+	unsigned int	part_type;
+	unsigned int	reset_done;
+#define MMC_BLK_READ		BIT(0)
+#define MMC_BLK_WRITE		BIT(1)
+#define MMC_BLK_DISCARD		BIT(2)
+#define MMC_BLK_SECDISCARD	BIT(3)
+#define MMC_BLK_CQE_RECOVERY	BIT(4)
+
+	/*
+	 * Only set in main mmc_blk_data associated
+	 * with mmc_card with dev_set_drvdata, and keeps
+	 * track of the current selected device partition.
+	 */
+	unsigned int	part_curr;
+	int	area_type;
+
+	/* debugfs files (only in main mmc_blk_data) */
+	struct dentry *status_dentry;
+	struct dentry *ext_csd_dentry;
+};
+
+>>>>>>> upstream/android-13
 /* Device type for RPMB character devices */
 static dev_t mmc_rpmb_devt;
 
@@ -142,6 +213,14 @@ MODULE_PARM_DESC(perdev_minors, "Minors numbers to allocate per device");
 
 static inline int mmc_blk_part_switch(struct mmc_card *card,
 				      unsigned int part_type);
+<<<<<<< HEAD
+=======
+static void mmc_blk_rw_rq_prep(struct mmc_queue_req *mqrq,
+			       struct mmc_card *card,
+			       int disable_multi,
+			       struct mmc_queue *mq);
+static void mmc_blk_hsq_req_done(struct mmc_request *mrq);
+>>>>>>> upstream/android-13
 
 static struct mmc_blk_data *mmc_blk_get(struct gendisk *disk)
 {
@@ -149,10 +228,15 @@ static struct mmc_blk_data *mmc_blk_get(struct gendisk *disk)
 
 	mutex_lock(&open_lock);
 	md = disk->private_data;
+<<<<<<< HEAD
 	if (md && md->usage == 0)
 		md = NULL;
 	if (md)
 		md->usage++;
+=======
+	if (md && !kref_get_unless_zero(&md->kref))
+		md = NULL;
+>>>>>>> upstream/android-13
 	mutex_unlock(&open_lock);
 
 	return md;
@@ -164,6 +248,7 @@ static inline int mmc_get_devidx(struct gendisk *disk)
 	return devidx;
 }
 
+<<<<<<< HEAD
 static void mmc_blk_put(struct mmc_blk_data *md)
 {
 	mutex_lock(&open_lock);
@@ -176,6 +261,27 @@ static void mmc_blk_put(struct mmc_blk_data *md)
 		kfree(md);
 	}
 	mutex_unlock(&open_lock);
+=======
+static void mmc_blk_kref_release(struct kref *ref)
+{
+	struct mmc_blk_data *md = container_of(ref, struct mmc_blk_data, kref);
+	int devidx;
+
+	devidx = mmc_get_devidx(md->disk);
+	ida_simple_remove(&mmc_blk_ida, devidx);
+
+	mutex_lock(&open_lock);
+	md->disk->private_data = NULL;
+	mutex_unlock(&open_lock);
+
+	put_disk(md->disk);
+	kfree(md);
+}
+
+static void mmc_blk_put(struct mmc_blk_data *md)
+{
+	kref_put(&md->kref, mmc_blk_kref_release);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t power_ro_lock_show(struct device *dev,
@@ -223,7 +329,11 @@ static ssize_t power_ro_lock_store(struct device *dev,
 		goto out_put;
 	}
 	req_to_mmc_queue_req(req)->drv_op = MMC_DRV_OP_BOOT_WP;
+<<<<<<< HEAD
 	blk_execute_rq(mq->queue, NULL, req, 0);
+=======
+	blk_execute_rq(NULL, req, 0);
+>>>>>>> upstream/android-13
 	ret = req_to_mmc_queue_req(req)->drv_op_result;
 	blk_put_request(req);
 
@@ -243,6 +353,12 @@ out_put:
 	return count;
 }
 
+<<<<<<< HEAD
+=======
+static DEVICE_ATTR(ro_lock_until_next_power_on, 0,
+		power_ro_lock_show, power_ro_lock_store);
+
+>>>>>>> upstream/android-13
 static ssize_t force_ro_show(struct device *dev, struct device_attribute *attr,
 			     char *buf)
 {
@@ -275,6 +391,47 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static DEVICE_ATTR(force_ro, 0644, force_ro_show, force_ro_store);
+
+static struct attribute *mmc_disk_attrs[] = {
+	&dev_attr_force_ro.attr,
+	&dev_attr_ro_lock_until_next_power_on.attr,
+	NULL,
+};
+
+static umode_t mmc_disk_attrs_is_visible(struct kobject *kobj,
+		struct attribute *a, int n)
+{
+	struct device *dev = container_of(kobj, struct device, kobj);
+	struct mmc_blk_data *md = mmc_blk_get(dev_to_disk(dev));
+	umode_t mode = a->mode;
+
+	if (a == &dev_attr_ro_lock_until_next_power_on.attr &&
+	    (md->area_type & MMC_BLK_DATA_AREA_BOOT) &&
+	    md->queue.card->ext_csd.boot_ro_lockable) {
+		mode = S_IRUGO;
+		if (!(md->queue.card->ext_csd.boot_ro_lock &
+				EXT_CSD_BOOT_WP_B_PWR_WP_DIS))
+			mode |= S_IWUSR;
+	}
+
+	mmc_blk_put(md);
+	return mode;
+}
+
+static const struct attribute_group mmc_disk_attr_group = {
+	.is_visible	= mmc_disk_attrs_is_visible,
+	.attrs		= mmc_disk_attrs,
+};
+
+static const struct attribute_group *mmc_disk_attr_groups[] = {
+	&mmc_disk_attr_group,
+	NULL,
+};
+
+>>>>>>> upstream/android-13
 static int mmc_blk_open(struct block_device *bdev, fmode_t mode)
 {
 	struct mmc_blk_data *md = mmc_blk_get(bdev->bd_disk);
@@ -282,10 +439,14 @@ static int mmc_blk_open(struct block_device *bdev, fmode_t mode)
 
 	mutex_lock(&block_mutex);
 	if (md) {
+<<<<<<< HEAD
 		if (md->usage == 2)
 			check_disk_change(bdev);
 		ret = 0;
 
+=======
+		ret = 0;
+>>>>>>> upstream/android-13
 		if ((mode & FMODE_WRITE) && md->read_only) {
 			mmc_blk_put(md);
 			ret = -EROFS;
@@ -382,6 +543,7 @@ static int mmc_blk_ioctl_copy_to_user(struct mmc_ioc_cmd __user *ic_ptr,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int ioctl_do_sanitize(struct mmc_card *card)
 {
 	int err;
@@ -550,6 +712,8 @@ static int card_busy_detect(struct mmc_card *card, unsigned int timeout_ms,
 	return err;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int __mmc_blk_ioctl_cmd(struct mmc_card *card, struct mmc_blk_data *md,
 			       struct mmc_blk_ioc_data *idata)
 {
@@ -642,6 +806,7 @@ static int __mmc_blk_ioctl_cmd(struct mmc_card *card, struct mmc_blk_data *md,
 	}
 
 	if ((MMC_EXTRACT_INDEX_FROM_ARG(cmd.arg) == EXT_CSD_SANITIZE_START) &&
+<<<<<<< HEAD
 	    (cmd.opcode == MMC_SWITCH)) {
 		err = ioctl_do_sanitize(card);
 
@@ -653,6 +818,13 @@ static int __mmc_blk_ioctl_cmd(struct mmc_card *card, struct mmc_blk_data *md,
 	}
 
 	mmc_wait_for_req(card->host, &mrq);
+=======
+	    (cmd.opcode == MMC_SWITCH))
+		return mmc_sanitize(card, idata->ic.cmd_timeout_ms);
+
+	mmc_wait_for_req(card->host, &mrq);
+	memcpy(&idata->ic.response, cmd.resp, sizeof(cmd.resp));
+>>>>>>> upstream/android-13
 
 	if (cmd.error) {
 		dev_err(mmc_dev(card->host), "%s: cmd error %d\n",
@@ -702,14 +874,22 @@ static int __mmc_blk_ioctl_cmd(struct mmc_card *card, struct mmc_blk_data *md,
 	if (idata->ic.postsleep_min_us)
 		usleep_range(idata->ic.postsleep_min_us, idata->ic.postsleep_max_us);
 
+<<<<<<< HEAD
 	memcpy(&(idata->ic.response), cmd.resp, sizeof(cmd.resp));
 
+=======
+>>>>>>> upstream/android-13
 	if (idata->rpmb || (cmd.flags & MMC_RSP_R1B) == MMC_RSP_R1B) {
 		/*
 		 * Ensure RPMB/R1B command has completed by polling CMD13
 		 * "Send Status".
 		 */
+<<<<<<< HEAD
 		err = card_busy_detect(card, MMC_BLK_TIMEOUT_MS, NULL, NULL);
+=======
+		err = mmc_poll_for_busy(card, MMC_BLK_TIMEOUT_MS, false,
+					MMC_BUSY_IO);
+>>>>>>> upstream/android-13
 	}
 
 	return err;
@@ -753,7 +933,11 @@ static int mmc_blk_ioctl_cmd(struct mmc_blk_data *md,
 		rpmb ? MMC_DRV_OP_IOCTL_RPMB : MMC_DRV_OP_IOCTL;
 	req_to_mmc_queue_req(req)->drv_op_data = idatas;
 	req_to_mmc_queue_req(req)->ioc_count = 1;
+<<<<<<< HEAD
 	blk_execute_rq(mq->queue, NULL, req, 0);
+=======
+	blk_execute_rq(NULL, req, 0);
+>>>>>>> upstream/android-13
 	ioc_err = req_to_mmc_queue_req(req)->drv_op_result;
 	err = mmc_blk_ioctl_copy_to_user(ic_ptr, idata);
 	blk_put_request(req);
@@ -822,7 +1006,11 @@ static int mmc_blk_ioctl_multi_cmd(struct mmc_blk_data *md,
 		rpmb ? MMC_DRV_OP_IOCTL_RPMB : MMC_DRV_OP_IOCTL;
 	req_to_mmc_queue_req(req)->drv_op_data = idata;
 	req_to_mmc_queue_req(req)->ioc_count = num_of_cmds;
+<<<<<<< HEAD
 	blk_execute_rq(mq->queue, NULL, req, 0);
+=======
+	blk_execute_rq(NULL, req, 0);
+>>>>>>> upstream/android-13
 	ioc_err = req_to_mmc_queue_req(req)->drv_op_result;
 
 	/* copy to user if data and response */
@@ -840,6 +1028,7 @@ cmd_err:
 	return ioc_err ? ioc_err : err;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_MTK_EMMC_SUPPORT_OTP
 #define MMC_SEND_WRITE_PROT_TYPE        31
 #define EXT_CSD_USR_WP                  171     /* R/W */
@@ -893,6 +1082,8 @@ static int mmc_otp_ops_check(struct block_device *bdev,
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static int mmc_blk_check_blkdev(struct block_device *bdev)
 {
 	/*
@@ -900,11 +1091,15 @@ static int mmc_blk_check_blkdev(struct block_device *bdev)
 	 * whole block device, not on a partition.  This prevents overspray
 	 * between sibling partitions.
 	 */
+<<<<<<< HEAD
 #ifdef CONFIG_MTK_EMMC_SUPPORT_OTP
 	if (is_otp_dev(bdev))
 		return 0;
 #endif
 	if ((!capable(CAP_SYS_RAWIO)) || (bdev != bdev->bd_contains))
+=======
+	if (!capable(CAP_SYS_RAWIO) || bdev_is_partition(bdev))
+>>>>>>> upstream/android-13
 		return -EPERM;
 	return 0;
 }
@@ -920,12 +1115,15 @@ static int mmc_blk_ioctl(struct block_device *bdev, fmode_t mode,
 		ret = mmc_blk_check_blkdev(bdev);
 		if (ret)
 			return ret;
+<<<<<<< HEAD
 #ifdef CONFIG_MTK_EMMC_SUPPORT_OTP
 		ret = mmc_otp_ops_check(bdev,
 				(struct mmc_ioc_cmd __user *)arg);
 		if (ret)
 			return ret;
 #endif
+=======
+>>>>>>> upstream/android-13
 		md = mmc_blk_get(bdev->bd_disk);
 		if (!md)
 			return -EINVAL;
@@ -959,6 +1157,29 @@ static int mmc_blk_compat_ioctl(struct block_device *bdev, fmode_t mode,
 }
 #endif
 
+<<<<<<< HEAD
+=======
+static int mmc_blk_alternative_gpt_sector(struct gendisk *disk,
+					  sector_t *sector)
+{
+	struct mmc_blk_data *md;
+	int ret;
+
+	md = mmc_blk_get(disk);
+	if (!md)
+		return -EINVAL;
+
+	if (md->queue.card)
+		ret = mmc_card_alternative_gpt_sector(md->queue.card, sector);
+	else
+		ret = -ENODEV;
+
+	mmc_blk_put(md);
+
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 static const struct block_device_operations mmc_bdops = {
 	.open			= mmc_blk_open,
 	.release		= mmc_blk_release,
@@ -968,6 +1189,10 @@ static const struct block_device_operations mmc_bdops = {
 #ifdef CONFIG_COMPAT
 	.compat_ioctl		= mmc_blk_compat_ioctl,
 #endif
+<<<<<<< HEAD
+=======
+	.alternative_gpt_sector	= mmc_blk_alternative_gpt_sector,
+>>>>>>> upstream/android-13
 };
 
 static int mmc_blk_part_switch_pre(struct mmc_card *card,
@@ -1014,11 +1239,16 @@ static inline int mmc_blk_part_switch(struct mmc_card *card,
 		u8 part_config = card->ext_csd.part_config;
 
 		ret = mmc_blk_part_switch_pre(card, part_type);
+<<<<<<< HEAD
 		if (ret) {
 			if (part_type == EXT_CSD_PART_CONFIG_ACC_RPMB)
 				mmc_card_error_logging(card, NULL, RPMB_SWITCH_ERR);
 			return ret;
 		}
+=======
+		if (ret)
+			return ret;
+>>>>>>> upstream/android-13
 
 		part_config &= ~EXT_CSD_PART_CONFIG_ACC_MASK;
 		part_config |= part_type;
@@ -1028,8 +1258,11 @@ static inline int mmc_blk_part_switch(struct mmc_card *card,
 				 card->ext_csd.part_time);
 		if (ret) {
 			mmc_blk_part_switch_post(card, part_type);
+<<<<<<< HEAD
 			if (part_type == EXT_CSD_PART_CONFIG_ACC_RPMB)
 				mmc_card_error_logging(card, NULL, RPMB_SWITCH_ERR);
+=======
+>>>>>>> upstream/android-13
 			return ret;
 		}
 
@@ -1127,6 +1360,7 @@ static unsigned int mmc_blk_data_timeout_ms(struct mmc_host *host,
 	return ms;
 }
 
+<<<<<<< HEAD
 void mmc_error_count_log(struct mmc_card *card, int index, int error, u32 status)
 {
 	struct mmc_card_error_log *err_log;
@@ -1263,6 +1497,8 @@ void mmc_card_error_logging(struct mmc_card *card,
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 static int mmc_blk_reset(struct mmc_blk_data *md, struct mmc_host *host,
 			 int type)
 {
@@ -1274,7 +1510,11 @@ static int mmc_blk_reset(struct mmc_blk_data *md, struct mmc_host *host,
 	md->reset_done |= type;
 	err = mmc_hw_reset(host);
 	/* Ensure we switch back to the correct partition */
+<<<<<<< HEAD
 	if (err != -EOPNOTSUPP) {
+=======
+	if (err) {
+>>>>>>> upstream/android-13
 		struct mmc_blk_data *main_md =
 			dev_get_drvdata(&host->card->dev);
 		int part_err;
@@ -1288,6 +1528,11 @@ static int mmc_blk_reset(struct mmc_blk_data *md, struct mmc_host *host,
 			 */
 			return -ENODEV;
 		}
+<<<<<<< HEAD
+=======
+
+		trace_android_vh_mmc_blk_reset(host, err);
+>>>>>>> upstream/android-13
 	}
 	return err;
 }
@@ -1319,6 +1564,15 @@ static void mmc_blk_issue_drv_op(struct mmc_queue *mq, struct request *req)
 
 	switch (mq_rq->drv_op) {
 	case MMC_DRV_OP_IOCTL:
+<<<<<<< HEAD
+=======
+		if (card->ext_csd.cmdq_en) {
+			ret = mmc_cmdq_disable(card);
+			if (ret)
+				break;
+		}
+		fallthrough;
+>>>>>>> upstream/android-13
 	case MMC_DRV_OP_IOCTL_RPMB:
 		idata = mq_rq->drv_op_data;
 		for (i = 0, ret = 0; i < mq_rq->ioc_count; i++) {
@@ -1329,6 +1583,11 @@ static void mmc_blk_issue_drv_op(struct mmc_queue *mq, struct request *req)
 		/* Always switch back to main area after RPMB access */
 		if (rpmb_ioctl)
 			mmc_blk_part_switch(card, 0);
+<<<<<<< HEAD
+=======
+		else if (card->reenable_cmdq && !card->ext_csd.cmdq_en)
+			mmc_cmdq_enable(card);
+>>>>>>> upstream/android-13
 		break;
 	case MMC_DRV_OP_BOOT_WP:
 		ret = mmc_switch(card, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_BOOT_WP,
@@ -1365,7 +1624,11 @@ static void mmc_blk_issue_discard_rq(struct mmc_queue *mq, struct request *req)
 {
 	struct mmc_blk_data *md = mq->blkdata;
 	struct mmc_card *card = md->queue.card;
+<<<<<<< HEAD
 	unsigned int from, nr, arg;
+=======
+	unsigned int from, nr;
+>>>>>>> upstream/android-13
 	int err = 0, type = MMC_BLK_DISCARD;
 	blk_status_t status = BLK_STS_OK;
 
@@ -1377,17 +1640,21 @@ static void mmc_blk_issue_discard_rq(struct mmc_queue *mq, struct request *req)
 	from = blk_rq_pos(req);
 	nr = blk_rq_sectors(req);
 
+<<<<<<< HEAD
 	if (mmc_can_discard(card))
 		arg = MMC_DISCARD_ARG;
 	else if (mmc_can_trim(card))
 		arg = MMC_TRIM_ARG;
 	else
 		arg = MMC_ERASE_ARG;
+=======
+>>>>>>> upstream/android-13
 	do {
 		err = 0;
 		if (card->quirks & MMC_QUIRK_INAND_CMD38) {
 			err = mmc_switch(card, EXT_CSD_CMD_SET_NORMAL,
 					 INAND_CMD38_ARG_EXT_CSD,
+<<<<<<< HEAD
 					 arg == MMC_TRIM_ARG ?
 					 INAND_CMD38_ARG_TRIM :
 					 INAND_CMD38_ARG_ERASE,
@@ -1395,6 +1662,15 @@ static void mmc_blk_issue_discard_rq(struct mmc_queue *mq, struct request *req)
 		}
 		if (!err)
 			err = mmc_erase(card, from, nr, arg);
+=======
+					 card->erase_arg == MMC_TRIM_ARG ?
+					 INAND_CMD38_ARG_TRIM :
+					 INAND_CMD38_ARG_ERASE,
+					 card->ext_csd.generic_cmd6_time);
+		}
+		if (!err)
+			err = mmc_erase(card, from, nr, card->erase_arg);
+>>>>>>> upstream/android-13
 	} while (err == -EIO && !mmc_blk_reset(md, card->host, type));
 	if (err)
 		status = BLK_STS_IOERR;
@@ -1433,7 +1709,11 @@ retry:
 				 arg == MMC_SECURE_TRIM1_ARG ?
 				 INAND_CMD38_ARG_SECTRIM1 :
 				 INAND_CMD38_ARG_SECERASE,
+<<<<<<< HEAD
 				 0);
+=======
+				 card->ext_csd.generic_cmd6_time);
+>>>>>>> upstream/android-13
 		if (err)
 			goto out_retry;
 	}
@@ -1451,7 +1731,11 @@ retry:
 			err = mmc_switch(card, EXT_CSD_CMD_SET_NORMAL,
 					 INAND_CMD38_ARG_EXT_CSD,
 					 INAND_CMD38_ARG_SECTRIM2,
+<<<<<<< HEAD
 					 0);
+=======
+					 card->ext_csd.generic_cmd6_time);
+>>>>>>> upstream/android-13
 			if (err)
 				goto out_retry;
 		}
@@ -1480,7 +1764,11 @@ static void mmc_blk_issue_flush(struct mmc_queue *mq, struct request *req)
 	struct mmc_card *card = md->queue.card;
 	int ret = 0;
 
+<<<<<<< HEAD
 	ret = mmc_flush_cache(card);
+=======
+	ret = mmc_flush_cache(card->host);
+>>>>>>> upstream/android-13
 	blk_mq_end_request(req, ret ? BLK_STS_IOERR : BLK_STS_OK);
 }
 
@@ -1507,6 +1795,21 @@ static inline void mmc_apply_rel_rw(struct mmc_blk_request *brq,
 	}
 }
 
+<<<<<<< HEAD
+=======
+#define CMD_ERRORS_EXCL_OOR						\
+	(R1_ADDRESS_ERROR |	/* Misaligned address */		\
+	 R1_BLOCK_LEN_ERROR |	/* Transferred block length incorrect */\
+	 R1_WP_VIOLATION |	/* Tried to write to protected block */	\
+	 R1_CARD_ECC_FAILED |	/* Card ECC failed */			\
+	 R1_CC_ERROR |		/* Card controller error */		\
+	 R1_ERROR)		/* General/unknown error */
+
+#define CMD_ERRORS							\
+	(CMD_ERRORS_EXCL_OOR |						\
+	 R1_OUT_OF_RANGE)	/* Command argument out of range */	\
+
+>>>>>>> upstream/android-13
 static void mmc_blk_eval_resp_error(struct mmc_blk_request *brq)
 {
 	u32 val;
@@ -1558,7 +1861,10 @@ static void mmc_blk_data_prep(struct mmc_queue *mq, struct mmc_queue_req *mqrq,
 	struct mmc_blk_request *brq = &mqrq->brq;
 	struct request *req = mmc_queue_req_to_req(mqrq);
 	bool do_rel_wr, do_data_tag;
+<<<<<<< HEAD
 	bool read_dir = (rq_data_dir(req) == READ);
+=======
+>>>>>>> upstream/android-13
 
 	/*
 	 * Reliable writes are used to implement Forced Unit Access and
@@ -1569,6 +1875,7 @@ static void mmc_blk_data_prep(struct mmc_queue *mq, struct mmc_queue_req *mqrq,
 		    (md->flags & MMC_BLK_REL_WR);
 
 	memset(brq, 0, sizeof(struct mmc_blk_request));
+<<<<<<< HEAD
 	/*
 	 * Although keep it should work normally, but only
 	 * call it in CQHCI for safe, SWcmdq will do this in
@@ -1577,6 +1884,10 @@ static void mmc_blk_data_prep(struct mmc_queue *mq, struct mmc_queue_req *mqrq,
 #ifndef CONFIG_MTK_EMMC_CQ_SUPPORT
 	mmc_crypto_prepare_req(mqrq);
 #endif
+=======
+
+	mmc_crypto_prepare_req(mqrq);
+>>>>>>> upstream/android-13
 
 	brq->mrq.data = &brq->data;
 	brq->mrq.tag = req->tag;
@@ -1640,10 +1951,13 @@ static void mmc_blk_data_prep(struct mmc_queue *mq, struct mmc_queue_req *mqrq,
 						MMC_DATA_READ : MMC_DATA_WRITE,
 						brq->data.blocks);
 	}
+<<<<<<< HEAD
 	if (mq->use_cqe) {
 		if (read_dir || req->cmd_flags & REQ_SYNC)
 			brq->data.flags |= MMC_DATA_PRIO;
 	}
+=======
+>>>>>>> upstream/android-13
 
 	if (do_rel_wr) {
 		mmc_apply_rel_rw(brq, card, req);
@@ -1692,9 +2006,12 @@ static void mmc_blk_data_prep(struct mmc_queue *mq, struct mmc_queue_req *mqrq,
 
 	if (do_data_tag_p)
 		*do_data_tag_p = do_data_tag;
+<<<<<<< HEAD
 #ifdef	CONFIG_MTK_EMMC_CQ_SUPPORT
 	mqrq->areq.mrq = &brq->mrq;
 #endif
+=======
+>>>>>>> upstream/android-13
 }
 
 #define MMC_CQE_RETRIES 2
@@ -1727,15 +2044,24 @@ static void mmc_blk_cqe_complete_rq(struct mmc_queue *mq, struct request *req)
 	} else if (mrq->data) {
 		if (blk_update_request(req, BLK_STS_OK, mrq->data->bytes_xfered))
 			blk_mq_requeue_request(req, true);
+<<<<<<< HEAD
 		else {
 			mt_biolog_cqhci_complete(req->tag);
 			__blk_mq_end_request(req, BLK_STS_OK);
 		}
+=======
+		else
+			__blk_mq_end_request(req, BLK_STS_OK);
+>>>>>>> upstream/android-13
 	} else {
 		blk_mq_end_request(req, BLK_STS_OK);
 	}
 
+<<<<<<< HEAD
 	spin_lock_irqsave(q->queue_lock, flags);
+=======
+	spin_lock_irqsave(&mq->lock, flags);
+>>>>>>> upstream/android-13
 
 	mq->in_flight[issue_type] -= 1;
 
@@ -1743,7 +2069,11 @@ static void mmc_blk_cqe_complete_rq(struct mmc_queue *mq, struct request *req)
 
 	mmc_cqe_check_busy(mq);
 
+<<<<<<< HEAD
 	spin_unlock_irqrestore(q->queue_lock, flags);
+=======
+	spin_unlock_irqrestore(&mq->lock, flags);
+>>>>>>> upstream/android-13
 
 	if (!mq->cqe_busy)
 		blk_mq_run_hw_queues(q, true);
@@ -1761,10 +2091,16 @@ void mmc_blk_cqe_recovery(struct mmc_queue *mq)
 	pr_debug("%s: CQE recovery start\n", mmc_hostname(host));
 
 	err = mmc_cqe_recovery(host);
+<<<<<<< HEAD
 	if (err)
 		mmc_blk_reset(mq->blkdata, host, MMC_BLK_CQE_RECOVERY);
 	else
 		mmc_blk_reset_success(mq->blkdata, MMC_BLK_CQE_RECOVERY);
+=======
+	if (err || host->cqe_recovery_reset_always)
+		mmc_blk_reset(mq->blkdata, host, MMC_BLK_CQE_RECOVERY);
+	mmc_blk_reset_success(mq->blkdata, MMC_BLK_CQE_RECOVERY);
+>>>>>>> upstream/android-13
 
 	pr_debug("%s: CQE recovery done\n", mmc_hostname(host));
 }
@@ -1783,7 +2119,11 @@ static void mmc_blk_cqe_req_done(struct mmc_request *mrq)
 	 */
 	if (mq->in_recovery)
 		mmc_blk_cqe_complete_rq(mq, req);
+<<<<<<< HEAD
 	else
+=======
+	else if (likely(!blk_should_fake_timeout(req->q)))
+>>>>>>> upstream/android-13
 		blk_mq_complete_request(req);
 }
 
@@ -1823,6 +2163,7 @@ static int mmc_blk_cqe_issue_flush(struct mmc_queue *mq, struct request *req)
 	return mmc_blk_cqe_start_req(mq->card->host, mrq);
 }
 
+<<<<<<< HEAD
 static int mmc_blk_cqe_issue_rw_rq(struct mmc_queue *mq, struct request *req)
 {
 	struct mmc_queue_req *mqrq = req_to_mmc_queue_req(req);
@@ -1833,6 +2174,32 @@ static int mmc_blk_cqe_issue_rw_rq(struct mmc_queue *mq, struct request *req)
 		mt_biolog_cqhci_queue_task(mq->card->host, req->tag,
 			&(mqrq->brq.mrq));
 	}
+=======
+static int mmc_blk_hsq_issue_rw_rq(struct mmc_queue *mq, struct request *req)
+{
+	struct mmc_queue_req *mqrq = req_to_mmc_queue_req(req);
+	struct mmc_host *host = mq->card->host;
+	int err;
+
+	mmc_blk_rw_rq_prep(mqrq, mq->card, 0, mq);
+	mqrq->brq.mrq.done = mmc_blk_hsq_req_done;
+	mmc_pre_req(host, &mqrq->brq.mrq);
+
+	err = mmc_cqe_start_req(host, &mqrq->brq.mrq);
+	if (err)
+		mmc_post_req(host, &mqrq->brq.mrq, err);
+
+	return err;
+}
+
+static int mmc_blk_cqe_issue_rw_rq(struct mmc_queue *mq, struct request *req)
+{
+	struct mmc_queue_req *mqrq = req_to_mmc_queue_req(req);
+	struct mmc_host *host = mq->card->host;
+
+	if (host->hsq_enabled)
+		return mmc_blk_hsq_issue_rw_rq(mq, req);
+>>>>>>> upstream/android-13
 
 	mmc_blk_data_prep(mq, mqrq, 0, NULL, NULL);
 
@@ -1873,6 +2240,7 @@ static void mmc_blk_rw_rq_prep(struct mmc_queue_req *mqrq,
 		readcmd = MMC_READ_SINGLE_BLOCK;
 		writecmd = MMC_WRITE_BLOCK;
 	}
+<<<<<<< HEAD
 
 #ifdef CONFIG_MTK_EMMC_CQ_SUPPORT
 	if (mq->use_swcq) {
@@ -1881,6 +2249,8 @@ static void mmc_blk_rw_rq_prep(struct mmc_queue_req *mqrq,
 	}
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	brq->cmd.opcode = rq_data_dir(req) == READ ? readcmd : writecmd;
 
 	/*
@@ -1911,6 +2281,7 @@ static void mmc_blk_rw_rq_prep(struct mmc_queue_req *mqrq,
 		brq->sbc.flags = MMC_RSP_R1 | MMC_CMD_AC;
 		brq->mrq.sbc = &brq->sbc;
 	}
+<<<<<<< HEAD
 
 #ifdef CONFIG_MTK_EMMC_CQ_SUPPORT
 	if (mq->use_swcq) {
@@ -1951,16 +2322,23 @@ static void mmc_blk_rw_rq_prep(struct mmc_queue_req *mqrq,
 	brq->mrq.is_mmc_req = true;
 #endif
 
+=======
+>>>>>>> upstream/android-13
 }
 
 #define MMC_MAX_RETRIES		5
 #define MMC_DATA_RETRIES	2
 #define MMC_NO_RETRIES		(MMC_MAX_RETRIES + 1)
 
+<<<<<<< HEAD
 static int mmc_blk_send_stop(struct mmc_card *card,
 					struct mmc_blk_request *brq, unsigned int timeout)
 {
 	int ret = 0;
+=======
+static int mmc_blk_send_stop(struct mmc_card *card, unsigned int timeout)
+{
+>>>>>>> upstream/android-13
 	struct mmc_command cmd = {
 		.opcode = MMC_STOP_TRANSMISSION,
 		.flags = MMC_RSP_SPI_R1 | MMC_RSP_R1 | MMC_CMD_AC,
@@ -1968,11 +2346,15 @@ static int mmc_blk_send_stop(struct mmc_card *card,
 		.busy_timeout = timeout,
 	};
 
+<<<<<<< HEAD
 	ret = mmc_wait_for_cmd(card->host, &cmd, 5);
 
 	mmc_card_error_logging(card, brq, cmd.resp[0]);
 
 	return ret;
+=======
+	return mmc_wait_for_cmd(card->host, &cmd, 5);
+>>>>>>> upstream/android-13
 }
 
 static int mmc_blk_fix_state(struct mmc_card *card, struct request *req)
@@ -1984,9 +2366,15 @@ static int mmc_blk_fix_state(struct mmc_card *card, struct request *req)
 
 	mmc_retune_hold_now(card->host);
 
+<<<<<<< HEAD
 	mmc_blk_send_stop(card, brq, timeout);
 
 	err = card_busy_detect(card, timeout, req, NULL);
+=======
+	mmc_blk_send_stop(card, timeout);
+
+	err = mmc_poll_for_busy(card, timeout, false, MMC_BUSY_IO);
+>>>>>>> upstream/android-13
 
 	mmc_retune_release(card->host);
 
@@ -2013,12 +2401,20 @@ static void mmc_blk_read_single(struct mmc_queue *mq, struct request *req)
 			mmc_blk_rw_rq_prep(mqrq, card, 1, mq);
 
 			mmc_wait_for_req(host, mrq);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 			err = mmc_send_status(card, &status);
 			if (err)
 				goto error_exit;
 
 			if (!mmc_host_is_spi(host) &&
+<<<<<<< HEAD
 			    !mmc_blk_in_tran_state(status)) {
+=======
+			    !mmc_ready_for_data(status)) {
+>>>>>>> upstream/android-13
 				err = mmc_blk_fix_state(card, req);
 				if (err)
 					goto error_exit;
@@ -2077,7 +2473,11 @@ static bool mmc_blk_status_error(struct request *req, u32 status)
 	return brq->cmd.resp[0]  & CMD_ERRORS    ||
 	       brq->stop.resp[0] & stop_err_bits ||
 	       status            & stop_err_bits ||
+<<<<<<< HEAD
 	       (rq_data_dir(req) == WRITE && !mmc_blk_in_tran_state(status));
+=======
+	       (rq_data_dir(req) == WRITE && !mmc_ready_for_data(status));
+>>>>>>> upstream/android-13
 }
 
 static inline bool mmc_blk_cmd_started(struct mmc_blk_request *brq)
@@ -2118,11 +2518,16 @@ static void mmc_blk_mq_rw_recovery(struct mmc_queue *mq, struct request *req)
 	 * bytes transferred to zero in that case.
 	 */
 	err = __mmc_send_status(card, &status, 0);
+<<<<<<< HEAD
 	if (err || mmc_blk_status_error(req, status)) {
 		if (!err)
 			mmc_card_error_logging(card, brq, status);
 		brq->data.bytes_xfered = 0;
 	}
+=======
+	if (err || mmc_blk_status_error(req, status))
+		brq->data.bytes_xfered = 0;
+>>>>>>> upstream/android-13
 
 	mmc_retune_release(card->host);
 
@@ -2142,7 +2547,11 @@ static void mmc_blk_mq_rw_recovery(struct mmc_queue *mq, struct request *req)
 
 	/* Try to get back to "tran" state */
 	if (!mmc_host_is_spi(mq->card->host) &&
+<<<<<<< HEAD
 	    (err || !mmc_blk_in_tran_state(status)))
+=======
+	    (err || !mmc_ready_for_data(status)))
+>>>>>>> upstream/android-13
 		err = mmc_blk_fix_state(mq->card, req);
 
 	/*
@@ -2162,6 +2571,10 @@ static void mmc_blk_mq_rw_recovery(struct mmc_queue *mq, struct request *req)
 	    err && mmc_blk_reset(md, card->host, type)) {
 		pr_err("%s: recovery failed!\n", req->rq_disk->disk_name);
 		mqrq->retries = MMC_NO_RETRIES;
+<<<<<<< HEAD
+=======
+		trace_android_vh_mmc_blk_mq_rw_recovery(card);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -2203,6 +2616,7 @@ static inline bool mmc_blk_rq_error(struct mmc_blk_request *brq)
 	       brq->data.error || brq->cmd.resp[0] & CMD_ERRORS;
 }
 
+<<<<<<< HEAD
 static int mmc_blk_card_busy(struct mmc_card *card, struct request *req)
 {
 	struct mmc_queue_req *mqrq = req_to_mmc_queue_req(req);
@@ -2213,18 +2627,90 @@ static int mmc_blk_card_busy(struct mmc_card *card, struct request *req)
 		return 0;
 
 	err = card_busy_detect(card, MMC_BLK_TIMEOUT_MS, req, &status);
+=======
+static int mmc_spi_err_check(struct mmc_card *card)
+{
+	u32 status = 0;
+	int err;
+
+	/*
+	 * SPI does not have a TRAN state we have to wait on, instead the
+	 * card is ready again when it no longer holds the line LOW.
+	 * We still have to ensure two things here before we know the write
+	 * was successful:
+	 * 1. The card has not disconnected during busy and we actually read our
+	 * own pull-up, thinking it was still connected, so ensure it
+	 * still responds.
+	 * 2. Check for any error bits, in particular R1_SPI_IDLE to catch a
+	 * just reconnected card after being disconnected during busy.
+	 */
+	err = __mmc_send_status(card, &status, 0);
+	if (err)
+		return err;
+	/* All R1 and R2 bits of SPI are errors in our case */
+	if (status)
+		return -EIO;
+	return 0;
+}
+
+static int mmc_blk_busy_cb(void *cb_data, bool *busy)
+{
+	struct mmc_blk_busy_data *data = cb_data;
+	u32 status = 0;
+	int err;
+
+	err = mmc_send_status(data->card, &status);
+	if (err)
+		return err;
+
+	/* Accumulate response error bits. */
+	data->status |= status;
+
+	*busy = !mmc_ready_for_data(status);
+	return 0;
+}
+
+static int mmc_blk_card_busy(struct mmc_card *card, struct request *req)
+{
+	struct mmc_queue_req *mqrq = req_to_mmc_queue_req(req);
+	struct mmc_blk_busy_data cb_data;
+	int err;
+
+	if (rq_data_dir(req) == READ)
+		return 0;
+
+	if (mmc_host_is_spi(card->host)) {
+		err = mmc_spi_err_check(card);
+		if (err)
+			mqrq->brq.data.bytes_xfered = 0;
+		return err;
+	}
+
+	cb_data.card = card;
+	cb_data.status = 0;
+	err = __mmc_poll_for_busy(card, MMC_BLK_TIMEOUT_MS, &mmc_blk_busy_cb,
+				  &cb_data);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Do not assume data transferred correctly if there are any error bits
 	 * set.
 	 */
+<<<<<<< HEAD
 	if (status & mmc_blk_stop_err_bits(&mqrq->brq)) {
+=======
+	if (cb_data.status & mmc_blk_stop_err_bits(&mqrq->brq)) {
+>>>>>>> upstream/android-13
 		mqrq->brq.data.bytes_xfered = 0;
 		err = err ? err : -EIO;
 	}
 
 	/* Copy the exception bit so it will be seen later on */
+<<<<<<< HEAD
 	if (mmc_card_mmc(card) && status & R1_EXCEPTION_EVENT)
+=======
+	if (mmc_card_mmc(card) && cb_data.status & R1_EXCEPTION_EVENT)
+>>>>>>> upstream/android-13
 		mqrq->brq.cmd.resp[0] |= R1_EXCEPTION_EVENT;
 
 	return err;
@@ -2271,16 +2757,63 @@ static void mmc_blk_urgent_bkops(struct mmc_queue *mq,
 				 struct mmc_queue_req *mqrq)
 {
 	if (mmc_blk_urgent_bkops_needed(mq, mqrq))
+<<<<<<< HEAD
 		mmc_start_bkops(mq->card, true);
+=======
+		mmc_run_bkops(mq->card);
+}
+
+static void mmc_blk_hsq_req_done(struct mmc_request *mrq)
+{
+	struct mmc_queue_req *mqrq =
+		container_of(mrq, struct mmc_queue_req, brq.mrq);
+	struct request *req = mmc_queue_req_to_req(mqrq);
+	struct request_queue *q = req->q;
+	struct mmc_queue *mq = q->queuedata;
+	struct mmc_host *host = mq->card->host;
+	unsigned long flags;
+
+	if (mmc_blk_rq_error(&mqrq->brq) ||
+	    mmc_blk_urgent_bkops_needed(mq, mqrq)) {
+		spin_lock_irqsave(&mq->lock, flags);
+		mq->recovery_needed = true;
+		mq->recovery_req = req;
+		spin_unlock_irqrestore(&mq->lock, flags);
+
+		host->cqe_ops->cqe_recovery_start(host);
+
+		schedule_work(&mq->recovery_work);
+		return;
+	}
+
+	mmc_blk_rw_reset_success(mq, req);
+
+	/*
+	 * Block layer timeouts race with completions which means the normal
+	 * completion path cannot be used during recovery.
+	 */
+	if (mq->in_recovery)
+		mmc_blk_cqe_complete_rq(mq, req);
+	else if (likely(!blk_should_fake_timeout(req->q)))
+		blk_mq_complete_request(req);
+>>>>>>> upstream/android-13
 }
 
 void mmc_blk_mq_complete(struct request *req)
 {
 	struct mmc_queue *mq = req->q->queuedata;
+<<<<<<< HEAD
 
 	if (mq->use_cqe)
 		mmc_blk_cqe_complete_rq(mq, req);
 	else
+=======
+	struct mmc_host *host = mq->card->host;
+
+	if (host->cqe_enabled)
+		mmc_blk_cqe_complete_rq(mq, req);
+	else if (likely(!blk_should_fake_timeout(req->q)))
+>>>>>>> upstream/android-13
 		mmc_blk_mq_complete_rq(mq, req);
 }
 
@@ -2292,7 +2825,10 @@ static void mmc_blk_mq_poll_completion(struct mmc_queue *mq,
 
 	if (mmc_blk_rq_error(&mqrq->brq) ||
 	    mmc_blk_card_busy(mq->card, req)) {
+<<<<<<< HEAD
 		mmc_card_error_logging(mq->card, &mqrq->brq, mqrq->brq.cmd.resp[0]);
+=======
+>>>>>>> upstream/android-13
 		mmc_blk_mq_rw_recovery(mq, req);
 	} else {
 		mmc_blk_rw_reset_success(mq, req);
@@ -2304,17 +2840,28 @@ static void mmc_blk_mq_poll_completion(struct mmc_queue *mq,
 
 static void mmc_blk_mq_dec_in_flight(struct mmc_queue *mq, struct request *req)
 {
+<<<<<<< HEAD
 	struct request_queue *q = req->q;
 	unsigned long flags;
 	bool put_card;
 
 	spin_lock_irqsave(q->queue_lock, flags);
+=======
+	unsigned long flags;
+	bool put_card;
+
+	spin_lock_irqsave(&mq->lock, flags);
+>>>>>>> upstream/android-13
 
 	mq->in_flight[mmc_issue_type(mq, req)] -= 1;
 
 	put_card = (mmc_tot_in_flight(mq) == 0);
 
+<<<<<<< HEAD
 	spin_unlock_irqrestore(q->queue_lock, flags);
+=======
+	spin_unlock_irqrestore(&mq->lock, flags);
+>>>>>>> upstream/android-13
 
 	if (put_card)
 		mmc_put_card(mq->card, &mq->ctx);
@@ -2334,7 +2881,11 @@ static void mmc_blk_mq_post_req(struct mmc_queue *mq, struct request *req)
 	 */
 	if (mq->in_recovery)
 		mmc_blk_mq_complete_rq(mq, req);
+<<<<<<< HEAD
 	else
+=======
+	else if (likely(!blk_should_fake_timeout(req->q)))
+>>>>>>> upstream/android-13
 		blk_mq_complete_request(req);
 
 	mmc_blk_mq_dec_in_flight(mq, req);
@@ -2410,11 +2961,19 @@ static void mmc_blk_mq_req_done(struct mmc_request *mrq)
 		 * request does not need to wait (although it does need to
 		 * complete complete_req first).
 		 */
+<<<<<<< HEAD
 		spin_lock_irqsave(q->queue_lock, flags);
 		mq->complete_req = req;
 		mq->rw_wait = false;
 		waiting = mq->waiting;
 		spin_unlock_irqrestore(q->queue_lock, flags);
+=======
+		spin_lock_irqsave(&mq->lock, flags);
+		mq->complete_req = req;
+		mq->rw_wait = false;
+		waiting = mq->waiting;
+		spin_unlock_irqrestore(&mq->lock, flags);
+>>>>>>> upstream/android-13
 
 		/*
 		 * If 'waiting' then the waiting task will complete this
@@ -2433,11 +2992,18 @@ static void mmc_blk_mq_req_done(struct mmc_request *mrq)
 	/* Take the recovery path for errors or urgent background operations */
 	if (mmc_blk_rq_error(&mqrq->brq) ||
 	    mmc_blk_urgent_bkops_needed(mq, mqrq)) {
+<<<<<<< HEAD
 		mmc_card_error_logging(mq->card, &mqrq->brq, mqrq->brq.cmd.resp[0]);
 		spin_lock_irqsave(q->queue_lock, flags);
 		mq->recovery_needed = true;
 		mq->recovery_req = req;
 		spin_unlock_irqrestore(q->queue_lock, flags);
+=======
+		spin_lock_irqsave(&mq->lock, flags);
+		mq->recovery_needed = true;
+		mq->recovery_req = req;
+		spin_unlock_irqrestore(&mq->lock, flags);
+>>>>>>> upstream/android-13
 		wake_up(&mq->wait);
 		schedule_work(&mq->recovery_work);
 		return;
@@ -2453,7 +3019,10 @@ static void mmc_blk_mq_req_done(struct mmc_request *mrq)
 
 static bool mmc_blk_rw_wait_cond(struct mmc_queue *mq, int *err)
 {
+<<<<<<< HEAD
 	struct request_queue *q = mq->queue;
+=======
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	bool done;
 
@@ -2461,7 +3030,11 @@ static bool mmc_blk_rw_wait_cond(struct mmc_queue *mq, int *err)
 	 * Wait while there is another request in progress, but not if recovery
 	 * is needed. Also indicate whether there is a request waiting to start.
 	 */
+<<<<<<< HEAD
 	spin_lock_irqsave(q->queue_lock, flags);
+=======
+	spin_lock_irqsave(&mq->lock, flags);
+>>>>>>> upstream/android-13
 	if (mq->recovery_needed) {
 		*err = -EBUSY;
 		done = true;
@@ -2469,7 +3042,11 @@ static bool mmc_blk_rw_wait_cond(struct mmc_queue *mq, int *err)
 		done = !mq->rw_wait;
 	}
 	mq->waiting = !done;
+<<<<<<< HEAD
 	spin_unlock_irqrestore(q->queue_lock, flags);
+=======
+	spin_unlock_irqrestore(&mq->lock, flags);
+>>>>>>> upstream/android-13
 
 	return done;
 }
@@ -2494,6 +3071,7 @@ static int mmc_blk_mq_issue_rw_rq(struct mmc_queue *mq,
 	struct request *prev_req = NULL;
 	int err = 0;
 
+<<<<<<< HEAD
 	/* blocktag SD Card path only */
 	if (req && req->__data_len &&
 		(host->caps2 & MMC_CAP2_NO_MMC)) {
@@ -2502,6 +3080,8 @@ static int mmc_blk_mq_issue_rw_rq(struct mmc_queue *mq,
 		mt_biolog_mmcqd_req_start(host, req, true);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	mmc_blk_rw_rq_prep(mqrq, mq->card, 0, mq);
 
 	mqrq->brq.mrq.done = mmc_blk_mq_req_done;
@@ -2513,6 +3093,10 @@ static int mmc_blk_mq_issue_rw_rq(struct mmc_queue *mq,
 		goto out_post_req;
 
 	mq->rw_wait = true;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	err = mmc_start_request(host, &mqrq->brq.mrq);
 
 	if (prev_req)
@@ -2525,15 +3109,19 @@ static int mmc_blk_mq_issue_rw_rq(struct mmc_queue *mq,
 	if (err || mmc_host_done_complete(host))
 		mmc_retune_release(host);
 
+<<<<<<< HEAD
 	if (!err)
 		mt_biolog_mmcqd_req_end(mqrq->brq.mrq.data, true);
 
+=======
+>>>>>>> upstream/android-13
 out_post_req:
 	if (err)
 		mmc_post_req(host, &mqrq->brq.mrq, err);
 
 	return err;
 }
+<<<<<<< HEAD
 #ifdef CONFIG_MTK_EMMC_CQ_SUPPORT
 
 int mmc_blk_end_queued_req(struct mmc_host *host,
@@ -2652,6 +3240,15 @@ static int mmc_blk_wait_for_idle(struct mmc_queue *mq, struct mmc_host *host)
 		ret = mmc_blk_rw_wait(mq, NULL);
 
 	return ret;
+=======
+
+static int mmc_blk_wait_for_idle(struct mmc_queue *mq, struct mmc_host *host)
+{
+	if (host->cqe_enabled)
+		return host->cqe_ops->cqe_wait_for_idle(host);
+
+	return mmc_blk_rw_wait(mq, NULL);
+>>>>>>> upstream/android-13
 }
 
 enum mmc_issued mmc_blk_mq_issue_rq(struct mmc_queue *mq, struct request *req)
@@ -2701,12 +3298,17 @@ enum mmc_issued mmc_blk_mq_issue_rq(struct mmc_queue *mq, struct request *req)
 			break;
 		case REQ_OP_READ:
 		case REQ_OP_WRITE:
+<<<<<<< HEAD
 			if (mq->use_cqe)
 				ret = mmc_blk_cqe_issue_rw_rq(mq, req);
 #ifdef	CONFIG_MTK_EMMC_CQ_SUPPORT
 			else if (mq->use_swcq)
 				ret = mmc_blk_swcq_issue_rw_rq(mq, req);
 #endif
+=======
+			if (host->cqe_enabled)
+				ret = mmc_blk_cqe_issue_rw_rq(mq, req);
+>>>>>>> upstream/android-13
 			else
 				ret = mmc_blk_mq_issue_rw_rq(mq, req);
 			break;
@@ -2734,10 +3336,21 @@ static struct mmc_blk_data *mmc_blk_alloc_req(struct mmc_card *card,
 					      sector_t size,
 					      bool default_ro,
 					      const char *subname,
+<<<<<<< HEAD
 					      int area_type)
 {
 	struct mmc_blk_data *md;
 	int devidx, ret;
+=======
+					      int area_type,
+					      unsigned int part_type)
+{
+	struct mmc_blk_data *md;
+	int devidx, ret;
+	char cap_str[10];
+	bool cache_enabled = false;
+	bool fua_enabled = false;
+>>>>>>> upstream/android-13
 
 	devidx = ida_simple_get(&mmc_blk_ida, 0, max_devices, GFP_KERNEL);
 	if (devidx < 0) {
@@ -2769,6 +3382,7 @@ static struct mmc_blk_data *mmc_blk_alloc_req(struct mmc_card *card,
 	 */
 	md->read_only = mmc_blk_readonly(card);
 
+<<<<<<< HEAD
 	md->disk = alloc_disk(perdev_minors);
 	if (md->disk == NULL) {
 		ret = -ENOMEM;
@@ -2803,6 +3417,26 @@ static struct mmc_blk_data *mmc_blk_alloc_req(struct mmc_card *card,
 	md->disk->fops = &mmc_bdops;
 	md->disk->private_data = md;
 	md->disk->queue = md->queue.queue;
+=======
+	md->disk = mmc_init_queue(&md->queue, card);
+	if (IS_ERR(md->disk)) {
+		ret = PTR_ERR(md->disk);
+		goto err_kfree;
+	}
+
+	INIT_LIST_HEAD(&md->part);
+	INIT_LIST_HEAD(&md->rpmbs);
+	kref_init(&md->kref);
+
+	md->queue.blkdata = md;
+	md->part_type = part_type;
+
+	md->disk->major	= MMC_BLOCK_MAJOR;
+	md->disk->minors = perdev_minors;
+	md->disk->first_minor = devidx * perdev_minors;
+	md->disk->fops = &mmc_bdops;
+	md->disk->private_data = md;
+>>>>>>> upstream/android-13
 	md->parent = parent;
 	set_disk_ro(md->disk, md->read_only || default_ro);
 	md->disk->flags = GENHD_FL_EXT_DEVT;
@@ -2832,6 +3466,7 @@ static struct mmc_blk_data *mmc_blk_alloc_req(struct mmc_card *card,
 		     card->csd.mmca_vsn >= CSD_SPEC_VER_3) ||
 		    (mmc_card_sd(card) &&
 		     card->scr.cmds & SD_SCR_CMD23_SUPPORT &&
+<<<<<<< HEAD
 			 mmc_card_uhs(card)))
 			md->flags |= MMC_BLK_CMD23;
 	}
@@ -2848,6 +3483,40 @@ static struct mmc_blk_data *mmc_blk_alloc_req(struct mmc_card *card,
 
  err_putdisk:
 	put_disk(md->disk);
+=======
+			mmc_card_uhs(card)))
+			md->flags |= MMC_BLK_CMD23;
+	}
+
+	if (md->flags & MMC_BLK_CMD23 &&
+	    ((card->ext_csd.rel_param & EXT_CSD_WR_REL_PARAM_EN) ||
+	     card->ext_csd.rel_sectors)) {
+		md->flags |= MMC_BLK_REL_WR;
+		fua_enabled = true;
+		cache_enabled = true;
+	}
+	if (mmc_cache_enabled(card->host))
+		cache_enabled  = true;
+
+	blk_queue_write_cache(md->queue.queue, cache_enabled, fua_enabled);
+
+	string_get_size((u64)size, 512, STRING_UNITS_2,
+			cap_str, sizeof(cap_str));
+	pr_info("%s: %s %s %s %s\n",
+		md->disk->disk_name, mmc_card_id(card), mmc_card_name(card),
+		cap_str, md->read_only ? "(ro)" : "");
+
+	ST_LOG("%s: %s %s %s %s\n",
+		md->disk->disk_name, mmc_card_id(card), mmc_card_name(card),
+		cap_str, md->read_only ? "(ro)" : "");
+
+	/* used in ->open, must be set before add_disk: */
+	if (area_type == MMC_BLK_DATA_AREA_MAIN)
+		dev_set_drvdata(&card->dev, md);
+	device_add_disk(md->parent, md->disk, mmc_disk_attr_groups);
+	return md;
+
+>>>>>>> upstream/android-13
  err_kfree:
 	kfree(md);
  out:
@@ -2875,7 +3544,11 @@ static struct mmc_blk_data *mmc_blk_alloc(struct mmc_card *card)
 	}
 
 	return mmc_blk_alloc_req(card, &card->dev, size, false, NULL,
+<<<<<<< HEAD
 					MMC_BLK_DATA_AREA_MAIN);
+=======
+					MMC_BLK_DATA_AREA_MAIN, 0);
+>>>>>>> upstream/android-13
 }
 
 static int mmc_blk_alloc_part(struct mmc_card *card,
@@ -2886,6 +3559,7 @@ static int mmc_blk_alloc_part(struct mmc_card *card,
 			      const char *subname,
 			      int area_type)
 {
+<<<<<<< HEAD
 	char cap_str[10];
 	struct mmc_blk_data *part_md;
 
@@ -2901,6 +3575,16 @@ static int mmc_blk_alloc_part(struct mmc_card *card,
 	pr_info("%s: %s %s partition %u %s\n",
 	       part_md->disk->disk_name, mmc_card_id(card),
 	       mmc_card_name(card), part_md->part_type, cap_str);
+=======
+	struct mmc_blk_data *part_md;
+
+	part_md = mmc_blk_alloc_req(card, disk_to_dev(md->disk), size, default_ro,
+				    subname, area_type, part_type);
+	if (IS_ERR(part_md))
+		return PTR_ERR(part_md);
+	list_add(&part_md->part, &md->part);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -3037,9 +3721,14 @@ static int mmc_blk_alloc_rpmb_part(struct mmc_card *card,
 	string_get_size((u64)size, 512, STRING_UNITS_2,
 			cap_str, sizeof(cap_str));
 
+<<<<<<< HEAD
 	pr_info("%s: %s %s partition %u %s, chardev (%d:%d)\n",
 		rpmb_name, mmc_card_id(card),
 		mmc_card_name(card), EXT_CSD_PART_CONFIG_ACC_RPMB, cap_str,
+=======
+	pr_info("%s: %s %s %s, chardev (%d:%d)\n",
+		rpmb_name, mmc_card_id(card), mmc_card_name(card), cap_str,
+>>>>>>> upstream/android-13
 		MAJOR(mmc_rpmb_devt), rpmb->id);
 
 	return 0;
@@ -3100,6 +3789,7 @@ static int mmc_blk_alloc_parts(struct mmc_card *card, struct mmc_blk_data *md)
 
 static void mmc_blk_remove_req(struct mmc_blk_data *md)
 {
+<<<<<<< HEAD
 	struct mmc_card *card;
 
 	if (md) {
@@ -3121,6 +3811,15 @@ static void mmc_blk_remove_req(struct mmc_blk_data *md)
 		mmc_cleanup_queue(&md->queue);
 		mmc_blk_put(md);
 	}
+=======
+	/*
+	 * Flush remaining requests and free queues. It is freeing the queue
+	 * that stops new requests from being accepted.
+	 */
+	del_gendisk(md->disk);
+	mmc_cleanup_queue(&md->queue);
+	mmc_blk_put(md);
+>>>>>>> upstream/android-13
 }
 
 static void mmc_blk_remove_parts(struct mmc_card *card,
@@ -3144,6 +3843,7 @@ static void mmc_blk_remove_parts(struct mmc_card *card,
 	}
 }
 
+<<<<<<< HEAD
 static int mmc_add_disk(struct mmc_blk_data *md)
 {
 	int ret;
@@ -3189,6 +3889,8 @@ force_ro_fail:
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_DEBUG_FS
 
 static int mmc_dbg_card_status_get(void *data, u64 *val)
@@ -3204,7 +3906,11 @@ static int mmc_dbg_card_status_get(void *data, u64 *val)
 	if (IS_ERR(req))
 		return PTR_ERR(req);
 	req_to_mmc_queue_req(req)->drv_op = MMC_DRV_OP_GET_CARD_STATUS;
+<<<<<<< HEAD
 	blk_execute_rq(mq->queue, NULL, req, 0);
+=======
+	blk_execute_rq(NULL, req, 0);
+>>>>>>> upstream/android-13
 	ret = req_to_mmc_queue_req(req)->drv_op_result;
 	if (ret >= 0) {
 		*val = ret;
@@ -3214,8 +3920,13 @@ static int mmc_dbg_card_status_get(void *data, u64 *val)
 
 	return ret;
 }
+<<<<<<< HEAD
 DEFINE_SIMPLE_ATTRIBUTE(mmc_dbg_card_status_fops, mmc_dbg_card_status_get,
 		NULL, "%08llx\n");
+=======
+DEFINE_DEBUGFS_ATTRIBUTE(mmc_dbg_card_status_fops, mmc_dbg_card_status_get,
+			 NULL, "%08llx\n");
+>>>>>>> upstream/android-13
 
 /* That is two digits * 512 + 1 for newline */
 #define EXT_CSD_STR_LEN 1025
@@ -3243,7 +3954,11 @@ static int mmc_ext_csd_open(struct inode *inode, struct file *filp)
 	}
 	req_to_mmc_queue_req(req)->drv_op = MMC_DRV_OP_GET_EXT_CSD;
 	req_to_mmc_queue_req(req)->drv_op_data = &ext_csd;
+<<<<<<< HEAD
 	blk_execute_rq(mq->queue, NULL, req, 0);
+=======
+	blk_execute_rq(NULL, req, 0);
+>>>>>>> upstream/android-13
 	err = req_to_mmc_queue_req(req)->drv_op_result;
 	blk_put_request(req);
 	if (err) {
@@ -3303,8 +4018,14 @@ static int mmc_blk_add_debugfs(struct mmc_card *card, struct mmc_blk_data *md)
 
 	if (mmc_card_mmc(card) || mmc_card_sd(card)) {
 		md->status_dentry =
+<<<<<<< HEAD
 			debugfs_create_file("status", S_IRUSR, root, card,
 					    &mmc_dbg_card_status_fops);
+=======
+			debugfs_create_file_unsafe("status", 0400, root,
+						   card,
+						   &mmc_dbg_card_status_fops);
+>>>>>>> upstream/android-13
 		if (!md->status_dentry)
 			return -EIO;
 	}
@@ -3351,6 +4072,7 @@ static void mmc_blk_remove_debugfs(struct mmc_card *card,
 
 #endif /* CONFIG_DEBUG_FS */
 
+<<<<<<< HEAD
 /*
  * only used for eMMC + F2FS security OTA fix
  * 1: HWcmdq; 2: SWcdmq; 0: non-eMMC
@@ -3367,6 +4089,12 @@ static int mmc_blk_probe(struct mmc_card *card)
 {
 	struct mmc_blk_data *md, *part_md;
 	char cap_str[10];
+=======
+static int mmc_blk_probe(struct mmc_card *card)
+{
+	struct mmc_blk_data *md;
+	int ret = 0;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Check that the card supports the command class(es) we need.
@@ -3378,12 +4106,17 @@ static int mmc_blk_probe(struct mmc_card *card)
 
 	card->complete_wq = alloc_workqueue("mmc_complete",
 					WQ_MEM_RECLAIM | WQ_HIGHPRI, 0);
+<<<<<<< HEAD
 	if (unlikely(!card->complete_wq)) {
+=======
+	if (!card->complete_wq) {
+>>>>>>> upstream/android-13
 		pr_err("Failed to create mmc completion workqueue");
 		return -ENOMEM;
 	}
 
 	md = mmc_blk_alloc(card);
+<<<<<<< HEAD
 	if (IS_ERR(md))
 		return PTR_ERR(md);
 
@@ -3409,6 +4142,17 @@ static int mmc_blk_probe(struct mmc_card *card)
 			goto out;
 	}
 
+=======
+	if (IS_ERR(md)) {
+		ret = PTR_ERR(md);
+		goto out_free;
+	}
+
+	ret = mmc_blk_alloc_parts(card, md);
+	if (ret)
+		goto out;
+
+>>>>>>> upstream/android-13
 	/* Add two debugfs entries */
 	mmc_blk_add_debugfs(card, md);
 
@@ -3424,6 +4168,7 @@ static int mmc_blk_probe(struct mmc_card *card)
 		pm_runtime_enable(&card->dev);
 	}
 
+<<<<<<< HEAD
 	if (card->host->caps2 & MMC_CAP2_CQE)
 		mmc_boot_type = 1;
 	else
@@ -3448,6 +4193,16 @@ static int mmc_blk_probe(struct mmc_card *card)
 	mmc_blk_remove_parts(card, md);
 	mmc_blk_remove_req(md);
 	return 0;
+=======
+	return 0;
+
+out:
+	mmc_blk_remove_parts(card, md);
+	mmc_blk_remove_req(md);
+out_free:
+	destroy_workqueue(card->complete_wq);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void mmc_blk_remove(struct mmc_card *card)
@@ -3486,6 +4241,7 @@ static int _mmc_blk_suspend(struct mmc_card *card)
 
 static void mmc_blk_shutdown(struct mmc_card *card)
 {
+<<<<<<< HEAD
 	struct mmc_blk_data *md = dev_get_drvdata(&card->dev);
 	struct mmc_blk_data *part_md;
 	_mmc_blk_suspend(card);
@@ -3494,6 +4250,9 @@ static void mmc_blk_shutdown(struct mmc_card *card)
 			mmc_cleanup_queue(&part_md->queue);
 		mmc_cleanup_queue(&md->queue);
 	}
+=======
+	_mmc_blk_suspend(card);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_PM_SLEEP
@@ -3540,8 +4299,11 @@ static int __init mmc_blk_init(void)
 {
 	int res;
 
+<<<<<<< HEAD
 	mmc_boot_type = 0;
 
+=======
+>>>>>>> upstream/android-13
 	res  = bus_register(&mmc_rpmb_bus_type);
 	if (res < 0) {
 		pr_err("mmcblk: could not register RPMB bus type\n");
@@ -3565,7 +4327,11 @@ static int __init mmc_blk_init(void)
 	res = mmc_register_driver(&mmc_driver);
 	if (res)
 		goto out_blkdev_unreg;
+<<<<<<< HEAD
 	mt_mmc_biolog_init();
+=======
+
+>>>>>>> upstream/android-13
 	return 0;
 
 out_blkdev_unreg:

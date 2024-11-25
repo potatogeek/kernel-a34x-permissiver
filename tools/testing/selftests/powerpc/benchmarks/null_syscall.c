@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Test null syscall performance
  *
  * Copyright (C) 2009-2015 Anton Blanchard, IBM
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define NR_LOOPS 10000000
@@ -18,6 +25,10 @@
 #include <time.h>
 #include <sys/types.h>
 #include <sys/time.h>
+<<<<<<< HEAD
+=======
+#include <sys/syscall.h>
+>>>>>>> upstream/android-13
 #include <signal.h>
 
 static volatile int soak_done;
@@ -25,7 +36,11 @@ unsigned long long clock_frequency;
 unsigned long long timebase_frequency;
 double timebase_multiplier;
 
+<<<<<<< HEAD
 static inline unsigned long long mftb(void)
+=======
+static inline unsigned long mftb(void)
+>>>>>>> upstream/android-13
 {
 	unsigned long low;
 
@@ -125,7 +140,11 @@ static void do_null_syscall(unsigned long nr)
 	unsigned long i;
 
 	for (i = 0; i < nr; i++)
+<<<<<<< HEAD
 		getppid();
+=======
+		syscall(__NR_gettid);
+>>>>>>> upstream/android-13
 }
 
 #define TIME(A, STR) \

@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * arch/powerpc/sysdev/ipic.c
  *
  * IPIC routines implementations.
  *
  * Copyright 2005 Freescale Semiconductor, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/init.h>
@@ -771,6 +778,7 @@ struct ipic * __init ipic_init(struct device_node *node, unsigned int flags)
 	return ipic;
 }
 
+<<<<<<< HEAD
 int ipic_set_priority(unsigned int virq, unsigned int priority)
 {
 	struct ipic *ipic = ipic_from_irq(virq);
@@ -814,6 +822,8 @@ void ipic_set_highest_priority(unsigned int virq)
 	ipic_write(ipic->regs, IPIC_SICFR, temp);
 }
 
+=======
+>>>>>>> upstream/android-13
 void ipic_set_default_priority(void)
 {
 	ipic_write(primary_ipic->regs, IPIC_SIPRR_A, IPIC_PRIORITY_DEFAULT);
@@ -824,6 +834,7 @@ void ipic_set_default_priority(void)
 	ipic_write(primary_ipic->regs, IPIC_SMPRR_B, IPIC_PRIORITY_DEFAULT);
 }
 
+<<<<<<< HEAD
 void ipic_enable_mcp(enum ipic_mcp_irq mcp_irq)
 {
 	struct ipic *ipic = primary_ipic;
@@ -847,6 +858,11 @@ void ipic_disable_mcp(enum ipic_mcp_irq mcp_irq)
 u32 ipic_get_mcp_status(void)
 {
 	return ipic_read(primary_ipic->regs, IPIC_SERSR);
+=======
+u32 ipic_get_mcp_status(void)
+{
+	return primary_ipic ? ipic_read(primary_ipic->regs, IPIC_SERSR) : 0;
+>>>>>>> upstream/android-13
 }
 
 void ipic_clear_mcp_status(u32 mask)

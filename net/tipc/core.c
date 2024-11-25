@@ -34,8 +34,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+<<<<<<< HEAD
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
+=======
+>>>>>>> upstream/android-13
 #include "core.h"
 #include "name_table.h"
 #include "subscr.h"
@@ -43,6 +46,11 @@
 #include "net.h"
 #include "socket.h"
 #include "bcast.h"
+<<<<<<< HEAD
+=======
+#include "node.h"
+#include "crypto.h"
+>>>>>>> upstream/android-13
 
 #include <linux/module.h>
 
@@ -59,6 +67,11 @@ static int __net_init tipc_init_net(struct net *net)
 	tn->node_addr = 0;
 	tn->trial_addr = 0;
 	tn->addr_trial_end = 0;
+<<<<<<< HEAD
+=======
+	tn->capabilities = TIPC_NODE_CAPABILITIES;
+	INIT_WORK(&tn->work, tipc_net_finalize_work);
+>>>>>>> upstream/android-13
 	memset(tn->node_id, 0, sizeof(tn->node_id));
 	memset(tn->node_id_string, 0, sizeof(tn->node_id_string));
 	tn->mon_threshold = TIPC_DEF_MON_THRESHOLD;
@@ -66,6 +79,14 @@ static int __net_init tipc_init_net(struct net *net)
 	INIT_LIST_HEAD(&tn->node_list);
 	spin_lock_init(&tn->node_list_lock);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_TIPC_CRYPTO
+	err = tipc_crypto_start(&tn->crypto_tx, net, NULL);
+	if (err)
+		goto out_crypto;
+#endif
+>>>>>>> upstream/android-13
 	err = tipc_sk_rht_init(net);
 	if (err)
 		goto out_sk_rht;
@@ -74,12 +95,22 @@ static int __net_init tipc_init_net(struct net *net)
 	if (err)
 		goto out_nametbl;
 
+<<<<<<< HEAD
 	INIT_LIST_HEAD(&tn->dist_queue);
 
+=======
+>>>>>>> upstream/android-13
 	err = tipc_bcast_init(net);
 	if (err)
 		goto out_bclink;
 
+<<<<<<< HEAD
+=======
+	err = tipc_attach_loopback(net);
+	if (err)
+		goto out_bclink;
+
+>>>>>>> upstream/android-13
 	return 0;
 
 out_bclink:
@@ -87,11 +118,20 @@ out_bclink:
 out_nametbl:
 	tipc_sk_rht_destroy(net);
 out_sk_rht:
+<<<<<<< HEAD
+=======
+
+#ifdef CONFIG_TIPC_CRYPTO
+	tipc_crypto_stop(&tn->crypto_tx);
+out_crypto:
+#endif
+>>>>>>> upstream/android-13
 	return err;
 }
 
 static void __net_exit tipc_exit_net(struct net *net)
 {
+<<<<<<< HEAD
 	tipc_net_stop(net);
 
 	/* Make sure the tipc_net_finalize_work stopped
@@ -103,6 +143,34 @@ static void __net_exit tipc_exit_net(struct net *net)
 	tipc_sk_rht_destroy(net);
 }
 
+=======
+	struct tipc_net *tn = tipc_net(net);
+
+	tipc_detach_loopback(net);
+	/* Make sure the tipc_net_finalize_work() finished */
+	cancel_work_sync(&tn->work);
+	tipc_net_stop(net);
+
+	tipc_bcast_stop(net);
+	tipc_nametbl_stop(net);
+	tipc_sk_rht_destroy(net);
+#ifdef CONFIG_TIPC_CRYPTO
+	tipc_crypto_stop(&tipc_net(net)->crypto_tx);
+#endif
+	while (atomic_read(&tn->wq_count))
+		cond_resched();
+}
+
+static void __net_exit tipc_pernet_pre_exit(struct net *net)
+{
+	tipc_node_pre_cleanup_net(net);
+}
+
+static struct pernet_operations tipc_pernet_pre_exit_ops = {
+	.pre_exit = tipc_pernet_pre_exit,
+};
+
+>>>>>>> upstream/android-13
 static struct pernet_operations tipc_net_ops = {
 	.init = tipc_init_net,
 	.exit = tipc_exit_net,
@@ -141,6 +209,13 @@ static int __init tipc_init(void)
 	if (err)
 		goto out_pernet_topsrv;
 
+<<<<<<< HEAD
+=======
+	err = register_pernet_subsys(&tipc_pernet_pre_exit_ops);
+	if (err)
+		goto out_register_pernet_subsys;
+
+>>>>>>> upstream/android-13
 	err = tipc_bearer_setup();
 	if (err)
 		goto out_bearer;
@@ -161,6 +236,11 @@ out_netlink_compat:
 out_netlink:
 	tipc_bearer_cleanup();
 out_bearer:
+<<<<<<< HEAD
+=======
+	unregister_pernet_subsys(&tipc_pernet_pre_exit_ops);
+out_register_pernet_subsys:
+>>>>>>> upstream/android-13
 	unregister_pernet_device(&tipc_topsrv_net_ops);
 out_pernet_topsrv:
 	tipc_socket_stop();
@@ -178,6 +258,10 @@ static void __exit tipc_exit(void)
 	tipc_netlink_compat_stop();
 	tipc_netlink_stop();
 	tipc_bearer_cleanup();
+<<<<<<< HEAD
+=======
+	unregister_pernet_subsys(&tipc_pernet_pre_exit_ops);
+>>>>>>> upstream/android-13
 	unregister_pernet_device(&tipc_topsrv_net_ops);
 	tipc_socket_stop();
 	unregister_pernet_device(&tipc_net_ops);

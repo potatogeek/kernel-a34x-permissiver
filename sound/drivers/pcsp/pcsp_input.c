@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  PC Speaker beeper driver for Linux
  *
  *  Copyright (c) 2002 Vojtech Pavlik
  *  Copyright (c) 1992 Orest Zborowski
+<<<<<<< HEAD
  *
  */
 
@@ -11,6 +16,10 @@
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation
  */
+=======
+ */
+
+>>>>>>> upstream/android-13
 
 #include <linux/init.h>
 #include <linux/input.h>
@@ -59,6 +68,10 @@ static int pcspkr_input_event(struct input_dev *dev, unsigned int type,
 		case SND_BELL:
 			if (value)
 				value = 1000;
+<<<<<<< HEAD
+=======
+			break;
+>>>>>>> upstream/android-13
 		case SND_TONE:
 			break;
 		default:
@@ -82,7 +95,11 @@ int pcspkr_input_init(struct input_dev **rdev, struct device *dev)
 {
 	int err;
 
+<<<<<<< HEAD
 	struct input_dev *input_dev = input_allocate_device();
+=======
+	struct input_dev *input_dev = devm_input_allocate_device(dev);
+>>>>>>> upstream/android-13
 	if (!input_dev)
 		return -ENOMEM;
 
@@ -99,14 +116,20 @@ int pcspkr_input_init(struct input_dev **rdev, struct device *dev)
 	input_dev->event = pcspkr_input_event;
 
 	err = input_register_device(input_dev);
+<<<<<<< HEAD
 	if (err) {
 		input_free_device(input_dev);
 		return err;
 	}
+=======
+	if (err)
+		return err;
+>>>>>>> upstream/android-13
 
 	*rdev = input_dev;
 	return 0;
 }
+<<<<<<< HEAD
 
 int pcspkr_input_remove(struct input_dev *dev)
 {
@@ -115,3 +138,5 @@ int pcspkr_input_remove(struct input_dev *dev)
 
 	return 0;
 }
+=======
+>>>>>>> upstream/android-13

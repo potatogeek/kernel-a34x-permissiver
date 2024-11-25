@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Copyright (C) 2012-2018 Samsung Electronics, Inc.
+=======
+ * Copyright (c) 2012 Samsung Electronics Co., Ltd All Rights Reserved
+>>>>>>> upstream/android-13
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -14,7 +18,11 @@
 #define pr_fmt(fmt) "IONFD2PHYS: " fmt
 /* #define DEBUG */
 
+<<<<<<< HEAD
 #include <linux/uaccess.h>
+=======
+#include <linux/compat.h>
+>>>>>>> upstream/android-13
 #include <linux/device.h>
 #include <linux/fs.h>
 #include <linux/init.h>
@@ -22,6 +30,10 @@
 #include <linux/mm.h>
 #include <linux/module.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
+=======
+#include <linux/uaccess.h>
+>>>>>>> upstream/android-13
 
 #if defined(CONFIG_ARCH_MSM)
 #include <linux/msm_ion.h>
@@ -58,7 +70,11 @@ struct ionfd2phys32 {
 extern struct ion_device *ion_exynos;
 #elif defined(CONFIG_ARCH_WHALE)
 extern struct ion_device *idev;
+<<<<<<< HEAD
 #elif defined(CONFIG_ARCH_MT6755) || defined(CONFIG_ARCH_MT6735) || defined(CONFIG_MACH_MT6757) \
+=======
+#elif defined(CONFIG_ARCH_MT6755) || defined(CONFIG_ARCH_MT6735) \
+>>>>>>> upstream/android-13
  || defined(CONFIG_MACH_MT6853) || defined(CONFIG_MACH_MT6739) || defined(CONFIG_MACH_MT6768)
 extern struct ion_device *g_ion_device;
 #endif
@@ -248,6 +264,7 @@ static ssize_t system_heap_id_show(struct device *dev, struct device_attribute *
 	 * value 10 */
 #define ION_HEAP_TYPE_MM_MT6735 (10)
 	return sprintf(buf, "%d\n", ION_HEAP_TYPE_MM_MT6735);
+<<<<<<< HEAD
 #elif defined(CONFIG_MACH_MT6757)
 	/* This is dirty hack for MT6757 platform. This platform does
 	 * not have ion_system_heap. Instead, ion_mm_heap should be used,
@@ -255,6 +272,8 @@ static ssize_t system_heap_id_show(struct device *dev, struct device_attribute *
 	 * value 10 */
 #define ION_HEAP_TYPE_MM_MT6757 (10)
 	return sprintf(buf, "%d\n", ION_HEAP_TYPE_MM_MT6757);
+=======
+>>>>>>> upstream/android-13
 
 #elif defined(CONFIG_ARCH_MSM)
 	return sprintf(buf, "%d\n", ION_SYSTEM_HEAP_ID);
@@ -280,15 +299,24 @@ int ionfd2phys_init(void)
 	struct ion_device *ion_dev = ion_exynos;
 #elif defined(CONFIG_ARCH_WHALE)
 	struct ion_device *ion_dev = idev;
+<<<<<<< HEAD
 #elif defined(CONFIG_ARCH_MT6755) || defined(CONFIG_ARCH_MT6735) || defined(CONFIG_MACH_MT6757) \
+=======
+#elif defined(CONFIG_ARCH_MT6755) || defined(CONFIG_ARCH_MT6735) \
+>>>>>>> upstream/android-13
  || defined(CONFIG_MACH_MT6853) || defined(CONFIG_MACH_MT6739) || defined(CONFIG_MACH_MT6768)
 	struct ion_device *ion_dev = g_ion_device;
 #endif
 	pr_devel("module init\n");
 
 #if defined(CONFIG_ARCH_EXYNOS) || defined(CONFIG_ARCH_WHALE) || defined(CONFIG_ARCH_MT6755) \
+<<<<<<< HEAD
  || defined(CONFIG_ARCH_MT6735) || defined(CONFIG_MACH_MT6757) || defined(CONFIG_MACH_MT6853) \
  || defined(CONFIG_MACH_MT6739) || defined(CONFIG_MACH_MT6768)
+=======
+ || defined(CONFIG_ARCH_MT6735) || defined(CONFIG_MACH_MT6853) || defined(CONFIG_MACH_MT6739) \
+ || defined(CONFIG_MACH_MT6768)
+>>>>>>> upstream/android-13
 	if (!ion_dev) {
 		pr_err("Failed to get ion device\n");
 		return 0;

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0+
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2001-2002 by David Brownell
  */
@@ -218,6 +222,11 @@ struct ehci_hcd {			/* one per controller */
 	unsigned		frame_index_bug:1; /* MosChip (AKA NetMos) */
 	unsigned		need_oc_pp_cycle:1; /* MPC834X port power */
 	unsigned		imx28_write_fix:1; /* For Freescale i.MX28 */
+<<<<<<< HEAD
+=======
+	unsigned		spurious_oc:1;
+	unsigned		is_aspeed:1;
+>>>>>>> upstream/android-13
 
 	/* required for usb32 quirk */
 	#define OHCI_CTRL_HCFS          (3 << 6)
@@ -235,9 +244,15 @@ struct ehci_hcd {			/* one per controller */
 	/* irq statistics */
 #ifdef EHCI_STATS
 	struct ehci_stats	stats;
+<<<<<<< HEAD
 #	define COUNT(x) ((x)++)
 #else
 #	define COUNT(x)
+=======
+#	define INCR(x) ((x)++)
+#else
+#	define INCR(x) do {} while (0)
+>>>>>>> upstream/android-13
 #endif
 
 	/* debug files */
@@ -255,7 +270,11 @@ struct ehci_hcd {			/* one per controller */
 	struct list_head	tt_list;
 
 	/* platform-specific data -- must come last */
+<<<<<<< HEAD
 	unsigned long		priv[0] __aligned(sizeof(s64));
+=======
+	unsigned long		priv[] __aligned(sizeof(s64));
+>>>>>>> upstream/android-13
 };
 
 /* convert between an HCD pointer and the corresponding EHCI_HCD */
@@ -460,7 +479,11 @@ struct ehci_iso_sched {
 	struct list_head	td_list;
 	unsigned		span;
 	unsigned		first_packet;
+<<<<<<< HEAD
 	struct ehci_iso_packet	packet[0];
+=======
+	struct ehci_iso_packet	packet[];
+>>>>>>> upstream/android-13
 };
 
 /*

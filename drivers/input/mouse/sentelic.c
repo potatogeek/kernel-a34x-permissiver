@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*-
  * Finger Sensing Pad PS/2 mouse driver.
  *
  * Copyright (C) 2005-2007 Asia Vital Components Co., Ltd.
  * Copyright (C) 2005-2012 Tai-hwa Liang, Sentelic Corporation.
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU General Public License
@@ -17,6 +22,8 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -807,7 +814,11 @@ static psmouse_ret_t fsp_process_byte(struct psmouse *psmouse)
 		/* on-pad click, filter it if necessary */
 		if ((ad->flags & FSPDRV_FLAG_EN_OPC) != FSPDRV_FLAG_EN_OPC)
 			packet[0] &= ~FSP_PB0_LBTN;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case FSP_PKT_TYPE_NORMAL:
 		/* normal packet */

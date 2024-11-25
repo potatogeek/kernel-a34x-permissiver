@@ -90,10 +90,13 @@ union cvmx_gpio_bit_cfgx {
 		uint64_t reserved_12_63:52;
 #endif
 	} cn30xx;
+<<<<<<< HEAD
 	struct cvmx_gpio_bit_cfgx_cn30xx cn31xx;
 	struct cvmx_gpio_bit_cfgx_cn30xx cn38xx;
 	struct cvmx_gpio_bit_cfgx_cn30xx cn38xxp2;
 	struct cvmx_gpio_bit_cfgx_cn30xx cn50xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_gpio_bit_cfgx_cn52xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_15_63:49;
@@ -117,6 +120,7 @@ union cvmx_gpio_bit_cfgx {
 		uint64_t reserved_15_63:49;
 #endif
 	} cn52xx;
+<<<<<<< HEAD
 	struct cvmx_gpio_bit_cfgx_cn52xx cn52xxp1;
 	struct cvmx_gpio_bit_cfgx_cn52xx cn56xx;
 	struct cvmx_gpio_bit_cfgx_cn52xx cn56xxp1;
@@ -131,6 +135,8 @@ union cvmx_gpio_bit_cfgx {
 	struct cvmx_gpio_bit_cfgx_s cn70xx;
 	struct cvmx_gpio_bit_cfgx_s cn73xx;
 	struct cvmx_gpio_bit_cfgx_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_gpio_boot_ena {
@@ -146,9 +152,12 @@ union cvmx_gpio_boot_ena {
 		uint64_t reserved_12_63:52;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_gpio_boot_ena_s cn30xx;
 	struct cvmx_gpio_boot_ena_s cn31xx;
 	struct cvmx_gpio_boot_ena_s cn50xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_gpio_clk_genx {
@@ -162,6 +171,7 @@ union cvmx_gpio_clk_genx {
 		uint64_t reserved_32_63:32;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_gpio_clk_genx_s cn52xx;
 	struct cvmx_gpio_clk_genx_s cn52xxp1;
 	struct cvmx_gpio_clk_genx_s cn56xx;
@@ -173,6 +183,8 @@ union cvmx_gpio_clk_genx {
 	struct cvmx_gpio_clk_genx_s cn68xx;
 	struct cvmx_gpio_clk_genx_s cn68xxp1;
 	struct cvmx_gpio_clk_genx_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_gpio_clk_qlmx {
@@ -218,11 +230,14 @@ union cvmx_gpio_clk_qlmx {
 		uint64_t reserved_3_63:61;
 #endif
 	} cn63xx;
+<<<<<<< HEAD
 	struct cvmx_gpio_clk_qlmx_cn63xx cn63xxp1;
 	struct cvmx_gpio_clk_qlmx_cn61xx cn66xx;
 	struct cvmx_gpio_clk_qlmx_s cn68xx;
 	struct cvmx_gpio_clk_qlmx_s cn68xxp1;
 	struct cvmx_gpio_clk_qlmx_cn61xx cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_gpio_dbg_ena {
@@ -236,9 +251,12 @@ union cvmx_gpio_dbg_ena {
 		uint64_t reserved_21_63:43;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_gpio_dbg_ena_s cn30xx;
 	struct cvmx_gpio_dbg_ena_s cn31xx;
 	struct cvmx_gpio_dbg_ena_s cn50xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_gpio_int_clr {
@@ -252,6 +270,7 @@ union cvmx_gpio_int_clr {
 		uint64_t reserved_16_63:48;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_gpio_int_clr_s cn30xx;
 	struct cvmx_gpio_int_clr_s cn31xx;
 	struct cvmx_gpio_int_clr_s cn38xx;
@@ -270,6 +289,8 @@ union cvmx_gpio_int_clr {
 	struct cvmx_gpio_int_clr_s cn68xx;
 	struct cvmx_gpio_int_clr_s cn68xxp1;
 	struct cvmx_gpio_int_clr_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_gpio_multi_cast {
@@ -283,8 +304,11 @@ union cvmx_gpio_multi_cast {
 		uint64_t reserved_1_63:63;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_gpio_multi_cast_s cn61xx;
 	struct cvmx_gpio_multi_cast_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_gpio_pin_ena {
@@ -302,7 +326,10 @@ union cvmx_gpio_pin_ena {
 		uint64_t reserved_20_63:44;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_gpio_pin_ena_s cn66xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_gpio_rx_dat {
@@ -316,8 +343,11 @@ union cvmx_gpio_rx_dat {
 		uint64_t reserved_24_63:40;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_gpio_rx_dat_s cn30xx;
 	struct cvmx_gpio_rx_dat_s cn31xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_gpio_rx_dat_cn38xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_16_63:48;
@@ -327,6 +357,7 @@ union cvmx_gpio_rx_dat {
 		uint64_t reserved_16_63:48;
 #endif
 	} cn38xx;
+<<<<<<< HEAD
 	struct cvmx_gpio_rx_dat_cn38xx cn38xxp2;
 	struct cvmx_gpio_rx_dat_s cn50xx;
 	struct cvmx_gpio_rx_dat_cn38xx cn52xx;
@@ -335,6 +366,8 @@ union cvmx_gpio_rx_dat {
 	struct cvmx_gpio_rx_dat_cn38xx cn56xxp1;
 	struct cvmx_gpio_rx_dat_cn38xx cn58xx;
 	struct cvmx_gpio_rx_dat_cn38xx cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_gpio_rx_dat_cn61xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_20_63:44;
@@ -344,12 +377,15 @@ union cvmx_gpio_rx_dat {
 		uint64_t reserved_20_63:44;
 #endif
 	} cn61xx;
+<<<<<<< HEAD
 	struct cvmx_gpio_rx_dat_cn38xx cn63xx;
 	struct cvmx_gpio_rx_dat_cn38xx cn63xxp1;
 	struct cvmx_gpio_rx_dat_cn61xx cn66xx;
 	struct cvmx_gpio_rx_dat_cn38xx cn68xx;
 	struct cvmx_gpio_rx_dat_cn38xx cn68xxp1;
 	struct cvmx_gpio_rx_dat_cn61xx cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_gpio_tim_ctl {
@@ -363,8 +399,11 @@ union cvmx_gpio_tim_ctl {
 		uint64_t reserved_4_63:60;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_gpio_tim_ctl_s cn68xx;
 	struct cvmx_gpio_tim_ctl_s cn68xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_gpio_tx_clr {
@@ -378,8 +417,11 @@ union cvmx_gpio_tx_clr {
 		uint64_t reserved_24_63:40;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_gpio_tx_clr_s cn30xx;
 	struct cvmx_gpio_tx_clr_s cn31xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_gpio_tx_clr_cn38xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_16_63:48;
@@ -389,6 +431,7 @@ union cvmx_gpio_tx_clr {
 		uint64_t reserved_16_63:48;
 #endif
 	} cn38xx;
+<<<<<<< HEAD
 	struct cvmx_gpio_tx_clr_cn38xx cn38xxp2;
 	struct cvmx_gpio_tx_clr_s cn50xx;
 	struct cvmx_gpio_tx_clr_cn38xx cn52xx;
@@ -397,6 +440,8 @@ union cvmx_gpio_tx_clr {
 	struct cvmx_gpio_tx_clr_cn38xx cn56xxp1;
 	struct cvmx_gpio_tx_clr_cn38xx cn58xx;
 	struct cvmx_gpio_tx_clr_cn38xx cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_gpio_tx_clr_cn61xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_20_63:44;
@@ -406,12 +451,15 @@ union cvmx_gpio_tx_clr {
 		uint64_t reserved_20_63:44;
 #endif
 	} cn61xx;
+<<<<<<< HEAD
 	struct cvmx_gpio_tx_clr_cn38xx cn63xx;
 	struct cvmx_gpio_tx_clr_cn38xx cn63xxp1;
 	struct cvmx_gpio_tx_clr_cn61xx cn66xx;
 	struct cvmx_gpio_tx_clr_cn38xx cn68xx;
 	struct cvmx_gpio_tx_clr_cn38xx cn68xxp1;
 	struct cvmx_gpio_tx_clr_cn61xx cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_gpio_tx_set {
@@ -425,8 +473,11 @@ union cvmx_gpio_tx_set {
 		uint64_t reserved_24_63:40;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_gpio_tx_set_s cn30xx;
 	struct cvmx_gpio_tx_set_s cn31xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_gpio_tx_set_cn38xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_16_63:48;
@@ -436,6 +487,7 @@ union cvmx_gpio_tx_set {
 		uint64_t reserved_16_63:48;
 #endif
 	} cn38xx;
+<<<<<<< HEAD
 	struct cvmx_gpio_tx_set_cn38xx cn38xxp2;
 	struct cvmx_gpio_tx_set_s cn50xx;
 	struct cvmx_gpio_tx_set_cn38xx cn52xx;
@@ -444,6 +496,8 @@ union cvmx_gpio_tx_set {
 	struct cvmx_gpio_tx_set_cn38xx cn56xxp1;
 	struct cvmx_gpio_tx_set_cn38xx cn58xx;
 	struct cvmx_gpio_tx_set_cn38xx cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_gpio_tx_set_cn61xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_20_63:44;
@@ -453,12 +507,15 @@ union cvmx_gpio_tx_set {
 		uint64_t reserved_20_63:44;
 #endif
 	} cn61xx;
+<<<<<<< HEAD
 	struct cvmx_gpio_tx_set_cn38xx cn63xx;
 	struct cvmx_gpio_tx_set_cn38xx cn63xxp1;
 	struct cvmx_gpio_tx_set_cn61xx cn66xx;
 	struct cvmx_gpio_tx_set_cn38xx cn68xx;
 	struct cvmx_gpio_tx_set_cn38xx cn68xxp1;
 	struct cvmx_gpio_tx_set_cn61xx cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_gpio_xbit_cfgx {
@@ -505,11 +562,14 @@ union cvmx_gpio_xbit_cfgx {
 		uint64_t reserved_12_63:52;
 #endif
 	} cn30xx;
+<<<<<<< HEAD
 	struct cvmx_gpio_xbit_cfgx_cn30xx cn31xx;
 	struct cvmx_gpio_xbit_cfgx_cn30xx cn50xx;
 	struct cvmx_gpio_xbit_cfgx_s cn61xx;
 	struct cvmx_gpio_xbit_cfgx_s cn66xx;
 	struct cvmx_gpio_xbit_cfgx_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 #endif

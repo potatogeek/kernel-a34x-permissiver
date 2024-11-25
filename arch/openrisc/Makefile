@@ -20,11 +20,21 @@
 KBUILD_DEFCONFIG := or1ksim_defconfig
 
 OBJCOPYFLAGS    := -O binary -R .note -R .comment -S
+<<<<<<< HEAD
 LDFLAGS_vmlinux :=
+=======
+>>>>>>> upstream/android-13
 LIBGCC 		:= $(shell $(CC) $(KBUILD_CFLAGS) -print-libgcc-file-name)
 
 KBUILD_CFLAGS	+= -pipe -ffixed-r10 -D__linux__
 
+<<<<<<< HEAD
+=======
+all: vmlinux.bin
+
+boot := arch/$(ARCH)/boot
+
+>>>>>>> upstream/android-13
 ifeq ($(CONFIG_OPENRISC_HAVE_INST_MUL),y)
 	KBUILD_CFLAGS += $(call cc-option,-mhard-mul)
 else
@@ -39,6 +49,7 @@ endif
 
 head-y 		:= arch/openrisc/kernel/head.o
 
+<<<<<<< HEAD
 core-y		+= arch/openrisc/lib/ \
 		   arch/openrisc/kernel/ \
 		   arch/openrisc/mm/
@@ -52,3 +63,14 @@ endif
 core-$(BUILTIN_DTB) += arch/openrisc/boot/dts/
 
 all: vmlinux
+=======
+libs-y		+= $(LIBGCC)
+
+PHONY += vmlinux.bin
+
+vmlinux.bin: vmlinux
+	$(Q)$(MAKE) $(build)=$(boot) $(boot)/$@
+
+archclean:
+	$(Q)$(MAKE) $(clean)=$(boot)
+>>>>>>> upstream/android-13

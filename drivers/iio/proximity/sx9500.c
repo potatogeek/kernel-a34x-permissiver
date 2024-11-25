@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2014 Intel Corporation
  *
  * Driver for Semtech's SX9500 capacitive proximity/button solution.
  * Datasheet available at
  * <http://www.semtech.com/images/datasheet/sx9500.pdf>.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -678,7 +685,11 @@ out:
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static int sx9500_buffer_preenable(struct iio_dev *indio_dev)
+=======
+static int sx9500_buffer_postenable(struct iio_dev *indio_dev)
+>>>>>>> upstream/android-13
 {
 	struct sx9500_data *data = iio_priv(indio_dev);
 	int ret = 0, i;
@@ -707,8 +718,11 @@ static int sx9500_buffer_predisable(struct iio_dev *indio_dev)
 	struct sx9500_data *data = iio_priv(indio_dev);
 	int ret = 0, i;
 
+<<<<<<< HEAD
 	iio_triggered_buffer_predisable(indio_dev);
 
+=======
+>>>>>>> upstream/android-13
 	mutex_lock(&data->mutex);
 
 	for (i = 0; i < SX9500_NUM_CHANNELS; i++)
@@ -729,8 +743,12 @@ static int sx9500_buffer_predisable(struct iio_dev *indio_dev)
 }
 
 static const struct iio_buffer_setup_ops sx9500_buffer_setup_ops = {
+<<<<<<< HEAD
 	.preenable = sx9500_buffer_preenable,
 	.postenable = iio_triggered_buffer_postenable,
+=======
+	.postenable = sx9500_buffer_postenable,
+>>>>>>> upstream/android-13
 	.predisable = sx9500_buffer_predisable,
 };
 
@@ -764,7 +782,11 @@ static const struct sx9500_reg_default sx9500_default_regs[] = {
 		.reg = SX9500_REG_PROX_CTRL5,
 		/*
 		 * Debouncer off, lowest average negative filter,
+<<<<<<< HEAD
 		 * highest average postive filter.
+=======
+		 * highest average positive filter.
+>>>>>>> upstream/android-13
 		 */
 		.def = 0x0f,
 	},
@@ -928,7 +950,10 @@ static int sx9500_probe(struct i2c_client *client,
 	if (IS_ERR(data->regmap))
 		return PTR_ERR(data->regmap);
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &client->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->name = SX9500_DRIVER_NAME;
 	indio_dev->channels = sx9500_channels;
 	indio_dev->num_channels = ARRAY_SIZE(sx9500_channels);
@@ -953,11 +978,18 @@ static int sx9500_probe(struct i2c_client *client,
 			return ret;
 
 		data->trig = devm_iio_trigger_alloc(&client->dev,
+<<<<<<< HEAD
 				"%s-dev%d", indio_dev->name, indio_dev->id);
 		if (!data->trig)
 			return -ENOMEM;
 
 		data->trig->dev.parent = &client->dev;
+=======
+				"%s-dev%d", indio_dev->name, iio_device_id(indio_dev));
+		if (!data->trig)
+			return -ENOMEM;
+
+>>>>>>> upstream/android-13
 		data->trig->ops = &sx9500_trigger_ops;
 		iio_trigger_set_drvdata(data->trig, indio_dev);
 

@@ -28,6 +28,11 @@
 #define catu_dbg(x, ...) do {} while (0)
 #endif
 
+<<<<<<< HEAD
+=======
+DEFINE_CORESIGHT_DEVLIST(catu_devs, "catu");
+
+>>>>>>> upstream/android-13
 struct catu_etr_buf {
 	struct tmc_sg_table *catu_table;
 	dma_addr_t sladdr;
@@ -328,19 +333,30 @@ static int catu_alloc_etr_buf(struct tmc_drvdata *tmc_drvdata,
 			      struct etr_buf *etr_buf, int node, void **pages)
 {
 	struct coresight_device *csdev;
+<<<<<<< HEAD
 	struct device *catu_dev;
+=======
+>>>>>>> upstream/android-13
 	struct tmc_sg_table *catu_table;
 	struct catu_etr_buf *catu_buf;
 
 	csdev = tmc_etr_get_catu_device(tmc_drvdata);
 	if (!csdev)
 		return -ENODEV;
+<<<<<<< HEAD
 	catu_dev = csdev->dev.parent;
+=======
+>>>>>>> upstream/android-13
 	catu_buf = kzalloc(sizeof(*catu_buf), GFP_KERNEL);
 	if (!catu_buf)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	catu_table = catu_init_sg_table(catu_dev, node, etr_buf->size, pages);
+=======
+	catu_table = catu_init_sg_table(&csdev->dev, node,
+					etr_buf->size, pages);
+>>>>>>> upstream/android-13
 	if (IS_ERR(catu_table)) {
 		kfree(catu_buf);
 		return PTR_ERR(catu_table);
@@ -357,7 +373,11 @@ static int catu_alloc_etr_buf(struct tmc_drvdata *tmc_drvdata,
 	return 0;
 }
 
+<<<<<<< HEAD
 const struct etr_buf_operations etr_catu_buf_ops = {
+=======
+static const struct etr_buf_operations etr_catu_buf_ops = {
+>>>>>>> upstream/android-13
 	.alloc = catu_alloc_etr_buf,
 	.free = catu_free_etr_buf,
 	.sync = catu_sync_etr_buf,
@@ -400,12 +420,19 @@ static const struct attribute_group *catu_groups[] = {
 
 static inline int catu_wait_for_ready(struct catu_drvdata *drvdata)
 {
+<<<<<<< HEAD
 	return coresight_timeout(drvdata->base,
 				 CATU_STATUS, CATU_STATUS_READY, 1);
+=======
+	struct csdev_access *csa = &drvdata->csdev->access;
+
+	return coresight_timeout(csa, CATU_STATUS, CATU_STATUS_READY, 1);
+>>>>>>> upstream/android-13
 }
 
 static int catu_enable_hw(struct catu_drvdata *drvdata, void *data)
 {
+<<<<<<< HEAD
 	u32 control, mode;
 	struct etr_buf *etr_buf = data;
 
@@ -418,6 +445,27 @@ static int catu_enable_hw(struct catu_drvdata *drvdata, void *data)
 		return -EBUSY;
 	}
 
+=======
+	int rc;
+	u32 control, mode;
+	struct etr_buf *etr_buf = data;
+	struct device *dev = &drvdata->csdev->dev;
+	struct coresight_device *csdev = drvdata->csdev;
+
+	if (catu_wait_for_ready(drvdata))
+		dev_warn(dev, "Timeout while waiting for READY\n");
+
+	control = catu_read_control(drvdata);
+	if (control & BIT(CATU_CONTROL_ENABLE)) {
+		dev_warn(dev, "CATU is already enabled\n");
+		return -EBUSY;
+	}
+
+	rc = coresight_claim_device_unlocked(csdev);
+	if (rc)
+		return rc;
+
+>>>>>>> upstream/android-13
 	control |= BIT(CATU_CONTROL_ENABLE);
 
 	if (etr_buf && etr_buf->mode == ETR_MODE_CATU) {
@@ -436,7 +484,11 @@ static int catu_enable_hw(struct catu_drvdata *drvdata, void *data)
 	catu_write_irqen(drvdata, 0);
 	catu_write_mode(drvdata, mode);
 	catu_write_control(drvdata, control);
+<<<<<<< HEAD
 	dev_dbg(drvdata->dev, "Enabled in %s mode\n",
+=======
+	dev_dbg(dev, "Enabled in %s mode\n",
+>>>>>>> upstream/android-13
 		(mode == CATU_MODE_PASS_THROUGH) ?
 		"Pass through" :
 		"Translate");
@@ -457,6 +509,7 @@ static int catu_enable(struct coresight_device *csdev, void *data)
 static int catu_disable_hw(struct catu_drvdata *drvdata)
 {
 	int rc = 0;
+<<<<<<< HEAD
 
 	catu_write_control(drvdata, 0);
 	if (catu_wait_for_ready(drvdata)) {
@@ -465,6 +518,19 @@ static int catu_disable_hw(struct catu_drvdata *drvdata)
 	}
 
 	dev_dbg(drvdata->dev, "Disabled\n");
+=======
+	struct device *dev = &drvdata->csdev->dev;
+	struct coresight_device *csdev = drvdata->csdev;
+
+	catu_write_control(drvdata, 0);
+	coresight_disclaim_device_unlocked(csdev);
+	if (catu_wait_for_ready(drvdata)) {
+		dev_info(dev, "Timeout while waiting for READY\n");
+		rc = -EAGAIN;
+	}
+
+	dev_dbg(dev, "Disabled\n");
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -479,12 +545,20 @@ static int catu_disable(struct coresight_device *csdev, void *__unused)
 	return rc;
 }
 
+<<<<<<< HEAD
 const struct coresight_ops_helper catu_helper_ops = {
+=======
+static const struct coresight_ops_helper catu_helper_ops = {
+>>>>>>> upstream/android-13
 	.enable = catu_enable,
 	.disable = catu_disable,
 };
 
+<<<<<<< HEAD
 const struct coresight_ops catu_ops = {
+=======
+static const struct coresight_ops catu_ops = {
+>>>>>>> upstream/android-13
 	.helper_ops = &catu_helper_ops,
 };
 
@@ -496,6 +570,7 @@ static int catu_probe(struct amba_device *adev, const struct amba_id *id)
 	struct coresight_desc catu_desc;
 	struct coresight_platform_data *pdata = NULL;
 	struct device *dev = &adev->dev;
+<<<<<<< HEAD
 	struct device_node *np = dev->of_node;
 	void __iomem *base;
 
@@ -507,6 +582,13 @@ static int catu_probe(struct amba_device *adev, const struct amba_id *id)
 		}
 		dev->platform_data = pdata;
 	}
+=======
+	void __iomem *base;
+
+	catu_desc.name = coresight_alloc_device_name(&catu_devs, dev);
+	if (!catu_desc.name)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	drvdata = devm_kzalloc(dev, sizeof(*drvdata), GFP_KERNEL);
 	if (!drvdata) {
@@ -514,7 +596,10 @@ static int catu_probe(struct amba_device *adev, const struct amba_id *id)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	drvdata->dev = dev;
+=======
+>>>>>>> upstream/android-13
 	dev_set_drvdata(dev, drvdata);
 	base = devm_ioremap_resource(dev, &adev->res);
 	if (IS_ERR(base)) {
@@ -541,13 +626,26 @@ static int catu_probe(struct amba_device *adev, const struct amba_id *id)
 	if (ret)
 		goto out;
 
+<<<<<<< HEAD
 	drvdata->base = base;
+=======
+	pdata = coresight_get_platform_data(dev);
+	if (IS_ERR(pdata)) {
+		ret = PTR_ERR(pdata);
+		goto out;
+	}
+	dev->platform_data = pdata;
+
+	drvdata->base = base;
+	catu_desc.access = CSDEV_ACCESS_IOMEM(base);
+>>>>>>> upstream/android-13
 	catu_desc.pdata = pdata;
 	catu_desc.dev = dev;
 	catu_desc.groups = catu_groups;
 	catu_desc.type = CORESIGHT_DEV_TYPE_HELPER;
 	catu_desc.subtype.helper_subtype = CORESIGHT_DEV_SUBTYPE_HELPER_CATU;
 	catu_desc.ops = &catu_ops;
+<<<<<<< HEAD
 	drvdata->csdev = coresight_register(&catu_desc);
 	if (IS_ERR(drvdata->csdev))
 		ret = PTR_ERR(drvdata->csdev);
@@ -564,6 +662,32 @@ static struct amba_id catu_ids[] = {
 	{},
 };
 
+=======
+
+	drvdata->csdev = coresight_register(&catu_desc);
+	if (IS_ERR(drvdata->csdev))
+		ret = PTR_ERR(drvdata->csdev);
+	else
+		pm_runtime_put(&adev->dev);
+out:
+	return ret;
+}
+
+static void catu_remove(struct amba_device *adev)
+{
+	struct catu_drvdata *drvdata = dev_get_drvdata(&adev->dev);
+
+	coresight_unregister(drvdata->csdev);
+}
+
+static struct amba_id catu_ids[] = {
+	CS_AMBA_ID(0x000bb9ee),
+	{},
+};
+
+MODULE_DEVICE_TABLE(amba, catu_ids);
+
+>>>>>>> upstream/android-13
 static struct amba_driver catu_driver = {
 	.drv = {
 		.name			= "coresight-catu",
@@ -571,7 +695,37 @@ static struct amba_driver catu_driver = {
 		.suppress_bind_attrs	= true,
 	},
 	.probe				= catu_probe,
+<<<<<<< HEAD
 	.id_table			= catu_ids,
 };
 
 builtin_amba_driver(catu_driver);
+=======
+	.remove				= catu_remove,
+	.id_table			= catu_ids,
+};
+
+static int __init catu_init(void)
+{
+	int ret;
+
+	ret = amba_driver_register(&catu_driver);
+	if (ret)
+		pr_info("Error registering catu driver\n");
+	tmc_etr_set_catu_ops(&etr_catu_buf_ops);
+	return ret;
+}
+
+static void __exit catu_exit(void)
+{
+	tmc_etr_remove_catu_ops();
+	amba_driver_unregister(&catu_driver);
+}
+
+module_init(catu_init);
+module_exit(catu_exit);
+
+MODULE_AUTHOR("Suzuki K Poulose <suzuki.poulose@arm.com>");
+MODULE_DESCRIPTION("Arm CoreSight Address Translation Unit (CATU) Driver");
+MODULE_LICENSE("GPL v2");
+>>>>>>> upstream/android-13

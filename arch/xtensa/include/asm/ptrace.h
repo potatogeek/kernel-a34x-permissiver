@@ -39,6 +39,11 @@
  *		+-----------------------+ --------
  */
 
+<<<<<<< HEAD
+=======
+#define NO_SYSCALL (-1)
+
+>>>>>>> upstream/android-13
 #ifndef __ASSEMBLY__
 
 #include <asm/coprocessor.h>
@@ -78,7 +83,11 @@ struct pt_regs {
 	unsigned long areg[16];
 };
 
+<<<<<<< HEAD
 #include <variant/core.h>
+=======
+#include <asm/core.h>
+>>>>>>> upstream/android-13
 
 # define arch_has_single_step()	(1)
 # define task_pt_regs(tsk) ((struct pt_regs*) \
@@ -100,6 +109,14 @@ struct pt_regs {
 
 #define user_stack_pointer(regs) ((regs)->areg[1])
 
+<<<<<<< HEAD
+=======
+static inline unsigned long regs_return_value(struct pt_regs *regs)
+{
+	return regs->areg[2];
+}
+
+>>>>>>> upstream/android-13
 #else	/* __ASSEMBLY__ */
 
 # include <asm/asm-offsets.h>

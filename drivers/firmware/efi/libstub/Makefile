@@ -7,11 +7,16 @@
 #
 cflags-$(CONFIG_X86_32)		:= -march=i386
 cflags-$(CONFIG_X86_64)		:= -mcmodel=small
+<<<<<<< HEAD
 cflags-$(CONFIG_X86)		+= -m$(BITS) -D__KERNEL__ -O2 \
+=======
+cflags-$(CONFIG_X86)		+= -m$(BITS) -D__KERNEL__ \
+>>>>>>> upstream/android-13
 				   -fPIC -fno-strict-aliasing -mno-red-zone \
 				   -mno-mmx -mno-sse -fshort-wchar \
 				   -Wno-pointer-sign \
 				   $(call cc-disable-warning, address-of-packed-member) \
+<<<<<<< HEAD
 				   $(call cc-disable-warning, gnu)
 
 # arm64 uses the full KBUILD_CFLAGS so it's necessary to explicitly
@@ -34,27 +39,109 @@ KBUILD_CFLAGS			:= $(cflags-y) -DDISABLE_BRANCH_PROFILING \
 
 GCOV_PROFILE			:= n
 KASAN_SANITIZE			:= n
+=======
+				   $(call cc-disable-warning, gnu) \
+				   -fno-asynchronous-unwind-tables \
+				   $(CLANG_FLAGS)
+
+# arm64 uses the full KBUILD_CFLAGS so it's necessary to explicitly
+# disable the stackleak plugin
+cflags-$(CONFIG_ARM64)		:= $(subst $(CC_FLAGS_FTRACE),,$(KBUILD_CFLAGS)) \
+				   -fpie $(DISABLE_STACKLEAK_PLUGIN) \
+				   $(call cc-option,-mbranch-protection=none)
+cflags-$(CONFIG_ARM)		:= $(subst $(CC_FLAGS_FTRACE),,$(KBUILD_CFLAGS)) \
+				   -fno-builtin -fpic \
+				   $(call cc-option,-mno-single-pic-base)
+cflags-$(CONFIG_RISCV)		:= $(subst $(CC_FLAGS_FTRACE),,$(KBUILD_CFLAGS)) \
+				   -fpic
+
+cflags-$(CONFIG_EFI_GENERIC_STUB) += -I$(srctree)/scripts/dtc/libfdt
+
+KBUILD_CFLAGS			:= $(cflags-y) -Os -DDISABLE_BRANCH_PROFILING \
+				   -include $(srctree)/include/linux/hidden.h \
+				   -D__NO_FORTIFY \
+				   -ffreestanding \
+				   -fno-stack-protector \
+				   $(call cc-option,-fno-addrsig) \
+				   -D__DISABLE_EXPORTS
+
+# remove SCS flags from all objects in this directory
+KBUILD_CFLAGS := $(filter-out $(CC_FLAGS_SCS), $(KBUILD_CFLAGS))
+# disable LTO
+KBUILD_CFLAGS := $(filter-out $(CC_FLAGS_LTO), $(KBUILD_CFLAGS))
+
+GCOV_PROFILE			:= n
+# Sanitizer runtimes are unavailable and cannot be linked here.
+KASAN_SANITIZE			:= n
+KCSAN_SANITIZE			:= n
+>>>>>>> upstream/android-13
 UBSAN_SANITIZE			:= n
 OBJECT_FILES_NON_STANDARD	:= y
 
 # Prevents link failures: __sanitizer_cov_trace_pc() is not linked in.
 KCOV_INSTRUMENT			:= n
 
+<<<<<<< HEAD
 lib-y				:= efi-stub-helper.o gop.o secureboot.o tpm.o
 
 # include the stub's generic dependencies from lib/ when building for ARM/arm64
 arm-deps-y := fdt_rw.c fdt_ro.c fdt_wip.c fdt.c fdt_empty_tree.c fdt_sw.c
 arm-deps-$(CONFIG_ARM64) += sort.c
+=======
+lib-y				:= efi-stub-helper.o gop.o secureboot.o tpm.o \
+				   file.o mem.o random.o randomalloc.o pci.o \
+				   skip_spaces.o lib-cmdline.o lib-ctype.o \
+				   alignedmem.o relocate.o vsprintf.o
+
+# include the stub's generic dependencies from lib/ when building for ARM/arm64
+efi-deps-y := fdt_rw.c fdt_ro.c fdt_wip.c fdt.c fdt_empty_tree.c fdt_sw.c
+>>>>>>> upstream/android-13
 
 $(obj)/lib-%.o: $(srctree)/lib/%.c FORCE
 	$(call if_changed_rule,cc_o_c)
 
+<<<<<<< HEAD
 lib-$(CONFIG_EFI_ARMSTUB)	+= arm-stub.o fdt.o string.o random.o \
 				   $(patsubst %.c,lib-%.o,$(arm-deps-y))
 
 lib-$(CONFIG_ARM)		+= arm32-stub.o
 lib-$(CONFIG_ARM64)		+= arm64-stub.o
 CFLAGS_arm64-stub.o 		:= -DTEXT_OFFSET=$(TEXT_OFFSET)
+=======
+lib-$(CONFIG_EFI_GENERIC_STUB)	+= efi-stub.o fdt.o string.o \
+				   $(patsubst %.c,lib-%.o,$(efi-deps-y))
+
+lib-$(CONFIG_ARM)		+= arm32-stub.o
+lib-$(CONFIG_ARM64)		+= arm64-stub.o
+lib-$(CONFIG_X86)		+= x86-stub.o
+lib-$(CONFIG_RISCV)		+= riscv-stub.o
+CFLAGS_arm32-stub.o		:= -DTEXT_OFFSET=$(TEXT_OFFSET)
+
+# Even when -mbranch-protection=none is set, Clang will generate a
+# .note.gnu.property for code-less object files (like lib/ctype.c),
+# so work around this by explicitly removing the unwanted section.
+# https://bugs.llvm.org/show_bug.cgi?id=46480
+STUBCOPY_FLAGS-y		+= --remove-section=.note.gnu.property
+
+#
+# For x86, bootloaders like systemd-boot or grub-efi do not zero-initialize the
+# .bss section, so the .bss section of the EFI stub needs to be included in the
+# .data section of the compressed kernel to ensure initialization. Rename the
+# .bss section here so it's easy to pick out in the linker script.
+#
+STUBCOPY_FLAGS-$(CONFIG_X86)	+= --rename-section .bss=.bss.efistub,load,alloc
+STUBCOPY_RELOC-$(CONFIG_X86_32)	:= R_386_32
+STUBCOPY_RELOC-$(CONFIG_X86_64)	:= R_X86_64_64
+
+#
+# ARM discards the .data section because it disallows r/w data in the
+# decompressor. So move our .data to .data.efistub and .bss to .bss.efistub,
+# which are preserved explicitly by the decompressor linker script.
+#
+STUBCOPY_FLAGS-$(CONFIG_ARM)	+= --rename-section .data=.data.efistub	\
+				   --rename-section .bss=.bss.efistub,load,alloc
+STUBCOPY_RELOC-$(CONFIG_ARM)	:= R_ARM_ABS
+>>>>>>> upstream/android-13
 
 #
 # arm64 puts the stub in the kernel proper, which will unnecessarily retain all
@@ -70,14 +157,30 @@ CFLAGS_arm64-stub.o 		:= -DTEXT_OFFSET=$(TEXT_OFFSET)
 # a verification pass to see if any absolute relocations exist in any of the
 # object files.
 #
+<<<<<<< HEAD
 extra-$(CONFIG_EFI_ARMSTUB)	:= $(lib-y)
 lib-$(CONFIG_EFI_ARMSTUB)	:= $(patsubst %.o,%.stub.o,$(lib-y))
 
 STUBCOPY_RM-y			:= -R *ksymtab* -R *kcrctab*
+=======
+extra-y				:= $(lib-y)
+lib-y				:= $(patsubst %.o,%.stub.o,$(lib-y))
+
+>>>>>>> upstream/android-13
 STUBCOPY_FLAGS-$(CONFIG_ARM64)	+= --prefix-alloc-sections=.init \
 				   --prefix-symbols=__efistub_
 STUBCOPY_RELOC-$(CONFIG_ARM64)	:= R_AARCH64_ABS
 
+<<<<<<< HEAD
+=======
+# For RISC-V, we don't need anything special other than arm64. Keep all the
+# symbols in .init section and make sure that no absolute symbols references
+# doesn't exist.
+STUBCOPY_FLAGS-$(CONFIG_RISCV)	+= --prefix-alloc-sections=.init \
+				   --prefix-symbols=__efistub_
+STUBCOPY_RELOC-$(CONFIG_RISCV)	:= R_RISCV_HI20
+
+>>>>>>> upstream/android-13
 $(obj)/%.stub.o: $(obj)/%.o FORCE
 	$(call if_changed,stubcopy)
 
@@ -88,6 +191,7 @@ $(obj)/%.stub.o: $(obj)/%.o FORCE
 # this time, use objcopy and leave all sections in place.
 #
 quiet_cmd_stubcopy = STUBCPY $@
+<<<<<<< HEAD
       cmd_stubcopy = if $(STRIP) --strip-debug $(STUBCOPY_RM-y) -o $@ $<; \
 		     then if $(OBJDUMP) -r $@ | grep $(STUBCOPY_RELOC-y); \
 		     then (echo >&2 "$@: absolute symbol references not allowed in the EFI stub"; \
@@ -102,3 +206,12 @@ quiet_cmd_stubcopy = STUBCPY $@
 #
 STUBCOPY_FLAGS-$(CONFIG_ARM)	+= --rename-section .data=.data.efistub
 STUBCOPY_RELOC-$(CONFIG_ARM)	:= R_ARM_ABS
+=======
+      cmd_stubcopy =							\
+	$(STRIP) --strip-debug -o $@ $<;				\
+	if $(OBJDUMP) -r $@ | grep $(STUBCOPY_RELOC-y); then		\
+		echo "$@: absolute symbol references not allowed in the EFI stub" >&2; \
+		/bin/false;						\
+	fi;								\
+	$(OBJCOPY) $(STUBCOPY_FLAGS-y) $< $@
+>>>>>>> upstream/android-13

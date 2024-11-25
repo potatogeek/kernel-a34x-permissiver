@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * OMAP 32ksynctimer/counter_32k-related code
  *
@@ -6,10 +10,13 @@
  * Tony Lindgren <tony@atomide.com>
  * Added OMAP4 support - Santosh Shilimkar <santosh.shilimkar@ti.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * NOTE: This timer is not the same timer as the old OMAP1 MPU timer.
  */
 #include <linux/kernel.h>

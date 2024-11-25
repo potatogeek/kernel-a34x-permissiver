@@ -14,9 +14,13 @@
 #include <linux/kernel.h>
 #include <linux/bug.h>
 #include <linux/err.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
 #include <linux/slab.h>
 #include <linux/gpio/consumer.h>
+=======
+#include <linux/slab.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/platform_device.h>
 #include <linux/regulator/driver.h>
@@ -45,15 +49,23 @@
 #define MAX77802_OFF_PWRREQ		0x1
 #define MAX77802_LP_PWRREQ		0x2
 
+<<<<<<< HEAD
 /* MAX77802 has two register formats: 2-bit and 4-bit */
 static const unsigned int ramp_table_77802_2bit[] = {
+=======
+static const unsigned int max77802_buck234_ramp_table[] = {
+>>>>>>> upstream/android-13
 	12500,
 	25000,
 	50000,
 	100000,
 };
 
+<<<<<<< HEAD
 static unsigned int ramp_table_77802_4bit[] = {
+=======
+static const unsigned int max77802_buck16_ramp_table[] = {
+>>>>>>> upstream/android-13
 	1000,	2000,	3030,	4000,
 	5000,	5880,	7140,	8330,
 	9090,	10000,	11110,	12500,
@@ -223,6 +235,7 @@ static int max77802_enable(struct regulator_dev *rdev)
 				  max77802->opmode[id] << shift);
 }
 
+<<<<<<< HEAD
 static int max77802_find_ramp_value(struct regulator_dev *rdev,
 				    const unsigned int limits[], int size,
 				    unsigned int ramp_delay)
@@ -275,6 +288,8 @@ static int max77802_set_ramp_delay_4bit(struct regulator_dev *rdev,
 				  ramp_value << MAX77802_RAMP_RATE_SHIFT_4BIT);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * LDOs 2, 4-19, 22-35
  */
@@ -318,7 +333,11 @@ static const struct regulator_ops max77802_buck_16_dvs_ops = {
 	.get_voltage_sel	= regulator_get_voltage_sel_regmap,
 	.set_voltage_sel	= regulator_set_voltage_sel_regmap,
 	.set_voltage_time_sel	= regulator_set_voltage_time_sel,
+<<<<<<< HEAD
 	.set_ramp_delay		= max77802_set_ramp_delay_4bit,
+=======
+	.set_ramp_delay		= regulator_set_ramp_delay_regmap,
+>>>>>>> upstream/android-13
 	.set_suspend_disable	= max77802_set_suspend_disable,
 };
 
@@ -332,7 +351,11 @@ static const struct regulator_ops max77802_buck_234_ops = {
 	.get_voltage_sel	= regulator_get_voltage_sel_regmap,
 	.set_voltage_sel	= regulator_set_voltage_sel_regmap,
 	.set_voltage_time_sel	= regulator_set_voltage_time_sel,
+<<<<<<< HEAD
 	.set_ramp_delay		= max77802_set_ramp_delay_2bit,
+=======
+	.set_ramp_delay		= regulator_set_ramp_delay_regmap,
+>>>>>>> upstream/android-13
 	.set_suspend_disable	= max77802_set_suspend_disable,
 	.set_suspend_mode	= max77802_set_suspend_mode,
 };
@@ -347,7 +370,10 @@ static const struct regulator_ops max77802_buck_dvs_ops = {
 	.get_voltage_sel	= regulator_get_voltage_sel_regmap,
 	.set_voltage_sel	= regulator_set_voltage_sel_regmap,
 	.set_voltage_time_sel	= regulator_set_voltage_time_sel,
+<<<<<<< HEAD
 	.set_ramp_delay		= max77802_set_ramp_delay_2bit,
+=======
+>>>>>>> upstream/android-13
 	.set_suspend_disable	= max77802_set_suspend_disable,
 };
 
@@ -411,6 +437,13 @@ static const struct regulator_ops max77802_buck_dvs_ops = {
 	.vsel_mask	= MAX77802_DVS_VSEL_MASK,			\
 	.enable_reg	= MAX77802_REG_BUCK ## num ## CTRL,		\
 	.enable_mask	= MAX77802_OPMODE_MASK,				\
+<<<<<<< HEAD
+=======
+	.ramp_reg	= MAX77802_REG_BUCK ## num ## CTRL,		\
+	.ramp_mask	= MAX77802_RAMP_RATE_MASK_4BIT,			\
+	.ramp_delay_table = max77802_buck16_ramp_table,			\
+	.n_ramp_values	= ARRAY_SIZE(max77802_buck16_ramp_table),	\
+>>>>>>> upstream/android-13
 	.of_map_mode	= max77802_map_mode,				\
 }
 
@@ -433,6 +466,13 @@ static const struct regulator_ops max77802_buck_dvs_ops = {
 	.enable_reg	= MAX77802_REG_BUCK ## num ## CTRL1,		\
 	.enable_mask	= MAX77802_OPMODE_MASK <<			\
 				MAX77802_OPMODE_BUCK234_SHIFT,		\
+<<<<<<< HEAD
+=======
+	.ramp_reg	= MAX77802_REG_BUCK ## num ## CTRL1,		\
+	.ramp_mask	= MAX77802_RAMP_RATE_MASK_2BIT,			\
+	.ramp_delay_table = max77802_buck234_ramp_table,		\
+	.n_ramp_values	= ARRAY_SIZE(max77802_buck234_ramp_table),	\
+>>>>>>> upstream/android-13
 	.of_map_mode	= max77802_map_mode,				\
 }
 

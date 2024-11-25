@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * omap_hwmod_2xxx_ipblock_data.c - common IP block data for OMAP2xxx
  *
  * Copyright (C) 2011 Nokia Corporation
  * Paul Walmsley
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -11,6 +16,11 @@
 
 #include <linux/types.h>
 #include <linux/omap-dma.h>
+=======
+ */
+
+#include <linux/types.h>
+>>>>>>> upstream/android-13
 
 #include "omap_hwmod.h"
 #include "omap_hwmod_common_data.h"
@@ -96,6 +106,7 @@ static struct omap_hwmod_class_sysconfig omap2xxx_gpio_sysc = {
 struct omap_hwmod_class omap2xxx_gpio_hwmod_class = {
 	.name = "gpio",
 	.sysc = &omap2xxx_gpio_sysc,
+<<<<<<< HEAD
 	.rev = 0,
 };
 
@@ -114,6 +125,8 @@ static struct omap_hwmod_class_sysconfig omap2xxx_dma_sysc = {
 struct omap_hwmod_class omap2xxx_dma_hwmod_class = {
 	.name	= "dma",
 	.sysc	= &omap2xxx_dma_sysc,
+=======
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -217,6 +230,7 @@ struct omap_hwmod omap2xxx_iva_hwmod = {
 	.class		= &iva_hwmod_class,
 };
 
+<<<<<<< HEAD
 /* timer1 */
 struct omap_hwmod omap2xxx_timer1_hwmod = {
 	.name		= "timer1",
@@ -247,6 +261,8 @@ struct omap_hwmod omap2xxx_timer2_hwmod = {
 	.flags          = HWMOD_SET_DEFAULT_CLOCKACT,
 };
 
+=======
+>>>>>>> upstream/android-13
 /* timer3 */
 struct omap_hwmod omap2xxx_timer3_hwmod = {
 	.name		= "timer3",
@@ -617,6 +633,7 @@ struct omap_hwmod omap2xxx_mcspi2_hwmod = {
 	.class		= &omap2xxx_mcspi_class,
 };
 
+<<<<<<< HEAD
 static struct omap_hwmod_class omap2xxx_counter_hwmod_class = {
 	.name	= "counter",
 };
@@ -634,6 +651,8 @@ struct omap_hwmod omap2xxx_counter_32k_hwmod = {
 	.class		= &omap2xxx_counter_hwmod_class,
 };
 
+=======
+>>>>>>> upstream/android-13
 /* gpmc */
 struct omap_hwmod omap2xxx_gpmc_hwmod = {
 	.name		= "gpmc",

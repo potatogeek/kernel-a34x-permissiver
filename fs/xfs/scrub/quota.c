@@ -9,6 +9,7 @@
 #include "xfs_format.h"
 #include "xfs_trans_resv.h"
 #include "xfs_mount.h"
+<<<<<<< HEAD
 #include "xfs_defer.h"
 #include "xfs_btree.h"
 #include "xfs_bit.h"
@@ -30,16 +31,36 @@
 
 /* Convert a scrub type code to a DQ flag, or return 0 if error. */
 static inline uint
+=======
+#include "xfs_log_format.h"
+#include "xfs_trans.h"
+#include "xfs_inode.h"
+#include "xfs_quota.h"
+#include "xfs_qm.h"
+#include "scrub/scrub.h"
+#include "scrub/common.h"
+
+/* Convert a scrub type code to a DQ flag, or return 0 if error. */
+static inline xfs_dqtype_t
+>>>>>>> upstream/android-13
 xchk_quota_to_dqtype(
 	struct xfs_scrub	*sc)
 {
 	switch (sc->sm->sm_type) {
 	case XFS_SCRUB_TYPE_UQUOTA:
+<<<<<<< HEAD
 		return XFS_DQ_USER;
 	case XFS_SCRUB_TYPE_GQUOTA:
 		return XFS_DQ_GROUP;
 	case XFS_SCRUB_TYPE_PQUOTA:
 		return XFS_DQ_PROJ;
+=======
+		return XFS_DQTYPE_USER;
+	case XFS_SCRUB_TYPE_GQUOTA:
+		return XFS_DQTYPE_GROUP;
+	case XFS_SCRUB_TYPE_PQUOTA:
+		return XFS_DQTYPE_PROJ;
+>>>>>>> upstream/android-13
 	default:
 		return 0;
 	}
@@ -48,6 +69,7 @@ xchk_quota_to_dqtype(
 /* Set us up to scrub a quota. */
 int
 xchk_setup_quota(
+<<<<<<< HEAD
 	struct xfs_scrub	*sc,
 	struct xfs_inode	*ip)
 {
@@ -55,16 +77,32 @@ xchk_setup_quota(
 	int			error;
 
 	if (!XFS_IS_QUOTA_RUNNING(sc->mp) || !XFS_IS_QUOTA_ON(sc->mp))
+=======
+	struct xfs_scrub	*sc)
+{
+	xfs_dqtype_t		dqtype;
+	int			error;
+
+	if (!XFS_IS_QUOTA_ON(sc->mp))
+>>>>>>> upstream/android-13
 		return -ENOENT;
 
 	dqtype = xchk_quota_to_dqtype(sc);
 	if (dqtype == 0)
 		return -EINVAL;
+<<<<<<< HEAD
 	sc->has_quotaofflock = true;
 	mutex_lock(&sc->mp->m_quotainfo->qi_quotaofflock);
 	if (!xfs_this_quota_on(sc->mp, dqtype))
 		return -ENOENT;
 	error = xchk_setup_fs(sc, ip);
+=======
+	sc->flags |= XCHK_HAS_QUOTAOFFLOCK;
+	mutex_lock(&sc->mp->m_quotainfo->qi_quotaofflock);
+	if (!xfs_this_quota_on(sc->mp, dqtype))
+		return -ENOENT;
+	error = xchk_setup_fs(sc);
+>>>>>>> upstream/android-13
 	if (error)
 		return error;
 	sc->ip = xfs_quota_inode(sc->mp, dqtype);
@@ -84,12 +122,17 @@ struct xchk_quota_info {
 STATIC int
 xchk_quota_item(
 	struct xfs_dquot	*dq,
+<<<<<<< HEAD
 	uint			dqtype,
+=======
+	xfs_dqtype_t		dqtype,
+>>>>>>> upstream/android-13
 	void			*priv)
 {
 	struct xchk_quota_info	*sqi = priv;
 	struct xfs_scrub	*sc = sqi->sc;
 	struct xfs_mount	*mp = sc->mp;
+<<<<<<< HEAD
 	struct xfs_disk_dquot	*d = &dq->q_core;
 	struct xfs_quotainfo	*qi = mp->m_quotainfo;
 	xfs_fileoff_t		offset;
@@ -104,11 +147,21 @@ xchk_quota_item(
 	unsigned long long	rcount;
 	xfs_ino_t		fs_icount;
 	xfs_dqid_t		id = be32_to_cpu(d->d_id);
+=======
+	struct xfs_quotainfo	*qi = mp->m_quotainfo;
+	xfs_fileoff_t		offset;
+	xfs_ino_t		fs_icount;
+	int			error = 0;
+
+	if (xchk_should_terminate(sc, &error))
+		return -ECANCELED;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Except for the root dquot, the actual dquot we got must either have
 	 * the same or higher id as we saw before.
 	 */
+<<<<<<< HEAD
 	offset = id / qi->qi_dqperchunk;
 	if (id && id <= sqi->last_id)
 		xchk_fblock_set_corrupt(sc, XFS_DATA_FORK, offset);
@@ -130,6 +183,13 @@ xchk_quota_item(
 	bsoft = be64_to_cpu(d->d_blk_softlimit);
 	isoft = be64_to_cpu(d->d_ino_softlimit);
 	rsoft = be64_to_cpu(d->d_rtb_softlimit);
+=======
+	offset = dq->q_id / qi->qi_dqperchunk;
+	if (dq->q_id && dq->q_id <= sqi->last_id)
+		xchk_fblock_set_corrupt(sc, XFS_DATA_FORK, offset);
+
+	sqi->last_id = dq->q_id;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Warn if the hard limits are larger than the fs.
@@ -139,6 +199,7 @@ xchk_quota_item(
 	 * Complain about corruption if the soft limit is greater than
 	 * the hard limit.
 	 */
+<<<<<<< HEAD
 	if (bhard > mp->m_sb.sb_dblocks)
 		xchk_fblock_set_warning(sc, XFS_DATA_FORK, offset);
 	if (bsoft > bhard)
@@ -158,6 +219,24 @@ xchk_quota_item(
 	bcount = be64_to_cpu(d->d_bcount);
 	icount = be64_to_cpu(d->d_icount);
 	rcount = be64_to_cpu(d->d_rtbcount);
+=======
+	if (dq->q_blk.hardlimit > mp->m_sb.sb_dblocks)
+		xchk_fblock_set_warning(sc, XFS_DATA_FORK, offset);
+	if (dq->q_blk.softlimit > dq->q_blk.hardlimit)
+		xchk_fblock_set_corrupt(sc, XFS_DATA_FORK, offset);
+
+	if (dq->q_ino.hardlimit > M_IGEO(mp)->maxicount)
+		xchk_fblock_set_warning(sc, XFS_DATA_FORK, offset);
+	if (dq->q_ino.softlimit > dq->q_ino.hardlimit)
+		xchk_fblock_set_corrupt(sc, XFS_DATA_FORK, offset);
+
+	if (dq->q_rtb.hardlimit > mp->m_sb.sb_rblocks)
+		xchk_fblock_set_warning(sc, XFS_DATA_FORK, offset);
+	if (dq->q_rtb.softlimit > dq->q_rtb.hardlimit)
+		xchk_fblock_set_corrupt(sc, XFS_DATA_FORK, offset);
+
+	/* Check the resource counts. */
+>>>>>>> upstream/android-13
 	fs_icount = percpu_counter_sum(&mp->m_icount);
 
 	/*
@@ -165,6 +244,7 @@ xchk_quota_item(
 	 * a reflink filesystem we're allowed to exceed physical space
 	 * if there are no quota limits.
 	 */
+<<<<<<< HEAD
 	if (xfs_sb_version_hasreflink(&mp->m_sb)) {
 		if (mp->m_sb.sb_dblocks < bcount)
 			xchk_fblock_set_warning(sc, XFS_DATA_FORK,
@@ -175,6 +255,18 @@ xchk_quota_item(
 					offset);
 	}
 	if (icount > fs_icount || rcount > mp->m_sb.sb_rblocks)
+=======
+	if (xfs_has_reflink(mp)) {
+		if (mp->m_sb.sb_dblocks < dq->q_blk.count)
+			xchk_fblock_set_warning(sc, XFS_DATA_FORK,
+					offset);
+	} else {
+		if (mp->m_sb.sb_dblocks < dq->q_blk.count)
+			xchk_fblock_set_corrupt(sc, XFS_DATA_FORK,
+					offset);
+	}
+	if (dq->q_ino.count > fs_icount || dq->q_rtb.count > mp->m_sb.sb_rblocks)
+>>>>>>> upstream/android-13
 		xchk_fblock_set_corrupt(sc, XFS_DATA_FORK, offset);
 
 	/*
@@ -182,6 +274,7 @@ xchk_quota_item(
 	 * lower limit than the actual usage.  However, we flag it for
 	 * admin review.
 	 */
+<<<<<<< HEAD
 	if (id != 0 && bhard != 0 && bcount > bhard)
 		xchk_fblock_set_warning(sc, XFS_DATA_FORK, offset);
 	if (id != 0 && ihard != 0 && icount > ihard)
@@ -189,6 +282,27 @@ xchk_quota_item(
 	if (id != 0 && rhard != 0 && rcount > rhard)
 		xchk_fblock_set_warning(sc, XFS_DATA_FORK, offset);
 
+=======
+	if (dq->q_id == 0)
+		goto out;
+
+	if (dq->q_blk.hardlimit != 0 &&
+	    dq->q_blk.count > dq->q_blk.hardlimit)
+		xchk_fblock_set_warning(sc, XFS_DATA_FORK, offset);
+
+	if (dq->q_ino.hardlimit != 0 &&
+	    dq->q_ino.count > dq->q_ino.hardlimit)
+		xchk_fblock_set_warning(sc, XFS_DATA_FORK, offset);
+
+	if (dq->q_rtb.hardlimit != 0 &&
+	    dq->q_rtb.count > dq->q_rtb.hardlimit)
+		xchk_fblock_set_warning(sc, XFS_DATA_FORK, offset);
+
+out:
+	if (sc->sm->sm_flags & XFS_SCRUB_OFLAG_CORRUPT)
+		return -ECANCELED;
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -239,7 +353,11 @@ xchk_quota(
 	struct xchk_quota_info	sqi;
 	struct xfs_mount	*mp = sc->mp;
 	struct xfs_quotainfo	*qi = mp->m_quotainfo;
+<<<<<<< HEAD
 	uint			dqtype;
+=======
+	xfs_dqtype_t		dqtype;
+>>>>>>> upstream/android-13
 	int			error = 0;
 
 	dqtype = xchk_quota_to_dqtype(sc);
@@ -263,6 +381,11 @@ xchk_quota(
 	error = xfs_qm_dqiterate(mp, dqtype, xchk_quota_item, &sqi);
 	sc->ilock_flags = XFS_ILOCK_EXCL;
 	xfs_ilock(sc->ip, sc->ilock_flags);
+<<<<<<< HEAD
+=======
+	if (error == -ECANCELED)
+		error = 0;
+>>>>>>> upstream/android-13
 	if (!xchk_fblock_process_error(sc, XFS_DATA_FORK,
 			sqi.last_id * qi->qi_dqperchunk, &error))
 		goto out;

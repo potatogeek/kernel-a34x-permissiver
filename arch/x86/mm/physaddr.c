@@ -1,10 +1,18 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/mmdebug.h>
 #include <linux/export.h>
 #include <linux/mm.h>
 
 #include <asm/page.h>
+<<<<<<< HEAD
+=======
+#include <linux/vmalloc.h>
+>>>>>>> upstream/android-13
 
 #include "physaddr.h"
 

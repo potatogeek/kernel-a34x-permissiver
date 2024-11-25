@@ -9,6 +9,10 @@
 #include "rk3288.dtsi"
 
 / {
+<<<<<<< HEAD
+=======
+	model = "Netxeon R89";
+>>>>>>> upstream/android-13
 	compatible = "netxeon,r89", "rockchip,rk3288";
 
 	memory@0 {
@@ -90,7 +94,23 @@
 };
 
 &cpu0 {
+<<<<<<< HEAD
 	cpu0-supply = <&vdd_cpu>;
+=======
+	cpu-supply = <&vdd_cpu>;
+};
+
+&cpu1 {
+	cpu-supply = <&vdd_cpu>;
+};
+
+&cpu2 {
+	cpu-supply = <&vdd_cpu>;
+};
+
+&cpu3 {
+	cpu-supply = <&vdd_cpu>;
+>>>>>>> upstream/android-13
 };
 
 &gmac {
@@ -106,7 +126,11 @@
 	pinctrl-0 = <&rgmii_pins>;
 	tx_delay = <0x30>;
 	rx_delay = <0x10>;
+<<<<<<< HEAD
 	status = "ok";
+=======
+	status = "okay";
+>>>>>>> upstream/android-13
 };
 
 &hdmi {
@@ -265,39 +289,67 @@
 
 	act8846 {
 		pmic_vsel: pmic-vsel {
+<<<<<<< HEAD
 			rockchip,pins = <7 1 RK_FUNC_GPIO &pcfg_output_low>;
 		};
 
 		pwr_hold: pwr-hold {
 			rockchip,pins = <0 6 RK_FUNC_GPIO &pcfg_output_high>;
+=======
+			rockchip,pins = <7 RK_PA1 RK_FUNC_GPIO &pcfg_output_low>;
+		};
+
+		pwr_hold: pwr-hold {
+			rockchip,pins = <0 RK_PA6 RK_FUNC_GPIO &pcfg_output_high>;
+>>>>>>> upstream/android-13
 		};
 	};
 
 	buttons {
 		pwrbtn: pwrbtn {
+<<<<<<< HEAD
 			rockchip,pins = <0 5 RK_FUNC_GPIO &pcfg_pull_up>;
+=======
+			rockchip,pins = <0 RK_PA5 RK_FUNC_GPIO &pcfg_pull_up>;
+>>>>>>> upstream/android-13
 		};
 	};
 
 	ir {
 		ir_int: ir-int {
+<<<<<<< HEAD
 			rockchip,pins = <7 0 RK_FUNC_GPIO &pcfg_pull_up>;
+=======
+			rockchip,pins = <7 RK_PA0 RK_FUNC_GPIO &pcfg_pull_up>;
+>>>>>>> upstream/android-13
 		};
 	};
 
 	pmic {
 		pmic_int: pmic-int {
+<<<<<<< HEAD
 			rockchip,pins = <RK_GPIO0 4 RK_FUNC_GPIO &pcfg_pull_up>;
+=======
+			rockchip,pins = <0 RK_PA4 RK_FUNC_GPIO &pcfg_pull_up>;
+>>>>>>> upstream/android-13
 		};
 	};
 
 	usb {
 		host_vbus_drv: host-vbus-drv {
+<<<<<<< HEAD
 			rockchip,pins = <0 14 RK_FUNC_GPIO &pcfg_pull_none>;
 		};
 
 		otg_vbus_drv: otg-vbus-drv {
 			rockchip,pins = <0 12 RK_FUNC_GPIO &pcfg_pull_none>;
+=======
+			rockchip,pins = <0 RK_PB6 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
+
+		otg_vbus_drv: otg-vbus-drv {
+			rockchip,pins = <0 RK_PB4 RK_FUNC_GPIO &pcfg_pull_none>;
+>>>>>>> upstream/android-13
 		};
 	};
 };

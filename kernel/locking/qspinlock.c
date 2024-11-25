@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Queued spinlock
  *
@@ -11,6 +12,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Queued spinlock
+ *
+>>>>>>> upstream/android-13
  * (C) Copyright 2013-2015 Hewlett-Packard Development Company, L.P.
  * (C) Copyright 2013-2014,2018 Red Hat, Inc.
  * (C) Copyright 2015 Intel Corp.
@@ -40,6 +47,7 @@
 /*
  * The basic principle of a queue-based spinlock can best be understood
  * by studying a classic queue-based spinlock implementation called the
+<<<<<<< HEAD
  * MCS lock. The paper below provides a good description for this kind
  * of lock.
  *
@@ -48,6 +56,17 @@
  * This queued spinlock implementation is based on the MCS lock, however to make
  * it fit the 4 bytes we assume spinlock_t to be, and preserve its existing
  * API, we must modify it somehow.
+=======
+ * MCS lock. A copy of the original MCS lock paper ("Algorithms for Scalable
+ * Synchronization on Shared-Memory Multiprocessors by Mellor-Crummey and
+ * Scott") is available at
+ *
+ * https://bugzilla.kernel.org/show_bug.cgi?id=206115
+ *
+ * This queued spinlock implementation is based on the MCS lock, however to
+ * make it fit the 4 bytes we assume spinlock_t to be, and preserve its
+ * existing API, we must modify it somehow.
+>>>>>>> upstream/android-13
  *
  * In particular; where the traditional MCS lock consists of a tail pointer
  * (8 bytes) and needs the next pointer (another 8 bytes) of its own node to
@@ -74,12 +93,33 @@
  */
 
 #include "mcs_spinlock.h"
+<<<<<<< HEAD
 
 #ifdef CONFIG_PARAVIRT_SPINLOCKS
 #define MAX_NODES	8
 #else
 #define MAX_NODES	4
 #endif
+=======
+#define MAX_NODES	4
+
+/*
+ * On 64-bit architectures, the mcs_spinlock structure will be 16 bytes in
+ * size and four of them will fit nicely in one 64-byte cacheline. For
+ * pvqspinlock, however, we need more space for extra data. To accommodate
+ * that, we insert two more long words to pad it up to 32 bytes. IOW, only
+ * two of them can fit in a cacheline in this case. That is OK as it is rare
+ * to have more than 2 levels of slowpath nesting in actual use. We don't
+ * want to penalize pvqspinlocks to optimize for a rare case in native
+ * qspinlocks.
+ */
+struct qnode {
+	struct mcs_spinlock mcs;
+#ifdef CONFIG_PARAVIRT_SPINLOCKS
+	long reserved[2];
+#endif
+};
+>>>>>>> upstream/android-13
 
 /*
  * The pending bit spinning loop count.
@@ -101,7 +141,11 @@
  *
  * PV doubles the storage and uses the second cacheline for PV state.
  */
+<<<<<<< HEAD
 static DEFINE_PER_CPU_ALIGNED(struct mcs_spinlock, mcs_nodes[MAX_NODES]);
+=======
+static DEFINE_PER_CPU_ALIGNED(struct qnode, qnodes[MAX_NODES]);
+>>>>>>> upstream/android-13
 
 /*
  * We must be able to distinguish between no-tail and the tail at 0:0,
@@ -112,9 +156,12 @@ static inline __pure u32 encode_tail(int cpu, int idx)
 {
 	u32 tail;
 
+<<<<<<< HEAD
 #ifdef CONFIG_DEBUG_SPINLOCK
 	BUG_ON(idx > 3);
 #endif
+=======
+>>>>>>> upstream/android-13
 	tail  = (cpu + 1) << _Q_TAIL_CPU_OFFSET;
 	tail |= idx << _Q_TAIL_IDX_OFFSET; /* assume < 4 */
 
@@ -126,7 +173,17 @@ static inline __pure struct mcs_spinlock *decode_tail(u32 tail)
 	int cpu = (tail >> _Q_TAIL_CPU_OFFSET) - 1;
 	int idx = (tail &  _Q_TAIL_IDX_MASK) >> _Q_TAIL_IDX_OFFSET;
 
+<<<<<<< HEAD
 	return per_cpu_ptr(&mcs_nodes[idx], cpu);
+=======
+	return per_cpu_ptr(&qnodes[idx].mcs, cpu);
+}
+
+static inline __pure
+struct mcs_spinlock *grab_mcs_node(struct mcs_spinlock *base, int idx)
+{
+	return &((struct qnode *)base + idx)->mcs;
+>>>>>>> upstream/android-13
 }
 
 #define _Q_LOCKED_PENDING_MASK (_Q_LOCKED_MASK | _Q_PENDING_MASK)
@@ -153,7 +210,17 @@ static __always_inline void clear_pending(struct qspinlock *lock)
  */
 static __always_inline void clear_pending_set_locked(struct qspinlock *lock)
 {
+<<<<<<< HEAD
 	WRITE_ONCE(lock->locked_pending, _Q_LOCKED_VAL);
+=======
+#ifdef CONFIG_SEC_DEBUG_QSPIN_OWNER
+	u8 locked_val = __queued_spin_get_locked_val();
+
+	WRITE_ONCE(lock->locked_pending, locked_val);
+#else
+	WRITE_ONCE(lock->locked_pending, _Q_LOCKED_VAL);
+#endif
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -253,7 +320,17 @@ static __always_inline u32 queued_fetch_set_pending_acquire(struct qspinlock *lo
  */
 static __always_inline void set_locked(struct qspinlock *lock)
 {
+<<<<<<< HEAD
 	WRITE_ONCE(lock->locked, _Q_LOCKED_VAL);
+=======
+#ifdef CONFIG_SEC_DEBUG_QSPIN_OWNER
+	u8 locked_val = __queued_spin_get_locked_val();
+
+	WRITE_ONCE(lock->locked, locked_val);
+#else
+	WRITE_ONCE(lock->locked, _Q_LOCKED_VAL);
+#endif
+>>>>>>> upstream/android-13
 }
 
 
@@ -310,6 +387,12 @@ void queued_spin_lock_slowpath(struct qspinlock *lock, u32 val)
 	struct mcs_spinlock *prev, *next, *node;
 	u32 old, tail;
 	int idx;
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_SEC_DEBUG_QSPIN_OWNER
+	u8 locked_val = __queued_spin_get_locked_val();
+#endif
+>>>>>>> upstream/android-13
 
 	BUILD_BUG_ON(CONFIG_NR_CPUS >= (1U << _Q_TAIL_CPU_BITS));
 
@@ -340,17 +423,36 @@ void queued_spin_lock_slowpath(struct qspinlock *lock, u32 val)
 	/*
 	 * trylock || pending
 	 *
+<<<<<<< HEAD
 	 * 0,0,0 -> 0,0,1 ; trylock
 	 * 0,0,1 -> 0,1,1 ; pending
+=======
+	 * 0,0,* -> 0,1,* -> 0,0,1 pending, trylock
+>>>>>>> upstream/android-13
 	 */
 	val = queued_fetch_set_pending_acquire(lock);
 
 	/*
+<<<<<<< HEAD
 	 * If we observe any contention; undo and queue.
 	 */
 	if (unlikely(val & ~_Q_LOCKED_MASK)) {
 		if (!(val & _Q_PENDING_MASK))
 			clear_pending(lock);
+=======
+	 * If we observe contention, there is a concurrent locker.
+	 *
+	 * Undo and queue; our setting of PENDING might have made the
+	 * n,0,0 -> 0,0,0 transition fail and it will now be waiting
+	 * on @next to become !NULL.
+	 */
+	if (unlikely(val & ~_Q_LOCKED_MASK)) {
+
+		/* Undo PENDING if we set it. */
+		if (!(val & _Q_PENDING_MASK))
+			clear_pending(lock);
+
+>>>>>>> upstream/android-13
 		goto queue;
 	}
 
@@ -374,7 +476,11 @@ void queued_spin_lock_slowpath(struct qspinlock *lock, u32 val)
 	 * 0,1,0 -> 0,0,1
 	 */
 	clear_pending_set_locked(lock);
+<<<<<<< HEAD
 	qstat_inc(qstat_lock_pending, true);
+=======
+	lockevent_inc(lock_pending);
+>>>>>>> upstream/android-13
 	return;
 
 	/*
@@ -382,6 +488,7 @@ void queued_spin_lock_slowpath(struct qspinlock *lock, u32 val)
 	 * queuing.
 	 */
 queue:
+<<<<<<< HEAD
 	qstat_inc(qstat_lock_slowpath, true);
 pv_queue:
 	node = this_cpu_ptr(&mcs_nodes[0]);
@@ -389,6 +496,36 @@ pv_queue:
 	tail = encode_tail(smp_processor_id(), idx);
 
 	node += idx;
+=======
+	lockevent_inc(lock_slowpath);
+pv_queue:
+	node = this_cpu_ptr(&qnodes[0].mcs);
+	idx = node->count++;
+	tail = encode_tail(smp_processor_id(), idx);
+
+	/*
+	 * 4 nodes are allocated based on the assumption that there will
+	 * not be nested NMIs taking spinlocks. That may not be true in
+	 * some architectures even though the chance of needing more than
+	 * 4 nodes will still be extremely unlikely. When that happens,
+	 * we fall back to spinning on the lock directly without using
+	 * any MCS node. This is not the most elegant solution, but is
+	 * simple enough.
+	 */
+	if (unlikely(idx >= MAX_NODES)) {
+		lockevent_inc(lock_no_node);
+		while (!queued_spin_trylock(lock))
+			cpu_relax();
+		goto release;
+	}
+
+	node = grab_mcs_node(node, idx);
+
+	/*
+	 * Keep counts of non-zero index values:
+	 */
+	lockevent_cond_inc(lock_use_node2 + idx - 1, idx);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Ensure that we increment the head node->count before initialising
@@ -489,6 +626,7 @@ locked:
 	 */
 
 	/*
+<<<<<<< HEAD
 	 * In the PV case we might already have _Q_LOCKED_VAL set.
 	 *
 	 * The atomic_cond_read_acquire() call above has provided the
@@ -499,6 +637,31 @@ locked:
 		goto release; /* No contention */
 
 	/* Either somebody is queued behind us or _Q_PENDING_VAL is set */
+=======
+	 * In the PV case we might already have _Q_LOCKED_VAL set, because
+	 * of lock stealing; therefore we must also allow:
+	 *
+	 * n,0,1 -> 0,0,1
+	 *
+	 * Note: at this point: (val & _Q_PENDING_MASK) == 0, because of the
+	 *       above wait condition, therefore any concurrent setting of
+	 *       PENDING will make the uncontended transition fail.
+	 */
+	if ((val & _Q_TAIL_MASK) == tail) {
+#ifdef CONFIG_SEC_DEBUG_QSPIN_OWNER
+		if (atomic_try_cmpxchg_relaxed(&lock->val, &val, locked_val))
+#else
+		if (atomic_try_cmpxchg_relaxed(&lock->val, &val, _Q_LOCKED_VAL))
+#endif
+			goto release; /* No contention */
+	}
+
+	/*
+	 * Either somebody is queued behind us or _Q_PENDING_VAL got set
+	 * which will then detect the remaining tail and queue behind us
+	 * ensuring we'll see a @next.
+	 */
+>>>>>>> upstream/android-13
 	set_locked(lock);
 
 	/*
@@ -514,7 +677,11 @@ release:
 	/*
 	 * release the node
 	 */
+<<<<<<< HEAD
 	__this_cpu_dec(mcs_nodes[0].count);
+=======
+	__this_cpu_dec(qnodes[0].mcs.count);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(queued_spin_lock_slowpath);
 
@@ -538,4 +705,14 @@ EXPORT_SYMBOL(queued_spin_lock_slowpath);
 #include "qspinlock_paravirt.h"
 #include "qspinlock.c"
 
+<<<<<<< HEAD
+=======
+bool nopvspin __initdata;
+static __init int parse_nopvspin(char *arg)
+{
+	nopvspin = true;
+	return 0;
+}
+early_param("nopvspin", parse_nopvspin);
+>>>>>>> upstream/android-13
 #endif

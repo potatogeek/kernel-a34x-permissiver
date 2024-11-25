@@ -7,7 +7,11 @@
 
 &i2c0 {
 	eeprom@50 {
+<<<<<<< HEAD
 		compatible = "microchip,24lc128";
+=======
+		compatible = "microchip,24lc128", "atmel,24c128";
+>>>>>>> upstream/android-13
 		reg = <0x50>;
 		pagesize = <64>;
 	};

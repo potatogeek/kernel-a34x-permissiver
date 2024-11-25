@@ -24,21 +24,38 @@ String Conversions
 .. kernel-doc:: lib/vsprintf.c
    :export:
 
+<<<<<<< HEAD
 .. kernel-doc:: include/linux/kernel.h
    :functions: kstrtol
 
 .. kernel-doc:: include/linux/kernel.h
    :functions: kstrtoul
+=======
+.. kernel-doc:: include/linux/kstrtox.h
+   :functions: kstrtol kstrtoul
+>>>>>>> upstream/android-13
 
 .. kernel-doc:: lib/kstrtox.c
    :export:
 
+<<<<<<< HEAD
+=======
+.. kernel-doc:: lib/string_helpers.c
+   :export:
+
+>>>>>>> upstream/android-13
 String Manipulation
 -------------------
 
 .. kernel-doc:: lib/string.c
    :export:
 
+<<<<<<< HEAD
+=======
+.. kernel-doc:: include/linux/string.h
+   :internal:
+
+>>>>>>> upstream/android-13
 .. kernel-doc:: mm/util.c
    :functions: kstrdup kstrdup_const kstrndup kmemdup kmemdup_nul memdup_user
                vmemdup_user strndup_user memdup_user_nul
@@ -51,7 +68,17 @@ The Linux kernel provides more basic utility functions.
 Bit Operations
 --------------
 
+<<<<<<< HEAD
 .. kernel-doc:: arch/x86/include/asm/bitops.h
+=======
+.. kernel-doc:: include/asm-generic/bitops/instrumented-atomic.h
+   :internal:
+
+.. kernel-doc:: include/asm-generic/bitops/instrumented-non-atomic.h
+   :internal:
+
+.. kernel-doc:: include/asm-generic/bitops/instrumented-lock.h
+>>>>>>> upstream/android-13
    :internal:
 
 Bitmap Operations
@@ -138,6 +165,18 @@ Base 2 log and power Functions
 .. kernel-doc:: include/linux/log2.h
    :internal:
 
+<<<<<<< HEAD
+=======
+Integer power Functions
+-----------------------
+
+.. kernel-doc:: lib/math/int_pow.c
+   :export:
+
+.. kernel-doc:: lib/math/int_sqrt.c
+   :export:
+
+>>>>>>> upstream/android-13
 Division Functions
 ------------------
 
@@ -147,10 +186,17 @@ Division Functions
 .. kernel-doc:: include/linux/math64.h
    :internal:
 
+<<<<<<< HEAD
 .. kernel-doc:: lib/div64.c
    :functions: div_s64_rem div64_u64_rem div64_u64 div64_s64
 
 .. kernel-doc:: lib/gcd.c
+=======
+.. kernel-doc:: lib/math/div64.c
+   :functions: div_s64_rem div64_u64_rem div64_u64 div64_s64
+
+.. kernel-doc:: lib/math/gcd.c
+>>>>>>> upstream/android-13
    :export:
 
 UUID/GUID
@@ -210,12 +256,15 @@ Refer to the file kernel/module.c for more information.
 Hardware Interfaces
 ===================
 
+<<<<<<< HEAD
 Interrupt Handling
 ------------------
 
 .. kernel-doc:: kernel/irq/manage.c
    :export:
 
+=======
+>>>>>>> upstream/android-13
 DMA Channels
 ------------
 
@@ -291,12 +340,15 @@ Block Devices
 .. kernel-doc:: block/blk-lib.c
    :export:
 
+<<<<<<< HEAD
 .. kernel-doc:: block/blk-tag.c
    :export:
 
 .. kernel-doc:: block/blk-tag.c
    :internal:
 
+=======
+>>>>>>> upstream/android-13
 .. kernel-doc:: block/blk-integrity.c
    :export:
 
@@ -309,6 +361,12 @@ Block Devices
 .. kernel-doc:: block/genhd.c
    :export:
 
+<<<<<<< HEAD
+=======
+.. kernel-doc:: block/bdev.c
+   :export:
+
+>>>>>>> upstream/android-13
 Char devices
 ============
 
@@ -362,6 +420,7 @@ Read-Copy Update (RCU)
 
 .. kernel-doc:: include/linux/rcupdate.h
 
+<<<<<<< HEAD
 .. kernel-doc:: include/linux/rcupdate_wait.h
 
 .. kernel-doc:: include/linux/rcutree.h
@@ -370,6 +429,10 @@ Read-Copy Update (RCU)
 
 .. kernel-doc:: kernel/rcu/tree_plugin.h
 
+=======
+.. kernel-doc:: kernel/rcu/tree.c
+
+>>>>>>> upstream/android-13
 .. kernel-doc:: kernel/rcu/tree_exp.h
 
 .. kernel-doc:: kernel/rcu/update.c

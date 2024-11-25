@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Rewritten by Rusty Russell, on the backs of many others...
    Copyright (C) 2001 Rusty Russell, 2002 Rusty Russell IBM.
 
@@ -14,6 +15,12 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/* Rewritten by Rusty Russell, on the backs of many others...
+   Copyright (C) 2001 Rusty Russell, 2002 Rusty Russell IBM.
+
+>>>>>>> upstream/android-13
 */
 #include <linux/ftrace.h>
 #include <linux/memory.h>
@@ -46,21 +53,45 @@ u32 __initdata __visible main_extable_sort_needed = 1;
 /* Sort the kernel's built-in exception table */
 void __init sort_main_extable(void)
 {
+<<<<<<< HEAD
 	if (main_extable_sort_needed && __stop___ex_table > __start___ex_table) {
+=======
+	if (main_extable_sort_needed &&
+	    &__stop___ex_table > &__start___ex_table) {
+>>>>>>> upstream/android-13
 		pr_notice("Sorting __ex_table...\n");
 		sort_extable(__start___ex_table, __stop___ex_table);
 	}
 }
 
+<<<<<<< HEAD
+=======
+/* Given an address, look for it in the kernel exception table */
+const
+struct exception_table_entry *search_kernel_exception_table(unsigned long addr)
+{
+	return search_extable(__start___ex_table,
+			      __stop___ex_table - __start___ex_table, addr);
+}
+
+>>>>>>> upstream/android-13
 /* Given an address, look for it in the exception tables. */
 const struct exception_table_entry *search_exception_tables(unsigned long addr)
 {
 	const struct exception_table_entry *e;
 
+<<<<<<< HEAD
 	e = search_extable(__start___ex_table,
 			   __stop___ex_table - __start___ex_table, addr);
 	if (!e)
 		e = search_module_extables(addr);
+=======
+	e = search_kernel_exception_table(addr);
+	if (!e)
+		e = search_module_extables(addr);
+	if (!e)
+		e = search_bpf_extables(addr);
+>>>>>>> upstream/android-13
 	return e;
 }
 
@@ -134,8 +165,14 @@ int kernel_text_address(unsigned long addr)
 	 * triggers a stack trace, or a WARN() that happens during
 	 * coming back from idle, or cpu on or offlining.
 	 *
+<<<<<<< HEAD
 	 * is_module_text_address() as well as the kprobe slots
 	 * and is_bpf_text_address() require RCU to be watching.
+=======
+	 * is_module_text_address() as well as the kprobe slots,
+	 * is_bpf_text_address() and is_bpf_image_address require
+	 * RCU to be watching.
+>>>>>>> upstream/android-13
 	 */
 	no_rcu = !rcu_is_watching();
 

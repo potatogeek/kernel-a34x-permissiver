@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Cryptographic API.
  *
  * Serpent Cipher Algorithm.
  *
  * Copyright (C) 2002 Dag Arne Osvik <osvik@ii.uib.no>
+<<<<<<< HEAD
  *               2003 Herbert Valerio Riedel <hvr@gnu.org>
  *
  * Added tnepres support:
@@ -14,12 +19,18 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/errno.h>
+<<<<<<< HEAD
 #include <asm/byteorder.h>
+=======
+#include <asm/unaligned.h>
+>>>>>>> upstream/android-13
 #include <linux/crypto.h>
 #include <linux/types.h>
 #include <crypto/serpent.h>
@@ -281,6 +292,10 @@ int __serpent_setkey(struct serpent_ctx *ctx, const u8 *key,
 	u32 *k = ctx->expkey;
 	u8  *k8 = (u8 *)k;
 	u32 r0, r1, r2, r3, r4;
+<<<<<<< HEAD
+=======
+	__le32 *lk;
+>>>>>>> upstream/android-13
 	int i;
 
 	/* Copy key, add padding */
@@ -292,6 +307,7 @@ int __serpent_setkey(struct serpent_ctx *ctx, const u8 *key,
 	while (i < SERPENT_MAX_KEY_SIZE)
 		k8[i++] = 0;
 
+<<<<<<< HEAD
 	/* Expand key using polynomial */
 
 	r0 = le32_to_cpu(k[3]);
@@ -308,6 +324,34 @@ int __serpent_setkey(struct serpent_ctx *ctx, const u8 *key,
 	keyiter(le32_to_cpu(k[5]), r0, r4, r2, 5, 5);
 	keyiter(le32_to_cpu(k[6]), r1, r0, r3, 6, 6);
 	keyiter(le32_to_cpu(k[7]), r2, r1, r4, 7, 7);
+=======
+	lk = (__le32 *)k;
+	k[0] = le32_to_cpu(lk[0]);
+	k[1] = le32_to_cpu(lk[1]);
+	k[2] = le32_to_cpu(lk[2]);
+	k[3] = le32_to_cpu(lk[3]);
+	k[4] = le32_to_cpu(lk[4]);
+	k[5] = le32_to_cpu(lk[5]);
+	k[6] = le32_to_cpu(lk[6]);
+	k[7] = le32_to_cpu(lk[7]);
+
+	/* Expand key using polynomial */
+
+	r0 = k[3];
+	r1 = k[4];
+	r2 = k[5];
+	r3 = k[6];
+	r4 = k[7];
+
+	keyiter(k[0], r0, r4, r2, 0, 0);
+	keyiter(k[1], r1, r0, r3, 1, 1);
+	keyiter(k[2], r2, r1, r4, 2, 2);
+	keyiter(k[3], r3, r2, r0, 3, 3);
+	keyiter(k[4], r4, r3, r1, 4, 4);
+	keyiter(k[5], r0, r4, r2, 5, 5);
+	keyiter(k[6], r1, r0, r3, 6, 6);
+	keyiter(k[7], r2, r1, r4, 7, 7);
+>>>>>>> upstream/android-13
 
 	keyiter(k[0], r3, r2, r0, 8, 8);
 	keyiter(k[1], r4, r3, r1, 9, 9);
@@ -453,6 +497,7 @@ int serpent_setkey(struct crypto_tfm *tfm, const u8 *key, unsigned int keylen)
 }
 EXPORT_SYMBOL_GPL(serpent_setkey);
 
+<<<<<<< HEAD
 void __serpent_encrypt(struct serpent_ctx *ctx, u8 *dst, const u8 *src)
 {
 	const u32 *k = ctx->expkey;
@@ -469,6 +514,18 @@ void __serpent_encrypt(struct serpent_ctx *ctx, u8 *dst, const u8 *src)
 	r1 = le32_to_cpu(s[1]);
 	r2 = le32_to_cpu(s[2]);
 	r3 = le32_to_cpu(s[3]);
+=======
+void __serpent_encrypt(const void *c, u8 *dst, const u8 *src)
+{
+	const struct serpent_ctx *ctx = c;
+	const u32 *k = ctx->expkey;
+	u32	r0, r1, r2, r3, r4;
+
+	r0 = get_unaligned_le32(src);
+	r1 = get_unaligned_le32(src + 4);
+	r2 = get_unaligned_le32(src + 8);
+	r3 = get_unaligned_le32(src + 12);
+>>>>>>> upstream/android-13
 
 					K(r0, r1, r2, r3, 0);
 	S0(r0, r1, r2, r3, r4);		LK(r2, r1, r3, r0, r4, 1);
@@ -504,10 +561,17 @@ void __serpent_encrypt(struct serpent_ctx *ctx, u8 *dst, const u8 *src)
 	S6(r0, r1, r3, r2, r4);		LK(r3, r4, r1, r2, r0, 31);
 	S7(r3, r4, r1, r2, r0);		K(r0, r1, r2, r3, 32);
 
+<<<<<<< HEAD
 	d[0] = cpu_to_le32(r0);
 	d[1] = cpu_to_le32(r1);
 	d[2] = cpu_to_le32(r2);
 	d[3] = cpu_to_le32(r3);
+=======
+	put_unaligned_le32(r0, dst);
+	put_unaligned_le32(r1, dst + 4);
+	put_unaligned_le32(r2, dst + 8);
+	put_unaligned_le32(r3, dst + 12);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(__serpent_encrypt);
 
@@ -518,6 +582,7 @@ static void serpent_encrypt(struct crypto_tfm *tfm, u8 *dst, const u8 *src)
 	__serpent_encrypt(ctx, dst, src);
 }
 
+<<<<<<< HEAD
 void __serpent_decrypt(struct serpent_ctx *ctx, u8 *dst, const u8 *src)
 {
 	const u32 *k = ctx->expkey;
@@ -529,6 +594,18 @@ void __serpent_decrypt(struct serpent_ctx *ctx, u8 *dst, const u8 *src)
 	r1 = le32_to_cpu(s[1]);
 	r2 = le32_to_cpu(s[2]);
 	r3 = le32_to_cpu(s[3]);
+=======
+void __serpent_decrypt(const void *c, u8 *dst, const u8 *src)
+{
+	const struct serpent_ctx *ctx = c;
+	const u32 *k = ctx->expkey;
+	u32	r0, r1, r2, r3, r4;
+
+	r0 = get_unaligned_le32(src);
+	r1 = get_unaligned_le32(src + 4);
+	r2 = get_unaligned_le32(src + 8);
+	r3 = get_unaligned_le32(src + 12);
+>>>>>>> upstream/android-13
 
 					K(r0, r1, r2, r3, 32);
 	SI7(r0, r1, r2, r3, r4);	KL(r1, r3, r0, r4, r2, 31);
@@ -564,10 +641,17 @@ void __serpent_decrypt(struct serpent_ctx *ctx, u8 *dst, const u8 *src)
 	SI1(r3, r1, r2, r0, r4);	KL(r4, r1, r2, r0, r3, 1);
 	SI0(r4, r1, r2, r0, r3);	K(r2, r3, r1, r4, 0);
 
+<<<<<<< HEAD
 	d[0] = cpu_to_le32(r2);
 	d[1] = cpu_to_le32(r3);
 	d[2] = cpu_to_le32(r1);
 	d[3] = cpu_to_le32(r4);
+=======
+	put_unaligned_le32(r2, dst);
+	put_unaligned_le32(r3, dst + 4);
+	put_unaligned_le32(r1, dst + 8);
+	put_unaligned_le32(r4, dst + 12);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(__serpent_decrypt);
 
@@ -578,6 +662,7 @@ static void serpent_decrypt(struct crypto_tfm *tfm, u8 *dst, const u8 *src)
 	__serpent_decrypt(ctx, dst, src);
 }
 
+<<<<<<< HEAD
 static int tnepres_setkey(struct crypto_tfm *tfm, const u8 *key,
 			  unsigned int keylen)
 {
@@ -631,13 +716,19 @@ static void tnepres_decrypt(struct crypto_tfm *tfm, u8 *dst, const u8 *src)
 }
 
 static struct crypto_alg srp_algs[2] = { {
+=======
+static struct crypto_alg srp_alg = {
+>>>>>>> upstream/android-13
 	.cra_name		=	"serpent",
 	.cra_driver_name	=	"serpent-generic",
 	.cra_priority		=	100,
 	.cra_flags		=	CRYPTO_ALG_TYPE_CIPHER,
 	.cra_blocksize		=	SERPENT_BLOCK_SIZE,
 	.cra_ctxsize		=	sizeof(struct serpent_ctx),
+<<<<<<< HEAD
 	.cra_alignmask		=	3,
+=======
+>>>>>>> upstream/android-13
 	.cra_module		=	THIS_MODULE,
 	.cra_u			=	{ .cipher = {
 	.cia_min_keysize	=	SERPENT_MIN_KEY_SIZE,
@@ -645,6 +736,7 @@ static struct crypto_alg srp_algs[2] = { {
 	.cia_setkey		=	serpent_setkey,
 	.cia_encrypt		=	serpent_encrypt,
 	.cia_decrypt		=	serpent_decrypt } }
+<<<<<<< HEAD
 }, {
 	.cra_name		=	"tnepres",
 	.cra_flags		=	CRYPTO_ALG_TYPE_CIPHER,
@@ -663,10 +755,18 @@ static struct crypto_alg srp_algs[2] = { {
 static int __init serpent_mod_init(void)
 {
 	return crypto_register_algs(srp_algs, ARRAY_SIZE(srp_algs));
+=======
+};
+
+static int __init serpent_mod_init(void)
+{
+	return crypto_register_alg(&srp_alg);
+>>>>>>> upstream/android-13
 }
 
 static void __exit serpent_mod_fini(void)
 {
+<<<<<<< HEAD
 	crypto_unregister_algs(srp_algs, ARRAY_SIZE(srp_algs));
 }
 
@@ -677,5 +777,16 @@ MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("Serpent and tnepres (kerneli compatible serpent reversed) Cipher Algorithm");
 MODULE_AUTHOR("Dag Arne Osvik <osvik@ii.uib.no>");
 MODULE_ALIAS_CRYPTO("tnepres");
+=======
+	crypto_unregister_alg(&srp_alg);
+}
+
+subsys_initcall(serpent_mod_init);
+module_exit(serpent_mod_fini);
+
+MODULE_LICENSE("GPL");
+MODULE_DESCRIPTION("Serpent Cipher Algorithm");
+MODULE_AUTHOR("Dag Arne Osvik <osvik@ii.uib.no>");
+>>>>>>> upstream/android-13
 MODULE_ALIAS_CRYPTO("serpent");
 MODULE_ALIAS_CRYPTO("serpent-generic");

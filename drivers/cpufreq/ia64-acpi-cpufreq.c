@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * This file provides the ACPI based P-state support. This
  * module works with generic cpufreq infrastructure. Most of
@@ -16,7 +20,10 @@
 #include <linux/init.h>
 #include <linux/cpufreq.h>
 #include <linux/proc_fs.h>
+<<<<<<< HEAD
 #include <linux/seq_file.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/io.h>
 #include <linux/uaccess.h>
 #include <asm/pal.h>
@@ -28,7 +35,10 @@ MODULE_AUTHOR("Venkatesh Pallipadi");
 MODULE_DESCRIPTION("ACPI Processor P-States Driver");
 MODULE_LICENSE("GPL");
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 struct cpufreq_acpi_io {
 	struct acpi_processor_performance	acpi_data;
 	unsigned int				resume;
@@ -55,7 +65,11 @@ processor_set_pstate (
 	retval = ia64_pal_set_pstate((u64)value);
 
 	if (retval) {
+<<<<<<< HEAD
 		pr_debug("Failed to set freq to 0x%x, with error 0x%lx\n",
+=======
+		pr_debug("Failed to set freq to 0x%x, with error 0x%llx\n",
+>>>>>>> upstream/android-13
 		        value, retval);
 		return -ENODEV;
 	}
@@ -78,7 +92,11 @@ processor_get_pstate (
 
 	if (retval)
 		pr_debug("Failed to get current freq with "
+<<<<<<< HEAD
 			"error 0x%lx, idx 0x%x\n", retval, *value);
+=======
+			"error 0x%llx, idx 0x%x\n", retval, *value);
+>>>>>>> upstream/android-13
 
 	return (int)retval;
 }
@@ -348,6 +366,7 @@ acpi_cpufreq_exit (void)
 	pr_debug("acpi_cpufreq_exit\n");
 
 	cpufreq_unregister_driver(&acpi_cpufreq_driver);
+<<<<<<< HEAD
 	return;
 }
 
@@ -355,3 +374,9 @@ acpi_cpufreq_exit (void)
 late_initcall(acpi_cpufreq_init);
 module_exit(acpi_cpufreq_exit);
 
+=======
+}
+
+late_initcall(acpi_cpufreq_init);
+module_exit(acpi_cpufreq_exit);
+>>>>>>> upstream/android-13

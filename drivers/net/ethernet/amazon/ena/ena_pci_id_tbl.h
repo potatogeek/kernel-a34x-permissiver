@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2015 Amazon.com, Inc. or its affiliates.
  *
@@ -28,6 +29,11 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB */
+/*
+ * Copyright 2015-2020 Amazon.com, Inc. or its affiliates. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef ENA_PCI_ID_TBL_H_
@@ -53,10 +59,21 @@
 #define PCI_DEV_ID_ENA_LLQ_VF	0xec21
 #endif
 
+<<<<<<< HEAD
+=======
+#ifndef PCI_DEV_ID_ENA_RESRV0
+#define PCI_DEV_ID_ENA_RESRV0	0x0051
+#endif
+
+>>>>>>> upstream/android-13
 #define ENA_PCI_ID_TABLE_ENTRY(devid) \
 	{PCI_DEVICE(PCI_VENDOR_ID_AMAZON, devid)},
 
 static const struct pci_device_id ena_pci_tbl[] = {
+<<<<<<< HEAD
+=======
+	ENA_PCI_ID_TABLE_ENTRY(PCI_DEV_ID_ENA_RESRV0)
+>>>>>>> upstream/android-13
 	ENA_PCI_ID_TABLE_ENTRY(PCI_DEV_ID_ENA_PF)
 	ENA_PCI_ID_TABLE_ENTRY(PCI_DEV_ID_ENA_LLQ_PF)
 	ENA_PCI_ID_TABLE_ENTRY(PCI_DEV_ID_ENA_VF)

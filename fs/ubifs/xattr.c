@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * This file is part of UBIFS.
  *
  * Copyright (C) 2006-2008 Nokia Corporation.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
@@ -16,6 +21,8 @@
  * this program; if not, write to the Free Software Foundation, Inc., 51
  * Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  * Authors: Artem Bityutskiy (Битюцкий Артём)
  *          Adrian Hunter
  */
@@ -61,12 +68,15 @@
 #include <linux/xattr.h>
 
 /*
+<<<<<<< HEAD
  * Limit the number of extended attributes per inode so that the total size
  * (@xattr_size) is guaranteeded to fit in an 'unsigned int'.
  */
 #define MAX_XATTRS_PER_INODE 65535
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Extended attribute type constants.
  *
  * USER_XATTR: user extended attribute ("user.*")
@@ -106,7 +116,11 @@ static int create_xattr(struct ubifs_info *c, struct inode *host,
 				.new_ino_d = ALIGN(size, 8), .dirtied_ino = 1,
 				.dirtied_ino_d = ALIGN(host_ui->data_len, 8) };
 
+<<<<<<< HEAD
 	if (host_ui->xattr_cnt >= MAX_XATTRS_PER_INODE) {
+=======
+	if (host_ui->xattr_cnt >= ubifs_xattr_max_cnt(c)) {
+>>>>>>> upstream/android-13
 		ubifs_err(c, "inode %lu already has too many xattrs (%d), cannot create more",
 			  host->i_ino, host_ui->xattr_cnt);
 		return -ENOSPC;
@@ -226,13 +240,19 @@ static int change_xattr(struct ubifs_info *c, struct inode *host,
 		err = -ENOMEM;
 		goto out_free;
 	}
+<<<<<<< HEAD
 	mutex_lock(&ui->ui_mutex);
+=======
+>>>>>>> upstream/android-13
 	kfree(ui->data);
 	ui->data = buf;
 	inode->i_size = ui->ui_size = size;
 	old_size = ui->data_len;
 	ui->data_len = size;
+<<<<<<< HEAD
 	mutex_unlock(&ui->ui_mutex);
+=======
+>>>>>>> upstream/android-13
 
 	mutex_lock(&host_ui->ui_mutex);
 	host->i_ctime = current_time(host);
@@ -303,6 +323,10 @@ int ubifs_xattr_set(struct inode *host, const char *name, const void *value,
 	if (!xent)
 		return -ENOMEM;
 
+<<<<<<< HEAD
+=======
+	down_write(&ubifs_inode(host)->xattr_sem);
+>>>>>>> upstream/android-13
 	/*
 	 * The extended attribute entries are stored in LNC, so multiple
 	 * look-ups do not involve reading the flash.
@@ -337,6 +361,10 @@ int ubifs_xattr_set(struct inode *host, const char *name, const void *value,
 	iput(inode);
 
 out_free:
+<<<<<<< HEAD
+=======
+	up_write(&ubifs_inode(host)->xattr_sem);
+>>>>>>> upstream/android-13
 	kfree(xent);
 	return err;
 }
@@ -359,25 +387,40 @@ ssize_t ubifs_xattr_get(struct inode *host, const char *name, void *buf,
 	if (!xent)
 		return -ENOMEM;
 
+<<<<<<< HEAD
+=======
+	down_read(&ubifs_inode(host)->xattr_sem);
+>>>>>>> upstream/android-13
 	xent_key_init(c, &key, host->i_ino, &nm);
 	err = ubifs_tnc_lookup_nm(c, &key, xent, &nm);
 	if (err) {
 		if (err == -ENOENT)
 			err = -ENODATA;
+<<<<<<< HEAD
 		goto out_unlock;
+=======
+		goto out_cleanup;
+>>>>>>> upstream/android-13
 	}
 
 	inode = iget_xattr(c, le64_to_cpu(xent->inum));
 	if (IS_ERR(inode)) {
 		err = PTR_ERR(inode);
+<<<<<<< HEAD
 		goto out_unlock;
+=======
+		goto out_cleanup;
+>>>>>>> upstream/android-13
 	}
 
 	ui = ubifs_inode(inode);
 	ubifs_assert(c, inode->i_size == ui->data_len);
 	ubifs_assert(c, ubifs_inode(host)->xattr_size > ui->data_len);
 
+<<<<<<< HEAD
 	mutex_lock(&ui->ui_mutex);
+=======
+>>>>>>> upstream/android-13
 	if (buf) {
 		/* If @buf is %NULL we are supposed to return the length */
 		if (ui->data_len > size) {
@@ -390,9 +433,15 @@ ssize_t ubifs_xattr_get(struct inode *host, const char *name, void *buf,
 	err = ui->data_len;
 
 out_iput:
+<<<<<<< HEAD
 	mutex_unlock(&ui->ui_mutex);
 	iput(inode);
 out_unlock:
+=======
+	iput(inode);
+out_cleanup:
+	up_read(&ubifs_inode(host)->xattr_sem);
+>>>>>>> upstream/android-13
 	kfree(xent);
 	return err;
 }
@@ -424,16 +473,33 @@ ssize_t ubifs_listxattr(struct dentry *dentry, char *buffer, size_t size)
 	dbg_gen("ino %lu ('%pd'), buffer size %zd", host->i_ino,
 		dentry, size);
 
+<<<<<<< HEAD
 	len = host_ui->xattr_names + host_ui->xattr_cnt;
 	if (!buffer)
+=======
+	down_read(&host_ui->xattr_sem);
+	len = host_ui->xattr_names + host_ui->xattr_cnt;
+	if (!buffer) {
+>>>>>>> upstream/android-13
 		/*
 		 * We should return the minimum buffer size which will fit a
 		 * null-terminated list of all the extended attribute names.
 		 */
+<<<<<<< HEAD
 		return len;
 
 	if (len > size)
 		return -ERANGE;
+=======
+		err = len;
+		goto out_err;
+	}
+
+	if (len > size) {
+		err = -ERANGE;
+		goto out_err;
+	}
+>>>>>>> upstream/android-13
 
 	lowest_xent_key(c, &key, host->i_ino);
 	while (1) {
@@ -455,8 +521,14 @@ ssize_t ubifs_listxattr(struct dentry *dentry, char *buffer, size_t size)
 		pxent = xent;
 		key_read(c, &xent->key, &key);
 	}
+<<<<<<< HEAD
 
 	kfree(pxent);
+=======
+	kfree(pxent);
+	up_read(&host_ui->xattr_sem);
+
+>>>>>>> upstream/android-13
 	if (err != -ENOENT) {
 		ubifs_err(c, "cannot find next direntry, error %d", err);
 		return err;
@@ -464,6 +536,13 @@ ssize_t ubifs_listxattr(struct dentry *dentry, char *buffer, size_t size)
 
 	ubifs_assert(c, written <= size);
 	return written;
+<<<<<<< HEAD
+=======
+
+out_err:
+	up_read(&host_ui->xattr_sem);
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static int remove_xattr(struct ubifs_info *c, struct inode *host,
@@ -507,6 +586,80 @@ out_cancel:
 	return err;
 }
 
+<<<<<<< HEAD
+=======
+int ubifs_purge_xattrs(struct inode *host)
+{
+	union ubifs_key key;
+	struct ubifs_info *c = host->i_sb->s_fs_info;
+	struct ubifs_dent_node *xent, *pxent = NULL;
+	struct inode *xino;
+	struct fscrypt_name nm = {0};
+	int err;
+
+	if (ubifs_inode(host)->xattr_cnt <= ubifs_xattr_max_cnt(c))
+		return 0;
+
+	ubifs_warn(c, "inode %lu has too many xattrs, doing a non-atomic deletion",
+		   host->i_ino);
+
+	down_write(&ubifs_inode(host)->xattr_sem);
+	lowest_xent_key(c, &key, host->i_ino);
+	while (1) {
+		xent = ubifs_tnc_next_ent(c, &key, &nm);
+		if (IS_ERR(xent)) {
+			err = PTR_ERR(xent);
+			break;
+		}
+
+		fname_name(&nm) = xent->name;
+		fname_len(&nm) = le16_to_cpu(xent->nlen);
+
+		xino = ubifs_iget(c->vfs_sb, le64_to_cpu(xent->inum));
+		if (IS_ERR(xino)) {
+			err = PTR_ERR(xino);
+			ubifs_err(c, "dead directory entry '%s', error %d",
+				  xent->name, err);
+			ubifs_ro_mode(c, err);
+			kfree(pxent);
+			kfree(xent);
+			goto out_err;
+		}
+
+		ubifs_assert(c, ubifs_inode(xino)->xattr);
+
+		clear_nlink(xino);
+		err = remove_xattr(c, host, xino, &nm);
+		if (err) {
+			kfree(pxent);
+			kfree(xent);
+			iput(xino);
+			ubifs_err(c, "cannot remove xattr, error %d", err);
+			goto out_err;
+		}
+
+		iput(xino);
+
+		kfree(pxent);
+		pxent = xent;
+		key_read(c, &xent->key, &key);
+	}
+	kfree(pxent);
+	up_write(&ubifs_inode(host)->xattr_sem);
+
+	if (err != -ENOENT) {
+		ubifs_err(c, "cannot find next direntry, error %d", err);
+		return err;
+	}
+
+	return 0;
+
+out_err:
+	up_write(&ubifs_inode(host)->xattr_sem);
+	return err;
+}
+
+>>>>>>> upstream/android-13
 /**
  * ubifs_evict_xattr_inode - Evict an xattr inode.
  * @c: UBIFS file-system description object
@@ -547,6 +700,10 @@ static int ubifs_xattr_remove(struct inode *host, const char *name)
 	if (!xent)
 		return -ENOMEM;
 
+<<<<<<< HEAD
+=======
+	down_write(&ubifs_inode(host)->xattr_sem);
+>>>>>>> upstream/android-13
 	xent_key_init(c, &key, host->i_ino, &nm);
 	err = ubifs_tnc_lookup_nm(c, &key, xent, &nm);
 	if (err) {
@@ -571,6 +728,10 @@ static int ubifs_xattr_remove(struct inode *host, const char *name)
 	iput(inode);
 
 out_free:
+<<<<<<< HEAD
+=======
+	up_write(&ubifs_inode(host)->xattr_sem);
+>>>>>>> upstream/android-13
 	kfree(xent);
 	return err;
 }
@@ -634,6 +795,10 @@ static int xattr_get(const struct xattr_handler *handler,
 }
 
 static int xattr_set(const struct xattr_handler *handler,
+<<<<<<< HEAD
+=======
+			   struct user_namespace *mnt_userns,
+>>>>>>> upstream/android-13
 			   struct dentry *dentry, struct inode *inode,
 			   const char *name, const void *value,
 			   size_t size, int flags)

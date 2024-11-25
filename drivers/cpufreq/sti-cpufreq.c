@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Match running platform with pre-defined OPP values for CPUFreq
  *
@@ -5,10 +9,13 @@
  *         Lee Jones <lee.jones@linaro.org>
  *
  * Copyright (C) 2015 STMicroelectronics (R&D) Limited
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the version 2 of the GNU General Public License as
  * published by the Free Software Foundation
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/cpu.h>
@@ -43,11 +50,19 @@ enum {
 };
 
 /**
+<<<<<<< HEAD
  * ST CPUFreq Driver Data
  *
  * @cpu_node		CPU's OF node
  * @syscfg_eng		Engineering Syscon register map
  * @regmap		Syscon register map
+=======
+ * struct sti_cpufreq_ddata - ST CPUFreq Driver Data
+ *
+ * @cpu:		CPU's OF node
+ * @syscfg_eng:		Engineering Syscon register map
+ * @syscfg:		Syscon register map
+>>>>>>> upstream/android-13
  */
 static struct sti_cpufreq_ddata {
 	struct device *cpu;
@@ -226,7 +241,12 @@ use_defaults:
 	opp_table = dev_pm_opp_set_supported_hw(dev, version, VERSION_ELEMENTS);
 	if (IS_ERR(opp_table)) {
 		dev_err(dev, "Failed to set supported hardware\n");
+<<<<<<< HEAD
 		return PTR_ERR(opp_table);
+=======
+		ret = PTR_ERR(opp_table);
+		goto err_put_prop_name;
+>>>>>>> upstream/android-13
 	}
 
 	dev_dbg(dev, "pcode: %d major: %d minor: %d substrate: %d\n",
@@ -235,6 +255,13 @@ use_defaults:
 		version[0], version[1], version[2]);
 
 	return 0;
+<<<<<<< HEAD
+=======
+
+err_put_prop_name:
+	dev_pm_opp_put_prop_name(opp_table);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int sti_cpufreq_fetch_syscon_registers(void)

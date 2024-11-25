@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Pinctrl data for the NVIDIA Tegra210 pinmux
  *
  * Copyright (c) 2015, NVIDIA CORPORATION.  All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -11,6 +16,8 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -1310,7 +1317,10 @@ static struct tegra_function tegra210_functions[] = {
 		.lock_bit = 7,						\
 		.ioreset_bit = -1,					\
 		.rcv_sel_bit = PINGROUP_BIT_##e_io_hv(10),		\
+<<<<<<< HEAD
 		.parked_bit = 5,					\
+=======
+>>>>>>> upstream/android-13
 		.hsm_bit = PINGROUP_BIT_##hsm(9),			\
 		.schmitt_bit = 12,					\
 		.drvtype_bit = PINGROUP_BIT_##drvtype(13),		\
@@ -1325,10 +1335,18 @@ static struct tegra_function tegra210_functions[] = {
 		.slwr_width = slwr_w,					\
 		.slwf_bit = slwf_b,					\
 		.slwf_width = slwf_w,					\
+<<<<<<< HEAD
 	}
 
 #define DRV_PINGROUP(pg_name, r, drvdn_b, drvdn_w, drvup_b, drvup_w,	\
 		     slwr_b, slwr_w, slwf_b, slwf_w)			\
+=======
+		.parked_bitmask = BIT(5),				\
+	}
+
+#define DRV_PINGROUP(pg_name, r, prk_mask, drvdn_b, drvdn_w, drvup_b,	\
+		     drvup_w, slwr_b, slwr_w, slwf_b, slwf_w)		\
+>>>>>>> upstream/android-13
 	{								\
 		.name = "drive_" #pg_name,				\
 		.pins = drive_##pg_name##_pins,				\
@@ -1343,7 +1361,10 @@ static struct tegra_function tegra210_functions[] = {
 		.rcv_sel_bit = -1,					\
 		.drv_reg = DRV_PINGROUP_REG(r),				\
 		.drv_bank = 0,						\
+<<<<<<< HEAD
 		.parked_bit = -1,					\
+=======
+>>>>>>> upstream/android-13
 		.hsm_bit = -1,						\
 		.schmitt_bit = -1,					\
 		.lpmd_bit = -1,						\
@@ -1356,6 +1377,10 @@ static struct tegra_function tegra210_functions[] = {
 		.slwf_bit = slwf_b,					\
 		.slwf_width = slwf_w,					\
 		.drvtype_bit = -1,					\
+<<<<<<< HEAD
+=======
+		.parked_bitmask = prk_mask,				\
+>>>>>>> upstream/android-13
 	}
 
 static const struct tegra_pingroup tegra210_groups[] = {
@@ -1523,6 +1548,7 @@ static const struct tegra_pingroup tegra210_groups[] = {
 	PINGROUP(pz4,                  SDMMC1,     RSVD1,  RSVD2, RSVD3, 0x328c, N,   N,       N,       -1,    -1,      -1,      -1,      -1,      -1,     -1,     -1,     -1),
 	PINGROUP(pz5,                  SOC,        RSVD1,  RSVD2, RSVD3, 0x3290, N,   N,       N,       -1,    -1,      -1,      -1,      -1,      -1,     -1,     -1,     -1),
 
+<<<<<<< HEAD
 	/* pg_name, r, drvdn_b, drvdn_w, drvup_b, drvup_w, slwr_b, slwr_w, slwf_b, slwf_w */
 	DRV_PINGROUP(pa6,    0x9c0, 12, 5,  20, 5,  -1, -1, -1, -1),
 	DRV_PINGROUP(pcc7,   0x9c4, 12, 5,  20, 5,  -1, -1, -1, -1),
@@ -1549,11 +1575,43 @@ static const struct tegra_pingroup tegra210_groups[] = {
 	DRV_PINGROUP(sdmmc2, 0xa9c, 2,  6,  8,  6,  28, 2,  30, 2),
 	DRV_PINGROUP(sdmmc3, 0xab0, 12, 7,  20, 7,  28, 2,  30, 2),
 	DRV_PINGROUP(sdmmc4, 0xab4, 2,  6,  8,  6,  28, 2,  30, 2),
+=======
+	/* pg_name, r, prk_mask, drvdn_b, drvdn_w, drvup_b, drvup_w, slwr_b, slwr_w, slwf_b, slwf_w */
+	DRV_PINGROUP(pa6,    0x9c0, 0x0,       12, 5,  20, 5,  -1, -1, -1, -1),
+	DRV_PINGROUP(pcc7,   0x9c4, 0x0,       12, 5,  20, 5,  -1, -1, -1, -1),
+	DRV_PINGROUP(pe6,    0x9c8, 0x0,       12, 5,  20, 5,  -1, -1, -1, -1),
+	DRV_PINGROUP(pe7,    0x9cc, 0x0,       12, 5,  20, 5,  -1, -1, -1, -1),
+	DRV_PINGROUP(ph6,    0x9d0, 0x0,       12, 5,  20, 5,  -1, -1, -1, -1),
+	DRV_PINGROUP(pk0,    0x9d4, 0x0,       -1, -1, -1, -1, 28, 2,  30, 2),
+	DRV_PINGROUP(pk1,    0x9d8, 0x0,       -1, -1, -1, -1, 28, 2,  30, 2),
+	DRV_PINGROUP(pk2,    0x9dc, 0x0,       -1, -1, -1, -1, 28, 2,  30, 2),
+	DRV_PINGROUP(pk3,    0x9e0, 0x0,       -1, -1, -1, -1, 28, 2,  30, 2),
+	DRV_PINGROUP(pk4,    0x9e4, 0x0,       -1, -1, -1, -1, 28, 2,  30, 2),
+	DRV_PINGROUP(pk5,    0x9e8, 0x0,       -1, -1, -1, -1, 28, 2,  30, 2),
+	DRV_PINGROUP(pk6,    0x9ec, 0x0,       -1, -1, -1, -1, 28, 2,  30, 2),
+	DRV_PINGROUP(pk7,    0x9f0, 0x0,       -1, -1, -1, -1, 28, 2,  30, 2),
+	DRV_PINGROUP(pl0,    0x9f4, 0x0,       -1, -1, -1, -1, 28, 2,  30, 2),
+	DRV_PINGROUP(pl1,    0x9f8, 0x0,       -1, -1, -1, -1, 28, 2,  30, 2),
+	DRV_PINGROUP(pz0,    0x9fc, 0x0,       12, 7,  20, 7,  -1, -1, -1, -1),
+	DRV_PINGROUP(pz1,    0xa00, 0x0,       12, 7,  20, 7,  -1, -1, -1, -1),
+	DRV_PINGROUP(pz2,    0xa04, 0x0,       12, 7,  20, 7,  -1, -1, -1, -1),
+	DRV_PINGROUP(pz3,    0xa08, 0x0,       12, 7,  20, 7,  -1, -1, -1, -1),
+	DRV_PINGROUP(pz4,    0xa0c, 0x0,       12, 7,  20, 7,  -1, -1, -1, -1),
+	DRV_PINGROUP(pz5,    0xa10, 0x0,       12, 7,  20, 7,  -1, -1, -1, -1),
+	DRV_PINGROUP(sdmmc1, 0xa98, 0x0,       12, 7,  20, 7,  28, 2,  30, 2),
+	DRV_PINGROUP(sdmmc2, 0xa9c, 0x7ffc000, 2,  6,  8,  6,  28, 2,  30, 2),
+	DRV_PINGROUP(sdmmc3, 0xab0, 0x0,       12, 7,  20, 7,  28, 2,  30, 2),
+	DRV_PINGROUP(sdmmc4, 0xab4, 0x7ffc000, 2,  6,  8,  6,  28, 2,  30, 2),
+>>>>>>> upstream/android-13
 };
 
 static const struct tegra_pinctrl_soc_data tegra210_pinctrl = {
 	.ngpios = NUM_GPIOS,
+<<<<<<< HEAD
 	.gpio_compatible = "nvidia,tegra30-gpio",
+=======
+	.gpio_compatible = "nvidia,tegra210-gpio",
+>>>>>>> upstream/android-13
 	.pins = tegra210_pins,
 	.npins = ARRAY_SIZE(tegra210_pins),
 	.functions = tegra210_functions,
@@ -1579,6 +1637,10 @@ static struct platform_driver tegra210_pinctrl_driver = {
 	.driver = {
 		.name = "tegra210-pinctrl",
 		.of_match_table = tegra210_pinctrl_of_match,
+<<<<<<< HEAD
+=======
+		.pm = &tegra_pinctrl_pm,
+>>>>>>> upstream/android-13
 	},
 	.probe = tegra210_pinctrl_probe,
 };

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * linux/drivers/video/mmp/common.c
  * This driver is a common framework for Marvell Display Controller
  *
  * Copyright (C) 2012 Marvell Technology Group Ltd.
  * Authors: Zhou Zhu <zzhu3@marvell.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,6 +23,8 @@
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -166,6 +173,7 @@ EXPORT_SYMBOL_GPL(mmp_get_path);
 struct mmp_path *mmp_register_path(struct mmp_path_info *info)
 {
 	int i;
+<<<<<<< HEAD
 	size_t size;
 	struct mmp_path *path = NULL;
 	struct mmp_panel *panel;
@@ -173,6 +181,13 @@ struct mmp_path *mmp_register_path(struct mmp_path_info *info)
 	size = sizeof(struct mmp_path)
 		+ sizeof(struct mmp_overlay) * info->overlay_num;
 	path = kzalloc(size, GFP_KERNEL);
+=======
+	struct mmp_path *path = NULL;
+	struct mmp_panel *panel;
+
+	path = kzalloc(struct_size(path, overlays, info->overlay_num),
+		       GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!path)
 		return NULL;
 

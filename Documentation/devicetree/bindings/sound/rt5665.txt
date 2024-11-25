@@ -62,7 +62,11 @@ rt5659 {
 	compatible = "realtek,rt5665";
 	reg = <0x1b>;
 	interrupt-parent = <&gpio>;
+<<<<<<< HEAD
 	interrupts = <TEGRA_GPIO(W, 3) GPIO_ACTIVE_HIGH>;
+=======
+	interrupts = <TEGRA_GPIO(W, 3) IRQ_TYPE_LEVEL_HIGH>;
+>>>>>>> upstream/android-13
 	realtek,ldo1-en-gpios =
 		<&gpio TEGRA_GPIO(V, 3) GPIO_ACTIVE_HIGH>;
 };

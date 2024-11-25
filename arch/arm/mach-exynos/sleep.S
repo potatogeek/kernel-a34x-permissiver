@@ -44,7 +44,12 @@ ENTRY(exynos_cpu_resume)
 ENDPROC(exynos_cpu_resume)
 
 	.align
+<<<<<<< HEAD
 
+=======
+	.arch armv7-a
+	.arch_extension sec
+>>>>>>> upstream/android-13
 ENTRY(exynos_cpu_resume_ns)
 	mrc	p15, 0, r0, c0, c0, 0
 	ldr	r1, =CPU_MASK

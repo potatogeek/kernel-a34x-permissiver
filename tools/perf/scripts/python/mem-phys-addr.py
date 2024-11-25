@@ -4,6 +4,11 @@
 # Copyright (c) 2018, Intel Corporation.
 
 from __future__ import division
+<<<<<<< HEAD
+=======
+from __future__ import print_function
+
+>>>>>>> upstream/android-13
 import os
 import sys
 import struct
@@ -31,6 +36,7 @@ def parse_iomem():
 	for i, j in enumerate(f):
 		m = re.split('-|:',j,2)
 		if m[2].strip() == 'System RAM':
+<<<<<<< HEAD
 			system_ram.append(long(m[0], 16))
 			system_ram.append(long(m[1], 16))
 		if m[2].strip() == 'Persistent Memory':
@@ -46,6 +52,26 @@ def print_memory_type():
 	for mem_type, count in sorted(load_mem_type_cnt.most_common(), \
 					key = lambda(k, v): (v, k), reverse = True):
 		print "%-40s  %10d  %10.1f%%\n" % (mem_type, count, 100 * count / total),
+=======
+			system_ram.append(int(m[0], 16))
+			system_ram.append(int(m[1], 16))
+		if m[2].strip() == 'Persistent Memory':
+			pmem.append(int(m[0], 16))
+			pmem.append(int(m[1], 16))
+
+def print_memory_type():
+	print("Event: %s" % (event_name))
+	print("%-40s  %10s  %10s\n" % ("Memory type", "count", "percentage"), end='')
+	print("%-40s  %10s  %10s\n" % ("----------------------------------------",
+					"-----------", "-----------"),
+					end='');
+	total = sum(load_mem_type_cnt.values())
+	for mem_type, count in sorted(load_mem_type_cnt.most_common(), \
+					key = lambda kv: (kv[1], kv[0]), reverse = True):
+		print("%-40s  %10d  %10.1f%%\n" %
+			(mem_type, count, 100 * count / total),
+			end='')
+>>>>>>> upstream/android-13
 
 def trace_begin():
 	parse_iomem()
@@ -80,7 +106,11 @@ def find_memory_type(phys_addr):
 	f.seek(0, 0)
 	for j in f:
 		m = re.split('-|:',j,2)
+<<<<<<< HEAD
 		if long(m[0], 16) <= phys_addr <= long(m[1], 16):
+=======
+		if int(m[0], 16) <= phys_addr <= int(m[1], 16):
+>>>>>>> upstream/android-13
 			return m[2]
 	return "N/A"
 

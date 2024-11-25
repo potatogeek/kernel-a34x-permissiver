@@ -1,5 +1,9 @@
 /* SPDX-License-Identifier: GPL-2.0 */
+<<<<<<< HEAD
 /* Copyright(c) 2013 - 2018 Intel Corporation. */
+=======
+/* Copyright(c) 2013 - 2019 Intel Corporation. */
+>>>>>>> upstream/android-13
 
 #ifndef _FM10K_TLV_H_
 #define _FM10K_TLV_H_
@@ -76,8 +80,13 @@ struct fm10k_tlv_attr {
 #define FM10K_TLV_ATTR_S32(id)		    { id, FM10K_TLV_SIGNED, 4 }
 #define FM10K_TLV_ATTR_S64(id)		    { id, FM10K_TLV_SIGNED, 8 }
 #define FM10K_TLV_ATTR_LE_STRUCT(id, len)   { id, FM10K_TLV_LE_STRUCT, len }
+<<<<<<< HEAD
 #define FM10K_TLV_ATTR_NESTED(id)	    { id, FM10K_TLV_NESTED }
 #define FM10K_TLV_ATTR_LAST		    { FM10K_TLV_ERROR }
+=======
+#define FM10K_TLV_ATTR_NESTED(id)	    { id, FM10K_TLV_NESTED, 0 }
+#define FM10K_TLV_ATTR_LAST		    { FM10K_TLV_ERROR, 0, 0 }
+>>>>>>> upstream/android-13
 
 struct fm10k_msg_data {
 	unsigned int		    id;

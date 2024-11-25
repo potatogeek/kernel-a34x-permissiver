@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Battery driver for wm8350 PMIC
  *
@@ -6,10 +10,13 @@
  * Based on OLPC Battery Driver
  *
  * Copyright 2006  David Woodhouse <dwmw2@infradead.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -230,7 +237,11 @@ static irqreturn_t wm8350_charger_handler(int irq, void *data)
 	case WM8350_IRQ_EXT_USB_FB:
 	case WM8350_IRQ_EXT_WALL_FB:
 		wm8350_charger_config(wm8350, policy);
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case WM8350_IRQ_EXT_BAT_FB:
 		power_supply_changed(power->battery);
 		power_supply_changed(power->usb);
@@ -411,6 +422,7 @@ static const struct power_supply_desc wm8350_usb_desc = {
  *		Initialisation
  *********************************************************************/
 
+<<<<<<< HEAD
 static void wm8350_init_charger(struct wm8350 *wm8350)
 {
 	/* register our interest in charger events */
@@ -449,6 +461,114 @@ static void wm8350_init_charger(struct wm8350 *wm8350)
 			    wm8350_charger_handler, 0, "Wall", wm8350);
 	wm8350_register_irq(wm8350, WM8350_IRQ_EXT_BAT_FB,
 			    wm8350_charger_handler, 0, "Battery", wm8350);
+=======
+static int wm8350_init_charger(struct wm8350 *wm8350)
+{
+	int ret;
+
+	/* register our interest in charger events */
+	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_BAT_HOT,
+			    wm8350_charger_handler, 0, "Battery hot", wm8350);
+	if (ret)
+		goto err;
+
+	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_BAT_COLD,
+			    wm8350_charger_handler, 0, "Battery cold", wm8350);
+	if (ret)
+		goto free_chg_bat_hot;
+
+	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_BAT_FAIL,
+			    wm8350_charger_handler, 0, "Battery fail", wm8350);
+	if (ret)
+		goto free_chg_bat_cold;
+
+	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_TO,
+			    wm8350_charger_handler, 0,
+			    "Charger timeout", wm8350);
+	if (ret)
+		goto free_chg_bat_fail;
+
+	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_END,
+			    wm8350_charger_handler, 0,
+			    "Charge end", wm8350);
+	if (ret)
+		goto free_chg_to;
+
+	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_START,
+			    wm8350_charger_handler, 0,
+			    "Charge start", wm8350);
+	if (ret)
+		goto free_chg_end;
+
+	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_FAST_RDY,
+			    wm8350_charger_handler, 0,
+			    "Fast charge ready", wm8350);
+	if (ret)
+		goto free_chg_start;
+
+	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_3P9,
+			    wm8350_charger_handler, 0,
+			    "Battery <3.9V", wm8350);
+	if (ret)
+		goto free_chg_fast_rdy;
+
+	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_3P1,
+			    wm8350_charger_handler, 0,
+			    "Battery <3.1V", wm8350);
+	if (ret)
+		goto free_chg_vbatt_lt_3p9;
+
+	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_2P85,
+			    wm8350_charger_handler, 0,
+			    "Battery <2.85V", wm8350);
+	if (ret)
+		goto free_chg_vbatt_lt_3p1;
+
+	/* and supply change events */
+	ret = wm8350_register_irq(wm8350, WM8350_IRQ_EXT_USB_FB,
+			    wm8350_charger_handler, 0, "USB", wm8350);
+	if (ret)
+		goto free_chg_vbatt_lt_2p85;
+
+	ret = wm8350_register_irq(wm8350, WM8350_IRQ_EXT_WALL_FB,
+			    wm8350_charger_handler, 0, "Wall", wm8350);
+	if (ret)
+		goto free_ext_usb_fb;
+
+	ret = wm8350_register_irq(wm8350, WM8350_IRQ_EXT_BAT_FB,
+			    wm8350_charger_handler, 0, "Battery", wm8350);
+	if (ret)
+		goto free_ext_wall_fb;
+
+	return 0;
+
+free_ext_wall_fb:
+	wm8350_free_irq(wm8350, WM8350_IRQ_EXT_WALL_FB, wm8350);
+free_ext_usb_fb:
+	wm8350_free_irq(wm8350, WM8350_IRQ_EXT_USB_FB, wm8350);
+free_chg_vbatt_lt_2p85:
+	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_2P85, wm8350);
+free_chg_vbatt_lt_3p1:
+	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_3P1, wm8350);
+free_chg_vbatt_lt_3p9:
+	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_3P9, wm8350);
+free_chg_fast_rdy:
+	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_FAST_RDY, wm8350);
+free_chg_start:
+	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_START, wm8350);
+free_chg_end:
+	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_END, wm8350);
+free_chg_to:
+	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_TO, wm8350);
+free_chg_bat_fail:
+	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_BAT_FAIL, wm8350);
+free_chg_bat_cold:
+	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_BAT_COLD, wm8350);
+free_chg_bat_hot:
+	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_BAT_HOT, wm8350);
+err:
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void free_charger_irq(struct wm8350 *wm8350)
@@ -459,6 +579,10 @@ static void free_charger_irq(struct wm8350 *wm8350)
 	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_TO, wm8350);
 	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_END, wm8350);
 	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_START, wm8350);
+<<<<<<< HEAD
+=======
+	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_FAST_RDY, wm8350);
+>>>>>>> upstream/android-13
 	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_3P9, wm8350);
 	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_3P1, wm8350);
 	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_2P85, wm8350);

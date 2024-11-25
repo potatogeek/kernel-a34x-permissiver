@@ -50,6 +50,7 @@ static struct sh_mobile_lcdc_info lcdc0_info = {
 };
 
 static struct resource lcdc0_resources[] = {
+<<<<<<< HEAD
 	[0] = {
 		.name	= "LCD0",
 		.start	= 0xfe940000,
@@ -60,6 +61,10 @@ static struct resource lcdc0_resources[] = {
 		.start	= 177 + 32,
 		.flags	= IORESOURCE_IRQ,
 	},
+=======
+	DEFINE_RES_MEM_NAMED(0xfe940000, 0x4000, "LCD0"),
+	DEFINE_RES_IRQ(177 + 32),
+>>>>>>> upstream/android-13
 };
 
 static struct platform_device lcdc0_device = {

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * FPGA Manager Driver for Lattice iCE40.
  *
  *  Copyright (c) 2016 Joel Holdsworth
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
  *
+=======
+>>>>>>> upstream/android-13
  * This driver adds support to the FPGA manager for configuring the SRAM of
  * Lattice iCE40 FPGAs through slave SPI.
  */
@@ -49,10 +56,23 @@ static int ice40_fpga_ops_write_init(struct fpga_manager *mgr,
 	struct spi_message message;
 	struct spi_transfer assert_cs_then_reset_delay = {
 		.cs_change   = 1,
+<<<<<<< HEAD
 		.delay_usecs = ICE40_SPI_RESET_DELAY
 	};
 	struct spi_transfer housekeeping_delay_then_release_cs = {
 		.delay_usecs = ICE40_SPI_HOUSEKEEPING_DELAY
+=======
+		.delay = {
+			.value = ICE40_SPI_RESET_DELAY,
+			.unit = SPI_DELAY_UNIT_USECS
+		}
+	};
+	struct spi_transfer housekeeping_delay_then_release_cs = {
+		.delay = {
+			.value = ICE40_SPI_HOUSEKEEPING_DELAY,
+			.unit = SPI_DELAY_UNIT_USECS
+		}
+>>>>>>> upstream/android-13
 	};
 	int ret;
 
@@ -175,6 +195,7 @@ static int ice40_fpga_probe(struct spi_device *spi)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	mgr = fpga_mgr_create(dev, "Lattice iCE40 FPGA Manager",
 			      &ice40_fpga_ops, priv);
 	if (!mgr)
@@ -196,6 +217,14 @@ static int ice40_fpga_remove(struct spi_device *spi)
 	fpga_mgr_unregister(mgr);
 
 	return 0;
+=======
+	mgr = devm_fpga_mgr_create(dev, "Lattice iCE40 FPGA Manager",
+				   &ice40_fpga_ops, priv);
+	if (!mgr)
+		return -ENOMEM;
+
+	return devm_fpga_mgr_register(dev, mgr);
+>>>>>>> upstream/android-13
 }
 
 static const struct of_device_id ice40_fpga_of_match[] = {
@@ -204,13 +233,28 @@ static const struct of_device_id ice40_fpga_of_match[] = {
 };
 MODULE_DEVICE_TABLE(of, ice40_fpga_of_match);
 
+<<<<<<< HEAD
 static struct spi_driver ice40_fpga_driver = {
 	.probe = ice40_fpga_probe,
 	.remove = ice40_fpga_remove,
+=======
+static const struct spi_device_id ice40_fpga_spi_ids[] = {
+	{ .name = "ice40-fpga-mgr", },
+	{},
+};
+MODULE_DEVICE_TABLE(spi, ice40_fpga_spi_ids);
+
+static struct spi_driver ice40_fpga_driver = {
+	.probe = ice40_fpga_probe,
+>>>>>>> upstream/android-13
 	.driver = {
 		.name = "ice40spi",
 		.of_match_table = of_match_ptr(ice40_fpga_of_match),
 	},
+<<<<<<< HEAD
+=======
+	.id_table = ice40_fpga_spi_ids,
+>>>>>>> upstream/android-13
 };
 
 module_spi_driver(ice40_fpga_driver);

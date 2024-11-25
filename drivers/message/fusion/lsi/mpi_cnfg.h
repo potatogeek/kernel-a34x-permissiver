@@ -313,7 +313,11 @@
  *                      define.
  *                      Added BIOS Page 4 structure.
  *                      Added MPI_RAID_PHYS_DISK1_PATH_MAX define for RAID
+<<<<<<< HEAD
  *                      Physcial Disk Page 1.
+=======
+ *                      Physical Disk Page 1.
+>>>>>>> upstream/android-13
  *  01-15-07  01.05.17  Added additional bit defines for ExtFlags field of
  *                      Manufacturing Page 4.
  *                      Added Solid State Drives Supported bit to IOC Page 6
@@ -2004,7 +2008,11 @@ typedef struct _CONFIG_PAGE_FC_PORT_6
     U64                     LinkFailureCount;           /* 50h */
     U64                     LossOfSyncCount;            /* 58h */
     U64                     LossOfSignalCount;          /* 60h */
+<<<<<<< HEAD
     U64                     PrimativeSeqErrCount;       /* 68h */
+=======
+    U64                     PrimitiveSeqErrCount;       /* 68h */
+>>>>>>> upstream/android-13
     U64                     InvalidTxWordCount;         /* 70h */
     U64                     InvalidCrcCount;            /* 78h */
     U64                     FcpInitiatorIoCount;        /* 80h */

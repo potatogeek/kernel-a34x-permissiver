@@ -119,6 +119,7 @@ union cvmx_iob_bist_status {
 		uint64_t reserved_18_63:46;
 #endif
 	} cn30xx;
+<<<<<<< HEAD
 	struct cvmx_iob_bist_status_cn30xx cn31xx;
 	struct cvmx_iob_bist_status_cn30xx cn38xx;
 	struct cvmx_iob_bist_status_cn30xx cn38xxp2;
@@ -129,6 +130,8 @@ union cvmx_iob_bist_status {
 	struct cvmx_iob_bist_status_cn30xx cn56xxp1;
 	struct cvmx_iob_bist_status_cn30xx cn58xx;
 	struct cvmx_iob_bist_status_cn30xx cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_iob_bist_status_cn61xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_23_63:41;
@@ -182,9 +185,12 @@ union cvmx_iob_bist_status {
 		uint64_t reserved_23_63:41;
 #endif
 	} cn61xx;
+<<<<<<< HEAD
 	struct cvmx_iob_bist_status_cn61xx cn63xx;
 	struct cvmx_iob_bist_status_cn61xx cn63xxp1;
 	struct cvmx_iob_bist_status_cn61xx cn66xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_iob_bist_status_cn68xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_18_63:46;
@@ -228,8 +234,11 @@ union cvmx_iob_bist_status {
 		uint64_t reserved_18_63:46;
 #endif
 	} cn68xx;
+<<<<<<< HEAD
 	struct cvmx_iob_bist_status_cn68xx cn68xxp1;
 	struct cvmx_iob_bist_status_cn61xx cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_iob_ctl_status {
@@ -274,10 +283,13 @@ union cvmx_iob_ctl_status {
 		uint64_t reserved_5_63:59;
 #endif
 	} cn30xx;
+<<<<<<< HEAD
 	struct cvmx_iob_ctl_status_cn30xx cn31xx;
 	struct cvmx_iob_ctl_status_cn30xx cn38xx;
 	struct cvmx_iob_ctl_status_cn30xx cn38xxp2;
 	struct cvmx_iob_ctl_status_cn30xx cn50xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_iob_ctl_status_cn52xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_6_63:58;
@@ -297,11 +309,14 @@ union cvmx_iob_ctl_status {
 		uint64_t reserved_6_63:58;
 #endif
 	} cn52xx;
+<<<<<<< HEAD
 	struct cvmx_iob_ctl_status_cn30xx cn52xxp1;
 	struct cvmx_iob_ctl_status_cn30xx cn56xx;
 	struct cvmx_iob_ctl_status_cn30xx cn56xxp1;
 	struct cvmx_iob_ctl_status_cn30xx cn58xx;
 	struct cvmx_iob_ctl_status_cn30xx cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_iob_ctl_status_cn61xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_11_63:53;
@@ -346,8 +361,11 @@ union cvmx_iob_ctl_status {
 		uint64_t reserved_10_63:54;
 #endif
 	} cn63xx;
+<<<<<<< HEAD
 	struct cvmx_iob_ctl_status_cn63xx cn63xxp1;
 	struct cvmx_iob_ctl_status_cn61xx cn66xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_iob_ctl_status_cn68xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_11_63:53;
@@ -371,8 +389,11 @@ union cvmx_iob_ctl_status {
 		uint64_t reserved_11_63:53;
 #endif
 	} cn68xx;
+<<<<<<< HEAD
 	struct cvmx_iob_ctl_status_cn68xx cn68xxp1;
 	struct cvmx_iob_ctl_status_cn61xx cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_iob_dwb_pri_cnt {
@@ -388,6 +409,7 @@ union cvmx_iob_dwb_pri_cnt {
 		uint64_t reserved_16_63:48;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_iob_dwb_pri_cnt_s cn38xx;
 	struct cvmx_iob_dwb_pri_cnt_s cn38xxp2;
 	struct cvmx_iob_dwb_pri_cnt_s cn52xx;
@@ -401,6 +423,8 @@ union cvmx_iob_dwb_pri_cnt {
 	struct cvmx_iob_dwb_pri_cnt_s cn63xxp1;
 	struct cvmx_iob_dwb_pri_cnt_s cn66xx;
 	struct cvmx_iob_dwb_pri_cnt_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_iob_fau_timeout {
@@ -416,6 +440,7 @@ union cvmx_iob_fau_timeout {
 		uint64_t reserved_13_63:51;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_iob_fau_timeout_s cn30xx;
 	struct cvmx_iob_fau_timeout_s cn31xx;
 	struct cvmx_iob_fau_timeout_s cn38xx;
@@ -434,6 +459,8 @@ union cvmx_iob_fau_timeout {
 	struct cvmx_iob_fau_timeout_s cn68xx;
 	struct cvmx_iob_fau_timeout_s cn68xxp1;
 	struct cvmx_iob_fau_timeout_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_iob_i2c_pri_cnt {
@@ -449,6 +476,7 @@ union cvmx_iob_i2c_pri_cnt {
 		uint64_t reserved_16_63:48;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_iob_i2c_pri_cnt_s cn38xx;
 	struct cvmx_iob_i2c_pri_cnt_s cn38xxp2;
 	struct cvmx_iob_i2c_pri_cnt_s cn52xx;
@@ -462,6 +490,8 @@ union cvmx_iob_i2c_pri_cnt {
 	struct cvmx_iob_i2c_pri_cnt_s cn63xxp1;
 	struct cvmx_iob_i2c_pri_cnt_s cn66xx;
 	struct cvmx_iob_i2c_pri_cnt_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_iob_inb_control_match {
@@ -481,6 +511,7 @@ union cvmx_iob_inb_control_match {
 		uint64_t reserved_29_63:35;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_iob_inb_control_match_s cn30xx;
 	struct cvmx_iob_inb_control_match_s cn31xx;
 	struct cvmx_iob_inb_control_match_s cn38xx;
@@ -499,6 +530,8 @@ union cvmx_iob_inb_control_match {
 	struct cvmx_iob_inb_control_match_s cn68xx;
 	struct cvmx_iob_inb_control_match_s cn68xxp1;
 	struct cvmx_iob_inb_control_match_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_iob_inb_control_match_enb {
@@ -518,6 +551,7 @@ union cvmx_iob_inb_control_match_enb {
 		uint64_t reserved_29_63:35;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_iob_inb_control_match_enb_s cn30xx;
 	struct cvmx_iob_inb_control_match_enb_s cn31xx;
 	struct cvmx_iob_inb_control_match_enb_s cn38xx;
@@ -536,6 +570,8 @@ union cvmx_iob_inb_control_match_enb {
 	struct cvmx_iob_inb_control_match_enb_s cn68xx;
 	struct cvmx_iob_inb_control_match_enb_s cn68xxp1;
 	struct cvmx_iob_inb_control_match_enb_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_iob_inb_data_match {
@@ -547,6 +583,7 @@ union cvmx_iob_inb_data_match {
 		uint64_t data:64;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_iob_inb_data_match_s cn30xx;
 	struct cvmx_iob_inb_data_match_s cn31xx;
 	struct cvmx_iob_inb_data_match_s cn38xx;
@@ -565,6 +602,8 @@ union cvmx_iob_inb_data_match {
 	struct cvmx_iob_inb_data_match_s cn68xx;
 	struct cvmx_iob_inb_data_match_s cn68xxp1;
 	struct cvmx_iob_inb_data_match_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_iob_inb_data_match_enb {
@@ -576,6 +615,7 @@ union cvmx_iob_inb_data_match_enb {
 		uint64_t data:64;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_iob_inb_data_match_enb_s cn30xx;
 	struct cvmx_iob_inb_data_match_enb_s cn31xx;
 	struct cvmx_iob_inb_data_match_enb_s cn38xx;
@@ -594,6 +634,8 @@ union cvmx_iob_inb_data_match_enb {
 	struct cvmx_iob_inb_data_match_enb_s cn68xx;
 	struct cvmx_iob_inb_data_match_enb_s cn68xxp1;
 	struct cvmx_iob_inb_data_match_enb_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_iob_int_enb {
@@ -632,6 +674,7 @@ union cvmx_iob_int_enb {
 		uint64_t reserved_4_63:60;
 #endif
 	} cn30xx;
+<<<<<<< HEAD
 	struct cvmx_iob_int_enb_cn30xx cn31xx;
 	struct cvmx_iob_int_enb_cn30xx cn38xx;
 	struct cvmx_iob_int_enb_cn30xx cn38xxp2;
@@ -646,6 +689,8 @@ union cvmx_iob_int_enb {
 	struct cvmx_iob_int_enb_s cn63xx;
 	struct cvmx_iob_int_enb_s cn63xxp1;
 	struct cvmx_iob_int_enb_s cn66xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_iob_int_enb_cn68xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_0_63:64;
@@ -653,8 +698,11 @@ union cvmx_iob_int_enb {
 		uint64_t reserved_0_63:64;
 #endif
 	} cn68xx;
+<<<<<<< HEAD
 	struct cvmx_iob_int_enb_cn68xx cn68xxp1;
 	struct cvmx_iob_int_enb_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_iob_int_sum {
@@ -693,6 +741,7 @@ union cvmx_iob_int_sum {
 		uint64_t reserved_4_63:60;
 #endif
 	} cn30xx;
+<<<<<<< HEAD
 	struct cvmx_iob_int_sum_cn30xx cn31xx;
 	struct cvmx_iob_int_sum_cn30xx cn38xx;
 	struct cvmx_iob_int_sum_cn30xx cn38xxp2;
@@ -707,6 +756,8 @@ union cvmx_iob_int_sum {
 	struct cvmx_iob_int_sum_s cn63xx;
 	struct cvmx_iob_int_sum_s cn63xxp1;
 	struct cvmx_iob_int_sum_s cn66xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_iob_int_sum_cn68xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_0_63:64;
@@ -714,8 +765,11 @@ union cvmx_iob_int_sum {
 		uint64_t reserved_0_63:64;
 #endif
 	} cn68xx;
+<<<<<<< HEAD
 	struct cvmx_iob_int_sum_cn68xx cn68xxp1;
 	struct cvmx_iob_int_sum_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_iob_n2c_l2c_pri_cnt {
@@ -731,6 +785,7 @@ union cvmx_iob_n2c_l2c_pri_cnt {
 		uint64_t reserved_16_63:48;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_iob_n2c_l2c_pri_cnt_s cn38xx;
 	struct cvmx_iob_n2c_l2c_pri_cnt_s cn38xxp2;
 	struct cvmx_iob_n2c_l2c_pri_cnt_s cn52xx;
@@ -744,6 +799,8 @@ union cvmx_iob_n2c_l2c_pri_cnt {
 	struct cvmx_iob_n2c_l2c_pri_cnt_s cn63xxp1;
 	struct cvmx_iob_n2c_l2c_pri_cnt_s cn66xx;
 	struct cvmx_iob_n2c_l2c_pri_cnt_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_iob_n2c_rsp_pri_cnt {
@@ -759,6 +816,7 @@ union cvmx_iob_n2c_rsp_pri_cnt {
 		uint64_t reserved_16_63:48;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_iob_n2c_rsp_pri_cnt_s cn38xx;
 	struct cvmx_iob_n2c_rsp_pri_cnt_s cn38xxp2;
 	struct cvmx_iob_n2c_rsp_pri_cnt_s cn52xx;
@@ -772,6 +830,8 @@ union cvmx_iob_n2c_rsp_pri_cnt {
 	struct cvmx_iob_n2c_rsp_pri_cnt_s cn63xxp1;
 	struct cvmx_iob_n2c_rsp_pri_cnt_s cn66xx;
 	struct cvmx_iob_n2c_rsp_pri_cnt_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_iob_outb_com_pri_cnt {
@@ -787,6 +847,7 @@ union cvmx_iob_outb_com_pri_cnt {
 		uint64_t reserved_16_63:48;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_iob_outb_com_pri_cnt_s cn38xx;
 	struct cvmx_iob_outb_com_pri_cnt_s cn38xxp2;
 	struct cvmx_iob_outb_com_pri_cnt_s cn52xx;
@@ -802,6 +863,8 @@ union cvmx_iob_outb_com_pri_cnt {
 	struct cvmx_iob_outb_com_pri_cnt_s cn68xx;
 	struct cvmx_iob_outb_com_pri_cnt_s cn68xxp1;
 	struct cvmx_iob_outb_com_pri_cnt_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_iob_outb_control_match {
@@ -821,6 +884,7 @@ union cvmx_iob_outb_control_match {
 		uint64_t reserved_26_63:38;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_iob_outb_control_match_s cn30xx;
 	struct cvmx_iob_outb_control_match_s cn31xx;
 	struct cvmx_iob_outb_control_match_s cn38xx;
@@ -839,6 +903,8 @@ union cvmx_iob_outb_control_match {
 	struct cvmx_iob_outb_control_match_s cn68xx;
 	struct cvmx_iob_outb_control_match_s cn68xxp1;
 	struct cvmx_iob_outb_control_match_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_iob_outb_control_match_enb {
@@ -858,6 +924,7 @@ union cvmx_iob_outb_control_match_enb {
 		uint64_t reserved_26_63:38;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_iob_outb_control_match_enb_s cn30xx;
 	struct cvmx_iob_outb_control_match_enb_s cn31xx;
 	struct cvmx_iob_outb_control_match_enb_s cn38xx;
@@ -876,6 +943,8 @@ union cvmx_iob_outb_control_match_enb {
 	struct cvmx_iob_outb_control_match_enb_s cn68xx;
 	struct cvmx_iob_outb_control_match_enb_s cn68xxp1;
 	struct cvmx_iob_outb_control_match_enb_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_iob_outb_data_match {
@@ -887,6 +956,7 @@ union cvmx_iob_outb_data_match {
 		uint64_t data:64;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_iob_outb_data_match_s cn30xx;
 	struct cvmx_iob_outb_data_match_s cn31xx;
 	struct cvmx_iob_outb_data_match_s cn38xx;
@@ -905,6 +975,8 @@ union cvmx_iob_outb_data_match {
 	struct cvmx_iob_outb_data_match_s cn68xx;
 	struct cvmx_iob_outb_data_match_s cn68xxp1;
 	struct cvmx_iob_outb_data_match_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_iob_outb_data_match_enb {
@@ -916,6 +988,7 @@ union cvmx_iob_outb_data_match_enb {
 		uint64_t data:64;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_iob_outb_data_match_enb_s cn30xx;
 	struct cvmx_iob_outb_data_match_enb_s cn31xx;
 	struct cvmx_iob_outb_data_match_enb_s cn38xx;
@@ -934,6 +1007,8 @@ union cvmx_iob_outb_data_match_enb {
 	struct cvmx_iob_outb_data_match_enb_s cn68xx;
 	struct cvmx_iob_outb_data_match_enb_s cn68xxp1;
 	struct cvmx_iob_outb_data_match_enb_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_iob_outb_fpa_pri_cnt {
@@ -949,6 +1024,7 @@ union cvmx_iob_outb_fpa_pri_cnt {
 		uint64_t reserved_16_63:48;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_iob_outb_fpa_pri_cnt_s cn38xx;
 	struct cvmx_iob_outb_fpa_pri_cnt_s cn38xxp2;
 	struct cvmx_iob_outb_fpa_pri_cnt_s cn52xx;
@@ -964,6 +1040,8 @@ union cvmx_iob_outb_fpa_pri_cnt {
 	struct cvmx_iob_outb_fpa_pri_cnt_s cn68xx;
 	struct cvmx_iob_outb_fpa_pri_cnt_s cn68xxp1;
 	struct cvmx_iob_outb_fpa_pri_cnt_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_iob_outb_req_pri_cnt {
@@ -979,6 +1057,7 @@ union cvmx_iob_outb_req_pri_cnt {
 		uint64_t reserved_16_63:48;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_iob_outb_req_pri_cnt_s cn38xx;
 	struct cvmx_iob_outb_req_pri_cnt_s cn38xxp2;
 	struct cvmx_iob_outb_req_pri_cnt_s cn52xx;
@@ -994,6 +1073,8 @@ union cvmx_iob_outb_req_pri_cnt {
 	struct cvmx_iob_outb_req_pri_cnt_s cn68xx;
 	struct cvmx_iob_outb_req_pri_cnt_s cn68xxp1;
 	struct cvmx_iob_outb_req_pri_cnt_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_iob_p2c_req_pri_cnt {
@@ -1009,6 +1090,7 @@ union cvmx_iob_p2c_req_pri_cnt {
 		uint64_t reserved_16_63:48;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_iob_p2c_req_pri_cnt_s cn38xx;
 	struct cvmx_iob_p2c_req_pri_cnt_s cn38xxp2;
 	struct cvmx_iob_p2c_req_pri_cnt_s cn52xx;
@@ -1022,6 +1104,8 @@ union cvmx_iob_p2c_req_pri_cnt {
 	struct cvmx_iob_p2c_req_pri_cnt_s cn63xxp1;
 	struct cvmx_iob_p2c_req_pri_cnt_s cn66xx;
 	struct cvmx_iob_p2c_req_pri_cnt_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_iob_pkt_err {
@@ -1046,6 +1130,7 @@ union cvmx_iob_pkt_err {
 		uint64_t reserved_6_63:58;
 #endif
 	} cn30xx;
+<<<<<<< HEAD
 	struct cvmx_iob_pkt_err_cn30xx cn31xx;
 	struct cvmx_iob_pkt_err_cn30xx cn38xx;
 	struct cvmx_iob_pkt_err_cn30xx cn38xxp2;
@@ -1061,6 +1146,8 @@ union cvmx_iob_pkt_err {
 	struct cvmx_iob_pkt_err_s cn63xxp1;
 	struct cvmx_iob_pkt_err_s cn66xx;
 	struct cvmx_iob_pkt_err_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_iob_to_cmb_credits {
@@ -1089,10 +1176,13 @@ union cvmx_iob_to_cmb_credits {
 		uint64_t reserved_9_63:55;
 #endif
 	} cn52xx;
+<<<<<<< HEAD
 	struct cvmx_iob_to_cmb_credits_cn52xx cn61xx;
 	struct cvmx_iob_to_cmb_credits_cn52xx cn63xx;
 	struct cvmx_iob_to_cmb_credits_cn52xx cn63xxp1;
 	struct cvmx_iob_to_cmb_credits_cn52xx cn66xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_iob_to_cmb_credits_cn68xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_9_63:55;
@@ -1106,8 +1196,11 @@ union cvmx_iob_to_cmb_credits {
 		uint64_t reserved_9_63:55;
 #endif
 	} cn68xx;
+<<<<<<< HEAD
 	struct cvmx_iob_to_cmb_credits_cn68xx cn68xxp1;
 	struct cvmx_iob_to_cmb_credits_cn52xx cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_iob_to_ncb_did_00_credits {
@@ -1121,8 +1214,11 @@ union cvmx_iob_to_ncb_did_00_credits {
 		uint64_t reserved_7_63:57;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_iob_to_ncb_did_00_credits_s cn68xx;
 	struct cvmx_iob_to_ncb_did_00_credits_s cn68xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_iob_to_ncb_did_111_credits {
@@ -1136,8 +1232,11 @@ union cvmx_iob_to_ncb_did_111_credits {
 		uint64_t reserved_7_63:57;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_iob_to_ncb_did_111_credits_s cn68xx;
 	struct cvmx_iob_to_ncb_did_111_credits_s cn68xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_iob_to_ncb_did_223_credits {
@@ -1151,8 +1250,11 @@ union cvmx_iob_to_ncb_did_223_credits {
 		uint64_t reserved_7_63:57;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_iob_to_ncb_did_223_credits_s cn68xx;
 	struct cvmx_iob_to_ncb_did_223_credits_s cn68xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_iob_to_ncb_did_24_credits {
@@ -1166,8 +1268,11 @@ union cvmx_iob_to_ncb_did_24_credits {
 		uint64_t reserved_7_63:57;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_iob_to_ncb_did_24_credits_s cn68xx;
 	struct cvmx_iob_to_ncb_did_24_credits_s cn68xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_iob_to_ncb_did_32_credits {
@@ -1181,8 +1286,11 @@ union cvmx_iob_to_ncb_did_32_credits {
 		uint64_t reserved_7_63:57;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_iob_to_ncb_did_32_credits_s cn68xx;
 	struct cvmx_iob_to_ncb_did_32_credits_s cn68xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_iob_to_ncb_did_40_credits {
@@ -1196,8 +1304,11 @@ union cvmx_iob_to_ncb_did_40_credits {
 		uint64_t reserved_7_63:57;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_iob_to_ncb_did_40_credits_s cn68xx;
 	struct cvmx_iob_to_ncb_did_40_credits_s cn68xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_iob_to_ncb_did_55_credits {
@@ -1211,8 +1322,11 @@ union cvmx_iob_to_ncb_did_55_credits {
 		uint64_t reserved_7_63:57;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_iob_to_ncb_did_55_credits_s cn68xx;
 	struct cvmx_iob_to_ncb_did_55_credits_s cn68xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_iob_to_ncb_did_64_credits {
@@ -1226,8 +1340,11 @@ union cvmx_iob_to_ncb_did_64_credits {
 		uint64_t reserved_7_63:57;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_iob_to_ncb_did_64_credits_s cn68xx;
 	struct cvmx_iob_to_ncb_did_64_credits_s cn68xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_iob_to_ncb_did_79_credits {
@@ -1241,8 +1358,11 @@ union cvmx_iob_to_ncb_did_79_credits {
 		uint64_t reserved_7_63:57;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_iob_to_ncb_did_79_credits_s cn68xx;
 	struct cvmx_iob_to_ncb_did_79_credits_s cn68xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_iob_to_ncb_did_96_credits {
@@ -1256,8 +1376,11 @@ union cvmx_iob_to_ncb_did_96_credits {
 		uint64_t reserved_7_63:57;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_iob_to_ncb_did_96_credits_s cn68xx;
 	struct cvmx_iob_to_ncb_did_96_credits_s cn68xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_iob_to_ncb_did_98_credits {
@@ -1271,8 +1394,11 @@ union cvmx_iob_to_ncb_did_98_credits {
 		uint64_t reserved_7_63:57;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_iob_to_ncb_did_98_credits_s cn68xx;
 	struct cvmx_iob_to_ncb_did_98_credits_s cn68xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 #endif

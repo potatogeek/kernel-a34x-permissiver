@@ -29,11 +29,19 @@ int bench_futex_wake_parallel(int argc __maybe_unused, const char **argv __maybe
 #include <linux/time64.h>
 #include <errno.h>
 #include "futex.h"
+<<<<<<< HEAD
 #include "cpumap.h"
+=======
+#include <perf/cpumap.h>
+>>>>>>> upstream/android-13
 
 #include <err.h>
 #include <stdlib.h>
 #include <sys/time.h>
+<<<<<<< HEAD
+=======
+#include <sys/mman.h>
+>>>>>>> upstream/android-13
 
 struct thread_data {
 	pthread_t worker;
@@ -47,8 +55,12 @@ static unsigned int nwakes = 1;
 static u_int32_t futex = 0;
 
 static pthread_t *blocked_worker;
+<<<<<<< HEAD
 static bool done = false, silent = false, fshared = false;
 static unsigned int nblocked_threads = 0, nwaking_threads = 0;
+=======
+static bool done = false;
+>>>>>>> upstream/android-13
 static pthread_mutex_t thread_lock;
 static pthread_cond_t thread_parent, thread_worker;
 static pthread_barrier_t barrier;
@@ -56,11 +68,23 @@ static struct stats waketime_stats, wakeup_stats;
 static unsigned int threads_starting;
 static int futex_flag = 0;
 
+<<<<<<< HEAD
 static const struct option options[] = {
 	OPT_UINTEGER('t', "threads", &nblocked_threads, "Specify amount of threads"),
 	OPT_UINTEGER('w', "nwakers", &nwaking_threads, "Specify amount of waking threads"),
 	OPT_BOOLEAN( 's', "silent",  &silent,   "Silent mode: do not display data/details"),
 	OPT_BOOLEAN( 'S', "shared",  &fshared,  "Use shared futexes instead of private ones"),
+=======
+static struct bench_futex_parameters params;
+
+static const struct option options[] = {
+	OPT_UINTEGER('t', "threads", &params.nthreads, "Specify amount of threads"),
+	OPT_UINTEGER('w', "nwakers", &params.nwakes, "Specify amount of waking threads"),
+	OPT_BOOLEAN( 's', "silent",  &params.silent, "Silent mode: do not display data/details"),
+	OPT_BOOLEAN( 'S', "shared",  &params.fshared, "Use shared futexes instead of private ones"),
+	OPT_BOOLEAN( 'm', "mlockall", &params.mlockall, "Lock all current and future memory"),
+
+>>>>>>> upstream/android-13
 	OPT_END()
 };
 
@@ -96,10 +120,17 @@ static void wakeup_threads(struct thread_data *td, pthread_attr_t thread_attr)
 
 	pthread_attr_setdetachstate(&thread_attr, PTHREAD_CREATE_JOINABLE);
 
+<<<<<<< HEAD
 	pthread_barrier_init(&barrier, NULL, nwaking_threads + 1);
 
 	/* create and block all threads */
 	for (i = 0; i < nwaking_threads; i++) {
+=======
+	pthread_barrier_init(&barrier, NULL, params.nwakes + 1);
+
+	/* create and block all threads */
+	for (i = 0; i < params.nwakes; i++) {
+>>>>>>> upstream/android-13
 		/*
 		 * Thread creation order will impact per-thread latency
 		 * as it will affect the order to acquire the hb spinlock.
@@ -112,7 +143,11 @@ static void wakeup_threads(struct thread_data *td, pthread_attr_t thread_attr)
 
 	pthread_barrier_wait(&barrier);
 
+<<<<<<< HEAD
 	for (i = 0; i < nwaking_threads; i++)
+=======
+	for (i = 0; i < params.nwakes; i++)
+>>>>>>> upstream/android-13
 		if (pthread_join(td[i].worker, NULL))
 			err(EXIT_FAILURE, "pthread_join");
 
@@ -138,15 +173,26 @@ static void *blocked_workerfn(void *arg __maybe_unused)
 }
 
 static void block_threads(pthread_t *w, pthread_attr_t thread_attr,
+<<<<<<< HEAD
 			  struct cpu_map *cpu)
+=======
+			  struct perf_cpu_map *cpu)
+>>>>>>> upstream/android-13
 {
 	cpu_set_t cpuset;
 	unsigned int i;
 
+<<<<<<< HEAD
 	threads_starting = nblocked_threads;
 
 	/* create and block all threads */
 	for (i = 0; i < nblocked_threads; i++) {
+=======
+	threads_starting = params.nthreads;
+
+	/* create and block all threads */
+	for (i = 0; i < params.nthreads; i++) {
+>>>>>>> upstream/android-13
 		CPU_ZERO(&cpuset);
 		CPU_SET(cpu->map[i % cpu->nr], &cpuset);
 
@@ -167,7 +213,11 @@ static void print_run(struct thread_data *waking_worker, unsigned int run_num)
 	init_stats(&__wakeup_stats);
 	init_stats(&__waketime_stats);
 
+<<<<<<< HEAD
 	for (i = 0; i < nwaking_threads; i++) {
+=======
+	for (i = 0; i < params.nwakes; i++) {
+>>>>>>> upstream/android-13
 		update_stats(&__waketime_stats, waking_worker[i].runtime.tv_usec);
 		update_stats(&__wakeup_stats, waking_worker[i].nwoken);
 	}
@@ -178,7 +228,11 @@ static void print_run(struct thread_data *waking_worker, unsigned int run_num)
 
 	printf("[Run %d]: Avg per-thread latency (waking %d/%d threads) "
 	       "in %.4f ms (+-%.2f%%)\n", run_num + 1, wakeup_avg,
+<<<<<<< HEAD
 	       nblocked_threads, waketime_avg / USEC_PER_MSEC,
+=======
+	       params.nthreads, waketime_avg / USEC_PER_MSEC,
+>>>>>>> upstream/android-13
 	       rel_stddev_stats(waketime_stddev, waketime_avg));
 }
 
@@ -193,7 +247,11 @@ static void print_summary(void)
 
 	printf("Avg per-thread latency (waking %d/%d threads) in %.4f ms (+-%.2f%%)\n",
 	       wakeup_avg,
+<<<<<<< HEAD
 	       nblocked_threads,
+=======
+	       params.nthreads,
+>>>>>>> upstream/android-13
 	       waketime_avg / USEC_PER_MSEC,
 	       rel_stddev_stats(waketime_stddev, waketime_avg));
 }
@@ -203,7 +261,11 @@ static void do_run_stats(struct thread_data *waking_worker)
 {
 	unsigned int i;
 
+<<<<<<< HEAD
 	for (i = 0; i < nwaking_threads; i++) {
+=======
+	for (i = 0; i < params.nwakes; i++) {
+>>>>>>> upstream/android-13
 		update_stats(&waketime_stats, waking_worker[i].runtime.tv_usec);
 		update_stats(&wakeup_stats, waking_worker[i].nwoken);
 	}
@@ -224,7 +286,11 @@ int bench_futex_wake_parallel(int argc, const char **argv)
 	struct sigaction act;
 	pthread_attr_t thread_attr;
 	struct thread_data *waking_worker;
+<<<<<<< HEAD
 	struct cpu_map *cpu;
+=======
+	struct perf_cpu_map *cpu;
+>>>>>>> upstream/android-13
 
 	argc = parse_options(argc, argv, options,
 			     bench_futex_wake_parallel_usage, 0);
@@ -233,10 +299,15 @@ int bench_futex_wake_parallel(int argc, const char **argv)
 		exit(EXIT_FAILURE);
 	}
 
+<<<<<<< HEAD
+=======
+	memset(&act, 0, sizeof(act));
+>>>>>>> upstream/android-13
 	sigfillset(&act.sa_mask);
 	act.sa_sigaction = toggle_done;
 	sigaction(SIGINT, &act, NULL);
 
+<<<<<<< HEAD
 	cpu = cpu_map__new(NULL);
 	if (!cpu)
 		err(EXIT_FAILURE, "calloc");
@@ -249,11 +320,32 @@ int bench_futex_wake_parallel(int argc, const char **argv)
 		nwaking_threads = nblocked_threads;
 
 	if (nblocked_threads % nwaking_threads)
+=======
+	if (params.mlockall) {
+		if (mlockall(MCL_CURRENT | MCL_FUTURE))
+			err(EXIT_FAILURE, "mlockall");
+	}
+
+	cpu = perf_cpu_map__new(NULL);
+	if (!cpu)
+		err(EXIT_FAILURE, "calloc");
+
+	if (!params.nthreads)
+		params.nthreads = cpu->nr;
+
+	/* some sanity checks */
+	if (params.nwakes > params.nthreads ||
+	    !params.nwakes)
+		params.nwakes = params.nthreads;
+
+	if (params.nthreads % params.nwakes)
+>>>>>>> upstream/android-13
 		errx(EXIT_FAILURE, "Must be perfectly divisible");
 	/*
 	 * Each thread will wakeup nwakes tasks in
 	 * a single futex_wait call.
 	 */
+<<<<<<< HEAD
 	nwakes = nblocked_threads/nwaking_threads;
 
 	blocked_worker = calloc(nblocked_threads, sizeof(*blocked_worker));
@@ -261,12 +353,26 @@ int bench_futex_wake_parallel(int argc, const char **argv)
 		err(EXIT_FAILURE, "calloc");
 
 	if (!fshared)
+=======
+	nwakes = params.nthreads/params.nwakes;
+
+	blocked_worker = calloc(params.nthreads, sizeof(*blocked_worker));
+	if (!blocked_worker)
+		err(EXIT_FAILURE, "calloc");
+
+	if (!params.fshared)
+>>>>>>> upstream/android-13
 		futex_flag = FUTEX_PRIVATE_FLAG;
 
 	printf("Run summary [PID %d]: blocking on %d threads (at [%s] "
 	       "futex %p), %d threads waking up %d at a time.\n\n",
+<<<<<<< HEAD
 	       getpid(), nblocked_threads, fshared ? "shared":"private",
 	       &futex, nwaking_threads, nwakes);
+=======
+	       getpid(), params.nthreads, params.fshared ? "shared":"private",
+	       &futex, params.nwakes, nwakes);
+>>>>>>> upstream/android-13
 
 	init_stats(&wakeup_stats);
 	init_stats(&waketime_stats);
@@ -277,7 +383,11 @@ int bench_futex_wake_parallel(int argc, const char **argv)
 	pthread_cond_init(&thread_worker, NULL);
 
 	for (j = 0; j < bench_repeat && !done; j++) {
+<<<<<<< HEAD
 		waking_worker = calloc(nwaking_threads, sizeof(*waking_worker));
+=======
+		waking_worker = calloc(params.nwakes, sizeof(*waking_worker));
+>>>>>>> upstream/android-13
 		if (!waking_worker)
 			err(EXIT_FAILURE, "calloc");
 
@@ -296,14 +406,22 @@ int bench_futex_wake_parallel(int argc, const char **argv)
 		/* Ok, all threads are patiently blocked, start waking folks up */
 		wakeup_threads(waking_worker, thread_attr);
 
+<<<<<<< HEAD
 		for (i = 0; i < nblocked_threads; i++) {
+=======
+		for (i = 0; i < params.nthreads; i++) {
+>>>>>>> upstream/android-13
 			ret = pthread_join(blocked_worker[i], NULL);
 			if (ret)
 				err(EXIT_FAILURE, "pthread_join");
 		}
 
 		do_run_stats(waking_worker);
+<<<<<<< HEAD
 		if (!silent)
+=======
+		if (!params.silent)
+>>>>>>> upstream/android-13
 			print_run(waking_worker, j);
 
 		free(waking_worker);
@@ -318,6 +436,10 @@ int bench_futex_wake_parallel(int argc, const char **argv)
 	print_summary();
 
 	free(blocked_worker);
+<<<<<<< HEAD
+=======
+	perf_cpu_map__put(cpu);
+>>>>>>> upstream/android-13
 	return ret;
 }
 #endif /* HAVE_PTHREAD_BARRIER */

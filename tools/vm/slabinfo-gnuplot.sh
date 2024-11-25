@@ -1,8 +1,13 @@
 #!/bin/bash
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 
 # Sergey Senozhatsky, 2015
 # sergey.senozhatsky.work@gmail.com
 #
+<<<<<<< HEAD
 # This software is licensed under the terms of the GNU General Public
 # License version 2, as published by the Free Software Foundation, and
 # may be copied, distributed, and modified under those terms.
@@ -11,6 +16,8 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
 
 
 # This program is intended to plot a `slabinfo -X' stats, collected,

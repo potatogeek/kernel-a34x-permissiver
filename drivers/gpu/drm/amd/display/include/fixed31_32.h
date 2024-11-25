@@ -69,12 +69,15 @@ static const struct fixed31_32 dc_fixpt_epsilon = { 1LL };
 static const struct fixed31_32 dc_fixpt_half = { 0x80000000LL };
 static const struct fixed31_32 dc_fixpt_one = { 0x100000000LL };
 
+<<<<<<< HEAD
 static const struct fixed31_32 dc_fixpt_pi = { 13493037705LL };
 static const struct fixed31_32 dc_fixpt_two_pi = { 26986075409LL };
 static const struct fixed31_32 dc_fixpt_e = { 11674931555LL };
 static const struct fixed31_32 dc_fixpt_ln2 = { 2977044471LL };
 static const struct fixed31_32 dc_fixpt_ln2_div_2 = { 1488522236LL };
 
+=======
+>>>>>>> upstream/android-13
 /*
  * @brief
  * Initialization routines
@@ -506,6 +509,11 @@ static inline int dc_fixpt_ceil(struct fixed31_32 arg)
  * fractional
  */
 
+<<<<<<< HEAD
+=======
+unsigned int dc_fixpt_u4d19(struct fixed31_32 arg);
+
+>>>>>>> upstream/android-13
 unsigned int dc_fixpt_u3d19(struct fixed31_32 arg);
 
 unsigned int dc_fixpt_u2d19(struct fixed31_32 arg);

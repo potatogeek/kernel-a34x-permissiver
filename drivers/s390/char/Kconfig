@@ -79,6 +79,7 @@ config SCLP_VT220_CONSOLE
 	  Include support for using an IBM SCLP VT220-compatible terminal as a
 	  Linux system console.
 
+<<<<<<< HEAD
 config SCLP_ASYNC
 	def_tristate m
 	prompt "Support for Call Home via Asynchronous SCLP Records"
@@ -100,6 +101,8 @@ config SCLP_ASYNC_ID
 
 	 If your are unsure, please use the default value "000000000".
 
+=======
+>>>>>>> upstream/android-13
 config HMC_DRV
 	def_tristate m
 	prompt "Support for file transfers from HMC drive CD/DVD-ROM"
@@ -205,4 +208,7 @@ config S390_VMUR
 	depends on S390
 	help
 	  Character device driver for z/VM reader, puncher and printer.
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13

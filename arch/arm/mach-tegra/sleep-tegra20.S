@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2010-2012, NVIDIA Corporation. All rights reserved.
  * Copyright (c) 2011, Google, Inc.
  *
  * Author: Colin Cross <ccross@android.com>
  *         Gary King <gking@nvidia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -16,6 +21,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
@@ -28,11 +35,18 @@
 #include <asm/cache.h>
 
 #include "irammap.h"
+<<<<<<< HEAD
+=======
+#include "reset.h"
+>>>>>>> upstream/android-13
 #include "sleep.h"
 
 #define EMC_CFG				0xc
 #define EMC_ADR_CFG			0x10
+<<<<<<< HEAD
 #define EMC_REFRESH			0x70
+=======
+>>>>>>> upstream/android-13
 #define EMC_NOP				0xdc
 #define EMC_SELF_REF			0xe0
 #define EMC_REQ_CTRL			0x2b0
@@ -54,11 +68,41 @@
 #define APB_MISC_XM2CFGCPADCTRL2	0x8e4
 #define APB_MISC_XM2CFGDPADCTRL2	0x8e8
 
+<<<<<<< HEAD
 .macro pll_enable, rd, r_car_base, pll_base
+=======
+#define PLLC_STORE_MASK			(1 << 0)
+#define PLLM_STORE_MASK			(1 << 1)
+#define PLLP_STORE_MASK			(1 << 2)
+
+.macro test_pll_state, rd, test_mask
+	ldr	\rd, tegra_pll_state
+	tst	\rd, #\test_mask
+.endm
+
+.macro store_pll_state, rd, tmp, r_car_base, pll_base, pll_mask
+	ldr	\rd, [\r_car_base, #\pll_base]
+	tst	\rd, #(1 << 30)
+	ldr	\rd, tegra_pll_state
+	biceq	\rd, \rd, #\pll_mask
+	orrne	\rd, \rd, #\pll_mask
+	adr	\tmp, tegra_pll_state
+	str	\rd, [\tmp]
+.endm
+
+.macro pll_enable, rd, r_car_base, pll_base, test_mask
+	test_pll_state \rd, \test_mask
+	beq	1f
+
+>>>>>>> upstream/android-13
 	ldr	\rd, [\r_car_base, #\pll_base]
 	tst	\rd, #(1 << 30)
 	orreq	\rd, \rd, #(1 << 30)
 	streq	\rd, [\r_car_base, #\pll_base]
+<<<<<<< HEAD
+=======
+1:
+>>>>>>> upstream/android-13
 .endm
 
 .macro emc_device_mask, rd, base
@@ -98,10 +142,13 @@ ENDPROC(tegra20_hotplug_shutdown)
 ENTRY(tegra20_cpu_shutdown)
 	cmp	r0, #0
 	reteq	lr			@ must not be called for CPU 0
+<<<<<<< HEAD
 	mov32	r1, TEGRA_IRAM_RESET_BASE_VIRT
 	ldr	r2, =__tegra20_cpu1_resettable_status_offset
 	mov	r12, #CPU_RESETTABLE
 	strb	r12, [r1, r2]
+=======
+>>>>>>> upstream/android-13
 
 	cpu_to_halt_reg r1, r0
 	ldr	r3, =TEGRA_FLOW_CTRL_VIRT
@@ -125,6 +172,7 @@ ENDPROC(tegra20_cpu_shutdown)
 
 #ifdef CONFIG_PM_SLEEP
 /*
+<<<<<<< HEAD
  * tegra_pen_lock
  *
  * spinlock implementation with no atomic test-and-set and no coherence
@@ -226,6 +274,8 @@ ENTRY(tegra20_cpu_is_resettable_soon)
 ENDPROC(tegra20_cpu_is_resettable_soon)
 
 /*
+=======
+>>>>>>> upstream/android-13
  * tegra20_sleep_core_finish(unsigned long v2p)
  *
  * Enters suspend in LP0 or LP1 by turning off the mmu and jumping to
@@ -251,6 +301,7 @@ ENTRY(tegra20_sleep_core_finish)
 ENDPROC(tegra20_sleep_core_finish)
 
 /*
+<<<<<<< HEAD
  * tegra20_sleep_cpu_secondary_finish(unsigned long v2p)
  *
  * Enters WFI on secondary CPU by exiting coherency.
@@ -313,6 +364,8 @@ ENTRY(tegra20_sleep_cpu_secondary_finish)
 ENDPROC(tegra20_sleep_cpu_secondary_finish)
 
 /*
+=======
+>>>>>>> upstream/android-13
  * tegra20_tear_down_cpu
  *
  * Switches the CPU cluster to PLL-P and enters sleep.
@@ -355,9 +408,15 @@ ENTRY(tegra20_lp1_reset)
 	str	r1, [r0, #CLK_RESET_CCLK_DIVIDER]
 	str	r1, [r0, #CLK_RESET_SCLK_DIVIDER]
 
+<<<<<<< HEAD
 	pll_enable r1, r0, CLK_RESET_PLLM_BASE
 	pll_enable r1, r0, CLK_RESET_PLLP_BASE
 	pll_enable r1, r0, CLK_RESET_PLLC_BASE
+=======
+	pll_enable r1, r0, CLK_RESET_PLLM_BASE, PLLM_STORE_MASK
+	pll_enable r1, r0, CLK_RESET_PLLP_BASE, PLLP_STORE_MASK
+	pll_enable r1, r0, CLK_RESET_PLLC_BASE, PLLC_STORE_MASK
+>>>>>>> upstream/android-13
 
 	adr	r2, tegra20_sdram_pad_address
 	adr	r4, tegra20_sdram_pad_save
@@ -397,7 +456,10 @@ padload_done:
 	mov	r1, #1
 	str	r1, [r0, #EMC_NOP]
 	str	r1, [r0, #EMC_NOP]
+<<<<<<< HEAD
 	str	r1, [r0, #EMC_REFRESH]
+=======
+>>>>>>> upstream/android-13
 
 	emc_device_mask r1, r0
 
@@ -449,6 +511,13 @@ tegra20_switch_cpu_to_clk32k:
 	add	r1, r1, #2
 	wait_until r1, r7, r9
 
+<<<<<<< HEAD
+=======
+	store_pll_state r0, r1, r5, CLK_RESET_PLLC_BASE, PLLC_STORE_MASK
+	store_pll_state r0, r1, r5, CLK_RESET_PLLM_BASE, PLLM_STORE_MASK
+	store_pll_state r0, r1, r5, CLK_RESET_PLLP_BASE, PLLP_STORE_MASK
+
+>>>>>>> upstream/android-13
 	/* disable PLLM, PLLP and PLLC */
 	ldr	r0, [r5, #CLK_RESET_PLLM_BASE]
 	bic	r0, r0, #(1 << 30)
@@ -575,6 +644,12 @@ tegra20_sdram_pad_save:
 	.long	0
 	.endr
 
+<<<<<<< HEAD
+=======
+tegra_pll_state:
+	.word	0x0
+
+>>>>>>> upstream/android-13
 	.ltorg
 /* dummy symbol for end of IRAM */
 	.align L1_CACHE_SHIFT

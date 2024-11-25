@@ -7,6 +7,10 @@
  */
 
 #include <linux/errno.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/mm.h>
 #include <linux/module.h>
@@ -58,11 +62,20 @@ EXPORT_SYMBOL(name)
 VBG_LOG(vbg_info, pr_info);
 VBG_LOG(vbg_warn, pr_warn);
 VBG_LOG(vbg_err, pr_err);
+<<<<<<< HEAD
+=======
+VBG_LOG(vbg_err_ratelimited, pr_err_ratelimited);
+>>>>>>> upstream/android-13
 #if defined(DEBUG) && !defined(CONFIG_DYNAMIC_DEBUG)
 VBG_LOG(vbg_debug, pr_debug);
 #endif
 
+<<<<<<< HEAD
 void *vbg_req_alloc(size_t len, enum vmmdev_request_type req_type)
+=======
+void *vbg_req_alloc(size_t len, enum vmmdev_request_type req_type,
+		    u32 requestor)
+>>>>>>> upstream/android-13
 {
 	struct vmmdev_request_header *req;
 	int order = get_order(PAGE_ALIGN(len));
@@ -78,7 +91,11 @@ void *vbg_req_alloc(size_t len, enum vmmdev_request_type req_type)
 	req->request_type = req_type;
 	req->rc = VERR_GENERAL_FAILURE;
 	req->reserved1 = 0;
+<<<<<<< HEAD
 	req->reserved2 = 0;
+=======
+	req->requestor = requestor;
+>>>>>>> upstream/android-13
 
 	return req;
 }
@@ -119,7 +136,11 @@ static bool hgcm_req_done(struct vbg_dev *gdev,
 	return done;
 }
 
+<<<<<<< HEAD
 int vbg_hgcm_connect(struct vbg_dev *gdev,
+=======
+int vbg_hgcm_connect(struct vbg_dev *gdev, u32 requestor,
+>>>>>>> upstream/android-13
 		     struct vmmdev_hgcm_service_location *loc,
 		     u32 *client_id, int *vbox_status)
 {
@@ -127,7 +148,11 @@ int vbg_hgcm_connect(struct vbg_dev *gdev,
 	int rc;
 
 	hgcm_connect = vbg_req_alloc(sizeof(*hgcm_connect),
+<<<<<<< HEAD
 				     VMMDEVREQ_HGCM_CONNECT);
+=======
+				     VMMDEVREQ_HGCM_CONNECT, requestor);
+>>>>>>> upstream/android-13
 	if (!hgcm_connect)
 		return -ENOMEM;
 
@@ -153,13 +178,23 @@ int vbg_hgcm_connect(struct vbg_dev *gdev,
 }
 EXPORT_SYMBOL(vbg_hgcm_connect);
 
+<<<<<<< HEAD
 int vbg_hgcm_disconnect(struct vbg_dev *gdev, u32 client_id, int *vbox_status)
+=======
+int vbg_hgcm_disconnect(struct vbg_dev *gdev, u32 requestor,
+			u32 client_id, int *vbox_status)
+>>>>>>> upstream/android-13
 {
 	struct vmmdev_hgcm_disconnect *hgcm_disconnect = NULL;
 	int rc;
 
 	hgcm_disconnect = vbg_req_alloc(sizeof(*hgcm_disconnect),
+<<<<<<< HEAD
 					VMMDEVREQ_HGCM_DISCONNECT);
+=======
+					VMMDEVREQ_HGCM_DISCONNECT,
+					requestor);
+>>>>>>> upstream/android-13
 	if (!hgcm_disconnect)
 		return -ENOMEM;
 
@@ -307,7 +342,11 @@ static u32 hgcm_call_linear_addr_type_to_pagelist_flags(
 	switch (type) {
 	default:
 		WARN_ON(1);
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case VMMDEV_HGCM_PARM_TYPE_LINADDR:
 	case VMMDEV_HGCM_PARM_TYPE_LINADDR_KERNEL:
 		return VMMDEV_HGCM_F_PARM_DIRECTION_BOTH;
@@ -463,7 +502,11 @@ static int hgcm_cancel_call(struct vbg_dev *gdev, struct vmmdev_hgcm_call *call)
  *               Cancellation fun.
  */
 static int vbg_hgcm_do_call(struct vbg_dev *gdev, struct vmmdev_hgcm_call *call,
+<<<<<<< HEAD
 			    u32 timeout_ms, bool *leak_it)
+=======
+			    u32 timeout_ms, bool interruptible, bool *leak_it)
+>>>>>>> upstream/android-13
 {
 	int rc, cancel_rc, ret;
 	long timeout;
@@ -490,10 +533,22 @@ static int vbg_hgcm_do_call(struct vbg_dev *gdev, struct vmmdev_hgcm_call *call,
 	else
 		timeout = msecs_to_jiffies(timeout_ms);
 
+<<<<<<< HEAD
 	timeout = wait_event_interruptible_timeout(
 					gdev->hgcm_wq,
 					hgcm_req_done(gdev, &call->header),
 					timeout);
+=======
+	if (interruptible) {
+		timeout = wait_event_interruptible_timeout(gdev->hgcm_wq,
+							   hgcm_req_done(gdev, &call->header),
+							   timeout);
+	} else {
+		timeout = wait_event_timeout(gdev->hgcm_wq,
+					     hgcm_req_done(gdev, &call->header),
+					     timeout);
+	}
+>>>>>>> upstream/android-13
 
 	/* timeout > 0 means hgcm_req_done has returned true, so success */
 	if (timeout > 0)
@@ -594,9 +649,16 @@ static int hgcm_call_copy_back_result(
 	return 0;
 }
 
+<<<<<<< HEAD
 int vbg_hgcm_call(struct vbg_dev *gdev, u32 client_id, u32 function,
 		  u32 timeout_ms, struct vmmdev_hgcm_function_parameter *parms,
 		  u32 parm_count, int *vbox_status)
+=======
+int vbg_hgcm_call(struct vbg_dev *gdev, u32 requestor, u32 client_id,
+		  u32 function, u32 timeout_ms,
+		  struct vmmdev_hgcm_function_parameter *parms, u32 parm_count,
+		  int *vbox_status)
+>>>>>>> upstream/android-13
 {
 	struct vmmdev_hgcm_call *call;
 	void **bounce_bufs = NULL;
@@ -616,7 +678,11 @@ int vbg_hgcm_call(struct vbg_dev *gdev, u32 client_id, u32 function,
 		goto free_bounce_bufs;
 	}
 
+<<<<<<< HEAD
 	call = vbg_req_alloc(size, VMMDEVREQ_HGCM_CALL);
+=======
+	call = vbg_req_alloc(size, VMMDEVREQ_HGCM_CALL, requestor);
+>>>>>>> upstream/android-13
 	if (!call) {
 		ret = -ENOMEM;
 		goto free_bounce_bufs;
@@ -625,7 +691,12 @@ int vbg_hgcm_call(struct vbg_dev *gdev, u32 client_id, u32 function,
 	hgcm_call_init_call(call, client_id, function, parms, parm_count,
 			    bounce_bufs);
 
+<<<<<<< HEAD
 	ret = vbg_hgcm_do_call(gdev, call, timeout_ms, &leak_it);
+=======
+	ret = vbg_hgcm_do_call(gdev, call, timeout_ms,
+			       requestor & VMMDEV_REQUESTOR_USERMODE, &leak_it);
+>>>>>>> upstream/android-13
 	if (ret == 0) {
 		*vbox_status = call->header.result;
 		ret = hgcm_call_copy_back_result(call, parms, parm_count,
@@ -648,9 +719,15 @@ EXPORT_SYMBOL(vbg_hgcm_call);
 
 #ifdef CONFIG_COMPAT
 int vbg_hgcm_call32(
+<<<<<<< HEAD
 	struct vbg_dev *gdev, u32 client_id, u32 function, u32 timeout_ms,
 	struct vmmdev_hgcm_function_parameter32 *parm32, u32 parm_count,
 	int *vbox_status)
+=======
+	struct vbg_dev *gdev, u32 requestor, u32 client_id, u32 function,
+	u32 timeout_ms, struct vmmdev_hgcm_function_parameter32 *parm32,
+	u32 parm_count, int *vbox_status)
+>>>>>>> upstream/android-13
 {
 	struct vmmdev_hgcm_function_parameter *parm64 = NULL;
 	u32 i, size;
@@ -690,7 +767,11 @@ int vbg_hgcm_call32(
 			goto out_free;
 	}
 
+<<<<<<< HEAD
 	ret = vbg_hgcm_call(gdev, client_id, function, timeout_ms,
+=======
+	ret = vbg_hgcm_call(gdev, requestor, client_id, function, timeout_ms,
+>>>>>>> upstream/android-13
 			    parm64, parm_count, vbox_status);
 	if (ret < 0)
 		goto out_free;

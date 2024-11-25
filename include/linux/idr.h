@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * include/linux/idr.h
  * 
  * 2002-10-18  written by Jim Houston jim.houston@ccur.com
  *	Copyright (C) 2002 by Concurrent Computer Corporation
+<<<<<<< HEAD
  *	Distributed under the GNU GPL license version 2.
+=======
+>>>>>>> upstream/android-13
  *
  * Small id to pointer translation service avoiding fixed sized
  * tables.
@@ -171,7 +178,11 @@ static inline bool idr_is_empty(const struct idr *idr)
  */
 static inline void idr_preload_end(void)
 {
+<<<<<<< HEAD
 	preempt_enable();
+=======
+	local_unlock(&radix_tree_preloads.lock);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -191,14 +202,25 @@ static inline void idr_preload_end(void)
  * idr_for_each_entry_ul() - Iterate over an IDR's elements of a given type.
  * @idr: IDR handle.
  * @entry: The type * to use as cursor.
+<<<<<<< HEAD
+=======
+ * @tmp: A temporary placeholder for ID.
+>>>>>>> upstream/android-13
  * @id: Entry ID.
  *
  * @entry and @id do not need to be initialized before the loop, and
  * after normal termination @entry is left with the value NULL.  This
  * is convenient for a "not found" value.
  */
+<<<<<<< HEAD
 #define idr_for_each_entry_ul(idr, entry, id)			\
 	for (id = 0; ((entry) = idr_get_next_ul(idr, &(id))) != NULL; ++id)
+=======
+#define idr_for_each_entry_ul(idr, entry, tmp, id)			\
+	for (tmp = 0, id = 0;						\
+	     tmp <= id && ((entry) = idr_get_next_ul(idr, &(id))) != NULL; \
+	     tmp = id, ++id)
+>>>>>>> upstream/android-13
 
 /**
  * idr_for_each_entry_continue() - Continue iteration over an IDR's elements of a given type
@@ -213,9 +235,28 @@ static inline void idr_preload_end(void)
 	     entry;							\
 	     ++id, (entry) = idr_get_next((idr), &(id)))
 
+<<<<<<< HEAD
 /*
  * IDA - IDR based id allocator, use when translation from id to
  * pointer isn't necessary.
+=======
+/**
+ * idr_for_each_entry_continue_ul() - Continue iteration over an IDR's elements of a given type
+ * @idr: IDR handle.
+ * @entry: The type * to use as a cursor.
+ * @tmp: A temporary placeholder for ID.
+ * @id: Entry ID.
+ *
+ * Continue to iterate over entries, continuing after the current position.
+ */
+#define idr_for_each_entry_continue_ul(idr, entry, tmp, id)		\
+	for (tmp = id;							\
+	     tmp <= id && ((entry) = idr_get_next_ul(idr, &(id))) != NULL; \
+	     tmp = id, ++id)
+
+/*
+ * IDA - ID Allocator, use when translation from id to pointer isn't necessary.
+>>>>>>> upstream/android-13
  */
 #define IDA_CHUNK_SIZE		128	/* 128 bytes per chunk */
 #define IDA_BITMAP_LONGS	(IDA_CHUNK_SIZE / sizeof(long))
@@ -225,6 +266,7 @@ struct ida_bitmap {
 	unsigned long		bitmap[IDA_BITMAP_LONGS];
 };
 
+<<<<<<< HEAD
 DECLARE_PER_CPU(struct ida_bitmap *, ida_bitmap);
 
 struct ida {
@@ -233,6 +275,16 @@ struct ida {
 
 #define IDA_INIT(name)	{						\
 	.ida_rt = RADIX_TREE_INIT(name, IDR_RT_MARKER | GFP_NOWAIT),	\
+=======
+struct ida {
+	struct xarray xa;
+};
+
+#define IDA_INIT_FLAGS	(XA_FLAGS_LOCK_IRQ | XA_FLAGS_ALLOC)
+
+#define IDA_INIT(name)	{						\
+	.xa = XARRAY_INIT(name, IDA_INIT_FLAGS)				\
+>>>>>>> upstream/android-13
 }
 #define DEFINE_IDA(name)	struct ida name = IDA_INIT(name)
 
@@ -247,7 +299,12 @@ void ida_destroy(struct ida *ida);
  *
  * Allocate an ID between 0 and %INT_MAX, inclusive.
  *
+<<<<<<< HEAD
  * Context: Any context.
+=======
+ * Context: Any context. It is safe to call this function without
+ * locking in your code.
+>>>>>>> upstream/android-13
  * Return: The allocated ID, or %-ENOMEM if memory could not be allocated,
  * or %-ENOSPC if there are no free IDs.
  */
@@ -264,7 +321,12 @@ static inline int ida_alloc(struct ida *ida, gfp_t gfp)
  *
  * Allocate an ID between @min and %INT_MAX, inclusive.
  *
+<<<<<<< HEAD
  * Context: Any context.
+=======
+ * Context: Any context. It is safe to call this function without
+ * locking in your code.
+>>>>>>> upstream/android-13
  * Return: The allocated ID, or %-ENOMEM if memory could not be allocated,
  * or %-ENOSPC if there are no free IDs.
  */
@@ -281,7 +343,12 @@ static inline int ida_alloc_min(struct ida *ida, unsigned int min, gfp_t gfp)
  *
  * Allocate an ID between 0 and @max, inclusive.
  *
+<<<<<<< HEAD
  * Context: Any context.
+=======
+ * Context: Any context. It is safe to call this function without
+ * locking in your code.
+>>>>>>> upstream/android-13
  * Return: The allocated ID, or %-ENOMEM if memory could not be allocated,
  * or %-ENOSPC if there are no free IDs.
  */
@@ -292,18 +359,33 @@ static inline int ida_alloc_max(struct ida *ida, unsigned int max, gfp_t gfp)
 
 static inline void ida_init(struct ida *ida)
 {
+<<<<<<< HEAD
 	INIT_RADIX_TREE(&ida->ida_rt, IDR_RT_MARKER | GFP_NOWAIT);
 }
 
+=======
+	xa_init_flags(&ida->xa, IDA_INIT_FLAGS);
+}
+
+/*
+ * ida_simple_get() and ida_simple_remove() are deprecated. Use
+ * ida_alloc() and ida_free() instead respectively.
+ */
+>>>>>>> upstream/android-13
 #define ida_simple_get(ida, start, end, gfp)	\
 			ida_alloc_range(ida, start, (end) - 1, gfp)
 #define ida_simple_remove(ida, id)	ida_free(ida, id)
 
 static inline bool ida_is_empty(const struct ida *ida)
 {
+<<<<<<< HEAD
 	return radix_tree_empty(&ida->ida_rt);
 }
 
 /* in lib/radix-tree.c */
 int ida_pre_get(struct ida *ida, gfp_t gfp_mask);
+=======
+	return xa_empty(&ida->xa);
+}
+>>>>>>> upstream/android-13
 #endif /* __IDR_H__ */

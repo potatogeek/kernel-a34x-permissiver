@@ -28,6 +28,7 @@
  *  Alon Levy <alevy@redhat.com>
  */
 
+<<<<<<< HEAD
 #include <linux/debugfs.h>
 
 #include <drm/drmP.h>
@@ -35,12 +36,24 @@
 #include "qxl_object.h"
 
 
+=======
+#include <drm/drm_debugfs.h>
+#include <drm/drm_file.h>
+
+#include "qxl_drv.h"
+#include "qxl_object.h"
+
+>>>>>>> upstream/android-13
 #if defined(CONFIG_DEBUG_FS)
 static int
 qxl_debugfs_irq_received(struct seq_file *m, void *data)
 {
 	struct drm_info_node *node = (struct drm_info_node *) m->private;
+<<<<<<< HEAD
 	struct qxl_device *qdev = node->minor->dev->dev_private;
+=======
+	struct qxl_device *qdev = to_qxl(node->minor->dev);
+>>>>>>> upstream/android-13
 
 	seq_printf(m, "%d\n", atomic_read(&qdev->irq_received));
 	seq_printf(m, "%d\n", atomic_read(&qdev->irq_received_display));
@@ -54,6 +67,7 @@ static int
 qxl_debugfs_buffers_info(struct seq_file *m, void *data)
 {
 	struct drm_info_node *node = (struct drm_info_node *) m->private;
+<<<<<<< HEAD
 	struct qxl_device *qdev = node->minor->dev->dev_private;
 	struct qxl_bo *bo;
 
@@ -63,12 +77,28 @@ qxl_debugfs_buffers_info(struct seq_file *m, void *data)
 
 		rcu_read_lock();
 		fobj = rcu_dereference(bo->tbo.resv->fence);
+=======
+	struct qxl_device *qdev = to_qxl(node->minor->dev);
+	struct qxl_bo *bo;
+
+	list_for_each_entry(bo, &qdev->gem.objects, list) {
+		struct dma_resv_list *fobj;
+		int rel;
+
+		rcu_read_lock();
+		fobj = dma_resv_shared_list(bo->tbo.base.resv);
+>>>>>>> upstream/android-13
 		rel = fobj ? fobj->shared_count : 0;
 		rcu_read_unlock();
 
 		seq_printf(m, "size %ld, pc %d, num releases %d\n",
+<<<<<<< HEAD
 			   (unsigned long)bo->gem_base.size,
 			   bo->pin_count, rel);
+=======
+			   (unsigned long)bo->tbo.base.size,
+			   bo->tbo.pin_count, rel);
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
@@ -80,6 +110,7 @@ static struct drm_info_list qxl_debugfs_list[] = {
 #define QXL_DEBUGFS_ENTRIES ARRAY_SIZE(qxl_debugfs_list)
 #endif
 
+<<<<<<< HEAD
 int
 qxl_debugfs_init(struct drm_minor *minor)
 {
@@ -87,10 +118,18 @@ qxl_debugfs_init(struct drm_minor *minor)
 	int r;
 	struct qxl_device *dev =
 		(struct qxl_device *) minor->dev->dev_private;
+=======
+void
+qxl_debugfs_init(struct drm_minor *minor)
+{
+#if defined(CONFIG_DEBUG_FS)
+	struct qxl_device *dev = to_qxl(minor->dev);
+>>>>>>> upstream/android-13
 
 	drm_debugfs_create_files(qxl_debugfs_list, QXL_DEBUGFS_ENTRIES,
 				 minor->debugfs_root, minor);
 
+<<<<<<< HEAD
 	r = qxl_ttm_debugfs_init(dev);
 	if (r) {
 		DRM_ERROR("Failed to init TTM debugfs\n");
@@ -105,11 +144,26 @@ int qxl_debugfs_add_files(struct qxl_device *qdev,
 			  unsigned nfiles)
 {
 	unsigned i;
+=======
+	qxl_ttm_debugfs_init(dev);
+#endif
+}
+
+void qxl_debugfs_add_files(struct qxl_device *qdev,
+			   struct drm_info_list *files,
+			   unsigned int nfiles)
+{
+	unsigned int i;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < qdev->debugfs_count; i++) {
 		if (qdev->debugfs[i].files == files) {
 			/* Already registered */
+<<<<<<< HEAD
 			return 0;
+=======
+			return;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -117,7 +171,11 @@ int qxl_debugfs_add_files(struct qxl_device *qdev,
 	if (i > QXL_DEBUGFS_MAX_COMPONENTS) {
 		DRM_ERROR("Reached maximum number of debugfs components.\n");
 		DRM_ERROR("Report so we increase QXL_DEBUGFS_MAX_COMPONENTS.\n");
+<<<<<<< HEAD
 		return -EINVAL;
+=======
+		return;
+>>>>>>> upstream/android-13
 	}
 	qdev->debugfs[qdev->debugfs_count].files = files;
 	qdev->debugfs[qdev->debugfs_count].num_files = nfiles;
@@ -127,5 +185,8 @@ int qxl_debugfs_add_files(struct qxl_device *qdev,
 				 qdev->ddev.primary->debugfs_root,
 				 qdev->ddev.primary);
 #endif
+<<<<<<< HEAD
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }

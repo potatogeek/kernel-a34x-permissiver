@@ -5,8 +5,13 @@ DMAEngine documentation
 DMAEngine documentation provides documents for various aspects of DMAEngine
 framework.
 
+<<<<<<< HEAD
 DMAEngine documentation
 -----------------------
+=======
+DMAEngine development documentation
+-----------------------------------
+>>>>>>> upstream/android-13
 
 This book helps with DMAengine internal APIs and guide for DMAEngine device
 driver writers.
@@ -47,7 +52,11 @@ This book adds some notes about PXA DMA
 
    pxa_dma
 
+<<<<<<< HEAD
 .. only::  subproject
+=======
+.. only::  subproject and html
+>>>>>>> upstream/android-13
 
    Indices
    =======

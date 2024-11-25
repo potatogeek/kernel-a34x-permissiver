@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Target driver for EMC CLARiiON AX/CX-series hardware.
  * Based on code from Lars Marowsky-Bree <lmb@suse.de>
@@ -5,6 +9,7 @@
  *
  * Copyright (C) 2006 Red Hat, Inc.  All rights reserved.
  * Copyright (C) 2006 Mike Christie
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +24,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; see the file COPYING.  If not, write to
  * the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/slab.h>
 #include <linux/module.h>
@@ -293,8 +300,13 @@ static int send_trespass_cmd(struct scsi_device *sdev,
 	return res;
 }
 
+<<<<<<< HEAD
 static int clariion_check_sense(struct scsi_device *sdev,
 				struct scsi_sense_hdr *sense_hdr)
+=======
+static enum scsi_disposition clariion_check_sense(struct scsi_device *sdev,
+					struct scsi_sense_hdr *sense_hdr)
+>>>>>>> upstream/android-13
 {
 	switch (sense_hdr->sense_key) {
 	case NOT_READY:
@@ -341,6 +353,7 @@ static int clariion_check_sense(struct scsi_device *sdev,
 	return SCSI_RETURN_NOT_HANDLED;
 }
 
+<<<<<<< HEAD
 static int clariion_prep_fn(struct scsi_device *sdev, struct request *req)
 {
 	struct clariion_dh_data *h = sdev->handler_data;
@@ -352,6 +365,19 @@ static int clariion_prep_fn(struct scsi_device *sdev, struct request *req)
 	}
 	return ret;
 
+=======
+static blk_status_t clariion_prep_fn(struct scsi_device *sdev,
+		struct request *req)
+{
+	struct clariion_dh_data *h = sdev->handler_data;
+
+	if (h->lun_state != CLARIION_LUN_OWNED) {
+		req->rq_flags |= RQF_QUIET;
+		return BLK_STS_IOERR;
+	}
+
+	return BLK_STS_OK;
+>>>>>>> upstream/android-13
 }
 
 static int clariion_std_inquiry(struct scsi_device *sdev,

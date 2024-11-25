@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * AD5504, AD5501 High Voltage Digital to Analog Converter
  *
  * Copyright 2011 Analog Devices Inc.
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/interrupt.h>
@@ -40,12 +47,21 @@
 #define AD5504_DAC_PWRDN_3STATE		1
 
 /**
+<<<<<<< HEAD
  * struct ad5446_state - driver instance specific data
  * @spi:			spi_device
  * @reg:		supply regulator
  * @vref_mv:		actual reference voltage used
  * @pwr_down_mask	power down mask
  * @pwr_down_mode	current power down mode
+=======
+ * struct ad5504_state - driver instance specific data
+ * @spi:			spi_device
+ * @reg:		supply regulator
+ * @vref_mv:		actual reference voltage used
+ * @pwr_down_mask:	power down mask
+ * @pwr_down_mode:	current power down mode
+>>>>>>> upstream/android-13
  * @data:		transfer buffer
  */
 struct ad5504_state {
@@ -58,10 +74,16 @@ struct ad5504_state {
 	__be16				data[2] ____cacheline_aligned;
 };
 
+<<<<<<< HEAD
 /**
  * ad5504_supported_device_ids:
  */
 
+=======
+/*
+ * ad5504_supported_device_ids:
+ */
+>>>>>>> upstream/android-13
 enum ad5504_supported_device_ids {
 	ID_AD5504,
 	ID_AD5501,
@@ -172,8 +194,13 @@ static ssize_t ad5504_read_dac_powerdown(struct iio_dev *indio_dev,
 {
 	struct ad5504_state *st = iio_priv(indio_dev);
 
+<<<<<<< HEAD
 	return sprintf(buf, "%d\n",
 			!(st->pwr_down_mask & (1 << chan->channel)));
+=======
+	return sysfs_emit(buf, "%d\n",
+			  !(st->pwr_down_mask & (1 << chan->channel)));
+>>>>>>> upstream/android-13
 }
 
 static ssize_t ad5504_write_dac_powerdown(struct iio_dev *indio_dev,
@@ -305,7 +332,10 @@ static int ad5504_probe(struct spi_device *spi)
 
 	st->reg = reg;
 	st->spi = spi;
+<<<<<<< HEAD
 	indio_dev->dev.parent = &spi->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->name = spi_get_device_id(st->spi)->name;
 	indio_dev->info = &ad5504_info;
 	if (spi_get_device_id(st->spi)->driver_data == ID_AD5501)
@@ -369,6 +399,10 @@ static struct spi_driver ad5504_driver = {
 };
 module_spi_driver(ad5504_driver);
 
+<<<<<<< HEAD
 MODULE_AUTHOR("Michael Hennerich <hennerich@blackfin.uclinux.org>");
+=======
+MODULE_AUTHOR("Michael Hennerich <michael.hennerich@analog.com>");
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("Analog Devices AD5501/AD5501 DAC");
 MODULE_LICENSE("GPL v2");

@@ -331,7 +331,11 @@ int SetOverlayViewPort(volatile STG4000REG __iomem *pSTGReg,
 	u32 ulScale;
 	u32 ulLeft, ulRight;
 	u32 ulSrcLeft, ulSrcRight;
+<<<<<<< HEAD
 	u32 ulScaleLeft, ulScaleRight;
+=======
+	u32 ulScaleLeft;
+>>>>>>> upstream/android-13
 	u32 ulhDecim;
 	u32 ulsVal;
 	u32 ulVertDecFactor;
@@ -470,7 +474,10 @@ int SetOverlayViewPort(volatile STG4000REG __iomem *pSTGReg,
 		 * round down the pixel pos to the nearest 8 pixels.
 		 */
 		ulScaleLeft = ulSrcLeft;
+<<<<<<< HEAD
 		ulScaleRight = ulSrcRight;
+=======
+>>>>>>> upstream/android-13
 
 		/* shift fxscale until it is in the range of the scaler */
 		ulhDecim = 0;

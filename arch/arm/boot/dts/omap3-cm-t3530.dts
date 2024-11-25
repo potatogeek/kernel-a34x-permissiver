@@ -9,7 +9,11 @@
 
 / {
 	model = "CompuLab CM-T3530";
+<<<<<<< HEAD
 	compatible = "compulab,omap3-cm-t3530", "ti,omap34xx", "ti,omap3";
+=======
+	compatible = "compulab,omap3-cm-t3530", "ti,omap3430", "ti,omap34xx", "ti,omap3";
+>>>>>>> upstream/android-13
 
 	/* Regulator to trigger the reset signal of the Wifi module */
 	mmc2_sdio_reset: regulator-mmc2-sdio-reset {
@@ -49,7 +53,11 @@
 };
 
 &dss {
+<<<<<<< HEAD
 	status = "ok";
+=======
+	status = "okay";
+>>>>>>> upstream/android-13
 
 	pinctrl-names = "default";
 	pinctrl-0 = <

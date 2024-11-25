@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2008-2011 Freescale Semiconductor, Inc. All rights reserved.
  *
@@ -6,10 +10,13 @@
  * Description:
  * This file is derived from arch/powerpc/kvm/44x_emulate.c,
  * by Hollis Blanchard <hollisb@us.ibm.com>.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <asm/kvm_ppc.h>
@@ -86,16 +93,26 @@ static int kvmppc_e500_emul_msgsnd(struct kvm_vcpu *vcpu, int rb)
 }
 #endif
 
+<<<<<<< HEAD
 static int kvmppc_e500_emul_ehpriv(struct kvm_run *run, struct kvm_vcpu *vcpu,
+=======
+static int kvmppc_e500_emul_ehpriv(struct kvm_vcpu *vcpu,
+>>>>>>> upstream/android-13
 				   unsigned int inst, int *advance)
 {
 	int emulated = EMULATE_DONE;
 
 	switch (get_oc(inst)) {
 	case EHPRIV_OC_DEBUG:
+<<<<<<< HEAD
 		run->exit_reason = KVM_EXIT_DEBUG;
 		run->debug.arch.address = vcpu->arch.regs.nip;
 		run->debug.arch.status = 0;
+=======
+		vcpu->run->exit_reason = KVM_EXIT_DEBUG;
+		vcpu->run->debug.arch.address = vcpu->arch.regs.nip;
+		vcpu->run->debug.arch.status = 0;
+>>>>>>> upstream/android-13
 		kvmppc_account_exit(vcpu, DEBUG_EXITS);
 		emulated = EMULATE_EXIT_USER;
 		*advance = 0;
@@ -128,7 +145,11 @@ static int kvmppc_e500_emul_mftmr(struct kvm_vcpu *vcpu, unsigned int inst,
 	return EMULATE_FAIL;
 }
 
+<<<<<<< HEAD
 int kvmppc_core_emulate_op_e500(struct kvm_run *run, struct kvm_vcpu *vcpu,
+=======
+int kvmppc_core_emulate_op_e500(struct kvm_vcpu *vcpu,
+>>>>>>> upstream/android-13
 				unsigned int inst, int *advance)
 {
 	int emulated = EMULATE_DONE;
@@ -185,8 +206,12 @@ int kvmppc_core_emulate_op_e500(struct kvm_run *run, struct kvm_vcpu *vcpu,
 			break;
 
 		case XOP_EHPRIV:
+<<<<<<< HEAD
 			emulated = kvmppc_e500_emul_ehpriv(run, vcpu, inst,
 							   advance);
+=======
+			emulated = kvmppc_e500_emul_ehpriv(vcpu, inst, advance);
+>>>>>>> upstream/android-13
 			break;
 
 		default:
@@ -200,7 +225,11 @@ int kvmppc_core_emulate_op_e500(struct kvm_run *run, struct kvm_vcpu *vcpu,
 	}
 
 	if (emulated == EMULATE_FAIL)
+<<<<<<< HEAD
 		emulated = kvmppc_booke_emulate_op(run, vcpu, inst, advance);
+=======
+		emulated = kvmppc_booke_emulate_op(vcpu, inst, advance);
+>>>>>>> upstream/android-13
 
 	return emulated;
 }

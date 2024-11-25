@@ -59,7 +59,11 @@ acpi_rs_convert_aml_to_resources(u8 * aml,
 		    AML_RESOURCE_MAX_SERIALBUSTYPE) {
 			conversion_table = NULL;
 		} else {
+<<<<<<< HEAD
 			/* This is an I2C, SPI, or UART serial_bus descriptor */
+=======
+			/* This is an I2C, SPI, UART, or CSI2 serial_bus descriptor */
+>>>>>>> upstream/android-13
 
 			conversion_table =
 			    acpi_gbl_convert_resource_serial_bus_dispatch
@@ -89,6 +93,14 @@ acpi_rs_convert_aml_to_resources(u8 * aml,
 		return_ACPI_STATUS(status);
 	}
 
+<<<<<<< HEAD
+=======
+	if (!resource->length) {
+		ACPI_EXCEPTION((AE_INFO, status,
+				"Zero-length resource returned from RsConvertAmlToResource"));
+	}
+
+>>>>>>> upstream/android-13
 	ACPI_DEBUG_PRINT((ACPI_DB_RESOURCES,
 			  "Type %.2X, AmlLength %.2X InternalLength %.2X\n",
 			  acpi_ut_get_resource_type(aml), length,
@@ -158,7 +170,11 @@ acpi_rs_convert_resources_to_aml(struct acpi_resource *resource,
 			    AML_RESOURCE_MAX_SERIALBUSTYPE) {
 				conversion_table = NULL;
 			} else {
+<<<<<<< HEAD
 				/* This is an I2C, SPI, or UART serial_bus descriptor */
+=======
+				/* This is an I2C, SPI, UART or CSI2 serial_bus descriptor */
+>>>>>>> upstream/android-13
 
 				conversion_table =
 				    acpi_gbl_convert_resource_serial_bus_dispatch

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef __SOUND_ICE1712_H
 #define __SOUND_ICE1712_H
 
@@ -5,6 +9,7 @@
  *   ALSA driver for ICEnsemble ICE1712 (Envy24)
  *
  *	Copyright (c) 2000 Jaroslav Kysela <perex@perex.cz>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -20,6 +25,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/io.h>
@@ -330,7 +337,11 @@ struct snd_ice1712 {
 	struct snd_info_entry *proc_entry;
 
 	struct snd_ice1712_eeprom eeprom;
+<<<<<<< HEAD
 	struct snd_ice1712_card_info *card_info;
+=======
+	const struct snd_ice1712_card_info *card_info;
+>>>>>>> upstream/android-13
 
 	unsigned int pro_volumes[20];
 	unsigned int omni:1;		/* Delta Omni I/O */

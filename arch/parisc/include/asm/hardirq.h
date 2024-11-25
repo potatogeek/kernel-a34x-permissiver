@@ -12,16 +12,23 @@
 #include <linux/threads.h>
 #include <linux/irq.h>
 
+<<<<<<< HEAD
 #ifdef CONFIG_IRQSTACKS
 #define __ARCH_HAS_DO_SOFTIRQ
 #endif
 
+=======
+>>>>>>> upstream/android-13
 typedef struct {
 	unsigned int __softirq_pending;
 	unsigned int kernel_stack_usage;
 	unsigned int irq_stack_usage;
 #ifdef CONFIG_SMP
 	unsigned int irq_resched_count;
+<<<<<<< HEAD
+=======
+	unsigned int irq_call_count;
+>>>>>>> upstream/android-13
 #endif
 	unsigned int irq_unaligned_count;
 	unsigned int irq_fpassist_count;
@@ -31,7 +38,10 @@ typedef struct {
 DECLARE_PER_CPU_SHARED_ALIGNED(irq_cpustat_t, irq_stat);
 
 #define __ARCH_IRQ_STAT
+<<<<<<< HEAD
 #define __IRQ_STAT(cpu, member) (irq_stat[cpu].member)
+=======
+>>>>>>> upstream/android-13
 #define inc_irq_stat(member)	this_cpu_inc(irq_stat.member)
 #define __inc_irq_stat(member)	__this_cpu_inc(irq_stat.member)
 #define ack_bad_irq(irq) WARN(1, "unexpected IRQ trap at vector %02x\n", irq)

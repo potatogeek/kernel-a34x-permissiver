@@ -1,22 +1,36 @@
+<<<<<<< HEAD
 /*
  * AMD Secure Processor driver
  *
  * Copyright (C) 2017 Advanced Micro Devices, Inc.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * AMD Secure Processor driver
+ *
+ * Copyright (C) 2017-2019 Advanced Micro Devices, Inc.
+>>>>>>> upstream/android-13
  *
  * Author: Tom Lendacky <thomas.lendacky@amd.com>
  * Author: Gary R Hook <gary.hook@amd.com>
  * Author: Brijesh Singh <brijesh.singh@amd.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __SP_DEV_H__
 #define __SP_DEV_H__
 
 #include <linux/device.h>
+<<<<<<< HEAD
 #include <linux/pci.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/spinlock.h>
 #include <linux/mutex.h>
 #include <linux/list.h>
@@ -43,10 +57,30 @@ struct ccp_vdata {
 	const unsigned int rsamax;
 };
 
+<<<<<<< HEAD
 struct psp_vdata {
 	const unsigned int cmdresp_reg;
 	const unsigned int cmdbuff_addr_lo_reg;
 	const unsigned int cmdbuff_addr_hi_reg;
+=======
+struct sev_vdata {
+	const unsigned int cmdresp_reg;
+	const unsigned int cmdbuff_addr_lo_reg;
+	const unsigned int cmdbuff_addr_hi_reg;
+};
+
+struct tee_vdata {
+	const unsigned int cmdresp_reg;
+	const unsigned int cmdbuff_addr_lo_reg;
+	const unsigned int cmdbuff_addr_hi_reg;
+	const unsigned int ring_wptr_reg;
+	const unsigned int ring_rptr_reg;
+};
+
+struct psp_vdata {
+	const struct sev_vdata *sev;
+	const struct tee_vdata *tee;
+>>>>>>> upstream/android-13
 	const unsigned int feature_reg;
 	const unsigned int inten_reg;
 	const unsigned int intsts_reg;
@@ -81,6 +115,10 @@ struct sp_device {
 	/* get and set master device */
 	struct sp_device*(*get_psp_master_device)(void);
 	void (*set_psp_master_device)(struct sp_device *);
+<<<<<<< HEAD
+=======
+	void (*clear_psp_master_device)(struct sp_device *);
+>>>>>>> upstream/android-13
 
 	bool irq_registered;
 	bool use_tasklet;
@@ -109,7 +147,11 @@ int sp_init(struct sp_device *sp);
 void sp_destroy(struct sp_device *sp);
 struct sp_device *sp_get_master(void);
 
+<<<<<<< HEAD
 int sp_suspend(struct sp_device *sp, pm_message_t state);
+=======
+int sp_suspend(struct sp_device *sp);
+>>>>>>> upstream/android-13
 int sp_resume(struct sp_device *sp);
 int sp_request_ccp_irq(struct sp_device *sp, irq_handler_t handler,
 		       const char *name, void *data);
@@ -124,8 +166,13 @@ struct sp_device *sp_get_psp_master_device(void);
 int ccp_dev_init(struct sp_device *sp);
 void ccp_dev_destroy(struct sp_device *sp);
 
+<<<<<<< HEAD
 int ccp_dev_suspend(struct sp_device *sp, pm_message_t state);
 int ccp_dev_resume(struct sp_device *sp);
+=======
+void ccp_dev_suspend(struct sp_device *sp);
+void ccp_dev_resume(struct sp_device *sp);
+>>>>>>> upstream/android-13
 
 #else	/* !CONFIG_CRYPTO_DEV_SP_CCP */
 
@@ -134,6 +181,7 @@ static inline int ccp_dev_init(struct sp_device *sp)
 	return 0;
 }
 static inline void ccp_dev_destroy(struct sp_device *sp) { }
+<<<<<<< HEAD
 
 static inline int ccp_dev_suspend(struct sp_device *sp, pm_message_t state)
 {
@@ -143,6 +191,10 @@ static inline int ccp_dev_resume(struct sp_device *sp)
 {
 	return 0;
 }
+=======
+static inline void ccp_dev_suspend(struct sp_device *sp) { }
+static inline void ccp_dev_resume(struct sp_device *sp) { }
+>>>>>>> upstream/android-13
 #endif	/* CONFIG_CRYPTO_DEV_SP_CCP */
 
 #ifdef CONFIG_CRYPTO_DEV_SP_PSP

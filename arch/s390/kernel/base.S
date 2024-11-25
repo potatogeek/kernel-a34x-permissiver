@@ -11,11 +11,15 @@
 #include <asm/asm-offsets.h>
 #include <asm/nospec-insn.h>
 #include <asm/ptrace.h>
+<<<<<<< HEAD
 #include <asm/sigp.h>
+=======
+>>>>>>> upstream/android-13
 
 	GEN_BR_THUNK %r9
 	GEN_BR_THUNK %r14
 
+<<<<<<< HEAD
 ENTRY(s390_base_mcck_handler)
 	basr	%r13,0
 0:	lg	%r15,__LC_PANIC_STACK	# load panic stack
@@ -56,6 +60,8 @@ s390_base_ext_handler_fn:
 	.quad	0
 	.previous
 
+=======
+>>>>>>> upstream/android-13
 ENTRY(s390_base_pgm_handler)
 	stmg	%r0,%r15,__LC_SAVE_AREA_SYNC
 	basr	%r13,0
@@ -68,6 +74,10 @@ ENTRY(s390_base_pgm_handler)
 	lmg	%r0,%r15,__LC_SAVE_AREA_SYNC
 	lpswe	__LC_PGM_OLD_PSW
 1:	lpswe	disabled_wait_psw-0b(%r13)
+<<<<<<< HEAD
+=======
+ENDPROC(s390_base_pgm_handler)
+>>>>>>> upstream/android-13
 
 	.align	8
 disabled_wait_psw:
@@ -79,6 +89,7 @@ disabled_wait_psw:
 s390_base_pgm_handler_fn:
 	.quad	0
 	.previous
+<<<<<<< HEAD
 
 #
 # Calls diag 308 subcode 1 and continues execution
@@ -147,3 +158,5 @@ ENTRY(diag308_reset)
 .Lprefix_zero:
 	.long	0
 	.previous
+=======
+>>>>>>> upstream/android-13

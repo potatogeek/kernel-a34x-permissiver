@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* QLogic qed NIC Driver
  * Copyright (c) 2015-2017  QLogic Corporation
  *
@@ -28,6 +29,12 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause) */
+/* QLogic qed NIC Driver
+ * Copyright (c) 2015-2017  QLogic Corporation
+ * Copyright (c) 2019-2020 Marvell International Ltd.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _QED_INT_H
@@ -37,14 +44,22 @@
 #include <linux/slab.h>
 #include "qed.h"
 
+<<<<<<< HEAD
 /* Fields of IGU PF CONFIGRATION REGISTER */
+=======
+/* Fields of IGU PF CONFIGURATION REGISTER */
+>>>>>>> upstream/android-13
 #define IGU_PF_CONF_FUNC_EN       (0x1 << 0)    /* function enable        */
 #define IGU_PF_CONF_MSI_MSIX_EN   (0x1 << 1)    /* MSI/MSIX enable        */
 #define IGU_PF_CONF_INT_LINE_EN   (0x1 << 2)    /* INT enable             */
 #define IGU_PF_CONF_ATTN_BIT_EN   (0x1 << 3)    /* attention enable       */
 #define IGU_PF_CONF_SINGLE_ISR_EN (0x1 << 4)    /* single ISR mode enable */
 #define IGU_PF_CONF_SIMD_MODE     (0x1 << 5)    /* simd all ones mode     */
+<<<<<<< HEAD
 /* Fields of IGU VF CONFIGRATION REGISTER */
+=======
+/* Fields of IGU VF CONFIGURATION REGISTER */
+>>>>>>> upstream/android-13
 #define IGU_VF_CONF_FUNC_EN        (0x1 << 0)	/* function enable        */
 #define IGU_VF_CONF_MSI_MSIX_EN    (0x1 << 1)	/* MSI/MSIX enable        */
 #define IGU_VF_CONF_SINGLE_ISR_EN  (0x1 << 4)	/* single ISR mode enable */
@@ -166,7 +181,11 @@ int qed_int_sb_release(struct qed_hwfn *p_hwfn,
  * @param p_hwfn - pointer to hwfn
  *
  */
+<<<<<<< HEAD
 void qed_int_sp_dpc(unsigned long hwfn_cookie);
+=======
+void qed_int_sp_dpc(struct tasklet_struct *t);
+>>>>>>> upstream/android-13
 
 /**
  * @brief qed_int_get_num_sbs - get the number of status
@@ -190,6 +209,30 @@ void qed_int_get_num_sbs(struct qed_hwfn	*p_hwfn,
  */
 void qed_int_disable_post_isr_release(struct qed_dev *cdev);
 
+<<<<<<< HEAD
+=======
+/**
+ * @brief qed_int_attn_clr_enable - sets whether the general behavior is
+ *        preventing attentions from being reasserted, or following the
+ *        attributes of the specific attention.
+ *
+ * @param cdev
+ * @param clr_enable
+ *
+ */
+void qed_int_attn_clr_enable(struct qed_dev *cdev, bool clr_enable);
+
+/**
+ * @brief - Doorbell Recovery handler.
+ *          Run doorbell recovery in case of PF overflow (and flush DORQ if
+ *          needed).
+ *
+ * @param p_hwfn
+ * @param p_ptt
+ */
+int qed_db_rec_handler(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt);
+
+>>>>>>> upstream/android-13
 #define QED_CAU_DEF_RX_TIMER_RES 0
 #define QED_CAU_DEF_TX_TIMER_RES 0
 
@@ -421,4 +464,10 @@ int qed_int_set_timer_res(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt,
 
 #define QED_MAPPING_MEMORY_SIZE(dev)	(NUM_OF_SBS(dev))
 
+<<<<<<< HEAD
+=======
+int qed_pglueb_rbc_attn_handler(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt,
+				bool hw_init);
+
+>>>>>>> upstream/android-13
 #endif

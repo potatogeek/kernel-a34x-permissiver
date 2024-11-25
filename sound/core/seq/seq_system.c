@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *   ALSA sequencer System services Client
  *   Copyright (c) 1998-1999 by Frank van de Pol <fvdpol@coil.demon.nl>
@@ -17,6 +18,12 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *   ALSA sequencer System services Client
+ *   Copyright (c) 1998-1999 by Frank van de Pol <fvdpol@coil.demon.nl>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -135,6 +142,13 @@ int __init snd_seq_system_client_init(void)
 
 	/* register client */
 	sysclient = snd_seq_create_kernel_client(NULL, 0, "System");
+<<<<<<< HEAD
+=======
+	if (sysclient < 0) {
+		kfree(port);
+		return sysclient;
+	}
+>>>>>>> upstream/android-13
 
 	/* register timer */
 	strcpy(port->name, "Timer");

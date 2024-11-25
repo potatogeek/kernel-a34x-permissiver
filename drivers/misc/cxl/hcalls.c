@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2015 IBM Corp.
  *
@@ -5,6 +6,11 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2015 IBM Corp.
+>>>>>>> upstream/android-13
  */
 
 
@@ -171,7 +177,11 @@ long cxl_h_attach_process(u64 unit_address,
 	}
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * cxl_h_detach_process - Detach a process element from a coherent
  *                        platform function.
  */
@@ -201,7 +211,11 @@ long cxl_h_detach_process(u64 unit_address, u64 process_token)
 	}
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * cxl_h_control_function - This H_CONTROL_CA_FUNCTION hypervisor call allows
  *                          the partition to manipulate or query
  *                          certain coherent platform function behaviors.
@@ -242,7 +256,11 @@ static long cxl_h_control_function(u64 unit_address, u64 op,
 	}
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * cxl_h_reset_afu - Perform a reset to the coherent platform function.
  */
 long cxl_h_reset_afu(u64 unit_address)
@@ -253,7 +271,11 @@ long cxl_h_reset_afu(u64 unit_address)
 				NULL);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * cxl_h_suspend_process - Suspend a process from being executed
  * Parameter1 = process-token as returned from H_ATTACH_CA_PROCESS when
  *              process was attached.
@@ -266,7 +288,11 @@ long cxl_h_suspend_process(u64 unit_address, u64 process_token)
 				NULL);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * cxl_h_resume_process - Resume a process to be executed
  * Parameter1 = process-token as returned from H_ATTACH_CA_PROCESS when
  *              process was attached.
@@ -279,7 +305,11 @@ long cxl_h_resume_process(u64 unit_address, u64 process_token)
 				NULL);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * cxl_h_read_error_state - Checks the error state of the coherent
  *                          platform function.
  * R4 contains the error state
@@ -292,7 +322,11 @@ long cxl_h_read_error_state(u64 unit_address, u64 *state)
 				state);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * cxl_h_get_afu_err - collect the AFU error buffer
  * Parameter1 = byte offset into error buffer to retrieve, valid values
  *              are between 0 and (ibm,error-buffer-size - 1)
@@ -308,7 +342,11 @@ long cxl_h_get_afu_err(u64 unit_address, u64 offset,
 				NULL);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * cxl_h_get_config - collect configuration record for the
  *                    coherent platform function
  * Parameter1 = # of configuration record to retrieve, valid values are
@@ -328,7 +366,11 @@ long cxl_h_get_config(u64 unit_address, u64 cr_num, u64 offset,
 				NULL);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * cxl_h_terminate_process - Terminate the process before completion
  * Parameter1 = process-token as returned from H_ATTACH_CA_PROCESS when
  *              process was attached.
@@ -341,7 +383,11 @@ long cxl_h_terminate_process(u64 unit_address, u64 process_token)
 				NULL);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * cxl_h_collect_vpd - Collect VPD for the coherent platform function.
  * Parameter1 = # of VPD record to retrieve, valid values are between 0
  *              and (ibm,#config-records - 1).
@@ -359,7 +405,11 @@ long cxl_h_collect_vpd(u64 unit_address, u64 record, u64 list_address,
 				out);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * cxl_h_get_fn_error_interrupt - Read the function-wide error data based on an interrupt
  */
 long cxl_h_get_fn_error_interrupt(u64 unit_address, u64 *reg)
@@ -369,7 +419,11 @@ long cxl_h_get_fn_error_interrupt(u64 unit_address, u64 *reg)
 				0, 0, 0, 0, reg);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * cxl_h_ack_fn_error_interrupt - Acknowledge function-wide error data
  *                                based on an interrupt
  * Parameter1 = value to write to the function-wide error interrupt register
@@ -382,7 +436,11 @@ long cxl_h_ack_fn_error_interrupt(u64 unit_address, u64 value)
 				NULL);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * cxl_h_get_error_log - Retrieve the Platform Log ID (PLID) of
  *                       an error log
  */
@@ -394,7 +452,11 @@ long cxl_h_get_error_log(u64 unit_address, u64 value)
 				NULL);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * cxl_h_collect_int_info - Collect interrupt info about a coherent
  *                          platform function after an interrupt occurred.
  */
@@ -429,7 +491,11 @@ long cxl_h_collect_int_info(u64 unit_address, u64 process_token,
 	}
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * cxl_h_control_faults - Control the operation of a coherent platform
  *                        function after a fault occurs.
  *
@@ -474,7 +540,11 @@ long cxl_h_control_faults(u64 unit_address, u64 process_token,
 	}
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * cxl_h_control_facility - This H_CONTROL_CA_FACILITY hypervisor call
  *                          allows the partition to manipulate or query
  *                          certain coherent platform facility behaviors.
@@ -513,7 +583,11 @@ static long cxl_h_control_facility(u64 unit_address, u64 op,
 	}
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * cxl_h_reset_adapter - Perform a reset to the coherent platform facility.
  */
 long cxl_h_reset_adapter(u64 unit_address)
@@ -524,7 +598,11 @@ long cxl_h_reset_adapter(u64 unit_address)
 				NULL);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * cxl_h_collect_vpd - Collect VPD for the coherent platform function.
  * Parameter1 = 4K naturally aligned real buffer containing block
  *              list entries
@@ -540,7 +618,11 @@ long cxl_h_collect_vpd_adapter(u64 unit_address, u64 list_address,
 				out);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * cxl_h_download_facility - This H_DOWNLOAD_CA_FACILITY
  *                    hypervisor call provide platform support for
  *                    downloading a base adapter image to the coherent
@@ -620,7 +702,11 @@ static long cxl_h_download_facility(u64 unit_address, u64 op,
 	}
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * cxl_h_download_adapter_image - Download the base image to the coherent
  *                                platform facility.
  */
@@ -633,7 +719,11 @@ long cxl_h_download_adapter_image(u64 unit_address,
 				       list_address, num, out);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * cxl_h_validate_adapter_image - Validate the base image in the coherent
  *                                platform facility.
  */

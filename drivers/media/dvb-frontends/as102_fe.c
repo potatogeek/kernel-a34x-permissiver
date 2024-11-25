@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Abilis Systems Single DVB-T Receiver
  * Copyright (C) 2008 Pierrick Hascoet <pierrick.hascoet@abilis.com>
  * Copyright (C) 2010 Devin Heitmueller <dheitmueller@kernellabs.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <media/dvb_frontend.h>
@@ -299,7 +306,12 @@ static int as102_fe_get_frontend(struct dvb_frontend *fe,
 }
 
 static int as102_fe_get_tune_settings(struct dvb_frontend *fe,
+<<<<<<< HEAD
 			struct dvb_frontend_tune_settings *settings) {
+=======
+			struct dvb_frontend_tune_settings *settings)
+{
+>>>>>>> upstream/android-13
 
 	settings->min_delay_ms = 1000;
 
@@ -467,7 +479,11 @@ struct dvb_frontend *as102_attach(const char *name,
 
 	/* init frontend callback ops */
 	memcpy(&fe->ops, &as102_fe_ops, sizeof(struct dvb_frontend_ops));
+<<<<<<< HEAD
 	strncpy(fe->ops.info.name, name, sizeof(fe->ops.info.name));
+=======
+	strscpy(fe->ops.info.name, name, sizeof(fe->ops.info.name));
+>>>>>>> upstream/android-13
 
 	return fe;
 

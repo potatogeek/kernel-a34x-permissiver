@@ -1,8 +1,16 @@
+<<<<<<< HEAD
 /* 
  * Copyright (C) 2000 - 2007 Jeff Dike (jdike@{addtoit,linux.intel}.com)
  * Copyright 2003 PathScale, Inc.
  * Derived from include/asm-i386/pgtable.h
  * Licensed under the GPL
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * Copyright (C) 2000 - 2007 Jeff Dike (jdike@{addtoit,linux.intel}.com)
+ * Copyright 2003 PathScale, Inc.
+ * Derived from include/asm-i386/pgtable.h
+>>>>>>> upstream/android-13
  */
 
 #ifndef __UM_PGTABLE_H
@@ -32,8 +40,11 @@ extern pgd_t swapper_pg_dir[PTRS_PER_PGD];
 /* zero page used for uninitialized stuff */
 extern unsigned long *empty_zero_page;
 
+<<<<<<< HEAD
 #define pgtable_cache_init() do ; while (0)
 
+=======
+>>>>>>> upstream/android-13
 /* Just any arbitrary offset to the start of the vmalloc VM area: the
  * current 8MB value just means that there will be a 8MB "hole" after the
  * physical memory until the kernel virtual memory starts.  That means that
@@ -108,6 +119,12 @@ extern unsigned long end_iomem;
 #define pud_newpage(x)  (pud_val(x) & _PAGE_NEWPAGE)
 #define pud_mkuptodate(x) (pud_val(x) &= ~_PAGE_NEWPAGE)
 
+<<<<<<< HEAD
+=======
+#define p4d_newpage(x)  (p4d_val(x) & _PAGE_NEWPAGE)
+#define p4d_mkuptodate(x) (p4d_val(x) &= ~_PAGE_NEWPAGE)
+
+>>>>>>> upstream/android-13
 #define pmd_page(pmd) phys_to_page(pmd_val(pmd) & PAGE_MASK)
 
 #define pte_page(x) pfn_to_page(pte_pfn(x))
@@ -130,7 +147,11 @@ static inline int pte_none(pte_t pte)
  * Undefined behaviour if not..
  */
 static inline int pte_read(pte_t pte)
+<<<<<<< HEAD
 { 
+=======
+{
+>>>>>>> upstream/android-13
 	return((pte_get_bits(pte, _PAGE_USER)) &&
 	       !(pte_get_bits(pte, _PAGE_PROTNONE)));
 }
@@ -162,6 +183,7 @@ static inline int pte_newpage(pte_t pte)
 }
 
 static inline int pte_newprot(pte_t pte)
+<<<<<<< HEAD
 { 
 	return(pte_present(pte) && (pte_get_bits(pte, _PAGE_NEWPROT)));
 }
@@ -169,6 +191,10 @@ static inline int pte_newprot(pte_t pte)
 static inline int pte_special(pte_t pte)
 {
 	return 0;
+=======
+{
+	return(pte_present(pte) && (pte_get_bits(pte, _PAGE_NEWPROT)));
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -189,18 +215,28 @@ static inline pte_t pte_mkclean(pte_t pte)
 	return(pte);
 }
 
+<<<<<<< HEAD
 static inline pte_t pte_mkold(pte_t pte)	
 { 
+=======
+static inline pte_t pte_mkold(pte_t pte)
+{
+>>>>>>> upstream/android-13
 	pte_clear_bits(pte, _PAGE_ACCESSED);
 	return(pte);
 }
 
 static inline pte_t pte_wrprotect(pte_t pte)
+<<<<<<< HEAD
 { 
+=======
+{
+>>>>>>> upstream/android-13
 	if (likely(pte_get_bits(pte, _PAGE_RW)))
 		pte_clear_bits(pte, _PAGE_RW);
 	else
 		return pte;
+<<<<<<< HEAD
 	return(pte_mknewprot(pte)); 
 }
 
@@ -214,6 +250,21 @@ static inline pte_t pte_mkread(pte_t pte)
 
 static inline pte_t pte_mkdirty(pte_t pte)
 { 
+=======
+	return(pte_mknewprot(pte));
+}
+
+static inline pte_t pte_mkread(pte_t pte)
+{
+	if (unlikely(pte_get_bits(pte, _PAGE_USER)))
+		return pte;
+	pte_set_bits(pte, _PAGE_USER);
+	return(pte_mknewprot(pte));
+}
+
+static inline pte_t pte_mkdirty(pte_t pte)
+{
+>>>>>>> upstream/android-13
 	pte_set_bits(pte, _PAGE_DIRTY);
 	return(pte);
 }
@@ -224,20 +275,35 @@ static inline pte_t pte_mkyoung(pte_t pte)
 	return(pte);
 }
 
+<<<<<<< HEAD
 static inline pte_t pte_mkwrite(pte_t pte)	
+=======
+static inline pte_t pte_mkwrite(pte_t pte)
+>>>>>>> upstream/android-13
 {
 	if (unlikely(pte_get_bits(pte,  _PAGE_RW)))
 		return pte;
 	pte_set_bits(pte, _PAGE_RW);
+<<<<<<< HEAD
 	return(pte_mknewprot(pte)); 
 }
 
 static inline pte_t pte_mkuptodate(pte_t pte)	
+=======
+	return(pte_mknewprot(pte));
+}
+
+static inline pte_t pte_mkuptodate(pte_t pte)
+>>>>>>> upstream/android-13
 {
 	pte_clear_bits(pte, _PAGE_NEWPAGE);
 	if(pte_present(pte))
 		pte_clear_bits(pte, _PAGE_NEWPROT);
+<<<<<<< HEAD
 	return(pte); 
+=======
+	return(pte);
+>>>>>>> upstream/android-13
 }
 
 static inline pte_t pte_mknewpage(pte_t pte)
@@ -246,11 +312,14 @@ static inline pte_t pte_mknewpage(pte_t pte)
 	return(pte);
 }
 
+<<<<<<< HEAD
 static inline pte_t pte_mkspecial(pte_t pte)
 {
 	return(pte);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void set_pte(pte_t *pteptr, pte_t pteval)
 {
 	pte_copy(*pteptr, pteval);
@@ -263,7 +332,16 @@ static inline void set_pte(pte_t *pteptr, pte_t pteval)
 	*pteptr = pte_mknewpage(*pteptr);
 	if(pte_present(*pteptr)) *pteptr = pte_mknewprot(*pteptr);
 }
+<<<<<<< HEAD
 #define set_pte_at(mm,addr,ptep,pteval) set_pte(ptep,pteval)
+=======
+
+static inline void set_pte_at(struct mm_struct *mm, unsigned long addr,
+			      pte_t *pteptr, pte_t pteval)
+{
+	set_pte(pteptr, pteval);
+}
+>>>>>>> upstream/android-13
 
 #define __HAVE_ARCH_PTE_SAME
 static inline int pte_same(pte_t pte_a, pte_t pte_b)
@@ -292,6 +370,7 @@ static inline int pte_same(pte_t pte_a, pte_t pte_b)
 static inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
 {
 	pte_set_val(pte, (pte_val(pte) & _PAGE_CHG_MASK), newprot);
+<<<<<<< HEAD
 	return pte; 
 }
 
@@ -316,12 +395,19 @@ static inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
 #define pgd_offset_k(address) pgd_offset(&init_mm, address)
 
 /*
+=======
+	return pte;
+}
+
+/*
+>>>>>>> upstream/android-13
  * the pmd page can be thought of an array like this: pmd_t[PTRS_PER_PMD]
  *
  * this macro returns the index of the entry in the pmd page which would
  * control the given virtual address
  */
 #define pmd_page_vaddr(pmd) ((unsigned long) __va(pmd_val(pmd) & PAGE_MASK))
+<<<<<<< HEAD
 #define pmd_index(address) (((address) >> PMD_SHIFT) & (PTRS_PER_PMD-1))
 
 #define pmd_page_vaddr(pmd) \
@@ -339,11 +425,17 @@ static inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
 #define pte_offset_map(dir, address) \
 	((pte_t *)page_address(pmd_page(*(dir))) + pte_index(address))
 #define pte_unmap(pte) do { } while (0)
+=======
+>>>>>>> upstream/android-13
 
 struct mm_struct;
 extern pte_t *virt_to_pte(struct mm_struct *mm, unsigned long addr);
 
+<<<<<<< HEAD
 #define update_mmu_cache(vma,address,ptep) do ; while (0)
+=======
+#define update_mmu_cache(vma,address,ptep) do {} while (0)
+>>>>>>> upstream/android-13
 
 /* Encode and de-code a swap entry */
 #define __swp_type(x)			(((x).val >> 5) & 0x1f)
@@ -357,8 +449,11 @@ extern pte_t *virt_to_pte(struct mm_struct *mm, unsigned long addr);
 
 #define kern_addr_valid(addr) (1)
 
+<<<<<<< HEAD
 #include <asm-generic/pgtable.h>
 
+=======
+>>>>>>> upstream/android-13
 /* Clear a kernel PTE and flush it from the TLB */
 #define kpte_clear_flush(ptep, vaddr)		\
 do {						\

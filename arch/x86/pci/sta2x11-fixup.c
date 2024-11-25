@@ -1,11 +1,18 @@
+<<<<<<< HEAD
 /*
  * arch/x86/pci/sta2x11-fixup.c
  * glue code for lib/swiotlb.c and DMA translation between STA2x11
  * AMBA memory mapping and the X86 memory mapping
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * DMA translation between STA2x11 AMBA memory mapping and the x86 memory mapping
+>>>>>>> upstream/android-13
  *
  * ST Microelectronics ConneXt (STA2X11/STA2X10)
  *
  * Copyright (c) 2010-2011 Wind River Systems, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -20,17 +27,27 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/pci.h>
 #include <linux/pci_ids.h>
 #include <linux/export.h>
 #include <linux/list.h>
+<<<<<<< HEAD
 #include <linux/dma-direct.h>
 #include <asm/iommu.h>
 
 #define STA2X11_SWIOTLB_SIZE (4*1024*1024)
 extern int swiotlb_late_init_with_default_size(size_t default_size);
+=======
+#include <linux/dma-map-ops.h>
+#include <linux/swiotlb.h>
+#include <asm/iommu.h>
+
+#define STA2X11_SWIOTLB_SIZE (4*1024*1024)
+>>>>>>> upstream/android-13
 
 /*
  * We build a list of bus numbers that are under the ConneXt. The
@@ -45,7 +62,10 @@ struct sta2x11_ahb_regs { /* saved during suspend */
 };
 
 struct sta2x11_mapping {
+<<<<<<< HEAD
 	u32 amba_base;
+=======
+>>>>>>> upstream/android-13
 	int is_suspended;
 	struct sta2x11_ahb_regs regs[STA2X11_NR_FUNCS];
 };
@@ -107,6 +127,7 @@ static int sta2x11_pdev_to_ep(struct pci_dev *pdev)
 	return pdev->bus->number - instance->bus0;
 }
 
+<<<<<<< HEAD
 static struct sta2x11_mapping *sta2x11_pdev_to_mapping(struct pci_dev *pdev)
 {
 	struct sta2x11_instance *instance;
@@ -119,6 +140,8 @@ static struct sta2x11_mapping *sta2x11_pdev_to_mapping(struct pci_dev *pdev)
 	return instance->map + ep;
 }
 
+=======
+>>>>>>> upstream/android-13
 /* This is exported, as some devices need to access the MFD registers */
 struct sta2x11_instance *sta2x11_get_instance(struct pci_dev *pdev)
 {
@@ -126,6 +149,7 @@ struct sta2x11_instance *sta2x11_get_instance(struct pci_dev *pdev)
 }
 EXPORT_SYMBOL(sta2x11_get_instance);
 
+<<<<<<< HEAD
 
 /**
  * p2a - Translate physical address to STA2x11 AMBA address,
@@ -159,6 +183,8 @@ static dma_addr_t a2p(dma_addr_t a, struct pci_dev *pdev)
 	return p;
 }
 
+=======
+>>>>>>> upstream/android-13
 /* At setup time, we use our own ops if the device is a ConneXt one */
 static void sta2x11_setup_pdev(struct pci_dev *pdev)
 {
@@ -166,10 +192,13 @@ static void sta2x11_setup_pdev(struct pci_dev *pdev)
 
 	if (!instance) /* either a sta2x11 bridge or another ST device */
 		return;
+<<<<<<< HEAD
 	pci_set_consistent_dma_mask(pdev, STA2X11_AMBA_SIZE - 1);
 	pci_set_dma_mask(pdev, STA2X11_AMBA_SIZE - 1);
 	pdev->dev.dma_ops = &swiotlb_dma_ops;
 	pdev->dev.archdata.is_sta2x11 = true;
+=======
+>>>>>>> upstream/android-13
 
 	/* We must enable all devices as master, for audio DMA to work */
 	pci_set_master(pdev);
@@ -177,6 +206,7 @@ static void sta2x11_setup_pdev(struct pci_dev *pdev)
 DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_STMICRO, PCI_ANY_ID, sta2x11_setup_pdev);
 
 /*
+<<<<<<< HEAD
  * The following three functions are exported (used in swiotlb: FIXME)
  */
 /**
@@ -232,6 +262,8 @@ phys_addr_t __dma_to_phys(struct device *dev, dma_addr_t daddr)
 
 
 /*
+=======
+>>>>>>> upstream/android-13
  * At boot we must set up the mappings for the pcie-to-amba bridge.
  * It involves device access, and the same happens at suspend/resume time
  */
@@ -250,12 +282,32 @@ phys_addr_t __dma_to_phys(struct device *dev, dma_addr_t daddr)
 /* At probe time, enable mapping for each endpoint, using the pdev */
 static void sta2x11_map_ep(struct pci_dev *pdev)
 {
+<<<<<<< HEAD
 	struct sta2x11_mapping *map = sta2x11_pdev_to_mapping(pdev);
 	int i;
 
 	if (!map)
 		return;
 	pci_read_config_dword(pdev, AHB_BASE(0), &map->amba_base);
+=======
+	struct sta2x11_instance *instance = sta2x11_pdev_to_instance(pdev);
+	struct device *dev = &pdev->dev;
+	u32 amba_base, max_amba_addr;
+	int i, ret;
+
+	if (!instance)
+		return;
+
+	pci_read_config_dword(pdev, AHB_BASE(0), &amba_base);
+	max_amba_addr = amba_base + STA2X11_AMBA_SIZE - 1;
+
+	ret = dma_direct_set_offset(dev, 0, amba_base, STA2X11_AMBA_SIZE);
+	if (ret)
+		dev_err(dev, "sta2x11: could not set DMA offset\n");
+
+	dev->bus_dma_limit = max_amba_addr;
+	dma_set_mask_and_coherent(&pdev->dev, max_amba_addr);
+>>>>>>> upstream/android-13
 
 	/* Configure AHB mapping */
 	pci_write_config_dword(pdev, AHB_PEXLBASE(0), 0);
@@ -269,13 +321,32 @@ static void sta2x11_map_ep(struct pci_dev *pdev)
 
 	dev_info(&pdev->dev,
 		 "sta2x11: Map EP %i: AMBA address %#8x-%#8x\n",
+<<<<<<< HEAD
 		 sta2x11_pdev_to_ep(pdev),  map->amba_base,
 		 map->amba_base + STA2X11_AMBA_SIZE - 1);
+=======
+		 sta2x11_pdev_to_ep(pdev), amba_base, max_amba_addr);
+>>>>>>> upstream/android-13
 }
 DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_STMICRO, PCI_ANY_ID, sta2x11_map_ep);
 
 #ifdef CONFIG_PM /* Some register values must be saved and restored */
 
+<<<<<<< HEAD
+=======
+static struct sta2x11_mapping *sta2x11_pdev_to_mapping(struct pci_dev *pdev)
+{
+	struct sta2x11_instance *instance;
+	int ep;
+
+	instance = sta2x11_pdev_to_instance(pdev);
+	if (!instance)
+		return NULL;
+	ep = sta2x11_pdev_to_ep(pdev);
+	return instance->map + ep;
+}
+
+>>>>>>> upstream/android-13
 static void suspend_mapping(struct pci_dev *pdev)
 {
 	struct sta2x11_mapping *map = sta2x11_pdev_to_mapping(pdev);

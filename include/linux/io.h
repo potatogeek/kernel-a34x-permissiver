@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2006 PathScale, Inc.  All Rights Reserved.
  *
@@ -13,6 +14,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright 2006 PathScale, Inc.  All Rights Reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _LINUX_IO_H
@@ -33,6 +39,11 @@ void __ioread32_copy(void *to, const void __iomem *from, size_t count);
 void __iowrite64_copy(void __iomem *to, const void *from, size_t count);
 
 #ifdef CONFIG_MMU
+<<<<<<< HEAD
+=======
+void ioremap_phys_range_hook(phys_addr_t phys_addr, size_t size, pgprot_t prot);
+void iounmap_phys_range_hook(phys_addr_t phys_addr, size_t size);
+>>>>>>> upstream/android-13
 int ioremap_page_range(unsigned long addr, unsigned long end,
 		       phys_addr_t phys_addr, pgprot_t prot);
 #else
@@ -43,6 +54,7 @@ static inline int ioremap_page_range(unsigned long addr, unsigned long end,
 }
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_HAVE_ARCH_HUGE_VMAP
 void __init ioremap_huge_init(void);
 int arch_ioremap_pud_supported(void);
@@ -51,6 +63,8 @@ int arch_ioremap_pmd_supported(void);
 static inline void ioremap_huge_init(void) { }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Managed iomap interface
  */
@@ -77,10 +91,17 @@ void __iomem *devm_ioremap(struct device *dev, resource_size_t offset,
 			   resource_size_t size);
 void __iomem *devm_ioremap_uc(struct device *dev, resource_size_t offset,
 				   resource_size_t size);
+<<<<<<< HEAD
 void __iomem *devm_ioremap_nocache(struct device *dev, resource_size_t offset,
 				   resource_size_t size);
 void __iomem *devm_ioremap_wc(struct device *dev, resource_size_t offset,
 				   resource_size_t size);
+=======
+void __iomem *devm_ioremap_wc(struct device *dev, resource_size_t offset,
+				   resource_size_t size);
+void __iomem *devm_ioremap_np(struct device *dev, resource_size_t offset,
+				   resource_size_t size);
+>>>>>>> upstream/android-13
 void devm_iounmap(struct device *dev, void __iomem *addr);
 int check_signature(const volatile void __iomem *io_addr,
 			const unsigned char *signature, int length);
@@ -90,6 +111,7 @@ void *devm_memremap(struct device *dev, resource_size_t offset,
 		size_t size, unsigned long flags);
 void devm_memunmap(struct device *dev, void *addr);
 
+<<<<<<< HEAD
 void *__devm_memremap_pages(struct device *dev, struct resource *res);
 
 #ifdef CONFIG_PCI
@@ -102,13 +124,29 @@ void *__devm_memremap_pages(struct device *dev, struct resource *res);
  * should override it if they have memory mapping implementations that
  * guarantee non-posted writes semantics to make the memory mapping
  * compliant with the PCI specification.
+=======
+#ifdef CONFIG_PCI
+/*
+ * The PCI specifications (Rev 3.0, 3.2.5 "Transaction Ordering and
+ * Posting") mandate non-posted configuration transactions. This default
+ * implementation attempts to use the ioremap_np() API to provide this
+ * on arches that support it, and falls back to ioremap() on those that
+ * don't. Overriding this function is deprecated; arches that properly
+ * support non-posted accesses should implement ioremap_np() instead, which
+ * this default implementation can then use to return mappings compliant with
+ * the PCI specification.
+>>>>>>> upstream/android-13
  */
 #ifndef pci_remap_cfgspace
 #define pci_remap_cfgspace pci_remap_cfgspace
 static inline void __iomem *pci_remap_cfgspace(phys_addr_t offset,
 					       size_t size)
 {
+<<<<<<< HEAD
 	return ioremap_nocache(offset, size);
+=======
+	return ioremap_np(offset, size) ?: ioremap(offset, size);
+>>>>>>> upstream/android-13
 }
 #endif
 #endif

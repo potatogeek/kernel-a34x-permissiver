@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Detection routine for the NCR53c710 based Amiga SCSI Controllers for Linux.
  *		Amiga Technologies A4000T SCSI controller.

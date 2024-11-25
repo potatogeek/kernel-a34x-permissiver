@@ -5,7 +5,11 @@
  * Copyright (C) 2008 Magnus Damm
  */
 #include <linux/clkdev.h>
+<<<<<<< HEAD
 #include <linux/dma-mapping.h>
+=======
+#include <linux/dma-map-ops.h>
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/platform_device.h>
 #include <linux/interrupt.h>
@@ -15,7 +19,11 @@
 #include <linux/mmc/host.h>
 #include <linux/mtd/physmap.h>
 #include <linux/mfd/tmio.h>
+<<<<<<< HEAD
 #include <linux/mtd/rawnand.h>
+=======
+#include <linux/mtd/platnand.h>
+>>>>>>> upstream/android-13
 #include <linux/i2c.h>
 #include <linux/regulator/fixed.h>
 #include <linux/regulator/machine.h>
@@ -166,15 +174,22 @@ static struct mtd_partition migor_nand_flash_partitions[] = {
 	},
 };
 
+<<<<<<< HEAD
 static void migor_nand_flash_cmd_ctl(struct mtd_info *mtd, int cmd,
 				     unsigned int ctrl)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
 
+=======
+static void migor_nand_flash_cmd_ctl(struct nand_chip *chip, int cmd,
+				     unsigned int ctrl)
+{
+>>>>>>> upstream/android-13
 	if (cmd == NAND_CMD_NONE)
 		return;
 
 	if (ctrl & NAND_CLE)
+<<<<<<< HEAD
 		writeb(cmd, chip->IO_ADDR_W + 0x00400000);
 	else if (ctrl & NAND_ALE)
 		writeb(cmd, chip->IO_ADDR_W + 0x00800000);
@@ -183,6 +198,16 @@ static void migor_nand_flash_cmd_ctl(struct mtd_info *mtd, int cmd,
 }
 
 static int migor_nand_flash_ready(struct mtd_info *mtd)
+=======
+		writeb(cmd, chip->legacy.IO_ADDR_W + 0x00400000);
+	else if (ctrl & NAND_ALE)
+		writeb(cmd, chip->legacy.IO_ADDR_W + 0x00800000);
+	else
+		writeb(cmd, chip->legacy.IO_ADDR_W);
+}
+
+static int migor_nand_flash_ready(struct nand_chip *chip)
+>>>>>>> upstream/android-13
 {
 	return gpio_get_value(GPIO_PTA1); /* NAND_RBn */
 }
@@ -604,11 +629,17 @@ static int __init migor_devices_setup(void)
 
 	/* Initialize CEU platform device separately to map memory first */
 	device_initialize(&migor_ceu_device.dev);
+<<<<<<< HEAD
 	arch_setup_pdev_archdata(&migor_ceu_device);
 	dma_declare_coherent_memory(&migor_ceu_device.dev,
 				    ceu_dma_membase, ceu_dma_membase,
 				    ceu_dma_membase + CEU_BUFFER_MEMORY_SIZE - 1,
 				    DMA_MEMORY_EXCLUSIVE);
+=======
+	dma_declare_coherent_memory(&migor_ceu_device.dev,
+			ceu_dma_membase, ceu_dma_membase,
+			ceu_dma_membase + CEU_BUFFER_MEMORY_SIZE - 1);
+>>>>>>> upstream/android-13
 
 	platform_device_add(&migor_ceu_device);
 
@@ -633,7 +664,14 @@ static void __init migor_mv_mem_reserve(void)
 	phys_addr_t phys;
 	phys_addr_t size = CEU_BUFFER_MEMORY_SIZE;
 
+<<<<<<< HEAD
 	phys = memblock_alloc_base(size, PAGE_SIZE, MEMBLOCK_ALLOC_ANYWHERE);
+=======
+	phys = memblock_phys_alloc(size, PAGE_SIZE);
+	if (!phys)
+		panic("Failed to allocate CEU memory\n");
+
+>>>>>>> upstream/android-13
 	memblock_free(phys, size);
 	memblock_remove(phys, size);
 

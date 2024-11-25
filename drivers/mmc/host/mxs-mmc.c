@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Portions copyright (C) 2003 Russell King, PXA MMCI Driver
  * Portions copyright (C) 2004-2005 Pierre Ossman, W83L51xD SD/MMC driver
  *
  * Copyright 2008 Embedded Alley Solutions, Inc.
  * Copyright 2009-2011 Freescale Semiconductor, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -25,12 +32,19 @@
 #include <linux/ioport.h>
 #include <linux/of.h>
 #include <linux/of_device.h>
+<<<<<<< HEAD
 #include <linux/of_gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/delay.h>
 #include <linux/interrupt.h>
 #include <linux/dma-mapping.h>
 #include <linux/dmaengine.h>
+<<<<<<< HEAD
+=======
+#include <linux/dma/mxs-dma.h>
+>>>>>>> upstream/android-13
 #include <linux/highmem.h>
 #include <linux/clk.h>
 #include <linux/err.h>
@@ -39,7 +53,10 @@
 #include <linux/mmc/mmc.h>
 #include <linux/mmc/sdio.h>
 #include <linux/mmc/slot-gpio.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/regulator/consumer.h>
 #include <linux/module.h>
 #include <linux/stmp_device.h>
@@ -281,7 +298,11 @@ static void mxs_mmc_bc(struct mxs_mmc_host *host)
 	ssp->ssp_pio_words[2] = cmd1;
 	ssp->dma_dir = DMA_NONE;
 	ssp->slave_dirn = DMA_TRANS_NONE;
+<<<<<<< HEAD
 	desc = mxs_mmc_prep_dma(host, DMA_CTRL_ACK);
+=======
+	desc = mxs_mmc_prep_dma(host, MXS_DMA_CTRL_WAIT4END);
+>>>>>>> upstream/android-13
 	if (!desc)
 		goto out;
 
@@ -326,7 +347,11 @@ static void mxs_mmc_ac(struct mxs_mmc_host *host)
 	ssp->ssp_pio_words[2] = cmd1;
 	ssp->dma_dir = DMA_NONE;
 	ssp->slave_dirn = DMA_TRANS_NONE;
+<<<<<<< HEAD
 	desc = mxs_mmc_prep_dma(host, DMA_CTRL_ACK);
+=======
+	desc = mxs_mmc_prep_dma(host, MXS_DMA_CTRL_WAIT4END);
+>>>>>>> upstream/android-13
 	if (!desc)
 		goto out;
 
@@ -456,7 +481,11 @@ static void mxs_mmc_adtc(struct mxs_mmc_host *host)
 	host->data = data;
 	ssp->dma_dir = dma_data_dir;
 	ssp->slave_dirn = slave_dirn;
+<<<<<<< HEAD
 	desc = mxs_mmc_prep_dma(host, DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
+=======
+	desc = mxs_mmc_prep_dma(host, DMA_PREP_INTERRUPT | MXS_DMA_CTRL_WAIT4END);
+>>>>>>> upstream/android-13
 	if (!desc)
 		goto out;
 
@@ -559,6 +588,7 @@ static const struct mmc_host_ops mxs_mmc_ops = {
 	.enable_sdio_irq = mxs_mmc_enable_sdio_irq,
 };
 
+<<<<<<< HEAD
 static const struct platform_device_id mxs_ssp_ids[] = {
 	{
 		.name = "imx23-mmc",
@@ -572,6 +602,8 @@ static const struct platform_device_id mxs_ssp_ids[] = {
 };
 MODULE_DEVICE_TABLE(platform, mxs_ssp_ids);
 
+=======
+>>>>>>> upstream/android-13
 static const struct of_device_id mxs_mmc_dt_ids[] = {
 	{ .compatible = "fsl,imx23-mmc", .data = (void *) IMX23_SSP, },
 	{ .compatible = "fsl,imx28-mmc", .data = (void *) IMX28_SSP, },
@@ -579,6 +611,7 @@ static const struct of_device_id mxs_mmc_dt_ids[] = {
 };
 MODULE_DEVICE_TABLE(of, mxs_mmc_dt_ids);
 
+<<<<<<< HEAD
 static int mxs_mmc_probe(struct platform_device *pdev)
 {
 	const struct of_device_id *of_id =
@@ -587,6 +620,18 @@ static int mxs_mmc_probe(struct platform_device *pdev)
 	struct mxs_mmc_host *host;
 	struct mmc_host *mmc;
 	struct resource *iores;
+=======
+static void mxs_mmc_regulator_disable(void *regulator)
+{
+	regulator_disable(regulator);
+}
+
+static int mxs_mmc_probe(struct platform_device *pdev)
+{
+	struct device_node *np = pdev->dev.of_node;
+	struct mxs_mmc_host *host;
+	struct mmc_host *mmc;
+>>>>>>> upstream/android-13
 	int ret = 0, irq_err;
 	struct regulator *reg_vmmc;
 	struct mxs_ssp *ssp;
@@ -602,14 +647,22 @@ static int mxs_mmc_probe(struct platform_device *pdev)
 	host = mmc_priv(mmc);
 	ssp = &host->ssp;
 	ssp->dev = &pdev->dev;
+<<<<<<< HEAD
 	iores = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	ssp->base = devm_ioremap_resource(&pdev->dev, iores);
+=======
+	ssp->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(ssp->base)) {
 		ret = PTR_ERR(ssp->base);
 		goto out_mmc_free;
 	}
 
+<<<<<<< HEAD
 	ssp->devid = (enum mxs_ssp_id) of_id->data;
+=======
+	ssp->devid = (enum mxs_ssp_id)of_device_get_match_data(&pdev->dev);
+>>>>>>> upstream/android-13
 
 	host->mmc = mmc;
 	host->sdio_irq_en = 0;
@@ -622,6 +675,14 @@ static int mxs_mmc_probe(struct platform_device *pdev)
 				"Failed to enable vmmc regulator: %d\n", ret);
 			goto out_mmc_free;
 		}
+<<<<<<< HEAD
+=======
+
+		ret = devm_add_action_or_reset(&pdev->dev, mxs_mmc_regulator_disable,
+					       reg_vmmc);
+		if (ret)
+			goto out_mmc_free;
+>>>>>>> upstream/android-13
 	}
 
 	ssp->clk = devm_clk_get(&pdev->dev, NULL);
@@ -639,11 +700,19 @@ static int mxs_mmc_probe(struct platform_device *pdev)
 		goto out_clk_disable;
 	}
 
+<<<<<<< HEAD
 	ssp->dmach = dma_request_slave_channel(&pdev->dev, "rx-tx");
 	if (!ssp->dmach) {
 		dev_err(mmc_dev(host->mmc),
 			"%s: failed to request dma\n", __func__);
 		ret = -ENODEV;
+=======
+	ssp->dmach = dma_request_chan(&pdev->dev, "rx-tx");
+	if (IS_ERR(ssp->dmach)) {
+		dev_err(mmc_dev(host->mmc),
+			"%s: failed to request dma\n", __func__);
+		ret = PTR_ERR(ssp->dmach);
+>>>>>>> upstream/android-13
 		goto out_clk_disable;
 	}
 
@@ -739,9 +808,15 @@ static SIMPLE_DEV_PM_OPS(mxs_mmc_pm_ops, mxs_mmc_suspend, mxs_mmc_resume);
 static struct platform_driver mxs_mmc_driver = {
 	.probe		= mxs_mmc_probe,
 	.remove		= mxs_mmc_remove,
+<<<<<<< HEAD
 	.id_table	= mxs_ssp_ids,
 	.driver		= {
 		.name	= DRIVER_NAME,
+=======
+	.driver		= {
+		.name	= DRIVER_NAME,
+		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
+>>>>>>> upstream/android-13
 		.pm	= &mxs_mmc_pm_ops,
 		.of_match_table = mxs_mmc_dt_ids,
 	},

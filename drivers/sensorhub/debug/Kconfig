@@ -1,5 +1,12 @@
+<<<<<<< HEAD
 config SHUB_DEBUG
 	tristate "sensor hub debug mode"
 	default n
 	help
+=======
+config SHUB_DEBUG
+	tristate "sensor hub debug mode"
+	default n
+	help
+>>>>>>> upstream/android-13
 	  If you want to use debug mode for sensor hub, it should be set.

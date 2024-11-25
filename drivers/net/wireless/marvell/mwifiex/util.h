@@ -1,10 +1,19 @@
 /*
+<<<<<<< HEAD
  * Marvell Wireless LAN device driver: utility functions
  *
  * Copyright (C) 2011-2014, Marvell International Ltd.
  *
  * This software file (the "File") is distributed by Marvell International
  * Ltd. under the terms of the GNU General Public License Version 2, June 1991
+=======
+ * NXP Wireless LAN device driver: utility functions
+ *
+ * Copyright 2011-2020 NXP
+ *
+ * This software file (the "File") is distributed by NXP
+ * under the terms of the GNU General Public License Version 2, June 1991
+>>>>>>> upstream/android-13
  * (the "License").  You may use, redistribute and/or modify this File in
  * accordance with the terms and conditions of the License, a copy of which
  * is available by writing to the Free Software Foundation, Inc.,
@@ -36,11 +45,19 @@ struct mwifiex_cb {
 };
 
 /* size/addr for mwifiex_debug_info */
+<<<<<<< HEAD
 #define item_size(n)		(FIELD_SIZEOF(struct mwifiex_debug_info, n))
 #define item_addr(n)		(offsetof(struct mwifiex_debug_info, n))
 
 /* size/addr for struct mwifiex_adapter */
 #define adapter_item_size(n)	(FIELD_SIZEOF(struct mwifiex_adapter, n))
+=======
+#define item_size(n)		(sizeof_field(struct mwifiex_debug_info, n))
+#define item_addr(n)		(offsetof(struct mwifiex_debug_info, n))
+
+/* size/addr for struct mwifiex_adapter */
+#define adapter_item_size(n)	(sizeof_field(struct mwifiex_adapter, n))
+>>>>>>> upstream/android-13
 #define adapter_item_addr(n)	(offsetof(struct mwifiex_adapter, n))
 
 struct mwifiex_debug_data {

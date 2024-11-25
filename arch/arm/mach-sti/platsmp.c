@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  arch/arm/mach-sti/platsmp.c
  *
@@ -8,10 +12,13 @@
  *
  *  Copyright (C) 2002 ARM Ltd.
  *  All Rights Reserved
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/init.h>
 #include <linux/errno.h>
@@ -28,6 +35,7 @@
 
 #include "smp.h"
 
+<<<<<<< HEAD
 static void write_pen_release(int val)
 {
 	pen_release = val;
@@ -94,16 +102,42 @@ static int sti_boot_secondary(unsigned int cpu, struct task_struct *idle)
 	spin_unlock(&boot_lock);
 
 	return pen_release != -1 ? -ENOSYS : 0;
+=======
+static u32 __iomem *cpu_strt_ptr;
+
+static int sti_boot_secondary(unsigned int cpu, struct task_struct *idle)
+{
+	unsigned long entry_pa = __pa_symbol(secondary_startup);
+
+	/*
+	 * Secondary CPU is initialised and started by a U-BOOTROM firmware.
+	 * Secondary CPU is spinning and waiting for a write at cpu_strt_ptr.
+	 * Writing secondary_startup address at cpu_strt_ptr makes it to
+	 * jump directly to secondary_startup().
+	 */
+	__raw_writel(entry_pa, cpu_strt_ptr);
+
+	/* wmb so that data is actually written before cache flush is done */
+	smp_wmb();
+	sync_cache_w(cpu_strt_ptr);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void __init sti_smp_prepare_cpus(unsigned int max_cpus)
 {
 	struct device_node *np;
 	void __iomem *scu_base;
+<<<<<<< HEAD
 	u32 __iomem *cpu_strt_ptr;
 	u32 release_phys;
 	int cpu;
 	unsigned long entry_pa = __pa_symbol(sti_secondary_startup);
+=======
+	u32 release_phys;
+	int cpu;
+>>>>>>> upstream/android-13
 
 	np = of_find_compatible_node(NULL, NULL, "arm,cortex-a9-scu");
 
@@ -131,8 +165,13 @@ static void __init sti_smp_prepare_cpus(unsigned int max_cpus)
 		}
 
 		/*
+<<<<<<< HEAD
 		 * holding pen is usually configured in SBC DMEM but can also be
 		 * in RAM.
+=======
+		 * cpu-release-addr is usually configured in SBC DMEM but can
+		 * also be in RAM.
+>>>>>>> upstream/android-13
 		 */
 
 		if (!memblock_is_memory(release_phys))
@@ -142,6 +181,7 @@ static void __init sti_smp_prepare_cpus(unsigned int max_cpus)
 			cpu_strt_ptr =
 				(u32 __iomem *)phys_to_virt(release_phys);
 
+<<<<<<< HEAD
 		__raw_writel(entry_pa, cpu_strt_ptr);
 
 		/*
@@ -153,11 +193,17 @@ static void __init sti_smp_prepare_cpus(unsigned int max_cpus)
 
 		if (!memblock_is_memory(release_phys))
 			iounmap(cpu_strt_ptr);
+=======
+		set_cpu_possible(cpu, true);
+>>>>>>> upstream/android-13
 	}
 }
 
 const struct smp_operations sti_smp_ops __initconst = {
 	.smp_prepare_cpus	= sti_smp_prepare_cpus,
+<<<<<<< HEAD
 	.smp_secondary_init	= sti_secondary_init,
+=======
+>>>>>>> upstream/android-13
 	.smp_boot_secondary	= sti_boot_secondary,
 };

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *   Scarlett Driver for ALSA
  *
@@ -12,6 +16,7 @@
  *
  *   Code cleanup:
  *   David Henningsson <david.henningsson at canonical.com>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -23,6 +28,8 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *   GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -31,7 +38,11 @@
  * Auto-detection via UAC2 is not feasible to properly discover the vast
  * majority of features. It's related to both Linux/ALSA's UAC2 as well as
  * Focusrite's implementation of it. Eventually quirks may be sufficient but
+<<<<<<< HEAD
  * right now it's a major headache to work arount these things.
+=======
+ * right now it's a major headache to work around these things.
+>>>>>>> upstream/android-13
  *
  * NB. Neither the OSX nor the win driver provided by Focusrite performs
  * discovery, they seem to operate the same as this driver.
@@ -152,6 +163,10 @@ enum {
 	SCARLETT_OUTPUTS,
 	SCARLETT_SWITCH_IMPEDANCE,
 	SCARLETT_SWITCH_PAD,
+<<<<<<< HEAD
+=======
+	SCARLETT_SWITCH_GAIN,
+>>>>>>> upstream/android-13
 };
 
 enum {
@@ -202,6 +217,18 @@ static const struct scarlett_mixer_elem_enum_info opt_pad = {
 	}
 };
 
+<<<<<<< HEAD
+=======
+static const struct scarlett_mixer_elem_enum_info opt_gain = {
+	.start = 0,
+	.len = 2,
+	.offsets = {},
+	.names = (char const * const []){
+		"Lo", "Hi"
+	}
+};
+
+>>>>>>> upstream/android-13
 static const struct scarlett_mixer_elem_enum_info opt_impedance = {
 	.start = 0,
 	.len = 2,
@@ -569,7 +596,11 @@ static int add_new_ctl(struct usb_mixer_interface *mixer,
 	}
 	kctl->private_free = snd_usb_mixer_elem_free;
 
+<<<<<<< HEAD
 	strlcpy(kctl->id.name, name, sizeof(kctl->id.name));
+=======
+	strscpy(kctl->id.name, name, sizeof(kctl->id.name));
+>>>>>>> upstream/android-13
 
 	err = snd_usb_mixer_add_control(&elem->head, kctl);
 	if (err < 0)
@@ -662,8 +693,13 @@ static const struct scarlett_device_info s6i6_info = {
 		{ .num = 1, .type = SCARLETT_SWITCH_PAD, .name = NULL},
 		{ .num = 2, .type = SCARLETT_SWITCH_IMPEDANCE, .name = NULL},
 		{ .num = 2, .type = SCARLETT_SWITCH_PAD, .name = NULL},
+<<<<<<< HEAD
 		{ .num = 3, .type = SCARLETT_SWITCH_PAD, .name = NULL},
 		{ .num = 4, .type = SCARLETT_SWITCH_PAD, .name = NULL},
+=======
+		{ .num = 3, .type = SCARLETT_SWITCH_GAIN, .name = NULL},
+		{ .num = 4, .type = SCARLETT_SWITCH_GAIN, .name = NULL},
+>>>>>>> upstream/android-13
 	},
 
 	.matrix_mux_init = {
@@ -893,6 +929,18 @@ static int scarlett_controls_create_generic(struct usb_mixer_interface *mixer,
 			if (err < 0)
 				return err;
 			break;
+<<<<<<< HEAD
+=======
+		case SCARLETT_SWITCH_GAIN:
+			sprintf(mx, "Input %d Gain Switch", ctl->num);
+			err = add_new_ctl(mixer, &usb_scarlett_ctl_enum,
+					  scarlett_ctl_enum_resume, 0x01,
+					  0x08, ctl->num, USB_MIXER_S16, 1, mx,
+					  &opt_gain, &elem);
+			if (err < 0)
+				return err;
+			break;
+>>>>>>> upstream/android-13
 		}
 	}
 

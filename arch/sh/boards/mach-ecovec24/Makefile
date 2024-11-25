@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 #
 # Makefile for the R0P7724LC0011/21RL (EcoVec)
 #
@@ -6,4 +10,8 @@
 # for more details.
 #
 
+<<<<<<< HEAD
 obj-y	 := setup.o sdram.o
+=======
+obj-y	 := setup.o sdram.o
+>>>>>>> upstream/android-13

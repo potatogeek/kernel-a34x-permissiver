@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
 	L2CR functions
 	Copyright © 1997-1998 by PowerLogix R & D, Inc.
 
+<<<<<<< HEAD
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation; either version 2 of the License, or
@@ -15,6 +20,8 @@
 	You should have received a copy of the GNU General Public License
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
 */
 /*
 	Thur, Dec. 12, 1998.
@@ -268,7 +275,10 @@ END_FTR_SECTION_IFSET(CPU_FTR_SPEC7450)
 	sync
 
 	/* Restore MSR (restores EE and DR bits to original state) */
+<<<<<<< HEAD
 	SYNC
+=======
+>>>>>>> upstream/android-13
 	mtmsr	r7
 	isync
 
@@ -389,7 +399,11 @@ END_FTR_SECTION_IFCLR(CPU_FTR_L3CR)
 1:	bdnz	1b
 
 	/* Restore MSR (restores EE and DR bits to original state) */
+<<<<<<< HEAD
 4:	SYNC
+=======
+4:
+>>>>>>> upstream/android-13
 	mtmsr	r7
 	isync
 	blr
@@ -467,5 +481,9 @@ _GLOBAL(__inval_enable_L1)
 	sync
 
  	blr
+<<<<<<< HEAD
+=======
+_ASM_NOKPROBE_SYMBOL(__inval_enable_L1)
+>>>>>>> upstream/android-13
 
 

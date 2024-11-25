@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Host Side support for RNDIS Networking Links
  * Copyright (C) 2005 by David Brownell
@@ -14,6 +15,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Host Side support for RNDIS Networking Links
+ * Copyright (C) 2005 by David Brownell
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/netdevice.h>
@@ -291,7 +298,11 @@ static const struct net_device_ops rndis_netdev_ops = {
 	.ndo_stop		= usbnet_stop,
 	.ndo_start_xmit		= usbnet_start_xmit,
 	.ndo_tx_timeout		= usbnet_tx_timeout,
+<<<<<<< HEAD
 	.ndo_get_stats64	= usbnet_get_stats64,
+=======
+	.ndo_get_stats64	= dev_get_tstats64,
+>>>>>>> upstream/android-13
 	.ndo_set_mac_address 	= eth_mac_addr,
 	.ndo_validate_addr	= eth_validate_addr,
 };
@@ -336,7 +347,11 @@ generic_rndis_bind(struct usbnet *dev, struct usb_interface *intf, int flags)
 	 * For RX we handle drivers that zero-pad to end-of-packet.
 	 * Don't let userspace change these settings.
 	 *
+<<<<<<< HEAD
 	 * NOTE: there still seems to be wierdness here, as if we need
+=======
+	 * NOTE: there still seems to be weirdness here, as if we need
+>>>>>>> upstream/android-13
 	 * to do some more things to make sure WinCE targets accept this.
 	 * They default to jumbograms of 8KB or 16KB, which is absurd
 	 * for such low data rates and which is also more than Linux
@@ -621,6 +636,14 @@ static const struct usb_device_id	products [] = {
 				      USB_CLASS_COMM, 2 /* ACM */, 0x0ff),
 	.driver_info = (unsigned long) &rndis_poll_status_info,
 }, {
+<<<<<<< HEAD
+=======
+	/* Hytera Communications DMR radios' "Radio to PC Network" */
+	USB_VENDOR_AND_INTERFACE_INFO(0x238b,
+				      USB_CLASS_COMM, 2 /* ACM */, 0x0ff),
+	.driver_info = (unsigned long)&rndis_info,
+}, {
+>>>>>>> upstream/android-13
 	/* RNDIS is MSFT's un-official variant of CDC ACM */
 	USB_INTERFACE_INFO(USB_CLASS_COMM, 2 /* ACM */, 0x0ff),
 	.driver_info = (unsigned long) &rndis_info,

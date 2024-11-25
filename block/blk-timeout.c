@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Functions related to generic timeout handling of requests.
  */
@@ -19,6 +23,7 @@ static int __init setup_fail_io_timeout(char *str)
 }
 __setup("fail_io_timeout=", setup_fail_io_timeout);
 
+<<<<<<< HEAD
 int blk_should_fake_timeout(struct request_queue *q)
 {
 	if (!test_bit(QUEUE_FLAG_FAIL_IO, &q->queue_flags))
@@ -26,6 +31,13 @@ int blk_should_fake_timeout(struct request_queue *q)
 
 	return should_fail(&fail_io_timeout, 1);
 }
+=======
+bool __blk_should_fake_timeout(struct request_queue *q)
+{
+	return should_fail(&fail_io_timeout, 1);
+}
+EXPORT_SYMBOL_GPL(__blk_should_fake_timeout);
+>>>>>>> upstream/android-13
 
 static int __init fail_io_timeout_debugfs(void)
 {
@@ -68,6 +80,7 @@ ssize_t part_timeout_store(struct device *dev, struct device_attribute *attr,
 
 #endif /* CONFIG_FAIL_IO_TIMEOUT */
 
+<<<<<<< HEAD
 /*
  * blk_delete_timer - Delete/cancel timer for a given function.
  * @req:	request that we are canceling timer for
@@ -144,11 +157,16 @@ void blk_timeout_work(struct work_struct *work)
 
 /**
  * blk_abort_request -- Request request recovery for the specified command
+=======
+/**
+ * blk_abort_request - Request recovery for the specified command
+>>>>>>> upstream/android-13
  * @req:	pointer to the request of interest
  *
  * This function requests that the block layer start recovery for the
  * request by deleting the timer and calling the q's timeout function.
  * LLDDs who implement their own error recovery MAY ignore the timeout
+<<<<<<< HEAD
  * event if they generated blk_abort_req. Must hold queue lock.
  */
 void blk_abort_request(struct request *req)
@@ -170,11 +188,49 @@ void blk_abort_request(struct request *req)
 }
 EXPORT_SYMBOL_GPL(blk_abort_request);
 
+=======
+ * event if they generated blk_abort_request.
+ */
+void blk_abort_request(struct request *req)
+{
+	/*
+	 * All we need to ensure is that timeout scan takes place
+	 * immediately and that scan sees the new timeout value.
+	 * No need for fancy synchronizations.
+	 */
+	WRITE_ONCE(req->deadline, jiffies);
+	kblockd_schedule_work(&req->q->timeout_work);
+}
+EXPORT_SYMBOL_GPL(blk_abort_request);
+
+static unsigned long blk_timeout_mask __read_mostly;
+
+static int __init blk_timeout_init(void)
+{
+	blk_timeout_mask = roundup_pow_of_two(HZ) - 1;
+	return 0;
+}
+
+late_initcall(blk_timeout_init);
+
+/*
+ * Just a rough estimate, we don't care about specific values for timeouts.
+ */
+static inline unsigned long blk_round_jiffies(unsigned long j)
+{
+	return (j + blk_timeout_mask) + 1;
+}
+
+>>>>>>> upstream/android-13
 unsigned long blk_rq_timeout(unsigned long timeout)
 {
 	unsigned long maxt;
 
+<<<<<<< HEAD
 	maxt = round_jiffies_up(jiffies + BLK_MAX_TIMEOUT);
+=======
+	maxt = blk_round_jiffies(jiffies + BLK_MAX_TIMEOUT);
+>>>>>>> upstream/android-13
 	if (time_after(timeout, maxt))
 		timeout = maxt;
 
@@ -194,6 +250,7 @@ void blk_add_timer(struct request *req)
 	struct request_queue *q = req->q;
 	unsigned long expiry;
 
+<<<<<<< HEAD
 	if (!q->mq_ops)
 		lockdep_assert_held(q->queue_lock);
 
@@ -203,6 +260,8 @@ void blk_add_timer(struct request *req)
 
 	BUG_ON(!list_empty(&req->timeout_list));
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Some LLDs, like scsi, peek at the timeout to prevent a
 	 * command from being retried forever.
@@ -211,6 +270,7 @@ void blk_add_timer(struct request *req)
 		req->timeout = q->rq_timeout;
 
 	req->rq_flags &= ~RQF_TIMED_OUT;
+<<<<<<< HEAD
 	blk_rq_set_deadline(req, jiffies + req->timeout);
 
 	/*
@@ -219,13 +279,22 @@ void blk_add_timer(struct request *req)
 	 */
 	if (!q->mq_ops)
 		list_add_tail(&req->timeout_list, &req->q->timeout_list);
+=======
+
+	expiry = jiffies + req->timeout;
+	WRITE_ONCE(req->deadline, expiry);
+>>>>>>> upstream/android-13
 
 	/*
 	 * If the timer isn't already pending or this timeout is earlier
 	 * than an existing one, modify the timer. Round up to next nearest
 	 * second.
 	 */
+<<<<<<< HEAD
 	expiry = blk_rq_timeout(round_jiffies_up(blk_rq_deadline(req)));
+=======
+	expiry = blk_rq_timeout(blk_round_jiffies(expiry));
+>>>>>>> upstream/android-13
 
 	if (!timer_pending(&q->timeout) ||
 	    time_before(expiry, q->timeout.expires)) {

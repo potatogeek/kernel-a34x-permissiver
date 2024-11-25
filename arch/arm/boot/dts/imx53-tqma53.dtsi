@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2012 Sascha Hauer <s.hauer@pengutronix.de>, Pengutronix
  * Copyright 2012 Steffen Trumtrar <s.trumtrar@pengutronix.de>, Pengutronix
@@ -8,6 +9,12 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2012 Sascha Hauer <s.hauer@pengutronix.de>, Pengutronix
+ * Copyright 2012 Steffen Trumtrar <s.trumtrar@pengutronix.de>, Pengutronix
+>>>>>>> upstream/android-13
  */
 
 #include "imx53.dtsi"
@@ -56,8 +63,13 @@
 &ecspi1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_ecspi1>;
+<<<<<<< HEAD
 	cs-gpios = <&gpio2 30 0>, <&gpio3 19 0>,
 		   <&gpio3 24 0>, <&gpio3 25 0>;
+=======
+	cs-gpios = <&gpio2 30 GPIO_ACTIVE_LOW>, <&gpio3 19 GPIO_ACTIVE_LOW>,
+		   <&gpio3 24 GPIO_ACTIVE_LOW>, <&gpio3 25 GPIO_ACTIVE_LOW>;
+>>>>>>> upstream/android-13
 	status = "disabled";
 };
 
@@ -215,6 +227,17 @@
 	};
 };
 
+<<<<<<< HEAD
+=======
+&pwm1 {
+	#pwm-cells = <2>;
+};
+
+&pwm2 {
+	#pwm-cells = <2>;
+};
+
+>>>>>>> upstream/android-13
 &uart1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_uart1>;
@@ -249,8 +272,13 @@
 &cspi {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_cspi>;
+<<<<<<< HEAD
 	cs-gpios = <&gpio1 18 0>, <&gpio1 19 0>,
 		   <&gpio1 21 0>;
+=======
+	cs-gpios = <&gpio1 18 GPIO_ACTIVE_LOW>, <&gpio1 19 GPIO_ACTIVE_LOW>,
+		   <&gpio1 21 GPIO_ACTIVE_LOW>;
+>>>>>>> upstream/android-13
 	status = "disabled";
 };
 

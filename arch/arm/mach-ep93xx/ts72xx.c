@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * arch/arm/mach-ep93xx/ts72xx.c
  * Technologic Systems TS72xx SBC support.
  *
  * Copyright (C) 2006 Lennert Buytenhek <buytenh@wantstofly.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or (at
  * your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -16,18 +23,30 @@
 #include <linux/init.h>
 #include <linux/platform_device.h>
 #include <linux/io.h>
+<<<<<<< HEAD
 #include <linux/mtd/rawnand.h>
 #include <linux/mtd/partitions.h>
+=======
+#include <linux/mtd/platnand.h>
+>>>>>>> upstream/android-13
 #include <linux/spi/spi.h>
 #include <linux/spi/flash.h>
 #include <linux/spi/mmc_spi.h>
 #include <linux/mmc/host.h>
 #include <linux/platform_data/spi-ep93xx.h>
+<<<<<<< HEAD
 
 #include <mach/gpio-ep93xx.h>
 #include <mach/hardware.h>
 #include <mach/irqs.h>
 #include <mach/gpio-ep93xx.h>
+=======
+#include <linux/gpio/machine.h>
+
+#include "gpio-ep93xx.h"
+#include "hardware.h"
+#include <mach/irqs.h>
+>>>>>>> upstream/android-13
 
 #include <asm/mach-types.h>
 #include <asm/mach/map.h>
@@ -76,6 +95,7 @@ static void __init ts72xx_map_io(void)
 #define TS72XX_NAND_CONTROL_ADDR_LINE	22	/* 0xN0400000 */
 #define TS72XX_NAND_BUSY_ADDR_LINE	23	/* 0xN0800000 */
 
+<<<<<<< HEAD
 static void ts72xx_nand_hwcontrol(struct mtd_info *mtd,
 				  int cmd, unsigned int ctrl)
 {
@@ -83,6 +103,13 @@ static void ts72xx_nand_hwcontrol(struct mtd_info *mtd,
 
 	if (ctrl & NAND_CTRL_CHANGE) {
 		void __iomem *addr = chip->IO_ADDR_R;
+=======
+static void ts72xx_nand_hwcontrol(struct nand_chip *chip,
+				  int cmd, unsigned int ctrl)
+{
+	if (ctrl & NAND_CTRL_CHANGE) {
+		void __iomem *addr = chip->legacy.IO_ADDR_R;
+>>>>>>> upstream/android-13
 		unsigned char bits;
 
 		addr += (1 << TS72XX_NAND_CONTROL_ADDR_LINE);
@@ -96,6 +123,7 @@ static void ts72xx_nand_hwcontrol(struct mtd_info *mtd,
 	}
 
 	if (cmd != NAND_CMD_NONE)
+<<<<<<< HEAD
 		__raw_writeb(cmd, chip->IO_ADDR_W);
 }
 
@@ -103,6 +131,14 @@ static int ts72xx_nand_device_ready(struct mtd_info *mtd)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
 	void __iomem *addr = chip->IO_ADDR_R;
+=======
+		__raw_writeb(cmd, chip->legacy.IO_ADDR_W);
+}
+
+static int ts72xx_nand_device_ready(struct nand_chip *chip)
+{
+	void __iomem *addr = chip->legacy.IO_ADDR_R;
+>>>>>>> upstream/android-13
 
 	addr += (1 << TS72XX_NAND_BUSY_ADDR_LINE);
 
@@ -274,6 +310,7 @@ static struct spi_board_info bk3_spi_board_info[] __initdata = {
  * The all work is performed automatically by !SPI_FRAME (SFRM1) and
  * goes through CPLD
  */
+<<<<<<< HEAD
 static int bk3_spi_chipselects[] __initdata = {
 	EP93XX_GPIO_LINE_F(3),
 };
@@ -281,6 +318,17 @@ static int bk3_spi_chipselects[] __initdata = {
 static struct ep93xx_spi_info bk3_spi_master __initdata = {
 	.chipselect	= bk3_spi_chipselects,
 	.num_chipselect = ARRAY_SIZE(bk3_spi_chipselects),
+=======
+static struct gpiod_lookup_table bk3_spi_cs_gpio_table = {
+	.dev_id = "spi0",
+	.table = {
+		GPIO_LOOKUP("F", 3, "cs", GPIO_ACTIVE_LOW),
+		{ },
+	},
+};
+
+static struct ep93xx_spi_info bk3_spi_master __initdata = {
+>>>>>>> upstream/android-13
 	.use_dma	= 1,
 };
 
@@ -321,6 +369,7 @@ static struct spi_board_info ts72xx_spi_devices[] __initdata = {
 	},
 };
 
+<<<<<<< HEAD
 static int ts72xx_spi_chipselects[] __initdata = {
 	EP93XX_GPIO_LINE_F(2),		/* DIO_17 */
 };
@@ -328,6 +377,19 @@ static int ts72xx_spi_chipselects[] __initdata = {
 static struct ep93xx_spi_info ts72xx_spi_info __initdata = {
 	.chipselect	= ts72xx_spi_chipselects,
 	.num_chipselect	= ARRAY_SIZE(ts72xx_spi_chipselects),
+=======
+static struct gpiod_lookup_table ts72xx_spi_cs_gpio_table = {
+	.dev_id = "spi0",
+	.table = {
+		/* DIO_17 */
+		GPIO_LOOKUP("F", 2, "cs", GPIO_ACTIVE_LOW),
+		{ },
+	},
+};
+
+static struct ep93xx_spi_info ts72xx_spi_info __initdata = {
+	/* Intentionally left blank */
+>>>>>>> upstream/android-13
 };
 
 static void __init ts72xx_init_machine(void)
@@ -344,6 +406,10 @@ static void __init ts72xx_init_machine(void)
 	if (board_is_ts7300())
 		platform_device_register(&ts73xx_fpga_device);
 #endif
+<<<<<<< HEAD
+=======
+	gpiod_add_lookup_table(&ts72xx_spi_cs_gpio_table);
+>>>>>>> upstream/android-13
 	ep93xx_register_spi(&ts72xx_spi_info, ts72xx_spi_devices,
 			    ARRAY_SIZE(ts72xx_spi_devices));
 }
@@ -355,7 +421,10 @@ MACHINE_START(TS72XX, "Technologic Systems TS-72xx SBC")
 	.init_irq	= ep93xx_init_irq,
 	.init_time	= ep93xx_timer_init,
 	.init_machine	= ts72xx_init_machine,
+<<<<<<< HEAD
 	.init_late	= ep93xx_init_late,
+=======
+>>>>>>> upstream/android-13
 	.restart	= ep93xx_restart,
 MACHINE_END
 
@@ -403,6 +472,10 @@ static void __init bk3_init_machine(void)
 
 	ep93xx_register_eth(&ts72xx_eth_data, 1);
 
+<<<<<<< HEAD
+=======
+	gpiod_add_lookup_table(&bk3_spi_cs_gpio_table);
+>>>>>>> upstream/android-13
 	ep93xx_register_spi(&bk3_spi_master, bk3_spi_board_info,
 			    ARRAY_SIZE(bk3_spi_board_info));
 
@@ -418,6 +491,9 @@ MACHINE_START(BK3, "Liebherr controller BK3.1")
 	.init_irq	= ep93xx_init_irq,
 	.init_time	= ep93xx_timer_init,
 	.init_machine	= bk3_init_machine,
+<<<<<<< HEAD
 	.init_late	= ep93xx_init_late,
+=======
+>>>>>>> upstream/android-13
 	.restart	= ep93xx_restart,
 MACHINE_END

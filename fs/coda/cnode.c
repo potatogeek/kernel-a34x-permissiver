@@ -8,8 +8,13 @@
 #include <linux/time.h>
 
 #include <linux/coda.h>
+<<<<<<< HEAD
 #include <linux/coda_psdev.h>
 #include <linux/pagemap.h>
+=======
+#include <linux/pagemap.h>
+#include "coda_psdev.h"
+>>>>>>> upstream/android-13
 #include "coda_linux.h"
 
 static inline int coda_fideq(struct CodaFid *fid1, struct CodaFid *fid2)
@@ -137,11 +142,14 @@ struct inode *coda_fid_to_inode(struct CodaFid *fid, struct super_block *sb)
 	struct inode *inode;
 	unsigned long hash = coda_f2i(fid);
 
+<<<<<<< HEAD
 	if ( !sb ) {
 		pr_warn("%s: no sb!\n", __func__);
 		return NULL;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	inode = ilookup5(sb, hash, coda_test_inode, fid);
 	if ( !inode )
 		return NULL;
@@ -153,6 +161,19 @@ struct inode *coda_fid_to_inode(struct CodaFid *fid, struct super_block *sb)
 	return inode;
 }
 
+<<<<<<< HEAD
+=======
+struct coda_file_info *coda_ftoc(struct file *file)
+{
+	struct coda_file_info *cfi = file->private_data;
+
+	BUG_ON(!cfi || cfi->cfi_magic != CODA_MAGIC);
+
+	return cfi;
+
+}
+
+>>>>>>> upstream/android-13
 /* the CONTROL inode is made without asking attributes from Venus */
 struct inode *coda_cnode_makectl(struct super_block *sb)
 {

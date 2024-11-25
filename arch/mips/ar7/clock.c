@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2007 Felix Fietkau <nbd@openwrt.org>
  * Copyright (C) 2007 Eugene Konev <ejka@openwrt.org>
  * Copyright (C) 2009 Florian Fainelli <florian@openwrt.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -26,7 +33,13 @@
 #include <linux/gcd.h>
 #include <linux/io.h>
 #include <linux/err.h>
+<<<<<<< HEAD
 #include <linux/clk.h>
+=======
+#include <linux/clkdev.h>
+#include <linux/clk.h>
+#include <linux/clk-provider.h>
+>>>>>>> upstream/android-13
 
 #include <asm/addrspace.h>
 #include <asm/mach-ar7/ar7.h>
@@ -97,6 +110,7 @@ struct tnetd7200_clocks {
 	struct tnetd7200_clock usb;
 };
 
+<<<<<<< HEAD
 static struct clk bus_clk = {
 	.rate	= 125000000,
 };
@@ -108,6 +122,19 @@ static struct clk cpu_clk = {
 static struct clk dsp_clk;
 static struct clk vbus_clk;
 
+=======
+struct clk_rate {
+	u32 rate;
+};
+static struct clk_rate bus_clk = {
+	.rate	= 125000000,
+};
+
+static struct clk_rate cpu_clk = {
+	.rate	= 150000000,
+};
+
+>>>>>>> upstream/android-13
 static void approximate(int base, int target, int *prediv,
 			int *postdiv, int *mul)
 {
@@ -249,10 +276,19 @@ static void tnetd7300_set_clock(u32 shift, struct tnetd7300_clock *clock,
 
 static void __init tnetd7300_init_clocks(void)
 {
+<<<<<<< HEAD
 	u32 *bootcr = (u32 *)ioremap_nocache(AR7_REGS_DCL, 4);
 	struct tnetd7300_clocks *clocks =
 					ioremap_nocache(UR8_REGS_CLOCKS,
 					sizeof(struct tnetd7300_clocks));
+=======
+	u32 *bootcr = (u32 *)ioremap(AR7_REGS_DCL, 4);
+	struct tnetd7300_clocks *clocks =
+					ioremap(UR8_REGS_CLOCKS,
+					sizeof(struct tnetd7300_clocks));
+	u32 dsp_clk;
+	struct clk *clk;
+>>>>>>> upstream/android-13
 
 	bus_clk.rate = tnetd7300_get_clock(BUS_PLL_SOURCE_SHIFT,
 		&clocks->bus, bootcr, AR7_AFE_CLOCK);
@@ -263,12 +299,27 @@ static void __init tnetd7300_init_clocks(void)
 	else
 		cpu_clk.rate = bus_clk.rate;
 
+<<<<<<< HEAD
 	if (dsp_clk.rate == 250000000)
 		tnetd7300_set_clock(DSP_PLL_SOURCE_SHIFT, &clocks->dsp,
 			bootcr, dsp_clk.rate);
 
 	iounmap(clocks);
 	iounmap(bootcr);
+=======
+	dsp_clk = tnetd7300_dsp_clock();
+	if (dsp_clk == 250000000)
+		tnetd7300_set_clock(DSP_PLL_SOURCE_SHIFT, &clocks->dsp,
+			bootcr, dsp_clk);
+
+	iounmap(clocks);
+	iounmap(bootcr);
+
+	clk = clk_register_fixed_rate(NULL, "cpu", NULL, 0, cpu_clk.rate);
+	clkdev_create(clk, "cpu", NULL);
+	clk = clk_register_fixed_rate(NULL, "dsp", NULL, 0, dsp_clk);
+	clkdev_create(clk, "dsp", NULL);
+>>>>>>> upstream/android-13
 }
 
 static void tnetd7200_set_clock(int base, struct tnetd7200_clock *clock,
@@ -333,13 +384,23 @@ static int tnetd7200_get_clock_base(int clock_id, u32 *bootcr)
 
 static void __init tnetd7200_init_clocks(void)
 {
+<<<<<<< HEAD
 	u32 *bootcr = (u32 *)ioremap_nocache(AR7_REGS_DCL, 4);
 	struct tnetd7200_clocks *clocks =
 					ioremap_nocache(AR7_REGS_CLOCKS,
+=======
+	u32 *bootcr = (u32 *)ioremap(AR7_REGS_DCL, 4);
+	struct tnetd7200_clocks *clocks =
+					ioremap(AR7_REGS_CLOCKS,
+>>>>>>> upstream/android-13
 					sizeof(struct tnetd7200_clocks));
 	int cpu_base, cpu_mul, cpu_prediv, cpu_postdiv;
 	int dsp_base, dsp_mul, dsp_prediv, dsp_postdiv;
 	int usb_base, usb_mul, usb_prediv, usb_postdiv;
+<<<<<<< HEAD
+=======
+	struct clk *clk;
+>>>>>>> upstream/android-13
 
 	cpu_base = tnetd7200_get_clock_base(TNETD7200_CLOCK_ID_CPU, bootcr);
 	dsp_base = tnetd7200_get_clock_base(TNETD7200_CLOCK_ID_DSP, bootcr);
@@ -408,6 +469,7 @@ static void __init tnetd7200_init_clocks(void)
 		usb_prediv, usb_postdiv, -1, usb_mul,
 		TNETD7200_DEF_USB_CLK);
 
+<<<<<<< HEAD
 	dsp_clk.rate = cpu_clk.rate;
 
 	iounmap(clocks);
@@ -461,18 +523,36 @@ EXPORT_SYMBOL(clk_put);
 
 void __init ar7_init_clocks(void)
 {
+=======
+	iounmap(clocks);
+	iounmap(bootcr);
+
+	clk = clk_register_fixed_rate(NULL, "cpu", NULL, 0, cpu_clk.rate);
+	clkdev_create(clk, "cpu", NULL);
+	clkdev_create(clk, "dsp", NULL);
+}
+
+void __init ar7_init_clocks(void)
+{
+	struct clk *clk;
+
+>>>>>>> upstream/android-13
 	switch (ar7_chip_id()) {
 	case AR7_CHIP_7100:
 	case AR7_CHIP_7200:
 		tnetd7200_init_clocks();
 		break;
 	case AR7_CHIP_7300:
+<<<<<<< HEAD
 		dsp_clk.rate = tnetd7300_dsp_clock();
+=======
+>>>>>>> upstream/android-13
 		tnetd7300_init_clocks();
 		break;
 	default:
 		break;
 	}
+<<<<<<< HEAD
 	/* adjust vbus clock rate */
 	vbus_clk.rate = bus_clk.rate / 2;
 }
@@ -505,3 +585,13 @@ struct clk *clk_get_parent(struct clk *clk)
 	return NULL;
 }
 EXPORT_SYMBOL(clk_get_parent);
+=======
+	clk = clk_register_fixed_rate(NULL, "bus", NULL, 0, bus_clk.rate);
+	clkdev_create(clk, "bus", NULL);
+	/* adjust vbus clock rate */
+	clk = clk_register_fixed_factor(NULL, "vbus", "bus", 0, 1, 2);
+	clkdev_create(clk, "vbus", NULL);
+	clkdev_create(clk, "cpmac", "cpmac.1");
+	clkdev_create(clk, "cpmac", "cpmac.1");
+}
+>>>>>>> upstream/android-13

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Intel & MS High Precision Event Timer Implementation.
  *
@@ -5,10 +9,13 @@
  *	Venki Pallipadi
  * (c) Copyright 2004 Hewlett-Packard Development Company, L.P.
  *	Bob Picco <robert.picco@hp.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/interrupt.h>
@@ -113,7 +120,11 @@ struct hpets {
 	unsigned long hp_delta;
 	unsigned int hp_ntimer;
 	unsigned int hp_which;
+<<<<<<< HEAD
 	struct hpet_dev hp_dev[1];
+=======
+	struct hpet_dev hp_dev[];
+>>>>>>> upstream/android-13
 };
 
 static struct hpets *hpets;
@@ -159,12 +170,20 @@ static irqreturn_t hpet_interrupt(int irq, void *data)
 	 * This has the effect of treating non-periodic like periodic.
 	 */
 	if ((devp->hd_flags & (HPET_IE | HPET_PERIODIC)) == HPET_IE) {
+<<<<<<< HEAD
 		unsigned long m, t, mc, base, k;
+=======
+		unsigned long t, mc, base, k;
+>>>>>>> upstream/android-13
 		struct hpet __iomem *hpet = devp->hd_hpet;
 		struct hpets *hpetp = devp->hd_hpets;
 
 		t = devp->hd_ireqfreq;
+<<<<<<< HEAD
 		m = read_counter(&devp->hd_timer->hpet_compare);
+=======
+		read_counter(&devp->hd_timer->hpet_compare);
+>>>>>>> upstream/android-13
 		mc = read_counter(&hpet->hpet_mc);
 		/* The time for the next interrupt would logically be t + m,
 		 * however, if we are very unlucky and the interrupt is delayed
@@ -841,7 +860,10 @@ int hpet_alloc(struct hpet_data *hdp)
 	struct hpet_dev *devp;
 	u32 i, ntimer;
 	struct hpets *hpetp;
+<<<<<<< HEAD
 	size_t siz;
+=======
+>>>>>>> upstream/android-13
 	struct hpet __iomem *hpet;
 	static struct hpets *last;
 	unsigned long period;
@@ -859,10 +881,15 @@ int hpet_alloc(struct hpet_data *hdp)
 		return 0;
 	}
 
+<<<<<<< HEAD
 	siz = sizeof(struct hpets) + ((hdp->hd_nirqs - 1) *
 				      sizeof(struct hpet_dev));
 
 	hpetp = kzalloc(siz, GFP_KERNEL);
+=======
+	hpetp = kzalloc(struct_size(hpetp, hp_dev, hdp->hd_nirqs),
+			GFP_KERNEL);
+>>>>>>> upstream/android-13
 
 	if (!hpetp)
 		return -ENOMEM;
@@ -975,6 +1002,11 @@ static acpi_status hpet_resources(struct acpi_resource *res, void *data)
 	if (ACPI_SUCCESS(status)) {
 		hdp->hd_phys_address = addr.address.minimum;
 		hdp->hd_address = ioremap(addr.address.minimum, addr.address.address_length);
+<<<<<<< HEAD
+=======
+		if (!hdp->hd_address)
+			return AE_ERROR;
+>>>>>>> upstream/android-13
 
 		if (hpet_is_known(hdp)) {
 			iounmap(hdp->hd_address);
@@ -988,6 +1020,11 @@ static acpi_status hpet_resources(struct acpi_resource *res, void *data)
 		hdp->hd_phys_address = fixmem32->address;
 		hdp->hd_address = ioremap(fixmem32->address,
 						HPET_RANGE_SIZE);
+<<<<<<< HEAD
+=======
+		if (!hdp->hd_address)
+			return AE_ERROR;
+>>>>>>> upstream/android-13
 
 		if (hpet_is_known(hdp)) {
 			iounmap(hdp->hd_address);

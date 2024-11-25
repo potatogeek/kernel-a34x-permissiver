@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  arch/arm/include/asm/pgtable-2level.h
  *
  *  Copyright (C) 1995-2002 Russell King
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _ASM_PGTABLE_2LEVEL_H
 #define _ASM_PGTABLE_2LEVEL_H
@@ -78,6 +85,11 @@
 #define PTE_HWTABLE_OFF		(PTE_HWTABLE_PTRS * sizeof(pte_t))
 #define PTE_HWTABLE_SIZE	(PTRS_PER_PTE * sizeof(u32))
 
+<<<<<<< HEAD
+=======
+#define MAX_POSSIBLE_PHYSMEM_BITS	32
+
+>>>>>>> upstream/android-13
 /*
  * PMD_SHIFT determines the size of the area a second-level page table can map
  * PGDIR_SHIFT determines what a third-level page table entry can map
@@ -120,7 +132,10 @@
 #define L_PTE_VALID		(_AT(pteval_t, 1) << 0)		/* Valid */
 #define L_PTE_PRESENT		(_AT(pteval_t, 1) << 0)
 #define L_PTE_YOUNG		(_AT(pteval_t, 1) << 1)
+<<<<<<< HEAD
 #define L_PTE_SPECIAL		(_AT(pteval_t, 1) << 5)
+=======
+>>>>>>> upstream/android-13
 #define L_PTE_DIRTY		(_AT(pteval_t, 1) << 6)
 #define L_PTE_RDONLY		(_AT(pteval_t, 1) << 7)
 #define L_PTE_USER		(_AT(pteval_t, 1) << 8)
@@ -165,6 +180,7 @@
 #define L_PTE_MT_BUFFERABLE	(_AT(pteval_t, 0x01) << 2)	/* 0001 */
 #define L_PTE_MT_WRITETHROUGH	(_AT(pteval_t, 0x02) << 2)	/* 0010 */
 #define L_PTE_MT_WRITEBACK	(_AT(pteval_t, 0x03) << 2)	/* 0011 */
+<<<<<<< HEAD
 #define L_PTE_MT_DEV_SHARED	(_AT(pteval_t, 0x04) << 2)	/* 0100 */
 #define L_PTE_MT_MINICACHE	(_AT(pteval_t, 0x06) << 2)	/* 0110 (sa1100, xscale) */
 #define L_PTE_MT_WRITEALLOC	(_AT(pteval_t, 0x07) << 2)	/* 0111 */
@@ -181,6 +197,16 @@
 #define L_PTE_MT_VECTORS	(_AT(pteval_t, 0x0f) << 2)	/* 1111 */
 #define L_PTE_MT_MASK		(_AT(pteval_t, 0x0f) << 2)
 #endif
+=======
+#define L_PTE_MT_MINICACHE	(_AT(pteval_t, 0x06) << 2)	/* 0110 (sa1100, xscale) */
+#define L_PTE_MT_WRITEALLOC	(_AT(pteval_t, 0x07) << 2)	/* 0111 */
+#define L_PTE_MT_DEV_SHARED	(_AT(pteval_t, 0x04) << 2)	/* 0100 */
+#define L_PTE_MT_DEV_NONSHARED	(_AT(pteval_t, 0x0c) << 2)	/* 1100 */
+#define L_PTE_MT_DEV_WC		(_AT(pteval_t, 0x09) << 2)	/* 1001 */
+#define L_PTE_MT_DEV_CACHED	(_AT(pteval_t, 0x0b) << 2)	/* 1011 */
+#define L_PTE_MT_VECTORS	(_AT(pteval_t, 0x0f) << 2)	/* 1111 */
+#define L_PTE_MT_MASK		(_AT(pteval_t, 0x0f) << 2)
+>>>>>>> upstream/android-13
 
 #ifndef __ASSEMBLY__
 
@@ -189,18 +215,50 @@
  * the pud: the pud entry is never bad, always exists, and can't be set or
  * cleared.
  */
+<<<<<<< HEAD
 #define pud_none(pud)		(0)
 #define pud_bad(pud)		(0)
 #define pud_present(pud)	(1)
 #define pud_clear(pudp)		do { } while (0)
 #define set_pud(pud,pudp)	do { } while (0)
+=======
+static inline int pud_none(pud_t pud)
+{
+	return 0;
+}
+
+static inline int pud_bad(pud_t pud)
+{
+	return 0;
+}
+
+static inline int pud_present(pud_t pud)
+{
+	return 1;
+}
+
+static inline void pud_clear(pud_t *pudp)
+{
+}
+
+static inline void set_pud(pud_t *pudp, pud_t pud)
+{
+}
+>>>>>>> upstream/android-13
 
 static inline pmd_t *pmd_offset(pud_t *pud, unsigned long addr)
 {
 	return (pmd_t *)pud;
 }
+<<<<<<< HEAD
 
 #define pmd_large(pmd)		(pmd_val(pmd) & 2)
+=======
+#define pmd_offset pmd_offset
+
+#define pmd_large(pmd)		(pmd_val(pmd) & 2)
+#define pmd_leaf(pmd)		(pmd_val(pmd) & 2)
+>>>>>>> upstream/android-13
 #define pmd_bad(pmd)		(pmd_val(pmd) & 2)
 #define pmd_present(pmd)	(pmd_val(pmd))
 

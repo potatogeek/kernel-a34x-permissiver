@@ -266,7 +266,11 @@ static int tca8418_keypad_probe(struct i2c_client *client,
 	struct tca8418_keypad *keypad_data;
 	struct input_dev *input;
 	u32 rows = 0, cols = 0;
+<<<<<<< HEAD
 	int error, row_shift, max_keys;
+=======
+	int error, row_shift;
+>>>>>>> upstream/android-13
 	u8 reg;
 
 	/* Check i2c driver capabilities */
@@ -291,7 +295,10 @@ static int tca8418_keypad_probe(struct i2c_client *client,
 	}
 
 	row_shift = get_count_order(cols);
+<<<<<<< HEAD
 	max_keys = rows << row_shift;
+=======
+>>>>>>> upstream/android-13
 
 	/* Allocate memory for keypad_data and input device */
 	keypad_data = devm_kzalloc(dev, sizeof(*keypad_data), GFP_KERNEL);

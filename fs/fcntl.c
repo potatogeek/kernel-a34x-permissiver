@@ -25,6 +25,10 @@
 #include <linux/user_namespace.h>
 #include <linux/memfd.h>
 #include <linux/compat.h>
+<<<<<<< HEAD
+=======
+#include <linux/mount.h>
+>>>>>>> upstream/android-13
 #include <linux/task_integrity.h>
 #include <linux/proca.h>
 
@@ -62,7 +66,11 @@ static int setfl(int fd, struct file * filp, unsigned long arg)
 
 	/* O_NOATIME can only be set by the owner or superuser */
 	if ((arg & O_NOATIME) && !(filp->f_flags & O_NOATIME))
+<<<<<<< HEAD
 		if (!inode_owner_or_capable(inode))
+=======
+		if (!inode_owner_or_capable(file_mnt_user_ns(filp), inode))
+>>>>>>> upstream/android-13
 			return -EPERM;
 
 	/* required for strict SunOS emulation */
@@ -164,12 +172,26 @@ void f_delown(struct file *filp)
 
 pid_t f_getown(struct file *filp)
 {
+<<<<<<< HEAD
 	pid_t pid;
 	read_lock(&filp->f_owner.lock);
 	pid = pid_vnr(filp->f_owner.pid);
 	if (filp->f_owner.pid_type == PIDTYPE_PGID)
 		pid = -pid;
 	read_unlock(&filp->f_owner.lock);
+=======
+	pid_t pid = 0;
+
+	read_lock_irq(&filp->f_owner.lock);
+	rcu_read_lock();
+	if (pid_task(filp->f_owner.pid, filp->f_owner.pid_type)) {
+		pid = pid_vnr(filp->f_owner.pid);
+		if (filp->f_owner.pid_type == PIDTYPE_PGID)
+			pid = -pid;
+	}
+	rcu_read_unlock();
+	read_unlock_irq(&filp->f_owner.lock);
+>>>>>>> upstream/android-13
 	return pid;
 }
 
@@ -216,11 +238,22 @@ static int f_setown_ex(struct file *filp, unsigned long arg)
 static int f_getown_ex(struct file *filp, unsigned long arg)
 {
 	struct f_owner_ex __user *owner_p = (void __user *)arg;
+<<<<<<< HEAD
 	struct f_owner_ex owner;
 	int ret = 0;
 
 	read_lock(&filp->f_owner.lock);
 	owner.pid = pid_vnr(filp->f_owner.pid);
+=======
+	struct f_owner_ex owner = {};
+	int ret = 0;
+
+	read_lock_irq(&filp->f_owner.lock);
+	rcu_read_lock();
+	if (pid_task(filp->f_owner.pid, filp->f_owner.pid_type))
+		owner.pid = pid_vnr(filp->f_owner.pid);
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 	switch (filp->f_owner.pid_type) {
 	case PIDTYPE_PID:
 		owner.type = F_OWNER_TID;
@@ -239,7 +272,11 @@ static int f_getown_ex(struct file *filp, unsigned long arg)
 		ret = -EINVAL;
 		break;
 	}
+<<<<<<< HEAD
 	read_unlock(&filp->f_owner.lock);
+=======
+	read_unlock_irq(&filp->f_owner.lock);
+>>>>>>> upstream/android-13
 
 	if (!ret) {
 		ret = copy_to_user(owner_p, &owner, sizeof(owner));
@@ -257,10 +294,17 @@ static int f_getowner_uids(struct file *filp, unsigned long arg)
 	uid_t src[2];
 	int err;
 
+<<<<<<< HEAD
 	read_lock(&filp->f_owner.lock);
 	src[0] = from_kuid(user_ns, filp->f_owner.uid);
 	src[1] = from_kuid(user_ns, filp->f_owner.euid);
 	read_unlock(&filp->f_owner.lock);
+=======
+	read_lock_irq(&filp->f_owner.lock);
+	src[0] = from_kuid(user_ns, filp->f_owner.uid);
+	src[1] = from_kuid(user_ns, filp->f_owner.euid);
+	read_unlock_irq(&filp->f_owner.lock);
+>>>>>>> upstream/android-13
 
 	err  = put_user(src[0], &dst[0]);
 	err |= put_user(src[1], &dst[1]);
@@ -277,7 +321,11 @@ static int f_getowner_uids(struct file *filp, unsigned long arg)
 static bool rw_hint_valid(enum rw_hint hint)
 {
 	switch (hint) {
+<<<<<<< HEAD
 	case RWF_WRITE_LIFE_NOT_SET:
+=======
+	case RWH_WRITE_LIFE_NOT_SET:
+>>>>>>> upstream/android-13
 	case RWH_WRITE_LIFE_NONE:
 	case RWH_WRITE_LIFE_SHORT:
 	case RWH_WRITE_LIFE_MEDIUM:
@@ -293,7 +341,11 @@ static long fcntl_rw_hint(struct file *file, unsigned int cmd,
 			  unsigned long arg)
 {
 	struct inode *inode = file_inode(file);
+<<<<<<< HEAD
 	u64 *argp = (u64 __user *)arg;
+=======
+	u64 __user *argp = (u64 __user *)arg;
+>>>>>>> upstream/android-13
 	enum rw_hint hint;
 	u64 h;
 
@@ -377,8 +429,13 @@ static long do_fcntl(int fd, unsigned int cmd, unsigned long arg,
 	/* 32-bit arches must use fcntl64() */
 	case F_OFD_SETLK:
 	case F_OFD_SETLKW:
+<<<<<<< HEAD
 #endif
 		/* Fallthrough */
+=======
+		fallthrough;
+#endif
+>>>>>>> upstream/android-13
 	case F_SETLK:
 	case F_SETLKW:
 		if (copy_from_user(&flock, argp, sizeof(flock)))
@@ -779,8 +836,14 @@ static void send_sigio_to_task(struct task_struct *p,
 		return;
 
 	switch (signum) {
+<<<<<<< HEAD
 		siginfo_t si;
 		default:
+=======
+		default: {
+			kernel_siginfo_t si;
+
+>>>>>>> upstream/android-13
 			/* Queue a rt signal with the appropriate fd as its
 			   value.  We use SI_SIGIO as the source, not 
 			   SI_KERNEL, since kernel signals always get 
@@ -813,7 +876,12 @@ static void send_sigio_to_task(struct task_struct *p,
 			si.si_fd    = fd;
 			if (!do_send_sig_info(signum, &si, p, type))
 				break;
+<<<<<<< HEAD
 		/* fall-through: fall back on the old plain SIGIO signal */
+=======
+		}
+			fallthrough;	/* fall back on the old plain SIGIO signal */
+>>>>>>> upstream/android-13
 		case 0:
 			do_send_sig_info(SIGIO, SEND_SIG_PRIV, p, type);
 	}
@@ -1037,13 +1105,21 @@ static void kill_fasync_rcu(struct fasync_struct *fa, int sig, int band)
 {
 	while (fa) {
 		struct fown_struct *fown;
+<<<<<<< HEAD
+=======
+		unsigned long flags;
+>>>>>>> upstream/android-13
 
 		if (fa->magic != FASYNC_MAGIC) {
 			printk(KERN_ERR "kill_fasync: bad magic number in "
 			       "fasync_struct!\n");
 			return;
 		}
+<<<<<<< HEAD
 		read_lock(&fa->fa_lock);
+=======
+		read_lock_irqsave(&fa->fa_lock, flags);
+>>>>>>> upstream/android-13
 		if (fa->fa_file) {
 			fown = &fa->fa_file->f_owner;
 			/* Don't send SIGURG to processes which have not set a
@@ -1052,7 +1128,11 @@ static void kill_fasync_rcu(struct fasync_struct *fa, int sig, int band)
 			if (!(sig == SIGURG && fown->signum == 0))
 				send_sigio(fown, fa->fa_fd, band);
 		}
+<<<<<<< HEAD
 		read_unlock(&fa->fa_lock);
+=======
+		read_unlock_irqrestore(&fa->fa_lock, flags);
+>>>>>>> upstream/android-13
 		fa = rcu_dereference(fa->fa_next);
 	}
 }
@@ -1083,7 +1163,12 @@ static int __init fcntl_init(void)
 			__FMODE_EXEC | __FMODE_NONOTIFY));
 
 	fasync_cache = kmem_cache_create("fasync_cache",
+<<<<<<< HEAD
 		sizeof(struct fasync_struct), 0, SLAB_PANIC, NULL);
+=======
+					 sizeof(struct fasync_struct), 0,
+					 SLAB_PANIC | SLAB_ACCOUNT, NULL);
+>>>>>>> upstream/android-13
 	return 0;
 }
 

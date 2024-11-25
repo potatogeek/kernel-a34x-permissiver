@@ -2,8 +2,14 @@
 #define __MEM2NODE_H
 
 #include <linux/rbtree.h>
+<<<<<<< HEAD
 #include "env.h"
 
+=======
+#include <linux/types.h>
+
+struct perf_env;
+>>>>>>> upstream/android-13
 struct phys_entry;
 
 struct mem2node {

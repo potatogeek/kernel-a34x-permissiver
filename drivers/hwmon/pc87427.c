@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  pc87427.c - hardware monitoring driver for the
  *              National Semiconductor PC87427 Super-I/O chip
  *  Copyright (C) 2006, 2008, 2010  Jean Delvare <jdelvare@suse.de>
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
@@ -12,6 +17,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  *  Supports the following chips:
  *
  *  Chip        #vin    #fan    #pwm    #temp   devid
@@ -392,8 +399,13 @@ done:
 	return data;
 }
 
+<<<<<<< HEAD
 static ssize_t show_fan_input(struct device *dev, struct device_attribute
 			      *devattr, char *buf)
+=======
+static ssize_t fan_input_show(struct device *dev,
+			      struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct pc87427_data *data = pc87427_update_device(dev);
 	int nr = to_sensor_dev_attr(devattr)->index;
@@ -401,8 +413,13 @@ static ssize_t show_fan_input(struct device *dev, struct device_attribute
 	return sprintf(buf, "%lu\n", fan_from_reg(data->fan[nr]));
 }
 
+<<<<<<< HEAD
 static ssize_t show_fan_min(struct device *dev, struct device_attribute
 			    *devattr, char *buf)
+=======
+static ssize_t fan_min_show(struct device *dev,
+			    struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct pc87427_data *data = pc87427_update_device(dev);
 	int nr = to_sensor_dev_attr(devattr)->index;
@@ -410,8 +427,13 @@ static ssize_t show_fan_min(struct device *dev, struct device_attribute
 	return sprintf(buf, "%lu\n", fan_from_reg(data->fan_min[nr]));
 }
 
+<<<<<<< HEAD
 static ssize_t show_fan_alarm(struct device *dev, struct device_attribute
 			      *devattr, char *buf)
+=======
+static ssize_t fan_alarm_show(struct device *dev,
+			      struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct pc87427_data *data = pc87427_update_device(dev);
 	int nr = to_sensor_dev_attr(devattr)->index;
@@ -420,8 +442,13 @@ static ssize_t show_fan_alarm(struct device *dev, struct device_attribute
 				       & FAN_STATUS_LOSPD));
 }
 
+<<<<<<< HEAD
 static ssize_t show_fan_fault(struct device *dev, struct device_attribute
 			      *devattr, char *buf)
+=======
+static ssize_t fan_fault_show(struct device *dev,
+			      struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct pc87427_data *data = pc87427_update_device(dev);
 	int nr = to_sensor_dev_attr(devattr)->index;
@@ -430,8 +457,14 @@ static ssize_t show_fan_fault(struct device *dev, struct device_attribute
 				       & FAN_STATUS_STALL));
 }
 
+<<<<<<< HEAD
 static ssize_t set_fan_min(struct device *dev, struct device_attribute
 			   *devattr, const char *buf, size_t count)
+=======
+static ssize_t fan_min_store(struct device *dev,
+			     struct device_attribute *devattr,
+			     const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct pc87427_data *data = dev_get_drvdata(dev);
 	int nr = to_sensor_dev_attr(devattr)->index;
@@ -457,6 +490,7 @@ static ssize_t set_fan_min(struct device *dev, struct device_attribute
 	return count;
 }
 
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(fan1_input, S_IRUGO, show_fan_input, NULL, 0);
 static SENSOR_DEVICE_ATTR(fan2_input, S_IRUGO, show_fan_input, NULL, 1);
 static SENSOR_DEVICE_ATTR(fan3_input, S_IRUGO, show_fan_input, NULL, 2);
@@ -500,6 +534,43 @@ static SENSOR_DEVICE_ATTR(fan5_fault, S_IRUGO, show_fan_fault, NULL, 4);
 static SENSOR_DEVICE_ATTR(fan6_fault, S_IRUGO, show_fan_fault, NULL, 5);
 static SENSOR_DEVICE_ATTR(fan7_fault, S_IRUGO, show_fan_fault, NULL, 6);
 static SENSOR_DEVICE_ATTR(fan8_fault, S_IRUGO, show_fan_fault, NULL, 7);
+=======
+static SENSOR_DEVICE_ATTR_RO(fan1_input, fan_input, 0);
+static SENSOR_DEVICE_ATTR_RO(fan2_input, fan_input, 1);
+static SENSOR_DEVICE_ATTR_RO(fan3_input, fan_input, 2);
+static SENSOR_DEVICE_ATTR_RO(fan4_input, fan_input, 3);
+static SENSOR_DEVICE_ATTR_RO(fan5_input, fan_input, 4);
+static SENSOR_DEVICE_ATTR_RO(fan6_input, fan_input, 5);
+static SENSOR_DEVICE_ATTR_RO(fan7_input, fan_input, 6);
+static SENSOR_DEVICE_ATTR_RO(fan8_input, fan_input, 7);
+
+static SENSOR_DEVICE_ATTR_RW(fan1_min, fan_min, 0);
+static SENSOR_DEVICE_ATTR_RW(fan2_min, fan_min, 1);
+static SENSOR_DEVICE_ATTR_RW(fan3_min, fan_min, 2);
+static SENSOR_DEVICE_ATTR_RW(fan4_min, fan_min, 3);
+static SENSOR_DEVICE_ATTR_RW(fan5_min, fan_min, 4);
+static SENSOR_DEVICE_ATTR_RW(fan6_min, fan_min, 5);
+static SENSOR_DEVICE_ATTR_RW(fan7_min, fan_min, 6);
+static SENSOR_DEVICE_ATTR_RW(fan8_min, fan_min, 7);
+
+static SENSOR_DEVICE_ATTR_RO(fan1_alarm, fan_alarm, 0);
+static SENSOR_DEVICE_ATTR_RO(fan2_alarm, fan_alarm, 1);
+static SENSOR_DEVICE_ATTR_RO(fan3_alarm, fan_alarm, 2);
+static SENSOR_DEVICE_ATTR_RO(fan4_alarm, fan_alarm, 3);
+static SENSOR_DEVICE_ATTR_RO(fan5_alarm, fan_alarm, 4);
+static SENSOR_DEVICE_ATTR_RO(fan6_alarm, fan_alarm, 5);
+static SENSOR_DEVICE_ATTR_RO(fan7_alarm, fan_alarm, 6);
+static SENSOR_DEVICE_ATTR_RO(fan8_alarm, fan_alarm, 7);
+
+static SENSOR_DEVICE_ATTR_RO(fan1_fault, fan_fault, 0);
+static SENSOR_DEVICE_ATTR_RO(fan2_fault, fan_fault, 1);
+static SENSOR_DEVICE_ATTR_RO(fan3_fault, fan_fault, 2);
+static SENSOR_DEVICE_ATTR_RO(fan4_fault, fan_fault, 3);
+static SENSOR_DEVICE_ATTR_RO(fan5_fault, fan_fault, 4);
+static SENSOR_DEVICE_ATTR_RO(fan6_fault, fan_fault, 5);
+static SENSOR_DEVICE_ATTR_RO(fan7_fault, fan_fault, 6);
+static SENSOR_DEVICE_ATTR_RO(fan8_fault, fan_fault, 7);
+>>>>>>> upstream/android-13
 
 static struct attribute *pc87427_attributes_fan[8][5] = {
 	{
@@ -576,8 +647,13 @@ static void update_pwm_enable(struct pc87427_data *data, int nr, u8 mode)
 	outb(data->pwm_enable[nr], iobase + PC87427_REG_PWM_ENABLE);
 }
 
+<<<<<<< HEAD
 static ssize_t show_pwm_enable(struct device *dev, struct device_attribute
 			       *devattr, char *buf)
+=======
+static ssize_t pwm_enable_show(struct device *dev,
+			       struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct pc87427_data *data = pc87427_update_device(dev);
 	int nr = to_sensor_dev_attr(devattr)->index;
@@ -589,8 +665,14 @@ static ssize_t show_pwm_enable(struct device *dev, struct device_attribute
 	return sprintf(buf, "%d\n", pwm_enable);
 }
 
+<<<<<<< HEAD
 static ssize_t set_pwm_enable(struct device *dev, struct device_attribute
 			      *devattr, const char *buf, size_t count)
+=======
+static ssize_t pwm_enable_store(struct device *dev,
+				struct device_attribute *devattr,
+				const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct pc87427_data *data = dev_get_drvdata(dev);
 	int nr = to_sensor_dev_attr(devattr)->index;
@@ -610,8 +692,13 @@ static ssize_t set_pwm_enable(struct device *dev, struct device_attribute
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t show_pwm(struct device *dev, struct device_attribute
 			*devattr, char *buf)
+=======
+static ssize_t pwm_show(struct device *dev, struct device_attribute *devattr,
+			char *buf)
+>>>>>>> upstream/android-13
 {
 	struct pc87427_data *data = pc87427_update_device(dev);
 	int nr = to_sensor_dev_attr(devattr)->index;
@@ -619,8 +706,13 @@ static ssize_t show_pwm(struct device *dev, struct device_attribute
 	return sprintf(buf, "%d\n", (int)data->pwm[nr]);
 }
 
+<<<<<<< HEAD
 static ssize_t set_pwm(struct device *dev, struct device_attribute
 		       *devattr, const char *buf, size_t count)
+=======
+static ssize_t pwm_store(struct device *dev, struct device_attribute *devattr,
+			 const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct pc87427_data *data = dev_get_drvdata(dev);
 	int nr = to_sensor_dev_attr(devattr)->index;
@@ -665,6 +757,7 @@ static ssize_t set_pwm(struct device *dev, struct device_attribute
 	return count;
 }
 
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(pwm1_enable, S_IWUSR | S_IRUGO,
 			  show_pwm_enable, set_pwm_enable, 0);
 static SENSOR_DEVICE_ATTR(pwm2_enable, S_IWUSR | S_IRUGO,
@@ -678,6 +771,17 @@ static SENSOR_DEVICE_ATTR(pwm1, S_IWUSR | S_IRUGO, show_pwm, set_pwm, 0);
 static SENSOR_DEVICE_ATTR(pwm2, S_IWUSR | S_IRUGO, show_pwm, set_pwm, 1);
 static SENSOR_DEVICE_ATTR(pwm3, S_IWUSR | S_IRUGO, show_pwm, set_pwm, 2);
 static SENSOR_DEVICE_ATTR(pwm4, S_IWUSR | S_IRUGO, show_pwm, set_pwm, 3);
+=======
+static SENSOR_DEVICE_ATTR_RW(pwm1_enable, pwm_enable, 0);
+static SENSOR_DEVICE_ATTR_RW(pwm2_enable, pwm_enable, 1);
+static SENSOR_DEVICE_ATTR_RW(pwm3_enable, pwm_enable, 2);
+static SENSOR_DEVICE_ATTR_RW(pwm4_enable, pwm_enable, 3);
+
+static SENSOR_DEVICE_ATTR_RW(pwm1, pwm, 0);
+static SENSOR_DEVICE_ATTR_RW(pwm2, pwm, 1);
+static SENSOR_DEVICE_ATTR_RW(pwm3, pwm, 2);
+static SENSOR_DEVICE_ATTR_RW(pwm4, pwm, 3);
+>>>>>>> upstream/android-13
 
 static struct attribute *pc87427_attributes_pwm[4][3] = {
 	{
@@ -706,8 +810,13 @@ static const struct attribute_group pc87427_group_pwm[4] = {
 	{ .attrs = pc87427_attributes_pwm[3] },
 };
 
+<<<<<<< HEAD
 static ssize_t show_temp_input(struct device *dev, struct device_attribute
 			       *devattr, char *buf)
+=======
+static ssize_t temp_input_show(struct device *dev,
+			       struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct pc87427_data *data = pc87427_update_device(dev);
 	int nr = to_sensor_dev_attr(devattr)->index;
@@ -715,8 +824,13 @@ static ssize_t show_temp_input(struct device *dev, struct device_attribute
 	return sprintf(buf, "%ld\n", temp_from_reg(data->temp[nr]));
 }
 
+<<<<<<< HEAD
 static ssize_t show_temp_min(struct device *dev, struct device_attribute
 			     *devattr, char *buf)
+=======
+static ssize_t temp_min_show(struct device *dev,
+			     struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct pc87427_data *data = pc87427_update_device(dev);
 	int nr = to_sensor_dev_attr(devattr)->index;
@@ -724,8 +838,13 @@ static ssize_t show_temp_min(struct device *dev, struct device_attribute
 	return sprintf(buf, "%ld\n", temp_from_reg8(data->temp_min[nr]));
 }
 
+<<<<<<< HEAD
 static ssize_t show_temp_max(struct device *dev, struct device_attribute
 			     *devattr, char *buf)
+=======
+static ssize_t temp_max_show(struct device *dev,
+			     struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct pc87427_data *data = pc87427_update_device(dev);
 	int nr = to_sensor_dev_attr(devattr)->index;
@@ -733,8 +852,13 @@ static ssize_t show_temp_max(struct device *dev, struct device_attribute
 	return sprintf(buf, "%ld\n", temp_from_reg8(data->temp_max[nr]));
 }
 
+<<<<<<< HEAD
 static ssize_t show_temp_crit(struct device *dev, struct device_attribute
 			      *devattr, char *buf)
+=======
+static ssize_t temp_crit_show(struct device *dev,
+			      struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct pc87427_data *data = pc87427_update_device(dev);
 	int nr = to_sensor_dev_attr(devattr)->index;
@@ -742,8 +866,13 @@ static ssize_t show_temp_crit(struct device *dev, struct device_attribute
 	return sprintf(buf, "%ld\n", temp_from_reg8(data->temp_crit[nr]));
 }
 
+<<<<<<< HEAD
 static ssize_t show_temp_type(struct device *dev, struct device_attribute
 			      *devattr, char *buf)
+=======
+static ssize_t temp_type_show(struct device *dev,
+			      struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct pc87427_data *data = pc87427_update_device(dev);
 	int nr = to_sensor_dev_attr(devattr)->index;
@@ -751,8 +880,14 @@ static ssize_t show_temp_type(struct device *dev, struct device_attribute
 	return sprintf(buf, "%u\n", temp_type_from_reg(data->temp_type[nr]));
 }
 
+<<<<<<< HEAD
 static ssize_t show_temp_min_alarm(struct device *dev, struct device_attribute
 				   *devattr, char *buf)
+=======
+static ssize_t temp_min_alarm_show(struct device *dev,
+				   struct device_attribute *devattr,
+				   char *buf)
+>>>>>>> upstream/android-13
 {
 	struct pc87427_data *data = pc87427_update_device(dev);
 	int nr = to_sensor_dev_attr(devattr)->index;
@@ -761,8 +896,14 @@ static ssize_t show_temp_min_alarm(struct device *dev, struct device_attribute
 				       & TEMP_STATUS_LOWFLG));
 }
 
+<<<<<<< HEAD
 static ssize_t show_temp_max_alarm(struct device *dev, struct device_attribute
 				   *devattr, char *buf)
+=======
+static ssize_t temp_max_alarm_show(struct device *dev,
+				   struct device_attribute *devattr,
+				   char *buf)
+>>>>>>> upstream/android-13
 {
 	struct pc87427_data *data = pc87427_update_device(dev);
 	int nr = to_sensor_dev_attr(devattr)->index;
@@ -771,8 +912,14 @@ static ssize_t show_temp_max_alarm(struct device *dev, struct device_attribute
 				       & TEMP_STATUS_HIGHFLG));
 }
 
+<<<<<<< HEAD
 static ssize_t show_temp_crit_alarm(struct device *dev, struct device_attribute
 				   *devattr, char *buf)
+=======
+static ssize_t temp_crit_alarm_show(struct device *dev,
+				    struct device_attribute *devattr,
+				    char *buf)
+>>>>>>> upstream/android-13
 {
 	struct pc87427_data *data = pc87427_update_device(dev);
 	int nr = to_sensor_dev_attr(devattr)->index;
@@ -781,8 +928,13 @@ static ssize_t show_temp_crit_alarm(struct device *dev, struct device_attribute
 				       & TEMP_STATUS_CRITFLG));
 }
 
+<<<<<<< HEAD
 static ssize_t show_temp_fault(struct device *dev, struct device_attribute
 			       *devattr, char *buf)
+=======
+static ssize_t temp_fault_show(struct device *dev,
+			       struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct pc87427_data *data = pc87427_update_device(dev);
 	int nr = to_sensor_dev_attr(devattr)->index;
@@ -791,6 +943,7 @@ static ssize_t show_temp_fault(struct device *dev, struct device_attribute
 				       & TEMP_STATUS_SENSERR));
 }
 
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(temp1_input, S_IRUGO, show_temp_input, NULL, 0);
 static SENSOR_DEVICE_ATTR(temp2_input, S_IRUGO, show_temp_input, NULL, 1);
 static SENSOR_DEVICE_ATTR(temp3_input, S_IRUGO, show_temp_input, NULL, 2);
@@ -871,6 +1024,70 @@ static SENSOR_DEVICE_ATTR(temp3_fault, S_IRUGO, show_temp_fault, NULL, 2);
 static SENSOR_DEVICE_ATTR(temp4_fault, S_IRUGO, show_temp_fault, NULL, 3);
 static SENSOR_DEVICE_ATTR(temp5_fault, S_IRUGO, show_temp_fault, NULL, 4);
 static SENSOR_DEVICE_ATTR(temp6_fault, S_IRUGO, show_temp_fault, NULL, 5);
+=======
+static SENSOR_DEVICE_ATTR_RO(temp1_input, temp_input, 0);
+static SENSOR_DEVICE_ATTR_RO(temp2_input, temp_input, 1);
+static SENSOR_DEVICE_ATTR_RO(temp3_input, temp_input, 2);
+static SENSOR_DEVICE_ATTR_RO(temp4_input, temp_input, 3);
+static SENSOR_DEVICE_ATTR_RO(temp5_input, temp_input, 4);
+static SENSOR_DEVICE_ATTR_RO(temp6_input, temp_input, 5);
+
+static SENSOR_DEVICE_ATTR_RO(temp1_min, temp_min, 0);
+static SENSOR_DEVICE_ATTR_RO(temp2_min, temp_min, 1);
+static SENSOR_DEVICE_ATTR_RO(temp3_min, temp_min, 2);
+static SENSOR_DEVICE_ATTR_RO(temp4_min, temp_min, 3);
+static SENSOR_DEVICE_ATTR_RO(temp5_min, temp_min, 4);
+static SENSOR_DEVICE_ATTR_RO(temp6_min, temp_min, 5);
+
+static SENSOR_DEVICE_ATTR_RO(temp1_max, temp_max, 0);
+static SENSOR_DEVICE_ATTR_RO(temp2_max, temp_max, 1);
+static SENSOR_DEVICE_ATTR_RO(temp3_max, temp_max, 2);
+static SENSOR_DEVICE_ATTR_RO(temp4_max, temp_max, 3);
+static SENSOR_DEVICE_ATTR_RO(temp5_max, temp_max, 4);
+static SENSOR_DEVICE_ATTR_RO(temp6_max, temp_max, 5);
+
+static SENSOR_DEVICE_ATTR_RO(temp1_crit, temp_crit, 0);
+static SENSOR_DEVICE_ATTR_RO(temp2_crit, temp_crit, 1);
+static SENSOR_DEVICE_ATTR_RO(temp3_crit, temp_crit, 2);
+static SENSOR_DEVICE_ATTR_RO(temp4_crit, temp_crit, 3);
+static SENSOR_DEVICE_ATTR_RO(temp5_crit, temp_crit, 4);
+static SENSOR_DEVICE_ATTR_RO(temp6_crit, temp_crit, 5);
+
+static SENSOR_DEVICE_ATTR_RO(temp1_type, temp_type, 0);
+static SENSOR_DEVICE_ATTR_RO(temp2_type, temp_type, 1);
+static SENSOR_DEVICE_ATTR_RO(temp3_type, temp_type, 2);
+static SENSOR_DEVICE_ATTR_RO(temp4_type, temp_type, 3);
+static SENSOR_DEVICE_ATTR_RO(temp5_type, temp_type, 4);
+static SENSOR_DEVICE_ATTR_RO(temp6_type, temp_type, 5);
+
+static SENSOR_DEVICE_ATTR_RO(temp1_min_alarm, temp_min_alarm, 0);
+static SENSOR_DEVICE_ATTR_RO(temp2_min_alarm, temp_min_alarm, 1);
+static SENSOR_DEVICE_ATTR_RO(temp3_min_alarm, temp_min_alarm, 2);
+static SENSOR_DEVICE_ATTR_RO(temp4_min_alarm, temp_min_alarm, 3);
+static SENSOR_DEVICE_ATTR_RO(temp5_min_alarm, temp_min_alarm, 4);
+static SENSOR_DEVICE_ATTR_RO(temp6_min_alarm, temp_min_alarm, 5);
+
+static SENSOR_DEVICE_ATTR_RO(temp1_max_alarm, temp_max_alarm, 0);
+static SENSOR_DEVICE_ATTR_RO(temp2_max_alarm, temp_max_alarm, 1);
+static SENSOR_DEVICE_ATTR_RO(temp3_max_alarm, temp_max_alarm, 2);
+static SENSOR_DEVICE_ATTR_RO(temp4_max_alarm, temp_max_alarm, 3);
+static SENSOR_DEVICE_ATTR_RO(temp5_max_alarm, temp_max_alarm, 4);
+static SENSOR_DEVICE_ATTR_RO(temp6_max_alarm, temp_max_alarm, 5);
+
+static SENSOR_DEVICE_ATTR_RO(temp1_crit_alarm, temp_crit_alarm, 0);
+static SENSOR_DEVICE_ATTR_RO(temp2_crit_alarm, temp_crit_alarm, 1);
+static SENSOR_DEVICE_ATTR_RO(temp3_crit_alarm, temp_crit_alarm, 2);
+static SENSOR_DEVICE_ATTR_RO(temp4_crit_alarm, temp_crit_alarm, 3);
+static SENSOR_DEVICE_ATTR_RO(temp5_crit_alarm, temp_crit_alarm, 4);
+static SENSOR_DEVICE_ATTR_RO(temp6_crit_alarm, temp_crit_alarm, 5);
+
+static SENSOR_DEVICE_ATTR_RO(temp1_fault, temp_fault, 0);
+static SENSOR_DEVICE_ATTR_RO(temp2_fault, temp_fault, 1);
+static SENSOR_DEVICE_ATTR_RO(temp3_fault, temp_fault, 2);
+static SENSOR_DEVICE_ATTR_RO(temp4_fault, temp_fault, 3);
+static SENSOR_DEVICE_ATTR_RO(temp5_fault, temp_fault, 4);
+static SENSOR_DEVICE_ATTR_RO(temp6_fault, temp_fault, 5);
+>>>>>>> upstream/android-13
 
 static struct attribute *pc87427_attributes_temp[6][10] = {
 	{

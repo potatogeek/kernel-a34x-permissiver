@@ -135,7 +135,11 @@ int mlx4_SET_VPORT_QOS_get(struct mlx4_dev *dev, u8 port, u8 vport,
  * @dev: mlx4_dev.
  * @port: Physical port number.
  * @vport: Vport id.
+<<<<<<< HEAD
  * @out_param: Array of mlx4_vport_qos_param which holds the requested values.
+=======
+ * @in_param: Array of mlx4_vport_qos_param which holds the requested values.
+>>>>>>> upstream/android-13
  *
  * Returns 0 on success or a negative mlx4_core errno code.
  **/

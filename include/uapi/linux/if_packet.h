@@ -2,6 +2,10 @@
 #ifndef __LINUX_IF_PACKET_H
 #define __LINUX_IF_PACKET_H
 
+<<<<<<< HEAD
+=======
+#include <asm/byteorder.h>
+>>>>>>> upstream/android-13
 #include <linux/types.h>
 
 struct sockaddr_pkt {
@@ -57,6 +61,10 @@ struct sockaddr_ll {
 #define PACKET_QDISC_BYPASS		20
 #define PACKET_ROLLOVER_STATS		21
 #define PACKET_FANOUT_DATA		22
+<<<<<<< HEAD
+=======
+#define PACKET_IGNORE_OUTGOING		23
+>>>>>>> upstream/android-13
 
 #define PACKET_FANOUT_HASH		0
 #define PACKET_FANOUT_LB		1
@@ -122,7 +130,11 @@ struct tpacket_auxdata {
 /* Rx and Tx ring - header status */
 #define TP_STATUS_TS_SOFTWARE		(1 << 29)
 #define TP_STATUS_TS_SYS_HARDWARE	(1 << 30) /* deprecated, never set */
+<<<<<<< HEAD
 #define TP_STATUS_TS_RAW_HARDWARE	(1 << 31)
+=======
+#define TP_STATUS_TS_RAW_HARDWARE	(1U << 31)
+>>>>>>> upstream/android-13
 
 /* Rx ring - feature request bits */
 #define TP_FT_REQ_FILL_RXHASH	0x1
@@ -295,6 +307,20 @@ struct packet_mreq {
 	unsigned char	mr_address[8];
 };
 
+<<<<<<< HEAD
+=======
+struct fanout_args {
+#if defined(__LITTLE_ENDIAN_BITFIELD)
+	__u16		id;
+	__u16		type_flags;
+#else
+	__u16		type_flags;
+	__u16		id;
+#endif
+	__u32		max_num_members;
+};
+
+>>>>>>> upstream/android-13
 #define PACKET_MR_MULTICAST	0
 #define PACKET_MR_PROMISC	1
 #define PACKET_MR_ALLMULTI	2

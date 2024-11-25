@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2014 IBM Corp.
  *
@@ -5,6 +6,11 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2014 IBM Corp.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/debugfs.h>
@@ -30,11 +36,19 @@ static int debugfs_io_u64_set(void *data, u64 val)
 DEFINE_DEBUGFS_ATTRIBUTE(fops_io_x64, debugfs_io_u64_get, debugfs_io_u64_set,
 			 "0x%016llx\n");
 
+<<<<<<< HEAD
 static struct dentry *debugfs_create_io_x64(const char *name, umode_t mode,
 					    struct dentry *parent, u64 __iomem *value)
 {
 	return debugfs_create_file_unsafe(name, mode, parent,
 					  (void __force *)value, &fops_io_x64);
+=======
+static void debugfs_create_io_x64(const char *name, umode_t mode,
+				  struct dentry *parent, u64 __iomem *value)
+{
+	debugfs_create_file_unsafe(name, mode, parent, (void __force *)value,
+				   &fops_io_x64);
+>>>>>>> upstream/android-13
 }
 
 void cxl_debugfs_add_adapter_regs_psl9(struct cxl *adapter, struct dentry *dir)
@@ -58,25 +72,39 @@ void cxl_debugfs_add_adapter_regs_psl8(struct cxl *adapter, struct dentry *dir)
 	debugfs_create_io_x64("trace", S_IRUSR | S_IWUSR, dir, _cxl_p1_addr(adapter, CXL_PSL_TRACE));
 }
 
+<<<<<<< HEAD
 int cxl_debugfs_adapter_add(struct cxl *adapter)
+=======
+void cxl_debugfs_adapter_add(struct cxl *adapter)
+>>>>>>> upstream/android-13
 {
 	struct dentry *dir;
 	char buf[32];
 
 	if (!cxl_debugfs)
+<<<<<<< HEAD
 		return -ENODEV;
 
 	snprintf(buf, 32, "card%i", adapter->adapter_num);
 	dir = debugfs_create_dir(buf, cxl_debugfs);
 	if (IS_ERR(dir))
 		return PTR_ERR(dir);
+=======
+		return;
+
+	snprintf(buf, 32, "card%i", adapter->adapter_num);
+	dir = debugfs_create_dir(buf, cxl_debugfs);
+>>>>>>> upstream/android-13
 	adapter->debugfs = dir;
 
 	debugfs_create_io_x64("err_ivte", S_IRUSR, dir, _cxl_p1_addr(adapter, CXL_PSL_ErrIVTE));
 
 	if (adapter->native->sl_ops->debugfs_add_adapter_regs)
 		adapter->native->sl_ops->debugfs_add_adapter_regs(adapter, dir);
+<<<<<<< HEAD
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 void cxl_debugfs_adapter_remove(struct cxl *adapter)
@@ -100,18 +128,29 @@ void cxl_debugfs_add_afu_regs_psl8(struct cxl_afu *afu, struct dentry *dir)
 	debugfs_create_io_x64("trace", S_IRUSR | S_IWUSR, dir, _cxl_p1n_addr(afu, CXL_PSL_SLICE_TRACE));
 }
 
+<<<<<<< HEAD
 int cxl_debugfs_afu_add(struct cxl_afu *afu)
+=======
+void cxl_debugfs_afu_add(struct cxl_afu *afu)
+>>>>>>> upstream/android-13
 {
 	struct dentry *dir;
 	char buf[32];
 
 	if (!afu->adapter->debugfs)
+<<<<<<< HEAD
 		return -ENODEV;
 
 	snprintf(buf, 32, "psl%i.%i", afu->adapter->adapter_num, afu->slice);
 	dir = debugfs_create_dir(buf, afu->adapter->debugfs);
 	if (IS_ERR(dir))
 		return PTR_ERR(dir);
+=======
+		return;
+
+	snprintf(buf, 32, "psl%i.%i", afu->adapter->adapter_num, afu->slice);
+	dir = debugfs_create_dir(buf, afu->adapter->debugfs);
+>>>>>>> upstream/android-13
 	afu->debugfs = dir;
 
 	debugfs_create_io_x64("sr",         S_IRUSR, dir, _cxl_p1n_addr(afu, CXL_PSL_SR_An));
@@ -122,8 +161,11 @@ int cxl_debugfs_afu_add(struct cxl_afu *afu)
 
 	if (afu->adapter->native->sl_ops->debugfs_add_afu_regs)
 		afu->adapter->native->sl_ops->debugfs_add_afu_regs(afu, dir);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 void cxl_debugfs_afu_remove(struct cxl_afu *afu)
@@ -131,6 +173,7 @@ void cxl_debugfs_afu_remove(struct cxl_afu *afu)
 	debugfs_remove_recursive(afu->debugfs);
 }
 
+<<<<<<< HEAD
 int __init cxl_debugfs_init(void)
 {
 	struct dentry *ent;
@@ -144,6 +187,14 @@ int __init cxl_debugfs_init(void)
 	cxl_debugfs = ent;
 
 	return 0;
+=======
+void __init cxl_debugfs_init(void)
+{
+	if (!cpu_has_feature(CPU_FTR_HVMODE))
+		return;
+
+	cxl_debugfs = debugfs_create_dir("cxl", NULL);
+>>>>>>> upstream/android-13
 }
 
 void cxl_debugfs_exit(void)

@@ -384,7 +384,11 @@ struct el_apecs_procdata
 		}						\
 	} while (0)
 
+<<<<<<< HEAD
 __EXTERN_INLINE unsigned int apecs_ioread8(void __iomem *xaddr)
+=======
+__EXTERN_INLINE unsigned int apecs_ioread8(const void __iomem *xaddr)
+>>>>>>> upstream/android-13
 {
 	unsigned long addr = (unsigned long) xaddr;
 	unsigned long result, base_and_type;
@@ -420,7 +424,11 @@ __EXTERN_INLINE void apecs_iowrite8(u8 b, void __iomem *xaddr)
 	*(vuip) ((addr << 5) + base_and_type) = w;
 }
 
+<<<<<<< HEAD
 __EXTERN_INLINE unsigned int apecs_ioread16(void __iomem *xaddr)
+=======
+__EXTERN_INLINE unsigned int apecs_ioread16(const void __iomem *xaddr)
+>>>>>>> upstream/android-13
 {
 	unsigned long addr = (unsigned long) xaddr;
 	unsigned long result, base_and_type;
@@ -456,7 +464,11 @@ __EXTERN_INLINE void apecs_iowrite16(u16 b, void __iomem *xaddr)
 	*(vuip) ((addr << 5) + base_and_type) = w;
 }
 
+<<<<<<< HEAD
 __EXTERN_INLINE unsigned int apecs_ioread32(void __iomem *xaddr)
+=======
+__EXTERN_INLINE unsigned int apecs_ioread32(const void __iomem *xaddr)
+>>>>>>> upstream/android-13
 {
 	unsigned long addr = (unsigned long) xaddr;
 	if (addr < APECS_DENSE_MEM)

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/fs/minix/inode.c
  *
@@ -68,6 +72,7 @@ static struct inode *minix_alloc_inode(struct super_block *sb)
 	return &ei->vfs_inode;
 }
 
+<<<<<<< HEAD
 static void minix_i_callback(struct rcu_head *head)
 {
 	struct inode *inode = container_of(head, struct inode, i_rcu);
@@ -79,6 +84,13 @@ static void minix_destroy_inode(struct inode *inode)
 	call_rcu(&inode->i_rcu, minix_i_callback);
 }
 
+=======
+static void minix_free_in_core_inode(struct inode *inode)
+{
+	kmem_cache_free(minix_inode_cachep, minix_i(inode));
+}
+
+>>>>>>> upstream/android-13
 static void init_once(void *foo)
 {
 	struct minix_inode_info *ei = (struct minix_inode_info *) foo;
@@ -110,7 +122,11 @@ static void destroy_inodecache(void)
 
 static const struct super_operations minix_sops = {
 	.alloc_inode	= minix_alloc_inode,
+<<<<<<< HEAD
 	.destroy_inode	= minix_destroy_inode,
+=======
+	.free_inode	= minix_free_in_core_inode,
+>>>>>>> upstream/android-13
 	.write_inode	= minix_write_inode,
 	.evict_inode	= minix_evict_inode,
 	.put_super	= minix_put_super,
@@ -302,6 +318,11 @@ static int minix_fill_super(struct super_block *s, void *data, int silent)
 
 	/* set up enough so that it can read an inode */
 	s->s_op = &minix_sops;
+<<<<<<< HEAD
+=======
+	s->s_time_min = 0;
+	s->s_time_max = U32_MAX;
+>>>>>>> upstream/android-13
 	root_inode = minix_iget(s, MINIX_ROOT_INO);
 	if (IS_ERR(root_inode)) {
 		ret = PTR_ERR(root_inode);
@@ -386,8 +407,12 @@ static int minix_statfs(struct dentry *dentry, struct kstatfs *buf)
 	buf->f_files = sbi->s_ninodes;
 	buf->f_ffree = minix_count_free_inodes(sb);
 	buf->f_namelen = sbi->s_namelen;
+<<<<<<< HEAD
 	buf->f_fsid.val[0] = (u32)id;
 	buf->f_fsid.val[1] = (u32)(id >> 32);
+=======
+	buf->f_fsid = u64_to_fsid(id);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -446,11 +471,20 @@ static sector_t minix_bmap(struct address_space *mapping, sector_t block)
 }
 
 static const struct address_space_operations minix_aops = {
+<<<<<<< HEAD
+=======
+	.set_page_dirty	= __set_page_dirty_buffers,
+>>>>>>> upstream/android-13
 	.readpage = minix_readpage,
 	.writepage = minix_writepage,
 	.write_begin = minix_write_begin,
 	.write_end = generic_write_end,
+<<<<<<< HEAD
 	.bmap = minix_bmap
+=======
+	.bmap = minix_bmap,
+	.direct_IO = noop_direct_IO
+>>>>>>> upstream/android-13
 };
 
 static const struct inode_operations minix_symlink_inode_operations = {
@@ -656,13 +690,22 @@ static int minix_write_inode(struct inode *inode, struct writeback_control *wbc)
 	return err;
 }
 
+<<<<<<< HEAD
 int minix_getattr(const struct path *path, struct kstat *stat,
 		  u32 request_mask, unsigned int flags)
+=======
+int minix_getattr(struct user_namespace *mnt_userns, const struct path *path,
+		  struct kstat *stat, u32 request_mask, unsigned int flags)
+>>>>>>> upstream/android-13
 {
 	struct super_block *sb = path->dentry->d_sb;
 	struct inode *inode = d_inode(path->dentry);
 
+<<<<<<< HEAD
 	generic_fillattr(inode, stat);
+=======
+	generic_fillattr(&init_user_ns, inode, stat);
+>>>>>>> upstream/android-13
 	if (INODE_VERSION(inode) == MINIX_V1)
 		stat->blocks = (BLOCK_SIZE / 512) * V1_minix_blocks(stat->size, sb);
 	else
@@ -723,4 +766,8 @@ static void __exit exit_minix_fs(void)
 module_init(init_minix_fs)
 module_exit(exit_minix_fs)
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 

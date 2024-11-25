@@ -64,11 +64,20 @@ nv04_disp = {
 };
 
 int
+<<<<<<< HEAD
 nv04_disp_new(struct nvkm_device *device, int index, struct nvkm_disp **pdisp)
 {
 	int ret, i;
 
 	ret = nvkm_disp_new_(&nv04_disp, device, index, pdisp);
+=======
+nv04_disp_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+	      struct nvkm_disp **pdisp)
+{
+	int ret, i;
+
+	ret = nvkm_disp_new_(&nv04_disp, device, type, inst, pdisp);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 

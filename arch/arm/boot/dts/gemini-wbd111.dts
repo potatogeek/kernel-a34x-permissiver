@@ -29,7 +29,11 @@
 		compatible = "gpio-keys";
 
 		button-setup {
+<<<<<<< HEAD
 			debounce-interval = <50>;
+=======
+			debounce-interval = <100>;
+>>>>>>> upstream/android-13
 			wakeup-source;
 			linux,code = <KEY_SETUP>;
 			label = "reset";
@@ -68,7 +72,11 @@
 		};
 	};
 
+<<<<<<< HEAD
 	mdio0: ethernet-phy {
+=======
+	mdio0: mdio {
+>>>>>>> upstream/android-13
 		compatible = "virtual,mdio-gpio";
 		gpios = <&gpio0 22 GPIO_ACTIVE_HIGH>, /* MDC */
 			<&gpio0 21 GPIO_ACTIVE_HIGH>; /* MDIO */
@@ -171,5 +179,16 @@
 				/* Not used in this platform */
 			};
 		};
+<<<<<<< HEAD
+=======
+
+		usb@68000000 {
+			status = "okay";
+		};
+
+		usb@69000000 {
+			status = "okay";
+		};
+>>>>>>> upstream/android-13
 	};
 };

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  tifm_core.c - TI FlashMedia driver
  *
  *  Copyright (C) 2006 Alex Dubov <oakad@yahoo.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/tifm.h>
@@ -91,7 +98,11 @@ static void tifm_dummy_event(struct tifm_dev *sock)
 	return;
 }
 
+<<<<<<< HEAD
 static int tifm_device_remove(struct device *dev)
+=======
+static void tifm_device_remove(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct tifm_dev *sock = container_of(dev, struct tifm_dev, dev);
 	struct tifm_driver *drv = container_of(dev->driver, struct tifm_driver,
@@ -105,7 +116,10 @@ static int tifm_device_remove(struct device *dev)
 	}
 
 	put_device(dev);
+<<<<<<< HEAD
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_PM

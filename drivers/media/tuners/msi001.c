@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Mirics MSi001 silicon tuner driver
  *
  * Copyright (C) 2013 Antti Palosaari <crope@iki.fi>
  * Copyright (C) 2014 Antti Palosaari <crope@iki.fi>
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -305,7 +312,11 @@ static int msi001_g_tuner(struct v4l2_subdev *sd, struct v4l2_tuner *v)
 
 	dev_dbg(&spi->dev, "index=%d\n", v->index);
 
+<<<<<<< HEAD
 	strlcpy(v->name, "Mirics MSi001", sizeof(v->name));
+=======
+	strscpy(v->name, "Mirics MSi001", sizeof(v->name));
+>>>>>>> upstream/android-13
 	v->type = V4L2_TUNER_RF;
 	v->capability = V4L2_TUNER_CAP_1HZ | V4L2_TUNER_CAP_FREQ_BANDS;
 	v->rangelow =    49000000;
@@ -451,6 +462,16 @@ static int msi001_probe(struct spi_device *spi)
 			V4L2_CID_RF_TUNER_BANDWIDTH_AUTO, 0, 1, 1, 1);
 	dev->bandwidth = v4l2_ctrl_new_std(&dev->hdl, &msi001_ctrl_ops,
 			V4L2_CID_RF_TUNER_BANDWIDTH, 200000, 8000000, 1, 200000);
+<<<<<<< HEAD
+=======
+	if (dev->hdl.error) {
+		ret = dev->hdl.error;
+		dev_err(&spi->dev, "Could not initialize controls\n");
+		/* control init failed, free handler */
+		goto err_ctrl_handler_free;
+	}
+
+>>>>>>> upstream/android-13
 	v4l2_ctrl_auto_cluster(2, &dev->bandwidth_auto, 0, false);
 	dev->lna_gain = v4l2_ctrl_new_std(&dev->hdl, &msi001_ctrl_ops,
 			V4L2_CID_RF_TUNER_LNA_GAIN, 0, 1, 1, 1);

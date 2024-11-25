@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * VMware VMCI Driver
  *
  * Copyright (C) 2012 VMware, Inc. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -11,6 +16,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/vmw_vmci_defs.h>
@@ -115,7 +122,11 @@ struct vmci_ctx *vmci_ctx_create(u32 cid, u32 priv_flags,
 	context = kzalloc(sizeof(*context), GFP_KERNEL);
 	if (!context) {
 		pr_warn("Failed to allocate memory for VMCI context\n");
+<<<<<<< HEAD
 		error = -EINVAL;
+=======
+		error = -ENOMEM;
+>>>>>>> upstream/android-13
 		goto err_out;
 	}
 

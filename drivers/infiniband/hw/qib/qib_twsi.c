@@ -168,6 +168,10 @@ static void stop_cmd(struct qib_devdata *dd);
 /**
  * rd_byte - read a byte, sending STOP on last, else ACK
  * @dd: the qlogic_ib device
+<<<<<<< HEAD
+=======
+ * @last: identifies the last read
+>>>>>>> upstream/android-13
  *
  * Returns byte shifted out of device
  */

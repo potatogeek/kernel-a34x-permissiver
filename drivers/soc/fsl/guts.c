@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Freescale QorIQ Platforms GUTS Driver
  *
  * Copyright (C) 2016 Freescale Semiconductor, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/io.h>
@@ -100,6 +107,19 @@ static const struct fsl_soc_die_attr fsl_soc_die[] = {
 	  .svr		= 0x87000000,
 	  .mask		= 0xfff70000,
 	},
+<<<<<<< HEAD
+=======
+	/* Die: LX2160A, SoC: LX2160A/LX2120A/LX2080A */
+	{ .die          = "LX2160A",
+	  .svr          = 0x87360000,
+	  .mask         = 0xff3f0000,
+	},
+	/* Die: LS1028A, SoC: LS1028A */
+	{ .die          = "LS1028A",
+	  .svr          = 0x870b0000,
+	  .mask         = 0xff3f0000,
+	},
+>>>>>>> upstream/android-13
 	{ },
 };
 
@@ -110,11 +130,19 @@ static const struct fsl_soc_die_attr *fsl_soc_die_match(
 		if (matches->svr == (svr & matches->mask))
 			return matches;
 		matches++;
+<<<<<<< HEAD
 	};
 	return NULL;
 }
 
 u32 fsl_guts_get_svr(void)
+=======
+	}
+	return NULL;
+}
+
+static u32 fsl_guts_get_svr(void)
+>>>>>>> upstream/android-13
 {
 	u32 svr = 0;
 
@@ -128,7 +156,10 @@ u32 fsl_guts_get_svr(void)
 
 	return svr;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(fsl_guts_get_svr);
+=======
+>>>>>>> upstream/android-13
 
 static int fsl_guts_probe(struct platform_device *pdev)
 {
@@ -155,9 +186,20 @@ static int fsl_guts_probe(struct platform_device *pdev)
 	root = of_find_node_by_path("/");
 	if (of_property_read_string(root, "model", &machine))
 		of_property_read_string_index(root, "compatible", 0, &machine);
+<<<<<<< HEAD
 	of_node_put(root);
 	if (machine)
 		soc_dev_attr.machine = devm_kstrdup(dev, machine, GFP_KERNEL);
+=======
+	if (machine) {
+		soc_dev_attr.machine = devm_kstrdup(dev, machine, GFP_KERNEL);
+		if (!soc_dev_attr.machine) {
+			of_node_put(root);
+			return -ENOMEM;
+		}
+	}
+	of_node_put(root);
+>>>>>>> upstream/android-13
 
 	svr = fsl_guts_get_svr();
 	soc_die = fsl_soc_die_match(svr, fsl_soc_die);
@@ -222,6 +264,11 @@ static const struct of_device_id fsl_guts_of_match[] = {
 	{ .compatible = "fsl,ls1088a-dcfg", },
 	{ .compatible = "fsl,ls1012a-dcfg", },
 	{ .compatible = "fsl,ls1046a-dcfg", },
+<<<<<<< HEAD
+=======
+	{ .compatible = "fsl,lx2160a-dcfg", },
+	{ .compatible = "fsl,ls1028a-dcfg", },
+>>>>>>> upstream/android-13
 	{}
 };
 MODULE_DEVICE_TABLE(of, fsl_guts_of_match);

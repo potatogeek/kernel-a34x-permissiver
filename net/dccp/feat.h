@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 #ifndef _DCCP_FEAT_H
 #define _DCCP_FEAT_H
 /*
@@ -6,10 +10,13 @@
  *  Feature negotiation for the DCCP protocol (RFC 4340, section 6)
  *  Copyright (c) 2008 Gerrit Renker <gerrit@erg.abdn.ac.uk>
  *  Copyright (c) 2005 Andrea Bittau <a.bittau@cs.ucl.ac.uk>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/types.h>
 #include "dccp.h"

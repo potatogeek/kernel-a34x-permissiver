@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2018 Gateworks Corporation
  */
@@ -596,7 +600,11 @@
 #define RESET_AUDIO		BIT(0)	/* Reset Audio FIFO control */
 
 /* HDCP_BCAPS bits */
+<<<<<<< HEAD
 #define HDCP_HDMI		BIT(7)	/* HDCP suports HDMI (vs DVI only) */
+=======
+#define HDCP_HDMI		BIT(7)	/* HDCP supports HDMI (vs DVI only) */
+>>>>>>> upstream/android-13
 #define HDCP_REPEATER		BIT(6)	/* HDCP supports repeater function */
 #define HDCP_READY		BIT(5)	/* set by repeater function */
 #define HDCP_FAST		BIT(4)	/* Up to 400kHz */

@@ -436,8 +436,12 @@ static const struct v4l2_subdev_ops ths8200_ops = {
 	.pad = &ths8200_pad_ops,
 };
 
+<<<<<<< HEAD
 static int ths8200_probe(struct i2c_client *client,
 			 const struct i2c_device_id *id)
+=======
+static int ths8200_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct ths8200_state *state;
 	struct v4l2_subdev *sd;
@@ -502,7 +506,11 @@ static struct i2c_driver ths8200_driver = {
 		.name = "ths8200",
 		.of_match_table = of_match_ptr(ths8200_of_match),
 	},
+<<<<<<< HEAD
 	.probe = ths8200_probe,
+=======
+	.probe_new = ths8200_probe,
+>>>>>>> upstream/android-13
 	.remove = ths8200_remove,
 	.id_table = ths8200_id,
 };

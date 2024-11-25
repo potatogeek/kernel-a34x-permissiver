@@ -137,6 +137,7 @@ MODULE_PARM_DESC(maxframe, "Maximum frame size used by device (4096 to 65535)");
  */
 static struct tty_driver *serial_driver;
 
+<<<<<<< HEAD
 static int  open(struct tty_struct *tty, struct file * filp);
 static void close(struct tty_struct *tty, struct file * filp);
 static void hangup(struct tty_struct *tty);
@@ -168,6 +169,16 @@ static void hdlcdev_rx(struct slgt_info *info, char *buf, int size);
 static int  hdlcdev_init(struct slgt_info *info);
 static void hdlcdev_exit(struct slgt_info *info);
 #endif
+=======
+static void wait_until_sent(struct tty_struct *tty, int timeout);
+static void flush_buffer(struct tty_struct *tty);
+static void tx_release(struct tty_struct *tty);
+
+/*
+ * generic HDLC support
+ */
+#define dev_to_port(D) (dev_to_hdlc(D)->priv)
+>>>>>>> upstream/android-13
 
 
 /*
@@ -186,9 +197,12 @@ struct cond_wait {
 	wait_queue_entry_t wait;
 	unsigned int data;
 };
+<<<<<<< HEAD
 static void init_cond_wait(struct cond_wait *w, unsigned int data);
 static void add_cond_wait(struct cond_wait **head, struct cond_wait *w);
 static void remove_cond_wait(struct cond_wait **head, struct cond_wait *w);
+=======
+>>>>>>> upstream/android-13
 static void flush_cond_wait(struct cond_wait **head);
 
 /*
@@ -443,12 +457,17 @@ static void shutdown(struct slgt_info *info);
 static void program_hw(struct slgt_info *info);
 static void change_params(struct slgt_info *info);
 
+<<<<<<< HEAD
 static int  register_test(struct slgt_info *info);
 static int  irq_test(struct slgt_info *info);
 static int  loopback_test(struct slgt_info *info);
 static int  adapter_test(struct slgt_info *info);
 
 static void reset_adapter(struct slgt_info *info);
+=======
+static int  adapter_test(struct slgt_info *info);
+
+>>>>>>> upstream/android-13
 static void reset_port(struct slgt_info *info);
 static void async_mode(struct slgt_info *info);
 static void sync_mode(struct slgt_info *info);
@@ -457,19 +476,26 @@ static void rx_stop(struct slgt_info *info);
 static void rx_start(struct slgt_info *info);
 static void reset_rbufs(struct slgt_info *info);
 static void free_rbufs(struct slgt_info *info, unsigned int first, unsigned int last);
+<<<<<<< HEAD
 static void rdma_reset(struct slgt_info *info);
+=======
+>>>>>>> upstream/android-13
 static bool rx_get_frame(struct slgt_info *info);
 static bool rx_get_buf(struct slgt_info *info);
 
 static void tx_start(struct slgt_info *info);
 static void tx_stop(struct slgt_info *info);
 static void tx_set_idle(struct slgt_info *info);
+<<<<<<< HEAD
 static unsigned int free_tbuf_count(struct slgt_info *info);
+=======
+>>>>>>> upstream/android-13
 static unsigned int tbuf_bytes(struct slgt_info *info);
 static void reset_tbufs(struct slgt_info *info);
 static void tdma_reset(struct slgt_info *info);
 static bool tx_load(struct slgt_info *info, const char *buf, unsigned int count);
 
+<<<<<<< HEAD
 static void get_signals(struct slgt_info *info);
 static void set_signals(struct slgt_info *info);
 static void enable_loopback(struct slgt_info *info);
@@ -492,6 +518,14 @@ static void free_bufs(struct slgt_info *info, struct slgt_desc *bufs, int count)
 
 static int  alloc_tmp_rbuf(struct slgt_info *info);
 static void free_tmp_rbuf(struct slgt_info *info);
+=======
+static void get_gtsignals(struct slgt_info *info);
+static void set_gtsignals(struct slgt_info *info);
+static void set_rate(struct slgt_info *info, u32 data_rate);
+
+static void bh_transmit(struct slgt_info *info);
+static void isr_txeom(struct slgt_info *info, unsigned short status);
+>>>>>>> upstream/android-13
 
 static void tx_timeout(struct timer_list *t);
 static void rx_timeout(struct timer_list *t);
@@ -509,10 +543,13 @@ static int  tx_abort(struct slgt_info *info);
 static int  rx_enable(struct slgt_info *info, int enable);
 static int  modem_input_wait(struct slgt_info *info,int arg);
 static int  wait_mgsl_event(struct slgt_info *info, int __user *mask_ptr);
+<<<<<<< HEAD
 static int  tiocmget(struct tty_struct *tty);
 static int  tiocmset(struct tty_struct *tty,
 				unsigned int set, unsigned int clear);
 static int set_break(struct tty_struct *tty, int break_state);
+=======
+>>>>>>> upstream/android-13
 static int  get_interface(struct slgt_info *info, int __user *if_mode);
 static int  set_interface(struct slgt_info *info, int if_mode);
 static int  set_gpio(struct slgt_info *info, struct gpio_desc __user *gpio);
@@ -526,9 +563,12 @@ static int  set_xctrl(struct slgt_info *info, int if_mode);
 /*
  * driver functions
  */
+<<<<<<< HEAD
 static void add_device(struct slgt_info *info);
 static void device_init(int adapter_num, struct pci_dev *pdev);
 static int  claim_resources(struct slgt_info *info);
+=======
+>>>>>>> upstream/android-13
 static void release_resources(struct slgt_info *info);
 
 /*
@@ -620,7 +660,11 @@ static inline int sanity_check(struct slgt_info *info, char *devname, const char
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * line discipline callback wrappers
  *
  * The wrappers maintain line discipline references
@@ -672,7 +716,10 @@ static int open(struct tty_struct *tty, struct file *filp)
 	DBGINFO(("%s open, old ref count = %d\n", info->device_name, info->port.count));
 
 	mutex_lock(&info->port.mutex);
+<<<<<<< HEAD
 	info->port.low_latency = (info->port.flags & ASYNC_LOW_LATENCY) ? 1 : 0;
+=======
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&info->netlock, flags);
 	if (info->netcount) {
@@ -776,7 +823,11 @@ static void set_termios(struct tty_struct *tty, struct ktermios *old_termios)
 	if ((old_termios->c_cflag & CBAUD) && !C_BAUD(tty)) {
 		info->signals &= ~(SerialSignal_RTS | SerialSignal_DTR);
 		spin_lock_irqsave(&info->lock,flags);
+<<<<<<< HEAD
 		set_signals(info);
+=======
+		set_gtsignals(info);
+>>>>>>> upstream/android-13
 		spin_unlock_irqrestore(&info->lock,flags);
 	}
 
@@ -786,7 +837,11 @@ static void set_termios(struct tty_struct *tty, struct ktermios *old_termios)
 		if (!C_CRTSCTS(tty) || !tty_throttled(tty))
 			info->signals |= SerialSignal_RTS;
 		spin_lock_irqsave(&info->lock,flags);
+<<<<<<< HEAD
 	 	set_signals(info);
+=======
+	 	set_gtsignals(info);
+>>>>>>> upstream/android-13
 		spin_unlock_irqrestore(&info->lock,flags);
 	}
 
@@ -824,7 +879,11 @@ static int write(struct tty_struct *tty,
 	if (!info->tx_buf || (count > info->max_frame_size))
 		return -EIO;
 
+<<<<<<< HEAD
 	if (!count || tty->stopped || tty->hw_stopped)
+=======
+	if (!count || tty->flow.stopped || tty->hw_stopped)
+>>>>>>> upstream/android-13
 		return 0;
 
 	spin_lock_irqsave(&info->lock, flags);
@@ -924,15 +983,26 @@ exit:
 	DBGINFO(("%s wait_until_sent exit\n", info->device_name));
 }
 
+<<<<<<< HEAD
 static int write_room(struct tty_struct *tty)
 {
 	struct slgt_info *info = tty->driver_data;
 	int ret;
+=======
+static unsigned int write_room(struct tty_struct *tty)
+{
+	struct slgt_info *info = tty->driver_data;
+	unsigned int ret;
+>>>>>>> upstream/android-13
 
 	if (sanity_check(info, tty->name, "write_room"))
 		return 0;
 	ret = (info->tx_active) ? 0 : HDLC_MAX_FRAME_SIZE;
+<<<<<<< HEAD
 	DBGINFO(("%s write_room=%d\n", info->device_name, ret));
+=======
+	DBGINFO(("%s write_room=%u\n", info->device_name, ret));
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -945,7 +1015,11 @@ static void flush_chars(struct tty_struct *tty)
 		return;
 	DBGINFO(("%s flush_chars entry tx_count=%d\n", info->device_name, info->tx_count));
 
+<<<<<<< HEAD
 	if (info->tx_count <= 0 || tty->stopped ||
+=======
+	if (info->tx_count <= 0 || tty->flow.stopped ||
+>>>>>>> upstream/android-13
 	    tty->hw_stopped || !info->tx_buf)
 		return;
 
@@ -1029,8 +1103,12 @@ static int ioctl(struct tty_struct *tty,
 		return -ENODEV;
 	DBGINFO(("%s ioctl() cmd=%08X\n", info->device_name, cmd));
 
+<<<<<<< HEAD
 	if ((cmd != TIOCGSERIAL) && (cmd != TIOCSSERIAL) &&
 	    (cmd != TIOCMIWAIT)) {
+=======
+	if (cmd != TIOCMIWAIT) {
+>>>>>>> upstream/android-13
 		if (tty_io_error(tty))
 		    return -EIO;
 	}
@@ -1238,7 +1316,11 @@ static inline void line_info(struct seq_file *m, struct slgt_info *info)
 
 	/* output current serial signal states */
 	spin_lock_irqsave(&info->lock,flags);
+<<<<<<< HEAD
 	get_signals(info);
+=======
+	get_gtsignals(info);
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&info->lock,flags);
 
 	stat_buf[0] = 0;
@@ -1311,6 +1393,7 @@ static int synclink_gt_proc_show(struct seq_file *m, void *v)
 /*
  * return count of bytes in transmit buffer
  */
+<<<<<<< HEAD
 static int chars_in_buffer(struct tty_struct *tty)
 {
 	struct slgt_info *info = tty->driver_data;
@@ -1319,6 +1402,16 @@ static int chars_in_buffer(struct tty_struct *tty)
 		return 0;
 	count = tbuf_bytes(info);
 	DBGINFO(("%s chars_in_buffer()=%d\n", info->device_name, count));
+=======
+static unsigned int chars_in_buffer(struct tty_struct *tty)
+{
+	struct slgt_info *info = tty->driver_data;
+	unsigned int count;
+	if (sanity_check(info, tty->name, "chars_in_buffer"))
+		return 0;
+	count = tbuf_bytes(info);
+	DBGINFO(("%s chars_in_buffer()=%u\n", info->device_name, count));
+>>>>>>> upstream/android-13
 	return count;
 }
 
@@ -1338,7 +1431,11 @@ static void throttle(struct tty_struct * tty)
 	if (C_CRTSCTS(tty)) {
 		spin_lock_irqsave(&info->lock,flags);
 		info->signals &= ~SerialSignal_RTS;
+<<<<<<< HEAD
 		set_signals(info);
+=======
+		set_gtsignals(info);
+>>>>>>> upstream/android-13
 		spin_unlock_irqrestore(&info->lock,flags);
 	}
 }
@@ -1363,7 +1460,11 @@ static void unthrottle(struct tty_struct * tty)
 	if (C_CRTSCTS(tty)) {
 		spin_lock_irqsave(&info->lock,flags);
 		info->signals |= SerialSignal_RTS;
+<<<<<<< HEAD
 		set_signals(info);
+=======
+		set_gtsignals(info);
+>>>>>>> upstream/android-13
 		spin_unlock_irqrestore(&info->lock,flags);
 	}
 }
@@ -1396,6 +1497,7 @@ static int set_break(struct tty_struct *tty, int break_state)
 #if SYNCLINK_GENERIC_HDLC
 
 /**
+<<<<<<< HEAD
  * called by generic HDLC layer when protocol selected (PPP, frame relay, etc.)
  * set encoding and frame check sequence (FCS) options
  *
@@ -1404,6 +1506,16 @@ static int set_break(struct tty_struct *tty, int break_state)
  * parity    FCS setting
  *
  * returns 0 if success, otherwise error code
+=======
+ * hdlcdev_attach - called by generic HDLC layer when protocol selected (PPP, frame relay, etc.)
+ * @dev:      pointer to network device structure
+ * @encoding: serial encoding setting
+ * @parity:   FCS setting
+ *
+ * Set encoding and frame check sequence (FCS) options.
+ *
+ * Return: 0 if success, otherwise error code
+>>>>>>> upstream/android-13
  */
 static int hdlcdev_attach(struct net_device *dev, unsigned short encoding,
 			  unsigned short parity)
@@ -1447,10 +1559,16 @@ static int hdlcdev_attach(struct net_device *dev, unsigned short encoding,
 }
 
 /**
+<<<<<<< HEAD
  * called by generic HDLC layer to send frame
  *
  * skb  socket buffer containing HDLC frame
  * dev  pointer to network device structure
+=======
+ * hdlcdev_xmit - called by generic HDLC layer to send a frame
+ * @skb: socket buffer containing HDLC frame
+ * @dev: pointer to network device structure
+>>>>>>> upstream/android-13
  */
 static netdev_tx_t hdlcdev_xmit(struct sk_buff *skb,
 				      struct net_device *dev)
@@ -1484,12 +1602,21 @@ static netdev_tx_t hdlcdev_xmit(struct sk_buff *skb,
 }
 
 /**
+<<<<<<< HEAD
  * called by network layer when interface enabled
  * claim resources and initialize hardware
  *
  * dev  pointer to network device structure
  *
  * returns 0 if success, otherwise error code
+=======
+ * hdlcdev_open - called by network layer when interface enabled
+ * @dev: pointer to network device structure
+ *
+ * Claim resources and initialize hardware.
+ *
+ * Return: 0 if success, otherwise error code
+>>>>>>> upstream/android-13
  */
 static int hdlcdev_open(struct net_device *dev)
 {
@@ -1535,7 +1662,11 @@ static int hdlcdev_open(struct net_device *dev)
 
 	/* inform generic HDLC layer of current DCD status */
 	spin_lock_irqsave(&info->lock, flags);
+<<<<<<< HEAD
 	get_signals(info);
+=======
+	get_gtsignals(info);
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&info->lock, flags);
 	if (info->signals & SerialSignal_DCD)
 		netif_carrier_on(dev);
@@ -1545,12 +1676,21 @@ static int hdlcdev_open(struct net_device *dev)
 }
 
 /**
+<<<<<<< HEAD
  * called by network layer when interface is disabled
  * shutdown hardware and release resources
  *
  * dev  pointer to network device structure
  *
  * returns 0 if success, otherwise error code
+=======
+ * hdlcdev_close - called by network layer when interface is disabled
+ * @dev:  pointer to network device structure
+ *
+ * Shutdown hardware and release resources.
+ *
+ * Return: 0 if success, otherwise error code
+>>>>>>> upstream/android-13
  */
 static int hdlcdev_close(struct net_device *dev)
 {
@@ -1575,6 +1715,7 @@ static int hdlcdev_close(struct net_device *dev)
 }
 
 /**
+<<<<<<< HEAD
  * called by network layer to process IOCTL call to network device
  *
  * dev  pointer to network device structure
@@ -1588,6 +1729,20 @@ static int hdlcdev_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 	const size_t size = sizeof(sync_serial_settings);
 	sync_serial_settings new_line;
 	sync_serial_settings __user *line = ifr->ifr_settings.ifs_ifsu.sync;
+=======
+ * hdlcdev_ioctl - called by network layer to process IOCTL call to network device
+ * @dev: pointer to network device structure
+ * @ifr: pointer to network interface request structure
+ * @cmd: IOCTL command code
+ *
+ * Return: 0 if success, otherwise error code
+ */
+static int hdlcdev_ioctl(struct net_device *dev, struct if_settings *ifs)
+{
+	const size_t size = sizeof(sync_serial_settings);
+	sync_serial_settings new_line;
+	sync_serial_settings __user *line = ifs->ifs_ifsu.sync;
+>>>>>>> upstream/android-13
 	struct slgt_info *info = dev_to_port(dev);
 	unsigned int flags;
 
@@ -1597,6 +1752,7 @@ static int hdlcdev_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 	if (info->port.count)
 		return -EBUSY;
 
+<<<<<<< HEAD
 	if (cmd != SIOCWANDEV)
 		return hdlc_ioctl(dev, ifr, cmd);
 
@@ -1608,6 +1764,16 @@ static int hdlcdev_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 		ifr->ifr_settings.type = IF_IFACE_SYNC_SERIAL;
 		if (ifr->ifr_settings.size < size) {
 			ifr->ifr_settings.size = size; /* data size wanted */
+=======
+	memset(&new_line, 0, sizeof(new_line));
+
+	switch (ifs->type) {
+	case IF_GET_IFACE: /* return current sync_serial_settings */
+
+		ifs->type = IF_IFACE_SYNC_SERIAL;
+		if (ifs->size < size) {
+			ifs->size = size; /* data size wanted */
+>>>>>>> upstream/android-13
 			return -ENOBUFS;
 		}
 
@@ -1674,16 +1840,28 @@ static int hdlcdev_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 		return 0;
 
 	default:
+<<<<<<< HEAD
 		return hdlc_ioctl(dev, ifr, cmd);
+=======
+		return hdlc_ioctl(dev, ifs);
+>>>>>>> upstream/android-13
 	}
 }
 
 /**
+<<<<<<< HEAD
  * called by network layer when transmit timeout is detected
  *
  * dev  pointer to network device structure
  */
 static void hdlcdev_tx_timeout(struct net_device *dev)
+=======
+ * hdlcdev_tx_timeout - called by network layer when transmit timeout is detected
+ * @dev: pointer to network device structure
+ * @txqueue: unused
+ */
+static void hdlcdev_tx_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct slgt_info *info = dev_to_port(dev);
 	unsigned long flags;
@@ -1701,10 +1879,17 @@ static void hdlcdev_tx_timeout(struct net_device *dev)
 }
 
 /**
+<<<<<<< HEAD
  * called by device driver when transmit completes
  * reenable network layer transmit if stopped
  *
  * info  pointer to device instance information
+=======
+ * hdlcdev_tx_done - called by device driver when transmit completes
+ * @info: pointer to device instance information
+ *
+ * Reenable network layer transmit if stopped.
+>>>>>>> upstream/android-13
  */
 static void hdlcdev_tx_done(struct slgt_info *info)
 {
@@ -1713,12 +1898,21 @@ static void hdlcdev_tx_done(struct slgt_info *info)
 }
 
 /**
+<<<<<<< HEAD
  * called by device driver when frame received
  * pass frame to network layer
  *
  * info  pointer to device instance information
  * buf   pointer to buffer contianing frame data
  * size  count of data bytes in buf
+=======
+ * hdlcdev_rx - called by device driver when frame received
+ * @info: pointer to device instance information
+ * @buf:  pointer to buffer contianing frame data
+ * @size: count of data bytes in buf
+ *
+ * Pass frame to network layer.
+>>>>>>> upstream/android-13
  */
 static void hdlcdev_rx(struct slgt_info *info, char *buf, int size)
 {
@@ -1747,17 +1941,30 @@ static const struct net_device_ops hdlcdev_ops = {
 	.ndo_open       = hdlcdev_open,
 	.ndo_stop       = hdlcdev_close,
 	.ndo_start_xmit = hdlc_start_xmit,
+<<<<<<< HEAD
 	.ndo_do_ioctl   = hdlcdev_ioctl,
+=======
+	.ndo_siocwandev = hdlcdev_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_tx_timeout = hdlcdev_tx_timeout,
 };
 
 /**
+<<<<<<< HEAD
  * called by device driver when adding device instance
  * do generic HDLC initialization
  *
  * info  pointer to device instance information
  *
  * returns 0 if success, otherwise error code
+=======
+ * hdlcdev_init - called by device driver when adding device instance
+ * @info: pointer to device instance information
+ *
+ * Do generic HDLC initialization.
+ *
+ * Return: 0 if success, otherwise error code
+>>>>>>> upstream/android-13
  */
 static int hdlcdev_init(struct slgt_info *info)
 {
@@ -1801,10 +2008,17 @@ static int hdlcdev_init(struct slgt_info *info)
 }
 
 /**
+<<<<<<< HEAD
  * called by device driver when removing device instance
  * do generic HDLC cleanup
  *
  * info  pointer to device instance information
+=======
+ * hdlcdev_exit - called by device driver when removing device instance
+ * @info: pointer to device instance information
+ *
+ * Do generic HDLC cleanup.
+>>>>>>> upstream/android-13
  */
 static void hdlcdev_exit(struct slgt_info *info)
 {
@@ -2099,7 +2313,11 @@ static void isr_rxdata(struct slgt_info *info)
 		if (desc_complete(info->rbufs[i])) {
 			/* all buffers full */
 			rx_stop(info);
+<<<<<<< HEAD
 			info->rx_restart = 1;
+=======
+			info->rx_restart = true;
+>>>>>>> upstream/android-13
 			continue;
 		}
 		info->rbufs[i].buf[count++] = (unsigned char)reg;
@@ -2291,7 +2509,11 @@ static void isr_txeom(struct slgt_info *info, unsigned short status)
 		if (info->params.mode != MGSL_MODE_ASYNC && info->drop_rts_on_tx_done) {
 			info->signals &= ~SerialSignal_RTS;
 			info->drop_rts_on_tx_done = false;
+<<<<<<< HEAD
 			set_signals(info);
+=======
+			set_gtsignals(info);
+>>>>>>> upstream/android-13
 		}
 
 #if SYNCLINK_GENERIC_HDLC
@@ -2300,7 +2522,11 @@ static void isr_txeom(struct slgt_info *info, unsigned short status)
 		else
 #endif
 		{
+<<<<<<< HEAD
 			if (info->port.tty && (info->port.tty->stopped || info->port.tty->hw_stopped)) {
+=======
+			if (info->port.tty && (info->port.tty->flow.stopped || info->port.tty->hw_stopped)) {
+>>>>>>> upstream/android-13
 				tx_stop(info);
 				return;
 			}
@@ -2456,7 +2682,11 @@ static void shutdown(struct slgt_info *info)
 
  	if (!info->port.tty || info->port.tty->termios.c_cflag & HUPCL) {
 		info->signals &= ~(SerialSignal_RTS | SerialSignal_DTR);
+<<<<<<< HEAD
 		set_signals(info);
+=======
+		set_gtsignals(info);
+>>>>>>> upstream/android-13
 	}
 
 	flush_cond_wait(&info->gpio_wait_q);
@@ -2484,7 +2714,11 @@ static void program_hw(struct slgt_info *info)
 	else
 		async_mode(info);
 
+<<<<<<< HEAD
 	set_signals(info);
+=======
+	set_gtsignals(info);
+>>>>>>> upstream/android-13
 
 	info->dcd_chkcount = 0;
 	info->cts_chkcount = 0;
@@ -2492,7 +2726,11 @@ static void program_hw(struct slgt_info *info)
 	info->dsr_chkcount = 0;
 
 	slgt_irq_on(info, IRQ_DCD | IRQ_CTS | IRQ_DSR | IRQ_RI);
+<<<<<<< HEAD
 	get_signals(info);
+=======
+	get_gtsignals(info);
+>>>>>>> upstream/android-13
 
 	if (info->netcount ||
 	    (info->port.tty && info->port.tty->termios.c_cflag & CREAD))
@@ -2524,6 +2762,7 @@ static void change_params(struct slgt_info *info)
 
 	/* byte size and parity */
 
+<<<<<<< HEAD
 	switch (cflag & CSIZE) {
 	case CS5: info->params.data_bits = 5; break;
 	case CS6: info->params.data_bits = 6; break;
@@ -2532,6 +2771,9 @@ static void change_params(struct slgt_info *info)
 	default:  info->params.data_bits = 7; break;
 	}
 
+=======
+	info->params.data_bits = tty_get_char_size(cflag);
+>>>>>>> upstream/android-13
 	info->params.stop_bits = (cflag & CSTOPB) ? 2 : 1;
 
 	if (cflag & PARENB)
@@ -2736,7 +2978,11 @@ static int wait_mgsl_event(struct slgt_info *info, int __user *mask_ptr)
 	spin_lock_irqsave(&info->lock,flags);
 
 	/* return immediately if state matches requested events */
+<<<<<<< HEAD
 	get_signals(info);
+=======
+	get_gtsignals(info);
+>>>>>>> upstream/android-13
 	s = info->signals;
 
 	events = mask &
@@ -3154,7 +3400,11 @@ static int tiocmget(struct tty_struct *tty)
  	unsigned long flags;
 
 	spin_lock_irqsave(&info->lock,flags);
+<<<<<<< HEAD
  	get_signals(info);
+=======
+ 	get_gtsignals(info);
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&info->lock,flags);
 
 	result = ((info->signals & SerialSignal_RTS) ? TIOCM_RTS:0) +
@@ -3193,7 +3443,11 @@ static int tiocmset(struct tty_struct *tty,
 		info->signals &= ~SerialSignal_DTR;
 
 	spin_lock_irqsave(&info->lock,flags);
+<<<<<<< HEAD
 	set_signals(info);
+=======
+	set_gtsignals(info);
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&info->lock,flags);
 	return 0;
 }
@@ -3204,7 +3458,11 @@ static int carrier_raised(struct tty_port *port)
 	struct slgt_info *info = container_of(port, struct slgt_info, port);
 
 	spin_lock_irqsave(&info->lock,flags);
+<<<<<<< HEAD
 	get_signals(info);
+=======
+	get_gtsignals(info);
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&info->lock,flags);
 	return (info->signals & SerialSignal_DCD) ? 1 : 0;
 }
@@ -3219,7 +3477,11 @@ static void dtr_rts(struct tty_port *port, int on)
 		info->signals |= SerialSignal_RTS | SerialSignal_DTR;
 	else
 		info->signals &= ~(SerialSignal_RTS | SerialSignal_DTR);
+<<<<<<< HEAD
 	set_signals(info);
+=======
+	set_gtsignals(info);
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&info->lock,flags);
 }
 
@@ -3342,8 +3604,13 @@ static int alloc_desc(struct slgt_info *info)
 	unsigned int pbufs;
 
 	/* allocate memory to hold descriptor lists */
+<<<<<<< HEAD
 	info->bufs = pci_zalloc_consistent(info->pdev, DESC_LIST_SIZE,
 					   &info->bufs_dma_addr);
+=======
+	info->bufs = dma_alloc_coherent(&info->pdev->dev, DESC_LIST_SIZE,
+					&info->bufs_dma_addr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (info->bufs == NULL)
 		return -ENOMEM;
 
@@ -3385,7 +3652,12 @@ static int alloc_desc(struct slgt_info *info)
 static void free_desc(struct slgt_info *info)
 {
 	if (info->bufs != NULL) {
+<<<<<<< HEAD
 		pci_free_consistent(info->pdev, DESC_LIST_SIZE, info->bufs, info->bufs_dma_addr);
+=======
+		dma_free_coherent(&info->pdev->dev, DESC_LIST_SIZE,
+				  info->bufs, info->bufs_dma_addr);
+>>>>>>> upstream/android-13
 		info->bufs  = NULL;
 		info->rbufs = NULL;
 		info->tbufs = NULL;
@@ -3396,7 +3668,13 @@ static int alloc_bufs(struct slgt_info *info, struct slgt_desc *bufs, int count)
 {
 	int i;
 	for (i=0; i < count; i++) {
+<<<<<<< HEAD
 		if ((bufs[i].buf = pci_alloc_consistent(info->pdev, DMABUFSIZE, &bufs[i].buf_dma_addr)) == NULL)
+=======
+		bufs[i].buf = dma_alloc_coherent(&info->pdev->dev, DMABUFSIZE,
+						 &bufs[i].buf_dma_addr, GFP_KERNEL);
+		if (!bufs[i].buf)
+>>>>>>> upstream/android-13
 			return -ENOMEM;
 		bufs[i].pbuf  = cpu_to_le32((unsigned int)bufs[i].buf_dma_addr);
 	}
@@ -3409,7 +3687,12 @@ static void free_bufs(struct slgt_info *info, struct slgt_desc *bufs, int count)
 	for (i=0; i < count; i++) {
 		if (bufs[i].buf == NULL)
 			continue;
+<<<<<<< HEAD
 		pci_free_consistent(info->pdev, DMABUFSIZE, bufs[i].buf, bufs[i].buf_dma_addr);
+=======
+		dma_free_coherent(&info->pdev->dev, DMABUFSIZE, bufs[i].buf,
+				  bufs[i].buf_dma_addr);
+>>>>>>> upstream/android-13
 		bufs[i].buf = NULL;
 	}
 }
@@ -3451,7 +3734,11 @@ static int claim_resources(struct slgt_info *info)
 	else
 		info->reg_addr_requested = true;
 
+<<<<<<< HEAD
 	info->reg_addr = ioremap_nocache(info->phys_reg_addr, SLGT_REG_SIZE);
+=======
+	info->reg_addr = ioremap(info->phys_reg_addr, SLGT_REG_SIZE);
+>>>>>>> upstream/android-13
 	if (!info->reg_addr) {
 		DBGERR(("%s can't map device registers, addr=%08X\n",
 			info->device_name, info->phys_reg_addr));
@@ -3566,8 +3853,11 @@ static struct slgt_info *alloc_dev(int adapter_num, int port_num, struct pci_dev
 		info->max_frame_size = 4096;
 		info->base_clock = 14745600;
 		info->rbuf_fill_level = DMABUFSIZE;
+<<<<<<< HEAD
 		info->port.close_delay = 5*HZ/10;
 		info->port.closing_wait = 30*HZ;
+=======
+>>>>>>> upstream/android-13
 		init_waitqueue_head(&info->status_event_wait_q);
 		init_waitqueue_head(&info->event_wait_q);
 		spin_lock_init(&info->netlock);
@@ -3705,7 +3995,10 @@ static const struct tty_operations ops = {
 
 static void slgt_cleanup(void)
 {
+<<<<<<< HEAD
 	int rc;
+=======
+>>>>>>> upstream/android-13
 	struct slgt_info *info;
 	struct slgt_info *tmp;
 
@@ -3714,10 +4007,15 @@ static void slgt_cleanup(void)
 	if (serial_driver) {
 		for (info=slgt_device_list ; info != NULL ; info=info->next_device)
 			tty_unregister_device(serial_driver, info->line);
+<<<<<<< HEAD
 		rc = tty_unregister_driver(serial_driver);
 		if (rc)
 			DBGERR(("tty_unregister_driver error=%d\n", rc));
 		put_tty_driver(serial_driver);
+=======
+		tty_unregister_driver(serial_driver);
+		tty_driver_kref_put(serial_driver);
+>>>>>>> upstream/android-13
 	}
 
 	/* reset devices */
@@ -3756,10 +4054,18 @@ static int __init slgt_init(void)
 
 	printk(KERN_INFO "%s\n", driver_name);
 
+<<<<<<< HEAD
 	serial_driver = alloc_tty_driver(MAX_DEVICES);
 	if (!serial_driver) {
 		printk("%s can't allocate tty driver\n", driver_name);
 		return -ENOMEM;
+=======
+	serial_driver = tty_alloc_driver(MAX_DEVICES, TTY_DRIVER_REAL_RAW |
+			TTY_DRIVER_DYNAMIC_DEV);
+	if (IS_ERR(serial_driver)) {
+		printk("%s can't allocate tty driver\n", driver_name);
+		return PTR_ERR(serial_driver);
+>>>>>>> upstream/android-13
 	}
 
 	/* Initialize the tty_driver structure */
@@ -3775,11 +4081,18 @@ static int __init slgt_init(void)
 		B9600 | CS8 | CREAD | HUPCL | CLOCAL;
 	serial_driver->init_termios.c_ispeed = 9600;
 	serial_driver->init_termios.c_ospeed = 9600;
+<<<<<<< HEAD
 	serial_driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_DYNAMIC_DEV;
 	tty_set_operations(serial_driver, &ops);
 	if ((rc = tty_register_driver(serial_driver)) < 0) {
 		DBGERR(("%s can't register serial driver\n", driver_name));
 		put_tty_driver(serial_driver);
+=======
+	tty_set_operations(serial_driver, &ops);
+	if ((rc = tty_register_driver(serial_driver)) < 0) {
+		DBGERR(("%s can't register serial driver\n", driver_name));
+		tty_driver_kref_put(serial_driver);
+>>>>>>> upstream/android-13
 		serial_driver = NULL;
 		goto error;
 	}
@@ -4018,10 +4331,17 @@ static void tx_start(struct slgt_info *info)
 
 		if (info->params.mode != MGSL_MODE_ASYNC) {
 			if (info->params.flags & HDLC_FLAG_AUTO_RTS) {
+<<<<<<< HEAD
 				get_signals(info);
 				if (!(info->signals & SerialSignal_RTS)) {
 					info->signals |= SerialSignal_RTS;
 					set_signals(info);
+=======
+				get_gtsignals(info);
+				if (!(info->signals & SerialSignal_RTS)) {
+					info->signals |= SerialSignal_RTS;
+					set_gtsignals(info);
+>>>>>>> upstream/android-13
 					info->drop_rts_on_tx_done = true;
 				}
 			}
@@ -4075,7 +4395,11 @@ static void reset_port(struct slgt_info *info)
 	rx_stop(info);
 
 	info->signals &= ~(SerialSignal_RTS | SerialSignal_DTR);
+<<<<<<< HEAD
 	set_signals(info);
+=======
+	set_gtsignals(info);
+>>>>>>> upstream/android-13
 
 	slgt_irq_off(info, IRQ_ALL | IRQ_MASTER);
 }
@@ -4497,7 +4821,11 @@ static void tx_set_idle(struct slgt_info *info)
 /*
  * get state of V24 status (input) signals
  */
+<<<<<<< HEAD
 static void get_signals(struct slgt_info *info)
+=======
+static void get_gtsignals(struct slgt_info *info)
+>>>>>>> upstream/android-13
 {
 	unsigned short status = rd_reg16(info, SSR);
 
@@ -4559,7 +4887,11 @@ static void msc_set_vcr(struct slgt_info *info)
 /*
  * set state of V24 control (output) signals
  */
+<<<<<<< HEAD
 static void set_signals(struct slgt_info *info)
+=======
+static void set_gtsignals(struct slgt_info *info)
+>>>>>>> upstream/android-13
 {
 	unsigned char val = rd_reg8(info, VCR);
 	if (info->signals & SerialSignal_DTR)
@@ -5018,7 +5350,11 @@ static int loopback_test(struct slgt_info *info)
 #define TESTFRAMESIZE 20
 
 	unsigned long timeout;
+<<<<<<< HEAD
 	u16 count = TESTFRAMESIZE;
+=======
+	u16 count;
+>>>>>>> upstream/android-13
 	unsigned char buf[TESTFRAMESIZE];
 	int rc = -ENODEV;
 	unsigned long flags;

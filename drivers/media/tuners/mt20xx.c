@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * i2c tv tuner chip device driver
  * controls microtune tuners, mt2032 + mt2050 at the moment.
@@ -636,7 +640,11 @@ struct dvb_frontend *microtune_attach(struct dvb_frontend *fe,
 		return NULL;
 	}
 
+<<<<<<< HEAD
 	strlcpy(fe->ops.tuner_ops.info.name, name,
+=======
+	strscpy(fe->ops.tuner_ops.info.name, name,
+>>>>>>> upstream/android-13
 		sizeof(fe->ops.tuner_ops.info.name));
 	tuner_info("microtune %s found, OK\n",name);
 	return fe;

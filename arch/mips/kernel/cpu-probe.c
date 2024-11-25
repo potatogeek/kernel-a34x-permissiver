@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Processor capabilities determination functions.
  *
@@ -5,11 +9,14 @@
  * Copyright (C) 1994 - 2006 Ralf Baechle
  * Copyright (C) 2003, 2004  Maciej W. Rozycki
  * Copyright (C) 2001, 2004, 2011, 2012	 MIPS Technologies, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/init.h>
 #include <linux/kernel.h>
@@ -30,12 +37,23 @@
 #include <asm/elf.h>
 #include <asm/pgtable-bits.h>
 #include <asm/spram.h>
+<<<<<<< HEAD
 #include <linux/uaccess.h>
 
+=======
+#include <asm/traps.h>
+#include <linux/uaccess.h>
+
+#include "fpu-probe.h"
+
+#include <asm/mach-loongson64/cpucfg-emul.h>
+
+>>>>>>> upstream/android-13
 /* Hardware capabilities */
 unsigned int elf_hwcap __read_mostly;
 EXPORT_SYMBOL_GPL(elf_hwcap);
 
+<<<<<<< HEAD
 /*
  * Get the FPU Implementation/Revision.
  */
@@ -58,6 +76,8 @@ static inline int __cpu_has_fpu(void)
 	return (cpu_get_fpu_id() & FPIR_IMP_MASK) != FPIR_IMP_NONE;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline unsigned long cpu_get_msa_id(void)
 {
 	unsigned long status, msa_id;
@@ -71,6 +91,7 @@ static inline unsigned long cpu_get_msa_id(void)
 	return msa_id;
 }
 
+<<<<<<< HEAD
 /*
  * Determine the FCSR mask for FPU hardware.
  */
@@ -326,6 +347,8 @@ static int __init fpu_disable(char *s)
 
 __setup("nofpu", fpu_disable);
 
+=======
+>>>>>>> upstream/android-13
 static int mips_dsp_disabled;
 
 static int __init dsp_disable(char *s)
@@ -475,6 +498,16 @@ static inline void set_elf_platform(int cpu, const char *plat)
 		__elf_platform = plat;
 }
 
+<<<<<<< HEAD
+=======
+static inline void set_elf_base_platform(const char *plat)
+{
+	if (__elf_base_platform == NULL) {
+		__elf_base_platform = plat;
+	}
+}
+
+>>>>>>> upstream/android-13
 static inline void cpu_probe_vmbits(struct cpuinfo_mips *c)
 {
 #ifdef __NEED_VMBITS_PROBE
@@ -487,6 +520,7 @@ static inline void cpu_probe_vmbits(struct cpuinfo_mips *c)
 static void set_isa(struct cpuinfo_mips *c, unsigned int isa)
 {
 	switch (isa) {
+<<<<<<< HEAD
 	case MIPS_CPU_ISA_M64R2:
 		c->isa_level |= MIPS_CPU_ISA_M32R2 | MIPS_CPU_ISA_M64R2;
 	case MIPS_CPU_ISA_M64R1:
@@ -497,11 +531,37 @@ static void set_isa(struct cpuinfo_mips *c, unsigned int isa)
 		c->isa_level |= MIPS_CPU_ISA_IV;
 	case MIPS_CPU_ISA_III:
 		c->isa_level |= MIPS_CPU_ISA_II | MIPS_CPU_ISA_III;
+=======
+	case MIPS_CPU_ISA_M64R5:
+		c->isa_level |= MIPS_CPU_ISA_M32R5 | MIPS_CPU_ISA_M64R5;
+		set_elf_base_platform("mips64r5");
+		fallthrough;
+	case MIPS_CPU_ISA_M64R2:
+		c->isa_level |= MIPS_CPU_ISA_M32R2 | MIPS_CPU_ISA_M64R2;
+		set_elf_base_platform("mips64r2");
+		fallthrough;
+	case MIPS_CPU_ISA_M64R1:
+		c->isa_level |= MIPS_CPU_ISA_M32R1 | MIPS_CPU_ISA_M64R1;
+		set_elf_base_platform("mips64");
+		fallthrough;
+	case MIPS_CPU_ISA_V:
+		c->isa_level |= MIPS_CPU_ISA_V;
+		set_elf_base_platform("mips5");
+		fallthrough;
+	case MIPS_CPU_ISA_IV:
+		c->isa_level |= MIPS_CPU_ISA_IV;
+		set_elf_base_platform("mips4");
+		fallthrough;
+	case MIPS_CPU_ISA_III:
+		c->isa_level |= MIPS_CPU_ISA_II | MIPS_CPU_ISA_III;
+		set_elf_base_platform("mips3");
+>>>>>>> upstream/android-13
 		break;
 
 	/* R6 incompatible with everything else */
 	case MIPS_CPU_ISA_M64R6:
 		c->isa_level |= MIPS_CPU_ISA_M32R6 | MIPS_CPU_ISA_M64R6;
+<<<<<<< HEAD
 	case MIPS_CPU_ISA_M32R6:
 		c->isa_level |= MIPS_CPU_ISA_M32R6;
 		/* Break here so we don't add incompatible ISAs */
@@ -512,6 +572,30 @@ static void set_isa(struct cpuinfo_mips *c, unsigned int isa)
 		c->isa_level |= MIPS_CPU_ISA_M32R1;
 	case MIPS_CPU_ISA_II:
 		c->isa_level |= MIPS_CPU_ISA_II;
+=======
+		set_elf_base_platform("mips64r6");
+		fallthrough;
+	case MIPS_CPU_ISA_M32R6:
+		c->isa_level |= MIPS_CPU_ISA_M32R6;
+		set_elf_base_platform("mips32r6");
+		/* Break here so we don't add incompatible ISAs */
+		break;
+	case MIPS_CPU_ISA_M32R5:
+		c->isa_level |= MIPS_CPU_ISA_M32R5;
+		set_elf_base_platform("mips32r5");
+		fallthrough;
+	case MIPS_CPU_ISA_M32R2:
+		c->isa_level |= MIPS_CPU_ISA_M32R2;
+		set_elf_base_platform("mips32r2");
+		fallthrough;
+	case MIPS_CPU_ISA_M32R1:
+		c->isa_level |= MIPS_CPU_ISA_M32R1;
+		set_elf_base_platform("mips32");
+		fallthrough;
+	case MIPS_CPU_ISA_II:
+		c->isa_level |= MIPS_CPU_ISA_II;
+		set_elf_base_platform("mips2");
+>>>>>>> upstream/android-13
 		break;
 	}
 }
@@ -558,6 +642,7 @@ static int set_ftlb_enable(struct cpuinfo_mips *c, enum ftlb_flags flags)
 		config = read_c0_config6();
 
 		if (flags & FTLB_EN)
+<<<<<<< HEAD
 			config |= MIPS_CONF6_FTLBEN;
 		else
 			config &= ~MIPS_CONF6_FTLBEN;
@@ -566,6 +651,16 @@ static int set_ftlb_enable(struct cpuinfo_mips *c, enum ftlb_flags flags)
 			config &= ~(3 << MIPS_CONF6_FTLBP_SHIFT);
 			config |= calculate_ftlb_probability(c)
 				  << MIPS_CONF6_FTLBP_SHIFT;
+=======
+			config |= MTI_CONF6_FTLBEN;
+		else
+			config &= ~MTI_CONF6_FTLBEN;
+
+		if (flags & FTLB_SET_PROB) {
+			config &= ~(3 << MTI_CONF6_FTLBP_SHIFT);
+			config |= calculate_ftlb_probability(c)
+				  << MTI_CONF6_FTLBP_SHIFT;
+>>>>>>> upstream/android-13
 		}
 
 		write_c0_config6(config);
@@ -577,7 +672,11 @@ static int set_ftlb_enable(struct cpuinfo_mips *c, enum ftlb_flags flags)
 		if (!(flags & FTLB_EN))
 			return 1;
 		return 0;
+<<<<<<< HEAD
 	case CPU_LOONGSON3:
+=======
+	case CPU_LOONGSON64:
+>>>>>>> upstream/android-13
 		/* Flush ITLB, DTLB, VTLB and FTLB */
 		write_c0_diag(LOONGSON_DIAG_ITLB | LOONGSON_DIAG_DTLB |
 			      LOONGSON_DIAG_VTLB | LOONGSON_DIAG_FTLB);
@@ -585,10 +684,17 @@ static int set_ftlb_enable(struct cpuinfo_mips *c, enum ftlb_flags flags)
 		config = read_c0_config6();
 		if (flags & FTLB_EN)
 			/* Enable FTLB */
+<<<<<<< HEAD
 			write_c0_config6(config & ~MIPS_CONF6_FTLBDIS);
 		else
 			/* Disable FTLB */
 			write_c0_config6(config | MIPS_CONF6_FTLBDIS);
+=======
+			write_c0_config6(config & ~LOONGSON_CONF6_FTLBDIS);
+		else
+			/* Disable FTLB */
+			write_c0_config6(config | LOONGSON_CONF6_FTLBDIS);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		return 1;
@@ -597,6 +703,55 @@ static int set_ftlb_enable(struct cpuinfo_mips *c, enum ftlb_flags flags)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int mm_config(struct cpuinfo_mips *c)
+{
+	unsigned int config0, update, mm;
+
+	config0 = read_c0_config();
+	mm = config0 & MIPS_CONF_MM;
+
+	/*
+	 * It's implementation dependent what type of write-merge is supported
+	 * and whether it can be enabled/disabled. If it is settable lets make
+	 * the merging allowed by default. Some platforms might have
+	 * write-through caching unsupported. In this case just ignore the
+	 * CP0.Config.MM bit field value.
+	 */
+	switch (c->cputype) {
+	case CPU_24K:
+	case CPU_34K:
+	case CPU_74K:
+	case CPU_P5600:
+	case CPU_P6600:
+		c->options |= MIPS_CPU_MM_FULL;
+		update = MIPS_CONF_MM_FULL;
+		break;
+	case CPU_1004K:
+	case CPU_1074K:
+	case CPU_INTERAPTIV:
+	case CPU_PROAPTIV:
+		mm = 0;
+		fallthrough;
+	default:
+		update = 0;
+		break;
+	}
+
+	if (update) {
+		config0 = (config0 & ~MIPS_CONF_MM) | update;
+		write_c0_config(config0);
+	} else if (mm == MIPS_CONF_MM_SYSAD) {
+		c->options |= MIPS_CPU_MM_SYSAD;
+	} else if (mm == MIPS_CONF_MM_FULL) {
+		c->options |= MIPS_CPU_MM_FULL;
+	}
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static inline unsigned int decode_config0(struct cpuinfo_mips *c)
 {
 	unsigned int config0;
@@ -788,7 +943,11 @@ static inline unsigned int decode_config4(struct cpuinfo_mips *c)
 				  MIPS_CONF4_VTLBSIZEEXT_SHIFT) * 0x40;
 			c->tlbsize = c->tlbsizevtlb;
 			ftlb_page = MIPS_CONF4_VFTLBPAGESIZE;
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case MIPS_CONF4_MMUEXTDEF_FTLBSIZEEXT:
 			if (mips_ftlb_disabled)
 				break;
@@ -837,10 +996,26 @@ static inline unsigned int decode_config4(struct cpuinfo_mips *c)
 
 static inline unsigned int decode_config5(struct cpuinfo_mips *c)
 {
+<<<<<<< HEAD
 	unsigned int config5;
 
 	config5 = read_c0_config5();
 	config5 &= ~(MIPS_CONF5_UFR | MIPS_CONF5_UFE);
+=======
+	unsigned int config5, max_mmid_width;
+	unsigned long asid_mask;
+
+	config5 = read_c0_config5();
+	config5 &= ~(MIPS_CONF5_UFR | MIPS_CONF5_UFE);
+
+	if (cpu_has_mips_r6) {
+		if (!__builtin_constant_p(cpu_has_mmid) || cpu_has_mmid)
+			config5 |= MIPS_CONF5_MI;
+		else
+			config5 &= ~MIPS_CONF5_MI;
+	}
+
+>>>>>>> upstream/android-13
 	write_c0_config5(config5);
 
 	if (config5 & MIPS_CONF5_EVA)
@@ -859,6 +1034,53 @@ static inline unsigned int decode_config5(struct cpuinfo_mips *c)
 	if (config5 & MIPS_CONF5_CRCP)
 		elf_hwcap |= HWCAP_MIPS_CRC32;
 
+<<<<<<< HEAD
+=======
+	if (cpu_has_mips_r6) {
+		/* Ensure the write to config5 above takes effect */
+		back_to_back_c0_hazard();
+
+		/* Check whether we successfully enabled MMID support */
+		config5 = read_c0_config5();
+		if (config5 & MIPS_CONF5_MI)
+			c->options |= MIPS_CPU_MMID;
+
+		/*
+		 * Warn if we've hardcoded cpu_has_mmid to a value unsuitable
+		 * for the CPU we're running on, or if CPUs in an SMP system
+		 * have inconsistent MMID support.
+		 */
+		WARN_ON(!!cpu_has_mmid != !!(config5 & MIPS_CONF5_MI));
+
+		if (cpu_has_mmid) {
+			write_c0_memorymapid(~0ul);
+			back_to_back_c0_hazard();
+			asid_mask = read_c0_memorymapid();
+
+			/*
+			 * We maintain a bitmap to track MMID allocation, and
+			 * need a sensible upper bound on the size of that
+			 * bitmap. The initial CPU with MMID support (I6500)
+			 * supports 16 bit MMIDs, which gives us an 8KiB
+			 * bitmap. The architecture recommends that hardware
+			 * support 32 bit MMIDs, which would give us a 512MiB
+			 * bitmap - that's too big in most cases.
+			 *
+			 * Cap MMID width at 16 bits for now & we can revisit
+			 * this if & when hardware supports anything wider.
+			 */
+			max_mmid_width = 16;
+			if (asid_mask > GENMASK(max_mmid_width - 1, 0)) {
+				pr_info("Capping MMID width at %d bits",
+					max_mmid_width);
+				asid_mask = GENMASK(max_mmid_width - 1, 0);
+			}
+
+			set_cpu_asid_mask(c, asid_mask);
+		}
+	}
+
+>>>>>>> upstream/android-13
 	return config5 & MIPS_CONF_M;
 }
 
@@ -1384,6 +1606,7 @@ static inline void cpu_probe_legacy(struct cpuinfo_mips *c, unsigned int cpu)
 			     MIPS_CPU_LLSC;
 		c->tlbsize = 48;
 		break;
+<<<<<<< HEAD
 	case PRID_IMP_R5432:
 		c->cputype = CPU_R5432;
 		__cpu_name[cpu] = "R5432";
@@ -1392,6 +1615,8 @@ static inline void cpu_probe_legacy(struct cpuinfo_mips *c, unsigned int cpu)
 			     MIPS_CPU_WATCH | MIPS_CPU_LLSC;
 		c->tlbsize = 48;
 		break;
+=======
+>>>>>>> upstream/android-13
 	case PRID_IMP_R5500:
 		c->cputype = CPU_R5500;
 		__cpu_name[cpu] = "R5500";
@@ -1424,6 +1649,7 @@ static inline void cpu_probe_legacy(struct cpuinfo_mips *c, unsigned int cpu)
 		 */
 		c->tlbsize = (read_c0_info() & (1 << 29)) ? 64 : 48;
 		break;
+<<<<<<< HEAD
 	case PRID_IMP_R8000:
 		c->cputype = CPU_R8000;
 		__cpu_name[cpu] = "RM8000";
@@ -1433,6 +1659,8 @@ static inline void cpu_probe_legacy(struct cpuinfo_mips *c, unsigned int cpu)
 			     MIPS_CPU_LLSC;
 		c->tlbsize = 384;      /* has weird TLB: 3-way x 128 */
 		break;
+=======
+>>>>>>> upstream/android-13
 	case PRID_IMP_R10000:
 		c->cputype = CPU_R10000;
 		__cpu_name[cpu] = "R10000";
@@ -1450,8 +1678,14 @@ static inline void cpu_probe_legacy(struct cpuinfo_mips *c, unsigned int cpu)
 		c->options = MIPS_CPU_TLB | MIPS_CPU_4K_CACHE | MIPS_CPU_4KEX |
 			     MIPS_CPU_FPU | MIPS_CPU_32FPR |
 			     MIPS_CPU_COUNTER | MIPS_CPU_WATCH |
+<<<<<<< HEAD
 			     MIPS_CPU_LLSC | MIPS_CPU_BP_GHIST;
 		c->tlbsize = 64;
+=======
+			     MIPS_CPU_LLSC;
+		c->tlbsize = 64;
+		write_c0_r10k_diag(read_c0_r10k_diag() | R10K_DIAG_E_GHIST);
+>>>>>>> upstream/android-13
 		break;
 	case PRID_IMP_R14000:
 		if (((c->processor_id >> 4) & 0x0f) > 2) {
@@ -1465,6 +1699,7 @@ static inline void cpu_probe_legacy(struct cpuinfo_mips *c, unsigned int cpu)
 		c->options = MIPS_CPU_TLB | MIPS_CPU_4K_CACHE | MIPS_CPU_4KEX |
 			     MIPS_CPU_FPU | MIPS_CPU_32FPR |
 			     MIPS_CPU_COUNTER | MIPS_CPU_WATCH |
+<<<<<<< HEAD
 			     MIPS_CPU_LLSC | MIPS_CPU_BP_GHIST;
 		c->tlbsize = 64;
 		break;
@@ -1472,20 +1707,38 @@ static inline void cpu_probe_legacy(struct cpuinfo_mips *c, unsigned int cpu)
 		switch (c->processor_id & PRID_REV_MASK) {
 		case PRID_REV_LOONGSON2E:
 			c->cputype = CPU_LOONGSON2;
+=======
+			     MIPS_CPU_LLSC;
+		c->tlbsize = 64;
+		write_c0_r10k_diag(read_c0_r10k_diag() | R10K_DIAG_E_GHIST);
+		break;
+	case PRID_IMP_LOONGSON_64C:  /* Loongson-2/3 */
+		switch (c->processor_id & PRID_REV_MASK) {
+		case PRID_REV_LOONGSON2E:
+			c->cputype = CPU_LOONGSON2EF;
+>>>>>>> upstream/android-13
 			__cpu_name[cpu] = "ICT Loongson-2";
 			set_elf_platform(cpu, "loongson2e");
 			set_isa(c, MIPS_CPU_ISA_III);
 			c->fpu_msk31 |= FPU_CSR_CONDX;
 			break;
 		case PRID_REV_LOONGSON2F:
+<<<<<<< HEAD
 			c->cputype = CPU_LOONGSON2;
+=======
+			c->cputype = CPU_LOONGSON2EF;
+>>>>>>> upstream/android-13
 			__cpu_name[cpu] = "ICT Loongson-2";
 			set_elf_platform(cpu, "loongson2f");
 			set_isa(c, MIPS_CPU_ISA_III);
 			c->fpu_msk31 |= FPU_CSR_CONDX;
 			break;
 		case PRID_REV_LOONGSON3A_R1:
+<<<<<<< HEAD
 			c->cputype = CPU_LOONGSON3;
+=======
+			c->cputype = CPU_LOONGSON64;
+>>>>>>> upstream/android-13
 			__cpu_name[cpu] = "ICT Loongson-3";
 			set_elf_platform(cpu, "loongson3a");
 			set_isa(c, MIPS_CPU_ISA_M64R1);
@@ -1494,7 +1747,11 @@ static inline void cpu_probe_legacy(struct cpuinfo_mips *c, unsigned int cpu)
 			break;
 		case PRID_REV_LOONGSON3B_R1:
 		case PRID_REV_LOONGSON3B_R2:
+<<<<<<< HEAD
 			c->cputype = CPU_LOONGSON3;
+=======
+			c->cputype = CPU_LOONGSON64;
+>>>>>>> upstream/android-13
 			__cpu_name[cpu] = "ICT Loongson-3";
 			set_elf_platform(cpu, "loongson3b");
 			set_isa(c, MIPS_CPU_ISA_M64R1);
@@ -1507,12 +1764,20 @@ static inline void cpu_probe_legacy(struct cpuinfo_mips *c, unsigned int cpu)
 			     MIPS_CPU_FPU | MIPS_CPU_LLSC |
 			     MIPS_CPU_32FPR;
 		c->tlbsize = 64;
+<<<<<<< HEAD
+=======
+		set_cpu_asid_mask(c, MIPS_ENTRYHI_ASID);
+>>>>>>> upstream/android-13
 		c->writecombine = _CACHE_UNCACHED_ACCELERATED;
 		break;
 	case PRID_IMP_LOONGSON_32:  /* Loongson-1 */
 		decode_configs(c);
 
+<<<<<<< HEAD
 		c->cputype = CPU_LOONGSON1;
+=======
+		c->cputype = CPU_LOONGSON32;
+>>>>>>> upstream/android-13
 
 		switch (c->processor_id & PRID_REV_MASK) {
 		case PRID_REV_LOONGSON1B:
@@ -1660,6 +1925,7 @@ static inline void cpu_probe_mips(struct cpuinfo_mips *c, unsigned int cpu)
 
 	spram_config();
 
+<<<<<<< HEAD
 	switch (__get_cpu_type(c->cputype)) {
 	case CPU_I6500:
 		c->options |= MIPS_CPU_SHARED_FTLB_ENTRIES;
@@ -1670,6 +1936,37 @@ static inline void cpu_probe_mips(struct cpuinfo_mips *c, unsigned int cpu)
 	default:
 		break;
 	}
+=======
+	mm_config(c);
+
+	switch (__get_cpu_type(c->cputype)) {
+	case CPU_M5150:
+	case CPU_P5600:
+		set_isa(c, MIPS_CPU_ISA_M32R5);
+		break;
+	case CPU_I6500:
+		c->options |= MIPS_CPU_SHARED_FTLB_ENTRIES;
+		fallthrough;
+	case CPU_I6400:
+		c->options |= MIPS_CPU_SHARED_FTLB_RAM;
+		fallthrough;
+	default:
+		break;
+	}
+
+	/* Recent MIPS cores use the implementation-dependent ExcCode 16 for
+	 * cache/FTLB parity exceptions.
+	 */
+	switch (__get_cpu_type(c->cputype)) {
+	case CPU_PROAPTIV:
+	case CPU_P5600:
+	case CPU_P6600:
+	case CPU_I6400:
+	case CPU_I6500:
+		c->options |= MIPS_CPU_FTLBPAREX;
+		break;
+	}
+>>>>>>> upstream/android-13
 }
 
 static inline void cpu_probe_alchemy(struct cpuinfo_mips *c, unsigned int cpu)
@@ -1769,6 +2066,10 @@ static inline void cpu_probe_broadcom(struct cpuinfo_mips *c, unsigned int cpu)
 		c->cputype = CPU_BMIPS3300;
 		__cpu_name[cpu] = "Broadcom BMIPS3300";
 		set_elf_platform(cpu, "bmips3300");
+<<<<<<< HEAD
+=======
+		reserve_exception_space(0x400, VECTORSPACING * 64);
+>>>>>>> upstream/android-13
 		break;
 	case PRID_IMP_BMIPS43XX: {
 		int rev = c->processor_id & PRID_REV_MASK;
@@ -1779,6 +2080,10 @@ static inline void cpu_probe_broadcom(struct cpuinfo_mips *c, unsigned int cpu)
 			__cpu_name[cpu] = "Broadcom BMIPS4380";
 			set_elf_platform(cpu, "bmips4380");
 			c->options |= MIPS_CPU_RIXI;
+<<<<<<< HEAD
+=======
+			reserve_exception_space(0x400, VECTORSPACING * 64);
+>>>>>>> upstream/android-13
 		} else {
 			c->cputype = CPU_BMIPS4350;
 			__cpu_name[cpu] = "Broadcom BMIPS4350";
@@ -1795,6 +2100,10 @@ static inline void cpu_probe_broadcom(struct cpuinfo_mips *c, unsigned int cpu)
 			__cpu_name[cpu] = "Broadcom BMIPS5000";
 		set_elf_platform(cpu, "bmips5000");
 		c->options |= MIPS_CPU_ULRI | MIPS_CPU_RIXI;
+<<<<<<< HEAD
+=======
+		reserve_exception_space(0x1000, VECTORSPACING * 64);
+>>>>>>> upstream/android-13
 		break;
 	}
 }
@@ -1842,6 +2151,7 @@ platform:
 	}
 }
 
+<<<<<<< HEAD
 static inline void cpu_probe_loongson(struct cpuinfo_mips *c, unsigned int cpu)
 {
 	switch (c->processor_id & PRID_IMP_MASK) {
@@ -1849,34 +2159,125 @@ static inline void cpu_probe_loongson(struct cpuinfo_mips *c, unsigned int cpu)
 		switch (c->processor_id & PRID_REV_MASK) {
 		case PRID_REV_LOONGSON3A_R2:
 			c->cputype = CPU_LOONGSON3;
+=======
+#ifdef CONFIG_CPU_LOONGSON64
+#include <loongson_regs.h>
+
+static inline void decode_cpucfg(struct cpuinfo_mips *c)
+{
+	u32 cfg1 = read_cpucfg(LOONGSON_CFG1);
+	u32 cfg2 = read_cpucfg(LOONGSON_CFG2);
+	u32 cfg3 = read_cpucfg(LOONGSON_CFG3);
+
+	if (cfg1 & LOONGSON_CFG1_MMI)
+		c->ases |= MIPS_ASE_LOONGSON_MMI;
+
+	if (cfg2 & LOONGSON_CFG2_LEXT1)
+		c->ases |= MIPS_ASE_LOONGSON_EXT;
+
+	if (cfg2 & LOONGSON_CFG2_LEXT2)
+		c->ases |= MIPS_ASE_LOONGSON_EXT2;
+
+	if (cfg2 & LOONGSON_CFG2_LSPW) {
+		c->options |= MIPS_CPU_LDPTE;
+		c->guest.options |= MIPS_CPU_LDPTE;
+	}
+
+	if (cfg3 & LOONGSON_CFG3_LCAMP)
+		c->ases |= MIPS_ASE_LOONGSON_CAM;
+}
+
+static inline void cpu_probe_loongson(struct cpuinfo_mips *c, unsigned int cpu)
+{
+	/* All Loongson processors covered here define ExcCode 16 as GSExc. */
+	c->options |= MIPS_CPU_GSEXCEX;
+
+	switch (c->processor_id & PRID_IMP_MASK) {
+	case PRID_IMP_LOONGSON_64R: /* Loongson-64 Reduced */
+		switch (c->processor_id & PRID_REV_MASK) {
+		case PRID_REV_LOONGSON2K_R1_0:
+		case PRID_REV_LOONGSON2K_R1_1:
+		case PRID_REV_LOONGSON2K_R1_2:
+		case PRID_REV_LOONGSON2K_R1_3:
+			c->cputype = CPU_LOONGSON64;
+			__cpu_name[cpu] = "Loongson-2K";
+			set_elf_platform(cpu, "gs264e");
+			set_isa(c, MIPS_CPU_ISA_M64R2);
+			break;
+		}
+		c->ases |= (MIPS_ASE_LOONGSON_MMI | MIPS_ASE_LOONGSON_EXT |
+				MIPS_ASE_LOONGSON_EXT2);
+		break;
+	case PRID_IMP_LOONGSON_64C:  /* Loongson-3 Classic */
+		switch (c->processor_id & PRID_REV_MASK) {
+		case PRID_REV_LOONGSON3A_R2_0:
+		case PRID_REV_LOONGSON3A_R2_1:
+			c->cputype = CPU_LOONGSON64;
+>>>>>>> upstream/android-13
 			__cpu_name[cpu] = "ICT Loongson-3";
 			set_elf_platform(cpu, "loongson3a");
 			set_isa(c, MIPS_CPU_ISA_M64R2);
 			break;
 		case PRID_REV_LOONGSON3A_R3_0:
 		case PRID_REV_LOONGSON3A_R3_1:
+<<<<<<< HEAD
 			c->cputype = CPU_LOONGSON3;
+=======
+			c->cputype = CPU_LOONGSON64;
+>>>>>>> upstream/android-13
 			__cpu_name[cpu] = "ICT Loongson-3";
 			set_elf_platform(cpu, "loongson3a");
 			set_isa(c, MIPS_CPU_ISA_M64R2);
 			break;
 		}
+<<<<<<< HEAD
 
 		decode_configs(c);
 		c->options |= MIPS_CPU_FTLB | MIPS_CPU_TLBINV | MIPS_CPU_LDPTE;
 		c->writecombine = _CACHE_UNCACHED_ACCELERATED;
 		c->ases |= (MIPS_ASE_LOONGSON_MMI | MIPS_ASE_LOONGSON_CAM |
 			MIPS_ASE_LOONGSON_EXT | MIPS_ASE_LOONGSON_EXT2);
+=======
+		/*
+		 * Loongson-3 Classic did not implement MIPS standard TLBINV
+		 * but implemented TLBINVF and EHINV. As currently we're only
+		 * using these two features, enable MIPS_CPU_TLBINV as well.
+		 *
+		 * Also some early Loongson-3A2000 had wrong TLB type in Config
+		 * register, we correct it here.
+		 */
+		c->options |= MIPS_CPU_FTLB | MIPS_CPU_TLBINV | MIPS_CPU_LDPTE;
+		c->ases |= (MIPS_ASE_LOONGSON_MMI | MIPS_ASE_LOONGSON_CAM |
+			MIPS_ASE_LOONGSON_EXT | MIPS_ASE_LOONGSON_EXT2);
+		c->ases &= ~MIPS_ASE_VZ; /* VZ of Loongson-3A2000/3000 is incomplete */
+		break;
+	case PRID_IMP_LOONGSON_64G:
+		c->cputype = CPU_LOONGSON64;
+		__cpu_name[cpu] = "ICT Loongson-3";
+		set_elf_platform(cpu, "loongson3a");
+		set_isa(c, MIPS_CPU_ISA_M64R2);
+		decode_cpucfg(c);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		panic("Unknown Loongson Processor ID!");
 		break;
 	}
+<<<<<<< HEAD
 }
+=======
+
+	decode_configs(c);
+}
+#else
+static inline void cpu_probe_loongson(struct cpuinfo_mips *c, unsigned int cpu) { }
+#endif
+>>>>>>> upstream/android-13
 
 static inline void cpu_probe_ingenic(struct cpuinfo_mips *c, unsigned int cpu)
 {
 	decode_configs(c);
+<<<<<<< HEAD
 	/* JZRISC does not implement the CP0 counter. */
 	c->options &= ~MIPS_CPU_COUNTER;
 	BUG_ON(!__builtin_constant_p(cpu_has_counter) || cpu_has_counter);
@@ -1885,6 +2286,27 @@ static inline void cpu_probe_ingenic(struct cpuinfo_mips *c, unsigned int cpu)
 		c->cputype = CPU_JZRISC;
 		c->writecombine = _CACHE_UNCACHED_ACCELERATED;
 		__cpu_name[cpu] = "Ingenic JZRISC";
+=======
+
+	/*
+	 * XBurst misses a config2 register, so config3 decode was skipped in
+	 * decode_configs().
+	 */
+	decode_config3(c);
+
+	/* XBurst does not implement the CP0 counter. */
+	c->options &= ~MIPS_CPU_COUNTER;
+	BUG_ON(__builtin_constant_p(cpu_has_counter) && cpu_has_counter);
+
+	/* XBurst has virtually tagged icache */
+	c->icache.flags |= MIPS_CACHE_VTAG;
+
+	switch (c->processor_id & PRID_IMP_MASK) {
+
+	/* XBurst®1 with MXU1.0/MXU1.1 SIMD ISA */
+	case PRID_IMP_XBURST_REV1:
+
+>>>>>>> upstream/android-13
 		/*
 		 * The XBurst core by default attempts to avoid branch target
 		 * buffer lookups by detecting & special casing loops. This
@@ -1892,7 +2314,60 @@ static inline void cpu_probe_ingenic(struct cpuinfo_mips *c, unsigned int cpu)
 		 * Set cp0 config7 bit 4 to disable this feature.
 		 */
 		set_c0_config7(MIPS_CONF7_BTB_LOOP_EN);
+<<<<<<< HEAD
 		break;
+=======
+
+		switch (c->processor_id & PRID_COMP_MASK) {
+
+		/*
+		 * The config0 register in the XBurst CPUs with a processor ID of
+		 * PRID_COMP_INGENIC_D0 report themselves as MIPS32r2 compatible,
+		 * but they don't actually support this ISA.
+		 */
+		case PRID_COMP_INGENIC_D0:
+			c->isa_level &= ~MIPS_CPU_ISA_M32R2;
+
+			/* FPU is not properly detected on JZ4760(B). */
+			if (c->processor_id == 0x2ed0024f)
+				c->options |= MIPS_CPU_FPU;
+
+			fallthrough;
+
+		/*
+		 * The config0 register in the XBurst CPUs with a processor ID of
+		 * PRID_COMP_INGENIC_D0 or PRID_COMP_INGENIC_D1 has an abandoned
+		 * huge page tlb mode, this mode is not compatible with the MIPS
+		 * standard, it will cause tlbmiss and into an infinite loop
+		 * (line 21 in the tlb-funcs.S) when starting the init process.
+		 * After chip reset, the default is HPTLB mode, Write 0xa9000000
+		 * to cp0 register 5 sel 4 to switch back to VTLB mode to prevent
+		 * getting stuck.
+		 */
+		case PRID_COMP_INGENIC_D1:
+			write_c0_page_ctrl(XBURST_PAGECTRL_HPTLB_DIS);
+			break;
+
+		default:
+			break;
+		}
+		fallthrough;
+
+	/* XBurst®1 with MXU2.0 SIMD ISA */
+	case PRID_IMP_XBURST_REV2:
+		/* Ingenic uses the WA bit to achieve write-combine memory writes */
+		c->writecombine = _CACHE_CACHABLE_WA;
+		c->cputype = CPU_XBURST;
+		__cpu_name[cpu] = "Ingenic XBurst";
+		break;
+
+	/* XBurst®2 with MXU2.1 SIMD ISA */
+	case PRID_IMP_XBURST2:
+		c->cputype = CPU_XBURST;
+		__cpu_name[cpu] = "Ingenic XBurst II";
+		break;
+
+>>>>>>> upstream/android-13
 	default:
 		panic("Unknown Ingenic Processor ID!");
 		break;
@@ -1988,6 +2463,10 @@ EXPORT_SYMBOL(__ua_limit);
 
 const char *__cpu_name[NR_CPUS];
 const char *__elf_platform;
+<<<<<<< HEAD
+=======
+const char *__elf_base_platform;
+>>>>>>> upstream/android-13
 
 void cpu_probe(void)
 {
@@ -2037,6 +2516,10 @@ void cpu_probe(void)
 	case PRID_COMP_LOONGSON:
 		cpu_probe_loongson(c, cpu);
 		break;
+<<<<<<< HEAD
+=======
+	case PRID_COMP_INGENIC_13:
+>>>>>>> upstream/android-13
 	case PRID_COMP_INGENIC_D0:
 	case PRID_COMP_INGENIC_D1:
 	case PRID_COMP_INGENIC_E1:
@@ -2083,10 +2566,13 @@ void cpu_probe(void)
 	else
 		cpu_set_nofpu_opts(c);
 
+<<<<<<< HEAD
 	if (cpu_has_bp_ghist)
 		write_c0_r10k_diag(read_c0_r10k_diag() |
 				   R10K_DIAG_E_GHIST);
 
+=======
+>>>>>>> upstream/android-13
 	if (cpu_has_mips_r2_r6) {
 		c->srsets = ((read_c0_srsctl() >> 26) & 0x0f) + 1;
 		/* R2 has Performance Counter Interrupt indicator */
@@ -2143,10 +2629,25 @@ void cpu_probe(void)
 
 	cpu_probe_vmbits(c);
 
+<<<<<<< HEAD
+=======
+	/* Synthesize CPUCFG data if running on Loongson processors;
+	 * no-op otherwise.
+	 *
+	 * This looks at previously probed features, so keep this at bottom.
+	 */
+	loongson3_cpucfg_synthesize_data(c);
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_64BIT
 	if (cpu == 0)
 		__ua_limit = ~((1ull << cpu_vmbits) - 1);
 #endif
+<<<<<<< HEAD
+=======
+
+	reserve_exception_space(0, 0x1000);
+>>>>>>> upstream/android-13
 }
 
 void cpu_report(void)

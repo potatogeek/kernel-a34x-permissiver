@@ -25,11 +25,15 @@
 #define PT_DATA_ADDR		248	/* &(struct user)->start_data */
 #define PT_TEXT_LEN		252
 
+<<<<<<< HEAD
 #if defined(__SH5__) || defined(CONFIG_CPU_SH5)
 #include <asm/ptrace_64.h>
 #else
 #include <asm/ptrace_32.h>
 #endif
 
+=======
+#include <asm/ptrace_32.h>
+>>>>>>> upstream/android-13
 
 #endif /* _UAPI__ASM_SH_PTRACE_H */

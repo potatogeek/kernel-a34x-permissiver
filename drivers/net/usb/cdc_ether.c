@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * CDC Ethernet based networking peripherals
  * Copyright (C) 2003-2005 by David Brownell
  * Copyright (C) 2006 by Ole Andre Vadla Ravnas (ActiveSync)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +20,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 // #define	DEBUG			// error path messages, extra info
@@ -75,10 +82,15 @@ static const u8 mbm_guid[16] = {
 	0xa6, 0x07, 0xc0, 0xff, 0xcb, 0x7e, 0x39, 0x2a,
 };
 
+<<<<<<< HEAD
 static void usbnet_cdc_update_filter(struct usbnet *dev)
 {
 	struct cdc_state	*info = (void *) &dev->data;
 	struct usb_interface	*intf = info->control;
+=======
+void usbnet_cdc_update_filter(struct usbnet *dev)
+{
+>>>>>>> upstream/android-13
 	struct net_device	*net = dev->net;
 
 	u16 cdc_filter = USB_CDC_PACKET_TYPE_DIRECTED
@@ -98,12 +110,32 @@ static void usbnet_cdc_update_filter(struct usbnet *dev)
 			USB_CDC_SET_ETHERNET_PACKET_FILTER,
 			USB_TYPE_CLASS | USB_RECIP_INTERFACE,
 			cdc_filter,
+<<<<<<< HEAD
 			intf->cur_altsetting->desc.bInterfaceNumber,
+=======
+			dev->intf->cur_altsetting->desc.bInterfaceNumber,
+>>>>>>> upstream/android-13
 			NULL,
 			0,
 			USB_CTRL_SET_TIMEOUT
 		);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(usbnet_cdc_update_filter);
+
+/* We need to override usbnet_*_link_ksettings in bind() */
+static const struct ethtool_ops cdc_ether_ethtool_ops = {
+	.get_link		= usbnet_get_link,
+	.nway_reset		= usbnet_nway_reset,
+	.get_drvinfo		= usbnet_get_drvinfo,
+	.get_msglevel		= usbnet_get_msglevel,
+	.set_msglevel		= usbnet_set_msglevel,
+	.get_ts_info		= ethtool_op_get_ts_info,
+	.get_link_ksettings	= usbnet_get_link_ksettings_internal,
+	.set_link_ksettings	= NULL,
+};
+>>>>>>> upstream/android-13
 
 /* probes control interface, claims data interface, collects the bulk
  * endpoints, activates data interface (if needed), maybe sets MTU.
@@ -179,10 +211,15 @@ int usbnet_generic_cdc_bind(struct usbnet *dev, struct usb_interface *intf)
 	 * probed with) and a slave/data interface; union
 	 * descriptors sort this all out.
 	 */
+<<<<<<< HEAD
 	info->control = usb_ifnum_to_if(dev->udev,
 	info->u->bMasterInterface0);
 	info->data = usb_ifnum_to_if(dev->udev,
 		info->u->bSlaveInterface0);
+=======
+	info->control = usb_ifnum_to_if(dev->udev, info->u->bMasterInterface0);
+	info->data = usb_ifnum_to_if(dev->udev, info->u->bSlaveInterface0);
+>>>>>>> upstream/android-13
 	if (!info->control || !info->data) {
 		dev_dbg(&intf->dev,
 			"master #%u/%p slave #%u/%p\n",
@@ -216,12 +253,20 @@ int usbnet_generic_cdc_bind(struct usbnet *dev, struct usb_interface *intf)
 	/* a data interface altsetting does the real i/o */
 	d = &info->data->cur_altsetting->desc;
 	if (d->bInterfaceClass != USB_CLASS_CDC_DATA) {
+<<<<<<< HEAD
 		dev_dbg(&intf->dev, "slave class %u\n",
 			d->bInterfaceClass);
 		goto bad_desc;
 	}
 skip:
 	/* Communcation class functions with bmCapabilities are not
+=======
+		dev_dbg(&intf->dev, "slave class %u\n", d->bInterfaceClass);
+		goto bad_desc;
+	}
+skip:
+	/* Communication class functions with bmCapabilities are not
+>>>>>>> upstream/android-13
 	 * RNDIS.  But some Wireless class RNDIS functions use
 	 * bmCapabilities for their own purpose. The failsafe is
 	 * therefore applied only to Communication class RNDIS
@@ -231,10 +276,17 @@ skip:
 	if (rndis && is_rndis(&intf->cur_altsetting->desc) &&
 	    header.usb_cdc_acm_descriptor &&
 	    header.usb_cdc_acm_descriptor->bmCapabilities) {
+<<<<<<< HEAD
 			dev_dbg(&intf->dev,
 				"ACM capabilities %02x, not really RNDIS?\n",
 				header.usb_cdc_acm_descriptor->bmCapabilities);
 			goto bad_desc;
+=======
+		dev_dbg(&intf->dev,
+			"ACM capabilities %02x, not really RNDIS?\n",
+			header.usb_cdc_acm_descriptor->bmCapabilities);
+		goto bad_desc;
+>>>>>>> upstream/android-13
 	}
 
 	if (header.usb_cdc_ether_desc && info->ether->wMaxSegmentSize) {
@@ -245,7 +297,11 @@ skip:
 	}
 
 	if (header.usb_cdc_mdlm_desc &&
+<<<<<<< HEAD
 		memcmp(header.usb_cdc_mdlm_desc->bGUID, mbm_guid, 16)) {
+=======
+	    memcmp(header.usb_cdc_mdlm_desc->bGUID, mbm_guid, 16)) {
+>>>>>>> upstream/android-13
 		dev_dbg(&intf->dev, "GUID doesn't match\n");
 		goto bad_desc;
 	}
@@ -309,7 +365,11 @@ skip:
 	if (info->control->cur_altsetting->desc.bNumEndpoints == 1) {
 		struct usb_endpoint_descriptor	*desc;
 
+<<<<<<< HEAD
 		dev->status = &info->control->cur_altsetting->endpoint [0];
+=======
+		dev->status = &info->control->cur_altsetting->endpoint[0];
+>>>>>>> upstream/android-13
 		desc = &dev->status->desc;
 		if (!usb_endpoint_is_int_in(desc) ||
 		    (le16_to_cpu(desc->wMaxPacketSize)
@@ -326,6 +386,12 @@ skip:
 		return -ENODEV;
 	}
 
+<<<<<<< HEAD
+=======
+	/* override ethtool_ops */
+	dev->net->ethtool_ops = &cdc_ether_ethtool_ops;
+
+>>>>>>> upstream/android-13
 	return 0;
 
 bad_desc:
@@ -395,12 +461,19 @@ EXPORT_SYMBOL_GPL(usbnet_cdc_unbind);
  * (by Brad Hards) talked with, with more functionality.
  */
 
+<<<<<<< HEAD
 static void dumpspeed(struct usbnet *dev, __le32 *speeds)
 {
 	netif_info(dev, timer, dev->net,
 		   "link speeds: %u kbps up, %u kbps down\n",
 		   __le32_to_cpu(speeds[0]) / 1000,
 		   __le32_to_cpu(speeds[1]) / 1000);
+=======
+static void speed_change(struct usbnet *dev, __le32 *speeds)
+{
+	dev->tx_speed = __le32_to_cpu(speeds[0]);
+	dev->rx_speed = __le32_to_cpu(speeds[1]);
+>>>>>>> upstream/android-13
 }
 
 void usbnet_cdc_status(struct usbnet *dev, struct urb *urb)
@@ -412,7 +485,11 @@ void usbnet_cdc_status(struct usbnet *dev, struct urb *urb)
 
 	/* SPEED_CHANGE can get split into two 8-byte packets */
 	if (test_and_clear_bit(EVENT_STS_SPLIT, &dev->flags)) {
+<<<<<<< HEAD
 		dumpspeed(dev, (__le32 *) urb->transfer_buffer);
+=======
+		speed_change(dev, (__le32 *) urb->transfer_buffer);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -429,7 +506,11 @@ void usbnet_cdc_status(struct usbnet *dev, struct urb *urb)
 		if (urb->actual_length != (sizeof(*event) + 8))
 			set_bit(EVENT_STS_SPLIT, &dev->flags);
 		else
+<<<<<<< HEAD
 			dumpspeed(dev, (__le32 *) &event[1]);
+=======
+			speed_change(dev, (__le32 *) &event[1]);
+>>>>>>> upstream/android-13
 		break;
 	/* USB_CDC_NOTIFY_RESPONSE_AVAILABLE can happen too (e.g. RNDIS),
 	 * but there are no standard formats for the response data.
@@ -569,6 +650,11 @@ static const struct driver_info wwan_info = {
 #define MICROSOFT_VENDOR_ID	0x045e
 #define UBLOX_VENDOR_ID		0x1546
 #define TPLINK_VENDOR_ID	0x2357
+<<<<<<< HEAD
+=======
+#define AQUANTIA_VENDOR_ID	0x2eca
+#define ASIX_VENDOR_ID		0x0b95
+>>>>>>> upstream/android-13
 
 static const struct usb_device_id	products[] = {
 /* BLACKLIST !!
@@ -584,6 +670,14 @@ static const struct usb_device_id	products[] = {
 	.bInterfaceSubClass	= USB_CDC_SUBCLASS_ETHERNET, \
 	.bInterfaceProtocol	= USB_CDC_PROTO_NONE
 
+<<<<<<< HEAD
+=======
+#define ZAURUS_FAKE_INTERFACE \
+	.bInterfaceClass	= USB_CLASS_COMM, \
+	.bInterfaceSubClass	= USB_CDC_SUBCLASS_MDLM, \
+	.bInterfaceProtocol	= USB_CDC_PROTO_NONE
+
+>>>>>>> upstream/android-13
 /* SA-1100 based Sharp Zaurus ("collie"), or compatible;
  * wire-incompatible with true CDC Ethernet implementations.
  * (And, it seems, needlessly so...)
@@ -641,6 +735,16 @@ static const struct usb_device_id	products[] = {
 	.match_flags    =   USB_DEVICE_ID_MATCH_INT_INFO
 		 | USB_DEVICE_ID_MATCH_DEVICE,
 	.idVendor               = 0x04DD,
+<<<<<<< HEAD
+=======
+	.idProduct              = 0x9032,	/* SL-6000 */
+	ZAURUS_FAKE_INTERFACE,
+	.driver_info		= 0,
+}, {
+	.match_flags    =   USB_DEVICE_ID_MATCH_INT_INFO
+		 | USB_DEVICE_ID_MATCH_DEVICE,
+	.idVendor               = 0x04DD,
+>>>>>>> upstream/android-13
 	/* reported with some C860 units */
 	.idProduct              = 0x9050,	/* C-860 */
 	ZAURUS_MASTER_INTERFACE,
@@ -779,6 +883,16 @@ static const struct usb_device_id	products[] = {
 	.driver_info = 0,
 },
 
+<<<<<<< HEAD
+=======
+/* ThinkPad Thunderbolt 3 Dock Gen 2 (based on Realtek RTL8153) */
+{
+	USB_DEVICE_AND_INTERFACE_INFO(LENOVO_VENDOR_ID, 0x3082, USB_CLASS_COMM,
+			USB_CDC_SUBCLASS_ETHERNET, USB_CDC_PROTO_NONE),
+	.driver_info = 0,
+},
+
+>>>>>>> upstream/android-13
 /* Lenovo Thinkpad USB 3.0 Ethernet Adapters (based on Realtek RTL8153) */
 {
 	USB_DEVICE_AND_INTERFACE_INFO(LENOVO_VENDOR_ID, 0x7205, USB_CLASS_COMM,
@@ -849,6 +963,49 @@ static const struct usb_device_id	products[] = {
 	.driver_info = 0,
 },
 
+<<<<<<< HEAD
+=======
+/* Aquantia AQtion USB to 5GbE Controller (based on AQC111U) */
+{
+	USB_DEVICE_AND_INTERFACE_INFO(AQUANTIA_VENDOR_ID, 0xc101,
+				      USB_CLASS_COMM, USB_CDC_SUBCLASS_ETHERNET,
+				      USB_CDC_PROTO_NONE),
+	.driver_info = 0,
+},
+
+/* ASIX USB 3.1 Gen1 to 5G Multi-Gigabit Ethernet Adapter(based on AQC111U) */
+{
+	USB_DEVICE_AND_INTERFACE_INFO(ASIX_VENDOR_ID, 0x2790, USB_CLASS_COMM,
+				      USB_CDC_SUBCLASS_ETHERNET,
+				      USB_CDC_PROTO_NONE),
+	.driver_info = 0,
+},
+
+/* ASIX USB 3.1 Gen1 to 2.5G Multi-Gigabit Ethernet Adapter(based on AQC112U) */
+{
+	USB_DEVICE_AND_INTERFACE_INFO(ASIX_VENDOR_ID, 0x2791, USB_CLASS_COMM,
+				      USB_CDC_SUBCLASS_ETHERNET,
+				      USB_CDC_PROTO_NONE),
+	.driver_info = 0,
+},
+
+/* USB-C 3.1 to 5GBASE-T Ethernet Adapter (based on AQC111U) */
+{
+	USB_DEVICE_AND_INTERFACE_INFO(0x20f4, 0xe05a, USB_CLASS_COMM,
+				      USB_CDC_SUBCLASS_ETHERNET,
+				      USB_CDC_PROTO_NONE),
+	.driver_info = 0,
+},
+
+/* QNAP QNA-UC5G1T USB to 5GbE Adapter (based on AQC111U) */
+{
+	USB_DEVICE_AND_INTERFACE_INFO(0x1c04, 0x0015, USB_CLASS_COMM,
+				      USB_CDC_SUBCLASS_ETHERNET,
+				      USB_CDC_PROTO_NONE),
+	.driver_info = 0,
+},
+
+>>>>>>> upstream/android-13
 /* WHITELIST!!!
  *
  * CDC Ether uses two interfaces, not necessarily consecutive.
@@ -936,6 +1093,15 @@ static const struct usb_device_id	products[] = {
 				      USB_CDC_PROTO_NONE),
 	.driver_info = (unsigned long)&wwan_info,
 }, {
+<<<<<<< HEAD
+=======
+	/* Cinterion PLS83/PLS63 modem by GEMALTO/THALES */
+	USB_DEVICE_AND_INTERFACE_INFO(0x1e2d, 0x0069, USB_CLASS_COMM,
+				      USB_CDC_SUBCLASS_ETHERNET,
+				      USB_CDC_PROTO_NONE),
+	.driver_info = (unsigned long)&wwan_info,
+}, {
+>>>>>>> upstream/android-13
 	USB_INTERFACE_INFO(USB_CLASS_COMM, USB_CDC_SUBCLASS_ETHERNET,
 			USB_CDC_PROTO_NONE),
 	.driver_info = (unsigned long) &cdc_info,

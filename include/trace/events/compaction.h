@@ -64,6 +64,10 @@ DEFINE_EVENT(mm_compaction_isolate_template, mm_compaction_isolate_freepages,
 	TP_ARGS(start_pfn, end_pfn, nr_scanned, nr_taken)
 );
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_COMPACTION
+>>>>>>> upstream/android-13
 TRACE_EVENT(mm_compaction_migratepages,
 
 	TP_PROTO(unsigned long nr_all,
@@ -132,7 +136,10 @@ TRACE_EVENT(mm_compaction_begin,
 		__entry->sync ? "sync" : "async")
 );
 
+<<<<<<< HEAD
 #ifdef CONFIG_COMPACTION
+=======
+>>>>>>> upstream/android-13
 TRACE_EVENT(mm_compaction_end,
 	TP_PROTO(unsigned long zone_start, unsigned long migrate_pfn,
 		unsigned long free_pfn, unsigned long zone_end, bool sync,
@@ -166,7 +173,10 @@ TRACE_EVENT(mm_compaction_end,
 		__entry->sync ? "sync" : "async",
 		__print_symbolic(__entry->status, COMPACTION_STATUS))
 );
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 TRACE_EVENT(mm_compaction_try_to_compact_pages,
 
@@ -189,6 +199,7 @@ TRACE_EVENT(mm_compaction_try_to_compact_pages,
 		__entry->prio = prio;
 	),
 
+<<<<<<< HEAD
 	TP_printk("order=%d gfp_mask=0x%x priority=%d",
 		__entry->order,
 		__entry->gfp_mask,
@@ -196,6 +207,14 @@ TRACE_EVENT(mm_compaction_try_to_compact_pages,
 );
 
 #ifdef CONFIG_COMPACTION
+=======
+	TP_printk("order=%d gfp_mask=%s priority=%d",
+		__entry->order,
+		show_gfp_flags(__entry->gfp_mask),
+		__entry->prio)
+);
+
+>>>>>>> upstream/android-13
 DECLARE_EVENT_CLASS(mm_compaction_suitable_template,
 
 	TP_PROTO(struct zone *zone,
@@ -296,7 +315,10 @@ DEFINE_EVENT(mm_compaction_defer_template, mm_compaction_defer_reset,
 
 	TP_ARGS(zone, order)
 );
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 TRACE_EVENT(mm_compaction_kcompactd_sleep,
 
@@ -317,19 +339,30 @@ TRACE_EVENT(mm_compaction_kcompactd_sleep,
 
 DECLARE_EVENT_CLASS(kcompactd_wake_template,
 
+<<<<<<< HEAD
 	TP_PROTO(int nid, int order, enum zone_type classzone_idx),
 
 	TP_ARGS(nid, order, classzone_idx),
+=======
+	TP_PROTO(int nid, int order, enum zone_type highest_zoneidx),
+
+	TP_ARGS(nid, order, highest_zoneidx),
+>>>>>>> upstream/android-13
 
 	TP_STRUCT__entry(
 		__field(int, nid)
 		__field(int, order)
+<<<<<<< HEAD
 		__field(enum zone_type, classzone_idx)
+=======
+		__field(enum zone_type, highest_zoneidx)
+>>>>>>> upstream/android-13
 	),
 
 	TP_fast_assign(
 		__entry->nid = nid;
 		__entry->order = order;
+<<<<<<< HEAD
 		__entry->classzone_idx = classzone_idx;
 	),
 
@@ -337,21 +370,48 @@ DECLARE_EVENT_CLASS(kcompactd_wake_template,
 		__entry->nid,
 		__entry->order,
 		__print_symbolic(__entry->classzone_idx, ZONE_TYPE))
+=======
+		__entry->highest_zoneidx = highest_zoneidx;
+	),
+
+	/*
+	 * classzone_idx is previous name of the highest_zoneidx.
+	 * Reason not to change it is the ABI requirement of the tracepoint.
+	 */
+	TP_printk("nid=%d order=%d classzone_idx=%-8s",
+		__entry->nid,
+		__entry->order,
+		__print_symbolic(__entry->highest_zoneidx, ZONE_TYPE))
+>>>>>>> upstream/android-13
 );
 
 DEFINE_EVENT(kcompactd_wake_template, mm_compaction_wakeup_kcompactd,
 
+<<<<<<< HEAD
 	TP_PROTO(int nid, int order, enum zone_type classzone_idx),
 
 	TP_ARGS(nid, order, classzone_idx)
+=======
+	TP_PROTO(int nid, int order, enum zone_type highest_zoneidx),
+
+	TP_ARGS(nid, order, highest_zoneidx)
+>>>>>>> upstream/android-13
 );
 
 DEFINE_EVENT(kcompactd_wake_template, mm_compaction_kcompactd_wake,
 
+<<<<<<< HEAD
 	TP_PROTO(int nid, int order, enum zone_type classzone_idx),
 
 	TP_ARGS(nid, order, classzone_idx)
 );
+=======
+	TP_PROTO(int nid, int order, enum zone_type highest_zoneidx),
+
+	TP_ARGS(nid, order, highest_zoneidx)
+);
+#endif
+>>>>>>> upstream/android-13
 
 #endif /* _TRACE_COMPACTION_H */
 

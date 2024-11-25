@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  linux/include/linux/serial_8250.h
  *
  *  Copyright (C) 2004 Russell King
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _LINUX_SERIAL_8250_H
 #define _LINUX_SERIAL_8250_H
@@ -29,6 +36,10 @@ struct plat_serial8250_port {
 	unsigned char	regshift;	/* register shift */
 	unsigned char	iotype;		/* UPIO_* */
 	unsigned char	hub6;
+<<<<<<< HEAD
+=======
+	unsigned char	has_sysrq;	/* supports magic SysRq */
+>>>>>>> upstream/android-13
 	upf_t		flags;		/* UPF_* flags */
 	unsigned int	type;		/* If UPF_FIXED_TYPE */
 	unsigned int	(*serial_in)(struct uart_port *, int);
@@ -84,6 +95,10 @@ struct uart_8250_em485 {
 	struct hrtimer		stop_tx_timer;  /* "rs485 stop tx" timer */
 	struct hrtimer		*active_timer;  /* pointer to active timer */
 	struct uart_8250_port	*port;          /* for hrtimer callbacks */
+<<<<<<< HEAD
+=======
+	unsigned int		tx_stopped:1;	/* tx is currently stopped */
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -114,6 +129,10 @@ struct uart_8250_port {
 						 *   if no_console_suspend
 						 */
 	unsigned char		probe;
+<<<<<<< HEAD
+=======
+	struct mctrl_gpios	*gpios;
+>>>>>>> upstream/android-13
 #define UART_PROBE_RSA	(1 << 0)
 
 	/*
@@ -134,6 +153,11 @@ struct uart_8250_port {
 	void			(*dl_write)(struct uart_8250_port *, int);
 
 	struct uart_8250_em485 *em485;
+<<<<<<< HEAD
+=======
+	void			(*rs485_start_tx)(struct uart_8250_port *);
+	void			(*rs485_stop_tx)(struct uart_8250_port *);
+>>>>>>> upstream/android-13
 
 	/* Serial port overrun backoff */
 	struct delayed_work overrun_backoff;
@@ -145,7 +169,11 @@ static inline struct uart_8250_port *up_to_u8250p(struct uart_port *up)
 	return container_of(up, struct uart_8250_port, port);
 }
 
+<<<<<<< HEAD
 int serial8250_register_8250_port(struct uart_8250_port *);
+=======
+int serial8250_register_8250_port(const struct uart_8250_port *);
+>>>>>>> upstream/android-13
 void serial8250_unregister_port(int line);
 void serial8250_suspend_port(int line);
 void serial8250_resume_port(int line);
@@ -154,6 +182,11 @@ extern int early_serial_setup(struct uart_port *port);
 
 extern int early_serial8250_setup(struct earlycon_device *device,
 					 const char *options);
+<<<<<<< HEAD
+=======
+extern void serial8250_update_uartclk(struct uart_port *port,
+				      unsigned int uartclk);
+>>>>>>> upstream/android-13
 extern void serial8250_do_set_termios(struct uart_port *port,
 		struct ktermios *termios, struct ktermios *old);
 extern void serial8250_do_set_ldisc(struct uart_port *port,
@@ -178,9 +211,21 @@ void serial8250_set_defaults(struct uart_8250_port *up);
 void serial8250_console_write(struct uart_8250_port *up, const char *s,
 			      unsigned int count);
 int serial8250_console_setup(struct uart_port *port, char *options, bool probe);
+<<<<<<< HEAD
+=======
+int serial8250_console_exit(struct uart_port *port);
+>>>>>>> upstream/android-13
 
 extern void serial8250_set_isa_configurator(void (*v)
 					(int port, struct uart_port *up,
 						u32 *capabilities));
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_SERIAL_8250_RT288X
+unsigned int au_serial_in(struct uart_port *p, int offset);
+void au_serial_out(struct uart_port *p, int offset, int value);
+#endif
+
+>>>>>>> upstream/android-13
 #endif

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2010 SUSE Linux Products GmbH. All rights reserved.
  * Copyright 2010-2011 Freescale Semiconductor, Inc.
  *
  * Authors:
  *     Alexander Graf <agraf@suse.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kvm_host.h>
@@ -76,16 +83,28 @@
 #define KVM_INST_MTSRIN		0x7c0001e4
 
 static bool kvm_patching_worked = true;
+<<<<<<< HEAD
 char kvm_tmp[1024 * 1024];
 static int kvm_tmp_index;
 
 static inline void kvm_patch_ins(u32 *inst, u32 new_inst)
+=======
+extern char kvm_tmp[];
+extern char kvm_tmp_end[];
+static int kvm_tmp_index;
+
+static void __init kvm_patch_ins(u32 *inst, u32 new_inst)
+>>>>>>> upstream/android-13
 {
 	*inst = new_inst;
 	flush_icache_range((ulong)inst, (ulong)inst + 4);
 }
 
+<<<<<<< HEAD
 static void kvm_patch_ins_ll(u32 *inst, long addr, u32 rt)
+=======
+static void __init kvm_patch_ins_ll(u32 *inst, long addr, u32 rt)
+>>>>>>> upstream/android-13
 {
 #ifdef CONFIG_64BIT
 	kvm_patch_ins(inst, KVM_INST_LD | rt | (addr & 0x0000fffc));
@@ -94,7 +113,11 @@ static void kvm_patch_ins_ll(u32 *inst, long addr, u32 rt)
 #endif
 }
 
+<<<<<<< HEAD
 static void kvm_patch_ins_ld(u32 *inst, long addr, u32 rt)
+=======
+static void __init kvm_patch_ins_ld(u32 *inst, long addr, u32 rt)
+>>>>>>> upstream/android-13
 {
 #ifdef CONFIG_64BIT
 	kvm_patch_ins(inst, KVM_INST_LD | rt | (addr & 0x0000fffc));
@@ -103,12 +126,20 @@ static void kvm_patch_ins_ld(u32 *inst, long addr, u32 rt)
 #endif
 }
 
+<<<<<<< HEAD
 static void kvm_patch_ins_lwz(u32 *inst, long addr, u32 rt)
+=======
+static void __init kvm_patch_ins_lwz(u32 *inst, long addr, u32 rt)
+>>>>>>> upstream/android-13
 {
 	kvm_patch_ins(inst, KVM_INST_LWZ | rt | (addr & 0x0000ffff));
 }
 
+<<<<<<< HEAD
 static void kvm_patch_ins_std(u32 *inst, long addr, u32 rt)
+=======
+static void __init kvm_patch_ins_std(u32 *inst, long addr, u32 rt)
+>>>>>>> upstream/android-13
 {
 #ifdef CONFIG_64BIT
 	kvm_patch_ins(inst, KVM_INST_STD | rt | (addr & 0x0000fffc));
@@ -117,17 +148,29 @@ static void kvm_patch_ins_std(u32 *inst, long addr, u32 rt)
 #endif
 }
 
+<<<<<<< HEAD
 static void kvm_patch_ins_stw(u32 *inst, long addr, u32 rt)
+=======
+static void __init kvm_patch_ins_stw(u32 *inst, long addr, u32 rt)
+>>>>>>> upstream/android-13
 {
 	kvm_patch_ins(inst, KVM_INST_STW | rt | (addr & 0x0000fffc));
 }
 
+<<<<<<< HEAD
 static void kvm_patch_ins_nop(u32 *inst)
+=======
+static void __init kvm_patch_ins_nop(u32 *inst)
+>>>>>>> upstream/android-13
 {
 	kvm_patch_ins(inst, KVM_INST_NOP);
 }
 
+<<<<<<< HEAD
 static void kvm_patch_ins_b(u32 *inst, int addr)
+=======
+static void __init kvm_patch_ins_b(u32 *inst, int addr)
+>>>>>>> upstream/android-13
 {
 #if defined(CONFIG_RELOCATABLE) && defined(CONFIG_PPC_BOOK3S)
 	/* On relocatable kernels interrupts handlers and our code
@@ -140,11 +183,19 @@ static void kvm_patch_ins_b(u32 *inst, int addr)
 	kvm_patch_ins(inst, KVM_INST_B | (addr & KVM_INST_B_MASK));
 }
 
+<<<<<<< HEAD
 static u32 *kvm_alloc(int len)
 {
 	u32 *p;
 
 	if ((kvm_tmp_index + len) > ARRAY_SIZE(kvm_tmp)) {
+=======
+static u32 * __init kvm_alloc(int len)
+{
+	u32 *p;
+
+	if ((kvm_tmp_index + len) > (kvm_tmp_end - kvm_tmp)) {
+>>>>>>> upstream/android-13
 		printk(KERN_ERR "KVM: No more space (%d + %d)\n",
 				kvm_tmp_index, len);
 		kvm_patching_worked = false;
@@ -163,7 +214,11 @@ extern u32 kvm_emulate_mtmsrd_orig_ins_offs;
 extern u32 kvm_emulate_mtmsrd_len;
 extern u32 kvm_emulate_mtmsrd[];
 
+<<<<<<< HEAD
 static void kvm_patch_ins_mtmsrd(u32 *inst, u32 rt)
+=======
+static void __init kvm_patch_ins_mtmsrd(u32 *inst, u32 rt)
+>>>>>>> upstream/android-13
 {
 	u32 *p;
 	int distance_start;
@@ -216,7 +271,11 @@ extern u32 kvm_emulate_mtmsr_orig_ins_offs;
 extern u32 kvm_emulate_mtmsr_len;
 extern u32 kvm_emulate_mtmsr[];
 
+<<<<<<< HEAD
 static void kvm_patch_ins_mtmsr(u32 *inst, u32 rt)
+=======
+static void __init kvm_patch_ins_mtmsr(u32 *inst, u32 rt)
+>>>>>>> upstream/android-13
 {
 	u32 *p;
 	int distance_start;
@@ -277,7 +336,11 @@ extern u32 kvm_emulate_wrtee_orig_ins_offs;
 extern u32 kvm_emulate_wrtee_len;
 extern u32 kvm_emulate_wrtee[];
 
+<<<<<<< HEAD
 static void kvm_patch_ins_wrtee(u32 *inst, u32 rt, int imm_one)
+=======
+static void __init kvm_patch_ins_wrtee(u32 *inst, u32 rt, int imm_one)
+>>>>>>> upstream/android-13
 {
 	u32 *p;
 	int distance_start;
@@ -334,7 +397,11 @@ extern u32 kvm_emulate_wrteei_0_branch_offs;
 extern u32 kvm_emulate_wrteei_0_len;
 extern u32 kvm_emulate_wrteei_0[];
 
+<<<<<<< HEAD
 static void kvm_patch_ins_wrteei_0(u32 *inst)
+=======
+static void __init kvm_patch_ins_wrteei_0(u32 *inst)
+>>>>>>> upstream/android-13
 {
 	u32 *p;
 	int distance_start;
@@ -375,7 +442,11 @@ extern u32 kvm_emulate_mtsrin_orig_ins_offs;
 extern u32 kvm_emulate_mtsrin_len;
 extern u32 kvm_emulate_mtsrin[];
 
+<<<<<<< HEAD
 static void kvm_patch_ins_mtsrin(u32 *inst, u32 rt, u32 rb)
+=======
+static void __init kvm_patch_ins_mtsrin(u32 *inst, u32 rt, u32 rb)
+>>>>>>> upstream/android-13
 {
 	u32 *p;
 	int distance_start;
@@ -411,7 +482,11 @@ static void kvm_patch_ins_mtsrin(u32 *inst, u32 rt, u32 rb)
 
 #endif
 
+<<<<<<< HEAD
 static void kvm_map_magic_page(void *data)
+=======
+static void __init kvm_map_magic_page(void *data)
+>>>>>>> upstream/android-13
 {
 	u32 *features = data;
 
@@ -426,7 +501,11 @@ static void kvm_map_magic_page(void *data)
 	*features = out[0];
 }
 
+<<<<<<< HEAD
 static void kvm_check_ins(u32 *inst, u32 features)
+=======
+static void __init kvm_check_ins(u32 *inst, u32 features)
+>>>>>>> upstream/android-13
 {
 	u32 _inst = *inst;
 	u32 inst_no_rt = _inst & ~KVM_MASK_RT;
@@ -670,7 +749,11 @@ static void kvm_check_ins(u32 *inst, u32 features)
 extern u32 kvm_template_start[];
 extern u32 kvm_template_end[];
 
+<<<<<<< HEAD
 static void kvm_use_magic_page(void)
+=======
+static void __init kvm_use_magic_page(void)
+>>>>>>> upstream/android-13
 {
 	u32 *p;
 	u32 *start, *end;
@@ -680,7 +763,12 @@ static void kvm_use_magic_page(void)
 	on_each_cpu(kvm_map_magic_page, &features, 1);
 
 	/* Quick self-test to see if the mapping works */
+<<<<<<< HEAD
 	if (!fault_in_pages_readable((const char *)KVM_MAGIC_PAGE, sizeof(u32))) {
+=======
+	if (fault_in_readable((const char __user *)KVM_MAGIC_PAGE,
+			      sizeof(u32))) {
+>>>>>>> upstream/android-13
 		kvm_patching_worked = false;
 		return;
 	}
@@ -711,6 +799,7 @@ static void kvm_use_magic_page(void)
 			 kvm_patching_worked ? "worked" : "failed");
 }
 
+<<<<<<< HEAD
 static __init void kvm_free_tmp(void)
 {
 	/*
@@ -730,6 +819,15 @@ static int __init kvm_guest_init(void)
 
 	if (!epapr_paravirt_enabled)
 		goto free_tmp;
+=======
+static int __init kvm_guest_init(void)
+{
+	if (!kvm_para_available())
+		return 0;
+
+	if (!epapr_paravirt_enabled)
+		return 0;
+>>>>>>> upstream/android-13
 
 	if (kvm_para_has_feature(KVM_FEATURE_MAGIC_PAGE))
 		kvm_use_magic_page();
@@ -739,9 +837,12 @@ static int __init kvm_guest_init(void)
 	powersave_nap = 1;
 #endif
 
+<<<<<<< HEAD
 free_tmp:
 	kvm_free_tmp();
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 

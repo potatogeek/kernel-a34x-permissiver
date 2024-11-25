@@ -29,8 +29,13 @@ static int die_counter;
 
 static struct pt_regs exec_summary_regs;
 
+<<<<<<< HEAD
 bool in_task_stack(unsigned long *stack, struct task_struct *task,
 		   struct stack_info *info)
+=======
+bool noinstr in_task_stack(unsigned long *stack, struct task_struct *task,
+			   struct stack_info *info)
+>>>>>>> upstream/android-13
 {
 	unsigned long *begin = task_stack_page(task);
 	unsigned long *end   = task_stack_page(task) + THREAD_SIZE;
@@ -46,7 +51,12 @@ bool in_task_stack(unsigned long *stack, struct task_struct *task,
 	return true;
 }
 
+<<<<<<< HEAD
 bool in_entry_stack(unsigned long *stack, struct stack_info *info)
+=======
+/* Called from get_stack_info_noinstr - so must be noinstr too */
+bool noinstr in_entry_stack(unsigned long *stack, struct stack_info *info)
+>>>>>>> upstream/android-13
 {
 	struct entry_stack *ss = cpu_entry_stack(smp_processor_id());
 
@@ -65,10 +75,42 @@ bool in_entry_stack(unsigned long *stack, struct stack_info *info)
 }
 
 static void printk_stack_address(unsigned long address, int reliable,
+<<<<<<< HEAD
 				 char *log_lvl)
 {
 	touch_nmi_watchdog();
 	printk("%s %s%pB\n", log_lvl, reliable ? "" : "? ", (void *)address);
+=======
+				 const char *log_lvl)
+{
+	touch_nmi_watchdog();
+	printk("%s %s%pBb\n", log_lvl, reliable ? "" : "? ", (void *)address);
+}
+
+static int copy_code(struct pt_regs *regs, u8 *buf, unsigned long src,
+		     unsigned int nbytes)
+{
+	if (!user_mode(regs))
+		return copy_from_kernel_nofault(buf, (u8 *)src, nbytes);
+
+	/* The user space code from other tasks cannot be accessed. */
+	if (regs != task_pt_regs(current))
+		return -EPERM;
+	/*
+	 * Make sure userspace isn't trying to trick us into dumping kernel
+	 * memory by pointing the userspace instruction pointer at it.
+	 */
+	if (__chk_range_not_ok(src, nbytes, TASK_SIZE_MAX))
+		return -EINVAL;
+
+	/*
+	 * Even if named copy_from_user_nmi() this can be invoked from
+	 * other contexts and will not try to resolve a pagefault, which is
+	 * the correct thing to do here as this code can be called from any
+	 * context.
+	 */
+	return copy_from_user_nmi(buf, (void __user *)src, nbytes);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -97,6 +139,7 @@ void show_opcodes(struct pt_regs *regs, const char *loglvl)
 #define OPCODE_BUFSIZE (PROLOGUE_SIZE + 1 + EPILOGUE_SIZE)
 	u8 opcodes[OPCODE_BUFSIZE];
 	unsigned long prologue = regs->ip - PROLOGUE_SIZE;
+<<<<<<< HEAD
 	bool bad_ip;
 
 	/*
@@ -113,6 +156,22 @@ void show_opcodes(struct pt_regs *regs, const char *loglvl)
 		printk("%sCode: %" __stringify(PROLOGUE_SIZE) "ph <%02x> %"
 		       __stringify(EPILOGUE_SIZE) "ph\n", loglvl, opcodes,
 		       opcodes[PROLOGUE_SIZE], opcodes + PROLOGUE_SIZE + 1);
+=======
+
+	switch (copy_code(regs, opcodes, prologue, sizeof(opcodes))) {
+	case 0:
+		printk("%sCode: %" __stringify(PROLOGUE_SIZE) "ph <%02x> %"
+		       __stringify(EPILOGUE_SIZE) "ph\n", loglvl, opcodes,
+		       opcodes[PROLOGUE_SIZE], opcodes + PROLOGUE_SIZE + 1);
+		break;
+	case -EPERM:
+		/* No access to the user space stack of other tasks. Ignore. */
+		break;
+	default:
+		printk("%sCode: Unable to access opcode bytes at RIP 0x%lx.\n",
+		       loglvl, prologue);
+		break;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -126,15 +185,26 @@ void show_ip(struct pt_regs *regs, const char *loglvl)
 	show_opcodes(regs, loglvl);
 }
 
+<<<<<<< HEAD
 void show_iret_regs(struct pt_regs *regs)
 {
 	show_ip(regs, KERN_DEFAULT);
 	printk(KERN_DEFAULT "RSP: %04x:%016lx EFLAGS: %08lx", (int)regs->ss,
+=======
+void show_iret_regs(struct pt_regs *regs, const char *log_lvl)
+{
+	show_ip(regs, log_lvl);
+	printk("%sRSP: %04x:%016lx EFLAGS: %08lx", log_lvl, (int)regs->ss,
+>>>>>>> upstream/android-13
 		regs->sp, regs->flags);
 }
 
 static void show_regs_if_on_stack(struct stack_info *info, struct pt_regs *regs,
+<<<<<<< HEAD
 				  bool partial)
+=======
+				  bool partial, const char *log_lvl)
+>>>>>>> upstream/android-13
 {
 	/*
 	 * These on_stack() checks aren't strictly necessary: the unwind code
@@ -146,7 +216,11 @@ static void show_regs_if_on_stack(struct stack_info *info, struct pt_regs *regs,
 	 * they can be printed in the right context.
 	 */
 	if (!partial && on_stack(info, regs, sizeof(*regs))) {
+<<<<<<< HEAD
 		__show_regs(regs, SHOW_REGS_SHORT);
+=======
+		__show_regs(regs, SHOW_REGS_SHORT, log_lvl);
+>>>>>>> upstream/android-13
 
 	} else if (partial && on_stack(info, (void *)regs + IRET_FRAME_OFFSET,
 				       IRET_FRAME_SIZE)) {
@@ -155,12 +229,21 @@ static void show_regs_if_on_stack(struct stack_info *info, struct pt_regs *regs,
 		 * full pt_regs might not have been saved yet.  In that case
 		 * just print the iret frame.
 		 */
+<<<<<<< HEAD
 		show_iret_regs(regs);
 	}
 }
 
 void show_trace_log_lvl(struct task_struct *task, struct pt_regs *regs,
 			unsigned long *stack, char *log_lvl)
+=======
+		show_iret_regs(regs, log_lvl);
+	}
+}
+
+static void show_trace_log_lvl(struct task_struct *task, struct pt_regs *regs,
+			unsigned long *stack, const char *log_lvl)
+>>>>>>> upstream/android-13
 {
 	struct unwind_state state;
 	struct stack_info stack_info = {0};
@@ -210,7 +293,11 @@ void show_trace_log_lvl(struct task_struct *task, struct pt_regs *regs,
 			printk("%s <%s>\n", log_lvl, stack_name);
 
 		if (regs)
+<<<<<<< HEAD
 			show_regs_if_on_stack(&stack_info, regs, partial);
+=======
+			show_regs_if_on_stack(&stack_info, regs, partial, log_lvl);
+>>>>>>> upstream/android-13
 
 		/*
 		 * Scan the stack, printing any text addresses we find.  At the
@@ -271,7 +358,11 @@ next:
 			/* if the frame has entry regs, print them */
 			regs = unwind_get_entry_regs(&state, &partial);
 			if (regs)
+<<<<<<< HEAD
 				show_regs_if_on_stack(&stack_info, regs, partial);
+=======
+				show_regs_if_on_stack(&stack_info, regs, partial, log_lvl);
+>>>>>>> upstream/android-13
 		}
 
 		if (stack_name)
@@ -279,7 +370,12 @@ next:
 	}
 }
 
+<<<<<<< HEAD
 void show_stack(struct task_struct *task, unsigned long *sp)
+=======
+void show_stack(struct task_struct *task, unsigned long *sp,
+		       const char *loglvl)
+>>>>>>> upstream/android-13
 {
 	task = task ? : current;
 
@@ -290,7 +386,11 @@ void show_stack(struct task_struct *task, unsigned long *sp)
 	if (!sp && task == current)
 		sp = get_stack_pointer(current, NULL);
 
+<<<<<<< HEAD
 	show_trace_log_lvl(task, NULL, sp, KERN_DEFAULT);
+=======
+	show_trace_log_lvl(task, NULL, sp, loglvl);
+>>>>>>> upstream/android-13
 }
 
 void show_stack_regs(struct pt_regs *regs)
@@ -344,7 +444,11 @@ void oops_end(unsigned long flags, struct pt_regs *regs, int signr)
 	oops_exit();
 
 	/* Executive summary in case the oops scrolled away */
+<<<<<<< HEAD
 	__show_regs(&exec_summary_regs, SHOW_REGS_ALL);
+=======
+	__show_regs(&exec_summary_regs, SHOW_REGS_ALL, KERN_DEFAULT);
+>>>>>>> upstream/android-13
 
 	if (!signr)
 		return;
@@ -365,21 +469,45 @@ void oops_end(unsigned long flags, struct pt_regs *regs, int signr)
 }
 NOKPROBE_SYMBOL(oops_end);
 
+<<<<<<< HEAD
 int __die(const char *str, struct pt_regs *regs, long err)
 {
+=======
+static void __die_header(const char *str, struct pt_regs *regs, long err)
+{
+	const char *pr = "";
+
+>>>>>>> upstream/android-13
 	/* Save the regs of the first oops for the executive summary later. */
 	if (!die_counter)
 		exec_summary_regs = *regs;
 
+<<<<<<< HEAD
 	printk(KERN_DEFAULT
 	       "%s: %04lx [#%d]%s%s%s%s%s\n", str, err & 0xffff, ++die_counter,
 	       IS_ENABLED(CONFIG_PREEMPT) ? " PREEMPT"         : "",
+=======
+	if (IS_ENABLED(CONFIG_PREEMPTION))
+		pr = IS_ENABLED(CONFIG_PREEMPT_RT) ? " PREEMPT_RT" : " PREEMPT";
+
+	printk(KERN_DEFAULT
+	       "%s: %04lx [#%d]%s%s%s%s%s\n", str, err & 0xffff, ++die_counter,
+	       pr,
+>>>>>>> upstream/android-13
 	       IS_ENABLED(CONFIG_SMP)     ? " SMP"             : "",
 	       debug_pagealloc_enabled()  ? " DEBUG_PAGEALLOC" : "",
 	       IS_ENABLED(CONFIG_KASAN)   ? " KASAN"           : "",
 	       IS_ENABLED(CONFIG_PAGE_TABLE_ISOLATION) ?
 	       (boot_cpu_has(X86_FEATURE_PTI) ? " PTI" : " NOPTI") : "");
+<<<<<<< HEAD
 
+=======
+}
+NOKPROBE_SYMBOL(__die_header);
+
+static int __die_body(const char *str, struct pt_regs *regs, long err)
+{
+>>>>>>> upstream/android-13
 	show_regs(regs);
 	print_modules();
 
@@ -389,6 +517,16 @@ int __die(const char *str, struct pt_regs *regs, long err)
 
 	return 0;
 }
+<<<<<<< HEAD
+=======
+NOKPROBE_SYMBOL(__die_body);
+
+int __die(const char *str, struct pt_regs *regs, long err)
+{
+	__die_header(str, regs, err);
+	return __die_body(str, regs, err);
+}
+>>>>>>> upstream/android-13
 NOKPROBE_SYMBOL(__die);
 
 /*
@@ -405,11 +543,35 @@ void die(const char *str, struct pt_regs *regs, long err)
 	oops_end(flags, regs, sig);
 }
 
+<<<<<<< HEAD
 void show_regs(struct pt_regs *regs)
 {
 	show_regs_print_info(KERN_DEFAULT);
 
 	__show_regs(regs, user_mode(regs) ? SHOW_REGS_USER : SHOW_REGS_ALL);
+=======
+void die_addr(const char *str, struct pt_regs *regs, long err, long gp_addr)
+{
+	unsigned long flags = oops_begin();
+	int sig = SIGSEGV;
+
+	__die_header(str, regs, err);
+	if (gp_addr)
+		kasan_non_canonical_hook(gp_addr);
+	if (__die_body(str, regs, err))
+		sig = 0;
+	oops_end(flags, regs, sig);
+}
+
+void show_regs(struct pt_regs *regs)
+{
+	enum show_regs_mode print_kernel_regs;
+
+	show_regs_print_info(KERN_DEFAULT);
+
+	print_kernel_regs = user_mode(regs) ? SHOW_REGS_USER : SHOW_REGS_ALL;
+	__show_regs(regs, print_kernel_regs, KERN_DEFAULT);
+>>>>>>> upstream/android-13
 
 	/*
 	 * When in-kernel, we also print out the stack at the time of the fault..

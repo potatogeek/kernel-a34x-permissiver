@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*******************************************************************************
  * This file contains tcm implementation using v4 configfs fabric infrastructure
  * for QLogic target mode HBAs
@@ -11,6 +15,7 @@
  *
  * Copyright (c) 2010 Cisco Systems, Inc
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -20,10 +25,13 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  ****************************************************************************/
 
 
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/moduleparam.h>
 #include <linux/utsname.h>
 #include <linux/vmalloc.h>
@@ -31,15 +39,25 @@
 #include <linux/list.h>
 #include <linux/slab.h>
 #include <linux/kthread.h>
+=======
+#include <linux/utsname.h>
+#include <linux/vmalloc.h>
+#include <linux/list.h>
+#include <linux/slab.h>
+>>>>>>> upstream/android-13
 #include <linux/types.h>
 #include <linux/string.h>
 #include <linux/configfs.h>
 #include <linux/ctype.h>
 #include <asm/unaligned.h>
+<<<<<<< HEAD
 #include <scsi/scsi.h>
 #include <scsi/scsi_host.h>
 #include <scsi/scsi_device.h>
 #include <scsi/scsi_cmnd.h>
+=======
+#include <scsi/scsi_host.h>
+>>>>>>> upstream/android-13
 #include <target/target_core_base.h>
 #include <target/target_core_fabric.h>
 
@@ -108,11 +126,14 @@ static ssize_t tcm_qla2xxx_format_wwn(char *buf, size_t len, u64 wwn)
 		b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7]);
 }
 
+<<<<<<< HEAD
 static char *tcm_qla2xxx_get_fabric_name(void)
 {
 	return "qla2xxx";
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * From drivers/scsi/scsi_transport_fc.c:fc_parse_wwn
  */
@@ -178,11 +199,14 @@ static int tcm_qla2xxx_npiv_parse_wwn(
 	return 0;
 }
 
+<<<<<<< HEAD
 static char *tcm_qla2xxx_npiv_get_fabric_name(void)
 {
 	return "qla2xxx_npiv";
 }
 
+=======
+>>>>>>> upstream/android-13
 static char *tcm_qla2xxx_get_fabric_wwn(struct se_portal_group *se_tpg)
 {
 	struct tcm_qla2xxx_tpg *tpg = container_of(se_tpg,
@@ -270,6 +294,11 @@ static void tcm_qla2xxx_complete_mcmd(struct work_struct *work)
  */
 static void tcm_qla2xxx_free_mcmd(struct qla_tgt_mgmt_cmd *mcmd)
 {
+<<<<<<< HEAD
+=======
+	if (!mcmd)
+		return;
+>>>>>>> upstream/android-13
 	INIT_WORK(&mcmd->free_work, tcm_qla2xxx_complete_mcmd);
 	queue_work(tcm_qla2xxx_free_wq, &mcmd->free_work);
 }
@@ -277,16 +306,58 @@ static void tcm_qla2xxx_free_mcmd(struct qla_tgt_mgmt_cmd *mcmd)
 static void tcm_qla2xxx_complete_free(struct work_struct *work)
 {
 	struct qla_tgt_cmd *cmd = container_of(work, struct qla_tgt_cmd, work);
+<<<<<<< HEAD
+=======
+	unsigned long flags;
+>>>>>>> upstream/android-13
 
 	cmd->cmd_in_wq = 0;
 
 	WARN_ON(cmd->trc_flags & TRC_CMD_FREE);
 
+<<<<<<< HEAD
 	cmd->qpair->tgt_counters.qla_core_ret_sta_ctio++;
 	cmd->trc_flags |= TRC_CMD_FREE;
 	transport_generic_free_cmd(&cmd->se_cmd, 0);
 }
 
+=======
+	/* To do: protect all tgt_counters manipulations with proper locking. */
+	cmd->qpair->tgt_counters.qla_core_ret_sta_ctio++;
+	cmd->trc_flags |= TRC_CMD_FREE;
+	cmd->cmd_sent_to_fw = 0;
+
+	spin_lock_irqsave(&cmd->sess->sess_cmd_lock, flags);
+	list_del_init(&cmd->sess_cmd_list);
+	spin_unlock_irqrestore(&cmd->sess->sess_cmd_lock, flags);
+
+	transport_generic_free_cmd(&cmd->se_cmd, 0);
+}
+
+static struct qla_tgt_cmd *tcm_qla2xxx_get_cmd(struct fc_port *sess)
+{
+	struct se_session *se_sess = sess->se_sess;
+	struct qla_tgt_cmd *cmd;
+	int tag, cpu;
+
+	tag = sbitmap_queue_get(&se_sess->sess_tag_pool, &cpu);
+	if (tag < 0)
+		return NULL;
+
+	cmd = &((struct qla_tgt_cmd *)se_sess->sess_cmd_map)[tag];
+	memset(cmd, 0, sizeof(struct qla_tgt_cmd));
+	cmd->se_cmd.map_tag = tag;
+	cmd->se_cmd.map_cpu = cpu;
+
+	return cmd;
+}
+
+static void tcm_qla2xxx_rel_cmd(struct qla_tgt_cmd *cmd)
+{
+	target_free_tag(cmd->sess->se_sess, &cmd->se_cmd);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Called from qla_target_template->free_cmd(), and will call
  * tcm_qla2xxx_release_cmd via normal struct target_core_fabric_ops
@@ -332,8 +403,16 @@ static void tcm_qla2xxx_release_cmd(struct se_cmd *se_cmd)
 		qlt_free_mcmd(mcmd);
 		return;
 	}
+<<<<<<< HEAD
 
 	cmd = container_of(se_cmd, struct qla_tgt_cmd, se_cmd);
+=======
+	cmd = container_of(se_cmd, struct qla_tgt_cmd, se_cmd);
+
+	if (WARN_ON(cmd->cmd_sent_to_fw))
+		return;
+
+>>>>>>> upstream/android-13
 	qlt_free_cmd(cmd);
 }
 
@@ -356,6 +435,7 @@ static void tcm_qla2xxx_put_sess(struct fc_port *sess)
 static void tcm_qla2xxx_close_session(struct se_session *se_sess)
 {
 	struct fc_port *sess = se_sess->fabric_sess_ptr;
+<<<<<<< HEAD
 	struct scsi_qla_host *vha;
 	unsigned long flags;
 
@@ -366,6 +446,14 @@ static void tcm_qla2xxx_close_session(struct se_session *se_sess)
 	target_sess_cmd_list_set_waiting(se_sess);
 	spin_unlock_irqrestore(&vha->hw->tgt.sess_lock, flags);
 
+=======
+
+	BUG_ON(!sess);
+
+	target_stop_session(se_sess);
+
+	sess->explicit_logout = 1;
+>>>>>>> upstream/android-13
 	tcm_qla2xxx_put_sess(sess);
 }
 
@@ -407,12 +495,17 @@ static int tcm_qla2xxx_write_pending(struct se_cmd *se_cmd)
 	se_cmd->pi_err = 0;
 
 	/*
+<<<<<<< HEAD
 	 * qla_target.c:qlt_rdy_to_xfer() will call pci_map_sg() to setup
+=======
+	 * qla_target.c:qlt_rdy_to_xfer() will call dma_map_sg() to setup
+>>>>>>> upstream/android-13
 	 * the SGL mappings into PCIe memory for incoming FCP WRITE data.
 	 */
 	return qlt_rdy_to_xfer(cmd);
 }
 
+<<<<<<< HEAD
 static int tcm_qla2xxx_write_pending_status(struct se_cmd *se_cmd)
 {
 	unsigned long flags;
@@ -433,6 +526,8 @@ static int tcm_qla2xxx_write_pending_status(struct se_cmd *se_cmd)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void tcm_qla2xxx_set_default_node_attrs(struct se_node_acl *nacl)
 {
 	return;
@@ -463,6 +558,7 @@ static int tcm_qla2xxx_handle_cmd(scsi_qla_host_t *vha, struct qla_tgt_cmd *cmd,
 	struct se_portal_group *se_tpg;
 	struct tcm_qla2xxx_tpg *tpg;
 #endif
+<<<<<<< HEAD
 	int flags = TARGET_SCF_ACK_KREF;
 
 	if (bidi)
@@ -470,6 +566,16 @@ static int tcm_qla2xxx_handle_cmd(scsi_qla_host_t *vha, struct qla_tgt_cmd *cmd,
 
 	if (se_cmd->cpuid != WORK_CPU_UNBOUND)
 		flags |= TARGET_SCF_USE_CPUID;
+=======
+	int rc, target_flags = TARGET_SCF_ACK_KREF;
+	unsigned long flags;
+
+	if (bidi)
+		target_flags |= TARGET_SCF_BIDI_OP;
+
+	if (se_cmd->cpuid != WORK_CPU_UNBOUND)
+		target_flags |= TARGET_SCF_USE_CPUID;
+>>>>>>> upstream/android-13
 
 	sess = cmd->sess;
 	if (!sess) {
@@ -491,11 +597,32 @@ static int tcm_qla2xxx_handle_cmd(scsi_qla_host_t *vha, struct qla_tgt_cmd *cmd,
 		return 0;
 	}
 #endif
+<<<<<<< HEAD
 
 	cmd->qpair->tgt_counters.qla_core_sbt_cmd++;
 	return target_submit_cmd(se_cmd, se_sess, cdb, &cmd->sense_buffer[0],
 				cmd->unpacked_lun, data_length, fcp_task_attr,
 				data_dir, flags);
+=======
+	cmd->qpair->tgt_counters.qla_core_sbt_cmd++;
+
+	spin_lock_irqsave(&sess->sess_cmd_lock, flags);
+	list_add_tail(&cmd->sess_cmd_list, &sess->sess_cmd_list);
+	spin_unlock_irqrestore(&sess->sess_cmd_lock, flags);
+
+	rc = target_init_cmd(se_cmd, se_sess, &cmd->sense_buffer[0],
+			     cmd->unpacked_lun, data_length, fcp_task_attr,
+			     data_dir, target_flags);
+	if (rc)
+		return rc;
+
+	if (target_submit_prep(se_cmd, cdb, NULL, 0, NULL, 0, NULL, 0,
+			       GFP_KERNEL))
+		return 0;
+
+	target_submit(se_cmd);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void tcm_qla2xxx_handle_data_work(struct work_struct *work)
@@ -507,6 +634,7 @@ static void tcm_qla2xxx_handle_data_work(struct work_struct *work)
 	 * Otherwise return an exception via CHECK_CONDITION status.
 	 */
 	cmd->cmd_in_wq = 0;
+<<<<<<< HEAD
 
 	cmd->qpair->tgt_counters.qla_core_ret_ctio++;
 	if (!cmd->write_data_transferred) {
@@ -519,6 +647,17 @@ static void tcm_qla2xxx_handle_data_work(struct work_struct *work)
 			return;
 		}
 
+=======
+	cmd->cmd_sent_to_fw = 0;
+	if (cmd->aborted) {
+		transport_generic_request_failure(&cmd->se_cmd,
+			TCM_CHECK_CONDITION_ABORT_CMD);
+		return;
+	}
+
+	cmd->qpair->tgt_counters.qla_core_ret_ctio++;
+	if (!cmd->write_data_transferred) {
+>>>>>>> upstream/android-13
 		switch (cmd->dif_err_code) {
 		case DIF_ERR_GRD:
 			cmd->se_cmd.pi_err =
@@ -589,13 +728,19 @@ static int tcm_qla2xxx_handle_tmr(struct qla_tgt_mgmt_cmd *mcmd, u64 lun,
 	struct fc_port *sess = mcmd->sess;
 	struct se_cmd *se_cmd = &mcmd->se_cmd;
 	int transl_tmr_func = 0;
+<<<<<<< HEAD
 	int flags = TARGET_SCF_ACK_KREF;
+=======
+>>>>>>> upstream/android-13
 
 	switch (tmr_func) {
 	case QLA_TGT_ABTS:
 		pr_debug("%ld: ABTS received\n", sess->vha->host_no);
 		transl_tmr_func = TMR_ABORT_TASK;
+<<<<<<< HEAD
 		flags |= TARGET_SCF_LOOKUP_LUN_FROM_TAG;
+=======
+>>>>>>> upstream/android-13
 		break;
 	case QLA_TGT_2G_ABORT_TASK:
 		pr_debug("%ld: 2G Abort Task received\n", sess->vha->host_no);
@@ -628,19 +773,28 @@ static int tcm_qla2xxx_handle_tmr(struct qla_tgt_mgmt_cmd *mcmd, u64 lun,
 	}
 
 	return target_submit_tmr(se_cmd, sess->se_sess, NULL, lun, mcmd,
+<<<<<<< HEAD
 	    transl_tmr_func, GFP_ATOMIC, tag, flags);
+=======
+	    transl_tmr_func, GFP_ATOMIC, tag, TARGET_SCF_ACK_KREF);
+>>>>>>> upstream/android-13
 }
 
 static struct qla_tgt_cmd *tcm_qla2xxx_find_cmd_by_tag(struct fc_port *sess,
     uint64_t tag)
 {
+<<<<<<< HEAD
 	struct qla_tgt_cmd *cmd = NULL;
 	struct se_cmd *secmd;
+=======
+	struct qla_tgt_cmd *cmd;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 
 	if (!sess->se_sess)
 		return NULL;
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&sess->se_sess->sess_cmd_lock, flags);
 	list_for_each_entry(secmd, &sess->se_sess->sess_cmd_list, se_cmd_list) {
 		/* skip task management functions, including tmr->task_cmd */
@@ -653,6 +807,16 @@ static struct qla_tgt_cmd *tcm_qla2xxx_find_cmd_by_tag(struct fc_port *sess,
 		}
 	}
 	spin_unlock_irqrestore(&sess->se_sess->sess_cmd_lock, flags);
+=======
+	spin_lock_irqsave(&sess->sess_cmd_lock, flags);
+	list_for_each_entry(cmd, &sess->sess_cmd_list, sess_cmd_list) {
+		if (cmd->se_cmd.tag == tag)
+			goto done;
+	}
+	cmd = NULL;
+done:
+	spin_unlock_irqrestore(&sess->sess_cmd_lock, flags);
+>>>>>>> upstream/android-13
 
 	return cmd;
 }
@@ -778,11 +942,27 @@ static void tcm_qla2xxx_queue_tm_rsp(struct se_cmd *se_cmd)
 
 static void tcm_qla2xxx_aborted_task(struct se_cmd *se_cmd)
 {
+<<<<<<< HEAD
 	struct qla_tgt_cmd *cmd = container_of(se_cmd,
 				struct qla_tgt_cmd, se_cmd);
 
 	if (qlt_abort_cmd(cmd))
 		return;
+=======
+	struct qla_tgt_cmd *cmd;
+	unsigned long flags;
+
+	if (se_cmd->se_cmd_flags & SCF_SCSI_TMR_CDB)
+		return;
+
+	cmd  = container_of(se_cmd, struct qla_tgt_cmd, se_cmd);
+
+	spin_lock_irqsave(&cmd->sess->sess_cmd_lock, flags);
+	list_del_init(&cmd->sess_cmd_list);
+	spin_unlock_irqrestore(&cmd->sess->sess_cmd_lock, flags);
+
+	qlt_abort_cmd(cmd);
+>>>>>>> upstream/android-13
 }
 
 static void tcm_qla2xxx_clear_sess_lookup(struct tcm_qla2xxx_lport *,
@@ -831,7 +1011,11 @@ static void tcm_qla2xxx_clear_nacl_from_fcport_map(struct fc_port *sess)
 
 static void tcm_qla2xxx_shutdown_sess(struct fc_port *sess)
 {
+<<<<<<< HEAD
 	target_sess_cmd_list_set_waiting(sess->se_sess);
+=======
+	target_stop_session(sess->se_sess);
+>>>>>>> upstream/android-13
 }
 
 static int tcm_qla2xxx_init_nodeacl(struct se_node_acl *se_nacl,
@@ -861,7 +1045,11 @@ static ssize_t tcm_qla2xxx_tpg_attrib_##name##_show(			\
 	struct tcm_qla2xxx_tpg *tpg = container_of(se_tpg,		\
 			struct tcm_qla2xxx_tpg, se_tpg);		\
 									\
+<<<<<<< HEAD
 	return sprintf(page, "%u\n", tpg->tpg_attrib.name);	\
+=======
+	return sprintf(page, "%d\n", tpg->tpg_attrib.name);	\
+>>>>>>> upstream/android-13
 }									\
 									\
 static ssize_t tcm_qla2xxx_tpg_attrib_##name##_store(			\
@@ -1179,9 +1367,14 @@ static struct se_portal_group *tcm_qla2xxx_npiv_make_tpg(struct se_wwn *wwn,
 /*
  * Expected to be called with struct qla_hw_data->tgt.sess_lock held
  */
+<<<<<<< HEAD
 static struct fc_port *tcm_qla2xxx_find_sess_by_s_id(
 	scsi_qla_host_t *vha,
 	const uint8_t *s_id)
+=======
+static struct fc_port *tcm_qla2xxx_find_sess_by_s_id(scsi_qla_host_t *vha,
+						     const be_id_t s_id)
+>>>>>>> upstream/android-13
 {
 	struct tcm_qla2xxx_lport *lport;
 	struct se_node_acl *se_nacl;
@@ -1224,7 +1417,11 @@ static void tcm_qla2xxx_set_sess_by_s_id(
 	struct tcm_qla2xxx_nacl *nacl,
 	struct se_session *se_sess,
 	struct fc_port *fc_port,
+<<<<<<< HEAD
 	uint8_t *s_id)
+=======
+	be_id_t s_id)
+>>>>>>> upstream/android-13
 {
 	u32 key;
 	void *slot;
@@ -1391,6 +1588,7 @@ static void tcm_qla2xxx_clear_sess_lookup(struct tcm_qla2xxx_lport *lport,
 		struct tcm_qla2xxx_nacl *nacl, struct fc_port *sess)
 {
 	struct se_session *se_sess = sess->se_sess;
+<<<<<<< HEAD
 	unsigned char be_sid[3];
 
 	be_sid[0] = sess->d_id.b.domain;
@@ -1399,6 +1597,11 @@ static void tcm_qla2xxx_clear_sess_lookup(struct tcm_qla2xxx_lport *lport,
 
 	tcm_qla2xxx_set_sess_by_s_id(lport, NULL, nacl, se_sess,
 				sess, be_sid);
+=======
+
+	tcm_qla2xxx_set_sess_by_s_id(lport, NULL, nacl, se_sess,
+				     sess, port_id_to_be_id(sess->d_id));
+>>>>>>> upstream/android-13
 	tcm_qla2xxx_set_sess_by_loop_id(lport, NULL, nacl, se_sess,
 				sess, sess->loop_id);
 }
@@ -1411,8 +1614,11 @@ static void tcm_qla2xxx_free_session(struct fc_port *sess)
 	struct se_session *se_sess;
 	struct tcm_qla2xxx_lport *lport;
 
+<<<<<<< HEAD
 	BUG_ON(in_interrupt());
 
+=======
+>>>>>>> upstream/android-13
 	se_sess = sess->se_sess;
 	if (!se_sess) {
 		pr_err("struct fc_port->se_sess is NULL\n");
@@ -1444,19 +1650,27 @@ static int tcm_qla2xxx_session_cb(struct se_portal_group *se_tpg,
 	struct fc_port *qlat_sess = p;
 	uint16_t loop_id = qlat_sess->loop_id;
 	unsigned long flags;
+<<<<<<< HEAD
 	unsigned char be_sid[3];
 
 	be_sid[0] = qlat_sess->d_id.b.domain;
 	be_sid[1] = qlat_sess->d_id.b.area;
 	be_sid[2] = qlat_sess->d_id.b.al_pa;
+=======
+>>>>>>> upstream/android-13
 
 	/*
 	 * And now setup se_nacl and session pointers into HW lport internal
 	 * mappings for fabric S_ID and LOOP_ID.
 	 */
 	spin_lock_irqsave(&ha->tgt.sess_lock, flags);
+<<<<<<< HEAD
 	tcm_qla2xxx_set_sess_by_s_id(lport, se_nacl, nacl,
 				     se_sess, qlat_sess, be_sid);
+=======
+	tcm_qla2xxx_set_sess_by_s_id(lport, se_nacl, nacl, se_sess, qlat_sess,
+				     port_id_to_be_id(qlat_sess->d_id));
+>>>>>>> upstream/android-13
 	tcm_qla2xxx_set_sess_by_loop_id(lport, se_nacl, nacl,
 					se_sess, qlat_sess, loop_id);
 	spin_unlock_irqrestore(&ha->tgt.sess_lock, flags);
@@ -1492,7 +1706,11 @@ static int tcm_qla2xxx_check_initiator_node_acl(
 	 */
 	tpg = lport->tpg_1;
 	if (!tpg) {
+<<<<<<< HEAD
 		pr_err("Unable to lcoate struct tcm_qla2xxx_lport->tpg_1\n");
+=======
+		pr_err("Unable to locate struct tcm_qla2xxx_lport->tpg_1\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 	/*
@@ -1591,11 +1809,20 @@ static void tcm_qla2xxx_update_sess(struct fc_port *sess, port_id_t s_id,
 /*
  * Calls into tcm_qla2xxx used by qla2xxx LLD I/O path.
  */
+<<<<<<< HEAD
 static struct qla_tgt_func_tmpl tcm_qla2xxx_template = {
+=======
+static const struct qla_tgt_func_tmpl tcm_qla2xxx_template = {
+>>>>>>> upstream/android-13
 	.find_cmd_by_tag	= tcm_qla2xxx_find_cmd_by_tag,
 	.handle_cmd		= tcm_qla2xxx_handle_cmd,
 	.handle_data		= tcm_qla2xxx_handle_data,
 	.handle_tmr		= tcm_qla2xxx_handle_tmr,
+<<<<<<< HEAD
+=======
+	.get_cmd		= tcm_qla2xxx_get_cmd,
+	.rel_cmd		= tcm_qla2xxx_rel_cmd,
+>>>>>>> upstream/android-13
 	.free_cmd		= tcm_qla2xxx_free_cmd,
 	.free_mcmd		= tcm_qla2xxx_free_mcmd,
 	.free_session		= tcm_qla2xxx_free_session,
@@ -1852,14 +2079,21 @@ static struct configfs_attribute *tcm_qla2xxx_wwn_attrs[] = {
 
 static const struct target_core_fabric_ops tcm_qla2xxx_ops = {
 	.module				= THIS_MODULE,
+<<<<<<< HEAD
 	.name				= "qla2xxx",
+=======
+	.fabric_name			= "qla2xxx",
+>>>>>>> upstream/android-13
 	.node_acl_size			= sizeof(struct tcm_qla2xxx_nacl),
 	/*
 	 * XXX: Limit assumes single page per scatter-gather-list entry.
 	 * Current maximum is ~4.9 MB per se_cmd->t_data_sg with PAGE_SIZE=4096
 	 */
 	.max_data_sg_nents		= 1200,
+<<<<<<< HEAD
 	.get_fabric_name		= tcm_qla2xxx_get_fabric_name,
+=======
+>>>>>>> upstream/android-13
 	.tpg_get_wwn			= tcm_qla2xxx_get_fabric_wwn,
 	.tpg_get_tag			= tcm_qla2xxx_get_tag,
 	.tpg_check_demo_mode		= tcm_qla2xxx_check_demo_mode,
@@ -1877,7 +2111,10 @@ static const struct target_core_fabric_ops tcm_qla2xxx_ops = {
 	.sess_get_index			= tcm_qla2xxx_sess_get_index,
 	.sess_get_initiator_sid		= NULL,
 	.write_pending			= tcm_qla2xxx_write_pending,
+<<<<<<< HEAD
 	.write_pending_status		= tcm_qla2xxx_write_pending_status,
+=======
+>>>>>>> upstream/android-13
 	.set_default_node_attributes	= tcm_qla2xxx_set_default_node_attrs,
 	.get_cmd_state			= tcm_qla2xxx_get_cmd_state,
 	.queue_data_in			= tcm_qla2xxx_queue_data_in,
@@ -1901,9 +2138,14 @@ static const struct target_core_fabric_ops tcm_qla2xxx_ops = {
 
 static const struct target_core_fabric_ops tcm_qla2xxx_npiv_ops = {
 	.module				= THIS_MODULE,
+<<<<<<< HEAD
 	.name				= "qla2xxx_npiv",
 	.node_acl_size			= sizeof(struct tcm_qla2xxx_nacl),
 	.get_fabric_name		= tcm_qla2xxx_npiv_get_fabric_name,
+=======
+	.fabric_name			= "qla2xxx_npiv",
+	.node_acl_size			= sizeof(struct tcm_qla2xxx_nacl),
+>>>>>>> upstream/android-13
 	.tpg_get_wwn			= tcm_qla2xxx_get_fabric_wwn,
 	.tpg_get_tag			= tcm_qla2xxx_get_tag,
 	.tpg_check_demo_mode		= tcm_qla2xxx_check_demo_mode,
@@ -1919,7 +2161,10 @@ static const struct target_core_fabric_ops tcm_qla2xxx_npiv_ops = {
 	.sess_get_index			= tcm_qla2xxx_sess_get_index,
 	.sess_get_initiator_sid		= NULL,
 	.write_pending			= tcm_qla2xxx_write_pending,
+<<<<<<< HEAD
 	.write_pending_status		= tcm_qla2xxx_write_pending_status,
+=======
+>>>>>>> upstream/android-13
 	.set_default_node_attributes	= tcm_qla2xxx_set_default_node_attrs,
 	.get_cmd_state			= tcm_qla2xxx_get_cmd_state,
 	.queue_data_in			= tcm_qla2xxx_queue_data_in,
@@ -1984,6 +2229,24 @@ static int __init tcm_qla2xxx_init(void)
 {
 	int ret;
 
+<<<<<<< HEAD
+=======
+	BUILD_BUG_ON(sizeof(struct abts_recv_from_24xx) != 64);
+	BUILD_BUG_ON(sizeof(struct abts_resp_from_24xx_fw) != 64);
+	BUILD_BUG_ON(sizeof(struct atio7_fcp_cmnd) != 32);
+	BUILD_BUG_ON(sizeof(struct atio_from_isp) != 64);
+	BUILD_BUG_ON(sizeof(struct ba_acc_le) != 12);
+	BUILD_BUG_ON(sizeof(struct ba_rjt_le) != 4);
+	BUILD_BUG_ON(sizeof(struct ctio7_from_24xx) != 64);
+	BUILD_BUG_ON(sizeof(struct ctio7_to_24xx) != 64);
+	BUILD_BUG_ON(sizeof(struct ctio_crc2_to_fw) != 64);
+	BUILD_BUG_ON(sizeof(struct ctio_crc_from_fw) != 64);
+	BUILD_BUG_ON(sizeof(struct ctio_to_2xxx) != 64);
+	BUILD_BUG_ON(sizeof(struct fcp_hdr) != 24);
+	BUILD_BUG_ON(sizeof(struct fcp_hdr_le) != 24);
+	BUILD_BUG_ON(sizeof(struct nack_to_isp) != 64);
+
+>>>>>>> upstream/android-13
 	ret = tcm_qla2xxx_register_configfs();
 	if (ret < 0)
 		return ret;

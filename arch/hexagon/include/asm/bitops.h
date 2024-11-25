@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Bit operations for the Hexagon architecture
  *
  * Copyright (c) 2010-2011, The Linux Foundation. All rights reserved.
+<<<<<<< HEAD
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -17,6 +22,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_BITOPS_H
@@ -211,7 +218,11 @@ static inline long ffz(int x)
  * This is defined the same way as ffs.
  * Note fls(0) = 0, fls(1) = 1, fls(0x80000000) = 32.
  */
+<<<<<<< HEAD
 static inline int fls(int x)
+=======
+static inline int fls(unsigned int x)
+>>>>>>> upstream/android-13
 {
 	int r;
 

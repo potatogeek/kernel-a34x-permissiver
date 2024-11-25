@@ -11,6 +11,13 @@ struct test arch_tests[] = {
 	},
 #endif
 	{
+<<<<<<< HEAD
+=======
+		.desc = "Vectors page",
+		.func = test__vectors_page,
+	},
+	{
+>>>>>>> upstream/android-13
 		.func = NULL,
 	},
 };

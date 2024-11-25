@@ -14,7 +14,11 @@
 #define KERN_INFO	KERN_SOH "6"	/* informational */
 #define KERN_DEBUG	KERN_SOH "7"	/* debug-level messages */
 
+<<<<<<< HEAD
 #define KERN_DEFAULT	KERN_SOH "d"	/* the default kernel loglevel */
+=======
+#define KERN_DEFAULT	""		/* the default kernel loglevel */
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_SEC_DEBUG_AUTO_COMMENT
 #define KERN_AUTO	KERN_SOH	/* auto-comment messages */

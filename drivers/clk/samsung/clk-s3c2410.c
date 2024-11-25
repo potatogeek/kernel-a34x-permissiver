@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2013 Heiko Stuebner <heiko@sntech.de>
  *
@@ -5,13 +6,25 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2013 Heiko Stuebner <heiko@sntech.de>
+ *
+>>>>>>> upstream/android-13
  * Common Clock Framework support for S3C2410 and following SoCs.
  */
 
 #include <linux/clk-provider.h>
+<<<<<<< HEAD
 #include <linux/of.h>
 #include <linux/of_address.h>
 #include <linux/syscore_ops.h>
+=======
+#include <linux/clk/samsung.h>
+#include <linux/of.h>
+#include <linux/of_address.h>
+>>>>>>> upstream/android-13
 
 #include <dt-bindings/clock/s3c2410.h>
 
@@ -40,9 +53,12 @@ enum s3c2410_plls {
 
 static void __iomem *reg_base;
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM_SLEEP
 static struct samsung_clk_reg_dump *s3c2410_save;
 
+=======
+>>>>>>> upstream/android-13
 /*
  * list of controller registers to be saved and restored during a
  * suspend/resume cycle.
@@ -57,6 +73,7 @@ static unsigned long s3c2410_clk_regs[] __initdata = {
 	CAMDIVN,
 };
 
+<<<<<<< HEAD
 static int s3c2410_clk_suspend(void)
 {
 	samsung_clk_save(reg_base, s3c2410_save,
@@ -93,6 +110,8 @@ static void __init s3c2410_clk_sleep_init(void)
 static void __init s3c2410_clk_sleep_init(void) {}
 #endif
 
+=======
+>>>>>>> upstream/android-13
 PNAME(fclk_p) = { "mpll", "div_slow" };
 
 static struct samsung_mux_clock s3c2410_common_muxes[] __initdata = {
@@ -461,7 +480,12 @@ void __init s3c2410_common_clk_init(struct device_node *np, unsigned long xti_f,
 			ARRAY_SIZE(s3c244x_common_aliases));
 	}
 
+<<<<<<< HEAD
 	s3c2410_clk_sleep_init();
+=======
+	samsung_clk_sleep_init(reg_base, s3c2410_clk_regs,
+			       ARRAY_SIZE(s3c2410_clk_regs));
+>>>>>>> upstream/android-13
 
 	samsung_clk_of_add_provider(np, ctx);
 }

@@ -46,6 +46,11 @@ const char *zpool_get_type(struct zpool *pool);
 
 void zpool_destroy_pool(struct zpool *pool);
 
+<<<<<<< HEAD
+=======
+bool zpool_malloc_support_movable(struct zpool *pool);
+
+>>>>>>> upstream/android-13
 int zpool_malloc(struct zpool *pool, size_t size, gfp_t gfp,
 			unsigned long *handle);
 
@@ -71,6 +76,10 @@ u64 zpool_get_total_size(struct zpool *pool);
  * @malloc:	allocate mem from a pool.
  * @free:	free mem from a pool.
  * @shrink:	shrink the pool.
+<<<<<<< HEAD
+=======
+ * @sleep_mapped: whether zpool driver can sleep during map.
+>>>>>>> upstream/android-13
  * @map:	map a handle.
  * @unmap:	unmap a handle.
  * @total_size:	get total size of a pool.
@@ -90,6 +99,10 @@ struct zpool_driver {
 			struct zpool *zpool);
 	void (*destroy)(void *pool);
 
+<<<<<<< HEAD
+=======
+	bool malloc_support_movable;
+>>>>>>> upstream/android-13
 	int (*malloc)(void *pool, size_t size, gfp_t gfp,
 				unsigned long *handle);
 	void (*free)(void *pool, unsigned long handle);
@@ -97,6 +110,10 @@ struct zpool_driver {
 	int (*shrink)(void *pool, unsigned int pages,
 				unsigned int *reclaimed);
 
+<<<<<<< HEAD
+=======
+	bool sleep_mapped;
+>>>>>>> upstream/android-13
 	void *(*map)(void *pool, unsigned long handle,
 				enum zpool_mapmode mm);
 	void (*unmap)(void *pool, unsigned long handle);
@@ -109,5 +126,9 @@ void zpool_register_driver(struct zpool_driver *driver);
 int zpool_unregister_driver(struct zpool_driver *driver);
 
 bool zpool_evictable(struct zpool *pool);
+<<<<<<< HEAD
+=======
+bool zpool_can_sleep_mapped(struct zpool *pool);
+>>>>>>> upstream/android-13
 
 #endif

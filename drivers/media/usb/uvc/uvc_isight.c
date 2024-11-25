@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *      uvc_isight.c  --  USB Video Class driver - iSight support
  *
@@ -5,12 +9,15 @@
  *		Ivan N. Zlatev <contact@i-nz.net>
  *	Copyright (C) 2008-2009
  *		Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+<<<<<<< HEAD
  *
  *      This program is free software; you can redistribute it and/or modify
  *      it under the terms of the GNU General Public License as published by
  *      the Free Software Foundation; either version 2 of the License, or
  *      (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/usb.h>
@@ -45,6 +52,10 @@ static int isight_decode(struct uvc_video_queue *queue, struct uvc_buffer *buf,
 		0xde, 0xad, 0xfa, 0xce
 	};
 
+<<<<<<< HEAD
+=======
+	struct uvc_streaming *stream = uvc_queue_to_stream(queue);
+>>>>>>> upstream/android-13
 	unsigned int maxlen, nbytes;
 	u8 *mem;
 	int is_header = 0;
@@ -54,15 +65,24 @@ static int isight_decode(struct uvc_video_queue *queue, struct uvc_buffer *buf,
 
 	if ((len >= 14 && memcmp(&data[2], hdr, 12) == 0) ||
 	    (len >= 15 && memcmp(&data[3], hdr, 12) == 0)) {
+<<<<<<< HEAD
 		uvc_trace(UVC_TRACE_FRAME, "iSight header found\n");
+=======
+		uvc_dbg(stream->dev, FRAME, "iSight header found\n");
+>>>>>>> upstream/android-13
 		is_header = 1;
 	}
 
 	/* Synchronize to the input stream by waiting for a header packet. */
 	if (buf->state != UVC_BUF_STATE_ACTIVE) {
 		if (!is_header) {
+<<<<<<< HEAD
 			uvc_trace(UVC_TRACE_FRAME, "Dropping packet (out of "
 				  "sync).\n");
+=======
+			uvc_dbg(stream->dev, FRAME,
+				"Dropping packet (out of sync)\n");
+>>>>>>> upstream/android-13
 			return 0;
 		}
 
@@ -90,8 +110,13 @@ static int isight_decode(struct uvc_video_queue *queue, struct uvc_buffer *buf,
 		buf->bytesused += nbytes;
 
 		if (len > maxlen || buf->bytesused == buf->length) {
+<<<<<<< HEAD
 			uvc_trace(UVC_TRACE_FRAME, "Frame complete "
 				  "(overflow).\n");
+=======
+			uvc_dbg(stream->dev, FRAME,
+				"Frame complete (overflow)\n");
+>>>>>>> upstream/android-13
 			buf->state = UVC_BUF_STATE_DONE;
 		}
 	}
@@ -99,16 +124,30 @@ static int isight_decode(struct uvc_video_queue *queue, struct uvc_buffer *buf,
 	return 0;
 }
 
+<<<<<<< HEAD
 void uvc_video_decode_isight(struct urb *urb, struct uvc_streaming *stream,
 			struct uvc_buffer *buf, struct uvc_buffer *meta_buf)
 {
+=======
+void uvc_video_decode_isight(struct uvc_urb *uvc_urb, struct uvc_buffer *buf,
+			struct uvc_buffer *meta_buf)
+{
+	struct urb *urb = uvc_urb->urb;
+	struct uvc_streaming *stream = uvc_urb->stream;
+>>>>>>> upstream/android-13
 	int ret, i;
 
 	for (i = 0; i < urb->number_of_packets; ++i) {
 		if (urb->iso_frame_desc[i].status < 0) {
+<<<<<<< HEAD
 			uvc_trace(UVC_TRACE_FRAME, "USB isochronous frame "
 				  "lost (%d).\n",
 				  urb->iso_frame_desc[i].status);
+=======
+			uvc_dbg(stream->dev, FRAME,
+				"USB isochronous frame lost (%d)\n",
+				urb->iso_frame_desc[i].status);
+>>>>>>> upstream/android-13
 		}
 
 		/* Decode the payload packet.

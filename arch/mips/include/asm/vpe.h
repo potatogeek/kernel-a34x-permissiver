@@ -26,7 +26,10 @@
 #endif
 
 #define MAX_VPES 16
+<<<<<<< HEAD
 #define VPE_PATH_MAX 256
+=======
+>>>>>>> upstream/android-13
 
 static inline int aprp_cpu_index(void)
 {
@@ -62,7 +65,10 @@ struct vpe {
 	unsigned long len;
 	char *pbuffer;
 	unsigned long plen;
+<<<<<<< HEAD
 	char cwd[VPE_PATH_MAX];
+=======
+>>>>>>> upstream/android-13
 
 	unsigned long __start;
 
@@ -111,7 +117,10 @@ extern const struct file_operations vpe_fops;
 int vpe_notify(int index, struct vpe_notifications *notify);
 
 void *vpe_get_shared(int index);
+<<<<<<< HEAD
 char *vpe_getcwd(int index);
+=======
+>>>>>>> upstream/android-13
 
 struct vpe *get_vpe(int minor);
 struct tc *get_tc(int index);

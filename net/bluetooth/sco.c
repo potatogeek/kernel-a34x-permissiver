@@ -48,11 +48,21 @@ struct sco_conn {
 	spinlock_t	lock;
 	struct sock	*sk;
 
+<<<<<<< HEAD
 	unsigned int    mtu;
 };
 
 #define sco_conn_lock(c)	spin_lock(&c->lock);
 #define sco_conn_unlock(c)	spin_unlock(&c->lock);
+=======
+	struct delayed_work	timeout_work;
+
+	unsigned int    mtu;
+};
+
+#define sco_conn_lock(c)	spin_lock(&c->lock)
+#define sco_conn_unlock(c)	spin_unlock(&c->lock)
+>>>>>>> upstream/android-13
 
 static void sco_sock_close(struct sock *sk);
 static void sco_sock_kill(struct sock *sk);
@@ -66,6 +76,10 @@ struct sco_pinfo {
 	bdaddr_t	dst;
 	__u32		flags;
 	__u16		setting;
+<<<<<<< HEAD
+=======
+	__u8		cmsg_mask;
+>>>>>>> upstream/android-13
 	struct sco_conn	*conn;
 };
 
@@ -73,6 +87,7 @@ struct sco_pinfo {
 #define SCO_CONN_TIMEOUT	(HZ * 40)
 #define SCO_DISCONN_TIMEOUT	(HZ * 2)
 
+<<<<<<< HEAD
 static void sco_sock_timeout(struct timer_list *t)
 {
 	struct sock *sk = from_timer(sk, t, sk_timer);
@@ -85,19 +100,59 @@ static void sco_sock_timeout(struct timer_list *t)
 	bh_unlock_sock(sk);
 
 	sco_sock_kill(sk);
+=======
+static void sco_sock_timeout(struct work_struct *work)
+{
+	struct sco_conn *conn = container_of(work, struct sco_conn,
+					     timeout_work.work);
+	struct sock *sk;
+
+	sco_conn_lock(conn);
+	sk = conn->sk;
+	if (sk)
+		sock_hold(sk);
+	sco_conn_unlock(conn);
+
+	if (!sk)
+		return;
+
+	BT_DBG("sock %p state %d", sk, sk->sk_state);
+
+	lock_sock(sk);
+	sk->sk_err = ETIMEDOUT;
+	sk->sk_state_change(sk);
+	release_sock(sk);
+>>>>>>> upstream/android-13
 	sock_put(sk);
 }
 
 static void sco_sock_set_timer(struct sock *sk, long timeout)
 {
+<<<<<<< HEAD
 	BT_DBG("sock %p state %d timeout %ld", sk, sk->sk_state, timeout);
 	sk_reset_timer(sk, &sk->sk_timer, jiffies + timeout);
+=======
+	if (!sco_pi(sk)->conn)
+		return;
+
+	BT_DBG("sock %p state %d timeout %ld", sk, sk->sk_state, timeout);
+	cancel_delayed_work(&sco_pi(sk)->conn->timeout_work);
+	schedule_delayed_work(&sco_pi(sk)->conn->timeout_work, timeout);
+>>>>>>> upstream/android-13
 }
 
 static void sco_sock_clear_timer(struct sock *sk)
 {
+<<<<<<< HEAD
 	BT_DBG("sock %p state %d", sk, sk->sk_state);
 	sk_stop_timer(sk, &sk->sk_timer);
+=======
+	if (!sco_pi(sk)->conn)
+		return;
+
+	BT_DBG("sock %p state %d", sk, sk->sk_state);
+	cancel_delayed_work(&sco_pi(sk)->conn->timeout_work);
+>>>>>>> upstream/android-13
 }
 
 /* ---- SCO connections ---- */
@@ -114,6 +169,10 @@ static struct sco_conn *sco_conn_add(struct hci_conn *hcon)
 		return NULL;
 
 	spin_lock_init(&conn->lock);
+<<<<<<< HEAD
+=======
+	INIT_DELAYED_WORK(&conn->timeout_work, sco_sock_timeout);
+>>>>>>> upstream/android-13
 
 	hcon->sco_data = conn;
 	conn->hcon = hcon;
@@ -168,6 +227,7 @@ static void sco_conn_del(struct hci_conn *hcon, int err)
 	/* Kill socket */
 	sco_conn_lock(conn);
 	sk = conn->sk;
+<<<<<<< HEAD
 	sco_conn_unlock(conn);
 
 	if (sk) {
@@ -180,6 +240,23 @@ static void sco_conn_del(struct hci_conn *hcon, int err)
 		sock_put(sk);
 	}
 
+=======
+	if (sk)
+		sock_hold(sk);
+	sco_conn_unlock(conn);
+
+	if (sk) {
+		lock_sock(sk);
+		sco_sock_clear_timer(sk);
+		sco_chan_del(sk, err);
+		release_sock(sk);
+		sock_put(sk);
+	}
+
+	/* Ensure no more work items will run before freeing conn. */
+	cancel_delayed_work_sync(&conn->timeout_work);
+
+>>>>>>> upstream/android-13
 	hcon->sco_data = NULL;
 	kfree(conn);
 }
@@ -211,27 +288,38 @@ static int sco_chan_add(struct sco_conn *conn, struct sock *sk,
 	return err;
 }
 
+<<<<<<< HEAD
 static int sco_connect(struct sock *sk)
 {
 	struct sco_conn *conn;
 	struct hci_conn *hcon;
 	struct hci_dev  *hdev;
+=======
+static int sco_connect(struct hci_dev *hdev, struct sock *sk)
+{
+	struct sco_conn *conn;
+	struct hci_conn *hcon;
+>>>>>>> upstream/android-13
 	int err, type;
 
 	BT_DBG("%pMR -> %pMR", &sco_pi(sk)->src, &sco_pi(sk)->dst);
 
+<<<<<<< HEAD
 	hdev = hci_get_route(&sco_pi(sk)->dst, &sco_pi(sk)->src, BDADDR_BREDR);
 	if (!hdev)
 		return -EHOSTUNREACH;
 
 	hci_dev_lock(hdev);
 
+=======
+>>>>>>> upstream/android-13
 	if (lmp_esco_capable(hdev) && !disable_esco)
 		type = ESCO_LINK;
 	else
 		type = SCO_LINK;
 
 	if (sco_pi(sk)->setting == BT_VOICE_TRANSPARENT &&
+<<<<<<< HEAD
 	    (!lmp_transp_capable(hdev) || !lmp_esco_capable(hdev))) {
 		err = -EOPNOTSUPP;
 		goto done;
@@ -243,12 +331,25 @@ static int sco_connect(struct sock *sk)
 		err = PTR_ERR(hcon);
 		goto done;
 	}
+=======
+	    (!lmp_transp_capable(hdev) || !lmp_esco_capable(hdev)))
+		return -EOPNOTSUPP;
+
+	hcon = hci_connect_sco(hdev, type, &sco_pi(sk)->dst,
+			       sco_pi(sk)->setting);
+	if (IS_ERR(hcon))
+		return PTR_ERR(hcon);
+>>>>>>> upstream/android-13
 
 	conn = sco_conn_add(hcon);
 	if (!conn) {
 		hci_conn_drop(hcon);
+<<<<<<< HEAD
 		err = -ENOMEM;
 		goto done;
+=======
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 	}
 
 	/* Update source addr of the socket */
@@ -256,7 +357,11 @@ static int sco_connect(struct sock *sk)
 
 	err = sco_chan_add(conn, sk, NULL);
 	if (err)
+<<<<<<< HEAD
 		goto done;
+=======
+		return err;
+>>>>>>> upstream/android-13
 
 	if (hcon->state == BT_CONNECTED) {
 		sco_sock_clear_timer(sk);
@@ -266,6 +371,7 @@ static int sco_connect(struct sock *sk)
 		sco_sock_set_timer(sk, sk->sk_sndtimeo);
 	}
 
+<<<<<<< HEAD
 done:
 	hci_dev_unlock(hdev);
 	hci_dev_put(hdev);
@@ -273,6 +379,13 @@ done:
 }
 
 static int sco_send_frame(struct sock *sk, struct msghdr *msg, int len)
+=======
+	return err;
+}
+
+static int sco_send_frame(struct sock *sk, void *buf, int len,
+			  unsigned int msg_flags)
+>>>>>>> upstream/android-13
 {
 	struct sco_conn *conn = sco_pi(sk)->conn;
 	struct sk_buff *skb;
@@ -284,6 +397,7 @@ static int sco_send_frame(struct sock *sk, struct msghdr *msg, int len)
 
 	BT_DBG("sk %p len %d", sk, len);
 
+<<<<<<< HEAD
 	skb = bt_skb_send_alloc(sk, len, msg->msg_flags & MSG_DONTWAIT, &err);
 	if (!skb)
 		return err;
@@ -293,6 +407,13 @@ static int sco_send_frame(struct sock *sk, struct msghdr *msg, int len)
 		return -EFAULT;
 	}
 
+=======
+	skb = bt_skb_send_alloc(sk, len, msg_flags & MSG_DONTWAIT, &err);
+	if (!skb)
+		return err;
+
+	memcpy(skb_put(skb, len), buf, len);
+>>>>>>> upstream/android-13
 	hci_send_sco(conn->hcon, skb);
 
 	return len;
@@ -309,7 +430,11 @@ static void sco_recv_frame(struct sco_conn *conn, struct sk_buff *skb)
 	if (!sk)
 		goto drop;
 
+<<<<<<< HEAD
 	BT_DBG("sk %p len %d", sk, skb->len);
+=======
+	BT_DBG("sk %p len %u", sk, skb->len);
+>>>>>>> upstream/android-13
 
 	if (sk->sk_state != BT_CONNECTED)
 		goto drop;
@@ -393,8 +518,12 @@ static void sco_sock_cleanup_listen(struct sock *parent)
  */
 static void sco_sock_kill(struct sock *sk)
 {
+<<<<<<< HEAD
 	if (!sock_flag(sk, SOCK_ZAPPED) || sk->sk_socket ||
 	    sock_flag(sk, SOCK_DEAD))
+=======
+	if (!sock_flag(sk, SOCK_ZAPPED) || sk->sk_socket)
+>>>>>>> upstream/android-13
 		return;
 
 	BT_DBG("sk %p state %d", sk, sk->sk_state);
@@ -442,11 +571,27 @@ static void __sco_sock_close(struct sock *sk)
 /* Must be called on unlocked socket. */
 static void sco_sock_close(struct sock *sk)
 {
+<<<<<<< HEAD
 	sco_sock_clear_timer(sk);
 	lock_sock(sk);
 	__sco_sock_close(sk);
 	release_sock(sk);
 	sco_sock_kill(sk);
+=======
+	lock_sock(sk);
+	sco_sock_clear_timer(sk);
+	__sco_sock_close(sk);
+	release_sock(sk);
+}
+
+static void sco_skb_put_cmsg(struct sk_buff *skb, struct msghdr *msg,
+			     struct sock *sk)
+{
+	if (sco_pi(sk)->cmsg_mask & SCO_CMSG_PKT_STATUS)
+		put_cmsg(msg, SOL_BLUETOOTH, BT_SCM_PKT_STATUS,
+			 sizeof(bt_cb(skb)->sco.pkt_status),
+			 &bt_cb(skb)->sco.pkt_status);
+>>>>>>> upstream/android-13
 }
 
 static void sco_sock_init(struct sock *sk, struct sock *parent)
@@ -457,6 +602,11 @@ static void sco_sock_init(struct sock *sk, struct sock *parent)
 		sk->sk_type = parent->sk_type;
 		bt_sk(sk)->flags = bt_sk(parent)->flags;
 		security_sk_clone(parent, sk);
+<<<<<<< HEAD
+=======
+	} else {
+		bt_sk(sk)->skb_put_cmsg = sco_skb_put_cmsg;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -488,8 +638,11 @@ static struct sock *sco_sock_alloc(struct net *net, struct socket *sock,
 
 	sco_pi(sk)->setting = BT_VOICE_CVSD_16BIT;
 
+<<<<<<< HEAD
 	timer_setup(&sk->sk_timer, sco_sock_timeout, 0);
 
+=======
+>>>>>>> upstream/android-13
 	bt_sock_link(&sco_sk_list, sk);
 	return sk;
 }
@@ -523,12 +676,20 @@ static int sco_sock_bind(struct socket *sock, struct sockaddr *addr,
 	struct sock *sk = sock->sk;
 	int err = 0;
 
+<<<<<<< HEAD
 	BT_DBG("sk %p %pMR", sk, &sa->sco_bdaddr);
 
+=======
+>>>>>>> upstream/android-13
 	if (!addr || addr_len < sizeof(struct sockaddr_sco) ||
 	    addr->sa_family != AF_BLUETOOTH)
 		return -EINVAL;
 
+<<<<<<< HEAD
+=======
+	BT_DBG("sk %p %pMR", sk, &sa->sco_bdaddr);
+
+>>>>>>> upstream/android-13
 	lock_sock(sk);
 
 	if (sk->sk_state != BT_OPEN) {
@@ -554,6 +715,10 @@ static int sco_sock_connect(struct socket *sock, struct sockaddr *addr, int alen
 {
 	struct sockaddr_sco *sa = (struct sockaddr_sco *) addr;
 	struct sock *sk = sock->sk;
+<<<<<<< HEAD
+=======
+	struct hci_dev  *hdev;
+>>>>>>> upstream/android-13
 	int err;
 
 	BT_DBG("sk %p", sk);
@@ -568,12 +733,26 @@ static int sco_sock_connect(struct socket *sock, struct sockaddr *addr, int alen
 	if (sk->sk_type != SOCK_SEQPACKET)
 		return -EINVAL;
 
+<<<<<<< HEAD
+=======
+	hdev = hci_get_route(&sa->sco_bdaddr, &sco_pi(sk)->src, BDADDR_BREDR);
+	if (!hdev)
+		return -EHOSTUNREACH;
+	hci_dev_lock(hdev);
+
+>>>>>>> upstream/android-13
 	lock_sock(sk);
 
 	/* Set destination address and psm */
 	bacpy(&sco_pi(sk)->dst, &sa->sco_bdaddr);
 
+<<<<<<< HEAD
 	err = sco_connect(sk);
+=======
+	err = sco_connect(hdev, sk);
+	hci_dev_unlock(hdev);
+	hci_dev_put(hdev);
+>>>>>>> upstream/android-13
 	if (err)
 		goto done;
 
@@ -702,6 +881,10 @@ static int sco_sock_sendmsg(struct socket *sock, struct msghdr *msg,
 			    size_t len)
 {
 	struct sock *sk = sock->sk;
+<<<<<<< HEAD
+=======
+	void *buf;
+>>>>>>> upstream/android-13
 	int err;
 
 	BT_DBG("sock %p, sk %p", sock, sk);
@@ -713,14 +896,34 @@ static int sco_sock_sendmsg(struct socket *sock, struct msghdr *msg,
 	if (msg->msg_flags & MSG_OOB)
 		return -EOPNOTSUPP;
 
+<<<<<<< HEAD
 	lock_sock(sk);
 
 	if (sk->sk_state == BT_CONNECTED)
 		err = sco_send_frame(sk, msg, len);
+=======
+	buf = kmalloc(len, GFP_KERNEL);
+	if (!buf)
+		return -ENOMEM;
+
+	if (memcpy_from_msg(buf, msg, len)) {
+		kfree(buf);
+		return -EFAULT;
+	}
+
+	lock_sock(sk);
+
+	if (sk->sk_state == BT_CONNECTED)
+		err = sco_send_frame(sk, buf, len, msg->msg_flags);
+>>>>>>> upstream/android-13
 	else
 		err = -ENOTCONN;
 
 	release_sock(sk);
+<<<<<<< HEAD
+=======
+	kfree(buf);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -761,6 +964,14 @@ static void sco_conn_defer_accept(struct hci_conn *conn, u16 setting)
 			cp.max_latency = cpu_to_le16(0xffff);
 			cp.retrans_effort = 0xff;
 			break;
+<<<<<<< HEAD
+=======
+		default:
+			/* use CVSD settings as fallback */
+			cp.max_latency = cpu_to_le16(0xffff);
+			cp.retrans_effort = 0xff;
+			break;
+>>>>>>> upstream/android-13
 		}
 
 		hci_send_cmd(hdev, HCI_OP_ACCEPT_SYNC_CONN_REQ,
@@ -791,7 +1002,11 @@ static int sco_sock_recvmsg(struct socket *sock, struct msghdr *msg,
 }
 
 static int sco_sock_setsockopt(struct socket *sock, int level, int optname,
+<<<<<<< HEAD
 			       char __user *optval, unsigned int optlen)
+=======
+			       sockptr_t optval, unsigned int optlen)
+>>>>>>> upstream/android-13
 {
 	struct sock *sk = sock->sk;
 	int len, err = 0;
@@ -810,7 +1025,11 @@ static int sco_sock_setsockopt(struct socket *sock, int level, int optname,
 			break;
 		}
 
+<<<<<<< HEAD
 		if (get_user(opt, (u32 __user *) optval)) {
+=======
+		if (copy_from_sockptr(&opt, optval, sizeof(u32))) {
+>>>>>>> upstream/android-13
 			err = -EFAULT;
 			break;
 		}
@@ -831,7 +1050,11 @@ static int sco_sock_setsockopt(struct socket *sock, int level, int optname,
 		voice.setting = sco_pi(sk)->setting;
 
 		len = min_t(unsigned int, sizeof(voice), optlen);
+<<<<<<< HEAD
 		if (copy_from_user((char *)&voice, optval, len)) {
+=======
+		if (copy_from_sockptr(&voice, optval, len)) {
+>>>>>>> upstream/android-13
 			err = -EFAULT;
 			break;
 		}
@@ -846,6 +1069,21 @@ static int sco_sock_setsockopt(struct socket *sock, int level, int optname,
 		sco_pi(sk)->setting = voice.setting;
 		break;
 
+<<<<<<< HEAD
+=======
+	case BT_PKT_STATUS:
+		if (copy_from_sockptr(&opt, optval, sizeof(u32))) {
+			err = -EFAULT;
+			break;
+		}
+
+		if (opt)
+			sco_pi(sk)->cmsg_mask |= SCO_CMSG_PKT_STATUS;
+		else
+			sco_pi(sk)->cmsg_mask &= SCO_CMSG_PKT_STATUS;
+		break;
+
+>>>>>>> upstream/android-13
 	default:
 		err = -ENOPROTOOPT;
 		break;
@@ -881,7 +1119,11 @@ static int sco_sock_getsockopt_old(struct socket *sock, int optname,
 
 		opts.mtu = sco_pi(sk)->conn->mtu;
 
+<<<<<<< HEAD
 		BT_DBG("mtu %d", opts.mtu);
+=======
+		BT_DBG("mtu %u", opts.mtu);
+>>>>>>> upstream/android-13
 
 		len = min_t(unsigned int, len, sizeof(opts));
 		if (copy_to_user(optval, (char *)&opts, len))
@@ -922,6 +1164,11 @@ static int sco_sock_getsockopt(struct socket *sock, int level, int optname,
 	struct sock *sk = sock->sk;
 	int len, err = 0;
 	struct bt_voice voice;
+<<<<<<< HEAD
+=======
+	u32 phys;
+	int pkt_status;
+>>>>>>> upstream/android-13
 
 	BT_DBG("sk %p", sk);
 
@@ -956,6 +1203,39 @@ static int sco_sock_getsockopt(struct socket *sock, int level, int optname,
 
 		break;
 
+<<<<<<< HEAD
+=======
+	case BT_PHY:
+		if (sk->sk_state != BT_CONNECTED) {
+			err = -ENOTCONN;
+			break;
+		}
+
+		phys = hci_conn_get_phy(sco_pi(sk)->conn->hcon);
+
+		if (put_user(phys, (u32 __user *) optval))
+			err = -EFAULT;
+		break;
+
+	case BT_PKT_STATUS:
+		pkt_status = (sco_pi(sk)->cmsg_mask & SCO_CMSG_PKT_STATUS);
+
+		if (put_user(pkt_status, (int __user *)optval))
+			err = -EFAULT;
+		break;
+
+	case BT_SNDMTU:
+	case BT_RCVMTU:
+		if (sk->sk_state != BT_CONNECTED) {
+			err = -ENOTCONN;
+			break;
+		}
+
+		if (put_user(sco_pi(sk)->conn->mtu, (u32 __user *)optval))
+			err = -EFAULT;
+		break;
+
+>>>>>>> upstream/android-13
 	default:
 		err = -ENOPROTOOPT;
 		break;
@@ -1027,11 +1307,19 @@ static void sco_conn_ready(struct sco_conn *conn)
 	BT_DBG("conn %p", conn);
 
 	if (sk) {
+<<<<<<< HEAD
 		sco_sock_clear_timer(sk);
 		bh_lock_sock(sk);
 		sk->sk_state = BT_CONNECTED;
 		sk->sk_state_change(sk);
 		bh_unlock_sock(sk);
+=======
+		lock_sock(sk);
+		sco_sock_clear_timer(sk);
+		sk->sk_state = BT_CONNECTED;
+		sk->sk_state_change(sk);
+		release_sock(sk);
+>>>>>>> upstream/android-13
 	} else {
 		sco_conn_lock(conn);
 
@@ -1046,12 +1334,20 @@ static void sco_conn_ready(struct sco_conn *conn)
 			return;
 		}
 
+<<<<<<< HEAD
 		bh_lock_sock(parent);
+=======
+		lock_sock(parent);
+>>>>>>> upstream/android-13
 
 		sk = sco_sock_alloc(sock_net(parent), NULL,
 				    BTPROTO_SCO, GFP_ATOMIC, 0);
 		if (!sk) {
+<<<<<<< HEAD
 			bh_unlock_sock(parent);
+=======
+			release_sock(parent);
+>>>>>>> upstream/android-13
 			sco_conn_unlock(conn);
 			return;
 		}
@@ -1072,7 +1368,11 @@ static void sco_conn_ready(struct sco_conn *conn)
 		/* Wake up parent */
 		parent->sk_data_ready(parent);
 
+<<<<<<< HEAD
 		bh_unlock_sock(parent);
+=======
+		release_sock(parent);
+>>>>>>> upstream/android-13
 
 		sco_conn_unlock(conn);
 	}
@@ -1111,7 +1411,11 @@ static void sco_connect_cfm(struct hci_conn *hcon, __u8 status)
 	if (hcon->type != SCO_LINK && hcon->type != ESCO_LINK)
 		return;
 
+<<<<<<< HEAD
 	BT_DBG("hcon %p bdaddr %pMR status %d", hcon, &hcon->dst, status);
+=======
+	BT_DBG("hcon %p bdaddr %pMR status %u", hcon, &hcon->dst, status);
+>>>>>>> upstream/android-13
 
 	if (!status) {
 		struct sco_conn *conn;
@@ -1140,7 +1444,11 @@ void sco_recv_scodata(struct hci_conn *hcon, struct sk_buff *skb)
 	if (!conn)
 		goto drop;
 
+<<<<<<< HEAD
 	BT_DBG("conn %p len %d", conn, skb->len);
+=======
+	BT_DBG("conn %p len %u", conn, skb->len);
+>>>>>>> upstream/android-13
 
 	if (skb->len) {
 		sco_recv_frame(conn, skb);
@@ -1173,6 +1481,7 @@ static int sco_debugfs_show(struct seq_file *f, void *p)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int sco_debugfs_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, sco_debugfs_show, inode->i_private);
@@ -1184,6 +1493,9 @@ static const struct file_operations sco_debugfs_fops = {
 	.llseek		= seq_lseek,
 	.release	= single_release,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(sco_debugfs);
+>>>>>>> upstream/android-13
 
 static struct dentry *sco_debugfs;
 
@@ -1200,6 +1512,10 @@ static const struct proto_ops sco_sock_ops = {
 	.recvmsg	= sco_sock_recvmsg,
 	.poll		= bt_sock_poll,
 	.ioctl		= bt_sock_ioctl,
+<<<<<<< HEAD
+=======
+	.gettstamp	= sock_gettstamp,
+>>>>>>> upstream/android-13
 	.mmap		= sock_no_mmap,
 	.socketpair	= sock_no_socketpair,
 	.shutdown	= sco_sock_shutdown,

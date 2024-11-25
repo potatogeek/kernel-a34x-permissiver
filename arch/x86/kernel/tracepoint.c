@@ -10,6 +10,11 @@
 
 #include <asm/hw_irq.h>
 #include <asm/desc.h>
+<<<<<<< HEAD
+=======
+#include <asm/trace/exceptions.h>
+#include <asm/trace/irq_vectors.h>
+>>>>>>> upstream/android-13
 
 DEFINE_STATIC_KEY_FALSE(trace_pagefault_key);
 
@@ -23,6 +28,7 @@ void trace_pagefault_unreg(void)
 {
 	static_branch_dec(&trace_pagefault_key);
 }
+<<<<<<< HEAD
 
 #ifdef CONFIG_SMP
 
@@ -40,3 +46,5 @@ void trace_resched_ipi_unreg(void)
 }
 
 #endif
+=======
+>>>>>>> upstream/android-13

@@ -1,11 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Analog Devices ADF7242 Low-Power IEEE 802.15.4 Transceiver
  *
  * Copyright 2009-2017 Analog Devices Inc.
  *
+<<<<<<< HEAD
  * Licensed under the GPL-2 or later.
  *
  * http://www.analog.com/ADF7242
+=======
+ * https://www.analog.com/ADF7242
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -1161,14 +1169,21 @@ static int adf7242_stats_show(struct seq_file *file, void *offset)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int adf7242_debugfs_init(struct adf7242_local *lp)
 {
 	char debugfs_dir_name[DNAME_INLINE_LEN + 1] = "adf7242-";
 	struct dentry *stats;
+=======
+static void adf7242_debugfs_init(struct adf7242_local *lp)
+{
+	char debugfs_dir_name[DNAME_INLINE_LEN + 1] = "adf7242-";
+>>>>>>> upstream/android-13
 
 	strncat(debugfs_dir_name, dev_name(&lp->spi->dev), DNAME_INLINE_LEN);
 
 	lp->debugfs_root = debugfs_create_dir(debugfs_dir_name, NULL);
+<<<<<<< HEAD
 	if (IS_ERR_OR_NULL(lp->debugfs_root))
 		return PTR_ERR_OR_ZERO(lp->debugfs_root);
 
@@ -1178,6 +1193,11 @@ static int adf7242_debugfs_init(struct adf7242_local *lp)
 	return PTR_ERR_OR_ZERO(stats);
 
 	return 0;
+=======
+
+	debugfs_create_devm_seqfile(&lp->spi->dev, "status", lp->debugfs_root,
+				    adf7242_stats_show);
+>>>>>>> upstream/android-13
 }
 
 static const s32 adf7242_powers[] = {

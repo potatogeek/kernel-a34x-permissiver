@@ -1,14 +1,24 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2011 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  */
 /dts-v1/;
 
 #include "omap443x.dtsi"
 #include "elpida_ecb240abacn.dtsi"
+<<<<<<< HEAD
+=======
+#include "omap4-mcpdm.dtsi"
+>>>>>>> upstream/android-13
 
 / {
 	model = "TI OMAP4 SDP board";
@@ -26,6 +36,12 @@
 	};
 
 	vdd_eth: fixedregulator-vdd-eth {
+<<<<<<< HEAD
+=======
+		pinctrl-names = "default";
+		pinctrl-0 = <&enet_enable_gpio>;
+
+>>>>>>> upstream/android-13
 		compatible = "regulator-fixed";
 		regulator-name = "VDD_ETH";
 		regulator-min-microvolt = <3300000>;
@@ -44,58 +60,104 @@
 		regulator-boot-on;
 	};
 
+<<<<<<< HEAD
 	leds {
 		compatible = "gpio-leds";
 		debug0 {
+=======
+	led-controller-1 {
+		compatible = "gpio-leds";
+
+		led-1 {
+>>>>>>> upstream/android-13
 			label = "omap4:green:debug0";
 			gpios = <&gpio2 29 GPIO_ACTIVE_HIGH>; /* 61 */
 		};
 
+<<<<<<< HEAD
 		debug1 {
+=======
+		led-2 {
+>>>>>>> upstream/android-13
 			label = "omap4:green:debug1";
 			gpios = <&gpio1 30 GPIO_ACTIVE_HIGH>; /* 30 */
 		};
 
+<<<<<<< HEAD
 		debug2 {
+=======
+		led-3 {
+>>>>>>> upstream/android-13
 			label = "omap4:green:debug2";
 			gpios = <&gpio1 7 GPIO_ACTIVE_HIGH>; /* 7 */
 		};
 
+<<<<<<< HEAD
 		debug3 {
+=======
+		led-4 {
+>>>>>>> upstream/android-13
 			label = "omap4:green:debug3";
 			gpios = <&gpio1 8 GPIO_ACTIVE_HIGH>; /* 8 */
 		};
 
+<<<<<<< HEAD
 		debug4 {
+=======
+		led-5 {
+>>>>>>> upstream/android-13
 			label = "omap4:green:debug4";
 			gpios = <&gpio2 18 GPIO_ACTIVE_HIGH>; /* 50 */
 		};
 
+<<<<<<< HEAD
 		user1 {
+=======
+		led-6 {
+>>>>>>> upstream/android-13
 			label = "omap4:blue:user";
 			gpios = <&gpio6 9 GPIO_ACTIVE_HIGH>; /* 169 */
 		};
 
+<<<<<<< HEAD
 		user2 {
+=======
+		led-7 {
+>>>>>>> upstream/android-13
 			label = "omap4:red:user";
 			gpios = <&gpio6 10 GPIO_ACTIVE_HIGH>; /* 170 */
 		};
 
+<<<<<<< HEAD
 		user3 {
+=======
+		led-8 {
+>>>>>>> upstream/android-13
 			label = "omap4:green:user";
 			gpios = <&gpio5 11 GPIO_ACTIVE_HIGH>; /* 139 */
 		};
 	};
 
+<<<<<<< HEAD
 	pwmleds {
 		compatible = "pwm-leds";
 		kpad {
+=======
+	led-controller-2 {
+		compatible = "pwm-leds";
+
+		led-9 {
+>>>>>>> upstream/android-13
 			label = "omap4::keypad";
 			pwms = <&twl_pwm 0 7812500>;
 			max-brightness = <127>;
 		};
 
+<<<<<<< HEAD
 		charging {
+=======
+		led-10 {
+>>>>>>> upstream/android-13
 			label = "omap4:green:chrg";
 			pwms = <&twl_pwmled 0 7812500>;
 			max-brightness = <255>;
@@ -243,6 +305,7 @@
 		>;
 	};
 
+<<<<<<< HEAD
 	mcpdm_pins: pinmux_mcpdm_pins {
 		pinctrl-single,pins = <
 			OMAP4_IOPAD(0x106, PIN_INPUT_PULLDOWN | MUX_MODE0)	/* abe_pdm_ul_data.abe_pdm_ul_data */
@@ -253,6 +316,8 @@
 		>;
 	};
 
+=======
+>>>>>>> upstream/android-13
 	dmic_pins: pinmux_dmic_pins {
 		pinctrl-single,pins = <
 			OMAP4_IOPAD(0x110, PIN_OUTPUT | MUX_MODE0)		/* abe_dmic_clk1.abe_dmic_clk1 */
@@ -352,6 +417,32 @@
 			OMAP4_IOPAD(0x152, PIN_INPUT_PULLUP | MUX_MODE0)	/* sdmmc5_dat3.sdmmc5_dat3 */
 		>;
 	};
+<<<<<<< HEAD
+=======
+
+	/* gpio_48 for ENET_ENABLE */
+	enet_enable_gpio: pinmux_enet_enable_gpio {
+		pinctrl-single,pins = <
+			OMAP4_IOPAD(0x070, PIN_OUTPUT_PULLDOWN | MUX_MODE3)	/* gpmc_a24.gpio_48 */
+		>;
+	};
+
+	ks8851_pins: pinmux_ks8851_pins {
+		pinctrl-single,pins = <
+			/* ENET_INT */
+			OMAP4_IOPAD(0x054, PIN_INPUT_PULLUP | MUX_MODE3)	/* gpmc_ad10.gpio_34 */
+			/*
+			 * Misterious pin which makes the ethernet working
+			 * The legacy board file requested this pin on boot
+			 * (ETH_KS8851_QUART) and set it to high, similarly to
+			 * the ENET_ENABLE pin.
+			 * We could use gpio-hog to keep it high, but let's use
+			 * it as a reset GPIO for ks8851.
+			 */
+			OMAP4_IOPAD(0x13a, PIN_OUTPUT_PULLUP | MUX_MODE3)	/* mcspi1_cs1.gpio_138 */
+		>;
+	};
+>>>>>>> upstream/android-13
 };
 
 &i2c1 {
@@ -414,7 +505,11 @@
 
 	/*
 	 * Temperature Sensor
+<<<<<<< HEAD
 	 * http://www.ti.com/lit/ds/symlink/tmp105.pdf
+=======
+	 * https://www.ti.com/lit/ds/symlink/tmp105.pdf
+>>>>>>> upstream/android-13
 	 */
 	tmp105@48 {
 		compatible = "ti,tmp105";
@@ -439,7 +534,11 @@
 
 	/*
 	 * 3-Axis Digital Compass
+<<<<<<< HEAD
 	 * http://www.sparkfun.com/datasheets/Sensors/Magneto/HMC5843.pdf
+=======
+	 * https://www.sparkfun.com/datasheets/Sensors/Magneto/HMC5843.pdf
+>>>>>>> upstream/android-13
 	 */
 	hmc5843@1e {
 		compatible = "honeywell,hmc5843";
@@ -452,12 +551,22 @@
 	pinctrl-0 = <&mcspi1_pins>;
 
 	eth@0 {
+<<<<<<< HEAD
+=======
+		pinctrl-names = "default";
+		pinctrl-0 = <&ks8851_pins>;
+
+>>>>>>> upstream/android-13
 		compatible = "ks8851";
 		spi-max-frequency = <24000000>;
 		reg = <0>;
 		interrupt-parent = <&gpio2>;
 		interrupts = <2 IRQ_TYPE_LEVEL_LOW>; /* gpio line 34 */
 		vdd-supply = <&vdd_eth>;
+<<<<<<< HEAD
+=======
+		reset-gpios = <&gpio5 10 GPIO_ACTIVE_HIGH>;
+>>>>>>> upstream/android-13
 	};
 };
 
@@ -494,7 +603,11 @@
 		compatible = "ti,wl1281";
 		reg = <2>;
 		interrupt-parent = <&gpio1>;
+<<<<<<< HEAD
 		interrupts = <21 IRQ_TYPE_EDGE_RISING>; /* gpio 53 */
+=======
+		interrupts = <21 IRQ_TYPE_LEVEL_HIGH>; /* gpio 53 */
+>>>>>>> upstream/android-13
 		ref-clock-frequency = <26000000>;
 		tcxo-clock-frequency = <26000000>;
 	};
@@ -619,6 +732,7 @@
 	status = "okay";
 };
 
+<<<<<<< HEAD
 &mcpdm {
 	pinctrl-names = "default";
 	pinctrl-0 = <&mcpdm_pins>;
@@ -629,6 +743,8 @@
 	status = "okay";
 };
 
+=======
+>>>>>>> upstream/android-13
 &twl_usb_comparator {
 	usb-supply = <&vusb>;
 };
@@ -640,11 +756,19 @@
 };
 
 &dss {
+<<<<<<< HEAD
 	status = "ok";
 };
 
 &dsi1 {
 	status = "ok";
+=======
+	status = "okay";
+};
+
+&dsi1 {
+	status = "okay";
+>>>>>>> upstream/android-13
 	vdd-supply = <&vcxio>;
 
 	port {
@@ -654,8 +778,14 @@
 		};
 	};
 
+<<<<<<< HEAD
 	lcd0: display {
 		compatible = "tpo,taal", "panel-dsi-cm";
+=======
+	lcd0: panel@0 {
+		compatible = "tpo,taal", "panel-dsi-cm";
+		reg = <0>;
+>>>>>>> upstream/android-13
 		label = "lcd0";
 
 		reset-gpios = <&gpio4 6 GPIO_ACTIVE_HIGH>;	/* 102 */
@@ -669,7 +799,11 @@
 };
 
 &dsi2 {
+<<<<<<< HEAD
 	status = "ok";
+=======
+	status = "okay";
+>>>>>>> upstream/android-13
 	vdd-supply = <&vcxio>;
 
 	port {
@@ -679,8 +813,14 @@
 		};
 	};
 
+<<<<<<< HEAD
 	lcd1: display {
 		compatible = "tpo,taal", "panel-dsi-cm";
+=======
+	lcd1: panel@0 {
+		compatible = "tpo,taal", "panel-dsi-cm";
+		reg = <0>;
+>>>>>>> upstream/android-13
 		label = "lcd1";
 
 		reset-gpios = <&gpio4 8 GPIO_ACTIVE_HIGH>;	/* 104 */
@@ -694,7 +834,11 @@
 };
 
 &hdmi {
+<<<<<<< HEAD
 	status = "ok";
+=======
+	status = "okay";
+>>>>>>> upstream/android-13
 	vdda-supply = <&vdac>;
 
 	port {

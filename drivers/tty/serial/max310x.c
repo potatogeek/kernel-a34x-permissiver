@@ -15,8 +15,13 @@
 #include <linux/device.h>
 #include <linux/gpio/driver.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/of.h>
 #include <linux/of_device.h>
+=======
+#include <linux/mod_devicetable.h>
+#include <linux/property.h>
+>>>>>>> upstream/android-13
 #include <linux/regmap.h>
 #include <linux/serial_core.h>
 #include <linux/serial.h>
@@ -248,6 +253,10 @@
 struct max310x_devtype {
 	char	name[9];
 	int	nr;
+<<<<<<< HEAD
+=======
+	u8	mode1;
+>>>>>>> upstream/android-13
 	int	(*detect)(struct device *);
 	void	(*power)(struct uart_port *, int);
 };
@@ -257,17 +266,35 @@ struct max310x_one {
 	struct work_struct	tx_work;
 	struct work_struct	md_work;
 	struct work_struct	rs_work;
+<<<<<<< HEAD
 };
 
 struct max310x_port {
 	struct max310x_devtype	*devtype;
 	struct regmap		*regmap;
 	struct mutex		mutex;
+=======
+
+	u8 wr_header;
+	u8 rd_header;
+	u8 rx_buf[MAX310X_FIFO_SIZE];
+};
+#define to_max310x_port(_port) \
+	container_of(_port, struct max310x_one, port)
+
+struct max310x_port {
+	const struct max310x_devtype *devtype;
+	struct regmap		*regmap;
+>>>>>>> upstream/android-13
 	struct clk		*clk;
 #ifdef CONFIG_GPIOLIB
 	struct gpio_chip	gpio;
 #endif
+<<<<<<< HEAD
 	struct max310x_one	p[0];
+=======
+	struct max310x_one	p[];
+>>>>>>> upstream/android-13
 };
 
 static struct uart_driver max310x_uart = {
@@ -410,6 +437,10 @@ static void max14830_power(struct uart_port *port, int on)
 static const struct max310x_devtype max3107_devtype = {
 	.name	= "MAX3107",
 	.nr	= 1,
+<<<<<<< HEAD
+=======
+	.mode1	= MAX310X_MODE1_AUTOSLEEP_BIT | MAX310X_MODE1_IRQSEL_BIT,
+>>>>>>> upstream/android-13
 	.detect	= max3107_detect,
 	.power	= max310x_power,
 };
@@ -417,6 +448,10 @@ static const struct max310x_devtype max3107_devtype = {
 static const struct max310x_devtype max3108_devtype = {
 	.name	= "MAX3108",
 	.nr	= 1,
+<<<<<<< HEAD
+=======
+	.mode1	= MAX310X_MODE1_AUTOSLEEP_BIT,
+>>>>>>> upstream/android-13
 	.detect	= max3108_detect,
 	.power	= max310x_power,
 };
@@ -424,6 +459,10 @@ static const struct max310x_devtype max3108_devtype = {
 static const struct max310x_devtype max3109_devtype = {
 	.name	= "MAX3109",
 	.nr	= 2,
+<<<<<<< HEAD
+=======
+	.mode1	= MAX310X_MODE1_AUTOSLEEP_BIT,
+>>>>>>> upstream/android-13
 	.detect	= max3109_detect,
 	.power	= max310x_power,
 };
@@ -431,6 +470,10 @@ static const struct max310x_devtype max3109_devtype = {
 static const struct max310x_devtype max14830_devtype = {
 	.name	= "MAX14830",
 	.nr	= 4,
+<<<<<<< HEAD
+=======
+	.mode1	= MAX310X_MODE1_IRQSEL_BIT,
+>>>>>>> upstream/android-13
 	.detect	= max14830_detect,
 	.power	= max14830_power,
 };
@@ -542,7 +585,11 @@ static int max310x_update_best_err(unsigned long f, long *besterr)
 	return 1;
 }
 
+<<<<<<< HEAD
 static int max310x_set_ref_clk(struct device *dev, struct max310x_port *s,
+=======
+static u32 max310x_set_ref_clk(struct device *dev, struct max310x_port *s,
+>>>>>>> upstream/android-13
 			       unsigned long freq, bool xtal)
 {
 	unsigned int div, clksrc, pllcfg = 0;
@@ -608,16 +655,28 @@ static int max310x_set_ref_clk(struct device *dev, struct max310x_port *s,
 		}
 	}
 
+<<<<<<< HEAD
 	return (int)bestfreq;
+=======
+	return bestfreq;
+>>>>>>> upstream/android-13
 }
 
 static void max310x_batch_write(struct uart_port *port, u8 *txbuf, unsigned int len)
 {
+<<<<<<< HEAD
 	u8 header[] = { (port->iobase + MAX310X_THR_REG) | MAX310X_WRITE_BIT };
 	struct spi_transfer xfer[] = {
 		{
 			.tx_buf = &header,
 			.len = sizeof(header),
+=======
+	struct max310x_one *one = to_max310x_port(port);
+	struct spi_transfer xfer[] = {
+		{
+			.tx_buf = &one->wr_header,
+			.len = sizeof(one->wr_header),
+>>>>>>> upstream/android-13
 		}, {
 			.tx_buf = txbuf,
 			.len = len,
@@ -628,11 +687,19 @@ static void max310x_batch_write(struct uart_port *port, u8 *txbuf, unsigned int 
 
 static void max310x_batch_read(struct uart_port *port, u8 *rxbuf, unsigned int len)
 {
+<<<<<<< HEAD
 	u8 header[] = { port->iobase + MAX310X_RHR_REG };
 	struct spi_transfer xfer[] = {
 		{
 			.tx_buf = &header,
 			.len = sizeof(header),
+=======
+	struct max310x_one *one = to_max310x_port(port);
+	struct spi_transfer xfer[] = {
+		{
+			.tx_buf = &one->rd_header,
+			.len = sizeof(one->rd_header),
+>>>>>>> upstream/android-13
 		}, {
 			.rx_buf = rxbuf,
 			.len = len,
@@ -643,8 +710,13 @@ static void max310x_batch_read(struct uart_port *port, u8 *rxbuf, unsigned int l
 
 static void max310x_handle_rx(struct uart_port *port, unsigned int rxlen)
 {
+<<<<<<< HEAD
 	unsigned int sts, ch, flag, i;
 	u8 buf[MAX310X_FIFO_SIZE];
+=======
+	struct max310x_one *one = to_max310x_port(port);
+	unsigned int sts, ch, flag, i;
+>>>>>>> upstream/android-13
 
 	if (port->read_status_mask == MAX310X_LSR_RXOVR_BIT) {
 		/* We are just reading, happily ignoring any error conditions.
@@ -659,7 +731,11 @@ static void max310x_handle_rx(struct uart_port *port, unsigned int rxlen)
 		 * */
 
 		sts = max310x_port_read(port, MAX310X_LSR_IRQSTS_REG);
+<<<<<<< HEAD
 		max310x_batch_read(port, buf, rxlen);
+=======
+		max310x_batch_read(port, one->rx_buf, rxlen);
+>>>>>>> upstream/android-13
 
 		port->icount.rx += rxlen;
 		flag = TTY_NORMAL;
@@ -670,9 +746,22 @@ static void max310x_handle_rx(struct uart_port *port, unsigned int rxlen)
 			port->icount.overrun++;
 		}
 
+<<<<<<< HEAD
 		for (i = 0; i < rxlen; ++i) {
 			uart_insert_char(port, sts, MAX310X_LSR_RXOVR_BIT, buf[i], flag);
 		}
+=======
+		for (i = 0; i < (rxlen - 1); ++i)
+			uart_insert_char(port, sts, 0, one->rx_buf[i], flag);
+
+		/*
+		 * Handle the overrun case for the last character only, since
+		 * the RxFIFO overflow happens after it is pushed to the FIFO
+		 * tail.
+		 */
+		uart_insert_char(port, sts, MAX310X_LSR_RXOVR_BIT,
+				 one->rx_buf[rxlen-1], flag);
+>>>>>>> upstream/android-13
 
 	} else {
 		if (unlikely(rxlen >= port->fifosize)) {
@@ -772,10 +861,16 @@ static void max310x_handle_tx(struct uart_port *port)
 
 static void max310x_start_tx(struct uart_port *port)
 {
+<<<<<<< HEAD
 	struct max310x_one *one = container_of(port, struct max310x_one, port);
 
 	if (!work_pending(&one->tx_work))
 		schedule_work(&one->tx_work);
+=======
+	struct max310x_one *one = to_max310x_port(port);
+
+	schedule_work(&one->tx_work);
+>>>>>>> upstream/android-13
 }
 
 static irqreturn_t max310x_port_irq(struct max310x_port *s, int portno)
@@ -832,6 +927,7 @@ static irqreturn_t max310x_ist(int irq, void *dev_id)
 	return IRQ_RETVAL(handled);
 }
 
+<<<<<<< HEAD
 static void max310x_wq_proc(struct work_struct *ws)
 {
 	struct max310x_one *one = container_of(ws, struct max310x_one, tx_work);
@@ -840,6 +936,13 @@ static void max310x_wq_proc(struct work_struct *ws)
 	mutex_lock(&s->mutex);
 	max310x_handle_tx(&one->port);
 	mutex_unlock(&s->mutex);
+=======
+static void max310x_tx_proc(struct work_struct *ws)
+{
+	struct max310x_one *one = container_of(ws, struct max310x_one, tx_work);
+
+	max310x_handle_tx(&one->port);
+>>>>>>> upstream/android-13
 }
 
 static unsigned int max310x_tx_empty(struct uart_port *port)
@@ -869,7 +972,11 @@ static void max310x_md_proc(struct work_struct *ws)
 
 static void max310x_set_mctrl(struct uart_port *port, unsigned int mctrl)
 {
+<<<<<<< HEAD
 	struct max310x_one *one = container_of(port, struct max310x_one, port);
+=======
+	struct max310x_one *one = to_max310x_port(port);
+>>>>>>> upstream/android-13
 
 	schedule_work(&one->md_work);
 }
@@ -942,6 +1049,7 @@ static void max310x_set_termios(struct uart_port *port,
 	/* Configure flow control */
 	max310x_port_write(port, MAX310X_XON1_REG, termios->c_cc[VSTART]);
 	max310x_port_write(port, MAX310X_XOFF1_REG, termios->c_cc[VSTOP]);
+<<<<<<< HEAD
 	if (termios->c_cflag & CRTSCTS)
 		flow |= MAX310X_FLOWCTRL_AUTOCTS_BIT |
 			MAX310X_FLOWCTRL_AUTORTS_BIT;
@@ -953,6 +1061,45 @@ static void max310x_set_termios(struct uart_port *port,
 			MAX310X_FLOWCTRL_SWFLOWEN_BIT;
 	max310x_port_write(port, MAX310X_FLOWCTRL_REG, flow);
 
+=======
+
+	/* Disable transmitter before enabling AutoCTS or auto transmitter
+	 * flow control
+	 */
+	if (termios->c_cflag & CRTSCTS || termios->c_iflag & IXOFF) {
+		max310x_port_update(port, MAX310X_MODE1_REG,
+				    MAX310X_MODE1_TXDIS_BIT,
+				    MAX310X_MODE1_TXDIS_BIT);
+	}
+
+	port->status &= ~(UPSTAT_AUTOCTS | UPSTAT_AUTORTS | UPSTAT_AUTOXOFF);
+
+	if (termios->c_cflag & CRTSCTS) {
+		/* Enable AUTORTS and AUTOCTS */
+		port->status |= UPSTAT_AUTOCTS | UPSTAT_AUTORTS;
+		flow |= MAX310X_FLOWCTRL_AUTOCTS_BIT |
+			MAX310X_FLOWCTRL_AUTORTS_BIT;
+	}
+	if (termios->c_iflag & IXON)
+		flow |= MAX310X_FLOWCTRL_SWFLOW3_BIT |
+			MAX310X_FLOWCTRL_SWFLOWEN_BIT;
+	if (termios->c_iflag & IXOFF) {
+		port->status |= UPSTAT_AUTOXOFF;
+		flow |= MAX310X_FLOWCTRL_SWFLOW1_BIT |
+			MAX310X_FLOWCTRL_SWFLOWEN_BIT;
+	}
+	max310x_port_write(port, MAX310X_FLOWCTRL_REG, flow);
+
+	/* Enable transmitter after disabling AutoCTS and auto transmitter
+	 * flow control
+	 */
+	if (!(termios->c_cflag & CRTSCTS) && !(termios->c_iflag & IXOFF)) {
+		max310x_port_update(port, MAX310X_MODE1_REG,
+				    MAX310X_MODE1_TXDIS_BIT,
+				    0);
+	}
+
+>>>>>>> upstream/android-13
 	/* Get baud rate generator configuration */
 	baud = uart_get_baud_rate(port, termios, old,
 				  port->uartclk / 16 / 0xffff,
@@ -968,6 +1115,7 @@ static void max310x_set_termios(struct uart_port *port,
 static void max310x_rs_proc(struct work_struct *ws)
 {
 	struct max310x_one *one = container_of(ws, struct max310x_one, rs_work);
+<<<<<<< HEAD
 	unsigned int val;
 
 	val = (one->port.rs485.delay_rts_before_send << 4) |
@@ -987,18 +1135,46 @@ static void max310x_rs_proc(struct work_struct *ws)
 		max310x_port_update(&one->port, MAX310X_MODE2_REG,
 				MAX310X_MODE2_ECHOSUPR_BIT, 0);
 	}
+=======
+	unsigned int delay, mode1 = 0, mode2 = 0;
+
+	delay = (one->port.rs485.delay_rts_before_send << 4) |
+		one->port.rs485.delay_rts_after_send;
+	max310x_port_write(&one->port, MAX310X_HDPIXDELAY_REG, delay);
+
+	if (one->port.rs485.flags & SER_RS485_ENABLED) {
+		mode1 = MAX310X_MODE1_TRNSCVCTRL_BIT;
+
+		if (!(one->port.rs485.flags & SER_RS485_RX_DURING_TX))
+			mode2 = MAX310X_MODE2_ECHOSUPR_BIT;
+	}
+
+	max310x_port_update(&one->port, MAX310X_MODE1_REG,
+			MAX310X_MODE1_TRNSCVCTRL_BIT, mode1);
+	max310x_port_update(&one->port, MAX310X_MODE2_REG,
+			MAX310X_MODE2_ECHOSUPR_BIT, mode2);
+>>>>>>> upstream/android-13
 }
 
 static int max310x_rs485_config(struct uart_port *port,
 				struct serial_rs485 *rs485)
 {
+<<<<<<< HEAD
 	struct max310x_one *one = container_of(port, struct max310x_one, port);
+=======
+	struct max310x_one *one = to_max310x_port(port);
+>>>>>>> upstream/android-13
 
 	if ((rs485->delay_rts_before_send > 0x0f) ||
 	    (rs485->delay_rts_after_send > 0x0f))
 		return -ERANGE;
 
+<<<<<<< HEAD
 	rs485->flags &= SER_RS485_RTS_ON_SEND | SER_RS485_ENABLED;
+=======
+	rs485->flags &= SER_RS485_RTS_ON_SEND | SER_RS485_RX_DURING_TX |
+			SER_RS485_ENABLED;
+>>>>>>> upstream/android-13
 	memset(rs485->padding, 0, sizeof(rs485->padding));
 	port->rs485 = *rs485;
 
@@ -1024,6 +1200,25 @@ static int max310x_startup(struct uart_port *port)
 	max310x_port_update(port, MAX310X_MODE2_REG,
 			    MAX310X_MODE2_FIFORST_BIT, 0);
 
+<<<<<<< HEAD
+=======
+	/* Configure mode1/mode2 to have rs485/rs232 enabled at startup */
+	val = (clamp(port->rs485.delay_rts_before_send, 0U, 15U) << 4) |
+		clamp(port->rs485.delay_rts_after_send, 0U, 15U);
+	max310x_port_write(port, MAX310X_HDPIXDELAY_REG, val);
+
+	if (port->rs485.flags & SER_RS485_ENABLED) {
+		max310x_port_update(port, MAX310X_MODE1_REG,
+				    MAX310X_MODE1_TRNSCVCTRL_BIT,
+				    MAX310X_MODE1_TRNSCVCTRL_BIT);
+
+		if (!(port->rs485.flags & SER_RS485_RX_DURING_TX))
+			max310x_port_update(port, MAX310X_MODE2_REG,
+					    MAX310X_MODE2_ECHOSUPR_BIT,
+					    MAX310X_MODE2_ECHOSUPR_BIT);
+	}
+
+>>>>>>> upstream/android-13
 	/* Configure flow control levels */
 	/* Flow control halt level 96, resume level 48 */
 	max310x_port_write(port, MAX310X_FLOWLVL_REG,
@@ -1196,6 +1391,7 @@ static int max310x_gpio_set_config(struct gpio_chip *chip, unsigned int offset,
 }
 #endif
 
+<<<<<<< HEAD
 static int max310x_probe(struct device *dev, struct max310x_devtype *devtype,
 			 struct regmap *regmap, int irq)
 {
@@ -1203,18 +1399,32 @@ static int max310x_probe(struct device *dev, struct max310x_devtype *devtype,
 	struct clk *clk_osc, *clk_xtal;
 	struct max310x_port *s;
 	bool xtal = false;
+=======
+static int max310x_probe(struct device *dev, const struct max310x_devtype *devtype,
+			 struct regmap *regmap, int irq)
+{
+	int i, ret, fmin, fmax, freq;
+	struct max310x_port *s;
+	u32 uartclk = 0;
+	bool xtal;
+>>>>>>> upstream/android-13
 
 	if (IS_ERR(regmap))
 		return PTR_ERR(regmap);
 
 	/* Alloc port structure */
+<<<<<<< HEAD
 	s = devm_kzalloc(dev, sizeof(*s) +
 			 sizeof(struct max310x_one) * devtype->nr, GFP_KERNEL);
+=======
+	s = devm_kzalloc(dev, struct_size(s, p, devtype->nr), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!s) {
 		dev_err(dev, "Error allocating port structure\n");
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	clk_osc = devm_clk_get(dev, "osc");
 	clk_xtal = devm_clk_get(dev, "xtal");
 	if (!IS_ERR(clk_osc)) {
@@ -1233,12 +1443,43 @@ static int max310x_probe(struct device *dev, struct max310x_devtype *devtype,
 		dev_err(dev, "Cannot get clock\n");
 		return -EINVAL;
 	}
+=======
+	/* Always ask for fixed clock rate from a property. */
+	device_property_read_u32(dev, "clock-frequency", &uartclk);
+
+	xtal = device_property_match_string(dev, "clock-names", "osc") < 0;
+	if (xtal)
+		s->clk = devm_clk_get_optional(dev, "xtal");
+	else
+		s->clk = devm_clk_get_optional(dev, "osc");
+	if (IS_ERR(s->clk))
+		return PTR_ERR(s->clk);
+>>>>>>> upstream/android-13
 
 	ret = clk_prepare_enable(s->clk);
 	if (ret)
 		return ret;
 
 	freq = clk_get_rate(s->clk);
+<<<<<<< HEAD
+=======
+	if (freq == 0)
+		freq = uartclk;
+	if (freq == 0) {
+		dev_err(dev, "Cannot get clock rate\n");
+		ret = -EINVAL;
+		goto out_clk;
+	}
+
+	if (xtal) {
+		fmin = 1000000;
+		fmax = 4000000;
+	} else {
+		fmin = 500000;
+		fmax = 35000000;
+	}
+
+>>>>>>> upstream/android-13
 	/* Check frequency limits */
 	if (freq < fmin || freq > fmax) {
 		ret = -ERANGE;
@@ -1269,16 +1510,24 @@ static int max310x_probe(struct device *dev, struct max310x_devtype *devtype,
 				    MAX310X_BRGDIVLSB_REG + offs, &ret);
 		} while (ret != 0x01);
 
+<<<<<<< HEAD
 		regmap_update_bits(s->regmap, MAX310X_MODE1_REG + offs,
 				   MAX310X_MODE1_AUTOSLEEP_BIT,
 				   MAX310X_MODE1_AUTOSLEEP_BIT);
+=======
+		regmap_write(s->regmap, MAX310X_MODE1_REG + offs,
+			     devtype->mode1);
+>>>>>>> upstream/android-13
 	}
 
 	uartclk = max310x_set_ref_clk(dev, s, freq, xtal);
 	dev_dbg(dev, "Reference clock set to %i Hz\n", uartclk);
 
+<<<<<<< HEAD
 	mutex_init(&s->mutex);
 
+=======
+>>>>>>> upstream/android-13
 	for (i = 0; i < devtype->nr; i++) {
 		unsigned int line;
 
@@ -1305,16 +1554,28 @@ static int max310x_probe(struct device *dev, struct max310x_devtype *devtype,
 		max310x_port_write(&s->p[i].port, MAX310X_IRQEN_REG, 0);
 		/* Clear IRQ status register */
 		max310x_port_read(&s->p[i].port, MAX310X_IRQSTS_REG);
+<<<<<<< HEAD
 		/* Enable IRQ pin */
 		max310x_port_update(&s->p[i].port, MAX310X_MODE1_REG,
 				    MAX310X_MODE1_IRQSEL_BIT,
 				    MAX310X_MODE1_IRQSEL_BIT);
 		/* Initialize queue for start TX */
 		INIT_WORK(&s->p[i].tx_work, max310x_wq_proc);
+=======
+		/* Initialize queue for start TX */
+		INIT_WORK(&s->p[i].tx_work, max310x_tx_proc);
+>>>>>>> upstream/android-13
 		/* Initialize queue for changing LOOPBACK mode */
 		INIT_WORK(&s->p[i].md_work, max310x_md_proc);
 		/* Initialize queue for changing RS485 mode */
 		INIT_WORK(&s->p[i].rs_work, max310x_rs_proc);
+<<<<<<< HEAD
+=======
+		/* Initialize SPI-transfer buffers */
+		s->p[i].wr_header = (s->p[i].port.iobase + MAX310X_THR_REG) |
+				    MAX310X_WRITE_BIT;
+		s->p[i].rd_header = (s->p[i].port.iobase + MAX310X_RHR_REG);
+>>>>>>> upstream/android-13
 
 		/* Register port */
 		ret = uart_add_one_port(&max310x_uart, &s->p[i].port);
@@ -1362,8 +1623,11 @@ out_uart:
 		}
 	}
 
+<<<<<<< HEAD
 	mutex_destroy(&s->mutex);
 
+=======
+>>>>>>> upstream/android-13
 out_clk:
 	clk_disable_unprepare(s->clk);
 
@@ -1384,7 +1648,10 @@ static int max310x_remove(struct device *dev)
 		s->devtype->power(&s->p[i].port, 0);
 	}
 
+<<<<<<< HEAD
 	mutex_destroy(&s->mutex);
+=======
+>>>>>>> upstream/android-13
 	clk_disable_unprepare(s->clk);
 
 	return 0;
@@ -1412,7 +1679,11 @@ static struct regmap_config regcfg = {
 #ifdef CONFIG_SPI_MASTER
 static int max310x_spi_probe(struct spi_device *spi)
 {
+<<<<<<< HEAD
 	struct max310x_devtype *devtype;
+=======
+	const struct max310x_devtype *devtype;
+>>>>>>> upstream/android-13
 	struct regmap *regmap;
 	int ret;
 
@@ -1424,6 +1695,7 @@ static int max310x_spi_probe(struct spi_device *spi)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	if (spi->dev.of_node) {
 		const struct of_device_id *of_id =
 			of_match_device(max310x_dt_ids, &spi->dev);
@@ -1436,6 +1708,11 @@ static int max310x_spi_probe(struct spi_device *spi)
 
 		devtype = (struct max310x_devtype *)id_entry->driver_data;
 	}
+=======
+	devtype = device_get_match_data(&spi->dev);
+	if (!devtype)
+		devtype = (struct max310x_devtype *)spi_get_device_id(spi)->driver_data;
+>>>>>>> upstream/android-13
 
 	regcfg.max_register = devtype->nr * 0x20 - 1;
 	regmap = devm_regmap_init_spi(spi, &regcfg);
@@ -1460,7 +1737,11 @@ MODULE_DEVICE_TABLE(spi, max310x_id_table);
 static struct spi_driver max310x_spi_driver = {
 	.driver = {
 		.name		= MAX310X_NAME,
+<<<<<<< HEAD
 		.of_match_table	= of_match_ptr(max310x_dt_ids),
+=======
+		.of_match_table	= max310x_dt_ids,
+>>>>>>> upstream/android-13
 		.pm		= &max310x_pm_ops,
 	},
 	.probe		= max310x_spi_probe,
@@ -1480,10 +1761,19 @@ static int __init max310x_uart_init(void)
 		return ret;
 
 #ifdef CONFIG_SPI_MASTER
+<<<<<<< HEAD
 	spi_register_driver(&max310x_spi_driver);
 #endif
 
 	return 0;
+=======
+	ret = spi_register_driver(&max310x_spi_driver);
+	if (ret)
+		uart_unregister_driver(&max310x_uart);
+#endif
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 module_init(max310x_uart_init);
 

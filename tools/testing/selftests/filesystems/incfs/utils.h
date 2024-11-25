@@ -29,6 +29,11 @@ int drop_caches(void);
 int mount_fs(const char *mount_dir, const char *backing_dir,
 	     int read_timeout_ms);
 
+<<<<<<< HEAD
+=======
+int umount_fs(const char *mount_dir);
+
+>>>>>>> upstream/android-13
 int mount_fs_opt(const char *mount_dir, const char *backing_dir,
 		 const char *opt, bool remount);
 

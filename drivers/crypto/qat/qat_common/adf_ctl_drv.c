@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
   This file is provided under a dual BSD/GPLv2 license.  When using or
   redistributing this file, you may do so under either license.
@@ -44,6 +45,10 @@
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+=======
+// SPDX-License-Identifier: (BSD-3-Clause OR GPL-2.0-only)
+/* Copyright(c) 2014 - 2020 Intel Corporation */
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/mutex.h>
 #include <linux/slab.h>
@@ -68,7 +73,11 @@ static long adf_ctl_ioctl(struct file *fp, unsigned int cmd, unsigned long arg);
 static const struct file_operations adf_ctl_ops = {
 	.owner = THIS_MODULE,
 	.unlocked_ioctl = adf_ctl_ioctl,
+<<<<<<< HEAD
 	.compat_ioctl = adf_ctl_ioctl,
+=======
+	.compat_ioctl = compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 };
 
 struct adf_ctl_drv_info {
@@ -270,7 +279,11 @@ static int adf_ctl_is_device_in_use(int id)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void adf_ctl_stop_devices(uint32_t id)
+=======
+static void adf_ctl_stop_devices(u32 id)
+>>>>>>> upstream/android-13
 {
 	struct adf_accel_dev *accel_dev;
 
@@ -374,7 +387,11 @@ out:
 static int adf_ctl_ioctl_get_num_devices(struct file *fp, unsigned int cmd,
 					 unsigned long arg)
 {
+<<<<<<< HEAD
 	uint32_t num_devices = 0;
+=======
+	u32 num_devices = 0;
+>>>>>>> upstream/android-13
 
 	adf_devmgr_get_num_dev(&num_devices);
 	if (copy_to_user((void __user *)arg, &num_devices, sizeof(num_devices)))
@@ -450,7 +467,11 @@ static long adf_ctl_ioctl(struct file *fp, unsigned int cmd, unsigned long arg)
 		ret = adf_ctl_ioctl_get_status(fp, cmd, arg);
 		break;
 	default:
+<<<<<<< HEAD
 		pr_err("QAT: Invalid ioctl\n");
+=======
+		pr_err_ratelimited("QAT: Invalid ioctl %d\n", cmd);
+>>>>>>> upstream/android-13
 		ret = -EFAULT;
 		break;
 	}
@@ -460,8 +481,11 @@ static long adf_ctl_ioctl(struct file *fp, unsigned int cmd, unsigned long arg)
 
 static int __init adf_register_ctl_device_driver(void)
 {
+<<<<<<< HEAD
 	mutex_init(&adf_ctl_lock);
 
+=======
+>>>>>>> upstream/android-13
 	if (adf_chr_drv_create())
 		goto err_chr_dev;
 
@@ -510,3 +534,7 @@ MODULE_AUTHOR("Intel");
 MODULE_DESCRIPTION("Intel(R) QuickAssist Technology");
 MODULE_ALIAS_CRYPTO("intel_qat");
 MODULE_VERSION(ADF_DRV_VERSION);
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(CRYPTO_INTERNAL);
+>>>>>>> upstream/android-13

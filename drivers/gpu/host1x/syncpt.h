@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Tegra host1x Syncpoints
  *
  * Copyright (c) 2010-2013, NVIDIA Corporation.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -14,6 +19,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __HOST1X_SYNCPT_H
@@ -22,6 +29,10 @@
 #include <linux/atomic.h>
 #include <linux/host1x.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
+=======
+#include <linux/kref.h>
+>>>>>>> upstream/android-13
 #include <linux/sched.h>
 
 #include "intr.h"
@@ -37,6 +48,11 @@ struct host1x_syncpt_base {
 };
 
 struct host1x_syncpt {
+<<<<<<< HEAD
+=======
+	struct kref ref;
+
+>>>>>>> upstream/android-13
 	unsigned int id;
 	atomic_t min_val;
 	atomic_t max_val;
@@ -44,11 +60,24 @@ struct host1x_syncpt {
 	const char *name;
 	bool client_managed;
 	struct host1x *host;
+<<<<<<< HEAD
 	struct host1x_client *client;
+=======
+>>>>>>> upstream/android-13
 	struct host1x_syncpt_base *base;
 
 	/* interrupt data */
 	struct host1x_syncpt_intr intr;
+<<<<<<< HEAD
+=======
+
+	/*
+	 * If a submission incrementing this syncpoint fails, lock it so that
+	 * further submission cannot be made until application has handled the
+	 * failure.
+	 */
+	bool locked;
+>>>>>>> upstream/android-13
 };
 
 /* Initialize sync point array  */
@@ -124,4 +153,12 @@ static inline int host1x_syncpt_is_valid(struct host1x_syncpt *sp)
 	return sp->id < host1x_syncpt_nb_pts(sp->host);
 }
 
+<<<<<<< HEAD
+=======
+static inline void host1x_syncpt_set_locked(struct host1x_syncpt *sp)
+{
+	sp->locked = true;
+}
+
+>>>>>>> upstream/android-13
 #endif

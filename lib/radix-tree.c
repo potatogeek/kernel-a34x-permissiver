@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2001 Momchil Velikov
  * Portions Copyright (C) 2001 Christoph Hellwig
@@ -6,6 +10,7 @@
  * Copyright (C) 2012 Konstantin Khlebnikov
  * Copyright (C) 2016 Intel, Matthew Wilcox
  * Copyright (C) 2016 Intel, Ross Zwisler
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,6 +25,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitmap.h>
@@ -38,15 +45,23 @@
 #include <linux/rcupdate.h>
 #include <linux/slab.h>
 #include <linux/string.h>
+<<<<<<< HEAD
 
 
 /* Number of nodes in fully populated tree of given height */
 static unsigned long height_to_maxnodes[RADIX_TREE_MAX_PATH + 1] __read_mostly;
+=======
+#include <linux/xarray.h>
+>>>>>>> upstream/android-13
 
 /*
  * Radix tree node cache.
  */
+<<<<<<< HEAD
 static struct kmem_cache *radix_tree_node_cachep;
+=======
+struct kmem_cache *radix_tree_node_cachep;
+>>>>>>> upstream/android-13
 
 /*
  * The radix tree is variable-height, so an insert operation not only has
@@ -71,6 +86,7 @@ static struct kmem_cache *radix_tree_node_cachep;
 #define IDR_PRELOAD_SIZE	(IDR_MAX_PATH * 2 - 1)
 
 /*
+<<<<<<< HEAD
  * The IDA is even shorter since it uses a bitmap at the last level.
  */
 #define IDA_INDEX_BITS		(8 * sizeof(int) - 1 - ilog2(IDA_BITMAP_BITS))
@@ -92,6 +108,14 @@ static inline void *indirect_to_ptr(void *ptr)
 {
 	return (void *)((unsigned long)ptr & ~RADIX_TREE_INDIRECT_PTR);
 }
+=======
+ * Per-cpu pool of preloaded nodes
+ */
+DEFINE_PER_CPU(struct radix_tree_preload, radix_tree_preloads) = {
+	.lock = INIT_LOCAL_LOCK(lock),
+};
+EXPORT_PER_CPU_SYMBOL_GPL(radix_tree_preloads);
+>>>>>>> upstream/android-13
 
 static inline struct radix_tree_node *entry_to_node(void *ptr)
 {
@@ -103,6 +127,7 @@ static inline void *node_to_entry(void *ptr)
 	return (void *)((unsigned long)ptr | RADIX_TREE_INTERNAL_NODE);
 }
 
+<<<<<<< HEAD
 #define RADIX_TREE_RETRY	node_to_entry(NULL)
 
 #ifdef CONFIG_RADIX_TREE_MULTIORDER
@@ -121,6 +146,9 @@ bool is_sibling_entry(const struct radix_tree_node *parent, void *node)
 	return false;
 }
 #endif
+=======
+#define RADIX_TREE_RETRY	XA_RETRY_ENTRY
+>>>>>>> upstream/android-13
 
 static inline unsigned long
 get_slot_offset(const struct radix_tree_node *parent, void __rcu **slot)
@@ -134,6 +162,7 @@ static unsigned int radix_tree_descend(const struct radix_tree_node *parent,
 	unsigned int offset = (index >> parent->shift) & RADIX_TREE_MAP_MASK;
 	void __rcu **entry = rcu_dereference_raw(parent->slots[offset]);
 
+<<<<<<< HEAD
 #ifdef CONFIG_RADIX_TREE_MULTIORDER
 	if (radix_tree_is_internal_node(entry)) {
 		if (is_sibling_entry(parent, entry)) {
@@ -145,13 +174,19 @@ static unsigned int radix_tree_descend(const struct radix_tree_node *parent,
 	}
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	*nodep = (void *)entry;
 	return offset;
 }
 
 static inline gfp_t root_gfp_mask(const struct radix_tree_root *root)
 {
+<<<<<<< HEAD
 	return root->gfp_mask & (__GFP_BITS_MASK & ~GFP_ZONEMASK);
+=======
+	return root->xa_flags & (__GFP_BITS_MASK & ~GFP_ZONEMASK);
+>>>>>>> upstream/android-13
 }
 
 static inline void tag_set(struct radix_tree_node *node, unsigned int tag,
@@ -174,32 +209,56 @@ static inline int tag_get(const struct radix_tree_node *node, unsigned int tag,
 
 static inline void root_tag_set(struct radix_tree_root *root, unsigned tag)
 {
+<<<<<<< HEAD
 	root->gfp_mask |= (__force gfp_t)(1 << (tag + ROOT_TAG_SHIFT));
+=======
+	root->xa_flags |= (__force gfp_t)(1 << (tag + ROOT_TAG_SHIFT));
+>>>>>>> upstream/android-13
 }
 
 static inline void root_tag_clear(struct radix_tree_root *root, unsigned tag)
 {
+<<<<<<< HEAD
 	root->gfp_mask &= (__force gfp_t)~(1 << (tag + ROOT_TAG_SHIFT));
+=======
+	root->xa_flags &= (__force gfp_t)~(1 << (tag + ROOT_TAG_SHIFT));
+>>>>>>> upstream/android-13
 }
 
 static inline void root_tag_clear_all(struct radix_tree_root *root)
 {
+<<<<<<< HEAD
 	root->gfp_mask &= (1 << ROOT_TAG_SHIFT) - 1;
+=======
+	root->xa_flags &= (__force gfp_t)((1 << ROOT_TAG_SHIFT) - 1);
+>>>>>>> upstream/android-13
 }
 
 static inline int root_tag_get(const struct radix_tree_root *root, unsigned tag)
 {
+<<<<<<< HEAD
 	return (__force int)root->gfp_mask & (1 << (tag + ROOT_TAG_SHIFT));
+=======
+	return (__force int)root->xa_flags & (1 << (tag + ROOT_TAG_SHIFT));
+>>>>>>> upstream/android-13
 }
 
 static inline unsigned root_tags_get(const struct radix_tree_root *root)
 {
+<<<<<<< HEAD
 	return (__force unsigned)root->gfp_mask >> ROOT_TAG_SHIFT;
+=======
+	return (__force unsigned)root->xa_flags >> ROOT_TAG_SHIFT;
+>>>>>>> upstream/android-13
 }
 
 static inline bool is_idr(const struct radix_tree_root *root)
 {
+<<<<<<< HEAD
 	return !!(root->gfp_mask & ROOT_IS_IDR);
+=======
+	return !!(root->xa_flags & ROOT_IS_IDR);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -225,9 +284,15 @@ static inline void all_tag_set(struct radix_tree_node *node, unsigned int tag)
 /**
  * radix_tree_find_next_bit - find the next set bit in a memory region
  *
+<<<<<<< HEAD
  * @addr: The address to base the search on
  * @size: The bitmap size in bits
  * @offset: The bitnumber to start searching at
+=======
+ * @node: where to begin the search
+ * @tag: the tag index
+ * @offset: the bitnumber to start searching at
+>>>>>>> upstream/android-13
  *
  * Unrollable variant of find_next_bit() for constant size arrays.
  * Tail bits starting from size to roundup(size, BITS_PER_LONG) must be zero.
@@ -259,7 +324,11 @@ radix_tree_find_next_bit(struct radix_tree_node *node, unsigned int tag,
 
 static unsigned int iter_offset(const struct radix_tree_iter *iter)
 {
+<<<<<<< HEAD
 	return (iter->index >> iter_shift(iter)) & RADIX_TREE_MAP_MASK;
+=======
+	return iter->index & RADIX_TREE_MAP_MASK;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -282,6 +351,7 @@ static unsigned long next_index(unsigned long index,
 	return (index & ~node_maxindex(node)) + (offset << node->shift);
 }
 
+<<<<<<< HEAD
 #ifndef __KERNEL__
 static void dump_node(struct radix_tree_node *node, unsigned long index)
 {
@@ -375,6 +445,8 @@ static void ida_dump(struct ida *ida)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /*
  * This assumes that the caller has performed appropriate preallocation, and
  * that the caller has pinned this thread of control to the current CPU.
@@ -383,7 +455,11 @@ static struct radix_tree_node *
 radix_tree_node_alloc(gfp_t gfp_mask, struct radix_tree_node *parent,
 			struct radix_tree_root *root,
 			unsigned int shift, unsigned int offset,
+<<<<<<< HEAD
 			unsigned int count, unsigned int exceptional)
+=======
+			unsigned int count, unsigned int nr_values)
+>>>>>>> upstream/android-13
 {
 	struct radix_tree_node *ret = NULL;
 
@@ -430,14 +506,24 @@ out:
 		ret->shift = shift;
 		ret->offset = offset;
 		ret->count = count;
+<<<<<<< HEAD
 		ret->exceptional = exceptional;
 		ret->parent = parent;
 		ret->root = root;
+=======
+		ret->nr_values = nr_values;
+		ret->parent = parent;
+		ret->array = root;
+>>>>>>> upstream/android-13
 	}
 	return ret;
 }
 
+<<<<<<< HEAD
 static void radix_tree_node_rcu_free(struct rcu_head *head)
+=======
+void radix_tree_node_rcu_free(struct rcu_head *head)
+>>>>>>> upstream/android-13
 {
 	struct radix_tree_node *node =
 			container_of(head, struct radix_tree_node, rcu_head);
@@ -476,11 +562,16 @@ static __must_check int __radix_tree_preload(gfp_t gfp_mask, unsigned nr)
 	int ret = -ENOMEM;
 
 	/*
+<<<<<<< HEAD
 	 * Nodes preloaded by one cgroup can be be used by another cgroup, so
+=======
+	 * Nodes preloaded by one cgroup can be used by another cgroup, so
+>>>>>>> upstream/android-13
 	 * they should never be accounted to any particular memory cgroup.
 	 */
 	gfp_mask &= ~__GFP_ACCOUNT;
 
+<<<<<<< HEAD
 	preempt_disable();
 	rtp = this_cpu_ptr(&radix_tree_preloads);
 	while (rtp->nr < nr) {
@@ -489,6 +580,16 @@ static __must_check int __radix_tree_preload(gfp_t gfp_mask, unsigned nr)
 		if (node == NULL)
 			goto out;
 		preempt_disable();
+=======
+	local_lock(&radix_tree_preloads.lock);
+	rtp = this_cpu_ptr(&radix_tree_preloads);
+	while (rtp->nr < nr) {
+		local_unlock(&radix_tree_preloads.lock);
+		node = kmem_cache_alloc(radix_tree_node_cachep, gfp_mask);
+		if (node == NULL)
+			goto out;
+		local_lock(&radix_tree_preloads.lock);
+>>>>>>> upstream/android-13
 		rtp = this_cpu_ptr(&radix_tree_preloads);
 		if (rtp->nr < nr) {
 			node->parent = rtp->nodes;
@@ -530,11 +631,16 @@ int radix_tree_maybe_preload(gfp_t gfp_mask)
 	if (gfpflags_allow_blocking(gfp_mask))
 		return __radix_tree_preload(gfp_mask, RADIX_TREE_PRELOAD_SIZE);
 	/* Preloading doesn't help anything with this gfp mask, skip it */
+<<<<<<< HEAD
 	preempt_disable();
+=======
+	local_lock(&radix_tree_preloads.lock);
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL(radix_tree_maybe_preload);
 
+<<<<<<< HEAD
 #ifdef CONFIG_RADIX_TREE_MULTIORDER
 /*
  * Preload with enough objects to ensure that we can split a single entry
@@ -606,6 +712,12 @@ static unsigned radix_tree_load_root(const struct radix_tree_root *root,
 		struct radix_tree_node **nodep, unsigned long *maxindex)
 {
 	struct radix_tree_node *node = rcu_dereference_raw(root->rnode);
+=======
+static unsigned radix_tree_load_root(const struct radix_tree_root *root,
+		struct radix_tree_node **nodep, unsigned long *maxindex)
+{
+	struct radix_tree_node *node = rcu_dereference_raw(root->xa_head);
+>>>>>>> upstream/android-13
 
 	*nodep = node;
 
@@ -634,7 +746,11 @@ static int radix_tree_extend(struct radix_tree_root *root, gfp_t gfp,
 	while (index > shift_maxindex(maxshift))
 		maxshift += RADIX_TREE_MAP_SHIFT;
 
+<<<<<<< HEAD
 	entry = rcu_dereference_raw(root->rnode);
+=======
+	entry = rcu_dereference_raw(root->xa_head);
+>>>>>>> upstream/android-13
 	if (!entry && (!is_idr(root) || root_tag_get(root, IDR_FREE)))
 		goto out;
 
@@ -661,9 +777,15 @@ static int radix_tree_extend(struct radix_tree_root *root, gfp_t gfp,
 		BUG_ON(shift > BITS_PER_LONG);
 		if (radix_tree_is_internal_node(entry)) {
 			entry_to_node(entry)->parent = node;
+<<<<<<< HEAD
 		} else if (radix_tree_exceptional_entry(entry)) {
 			/* Moving an exceptional root->rnode to a node */
 			node->exceptional = 1;
+=======
+		} else if (xa_is_value(entry)) {
+			/* Moving a value entry root->xa_head to a node */
+			node->nr_values = 1;
+>>>>>>> upstream/android-13
 		}
 		/*
 		 * entry was already in the radix tree, so we do not need
@@ -671,7 +793,11 @@ static int radix_tree_extend(struct radix_tree_root *root, gfp_t gfp,
 		 */
 		node->slots[0] = (void __rcu *)entry;
 		entry = node_to_entry(node);
+<<<<<<< HEAD
 		rcu_assign_pointer(root->rnode, entry);
+=======
+		rcu_assign_pointer(root->xa_head, entry);
+>>>>>>> upstream/android-13
 		shift += RADIX_TREE_MAP_SHIFT;
 	} while (shift <= maxshift);
 out:
@@ -680,15 +806,25 @@ out:
 
 /**
  *	radix_tree_shrink    -    shrink radix tree to minimum height
+<<<<<<< HEAD
  *	@root		radix tree root
  */
 static inline bool radix_tree_shrink(struct radix_tree_root *root,
 				     radix_tree_update_node_t update_node)
+=======
+ *	@root:		radix tree root
+ */
+static inline bool radix_tree_shrink(struct radix_tree_root *root)
+>>>>>>> upstream/android-13
 {
 	bool shrunk = false;
 
 	for (;;) {
+<<<<<<< HEAD
 		struct radix_tree_node *node = rcu_dereference_raw(root->rnode);
+=======
+		struct radix_tree_node *node = rcu_dereference_raw(root->xa_head);
+>>>>>>> upstream/android-13
 		struct radix_tree_node *child;
 
 		if (!radix_tree_is_internal_node(node))
@@ -697,15 +833,29 @@ static inline bool radix_tree_shrink(struct radix_tree_root *root,
 
 		/*
 		 * The candidate node has more than one child, or its child
+<<<<<<< HEAD
 		 * is not at the leftmost slot, or the child is a multiorder
 		 * entry, we cannot shrink.
+=======
+		 * is not at the leftmost slot, we cannot shrink.
+>>>>>>> upstream/android-13
 		 */
 		if (node->count != 1)
 			break;
 		child = rcu_dereference_raw(node->slots[0]);
 		if (!child)
 			break;
+<<<<<<< HEAD
 		if (!radix_tree_is_internal_node(child) && node->shift)
+=======
+
+		/*
+		 * For an IDR, we must not shrink entry 0 into the root in
+		 * case somebody calls idr_replace() with a pointer that
+		 * appears to be an internal entry
+		 */
+		if (!node->shift && is_idr(root))
+>>>>>>> upstream/android-13
 			break;
 
 		if (radix_tree_is_internal_node(child))
@@ -716,9 +866,15 @@ static inline bool radix_tree_shrink(struct radix_tree_root *root,
 		 * moving the node from one part of the tree to another: if it
 		 * was safe to dereference the old pointer to it
 		 * (node->slots[0]), it will be safe to dereference the new
+<<<<<<< HEAD
 		 * one (root->rnode) as far as dependent read barriers go.
 		 */
 		root->rnode = (void __rcu *)child;
+=======
+		 * one (root->xa_head) as far as dependent read barriers go.
+		 */
+		root->xa_head = (void __rcu *)child;
+>>>>>>> upstream/android-13
 		if (is_idr(root) && !tag_get(node, IDR_FREE, 0))
 			root_tag_clear(root, IDR_FREE);
 
@@ -743,8 +899,11 @@ static inline bool radix_tree_shrink(struct radix_tree_root *root,
 		node->count = 0;
 		if (!radix_tree_is_internal_node(child)) {
 			node->slots[0] = (void __rcu *)RADIX_TREE_RETRY;
+<<<<<<< HEAD
 			if (update_node)
 				update_node(node);
+=======
+>>>>>>> upstream/android-13
 		}
 
 		WARN_ON_ONCE(!list_empty(&node->private_list));
@@ -756,8 +915,12 @@ static inline bool radix_tree_shrink(struct radix_tree_root *root,
 }
 
 static bool delete_node(struct radix_tree_root *root,
+<<<<<<< HEAD
 			struct radix_tree_node *node,
 			radix_tree_update_node_t update_node)
+=======
+			struct radix_tree_node *node)
+>>>>>>> upstream/android-13
 {
 	bool deleted = false;
 
@@ -766,9 +929,14 @@ static bool delete_node(struct radix_tree_root *root,
 
 		if (node->count) {
 			if (node_to_entry(node) ==
+<<<<<<< HEAD
 					rcu_dereference_raw(root->rnode))
 				deleted |= radix_tree_shrink(root,
 								update_node);
+=======
+					rcu_dereference_raw(root->xa_head))
+				deleted |= radix_tree_shrink(root);
+>>>>>>> upstream/android-13
 			return deleted;
 		}
 
@@ -783,7 +951,11 @@ static bool delete_node(struct radix_tree_root *root,
 			 */
 			if (!is_idr(root))
 				root_tag_clear_all(root);
+<<<<<<< HEAD
 			root->rnode = NULL;
+=======
+			root->xa_head = NULL;
+>>>>>>> upstream/android-13
 		}
 
 		WARN_ON_ONCE(!list_empty(&node->private_list));
@@ -800,7 +972,10 @@ static bool delete_node(struct radix_tree_root *root,
  *	__radix_tree_create	-	create a slot in a radix tree
  *	@root:		radix tree root
  *	@index:		index key
+<<<<<<< HEAD
  *	@order:		index occupies 2^order aligned slots
+=======
+>>>>>>> upstream/android-13
  *	@nodep:		returns node
  *	@slotp:		returns slot
  *
@@ -808,11 +983,16 @@ static bool delete_node(struct radix_tree_root *root,
  *	at position @index in the radix tree @root.
  *
  *	Until there is more than one item in the tree, no nodes are
+<<<<<<< HEAD
  *	allocated and @root->rnode is used as a direct slot instead of
+=======
+ *	allocated and @root->xa_head is used as a direct slot instead of
+>>>>>>> upstream/android-13
  *	pointing to a node, in which case *@nodep will be NULL.
  *
  *	Returns -ENOMEM, or 0 for success.
  */
+<<<<<<< HEAD
 int __radix_tree_create(struct radix_tree_root *root, unsigned long index,
 			unsigned order, struct radix_tree_node **nodep,
 			void __rcu ***slotp)
@@ -822,22 +1002,43 @@ int __radix_tree_create(struct radix_tree_root *root, unsigned long index,
 	unsigned long maxindex;
 	unsigned int shift, offset = 0;
 	unsigned long max = index | ((1UL << order) - 1);
+=======
+static int __radix_tree_create(struct radix_tree_root *root,
+		unsigned long index, struct radix_tree_node **nodep,
+		void __rcu ***slotp)
+{
+	struct radix_tree_node *node = NULL, *child;
+	void __rcu **slot = (void __rcu **)&root->xa_head;
+	unsigned long maxindex;
+	unsigned int shift, offset = 0;
+	unsigned long max = index;
+>>>>>>> upstream/android-13
 	gfp_t gfp = root_gfp_mask(root);
 
 	shift = radix_tree_load_root(root, &child, &maxindex);
 
 	/* Make sure the tree is high enough.  */
+<<<<<<< HEAD
 	if (order > 0 && max == ((1UL << order) - 1))
 		max++;
+=======
+>>>>>>> upstream/android-13
 	if (max > maxindex) {
 		int error = radix_tree_extend(root, gfp, max, shift);
 		if (error < 0)
 			return error;
 		shift = error;
+<<<<<<< HEAD
 		child = rcu_dereference_raw(root->rnode);
 	}
 
 	while (shift > order) {
+=======
+		child = rcu_dereference_raw(root->xa_head);
+	}
+
+	while (shift > 0) {
+>>>>>>> upstream/android-13
 		shift -= RADIX_TREE_MAP_SHIFT;
 		if (child == NULL) {
 			/* Have to add a child node.  */
@@ -880,8 +1081,12 @@ static void radix_tree_free_nodes(struct radix_tree_node *node)
 
 	for (;;) {
 		void *entry = rcu_dereference_raw(child->slots[offset]);
+<<<<<<< HEAD
 		if (radix_tree_is_internal_node(entry) &&
 					!is_sibling_entry(child, entry)) {
+=======
+		if (xa_is_node(entry) && child->shift) {
+>>>>>>> upstream/android-13
 			child = entry_to_node(entry);
 			offset = 0;
 			continue;
@@ -899,6 +1104,7 @@ static void radix_tree_free_nodes(struct radix_tree_node *node)
 	}
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_RADIX_TREE_MULTIORDER
 static inline int insert_entries(struct radix_tree_node *node,
 		void __rcu **slot, void *item, unsigned order, bool replace)
@@ -965,12 +1171,17 @@ static inline int insert_entries(struct radix_tree_node *node,
 #else
 static inline int insert_entries(struct radix_tree_node *node,
 		void __rcu **slot, void *item, unsigned order, bool replace)
+=======
+static inline int insert_entries(struct radix_tree_node *node,
+		void __rcu **slot, void *item, bool replace)
+>>>>>>> upstream/android-13
 {
 	if (*slot)
 		return -EEXIST;
 	rcu_assign_pointer(*slot, item);
 	if (node) {
 		node->count++;
+<<<<<<< HEAD
 		if (radix_tree_exceptional_entry(item))
 			node->exceptional++;
 	}
@@ -983,12 +1194,29 @@ static inline int insert_entries(struct radix_tree_node *node,
  *	@root:		radix tree root
  *	@index:		index key
  *	@order:		key covers the 2^order indices around index
+=======
+		if (xa_is_value(item))
+			node->nr_values++;
+	}
+	return 1;
+}
+
+/**
+ *	radix_tree_insert    -    insert into a radix tree
+ *	@root:		radix tree root
+ *	@index:		index key
+>>>>>>> upstream/android-13
  *	@item:		item to insert
  *
  *	Insert an item into the radix tree at position @index.
  */
+<<<<<<< HEAD
 int __radix_tree_insert(struct radix_tree_root *root, unsigned long index,
 			unsigned order, void *item)
+=======
+int radix_tree_insert(struct radix_tree_root *root, unsigned long index,
+			void *item)
+>>>>>>> upstream/android-13
 {
 	struct radix_tree_node *node;
 	void __rcu **slot;
@@ -996,11 +1224,19 @@ int __radix_tree_insert(struct radix_tree_root *root, unsigned long index,
 
 	BUG_ON(radix_tree_is_internal_node(item));
 
+<<<<<<< HEAD
 	error = __radix_tree_create(root, index, order, &node, &slot);
 	if (error)
 		return error;
 
 	error = insert_entries(node, slot, item, order, false);
+=======
+	error = __radix_tree_create(root, index, &node, &slot);
+	if (error)
+		return error;
+
+	error = insert_entries(node, slot, item, false);
+>>>>>>> upstream/android-13
 	if (error < 0)
 		return error;
 
@@ -1015,7 +1251,11 @@ int __radix_tree_insert(struct radix_tree_root *root, unsigned long index,
 
 	return 0;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(__radix_tree_insert);
+=======
+EXPORT_SYMBOL(radix_tree_insert);
+>>>>>>> upstream/android-13
 
 /**
  *	__radix_tree_lookup	-	lookup an item in a radix tree
@@ -1028,7 +1268,11 @@ EXPORT_SYMBOL(__radix_tree_insert);
  *	tree @root.
  *
  *	Until there is more than one item in the tree, no nodes are
+<<<<<<< HEAD
  *	allocated and @root->rnode is used as a direct slot instead of
+=======
+ *	allocated and @root->xa_head is used as a direct slot instead of
+>>>>>>> upstream/android-13
  *	pointing to a node, in which case *@nodep will be NULL.
  */
 void *__radix_tree_lookup(const struct radix_tree_root *root,
@@ -1041,7 +1285,11 @@ void *__radix_tree_lookup(const struct radix_tree_root *root,
 
  restart:
 	parent = NULL;
+<<<<<<< HEAD
 	slot = (void __rcu **)&root->rnode;
+=======
+	slot = (void __rcu **)&root->xa_head;
+>>>>>>> upstream/android-13
 	radix_tree_load_root(root, &node, &maxindex);
 	if (index > maxindex)
 		return NULL;
@@ -1049,11 +1297,21 @@ void *__radix_tree_lookup(const struct radix_tree_root *root,
 	while (radix_tree_is_internal_node(node)) {
 		unsigned offset;
 
+<<<<<<< HEAD
 		if (node == RADIX_TREE_RETRY)
 			goto restart;
 		parent = entry_to_node(node);
 		offset = radix_tree_descend(parent, &node, index);
 		slot = parent->slots + offset;
+=======
+		parent = entry_to_node(node);
+		offset = radix_tree_descend(parent, &node, index);
+		slot = parent->slots + offset;
+		if (node == RADIX_TREE_RETRY)
+			goto restart;
+		if (parent->shift == 0)
+			break;
+>>>>>>> upstream/android-13
 	}
 
 	if (nodep)
@@ -1105,6 +1363,7 @@ void *radix_tree_lookup(const struct radix_tree_root *root, unsigned long index)
 }
 EXPORT_SYMBOL(radix_tree_lookup);
 
+<<<<<<< HEAD
 static inline void replace_sibling_entries(struct radix_tree_node *node,
 				void __rcu **slot, int count, int exceptional)
 {
@@ -1135,6 +1394,14 @@ static void replace_slot(void __rcu **slot, void *item,
 		node->count += count;
 		node->exceptional += exceptional;
 		replace_sibling_entries(node, slot, count, exceptional);
+=======
+static void replace_slot(void __rcu **slot, void *item,
+		struct radix_tree_node *node, int count, int values)
+{
+	if (node && (count || values)) {
+		node->count += count;
+		node->nr_values += values;
+>>>>>>> upstream/android-13
 	}
 
 	rcu_assign_pointer(*slot, item);
@@ -1177,13 +1444,17 @@ static int calculate_count(struct radix_tree_root *root,
  * @node:		pointer to tree node
  * @slot:		pointer to slot in @node
  * @item:		new item to store in the slot.
+<<<<<<< HEAD
  * @update_node:	callback for changing leaf nodes
+=======
+>>>>>>> upstream/android-13
  *
  * For use with __radix_tree_lookup().  Caller must hold tree write locked
  * across slot lookup and replacement.
  */
 void __radix_tree_replace(struct radix_tree_root *root,
 			  struct radix_tree_node *node,
+<<<<<<< HEAD
 			  void __rcu **slot, void *item,
 			  radix_tree_update_node_t update_node)
 {
@@ -1200,14 +1471,34 @@ void __radix_tree_replace(struct radix_tree_root *root,
 	WARN_ON_ONCE(!node && (slot != (void __rcu **)&root->rnode) &&
 			(count || exceptional));
 	replace_slot(slot, item, node, count, exceptional);
+=======
+			  void __rcu **slot, void *item)
+{
+	void *old = rcu_dereference_raw(*slot);
+	int values = !!xa_is_value(item) - !!xa_is_value(old);
+	int count = calculate_count(root, node, slot, item, old);
+
+	/*
+	 * This function supports replacing value entries and
+	 * deleting entries, but that needs accounting against the
+	 * node unless the slot is root->xa_head.
+	 */
+	WARN_ON_ONCE(!node && (slot != (void __rcu **)&root->xa_head) &&
+			(count || values));
+	replace_slot(slot, item, node, count, values);
+>>>>>>> upstream/android-13
 
 	if (!node)
 		return;
 
+<<<<<<< HEAD
 	if (update_node)
 		update_node(node);
 
 	delete_node(root, node, update_node);
+=======
+	delete_node(root, node);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1216,12 +1507,20 @@ void __radix_tree_replace(struct radix_tree_root *root,
  * @slot:	pointer to slot
  * @item:	new item to store in the slot.
  *
+<<<<<<< HEAD
  * For use with radix_tree_lookup_slot(), radix_tree_gang_lookup_slot(),
+=======
+ * For use with radix_tree_lookup_slot() and
+>>>>>>> upstream/android-13
  * radix_tree_gang_lookup_tag_slot().  Caller must hold tree write locked
  * across slot lookup and replacement.
  *
  * NOTE: This cannot be used to switch between non-entries (empty slots),
+<<<<<<< HEAD
  * regular entries, and exceptional entries, as that requires accounting
+=======
+ * regular entries, and value entries, as that requires accounting
+>>>>>>> upstream/android-13
  * inside the radix tree node. When switching from one type of entry or
  * deleting, use __radix_tree_lookup() and __radix_tree_replace() or
  * radix_tree_iter_replace().
@@ -1229,23 +1528,37 @@ void __radix_tree_replace(struct radix_tree_root *root,
 void radix_tree_replace_slot(struct radix_tree_root *root,
 			     void __rcu **slot, void *item)
 {
+<<<<<<< HEAD
 	__radix_tree_replace(root, NULL, slot, item, NULL);
+=======
+	__radix_tree_replace(root, NULL, slot, item);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(radix_tree_replace_slot);
 
 /**
  * radix_tree_iter_replace - replace item in a slot
  * @root:	radix tree root
+<<<<<<< HEAD
  * @slot:	pointer to slot
  * @item:	new item to store in the slot.
  *
  * For use with radix_tree_split() and radix_tree_for_each_slot().
  * Caller must hold tree write locked across split and replacement.
+=======
+ * @iter:	iterator state
+ * @slot:	pointer to slot
+ * @item:	new item to store in the slot.
+ *
+ * For use with radix_tree_for_each_slot().
+ * Caller must hold tree write locked.
+>>>>>>> upstream/android-13
  */
 void radix_tree_iter_replace(struct radix_tree_root *root,
 				const struct radix_tree_iter *iter,
 				void __rcu **slot, void *item)
 {
+<<<<<<< HEAD
 	__radix_tree_replace(root, iter->node, slot, item, NULL);
 }
 
@@ -1395,6 +1708,11 @@ int radix_tree_split(struct radix_tree_root *root, unsigned long index,
 }
 #endif
 
+=======
+	__radix_tree_replace(root, iter->node, slot, item);
+}
+
+>>>>>>> upstream/android-13
 static void node_tag_set(struct radix_tree_root *root,
 				struct radix_tree_node *node,
 				unsigned int tag, unsigned int offset)
@@ -1452,6 +1770,7 @@ void *radix_tree_tag_set(struct radix_tree_root *root,
 }
 EXPORT_SYMBOL(radix_tree_tag_set);
 
+<<<<<<< HEAD
 /**
  * radix_tree_iter_tag_set - set a tag on the current iterator entry
  * @root:	radix tree root
@@ -1464,6 +1783,8 @@ void radix_tree_iter_tag_set(struct radix_tree_root *root,
 	node_tag_set(root, iter->node, tag, iter_offset(iter));
 }
 
+=======
+>>>>>>> upstream/android-13
 static void node_tag_clear(struct radix_tree_root *root,
 				struct radix_tree_node *node,
 				unsigned int tag, unsigned int offset)
@@ -1503,7 +1824,11 @@ void *radix_tree_tag_clear(struct radix_tree_root *root,
 {
 	struct radix_tree_node *node, *parent;
 	unsigned long maxindex;
+<<<<<<< HEAD
 	int uninitialized_var(offset);
+=======
+	int offset;
+>>>>>>> upstream/android-13
 
 	radix_tree_load_root(root, &node, &maxindex);
 	if (index > maxindex)
@@ -1579,6 +1904,7 @@ int radix_tree_tag_get(const struct radix_tree_root *root,
 }
 EXPORT_SYMBOL(radix_tree_tag_get);
 
+<<<<<<< HEAD
 static inline void __set_iter_shift(struct radix_tree_iter *iter,
 					unsigned int shift)
 {
@@ -1587,6 +1913,8 @@ static inline void __set_iter_shift(struct radix_tree_iter *iter,
 #endif
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Construct iter->tags bit-mask from node->tags[tag] array */
 static void set_iter_tags(struct radix_tree_iter *iter,
 				struct radix_tree_node *node, unsigned offset,
@@ -1613,6 +1941,7 @@ static void set_iter_tags(struct radix_tree_iter *iter,
 	}
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_RADIX_TREE_MULTIORDER
 static void __rcu **skip_siblings(struct radix_tree_node **nodep,
 			void __rcu **slot, struct radix_tree_iter *iter)
@@ -1699,6 +2028,13 @@ void __rcu **radix_tree_iter_resume(void __rcu **slot,
 	slot++;
 	iter->index = __radix_tree_iter_add(iter, 1);
 	skip_siblings(&node, slot, iter);
+=======
+void __rcu **radix_tree_iter_resume(void __rcu **slot,
+					struct radix_tree_iter *iter)
+{
+	slot++;
+	iter->index = __radix_tree_iter_add(iter, 1);
+>>>>>>> upstream/android-13
 	iter->next_index = iter->index;
 	iter->tags = 0;
 	return NULL;
@@ -1749,8 +2085,12 @@ void __rcu **radix_tree_next_chunk(const struct radix_tree_root *root,
 		iter->next_index = maxindex + 1;
 		iter->tags = 1;
 		iter->node = NULL;
+<<<<<<< HEAD
 		__set_iter_shift(iter, 0);
 		return (void __rcu **)&root->rnode;
+=======
+		return (void __rcu **)&root->xa_head;
+>>>>>>> upstream/android-13
 	}
 
 	do {
@@ -1770,8 +2110,11 @@ void __rcu **radix_tree_next_chunk(const struct radix_tree_root *root,
 				while (++offset	< RADIX_TREE_MAP_SIZE) {
 					void *slot = rcu_dereference_raw(
 							node->slots[offset]);
+<<<<<<< HEAD
 					if (is_sibling_entry(node, slot))
 						continue;
+=======
+>>>>>>> upstream/android-13
 					if (slot)
 						break;
 				}
@@ -1789,6 +2132,7 @@ void __rcu **radix_tree_next_chunk(const struct radix_tree_root *root,
 			goto restart;
 		if (child == RADIX_TREE_RETRY)
 			break;
+<<<<<<< HEAD
 	} while (radix_tree_is_internal_node(child));
 
 	/* Update the iterator state */
@@ -1796,6 +2140,14 @@ void __rcu **radix_tree_next_chunk(const struct radix_tree_root *root,
 	iter->next_index = (index | node_maxindex(node)) + 1;
 	iter->node = node;
 	__set_iter_shift(iter, node->shift);
+=======
+	} while (node->shift && radix_tree_is_internal_node(child));
+
+	/* Update the iterator state */
+	iter->index = (index &~ node_maxindex(node)) | offset;
+	iter->next_index = (index | node_maxindex(node)) + 1;
+	iter->node = node;
+>>>>>>> upstream/android-13
 
 	if (flags & RADIX_TREE_ITER_TAGGED)
 		set_iter_tags(iter, node, offset, tag);
@@ -1852,6 +2204,7 @@ radix_tree_gang_lookup(const struct radix_tree_root *root, void **results,
 EXPORT_SYMBOL(radix_tree_gang_lookup);
 
 /**
+<<<<<<< HEAD
  *	radix_tree_gang_lookup_index - perform multiple lookup on a radix tree
  *	@root:		radix tree root
  *	@results:	where the results of the lookup are placed
@@ -1937,6 +2290,8 @@ radix_tree_gang_lookup_slot(const struct radix_tree_root *root,
 EXPORT_SYMBOL(radix_tree_gang_lookup_slot);
 
 /**
+=======
+>>>>>>> upstream/android-13
  *	radix_tree_gang_lookup_tag - perform multiple lookup on a radix tree
  *	                             based on a tag
  *	@root:		radix tree root
@@ -2012,6 +2367,7 @@ radix_tree_gang_lookup_tag_slot(const struct radix_tree_root *root,
 }
 EXPORT_SYMBOL(radix_tree_gang_lookup_tag_slot);
 
+<<<<<<< HEAD
 /**
  *	__radix_tree_delete_node    -    try to free node after clearing a slot
  *	@root:		radix tree root
@@ -2029,11 +2385,17 @@ void __radix_tree_delete_node(struct radix_tree_root *root,
 	delete_node(root, node, update_node);
 }
 
+=======
+>>>>>>> upstream/android-13
 static bool __radix_tree_delete(struct radix_tree_root *root,
 				struct radix_tree_node *node, void __rcu **slot)
 {
 	void *old = rcu_dereference_raw(*slot);
+<<<<<<< HEAD
 	int exceptional = radix_tree_exceptional_entry(old) ? -1 : 0;
+=======
+	int values = xa_is_value(old) ? -1 : 0;
+>>>>>>> upstream/android-13
 	unsigned offset = get_slot_offset(node, slot);
 	int tag;
 
@@ -2043,8 +2405,13 @@ static bool __radix_tree_delete(struct radix_tree_root *root,
 		for (tag = 0; tag < RADIX_TREE_MAX_TAGS; tag++)
 			node_tag_clear(root, node, tag, offset);
 
+<<<<<<< HEAD
 	replace_slot(slot, NULL, node, -1, exceptional);
 	return node && delete_node(root, node, NULL);
+=======
+	replace_slot(slot, NULL, node, -1, values);
+	return node && delete_node(root, node);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -2116,6 +2483,7 @@ void *radix_tree_delete(struct radix_tree_root *root, unsigned long index)
 }
 EXPORT_SYMBOL(radix_tree_delete);
 
+<<<<<<< HEAD
 void radix_tree_clear_tags(struct radix_tree_root *root,
 			   struct radix_tree_node *node,
 			   void __rcu **slot)
@@ -2129,6 +2497,8 @@ void radix_tree_clear_tags(struct radix_tree_root *root,
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  *	radix_tree_tagged - test whether any items in the tree are tagged
  *	@root:		radix tree root
@@ -2150,6 +2520,7 @@ EXPORT_SYMBOL(radix_tree_tagged);
 void idr_preload(gfp_t gfp_mask)
 {
 	if (__radix_tree_preload(gfp_mask, IDR_PRELOAD_SIZE))
+<<<<<<< HEAD
 		preempt_disable();
 }
 EXPORT_SYMBOL(idr_preload);
@@ -2175,12 +2546,22 @@ int ida_pre_get(struct ida *ida, gfp_t gfp)
 	return 1;
 }
 
+=======
+		local_lock(&radix_tree_preloads.lock);
+}
+EXPORT_SYMBOL(idr_preload);
+
+>>>>>>> upstream/android-13
 void __rcu **idr_get_free(struct radix_tree_root *root,
 			      struct radix_tree_iter *iter, gfp_t gfp,
 			      unsigned long max)
 {
 	struct radix_tree_node *node = NULL, *child;
+<<<<<<< HEAD
 	void __rcu **slot = (void __rcu **)&root->rnode;
+=======
+	void __rcu **slot = (void __rcu **)&root->xa_head;
+>>>>>>> upstream/android-13
 	unsigned long maxindex, start = iter->next_index;
 	unsigned int shift, offset = 0;
 
@@ -2196,8 +2577,15 @@ void __rcu **idr_get_free(struct radix_tree_root *root,
 		if (error < 0)
 			return ERR_PTR(error);
 		shift = error;
+<<<<<<< HEAD
 		child = rcu_dereference_raw(root->rnode);
 	}
+=======
+		child = rcu_dereference_raw(root->xa_head);
+	}
+	if (start == 0 && shift == 0)
+		shift = RADIX_TREE_MAP_SHIFT;
+>>>>>>> upstream/android-13
 
 	while (shift) {
 		shift -= RADIX_TREE_MAP_SHIFT;
@@ -2240,7 +2628,10 @@ void __rcu **idr_get_free(struct radix_tree_root *root,
 	else
 		iter->next_index = 1;
 	iter->node = node;
+<<<<<<< HEAD
 	__set_iter_shift(iter, shift);
+=======
+>>>>>>> upstream/android-13
 	set_iter_tags(iter, node, offset, IDR_FREE);
 
 	return slot;
@@ -2259,10 +2650,17 @@ void __rcu **idr_get_free(struct radix_tree_root *root,
  */
 void idr_destroy(struct idr *idr)
 {
+<<<<<<< HEAD
 	struct radix_tree_node *node = rcu_dereference_raw(idr->idr_rt.rnode);
 	if (radix_tree_is_internal_node(node))
 		radix_tree_free_nodes(node);
 	idr->idr_rt.rnode = NULL;
+=======
+	struct radix_tree_node *node = rcu_dereference_raw(idr->idr_rt.xa_head);
+	if (radix_tree_is_internal_node(node))
+		radix_tree_free_nodes(node);
+	idr->idr_rt.xa_head = NULL;
+>>>>>>> upstream/android-13
 	root_tag_set(&idr->idr_rt, IDR_FREE);
 }
 EXPORT_SYMBOL(idr_destroy);
@@ -2276,6 +2674,7 @@ radix_tree_node_ctor(void *arg)
 	INIT_LIST_HEAD(&node->private_list);
 }
 
+<<<<<<< HEAD
 static __init unsigned long __maxindex(unsigned int height)
 {
 	unsigned int width = height * RADIX_TREE_MAP_SHIFT;
@@ -2301,6 +2700,8 @@ static __init void radix_tree_init_maxnodes(void)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 static int radix_tree_cpu_dead(unsigned int cpu)
 {
 	struct radix_tree_preload *rtp;
@@ -2314,8 +2715,11 @@ static int radix_tree_cpu_dead(unsigned int cpu)
 		kmem_cache_free(radix_tree_node_cachep, node);
 		rtp->nr--;
 	}
+<<<<<<< HEAD
 	kfree(per_cpu(ida_bitmap, cpu));
 	per_cpu(ida_bitmap, cpu) = NULL;
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -2325,11 +2729,18 @@ void __init radix_tree_init(void)
 
 	BUILD_BUG_ON(RADIX_TREE_MAX_TAGS + __GFP_BITS_SHIFT > 32);
 	BUILD_BUG_ON(ROOT_IS_IDR & ~GFP_ZONEMASK);
+<<<<<<< HEAD
+=======
+	BUILD_BUG_ON(XA_CHUNK_SIZE > 255);
+>>>>>>> upstream/android-13
 	radix_tree_node_cachep = kmem_cache_create("radix_tree_node",
 			sizeof(struct radix_tree_node), 0,
 			SLAB_PANIC | SLAB_RECLAIM_ACCOUNT,
 			radix_tree_node_ctor);
+<<<<<<< HEAD
 	radix_tree_init_maxnodes();
+=======
+>>>>>>> upstream/android-13
 	ret = cpuhp_setup_state_nocalls(CPUHP_RADIX_DEAD, "lib/radix:dead",
 					NULL, radix_tree_cpu_dead);
 	WARN_ON(ret < 0);

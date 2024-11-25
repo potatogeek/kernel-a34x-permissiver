@@ -1,12 +1,26 @@
+<<<<<<< HEAD
 /* Kernel thread helper functions.
  *   Copyright (C) 2004 IBM Corporation, Rusty Russell.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* Kernel thread helper functions.
+ *   Copyright (C) 2004 IBM Corporation, Rusty Russell.
+ *   Copyright (C) 2009 Red Hat, Inc.
+>>>>>>> upstream/android-13
  *
  * Creation is done via kthreadd, so that we get a clean environment
  * even if we're invoked from userspace (think modprobe, hotplug cpu,
  * etc.).
  */
 #include <uapi/linux/sched/types.h>
+<<<<<<< HEAD
 #include <linux/sched.h>
+=======
+#include <linux/mm.h>
+#include <linux/mmu_context.h>
+#include <linux/sched.h>
+#include <linux/sched/mm.h>
+>>>>>>> upstream/android-13
 #include <linux/sched/task.h>
 #include <linux/kthread.h>
 #include <linux/completion.h>
@@ -21,8 +35,17 @@
 #include <linux/freezer.h>
 #include <linux/ptrace.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
 #include <trace/events/sched.h>
 
+=======
+#include <linux/numa.h>
+#include <linux/sched/isolation.h>
+#include <linux/sec_debug.h>
+#include <trace/events/sched.h>
+
+
+>>>>>>> upstream/android-13
 static DEFINE_SPINLOCK(kthread_create_lock);
 static LIST_HEAD(kthread_create_list);
 struct task_struct *kthreadd_task;
@@ -44,7 +67,13 @@ struct kthread_create_info
 struct kthread {
 	unsigned long flags;
 	unsigned int cpu;
+<<<<<<< HEAD
 	void *data;
+=======
+	int (*threadfn)(void *);
+	void *data;
+	mm_segment_t oldfs;
+>>>>>>> upstream/android-13
 	struct completion parked;
 	struct completion exited;
 #ifdef CONFIG_BLK_CGROUP
@@ -58,13 +87,50 @@ enum KTHREAD_BITS {
 	KTHREAD_SHOULD_PARK,
 };
 
+<<<<<<< HEAD
 static inline void set_kthread_struct(void *kthread)
 {
+=======
+static inline struct kthread *to_kthread(struct task_struct *k)
+{
+	WARN_ON(!(k->flags & PF_KTHREAD));
+	return (__force void *)k->set_child_tid;
+}
+
+/*
+ * Variant of to_kthread() that doesn't assume @p is a kthread.
+ *
+ * Per construction; when:
+ *
+ *   (p->flags & PF_KTHREAD) && p->set_child_tid
+ *
+ * the task is both a kthread and struct kthread is persistent. However
+ * PF_KTHREAD on it's own is not, kernel_thread() can exec() (See umh.c and
+ * begin_new_exec()).
+ */
+static inline struct kthread *__to_kthread(struct task_struct *p)
+{
+	void *kthread = (__force void *)p->set_child_tid;
+	if (kthread && !(p->flags & PF_KTHREAD))
+		kthread = NULL;
+	return kthread;
+}
+
+void set_kthread_struct(struct task_struct *p)
+{
+	struct kthread *kthread;
+
+	if (__to_kthread(p))
+		return;
+
+	kthread = kzalloc(sizeof(*kthread), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	/*
 	 * We abuse ->set_child_tid to avoid the new member and because it
 	 * can't be wrongly copied by copy_process(). We also rely on fact
 	 * that the caller can't exec, so PF_KTHREAD can't be cleared.
 	 */
+<<<<<<< HEAD
 	current->set_child_tid = (__force void __user *)kthread;
 }
 
@@ -72,6 +138,9 @@ static inline struct kthread *to_kthread(struct task_struct *k)
 {
 	WARN_ON(!(k->flags & PF_KTHREAD));
 	return (__force void *)k->set_child_tid;
+=======
+	p->set_child_tid = (__force void __user *)kthread;
+>>>>>>> upstream/android-13
 }
 
 void free_kthread_struct(struct task_struct *k)
@@ -102,6 +171,15 @@ bool kthread_should_stop(void)
 }
 EXPORT_SYMBOL(kthread_should_stop);
 
+<<<<<<< HEAD
+=======
+bool __kthread_should_park(struct task_struct *k)
+{
+	return test_bit(KTHREAD_SHOULD_PARK, &to_kthread(k)->flags);
+}
+EXPORT_SYMBOL_GPL(__kthread_should_park);
+
+>>>>>>> upstream/android-13
 /**
  * kthread_should_park - should this kthread park now?
  *
@@ -115,7 +193,11 @@ EXPORT_SYMBOL(kthread_should_stop);
  */
 bool kthread_should_park(void)
 {
+<<<<<<< HEAD
 	return test_bit(KTHREAD_SHOULD_PARK, &to_kthread(current)->flags);
+=======
+	return __kthread_should_park(current);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(kthread_should_park);
 
@@ -145,6 +227,24 @@ bool kthread_freezable_should_stop(bool *was_frozen)
 EXPORT_SYMBOL_GPL(kthread_freezable_should_stop);
 
 /**
+<<<<<<< HEAD
+=======
+ * kthread_func - return the function specified on kthread creation
+ * @task: kthread task in question
+ *
+ * Returns NULL if the task is not a kthread.
+ */
+void *kthread_func(struct task_struct *task)
+{
+	struct kthread *kthread = __to_kthread(task);
+	if (kthread)
+		return kthread->threadfn;
+	return NULL;
+}
+EXPORT_SYMBOL_GPL(kthread_func);
+
+/**
+>>>>>>> upstream/android-13
  * kthread_data - return data value specified on kthread creation
  * @task: kthread task in question
  *
@@ -156,6 +256,10 @@ void *kthread_data(struct task_struct *task)
 {
 	return to_kthread(task)->data;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(kthread_data);
+>>>>>>> upstream/android-13
 
 /**
  * kthread_probe_data - speculative version of kthread_data()
@@ -168,10 +272,18 @@ void *kthread_data(struct task_struct *task)
  */
 void *kthread_probe_data(struct task_struct *task)
 {
+<<<<<<< HEAD
 	struct kthread *kthread = to_kthread(task);
 	void *data = NULL;
 
 	probe_kernel_read(&data, &kthread->data, sizeof(data));
+=======
+	struct kthread *kthread = __to_kthread(task);
+	void *data = NULL;
+
+	if (kthread)
+		copy_from_kernel_nofault(&data, &kthread->data, sizeof(data));
+>>>>>>> upstream/android-13
 	return data;
 }
 
@@ -220,8 +332,13 @@ static int kthread(void *_create)
 	struct kthread *self;
 	int ret;
 
+<<<<<<< HEAD
 	self = kzalloc(sizeof(*self), GFP_KERNEL);
 	set_kthread_struct(self);
+=======
+	set_kthread_struct(current);
+	self = to_kthread(current);
+>>>>>>> upstream/android-13
 
 	/* If user was SIGKILLed, I release the structure. */
 	done = xchg(&create->done, NULL);
@@ -236,6 +353,10 @@ static int kthread(void *_create)
 		do_exit(-ENOMEM);
 	}
 
+<<<<<<< HEAD
+=======
+	self->threadfn = threadfn;
+>>>>>>> upstream/android-13
 	self->data = data;
 	init_completion(&self->exited);
 	init_completion(&self->parked);
@@ -262,7 +383,11 @@ static int kthread(void *_create)
 	do_exit(ret);
 }
 
+<<<<<<< HEAD
 /* called from do_fork() to get node information for about to be created task */
+=======
+/* called from kernel_clone() to get node information for about to be created task */
+>>>>>>> upstream/android-13
 int tsk_fork_get_node(struct task_struct *tsk)
 {
 #ifdef CONFIG_NUMA
@@ -322,20 +447,36 @@ struct task_struct *__kthread_create_on_node(int (*threadfn)(void *data),
 	 * the OOM killer while kthreadd is trying to allocate memory for
 	 * new kernel thread.
 	 */
+<<<<<<< HEAD
+=======
+	secdbg_dtsk_built_set_data(DTYPE_KTHREAD, kthreadd_task);
+>>>>>>> upstream/android-13
 	if (unlikely(wait_for_completion_killable(&done))) {
 		/*
 		 * If I was SIGKILLed before kthreadd (or new kernel thread)
 		 * calls complete(), leave the cleanup of this structure to
 		 * that thread.
 		 */
+<<<<<<< HEAD
 		if (xchg(&create->done, NULL))
 			return ERR_PTR(-EINTR);
+=======
+		if (xchg(&create->done, NULL)) {
+			secdbg_dtsk_built_clear_data();
+			return ERR_PTR(-EINTR);
+		}
+>>>>>>> upstream/android-13
 		/*
 		 * kthreadd (or new kernel thread) will call complete()
 		 * shortly.
 		 */
 		wait_for_completion(&done);
 	}
+<<<<<<< HEAD
+=======
+	secdbg_dtsk_built_clear_data();
+
+>>>>>>> upstream/android-13
 	task = create->result;
 	if (!IS_ERR(task)) {
 		static const struct sched_param param = { .sched_priority = 0 };
@@ -352,7 +493,12 @@ struct task_struct *__kthread_create_on_node(int (*threadfn)(void *data),
 		 * The kernel thread should not inherit these properties.
 		 */
 		sched_setscheduler_nocheck(task, SCHED_NORMAL, &param);
+<<<<<<< HEAD
 		set_cpus_allowed_ptr(task, cpu_all_mask);
+=======
+		set_cpus_allowed_ptr(task,
+				     housekeeping_cpumask(HK_FLAG_KTHREAD));
+>>>>>>> upstream/android-13
 	}
 	kfree(create);
 	return task;
@@ -397,7 +543,11 @@ struct task_struct *kthread_create_on_node(int (*threadfn)(void *data),
 }
 EXPORT_SYMBOL(kthread_create_on_node);
 
+<<<<<<< HEAD
 static void __kthread_bind_mask(struct task_struct *p, const struct cpumask *mask, long state)
+=======
+static void __kthread_bind_mask(struct task_struct *p, const struct cpumask *mask, unsigned int state)
+>>>>>>> upstream/android-13
 {
 	unsigned long flags;
 
@@ -413,7 +563,11 @@ static void __kthread_bind_mask(struct task_struct *p, const struct cpumask *mas
 	raw_spin_unlock_irqrestore(&p->pi_lock, flags);
 }
 
+<<<<<<< HEAD
 static void __kthread_bind(struct task_struct *p, unsigned int cpu, long state)
+=======
+static void __kthread_bind(struct task_struct *p, unsigned int cpu, unsigned int state)
+>>>>>>> upstream/android-13
 {
 	__kthread_bind_mask(p, cpumask_of(cpu), state);
 }
@@ -422,6 +576,10 @@ void kthread_bind_mask(struct task_struct *p, const struct cpumask *mask)
 {
 	__kthread_bind_mask(p, mask, TASK_UNINTERRUPTIBLE);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(kthread_bind_mask);
+>>>>>>> upstream/android-13
 
 /**
  * kthread_bind - bind a just-created kthread to a cpu.
@@ -447,7 +605,10 @@ EXPORT_SYMBOL(kthread_bind);
  *	     to "name.*%u". Code fills in cpu number.
  *
  * Description: This helper function creates and names a kernel thread
+<<<<<<< HEAD
  * The thread will be woken and put into park mode.
+=======
+>>>>>>> upstream/android-13
  */
 struct task_struct *kthread_create_on_cpu(int (*threadfn)(void *data),
 					  void *data, unsigned int cpu,
@@ -482,9 +643,15 @@ void kthread_set_per_cpu(struct task_struct *k, int cpu)
 	set_bit(KTHREAD_IS_PER_CPU, &kthread->flags);
 }
 
+<<<<<<< HEAD
 bool kthread_is_per_cpu(struct task_struct *k)
 {
 	struct kthread *kthread = to_kthread(k);
+=======
+bool kthread_is_per_cpu(struct task_struct *p)
+{
+	struct kthread *kthread = __to_kthread(p);
+>>>>>>> upstream/android-13
 	if (!kthread)
 		return false;
 
@@ -586,7 +753,13 @@ int kthread_stop(struct task_struct *k)
 	set_bit(KTHREAD_SHOULD_STOP, &kthread->flags);
 	kthread_unpark(k);
 	wake_up_process(k);
+<<<<<<< HEAD
 	wait_for_completion(&kthread->exited);
+=======
+	secdbg_dtsk_built_set_data(DTYPE_KTHREAD, k);
+	wait_for_completion(&kthread->exited);
+	secdbg_dtsk_built_clear_data();
+>>>>>>> upstream/android-13
 	ret = k->exit_code;
 	put_task_struct(k);
 
@@ -602,7 +775,11 @@ int kthreadd(void *unused)
 	/* Setup a clean context for our children to inherit. */
 	set_task_comm(tsk, "kthreadd");
 	ignore_signals(tsk);
+<<<<<<< HEAD
 	set_cpus_allowed_ptr(tsk, cpu_all_mask);
+=======
+	set_cpus_allowed_ptr(tsk, housekeeping_cpumask(HK_FLAG_KTHREAD));
+>>>>>>> upstream/android-13
 	set_mems_allowed(node_states[N_MEMORY]);
 
 	current->flags |= PF_NOFREEZE;
@@ -638,7 +815,11 @@ void __kthread_init_worker(struct kthread_worker *worker,
 				struct lock_class_key *key)
 {
 	memset(worker, 0, sizeof(struct kthread_worker));
+<<<<<<< HEAD
 	spin_lock_init(&worker->lock);
+=======
+	raw_spin_lock_init(&worker->lock);
+>>>>>>> upstream/android-13
 	lockdep_set_class_and_name(&worker->lock, key, name);
 	INIT_LIST_HEAD(&worker->work_list);
 	INIT_LIST_HEAD(&worker->delayed_work_list);
@@ -680,25 +861,50 @@ repeat:
 
 	if (kthread_should_stop()) {
 		__set_current_state(TASK_RUNNING);
+<<<<<<< HEAD
 		spin_lock_irq(&worker->lock);
 		worker->task = NULL;
 		spin_unlock_irq(&worker->lock);
+=======
+		raw_spin_lock_irq(&worker->lock);
+		worker->task = NULL;
+		raw_spin_unlock_irq(&worker->lock);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
 	work = NULL;
+<<<<<<< HEAD
 	spin_lock_irq(&worker->lock);
+=======
+	raw_spin_lock_irq(&worker->lock);
+>>>>>>> upstream/android-13
 	if (!list_empty(&worker->work_list)) {
 		work = list_first_entry(&worker->work_list,
 					struct kthread_work, node);
 		list_del_init(&work->node);
 	}
 	worker->current_work = work;
+<<<<<<< HEAD
 	spin_unlock_irq(&worker->lock);
 
 	if (work) {
 		__set_current_state(TASK_RUNNING);
 		work->func(work);
+=======
+	raw_spin_unlock_irq(&worker->lock);
+
+	if (work) {
+		kthread_work_func_t func = work->func;
+		__set_current_state(TASK_RUNNING);
+		trace_sched_kthread_work_execute_start(work);
+		work->func(work);
+		/*
+		 * Avoid dereferencing work after this point.  The trace
+		 * event only cares about the address.
+		 */
+		trace_sched_kthread_work_execute_end(work, func);
+>>>>>>> upstream/android-13
 	} else if (!freezing(current))
 		schedule();
 
@@ -714,7 +920,11 @@ __kthread_create_worker(int cpu, unsigned int flags,
 {
 	struct kthread_worker *worker;
 	struct task_struct *task;
+<<<<<<< HEAD
 	int node = -1;
+=======
+	int node = NUMA_NO_NODE;
+>>>>>>> upstream/android-13
 
 	worker = kzalloc(sizeof(*worker), GFP_KERNEL);
 	if (!worker)
@@ -768,7 +978,11 @@ EXPORT_SYMBOL(kthread_create_worker);
 
 /**
  * kthread_create_worker_on_cpu - create a kthread worker and bind it
+<<<<<<< HEAD
  *	it to a given CPU and the associated NUMA node.
+=======
+ *	to a given CPU and the associated NUMA node.
+>>>>>>> upstream/android-13
  * @cpu: CPU number
  * @flags: flags modifying the default behavior of the worker
  * @namefmt: printf-style name for the kthread worker (task).
@@ -779,7 +993,29 @@ EXPORT_SYMBOL(kthread_create_worker);
  * A good practice is to add the cpu number also into the worker name.
  * For example, use kthread_create_worker_on_cpu(cpu, "helper/%d", cpu).
  *
+<<<<<<< HEAD
  * Returns a pointer to the allocated worker on success, ERR_PTR(-ENOMEM)
+=======
+ * CPU hotplug:
+ * The kthread worker API is simple and generic. It just provides a way
+ * to create, use, and destroy workers.
+ *
+ * It is up to the API user how to handle CPU hotplug. They have to decide
+ * how to handle pending work items, prevent queuing new ones, and
+ * restore the functionality when the CPU goes off and on. There are a
+ * few catches:
+ *
+ *    - CPU affinity gets lost when it is scheduled on an offline CPU.
+ *
+ *    - The worker might not exist when the CPU was off when the user
+ *      created the workers.
+ *
+ * Good practice is to implement two CPU hotplug callbacks and to
+ * destroy/create the worker when the CPU goes down/up.
+ *
+ * Return:
+ * The pointer to the allocated worker on success, ERR_PTR(-ENOMEM)
+>>>>>>> upstream/android-13
  * when the needed structures could not get allocated, and ERR_PTR(-EINTR)
  * when the worker was SIGKILLed.
  */
@@ -827,6 +1063,11 @@ static void kthread_insert_work(struct kthread_worker *worker,
 {
 	kthread_insert_work_sanity_check(worker, work);
 
+<<<<<<< HEAD
+=======
+	trace_sched_kthread_work_queue_work(worker, work);
+
+>>>>>>> upstream/android-13
 	list_add_tail(&work->node, pos);
 	work->worker = worker;
 	if (!worker->current_work && likely(worker->task))
@@ -851,12 +1092,20 @@ bool kthread_queue_work(struct kthread_worker *worker,
 	bool ret = false;
 	unsigned long flags;
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&worker->lock, flags);
+=======
+	raw_spin_lock_irqsave(&worker->lock, flags);
+>>>>>>> upstream/android-13
 	if (!queuing_blocked(worker, work)) {
 		kthread_insert_work(worker, work, &worker->work_list);
 		ret = true;
 	}
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&worker->lock, flags);
+=======
+	raw_spin_unlock_irqrestore(&worker->lock, flags);
+>>>>>>> upstream/android-13
 	return ret;
 }
 EXPORT_SYMBOL_GPL(kthread_queue_work);
@@ -874,6 +1123,10 @@ void kthread_delayed_work_timer_fn(struct timer_list *t)
 	struct kthread_delayed_work *dwork = from_timer(dwork, t, timer);
 	struct kthread_work *work = &dwork->work;
 	struct kthread_worker *worker = work->worker;
+<<<<<<< HEAD
+=======
+	unsigned long flags;
+>>>>>>> upstream/android-13
 
 	/*
 	 * This might happen when a pending work is reinitialized.
@@ -882,7 +1135,11 @@ void kthread_delayed_work_timer_fn(struct timer_list *t)
 	if (WARN_ON_ONCE(!worker))
 		return;
 
+<<<<<<< HEAD
 	spin_lock(&worker->lock);
+=======
+	raw_spin_lock_irqsave(&worker->lock, flags);
+>>>>>>> upstream/android-13
 	/* Work must not be used with >1 worker, see kthread_queue_work(). */
 	WARN_ON_ONCE(work->worker != worker);
 
@@ -892,6 +1149,7 @@ void kthread_delayed_work_timer_fn(struct timer_list *t)
 	if (!work->canceling)
 		kthread_insert_work(worker, work, &worker->work_list);
 
+<<<<<<< HEAD
 	spin_unlock(&worker->lock);
 }
 EXPORT_SYMBOL(kthread_delayed_work_timer_fn);
@@ -899,11 +1157,25 @@ EXPORT_SYMBOL(kthread_delayed_work_timer_fn);
 void __kthread_queue_delayed_work(struct kthread_worker *worker,
 				  struct kthread_delayed_work *dwork,
 				  unsigned long delay)
+=======
+	raw_spin_unlock_irqrestore(&worker->lock, flags);
+}
+EXPORT_SYMBOL(kthread_delayed_work_timer_fn);
+
+static void __kthread_queue_delayed_work(struct kthread_worker *worker,
+					 struct kthread_delayed_work *dwork,
+					 unsigned long delay)
+>>>>>>> upstream/android-13
 {
 	struct timer_list *timer = &dwork->timer;
 	struct kthread_work *work = &dwork->work;
 
+<<<<<<< HEAD
 	WARN_ON_ONCE(timer->function != kthread_delayed_work_timer_fn);
+=======
+	WARN_ON_FUNCTION_MISMATCH(timer->function,
+				  kthread_delayed_work_timer_fn);
+>>>>>>> upstream/android-13
 
 	/*
 	 * If @delay is 0, queue @dwork->work immediately.  This is for
@@ -948,14 +1220,22 @@ bool kthread_queue_delayed_work(struct kthread_worker *worker,
 	unsigned long flags;
 	bool ret = false;
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&worker->lock, flags);
+=======
+	raw_spin_lock_irqsave(&worker->lock, flags);
+>>>>>>> upstream/android-13
 
 	if (!queuing_blocked(worker, work)) {
 		__kthread_queue_delayed_work(worker, dwork, delay);
 		ret = true;
 	}
 
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&worker->lock, flags);
+=======
+	raw_spin_unlock_irqrestore(&worker->lock, flags);
+>>>>>>> upstream/android-13
 	return ret;
 }
 EXPORT_SYMBOL_GPL(kthread_queue_delayed_work);
@@ -991,7 +1271,11 @@ void kthread_flush_work(struct kthread_work *work)
 	if (!worker)
 		return;
 
+<<<<<<< HEAD
 	spin_lock_irq(&worker->lock);
+=======
+	raw_spin_lock_irq(&worker->lock);
+>>>>>>> upstream/android-13
 	/* Work must not be used with >1 worker, see kthread_queue_work(). */
 	WARN_ON_ONCE(work->worker != worker);
 
@@ -1003,7 +1287,11 @@ void kthread_flush_work(struct kthread_work *work)
 	else
 		noop = true;
 
+<<<<<<< HEAD
 	spin_unlock_irq(&worker->lock);
+=======
+	raw_spin_unlock_irq(&worker->lock);
+>>>>>>> upstream/android-13
 
 	if (!noop)
 		wait_for_completion(&fwork.done);
@@ -1011,8 +1299,43 @@ void kthread_flush_work(struct kthread_work *work)
 EXPORT_SYMBOL_GPL(kthread_flush_work);
 
 /*
+<<<<<<< HEAD
  * This function removes the work from the worker queue. Also it makes sure
  * that it won't get queued later via the delayed work's timer.
+=======
+ * Make sure that the timer is neither set nor running and could
+ * not manipulate the work list_head any longer.
+ *
+ * The function is called under worker->lock. The lock is temporary
+ * released but the timer can't be set again in the meantime.
+ */
+static void kthread_cancel_delayed_work_timer(struct kthread_work *work,
+					      unsigned long *flags)
+{
+	struct kthread_delayed_work *dwork =
+		container_of(work, struct kthread_delayed_work, work);
+	struct kthread_worker *worker = work->worker;
+
+	/*
+	 * del_timer_sync() must be called to make sure that the timer
+	 * callback is not running. The lock must be temporary released
+	 * to avoid a deadlock with the callback. In the meantime,
+	 * any queuing is blocked by setting the canceling counter.
+	 */
+	work->canceling++;
+	raw_spin_unlock_irqrestore(&worker->lock, *flags);
+	del_timer_sync(&dwork->timer);
+	raw_spin_lock_irqsave(&worker->lock, *flags);
+	work->canceling--;
+}
+
+/*
+ * This function removes the work from the worker queue.
+ *
+ * It is called under worker->lock. The caller must make sure that
+ * the timer used by delayed work is not running, e.g. by calling
+ * kthread_cancel_delayed_work_timer().
+>>>>>>> upstream/android-13
  *
  * The work might still be in use when this function finishes. See the
  * current_work proceed by the worker.
@@ -1020,6 +1343,7 @@ EXPORT_SYMBOL_GPL(kthread_flush_work);
  * Return: %true if @work was pending and successfully canceled,
  *	%false if @work was not pending
  */
+<<<<<<< HEAD
 static bool __kthread_cancel_work(struct kthread_work *work, bool is_dwork,
 				  unsigned long *flags)
 {
@@ -1042,6 +1366,10 @@ static bool __kthread_cancel_work(struct kthread_work *work, bool is_dwork,
 		work->canceling--;
 	}
 
+=======
+static bool __kthread_cancel_work(struct kthread_work *work)
+{
+>>>>>>> upstream/android-13
 	/*
 	 * Try to remove the work from a worker list. It might either
 	 * be from worker->work_list or from worker->delayed_work_list.
@@ -1064,14 +1392,24 @@ static bool __kthread_cancel_work(struct kthread_work *work, bool is_dwork,
  * modify @dwork's timer so that it expires after @delay. If @delay is zero,
  * @work is guaranteed to be queued immediately.
  *
+<<<<<<< HEAD
  * Return: %true if @dwork was pending and its timer was modified,
  * %false otherwise.
+=======
+ * Return: %false if @dwork was idle and queued, %true otherwise.
+>>>>>>> upstream/android-13
  *
  * A special case is when the work is being canceled in parallel.
  * It might be caused either by the real kthread_cancel_delayed_work_sync()
  * or yet another kthread_mod_delayed_work() call. We let the other command
+<<<<<<< HEAD
  * win and return %false here. The caller is supposed to synchronize these
  * operations a reasonable way.
+=======
+ * win and return %true here. The return value can be used for reference
+ * counting and the number of queued works stays the same. Anyway, the caller
+ * is supposed to synchronize these operations a reasonable way.
+>>>>>>> upstream/android-13
  *
  * This function is safe to call from any context including IRQ handler.
  * See __kthread_cancel_work() and kthread_delayed_work_timer_fn()
@@ -1083,6 +1421,7 @@ bool kthread_mod_delayed_work(struct kthread_worker *worker,
 {
 	struct kthread_work *work = &dwork->work;
 	unsigned long flags;
+<<<<<<< HEAD
 	int ret = false;
 
 	spin_lock_irqsave(&worker->lock, flags);
@@ -1090,10 +1429,22 @@ bool kthread_mod_delayed_work(struct kthread_worker *worker,
 	/* Do not bother with canceling when never queued. */
 	if (!work->worker)
 		goto fast_queue;
+=======
+	int ret;
+
+	raw_spin_lock_irqsave(&worker->lock, flags);
+
+	/* Do not bother with canceling when never queued. */
+	if (!work->worker) {
+		ret = false;
+		goto fast_queue;
+	}
+>>>>>>> upstream/android-13
 
 	/* Work must not be used with >1 worker, see kthread_queue_work() */
 	WARN_ON_ONCE(work->worker != worker);
 
+<<<<<<< HEAD
 	/* Do not fight with another command that is canceling this work. */
 	if (work->canceling)
 		goto out;
@@ -1103,6 +1454,32 @@ fast_queue:
 	__kthread_queue_delayed_work(worker, dwork, delay);
 out:
 	spin_unlock_irqrestore(&worker->lock, flags);
+=======
+	/*
+	 * Temporary cancel the work but do not fight with another command
+	 * that is canceling the work as well.
+	 *
+	 * It is a bit tricky because of possible races with another
+	 * mod_delayed_work() and cancel_delayed_work() callers.
+	 *
+	 * The timer must be canceled first because worker->lock is released
+	 * when doing so. But the work can be removed from the queue (list)
+	 * only when it can be queued again so that the return value can
+	 * be used for reference counting.
+	 */
+	kthread_cancel_delayed_work_timer(work, &flags);
+	if (work->canceling) {
+		/* The number of works in the queue does not change. */
+		ret = true;
+		goto out;
+	}
+	ret = __kthread_cancel_work(work);
+
+fast_queue:
+	__kthread_queue_delayed_work(worker, dwork, delay);
+out:
+	raw_spin_unlock_irqrestore(&worker->lock, flags);
+>>>>>>> upstream/android-13
 	return ret;
 }
 EXPORT_SYMBOL_GPL(kthread_mod_delayed_work);
@@ -1116,11 +1493,22 @@ static bool __kthread_cancel_work_sync(struct kthread_work *work, bool is_dwork)
 	if (!worker)
 		goto out;
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&worker->lock, flags);
 	/* Work must not be used with >1 worker, see kthread_queue_work(). */
 	WARN_ON_ONCE(work->worker != worker);
 
 	ret = __kthread_cancel_work(work, is_dwork, &flags);
+=======
+	raw_spin_lock_irqsave(&worker->lock, flags);
+	/* Work must not be used with >1 worker, see kthread_queue_work(). */
+	WARN_ON_ONCE(work->worker != worker);
+
+	if (is_dwork)
+		kthread_cancel_delayed_work_timer(work, &flags);
+
+	ret = __kthread_cancel_work(work);
+>>>>>>> upstream/android-13
 
 	if (worker->current_work != work)
 		goto out_fast;
@@ -1130,6 +1518,7 @@ static bool __kthread_cancel_work_sync(struct kthread_work *work, bool is_dwork)
 	 * In the meantime, block any queuing by setting the canceling counter.
 	 */
 	work->canceling++;
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&worker->lock, flags);
 	kthread_flush_work(work);
 	spin_lock_irqsave(&worker->lock, flags);
@@ -1137,6 +1526,15 @@ static bool __kthread_cancel_work_sync(struct kthread_work *work, bool is_dwork)
 
 out_fast:
 	spin_unlock_irqrestore(&worker->lock, flags);
+=======
+	raw_spin_unlock_irqrestore(&worker->lock, flags);
+	kthread_flush_work(work);
+	raw_spin_lock_irqsave(&worker->lock, flags);
+	work->canceling--;
+
+out_fast:
+	raw_spin_unlock_irqrestore(&worker->lock, flags);
+>>>>>>> upstream/android-13
 out:
 	return ret;
 }
@@ -1220,6 +1618,89 @@ void kthread_destroy_worker(struct kthread_worker *worker)
 }
 EXPORT_SYMBOL(kthread_destroy_worker);
 
+<<<<<<< HEAD
+=======
+/**
+ * kthread_use_mm - make the calling kthread operate on an address space
+ * @mm: address space to operate on
+ */
+void kthread_use_mm(struct mm_struct *mm)
+{
+	struct mm_struct *active_mm;
+	struct task_struct *tsk = current;
+
+	WARN_ON_ONCE(!(tsk->flags & PF_KTHREAD));
+	WARN_ON_ONCE(tsk->mm);
+
+	task_lock(tsk);
+	/* Hold off tlb flush IPIs while switching mm's */
+	local_irq_disable();
+	active_mm = tsk->active_mm;
+	if (active_mm != mm) {
+		mmgrab(mm);
+		tsk->active_mm = mm;
+	}
+	tsk->mm = mm;
+	membarrier_update_current_mm(mm);
+	switch_mm_irqs_off(active_mm, mm, tsk);
+	local_irq_enable();
+	task_unlock(tsk);
+#ifdef finish_arch_post_lock_switch
+	finish_arch_post_lock_switch();
+#endif
+
+	/*
+	 * When a kthread starts operating on an address space, the loop
+	 * in membarrier_{private,global}_expedited() may not observe
+	 * that tsk->mm, and not issue an IPI. Membarrier requires a
+	 * memory barrier after storing to tsk->mm, before accessing
+	 * user-space memory. A full memory barrier for membarrier
+	 * {PRIVATE,GLOBAL}_EXPEDITED is implicitly provided by
+	 * mmdrop(), or explicitly with smp_mb().
+	 */
+	if (active_mm != mm)
+		mmdrop(active_mm);
+	else
+		smp_mb();
+
+	to_kthread(tsk)->oldfs = force_uaccess_begin();
+}
+EXPORT_SYMBOL_GPL(kthread_use_mm);
+
+/**
+ * kthread_unuse_mm - reverse the effect of kthread_use_mm()
+ * @mm: address space to operate on
+ */
+void kthread_unuse_mm(struct mm_struct *mm)
+{
+	struct task_struct *tsk = current;
+
+	WARN_ON_ONCE(!(tsk->flags & PF_KTHREAD));
+	WARN_ON_ONCE(!tsk->mm);
+
+	force_uaccess_end(to_kthread(tsk)->oldfs);
+
+	task_lock(tsk);
+	/*
+	 * When a kthread stops operating on an address space, the loop
+	 * in membarrier_{private,global}_expedited() may not observe
+	 * that tsk->mm, and not issue an IPI. Membarrier requires a
+	 * memory barrier after accessing user-space memory, before
+	 * clearing tsk->mm.
+	 */
+	smp_mb__after_spinlock();
+	sync_mm_rss(mm);
+	local_irq_disable();
+	tsk->mm = NULL;
+	membarrier_update_current_mm(NULL);
+	/* active_mm is still 'mm' */
+	enter_lazy_tlb(mm, tsk);
+	local_irq_enable();
+	task_unlock(tsk);
+}
+EXPORT_SYMBOL_GPL(kthread_unuse_mm);
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_BLK_CGROUP
 /**
  * kthread_associate_blkcg - associate blkcg to current kthread

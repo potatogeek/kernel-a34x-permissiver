@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2013 Freescale Semiconductor, Inc.
  *
@@ -38,6 +39,11 @@
  *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *     OTHER DEALINGS IN THE SOFTWARE.
  */
+=======
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+//
+// Copyright 2013 Freescale Semiconductor, Inc.
+>>>>>>> upstream/android-13
 
 /dts-v1/;
 #include "vf610.dtsi"
@@ -51,6 +57,10 @@
 	};
 
 	memory@80000000 {
+<<<<<<< HEAD
+=======
+		device_type = "memory";
+>>>>>>> upstream/android-13
 		reg = <0x80000000 0x8000000>;
 	};
 

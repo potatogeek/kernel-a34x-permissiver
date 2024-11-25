@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *   Copyright (C) 2017, Microsoft Corporation.
  *
  *   Author(s): Long Li <longli@microsoft.com>
+<<<<<<< HEAD
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  *   but WITHOUT ANY WARRANTY;  without even the implied warranty of
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
  *   the GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/highmem.h>
@@ -164,6 +171,7 @@ do {									\
 #define log_rdma_mr(level, fmt, args...) \
 		log_rdma(level, LOG_RDMA_MR, fmt, ##args)
 
+<<<<<<< HEAD
 /*
  * Destroy the transport and related RDMA and memory resources
  * Need to go through all the pending counters and make sure on one is using
@@ -253,6 +261,8 @@ static int smbd_process_disconnected(struct smbd_connection *info)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void smbd_disconnect_rdma_work(struct work_struct *work)
 {
 	struct smbd_connection *info =
@@ -319,7 +329,13 @@ static int smbd_conn_upcall(
 		}
 
 		info->transport_status = SMBD_DISCONNECTED;
+<<<<<<< HEAD
 		smbd_process_disconnected(info);
+=======
+		wake_up_interruptible(&info->disconn_wait);
+		wake_up_interruptible(&info->wait_reassembly_queue);
+		wake_up_interruptible_all(&info->wait_send_queue);
+>>>>>>> upstream/android-13
 		break;
 
 	default:
@@ -342,6 +358,10 @@ smbd_qp_async_error_upcall(struct ib_event *event, void *context)
 	case IB_EVENT_CQ_ERR:
 	case IB_EVENT_QP_FATAL:
 		smbd_disconnect_rdma_connection(info);
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 
 	default:
 		break;
@@ -380,6 +400,7 @@ static void send_done(struct ib_cq *cq, struct ib_wc *wc)
 			request->sge[i].length,
 			DMA_TO_DEVICE);
 
+<<<<<<< HEAD
 	if (request->has_payload) {
 		if (atomic_dec_and_test(&request->info->send_payload_pending))
 			wake_up(&request->info->wait_send_payload_pending);
@@ -387,12 +408,19 @@ static void send_done(struct ib_cq *cq, struct ib_wc *wc)
 		if (atomic_dec_and_test(&request->info->send_pending))
 			wake_up(&request->info->wait_send_pending);
 	}
+=======
+	if (atomic_dec_and_test(&request->info->send_pending))
+		wake_up(&request->info->wait_send_pending);
+
+	wake_up(&request->info->wait_post_send);
+>>>>>>> upstream/android-13
 
 	mempool_free(request, request->info->request_mempool);
 }
 
 static void dump_smbd_negotiate_resp(struct smbd_negotiate_resp *resp)
 {
+<<<<<<< HEAD
 	log_rdma_event(INFO, "resp message min_version %u max_version %u "
 		"negotiated_version %u credits_requested %u "
 		"credits_granted %u status %u max_readwrite_size %u "
@@ -402,6 +430,14 @@ static void dump_smbd_negotiate_resp(struct smbd_negotiate_resp *resp)
 		resp->credits_requested, resp->credits_granted, resp->status,
 		resp->max_readwrite_size, resp->preferred_send_size,
 		resp->max_receive_size, resp->max_fragmented_size);
+=======
+	log_rdma_event(INFO, "resp message min_version %u max_version %u negotiated_version %u credits_requested %u credits_granted %u status %u max_readwrite_size %u preferred_send_size %u max_receive_size %u max_fragmented_size %u\n",
+		       resp->min_version, resp->max_version,
+		       resp->negotiated_version, resp->credits_requested,
+		       resp->credits_granted, resp->status,
+		       resp->max_readwrite_size, resp->preferred_send_size,
+		       resp->max_receive_size, resp->max_fragmented_size);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -479,6 +515,7 @@ static bool process_negotiation_response(
 	return true;
 }
 
+<<<<<<< HEAD
 /*
  * Check and schedule to send an immediate packet
  * This is used to extend credtis to remote peer to keep the transport busy
@@ -500,6 +537,8 @@ static void check_and_send_immediate(struct smbd_connection *info)
 			info->workqueue, &info->send_immediate_work, 0);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void smbd_post_send_credits(struct work_struct *work)
 {
 	int ret = 0;
@@ -549,6 +588,7 @@ static void smbd_post_send_credits(struct work_struct *work)
 	info->new_credits_offered += ret;
 	spin_unlock(&info->lock_new_credits_offered);
 
+<<<<<<< HEAD
 	atomic_add(ret, &info->receive_credits);
 
 	/* Check if we can post new receive and grant credits to peer */
@@ -572,6 +612,18 @@ static void smbd_recv_done_work(struct work_struct *work)
 	 * grant more credits or respond to KEEP_ALIVE packet
 	 */
 	check_and_send_immediate(info);
+=======
+	/* Promptly send an immediate packet as defined in [MS-SMBD] 3.1.1.1 */
+	info->send_immediate = true;
+	if (atomic_read(&info->receive_credits) <
+		info->receive_credit_target - 1) {
+		if (info->keep_alive_requested == KEEP_ALIVE_PENDING ||
+		    info->send_immediate) {
+			log_keep_alive(INFO, "send an empty message\n");
+			smbd_post_send_empty(info);
+		}
+	}
+>>>>>>> upstream/android-13
 }
 
 /* Called from softirq, when recv is done */
@@ -583,10 +635,16 @@ static void recv_done(struct ib_cq *cq, struct ib_wc *wc)
 	struct smbd_connection *info = response->info;
 	int data_length = 0;
 
+<<<<<<< HEAD
 	log_rdma_recv(INFO, "response=%p type=%d wc status=%d wc opcode %d "
 		      "byte_len=%d pkey_index=%x\n",
 		response, response->type, wc->status, wc->opcode,
 		wc->byte_len, wc->pkey_index);
+=======
+	log_rdma_recv(INFO, "response=%p type=%d wc status=%d wc opcode %d byte_len=%d pkey_index=%x\n",
+		      response, response->type, wc->status, wc->opcode,
+		      wc->byte_len, wc->pkey_index);
+>>>>>>> upstream/android-13
 
 	if (wc->status != IB_WC_SUCCESS || wc->opcode != IB_WC_RECV) {
 		log_rdma_recv(INFO, "wc->status=%d opcode=%d\n",
@@ -642,6 +700,7 @@ static void recv_done(struct ib_cq *cq, struct ib_wc *wc)
 		atomic_dec(&info->receive_credits);
 		info->receive_credit_target =
 			le16_to_cpu(data_transfer->credits_requested);
+<<<<<<< HEAD
 		atomic_add(le16_to_cpu(data_transfer->credits_granted),
 			&info->send_credits);
 
@@ -651,6 +710,23 @@ static void recv_done(struct ib_cq *cq, struct ib_wc *wc)
 			le32_to_cpu(data_transfer->data_offset),
 			le32_to_cpu(data_transfer->data_length),
 			le32_to_cpu(data_transfer->remaining_data_length));
+=======
+		if (le16_to_cpu(data_transfer->credits_granted)) {
+			atomic_add(le16_to_cpu(data_transfer->credits_granted),
+				&info->send_credits);
+			/*
+			 * We have new send credits granted from remote peer
+			 * If any sender is waiting for credits, unblock it
+			 */
+			wake_up_interruptible(&info->wait_send_queue);
+		}
+
+		log_incoming(INFO, "data flags %d data_offset %d data_length %d remaining_data_length %d\n",
+			     le16_to_cpu(data_transfer->flags),
+			     le32_to_cpu(data_transfer->data_offset),
+			     le32_to_cpu(data_transfer->data_length),
+			     le32_to_cpu(data_transfer->remaining_data_length));
+>>>>>>> upstream/android-13
 
 		/* Send a KEEP_ALIVE response right away if requested */
 		info->keep_alive_requested = KEEP_ALIVE_NONE;
@@ -659,7 +735,10 @@ static void recv_done(struct ib_cq *cq, struct ib_wc *wc)
 			info->keep_alive_requested = KEEP_ALIVE_PENDING;
 		}
 
+<<<<<<< HEAD
 		queue_work(info->workqueue, &info->recv_done_work);
+=======
+>>>>>>> upstream/android-13
 		return;
 
 	default:
@@ -703,8 +782,18 @@ static struct rdma_cm_id *smbd_create_id(
 		log_rdma_event(ERR, "rdma_resolve_addr() failed %i\n", rc);
 		goto out;
 	}
+<<<<<<< HEAD
 	wait_for_completion_interruptible_timeout(
 		&info->ri_done, msecs_to_jiffies(RDMA_RESOLVE_TIMEOUT));
+=======
+	rc = wait_for_completion_interruptible_timeout(
+		&info->ri_done, msecs_to_jiffies(RDMA_RESOLVE_TIMEOUT));
+	/* e.g. if interrupted returns -ERESTARTSYS */
+	if (rc < 0) {
+		log_rdma_event(ERR, "rdma_resolve_addr timeout rc: %i\n", rc);
+		goto out;
+	}
+>>>>>>> upstream/android-13
 	rc = info->ri_rc;
 	if (rc) {
 		log_rdma_event(ERR, "rdma_resolve_addr() completed %i\n", rc);
@@ -717,8 +806,18 @@ static struct rdma_cm_id *smbd_create_id(
 		log_rdma_event(ERR, "rdma_resolve_route() failed %i\n", rc);
 		goto out;
 	}
+<<<<<<< HEAD
 	wait_for_completion_interruptible_timeout(
 		&info->ri_done, msecs_to_jiffies(RDMA_RESOLVE_TIMEOUT));
+=======
+	rc = wait_for_completion_interruptible_timeout(
+		&info->ri_done, msecs_to_jiffies(RDMA_RESOLVE_TIMEOUT));
+	/* e.g. if interrupted returns -ERESTARTSYS */
+	if (rc < 0)  {
+		log_rdma_event(ERR, "rdma_resolve_addr timeout rc: %i\n", rc);
+		goto out;
+	}
+>>>>>>> upstream/android-13
 	rc = info->ri_rc;
 	if (rc) {
 		log_rdma_event(ERR, "rdma_resolve_route() completed %i\n", rc);
@@ -759,6 +858,7 @@ static int smbd_ia_open(
 	}
 
 	if (!frwr_is_supported(&info->id->device->attrs)) {
+<<<<<<< HEAD
 		log_rdma_event(ERR,
 			"Fast Registration Work Requests "
 			"(FRWR) is not supported\n");
@@ -767,6 +867,12 @@ static int smbd_ia_open(
 			"max_fast_reg_page_list_len = %u\n",
 			info->id->device->attrs.device_cap_flags,
 			info->id->device->attrs.max_fast_reg_page_list_len);
+=======
+		log_rdma_event(ERR, "Fast Registration Work Requests (FRWR) is not supported\n");
+		log_rdma_event(ERR, "Device capability flags = %llx max_fast_reg_page_list_len = %u\n",
+			       info->id->device->attrs.device_cap_flags,
+			       info->id->device->attrs.max_fast_reg_page_list_len);
+>>>>>>> upstream/android-13
 		rc = -EPROTONOSUPPORT;
 		goto out2;
 	}
@@ -852,7 +958,10 @@ static int smbd_post_send_negotiate_req(struct smbd_connection *info)
 		request->sge[0].addr,
 		request->sge[0].length, request->sge[0].lkey);
 
+<<<<<<< HEAD
 	request->has_payload = false;
+=======
+>>>>>>> upstream/android-13
 	atomic_inc(&info->send_pending);
 	rc = ib_post_send(info->id->qp, &send_wr, NULL);
 	if (!rc)
@@ -909,6 +1018,7 @@ static int manage_keep_alive_before_sending(struct smbd_connection *info)
 	return 0;
 }
 
+<<<<<<< HEAD
 /*
  * Build and prepare the SMBD packet header
  * This function waits for avaialbe send credits and build a SMBD packet
@@ -1023,6 +1133,11 @@ static void smbd_destroy_header(struct smbd_connection *info,
 /* Post the send request */
 static int smbd_post_send(struct smbd_connection *info,
 		struct smbd_request *request, bool has_payload)
+=======
+/* Post the send request */
+static int smbd_post_send(struct smbd_connection *info,
+		struct smbd_request *request)
+>>>>>>> upstream/android-13
 {
 	struct ib_send_wr send_wr;
 	int rc, i;
@@ -1047,6 +1162,7 @@ static int smbd_post_send(struct smbd_connection *info,
 	send_wr.opcode = IB_WR_SEND;
 	send_wr.send_flags = IB_SEND_SIGNALED;
 
+<<<<<<< HEAD
 	if (has_payload) {
 		request->has_payload = true;
 		atomic_inc(&info->send_payload_pending);
@@ -1066,6 +1182,13 @@ static int smbd_post_send(struct smbd_connection *info,
 				wake_up(&info->wait_send_pending);
 		}
 		smbd_disconnect_rdma_connection(info);
+=======
+	rc = ib_post_send(info->id->qp, &send_wr, NULL);
+	if (rc) {
+		log_rdma_send(ERR, "ib_post_send failed rc=%d\n", rc);
+		smbd_disconnect_rdma_connection(info);
+		rc = -EAGAIN;
+>>>>>>> upstream/android-13
 	} else
 		/* Reset timer for idle connection after packet is sent */
 		mod_delayed_work(info->workqueue, &info->idle_timer_work,
@@ -1079,6 +1202,7 @@ static int smbd_post_send_sgl(struct smbd_connection *info,
 {
 	int num_sgs;
 	int i, rc;
+<<<<<<< HEAD
 	struct smbd_request *request;
 	struct scatterlist *sg;
 
@@ -1087,34 +1211,173 @@ static int smbd_post_send_sgl(struct smbd_connection *info,
 	if (rc)
 		return rc;
 
+=======
+	int header_length;
+	struct smbd_request *request;
+	struct smbd_data_transfer *packet;
+	int new_credits;
+	struct scatterlist *sg;
+
+wait_credit:
+	/* Wait for send credits. A SMBD packet needs one credit */
+	rc = wait_event_interruptible(info->wait_send_queue,
+		atomic_read(&info->send_credits) > 0 ||
+		info->transport_status != SMBD_CONNECTED);
+	if (rc)
+		goto err_wait_credit;
+
+	if (info->transport_status != SMBD_CONNECTED) {
+		log_outgoing(ERR, "disconnected not sending on wait_credit\n");
+		rc = -EAGAIN;
+		goto err_wait_credit;
+	}
+	if (unlikely(atomic_dec_return(&info->send_credits) < 0)) {
+		atomic_inc(&info->send_credits);
+		goto wait_credit;
+	}
+
+wait_send_queue:
+	wait_event(info->wait_post_send,
+		atomic_read(&info->send_pending) < info->send_credit_target ||
+		info->transport_status != SMBD_CONNECTED);
+
+	if (info->transport_status != SMBD_CONNECTED) {
+		log_outgoing(ERR, "disconnected not sending on wait_send_queue\n");
+		rc = -EAGAIN;
+		goto err_wait_send_queue;
+	}
+
+	if (unlikely(atomic_inc_return(&info->send_pending) >
+				info->send_credit_target)) {
+		atomic_dec(&info->send_pending);
+		goto wait_send_queue;
+	}
+
+	request = mempool_alloc(info->request_mempool, GFP_KERNEL);
+	if (!request) {
+		rc = -ENOMEM;
+		goto err_alloc;
+	}
+
+	request->info = info;
+
+	/* Fill in the packet header */
+	packet = smbd_request_payload(request);
+	packet->credits_requested = cpu_to_le16(info->send_credit_target);
+
+	new_credits = manage_credits_prior_sending(info);
+	atomic_add(new_credits, &info->receive_credits);
+	packet->credits_granted = cpu_to_le16(new_credits);
+
+	info->send_immediate = false;
+
+	packet->flags = 0;
+	if (manage_keep_alive_before_sending(info))
+		packet->flags |= cpu_to_le16(SMB_DIRECT_RESPONSE_REQUESTED);
+
+	packet->reserved = 0;
+	if (!data_length)
+		packet->data_offset = 0;
+	else
+		packet->data_offset = cpu_to_le32(24);
+	packet->data_length = cpu_to_le32(data_length);
+	packet->remaining_data_length = cpu_to_le32(remaining_data_length);
+	packet->padding = 0;
+
+	log_outgoing(INFO, "credits_requested=%d credits_granted=%d data_offset=%d data_length=%d remaining_data_length=%d\n",
+		     le16_to_cpu(packet->credits_requested),
+		     le16_to_cpu(packet->credits_granted),
+		     le32_to_cpu(packet->data_offset),
+		     le32_to_cpu(packet->data_length),
+		     le32_to_cpu(packet->remaining_data_length));
+
+	/* Map the packet to DMA */
+	header_length = sizeof(struct smbd_data_transfer);
+	/* If this is a packet without payload, don't send padding */
+	if (!data_length)
+		header_length = offsetof(struct smbd_data_transfer, padding);
+
+	request->num_sge = 1;
+	request->sge[0].addr = ib_dma_map_single(info->id->device,
+						 (void *)packet,
+						 header_length,
+						 DMA_TO_DEVICE);
+	if (ib_dma_mapping_error(info->id->device, request->sge[0].addr)) {
+		rc = -EIO;
+		request->sge[0].addr = 0;
+		goto err_dma;
+	}
+
+	request->sge[0].length = header_length;
+	request->sge[0].lkey = info->pd->local_dma_lkey;
+
+	/* Fill in the packet data payload */
+>>>>>>> upstream/android-13
 	num_sgs = sgl ? sg_nents(sgl) : 0;
 	for_each_sg(sgl, sg, num_sgs, i) {
 		request->sge[i+1].addr =
 			ib_dma_map_page(info->id->device, sg_page(sg),
+<<<<<<< HEAD
 			       sg->offset, sg->length, DMA_BIDIRECTIONAL);
+=======
+			       sg->offset, sg->length, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 		if (ib_dma_mapping_error(
 				info->id->device, request->sge[i+1].addr)) {
 			rc = -EIO;
 			request->sge[i+1].addr = 0;
+<<<<<<< HEAD
 			goto dma_mapping_failure;
+=======
+			goto err_dma;
+>>>>>>> upstream/android-13
 		}
 		request->sge[i+1].length = sg->length;
 		request->sge[i+1].lkey = info->pd->local_dma_lkey;
 		request->num_sge++;
 	}
 
+<<<<<<< HEAD
 	rc = smbd_post_send(info, request, data_length);
 	if (!rc)
 		return 0;
 
 dma_mapping_failure:
 	for (i = 1; i < request->num_sge; i++)
+=======
+	rc = smbd_post_send(info, request);
+	if (!rc)
+		return 0;
+
+err_dma:
+	for (i = 0; i < request->num_sge; i++)
+>>>>>>> upstream/android-13
 		if (request->sge[i].addr)
 			ib_dma_unmap_single(info->id->device,
 					    request->sge[i].addr,
 					    request->sge[i].length,
 					    DMA_TO_DEVICE);
+<<<<<<< HEAD
 	smbd_destroy_header(info, request);
+=======
+	mempool_free(request, info->request_mempool);
+
+	/* roll back receive credits and credits to be offered */
+	spin_lock(&info->lock_new_credits_offered);
+	info->new_credits_offered += new_credits;
+	spin_unlock(&info->lock_new_credits_offered);
+	atomic_sub(new_credits, &info->receive_credits);
+
+err_alloc:
+	if (atomic_dec_and_test(&info->send_pending))
+		wake_up(&info->wait_send_pending);
+
+err_wait_send_queue:
+	/* roll back send credits and pending */
+	atomic_inc(&info->send_credits);
+
+err_wait_credit:
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -1222,11 +1485,17 @@ static int smbd_negotiate(struct smbd_connection *info)
 
 	response->type = SMBD_NEGOTIATE_RESP;
 	rc = smbd_post_recv(info, response);
+<<<<<<< HEAD
 	log_rdma_event(INFO,
 		"smbd_post_recv rc=%d iov.addr=%llx iov.length=%x "
 		"iov.lkey=%x\n",
 		rc, response->sge.addr,
 		response->sge.length, response->sge.lkey);
+=======
+	log_rdma_event(INFO, "smbd_post_recv rc=%d iov.addr=%llx iov.length=%x iov.lkey=%x\n",
+		       rc, response->sge.addr,
+		       response->sge.length, response->sge.lkey);
+>>>>>>> upstream/android-13
 	if (rc)
 		return rc;
 
@@ -1436,6 +1705,7 @@ static void destroy_receive_buffers(struct smbd_connection *info)
 		mempool_free(response, info->response_mempool);
 }
 
+<<<<<<< HEAD
 /*
  * Check and send an immediate or keep alive packet
  * The condition to send those packets are defined in [MS-SMBD] 3.1.1.1
@@ -1455,6 +1725,8 @@ static void send_immediate_work(struct work_struct *work)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Implement idle connection timer [MS-SMBD] 3.1.6.2 */
 static void idle_connection_timer(struct work_struct *work)
 {
@@ -1478,6 +1750,7 @@ static void idle_connection_timer(struct work_struct *work)
 			info->keep_alive_interval*HZ);
 }
 
+<<<<<<< HEAD
 /* Destroy this SMBD connection, called from upper layer */
 void smbd_destroy(struct smbd_connection *info)
 {
@@ -1489,6 +1762,95 @@ void smbd_destroy(struct smbd_connection *info)
 	log_rdma_event(INFO, "wait for transport being destroyed\n");
 	wait_event(info->wait_destroy,
 		info->transport_status == SMBD_DESTROYED);
+=======
+/*
+ * Destroy the transport and related RDMA and memory resources
+ * Need to go through all the pending counters and make sure on one is using
+ * the transport while it is destroyed
+ */
+void smbd_destroy(struct TCP_Server_Info *server)
+{
+	struct smbd_connection *info = server->smbd_conn;
+	struct smbd_response *response;
+	unsigned long flags;
+
+	if (!info) {
+		log_rdma_event(INFO, "rdma session already destroyed\n");
+		return;
+	}
+
+	log_rdma_event(INFO, "destroying rdma session\n");
+	if (info->transport_status != SMBD_DISCONNECTED) {
+		rdma_disconnect(server->smbd_conn->id);
+		log_rdma_event(INFO, "wait for transport being disconnected\n");
+		wait_event_interruptible(
+			info->disconn_wait,
+			info->transport_status == SMBD_DISCONNECTED);
+	}
+
+	log_rdma_event(INFO, "destroying qp\n");
+	ib_drain_qp(info->id->qp);
+	rdma_destroy_qp(info->id);
+
+	log_rdma_event(INFO, "cancelling idle timer\n");
+	cancel_delayed_work_sync(&info->idle_timer_work);
+
+	log_rdma_event(INFO, "wait for all send posted to IB to finish\n");
+	wait_event(info->wait_send_pending,
+		atomic_read(&info->send_pending) == 0);
+
+	/* It's not posssible for upper layer to get to reassembly */
+	log_rdma_event(INFO, "drain the reassembly queue\n");
+	do {
+		spin_lock_irqsave(&info->reassembly_queue_lock, flags);
+		response = _get_first_reassembly(info);
+		if (response) {
+			list_del(&response->list);
+			spin_unlock_irqrestore(
+				&info->reassembly_queue_lock, flags);
+			put_receive_buffer(info, response);
+		} else
+			spin_unlock_irqrestore(
+				&info->reassembly_queue_lock, flags);
+	} while (response);
+	info->reassembly_data_length = 0;
+
+	log_rdma_event(INFO, "free receive buffers\n");
+	wait_event(info->wait_receive_queues,
+		info->count_receive_queue + info->count_empty_packet_queue
+			== info->receive_credit_max);
+	destroy_receive_buffers(info);
+
+	/*
+	 * For performance reasons, memory registration and deregistration
+	 * are not locked by srv_mutex. It is possible some processes are
+	 * blocked on transport srv_mutex while holding memory registration.
+	 * Release the transport srv_mutex to allow them to hit the failure
+	 * path when sending data, and then release memory registartions.
+	 */
+	log_rdma_event(INFO, "freeing mr list\n");
+	wake_up_interruptible_all(&info->wait_mr);
+	while (atomic_read(&info->mr_used_count)) {
+		mutex_unlock(&server->srv_mutex);
+		msleep(1000);
+		mutex_lock(&server->srv_mutex);
+	}
+	destroy_mr_list(info);
+
+	ib_free_cq(info->send_cq);
+	ib_free_cq(info->recv_cq);
+	ib_dealloc_pd(info->pd);
+	rdma_destroy_id(info->id);
+
+	/* free mempools */
+	mempool_destroy(info->request_mempool);
+	kmem_cache_destroy(info->request_cache);
+
+	mempool_destroy(info->response_mempool);
+	kmem_cache_destroy(info->response_cache);
+
+	info->transport_status = SMBD_DESTROYED;
+>>>>>>> upstream/android-13
 
 	destroy_workqueue(info->workqueue);
 	log_rdma_event(INFO,  "rdma session destroyed\n");
@@ -1514,6 +1876,7 @@ int smbd_reconnect(struct TCP_Server_Info *server)
 	 */
 	if (server->smbd_conn->transport_status == SMBD_CONNECTED) {
 		log_rdma_event(INFO, "disconnecting transport\n");
+<<<<<<< HEAD
 		smbd_disconnect_rdma_connection(server->smbd_conn);
 	}
 
@@ -1525,6 +1888,11 @@ int smbd_reconnect(struct TCP_Server_Info *server)
 	destroy_workqueue(server->smbd_conn->workqueue);
 	kfree(server->smbd_conn);
 
+=======
+		smbd_destroy(server);
+	}
+
+>>>>>>> upstream/android-13
 create_conn:
 	log_rdma_event(INFO, "creating rdma session\n");
 	server->smbd_conn = smbd_get_connection(
@@ -1552,7 +1920,11 @@ static int allocate_caches_and_workqueue(struct smbd_connection *info)
 	char name[MAX_NAME_LEN];
 	int rc;
 
+<<<<<<< HEAD
 	snprintf(name, MAX_NAME_LEN, "smbd_request_%p", info);
+=======
+	scnprintf(name, MAX_NAME_LEN, "smbd_request_%p", info);
+>>>>>>> upstream/android-13
 	info->request_cache =
 		kmem_cache_create(
 			name,
@@ -1568,7 +1940,11 @@ static int allocate_caches_and_workqueue(struct smbd_connection *info)
 	if (!info->request_mempool)
 		goto out1;
 
+<<<<<<< HEAD
 	snprintf(name, MAX_NAME_LEN, "smbd_response_%p", info);
+=======
+	scnprintf(name, MAX_NAME_LEN, "smbd_response_%p", info);
+>>>>>>> upstream/android-13
 	info->response_cache =
 		kmem_cache_create(
 			name,
@@ -1584,7 +1960,11 @@ static int allocate_caches_and_workqueue(struct smbd_connection *info)
 	if (!info->response_mempool)
 		goto out3;
 
+<<<<<<< HEAD
 	snprintf(name, MAX_NAME_LEN, "smbd_%p", info);
+=======
+	scnprintf(name, MAX_NAME_LEN, "smbd_%p", info);
+>>>>>>> upstream/android-13
 	info->workqueue = create_workqueue(name);
 	if (!info->workqueue)
 		goto out4;
@@ -1635,6 +2015,7 @@ static struct smbd_connection *_smbd_get_connection(
 
 	if (smbd_send_credit_target > info->id->device->attrs.max_cqe ||
 	    smbd_send_credit_target > info->id->device->attrs.max_qp_wr) {
+<<<<<<< HEAD
 		log_rdma_event(ERR,
 			"consider lowering send_credit_target = %d. "
 			"Possible CQE overrun, device "
@@ -1642,11 +2023,18 @@ static struct smbd_connection *_smbd_get_connection(
 			smbd_send_credit_target,
 			info->id->device->attrs.max_cqe,
 			info->id->device->attrs.max_qp_wr);
+=======
+		log_rdma_event(ERR, "consider lowering send_credit_target = %d. Possible CQE overrun, device reporting max_cpe %d max_qp_wr %d\n",
+			       smbd_send_credit_target,
+			       info->id->device->attrs.max_cqe,
+			       info->id->device->attrs.max_qp_wr);
+>>>>>>> upstream/android-13
 		goto config_failed;
 	}
 
 	if (smbd_receive_credit_max > info->id->device->attrs.max_cqe ||
 	    smbd_receive_credit_max > info->id->device->attrs.max_qp_wr) {
+<<<<<<< HEAD
 		log_rdma_event(ERR,
 			"consider lowering receive_credit_max = %d. "
 			"Possible CQE overrun, device "
@@ -1654,6 +2042,12 @@ static struct smbd_connection *_smbd_get_connection(
 			smbd_receive_credit_max,
 			info->id->device->attrs.max_cqe,
 			info->id->device->attrs.max_qp_wr);
+=======
+		log_rdma_event(ERR, "consider lowering receive_credit_max = %d. Possible CQE overrun, device reporting max_cpe %d max_qp_wr %d\n",
+			       smbd_receive_credit_max,
+			       info->id->device->attrs.max_cqe,
+			       info->id->device->attrs.max_qp_wr);
+>>>>>>> upstream/android-13
 		goto config_failed;
 	}
 
@@ -1679,15 +2073,27 @@ static struct smbd_connection *_smbd_get_connection(
 
 	info->send_cq = NULL;
 	info->recv_cq = NULL;
+<<<<<<< HEAD
 	info->send_cq = ib_alloc_cq(info->id->device, info,
 			info->send_credit_target, 0, IB_POLL_SOFTIRQ);
+=======
+	info->send_cq =
+		ib_alloc_cq_any(info->id->device, info,
+				info->send_credit_target, IB_POLL_SOFTIRQ);
+>>>>>>> upstream/android-13
 	if (IS_ERR(info->send_cq)) {
 		info->send_cq = NULL;
 		goto alloc_cq_failed;
 	}
 
+<<<<<<< HEAD
 	info->recv_cq = ib_alloc_cq(info->id->device, info,
 			info->receive_credit_max, 0, IB_POLL_SOFTIRQ);
+=======
+	info->recv_cq =
+		ib_alloc_cq_any(info->id->device, info,
+				info->receive_credit_max, IB_POLL_SOFTIRQ);
+>>>>>>> upstream/android-13
 	if (IS_ERR(info->recv_cq)) {
 		info->recv_cq = NULL;
 		goto alloc_cq_failed;
@@ -1726,7 +2132,11 @@ static struct smbd_connection *_smbd_get_connection(
 		info->responder_resources);
 
 	/* Need to send IRD/ORD in private data for iWARP */
+<<<<<<< HEAD
 	info->id->device->get_port_immutable(
+=======
+	info->id->device->ops.get_port_immutable(
+>>>>>>> upstream/android-13
 		info->id->device, info->id->port_num, &port_immutable);
 	if (port_immutable.core_cap_flags & RDMA_CORE_PORT_IWARP) {
 		ird_ord_hdr[0] = info->responder_resources;
@@ -1741,12 +2151,20 @@ static struct smbd_connection *_smbd_get_connection(
 	conn_param.retry_count = SMBD_CM_RETRY;
 	conn_param.rnr_retry_count = SMBD_CM_RNR_RETRY;
 	conn_param.flow_control = 0;
+<<<<<<< HEAD
 	init_waitqueue_head(&info->wait_destroy);
+=======
+>>>>>>> upstream/android-13
 
 	log_rdma_event(INFO, "connecting to IP %pI4 port %d\n",
 		&addr_in->sin_addr, port);
 
 	init_waitqueue_head(&info->conn_wait);
+<<<<<<< HEAD
+=======
+	init_waitqueue_head(&info->disconn_wait);
+	init_waitqueue_head(&info->wait_reassembly_queue);
+>>>>>>> upstream/android-13
 	rc = rdma_connect(info->id, &conn_param);
 	if (rc) {
 		log_rdma_event(ERR, "rdma_connect() failed with %i\n", rc);
@@ -1770,6 +2188,7 @@ static struct smbd_connection *_smbd_get_connection(
 	}
 
 	init_waitqueue_head(&info->wait_send_queue);
+<<<<<<< HEAD
 	init_waitqueue_head(&info->wait_reassembly_queue);
 
 	INIT_DELAYED_WORK(&info->idle_timer_work, idle_connection_timer);
@@ -1792,6 +2211,18 @@ static struct smbd_connection *_smbd_get_connection(
 	INIT_WORK(&info->disconnect_work, smbd_disconnect_rdma_work);
 	INIT_WORK(&info->destroy_work, smbd_destroy_rdma_work);
 	INIT_WORK(&info->recv_done_work, smbd_recv_done_work);
+=======
+	INIT_DELAYED_WORK(&info->idle_timer_work, idle_connection_timer);
+	queue_delayed_work(info->workqueue, &info->idle_timer_work,
+		info->keep_alive_interval*HZ);
+
+	init_waitqueue_head(&info->wait_send_pending);
+	atomic_set(&info->send_pending, 0);
+
+	init_waitqueue_head(&info->wait_post_send);
+
+	INIT_WORK(&info->disconnect_work, smbd_disconnect_rdma_work);
+>>>>>>> upstream/android-13
 	INIT_WORK(&info->post_send_credits_work, smbd_post_send_credits);
 	info->new_credits_offered = 0;
 	spin_lock_init(&info->lock_new_credits_offered);
@@ -1812,7 +2243,11 @@ static struct smbd_connection *_smbd_get_connection(
 
 allocate_mr_failed:
 	/* At this point, need to a full transport shutdown */
+<<<<<<< HEAD
 	smbd_destroy(info);
+=======
+	smbd_destroy(server);
+>>>>>>> upstream/android-13
 	return NULL;
 
 negotiation_failed:
@@ -1884,11 +2319,14 @@ static int smbd_recv_buf(struct smbd_connection *info, char *buf,
 	int rc;
 
 again:
+<<<<<<< HEAD
 	if (info->transport_status != SMBD_CONNECTED) {
 		log_read(ERR, "disconnected\n");
 		return -ENODEV;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * No need to hold the reassembly queue lock all the time as we are
 	 * the only one reading from the front of the queue. The transport
@@ -1974,11 +2412,17 @@ again:
 			to_read -= to_copy;
 			data_read += to_copy;
 
+<<<<<<< HEAD
 			log_read(INFO, "_get_first_reassembly memcpy %d bytes "
 				"data_transfer_length-offset=%d after that "
 				"to_read=%d data_read=%d offset=%d\n",
 				to_copy, data_length - offset,
 				to_read, data_read, offset);
+=======
+			log_read(INFO, "_get_first_reassembly memcpy %d bytes data_transfer_length-offset=%d after that to_read=%d data_read=%d offset=%d\n",
+				 to_copy, data_length - offset,
+				 to_read, data_read, offset);
+>>>>>>> upstream/android-13
 		}
 
 		spin_lock_irq(&info->reassembly_queue_lock);
@@ -1987,10 +2431,16 @@ again:
 		spin_unlock_irq(&info->reassembly_queue_lock);
 
 		info->first_entry_offset = offset;
+<<<<<<< HEAD
 		log_read(INFO, "returning to thread data_read=%d "
 			"reassembly_data_length=%d first_entry_offset=%d\n",
 			data_read, info->reassembly_data_length,
 			info->first_entry_offset);
+=======
+		log_read(INFO, "returning to thread data_read=%d reassembly_data_length=%d first_entry_offset=%d\n",
+			 data_read, info->reassembly_data_length,
+			 info->first_entry_offset);
+>>>>>>> upstream/android-13
 read_rfc1002_done:
 		return data_read;
 	}
@@ -2002,7 +2452,16 @@ read_rfc1002_done:
 			info->transport_status != SMBD_CONNECTED);
 	/* Don't return any data if interrupted */
 	if (rc)
+<<<<<<< HEAD
 		return -ENODEV;
+=======
+		return rc;
+
+	if (info->transport_status != SMBD_CONNECTED) {
+		log_read(ERR, "disconnected\n");
+		return -ECONNABORTED;
+	}
+>>>>>>> upstream/android-13
 
 	goto again;
 }
@@ -2054,16 +2513,33 @@ int smbd_recv(struct smbd_connection *info, struct msghdr *msg)
 	unsigned int to_read, page_offset;
 	int rc;
 
+<<<<<<< HEAD
 	info->smbd_recv_pending++;
 
 	switch (msg->msg_iter.type) {
 	case READ | ITER_KVEC:
+=======
+	if (iov_iter_rw(&msg->msg_iter) == WRITE) {
+		/* It's a bug in upper layer to get there */
+		cifs_dbg(VFS, "Invalid msg iter dir %u\n",
+			 iov_iter_rw(&msg->msg_iter));
+		rc = -EINVAL;
+		goto out;
+	}
+
+	switch (iov_iter_type(&msg->msg_iter)) {
+	case ITER_KVEC:
+>>>>>>> upstream/android-13
 		buf = msg->msg_iter.kvec->iov_base;
 		to_read = msg->msg_iter.kvec->iov_len;
 		rc = smbd_recv_buf(info, buf, to_read);
 		break;
 
+<<<<<<< HEAD
 	case READ | ITER_BVEC:
+=======
+	case ITER_BVEC:
+>>>>>>> upstream/android-13
 		page = msg->msg_iter.bvec->bv_page;
 		page_offset = msg->msg_iter.bvec->bv_offset;
 		to_read = msg->msg_iter.bvec->bv_len;
@@ -2072,6 +2548,7 @@ int smbd_recv(struct smbd_connection *info, struct msghdr *msg)
 
 	default:
 		/* It's a bug in upper layer to get there */
+<<<<<<< HEAD
 		cifs_dbg(VFS, "CIFS: invalid msg type %d\n",
 			msg->msg_iter.type);
 		rc = -EINVAL;
@@ -2080,6 +2557,14 @@ int smbd_recv(struct smbd_connection *info, struct msghdr *msg)
 	info->smbd_recv_pending--;
 	wake_up(&info->wait_smbd_recv_pending);
 
+=======
+		cifs_dbg(VFS, "Invalid msg type %d\n",
+			 iov_iter_type(&msg->msg_iter));
+		rc = -EINVAL;
+	}
+
+out:
+>>>>>>> upstream/android-13
 	/* SMBDirect will read it all or nothing */
 	if (rc > 0)
 		msg->msg_iter.count = 0;
@@ -2108,9 +2593,14 @@ int smbd_send(struct TCP_Server_Info *server,
 	struct smb_rqst *rqst;
 	int rqst_idx;
 
+<<<<<<< HEAD
 	info->smbd_send_pending++;
 	if (info->transport_status != SMBD_CONNECTED) {
 		rc = -ENODEV;
+=======
+	if (info->transport_status != SMBD_CONNECTED) {
+		rc = -EAGAIN;
+>>>>>>> upstream/android-13
 		goto done;
 	}
 
@@ -2123,16 +2613,27 @@ int smbd_send(struct TCP_Server_Info *server,
 	for (i = 0; i < num_rqst; i++)
 		remaining_data_length += smb_rqst_len(server, &rqst_array[i]);
 
+<<<<<<< HEAD
 	if (remaining_data_length + sizeof(struct smbd_data_transfer) >
 		info->max_fragmented_send_size) {
+=======
+	if (remaining_data_length > info->max_fragmented_send_size) {
+>>>>>>> upstream/android-13
 		log_write(ERR, "payload size %d > max size %d\n",
 			remaining_data_length, info->max_fragmented_send_size);
 		rc = -EINVAL;
 		goto done;
 	}
 
+<<<<<<< HEAD
 	rqst_idx = 0;
 
+=======
+	log_write(INFO, "num_rqst=%d total length=%u\n",
+			num_rqst, remaining_data_length);
+
+	rqst_idx = 0;
+>>>>>>> upstream/android-13
 next_rqst:
 	rqst = &rqst_array[rqst_idx];
 	iov = rqst->rq_iov;
@@ -2143,10 +2644,16 @@ next_rqst:
 		dump_smb(iov[i].iov_base, iov[i].iov_len);
 
 
+<<<<<<< HEAD
 	log_write(INFO, "rqst_idx=%d nvec=%d rqst->rq_npages=%d rq_pagesz=%d "
 		"rq_tailsz=%d buflen=%lu\n",
 		rqst_idx, rqst->rq_nvec, rqst->rq_npages, rqst->rq_pagesz,
 		rqst->rq_tailsz, smb_rqst_len(server, rqst));
+=======
+	log_write(INFO, "rqst_idx=%d nvec=%d rqst->rq_npages=%d rq_pagesz=%d rq_tailsz=%d buflen=%lu\n",
+		  rqst_idx, rqst->rq_nvec, rqst->rq_npages, rqst->rq_pagesz,
+		  rqst->rq_tailsz, smb_rqst_len(server, rqst));
+>>>>>>> upstream/android-13
 
 	start = i = 0;
 	buflen = 0;
@@ -2156,11 +2663,17 @@ next_rqst:
 			if (i > start) {
 				remaining_data_length -=
 					(buflen-iov[i].iov_len);
+<<<<<<< HEAD
 				log_write(INFO, "sending iov[] from start=%d "
 					"i=%d nvecs=%d "
 					"remaining_data_length=%d\n",
 					start, i, i-start,
 					remaining_data_length);
+=======
+				log_write(INFO, "sending iov[] from start=%d i=%d nvecs=%d remaining_data_length=%d\n",
+					  start, i, i - start,
+					  remaining_data_length);
+>>>>>>> upstream/android-13
 				rc = smbd_post_send_data(
 					info, &iov[start], i-start,
 					remaining_data_length);
@@ -2169,10 +2682,16 @@ next_rqst:
 			} else {
 				/* iov[start] is too big, break it */
 				nvecs = (buflen+max_iov_size-1)/max_iov_size;
+<<<<<<< HEAD
 				log_write(INFO, "iov[%d] iov_base=%p buflen=%d"
 					" break to %d vectors\n",
 					start, iov[start].iov_base,
 					buflen, nvecs);
+=======
+				log_write(INFO, "iov[%d] iov_base=%p buflen=%d break to %d vectors\n",
+					  start, iov[start].iov_base,
+					  buflen, nvecs);
+>>>>>>> upstream/android-13
 				for (j = 0; j < nvecs; j++) {
 					vec.iov_base =
 						(char *)iov[start].iov_base +
@@ -2184,11 +2703,17 @@ next_rqst:
 							max_iov_size*(nvecs-1);
 					remaining_data_length -= vec.iov_len;
 					log_write(INFO,
+<<<<<<< HEAD
 						"sending vec j=%d iov_base=%p"
 						" iov_len=%zu "
 						"remaining_data_length=%d\n",
 						j, vec.iov_base, vec.iov_len,
 						remaining_data_length);
+=======
+						"sending vec j=%d iov_base=%p iov_len=%zu remaining_data_length=%d\n",
+						  j, vec.iov_base, vec.iov_len,
+						  remaining_data_length);
+>>>>>>> upstream/android-13
 					rc = smbd_post_send_data(
 						info, &vec, 1,
 						remaining_data_length);
@@ -2206,11 +2731,17 @@ next_rqst:
 			if (i == rqst->rq_nvec) {
 				/* send out all remaining vecs */
 				remaining_data_length -= buflen;
+<<<<<<< HEAD
 				log_write(INFO,
 					"sending iov[] from start=%d i=%d "
 					"nvecs=%d remaining_data_length=%d\n",
 					start, i, i-start,
 					remaining_data_length);
+=======
+				log_write(INFO, "sending iov[] from start=%d i=%d nvecs=%d remaining_data_length=%d\n",
+					  start, i, i - start,
+					  remaining_data_length);
+>>>>>>> upstream/android-13
 				rc = smbd_post_send_data(info, &iov[start],
 					i-start, remaining_data_length);
 				if (rc)
@@ -2234,10 +2765,16 @@ next_rqst:
 			if (j == nvecs-1)
 				size = buflen - j*max_iov_size;
 			remaining_data_length -= size;
+<<<<<<< HEAD
 			log_write(INFO, "sending pages i=%d offset=%d size=%d"
 				" remaining_data_length=%d\n",
 				i, j*max_iov_size+offset, size,
 				remaining_data_length);
+=======
+			log_write(INFO, "sending pages i=%d offset=%d size=%d remaining_data_length=%d\n",
+				  i, j * max_iov_size + offset, size,
+				  remaining_data_length);
+>>>>>>> upstream/android-13
 			rc = smbd_post_send_page(
 				info, rqst->rq_pages[i],
 				j*max_iov_size + offset,
@@ -2259,11 +2796,16 @@ done:
 	 * that means all the I/Os have been out and we are good to return
 	 */
 
+<<<<<<< HEAD
 	wait_event(info->wait_send_payload_pending,
 		atomic_read(&info->send_payload_pending) == 0);
 
 	info->smbd_send_pending--;
 	wake_up(&info->wait_smbd_send_pending);
+=======
+	wait_event(info->wait_send_pending,
+		atomic_read(&info->send_pending) == 0);
+>>>>>>> upstream/android-13
 
 	return rc;
 }
@@ -2298,8 +2840,12 @@ static void smbd_mr_recovery_work(struct work_struct *work)
 	int rc;
 
 	list_for_each_entry(smbdirect_mr, &info->mr_list, list) {
+<<<<<<< HEAD
 		if (smbdirect_mr->state == MR_INVALIDATED ||
 			smbdirect_mr->state == MR_ERROR) {
+=======
+		if (smbdirect_mr->state == MR_ERROR) {
+>>>>>>> upstream/android-13
 
 			/* recover this MR entry */
 			rc = ib_dereg_mr(smbdirect_mr->mr);
@@ -2315,6 +2861,7 @@ static void smbd_mr_recovery_work(struct work_struct *work)
 				info->pd, info->mr_type,
 				info->max_frmr_depth);
 			if (IS_ERR(smbdirect_mr->mr)) {
+<<<<<<< HEAD
 				log_rdma_mr(ERR,
 					"ib_alloc_mr failed mr_type=%x "
 					"max_frmr_depth=%x\n",
@@ -2342,6 +2889,29 @@ static void smbd_mr_recovery_work(struct work_struct *work)
 			if (atomic_inc_return(&info->mr_ready_count) == 1)
 				wake_up_interruptible(&info->wait_mr);
 		}
+=======
+				log_rdma_mr(ERR, "ib_alloc_mr failed mr_type=%x max_frmr_depth=%x\n",
+					    info->mr_type,
+					    info->max_frmr_depth);
+				smbd_disconnect_rdma_connection(info);
+				continue;
+			}
+		} else
+			/* This MR is being used, don't recover it */
+			continue;
+
+		smbdirect_mr->state = MR_READY;
+
+		/* smbdirect_mr->state is updated by this function
+		 * and is read and updated by I/O issuing CPUs trying
+		 * to get a MR, the call to atomic_inc_return
+		 * implicates a memory barrier and guarantees this
+		 * value is updated before waking up any calls to
+		 * get_mr() from the I/O issuing CPUs
+		 */
+		if (atomic_inc_return(&info->mr_ready_count) == 1)
+			wake_up_interruptible(&info->wait_mr);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -2386,9 +2956,14 @@ static int allocate_mr_list(struct smbd_connection *info)
 		smbdirect_mr->mr = ib_alloc_mr(info->pd, info->mr_type,
 					info->max_frmr_depth);
 		if (IS_ERR(smbdirect_mr->mr)) {
+<<<<<<< HEAD
 			log_rdma_mr(ERR, "ib_alloc_mr failed mr_type=%x "
 				"max_frmr_depth=%x\n",
 				info->mr_type, info->max_frmr_depth);
+=======
+			log_rdma_mr(ERR, "ib_alloc_mr failed mr_type=%x max_frmr_depth=%x\n",
+				    info->mr_type, info->max_frmr_depth);
+>>>>>>> upstream/android-13
 			goto out;
 		}
 		smbdirect_mr->sgl = kcalloc(
@@ -2631,11 +3206,28 @@ int smbd_deregister_mr(struct smbd_mr *smbdirect_mr)
 		 */
 		smbdirect_mr->state = MR_INVALIDATED;
 
+<<<<<<< HEAD
 	/*
 	 * Schedule the work to do MR recovery for future I/Os
 	 * MR recovery is slow and we don't want it to block the current I/O
 	 */
 	queue_work(info->workqueue, &info->mr_recovery_work);
+=======
+	if (smbdirect_mr->state == MR_INVALIDATED) {
+		ib_dma_unmap_sg(
+			info->id->device, smbdirect_mr->sgl,
+			smbdirect_mr->sgl_count,
+			smbdirect_mr->dir);
+		smbdirect_mr->state = MR_READY;
+		if (atomic_inc_return(&info->mr_ready_count) == 1)
+			wake_up_interruptible(&info->wait_mr);
+	} else
+		/*
+		 * Schedule the work to do MR recovery for future I/Os MR
+		 * recovery is slow and don't want it to block current I/O
+		 */
+		queue_work(info->workqueue, &info->mr_recovery_work);
+>>>>>>> upstream/android-13
 
 done:
 	if (atomic_dec_and_test(&info->mr_used_count))

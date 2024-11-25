@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  arch/arm/include/asm/mach/arch.h
  *
  *  Copyright (C) 2000 Russell King
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -84,7 +91,11 @@ extern const struct machine_desc __arch_info_begin[], __arch_info_end[];
 #define MACHINE_START(_type,_name)			\
 static const struct machine_desc __mach_desc_##_type	\
  __used							\
+<<<<<<< HEAD
  __attribute__((__section__(".arch.info.init"))) = {	\
+=======
+ __section(".arch.info.init") = {			\
+>>>>>>> upstream/android-13
 	.nr		= MACH_TYPE_##_type,		\
 	.name		= _name,
 
@@ -94,7 +105,11 @@ static const struct machine_desc __mach_desc_##_type	\
 #define DT_MACHINE_START(_name, _namestr)		\
 static const struct machine_desc __mach_desc_##_name	\
  __used							\
+<<<<<<< HEAD
  __attribute__((__section__(".arch.info.init"))) = {	\
+=======
+ __section(".arch.info.init") = {			\
+>>>>>>> upstream/android-13
 	.nr		= ~0,				\
 	.name		= _namestr,
 

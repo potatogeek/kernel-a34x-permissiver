@@ -17,9 +17,14 @@
 #include "xattr.h"
 #include <trace/events/f2fs.h>
 
+<<<<<<< HEAD
 /* an workaround patch for handling hash corruption for casefold file names */
 #ifdef CONFIG_F2FS_SEC_ENC_STRICT_MODE
 #define DENTRY_FULLSCAN_LEVEL			(0)
+=======
+#ifdef CONFIG_UNICODE
+extern struct kmem_cache *f2fs_cf_name_slab;
+>>>>>>> upstream/android-13
 #endif
 
 static unsigned long dir_blocks(struct inode *inode)
@@ -82,6 +87,7 @@ int f2fs_init_casefolded_name(const struct inode *dir,
 			      struct f2fs_filename *fname)
 {
 #ifdef CONFIG_UNICODE
+<<<<<<< HEAD
 	struct f2fs_sb_info *sbi = F2FS_SB(dir->i_sb);
 
 	if (IS_CASEFOLDED(dir)) {
@@ -90,13 +96,29 @@ int f2fs_init_casefolded_name(const struct inode *dir,
 		if (!fname->cf_name.name)
 			return -ENOMEM;
 		fname->cf_name.len = utf8_casefold(sbi->sb->s_encoding,
+=======
+	struct super_block *sb = dir->i_sb;
+
+	if (IS_CASEFOLDED(dir)) {
+		fname->cf_name.name = f2fs_kmem_cache_alloc(f2fs_cf_name_slab,
+					GFP_NOFS, false, F2FS_SB(sb));
+		if (!fname->cf_name.name)
+			return -ENOMEM;
+		fname->cf_name.len = utf8_casefold(sb->s_encoding,
+>>>>>>> upstream/android-13
 						   fname->usr_fname,
 						   fname->cf_name.name,
 						   F2FS_NAME_LEN);
 		if ((int)fname->cf_name.len <= 0) {
+<<<<<<< HEAD
 			kfree(fname->cf_name.name);
 			fname->cf_name.name = NULL;
 			if (sb_has_enc_strict_mode(dir->i_sb))
+=======
+			kmem_cache_free(f2fs_cf_name_slab, fname->cf_name.name);
+			fname->cf_name.name = NULL;
+			if (sb_has_strict_encoding(sb))
+>>>>>>> upstream/android-13
 				return -EINVAL;
 			/* fall back to treating name as opaque byte sequence */
 		}
@@ -118,7 +140,11 @@ static int __f2fs_setup_filename(const struct inode *dir,
 #ifdef CONFIG_FS_ENCRYPTION
 	fname->crypto_buf = crypt_name->crypto_buf;
 #endif
+<<<<<<< HEAD
 	if (crypt_name->is_ciphertext_name) {
+=======
+	if (crypt_name->is_nokey_name) {
+>>>>>>> upstream/android-13
 		/* hash was decoded from the no-key name */
 		fname->hash = cpu_to_le32(crypt_name->hash);
 	} else {
@@ -177,8 +203,15 @@ void f2fs_free_filename(struct f2fs_filename *fname)
 	fname->crypto_buf.name = NULL;
 #endif
 #ifdef CONFIG_UNICODE
+<<<<<<< HEAD
 	kfree(fname->cf_name.name);
 	fname->cf_name.name = NULL;
+=======
+	if (fname->cf_name.name) {
+		kmem_cache_free(f2fs_cf_name_slab, fname->cf_name.name);
+		fname->cf_name.name = NULL;
+	}
+>>>>>>> upstream/android-13
 #endif
 }
 
@@ -197,29 +230,46 @@ static unsigned long dir_block_index(unsigned int level,
 static struct f2fs_dir_entry *find_in_block(struct inode *dir,
 				struct page *dentry_page,
 				const struct f2fs_filename *fname,
+<<<<<<< HEAD
 				int *max_slots,
 				struct page **res_page)
 {
 	struct f2fs_dentry_block *dentry_blk;
 	struct f2fs_dir_entry *de;
+=======
+				int *max_slots)
+{
+	struct f2fs_dentry_block *dentry_blk;
+>>>>>>> upstream/android-13
 	struct f2fs_dentry_ptr d;
 
 	dentry_blk = (struct f2fs_dentry_block *)page_address(dentry_page);
 
 	make_dentry_ptr_block(dir, &d, dentry_blk);
+<<<<<<< HEAD
 	de = f2fs_find_target_dentry(&d, fname, max_slots);
 	if (de)
 		*res_page = dentry_page;
 
 	return de;
+=======
+	return f2fs_find_target_dentry(&d, fname, max_slots);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_UNICODE
 /*
  * Test whether a case-insensitive directory entry matches the filename
  * being searched for.
+<<<<<<< HEAD
  */
 static bool f2fs_match_ci_name(const struct inode *dir, const struct qstr *name,
+=======
+ *
+ * Returns 1 for a match, 0 for no match, and -errno on an error.
+ */
+static int f2fs_match_ci_name(const struct inode *dir, const struct qstr *name,
+>>>>>>> upstream/android-13
 			       const u8 *de_name, u32 de_name_len)
 {
 	const struct super_block *sb = dir->i_sb;
@@ -233,11 +283,19 @@ static bool f2fs_match_ci_name(const struct inode *dir, const struct qstr *name,
 			FSTR_INIT((u8 *)de_name, de_name_len);
 
 		if (WARN_ON_ONCE(!fscrypt_has_encryption_key(dir)))
+<<<<<<< HEAD
 			return false;
 
 		decrypted_name.name = kmalloc(de_name_len, GFP_KERNEL);
 		if (!decrypted_name.name)
 			return false;
+=======
+			return -EINVAL;
+
+		decrypted_name.name = kmalloc(de_name_len, GFP_KERNEL);
+		if (!decrypted_name.name)
+			return -ENOMEM;
+>>>>>>> upstream/android-13
 		res = fscrypt_fname_disk_to_usr(dir, 0, 0, &encrypted_name,
 						&decrypted_name);
 		if (res < 0)
@@ -247,6 +305,7 @@ static bool f2fs_match_ci_name(const struct inode *dir, const struct qstr *name,
 	}
 
 	res = utf8_strncasecmp_folded(um, name, &entry);
+<<<<<<< HEAD
 	if (res < 0) {
 		/*
 		 * In strict mode, ignore invalid names.  In non-strict mode,
@@ -264,6 +323,26 @@ out:
 #endif /* CONFIG_UNICODE */
 
 static inline bool f2fs_match_name(const struct inode *dir,
+=======
+	/*
+	 * In strict mode, ignore invalid names.  In non-strict mode,
+	 * fall back to treating them as opaque byte sequences.
+	 */
+	if (res < 0 && !sb_has_strict_encoding(sb)) {
+		res = name->len == entry.len &&
+				memcmp(name->name, entry.name, name->len) == 0;
+	} else {
+		/* utf8_strncasecmp_folded returns 0 on match */
+		res = (res == 0);
+	}
+out:
+	kfree(decrypted_name.name);
+	return res;
+}
+#endif /* CONFIG_UNICODE */
+
+static inline int f2fs_match_name(const struct inode *dir,
+>>>>>>> upstream/android-13
 				   const struct f2fs_filename *fname,
 				   const u8 *de_name, u32 de_name_len)
 {
@@ -290,6 +369,7 @@ struct f2fs_dir_entry *f2fs_find_target_dentry(const struct f2fs_dentry_ptr *d,
 	struct f2fs_dir_entry *de;
 	unsigned long bit_pos = 0;
 	int max_len = 0;
+<<<<<<< HEAD
 #ifdef CONFIG_F2FS_SEC_ENC_STRICT_MODE
 	bool skip_hash = false;
 
@@ -297,6 +377,9 @@ struct f2fs_dir_entry *f2fs_find_target_dentry(const struct f2fs_dentry_ptr *d,
 	if (!max_slots || *max_slots <= DENTRY_FULLSCAN_LEVEL)
 		skip_hash = true;
 #endif
+=======
+	int res = 0;
+>>>>>>> upstream/android-13
 
 	if (max_slots)
 		*max_slots = 0;
@@ -314,6 +397,7 @@ struct f2fs_dir_entry *f2fs_find_target_dentry(const struct f2fs_dentry_ptr *d,
 			continue;
 		}
 
+<<<<<<< HEAD
 #ifdef CONFIG_F2FS_SEC_ENC_STRICT_MODE
 		if ((skip_hash || de->hash_code == fname->hash) &&
 		    f2fs_match_name(d->inode, fname, d->filename[bit_pos],
@@ -324,6 +408,17 @@ struct f2fs_dir_entry *f2fs_find_target_dentry(const struct f2fs_dentry_ptr *d,
 				    le16_to_cpu(de->name_len)))
 #endif
 			goto found;
+=======
+		if (de->hash_code == fname->hash) {
+			res = f2fs_match_name(d->inode, fname,
+					      d->filename[bit_pos],
+					      le16_to_cpu(de->name_len));
+			if (res < 0)
+				return ERR_PTR(res);
+			if (res)
+				goto found;
+		}
+>>>>>>> upstream/android-13
 
 		if (max_slots && max_len > *max_slots)
 			*max_slots = max_len;
@@ -351,13 +446,17 @@ static struct f2fs_dir_entry *find_in_level(struct inode *dir,
 	struct f2fs_dir_entry *de = NULL;
 	bool room = false;
 	int max_slots;
+<<<<<<< HEAD
 #ifdef CONFIG_F2FS_SEC_ENC_STRICT_MODE
 	unsigned int start_idx;
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	nbucket = dir_buckets(level, F2FS_I(dir)->i_dir_level);
 	nblock = bucket_blocks(level);
 
+<<<<<<< HEAD
 #ifdef CONFIG_F2FS_SEC_ENC_STRICT_MODE
 	if (level <= DENTRY_FULLSCAN_LEVEL) {
 		start_idx = 0;
@@ -372,6 +471,11 @@ static struct f2fs_dir_entry *find_in_level(struct inode *dir,
 			le32_to_cpu(fname->hash) % nbucket);
 	end_block = bidx + nblock;
 #endif
+=======
+	bidx = dir_block_index(level, F2FS_I(dir)->i_dir_level,
+			       le32_to_cpu(fname->hash) % nbucket);
+	end_block = bidx + nblock;
+>>>>>>> upstream/android-13
 
 	for (; bidx < end_block; bidx++) {
 		/* no need to allocate new dentry pages to all the indices */
@@ -386,6 +490,7 @@ static struct f2fs_dir_entry *find_in_level(struct inode *dir,
 			}
 		}
 
+<<<<<<< HEAD
 #ifdef CONFIG_F2FS_SEC_ENC_STRICT_MODE
 		max_slots = level;
 #endif
@@ -393,6 +498,17 @@ static struct f2fs_dir_entry *find_in_level(struct inode *dir,
 				   res_page);
 		if (de)
 			break;
+=======
+		de = find_in_block(dir, dentry_page, fname, &max_slots);
+		if (IS_ERR(de)) {
+			*res_page = ERR_CAST(de);
+			de = NULL;
+			break;
+		} else if (de) {
+			*res_page = dentry_page;
+			break;
+		}
+>>>>>>> upstream/android-13
 
 		if (max_slots >= s)
 			room = true;
@@ -476,9 +592,13 @@ struct f2fs_dir_entry *f2fs_find_entry(struct inode *dir,
 
 struct f2fs_dir_entry *f2fs_parent_dir(struct inode *dir, struct page **p)
 {
+<<<<<<< HEAD
 	struct qstr dotdot = QSTR_INIT("..", 2);
 
 	return f2fs_find_entry(dir, &dotdot, p);
+=======
+	return f2fs_find_entry(dir, &dotdot_name, p);
+>>>>>>> upstream/android-13
 }
 
 ino_t f2fs_inode_by_name(struct inode *dir, const struct qstr *qstr,
@@ -500,6 +620,10 @@ void f2fs_set_link(struct inode *dir, struct f2fs_dir_entry *de,
 		struct page *page, struct inode *inode)
 {
 	enum page_type type = f2fs_has_inline_dentry(dir) ? NODE : DATA;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	lock_page(page);
 	f2fs_wait_on_page_writeback(page, type, true, true);
 	de->ino = cpu_to_le32(inode->i_ino);
@@ -616,7 +740,11 @@ struct page *f2fs_init_inode_metadata(struct inode *inode, struct inode *dir,
 			goto put_error;
 
 		if (IS_ENCRYPTED(inode)) {
+<<<<<<< HEAD
 			err = fscrypt_inherit_context(dir, inode, page, false);
+=======
+			err = fscrypt_set_context(inode, page);
+>>>>>>> upstream/android-13
 			if (err)
 				goto put_error;
 		}
@@ -789,7 +917,11 @@ add_dentry:
 	f2fs_wait_on_page_writeback(dentry_page, DATA, true, true);
 
 	if (inode) {
+<<<<<<< HEAD
 		down_write(&F2FS_I(inode)->i_sem);
+=======
+		f2fs_down_write(&F2FS_I(inode)->i_sem);
+>>>>>>> upstream/android-13
 		page = f2fs_init_inode_metadata(inode, dir, fname, NULL);
 		if (IS_ERR(page)) {
 			err = PTR_ERR(page);
@@ -816,7 +948,11 @@ add_dentry:
 	f2fs_update_parent_metadata(dir, inode, current_depth);
 fail:
 	if (inode)
+<<<<<<< HEAD
 		up_write(&F2FS_I(inode)->i_sem);
+=======
+		f2fs_up_write(&F2FS_I(inode)->i_sem);
+>>>>>>> upstream/android-13
 
 	f2fs_put_page(dentry_page, 1);
 
@@ -854,7 +990,11 @@ int f2fs_do_add_link(struct inode *dir, const struct qstr *name,
 		return err;
 
 	/*
+<<<<<<< HEAD
 	 * An immature stakable filesystem shows a race condition between lookup
+=======
+	 * An immature stackable filesystem shows a race condition between lookup
+>>>>>>> upstream/android-13
 	 * and create. If we have same task when doing lookup and create, it's
 	 * definitely fine as expected by VFS normally. Otherwise, let's just
 	 * verify on-disk dentry one more time, which guarantees filesystem
@@ -881,7 +1021,11 @@ int f2fs_do_tmpfile(struct inode *inode, struct inode *dir)
 	struct page *page;
 	int err = 0;
 
+<<<<<<< HEAD
 	down_write(&F2FS_I(inode)->i_sem);
+=======
+	f2fs_down_write(&F2FS_I(inode)->i_sem);
+>>>>>>> upstream/android-13
 	page = f2fs_init_inode_metadata(inode, dir, NULL, NULL);
 	if (IS_ERR(page)) {
 		err = PTR_ERR(page);
@@ -892,7 +1036,11 @@ int f2fs_do_tmpfile(struct inode *inode, struct inode *dir)
 	clear_inode_flag(inode, FI_NEW_INODE);
 	f2fs_update_time(F2FS_I_SB(inode), REQ_TIME);
 fail:
+<<<<<<< HEAD
 	up_write(&F2FS_I(inode)->i_sem);
+=======
+	f2fs_up_write(&F2FS_I(inode)->i_sem);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -900,7 +1048,11 @@ void f2fs_drop_nlink(struct inode *dir, struct inode *inode)
 {
 	struct f2fs_sb_info *sbi = F2FS_I_SB(dir);
 
+<<<<<<< HEAD
 	down_write(&F2FS_I(inode)->i_sem);
+=======
+	f2fs_down_write(&F2FS_I(inode)->i_sem);
+>>>>>>> upstream/android-13
 
 	if (S_ISDIR(inode->i_mode))
 		f2fs_i_links_write(dir, false);
@@ -911,7 +1063,11 @@ void f2fs_drop_nlink(struct inode *dir, struct inode *inode)
 		f2fs_i_links_write(inode, false);
 		f2fs_i_size_write(inode, 0);
 	}
+<<<<<<< HEAD
 	up_write(&F2FS_I(inode)->i_sem);
+=======
+	f2fs_up_write(&F2FS_I(inode)->i_sem);
+>>>>>>> upstream/android-13
 
 	if (inode->i_nlink == 0)
 		f2fs_add_orphan_inode(inode);
@@ -955,6 +1111,7 @@ void f2fs_delete_entry(struct f2fs_dir_entry *dentry, struct page *page,
 
 	if (bit_pos == NR_DENTRY_IN_BLOCK &&
 		!f2fs_truncate_hole(dir, page->index, page->index + 1)) {
+<<<<<<< HEAD
 		f2fs_clear_radix_tree_dirty_tag(page);
 		clear_page_dirty_for_io(page);
 		f2fs_clear_page_private(page);
@@ -962,6 +1119,19 @@ void f2fs_delete_entry(struct f2fs_dir_entry *dentry, struct page *page,
 		clear_cold_data(page);
 		inode_dec_dirty_pages(dir);
 		f2fs_remove_dirty_inode(dir);
+=======
+		f2fs_clear_page_cache_dirty_tag(page);
+		clear_page_dirty_for_io(page);
+		ClearPageUptodate(page);
+
+		clear_page_private_gcing(page);
+
+		inode_dec_dirty_pages(dir);
+		f2fs_remove_dirty_inode(dir);
+
+		detach_page_private(page);
+		set_page_private(page, 0);
+>>>>>>> upstream/android-13
 	}
 	f2fs_put_page(page, 1);
 
@@ -1019,6 +1189,10 @@ int f2fs_fill_dentries(struct dir_context *ctx, struct f2fs_dentry_ptr *d,
 	struct f2fs_sb_info *sbi = F2FS_I_SB(d->inode);
 	struct blk_plug plug;
 	bool readdir_ra = sbi->readdir_ra == 1;
+<<<<<<< HEAD
+=======
+	bool found_valid_dirent = false;
+>>>>>>> upstream/android-13
 	int err = 0;
 
 	bit_pos = ((unsigned long)ctx->pos % d->max);
@@ -1033,6 +1207,7 @@ int f2fs_fill_dentries(struct dir_context *ctx, struct f2fs_dentry_ptr *d,
 
 		de = &d->dentry[bit_pos];
 		if (de->name_len == 0) {
+<<<<<<< HEAD
 			bit_pos++;
 			ctx->pos = start_pos + bit_pos;
 			printk_ratelimited(
@@ -1040,6 +1215,17 @@ int f2fs_fill_dentries(struct dir_context *ctx, struct f2fs_dentry_ptr *d,
 				KERN_WARNING, sbi->sb->s_id,
 				le32_to_cpu(de->ino));
 			set_sbi_flag(sbi, SBI_NEED_FSCK);
+=======
+			if (found_valid_dirent || !bit_pos) {
+				printk_ratelimited(
+					"%sF2FS-fs (%s): invalid namelen(0), ino:%u, run fsck to fix.",
+					KERN_WARNING, sbi->sb->s_id,
+					le32_to_cpu(de->ino));
+				set_sbi_flag(sbi, SBI_NEED_FSCK);
+			}
+			bit_pos++;
+			ctx->pos = start_pos + bit_pos;
+>>>>>>> upstream/android-13
 			continue;
 		}
 
@@ -1082,6 +1268,10 @@ int f2fs_fill_dentries(struct dir_context *ctx, struct f2fs_dentry_ptr *d,
 			f2fs_ra_node_page(sbi, le32_to_cpu(de->ino));
 
 		ctx->pos = start_pos + bit_pos;
+<<<<<<< HEAD
+=======
+		found_valid_dirent = true;
+>>>>>>> upstream/android-13
 	}
 out:
 	if (readdir_ra)
@@ -1103,11 +1293,19 @@ static int f2fs_readdir(struct file *file, struct dir_context *ctx)
 	int err = 0;
 
 	if (IS_ENCRYPTED(inode)) {
+<<<<<<< HEAD
 		err = fscrypt_get_encryption_info(inode);
 		if (err)
 			goto out;
 
 		err = fscrypt_fname_alloc_buffer(inode, F2FS_NAME_LEN, &fstr);
+=======
+		err = fscrypt_prepare_readdir(inode);
+		if (err)
+			goto out;
+
+		err = fscrypt_fname_alloc_buffer(F2FS_NAME_LEN, &fstr);
+>>>>>>> upstream/android-13
 		if (err < 0)
 			goto out;
 	}
@@ -1173,6 +1371,7 @@ out:
 	return err < 0 ? err : 0;
 }
 
+<<<<<<< HEAD
 static int f2fs_dir_open(struct inode *inode, struct file *filp)
 {
 	if (IS_ENCRYPTED(inode))
@@ -1180,12 +1379,17 @@ static int f2fs_dir_open(struct inode *inode, struct file *filp)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 const struct file_operations f2fs_dir_operations = {
 	.llseek		= generic_file_llseek,
 	.read		= generic_read_dir,
 	.iterate_shared	= f2fs_readdir,
 	.fsync		= f2fs_sync_file,
+<<<<<<< HEAD
 	.open		= f2fs_dir_open,
+=======
+>>>>>>> upstream/android-13
 	.unlocked_ioctl	= f2fs_ioctl,
 #ifdef CONFIG_COMPAT
 	.compat_ioctl   = f2fs_compat_ioctl,

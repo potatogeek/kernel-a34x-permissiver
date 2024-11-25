@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  sata_qstor.c - Pacific Digital Corporation QStor SATA
  *
@@ -6,6 +10,7 @@
  *  Copyright 2005 Pacific Digital Corporation.
  *  (OSL/GPL code release authorized by Jalil Fadavi).
  *
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -25,6 +30,10 @@
  *  libata documentation is available via 'make {ps|pdf}docs',
  *  as Documentation/driver-api/libata.rst
  *
+=======
+ *  libata documentation is available via 'make {ps|pdf}docs',
+ *  as Documentation/driver-api/libata.rst
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -495,7 +504,10 @@ static int qs_port_start(struct ata_port *ap)
 				      GFP_KERNEL);
 	if (!pp->pkt)
 		return -ENOMEM;
+<<<<<<< HEAD
 	memset(pp->pkt, 0, QS_PKT_BYTES);
+=======
+>>>>>>> upstream/android-13
 	ap->private_data = pp;
 
 	qs_enter_reg_mode(ap);
@@ -556,6 +568,7 @@ static void qs_host_init(struct ata_host *host, unsigned int chip_id)
 static int qs_set_dma_masks(struct pci_dev *pdev, void __iomem *mmio_base)
 {
 	u32 bus_info = readl(mmio_base + QS_HID_HPHY);
+<<<<<<< HEAD
 	int rc, have_64bit_bus = (bus_info & QS_HPHY_64BIT);
 
 	if (have_64bit_bus &&
@@ -583,6 +596,15 @@ static int qs_set_dma_masks(struct pci_dev *pdev, void __iomem *mmio_base)
 		}
 	}
 	return 0;
+=======
+	int dma_bits = (bus_info & QS_HPHY_64BIT) ? 64 : 32;
+	int rc;
+
+	rc = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(dma_bits));
+	if (rc)
+		dev_err(&pdev->dev, "%d-bit DMA enable failed\n", dma_bits);
+	return rc;
+>>>>>>> upstream/android-13
 }
 
 static int qs_ata_init_one(struct pci_dev *pdev,

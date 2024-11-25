@@ -24,6 +24,7 @@
  */
 
 #include <linux/debugfs.h>
+<<<<<<< HEAD
 #include <linux/seq_file.h>
 #include <linux/slab.h>
 #include <linux/export.h>
@@ -36,6 +37,25 @@
 
 #include "drm_internal.h"
 #include "drm_crtc_internal.h"
+=======
+#include <linux/export.h>
+#include <linux/seq_file.h>
+#include <linux/slab.h>
+#include <linux/uaccess.h>
+
+#include <drm/drm_atomic.h>
+#include <drm/drm_auth.h>
+#include <drm/drm_client.h>
+#include <drm/drm_debugfs.h>
+#include <drm/drm_device.h>
+#include <drm/drm_drv.h>
+#include <drm/drm_edid.h>
+#include <drm/drm_file.h>
+#include <drm/drm_gem.h>
+
+#include "drm_crtc_internal.h"
+#include "drm_internal.h"
+>>>>>>> upstream/android-13
 
 #if defined(CONFIG_DEBUG_FS)
 
@@ -43,6 +63,97 @@
  * Initialization, etc.
  **************************************************/
 
+<<<<<<< HEAD
+=======
+static int drm_name_info(struct seq_file *m, void *data)
+{
+	struct drm_info_node *node = (struct drm_info_node *) m->private;
+	struct drm_minor *minor = node->minor;
+	struct drm_device *dev = minor->dev;
+	struct drm_master *master;
+
+	mutex_lock(&dev->master_mutex);
+	master = dev->master;
+	seq_printf(m, "%s", dev->driver->name);
+	if (dev->dev)
+		seq_printf(m, " dev=%s", dev_name(dev->dev));
+	if (master && master->unique)
+		seq_printf(m, " master=%s", master->unique);
+	if (dev->unique)
+		seq_printf(m, " unique=%s", dev->unique);
+	seq_printf(m, "\n");
+	mutex_unlock(&dev->master_mutex);
+
+	return 0;
+}
+
+static int drm_clients_info(struct seq_file *m, void *data)
+{
+	struct drm_info_node *node = (struct drm_info_node *) m->private;
+	struct drm_device *dev = node->minor->dev;
+	struct drm_file *priv;
+	kuid_t uid;
+
+	seq_printf(m,
+		   "%20s %5s %3s master a %5s %10s\n",
+		   "command",
+		   "pid",
+		   "dev",
+		   "uid",
+		   "magic");
+
+	/* dev->filelist is sorted youngest first, but we want to present
+	 * oldest first (i.e. kernel, servers, clients), so walk backwardss.
+	 */
+	mutex_lock(&dev->filelist_mutex);
+	list_for_each_entry_reverse(priv, &dev->filelist, lhead) {
+		struct task_struct *task;
+		bool is_current_master = drm_is_current_master(priv);
+
+		rcu_read_lock(); /* locks pid_task()->comm */
+		task = pid_task(priv->pid, PIDTYPE_PID);
+		uid = task ? __task_cred(task)->euid : GLOBAL_ROOT_UID;
+		seq_printf(m, "%20s %5d %3d   %c    %c %5d %10u\n",
+			   task ? task->comm : "<unknown>",
+			   pid_vnr(priv->pid),
+			   priv->minor->index,
+			   is_current_master ? 'y' : 'n',
+			   priv->authenticated ? 'y' : 'n',
+			   from_kuid_munged(seq_user_ns(m), uid),
+			   priv->magic);
+		rcu_read_unlock();
+	}
+	mutex_unlock(&dev->filelist_mutex);
+	return 0;
+}
+
+static int drm_gem_one_name_info(int id, void *ptr, void *data)
+{
+	struct drm_gem_object *obj = ptr;
+	struct seq_file *m = data;
+
+	seq_printf(m, "%6d %8zd %7d %8d\n",
+		   obj->name, obj->size,
+		   obj->handle_count,
+		   kref_read(&obj->refcount));
+	return 0;
+}
+
+static int drm_gem_name_info(struct seq_file *m, void *data)
+{
+	struct drm_info_node *node = (struct drm_info_node *) m->private;
+	struct drm_device *dev = node->minor->dev;
+
+	seq_printf(m, "  name     size handles refcount\n");
+
+	mutex_lock(&dev->object_name_lock);
+	idr_for_each(&dev->object_name_idr, drm_gem_one_name_info, m);
+	mutex_unlock(&dev->object_name_lock);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static const struct drm_info_list drm_debugfs_list[] = {
 	{"name", drm_name_info, 0},
 	{"clients", drm_clients_info, 0},
@@ -80,6 +191,7 @@ static const struct file_operations drm_debugfs_fops = {
  * &struct drm_info_list in the given root directory. These files will be removed
  * automatically on drm_debugfs_cleanup().
  */
+<<<<<<< HEAD
 int drm_debugfs_create_files(const struct drm_info_list *files, int count,
 			     struct dentry *root, struct drm_minor *minor)
 {
@@ -87,10 +199,19 @@ int drm_debugfs_create_files(const struct drm_info_list *files, int count,
 	struct dentry *ent;
 	struct drm_info_node *tmp;
 	int i, ret;
+=======
+void drm_debugfs_create_files(const struct drm_info_list *files, int count,
+			      struct dentry *root, struct drm_minor *minor)
+{
+	struct drm_device *dev = minor->dev;
+	struct drm_info_node *tmp;
+	int i;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < count; i++) {
 		u32 features = files[i].driver_features;
 
+<<<<<<< HEAD
 		if (features != 0 &&
 		    (dev->driver->driver_features & features) != features)
 			continue;
@@ -112,17 +233,33 @@ int drm_debugfs_create_files(const struct drm_info_list *files, int count,
 
 		tmp->minor = minor;
 		tmp->dent = ent;
+=======
+		if (features && !drm_core_check_all_features(dev, features))
+			continue;
+
+		tmp = kmalloc(sizeof(struct drm_info_node), GFP_KERNEL);
+		if (tmp == NULL)
+			continue;
+
+		tmp->minor = minor;
+		tmp->dent = debugfs_create_file(files[i].name,
+						S_IFREG | S_IRUGO, root, tmp,
+						&drm_debugfs_fops);
+>>>>>>> upstream/android-13
 		tmp->info_ent = &files[i];
 
 		mutex_lock(&minor->debugfs_lock);
 		list_add(&tmp->list, &minor->debugfs_list);
 		mutex_unlock(&minor->debugfs_lock);
 	}
+<<<<<<< HEAD
 	return 0;
 
 fail:
 	drm_debugfs_remove_files(files, count, minor);
 	return ret;
+=======
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(drm_debugfs_create_files);
 
@@ -131,12 +268,16 @@ int drm_debugfs_init(struct drm_minor *minor, int minor_id,
 {
 	struct drm_device *dev = minor->dev;
 	char name[64];
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 
 	INIT_LIST_HEAD(&minor->debugfs_list);
 	mutex_init(&minor->debugfs_lock);
 	sprintf(name, "%d", minor_id);
 	minor->debugfs_root = debugfs_create_dir(name, root);
+<<<<<<< HEAD
 	if (!minor->debugfs_root) {
 		DRM_ERROR("Cannot create /sys/kernel/debug/dri/%s\n", name);
 		return -1;
@@ -181,6 +322,25 @@ int drm_debugfs_init(struct drm_minor *minor, int minor_id,
 			return ret;
 		}
 	}
+=======
+
+	drm_debugfs_create_files(drm_debugfs_list, DRM_DEBUGFS_ENTRIES,
+				 minor->debugfs_root, minor);
+
+	if (drm_drv_uses_atomic_modeset(dev)) {
+		drm_atomic_debugfs_init(minor);
+	}
+
+	if (drm_core_check_feature(dev, DRIVER_MODESET)) {
+		drm_framebuffer_debugfs_init(minor);
+
+		drm_client_debugfs_init(minor);
+	}
+
+	if (dev->driver->debugfs_init)
+		dev->driver->debugfs_init(minor);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -221,17 +381,27 @@ static void drm_debugfs_remove_all_files(struct drm_minor *minor)
 	mutex_unlock(&minor->debugfs_lock);
 }
 
+<<<<<<< HEAD
 int drm_debugfs_cleanup(struct drm_minor *minor)
 {
 	if (!minor->debugfs_root)
 		return 0;
+=======
+void drm_debugfs_cleanup(struct drm_minor *minor)
+{
+	if (!minor->debugfs_root)
+		return;
+>>>>>>> upstream/android-13
 
 	drm_debugfs_remove_all_files(minor);
 
 	debugfs_remove_recursive(minor->debugfs_root);
 	minor->debugfs_root = NULL;
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int connector_show(struct seq_file *m, void *data)
@@ -330,6 +500,27 @@ static ssize_t edid_write(struct file *file, const char __user *ubuf,
 	return (ret) ? ret : len;
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * Returns the min and max vrr vfreq through the connector's debugfs file.
+ * Example usage: cat /sys/kernel/debug/dri/0/DP-1/vrr_range
+ */
+static int vrr_range_show(struct seq_file *m, void *data)
+{
+	struct drm_connector *connector = m->private;
+
+	if (connector->status != connector_status_connected)
+		return -ENODEV;
+
+	seq_printf(m, "Min: %u\n", (u8)connector->display_info.monitor_range.min_vfreq);
+	seq_printf(m, "Max: %u\n", (u8)connector->display_info.monitor_range.max_vfreq);
+
+	return 0;
+}
+DEFINE_SHOW_ATTRIBUTE(vrr_range);
+
+>>>>>>> upstream/android-13
 static const struct file_operations drm_edid_fops = {
 	.owner = THIS_MODULE,
 	.open = edid_open,
@@ -349,6 +540,7 @@ static const struct file_operations drm_connector_fops = {
 	.write = connector_write
 };
 
+<<<<<<< HEAD
 int drm_debugfs_connector_add(struct drm_connector *connector)
 {
 	struct drm_minor *minor = connector->dev->primary;
@@ -381,6 +573,30 @@ error:
 	debugfs_remove_recursive(connector->debugfs_entry);
 	connector->debugfs_entry = NULL;
 	return -ENOMEM;
+=======
+void drm_debugfs_connector_add(struct drm_connector *connector)
+{
+	struct drm_minor *minor = connector->dev->primary;
+	struct dentry *root;
+
+	if (!minor->debugfs_root)
+		return;
+
+	root = debugfs_create_dir(connector->name, minor->debugfs_root);
+	connector->debugfs_entry = root;
+
+	/* force */
+	debugfs_create_file("force", S_IRUGO | S_IWUSR, root, connector,
+			    &drm_connector_fops);
+
+	/* edid */
+	debugfs_create_file("edid_override", S_IRUGO | S_IWUSR, root, connector,
+			    &drm_edid_fops);
+
+	/* vrr range */
+	debugfs_create_file("vrr_range", S_IRUGO, root, connector,
+			    &vrr_range_fops);
+>>>>>>> upstream/android-13
 }
 
 void drm_debugfs_connector_remove(struct drm_connector *connector)
@@ -393,7 +609,11 @@ void drm_debugfs_connector_remove(struct drm_connector *connector)
 	connector->debugfs_entry = NULL;
 }
 
+<<<<<<< HEAD
 int drm_debugfs_crtc_add(struct drm_crtc *crtc)
+=======
+void drm_debugfs_crtc_add(struct drm_crtc *crtc)
+>>>>>>> upstream/android-13
 {
 	struct drm_minor *minor = crtc->dev->primary;
 	struct dentry *root;
@@ -401,6 +621,7 @@ int drm_debugfs_crtc_add(struct drm_crtc *crtc)
 
 	name = kasprintf(GFP_KERNEL, "crtc-%d", crtc->index);
 	if (!name)
+<<<<<<< HEAD
 		return -ENOMEM;
 
 	root = debugfs_create_dir(name, minor->debugfs_root);
@@ -418,6 +639,16 @@ int drm_debugfs_crtc_add(struct drm_crtc *crtc)
 error:
 	drm_debugfs_crtc_remove(crtc);
 	return -ENOMEM;
+=======
+		return;
+
+	root = debugfs_create_dir(name, minor->debugfs_root);
+	kfree(name);
+
+	crtc->debugfs_entry = root;
+
+	drm_debugfs_crtc_crc_add(crtc);
+>>>>>>> upstream/android-13
 }
 
 void drm_debugfs_crtc_remove(struct drm_crtc *crtc)

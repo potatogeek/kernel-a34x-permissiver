@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  arch/arm/mach-pxa/pcm990-baseboard.c
  *  Support for the Phytec phyCORE-PXA270 Development Platform (PCM-990).
@@ -14,10 +18,13 @@
  *  based on Intel Mainstone Board
  *
  *  Copyright 2007 Juergen Beisert @ Pengutronix (j.beisert@pengutronix.de)
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/gpio.h>
 #include <linux/irq.h>
@@ -27,10 +34,13 @@
 #include <linux/pwm.h>
 #include <linux/pwm_backlight.h>
 
+<<<<<<< HEAD
 #include <media/i2c/mt9v022.h>
 #include <media/soc_camera.h>
 
 #include <linux/platform_data/media/camera-pxa.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/mach/map.h>
 #include "pxa27x.h"
 #include <mach/audio.h>
@@ -157,7 +167,10 @@ static struct pwm_lookup pcm990_pwm_lookup[] = {
 static struct platform_pwm_backlight_data pcm990_backlight_data = {
 	.max_brightness	= 1023,
 	.dft_brightness	= 1023,
+<<<<<<< HEAD
 	.enable_gpio	= -1,
+=======
+>>>>>>> upstream/android-13
 };
 
 static struct platform_device pcm990_backlight_device = {
@@ -370,9 +383,12 @@ static struct pxamci_platform_data pcm990_mci_platform_data = {
 	.init 			= pcm990_mci_init,
 	.setpower 		= pcm990_mci_setpower,
 	.exit			= pcm990_mci_exit,
+<<<<<<< HEAD
 	.gpio_card_detect	= -1,
 	.gpio_card_ro		= -1,
 	.gpio_power		= -1,
+=======
+>>>>>>> upstream/android-13
 };
 
 static struct pxaohci_platform_data pcm990_ohci_platform_data = {
@@ -382,6 +398,7 @@ static struct pxaohci_platform_data pcm990_ohci_platform_data = {
 };
 
 /*
+<<<<<<< HEAD
  * PXA27x Camera specific stuff
  */
 #if defined(CONFIG_VIDEO_PXA27x) || defined(CONFIG_VIDEO_PXA27x_MODULE)
@@ -525,6 +542,8 @@ static struct platform_device pcm990_camera[] = {
 #endif /* CONFIG_VIDEO_PXA27x ||CONFIG_VIDEO_PXA27x_MODULE */
 
 /*
+=======
+>>>>>>> upstream/android-13
  * system init for baseboard usage. Will be called by pcm027 init.
  *
  * Add platform devices present on this baseboard and init
@@ -558,6 +577,7 @@ void __init pcm990_baseboard_init(void)
 	pxa_set_i2c_info(NULL);
 	pxa_set_ac97_info(NULL);
 
+<<<<<<< HEAD
 #if defined(CONFIG_VIDEO_PXA27x) || defined(CONFIG_VIDEO_PXA27x_MODULE)
 	pxa2xx_mfp_config(ARRAY_AND_SIZE(pcm990_camera_pin_config));
 	pxa_set_camera_info(&pcm990_pxacamera_platform_data);
@@ -568,5 +588,7 @@ void __init pcm990_baseboard_init(void)
 	platform_device_register(&pcm990_camera[1]);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	printk(KERN_INFO "PCM-990 Evaluation baseboard initialized\n");
 }

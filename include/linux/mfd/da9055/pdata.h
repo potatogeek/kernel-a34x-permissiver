@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (C) 2012 Dialog Semiconductor Ltd.
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -5,6 +6,10 @@
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/* Copyright (C) 2012 Dialog Semiconductor Ltd.
+>>>>>>> upstream/android-13
  */
 #ifndef __DA9055_PDATA_H
 #define __DA9055_PDATA_H
@@ -40,7 +45,11 @@ struct da9055_pdata {
 	int *gpio_rsel;
 	/*
 	 * Regulator mode control bits value (GPI offset) that
+<<<<<<< HEAD
 	 * that controls the regulator state, 0 if not available.
+=======
+	 * controls the regulator state, 0 if not available.
+>>>>>>> upstream/android-13
 	 */
 	enum gpio_select *reg_ren;
 	/*

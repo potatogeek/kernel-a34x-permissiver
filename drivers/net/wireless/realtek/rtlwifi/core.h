@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2012  Realtek Corporation.
@@ -22,6 +23,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/* Copyright(c) 2009-2012  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #ifndef __RTL_CORE_H__
 #define __RTL_CORE_H__
@@ -82,5 +87,9 @@ void rtl_bb_delay(struct ieee80211_hw *hw, u32 addr, u32 data);
 bool rtl_cmd_send_packet(struct ieee80211_hw *hw, struct sk_buff *skb);
 bool rtl_btc_status_false(void);
 void rtl_dm_diginit(struct ieee80211_hw *hw, u32 cur_igval);
+<<<<<<< HEAD
+=======
+void rtl_update_beacon_work_callback(struct work_struct *work);
+>>>>>>> upstream/android-13
 
 #endif

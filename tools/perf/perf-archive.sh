@@ -20,9 +20,14 @@ else
 fi
 
 BUILDIDS=$(mktemp /tmp/perf-archive-buildids.XXXXXX)
+<<<<<<< HEAD
 NOBUILDID=0000000000000000000000000000000000000000
 
 perf buildid-list -i $PERF_DATA --with-hits | grep -v "^$NOBUILDID " > $BUILDIDS
+=======
+
+perf buildid-list -i $PERF_DATA --with-hits | grep -v "^ " > $BUILDIDS
+>>>>>>> upstream/android-13
 if [ ! -s $BUILDIDS ] ; then
 	echo "perf archive: no build-ids found"
 	rm $BUILDIDS || true

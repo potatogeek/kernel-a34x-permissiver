@@ -15,6 +15,10 @@
 #include <linux/rcupdate.h>
 #include <linux/list.h>
 
+<<<<<<< HEAD
+=======
+static struct kmem_cache *peer_cache;
+>>>>>>> upstream/android-13
 static atomic64_t peer_counter = ATOMIC64_INIT(0);
 
 struct wg_peer *wg_peer_create(struct wg_device *wg,
@@ -29,6 +33,7 @@ struct wg_peer *wg_peer_create(struct wg_device *wg,
 	if (wg->num_peers >= MAX_PEERS_PER_DEVICE)
 		return ERR_PTR(ret);
 
+<<<<<<< HEAD
 	peer = kzalloc(sizeof(*peer), GFP_KERNEL);
 	if (unlikely(!peer))
 		return ERR_PTR(ret);
@@ -45,14 +50,32 @@ struct wg_peer *wg_peer_create(struct wg_device *wg,
 				 MAX_QUEUED_PACKETS))
 		goto err_3;
 
+=======
+	peer = kmem_cache_zalloc(peer_cache, GFP_KERNEL);
+	if (unlikely(!peer))
+		return ERR_PTR(ret);
+	if (unlikely(dst_cache_init(&peer->endpoint_cache, GFP_KERNEL)))
+		goto err;
+
+	peer->device = wg;
+	wg_noise_handshake_init(&peer->handshake, &wg->static_identity,
+				public_key, preshared_key, peer);
+>>>>>>> upstream/android-13
 	peer->internal_id = atomic64_inc_return(&peer_counter);
 	peer->serial_work_cpu = nr_cpumask_bits;
 	wg_cookie_init(&peer->latest_cookie);
 	wg_timers_init(peer);
 	wg_cookie_checker_precompute_peer_keys(peer);
 	spin_lock_init(&peer->keypairs.keypair_update_lock);
+<<<<<<< HEAD
 	INIT_WORK(&peer->transmit_handshake_work,
 		  wg_packet_handshake_send_worker);
+=======
+	INIT_WORK(&peer->transmit_handshake_work, wg_packet_handshake_send_worker);
+	INIT_WORK(&peer->transmit_packet_work, wg_packet_tx_worker);
+	wg_prev_queue_init(&peer->tx_queue);
+	wg_prev_queue_init(&peer->rx_queue);
+>>>>>>> upstream/android-13
 	rwlock_init(&peer->endpoint_lock);
 	kref_init(&peer->refcount);
 	skb_queue_head_init(&peer->staged_packet_queue);
@@ -68,12 +91,17 @@ struct wg_peer *wg_peer_create(struct wg_device *wg,
 	pr_debug("%s: Peer %llu created\n", wg->dev->name, peer->internal_id);
 	return peer;
 
+<<<<<<< HEAD
 err_3:
 	wg_packet_queue_free(&peer->tx_queue, false);
 err_2:
 	dst_cache_destroy(&peer->endpoint_cache);
 err_1:
 	kfree(peer);
+=======
+err:
+	kmem_cache_free(peer_cache, peer);
+>>>>>>> upstream/android-13
 	return ERR_PTR(ret);
 }
 
@@ -97,7 +125,11 @@ static void peer_make_dead(struct wg_peer *peer)
 	/* Mark as dead, so that we don't allow jumping contexts after. */
 	WRITE_ONCE(peer->is_dead, true);
 
+<<<<<<< HEAD
 	/* The caller must now synchronize_rcu() for this to take effect. */
+=======
+	/* The caller must now synchronize_net() for this to take effect. */
+>>>>>>> upstream/android-13
 }
 
 static void peer_remove_after_dead(struct wg_peer *peer)
@@ -169,7 +201,11 @@ void wg_peer_remove(struct wg_peer *peer)
 	lockdep_assert_held(&peer->device->device_update_lock);
 
 	peer_make_dead(peer);
+<<<<<<< HEAD
 	synchronize_rcu();
+=======
+	synchronize_net();
+>>>>>>> upstream/android-13
 	peer_remove_after_dead(peer);
 }
 
@@ -187,7 +223,11 @@ void wg_peer_remove_all(struct wg_device *wg)
 		peer_make_dead(peer);
 		list_add_tail(&peer->peer_list, &dead_peers);
 	}
+<<<<<<< HEAD
 	synchronize_rcu();
+=======
+	synchronize_net();
+>>>>>>> upstream/android-13
 	list_for_each_entry_safe(peer, temp, &dead_peers, peer_list)
 		peer_remove_after_dead(peer);
 }
@@ -197,13 +237,22 @@ static void rcu_release(struct rcu_head *rcu)
 	struct wg_peer *peer = container_of(rcu, struct wg_peer, rcu);
 
 	dst_cache_destroy(&peer->endpoint_cache);
+<<<<<<< HEAD
 	wg_packet_queue_free(&peer->rx_queue, false);
 	wg_packet_queue_free(&peer->tx_queue, false);
+=======
+	WARN_ON(wg_prev_queue_peek(&peer->tx_queue) || wg_prev_queue_peek(&peer->rx_queue));
+>>>>>>> upstream/android-13
 
 	/* The final zeroing takes care of clearing any remaining handshake key
 	 * material and other potentially sensitive information.
 	 */
+<<<<<<< HEAD
 	kzfree(peer);
+=======
+	memzero_explicit(peer, sizeof(*peer));
+	kmem_cache_free(peer_cache, peer);
+>>>>>>> upstream/android-13
 }
 
 static void kref_release(struct kref *refcount)
@@ -235,3 +284,17 @@ void wg_peer_put(struct wg_peer *peer)
 		return;
 	kref_put(&peer->refcount, kref_release);
 }
+<<<<<<< HEAD
+=======
+
+int __init wg_peer_init(void)
+{
+	peer_cache = KMEM_CACHE(wg_peer, 0);
+	return peer_cache ? 0 : -ENOMEM;
+}
+
+void wg_peer_uninit(void)
+{
+	kmem_cache_destroy(peer_cache);
+}
+>>>>>>> upstream/android-13

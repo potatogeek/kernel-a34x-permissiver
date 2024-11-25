@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * R-Car Gen3 HDMI PHY
  *
  * Copyright (C) 2016 Renesas Electronics Corporation
  *
  * Contact: Laurent Pinchart (laurent.pinchart@ideasonboard.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,10 +16,19 @@
  * (at your option) any later version.
  */
 
+=======
+ */
+
+#include <linux/mod_devicetable.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/platform_device.h>
 
 #include <drm/bridge/dw_hdmi.h>
+<<<<<<< HEAD
+=======
+#include <drm/drm_modes.h>
+>>>>>>> upstream/android-13
 
 #define RCAR_HDMI_PHY_OPMODE_PLLCFG	0x06	/* Mode of operation and PLL dividers */
 #define RCAR_HDMI_PHY_PLLCURRGMPCTRL	0x10	/* PLL current and Gmp (conductance) */
@@ -39,8 +53,27 @@ static const struct rcar_hdmi_phy_params rcar_hdmi_phy_params[] = {
 	{ ~0UL,      0x0000, 0x0000, 0x0000 },
 };
 
+<<<<<<< HEAD
 static int rcar_hdmi_phy_configure(struct dw_hdmi *hdmi,
 				   const struct dw_hdmi_plat_data *pdata,
+=======
+static enum drm_mode_status
+rcar_hdmi_mode_valid(struct dw_hdmi *hdmi, void *data,
+		     const struct drm_display_info *info,
+		     const struct drm_display_mode *mode)
+{
+	/*
+	 * The maximum supported clock frequency is 297 MHz, as shown in the PHY
+	 * parameters table.
+	 */
+	if (mode->clock > 297000)
+		return MODE_CLOCK_HIGH;
+
+	return MODE_OK;
+}
+
+static int rcar_hdmi_phy_configure(struct dw_hdmi *hdmi, void *data,
+>>>>>>> upstream/android-13
 				   unsigned long mpixelclock)
 {
 	const struct rcar_hdmi_phy_params *params = rcar_hdmi_phy_params;
@@ -63,6 +96,11 @@ static int rcar_hdmi_phy_configure(struct dw_hdmi *hdmi,
 }
 
 static const struct dw_hdmi_plat_data rcar_dw_hdmi_plat_data = {
+<<<<<<< HEAD
+=======
+	.output_port = 1,
+	.mode_valid = rcar_hdmi_mode_valid,
+>>>>>>> upstream/android-13
 	.configure_phy	= rcar_hdmi_phy_configure,
 };
 

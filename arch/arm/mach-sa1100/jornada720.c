@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/arch/arm/mach-sa1100/jornada720.c
  *
@@ -6,11 +10,14 @@
  * Copyright (C) 2007 Kristoffer Ericson <Kristoffer.Ericson@gmail.com>
  * Copyright (C) 2006 Filip Zyzniewski <filip.zyzniewski@tefnet.pl>
  *  Copyright (C) 2005 Michael Gernoth <michael@gernoth.net>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -190,6 +197,20 @@ static struct platform_device s1d13xxxfb_device = {
 	.resource	= s1d13xxxfb_resources,
 };
 
+<<<<<<< HEAD
+=======
+static struct gpiod_lookup_table jornada_pcmcia_gpiod_table = {
+	.dev_id = "1800",
+	.table = {
+		GPIO_LOOKUP("sa1111", 0, "s0-power", GPIO_ACTIVE_HIGH),
+		GPIO_LOOKUP("sa1111", 1, "s1-power", GPIO_ACTIVE_HIGH),
+		GPIO_LOOKUP("sa1111", 2, "s0-3v", GPIO_ACTIVE_HIGH),
+		GPIO_LOOKUP("sa1111", 3, "s1-3v", GPIO_ACTIVE_HIGH),
+		{ },
+	},
+};
+
+>>>>>>> upstream/android-13
 static struct resource sa1111_resources[] = {
 	[0] = DEFINE_RES_MEM(SA1111REGSTART, SA1111REGLEN),
 	[1] = DEFINE_RES_IRQ(IRQ_GPIO1),
@@ -265,6 +286,10 @@ static int __init jornada720_init(void)
 		udelay(20);		/* give it some time to restart */
 
 		gpiod_add_lookup_table(&jornada_ts_gpiod_table);
+<<<<<<< HEAD
+=======
+		gpiod_add_lookup_table(&jornada_pcmcia_gpiod_table);
+>>>>>>> upstream/android-13
 
 		ret = platform_add_devices(devices, ARRAY_SIZE(devices));
 	}

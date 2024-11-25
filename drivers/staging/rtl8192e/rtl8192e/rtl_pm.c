@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  * Copyright(c) 2008 - 2010 Realtek Corporation. All rights reserved.
  *
@@ -13,15 +14,29 @@
  * wlanfae <wlanfae@realtek.com>
  *****************************************************************************/
 
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright(c) 2008 - 2010 Realtek Corporation. All rights reserved.
+ *
+ * Contact Information: wlanfae <wlanfae@realtek.com>
+ */
+>>>>>>> upstream/android-13
 #include "rtl_core.h"
 #include "r8192E_hw.h"
 #include "r8190P_rtl8256.h"
 #include "rtl_pm.h"
 
 
+<<<<<<< HEAD
 int rtl92e_suspend(struct pci_dev *pdev, pm_message_t state)
 {
 	struct net_device *dev = pci_get_drvdata(pdev);
+=======
+int rtl92e_suspend(struct device *dev_d)
+{
+	struct net_device *dev = dev_get_drvdata(dev_d);
+>>>>>>> upstream/android-13
 	struct r8192_priv *priv = rtllib_priv(dev);
 	u32	ulRegRead;
 
@@ -55,26 +70,39 @@ int rtl92e_suspend(struct pci_dev *pdev, pm_message_t state)
 out_pci_suspend:
 	netdev_info(dev, "WOL is %s\n", priv->rtllib->bSupportRemoteWakeUp ?
 			    "Supported" : "Not supported");
+<<<<<<< HEAD
 	pci_save_state(pdev);
 	pci_disable_device(pdev);
 	pci_enable_wake(pdev, pci_choose_state(pdev, state),
 			priv->rtllib->bSupportRemoteWakeUp ? 1 : 0);
 	pci_set_power_state(pdev, pci_choose_state(pdev, state));
+=======
+	device_set_wakeup_enable(dev_d, priv->rtllib->bSupportRemoteWakeUp);
+>>>>>>> upstream/android-13
 
 	mdelay(20);
 
 	return 0;
 }
 
+<<<<<<< HEAD
 int rtl92e_resume(struct pci_dev *pdev)
 {
 	struct net_device *dev = pci_get_drvdata(pdev);
 	struct r8192_priv *priv = rtllib_priv(dev);
 	int err;
+=======
+int rtl92e_resume(struct device *dev_d)
+{
+	struct pci_dev *pdev = to_pci_dev(dev_d);
+	struct net_device *dev = dev_get_drvdata(dev_d);
+	struct r8192_priv *priv = rtllib_priv(dev);
+>>>>>>> upstream/android-13
 	u32 val;
 
 	netdev_info(dev, "================>r8192E resume call.\n");
 
+<<<<<<< HEAD
 	pci_set_power_state(pdev, PCI_D0);
 
 	err = pci_enable_device(pdev);
@@ -83,12 +111,18 @@ int rtl92e_resume(struct pci_dev *pdev)
 		return err;
 	}
 	pci_restore_state(pdev);
+=======
+>>>>>>> upstream/android-13
 
 	pci_read_config_dword(pdev, 0x40, &val);
 	if ((val & 0x0000ff00) != 0)
 		pci_write_config_dword(pdev, 0x40, val & 0xffff00ff);
 
+<<<<<<< HEAD
 	pci_enable_wake(pdev, PCI_D0, 0);
+=======
+	device_wakeup_disable(dev_d);
+>>>>>>> upstream/android-13
 
 	if (priv->polling_timer_on == 0)
 		rtl92e_check_rfctrl_gpio_timer(&priv->gpio_polling_timer);

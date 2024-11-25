@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -64,10 +65,22 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *****************************************************************************/
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+/*
+ * Copyright (C) 2013-2015 Intel Mobile Communications GmbH
+ * Copyright (C) 2013-2014, 2018-2021 Intel Corporation
+ * Copyright (C) 2015 Intel Deutschland GmbH
+ */
+>>>>>>> upstream/android-13
 #ifndef __MVM_CONSTANTS_H
 #define __MVM_CONSTANTS_H
 
 #include <linux/ieee80211.h>
+<<<<<<< HEAD
+=======
+#include "fw-api.h"
+>>>>>>> upstream/android-13
 
 #define IWL_MVM_UAPSD_NOAGG_BSSIDS_NUM		20
 
@@ -109,7 +122,10 @@
 #define IWL_MVM_RS_RSSI_BASED_INIT_RATE         0
 #define IWL_MVM_RS_80_20_FAR_RANGE_TWEAK	1
 #define IWL_MVM_TOF_IS_RESPONDER		0
+<<<<<<< HEAD
 #define IWL_MVM_SW_TX_CSUM_OFFLOAD		0
+=======
+>>>>>>> upstream/android-13
 #define IWL_MVM_HW_CSUM_DISABLE			0
 #define IWL_MVM_PARSE_NVM			0
 #define IWL_MVM_ADWELL_ENABLE			1
@@ -119,6 +135,10 @@
 #define IWL_MVM_TCM_LOWLAT_ENABLE_THRESH	100 /* packets/10 seconds */
 #define IWL_MVM_UAPSD_NONAGG_PERIOD		5000 /* msecs */
 #define IWL_MVM_UAPSD_NOAGG_LIST_LEN		IWL_MVM_UAPSD_NOAGG_BSSIDS_NUM
+<<<<<<< HEAD
+=======
+#define IWL_MVM_NON_TRANSMITTING_AP		0
+>>>>>>> upstream/android-13
 #define IWL_MVM_RS_NUM_TRY_BEFORE_ANT_TOGGLE    1
 #define IWL_MVM_RS_HT_VHT_RETRIES_PER_RATE      2
 #define IWL_MVM_RS_HT_VHT_RETRIES_PER_RATE_TW   1
@@ -150,5 +170,39 @@
 #define IWL_MVM_RS_TPC_SR_NO_INCREASE		85	/* percent */
 #define IWL_MVM_RS_TPC_TX_POWER_STEP		3
 #define IWL_MVM_ENABLE_EBS			1
+<<<<<<< HEAD
+=======
+#define IWL_MVM_FTM_INITIATOR_ALGO		IWL_TOF_ALGO_TYPE_MAX_LIKE
+#define IWL_MVM_FTM_INITIATOR_DYNACK		true
+#define IWL_MVM_FTM_LMR_FEEDBACK_TERMINATE	false
+#define IWL_MVM_FTM_R2I_MAX_REP			7
+#define IWL_MVM_FTM_I2R_MAX_REP			7
+#define IWL_MVM_FTM_R2I_MAX_STS			1
+#define IWL_MVM_FTM_I2R_MAX_STS			1
+#define IWL_MVM_FTM_R2I_MAX_TOTAL_LTF		3
+#define IWL_MVM_FTM_I2R_MAX_TOTAL_LTF		3
+#define IWL_MVM_FTM_INITIATOR_SECURE_LTF	false
+#define IWL_MVM_FTM_RESP_NDP_SUPPORT		true
+#define IWL_MVM_FTM_RESP_LMR_FEEDBACK_SUPPORT	true
+#define IWL_MVM_FTM_NON_TB_MIN_TIME_BETWEEN_MSR	5
+#define IWL_MVM_FTM_NON_TB_MAX_TIME_BETWEEN_MSR	1000
+#define IWL_MVM_D3_DEBUG			false
+#define IWL_MVM_USE_TWT				true
+#define IWL_MVM_AMPDU_CONSEC_DROPS_DELBA	10
+#define IWL_MVM_USE_NSSN_SYNC			0
+#define IWL_MVM_PHY_FILTER_CHAIN_A		0
+#define IWL_MVM_PHY_FILTER_CHAIN_B		0
+#define IWL_MVM_PHY_FILTER_CHAIN_C		0
+#define IWL_MVM_PHY_FILTER_CHAIN_D		0
+#define IWL_MVM_FTM_INITIATOR_ENABLE_SMOOTH     false
+#define IWL_MVM_FTM_INITIATOR_SMOOTH_ALPHA      40
+/*  20016 pSec is 6 meter RTT, meaning 3 meter range */
+#define IWL_MVM_FTM_INITIATOR_SMOOTH_UNDERSHOOT 20016
+#define IWL_MVM_FTM_INITIATOR_SMOOTH_OVERSHOOT  20016
+#define IWL_MVM_FTM_INITIATOR_SMOOTH_AGE_SEC    2
+#define IWL_MVM_DISABLE_AP_FILS			false
+#define IWL_MVM_6GHZ_PASSIVE_SCAN_TIMEOUT       3000 /* in seconds */
+#define IWL_MVM_6GHZ_PASSIVE_SCAN_ASSOC_TIMEOUT 60   /* in seconds */
+>>>>>>> upstream/android-13
 
 #endif /* __MVM_CONSTANTS_H */

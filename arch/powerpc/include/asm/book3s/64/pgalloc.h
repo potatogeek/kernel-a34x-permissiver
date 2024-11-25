@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #ifndef _ASM_POWERPC_BOOK3S_64_PGALLOC_H
 #define _ASM_POWERPC_BOOK3S_64_PGALLOC_H
 /*
@@ -5,6 +6,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+#ifndef _ASM_POWERPC_BOOK3S_64_PGALLOC_H
+#define _ASM_POWERPC_BOOK3S_64_PGALLOC_H
+/*
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -19,6 +26,7 @@ struct vmemmap_backing {
 };
 extern struct vmemmap_backing *vmemmap_list;
 
+<<<<<<< HEAD
 /*
  * Functions that deal with pagetables that could be at any level of
  * the table need to be passed an "index_size" so they know how to
@@ -50,6 +58,13 @@ extern void pgtable_free_tlb(struct mmu_gather *tlb, void *table, int shift);
 #ifdef CONFIG_SMP
 extern void __tlb_remove_table(void *_table);
 #endif
+=======
+extern pmd_t *pmd_fragment_alloc(struct mm_struct *, unsigned long);
+extern void pmd_fragment_free(unsigned long *);
+extern void pgtable_free_tlb(struct mmu_gather *tlb, void *table, int shift);
+extern void __tlb_remove_table(void *_table);
+void pte_frag_destroy(void *pte_frag);
+>>>>>>> upstream/android-13
 
 static inline pgd_t *radix__pgd_alloc(struct mm_struct *mm)
 {
@@ -114,9 +129,15 @@ static inline void pgd_free(struct mm_struct *mm, pgd_t *pgd)
 	kmem_cache_free(PGT_CACHE(PGD_INDEX_SIZE), pgd);
 }
 
+<<<<<<< HEAD
 static inline void pgd_populate(struct mm_struct *mm, pgd_t *pgd, pud_t *pud)
 {
 	pgd_set(pgd, __pgtable_ptr_val(pud) | PGD_VAL_BITS);
+=======
+static inline void p4d_populate(struct mm_struct *mm, p4d_t *pgd, pud_t *pud)
+{
+	*pgd =  __p4d(__pgtable_ptr_val(pud) | PGD_VAL_BITS);
+>>>>>>> upstream/android-13
 }
 
 static inline pud_t *pud_alloc_one(struct mm_struct *mm, unsigned long addr)
@@ -136,24 +157,51 @@ static inline pud_t *pud_alloc_one(struct mm_struct *mm, unsigned long addr)
 	return pud;
 }
 
+<<<<<<< HEAD
 static inline void pud_free(struct mm_struct *mm, pud_t *pud)
 {
 	kmem_cache_free(PGT_CACHE(PUD_CACHE_INDEX), pud);
+=======
+static inline void __pud_free(pud_t *pud)
+{
+	struct page *page = virt_to_page(pud);
+
+	/*
+	 * Early pud pages allocated via memblock allocator
+	 * can't be directly freed to slab
+	 */
+	if (PageReserved(page))
+		free_reserved_page(page);
+	else
+		kmem_cache_free(PGT_CACHE(PUD_CACHE_INDEX), pud);
+}
+
+static inline void pud_free(struct mm_struct *mm, pud_t *pud)
+{
+	return __pud_free(pud);
+>>>>>>> upstream/android-13
 }
 
 static inline void pud_populate(struct mm_struct *mm, pud_t *pud, pmd_t *pmd)
 {
+<<<<<<< HEAD
 	pud_set(pud, __pgtable_ptr_val(pmd) | PUD_VAL_BITS);
+=======
+	*pud = __pud(__pgtable_ptr_val(pmd) | PUD_VAL_BITS);
+>>>>>>> upstream/android-13
 }
 
 static inline void __pud_free_tlb(struct mmu_gather *tlb, pud_t *pud,
 				  unsigned long address)
 {
+<<<<<<< HEAD
 	/*
 	 * By now all the pud entries should be none entries. So go
 	 * ahead and flush the page walk cache
 	 */
 	flush_tlb_pgtable(tlb, address);
+=======
+>>>>>>> upstream/android-13
 	pgtable_free_tlb(tlb, pud, PUD_INDEX);
 }
 
@@ -170,23 +218,31 @@ static inline void pmd_free(struct mm_struct *mm, pmd_t *pmd)
 static inline void __pmd_free_tlb(struct mmu_gather *tlb, pmd_t *pmd,
 				  unsigned long address)
 {
+<<<<<<< HEAD
 	/*
 	 * By now all the pud entries should be none entries. So go
 	 * ahead and flush the page walk cache
 	 */
 	flush_tlb_pgtable(tlb, address);
+=======
+>>>>>>> upstream/android-13
 	return pgtable_free_tlb(tlb, pmd, PMD_INDEX);
 }
 
 static inline void pmd_populate_kernel(struct mm_struct *mm, pmd_t *pmd,
 				       pte_t *pte)
 {
+<<<<<<< HEAD
 	pmd_set(pmd, __pgtable_ptr_val(pte) | PMD_VAL_BITS);
+=======
+	*pmd = __pmd(__pgtable_ptr_val(pte) | PMD_VAL_BITS);
+>>>>>>> upstream/android-13
 }
 
 static inline void pmd_populate(struct mm_struct *mm, pmd_t *pmd,
 				pgtable_t pte_page)
 {
+<<<<<<< HEAD
 	pmd_set(pmd, __pgtable_ptr_val(pte_page) | PMD_VAL_BITS);
 }
 
@@ -215,11 +271,15 @@ static inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
 static inline void pte_free(struct mm_struct *mm, pgtable_t ptepage)
 {
 	pte_fragment_free((unsigned long *)ptepage, 0);
+=======
+	*pmd = __pmd(__pgtable_ptr_val(pte_page) | PMD_VAL_BITS);
+>>>>>>> upstream/android-13
 }
 
 static inline void __pte_free_tlb(struct mmu_gather *tlb, pgtable_t table,
 				  unsigned long address)
 {
+<<<<<<< HEAD
 	/*
 	 * By now all the pud entries should be none entries. So go
 	 * ahead and flush the page walk cache
@@ -230,6 +290,11 @@ static inline void __pte_free_tlb(struct mmu_gather *tlb, pgtable_t table,
 
 #define check_pgt_cache()	do { } while (0)
 
+=======
+	pgtable_free_tlb(tlb, table, PTE_INDEX);
+}
+
+>>>>>>> upstream/android-13
 extern atomic_long_t direct_pages_count[MMU_PAGE_COUNT];
 static inline void update_page_count(int psize, long count)
 {

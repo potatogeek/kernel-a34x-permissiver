@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2011 LAPIS Semiconductor Co., Ltd.
  *
@@ -13,6 +14,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2011 LAPIS Semiconductor Co., Ltd.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -68,7 +74,10 @@ static const DECLARE_TLV_DB_SCALE(alclvl, -2250, 150, 0);
 static const DECLARE_TLV_DB_SCALE(mingain, -1200, 600, 0);
 static const DECLARE_TLV_DB_SCALE(maxgain, -675, 600, 0);
 static const DECLARE_TLV_DB_SCALE(boost_vol, -1200, 75, 0);
+<<<<<<< HEAD
 static const DECLARE_TLV_DB_SCALE(ngth, -7650, 150, 0);
+=======
+>>>>>>> upstream/android-13
 
 static const char * const ml26124_companding[] = {"16bit PCM", "u-law",
 						  "A-law"};
@@ -385,7 +394,11 @@ static int ml26124_hw_params(struct snd_pcm_substream *substream,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int ml26124_mute(struct snd_soc_dai *dai, int mute)
+=======
+static int ml26124_mute(struct snd_soc_dai *dai, int mute, int direction)
+>>>>>>> upstream/android-13
 {
 	struct snd_soc_component *component = dai->component;
 	struct ml26124_priv *priv = snd_soc_component_get_drvdata(component);
@@ -505,9 +518,16 @@ static int ml26124_set_bias_level(struct snd_soc_component *component,
 
 static const struct snd_soc_dai_ops ml26124_dai_ops = {
 	.hw_params	= ml26124_hw_params,
+<<<<<<< HEAD
 	.digital_mute	= ml26124_mute,
 	.set_fmt	= ml26124_set_dai_fmt,
 	.set_sysclk	= ml26124_set_dai_sysclk,
+=======
+	.mute_stream	= ml26124_mute,
+	.set_fmt	= ml26124_set_dai_fmt,
+	.set_sysclk	= ml26124_set_dai_sysclk,
+	.no_capture_mute = 1,
+>>>>>>> upstream/android-13
 };
 
 static struct snd_soc_dai_driver ml26124_dai = {
@@ -525,7 +545,11 @@ static struct snd_soc_dai_driver ml26124_dai = {
 		.rates = ML26124_RATES,
 		.formats = ML26124_FORMATS,},
 	.ops = &ml26124_dai_ops,
+<<<<<<< HEAD
 	.symmetric_rates = 1,
+=======
+	.symmetric_rate = 1,
+>>>>>>> upstream/android-13
 };
 
 static int ml26124_probe(struct snd_soc_component *component)

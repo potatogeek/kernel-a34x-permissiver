@@ -1,22 +1,37 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Calculate a CRC T10-DIF with vpmsum acceleration
  *
  * Copyright 2017, Daniel Axtens, IBM Corporation.
  * [based on crc32c-vpmsum_glue.c]
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/crc-t10dif.h>
 #include <crypto/internal/hash.h>
+<<<<<<< HEAD
+=======
+#include <crypto/internal/simd.h>
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/string.h>
 #include <linux/kernel.h>
 #include <linux/cpufeature.h>
+<<<<<<< HEAD
+=======
+#include <asm/simd.h>
+>>>>>>> upstream/android-13
 #include <asm/switch_to.h>
 
 #define VMX_ALIGN		16
@@ -32,7 +47,11 @@ static u16 crct10dif_vpmsum(u16 crci, unsigned char const *p, size_t len)
 	unsigned int tail;
 	u32 crc = crci;
 
+<<<<<<< HEAD
 	if (len < (VECTOR_BREAKPOINT + VMX_ALIGN) || in_interrupt())
+=======
+	if (len < (VECTOR_BREAKPOINT + VMX_ALIGN) || !crypto_simd_usable())
+>>>>>>> upstream/android-13
 		return crc_t10dif_generic(crc, p, len);
 
 	if ((unsigned long)p & VMX_ALIGN_MASK) {

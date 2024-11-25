@@ -23,8 +23,11 @@ struct blk_trace {
 	u32 pid;
 	u32 dev;
 	struct dentry *dir;
+<<<<<<< HEAD
 	struct dentry *dropped_file;
 	struct dentry *msg_file;
+=======
+>>>>>>> upstream/android-13
 	struct list_head running_list;
 	atomic_t dropped;
 };
@@ -75,8 +78,12 @@ static inline bool blk_trace_note_message_enabled(struct request_queue *q)
 	return ret;
 }
 
+<<<<<<< HEAD
 extern void blk_add_driver_data(struct request_queue *q, struct request *rq,
 				void *data, size_t len);
+=======
+extern void blk_add_driver_data(struct request *rq, void *data, size_t len);
+>>>>>>> upstream/android-13
 extern int blk_trace_setup(struct request_queue *q, char *name, dev_t dev,
 			   struct block_device *bdev,
 			   char __user *arg);
@@ -90,7 +97,11 @@ extern struct attribute_group blk_trace_attr_group;
 #else /* !CONFIG_BLK_DEV_IO_TRACE */
 # define blk_trace_ioctl(bdev, cmd, arg)		(-ENOTTY)
 # define blk_trace_shutdown(q)				do { } while (0)
+<<<<<<< HEAD
 # define blk_add_driver_data(q, rq, data, len)		do {} while (0)
+=======
+# define blk_add_driver_data(rq, data, len)		do {} while (0)
+>>>>>>> upstream/android-13
 # define blk_trace_setup(q, name, dev, bdev, arg)	(-ENOTTY)
 # define blk_trace_startstop(q, start)			(-ENOTTY)
 # define blk_trace_remove(q)				(-ENOTTY)
@@ -120,7 +131,11 @@ struct compat_blk_user_trace_setup {
 
 #endif
 
+<<<<<<< HEAD
 extern void blk_fill_rwbs(char *rwbs, unsigned int op, int bytes);
+=======
+void blk_fill_rwbs(char *rwbs, unsigned int op);
+>>>>>>> upstream/android-13
 
 static inline sector_t blk_rq_trace_sector(struct request *rq)
 {

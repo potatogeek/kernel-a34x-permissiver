@@ -98,7 +98,11 @@ enum otg_fsm_timer {
  * @b_bus_req:	TRUE during the time that the Application running on the
  *		B-device wants to use the bus
  *
+<<<<<<< HEAD
  *	Auxilary inputs (OTG v1.3 only. Obsolete now.)
+=======
+ *	Auxiliary inputs (OTG v1.3 only. Obsolete now.)
+>>>>>>> upstream/android-13
  * @a_sess_vld:	TRUE if the A-device detects that VBUS is above VA_SESS_VLD
  * @b_bus_suspend: TRUE when the A-device detects that the B-device has put
  *		the bus into suspend
@@ -153,7 +157,11 @@ struct otg_fsm {
 	int a_bus_req;
 	int b_bus_req;
 
+<<<<<<< HEAD
 	/* Auxilary inputs */
+=======
+	/* Auxiliary inputs */
+>>>>>>> upstream/android-13
 	int a_sess_vld;
 	int b_bus_resume;
 	int b_bus_suspend;
@@ -177,7 +185,11 @@ struct otg_fsm {
 	int a_bus_req_inf;
 	int a_clr_err_inf;
 	int b_bus_req_inf;
+<<<<<<< HEAD
 	/* Auxilary informative variables */
+=======
+	/* Auxiliary informative variables */
+>>>>>>> upstream/android-13
 	int a_suspend_req_inf;
 
 	/* Timeout indicator for timers */
@@ -196,6 +208,10 @@ struct otg_fsm {
 	struct mutex lock;
 	u8 *host_req_flag;
 	struct delayed_work hnp_polling_work;
+<<<<<<< HEAD
+=======
+	bool hnp_work_inited;
+>>>>>>> upstream/android-13
 	bool state_changed;
 };
 

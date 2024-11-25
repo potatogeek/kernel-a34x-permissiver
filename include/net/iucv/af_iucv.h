@@ -80,6 +80,14 @@ struct af_iucv_trans_hdr {
 	u8 pad;                          /* total 104 bytes */
 } __packed;
 
+<<<<<<< HEAD
+=======
+static inline struct af_iucv_trans_hdr *iucv_trans_hdr(struct sk_buff *skb)
+{
+	return (struct af_iucv_trans_hdr *)skb_network_header(skb);
+}
+
+>>>>>>> upstream/android-13
 enum iucv_tx_notify {
 	/* transmission of skb is completed and was successful */
 	TX_NOTIFY_OK = 0,
@@ -123,11 +131,19 @@ struct iucv_sock {
 	u8			flags;
 	u16			msglimit;
 	u16			msglimit_peer;
+<<<<<<< HEAD
+=======
+	atomic_t		skbs_in_xmit;
+>>>>>>> upstream/android-13
 	atomic_t		msg_sent;
 	atomic_t		msg_recv;
 	atomic_t		pendings;
 	int			transport;
+<<<<<<< HEAD
 	void                    (*sk_txnotify)(struct sk_buff *skb,
+=======
+	void			(*sk_txnotify)(struct sock *sk,
+>>>>>>> upstream/android-13
 					       enum iucv_tx_notify n);
 };
 
@@ -153,6 +169,7 @@ struct iucv_sock_list {
 	atomic_t	  autobind_name;
 };
 
+<<<<<<< HEAD
 __poll_t iucv_sock_poll(struct file *file, struct socket *sock,
 			    poll_table *wait);
 void iucv_sock_link(struct iucv_sock_list *l, struct sock *s);
@@ -161,4 +178,6 @@ void iucv_accept_enqueue(struct sock *parent, struct sock *sk);
 void iucv_accept_unlink(struct sock *sk);
 struct sock *iucv_accept_dequeue(struct sock *parent, struct socket *newsock);
 
+=======
+>>>>>>> upstream/android-13
 #endif /* __IUCV_H */

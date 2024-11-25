@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) ST-Ericsson AB 2010
  * Author:	Sjur Brendeland
  * License terms: GNU General Public License (GPL) version 2
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) ST-Ericsson AB 2010
+ * Author:	Sjur Brendeland
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ":%s(): " fmt, __func__
@@ -31,6 +38,14 @@ static int cfserl_transmit(struct cflayer *layr, struct cfpkt *pkt);
 static void cfserl_ctrlcmd(struct cflayer *layr, enum caif_ctrlcmd ctrl,
 			   int phyid);
 
+<<<<<<< HEAD
+=======
+void cfserl_release(struct cflayer *layer)
+{
+	kfree(layer);
+}
+
+>>>>>>> upstream/android-13
 struct cflayer *cfserl_create(int instance, bool use_stx)
 {
 	struct cfserl *this = kzalloc(sizeof(struct cfserl), GFP_ATOMIC);

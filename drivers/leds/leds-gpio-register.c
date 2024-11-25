@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2011 Pengutronix
  * Uwe Kleine-Koenig <u.kleine-koenig@pengutronix.de>
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License version 2 as published by the
  * Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2011 Pengutronix
+ * Uwe Kleine-Koenig <u.kleine-koenig@pengutronix.de>
+>>>>>>> upstream/android-13
  */
 #include <linux/err.h>
 #include <linux/leds.h>
@@ -14,6 +21,10 @@
 /**
  * gpio_led_register_device - register a gpio-led device
  * @pdata: the platform data used for the new device
+<<<<<<< HEAD
+=======
+ * @id: platform ID
+>>>>>>> upstream/android-13
  *
  * Makes a copy of pdata and pdata->leds and registers a new leds-gpio device
  * with the result. This allows to have pdata and pdata-leds in .init.rodata

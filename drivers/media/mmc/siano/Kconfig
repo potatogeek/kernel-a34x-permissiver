@@ -1,6 +1,15 @@
+<<<<<<< HEAD
 #
 # Siano Mobile Silicon Digital TV device configuration
 #
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+#
+# Siano Mobile Silicon Digital TV device configuration
+#
+comment "MMC/SDIO DVB adapters"
+	depends on DVB_CORE && HAS_DMA && MMC
+>>>>>>> upstream/android-13
 
 config SMS_SDIO_DRV
 	tristate "Siano SMS1xxx based MDTV via SDIO interface"
@@ -9,5 +18,9 @@ config SMS_SDIO_DRV
 	depends on !RC_CORE || RC_CORE
 	select MEDIA_COMMON_OPTIONS
 	select SMS_SIANO_MDTV
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  Choose if you would like to have Siano's support for SDIO interface

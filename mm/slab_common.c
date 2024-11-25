@@ -12,11 +12,20 @@
 #include <linux/memory.h>
 #include <linux/cache.h>
 #include <linux/compiler.h>
+<<<<<<< HEAD
+=======
+#include <linux/kfence.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/cpu.h>
 #include <linux/uaccess.h>
 #include <linux/seq_file.h>
 #include <linux/proc_fs.h>
+<<<<<<< HEAD
+=======
+#include <linux/debugfs.h>
+#include <linux/kasan.h>
+>>>>>>> upstream/android-13
 #include <asm/cacheflush.h>
 #include <asm/tlbflush.h>
 #include <asm/page.h>
@@ -24,6 +33,12 @@
 
 #define CREATE_TRACE_POINTS
 #include <trace/events/kmem.h>
+<<<<<<< HEAD
+=======
+#undef CREATE_TRACE_POINTS
+#include <trace/hooks/mm.h>
+#include "internal.h"
+>>>>>>> upstream/android-13
 
 #include "slab.h"
 
@@ -50,7 +65,11 @@ static DECLARE_WORK(slab_caches_to_rcu_destroy_work,
  */
 #define SLAB_NEVER_MERGE (SLAB_RED_ZONE | SLAB_POISON | SLAB_STORE_USER | \
 		SLAB_TRACE | SLAB_TYPESAFE_BY_RCU | SLAB_NOLEAKTRACE | \
+<<<<<<< HEAD
 		SLAB_FAILSLAB | SLAB_KASAN)
+=======
+		SLAB_FAILSLAB | kasan_never_merge())
+>>>>>>> upstream/android-13
 
 #define SLAB_MERGE_SAME (SLAB_RECLAIM_ACCOUNT | SLAB_CACHE_DMA | \
 			 SLAB_CACHE_DMA32 | SLAB_ACCOUNT)
@@ -66,11 +85,27 @@ static int __init setup_slab_nomerge(char *str)
 	return 1;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_SLUB
 __setup_param("slub_nomerge", slub_nomerge, setup_slab_nomerge, 0);
 #endif
 
 __setup("slab_nomerge", setup_slab_nomerge);
+=======
+static int __init setup_slab_merge(char *str)
+{
+	slab_nomerge = false;
+	return 1;
+}
+
+#ifdef CONFIG_SLUB
+__setup_param("slub_nomerge", slub_nomerge, setup_slab_nomerge, 0);
+__setup_param("slub_merge", slub_merge, setup_slab_merge, 0);
+#endif
+
+__setup("slab_nomerge", setup_slab_nomerge);
+__setup("slab_merge", setup_slab_merge);
+>>>>>>> upstream/android-13
 
 /*
  * Determine the size of a slab object
@@ -84,8 +119,12 @@ EXPORT_SYMBOL(kmem_cache_size);
 #ifdef CONFIG_DEBUG_VM
 static int kmem_cache_sanity_check(const char *name, unsigned int size)
 {
+<<<<<<< HEAD
 	if (!name || in_interrupt() || size < sizeof(void *) ||
 		size > KMALLOC_MAX_SIZE) {
+=======
+	if (!name || in_interrupt() || size > KMALLOC_MAX_SIZE) {
+>>>>>>> upstream/android-13
 		pr_err("kmem_cache_create(%s) integrity check failed\n", name);
 		return -EINVAL;
 	}
@@ -127,6 +166,7 @@ int __kmem_cache_alloc_bulk(struct kmem_cache *s, gfp_t flags, size_t nr,
 	return i;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_MEMCG_KMEM
 
 LIST_HEAD(slab_root_caches);
@@ -259,6 +299,8 @@ static inline void memcg_unlink_cache(struct kmem_cache *s)
 }
 #endif /* CONFIG_MEMCG_KMEM */
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Figure out what the alignment of the objects will be given a set of
  * flags, a user specified alignment and the size of the objects.
@@ -296,9 +338,12 @@ int slab_unmergeable(struct kmem_cache *s)
 	if (slab_nomerge || (s->flags & SLAB_NEVER_MERGE))
 		return 1;
 
+<<<<<<< HEAD
 	if (!is_root_cache(s))
 		return 1;
 
+=======
+>>>>>>> upstream/android-13
 	if (s->ctor)
 		return 1;
 
@@ -311,6 +356,7 @@ int slab_unmergeable(struct kmem_cache *s)
 	if (s->refcount < 0)
 		return 1;
 
+<<<<<<< HEAD
 #ifdef CONFIG_MEMCG_KMEM
 	/*
 	 * Skip the dying kmem_cache.
@@ -319,6 +365,8 @@ int slab_unmergeable(struct kmem_cache *s)
 		return 1;
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -336,12 +384,20 @@ struct kmem_cache *find_mergeable(unsigned int size, unsigned int align,
 	size = ALIGN(size, sizeof(void *));
 	align = calculate_alignment(flags, align, size);
 	size = ALIGN(size, align);
+<<<<<<< HEAD
 	flags = kmem_cache_flags(size, flags, name, NULL);
+=======
+	flags = kmem_cache_flags(size, flags, name);
+>>>>>>> upstream/android-13
 
 	if (flags & SLAB_NEVER_MERGE)
 		return NULL;
 
+<<<<<<< HEAD
 	list_for_each_entry_reverse(s, &slab_root_caches, root_caches_node) {
+=======
+	list_for_each_entry_reverse(s, &slab_caches, list) {
+>>>>>>> upstream/android-13
 		if (slab_unmergeable(s))
 			continue;
 
@@ -373,7 +429,11 @@ static struct kmem_cache *create_cache(const char *name,
 		unsigned int object_size, unsigned int align,
 		slab_flags_t flags, unsigned int useroffset,
 		unsigned int usersize, void (*ctor)(void *),
+<<<<<<< HEAD
 		struct mem_cgroup *memcg, struct kmem_cache *root_cache)
+=======
+		struct kmem_cache *root_cache)
+>>>>>>> upstream/android-13
 {
 	struct kmem_cache *s;
 	int err;
@@ -393,30 +453,45 @@ static struct kmem_cache *create_cache(const char *name,
 	s->useroffset = useroffset;
 	s->usersize = usersize;
 
+<<<<<<< HEAD
 	err = init_memcg_params(s, memcg, root_cache);
 	if (err)
 		goto out_free_cache;
 
+=======
+>>>>>>> upstream/android-13
 	err = __kmem_cache_create(s, flags);
 	if (err)
 		goto out_free_cache;
 
 	s->refcount = 1;
 	list_add(&s->list, &slab_caches);
+<<<<<<< HEAD
 	memcg_link_cache(s);
+=======
+>>>>>>> upstream/android-13
 out:
 	if (err)
 		return ERR_PTR(err);
 	return s;
 
 out_free_cache:
+<<<<<<< HEAD
 	destroy_memcg_params(s);
+=======
+>>>>>>> upstream/android-13
 	kmem_cache_free(kmem_cache, s);
 	goto out;
 }
 
+<<<<<<< HEAD
 /*
  * kmem_cache_create_usercopy - Create a cache.
+=======
+/**
+ * kmem_cache_create_usercopy - Create a cache with a region suitable
+ * for copying to userspace
+>>>>>>> upstream/android-13
  * @name: A string which is used in /proc/slabinfo to identify this cache.
  * @size: The size of objects to be created in this cache.
  * @align: The required alignment for the objects.
@@ -425,7 +500,10 @@ out_free_cache:
  * @usersize: Usercopy region size
  * @ctor: A constructor for the objects.
  *
+<<<<<<< HEAD
  * Returns a ptr to the cache on success, NULL on failure.
+=======
+>>>>>>> upstream/android-13
  * Cannot be called within a interrupt, but can be interrupted.
  * The @ctor is run when new pages are allocated by the cache.
  *
@@ -434,12 +512,21 @@ out_free_cache:
  * %SLAB_POISON - Poison the slab with a known test pattern (a5a5a5a5)
  * to catch references to uninitialised memory.
  *
+<<<<<<< HEAD
  * %SLAB_RED_ZONE - Insert `Red' zones around the allocated memory to check
+=======
+ * %SLAB_RED_ZONE - Insert `Red` zones around the allocated memory to check
+>>>>>>> upstream/android-13
  * for buffer overruns.
  *
  * %SLAB_HWCACHE_ALIGN - Align the objects in this cache to a hardware
  * cacheline.  This can be beneficial if you're counting cycles as closely
  * as davem.
+<<<<<<< HEAD
+=======
+ *
+ * Return: a pointer to the cache on success, NULL on failure.
+>>>>>>> upstream/android-13
  */
 struct kmem_cache *
 kmem_cache_create_usercopy(const char *name,
@@ -452,9 +539,21 @@ kmem_cache_create_usercopy(const char *name,
 	const char *cache_name;
 	int err;
 
+<<<<<<< HEAD
 	get_online_cpus();
 	get_online_mems();
 	memcg_get_cache_ids();
+=======
+#ifdef CONFIG_SLUB_DEBUG
+	/*
+	 * If no slub_debug was enabled globally, the static key is not yet
+	 * enabled by setup_slub_debug(). Enable it if the cache is being
+	 * created with any of the debugging flags passed explicitly.
+	 */
+	if (flags & SLAB_DEBUG_FLAGS)
+		static_branch_enable(&slub_debug_enabled);
+#endif
+>>>>>>> upstream/android-13
 
 	mutex_lock(&slab_mutex);
 
@@ -495,7 +594,11 @@ kmem_cache_create_usercopy(const char *name,
 
 	s = create_cache(cache_name, size,
 			 calculate_alignment(flags, align, size),
+<<<<<<< HEAD
 			 flags, useroffset, usersize, ctor, NULL, NULL);
+=======
+			 flags, useroffset, usersize, ctor, NULL);
+>>>>>>> upstream/android-13
 	if (IS_ERR(s)) {
 		err = PTR_ERR(s);
 		kfree_const(cache_name);
@@ -504,6 +607,7 @@ kmem_cache_create_usercopy(const char *name,
 out_unlock:
 	mutex_unlock(&slab_mutex);
 
+<<<<<<< HEAD
 	memcg_put_cache_ids();
 	put_online_mems();
 	put_online_cpus();
@@ -515,6 +619,15 @@ out_unlock:
 		else {
 			pr_warn("kmem_cache_create(%s) failed with error %d\n",
 				name, err);
+=======
+	if (err) {
+		if (flags & SLAB_PANIC)
+			panic("%s: Failed to create slab '%s'. Error %d\n",
+				__func__, name, err);
+		else {
+			pr_warn("%s(%s) failed with error %d\n",
+				__func__, name, err);
+>>>>>>> upstream/android-13
 			dump_stack();
 		}
 		return NULL;
@@ -523,6 +636,34 @@ out_unlock:
 }
 EXPORT_SYMBOL(kmem_cache_create_usercopy);
 
+<<<<<<< HEAD
+=======
+/**
+ * kmem_cache_create - Create a cache.
+ * @name: A string which is used in /proc/slabinfo to identify this cache.
+ * @size: The size of objects to be created in this cache.
+ * @align: The required alignment for the objects.
+ * @flags: SLAB flags
+ * @ctor: A constructor for the objects.
+ *
+ * Cannot be called within a interrupt, but can be interrupted.
+ * The @ctor is run when new pages are allocated by the cache.
+ *
+ * The flags are
+ *
+ * %SLAB_POISON - Poison the slab with a known test pattern (a5a5a5a5)
+ * to catch references to uninitialised memory.
+ *
+ * %SLAB_RED_ZONE - Insert `Red` zones around the allocated memory to check
+ * for buffer overruns.
+ *
+ * %SLAB_HWCACHE_ALIGN - Align the objects in this cache to a hardware
+ * cacheline.  This can be beneficial if you're counting cycles as closely
+ * as davem.
+ *
+ * Return: a pointer to the cache on success, NULL on failure.
+ */
+>>>>>>> upstream/android-13
 struct kmem_cache *
 kmem_cache_create(const char *name, unsigned int size, unsigned int align,
 		slab_flags_t flags, void (*ctor)(void *))
@@ -540,7 +681,11 @@ static void slab_caches_to_rcu_destroy_workfn(struct work_struct *work)
 	/*
 	 * On destruction, SLAB_TYPESAFE_BY_RCU kmem_caches are put on the
 	 * @slab_caches_to_rcu_destroy list.  The slab pages are freed
+<<<<<<< HEAD
 	 * through RCU and and the associated kmem_cache are dereferenced
+=======
+	 * through RCU and the associated kmem_cache are dereferenced
+>>>>>>> upstream/android-13
 	 * while freeing the pages, so the kmem_caches should be freed only
 	 * after the pending RCU operations are finished.  As rcu_barrier()
 	 * is a pretty slow operation, we batch all pending destructions
@@ -556,6 +701,11 @@ static void slab_caches_to_rcu_destroy_workfn(struct work_struct *work)
 	rcu_barrier();
 
 	list_for_each_entry_safe(s, s2, &to_destroy, list) {
+<<<<<<< HEAD
+=======
+		debugfs_slab_release(s);
+		kfence_shutdown_cache(s);
+>>>>>>> upstream/android-13
 #ifdef SLAB_SUPPORTS_SYSFS
 		sysfs_slab_release(s);
 #else
@@ -572,7 +722,10 @@ static int shutdown_cache(struct kmem_cache *s)
 	if (__kmem_cache_shutdown(s) != 0)
 		return -EBUSY;
 
+<<<<<<< HEAD
 	memcg_unlink_cache(s);
+=======
+>>>>>>> upstream/android-13
 	list_del(&s->list);
 
 	if (s->flags & SLAB_TYPESAFE_BY_RCU) {
@@ -582,6 +735,11 @@ static int shutdown_cache(struct kmem_cache *s)
 		list_add_tail(&s->list, &slab_caches_to_rcu_destroy);
 		schedule_work(&slab_caches_to_rcu_destroy_work);
 	} else {
+<<<<<<< HEAD
+=======
+		kfence_shutdown_cache(s);
+		debugfs_slab_release(s);
+>>>>>>> upstream/android-13
 #ifdef SLAB_SUPPORTS_SYSFS
 		sysfs_slab_unlink(s);
 		sysfs_slab_release(s);
@@ -593,6 +751,7 @@ static int shutdown_cache(struct kmem_cache *s)
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_MEMCG_KMEM
 /*
  * memcg_create_kmem_cache - Create a cache for a memory cgroup.
@@ -884,6 +1043,11 @@ void slab_kmem_cache_release(struct kmem_cache *s)
 {
 	__kmem_cache_release(s);
 	destroy_memcg_params(s);
+=======
+void slab_kmem_cache_release(struct kmem_cache *s)
+{
+	__kmem_cache_release(s);
+>>>>>>> upstream/android-13
 	kfree_const(s->name);
 	kmem_cache_free(kmem_cache, s);
 }
@@ -892,18 +1056,26 @@ void kmem_cache_destroy(struct kmem_cache *s)
 {
 	int err;
 
+<<<<<<< HEAD
 	if (unlikely(!s))
 		return;
 
 	get_online_cpus();
 	get_online_mems();
 
+=======
+	if (unlikely(!s) || !kasan_check_byte(s))
+		return;
+
+	cpus_read_lock();
+>>>>>>> upstream/android-13
 	mutex_lock(&slab_mutex);
 
 	s->refcount--;
 	if (s->refcount)
 		goto out_unlock;
 
+<<<<<<< HEAD
 #ifdef CONFIG_MEMCG_KMEM
 	memcg_set_kmem_cache_dying(s);
 
@@ -927,13 +1099,23 @@ void kmem_cache_destroy(struct kmem_cache *s)
 	if (err) {
 		pr_err("kmem_cache_destroy %s: Slab cache still has objects\n",
 		       s->name);
+=======
+	err = shutdown_cache(s);
+	if (err) {
+		pr_err("%s %s: Slab cache still has objects\n",
+		       __func__, s->name);
+>>>>>>> upstream/android-13
 		dump_stack();
 	}
 out_unlock:
 	mutex_unlock(&slab_mutex);
+<<<<<<< HEAD
 
 	put_online_mems();
 	put_online_cpus();
+=======
+	cpus_read_unlock();
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(kmem_cache_destroy);
 
@@ -943,17 +1125,29 @@ EXPORT_SYMBOL(kmem_cache_destroy);
  *
  * Releases as many slabs as possible for a cache.
  * To help debugging, a zero exit status indicates all slabs were released.
+<<<<<<< HEAD
+=======
+ *
+ * Return: %0 if all slabs were released, non-zero otherwise
+>>>>>>> upstream/android-13
  */
 int kmem_cache_shrink(struct kmem_cache *cachep)
 {
 	int ret;
 
+<<<<<<< HEAD
 	get_online_cpus();
 	get_online_mems();
 	kasan_cache_shrink(cachep);
 	ret = __kmem_cache_shrink(cachep);
 	put_online_mems();
 	put_online_cpus();
+=======
+
+	kasan_cache_shrink(cachep);
+	ret = __kmem_cache_shrink(cachep);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 EXPORT_SYMBOL(kmem_cache_shrink);
@@ -963,6 +1157,107 @@ bool slab_is_available(void)
 	return slab_state >= UP;
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PRINTK
+/**
+ * kmem_valid_obj - does the pointer reference a valid slab object?
+ * @object: pointer to query.
+ *
+ * Return: %true if the pointer is to a not-yet-freed object from
+ * kmalloc() or kmem_cache_alloc(), either %true or %false if the pointer
+ * is to an already-freed object, and %false otherwise.
+ */
+bool kmem_valid_obj(void *object)
+{
+	struct page *page;
+
+	/* Some arches consider ZERO_SIZE_PTR to be a valid address. */
+	if (object < (void *)PAGE_SIZE || !virt_addr_valid(object))
+		return false;
+	page = virt_to_head_page(object);
+	return PageSlab(page);
+}
+EXPORT_SYMBOL_GPL(kmem_valid_obj);
+
+static void kmem_obj_info(struct kmem_obj_info *kpp, void *object, struct page *page)
+{
+	if (__kfence_obj_info(kpp, object, page))
+		return;
+	__kmem_obj_info(kpp, object, page);
+}
+
+/**
+ * kmem_dump_obj - Print available slab provenance information
+ * @object: slab object for which to find provenance information.
+ *
+ * This function uses pr_cont(), so that the caller is expected to have
+ * printed out whatever preamble is appropriate.  The provenance information
+ * depends on the type of object and on how much debugging is enabled.
+ * For a slab-cache object, the fact that it is a slab object is printed,
+ * and, if available, the slab name, return address, and stack trace from
+ * the allocation and last free path of that object.
+ *
+ * This function will splat if passed a pointer to a non-slab object.
+ * If you are not sure what type of object you have, you should instead
+ * use mem_dump_obj().
+ */
+void kmem_dump_obj(void *object)
+{
+	char *cp = IS_ENABLED(CONFIG_MMU) ? "" : "/vmalloc";
+	int i;
+	struct page *page;
+	unsigned long ptroffset;
+	struct kmem_obj_info kp = { };
+
+	if (WARN_ON_ONCE(!virt_addr_valid(object)))
+		return;
+	page = virt_to_head_page(object);
+	if (WARN_ON_ONCE(!PageSlab(page))) {
+		pr_cont(" non-slab memory.\n");
+		return;
+	}
+	kmem_obj_info(&kp, object, page);
+	if (kp.kp_slab_cache)
+		pr_cont(" slab%s %s", cp, kp.kp_slab_cache->name);
+	else
+		pr_cont(" slab%s", cp);
+	if (is_kfence_address(object))
+		pr_cont(" (kfence)");
+	if (kp.kp_objp)
+		pr_cont(" start %px", kp.kp_objp);
+	if (kp.kp_data_offset)
+		pr_cont(" data offset %lu", kp.kp_data_offset);
+	if (kp.kp_objp) {
+		ptroffset = ((char *)object - (char *)kp.kp_objp) - kp.kp_data_offset;
+		pr_cont(" pointer offset %lu", ptroffset);
+	}
+	if (kp.kp_slab_cache && kp.kp_slab_cache->usersize)
+		pr_cont(" size %u", kp.kp_slab_cache->usersize);
+	if (kp.kp_ret)
+		pr_cont(" allocated at %pS\n", kp.kp_ret);
+	else
+		pr_cont("\n");
+	for (i = 0; i < ARRAY_SIZE(kp.kp_stack); i++) {
+		if (!kp.kp_stack[i])
+			break;
+		pr_info("    %pS\n", kp.kp_stack[i]);
+	}
+
+	if (kp.kp_free_stack[0])
+		pr_cont(" Free path:\n");
+
+	for (i = 0; i < ARRAY_SIZE(kp.kp_free_stack); i++) {
+		if (!kp.kp_free_stack[i])
+			break;
+		pr_info("    %pS\n", kp.kp_free_stack[i]);
+	}
+
+}
+EXPORT_SYMBOL_GPL(kmem_dump_obj);
+#endif
+
+>>>>>>> upstream/android-13
 #ifndef CONFIG_SLOB
 /* Create a cache during boot when no slab services are available yet */
 void __init create_boot_cache(struct kmem_cache *s, const char *name,
@@ -970,6 +1265,7 @@ void __init create_boot_cache(struct kmem_cache *s, const char *name,
 		unsigned int useroffset, unsigned int usersize)
 {
 	int err;
+<<<<<<< HEAD
 
 	s->name = name;
 	s->size = s->object_size = size;
@@ -979,6 +1275,24 @@ void __init create_boot_cache(struct kmem_cache *s, const char *name,
 
 	slab_init_memcg_params(s);
 
+=======
+	unsigned int align = ARCH_KMALLOC_MINALIGN;
+
+	s->name = name;
+	s->size = s->object_size = size;
+
+	/*
+	 * For power of two sizes, guarantee natural alignment for kmalloc
+	 * caches, regardless of SL*B debugging options.
+	 */
+	if (is_power_of_2(size))
+		align = max(align, size);
+	s->align = calculate_alignment(flags, align, size);
+
+	s->useroffset = useroffset;
+	s->usersize = usersize;
+
+>>>>>>> upstream/android-13
 	err = __kmem_cache_create(s, flags);
 
 	if (err)
@@ -998,14 +1312,24 @@ struct kmem_cache *__init create_kmalloc_cache(const char *name,
 		panic("Out of memory when creating slab %s\n", name);
 
 	create_boot_cache(s, name, size, flags, useroffset, usersize);
+<<<<<<< HEAD
 	list_add(&s->list, &slab_caches);
 	memcg_link_cache(s);
+=======
+	kasan_cache_create_kmalloc(s);
+	list_add(&s->list, &slab_caches);
+>>>>>>> upstream/android-13
 	s->refcount = 1;
 	return s;
 }
 
 struct kmem_cache *
+<<<<<<< HEAD
 kmalloc_caches[NR_KMALLOC_TYPES][KMALLOC_SHIFT_HIGH + 1] __ro_after_init;
+=======
+kmalloc_caches[NR_KMALLOC_TYPES][KMALLOC_SHIFT_HIGH + 1] __ro_after_init =
+{ /* initialization for https://bugs.llvm.org/show_bug.cgi?id=42570 */ };
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(kmalloc_caches);
 
 /*
@@ -1060,16 +1384,22 @@ struct kmem_cache *kmalloc_slab(size_t size, gfp_t flags)
 
 		index = size_index[size_index_elem(size)];
 	} else {
+<<<<<<< HEAD
 		if (unlikely(size > KMALLOC_MAX_CACHE_SIZE)) {
 			WARN_ON(1);
 			return NULL;
 		}
+=======
+		if (WARN_ON_ONCE(size > KMALLOC_MAX_CACHE_SIZE))
+			return NULL;
+>>>>>>> upstream/android-13
 		index = fls(size - 1);
 	}
 
 	return kmalloc_caches[kmalloc_type(flags)][index];
 }
 
+<<<<<<< HEAD
 /*
  * kmalloc_info[] is to make slub_debug=,kmalloc-xx option work at boot time.
  * kmalloc_index() supports up to 2^26=64MB, so the final entry of the table is
@@ -1090,6 +1420,61 @@ const struct kmalloc_info_struct kmalloc_info[] __initconst = {
 	{"kmalloc-4M",        4194304},		{"kmalloc-8M",        8388608},
 	{"kmalloc-16M",      16777216},		{"kmalloc-32M",      33554432},
 	{"kmalloc-64M",      67108864}
+=======
+#ifdef CONFIG_ZONE_DMA
+#define KMALLOC_DMA_NAME(sz)	.name[KMALLOC_DMA] = "dma-kmalloc-" #sz,
+#else
+#define KMALLOC_DMA_NAME(sz)
+#endif
+
+#ifdef CONFIG_MEMCG_KMEM
+#define KMALLOC_CGROUP_NAME(sz)	.name[KMALLOC_CGROUP] = "kmalloc-cg-" #sz,
+#else
+#define KMALLOC_CGROUP_NAME(sz)
+#endif
+
+#define INIT_KMALLOC_INFO(__size, __short_size)			\
+{								\
+	.name[KMALLOC_NORMAL]  = "kmalloc-" #__short_size,	\
+	.name[KMALLOC_RECLAIM] = "kmalloc-rcl-" #__short_size,	\
+	KMALLOC_CGROUP_NAME(__short_size)			\
+	KMALLOC_DMA_NAME(__short_size)				\
+	.size = __size,						\
+}
+
+/*
+ * kmalloc_info[] is to make slub_debug=,kmalloc-xx option work at boot time.
+ * kmalloc_index() supports up to 2^25=32MB, so the final entry of the table is
+ * kmalloc-32M.
+ */
+const struct kmalloc_info_struct kmalloc_info[] __initconst = {
+	INIT_KMALLOC_INFO(0, 0),
+	INIT_KMALLOC_INFO(96, 96),
+	INIT_KMALLOC_INFO(192, 192),
+	INIT_KMALLOC_INFO(8, 8),
+	INIT_KMALLOC_INFO(16, 16),
+	INIT_KMALLOC_INFO(32, 32),
+	INIT_KMALLOC_INFO(64, 64),
+	INIT_KMALLOC_INFO(128, 128),
+	INIT_KMALLOC_INFO(256, 256),
+	INIT_KMALLOC_INFO(512, 512),
+	INIT_KMALLOC_INFO(1024, 1k),
+	INIT_KMALLOC_INFO(2048, 2k),
+	INIT_KMALLOC_INFO(4096, 4k),
+	INIT_KMALLOC_INFO(8192, 8k),
+	INIT_KMALLOC_INFO(16384, 16k),
+	INIT_KMALLOC_INFO(32768, 32k),
+	INIT_KMALLOC_INFO(65536, 64k),
+	INIT_KMALLOC_INFO(131072, 128k),
+	INIT_KMALLOC_INFO(262144, 256k),
+	INIT_KMALLOC_INFO(524288, 512k),
+	INIT_KMALLOC_INFO(1048576, 1M),
+	INIT_KMALLOC_INFO(2097152, 2M),
+	INIT_KMALLOC_INFO(4194304, 4M),
+	INIT_KMALLOC_INFO(8388608, 8M),
+	INIT_KMALLOC_INFO(16777216, 16M),
+	INIT_KMALLOC_INFO(33554432, 32M)
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -1139,6 +1524,7 @@ void __init setup_kmalloc_cache_index_table(void)
 	}
 }
 
+<<<<<<< HEAD
 static const char *
 kmalloc_cache_name(const char *prefix, unsigned int size)
 {
@@ -1171,6 +1557,32 @@ new_kmalloc_cache(int idx, int type, slab_flags_t flags)
 	kmalloc_caches[type][idx] = create_kmalloc_cache(name,
 					kmalloc_info[idx].size, flags, 0,
 					kmalloc_info[idx].size);
+=======
+static void __init
+new_kmalloc_cache(int idx, enum kmalloc_cache_type type, slab_flags_t flags)
+{
+	if (type == KMALLOC_RECLAIM) {
+		flags |= SLAB_RECLAIM_ACCOUNT;
+	} else if (IS_ENABLED(CONFIG_MEMCG_KMEM) && (type == KMALLOC_CGROUP)) {
+		if (cgroup_memory_nokmem) {
+			kmalloc_caches[type][idx] = kmalloc_caches[KMALLOC_NORMAL][idx];
+			return;
+		}
+		flags |= SLAB_ACCOUNT;
+	}
+
+	kmalloc_caches[type][idx] = create_kmalloc_cache(
+					kmalloc_info[idx].name[type],
+					kmalloc_info[idx].size, flags, 0,
+					kmalloc_info[idx].size);
+
+	/*
+	 * If CONFIG_MEMCG_KMEM is enabled, disable cache merging for
+	 * KMALLOC_NORMAL caches.
+	 */
+	if (IS_ENABLED(CONFIG_MEMCG_KMEM) && (type == KMALLOC_NORMAL))
+		kmalloc_caches[type][idx]->refcount = -1;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1180,8 +1592,17 @@ new_kmalloc_cache(int idx, int type, slab_flags_t flags)
  */
 void __init create_kmalloc_caches(slab_flags_t flags)
 {
+<<<<<<< HEAD
 	int i, type;
 
+=======
+	int i;
+	enum kmalloc_cache_type type;
+
+	/*
+	 * Including KMALLOC_CGROUP if CONFIG_MEMCG_KMEM defined
+	 */
+>>>>>>> upstream/android-13
 	for (type = KMALLOC_NORMAL; type <= KMALLOC_RECLAIM; type++) {
 		for (i = KMALLOC_SHIFT_LOW; i <= KMALLOC_SHIFT_HIGH; i++) {
 			if (!kmalloc_caches[type][i])
@@ -1209,18 +1630,41 @@ void __init create_kmalloc_caches(slab_flags_t flags)
 		struct kmem_cache *s = kmalloc_caches[KMALLOC_NORMAL][i];
 
 		if (s) {
+<<<<<<< HEAD
 			unsigned int size = kmalloc_size(i);
 			const char *n = kmalloc_cache_name("dma-kmalloc", size);
 
 			BUG_ON(!n);
 			kmalloc_caches[KMALLOC_DMA][i] = create_kmalloc_cache(
 				n, size, SLAB_CACHE_DMA | flags, 0, 0);
+=======
+			kmalloc_caches[KMALLOC_DMA][i] = create_kmalloc_cache(
+				kmalloc_info[i].name[KMALLOC_DMA],
+				kmalloc_info[i].size,
+				SLAB_CACHE_DMA | flags, 0,
+				kmalloc_info[i].size);
+>>>>>>> upstream/android-13
 		}
 	}
 #endif
 }
 #endif /* !CONFIG_SLOB */
 
+<<<<<<< HEAD
+=======
+gfp_t kmalloc_fix_flags(gfp_t flags)
+{
+	gfp_t invalid_mask = flags & GFP_SLAB_BUG_MASK;
+
+	flags &= ~GFP_SLAB_BUG_MASK;
+	pr_warn("Unexpected gfp: %#x (%pGg). Fixing up to gfp: %#x (%pGg). Fix your code!\n",
+			invalid_mask, &invalid_mask, flags, &flags);
+	dump_stack();
+
+	return flags;
+}
+
+>>>>>>> upstream/android-13
 /*
  * To avoid unnecessary overhead, we pass through large allocation requests
  * directly to the page allocator. We use __GFP_COMP, because we will need to
@@ -1228,6 +1672,7 @@ void __init create_kmalloc_caches(slab_flags_t flags)
  */
 void *kmalloc_order(size_t size, gfp_t flags, unsigned int order)
 {
+<<<<<<< HEAD
 	void *ret;
 	struct page *page;
 
@@ -1235,6 +1680,23 @@ void *kmalloc_order(size_t size, gfp_t flags, unsigned int order)
 	page = alloc_pages(flags, order);
 	ret = page ? page_address(page) : NULL;
 	ret = kasan_kmalloc_large(ret, size, flags);
+=======
+	void *ret = NULL;
+	struct page *page;
+
+	if (unlikely(flags & GFP_SLAB_BUG_MASK))
+		flags = kmalloc_fix_flags(flags);
+
+	flags |= __GFP_COMP;
+	page = alloc_pages(flags, order);
+	if (likely(page)) {
+		ret = page_address(page);
+		mod_lruvec_page_state(page, NR_SLAB_UNRECLAIMABLE_B,
+				      PAGE_SIZE << order);
+	}
+	ret = kasan_kmalloc_large(ret, size, flags);
+	/* As ret might get tagged, call kmemleak hook after KASAN. */
+>>>>>>> upstream/android-13
 	kmemleak_alloc(ret, size, 1, flags);
 	return ret;
 }
@@ -1322,18 +1784,30 @@ static void print_slabinfo_header(struct seq_file *m)
 	seq_puts(m, " : globalstat <listallocs> <maxobjs> <grown> <reaped> <error> <maxfreeable> <nodeallocs> <remotefrees> <alienoverflow>");
 	seq_puts(m, " : cpustat <allochit> <allocmiss> <freehit> <freemiss>");
 #endif
+<<<<<<< HEAD
+=======
+	trace_android_vh_print_slabinfo_header(m);
+>>>>>>> upstream/android-13
 	seq_putc(m, '\n');
 }
 
 void *slab_start(struct seq_file *m, loff_t *pos)
 {
 	mutex_lock(&slab_mutex);
+<<<<<<< HEAD
 	return seq_list_start(&slab_root_caches, *pos);
+=======
+	return seq_list_start(&slab_caches, *pos);
+>>>>>>> upstream/android-13
 }
 
 void *slab_next(struct seq_file *m, void *p, loff_t *pos)
 {
+<<<<<<< HEAD
 	return seq_list_next(p, &slab_root_caches, pos);
+=======
+	return seq_list_next(p, &slab_caches, pos);
+>>>>>>> upstream/android-13
 }
 
 void slab_stop(struct seq_file *m, void *p)
@@ -1341,6 +1815,7 @@ void slab_stop(struct seq_file *m, void *p)
 	mutex_unlock(&slab_mutex);
 }
 
+<<<<<<< HEAD
 static void
 memcg_accumulate_slabinfo(struct kmem_cache *s, struct slabinfo *info)
 {
@@ -1362,6 +1837,8 @@ memcg_accumulate_slabinfo(struct kmem_cache *s, struct slabinfo *info)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 static void cache_show(struct kmem_cache *s, struct seq_file *m)
 {
 	struct slabinfo sinfo;
@@ -1369,10 +1846,15 @@ static void cache_show(struct kmem_cache *s, struct seq_file *m)
 	memset(&sinfo, 0, sizeof(sinfo));
 	get_slabinfo(s, &sinfo);
 
+<<<<<<< HEAD
 	memcg_accumulate_slabinfo(s, &sinfo);
 
 	seq_printf(m, "%-17s %6lu %6lu %6u %4u %4d",
 		   cache_name(s), sinfo.active_objs, sinfo.num_objs, s->size,
+=======
+	seq_printf(m, "%-17s %6lu %6lu %6u %4u %4d",
+		   s->name, sinfo.active_objs, sinfo.num_objs, s->size,
+>>>>>>> upstream/android-13
 		   sinfo.objects_per_slab, (1 << sinfo.cache_order));
 
 	seq_printf(m, " : tunables %4u %4u %4u",
@@ -1380,14 +1862,24 @@ static void cache_show(struct kmem_cache *s, struct seq_file *m)
 	seq_printf(m, " : slabdata %6lu %6lu %6lu",
 		   sinfo.active_slabs, sinfo.num_slabs, sinfo.shared_avail);
 	slabinfo_show_stats(m, s);
+<<<<<<< HEAD
+=======
+	trace_android_vh_cache_show(m, &sinfo, s);
+>>>>>>> upstream/android-13
 	seq_putc(m, '\n');
 }
 
 static int slab_show(struct seq_file *m, void *p)
 {
+<<<<<<< HEAD
 	struct kmem_cache *s = list_entry(p, struct kmem_cache, root_caches_node);
 
 	if (p == slab_root_caches.next)
+=======
+	struct kmem_cache *s = list_entry(p, struct kmem_cache, list);
+
+	if (p == slab_caches.next)
+>>>>>>> upstream/android-13
 		print_slabinfo_header(m);
 	cache_show(s, m);
 	return 0;
@@ -1395,7 +1887,11 @@ static int slab_show(struct seq_file *m, void *p)
 
 void dump_unreclaimable_slab(void)
 {
+<<<<<<< HEAD
 	struct kmem_cache *s, *s2;
+=======
+	struct kmem_cache *s;
+>>>>>>> upstream/android-13
 	struct slabinfo sinfo;
 
 	/*
@@ -1413,20 +1909,30 @@ void dump_unreclaimable_slab(void)
 	pr_info("Unreclaimable slab info:\n");
 	pr_info("Name                      Used          Total\n");
 
+<<<<<<< HEAD
 	list_for_each_entry_safe(s, s2, &slab_caches, list) {
 		if (!is_root_cache(s) || (s->flags & SLAB_RECLAIM_ACCOUNT))
+=======
+	list_for_each_entry(s, &slab_caches, list) {
+		if (s->flags & SLAB_RECLAIM_ACCOUNT)
+>>>>>>> upstream/android-13
 			continue;
 
 		get_slabinfo(s, &sinfo);
 
 		if (sinfo.num_objs > 0)
+<<<<<<< HEAD
 			pr_info("%-17s %10luKB %10luKB\n", cache_name(s),
+=======
+			pr_info("%-17s %10luKB %10luKB\n", s->name,
+>>>>>>> upstream/android-13
 				(sinfo.active_objs * s->size) / 1024,
 				(sinfo.num_objs * s->size) / 1024);
 	}
 	mutex_unlock(&slab_mutex);
 }
 
+<<<<<<< HEAD
 #if defined(CONFIG_MEMCG)
 void *memcg_slab_start(struct seq_file *m, loff_t *pos)
 {
@@ -1457,6 +1963,15 @@ int memcg_slab_show(struct seq_file *m, void *p)
 	if (p == memcg->kmem_caches.next)
 		print_slabinfo_header(m);
 	cache_show(s, m);
+=======
+#if defined(CONFIG_MEMCG_KMEM)
+int memcg_slab_show(struct seq_file *m, void *p)
+{
+	/*
+	 * Deprecated.
+	 * Please, take a look at tools/cgroup/slabinfo.py .
+	 */
+>>>>>>> upstream/android-13
 	return 0;
 }
 #endif
@@ -1486,45 +2001,87 @@ static int slabinfo_open(struct inode *inode, struct file *file)
 	return seq_open(file, &slabinfo_op);
 }
 
+<<<<<<< HEAD
 static const struct file_operations proc_slabinfo_operations = {
 	.open		= slabinfo_open,
 	.read		= seq_read,
 	.write          = slabinfo_write,
 	.llseek		= seq_lseek,
 	.release	= seq_release,
+=======
+static const struct proc_ops slabinfo_proc_ops = {
+	.proc_flags	= PROC_ENTRY_PERMANENT,
+	.proc_open	= slabinfo_open,
+	.proc_read	= seq_read,
+	.proc_write	= slabinfo_write,
+	.proc_lseek	= seq_lseek,
+	.proc_release	= seq_release,
+>>>>>>> upstream/android-13
 };
 
 static int __init slab_proc_init(void)
 {
+<<<<<<< HEAD
 	proc_create("slabinfo", SLABINFO_RIGHTS, NULL,
 						&proc_slabinfo_operations);
 	return 0;
 }
 module_init(slab_proc_init);
+=======
+	proc_create("slabinfo", SLABINFO_RIGHTS, NULL, &slabinfo_proc_ops);
+	return 0;
+}
+module_init(slab_proc_init);
+
+>>>>>>> upstream/android-13
 #endif /* CONFIG_SLAB || CONFIG_SLUB_DEBUG */
 
 static __always_inline void *__do_krealloc(const void *p, size_t new_size,
 					   gfp_t flags)
 {
 	void *ret;
+<<<<<<< HEAD
 	size_t ks = 0;
 
 	if (p)
 		ks = ksize(p);
 
+=======
+	size_t ks;
+
+	/* Don't use instrumented ksize to allow precise KASAN poisoning. */
+	if (likely(!ZERO_OR_NULL_PTR(p))) {
+		if (!kasan_check_byte(p))
+			return NULL;
+		ks = kfence_ksize(p) ?: __ksize(p);
+	} else
+		ks = 0;
+
+	/* If the object still fits, repoison it precisely. */
+>>>>>>> upstream/android-13
 	if (ks >= new_size) {
 		p = kasan_krealloc((void *)p, new_size, flags);
 		return (void *)p;
 	}
 
 	ret = kmalloc_track_caller(new_size, flags);
+<<<<<<< HEAD
 	if (ret && p)
 		memcpy(ret, p, ks);
+=======
+	if (ret && p) {
+		/* Disable KASAN checks as the object's redzone is accessed. */
+		kasan_disable_current();
+		memcpy(ret, kasan_reset_tag(p), ks);
+		kasan_enable_current();
+	}
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
 /**
+<<<<<<< HEAD
  * __krealloc - like krealloc() but don't free @p.
  * @p: object to reallocate memory for.
  * @new_size: how many bytes of memory are required.
@@ -1545,15 +2102,25 @@ void *__krealloc(const void *p, size_t new_size, gfp_t flags)
 EXPORT_SYMBOL(__krealloc);
 
 /**
+=======
+>>>>>>> upstream/android-13
  * krealloc - reallocate memory. The contents will remain unchanged.
  * @p: object to reallocate memory for.
  * @new_size: how many bytes of memory are required.
  * @flags: the type of memory to allocate.
  *
  * The contents of the object pointed to are preserved up to the
+<<<<<<< HEAD
  * lesser of the new and old sizes.  If @p is %NULL, krealloc()
  * behaves exactly like kmalloc().  If @new_size is 0 and @p is not a
  * %NULL pointer, the object pointed to is freed.
+=======
+ * lesser of the new and old sizes (__GFP_ZERO flag is effectively ignored).
+ * If @p is %NULL, krealloc() behaves exactly like kmalloc().  If @new_size
+ * is 0 and @p is not a %NULL pointer, the object pointed to is freed.
+ *
+ * Return: pointer to the allocated memory or %NULL in case of error
+>>>>>>> upstream/android-13
  */
 void *krealloc(const void *p, size_t new_size, gfp_t flags)
 {
@@ -1573,21 +2140,34 @@ void *krealloc(const void *p, size_t new_size, gfp_t flags)
 EXPORT_SYMBOL(krealloc);
 
 /**
+<<<<<<< HEAD
  * kzfree - like kfree but zero memory
  * @p: object to free memory of
  *
  * The memory of the object @p points to is zeroed before freed.
  * If @p is %NULL, kzfree() does nothing.
+=======
+ * kfree_sensitive - Clear sensitive information in memory before freeing
+ * @p: object to free memory of
+ *
+ * The memory of the object @p points to is zeroed before freed.
+ * If @p is %NULL, kfree_sensitive() does nothing.
+>>>>>>> upstream/android-13
  *
  * Note: this function zeroes the whole allocated buffer which can be a good
  * deal bigger than the requested buffer size passed to kmalloc(). So be
  * careful when using this function in performance sensitive code.
  */
+<<<<<<< HEAD
 void kzfree(const void *p)
+=======
+void kfree_sensitive(const void *p)
+>>>>>>> upstream/android-13
 {
 	size_t ks;
 	void *mem = (void *)p;
 
+<<<<<<< HEAD
 	if (unlikely(ZERO_OR_NULL_PTR(mem)))
 		return;
 	ks = ksize(mem);
@@ -1595,6 +2175,60 @@ void kzfree(const void *p)
 	kfree(mem);
 }
 EXPORT_SYMBOL(kzfree);
+=======
+	ks = ksize(mem);
+	if (ks)
+		memzero_explicit(mem, ks);
+	kfree(mem);
+}
+EXPORT_SYMBOL(kfree_sensitive);
+
+/**
+ * ksize - get the actual amount of memory allocated for a given object
+ * @objp: Pointer to the object
+ *
+ * kmalloc may internally round up allocations and return more memory
+ * than requested. ksize() can be used to determine the actual amount of
+ * memory allocated. The caller may use this additional memory, even though
+ * a smaller amount of memory was initially specified with the kmalloc call.
+ * The caller must guarantee that objp points to a valid object previously
+ * allocated with either kmalloc() or kmem_cache_alloc(). The object
+ * must not be freed during the duration of the call.
+ *
+ * Return: size of the actual memory used by @objp in bytes
+ */
+size_t ksize(const void *objp)
+{
+	size_t size;
+
+	/*
+	 * We need to first check that the pointer to the object is valid, and
+	 * only then unpoison the memory. The report printed from ksize() is
+	 * more useful, then when it's printed later when the behaviour could
+	 * be undefined due to a potential use-after-free or double-free.
+	 *
+	 * We use kasan_check_byte(), which is supported for the hardware
+	 * tag-based KASAN mode, unlike kasan_check_read/write().
+	 *
+	 * If the pointed to memory is invalid, we return 0 to avoid users of
+	 * ksize() writing to and potentially corrupting the memory region.
+	 *
+	 * We want to perform the check before __ksize(), to avoid potentially
+	 * crashing in __ksize() due to accessing invalid metadata.
+	 */
+	if (unlikely(ZERO_OR_NULL_PTR(objp)) || !kasan_check_byte(objp))
+		return 0;
+
+	size = kfence_ksize(objp) ?: __ksize(objp);
+	/*
+	 * We assume that ksize callers could use whole allocated area,
+	 * so we need to unpoison this area.
+	 */
+	kasan_unpoison_range(objp, size);
+	return size;
+}
+EXPORT_SYMBOL(ksize);
+>>>>>>> upstream/android-13
 
 /* Tracepoints definitions. */
 EXPORT_TRACEPOINT_SYMBOL(kmalloc);

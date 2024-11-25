@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /****************************************************************************
  * Driver for Solarflare network controllers and boards
  * Copyright 2005-2006 Fen Systems Ltd.
  * Copyright 2006-2013 Solarflare Communications Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation, incorporated herein by reference.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -66,6 +73,12 @@ int efx_mtd_add(struct efx_nic *efx, struct efx_mtd_partition *parts,
 
 		part->mtd.writesize = 1;
 
+<<<<<<< HEAD
+=======
+		if (!(part->mtd.flags & MTD_NO_ERASE))
+			part->mtd.flags |= MTD_WRITEABLE;
+
+>>>>>>> upstream/android-13
 		part->mtd.owner = THIS_MODULE;
 		part->mtd.priv = efx;
 		part->mtd.name = part->name;

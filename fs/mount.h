@@ -6,10 +6,22 @@
 #include <linux/fs_pin.h>
 
 struct mnt_namespace {
+<<<<<<< HEAD
 	atomic_t		count;
 	struct ns_common	ns;
 	struct mount *	root;
 	struct list_head	list;
+=======
+	struct ns_common	ns;
+	struct mount *	root;
+	/*
+	 * Traversal and modification of .list is protected by either
+	 * - taking namespace_sem for write, OR
+	 * - taking namespace_sem for read AND taking .ns_lock.
+	 */
+	struct list_head	list;
+	spinlock_t		ns_lock;
+>>>>>>> upstream/android-13
 	struct user_namespace	*user_ns;
 	struct ucounts		*ucounts;
 	u64			seq;	/* Sequence number to prevent loops */
@@ -35,11 +47,15 @@ struct mount {
 	struct hlist_node mnt_hash;
 	struct mount *mnt_parent;
 	struct dentry *mnt_mountpoint;
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 	struct vfsmount *mnt;
 #else
 	struct vfsmount mnt;
 #endif
+=======
+	struct vfsmount mnt;
+>>>>>>> upstream/android-13
 	union {
 		struct rcu_head mnt_rcu;
 		struct llist_node mnt_llist;
@@ -62,7 +78,14 @@ struct mount {
 	struct mount *mnt_master;	/* slave is on master->mnt_slave_list */
 	struct mnt_namespace *mnt_ns;	/* containing namespace */
 	struct mountpoint *mnt_mp;	/* where is it mounted */
+<<<<<<< HEAD
 	struct hlist_node mnt_mp_list;	/* list mounts with the same mountpoint */
+=======
+	union {
+		struct hlist_node mnt_mp_list;	/* list mounts with the same mountpoint */
+		struct hlist_node mnt_umount;
+	};
+>>>>>>> upstream/android-13
 	struct list_head mnt_umounting; /* list entry for umount propagation */
 #ifdef CONFIG_FSNOTIFY
 	struct fsnotify_mark_connector __rcu *mnt_fsnotify_marks;
@@ -72,19 +95,27 @@ struct mount {
 	int mnt_group_id;		/* peer group identifier */
 	int mnt_expiry_mark;		/* true if marked for expiry */
 	struct hlist_head mnt_pins;
+<<<<<<< HEAD
 	struct fs_pin mnt_umount;
 	struct dentry *mnt_ex_mountpoint;
+=======
+	struct hlist_head mnt_stuck_children;
+>>>>>>> upstream/android-13
 } __randomize_layout;
 
 #define MNT_NS_INTERNAL ERR_PTR(-EINVAL) /* distinct from any mnt_namespace */
 
 static inline struct mount *real_mount(struct vfsmount *mnt)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 	return mnt->bp_mount;
 #else
 	return container_of(mnt, struct mount, mnt);
 #endif
+=======
+	return container_of(mnt, struct mount, mnt);
+>>>>>>> upstream/android-13
 }
 
 static inline int mnt_has_parent(struct mount *mnt)
@@ -106,11 +137,15 @@ extern bool legitimize_mnt(struct vfsmount *, unsigned);
 static inline bool __path_is_mountpoint(const struct path *path)
 {
 	struct mount *m = __lookup_mnt(path->mnt, path->dentry);
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 	return m && likely(!(m->mnt->mnt_flags & MNT_SYNC_UMOUNT));
 #else
 	return m && likely(!(m->mnt.mnt_flags & MNT_SYNC_UMOUNT));
 #endif
+=======
+	return m && likely(!(m->mnt.mnt_flags & MNT_SYNC_UMOUNT));
+>>>>>>> upstream/android-13
 }
 
 extern void __detach_mounts(struct dentry *dentry);
@@ -124,11 +159,16 @@ static inline void detach_mounts(struct dentry *dentry)
 
 static inline void get_mnt_ns(struct mnt_namespace *ns)
 {
+<<<<<<< HEAD
 	atomic_inc(&ns->count);
+=======
+	refcount_inc(&ns->ns.count);
+>>>>>>> upstream/android-13
 }
 
 extern seqlock_t mount_lock;
 
+<<<<<<< HEAD
 static inline void lock_mount_hash(void)
 {
 	write_seqlock(&mount_lock);
@@ -139,13 +179,19 @@ static inline void unlock_mount_hash(void)
 	write_sequnlock(&mount_lock);
 }
 
+=======
+>>>>>>> upstream/android-13
 struct proc_mounts {
 	struct mnt_namespace *ns;
 	struct path root;
 	int (*show)(struct seq_file *, struct vfsmount *);
+<<<<<<< HEAD
 	void *cached_mount;
 	u64 cached_event;
 	loff_t cached_index;
+=======
+	struct mount cursor;
+>>>>>>> upstream/android-13
 };
 
 extern const struct seq_operations mounts_op;
@@ -158,3 +204,13 @@ static inline bool is_local_mountpoint(struct dentry *dentry)
 
 	return __is_local_mountpoint(dentry);
 }
+<<<<<<< HEAD
+=======
+
+static inline bool is_anon_ns(struct mnt_namespace *ns)
+{
+	return ns->seq == 0;
+}
+
+extern void mnt_cursor_del(struct mnt_namespace *ns, struct mount *cursor);
+>>>>>>> upstream/android-13

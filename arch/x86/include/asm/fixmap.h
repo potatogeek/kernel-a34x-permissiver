@@ -14,24 +14,46 @@
 #ifndef _ASM_X86_FIXMAP_H
 #define _ASM_X86_FIXMAP_H
 
+<<<<<<< HEAD
+=======
+#include <asm/kmap_size.h>
+
+>>>>>>> upstream/android-13
 /*
  * Exposed to assembly code for setting up initial page tables. Cannot be
  * calculated in assembly code (fixmap entries are an enum), but is sanity
  * checked in the actual fixmap C code to make sure that the fixmap is
  * covered fully.
  */
+<<<<<<< HEAD
 #define FIXMAP_PMD_NUM	2
+=======
+#ifndef CONFIG_DEBUG_KMAP_LOCAL_FORCE_MAP
+# define FIXMAP_PMD_NUM	2
+#else
+# define KM_PMDS	(KM_MAX_IDX * ((CONFIG_NR_CPUS + 511) / 512))
+# define FIXMAP_PMD_NUM (KM_PMDS + 2)
+#endif
+>>>>>>> upstream/android-13
 /* fixmap starts downwards from the 507th entry in level2_fixmap_pgt */
 #define FIXMAP_PMD_TOP	507
 
 #ifndef __ASSEMBLY__
 #include <linux/kernel.h>
+<<<<<<< HEAD
 #include <asm/acpi.h>
 #include <asm/apicdef.h>
 #include <asm/page.h>
 #ifdef CONFIG_X86_32
 #include <linux/threads.h>
 #include <asm/kmap_types.h>
+=======
+#include <asm/apicdef.h>
+#include <asm/page.h>
+#include <asm/pgtable_types.h>
+#ifdef CONFIG_X86_32
+#include <linux/threads.h>
+>>>>>>> upstream/android-13
 #else
 #include <uapi/asm/vsyscall.h>
 #endif
@@ -42,8 +64,12 @@
  * Because of this, FIXADDR_TOP x86 integration was left as later work.
  */
 #ifdef CONFIG_X86_32
+<<<<<<< HEAD
 /* used by vmalloc.c, vsyscall.lds.S.
  *
+=======
+/*
+>>>>>>> upstream/android-13
  * Leave one empty page between vmalloc'ed areas and
  * the start of the fixmap.
  */
@@ -93,13 +119,20 @@ enum fixed_addresses {
 	FIX_IO_APIC_BASE_0,
 	FIX_IO_APIC_BASE_END = FIX_IO_APIC_BASE_0 + MAX_IO_APICS - 1,
 #endif
+<<<<<<< HEAD
 #ifdef CONFIG_X86_32
 	FIX_KMAP_BEGIN,	/* reserved pte's for temporary kernel mappings */
 	FIX_KMAP_END = FIX_KMAP_BEGIN+(KM_TYPE_NR*NR_CPUS)-1,
+=======
+#ifdef CONFIG_KMAP_LOCAL
+	FIX_KMAP_BEGIN,	/* reserved pte's for temporary kernel mappings */
+	FIX_KMAP_END = FIX_KMAP_BEGIN + (KM_MAX_IDX * NR_CPUS) - 1,
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PCI_MMCONFIG
 	FIX_PCIE_MCFG,
 #endif
 #endif
+<<<<<<< HEAD
 #ifdef CONFIG_PARAVIRT
 	FIX_PARAVIRT_BOOTMAP,
 #endif
@@ -108,6 +141,11 @@ enum fixed_addresses {
 #ifdef	CONFIG_X86_INTEL_MID
 	FIX_LNW_VRTC,
 #endif
+=======
+#ifdef CONFIG_PARAVIRT_XXL
+	FIX_PARAVIRT_BOOTMAP,
+#endif
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_ACPI_APEI_GHES
 	/* Used for GHES mapping from assorted contexts */
@@ -122,7 +160,11 @@ enum fixed_addresses {
 	 * before ioremap() is functional.
 	 *
 	 * If necessary we round it up to the next 512 pages boundary so
+<<<<<<< HEAD
 	 * that we can have a single pgd entry and a single pte table:
+=======
+	 * that we can have a single pmd entry and a single pte table:
+>>>>>>> upstream/android-13
 	 */
 #define NR_FIX_BTMAPS		64
 #define FIX_BTMAPS_SLOTS	8
@@ -154,15 +196,22 @@ extern void reserve_top_address(unsigned long reserve);
 
 extern int fixmaps_set;
 
+<<<<<<< HEAD
 extern pte_t *kmap_pte;
 #define kmap_prot PAGE_KERNEL
+=======
+>>>>>>> upstream/android-13
 extern pte_t *pkmap_page_table;
 
 void __native_set_fixmap(enum fixed_addresses idx, pte_t pte);
 void native_set_fixmap(unsigned /* enum fixed_addresses */ idx,
 		       phys_addr_t phys, pgprot_t flags);
 
+<<<<<<< HEAD
 #ifndef CONFIG_PARAVIRT
+=======
+#ifndef CONFIG_PARAVIRT_XXL
+>>>>>>> upstream/android-13
 static inline void __set_fixmap(enum fixed_addresses idx,
 				phys_addr_t phys, pgprot_t flags)
 {

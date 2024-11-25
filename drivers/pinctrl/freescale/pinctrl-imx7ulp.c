@@ -256,6 +256,7 @@ static const struct pinctrl_pin_desc imx7ulp_pinctrl_pads[] = {
 
 #define BM_OBE_ENABLED		BIT(17)
 #define BM_IBE_ENABLED		BIT(16)
+<<<<<<< HEAD
 #define BM_LK_ENABLED		BIT(15)
 #define BM_MUX_MODE		0xf00
 #define BP_MUX_MODE		8
@@ -296,6 +297,10 @@ static void imx7ulp_cfg_params_fixup(unsigned long *configs,
 		}
 	}
 }
+=======
+#define BM_MUX_MODE		0xf00
+#define BP_MUX_MODE		8
+>>>>>>> upstream/android-13
 
 static int imx7ulp_pmx_gpio_set_direction(struct pinctrl_dev *pctldev,
 					  struct pinctrl_gpio_range *range,
@@ -326,10 +331,13 @@ static const struct imx_pinctrl_soc_info imx7ulp_pinctrl_info = {
 	.gpio_set_direction = imx7ulp_pmx_gpio_set_direction,
 	.mux_mask = BM_MUX_MODE,
 	.mux_shift = BP_MUX_MODE,
+<<<<<<< HEAD
 	.generic_pinconf = true,
 	.decodes = imx7ulp_cfg_decodes,
 	.num_decodes = ARRAY_SIZE(imx7ulp_cfg_decodes),
 	.fixup = imx7ulp_cfg_params_fixup,
+=======
+>>>>>>> upstream/android-13
 };
 
 static const struct of_device_id imx7ulp_pinctrl_of_match[] = {
@@ -345,7 +353,11 @@ static int imx7ulp_pinctrl_probe(struct platform_device *pdev)
 static struct platform_driver imx7ulp_pinctrl_driver = {
 	.driver = {
 		.name = "imx7ulp-pinctrl",
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(imx7ulp_pinctrl_of_match),
+=======
+		.of_match_table = imx7ulp_pinctrl_of_match,
+>>>>>>> upstream/android-13
 		.suppress_bind_attrs = true,
 	},
 	.probe = imx7ulp_pinctrl_probe,

@@ -7,8 +7,13 @@
  *
  * This was originally taken from fs/mpage.c
  *
+<<<<<<< HEAD
  * The intent is the ext4_mpage_readpages() function here is intended
  * to replace mpage_readpages() in the general case, not just for
+=======
+ * The ext4_mpage_readpages() function here is intended to
+ * replace mpage_readahead() in the general case, not just for
+>>>>>>> upstream/android-13
  * encrypted files.  It has some limitations (see below), where it
  * will fall back to read_block_full_page(), but these limitations
  * should only be hit when page_size != block_size.
@@ -58,6 +63,10 @@ enum bio_post_read_step {
 	STEP_INITIAL = 0,
 	STEP_DECRYPT,
 	STEP_VERITY,
+<<<<<<< HEAD
+=======
+	STEP_MAX,
+>>>>>>> upstream/android-13
 };
 
 struct bio_post_read_ctx {
@@ -71,9 +80,15 @@ static void __read_end_io(struct bio *bio)
 {
 	struct page *page;
 	struct bio_vec *bv;
+<<<<<<< HEAD
 	int i;
 
 	bio_for_each_segment_all(bv, bio, i) {
+=======
+	struct bvec_iter_all iter_all;
+
+	bio_for_each_segment_all(bv, bio, iter_all) {
+>>>>>>> upstream/android-13
 		page = bv->bv_page;
 
 		/* PG_error was set if any post_read step failed */
@@ -107,10 +122,29 @@ static void verity_work(struct work_struct *work)
 {
 	struct bio_post_read_ctx *ctx =
 		container_of(work, struct bio_post_read_ctx, work);
+<<<<<<< HEAD
 
 	fsverity_verify_bio(ctx->bio);
 
 	bio_post_read_processing(ctx);
+=======
+	struct bio *bio = ctx->bio;
+
+	/*
+	 * fsverity_verify_bio() may call readpages() again, and although verity
+	 * will be disabled for that, decryption may still be needed, causing
+	 * another bio_post_read_ctx to be allocated.  So to guarantee that
+	 * mempool_alloc() never deadlocks we must free the current ctx first.
+	 * This is safe because verity is the last post-read step.
+	 */
+	BUILD_BUG_ON(STEP_VERITY + 1 != STEP_MAX);
+	mempool_free(ctx, bio_post_read_ctx_pool);
+	bio->bi_private = NULL;
+
+	fsverity_verify_bio(bio);
+
+	__read_end_io(bio);
+>>>>>>> upstream/android-13
 }
 
 static void bio_post_read_processing(struct bio_post_read_ctx *ctx)
@@ -128,7 +162,11 @@ static void bio_post_read_processing(struct bio_post_read_ctx *ctx)
 			return;
 		}
 		ctx->cur_step++;
+<<<<<<< HEAD
 		/* fall-through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case STEP_VERITY:
 		if (ctx->enabled_steps & (1 << STEP_VERITY)) {
 			INIT_WORK(&ctx->work, verity_work);
@@ -136,7 +174,11 @@ static void bio_post_read_processing(struct bio_post_read_ctx *ctx)
 			return;
 		}
 		ctx->cur_step++;
+<<<<<<< HEAD
 		/* fall-through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		__read_end_io(ctx->bio);
 	}
@@ -191,12 +233,20 @@ static inline bool ext4_need_verity(const struct inode *inode, pgoff_t idx)
 	       idx < DIV_ROUND_UP(inode->i_size, PAGE_SIZE);
 }
 
+<<<<<<< HEAD
 static struct bio_post_read_ctx *get_bio_post_read_ctx(struct inode *inode,
 						       struct bio *bio,
 						       pgoff_t first_idx)
 {
 	unsigned int post_read_steps = 0;
 	struct bio_post_read_ctx *ctx = NULL;
+=======
+static void ext4_set_bio_post_read_ctx(struct bio *bio,
+				       const struct inode *inode,
+				       pgoff_t first_idx)
+{
+	unsigned int post_read_steps = 0;
+>>>>>>> upstream/android-13
 
 	if (fscrypt_inode_uses_fs_layer_crypto(inode))
 		post_read_steps |= 1 << STEP_DECRYPT;
@@ -205,14 +255,24 @@ static struct bio_post_read_ctx *get_bio_post_read_ctx(struct inode *inode,
 		post_read_steps |= 1 << STEP_VERITY;
 
 	if (post_read_steps) {
+<<<<<<< HEAD
 		ctx = mempool_alloc(bio_post_read_ctx_pool, GFP_NOFS);
 		if (!ctx)
 			return ERR_PTR(-ENOMEM);
+=======
+		/* Due to the mempool, this never fails. */
+		struct bio_post_read_ctx *ctx =
+			mempool_alloc(bio_post_read_ctx_pool, GFP_NOFS);
+
+>>>>>>> upstream/android-13
 		ctx->bio = bio;
 		ctx->enabled_steps = post_read_steps;
 		bio->bi_private = ctx;
 	}
+<<<<<<< HEAD
 	return ctx;
+=======
+>>>>>>> upstream/android-13
 }
 
 static inline loff_t ext4_readpage_limit(struct inode *inode)
@@ -248,14 +308,22 @@ ext4_submit_bio_read(struct bio *bio)
 	submit_bio(bio);
 }
 
+<<<<<<< HEAD
 int ext4_mpage_readpages(struct address_space *mapping,
 			 struct list_head *pages, struct page *page,
 			 unsigned nr_pages, bool is_readahead)
+=======
+int ext4_mpage_readpages(struct inode *inode,
+		struct readahead_control *rac, struct page *page)
+>>>>>>> upstream/android-13
 {
 	struct bio *bio = NULL;
 	sector_t last_block_in_bio = 0;
 
+<<<<<<< HEAD
 	struct inode *inode = mapping->host;
+=======
+>>>>>>> upstream/android-13
 	const unsigned blkbits = inode->i_blkbits;
 	const unsigned blocks_per_page = PAGE_SIZE >> blkbits;
 	const unsigned blocksize = 1 << blkbits;
@@ -269,6 +337,10 @@ int ext4_mpage_readpages(struct address_space *mapping,
 	int length;
 	unsigned relative_block = 0;
 	struct ext4_map_blocks map;
+<<<<<<< HEAD
+=======
+	unsigned int nr_pages = rac ? readahead_count(rac) : 1;
+>>>>>>> upstream/android-13
 
 	map.m_pblk = 0;
 	map.m_lblk = 0;
@@ -279,6 +351,7 @@ int ext4_mpage_readpages(struct address_space *mapping,
 		int fully_mapped = 1;
 		unsigned first_hole = blocks_per_page;
 
+<<<<<<< HEAD
 		if (pages) {
 			page = list_entry(pages->prev, struct page, lru);
 
@@ -287,6 +360,11 @@ int ext4_mpage_readpages(struct address_space *mapping,
 			if (add_to_page_cache_lru(page, mapping, page->index,
 				  readahead_gfp_mask(mapping)))
 				goto next_page;
+=======
+		if (rac) {
+			page = readahead_page(rac);
+			prefetchw(&page->flags);
+>>>>>>> upstream/android-13
 		}
 
 		if (page_has_buffers(page))
@@ -400,6 +478,7 @@ int ext4_mpage_readpages(struct address_space *mapping,
 			bio = NULL;
 		}
 		if (bio == NULL) {
+<<<<<<< HEAD
 			struct bio_post_read_ctx *ctx;
 
 			bio = bio_alloc(GFP_KERNEL,
@@ -420,6 +499,21 @@ int ext4_mpage_readpages(struct address_space *mapping,
 			bio->bi_private = ctx;
 			bio_set_op_attrs(bio, REQ_OP_READ,
 						is_readahead ? REQ_RAHEAD : 0);
+=======
+			/*
+			 * bio_alloc will _always_ be able to allocate a bio if
+			 * __GFP_DIRECT_RECLAIM is set, see bio_alloc_bioset().
+			 */
+			bio = bio_alloc(GFP_KERNEL, bio_max_segs(nr_pages));
+			fscrypt_set_bio_crypt_ctx(bio, inode, next_block,
+						  GFP_KERNEL);
+			ext4_set_bio_post_read_ctx(bio, inode, page->index);
+			bio_set_dev(bio, bdev);
+			bio->bi_iter.bi_sector = blocks[0] << (blkbits - 9);
+			bio->bi_end_io = mpage_end_io;
+			bio_set_op_attrs(bio, REQ_OP_READ,
+						rac ? REQ_RAHEAD : 0);
+>>>>>>> upstream/android-13
 		}
 
 		length = first_hole << blkbits;
@@ -444,10 +538,16 @@ int ext4_mpage_readpages(struct address_space *mapping,
 		else
 			unlock_page(page);
 	next_page:
+<<<<<<< HEAD
 		if (pages)
 			put_page(page);
 	}
 	BUG_ON(pages && !list_empty(pages));
+=======
+		if (rac)
+			put_page(page);
+	}
+>>>>>>> upstream/android-13
 	if (bio)
 		ext4_submit_bio_read(bio);
 	return 0;

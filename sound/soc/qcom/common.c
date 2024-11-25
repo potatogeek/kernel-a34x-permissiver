@@ -14,9 +14,19 @@ int qcom_snd_parse_of(struct snd_soc_card *card)
 	struct device *dev = card->dev;
 	struct snd_soc_dai_link *link;
 	struct of_phandle_args args;
+<<<<<<< HEAD
 	int ret, num_links;
 
 	ret = snd_soc_of_parse_card_name(card, "model");
+=======
+	struct snd_soc_dai_link_component *dlc;
+	int ret, num_links;
+
+	ret = snd_soc_of_parse_card_name(card, "model");
+	if (ret == 0 && !card->name)
+		/* Deprecated, only for compatibility with old device trees */
+		ret = snd_soc_of_parse_card_name(card, "qcom,model");
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(dev, "Error parsing card name: %d\n", ret);
 		return ret;
@@ -24,29 +34,77 @@ int qcom_snd_parse_of(struct snd_soc_card *card)
 
 	/* DAPM routes */
 	if (of_property_read_bool(dev->of_node, "audio-routing")) {
+<<<<<<< HEAD
 		ret = snd_soc_of_parse_audio_routing(card,
 				"audio-routing");
 		if (ret)
 			return ret;
 	}
+=======
+		ret = snd_soc_of_parse_audio_routing(card, "audio-routing");
+		if (ret)
+			return ret;
+	}
+	/* Deprecated, only for compatibility with old device trees */
+	if (of_property_read_bool(dev->of_node, "qcom,audio-routing")) {
+		ret = snd_soc_of_parse_audio_routing(card, "qcom,audio-routing");
+		if (ret)
+			return ret;
+	}
+
+	ret = snd_soc_of_parse_aux_devs(card, "aux-devs");
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	/* Populate links */
 	num_links = of_get_child_count(dev->of_node);
 
 	/* Allocate the DAI link array */
+<<<<<<< HEAD
 	card->dai_link = kcalloc(num_links, sizeof(*link), GFP_KERNEL);
+=======
+	card->dai_link = devm_kcalloc(dev, num_links, sizeof(*link), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!card->dai_link)
 		return -ENOMEM;
 
 	card->num_links = num_links;
 	link = card->dai_link;
+<<<<<<< HEAD
 	for_each_child_of_node(dev->of_node, np) {
+=======
+
+	for_each_child_of_node(dev->of_node, np) {
+		dlc = devm_kzalloc(dev, 2 * sizeof(*dlc), GFP_KERNEL);
+		if (!dlc) {
+			ret = -ENOMEM;
+			goto err_put_np;
+		}
+
+		link->cpus	= &dlc[0];
+		link->platforms	= &dlc[1];
+
+		link->num_cpus		= 1;
+		link->num_platforms	= 1;
+
+		ret = of_property_read_string(np, "link-name", &link->name);
+		if (ret) {
+			dev_err(card->dev, "error getting codec dai_link name\n");
+			goto err_put_np;
+		}
+
+>>>>>>> upstream/android-13
 		cpu = of_get_child_by_name(np, "cpu");
 		platform = of_get_child_by_name(np, "platform");
 		codec = of_get_child_by_name(np, "codec");
 
 		if (!cpu) {
+<<<<<<< HEAD
 			dev_err(dev, "Can't find cpu DT node\n");
+=======
+			dev_err(dev, "%s: Can't find cpu DT node\n", link->name);
+>>>>>>> upstream/android-13
 			ret = -EINVAL;
 			goto err;
 		}
@@ -54,6 +112,7 @@ int qcom_snd_parse_of(struct snd_soc_card *card)
 		ret = of_parse_phandle_with_args(cpu, "sound-dai",
 					"#sound-dai-cells", 0, &args);
 		if (ret) {
+<<<<<<< HEAD
 			dev_err(card->dev, "error getting cpu phandle\n");
 			goto err;
 		}
@@ -99,6 +158,72 @@ int qcom_snd_parse_of(struct snd_soc_card *card)
 
 		link->dpcm_playback = 1;
 		link->dpcm_capture = 1;
+=======
+			dev_err(card->dev, "%s: error getting cpu phandle\n", link->name);
+			goto err;
+		}
+		link->cpus->of_node = args.np;
+		link->id = args.args[0];
+
+		ret = snd_soc_of_get_dai_name(cpu, &link->cpus->dai_name);
+		if (ret) {
+			if (ret != -EPROBE_DEFER)
+				dev_err(card->dev, "%s: error getting cpu dai name: %d\n",
+					link->name, ret);
+			goto err;
+		}
+
+		if (platform) {
+			link->platforms->of_node = of_parse_phandle(platform,
+					"sound-dai",
+					0);
+			if (!link->platforms->of_node) {
+				dev_err(card->dev, "%s: platform dai not found\n", link->name);
+				ret = -EINVAL;
+				goto err;
+			}
+		} else {
+			link->platforms->of_node = link->cpus->of_node;
+		}
+
+		if (codec) {
+			ret = snd_soc_of_get_dai_link_codecs(dev, codec, link);
+			if (ret < 0) {
+				if (ret != -EPROBE_DEFER)
+					dev_err(card->dev, "%s: codec dai not found: %d\n",
+						link->name, ret);
+				goto err;
+			}
+
+			if (platform) {
+				/* DPCM backend */
+				link->no_pcm = 1;
+				link->ignore_pmdown_time = 1;
+			}
+		} else {
+			/* DPCM frontend */
+			dlc = devm_kzalloc(dev, sizeof(*dlc), GFP_KERNEL);
+			if (!dlc) {
+				ret = -ENOMEM;
+				goto err;
+			}
+
+			link->codecs	 = dlc;
+			link->num_codecs = 1;
+
+			link->codecs->dai_name = "snd-soc-dummy-dai";
+			link->codecs->name = "snd-soc-dummy";
+			link->dynamic = 1;
+		}
+
+		if (platform || !codec) {
+			/* DPCM */
+			snd_soc_dai_link_set_capabilities(link);
+			link->ignore_suspend = 1;
+			link->nonatomic = 1;
+		}
+
+>>>>>>> upstream/android-13
 		link->stream_name = link->name;
 		link++;
 
@@ -109,11 +234,19 @@ int qcom_snd_parse_of(struct snd_soc_card *card)
 
 	return 0;
 err:
+<<<<<<< HEAD
 	of_node_put(np);
 	of_node_put(cpu);
 	of_node_put(codec);
 	of_node_put(platform);
 	kfree(card->dai_link);
+=======
+	of_node_put(cpu);
+	of_node_put(codec);
+	of_node_put(platform);
+err_put_np:
+	of_node_put(np);
+>>>>>>> upstream/android-13
 	return ret;
 }
 EXPORT_SYMBOL(qcom_snd_parse_of);

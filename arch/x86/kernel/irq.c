@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Common interrupt code for 32 and 64 bit
  */
@@ -12,12 +16,21 @@
 #include <linux/export.h>
 #include <linux/irq.h>
 
+<<<<<<< HEAD
+=======
+#include <asm/irq_stack.h>
+>>>>>>> upstream/android-13
 #include <asm/apic.h>
 #include <asm/io_apic.h>
 #include <asm/irq.h>
 #include <asm/mce.h>
 #include <asm/hw_irq.h>
 #include <asm/desc.h>
+<<<<<<< HEAD
+=======
+#include <asm/traps.h>
+#include <asm/thermal.h>
+>>>>>>> upstream/android-13
 
 #define CREATE_TRACE_POINTS
 #include <asm/trace/irq_vectors.h>
@@ -25,9 +38,12 @@
 DEFINE_PER_CPU_SHARED_ALIGNED(irq_cpustat_t, irq_stat);
 EXPORT_PER_CPU_SYMBOL(irq_stat);
 
+<<<<<<< HEAD
 DEFINE_PER_CPU(struct pt_regs *, irq_regs);
 EXPORT_PER_CPU_SYMBOL(irq_regs);
 
+=======
+>>>>>>> upstream/android-13
 atomic_t irq_err_count;
 
 /*
@@ -134,7 +150,11 @@ int arch_show_interrupts(struct seq_file *p, int prec)
 		seq_printf(p, "%10u ", per_cpu(mce_poll_count, j));
 	seq_puts(p, "  Machine check polls\n");
 #endif
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_HYPERV) || defined(CONFIG_XEN)
+=======
+#ifdef CONFIG_X86_HV_CALLBACK_VECTOR
+>>>>>>> upstream/android-13
 	if (test_bit(HYPERVISOR_CALLBACK_VECTOR, system_vectors)) {
 		seq_printf(p, "%*s: ", prec, "HYP");
 		for_each_online_cpu(j)
@@ -223,6 +243,7 @@ u64 arch_irq_stat(void)
 	return sum;
 }
 
+<<<<<<< HEAD
 
 /*
  * do_IRQ handles all normal device IRQ's (the special
@@ -248,6 +269,37 @@ __visible unsigned int __irq_entry do_IRQ(struct pt_regs *regs)
 
 		if (desc != VECTOR_RETRIGGERED && desc != VECTOR_SHUTDOWN) {
 			pr_emerg_ratelimited("%s: %d.%d No irq handler for vector\n",
+=======
+static __always_inline void handle_irq(struct irq_desc *desc,
+				       struct pt_regs *regs)
+{
+	if (IS_ENABLED(CONFIG_X86_64))
+		generic_handle_irq_desc(desc);
+	else
+		__handle_irq(desc, regs);
+}
+
+/*
+ * common_interrupt() handles all normal device IRQ's (the special SMP
+ * cross-CPU interrupts have their own entry points).
+ */
+DEFINE_IDTENTRY_IRQ(common_interrupt)
+{
+	struct pt_regs *old_regs = set_irq_regs(regs);
+	struct irq_desc *desc;
+
+	/* entry code tells RCU that we're not quiescent.  Check it. */
+	RCU_LOCKDEP_WARN(!rcu_is_watching(), "IRQ failed to wake up RCU");
+
+	desc = __this_cpu_read(vector_irq[vector]);
+	if (likely(!IS_ERR_OR_NULL(desc))) {
+		handle_irq(desc, regs);
+	} else {
+		ack_APIC_irq();
+
+		if (desc == VECTOR_UNUSED) {
+			pr_emerg_ratelimited("%s: %d.%u No irq handler for vector\n",
+>>>>>>> upstream/android-13
 					     __func__, smp_processor_id(),
 					     vector);
 		} else {
@@ -255,10 +307,14 @@ __visible unsigned int __irq_entry do_IRQ(struct pt_regs *regs)
 		}
 	}
 
+<<<<<<< HEAD
 	exiting_irq();
 
 	set_irq_regs(old_regs);
 	return 1;
+=======
+	set_irq_regs(old_regs);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_X86_LOCAL_APIC
@@ -267,17 +323,28 @@ void (*x86_platform_ipi_callback)(void) = NULL;
 /*
  * Handler for X86_PLATFORM_IPI_VECTOR.
  */
+<<<<<<< HEAD
 __visible void __irq_entry smp_x86_platform_ipi(struct pt_regs *regs)
 {
 	struct pt_regs *old_regs = set_irq_regs(regs);
 
 	entering_ack_irq();
+=======
+DEFINE_IDTENTRY_SYSVEC(sysvec_x86_platform_ipi)
+{
+	struct pt_regs *old_regs = set_irq_regs(regs);
+
+	ack_APIC_irq();
+>>>>>>> upstream/android-13
 	trace_x86_platform_ipi_entry(X86_PLATFORM_IPI_VECTOR);
 	inc_irq_stat(x86_platform_ipis);
 	if (x86_platform_ipi_callback)
 		x86_platform_ipi_callback();
 	trace_x86_platform_ipi_exit(X86_PLATFORM_IPI_VECTOR);
+<<<<<<< HEAD
 	exiting_irq();
+=======
+>>>>>>> upstream/android-13
 	set_irq_regs(old_regs);
 }
 #endif
@@ -290,14 +357,22 @@ void kvm_set_posted_intr_wakeup_handler(void (*handler)(void))
 {
 	if (handler)
 		kvm_posted_intr_wakeup_handler = handler;
+<<<<<<< HEAD
 	else
 		kvm_posted_intr_wakeup_handler = dummy_handler;
+=======
+	else {
+		kvm_posted_intr_wakeup_handler = dummy_handler;
+		synchronize_rcu();
+	}
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(kvm_set_posted_intr_wakeup_handler);
 
 /*
  * Handler for POSTED_INTERRUPT_VECTOR.
  */
+<<<<<<< HEAD
 __visible void smp_kvm_posted_intr_ipi(struct pt_regs *regs)
 {
 	struct pt_regs *old_regs = set_irq_regs(regs);
@@ -306,11 +381,18 @@ __visible void smp_kvm_posted_intr_ipi(struct pt_regs *regs)
 	inc_irq_stat(kvm_posted_intr_ipis);
 	exiting_irq();
 	set_irq_regs(old_regs);
+=======
+DEFINE_IDTENTRY_SYSVEC_SIMPLE(sysvec_kvm_posted_intr_ipi)
+{
+	ack_APIC_irq();
+	inc_irq_stat(kvm_posted_intr_ipis);
+>>>>>>> upstream/android-13
 }
 
 /*
  * Handler for POSTED_INTERRUPT_WAKEUP_VECTOR.
  */
+<<<<<<< HEAD
 __visible void smp_kvm_posted_intr_wakeup_ipi(struct pt_regs *regs)
 {
 	struct pt_regs *old_regs = set_irq_regs(regs);
@@ -320,11 +402,19 @@ __visible void smp_kvm_posted_intr_wakeup_ipi(struct pt_regs *regs)
 	kvm_posted_intr_wakeup_handler();
 	exiting_irq();
 	set_irq_regs(old_regs);
+=======
+DEFINE_IDTENTRY_SYSVEC(sysvec_kvm_posted_intr_wakeup_ipi)
+{
+	ack_APIC_irq();
+	inc_irq_stat(kvm_posted_intr_wakeup_ipis);
+	kvm_posted_intr_wakeup_handler();
+>>>>>>> upstream/android-13
 }
 
 /*
  * Handler for POSTED_INTERRUPT_NESTED_VECTOR.
  */
+<<<<<<< HEAD
 __visible void smp_kvm_posted_intr_nested_ipi(struct pt_regs *regs)
 {
 	struct pt_regs *old_regs = set_irq_regs(regs);
@@ -333,6 +423,12 @@ __visible void smp_kvm_posted_intr_nested_ipi(struct pt_regs *regs)
 	inc_irq_stat(kvm_posted_intr_nested_ipis);
 	exiting_irq();
 	set_irq_regs(old_regs);
+=======
+DEFINE_IDTENTRY_SYSVEC_SIMPLE(sysvec_kvm_posted_intr_nested_ipi)
+{
+	ack_APIC_irq();
+	inc_irq_stat(kvm_posted_intr_nested_ipis);
+>>>>>>> upstream/android-13
 }
 #endif
 
@@ -349,7 +445,11 @@ void fixup_irqs(void)
 	irq_migrate_all_off_this_cpu();
 
 	/*
+<<<<<<< HEAD
 	 * We can remove mdelay() and then send spuriuous interrupts to
+=======
+	 * We can remove mdelay() and then send spurious interrupts to
+>>>>>>> upstream/android-13
 	 * new cpu targets for all the irqs that were handled previously by
 	 * this cpu. While it works, I have seen spurious interrupt messages
 	 * (nothing wrong but still...).
@@ -386,3 +486,26 @@ void fixup_irqs(void)
 	}
 }
 #endif
+<<<<<<< HEAD
+=======
+
+#ifdef CONFIG_X86_THERMAL_VECTOR
+static void smp_thermal_vector(void)
+{
+	if (x86_thermal_enabled())
+		intel_thermal_interrupt();
+	else
+		pr_err("CPU%d: Unexpected LVT thermal interrupt!\n",
+		       smp_processor_id());
+}
+
+DEFINE_IDTENTRY_SYSVEC(sysvec_thermal)
+{
+	trace_thermal_apic_entry(THERMAL_APIC_VECTOR);
+	inc_irq_stat(irq_thermal_count);
+	smp_thermal_vector();
+	trace_thermal_apic_exit(THERMAL_APIC_VECTOR);
+	ack_APIC_irq();
+}
+#endif
+>>>>>>> upstream/android-13

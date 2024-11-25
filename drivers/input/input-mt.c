@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Input Multitouch Library
  *
  * Copyright (c) 2008-2010 Henrik Rydberg
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/input/mt.h>
@@ -19,7 +26,11 @@ static void copy_abs(struct input_dev *dev, unsigned int dst, unsigned int src)
 	if (dev->absinfo && test_bit(src, dev->absbit)) {
 		dev->absinfo[dst] = dev->absinfo[src];
 		dev->absinfo[dst].fuzz = 0;
+<<<<<<< HEAD
 		dev->absbit[BIT_WORD(dst)] |= BIT_MASK(dst);
+=======
+		__set_bit(dst, dev->absbit);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -326,11 +337,22 @@ static int adjust_dual(int *begin, int step, int *end, int eq, int mu)
 	p = begin + step;
 	s = p == end ? f + 1 : *p;
 
+<<<<<<< HEAD
 	for (; p != end; p += step)
 		if (*p < f)
 			s = f, f = *p;
 		else if (*p < s)
 			s = *p;
+=======
+	for (; p != end; p += step) {
+		if (*p < f) {
+			s = f;
+			f = *p;
+		} else if (*p < s) {
+			s = *p;
+		}
+	}
+>>>>>>> upstream/android-13
 
 	c = (f + s + 1) / 2;
 	if (c == 0 || (c > mu && (!eq || mu > 0)))

@@ -40,13 +40,17 @@ static inline void rtc_proc_del_device(struct rtc_device *rtc)
 
 #ifdef CONFIG_RTC_INTF_SYSFS
 const struct attribute_group **rtc_get_dev_attribute_groups(void);
+<<<<<<< HEAD
 int rtc_add_group(struct rtc_device *rtc, const struct attribute_group *grp);
 int rtc_add_groups(struct rtc_device *rtc, const struct attribute_group **grps);
+=======
+>>>>>>> upstream/android-13
 #else
 static inline const struct attribute_group **rtc_get_dev_attribute_groups(void)
 {
 	return NULL;
 }
+<<<<<<< HEAD
 
 static inline
 int rtc_add_group(struct rtc_device *rtc, const struct attribute_group *grp)
@@ -63,4 +67,6 @@ int rtc_add_groups(struct rtc_device *rtc, const struct attribute_group **grps)
 
 #ifdef CONFIG_RTC_HCTOSYS
 extern int rtc_hctosys(void);
+=======
+>>>>>>> upstream/android-13
 #endif

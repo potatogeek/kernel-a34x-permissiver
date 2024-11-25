@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2011 Instituto Nokia de Tecnologia
  *
@@ -10,6 +14,7 @@
  *
  * Copyright 2006-2010	Johannes Berg <johannes@sipsolutions.net>
  * Copyright 2013-2014  Intel Mobile Communications GmbH
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +28,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": %s: " fmt, __func__
@@ -118,6 +125,7 @@ nla_put_failure:
 
 static struct nfc_dev *__get_device_from_cb(struct netlink_callback *cb)
 {
+<<<<<<< HEAD
 	struct nlattr **attrbuf = genl_family_attrbuf(&nfc_genl_family);
 	struct nfc_dev *dev;
 	int rc;
@@ -133,6 +141,16 @@ static struct nfc_dev *__get_device_from_cb(struct netlink_callback *cb)
 		return ERR_PTR(-EINVAL);
 
 	idx = nla_get_u32(attrbuf[NFC_ATTR_DEVICE_INDEX]);
+=======
+	const struct genl_dumpit_info *info = genl_dumpit_info(cb);
+	struct nfc_dev *dev;
+	u32 idx;
+
+	if (!info->attrs[NFC_ATTR_DEVICE_INDEX])
+		return ERR_PTR(-EINVAL);
+
+	idx = nla_get_u32(info->attrs[NFC_ATTR_DEVICE_INDEX]);
+>>>>>>> upstream/android-13
 
 	dev = nfc_get_device(idx);
 	if (!dev)
@@ -396,7 +414,11 @@ int nfc_genl_llc_send_sdres(struct nfc_dev *dev, struct hlist_head *sdres_list)
 	if (nla_put_u32(msg, NFC_ATTR_DEVICE_INDEX, dev->idx))
 		goto nla_put_failure;
 
+<<<<<<< HEAD
 	sdp_attr = nla_nest_start(msg, NFC_ATTR_LLC_SDP);
+=======
+	sdp_attr = nla_nest_start_noflag(msg, NFC_ATTR_LLC_SDP);
+>>>>>>> upstream/android-13
 	if (sdp_attr == NULL) {
 		rc = -ENOMEM;
 		goto nla_put_failure;
@@ -406,7 +428,11 @@ int nfc_genl_llc_send_sdres(struct nfc_dev *dev, struct hlist_head *sdres_list)
 	hlist_for_each_entry_safe(sdres, n, sdres_list, node) {
 		pr_debug("uri: %s, sap: %d\n", sdres->uri, sdres->sap);
 
+<<<<<<< HEAD
 		uri_attr = nla_nest_start(msg, i++);
+=======
+		uri_attr = nla_nest_start_noflag(msg, i++);
+>>>>>>> upstream/android-13
 		if (uri_attr == NULL) {
 			rc = -ENOMEM;
 			goto nla_put_failure;
@@ -549,7 +575,11 @@ free_msg:
 
 int nfc_genl_se_connectivity(struct nfc_dev *dev, u8 se_idx)
 {
+<<<<<<< HEAD
 	struct nfc_se *se;
+=======
+	const struct nfc_se *se;
+>>>>>>> upstream/android-13
 	struct sk_buff *msg;
 	void *hdr;
 
@@ -655,8 +685,15 @@ static int nfc_genl_dump_devices_done(struct netlink_callback *cb)
 {
 	struct class_dev_iter *iter = (struct class_dev_iter *) cb->args[0];
 
+<<<<<<< HEAD
 	nfc_device_iter_exit(iter);
 	kfree(iter);
+=======
+	if (iter) {
+		nfc_device_iter_exit(iter);
+		kfree(iter);
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1183,8 +1220,14 @@ static int nfc_genl_llc_sdreq(struct sk_buff *skb, struct genl_info *info)
 	tlvs_len = 0;
 
 	nla_for_each_nested(attr, info->attrs[NFC_ATTR_LLC_SDP], rem) {
+<<<<<<< HEAD
 		rc = nla_parse_nested(sdp_attrs, NFC_SDP_ATTR_MAX, attr,
 				      nfc_sdp_genl_policy, info->extack);
+=======
+		rc = nla_parse_nested_deprecated(sdp_attrs, NFC_SDP_ATTR_MAX,
+						 attr, nfc_sdp_genl_policy,
+						 info->extack);
+>>>>>>> upstream/android-13
 
 		if (rc != 0) {
 			rc = -EINVAL;
@@ -1245,7 +1288,11 @@ static int nfc_genl_fw_download(struct sk_buff *skb, struct genl_info *info)
 	if (!dev)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	nla_strlcpy(firmware_name, info->attrs[NFC_ATTR_FIRMWARE_NAME],
+=======
+	nla_strscpy(firmware_name, info->attrs[NFC_ATTR_FIRMWARE_NAME],
+>>>>>>> upstream/android-13
 		    sizeof(firmware_name));
 
 	rc = nfc_fw_download(dev, firmware_name);
@@ -1260,7 +1307,11 @@ int nfc_genl_fw_download_done(struct nfc_dev *dev, const char *firmware_name,
 	struct sk_buff *msg;
 	void *hdr;
 
+<<<<<<< HEAD
 	msg = nlmsg_new(NLMSG_DEFAULT_SIZE, GFP_KERNEL);
+=======
+	msg = nlmsg_new(NLMSG_DEFAULT_SIZE, GFP_ATOMIC);
+>>>>>>> upstream/android-13
 	if (!msg)
 		return -ENOMEM;
 
@@ -1276,7 +1327,11 @@ int nfc_genl_fw_download_done(struct nfc_dev *dev, const char *firmware_name,
 
 	genlmsg_end(msg, hdr);
 
+<<<<<<< HEAD
 	genlmsg_multicast(&nfc_genl_family, msg, 0, 0, GFP_KERNEL);
+=======
+	genlmsg_multicast(&nfc_genl_family, msg, 0, 0, GFP_ATOMIC);
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -1410,8 +1465,15 @@ static int nfc_genl_dump_ses_done(struct netlink_callback *cb)
 {
 	struct class_dev_iter *iter = (struct class_dev_iter *) cb->args[0];
 
+<<<<<<< HEAD
 	nfc_device_iter_exit(iter);
 	kfree(iter);
+=======
+	if (iter) {
+		nfc_device_iter_exit(iter);
+		kfree(iter);
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1549,7 +1611,11 @@ static int nfc_genl_vendor_cmd(struct sk_buff *skb,
 			       struct genl_info *info)
 {
 	struct nfc_dev *dev;
+<<<<<<< HEAD
 	struct nfc_vendor_cmd *cmd;
+=======
+	const struct nfc_vendor_cmd *cmd;
+>>>>>>> upstream/android-13
 	u32 dev_idx, vid, subcmd;
 	u8 *data;
 	size_t data_len;
@@ -1673,6 +1739,7 @@ EXPORT_SYMBOL(nfc_vendor_cmd_reply);
 static const struct genl_ops nfc_genl_ops[] = {
 	{
 		.cmd = NFC_CMD_GET_DEVICE,
+<<<<<<< HEAD
 		.doit = nfc_genl_get_device,
 		.dumpit = nfc_genl_dump_devices,
 		.done = nfc_genl_dump_devices_done,
@@ -1769,6 +1836,105 @@ static const struct genl_ops nfc_genl_ops[] = {
 		.cmd = NFC_CMD_DEACTIVATE_TARGET,
 		.doit = nfc_genl_deactivate_target,
 		.policy = nfc_genl_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = nfc_genl_get_device,
+		.dumpit = nfc_genl_dump_devices,
+		.done = nfc_genl_dump_devices_done,
+	},
+	{
+		.cmd = NFC_CMD_DEV_UP,
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = nfc_genl_dev_up,
+	},
+	{
+		.cmd = NFC_CMD_DEV_DOWN,
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = nfc_genl_dev_down,
+	},
+	{
+		.cmd = NFC_CMD_START_POLL,
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = nfc_genl_start_poll,
+	},
+	{
+		.cmd = NFC_CMD_STOP_POLL,
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = nfc_genl_stop_poll,
+	},
+	{
+		.cmd = NFC_CMD_DEP_LINK_UP,
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = nfc_genl_dep_link_up,
+	},
+	{
+		.cmd = NFC_CMD_DEP_LINK_DOWN,
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = nfc_genl_dep_link_down,
+	},
+	{
+		.cmd = NFC_CMD_GET_TARGET,
+		.validate = GENL_DONT_VALIDATE_STRICT |
+			    GENL_DONT_VALIDATE_DUMP_STRICT,
+		.dumpit = nfc_genl_dump_targets,
+		.done = nfc_genl_dump_targets_done,
+	},
+	{
+		.cmd = NFC_CMD_LLC_GET_PARAMS,
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = nfc_genl_llc_get_params,
+	},
+	{
+		.cmd = NFC_CMD_LLC_SET_PARAMS,
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = nfc_genl_llc_set_params,
+	},
+	{
+		.cmd = NFC_CMD_LLC_SDREQ,
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = nfc_genl_llc_sdreq,
+	},
+	{
+		.cmd = NFC_CMD_FW_DOWNLOAD,
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = nfc_genl_fw_download,
+	},
+	{
+		.cmd = NFC_CMD_ENABLE_SE,
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = nfc_genl_enable_se,
+	},
+	{
+		.cmd = NFC_CMD_DISABLE_SE,
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = nfc_genl_disable_se,
+	},
+	{
+		.cmd = NFC_CMD_GET_SE,
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.dumpit = nfc_genl_dump_ses,
+		.done = nfc_genl_dump_ses_done,
+	},
+	{
+		.cmd = NFC_CMD_SE_IO,
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = nfc_genl_se_io,
+	},
+	{
+		.cmd = NFC_CMD_ACTIVATE_TARGET,
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = nfc_genl_activate_target,
+	},
+	{
+		.cmd = NFC_CMD_VENDOR,
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = nfc_genl_vendor_cmd,
+	},
+	{
+		.cmd = NFC_CMD_DEACTIVATE_TARGET,
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = nfc_genl_deactivate_target,
+>>>>>>> upstream/android-13
 	},
 };
 
@@ -1777,6 +1943,10 @@ static struct genl_family nfc_genl_family __ro_after_init = {
 	.name = NFC_GENL_NAME,
 	.version = NFC_GENL_VERSION,
 	.maxattr = NFC_ATTR_MAX,
+<<<<<<< HEAD
+=======
+	.policy = nfc_genl_policy,
+>>>>>>> upstream/android-13
 	.module = THIS_MODULE,
 	.ops = nfc_genl_ops,
 	.n_ops = ARRAY_SIZE(nfc_genl_ops),
@@ -1836,9 +2006,15 @@ static int nfc_genl_rcv_nl_event(struct notifier_block *this,
 
 	w = kmalloc(sizeof(*w), GFP_ATOMIC);
 	if (w) {
+<<<<<<< HEAD
 		INIT_WORK((struct work_struct *) w, nfc_urelease_event_work);
 		w->portid = n->portid;
 		schedule_work((struct work_struct *) w);
+=======
+		INIT_WORK(&w->w, nfc_urelease_event_work);
+		w->portid = n->portid;
+		schedule_work(&w->w);
+>>>>>>> upstream/android-13
 	}
 
 out:

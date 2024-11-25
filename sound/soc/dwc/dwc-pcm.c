@@ -135,11 +135,20 @@ void dw_pcm_pop_rx(struct dw_i2s_dev *dev)
 	dw_pcm_transfer(dev, false);
 }
 
+<<<<<<< HEAD
 static int dw_pcm_open(struct snd_pcm_substream *substream)
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct dw_i2s_dev *dev = snd_soc_dai_get_drvdata(rtd->cpu_dai);
+=======
+static int dw_pcm_open(struct snd_soc_component *component,
+		       struct snd_pcm_substream *substream)
+{
+	struct snd_pcm_runtime *runtime = substream->runtime;
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct dw_i2s_dev *dev = snd_soc_dai_get_drvdata(asoc_rtd_to_cpu(rtd, 0));
+>>>>>>> upstream/android-13
 
 	snd_soc_set_runtime_hwparams(substream, &dw_pcm_hardware);
 	snd_pcm_hw_constraint_integer(runtime, SNDRV_PCM_HW_PARAM_PERIODS);
@@ -148,18 +157,32 @@ static int dw_pcm_open(struct snd_pcm_substream *substream)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int dw_pcm_close(struct snd_pcm_substream *substream)
+=======
+static int dw_pcm_close(struct snd_soc_component *component,
+			struct snd_pcm_substream *substream)
+>>>>>>> upstream/android-13
 {
 	synchronize_rcu();
 	return 0;
 }
 
+<<<<<<< HEAD
 static int dw_pcm_hw_params(struct snd_pcm_substream *substream,
 		struct snd_pcm_hw_params *hw_params)
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct dw_i2s_dev *dev = runtime->private_data;
 	int ret;
+=======
+static int dw_pcm_hw_params(struct snd_soc_component *component,
+			    struct snd_pcm_substream *substream,
+			    struct snd_pcm_hw_params *hw_params)
+{
+	struct snd_pcm_runtime *runtime = substream->runtime;
+	struct dw_i2s_dev *dev = runtime->private_data;
+>>>>>>> upstream/android-13
 
 	switch (params_channels(hw_params)) {
 	case 2:
@@ -184,6 +207,7 @@ static int dw_pcm_hw_params(struct snd_pcm_substream *substream,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	ret = snd_pcm_lib_malloc_pages(substream,
 			params_buffer_bytes(hw_params));
 	if (ret < 0)
@@ -198,6 +222,13 @@ static int dw_pcm_hw_free(struct snd_pcm_substream *substream)
 }
 
 static int dw_pcm_trigger(struct snd_pcm_substream *substream, int cmd)
+=======
+	return 0;
+}
+
+static int dw_pcm_trigger(struct snd_soc_component *component,
+			  struct snd_pcm_substream *substream, int cmd)
+>>>>>>> upstream/android-13
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct dw_i2s_dev *dev = runtime->private_data;
@@ -231,7 +262,12 @@ static int dw_pcm_trigger(struct snd_pcm_substream *substream, int cmd)
 	return ret;
 }
 
+<<<<<<< HEAD
 static snd_pcm_uframes_t dw_pcm_pointer(struct snd_pcm_substream *substream)
+=======
+static snd_pcm_uframes_t dw_pcm_pointer(struct snd_soc_component *component,
+					struct snd_pcm_substream *substream)
+>>>>>>> upstream/android-13
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct dw_i2s_dev *dev = runtime->private_data;
@@ -245,6 +281,7 @@ static snd_pcm_uframes_t dw_pcm_pointer(struct snd_pcm_substream *substream)
 	return pos < runtime->buffer_size ? pos : 0;
 }
 
+<<<<<<< HEAD
 static int dw_pcm_new(struct snd_soc_pcm_runtime *rtd)
 {
 	size_t size = dw_pcm_hardware.buffer_bytes_max;
@@ -273,6 +310,26 @@ static const struct snd_soc_component_driver dw_pcm_component = {
 	.pcm_new = dw_pcm_new,
 	.pcm_free = dw_pcm_free,
 	.ops = &dw_pcm_ops,
+=======
+static int dw_pcm_new(struct snd_soc_component *component,
+		      struct snd_soc_pcm_runtime *rtd)
+{
+	size_t size = dw_pcm_hardware.buffer_bytes_max;
+
+	snd_pcm_set_managed_buffer_all(rtd->pcm,
+			SNDRV_DMA_TYPE_CONTINUOUS,
+			NULL, size, size);
+	return 0;
+}
+
+static const struct snd_soc_component_driver dw_pcm_component = {
+	.open		= dw_pcm_open,
+	.close		= dw_pcm_close,
+	.hw_params	= dw_pcm_hw_params,
+	.trigger	= dw_pcm_trigger,
+	.pointer	= dw_pcm_pointer,
+	.pcm_construct	= dw_pcm_new,
+>>>>>>> upstream/android-13
 };
 
 int dw_pcm_register(struct platform_device *pdev)

@@ -16,7 +16,11 @@
 #include <linux/smc91x.h>
 #include <linux/sh_intc.h>
 #include <asm/machvec.h>
+<<<<<<< HEAD
 #include <asm/sizes.h>
+=======
+#include <linux/sizes.h>
+>>>>>>> upstream/android-13
 
 #define SMC_IOBASE	0xA2000000
 #define SMC_IO_OFFSET	0x300

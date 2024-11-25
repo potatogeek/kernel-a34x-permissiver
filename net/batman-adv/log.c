@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 /* Copyright (C) 2010-2018  B.A.T.M.A.N. contributors:
  *
  * Marek Lindner
@@ -14,11 +15,17 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+/* Copyright (C) B.A.T.M.A.N. contributors:
+ *
+ * Marek Lindner
+>>>>>>> upstream/android-13
  */
 
 #include "log.h"
 #include "main.h"
 
+<<<<<<< HEAD
 #include <linux/compiler.h>
 #include <linux/debugfs.h>
 #include <linux/errno.h>
@@ -88,6 +95,11 @@ static int batadv_fdebug_log(struct batadv_priv_debug_log *debug_log,
 
 	return 0;
 }
+=======
+#include <linux/stdarg.h>
+
+#include "trace.h"
+>>>>>>> upstream/android-13
 
 /**
  * batadv_debug_log() - Add debug log entry
@@ -98,6 +110,7 @@ static int batadv_fdebug_log(struct batadv_priv_debug_log *debug_log,
  */
 int batadv_debug_log(struct batadv_priv *bat_priv, const char *fmt, ...)
 {
+<<<<<<< HEAD
 	va_list args;
 	char tmp_log_buf[256];
 
@@ -105,10 +118,23 @@ int batadv_debug_log(struct batadv_priv *bat_priv, const char *fmt, ...)
 	vscnprintf(tmp_log_buf, sizeof(tmp_log_buf), fmt, args);
 	batadv_fdebug_log(bat_priv->debug_log, "[%10u] %s",
 			  jiffies_to_msecs(jiffies), tmp_log_buf);
+=======
+	struct va_format vaf;
+	va_list args;
+
+	va_start(args, fmt);
+
+	vaf.fmt = fmt;
+	vaf.va = &args;
+
+	trace_batadv_dbg(bat_priv, &vaf);
+
+>>>>>>> upstream/android-13
 	va_end(args);
 
 	return 0;
 }
+<<<<<<< HEAD
 
 static int batadv_log_open(struct inode *inode, struct file *file)
 {
@@ -248,3 +274,5 @@ void batadv_debug_log_cleanup(struct batadv_priv *bat_priv)
 	kfree(bat_priv->debug_log);
 	bat_priv->debug_log = NULL;
 }
+=======
+>>>>>>> upstream/android-13

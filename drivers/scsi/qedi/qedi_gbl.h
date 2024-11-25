@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * QLogic iSCSI Offload Driver
  * Copyright (c) 2016 Cavium Inc.
@@ -5,6 +6,12 @@
  * This software is available under the terms of the GNU General Public License
  * (GPL) Version 2, available from the file COPYING in the main directory of
  * this source tree.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * QLogic iSCSI Offload Driver
+ * Copyright (c) 2016 Cavium Inc.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _QEDI_GBL_H_
@@ -34,8 +41,12 @@ int qedi_send_iscsi_login(struct qedi_conn *qedi_conn,
 			  struct iscsi_task *task);
 int qedi_send_iscsi_logout(struct qedi_conn *qedi_conn,
 			   struct iscsi_task *task);
+<<<<<<< HEAD
 int qedi_iscsi_abort_work(struct qedi_conn *qedi_conn,
 			  struct iscsi_task *mtask);
+=======
+int qedi_send_iscsi_tmf(struct qedi_conn *qedi_conn, struct iscsi_task *mtask);
+>>>>>>> upstream/android-13
 int qedi_send_iscsi_text(struct qedi_conn *qedi_conn,
 			 struct iscsi_task *task);
 int qedi_send_iscsi_nopout(struct qedi_conn *qedi_conn,

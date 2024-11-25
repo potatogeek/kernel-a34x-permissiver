@@ -9,6 +9,10 @@
 #include <asm/irq_vectors.h>
 #include <asm/cpu_entry_area.h>
 
+<<<<<<< HEAD
+=======
+#include <linux/debug_locks.h>
+>>>>>>> upstream/android-13
 #include <linux/smp.h>
 #include <linux/percpu.h>
 
@@ -40,11 +44,14 @@ static inline void fill_ldt(struct desc_struct *desc, const struct user_desc *in
 	desc->l			= 0;
 }
 
+<<<<<<< HEAD
 extern struct desc_ptr idt_descr;
 extern gate_desc idt_table[];
 extern const struct desc_ptr debug_idt_descr;
 extern gate_desc debug_idt_table[];
 
+=======
+>>>>>>> upstream/android-13
 struct gdt_page {
 	struct desc_struct gdt[GDT_ENTRIES];
 } __attribute__((aligned(PAGE_SIZE)));
@@ -108,7 +115,11 @@ static inline int desc_empty(const void *ptr)
 	return !(desc[0] | desc[1]);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PARAVIRT
+=======
+#ifdef CONFIG_PARAVIRT_XXL
+>>>>>>> upstream/android-13
 #include <asm/paravirt.h>
 #else
 #define load_TR_desc()				native_load_tr_desc()
@@ -134,7 +145,11 @@ static inline void paravirt_alloc_ldt(struct desc_struct *ldt, unsigned entries)
 static inline void paravirt_free_ldt(struct desc_struct *ldt, unsigned entries)
 {
 }
+<<<<<<< HEAD
 #endif	/* CONFIG_PARAVIRT */
+=======
+#endif	/* CONFIG_PARAVIRT_XXL */
+>>>>>>> upstream/android-13
 
 #define store_ldt(ldt) asm("sldt %0" : "=m"(ldt))
 
@@ -214,7 +229,11 @@ static inline void native_load_gdt(const struct desc_ptr *dtr)
 	asm volatile("lgdt %0"::"m" (*dtr));
 }
 
+<<<<<<< HEAD
 static inline void native_load_idt(const struct desc_ptr *dtr)
+=======
+static __always_inline void native_load_idt(const struct desc_ptr *dtr)
+>>>>>>> upstream/android-13
 {
 	asm volatile("lidt %0"::"m" (*dtr));
 }
@@ -229,6 +248,29 @@ static inline void store_idt(struct desc_ptr *dtr)
 	asm volatile("sidt %0":"=m" (*dtr));
 }
 
+<<<<<<< HEAD
+=======
+static inline void native_gdt_invalidate(void)
+{
+	const struct desc_ptr invalid_gdt = {
+		.address = 0,
+		.size = 0
+	};
+
+	native_load_gdt(&invalid_gdt);
+}
+
+static inline void native_idt_invalidate(void)
+{
+	const struct desc_ptr invalid_idt = {
+		.address = 0,
+		.size = 0
+	};
+
+	native_load_idt(&invalid_idt);
+}
+
+>>>>>>> upstream/android-13
 /*
  * The LTR instruction marks the TSS GDT entry as busy. On 64-bit, the GDT is
  * a read-only remapping. To prevent a page fault, the GDT is switched to the
@@ -386,6 +428,7 @@ static inline void set_desc_limit(struct desc_struct *desc, unsigned long limit)
 	desc->limit1 = (limit >> 16) & 0xf;
 }
 
+<<<<<<< HEAD
 void update_intr_gate(unsigned int n, const void *addr);
 void alloc_intr_gate(unsigned int n, const void *addr);
 
@@ -431,10 +474,45 @@ static inline void load_current_idt(void)
 		load_idt((const struct desc_ptr *)&idt_descr);
 }
 
+=======
+void alloc_intr_gate(unsigned int n, const void *addr);
+
+static inline void init_idt_data(struct idt_data *data, unsigned int n,
+				 const void *addr)
+{
+	BUG_ON(n > 0xFF);
+
+	memset(data, 0, sizeof(*data));
+	data->vector	= n;
+	data->addr	= addr;
+	data->segment	= __KERNEL_CS;
+	data->bits.type	= GATE_INTERRUPT;
+	data->bits.p	= 1;
+}
+
+static inline void idt_init_desc(gate_desc *gate, const struct idt_data *d)
+{
+	unsigned long addr = (unsigned long) d->addr;
+
+	gate->offset_low	= (u16) addr;
+	gate->segment		= (u16) d->segment;
+	gate->bits		= d->bits;
+	gate->offset_middle	= (u16) (addr >> 16);
+#ifdef CONFIG_X86_64
+	gate->offset_high	= (u32) (addr >> 32);
+	gate->reserved		= 0;
+#endif
+}
+
+extern unsigned long system_vectors[];
+
+extern void load_current_idt(void);
+>>>>>>> upstream/android-13
 extern void idt_setup_early_handler(void);
 extern void idt_setup_early_traps(void);
 extern void idt_setup_traps(void);
 extern void idt_setup_apic_and_irq_gates(void);
+<<<<<<< HEAD
 
 #ifdef CONFIG_X86_64
 extern void idt_setup_early_pf(void);
@@ -447,5 +525,16 @@ static inline void idt_setup_debugidt_traps(void) { }
 #endif
 
 extern void idt_invalidate(void *addr);
+=======
+extern bool idt_is_f00f_address(unsigned long address);
+
+#ifdef CONFIG_X86_64
+extern void idt_setup_early_pf(void);
+#else
+static inline void idt_setup_early_pf(void) { }
+#endif
+
+extern void idt_invalidate(void);
+>>>>>>> upstream/android-13
 
 #endif /* _ASM_X86_DESC_H */

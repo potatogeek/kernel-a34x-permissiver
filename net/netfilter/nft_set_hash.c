@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2008-2014 Patrick McHardy <kaber@trash.net>
  *
@@ -5,6 +6,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2008-2014 Patrick McHardy <kaber@trash.net>
+ *
+>>>>>>> upstream/android-13
  * Development of this code funded by Astaro AG (http://www.astaro.com/)
  */
 
@@ -19,7 +26,11 @@
 #include <linux/rhashtable.h>
 #include <linux/netfilter.h>
 #include <linux/netfilter/nf_tables.h>
+<<<<<<< HEAD
 #include <net/netfilter/nf_tables.h>
+=======
+#include <net/netfilter/nf_tables_core.h>
+>>>>>>> upstream/android-13
 
 /* We target a hash table size of 4, element hint is 75% of final size */
 #define NFT_RHASH_ELEMENT_HINT 3
@@ -77,8 +88,14 @@ static const struct rhashtable_params nft_rhash_params = {
 	.automatic_shrinking	= true,
 };
 
+<<<<<<< HEAD
 static bool nft_rhash_lookup(const struct net *net, const struct nft_set *set,
 			     const u32 *key, const struct nft_set_ext **ext)
+=======
+INDIRECT_CALLABLE_SCOPE
+bool nft_rhash_lookup(const struct net *net, const struct nft_set *set,
+		      const u32 *key, const struct nft_set_ext **ext)
+>>>>>>> upstream/android-13
 {
 	struct nft_rhash *priv = nft_set_priv(set);
 	const struct nft_rhash_elem *he;
@@ -88,7 +105,11 @@ static bool nft_rhash_lookup(const struct net *net, const struct nft_set *set,
 		.key	 = key,
 	};
 
+<<<<<<< HEAD
 	he = rhashtable_lookup_fast(&priv->ht, &arg, nft_rhash_params);
+=======
+	he = rhashtable_lookup(&priv->ht, &arg, nft_rhash_params);
+>>>>>>> upstream/android-13
 	if (he != NULL)
 		*ext = &he->ext;
 
@@ -106,7 +127,11 @@ static void *nft_rhash_get(const struct net *net, const struct nft_set *set,
 		.key	 = elem->key.val.data,
 	};
 
+<<<<<<< HEAD
 	he = rhashtable_lookup_fast(&priv->ht, &arg, nft_rhash_params);
+=======
+	he = rhashtable_lookup(&priv->ht, &arg, nft_rhash_params);
+>>>>>>> upstream/android-13
 	if (he != NULL)
 		return he;
 
@@ -129,7 +154,11 @@ static bool nft_rhash_update(struct nft_set *set, const u32 *key,
 		.key	 = key,
 	};
 
+<<<<<<< HEAD
 	he = rhashtable_lookup_fast(&priv->ht, &arg, nft_rhash_params);
+=======
+	he = rhashtable_lookup(&priv->ht, &arg, nft_rhash_params);
+>>>>>>> upstream/android-13
 	if (he != NULL)
 		goto out;
 
@@ -217,7 +246,11 @@ static void *nft_rhash_deactivate(const struct net *net,
 	};
 
 	rcu_read_lock();
+<<<<<<< HEAD
 	he = rhashtable_lookup_fast(&priv->ht, &arg, nft_rhash_params);
+=======
+	he = rhashtable_lookup(&priv->ht, &arg, nft_rhash_params);
+>>>>>>> upstream/android-13
 	if (he != NULL &&
 	    !nft_rhash_flush(net, set, he))
 		he = NULL;
@@ -237,6 +270,27 @@ static void nft_rhash_remove(const struct net *net,
 	rhashtable_remove_fast(&priv->ht, &he->node, nft_rhash_params);
 }
 
+<<<<<<< HEAD
+=======
+static bool nft_rhash_delete(const struct nft_set *set,
+			     const u32 *key)
+{
+	struct nft_rhash *priv = nft_set_priv(set);
+	struct nft_rhash_cmp_arg arg = {
+		.genmask = NFT_GENMASK_ANY,
+		.set = set,
+		.key = key,
+	};
+	struct nft_rhash_elem *he;
+
+	he = rhashtable_lookup(&priv->ht, &arg, nft_rhash_params);
+	if (he == NULL)
+		return false;
+
+	return rhashtable_remove_fast(&priv->ht, &he->node, nft_rhash_params) == 0;
+}
+
+>>>>>>> upstream/android-13
 static void nft_rhash_walk(const struct nft_ctx *ctx, struct nft_set *set,
 			   struct nft_set_iter *iter)
 {
@@ -244,6 +298,7 @@ static void nft_rhash_walk(const struct nft_ctx *ctx, struct nft_set *set,
 	struct nft_rhash_elem *he;
 	struct rhashtable_iter hti;
 	struct nft_set_elem elem;
+<<<<<<< HEAD
 	int err;
 
 	err = rhashtable_walk_init(&priv->ht, &hti, GFP_ATOMIC);
@@ -251,14 +306,24 @@ static void nft_rhash_walk(const struct nft_ctx *ctx, struct nft_set *set,
 	if (err)
 		return;
 
+=======
+
+	rhashtable_walk_enter(&priv->ht, &hti);
+>>>>>>> upstream/android-13
 	rhashtable_walk_start(&hti);
 
 	while ((he = rhashtable_walk_next(&hti))) {
 		if (IS_ERR(he)) {
+<<<<<<< HEAD
 			err = PTR_ERR(he);
 			if (err != -EAGAIN) {
 				iter->err = err;
 				goto out;
+=======
+			if (PTR_ERR(he) != -EAGAIN) {
+				iter->err = PTR_ERR(he);
+				break;
+>>>>>>> upstream/android-13
 			}
 
 			continue;
@@ -275,17 +340,43 @@ static void nft_rhash_walk(const struct nft_ctx *ctx, struct nft_set *set,
 
 		iter->err = iter->fn(ctx, set, iter, &elem);
 		if (iter->err < 0)
+<<<<<<< HEAD
 			goto out;
+=======
+			break;
+>>>>>>> upstream/android-13
 
 cont:
 		iter->count++;
 	}
+<<<<<<< HEAD
 
 out:
+=======
+>>>>>>> upstream/android-13
 	rhashtable_walk_stop(&hti);
 	rhashtable_walk_exit(&hti);
 }
 
+<<<<<<< HEAD
+=======
+static bool nft_rhash_expr_needs_gc_run(const struct nft_set *set,
+					struct nft_set_ext *ext)
+{
+	struct nft_set_elem_expr *elem_expr = nft_set_ext_expr(ext);
+	struct nft_expr *expr;
+	u32 size;
+
+	nft_setelem_expr_foreach(expr, elem_expr, size) {
+		if (expr->ops->gc &&
+		    expr->ops->gc(read_pnet(&set->net), expr))
+			return true;
+	}
+
+	return false;
+}
+
+>>>>>>> upstream/android-13
 static void nft_rhash_gc(struct work_struct *work)
 {
 	struct nft_set *set;
@@ -293,20 +384,28 @@ static void nft_rhash_gc(struct work_struct *work)
 	struct nft_rhash *priv;
 	struct nft_set_gc_batch *gcb = NULL;
 	struct rhashtable_iter hti;
+<<<<<<< HEAD
 	int err;
+=======
+>>>>>>> upstream/android-13
 
 	priv = container_of(work, struct nft_rhash, gc_work.work);
 	set  = nft_set_container_of(priv);
 
+<<<<<<< HEAD
 	err = rhashtable_walk_init(&priv->ht, &hti, GFP_KERNEL);
 	if (err)
 		goto schedule;
 
+=======
+	rhashtable_walk_enter(&priv->ht, &hti);
+>>>>>>> upstream/android-13
 	rhashtable_walk_start(&hti);
 
 	while ((he = rhashtable_walk_next(&hti))) {
 		if (IS_ERR(he)) {
 			if (PTR_ERR(he) != -EAGAIN)
+<<<<<<< HEAD
 				goto out;
 			continue;
 		}
@@ -321,22 +420,52 @@ static void nft_rhash_gc(struct work_struct *work)
 		if (!nft_set_elem_expired(&he->ext))
 			continue;
 gc:
+=======
+				break;
+			continue;
+		}
+
+		if (nft_set_ext_exists(&he->ext, NFT_SET_EXT_EXPRESSIONS) &&
+		    nft_rhash_expr_needs_gc_run(set, &he->ext))
+			goto needs_gc_run;
+
+		if (!nft_set_elem_expired(&he->ext))
+			continue;
+needs_gc_run:
+>>>>>>> upstream/android-13
 		if (nft_set_elem_mark_busy(&he->ext))
 			continue;
 
 		gcb = nft_set_gc_batch_check(set, gcb, GFP_ATOMIC);
 		if (gcb == NULL)
+<<<<<<< HEAD
 			goto out;
+=======
+			break;
+>>>>>>> upstream/android-13
 		rhashtable_remove_fast(&priv->ht, &he->node, nft_rhash_params);
 		atomic_dec(&set->nelems);
 		nft_set_gc_batch_add(gcb, he);
 	}
+<<<<<<< HEAD
 out:
 	rhashtable_walk_stop(&hti);
 	rhashtable_walk_exit(&hti);
 
 	nft_set_gc_batch_complete(gcb);
 schedule:
+=======
+	rhashtable_walk_stop(&hti);
+	rhashtable_walk_exit(&hti);
+
+	he = nft_set_catchall_gc(set);
+	if (he) {
+		gcb = nft_set_gc_batch_check(set, gcb, GFP_ATOMIC);
+		if (gcb)
+			nft_set_gc_batch_add(gcb, he);
+	}
+	nft_set_gc_batch_complete(gcb);
+>>>>>>> upstream/android-13
 	queue_delayed_work(system_power_efficient_wq, &priv->gc_work,
 			   nft_set_gc_interval(set));
 }
@@ -426,8 +555,14 @@ struct nft_hash_elem {
 	struct nft_set_ext		ext;
 };
 
+<<<<<<< HEAD
 static bool nft_hash_lookup(const struct net *net, const struct nft_set *set,
 			    const u32 *key, const struct nft_set_ext **ext)
+=======
+INDIRECT_CALLABLE_SCOPE
+bool nft_hash_lookup(const struct net *net, const struct nft_set *set,
+		     const u32 *key, const struct nft_set_ext **ext)
+>>>>>>> upstream/android-13
 {
 	struct nft_hash *priv = nft_set_priv(set);
 	u8 genmask = nft_genmask_cur(net);
@@ -464,6 +599,7 @@ static void *nft_hash_get(const struct net *net, const struct nft_set *set,
 	return ERR_PTR(-ENOENT);
 }
 
+<<<<<<< HEAD
 /* nft_hash_select_ops() makes sure key size can be either 2 or 4 bytes . */
 static inline u32 nft_hash_key(const u32 *key, u32 klen)
 {
@@ -476,17 +612,31 @@ static inline u32 nft_hash_key(const u32 *key, u32 klen)
 static bool nft_hash_lookup_fast(const struct net *net,
 				 const struct nft_set *set,
 				 const u32 *key, const struct nft_set_ext **ext)
+=======
+INDIRECT_CALLABLE_SCOPE
+bool nft_hash_lookup_fast(const struct net *net,
+			  const struct nft_set *set,
+			  const u32 *key, const struct nft_set_ext **ext)
+>>>>>>> upstream/android-13
 {
 	struct nft_hash *priv = nft_set_priv(set);
 	u8 genmask = nft_genmask_cur(net);
 	const struct nft_hash_elem *he;
 	u32 hash, k1, k2;
 
+<<<<<<< HEAD
 	k1 = nft_hash_key(key, set->klen);
 	hash = jhash_1word(k1, priv->seed);
 	hash = reciprocal_scale(hash, priv->buckets);
 	hlist_for_each_entry_rcu(he, &priv->table[hash], node) {
 		k2 = nft_hash_key(nft_set_ext_key(&he->ext)->data, set->klen);
+=======
+	k1 = *key;
+	hash = jhash_1word(k1, priv->seed);
+	hash = reciprocal_scale(hash, priv->buckets);
+	hlist_for_each_entry_rcu(he, &priv->table[hash], node) {
+		k2 = *(u32 *)nft_set_ext_key(&he->ext)->data;
+>>>>>>> upstream/android-13
 		if (k1 == k2 &&
 		    nft_set_elem_active(&he->ext, genmask)) {
 			*ext = &he->ext;
@@ -612,7 +762,11 @@ static u64 nft_hash_privsize(const struct nlattr * const nla[],
 			     const struct nft_set_desc *desc)
 {
 	return sizeof(struct nft_hash) +
+<<<<<<< HEAD
 	       nft_hash_buckets(desc->size) * sizeof(struct hlist_head);
+=======
+	       (u64)nft_hash_buckets(desc->size) * sizeof(struct hlist_head);
+>>>>>>> upstream/android-13
 }
 
 static int nft_hash_init(const struct nft_set *set,
@@ -652,8 +806,13 @@ static bool nft_hash_estimate(const struct nft_set_desc *desc, u32 features,
 		return false;
 
 	est->size   = sizeof(struct nft_hash) +
+<<<<<<< HEAD
 		      nft_hash_buckets(desc->size) * sizeof(struct hlist_head) +
 		      desc->size * sizeof(struct nft_hash_elem);
+=======
+		      (u64)nft_hash_buckets(desc->size) * sizeof(struct hlist_head) +
+		      (u64)desc->size * sizeof(struct nft_hash_elem);
+>>>>>>> upstream/android-13
 	est->lookup = NFT_SET_CLASS_O_1;
 	est->space  = NFT_SET_CLASS_O_N;
 
@@ -661,7 +820,11 @@ static bool nft_hash_estimate(const struct nft_set_desc *desc, u32 features,
 }
 
 static bool nft_hash_fast_estimate(const struct nft_set_desc *desc, u32 features,
+<<<<<<< HEAD
 			      struct nft_set_estimate *est)
+=======
+				   struct nft_set_estimate *est)
+>>>>>>> upstream/android-13
 {
 	if (!desc->size)
 		return false;
@@ -670,16 +833,25 @@ static bool nft_hash_fast_estimate(const struct nft_set_desc *desc, u32 features
 		return false;
 
 	est->size   = sizeof(struct nft_hash) +
+<<<<<<< HEAD
 		      nft_hash_buckets(desc->size) * sizeof(struct hlist_head) +
 		      desc->size * sizeof(struct nft_hash_elem);
+=======
+		      (u64)nft_hash_buckets(desc->size) * sizeof(struct hlist_head) +
+		      (u64)desc->size * sizeof(struct nft_hash_elem);
+>>>>>>> upstream/android-13
 	est->lookup = NFT_SET_CLASS_O_1;
 	est->space  = NFT_SET_CLASS_O_N;
 
 	return true;
 }
 
+<<<<<<< HEAD
 struct nft_set_type nft_set_rhash_type __read_mostly = {
 	.owner		= THIS_MODULE,
+=======
+const struct nft_set_type nft_set_rhash_type = {
+>>>>>>> upstream/android-13
 	.features	= NFT_SET_MAP | NFT_SET_OBJECT |
 			  NFT_SET_TIMEOUT | NFT_SET_EVAL,
 	.ops		= {
@@ -696,13 +868,21 @@ struct nft_set_type nft_set_rhash_type __read_mostly = {
 		.remove		= nft_rhash_remove,
 		.lookup		= nft_rhash_lookup,
 		.update		= nft_rhash_update,
+<<<<<<< HEAD
+=======
+		.delete		= nft_rhash_delete,
+>>>>>>> upstream/android-13
 		.walk		= nft_rhash_walk,
 		.get		= nft_rhash_get,
 	},
 };
 
+<<<<<<< HEAD
 struct nft_set_type nft_set_hash_type __read_mostly = {
 	.owner		= THIS_MODULE,
+=======
+const struct nft_set_type nft_set_hash_type = {
+>>>>>>> upstream/android-13
 	.features	= NFT_SET_MAP | NFT_SET_OBJECT,
 	.ops		= {
 		.privsize       = nft_hash_privsize,
@@ -721,8 +901,12 @@ struct nft_set_type nft_set_hash_type __read_mostly = {
 	},
 };
 
+<<<<<<< HEAD
 struct nft_set_type nft_set_hash_fast_type __read_mostly = {
 	.owner		= THIS_MODULE,
+=======
+const struct nft_set_type nft_set_hash_fast_type = {
+>>>>>>> upstream/android-13
 	.features	= NFT_SET_MAP | NFT_SET_OBJECT,
 	.ops		= {
 		.privsize       = nft_hash_privsize,

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  skl_topology.h - Intel HDA Platform topology header file
  *
@@ -5,6 +9,7 @@
  *  Author: Jeeja KP <jeeja.kp@intel.com>
  *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; version 2 of the License.
@@ -16,6 +21,9 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
+=======
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+>>>>>>> upstream/android-13
  */
 
 #ifndef __SKL_TOPOLOGY_H__
@@ -90,6 +98,11 @@ enum skl_s_freq {
 	SKL_FS_INVALID
 };
 
+<<<<<<< HEAD
+=======
+#define SKL_MAX_PARAMS_TYPES	4
+
+>>>>>>> upstream/android-13
 enum skl_widget_type {
 	SKL_WIDGET_VMIXER = 1,
 	SKL_WIDGET_MIXER = 2,
@@ -106,11 +119,19 @@ struct skl_audio_data_format {
 	u8 number_of_channels;
 	u8 valid_bit_depth;
 	u8 sample_type;
+<<<<<<< HEAD
 	u8 reserved[1];
 } __packed;
 
 struct skl_base_cfg {
 	u32 cps;
+=======
+	u8 reserved;
+} __packed;
+
+struct skl_base_cfg {
+	u32 cpc;
+>>>>>>> upstream/android-13
 	u32 ibs;
 	u32 obs;
 	u32 is_pages;
@@ -128,7 +149,11 @@ struct skl_cpr_gtw_cfg {
 struct skl_dma_control {
 	u32 node_id;
 	u32 config_length;
+<<<<<<< HEAD
 	u32 config_data[0];
+=======
+	u32 config_data[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct skl_cpr_cfg {
@@ -149,11 +174,14 @@ struct skl_src_module_cfg {
 	enum skl_s_freq src_cfg;
 } __packed;
 
+<<<<<<< HEAD
 struct notification_mask {
 	u32 notify;
 	u32 enable;
 } __packed;
 
+=======
+>>>>>>> upstream/android-13
 struct skl_up_down_mixer_cfg {
 	struct skl_base_cfg base_cfg;
 	enum skl_ch_cfg out_ch_cfg;
@@ -164,9 +192,30 @@ struct skl_up_down_mixer_cfg {
 	u32 ch_map;
 } __packed;
 
+<<<<<<< HEAD
 struct skl_algo_cfg {
 	struct skl_base_cfg  base_cfg;
 	char params[0];
+=======
+struct skl_pin_format {
+	u32 pin_idx;
+	u32 buf_size;
+	struct skl_audio_data_format audio_fmt;
+} __packed;
+
+struct skl_base_cfg_ext {
+	u16 nr_input_pins;
+	u16 nr_output_pins;
+	u8 reserved[8];
+	u32 priv_param_length;
+	/* Input pin formats followed by output ones. */
+	struct skl_pin_format pins_fmt[0];
+} __packed;
+
+struct skl_algo_cfg {
+	struct skl_base_cfg  base_cfg;
+	char params[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct skl_base_outfmt_cfg {
@@ -224,7 +273,11 @@ struct skl_mod_inst_map {
 struct skl_uuid_inst_map {
 	u16 inst_id;
 	u16 reserved;
+<<<<<<< HEAD
 	uuid_le mod_uuid;
+=======
+	guid_t mod_uuid;
+>>>>>>> upstream/android-13
 } __packed;
 
 struct skl_kpb_params {
@@ -236,7 +289,11 @@ struct skl_kpb_params {
 };
 
 struct skl_module_inst_id {
+<<<<<<< HEAD
 	uuid_le mod_uuid;
+=======
+	guid_t mod_uuid;
+>>>>>>> upstream/android-13
 	int module_id;
 	u32 instance_id;
 	int pvt_id;
@@ -320,14 +377,23 @@ struct skl_pipe {
 	struct skl_path_config configs[SKL_MAX_PATH_CONFIGS];
 	struct list_head w_list;
 	bool passthru;
+<<<<<<< HEAD
+=======
+	u32 pipe_config_idx;
+>>>>>>> upstream/android-13
 };
 
 enum skl_module_state {
 	SKL_MODULE_UNINIT = 0,
+<<<<<<< HEAD
 	SKL_MODULE_LOADED = 1,
 	SKL_MODULE_INIT_DONE = 2,
 	SKL_MODULE_BIND_DONE = 3,
 	SKL_MODULE_UNLOADED = 4,
+=======
+	SKL_MODULE_INIT_DONE = 1,
+	SKL_MODULE_BIND_DONE = 2,
+>>>>>>> upstream/android-13
 };
 
 enum d0i3_capability {
@@ -357,7 +423,10 @@ struct skl_module_pin_resources {
 struct skl_module_res {
 	u8 id;
 	u32 is_pages;
+<<<<<<< HEAD
 	u32 cps;
+=======
+>>>>>>> upstream/android-13
 	u32 ibs;
 	u32 obs;
 	u32 dma_buffer_size;
@@ -369,7 +438,11 @@ struct skl_module_res {
 };
 
 struct skl_module {
+<<<<<<< HEAD
 	uuid_le uuid;
+=======
+	guid_t uuid;
+>>>>>>> upstream/android-13
 	u8 loadable;
 	u8 input_pin_type;
 	u8 output_pin_type;
@@ -387,6 +460,10 @@ struct skl_module_cfg {
 	struct skl_module *module;
 	int res_idx;
 	int fmt_idx;
+<<<<<<< HEAD
+=======
+	int fmt_cfg_idx;
+>>>>>>> upstream/android-13
 	u8 domain;
 	bool homogenous_inputs;
 	bool homogenous_outputs;
@@ -398,9 +475,12 @@ struct skl_module_cfg {
 	u8 out_queue_mask;
 	u8 in_queue;
 	u8 out_queue;
+<<<<<<< HEAD
 	u32 mcps;
 	u32 ibs;
 	u32 obs;
+=======
+>>>>>>> upstream/android-13
 	u8 is_loadable;
 	u8 core_id;
 	u8 dev_type;
@@ -420,7 +500,11 @@ struct skl_module_cfg {
 	enum skl_hw_conn_type  hw_conn_type;
 	enum skl_module_state m_state;
 	struct skl_pipe *pipe;
+<<<<<<< HEAD
 	struct skl_specific_cfg formats_config;
+=======
+	struct skl_specific_cfg formats_config[SKL_MAX_PARAMS_TYPES];
+>>>>>>> upstream/android-13
 	struct skl_pipe_mcfg mod_cfg[SKL_MAX_MODULES_IN_PIPE];
 };
 
@@ -456,7 +540,11 @@ enum skl_channel {
 	SKL_CH_QUATRO = 4,
 };
 
+<<<<<<< HEAD
 static inline struct skl *get_skl_ctx(struct device *dev)
+=======
+static inline struct skl_dev *get_skl_ctx(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct hdac_bus *bus = dev_get_drvdata(dev);
 
@@ -465,17 +553,28 @@ static inline struct skl *get_skl_ctx(struct device *dev)
 
 int skl_tplg_be_update_params(struct snd_soc_dai *dai,
 	struct skl_pipe_params *params);
+<<<<<<< HEAD
 int skl_dsp_set_dma_control(struct skl_sst *ctx, u32 *caps,
+=======
+int skl_dsp_set_dma_control(struct skl_dev *skl, u32 *caps,
+>>>>>>> upstream/android-13
 			u32 caps_size, u32 node_id);
 void skl_tplg_set_be_dmic_config(struct snd_soc_dai *dai,
 	struct skl_pipe_params *params, int stream);
 int skl_tplg_init(struct snd_soc_component *component,
+<<<<<<< HEAD
 				struct hdac_bus *ebus);
+=======
+				struct hdac_bus *bus);
+void skl_tplg_exit(struct snd_soc_component *component,
+				struct hdac_bus *bus);
+>>>>>>> upstream/android-13
 struct skl_module_cfg *skl_tplg_fe_get_cpr_module(
 		struct snd_soc_dai *dai, int stream);
 int skl_tplg_update_pipe_params(struct device *dev,
 		struct skl_module_cfg *mconfig, struct skl_pipe_params *params);
 
+<<<<<<< HEAD
 void skl_tplg_d0i3_get(struct skl *skl, enum d0i3_capability caps);
 void skl_tplg_d0i3_put(struct skl *skl, enum d0i3_capability caps);
 
@@ -502,6 +601,34 @@ int skl_unbind_modules(struct skl_sst *ctx, struct skl_module_cfg
 int skl_set_module_params(struct skl_sst *ctx, u32 *params, int size,
 			u32 param_id, struct skl_module_cfg *mcfg);
 int skl_get_module_params(struct skl_sst *ctx, u32 *params, int size,
+=======
+void skl_tplg_d0i3_get(struct skl_dev *skl, enum d0i3_capability caps);
+void skl_tplg_d0i3_put(struct skl_dev *skl, enum d0i3_capability caps);
+
+int skl_create_pipeline(struct skl_dev *skl, struct skl_pipe *pipe);
+
+int skl_run_pipe(struct skl_dev *skl, struct skl_pipe *pipe);
+
+int skl_pause_pipe(struct skl_dev *skl, struct skl_pipe *pipe);
+
+int skl_delete_pipe(struct skl_dev *skl, struct skl_pipe *pipe);
+
+int skl_stop_pipe(struct skl_dev *skl, struct skl_pipe *pipe);
+
+int skl_reset_pipe(struct skl_dev *skl, struct skl_pipe *pipe);
+
+int skl_init_module(struct skl_dev *skl, struct skl_module_cfg *mconfig);
+
+int skl_bind_modules(struct skl_dev *skl, struct skl_module_cfg
+	*src_mcfg, struct skl_module_cfg *dst_mcfg);
+
+int skl_unbind_modules(struct skl_dev *skl, struct skl_module_cfg
+	*src_mcfg, struct skl_module_cfg *dst_mcfg);
+
+int skl_set_module_params(struct skl_dev *skl, u32 *params, int size,
+			u32 param_id, struct skl_module_cfg *mcfg);
+int skl_get_module_params(struct skl_dev *skl, u32 *params, int size,
+>>>>>>> upstream/android-13
 			  u32 param_id, struct skl_module_cfg *mcfg);
 
 struct skl_module_cfg *skl_tplg_be_get_cpr_module(struct snd_soc_dai *dai,
@@ -515,6 +642,10 @@ int skl_pcm_link_dma_prepare(struct device *dev,
 int skl_dai_load(struct snd_soc_component *cmp, int index,
 		struct snd_soc_dai_driver *dai_drv,
 		struct snd_soc_tplg_pcm *pcm, struct snd_soc_dai *dai);
+<<<<<<< HEAD
 void skl_tplg_add_moduleid_in_bind_params(struct skl *skl,
+=======
+void skl_tplg_add_moduleid_in_bind_params(struct skl_dev *skl,
+>>>>>>> upstream/android-13
 				struct snd_soc_dapm_widget *w);
 #endif

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015 MediaTek Inc.
  * Author: James Liao <jamesjj.liao@mediatek.com>
@@ -13,6 +14,16 @@
  */
 
 #include <linux/delay.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2015 MediaTek Inc.
+ * Author: James Liao <jamesjj.liao@mediatek.com>
+ */
+
+#include <linux/delay.h>
+#include <linux/module.h>
+>>>>>>> upstream/android-13
 #include <linux/of_address.h>
 #include <linux/slab.h>
 
@@ -105,3 +116,8 @@ struct clk * __init mtk_clk_register_ref2usb_tx(const char *name,
 
 	return clk;
 }
+<<<<<<< HEAD
+=======
+
+MODULE_LICENSE("GPL");
+>>>>>>> upstream/android-13

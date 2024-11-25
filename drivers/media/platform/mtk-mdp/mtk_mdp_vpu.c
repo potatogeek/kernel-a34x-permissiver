@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2015-2016 MediaTek Inc.
  * Author: Houlong Wei <houlong.wei@mediatek.com>
  *         Ming Hsiu Tsai <minghsiu.tsai@mediatek.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -11,6 +16,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "mtk_mdp_core.h"
@@ -23,7 +30,11 @@ static inline struct mtk_mdp_ctx *vpu_to_ctx(struct mtk_mdp_vpu *vpu)
 	return container_of(vpu, struct mtk_mdp_ctx, vpu);
 }
 
+<<<<<<< HEAD
 static void mtk_mdp_vpu_handle_init_ack(struct mdp_ipi_comm_ack *msg)
+=======
+static void mtk_mdp_vpu_handle_init_ack(const struct mdp_ipi_comm_ack *msg)
+>>>>>>> upstream/android-13
 {
 	struct mtk_mdp_vpu *vpu = (struct mtk_mdp_vpu *)
 					(unsigned long)msg->ap_inst;
@@ -34,6 +45,7 @@ static void mtk_mdp_vpu_handle_init_ack(struct mdp_ipi_comm_ack *msg)
 	vpu->inst_addr = msg->vpu_inst_addr;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_VIDEO_MEDIATEK_VCU
 static int  mtk_mdp_vpu_ipi_handler(void *data, unsigned int len, void *priv)
 #else
@@ -42,6 +54,13 @@ static void mtk_mdp_vpu_ipi_handler(void *data, unsigned int len, void *priv)
 {
 	unsigned int msg_id = *(unsigned int *)data;
 	struct mdp_ipi_comm_ack *msg = (struct mdp_ipi_comm_ack *)data;
+=======
+static void mtk_mdp_vpu_ipi_handler(const void *data, unsigned int len,
+				    void *priv)
+{
+	const struct mdp_ipi_comm_ack *msg = data;
+	unsigned int msg_id = msg->msg_id;
+>>>>>>> upstream/android-13
 	struct mtk_mdp_vpu *vpu = (struct mtk_mdp_vpu *)
 					(unsigned long)msg->ap_inst;
 	struct mtk_mdp_ctx *ctx;
@@ -67,9 +86,12 @@ static void mtk_mdp_vpu_ipi_handler(void *data, unsigned int len, void *priv)
 		mtk_mdp_dbg(0, "[%d]:msg 0x%x, failure:%d", ctx->id,
 			    msg_id, vpu->failure);
 	}
+<<<<<<< HEAD
 	#ifdef CONFIG_VIDEO_MEDIATEK_VCU
 	return 0;
 	#endif
+=======
+>>>>>>> upstream/android-13
 }
 
 int mtk_mdp_vpu_register(struct platform_device *pdev)

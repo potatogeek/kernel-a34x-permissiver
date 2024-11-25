@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Performance counter callchain support - powerpc architecture code
  *
  * Copyright © 2009 Paul Mackerras, IBM Corporation.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/sched.h>
@@ -15,6 +22,7 @@
 #include <linux/uaccess.h>
 #include <linux/mm.h>
 #include <asm/ptrace.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
 #include <asm/sigcontext.h>
 #include <asm/ucontext.h>
@@ -24,6 +32,14 @@
 #endif
 #include <asm/pte-walk.h>
 
+=======
+#include <asm/sigcontext.h>
+#include <asm/ucontext.h>
+#include <asm/vdso.h>
+#include <asm/pte-walk.h>
+
+#include "callchain.h"
+>>>>>>> upstream/android-13
 
 /*
  * Is sp valid as the address of the next kernel stack frame after prev_sp?
@@ -47,7 +63,11 @@ static int valid_next_sp(unsigned long sp, unsigned long prev_sp)
 	return 0;
 }
 
+<<<<<<< HEAD
 void
+=======
+void __no_sanitize_address
+>>>>>>> upstream/android-13
 perf_callchain_kernel(struct perf_callchain_entry_ctx *entry, struct pt_regs *regs)
 {
 	unsigned long sp, next_sp;
@@ -106,6 +126,7 @@ perf_callchain_kernel(struct perf_callchain_entry_ctx *entry, struct pt_regs *re
 	}
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PPC64
 /*
  * On 64-bit we don't want to invoke hash_page on user addresses from
@@ -491,6 +512,12 @@ void
 perf_callchain_user(struct perf_callchain_entry_ctx *entry, struct pt_regs *regs)
 {
 	if (current_is_64bit())
+=======
+void
+perf_callchain_user(struct perf_callchain_entry_ctx *entry, struct pt_regs *regs)
+{
+	if (!is_32bit_task())
+>>>>>>> upstream/android-13
 		perf_callchain_user_64(entry, regs);
 	else
 		perf_callchain_user_32(entry, regs);

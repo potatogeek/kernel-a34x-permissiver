@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * The code contained herein is licensed under the GNU General Public
  * License. You may obtain a copy of the GNU General Public License
@@ -5,6 +6,10 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  */
 
 #include "imx27-phytec-phycore-som.dtsi"
@@ -19,11 +24,18 @@
 
 	display0: LQ035Q7 {
 		model = "Sharp-LQ035Q7";
+<<<<<<< HEAD
 		native-mode = <&timing0>;
+=======
+>>>>>>> upstream/android-13
 		bits-per-pixel = <16>;
 		fsl,pcr = <0xf00080c0>;
 
 		display-timings {
+<<<<<<< HEAD
+=======
+			native-mode = <&timing0>;
+>>>>>>> upstream/android-13
 			timing0: 240x320 {
 				clock-frequency = <5500000>;
 				hactive = <240>;
@@ -70,7 +82,11 @@
 
 &cspi1 {
 	pinctrl-0 = <&pinctrl_cspi1>, <&pinctrl_cspi1cs1>;
+<<<<<<< HEAD
 	cs-gpios = <&gpio4 28 GPIO_ACTIVE_HIGH>,
+=======
+	cs-gpios = <&gpio4 28 GPIO_ACTIVE_LOW>,
+>>>>>>> upstream/android-13
 		   <&gpio4 27 GPIO_ACTIVE_LOW>;
 };
 

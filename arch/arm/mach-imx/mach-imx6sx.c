@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright 2014 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2014 Freescale Semiconductor, Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/irqchip.h>
@@ -18,6 +24,7 @@
 #include "common.h"
 #include "cpuidle.h"
 
+<<<<<<< HEAD
 static int ar8031_phy_fixup(struct phy_device *dev)
 {
 	u16 val;
@@ -43,6 +50,8 @@ static void __init imx6sx_enet_phy_init(void)
 					   ar8031_phy_fixup);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void __init imx6sx_enet_clk_sel(void)
 {
 	struct regmap *gpr;
@@ -60,12 +69,16 @@ static void __init imx6sx_enet_clk_sel(void)
 
 static inline void imx6sx_enet_init(void)
 {
+<<<<<<< HEAD
 	imx6sx_enet_phy_init();
+=======
+>>>>>>> upstream/android-13
 	imx6sx_enet_clk_sel();
 }
 
 static void __init imx6sx_init_machine(void)
 {
+<<<<<<< HEAD
 	struct device *parent;
 
 	parent = imx_soc_device_init();
@@ -73,6 +86,9 @@ static void __init imx6sx_init_machine(void)
 		pr_warn("failed to initialize soc device\n");
 
 	of_platform_default_populate(NULL, NULL, parent);
+=======
+	of_platform_default_populate(NULL, NULL, NULL);
+>>>>>>> upstream/android-13
 
 	imx6sx_enet_init();
 	imx_anatop_init();

@@ -35,9 +35,13 @@
 
 #define PAGE_OFFSET		((unsigned long)__PAGE_OFFSET)
 
+<<<<<<< HEAD
 #define VM_DATA_DEFAULT_FLAGS \
 	(((current->personality & READ_IMPLIES_EXEC) ? VM_EXEC : 0 ) | \
 	 VM_READ | VM_WRITE | VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC)
+=======
+#define VM_DATA_DEFAULT_FLAGS	VM_DATA_FLAGS_TSK_EXEC
+>>>>>>> upstream/android-13
 
 #define __PHYSICAL_START	ALIGN(CONFIG_PHYSICAL_START, \
 				      CONFIG_PHYSICAL_ALIGN)
@@ -73,9 +77,12 @@ static inline phys_addr_t get_max_mapped(void)
 
 bool pfn_range_is_mapped(unsigned long start_pfn, unsigned long end_pfn);
 
+<<<<<<< HEAD
 extern unsigned long init_memory_mapping(unsigned long start,
 					 unsigned long end);
 
+=======
+>>>>>>> upstream/android-13
 extern void initmem_init(void);
 
 #endif	/* !__ASSEMBLY__ */

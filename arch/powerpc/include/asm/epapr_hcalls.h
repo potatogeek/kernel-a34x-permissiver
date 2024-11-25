@@ -37,7 +37,11 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+<<<<<<< HEAD
 /* A "hypercall" is an "sc 1" instruction.  This header file file provides C
+=======
+/* A "hypercall" is an "sc 1" instruction.  This header file provides C
+>>>>>>> upstream/android-13
  * wrapper functions for the ePAPR hypervisor interface.  It is inteded
  * for use by Linux device drivers and other operating systems.
  *
@@ -246,7 +250,11 @@ static inline unsigned int ev_int_get_mask(unsigned int interrupt,
  * ev_int_eoi - signal the end of interrupt processing
  * @interrupt: the interrupt number
  *
+<<<<<<< HEAD
  * This function signals the end of processing for the the specified
+=======
+ * This function signals the end of processing for the specified
+>>>>>>> upstream/android-13
  * interrupt, which must be the interrupt currently in service. By
  * definition, this is also the highest-priority interrupt.
  *

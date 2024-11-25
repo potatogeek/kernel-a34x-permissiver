@@ -25,6 +25,7 @@
  * Authors:
  *	Eric Anholt <eric@anholt.net>
  */
+<<<<<<< HEAD
 #include <linux/module.h>
 #include <linux/i2c.h>
 #include <linux/slab.h>
@@ -38,6 +39,22 @@
 #include "psb_intel_sdvo_regs.h"
 #include "psb_intel_reg.h"
 #include <linux/kernel.h>
+=======
+
+#include <linux/delay.h>
+#include <linux/i2c.h>
+#include <linux/kernel.h>
+#include <linux/module.h>
+#include <linux/slab.h>
+
+#include <drm/drm_crtc.h>
+#include <drm/drm_edid.h>
+
+#include "psb_drv.h"
+#include "psb_intel_drv.h"
+#include "psb_intel_reg.h"
+#include "psb_intel_sdvo_regs.h"
+>>>>>>> upstream/android-13
 
 #define SDVO_TMDS_MASK (SDVO_OUTPUT_TMDS0 | SDVO_OUTPUT_TMDS1)
 #define SDVO_RGB_MASK  (SDVO_OUTPUT_RGB0 | SDVO_OUTPUT_RGB1)
@@ -124,13 +141,22 @@ struct psb_intel_sdvo {
 	bool is_lvds;
 
 	/**
+<<<<<<< HEAD
 	 * This is sdvo fixed pannel mode pointer
+=======
+	 * This is sdvo fixed panel mode pointer
+>>>>>>> upstream/android-13
 	 */
 	struct drm_display_mode *sdvo_lvds_fixed_mode;
 
 	/* DDC bus used by this SDVO encoder */
 	uint8_t ddc_bus;
 
+<<<<<<< HEAD
+=======
+	u8 pixel_multiplier;
+
+>>>>>>> upstream/android-13
 	/* Input timings for adjusted_mode */
 	struct psb_intel_sdvo_dtd input_dtd;
 
@@ -218,7 +244,11 @@ static bool
 psb_intel_sdvo_create_enhance_property(struct psb_intel_sdvo *psb_intel_sdvo,
 				   struct psb_intel_sdvo_connector *psb_intel_sdvo_connector);
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Writes the SDVOB or SDVOC with the given value, but always writes both
  * SDVOB and SDVOC to work around apparent hardware issues (according to
  * comments in the BIOS).
@@ -585,7 +615,11 @@ static bool psb_intel_sdvo_set_target_input(struct psb_intel_sdvo *psb_intel_sdv
 				    &targets, sizeof(targets));
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Return whether each input is trained.
  *
  * This function is making an assumption about the layout of the response,
@@ -863,6 +897,7 @@ static bool psb_intel_sdvo_set_avi_infoframe(struct psb_intel_sdvo *psb_intel_sd
 	DRM_INFO("HDMI is not supported yet");
 
 	return false;
+<<<<<<< HEAD
 #if 0
 	struct dip_infoframe avi_if = {
 		.type = DIP_TYPE_AVI,
@@ -893,6 +928,8 @@ static bool psb_intel_sdvo_set_avi_infoframe(struct psb_intel_sdvo *psb_intel_sd
 				    SDVO_CMD_SET_HBUF_TXRATE,
 				    &tx_rate, 1);
 #endif
+=======
+>>>>>>> upstream/android-13
 }
 
 static bool psb_intel_sdvo_set_tv_format(struct psb_intel_sdvo *psb_intel_sdvo)
@@ -957,7 +994,10 @@ static bool psb_intel_sdvo_mode_fixup(struct drm_encoder *encoder,
 				  struct drm_display_mode *adjusted_mode)
 {
 	struct psb_intel_sdvo *psb_intel_sdvo = to_psb_intel_sdvo(encoder);
+<<<<<<< HEAD
 	int multiplier;
+=======
+>>>>>>> upstream/android-13
 
 	/* We need to construct preferred input timings based on our
 	 * output timings.  To do that, we have to set the output
@@ -984,8 +1024,14 @@ static bool psb_intel_sdvo_mode_fixup(struct drm_encoder *encoder,
 	/* Make the CRTC code factor in the SDVO pixel multiplier.  The
 	 * SDVO device will factor out the multiplier during mode_set.
 	 */
+<<<<<<< HEAD
 	multiplier = psb_intel_sdvo_get_pixel_multiplier(adjusted_mode);
 	psb_intel_mode_set_pixel_multiplier(adjusted_mode, multiplier);
+=======
+	psb_intel_sdvo->pixel_multiplier =
+		psb_intel_sdvo_get_pixel_multiplier(adjusted_mode);
+	adjusted_mode->clock *= psb_intel_sdvo->pixel_multiplier;
+>>>>>>> upstream/android-13
 
 	return true;
 }
@@ -1001,7 +1047,10 @@ static void psb_intel_sdvo_mode_set(struct drm_encoder *encoder,
 	u32 sdvox;
 	struct psb_intel_sdvo_in_out_map in_out;
 	struct psb_intel_sdvo_dtd input_dtd;
+<<<<<<< HEAD
 	int pixel_multiplier = psb_intel_mode_get_pixel_multiplier(adjusted_mode);
+=======
+>>>>>>> upstream/android-13
 	int rate;
 	int need_aux = IS_MRST(dev) ? 1 : 0;
 
@@ -1059,7 +1108,11 @@ static void psb_intel_sdvo_mode_set(struct drm_encoder *encoder,
 
 	(void) psb_intel_sdvo_set_input_timing(psb_intel_sdvo, &input_dtd);
 
+<<<<<<< HEAD
 	switch (pixel_multiplier) {
+=======
+	switch (psb_intel_sdvo->pixel_multiplier) {
+>>>>>>> upstream/android-13
 	default:
 	case 1: rate = SDVO_CLOCK_RATE_MULT_1X; break;
 	case 2: rate = SDVO_CLOCK_RATE_MULT_2X; break;
@@ -1226,6 +1279,7 @@ static bool psb_intel_sdvo_get_capabilities(struct psb_intel_sdvo *psb_intel_sdv
 	return true;
 }
 
+<<<<<<< HEAD
 /* No use! */
 #if 0
 struct drm_connector* psb_intel_sdvo_find(struct drm_device *dev, int sdvoB)
@@ -1295,6 +1349,8 @@ void psb_intel_sdvo_set_hotplug(struct drm_connector *connector, int on)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static bool
 psb_intel_sdvo_multifunc_encoder(struct psb_intel_sdvo *psb_intel_sdvo)
 {
@@ -1915,7 +1971,11 @@ psb_intel_sdvo_guess_ddc_bus(struct psb_intel_sdvo *sdvo)
 #endif
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Choose the appropriate DDC bus for control bus switch command for this
  * SDVO output based on the controlled output.
  *
@@ -2503,7 +2563,11 @@ psb_intel_sdvo_init_ddc_proxy(struct psb_intel_sdvo *sdvo,
 	sdvo->ddc.owner = THIS_MODULE;
 	sdvo->ddc.class = I2C_CLASS_DDC;
 	snprintf(sdvo->ddc.name, I2C_NAME_SIZE, "SDVO DDC proxy");
+<<<<<<< HEAD
 	sdvo->ddc.dev.parent = &dev->pdev->dev;
+=======
+	sdvo->ddc.dev.parent = dev->dev;
+>>>>>>> upstream/android-13
 	sdvo->ddc.algo_data = sdvo;
 	sdvo->ddc.algo = &psb_intel_sdvo_ddc_proxy;
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014, The Linux Foundation. All rights reserved.
  *
@@ -9,11 +10,19 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2014, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 #include <linux/mm.h>
 #include <linux/module.h>
 
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/tlbflush.h>
 #include <asm/set_memory.h>
 
@@ -22,8 +31,12 @@ struct page_change_data {
 	pgprot_t clear_mask;
 };
 
+<<<<<<< HEAD
 static int change_page_range(pte_t *ptep, pgtable_t token, unsigned long addr,
 			void *data)
+=======
+static int change_page_range(pte_t *ptep, unsigned long addr, void *data)
+>>>>>>> upstream/android-13
 {
 	struct page_change_data *cdata = data;
 	pte_t pte = *ptep;

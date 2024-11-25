@@ -32,8 +32,13 @@
 #include <linux/platform_device.h>
 #include <linux/of_address.h>
 #include <linux/of_platform.h>
+<<<<<<< HEAD
 
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+
+>>>>>>> upstream/android-13
 #include <asm/irq.h>
 #include <linux/uaccess.h>
 #include <asm/mpc5xxx.h>

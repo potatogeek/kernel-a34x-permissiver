@@ -133,7 +133,11 @@ int mac_partition(struct parsed_partitions *state)
 	}
 #ifdef CONFIG_PPC_PMAC
 	if (found_root_goodness)
+<<<<<<< HEAD
 		note_bootable_part(state->bdev->bd_dev, found_root,
+=======
+		note_bootable_part(state->disk->part0->bd_dev, found_root,
+>>>>>>> upstream/android-13
 				   found_root_goodness);
 #endif
 

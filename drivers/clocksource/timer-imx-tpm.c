@@ -8,10 +8,17 @@
 #include <linux/clocksource.h>
 #include <linux/delay.h>
 #include <linux/interrupt.h>
+<<<<<<< HEAD
 #include <linux/of_address.h>
 #include <linux/of_irq.h>
 #include <linux/sched_clock.h>
 
+=======
+#include <linux/sched_clock.h>
+
+#include "timer-of.h"
+
+>>>>>>> upstream/android-13
 #define TPM_PARAM			0x4
 #define TPM_PARAM_WIDTH_SHIFT		16
 #define TPM_PARAM_WIDTH_MASK		(0xff << 16)
@@ -33,9 +40,13 @@
 #define TPM_C0V				0x24
 
 static int counter_width;
+<<<<<<< HEAD
 static int rating;
 static void __iomem *timer_base;
 static struct clock_event_device clockevent_tpm;
+=======
+static void __iomem *timer_base;
+>>>>>>> upstream/android-13
 
 static inline void tpm_timer_disable(void)
 {
@@ -63,23 +74,37 @@ static inline void tpm_irq_acknowledge(void)
 	writel(TPM_STATUS_CH0F, timer_base + TPM_STATUS);
 }
 
+<<<<<<< HEAD
 static struct delay_timer tpm_delay_timer;
 
+=======
+>>>>>>> upstream/android-13
 static inline unsigned long tpm_read_counter(void)
 {
 	return readl(timer_base + TPM_CNT);
 }
 
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_ARM)
+static struct delay_timer tpm_delay_timer;
+
+>>>>>>> upstream/android-13
 static unsigned long tpm_read_current_timer(void)
 {
 	return tpm_read_counter();
 }
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 static u64 notrace tpm_read_sched_clock(void)
 {
 	return tpm_read_counter();
 }
 
+<<<<<<< HEAD
 static int __init tpm_clocksource_init(unsigned long rate)
 {
 	tpm_delay_timer.read_current_timer = &tpm_read_current_timer;
@@ -93,6 +118,8 @@ static int __init tpm_clocksource_init(unsigned long rate)
 				     clocksource_mmio_readl_up);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int tpm_set_next_event(unsigned long delta,
 				struct clock_event_device *evt)
 {
@@ -137,6 +164,7 @@ static irqreturn_t tpm_timer_interrupt(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static struct clock_event_device clockevent_tpm = {
 	.name			= "i.MX7ULP TPM Timer",
 	.features		= CLOCK_EVT_FEAT_ONESHOT,
@@ -159,10 +187,59 @@ static int __init tpm_clockevent_init(unsigned long rate, int irq)
 					GENMASK(counter_width - 1, 1));
 
 	return ret;
+=======
+static struct timer_of to_tpm = {
+	.flags = TIMER_OF_IRQ | TIMER_OF_BASE | TIMER_OF_CLOCK,
+	.clkevt = {
+		.name			= "i.MX7ULP TPM Timer",
+		.rating			= 200,
+		.features		= CLOCK_EVT_FEAT_ONESHOT,
+		.set_state_shutdown	= tpm_set_state_shutdown,
+		.set_state_oneshot	= tpm_set_state_oneshot,
+		.set_next_event		= tpm_set_next_event,
+		.cpumask		= cpu_possible_mask,
+	},
+	.of_irq = {
+		.handler		= tpm_timer_interrupt,
+		.flags			= IRQF_TIMER | IRQF_IRQPOLL,
+	},
+	.of_clk = {
+		.name = "per",
+	},
+};
+
+static int __init tpm_clocksource_init(void)
+{
+#if defined(CONFIG_ARM)
+	tpm_delay_timer.read_current_timer = &tpm_read_current_timer;
+	tpm_delay_timer.freq = timer_of_rate(&to_tpm) >> 3;
+	register_current_timer_delay(&tpm_delay_timer);
+#endif
+
+	sched_clock_register(tpm_read_sched_clock, counter_width,
+			     timer_of_rate(&to_tpm) >> 3);
+
+	return clocksource_mmio_init(timer_base + TPM_CNT,
+				     "imx-tpm",
+				     timer_of_rate(&to_tpm) >> 3,
+				     to_tpm.clkevt.rating,
+				     counter_width,
+				     clocksource_mmio_readl_up);
+}
+
+static void __init tpm_clockevent_init(void)
+{
+	clockevents_config_and_register(&to_tpm.clkevt,
+					timer_of_rate(&to_tpm) >> 3,
+					300,
+					GENMASK(counter_width - 1,
+					1));
+>>>>>>> upstream/android-13
 }
 
 static int __init tpm_timer_init(struct device_node *np)
 {
+<<<<<<< HEAD
 	struct clk *ipg, *per;
 	int irq, ret;
 	u32 rate;
@@ -188,10 +265,21 @@ static int __init tpm_timer_init(struct device_node *np)
 		goto err_clk_get;
 	}
 
+=======
+	struct clk *ipg;
+	int ret;
+
+	ipg = of_clk_get_by_name(np, "ipg");
+	if (IS_ERR(ipg)) {
+		pr_err("tpm: failed to get ipg clk\n");
+		return -ENODEV;
+	}
+>>>>>>> upstream/android-13
 	/* enable clk before accessing registers */
 	ret = clk_prepare_enable(ipg);
 	if (ret) {
 		pr_err("tpm: ipg clock enable failed (%d)\n", ret);
+<<<<<<< HEAD
 		goto err_clk_get;
 	}
 
@@ -205,6 +293,22 @@ static int __init tpm_timer_init(struct device_node *np)
 		>> TPM_PARAM_WIDTH_SHIFT;
 	/* use rating 200 for 32-bit counter and 150 for 16-bit counter */
 	rating = counter_width == 0x20 ? 200 : 150;
+=======
+		clk_put(ipg);
+		return ret;
+	}
+
+	ret = timer_of_init(np, &to_tpm);
+	if (ret)
+		return ret;
+
+	timer_base = timer_of_base(&to_tpm);
+
+	counter_width = (readl(timer_base + TPM_PARAM)
+		& TPM_PARAM_WIDTH_MASK) >> TPM_PARAM_WIDTH_SHIFT;
+	/* use rating 200 for 32-bit counter and 150 for 16-bit counter */
+	to_tpm.clkevt.rating = counter_width == 0x20 ? 200 : 150;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Initialize tpm module to a known state
@@ -229,11 +333,16 @@ static int __init tpm_timer_init(struct device_node *np)
 	writel(TPM_SC_CMOD_INC_PER_CNT |
 		(counter_width == 0x20 ?
 		TPM_SC_CMOD_DIV_DEFAULT : TPM_SC_CMOD_DIV_MAX),
+<<<<<<< HEAD
 		     timer_base + TPM_SC);
+=======
+		timer_base + TPM_SC);
+>>>>>>> upstream/android-13
 
 	/* set MOD register to maximum for free running mode */
 	writel(GENMASK(counter_width - 1, 0), timer_base + TPM_MOD);
 
+<<<<<<< HEAD
 	rate = clk_get_rate(per) >> 3;
 	ret = tpm_clocksource_init(rate);
 	if (ret)
@@ -253,5 +362,10 @@ err_clk_get:
 err_iomap:
 	iounmap(timer_base);
 	return ret;
+=======
+	tpm_clockevent_init();
+
+	return tpm_clocksource_init();
+>>>>>>> upstream/android-13
 }
 TIMER_OF_DECLARE(imx7ulp, "fsl,imx7ulp-tpm", tpm_timer_init);

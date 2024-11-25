@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
+=======
+/* SPDX-License-Identifier: MIT */
+>>>>>>> upstream/android-13
 #ifndef __NV50_DISP_CHAN_H__
 #define __NV50_DISP_CHAN_H__
 #define nv50_disp_chan(p) container_of((p), struct nv50_disp_chan, object)
@@ -21,6 +25,11 @@ struct nv50_disp_chan {
 
 	struct nvkm_memory *memory;
 	u64 push;
+<<<<<<< HEAD
+=======
+
+	u32 suspend_put;
+>>>>>>> upstream/android-13
 };
 
 struct nv50_disp_chan_func {

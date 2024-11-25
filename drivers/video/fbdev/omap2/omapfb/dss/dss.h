@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * linux/drivers/video/omap2/dss/dss.h
  *
@@ -6,6 +10,7 @@
  *
  * Some code and ideas taken from drivers/video/omap/ driver
  * by Imre Deak.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
@@ -18,6 +23,8 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __OMAP2_DSS_H
@@ -100,6 +107,7 @@ enum dss_dsi_content_type {
 	DSS_DSI_CONTENT_GENERIC,
 };
 
+<<<<<<< HEAD
 enum dss_writeback_channel {
 	DSS_WB_LCD1_MGR =	0,
 	DSS_WB_LCD2_MGR =	1,
@@ -111,6 +119,8 @@ enum dss_writeback_channel {
 	DSS_WB_LCD3_MGR =	7,
 };
 
+=======
+>>>>>>> upstream/android-13
 enum dss_pll_id {
 	DSS_PLL_DSI1,
 	DSS_PLL_DSI2,
@@ -214,7 +224,11 @@ struct platform_device *dss_get_core_pdev(void);
 int dss_dsi_enable_pads(int dsi_id, unsigned lane_mask);
 void dss_dsi_disable_pads(int dsi_id, unsigned lane_mask);
 int dss_set_min_bus_tput(struct device *dev, unsigned long tput);
+<<<<<<< HEAD
 int dss_debugfs_create_file(const char *name, void (*write)(struct seq_file *));
+=======
+void dss_debugfs_create_file(const char *name, void (*write)(struct seq_file *));
+>>>>>>> upstream/android-13
 
 /* display */
 int dss_suspend_all_devices(void);
@@ -414,6 +428,7 @@ int dispc_mgr_get_clock_div(enum omap_channel channel,
 		struct dispc_clock_info *cinfo);
 void dispc_set_tv_pclk(unsigned long pclk);
 
+<<<<<<< HEAD
 u32 dispc_wb_get_framedone_irq(void);
 bool dispc_wb_go_busy(void);
 void dispc_wb_go(void);
@@ -423,6 +438,8 @@ void dispc_wb_set_channel_in(enum dss_writeback_channel channel);
 int dispc_wb_setup(const struct omap_dss_writeback_info *wi,
 		bool mem_to_mem, const struct omap_video_timings *timings);
 
+=======
+>>>>>>> upstream/android-13
 u32 dispc_read_irqstatus(void);
 void dispc_clear_irqstatus(u32 mask);
 u32 dispc_read_irqenable(void);
@@ -472,10 +489,13 @@ void hdmi4_uninit_platform_driver(void);
 int hdmi5_init_platform_driver(void) __init;
 void hdmi5_uninit_platform_driver(void);
 
+<<<<<<< HEAD
 /* RFBI */
 int rfbi_init_platform_driver(void) __init;
 void rfbi_uninit_platform_driver(void);
 
+=======
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_FB_OMAP2_DSS_COLLECT_IRQ_STATS
 static inline void dss_collect_irq_stats(u32 irqstatus, unsigned *irq_arr)

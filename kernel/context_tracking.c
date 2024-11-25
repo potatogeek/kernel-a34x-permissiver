@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Context tracking: Probe on high level context boundaries such as kernel
  * and userspace. This includes syscalls and exceptions entry/exit.
@@ -24,13 +28,22 @@
 #define CREATE_TRACE_POINTS
 #include <trace/events/context_tracking.h>
 
+<<<<<<< HEAD
 DEFINE_STATIC_KEY_FALSE(context_tracking_enabled);
 EXPORT_SYMBOL_GPL(context_tracking_enabled);
+=======
+DEFINE_STATIC_KEY_FALSE(context_tracking_key);
+EXPORT_SYMBOL_GPL(context_tracking_key);
+>>>>>>> upstream/android-13
 
 DEFINE_PER_CPU(struct context_tracking, context_tracking);
 EXPORT_SYMBOL_GPL(context_tracking);
 
+<<<<<<< HEAD
 static bool context_tracking_recursion_enter(void)
+=======
+static noinstr bool context_tracking_recursion_enter(void)
+>>>>>>> upstream/android-13
 {
 	int recursion;
 
@@ -44,7 +57,11 @@ static bool context_tracking_recursion_enter(void)
 	return false;
 }
 
+<<<<<<< HEAD
 static void context_tracking_recursion_exit(void)
+=======
+static __always_inline void context_tracking_recursion_exit(void)
+>>>>>>> upstream/android-13
 {
 	__this_cpu_dec(context_tracking.recursion);
 }
@@ -58,7 +75,11 @@ static void context_tracking_recursion_exit(void)
  * instructions to execute won't use any RCU read side critical section
  * because this function sets RCU in extended quiescent state.
  */
+<<<<<<< HEAD
 void __context_tracking_enter(enum ctx_state state)
+=======
+void noinstr __context_tracking_enter(enum ctx_state state)
+>>>>>>> upstream/android-13
 {
 	/* Kernel threads aren't supposed to go to userspace */
 	WARN_ON_ONCE(!current->mm);
@@ -76,8 +97,15 @@ void __context_tracking_enter(enum ctx_state state)
 			 * on the tick.
 			 */
 			if (state == CONTEXT_USER) {
+<<<<<<< HEAD
 				trace_user_enter(0);
 				vtime_user_enter(current);
+=======
+				instrumentation_begin();
+				trace_user_enter(0);
+				vtime_user_enter(current);
+				instrumentation_end();
+>>>>>>> upstream/android-13
 			}
 			rcu_user_enter();
 		}
@@ -98,7 +126,10 @@ void __context_tracking_enter(enum ctx_state state)
 	}
 	context_tracking_recursion_exit();
 }
+<<<<<<< HEAD
 NOKPROBE_SYMBOL(__context_tracking_enter);
+=======
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL_GPL(__context_tracking_enter);
 
 void context_tracking_enter(enum ctx_state state)
@@ -141,7 +172,11 @@ NOKPROBE_SYMBOL(context_tracking_user_enter);
  * This call supports re-entrancy. This way it can be called from any exception
  * handler without needing to know if we came from userspace or not.
  */
+<<<<<<< HEAD
 void __context_tracking_exit(enum ctx_state state)
+=======
+void noinstr __context_tracking_exit(enum ctx_state state)
+>>>>>>> upstream/android-13
 {
 	if (!context_tracking_recursion_enter())
 		return;
@@ -154,15 +189,25 @@ void __context_tracking_exit(enum ctx_state state)
 			 */
 			rcu_user_exit();
 			if (state == CONTEXT_USER) {
+<<<<<<< HEAD
 				vtime_user_exit(current);
 				trace_user_exit(0);
+=======
+				instrumentation_begin();
+				vtime_user_exit(current);
+				trace_user_exit(0);
+				instrumentation_end();
+>>>>>>> upstream/android-13
 			}
 		}
 		__this_cpu_write(context_tracking.state, CONTEXT_KERNEL);
 	}
 	context_tracking_recursion_exit();
 }
+<<<<<<< HEAD
 NOKPROBE_SYMBOL(__context_tracking_exit);
+=======
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL_GPL(__context_tracking_exit);
 
 void context_tracking_exit(enum ctx_state state)
@@ -191,17 +236,29 @@ void __init context_tracking_cpu_set(int cpu)
 
 	if (!per_cpu(context_tracking.active, cpu)) {
 		per_cpu(context_tracking.active, cpu) = true;
+<<<<<<< HEAD
 		static_branch_inc(&context_tracking_enabled);
+=======
+		static_branch_inc(&context_tracking_key);
+>>>>>>> upstream/android-13
 	}
 
 	if (initialized)
 		return;
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_HAVE_TIF_NOHZ
+>>>>>>> upstream/android-13
 	/*
 	 * Set TIF_NOHZ to init/0 and let it propagate to all tasks through fork
 	 * This assumes that init is the only task at this early boot stage.
 	 */
 	set_tsk_thread_flag(&init_task, TIF_NOHZ);
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 	WARN_ON_ONCE(!tasklist_empty());
 
 	initialized = true;

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 2002 ARM Limited, All Rights Reserved.
  *
@@ -5,6 +6,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *  Copyright (C) 2002 ARM Limited, All Rights Reserved.
+ *
+>>>>>>> upstream/android-13
  * Interrupt architecture for the GIC:
  *
  * o There is one Interrupt Distributor, which receives interrupts
@@ -38,9 +45,17 @@
 #include <linux/interrupt.h>
 #include <linux/percpu.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 #include <linux/irqchip.h>
 #include <linux/irqchip/chained_irq.h>
 #include <linux/irqchip/arm-gic.h>
+=======
+#include <linux/syscore_ops.h>
+#include <linux/irqchip.h>
+#include <linux/irqchip/chained_irq.h>
+#include <linux/irqchip/arm-gic.h>
+#include <trace/hooks/gic.h>
+>>>>>>> upstream/android-13
 
 #include <asm/cputype.h>
 #include <asm/irq.h>
@@ -86,9 +101,12 @@ struct gic_chip_data {
 #endif
 	struct irq_domain *domain;
 	unsigned int gic_irqs;
+<<<<<<< HEAD
 #ifdef CONFIG_GIC_NON_BANKED
 	void __iomem *(*get_base)(union gic_base *);
 #endif
+=======
+>>>>>>> upstream/android-13
 };
 
 #ifdef CONFIG_BL_SWITCHER
@@ -113,6 +131,11 @@ static DEFINE_RAW_SPINLOCK(cpu_map_lock);
 
 #endif
 
+<<<<<<< HEAD
+=======
+static DEFINE_STATIC_KEY_FALSE(needs_rmw_access);
+
+>>>>>>> upstream/android-13
 /*
  * The GIC mapping of CPU interfaces does not necessarily match
  * the logical CPU numbering.  Let's use a mapping as returned
@@ -125,6 +148,7 @@ static DEFINE_STATIC_KEY_TRUE(supports_deactivate_key);
 
 static struct gic_chip_data gic_data[CONFIG_ARM_GIC_MAX_NR] __read_mostly;
 
+<<<<<<< HEAD
 static struct gic_kvm_info gic_v2_kvm_info;
 
 #ifdef CONFIG_GIC_NON_BANKED
@@ -157,6 +181,34 @@ static inline void gic_set_base_accessor(struct gic_chip_data *data,
 #define gic_data_dist_base(d)	((d)->dist_base.common_base)
 #define gic_data_cpu_base(d)	((d)->cpu_base.common_base)
 #define gic_set_base_accessor(d, f)
+=======
+static struct gic_kvm_info gic_v2_kvm_info __initdata;
+
+static DEFINE_PER_CPU(u32, sgi_intid);
+
+#ifdef CONFIG_GIC_NON_BANKED
+static DEFINE_STATIC_KEY_FALSE(frankengic_key);
+
+static void enable_frankengic(void)
+{
+	static_branch_enable(&frankengic_key);
+}
+
+static inline void __iomem *__get_base(union gic_base *base)
+{
+	if (static_branch_unlikely(&frankengic_key))
+		return raw_cpu_read(*base->percpu_base);
+
+	return base->common_base;
+}
+
+#define gic_data_dist_base(d)	__get_base(&(d)->dist_base)
+#define gic_data_cpu_base(d)	__get_base(&(d)->cpu_base)
+#else
+#define gic_data_dist_base(d)	((d)->dist_base.common_base)
+#define gic_data_cpu_base(d)	((d)->cpu_base.common_base)
+#define enable_frankengic()	do { } while(0)
+>>>>>>> upstream/android-13
 #endif
 
 static inline void __iomem *gic_dist_base(struct irq_data *d)
@@ -229,16 +281,37 @@ static void gic_unmask_irq(struct irq_data *d)
 
 static void gic_eoi_irq(struct irq_data *d)
 {
+<<<<<<< HEAD
 	writel_relaxed(gic_irq(d), gic_cpu_base(d) + GIC_CPU_EOI);
+=======
+	u32 hwirq = gic_irq(d);
+
+	if (hwirq < 16)
+		hwirq = this_cpu_read(sgi_intid);
+
+	writel_relaxed(hwirq, gic_cpu_base(d) + GIC_CPU_EOI);
+>>>>>>> upstream/android-13
 }
 
 static void gic_eoimode1_eoi_irq(struct irq_data *d)
 {
+<<<<<<< HEAD
+=======
+	u32 hwirq = gic_irq(d);
+
+>>>>>>> upstream/android-13
 	/* Do not deactivate an IRQ forwarded to a vcpu. */
 	if (irqd_is_forwarded_to_vcpu(d))
 		return;
 
+<<<<<<< HEAD
 	writel_relaxed(gic_irq(d), gic_cpu_base(d) + GIC_CPU_DEACTIVATE);
+=======
+	if (hwirq < 16)
+		hwirq = this_cpu_read(sgi_intid);
+
+	writel_relaxed(hwirq, gic_cpu_base(d) + GIC_CPU_DEACTIVATE);
+>>>>>>> upstream/android-13
 }
 
 static int gic_irq_set_irqchip_state(struct irq_data *d,
@@ -294,23 +367,46 @@ static int gic_set_type(struct irq_data *d, unsigned int type)
 {
 	void __iomem *base = gic_dist_base(d);
 	unsigned int gicirq = gic_irq(d);
+<<<<<<< HEAD
 
 	/* Interrupt configuration for SGIs can't be changed */
 	if (gicirq < 16)
 		return -EINVAL;
+=======
+	int ret;
+
+	/* Interrupt configuration for SGIs can't be changed */
+	if (gicirq < 16)
+		return type != IRQ_TYPE_EDGE_RISING ? -EINVAL : 0;
+>>>>>>> upstream/android-13
 
 	/* SPIs have restrictions on the supported types */
 	if (gicirq >= 32 && type != IRQ_TYPE_LEVEL_HIGH &&
 			    type != IRQ_TYPE_EDGE_RISING)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	return gic_configure_irq(gicirq, type, base, NULL);
+=======
+	ret = gic_configure_irq(gicirq, type, base + GIC_DIST_CONFIG, NULL);
+	if (ret && gicirq < 32) {
+		/* Misconfigured PPIs are usually not fatal */
+		pr_warn("GIC: PPI%d is secure or misconfigured\n", gicirq - 16);
+		ret = 0;
+	}
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int gic_irq_set_vcpu_affinity(struct irq_data *d, void *vcpu)
 {
 	/* Only interrupts on the primary GIC can be forwarded to a vcpu. */
+<<<<<<< HEAD
 	if (cascading_gic_irq(d))
+=======
+	if (cascading_gic_irq(d) || gic_irq(d) < 16)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	if (vcpu)
@@ -320,6 +416,7 @@ static int gic_irq_set_vcpu_affinity(struct irq_data *d, void *vcpu)
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_SMP
 static int gic_set_affinity(struct irq_data *d, const struct cpumask *mask_val,
 			    bool force)
@@ -341,6 +438,12 @@ static int gic_set_affinity(struct irq_data *d, const struct cpumask *mask_val,
 	return IRQ_SET_MASK_OK_DONE;
 }
 #endif
+=======
+static int gic_retrigger(struct irq_data *data)
+{
+	return !gic_irq_set_irqchip_state(data, IRQCHIP_STATE_PENDING, true);
+}
+>>>>>>> upstream/android-13
 
 static void __exception_irq_entry gic_handle_irq(struct pt_regs *regs)
 {
@@ -352,6 +455,7 @@ static void __exception_irq_entry gic_handle_irq(struct pt_regs *regs)
 		irqstat = readl_relaxed(cpu_base + GIC_CPU_INTACK);
 		irqnr = irqstat & GICC_IAR_INT_ID_MASK;
 
+<<<<<<< HEAD
 		if (likely(irqnr > 15 && irqnr < 1020)) {
 			if (static_branch_likely(&supports_deactivate_key))
 				writel_relaxed(irqstat, cpu_base + GIC_CPU_EOI);
@@ -377,6 +481,35 @@ static void __exception_irq_entry gic_handle_irq(struct pt_regs *regs)
 			continue;
 		}
 		break;
+=======
+		if (unlikely(irqnr >= 1020))
+			break;
+
+		if (static_branch_likely(&supports_deactivate_key))
+			writel_relaxed(irqstat, cpu_base + GIC_CPU_EOI);
+		isb();
+
+		/*
+		 * Ensure any shared data written by the CPU sending the IPI
+		 * is read after we've read the ACK register on the GIC.
+		 *
+		 * Pairs with the write barrier in gic_ipi_send_mask
+		 */
+		if (irqnr <= 15) {
+			smp_rmb();
+
+			/*
+			 * The GIC encodes the source CPU in GICC_IAR,
+			 * leading to the deactivation to fail if not
+			 * written back as is to GICC_EOI.  Stash the INTID
+			 * away for gic_eoi_irq() to write back.  This only
+			 * works because we don't nest SGIs...
+			 */
+			this_cpu_write(sgi_intid, irqstat);
+		}
+
+		handle_domain_irq(gic->domain, irqnr, regs);
+>>>>>>> upstream/android-13
 	} while (1);
 }
 
@@ -384,8 +517,14 @@ static void gic_handle_cascade_irq(struct irq_desc *desc)
 {
 	struct gic_chip_data *chip_data = irq_desc_get_handler_data(desc);
 	struct irq_chip *chip = irq_desc_get_chip(desc);
+<<<<<<< HEAD
 	unsigned int cascade_irq, gic_irq;
 	unsigned long status;
+=======
+	unsigned int gic_irq;
+	unsigned long status;
+	int ret;
+>>>>>>> upstream/android-13
 
 	chained_irq_enter(chip, desc);
 
@@ -395,6 +534,7 @@ static void gic_handle_cascade_irq(struct irq_desc *desc)
 	if (gic_irq == GICC_INT_SPURIOUS)
 		goto out;
 
+<<<<<<< HEAD
 	cascade_irq = irq_find_mapping(chip_data->domain, gic_irq);
 	if (unlikely(gic_irq < 32 || gic_irq > 1020)) {
 		handle_bad_irq(desc);
@@ -403,15 +543,49 @@ static void gic_handle_cascade_irq(struct irq_desc *desc)
 		generic_handle_irq(cascade_irq);
 	}
 
+=======
+	isb();
+	ret = generic_handle_domain_irq(chip_data->domain, gic_irq);
+	if (unlikely(ret))
+		handle_bad_irq(desc);
+>>>>>>> upstream/android-13
  out:
 	chained_irq_exit(chip, desc);
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PM
+void gic_v2_resume(void)
+{
+	trace_android_vh_gic_v2_resume(gic_data_dist_base(&gic_data[0]), &gic_data[0].domain);
+}
+EXPORT_SYMBOL_GPL(gic_v2_resume);
+
+static struct syscore_ops gic_v2_syscore_ops = {
+	.resume = gic_v2_resume,
+};
+
+static void gic_v2_syscore_init(void)
+{
+	register_syscore_ops(&gic_v2_syscore_ops);
+}
+
+#else
+static inline void gic_v2_syscore_init(void) { }
+void gic_v2_resume(void) { }
+#endif
+
+>>>>>>> upstream/android-13
 static const struct irq_chip gic_chip = {
 	.irq_mask		= gic_mask_irq,
 	.irq_unmask		= gic_unmask_irq,
 	.irq_eoi		= gic_eoi_irq,
 	.irq_set_type		= gic_set_type,
+<<<<<<< HEAD
+=======
+	.irq_retrigger          = gic_retrigger,
+>>>>>>> upstream/android-13
 	.irq_get_irqchip_state	= gic_irq_get_irqchip_state,
 	.irq_set_irqchip_state	= gic_irq_set_irqchip_state,
 	.flags			= IRQCHIP_SET_TYPE_MASKED |
@@ -530,7 +704,11 @@ static int gic_cpu_init(struct gic_chip_data *gic)
 				gic_cpu_map[i] &= ~cpu_mask;
 	}
 
+<<<<<<< HEAD
 	gic_cpu_config(dist_base, NULL);
+=======
+	gic_cpu_config(dist_base, 32, NULL);
+>>>>>>> upstream/android-13
 
 	writel_relaxed(GICC_INT_PRI_THRESHOLD, base + GIC_CPU_PRIMASK);
 	gic_cpu_if_up(gic);
@@ -596,8 +774,13 @@ void gic_dist_save(struct gic_chip_data *gic)
 /*
  * Restores the GIC distributor registers during resume or when coming out of
  * idle.  Must be called before enabling interrupts.  If a level interrupt
+<<<<<<< HEAD
  * that occured while the GIC was suspended is still present, it will be
  * handled normally, but any edge interrupts that occured will not be seen by
+=======
+ * that occurred while the GIC was suspended is still present, it will be
+ * handled normally, but any edge interrupts that occurred will not be seen by
+>>>>>>> upstream/android-13
  * the GIC and need to be handled by the platform-specific wakeup source.
  */
 void gic_dist_restore(struct gic_chip_data *gic)
@@ -723,11 +906,14 @@ static int gic_notifier(struct notifier_block *self, unsigned long cmd,	void *v)
 	int i;
 
 	for (i = 0; i < CONFIG_ARM_GIC_MAX_NR; i++) {
+<<<<<<< HEAD
 #ifdef CONFIG_GIC_NON_BANKED
 		/* Skip over unused GICs */
 		if (!gic_data[i].get_base)
 			continue;
 #endif
+=======
+>>>>>>> upstream/android-13
 		switch (cmd) {
 		case CPU_PM_ENTER:
 			gic_cpu_save(&gic_data[i]);
@@ -790,14 +976,66 @@ static int gic_pm_init(struct gic_chip_data *gic)
 #endif
 
 #ifdef CONFIG_SMP
+<<<<<<< HEAD
 static void gic_raise_softirq(const struct cpumask *mask, unsigned int irq)
+=======
+static void rmw_writeb(u8 bval, void __iomem *addr)
+{
+	static DEFINE_RAW_SPINLOCK(rmw_lock);
+	unsigned long offset = (unsigned long)addr & 3UL;
+	unsigned long shift = offset * 8;
+	unsigned long flags;
+	u32 val;
+
+	raw_spin_lock_irqsave(&rmw_lock, flags);
+
+	addr -= offset;
+	val = readl_relaxed(addr);
+	val &= ~GENMASK(shift + 7, shift);
+	val |= bval << shift;
+	writel_relaxed(val, addr);
+
+	raw_spin_unlock_irqrestore(&rmw_lock, flags);
+}
+
+static int gic_set_affinity(struct irq_data *d, const struct cpumask *mask_val,
+			    bool force)
+{
+	void __iomem *reg = gic_dist_base(d) + GIC_DIST_TARGET + gic_irq(d);
+	unsigned int cpu;
+
+	if (!force)
+		cpu = cpumask_any_and(mask_val, cpu_online_mask);
+	else
+		cpu = cpumask_first(mask_val);
+
+	if (cpu >= NR_GIC_CPU_IF || cpu >= nr_cpu_ids)
+		return -EINVAL;
+
+	if (static_branch_unlikely(&needs_rmw_access))
+		rmw_writeb(gic_cpu_map[cpu], reg);
+	else
+		writeb_relaxed(gic_cpu_map[cpu], reg);
+	irq_data_update_effective_affinity(d, cpumask_of(cpu));
+
+	trace_android_vh_gic_set_affinity(d, mask_val, force, gic_cpu_map, reg);
+
+	return IRQ_SET_MASK_OK_DONE;
+}
+
+static void gic_ipi_send_mask(struct irq_data *d, const struct cpumask *mask)
+>>>>>>> upstream/android-13
 {
 	int cpu;
 	unsigned long flags, map = 0;
 
 	if (unlikely(nr_cpu_ids == 1)) {
 		/* Only one CPU? let's do a self-IPI... */
+<<<<<<< HEAD
 		writel_relaxed(2 << 24 | irq,
+=======
+		writel_relaxed(2 << 24 | d->hwirq,
+>>>>>>> upstream/android-13
 			       gic_data_dist_base(&gic_data[0]) + GIC_DIST_SOFTINT);
 		return;
 	}
@@ -815,10 +1053,48 @@ static void gic_raise_softirq(const struct cpumask *mask, unsigned int irq)
 	dmb(ishst);
 
 	/* this always happens on GIC0 */
+<<<<<<< HEAD
 	writel_relaxed(map << 16 | irq, gic_data_dist_base(&gic_data[0]) + GIC_DIST_SOFTINT);
 
 	gic_unlock_irqrestore(flags);
 }
+=======
+	writel_relaxed(map << 16 | d->hwirq, gic_data_dist_base(&gic_data[0]) + GIC_DIST_SOFTINT);
+
+	gic_unlock_irqrestore(flags);
+}
+
+static int gic_starting_cpu(unsigned int cpu)
+{
+	gic_cpu_init(&gic_data[0]);
+	return 0;
+}
+
+static __init void gic_smp_init(void)
+{
+	struct irq_fwspec sgi_fwspec = {
+		.fwnode		= gic_data[0].domain->fwnode,
+		.param_count	= 1,
+	};
+	int base_sgi;
+
+	cpuhp_setup_state_nocalls(CPUHP_AP_IRQ_GIC_STARTING,
+				  "irqchip/arm/gic:starting",
+				  gic_starting_cpu, NULL);
+
+	base_sgi = __irq_domain_alloc_irqs(gic_data[0].domain, -1, 8,
+					   NUMA_NO_NODE, &sgi_fwspec,
+					   false, NULL);
+	if (WARN_ON(base_sgi <= 0))
+		return;
+
+	set_smp_ipi_range(base_sgi, 8);
+}
+#else
+#define gic_smp_init()		do { } while(0)
+#define gic_set_affinity	NULL
+#define gic_ipi_send_mask	NULL
+>>>>>>> upstream/android-13
 #endif
 
 #ifdef CONFIG_BL_SWITCHER
@@ -891,7 +1167,11 @@ void gic_migrate_target(unsigned int new_cpu_id)
 	gic_cpu_map[cpu] = 1 << new_cpu_id;
 
 	/*
+<<<<<<< HEAD
 	 * Find all the peripheral interrupts targetting the current
+=======
+	 * Find all the peripheral interrupts targeting the current
+>>>>>>> upstream/android-13
 	 * CPU interface and migrate them to the new CPU interface.
 	 * We skip DIST_TARGET 0 to 7 as they are read-only.
 	 */
@@ -935,7 +1215,11 @@ void gic_migrate_target(unsigned int new_cpu_id)
 /*
  * gic_get_sgir_physaddr - get the physical address for the SGI register
  *
+<<<<<<< HEAD
  * REturn the physical address of the SGI register to be used
+=======
+ * Return the physical address of the SGI register to be used
+>>>>>>> upstream/android-13
  * by some early assembly code when the kernel is not yet available.
  */
 static unsigned long gic_dist_physaddr;
@@ -964,6 +1248,7 @@ static int gic_irq_domain_map(struct irq_domain *d, unsigned int irq,
 				irq_hw_number_t hw)
 {
 	struct gic_chip_data *gic = d->host_data;
+<<<<<<< HEAD
 
 	if (hw < 32) {
 		irq_set_percpu_devid(irq);
@@ -976,6 +1261,26 @@ static int gic_irq_domain_map(struct irq_domain *d, unsigned int irq,
 		irq_set_probe(irq);
 		irqd_set_single_target(irq_desc_get_irq_data(irq_to_desc(irq)));
 	}
+=======
+	struct irq_data *irqd = irq_desc_get_irq_data(irq_to_desc(irq));
+
+	switch (hw) {
+	case 0 ... 31:
+		irq_set_percpu_devid(irq);
+		irq_domain_set_info(d, irq, hw, &gic->chip, d->host_data,
+				    handle_percpu_devid_irq, NULL, NULL);
+		break;
+	default:
+		irq_domain_set_info(d, irq, hw, &gic->chip, d->host_data,
+				    handle_fasteoi_irq, NULL, NULL);
+		irq_set_probe(irq);
+		irqd_set_single_target(irqd);
+		break;
+	}
+
+	/* Prevents SW retriggers which mess up the ACK/EOI ordering */
+	irqd_set_handle_enforce_irqctx(irqd);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -988,10 +1293,20 @@ static int gic_irq_domain_translate(struct irq_domain *d,
 				    unsigned long *hwirq,
 				    unsigned int *type)
 {
+<<<<<<< HEAD
+=======
+	if (fwspec->param_count == 1 && fwspec->param[0] < 16) {
+		*hwirq = fwspec->param[0];
+		*type = IRQ_TYPE_EDGE_RISING;
+		return 0;
+	}
+
+>>>>>>> upstream/android-13
 	if (is_of_node(fwspec->fwnode)) {
 		if (fwspec->param_count < 3)
 			return -EINVAL;
 
+<<<<<<< HEAD
 		/* Get the interrupt number and add 16 to skip over SGIs */
 		*hwirq = fwspec->param[1] + 16;
 
@@ -1001,6 +1316,18 @@ static int gic_irq_domain_translate(struct irq_domain *d,
 		 */
 		if (!fwspec->param[0])
 			*hwirq += 16;
+=======
+		switch (fwspec->param[0]) {
+		case 0:			/* SPI */
+			*hwirq = fwspec->param[1] + 32;
+			break;
+		case 1:			/* PPI */
+			*hwirq = fwspec->param[1] + 16;
+			break;
+		default:
+			return -EINVAL;
+		}
+>>>>>>> upstream/android-13
 
 		*type = fwspec->param[2] & IRQ_TYPE_SENSE_MASK;
 
@@ -1013,6 +1340,15 @@ static int gic_irq_domain_translate(struct irq_domain *d,
 		if(fwspec->param_count != 2)
 			return -EINVAL;
 
+<<<<<<< HEAD
+=======
+		if (fwspec->param[0] < 16) {
+			pr_err(FW_BUG "Illegal GSI%d translation request\n",
+			       fwspec->param[0]);
+			return -EINVAL;
+		}
+
+>>>>>>> upstream/android-13
 		*hwirq = fwspec->param[0];
 		*type = fwspec->param[1];
 
@@ -1023,12 +1359,15 @@ static int gic_irq_domain_translate(struct irq_domain *d,
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 static int gic_starting_cpu(unsigned int cpu)
 {
 	gic_cpu_init(&gic_data[0]);
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int gic_irq_domain_alloc(struct irq_domain *domain, unsigned int virq,
 				unsigned int nr_irqs, void *arg)
 {
@@ -1075,6 +1414,7 @@ static void gic_init_chip(struct gic_chip_data *gic, struct device *dev,
 		gic->chip.irq_set_vcpu_affinity = gic_irq_set_vcpu_affinity;
 	}
 
+<<<<<<< HEAD
 #ifdef CONFIG_SMP
 	if (gic == &gic_data[0])
 		gic->chip.irq_set_affinity = gic_set_affinity;
@@ -1086,6 +1426,18 @@ static int gic_init_bases(struct gic_chip_data *gic, int irq_start,
 {
 	irq_hw_number_t hwirq_base;
 	int gic_irqs, irq_base, ret;
+=======
+	if (gic == &gic_data[0]) {
+		gic->chip.irq_set_affinity = gic_set_affinity;
+		gic->chip.ipi_send_mask = gic_ipi_send_mask;
+	}
+}
+
+static int gic_init_bases(struct gic_chip_data *gic,
+			  struct fwnode_handle *handle)
+{
+	int gic_irqs, ret;
+>>>>>>> upstream/android-13
 
 	if (IS_ENABLED(CONFIG_GIC_NON_BANKED) && gic->percpu_offset) {
 		/* Frankein-GIC without banked registers... */
@@ -1109,7 +1461,11 @@ static int gic_init_bases(struct gic_chip_data *gic, int irq_start,
 				gic->raw_cpu_base + offset;
 		}
 
+<<<<<<< HEAD
 		gic_set_base_accessor(gic, gic_get_percpu_base);
+=======
+		enable_frankengic();
+>>>>>>> upstream/android-13
 	} else {
 		/* Normal, sane GIC... */
 		WARN(gic->percpu_offset,
@@ -1117,7 +1473,10 @@ static int gic_init_bases(struct gic_chip_data *gic, int irq_start,
 		     gic->percpu_offset);
 		gic->dist_base.common_base = gic->raw_dist_base;
 		gic->cpu_base.common_base = gic->raw_cpu_base;
+<<<<<<< HEAD
 		gic_set_base_accessor(gic, gic_get_common_base);
+=======
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -1137,6 +1496,7 @@ static int gic_init_bases(struct gic_chip_data *gic, int irq_start,
 	} else {		/* Legacy support */
 		/*
 		 * For primary GICs, skip over SGIs.
+<<<<<<< HEAD
 		 * For secondary GICs, skip over PPIs, too.
 		 */
 		if (gic == &gic_data[0] && (irq_start & 31) > 0) {
@@ -1159,6 +1519,23 @@ static int gic_init_bases(struct gic_chip_data *gic, int irq_start,
 
 		gic->domain = irq_domain_add_legacy(NULL, gic_irqs, irq_base,
 					hwirq_base, &gic_irq_domain_ops, gic);
+=======
+		 * No secondary GIC support whatsoever.
+		 */
+		int irq_base;
+
+		gic_irqs -= 16; /* calculate # of irqs to allocate */
+
+		irq_base = irq_alloc_descs(16, 16, gic_irqs,
+					   numa_node_id());
+		if (irq_base < 0) {
+			WARN(1, "Cannot allocate irq_descs @ IRQ16, assuming pre-allocated\n");
+			irq_base = 16;
+		}
+
+		gic->domain = irq_domain_add_legacy(NULL, gic_irqs, irq_base,
+						    16, &gic_irq_domain_ops, gic);
+>>>>>>> upstream/android-13
 	}
 
 	if (WARN_ON(!gic->domain)) {
@@ -1175,6 +1552,11 @@ static int gic_init_bases(struct gic_chip_data *gic, int irq_start,
 	if (ret)
 		goto error;
 
+<<<<<<< HEAD
+=======
+	gic_v2_syscore_init();
+
+>>>>>>> upstream/android-13
 	return 0;
 
 error:
@@ -1187,7 +1569,10 @@ error:
 }
 
 static int __init __gic_init_bases(struct gic_chip_data *gic,
+<<<<<<< HEAD
 				   int irq_start,
+=======
+>>>>>>> upstream/android-13
 				   struct fwnode_handle *handle)
 {
 	char *name;
@@ -1204,12 +1589,16 @@ static int __init __gic_init_bases(struct gic_chip_data *gic,
 		 */
 		for (i = 0; i < NR_GIC_CPU_IF; i++)
 			gic_cpu_map[i] = 0xff;
+<<<<<<< HEAD
 #ifdef CONFIG_SMP
 		set_smp_cross_call(gic_raise_softirq);
 #endif
 		cpuhp_setup_state_nocalls(CPUHP_AP_IRQ_GIC_STARTING,
 					  "irqchip/arm/gic:starting",
 					  gic_starting_cpu, NULL);
+=======
+
+>>>>>>> upstream/android-13
 		set_handle_irq(gic_handle_irq);
 		if (static_branch_likely(&supports_deactivate_key))
 			pr_info("GIC: Using split EOI/Deactivate mode\n");
@@ -1223,13 +1612,22 @@ static int __init __gic_init_bases(struct gic_chip_data *gic,
 		gic_init_chip(gic, NULL, name, false);
 	}
 
+<<<<<<< HEAD
 	ret = gic_init_bases(gic, irq_start, handle);
 	if (ret)
 		kfree(name);
+=======
+	ret = gic_init_bases(gic, handle);
+	if (ret)
+		kfree(name);
+	else if (gic == &gic_data[0])
+		gic_smp_init();
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
+<<<<<<< HEAD
 void __init gic_init(unsigned int gic_nr, int irq_start,
 		     void __iomem *dist_base, void __iomem *cpu_base)
 {
@@ -1238,17 +1636,31 @@ void __init gic_init(unsigned int gic_nr, int irq_start,
 	if (WARN_ON(gic_nr >= CONFIG_ARM_GIC_MAX_NR))
 		return;
 
+=======
+void __init gic_init(void __iomem *dist_base, void __iomem *cpu_base)
+{
+	struct gic_chip_data *gic;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Non-DT/ACPI systems won't run a hypervisor, so let's not
 	 * bother with these...
 	 */
 	static_branch_disable(&supports_deactivate_key);
 
+<<<<<<< HEAD
 	gic = &gic_data[gic_nr];
 	gic->raw_dist_base = dist_base;
 	gic->raw_cpu_base = cpu_base;
 
 	__gic_init_bases(gic, irq_start, NULL);
+=======
+	gic = &gic_data[0];
+	gic->raw_dist_base = dist_base;
+	gic->raw_cpu_base = cpu_base;
+
+	__gic_init_bases(gic, NULL);
+>>>>>>> upstream/android-13
 }
 
 static void gic_teardown(struct gic_chip_data *gic)
@@ -1350,6 +1762,33 @@ static bool gic_check_eoimode(struct device_node *node, void __iomem **base)
 	return true;
 }
 
+<<<<<<< HEAD
+=======
+static bool gic_enable_rmw_access(void *data)
+{
+	/*
+	 * The EMEV2 class of machines has a broken interconnect, and
+	 * locks up on accesses that are less than 32bit. So far, only
+	 * the affinity setting requires it.
+	 */
+	if (of_machine_is_compatible("renesas,emev2")) {
+		static_branch_enable(&needs_rmw_access);
+		return true;
+	}
+
+	return false;
+}
+
+static const struct gic_quirk gic_quirks[] = {
+	{
+		.desc		= "broken byte access",
+		.compatible	= "arm,pl390",
+		.init		= gic_enable_rmw_access,
+	},
+	{ },
+};
+
+>>>>>>> upstream/android-13
 static int gic_of_setup(struct gic_chip_data *gic, struct device_node *node)
 {
 	if (!gic || !node)
@@ -1366,6 +1805,11 @@ static int gic_of_setup(struct gic_chip_data *gic, struct device_node *node)
 	if (of_property_read_u32(node, "cpu-offset", &gic->percpu_offset))
 		gic->percpu_offset = 0;
 
+<<<<<<< HEAD
+=======
+	gic_enable_of_quirks(node, gic_quirks, gic);
+
+>>>>>>> upstream/android-13
 	return 0;
 
 error:
@@ -1391,7 +1835,11 @@ int gic_of_init_child(struct device *dev, struct gic_chip_data **gic, int irq)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	ret = gic_init_bases(*gic, -1, &dev->of_node->fwnode);
+=======
+	ret = gic_init_bases(*gic, &dev->of_node->fwnode);
+>>>>>>> upstream/android-13
 	if (ret) {
 		gic_teardown(*gic);
 		return ret;
@@ -1423,7 +1871,11 @@ static void __init gic_of_setup_kvm_info(struct device_node *node)
 		return;
 
 	if (static_branch_likely(&supports_deactivate_key))
+<<<<<<< HEAD
 		gic_set_kvm_info(&gic_v2_kvm_info);
+=======
+		vgic_set_kvm_info(&gic_v2_kvm_info);
+>>>>>>> upstream/android-13
 }
 
 int __init
@@ -1451,7 +1903,11 @@ gic_of_init(struct device_node *node, struct device_node *parent)
 	if (gic_cnt == 0 && !gic_check_eoimode(node, &gic->raw_cpu_base))
 		static_branch_disable(&supports_deactivate_key);
 
+<<<<<<< HEAD
 	ret = __gic_init_bases(gic, -1, &node->fwnode);
+=======
+	ret = __gic_init_bases(gic, &node->fwnode);
+>>>>>>> upstream/android-13
 	if (ret) {
 		gic_teardown(gic);
 		return ret;
@@ -1500,7 +1956,11 @@ static struct
 } acpi_data __initdata;
 
 static int __init
+<<<<<<< HEAD
 gic_acpi_parse_madt_cpu(struct acpi_subtable_header *header,
+=======
+gic_acpi_parse_madt_cpu(union acpi_subtable_headers *header,
+>>>>>>> upstream/android-13
 			const unsigned long end)
 {
 	struct acpi_madt_generic_interrupt *processor;
@@ -1532,7 +1992,11 @@ gic_acpi_parse_madt_cpu(struct acpi_subtable_header *header,
 }
 
 /* The things you have to do to just *count* something... */
+<<<<<<< HEAD
 static int __init acpi_dummy_func(struct acpi_subtable_header *header,
+=======
+static int __init acpi_dummy_func(union acpi_subtable_headers *header,
+>>>>>>> upstream/android-13
 				  const unsigned long end)
 {
 	return 0;
@@ -1590,10 +2054,17 @@ static void __init gic_acpi_setup_kvm_info(void)
 
 	gic_v2_kvm_info.maint_irq = irq;
 
+<<<<<<< HEAD
 	gic_set_kvm_info(&gic_v2_kvm_info);
 }
 
 static int __init gic_v2_acpi_init(struct acpi_subtable_header *header,
+=======
+	vgic_set_kvm_info(&gic_v2_kvm_info);
+}
+
+static int __init gic_v2_acpi_init(union acpi_subtable_headers *header,
+>>>>>>> upstream/android-13
 				   const unsigned long end)
 {
 	struct acpi_madt_generic_distributor *dist;
@@ -1635,14 +2106,22 @@ static int __init gic_v2_acpi_init(struct acpi_subtable_header *header,
 	/*
 	 * Initialize GIC instance zero (no multi-GIC support).
 	 */
+<<<<<<< HEAD
 	domain_handle = irq_domain_alloc_fwnode(gic->raw_dist_base);
+=======
+	domain_handle = irq_domain_alloc_fwnode(&dist->base_address);
+>>>>>>> upstream/android-13
 	if (!domain_handle) {
 		pr_err("Unable to allocate domain handle\n");
 		gic_teardown(gic);
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	ret = __gic_init_bases(gic, -1, domain_handle);
+=======
+	ret = __gic_init_bases(gic, domain_handle);
+>>>>>>> upstream/android-13
 	if (ret) {
 		pr_err("Failed to initialise GIC\n");
 		irq_domain_free_fwnode(domain_handle);

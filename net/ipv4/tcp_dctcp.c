@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* DataCenter TCP (DCTCP) congestion control.
  *
  * http://simula.stanford.edu/~alizade/Site/DCTCP.html
@@ -33,24 +37,36 @@
  *	Daniel Borkmann <dborkman@redhat.com>
  *	Florian Westphal <fw@strlen.de>
  *	Glenn Judd <glenn.judd@morganstanley.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or (at
  * your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
 #include <linux/mm.h>
 #include <net/tcp.h>
 #include <linux/inet_diag.h>
+<<<<<<< HEAD
+=======
+#include "tcp_dctcp.h"
+>>>>>>> upstream/android-13
 
 #define DCTCP_MAX_ALPHA	1024U
 
 struct dctcp {
+<<<<<<< HEAD
 	u32 acked_bytes_ecn;
 	u32 acked_bytes_total;
 	u32 prior_snd_una;
+=======
+	u32 old_delivered;
+	u32 old_delivered_ce;
+>>>>>>> upstream/android-13
 	u32 prior_rcv_nxt;
 	u32 dctcp_alpha;
 	u32 next_seq;
@@ -72,8 +88,13 @@ static void dctcp_reset(const struct tcp_sock *tp, struct dctcp *ca)
 {
 	ca->next_seq = tp->snd_nxt;
 
+<<<<<<< HEAD
 	ca->acked_bytes_ecn = 0;
 	ca->acked_bytes_total = 0;
+=======
+	ca->old_delivered = tp->delivered;
+	ca->old_delivered_ce = tp->delivered_ce;
+>>>>>>> upstream/android-13
 }
 
 static void dctcp_init(struct sock *sk)
@@ -85,7 +106,10 @@ static void dctcp_init(struct sock *sk)
 	     sk->sk_state == TCP_CLOSE)) {
 		struct dctcp *ca = inet_csk_ca(sk);
 
+<<<<<<< HEAD
 		ca->prior_snd_una = tp->snd_una;
+=======
+>>>>>>> upstream/android-13
 		ca->prior_rcv_nxt = tp->rcv_nxt;
 
 		ca->dctcp_alpha = min(dctcp_alpha_on_init, DCTCP_MAX_ALPHA);
@@ -113,6 +137,7 @@ static u32 dctcp_ssthresh(struct sock *sk)
 	return max(tp->snd_cwnd - ((tp->snd_cwnd * ca->dctcp_alpha) >> 11U), 2U);
 }
 
+<<<<<<< HEAD
 /* Minimal DCTP CE state machine:
  *
  * S:	0 <- last pkt was non-CE
@@ -161,10 +186,13 @@ static void dctcp_ce_state_1_to_0(struct sock *sk)
 	tp->ecn_flags &= ~TCP_ECN_DEMAND_CWR;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void dctcp_update_alpha(struct sock *sk, u32 flags)
 {
 	const struct tcp_sock *tp = tcp_sk(sk);
 	struct dctcp *ca = inet_csk_ca(sk);
+<<<<<<< HEAD
 	u32 acked_bytes = tp->snd_una - ca->prior_snd_una;
 
 	/* If ack did not advance snd_una, count dupack as MSS size.
@@ -183,11 +211,18 @@ static void dctcp_update_alpha(struct sock *sk, u32 flags)
 	/* Expired RTT */
 	if (!before(tp->snd_una, ca->next_seq)) {
 		u64 bytes_ecn = ca->acked_bytes_ecn;
+=======
+
+	/* Expired RTT */
+	if (!before(tp->snd_una, ca->next_seq)) {
+		u32 delivered_ce = tp->delivered_ce - ca->old_delivered_ce;
+>>>>>>> upstream/android-13
 		u32 alpha = ca->dctcp_alpha;
 
 		/* alpha = (1 - g) * alpha + g * F */
 
 		alpha -= min_not_zero(alpha, alpha >> dctcp_shift_g);
+<<<<<<< HEAD
 		if (bytes_ecn) {
 			/* If dctcp_shift_g == 1, a 32bit value would overflow
 			 * after 8 Mbytes.
@@ -196,6 +231,18 @@ static void dctcp_update_alpha(struct sock *sk, u32 flags)
 			do_div(bytes_ecn, max(1U, ca->acked_bytes_total));
 
 			alpha = min(alpha + (u32)bytes_ecn, DCTCP_MAX_ALPHA);
+=======
+		if (delivered_ce) {
+			u32 delivered = tp->delivered - ca->old_delivered;
+
+			/* If dctcp_shift_g == 1, a 32bit value would overflow
+			 * after 8 M packets.
+			 */
+			delivered_ce <<= (10 - dctcp_shift_g);
+			delivered_ce /= max(1U, delivered);
+
+			alpha = min(alpha + delivered_ce, DCTCP_MAX_ALPHA);
+>>>>>>> upstream/android-13
 		}
 		/* dctcp_alpha can be read from dctcp_get_info() without
 		 * synchro, so we ask compiler to not use dctcp_alpha
@@ -227,12 +274,21 @@ static void dctcp_state(struct sock *sk, u8 new_state)
 
 static void dctcp_cwnd_event(struct sock *sk, enum tcp_ca_event ev)
 {
+<<<<<<< HEAD
 	switch (ev) {
 	case CA_EVENT_ECN_IS_CE:
 		dctcp_ce_state_0_to_1(sk);
 		break;
 	case CA_EVENT_ECN_NO_CE:
 		dctcp_ce_state_1_to_0(sk);
+=======
+	struct dctcp *ca = inet_csk_ca(sk);
+
+	switch (ev) {
+	case CA_EVENT_ECN_IS_CE:
+	case CA_EVENT_ECN_NO_CE:
+		dctcp_ece_ack_update(sk, ev, &ca->prior_rcv_nxt, &ca->ce_state);
+>>>>>>> upstream/android-13
 		break;
 	case CA_EVENT_LOSS:
 		dctcp_react_to_loss(sk);
@@ -247,6 +303,10 @@ static size_t dctcp_get_info(struct sock *sk, u32 ext, int *attr,
 			     union tcp_cc_info *info)
 {
 	const struct dctcp *ca = inet_csk_ca(sk);
+<<<<<<< HEAD
+=======
+	const struct tcp_sock *tp = tcp_sk(sk);
+>>>>>>> upstream/android-13
 
 	/* Fill it also in case of VEGASINFO due to req struct limits.
 	 * We can still correctly retrieve it later.
@@ -258,8 +318,15 @@ static size_t dctcp_get_info(struct sock *sk, u32 ext, int *attr,
 			info->dctcp.dctcp_enabled = 1;
 			info->dctcp.dctcp_ce_state = (u16) ca->ce_state;
 			info->dctcp.dctcp_alpha = ca->dctcp_alpha;
+<<<<<<< HEAD
 			info->dctcp.dctcp_ab_ecn = ca->acked_bytes_ecn;
 			info->dctcp.dctcp_ab_tot = ca->acked_bytes_total;
+=======
+			info->dctcp.dctcp_ab_ecn = tp->mss_cache *
+						   (tp->delivered_ce - ca->old_delivered_ce);
+			info->dctcp.dctcp_ab_tot = tp->mss_cache *
+						   (tp->delivered - ca->old_delivered);
+>>>>>>> upstream/android-13
 		}
 
 		*attr = INET_DIAG_DCTCPINFO;

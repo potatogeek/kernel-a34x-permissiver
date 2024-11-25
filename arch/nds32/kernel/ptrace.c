@@ -13,11 +13,18 @@ enum nds32_regset {
 
 static int gpr_get(struct task_struct *target,
 		   const struct user_regset *regset,
+<<<<<<< HEAD
 		   unsigned int pos, unsigned int count,
 		   void *kbuf, void __user * ubuf)
 {
 	struct user_pt_regs *uregs = &task_pt_regs(target)->user_regs;
 	return user_regset_copyout(&pos, &count, &kbuf, &ubuf, uregs, 0, -1);
+=======
+		   struct membuf to)
+{
+	return membuf_write(&to, &task_pt_regs(target)->user_regs,
+				sizeof(struct user_pt_regs));
+>>>>>>> upstream/android-13
 }
 
 static int gpr_set(struct task_struct *target, const struct user_regset *regset,
@@ -41,7 +48,11 @@ static const struct user_regset nds32_regsets[] = {
 			.n = sizeof(struct user_pt_regs) / sizeof(u32),
 			.size = sizeof(elf_greg_t),
 			.align = sizeof(elf_greg_t),
+<<<<<<< HEAD
 			.get = gpr_get,
+=======
+			.regset_get = gpr_get,
+>>>>>>> upstream/android-13
 			.set = gpr_set}
 };
 

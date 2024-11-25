@@ -1,5 +1,9 @@
 /* SPDX-License-Identifier: GPL-2.0 */
+<<<<<<< HEAD
 #include <ppc-asm.h>
+=======
+#include <basic_asm.h>
+>>>>>>> upstream/android-13
 #include <asm/unistd.h>
 
 	.text
@@ -26,3 +30,41 @@ FUNC_START(getppid_tm_suspended)
 1:
 	li	r3, -1
 	blr
+<<<<<<< HEAD
+=======
+
+
+.macro scv level
+	.long (0x44000001 | (\level) << 5)
+.endm
+
+FUNC_START(getppid_scv_tm_active)
+	PUSH_BASIC_STACK(0)
+	tbegin.
+	beq 1f
+	li	r0, __NR_getppid
+	scv	0
+	tend.
+	POP_BASIC_STACK(0)
+	blr
+1:
+	li	r3, -1
+	POP_BASIC_STACK(0)
+	blr
+
+FUNC_START(getppid_scv_tm_suspended)
+	PUSH_BASIC_STACK(0)
+	tbegin.
+	beq 1f
+	li	r0, __NR_getppid
+	tsuspend.
+	scv	0
+	tresume.
+	tend.
+	POP_BASIC_STACK(0)
+	blr
+1:
+	li	r3, -1
+	POP_BASIC_STACK(0)
+	blr
+>>>>>>> upstream/android-13

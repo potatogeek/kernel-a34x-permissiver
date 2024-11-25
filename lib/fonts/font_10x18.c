@@ -5137,6 +5137,10 @@ const struct font_desc font_10x18 = {
 	.name	= "10x18",
 	.width	= 10,
 	.height	= 18,
+<<<<<<< HEAD
+=======
+	.charcount = 256,
+>>>>>>> upstream/android-13
 	.data	= fontdata_10x18.data,
 #ifdef __sparc__
 	.pref	= 5,

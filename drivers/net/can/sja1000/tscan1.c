@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * tscan1.c: driver for Technologic Systems TS-CAN1 PC104 boards
  *
  * Copyright 2010 Andre B. Oliveira
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,6 +20,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -171,7 +178,11 @@ static int tscan1_probe(struct device *dev, unsigned id)
 	return -ENXIO;
 }
 
+<<<<<<< HEAD
 static int tscan1_remove(struct device *dev, unsigned id /*unused*/)
+=======
+static void tscan1_remove(struct device *dev, unsigned id /*unused*/)
+>>>>>>> upstream/android-13
 {
 	struct net_device *netdev;
 	struct sja1000_priv *priv;
@@ -191,8 +202,11 @@ static int tscan1_remove(struct device *dev, unsigned id /*unused*/)
 	release_region(pld_base, TSCAN1_PLD_SIZE);
 
 	free_sja1000dev(netdev);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static struct isa_driver tscan1_isa_driver = {

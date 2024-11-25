@@ -120,7 +120,11 @@ u32 ProgramClock(u32 refClock,
 {
 	u32 R = 0, F = 0, OD = 0, ODIndex = 0;
 	u32 ulBestR = 0, ulBestF = 0, ulBestOD = 0;
+<<<<<<< HEAD
 	u32 ulBestVCO = 0, ulBestClk = 0, ulBestScore = 0;
+=======
+	u32 ulBestClk = 0, ulBestScore = 0;
+>>>>>>> upstream/android-13
 	u32 ulScore, ulPhaseScore, ulVcoScore;
 	u32 ulTmp = 0, ulVCO;
 	u32 ulScaleClockReq, ulMinClock, ulMaxClock;
@@ -189,7 +193,10 @@ u32 ProgramClock(u32 refClock,
 						ulScore = ulPhaseScore + ulVcoScore;
 
 						if (!ulBestScore) {
+<<<<<<< HEAD
 							ulBestVCO = ulVCO;
+=======
+>>>>>>> upstream/android-13
 							ulBestOD = OD;
 							ulBestF = F;
 							ulBestR = R;
@@ -206,7 +213,10 @@ u32 ProgramClock(u32 refClock,
                           but we shall keep this code in case new restrictions come into play
                           --------------------------------------------------------------------------*/
 						if ((ulScore >= ulBestScore) && (OD > 0)) {
+<<<<<<< HEAD
 							ulBestVCO = ulVCO;
+=======
+>>>>>>> upstream/android-13
 							ulBestOD = OD;
 							ulBestF = F;
 							ulBestR = R;
@@ -244,7 +254,10 @@ int SetCoreClockPLL(volatile STG4000REG __iomem *pSTGReg, struct pci_dev *pDev)
 {
 	u32 F, R, P;
 	u16 core_pll = 0, sub;
+<<<<<<< HEAD
 	u32 ulCoreClock;
+=======
+>>>>>>> upstream/android-13
 	u32 tmp;
 	u32 ulChipSpeed;
 
@@ -282,7 +295,11 @@ int SetCoreClockPLL(volatile STG4000REG __iomem *pSTGReg, struct pci_dev *pDev)
 	if (ulChipSpeed == 0)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	ulCoreClock = ProgramClock(REF_FREQ, CORE_PLL_FREQ, &F, &R, &P);
+=======
+	ProgramClock(REF_FREQ, CORE_PLL_FREQ, &F, &R, &P);
+>>>>>>> upstream/android-13
 
 	core_pll |= ((P) | ((F - 2) << 2) | ((R - 2) << 11));
 

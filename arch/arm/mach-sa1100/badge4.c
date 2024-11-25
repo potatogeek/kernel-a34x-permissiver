@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/arch/arm/mach-sa1100/badge4.c
  *
@@ -7,11 +11,14 @@
  *   Christopher Hoover <ch@hpl.hp.com>
  *
  * Copyright (C) 2002 Hewlett-Packard Company
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/init.h>
@@ -315,8 +322,11 @@ badge4_uart_pm(struct uart_port *port, u_int state, u_int oldstate)
 }
 
 static struct sa1100_port_fns badge4_port_fns __initdata = {
+<<<<<<< HEAD
 	//.get_mctrl	= badge4_get_mctrl,
 	//.set_mctrl	= badge4_set_mctrl,
+=======
+>>>>>>> upstream/android-13
 	.pm		= badge4_uart_pm,
 };
 

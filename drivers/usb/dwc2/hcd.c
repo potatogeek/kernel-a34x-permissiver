@@ -56,8 +56,11 @@
 #include "core.h"
 #include "hcd.h"
 
+<<<<<<< HEAD
 static void dwc2_port_resume(struct dwc2_hsotg *hsotg);
 
+=======
+>>>>>>> upstream/android-13
 /*
  * =========================================================================
  *  Host Core Layer Functions
@@ -97,6 +100,7 @@ static void dwc2_enable_common_interrupts(struct dwc2_hsotg *hsotg)
 	dwc2_writel(hsotg, intmsk, GINTMSK);
 }
 
+<<<<<<< HEAD
 /*
  * Initializes the FSLSPClkSel field of the HCFG register depending on the
  * PHY type
@@ -287,6 +291,8 @@ static int dwc2_phy_init(struct dwc2_hsotg *hsotg, bool select_phy)
 	return retval;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int dwc2_gahbcfg_init(struct dwc2_hsotg *hsotg)
 {
 	u32 ahbcfg = dwc2_readl(hsotg, GAHBCFG);
@@ -358,6 +364,7 @@ static void dwc2_gusbcfg_init(struct dwc2_hsotg *hsotg)
 
 static int dwc2_vbus_supply_init(struct dwc2_hsotg *hsotg)
 {
+<<<<<<< HEAD
 	int ret;
 
 	hsotg->vbus_supply = devm_regulator_get_optional(hsotg->dev, "vbus");
@@ -368,6 +375,12 @@ static int dwc2_vbus_supply_init(struct dwc2_hsotg *hsotg)
 	}
 
 	return regulator_enable(hsotg->vbus_supply);
+=======
+	if (hsotg->vbus_supply)
+		return regulator_enable(hsotg->vbus_supply);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int dwc2_vbus_supply_exit(struct dwc2_hsotg *hsotg)
@@ -1328,14 +1341,20 @@ static void dwc2_hc_write_packet(struct dwc2_hsotg *hsotg,
 	u32 remaining_count;
 	u32 byte_count;
 	u32 dword_count;
+<<<<<<< HEAD
 	u32 __iomem *data_fifo;
+=======
+>>>>>>> upstream/android-13
 	u32 *data_buf = (u32 *)chan->xfer_buf;
 
 	if (dbg_hc(chan))
 		dev_vdbg(hsotg->dev, "%s()\n", __func__);
 
+<<<<<<< HEAD
 	data_fifo = (u32 __iomem *)(hsotg->regs + HCFIFO(chan->hc_num));
 
+=======
+>>>>>>> upstream/android-13
 	remaining_count = chan->xfer_len - chan->xfer_count;
 	if (remaining_count > chan->max_packet)
 		byte_count = chan->max_packet;
@@ -2447,15 +2466,25 @@ static void dwc2_core_host_init(struct dwc2_hsotg *hsotg)
 		num_channels = hsotg->params.host_channels;
 		for (i = 0; i < num_channels; i++) {
 			hcchar = dwc2_readl(hsotg, HCCHAR(i));
+<<<<<<< HEAD
 			hcchar &= ~HCCHAR_CHENA;
 			hcchar |= HCCHAR_CHDIS;
 			hcchar &= ~HCCHAR_EPDIR;
 			dwc2_writel(hsotg, hcchar, HCCHAR(i));
+=======
+			if (hcchar & HCCHAR_CHENA) {
+				hcchar &= ~HCCHAR_CHENA;
+				hcchar |= HCCHAR_CHDIS;
+				hcchar &= ~HCCHAR_EPDIR;
+				dwc2_writel(hsotg, hcchar, HCCHAR(i));
+			}
+>>>>>>> upstream/android-13
 		}
 
 		/* Halt all channels to put them into a known state */
 		for (i = 0; i < num_channels; i++) {
 			hcchar = dwc2_readl(hsotg, HCCHAR(i));
+<<<<<<< HEAD
 			hcchar |= HCCHAR_CHENA | HCCHAR_CHDIS;
 			hcchar &= ~HCCHAR_EPDIR;
 			dwc2_writel(hsotg, hcchar, HCCHAR(i));
@@ -2466,6 +2495,22 @@ static void dwc2_core_host_init(struct dwc2_hsotg *hsotg)
 						      HCCHAR_CHENA, 1000)) {
 				dev_warn(hsotg->dev, "Unable to clear enable on channel %d\n",
 					 i);
+=======
+			if (hcchar & HCCHAR_CHENA) {
+				hcchar |= HCCHAR_CHENA | HCCHAR_CHDIS;
+				hcchar &= ~HCCHAR_EPDIR;
+				dwc2_writel(hsotg, hcchar, HCCHAR(i));
+				dev_dbg(hsotg->dev, "%s: Halt channel %d\n",
+					__func__, i);
+
+				if (dwc2_hsotg_wait_bit_clear(hsotg, HCCHAR(i),
+							      HCCHAR_CHENA,
+							      1000)) {
+					dev_warn(hsotg->dev,
+						 "Unable to clear enable on channel %d\n",
+						 i);
+				}
+>>>>>>> upstream/android-13
 			}
 		}
 	}
@@ -3018,7 +3063,11 @@ static int dwc2_queue_transaction(struct dwc2_hsotg *hsotg,
 		list_move_tail(&chan->split_order_list_entry,
 			       &hsotg->split_order);
 
+<<<<<<< HEAD
 	if (hsotg->params.host_dma) {
+=======
+	if (hsotg->params.host_dma && chan->qh) {
+>>>>>>> upstream/android-13
 		if (hsotg->params.dma_desc_enable) {
 			if (!chan->xfer_started ||
 			    chan->ep_type == USB_ENDPOINT_XFER_ISOC) {
@@ -3401,6 +3450,18 @@ static void dwc2_conn_id_status_change(struct work_struct *work)
 		if (count > 250)
 			dev_err(hsotg->dev,
 				"Connection id status change timed out\n");
+<<<<<<< HEAD
+=======
+
+		/*
+		 * Exit Partial Power Down without restoring registers.
+		 * No need to check the return value as registers
+		 * are not being restored.
+		 */
+		if (hsotg->in_ppd && hsotg->lx_state == DWC2_L2)
+			dwc2_exit_partial_power_down(hsotg, 0, false);
+
+>>>>>>> upstream/android-13
 		hsotg->op_state = OTG_STATE_B_PERIPHERAL;
 		dwc2_core_init(hsotg, false);
 		dwc2_enable_global_interrupts(hsotg);
@@ -3470,6 +3531,7 @@ static int dwc2_host_is_b_hnp_enabled(struct dwc2_hsotg *hsotg)
 	return hcd->self.b_hnp_enable;
 }
 
+<<<<<<< HEAD
 /* Must NOT be called with interrupt disabled or spinlock held */
 static void dwc2_port_suspend(struct dwc2_hsotg *hsotg, u16 windex)
 {
@@ -3477,6 +3539,25 @@ static void dwc2_port_suspend(struct dwc2_hsotg *hsotg, u16 windex)
 	u32 hprt0;
 	u32 pcgctl;
 	u32 gotgctl;
+=======
+/**
+ * dwc2_port_suspend() - Put controller in suspend mode for host.
+ *
+ * @hsotg: Programming view of the DWC_otg controller
+ * @windex: The control request wIndex field
+ *
+ * Return: non-zero if failed to enter suspend mode for host.
+ *
+ * This function is for entering Host mode suspend.
+ * Must NOT be called with interrupt disabled or spinlock held.
+ */
+int dwc2_port_suspend(struct dwc2_hsotg *hsotg, u16 windex)
+{
+	unsigned long flags;
+	u32 pcgctl;
+	u32 gotgctl;
+	int ret = 0;
+>>>>>>> upstream/android-13
 
 	dev_dbg(hsotg->dev, "%s()\n", __func__);
 
@@ -3489,6 +3570,7 @@ static void dwc2_port_suspend(struct dwc2_hsotg *hsotg, u16 windex)
 		hsotg->op_state = OTG_STATE_A_SUSPEND;
 	}
 
+<<<<<<< HEAD
 	hprt0 = dwc2_read_hprt0(hsotg);
 	hprt0 |= HPRT0_SUSP;
 	dwc2_writel(hsotg, hprt0, HPRT0);
@@ -3505,6 +3587,36 @@ static void dwc2_port_suspend(struct dwc2_hsotg *hsotg, u16 windex)
 		pcgctl |= PCGCTL_STOPPCLK;
 		dwc2_writel(hsotg, pcgctl, PCGCTL);
 		udelay(10);
+=======
+	switch (hsotg->params.power_down) {
+	case DWC2_POWER_DOWN_PARAM_PARTIAL:
+		ret = dwc2_enter_partial_power_down(hsotg);
+		if (ret)
+			dev_err(hsotg->dev,
+				"enter partial_power_down failed.\n");
+		break;
+	case DWC2_POWER_DOWN_PARAM_HIBERNATION:
+		/*
+		 * Perform spin unlock and lock because in
+		 * "dwc2_host_enter_hibernation()" function there is a spinlock
+		 * logic which prevents servicing of any IRQ during entering
+		 * hibernation.
+		 */
+		spin_unlock_irqrestore(&hsotg->lock, flags);
+		ret = dwc2_enter_hibernation(hsotg, 1);
+		if (ret)
+			dev_err(hsotg->dev, "enter hibernation failed.\n");
+		spin_lock_irqsave(&hsotg->lock, flags);
+		break;
+	case DWC2_POWER_DOWN_PARAM_NONE:
+		/*
+		 * If not hibernation nor partial power down are supported,
+		 * clock gating is used to save power.
+		 */
+		if (!hsotg->params.no_clock_gating)
+			dwc2_host_enter_clock_gating(hsotg);
+		break;
+>>>>>>> upstream/android-13
 	}
 
 	/* For HNP the bus must be suspended for at least 200ms */
@@ -3519,6 +3631,7 @@ static void dwc2_port_suspend(struct dwc2_hsotg *hsotg, u16 windex)
 	} else {
 		spin_unlock_irqrestore(&hsotg->lock, flags);
 	}
+<<<<<<< HEAD
 }
 
 /* Must NOT be called with interrupt disabled or spinlock held */
@@ -3557,6 +3670,56 @@ static void dwc2_port_resume(struct dwc2_hsotg *hsotg)
 	dwc2_writel(hsotg, hprt0, HPRT0);
 	hsotg->bus_suspended = false;
 	spin_unlock_irqrestore(&hsotg->lock, flags);
+=======
+
+	return ret;
+}
+
+/**
+ * dwc2_port_resume() - Exit controller from suspend mode for host.
+ *
+ * @hsotg: Programming view of the DWC_otg controller
+ *
+ * Return: non-zero if failed to exit suspend mode for host.
+ *
+ * This function is for exiting Host mode suspend.
+ * Must NOT be called with interrupt disabled or spinlock held.
+ */
+int dwc2_port_resume(struct dwc2_hsotg *hsotg)
+{
+	unsigned long flags;
+	int ret = 0;
+
+	spin_lock_irqsave(&hsotg->lock, flags);
+
+	switch (hsotg->params.power_down) {
+	case DWC2_POWER_DOWN_PARAM_PARTIAL:
+		ret = dwc2_exit_partial_power_down(hsotg, 0, true);
+		if (ret)
+			dev_err(hsotg->dev,
+				"exit partial_power_down failed.\n");
+		break;
+	case DWC2_POWER_DOWN_PARAM_HIBERNATION:
+		/* Exit host hibernation. */
+		ret = dwc2_exit_hibernation(hsotg, 0, 0, 1);
+		if (ret)
+			dev_err(hsotg->dev, "exit hibernation failed.\n");
+		break;
+	case DWC2_POWER_DOWN_PARAM_NONE:
+		/*
+		 * If not hibernation nor partial power down are supported,
+		 * port resume is done using the clock gating programming flow.
+		 */
+		spin_unlock_irqrestore(&hsotg->lock, flags);
+		dwc2_host_exit_clock_gating(hsotg, 0);
+		spin_lock_irqsave(&hsotg->lock, flags);
+		break;
+	}
+
+	spin_unlock_irqrestore(&hsotg->lock, flags);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /* Handles hub class-specific requests */
@@ -3606,12 +3769,17 @@ static int dwc2_hcd_hub_control(struct dwc2_hsotg *hsotg, u16 typereq,
 			dev_dbg(hsotg->dev,
 				"ClearPortFeature USB_PORT_FEAT_SUSPEND\n");
 
+<<<<<<< HEAD
 			if (hsotg->bus_suspended) {
 				if (hsotg->hibernated)
 					dwc2_exit_hibernation(hsotg, 0, 0, 1);
 				else
 					dwc2_port_resume(hsotg);
 			}
+=======
+			if (hsotg->bus_suspended)
+				retval = dwc2_port_resume(hsotg);
+>>>>>>> upstream/android-13
 			break;
 
 		case USB_PORT_FEAT_POWER:
@@ -3822,10 +3990,15 @@ static int dwc2_hcd_hub_control(struct dwc2_hsotg *hsotg, u16 typereq,
 				"SetPortFeature - USB_PORT_FEAT_SUSPEND\n");
 			if (windex != hsotg->otg_port)
 				goto error;
+<<<<<<< HEAD
 			if (hsotg->params.power_down == 2)
 				dwc2_enter_hibernation(hsotg, 1);
 			else
 				dwc2_port_suspend(hsotg, windex);
+=======
+			if (!hsotg->bus_suspended)
+				retval = dwc2_port_suspend(hsotg, windex);
+>>>>>>> upstream/android-13
 			break;
 
 		case USB_PORT_FEAT_POWER:
@@ -3840,12 +4013,39 @@ static int dwc2_hcd_hub_control(struct dwc2_hsotg *hsotg, u16 typereq,
 			break;
 
 		case USB_PORT_FEAT_RESET:
+<<<<<<< HEAD
 			if (hsotg->params.power_down == 2 &&
 			    hsotg->hibernated)
 				dwc2_exit_hibernation(hsotg, 0, 1, 1);
 			hprt0 = dwc2_read_hprt0(hsotg);
 			dev_dbg(hsotg->dev,
 				"SetPortFeature - USB_PORT_FEAT_RESET\n");
+=======
+			dev_dbg(hsotg->dev,
+				"SetPortFeature - USB_PORT_FEAT_RESET\n");
+
+			hprt0 = dwc2_read_hprt0(hsotg);
+
+			if (hsotg->hibernated) {
+				retval = dwc2_exit_hibernation(hsotg, 0, 1, 1);
+				if (retval)
+					dev_err(hsotg->dev,
+						"exit hibernation failed\n");
+			}
+
+			if (hsotg->in_ppd) {
+				retval = dwc2_exit_partial_power_down(hsotg, 1,
+								      true);
+				if (retval)
+					dev_err(hsotg->dev,
+						"exit partial_power_down failed\n");
+			}
+
+			if (hsotg->params.power_down ==
+			    DWC2_POWER_DOWN_PARAM_NONE && hsotg->bus_suspended)
+				dwc2_host_exit_clock_gating(hsotg, 0);
+
+>>>>>>> upstream/android-13
 			pcgctl = dwc2_readl(hsotg, PCGCTL);
 			pcgctl &= ~(PCGCTL_ENBL_SLEEP_GATING | PCGCTL_STOPPCLK);
 			dwc2_writel(hsotg, pcgctl, PCGCTL);
@@ -3995,10 +4195,15 @@ static struct dwc2_hcd_urb *dwc2_hcd_urb_alloc(struct dwc2_hsotg *hsotg,
 					       gfp_t mem_flags)
 {
 	struct dwc2_hcd_urb *urb;
+<<<<<<< HEAD
 	u32 size = sizeof(*urb) + iso_desc_count *
 		   sizeof(struct dwc2_hcd_iso_packet_desc);
 
 	urb = kzalloc(size, mem_flags);
+=======
+
+	urb = kzalloc(struct_size(urb, iso_descs, iso_desc_count), mem_flags);
+>>>>>>> upstream/android-13
 	if (urb)
 		urb->packet_count = iso_desc_count;
 	return urb;
@@ -4395,6 +4600,20 @@ static void dwc2_hcd_reset_func(struct work_struct *work)
 	spin_unlock_irqrestore(&hsotg->lock, flags);
 }
 
+<<<<<<< HEAD
+=======
+static void dwc2_hcd_phy_reset_func(struct work_struct *work)
+{
+	struct dwc2_hsotg *hsotg = container_of(work, struct dwc2_hsotg,
+						phy_reset_work);
+	int ret;
+
+	ret = phy_reset(hsotg->phy);
+	if (ret)
+		dev_warn(hsotg->dev, "PHY reset failed\n");
+}
+
+>>>>>>> upstream/android-13
 /*
  * =========================================================================
  *  Linux HC Driver Functions
@@ -4489,7 +4708,10 @@ static int _dwc2_hcd_suspend(struct usb_hcd *hcd)
 	struct dwc2_hsotg *hsotg = dwc2_hcd_to_hsotg(hcd);
 	unsigned long flags;
 	int ret = 0;
+<<<<<<< HEAD
 	u32 hprt0;
+=======
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&hsotg->lock, flags);
 
@@ -4505,6 +4727,7 @@ static int _dwc2_hcd_suspend(struct usb_hcd *hcd)
 	if (hsotg->op_state == OTG_STATE_B_PERIPHERAL)
 		goto unlock;
 
+<<<<<<< HEAD
 	if (hsotg->params.power_down != DWC2_POWER_DOWN_PARAM_PARTIAL)
 		goto skip_power_saving;
 
@@ -4531,6 +4754,55 @@ static int _dwc2_hcd_suspend(struct usb_hcd *hcd)
 		goto skip_power_saving;
 	}
 
+=======
+	if (hsotg->bus_suspended)
+		goto skip_power_saving;
+
+	if (hsotg->flags.b.port_connect_status == 0)
+		goto skip_power_saving;
+
+	switch (hsotg->params.power_down) {
+	case DWC2_POWER_DOWN_PARAM_PARTIAL:
+		/* Enter partial_power_down */
+		ret = dwc2_enter_partial_power_down(hsotg);
+		if (ret)
+			dev_err(hsotg->dev,
+				"enter partial_power_down failed\n");
+		/* After entering suspend, hardware is not accessible */
+		clear_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
+		break;
+	case DWC2_POWER_DOWN_PARAM_HIBERNATION:
+		/* Enter hibernation */
+		spin_unlock_irqrestore(&hsotg->lock, flags);
+		ret = dwc2_enter_hibernation(hsotg, 1);
+		if (ret)
+			dev_err(hsotg->dev, "enter hibernation failed\n");
+		spin_lock_irqsave(&hsotg->lock, flags);
+
+		/* After entering suspend, hardware is not accessible */
+		clear_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
+		break;
+	case DWC2_POWER_DOWN_PARAM_NONE:
+		/*
+		 * If not hibernation nor partial power down are supported,
+		 * clock gating is used to save power.
+		 */
+		if (!hsotg->params.no_clock_gating) {
+			dwc2_host_enter_clock_gating(hsotg);
+
+			/* After entering suspend, hardware is not accessible */
+			clear_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
+		}
+		break;
+	default:
+		goto skip_power_saving;
+	}
+
+	spin_unlock_irqrestore(&hsotg->lock, flags);
+	dwc2_vbus_supply_exit(hsotg);
+	spin_lock_irqsave(&hsotg->lock, flags);
+
+>>>>>>> upstream/android-13
 	/* Ask phy to be suspended */
 	if (!IS_ERR_OR_NULL(hsotg->uphy)) {
 		spin_unlock_irqrestore(&hsotg->lock, flags);
@@ -4538,9 +4810,12 @@ static int _dwc2_hcd_suspend(struct usb_hcd *hcd)
 		spin_lock_irqsave(&hsotg->lock, flags);
 	}
 
+<<<<<<< HEAD
 	/* After entering partial_power_down, hardware is no more accessible */
 	clear_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
 
+=======
+>>>>>>> upstream/android-13
 skip_power_saving:
 	hsotg->lx_state = DWC2_L2;
 unlock:
@@ -4553,6 +4828,10 @@ static int _dwc2_hcd_resume(struct usb_hcd *hcd)
 {
 	struct dwc2_hsotg *hsotg = dwc2_hcd_to_hsotg(hcd);
 	unsigned long flags;
+<<<<<<< HEAD
+=======
+	u32 hprt0;
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 	spin_lock_irqsave(&hsotg->lock, flags);
@@ -4563,16 +4842,83 @@ static int _dwc2_hcd_resume(struct usb_hcd *hcd)
 	if (hsotg->lx_state != DWC2_L2)
 		goto unlock;
 
+<<<<<<< HEAD
 	if (hsotg->params.power_down != DWC2_POWER_DOWN_PARAM_PARTIAL) {
+=======
+	hprt0 = dwc2_read_hprt0(hsotg);
+
+	/*
+	 * Added port connection status checking which prevents exiting from
+	 * Partial Power Down mode from _dwc2_hcd_resume() if not in Partial
+	 * Power Down mode.
+	 */
+	if (hprt0 & HPRT0_CONNSTS) {
+>>>>>>> upstream/android-13
 		hsotg->lx_state = DWC2_L0;
 		goto unlock;
 	}
 
+<<<<<<< HEAD
 	/*
 	 * Set HW accessible bit before powering on the controller
 	 * since an interrupt may rise.
 	 */
 	set_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
+=======
+	switch (hsotg->params.power_down) {
+	case DWC2_POWER_DOWN_PARAM_PARTIAL:
+		ret = dwc2_exit_partial_power_down(hsotg, 0, true);
+		if (ret)
+			dev_err(hsotg->dev,
+				"exit partial_power_down failed\n");
+		/*
+		 * Set HW accessible bit before powering on the controller
+		 * since an interrupt may rise.
+		 */
+		set_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
+		break;
+	case DWC2_POWER_DOWN_PARAM_HIBERNATION:
+		ret = dwc2_exit_hibernation(hsotg, 0, 0, 1);
+		if (ret)
+			dev_err(hsotg->dev, "exit hibernation failed.\n");
+
+		/*
+		 * Set HW accessible bit before powering on the controller
+		 * since an interrupt may rise.
+		 */
+		set_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
+		break;
+	case DWC2_POWER_DOWN_PARAM_NONE:
+		/*
+		 * If not hibernation nor partial power down are supported,
+		 * port resume is done using the clock gating programming flow.
+		 */
+		spin_unlock_irqrestore(&hsotg->lock, flags);
+		dwc2_host_exit_clock_gating(hsotg, 0);
+
+		/*
+		 * Initialize the Core for Host mode, as after system resume
+		 * the global interrupts are disabled.
+		 */
+		dwc2_core_init(hsotg, false);
+		dwc2_enable_global_interrupts(hsotg);
+		dwc2_hcd_reinit(hsotg);
+		spin_lock_irqsave(&hsotg->lock, flags);
+
+		/*
+		 * Set HW accessible bit before powering on the controller
+		 * since an interrupt may rise.
+		 */
+		set_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
+		break;
+	default:
+		hsotg->lx_state = DWC2_L0;
+		goto unlock;
+	}
+
+	/* Change Root port status, as port status change occurred after resume.*/
+	hsotg->flags.b.port_suspend_change = 1;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Enable power if not already done.
@@ -4585,6 +4931,7 @@ static int _dwc2_hcd_resume(struct usb_hcd *hcd)
 		spin_lock_irqsave(&hsotg->lock, flags);
 	}
 
+<<<<<<< HEAD
 	/* Exit partial_power_down */
 	ret = dwc2_exit_partial_power_down(hsotg, true);
 	if (ret && (ret != -ENOTSUPP))
@@ -4616,6 +4963,27 @@ static int _dwc2_hcd_resume(struct usb_hcd *hcd)
 	}
 
 	return ret;
+=======
+	/* Enable external vbus supply after resuming the port. */
+	spin_unlock_irqrestore(&hsotg->lock, flags);
+	dwc2_vbus_supply_init(hsotg);
+
+	/* Wait for controller to correctly update D+/D- level */
+	usleep_range(3000, 5000);
+	spin_lock_irqsave(&hsotg->lock, flags);
+
+	/*
+	 * Clear Port Enable and Port Status changes.
+	 * Enable Port Power.
+	 */
+	dwc2_writel(hsotg, HPRT0_PWR | HPRT0_CONNDET |
+			HPRT0_ENACHG, HPRT0);
+
+	/* Wait for controller to detect Port Connect */
+	spin_unlock_irqrestore(&hsotg->lock, flags);
+	usleep_range(5000, 7000);
+	spin_lock_irqsave(&hsotg->lock, flags);
+>>>>>>> upstream/android-13
 unlock:
 	spin_unlock_irqrestore(&hsotg->lock, flags);
 
@@ -4726,12 +5094,47 @@ static int _dwc2_hcd_urb_enqueue(struct usb_hcd *hcd, struct urb *urb,
 	struct dwc2_qh *qh;
 	bool qh_allocated = false;
 	struct dwc2_qtd *qtd;
+<<<<<<< HEAD
+=======
+	struct dwc2_gregs_backup *gr;
+
+	gr = &hsotg->gr_backup;
+>>>>>>> upstream/android-13
 
 	if (dbg_urb(urb)) {
 		dev_vdbg(hsotg->dev, "DWC OTG HCD URB Enqueue\n");
 		dwc2_dump_urb_info(hcd, urb, "urb_enqueue");
 	}
 
+<<<<<<< HEAD
+=======
+	if (hsotg->hibernated) {
+		if (gr->gotgctl & GOTGCTL_CURMODE_HOST)
+			retval = dwc2_exit_hibernation(hsotg, 0, 0, 1);
+		else
+			retval = dwc2_exit_hibernation(hsotg, 0, 0, 0);
+
+		if (retval)
+			dev_err(hsotg->dev,
+				"exit hibernation failed.\n");
+	}
+
+	if (hsotg->in_ppd) {
+		retval = dwc2_exit_partial_power_down(hsotg, 0, true);
+		if (retval)
+			dev_err(hsotg->dev,
+				"exit partial_power_down failed\n");
+	}
+
+	if (hsotg->params.power_down == DWC2_POWER_DOWN_PARAM_NONE &&
+	    hsotg->bus_suspended) {
+		if (dwc2_is_device_mode(hsotg))
+			dwc2_gadget_exit_clock_gating(hsotg, 0);
+		else
+			dwc2_host_exit_clock_gating(hsotg, 0);
+	}
+
+>>>>>>> upstream/android-13
 	if (!ep)
 		return -EINVAL;
 
@@ -4771,7 +5174,11 @@ static int _dwc2_hcd_urb_enqueue(struct usb_hcd *hcd, struct urb *urb,
 
 	buf = urb->transfer_buffer;
 
+<<<<<<< HEAD
 	if (hcd->self.uses_dma) {
+=======
+	if (hcd_uses_dma(hcd)) {
+>>>>>>> upstream/android-13
 		if (!buf && (urb->transfer_dma & 3)) {
 			dev_err(hsotg->dev,
 				"%s: unaligned transfer with no transfer_buffer",
@@ -4848,7 +5255,10 @@ fail2:
 	spin_unlock_irqrestore(&hsotg->lock, flags);
 	urb->hcpriv = NULL;
 	kfree(qtd);
+<<<<<<< HEAD
 	qtd = NULL;
+=======
+>>>>>>> upstream/android-13
 fail1:
 	if (qh_allocated) {
 		struct dwc2_qtd *qtd2, *qtd2_tmp;
@@ -5151,6 +5561,11 @@ static void dwc2_hcd_free(struct dwc2_hsotg *hsotg)
 		destroy_workqueue(hsotg->wq_otg);
 	}
 
+<<<<<<< HEAD
+=======
+	cancel_work_sync(&hsotg->phy_reset_work);
+
+>>>>>>> upstream/android-13
 	del_timer(&hsotg->wkp_timer);
 }
 
@@ -5224,16 +5639,32 @@ int dwc2_hcd_init(struct dwc2_hsotg *hsotg)
 		dwc2_hc_driver.reset_device = dwc2_reset_device;
 	}
 
+<<<<<<< HEAD
+=======
+	if (hsotg->params.host_dma)
+		dwc2_hc_driver.flags |= HCD_DMA;
+
+>>>>>>> upstream/android-13
 	hcd = usb_create_hcd(&dwc2_hc_driver, hsotg->dev, dev_name(hsotg->dev));
 	if (!hcd)
 		goto error1;
 
+<<<<<<< HEAD
 	if (!hsotg->params.host_dma)
 		hcd->self.uses_dma = 0;
 
 	hcd->has_tt = 1;
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+=======
+	hcd->has_tt = 1;
+
+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+	if (!res) {
+		retval = -EINVAL;
+		goto error1;
+	}
+>>>>>>> upstream/android-13
 	hcd->rsrc_start = res->start;
 	hcd->rsrc_len = resource_size(res);
 
@@ -5292,11 +5723,18 @@ int dwc2_hcd_init(struct dwc2_hsotg *hsotg)
 		hsotg->hc_ptr_array[i] = channel;
 	}
 
+<<<<<<< HEAD
 	/* Initialize hsotg start work */
 	INIT_DELAYED_WORK(&hsotg->start_work, dwc2_hcd_start_func);
 
 	/* Initialize port reset work */
 	INIT_DELAYED_WORK(&hsotg->reset_work, dwc2_hcd_reset_func);
+=======
+	/* Initialize work */
+	INIT_DELAYED_WORK(&hsotg->start_work, dwc2_hcd_start_func);
+	INIT_DELAYED_WORK(&hsotg->reset_work, dwc2_hcd_reset_func);
+	INIT_WORK(&hsotg->phy_reset_work, dwc2_hcd_phy_reset_func);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Allocate space for storing data on status transactions. Normally no
@@ -5757,3 +6195,271 @@ int dwc2_host_exit_hibernation(struct dwc2_hsotg *hsotg, int rem_wakeup,
 	dev_dbg(hsotg->dev, "Host hibernation restore complete\n");
 	return ret;
 }
+<<<<<<< HEAD
+=======
+
+bool dwc2_host_can_poweroff_phy(struct dwc2_hsotg *dwc2)
+{
+	struct usb_device *root_hub = dwc2_hsotg_to_hcd(dwc2)->self.root_hub;
+
+	/* If the controller isn't allowed to wakeup then we can power off. */
+	if (!device_may_wakeup(dwc2->dev))
+		return true;
+
+	/*
+	 * We don't want to power off the PHY if something under the
+	 * root hub has wakeup enabled.
+	 */
+	if (usb_wakeup_enabled_descendants(root_hub))
+		return false;
+
+	/* No reason to keep the PHY powered, so allow poweroff */
+	return true;
+}
+
+/**
+ * dwc2_host_enter_partial_power_down() - Put controller in partial
+ * power down.
+ *
+ * @hsotg: Programming view of the DWC_otg controller
+ *
+ * Return: non-zero if failed to enter host partial power down.
+ *
+ * This function is for entering Host mode partial power down.
+ */
+int dwc2_host_enter_partial_power_down(struct dwc2_hsotg *hsotg)
+{
+	u32 pcgcctl;
+	u32 hprt0;
+	int ret = 0;
+
+	dev_dbg(hsotg->dev, "Entering host partial power down started.\n");
+
+	/* Put this port in suspend mode. */
+	hprt0 = dwc2_read_hprt0(hsotg);
+	hprt0 |= HPRT0_SUSP;
+	dwc2_writel(hsotg, hprt0, HPRT0);
+	udelay(5);
+
+	/* Wait for the HPRT0.PrtSusp register field to be set */
+	if (dwc2_hsotg_wait_bit_set(hsotg, HPRT0, HPRT0_SUSP, 3000))
+		dev_warn(hsotg->dev, "Suspend wasn't generated\n");
+
+	/* Backup all registers */
+	ret = dwc2_backup_global_registers(hsotg);
+	if (ret) {
+		dev_err(hsotg->dev, "%s: failed to backup global registers\n",
+			__func__);
+		return ret;
+	}
+
+	ret = dwc2_backup_host_registers(hsotg);
+	if (ret) {
+		dev_err(hsotg->dev, "%s: failed to backup host registers\n",
+			__func__);
+		return ret;
+	}
+
+	/*
+	 * Clear any pending interrupts since dwc2 will not be able to
+	 * clear them after entering partial_power_down.
+	 */
+	dwc2_writel(hsotg, 0xffffffff, GINTSTS);
+
+	/* Put the controller in low power state */
+	pcgcctl = dwc2_readl(hsotg, PCGCTL);
+
+	pcgcctl |= PCGCTL_PWRCLMP;
+	dwc2_writel(hsotg, pcgcctl, PCGCTL);
+	udelay(5);
+
+	pcgcctl |= PCGCTL_RSTPDWNMODULE;
+	dwc2_writel(hsotg, pcgcctl, PCGCTL);
+	udelay(5);
+
+	pcgcctl |= PCGCTL_STOPPCLK;
+	dwc2_writel(hsotg, pcgcctl, PCGCTL);
+
+	/* Set in_ppd flag to 1 as here core enters suspend. */
+	hsotg->in_ppd = 1;
+	hsotg->lx_state = DWC2_L2;
+	hsotg->bus_suspended = true;
+
+	dev_dbg(hsotg->dev, "Entering host partial power down completed.\n");
+
+	return ret;
+}
+
+/*
+ * dwc2_host_exit_partial_power_down() - Exit controller from host partial
+ * power down.
+ *
+ * @hsotg: Programming view of the DWC_otg controller
+ * @rem_wakeup: indicates whether resume is initiated by Reset.
+ * @restore: indicates whether need to restore the registers or not.
+ *
+ * Return: non-zero if failed to exit host partial power down.
+ *
+ * This function is for exiting from Host mode partial power down.
+ */
+int dwc2_host_exit_partial_power_down(struct dwc2_hsotg *hsotg,
+				      int rem_wakeup, bool restore)
+{
+	u32 pcgcctl;
+	int ret = 0;
+	u32 hprt0;
+
+	dev_dbg(hsotg->dev, "Exiting host partial power down started.\n");
+
+	pcgcctl = dwc2_readl(hsotg, PCGCTL);
+	pcgcctl &= ~PCGCTL_STOPPCLK;
+	dwc2_writel(hsotg, pcgcctl, PCGCTL);
+	udelay(5);
+
+	pcgcctl = dwc2_readl(hsotg, PCGCTL);
+	pcgcctl &= ~PCGCTL_PWRCLMP;
+	dwc2_writel(hsotg, pcgcctl, PCGCTL);
+	udelay(5);
+
+	pcgcctl = dwc2_readl(hsotg, PCGCTL);
+	pcgcctl &= ~PCGCTL_RSTPDWNMODULE;
+	dwc2_writel(hsotg, pcgcctl, PCGCTL);
+
+	udelay(100);
+	if (restore) {
+		ret = dwc2_restore_global_registers(hsotg);
+		if (ret) {
+			dev_err(hsotg->dev, "%s: failed to restore registers\n",
+				__func__);
+			return ret;
+		}
+
+		ret = dwc2_restore_host_registers(hsotg);
+		if (ret) {
+			dev_err(hsotg->dev, "%s: failed to restore host registers\n",
+				__func__);
+			return ret;
+		}
+	}
+
+	/* Drive resume signaling and exit suspend mode on the port. */
+	hprt0 = dwc2_read_hprt0(hsotg);
+	hprt0 |= HPRT0_RES;
+	hprt0 &= ~HPRT0_SUSP;
+	dwc2_writel(hsotg, hprt0, HPRT0);
+	udelay(5);
+
+	if (!rem_wakeup) {
+		/* Stop driveing resume signaling on the port. */
+		hprt0 = dwc2_read_hprt0(hsotg);
+		hprt0 &= ~HPRT0_RES;
+		dwc2_writel(hsotg, hprt0, HPRT0);
+
+		hsotg->bus_suspended = false;
+	} else {
+		/* Turn on the port power bit. */
+		hprt0 = dwc2_read_hprt0(hsotg);
+		hprt0 |= HPRT0_PWR;
+		dwc2_writel(hsotg, hprt0, HPRT0);
+
+		/* Connect hcd. */
+		dwc2_hcd_connect(hsotg);
+
+		mod_timer(&hsotg->wkp_timer,
+			  jiffies + msecs_to_jiffies(71));
+	}
+
+	/* Set lx_state to and in_ppd to 0 as here core exits from suspend. */
+	hsotg->in_ppd = 0;
+	hsotg->lx_state = DWC2_L0;
+
+	dev_dbg(hsotg->dev, "Exiting host partial power down completed.\n");
+	return ret;
+}
+
+/**
+ * dwc2_host_enter_clock_gating() - Put controller in clock gating.
+ *
+ * @hsotg: Programming view of the DWC_otg controller
+ *
+ * This function is for entering Host mode clock gating.
+ */
+void dwc2_host_enter_clock_gating(struct dwc2_hsotg *hsotg)
+{
+	u32 hprt0;
+	u32 pcgctl;
+
+	dev_dbg(hsotg->dev, "Entering host clock gating.\n");
+
+	/* Put this port in suspend mode. */
+	hprt0 = dwc2_read_hprt0(hsotg);
+	hprt0 |= HPRT0_SUSP;
+	dwc2_writel(hsotg, hprt0, HPRT0);
+
+	/* Set the Phy Clock bit as suspend is received. */
+	pcgctl = dwc2_readl(hsotg, PCGCTL);
+	pcgctl |= PCGCTL_STOPPCLK;
+	dwc2_writel(hsotg, pcgctl, PCGCTL);
+	udelay(5);
+
+	/* Set the Gate hclk as suspend is received. */
+	pcgctl = dwc2_readl(hsotg, PCGCTL);
+	pcgctl |= PCGCTL_GATEHCLK;
+	dwc2_writel(hsotg, pcgctl, PCGCTL);
+	udelay(5);
+
+	hsotg->bus_suspended = true;
+	hsotg->lx_state = DWC2_L2;
+}
+
+/**
+ * dwc2_host_exit_clock_gating() - Exit controller from clock gating.
+ *
+ * @hsotg: Programming view of the DWC_otg controller
+ * @rem_wakeup: indicates whether resume is initiated by remote wakeup
+ *
+ * This function is for exiting Host mode clock gating.
+ */
+void dwc2_host_exit_clock_gating(struct dwc2_hsotg *hsotg, int rem_wakeup)
+{
+	u32 hprt0;
+	u32 pcgctl;
+
+	dev_dbg(hsotg->dev, "Exiting host clock gating.\n");
+
+	/* Clear the Gate hclk. */
+	pcgctl = dwc2_readl(hsotg, PCGCTL);
+	pcgctl &= ~PCGCTL_GATEHCLK;
+	dwc2_writel(hsotg, pcgctl, PCGCTL);
+	udelay(5);
+
+	/* Phy Clock bit. */
+	pcgctl = dwc2_readl(hsotg, PCGCTL);
+	pcgctl &= ~PCGCTL_STOPPCLK;
+	dwc2_writel(hsotg, pcgctl, PCGCTL);
+	udelay(5);
+
+	/* Drive resume signaling and exit suspend mode on the port. */
+	hprt0 = dwc2_read_hprt0(hsotg);
+	hprt0 |= HPRT0_RES;
+	hprt0 &= ~HPRT0_SUSP;
+	dwc2_writel(hsotg, hprt0, HPRT0);
+	udelay(5);
+
+	if (!rem_wakeup) {
+		/* In case of port resume need to wait for 40 ms */
+		msleep(USB_RESUME_TIMEOUT);
+
+		/* Stop driveing resume signaling on the port. */
+		hprt0 = dwc2_read_hprt0(hsotg);
+		hprt0 &= ~HPRT0_RES;
+		dwc2_writel(hsotg, hprt0, HPRT0);
+
+		hsotg->bus_suspended = false;
+		hsotg->lx_state = DWC2_L0;
+	} else {
+		mod_timer(&hsotg->wkp_timer,
+			  jiffies + msecs_to_jiffies(71));
+	}
+}
+>>>>>>> upstream/android-13

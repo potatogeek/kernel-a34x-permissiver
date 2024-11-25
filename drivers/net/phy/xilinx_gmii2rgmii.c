@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /* Xilinx GMII2RGMII Converter driver
  *
  * Copyright (C) 2016 Xilinx, Inc.
@@ -8,6 +12,7 @@
  *
  * Description:
  * This driver is developed for Xilinx GMII2RGMII Converter
+<<<<<<< HEAD
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/kernel.h>
@@ -36,12 +43,37 @@ struct gmii2rgmii {
 	struct mdio_device *mdio;
 };
 
+<<<<<<< HEAD
 static int xgmiitorgmii_read_status(struct phy_device *phydev)
 {
 	struct gmii2rgmii *priv = phydev->priv;
 	struct mii_bus *bus = priv->mdio->bus;
 	int addr = priv->mdio->addr;
 	u16 val = 0;
+=======
+static void xgmiitorgmii_configure(struct gmii2rgmii *priv, int speed)
+{
+	struct mii_bus *bus = priv->mdio->bus;
+	int addr = priv->mdio->addr;
+	u16 val;
+
+	val = mdiobus_read(bus, addr, XILINX_GMII2RGMII_REG);
+	val &= ~XILINX_GMII2RGMII_SPEED_MASK;
+
+	if (speed == SPEED_1000)
+		val |= BMCR_SPEED1000;
+	else if (speed == SPEED_100)
+		val |= BMCR_SPEED100;
+	else
+		val |= BMCR_SPEED10;
+
+	mdiobus_write(bus, addr, XILINX_GMII2RGMII_REG, val);
+}
+
+static int xgmiitorgmii_read_status(struct phy_device *phydev)
+{
+	struct gmii2rgmii *priv = mdiodev_get_drvdata(&phydev->mdio);
+>>>>>>> upstream/android-13
 	int err;
 
 	if (priv->phy_drv->read_status)
@@ -51,6 +83,7 @@ static int xgmiitorgmii_read_status(struct phy_device *phydev)
 	if (err < 0)
 		return err;
 
+<<<<<<< HEAD
 	val = mdiobus_read(bus, addr, XILINX_GMII2RGMII_REG);
 	val &= ~XILINX_GMII2RGMII_SPEED_MASK;
 
@@ -62,6 +95,26 @@ static int xgmiitorgmii_read_status(struct phy_device *phydev)
 		val |= BMCR_SPEED10;
 
 	mdiobus_write(bus, addr, XILINX_GMII2RGMII_REG, val);
+=======
+	xgmiitorgmii_configure(priv, phydev->speed);
+
+	return 0;
+}
+
+static int xgmiitorgmii_set_loopback(struct phy_device *phydev, bool enable)
+{
+	struct gmii2rgmii *priv = mdiodev_get_drvdata(&phydev->mdio);
+	int err;
+
+	if (priv->phy_drv->set_loopback)
+		err = priv->phy_drv->set_loopback(phydev, enable);
+	else
+		err = genphy_loopback(phydev, enable);
+	if (err < 0)
+		return err;
+
+	xgmiitorgmii_configure(priv, phydev->speed);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -99,7 +152,12 @@ static int xgmiitorgmii_probe(struct mdio_device *mdiodev)
 	memcpy(&priv->conv_phy_drv, priv->phy_dev->drv,
 	       sizeof(struct phy_driver));
 	priv->conv_phy_drv.read_status = xgmiitorgmii_read_status;
+<<<<<<< HEAD
 	priv->phy_dev->priv = priv;
+=======
+	priv->conv_phy_drv.set_loopback = xgmiitorgmii_set_loopback;
+	mdiodev_set_drvdata(&priv->phy_dev->mdio, priv);
+>>>>>>> upstream/android-13
 	priv->phy_dev->drv = &priv->conv_phy_drv;
 
 	return 0;

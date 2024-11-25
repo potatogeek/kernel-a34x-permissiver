@@ -14,6 +14,7 @@
 #include <linux/slab.h>
 #include <linux/vmalloc.h>
 #include <linux/mm_types.h>
+<<<<<<< HEAD
 #include <asm/cacheflush.h>
 #include <asm/io.h>
 #include <asm/tlbflush.h>
@@ -98,6 +99,15 @@ static int remap_area_pages(unsigned long address, phys_addr_t phys_addr,
 	flush_tlb_all();
 	return error;
 }
+=======
+#include <linux/io.h>
+#include <asm/cacheflush.h>
+#include <asm/tlbflush.h>
+#include <ioremap.h>
+
+#define IS_LOW512(addr) (!((phys_addr_t)(addr) & (phys_addr_t) ~0x1fffffffULL))
+#define IS_KSEG1(addr) (((unsigned long)(addr) & ~0x1fffffffUL) == CKSEG1)
+>>>>>>> upstream/android-13
 
 static int __ioremap_check_ram(unsigned long start_pfn, unsigned long nr_pages,
 			       void *arg)
@@ -114,6 +124,7 @@ static int __ioremap_check_ram(unsigned long start_pfn, unsigned long nr_pages,
 }
 
 /*
+<<<<<<< HEAD
  * Generic mapping function (not visible outside):
  */
 
@@ -135,6 +146,27 @@ void __iomem * __ioremap(phys_addr_t phys_addr, phys_addr_t size, unsigned long 
 	struct vm_struct * area;
 	phys_addr_t last_addr;
 	void * addr;
+=======
+ * ioremap_prot     -   map bus memory into CPU space
+ * @phys_addr:    bus address of the memory
+ * @size:      size of the resource to map
+ *
+ * ioremap_prot gives the caller control over cache coherency attributes (CCA)
+ */
+void __iomem *ioremap_prot(phys_addr_t phys_addr, unsigned long size,
+		unsigned long prot_val)
+{
+	unsigned long flags = prot_val & _CACHE_MASK;
+	unsigned long offset, pfn, last_pfn;
+	struct vm_struct *area;
+	phys_addr_t last_addr;
+	unsigned long vaddr;
+	void __iomem *cpu_addr;
+
+	cpu_addr = plat_ioremap(phys_addr, size, flags);
+	if (cpu_addr)
+		return cpu_addr;
+>>>>>>> upstream/android-13
 
 	phys_addr = fixup_bigphys_addr(phys_addr, size);
 
@@ -177,6 +209,7 @@ void __iomem * __ioremap(phys_addr_t phys_addr, phys_addr_t size, unsigned long 
 	area = get_vm_area(size, VM_IOREMAP);
 	if (!area)
 		return NULL;
+<<<<<<< HEAD
 	addr = area->addr;
 	if (remap_area_pages((unsigned long) addr, phys_addr, size, flags)) {
 		vunmap(addr);
@@ -204,3 +237,24 @@ void __iounmap(const volatile void __iomem *addr)
 
 EXPORT_SYMBOL(__ioremap);
 EXPORT_SYMBOL(__iounmap);
+=======
+	vaddr = (unsigned long)area->addr;
+
+	flags |= _PAGE_GLOBAL | _PAGE_PRESENT | __READABLE | __WRITEABLE;
+	if (ioremap_page_range(vaddr, vaddr + size, phys_addr,
+			__pgprot(flags))) {
+		free_vm_area(area);
+		return NULL;
+	}
+
+	return (void __iomem *)(vaddr + offset);
+}
+EXPORT_SYMBOL(ioremap_prot);
+
+void iounmap(const volatile void __iomem *addr)
+{
+	if (!plat_iounmap(addr) && !IS_KSEG1(addr))
+		vunmap((void *)((unsigned long)addr & PAGE_MASK));
+}
+EXPORT_SYMBOL(iounmap);
+>>>>>>> upstream/android-13

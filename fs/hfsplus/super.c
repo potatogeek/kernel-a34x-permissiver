@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/fs/hfsplus/super.c
  *
@@ -18,7 +22,11 @@
 #include <linux/nls.h>
 
 static struct inode *hfsplus_alloc_inode(struct super_block *sb);
+<<<<<<< HEAD
 static void hfsplus_destroy_inode(struct inode *inode);
+=======
+static void hfsplus_free_inode(struct inode *inode);
+>>>>>>> upstream/android-13
 
 #include "hfsplus_fs.h"
 #include "xattr.h"
@@ -238,7 +246,11 @@ out:
 	mutex_unlock(&sbi->vh_mutex);
 
 	if (!test_bit(HFSPLUS_SB_NOBARRIER, &sbi->flags))
+<<<<<<< HEAD
 		blkdev_issue_flush(sb->s_bdev, GFP_KERNEL, NULL);
+=======
+		blkdev_issue_flush(sb->s_bdev);
+>>>>>>> upstream/android-13
 
 	return error;
 }
@@ -319,8 +331,12 @@ static int hfsplus_statfs(struct dentry *dentry, struct kstatfs *buf)
 	buf->f_bavail = buf->f_bfree;
 	buf->f_files = 0xFFFFFFFF;
 	buf->f_ffree = 0xFFFFFFFF - sbi->next_cnid;
+<<<<<<< HEAD
 	buf->f_fsid.val[0] = (u32)id;
 	buf->f_fsid.val[1] = (u32)(id >> 32);
+=======
+	buf->f_fsid = u64_to_fsid(id);
+>>>>>>> upstream/android-13
 	buf->f_namelen = HFSPLUS_MAX_STRLEN;
 
 	return 0;
@@ -361,7 +377,11 @@ static int hfsplus_remount(struct super_block *sb, int *flags, char *data)
 
 static const struct super_operations hfsplus_sops = {
 	.alloc_inode	= hfsplus_alloc_inode,
+<<<<<<< HEAD
 	.destroy_inode	= hfsplus_destroy_inode,
+=======
+	.free_inode	= hfsplus_free_inode,
+>>>>>>> upstream/android-13
 	.write_inode	= hfsplus_write_inode,
 	.evict_inode	= hfsplus_evict_inode,
 	.put_super	= hfsplus_put_super,
@@ -617,6 +637,10 @@ out:
 MODULE_AUTHOR("Brad Boyer");
 MODULE_DESCRIPTION("Extended Macintosh Filesystem");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 
 static struct kmem_cache *hfsplus_inode_cachep;
 
@@ -628,6 +652,7 @@ static struct inode *hfsplus_alloc_inode(struct super_block *sb)
 	return i ? &i->vfs_inode : NULL;
 }
 
+<<<<<<< HEAD
 static void hfsplus_i_callback(struct rcu_head *head)
 {
 	struct inode *inode = container_of(head, struct inode, i_rcu);
@@ -640,6 +665,13 @@ static void hfsplus_destroy_inode(struct inode *inode)
 	call_rcu(&inode->i_rcu, hfsplus_i_callback);
 }
 
+=======
+static void hfsplus_free_inode(struct inode *inode)
+{
+	kmem_cache_free(hfsplus_inode_cachep, HFSPLUS_I(inode));
+}
+
+>>>>>>> upstream/android-13
 #define HFSPLUS_INODE_SIZE	sizeof(struct hfsplus_inode_info)
 
 static struct dentry *hfsplus_mount(struct file_system_type *fs_type,

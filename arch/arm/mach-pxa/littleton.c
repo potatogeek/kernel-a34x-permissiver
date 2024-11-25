@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/mach-pxa/littleton.c
  *
@@ -9,10 +13,13 @@
  *
  *  2007-11-22  modified to align with latest kernel
  *              eric miao <eric.miao@marvell.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
  *  publishhed by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -20,7 +27,11 @@
 #include <linux/delay.h>
 #include <linux/platform_device.h>
 #include <linux/clk.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/machine.h>
+>>>>>>> upstream/android-13
 #include <linux/spi/spi.h>
 #include <linux/spi/pxa2xx_spi.h>
 #include <linux/smc91x.h>
@@ -51,8 +62,11 @@
 
 #include "generic.h"
 
+<<<<<<< HEAD
 #define GPIO_MMC1_CARD_DETECT	mfp_to_gpio(MFP_PIN_GPIO15)
 
+=======
+>>>>>>> upstream/android-13
 /* Littleton MFP configurations */
 static mfp_cfg_t littleton_mfp_cfg[] __initdata = {
 	/* LCD */
@@ -193,7 +207,11 @@ static inline void littleton_init_lcd(void) {};
 #endif /* CONFIG_FB_PXA || CONFIG_FB_PXA_MODULE */
 
 #if defined(CONFIG_SPI_PXA2XX) || defined(CONFIG_SPI_PXA2XX_MODULE)
+<<<<<<< HEAD
 static struct pxa2xx_spi_master littleton_spi_info = {
+=======
+static struct pxa2xx_spi_controller littleton_spi_info = {
+>>>>>>> upstream/android-13
 	.num_chipselect		= 1,
 };
 
@@ -278,13 +296,30 @@ static inline void littleton_init_keypad(void) {}
 static struct pxamci_platform_data littleton_mci_platform_data = {
 	.detect_delay_ms	= 200,
 	.ocr_mask		= MMC_VDD_32_33 | MMC_VDD_33_34,
+<<<<<<< HEAD
 	.gpio_card_detect	= GPIO_MMC1_CARD_DETECT,
 	.gpio_card_ro		= -1,
 	.gpio_power		= -1,
+=======
+};
+
+static struct gpiod_lookup_table littleton_mci_gpio_table = {
+	.dev_id = "pxa2xx-mci.0",
+	.table = {
+		/* Card detect on MFP (gpio-pxa) GPIO 15 */
+		GPIO_LOOKUP("gpio-pxa", MFP_PIN_GPIO15,
+			    "cd", GPIO_ACTIVE_LOW),
+		{ },
+	},
+>>>>>>> upstream/android-13
 };
 
 static void __init littleton_init_mmc(void)
 {
+<<<<<<< HEAD
+=======
+	gpiod_add_lookup_table(&littleton_mci_gpio_table);
+>>>>>>> upstream/android-13
 	pxa_set_mci_info(&littleton_mci_platform_data);
 }
 #else

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * "splice": joining two ropes together by interweaving their strands.
  *
@@ -32,7 +36,10 @@
 #include <linux/security.h>
 #include <linux/gfp.h>
 #include <linux/socket.h>
+<<<<<<< HEAD
 #include <linux/compat.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/sched/signal.h>
 
 #include "internal.h"
@@ -43,8 +50,13 @@
  * addition of remove_mapping(). If success is returned, the caller may
  * attempt to reuse this page for another destination.
  */
+<<<<<<< HEAD
 static int page_cache_pipe_buf_steal(struct pipe_inode_info *pipe,
 				     struct pipe_buffer *buf)
+=======
+static bool page_cache_pipe_buf_try_steal(struct pipe_inode_info *pipe,
+		struct pipe_buffer *buf)
+>>>>>>> upstream/android-13
 {
 	struct page *page = buf->page;
 	struct address_space *mapping;
@@ -75,7 +87,11 @@ static int page_cache_pipe_buf_steal(struct pipe_inode_info *pipe,
 		 */
 		if (remove_mapping(mapping, page)) {
 			buf->flags |= PIPE_BUF_FLAG_LRU;
+<<<<<<< HEAD
 			return 0;
+=======
+			return true;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -85,7 +101,11 @@ static int page_cache_pipe_buf_steal(struct pipe_inode_info *pipe,
 	 */
 out_unlock:
 	unlock_page(page);
+<<<<<<< HEAD
 	return 1;
+=======
+	return false;
+>>>>>>> upstream/android-13
 }
 
 static void page_cache_pipe_buf_release(struct pipe_inode_info *pipe,
@@ -138,6 +158,7 @@ error:
 }
 
 const struct pipe_buf_operations page_cache_pipe_buf_ops = {
+<<<<<<< HEAD
 	.can_merge = 0,
 	.confirm = page_cache_pipe_buf_confirm,
 	.release = page_cache_pipe_buf_release,
@@ -161,13 +182,40 @@ static const struct pipe_buf_operations user_page_pipe_buf_ops = {
 	.release = page_cache_pipe_buf_release,
 	.steal = user_page_pipe_buf_steal,
 	.get = generic_pipe_buf_get,
+=======
+	.confirm	= page_cache_pipe_buf_confirm,
+	.release	= page_cache_pipe_buf_release,
+	.try_steal	= page_cache_pipe_buf_try_steal,
+	.get		= generic_pipe_buf_get,
+};
+
+static bool user_page_pipe_buf_try_steal(struct pipe_inode_info *pipe,
+		struct pipe_buffer *buf)
+{
+	if (!(buf->flags & PIPE_BUF_FLAG_GIFT))
+		return false;
+
+	buf->flags |= PIPE_BUF_FLAG_LRU;
+	return generic_pipe_buf_try_steal(pipe, buf);
+}
+
+static const struct pipe_buf_operations user_page_pipe_buf_ops = {
+	.release	= page_cache_pipe_buf_release,
+	.try_steal	= user_page_pipe_buf_try_steal,
+	.get		= generic_pipe_buf_get,
+>>>>>>> upstream/android-13
 };
 
 static void wakeup_pipe_readers(struct pipe_inode_info *pipe)
 {
 	smp_mb();
+<<<<<<< HEAD
 	if (waitqueue_active(&pipe->wait))
 		wake_up_interruptible(&pipe->wait);
+=======
+	if (waitqueue_active(&pipe->rd_wait))
+		wake_up_interruptible(&pipe->rd_wait);
+>>>>>>> upstream/android-13
 	kill_fasync(&pipe->fasync_readers, SIGIO, POLL_IN);
 }
 
@@ -186,6 +234,12 @@ ssize_t splice_to_pipe(struct pipe_inode_info *pipe,
 		       struct splice_pipe_desc *spd)
 {
 	unsigned int spd_pages = spd->nr_pages;
+<<<<<<< HEAD
+=======
+	unsigned int tail = pipe->tail;
+	unsigned int head = pipe->head;
+	unsigned int mask = pipe->ring_size - 1;
+>>>>>>> upstream/android-13
 	int ret = 0, page_nr = 0;
 
 	if (!spd_pages)
@@ -197,9 +251,14 @@ ssize_t splice_to_pipe(struct pipe_inode_info *pipe,
 		goto out;
 	}
 
+<<<<<<< HEAD
 	while (pipe->nrbufs < pipe->buffers) {
 		int newbuf = (pipe->curbuf + pipe->nrbufs) & (pipe->buffers - 1);
 		struct pipe_buffer *buf = pipe->bufs + newbuf;
+=======
+	while (!pipe_full(head, tail, pipe->max_usage)) {
+		struct pipe_buffer *buf = &pipe->bufs[head & mask];
+>>>>>>> upstream/android-13
 
 		buf->page = spd->pages[page_nr];
 		buf->offset = spd->partial[page_nr].offset;
@@ -208,7 +267,12 @@ ssize_t splice_to_pipe(struct pipe_inode_info *pipe,
 		buf->ops = spd->ops;
 		buf->flags = 0;
 
+<<<<<<< HEAD
 		pipe->nrbufs++;
+=======
+		head++;
+		pipe->head = head;
+>>>>>>> upstream/android-13
 		page_nr++;
 		ret += buf->len;
 
@@ -229,17 +293,31 @@ EXPORT_SYMBOL_GPL(splice_to_pipe);
 
 ssize_t add_to_pipe(struct pipe_inode_info *pipe, struct pipe_buffer *buf)
 {
+<<<<<<< HEAD
+=======
+	unsigned int head = pipe->head;
+	unsigned int tail = pipe->tail;
+	unsigned int mask = pipe->ring_size - 1;
+>>>>>>> upstream/android-13
 	int ret;
 
 	if (unlikely(!pipe->readers)) {
 		send_sig(SIGPIPE, current, 0);
 		ret = -EPIPE;
+<<<<<<< HEAD
 	} else if (pipe->nrbufs == pipe->buffers) {
 		ret = -EAGAIN;
 	} else {
 		int newbuf = (pipe->curbuf + pipe->nrbufs) & (pipe->buffers - 1);
 		pipe->bufs[newbuf] = *buf;
 		pipe->nrbufs++;
+=======
+	} else if (pipe_full(head, tail, pipe->max_usage)) {
+		ret = -EAGAIN;
+	} else {
+		pipe->bufs[head & mask] = *buf;
+		pipe->head = head + 1;
+>>>>>>> upstream/android-13
 		return buf->len;
 	}
 	pipe_buf_release(pipe, buf);
@@ -253,6 +331,7 @@ EXPORT_SYMBOL(add_to_pipe);
  */
 int splice_grow_spd(const struct pipe_inode_info *pipe, struct splice_pipe_desc *spd)
 {
+<<<<<<< HEAD
 	unsigned int buffers = READ_ONCE(pipe->buffers);
 
 	spd->nr_pages_max = buffers;
@@ -261,6 +340,16 @@ int splice_grow_spd(const struct pipe_inode_info *pipe, struct splice_pipe_desc 
 
 	spd->pages = kmalloc_array(buffers, sizeof(struct page *), GFP_KERNEL);
 	spd->partial = kmalloc_array(buffers, sizeof(struct partial_page),
+=======
+	unsigned int max_usage = READ_ONCE(pipe->max_usage);
+
+	spd->nr_pages_max = max_usage;
+	if (max_usage <= PIPE_DEF_BUFFERS)
+		return 0;
+
+	spd->pages = kmalloc_array(max_usage, sizeof(struct page *), GFP_KERNEL);
+	spd->partial = kmalloc_array(max_usage, sizeof(struct partial_page),
+>>>>>>> upstream/android-13
 				     GFP_KERNEL);
 
 	if (spd->pages && spd->partial)
@@ -299,10 +388,18 @@ ssize_t generic_file_splice_read(struct file *in, loff_t *ppos,
 {
 	struct iov_iter to;
 	struct kiocb kiocb;
+<<<<<<< HEAD
 	int idx, ret;
 
 	iov_iter_pipe(&to, ITER_PIPE | READ, pipe, len);
 	idx = to.idx;
+=======
+	unsigned int i_head;
+	int ret;
+
+	iov_iter_pipe(&to, READ, pipe, len);
+	i_head = to.head;
+>>>>>>> upstream/android-13
 	init_sync_kiocb(&kiocb, in);
 	kiocb.ki_pos = *ppos;
 	ret = call_read_iter(in, &kiocb, &to);
@@ -310,7 +407,11 @@ ssize_t generic_file_splice_read(struct file *in, loff_t *ppos,
 		*ppos = kiocb.ki_pos;
 		file_accessed(in);
 	} else if (ret < 0) {
+<<<<<<< HEAD
 		to.idx = idx;
+=======
+		to.head = i_head;
+>>>>>>> upstream/android-13
 		to.iov_offset = 0;
 		iov_iter_advance(&to, 0); /* to free what was emitted */
 		/*
@@ -323,6 +424,7 @@ ssize_t generic_file_splice_read(struct file *in, loff_t *ppos,
 
 	return ret;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(generic_file_splice_read);
 
 const struct pipe_buf_operations default_pipe_buf_ops = {
@@ -430,6 +532,23 @@ out:
 	return res;
 }
 
+=======
+EXPORT_SYMBOL_NS(generic_file_splice_read, ANDROID_GKI_VFS_EXPORT_ONLY);
+
+const struct pipe_buf_operations default_pipe_buf_ops = {
+	.release	= generic_pipe_buf_release,
+	.try_steal	= generic_pipe_buf_try_steal,
+	.get		= generic_pipe_buf_get,
+};
+
+/* Pipe buffer operations for a socket and similar. */
+const struct pipe_buf_operations nosteal_pipe_buf_ops = {
+	.release	= generic_pipe_buf_release,
+	.get		= generic_pipe_buf_get,
+};
+EXPORT_SYMBOL(nosteal_pipe_buf_ops);
+
+>>>>>>> upstream/android-13
 /*
  * Send 'sd->len' bytes to socket from 'sd->file' at position 'sd->pos'
  * using sendpage(). Return the number of bytes sent.
@@ -446,7 +565,12 @@ static int pipe_to_sendpage(struct pipe_inode_info *pipe,
 
 	more = (sd->flags & SPLICE_F_MORE) ? MSG_MORE : 0;
 
+<<<<<<< HEAD
 	if (sd->len < sd->total_len && pipe->nrbufs > 1)
+=======
+	if (sd->len < sd->total_len &&
+	    pipe_occupancy(pipe->head, pipe->tail) > 1)
+>>>>>>> upstream/android-13
 		more |= MSG_SENDPAGE_NOTLAST;
 
 	return file->f_op->sendpage(file, buf->page, buf->offset,
@@ -456,8 +580,13 @@ static int pipe_to_sendpage(struct pipe_inode_info *pipe,
 static void wakeup_pipe_writers(struct pipe_inode_info *pipe)
 {
 	smp_mb();
+<<<<<<< HEAD
 	if (waitqueue_active(&pipe->wait))
 		wake_up_interruptible(&pipe->wait);
+=======
+	if (waitqueue_active(&pipe->wr_wait))
+		wake_up_interruptible(&pipe->wr_wait);
+>>>>>>> upstream/android-13
 	kill_fasync(&pipe->fasync_writers, SIGIO, POLL_OUT);
 }
 
@@ -484,10 +613,20 @@ static void wakeup_pipe_writers(struct pipe_inode_info *pipe)
 static int splice_from_pipe_feed(struct pipe_inode_info *pipe, struct splice_desc *sd,
 			  splice_actor *actor)
 {
+<<<<<<< HEAD
 	int ret;
 
 	while (pipe->nrbufs) {
 		struct pipe_buffer *buf = pipe->bufs + pipe->curbuf;
+=======
+	unsigned int head = pipe->head;
+	unsigned int tail = pipe->tail;
+	unsigned int mask = pipe->ring_size - 1;
+	int ret;
+
+	while (!pipe_empty(head, tail)) {
+		struct pipe_buffer *buf = &pipe->bufs[tail & mask];
+>>>>>>> upstream/android-13
 
 		sd->len = buf->len;
 		if (sd->len > sd->total_len)
@@ -514,8 +653,13 @@ static int splice_from_pipe_feed(struct pipe_inode_info *pipe, struct splice_des
 
 		if (!buf->len) {
 			pipe_buf_release(pipe, buf);
+<<<<<<< HEAD
 			pipe->curbuf = (pipe->curbuf + 1) & (pipe->buffers - 1);
 			pipe->nrbufs--;
+=======
+			tail++;
+			pipe->tail = tail;
+>>>>>>> upstream/android-13
 			if (pipe->files)
 				sd->need_wakeup = true;
 		}
@@ -527,6 +671,25 @@ static int splice_from_pipe_feed(struct pipe_inode_info *pipe, struct splice_des
 	return 1;
 }
 
+<<<<<<< HEAD
+=======
+/* We know we have a pipe buffer, but maybe it's empty? */
+static inline bool eat_empty_buffer(struct pipe_inode_info *pipe)
+{
+	unsigned int tail = pipe->tail;
+	unsigned int mask = pipe->ring_size - 1;
+	struct pipe_buffer *buf = &pipe->bufs[tail & mask];
+
+	if (unlikely(!buf->len)) {
+		pipe_buf_release(pipe, buf);
+		pipe->tail = tail+1;
+		return true;
+	}
+
+	return false;
+}
+
+>>>>>>> upstream/android-13
 /**
  * splice_from_pipe_next - wait for some data to splice from
  * @pipe:	pipe to splice from
@@ -546,11 +709,20 @@ static int splice_from_pipe_next(struct pipe_inode_info *pipe, struct splice_des
 	if (signal_pending(current))
 		return -ERESTARTSYS;
 
+<<<<<<< HEAD
 	while (!pipe->nrbufs) {
 		if (!pipe->writers)
 			return 0;
 
 		if (!pipe->waiting_writers && sd->num_spliced)
+=======
+repeat:
+	while (pipe_empty(pipe->head, pipe->tail)) {
+		if (!pipe->writers)
+			return 0;
+
+		if (sd->num_spliced)
+>>>>>>> upstream/android-13
 			return 0;
 
 		if (sd->flags & SPLICE_F_NONBLOCK)
@@ -564,9 +736,18 @@ static int splice_from_pipe_next(struct pipe_inode_info *pipe, struct splice_des
 			sd->need_wakeup = false;
 		}
 
+<<<<<<< HEAD
 		pipe_wait(pipe);
 	}
 
+=======
+		pipe_wait_readable(pipe);
+	}
+
+	if (eat_empty_buffer(pipe))
+		goto repeat;
+
+>>>>>>> upstream/android-13
 	return 1;
 }
 
@@ -689,7 +870,11 @@ iter_file_splice_write(struct pipe_inode_info *pipe, struct file *out,
 		.pos = *ppos,
 		.u.file = out,
 	};
+<<<<<<< HEAD
 	int nbufs = pipe->buffers;
+=======
+	int nbufs = pipe->max_usage;
+>>>>>>> upstream/android-13
 	struct bio_vec *array = kcalloc(nbufs, sizeof(struct bio_vec),
 					GFP_KERNEL);
 	ssize_t ret;
@@ -702,16 +887,28 @@ iter_file_splice_write(struct pipe_inode_info *pipe, struct file *out,
 	splice_from_pipe_begin(&sd);
 	while (sd.total_len) {
 		struct iov_iter from;
+<<<<<<< HEAD
 		size_t left;
 		int n, idx;
+=======
+		unsigned int head, tail, mask;
+		size_t left;
+		int n;
+>>>>>>> upstream/android-13
 
 		ret = splice_from_pipe_next(pipe, &sd);
 		if (ret <= 0)
 			break;
 
+<<<<<<< HEAD
 		if (unlikely(nbufs < pipe->buffers)) {
 			kfree(array);
 			nbufs = pipe->buffers;
+=======
+		if (unlikely(nbufs < pipe->max_usage)) {
+			kfree(array);
+			nbufs = pipe->max_usage;
+>>>>>>> upstream/android-13
 			array = kcalloc(nbufs, sizeof(struct bio_vec),
 					GFP_KERNEL);
 			if (!array) {
@@ -720,6 +917,7 @@ iter_file_splice_write(struct pipe_inode_info *pipe, struct file *out,
 			}
 		}
 
+<<<<<<< HEAD
 		/* build the vector */
 		left = sd.total_len;
 		for (n = 0, idx = pipe->curbuf; left && n < pipe->nrbufs; n++, idx++) {
@@ -731,6 +929,22 @@ iter_file_splice_write(struct pipe_inode_info *pipe, struct file *out,
 
 			if (idx == pipe->buffers - 1)
 				idx = -1;
+=======
+		head = pipe->head;
+		tail = pipe->tail;
+		mask = pipe->ring_size - 1;
+
+		/* build the vector */
+		left = sd.total_len;
+		for (n = 0; !pipe_empty(head, tail) && left && n < nbufs; tail++) {
+			struct pipe_buffer *buf = &pipe->bufs[tail & mask];
+			size_t this_len = buf->len;
+
+			/* zero-length bvecs are not supported, skip them */
+			if (!this_len)
+				continue;
+			this_len = min(this_len, left);
+>>>>>>> upstream/android-13
 
 			ret = pipe_buf_confirm(pipe, buf);
 			if (unlikely(ret)) {
@@ -743,10 +957,17 @@ iter_file_splice_write(struct pipe_inode_info *pipe, struct file *out,
 			array[n].bv_len = this_len;
 			array[n].bv_offset = buf->offset;
 			left -= this_len;
+<<<<<<< HEAD
 		}
 
 		iov_iter_bvec(&from, ITER_BVEC | WRITE, array, n,
 			      sd.total_len - left);
+=======
+			n++;
+		}
+
+		iov_iter_bvec(&from, WRITE, array, n, sd.total_len - left);
+>>>>>>> upstream/android-13
 		ret = vfs_iter_write(out, &from, &sd.pos, 0);
 		if (ret <= 0)
 			break;
@@ -756,14 +977,25 @@ iter_file_splice_write(struct pipe_inode_info *pipe, struct file *out,
 		*ppos = sd.pos;
 
 		/* dismiss the fully eaten buffers, adjust the partial one */
+<<<<<<< HEAD
 		while (ret) {
 			struct pipe_buffer *buf = pipe->bufs + pipe->curbuf;
+=======
+		tail = pipe->tail;
+		while (ret) {
+			struct pipe_buffer *buf = &pipe->bufs[tail & mask];
+>>>>>>> upstream/android-13
 			if (ret >= buf->len) {
 				ret -= buf->len;
 				buf->len = 0;
 				pipe_buf_release(pipe, buf);
+<<<<<<< HEAD
 				pipe->curbuf = (pipe->curbuf + 1) & (pipe->buffers - 1);
 				pipe->nrbufs--;
+=======
+				tail++;
+				pipe->tail = tail;
+>>>>>>> upstream/android-13
 				if (pipe->files)
 					sd.need_wakeup = true;
 			} else {
@@ -785,6 +1017,7 @@ done:
 	return ret;
 }
 
+<<<<<<< HEAD
 EXPORT_SYMBOL(iter_file_splice_write);
 
 static int write_pipe_buf(struct pipe_inode_info *pipe, struct pipe_buffer *buf,
@@ -813,6 +1046,9 @@ static ssize_t default_file_splice_write(struct pipe_inode_info *pipe,
 
 	return ret;
 }
+=======
+EXPORT_SYMBOL_NS(iter_file_splice_write, ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 
 /**
  * generic_splice_sendpage - splice data from a pipe to a socket
@@ -835,12 +1071,24 @@ ssize_t generic_splice_sendpage(struct pipe_inode_info *pipe, struct file *out,
 
 EXPORT_SYMBOL(generic_splice_sendpage);
 
+<<<<<<< HEAD
+=======
+static int warn_unsupported(struct file *file, const char *op)
+{
+	pr_debug_ratelimited(
+		"splice %s not supported for file %pD4 (pid: %d comm: %.20s)\n",
+		op, file, current->pid, current->comm);
+	return -EINVAL;
+}
+
+>>>>>>> upstream/android-13
 /*
  * Attempt to initiate a splice from pipe to file.
  */
 static long do_splice_from(struct pipe_inode_info *pipe, struct file *out,
 			   loff_t *ppos, size_t len, unsigned int flags)
 {
+<<<<<<< HEAD
 	ssize_t (*splice_write)(struct pipe_inode_info *, struct file *,
 				loff_t *, size_t, unsigned int);
 
@@ -850,6 +1098,11 @@ static long do_splice_from(struct pipe_inode_info *pipe, struct file *out,
 		splice_write = default_file_splice_write;
 
 	return splice_write(pipe, out, ppos, len, flags);
+=======
+	if (unlikely(!out->f_op->splice_write))
+		return warn_unsupported(out, "write");
+	return out->f_op->splice_write(pipe, out, ppos, len, flags);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -859,13 +1112,24 @@ static long do_splice_to(struct file *in, loff_t *ppos,
 			 struct pipe_inode_info *pipe, size_t len,
 			 unsigned int flags)
 {
+<<<<<<< HEAD
 	ssize_t (*splice_read)(struct file *, loff_t *,
 			       struct pipe_inode_info *, size_t, unsigned int);
+=======
+	unsigned int p_space;
+>>>>>>> upstream/android-13
 	int ret;
 
 	if (unlikely(!(in->f_mode & FMODE_READ)))
 		return -EBADF;
 
+<<<<<<< HEAD
+=======
+	/* Don't try to read more the pipe has space for. */
+	p_space = pipe->max_usage - pipe_occupancy(pipe->head, pipe->tail);
+	len = min_t(size_t, len, p_space << PAGE_SHIFT);
+
+>>>>>>> upstream/android-13
 	ret = rw_verify_area(READ, in, ppos, len);
 	if (unlikely(ret < 0))
 		return ret;
@@ -873,12 +1137,18 @@ static long do_splice_to(struct file *in, loff_t *ppos,
 	if (unlikely(len > MAX_RW_COUNT))
 		len = MAX_RW_COUNT;
 
+<<<<<<< HEAD
 	if (in->f_op->splice_read)
 		splice_read = in->f_op->splice_read;
 	else
 		splice_read = default_file_splice_read;
 
 	return splice_read(in, ppos, pipe, len, flags);
+=======
+	if (unlikely(!in->f_op->splice_read))
+		return warn_unsupported(in, "read");
+	return in->f_op->splice_read(in, ppos, pipe, len, flags);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -946,6 +1216,7 @@ ssize_t splice_direct_to_actor(struct file *in, struct splice_desc *sd,
 	sd->flags &= ~SPLICE_F_NONBLOCK;
 	more = sd->flags & SPLICE_F_MORE;
 
+<<<<<<< HEAD
 	WARN_ON_ONCE(pipe->nrbufs != 0);
 
 	while (len) {
@@ -957,6 +1228,15 @@ ssize_t splice_direct_to_actor(struct file *in, struct splice_desc *sd,
 		pipe_pages = pipe->buffers - pipe->nrbufs;
 		read_len = min(len, (size_t)pipe_pages << PAGE_SHIFT);
 		ret = do_splice_to(in, &pos, pipe, read_len, flags);
+=======
+	WARN_ON_ONCE(!pipe_empty(pipe->head, pipe->tail));
+
+	while (len) {
+		size_t read_len;
+		loff_t pos = sd->pos, prev_pos = pos;
+
+		ret = do_splice_to(in, &pos, pipe, len, flags);
+>>>>>>> upstream/android-13
 		if (unlikely(ret <= 0))
 			goto out_release;
 
@@ -994,7 +1274,11 @@ ssize_t splice_direct_to_actor(struct file *in, struct splice_desc *sd,
 	}
 
 done:
+<<<<<<< HEAD
 	pipe->nrbufs = pipe->curbuf = 0;
+=======
+	pipe->tail = pipe->head = 0;
+>>>>>>> upstream/android-13
 	file_accessed(in);
 	return bytes;
 
@@ -1003,8 +1287,13 @@ out_release:
 	 * If we did an incomplete transfer we must release
 	 * the pipe buffers in question:
 	 */
+<<<<<<< HEAD
 	for (i = 0; i < pipe->buffers; i++) {
 		struct pipe_buffer *buf = pipe->bufs + i;
+=======
+	for (i = 0; i < pipe->ring_size; i++) {
+		struct pipe_buffer *buf = &pipe->bufs[i];
+>>>>>>> upstream/android-13
 
 		if (buf->ops)
 			pipe_buf_release(pipe, buf);
@@ -1080,15 +1369,23 @@ static int wait_for_space(struct pipe_inode_info *pipe, unsigned flags)
 			send_sig(SIGPIPE, current, 0);
 			return -EPIPE;
 		}
+<<<<<<< HEAD
 		if (pipe->nrbufs != pipe->buffers)
+=======
+		if (!pipe_full(pipe->head, pipe->tail, pipe->max_usage))
+>>>>>>> upstream/android-13
 			return 0;
 		if (flags & SPLICE_F_NONBLOCK)
 			return -EAGAIN;
 		if (signal_pending(current))
 			return -ERESTARTSYS;
+<<<<<<< HEAD
 		pipe->waiting_writers++;
 		pipe_wait(pipe);
 		pipe->waiting_writers--;
+=======
+		pipe_wait_writable(pipe);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1096,35 +1393,78 @@ static int splice_pipe_to_pipe(struct pipe_inode_info *ipipe,
 			       struct pipe_inode_info *opipe,
 			       size_t len, unsigned int flags);
 
+<<<<<<< HEAD
 /*
  * Determine where to splice to/from.
  */
 static long do_splice(struct file *in, loff_t __user *off_in,
 		      struct file *out, loff_t __user *off_out,
 		      size_t len, unsigned int flags)
+=======
+long splice_file_to_pipe(struct file *in,
+			 struct pipe_inode_info *opipe,
+			 loff_t *offset,
+			 size_t len, unsigned int flags)
+{
+	long ret;
+
+	pipe_lock(opipe);
+	ret = wait_for_space(opipe, flags);
+	if (!ret)
+		ret = do_splice_to(in, offset, opipe, len, flags);
+	pipe_unlock(opipe);
+	if (ret > 0)
+		wakeup_pipe_readers(opipe);
+	return ret;
+}
+
+/*
+ * Determine where to splice to/from.
+ */
+long do_splice(struct file *in, loff_t *off_in, struct file *out,
+	       loff_t *off_out, size_t len, unsigned int flags)
+>>>>>>> upstream/android-13
 {
 	struct pipe_inode_info *ipipe;
 	struct pipe_inode_info *opipe;
 	loff_t offset;
 	long ret;
 
+<<<<<<< HEAD
 	ipipe = get_pipe_info(in);
 	opipe = get_pipe_info(out);
+=======
+	if (unlikely(!(in->f_mode & FMODE_READ) ||
+		     !(out->f_mode & FMODE_WRITE)))
+		return -EBADF;
+
+	ipipe = get_pipe_info(in, true);
+	opipe = get_pipe_info(out, true);
+>>>>>>> upstream/android-13
 
 	if (ipipe && opipe) {
 		if (off_in || off_out)
 			return -ESPIPE;
 
+<<<<<<< HEAD
 		if (!(in->f_mode & FMODE_READ))
 			return -EBADF;
 
 		if (!(out->f_mode & FMODE_WRITE))
 			return -EBADF;
 
+=======
+>>>>>>> upstream/android-13
 		/* Splicing to self would be fun, but... */
 		if (ipipe == opipe)
 			return -EINVAL;
 
+<<<<<<< HEAD
+=======
+		if ((in->f_flags | out->f_flags) & O_NONBLOCK)
+			flags |= SPLICE_F_NONBLOCK;
+
+>>>>>>> upstream/android-13
 		return splice_pipe_to_pipe(ipipe, opipe, len, flags);
 	}
 
@@ -1134,15 +1474,22 @@ static long do_splice(struct file *in, loff_t __user *off_in,
 		if (off_out) {
 			if (!(out->f_mode & FMODE_PWRITE))
 				return -EINVAL;
+<<<<<<< HEAD
 			if (copy_from_user(&offset, off_out, sizeof(loff_t)))
 				return -EFAULT;
+=======
+			offset = *off_out;
+>>>>>>> upstream/android-13
 		} else {
 			offset = out->f_pos;
 		}
 
+<<<<<<< HEAD
 		if (unlikely(!(out->f_mode & FMODE_WRITE)))
 			return -EBADF;
 
+=======
+>>>>>>> upstream/android-13
 		if (unlikely(out->f_flags & O_APPEND))
 			return -EINVAL;
 
@@ -1150,14 +1497,25 @@ static long do_splice(struct file *in, loff_t __user *off_in,
 		if (unlikely(ret < 0))
 			return ret;
 
+<<<<<<< HEAD
+=======
+		if (in->f_flags & O_NONBLOCK)
+			flags |= SPLICE_F_NONBLOCK;
+
+>>>>>>> upstream/android-13
 		file_start_write(out);
 		ret = do_splice_from(ipipe, out, &offset, len, flags);
 		file_end_write(out);
 
 		if (!off_out)
 			out->f_pos = offset;
+<<<<<<< HEAD
 		else if (copy_to_user(off_out, &offset, sizeof(loff_t)))
 			ret = -EFAULT;
+=======
+		else
+			*off_out = offset;
+>>>>>>> upstream/android-13
 
 		return ret;
 	}
@@ -1168,12 +1526,17 @@ static long do_splice(struct file *in, loff_t __user *off_in,
 		if (off_in) {
 			if (!(in->f_mode & FMODE_PREAD))
 				return -EINVAL;
+<<<<<<< HEAD
 			if (copy_from_user(&offset, off_in, sizeof(loff_t)))
 				return -EFAULT;
+=======
+			offset = *off_in;
+>>>>>>> upstream/android-13
 		} else {
 			offset = in->f_pos;
 		}
 
+<<<<<<< HEAD
 		pipe_lock(opipe);
 		ret = wait_for_space(opipe, flags);
 		if (!ret) {
@@ -1192,6 +1555,16 @@ static long do_splice(struct file *in, loff_t __user *off_in,
 			in->f_pos = offset;
 		else if (copy_to_user(off_in, &offset, sizeof(loff_t)))
 			ret = -EFAULT;
+=======
+		if (out->f_flags & O_NONBLOCK)
+			flags |= SPLICE_F_NONBLOCK;
+
+		ret = splice_file_to_pipe(in, opipe, &offset, len, flags);
+		if (!off_in)
+			in->f_pos = offset;
+		else
+			*off_in = offset;
+>>>>>>> upstream/android-13
 
 		return ret;
 	}
@@ -1199,6 +1572,49 @@ static long do_splice(struct file *in, loff_t __user *off_in,
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
+=======
+static long __do_splice(struct file *in, loff_t __user *off_in,
+			struct file *out, loff_t __user *off_out,
+			size_t len, unsigned int flags)
+{
+	struct pipe_inode_info *ipipe;
+	struct pipe_inode_info *opipe;
+	loff_t offset, *__off_in = NULL, *__off_out = NULL;
+	long ret;
+
+	ipipe = get_pipe_info(in, true);
+	opipe = get_pipe_info(out, true);
+
+	if (ipipe && off_in)
+		return -ESPIPE;
+	if (opipe && off_out)
+		return -ESPIPE;
+
+	if (off_out) {
+		if (copy_from_user(&offset, off_out, sizeof(loff_t)))
+			return -EFAULT;
+		__off_out = &offset;
+	}
+	if (off_in) {
+		if (copy_from_user(&offset, off_in, sizeof(loff_t)))
+			return -EFAULT;
+		__off_in = &offset;
+	}
+
+	ret = do_splice(in, __off_in, out, __off_out, len, flags);
+	if (ret < 0)
+		return ret;
+
+	if (__off_out && copy_to_user(off_out, __off_out, sizeof(loff_t)))
+		return -EFAULT;
+	if (__off_in && copy_to_user(off_in, __off_in, sizeof(loff_t)))
+		return -EFAULT;
+
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 static int iter_to_pipe(struct iov_iter *from,
 			struct pipe_inode_info *pipe,
 			unsigned flags)
@@ -1259,7 +1675,11 @@ static int pipe_to_user(struct pipe_inode_info *pipe, struct pipe_buffer *buf,
 static long vmsplice_to_user(struct file *file, struct iov_iter *iter,
 			     unsigned int flags)
 {
+<<<<<<< HEAD
 	struct pipe_inode_info *pipe = get_pipe_info(file);
+=======
+	struct pipe_inode_info *pipe = get_pipe_info(file, true);
+>>>>>>> upstream/android-13
 	struct splice_desc sd = {
 		.total_len = iov_iter_count(iter),
 		.flags = flags,
@@ -1294,7 +1714,11 @@ static long vmsplice_to_pipe(struct file *file, struct iov_iter *iter,
 	if (flags & SPLICE_F_GIFT)
 		buf_flag = PIPE_BUF_FLAG_GIFT;
 
+<<<<<<< HEAD
 	pipe = get_pipe_info(file);
+=======
+	pipe = get_pipe_info(file, true);
+>>>>>>> upstream/android-13
 	if (!pipe)
 		return -EBADF;
 
@@ -1339,6 +1763,7 @@ static int vmsplice_type(struct fd f, int *type)
  * Currently we punt and implement it as a normal copy, see pipe_to_user().
  *
  */
+<<<<<<< HEAD
 static long do_vmsplice(struct file *f, struct iov_iter *iter, unsigned int flags)
 {
 	if (unlikely(flags & ~SPLICE_F_ALL))
@@ -1353,16 +1778,28 @@ static long do_vmsplice(struct file *f, struct iov_iter *iter, unsigned int flag
 		return vmsplice_to_user(f, iter, flags);
 }
 
+=======
+>>>>>>> upstream/android-13
 SYSCALL_DEFINE4(vmsplice, int, fd, const struct iovec __user *, uiov,
 		unsigned long, nr_segs, unsigned int, flags)
 {
 	struct iovec iovstack[UIO_FASTIOV];
 	struct iovec *iov = iovstack;
 	struct iov_iter iter;
+<<<<<<< HEAD
 	long error;
 	struct fd f;
 	int type;
 
+=======
+	ssize_t error;
+	struct fd f;
+	int type;
+
+	if (unlikely(flags & ~SPLICE_F_ALL))
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	f = fdget(fd);
 	error = vmsplice_type(f, &type);
 	if (error)
@@ -1370,14 +1807,30 @@ SYSCALL_DEFINE4(vmsplice, int, fd, const struct iovec __user *, uiov,
 
 	error = import_iovec(type, uiov, nr_segs,
 			     ARRAY_SIZE(iovstack), &iov, &iter);
+<<<<<<< HEAD
 	if (!error) {
 		error = do_vmsplice(f.file, &iter, flags);
 		kfree(iov);
 	}
+=======
+	if (error < 0)
+		goto out_fdput;
+
+	if (!iov_iter_count(&iter))
+		error = 0;
+	else if (iov_iter_rw(&iter) == WRITE)
+		error = vmsplice_to_pipe(f.file, &iter, flags);
+	else
+		error = vmsplice_to_user(f.file, &iter, flags);
+
+	kfree(iov);
+out_fdput:
+>>>>>>> upstream/android-13
 	fdput(f);
 	return error;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 COMPAT_SYSCALL_DEFINE4(vmsplice, int, fd, const struct compat_iovec __user *, iov32,
 		    unsigned int, nr_segs, unsigned int, flags)
@@ -1405,6 +1858,8 @@ COMPAT_SYSCALL_DEFINE4(vmsplice, int, fd, const struct compat_iovec __user *, io
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 SYSCALL_DEFINE6(splice, int, fd_in, loff_t __user *, off_in,
 		int, fd_out, loff_t __user *, off_out,
 		size_t, len, unsigned int, flags)
@@ -1421,6 +1876,7 @@ SYSCALL_DEFINE6(splice, int, fd_in, loff_t __user *, off_in,
 	error = -EBADF;
 	in = fdget(fd_in);
 	if (in.file) {
+<<<<<<< HEAD
 		if (in.file->f_mode & FMODE_READ) {
 			out = fdget(fd_out);
 			if (out.file) {
@@ -1430,6 +1886,13 @@ SYSCALL_DEFINE6(splice, int, fd_in, loff_t __user *, off_in,
 							  len, flags);
 				fdput(out);
 			}
+=======
+		out = fdget(fd_out);
+		if (out.file) {
+			error = __do_splice(in.file, off_in, out.file, off_out,
+						len, flags);
+			fdput(out);
+>>>>>>> upstream/android-13
 		}
 		fdput(in);
 	}
@@ -1445,22 +1908,34 @@ static int ipipe_prep(struct pipe_inode_info *pipe, unsigned int flags)
 	int ret;
 
 	/*
+<<<<<<< HEAD
 	 * Check ->nrbufs without the inode lock first. This function
 	 * is speculative anyways, so missing one is ok.
 	 */
 	if (pipe->nrbufs)
+=======
+	 * Check the pipe occupancy without the inode lock first. This function
+	 * is speculative anyways, so missing one is ok.
+	 */
+	if (!pipe_empty(pipe->head, pipe->tail))
+>>>>>>> upstream/android-13
 		return 0;
 
 	ret = 0;
 	pipe_lock(pipe);
 
+<<<<<<< HEAD
 	while (!pipe->nrbufs) {
+=======
+	while (pipe_empty(pipe->head, pipe->tail)) {
+>>>>>>> upstream/android-13
 		if (signal_pending(current)) {
 			ret = -ERESTARTSYS;
 			break;
 		}
 		if (!pipe->writers)
 			break;
+<<<<<<< HEAD
 		if (!pipe->waiting_writers) {
 			if (flags & SPLICE_F_NONBLOCK) {
 				ret = -EAGAIN;
@@ -1468,6 +1943,13 @@ static int ipipe_prep(struct pipe_inode_info *pipe, unsigned int flags)
 			}
 		}
 		pipe_wait(pipe);
+=======
+		if (flags & SPLICE_F_NONBLOCK) {
+			ret = -EAGAIN;
+			break;
+		}
+		pipe_wait_readable(pipe);
+>>>>>>> upstream/android-13
 	}
 
 	pipe_unlock(pipe);
@@ -1483,16 +1965,27 @@ static int opipe_prep(struct pipe_inode_info *pipe, unsigned int flags)
 	int ret;
 
 	/*
+<<<<<<< HEAD
 	 * Check ->nrbufs without the inode lock first. This function
 	 * is speculative anyways, so missing one is ok.
 	 */
 	if (pipe->nrbufs < pipe->buffers)
+=======
+	 * Check pipe occupancy without the inode lock first. This function
+	 * is speculative anyways, so missing one is ok.
+	 */
+	if (!pipe_full(pipe->head, pipe->tail, pipe->max_usage))
+>>>>>>> upstream/android-13
 		return 0;
 
 	ret = 0;
 	pipe_lock(pipe);
 
+<<<<<<< HEAD
 	while (pipe->nrbufs >= pipe->buffers) {
+=======
+	while (pipe_full(pipe->head, pipe->tail, pipe->max_usage)) {
+>>>>>>> upstream/android-13
 		if (!pipe->readers) {
 			send_sig(SIGPIPE, current, 0);
 			ret = -EPIPE;
@@ -1506,9 +1999,13 @@ static int opipe_prep(struct pipe_inode_info *pipe, unsigned int flags)
 			ret = -ERESTARTSYS;
 			break;
 		}
+<<<<<<< HEAD
 		pipe->waiting_writers++;
 		pipe_wait(pipe);
 		pipe->waiting_writers--;
+=======
+		pipe_wait_writable(pipe);
+>>>>>>> upstream/android-13
 	}
 
 	pipe_unlock(pipe);
@@ -1523,7 +2020,14 @@ static int splice_pipe_to_pipe(struct pipe_inode_info *ipipe,
 			       size_t len, unsigned int flags)
 {
 	struct pipe_buffer *ibuf, *obuf;
+<<<<<<< HEAD
 	int ret = 0, nbuf;
+=======
+	unsigned int i_head, o_head;
+	unsigned int i_tail, o_tail;
+	unsigned int i_mask, o_mask;
+	int ret = 0;
+>>>>>>> upstream/android-13
 	bool input_wakeup = false;
 
 
@@ -1543,7 +2047,18 @@ retry:
 	 */
 	pipe_double_lock(ipipe, opipe);
 
+<<<<<<< HEAD
 	do {
+=======
+	i_tail = ipipe->tail;
+	i_mask = ipipe->ring_size - 1;
+	o_head = opipe->head;
+	o_mask = opipe->ring_size - 1;
+
+	do {
+		size_t o_len;
+
+>>>>>>> upstream/android-13
 		if (!opipe->readers) {
 			send_sig(SIGPIPE, current, 0);
 			if (!ret)
@@ -1551,14 +2066,26 @@ retry:
 			break;
 		}
 
+<<<<<<< HEAD
 		if (!ipipe->nrbufs && !ipipe->writers)
+=======
+		i_head = ipipe->head;
+		o_tail = opipe->tail;
+
+		if (pipe_empty(i_head, i_tail) && !ipipe->writers)
+>>>>>>> upstream/android-13
 			break;
 
 		/*
 		 * Cannot make any progress, because either the input
 		 * pipe is empty or the output pipe is full.
 		 */
+<<<<<<< HEAD
 		if (!ipipe->nrbufs || opipe->nrbufs >= opipe->buffers) {
+=======
+		if (pipe_empty(i_head, i_tail) ||
+		    pipe_full(o_head, o_tail, opipe->max_usage)) {
+>>>>>>> upstream/android-13
 			/* Already processed some buffers, break */
 			if (ret)
 				break;
@@ -1578,9 +2105,14 @@ retry:
 			goto retry;
 		}
 
+<<<<<<< HEAD
 		ibuf = ipipe->bufs + ipipe->curbuf;
 		nbuf = (opipe->curbuf + opipe->nrbufs) & (opipe->buffers - 1);
 		obuf = opipe->bufs + nbuf;
+=======
+		ibuf = &ipipe->bufs[i_tail & i_mask];
+		obuf = &opipe->bufs[o_head & o_mask];
+>>>>>>> upstream/android-13
 
 		if (len >= ibuf->len) {
 			/*
@@ -1588,10 +2120,19 @@ retry:
 			 */
 			*obuf = *ibuf;
 			ibuf->ops = NULL;
+<<<<<<< HEAD
 			opipe->nrbufs++;
 			ipipe->curbuf = (ipipe->curbuf + 1) & (ipipe->buffers - 1);
 			ipipe->nrbufs--;
 			input_wakeup = true;
+=======
+			i_tail++;
+			ipipe->tail = i_tail;
+			input_wakeup = true;
+			o_len = obuf->len;
+			o_head++;
+			opipe->head = o_head;
+>>>>>>> upstream/android-13
 		} else {
 			/*
 			 * Get a reference to this pipe buffer,
@@ -1605,6 +2146,7 @@ retry:
 			*obuf = *ibuf;
 
 			/*
+<<<<<<< HEAD
 			 * Don't inherit the gift flag, we need to
 			 * prevent multiple steals of this page.
 			 */
@@ -1619,6 +2161,23 @@ retry:
 		}
 		ret += obuf->len;
 		len -= obuf->len;
+=======
+			 * Don't inherit the gift and merge flags, we need to
+			 * prevent multiple steals of this page.
+			 */
+			obuf->flags &= ~PIPE_BUF_FLAG_GIFT;
+			obuf->flags &= ~PIPE_BUF_FLAG_CAN_MERGE;
+
+			obuf->len = len;
+			ibuf->offset += len;
+			ibuf->len -= len;
+			o_len = len;
+			o_head++;
+			opipe->head = o_head;
+		}
+		ret += o_len;
+		len -= o_len;
+>>>>>>> upstream/android-13
 	} while (len);
 
 	pipe_unlock(ipipe);
@@ -1644,7 +2203,14 @@ static int link_pipe(struct pipe_inode_info *ipipe,
 		     size_t len, unsigned int flags)
 {
 	struct pipe_buffer *ibuf, *obuf;
+<<<<<<< HEAD
 	int ret = 0, i = 0, nbuf;
+=======
+	unsigned int i_head, o_head;
+	unsigned int i_tail, o_tail;
+	unsigned int i_mask, o_mask;
+	int ret = 0;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Potential ABBA deadlock, work around it by ordering lock
@@ -1653,6 +2219,14 @@ static int link_pipe(struct pipe_inode_info *ipipe,
 	 */
 	pipe_double_lock(ipipe, opipe);
 
+<<<<<<< HEAD
+=======
+	i_tail = ipipe->tail;
+	i_mask = ipipe->ring_size - 1;
+	o_head = opipe->head;
+	o_mask = opipe->ring_size - 1;
+
+>>>>>>> upstream/android-13
 	do {
 		if (!opipe->readers) {
 			send_sig(SIGPIPE, current, 0);
@@ -1661,6 +2235,7 @@ static int link_pipe(struct pipe_inode_info *ipipe,
 			break;
 		}
 
+<<<<<<< HEAD
 		/*
 		 * If we have iterated all input buffers or ran out of
 		 * output room, break.
@@ -1670,6 +2245,21 @@ static int link_pipe(struct pipe_inode_info *ipipe,
 
 		ibuf = ipipe->bufs + ((ipipe->curbuf + i) & (ipipe->buffers-1));
 		nbuf = (opipe->curbuf + opipe->nrbufs) & (opipe->buffers - 1);
+=======
+		i_head = ipipe->head;
+		o_tail = opipe->tail;
+
+		/*
+		 * If we have iterated all input buffers or run out of
+		 * output room, break.
+		 */
+		if (pipe_empty(i_head, i_tail) ||
+		    pipe_full(o_head, o_tail, opipe->max_usage))
+			break;
+
+		ibuf = &ipipe->bufs[i_tail & i_mask];
+		obuf = &opipe->bufs[o_head & o_mask];
+>>>>>>> upstream/android-13
 
 		/*
 		 * Get a reference to this pipe buffer,
@@ -1681,6 +2271,7 @@ static int link_pipe(struct pipe_inode_info *ipipe,
 			break;
 		}
 
+<<<<<<< HEAD
 		obuf = opipe->bufs + nbuf;
 		*obuf = *ibuf;
 
@@ -1707,6 +2298,26 @@ static int link_pipe(struct pipe_inode_info *ipipe,
 	 */
 	if (!ret && ipipe->waiting_writers && (flags & SPLICE_F_NONBLOCK))
 		ret = -EAGAIN;
+=======
+		*obuf = *ibuf;
+
+		/*
+		 * Don't inherit the gift and merge flag, we need to prevent
+		 * multiple steals of this page.
+		 */
+		obuf->flags &= ~PIPE_BUF_FLAG_GIFT;
+		obuf->flags &= ~PIPE_BUF_FLAG_CAN_MERGE;
+
+		if (obuf->len > len)
+			obuf->len = len;
+		ret += obuf->len;
+		len -= obuf->len;
+
+		o_head++;
+		opipe->head = o_head;
+		i_tail++;
+	} while (len);
+>>>>>>> upstream/android-13
 
 	pipe_unlock(ipipe);
 	pipe_unlock(opipe);
@@ -1726,6 +2337,7 @@ static int link_pipe(struct pipe_inode_info *ipipe,
  * The 'flags' used are the SPLICE_F_* variants, currently the only
  * applicable one is SPLICE_F_NONBLOCK.
  */
+<<<<<<< HEAD
 static long do_tee(struct file *in, struct file *out, size_t len,
 		   unsigned int flags)
 {
@@ -1733,11 +2345,29 @@ static long do_tee(struct file *in, struct file *out, size_t len,
 	struct pipe_inode_info *opipe = get_pipe_info(out);
 	int ret = -EINVAL;
 
+=======
+long do_tee(struct file *in, struct file *out, size_t len, unsigned int flags)
+{
+	struct pipe_inode_info *ipipe = get_pipe_info(in, true);
+	struct pipe_inode_info *opipe = get_pipe_info(out, true);
+	int ret = -EINVAL;
+
+	if (unlikely(!(in->f_mode & FMODE_READ) ||
+		     !(out->f_mode & FMODE_WRITE)))
+		return -EBADF;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Duplicate the contents of ipipe to opipe without actually
 	 * copying the data.
 	 */
 	if (ipipe && opipe && ipipe != opipe) {
+<<<<<<< HEAD
+=======
+		if ((in->f_flags | out->f_flags) & O_NONBLOCK)
+			flags |= SPLICE_F_NONBLOCK;
+
+>>>>>>> upstream/android-13
 		/*
 		 * Keep going, unless we encounter an error. The ipipe/opipe
 		 * ordering doesn't really matter.
@@ -1755,7 +2385,11 @@ static long do_tee(struct file *in, struct file *out, size_t len,
 
 SYSCALL_DEFINE4(tee, int, fdin, int, fdout, size_t, len, unsigned int, flags)
 {
+<<<<<<< HEAD
 	struct fd in;
+=======
+	struct fd in, out;
+>>>>>>> upstream/android-13
 	int error;
 
 	if (unlikely(flags & ~SPLICE_F_ALL))
@@ -1767,6 +2401,7 @@ SYSCALL_DEFINE4(tee, int, fdin, int, fdout, size_t, len, unsigned int, flags)
 	error = -EBADF;
 	in = fdget(fdin);
 	if (in.file) {
+<<<<<<< HEAD
 		if (in.file->f_mode & FMODE_READ) {
 			struct fd out = fdget(fdout);
 			if (out.file) {
@@ -1775,6 +2410,12 @@ SYSCALL_DEFINE4(tee, int, fdin, int, fdout, size_t, len, unsigned int, flags)
 							len, flags);
 				fdput(out);
 			}
+=======
+		out = fdget(fdout);
+		if (out.file) {
+			error = do_tee(in.file, out.file, len, flags);
+			fdput(out);
+>>>>>>> upstream/android-13
 		}
  		fdput(in);
  	}

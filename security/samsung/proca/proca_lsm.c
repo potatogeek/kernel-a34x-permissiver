@@ -203,7 +203,11 @@ static struct proca_task_descr *prepare_proca_task_descr(
 	}
 
 	if (init_proca_identity(&ident, file,
+<<<<<<< HEAD
 			&pa_xattr_value, pa_xattr_size,
+=======
+			pa_xattr_value, pa_xattr_size,
+>>>>>>> upstream/android-13
 			&parsed_cert))
 		goto proca_cert_cleanup;
 

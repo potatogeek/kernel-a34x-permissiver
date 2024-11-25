@@ -68,7 +68,14 @@ g94_gpio = {
 };
 
 int
+<<<<<<< HEAD
 g94_gpio_new(struct nvkm_device *device, int index, struct nvkm_gpio **pgpio)
 {
 	return nvkm_gpio_new_(&g94_gpio, device, index, pgpio);
+=======
+g94_gpio_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+	     struct nvkm_gpio **pgpio)
+{
+	return nvkm_gpio_new_(&g94_gpio, device, type, inst, pgpio);
+>>>>>>> upstream/android-13
 }

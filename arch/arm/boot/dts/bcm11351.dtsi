@@ -16,9 +16,15 @@
 
 #include "dt-bindings/clock/bcm281xx.h"
 
+<<<<<<< HEAD
 #include "skeleton.dtsi"
 
 / {
+=======
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+>>>>>>> upstream/android-13
 	model = "BCM11351 SoC";
 	compatible = "brcm,bcm11351";
 	interrupt-parent = <&gic>;
@@ -100,7 +106,11 @@
 		reg-io-width = <4>;
 	};
 
+<<<<<<< HEAD
 	L2: l2-cache {
+=======
+	L2: l2-cache@3ff20000 {
+>>>>>>> upstream/android-13
 		compatible = "brcm,bcm11351-a2-pl310-cache";
 		reg = <0x3ff20000 0x1000>;
 		cache-unified;
@@ -225,21 +235,33 @@
 		#size-cells = <1>;
 		ranges;
 
+<<<<<<< HEAD
 		root_ccu: root_ccu {
+=======
+		root_ccu: root_ccu@35001000 {
+>>>>>>> upstream/android-13
 			compatible = "brcm,bcm11351-root-ccu";
 			reg = <0x35001000 0x0f00>;
 			#clock-cells = <1>;
 			clock-output-names = "frac_1m";
 		};
 
+<<<<<<< HEAD
 		hub_ccu: hub_ccu {
+=======
+		hub_ccu: hub_ccu@34000000 {
+>>>>>>> upstream/android-13
 			compatible = "brcm,bcm11351-hub-ccu";
 			reg = <0x34000000 0x0f00>;
 			#clock-cells = <1>;
 			clock-output-names = "tmon_1m";
 		};
 
+<<<<<<< HEAD
 		aon_ccu: aon_ccu {
+=======
+		aon_ccu: aon_ccu@35002000 {
+>>>>>>> upstream/android-13
 			compatible = "brcm,bcm11351-aon-ccu";
 			reg = <0x35002000 0x0f00>;
 			#clock-cells = <1>;
@@ -248,7 +270,11 @@
 					     "pmu_bsc_var";
 		};
 
+<<<<<<< HEAD
 		master_ccu: master_ccu {
+=======
+		master_ccu: master_ccu@3f001000 {
+>>>>>>> upstream/android-13
 			compatible = "brcm,bcm11351-master-ccu";
 			reg = <0x3f001000 0x0f00>;
 			#clock-cells = <1>;
@@ -261,7 +287,11 @@
 					     "hsic2_12m";
 		};
 
+<<<<<<< HEAD
 		slave_ccu: slave_ccu {
+=======
+		slave_ccu: slave_ccu@3e011000 {
+>>>>>>> upstream/android-13
 			compatible = "brcm,bcm11351-slave-ccu";
 			reg = <0x3e011000 0x0f00>;
 			#clock-cells = <1>;

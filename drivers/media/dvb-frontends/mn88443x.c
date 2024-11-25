@@ -204,11 +204,26 @@ struct mn88443x_priv {
 	struct regmap *regmap_t;
 };
 
+<<<<<<< HEAD
 static void mn88443x_cmn_power_on(struct mn88443x_priv *chip)
 {
 	struct regmap *r_t = chip->regmap_t;
 
 	clk_prepare_enable(chip->mclk);
+=======
+static int mn88443x_cmn_power_on(struct mn88443x_priv *chip)
+{
+	struct device *dev = &chip->client_s->dev;
+	struct regmap *r_t = chip->regmap_t;
+	int ret;
+
+	ret = clk_prepare_enable(chip->mclk);
+	if (ret) {
+		dev_err(dev, "Failed to prepare and enable mclk: %d\n",
+			ret);
+		return ret;
+	}
+>>>>>>> upstream/android-13
 
 	gpiod_set_value_cansleep(chip->reset_gpio, 1);
 	usleep_range(100, 1000);
@@ -222,6 +237,11 @@ static void mn88443x_cmn_power_on(struct mn88443x_priv *chip)
 	} else {
 		regmap_write(r_t, HIZSET3, 0x8f);
 	}
+<<<<<<< HEAD
+=======
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void mn88443x_cmn_power_off(struct mn88443x_priv *chip)
@@ -722,9 +742,15 @@ static int mn88443x_probe(struct i2c_client *client,
 	 * Chip has two I2C addresses for each satellite/terrestrial system.
 	 * ISDB-T uses address ISDB-S + 4, so we register a dummy client.
 	 */
+<<<<<<< HEAD
 	chip->client_t = i2c_new_dummy(client->adapter, client->addr + 4);
 	if (!chip->client_t)
 		return -ENODEV;
+=======
+	chip->client_t = i2c_new_dummy_device(client->adapter, client->addr + 4);
+	if (IS_ERR(chip->client_t))
+		return PTR_ERR(chip->client_t);
+>>>>>>> upstream/android-13
 
 	chip->regmap_t = devm_regmap_init_i2c(chip->client_t, &regmap_config);
 	if (IS_ERR(chip->regmap_t)) {
@@ -738,7 +764,14 @@ static int mn88443x_probe(struct i2c_client *client,
 	chip->fe.demodulator_priv = chip;
 	i2c_set_clientdata(client, chip);
 
+<<<<<<< HEAD
 	mn88443x_cmn_power_on(chip);
+=======
+	ret = mn88443x_cmn_power_on(chip);
+	if (ret)
+		goto err_i2c_t;
+
+>>>>>>> upstream/android-13
 	mn88443x_s_sleep(chip);
 	mn88443x_t_sleep(chip);
 

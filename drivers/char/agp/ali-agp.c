@@ -357,7 +357,11 @@ found:
 		default:
 			break;
 		}
+<<<<<<< HEAD
 		/*FALLTHROUGH*/
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		bridge->driver = &ali_generic_bridge;
 	}

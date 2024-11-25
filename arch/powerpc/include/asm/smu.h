@@ -108,7 +108,11 @@
  /*
   * i2c commands
   *
+<<<<<<< HEAD
   * To issue an i2c command, first is to send a parameter block to the
+=======
+  * To issue an i2c command, first is to send a parameter block to
+>>>>>>> upstream/android-13
   * the SMU. This is a command of type 0x9a with 9 bytes of header
   * eventually followed by data for a write:
   *

@@ -142,8 +142,13 @@ int nilfs_ifile_get_inode_block(struct inode *ifile, ino_t ino,
 
 	err = nilfs_palloc_get_entry_block(ifile, ino, 0, out_bh);
 	if (unlikely(err))
+<<<<<<< HEAD
 		nilfs_msg(sb, KERN_WARNING, "error %d reading inode: ino=%lu",
 			  err, (unsigned long)ino);
+=======
+		nilfs_warn(sb, "error %d reading inode: ino=%lu",
+			   err, (unsigned long)ino);
+>>>>>>> upstream/android-13
 	return err;
 }
 

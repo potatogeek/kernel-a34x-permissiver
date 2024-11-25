@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * lib80211 -- common bits for IEEE802.11 drivers
  *
@@ -25,8 +29,11 @@
 
 #include <net/lib80211.h>
 
+<<<<<<< HEAD
 #define DRV_NAME        "lib80211"
 
+=======
+>>>>>>> upstream/android-13
 #define DRV_DESCRIPTION	"common routines for IEEE802.11 drivers"
 
 MODULE_DESCRIPTION(DRV_DESCRIPTION);

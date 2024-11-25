@@ -7,7 +7,14 @@
  *
  * (C) 2007 SGI, Christoph Lameter
  */
+<<<<<<< HEAD
 #include <linux/kobject.h>
+=======
+#include <linux/kfence.h>
+#include <linux/kobject.h>
+#include <linux/reciprocal_div.h>
+#include <linux/local_lock.h>
+>>>>>>> upstream/android-13
 
 enum stat_item {
 	ALLOC_FASTPATH,		/* Allocation from cpu slab */
@@ -38,6 +45,13 @@ enum stat_item {
 	CPU_PARTIAL_DRAIN,	/* Drain cpu partial to node partial */
 	NR_SLUB_STAT_ITEMS };
 
+<<<<<<< HEAD
+=======
+/*
+ * When changing the layout, make sure freelist and tid are still compatible
+ * with this_cpu_cmpxchg_double() alignment requirements.
+ */
+>>>>>>> upstream/android-13
 struct kmem_cache_cpu {
 	void **freelist;	/* Pointer to next available object */
 	unsigned long tid;	/* Globally unique transaction id */
@@ -45,6 +59,10 @@ struct kmem_cache_cpu {
 #ifdef CONFIG_SLUB_CPU_PARTIAL
 	struct page *partial;	/* Partially allocated frozen slabs */
 #endif
+<<<<<<< HEAD
+=======
+	local_lock_t lock;	/* Protects the fields above */
+>>>>>>> upstream/android-13
 #ifdef CONFIG_SLUB_STATS
 	unsigned stat[NR_SLUB_STAT_ITEMS];
 #endif
@@ -81,12 +99,22 @@ struct kmem_cache_order_objects {
  */
 struct kmem_cache {
 	struct kmem_cache_cpu __percpu *cpu_slab;
+<<<<<<< HEAD
 	/* Used for retriving partial slabs etc */
 	slab_flags_t flags;
 	unsigned long min_partial;
 	unsigned int size;	/* The size of an object including meta data */
 	unsigned int object_size;/* The size of an object without meta data */
 	unsigned int offset;	/* Free pointer offset. */
+=======
+	/* Used for retrieving partial slabs, etc. */
+	slab_flags_t flags;
+	unsigned long min_partial;
+	unsigned int size;	/* The size of an object including metadata */
+	unsigned int object_size;/* The size of an object without metadata */
+	struct reciprocal_value reciprocal_size;
+	unsigned int offset;	/* Free pointer offset */
+>>>>>>> upstream/android-13
 #ifdef CONFIG_SLUB_CPU_PARTIAL
 	/* Number of per cpu partial objects to keep around */
 	unsigned int cpu_partial;
@@ -106,6 +134,7 @@ struct kmem_cache {
 	struct list_head list;	/* List of slab caches */
 #ifdef CONFIG_SYSFS
 	struct kobject kobj;	/* For sysfs */
+<<<<<<< HEAD
 	struct work_struct kobj_remove_work;
 #endif
 #ifdef CONFIG_MEMCG
@@ -117,6 +146,9 @@ struct kmem_cache {
 #endif
 #endif
 
+=======
+#endif
+>>>>>>> upstream/android-13
 #ifdef CONFIG_SLAB_FREELIST_HARDENED
 	unsigned long random;
 #endif
@@ -151,7 +183,11 @@ struct kmem_cache {
 #else
 #define slub_cpu_partial(s)		(0)
 #define slub_set_cpu_partial(s, n)
+<<<<<<< HEAD
 #endif // CONFIG_SLUB_CPU_PARTIAL
+=======
+#endif /* CONFIG_SLUB_CPU_PARTIAL */
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_SYSFS
 #define SLAB_SUPPORTS_SYSFS
@@ -182,4 +218,28 @@ static inline void *nearest_obj(struct kmem_cache *cache, struct page *page,
 	return result;
 }
 
+<<<<<<< HEAD
+=======
+/* Determine object index from a given position */
+static inline unsigned int __obj_to_index(const struct kmem_cache *cache,
+					  void *addr, void *obj)
+{
+	return reciprocal_divide(kasan_reset_tag(obj) - addr,
+				 cache->reciprocal_size);
+}
+
+static inline unsigned int obj_to_index(const struct kmem_cache *cache,
+					const struct page *page, void *obj)
+{
+	if (is_kfence_address(obj))
+		return 0;
+	return __obj_to_index(cache, page_address(page), obj);
+}
+
+static inline int objs_per_slab_page(const struct kmem_cache *cache,
+				     const struct page *page)
+{
+	return page->objects;
+}
+>>>>>>> upstream/android-13
 #endif /* _LINUX_SLUB_DEF_H */

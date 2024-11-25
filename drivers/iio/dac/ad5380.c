@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Analog devices AD5380, AD5381, AD5382, AD5383, AD5390, AD5391, AD5392
  * multi-channel Digital to Analog Converters driver
  *
  * Copyright 2011 Analog Devices Inc.
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -52,6 +59,10 @@ struct ad5380_chip_info {
  * @vref_reg:		vref supply regulator
  * @vref:		actual reference voltage used in uA
  * @pwr_down:		whether the chip is currently in power down mode
+<<<<<<< HEAD
+=======
+ * @lock:		lock to protect the data buffer during regmap ops
+>>>>>>> upstream/android-13
  */
 
 struct ad5380_state {
@@ -60,6 +71,10 @@ struct ad5380_state {
 	struct regulator		*vref_reg;
 	int				vref;
 	bool				pwr_down;
+<<<<<<< HEAD
+=======
+	struct mutex			lock;
+>>>>>>> upstream/android-13
 };
 
 enum ad5380_type {
@@ -84,7 +99,11 @@ static ssize_t ad5380_read_dac_powerdown(struct iio_dev *indio_dev,
 {
 	struct ad5380_state *st = iio_priv(indio_dev);
 
+<<<<<<< HEAD
 	return sprintf(buf, "%d\n", st->pwr_down);
+=======
+	return sysfs_emit(buf, "%d\n", st->pwr_down);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t ad5380_write_dac_powerdown(struct iio_dev *indio_dev,
@@ -99,7 +118,11 @@ static ssize_t ad5380_write_dac_powerdown(struct iio_dev *indio_dev,
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	mutex_lock(&indio_dev->mlock);
+=======
+	mutex_lock(&st->lock);
+>>>>>>> upstream/android-13
 
 	if (pwr_down)
 		ret = regmap_write(st->regmap, AD5380_REG_SF_PWR_DOWN, 0);
@@ -108,7 +131,11 @@ static ssize_t ad5380_write_dac_powerdown(struct iio_dev *indio_dev,
 
 	st->pwr_down = pwr_down;
 
+<<<<<<< HEAD
 	mutex_unlock(&indio_dev->mlock);
+=======
+	mutex_unlock(&st->lock);
+>>>>>>> upstream/android-13
 
 	return ret ? ret : len;
 }
@@ -239,7 +266,11 @@ static const struct iio_info ad5380_info = {
 	.write_raw = ad5380_write_raw,
 };
 
+<<<<<<< HEAD
 static struct iio_chan_spec_ext_info ad5380_ext_info[] = {
+=======
+static const struct iio_chan_spec_ext_info ad5380_ext_info[] = {
+>>>>>>> upstream/android-13
 	{
 		.name = "powerdown",
 		.read = ad5380_read_dac_powerdown,
@@ -385,12 +416,20 @@ static int ad5380_probe(struct device *dev, struct regmap *regmap,
 	st->chip_info = &ad5380_chip_info_tbl[type];
 	st->regmap = regmap;
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->name = name;
 	indio_dev->info = &ad5380_info;
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->num_channels = st->chip_info->num_channels;
 
+<<<<<<< HEAD
+=======
+	mutex_init(&st->lock);
+
+>>>>>>> upstream/android-13
 	ret = ad5380_alloc_channels(indio_dev);
 	if (ret) {
 		dev_err(dev, "Failed to allocate channel spec: %d\n", ret);

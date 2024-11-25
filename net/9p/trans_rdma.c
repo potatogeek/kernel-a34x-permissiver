@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/fs/9p/trans_rdma.c
  *
@@ -8,6 +12,7 @@
  *  Copyright (C) 2004-2005 by Latchesar Ionkov <lucho@ionkov.net>
  *  Copyright (C) 2004-2008 by Eric Van Hensbergen <ericvh@gmail.com>
  *  Copyright (C) 1997-2002 by Ron Minnich <rminnich@sarnoff.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2
@@ -24,6 +29,8 @@
  *  51 Franklin Street, Fifth Floor
  *  Boston, MA  02111-1301  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -109,14 +116,26 @@ struct p9_trans_rdma {
 	struct completion cm_done;
 };
 
+<<<<<<< HEAD
 /**
  * p9_rdma_context - Keeps track of in-process WR
  *
+=======
+struct p9_rdma_req;
+
+/**
+ * struct p9_rdma_context - Keeps track of in-process WR
+ *
+ * @cqe: completion queue entry
+>>>>>>> upstream/android-13
  * @busa: Bus address to unmap when the WR completes
  * @req: Keeps track of requests (send)
  * @rc: Keepts track of replies (receive)
  */
+<<<<<<< HEAD
 struct p9_rdma_req;
+=======
+>>>>>>> upstream/android-13
 struct p9_rdma_context {
 	struct ib_cqe cqe;
 	dma_addr_t busa;
@@ -127,8 +146,14 @@ struct p9_rdma_context {
 };
 
 /**
+<<<<<<< HEAD
  * p9_rdma_opts - Collection of mount options
  * @port: port of connection
+=======
+ * struct p9_rdma_opts - Collection of mount options
+ * @port: port of connection
+ * @privport: Whether a privileged port may be used
+>>>>>>> upstream/android-13
  * @sq_depth: The requested depth of the SQ. This really doesn't need
  * to be any deeper than the number of threads used in the client
  * @rq_depth: The depth of the RQ. Should be greater than or equal to SQ depth
@@ -700,9 +725,15 @@ rdma_create_trans(struct p9_client *client, const char *addr, char *args)
 		goto error;
 
 	/* Create the Completion Queue */
+<<<<<<< HEAD
 	rdma->cq = ib_alloc_cq(rdma->cm_id->device, client,
 			opts.sq_depth + opts.rq_depth + 1,
 			0, IB_POLL_SOFTIRQ);
+=======
+	rdma->cq = ib_alloc_cq_any(rdma->cm_id->device, client,
+				   opts.sq_depth + opts.rq_depth + 1,
+				   IB_POLL_SOFTIRQ);
+>>>>>>> upstream/android-13
 	if (IS_ERR(rdma->cq))
 		goto error;
 

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * INET		An implementation of the TCP/IP protocol suite for the LINUX
  *		operating system.  INET is implemented using the  BSD Socket
@@ -9,11 +13,14 @@
  *
  * Author:	Fred N. van Kempen, <waltje@uWalt.NL.Mugnet.ORG>
  *
+<<<<<<< HEAD
  *		This program is free software; you can redistribute it and/or
  *		modify it under the terms of the GNU General Public License
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *	Changes:
  *		Alan Cox	:	Added a name field and a frag handler
  *					field for later.
@@ -42,9 +49,17 @@ struct net_protocol {
 	int			(*early_demux)(struct sk_buff *skb);
 	int			(*early_demux_handler)(struct sk_buff *skb);
 	int			(*handler)(struct sk_buff *skb);
+<<<<<<< HEAD
 	void			(*err_handler)(struct sk_buff *skb, u32 info);
 	unsigned int		no_policy:1,
 				netns_ok:1,
+=======
+
+	/* This returns an error if we weren't able to handle the error. */
+	int			(*err_handler)(struct sk_buff *skb, u32 info);
+
+	unsigned int		no_policy:1,
+>>>>>>> upstream/android-13
 				/* does the protocol do more stringent
 				 * icmp tag validation than simple
 				 * socket lookup?
@@ -58,10 +73,19 @@ struct inet6_protocol {
 	void    (*early_demux_handler)(struct sk_buff *skb);
 	int	(*handler)(struct sk_buff *skb);
 
+<<<<<<< HEAD
 	void	(*err_handler)(struct sk_buff *skb,
 			       struct inet6_skb_parm *opt,
 			       u8 type, u8 code, int offset,
 			       __be32 info);
+=======
+	/* This returns an error if we weren't able to handle the error. */
+	int	(*err_handler)(struct sk_buff *skb,
+			       struct inet6_skb_parm *opt,
+			       u8 type, u8 code, int offset,
+			       __be32 info);
+
+>>>>>>> upstream/android-13
 	unsigned int	flags;	/* INET6_PROTO_xxx */
 };
 

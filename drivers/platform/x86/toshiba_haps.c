@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Toshiba HDD Active Protection Sensor (HAPS) driver
  *
  * Copyright (C) 2014 Azael Avalos <coproscefalo@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -141,7 +148,11 @@ static const struct attribute_group haps_attr_group = {
  */
 static void toshiba_haps_notify(struct acpi_device *device, u32 event)
 {
+<<<<<<< HEAD
 	pr_debug("Received event: 0x%x", event);
+=======
+	pr_debug("Received event: 0x%x\n", event);
+>>>>>>> upstream/android-13
 
 	acpi_bus_generate_netlink_event(device->pnp.device_class,
 					dev_name(&device->dev),

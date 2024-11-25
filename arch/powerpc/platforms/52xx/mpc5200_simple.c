@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Support for 'mpc5200-simple-platform' compatible boards.
  *
  * Written by Marian Balakowicz <m8@semihalf.com>
  * Copyright (C) 2007 Semihalf
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * Description:
  * This code implements support for a simple MPC52xx based boards which
  * do not need a custom platform specific setup. Such boards are
@@ -44,8 +51,11 @@ static void __init mpc5200_simple_setup_arch(void)
 
 	/* Some mpc5200 & mpc5200b related configuration */
 	mpc5200_setup_xlb_arbiter();
+<<<<<<< HEAD
 
 	mpc52xx_setup_pci();
+=======
+>>>>>>> upstream/android-13
 }
 
 /* list of the supported boards */
@@ -77,6 +87,10 @@ define_machine(mpc5200_simple_platform) {
 	.name		= "mpc5200-simple-platform",
 	.probe		= mpc5200_simple_probe,
 	.setup_arch	= mpc5200_simple_setup_arch,
+<<<<<<< HEAD
+=======
+	.discover_phbs	= mpc52xx_setup_pci,
+>>>>>>> upstream/android-13
 	.init		= mpc52xx_declare_of_platform_devices,
 	.init_IRQ	= mpc52xx_init_irq,
 	.get_irq	= mpc52xx_get_irq,

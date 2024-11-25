@@ -21,28 +21,59 @@
  */
 #include "wndw.h"
 #include "wimm.h"
+<<<<<<< HEAD
+=======
+#include "handles.h"
+>>>>>>> upstream/android-13
 
 #include <nvif/class.h>
 #include <nvif/cl0002.h>
 
+<<<<<<< HEAD
 #include <drm/drm_atomic_helper.h>
 #include "nouveau_bo.h"
+=======
+#include <nvhw/class/cl507c.h>
+#include <nvhw/class/cl507e.h>
+#include <nvhw/class/clc37e.h>
+
+#include <drm/drm_atomic.h>
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_fourcc.h>
+
+#include "nouveau_bo.h"
+#include "nouveau_gem.h"
+>>>>>>> upstream/android-13
 
 static void
 nv50_wndw_ctxdma_del(struct nv50_wndw_ctxdma *ctxdma)
 {
+<<<<<<< HEAD
 	nvif_object_fini(&ctxdma->object);
+=======
+	nvif_object_dtor(&ctxdma->object);
+>>>>>>> upstream/android-13
 	list_del(&ctxdma->head);
 	kfree(ctxdma);
 }
 
 static struct nv50_wndw_ctxdma *
+<<<<<<< HEAD
 nv50_wndw_ctxdma_new(struct nv50_wndw *wndw, struct nouveau_framebuffer *fb)
 {
 	struct nouveau_drm *drm = nouveau_drm(fb->base.dev);
 	struct nv50_wndw_ctxdma *ctxdma;
 	const u8    kind = fb->nvbo->kind;
 	const u32 handle = 0xfb000000 | kind;
+=======
+nv50_wndw_ctxdma_new(struct nv50_wndw *wndw, struct drm_framebuffer *fb)
+{
+	struct nouveau_drm *drm = nouveau_drm(fb->dev);
+	struct nv50_wndw_ctxdma *ctxdma;
+	u32 handle;
+	u32 unused;
+	u8  kind;
+>>>>>>> upstream/android-13
 	struct {
 		struct nv_dma_v0 base;
 		union {
@@ -54,6 +85,12 @@ nv50_wndw_ctxdma_new(struct nv50_wndw *wndw, struct nouveau_framebuffer *fb)
 	u32 argc = sizeof(args.base);
 	int ret;
 
+<<<<<<< HEAD
+=======
+	nouveau_framebuffer_get_layout(fb, &unused, &kind);
+	handle = NV50_DISP_HANDLE_WNDW_CTX(kind);
+
+>>>>>>> upstream/android-13
 	list_for_each_entry(ctxdma, &wndw->ctxdma.list, head) {
 		if (ctxdma->object.handle == handle)
 			return ctxdma;
@@ -86,8 +123,13 @@ nv50_wndw_ctxdma_new(struct nv50_wndw *wndw, struct nouveau_framebuffer *fb)
 		argc += sizeof(args.gf119);
 	}
 
+<<<<<<< HEAD
 	ret = nvif_object_init(wndw->ctxdma.parent, handle, NV_DMA_IN_MEMORY,
 			       &args, argc, &ctxdma->object);
+=======
+	ret = nvif_object_ctor(wndw->ctxdma.parent, "kmsFbCtxDma", handle,
+			       NV_DMA_IN_MEMORY, &args, argc, &ctxdma->object);
+>>>>>>> upstream/android-13
 	if (ret) {
 		nv50_wndw_ctxdma_del(ctxdma);
 		return ERR_PTR(ret);
@@ -118,6 +160,10 @@ nv50_wndw_flush_clr(struct nv50_wndw *wndw, u32 *interlock, bool flush,
 	if (clr.sema ) wndw->func-> sema_clr(wndw);
 	if (clr.ntfy ) wndw->func-> ntfy_clr(wndw);
 	if (clr.xlut ) wndw->func-> xlut_clr(wndw);
+<<<<<<< HEAD
+=======
+	if (clr.csc  ) wndw->func->  csc_clr(wndw);
+>>>>>>> upstream/android-13
 	if (clr.image) wndw->func->image_clr(wndw);
 
 	interlock[wndw->interlock.type] |= wndw->interlock.data;
@@ -127,8 +173,13 @@ void
 nv50_wndw_flush_set(struct nv50_wndw *wndw, u32 *interlock,
 		    struct nv50_wndw_atom *asyw)
 {
+<<<<<<< HEAD
 	if (interlock) {
 		asyw->image.mode = 0;
+=======
+	if (interlock[NV50_DISP_INTERLOCK_CORE]) {
+		asyw->image.mode = NV507C_SET_PRESENT_CONTROL_BEGIN_MODE_NON_TEARING;
+>>>>>>> upstream/android-13
 		asyw->image.interval = 1;
 	}
 
@@ -139,15 +190,26 @@ nv50_wndw_flush_set(struct nv50_wndw *wndw, u32 *interlock,
 	if (asyw->set.xlut ) {
 		if (asyw->ilut) {
 			asyw->xlut.i.offset =
+<<<<<<< HEAD
 				nv50_lut_load(&wndw->ilut,
 					      asyw->xlut.i.mode <= 1,
 					      asyw->xlut.i.buffer,
 					      asyw->ilut);
+=======
+				nv50_lut_load(&wndw->ilut, asyw->xlut.i.buffer,
+					      asyw->ilut, asyw->xlut.i.load);
+>>>>>>> upstream/android-13
 		}
 		wndw->func->xlut_set(wndw, asyw);
 	}
 
+<<<<<<< HEAD
 	if (asyw->set.scale) wndw->func->scale_set(wndw, asyw);
+=======
+	if (asyw->set.csc  ) wndw->func->csc_set  (wndw, asyw);
+	if (asyw->set.scale) wndw->func->scale_set(wndw, asyw);
+	if (asyw->set.blend) wndw->func->blend_set(wndw, asyw);
+>>>>>>> upstream/android-13
 	if (asyw->set.point) {
 		if (asyw->set.point = false, asyw->set.mask)
 			interlock[wndw->interlock.type] |= wndw->interlock.data;
@@ -184,19 +246,38 @@ nv50_wndw_atomic_check_release(struct nv50_wndw *wndw,
 	wndw->func->release(wndw, asyw, asyh);
 	asyw->ntfy.handle = 0;
 	asyw->sema.handle = 0;
+<<<<<<< HEAD
+=======
+	asyw->xlut.handle = 0;
+	memset(asyw->image.handle, 0x00, sizeof(asyw->image.handle));
+>>>>>>> upstream/android-13
 }
 
 static int
 nv50_wndw_atomic_check_acquire_yuv(struct nv50_wndw_atom *asyw)
 {
 	switch (asyw->state.fb->format->format) {
+<<<<<<< HEAD
 	case DRM_FORMAT_YUYV: asyw->image.format = 0x28; break;
 	case DRM_FORMAT_UYVY: asyw->image.format = 0x29; break;
+=======
+	case DRM_FORMAT_YUYV:
+		asyw->image.format = NV507E_SURFACE_SET_PARAMS_FORMAT_VE8YO8UE8YE8;
+		break;
+	case DRM_FORMAT_UYVY:
+		asyw->image.format = NV507E_SURFACE_SET_PARAMS_FORMAT_YO8VE8YE8UE8;
+		break;
+>>>>>>> upstream/android-13
 	default:
 		WARN_ON(1);
 		return -EINVAL;
 	}
+<<<<<<< HEAD
 	asyw->image.colorspace = 1;
+=======
+
+	asyw->image.colorspace = NV507E_SURFACE_SET_PARAMS_COLOR_SPACE_YUV_601;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -204,6 +285,7 @@ static int
 nv50_wndw_atomic_check_acquire_rgb(struct nv50_wndw_atom *asyw)
 {
 	switch (asyw->state.fb->format->format) {
+<<<<<<< HEAD
 	case DRM_FORMAT_C8         : asyw->image.format = 0x1e; break;
 	case DRM_FORMAT_XRGB8888   :
 	case DRM_FORMAT_ARGB8888   : asyw->image.format = 0xcf; break;
@@ -220,6 +302,43 @@ nv50_wndw_atomic_check_acquire_rgb(struct nv50_wndw_atom *asyw)
 		return -EINVAL;
 	}
 	asyw->image.colorspace = 0;
+=======
+	case DRM_FORMAT_C8:
+		asyw->image.format = NV507C_SURFACE_SET_PARAMS_FORMAT_I8;
+		break;
+	case DRM_FORMAT_XRGB8888:
+	case DRM_FORMAT_ARGB8888:
+		asyw->image.format = NV507C_SURFACE_SET_PARAMS_FORMAT_A8R8G8B8;
+		break;
+	case DRM_FORMAT_RGB565:
+		asyw->image.format = NV507C_SURFACE_SET_PARAMS_FORMAT_R5G6B5;
+		break;
+	case DRM_FORMAT_XRGB1555:
+	case DRM_FORMAT_ARGB1555:
+		asyw->image.format = NV507C_SURFACE_SET_PARAMS_FORMAT_A1R5G5B5;
+		break;
+	case DRM_FORMAT_XBGR2101010:
+	case DRM_FORMAT_ABGR2101010:
+		asyw->image.format = NV507C_SURFACE_SET_PARAMS_FORMAT_A2B10G10R10;
+		break;
+	case DRM_FORMAT_XBGR8888:
+	case DRM_FORMAT_ABGR8888:
+		asyw->image.format = NV507C_SURFACE_SET_PARAMS_FORMAT_A8B8G8R8;
+		break;
+	case DRM_FORMAT_XRGB2101010:
+	case DRM_FORMAT_ARGB2101010:
+		asyw->image.format = NVC37E_SET_PARAMS_FORMAT_A2R10G10B10;
+		break;
+	case DRM_FORMAT_XBGR16161616F:
+	case DRM_FORMAT_ABGR16161616F:
+		asyw->image.format = NV507C_SURFACE_SET_PARAMS_FORMAT_RF16_GF16_BF16_AF16;
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	asyw->image.colorspace = NV507E_SURFACE_SET_PARAMS_COLOR_SPACE_RGB;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -229,16 +348,32 @@ nv50_wndw_atomic_check_acquire(struct nv50_wndw *wndw, bool modeset,
 			       struct nv50_wndw_atom *asyw,
 			       struct nv50_head_atom *asyh)
 {
+<<<<<<< HEAD
 	struct nouveau_framebuffer *fb = nouveau_framebuffer(asyw->state.fb);
 	struct nouveau_drm *drm = nouveau_drm(wndw->plane.dev);
+=======
+	struct drm_framebuffer *fb = asyw->state.fb;
+	struct nouveau_drm *drm = nouveau_drm(wndw->plane.dev);
+	uint8_t kind;
+	uint32_t tile_mode;
+>>>>>>> upstream/android-13
 	int ret;
 
 	NV_ATOMIC(drm, "%s acquire\n", wndw->plane.name);
 
+<<<<<<< HEAD
 	if (asyw->state.fb != armw->state.fb || !armw->visible || modeset) {
 		asyw->image.w = fb->base.width;
 		asyw->image.h = fb->base.height;
 		asyw->image.kind = fb->nvbo->kind;
+=======
+	if (fb != armw->state.fb || !armw->visible || modeset) {
+		nouveau_framebuffer_get_layout(fb, &tile_mode, &kind);
+
+		asyw->image.w = fb->width;
+		asyw->image.h = fb->height;
+		asyw->image.kind = kind;
+>>>>>>> upstream/android-13
 
 		ret = nv50_wndw_atomic_check_acquire_rgb(asyw);
 		if (ret) {
@@ -248,6 +383,7 @@ nv50_wndw_atomic_check_acquire(struct nv50_wndw *wndw, bool modeset,
 		}
 
 		if (asyw->image.kind) {
+<<<<<<< HEAD
 			asyw->image.layout = 0;
 			if (drm->client.device.info.chipset >= 0xc0)
 				asyw->image.blockh = fb->nvbo->mode >> 4;
@@ -267,6 +403,32 @@ nv50_wndw_atomic_check_acquire(struct nv50_wndw *wndw, bool modeset,
 		else
 			asyw->image.interval = 0;
 		asyw->image.mode = asyw->image.interval ? 0 : 1;
+=======
+			asyw->image.layout = NV507C_SURFACE_SET_STORAGE_MEMORY_LAYOUT_BLOCKLINEAR;
+			if (drm->client.device.info.chipset >= 0xc0)
+				asyw->image.blockh = tile_mode >> 4;
+			else
+				asyw->image.blockh = tile_mode;
+			asyw->image.blocks[0] = fb->pitches[0] / 64;
+			asyw->image.pitch[0] = 0;
+		} else {
+			asyw->image.layout = NV507C_SURFACE_SET_STORAGE_MEMORY_LAYOUT_PITCH;
+			asyw->image.blockh = NV507C_SURFACE_SET_STORAGE_BLOCK_HEIGHT_ONE_GOB;
+			asyw->image.blocks[0] = 0;
+			asyw->image.pitch[0] = fb->pitches[0];
+		}
+
+		if (!asyh->state.async_flip)
+			asyw->image.interval = 1;
+		else
+			asyw->image.interval = 0;
+
+		if (asyw->image.interval)
+			asyw->image.mode = NV507C_SET_PRESENT_CONTROL_BEGIN_MODE_NON_TEARING;
+		else
+			asyw->image.mode = NV507C_SET_PRESENT_CONTROL_BEGIN_MODE_IMMEDIATE;
+
+>>>>>>> upstream/android-13
 		asyw->set.image = wndw->func->image_set != NULL;
 	}
 
@@ -281,6 +443,31 @@ nv50_wndw_atomic_check_acquire(struct nv50_wndw *wndw, bool modeset,
 			asyw->set.scale = true;
 	}
 
+<<<<<<< HEAD
+=======
+	if (wndw->func->blend_set) {
+		asyw->blend.depth = 255 - asyw->state.normalized_zpos;
+		asyw->blend.k1 = asyw->state.alpha >> 8;
+		switch (asyw->state.pixel_blend_mode) {
+		case DRM_MODE_BLEND_PREMULTI:
+			asyw->blend.src_color = NVC37E_SET_COMPOSITION_FACTOR_SELECT_SRC_COLOR_FACTOR_MATCH_SELECT_K1;
+			asyw->blend.dst_color = NVC37E_SET_COMPOSITION_FACTOR_SELECT_DST_COLOR_FACTOR_MATCH_SELECT_NEG_K1_TIMES_SRC;
+			break;
+		case DRM_MODE_BLEND_COVERAGE:
+			asyw->blend.src_color = NVC37E_SET_COMPOSITION_FACTOR_SELECT_SRC_COLOR_FACTOR_MATCH_SELECT_K1_TIMES_SRC;
+			asyw->blend.dst_color = NVC37E_SET_COMPOSITION_FACTOR_SELECT_DST_COLOR_FACTOR_MATCH_SELECT_NEG_K1_TIMES_SRC;
+			break;
+		case DRM_MODE_BLEND_PIXEL_NONE:
+		default:
+			asyw->blend.src_color = NVC37E_SET_COMPOSITION_FACTOR_SELECT_SRC_COLOR_FACTOR_MATCH_SELECT_K1;
+			asyw->blend.dst_color = NVC37E_SET_COMPOSITION_FACTOR_SELECT_DST_COLOR_FACTOR_MATCH_SELECT_NEG_K1;
+			break;
+		}
+		if (memcmp(&armw->blend, &asyw->blend, sizeof(asyw->blend)))
+			asyw->set.blend = true;
+	}
+
+>>>>>>> upstream/android-13
 	if (wndw->immd) {
 		asyw->point.x = asyw->state.crtc_x;
 		asyw->point.y = asyw->state.crtc_y;
@@ -291,7 +478,11 @@ nv50_wndw_atomic_check_acquire(struct nv50_wndw *wndw, bool modeset,
 	return wndw->func->acquire(wndw, asyw, asyh);
 }
 
+<<<<<<< HEAD
 static void
+=======
+static int
+>>>>>>> upstream/android-13
 nv50_wndw_atomic_check_lut(struct nv50_wndw *wndw,
 			   struct nv50_wndw_atom *armw,
 			   struct nv50_wndw_atom *asyw,
@@ -313,7 +504,11 @@ nv50_wndw_atomic_check_lut(struct nv50_wndw *wndw,
 		 */
 		if (!(ilut = asyh->state.gamma_lut)) {
 			asyw->visible = false;
+<<<<<<< HEAD
 			return;
+=======
+			return 0;
+>>>>>>> upstream/android-13
 		}
 
 		if (wndw->func->ilut)
@@ -322,6 +517,7 @@ nv50_wndw_atomic_check_lut(struct nv50_wndw *wndw,
 		asyh->wndw.olut &= ~BIT(wndw->id);
 	}
 
+<<<<<<< HEAD
 	/* Recalculate LUT state. */
 	memset(&asyw->xlut, 0x00, sizeof(asyw->xlut));
 	if ((asyw->ilut = wndw->func->ilut ? ilut : NULL)) {
@@ -329,6 +525,27 @@ nv50_wndw_atomic_check_lut(struct nv50_wndw *wndw,
 		asyw->xlut.handle = wndw->wndw.vram.handle;
 		asyw->xlut.i.buffer = !asyw->xlut.i.buffer;
 		asyw->set.xlut = true;
+=======
+	if (!ilut && wndw->func->ilut_identity &&
+	    asyw->state.fb->format->format != DRM_FORMAT_XBGR16161616F &&
+	    asyw->state.fb->format->format != DRM_FORMAT_ABGR16161616F) {
+		static struct drm_property_blob dummy = {};
+		ilut = &dummy;
+	}
+
+	/* Recalculate LUT state. */
+	memset(&asyw->xlut, 0x00, sizeof(asyw->xlut));
+	if ((asyw->ilut = wndw->func->ilut ? ilut : NULL)) {
+		if (!wndw->func->ilut(wndw, asyw, drm_color_lut_size(ilut))) {
+			DRM_DEBUG_KMS("Invalid ilut\n");
+			return -EINVAL;
+		}
+		asyw->xlut.handle = wndw->wndw.vram.handle;
+		asyw->xlut.i.buffer = !asyw->xlut.i.buffer;
+		asyw->set.xlut = true;
+	} else {
+		asyw->clr.xlut = armw->xlut.handle != 0;
+>>>>>>> upstream/android-13
 	}
 
 	/* Handle setting base SET_OUTPUT_LUT_LO_ENABLE_USE_CORE_LUT. */
@@ -336,6 +553,7 @@ nv50_wndw_atomic_check_lut(struct nv50_wndw *wndw,
 	    (!armw->visible || (armw->xlut.handle && !asyw->xlut.handle)))
 		asyw->set.xlut = true;
 
+<<<<<<< HEAD
 	/* Can't do an immediate flip while changing the LUT. */
 	asyh->state.pageflip_flags &= ~DRM_MODE_PAGE_FLIP_ASYNC;
 }
@@ -347,6 +565,33 @@ nv50_wndw_atomic_check(struct drm_plane *plane, struct drm_plane_state *state)
 	struct nv50_wndw *wndw = nv50_wndw(plane);
 	struct nv50_wndw_atom *armw = nv50_wndw_atom(wndw->plane.state);
 	struct nv50_wndw_atom *asyw = nv50_wndw_atom(state);
+=======
+	if (wndw->func->csc && asyh->state.ctm) {
+		const struct drm_color_ctm *ctm = asyh->state.ctm->data;
+		wndw->func->csc(wndw, asyw, ctm);
+		asyw->csc.valid = true;
+		asyw->set.csc = true;
+	} else {
+		asyw->csc.valid = false;
+		asyw->clr.csc = armw->csc.valid;
+	}
+
+	/* Can't do an immediate flip while changing the LUT. */
+	asyh->state.async_flip = false;
+	return 0;
+}
+
+static int
+nv50_wndw_atomic_check(struct drm_plane *plane,
+		       struct drm_atomic_state *state)
+{
+	struct drm_plane_state *new_plane_state = drm_atomic_get_new_plane_state(state,
+										 plane);
+	struct nouveau_drm *drm = nouveau_drm(plane->dev);
+	struct nv50_wndw *wndw = nv50_wndw(plane);
+	struct nv50_wndw_atom *armw = nv50_wndw_atom(wndw->plane.state);
+	struct nv50_wndw_atom *asyw = nv50_wndw_atom(new_plane_state);
+>>>>>>> upstream/android-13
 	struct nv50_head_atom *harm = NULL, *asyh = NULL;
 	bool modeset = false;
 	int ret;
@@ -378,8 +623,16 @@ nv50_wndw_atomic_check(struct drm_plane *plane, struct drm_plane_state *state)
 	    (!armw->visible ||
 	     asyh->state.color_mgmt_changed ||
 	     asyw->state.fb->format->format !=
+<<<<<<< HEAD
 	     armw->state.fb->format->format))
 		nv50_wndw_atomic_check_lut(wndw, armw, asyw, asyh);
+=======
+	     armw->state.fb->format->format)) {
+		ret = nv50_wndw_atomic_check_lut(wndw, armw, asyw, asyh);
+		if (ret)
+			return ret;
+	}
+>>>>>>> upstream/android-13
 
 	/* Calculate new window state. */
 	if (asyw->visible) {
@@ -407,6 +660,10 @@ nv50_wndw_atomic_check(struct drm_plane *plane, struct drm_plane_state *state)
 		asyw->clr.xlut = armw->xlut.handle != 0;
 		if (asyw->clr.xlut && asyw->visible)
 			asyw->set.xlut = asyw->xlut.handle != 0;
+<<<<<<< HEAD
+=======
+		asyw->clr.csc  = armw->csc.valid;
+>>>>>>> upstream/android-13
 		if (wndw->func->image_clr)
 			asyw->clr.image = armw->image.handle[0] != 0;
 	}
@@ -417,38 +674,66 @@ nv50_wndw_atomic_check(struct drm_plane *plane, struct drm_plane_state *state)
 static void
 nv50_wndw_cleanup_fb(struct drm_plane *plane, struct drm_plane_state *old_state)
 {
+<<<<<<< HEAD
 	struct nouveau_framebuffer *fb = nouveau_framebuffer(old_state->fb);
 	struct nouveau_drm *drm = nouveau_drm(plane->dev);
+=======
+	struct nouveau_drm *drm = nouveau_drm(plane->dev);
+	struct nouveau_bo *nvbo;
+>>>>>>> upstream/android-13
 
 	NV_ATOMIC(drm, "%s cleanup: %p\n", plane->name, old_state->fb);
 	if (!old_state->fb)
 		return;
 
+<<<<<<< HEAD
 	nouveau_bo_unpin(fb->nvbo);
+=======
+	nvbo = nouveau_gem_object(old_state->fb->obj[0]);
+	nouveau_bo_unpin(nvbo);
+>>>>>>> upstream/android-13
 }
 
 static int
 nv50_wndw_prepare_fb(struct drm_plane *plane, struct drm_plane_state *state)
 {
+<<<<<<< HEAD
 	struct nouveau_framebuffer *fb = nouveau_framebuffer(state->fb);
 	struct nouveau_drm *drm = nouveau_drm(plane->dev);
 	struct nv50_wndw *wndw = nv50_wndw(plane);
 	struct nv50_wndw_atom *asyw = nv50_wndw_atom(state);
+=======
+	struct drm_framebuffer *fb = state->fb;
+	struct nouveau_drm *drm = nouveau_drm(plane->dev);
+	struct nv50_wndw *wndw = nv50_wndw(plane);
+	struct nv50_wndw_atom *asyw = nv50_wndw_atom(state);
+	struct nouveau_bo *nvbo;
+>>>>>>> upstream/android-13
 	struct nv50_head_atom *asyh;
 	struct nv50_wndw_ctxdma *ctxdma;
 	int ret;
 
+<<<<<<< HEAD
 	NV_ATOMIC(drm, "%s prepare: %p\n", plane->name, state->fb);
 	if (!asyw->state.fb)
 		return 0;
 
 	ret = nouveau_bo_pin(fb->nvbo, TTM_PL_FLAG_VRAM, true);
+=======
+	NV_ATOMIC(drm, "%s prepare: %p\n", plane->name, fb);
+	if (!asyw->state.fb)
+		return 0;
+
+	nvbo = nouveau_gem_object(fb->obj[0]);
+	ret = nouveau_bo_pin(nvbo, NOUVEAU_GEM_DOMAIN_VRAM, true);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
 	if (wndw->ctxdma.parent) {
 		ctxdma = nv50_wndw_ctxdma_new(wndw, fb);
 		if (IS_ERR(ctxdma)) {
+<<<<<<< HEAD
 			nouveau_bo_unpin(fb->nvbo);
 			return PTR_ERR(ctxdma);
 		}
@@ -458,6 +743,18 @@ nv50_wndw_prepare_fb(struct drm_plane *plane, struct drm_plane_state *state)
 
 	asyw->state.fence = reservation_object_get_excl_rcu(fb->nvbo->bo.resv);
 	asyw->image.offset[0] = fb->nvbo->bo.offset;
+=======
+			nouveau_bo_unpin(nvbo);
+			return PTR_ERR(ctxdma);
+		}
+
+		if (asyw->visible)
+			asyw->image.handle[0] = ctxdma->object.handle;
+	}
+
+	asyw->state.fence = dma_resv_get_excl_unlocked(nvbo->bo.base.resv);
+	asyw->image.offset[0] = nvbo->offset;
+>>>>>>> upstream/android-13
 
 	if (wndw->func->prepare) {
 		asyh = nv50_head_atom_get(asyw->state.state, asyw->state.crtc);
@@ -498,6 +795,10 @@ nv50_wndw_atomic_duplicate_state(struct drm_plane *plane)
 	asyw->ntfy = armw->ntfy;
 	asyw->ilut = NULL;
 	asyw->xlut = armw->xlut;
+<<<<<<< HEAD
+=======
+	asyw->csc  = armw->csc;
+>>>>>>> upstream/android-13
 	asyw->image = armw->image;
 	asyw->point = armw->point;
 	asyw->clr.mask = 0;
@@ -505,6 +806,16 @@ nv50_wndw_atomic_duplicate_state(struct drm_plane *plane)
 	return &asyw->state;
 }
 
+<<<<<<< HEAD
+=======
+static int
+nv50_wndw_zpos_default(struct drm_plane *plane)
+{
+	return (plane->type == DRM_PLANE_TYPE_PRIMARY) ? 0 :
+	       (plane->type == DRM_PLANE_TYPE_OVERLAY) ? 1 : 255;
+}
+
+>>>>>>> upstream/android-13
 static void
 nv50_wndw_reset(struct drm_plane *plane)
 {
@@ -515,9 +826,16 @@ nv50_wndw_reset(struct drm_plane *plane)
 
 	if (plane->state)
 		plane->funcs->atomic_destroy_state(plane, plane->state);
+<<<<<<< HEAD
 	plane->state = &asyw->state;
 	plane->state->plane = plane;
 	plane->state->rotation = DRM_MODE_ROTATE_0;
+=======
+
+	__drm_atomic_helper_plane_reset(plane, &asyw->state);
+	plane->state->zpos = nv50_wndw_zpos_default(plane);
+	plane->state->normalized_zpos = nv50_wndw_zpos_default(plane);
+>>>>>>> upstream/android-13
 }
 
 static void
@@ -530,7 +848,11 @@ nv50_wndw_destroy(struct drm_plane *plane)
 		nv50_wndw_ctxdma_del(ctxdma);
 	}
 
+<<<<<<< HEAD
 	nvif_notify_fini(&wndw->notify);
+=======
+	nvif_notify_dtor(&wndw->notify);
+>>>>>>> upstream/android-13
 	nv50_dmac_destroy(&wndw->wimm);
 	nv50_dmac_destroy(&wndw->wndw);
 
@@ -540,6 +862,32 @@ nv50_wndw_destroy(struct drm_plane *plane)
 	kfree(wndw);
 }
 
+<<<<<<< HEAD
+=======
+/* This function assumes the format has already been validated against the plane
+ * and the modifier was validated against the device-wides modifier list at FB
+ * creation time.
+ */
+static bool nv50_plane_format_mod_supported(struct drm_plane *plane,
+					    u32 format, u64 modifier)
+{
+	struct nouveau_drm *drm = nouveau_drm(plane->dev);
+	uint8_t i;
+
+	if (drm->client.device.info.chipset < 0xc0) {
+		const struct drm_format_info *info = drm_format_info(format);
+		const uint8_t kind = (modifier >> 12) & 0xff;
+
+		if (!format) return false;
+
+		for (i = 0; i < info->num_planes; i++)
+			if ((info->cpp[i] != 4) && kind != 0x70) return false;
+	}
+
+	return true;
+}
+
+>>>>>>> upstream/android-13
 const struct drm_plane_funcs
 nv50_wndw = {
 	.update_plane = drm_atomic_helper_update_plane,
@@ -548,6 +896,10 @@ nv50_wndw = {
 	.reset = nv50_wndw_reset,
 	.atomic_duplicate_state = nv50_wndw_atomic_duplicate_state,
 	.atomic_destroy_state = nv50_wndw_atomic_destroy_state,
+<<<<<<< HEAD
+=======
+	.format_mod_supported = nv50_plane_format_mod_supported,
+>>>>>>> upstream/android-13
 };
 
 static int
@@ -568,6 +920,14 @@ nv50_wndw_init(struct nv50_wndw *wndw)
 	nvif_notify_get(&wndw->notify);
 }
 
+<<<<<<< HEAD
+=======
+static const u64 nv50_cursor_format_modifiers[] = {
+	DRM_FORMAT_MOD_LINEAR,
+	DRM_FORMAT_MOD_INVALID,
+};
+
+>>>>>>> upstream/android-13
 int
 nv50_wndw_new_(const struct nv50_wndw_func *func, struct drm_device *dev,
 	       enum drm_plane_type type, const char *name, int index,
@@ -579,6 +939,10 @@ nv50_wndw_new_(const struct nv50_wndw_func *func, struct drm_device *dev,
 	struct nvif_mmu *mmu = &drm->client.mmu;
 	struct nv50_disp *disp = nv50_disp(dev);
 	struct nv50_wndw *wndw;
+<<<<<<< HEAD
+=======
+	const u64 *format_modifiers;
+>>>>>>> upstream/android-13
 	int nformat;
 	int ret;
 
@@ -594,9 +958,19 @@ nv50_wndw_new_(const struct nv50_wndw_func *func, struct drm_device *dev,
 
 	for (nformat = 0; format[nformat]; nformat++);
 
+<<<<<<< HEAD
 	ret = drm_universal_plane_init(dev, &wndw->plane, heads, &nv50_wndw,
 				       format, nformat, NULL,
 				       type, "%s-%d", name, index);
+=======
+	if (type == DRM_PLANE_TYPE_CURSOR)
+		format_modifiers = nv50_cursor_format_modifiers;
+	else
+		format_modifiers = nouveau_display(dev)->format_modifiers;
+
+	ret = drm_universal_plane_init(dev, &wndw->plane, heads, &nv50_wndw, format, nformat,
+				       format_modifiers, type, "%s-%d", name, index);
+>>>>>>> upstream/android-13
 	if (ret) {
 		kfree(*pwndw);
 		*pwndw = NULL;
@@ -612,6 +986,33 @@ nv50_wndw_new_(const struct nv50_wndw_func *func, struct drm_device *dev,
 	}
 
 	wndw->notify.func = nv50_wndw_notify;
+<<<<<<< HEAD
+=======
+
+	if (wndw->func->blend_set) {
+		ret = drm_plane_create_zpos_property(&wndw->plane,
+				nv50_wndw_zpos_default(&wndw->plane), 0, 254);
+		if (ret)
+			return ret;
+
+		ret = drm_plane_create_alpha_property(&wndw->plane);
+		if (ret)
+			return ret;
+
+		ret = drm_plane_create_blend_mode_property(&wndw->plane,
+				BIT(DRM_MODE_BLEND_PIXEL_NONE) |
+				BIT(DRM_MODE_BLEND_PREMULTI) |
+				BIT(DRM_MODE_BLEND_COVERAGE));
+		if (ret)
+			return ret;
+	} else {
+		ret = drm_plane_create_zpos_immutable_property(&wndw->plane,
+				nv50_wndw_zpos_default(&wndw->plane));
+		if (ret)
+			return ret;
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -625,6 +1026,11 @@ nv50_wndw_new(struct nouveau_drm *drm, enum drm_plane_type type, int index,
 		int (*new)(struct nouveau_drm *, enum drm_plane_type,
 			   int, s32, struct nv50_wndw **);
 	} wndws[] = {
+<<<<<<< HEAD
+=======
+		{ GA102_DISP_WINDOW_CHANNEL_DMA, 0, wndwc67e_new },
+		{ TU102_DISP_WINDOW_CHANNEL_DMA, 0, wndwc57e_new },
+>>>>>>> upstream/android-13
 		{ GV100_DISP_WINDOW_CHANNEL_DMA, 0, wndwc37e_new },
 		{}
 	};

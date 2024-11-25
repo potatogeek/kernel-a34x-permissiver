@@ -3,6 +3,10 @@
  * Some IBSS support code for cfg80211.
  *
  * Copyright 2009	Johannes Berg <johannes@sipsolutions.net>
+<<<<<<< HEAD
+=======
+ * Copyright (C) 2020-2022 Intel Corporation
+>>>>>>> upstream/android-13
  */
 
 #include <linux/etherdevice.h>
@@ -27,7 +31,11 @@ void __cfg80211_ibss_joined(struct net_device *dev, const u8 *bssid,
 	if (WARN_ON(wdev->iftype != NL80211_IFTYPE_ADHOC))
 		return;
 
+<<<<<<< HEAD
 	if (!wdev->ssid_len)
+=======
+	if (!wdev->u.ibss.ssid_len)
+>>>>>>> upstream/android-13
 		return;
 
 	bss = cfg80211_get_bss(wdev->wiphy, channel, bssid, NULL, 0,
@@ -36,6 +44,7 @@ void __cfg80211_ibss_joined(struct net_device *dev, const u8 *bssid,
 	if (WARN_ON(!bss))
 		return;
 
+<<<<<<< HEAD
 	if (wdev->current_bss) {
 		cfg80211_unhold_bss(wdev->current_bss);
 		cfg80211_put_bss(wdev->wiphy, &wdev->current_bss->pub);
@@ -43,6 +52,15 @@ void __cfg80211_ibss_joined(struct net_device *dev, const u8 *bssid,
 
 	cfg80211_hold_bss(bss_from_pub(bss));
 	wdev->current_bss = bss_from_pub(bss);
+=======
+	if (wdev->u.ibss.current_bss) {
+		cfg80211_unhold_bss(wdev->u.ibss.current_bss);
+		cfg80211_put_bss(wdev->wiphy, &wdev->u.ibss.current_bss->pub);
+	}
+
+	cfg80211_hold_bss(bss_from_pub(bss));
+	wdev->u.ibss.current_bss = bss_from_pub(bss);
+>>>>>>> upstream/android-13
 
 	if (!(wdev->wiphy->flags & WIPHY_FLAG_HAS_STATIC_WEP))
 		cfg80211_upload_connect_keys(wdev);
@@ -92,10 +110,17 @@ int __cfg80211_join_ibss(struct cfg80211_registered_device *rdev,
 	struct wireless_dev *wdev = dev->ieee80211_ptr;
 	int err;
 
+<<<<<<< HEAD
 	ASSERT_RTNL();
 	ASSERT_WDEV_LOCK(wdev);
 
 	if (wdev->ssid_len)
+=======
+	lockdep_assert_held(&rdev->wiphy.mtx);
+	ASSERT_WDEV_LOCK(wdev);
+
+	if (wdev->u.ibss.ssid_len)
+>>>>>>> upstream/android-13
 		return -EALREADY;
 
 	if (!params->basic_rates) {
@@ -104,6 +129,7 @@ int __cfg80211_join_ibss(struct cfg80211_registered_device *rdev,
 		* use the mandatory rate set for 11b or
 		* 11a for maximum compatibility.
 		*/
+<<<<<<< HEAD
 		struct ieee80211_supported_band *sband =
 			rdev->wiphy.bands[params->chandef.chan->band];
 		int j;
@@ -111,6 +137,21 @@ int __cfg80211_join_ibss(struct cfg80211_registered_device *rdev,
 			IEEE80211_RATE_MANDATORY_A :
 			IEEE80211_RATE_MANDATORY_B;
 
+=======
+		struct ieee80211_supported_band *sband;
+		enum nl80211_band band;
+		u32 flag;
+		int j;
+
+		band = params->chandef.chan->band;
+		if (band == NL80211_BAND_5GHZ ||
+		    band == NL80211_BAND_6GHZ)
+			flag = IEEE80211_RATE_MANDATORY_A;
+		else
+			flag = IEEE80211_RATE_MANDATORY_B;
+
+		sband = rdev->wiphy.bands[band];
+>>>>>>> upstream/android-13
 		for (j = 0; j < sband->n_bitrates; j++) {
 			if (sband->bitrates[j].flags & flag)
 				params->basic_rates |= BIT(j);
@@ -121,12 +162,19 @@ int __cfg80211_join_ibss(struct cfg80211_registered_device *rdev,
 		return -EINVAL;
 
 	if (WARN_ON(wdev->connect_keys))
+<<<<<<< HEAD
 		kzfree(wdev->connect_keys);
 	wdev->connect_keys = connkeys;
 
 	wdev->ibss_fixed = params->channel_fixed;
 	wdev->ibss_dfs_possible = params->userspace_handles_dfs;
 	wdev->chandef = params->chandef;
+=======
+		kfree_sensitive(wdev->connect_keys);
+	wdev->connect_keys = connkeys;
+
+	wdev->u.ibss.chandef = params->chandef;
+>>>>>>> upstream/android-13
 	if (connkeys) {
 		params->wep_keys = connkeys->params;
 		params->wep_tx_key = connkeys->def;
@@ -141,8 +189,13 @@ int __cfg80211_join_ibss(struct cfg80211_registered_device *rdev,
 		return err;
 	}
 
+<<<<<<< HEAD
 	memcpy(wdev->ssid, params->ssid, params->ssid_len);
 	wdev->ssid_len = params->ssid_len;
+=======
+	memcpy(wdev->u.ibss.ssid, params->ssid, params->ssid_len);
+	wdev->u.ibss.ssid_len = params->ssid_len;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -155,7 +208,11 @@ static void __cfg80211_clear_ibss(struct net_device *dev, bool nowext)
 
 	ASSERT_WDEV_LOCK(wdev);
 
+<<<<<<< HEAD
 	kzfree(wdev->connect_keys);
+=======
+	kfree_sensitive(wdev->connect_keys);
+>>>>>>> upstream/android-13
 	wdev->connect_keys = NULL;
 
 	rdev_set_qos_map(rdev, dev, NULL);
@@ -166,6 +223,7 @@ static void __cfg80211_clear_ibss(struct net_device *dev, bool nowext)
 	 */
 	if (rdev->ops->del_key)
 		for (i = 0; i < 6; i++)
+<<<<<<< HEAD
 			rdev_del_key(rdev, dev, i, false, NULL);
 
 	if (wdev->current_bss) {
@@ -176,6 +234,18 @@ static void __cfg80211_clear_ibss(struct net_device *dev, bool nowext)
 	wdev->current_bss = NULL;
 	wdev->ssid_len = 0;
 	memset(&wdev->chandef, 0, sizeof(wdev->chandef));
+=======
+			rdev_del_key(rdev, dev, -1, i, false, NULL);
+
+	if (wdev->u.ibss.current_bss) {
+		cfg80211_unhold_bss(wdev->u.ibss.current_bss);
+		cfg80211_put_bss(wdev->wiphy, &wdev->u.ibss.current_bss->pub);
+	}
+
+	wdev->u.ibss.current_bss = NULL;
+	wdev->u.ibss.ssid_len = 0;
+	memset(&wdev->u.ibss.chandef, 0, sizeof(wdev->u.ibss.chandef));
+>>>>>>> upstream/android-13
 #ifdef CONFIG_CFG80211_WEXT
 	if (!nowext)
 		wdev->wext.ibss.ssid_len = 0;
@@ -200,7 +270,11 @@ int __cfg80211_leave_ibss(struct cfg80211_registered_device *rdev,
 
 	ASSERT_WDEV_LOCK(wdev);
 
+<<<<<<< HEAD
 	if (!wdev->ssid_len)
+=======
+	if (!wdev->u.ibss.ssid_len)
+>>>>>>> upstream/android-13
 		return -ENOLINK;
 
 	err = rdev_leave_ibss(rdev, dev);
@@ -334,7 +408,11 @@ int cfg80211_ibss_wext_siwfreq(struct net_device *dev,
 
 	wdev_lock(wdev);
 	err = 0;
+<<<<<<< HEAD
 	if (wdev->ssid_len)
+=======
+	if (wdev->u.ibss.ssid_len)
+>>>>>>> upstream/android-13
 		err = __cfg80211_leave_ibss(rdev, dev, true);
 	wdev_unlock(wdev);
 
@@ -369,8 +447,13 @@ int cfg80211_ibss_wext_giwfreq(struct net_device *dev,
 		return -EINVAL;
 
 	wdev_lock(wdev);
+<<<<<<< HEAD
 	if (wdev->current_bss)
 		chan = wdev->current_bss->pub.channel;
+=======
+	if (wdev->u.ibss.current_bss)
+		chan = wdev->u.ibss.current_bss->pub.channel;
+>>>>>>> upstream/android-13
 	else if (wdev->wext.ibss.chandef.chan)
 		chan = wdev->wext.ibss.chandef.chan;
 	wdev_unlock(wdev);
@@ -403,7 +486,11 @@ int cfg80211_ibss_wext_siwessid(struct net_device *dev,
 
 	wdev_lock(wdev);
 	err = 0;
+<<<<<<< HEAD
 	if (wdev->ssid_len)
+=======
+	if (wdev->u.ibss.ssid_len)
+>>>>>>> upstream/android-13
 		err = __cfg80211_leave_ibss(rdev, dev, true);
 	wdev_unlock(wdev);
 
@@ -414,8 +501,13 @@ int cfg80211_ibss_wext_siwessid(struct net_device *dev,
 	if (len > 0 && ssid[len - 1] == '\0')
 		len--;
 
+<<<<<<< HEAD
 	memcpy(wdev->ssid, ssid, len);
 	wdev->wext.ibss.ssid = wdev->ssid;
+=======
+	memcpy(wdev->u.ibss.ssid, ssid, len);
+	wdev->wext.ibss.ssid = wdev->u.ibss.ssid;
+>>>>>>> upstream/android-13
 	wdev->wext.ibss.ssid_len = len;
 
 	wdev_lock(wdev);
@@ -438,10 +530,17 @@ int cfg80211_ibss_wext_giwessid(struct net_device *dev,
 	data->flags = 0;
 
 	wdev_lock(wdev);
+<<<<<<< HEAD
 	if (wdev->ssid_len) {
 		data->flags = 1;
 		data->length = wdev->ssid_len;
 		memcpy(ssid, wdev->ssid, data->length);
+=======
+	if (wdev->u.ibss.ssid_len) {
+		data->flags = 1;
+		data->length = wdev->u.ibss.ssid_len;
+		memcpy(ssid, wdev->u.ibss.ssid, data->length);
+>>>>>>> upstream/android-13
 	} else if (wdev->wext.ibss.ssid && wdev->wext.ibss.ssid_len) {
 		data->flags = 1;
 		data->length = wdev->wext.ibss.ssid_len;
@@ -489,7 +588,11 @@ int cfg80211_ibss_wext_siwap(struct net_device *dev,
 
 	wdev_lock(wdev);
 	err = 0;
+<<<<<<< HEAD
 	if (wdev->ssid_len)
+=======
+	if (wdev->u.ibss.ssid_len)
+>>>>>>> upstream/android-13
 		err = __cfg80211_leave_ibss(rdev, dev, true);
 	wdev_unlock(wdev);
 
@@ -522,8 +625,14 @@ int cfg80211_ibss_wext_giwap(struct net_device *dev,
 	ap_addr->sa_family = ARPHRD_ETHER;
 
 	wdev_lock(wdev);
+<<<<<<< HEAD
 	if (wdev->current_bss)
 		memcpy(ap_addr->sa_data, wdev->current_bss->pub.bssid, ETH_ALEN);
+=======
+	if (wdev->u.ibss.current_bss)
+		memcpy(ap_addr->sa_data, wdev->u.ibss.current_bss->pub.bssid,
+		       ETH_ALEN);
+>>>>>>> upstream/android-13
 	else if (wdev->wext.ibss.bssid)
 		memcpy(ap_addr->sa_data, wdev->wext.ibss.bssid, ETH_ALEN);
 	else

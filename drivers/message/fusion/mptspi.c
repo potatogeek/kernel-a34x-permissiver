@@ -52,7 +52,11 @@
 #include <linux/kdev_t.h>
 #include <linux/blkdev.h>
 #include <linux/delay.h>	/* for mdelay */
+<<<<<<< HEAD
 #include <linux/interrupt.h>	/* needed for in_interrupt() proto */
+=======
+#include <linux/interrupt.h>
+>>>>>>> upstream/android-13
 #include <linux/reboot.h>	/* notifier code */
 #include <linux/workqueue.h>
 #include <linux/raid_class.h>
@@ -258,8 +262,11 @@ mptspi_writeIOCPage4(MPT_SCSI_HOST *hd, u8 channel , u8 id)
 	IOCPage4_t		*IOCPage4Ptr;
 	MPT_FRAME_HDR		*mf;
 	dma_addr_t		 dataDma;
+<<<<<<< HEAD
 	u16			 req_idx;
 	u32			 frameOffset;
+=======
+>>>>>>> upstream/android-13
 	u32			 flagsLength;
 	int			 ii;
 
@@ -276,9 +283,12 @@ mptspi_writeIOCPage4(MPT_SCSI_HOST *hd, u8 channel , u8 id)
 	 */
 	pReq = (Config_t *)mf;
 
+<<<<<<< HEAD
 	req_idx = le16_to_cpu(mf->u.frame.hwhdr.msgctxu.fld.req_idx);
 	frameOffset = ioc->req_sz - sizeof(IOCPage4_t);
 
+=======
+>>>>>>> upstream/android-13
 	/* Complete the request frame (same for all requests).
 	 */
 	pReq->Action = MPI_CONFIG_ACTION_PAGE_WRITE_CURRENT;
@@ -848,7 +858,10 @@ static struct scsi_host_template mptspi_driver_template = {
 	.sg_tablesize			= MPT_SCSI_SG_DEPTH,
 	.max_sectors			= 8192,
 	.cmd_per_lun			= 7,
+<<<<<<< HEAD
 	.use_clustering			= ENABLE_CLUSTERING,
+=======
+>>>>>>> upstream/android-13
 	.shost_attrs			= mptscsih_host_attrs,
 };
 

@@ -49,7 +49,11 @@ INTERACTIVE COMMANDS
 
 *r*::	reset stats
 
+<<<<<<< HEAD
 *s*::   set update interval
+=======
+*s*::   set delay between refreshs
+>>>>>>> upstream/android-13
 
 *x*::	toggle reporting of stats for child trace events
  ::     *Note*: The stats for the parents summarize the respective child trace
@@ -64,6 +68,7 @@ OPTIONS
 --batch::
 	run in batch mode for one second
 
+<<<<<<< HEAD
 -l::
 --log::
 	run in logging mode (like vmstat)
@@ -71,19 +76,54 @@ OPTIONS
 -t::
 --tracepoints::
 	retrieve statistics from tracepoints
+=======
+-c::
+--csv::
+        log in csv format. Requires option -l/--log or -L/--log-to-file.
+        When used with option -L/--log-to-file, the header is only ever
+        written to start of file to preserve the format.
+>>>>>>> upstream/android-13
 
 -d::
 --debugfs::
 	retrieve statistics from debugfs
 
+<<<<<<< HEAD
+=======
+-f<fields>::
+--fields=<fields>::
+        fields to display (regex), "-f help" for a list of available events
+
+-g<guest>::
+--guest=<guest_name>::
+        limit statistics to one virtual machine (guest name)
+
+-h::
+--help::
+        show help message
+
+>>>>>>> upstream/android-13
 -i::
 --debugfs-include-past::
 	include all available data on past events for debugfs
 
+<<<<<<< HEAD
+=======
+-l::
+--log::
+        run in logging mode (like vmstat)
+
+
+-L<file>::
+--log-to-file=<file>::
+        like -l/--log, but logging to a file. Appends to existing files.
+
+>>>>>>> upstream/android-13
 -p<pid>::
 --pid=<pid>::
 	limit statistics to one virtual machine (pid)
 
+<<<<<<< HEAD
 -g<guest>::
 --guest=<guest_name>::
 	limit statistics to one virtual machine (guest name)
@@ -95,6 +135,19 @@ OPTIONS
 -h::
 --help::
 	show help message
+=======
+-s::
+--set-delay::
+        set delay between refreshs (value range: 0.1-25.5 secs)
+
+-t::
+--tracepoints::
+        retrieve statistics from tracepoints
+
+-z::
+--skip-zero-records::
+        omit records with all zeros in logging mode
+>>>>>>> upstream/android-13
 
 SEE ALSO
 --------

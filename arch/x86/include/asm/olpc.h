@@ -9,12 +9,18 @@
 struct olpc_platform_t {
 	int flags;
 	uint32_t boardrev;
+<<<<<<< HEAD
 	int ecver;
+=======
+>>>>>>> upstream/android-13
 };
 
 #define OLPC_F_PRESENT		0x01
 #define OLPC_F_DCON		0x02
+<<<<<<< HEAD
 #define OLPC_F_EC_WIDE_SCI	0x04
+=======
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_OLPC
 
@@ -64,6 +70,7 @@ static inline int olpc_board_at_least(uint32_t rev)
 	return olpc_platform_info.boardrev >= rev;
 }
 
+<<<<<<< HEAD
 extern void olpc_ec_wakeup_set(u16 value);
 extern void olpc_ec_wakeup_clear(u16 value);
 extern bool olpc_ec_wakeup_available(void);
@@ -71,6 +78,8 @@ extern bool olpc_ec_wakeup_available(void);
 extern int olpc_ec_mask_write(u16 bits);
 extern int olpc_ec_sci_query(u16 *sci_value);
 
+=======
+>>>>>>> upstream/android-13
 #else
 
 static inline int machine_is_olpc(void)
@@ -83,6 +92,7 @@ static inline int olpc_has_dcon(void)
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline void olpc_ec_wakeup_set(u16 value) { }
 static inline void olpc_ec_wakeup_clear(u16 value) { }
 
@@ -91,6 +101,8 @@ static inline bool olpc_ec_wakeup_available(void)
 	return false;
 }
 
+=======
+>>>>>>> upstream/android-13
 #endif
 
 #ifdef CONFIG_OLPC_XO1_PM
@@ -101,6 +113,7 @@ extern void olpc_xo1_pm_wakeup_clear(u16 value);
 
 extern int pci_olpc_init(void);
 
+<<<<<<< HEAD
 /* SCI source values */
 
 #define EC_SCI_SRC_EMPTY	0x00
@@ -115,6 +128,8 @@ extern int pci_olpc_init(void);
 #define EC_SCI_SRC_GPWAKE	0x100	/* XO-1.5 only */
 #define EC_SCI_SRC_ALL		0x1FF
 
+=======
+>>>>>>> upstream/android-13
 /* GPIO assignments */
 
 #define OLPC_GPIO_MIC_AC	1

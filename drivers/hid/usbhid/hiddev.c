@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Copyright (c) 2001 Paul Stewart
  *  Copyright (c) 2001 Vojtech Pavlik
  *
  *  HID char devices, giving access to raw HID device events.
+<<<<<<< HEAD
  *
  */
 
@@ -20,6 +25,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+ */
+
+/*
+>>>>>>> upstream/android-13
  *
  * Should you need to contact me, the author, you can do so either by
  * e-mail - mail your message to Paul Stewart <stewart@wetlogic.net>
@@ -428,7 +438,11 @@ static __poll_t hiddev_poll(struct file *file, poll_table *wait)
 
 	poll_wait(file, &list->hiddev->wait, wait);
 	if (list->head != list->tail)
+<<<<<<< HEAD
 		return EPOLLIN | EPOLLRDNORM;
+=======
+		return EPOLLIN | EPOLLRDNORM | EPOLLOUT;
+>>>>>>> upstream/android-13
 	if (!list->hiddev->exist)
 		return EPOLLERR | EPOLLHUP;
 	return 0;
@@ -798,7 +812,10 @@ static long hiddev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 		break;
 
 	case HIDIOCGUCODE:
+<<<<<<< HEAD
 		/* fall through */
+=======
+>>>>>>> upstream/android-13
 	case HIDIOCGUSAGE:
 	case HIDIOCSUSAGE:
 	case HIDIOCGUSAGES:
@@ -858,6 +875,7 @@ ret_unlock:
 	return r;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 static long hiddev_compat_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
@@ -865,6 +883,8 @@ static long hiddev_compat_ioctl(struct file *file, unsigned int cmd, unsigned lo
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static const struct file_operations hiddev_fops = {
 	.owner =	THIS_MODULE,
 	.read =		hiddev_read,
@@ -874,9 +894,13 @@ static const struct file_operations hiddev_fops = {
 	.release =	hiddev_release,
 	.unlocked_ioctl =	hiddev_ioctl,
 	.fasync =	hiddev_fasync,
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 	.compat_ioctl	= hiddev_compat_ioctl,
 #endif
+=======
+	.compat_ioctl	= compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 	.llseek		= noop_llseek,
 };
 
@@ -910,11 +934,19 @@ int hiddev_connect(struct hid_device *hid, unsigned int force)
 				break;
 
 		if (i == hid->maxcollection)
+<<<<<<< HEAD
 			return -1;
 	}
 
 	if (!(hiddev = kzalloc(sizeof(struct hiddev), GFP_KERNEL)))
 		return -1;
+=======
+			return -EINVAL;
+	}
+
+	if (!(hiddev = kzalloc(sizeof(struct hiddev), GFP_KERNEL)))
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	init_waitqueue_head(&hiddev->wait);
 	INIT_LIST_HEAD(&hiddev->list);
@@ -928,7 +960,11 @@ int hiddev_connect(struct hid_device *hid, unsigned int force)
 		hid_err(hid, "Not able to get a minor for this device\n");
 		hid->hiddev = NULL;
 		kfree(hiddev);
+<<<<<<< HEAD
 		return -1;
+=======
+		return retval;
+>>>>>>> upstream/android-13
 	}
 
 	/*

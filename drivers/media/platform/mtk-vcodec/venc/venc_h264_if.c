@@ -1,6 +1,13 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
+<<<<<<< HEAD
  * Copyright (c) 2019 MediaTek Inc.
+=======
+ * Copyright (c) 2016 MediaTek Inc.
+ * Author: Jungchang Tsao <jungchang.tsao@mediatek.com>
+ *         Daniel Hsiao <daniel.hsiao@mediatek.com>
+ *         PoChun Lin <pochun.lin@mediatek.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/interrupt.h>
@@ -15,14 +22,31 @@
 #include "../venc_drv_base.h"
 #include "../venc_ipi_msg.h"
 #include "../venc_vpu_if.h"
+<<<<<<< HEAD
 #include "mtk_vpu.h"
+=======
+>>>>>>> upstream/android-13
 
 static const char h264_filler_marker[] = {0x0, 0x0, 0x0, 0x1, 0xc};
 
 #define H264_FILLER_MARKER_SIZE ARRAY_SIZE(h264_filler_marker)
 #define VENC_PIC_BITSTREAM_BYTE_CNT 0x0098
 
+<<<<<<< HEAD
 /**
+=======
+/*
+ * enum venc_h264_frame_type - h264 encoder output bitstream frame type
+ */
+enum venc_h264_frame_type {
+	VENC_H264_IDR_FRM,
+	VENC_H264_I_FRM,
+	VENC_H264_P_FRM,
+	VENC_H264_B_FRM,
+};
+
+/*
+>>>>>>> upstream/android-13
  * enum venc_h264_vpu_work_buf - h264 encoder buffer index
  */
 enum venc_h264_vpu_work_buf {
@@ -38,7 +62,11 @@ enum venc_h264_vpu_work_buf {
 	VENC_H264_VPU_WORK_BUF_MAX,
 };
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * enum venc_h264_bs_mode - for bs_mode argument in h264_enc_vpu_encode
  */
 enum venc_h264_bs_mode {
@@ -127,7 +155,11 @@ struct venc_h264_vsi {
  *  sps/pps in h264_enc_encode function.
  * @vpu_inst: VPU instance to exchange information between AP and VPU
  * @vsi: driver structure allocated by VPU side and shared to AP side for
+<<<<<<< HEAD
  *       control and info share
+=======
+ *	 control and info share
+>>>>>>> upstream/android-13
  * @ctx: context for v4l2 layer integration
  */
 struct venc_h264_inst {
@@ -136,6 +168,10 @@ struct venc_h264_inst {
 	struct mtk_vcodec_mem pps_buf;
 	bool work_buf_allocated;
 	unsigned int frm_cnt;
+<<<<<<< HEAD
+=======
+	unsigned int skip_frm_cnt;
+>>>>>>> upstream/android-13
 	unsigned int prepend_hdr;
 	struct venc_vpu_inst vpu_inst;
 	struct venc_h264_vsi *vsi;
@@ -148,7 +184,11 @@ static inline u32 h264_read_reg(struct venc_h264_inst *inst, u32 addr)
 }
 
 static unsigned int h264_get_profile(struct venc_h264_inst *inst,
+<<<<<<< HEAD
 	unsigned int profile)
+=======
+				     unsigned int profile)
+>>>>>>> upstream/android-13
 {
 	switch (profile) {
 	case V4L2_MPEG_VIDEO_H264_PROFILE_BASELINE:
@@ -170,7 +210,11 @@ static unsigned int h264_get_profile(struct venc_h264_inst *inst,
 }
 
 static unsigned int h264_get_level(struct venc_h264_inst *inst,
+<<<<<<< HEAD
 	unsigned int level)
+=======
+				   unsigned int level)
+>>>>>>> upstream/android-13
 {
 	switch (level) {
 	case V4L2_MPEG_VIDEO_H264_LEVEL_1B:
@@ -202,6 +246,13 @@ static unsigned int h264_get_level(struct venc_h264_inst *inst,
 		return 41;
 	case V4L2_MPEG_VIDEO_H264_LEVEL_4_2:
 		return 42;
+<<<<<<< HEAD
+=======
+	case V4L2_MPEG_VIDEO_H264_LEVEL_5_0:
+		return 50;
+	case V4L2_MPEG_VIDEO_H264_LEVEL_5_1:
+		return 51;
+>>>>>>> upstream/android-13
 	default:
 		mtk_vcodec_debug(inst, "unsupported level %d", level);
 		return 31;
@@ -254,6 +305,7 @@ static int h264_enc_alloc_work_buf(struct venc_h264_inst *inst)
 		 */
 		inst->work_bufs[i].size = wb[i].size;
 		if (i == VENC_H264_VPU_WORK_BUF_SKIP_FRAME) {
+<<<<<<< HEAD
 			inst->work_bufs[i].va = vpu_mapping_dm_addr(
 				inst->vpu_inst.dev, wb[i].vpua);
 			inst->work_bufs[i].dma_addr = 0;
@@ -263,6 +315,20 @@ static int h264_enc_alloc_work_buf(struct venc_h264_inst *inst)
 			if (ret) {
 				mtk_vcodec_err(inst,
 					"cannot allocate buf %d", i);
+=======
+			struct mtk_vcodec_fw *handler;
+
+			handler = inst->vpu_inst.ctx->dev->fw_handler;
+			inst->work_bufs[i].va =
+				mtk_vcodec_fw_map_dm_addr(handler, wb[i].vpua);
+			inst->work_bufs[i].dma_addr = 0;
+		} else {
+			ret = mtk_vcodec_mem_alloc(inst->ctx,
+						   &inst->work_bufs[i]);
+			if (ret) {
+				mtk_vcodec_err(inst,
+					       "cannot allocate buf %d", i);
+>>>>>>> upstream/android-13
 				goto err_alloc;
 			}
 			/*
@@ -272,21 +338,39 @@ static int h264_enc_alloc_work_buf(struct venc_h264_inst *inst)
 			 * setting in VPU side.
 			 */
 			if (i == VENC_H264_VPU_WORK_BUF_RC_CODE) {
+<<<<<<< HEAD
 				void *tmp_va;
 
 				tmp_va = vpu_mapping_dm_addr(inst->vpu_inst.dev,
 					wb[i].vpua);
 				memcpy(inst->work_bufs[i].va, tmp_va,
 					wb[i].size);
+=======
+				struct mtk_vcodec_fw *handler;
+				void *tmp_va;
+
+				handler = inst->vpu_inst.ctx->dev->fw_handler;
+				tmp_va = mtk_vcodec_fw_map_dm_addr(handler,
+								   wb[i].vpua);
+				memcpy(inst->work_bufs[i].va, tmp_va,
+				       wb[i].size);
+>>>>>>> upstream/android-13
 			}
 		}
 		wb[i].iova = inst->work_bufs[i].dma_addr;
 
 		mtk_vcodec_debug(inst,
+<<<<<<< HEAD
 						 "work_buf[%d] va=0x%p iova=%pad size=%zu",
 						 i, inst->work_bufs[i].va,
 						 &inst->work_bufs[i].dma_addr,
 						 inst->work_bufs[i].size);
+=======
+				 "work_buf[%d] va=0x%p iova=%pad size=%zu",
+				 i, inst->work_bufs[i].va,
+				 &inst->work_bufs[i].dma_addr,
+				 inst->work_bufs[i].size);
+>>>>>>> upstream/android-13
 	}
 
 	/* the pps_buf is used by AP side only */
@@ -312,17 +396,44 @@ static unsigned int h264_enc_wait_venc_done(struct venc_h264_inst *inst)
 	unsigned int irq_status = 0;
 	struct mtk_vcodec_ctx *ctx = (struct mtk_vcodec_ctx *)inst->ctx;
 
+<<<<<<< HEAD
 	if (!mtk_vcodec_wait_for_done_ctx(ctx, 0, MTK_INST_IRQ_RECEIVED,
 		WAIT_INTR_TIMEOUT_MS)) {
+=======
+	if (!mtk_vcodec_wait_for_done_ctx(ctx, MTK_INST_IRQ_RECEIVED,
+					  WAIT_INTR_TIMEOUT_MS)) {
+>>>>>>> upstream/android-13
 		irq_status = ctx->irq_status;
 		mtk_vcodec_debug(inst, "irq_status %x <-", irq_status);
 	}
 	return irq_status;
 }
 
+<<<<<<< HEAD
 static int h264_encode_sps(struct venc_h264_inst *inst,
 	struct mtk_vcodec_mem *bs_buf,
 	unsigned int *bs_size)
+=======
+static int h264_frame_type(struct venc_h264_inst *inst)
+{
+	if ((inst->vsi->config.gop_size != 0 &&
+	     (inst->frm_cnt % inst->vsi->config.gop_size) == 0) ||
+	    (inst->frm_cnt == 0 && inst->vsi->config.gop_size == 0)) {
+		/* IDR frame */
+		return VENC_H264_IDR_FRM;
+	} else if ((inst->vsi->config.intra_period != 0 &&
+		    (inst->frm_cnt % inst->vsi->config.intra_period) == 0) ||
+		   (inst->frm_cnt == 0 && inst->vsi->config.intra_period == 0)) {
+		/* I frame */
+		return VENC_H264_I_FRM;
+	} else {
+		return VENC_H264_P_FRM;  /* Note: B frames are not supported */
+	}
+}
+static int h264_encode_sps(struct venc_h264_inst *inst,
+			   struct mtk_vcodec_mem *bs_buf,
+			   unsigned int *bs_size)
+>>>>>>> upstream/android-13
 {
 	int ret = 0;
 	unsigned int irq_status;
@@ -330,14 +441,22 @@ static int h264_encode_sps(struct venc_h264_inst *inst,
 	mtk_vcodec_debug_enter(inst);
 
 	ret = vpu_enc_encode(&inst->vpu_inst, H264_BS_MODE_SPS, NULL,
+<<<<<<< HEAD
 						 bs_buf, bs_size);
+=======
+			     bs_buf, bs_size, NULL);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
 	irq_status = h264_enc_wait_venc_done(inst);
 	if (irq_status != MTK_VENC_IRQ_STATUS_SPS) {
 		mtk_vcodec_err(inst, "expect irq status %d",
+<<<<<<< HEAD
 					   MTK_VENC_IRQ_STATUS_SPS);
+=======
+			       MTK_VENC_IRQ_STATUS_SPS);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -348,8 +467,13 @@ static int h264_encode_sps(struct venc_h264_inst *inst,
 }
 
 static int h264_encode_pps(struct venc_h264_inst *inst,
+<<<<<<< HEAD
 	struct mtk_vcodec_mem *bs_buf,
 	unsigned int *bs_size)
+=======
+			   struct mtk_vcodec_mem *bs_buf,
+			   unsigned int *bs_size)
+>>>>>>> upstream/android-13
 {
 	int ret = 0;
 	unsigned int irq_status;
@@ -357,14 +481,22 @@ static int h264_encode_pps(struct venc_h264_inst *inst,
 	mtk_vcodec_debug_enter(inst);
 
 	ret = vpu_enc_encode(&inst->vpu_inst, H264_BS_MODE_PPS, NULL,
+<<<<<<< HEAD
 						 bs_buf, bs_size);
+=======
+			     bs_buf, bs_size, NULL);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
 	irq_status = h264_enc_wait_venc_done(inst);
 	if (irq_status != MTK_VENC_IRQ_STATUS_PPS) {
 		mtk_vcodec_err(inst, "expect irq status %d",
+<<<<<<< HEAD
 					   MTK_VENC_IRQ_STATUS_PPS);
+=======
+			       MTK_VENC_IRQ_STATUS_PPS);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -375,8 +507,13 @@ static int h264_encode_pps(struct venc_h264_inst *inst,
 }
 
 static int h264_encode_header(struct venc_h264_inst *inst,
+<<<<<<< HEAD
 	struct mtk_vcodec_mem *bs_buf,
 	unsigned int *bs_size)
+=======
+			      struct mtk_vcodec_mem *bs_buf,
+			      unsigned int *bs_size)
+>>>>>>> upstream/android-13
 {
 	int ret = 0;
 	unsigned int bs_size_sps;
@@ -397,6 +534,7 @@ static int h264_encode_header(struct venc_h264_inst *inst,
 }
 
 static int h264_encode_frame(struct venc_h264_inst *inst,
+<<<<<<< HEAD
 	struct venc_frm_buf *frm_buf,
 	struct mtk_vcodec_mem *bs_buf,
 	unsigned int *bs_size)
@@ -408,6 +546,26 @@ static int h264_encode_frame(struct venc_h264_inst *inst,
 
 	ret = vpu_enc_encode(&inst->vpu_inst, H264_BS_MODE_FRAME, frm_buf,
 						 bs_buf, bs_size);
+=======
+			     struct venc_frm_buf *frm_buf,
+			     struct mtk_vcodec_mem *bs_buf,
+			     unsigned int *bs_size)
+{
+	int ret = 0;
+	unsigned int irq_status;
+	struct venc_frame_info frame_info;
+
+	mtk_vcodec_debug_enter(inst);
+	mtk_vcodec_debug(inst, "frm_cnt = %d\n ", inst->frm_cnt);
+	frame_info.frm_count = inst->frm_cnt;
+	frame_info.skip_frm_count = inst->skip_frm_cnt;
+	frame_info.frm_type = h264_frame_type(inst);
+	mtk_vcodec_debug(inst, "frm_count = %d,skip_frm_count =%d,frm_type=%d.\n",
+			 frame_info.frm_count, frame_info.skip_frm_count,
+			 frame_info.frm_type);
+	ret = vpu_enc_encode(&inst->vpu_inst, H264_BS_MODE_FRAME, frm_buf,
+			     bs_buf, bs_size, &frame_info);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -418,9 +576,16 @@ static int h264_encode_frame(struct venc_h264_inst *inst,
 	if (inst->vpu_inst.state == VEN_IPI_MSG_ENC_STATE_SKIP) {
 		*bs_size = inst->vpu_inst.bs_size;
 		memcpy(bs_buf->va,
+<<<<<<< HEAD
 			inst->work_bufs[VENC_H264_VPU_WORK_BUF_SKIP_FRAME].va,
 			*bs_size);
 		++inst->frm_cnt;
+=======
+		       inst->work_bufs[VENC_H264_VPU_WORK_BUF_SKIP_FRAME].va,
+		       *bs_size);
+		++inst->frm_cnt;
+		++inst->skip_frm_cnt;
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
@@ -434,13 +599,21 @@ static int h264_encode_frame(struct venc_h264_inst *inst,
 
 	++inst->frm_cnt;
 	mtk_vcodec_debug(inst, "frm %d bs_size %d key_frm %d <-",
+<<<<<<< HEAD
 		inst->frm_cnt, *bs_size, inst->vpu_inst.is_key_frm);
+=======
+			 inst->frm_cnt, *bs_size, inst->vpu_inst.is_key_frm);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
 static void h264_encode_filler(struct venc_h264_inst *inst, void *buf,
+<<<<<<< HEAD
 							   int size)
+=======
+			       int size)
+>>>>>>> upstream/android-13
 {
 	unsigned char *p = buf;
 
@@ -455,8 +628,14 @@ static void h264_encode_filler(struct venc_h264_inst *inst, void *buf,
 	memset(p, 0xff, size);
 }
 
+<<<<<<< HEAD
 static int h264_enc_init(struct mtk_vcodec_ctx *ctx, unsigned long *handle)
 {
+=======
+static int h264_enc_init(struct mtk_vcodec_ctx *ctx)
+{
+	const bool is_ext = MTK_ENC_CTX_IS_EXT(ctx);
+>>>>>>> upstream/android-13
 	int ret = 0;
 	struct venc_h264_inst *inst;
 
@@ -466,9 +645,14 @@ static int h264_enc_init(struct mtk_vcodec_ctx *ctx, unsigned long *handle)
 
 	inst->ctx = ctx;
 	inst->vpu_inst.ctx = ctx;
+<<<<<<< HEAD
 	inst->vpu_inst.dev = ctx->dev->vpu_plat_dev;
 	inst->vpu_inst.id = IPI_VENC_H264;
 	inst->hw_base = mtk_vcodec_get_enc_reg_addr(inst->ctx, VENC_SYS);
+=======
+	inst->vpu_inst.id = is_ext ? SCP_IPI_VENC_H264 : IPI_VENC_H264;
+	inst->hw_base = mtk_vcodec_get_reg_addr(inst->ctx, VENC_SYS);
+>>>>>>> upstream/android-13
 
 	mtk_vcodec_debug_enter(inst);
 
@@ -481,16 +665,28 @@ static int h264_enc_init(struct mtk_vcodec_ctx *ctx, unsigned long *handle)
 	if (ret)
 		kfree(inst);
 	else
+<<<<<<< HEAD
 		(*handle) = (unsigned long)inst;
+=======
+		ctx->drv_handle = inst;
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
+<<<<<<< HEAD
 static int h264_enc_encode(unsigned long handle,
 	enum venc_start_opt opt,
 	struct venc_frm_buf *frm_buf,
 	struct mtk_vcodec_mem *bs_buf,
 	struct venc_done_result *result)
+=======
+static int h264_enc_encode(void *handle,
+			   enum venc_start_opt opt,
+			   struct venc_frm_buf *frm_buf,
+			   struct mtk_vcodec_mem *bs_buf,
+			   struct venc_done_result *result)
+>>>>>>> upstream/android-13
 {
 	int ret = 0;
 	struct venc_h264_inst *inst = (struct venc_h264_inst *)handle;
@@ -524,7 +720,11 @@ static int h264_enc_encode(unsigned long handle,
 
 		if (!inst->prepend_hdr) {
 			ret = h264_encode_frame(inst, frm_buf, bs_buf,
+<<<<<<< HEAD
 				&result->bs_size);
+=======
+						&result->bs_size);
+>>>>>>> upstream/android-13
 			if (ret)
 				goto encode_err;
 			result->is_key_frm = inst->vpu_inst.is_key_frm;
@@ -544,7 +744,11 @@ static int h264_enc_encode(unsigned long handle,
 			if (hdr_sz_ext + H264_FILLER_MARKER_SIZE > bs_alignment)
 				filler_sz += bs_alignment;
 			h264_encode_filler(inst, bs_buf->va + hdr_sz,
+<<<<<<< HEAD
 							   filler_sz);
+=======
+					   filler_sz);
+>>>>>>> upstream/android-13
 		}
 
 		tmp_bs_buf.va = bs_buf->va + hdr_sz + filler_sz;
@@ -552,15 +756,24 @@ static int h264_enc_encode(unsigned long handle,
 		tmp_bs_buf.size = bs_buf->size - (hdr_sz + filler_sz);
 
 		ret = h264_encode_frame(inst, frm_buf, &tmp_bs_buf,
+<<<<<<< HEAD
 								&bs_size_frm);
+=======
+					&bs_size_frm);
+>>>>>>> upstream/android-13
 		if (ret)
 			goto encode_err;
 
 		result->bs_size = hdr_sz + filler_sz + bs_size_frm;
 
 		mtk_vcodec_debug(inst, "hdr %d filler %d frame %d bs %d",
+<<<<<<< HEAD
 						 hdr_sz, filler_sz, bs_size_frm,
 						 result->bs_size);
+=======
+				 hdr_sz, filler_sz, bs_size_frm,
+				 result->bs_size);
+>>>>>>> upstream/android-13
 
 		inst->prepend_hdr = 0;
 		result->is_key_frm = inst->vpu_inst.is_key_frm;
@@ -581,6 +794,7 @@ encode_err:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int h264_enc_get_param(unsigned long handle,
 	enum venc_get_param_type type,
 	void *out)
@@ -592,6 +806,11 @@ static int h264_enc_get_param(unsigned long handle,
 static int h264_enc_set_param(unsigned long handle,
 	enum venc_set_param_type type,
 	struct venc_enc_param *enc_prm)
+=======
+static int h264_enc_set_param(void *handle,
+			      enum venc_set_param_type type,
+			      struct venc_enc_param *enc_prm)
+>>>>>>> upstream/android-13
 {
 	int ret = 0;
 	struct venc_h264_inst *inst = (struct venc_h264_inst *)handle;
@@ -610,9 +829,15 @@ static int h264_enc_set_param(unsigned long handle,
 		inst->vsi->config.framerate = enc_prm->frm_rate;
 		inst->vsi->config.intra_period = enc_prm->intra_period;
 		inst->vsi->config.profile =
+<<<<<<< HEAD
 			h264_get_profile(inst, enc_prm->profile);
 		inst->vsi->config.level =
 			h264_get_level(inst, enc_prm->level);
+=======
+			h264_get_profile(inst, enc_prm->h264_profile);
+		inst->vsi->config.level =
+			h264_get_level(inst, enc_prm->h264_level);
+>>>>>>> upstream/android-13
 		inst->vsi->config.wfd = 0;
 		ret = vpu_enc_set_param(&inst->vpu_inst, type, enc_prm);
 		if (ret)
@@ -631,7 +856,16 @@ static int h264_enc_set_param(unsigned long handle,
 		inst->prepend_hdr = 1;
 		mtk_vcodec_debug(inst, "set prepend header mode");
 		break;
+<<<<<<< HEAD
 
+=======
+	case VENC_SET_PARAM_FORCE_INTRA:
+	case VENC_SET_PARAM_GOP_SIZE:
+	case VENC_SET_PARAM_INTRA_PERIOD:
+		inst->frm_cnt = 0;
+		inst->skip_frm_cnt = 0;
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		ret = vpu_enc_set_param(&inst->vpu_inst, type, enc_prm);
 		break;
@@ -642,7 +876,11 @@ static int h264_enc_set_param(unsigned long handle,
 	return ret;
 }
 
+<<<<<<< HEAD
 static int h264_enc_deinit(unsigned long handle)
+=======
+static int h264_enc_deinit(void *handle)
+>>>>>>> upstream/android-13
 {
 	int ret = 0;
 	struct venc_h264_inst *inst = (struct venc_h264_inst *)handle;
@@ -660,6 +898,7 @@ static int h264_enc_deinit(unsigned long handle)
 	return ret;
 }
 
+<<<<<<< HEAD
 static const struct venc_common_if venc_h264_if = {
 	.init = h264_enc_init,
 	.encode = h264_enc_encode,
@@ -674,3 +913,11 @@ const struct venc_common_if *get_h264_enc_comm_if(void)
 {
 	return &venc_h264_if;
 }
+=======
+const struct venc_common_if venc_h264_if = {
+	.init = h264_enc_init,
+	.encode = h264_enc_encode,
+	.set_param = h264_enc_set_param,
+	.deinit = h264_enc_deinit,
+};
+>>>>>>> upstream/android-13

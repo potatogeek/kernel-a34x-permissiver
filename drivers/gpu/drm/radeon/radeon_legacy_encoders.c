@@ -23,6 +23,7 @@
  * Authors: Dave Airlie
  *          Alex Deucher
  */
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/drm_crtc_helper.h>
 #include <drm/radeon_drm.h>
@@ -30,6 +31,22 @@
 #include "radeon_asic.h"
 #include "atom.h"
 #include <linux/backlight.h>
+=======
+
+#include <linux/backlight.h>
+#include <linux/pci.h>
+
+#include <drm/drm_crtc_helper.h>
+#include <drm/drm_device.h>
+#include <drm/drm_file.h>
+#include <drm/drm_util.h>
+#include <drm/radeon_drm.h>
+
+#include "radeon.h"
+#include "radeon_asic.h"
+#include "radeon_legacy_encoders.h"
+#include "atom.h"
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PMAC_BACKLIGHT
 #include <asm/backlight.h>
 #endif
@@ -967,9 +984,15 @@ static void radeon_legacy_tmds_ext_mode_set(struct drm_encoder *encoder,
 
 		/* XXX: these are oem specific */
 		if (ASIC_IS_R300(rdev)) {
+<<<<<<< HEAD
 			if ((dev->pdev->device == 0x4850) &&
 			    (dev->pdev->subsystem_vendor == 0x1028) &&
 			    (dev->pdev->subsystem_device == 0x2001)) /* Dell Inspiron 8600 */
+=======
+			if ((rdev->pdev->device == 0x4850) &&
+			    (rdev->pdev->subsystem_vendor == 0x1028) &&
+			    (rdev->pdev->subsystem_device == 0x2001)) /* Dell Inspiron 8600 */
+>>>>>>> upstream/android-13
 				fp2_gen_cntl |= R300_FP2_DVO_CLOCK_MODE_SINGLE;
 			else
 				fp2_gen_cntl |= RADEON_FP2_PAD_FLOP_EN | R300_FP2_DVO_CLOCK_MODE_SINGLE;
@@ -1706,7 +1729,11 @@ static struct radeon_encoder_int_tmds *radeon_legacy_get_tmds_info(struct radeon
 	else
 		ret = radeon_legacy_get_tmds_info_from_combios(encoder, tmds);
 
+<<<<<<< HEAD
 	if (ret == false)
+=======
+	if (!ret)
+>>>>>>> upstream/android-13
 		radeon_legacy_get_tmds_info_from_table(encoder, tmds);
 
 	return tmds;
@@ -1729,7 +1756,11 @@ static struct radeon_encoder_ext_tmds *radeon_legacy_get_ext_tmds_info(struct ra
 
 	ret = radeon_legacy_get_ext_tmds_info_from_combios(encoder, tmds);
 
+<<<<<<< HEAD
 	if (ret == false)
+=======
+	if (!ret)
+>>>>>>> upstream/android-13
 		radeon_legacy_get_ext_tmds_info_from_table(encoder, tmds);
 
 	return tmds;

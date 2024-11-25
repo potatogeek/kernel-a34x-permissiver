@@ -119,6 +119,14 @@ int dm_bufio_write_dirty_buffers(struct dm_bufio_client *c);
 int dm_bufio_issue_flush(struct dm_bufio_client *c);
 
 /*
+<<<<<<< HEAD
+=======
+ * Send a discard request to the underlying device.
+ */
+int dm_bufio_issue_discard(struct dm_bufio_client *c, sector_t block, sector_t count);
+
+/*
+>>>>>>> upstream/android-13
  * Like dm_bufio_release but also move the buffer to the new
  * block. dm_bufio_write_dirty_buffers is needed to commit the new block.
  */
@@ -132,6 +140,16 @@ void dm_bufio_release_move(struct dm_buffer *b, sector_t new_block);
 void dm_bufio_forget(struct dm_bufio_client *c, sector_t block);
 
 /*
+<<<<<<< HEAD
+=======
+ * Free the given range of buffers.
+ * This is just a hint, if the buffer is in use or dirty, this function
+ * does nothing.
+ */
+void dm_bufio_forget_buffers(struct dm_bufio_client *c, sector_t block, sector_t n_blocks);
+
+/*
+>>>>>>> upstream/android-13
  * Set the minimum number of buffers before cleanup happens.
  */
 void dm_bufio_set_minimum_buffers(struct dm_bufio_client *c, unsigned n);

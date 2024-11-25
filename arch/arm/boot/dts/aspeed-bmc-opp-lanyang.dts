@@ -11,7 +11,11 @@
 
 	chosen {
 		stdout-path = &uart5;
+<<<<<<< HEAD
 		bootargs = "console=ttyS4,115200 earlyprintk";
+=======
+		bootargs = "console=ttyS4,115200 earlycon";
+>>>>>>> upstream/android-13
 	};
 
 	memory@80000000 {
@@ -178,6 +182,12 @@
 
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_rmii1_default>;
+<<<<<<< HEAD
+=======
+	clocks = <&syscon ASPEED_CLK_GATE_MAC1CLK>,
+		 <&syscon ASPEED_CLK_MAC1RCLK>;
+	clock-names = "MACCLK", "RCLK";
+>>>>>>> upstream/android-13
 	use-ncsi;
 };
 
@@ -322,3 +332,8 @@
 &adc {
 	status = "okay";
 };
+<<<<<<< HEAD
+=======
+
+#include "ibm-power9-dual.dtsi"
+>>>>>>> upstream/android-13

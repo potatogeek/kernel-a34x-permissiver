@@ -5,7 +5,10 @@
  * Copyright (C) 2018 Renesas Electronics Corp.
  */
 
+<<<<<<< HEAD
 #include <linux/bug.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 
 #include <dt-bindings/power/r8a77470-sysc.h>

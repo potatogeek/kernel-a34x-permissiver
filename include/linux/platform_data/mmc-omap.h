@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * MMC definitions for OMAP2
  *
  * Copyright (C) 2006 Nokia Corporation
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define OMAP_MMC_MAX_SLOTS	2
@@ -111,11 +118,21 @@ struct omap_mmc_platform_data {
 		const char *name;
 		u32 ocr_mask;
 
+<<<<<<< HEAD
 		/* Card detection IRQs */
 		int card_detect_irq;
+=======
+		/* Card detection */
+>>>>>>> upstream/android-13
 		int (*card_detect)(struct device *dev, int slot);
 
 		unsigned int ban_openended:1;
 
 	} slots[OMAP_MMC_MAX_SLOTS];
 };
+<<<<<<< HEAD
+=======
+
+extern void omap_mmc_notify_cover_event(struct device *dev, int slot,
+					int is_closed);
+>>>>>>> upstream/android-13

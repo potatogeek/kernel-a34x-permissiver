@@ -4,6 +4,11 @@
 
 .. highlight:: none
 
+<<<<<<< HEAD
+=======
+.. _devtools_coccinelle:
+
+>>>>>>> upstream/android-13
 Coccinelle
 ==========
 
@@ -12,7 +17,11 @@ many uses in kernel development, including the application of complex,
 tree-wide patches and detection of problematic programming patterns.
 
 Getting Coccinelle
+<<<<<<< HEAD
 -------------------
+=======
+------------------
+>>>>>>> upstream/android-13
 
 The semantic patches included in the kernel use features and options
 which are provided by Coccinelle version 1.0.0-rc11 and above.
@@ -30,20 +39,45 @@ of many distributions, e.g. :
  - NetBSD
  - FreeBSD
 
+<<<<<<< HEAD
 You can get the latest version released from the Coccinelle homepage at
 http://coccinelle.lip6.fr/
 
 Once you have it, run the following command::
 
      	./configure
+=======
+Some distribution packages are obsolete and it is recommended
+to use the latest version released from the Coccinelle homepage at
+http://coccinelle.lip6.fr/
+
+Or from Github at:
+
+https://github.com/coccinelle/coccinelle
+
+Once you have it, run the following commands::
+
+        ./autogen
+        ./configure
+>>>>>>> upstream/android-13
         make
 
 as a regular user, and install it with::
 
         sudo make install
 
+<<<<<<< HEAD
 Supplemental documentation
 ---------------------------
+=======
+More detailed installation instructions to build from source can be
+found at:
+
+https://github.com/coccinelle/coccinelle/blob/master/install.txt
+
+Supplemental documentation
+--------------------------
+>>>>>>> upstream/android-13
 
 For supplemental documentation refer to the wiki:
 
@@ -51,6 +85,13 @@ https://bottest.wiki.kernel.org/coccicheck
 
 The wiki documentation always refers to the linux-next version of the script.
 
+<<<<<<< HEAD
+=======
+For Semantic Patch Language(SmPL) grammar documentation refer to:
+
+http://coccinelle.lip6.fr/documentation.php
+
+>>>>>>> upstream/android-13
 Using Coccinelle on the Linux kernel
 ------------------------------------
 
@@ -68,7 +109,11 @@ Four basic modes are defined: ``patch``, ``report``, ``context``, and
   file:line:column-column: message
 
 - ``context`` highlights lines of interest and their context in a
+<<<<<<< HEAD
   diff-like style.Lines of interest are indicated with ``-``.
+=======
+  diff-like style. Lines of interest are indicated with ``-``.
+>>>>>>> upstream/android-13
 
 - ``org`` generates a report in the Org mode format of Emacs.
 
@@ -102,7 +147,11 @@ For each semantic patch, a commit message is proposed.  It gives a
 description of the problem being checked by the semantic patch, and
 includes a reference to Coccinelle.
 
+<<<<<<< HEAD
 As any static code analyzer, Coccinelle produces false
+=======
+As with any static code analyzer, Coccinelle produces false
+>>>>>>> upstream/android-13
 positives. Thus, reports must be carefully checked, and patches
 reviewed.
 
@@ -111,25 +160,42 @@ To enable verbose messages set the V= variable, for example::
    make coccicheck MODE=report V=1
 
 Coccinelle parallelization
+<<<<<<< HEAD
 ---------------------------
+=======
+--------------------------
+>>>>>>> upstream/android-13
 
 By default, coccicheck tries to run as parallel as possible. To change
 the parallelism, set the J= variable. For example, to run across 4 CPUs::
 
    make coccicheck MODE=report J=4
 
+<<<<<<< HEAD
 As of Coccinelle 1.0.2 Coccinelle uses Ocaml parmap for parallelization,
 if support for this is detected you will benefit from parmap parallelization.
 
 When parmap is enabled coccicheck will enable dynamic load balancing by using
 ``--chunksize 1`` argument, this ensures we keep feeding threads with work
+=======
+As of Coccinelle 1.0.2 Coccinelle uses Ocaml parmap for parallelization;
+if support for this is detected you will benefit from parmap parallelization.
+
+When parmap is enabled coccicheck will enable dynamic load balancing by using
+``--chunksize 1`` argument. This ensures we keep feeding threads with work
+>>>>>>> upstream/android-13
 one by one, so that we avoid the situation where most work gets done by only
 a few threads. With dynamic load balancing, if a thread finishes early we keep
 feeding it more work.
 
 When parmap is enabled, if an error occurs in Coccinelle, this error
+<<<<<<< HEAD
 value is propagated back, the return value of the ``make coccicheck``
 captures this return value.
+=======
+value is propagated back, and the return value of the ``make coccicheck``
+command captures this return value.
+>>>>>>> upstream/android-13
 
 Using Coccinelle with a single semantic patch
 ---------------------------------------------
@@ -158,6 +224,7 @@ For example, to check drivers/net/wireless/ one may write::
     make coccicheck M=drivers/net/wireless/
 
 To apply Coccinelle on a file basis, instead of a directory basis, the
+<<<<<<< HEAD
 following command may be used::
 
     make C=1 CHECK="scripts/coccicheck"
@@ -167,6 +234,24 @@ To check only newly edited code, use the value 2 for the C flag, i.e.::
     make C=2 CHECK="scripts/coccicheck"
 
 In these modes, which works on a file basis, there is no information
+=======
+C variable is used by the makefile to select which files to work with.
+This variable can be used to run scripts for the entire kernel, a
+specific directory, or for a single file.
+
+For example, to check drivers/bluetooth/bfusb.c, the value 1 is
+passed to the C variable to check files that make considers
+need to be compiled.::
+
+    make C=1 CHECK=scripts/coccicheck drivers/bluetooth/bfusb.o
+
+The value 2 is passed to the C variable to check files regardless of
+whether they need to be compiled or not.::
+
+    make C=2 CHECK=scripts/coccicheck drivers/bluetooth/bfusb.o
+
+In these modes, which work on a file basis, there is no information
+>>>>>>> upstream/android-13
 about semantic patches displayed, and no commit message proposed.
 
 This runs every semantic patch in scripts/coccinelle by default. The
@@ -181,12 +266,21 @@ Debugging Coccinelle SmPL patches
 
 Using coccicheck is best as it provides in the spatch command line
 include options matching the options used when we compile the kernel.
+<<<<<<< HEAD
 You can learn what these options are by using V=1, you could then
 manually run Coccinelle with debug options added.
 
 Alternatively you can debug running Coccinelle against SmPL patches
 by asking for stderr to be redirected to stderr, by default stderr
 is redirected to /dev/null, if you'd like to capture stderr you
+=======
+You can learn what these options are by using V=1; you could then
+manually run Coccinelle with debug options added.
+
+Alternatively you can debug running Coccinelle against SmPL patches
+by asking for stderr to be redirected to stderr. By default stderr
+is redirected to /dev/null; if you'd like to capture stderr you
+>>>>>>> upstream/android-13
 can specify the ``DEBUG_FILE="file.txt"`` option to coccicheck. For
 instance::
 
@@ -194,25 +288,50 @@ instance::
     make coccicheck COCCI=scripts/coccinelle/free/kfree.cocci MODE=report DEBUG_FILE=cocci.err
     cat cocci.err
 
+<<<<<<< HEAD
 You can use SPFLAGS to add debugging flags, for instance you may want to
 add both --profile --show-trying to SPFLAGS when debugging. For instance
+=======
+You can use SPFLAGS to add debugging flags; for instance you may want to
+add both --profile --show-trying to SPFLAGS when debugging. For example
+>>>>>>> upstream/android-13
 you may want to use::
 
     rm -f err.log
     export COCCI=scripts/coccinelle/misc/irqf_oneshot.cocci
+<<<<<<< HEAD
     make coccicheck DEBUG_FILE="err.log" MODE=report SPFLAGS="--profile --show-trying" M=./drivers/mfd/arizona-irq.c
+=======
+    make coccicheck DEBUG_FILE="err.log" MODE=report SPFLAGS="--profile --show-trying" M=./drivers/mfd
+>>>>>>> upstream/android-13
 
 err.log will now have the profiling information, while stdout will
 provide some progress information as Coccinelle moves forward with
 work.
 
+<<<<<<< HEAD
 DEBUG_FILE support is only supported when using coccinelle >= 1.0.2.
 
+=======
+NOTE:
+
+DEBUG_FILE support is only supported when using coccinelle >= 1.0.2.
+
+Currently, DEBUG_FILE support is only available to check folders, and
+not single files. This is because checking a single file requires spatch
+to be called twice leading to DEBUG_FILE being set both times to the same value,
+giving rise to an error.
+
+>>>>>>> upstream/android-13
 .cocciconfig support
 --------------------
 
 Coccinelle supports reading .cocciconfig for default Coccinelle options that
+<<<<<<< HEAD
 should be used every time spatch is spawned, the order of precedence for
+=======
+should be used every time spatch is spawned. The order of precedence for
+>>>>>>> upstream/android-13
 variables for .cocciconfig is as follows:
 
 - Your current user's home directory is processed first
@@ -220,10 +339,17 @@ variables for .cocciconfig is as follows:
 - The directory provided with the --dir option is processed last, if used
 
 Since coccicheck runs through make, it naturally runs from the kernel
+<<<<<<< HEAD
 proper dir, as such the second rule above would be implied for picking up a
 .cocciconfig when using ``make coccicheck``.
 
 ``make coccicheck`` also supports using M= targets.If you do not supply
+=======
+proper dir; as such the second rule above would be implied for picking up a
+.cocciconfig when using ``make coccicheck``.
+
+``make coccicheck`` also supports using M= targets. If you do not supply
+>>>>>>> upstream/android-13
 any M= target, it is assumed you want to target the entire kernel.
 The kernel coccicheck script has::
 
@@ -243,6 +369,7 @@ If not using the kernel's coccicheck target, keep the above precedence
 order logic of .cocciconfig reading. If using the kernel's coccicheck target,
 override any of the kernel's .coccicheck's settings using SPFLAGS.
 
+<<<<<<< HEAD
 We help Coccinelle when used against Linux with a set of sensible defaults
 options for Linux with our own Linux .cocciconfig. This hints to coccinelle
 git can be used for ``git grep`` queries over coccigrep. A timeout of 200
@@ -250,6 +377,15 @@ seconds should suffice for now.
 
 The options picked up by coccinelle when reading a .cocciconfig do not appear
 as arguments to spatch processes running on your system, to confirm what
+=======
+We help Coccinelle when used against Linux with a set of sensible default
+options for Linux with our own Linux .cocciconfig. This hints to coccinelle
+that git can be used for ``git grep`` queries over coccigrep. A timeout of 200
+seconds should suffice for now.
+
+The options picked up by coccinelle when reading a .cocciconfig do not appear
+as arguments to spatch processes running on your system. To confirm what
+>>>>>>> upstream/android-13
 options will be used by Coccinelle run::
 
       spatch --print-options-only
@@ -273,7 +409,11 @@ given to it when options are in conflict. ::
 
 Coccinelle supports idutils as well but requires coccinelle >= 1.0.6.
 When no ID file is specified coccinelle assumes your ID database file
+<<<<<<< HEAD
 is in the file .id-utils.index on the top level of the kernel, coccinelle
+=======
+is in the file .id-utils.index on the top level of the kernel. Coccinelle
+>>>>>>> upstream/android-13
 carries a script scripts/idutils_index.sh which creates the database with::
 
     mkid -i C --output .id-utils.index
@@ -300,7 +440,11 @@ SmPL patch specific options
 ---------------------------
 
 SmPL patches can have their own requirements for options passed
+<<<<<<< HEAD
 to Coccinelle. SmPL patch specific options can be provided by
+=======
+to Coccinelle. SmPL patch-specific options can be provided by
+>>>>>>> upstream/android-13
 providing them at the top of the SmPL patch, for instance::
 
 	// Options: --no-includes --include-headers
@@ -310,13 +454,21 @@ SmPL patch Coccinelle requirements
 
 As Coccinelle features get added some more advanced SmPL patches
 may require newer versions of Coccinelle. If an SmPL patch requires
+<<<<<<< HEAD
 at least a version of Coccinelle, this can be specified as follows,
+=======
+a minimum version of Coccinelle, this can be specified as follows,
+>>>>>>> upstream/android-13
 as an example if requiring at least Coccinelle >= 1.0.5::
 
 	// Requires: 1.0.5
 
 Proposing new semantic patches
+<<<<<<< HEAD
 -------------------------------
+=======
+------------------------------
+>>>>>>> upstream/android-13
 
 New semantic patches can be proposed and submitted by kernel
 developers. For sake of clarity, they should be organized in the

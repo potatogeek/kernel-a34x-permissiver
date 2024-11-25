@@ -53,6 +53,23 @@
 		reg = <0 0x80000000 0 0x40000000>;
 	};
 
+<<<<<<< HEAD
+=======
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		/* Chipselect 2 is physically at 0x18000000 */
+		vram: vram@18000000 {
+			/* 8 MB of designated video RAM */
+			compatible = "shared-dma-pool";
+			reg = <0 0x18000000 0 0x00800000>;
+			no-map;
+		};
+	};
+
+>>>>>>> upstream/android-13
 	hdlcd@2b000000 {
 		compatible = "arm,hdlcd";
 		reg = <0 0x2b000000 0 0x1000>;
@@ -73,8 +90,13 @@
 		status = "disabled";
 		reg = <0 0x2b060000 0 0x1000>;
 		interrupts = <0 98 4>;
+<<<<<<< HEAD
 		clocks = <&sys_pll>;
 		clock-names = "apb_pclk";
+=======
+		clocks = <&sys_pll>, <&sys_pll>;
+		clock-names = "wdog_clk", "apb_pclk";
+>>>>>>> upstream/android-13
 	};
 
 	gic: interrupt-controller@2c001000 {
@@ -222,6 +244,7 @@
 		};
 	};
 
+<<<<<<< HEAD
 	smb@8000000 {
 		compatible = "simple-bus";
 
@@ -279,6 +302,10 @@
 				<0 0 40 &gic 0 40 4>,
 				<0 0 41 &gic 0 41 4>,
 				<0 0 42 &gic 0 42 4>;
+=======
+	bus@8000000 {
+		ranges = <0x8000000 0 0x8000000 0x18000000>;
+>>>>>>> upstream/android-13
 	};
 
 	site2: hsb@40000000 {

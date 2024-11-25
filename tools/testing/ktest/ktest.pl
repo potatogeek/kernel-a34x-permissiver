@@ -1,7 +1,13 @@
 #!/usr/bin/perl -w
+<<<<<<< HEAD
 #
 # Copyright 2010 - Steven Rostedt <srostedt@redhat.com>, Red Hat Inc.
 # Licensed under the terms of the GNU GPL License version 2
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+#
+# Copyright 2010 - Steven Rostedt <srostedt@redhat.com>, Red Hat Inc.
+>>>>>>> upstream/android-13
 #
 
 use strict;
@@ -11,6 +17,10 @@ use File::Path qw(mkpath);
 use File::Copy qw(cp);
 use FileHandle;
 use FindBin;
+<<<<<<< HEAD
+=======
+use IO::Handle;
+>>>>>>> upstream/android-13
 
 my $VERSION = "0.2";
 
@@ -23,27 +33,44 @@ my %evals;
 
 #default opts
 my %default = (
+<<<<<<< HEAD
     "MAILER"			=> "sendmail",  # default mailer
+=======
+    "MAILER"			=> "sendmail",	# default mailer
+>>>>>>> upstream/android-13
     "EMAIL_ON_ERROR"		=> 1,
     "EMAIL_WHEN_FINISHED"	=> 1,
     "EMAIL_WHEN_CANCELED"	=> 0,
     "EMAIL_WHEN_STARTED"	=> 0,
     "NUM_TESTS"			=> 1,
     "TEST_TYPE"			=> "build",
+<<<<<<< HEAD
     "BUILD_TYPE"		=> "randconfig",
+=======
+    "BUILD_TYPE"		=> "oldconfig",
+>>>>>>> upstream/android-13
     "MAKE_CMD"			=> "make",
     "CLOSE_CONSOLE_SIGNAL"	=> "INT",
     "TIMEOUT"			=> 120,
     "TMP_DIR"			=> "/tmp/ktest/\${MACHINE}",
+<<<<<<< HEAD
     "SLEEP_TIME"		=> 60,	# sleep time between tests
+=======
+    "SLEEP_TIME"		=> 60,		# sleep time between tests
+>>>>>>> upstream/android-13
     "BUILD_NOCLEAN"		=> 0,
     "REBOOT_ON_ERROR"		=> 0,
     "POWEROFF_ON_ERROR"		=> 0,
     "REBOOT_ON_SUCCESS"		=> 1,
     "POWEROFF_ON_SUCCESS"	=> 0,
     "BUILD_OPTIONS"		=> "",
+<<<<<<< HEAD
     "BISECT_SLEEP_TIME"		=> 60,   # sleep time between bisects
     "PATCHCHECK_SLEEP_TIME"	=> 60, # sleep time between patch checks
+=======
+    "BISECT_SLEEP_TIME"		=> 60,		# sleep time between bisects
+    "PATCHCHECK_SLEEP_TIME"	=> 60, 		# sleep time between patch checks
+>>>>>>> upstream/android-13
     "CLEAR_LOG"			=> 0,
     "BISECT_MANUAL"		=> 0,
     "BISECT_SKIP"		=> 1,
@@ -58,11 +85,19 @@ my %default = (
     "SCP_TO_TARGET"		=> "scp \$SRC_FILE \$SSH_USER\@\$MACHINE:\$DST_FILE",
     "SCP_TO_TARGET_INSTALL"	=> "\${SCP_TO_TARGET}",
     "REBOOT"			=> "ssh \$SSH_USER\@\$MACHINE reboot",
+<<<<<<< HEAD
+=======
+    "REBOOT_RETURN_CODE"	=> 255,
+>>>>>>> upstream/android-13
     "STOP_AFTER_SUCCESS"	=> 10,
     "STOP_AFTER_FAILURE"	=> 60,
     "STOP_TEST_AFTER"		=> 600,
     "MAX_MONITOR_WAIT"		=> 1800,
     "GRUB_REBOOT"		=> "grub2-reboot",
+<<<<<<< HEAD
+=======
+    "GRUB_BLS_GET"		=> "grubby --info=ALL",
+>>>>>>> upstream/android-13
     "SYSLINUX"			=> "extlinux",
     "SYSLINUX_PATH"		=> "/boot/extlinux",
     "CONNECT_TIMEOUT"		=> 25,
@@ -79,6 +114,11 @@ my %default = (
     "IGNORE_UNUSED"		=> 0,
 );
 
+<<<<<<< HEAD
+=======
+my $test_log_start = 0;
+
+>>>>>>> upstream/android-13
 my $ktest_config = "ktest.conf";
 my $version;
 my $have_version = 0;
@@ -96,6 +136,10 @@ my $final_post_ktest;
 my $pre_ktest;
 my $post_ktest;
 my $pre_test;
+<<<<<<< HEAD
+=======
+my $pre_test_die;
+>>>>>>> upstream/android-13
 my $post_test;
 my $pre_build;
 my $post_build;
@@ -105,6 +149,10 @@ my $reboot_type;
 my $reboot_script;
 my $power_cycle;
 my $reboot;
+<<<<<<< HEAD
+=======
+my $reboot_return_code;
+>>>>>>> upstream/android-13
 my $reboot_on_error;
 my $switch_to_good;
 my $switch_to_test;
@@ -123,6 +171,10 @@ my $last_grub_menu;
 my $grub_file;
 my $grub_number;
 my $grub_reboot;
+<<<<<<< HEAD
+=======
+my $grub_bls_get;
+>>>>>>> upstream/android-13
 my $syslinux;
 my $syslinux_path;
 my $syslinux_label;
@@ -219,6 +271,10 @@ my $dirname = $FindBin::Bin;
 my $mailto;
 my $mailer;
 my $mail_path;
+<<<<<<< HEAD
+=======
+my $mail_max_size;
+>>>>>>> upstream/android-13
 my $mail_command;
 my $email_on_error;
 my $email_when_finished;
@@ -255,6 +311,10 @@ my %option_map = (
     "MAILTO"			=> \$mailto,
     "MAILER"			=> \$mailer,
     "MAIL_PATH"			=> \$mail_path,
+<<<<<<< HEAD
+=======
+    "MAIL_MAX_SIZE"		=> \$mail_max_size,
+>>>>>>> upstream/android-13
     "MAIL_COMMAND"		=> \$mail_command,
     "EMAIL_ON_ERROR"		=> \$email_on_error,
     "EMAIL_WHEN_FINISHED"	=> \$email_when_finished,
@@ -269,6 +329,10 @@ my %option_map = (
     "PRE_KTEST"			=> \$pre_ktest,
     "POST_KTEST"		=> \$post_ktest,
     "PRE_TEST"			=> \$pre_test,
+<<<<<<< HEAD
+=======
+    "PRE_TEST_DIE"		=> \$pre_test_die,
+>>>>>>> upstream/android-13
     "POST_TEST"			=> \$post_test,
     "BUILD_TYPE"		=> \$build_type,
     "BUILD_OPTIONS"		=> \$build_options,
@@ -278,6 +342,10 @@ my %option_map = (
     "POST_BUILD_DIE"		=> \$post_build_die,
     "POWER_CYCLE"		=> \$power_cycle,
     "REBOOT"			=> \$reboot,
+<<<<<<< HEAD
+=======
+    "REBOOT_RETURN_CODE"	=> \$reboot_return_code,
+>>>>>>> upstream/android-13
     "BUILD_NOCLEAN"		=> \$noclean,
     "MIN_CONFIG"		=> \$minconfig,
     "OUTPUT_MIN_CONFIG"		=> \$output_minconfig,
@@ -292,6 +360,10 @@ my %option_map = (
     "GRUB_MENU"			=> \$grub_menu,
     "GRUB_FILE"			=> \$grub_file,
     "GRUB_REBOOT"		=> \$grub_reboot,
+<<<<<<< HEAD
+=======
+    "GRUB_BLS_GET"		=> \$grub_bls_get,
+>>>>>>> upstream/android-13
     "SYSLINUX"			=> \$syslinux,
     "SYSLINUX_PATH"		=> \$syslinux_path,
     "SYSLINUX_LABEL"		=> \$syslinux_label,
@@ -437,7 +509,11 @@ EOF
     ;
 $config_help{"REBOOT_TYPE"} = << "EOF"
  Way to reboot the box to the test kernel.
+<<<<<<< HEAD
  Only valid options so far are "grub", "grub2", "syslinux", and "script".
+=======
+ Only valid options so far are "grub", "grub2", "grub2bls", "syslinux", and "script".
+>>>>>>> upstream/android-13
 
  If you specify grub, it will assume grub version 1
  and will search in /boot/grub/menu.lst for the title \$GRUB_MENU
@@ -451,6 +527,11 @@ $config_help{"REBOOT_TYPE"} = << "EOF"
  If you specify grub2, then you also need to specify both \$GRUB_MENU
  and \$GRUB_FILE.
 
+<<<<<<< HEAD
+=======
+ If you specify grub2bls, then you also need to specify \$GRUB_MENU.
+
+>>>>>>> upstream/android-13
  If you specify syslinux, then you may use SYSLINUX to define the syslinux
  command (defaults to extlinux), and SYSLINUX_PATH to specify the path to
  the syslinux install (defaults to /boot/extlinux). But you have to specify
@@ -476,6 +557,12 @@ $config_help{"GRUB_MENU"} = << "EOF"
  menu must be a non-nested menu. Add the quotes used in the menu
  to guarantee your selection, as the first menuentry with the content
  of \$GRUB_MENU that is found will be used.
+<<<<<<< HEAD
+=======
+
+ For grub2bls, \$GRUB_MENU is searched on the result of \$GRUB_BLS_GET
+ command for the lines that begin with "title".
+>>>>>>> upstream/android-13
 EOF
     ;
 $config_help{"GRUB_FILE"} = << "EOF"
@@ -494,11 +581,80 @@ $config_help{"REBOOT_SCRIPT"} = << "EOF"
 EOF
     ;
 
+<<<<<<< HEAD
 sub _logit {
     if (defined($opt{"LOG_FILE"})) {
 	open(OUT, ">> $opt{LOG_FILE}") or die "Can't write to $opt{LOG_FILE}";
 	print OUT @_;
 	close(OUT);
+=======
+# used with process_expression()
+my $d = 0;
+
+# defined before get_test_name()
+my $in_die = 0;
+
+# defined before process_warning_line()
+my $check_build_re = ".*:.*(warning|error|Error):.*";
+my $utf8_quote = "\\x{e2}\\x{80}(\\x{98}|\\x{99})";
+
+# defined before child_finished()
+my $child_done;
+
+# config_ignore holds the configs that were set (or unset) for
+# a good config and we will ignore these configs for the rest
+# of a config bisect. These configs stay as they were.
+my %config_ignore;
+
+# config_set holds what all configs were set as.
+my %config_set;
+
+# config_off holds the set of configs that the bad config had disabled.
+# We need to record them and set them in the .config when running
+# olddefconfig, because olddefconfig keeps the defaults.
+my %config_off;
+
+# config_off_tmp holds a set of configs to turn off for now
+my @config_off_tmp;
+
+# config_list is the set of configs that are being tested
+my %config_list;
+my %null_config;
+
+my %dependency;
+
+# found above run_config_bisect()
+my $pass = 1;
+
+# found above add_dep()
+
+my %depends;
+my %depcount;
+my $iflevel = 0;
+my @ifdeps;
+
+# prevent recursion
+my %read_kconfigs;
+
+# found above test_this_config()
+my %min_configs;
+my %keep_configs;
+my %save_configs;
+my %processed_configs;
+my %nochange_config;
+
+#
+# These are first defined here, main function later on
+#
+sub run_command;
+sub start_monitor;
+sub end_monitor;
+sub wait_for_monitor;
+
+sub _logit {
+    if (defined($opt{"LOG_FILE"})) {
+	print LOG @_;
+>>>>>>> upstream/android-13
     }
 }
 
@@ -521,7 +677,11 @@ sub read_prompt {
     my $ans;
 
     for (;;) {
+<<<<<<< HEAD
 	if ($cancel) {
+=======
+        if ($cancel) {
+>>>>>>> upstream/android-13
 	    print "$prompt [y/n/C] ";
 	} else {
 	    print "$prompt [Y/n] ";
@@ -692,7 +852,11 @@ sub get_mandatory_configs {
 	}
     }
 
+<<<<<<< HEAD
     if ($rtype eq "grub") {
+=======
+    if (($rtype eq "grub") or ($rtype eq "grub2bls")) {
+>>>>>>> upstream/android-13
 	get_mandatory_config("GRUB_MENU");
     }
 
@@ -744,7 +908,11 @@ sub process_variables {
     # remove the space added in the beginning
     $retval =~ s/ //;
 
+<<<<<<< HEAD
     return "$retval"
+=======
+    return "$retval";
+>>>>>>> upstream/android-13
 }
 
 sub set_value {
@@ -847,7 +1015,10 @@ sub value_defined {
 	defined($opt{$2});
 }
 
+<<<<<<< HEAD
 my $d = 0;
+=======
+>>>>>>> upstream/android-13
 sub process_expression {
     my ($name, $val) = @_;
 
@@ -898,6 +1069,15 @@ sub process_expression {
 	}
     }
 
+<<<<<<< HEAD
+=======
+    if ($val =~ s/^\s*NOT\s+(.*)//) {
+	my $express = $1;
+	my $ret = process_expression($name, $express);
+	return !$ret;
+    }
+
+>>>>>>> upstream/android-13
     if ($val =~ /^\s*0\s*$/) {
 	return 0;
     } elsif ($val =~ /^\s*\d+\s*$/) {
@@ -956,7 +1136,10 @@ sub __read_config {
 	    $override = 0;
 
 	    if ($type eq "TEST_START") {
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 		if ($num_tests_set) {
 		    die "$name: $.: Can not specify both NUM_TESTS and TEST_START\n";
 		}
@@ -1019,14 +1202,21 @@ sub __read_config {
 	    }
 
 	    if (!$skip && $rest !~ /^\s*$/) {
+<<<<<<< HEAD
 		die "$name: $.: Gargbage found after $type\n$_";
+=======
+		die "$name: $.: Garbage found after $type\n$_";
+>>>>>>> upstream/android-13
 	    }
 
 	    if ($skip && $type eq "TEST_START") {
 		$test_num = $old_test_num;
 		$repeat = $old_repeat;
 	    }
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	} elsif (/^\s*ELSE\b(.*)$/) {
 	    if (!$if) {
 		die "$name: $.: ELSE found with out matching IF section\n$_";
@@ -1052,7 +1242,11 @@ sub __read_config {
 	    }
 
 	    if ($rest !~ /^\s*$/) {
+<<<<<<< HEAD
 		die "$name: $.: Gargbage found after DEFAULTS\n$_";
+=======
+		die "$name: $.: Garbage found after DEFAULTS\n$_";
+>>>>>>> upstream/android-13
 	    }
 
 	} elsif (/^\s*INCLUDE\s+(\S+)/) {
@@ -1073,7 +1267,11 @@ sub __read_config {
 		    }
 		}
 	    }
+<<<<<<< HEAD
 		
+=======
+
+>>>>>>> upstream/android-13
 	    if ( ! -r $file ) {
 		die "$name: $.: Can't read file $file\n$_";
 	    }
@@ -1143,7 +1341,11 @@ sub __read_config {
 	    # on of these sections that have SKIP defined.
 	    # The save variable can be
 	    # defined multiple times and the new one simply overrides
+<<<<<<< HEAD
 	    # the prevous one.
+=======
+	    # the previous one.
+>>>>>>> upstream/android-13
 	    set_variable($lvalue, $rvalue);
 
 	} else {
@@ -1164,6 +1366,7 @@ sub __read_config {
 }
 
 sub get_test_case {
+<<<<<<< HEAD
 	print "What test case would you like to run?\n";
 	print " (build, install or boot)\n";
 	print " Other tests are available but require editing ktest.conf\n";
@@ -1171,6 +1374,15 @@ sub get_test_case {
 	my $ans = <STDIN>;
 	chomp $ans;
 	$default{"TEST_TYPE"} = $ans;
+=======
+    print "What test case would you like to run?\n";
+    print " (build, install or boot)\n";
+    print " Other tests are available but require editing ktest.conf\n";
+    print " (see tools/testing/ktest/sample.conf)\n";
+    my $ans = <STDIN>;
+    chomp $ans;
+    $default{"TEST_TYPE"} = $ans;
+>>>>>>> upstream/android-13
 }
 
 sub read_config {
@@ -1223,7 +1435,11 @@ sub read_config {
 	foreach my $option (keys %not_used) {
 	    print "$option\n";
 	}
+<<<<<<< HEAD
 	print "Set IGRNORE_UNUSED = 1 to have ktest ignore unused variables\n";
+=======
+	print "Set IGNORE_UNUSED = 1 to have ktest ignore unused variables\n";
+>>>>>>> upstream/android-13
 	if (!read_yn "Do you want to continue?") {
 	    exit -1;
 	}
@@ -1334,7 +1550,11 @@ sub eval_option {
 	# Check for recursive evaluations.
 	# 100 deep should be more than enough.
 	if ($r++ > 100) {
+<<<<<<< HEAD
 	    die "Over 100 evaluations accurred with $option\n" .
+=======
+	    die "Over 100 evaluations occurred with $option\n" .
+>>>>>>> upstream/android-13
 		"Check for recursive variables\n";
 	}
 	$prev = $option;
@@ -1346,11 +1566,14 @@ sub eval_option {
     return $option;
 }
 
+<<<<<<< HEAD
 sub run_command;
 sub start_monitor;
 sub end_monitor;
 sub wait_for_monitor;
 
+=======
+>>>>>>> upstream/android-13
 sub reboot {
     my ($time) = @_;
     my $powercycle = 0;
@@ -1435,6 +1658,7 @@ sub do_not_reboot {
 	($test_type eq "config_bisect" && $opt{"CONFIG_BISECT_TYPE[$i]"} eq "build");
 }
 
+<<<<<<< HEAD
 my $in_die = 0;
 
 sub dodie {
@@ -1452,6 +1676,31 @@ sub dodie {
 	doprint "REBOOTING\n";
 	reboot_to_good;
 
+=======
+sub get_test_name() {
+    my $name;
+
+    if (defined($test_name)) {
+	$name = "$test_name:$test_type";
+    } else {
+	$name = $test_type;
+    }
+    return $name;
+}
+
+sub dodie {
+    # avoid recursion
+    return if ($in_die);
+    $in_die = 1;
+
+    my $i = $iteration;
+
+    doprint "CRITICAL FAILURE... [TEST $i] ", @_, "\n";
+
+    if ($reboot_on_error && !do_not_reboot) {
+	doprint "REBOOTING\n";
+	reboot_to_good;
+>>>>>>> upstream/android-13
     } elsif ($poweroff_on_error && defined($power_off)) {
 	doprint "POWERING OFF\n";
 	`$power_off`;
@@ -1462,6 +1711,7 @@ sub dodie {
     }
 
     if ($email_on_error) {
+<<<<<<< HEAD
         send_email("KTEST: critical failure for your [$test_type] test",
                 "Your test started at $script_start_time has failed with:\n@_\n");
     }
@@ -1469,6 +1719,40 @@ sub dodie {
     if ($monitor_cnt) {
 	    # restore terminal settings
 	    system("stty $stty_orig");
+=======
+	my $name = get_test_name;
+	my $log_file;
+
+	if (defined($opt{"LOG_FILE"})) {
+	    my $whence = 2; # End of file
+	    my $log_size = tell LOG;
+	    my $size = $log_size - $test_log_start;
+
+	    if (defined($mail_max_size)) {
+		if ($size > $mail_max_size) {
+		    $size = $mail_max_size;
+		}
+	    }
+	    my $pos = - $size;
+	    $log_file = "$tmpdir/log";
+	    open (L, "$opt{LOG_FILE}") or die "Can't open $opt{LOG_FILE} to read)";
+	    open (O, "> $tmpdir/log") or die "Can't open $tmpdir/log\n";
+	    seek(L, $pos, $whence);
+	    while (<L>) {
+		print O;
+	    }
+	    close O;
+	    close L;
+	}
+
+	send_email("KTEST: critical failure for test $i [$name]",
+		"Your test started at $script_start_time has failed with:\n@_\n", $log_file);
+    }
+
+    if ($monitor_cnt) {
+	# restore terminal settings
+	system("stty $stty_orig");
+>>>>>>> upstream/android-13
     }
 
     if (defined($post_test)) {
@@ -1485,7 +1769,11 @@ sub create_pty {
     my $TIOCGPTN = 0x80045430;
 
     sysopen($ptm, "/dev/ptmx", O_RDWR | O_NONBLOCK) or
+<<<<<<< HEAD
 	dodie "Cant open /dev/ptmx";
+=======
+	dodie "Can't open /dev/ptmx";
+>>>>>>> upstream/android-13
 
     # unlockpt()
     $tmp = pack("i", 0);
@@ -1652,6 +1940,7 @@ sub wait_for_monitor {
 }
 
 sub save_logs {
+<<<<<<< HEAD
 	my ($result, $basedir) = @_;
 	my @t = localtime;
 	my $date = sprintf "%04d%02d%02d%02d%02d%02d",
@@ -1686,10 +1975,47 @@ sub save_logs {
 	}
 
 	doprint "*** Saved info to $dir ***\n";
+=======
+    my ($result, $basedir) = @_;
+    my @t = localtime;
+    my $date = sprintf "%04d%02d%02d%02d%02d%02d",
+	1900+$t[5],$t[4],$t[3],$t[2],$t[1],$t[0];
+
+    my $type = $build_type;
+    if ($type =~ /useconfig/) {
+	$type = "useconfig";
+    }
+
+    my $dir = "$machine-$test_type-$type-$result-$date";
+
+    $dir = "$basedir/$dir";
+
+    if (!-d $dir) {
+	mkpath($dir) or
+	    dodie "can't create $dir";
+    }
+
+    my %files = (
+	"config" => $output_config,
+	"buildlog" => $buildlog,
+	"dmesg" => $dmesg,
+	"testlog" => $testlog,
+    );
+
+    while (my ($name, $source) = each(%files)) {
+	if (-f "$source") {
+	    cp "$source", "$dir/$name" or
+		dodie "failed to copy $source";
+	}
+    }
+
+    doprint "*** Saved info to $dir ***\n";
+>>>>>>> upstream/android-13
 }
 
 sub fail {
 
+<<<<<<< HEAD
 	if ($die_on_failure) {
 		dodie @_;
 	}
@@ -1727,6 +2053,45 @@ sub fail {
 	}
 
 	return 1;
+=======
+    if ($die_on_failure) {
+	dodie @_;
+    }
+
+    doprint "FAILED\n";
+
+    my $i = $iteration;
+
+    # no need to reboot for just building.
+    if (!do_not_reboot) {
+	doprint "REBOOTING\n";
+	reboot_to_good $sleep_time;
+    }
+
+    my $name = "";
+
+    if (defined($test_name)) {
+	$name = " ($test_name)";
+    }
+
+    print_times;
+
+    doprint "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n";
+    doprint "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n";
+    doprint "KTEST RESULT: TEST $i$name Failed: ", @_, "\n";
+    doprint "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n";
+    doprint "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n";
+
+    if (defined($store_failures)) {
+	save_logs "fail", $store_failures;
+    }
+
+    if (defined($post_test)) {
+	run_command $post_test;
+    }
+
+    return 1;
+>>>>>>> upstream/android-13
 }
 
 sub run_command {
@@ -1737,6 +2102,10 @@ sub run_command {
     my $dord = 0;
     my $dostdout = 0;
     my $pid;
+<<<<<<< HEAD
+=======
+    my $command_orig = $command;
+>>>>>>> upstream/android-13
 
     $command =~ s/\$SSH_USER/$ssh_user/g;
     $command =~ s/\$MACHINE/$machine/g;
@@ -1748,8 +2117,11 @@ sub run_command {
 	(fail "unable to exec $command" and return 0);
 
     if (defined($opt{"LOG_FILE"})) {
+<<<<<<< HEAD
 	open(LOG, ">>$opt{LOG_FILE}") or
 	    dodie "failed to write to log";
+=======
+>>>>>>> upstream/android-13
 	$dolog = 1;
     }
 
@@ -1791,8 +2163,17 @@ sub run_command {
     # shift 8 for real exit status
     $run_command_status = $? >> 8;
 
+<<<<<<< HEAD
     close(CMD);
     close(LOG) if ($dolog);
+=======
+    if ($command_orig eq $default{REBOOT} &&
+	$run_command_status == $reboot_return_code) {
+	$run_command_status = 0;
+    }
+
+    close(CMD);
+>>>>>>> upstream/android-13
     close(RD)  if ($dord);
 
     $end_time = time;
@@ -1850,6 +2231,7 @@ sub run_scp_mod {
     return run_scp($src, $dst, $cp_scp);
 }
 
+<<<<<<< HEAD
 sub get_grub2_index {
 
     return if (defined($grub_number) && defined($last_grub_menu) &&
@@ -1864,21 +2246,51 @@ sub get_grub2_index {
 
     open(IN, "$ssh_grub |")
 	or dodie "unable to get $grub_file";
+=======
+sub _get_grub_index {
+
+    my ($command, $target, $skip) = @_;
+
+    return if (defined($grub_number) && defined($last_grub_menu) &&
+	$last_grub_menu eq $grub_menu && defined($last_machine) &&
+	$last_machine eq $machine);
+
+    doprint "Find $reboot_type menu ... ";
+    $grub_number = -1;
+
+    my $ssh_grub = $ssh_exec;
+    $ssh_grub =~ s,\$SSH_COMMAND,$command,g;
+
+    open(IN, "$ssh_grub |") or
+	dodie "unable to execute $command";
+>>>>>>> upstream/android-13
 
     my $found = 0;
 
     while (<IN>) {
+<<<<<<< HEAD
 	if (/^menuentry.*$grub_menu/) {
 	    $grub_number++;
 	    $found = 1;
 	    last;
 	} elsif (/^menuentry\s|^submenu\s/) {
+=======
+	if (/$target/) {
+	    $grub_number++;
+	    $found = 1;
+	    last;
+	} elsif (/$skip/) {
+>>>>>>> upstream/android-13
 	    $grub_number++;
 	}
     }
     close(IN);
 
+<<<<<<< HEAD
     dodie "Could not find '$grub_menu' in $grub_file on $machine"
+=======
+    dodie "Could not find '$grub_menu' through $command on $machine"
+>>>>>>> upstream/android-13
 	if (!$found);
     doprint "$grub_number\n";
     $last_grub_menu = $grub_menu;
@@ -1887,6 +2299,7 @@ sub get_grub2_index {
 
 sub get_grub_index {
 
+<<<<<<< HEAD
     if ($reboot_type eq "grub2") {
 	get_grub2_index;
 	return;
@@ -1930,6 +2343,39 @@ sub get_grub_index {
 
 sub wait_for_input
 {
+=======
+    my $command;
+    my $target;
+    my $skip;
+    my $grub_menu_qt;
+
+    if ($reboot_type !~ /^grub/) {
+	return;
+    }
+
+    $grub_menu_qt = quotemeta($grub_menu);
+
+    if ($reboot_type eq "grub") {
+	$command = "cat /boot/grub/menu.lst";
+	$target = '^\s*title\s+' . $grub_menu_qt . '\s*$';
+	$skip = '^\s*title\s';
+    } elsif ($reboot_type eq "grub2") {
+	$command = "cat $grub_file";
+	$target = '^menuentry.*' . $grub_menu_qt;
+	$skip = '^menuentry\s|^submenu\s';
+    } elsif ($reboot_type eq "grub2bls") {
+	$command = $grub_bls_get;
+	$target = '^title=.*' . $grub_menu_qt;
+	$skip = '^title=';
+    } else {
+	return;
+    }
+
+    _get_grub_index($command, $target, $skip);
+}
+
+sub wait_for_input {
+>>>>>>> upstream/android-13
     my ($fp, $time) = @_;
     my $start_time;
     my $rin;
@@ -1988,7 +2434,11 @@ sub reboot_to {
 
     if ($reboot_type eq "grub") {
 	run_ssh "'(echo \"savedefault --default=$grub_number --once\" | grub --batch)'";
+<<<<<<< HEAD
     } elsif ($reboot_type eq "grub2") {
+=======
+    } elsif (($reboot_type eq "grub2") or ($reboot_type eq "grub2bls")) {
+>>>>>>> upstream/android-13
 	run_ssh "$grub_reboot $grub_number";
     } elsif ($reboot_type eq "syslinux") {
 	run_ssh "$syslinux --once \\\"$syslinux_label\\\" $syslinux_path";
@@ -2045,7 +2495,10 @@ sub monitor {
     my $version_found = 0;
 
     while (!$done) {
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	if ($bug && defined($stop_after_failure) &&
 	    $stop_after_failure >= 0) {
 	    my $time = $stop_after_failure - (time - $failure_start);
@@ -2298,9 +2751,12 @@ sub start_monitor_and_install {
     return monitor;
 }
 
+<<<<<<< HEAD
 my $check_build_re = ".*:.*(warning|error|Error):.*";
 my $utf8_quote = "\\x{e2}\\x{80}(\\x{98}|\\x{99})";
 
+=======
+>>>>>>> upstream/android-13
 sub process_warning_line {
     my ($line) = @_;
 
@@ -2343,7 +2799,11 @@ sub check_buildlog {
 	while (<IN>) {
 	    if (/$check_build_re/) {
 		my $warning = process_warning_line $_;
+<<<<<<< HEAD
 		
+=======
+
+>>>>>>> upstream/android-13
 		$warnings_list{$warning} = 1;
 	    }
 	}
@@ -2520,7 +2980,10 @@ sub build {
 	    run_command "mv $outputdir/config_temp $output_config" or
 		dodie "moving config_temp";
 	}
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
     } elsif (!$noclean) {
 	unlink "$output_config";
 	run_command "$make mrproper" or
@@ -2543,6 +3006,12 @@ sub build {
     # Run old config regardless, to enforce min configurations
     make_oldconfig;
 
+<<<<<<< HEAD
+=======
+    if (not defined($build_options)){
+	$build_options = "";
+    }
+>>>>>>> upstream/android-13
     my $build_ret = run_command "$make $build_options", $buildlog;
 
     if (defined($post_build)) {
@@ -2598,6 +3067,7 @@ sub success {
 
     print_times;
 
+<<<<<<< HEAD
     doprint "\n\n*******************************************\n";
     doprint     "*******************************************\n";
     doprint     "KTEST RESULT: TEST $i$name SUCCESS!!!!         **\n";
@@ -2606,6 +3076,17 @@ sub success {
 
     if (defined($store_successes)) {
         save_logs "success", $store_successes;
+=======
+    doprint "\n\n";
+    doprint "*******************************************\n";
+    doprint "*******************************************\n";
+    doprint "KTEST RESULT: TEST $i$name SUCCESS!!!!   **\n";
+    doprint "*******************************************\n";
+    doprint "*******************************************\n";
+
+    if (defined($store_successes)) {
+	save_logs "success", $store_successes;
+>>>>>>> upstream/android-13
     }
 
     if ($i != $opt{"NUM_TESTS"} && !do_not_reboot) {
@@ -2647,8 +3128,11 @@ sub child_run_test {
     exit $run_command_status;
 }
 
+<<<<<<< HEAD
 my $child_done;
 
+=======
+>>>>>>> upstream/android-13
 sub child_finished {
     $child_done = 1;
 }
@@ -2980,7 +3464,10 @@ sub bisect {
     }
 
     if ($do_check) {
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	# get current HEAD
 	my $head = get_sha1("HEAD");
 
@@ -3020,13 +3507,19 @@ sub bisect {
 	run_command "git bisect replay $replay" or
 	    dodie "failed to run replay";
     } else {
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	run_command "git bisect good $good" or
 	    dodie "could not set bisect good to $good";
 
 	run_git_bisect "git bisect bad $bad" or
 	    dodie "could not set bisect bad to $bad";
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
     }
 
     if (defined($start)) {
@@ -3052,6 +3545,7 @@ sub bisect {
     success $i;
 }
 
+<<<<<<< HEAD
 # config_ignore holds the configs that were set (or unset) for
 # a good config and we will ignore these configs for the rest
 # of a config bisect. These configs stay as they were.
@@ -3074,13 +3568,20 @@ my %null_config;
 
 my %dependency;
 
+=======
+>>>>>>> upstream/android-13
 sub assign_configs {
     my ($hash, $config) = @_;
 
     doprint "Reading configs from $config\n";
 
+<<<<<<< HEAD
     open (IN, $config)
 	or dodie "Failed to read $config";
+=======
+    open (IN, $config) or
+	dodie "Failed to read $config";
+>>>>>>> upstream/android-13
 
     while (<IN>) {
 	chomp;
@@ -3190,11 +3691,23 @@ sub run_config_bisect {
 
     $ret = run_config_bisect_test $config_bisect_type;
     if ($ret) {
+<<<<<<< HEAD
         doprint "NEW GOOD CONFIG\n";
 	# Return 3 for good config
 	return 3;
     } else {
         doprint "NEW BAD CONFIG\n";
+=======
+	doprint "NEW GOOD CONFIG ($pass)\n";
+	system("cp $output_config $tmpdir/good_config.tmp.$pass");
+	$pass++;
+	# Return 3 for good config
+	return 3;
+    } else {
+	doprint "NEW BAD CONFIG ($pass)\n";
+	system("cp $output_config $tmpdir/bad_config.tmp.$pass");
+	$pass++;
+>>>>>>> upstream/android-13
 	# Return 4 for bad config
 	return 4;
     }
@@ -3227,10 +3740,18 @@ sub config_bisect {
 
     if (!defined($config_bisect_exec)) {
 	# First check the location that ktest.pl ran
+<<<<<<< HEAD
 	my @locations = ( "$pwd/config-bisect.pl",
 			  "$dirname/config-bisect.pl",
 			  "$builddir/tools/testing/ktest/config-bisect.pl",
 			  undef );
+=======
+	my @locations = (
+		"$pwd/config-bisect.pl",
+		"$dirname/config-bisect.pl",
+		"$builddir/tools/testing/ktest/config-bisect.pl",
+		undef );
+>>>>>>> upstream/android-13
 	foreach my $loc (@locations) {
 	    doprint "loc = $loc\n";
 	    $config_bisect_exec = $loc;
@@ -3311,7 +3832,11 @@ sub config_bisect {
     } while ($ret == 3 || $ret == 4);
 
     if ($ret == 2) {
+<<<<<<< HEAD
         config_bisect_end "$good_config.tmp", "$bad_config.tmp";
+=======
+	config_bisect_end "$good_config.tmp", "$bad_config.tmp";
+>>>>>>> upstream/android-13
     }
 
     return $ret if ($ret < 0);
@@ -3454,6 +3979,7 @@ sub patchcheck {
     return 1;
 }
 
+<<<<<<< HEAD
 my %depends;
 my %depcount;
 my $iflevel = 0;
@@ -3462,6 +3988,8 @@ my @ifdeps;
 # prevent recursion
 my %read_kconfigs;
 
+=======
+>>>>>>> upstream/android-13
 sub add_dep {
     # $config depends on $dep
     my ($config, $dep) = @_;
@@ -3491,7 +4019,10 @@ sub read_kconfig {
     my $cont = 0;
     my $line;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
     if (! -f $kconfig) {
 	doprint "file $kconfig does not exist, skipping\n";
 	return;
@@ -3573,8 +4104,13 @@ sub read_kconfig {
 
 sub read_depends {
     # find out which arch this is by the kconfig file
+<<<<<<< HEAD
     open (IN, $output_config)
 	or dodie "Failed to read $output_config";
+=======
+    open (IN, $output_config) or
+	dodie "Failed to read $output_config";
+>>>>>>> upstream/android-13
     my $arch;
     while (<IN>) {
 	if (m,Linux/(\S+)\s+\S+\s+Kernel Configuration,) {
@@ -3600,7 +4136,11 @@ sub read_depends {
 
     if (! -f $kconfig && $arch =~ /\d$/) {
 	my $orig = $arch;
+<<<<<<< HEAD
  	# some subarchs have numbers, truncate them
+=======
+	# some subarchs have numbers, truncate them
+>>>>>>> upstream/android-13
 	$arch =~ s/\d*$//;
 	$kconfig = "$builddir/arch/$arch/Kconfig";
 	if (! -f $kconfig) {
@@ -3649,7 +4189,10 @@ sub get_depends {
     my @configs;
 
     while ($dep =~ /[$valid]/) {
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	if ($dep =~ /^[^$valid]*([$valid]+)/) {
 	    my $conf = "CONFIG_" . $1;
 
@@ -3664,12 +4207,15 @@ sub get_depends {
     return @configs;
 }
 
+<<<<<<< HEAD
 my %min_configs;
 my %keep_configs;
 my %save_configs;
 my %processed_configs;
 my %nochange_config;
 
+=======
+>>>>>>> upstream/android-13
 sub test_this_config {
     my ($config) = @_;
 
@@ -3795,7 +4341,11 @@ sub make_min_config {
     foreach my $config (@config_keys) {
 	my $kconfig = chomp_config $config;
 	if (!defined $depcount{$kconfig}) {
+<<<<<<< HEAD
 		$depcount{$kconfig} = 0;
+=======
+	    $depcount{$kconfig} = 0;
+>>>>>>> upstream/android-13
 	}
     }
 
@@ -3830,7 +4380,10 @@ sub make_min_config {
     my $take_two = 0;
 
     while (!$done) {
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	my $config;
 	my $found;
 
@@ -3841,7 +4394,11 @@ sub make_min_config {
 
 	# Sort keys by who is most dependent on
 	@test_configs = sort  { $depcount{chomp_config($b)} <=> $depcount{chomp_config($a)} }
+<<<<<<< HEAD
 			  @test_configs ;
+=======
+	    @test_configs ;
+>>>>>>> upstream/android-13
 
 	# Put configs that did not modify the config at the end.
 	my $reset = 1;
@@ -3897,6 +4454,7 @@ sub make_min_config {
 	my $failed = 0;
 	build "oldconfig" or $failed = 1;
 	if (!$failed) {
+<<<<<<< HEAD
 		start_monitor_and_install or $failed = 1;
 
 		if ($type eq "test" && !$failed) {
@@ -3904,6 +4462,15 @@ sub make_min_config {
 		}
 
 		end_monitor;
+=======
+	    start_monitor_and_install or $failed = 1;
+
+	    if ($type eq "test" && !$failed) {
+		do_run_test or $failed = 1;
+	    }
+
+	    end_monitor;
+>>>>>>> upstream/android-13
 	}
 
 	$in_bisect = 0;
@@ -3917,8 +4484,13 @@ sub make_min_config {
 
 	    # update new ignore configs
 	    if (defined($ignore_config)) {
+<<<<<<< HEAD
 		open (OUT, ">$temp_config")
 		    or dodie "Can't write to $temp_config";
+=======
+		open (OUT, ">$temp_config") or
+		    dodie "Can't write to $temp_config";
+>>>>>>> upstream/android-13
 		foreach my $config (keys %save_configs) {
 		    print OUT "$save_configs{$config}\n";
 		}
@@ -3945,8 +4517,13 @@ sub make_min_config {
 	    }
 
 	    # Save off all the current mandatory configs
+<<<<<<< HEAD
 	    open (OUT, ">$temp_config")
 		or dodie "Can't write to $temp_config";
+=======
+	    open (OUT, ">$temp_config") or
+		dodie "Can't write to $temp_config";
+>>>>>>> upstream/android-13
 	    foreach my $config (keys %keep_configs) {
 		print OUT "$keep_configs{$config}\n";
 	    }
@@ -3984,7 +4561,10 @@ sub make_warnings_file {
 
     open(IN, $buildlog) or dodie "Can't open $buildlog";
     while (<IN>) {
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	# Some compilers use UTF-8 extended for quotes
 	# for distcc heterogeneous systems, this causes issues
 	s/$utf8_quote/'/g;
@@ -4000,6 +4580,7 @@ sub make_warnings_file {
     success $i;
 }
 
+<<<<<<< HEAD
 $#ARGV < 1 or die "ktest.pl version: $VERSION\n   usage: ktest.pl [config-file]\n";
 
 if ($#ARGV == 0) {
@@ -4088,6 +4669,8 @@ for (my $i = 0, my $repeat = 1; $i <= $opt{"NUM_TESTS"}; $i += $repeat) {
     }
 }
 
+=======
+>>>>>>> upstream/android-13
 sub option_defined {
     my ($option) = @_;
 
@@ -4151,7 +4734,11 @@ sub find_mailer {
 }
 
 sub do_send_mail {
+<<<<<<< HEAD
     my ($subject, $message) = @_;
+=======
+    my ($subject, $message, $file) = @_;
+>>>>>>> upstream/android-13
 
     if (!defined($mail_path)) {
 	# find the mailer
@@ -4161,16 +4748,41 @@ sub do_send_mail {
 	}
     }
 
+<<<<<<< HEAD
     if (!defined($mail_command)) {
 	if ($mailer eq "mail" || $mailer eq "mailx") {
 	    $mail_command = "\$MAIL_PATH/\$MAILER -s \'\$SUBJECT\' \$MAILTO <<< \'\$MESSAGE\'";
 	} elsif ($mailer eq "sendmail" ) {
 	    $mail_command =  "echo \'Subject: \$SUBJECT\n\n\$MESSAGE\' | \$MAIL_PATH/\$MAILER -t \$MAILTO";
+=======
+    my $header_file = "$tmpdir/header";
+    open (HEAD, ">$header_file") or die "Can not create $header_file\n";
+    print HEAD "To: $mailto\n";
+    print HEAD "Subject: $subject\n\n";
+    print HEAD "$message\n";
+    close HEAD;
+
+    if (!defined($mail_command)) {
+	if ($mailer eq "mail" || $mailer eq "mailx") {
+	    $mail_command = "cat \$HEADER_FILE \$BODY_FILE | \$MAIL_PATH/\$MAILER -s \'\$SUBJECT\' \$MAILTO";
+	} elsif ($mailer eq "sendmail" ) {
+	    $mail_command =  "cat \$HEADER_FILE \$BODY_FILE | \$MAIL_PATH/\$MAILER -t \$MAILTO";
+>>>>>>> upstream/android-13
 	} else {
 	    die "\nYour mailer: $mailer is not supported.\n";
 	}
     }
 
+<<<<<<< HEAD
+=======
+    if (defined($file)) {
+	$mail_command =~ s/\$BODY_FILE/$file/g;
+    } else {
+	$mail_command =~ s/\$BODY_FILE//g;
+    }
+
+    $mail_command =~ s/\$HEADER_FILE/$header_file/g;
+>>>>>>> upstream/android-13
     $mail_command =~ s/\$MAILER/$mailer/g;
     $mail_command =~ s/\$MAIL_PATH/$mail_path/g;
     $mail_command =~ s/\$MAILTO/$mailto/g;
@@ -4186,7 +4798,10 @@ sub do_send_mail {
 }
 
 sub send_email {
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
     if (defined($mailto)) {
 	if (!defined($mailer)) {
 	    doprint "No email sent: email or mailer not specified in config.\n";
@@ -4198,12 +4813,112 @@ sub send_email {
 
 sub cancel_test {
     if ($email_when_canceled) {
+<<<<<<< HEAD
         send_email("KTEST: Your [$test_type] test was cancelled",
                 "Your test started at $script_start_time was cancelled: sig int");
+=======
+	my $name = get_test_name;
+	send_email("KTEST: Your [$name] test was cancelled",
+	    "Your test started at $script_start_time was cancelled: sig int");
+>>>>>>> upstream/android-13
     }
     die "\nCaught Sig Int, test interrupted: $!\n"
 }
 
+<<<<<<< HEAD
+=======
+$#ARGV < 1 or die "ktest.pl version: $VERSION\n   usage: ktest.pl [config-file]\n";
+
+if ($#ARGV == 0) {
+    $ktest_config = $ARGV[0];
+    if (! -f $ktest_config) {
+	print "$ktest_config does not exist.\n";
+	if (!read_yn "Create it?") {
+	    exit 0;
+	}
+    }
+}
+
+if (! -f $ktest_config) {
+    $newconfig = 1;
+    get_test_case;
+    open(OUT, ">$ktest_config") or die "Can not create $ktest_config";
+    print OUT << "EOF"
+# Generated by ktest.pl
+#
+
+# PWD is a ktest.pl variable that will result in the process working
+# directory that ktest.pl is executed in.
+
+# THIS_DIR is automatically assigned the PWD of the path that generated
+# the config file. It is best to use this variable when assigning other
+# directory paths within this directory. This allows you to easily
+# move the test cases to other locations or to other machines.
+#
+THIS_DIR := $variable{"PWD"}
+
+# Define each test with TEST_START
+# The config options below it will override the defaults
+TEST_START
+TEST_TYPE = $default{"TEST_TYPE"}
+
+DEFAULTS
+EOF
+;
+    close(OUT);
+}
+read_config $ktest_config;
+
+if (defined($opt{"LOG_FILE"})) {
+    $opt{"LOG_FILE"} = eval_option("LOG_FILE", $opt{"LOG_FILE"}, -1);
+}
+
+# Append any configs entered in manually to the config file.
+my @new_configs = keys %entered_configs;
+if ($#new_configs >= 0) {
+    print "\nAppending entered in configs to $ktest_config\n";
+    open(OUT, ">>$ktest_config") or die "Can not append to $ktest_config";
+    foreach my $config (@new_configs) {
+	print OUT "$config = $entered_configs{$config}\n";
+	$opt{$config} = process_variables($entered_configs{$config});
+    }
+}
+
+if (defined($opt{"LOG_FILE"})) {
+    if ($opt{"CLEAR_LOG"}) {
+	unlink $opt{"LOG_FILE"};
+    }
+    open(LOG, ">> $opt{LOG_FILE}") or die "Can't write to $opt{LOG_FILE}";
+    LOG->autoflush(1);
+}
+
+doprint "\n\nSTARTING AUTOMATED TESTS\n\n";
+
+for (my $i = 0, my $repeat = 1; $i <= $opt{"NUM_TESTS"}; $i += $repeat) {
+
+    if (!$i) {
+	doprint "DEFAULT OPTIONS:\n";
+    } else {
+	doprint "\nTEST $i OPTIONS";
+	if (defined($repeat_tests{$i})) {
+	    $repeat = $repeat_tests{$i};
+	    doprint " ITERATE $repeat";
+	}
+	doprint "\n";
+    }
+
+    foreach my $option (sort keys %opt) {
+	if ($option =~ /\[(\d+)\]$/) {
+	    next if ($i != $1);
+	} else {
+	    next if ($i);
+	}
+
+	doprint "$option = $opt{$option}\n";
+    }
+}
+
+>>>>>>> upstream/android-13
 $SIG{INT} = qw(cancel_test);
 
 # First we need to do is the builds
@@ -4247,6 +4962,7 @@ for (my $i = 1; $i <= $opt{"NUM_TESTS"}; $i++) {
 
     # The first test may override the PRE_KTEST option
     if ($i == 1) {
+<<<<<<< HEAD
         if (defined($pre_ktest)) {
             doprint "\n";
             run_command $pre_ktest;
@@ -4255,6 +4971,17 @@ for (my $i = 1; $i <= $opt{"NUM_TESTS"}; $i++) {
             send_email("KTEST: Your [$test_type] test was started",
                 "Your test was started on $script_start_time");
         }
+=======
+	if (defined($pre_ktest)) {
+	    doprint "\n";
+	    run_command $pre_ktest;
+	}
+	if ($email_when_started) {
+	    my $name = get_test_name;
+	    send_email("KTEST: Your [$name] test was started",
+		"Your test was started on $script_start_time");
+	}
+>>>>>>> upstream/android-13
     }
 
     # Any test can override the POST_KTEST option
@@ -4283,7 +5010,11 @@ for (my $i = 1; $i <= $opt{"NUM_TESTS"}; $i++) {
 
     if (!$buildonly) {
 	$target = "$ssh_user\@$machine";
+<<<<<<< HEAD
 	if ($reboot_type eq "grub") {
+=======
+	if (($reboot_type eq "grub") or ($reboot_type eq "grub2bls")) {
+>>>>>>> upstream/android-13
 	    dodie "GRUB_MENU not defined" if (!defined($grub_menu));
 	} elsif ($reboot_type eq "grub2") {
 	    dodie "GRUB_MENU not defined" if (!defined($grub_menu));
@@ -4321,10 +5052,26 @@ for (my $i = 1; $i <= $opt{"NUM_TESTS"}; $i++) {
     }
 
     doprint "\n\n";
+<<<<<<< HEAD
     doprint "RUNNING TEST $i of $opt{NUM_TESTS}$name with option $test_type $run_type$installme\n\n";
 
     if (defined($pre_test)) {
 	run_command $pre_test;
+=======
+
+    if (defined($opt{"LOG_FILE"})) {
+	$test_log_start = tell(LOG);
+    }
+
+    doprint "RUNNING TEST $i of $opt{NUM_TESTS}$name with option $test_type $run_type$installme\n\n";
+
+    if (defined($pre_test)) {
+	my $ret = run_command $pre_test;
+	if (!$ret && defined($pre_test_die) &&
+	    $pre_test_die) {
+		dodie "failed to pre_test\n";
+	}
+>>>>>>> upstream/android-13
     }
 
     unlink $dmesg;
@@ -4403,7 +5150,13 @@ for (my $i = 1; $i <= $opt{"NUM_TESTS"}; $i++) {
 }
 
 if (defined($final_post_ktest)) {
+<<<<<<< HEAD
     run_command $final_post_ktest;
+=======
+
+    my $cp_final_post_ktest = eval_kernel_version $final_post_ktest;
+    run_command $cp_final_post_ktest;
+>>>>>>> upstream/android-13
 }
 
 if ($opt{"POWEROFF_ON_SUCCESS"}) {
@@ -4415,6 +5168,7 @@ if ($opt{"POWEROFF_ON_SUCCESS"}) {
     run_command $switch_to_good;
 }
 
+<<<<<<< HEAD
 
 doprint "\n    $successes of $opt{NUM_TESTS} tests were successful\n\n";
 
@@ -4423,3 +5177,27 @@ if ($email_when_finished) {
             "$successes of $opt{NUM_TESTS} tests started at $script_start_time were successful!");
 }
 exit 0;
+=======
+doprint "\n    $successes of $opt{NUM_TESTS} tests were successful\n\n";
+
+if ($email_when_finished) {
+    send_email("KTEST: Your test has finished!",
+	"$successes of $opt{NUM_TESTS} tests started at $script_start_time were successful!");
+}
+
+if (defined($opt{"LOG_FILE"})) {
+    print "\n See $opt{LOG_FILE} for the record of results.\n\n";
+    close LOG;
+}
+
+exit 0;
+
+##
+# The following are here to standardize tabs/spaces/etc across the most likely editors
+###
+
+# Local Variables:
+# mode: perl
+# End:
+# vim: softtabstop=4
+>>>>>>> upstream/android-13

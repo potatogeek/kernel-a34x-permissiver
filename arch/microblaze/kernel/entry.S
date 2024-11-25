@@ -728,7 +728,11 @@ no_intr_resched:
 	bri	6f;
 /* MS: Return to kernel state. */
 2:
+<<<<<<< HEAD
 #ifdef CONFIG_PREEMPT
+=======
+#ifdef CONFIG_PREEMPTION
+>>>>>>> upstream/android-13
 	lwi	r11, CURRENT_TASK, TS_THREAD_INFO;
 	/* MS: get preempt_count from thread info */
 	lwi	r5, r11, TI_PREEMPT_COUNT;
@@ -738,6 +742,7 @@ no_intr_resched:
 	andi	r5, r5, _TIF_NEED_RESCHED;
 	beqi	r5, restore /* if zero jump over */
 
+<<<<<<< HEAD
 preempt:
 	/* interrupts are off that's why I am calling preempt_chedule_irq */
 	bralid	r15, preempt_schedule_irq
@@ -746,6 +751,11 @@ preempt:
 	lwi	r5, r11, TI_FLAGS;		/* get flags in thread info */
 	andi	r5, r5, _TIF_NEED_RESCHED;
 	bnei	r5, preempt /* if non zero jump to resched */
+=======
+	/* interrupts are off that's why I am calling preempt_chedule_irq */
+	bralid	r15, preempt_schedule_irq
+	nop
+>>>>>>> upstream/android-13
 restore:
 #endif
 	VM_OFF /* MS: turn off MMU */
@@ -963,6 +973,10 @@ ENTRY(_switch_to)
 	nop
 
 ENTRY(_reset)
+<<<<<<< HEAD
+=======
+	VM_OFF
+>>>>>>> upstream/android-13
 	brai	0; /* Jump to reset vector */
 
 	/* These are compiled and loaded into high memory, then

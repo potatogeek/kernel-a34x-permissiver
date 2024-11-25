@@ -21,7 +21,10 @@
  *
  */
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+>>>>>>> upstream/android-13
 #include "radeon.h"
 #include "trinityd.h"
 #include "trinity_dpm.h"

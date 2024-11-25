@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * palinfo.c
  *
@@ -647,6 +651,7 @@ static int version_info(struct seq_file *m)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int perfmon_info(struct seq_file *m)
 {
 	u64 pm_buffer[16];
@@ -687,6 +692,8 @@ static int perfmon_info(struct seq_file *m)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int frequency_info(struct seq_file *m)
 {
 	struct pal_freq_ratio proc, itc, bus;
@@ -815,7 +822,10 @@ static const palinfo_entry_t palinfo_entries[]={
 	{ "power_info",		power_info, },
 	{ "register_info",	register_info, },
 	{ "processor_info",	processor_info, },
+<<<<<<< HEAD
 	{ "perfmon_info",	perfmon_info, },
+=======
+>>>>>>> upstream/android-13
 	{ "frequency_info",	frequency_info, },
 	{ "bus_info",		bus_info },
 	{ "tr_info",		tr_info, }

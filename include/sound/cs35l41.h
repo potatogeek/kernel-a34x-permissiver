@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * linux/sound/cs35l41.h -- Platform data for CS35L41
  *
@@ -6,11 +7,21 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0
+ *
+ * linux/sound/cs35l41.h -- Platform data for CS35L41
+ *
+ * Copyright (c) 2017-2021 Cirrus Logic Inc.
+ *
+ * Author: David Rhodes	<david.rhodes@cirrus.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __CS35L41_H
 #define __CS35L41_H
 
+<<<<<<< HEAD
 #include <sound/soc.h>
 
 struct classh_cfg {
@@ -26,12 +37,22 @@ struct classh_cfg {
 
 struct cs35l41_irq_cfg {
 	bool is_present;
+=======
+enum cs35l41_clk_ids {
+	CS35L41_CLKID_SCLK = 0,
+	CS35L41_CLKID_LRCLK = 1,
+	CS35L41_CLKID_MCLK = 4,
+};
+
+struct cs35l41_irq_cfg {
+>>>>>>> upstream/android-13
 	bool irq_pol_inv;
 	bool irq_out_en;
 	int irq_src_sel;
 };
 
 struct cs35l41_platform_data {
+<<<<<<< HEAD
 	bool sclk_frc;
 	bool lrclk_frc;
 	bool right_channel;
@@ -105,4 +126,14 @@ int cs35l41_remove(struct cs35l41_private *cs35l41);
 
 int cs35l41_set_surface_temp(const char *suffix, int temperature);
 
+=======
+	int bst_ind;
+	int bst_ipk;
+	int bst_cap;
+	int dout_hiz;
+	struct cs35l41_irq_cfg irq_config1;
+	struct cs35l41_irq_cfg irq_config2;
+};
+
+>>>>>>> upstream/android-13
 #endif /* __CS35L41_H */

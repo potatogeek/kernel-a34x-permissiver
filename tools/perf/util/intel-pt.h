@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * intel_pt.h: Intel Processor Trace support
  * Copyright (c) 2013-2015, Intel Corporation.
@@ -11,6 +12,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * intel_pt.h: Intel Processor Trace support
+ * Copyright (c) 2013-2015, Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #ifndef INCLUDE__PERF_INTEL_PT_H__

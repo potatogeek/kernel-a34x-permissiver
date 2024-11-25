@@ -10,7 +10,11 @@
  * to ensure that the maintenance completes in case we migrate to another
  * CPU.
  */
+<<<<<<< HEAD
 #if defined(CONFIG_PREEMPT) && defined(CONFIG_SMP) && defined(CONFIG_CPU_V7)
+=======
+#if defined(CONFIG_PREEMPTION) && defined(CONFIG_SMP) && defined(CONFIG_CPU_V7)
+>>>>>>> upstream/android-13
 #define __complete_pending_tlbi()	dsb(ish)
 #else
 #define __complete_pending_tlbi()

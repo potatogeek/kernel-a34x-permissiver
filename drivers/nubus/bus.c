@@ -29,6 +29,7 @@ static int nubus_device_probe(struct device *dev)
 	return err;
 }
 
+<<<<<<< HEAD
 static int nubus_device_remove(struct device *dev)
 {
 	struct nubus_driver *ndrv = to_nubus_driver(dev->driver);
@@ -37,6 +38,14 @@ static int nubus_device_remove(struct device *dev)
 	if (dev->driver && ndrv->remove)
 		err = ndrv->remove(to_nubus_board(dev));
 	return err;
+=======
+static void nubus_device_remove(struct device *dev)
+{
+	struct nubus_driver *ndrv = to_nubus_driver(dev->driver);
+
+	if (ndrv->remove)
+		ndrv->remove(to_nubus_board(dev));
+>>>>>>> upstream/android-13
 }
 
 struct bus_type nubus_bus_type = {

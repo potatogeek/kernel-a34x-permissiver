@@ -1,14 +1,22 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/lib/csumpartialcopyuser.S
  *
  *  Copyright (C) 1995-1998 Russell King
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
  * 27/03/03 Ian Molton Clean up CONFIG_CPU
  *
+=======
+ * 27/03/03 Ian Molton Clean up CONFIG_CPU
+>>>>>>> upstream/android-13
  */
 #include <linux/linkage.h>
 #include <asm/assembler.h>
@@ -66,9 +74,15 @@
 
 /*
  * unsigned int
+<<<<<<< HEAD
  * csum_partial_copy_from_user(const char *src, char *dst, int len, int sum, int *err_ptr)
  *  r0 = src, r1 = dst, r2 = len, r3 = sum, [sp] = *err_ptr
  *  Returns : r0 = checksum, [[sp, #0], #0] = 0 or -EFAULT
+=======
+ * csum_partial_copy_from_user(const char *src, char *dst, int len)
+ *  r0 = src, r1 = dst, r2 = len
+ *  Returns : r0 = checksum or 0
+>>>>>>> upstream/android-13
  */
 
 #define FN_ENTRY	ENTRY(csum_partial_copy_from_user)
@@ -77,6 +91,7 @@
 #include "csumpartialcopygeneric.S"
 
 /*
+<<<<<<< HEAD
  * FIXME: minor buglet here
  * We don't return the checksum for the data present in the buffer.  To do
  * so properly, we would have to add in whatever registers were loaded before
@@ -97,5 +112,13 @@
 9002:		teq	r2, r1
 		strneb	r0, [r1], #1
 		bne	9002b
+=======
+ * We report fault by returning 0 csum - impossible in normal case, since
+ * we start with 0xffffffff for initial sum.
+ */
+		.pushsection .text.fixup,"ax"
+		.align	4
+9001:		mov	r0, #0
+>>>>>>> upstream/android-13
 		load_regs
 		.popsection

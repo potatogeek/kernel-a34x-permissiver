@@ -56,6 +56,10 @@
 #define NFSDBG_PNFS		0x1000
 #define NFSDBG_PNFS_LD		0x2000
 #define NFSDBG_STATE		0x4000
+<<<<<<< HEAD
+=======
+#define NFSDBG_XATTRCACHE	0x8000
+>>>>>>> upstream/android-13
 #define NFSDBG_ALL		0xFFFF
 
 

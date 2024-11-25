@@ -17,6 +17,10 @@
 #include <linux/kernel.h>
 #include <linux/mm.h>
 #include <linux/tty.h>
+<<<<<<< HEAD
+=======
+#include <linux/clocksource.h>
+>>>>>>> upstream/android-13
 #include <linux/console.h>
 #include <linux/linkage.h>
 #include <linux/init.h>
@@ -28,7 +32,10 @@
 #include <asm/bootinfo.h>
 #include <asm/bootinfo-vme.h>
 #include <asm/byteorder.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/setup.h>
 #include <asm/irq.h>
 #include <asm/traps.h>
@@ -37,8 +44,12 @@
 
 
 static void mvme147_get_model(char *model);
+<<<<<<< HEAD
 extern void mvme147_sched_init(irq_handler_t handler);
 extern u32 mvme147_gettimeoffset(void);
+=======
+extern void mvme147_sched_init(void);
+>>>>>>> upstream/android-13
 extern int mvme147_hwclk (int, struct rtc_time *);
 extern void mvme147_reset (void);
 
@@ -81,10 +92,15 @@ void __init mvme147_init_IRQ(void)
 
 void __init config_mvme147(void)
 {
+<<<<<<< HEAD
 	mach_max_dma_address	= 0x01000000;
 	mach_sched_init		= mvme147_sched_init;
 	mach_init_IRQ		= mvme147_init_IRQ;
 	arch_gettimeoffset	= mvme147_gettimeoffset;
+=======
+	mach_sched_init		= mvme147_sched_init;
+	mach_init_IRQ		= mvme147_init_IRQ;
+>>>>>>> upstream/android-13
 	mach_hwclk		= mvme147_hwclk;
 	mach_reset		= mvme147_reset;
 	mach_get_model		= mvme147_get_model;
@@ -94,11 +110,30 @@ void __init config_mvme147(void)
 		vme_brdtype = VME_TYPE_MVME147;
 }
 
+<<<<<<< HEAD
+=======
+static u64 mvme147_read_clk(struct clocksource *cs);
+
+static struct clocksource mvme147_clk = {
+	.name   = "pcc",
+	.rating = 250,
+	.read   = mvme147_read_clk,
+	.mask   = CLOCKSOURCE_MASK(32),
+	.flags  = CLOCK_SOURCE_IS_CONTINUOUS,
+};
+
+static u32 clk_total;
+
+#define PCC_TIMER_CLOCK_FREQ 160000
+#define PCC_TIMER_CYCLES     (PCC_TIMER_CLOCK_FREQ / HZ)
+#define PCC_TIMER_PRELOAD    (0x10000 - PCC_TIMER_CYCLES)
+>>>>>>> upstream/android-13
 
 /* Using pcc tick timer 1 */
 
 static irqreturn_t mvme147_timer_int (int irq, void *dev_id)
 {
+<<<<<<< HEAD
 	irq_handler_t timer_routine = dev_id;
 	unsigned long flags;
 
@@ -106,12 +141,24 @@ static irqreturn_t mvme147_timer_int (int irq, void *dev_id)
 	m147_pcc->t1_int_cntrl = PCC_TIMER_INT_CLR;
 	m147_pcc->t1_int_cntrl = PCC_INT_ENAB|PCC_LEVEL_TIMER1;
 	timer_routine(0, NULL);
+=======
+	unsigned long flags;
+
+	local_irq_save(flags);
+	m147_pcc->t1_cntrl = PCC_TIMER_CLR_OVF | PCC_TIMER_COC_EN |
+			     PCC_TIMER_TIC_EN;
+	m147_pcc->t1_int_cntrl = PCC_INT_ENAB | PCC_TIMER_INT_CLR |
+				 PCC_LEVEL_TIMER1;
+	clk_total += PCC_TIMER_CYCLES;
+	legacy_timer_tick(1);
+>>>>>>> upstream/android-13
 	local_irq_restore(flags);
 
 	return IRQ_HANDLED;
 }
 
 
+<<<<<<< HEAD
 void mvme147_sched_init (irq_handler_t timer_routine)
 {
 	if (request_irq(PCC_IRQ_TIMER1, mvme147_timer_int, 0, "timer 1",
@@ -140,6 +187,44 @@ u32 mvme147_gettimeoffset(void)
 
 	n -= PCC_TIMER_PRELOAD;
 	return ((unsigned long)n * 25 / 4) * 1000;
+=======
+void mvme147_sched_init (void)
+{
+	if (request_irq(PCC_IRQ_TIMER1, mvme147_timer_int, IRQF_TIMER,
+			"timer 1", NULL))
+		pr_err("Couldn't register timer interrupt\n");
+
+	/* Init the clock with a value */
+	/* The clock counter increments until 0xFFFF then reloads */
+	m147_pcc->t1_preload = PCC_TIMER_PRELOAD;
+	m147_pcc->t1_cntrl = PCC_TIMER_CLR_OVF | PCC_TIMER_COC_EN |
+			     PCC_TIMER_TIC_EN;
+	m147_pcc->t1_int_cntrl = PCC_INT_ENAB | PCC_TIMER_INT_CLR |
+				 PCC_LEVEL_TIMER1;
+
+	clocksource_register_hz(&mvme147_clk, PCC_TIMER_CLOCK_FREQ);
+}
+
+static u64 mvme147_read_clk(struct clocksource *cs)
+{
+	unsigned long flags;
+	u8 overflow, tmp;
+	u16 count;
+	u32 ticks;
+
+	local_irq_save(flags);
+	tmp = m147_pcc->t1_cntrl >> 4;
+	count = m147_pcc->t1_count;
+	overflow = m147_pcc->t1_cntrl >> 4;
+	if (overflow != tmp)
+		count = m147_pcc->t1_count;
+	count -= PCC_TIMER_PRELOAD;
+	ticks = count + overflow * PCC_TIMER_CYCLES;
+	ticks += clk_total;
+	local_irq_restore(flags);
+
+	return ticks;
+>>>>>>> upstream/android-13
 }
 
 static int bcd2int (unsigned char b)
@@ -149,7 +234,10 @@ static int bcd2int (unsigned char b)
 
 int mvme147_hwclk(int op, struct rtc_time *t)
 {
+<<<<<<< HEAD
 #warning check me!
+=======
+>>>>>>> upstream/android-13
 	if (!op) {
 		m147_rtc->ctrl = RTC_READ;
 		t->tm_year = bcd2int (m147_rtc->bcd_year);
@@ -161,6 +249,12 @@ int mvme147_hwclk(int op, struct rtc_time *t)
 		m147_rtc->ctrl = 0;
 		if (t->tm_year < 70)
 			t->tm_year += 100;
+<<<<<<< HEAD
+=======
+	} else {
+		/* FIXME Setting the time is not yet supported */
+		return -EOPNOTSUPP;
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }

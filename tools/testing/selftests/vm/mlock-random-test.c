@@ -70,7 +70,11 @@ int get_proc_locked_vm_size(void)
 		}
 	}
 
+<<<<<<< HEAD
 	perror("cann't parse VmLck in /proc/self/status\n");
+=======
+	perror("cannot parse VmLck in /proc/self/status\n");
+>>>>>>> upstream/android-13
 	fclose(f);
 	return -1;
 }

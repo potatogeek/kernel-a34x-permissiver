@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * DMA support use of SYS DMAC with SDHI SD/SDIO controller
  *
@@ -9,6 +10,16 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * DMA support use of SYS DMAC with SDHI SD/SDIO controller
+ *
+ * Copyright (C) 2016-19 Renesas Electronics Corporation
+ * Copyright (C) 2016-19 Sang Engineering, Wolfram Sang
+ * Copyright (C) 2017 Horms Solutions, Simon Horman
+ * Copyright (C) 2010-2011 Guennadi Liakhovetski
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -36,12 +47,22 @@ static const struct renesas_sdhi_of_data of_rz_compatible = {
 	.tmio_flags	= TMIO_MMC_HAS_IDLE_WAIT | TMIO_MMC_32BIT_DATA_PORT |
 			  TMIO_MMC_HAVE_CBSY,
 	.tmio_ocr_mask	= MMC_VDD_32_33,
+<<<<<<< HEAD
 	.capabilities	= MMC_CAP_SD_HIGHSPEED | MMC_CAP_SDIO_IRQ,
+=======
+	.capabilities	= MMC_CAP_SD_HIGHSPEED | MMC_CAP_SDIO_IRQ |
+			  MMC_CAP_WAIT_WHILE_BUSY,
+>>>>>>> upstream/android-13
 };
 
 static const struct renesas_sdhi_of_data of_rcar_gen1_compatible = {
 	.tmio_flags	= TMIO_MMC_HAS_IDLE_WAIT | TMIO_MMC_CLK_ACTUAL,
+<<<<<<< HEAD
 	.capabilities	= MMC_CAP_SD_HIGHSPEED | MMC_CAP_SDIO_IRQ,
+=======
+	.capabilities	= MMC_CAP_SD_HIGHSPEED | MMC_CAP_SDIO_IRQ |
+			  MMC_CAP_WAIT_WHILE_BUSY,
+>>>>>>> upstream/android-13
 	.capabilities2	= MMC_CAP2_NO_WRITE_PROTECT,
 };
 
@@ -61,13 +82,18 @@ static const struct renesas_sdhi_of_data of_rcar_gen2_compatible = {
 	.tmio_flags	= TMIO_MMC_HAS_IDLE_WAIT | TMIO_MMC_CLK_ACTUAL |
 			  TMIO_MMC_HAVE_CBSY | TMIO_MMC_MIN_RCAR2,
 	.capabilities	= MMC_CAP_SD_HIGHSPEED | MMC_CAP_SDIO_IRQ |
+<<<<<<< HEAD
 			  MMC_CAP_CMD23,
+=======
+			  MMC_CAP_CMD23 | MMC_CAP_WAIT_WHILE_BUSY,
+>>>>>>> upstream/android-13
 	.capabilities2	= MMC_CAP2_NO_WRITE_PROTECT,
 	.dma_buswidth	= DMA_SLAVE_BUSWIDTH_4_BYTES,
 	.dma_rx_offset	= 0x2000,
 	.scc_offset	= 0x0300,
 	.taps		= rcar_gen2_scc_taps,
 	.taps_num	= ARRAY_SIZE(rcar_gen2_scc_taps),
+<<<<<<< HEAD
 	.max_blk_count  = 0xffffffff,
 };
 
@@ -102,6 +128,9 @@ static const struct renesas_sdhi_of_data of_rcar_gen3_compatible = {
 	.scc_offset	= 0x1000,
 	.taps		= rcar_gen3_scc_taps,
 	.taps_num	= ARRAY_SIZE(rcar_gen3_scc_taps),
+=======
+	.max_blk_count	= UINT_MAX / TMIO_MAX_BLK_SIZE,
+>>>>>>> upstream/android-13
 };
 
 static const struct of_device_id renesas_sdhi_sys_dmac_of_match[] = {
@@ -118,11 +147,16 @@ static const struct of_device_id renesas_sdhi_sys_dmac_of_match[] = {
 	{ .compatible = "renesas,sdhi-r8a7792", .data = &of_rcar_gen2_compatible, },
 	{ .compatible = "renesas,sdhi-r8a7793", .data = &of_rcar_gen2_compatible, },
 	{ .compatible = "renesas,sdhi-r8a7794", .data = &of_rcar_gen2_compatible, },
+<<<<<<< HEAD
 	{ .compatible = "renesas,sdhi-r8a7795", .data = &of_rcar_r8a7795_compatible, },
 	{ .compatible = "renesas,sdhi-r8a7796", .data = &of_rcar_r8a7795_compatible, },
 	{ .compatible = "renesas,rcar-gen1-sdhi", .data = &of_rcar_gen1_compatible, },
 	{ .compatible = "renesas,rcar-gen2-sdhi", .data = &of_rcar_gen2_compatible, },
 	{ .compatible = "renesas,rcar-gen3-sdhi", .data = &of_rcar_gen3_compatible, },
+=======
+	{ .compatible = "renesas,rcar-gen1-sdhi", .data = &of_rcar_gen1_compatible, },
+	{ .compatible = "renesas,rcar-gen2-sdhi", .data = &of_rcar_gen2_compatible, },
+>>>>>>> upstream/android-13
 	{ .compatible = "renesas,sdhi-shmobile" },
 	{},
 };
@@ -145,9 +179,15 @@ static void renesas_sdhi_sys_dmac_abort_dma(struct tmio_mmc_host *host)
 	renesas_sdhi_sys_dmac_enable_dma(host, false);
 
 	if (host->chan_rx)
+<<<<<<< HEAD
 		dmaengine_terminate_all(host->chan_rx);
 	if (host->chan_tx)
 		dmaengine_terminate_all(host->chan_tx);
+=======
+		dmaengine_terminate_sync(host->chan_rx);
+	if (host->chan_tx)
+		dmaengine_terminate_sync(host->chan_tx);
+>>>>>>> upstream/android-13
 
 	renesas_sdhi_sys_dmac_enable_dma(host, true);
 }
@@ -214,10 +254,15 @@ static void renesas_sdhi_sys_dmac_start_dma_rx(struct tmio_mmc_host *host)
 		goto pio;
 	}
 
+<<<<<<< HEAD
 	if (sg->length < TMIO_MMC_MIN_DMA_LEN) {
 		host->force_pio = true;
 		return;
 	}
+=======
+	if (sg->length < TMIO_MMC_MIN_DMA_LEN)
+		return;
+>>>>>>> upstream/android-13
 
 	/* The only sg element can be unaligned, use our bounce buffer then */
 	if (!aligned) {
@@ -241,6 +286,10 @@ static void renesas_sdhi_sys_dmac_start_dma_rx(struct tmio_mmc_host *host)
 			desc = NULL;
 			ret = cookie;
 		}
+<<<<<<< HEAD
+=======
+		host->dma_on = true;
+>>>>>>> upstream/android-13
 	}
 pio:
 	if (!desc) {
@@ -287,10 +336,15 @@ static void renesas_sdhi_sys_dmac_start_dma_tx(struct tmio_mmc_host *host)
 		goto pio;
 	}
 
+<<<<<<< HEAD
 	if (sg->length < TMIO_MMC_MIN_DMA_LEN) {
 		host->force_pio = true;
 		return;
 	}
+=======
+	if (sg->length < TMIO_MMC_MIN_DMA_LEN)
+		return;
+>>>>>>> upstream/android-13
 
 	/* The only sg element can be unaligned, use our bounce buffer then */
 	if (!aligned) {
@@ -319,6 +373,10 @@ static void renesas_sdhi_sys_dmac_start_dma_tx(struct tmio_mmc_host *host)
 			desc = NULL;
 			ret = cookie;
 		}
+<<<<<<< HEAD
+=======
+		host->dma_on = true;
+>>>>>>> upstream/android-13
 	}
 pio:
 	if (!desc) {
@@ -488,6 +546,7 @@ static const struct tmio_mmc_dma_ops renesas_sdhi_sys_dmac_dma_ops = {
 	.dataend = renesas_sdhi_sys_dmac_dataend_dma,
 };
 
+<<<<<<< HEAD
 /*
  * Whitelist of specific R-Car Gen3 SoC ES versions to use this DMAC
  * implementation. Currently empty as all supported ES versions use
@@ -505,6 +564,12 @@ static int renesas_sdhi_sys_dmac_probe(struct platform_device *pdev)
 		return -ENODEV;
 
 	return renesas_sdhi_probe(pdev, &renesas_sdhi_sys_dmac_dma_ops);
+=======
+static int renesas_sdhi_sys_dmac_probe(struct platform_device *pdev)
+{
+	return renesas_sdhi_probe(pdev, &renesas_sdhi_sys_dmac_dma_ops,
+				  of_device_get_match_data(&pdev->dev), NULL);
+>>>>>>> upstream/android-13
 }
 
 static const struct dev_pm_ops renesas_sdhi_sys_dmac_dev_pm_ops = {
@@ -518,6 +583,10 @@ static const struct dev_pm_ops renesas_sdhi_sys_dmac_dev_pm_ops = {
 static struct platform_driver renesas_sys_dmac_sdhi_driver = {
 	.driver		= {
 		.name	= "sh_mobile_sdhi",
+<<<<<<< HEAD
+=======
+		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
+>>>>>>> upstream/android-13
 		.pm	= &renesas_sdhi_sys_dmac_dev_pm_ops,
 		.of_match_table = renesas_sdhi_sys_dmac_of_match,
 	},

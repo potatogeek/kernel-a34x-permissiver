@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2015, Michael Ellerman, IBM Corp.
  *
@@ -6,6 +7,12 @@
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2015, Michael Ellerman, IBM Corp.
+ *
+>>>>>>> upstream/android-13
  * This test simply tests that certain syscalls are implemented. It doesn't
  * actually exercise their logic in any way.
  */

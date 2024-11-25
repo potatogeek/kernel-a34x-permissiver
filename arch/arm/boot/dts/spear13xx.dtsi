@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * DTS file for all SPEAr13xx SoCs
  *
  * Copyright 2012 Viresh Kumar <vireshk@kernel.org>
+<<<<<<< HEAD
  *
  * The code contained herein is licensed under the GNU General Public
  * License. You may obtain a copy of the GNU General Public License
@@ -14,6 +19,13 @@
 /include/ "skeleton.dtsi"
 
 / {
+=======
+ */
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+>>>>>>> upstream/android-13
 	interrupt-parent = <&gic>;
 
 	cpus {
@@ -49,7 +61,11 @@
 			      0 7 0x04>;
 	};
 
+<<<<<<< HEAD
 	L2: l2-cache {
+=======
+	L2: cache-controller {
+>>>>>>> upstream/android-13
 		    compatible = "arm,pl310-cache";
 		    reg = <0xed000000 0x1000>;
 		    cache-unified;
@@ -290,9 +306,15 @@
 				#size-cells = <0>;
 				interrupts = <0 31 0x4>;
 				status = "disabled";
+<<<<<<< HEAD
 				dmas = <&dwdma0 4 0 0>,
 					<&dwdma0 5 0 0>;
 				dma-names = "tx", "rx";
+=======
+				dmas = <&dwdma0 5 0 0>,
+					<&dwdma0 4 0 0>;
+				dma-names = "rx", "tx";
+>>>>>>> upstream/android-13
 			};
 
 			rtc@e0580000 {

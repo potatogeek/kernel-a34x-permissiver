@@ -10,6 +10,7 @@
 		     + __GNUC_MINOR__ * 100	\
 		     + __GNUC_PATCHLEVEL__)
 
+<<<<<<< HEAD
 #if GCC_VERSION < 40600
 # error Sorry, your compiler is too old - please upgrade it.
 #elif defined(CONFIG_ARM64) && GCC_VERSION < 50100
@@ -20,6 +21,8 @@
 # error Sorry, your version of GCC is too old - please use 5.1 or newer.
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /*
  * This macro obfuscates arithmetic on a variable address so that gcc
  * shouldn't recognize the original var, and make assumptions about it.
@@ -45,6 +48,7 @@
 	(typeof(ptr)) (__ptr + (off));					\
 })
 
+<<<<<<< HEAD
 /*
  * A trick to suppress uninitialized variable warning without generating any
  * code
@@ -60,10 +64,15 @@
 
 #ifdef CONFIG_RETPOLINE
 #define __noretpoline __attribute__((indirect_branch("keep")))
+=======
+#ifdef CONFIG_RETPOLINE
+#define __noretpoline __attribute__((__indirect_branch__("keep")))
+>>>>>>> upstream/android-13
 #endif
 
 #define __UNIQUE_ID(prefix) __PASTE(__PASTE(__UNIQUE_ID_, prefix), __COUNTER__)
 
+<<<<<<< HEAD
 #define __optimize(level)	__attribute__((__optimize__(level)))
 
 #define __compiletime_object_size(obj) __builtin_object_size(obj, 0)
@@ -76,6 +85,13 @@
 #define __latent_entropy __attribute__((latent_entropy))
 #endif
 #endif /* __CHECKER__ */
+=======
+#define __compiletime_object_size(obj) __builtin_object_size(obj, 0)
+
+#if defined(LATENT_ENTROPY_PLUGIN) && !defined(__CHECKER__)
+#define __latent_entropy __attribute__((latent_entropy))
+#endif
+>>>>>>> upstream/android-13
 
 /*
  * calling noreturn functions, __builtin_unreachable() and __builtin_trap()
@@ -90,10 +106,13 @@
  * Mark a position in code as unreachable.  This can be used to
  * suppress control flow warnings after asm blocks that transfer
  * control elsewhere.
+<<<<<<< HEAD
  *
  * Early snapshots of gcc 4.5 don't support this and we can't detect
  * this in the preprocessor, but we can live with this because they're
  * unreleased.  Really, we need to have autoconf for the kernel.
+=======
+>>>>>>> upstream/android-13
  */
 #define unreachable() \
 	do {					\
@@ -102,9 +121,12 @@
 		__builtin_unreachable();	\
 	} while (0)
 
+<<<<<<< HEAD
 /* Mark a function definition as prohibited from being cloned. */
 #define __noclone	__attribute__((__noclone__, __optimize__("no-tracer")))
 
+=======
+>>>>>>> upstream/android-13
 #if defined(RANDSTRUCT_PLUGIN) && !defined(__CHECKER__)
 #define __randomize_layout __attribute__((randomize_layout))
 #define __no_randomize_layout __attribute__((no_randomize_layout))
@@ -114,6 +136,7 @@
 #endif
 
 /*
+<<<<<<< HEAD
  * When used with Link Time Optimization, gcc can optimize away C functions or
  * variables which are referenced only from assembly code.  __visible tells the
  * optimizer that something else uses this function or variable, thus preventing
@@ -140,6 +163,8 @@
 #endif
 
 /*
+=======
+>>>>>>> upstream/android-13
  * GCC 'asm goto' miscompiles certain code sequences:
  *
  *   http://gcc.gnu.org/bugzilla/show_bug.cgi?id=58670
@@ -150,6 +175,7 @@
  */
 #define asm_volatile_goto(x...)	do { asm goto(x); asm (""); } while (0)
 
+<<<<<<< HEAD
 /*
  * sparse (__CHECKER__) pretends to be gcc, but can't do constant
  * folding in __builtin_bswap*() (yet), so don't set these for it.
@@ -177,6 +203,18 @@
 #ifndef __has_attribute
 # define __has_attribute(x) __GCC4_has_attribute_##x
 # define __GCC4_has_attribute___no_sanitize_address__ (__GNUC_MINOR__ >= 8)
+=======
+#if defined(CONFIG_ARCH_USE_BUILTIN_BSWAP)
+#define __HAVE_BUILTIN_BSWAP32__
+#define __HAVE_BUILTIN_BSWAP64__
+#define __HAVE_BUILTIN_BSWAP16__
+#endif /* CONFIG_ARCH_USE_BUILTIN_BSWAP */
+
+#if GCC_VERSION >= 70000
+#define KASAN_ABI_VERSION 5
+#else
+#define KASAN_ABI_VERSION 4
+>>>>>>> upstream/android-13
 #endif
 
 #if __has_attribute(__no_sanitize_address__)
@@ -185,6 +223,7 @@
 #define __no_sanitize_address
 #endif
 
+<<<<<<< HEAD
 #if GCC_VERSION >= 50100
 /*
  * Mark structures as requiring designated initializers.
@@ -204,6 +243,24 @@
 
 #if !defined(__no_sanitize_address)
 #define __no_sanitize_address
+=======
+#if defined(__SANITIZE_THREAD__) && __has_attribute(__no_sanitize_thread__)
+#define __no_sanitize_thread __attribute__((no_sanitize_thread))
+#else
+#define __no_sanitize_thread
+#endif
+
+#if __has_attribute(__no_sanitize_undefined__)
+#define __no_sanitize_undefined __attribute__((no_sanitize_undefined))
+#else
+#define __no_sanitize_undefined
+#endif
+
+#if defined(CONFIG_KCOV) && __has_attribute(__no_sanitize_coverage__)
+#define __no_sanitize_coverage __attribute__((no_sanitize_coverage))
+#else
+#define __no_sanitize_coverage
+>>>>>>> upstream/android-13
 #endif
 
 /*

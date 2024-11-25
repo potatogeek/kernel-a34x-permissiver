@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef __ASM_SPINLOCK_H
 #define __ASM_SPINLOCK_H
 #ifdef __KERNEL__
 
+<<<<<<< HEAD
 /*
  * Simple spin lock operations.  
  *
@@ -311,6 +316,21 @@ static inline void arch_write_unlock(arch_rwlock_t *rw)
 
 /* See include/linux/spinlock.h */
 #define smp_mb__after_spinlock()   smp_mb()
+=======
+#ifdef CONFIG_PPC_QUEUED_SPINLOCKS
+#include <asm/qspinlock.h>
+#include <asm/qrwlock.h>
+#else
+#include <asm/simple_spinlock.h>
+#endif
+
+/* See include/linux/spinlock.h */
+#define smp_mb__after_spinlock()	smp_mb()
+
+#ifndef CONFIG_PARAVIRT_SPINLOCKS
+static inline void pv_spinlocks_init(void) { }
+#endif
+>>>>>>> upstream/android-13
 
 #endif /* __KERNEL__ */
 #endif /* __ASM_SPINLOCK_H */

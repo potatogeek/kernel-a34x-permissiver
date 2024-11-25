@@ -16,6 +16,10 @@
 #include <linux/cdev.h>
 #include <linux/mutex.h>
 #include <linux/videodev2.h>
+<<<<<<< HEAD
+=======
+#include <linux/android_kabi.h>
+>>>>>>> upstream/android-13
 
 #include <media/media-entity.h>
 
@@ -24,7 +28,11 @@
 /**
  * enum vfl_devnode_type - type of V4L2 device node
  *
+<<<<<<< HEAD
  * @VFL_TYPE_GRABBER:	for video input/output devices
+=======
+ * @VFL_TYPE_VIDEO:	for video input/output devices
+>>>>>>> upstream/android-13
  * @VFL_TYPE_VBI:	for vertical blank data (i.e. closed captions, teletext)
  * @VFL_TYPE_RADIO:	for radio tuners
  * @VFL_TYPE_SUBDEV:	for V4L2 subdevices
@@ -33,7 +41,11 @@
  * @VFL_TYPE_MAX:	number of VFL types, must always be last in the enum
  */
 enum vfl_devnode_type {
+<<<<<<< HEAD
 	VFL_TYPE_GRABBER	= 0,
+=======
+	VFL_TYPE_VIDEO,
+>>>>>>> upstream/android-13
 	VFL_TYPE_VBI,
 	VFL_TYPE_RADIO,
 	VFL_TYPE_SUBDEV,
@@ -43,8 +55,13 @@ enum vfl_devnode_type {
 };
 
 /**
+<<<<<<< HEAD
  * enum  vfl_direction - Identifies if a &struct video_device corresponds
  *	to a receiver, a transmitter or a mem-to-mem device.
+=======
+ * enum  vfl_devnode_direction - Identifies if a &struct video_device
+ * 	corresponds to a receiver, a transmitter or a mem-to-mem device.
+>>>>>>> upstream/android-13
  *
  * @VFL_DIR_RX:		device is a receiver.
  * @VFL_DIR_TX:		device is a transmitter.
@@ -74,10 +91,33 @@ struct v4l2_ctrl_handler;
  *	indicates that file->private_data points to &struct v4l2_fh.
  *	This flag is set by the core when v4l2_fh_init() is called.
  *	All new drivers should use it.
+<<<<<<< HEAD
  */
 enum v4l2_video_device_flags {
 	V4L2_FL_REGISTERED	= 0,
 	V4L2_FL_USES_V4L2_FH	= 1,
+=======
+ * @V4L2_FL_QUIRK_INVERTED_CROP:
+ *	some old M2M drivers use g/s_crop/cropcap incorrectly: crop and
+ *	compose are swapped. If this flag is set, then the selection
+ *	targets are swapped in the g/s_crop/cropcap functions in v4l2-ioctl.c.
+ *	This allows those drivers to correctly implement the selection API,
+ *	but the old crop API will still work as expected in order to preserve
+ *	backwards compatibility.
+ *	Never set this flag for new drivers.
+ * @V4L2_FL_SUBDEV_RO_DEVNODE:
+ *	indicates that the video device node is registered in read-only mode.
+ *	The flag only applies to device nodes registered for sub-devices, it is
+ *	set by the core when the sub-devices device nodes are registered with
+ *	v4l2_device_register_ro_subdev_nodes() and used by the sub-device ioctl
+ *	handler to restrict access to some ioctl calls.
+ */
+enum v4l2_video_device_flags {
+	V4L2_FL_REGISTERED		= 0,
+	V4L2_FL_USES_V4L2_FH		= 1,
+	V4L2_FL_QUIRK_INVERTED_CROP	= 2,
+	V4L2_FL_SUBDEV_RO_DEVNODE	= 3,
+>>>>>>> upstream/android-13
 };
 
 /* Priority helper functions */
@@ -195,6 +235,11 @@ struct v4l2_file_operations {
 	int (*mmap) (struct file *, struct vm_area_struct *);
 	int (*open) (struct file *);
 	int (*release) (struct file *);
+<<<<<<< HEAD
+=======
+
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -291,6 +336,12 @@ struct video_device
 	DECLARE_BITMAP(valid_ioctls, BASE_VIDIOC_PRIVATE);
 
 	struct mutex *lock;
+<<<<<<< HEAD
+=======
+
+	ANDROID_KABI_RESERVE(1);
+	ANDROID_KABI_RESERVE(2);
+>>>>>>> upstream/android-13
 };
 
 /**

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * wm831x-spi.c  --  SPI access for Wolfson WM831x PMICs
  *
  * Copyright 2009,2010 Wolfson Microelectronics PLC.
  *
  * Author: Mark Brown <broonie@opensource.wolfsonmicro.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute  it and/or modify it
  *  under  the terms of  the GNU General  Public License as published by the
@@ -14,6 +19,12 @@
 
 #include <linux/kernel.h>
 #include <linux/module.h>
+=======
+ */
+
+#include <linux/kernel.h>
+#include <linux/init.h>
+>>>>>>> upstream/android-13
 #include <linux/of.h>
 #include <linux/of_device.h>
 #include <linux/pm.h>
@@ -67,6 +78,7 @@ static int wm831x_spi_probe(struct spi_device *spi)
 	return wm831x_device_init(wm831x, spi->irq);
 }
 
+<<<<<<< HEAD
 static int wm831x_spi_remove(struct spi_device *spi)
 {
 	struct wm831x *wm831x = spi_get_drvdata(spi);
@@ -76,6 +88,8 @@ static int wm831x_spi_remove(struct spi_device *spi)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int wm831x_spi_suspend(struct device *dev)
 {
 	struct wm831x *wm831x = dev_get_drvdata(dev);
@@ -108,17 +122,27 @@ static const struct spi_device_id wm831x_spi_ids[] = {
 	{ "wm8326", WM8326 },
 	{ },
 };
+<<<<<<< HEAD
 MODULE_DEVICE_TABLE(spi, wm831x_spi_ids);
+=======
+>>>>>>> upstream/android-13
 
 static struct spi_driver wm831x_spi_driver = {
 	.driver = {
 		.name	= "wm831x",
 		.pm	= &wm831x_spi_pm,
 		.of_match_table = of_match_ptr(wm831x_of_match),
+<<<<<<< HEAD
 	},
 	.id_table	= wm831x_spi_ids,
 	.probe		= wm831x_spi_probe,
 	.remove		= wm831x_spi_remove,
+=======
+		.suppress_bind_attrs = true,
+	},
+	.id_table	= wm831x_spi_ids,
+	.probe		= wm831x_spi_probe,
+>>>>>>> upstream/android-13
 };
 
 static int __init wm831x_spi_init(void)
@@ -132,6 +156,7 @@ static int __init wm831x_spi_init(void)
 	return 0;
 }
 subsys_initcall(wm831x_spi_init);
+<<<<<<< HEAD
 
 static void __exit wm831x_spi_exit(void)
 {
@@ -142,3 +167,5 @@ module_exit(wm831x_spi_exit);
 MODULE_DESCRIPTION("SPI support for WM831x/2x AudioPlus PMICs");
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Mark Brown");
+=======
+>>>>>>> upstream/android-13

@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * tools/testing/selftests/kvm/lib/elf.c
  *
  * Copyright (C) 2018, Google LLC.
+<<<<<<< HEAD
  *
  * This work is licensed under the terms of the GNU GPL, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "test_util.h"
@@ -112,8 +119,12 @@ static void elfhdr_get(const char *filename, Elf64_Ehdr *hdrp)
  * by the image and it needs to have sufficient available physical pages, to
  * back the virtual pages used to load the image.
  */
+<<<<<<< HEAD
 void kvm_vm_elf_load(struct kvm_vm *vm, const char *filename,
 	uint32_t data_memslot, uint32_t pgd_memslot)
+=======
+void kvm_vm_elf_load(struct kvm_vm *vm, const char *filename)
+>>>>>>> upstream/android-13
 {
 	off_t offset, offset_rv;
 	Elf64_Ehdr hdr;
@@ -165,8 +176,12 @@ void kvm_vm_elf_load(struct kvm_vm *vm, const char *filename,
 		seg_vend |= vm->page_size - 1;
 		size_t seg_size = seg_vend - seg_vstart + 1;
 
+<<<<<<< HEAD
 		vm_vaddr_t vaddr = vm_vaddr_alloc(vm, seg_size, seg_vstart,
 			data_memslot, pgd_memslot);
+=======
+		vm_vaddr_t vaddr = vm_vaddr_alloc(vm, seg_size, seg_vstart);
+>>>>>>> upstream/android-13
 		TEST_ASSERT(vaddr == seg_vstart, "Unable to allocate "
 			"virtual memory for segment at requested min addr,\n"
 			"  segment idx: %u\n"

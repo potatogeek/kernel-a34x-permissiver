@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * VMware VMCI Driver
  *
  * Copyright (C) 2012 VMware, Inc. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -11,6 +16,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __VMW_VMCI_API_H__
@@ -27,6 +34,10 @@
 struct msghdr;
 typedef void (vmci_device_shutdown_fn) (void *device_registration,
 					void *user_data);
+<<<<<<< HEAD
+=======
+typedef void (*vmci_vsock_cb) (bool is_host);
+>>>>>>> upstream/android-13
 
 int vmci_datagram_create_handle(u32 resource_id, u32 flags,
 				vmci_datagram_recv_cb recv_cb,
@@ -45,6 +56,10 @@ int vmci_doorbell_destroy(struct vmci_handle handle);
 int vmci_doorbell_notify(struct vmci_handle handle, u32 priv_flags);
 u32 vmci_get_context_id(void);
 bool vmci_is_context_owner(u32 context_id, kuid_t uid);
+<<<<<<< HEAD
+=======
+int vmci_register_vsock_callback(vmci_vsock_cb callback);
+>>>>>>> upstream/android-13
 
 int vmci_event_subscribe(u32 event,
 			 vmci_event_cb callback, void *callback_data,

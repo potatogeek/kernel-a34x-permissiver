@@ -336,6 +336,10 @@ static struct platform_driver vf610_pinctrl_driver = {
 	.driver = {
 		.name = "vf610-pinctrl",
 		.of_match_table = vf610_pinctrl_of_match,
+<<<<<<< HEAD
+=======
+		.suppress_bind_attrs = true,
+>>>>>>> upstream/android-13
 	},
 	.probe = vf610_pinctrl_probe,
 };

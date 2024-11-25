@@ -37,7 +37,11 @@ struct gk20a_volt {
 	struct regulator *vdd;
 };
 
+<<<<<<< HEAD
 int gk20a_volt_ctor(struct nvkm_device *device, int index,
+=======
+int gk20a_volt_ctor(struct nvkm_device *device, enum nvkm_subdev_type, int,
+>>>>>>> upstream/android-13
 		    const struct cvb_coef *coefs, int nb_coefs,
 		    int vmin, struct gk20a_volt *volt);
 

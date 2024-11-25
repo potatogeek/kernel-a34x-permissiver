@@ -2,6 +2,10 @@
 #include <inttypes.h>
 #include <linux/compiler.h>
 #include <linux/types.h>
+<<<<<<< HEAD
+=======
+#include <string.h>
+>>>>>>> upstream/android-13
 #include "tests.h"
 #include "units.h"
 #include "debug.h"

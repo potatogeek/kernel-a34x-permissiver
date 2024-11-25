@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 #include <linux/err.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -10,6 +11,23 @@
 #include "tests.h"
 #include "debug.h"
 #include <errno.h>
+=======
+#include <stdbool.h>
+#include <linux/err.h>
+#include <linux/string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include "evlist.h"
+#include "evsel.h"
+#include "thread_map.h"
+#include "record.h"
+#include "tests.h"
+#include "debug.h"
+#include "util/mmap.h"
+#include <errno.h>
+#include <perf/mmap.h>
+>>>>>>> upstream/android-13
 
 #ifndef O_DIRECTORY
 #define O_DIRECTORY    00200000
@@ -32,12 +50,18 @@ int test__syscall_openat_tp_fields(struct test *test __maybe_unused, int subtest
 	};
 	const char *filename = "/etc/passwd";
 	int flags = O_RDONLY | O_DIRECTORY;
+<<<<<<< HEAD
 	struct perf_evlist *evlist = perf_evlist__new();
 	struct perf_evsel *evsel;
+=======
+	struct evlist *evlist = evlist__new();
+	struct evsel *evsel;
+>>>>>>> upstream/android-13
 	int err = -1, i, nr_events = 0, nr_polls = 0;
 	char sbuf[STRERR_BUFSIZE];
 
 	if (evlist == NULL) {
+<<<<<<< HEAD
 		pr_debug("%s: perf_evlist__new\n", __func__);
 		goto out;
 	}
@@ -61,20 +85,55 @@ int test__syscall_openat_tp_fields(struct test *test __maybe_unused, int subtest
 	thread_map__set_pid(evlist->threads, 0, getpid());
 
 	err = perf_evlist__open(evlist);
+=======
+		pr_debug("%s: evlist__new\n", __func__);
+		goto out;
+	}
+
+	evsel = evsel__newtp("syscalls", "sys_enter_openat");
+	if (IS_ERR(evsel)) {
+		pr_debug("%s: evsel__newtp\n", __func__);
+		goto out_delete_evlist;
+	}
+
+	evlist__add(evlist, evsel);
+
+	err = evlist__create_maps(evlist, &opts.target);
+	if (err < 0) {
+		pr_debug("%s: evlist__create_maps\n", __func__);
+		goto out_delete_evlist;
+	}
+
+	evsel__config(evsel, &opts, NULL);
+
+	perf_thread_map__set_pid(evlist->core.threads, 0, getpid());
+
+	err = evlist__open(evlist);
+>>>>>>> upstream/android-13
 	if (err < 0) {
 		pr_debug("perf_evlist__open: %s\n",
 			 str_error_r(errno, sbuf, sizeof(sbuf)));
 		goto out_delete_evlist;
 	}
 
+<<<<<<< HEAD
 	err = perf_evlist__mmap(evlist, UINT_MAX);
 	if (err < 0) {
 		pr_debug("perf_evlist__mmap: %s\n",
+=======
+	err = evlist__mmap(evlist, UINT_MAX);
+	if (err < 0) {
+		pr_debug("evlist__mmap: %s\n",
+>>>>>>> upstream/android-13
 			 str_error_r(errno, sbuf, sizeof(sbuf)));
 		goto out_delete_evlist;
 	}
 
+<<<<<<< HEAD
 	perf_evlist__enable(evlist);
+=======
+	evlist__enable(evlist);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Generate the event:
@@ -84,6 +143,7 @@ int test__syscall_openat_tp_fields(struct test *test __maybe_unused, int subtest
 	while (1) {
 		int before = nr_events;
 
+<<<<<<< HEAD
 		for (i = 0; i < evlist->nr_mmaps; i++) {
 			union perf_event *event;
 			struct perf_mmap *md;
@@ -93,6 +153,17 @@ int test__syscall_openat_tp_fields(struct test *test __maybe_unused, int subtest
 				continue;
 
 			while ((event = perf_mmap__read_event(md)) != NULL) {
+=======
+		for (i = 0; i < evlist->core.nr_mmaps; i++) {
+			union perf_event *event;
+			struct mmap *md;
+
+			md = &evlist->mmap[i];
+			if (perf_mmap__read_init(&md->core) < 0)
+				continue;
+
+			while ((event = perf_mmap__read_event(&md->core)) != NULL) {
+>>>>>>> upstream/android-13
 				const u32 type = event->header.type;
 				int tp_flags;
 				struct perf_sample sample;
@@ -100,17 +171,29 @@ int test__syscall_openat_tp_fields(struct test *test __maybe_unused, int subtest
 				++nr_events;
 
 				if (type != PERF_RECORD_SAMPLE) {
+<<<<<<< HEAD
 					perf_mmap__consume(md);
 					continue;
 				}
 
 				err = perf_evsel__parse_sample(evsel, event, &sample);
+=======
+					perf_mmap__consume(&md->core);
+					continue;
+				}
+
+				err = evsel__parse_sample(evsel, event, &sample);
+>>>>>>> upstream/android-13
 				if (err) {
 					pr_debug("Can't parse sample, err = %d\n", err);
 					goto out_delete_evlist;
 				}
 
+<<<<<<< HEAD
 				tp_flags = perf_evsel__intval(evsel, &sample, "flags");
+=======
+				tp_flags = evsel__intval(evsel, &sample, "flags");
+>>>>>>> upstream/android-13
 
 				if (flags != tp_flags) {
 					pr_debug("%s: Expected flags=%#x, got %#x\n",
@@ -120,11 +203,19 @@ int test__syscall_openat_tp_fields(struct test *test __maybe_unused, int subtest
 
 				goto out_ok;
 			}
+<<<<<<< HEAD
 			perf_mmap__read_done(md);
 		}
 
 		if (nr_events == before)
 			perf_evlist__poll(evlist, 10);
+=======
+			perf_mmap__read_done(&md->core);
+		}
+
+		if (nr_events == before)
+			evlist__poll(evlist, 10);
+>>>>>>> upstream/android-13
 
 		if (++nr_polls > 5) {
 			pr_debug("%s: no events!\n", __func__);
@@ -134,7 +225,11 @@ int test__syscall_openat_tp_fields(struct test *test __maybe_unused, int subtest
 out_ok:
 	err = 0;
 out_delete_evlist:
+<<<<<<< HEAD
 	perf_evlist__delete(evlist);
+=======
+	evlist__delete(evlist);
+>>>>>>> upstream/android-13
 out:
 	return err;
 }

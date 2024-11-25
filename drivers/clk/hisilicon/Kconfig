@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 config COMMON_CLK_HI3516CV300
 	tristate "HI3516CV300 Clock Driver"
 	depends on ARCH_HISI || COMPILE_TEST
@@ -14,6 +18,17 @@ config COMMON_CLK_HI3519
 	help
 	  Build the clock driver for hi3519.
 
+<<<<<<< HEAD
+=======
+config COMMON_CLK_HI3559A
+	bool "Hi3559A Clock Driver"
+	depends on ARCH_HISI || COMPILE_TEST
+	select RESET_HISI
+	default ARCH_HISI
+	help
+	  Build the clock driver for hi3559a.
+
+>>>>>>> upstream/android-13
 config COMMON_CLK_HI3660
 	bool "Hi3660 Clock Driver"
 	depends on ARCH_HISI || COMPILE_TEST
@@ -21,6 +36,16 @@ config COMMON_CLK_HI3660
 	help
 	  Build the clock driver for hi3660.
 
+<<<<<<< HEAD
+=======
+config COMMON_CLK_HI3670
+	bool "Hi3670 Clock Driver"
+	depends on ARCH_HISI || COMPILE_TEST
+	default ARCH_HISI
+	help
+	  Build the clock driver for hi3670.
+
+>>>>>>> upstream/android-13
 config COMMON_CLK_HI3798CV200
 	tristate "Hi3798CV200 Clock Driver"
 	depends on ARCH_HISI || COMPILE_TEST

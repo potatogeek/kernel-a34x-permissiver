@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * mtu3_qmu.h - Queue Management Unit driver header
  *
@@ -10,7 +14,11 @@
 #ifndef __MTK_QMU_H__
 #define __MTK_QMU_H__
 
+<<<<<<< HEAD
 #define MAX_GPD_NUM		144
+=======
+#define MAX_GPD_NUM		64
+>>>>>>> upstream/android-13
 #define QMU_GPD_SIZE		(sizeof(struct qmu_gpd))
 #define QMU_GPD_RING_SIZE	(MAX_GPD_NUM * QMU_GPD_SIZE)
 

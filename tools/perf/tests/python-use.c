@@ -18,6 +18,10 @@ int test__python_use(struct test *test __maybe_unused, int subtest __maybe_unuse
 		     PYTHONPATH, PYTHON, verbose > 0 ? "" : "2> /dev/null") < 0)
 		return -1;
 
+<<<<<<< HEAD
+=======
+	pr_debug("python usage test: \"%s\"\n", cmd);
+>>>>>>> upstream/android-13
 	ret = system(cmd) ? -1 : 0;
 	free(cmd);
 	return ret;

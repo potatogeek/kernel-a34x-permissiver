@@ -14,7 +14,14 @@
  * Copyright 2002 MontaVista Software Inc.
  */
 
+<<<<<<< HEAD
 #include <linux/ipmi.h>
+=======
+#ifndef __IPMI_SI_SM_H__
+#define __IPMI_SI_SM_H__
+
+#include "ipmi_si.h"
+>>>>>>> upstream/android-13
 
 /*
  * This is defined by the state machines themselves, it is an opaque
@@ -22,6 +29,7 @@
  */
 struct si_sm_data;
 
+<<<<<<< HEAD
 enum si_type {
 	SI_TYPE_INVALID, SI_KCS, SI_SMIC, SI_BT
 };
@@ -66,6 +74,8 @@ struct si_sm_io {
 	struct device *dev;
 };
 
+=======
+>>>>>>> upstream/android-13
 /* Results of SMI events. */
 enum si_sm_result {
 	SI_SM_CALL_WITHOUT_DELAY, /* Call the driver again immediately */
@@ -142,3 +152,7 @@ extern const struct si_sm_handlers kcs_smi_handlers;
 extern const struct si_sm_handlers smic_smi_handlers;
 extern const struct si_sm_handlers bt_smi_handlers;
 
+<<<<<<< HEAD
+=======
+#endif /* __IPMI_SI_SM_H__ */
+>>>>>>> upstream/android-13

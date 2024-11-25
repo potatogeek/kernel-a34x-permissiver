@@ -74,10 +74,15 @@
 
 	leds {
 		compatible = "gpio-leds";
+<<<<<<< HEAD
 		pinctrl-names = "default";
 		pinctrl-0 = <&led_pins_olimex_som_evb>;
 
 		green {
+=======
+
+		led {
+>>>>>>> upstream/android-13
 			label = "a20-olimex-som-evb:green:usr";
 			gpios = <&pio 7 2 GPIO_ACTIVE_HIGH>;
 			default-state = "on";
@@ -112,6 +117,7 @@
 
 &gmac {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&gmac_pins_rgmii_a>;
 	phy = <&phy1>;
 	phy-mode = "rgmii";
@@ -120,6 +126,12 @@
 	phy1: ethernet-phy@1 {
 		reg = <1>;
 	};
+=======
+	pinctrl-0 = <&gmac_rgmii_pins>;
+	phy-handle = <&phy1>;
+	phy-mode = "rgmii";
+	status = "okay";
+>>>>>>> upstream/android-13
 };
 
 &hdmi {
@@ -133,8 +145,11 @@
 };
 
 &i2c0 {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c0_pins_a>;
+=======
+>>>>>>> upstream/android-13
 	status = "okay";
 
 	axp209: pmic@34 {
@@ -145,14 +160,20 @@
 };
 
 &i2c1 {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c1_pins_a>;
+=======
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
 &i2c2 {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c2_pins_a>;
+=======
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
@@ -160,49 +181,77 @@
 	vref-supply = <&reg_vcc3v0>;
 	status = "okay";
 
+<<<<<<< HEAD
 	button@190 {
+=======
+	button-190 {
+>>>>>>> upstream/android-13
 		label = "Volume Up";
 		linux,code = <KEY_VOLUMEUP>;
 		channel = <0>;
 		voltage = <190000>;
 	};
 
+<<<<<<< HEAD
 	button@390 {
+=======
+	button-390 {
+>>>>>>> upstream/android-13
 		label = "Volume Down";
 		linux,code = <KEY_VOLUMEDOWN>;
 		channel = <0>;
 		voltage = <390000>;
 	};
 
+<<<<<<< HEAD
 	button@600 {
+=======
+	button-600 {
+>>>>>>> upstream/android-13
 		label = "Menu";
 		linux,code = <KEY_MENU>;
 		channel = <0>;
 		voltage = <600000>;
 	};
 
+<<<<<<< HEAD
 	button@800 {
+=======
+	button-800 {
+>>>>>>> upstream/android-13
 		label = "Search";
 		linux,code = <KEY_SEARCH>;
 		channel = <0>;
 		voltage = <800000>;
 	};
 
+<<<<<<< HEAD
 	button@980 {
+=======
+	button-980 {
+>>>>>>> upstream/android-13
 		label = "Home";
 		linux,code = <KEY_HOMEPAGE>;
 		channel = <0>;
 		voltage = <980000>;
 	};
 
+<<<<<<< HEAD
 	button@1180 {
+=======
+	button-1180 {
+>>>>>>> upstream/android-13
 		label = "Esc";
 		linux,code = <KEY_ESC>;
 		channel = <0>;
 		voltage = <1180000>;
 	};
 
+<<<<<<< HEAD
 	button@1400 {
+=======
+	button-1400 {
+>>>>>>> upstream/android-13
 		label = "Enter";
 		linux,code = <KEY_ENTER>;
 		channel = <0>;
@@ -210,9 +259,19 @@
 	};
 };
 
+<<<<<<< HEAD
 &mmc0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&mmc0_pins_a>;
+=======
+&gmac_mdio {
+	phy1: ethernet-phy@1 {
+		reg = <1>;
+	};
+};
+
+&mmc0 {
+>>>>>>> upstream/android-13
 	vmmc-supply = <&reg_vcc3v3>;
 	bus-width = <4>;
 	cd-gpios = <&pio 7 1 GPIO_ACTIVE_LOW>; /* PH1 */
@@ -220,8 +279,11 @@
 };
 
 &mmc3 {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&mmc3_pins_a>, <&mmc3_cd_pin_olimex_som_evb>;
+=======
+>>>>>>> upstream/android-13
 	vmmc-supply = <&reg_vcc3v3>;
 	bus-width = <4>;
 	cd-gpios = <&pio 7 0 GPIO_ACTIVE_LOW>; /* PH0 */
@@ -241,16 +303,21 @@
 };
 
 &pio {
+<<<<<<< HEAD
 	ahci_pwr_pin_olimex_som_evb: ahci_pwr_pin@1 {
 		pins = "PC3";
 		function = "gpio_out";
 	};
 
 	led_pins_olimex_som_evb: led_pins@0 {
+=======
+	led_pins_olimex_som_evb: led-pins {
+>>>>>>> upstream/android-13
 		pins = "PH2";
 		function = "gpio_out";
 		drive-strength = <20>;
 	};
+<<<<<<< HEAD
 
 	mmc3_cd_pin_olimex_som_evb: mmc3_cd_pin@0 {
 		pins = "PH0";
@@ -271,6 +338,11 @@
 
 &reg_ahci_5v {
 	pinctrl-0 = <&ahci_pwr_pin_olimex_som_evb>;
+=======
+};
+
+&reg_ahci_5v {
+>>>>>>> upstream/android-13
 	gpio = <&pio 2 3 GPIO_ACTIVE_HIGH>;
 	status = "okay";
 };
@@ -316,33 +388,55 @@
 
 &spi1 {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&spi1_pins_a>,
 		    <&spi1_cs0_pins_a>;
+=======
+	pinctrl-0 = <&spi1_pi_pins>,
+		    <&spi1_cs0_pi_pin>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
 &spi2 {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&spi2_pins_a>,
 		    <&spi2_cs0_pins_a>;
+=======
+	pinctrl-0 = <&spi2_pc_pins>,
+		    <&spi2_cs0_pc_pin>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
 &uart0 {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&uart0_pins_a>;
+=======
+	pinctrl-0 = <&uart0_pb_pins>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
 &uart6 {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&uart6_pins_a>;
+=======
+	pinctrl-0 = <&uart6_pi_pins>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
 &uart7 {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&uart7_pins_a>;
+=======
+	pinctrl-0 = <&uart7_pi_pins>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
@@ -352,8 +446,11 @@
 };
 
 &usbphy {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&usb0_id_detect_pin>, <&usb0_vbus_detect_pin>;
+=======
+>>>>>>> upstream/android-13
 	usb0_id_det-gpios = <&pio 7 4 GPIO_ACTIVE_HIGH>; /* PH04 */
 	usb0_vbus_det-gpios = <&pio 7 5 GPIO_ACTIVE_HIGH>; /* PH05 */
 	usb0_vbus-supply = <&reg_usb0_vbus>;

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright © 2006-2007 Intel Corporation
  *
@@ -20,6 +21,20 @@
 #include <linux/export.h>
 #include <linux/i2c.h>
 #include <linux/i2c-algo-bit.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright © 2006-2007 Intel Corporation
+ *
+ * Authors:
+ *	Eric Anholt <eric@anholt.net>
+ */
+
+#include <linux/delay.h>
+#include <linux/export.h>
+#include <linux/i2c-algo-bit.h>
+#include <linux/i2c.h>
+>>>>>>> upstream/android-13
 
 #include "psb_drv.h"
 #include "psb_intel_reg.h"
@@ -95,7 +110,10 @@ static void set_data(void *data, int state_high)
 /**
  * psb_intel_i2c_create - instantiate an Intel i2c bus using the specified GPIO reg
  * @dev: DRM device
+<<<<<<< HEAD
  * @output: driver specific output device
+=======
+>>>>>>> upstream/android-13
  * @reg: GPIO reg to use
  * @name: name for this bus
  *
@@ -127,7 +145,11 @@ struct psb_intel_i2c_chan *psb_intel_i2c_create(struct drm_device *dev,
 	snprintf(chan->adapter.name, I2C_NAME_SIZE, "intel drm %s", name);
 	chan->adapter.owner = THIS_MODULE;
 	chan->adapter.algo_data = &chan->algo;
+<<<<<<< HEAD
 	chan->adapter.dev.parent = &dev->pdev->dev;
+=======
+	chan->adapter.dev.parent = dev->dev;
+>>>>>>> upstream/android-13
 	chan->algo.setsda = set_data;
 	chan->algo.setscl = set_clock;
 	chan->algo.getsda = get_data;
@@ -155,7 +177,11 @@ out_free:
 
 /**
  * psb_intel_i2c_destroy - unregister and free i2c bus resources
+<<<<<<< HEAD
  * @output: channel to free
+=======
+ * @chan: channel to free
+>>>>>>> upstream/android-13
  *
  * Unregister the adapter from the i2c layer, then free the structure.
  */

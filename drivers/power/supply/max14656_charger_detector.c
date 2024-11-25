@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Maxim MAX14656 / AL32 USB Charger Detector driver
  *
@@ -7,11 +11,14 @@
  * Components from Maxim AL32 Charger detection Driver for MX50 Yoshi Board
  * Copyright (C) Amazon Technologies Inc. All rights reserved.
  * Manish Lachwani (lachwani@lab126.com)
+<<<<<<< HEAD
  *
  * This package is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
  * only version 2 as published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/init.h>
@@ -19,8 +26,11 @@
 #include <linux/i2c.h>
 #include <linux/interrupt.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
 #include <linux/of_gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/of_device.h>
 #include <linux/workqueue.h>
 #include <linux/power_supply.h>
@@ -143,10 +153,16 @@ static void max14656_irq_worker(struct work_struct *work)
 
 	u8 buf[REG_TOTAL_NUM];
 	u8 chg_type;
+<<<<<<< HEAD
 	int ret = 0;
 
 	ret = max14656_read_block_reg(chip->client, MAX14656_DEVICE_ID,
 				      REG_TOTAL_NUM, buf);
+=======
+
+	max14656_read_block_reg(chip->client, MAX14656_DEVICE_ID,
+				REG_TOTAL_NUM, buf);
+>>>>>>> upstream/android-13
 
 	if ((buf[MAX14656_STATUS_1] & STATUS1_VB_VALID_MASK) &&
 		(buf[MAX14656_STATUS_1] & STATUS1_CHG_TYPE_MASK)) {
@@ -251,7 +267,11 @@ static void stop_irq_work(void *data)
 static int max14656_probe(struct i2c_client *client,
 			  const struct i2c_device_id *id)
 {
+<<<<<<< HEAD
 	struct i2c_adapter *adapter = to_i2c_adapter(client->dev.parent);
+=======
+	struct i2c_adapter *adapter = client->adapter;
+>>>>>>> upstream/android-13
 	struct device *dev = &client->dev;
 	struct power_supply_config psy_cfg = {};
 	struct max14656_chip *chip;

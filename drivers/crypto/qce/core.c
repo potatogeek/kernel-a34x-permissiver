@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2010-2014, The Linux Foundation. All rights reserved.
  *
@@ -12,6 +13,15 @@
  */
 
 #include <linux/clk.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2010-2014, The Linux Foundation. All rights reserved.
+ */
+
+#include <linux/clk.h>
+#include <linux/dma-mapping.h>
+>>>>>>> upstream/android-13
 #include <linux/interrupt.h>
 #include <linux/module.h>
 #include <linux/mod_devicetable.h>
@@ -20,18 +30,37 @@
 #include <linux/types.h>
 #include <crypto/algapi.h>
 #include <crypto/internal/hash.h>
+<<<<<<< HEAD
 #include <crypto/sha.h>
+=======
+>>>>>>> upstream/android-13
 
 #include "core.h"
 #include "cipher.h"
 #include "sha.h"
+<<<<<<< HEAD
+=======
+#include "aead.h"
+>>>>>>> upstream/android-13
 
 #define QCE_MAJOR_VERSION5	0x05
 #define QCE_QUEUE_LENGTH	1
 
 static const struct qce_algo_ops *qce_ops[] = {
+<<<<<<< HEAD
 	&ablkcipher_ops,
 	&ahash_ops,
+=======
+#ifdef CONFIG_CRYPTO_DEV_QCE_SKCIPHER
+	&skcipher_ops,
+#endif
+#ifdef CONFIG_CRYPTO_DEV_QCE_SHA
+	&ahash_ops,
+#endif
+#ifdef CONFIG_CRYPTO_DEV_QCE_AEAD
+	&aead_ops,
+#endif
+>>>>>>> upstream/android-13
 };
 
 static void qce_unregister_algs(struct qce_device *qce)
@@ -163,7 +192,25 @@ static int qce_check_version(struct qce_device *qce)
 		return -ENODEV;
 
 	qce->burst_size = QCE_BAM_BURST_SIZE;
+<<<<<<< HEAD
 	qce->pipe_pair_id = 1;
+=======
+
+	/*
+	 * Rx and tx pipes are treated as a pair inside CE.
+	 * Pipe pair number depends on the actual BAM dma pipe
+	 * that is used for transfers. The BAM dma pipes are passed
+	 * from the device tree and used to derive the pipe pair
+	 * id in the CE driver as follows.
+	 * 	BAM dma pipes(rx, tx)		CE pipe pair id
+	 *		0,1				0
+	 *		2,3				1
+	 *		4,5				2
+	 *		6,7				3
+	 *		...
+	 */
+	qce->pipe_pair_id = qce->dma.rxchan->chan_id >> 1;
+>>>>>>> upstream/android-13
 
 	dev_dbg(qce->dev, "Crypto device found, version %d.%d.%d\n",
 		major, minor, step);
@@ -175,7 +222,10 @@ static int qce_crypto_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct qce_device *qce;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	qce = devm_kzalloc(dev, sizeof(*qce), GFP_KERNEL);
@@ -185,8 +235,12 @@ static int qce_crypto_probe(struct platform_device *pdev)
 	qce->dev = dev;
 	platform_set_drvdata(pdev, qce);
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	qce->base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	qce->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(qce->base))
 		return PTR_ERR(qce->base);
 
@@ -266,6 +320,10 @@ static int qce_crypto_remove(struct platform_device *pdev)
 
 static const struct of_device_id qce_crypto_of_match[] = {
 	{ .compatible = "qcom,crypto-v5.1", },
+<<<<<<< HEAD
+=======
+	{ .compatible = "qcom,crypto-v5.4", },
+>>>>>>> upstream/android-13
 	{}
 };
 MODULE_DEVICE_TABLE(of, qce_crypto_of_match);

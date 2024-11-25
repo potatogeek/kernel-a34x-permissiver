@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * Internal GPIO functions.
  *
  * Copyright (C) 2013, Intel Corporation
  * Author: Mika Westerberg <mika.westerberg@linux.intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef GPIOLIB_H
@@ -19,9 +26,13 @@
 #include <linux/module.h>
 #include <linux/cdev.h>
 
+<<<<<<< HEAD
 enum of_gpio_flags;
 enum gpio_lookup_flags;
 struct acpi_device;
+=======
+#define GPIOCHIP_NAME	"gpiochip"
+>>>>>>> upstream/android-13
 
 /**
  * struct gpio_device - internal state container for GPIO devices
@@ -61,6 +72,10 @@ struct gpio_device {
 	const char		*label;
 	void			*data;
 	struct list_head        list;
+<<<<<<< HEAD
+=======
+	struct blocking_notifier_head notifier;
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PINCTRL
 	/*
@@ -73,6 +88,7 @@ struct gpio_device {
 #endif
 };
 
+<<<<<<< HEAD
 /**
  * struct acpi_gpio_info - ACPI GPIO specific information
  * @adev: reference to ACPI device which consumes GPIO resource
@@ -200,6 +216,33 @@ struct gpio_desc *gpiod_get_from_of_node(struct device_node *node,
 					 const char *label);
 
 extern struct spinlock gpio_lock;
+=======
+/* gpio suffixes used for ACPI and device tree lookup */
+static __maybe_unused const char * const gpio_suffixes[] = { "gpios", "gpio" };
+
+struct gpio_array {
+	struct gpio_desc	**desc;
+	unsigned int		size;
+	struct gpio_chip	*chip;
+	unsigned long		*get_mask;
+	unsigned long		*set_mask;
+	unsigned long		invert_mask[];
+};
+
+struct gpio_desc *gpiochip_get_desc(struct gpio_chip *gc, unsigned int hwnum);
+int gpiod_get_array_value_complex(bool raw, bool can_sleep,
+				  unsigned int array_size,
+				  struct gpio_desc **desc_array,
+				  struct gpio_array *array_info,
+				  unsigned long *value_bitmap);
+int gpiod_set_array_value_complex(bool raw, bool can_sleep,
+				  unsigned int array_size,
+				  struct gpio_desc **desc_array,
+				  struct gpio_array *array_info,
+				  unsigned long *value_bitmap);
+
+extern spinlock_t gpio_lock;
+>>>>>>> upstream/android-13
 extern struct list_head gpio_devices;
 
 struct gpio_desc {
@@ -214,19 +257,62 @@ struct gpio_desc {
 #define FLAG_OPEN_DRAIN	7	/* Gpio is open drain type */
 #define FLAG_OPEN_SOURCE 8	/* Gpio is open source type */
 #define FLAG_USED_AS_IRQ 9	/* GPIO is connected to an IRQ */
+<<<<<<< HEAD
 #define FLAG_IS_HOGGED	11	/* GPIO is hogged */
 #define FLAG_TRANSITORY 12	/* GPIO may lose value in sleep or reset */
+=======
+#define FLAG_IRQ_IS_ENABLED 10	/* GPIO is connected to an enabled IRQ */
+#define FLAG_IS_HOGGED	11	/* GPIO is hogged */
+#define FLAG_TRANSITORY 12	/* GPIO may lose value in sleep or reset */
+#define FLAG_PULL_UP    13	/* GPIO has pull up enabled */
+#define FLAG_PULL_DOWN  14	/* GPIO has pull down enabled */
+#define FLAG_BIAS_DISABLE    15	/* GPIO has pull disabled */
+#define FLAG_EDGE_RISING     16	/* GPIO CDEV detects rising edge events */
+#define FLAG_EDGE_FALLING    17	/* GPIO CDEV detects falling edge events */
+#define FLAG_EVENT_CLOCK_REALTIME	18 /* GPIO CDEV reports REALTIME timestamps in events */
+>>>>>>> upstream/android-13
 
 	/* Connection label */
 	const char		*label;
 	/* Name of the GPIO */
 	const char		*name;
+<<<<<<< HEAD
 };
 
 int gpiod_request(struct gpio_desc *desc, const char *label);
 void gpiod_free(struct gpio_desc *desc);
 int gpiod_configure_flags(struct gpio_desc *desc, const char *con_id,
 		unsigned long lflags, enum gpiod_flags dflags);
+=======
+#ifdef CONFIG_OF_DYNAMIC
+	struct device_node	*hog;
+#endif
+#ifdef CONFIG_GPIO_CDEV
+	/* debounce period in microseconds */
+	unsigned int		debounce_period_us;
+#endif
+};
+
+#define gpiod_not_found(desc)		(IS_ERR(desc) && PTR_ERR(desc) == -ENOENT)
+
+int gpiod_request(struct gpio_desc *desc, const char *label);
+void gpiod_free(struct gpio_desc *desc);
+
+static inline int gpiod_request_user(struct gpio_desc *desc, const char *label)
+{
+	int ret;
+
+	ret = gpiod_request(desc, label);
+	if (ret == -EPROBE_DEFER)
+		ret = -ENODEV;
+
+	return ret;
+}
+
+int gpiod_configure_flags(struct gpio_desc *desc, const char *con_id,
+		unsigned long lflags, enum gpiod_flags dflags);
+int gpio_set_debounce_timeout(struct gpio_desc *desc, unsigned int debounce);
+>>>>>>> upstream/android-13
 int gpiod_hog(struct gpio_desc *desc, const char *name,
 		unsigned long lflags, enum gpiod_flags dflags);
 
@@ -238,9 +324,12 @@ static inline int gpio_chip_hwgpio(const struct gpio_desc *desc)
 	return desc - &desc->gdev->descs[0];
 }
 
+<<<<<<< HEAD
 void devprop_gpiochip_set_names(struct gpio_chip *chip,
 				const struct fwnode_handle *fwnode);
 
+=======
+>>>>>>> upstream/android-13
 /* With descriptor prefix */
 
 #define gpiod_emerg(desc, fmt, ...)					       \
@@ -264,6 +353,7 @@ void devprop_gpiochip_set_names(struct gpio_chip *chip,
 
 /* With chip prefix */
 
+<<<<<<< HEAD
 #define chip_emerg(chip, fmt, ...)					\
 	dev_emerg(&chip->gpiodev->dev, "(%s): " fmt, chip->label, ##__VA_ARGS__)
 #define chip_crit(chip, fmt, ...)					\
@@ -294,5 +384,19 @@ static inline void gpiochip_sysfs_unregister(struct gpio_device *gdev)
 }
 
 #endif /* CONFIG_GPIO_SYSFS */
+=======
+#define chip_emerg(gc, fmt, ...)					\
+	dev_emerg(&gc->gpiodev->dev, "(%s): " fmt, gc->label, ##__VA_ARGS__)
+#define chip_crit(gc, fmt, ...)					\
+	dev_crit(&gc->gpiodev->dev, "(%s): " fmt, gc->label, ##__VA_ARGS__)
+#define chip_err(gc, fmt, ...)					\
+	dev_err(&gc->gpiodev->dev, "(%s): " fmt, gc->label, ##__VA_ARGS__)
+#define chip_warn(gc, fmt, ...)					\
+	dev_warn(&gc->gpiodev->dev, "(%s): " fmt, gc->label, ##__VA_ARGS__)
+#define chip_info(gc, fmt, ...)					\
+	dev_info(&gc->gpiodev->dev, "(%s): " fmt, gc->label, ##__VA_ARGS__)
+#define chip_dbg(gc, fmt, ...)					\
+	dev_dbg(&gc->gpiodev->dev, "(%s): " fmt, gc->label, ##__VA_ARGS__)
+>>>>>>> upstream/android-13
 
 #endif /* GPIOLIB_H */

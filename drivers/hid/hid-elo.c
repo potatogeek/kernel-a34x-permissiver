@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * HID driver for ELO usb touchscreen 4000/4500
  *
  * Copyright (c) 2013 Jiri Slaby
  *
  * Data parsing taken from elousb driver by Vojtech Pavlik.
+<<<<<<< HEAD
  *
  * This driver is licensed under the terms of GPLv2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/hid.h>

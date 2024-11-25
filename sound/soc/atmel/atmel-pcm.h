@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * at91-pcm.h - ALSA PCM interface for the Atmel AT91 SoC.
  *
@@ -15,6 +19,7 @@
  * Author:	Nicolas Pitre
  * Created:	Nov 30, 2004
  * Copyright:	(C) 2004 MontaVista Software, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +34,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ATMEL_PCM_H
@@ -85,28 +92,40 @@ struct atmel_pcm_dma_params {
 
 #if IS_ENABLED(CONFIG_SND_ATMEL_SOC_PDC)
 int atmel_pcm_pdc_platform_register(struct device *dev);
+<<<<<<< HEAD
 void atmel_pcm_pdc_platform_unregister(struct device *dev);
+=======
+>>>>>>> upstream/android-13
 #else
 static inline int atmel_pcm_pdc_platform_register(struct device *dev)
 {
 	return 0;
 }
+<<<<<<< HEAD
 static inline void atmel_pcm_pdc_platform_unregister(struct device *dev)
 {
 }
+=======
+>>>>>>> upstream/android-13
 #endif
 
 #if IS_ENABLED(CONFIG_SND_ATMEL_SOC_DMA)
 int atmel_pcm_dma_platform_register(struct device *dev);
+<<<<<<< HEAD
 void atmel_pcm_dma_platform_unregister(struct device *dev);
+=======
+>>>>>>> upstream/android-13
 #else
 static inline int atmel_pcm_dma_platform_register(struct device *dev)
 {
 	return 0;
 }
+<<<<<<< HEAD
 static inline void atmel_pcm_dma_platform_unregister(struct device *dev)
 {
 }
+=======
+>>>>>>> upstream/android-13
 #endif
 
 #endif /* _ATMEL_PCM_H */

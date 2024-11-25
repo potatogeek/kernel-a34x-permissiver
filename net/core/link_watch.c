@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Linux network device link state notification
  *
  * Author:
  *     Stefan Rompf <sux@loplof.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -39,6 +46,12 @@ static DEFINE_SPINLOCK(lweventlist_lock);
 
 static unsigned char default_operstate(const struct net_device *dev)
 {
+<<<<<<< HEAD
+=======
+	if (netif_testing(dev))
+		return IF_OPER_TESTING;
+
+>>>>>>> upstream/android-13
 	if (!netif_carrier_ok(dev))
 		return (dev->ifindex != dev_get_iflink(dev) ?
 			IF_OPER_LOWERLAYERDOWN : IF_OPER_DOWN);
@@ -60,11 +73,22 @@ static void rfc2863_policy(struct net_device *dev)
 	write_lock_bh(&dev_base_lock);
 
 	switch(dev->link_mode) {
+<<<<<<< HEAD
+=======
+	case IF_LINK_MODE_TESTING:
+		if (operstate == IF_OPER_UP)
+			operstate = IF_OPER_TESTING;
+		break;
+
+>>>>>>> upstream/android-13
 	case IF_LINK_MODE_DORMANT:
 		if (operstate == IF_OPER_UP)
 			operstate = IF_OPER_DORMANT;
 		break;
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	case IF_LINK_MODE_DEFAULT:
 	default:
 		break;
@@ -79,7 +103,12 @@ static void rfc2863_policy(struct net_device *dev)
 void linkwatch_init_dev(struct net_device *dev)
 {
 	/* Handle pre-registration link state changes */
+<<<<<<< HEAD
 	if (!netif_carrier_ok(dev) || netif_dormant(dev))
+=======
+	if (!netif_carrier_ok(dev) || netif_dormant(dev) ||
+	    netif_testing(dev))
+>>>>>>> upstream/android-13
 		rfc2863_policy(dev);
 }
 
@@ -168,9 +197,22 @@ static void linkwatch_do_dev(struct net_device *dev)
 
 static void __linkwatch_run_queue(int urgent_only)
 {
+<<<<<<< HEAD
 	struct net_device *dev;
 	LIST_HEAD(wrk);
 
+=======
+#define MAX_DO_DEV_PER_LOOP	100
+
+	int do_dev = MAX_DO_DEV_PER_LOOP;
+	struct net_device *dev;
+	LIST_HEAD(wrk);
+
+	/* Give urgent case more budget */
+	if (urgent_only)
+		do_dev += MAX_DO_DEV_PER_LOOP;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Limit the number of linkwatch events to one
 	 * per second so that a runaway driver does not
@@ -189,20 +231,39 @@ static void __linkwatch_run_queue(int urgent_only)
 	spin_lock_irq(&lweventlist_lock);
 	list_splice_init(&lweventlist, &wrk);
 
+<<<<<<< HEAD
 	while (!list_empty(&wrk)) {
+=======
+	while (!list_empty(&wrk) && do_dev > 0) {
+>>>>>>> upstream/android-13
 
 		dev = list_first_entry(&wrk, struct net_device, link_watch_list);
 		list_del_init(&dev->link_watch_list);
 
+<<<<<<< HEAD
 		if (urgent_only && !linkwatch_urgent_event(dev)) {
+=======
+		if (!netif_device_present(dev) ||
+		    (urgent_only && !linkwatch_urgent_event(dev))) {
+>>>>>>> upstream/android-13
 			list_add_tail(&dev->link_watch_list, &lweventlist);
 			continue;
 		}
 		spin_unlock_irq(&lweventlist_lock);
 		linkwatch_do_dev(dev);
+<<<<<<< HEAD
 		spin_lock_irq(&lweventlist_lock);
 	}
 
+=======
+		do_dev--;
+		spin_lock_irq(&lweventlist_lock);
+	}
+
+	/* Add the remaining work back to lweventlist */
+	list_splice_init(&wrk, &lweventlist);
+
+>>>>>>> upstream/android-13
 	if (!list_empty(&lweventlist))
 		linkwatch_schedule_work(0);
 	spin_unlock_irq(&lweventlist_lock);

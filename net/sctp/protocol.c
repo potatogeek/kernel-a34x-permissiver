@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* SCTP kernel implementation
  * (C) Copyright IBM Corp. 2001, 2004
  * Copyright (c) 1999-2000 Cisco, Inc.
@@ -10,6 +14,7 @@
  *
  * Initialization/cleanup for SCTP protocol support.
  *
+<<<<<<< HEAD
  * This SCTP implementation is free software;
  * you can redistribute it and/or modify it under the terms of
  * the GNU General Public License as published by
@@ -26,6 +31,8 @@
  * along with GNU CC; see the file COPYING.  If not, see
  * <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  * Please send any bug reports or fixes you make to the
  * email address(es):
  *    lksctp developers <linux-sctp@vger.kernel.org>
@@ -46,7 +53,11 @@
 #include <linux/netdevice.h>
 #include <linux/inetdevice.h>
 #include <linux/seq_file.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/highmem.h>
 #include <linux/swap.h>
 #include <linux/slab.h>
@@ -59,6 +70,10 @@
 #include <net/addrconf.h>
 #include <net/inet_common.h>
 #include <net/inet_ecn.h>
+<<<<<<< HEAD
+=======
+#include <net/udp_tunnel.h>
+>>>>>>> upstream/android-13
 
 #define MAX_SCTP_PORT_HASH_ENTRIES (64 * 1024)
 
@@ -96,7 +111,11 @@ static void sctp_v4_copy_addrlist(struct list_head *addrlist,
 		return;
 	}
 
+<<<<<<< HEAD
 	for (ifa = in_dev->ifa_list; ifa; ifa = ifa->ifa_next) {
+=======
+	in_dev_for_each_ifa_rcu(ifa, in_dev) {
+>>>>>>> upstream/android-13
 		/* Add the address to the local list.  */
 		addr = kzalloc(sizeof(*addr), GFP_ATOMIC);
 		if (addr) {
@@ -392,7 +411,11 @@ static int sctp_v4_available(union sctp_addr *addr, struct sctp_sock *sp)
  * Level 3 - private addresses.
  * Level 4 - global addresses
  * For INIT and INIT-ACK address list, let L be the level of
+<<<<<<< HEAD
  * of requested destination address, sender and receiver
+=======
+ * requested destination address, sender and receiver
+>>>>>>> upstream/android-13
  * SHOULD include all of its addresses with level greater
  * than or equal to L.
  *
@@ -412,7 +435,12 @@ static enum sctp_scope sctp_v4_scope(union sctp_addr *addr)
 		retval = SCTP_SCOPE_LINK;
 	} else if (ipv4_is_private_10(addr->v4.sin_addr.s_addr) ||
 		   ipv4_is_private_172(addr->v4.sin_addr.s_addr) ||
+<<<<<<< HEAD
 		   ipv4_is_private_192(addr->v4.sin_addr.s_addr)) {
+=======
+		   ipv4_is_private_192(addr->v4.sin_addr.s_addr) ||
+		   ipv4_is_test_198(addr->v4.sin_addr.s_addr)) {
+>>>>>>> upstream/android-13
 		retval = SCTP_SCOPE_PRIVATE;
 	} else {
 		retval = SCTP_SCOPE_GLOBAL;
@@ -860,6 +888,78 @@ static int sctp_ctl_sock_init(struct net *net)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int sctp_udp_rcv(struct sock *sk, struct sk_buff *skb)
+{
+	SCTP_INPUT_CB(skb)->encap_port = udp_hdr(skb)->source;
+
+	skb_set_transport_header(skb, sizeof(struct udphdr));
+	sctp_rcv(skb);
+	return 0;
+}
+
+int sctp_udp_sock_start(struct net *net)
+{
+	struct udp_tunnel_sock_cfg tuncfg = {NULL};
+	struct udp_port_cfg udp_conf = {0};
+	struct socket *sock;
+	int err;
+
+	udp_conf.family = AF_INET;
+	udp_conf.local_ip.s_addr = htonl(INADDR_ANY);
+	udp_conf.local_udp_port = htons(net->sctp.udp_port);
+	err = udp_sock_create(net, &udp_conf, &sock);
+	if (err) {
+		pr_err("Failed to create the SCTP UDP tunneling v4 sock\n");
+		return err;
+	}
+
+	tuncfg.encap_type = 1;
+	tuncfg.encap_rcv = sctp_udp_rcv;
+	tuncfg.encap_err_lookup = sctp_udp_v4_err;
+	setup_udp_tunnel_sock(net, sock, &tuncfg);
+	net->sctp.udp4_sock = sock->sk;
+
+#if IS_ENABLED(CONFIG_IPV6)
+	memset(&udp_conf, 0, sizeof(udp_conf));
+
+	udp_conf.family = AF_INET6;
+	udp_conf.local_ip6 = in6addr_any;
+	udp_conf.local_udp_port = htons(net->sctp.udp_port);
+	udp_conf.use_udp6_rx_checksums = true;
+	udp_conf.ipv6_v6only = true;
+	err = udp_sock_create(net, &udp_conf, &sock);
+	if (err) {
+		pr_err("Failed to create the SCTP UDP tunneling v6 sock\n");
+		udp_tunnel_sock_release(net->sctp.udp4_sock->sk_socket);
+		net->sctp.udp4_sock = NULL;
+		return err;
+	}
+
+	tuncfg.encap_type = 1;
+	tuncfg.encap_rcv = sctp_udp_rcv;
+	tuncfg.encap_err_lookup = sctp_udp_v6_err;
+	setup_udp_tunnel_sock(net, sock, &tuncfg);
+	net->sctp.udp6_sock = sock->sk;
+#endif
+
+	return 0;
+}
+
+void sctp_udp_sock_stop(struct net *net)
+{
+	if (net->sctp.udp4_sock) {
+		udp_tunnel_sock_release(net->sctp.udp4_sock->sk_socket);
+		net->sctp.udp4_sock = NULL;
+	}
+	if (net->sctp.udp6_sock) {
+		udp_tunnel_sock_release(net->sctp.udp6_sock->sk_socket);
+		net->sctp.udp6_sock = NULL;
+	}
+}
+
+>>>>>>> upstream/android-13
 /* Register address family specific functions. */
 int sctp_register_af(struct sctp_af *af)
 {
@@ -991,6 +1091,7 @@ static int sctp_inet_supported_addrs(const struct sctp_sock *opt,
 }
 
 /* Wrapper routine that calls the ip transmit routine. */
+<<<<<<< HEAD
 static inline int sctp_v4_xmit(struct sk_buff *skb,
 			       struct sctp_transport *transport)
 {
@@ -1010,6 +1111,46 @@ static inline int sctp_v4_xmit(struct sk_buff *skb,
 	SCTP_INC_STATS(sock_net(&inet->sk), SCTP_MIB_OUTSCTPPACKS);
 
 	return __ip_queue_xmit(&inet->sk, skb, &transport->fl, dscp);
+=======
+static inline int sctp_v4_xmit(struct sk_buff *skb, struct sctp_transport *t)
+{
+	struct dst_entry *dst = dst_clone(t->dst);
+	struct flowi4 *fl4 = &t->fl.u.ip4;
+	struct sock *sk = skb->sk;
+	struct inet_sock *inet = inet_sk(sk);
+	__u8 dscp = inet->tos;
+	__be16 df = 0;
+
+	pr_debug("%s: skb:%p, len:%d, src:%pI4, dst:%pI4\n", __func__, skb,
+		 skb->len, &fl4->saddr, &fl4->daddr);
+
+	if (t->dscp & SCTP_DSCP_SET_MASK)
+		dscp = t->dscp & SCTP_DSCP_VAL_MASK;
+
+	inet->pmtudisc = t->param_flags & SPP_PMTUD_ENABLE ? IP_PMTUDISC_DO
+							   : IP_PMTUDISC_DONT;
+	SCTP_INC_STATS(sock_net(sk), SCTP_MIB_OUTSCTPPACKS);
+
+	if (!t->encap_port || !sctp_sk(sk)->udp_port) {
+		skb_dst_set(skb, dst);
+		return __ip_queue_xmit(sk, skb, &t->fl, dscp);
+	}
+
+	if (skb_is_gso(skb))
+		skb_shinfo(skb)->gso_type |= SKB_GSO_UDP_TUNNEL_CSUM;
+
+	if (ip_dont_fragment(sk, dst) && !skb->ignore_df)
+		df = htons(IP_DF);
+
+	skb->encapsulation = 1;
+	skb_reset_inner_mac_header(skb);
+	skb_reset_inner_transport_header(skb);
+	skb_set_inner_ipproto(skb, IPPROTO_SCTP);
+	udp_tunnel_xmit_skb((struct rtable *)dst, sk, skb, fl4->saddr,
+			    fl4->daddr, dscp, ip4_dst_hoplimit(dst), df,
+			    sctp_sk(sk)->udp_port, t->encap_port, false, false);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static struct sctp_af sctp_af_inet;
@@ -1047,6 +1188,10 @@ static const struct proto_ops inet_seqpacket_ops = {
 	.getname	   = inet_getname,	/* Semantics are different.  */
 	.poll		   = sctp_poll,
 	.ioctl		   = inet_ioctl,
+<<<<<<< HEAD
+=======
+	.gettstamp	   = sock_gettstamp,
+>>>>>>> upstream/android-13
 	.listen		   = sctp_inet_listen,
 	.shutdown	   = inet_shutdown,	/* Looks harmless.  */
 	.setsockopt	   = sock_common_setsockopt, /* IP_SOL IP_OPTION is a problem */
@@ -1055,10 +1200,13 @@ static const struct proto_ops inet_seqpacket_ops = {
 	.recvmsg	   = inet_recvmsg,
 	.mmap		   = sock_no_mmap,
 	.sendpage	   = sock_no_sendpage,
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 	.compat_setsockopt = compat_sock_common_setsockopt,
 	.compat_getsockopt = compat_sock_common_getsockopt,
 #endif
+=======
+>>>>>>> upstream/android-13
 };
 
 /* Registration with AF_INET family.  */
@@ -1077,12 +1225,26 @@ static struct inet_protosw sctp_stream_protosw = {
 	.flags      = SCTP_PROTOSW_FLAG
 };
 
+<<<<<<< HEAD
 /* Register with IP layer.  */
 static const struct net_protocol sctp_protocol = {
 	.handler     = sctp_rcv,
 	.err_handler = sctp_v4_err,
 	.no_policy   = 1,
 	.netns_ok    = 1,
+=======
+static int sctp4_rcv(struct sk_buff *skb)
+{
+	SCTP_INPUT_CB(skb)->encap_port = 0;
+	return sctp_rcv(skb);
+}
+
+/* Register with IP layer.  */
+static const struct net_protocol sctp_protocol = {
+	.handler     = sctp4_rcv,
+	.err_handler = sctp_v4_err,
+	.no_policy   = 1,
+>>>>>>> upstream/android-13
 	.icmp_strict_tag_validation = 1,
 };
 
@@ -1112,10 +1274,13 @@ static struct sctp_af sctp_af_inet = {
 	.net_header_len	   = sizeof(struct iphdr),
 	.sockaddr_len	   = sizeof(struct sockaddr_in),
 	.ip_options_len	   = sctp_v4_ip_options_len,
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 	.compat_setsockopt = compat_ip_setsockopt,
 	.compat_getsockopt = compat_ip_getsockopt,
 #endif
+=======
+>>>>>>> upstream/android-13
 };
 
 struct sctp_pf *sctp_get_pf_specific(sa_family_t family)
@@ -1252,9 +1417,21 @@ static int __net_init sctp_defaults_init(struct net *net)
 	/* Max.Burst		    - 4 */
 	net->sctp.max_burst			= SCTP_DEFAULT_MAX_BURST;
 
+<<<<<<< HEAD
 	/* Enable pf state by default */
 	net->sctp.pf_enable = 1;
 
+=======
+	/* Disable of Primary Path Switchover by default */
+	net->sctp.ps_retrans = SCTP_PS_RETRANS_MAX;
+
+	/* Enable pf state by default */
+	net->sctp.pf_enable = 1;
+
+	/* Ignore pf exposure feature by default */
+	net->sctp.pf_expose = SCTP_PF_EXPOSE_UNSET;
+
+>>>>>>> upstream/android-13
 	/* Association.Max.Retrans  - 10 attempts
 	 * Path.Max.Retrans         - 5  attempts (per destination address)
 	 * Max.Init.Retransmits     - 8  attempts
@@ -1289,6 +1466,18 @@ static int __net_init sctp_defaults_init(struct net *net)
 	/* Disable AUTH by default. */
 	net->sctp.auth_enable = 0;
 
+<<<<<<< HEAD
+=======
+	/* Enable ECN by default. */
+	net->sctp.ecn_enable = 1;
+
+	/* Set UDP tunneling listening port to 0 by default */
+	net->sctp.udp_port = 0;
+
+	/* Set remote encap port to 0 by default */
+	net->sctp.encap_port = 0;
+
+>>>>>>> upstream/android-13
 	/* Set SCOPE policy to enabled */
 	net->sctp.scope_policy = SCTP_SCOPE_POLICY_ENABLE;
 
@@ -1385,6 +1574,7 @@ static struct pernet_operations sctp_ctrlsock_ops = {
 /* Initialize the universe into something sensible.  */
 static __init int sctp_init(void)
 {
+<<<<<<< HEAD
 	int i;
 	int status = -EINVAL;
 	unsigned long goal;
@@ -1393,6 +1583,17 @@ static __init int sctp_init(void)
 	int order;
 	int num_entries;
 	int max_entry_order;
+=======
+	unsigned long nr_pages = totalram_pages();
+	unsigned long limit;
+	unsigned long goal;
+	int max_entry_order;
+	int num_entries;
+	int max_share;
+	int status;
+	int order;
+	int i;
+>>>>>>> upstream/android-13
 
 	sock_skb_cb_check_size(sizeof(struct sctp_ulpevent));
 
@@ -1447,10 +1648,17 @@ static __init int sctp_init(void)
 	 * The methodology is similar to that of the tcp hash tables.
 	 * Though not identical.  Start by getting a goal size
 	 */
+<<<<<<< HEAD
 	if (totalram_pages >= (128 * 1024))
 		goal = totalram_pages >> (22 - PAGE_SHIFT);
 	else
 		goal = totalram_pages >> (24 - PAGE_SHIFT);
+=======
+	if (nr_pages >= (128 * 1024))
+		goal = nr_pages >> (22 - PAGE_SHIFT);
+	else
+		goal = nr_pages >> (24 - PAGE_SHIFT);
+>>>>>>> upstream/android-13
 
 	/* Then compute the page order for said goal */
 	order = get_order(goal);
@@ -1500,10 +1708,17 @@ static __init int sctp_init(void)
 	num_entries = (1UL << order) * PAGE_SIZE /
 		      sizeof(struct sctp_bind_hashbucket);
 
+<<<<<<< HEAD
 	/* And finish by rounding it down to the nearest power of two
 	 * this wastes some memory of course, but its needed because
 	 * the hash function operates based on the assumption that
 	 * that the number of entries is a power of two
+=======
+	/* And finish by rounding it down to the nearest power of two.
+	 * This wastes some memory of course, but it's needed because
+	 * the hash function operates based on the assumption that
+	 * the number of entries is a power of two.
+>>>>>>> upstream/android-13
 	 */
 	sctp_port_hashsize = rounddown_pow_of_two(num_entries);
 

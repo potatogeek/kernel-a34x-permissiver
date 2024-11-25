@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * wm8850-w70v2.dts
  *  - Device tree file for Wondermedia WM8850 Tablet
@@ -5,8 +9,11 @@
  *  - HongLianYing 'HLY070ML268-21A' 7" LCD panel
  *
  * Copyright (C) 2012 Tony Prisk <linux@prisktech.co.nz>
+<<<<<<< HEAD
  *
  * Licensed under GPLv2 or later
+=======
+>>>>>>> upstream/android-13
  */
 
 /dts-v1/;

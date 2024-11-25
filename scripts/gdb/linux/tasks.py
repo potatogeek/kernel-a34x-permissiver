@@ -73,11 +73,21 @@ class LxPs(gdb.Command):
         super(LxPs, self).__init__("lx-ps", gdb.COMMAND_DATA)
 
     def invoke(self, arg, from_tty):
+<<<<<<< HEAD
         for task in task_lists():
             gdb.write("{address} {pid} {comm}\n".format(
                 address=task,
                 pid=task["pid"],
                 comm=task["comm"].string()))
+=======
+        gdb.write("{:>10} {:>12} {:>7}\n".format("TASK", "PID", "COMM"))
+        for task in task_lists():
+            gdb.write("{} {:^5} {}\n".format(
+                task.format_string().split()[0],
+                task["pid"].format_string(),
+                task["comm"].string()))
+
+>>>>>>> upstream/android-13
 
 LxPs()
 
@@ -134,4 +144,8 @@ variable."""
         else:
             raise gdb.GdbError("No task of PID " + str(pid))
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 LxThreadInfoByPidFunc()

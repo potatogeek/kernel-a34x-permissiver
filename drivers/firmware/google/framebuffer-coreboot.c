@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * framebuffer-coreboot.c
  *
@@ -6,6 +10,7 @@
  * Copyright 2012-2013 David Herrmann <dh.herrmann@gmail.com>
  * Copyright 2017 Google Inc.
  * Copyright 2017 Samuel Holland <samuel@sholland.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License v2.0 as published by
@@ -15,6 +20,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -80,13 +87,20 @@ static int framebuffer_probe(struct coreboot_device *dev)
 	return PTR_ERR_OR_ZERO(pdev);
 }
 
+<<<<<<< HEAD
 static int framebuffer_remove(struct coreboot_device *dev)
+=======
+static void framebuffer_remove(struct coreboot_device *dev)
+>>>>>>> upstream/android-13
 {
 	struct platform_device *pdev = dev_get_drvdata(&dev->dev);
 
 	platform_device_unregister(pdev);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static struct coreboot_driver framebuffer_driver = {
@@ -97,6 +111,7 @@ static struct coreboot_driver framebuffer_driver = {
 	},
 	.tag = CB_TAG_FRAMEBUFFER,
 };
+<<<<<<< HEAD
 
 static int __init coreboot_framebuffer_init(void)
 {
@@ -110,6 +125,9 @@ static void coreboot_framebuffer_exit(void)
 
 module_init(coreboot_framebuffer_init);
 module_exit(coreboot_framebuffer_exit);
+=======
+module_coreboot_driver(framebuffer_driver);
+>>>>>>> upstream/android-13
 
 MODULE_AUTHOR("Samuel Holland <samuel@sholland.org>");
 MODULE_LICENSE("GPL");

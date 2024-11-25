@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * posix-clock.c - support for dynamic clock devices
  *
@@ -16,6 +17,13 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Support for dynamic clock devices
+ *
+ * Copyright (C) 2010 OMICRON electronics GmbH
+>>>>>>> upstream/android-13
  */
 #include <linux/device.h>
 #include <linux/export.h>
@@ -236,7 +244,11 @@ static void put_clock_desc(struct posix_clock_desc *cd)
 	fput(cd->fp);
 }
 
+<<<<<<< HEAD
 static int pc_clock_adjtime(clockid_t id, struct timex *tx)
+=======
+static int pc_clock_adjtime(clockid_t id, struct __kernel_timex *tx)
+>>>>>>> upstream/android-13
 {
 	struct posix_clock_desc cd;
 	int err;
@@ -323,8 +335,15 @@ out:
 }
 
 const struct k_clock clock_posix_dynamic = {
+<<<<<<< HEAD
 	.clock_getres	= pc_clock_getres,
 	.clock_set	= pc_clock_settime,
 	.clock_get	= pc_clock_gettime,
 	.clock_adj	= pc_clock_adjtime,
+=======
+	.clock_getres		= pc_clock_getres,
+	.clock_set		= pc_clock_settime,
+	.clock_get_timespec	= pc_clock_gettime,
+	.clock_adj		= pc_clock_adjtime,
+>>>>>>> upstream/android-13
 };

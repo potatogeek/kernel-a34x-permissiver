@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Microchip AR1020 and AR1021 driver for I2C
  *
  * Author: Christian Gmeiner <christian.gmeiner@gmail.com>
+<<<<<<< HEAD
  *
  * License: GPLv2 as published by the FSF.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
@@ -14,7 +21,11 @@
 #include <linux/irq.h>
 #include <linux/interrupt.h>
 
+<<<<<<< HEAD
 #define AR1021_TOCUH_PKG_SIZE	5
+=======
+#define AR1021_TOUCH_PKG_SIZE	5
+>>>>>>> upstream/android-13
 
 #define AR1021_MAX_X	4095
 #define AR1021_MAX_Y	4095
@@ -26,7 +37,11 @@
 struct ar1021_i2c {
 	struct i2c_client *client;
 	struct input_dev *input;
+<<<<<<< HEAD
 	u8 data[AR1021_TOCUH_PKG_SIZE];
+=======
+	u8 data[AR1021_TOUCH_PKG_SIZE];
+>>>>>>> upstream/android-13
 };
 
 static irqreturn_t ar1021_i2c_irq(int irq, void *dev_id)
@@ -126,7 +141,11 @@ static int ar1021_i2c_probe(struct i2c_client *client,
 
 	error = devm_request_threaded_irq(&client->dev, client->irq,
 					  NULL, ar1021_i2c_irq,
+<<<<<<< HEAD
 					  IRQF_ONESHOT,
+=======
+					  IRQF_ONESHOT | IRQF_NO_AUTOEN,
+>>>>>>> upstream/android-13
 					  "ar1021_i2c", ar1021);
 	if (error) {
 		dev_err(&client->dev,
@@ -134,9 +153,12 @@ static int ar1021_i2c_probe(struct i2c_client *client,
 		return error;
 	}
 
+<<<<<<< HEAD
 	/* Disable the IRQ, we'll enable it in ar1021_i2c_open() */
 	disable_irq(client->irq);
 
+=======
+>>>>>>> upstream/android-13
 	error = input_register_device(ar1021->input);
 	if (error) {
 		dev_err(&client->dev,

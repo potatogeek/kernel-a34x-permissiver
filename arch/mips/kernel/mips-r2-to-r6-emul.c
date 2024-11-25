@@ -1109,7 +1109,11 @@ repeat:
 			err = SIGILL;
 			break;
 		}
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case beql_op:
 	case bnel_op:
 		if (delay_slot(regs)) {
@@ -1174,6 +1178,7 @@ repeat:
 fpu_emul:
 		regs->regs[31] = r31;
 		regs->cp0_epc = epc;
+<<<<<<< HEAD
 		if (!used_math()) {     /* First time FPU user.  */
 			preempt_disable();
 			err = init_fpu();
@@ -1181,6 +1186,8 @@ fpu_emul:
 			set_used_math();
 		}
 		lose_fpu(1);    /* Save FPU state for the emulator. */
+=======
+>>>>>>> upstream/android-13
 
 		err = fpu_emulator_cop1Handler(regs, &current->thread.fpu, 0,
 					       &fault_addr);
@@ -1212,7 +1219,11 @@ fpu_emul:
 	case lwl_op:
 		rt = regs->regs[MIPSInst_RT(inst)];
 		vaddr = regs->regs[MIPSInst_RS(inst)] + MIPSInst_SIMM(inst);
+<<<<<<< HEAD
 		if (!access_ok(VERIFY_READ, (void __user *)vaddr, 4)) {
+=======
+		if (!access_ok((void __user *)vaddr, 4)) {
+>>>>>>> upstream/android-13
 			current->thread.cp0_baduaddr = vaddr;
 			err = SIGSEGV;
 			break;
@@ -1265,10 +1276,17 @@ fpu_emul:
 			"	j	10b\n"
 			"	.previous\n"
 			"	.section	__ex_table,\"a\"\n"
+<<<<<<< HEAD
 			STR(PTR) " 1b,8b\n"
 			STR(PTR) " 2b,8b\n"
 			STR(PTR) " 3b,8b\n"
 			STR(PTR) " 4b,8b\n"
+=======
+			STR(PTR_WD) " 1b,8b\n"
+			STR(PTR_WD) " 2b,8b\n"
+			STR(PTR_WD) " 3b,8b\n"
+			STR(PTR_WD) " 4b,8b\n"
+>>>>>>> upstream/android-13
 			"	.previous\n"
 			"	.set	pop\n"
 			: "+&r"(rt), "=&r"(rs),
@@ -1285,7 +1303,11 @@ fpu_emul:
 	case lwr_op:
 		rt = regs->regs[MIPSInst_RT(inst)];
 		vaddr = regs->regs[MIPSInst_RS(inst)] + MIPSInst_SIMM(inst);
+<<<<<<< HEAD
 		if (!access_ok(VERIFY_READ, (void __user *)vaddr, 4)) {
+=======
+		if (!access_ok((void __user *)vaddr, 4)) {
+>>>>>>> upstream/android-13
 			current->thread.cp0_baduaddr = vaddr;
 			err = SIGSEGV;
 			break;
@@ -1340,10 +1362,17 @@ fpu_emul:
 			"	j	10b\n"
 			"       .previous\n"
 			"	.section	__ex_table,\"a\"\n"
+<<<<<<< HEAD
 			STR(PTR) " 1b,8b\n"
 			STR(PTR) " 2b,8b\n"
 			STR(PTR) " 3b,8b\n"
 			STR(PTR) " 4b,8b\n"
+=======
+			STR(PTR_WD) " 1b,8b\n"
+			STR(PTR_WD) " 2b,8b\n"
+			STR(PTR_WD) " 3b,8b\n"
+			STR(PTR_WD) " 4b,8b\n"
+>>>>>>> upstream/android-13
 			"	.previous\n"
 			"	.set	pop\n"
 			: "+&r"(rt), "=&r"(rs),
@@ -1359,7 +1388,11 @@ fpu_emul:
 	case swl_op:
 		rt = regs->regs[MIPSInst_RT(inst)];
 		vaddr = regs->regs[MIPSInst_RS(inst)] + MIPSInst_SIMM(inst);
+<<<<<<< HEAD
 		if (!access_ok(VERIFY_WRITE, (void __user *)vaddr, 4)) {
+=======
+		if (!access_ok((void __user *)vaddr, 4)) {
+>>>>>>> upstream/android-13
 			current->thread.cp0_baduaddr = vaddr;
 			err = SIGSEGV;
 			break;
@@ -1411,10 +1444,17 @@ fpu_emul:
 			"	j	9b\n"
 			"	.previous\n"
 			"	.section        __ex_table,\"a\"\n"
+<<<<<<< HEAD
 			STR(PTR) " 1b,8b\n"
 			STR(PTR) " 2b,8b\n"
 			STR(PTR) " 3b,8b\n"
 			STR(PTR) " 4b,8b\n"
+=======
+			STR(PTR_WD) " 1b,8b\n"
+			STR(PTR_WD) " 2b,8b\n"
+			STR(PTR_WD) " 3b,8b\n"
+			STR(PTR_WD) " 4b,8b\n"
+>>>>>>> upstream/android-13
 			"	.previous\n"
 			"	.set	pop\n"
 			: "+&r"(rt), "=&r"(rs),
@@ -1429,7 +1469,11 @@ fpu_emul:
 	case swr_op:
 		rt = regs->regs[MIPSInst_RT(inst)];
 		vaddr = regs->regs[MIPSInst_RS(inst)] + MIPSInst_SIMM(inst);
+<<<<<<< HEAD
 		if (!access_ok(VERIFY_WRITE, (void __user *)vaddr, 4)) {
+=======
+		if (!access_ok((void __user *)vaddr, 4)) {
+>>>>>>> upstream/android-13
 			current->thread.cp0_baduaddr = vaddr;
 			err = SIGSEGV;
 			break;
@@ -1481,10 +1525,17 @@ fpu_emul:
 			"	j	9b\n"
 			"	.previous\n"
 			"	.section        __ex_table,\"a\"\n"
+<<<<<<< HEAD
 			STR(PTR) " 1b,8b\n"
 			STR(PTR) " 2b,8b\n"
 			STR(PTR) " 3b,8b\n"
 			STR(PTR) " 4b,8b\n"
+=======
+			STR(PTR_WD) " 1b,8b\n"
+			STR(PTR_WD) " 2b,8b\n"
+			STR(PTR_WD) " 3b,8b\n"
+			STR(PTR_WD) " 4b,8b\n"
+>>>>>>> upstream/android-13
 			"	.previous\n"
 			"	.set	pop\n"
 			: "+&r"(rt), "=&r"(rs),
@@ -1504,7 +1555,11 @@ fpu_emul:
 
 		rt = regs->regs[MIPSInst_RT(inst)];
 		vaddr = regs->regs[MIPSInst_RS(inst)] + MIPSInst_SIMM(inst);
+<<<<<<< HEAD
 		if (!access_ok(VERIFY_READ, (void __user *)vaddr, 8)) {
+=======
+		if (!access_ok((void __user *)vaddr, 8)) {
+>>>>>>> upstream/android-13
 			current->thread.cp0_baduaddr = vaddr;
 			err = SIGSEGV;
 			break;
@@ -1596,6 +1651,7 @@ fpu_emul:
 			"	j	9b\n"
 			"	.previous\n"
 			"	.section        __ex_table,\"a\"\n"
+<<<<<<< HEAD
 			STR(PTR) " 1b,8b\n"
 			STR(PTR) " 2b,8b\n"
 			STR(PTR) " 3b,8b\n"
@@ -1604,6 +1660,16 @@ fpu_emul:
 			STR(PTR) " 6b,8b\n"
 			STR(PTR) " 7b,8b\n"
 			STR(PTR) " 0b,8b\n"
+=======
+			STR(PTR_WD) " 1b,8b\n"
+			STR(PTR_WD) " 2b,8b\n"
+			STR(PTR_WD) " 3b,8b\n"
+			STR(PTR_WD) " 4b,8b\n"
+			STR(PTR_WD) " 5b,8b\n"
+			STR(PTR_WD) " 6b,8b\n"
+			STR(PTR_WD) " 7b,8b\n"
+			STR(PTR_WD) " 0b,8b\n"
+>>>>>>> upstream/android-13
 			"	.previous\n"
 			"	.set	pop\n"
 			: "+&r"(rt), "=&r"(rs),
@@ -1623,7 +1689,11 @@ fpu_emul:
 
 		rt = regs->regs[MIPSInst_RT(inst)];
 		vaddr = regs->regs[MIPSInst_RS(inst)] + MIPSInst_SIMM(inst);
+<<<<<<< HEAD
 		if (!access_ok(VERIFY_READ, (void __user *)vaddr, 8)) {
+=======
+		if (!access_ok((void __user *)vaddr, 8)) {
+>>>>>>> upstream/android-13
 			current->thread.cp0_baduaddr = vaddr;
 			err = SIGSEGV;
 			break;
@@ -1715,6 +1785,7 @@ fpu_emul:
 			"	j      9b\n"
 			"	.previous\n"
 			"	.section        __ex_table,\"a\"\n"
+<<<<<<< HEAD
 			STR(PTR) " 1b,8b\n"
 			STR(PTR) " 2b,8b\n"
 			STR(PTR) " 3b,8b\n"
@@ -1723,6 +1794,16 @@ fpu_emul:
 			STR(PTR) " 6b,8b\n"
 			STR(PTR) " 7b,8b\n"
 			STR(PTR) " 0b,8b\n"
+=======
+			STR(PTR_WD) " 1b,8b\n"
+			STR(PTR_WD) " 2b,8b\n"
+			STR(PTR_WD) " 3b,8b\n"
+			STR(PTR_WD) " 4b,8b\n"
+			STR(PTR_WD) " 5b,8b\n"
+			STR(PTR_WD) " 6b,8b\n"
+			STR(PTR_WD) " 7b,8b\n"
+			STR(PTR_WD) " 0b,8b\n"
+>>>>>>> upstream/android-13
 			"	.previous\n"
 			"	.set    pop\n"
 			: "+&r"(rt), "=&r"(rs),
@@ -1742,7 +1823,11 @@ fpu_emul:
 
 		rt = regs->regs[MIPSInst_RT(inst)];
 		vaddr = regs->regs[MIPSInst_RS(inst)] + MIPSInst_SIMM(inst);
+<<<<<<< HEAD
 		if (!access_ok(VERIFY_WRITE, (void __user *)vaddr, 8)) {
+=======
+		if (!access_ok((void __user *)vaddr, 8)) {
+>>>>>>> upstream/android-13
 			current->thread.cp0_baduaddr = vaddr;
 			err = SIGSEGV;
 			break;
@@ -1834,6 +1919,7 @@ fpu_emul:
 			"	j	9b\n"
 			"	.previous\n"
 			"	.section        __ex_table,\"a\"\n"
+<<<<<<< HEAD
 			STR(PTR) " 1b,8b\n"
 			STR(PTR) " 2b,8b\n"
 			STR(PTR) " 3b,8b\n"
@@ -1842,6 +1928,16 @@ fpu_emul:
 			STR(PTR) " 6b,8b\n"
 			STR(PTR) " 7b,8b\n"
 			STR(PTR) " 0b,8b\n"
+=======
+			STR(PTR_WD) " 1b,8b\n"
+			STR(PTR_WD) " 2b,8b\n"
+			STR(PTR_WD) " 3b,8b\n"
+			STR(PTR_WD) " 4b,8b\n"
+			STR(PTR_WD) " 5b,8b\n"
+			STR(PTR_WD) " 6b,8b\n"
+			STR(PTR_WD) " 7b,8b\n"
+			STR(PTR_WD) " 0b,8b\n"
+>>>>>>> upstream/android-13
 			"	.previous\n"
 			"	.set	pop\n"
 			: "+&r"(rt), "=&r"(rs),
@@ -1860,7 +1956,11 @@ fpu_emul:
 
 		rt = regs->regs[MIPSInst_RT(inst)];
 		vaddr = regs->regs[MIPSInst_RS(inst)] + MIPSInst_SIMM(inst);
+<<<<<<< HEAD
 		if (!access_ok(VERIFY_WRITE, (void __user *)vaddr, 8)) {
+=======
+		if (!access_ok((void __user *)vaddr, 8)) {
+>>>>>>> upstream/android-13
 			current->thread.cp0_baduaddr = vaddr;
 			err = SIGSEGV;
 			break;
@@ -1952,6 +2052,7 @@ fpu_emul:
 			"       j	9b\n"
 			"       .previous\n"
 			"       .section        __ex_table,\"a\"\n"
+<<<<<<< HEAD
 			STR(PTR) " 1b,8b\n"
 			STR(PTR) " 2b,8b\n"
 			STR(PTR) " 3b,8b\n"
@@ -1960,6 +2061,16 @@ fpu_emul:
 			STR(PTR) " 6b,8b\n"
 			STR(PTR) " 7b,8b\n"
 			STR(PTR) " 0b,8b\n"
+=======
+			STR(PTR_WD) " 1b,8b\n"
+			STR(PTR_WD) " 2b,8b\n"
+			STR(PTR_WD) " 3b,8b\n"
+			STR(PTR_WD) " 4b,8b\n"
+			STR(PTR_WD) " 5b,8b\n"
+			STR(PTR_WD) " 6b,8b\n"
+			STR(PTR_WD) " 7b,8b\n"
+			STR(PTR_WD) " 0b,8b\n"
+>>>>>>> upstream/android-13
 			"       .previous\n"
 			"       .set	pop\n"
 			: "+&r"(rt), "=&r"(rs),
@@ -1977,7 +2088,11 @@ fpu_emul:
 			err = SIGBUS;
 			break;
 		}
+<<<<<<< HEAD
 		if (!access_ok(VERIFY_READ, (void __user *)vaddr, 4)) {
+=======
+		if (!access_ok((void __user *)vaddr, 4)) {
+>>>>>>> upstream/android-13
 			current->thread.cp0_baduaddr = vaddr;
 			err = SIGBUS;
 			break;
@@ -2014,7 +2129,11 @@ fpu_emul:
 			"j	2b\n"
 			".previous\n"
 			".section        __ex_table,\"a\"\n"
+<<<<<<< HEAD
 			STR(PTR) " 1b,3b\n"
+=======
+			STR(PTR_WD) " 1b,3b\n"
+>>>>>>> upstream/android-13
 			".previous\n"
 			: "=&r"(res), "+&r"(err)
 			: "r"(vaddr), "i"(SIGSEGV)
@@ -2033,7 +2152,11 @@ fpu_emul:
 			err = SIGBUS;
 			break;
 		}
+<<<<<<< HEAD
 		if (!access_ok(VERIFY_WRITE, (void __user *)vaddr, 4)) {
+=======
+		if (!access_ok((void __user *)vaddr, 4)) {
+>>>>>>> upstream/android-13
 			current->thread.cp0_baduaddr = vaddr;
 			err = SIGBUS;
 			break;
@@ -2072,7 +2195,11 @@ fpu_emul:
 			"j	2b\n"
 			".previous\n"
 			".section        __ex_table,\"a\"\n"
+<<<<<<< HEAD
 			STR(PTR) " 1b,3b\n"
+=======
+			STR(PTR_WD) " 1b,3b\n"
+>>>>>>> upstream/android-13
 			".previous\n"
 			: "+&r"(res), "+&r"(err)
 			: "r"(vaddr), "i"(SIGSEGV));
@@ -2096,7 +2223,11 @@ fpu_emul:
 			err = SIGBUS;
 			break;
 		}
+<<<<<<< HEAD
 		if (!access_ok(VERIFY_READ, (void __user *)vaddr, 8)) {
+=======
+		if (!access_ok((void __user *)vaddr, 8)) {
+>>>>>>> upstream/android-13
 			current->thread.cp0_baduaddr = vaddr;
 			err = SIGBUS;
 			break;
@@ -2133,7 +2264,11 @@ fpu_emul:
 			"j	2b\n"
 			".previous\n"
 			".section        __ex_table,\"a\"\n"
+<<<<<<< HEAD
 			STR(PTR) " 1b,3b\n"
+=======
+			STR(PTR_WD) " 1b,3b\n"
+>>>>>>> upstream/android-13
 			".previous\n"
 			: "=&r"(res), "+&r"(err)
 			: "r"(vaddr), "i"(SIGSEGV)
@@ -2157,7 +2292,11 @@ fpu_emul:
 			err = SIGBUS;
 			break;
 		}
+<<<<<<< HEAD
 		if (!access_ok(VERIFY_WRITE, (void __user *)vaddr, 8)) {
+=======
+		if (!access_ok((void __user *)vaddr, 8)) {
+>>>>>>> upstream/android-13
 			current->thread.cp0_baduaddr = vaddr;
 			err = SIGBUS;
 			break;
@@ -2196,7 +2335,11 @@ fpu_emul:
 			"j	2b\n"
 			".previous\n"
 			".section        __ex_table,\"a\"\n"
+<<<<<<< HEAD
 			STR(PTR) " 1b,3b\n"
+=======
+			STR(PTR_WD) " 1b,3b\n"
+>>>>>>> upstream/android-13
 			".previous\n"
 			: "+&r"(res), "+&r"(err)
 			: "r"(vaddr), "i"(SIGSEGV));
@@ -2242,7 +2385,11 @@ fpu_emul:
 
 #ifdef CONFIG_DEBUG_FS
 
+<<<<<<< HEAD
 static int mipsr2_stats_show(struct seq_file *s, void *unused)
+=======
+static int mipsr2_emul_show(struct seq_file *s, void *unused)
+>>>>>>> upstream/android-13
 {
 
 	seq_printf(s, "Instruction\tTotal\tBDslot\n------------------------------\n");
@@ -2308,9 +2455,15 @@ static int mipsr2_stats_show(struct seq_file *s, void *unused)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int mipsr2_stats_clear_show(struct seq_file *s, void *unused)
 {
 	mipsr2_stats_show(s, unused);
+=======
+static int mipsr2_clear_show(struct seq_file *s, void *unused)
+{
+	mipsr2_emul_show(s, unused);
+>>>>>>> upstream/android-13
 
 	__this_cpu_write((mipsr2emustats).movs, 0);
 	__this_cpu_write((mipsr2bdemustats).movs, 0);
@@ -2353,6 +2506,7 @@ static int mipsr2_stats_clear_show(struct seq_file *s, void *unused)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int mipsr2_stats_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, mipsr2_stats_show, inode->i_private);
@@ -2397,6 +2551,17 @@ static int __init mipsr2_init_debugfs(void)
 	if (!mipsr2_emul)
 		return -ENOMEM;
 
+=======
+DEFINE_SHOW_ATTRIBUTE(mipsr2_emul);
+DEFINE_SHOW_ATTRIBUTE(mipsr2_clear);
+
+static int __init mipsr2_init_debugfs(void)
+{
+	debugfs_create_file("r2_emul_stats", S_IRUGO, mips_debugfs_dir, NULL,
+			    &mipsr2_emul_fops);
+	debugfs_create_file("r2_emul_stats_clear", S_IRUGO, mips_debugfs_dir,
+			    NULL, &mipsr2_clear_fops);
+>>>>>>> upstream/android-13
 	return 0;
 }
 

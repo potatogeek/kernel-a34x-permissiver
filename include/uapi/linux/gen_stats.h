@@ -12,6 +12,11 @@ enum {
 	TCA_STATS_APP,
 	TCA_STATS_RATE_EST64,
 	TCA_STATS_PAD,
+<<<<<<< HEAD
+=======
+	TCA_STATS_BASIC_HW,
+	TCA_STATS_PKT64,
+>>>>>>> upstream/android-13
 	__TCA_STATS_MAX,
 };
 #define TCA_STATS_MAX (__TCA_STATS_MAX - 1)
@@ -25,10 +30,13 @@ struct gnet_stats_basic {
 	__u64	bytes;
 	__u32	packets;
 };
+<<<<<<< HEAD
 struct gnet_stats_basic_packed {
 	__u64	bytes;
 	__u32	packets;
 } __attribute__ ((packed));
+=======
+>>>>>>> upstream/android-13
 
 /**
  * struct gnet_stats_rate_est - rate estimator

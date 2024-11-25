@@ -2,7 +2,11 @@ TI/National Semiconductor LP3943 PWM controller
 
 Required properties:
   - compatible: "ti,lp3943-pwm"
+<<<<<<< HEAD
   - #pwm-cells: Should be 2. See pwm.txt in this directory for a
+=======
+  - #pwm-cells: Should be 2. See pwm.yaml in this directory for a
+>>>>>>> upstream/android-13
                 description of the cells format.
                 Note that this hardware limits the period length to the
                 range 6250~1600000.

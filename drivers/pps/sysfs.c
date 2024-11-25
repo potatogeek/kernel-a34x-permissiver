@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * PPS sysfs support
  *
@@ -17,6 +18,13 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * PPS sysfs support
+ *
+ * Copyright (C) 2007-2009   Rodolfo Giometti <giometti@linux.it>
+>>>>>>> upstream/android-13
  */
 
 

@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Copyright (C) 2012-2017, Samsung Electronics Co., Ltd.
+=======
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd All Rights Reserved
+>>>>>>> upstream/android-13
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -47,12 +51,18 @@ struct tzdev_teec_session {
 
 struct tzdev_teec_shared_memory {
 	TEEC_Context *context;
+<<<<<<< HEAD
 	wait_queue_head_t wq;
 	unsigned int released;
 	struct page **pages;
 	unsigned int num_pages;
 	unsigned int offset;
 	unsigned int id;
+=======
+	unsigned int offset;
+	unsigned int id;
+	bool is_allocated;
+>>>>>>> upstream/android-13
 };
 
 struct tzdev_teec_operation {

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *   ALSA sequencer Queue handling
  *   Copyright (c) 1998-1999 by Frank van de Pol <fvdpol@coil.demon.nl>
@@ -16,6 +17,12 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ *   ALSA sequencer Queue handling
+ *   Copyright (c) 1998-1999 by Frank van de Pol <fvdpol@coil.demon.nl>
+>>>>>>> upstream/android-13
  */
 #ifndef __SND_SEQ_QUEUE_H
 #define __SND_SEQ_QUEUE_H
@@ -73,9 +80,12 @@ struct snd_seq_queue *snd_seq_queue_alloc(int client, int locked, unsigned int f
 /* delete queue (destructor) */
 int snd_seq_queue_delete(int client, int queueid);
 
+<<<<<<< HEAD
 /* notification that client has left the system */
 void snd_seq_queue_client_termination(int client);
 
+=======
+>>>>>>> upstream/android-13
 /* final stage */
 void snd_seq_queue_client_leave(int client);
 

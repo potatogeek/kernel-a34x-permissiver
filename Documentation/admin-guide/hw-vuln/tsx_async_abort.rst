@@ -60,7 +60,11 @@ Hyper-Thread attacks are possible.
 
 The victim of a malicious actor does not need to make use of TSX. Only the
 attacker needs to begin a TSX transaction and raise an asynchronous abort
+<<<<<<< HEAD
 which in turn potenitally leaks data stored in the buffers.
+=======
+which in turn potentially leaks data stored in the buffers.
+>>>>>>> upstream/android-13
 
 More detailed technical information is available in the TAA specific x86
 architecture section: :ref:`Documentation/x86/tsx_async_abort.rst <tsx_async_abort>`.
@@ -136,8 +140,11 @@ enables the mitigation by default.
 The mitigation can be controlled at boot time via a kernel command line option.
 See :ref:`taa_mitigation_control_command_line`.
 
+<<<<<<< HEAD
 .. _virt_mechanism:
 
+=======
+>>>>>>> upstream/android-13
 Virtualization mitigation
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 

@@ -1,7 +1,11 @@
 /* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
 /*
  *	include/linux/bfs_fs.h - BFS data structures on disk.
+<<<<<<< HEAD
  *	Copyright (C) 1999 Tigran Aivazian <tigran@veritas.com>
+=======
+ *	Copyright (C) 1999-2018 Tigran Aivazian <aivazian.tigran@gmail.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef _LINUX_BFS_FS_H

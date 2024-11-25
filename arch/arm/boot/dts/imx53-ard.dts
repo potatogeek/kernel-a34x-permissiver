@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2011 Freescale Semiconductor, Inc.
  * Copyright 2011 Linaro Ltd.
@@ -8,6 +9,12 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2011 Freescale Semiconductor, Inc.
+ * Copyright 2011 Linaro Ltd.
+>>>>>>> upstream/android-13
  */
 
 /dts-v1/;
@@ -30,7 +37,11 @@
 		reg = <0xf4000000 0x3ff0000>;
 		ranges;
 
+<<<<<<< HEAD
 		lan9220@f4000000 {
+=======
+		ethernet@f4000000 {
+>>>>>>> upstream/android-13
 			compatible = "smsc,lan9220", "smsc,lan9115";
 			reg = <0xf4000000 0x2000000>;
 			phy-mode = "mii";

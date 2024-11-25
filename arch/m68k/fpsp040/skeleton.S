@@ -502,7 +502,12 @@ in_ea:
 	.section .fixup,#alloc,#execinstr
 	.even
 1:
+<<<<<<< HEAD
 	jbra	fpsp040_die
+=======
+	jbsr	fpsp040_die
+	jbra	.Lnotkern
+>>>>>>> upstream/android-13
 
 	.section __ex_table,#alloc
 	.align	4

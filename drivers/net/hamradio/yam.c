@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*****************************************************************************/
 
 /*
@@ -6,6 +10,7 @@
  *      Copyright (C) 1998 Frederic Rible F1OAT (frible@teaser.fr)
  *      Adapted from baycom.c driver written by Thomas Sailer (sailer@ife.ee.ethz.ch)
  *
+<<<<<<< HEAD
  *      This program is free software; you can redistribute it and/or modify
  *      it under the terms of the GNU General Public License as published by
  *      the Free Software Foundation; either version 2 of the License, or
@@ -20,11 +25,16 @@
  *      along with this program; if not, write to the Free Software
  *      Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  *  Please note that the GPL allows you to use the driver, NOT the radio.
  *  In order to use the radio, you need a license from the communications
  *  authority of your country.
  *
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  *  History:
  *   0.0 F1OAT 06.06.98  Begin of work with baycom.c source code V 0.3
  *   0.1 F1OAT 07.06.98  Add timer polling routine for channel arbitration
@@ -37,7 +47,10 @@
  *   0.8 F6FBB 14.10.98  Fixed slottime/persistence timing bug
  *       OK1ZIA 2.09.01  Fixed "kfree_skb on hard IRQ" 
  *                       using dev_kfree_skb_any(). (important in 2.4 kernel)
+<<<<<<< HEAD
  *   
+=======
+>>>>>>> upstream/android-13
  */
 
 /*****************************************************************************/
@@ -683,7 +696,11 @@ static void yam_tx_byte(struct net_device *dev, struct yam_port *yp)
 			}
 			yp->tx_len = skb->len - 1;	/* strip KISS byte */
 			if (yp->tx_len >= YAM_MAX_FRAME || yp->tx_len < 2) {
+<<<<<<< HEAD
         			dev_kfree_skb_any(skb);
+=======
+				dev_kfree_skb_any(skb);
+>>>>>>> upstream/android-13
 				break;
 			}
 			skb_copy_from_linear_data_offset(skb, 1,
@@ -935,15 +952,24 @@ static int yam_close(struct net_device *dev)
 
 /* --------------------------------------------------------------------- */
 
+<<<<<<< HEAD
 static int yam_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
+=======
+static int yam_siocdevprivate(struct net_device *dev, struct ifreq *ifr, void __user *data, int cmd)
+>>>>>>> upstream/android-13
 {
 	struct yam_port *yp = netdev_priv(dev);
 	struct yamdrv_ioctl_cfg yi;
 	struct yamdrv_ioctl_mcs *ym;
 	int ioctl_cmd;
 
+<<<<<<< HEAD
 	if (copy_from_user(&ioctl_cmd, ifr->ifr_data, sizeof(int)))
 		 return -EFAULT;
+=======
+	if (copy_from_user(&ioctl_cmd, data, sizeof(int)))
+		return -EFAULT;
+>>>>>>> upstream/android-13
 
 	if (yp->magic != YAM_MAGIC)
 		return -EINVAL;
@@ -962,6 +988,7 @@ static int yam_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 	case SIOCYAMSMCS:
 		if (netif_running(dev))
 			return -EINVAL;		/* Cannot change this parameter when up */
+<<<<<<< HEAD
 		ym = memdup_user(ifr->ifr_data,
 				 sizeof(struct yamdrv_ioctl_mcs));
 		if (IS_ERR(ym))
@@ -969,6 +996,12 @@ static int yam_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 		if (ym->cmd != SIOCYAMSMCS)
 			return -EINVAL;
 		if (ym->bitrate > YAM_MAXBITRATE) {
+=======
+		ym = memdup_user(data, sizeof(struct yamdrv_ioctl_mcs));
+		if (IS_ERR(ym))
+			return PTR_ERR(ym);
+		if (ym->cmd != SIOCYAMSMCS || ym->bitrate > YAM_MAXBITRATE) {
+>>>>>>> upstream/android-13
 			kfree(ym);
 			return -EINVAL;
 		}
@@ -980,8 +1013,13 @@ static int yam_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 	case SIOCYAMSCFG:
 		if (!capable(CAP_SYS_RAWIO))
 			return -EPERM;
+<<<<<<< HEAD
 		if (copy_from_user(&yi, ifr->ifr_data, sizeof(struct yamdrv_ioctl_cfg)))
 			 return -EFAULT;
+=======
+		if (copy_from_user(&yi, data, sizeof(struct yamdrv_ioctl_cfg)))
+			return -EFAULT;
+>>>>>>> upstream/android-13
 
 		if (yi.cmd != SIOCYAMSCFG)
 			return -EINVAL;
@@ -1060,8 +1098,13 @@ static int yam_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 		yi.cfg.txtail = yp->txtail;
 		yi.cfg.persist = yp->pers;
 		yi.cfg.slottime = yp->slot;
+<<<<<<< HEAD
 		if (copy_to_user(ifr->ifr_data, &yi, sizeof(struct yamdrv_ioctl_cfg)))
 			 return -EFAULT;
+=======
+		if (copy_to_user(data, &yi, sizeof(struct yamdrv_ioctl_cfg)))
+			return -EFAULT;
+>>>>>>> upstream/android-13
 		break;
 
 	default:
@@ -1089,7 +1132,11 @@ static const struct net_device_ops yam_netdev_ops = {
 	.ndo_open	     = yam_open,
 	.ndo_stop	     = yam_close,
 	.ndo_start_xmit      = yam_send_packet,
+<<<<<<< HEAD
 	.ndo_do_ioctl 	     = yam_ioctl,
+=======
+	.ndo_siocdevprivate  = yam_siocdevprivate,
+>>>>>>> upstream/android-13
 	.ndo_set_mac_address = yam_set_mac_address,
 };
 

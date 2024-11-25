@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0
 #include "tests.h"
+<<<<<<< HEAD
 #include "debug.h"
 #include "util.h"
+=======
+>>>>>>> upstream/android-13
 #include "c++/clang-c.h"
 #include <linux/kernel.h>
 

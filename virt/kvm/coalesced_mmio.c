@@ -86,6 +86,10 @@ static int coalesced_mmio_write(struct kvm_vcpu *vcpu,
 	ring->coalesced_mmio[insert].phys_addr = addr;
 	ring->coalesced_mmio[insert].len = len;
 	memcpy(ring->coalesced_mmio[insert].data, val, len);
+<<<<<<< HEAD
+=======
+	ring->coalesced_mmio[insert].pio = dev->zone.pio;
+>>>>>>> upstream/android-13
 	smp_wmb();
 	ring->last = (insert + 1) % KVM_COALESCED_MMIO_MAX;
 	spin_unlock(&dev->kvm->ring_lock);
@@ -109,6 +113,7 @@ static const struct kvm_io_device_ops coalesced_mmio_ops = {
 int kvm_coalesced_mmio_init(struct kvm *kvm)
 {
 	struct page *page;
+<<<<<<< HEAD
 	int ret;
 
 	ret = -ENOMEM;
@@ -117,18 +122,33 @@ int kvm_coalesced_mmio_init(struct kvm *kvm)
 		goto out_err;
 
 	ret = 0;
+=======
+
+	page = alloc_page(GFP_KERNEL_ACCOUNT | __GFP_ZERO);
+	if (!page)
+		return -ENOMEM;
+
+>>>>>>> upstream/android-13
 	kvm->coalesced_mmio_ring = page_address(page);
 
 	/*
 	 * We're using this spinlock to sync access to the coalesced ring.
+<<<<<<< HEAD
 	 * The list doesn't need it's own lock since device registration and
+=======
+	 * The list doesn't need its own lock since device registration and
+>>>>>>> upstream/android-13
 	 * unregistration should only happen when kvm->slots_lock is held.
 	 */
 	spin_lock_init(&kvm->ring_lock);
 	INIT_LIST_HEAD(&kvm->coalesced_zones);
 
+<<<<<<< HEAD
 out_err:
 	return ret;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 void kvm_coalesced_mmio_free(struct kvm *kvm)
@@ -143,7 +163,15 @@ int kvm_vm_ioctl_register_coalesced_mmio(struct kvm *kvm,
 	int ret;
 	struct kvm_coalesced_mmio_dev *dev;
 
+<<<<<<< HEAD
 	dev = kzalloc(sizeof(struct kvm_coalesced_mmio_dev), GFP_KERNEL);
+=======
+	if (zone->pio != 1 && zone->pio != 0)
+		return -EINVAL;
+
+	dev = kzalloc(sizeof(struct kvm_coalesced_mmio_dev),
+		      GFP_KERNEL_ACCOUNT);
+>>>>>>> upstream/android-13
 	if (!dev)
 		return -ENOMEM;
 
@@ -152,8 +180,14 @@ int kvm_vm_ioctl_register_coalesced_mmio(struct kvm *kvm,
 	dev->zone = *zone;
 
 	mutex_lock(&kvm->slots_lock);
+<<<<<<< HEAD
 	ret = kvm_io_bus_register_dev(kvm, KVM_MMIO_BUS, zone->addr,
 				      zone->size, &dev->dev);
+=======
+	ret = kvm_io_bus_register_dev(kvm,
+				zone->pio ? KVM_PIO_BUS : KVM_MMIO_BUS,
+				zone->addr, zone->size, &dev->dev);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		goto out_free_dev;
 	list_add_tail(&dev->list, &kvm->coalesced_zones);
@@ -172,6 +206,7 @@ int kvm_vm_ioctl_unregister_coalesced_mmio(struct kvm *kvm,
 					   struct kvm_coalesced_mmio_zone *zone)
 {
 	struct kvm_coalesced_mmio_dev *dev, *tmp;
+<<<<<<< HEAD
 
 	mutex_lock(&kvm->slots_lock);
 
@@ -183,5 +218,38 @@ int kvm_vm_ioctl_unregister_coalesced_mmio(struct kvm *kvm,
 
 	mutex_unlock(&kvm->slots_lock);
 
+=======
+	int r;
+
+	if (zone->pio != 1 && zone->pio != 0)
+		return -EINVAL;
+
+	mutex_lock(&kvm->slots_lock);
+
+	list_for_each_entry_safe(dev, tmp, &kvm->coalesced_zones, list) {
+		if (zone->pio == dev->zone.pio &&
+		    coalesced_mmio_in_range(dev, zone->addr, zone->size)) {
+			r = kvm_io_bus_unregister_dev(kvm,
+				zone->pio ? KVM_PIO_BUS : KVM_MMIO_BUS, &dev->dev);
+
+			/*
+			 * On failure, unregister destroys all devices on the
+			 * bus _except_ the target device, i.e. coalesced_zones
+			 * has been modified.  No need to restart the walk as
+			 * there aren't any zones left.
+			 */
+			if (r)
+				break;
+			kvm_iodevice_destructor(&dev->dev);
+		}
+	}
+
+	mutex_unlock(&kvm->slots_lock);
+
+	/*
+	 * Ignore the result of kvm_io_bus_unregister_dev(), from userspace's
+	 * perspective, the coalesced MMIO is most definitely unregistered.
+	 */
+>>>>>>> upstream/android-13
 	return 0;
 }

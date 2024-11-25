@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * core routines for the asynchronous memory transfer/transform api
  *
@@ -8,6 +12,7 @@
  *	with architecture considerations by:
  *	Neil Brown <neilb@suse.de>
  *	Jeff Garzik <jeff@garzik.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -22,6 +27,8 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/rculist.h>
 #include <linux/module.h>

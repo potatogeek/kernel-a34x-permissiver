@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2015 Karol Kosik <karo9@interia.eu>
  *		 2015 Samsung Electronics
@@ -6,6 +10,7 @@
  * Based on tools/usb/usbip/libsrc/usbip_host_driver.c, which is:
  * Copyright (C) 2011 matt mooney <mfm@muteddisk.com>
  *               2005-2007 Takahiro Hirofuchi
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +24,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __USBIP_DEVICE_DRIVER_H

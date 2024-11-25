@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* QLogic qed NIC Driver
  * Copyright (c) 2015-2017  QLogic Corporation
  *
@@ -29,6 +30,14 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+=======
+/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause) */
+/* QLogic qed NIC Driver
+ * Copyright (c) 2015-2017  QLogic Corporation
+ * Copyright (c) 2019-2020 Marvell International Ltd.
+ */
+
+>>>>>>> upstream/android-13
 #ifndef _QED_IWARP_H
 #define _QED_IWARP_H
 
@@ -183,13 +192,21 @@ struct qed_iwarp_listener {
 
 int qed_iwarp_alloc(struct qed_hwfn *p_hwfn);
 
+<<<<<<< HEAD
 int qed_iwarp_setup(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt,
+=======
+int qed_iwarp_setup(struct qed_hwfn *p_hwfn,
+>>>>>>> upstream/android-13
 		    struct qed_rdma_start_in_params *params);
 
 void qed_iwarp_init_fw_ramrod(struct qed_hwfn *p_hwfn,
 			      struct iwarp_init_func_ramrod_data *p_ramrod);
 
+<<<<<<< HEAD
 int qed_iwarp_stop(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt);
+=======
+int qed_iwarp_stop(struct qed_hwfn *p_hwfn);
+>>>>>>> upstream/android-13
 
 void qed_iwarp_resc_free(struct qed_hwfn *p_hwfn);
 

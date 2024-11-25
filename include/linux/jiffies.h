@@ -3,8 +3,14 @@
 #define _LINUX_JIFFIES_H
 
 #include <linux/cache.h>
+<<<<<<< HEAD
 #include <linux/math64.h>
 #include <linux/kernel.h>
+=======
+#include <linux/limits.h>
+#include <linux/math64.h>
+#include <linux/minmax.h>
+>>>>>>> upstream/android-13
 #include <linux/types.h>
 #include <linux/time.h>
 #include <linux/timex.h>
@@ -295,6 +301,10 @@ static inline u64 jiffies_to_nsecs(const unsigned long j)
 }
 
 extern u64 jiffies64_to_nsecs(u64 j);
+<<<<<<< HEAD
+=======
+extern u64 jiffies64_to_msecs(u64 j);
+>>>>>>> upstream/android-13
 
 extern unsigned long __msecs_to_jiffies(const unsigned int m);
 #if HZ <= MSEC_PER_SEC && !(MSEC_PER_SEC % HZ)
@@ -419,6 +429,7 @@ static __always_inline unsigned long usecs_to_jiffies(const unsigned int u)
 extern unsigned long timespec64_to_jiffies(const struct timespec64 *value);
 extern void jiffies_to_timespec64(const unsigned long jiffies,
 				  struct timespec64 *value);
+<<<<<<< HEAD
 static inline unsigned long timespec_to_jiffies(const struct timespec *value)
 {
 	struct timespec64 ts = timespec_to_timespec64(*value);
@@ -439,6 +450,8 @@ extern unsigned long timeval_to_jiffies(const struct timeval *value);
 extern void jiffies_to_timeval(const unsigned long jiffies,
 			       struct timeval *value);
 
+=======
+>>>>>>> upstream/android-13
 extern clock_t jiffies_to_clock_t(unsigned long x);
 static inline clock_t jiffies_delta_to_clock_t(long delta)
 {

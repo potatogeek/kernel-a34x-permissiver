@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /***************************************************************************
  *   Copyright (C) 2010-2012 Hans de Goede <hdegoede@redhat.com>           *
  *                                                                         *
@@ -15,6 +16,12 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/***************************************************************************
+ *   Copyright (C) 2010-2012 Hans de Goede <hdegoede@redhat.com>           *
+ *                                                                         *
+>>>>>>> upstream/android-13
  ***************************************************************************/
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -25,7 +32,10 @@
 #include <linux/jiffies.h>
 #include <linux/platform_device.h>
 #include <linux/hwmon.h>
+<<<<<<< HEAD
 #include <linux/hwmon-sysfs.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/err.h>
 #include <linux/mutex.h>
 #include "sch56xx-common.h"
@@ -78,8 +88,11 @@ static const char * const SCH5627_IN_LABELS[SCH5627_NO_IN] = {
 
 struct sch5627_data {
 	unsigned short addr;
+<<<<<<< HEAD
 	struct device *hwmon_dev;
 	struct sch56xx_watchdog_data *watchdog;
+=======
+>>>>>>> upstream/android-13
 	u8 control;
 	u8 temp_max[SCH5627_NO_TEMPS];
 	u8 temp_crit[SCH5627_NO_TEMPS];
@@ -87,29 +100,101 @@ struct sch5627_data {
 
 	struct mutex update_lock;
 	unsigned long last_battery;	/* In jiffies */
+<<<<<<< HEAD
 	char valid;			/* !=0 if following fields are valid */
 	unsigned long last_updated;	/* In jiffies */
+=======
+	char temp_valid;		/* !=0 if following fields are valid */
+	char fan_valid;
+	char in_valid;
+	unsigned long temp_last_updated;	/* In jiffies */
+	unsigned long fan_last_updated;
+	unsigned long in_last_updated;
+>>>>>>> upstream/android-13
 	u16 temp[SCH5627_NO_TEMPS];
 	u16 fan[SCH5627_NO_FANS];
 	u16 in[SCH5627_NO_IN];
 };
 
+<<<<<<< HEAD
 static struct sch5627_data *sch5627_update_device(struct device *dev)
 {
 	struct sch5627_data *data = dev_get_drvdata(dev);
 	struct sch5627_data *ret = data;
+=======
+static int sch5627_update_temp(struct sch5627_data *data)
+{
+	int ret = 0;
+	int i, val;
+
+	mutex_lock(&data->update_lock);
+
+	/* Cache the values for 1 second */
+	if (time_after(jiffies, data->temp_last_updated + HZ) || !data->temp_valid) {
+		for (i = 0; i < SCH5627_NO_TEMPS; i++) {
+			val = sch56xx_read_virtual_reg12(data->addr, SCH5627_REG_TEMP_MSB[i],
+							 SCH5627_REG_TEMP_LSN[i],
+							 SCH5627_REG_TEMP_HIGH_NIBBLE[i]);
+			if (unlikely(val < 0)) {
+				ret = val;
+				goto abort;
+			}
+			data->temp[i] = val;
+		}
+		data->temp_last_updated = jiffies;
+		data->temp_valid = 1;
+	}
+abort:
+	mutex_unlock(&data->update_lock);
+	return ret;
+}
+
+static int sch5627_update_fan(struct sch5627_data *data)
+{
+	int ret = 0;
+	int i, val;
+
+	mutex_lock(&data->update_lock);
+
+	/* Cache the values for 1 second */
+	if (time_after(jiffies, data->fan_last_updated + HZ) || !data->fan_valid) {
+		for (i = 0; i < SCH5627_NO_FANS; i++) {
+			val = sch56xx_read_virtual_reg16(data->addr, SCH5627_REG_FAN[i]);
+			if (unlikely(val < 0)) {
+				ret = val;
+				goto abort;
+			}
+			data->fan[i] = val;
+		}
+		data->fan_last_updated = jiffies;
+		data->fan_valid = 1;
+	}
+abort:
+	mutex_unlock(&data->update_lock);
+	return ret;
+}
+
+static int sch5627_update_in(struct sch5627_data *data)
+{
+	int ret = 0;
+>>>>>>> upstream/android-13
 	int i, val;
 
 	mutex_lock(&data->update_lock);
 
 	/* Trigger a Vbat voltage measurement every 5 minutes */
 	if (time_after(jiffies, data->last_battery + 300 * HZ)) {
+<<<<<<< HEAD
 		sch56xx_write_virtual_reg(data->addr, SCH5627_REG_CTRL,
 					  data->control | 0x10);
+=======
+		sch56xx_write_virtual_reg(data->addr, SCH5627_REG_CTRL, data->control | 0x10);
+>>>>>>> upstream/android-13
 		data->last_battery = jiffies;
 	}
 
 	/* Cache the values for 1 second */
+<<<<<<< HEAD
 	if (time_after(jiffies, data->last_updated + HZ) || !data->valid) {
 		for (i = 0; i < SCH5627_NO_TEMPS; i++) {
 			val = sch56xx_read_virtual_reg12(data->addr,
@@ -140,13 +225,27 @@ static struct sch5627_data *sch5627_update_device(struct device *dev)
 				SCH5627_REG_IN_HIGH_NIBBLE[i]);
 			if (unlikely(val < 0)) {
 				ret = ERR_PTR(val);
+=======
+	if (time_after(jiffies, data->in_last_updated + HZ) || !data->in_valid) {
+		for (i = 0; i < SCH5627_NO_IN; i++) {
+			val = sch56xx_read_virtual_reg12(data->addr, SCH5627_REG_IN_MSB[i],
+							 SCH5627_REG_IN_LSN[i],
+							 SCH5627_REG_IN_HIGH_NIBBLE[i]);
+			if (unlikely(val < 0)) {
+				ret = val;
+>>>>>>> upstream/android-13
 				goto abort;
 			}
 			data->in[i] = val;
 		}
+<<<<<<< HEAD
 
 		data->last_updated = jiffies;
 		data->valid = 1;
+=======
+		data->in_last_updated = jiffies;
+		data->in_valid = 1;
+>>>>>>> upstream/android-13
 	}
 abort:
 	mutex_unlock(&data->update_lock);
@@ -205,6 +304,7 @@ static int reg_to_rpm(u16 reg)
 	return 5400540 / reg;
 }
 
+<<<<<<< HEAD
 static ssize_t name_show(struct device *dev, struct device_attribute *devattr,
 	char *buf)
 {
@@ -468,6 +568,149 @@ static int sch5627_remove(struct platform_device *pdev)
 static int sch5627_probe(struct platform_device *pdev)
 {
 	struct sch5627_data *data;
+=======
+static umode_t sch5627_is_visible(const void *drvdata, enum hwmon_sensor_types type, u32 attr,
+				  int channel)
+{
+	return 0444;
+}
+
+static int sch5627_read(struct device *dev, enum hwmon_sensor_types type, u32 attr, int channel,
+			long *val)
+{
+	struct sch5627_data *data = dev_get_drvdata(dev);
+	int ret;
+
+	switch (type) {
+	case hwmon_temp:
+		ret = sch5627_update_temp(data);
+		if (ret < 0)
+			return ret;
+		switch (attr) {
+		case hwmon_temp_input:
+			*val = reg_to_temp(data->temp[channel]);
+			return 0;
+		case hwmon_temp_max:
+			*val = reg_to_temp_limit(data->temp_max[channel]);
+			return 0;
+		case hwmon_temp_crit:
+			*val = reg_to_temp_limit(data->temp_crit[channel]);
+			return 0;
+		case hwmon_temp_fault:
+			*val = (data->temp[channel] == 0);
+			return 0;
+		default:
+			break;
+		}
+		break;
+	case hwmon_fan:
+		ret = sch5627_update_fan(data);
+		if (ret < 0)
+			return ret;
+		switch (attr) {
+		case hwmon_fan_input:
+			ret = reg_to_rpm(data->fan[channel]);
+			if (ret < 0)
+				return ret;
+			*val = ret;
+			return 0;
+		case hwmon_fan_min:
+			ret = reg_to_rpm(data->fan_min[channel]);
+			if (ret < 0)
+				return ret;
+			*val = ret;
+			return 0;
+		case hwmon_fan_fault:
+			*val = (data->fan[channel] == 0xffff);
+			return 0;
+		default:
+			break;
+		}
+		break;
+	case hwmon_in:
+		ret = sch5627_update_in(data);
+		if (ret < 0)
+			return ret;
+		switch (attr) {
+		case hwmon_in_input:
+			*val = DIV_ROUND_CLOSEST(data->in[channel] * SCH5627_REG_IN_FACTOR[channel],
+						 10000);
+			return 0;
+		default:
+			break;
+		}
+		break;
+	default:
+		break;
+	}
+
+	return -EOPNOTSUPP;
+}
+
+static int sch5627_read_string(struct device *dev, enum hwmon_sensor_types type, u32 attr,
+			       int channel, const char **str)
+{
+	switch (type) {
+	case hwmon_in:
+		switch (attr) {
+		case hwmon_in_label:
+			*str = SCH5627_IN_LABELS[channel];
+			return 0;
+		default:
+			break;
+		}
+		break;
+	default:
+		break;
+	}
+
+	return -EOPNOTSUPP;
+}
+
+static const struct hwmon_ops sch5627_ops = {
+	.is_visible = sch5627_is_visible,
+	.read = sch5627_read,
+	.read_string = sch5627_read_string,
+};
+
+static const struct hwmon_channel_info *sch5627_info[] = {
+	HWMON_CHANNEL_INFO(chip, HWMON_C_REGISTER_TZ),
+	HWMON_CHANNEL_INFO(temp,
+			   HWMON_T_INPUT | HWMON_T_MAX | HWMON_T_CRIT | HWMON_T_FAULT,
+			   HWMON_T_INPUT | HWMON_T_MAX | HWMON_T_CRIT | HWMON_T_FAULT,
+			   HWMON_T_INPUT | HWMON_T_MAX | HWMON_T_CRIT | HWMON_T_FAULT,
+			   HWMON_T_INPUT | HWMON_T_MAX | HWMON_T_CRIT | HWMON_T_FAULT,
+			   HWMON_T_INPUT | HWMON_T_MAX | HWMON_T_CRIT | HWMON_T_FAULT,
+			   HWMON_T_INPUT | HWMON_T_MAX | HWMON_T_CRIT | HWMON_T_FAULT,
+			   HWMON_T_INPUT | HWMON_T_MAX | HWMON_T_CRIT | HWMON_T_FAULT,
+			   HWMON_T_INPUT | HWMON_T_MAX | HWMON_T_CRIT | HWMON_T_FAULT
+			   ),
+	HWMON_CHANNEL_INFO(fan,
+			   HWMON_F_INPUT | HWMON_F_MIN | HWMON_F_FAULT,
+			   HWMON_F_INPUT | HWMON_F_MIN | HWMON_F_FAULT,
+			   HWMON_F_INPUT | HWMON_F_MIN | HWMON_F_FAULT,
+			   HWMON_F_INPUT | HWMON_F_MIN | HWMON_F_FAULT
+			   ),
+	HWMON_CHANNEL_INFO(in,
+			   HWMON_I_INPUT | HWMON_I_LABEL,
+			   HWMON_I_INPUT | HWMON_I_LABEL,
+			   HWMON_I_INPUT | HWMON_I_LABEL,
+			   HWMON_I_INPUT | HWMON_I_LABEL,
+			   HWMON_I_INPUT
+			   ),
+	NULL
+};
+
+static const struct hwmon_chip_info sch5627_chip_info = {
+	.ops = &sch5627_ops,
+	.info = sch5627_info,
+};
+
+static int sch5627_probe(struct platform_device *pdev)
+{
+	struct sch5627_data *data;
+	struct device *hwmon_dev;
+>>>>>>> upstream/android-13
 	int err, build_code, build_id, hwmon_rev, val;
 
 	data = devm_kzalloc(&pdev->dev, sizeof(struct sch5627_data),
@@ -480,6 +723,7 @@ static int sch5627_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, data);
 
 	val = sch56xx_read_virtual_reg(data->addr, SCH5627_REG_HWMON_ID);
+<<<<<<< HEAD
 	if (val < 0) {
 		err = val;
 		goto error;
@@ -513,10 +757,40 @@ static int sch5627_probe(struct platform_device *pdev)
 		       val, SCH5627_PRIMARY_ID);
 		err = -ENODEV;
 		goto error;
+=======
+	if (val < 0)
+		return val;
+
+	if (val != SCH5627_HWMON_ID) {
+		pr_err("invalid %s id: 0x%02X (expected 0x%02X)\n", "hwmon",
+		       val, SCH5627_HWMON_ID);
+		return -ENODEV;
+	}
+
+	val = sch56xx_read_virtual_reg(data->addr, SCH5627_REG_COMPANY_ID);
+	if (val < 0)
+		return val;
+
+	if (val != SCH5627_COMPANY_ID) {
+		pr_err("invalid %s id: 0x%02X (expected 0x%02X)\n", "company",
+		       val, SCH5627_COMPANY_ID);
+		return -ENODEV;
+	}
+
+	val = sch56xx_read_virtual_reg(data->addr, SCH5627_REG_PRIMARY_ID);
+	if (val < 0)
+		return val;
+
+	if (val != SCH5627_PRIMARY_ID) {
+		pr_err("invalid %s id: 0x%02X (expected 0x%02X)\n", "primary",
+		       val, SCH5627_PRIMARY_ID);
+		return -ENODEV;
+>>>>>>> upstream/android-13
 	}
 
 	build_code = sch56xx_read_virtual_reg(data->addr,
 					      SCH5627_REG_BUILD_CODE);
+<<<<<<< HEAD
 	if (build_code < 0) {
 		err = build_code;
 		goto error;
@@ -546,6 +820,29 @@ static int sch5627_probe(struct platform_device *pdev)
 		pr_err("hardware monitoring not enabled\n");
 		err = -ENODEV;
 		goto error;
+=======
+	if (build_code < 0)
+		return build_code;
+
+	build_id = sch56xx_read_virtual_reg16(data->addr,
+					      SCH5627_REG_BUILD_ID);
+	if (build_id < 0)
+		return build_id;
+
+	hwmon_rev = sch56xx_read_virtual_reg(data->addr,
+					     SCH5627_REG_HWMON_REV);
+	if (hwmon_rev < 0)
+		return hwmon_rev;
+
+	val = sch56xx_read_virtual_reg(data->addr, SCH5627_REG_CTRL);
+	if (val < 0)
+		return val;
+
+	data->control = val;
+	if (!(data->control & 0x01)) {
+		pr_err("hardware monitoring not enabled\n");
+		return -ENODEV;
+>>>>>>> upstream/android-13
 	}
 	/* Trigger a Vbat voltage measurement, so that we get a valid reading
 	   the first time we read Vbat */
@@ -559,12 +856,17 @@ static int sch5627_probe(struct platform_device *pdev)
 	 */
 	err = sch5627_read_limits(data);
 	if (err)
+<<<<<<< HEAD
 		goto error;
+=======
+		return err;
+>>>>>>> upstream/android-13
 
 	pr_info("found %s chip at %#hx\n", DEVNAME, data->addr);
 	pr_info("firmware build: code 0x%02X, id 0x%04X, hwmon: rev 0x%02X\n",
 		build_code, build_id, hwmon_rev);
 
+<<<<<<< HEAD
 	/* Register sysfs interface files */
 	err = sysfs_create_group(&pdev->dev.kobj, &sch5627_group);
 	if (err)
@@ -587,6 +889,19 @@ static int sch5627_probe(struct platform_device *pdev)
 error:
 	sch5627_remove(pdev);
 	return err;
+=======
+	hwmon_dev = devm_hwmon_device_register_with_info(&pdev->dev, DEVNAME, data,
+							 &sch5627_chip_info, NULL);
+	if (IS_ERR(hwmon_dev))
+		return PTR_ERR(hwmon_dev);
+
+	/* Note failing to register the watchdog is not a fatal error */
+	sch56xx_watchdog_register(&pdev->dev, data->addr,
+				  (build_code << 24) | (build_id << 8) | hwmon_rev,
+				  &data->update_lock, 1);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static struct platform_driver sch5627_driver = {
@@ -594,7 +909,10 @@ static struct platform_driver sch5627_driver = {
 		.name	= DRVNAME,
 	},
 	.probe		= sch5627_probe,
+<<<<<<< HEAD
 	.remove		= sch5627_remove,
+=======
+>>>>>>> upstream/android-13
 };
 
 module_platform_driver(sch5627_driver);

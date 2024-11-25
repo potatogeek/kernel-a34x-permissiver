@@ -22,7 +22,11 @@ CertificateSerialNumber ::= INTEGER
 
 AlgorithmIdentifier ::= SEQUENCE {
 	algorithm		OBJECT IDENTIFIER ({ x509_note_OID }),
+<<<<<<< HEAD
 	parameters		ANY OPTIONAL
+=======
+	parameters		ANY OPTIONAL ({ x509_note_params })
+>>>>>>> upstream/android-13
 }
 
 Name ::= SEQUENCE OF RelativeDistinguishedName

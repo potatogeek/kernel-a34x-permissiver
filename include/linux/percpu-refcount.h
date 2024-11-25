@@ -75,11 +75,16 @@ enum {
 	 * operation using percpu_ref_switch_to_percpu().  If initialized
 	 * with this flag, the ref will stay in atomic mode until
 	 * percpu_ref_switch_to_percpu() is invoked on it.
+<<<<<<< HEAD
+=======
+	 * Implies ALLOW_REINIT.
+>>>>>>> upstream/android-13
 	 */
 	PERCPU_REF_INIT_ATOMIC	= 1 << 0,
 
 	/*
 	 * Start dead w/ ref == 0 in atomic mode.  Must be revived with
+<<<<<<< HEAD
 	 * percpu_ref_reinit() before used.  Implies INIT_ATOMIC.
 	 */
 	PERCPU_REF_INIT_DEAD	= 1 << 1,
@@ -87,15 +92,50 @@ enum {
 
 struct percpu_ref {
 	atomic_long_t		count;
+=======
+	 * percpu_ref_reinit() before used.  Implies INIT_ATOMIC and
+	 * ALLOW_REINIT.
+	 */
+	PERCPU_REF_INIT_DEAD	= 1 << 1,
+
+	/*
+	 * Allow switching from atomic mode to percpu mode.
+	 */
+	PERCPU_REF_ALLOW_REINIT	= 1 << 2,
+};
+
+struct percpu_ref_data {
+	atomic_long_t		count;
+	percpu_ref_func_t	*release;
+	percpu_ref_func_t	*confirm_switch;
+	bool			force_atomic:1;
+	bool			allow_reinit:1;
+	struct rcu_head		rcu;
+	struct percpu_ref	*ref;
+};
+
+struct percpu_ref {
+>>>>>>> upstream/android-13
 	/*
 	 * The low bit of the pointer indicates whether the ref is in percpu
 	 * mode; if set, then get/put will manipulate the atomic_t.
 	 */
 	unsigned long		percpu_count_ptr;
+<<<<<<< HEAD
 	percpu_ref_func_t	*release;
 	percpu_ref_func_t	*confirm_switch;
 	bool			force_atomic:1;
 	struct rcu_head		rcu;
+=======
+
+	/*
+	 * 'percpu_ref' is often embedded into user structure, and only
+	 * 'percpu_count_ptr' is required in fast path, move other fields
+	 * into 'percpu_ref_data', so we can reduce memory footprint in
+	 * fast path.
+	 */
+	struct percpu_ref_data  *data;
+>>>>>>> upstream/android-13
 };
 
 int __must_check percpu_ref_init(struct percpu_ref *ref,
@@ -108,7 +148,13 @@ void percpu_ref_switch_to_atomic_sync(struct percpu_ref *ref);
 void percpu_ref_switch_to_percpu(struct percpu_ref *ref);
 void percpu_ref_kill_and_confirm(struct percpu_ref *ref,
 				 percpu_ref_func_t *confirm_kill);
+<<<<<<< HEAD
 void percpu_ref_reinit(struct percpu_ref *ref);
+=======
+void percpu_ref_resurrect(struct percpu_ref *ref);
+void percpu_ref_reinit(struct percpu_ref *ref);
+bool percpu_ref_is_zero(struct percpu_ref *ref);
+>>>>>>> upstream/android-13
 
 /**
  * percpu_ref_kill - drop the initial ref
@@ -146,7 +192,11 @@ static inline bool __ref_is_percpu(struct percpu_ref *ref,
 	 * between contaminating the pointer value, meaning that
 	 * READ_ONCE() is required when fetching it.
 	 *
+<<<<<<< HEAD
 	 * The smp_read_barrier_depends() implied by READ_ONCE() pairs
+=======
+	 * The dependency ordering from the READ_ONCE() pairs
+>>>>>>> upstream/android-13
 	 * with smp_store_release() in __percpu_ref_switch_to_percpu().
 	 */
 	percpu_ptr = READ_ONCE(ref->percpu_count_ptr);
@@ -177,21 +227,35 @@ static inline void percpu_ref_get_many(struct percpu_ref *ref, unsigned long nr)
 {
 	unsigned long __percpu *percpu_count;
 
+<<<<<<< HEAD
 	rcu_read_lock_sched();
+=======
+	rcu_read_lock();
+>>>>>>> upstream/android-13
 
 	if (__ref_is_percpu(ref, &percpu_count))
 		this_cpu_add(*percpu_count, nr);
 	else
+<<<<<<< HEAD
 		atomic_long_add(nr, &ref->count);
 
 	rcu_read_unlock_sched();
+=======
+		atomic_long_add(nr, &ref->data->count);
+
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 }
 
 /**
  * percpu_ref_get - increment a percpu refcount
  * @ref: percpu_ref to get
  *
+<<<<<<< HEAD
  * Analagous to atomic_long_inc().
+=======
+ * Analogous to atomic_long_inc().
+>>>>>>> upstream/android-13
  *
  * This function is safe to call as long as @ref is between init and exit.
  */
@@ -201,6 +265,39 @@ static inline void percpu_ref_get(struct percpu_ref *ref)
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * percpu_ref_tryget_many - try to increment a percpu refcount
+ * @ref: percpu_ref to try-get
+ * @nr: number of references to get
+ *
+ * Increment a percpu refcount  by @nr unless its count already reached zero.
+ * Returns %true on success; %false on failure.
+ *
+ * This function is safe to call as long as @ref is between init and exit.
+ */
+static inline bool percpu_ref_tryget_many(struct percpu_ref *ref,
+					  unsigned long nr)
+{
+	unsigned long __percpu *percpu_count;
+	bool ret;
+
+	rcu_read_lock();
+
+	if (__ref_is_percpu(ref, &percpu_count)) {
+		this_cpu_add(*percpu_count, nr);
+		ret = true;
+	} else {
+		ret = atomic_long_add_unless(&ref->data->count, nr, 0);
+	}
+
+	rcu_read_unlock();
+
+	return ret;
+}
+
+/**
+>>>>>>> upstream/android-13
  * percpu_ref_tryget - try to increment a percpu refcount
  * @ref: percpu_ref to try-get
  *
@@ -211,6 +308,7 @@ static inline void percpu_ref_get(struct percpu_ref *ref)
  */
 static inline bool percpu_ref_tryget(struct percpu_ref *ref)
 {
+<<<<<<< HEAD
 	unsigned long __percpu *percpu_count;
 	bool ret;
 
@@ -226,6 +324,9 @@ static inline bool percpu_ref_tryget(struct percpu_ref *ref)
 	rcu_read_unlock_sched();
 
 	return ret;
+=======
+	return percpu_ref_tryget_many(ref, 1);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -248,16 +349,27 @@ static inline bool percpu_ref_tryget_live(struct percpu_ref *ref)
 	unsigned long __percpu *percpu_count;
 	bool ret = false;
 
+<<<<<<< HEAD
 	rcu_read_lock_sched();
+=======
+	rcu_read_lock();
+>>>>>>> upstream/android-13
 
 	if (__ref_is_percpu(ref, &percpu_count)) {
 		this_cpu_inc(*percpu_count);
 		ret = true;
 	} else if (!(ref->percpu_count_ptr & __PERCPU_REF_DEAD)) {
+<<<<<<< HEAD
 		ret = atomic_long_inc_not_zero(&ref->count);
 	}
 
 	rcu_read_unlock_sched();
+=======
+		ret = atomic_long_inc_not_zero(&ref->data->count);
+	}
+
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -276,6 +388,7 @@ static inline void percpu_ref_put_many(struct percpu_ref *ref, unsigned long nr)
 {
 	unsigned long __percpu *percpu_count;
 
+<<<<<<< HEAD
 	rcu_read_lock_sched();
 
 	if (__ref_is_percpu(ref, &percpu_count))
@@ -284,6 +397,16 @@ static inline void percpu_ref_put_many(struct percpu_ref *ref, unsigned long nr)
 		ref->release(ref);
 
 	rcu_read_unlock_sched();
+=======
+	rcu_read_lock();
+
+	if (__ref_is_percpu(ref, &percpu_count))
+		this_cpu_sub(*percpu_count, nr);
+	else if (unlikely(atomic_long_sub_and_test(nr, &ref->data->count)))
+		ref->data->release(ref);
+
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -314,6 +437,7 @@ static inline bool percpu_ref_is_dying(struct percpu_ref *ref)
 	return ref->percpu_count_ptr & __PERCPU_REF_DEAD;
 }
 
+<<<<<<< HEAD
 /**
  * percpu_ref_is_zero - test whether a percpu refcount reached zero
  * @ref: percpu_ref to test
@@ -331,4 +455,6 @@ static inline bool percpu_ref_is_zero(struct percpu_ref *ref)
 	return !atomic_long_read(&ref->count);
 }
 
+=======
+>>>>>>> upstream/android-13
 #endif

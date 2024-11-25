@@ -27,6 +27,30 @@ static int fsverity_require_signatures;
 static struct key *fsverity_keyring;
 
 /**
+<<<<<<< HEAD
+=======
+ * fsverity_verify_signature() - check a verity file's signature
+ * @vi: the file's fsverity_info
+ * @signature: the file's built-in signature
+ * @sig_size: size of signature in bytes, or 0 if no signature
+ *
+ * If the file includes a signature of its fs-verity file digest, verify it
+ * against the certificates in the fs-verity keyring.
+ *
+ * Return: 0 on success (signature valid or not required); -errno on failure
+ */
+int fsverity_verify_signature(const struct fsverity_info *vi,
+			      const u8 *signature, size_t sig_size)
+{
+	unsigned int digest_algorithm =
+		vi->tree_params.hash_alg - fsverity_hash_algs;
+
+	return __fsverity_verify_signature(vi->inode, signature, sig_size,
+					   vi->file_digest, digest_algorithm);
+}
+
+/**
+>>>>>>> upstream/android-13
  * __fsverity_verify_signature() - check a verity file's signature
  * @inode: the file's inode
  * @signature: the file's signature
@@ -40,7 +64,11 @@ static struct key *fsverity_keyring;
  * Return: 0 on success (signature valid or not required); -errno on failure
  */
 int __fsverity_verify_signature(const struct inode *inode, const u8 *signature,
+<<<<<<< HEAD
 				u32 sig_size, const u8 *file_digest,
+=======
+				size_t sig_size, const u8 *file_digest,
+>>>>>>> upstream/android-13
 				unsigned int digest_algorithm)
 {
 	struct fsverity_formatted_digest *d;
@@ -69,8 +97,12 @@ int __fsverity_verify_signature(const struct inode *inode, const u8 *signature,
 	memcpy(d->digest, file_digest, hash_alg->digest_size);
 
 	err = verify_pkcs7_signature(d, sizeof(*d) + hash_alg->digest_size,
+<<<<<<< HEAD
 				     signature, sig_size,
 				     fsverity_keyring,
+=======
+				     signature, sig_size, fsverity_keyring,
+>>>>>>> upstream/android-13
 				     VERIFYING_UNSPECIFIED_SIGNATURE,
 				     NULL, NULL);
 	kfree(d);
@@ -95,6 +127,7 @@ int __fsverity_verify_signature(const struct inode *inode, const u8 *signature,
 }
 EXPORT_SYMBOL_GPL(__fsverity_verify_signature);
 
+<<<<<<< HEAD
 /**
  * fsverity_verify_signature() - check a verity file's signature
  * @vi: the file's fsverity_info
@@ -123,6 +156,8 @@ int fsverity_verify_signature(const struct fsverity_info *vi,
 				vi->file_digest, hash_alg - fsverity_hash_algs);
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_SYSCTL
 static struct ctl_table_header *fsverity_sysctl_header;
 
@@ -132,6 +167,7 @@ static const struct ctl_path fsverity_sysctl_path[] = {
 	{ }
 };
 
+<<<<<<< HEAD
 /* shared constants to be used in various sysctls */
 static int sysctl_vals[] = { 0, 1, INT_MAX };
 
@@ -139,6 +175,8 @@ static int sysctl_vals[] = { 0, 1, INT_MAX };
 #define SYSCTL_ONE	((void *)&sysctl_vals[1])
 #define SYSCTL_INT_MAX	((void *)&sysctl_vals[2])
 
+=======
+>>>>>>> upstream/android-13
 static struct ctl_table fsverity_sysctl_table[] = {
 	{
 		.procname       = "require_signatures",

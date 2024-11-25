@@ -241,6 +241,10 @@ static int overlay_update_local_node_references(void *fdto,
 
 		if (fixup_len % sizeof(uint32_t))
 			return -FDT_ERR_BADOVERLAY;
+<<<<<<< HEAD
+=======
+		fixup_len /= sizeof(uint32_t);
+>>>>>>> upstream/android-13
 
 		tree_val = fdt_getprop(fdto, tree_node, name, &tree_len);
 		if (!tree_val) {
@@ -250,7 +254,11 @@ static int overlay_update_local_node_references(void *fdto,
 			return tree_len;
 		}
 
+<<<<<<< HEAD
 		for (i = 0; i < (fixup_len / sizeof(uint32_t)); i++) {
+=======
+		for (i = 0; i < fixup_len; i++) {
+>>>>>>> upstream/android-13
 			fdt32_t adj_val;
 			uint32_t poffset;
 
@@ -733,26 +741,54 @@ static int overlay_symbol_update(void *fdt, void *fdto)
 		/* keep end marker to avoid strlen() */
 		e = path + path_len;
 
+<<<<<<< HEAD
 		/* format: /<fragment-name>/__overlay__/<relative-subnode-path> */
 
+=======
+>>>>>>> upstream/android-13
 		if (*path != '/')
 			return -FDT_ERR_BADVALUE;
 
 		/* get fragment name first */
 		s = strchr(path + 1, '/');
+<<<<<<< HEAD
 		if (!s)
 			return -FDT_ERR_BADOVERLAY;
+=======
+		if (!s) {
+			/* Symbol refers to something that won't end
+			 * up in the target tree */
+			continue;
+		}
+>>>>>>> upstream/android-13
 
 		frag_name = path + 1;
 		frag_name_len = s - path - 1;
 
 		/* verify format; safe since "s" lies in \0 terminated prop */
 		len = sizeof("/__overlay__/") - 1;
+<<<<<<< HEAD
 		if ((e - s) < len || memcmp(s, "/__overlay__/", len))
 			return -FDT_ERR_BADOVERLAY;
 
 		rel_path = s + len;
 		rel_path_len = e - rel_path;
+=======
+		if ((e - s) > len && (memcmp(s, "/__overlay__/", len) == 0)) {
+			/* /<fragment-name>/__overlay__/<relative-subnode-path> */
+			rel_path = s + len;
+			rel_path_len = e - rel_path - 1;
+		} else if ((e - s) == len
+			   && (memcmp(s, "/__overlay__", len - 1) == 0)) {
+			/* /<fragment-name>/__overlay__ */
+			rel_path = "";
+			rel_path_len = 0;
+		} else {
+			/* Symbol refers to something that won't end
+			 * up in the target tree */
+			continue;
+		}
+>>>>>>> upstream/android-13
 
 		/* find the fragment index in which the symbol lies */
 		ret = fdt_subnode_offset_namelen(fdto, 0, frag_name,

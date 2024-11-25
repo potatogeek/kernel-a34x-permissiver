@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Libata based driver for Apple "macio" family of PATA controllers
  *
@@ -483,6 +487,11 @@ static int pata_macio_cable_detect(struct ata_port *ap)
 		struct device_node *root = of_find_node_by_path("/");
 		const char *model = of_get_property(root, "model", NULL);
 
+<<<<<<< HEAD
+=======
+		of_node_put(root);
+
+>>>>>>> upstream/android-13
 		if (cable && !strncmp(cable, "80-", 3)) {
 			/* Some drives fail to detect 80c cable in PowerBook
 			 * These machine use proprietary short IDE cable
@@ -911,11 +920,26 @@ static int pata_macio_do_resume(struct pata_macio_priv *priv)
 #endif /* CONFIG_PM_SLEEP */
 
 static struct scsi_host_template pata_macio_sht = {
+<<<<<<< HEAD
 	ATA_BASE_SHT(DRV_NAME),
 	.sg_tablesize		= MAX_DCMDS,
 	/* We may not need that strict one */
 	.dma_boundary		= ATA_DMA_BOUNDARY,
 	.slave_configure	= pata_macio_slave_config,
+=======
+	__ATA_BASE_SHT(DRV_NAME),
+	.sg_tablesize		= MAX_DCMDS,
+	/* We may not need that strict one */
+	.dma_boundary		= ATA_DMA_BOUNDARY,
+	/* Not sure what the real max is but we know it's less than 64K, let's
+	 * use 64K minus 256
+	 */
+	.max_segment_size	= MAX_DBDMA_SEG,
+	.slave_configure	= pata_macio_slave_config,
+	.sdev_attrs		= ata_common_sdev_attrs,
+	.can_queue		= ATA_DEF_QUEUE,
+	.tag_alloc_policy	= BLK_TAG_ALLOC_RR,
+>>>>>>> upstream/android-13
 };
 
 static struct ata_port_operations pata_macio_ops = {
@@ -950,7 +974,11 @@ static void pata_macio_invariants(struct pata_macio_priv *priv)
 		priv->kind = controller_k2_ata6;
 	        priv->timings = pata_macio_kauai_timings;
 	} else if (of_device_is_compatible(priv->node, "keylargo-ata")) {
+<<<<<<< HEAD
 		if (strcmp(priv->node->name, "ata-4") == 0) {
+=======
+		if (of_node_name_eq(priv->node, "ata-4")) {
+>>>>>>> upstream/android-13
 			priv->kind = controller_kl_ata4;
 			priv->timings = pata_macio_kl66_timings;
 		} else {
@@ -972,7 +1000,11 @@ static void pata_macio_invariants(struct pata_macio_priv *priv)
 	priv->aapl_bus_id =  bidp ? *bidp : 0;
 
 	/* Fixup missing Apple bus ID in case of media-bay */
+<<<<<<< HEAD
 	if (priv->mediabay && bidp == 0)
+=======
+	if (priv->mediabay && !bidp)
+>>>>>>> upstream/android-13
 		priv->aapl_bus_id = 1;
 }
 
@@ -1044,11 +1076,14 @@ static int pata_macio_common_init(struct pata_macio_priv *priv,
 	/* Make sure we have sane initial timings in the cache */
 	pata_macio_default_timings(priv);
 
+<<<<<<< HEAD
 	/* Not sure what the real max is but we know it's less than 64K, let's
 	 * use 64K minus 256
 	 */
 	dma_set_max_seg_size(priv->dev, MAX_DBDMA_SEG);
 
+=======
+>>>>>>> upstream/android-13
 	/* Allocate libata host for 1 port */
 	memset(&pinfo, 0, sizeof(struct ata_port_info));
 	pmac_macio_calc_timing_masks(priv, &pinfo);

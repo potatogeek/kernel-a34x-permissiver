@@ -52,7 +52,11 @@ static void sysrq_handle_tlbdump(int key)
 #endif
 }
 
+<<<<<<< HEAD
 static struct sysrq_key_op sysrq_tlbdump_op = {
+=======
+static const struct sysrq_key_op sysrq_tlbdump_op = {
+>>>>>>> upstream/android-13
 	.handler        = sysrq_handle_tlbdump,
 	.help_msg       = "show-tlbs(x)",
 	.action_msg     = "Show TLB entries",

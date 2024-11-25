@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2006-2008 Artem Bityutskiy
  * Copyright (C) 2006-2008 Jarkko Lavinen
  * Copyright (C) 2006-2008 Adrian Hunter
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
@@ -16,6 +21,8 @@
  * this program; see the file COPYING. If not, write to the Free Software
  * Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
+=======
+>>>>>>> upstream/android-13
  * Authors: Artem Bityutskiy, Jarkko Lavinen, Adria Hunter
  *
  * WARNING: this test program may kill your flash and your device. Do not
@@ -242,8 +249,11 @@ static int __init tort_init(void)
 	if (!bad_ebs)
 		goto out_check_buf;
 
+<<<<<<< HEAD
 	err = 0;
 
+=======
+>>>>>>> upstream/android-13
 	/* Initialize patterns */
 	memset(patt_FF, 0xFF, mtd->erasesize);
 	for (i = 0; i < mtd->erasesize / pgsize; i++) {

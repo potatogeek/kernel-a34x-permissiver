@@ -1,11 +1,24 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (c) 2019 MediaTek Inc.
 */
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2014 MediaTek Inc.
+ * Author: Jie Qiu <jie.qiu@mediatek.com>
+ */
+>>>>>>> upstream/android-13
 #include <linux/clk.h>
 #include <linux/delay.h>
 #include <linux/io.h>
 #include <linux/interrupt.h>
+<<<<<<< HEAD
+=======
+#include <linux/module.h>
+#include <linux/mod_devicetable.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 
 #include "mtk_cec.h"
@@ -206,10 +219,15 @@ static int mtk_cec_probe(struct platform_device *pdev)
 	}
 
 	cec->irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (cec->irq < 0) {
 		dev_err(dev, "Failed to get cec irq: %d\n", cec->irq);
 		return cec->irq;
 	}
+=======
+	if (cec->irq < 0)
+		return cec->irq;
+>>>>>>> upstream/android-13
 
 	ret = devm_request_threaded_irq(dev, cec->irq, NULL,
 					mtk_cec_htplg_isr_thread,
@@ -245,6 +263,10 @@ static const struct of_device_id mtk_cec_of_ids[] = {
 	{ .compatible = "mediatek,mt8173-cec", },
 	{}
 };
+<<<<<<< HEAD
+=======
+MODULE_DEVICE_TABLE(of, mtk_cec_of_ids);
+>>>>>>> upstream/android-13
 
 struct platform_driver mtk_cec_driver = {
 	.probe = mtk_cec_probe,

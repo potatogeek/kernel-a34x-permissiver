@@ -29,6 +29,65 @@ static void pci_ptm_info(struct pci_dev *dev)
 		 dev->ptm_root ? " (root)" : "", clock_desc);
 }
 
+<<<<<<< HEAD
+=======
+void pci_disable_ptm(struct pci_dev *dev)
+{
+	int ptm;
+	u16 ctrl;
+
+	if (!pci_is_pcie(dev))
+		return;
+
+	ptm = pci_find_ext_capability(dev, PCI_EXT_CAP_ID_PTM);
+	if (!ptm)
+		return;
+
+	pci_read_config_word(dev, ptm + PCI_PTM_CTRL, &ctrl);
+	ctrl &= ~(PCI_PTM_CTRL_ENABLE | PCI_PTM_CTRL_ROOT);
+	pci_write_config_word(dev, ptm + PCI_PTM_CTRL, ctrl);
+}
+
+void pci_save_ptm_state(struct pci_dev *dev)
+{
+	int ptm;
+	struct pci_cap_saved_state *save_state;
+	u16 *cap;
+
+	if (!pci_is_pcie(dev))
+		return;
+
+	ptm = pci_find_ext_capability(dev, PCI_EXT_CAP_ID_PTM);
+	if (!ptm)
+		return;
+
+	save_state = pci_find_saved_ext_cap(dev, PCI_EXT_CAP_ID_PTM);
+	if (!save_state)
+		return;
+
+	cap = (u16 *)&save_state->cap.data[0];
+	pci_read_config_word(dev, ptm + PCI_PTM_CTRL, cap);
+}
+
+void pci_restore_ptm_state(struct pci_dev *dev)
+{
+	struct pci_cap_saved_state *save_state;
+	int ptm;
+	u16 *cap;
+
+	if (!pci_is_pcie(dev))
+		return;
+
+	save_state = pci_find_saved_ext_cap(dev, PCI_EXT_CAP_ID_PTM);
+	ptm = pci_find_ext_capability(dev, PCI_EXT_CAP_ID_PTM);
+	if (!save_state || !ptm)
+		return;
+
+	cap = (u16 *)&save_state->cap.data[0];
+	pci_write_config_word(dev, ptm + PCI_PTM_CTRL, *cap);
+}
+
+>>>>>>> upstream/android-13
 void pci_ptm_init(struct pci_dev *dev)
 {
 	int pos;
@@ -65,6 +124,11 @@ void pci_ptm_init(struct pci_dev *dev)
 	if (!pos)
 		return;
 
+<<<<<<< HEAD
+=======
+	pci_add_ext_cap_save_buffer(dev, PCI_EXT_CAP_ID_PTM, sizeof(u16));
+
+>>>>>>> upstream/android-13
 	pci_read_config_dword(dev, pos + PCI_PTM_CAP, &cap);
 	local_clock = (cap & PCI_PTM_GRANULARITY_MASK) >> 8;
 
@@ -144,3 +208,15 @@ int pci_enable_ptm(struct pci_dev *dev, u8 *granularity)
 	return 0;
 }
 EXPORT_SYMBOL(pci_enable_ptm);
+<<<<<<< HEAD
+=======
+
+bool pcie_ptm_enabled(struct pci_dev *dev)
+{
+	if (!dev)
+		return false;
+
+	return dev->ptm_enabled;
+}
+EXPORT_SYMBOL(pcie_ptm_enabled);
+>>>>>>> upstream/android-13

@@ -2,8 +2,11 @@
 #ifndef __ASM_SH_PCI_H
 #define __ASM_SH_PCI_H
 
+<<<<<<< HEAD
 #ifdef __KERNEL__
 
+=======
+>>>>>>> upstream/android-13
 /* Can be used to override the logic in pci_scan_bus for skipping
    already-configured bus numbers - to be used for buggy BIOSes
    or architectures with incomplete PCI setup by the loader */
@@ -96,6 +99,10 @@ static inline int pci_get_legacy_ide_irq(struct pci_dev *dev, int channel)
 	return channel ? 15 : 14;
 }
 
+<<<<<<< HEAD
 #endif /* __KERNEL__ */
 #endif /* __ASM_SH_PCI_H */
 
+=======
+#endif /* __ASM_SH_PCI_H */
+>>>>>>> upstream/android-13

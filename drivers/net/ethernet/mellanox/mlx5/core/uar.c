@@ -34,17 +34,29 @@
 #include <linux/module.h>
 #include <linux/io-mapping.h>
 #include <linux/mlx5/driver.h>
+<<<<<<< HEAD
 #include <linux/mlx5/cmd.h>
+=======
+>>>>>>> upstream/android-13
 #include "mlx5_core.h"
 
 int mlx5_cmd_alloc_uar(struct mlx5_core_dev *dev, u32 *uarn)
 {
+<<<<<<< HEAD
 	u32 out[MLX5_ST_SZ_DW(alloc_uar_out)] = {0};
 	u32 in[MLX5_ST_SZ_DW(alloc_uar_in)]   = {0};
 	int err;
 
 	MLX5_SET(alloc_uar_in, in, opcode, MLX5_CMD_OP_ALLOC_UAR);
 	err = mlx5_cmd_exec(dev, in, sizeof(in), out, sizeof(out));
+=======
+	u32 out[MLX5_ST_SZ_DW(alloc_uar_out)] = {};
+	u32 in[MLX5_ST_SZ_DW(alloc_uar_in)] = {};
+	int err;
+
+	MLX5_SET(alloc_uar_in, in, opcode, MLX5_CMD_OP_ALLOC_UAR);
+	err = mlx5_cmd_exec_inout(dev, alloc_uar, in, out);
+>>>>>>> upstream/android-13
 	if (!err)
 		*uarn = MLX5_GET(alloc_uar_out, out, uar);
 	return err;
@@ -53,12 +65,20 @@ EXPORT_SYMBOL(mlx5_cmd_alloc_uar);
 
 int mlx5_cmd_free_uar(struct mlx5_core_dev *dev, u32 uarn)
 {
+<<<<<<< HEAD
 	u32 out[MLX5_ST_SZ_DW(dealloc_uar_out)] = {0};
 	u32 in[MLX5_ST_SZ_DW(dealloc_uar_in)]   = {0};
 
 	MLX5_SET(dealloc_uar_in, in, opcode, MLX5_CMD_OP_DEALLOC_UAR);
 	MLX5_SET(dealloc_uar_in, in, uar, uarn);
 	return mlx5_cmd_exec(dev, in, sizeof(in), out, sizeof(out));
+=======
+	u32 in[MLX5_ST_SZ_DW(dealloc_uar_in)] = {};
+
+	MLX5_SET(dealloc_uar_in, in, opcode, MLX5_CMD_OP_DEALLOC_UAR);
+	MLX5_SET(dealloc_uar_in, in, uar, uarn);
+	return mlx5_cmd_exec_in(dev, dealloc_uar, in);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(mlx5_cmd_free_uar);
 
@@ -79,7 +99,11 @@ static u64 uar2pfn(struct mlx5_core_dev *mdev, u32 index)
 	else
 		system_page_index = index;
 
+<<<<<<< HEAD
 	return (pci_resource_start(mdev->pdev, 0) >> PAGE_SHIFT) + system_page_index;
+=======
+	return (mdev->bar_addr >> PAGE_SHIFT) + system_page_index;
+>>>>>>> upstream/android-13
 }
 
 static void up_rel_func(struct kref *kref)
@@ -90,8 +114,13 @@ static void up_rel_func(struct kref *kref)
 	iounmap(up->map);
 	if (mlx5_cmd_free_uar(up->mdev, up->index))
 		mlx5_core_warn(up->mdev, "failed to free uar index %d\n", up->index);
+<<<<<<< HEAD
 	kfree(up->reg_bitmap);
 	kfree(up->fp_bitmap);
+=======
+	bitmap_free(up->reg_bitmap);
+	bitmap_free(up->fp_bitmap);
+>>>>>>> upstream/android-13
 	kfree(up);
 }
 
@@ -110,11 +139,19 @@ static struct mlx5_uars_page *alloc_uars_page(struct mlx5_core_dev *mdev,
 		return ERR_PTR(err);
 
 	up->mdev = mdev;
+<<<<<<< HEAD
 	up->reg_bitmap = kcalloc(BITS_TO_LONGS(bfregs), sizeof(unsigned long), GFP_KERNEL);
 	if (!up->reg_bitmap)
 		goto error1;
 
 	up->fp_bitmap = kcalloc(BITS_TO_LONGS(bfregs), sizeof(unsigned long), GFP_KERNEL);
+=======
+	up->reg_bitmap = bitmap_zalloc(bfregs, GFP_KERNEL);
+	if (!up->reg_bitmap)
+		goto error1;
+
+	up->fp_bitmap = bitmap_zalloc(bfregs, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!up->fp_bitmap)
 		goto error1;
 
@@ -157,8 +194,13 @@ error2:
 	if (mlx5_cmd_free_uar(mdev, up->index))
 		mlx5_core_warn(mdev, "failed to free uar index %d\n", up->index);
 error1:
+<<<<<<< HEAD
 	kfree(up->fp_bitmap);
 	kfree(up->reg_bitmap);
+=======
+	bitmap_free(up->fp_bitmap);
+	bitmap_free(up->reg_bitmap);
+>>>>>>> upstream/android-13
 	kfree(up);
 	return ERR_PTR(err);
 }

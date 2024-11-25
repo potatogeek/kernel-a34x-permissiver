@@ -126,7 +126,11 @@ static int smapi_request(unsigned short inBX, unsigned short inCX,
 
 int smapi_query_DSP_cfg(SMAPI_DSP_SETTINGS * pSettings)
 {
+<<<<<<< HEAD
 	int bRC = -EIO;
+=======
+	int bRC;
+>>>>>>> upstream/android-13
 	unsigned short usAX, usBX, usCX, usDX, usDI, usSI;
 	static const unsigned short ausDspBases[] = {
 		0x0030, 0x4E30, 0x8E30, 0xCE30,
@@ -497,7 +501,11 @@ exit_smapi_request_error:
 
 int smapi_set_DSP_power_state(bool bOn)
 {
+<<<<<<< HEAD
 	int bRC = -EIO;
+=======
+	int bRC;
+>>>>>>> upstream/android-13
 	unsigned short usAX, usBX, usCX, usDX, usDI, usSI;
 	unsigned short usPowerFunction;
 

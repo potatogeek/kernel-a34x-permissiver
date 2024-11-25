@@ -11,7 +11,12 @@
 
 	memory@0 {
 		device_type = "memory";
+<<<<<<< HEAD
 		reg = <0x0 0x1c000000>, <0x20000000 0x4000000>;
+=======
+		reg = <0x00000000 0x1c000000>,
+		      <0x20000000 0x04000000>;
+>>>>>>> upstream/android-13
 	};
 
 	chosen {
@@ -37,6 +42,7 @@
 	gpio-leds {
 		compatible = "gpio-leds";
 
+<<<<<<< HEAD
 		system {
 			label = "gb-pc1:green:system";
 			gpios = <&gpio 6 GPIO_ACTIVE_LOW>;
@@ -55,6 +61,18 @@
 		lan2 {
 			label = "gb-pc1:green:lan2";
 			gpios = <&gpio 25 GPIO_ACTIVE_LOW>;
+=======
+		power {
+			label = "green:power";
+			gpios = <&gpio 6 GPIO_ACTIVE_LOW>;
+			linux,default-trigger = "default-on";
+		};
+
+		system {
+			label = "green:system";
+			gpios = <&gpio 8 GPIO_ACTIVE_LOW>;
+			linux,default-trigger = "disk-activity";
+>>>>>>> upstream/android-13
 		};
 	};
 };
@@ -72,6 +90,10 @@
 		compatible = "jedec,spi-nor";
 		reg = <0>;
 		spi-max-frequency = <50000000>;
+<<<<<<< HEAD
+=======
+		broken-flash-reset;
+>>>>>>> upstream/android-13
 
 		partition@0 {
 			label = "u-boot";
@@ -93,6 +115,7 @@
 
 		partition@50000 {
 			label = "firmware";
+<<<<<<< HEAD
 			reg = <0x50000 0x1FB0000>;
 		};
 
@@ -137,6 +160,39 @@
 		gpio {
 			ralink,group = "wdt", "rgmii2", "uart3";
 			ralink,function = "gpio";
+=======
+			reg = <0x50000 0x1fb0000>;
+		};
+	};
+};
+
+&pcie {
+	status = "okay";
+};
+
+&pinctrl {
+	pinctrl-names = "default";
+	pinctrl-0 = <&state_default>;
+
+	state_default: state-default {
+		gpio-pinmux {
+			groups = "rgmii2", "uart3", "wdt";
+			function = "gpio";
+		};
+	};
+};
+
+&switch0 {
+	ports {
+		port@0 {
+			status = "okay";
+			label = "ethblack";
+		};
+
+		port@4 {
+			status = "okay";
+			label = "ethblue";
+>>>>>>> upstream/android-13
 		};
 	};
 };

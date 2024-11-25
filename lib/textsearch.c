@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * lib/textsearch.c	Generic text search interface
  *
@@ -6,6 +7,12 @@
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * lib/textsearch.c	Generic text search interface
+ *
+>>>>>>> upstream/android-13
  * Authors:	Thomas Graf <tgraf@suug.ch>
  * 		Pablo Neira Ayuso <pablo@netfilter.org>
  *

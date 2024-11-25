@@ -36,6 +36,17 @@ bool dal_bios_parser_init_cmd_tbl_helper(
 	enum dce_version dce)
 {
 	switch (dce) {
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_DRM_AMD_DC_SI)
+	case DCE_VERSION_6_0:
+	case DCE_VERSION_6_1:
+	case DCE_VERSION_6_4:
+		*h = dal_cmd_tbl_helper_dce60_get_table();
+		return true;
+#endif
+
+>>>>>>> upstream/android-13
 	case DCE_VERSION_8_0:
 	case DCE_VERSION_8_1:
 	case DCE_VERSION_8_3:
@@ -106,6 +117,7 @@ bool dal_cmd_table_helper_controller_id_to_atom(
 }
 
 /**
+<<<<<<< HEAD
 * translate_transmitter_bp_to_atom
 *
 * @brief
@@ -118,6 +130,16 @@ bool dal_cmd_table_helper_controller_id_to_atom(
 *    // =01: Digital Transmitter2 ( UNIPHY linkCD )
 *    // =02: Digital Transmitter3 ( UNIPHY linkEF )
 */
+=======
+ * dal_cmd_table_helper_transmitter_bp_to_atom - Translate the Transmitter to the
+ *                                    corresponding ATOM BIOS value
+ * @t: transmitter
+ * returns: output digitalTransmitter
+ *    // =00: Digital Transmitter1 ( UNIPHY linkAB )
+ *    // =01: Digital Transmitter2 ( UNIPHY linkCD )
+ *    // =02: Digital Transmitter3 ( UNIPHY linkEF )
+ */
+>>>>>>> upstream/android-13
 uint8_t dal_cmd_table_helper_transmitter_bp_to_atom(
 	enum transmitter t)
 {

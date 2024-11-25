@@ -124,6 +124,7 @@ static int sercos3_pci_probe(struct pci_dev *dev,
 	struct sercos3_priv *priv;
 	int i;
 
+<<<<<<< HEAD
 	info = kzalloc(sizeof(struct uio_info), GFP_KERNEL);
 	if (!info)
 		return -ENOMEM;
@@ -134,6 +135,18 @@ static int sercos3_pci_probe(struct pci_dev *dev,
 
 	if (pci_enable_device(dev))
 		goto out_free_priv;
+=======
+	info = devm_kzalloc(&dev->dev, sizeof(struct uio_info), GFP_KERNEL);
+	if (!info)
+		return -ENOMEM;
+
+	priv = devm_kzalloc(&dev->dev, sizeof(struct sercos3_priv), GFP_KERNEL);
+	if (!priv)
+		return -ENOMEM;
+
+	if (pci_enable_device(dev))
+		return -ENODEV;
+>>>>>>> upstream/android-13
 
 	if (pci_request_regions(dev, "sercos3"))
 		goto out_disable;
@@ -174,10 +187,13 @@ out_unmap:
 	pci_release_regions(dev);
 out_disable:
 	pci_disable_device(dev);
+<<<<<<< HEAD
 out_free_priv:
 	kfree(priv);
 out_free:
 	kfree(info);
+=======
+>>>>>>> upstream/android-13
 	return -ENODEV;
 }
 
@@ -193,8 +209,11 @@ static void sercos3_pci_remove(struct pci_dev *dev)
 		if (info->mem[i].internal_addr)
 			iounmap(info->mem[i].internal_addr);
 	}
+<<<<<<< HEAD
 	kfree(info->priv);
 	kfree(info);
+=======
+>>>>>>> upstream/android-13
 }
 
 static struct pci_device_id sercos3_pci_ids[] = {

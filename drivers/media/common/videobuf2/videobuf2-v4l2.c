@@ -14,6 +14,7 @@
  * the Free Software Foundation.
  */
 
+<<<<<<< HEAD
 #include <linux/err.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -29,16 +30,42 @@
 #include <media/v4l2-fh.h>
 #include <media/v4l2-event.h>
 #include <media/v4l2-common.h>
+=======
+#include <linux/device.h>
+#include <linux/err.h>
+#include <linux/freezer.h>
+#include <linux/kernel.h>
+#include <linux/kthread.h>
+#include <linux/mm.h>
+#include <linux/module.h>
+#include <linux/poll.h>
+#include <linux/sched.h>
+#include <linux/slab.h>
+
+#include <media/v4l2-common.h>
+#include <media/v4l2-dev.h>
+#include <media/v4l2-device.h>
+#include <media/v4l2-event.h>
+#include <media/v4l2-fh.h>
+>>>>>>> upstream/android-13
 
 #include <media/videobuf2-v4l2.h>
 
 static int debug;
 module_param(debug, int, 0644);
 
+<<<<<<< HEAD
 #define dprintk(level, fmt, arg...)					      \
 	do {								      \
 		if (debug >= level)					      \
 			pr_info("vb2-v4l2: %s: " fmt, __func__, ## arg); \
+=======
+#define dprintk(q, level, fmt, arg...)					      \
+	do {								      \
+		if (debug >= level)					      \
+			pr_info("vb2-v4l2: [%p] %s: " fmt,		      \
+				(q)->name, __func__, ## arg);		      \
+>>>>>>> upstream/android-13
 	} while (0)
 
 /* Flags that are set by us */
@@ -49,8 +76,16 @@ module_param(debug, int, 0644);
 				 V4L2_BUF_FLAG_REQUEST_FD | \
 				 V4L2_BUF_FLAG_TIMESTAMP_MASK)
 /* Output buffer flags that should be passed on to the driver */
+<<<<<<< HEAD
 #define V4L2_BUFFER_OUT_FLAGS	(V4L2_BUF_FLAG_PFRAME | V4L2_BUF_FLAG_BFRAME | \
 				 V4L2_BUF_FLAG_KEYFRAME | V4L2_BUF_FLAG_TIMECODE)
+=======
+#define V4L2_BUFFER_OUT_FLAGS	(V4L2_BUF_FLAG_PFRAME | \
+				 V4L2_BUF_FLAG_BFRAME | \
+				 V4L2_BUF_FLAG_KEYFRAME | \
+				 V4L2_BUF_FLAG_TIMECODE | \
+				 V4L2_BUF_FLAG_M2M_HOLD_CAPTURE_BUF)
+>>>>>>> upstream/android-13
 
 /*
  * __verify_planes_array() - verify that the planes array passed in struct
@@ -63,12 +98,22 @@ static int __verify_planes_array(struct vb2_buffer *vb, const struct v4l2_buffer
 
 	/* Is memory for copying plane information present? */
 	if (b->m.planes == NULL) {
+<<<<<<< HEAD
 		dprintk(1, "multi-planar buffer passed but planes array not provided\n");
+=======
+		dprintk(vb->vb2_queue, 1,
+			"multi-planar buffer passed but planes array not provided\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	if (b->length < vb->num_planes || b->length > VB2_MAX_PLANES) {
+<<<<<<< HEAD
 		dprintk(1, "incorrect planes array length, expected %d, got %d\n",
+=======
+		dprintk(vb->vb2_queue, 1,
+			"incorrect planes array length, expected %d, got %d\n",
+>>>>>>> upstream/android-13
 			vb->num_planes, b->length);
 		return -EINVAL;
 	}
@@ -91,7 +136,11 @@ static int __verify_length(struct vb2_buffer *vb, const struct v4l2_buffer *b)
 	unsigned int bytesused;
 	unsigned int plane;
 
+<<<<<<< HEAD
 	if (!V4L2_TYPE_IS_OUTPUT(b->type))
+=======
+	if (V4L2_TYPE_IS_CAPTURE(b->type))
+>>>>>>> upstream/android-13
 		return 0;
 
 	if (V4L2_TYPE_IS_MULTIPLANAR(b->type)) {
@@ -122,9 +171,15 @@ static int __verify_length(struct vb2_buffer *vb, const struct v4l2_buffer *b)
 }
 
 /*
+<<<<<<< HEAD
  * __init_v4l2_vb2_buffer() - initialize the v4l2_vb2_buffer struct
  */
 static void __init_v4l2_vb2_buffer(struct vb2_buffer *vb)
+=======
+ * __init_vb2_v4l2_buffer() - initialize the vb2_v4l2_buffer struct
+ */
+static void __init_vb2_v4l2_buffer(struct vb2_buffer *vb)
+>>>>>>> upstream/android-13
 {
 	struct vb2_v4l2_buffer *vbuf = to_vb2_v4l2_buffer(vb);
 
@@ -143,7 +198,11 @@ static void __copy_timestamp(struct vb2_buffer *vb, const void *pb)
 		 * and the timecode field and flag if needed.
 		 */
 		if (q->copy_timestamp)
+<<<<<<< HEAD
 			vb->timestamp = v4l2_timeval_to_ns(&b->timestamp);
+=======
+			vb->timestamp = v4l2_buffer_get_timestamp(b);
+>>>>>>> upstream/android-13
 		vbuf->flags |= b->flags & V4L2_BUF_FLAG_TIMECODE;
 		if (b->flags & V4L2_BUF_FLAG_TIMECODE)
 			vbuf->timecode = b->timecode;
@@ -176,7 +235,11 @@ static int vb2_fill_vb2_v4l2_buffer(struct vb2_buffer *vb, struct v4l2_buffer *b
 
 	ret = __verify_length(vb, b);
 	if (ret < 0) {
+<<<<<<< HEAD
 		dprintk(1, "plane parameters verification failed: %d\n", ret);
+=======
+		dprintk(q, 1, "plane parameters verification failed: %d\n", ret);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 	if (b->field == V4L2_FIELD_ALTERNATE && q->is_output) {
@@ -189,11 +252,19 @@ static int vb2_fill_vb2_v4l2_buffer(struct vb2_buffer *vb, struct v4l2_buffer *b
 		 * that just says that it is either a top or a bottom field,
 		 * but not which of the two it is.
 		 */
+<<<<<<< HEAD
 		dprintk(1, "the field is incorrectly set to ALTERNATE for an output buffer\n");
+=======
+		dprintk(q, 1, "the field is incorrectly set to ALTERNATE for an output buffer\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 	vbuf->sequence = 0;
 	vbuf->request_fd = -1;
+<<<<<<< HEAD
+=======
+	vbuf->is_held = false;
+>>>>>>> upstream/android-13
 
 	if (V4L2_TYPE_IS_MULTIPLANAR(b->type)) {
 		switch (b->memory) {
@@ -303,7 +374,11 @@ static int vb2_fill_vb2_v4l2_buffer(struct vb2_buffer *vb, struct v4l2_buffer *b
 
 	/* Zero flags that we handle */
 	vbuf->flags = b->flags & ~V4L2_BUFFER_MASK_FLAGS;
+<<<<<<< HEAD
 	if (!vb->vb2_queue->copy_timestamp || !V4L2_TYPE_IS_OUTPUT(b->type)) {
+=======
+	if (!vb->vb2_queue->copy_timestamp || V4L2_TYPE_IS_CAPTURE(b->type)) {
+>>>>>>> upstream/android-13
 		/*
 		 * Non-COPY timestamps and non-OUTPUT queues will get
 		 * their timestamp and timestamp source flags from the
@@ -321,6 +396,11 @@ static int vb2_fill_vb2_v4l2_buffer(struct vb2_buffer *vb, struct v4l2_buffer *b
 		 */
 		vbuf->flags &= ~V4L2_BUF_FLAG_TIMECODE;
 		vbuf->field = b->field;
+<<<<<<< HEAD
+=======
+		if (!(q->subsystem_flags & VB2_V4L2_FL_SUPPORTS_M2M_HOLD_CAPTURE_BUF))
+			vbuf->flags &= ~V4L2_BUF_FLAG_M2M_HOLD_CAPTURE_BUF;
+>>>>>>> upstream/android-13
 	} else {
 		/* Zero any output buffer flags as this is a capture buffer */
 		vbuf->flags &= ~V4L2_BUFFER_OUT_FLAGS;
@@ -331,6 +411,56 @@ static int vb2_fill_vb2_v4l2_buffer(struct vb2_buffer *vb, struct v4l2_buffer *b
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void set_buffer_cache_hints(struct vb2_queue *q,
+				   struct vb2_buffer *vb,
+				   struct v4l2_buffer *b)
+{
+	/*
+	 * DMA exporter should take care of cache syncs, so we can avoid
+	 * explicit ->prepare()/->finish() syncs. For other ->memory types
+	 * we always need ->prepare() or/and ->finish() cache sync.
+	 */
+	if (q->memory == VB2_MEMORY_DMABUF) {
+		vb->need_cache_sync_on_finish = 0;
+		vb->need_cache_sync_on_prepare = 0;
+		return;
+	}
+
+	/*
+	 * Cache sync/invalidation flags are set by default in order to
+	 * preserve existing behaviour for old apps/drivers.
+	 */
+	vb->need_cache_sync_on_prepare = 1;
+	vb->need_cache_sync_on_finish = 1;
+
+	if (!vb2_queue_allows_cache_hints(q)) {
+		/*
+		 * Clear buffer cache flags if queue does not support user
+		 * space hints. That's to indicate to userspace that these
+		 * flags won't work.
+		 */
+		b->flags &= ~V4L2_BUF_FLAG_NO_CACHE_INVALIDATE;
+		b->flags &= ~V4L2_BUF_FLAG_NO_CACHE_CLEAN;
+		return;
+	}
+
+	/*
+	 * ->finish() cache sync can be avoided when queue direction is
+	 * TO_DEVICE.
+	 */
+	if (q->dma_dir == DMA_TO_DEVICE)
+		vb->need_cache_sync_on_finish = 0;
+
+	if (b->flags & V4L2_BUF_FLAG_NO_CACHE_INVALIDATE)
+		vb->need_cache_sync_on_finish = 0;
+
+	if (b->flags & V4L2_BUF_FLAG_NO_CACHE_CLEAN)
+		vb->need_cache_sync_on_prepare = 0;
+}
+
+>>>>>>> upstream/android-13
 static int vb2_queue_or_prepare_buf(struct vb2_queue *q, struct media_device *mdev,
 				    struct v4l2_buffer *b, bool is_prepare,
 				    struct media_request **p_req)
@@ -342,23 +472,39 @@ static int vb2_queue_or_prepare_buf(struct vb2_queue *q, struct media_device *md
 	int ret;
 
 	if (b->type != q->type) {
+<<<<<<< HEAD
 		dprintk(1, "%s: invalid buffer type\n", opname);
+=======
+		dprintk(q, 1, "%s: invalid buffer type\n", opname);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	if (b->index >= q->num_buffers) {
+<<<<<<< HEAD
 		dprintk(1, "%s: buffer index out of range\n", opname);
+=======
+		dprintk(q, 1, "%s: buffer index out of range\n", opname);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	if (q->bufs[b->index] == NULL) {
 		/* Should never happen */
+<<<<<<< HEAD
 		dprintk(1, "%s: buffer is NULL\n", opname);
+=======
+		dprintk(q, 1, "%s: buffer is NULL\n", opname);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	if (b->memory != q->memory) {
+<<<<<<< HEAD
 		dprintk(1, "%s: invalid memory type\n", opname);
+=======
+		dprintk(q, 1, "%s: invalid memory type\n", opname);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -368,7 +514,18 @@ static int vb2_queue_or_prepare_buf(struct vb2_queue *q, struct media_device *md
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	if (!vb->prepared) {
+=======
+	if (!is_prepare && (b->flags & V4L2_BUF_FLAG_REQUEST_FD) &&
+	    vb->state != VB2_BUF_STATE_DEQUEUED) {
+		dprintk(q, 1, "%s: buffer is not in dequeued state\n", opname);
+		return -EINVAL;
+	}
+
+	if (!vb->prepared) {
+		set_buffer_cache_hints(q, vb, b);
+>>>>>>> upstream/android-13
 		/* Copy relevant information provided by the userspace */
 		memset(vbuf->planes, 0,
 		       sizeof(vbuf->planes[0]) * vb->num_planes);
@@ -381,16 +538,32 @@ static int vb2_queue_or_prepare_buf(struct vb2_queue *q, struct media_device *md
 		return 0;
 
 	if (!(b->flags & V4L2_BUF_FLAG_REQUEST_FD)) {
+<<<<<<< HEAD
 		if (q->uses_requests) {
 			dprintk(1, "%s: queue uses requests\n", opname);
+=======
+		if (q->requires_requests) {
+			dprintk(q, 1, "%s: queue requires requests\n", opname);
+			return -EBADR;
+		}
+		if (q->uses_requests) {
+			dprintk(q, 1, "%s: queue uses requests\n", opname);
+>>>>>>> upstream/android-13
 			return -EBUSY;
 		}
 		return 0;
 	} else if (!q->supports_requests) {
+<<<<<<< HEAD
 		dprintk(1, "%s: queue does not support requests\n", opname);
 		return -EACCES;
 	} else if (q->uses_qbuf) {
 		dprintk(1, "%s: queue does not use requests\n", opname);
+=======
+		dprintk(q, 1, "%s: queue does not support requests\n", opname);
+		return -EBADR;
+	} else if (q->uses_qbuf) {
+		dprintk(q, 1, "%s: queue does not use requests\n", opname);
+>>>>>>> upstream/android-13
 		return -EBUSY;
 	}
 
@@ -409,6 +582,7 @@ static int vb2_queue_or_prepare_buf(struct vb2_queue *q, struct media_device *md
 	 */
 	if (WARN_ON(!q->ops->buf_request_complete))
 		return -EINVAL;
+<<<<<<< HEAD
 
 	if (vb->state != VB2_BUF_STATE_DEQUEUED) {
 		dprintk(1, "%s: buffer is not in dequeued state\n", opname);
@@ -423,6 +597,21 @@ static int vb2_queue_or_prepare_buf(struct vb2_queue *q, struct media_device *md
 	req = media_request_get_by_fd(mdev, b->request_fd);
 	if (IS_ERR(req)) {
 		dprintk(1, "%s: invalid request_fd\n", opname);
+=======
+	/*
+	 * Make sure this op is implemented by the driver for the output queue.
+	 * It's easy to forget this callback, but is it important to correctly
+	 * validate the 'field' value at QBUF time.
+	 */
+	if (WARN_ON((q->type == V4L2_BUF_TYPE_VIDEO_OUTPUT ||
+		     q->type == V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE) &&
+		    !q->ops->buf_out_validate))
+		return -EINVAL;
+
+	req = media_request_get_by_fd(mdev, b->request_fd);
+	if (IS_ERR(req)) {
+		dprintk(q, 1, "%s: invalid request_fd\n", opname);
+>>>>>>> upstream/android-13
 		return PTR_ERR(req);
 	}
 
@@ -432,7 +621,11 @@ static int vb2_queue_or_prepare_buf(struct vb2_queue *q, struct media_device *md
 	 */
 	if (req->state != MEDIA_REQUEST_STATE_IDLE &&
 	    req->state != MEDIA_REQUEST_STATE_UPDATING) {
+<<<<<<< HEAD
 		dprintk(1, "%s: request is not idle\n", opname);
+=======
+		dprintk(q, 1, "%s: request is not idle\n", opname);
+>>>>>>> upstream/android-13
 		media_request_put(req);
 		return -EBUSY;
 	}
@@ -462,7 +655,11 @@ static void __fill_v4l2_buffer(struct vb2_buffer *vb, void *pb)
 
 	b->flags = vbuf->flags;
 	b->field = vbuf->field;
+<<<<<<< HEAD
 	b->timestamp = ns_to_timeval(vb->timestamp);
+=======
+	v4l2_buffer_set_timestamp(b, vb->timestamp);
+>>>>>>> upstream/android-13
 	b->timecode = vbuf->timecode;
 	b->sequence = vbuf->sequence;
 	b->reserved2 = 0;
@@ -528,13 +725,20 @@ static void __fill_v4l2_buffer(struct vb2_buffer *vb, void *pb)
 		break;
 	case VB2_BUF_STATE_ERROR:
 		b->flags |= V4L2_BUF_FLAG_ERROR;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case VB2_BUF_STATE_DONE:
 		b->flags |= V4L2_BUF_FLAG_DONE;
 		break;
 	case VB2_BUF_STATE_PREPARING:
 	case VB2_BUF_STATE_DEQUEUED:
+<<<<<<< HEAD
 	case VB2_BUF_STATE_REQUEUEING:
+=======
+>>>>>>> upstream/android-13
 		/* nothing */
 		break;
 	}
@@ -550,11 +754,14 @@ static void __fill_v4l2_buffer(struct vb2_buffer *vb, void *pb)
 		b->flags |= V4L2_BUF_FLAG_REQUEST_FD;
 		b->request_fd = vbuf->request_fd;
 	}
+<<<<<<< HEAD
 
 	if (!q->is_output &&
 		b->flags & V4L2_BUF_FLAG_DONE &&
 		b->flags & V4L2_BUF_FLAG_LAST)
 		q->last_buffer_dequeued = true;
+=======
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -567,7 +774,11 @@ static int __fill_vb2_buffer(struct vb2_buffer *vb, struct vb2_plane *planes)
 	struct vb2_v4l2_buffer *vbuf = to_vb2_v4l2_buffer(vb);
 	unsigned int plane;
 
+<<<<<<< HEAD
 	if (!vb->vb2_queue->is_output || !vb->vb2_queue->copy_timestamp)
+=======
+	if (!vb->vb2_queue->copy_timestamp)
+>>>>>>> upstream/android-13
 		vb->timestamp = 0;
 
 	for (plane = 0; plane < vb->num_planes; ++plane) {
@@ -583,7 +794,11 @@ static int __fill_vb2_buffer(struct vb2_buffer *vb, struct vb2_plane *planes)
 
 static const struct vb2_buf_ops v4l2_buf_ops = {
 	.verify_planes_array	= __verify_planes_array_core,
+<<<<<<< HEAD
 	.init_buffer		= __init_v4l2_vb2_buffer,
+=======
+	.init_buffer		= __init_vb2_v4l2_buffer,
+>>>>>>> upstream/android-13
 	.fill_user_buffer	= __fill_v4l2_buffer,
 	.fill_vb2_buffer	= __fill_vb2_buffer,
 	.copy_timestamp		= __copy_timestamp,
@@ -594,6 +809,7 @@ int vb2_find_timestamp(const struct vb2_queue *q, u64 timestamp,
 {
 	unsigned int i;
 
+<<<<<<< HEAD
 	for (i = start_idx; i < q->num_buffers; i++) {
 		struct vb2_buffer *vb = q->bufs[i];
 
@@ -602,6 +818,12 @@ int vb2_find_timestamp(const struct vb2_queue *q, u64 timestamp,
 		    vb->timestamp == timestamp)
 			return i;
 	}
+=======
+	for (i = start_idx; i < q->num_buffers; i++)
+		if (q->bufs[i]->copied_timestamp &&
+		    q->bufs[i]->timestamp == timestamp)
+			return i;
+>>>>>>> upstream/android-13
 	return -1;
 }
 EXPORT_SYMBOL_GPL(vb2_find_timestamp);
@@ -625,12 +847,20 @@ int vb2_querybuf(struct vb2_queue *q, struct v4l2_buffer *b)
 	int ret;
 
 	if (b->type != q->type) {
+<<<<<<< HEAD
 		dprintk(1, "wrong buffer type\n");
+=======
+		dprintk(q, 1, "wrong buffer type\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	if (b->index >= q->num_buffers) {
+<<<<<<< HEAD
 		dprintk(1, "buffer index out of range\n");
+=======
+		dprintk(q, 1, "buffer index out of range\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 	vb = q->bufs[b->index];
@@ -643,13 +873,24 @@ EXPORT_SYMBOL(vb2_querybuf);
 
 static void fill_buf_caps(struct vb2_queue *q, u32 *caps)
 {
+<<<<<<< HEAD
 	*caps = 0;
+=======
+	*caps = V4L2_BUF_CAP_SUPPORTS_ORPHANED_BUFS;
+>>>>>>> upstream/android-13
 	if (q->io_modes & VB2_MMAP)
 		*caps |= V4L2_BUF_CAP_SUPPORTS_MMAP;
 	if (q->io_modes & VB2_USERPTR)
 		*caps |= V4L2_BUF_CAP_SUPPORTS_USERPTR;
 	if (q->io_modes & VB2_DMABUF)
 		*caps |= V4L2_BUF_CAP_SUPPORTS_DMABUF;
+<<<<<<< HEAD
+=======
+	if (q->subsystem_flags & VB2_V4L2_FL_SUPPORTS_M2M_HOLD_CAPTURE_BUF)
+		*caps |= V4L2_BUF_CAP_SUPPORTS_M2M_HOLD_CAPTURE_BUF;
+	if (q->allow_cache_hints && q->io_modes & VB2_MMAP)
+		*caps |= V4L2_BUF_CAP_SUPPORTS_MMAP_CACHE_HINTS;
+>>>>>>> upstream/android-13
 #ifdef CONFIG_MEDIA_CONTROLLER_REQUEST_API
 	if (q->supports_requests)
 		*caps |= V4L2_BUF_CAP_SUPPORTS_REQUESTS;
@@ -671,7 +912,11 @@ int vb2_prepare_buf(struct vb2_queue *q, struct media_device *mdev,
 	int ret;
 
 	if (vb2_fileio_is_active(q)) {
+<<<<<<< HEAD
 		dprintk(1, "file io in progress\n");
+=======
+		dprintk(q, 1, "file io in progress\n");
+>>>>>>> upstream/android-13
 		return -EBUSY;
 	}
 
@@ -726,6 +971,10 @@ int vb2_create_bufs(struct vb2_queue *q, struct v4l2_create_buffers *create)
 		requested_sizes[0] = f->fmt.sdr.buffersize;
 		break;
 	case V4L2_BUF_TYPE_META_CAPTURE:
+<<<<<<< HEAD
+=======
+	case V4L2_BUF_TYPE_META_OUTPUT:
+>>>>>>> upstream/android-13
 		requested_sizes[0] = f->fmt.meta.buffersize;
 		break;
 	default:
@@ -735,7 +984,13 @@ int vb2_create_bufs(struct vb2_queue *q, struct v4l2_create_buffers *create)
 		if (requested_sizes[i] == 0)
 			return -EINVAL;
 	return ret ? ret : vb2_core_create_bufs(q, create->memory,
+<<<<<<< HEAD
 		&create->count, requested_planes, requested_sizes);
+=======
+						&create->count,
+						requested_planes,
+						requested_sizes);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(vb2_create_bufs);
 
@@ -746,7 +1001,11 @@ int vb2_qbuf(struct vb2_queue *q, struct media_device *mdev,
 	int ret;
 
 	if (vb2_fileio_is_active(q)) {
+<<<<<<< HEAD
 		dprintk(1, "file io in progress\n");
+=======
+		dprintk(q, 1, "file io in progress\n");
+>>>>>>> upstream/android-13
 		return -EBUSY;
 	}
 
@@ -765,17 +1024,33 @@ int vb2_dqbuf(struct vb2_queue *q, struct v4l2_buffer *b, bool nonblocking)
 	int ret;
 
 	if (vb2_fileio_is_active(q)) {
+<<<<<<< HEAD
 		dprintk(1, "file io in progress\n");
+=======
+		dprintk(q, 1, "file io in progress\n");
+>>>>>>> upstream/android-13
 		return -EBUSY;
 	}
 
 	if (b->type != q->type) {
+<<<<<<< HEAD
 		dprintk(1, "invalid buffer type\n");
+=======
+		dprintk(q, 1, "invalid buffer type\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	ret = vb2_core_dqbuf(q, NULL, b, nonblocking);
 
+<<<<<<< HEAD
+=======
+	if (!q->is_output &&
+	    b->flags & V4L2_BUF_FLAG_DONE &&
+	    b->flags & V4L2_BUF_FLAG_LAST)
+		q->last_buffer_dequeued = true;
+
+>>>>>>> upstream/android-13
 	/*
 	 *  After calling the VIDIOC_DQBUF V4L2_BUF_FLAG_DONE must be
 	 *  cleared.
@@ -789,7 +1064,11 @@ EXPORT_SYMBOL_GPL(vb2_dqbuf);
 int vb2_streamon(struct vb2_queue *q, enum v4l2_buf_type type)
 {
 	if (vb2_fileio_is_active(q)) {
+<<<<<<< HEAD
 		dprintk(1, "file io in progress\n");
+=======
+		dprintk(q, 1, "file io in progress\n");
+>>>>>>> upstream/android-13
 		return -EBUSY;
 	}
 	return vb2_core_streamon(q, type);
@@ -799,7 +1078,11 @@ EXPORT_SYMBOL_GPL(vb2_streamon);
 int vb2_streamoff(struct vb2_queue *q, enum v4l2_buf_type type)
 {
 	if (vb2_fileio_is_active(q)) {
+<<<<<<< HEAD
 		dprintk(1, "file io in progress\n");
+=======
+		dprintk(q, 1, "file io in progress\n");
+>>>>>>> upstream/android-13
 		return -EBUSY;
 	}
 	return vb2_core_streamoff(q, type);
@@ -813,7 +1096,11 @@ int vb2_expbuf(struct vb2_queue *q, struct v4l2_exportbuffer *eb)
 }
 EXPORT_SYMBOL_GPL(vb2_expbuf);
 
+<<<<<<< HEAD
 int vb2_queue_init(struct vb2_queue *q)
+=======
+int vb2_queue_init_name(struct vb2_queue *q, const char *name)
+>>>>>>> upstream/android-13
 {
 	/*
 	 * Sanity check
@@ -849,8 +1136,24 @@ int vb2_queue_init(struct vb2_queue *q)
 	 */
 	q->quirk_poll_must_check_waiting_for_buffers = true;
 
+<<<<<<< HEAD
 	return vb2_core_queue_init(q);
 }
+=======
+	if (name)
+		strscpy(q->name, name, sizeof(q->name));
+	else
+		q->name[0] = '\0';
+
+	return vb2_core_queue_init(q);
+}
+EXPORT_SYMBOL_GPL(vb2_queue_init_name);
+
+int vb2_queue_init(struct vb2_queue *q)
+{
+	return vb2_queue_init_name(q, NULL);
+}
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL_GPL(vb2_queue_init);
 
 void vb2_queue_release(struct vb2_queue *q)
@@ -859,15 +1162,39 @@ void vb2_queue_release(struct vb2_queue *q)
 }
 EXPORT_SYMBOL_GPL(vb2_queue_release);
 
+<<<<<<< HEAD
 __poll_t vb2_poll(struct vb2_queue *q, struct file *file, poll_table *wait)
 {
 	struct video_device *vfd = video_devdata(file);
 	__poll_t req_events = poll_requested_events(wait);
 	__poll_t res = 0;
+=======
+int vb2_queue_change_type(struct vb2_queue *q, unsigned int type)
+{
+	if (type == q->type)
+		return 0;
+
+	if (vb2_is_busy(q))
+		return -EBUSY;
+
+	q->type = type;
+
+	return 0;
+}
+EXPORT_SYMBOL_GPL(vb2_queue_change_type);
+
+__poll_t vb2_poll(struct vb2_queue *q, struct file *file, poll_table *wait)
+{
+	struct video_device *vfd = video_devdata(file);
+	__poll_t res;
+
+	res = vb2_core_poll(q, file, wait);
+>>>>>>> upstream/android-13
 
 	if (test_bit(V4L2_FL_USES_V4L2_FH, &vfd->flags)) {
 		struct v4l2_fh *fh = file->private_data;
 
+<<<<<<< HEAD
 		if (v4l2_event_pending(fh))
 			res = EPOLLPRI;
 		else if (req_events & EPOLLPRI)
@@ -875,6 +1202,14 @@ __poll_t vb2_poll(struct vb2_queue *q, struct file *file, poll_table *wait)
 	}
 
 	return res | vb2_core_poll(q, file, wait);
+=======
+		poll_wait(file, &fh->wait, wait);
+		if (v4l2_event_pending(fh))
+			res |= EPOLLPRI;
+	}
+
+	return res;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(vb2_poll);
 
@@ -1135,6 +1470,47 @@ unsigned long vb2_fop_get_unmapped_area(struct file *file, unsigned long addr,
 EXPORT_SYMBOL_GPL(vb2_fop_get_unmapped_area);
 #endif
 
+<<<<<<< HEAD
+=======
+void vb2_video_unregister_device(struct video_device *vdev)
+{
+	/* Check if vdev was ever registered at all */
+	if (!vdev || !video_is_registered(vdev))
+		return;
+
+	/*
+	 * Calling this function only makes sense if vdev->queue is set.
+	 * If it is NULL, then just call video_unregister_device() instead.
+	 */
+	WARN_ON(!vdev->queue);
+
+	/*
+	 * Take a reference to the device since video_unregister_device()
+	 * calls device_unregister(), but we don't want that to release
+	 * the device since we want to clean up the queue first.
+	 */
+	get_device(&vdev->dev);
+	video_unregister_device(vdev);
+	if (vdev->queue && vdev->queue->owner) {
+		struct mutex *lock = vdev->queue->lock ?
+			vdev->queue->lock : vdev->lock;
+
+		if (lock)
+			mutex_lock(lock);
+		vb2_queue_release(vdev->queue);
+		vdev->queue->owner = NULL;
+		if (lock)
+			mutex_unlock(lock);
+	}
+	/*
+	 * Now we put the device, and in most cases this will release
+	 * everything.
+	 */
+	put_device(&vdev->dev);
+}
+EXPORT_SYMBOL_GPL(vb2_video_unregister_device);
+
+>>>>>>> upstream/android-13
 /* vb2_ops helpers. Only use if vq->lock is non-NULL. */
 
 void vb2_ops_wait_prepare(struct vb2_queue *vq)

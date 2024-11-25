@@ -13,8 +13,16 @@
 #include <linux/soc/qcom/smem.h>
 #include <linux/soc/qcom/smem_state.h>
 #include <linux/remoteproc.h>
+<<<<<<< HEAD
 #include "qcom_q6v5.h"
 
+=======
+#include "qcom_common.h"
+#include "qcom_q6v5.h"
+
+#define Q6V5_PANIC_DELAY_MS	200
+
+>>>>>>> upstream/android-13
 /**
  * qcom_q6v5_prepare() - reinitialize the qcom_q6v5 context before start
  * @q6v5:	reference to qcom_q6v5 context to be reinitialized
@@ -144,15 +152,30 @@ static irqreturn_t q6v5_stop_interrupt(int irq, void *data)
 /**
  * qcom_q6v5_request_stop() - request the remote processor to stop
  * @q6v5:	reference to qcom_q6v5 context
+<<<<<<< HEAD
  *
  * Return: 0 on success, negative errno on failure
  */
 int qcom_q6v5_request_stop(struct qcom_q6v5 *q6v5)
+=======
+ * @sysmon:	reference to the remote's sysmon instance, or NULL
+ *
+ * Return: 0 on success, negative errno on failure
+ */
+int qcom_q6v5_request_stop(struct qcom_q6v5 *q6v5, struct qcom_sysmon *sysmon)
+>>>>>>> upstream/android-13
 {
 	int ret;
 
 	q6v5->running = false;
 
+<<<<<<< HEAD
+=======
+	/* Don't perform SMP2P dance if sysmon already shut down the remote */
+	if (qcom_sysmon_shutdown_acked(sysmon))
+		return 0;
+
+>>>>>>> upstream/android-13
 	qcom_smem_state_update_bits(q6v5->state,
 				    BIT(q6v5->stop_bit), BIT(q6v5->stop_bit));
 
@@ -165,6 +188,27 @@ int qcom_q6v5_request_stop(struct qcom_q6v5 *q6v5)
 EXPORT_SYMBOL_GPL(qcom_q6v5_request_stop);
 
 /**
+<<<<<<< HEAD
+=======
+ * qcom_q6v5_panic() - panic handler to invoke a stop on the remote
+ * @q6v5:	reference to qcom_q6v5 context
+ *
+ * Set the stop bit and sleep in order to allow the remote processor to flush
+ * its caches etc for post mortem debugging.
+ *
+ * Return: 200ms
+ */
+unsigned long qcom_q6v5_panic(struct qcom_q6v5 *q6v5)
+{
+	qcom_smem_state_update_bits(q6v5->state,
+				    BIT(q6v5->stop_bit), BIT(q6v5->stop_bit));
+
+	return Q6V5_PANIC_DELAY_MS;
+}
+EXPORT_SYMBOL_GPL(qcom_q6v5_panic);
+
+/**
+>>>>>>> upstream/android-13
  * qcom_q6v5_init() - initializer of the q6v5 common struct
  * @q6v5:	handle to be initialized
  * @pdev:	platform_device reference for acquiring resources
@@ -189,6 +233,7 @@ int qcom_q6v5_init(struct qcom_q6v5 *q6v5, struct platform_device *pdev,
 	init_completion(&q6v5->stop_done);
 
 	q6v5->wdog_irq = platform_get_irq_byname(pdev, "wdog");
+<<<<<<< HEAD
 	if (q6v5->wdog_irq < 0) {
 		if (q6v5->wdog_irq != -EPROBE_DEFER)
 			dev_err(&pdev->dev,
@@ -196,6 +241,10 @@ int qcom_q6v5_init(struct qcom_q6v5 *q6v5, struct platform_device *pdev,
 				q6v5->wdog_irq);
 		return q6v5->wdog_irq;
 	}
+=======
+	if (q6v5->wdog_irq < 0)
+		return q6v5->wdog_irq;
+>>>>>>> upstream/android-13
 
 	ret = devm_request_threaded_irq(&pdev->dev, q6v5->wdog_irq,
 					NULL, q6v5_wdog_interrupt,
@@ -207,6 +256,7 @@ int qcom_q6v5_init(struct qcom_q6v5 *q6v5, struct platform_device *pdev,
 	}
 
 	q6v5->fatal_irq = platform_get_irq_byname(pdev, "fatal");
+<<<<<<< HEAD
 	if (q6v5->fatal_irq < 0) {
 		if (q6v5->fatal_irq != -EPROBE_DEFER)
 			dev_err(&pdev->dev,
@@ -214,6 +264,10 @@ int qcom_q6v5_init(struct qcom_q6v5 *q6v5, struct platform_device *pdev,
 				q6v5->fatal_irq);
 		return q6v5->fatal_irq;
 	}
+=======
+	if (q6v5->fatal_irq < 0)
+		return q6v5->fatal_irq;
+>>>>>>> upstream/android-13
 
 	ret = devm_request_threaded_irq(&pdev->dev, q6v5->fatal_irq,
 					NULL, q6v5_fatal_interrupt,
@@ -225,6 +279,7 @@ int qcom_q6v5_init(struct qcom_q6v5 *q6v5, struct platform_device *pdev,
 	}
 
 	q6v5->ready_irq = platform_get_irq_byname(pdev, "ready");
+<<<<<<< HEAD
 	if (q6v5->ready_irq < 0) {
 		if (q6v5->ready_irq != -EPROBE_DEFER)
 			dev_err(&pdev->dev,
@@ -232,6 +287,10 @@ int qcom_q6v5_init(struct qcom_q6v5 *q6v5, struct platform_device *pdev,
 				q6v5->ready_irq);
 		return q6v5->ready_irq;
 	}
+=======
+	if (q6v5->ready_irq < 0)
+		return q6v5->ready_irq;
+>>>>>>> upstream/android-13
 
 	ret = devm_request_threaded_irq(&pdev->dev, q6v5->ready_irq,
 					NULL, q6v5_ready_interrupt,
@@ -243,6 +302,7 @@ int qcom_q6v5_init(struct qcom_q6v5 *q6v5, struct platform_device *pdev,
 	}
 
 	q6v5->handover_irq = platform_get_irq_byname(pdev, "handover");
+<<<<<<< HEAD
 	if (q6v5->handover_irq < 0) {
 		if (q6v5->handover_irq != -EPROBE_DEFER)
 			dev_err(&pdev->dev,
@@ -250,6 +310,10 @@ int qcom_q6v5_init(struct qcom_q6v5 *q6v5, struct platform_device *pdev,
 				q6v5->handover_irq);
 		return q6v5->handover_irq;
 	}
+=======
+	if (q6v5->handover_irq < 0)
+		return q6v5->handover_irq;
+>>>>>>> upstream/android-13
 
 	ret = devm_request_threaded_irq(&pdev->dev, q6v5->handover_irq,
 					NULL, q6v5_handover_interrupt,
@@ -262,6 +326,7 @@ int qcom_q6v5_init(struct qcom_q6v5 *q6v5, struct platform_device *pdev,
 	disable_irq(q6v5->handover_irq);
 
 	q6v5->stop_irq = platform_get_irq_byname(pdev, "stop-ack");
+<<<<<<< HEAD
 	if (q6v5->stop_irq < 0) {
 		if (q6v5->stop_irq != -EPROBE_DEFER)
 			dev_err(&pdev->dev,
@@ -269,6 +334,10 @@ int qcom_q6v5_init(struct qcom_q6v5 *q6v5, struct platform_device *pdev,
 				q6v5->stop_irq);
 		return q6v5->stop_irq;
 	}
+=======
+	if (q6v5->stop_irq < 0)
+		return q6v5->stop_irq;
+>>>>>>> upstream/android-13
 
 	ret = devm_request_threaded_irq(&pdev->dev, q6v5->stop_irq,
 					NULL, q6v5_stop_interrupt,
@@ -279,7 +348,11 @@ int qcom_q6v5_init(struct qcom_q6v5 *q6v5, struct platform_device *pdev,
 		return ret;
 	}
 
+<<<<<<< HEAD
 	q6v5->state = qcom_smem_state_get(&pdev->dev, "stop", &q6v5->stop_bit);
+=======
+	q6v5->state = devm_qcom_smem_state_get(&pdev->dev, "stop", &q6v5->stop_bit);
+>>>>>>> upstream/android-13
 	if (IS_ERR(q6v5->state)) {
 		dev_err(&pdev->dev, "failed to acquire stop state\n");
 		return PTR_ERR(q6v5->state);

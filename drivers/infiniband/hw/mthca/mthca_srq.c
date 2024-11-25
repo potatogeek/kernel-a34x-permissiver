@@ -36,6 +36,11 @@
 
 #include <asm/io.h>
 
+<<<<<<< HEAD
+=======
+#include <rdma/uverbs_ioctl.h>
+
+>>>>>>> upstream/android-13
 #include "mthca_dev.h"
 #include "mthca_cmd.h"
 #include "mthca_memfree.h"
@@ -95,17 +100,31 @@ static inline int *wqe_to_link(void *wqe)
 static void mthca_tavor_init_srq_context(struct mthca_dev *dev,
 					 struct mthca_pd *pd,
 					 struct mthca_srq *srq,
+<<<<<<< HEAD
 					 struct mthca_tavor_srq_context *context)
 {
+=======
+					 struct mthca_tavor_srq_context *context,
+					 struct ib_udata *udata)
+{
+	struct mthca_ucontext *ucontext = rdma_udata_to_drv_context(
+		udata, struct mthca_ucontext, ibucontext);
+
+>>>>>>> upstream/android-13
 	memset(context, 0, sizeof *context);
 
 	context->wqe_base_ds = cpu_to_be64(1 << (srq->wqe_shift - 4));
 	context->state_pd    = cpu_to_be32(pd->pd_num);
 	context->lkey        = cpu_to_be32(srq->mr.ibmr.lkey);
 
+<<<<<<< HEAD
 	if (pd->ibpd.uobject)
 		context->uar =
 			cpu_to_be32(to_mucontext(pd->ibpd.uobject->context)->uar.index);
+=======
+	if (udata)
+		context->uar = cpu_to_be32(ucontext->uar.index);
+>>>>>>> upstream/android-13
 	else
 		context->uar = cpu_to_be32(dev->driver_uar.index);
 }
@@ -113,8 +132,16 @@ static void mthca_tavor_init_srq_context(struct mthca_dev *dev,
 static void mthca_arbel_init_srq_context(struct mthca_dev *dev,
 					 struct mthca_pd *pd,
 					 struct mthca_srq *srq,
+<<<<<<< HEAD
 					 struct mthca_arbel_srq_context *context)
 {
+=======
+					 struct mthca_arbel_srq_context *context,
+					 struct ib_udata *udata)
+{
+	struct mthca_ucontext *ucontext = rdma_udata_to_drv_context(
+		udata, struct mthca_ucontext, ibucontext);
+>>>>>>> upstream/android-13
 	int logsize, max;
 
 	memset(context, 0, sizeof *context);
@@ -129,9 +156,14 @@ static void mthca_arbel_init_srq_context(struct mthca_dev *dev,
 	context->lkey = cpu_to_be32(srq->mr.ibmr.lkey);
 	context->db_index = cpu_to_be32(srq->db_index);
 	context->logstride_usrpage = cpu_to_be32((srq->wqe_shift - 4) << 29);
+<<<<<<< HEAD
 	if (pd->ibpd.uobject)
 		context->logstride_usrpage |=
 			cpu_to_be32(to_mucontext(pd->ibpd.uobject->context)->uar.index);
+=======
+	if (udata)
+		context->logstride_usrpage |= cpu_to_be32(ucontext->uar.index);
+>>>>>>> upstream/android-13
 	else
 		context->logstride_usrpage |= cpu_to_be32(dev->driver_uar.index);
 	context->eq_pd = cpu_to_be32(MTHCA_EQ_ASYNC << 24 | pd->pd_num);
@@ -145,14 +177,22 @@ static void mthca_free_srq_buf(struct mthca_dev *dev, struct mthca_srq *srq)
 }
 
 static int mthca_alloc_srq_buf(struct mthca_dev *dev, struct mthca_pd *pd,
+<<<<<<< HEAD
 			       struct mthca_srq *srq)
+=======
+			       struct mthca_srq *srq, struct ib_udata *udata)
+>>>>>>> upstream/android-13
 {
 	struct mthca_data_seg *scatter;
 	void *wqe;
 	int err;
 	int i;
 
+<<<<<<< HEAD
 	if (pd->ibpd.uobject)
+=======
+	if (udata)
+>>>>>>> upstream/android-13
 		return 0;
 
 	srq->wrid = kmalloc_array(srq->max, sizeof(u64), GFP_KERNEL);
@@ -197,7 +237,12 @@ static int mthca_alloc_srq_buf(struct mthca_dev *dev, struct mthca_pd *pd,
 }
 
 int mthca_alloc_srq(struct mthca_dev *dev, struct mthca_pd *pd,
+<<<<<<< HEAD
 		    struct ib_srq_attr *attr, struct mthca_srq *srq)
+=======
+		    struct ib_srq_attr *attr, struct mthca_srq *srq,
+		    struct ib_udata *udata)
+>>>>>>> upstream/android-13
 {
 	struct mthca_mailbox *mailbox;
 	int ds;
@@ -235,7 +280,11 @@ int mthca_alloc_srq(struct mthca_dev *dev, struct mthca_pd *pd,
 		if (err)
 			goto err_out;
 
+<<<<<<< HEAD
 		if (!pd->ibpd.uobject) {
+=======
+		if (!udata) {
+>>>>>>> upstream/android-13
 			srq->db_index = mthca_alloc_db(dev, MTHCA_DB_TYPE_SRQ,
 						       srq->srqn, &srq->db);
 			if (srq->db_index < 0) {
@@ -251,7 +300,11 @@ int mthca_alloc_srq(struct mthca_dev *dev, struct mthca_pd *pd,
 		goto err_out_db;
 	}
 
+<<<<<<< HEAD
 	err = mthca_alloc_srq_buf(dev, pd, srq);
+=======
+	err = mthca_alloc_srq_buf(dev, pd, srq, udata);
+>>>>>>> upstream/android-13
 	if (err)
 		goto err_out_mailbox;
 
@@ -261,9 +314,15 @@ int mthca_alloc_srq(struct mthca_dev *dev, struct mthca_pd *pd,
 	mutex_init(&srq->mutex);
 
 	if (mthca_is_memfree(dev))
+<<<<<<< HEAD
 		mthca_arbel_init_srq_context(dev, pd, srq, mailbox->buf);
 	else
 		mthca_tavor_init_srq_context(dev, pd, srq, mailbox->buf);
+=======
+		mthca_arbel_init_srq_context(dev, pd, srq, mailbox->buf, udata);
+	else
+		mthca_tavor_init_srq_context(dev, pd, srq, mailbox->buf, udata);
+>>>>>>> upstream/android-13
 
 	err = mthca_SW2HW_SRQ(dev, mailbox, srq->srqn);
 
@@ -297,14 +356,22 @@ err_out_free_srq:
 		mthca_warn(dev, "HW2SW_SRQ failed (%d)\n", err);
 
 err_out_free_buf:
+<<<<<<< HEAD
 	if (!pd->ibpd.uobject)
+=======
+	if (!udata)
+>>>>>>> upstream/android-13
 		mthca_free_srq_buf(dev, srq);
 
 err_out_mailbox:
 	mthca_free_mailbox(dev, mailbox);
 
 err_out_db:
+<<<<<<< HEAD
 	if (!pd->ibpd.uobject && mthca_is_memfree(dev))
+=======
+	if (!udata && mthca_is_memfree(dev))
+>>>>>>> upstream/android-13
 		mthca_free_db(dev, MTHCA_DB_TYPE_SRQ, srq->db_index);
 
 err_out_icm:
@@ -562,12 +629,15 @@ int mthca_tavor_post_srq_recv(struct ib_srq *ibsrq, const struct ib_recv_wr *wr,
 			      MTHCA_GET_DOORBELL_LOCK(&dev->doorbell_lock));
 	}
 
+<<<<<<< HEAD
 	/*
 	 * Make sure doorbells don't leak out of SRQ spinlock and
 	 * reach the HCA out of order:
 	 */
 	mmiowb();
 
+=======
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&srq->lock, flags);
 	return err;
 }

@@ -1,10 +1,17 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0+
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 1996, 2003 VIA Networking Technologies, Inc.
  * All rights reserved.
  *
+<<<<<<< HEAD
  * File: baseband.h
  *
+=======
+>>>>>>> upstream/android-13
  * Purpose: Implement functions to access baseband
  *
  * Author: Jerry Chen
@@ -66,6 +73,7 @@
 #define TOP_RATE_2M         0x00200000
 #define TOP_RATE_1M         0x00100000
 
+<<<<<<< HEAD
 /* Length, Service, and Signal fields of Phy for Tx */
 struct vnt_phy_field {
 	u8 signal;
@@ -86,5 +94,14 @@ int vnt_vt3184_init(struct vnt_private *priv);
 void vnt_set_deep_sleep(struct vnt_private *priv);
 void vnt_exit_deep_sleep(struct vnt_private *priv);
 void vnt_update_pre_ed_threshold(struct vnt_private *priv, int scanning);
+=======
+int vnt_set_short_slot_time(struct vnt_private *priv);
+int vnt_set_vga_gain_offset(struct vnt_private *priv, u8 data);
+int vnt_set_antenna_mode(struct vnt_private *priv, u8 antenna_mode);
+int vnt_vt3184_init(struct vnt_private *priv);
+int vnt_set_deep_sleep(struct vnt_private *priv);
+int vnt_exit_deep_sleep(struct vnt_private *priv);
+int vnt_update_pre_ed_threshold(struct vnt_private *priv, int scanning);
+>>>>>>> upstream/android-13
 
 #endif /* __BASEBAND_H__ */

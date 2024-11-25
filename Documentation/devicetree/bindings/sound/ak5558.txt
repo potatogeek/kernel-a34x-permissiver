@@ -4,12 +4,21 @@ This device supports I2C mode only.
 
 Required properties:
 
+<<<<<<< HEAD
 - compatible : "asahi-kasei,ak5558"
+=======
+- compatible : "asahi-kasei,ak5558" or "asahi-kasei,ak5552".
+>>>>>>> upstream/android-13
 - reg : The I2C address of the device.
 
 Optional properties:
 
 - reset-gpios: A GPIO specifier for the power down & reset pin.
+<<<<<<< HEAD
+=======
+- AVDD-supply: Analog power supply
+- DVDD-supply: Digital power supply
+>>>>>>> upstream/android-13
 
 Example:
 

@@ -45,7 +45,11 @@ struct nfc_mei_phy {
 	int hard_fault;
 };
 
+<<<<<<< HEAD
 extern struct nfc_phy_ops mei_phy_ops;
+=======
+extern const struct nfc_phy_ops mei_phy_ops;
+>>>>>>> upstream/android-13
 
 struct nfc_mei_phy *nfc_mei_phy_alloc(struct mei_cl_device *device);
 void nfc_mei_phy_free(struct nfc_mei_phy *phy);

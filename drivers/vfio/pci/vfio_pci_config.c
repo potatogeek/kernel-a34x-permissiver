@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * VFIO PCI config space virtualization
  *
  * Copyright (C) 2012 Red Hat, Inc.  All rights reserved.
  *     Author: Alex Williamson <alex.williamson@redhat.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Derived from original vfio:
  * Copyright 2010 Cisco Systems, Inc.  All rights reserved.
  * Author: Tom Lyon, pugs@cisco.com
@@ -29,7 +36,11 @@
 #include <linux/vfio.h>
 #include <linux/slab.h>
 
+<<<<<<< HEAD
 #include "vfio_pci_private.h"
+=======
+#include <linux/vfio_pci_core.h>
+>>>>>>> upstream/android-13
 
 /* Fake capability ID for standard config space */
 #define PCI_CAP_ID_BASIC	0
@@ -104,16 +115,26 @@ static const u16 pci_ext_cap_length[PCI_EXT_CAP_ID_MAX + 1] = {
 /*
  * Read/Write Permission Bits - one bit for each bit in capability
  * Any field can be read if it exists, but what is read depends on
+<<<<<<< HEAD
  * whether the field is 'virtualized', or just pass thru to the
+=======
+ * whether the field is 'virtualized', or just pass through to the
+>>>>>>> upstream/android-13
  * hardware.  Any virtualized field is also virtualized for writes.
  * Writes are only permitted if they have a 1 bit here.
  */
 struct perm_bits {
 	u8	*virt;		/* read/write virtual data, not hw */
 	u8	*write;		/* writeable bits */
+<<<<<<< HEAD
 	int	(*readfn)(struct vfio_pci_device *vdev, int pos, int count,
 			  struct perm_bits *perm, int offset, __le32 *val);
 	int	(*writefn)(struct vfio_pci_device *vdev, int pos, int count,
+=======
+	int	(*readfn)(struct vfio_pci_core_device *vdev, int pos, int count,
+			  struct perm_bits *perm, int offset, __le32 *val);
+	int	(*writefn)(struct vfio_pci_core_device *vdev, int pos, int count,
+>>>>>>> upstream/android-13
 			   struct perm_bits *perm, int offset, __le32 val);
 };
 
@@ -174,7 +195,11 @@ static int vfio_user_config_write(struct pci_dev *pdev, int offset,
 	return ret;
 }
 
+<<<<<<< HEAD
 static int vfio_default_config_read(struct vfio_pci_device *vdev, int pos,
+=======
+static int vfio_default_config_read(struct vfio_pci_core_device *vdev, int pos,
+>>>>>>> upstream/android-13
 				    int count, struct perm_bits *perm,
 				    int offset, __le32 *val)
 {
@@ -200,7 +225,11 @@ static int vfio_default_config_read(struct vfio_pci_device *vdev, int pos,
 	return count;
 }
 
+<<<<<<< HEAD
 static int vfio_default_config_write(struct vfio_pci_device *vdev, int pos,
+=======
+static int vfio_default_config_write(struct vfio_pci_core_device *vdev, int pos,
+>>>>>>> upstream/android-13
 				     int count, struct perm_bits *perm,
 				     int offset, __le32 val)
 {
@@ -247,7 +276,11 @@ static int vfio_default_config_write(struct vfio_pci_device *vdev, int pos,
 }
 
 /* Allow direct read from hardware, except for capability next pointer */
+<<<<<<< HEAD
 static int vfio_direct_config_read(struct vfio_pci_device *vdev, int pos,
+=======
+static int vfio_direct_config_read(struct vfio_pci_core_device *vdev, int pos,
+>>>>>>> upstream/android-13
 				   int count, struct perm_bits *perm,
 				   int offset, __le32 *val)
 {
@@ -272,7 +305,11 @@ static int vfio_direct_config_read(struct vfio_pci_device *vdev, int pos,
 }
 
 /* Raw access skips any kind of virtualization */
+<<<<<<< HEAD
 static int vfio_raw_config_write(struct vfio_pci_device *vdev, int pos,
+=======
+static int vfio_raw_config_write(struct vfio_pci_core_device *vdev, int pos,
+>>>>>>> upstream/android-13
 				 int count, struct perm_bits *perm,
 				 int offset, __le32 val)
 {
@@ -285,7 +322,11 @@ static int vfio_raw_config_write(struct vfio_pci_device *vdev, int pos,
 	return count;
 }
 
+<<<<<<< HEAD
 static int vfio_raw_config_read(struct vfio_pci_device *vdev, int pos,
+=======
+static int vfio_raw_config_read(struct vfio_pci_core_device *vdev, int pos,
+>>>>>>> upstream/android-13
 				int count, struct perm_bits *perm,
 				int offset, __le32 *val)
 {
@@ -299,7 +340,11 @@ static int vfio_raw_config_read(struct vfio_pci_device *vdev, int pos,
 }
 
 /* Virt access uses only virtualization */
+<<<<<<< HEAD
 static int vfio_virt_config_write(struct vfio_pci_device *vdev, int pos,
+=======
+static int vfio_virt_config_write(struct vfio_pci_core_device *vdev, int pos,
+>>>>>>> upstream/android-13
 				  int count, struct perm_bits *perm,
 				  int offset, __le32 val)
 {
@@ -307,7 +352,11 @@ static int vfio_virt_config_write(struct vfio_pci_device *vdev, int pos,
 	return count;
 }
 
+<<<<<<< HEAD
 static int vfio_virt_config_read(struct vfio_pci_device *vdev, int pos,
+=======
+static int vfio_virt_config_read(struct vfio_pci_core_device *vdev, int pos,
+>>>>>>> upstream/android-13
 				 int count, struct perm_bits *perm,
 				 int offset, __le32 *val)
 {
@@ -399,7 +448,11 @@ static inline void p_setd(struct perm_bits *p, int off, u32 virt, u32 write)
 }
 
 /* Caller should hold memory_lock semaphore */
+<<<<<<< HEAD
 bool __vfio_pci_memory_enabled(struct vfio_pci_device *vdev)
+=======
+bool __vfio_pci_memory_enabled(struct vfio_pci_core_device *vdev)
+>>>>>>> upstream/android-13
 {
 	struct pci_dev *pdev = vdev->pdev;
 	u16 cmd = le16_to_cpu(*(__le16 *)&vdev->vconfig[PCI_COMMAND]);
@@ -409,14 +462,22 @@ bool __vfio_pci_memory_enabled(struct vfio_pci_device *vdev)
 	 * PF SR-IOV capability, there's therefore no need to trigger
 	 * faults based on the virtual value.
 	 */
+<<<<<<< HEAD
 	return pdev->is_virtfn || (cmd & PCI_COMMAND_MEMORY);
+=======
+	return pdev->no_command_memory || (cmd & PCI_COMMAND_MEMORY);
+>>>>>>> upstream/android-13
 }
 
 /*
  * Restore the *real* BARs after we detect a FLR or backdoor reset.
  * (backdoor = some device specific technique that we didn't catch)
  */
+<<<<<<< HEAD
 static void vfio_bar_restore(struct vfio_pci_device *vdev)
+=======
+static void vfio_bar_restore(struct vfio_pci_core_device *vdev)
+>>>>>>> upstream/android-13
 {
 	struct pci_dev *pdev = vdev->pdev;
 	u32 *rbar = vdev->rbar;
@@ -426,8 +487,12 @@ static void vfio_bar_restore(struct vfio_pci_device *vdev)
 	if (pdev->is_virtfn)
 		return;
 
+<<<<<<< HEAD
 	pr_info("%s: %s reset recovery - restoring bars\n",
 		__func__, dev_name(&pdev->dev));
+=======
+	pci_info(pdev, "%s: reset recovery - restoring BARs\n", __func__);
+>>>>>>> upstream/android-13
 
 	for (i = PCI_BASE_ADDRESS_0; i <= PCI_BASE_ADDRESS_5; i += 4, rbar++)
 		pci_user_write_config_dword(pdev, i, *rbar);
@@ -464,6 +529,7 @@ static __le32 vfio_generate_bar_flags(struct pci_dev *pdev, int bar)
  * Pretend we're hardware and tweak the values of the *virtual* PCI BARs
  * to reflect the hardware capabilities.  This implements BAR sizing.
  */
+<<<<<<< HEAD
 static void vfio_bar_fixup(struct vfio_pci_device *vdev)
 {
 	struct pci_dev *pdev = vdev->pdev;
@@ -487,11 +553,45 @@ static void vfio_bar_fixup(struct vfio_pci_device *vdev)
 		if (*bar & cpu_to_le32(PCI_BASE_ADDRESS_MEM_TYPE_64)) {
 			bar++;
 			*bar &= cpu_to_le32((u32)(mask >> 32));
+=======
+static void vfio_bar_fixup(struct vfio_pci_core_device *vdev)
+{
+	struct pci_dev *pdev = vdev->pdev;
+	int i;
+	__le32 *vbar;
+	u64 mask;
+
+	if (!vdev->bardirty)
+		return;
+
+	vbar = (__le32 *)&vdev->vconfig[PCI_BASE_ADDRESS_0];
+
+	for (i = 0; i < PCI_STD_NUM_BARS; i++, vbar++) {
+		int bar = i + PCI_STD_RESOURCES;
+
+		if (!pci_resource_start(pdev, bar)) {
+			*vbar = 0; /* Unmapped by host = unimplemented to user */
+			continue;
+		}
+
+		mask = ~(pci_resource_len(pdev, bar) - 1);
+
+		*vbar &= cpu_to_le32((u32)mask);
+		*vbar |= vfio_generate_bar_flags(pdev, bar);
+
+		if (*vbar & cpu_to_le32(PCI_BASE_ADDRESS_MEM_TYPE_64)) {
+			vbar++;
+			*vbar &= cpu_to_le32((u32)(mask >> 32));
+>>>>>>> upstream/android-13
 			i++;
 		}
 	}
 
+<<<<<<< HEAD
 	bar = (__le32 *)&vdev->vconfig[PCI_ROM_ADDRESS];
+=======
+	vbar = (__le32 *)&vdev->vconfig[PCI_ROM_ADDRESS];
+>>>>>>> upstream/android-13
 
 	/*
 	 * NB. REGION_INFO will have reported zero size if we weren't able
@@ -501,19 +601,33 @@ static void vfio_bar_fixup(struct vfio_pci_device *vdev)
 	if (pci_resource_start(pdev, PCI_ROM_RESOURCE)) {
 		mask = ~(pci_resource_len(pdev, PCI_ROM_RESOURCE) - 1);
 		mask |= PCI_ROM_ADDRESS_ENABLE;
+<<<<<<< HEAD
 		*bar &= cpu_to_le32((u32)mask);
+=======
+		*vbar &= cpu_to_le32((u32)mask);
+>>>>>>> upstream/android-13
 	} else if (pdev->resource[PCI_ROM_RESOURCE].flags &
 					IORESOURCE_ROM_SHADOW) {
 		mask = ~(0x20000 - 1);
 		mask |= PCI_ROM_ADDRESS_ENABLE;
+<<<<<<< HEAD
 		*bar &= cpu_to_le32((u32)mask);
 	} else
 		*bar = 0;
+=======
+		*vbar &= cpu_to_le32((u32)mask);
+	} else
+		*vbar = 0;
+>>>>>>> upstream/android-13
 
 	vdev->bardirty = false;
 }
 
+<<<<<<< HEAD
 static int vfio_basic_config_read(struct vfio_pci_device *vdev, int pos,
+=======
+static int vfio_basic_config_read(struct vfio_pci_core_device *vdev, int pos,
+>>>>>>> upstream/android-13
 				  int count, struct perm_bits *perm,
 				  int offset, __le32 *val)
 {
@@ -522,8 +636,13 @@ static int vfio_basic_config_read(struct vfio_pci_device *vdev, int pos,
 
 	count = vfio_default_config_read(vdev, pos, count, perm, offset, val);
 
+<<<<<<< HEAD
 	/* Mask in virtual memory enable for SR-IOV devices */
 	if (offset == PCI_COMMAND && vdev->pdev->is_virtfn) {
+=======
+	/* Mask in virtual memory enable */
+	if (offset == PCI_COMMAND && vdev->pdev->no_command_memory) {
+>>>>>>> upstream/android-13
 		u16 cmd = le16_to_cpu(*(__le16 *)&vdev->vconfig[PCI_COMMAND]);
 		u32 tmp_val = le32_to_cpu(*val);
 
@@ -535,7 +654,11 @@ static int vfio_basic_config_read(struct vfio_pci_device *vdev, int pos,
 }
 
 /* Test whether BARs match the value we think they should contain */
+<<<<<<< HEAD
 static bool vfio_need_bar_restore(struct vfio_pci_device *vdev)
+=======
+static bool vfio_need_bar_restore(struct vfio_pci_core_device *vdev)
+>>>>>>> upstream/android-13
 {
 	int i = 0, pos = PCI_BASE_ADDRESS_0, ret;
 	u32 bar;
@@ -551,7 +674,11 @@ static bool vfio_need_bar_restore(struct vfio_pci_device *vdev)
 	return false;
 }
 
+<<<<<<< HEAD
 static int vfio_basic_config_write(struct vfio_pci_device *vdev, int pos,
+=======
+static int vfio_basic_config_write(struct vfio_pci_core_device *vdev, int pos,
+>>>>>>> upstream/android-13
 				   int count, struct perm_bits *perm,
 				   int offset, __le32 val)
 {
@@ -591,9 +718,17 @@ static int vfio_basic_config_write(struct vfio_pci_device *vdev, int pos,
 		 * shows it disabled (phys_mem/io, then the device has
 		 * undergone some kind of backdoor reset and needs to be
 		 * restored before we allow it to enable the bars.
+<<<<<<< HEAD
 		 * SR-IOV devices will trigger this, but we catch them later
 		 */
 		if ((new_mem && virt_mem && !phys_mem) ||
+=======
+		 * SR-IOV devices will trigger this - for mem enable let's
+		 * catch this now and for io enable it will be caught later
+		 */
+		if ((new_mem && virt_mem && !phys_mem &&
+		     !pdev->no_command_memory) ||
+>>>>>>> upstream/android-13
 		    (new_io && virt_io && !phys_io) ||
 		    vfio_need_bar_restore(vdev))
 			vfio_bar_restore(vdev);
@@ -689,7 +824,11 @@ static int __init init_pci_cap_basic_perm(struct perm_bits *perm)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int vfio_pm_config_write(struct vfio_pci_device *vdev, int pos,
+=======
+static int vfio_pm_config_write(struct vfio_pci_core_device *vdev, int pos,
+>>>>>>> upstream/android-13
 				int count, struct perm_bits *perm,
 				int offset, __le32 val)
 {
@@ -715,7 +854,11 @@ static int vfio_pm_config_write(struct vfio_pci_device *vdev, int pos,
 			break;
 		}
 
+<<<<<<< HEAD
 		pci_set_power_state(vdev->pdev, state);
+=======
+		vfio_pci_set_power_state(vdev, state);
+>>>>>>> upstream/android-13
 	}
 
 	return count;
@@ -744,7 +887,11 @@ static int __init init_pci_cap_pm_perm(struct perm_bits *perm)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int vfio_vpd_config_write(struct vfio_pci_device *vdev, int pos,
+=======
+static int vfio_vpd_config_write(struct vfio_pci_core_device *vdev, int pos,
+>>>>>>> upstream/android-13
 				 int count, struct perm_bits *perm,
 				 int offset, __le32 val)
 {
@@ -826,7 +973,11 @@ static int __init init_pci_cap_pcix_perm(struct perm_bits *perm)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int vfio_exp_config_write(struct vfio_pci_device *vdev, int pos,
+=======
+static int vfio_exp_config_write(struct vfio_pci_core_device *vdev, int pos,
+>>>>>>> upstream/android-13
 				 int count, struct perm_bits *perm,
 				 int offset, __le32 val)
 {
@@ -910,7 +1061,11 @@ static int __init init_pci_cap_exp_perm(struct perm_bits *perm)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int vfio_af_config_write(struct vfio_pci_device *vdev, int pos,
+=======
+static int vfio_af_config_write(struct vfio_pci_core_device *vdev, int pos,
+>>>>>>> upstream/android-13
 				int count, struct perm_bits *perm,
 				int offset, __le32 val)
 {
@@ -1069,7 +1224,11 @@ int __init vfio_pci_init_perm_bits(void)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int vfio_find_cap_start(struct vfio_pci_device *vdev, int pos)
+=======
+static int vfio_find_cap_start(struct vfio_pci_core_device *vdev, int pos)
+>>>>>>> upstream/android-13
 {
 	u8 cap;
 	int base = (pos >= PCI_CFG_SPACE_SIZE) ? PCI_CFG_SPACE_SIZE :
@@ -1086,7 +1245,11 @@ static int vfio_find_cap_start(struct vfio_pci_device *vdev, int pos)
 	return pos;
 }
 
+<<<<<<< HEAD
 static int vfio_msi_config_read(struct vfio_pci_device *vdev, int pos,
+=======
+static int vfio_msi_config_read(struct vfio_pci_core_device *vdev, int pos,
+>>>>>>> upstream/android-13
 				int count, struct perm_bits *perm,
 				int offset, __le32 *val)
 {
@@ -1106,7 +1269,11 @@ static int vfio_msi_config_read(struct vfio_pci_device *vdev, int pos,
 	return vfio_default_config_read(vdev, pos, count, perm, offset, val);
 }
 
+<<<<<<< HEAD
 static int vfio_msi_config_write(struct vfio_pci_device *vdev, int pos,
+=======
+static int vfio_msi_config_write(struct vfio_pci_core_device *vdev, int pos,
+>>>>>>> upstream/android-13
 				 int count, struct perm_bits *perm,
 				 int offset, __le32 val)
 {
@@ -1186,7 +1353,11 @@ static int init_pci_cap_msi_perm(struct perm_bits *perm, int len, u16 flags)
 }
 
 /* Determine MSI CAP field length; initialize msi_perms on 1st call per vdev */
+<<<<<<< HEAD
 static int vfio_msi_cap_len(struct vfio_pci_device *vdev, u8 pos)
+=======
+static int vfio_msi_cap_len(struct vfio_pci_core_device *vdev, u8 pos)
+>>>>>>> upstream/android-13
 {
 	struct pci_dev *pdev = vdev->pdev;
 	int len, ret;
@@ -1219,7 +1390,11 @@ static int vfio_msi_cap_len(struct vfio_pci_device *vdev, u8 pos)
 }
 
 /* Determine extended capability length for VC (2 & 9) and MFVC */
+<<<<<<< HEAD
 static int vfio_vc_cap_len(struct vfio_pci_device *vdev, u16 pos)
+=======
+static int vfio_vc_cap_len(struct vfio_pci_core_device *vdev, u16 pos)
+>>>>>>> upstream/android-13
 {
 	struct pci_dev *pdev = vdev->pdev;
 	u32 tmp;
@@ -1260,7 +1435,11 @@ static int vfio_vc_cap_len(struct vfio_pci_device *vdev, u16 pos)
 	return len;
 }
 
+<<<<<<< HEAD
 static int vfio_cap_len(struct vfio_pci_device *vdev, u8 cap, u8 pos)
+=======
+static int vfio_cap_len(struct vfio_pci_core_device *vdev, u8 cap, u8 pos)
+>>>>>>> upstream/android-13
 {
 	struct pci_dev *pdev = vdev->pdev;
 	u32 dword;
@@ -1328,14 +1507,23 @@ static int vfio_cap_len(struct vfio_pci_device *vdev, u8 cap, u8 pos)
 		else
 			return PCI_SATA_SIZEOF_SHORT;
 	default:
+<<<<<<< HEAD
 		pr_warn("%s: %s unknown length for pci cap 0x%x@0x%x\n",
 			dev_name(&pdev->dev), __func__, cap, pos);
+=======
+		pci_warn(pdev, "%s: unknown length for PCI cap %#x@%#x\n",
+			 __func__, cap, pos);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int vfio_ext_cap_len(struct vfio_pci_device *vdev, u16 ecap, u16 epos)
+=======
+static int vfio_ext_cap_len(struct vfio_pci_core_device *vdev, u16 ecap, u16 epos)
+>>>>>>> upstream/android-13
 {
 	struct pci_dev *pdev = vdev->pdev;
 	u8 byte;
@@ -1402,14 +1590,23 @@ static int vfio_ext_cap_len(struct vfio_pci_device *vdev, u16 ecap, u16 epos)
 		}
 		return PCI_TPH_BASE_SIZEOF;
 	default:
+<<<<<<< HEAD
 		pr_warn("%s: %s unknown length for pci ecap 0x%x@0x%x\n",
 			dev_name(&pdev->dev), __func__, ecap, epos);
+=======
+		pci_warn(pdev, "%s: unknown length for PCI ecap %#x@%#x\n",
+			 __func__, ecap, epos);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int vfio_fill_vconfig_bytes(struct vfio_pci_device *vdev,
+=======
+static int vfio_fill_vconfig_bytes(struct vfio_pci_core_device *vdev,
+>>>>>>> upstream/android-13
 				   int offset, int size)
 {
 	struct pci_dev *pdev = vdev->pdev;
@@ -1456,7 +1653,11 @@ static int vfio_fill_vconfig_bytes(struct vfio_pci_device *vdev,
 	return ret;
 }
 
+<<<<<<< HEAD
 static int vfio_cap_init(struct vfio_pci_device *vdev)
+=======
+static int vfio_cap_init(struct vfio_pci_core_device *vdev)
+>>>>>>> upstream/android-13
 {
 	struct pci_dev *pdev = vdev->pdev;
 	u8 *map = vdev->pci_config_map;
@@ -1509,8 +1710,13 @@ static int vfio_cap_init(struct vfio_pci_device *vdev)
 		}
 
 		if (!len) {
+<<<<<<< HEAD
 			pr_info("%s: %s hiding cap 0x%x\n",
 				__func__, dev_name(&pdev->dev), cap);
+=======
+			pci_info(pdev, "%s: hiding cap %#x@%#x\n", __func__,
+				 cap, pos);
+>>>>>>> upstream/android-13
 			*prev = next;
 			pos = next;
 			continue;
@@ -1521,9 +1727,14 @@ static int vfio_cap_init(struct vfio_pci_device *vdev)
 			if (likely(map[pos + i] == PCI_CAP_ID_INVALID))
 				continue;
 
+<<<<<<< HEAD
 			pr_warn("%s: %s pci config conflict @0x%x, was cap 0x%x now cap 0x%x\n",
 				__func__, dev_name(&pdev->dev),
 				pos + i, map[pos + i], cap);
+=======
+			pci_warn(pdev, "%s: PCI config conflict @%#x, was cap %#x now cap %#x\n",
+				 __func__, pos + i, map[pos + i], cap);
+>>>>>>> upstream/android-13
 		}
 
 		BUILD_BUG_ON(PCI_CAP_ID_MAX >= PCI_CAP_ID_INVALID_VIRT);
@@ -1547,7 +1758,11 @@ static int vfio_cap_init(struct vfio_pci_device *vdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int vfio_ecap_init(struct vfio_pci_device *vdev)
+=======
+static int vfio_ecap_init(struct vfio_pci_core_device *vdev)
+>>>>>>> upstream/android-13
 {
 	struct pci_dev *pdev = vdev->pdev;
 	u8 *map = vdev->pci_config_map;
@@ -1579,13 +1794,22 @@ static int vfio_ecap_init(struct vfio_pci_device *vdev)
 			if (len == 0xFF) {
 				len = vfio_ext_cap_len(vdev, ecap, epos);
 				if (len < 0)
+<<<<<<< HEAD
 					return ret;
+=======
+					return len;
+>>>>>>> upstream/android-13
 			}
 		}
 
 		if (!len) {
+<<<<<<< HEAD
 			pr_info("%s: %s hiding ecap 0x%x@0x%x\n",
 				__func__, dev_name(&pdev->dev), ecap, epos);
+=======
+			pci_info(pdev, "%s: hiding ecap %#x@%#x\n",
+				 __func__, ecap, epos);
+>>>>>>> upstream/android-13
 
 			/* If not the first in the chain, we can skip over it */
 			if (prev) {
@@ -1607,9 +1831,14 @@ static int vfio_ecap_init(struct vfio_pci_device *vdev)
 			if (likely(map[epos + i] == PCI_CAP_ID_INVALID))
 				continue;
 
+<<<<<<< HEAD
 			pr_warn("%s: %s pci config conflict @0x%x, was ecap 0x%x now ecap 0x%x\n",
 				__func__, dev_name(&pdev->dev),
 				epos + i, map[epos + i], ecap);
+=======
+			pci_warn(pdev, "%s: PCI config conflict @%#x, was ecap %#x now ecap %#x\n",
+				 __func__, epos + i, map[epos + i], ecap);
+>>>>>>> upstream/android-13
 		}
 
 		/*
@@ -1668,7 +1897,11 @@ static const struct pci_device_id known_bogus_vf_intx_pin[] = {
  * for each area requiring emulated bits, but the array of pointers
  * would be comparable in size (at least for standard config space).
  */
+<<<<<<< HEAD
 int vfio_config_init(struct vfio_pci_device *vdev)
+=======
+int vfio_config_init(struct vfio_pci_core_device *vdev)
+>>>>>>> upstream/android-13
 {
 	struct pci_dev *pdev = vdev->pdev;
 	u8 *map, *vconfig;
@@ -1738,12 +1971,23 @@ int vfio_config_init(struct vfio_pci_device *vdev)
 				 vconfig[PCI_INTERRUPT_PIN]);
 
 		vconfig[PCI_INTERRUPT_PIN] = 0; /* Gratuitous for good VFs */
+<<<<<<< HEAD
 
 		/*
 		 * VFs do no implement the memory enable bit of the COMMAND
 		 * register therefore we'll not have it set in our initial
 		 * copy of config space after pci_enable_device().  For
 		 * consistency with PFs, set the virtual enable bit here.
+=======
+	}
+	if (pdev->no_command_memory) {
+		/*
+		 * VFs and devices that set pdev->no_command_memory do not
+		 * implement the memory enable bit of the COMMAND register
+		 * therefore we'll not have it set in our initial copy of
+		 * config space after pci_enable_device().  For consistency
+		 * with PFs, set the virtual enable bit here.
+>>>>>>> upstream/android-13
 		 */
 		*(__le16 *)&vconfig[PCI_COMMAND] |=
 					cpu_to_le16(PCI_COMMAND_MEMORY);
@@ -1770,7 +2014,11 @@ out:
 	return pcibios_err_to_errno(ret);
 }
 
+<<<<<<< HEAD
 void vfio_config_free(struct vfio_pci_device *vdev)
+=======
+void vfio_config_free(struct vfio_pci_core_device *vdev)
+>>>>>>> upstream/android-13
 {
 	kfree(vdev->vconfig);
 	vdev->vconfig = NULL;
@@ -1787,7 +2035,11 @@ void vfio_config_free(struct vfio_pci_device *vdev)
  * Find the remaining number of bytes in a dword that match the given
  * position.  Stop at either the end of the capability or the dword boundary.
  */
+<<<<<<< HEAD
 static size_t vfio_pci_cap_remaining_dword(struct vfio_pci_device *vdev,
+=======
+static size_t vfio_pci_cap_remaining_dword(struct vfio_pci_core_device *vdev,
+>>>>>>> upstream/android-13
 					   loff_t pos)
 {
 	u8 cap = vdev->pci_config_map[pos];
@@ -1799,7 +2051,11 @@ static size_t vfio_pci_cap_remaining_dword(struct vfio_pci_device *vdev,
 	return i;
 }
 
+<<<<<<< HEAD
 static ssize_t vfio_config_do_rw(struct vfio_pci_device *vdev, char __user *buf,
+=======
+static ssize_t vfio_config_do_rw(struct vfio_pci_core_device *vdev, char __user *buf,
+>>>>>>> upstream/android-13
 				 size_t count, loff_t *ppos, bool iswrite)
 {
 	struct pci_dev *pdev = vdev->pdev;
@@ -1882,7 +2138,11 @@ static ssize_t vfio_config_do_rw(struct vfio_pci_device *vdev, char __user *buf,
 	return ret;
 }
 
+<<<<<<< HEAD
 ssize_t vfio_pci_config_rw(struct vfio_pci_device *vdev, char __user *buf,
+=======
+ssize_t vfio_pci_config_rw(struct vfio_pci_core_device *vdev, char __user *buf,
+>>>>>>> upstream/android-13
 			   size_t count, loff_t *ppos, bool iswrite)
 {
 	size_t done = 0;

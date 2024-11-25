@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * OMAP4 Clock Management (CM) definitions
  *
@@ -6,10 +10,13 @@
  *
  * Written by Paul Walmsley
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * OMAP4 has two separate CM blocks, CM1 and CM2.  This file contains
  * macros and function prototypes that are applicable to both.
  */

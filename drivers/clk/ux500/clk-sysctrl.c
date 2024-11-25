@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Sysctrl clock implementation for ux500 platform.
  *
  * Copyright (C) 2013 ST-Ericsson SA
  * Author: Ulf Hansson <ulf.hansson@linaro.org>
+<<<<<<< HEAD
  *
  * License terms: GNU General Public License (GPL) version 2
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk-provider.h>
@@ -42,7 +49,12 @@ static int clk_sysctrl_prepare(struct clk_hw *hw)
 				clk->reg_bits[0]);
 
 	if (!ret && clk->enable_delay_us)
+<<<<<<< HEAD
 		usleep_range(clk->enable_delay_us, clk->enable_delay_us);
+=======
+		usleep_range(clk->enable_delay_us, clk->enable_delay_us +
+			     (clk->enable_delay_us >> 2));
+>>>>>>> upstream/android-13
 
 	return ret;
 }

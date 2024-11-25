@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2017-2018 Netronome Systems, Inc.
  *
@@ -30,6 +31,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+=======
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+/* Copyright (C) 2017-2018 Netronome Systems, Inc. */
+>>>>>>> upstream/android-13
 
 #include <linux/bug.h>
 #include <linux/lockdep.h>
@@ -60,6 +65,14 @@ static const struct nfp_app_type *apps[] = {
 #endif
 };
 
+<<<<<<< HEAD
+=======
+void nfp_check_rhashtable_empty(void *ptr, void *arg)
+{
+	WARN_ON_ONCE(1);
+}
+
+>>>>>>> upstream/android-13
 struct nfp_app *nfp_app_from_netdev(struct net_device *netdev)
 {
 	if (nfp_netdev_is_nfp_net(netdev)) {
@@ -156,11 +169,107 @@ nfp_app_reprs_set(struct nfp_app *app, enum nfp_repr_type type,
 	struct nfp_reprs *old;
 
 	old = nfp_reprs_get_locked(app, type);
+<<<<<<< HEAD
 	rcu_assign_pointer(app->reprs[type], reprs);
+=======
+	rtnl_lock();
+	rcu_assign_pointer(app->reprs[type], reprs);
+	rtnl_unlock();
+>>>>>>> upstream/android-13
 
 	return old;
 }
 
+<<<<<<< HEAD
+=======
+static void
+nfp_app_netdev_feat_change(struct nfp_app *app, struct net_device *netdev)
+{
+	struct nfp_net *nn;
+	unsigned int type;
+
+	if (!nfp_netdev_is_nfp_net(netdev))
+		return;
+	nn = netdev_priv(netdev);
+	if (nn->app != app)
+		return;
+
+	for (type = 0; type < __NFP_REPR_TYPE_MAX; type++) {
+		struct nfp_reprs *reprs;
+		unsigned int i;
+
+		reprs = rtnl_dereference(app->reprs[type]);
+		if (!reprs)
+			continue;
+
+		for (i = 0; i < reprs->num_reprs; i++) {
+			struct net_device *repr;
+
+			repr = rtnl_dereference(reprs->reprs[i]);
+			if (!repr)
+				continue;
+
+			nfp_repr_transfer_features(repr, netdev);
+		}
+	}
+}
+
+static int
+nfp_app_netdev_event(struct notifier_block *nb, unsigned long event, void *ptr)
+{
+	struct net_device *netdev;
+	struct nfp_app *app;
+
+	netdev = netdev_notifier_info_to_dev(ptr);
+	app = container_of(nb, struct nfp_app, netdev_nb);
+
+	/* Handle events common code is interested in */
+	switch (event) {
+	case NETDEV_FEAT_CHANGE:
+		nfp_app_netdev_feat_change(app, netdev);
+		break;
+	}
+
+	/* Call offload specific handlers */
+	if (app->type->netdev_event)
+		return app->type->netdev_event(app, netdev, event, ptr);
+	return NOTIFY_DONE;
+}
+
+int nfp_app_start(struct nfp_app *app, struct nfp_net *ctrl)
+{
+	int err;
+
+	app->ctrl = ctrl;
+
+	if (app->type->start) {
+		err = app->type->start(app);
+		if (err)
+			return err;
+	}
+
+	app->netdev_nb.notifier_call = nfp_app_netdev_event;
+	err = register_netdevice_notifier(&app->netdev_nb);
+	if (err)
+		goto err_app_stop;
+
+	return 0;
+
+err_app_stop:
+	if (app->type->stop)
+		app->type->stop(app);
+	return err;
+}
+
+void nfp_app_stop(struct nfp_app *app)
+{
+	unregister_netdevice_notifier(&app->netdev_nb);
+
+	if (app->type->stop)
+		app->type->stop(app);
+}
+
+>>>>>>> upstream/android-13
 struct nfp_app *nfp_app_alloc(struct nfp_pf *pf, enum nfp_app_id id)
 {
 	struct nfp_app *app;

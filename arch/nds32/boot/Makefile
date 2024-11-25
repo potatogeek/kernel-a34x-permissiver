@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 targets := Image Image.gz
 
 $(obj)/Image: vmlinux FORCE

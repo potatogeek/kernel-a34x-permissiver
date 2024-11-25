@@ -130,8 +130,12 @@ static irqreturn_t hva_hw_its_irq_thread(int irq, void *arg)
 	ctx_id = (hva->sts_reg & 0xFF00) >> 8;
 	if (ctx_id >= HVA_MAX_INSTANCES) {
 		dev_err(dev, "%s     %s: bad context identifier: %d\n",
+<<<<<<< HEAD
 			ctx->name, __func__, ctx_id);
 		ctx->hw_err = true;
+=======
+			HVA_PREFIX, __func__, ctx_id);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
@@ -270,9 +274,14 @@ static unsigned long int hva_hw_get_ip_version(struct hva_dev *hva)
 	struct device *dev = hva_to_dev(hva);
 	unsigned long int version;
 
+<<<<<<< HEAD
 	if (pm_runtime_get_sync(dev) < 0) {
 		dev_err(dev, "%s     failed to get pm_runtime\n", HVA_PREFIX);
 		pm_runtime_put_noidle(dev);
+=======
+	if (pm_runtime_resume_and_get(dev) < 0) {
+		dev_err(dev, "%s     failed to get pm_runtime\n", HVA_PREFIX);
+>>>>>>> upstream/android-13
 		mutex_unlock(&hva->protect_mutex);
 		return -EFAULT;
 	}
@@ -342,10 +351,15 @@ int hva_hw_probe(struct platform_device *pdev, struct hva_dev *hva)
 
 	/* get status interruption resource */
 	ret  = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (ret < 0) {
 		dev_err(dev, "%s     failed to get status IRQ\n", HVA_PREFIX);
 		goto err_clk;
 	}
+=======
+	if (ret < 0)
+		goto err_clk;
+>>>>>>> upstream/android-13
 	hva->irq_its = ret;
 
 	ret = devm_request_threaded_irq(dev, hva->irq_its, hva_hw_its_interrupt,
@@ -361,10 +375,15 @@ int hva_hw_probe(struct platform_device *pdev, struct hva_dev *hva)
 
 	/* get error interruption resource */
 	ret = platform_get_irq(pdev, 1);
+<<<<<<< HEAD
 	if (ret < 0) {
 		dev_err(dev, "%s     failed to get error IRQ\n", HVA_PREFIX);
 		goto err_clk;
 	}
+=======
+	if (ret < 0)
+		goto err_clk;
+>>>>>>> upstream/android-13
 	hva->irq_err = ret;
 
 	ret = devm_request_threaded_irq(dev, hva->irq_err, hva_hw_err_interrupt,
@@ -390,10 +409,17 @@ int hva_hw_probe(struct platform_device *pdev, struct hva_dev *hva)
 	pm_runtime_set_suspended(dev);
 	pm_runtime_enable(dev);
 
+<<<<<<< HEAD
 	ret = pm_runtime_get_sync(dev);
 	if (ret < 0) {
 		dev_err(dev, "%s     failed to set PM\n", HVA_PREFIX);
 		goto err_pm;
+=======
+	ret = pm_runtime_resume_and_get(dev);
+	if (ret < 0) {
+		dev_err(dev, "%s     failed to set PM\n", HVA_PREFIX);
+		goto err_clk;
+>>>>>>> upstream/android-13
 	}
 
 	/* check IP hardware version */
@@ -451,6 +477,10 @@ int hva_hw_runtime_resume(struct device *dev)
 	if (clk_set_rate(hva->clk, CLK_RATE)) {
 		dev_err(dev, "%s     failed to set clock frequency\n",
 			HVA_PREFIX);
+<<<<<<< HEAD
+=======
+		clk_disable_unprepare(hva->clk);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -465,6 +495,10 @@ int hva_hw_execute_task(struct hva_ctx *ctx, enum hva_hw_cmd_type cmd,
 	u8 client_id = ctx->id;
 	int ret;
 	u32 reg = 0;
+<<<<<<< HEAD
+=======
+	bool got_pm = false;
+>>>>>>> upstream/android-13
 
 	mutex_lock(&hva->protect_mutex);
 
@@ -472,12 +506,20 @@ int hva_hw_execute_task(struct hva_ctx *ctx, enum hva_hw_cmd_type cmd,
 	enable_irq(hva->irq_its);
 	enable_irq(hva->irq_err);
 
+<<<<<<< HEAD
 	if (pm_runtime_get_sync(dev) < 0) {
+=======
+	if (pm_runtime_resume_and_get(dev) < 0) {
+>>>>>>> upstream/android-13
 		dev_err(dev, "%s     failed to get pm_runtime\n", ctx->name);
 		ctx->sys_errors++;
 		ret = -EFAULT;
 		goto out;
 	}
+<<<<<<< HEAD
+=======
+	got_pm = true;
+>>>>>>> upstream/android-13
 
 	reg = readl_relaxed(hva->regs + HVA_HIF_REG_CLK_GATING);
 	switch (cmd) {
@@ -540,7 +582,12 @@ out:
 		dev_dbg(dev, "%s     unknown command 0x%x\n", ctx->name, cmd);
 	}
 
+<<<<<<< HEAD
 	pm_runtime_put_autosuspend(dev);
+=======
+	if (got_pm)
+		pm_runtime_put_autosuspend(dev);
+>>>>>>> upstream/android-13
 	mutex_unlock(&hva->protect_mutex);
 
 	return ret;
@@ -556,9 +603,14 @@ void hva_hw_dump_regs(struct hva_dev *hva, struct seq_file *s)
 
 	mutex_lock(&hva->protect_mutex);
 
+<<<<<<< HEAD
 	if (pm_runtime_get_sync(dev) < 0) {
 		seq_puts(s, "Cannot wake up IP\n");
 		pm_runtime_put_noidle(dev);
+=======
+	if (pm_runtime_resume_and_get(dev) < 0) {
+		seq_puts(s, "Cannot wake up IP\n");
+>>>>>>> upstream/android-13
 		mutex_unlock(&hva->protect_mutex);
 		return;
 	}

@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2013 Texas Instruments Incorporated - http://www.ti.com/
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2013 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  */
 #include "omap5.dtsi"
 #include <dt-bindings/interrupt-controller/irq.h>
@@ -33,6 +39,7 @@
 		regulator-max-microvolt = <5000000>;
 	};
 
+<<<<<<< HEAD
 	vdds_1v8_main: fixedregulator-vdds_1v8_main {
 		compatible = "regulator-fixed";
 		regulator-name = "vdds_1v8_main";
@@ -41,6 +48,8 @@
 		regulator-max-microvolt = <1800000>;
 	};
 
+=======
+>>>>>>> upstream/android-13
 	vmmcsd_fixed: fixedregulator-mmcsd {
 		compatible = "regulator-fixed";
 		regulator-name = "vmmcsd_fixed";
@@ -152,7 +161,11 @@
 
 &gpio8 {
 	/* TI trees use GPIO instead of msecure, see also muxing */
+<<<<<<< HEAD
 	p234 {
+=======
+	msecure-hog {
+>>>>>>> upstream/android-13
 		gpio-hog;
 		gpios = <10 GPIO_ACTIVE_HIGH>;
 		output-high;
@@ -365,7 +378,11 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&wlcore_irq_pin>;
 		interrupt-parent = <&gpio1>;
+<<<<<<< HEAD
 		interrupts = <14 IRQ_TYPE_EDGE_RISING>;	/* gpio 14 */
+=======
+		interrupts = <14 IRQ_TYPE_LEVEL_HIGH>;	/* gpio 14 */
+>>>>>>> upstream/android-13
 		ref-clock-frequency = <26000000>;
 	};
 };
@@ -490,6 +507,10 @@
 					regulator-boot-on;
 				};
 
+<<<<<<< HEAD
+=======
+				vdds_1v8_main:
+>>>>>>> upstream/android-13
 				smps7_reg: smps7 {
 					/* VDDS_1v8_OMAP over VDDS_1v8_MAIN */
 					regulator-name = "smps7";
@@ -667,6 +688,7 @@
 	};
 };
 
+<<<<<<< HEAD
 &mcpdm {
 	pinctrl-names = "default";
 	pinctrl-0 = <&mcpdm_pins>;
@@ -675,6 +697,18 @@
 	clock-names = "pdmclk";
 
 	status = "okay";
+=======
+&mcpdm_module {
+	/* Module on the SoC needs external clock from the PMIC */
+	pinctrl-names = "default";
+	pinctrl-0 = <&mcpdm_pins>;
+	status = "okay";
+};
+
+&mcpdm {
+	clocks = <&twl6040>;
+	clock-names = "pdmclk";
+>>>>>>> upstream/android-13
 };
 
 &mcbsp1 {
@@ -744,11 +778,19 @@
 };
 
 &dss {
+<<<<<<< HEAD
 	status = "ok";
 };
 
 &hdmi {
 	status = "ok";
+=======
+	status = "okay";
+};
+
+&hdmi {
+	status = "okay";
+>>>>>>> upstream/android-13
 
 	/* vdda-supply populated in board specific dts file */
 

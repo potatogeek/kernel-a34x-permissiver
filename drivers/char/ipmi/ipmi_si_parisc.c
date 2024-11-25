@@ -15,7 +15,11 @@ static int __init ipmi_parisc_probe(struct parisc_device *dev)
 
 	io.si_type	= SI_KCS;
 	io.addr_source	= SI_DEVICETREE;
+<<<<<<< HEAD
 	io.addr_type	= IPMI_MEM_ADDR_SPACE;
+=======
+	io.addr_space	= IPMI_MEM_ADDR_SPACE;
+>>>>>>> upstream/android-13
 	io.addr_data	= dev->hpa.start;
 	io.regsize	= 1;
 	io.regspacing	= 1;
@@ -29,9 +33,15 @@ static int __init ipmi_parisc_probe(struct parisc_device *dev)
 	return ipmi_si_add_smi(&io);
 }
 
+<<<<<<< HEAD
 static int __exit ipmi_parisc_remove(struct parisc_device *dev)
 {
 	return ipmi_si_remove_by_dev(&dev->dev);
+=======
+static void __exit ipmi_parisc_remove(struct parisc_device *dev)
+{
+	ipmi_si_remove_by_dev(&dev->dev);
+>>>>>>> upstream/android-13
 }
 
 static const struct parisc_device_id ipmi_parisc_tbl[] __initconst = {

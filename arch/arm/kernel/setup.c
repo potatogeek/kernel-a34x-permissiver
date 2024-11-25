@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/kernel/setup.c
  *
  *  Copyright (C) 1995-2001 Russell King
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/efi.h>
 #include <linux/export.h>
@@ -16,12 +23,19 @@
 #include <linux/utsname.h>
 #include <linux/initrd.h>
 #include <linux/console.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/seq_file.h>
 #include <linux/screen_info.h>
 #include <linux/of_platform.h>
 #include <linux/init.h>
 #include <linux/kexec.h>
+<<<<<<< HEAD
+=======
+#include <linux/libfdt.h>
+>>>>>>> upstream/android-13
 #include <linux/of_fdt.h>
 #include <linux/cpu.h>
 #include <linux/interrupt.h>
@@ -62,6 +76,10 @@
 #include <asm/unwind.h>
 #include <asm/memblock.h>
 #include <asm/virt.h>
+<<<<<<< HEAD
+=======
+#include <asm/kasan.h>
+>>>>>>> upstream/android-13
 
 #include "atags.h"
 
@@ -113,6 +131,7 @@ unsigned int elf_hwcap2 __read_mostly;
 EXPORT_SYMBOL(elf_hwcap2);
 
 
+<<<<<<< HEAD
 char* (*arch_read_hardware_id)(void);
 EXPORT_SYMBOL(arch_read_hardware_id);
 
@@ -124,6 +143,8 @@ EXPORT_SYMBOL_GPL(boot_reason);
 unsigned int cold_boot;
 EXPORT_SYMBOL_GPL(cold_boot);
 
+=======
+>>>>>>> upstream/android-13
 #ifdef MULTI_CPU
 struct processor processor __ro_after_init;
 #if defined(CONFIG_BIG_LITTLE) && defined(CONFIG_HARDEN_BRANCH_PREDICTOR)
@@ -558,9 +579,17 @@ void notrace cpu_init(void)
 	 * In Thumb-2, msr with an immediate value is not allowed.
 	 */
 #ifdef CONFIG_THUMB2_KERNEL
+<<<<<<< HEAD
 #define PLC	"r"
 #else
 #define PLC	"I"
+=======
+#define PLC_l	"l"
+#define PLC_r	"r"
+#else
+#define PLC_l	"I"
+#define PLC_r	"I"
+>>>>>>> upstream/android-13
 #endif
 
 	/*
@@ -582,6 +611,7 @@ void notrace cpu_init(void)
 	"msr	cpsr_c, %9"
 	    :
 	    : "r" (stk),
+<<<<<<< HEAD
 	      PLC (PSR_F_BIT | PSR_I_BIT | IRQ_MODE),
 	      "I" (offsetof(struct stack, irq[0])),
 	      PLC (PSR_F_BIT | PSR_I_BIT | ABT_MODE),
@@ -591,6 +621,17 @@ void notrace cpu_init(void)
 	      PLC (PSR_F_BIT | PSR_I_BIT | FIQ_MODE),
 	      "I" (offsetof(struct stack, fiq[0])),
 	      PLC (PSR_F_BIT | PSR_I_BIT | SVC_MODE)
+=======
+	      PLC_r (PSR_F_BIT | PSR_I_BIT | IRQ_MODE),
+	      "I" (offsetof(struct stack, irq[0])),
+	      PLC_r (PSR_F_BIT | PSR_I_BIT | ABT_MODE),
+	      "I" (offsetof(struct stack, abt[0])),
+	      PLC_r (PSR_F_BIT | PSR_I_BIT | UND_MODE),
+	      "I" (offsetof(struct stack, und[0])),
+	      PLC_r (PSR_F_BIT | PSR_I_BIT | FIQ_MODE),
+	      "I" (offsetof(struct stack, fiq[0])),
+	      PLC_l (PSR_F_BIT | PSR_I_BIT | SVC_MODE)
+>>>>>>> upstream/android-13
 	    : "r14");
 #endif
 }
@@ -778,7 +819,11 @@ int __init arm_add_memory(u64 start, u64 size)
 #ifndef CONFIG_PHYS_ADDR_T_64BIT
 	if (aligned_start > ULONG_MAX) {
 		pr_crit("Ignoring memory at 0x%08llx outside 32-bit physical address space\n",
+<<<<<<< HEAD
 			(long long)start);
+=======
+			start);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -858,38 +903,78 @@ early_param("mem", early_mem);
 
 static void __init request_standard_resources(const struct machine_desc *mdesc)
 {
+<<<<<<< HEAD
 	struct memblock_region *region;
 	struct resource *res;
+=======
+	phys_addr_t start, end, res_end;
+	struct resource *res;
+	u64 i;
+>>>>>>> upstream/android-13
 
 	kernel_code.start   = virt_to_phys(_text);
 	kernel_code.end     = virt_to_phys(__init_begin - 1);
 	kernel_data.start   = virt_to_phys(_sdata);
 	kernel_data.end     = virt_to_phys(_end - 1);
 
+<<<<<<< HEAD
 	for_each_memblock(memory, region) {
 		phys_addr_t start = __pfn_to_phys(memblock_region_memory_base_pfn(region));
 		phys_addr_t end = __pfn_to_phys(memblock_region_memory_end_pfn(region)) - 1;
 		unsigned long boot_alias_start;
 
 		/*
+=======
+	for_each_mem_range(i, &start, &end) {
+		unsigned long boot_alias_start;
+
+		/*
+		 * In memblock, end points to the first byte after the
+		 * range while in resourses, end points to the last byte in
+		 * the range.
+		 */
+		res_end = end - 1;
+
+		/*
+>>>>>>> upstream/android-13
 		 * Some systems have a special memory alias which is only
 		 * used for booting.  We need to advertise this region to
 		 * kexec-tools so they know where bootable RAM is located.
 		 */
 		boot_alias_start = phys_to_idmap(start);
 		if (arm_has_idmap_alias() && boot_alias_start != IDMAP_INVALID_ADDR) {
+<<<<<<< HEAD
 			res = memblock_virt_alloc(sizeof(*res), 0);
 			res->name = "System RAM (boot alias)";
 			res->start = boot_alias_start;
 			res->end = phys_to_idmap(end);
+=======
+			res = memblock_alloc(sizeof(*res), SMP_CACHE_BYTES);
+			if (!res)
+				panic("%s: Failed to allocate %zu bytes\n",
+				      __func__, sizeof(*res));
+			res->name = "System RAM (boot alias)";
+			res->start = boot_alias_start;
+			res->end = phys_to_idmap(res_end);
+>>>>>>> upstream/android-13
 			res->flags = IORESOURCE_MEM | IORESOURCE_BUSY;
 			request_resource(&iomem_resource, res);
 		}
 
+<<<<<<< HEAD
 		res = memblock_virt_alloc(sizeof(*res), 0);
 		res->name  = "System RAM";
 		res->start = start;
 		res->end = end;
+=======
+		res = memblock_alloc(sizeof(*res), SMP_CACHE_BYTES);
+		if (!res)
+			panic("%s: Failed to allocate %zu bytes\n", __func__,
+			      sizeof(*res));
+		res->name  = "System RAM";
+		res->start = start;
+		res->end = res_end;
+>>>>>>> upstream/android-13
 		res->flags = IORESOURCE_SYSTEM_RAM | IORESOURCE_BUSY;
 
 		request_resource(&iomem_resource, res);
@@ -1011,24 +1096,40 @@ static void __init reserve_crashkernel(void)
 		unsigned long long lowmem_max = __pa(high_memory - 1) + 1;
 		if (crash_max > lowmem_max)
 			crash_max = lowmem_max;
+<<<<<<< HEAD
 		crash_base = memblock_find_in_range(CRASH_ALIGN, crash_max,
 						    crash_size, CRASH_ALIGN);
+=======
+
+		crash_base = memblock_phys_alloc_range(crash_size, CRASH_ALIGN,
+						       CRASH_ALIGN, crash_max);
+>>>>>>> upstream/android-13
 		if (!crash_base) {
 			pr_err("crashkernel reservation failed - No suitable area found.\n");
 			return;
 		}
 	} else {
+<<<<<<< HEAD
 		unsigned long long start;
 
 		start = memblock_find_in_range(crash_base,
 					       crash_base + crash_size,
 					       crash_size, SECTION_SIZE);
 		if (start != crash_base) {
+=======
+		unsigned long long crash_max = crash_base + crash_size;
+		unsigned long long start;
+
+		start = memblock_phys_alloc_range(crash_size, SECTION_SIZE,
+						  crash_base, crash_max);
+		if (!start) {
+>>>>>>> upstream/android-13
 			pr_err("crashkernel reservation failed - memory is in use.\n");
 			return;
 		}
 	}
 
+<<<<<<< HEAD
 	ret = memblock_reserve(crash_base, crash_size);
 	if (ret < 0) {
 		pr_warn("crashkernel reservation failed - memory is in use (0x%lx)\n",
@@ -1036,6 +1137,8 @@ static void __init reserve_crashkernel(void)
 		return;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	pr_info("Reserving %ldMB of memory at %ldMB for crashkernel (System RAM: %ldMB)\n",
 		(unsigned long)(crash_size >> 20),
 		(unsigned long)(crash_base >> 20),
@@ -1082,6 +1185,7 @@ void __init hyp_mode_check(void)
 #endif
 }
 
+<<<<<<< HEAD
 void __init setup_arch(char **cmdline_p)
 {
 	const struct machine_desc *mdesc;
@@ -1090,31 +1194,76 @@ void __init setup_arch(char **cmdline_p)
 	mdesc = setup_machine_fdt(__atags_pointer);
 	if (!mdesc)
 		mdesc = setup_machine_tags(__atags_pointer, __machine_arch_type);
+=======
+static void (*__arm_pm_restart)(enum reboot_mode reboot_mode, const char *cmd);
+
+static int arm_restart(struct notifier_block *nb, unsigned long action,
+		       void *data)
+{
+	__arm_pm_restart(action, data);
+	return NOTIFY_DONE;
+}
+
+static struct notifier_block arm_restart_nb = {
+	.notifier_call = arm_restart,
+	.priority = 128,
+};
+
+void __init setup_arch(char **cmdline_p)
+{
+	const struct machine_desc *mdesc = NULL;
+	void *atags_vaddr = NULL;
+
+	if (__atags_pointer)
+		atags_vaddr = FDT_VIRT_BASE(__atags_pointer);
+
+	setup_processor();
+	if (atags_vaddr) {
+		mdesc = setup_machine_fdt(atags_vaddr);
+		if (mdesc)
+			memblock_reserve(__atags_pointer,
+					 fdt_totalsize(atags_vaddr));
+	}
+	if (!mdesc)
+		mdesc = setup_machine_tags(atags_vaddr, __machine_arch_type);
+>>>>>>> upstream/android-13
 	if (!mdesc) {
 		early_print("\nError: invalid dtb and unrecognized/unsupported machine ID\n");
 		early_print("  r1=0x%08x, r2=0x%08x\n", __machine_arch_type,
 			    __atags_pointer);
 		if (__atags_pointer)
+<<<<<<< HEAD
 			early_print("  r2[]=%*ph\n", 16,
 				    phys_to_virt(__atags_pointer));
+=======
+			early_print("  r2[]=%*ph\n", 16, atags_vaddr);
+>>>>>>> upstream/android-13
 		dump_machine_table();
 	}
 
 	machine_desc = mdesc;
+<<<<<<< HEAD
 #ifdef CONFIG_OF
 	machine_name = of_flat_dt_get_machine_name();
 #else
 	machine_name = mdesc->name;
 #endif
+=======
+	machine_name = mdesc->name;
+>>>>>>> upstream/android-13
 	dump_stack_set_arch_desc("%s", mdesc->name);
 
 	if (mdesc->reboot_mode != REBOOT_HARD)
 		reboot_mode = mdesc->reboot_mode;
 
+<<<<<<< HEAD
 	init_mm.start_code = (unsigned long) _text;
 	init_mm.end_code   = (unsigned long) _etext;
 	init_mm.end_data   = (unsigned long) _edata;
 	init_mm.brk	   = (unsigned long) _end;
+=======
+	setup_initial_init_mm(_text, _etext, _edata, _end);
+>>>>>>> upstream/android-13
 
 	/* populate cmd_line too for later use, preserving boot_command_line */
 	strlcpy(cmd_line, boot_command_line, COMMAND_LINE_SIZE);
@@ -1126,16 +1275,24 @@ void __init setup_arch(char **cmdline_p)
 	parse_early_param();
 
 #ifdef CONFIG_MMU
+<<<<<<< HEAD
 	set_memsize_kernel_type(MEMSIZE_KERNEL_PAGING);
 	early_mm_init(mdesc);
 	set_memsize_kernel_type(MEMSIZE_KERNEL_OTHERS);
+=======
+	early_mm_init(mdesc);
+>>>>>>> upstream/android-13
 #endif
 	setup_dma_zone(mdesc);
 	xen_early_init();
 	efi_init();
 	/*
 	 * Make sure the calculation for lowmem/highmem is set appropriately
+<<<<<<< HEAD
 	 * before reserving/allocating any mmeory
+=======
+	 * before reserving/allocating any memory
+>>>>>>> upstream/android-13
 	 */
 	adjust_lowmem_bounds();
 	arm_memblock_init(mdesc);
@@ -1145,10 +1302,20 @@ void __init setup_arch(char **cmdline_p)
 	early_ioremap_reset();
 
 	paging_init(mdesc);
+<<<<<<< HEAD
 	request_standard_resources(mdesc);
 
 	if (mdesc->restart)
 		arm_pm_restart = mdesc->restart;
+=======
+	kasan_init();
+	request_standard_resources(mdesc);
+
+	if (mdesc->restart) {
+		__arm_pm_restart = mdesc->restart;
+		register_restart_handler(&arm_restart_nb);
+	}
+>>>>>>> upstream/android-13
 
 	unflatten_device_tree();
 
@@ -1179,8 +1346,11 @@ void __init setup_arch(char **cmdline_p)
 #ifdef CONFIG_VT
 #if defined(CONFIG_VGA_CONSOLE)
 	conswitchp = &vga_con;
+<<<<<<< HEAD
 #elif defined(CONFIG_DUMMY_CONSOLE)
 	conswitchp = &dummy_con;
+=======
+>>>>>>> upstream/android-13
 #endif
 #endif
 
@@ -1256,8 +1426,11 @@ static int c_show(struct seq_file *m, void *v)
 	int i, j;
 	u32 cpuid;
 
+<<<<<<< HEAD
 	/* a hint message to notify that some process reads /proc/cpuinfo */
 	pr_debug("Dump cpuinfo\n");
+=======
+>>>>>>> upstream/android-13
 	for_each_online_cpu(i) {
 		/*
 		 * glibc reads /proc/cpuinfo to determine the number of
@@ -1266,9 +1439,12 @@ static int c_show(struct seq_file *m, void *v)
 		 */
 		seq_printf(m, "processor\t: %d\n", i);
 		cpuid = is_smp() ? per_cpu(cpu_data, i).cpuid : read_cpuid_id();
+<<<<<<< HEAD
 		/* backward-compatibility for thrid-party applications */
 		seq_printf(m, "Processor\t: %s rev %d (%s)\n",
 			   cpu_name, cpuid & 15, elf_platform);
+=======
+>>>>>>> upstream/android-13
 		seq_printf(m, "model name\t: %s rev %d (%s)\n",
 			   cpu_name, cpuid & 15, elf_platform);
 
@@ -1315,10 +1491,14 @@ static int c_show(struct seq_file *m, void *v)
 		seq_printf(m, "CPU revision\t: %d\n\n", cpuid & 15);
 	}
 
+<<<<<<< HEAD
 	if (!arch_read_hardware_id)
 		seq_printf(m, "Hardware\t: %s\n", machine_name);
 	else
 		seq_printf(m, "Hardware\t: %s\n", arch_read_hardware_id());
+=======
+	seq_printf(m, "Hardware\t: %s\n", machine_name);
+>>>>>>> upstream/android-13
 	seq_printf(m, "Revision\t: %04x\n", system_rev);
 	seq_printf(m, "Serial\t\t: %s\n", system_serial);
 

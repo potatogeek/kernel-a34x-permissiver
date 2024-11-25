@@ -1,8 +1,16 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
+=======
+/* SPDX-License-Identifier: MIT */
+>>>>>>> upstream/android-13
 #ifndef __NVKM_DEVICE_PRIV_H__
 #define __NVKM_DEVICE_PRIV_H__
 #include <core/device.h>
 
+<<<<<<< HEAD
+=======
+#include <subdev/acr.h>
+>>>>>>> upstream/android-13
 #include <subdev/bar.h>
 #include <subdev/bios.h>
 #include <subdev/bus.h>
@@ -12,8 +20,13 @@
 #include <subdev/fb.h>
 #include <subdev/fuse.h>
 #include <subdev/gpio.h>
+<<<<<<< HEAD
 #include <subdev/i2c.h>
 #include <subdev/ibus.h>
+=======
+#include <subdev/gsp.h>
+#include <subdev/i2c.h>
+>>>>>>> upstream/android-13
 #include <subdev/iccsense.h>
 #include <subdev/instmem.h>
 #include <subdev/ltc.h>
@@ -22,11 +35,18 @@
 #include <subdev/mxm.h>
 #include <subdev/pci.h>
 #include <subdev/pmu.h>
+<<<<<<< HEAD
+=======
+#include <subdev/privring.h>
+>>>>>>> upstream/android-13
 #include <subdev/therm.h>
 #include <subdev/timer.h>
 #include <subdev/top.h>
 #include <subdev/volt.h>
+<<<<<<< HEAD
 #include <subdev/secboot.h>
+=======
+>>>>>>> upstream/android-13
 
 #include <engine/bsp.h>
 #include <engine/ce.h>

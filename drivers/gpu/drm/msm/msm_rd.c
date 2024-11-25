@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2013 Red Hat
  * Author: Rob Clark <robdclark@gmail.com>
@@ -13,6 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2013 Red Hat
+ * Author: Rob Clark <robdclark@gmail.com>
+>>>>>>> upstream/android-13
  */
 
 /* For debugging crashes, userspace can:
@@ -40,6 +47,7 @@
  * or shader programs (if not emitted inline in cmdstream).
  */
 
+<<<<<<< HEAD
 #ifdef CONFIG_DEBUG_FS
 
 #include <linux/kfifo.h>
@@ -47,14 +55,33 @@
 #include <linux/circ_buf.h>
 #include <linux/wait.h>
 
+=======
+#include <linux/circ_buf.h>
+#include <linux/debugfs.h>
+#include <linux/kfifo.h>
+#include <linux/uaccess.h>
+#include <linux/wait.h>
+
+#include <drm/drm_file.h>
+
+>>>>>>> upstream/android-13
 #include "msm_drv.h"
 #include "msm_gpu.h"
 #include "msm_gem.h"
 
+<<<<<<< HEAD
 static bool rd_full = false;
 MODULE_PARM_DESC(rd_full, "If true, $debugfs/.../rd will snapshot all buffer contents");
 module_param_named(rd_full, rd_full, bool, 0600);
 
+=======
+bool rd_full = false;
+MODULE_PARM_DESC(rd_full, "If true, $debugfs/.../rd will snapshot all buffer contents");
+module_param_named(rd_full, rd_full, bool, 0600);
+
+#ifdef CONFIG_DEBUG_FS
+
+>>>>>>> upstream/android-13
 enum rd_sect_type {
 	RD_NONE,
 	RD_TEST,       /* ascii text */
@@ -244,8 +271,11 @@ static void rd_cleanup(struct msm_rd_state *rd)
 static struct msm_rd_state *rd_init(struct drm_minor *minor, const char *name)
 {
 	struct msm_rd_state *rd;
+<<<<<<< HEAD
 	struct dentry *ent;
 	int ret = 0;
+=======
+>>>>>>> upstream/android-13
 
 	rd = kzalloc(sizeof(*rd), GFP_KERNEL);
 	if (!rd)
@@ -258,6 +288,7 @@ static struct msm_rd_state *rd_init(struct drm_minor *minor, const char *name)
 
 	init_waitqueue_head(&rd->fifo_event);
 
+<<<<<<< HEAD
 	ent = debugfs_create_file(name, S_IFREG | S_IRUGO,
 			minor->debugfs_root, rd, &rd_debugfs_fops);
 	if (!ent) {
@@ -272,6 +303,12 @@ static struct msm_rd_state *rd_init(struct drm_minor *minor, const char *name)
 fail:
 	rd_cleanup(rd);
 	return ERR_PTR(ret);
+=======
+	debugfs_create_file(name, S_IFREG | S_IRUGO, minor->debugfs_root, rd,
+			    &rd_debugfs_fops);
+
+	return rd;
+>>>>>>> upstream/android-13
 }
 
 int msm_rd_debugfs_init(struct drm_minor *minor)
@@ -318,7 +355,11 @@ void msm_rd_debugfs_cleanup(struct msm_drm_private *priv)
 
 static void snapshot_buf(struct msm_rd_state *rd,
 		struct msm_gem_submit *submit, int idx,
+<<<<<<< HEAD
 		uint64_t iova, uint32_t size)
+=======
+		uint64_t iova, uint32_t size, bool full)
+>>>>>>> upstream/android-13
 {
 	struct msm_gem_object *obj = submit->bos[idx].obj;
 	unsigned offset = 0;
@@ -338,19 +379,39 @@ static void snapshot_buf(struct msm_rd_state *rd,
 	rd_write_section(rd, RD_GPUADDR,
 			(uint32_t[3]){ iova, size, iova >> 32 }, 12);
 
+<<<<<<< HEAD
+=======
+	if (!full)
+		return;
+
+>>>>>>> upstream/android-13
 	/* But only dump the contents of buffers marked READ */
 	if (!(submit->bos[idx].flags & MSM_SUBMIT_BO_READ))
 		return;
 
+<<<<<<< HEAD
 	buf = msm_gem_get_vaddr_active(&obj->base);
 	if (IS_ERR(buf))
 		return;
+=======
+	msm_gem_lock(&obj->base);
+	buf = msm_gem_get_vaddr_active(&obj->base);
+	if (IS_ERR(buf))
+		goto out_unlock;
+>>>>>>> upstream/android-13
 
 	buf += offset;
 
 	rd_write_section(rd, RD_BUFFER_CONTENTS, buf, size);
 
+<<<<<<< HEAD
 	msm_gem_put_vaddr(&obj->base);
+=======
+	msm_gem_put_vaddr_locked(&obj->base);
+
+out_unlock:
+	msm_gem_unlock(&obj->base);
+>>>>>>> upstream/android-13
 }
 
 /* called under struct_mutex */
@@ -374,7 +435,11 @@ void msm_rd_dump_submit(struct msm_rd_state *rd, struct msm_gem_submit *submit,
 		va_list args;
 
 		va_start(args, fmt);
+<<<<<<< HEAD
 		n = vsnprintf(msg, sizeof(msg), fmt, args);
+=======
+		n = vscnprintf(msg, sizeof(msg), fmt, args);
+>>>>>>> upstream/android-13
 		va_end(args);
 
 		rd_write_section(rd, RD_CMD, msg, ALIGN(n, 4));
@@ -383,30 +448,56 @@ void msm_rd_dump_submit(struct msm_rd_state *rd, struct msm_gem_submit *submit,
 	rcu_read_lock();
 	task = pid_task(submit->pid, PIDTYPE_PID);
 	if (task) {
+<<<<<<< HEAD
 		n = snprintf(msg, sizeof(msg), "%.*s/%d: fence=%u",
 				TASK_COMM_LEN, task->comm,
 				pid_nr(submit->pid), submit->seqno);
 	} else {
 		n = snprintf(msg, sizeof(msg), "???/%d: fence=%u",
+=======
+		n = scnprintf(msg, sizeof(msg), "%.*s/%d: fence=%u",
+				TASK_COMM_LEN, task->comm,
+				pid_nr(submit->pid), submit->seqno);
+	} else {
+		n = scnprintf(msg, sizeof(msg), "???/%d: fence=%u",
+>>>>>>> upstream/android-13
 				pid_nr(submit->pid), submit->seqno);
 	}
 	rcu_read_unlock();
 
 	rd_write_section(rd, RD_CMD, msg, ALIGN(n, 4));
 
+<<<<<<< HEAD
 	for (i = 0; rd_full && i < submit->nr_bos; i++)
 		snapshot_buf(rd, submit, i, 0, 0);
+=======
+	for (i = 0; i < submit->nr_bos; i++)
+		snapshot_buf(rd, submit, i, 0, 0, should_dump(submit, i));
+
+	for (i = 0; i < submit->nr_cmds; i++) {
+		uint32_t szd  = submit->cmd[i].size; /* in dwords */
+
+		/* snapshot cmdstream bo's (if we haven't already): */
+		if (!should_dump(submit, i)) {
+			snapshot_buf(rd, submit, submit->cmd[i].idx,
+					submit->cmd[i].iova, szd * 4, true);
+		}
+	}
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < submit->nr_cmds; i++) {
 		uint64_t iova = submit->cmd[i].iova;
 		uint32_t szd  = submit->cmd[i].size; /* in dwords */
 
+<<<<<<< HEAD
 		/* snapshot cmdstream bo's (if we haven't already): */
 		if (!rd_full) {
 			snapshot_buf(rd, submit, submit->cmd[i].idx,
 					submit->cmd[i].iova, szd * 4);
 		}
 
+=======
+>>>>>>> upstream/android-13
 		switch (submit->cmd[i].type) {
 		case MSM_SUBMIT_CMD_IB_TARGET_BUF:
 			/* ignore IB-targets, we've logged the buffer, the

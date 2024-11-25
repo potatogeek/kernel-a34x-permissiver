@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2005 MIPS Technologies, Inc.  All rights reserved.
  *
@@ -14,6 +15,11 @@
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  59 Temple Place - Suite 330, Boston MA 02111-1307, USA.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2005 MIPS Technologies, Inc.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_MIPS_BOARDS_SIM_H

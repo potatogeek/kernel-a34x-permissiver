@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Author: Andy Fleming <afleming@freescale.com>
  * 	   Kumar Gala <galak@kernel.crashing.org>
  *
  * Copyright 2006-2008, 2011-2012, 2015 Freescale Semiconductor Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/stddef.h>
@@ -20,9 +27,15 @@
 #include <linux/highmem.h>
 #include <linux/cpu.h>
 #include <linux/fsl/guts.h>
+<<<<<<< HEAD
 
 #include <asm/machdep.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+
+#include <asm/machdep.h>
+>>>>>>> upstream/android-13
 #include <asm/page.h>
 #include <asm/mpic.h>
 #include <asm/cacheflush.h>
@@ -44,7 +57,10 @@ struct epapr_spin_table {
 	u32	pir;
 };
 
+<<<<<<< HEAD
 #ifdef CONFIG_HOTPLUG_CPU
+=======
+>>>>>>> upstream/android-13
 static u64 timebase;
 static int tb_req;
 static int tb_valid;
@@ -116,7 +132,12 @@ static void mpc85xx_take_timebase(void)
 	local_irq_restore(flags);
 }
 
+<<<<<<< HEAD
 static void smp_85xx_mach_cpu_die(void)
+=======
+#ifdef CONFIG_HOTPLUG_CPU
+static void smp_85xx_cpu_offline_self(void)
+>>>>>>> upstream/android-13
 {
 	unsigned int cpu = smp_processor_id();
 
@@ -216,15 +237,24 @@ static int smp_85xx_start_cpu(int cpu)
 
 	/* Map the spin table */
 	if (ioremappable)
+<<<<<<< HEAD
 		spin_table = ioremap_prot(*cpu_rel_addr,
 			sizeof(struct epapr_spin_table), _PAGE_COHERENT);
+=======
+		spin_table = ioremap_coherent(*cpu_rel_addr,
+					      sizeof(struct epapr_spin_table));
+>>>>>>> upstream/android-13
 	else
 		spin_table = phys_to_virt(*cpu_rel_addr);
 
 	local_irq_save(flags);
 	hard_irq_disable();
 
+<<<<<<< HEAD
 	if (qoriq_pm_ops)
+=======
+	if (qoriq_pm_ops && qoriq_pm_ops->cpu_up_prepare)
+>>>>>>> upstream/android-13
 		qoriq_pm_ops->cpu_up_prepare(cpu);
 
 	/* if cpu is not spinning, reset it */
@@ -256,6 +286,18 @@ static int smp_85xx_start_cpu(int cpu)
 	out_be64((u64 *)(&spin_table->addr_h),
 		__pa(ppc_function_entry(generic_secondary_smp_init)));
 #else
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PHYS_ADDR_T_64BIT
+	/*
+	 * We need also to write addr_h to spin table for systems
+	 * in which their physical memory start address was configured
+	 * to above 4G, otherwise the secondary core can not get
+	 * correct entry to start from.
+	 */
+	out_be32(&spin_table->addr_h, __pa(__early_start) >> 32);
+#endif
+>>>>>>> upstream/android-13
 	out_be32(&spin_table->addr_l, __pa(__early_start));
 #endif
 	flush_spin_table(spin_table);
@@ -287,7 +329,11 @@ static int smp_85xx_kick_cpu(int nr)
 		booting_thread_hwid = cpu_thread_in_core(nr);
 		primary = cpu_first_thread_sibling(nr);
 
+<<<<<<< HEAD
 		if (qoriq_pm_ops)
+=======
+		if (qoriq_pm_ops && qoriq_pm_ops->cpu_up_prepare)
+>>>>>>> upstream/android-13
 			qoriq_pm_ops->cpu_up_prepare(nr);
 
 		/*
@@ -490,21 +536,37 @@ void __init mpc85xx_smp_init(void)
 		smp_85xx_ops.probe = NULL;
 	}
 
+<<<<<<< HEAD
 #ifdef CONFIG_HOTPLUG_CPU
 #ifdef CONFIG_FSL_CORENET_RCPM
 	fsl_rcpm_init();
 #endif
 
 #ifdef CONFIG_FSL_PMC
+=======
+#ifdef CONFIG_FSL_CORENET_RCPM
+	/* Assign a value to qoriq_pm_ops on PPC_E500MC */
+	fsl_rcpm_init();
+#else
+	/* Assign a value to qoriq_pm_ops on !PPC_E500MC */
+>>>>>>> upstream/android-13
 	mpc85xx_setup_pmc();
 #endif
 	if (qoriq_pm_ops) {
 		smp_85xx_ops.give_timebase = mpc85xx_give_timebase;
 		smp_85xx_ops.take_timebase = mpc85xx_take_timebase;
+<<<<<<< HEAD
 		ppc_md.cpu_die = smp_85xx_mach_cpu_die;
 		smp_85xx_ops.cpu_die = qoriq_cpu_kill;
 	}
 #endif
+=======
+#ifdef CONFIG_HOTPLUG_CPU
+		smp_85xx_ops.cpu_offline_self = smp_85xx_cpu_offline_self;
+		smp_85xx_ops.cpu_die = qoriq_cpu_kill;
+#endif
+	}
+>>>>>>> upstream/android-13
 	smp_ops = &smp_85xx_ops;
 
 #ifdef CONFIG_KEXEC_CORE

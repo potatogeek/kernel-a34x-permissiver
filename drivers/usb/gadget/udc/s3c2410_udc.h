@@ -89,7 +89,11 @@ struct s3c2410_udc {
 	unsigned			req_config : 1;
 	unsigned			req_pending : 1;
 	u8				vbus;
+<<<<<<< HEAD
 	struct dentry			*regs_info;
+=======
+	int				irq;
+>>>>>>> upstream/android-13
 };
 #define to_s3c2410(g)	(container_of((g), struct s3c2410_udc, gadget))
 

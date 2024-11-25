@@ -77,6 +77,10 @@ struct compressor_funcs {
 };
 struct compressor {
 	struct dc_context *ctx;
+<<<<<<< HEAD
+=======
+	/* CONTROLLER_ID_D0 + instance, CONTROLLER_ID_UNDEFINED = 0 */
+>>>>>>> upstream/android-13
 	uint32_t attached_inst;
 	bool is_enabled;
 	const struct compressor_funcs *funcs;

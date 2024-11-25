@@ -1,4 +1,8 @@
 .. SPDX-License-Identifier: GPL-2.0+
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 ======================================================
 IBM Virtual Management Channel Kernel Driver (IBMVMC)
 ======================================================

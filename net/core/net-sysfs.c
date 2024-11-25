@@ -1,21 +1,35 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * net-sysfs.c - network device class and attributes
  *
  * Copyright (c) 2003 Stephen Hemminger <shemminger@osdl.org>
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/capability.h>
 #include <linux/kernel.h>
 #include <linux/netdevice.h>
+<<<<<<< HEAD
 #include <net/switchdev.h>
 #include <linux/if_arp.h>
 #include <linux/slab.h>
 #include <linux/sched/signal.h>
+=======
+#include <linux/if_arp.h>
+#include <linux/slab.h>
+#include <linux/sched/signal.h>
+#include <linux/sched/isolation.h>
+>>>>>>> upstream/android-13
 #include <linux/nsproxy.h>
 #include <net/sock.h>
 #include <net/net_namespace.h>
@@ -85,7 +99,11 @@ static ssize_t netdev_store(struct device *dev, struct device_attribute *attr,
 	struct net_device *netdev = to_net_dev(dev);
 	struct net *net = dev_net(netdev);
 	unsigned long new;
+<<<<<<< HEAD
 	int ret = -EINVAL;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (!ns_capable(net->user_ns, CAP_NET_ADMIN))
 		return -EPERM;
@@ -179,6 +197,17 @@ static int change_carrier(struct net_device *dev, unsigned long new_carrier)
 static ssize_t carrier_store(struct device *dev, struct device_attribute *attr,
 			     const char *buf, size_t len)
 {
+<<<<<<< HEAD
+=======
+	struct net_device *netdev = to_net_dev(dev);
+
+	/* The check is also done in change_carrier; this helps returning early
+	 * without hitting the trylock/restart in netdev_store.
+	 */
+	if (!netdev->netdev_ops->ndo_change_carrier)
+		return -EOPNOTSUPP;
+
+>>>>>>> upstream/android-13
 	return netdev_store(dev, attr, buf, len, change_carrier);
 }
 
@@ -200,10 +229,23 @@ static ssize_t speed_show(struct device *dev,
 	struct net_device *netdev = to_net_dev(dev);
 	int ret = -EINVAL;
 
+<<<<<<< HEAD
 	if (!rtnl_trylock())
 		return restart_syscall();
 
 	if (netif_running(netdev)) {
+=======
+	/* The check is also done in __ethtool_get_link_ksettings; this helps
+	 * returning early without hitting the trylock/restart below.
+	 */
+	if (!netdev->ethtool_ops->get_link_ksettings)
+		return ret;
+
+	if (!rtnl_trylock())
+		return restart_syscall();
+
+	if (netif_running(netdev) && netif_device_present(netdev)) {
+>>>>>>> upstream/android-13
 		struct ethtool_link_ksettings cmd;
 
 		if (!__ethtool_get_link_ksettings(netdev, &cmd))
@@ -220,6 +262,15 @@ static ssize_t duplex_show(struct device *dev,
 	struct net_device *netdev = to_net_dev(dev);
 	int ret = -EINVAL;
 
+<<<<<<< HEAD
+=======
+	/* The check is also done in __ethtool_get_link_ksettings; this helps
+	 * returning early without hitting the trylock/restart below.
+	 */
+	if (!netdev->ethtool_ops->get_link_ksettings)
+		return ret;
+
+>>>>>>> upstream/android-13
 	if (!rtnl_trylock())
 		return restart_syscall();
 
@@ -248,6 +299,21 @@ static ssize_t duplex_show(struct device *dev,
 }
 static DEVICE_ATTR_RO(duplex);
 
+<<<<<<< HEAD
+=======
+static ssize_t testing_show(struct device *dev,
+			    struct device_attribute *attr, char *buf)
+{
+	struct net_device *netdev = to_net_dev(dev);
+
+	if (netif_running(netdev))
+		return sprintf(buf, fmt_dec, !!netif_testing(netdev));
+
+	return -EINVAL;
+}
+static DEVICE_ATTR_RO(testing);
+
+>>>>>>> upstream/android-13
 static ssize_t dormant_show(struct device *dev,
 			    struct device_attribute *attr, char *buf)
 {
@@ -265,7 +331,11 @@ static const char *const operstates[] = {
 	"notpresent", /* currently unused */
 	"down",
 	"lowerlayerdown",
+<<<<<<< HEAD
 	"testing", /* currently unused */
+=======
+	"testing",
+>>>>>>> upstream/android-13
 	"dormant",
 	"up"
 };
@@ -337,7 +407,11 @@ NETDEVICE_SHOW_RW(mtu, fmt_dec);
 
 static int change_flags(struct net_device *dev, unsigned long new_flags)
 {
+<<<<<<< HEAD
 	return dev_change_flags(dev, (unsigned int)new_flags);
+=======
+	return dev_change_flags(dev, (unsigned int)new_flags, NULL);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t flags_store(struct device *dev, struct device_attribute *attr,
@@ -360,7 +434,11 @@ NETDEVICE_SHOW_RW(tx_queue_len, fmt_dec);
 
 static int change_gro_flush_timeout(struct net_device *dev, unsigned long val)
 {
+<<<<<<< HEAD
 	dev->gro_flush_timeout = val;
+=======
+	WRITE_ONCE(dev->gro_flush_timeout, val);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -375,6 +453,26 @@ static ssize_t gro_flush_timeout_store(struct device *dev,
 }
 NETDEVICE_SHOW_RW(gro_flush_timeout, fmt_ulong);
 
+<<<<<<< HEAD
+=======
+static int change_napi_defer_hard_irqs(struct net_device *dev, unsigned long val)
+{
+	WRITE_ONCE(dev->napi_defer_hard_irqs, val);
+	return 0;
+}
+
+static ssize_t napi_defer_hard_irqs_store(struct device *dev,
+					  struct device_attribute *attr,
+					  const char *buf, size_t len)
+{
+	if (!capable(CAP_NET_ADMIN))
+		return -EPERM;
+
+	return netdev_store(dev, attr, buf, len, change_napi_defer_hard_irqs);
+}
+NETDEVICE_SHOW_RW(napi_defer_hard_irqs, fmt_dec);
+
+>>>>>>> upstream/android-13
 static ssize_t ifalias_store(struct device *dev, struct device_attribute *attr,
 			     const char *buf, size_t len)
 {
@@ -443,6 +541,17 @@ static ssize_t proto_down_store(struct device *dev,
 				struct device_attribute *attr,
 				const char *buf, size_t len)
 {
+<<<<<<< HEAD
+=======
+	struct net_device *netdev = to_net_dev(dev);
+
+	/* The check is also done in change_proto_down; this helps returning
+	 * early without hitting the trylock/restart in netdev_store.
+	 */
+	if (!netdev->netdev_ops->ndo_change_proto_down)
+		return -EOPNOTSUPP;
+
+>>>>>>> upstream/android-13
 	return netdev_store(dev, attr, buf, len, change_proto_down);
 }
 NETDEVICE_SHOW_RW(proto_down, fmt_dec);
@@ -453,6 +562,15 @@ static ssize_t phys_port_id_show(struct device *dev,
 	struct net_device *netdev = to_net_dev(dev);
 	ssize_t ret = -EINVAL;
 
+<<<<<<< HEAD
+=======
+	/* The check is also done in dev_get_phys_port_id; this helps returning
+	 * early without hitting the trylock/restart below.
+	 */
+	if (!netdev->netdev_ops->ndo_get_phys_port_id)
+		return -EOPNOTSUPP;
+
+>>>>>>> upstream/android-13
 	if (!rtnl_trylock())
 		return restart_syscall();
 
@@ -475,6 +593,16 @@ static ssize_t phys_port_name_show(struct device *dev,
 	struct net_device *netdev = to_net_dev(dev);
 	ssize_t ret = -EINVAL;
 
+<<<<<<< HEAD
+=======
+	/* The checks are also done in dev_get_phys_port_name; this helps
+	 * returning early without hitting the trylock/restart below.
+	 */
+	if (!netdev->netdev_ops->ndo_get_phys_port_name &&
+	    !netdev->netdev_ops->ndo_get_devlink_port)
+		return -EOPNOTSUPP;
+
+>>>>>>> upstream/android-13
 	if (!rtnl_trylock())
 		return restart_syscall();
 
@@ -497,10 +625,22 @@ static ssize_t phys_switch_id_show(struct device *dev,
 	struct net_device *netdev = to_net_dev(dev);
 	ssize_t ret = -EINVAL;
 
+<<<<<<< HEAD
+=======
+	/* The checks are also done in dev_get_phys_port_name; this helps
+	 * returning early without hitting the trylock/restart below. This works
+	 * because recurse is false when calling dev_get_port_parent_id.
+	 */
+	if (!netdev->netdev_ops->ndo_get_port_parent_id &&
+	    !netdev->netdev_ops->ndo_get_devlink_port)
+		return -EOPNOTSUPP;
+
+>>>>>>> upstream/android-13
 	if (!rtnl_trylock())
 		return restart_syscall();
 
 	if (dev_isalive(netdev)) {
+<<<<<<< HEAD
 		struct switchdev_attr attr = {
 			.orig_dev = netdev,
 			.id = SWITCHDEV_ATTR_ID_PORT_PARENT_ID,
@@ -511,6 +651,13 @@ static ssize_t phys_switch_id_show(struct device *dev,
 		if (!ret)
 			ret = sprintf(buf, "%*phN\n", attr.u.ppid.id_len,
 				      attr.u.ppid.id);
+=======
+		struct netdev_phys_item_id ppid = { };
+
+		ret = dev_get_port_parent_id(netdev, &ppid, false);
+		if (!ret)
+			ret = sprintf(buf, "%*phN\n", ppid.id_len, ppid.id);
+>>>>>>> upstream/android-13
 	}
 	rtnl_unlock();
 
@@ -518,6 +665,48 @@ static ssize_t phys_switch_id_show(struct device *dev,
 }
 static DEVICE_ATTR_RO(phys_switch_id);
 
+<<<<<<< HEAD
+=======
+static ssize_t threaded_show(struct device *dev,
+			     struct device_attribute *attr, char *buf)
+{
+	struct net_device *netdev = to_net_dev(dev);
+	ssize_t ret = -EINVAL;
+
+	if (!rtnl_trylock())
+		return restart_syscall();
+
+	if (dev_isalive(netdev))
+		ret = sprintf(buf, fmt_dec, netdev->threaded);
+
+	rtnl_unlock();
+	return ret;
+}
+
+static int modify_napi_threaded(struct net_device *dev, unsigned long val)
+{
+	int ret;
+
+	if (list_empty(&dev->napi_list))
+		return -EOPNOTSUPP;
+
+	if (val != 0 && val != 1)
+		return -EOPNOTSUPP;
+
+	ret = dev_set_threaded(dev, val);
+
+	return ret;
+}
+
+static ssize_t threaded_store(struct device *dev,
+			      struct device_attribute *attr,
+			      const char *buf, size_t len)
+{
+	return netdev_store(dev, attr, buf, len, modify_napi_threaded);
+}
+static DEVICE_ATTR_RW(threaded);
+
+>>>>>>> upstream/android-13
 static struct attribute *net_class_attrs[] __ro_after_init = {
 	&dev_attr_netdev_group.attr,
 	&dev_attr_type.attr,
@@ -534,6 +723,10 @@ static struct attribute *net_class_attrs[] __ro_after_init = {
 	&dev_attr_speed.attr,
 	&dev_attr_duplex.attr,
 	&dev_attr_dormant.attr,
+<<<<<<< HEAD
+=======
+	&dev_attr_testing.attr,
+>>>>>>> upstream/android-13
 	&dev_attr_operstate.attr,
 	&dev_attr_carrier_changes.attr,
 	&dev_attr_ifalias.attr,
@@ -542,12 +735,20 @@ static struct attribute *net_class_attrs[] __ro_after_init = {
 	&dev_attr_flags.attr,
 	&dev_attr_tx_queue_len.attr,
 	&dev_attr_gro_flush_timeout.attr,
+<<<<<<< HEAD
+=======
+	&dev_attr_napi_defer_hard_irqs.attr,
+>>>>>>> upstream/android-13
 	&dev_attr_phys_port_id.attr,
 	&dev_attr_phys_port_name.attr,
 	&dev_attr_phys_switch_id.attr,
 	&dev_attr_proto_down.attr,
 	&dev_attr_carrier_up_count.attr,
 	&dev_attr_carrier_down_count.attr,
+<<<<<<< HEAD
+=======
+	&dev_attr_threaded.attr,
+>>>>>>> upstream/android-13
 	NULL,
 };
 ATTRIBUTE_GROUPS(net_class);
@@ -720,7 +921,11 @@ static ssize_t store_rps_map(struct netdev_rx_queue *queue,
 {
 	struct rps_map *old_map, *map;
 	cpumask_var_t mask;
+<<<<<<< HEAD
 	int err, cpu, i;
+=======
+	int err, cpu, i, hk_flags;
+>>>>>>> upstream/android-13
 	static DEFINE_MUTEX(rps_map_mutex);
 
 	if (!capable(CAP_NET_ADMIN))
@@ -735,6 +940,18 @@ static ssize_t store_rps_map(struct netdev_rx_queue *queue,
 		return err;
 	}
 
+<<<<<<< HEAD
+=======
+	if (!cpumask_empty(mask)) {
+		hk_flags = HK_FLAG_DOMAIN | HK_FLAG_WQ;
+		cpumask_and(mask, mask, housekeeping_cpumask(hk_flags));
+		if (cpumask_empty(mask)) {
+			free_cpumask_var(mask);
+			return -EINVAL;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	map = kzalloc(max_t(unsigned int,
 			    RPS_MAP_SIZE(cpumask_weight(mask)), L1_CACHE_BYTES),
 		      GFP_KERNEL);
@@ -760,9 +977,15 @@ static ssize_t store_rps_map(struct netdev_rx_queue *queue,
 	rcu_assign_pointer(queue->rps_map, map);
 
 	if (map)
+<<<<<<< HEAD
 		static_key_slow_inc(&rps_needed);
 	if (old_map)
 		static_key_slow_dec(&rps_needed);
+=======
+		static_branch_inc(&rps_needed);
+	if (old_map)
+		static_branch_dec(&rps_needed);
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&rps_map_mutex);
 
@@ -869,6 +1092,10 @@ static struct attribute *rx_queue_default_attrs[] __ro_after_init = {
 #endif
 	NULL
 };
+<<<<<<< HEAD
+=======
+ATTRIBUTE_GROUPS(rx_queue_default);
+>>>>>>> upstream/android-13
 
 static void rx_queue_release(struct kobject *kobj)
 {
@@ -917,7 +1144,11 @@ static void rx_queue_get_ownership(struct kobject *kobj,
 static struct kobj_type rx_queue_ktype __ro_after_init = {
 	.sysfs_ops = &rx_queue_sysfs_ops,
 	.release = rx_queue_release,
+<<<<<<< HEAD
 	.default_attrs = rx_queue_default_attrs,
+=======
+	.default_groups = rx_queue_default_groups,
+>>>>>>> upstream/android-13
 	.namespace = rx_queue_namespace,
 	.get_ownership = rx_queue_get_ownership,
 };
@@ -953,6 +1184,27 @@ err:
 	kobject_put(kobj);
 	return error;
 }
+<<<<<<< HEAD
+=======
+
+static int rx_queue_change_owner(struct net_device *dev, int index, kuid_t kuid,
+				 kgid_t kgid)
+{
+	struct netdev_rx_queue *queue = dev->_rx + index;
+	struct kobject *kobj = &queue->kobj;
+	int error;
+
+	error = sysfs_change_owner(kobj, kuid, kgid);
+	if (error)
+		return error;
+
+	if (dev->sysfs_rx_queue_group)
+		error = sysfs_group_change_owner(
+			kobj, dev->sysfs_rx_queue_group, kuid, kgid);
+
+	return error;
+}
+>>>>>>> upstream/android-13
 #endif /* CONFIG_SYSFS */
 
 int
@@ -977,7 +1229,11 @@ net_rx_queue_update_kobjects(struct net_device *dev, int old_num, int new_num)
 	while (--i >= new_num) {
 		struct kobject *kobj = &dev->_rx[i].kobj;
 
+<<<<<<< HEAD
 		if (!refcount_read(&dev_net(dev)->count))
+=======
+		if (!refcount_read(&dev_net(dev)->ns.count))
+>>>>>>> upstream/android-13
 			kobj->uevent_suppress = 1;
 		if (dev->sysfs_rx_queue_group)
 			sysfs_remove_group(kobj, dev->sysfs_rx_queue_group);
@@ -990,6 +1246,32 @@ net_rx_queue_update_kobjects(struct net_device *dev, int old_num, int new_num)
 #endif
 }
 
+<<<<<<< HEAD
+=======
+static int net_rx_queue_change_owner(struct net_device *dev, int num,
+				     kuid_t kuid, kgid_t kgid)
+{
+#ifdef CONFIG_SYSFS
+	int error = 0;
+	int i;
+
+#ifndef CONFIG_RPS
+	if (!dev->sysfs_rx_queue_group)
+		return 0;
+#endif
+	for (i = 0; i < num; i++) {
+		error = rx_queue_change_owner(dev, i, kuid, kgid);
+		if (error)
+			break;
+	}
+
+	return error;
+#else
+	return 0;
+#endif
+}
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_SYSFS
 /*
  * netdev_queue sysfs structures and functions.
@@ -1063,18 +1345,37 @@ static ssize_t traffic_class_show(struct netdev_queue *queue,
 				  char *buf)
 {
 	struct net_device *dev = queue->dev;
+<<<<<<< HEAD
 	int index;
 	int tc;
+=======
+	int num_tc, tc;
+	int index;
+>>>>>>> upstream/android-13
 
 	if (!netif_is_multiqueue(dev))
 		return -ENOENT;
 
+<<<<<<< HEAD
+=======
+	if (!rtnl_trylock())
+		return restart_syscall();
+
+>>>>>>> upstream/android-13
 	index = get_netdev_queue_index(queue);
 
 	/* If queue belongs to subordinate dev use its TC mapping */
 	dev = netdev_get_tx_queue(dev, index)->sb_dev ? : dev;
 
+<<<<<<< HEAD
 	tc = netdev_txq_to_tc(dev, index);
+=======
+	num_tc = dev->num_tc;
+	tc = netdev_txq_to_tc(dev, index);
+
+	rtnl_unlock();
+
+>>>>>>> upstream/android-13
 	if (tc < 0)
 		return -EINVAL;
 
@@ -1085,8 +1386,13 @@ static ssize_t traffic_class_show(struct netdev_queue *queue,
 	 * belongs to the root device it will be reported with just the
 	 * traffic class, so just "0" for TC 0 for example.
 	 */
+<<<<<<< HEAD
 	return dev->num_tc < 0 ? sprintf(buf, "%u%d\n", tc, dev->num_tc) :
 				 sprintf(buf, "%u\n", tc);
+=======
+	return num_tc < 0 ? sprintf(buf, "%d%d\n", tc, num_tc) :
+			    sprintf(buf, "%d\n", tc);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_XPS
@@ -1106,6 +1412,15 @@ static ssize_t tx_maxrate_store(struct netdev_queue *queue,
 	if (!capable(CAP_NET_ADMIN))
 		return -EPERM;
 
+<<<<<<< HEAD
+=======
+	/* The check is also done later; this helps returning early without
+	 * hitting the trylock/restart below.
+	 */
+	if (!dev->netdev_ops->ndo_set_tx_maxrate)
+		return -EOPNOTSUPP;
+
+>>>>>>> upstream/android-13
 	err = kstrtou32(buf, 10, &rate);
 	if (err < 0)
 		return err;
@@ -1241,6 +1556,7 @@ static const struct attribute_group dql_group = {
 #endif /* CONFIG_BQL */
 
 #ifdef CONFIG_XPS
+<<<<<<< HEAD
 static ssize_t xps_cpus_show(struct netdev_queue *queue,
 			     char *buf)
 {
@@ -1249,6 +1565,63 @@ static ssize_t xps_cpus_show(struct netdev_queue *queue,
 	struct xps_dev_maps *dev_maps;
 	cpumask_var_t mask;
 	unsigned long index;
+=======
+static ssize_t xps_queue_show(struct net_device *dev, unsigned int index,
+			      int tc, char *buf, enum xps_map_type type)
+{
+	struct xps_dev_maps *dev_maps;
+	unsigned long *mask;
+	unsigned int nr_ids;
+	int j, len;
+
+	rcu_read_lock();
+	dev_maps = rcu_dereference(dev->xps_maps[type]);
+
+	/* Default to nr_cpu_ids/dev->num_rx_queues and do not just return 0
+	 * when dev_maps hasn't been allocated yet, to be backward compatible.
+	 */
+	nr_ids = dev_maps ? dev_maps->nr_ids :
+		 (type == XPS_CPUS ? nr_cpu_ids : dev->num_rx_queues);
+
+	mask = bitmap_zalloc(nr_ids, GFP_NOWAIT);
+	if (!mask) {
+		rcu_read_unlock();
+		return -ENOMEM;
+	}
+
+	if (!dev_maps || tc >= dev_maps->num_tc)
+		goto out_no_maps;
+
+	for (j = 0; j < nr_ids; j++) {
+		int i, tci = j * dev_maps->num_tc + tc;
+		struct xps_map *map;
+
+		map = rcu_dereference(dev_maps->attr_map[tci]);
+		if (!map)
+			continue;
+
+		for (i = map->len; i--;) {
+			if (map->queues[i] == index) {
+				set_bit(j, mask);
+				break;
+			}
+		}
+	}
+out_no_maps:
+	rcu_read_unlock();
+
+	len = bitmap_print_to_pagebuf(false, buf, mask, nr_ids);
+	bitmap_free(mask);
+
+	return len < PAGE_SIZE ? len : -EINVAL;
+}
+
+static ssize_t xps_cpus_show(struct netdev_queue *queue, char *buf)
+{
+	struct net_device *dev = queue->dev;
+	unsigned int index;
+	int len, tc;
+>>>>>>> upstream/android-13
 
 	if (!netif_is_multiqueue(dev))
 		return -ENOENT;
@@ -1258,6 +1631,7 @@ static ssize_t xps_cpus_show(struct netdev_queue *queue,
 	if (!rtnl_trylock())
 		return restart_syscall();
 
+<<<<<<< HEAD
 	if (dev->num_tc) {
 		/* Do not allow XPS on subordinate device directly */
 		num_tc = dev->num_tc;
@@ -1311,13 +1685,36 @@ static ssize_t xps_cpus_show(struct netdev_queue *queue,
 err_rtnl_unlock:
 	rtnl_unlock();
 	return ret;
+=======
+	/* If queue belongs to subordinate dev use its map */
+	dev = netdev_get_tx_queue(dev, index)->sb_dev ? : dev;
+
+	tc = netdev_txq_to_tc(dev, index);
+	if (tc < 0) {
+		rtnl_unlock();
+		return -EINVAL;
+	}
+
+	/* Make sure the subordinate device can't be freed */
+	get_device(&dev->dev);
+	rtnl_unlock();
+
+	len = xps_queue_show(dev, index, tc, buf, XPS_CPUS);
+
+	put_device(&dev->dev);
+	return len;
+>>>>>>> upstream/android-13
 }
 
 static ssize_t xps_cpus_store(struct netdev_queue *queue,
 			      const char *buf, size_t len)
 {
 	struct net_device *dev = queue->dev;
+<<<<<<< HEAD
 	unsigned long index;
+=======
+	unsigned int index;
+>>>>>>> upstream/android-13
 	cpumask_var_t mask;
 	int err;
 
@@ -1356,16 +1753,23 @@ static struct netdev_queue_attribute xps_cpus_attribute __ro_after_init
 
 static ssize_t xps_rxqs_show(struct netdev_queue *queue, char *buf)
 {
+<<<<<<< HEAD
 	int j, len, ret, num_tc = 1, tc = 0;
 	struct net_device *dev = queue->dev;
 	struct xps_dev_maps *dev_maps;
 	unsigned long *mask, index;
+=======
+	struct net_device *dev = queue->dev;
+	unsigned int index;
+	int tc;
+>>>>>>> upstream/android-13
 
 	index = get_netdev_queue_index(queue);
 
 	if (!rtnl_trylock())
 		return restart_syscall();
 
+<<<<<<< HEAD
 	if (dev->num_tc) {
 		num_tc = dev->num_tc;
 		tc = netdev_txq_to_tc(dev, index);
@@ -1415,6 +1819,14 @@ out_no_maps:
 err_rtnl_unlock:
 	rtnl_unlock();
 	return ret;
+=======
+	tc = netdev_txq_to_tc(dev, index);
+	rtnl_unlock();
+	if (tc < 0)
+		return -EINVAL;
+
+	return xps_queue_show(dev, index, tc, buf, XPS_RXQS);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t xps_rxqs_store(struct netdev_queue *queue, const char *buf,
@@ -1422,14 +1834,23 @@ static ssize_t xps_rxqs_store(struct netdev_queue *queue, const char *buf,
 {
 	struct net_device *dev = queue->dev;
 	struct net *net = dev_net(dev);
+<<<<<<< HEAD
 	unsigned long *mask, index;
+=======
+	unsigned long *mask;
+	unsigned int index;
+>>>>>>> upstream/android-13
 	int err;
 
 	if (!ns_capable(net->user_ns, CAP_NET_ADMIN))
 		return -EPERM;
 
+<<<<<<< HEAD
 	mask = kcalloc(BITS_TO_LONGS(dev->num_rx_queues), sizeof(long),
 		       GFP_KERNEL);
+=======
+	mask = bitmap_zalloc(dev->num_rx_queues, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!mask)
 		return -ENOMEM;
 
@@ -1437,7 +1858,11 @@ static ssize_t xps_rxqs_store(struct netdev_queue *queue, const char *buf,
 
 	err = bitmap_parse(buf, len, mask, dev->num_rx_queues);
 	if (err) {
+<<<<<<< HEAD
 		kfree(mask);
+=======
+		bitmap_free(mask);
+>>>>>>> upstream/android-13
 		return err;
 	}
 
@@ -1447,12 +1872,20 @@ static ssize_t xps_rxqs_store(struct netdev_queue *queue, const char *buf,
 	}
 
 	cpus_read_lock();
+<<<<<<< HEAD
 	err = __netif_set_xps_queue(dev, mask, index, true);
+=======
+	err = __netif_set_xps_queue(dev, mask, index, XPS_RXQS);
+>>>>>>> upstream/android-13
 	cpus_read_unlock();
 
 	rtnl_unlock();
 
+<<<<<<< HEAD
 	kfree(mask);
+=======
+	bitmap_free(mask);
+>>>>>>> upstream/android-13
 	return err ? : len;
 }
 
@@ -1470,6 +1903,10 @@ static struct attribute *netdev_queue_default_attrs[] __ro_after_init = {
 #endif
 	NULL
 };
+<<<<<<< HEAD
+=======
+ATTRIBUTE_GROUPS(netdev_queue_default);
+>>>>>>> upstream/android-13
 
 static void netdev_queue_release(struct kobject *kobj)
 {
@@ -1502,7 +1939,11 @@ static void netdev_queue_get_ownership(struct kobject *kobj,
 static struct kobj_type netdev_queue_ktype __ro_after_init = {
 	.sysfs_ops = &netdev_queue_sysfs_ops,
 	.release = netdev_queue_release,
+<<<<<<< HEAD
 	.default_attrs = netdev_queue_default_attrs,
+=======
+	.default_groups = netdev_queue_default_groups,
+>>>>>>> upstream/android-13
 	.namespace = netdev_queue_namespace,
 	.get_ownership = netdev_queue_get_ownership,
 };
@@ -1537,6 +1978,26 @@ err:
 	kobject_put(kobj);
 	return error;
 }
+<<<<<<< HEAD
+=======
+
+static int tx_queue_change_owner(struct net_device *ndev, int index,
+				 kuid_t kuid, kgid_t kgid)
+{
+	struct netdev_queue *queue = ndev->_tx + index;
+	struct kobject *kobj = &queue->kobj;
+	int error;
+
+	error = sysfs_change_owner(kobj, kuid, kgid);
+	if (error)
+		return error;
+
+#ifdef CONFIG_BQL
+	error = sysfs_group_change_owner(kobj, &dql_group, kuid, kgid);
+#endif
+	return error;
+}
+>>>>>>> upstream/android-13
 #endif /* CONFIG_SYSFS */
 
 int
@@ -1557,7 +2018,11 @@ netdev_queue_update_kobjects(struct net_device *dev, int old_num, int new_num)
 	while (--i >= new_num) {
 		struct netdev_queue *queue = dev->_tx + i;
 
+<<<<<<< HEAD
 		if (!refcount_read(&dev_net(dev)->count))
+=======
+		if (!refcount_read(&dev_net(dev)->ns.count))
+>>>>>>> upstream/android-13
 			queue->kobj.uevent_suppress = 1;
 #ifdef CONFIG_BQL
 		sysfs_remove_group(&queue->kobj, &dql_group);
@@ -1571,6 +2036,28 @@ netdev_queue_update_kobjects(struct net_device *dev, int old_num, int new_num)
 #endif /* CONFIG_SYSFS */
 }
 
+<<<<<<< HEAD
+=======
+static int net_tx_queue_change_owner(struct net_device *dev, int num,
+				     kuid_t kuid, kgid_t kgid)
+{
+#ifdef CONFIG_SYSFS
+	int error = 0;
+	int i;
+
+	for (i = 0; i < num; i++) {
+		error = tx_queue_change_owner(dev, i, kuid, kgid);
+		if (error)
+			break;
+	}
+
+	return error;
+#else
+	return 0;
+#endif /* CONFIG_SYSFS */
+}
+
+>>>>>>> upstream/android-13
 static int register_queue_kobjects(struct net_device *dev)
 {
 	int error = 0, txq = 0, rxq = 0, real_rx = 0, real_tx = 0;
@@ -1605,6 +2092,34 @@ error:
 	return error;
 }
 
+<<<<<<< HEAD
+=======
+static int queue_change_owner(struct net_device *ndev, kuid_t kuid, kgid_t kgid)
+{
+	int error = 0, real_rx = 0, real_tx = 0;
+
+#ifdef CONFIG_SYSFS
+	if (ndev->queues_kset) {
+		error = sysfs_change_owner(&ndev->queues_kset->kobj, kuid, kgid);
+		if (error)
+			return error;
+	}
+	real_rx = ndev->real_num_rx_queues;
+#endif
+	real_tx = ndev->real_num_tx_queues;
+
+	error = net_rx_queue_change_owner(ndev, real_rx, kuid, kgid);
+	if (error)
+		return error;
+
+	error = net_tx_queue_change_owner(ndev, real_tx, kuid, kgid);
+	if (error)
+		return error;
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static void remove_queue_kobjects(struct net_device *dev)
 {
 	int real_rx = 0, real_tx = 0;
@@ -1616,6 +2131,12 @@ static void remove_queue_kobjects(struct net_device *dev)
 
 	net_rx_queue_update_kobjects(dev, real_rx, 0);
 	netdev_queue_update_kobjects(dev, real_tx, 0);
+<<<<<<< HEAD
+=======
+
+	dev->real_num_rx_queues = 0;
+	dev->real_num_tx_queues = 0;
+>>>>>>> upstream/android-13
 #ifdef CONFIG_SYSFS
 	kset_unregister(dev->queues_kset);
 #endif
@@ -1720,6 +2241,7 @@ static struct class net_class __ro_after_init = {
 	.get_ownership = net_get_ownership,
 };
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF_NET
 static int of_dev_node_match(struct device *dev, const void *data)
 {
@@ -1729,6 +2251,17 @@ static int of_dev_node_match(struct device *dev, const void *data)
 		ret = dev->parent->of_node == data;
 
 	return ret == 0 ? dev->of_node == data : ret;
+=======
+#ifdef CONFIG_OF
+static int of_dev_node_match(struct device *dev, const void *data)
+{
+	for (; dev; dev = dev->parent) {
+		if (dev->of_node == data)
+			return 1;
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1760,7 +2293,11 @@ void netdev_unregister_kobject(struct net_device *ndev)
 {
 	struct device *dev = &ndev->dev;
 
+<<<<<<< HEAD
 	if (!refcount_read(&dev_net(ndev)->count))
+=======
+	if (!refcount_read(&dev_net(ndev)->ns.count))
+>>>>>>> upstream/android-13
 		dev_set_uevent_suppress(dev, 1);
 
 	kobject_get(&dev->kobj);
@@ -1818,6 +2355,40 @@ int netdev_register_kobject(struct net_device *ndev)
 	return error;
 }
 
+<<<<<<< HEAD
+=======
+/* Change owner for sysfs entries when moving network devices across network
+ * namespaces owned by different user namespaces.
+ */
+int netdev_change_owner(struct net_device *ndev, const struct net *net_old,
+			const struct net *net_new)
+{
+	kuid_t old_uid = GLOBAL_ROOT_UID, new_uid = GLOBAL_ROOT_UID;
+	kgid_t old_gid = GLOBAL_ROOT_GID, new_gid = GLOBAL_ROOT_GID;
+	struct device *dev = &ndev->dev;
+	int error;
+
+	net_ns_get_ownership(net_old, &old_uid, &old_gid);
+	net_ns_get_ownership(net_new, &new_uid, &new_gid);
+
+	/* The network namespace was changed but the owning user namespace is
+	 * identical so there's no need to change the owner of sysfs entries.
+	 */
+	if (uid_eq(old_uid, new_uid) && gid_eq(old_gid, new_gid))
+		return 0;
+
+	error = device_change_owner(dev, new_uid, new_gid);
+	if (error)
+		return error;
+
+	error = queue_change_owner(ndev, new_uid, new_gid);
+	if (error)
+		return error;
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 int netdev_class_create_file_ns(const struct class_attribute *class_attr,
 				const void *ns)
 {

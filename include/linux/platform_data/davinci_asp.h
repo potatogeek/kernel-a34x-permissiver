@@ -1,7 +1,11 @@
 /*
  * TI DaVinci Audio Serial Port support
  *
+<<<<<<< HEAD
  * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
+=======
+ * Copyright (C) 2012 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -79,6 +83,10 @@ struct davinci_mcasp_pdata {
 	/* McASP specific fields */
 	int tdm_slots;
 	u8 op_mode;
+<<<<<<< HEAD
+=======
+	u8 dismod;
+>>>>>>> upstream/android-13
 	u8 num_serializer;
 	u8 *serial_dir;
 	u8 version;
@@ -95,6 +103,10 @@ enum {
 	MCASP_VERSION_2,	/* DA8xx/OMAPL1x */
 	MCASP_VERSION_3,        /* TI81xx/AM33xx */
 	MCASP_VERSION_4,	/* DRA7xxx */
+<<<<<<< HEAD
+=======
+	MCASP_VERSION_OMAP,	/* OMAP4/5 */
+>>>>>>> upstream/android-13
 };
 
 enum mcbsp_clk_input_pin {

@@ -33,7 +33,13 @@
 static DECLARE_RWSEM(bpf_devs_lock);
 
 struct bpf_offload_dev {
+<<<<<<< HEAD
 	struct list_head netdevs;
+=======
+	const struct bpf_prog_offload_ops *ops;
+	struct list_head netdevs;
+	void *priv;
+>>>>>>> upstream/android-13
 };
 
 struct bpf_offload_netdev {
@@ -106,6 +112,10 @@ int bpf_prog_offload_init(struct bpf_prog *prog, union bpf_attr *attr)
 		err = -EINVAL;
 		goto err_unlock;
 	}
+<<<<<<< HEAD
+=======
+	offload->offdev = ondev->offdev;
+>>>>>>> upstream/android-13
 	prog->aux->offload = offload;
 	list_add_tail(&offload->offloads, &ondev->progs);
 	dev_put(offload->netdev);
@@ -121,6 +131,7 @@ err_maybe_put:
 	return err;
 }
 
+<<<<<<< HEAD
 static int __bpf_offload_ndo(struct bpf_prog *prog, enum bpf_netdev_command cmd,
 			     struct netdev_bpf *data)
 {
@@ -155,6 +166,22 @@ int bpf_prog_offload_verifier_prep(struct bpf_verifier_env *env)
 exit_unlock:
 	rtnl_unlock();
 	return err;
+=======
+int bpf_prog_offload_verifier_prep(struct bpf_prog *prog)
+{
+	struct bpf_prog_offload *offload;
+	int ret = -ENODEV;
+
+	down_read(&bpf_devs_lock);
+	offload = prog->aux->offload;
+	if (offload) {
+		ret = offload->offdev->ops->prepare(prog);
+		offload->dev_state = !ret;
+	}
+	up_read(&bpf_devs_lock);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 int bpf_prog_offload_verify_insn(struct bpf_verifier_env *env,
@@ -166,12 +193,18 @@ int bpf_prog_offload_verify_insn(struct bpf_verifier_env *env,
 	down_read(&bpf_devs_lock);
 	offload = env->prog->aux->offload;
 	if (offload)
+<<<<<<< HEAD
 		ret = offload->dev_ops->insn_hook(env, insn_idx, prev_insn_idx);
+=======
+		ret = offload->offdev->ops->insn_hook(env, insn_idx,
+						      prev_insn_idx);
+>>>>>>> upstream/android-13
 	up_read(&bpf_devs_lock);
 
 	return ret;
 }
 
+<<<<<<< HEAD
 static void __bpf_prog_offload_destroy(struct bpf_prog *prog)
 {
 	struct bpf_prog_offload *offload = prog->aux->offload;
@@ -181,6 +214,67 @@ static void __bpf_prog_offload_destroy(struct bpf_prog *prog)
 
 	if (offload->dev_state)
 		WARN_ON(__bpf_offload_ndo(prog, BPF_OFFLOAD_DESTROY, &data));
+=======
+int bpf_prog_offload_finalize(struct bpf_verifier_env *env)
+{
+	struct bpf_prog_offload *offload;
+	int ret = -ENODEV;
+
+	down_read(&bpf_devs_lock);
+	offload = env->prog->aux->offload;
+	if (offload) {
+		if (offload->offdev->ops->finalize)
+			ret = offload->offdev->ops->finalize(env);
+		else
+			ret = 0;
+	}
+	up_read(&bpf_devs_lock);
+
+	return ret;
+}
+
+void
+bpf_prog_offload_replace_insn(struct bpf_verifier_env *env, u32 off,
+			      struct bpf_insn *insn)
+{
+	const struct bpf_prog_offload_ops *ops;
+	struct bpf_prog_offload *offload;
+	int ret = -EOPNOTSUPP;
+
+	down_read(&bpf_devs_lock);
+	offload = env->prog->aux->offload;
+	if (offload) {
+		ops = offload->offdev->ops;
+		if (!offload->opt_failed && ops->replace_insn)
+			ret = ops->replace_insn(env, off, insn);
+		offload->opt_failed |= ret;
+	}
+	up_read(&bpf_devs_lock);
+}
+
+void
+bpf_prog_offload_remove_insns(struct bpf_verifier_env *env, u32 off, u32 cnt)
+{
+	struct bpf_prog_offload *offload;
+	int ret = -EOPNOTSUPP;
+
+	down_read(&bpf_devs_lock);
+	offload = env->prog->aux->offload;
+	if (offload) {
+		if (!offload->opt_failed && offload->offdev->ops->remove_insns)
+			ret = offload->offdev->ops->remove_insns(env, off, cnt);
+		offload->opt_failed |= ret;
+	}
+	up_read(&bpf_devs_lock);
+}
+
+static void __bpf_prog_offload_destroy(struct bpf_prog *prog)
+{
+	struct bpf_prog_offload *offload = prog->aux->offload;
+
+	if (offload->dev_state)
+		offload->offdev->ops->destroy(prog);
+>>>>>>> upstream/android-13
 
 	/* Make sure BPF_PROG_GET_NEXT_ID can't find this dead program */
 	bpf_prog_free_id(prog, true);
@@ -192,16 +286,23 @@ static void __bpf_prog_offload_destroy(struct bpf_prog *prog)
 
 void bpf_prog_offload_destroy(struct bpf_prog *prog)
 {
+<<<<<<< HEAD
 	rtnl_lock();
+=======
+>>>>>>> upstream/android-13
 	down_write(&bpf_devs_lock);
 	if (prog->aux->offload)
 		__bpf_prog_offload_destroy(prog);
 	up_write(&bpf_devs_lock);
+<<<<<<< HEAD
 	rtnl_unlock();
+=======
+>>>>>>> upstream/android-13
 }
 
 static int bpf_prog_offload_translate(struct bpf_prog *prog)
 {
+<<<<<<< HEAD
 	struct netdev_bpf data = {};
 	int ret;
 
@@ -210,6 +311,16 @@ static int bpf_prog_offload_translate(struct bpf_prog *prog)
 	rtnl_lock();
 	ret = __bpf_offload_ndo(prog, BPF_OFFLOAD_TRANSLATE, &data);
 	rtnl_unlock();
+=======
+	struct bpf_prog_offload *offload;
+	int ret = -ENODEV;
+
+	down_read(&bpf_devs_lock);
+	offload = prog->aux->offload;
+	if (offload)
+		ret = offload->offdev->ops->translate(prog);
+	up_read(&bpf_devs_lock);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -270,6 +381,7 @@ int bpf_prog_offload_info_fill(struct bpf_prog_info *info,
 	struct inode *ns_inode;
 	struct path ns_path;
 	char __user *uinsns;
+<<<<<<< HEAD
 	void *res;
 	u32 ulen;
 
@@ -278,6 +390,16 @@ int bpf_prog_offload_info_fill(struct bpf_prog_info *info,
 		if (!info->ifindex)
 			return -ENODEV;
 		return PTR_ERR(res);
+=======
+	int res;
+	u32 ulen;
+
+	res = ns_get_path_cb(&ns_path, bpf_prog_offload_info_fill_ns, &args);
+	if (res) {
+		if (!info->ifindex)
+			return -ENODEV;
+		return res;
+>>>>>>> upstream/android-13
 	}
 
 	down_read(&bpf_devs_lock);
@@ -494,6 +616,7 @@ int bpf_map_offload_info_fill(struct bpf_map_info *info, struct bpf_map *map)
 	};
 	struct inode *ns_inode;
 	struct path ns_path;
+<<<<<<< HEAD
 	void *res;
 
 	res = ns_get_path_cb(&ns_path, bpf_map_offload_info_fill_ns, &args);
@@ -501,6 +624,15 @@ int bpf_map_offload_info_fill(struct bpf_map_info *info, struct bpf_map *map)
 		if (!info->ifindex)
 			return -ENODEV;
 		return PTR_ERR(res);
+=======
+	int res;
+
+	res = ns_get_path_cb(&ns_path, bpf_map_offload_info_fill_ns, &args);
+	if (res) {
+		if (!info->ifindex)
+			return -ENODEV;
+		return res;
+>>>>>>> upstream/android-13
 	}
 
 	ns_inode = ns_path.dentry->d_inode;
@@ -637,7 +769,12 @@ unlock:
 }
 EXPORT_SYMBOL_GPL(bpf_offload_dev_netdev_unregister);
 
+<<<<<<< HEAD
 struct bpf_offload_dev *bpf_offload_dev_create(void)
+=======
+struct bpf_offload_dev *
+bpf_offload_dev_create(const struct bpf_prog_offload_ops *ops, void *priv)
+>>>>>>> upstream/android-13
 {
 	struct bpf_offload_dev *offdev;
 	int err;
@@ -657,6 +794,11 @@ struct bpf_offload_dev *bpf_offload_dev_create(void)
 	if (!offdev)
 		return ERR_PTR(-ENOMEM);
 
+<<<<<<< HEAD
+=======
+	offdev->ops = ops;
+	offdev->priv = priv;
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&offdev->netdevs);
 
 	return offdev;
@@ -669,3 +811,12 @@ void bpf_offload_dev_destroy(struct bpf_offload_dev *offdev)
 	kfree(offdev);
 }
 EXPORT_SYMBOL_GPL(bpf_offload_dev_destroy);
+<<<<<<< HEAD
+=======
+
+void *bpf_offload_dev_priv(struct bpf_offload_dev *offdev)
+{
+	return offdev->priv;
+}
+EXPORT_SYMBOL_GPL(bpf_offload_dev_priv);
+>>>>>>> upstream/android-13

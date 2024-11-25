@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * helene.h
  *
@@ -6,6 +10,7 @@
  * Copyright 2012 Sony Corporation
  * Copyright (C) 2014 NetUP Inc.
  * Copyright (C) 2014 Abylay Ospan <aospan@netup.ru>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
   */
 
 #ifndef __DVB_HELENE_H__
@@ -53,7 +60,11 @@ struct helene_config {
 
 #if IS_REACHABLE(CONFIG_DVB_HELENE)
 /**
+<<<<<<< HEAD
  * Attach a helene tuner (terrestrial and cable standards)
+=======
+ * helene_attach - Attach a helene tuner (terrestrial and cable standards)
+>>>>>>> upstream/android-13
  *
  * @fe: frontend to be attached
  * @config: pointer to &struct helene_config with tuner configuration.
@@ -66,7 +77,11 @@ extern struct dvb_frontend *helene_attach(struct dvb_frontend *fe,
 					struct i2c_adapter *i2c);
 
 /**
+<<<<<<< HEAD
  * Attach a helene tuner (satellite standards)
+=======
+ * helene_attach_s - Attach a helene tuner (satellite standards)
+>>>>>>> upstream/android-13
  *
  * @fe: frontend to be attached
  * @config: pointer to &struct helene_config with tuner configuration.

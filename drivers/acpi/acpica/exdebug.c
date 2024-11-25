@@ -3,7 +3,11 @@
  *
  * Module Name: exdebug - Support for stores to the AML Debug Object
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 

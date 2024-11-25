@@ -27,8 +27,13 @@ static DEFINE_MUTEX(g_aw_dsp_lock);
 #define AW_MSG_ID_SPK_STATUS		(0x00000007)
 #define AW_MSG_ID_VERSION		(0x00000008)
 #define AW_MSG_ID_VERSION_NEW		(0x00000012)
+<<<<<<< HEAD
 
 
+=======
+#define AW_MSG_ID_AMBIENT_TEMP	(0x0000000D)
+#define AW_AMBIENT_TEMP_ACCURACY	(20)
+>>>>>>> upstream/android-13
 /*dsp params id*/
 #define AW_MSG_ID_RX_SET_ENABLE		(0x10013D11)
 #define AW_MSG_ID_PARAMS		(0x10013D12)
@@ -90,6 +95,13 @@ static uint32_t afe_param_msg_id[MSG_PARAM_ID_MAX] = {
 #ifdef AW_MTK_PLATFORM_WITH_DSP_OPEN
 extern int mtk_spk_send_ipi_buf_to_dsp(void *data_buffer, uint32_t data_size);
 extern int mtk_spk_recv_ipi_buf_from_dsp(int8_t *buffer, int16_t size, uint32_t *buf_len);
+<<<<<<< HEAD
+=======
+#elif defined AW_ABOX_PLATFORM
+extern int aw882xx_abox_write(const char *buf, int length);
+extern int aw882xx_abox_read(char *buf, int length);
+extern int aw882xx_abox_recover_algo_packet(void);
+>>>>>>> upstream/android-13
 #elif defined AW_QCOM_PLATFORM
 extern int afe_get_topology(int port_id);
 extern int aw_send_afe_cal_apr(uint32_t param_id,
@@ -97,6 +109,10 @@ extern int aw_send_afe_cal_apr(uint32_t param_id,
 extern int aw_send_afe_rx_module_enable(void *buf, int size);
 extern int aw_send_afe_tx_module_enable(void *buf, int size);
 #else
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 static int aw_send_afe_cal_apr(uint32_t param_id,
 	void *buf, int cmd_size, bool write)
 {
@@ -328,6 +344,149 @@ dsp_msg_failed:
 }
 
 /*****************mtk dsp communication function end**********************/
+<<<<<<< HEAD
+=======
+
+/*****************abox dsp communication function start**********************/
+
+#elif defined AW_ABOX_PLATFORM
+static int aw_abox_write_data_to_dsp(int param_id, void *data, int size)
+{
+	int32_t *dsp_data = NULL;
+	aw_dsp_msg_t *hdr = NULL;
+	int ret;
+
+	dsp_data = kzalloc(sizeof(aw_dsp_msg_t) + size, GFP_KERNEL);
+	if (!dsp_data) {
+		pr_err("%s: kzalloc dsp_msg error\n", __func__);
+		return -ENOMEM;
+	}
+
+	hdr = (aw_dsp_msg_t *)dsp_data;
+	hdr->type = AW_DSP_MSG_TYPE_DATA;
+	hdr->opcode_id = param_id;
+	hdr->version = AW_DSP_MSG_HDR_VER;
+
+	memcpy(((char *)dsp_data) + sizeof(aw_dsp_msg_t),
+		data, size);
+
+	ret = aw882xx_abox_write((const char *)dsp_data,
+				sizeof(aw_dsp_msg_t) + size);
+	if (ret < 0) {
+		pr_err("%s:write data failed\n", __func__);
+		kfree(dsp_data);
+		dsp_data = NULL;
+		return ret;
+	}
+
+	kfree(dsp_data);
+	dsp_data = NULL;
+	return 0;
+}
+
+static int aw_abox_read_data_from_dsp(int param_id, void *data, int size)
+{
+	int ret;
+	aw_dsp_msg_t hdr;
+
+	hdr.type = AW_DSP_MSG_TYPE_CMD;
+	hdr.opcode_id = param_id;
+	hdr.version = AW_DSP_MSG_HDR_VER;
+
+	mutex_lock(&g_aw_dsp_msg_lock);
+	ret = aw882xx_abox_write((const char *)&hdr, sizeof(aw_dsp_msg_t));
+	if (ret < 0) {
+		pr_err("%s:send cmd failed\n", __func__);
+		goto dsp_msg_failed;
+	}
+
+	ret = aw882xx_abox_read((char *)data, size);
+	if (ret < 0) {
+		pr_err("%s:get data failed\n", __func__);
+		goto dsp_msg_failed;
+	}
+	mutex_unlock(&g_aw_dsp_msg_lock);
+	return 0;
+
+dsp_msg_failed:
+	mutex_unlock(&g_aw_dsp_msg_lock);
+	return ret;
+}
+
+static int aw_abox_read_msg_from_dsp(int msg_num, int inline_id,
+					char *data, int size)
+{
+	aw_dsp_msg_t hdr[2];
+	int ret;
+
+	hdr[0].type = AW_DSP_MSG_TYPE_DATA;
+	hdr[0].opcode_id = afe_param_msg_id[msg_num];
+	hdr[0].version = AW_DSP_MSG_HDR_VER;
+	hdr[1].type = AW_DSP_MSG_TYPE_CMD;
+	hdr[1].opcode_id = inline_id;
+	hdr[1].version = AW_DSP_MSG_HDR_VER;
+
+	mutex_lock(&g_aw_dsp_msg_lock);
+	ret = aw882xx_abox_write((const char *)&hdr, 2 * sizeof(aw_dsp_msg_t));
+	if (ret < 0) {
+		pr_err("%s:send cmd failed\n", __func__);
+		goto dsp_msg_failed;
+	}
+
+	ret = aw882xx_abox_read((char *)data, size);
+	if (ret < 0) {
+		pr_err("%s:get data failed\n", __func__);
+		goto dsp_msg_failed;
+	}
+	mutex_unlock(&g_aw_dsp_msg_lock);
+	return 0;
+
+dsp_msg_failed:
+	mutex_unlock(&g_aw_dsp_msg_lock);
+	return ret;
+}
+
+static int aw_abox_write_msg_to_dsp(int msg_num, int inline_id,
+				void *data, int size)
+{
+	int32_t *dsp_msg = NULL;
+	aw_dsp_msg_t *hdr = NULL;
+	int ret;
+
+	dsp_msg = kzalloc(sizeof(aw_dsp_msg_t) + size,
+			GFP_KERNEL);
+	if (!dsp_msg) {
+		pr_err("%s: inline_id:0x%x kzalloc dsp_msg error\n",
+			__func__, inline_id);
+		return -ENOMEM;
+	}
+	hdr = (aw_dsp_msg_t *)dsp_msg;
+	hdr->type = AW_DSP_MSG_TYPE_DATA;
+	hdr->opcode_id = inline_id;
+	hdr->version = AW_DSP_MSG_HDR_VER;
+
+	memcpy(((char *)dsp_msg) + sizeof(aw_dsp_msg_t),
+			data, size);
+
+	ret = aw_abox_write_data_to_dsp(afe_param_msg_id[msg_num], (void *)dsp_msg,
+					sizeof(aw_dsp_msg_t) + size);
+	if (ret < 0) {
+		pr_err("%s:inline_id:0x%x, write data failed\n",
+			__func__, inline_id);
+		kfree(dsp_msg);
+		dsp_msg = NULL;
+		return ret;
+	}
+
+	kfree(dsp_msg);
+	dsp_msg = NULL;
+	return 0;
+}
+
+
+/*****************abox dsp communication function end**********************/
+
+>>>>>>> upstream/android-13
 #else
 /*****************qcom dsp communication function start**********************/
 static int aw_afe_get_topology(uint32_t param_id)
@@ -472,7 +631,10 @@ dsp_msg_failed:
 	mutex_unlock(&g_aw_dsp_msg_lock);
 	return ret;
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 #endif
 
 /******************* afe module communication function ************************/
@@ -480,6 +642,11 @@ static int aw_dsp_set_afe_rx_module_enable(void *buf, int size)
 {
 #ifdef AW_MTK_PLATFORM_WITH_DSP_OPEN
 	return aw_mtk_write_data_to_dsp(AW_MSG_ID_RX_SET_ENABLE, buf, size);
+<<<<<<< HEAD
+=======
+#elif defined AW_ABOX_PLATFORM
+	return aw_abox_write_data_to_dsp(AW_MSG_ID_RX_SET_ENABLE, buf, size);
+>>>>>>> upstream/android-13
 #else
 	return aw_send_afe_rx_module_enable(buf, size);
 #endif
@@ -489,6 +656,11 @@ static int aw_dsp_set_afe_tx_module_enable(void *buf, int size)
 {
 #ifdef AW_MTK_PLATFORM_WITH_DSP_OPEN
 	return aw_mtk_write_data_to_dsp(AW_MSG_ID_TX_SET_ENABLE, buf, size);
+<<<<<<< HEAD
+=======
+#elif defined AW_ABOX_PLATFORM
+	return aw_abox_write_data_to_dsp(AW_MSG_ID_TX_SET_ENABLE, buf, size);
+>>>>>>> upstream/android-13
 #else
 	return aw_send_afe_tx_module_enable(buf, size);
 #endif
@@ -498,6 +670,11 @@ static int aw_dsp_get_afe_rx_module_enable(void *buf, int size)
 {
 #ifdef AW_MTK_PLATFORM_WITH_DSP_OPEN
 	return aw_mtk_write_data_to_dsp(AW_MSG_ID_RX_SET_ENABLE, buf, size);
+<<<<<<< HEAD
+=======
+#elif defined AW_ABOX_PLATFORM
+	return aw_abox_write_data_to_dsp(AW_MSG_ID_RX_SET_ENABLE, buf, size);
+>>>>>>> upstream/android-13
 #else
 	return aw_qcom_read_data_from_dsp(AW_MSG_ID_RX_SET_ENABLE, buf, size);
 #endif
@@ -507,6 +684,11 @@ static int aw_dsp_get_afe_tx_module_enable(void *buf, int size)
 {
 #ifdef AW_MTK_PLATFORM_WITH_DSP_OPEN
 	return aw_mtk_write_data_to_dsp(AW_MSG_ID_TX_SET_ENABLE, buf, size);
+<<<<<<< HEAD
+=======
+#elif defined AW_ABOX_PLATFORM
+	return aw_abox_write_data_to_dsp(AW_MSG_ID_RX_SET_ENABLE, buf, size);
+>>>>>>> upstream/android-13
 #else
 	return aw_qcom_read_data_from_dsp(AW_MSG_ID_TX_SET_ENABLE, buf, size);
 #endif
@@ -517,6 +699,11 @@ static int aw_read_msg_from_dsp(int msg_num, uint32_t msg_id, char *data_ptr, un
 {
 #ifdef AW_MTK_PLATFORM_WITH_DSP_OPEN
 	return aw_mtk_read_msg_from_dsp(msg_num, msg_id, data_ptr, size);
+<<<<<<< HEAD
+=======
+#elif defined AW_ABOX_PLATFORM
+	return aw_abox_read_msg_from_dsp(msg_num, msg_id, data_ptr, size);
+>>>>>>> upstream/android-13
 #else
 	return aw_qcom_read_msg_from_dsp(msg_num, msg_id, data_ptr, size);
 #endif
@@ -526,6 +713,11 @@ static int aw_write_msg_to_dsp(int msg_num, uint32_t msg_id, char *data_ptr, uns
 {
 #ifdef AW_MTK_PLATFORM_WITH_DSP_OPEN
 	return aw_mtk_write_msg_to_dsp(msg_num, msg_id, data_ptr, size);
+<<<<<<< HEAD
+=======
+#elif defined AW_ABOX_PLATFORM
+	return aw_abox_write_msg_to_dsp(msg_num, msg_id, data_ptr, size);
+>>>>>>> upstream/android-13
 #else
 	return aw_qcom_write_msg_to_dsp(msg_num, msg_id, data_ptr, size);
 #endif
@@ -536,6 +728,11 @@ static int aw_read_data_from_dsp(uint32_t param_id, void *data, int size)
 {
 #ifdef AW_MTK_PLATFORM_WITH_DSP_OPEN
 	return aw_mtk_read_data_from_dsp(param_id, data, size);
+<<<<<<< HEAD
+=======
+#elif defined AW_ABOX_PLATFORM
+	return aw_abox_read_data_from_dsp(param_id, data, size);
+>>>>>>> upstream/android-13
 #else
 	return aw_qcom_read_data_from_dsp(param_id, data, size);
 #endif
@@ -545,11 +742,28 @@ static int aw_write_data_to_dsp(uint32_t param_id, void *data, int size)
 {
 #ifdef AW_MTK_PLATFORM_WITH_DSP_OPEN
 	return aw_mtk_write_data_to_dsp(param_id, data, size);
+<<<<<<< HEAD
+=======
+#elif defined AW_ABOX_PLATFORM
+	return aw_abox_write_data_to_dsp(param_id, data, size);
+>>>>>>> upstream/android-13
 #else
 	return aw_qcom_write_data_to_dsp(param_id, data, size);
 #endif
 }
 
+<<<<<<< HEAD
+=======
+int aw_dsp_recover_algo_packet(void)
+{
+#ifdef AW_ABOX_PLATFORM
+	return aw882xx_abox_recover_algo_packet();
+#else
+	return 0;
+#endif
+}
+
+>>>>>>> upstream/android-13
 /************************* dsp communication function *****************************/
 int aw_dsp_set_afe_module_en(int type, int enable)
 {
@@ -1036,6 +1250,42 @@ int aw_dsp_write_vmax(struct aw_device *aw_dev, char *data, unsigned int data_le
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+int aw_dsp_write_ambient_temp(struct aw_device *aw_dev, int *temp)
+{
+	uint32_t msg_id;
+	int ret;
+	int msg_num;
+	int temp_left = 0;
+	int temp_right = 0;
+	int temp_value[2] = { 0 };
+	uint32_t data_len = sizeof(temp_value);
+
+	temp_left = *temp;
+	temp_right = *temp;
+
+	ret = aw_get_msg_num(aw_dev->channel, &msg_num);
+	if (ret < 0) {
+		aw_dev_err(aw_dev->dev, "get msg_num failed ");
+		return ret;
+	}
+
+	msg_id = AW_MSG_ID_AMBIENT_TEMP;
+	temp_value[0] = temp_left << AW_AMBIENT_TEMP_ACCURACY;
+	temp_value[1] = temp_right << AW_AMBIENT_TEMP_ACCURACY;
+
+	ret = aw_write_msg_to_dsp(msg_num, msg_id, (char *)&temp_value[0], data_len);
+	if (ret) {
+		aw_dev_err(aw_dev->dev, "write ambient temp failed ");
+		return ret;
+	}
+	aw_dev_dbg(aw_dev->dev, "write ambient temp done");
+	return 0;
+
+}
+
+>>>>>>> upstream/android-13
 int aw_dsp_noise_en(struct aw_device *aw_dev, bool is_noise)
 {
 	int32_t noise = is_noise;

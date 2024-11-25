@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 /**
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  * GSPCA sub driver for W996[78]CF JPEG USB Dual Mode Camera Chip.
  *
  * Copyright (C) 2009 Hans de Goede <hdegoede@redhat.com>
@@ -7,6 +12,7 @@
  * This module is adapted from the in kernel v4l1 w9968cf driver:
  *
  * Copyright (C) 2002-2004 by Luca Risolia <luca.risolia@studio.unibo.it>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +24,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 /* Note this is not a stand alone driver, it gets included in ov519.c, this
@@ -436,7 +444,11 @@ static void w9968cf_set_crop_window(struct sd *sd)
 		start_cropy = 35;
 	}
 
+<<<<<<< HEAD
 	/* Work around to avoid FP arithmetics */
+=======
+	/* Work around to avoid FP arithmetic */
+>>>>>>> upstream/android-13
 	#define SC(x) ((x) << 10)
 
 	/* Scaling factors */

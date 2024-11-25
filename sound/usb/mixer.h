@@ -4,6 +4,11 @@
 
 #include <sound/info.h>
 
+<<<<<<< HEAD
+=======
+struct media_mixer_ctl;
+
+>>>>>>> upstream/android-13
 struct usbmix_connector_map {
 	u8 id;
 	u8 delegated_id;
@@ -33,8 +38,18 @@ struct usb_mixer_interface {
 	struct urb *rc_urb;
 	struct usb_ctrlrequest *rc_setup_packet;
 	u8 rc_buffer[6];
+<<<<<<< HEAD
 
 	bool disconnected;
+=======
+	struct media_mixer_ctl *media_mixer_ctl;
+
+	bool disconnected;
+
+	void *private_data;
+	void (*private_free)(struct usb_mixer_interface *mixer);
+	void (*private_suspend)(struct usb_mixer_interface *mixer);
+>>>>>>> upstream/android-13
 };
 
 #define MAX_CHANNELS	16	/* max logical channels */
@@ -48,6 +63,10 @@ enum {
 	USB_MIXER_U16,
 	USB_MIXER_S32,
 	USB_MIXER_U32,
+<<<<<<< HEAD
+=======
+	USB_MIXER_BESPOKEN,	/* non-standard type */
+>>>>>>> upstream/android-13
 };
 
 typedef void (*usb_mixer_elem_dump_func_t)(struct snd_info_buffer *buffer,
@@ -88,8 +107,12 @@ struct usb_mixer_elem_info {
 	void *private_data;
 };
 
+<<<<<<< HEAD
 int snd_usb_create_mixer(struct snd_usb_audio *chip, int ctrlif,
 			 int ignore_error);
+=======
+int snd_usb_create_mixer(struct snd_usb_audio *chip, int ctrlif);
+>>>>>>> upstream/android-13
 void snd_usb_mixer_disconnect(struct usb_mixer_interface *mixer);
 
 void snd_usb_mixer_notify_id(struct usb_mixer_interface *mixer, int unitid);
@@ -113,7 +136,11 @@ int snd_usb_mixer_vol_tlv(struct snd_kcontrol *kcontrol, int op_flag,
 
 #ifdef CONFIG_PM
 int snd_usb_mixer_suspend(struct usb_mixer_interface *mixer);
+<<<<<<< HEAD
 int snd_usb_mixer_resume(struct usb_mixer_interface *mixer, bool reset_resume);
+=======
+int snd_usb_mixer_resume(struct usb_mixer_interface *mixer);
+>>>>>>> upstream/android-13
 #endif
 
 int snd_usb_set_cur_mix_value(struct usb_mixer_elem_info *cval, int channel,
@@ -124,6 +151,10 @@ int snd_usb_get_cur_mix_value(struct usb_mixer_elem_info *cval,
 
 extern void snd_usb_mixer_elem_free(struct snd_kcontrol *kctl);
 
+<<<<<<< HEAD
 extern struct snd_kcontrol_new *snd_usb_feature_unit_ctl;
+=======
+extern const struct snd_kcontrol_new *snd_usb_feature_unit_ctl;
+>>>>>>> upstream/android-13
 
 #endif /* __USBMIXER_H */

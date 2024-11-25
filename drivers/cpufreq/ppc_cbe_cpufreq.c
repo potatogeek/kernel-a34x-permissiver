@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * cpufreq driver for the cell processor
  *
  * (C) Copyright IBM Deutschland Entwicklung GmbH 2005-2007
  *
  * Author: Christian Krafft <krafft@de.ibm.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/cpufreq.h>
@@ -123,6 +130,16 @@ static int cbe_cpufreq_cpu_init(struct cpufreq_policy *policy)
 #endif
 
 	policy->freq_table = cbe_freqs;
+<<<<<<< HEAD
+=======
+	cbe_cpufreq_pmi_policy_init(policy);
+	return 0;
+}
+
+static int cbe_cpufreq_cpu_exit(struct cpufreq_policy *policy)
+{
+	cbe_cpufreq_pmi_policy_exit(policy);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -142,6 +159,10 @@ static struct cpufreq_driver cbe_cpufreq_driver = {
 	.verify		= cpufreq_generic_frequency_table_verify,
 	.target_index	= cbe_cpufreq_target,
 	.init		= cbe_cpufreq_cpu_init,
+<<<<<<< HEAD
+=======
+	.exit		= cbe_cpufreq_cpu_exit,
+>>>>>>> upstream/android-13
 	.name		= "cbe-cpufreq",
 	.flags		= CPUFREQ_CONST_LOOPS,
 };
@@ -152,15 +173,34 @@ static struct cpufreq_driver cbe_cpufreq_driver = {
 
 static int __init cbe_cpufreq_init(void)
 {
+<<<<<<< HEAD
 	if (!machine_is(cell))
 		return -ENODEV;
 
 	return cpufreq_register_driver(&cbe_cpufreq_driver);
+=======
+	int ret;
+
+	if (!machine_is(cell))
+		return -ENODEV;
+
+	cbe_cpufreq_pmi_init();
+
+	ret = cpufreq_register_driver(&cbe_cpufreq_driver);
+	if (ret)
+		cbe_cpufreq_pmi_exit();
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void __exit cbe_cpufreq_exit(void)
 {
 	cpufreq_unregister_driver(&cbe_cpufreq_driver);
+<<<<<<< HEAD
+=======
+	cbe_cpufreq_pmi_exit();
+>>>>>>> upstream/android-13
 }
 
 module_init(cbe_cpufreq_init);

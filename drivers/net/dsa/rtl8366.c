@@ -11,7 +11,11 @@
 #include <linux/if_bridge.h>
 #include <net/dsa.h>
 
+<<<<<<< HEAD
 #include "realtek-smi.h"
+=======
+#include "realtek-smi-core.h"
+>>>>>>> upstream/android-13
 
 int rtl8366_mc_is_used(struct realtek_smi *smi, int mc_index, int *used)
 {
@@ -311,7 +315,11 @@ int rtl8366_init_vlan(struct realtek_smi *smi)
 			/* For the CPU port, make all ports members of this
 			 * VLAN.
 			 */
+<<<<<<< HEAD
 			mask = GENMASK(smi->num_ports - 1, 0);
+=======
+			mask = GENMASK((int)smi->num_ports - 1, 0);
+>>>>>>> upstream/android-13
 		else
 			/* For all other ports, enable itself plus the
 			 * CPU port.
@@ -340,7 +348,12 @@ int rtl8366_init_vlan(struct realtek_smi *smi)
 }
 EXPORT_SYMBOL_GPL(rtl8366_init_vlan);
 
+<<<<<<< HEAD
 int rtl8366_vlan_filtering(struct dsa_switch *ds, int port, bool vlan_filtering)
+=======
+int rtl8366_vlan_filtering(struct dsa_switch *ds, int port, bool vlan_filtering,
+			   struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct realtek_smi *smi = ds->priv;
 	struct rtl8366_vlan_4k vlan4k;
@@ -374,6 +387,7 @@ int rtl8366_vlan_filtering(struct dsa_switch *ds, int port, bool vlan_filtering)
 }
 EXPORT_SYMBOL_GPL(rtl8366_vlan_filtering);
 
+<<<<<<< HEAD
 int rtl8366_vlan_prepare(struct dsa_switch *ds, int port,
 			 const struct switchdev_obj_port_vlan *vlan)
 {
@@ -402,12 +416,18 @@ EXPORT_SYMBOL_GPL(rtl8366_vlan_prepare);
 
 void rtl8366_vlan_add(struct dsa_switch *ds, int port,
 		      const struct switchdev_obj_port_vlan *vlan)
+=======
+int rtl8366_vlan_add(struct dsa_switch *ds, int port,
+		     const struct switchdev_obj_port_vlan *vlan,
+		     struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	bool untagged = !!(vlan->flags & BRIDGE_VLAN_INFO_UNTAGGED);
 	bool pvid = !!(vlan->flags & BRIDGE_VLAN_INFO_PVID);
 	struct realtek_smi *smi = ds->priv;
 	u32 member = 0;
 	u32 untag = 0;
+<<<<<<< HEAD
 	u16 vid;
 	int ret;
 
@@ -419,11 +439,33 @@ void rtl8366_vlan_add(struct dsa_switch *ds, int port,
 		 vlan->vid_begin,
 		 port,
 		 untagged ? "untagged" : "tagged",
+=======
+	int ret;
+
+	if (!smi->ops->is_vlan_valid(smi, vlan->vid)) {
+		NL_SET_ERR_MSG_MOD(extack, "VLAN ID not valid");
+		return -EINVAL;
+	}
+
+	/* Enable VLAN in the hardware
+	 * FIXME: what's with this 4k business?
+	 * Just rtl8366_enable_vlan() seems inconclusive.
+	 */
+	ret = rtl8366_enable_vlan4k(smi, true);
+	if (ret) {
+		NL_SET_ERR_MSG_MOD(extack, "Failed to enable VLAN 4K");
+		return ret;
+	}
+
+	dev_info(smi->dev, "add VLAN %d on port %d, %s, %s\n",
+		 vlan->vid, port, untagged ? "untagged" : "tagged",
+>>>>>>> upstream/android-13
 		 pvid ? " PVID" : "no PVID");
 
 	if (dsa_is_dsa_port(ds, port) || dsa_is_cpu_port(ds, port))
 		dev_err(smi->dev, "port is DSA or CPU port\n");
 
+<<<<<<< HEAD
 	for (vid = vlan->vid_begin; vid <= vlan->vid_end; vid++) {
 		member |= BIT(port);
 
@@ -449,6 +491,30 @@ void rtl8366_vlan_add(struct dsa_switch *ds, int port,
 			dev_dbg(smi->dev, "VLAN add: added VLAN %d with PVID on port %d\n",
 				vid, port);
 	}
+=======
+	member |= BIT(port);
+
+	if (untagged)
+		untag |= BIT(port);
+
+	ret = rtl8366_set_vlan(smi, vlan->vid, member, untag, 0);
+	if (ret) {
+		dev_err(smi->dev, "failed to set up VLAN %04x", vlan->vid);
+		return ret;
+	}
+
+	if (!pvid)
+		return 0;
+
+	ret = rtl8366_set_pvid(smi, port, vlan->vid);
+	if (ret) {
+		dev_err(smi->dev, "failed to set PVID on port %d to VLAN %04x",
+			port, vlan->vid);
+		return ret;
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(rtl8366_vlan_add);
 
@@ -456,6 +522,7 @@ int rtl8366_vlan_del(struct dsa_switch *ds, int port,
 		     const struct switchdev_obj_port_vlan *vlan)
 {
 	struct realtek_smi *smi = ds->priv;
+<<<<<<< HEAD
 	u16 vid;
 	int ret;
 
@@ -496,6 +563,41 @@ int rtl8366_vlan_del(struct dsa_switch *ds, int port,
 				}
 				break;
 			}
+=======
+	int ret, i;
+
+	dev_info(smi->dev, "del VLAN %04x on port %d\n", vlan->vid, port);
+
+	for (i = 0; i < smi->num_vlan_mc; i++) {
+		struct rtl8366_vlan_mc vlanmc;
+
+		ret = smi->ops->get_vlan_mc(smi, i, &vlanmc);
+		if (ret)
+			return ret;
+
+		if (vlan->vid == vlanmc.vid) {
+			/* Remove this port from the VLAN */
+			vlanmc.member &= ~BIT(port);
+			vlanmc.untag &= ~BIT(port);
+			/*
+			 * If no ports are members of this VLAN
+			 * anymore then clear the whole member
+			 * config so it can be reused.
+			 */
+			if (!vlanmc.member) {
+				vlanmc.vid = 0;
+				vlanmc.priority = 0;
+				vlanmc.fid = 0;
+			}
+			ret = smi->ops->set_vlan_mc(smi, i, &vlanmc);
+			if (ret) {
+				dev_err(smi->dev,
+					"failed to remove VLAN %04x\n",
+					vlan->vid);
+				return ret;
+			}
+			break;
+>>>>>>> upstream/android-13
 		}
 	}
 

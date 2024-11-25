@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2014 Red Hat
  * Author: Rob Clark <robdclark@gmail.com>
  * Author: Vinay Simha <vinaysimha@inforcecomputing.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
@@ -18,6 +23,14 @@
 
 #include <drm/drm_crtc.h>
 #include <drm/drm_crtc_helper.h>
+=======
+ */
+
+#include <linux/delay.h>
+
+#include <drm/drm_crtc.h>
+#include <drm/drm_probe_helper.h>
+>>>>>>> upstream/android-13
 
 #include "mdp4_kms.h"
 
@@ -39,6 +52,7 @@ static struct mdp4_kms *get_kms(struct drm_encoder *encoder)
 	return to_mdp4_kms(to_mdp_kms(priv->kms));
 }
 
+<<<<<<< HEAD
 #ifdef DOWNSTREAM_CONFIG_MSM_BUS_SCALING
 #include <mach/board.h>
 static void bs_init(struct mdp4_lcdc_encoder *mdp4_lcdc_encoder)
@@ -79,11 +93,16 @@ static void bs_fini(struct mdp4_lcdc_encoder *mdp4_lcdc_encoder) {}
 static void bs_set(struct mdp4_lcdc_encoder *mdp4_lcdc_encoder, int idx) {}
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static void mdp4_lcdc_encoder_destroy(struct drm_encoder *encoder)
 {
 	struct mdp4_lcdc_encoder *mdp4_lcdc_encoder =
 			to_mdp4_lcdc_encoder(encoder);
+<<<<<<< HEAD
 	bs_fini(mdp4_lcdc_encoder);
+=======
+>>>>>>> upstream/android-13
 	drm_encoder_cleanup(encoder);
 	kfree(mdp4_lcdc_encoder);
 }
@@ -224,7 +243,11 @@ static void setup_phy(struct drm_encoder *encoder)
 		break;
 
 	default:
+<<<<<<< HEAD
 		dev_err(dev->dev, "unknown bpp: %d\n", bpp);
+=======
+		DRM_DEV_ERROR(dev->dev, "unknown bpp: %d\n", bpp);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -241,7 +264,11 @@ static void setup_phy(struct drm_encoder *encoder)
 				MDP4_LCDC_LVDS_INTF_CTL_CH1_CLK_LANE_EN;
 		break;
 	default:
+<<<<<<< HEAD
 		dev_err(dev->dev, "unknown # of channels: %d\n", nchan);
+=======
+		DRM_DEV_ERROR(dev->dev, "unknown # of channels: %d\n", nchan);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -273,6 +300,7 @@ static void mdp4_lcdc_encoder_mode_set(struct drm_encoder *encoder,
 
 	mode = adjusted_mode;
 
+<<<<<<< HEAD
 	DBG("set mode: %d:\"%s\" %d %d %d %d %d %d %d %d %d %d 0x%x 0x%x",
 			mode->base.id, mode->name,
 			mode->vrefresh, mode->clock,
@@ -281,6 +309,9 @@ static void mdp4_lcdc_encoder_mode_set(struct drm_encoder *encoder,
 			mode->vdisplay, mode->vsync_start,
 			mode->vsync_end, mode->vtotal,
 			mode->type, mode->flags);
+=======
+	DBG("set mode: " DRM_MODE_FMT, DRM_MODE_ARG(mode));
+>>>>>>> upstream/android-13
 
 	mdp4_lcdc_encoder->pixclock = mode->clock * 1000;
 
@@ -361,11 +392,17 @@ static void mdp4_lcdc_encoder_disable(struct drm_encoder *encoder)
 	for (i = 0; i < ARRAY_SIZE(mdp4_lcdc_encoder->regs); i++) {
 		ret = regulator_disable(mdp4_lcdc_encoder->regs[i]);
 		if (ret)
+<<<<<<< HEAD
 			dev_err(dev->dev, "failed to disable regulator: %d\n", ret);
 	}
 
 	bs_set(mdp4_lcdc_encoder, 0);
 
+=======
+			DRM_DEV_ERROR(dev->dev, "failed to disable regulator: %d\n", ret);
+	}
+
+>>>>>>> upstream/android-13
 	mdp4_lcdc_encoder->enabled = false;
 }
 
@@ -377,12 +414,17 @@ static void mdp4_lcdc_encoder_enable(struct drm_encoder *encoder)
 	unsigned long pc = mdp4_lcdc_encoder->pixclock;
 	struct mdp4_kms *mdp4_kms = get_kms(encoder);
 	struct drm_panel *panel;
+<<<<<<< HEAD
+=======
+	uint32_t config;
+>>>>>>> upstream/android-13
 	int i, ret;
 
 	if (WARN_ON(mdp4_lcdc_encoder->enabled))
 		return;
 
 	/* TODO: hard-coded for 18bpp: */
+<<<<<<< HEAD
 	mdp4_crtc_set_config(encoder->crtc,
 			MDP4_DMA_CONFIG_R_BPC(BPC6) |
 			MDP4_DMA_CONFIG_G_BPC(BPC6) |
@@ -394,20 +436,46 @@ static void mdp4_lcdc_encoder_enable(struct drm_encoder *encoder)
 	mdp4_crtc_set_intf(encoder->crtc, INTF_LCDC_DTV, 0);
 
 	bs_set(mdp4_lcdc_encoder, 1);
+=======
+	config =
+		MDP4_DMA_CONFIG_R_BPC(BPC6) |
+		MDP4_DMA_CONFIG_G_BPC(BPC6) |
+		MDP4_DMA_CONFIG_B_BPC(BPC6) |
+		MDP4_DMA_CONFIG_PACK(0x21) |
+		MDP4_DMA_CONFIG_DEFLKR_EN |
+		MDP4_DMA_CONFIG_DITHER_EN;
+
+	if (!of_property_read_bool(dev->dev->of_node, "qcom,lcdc-align-lsb"))
+		config |= MDP4_DMA_CONFIG_PACK_ALIGN_MSB;
+
+	mdp4_crtc_set_config(encoder->crtc, config);
+	mdp4_crtc_set_intf(encoder->crtc, INTF_LCDC_DTV, 0);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < ARRAY_SIZE(mdp4_lcdc_encoder->regs); i++) {
 		ret = regulator_enable(mdp4_lcdc_encoder->regs[i]);
 		if (ret)
+<<<<<<< HEAD
 			dev_err(dev->dev, "failed to enable regulator: %d\n", ret);
+=======
+			DRM_DEV_ERROR(dev->dev, "failed to enable regulator: %d\n", ret);
+>>>>>>> upstream/android-13
 	}
 
 	DBG("setting lcdc_clk=%lu", pc);
 	ret = clk_set_rate(mdp4_lcdc_encoder->lcdc_clk, pc);
 	if (ret)
+<<<<<<< HEAD
 		dev_err(dev->dev, "failed to configure lcdc_clk: %d\n", ret);
 	ret = clk_prepare_enable(mdp4_lcdc_encoder->lcdc_clk);
 	if (ret)
 		dev_err(dev->dev, "failed to enable lcdc_clk: %d\n", ret);
+=======
+		DRM_DEV_ERROR(dev->dev, "failed to configure lcdc_clk: %d\n", ret);
+	ret = clk_prepare_enable(mdp4_lcdc_encoder->lcdc_clk);
+	if (ret)
+		DRM_DEV_ERROR(dev->dev, "failed to enable lcdc_clk: %d\n", ret);
+>>>>>>> upstream/android-13
 
 	panel = of_drm_find_panel(mdp4_lcdc_encoder->panel_node);
 	if (!IS_ERR(panel)) {
@@ -461,7 +529,11 @@ struct drm_encoder *mdp4_lcdc_encoder_init(struct drm_device *dev,
 	/* TODO: do we need different pll in other cases? */
 	mdp4_lcdc_encoder->lcdc_clk = mpd4_lvds_pll_init(dev);
 	if (IS_ERR(mdp4_lcdc_encoder->lcdc_clk)) {
+<<<<<<< HEAD
 		dev_err(dev->dev, "failed to get lvds_clk\n");
+=======
+		DRM_DEV_ERROR(dev->dev, "failed to get lvds_clk\n");
+>>>>>>> upstream/android-13
 		ret = PTR_ERR(mdp4_lcdc_encoder->lcdc_clk);
 		goto fail;
 	}
@@ -470,7 +542,11 @@ struct drm_encoder *mdp4_lcdc_encoder_init(struct drm_device *dev,
 	reg = devm_regulator_get(dev->dev, "lvds-vccs-3p3v");
 	if (IS_ERR(reg)) {
 		ret = PTR_ERR(reg);
+<<<<<<< HEAD
 		dev_err(dev->dev, "failed to get lvds-vccs-3p3v: %d\n", ret);
+=======
+		DRM_DEV_ERROR(dev->dev, "failed to get lvds-vccs-3p3v: %d\n", ret);
+>>>>>>> upstream/android-13
 		goto fail;
 	}
 	mdp4_lcdc_encoder->regs[0] = reg;
@@ -478,7 +554,11 @@ struct drm_encoder *mdp4_lcdc_encoder_init(struct drm_device *dev,
 	reg = devm_regulator_get(dev->dev, "lvds-pll-vdda");
 	if (IS_ERR(reg)) {
 		ret = PTR_ERR(reg);
+<<<<<<< HEAD
 		dev_err(dev->dev, "failed to get lvds-pll-vdda: %d\n", ret);
+=======
+		DRM_DEV_ERROR(dev->dev, "failed to get lvds-pll-vdda: %d\n", ret);
+>>>>>>> upstream/android-13
 		goto fail;
 	}
 	mdp4_lcdc_encoder->regs[1] = reg;
@@ -486,13 +566,20 @@ struct drm_encoder *mdp4_lcdc_encoder_init(struct drm_device *dev,
 	reg = devm_regulator_get(dev->dev, "lvds-vdda");
 	if (IS_ERR(reg)) {
 		ret = PTR_ERR(reg);
+<<<<<<< HEAD
 		dev_err(dev->dev, "failed to get lvds-vdda: %d\n", ret);
+=======
+		DRM_DEV_ERROR(dev->dev, "failed to get lvds-vdda: %d\n", ret);
+>>>>>>> upstream/android-13
 		goto fail;
 	}
 	mdp4_lcdc_encoder->regs[2] = reg;
 
+<<<<<<< HEAD
 	bs_init(mdp4_lcdc_encoder);
 
+=======
+>>>>>>> upstream/android-13
 	return encoder;
 
 fail:

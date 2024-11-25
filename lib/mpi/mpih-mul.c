@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* mpihelp-mul.c  -  MPI helper functions
  * Copyright (C) 1994, 1996, 1998, 1999,
  *               2000 Free Software Foundation, Inc.
  *
  * This file is part of GnuPG.
  *
+<<<<<<< HEAD
  * GnuPG is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -18,6 +23,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
  *
+=======
+>>>>>>> upstream/android-13
  * Note: This code is heavily based on the GNU MP Library.
  *	 Actually it's the same code with only minor changes in the
  *	 way the data is stored; this is to support the abstraction
@@ -330,6 +337,34 @@ mpih_sqr_n(mpi_ptr_t prodp, mpi_ptr_t up, mpi_size_t size, mpi_ptr_t tspace)
 	}
 }
 
+<<<<<<< HEAD
+=======
+
+void mpihelp_mul_n(mpi_ptr_t prodp,
+		mpi_ptr_t up, mpi_ptr_t vp, mpi_size_t size)
+{
+	if (up == vp) {
+		if (size < KARATSUBA_THRESHOLD)
+			mpih_sqr_n_basecase(prodp, up, size);
+		else {
+			mpi_ptr_t tspace;
+			tspace = mpi_alloc_limb_space(2 * size);
+			mpih_sqr_n(prodp, up, size, tspace);
+			mpi_free_limb_space(tspace);
+		}
+	} else {
+		if (size < KARATSUBA_THRESHOLD)
+			mul_n_basecase(prodp, up, vp, size);
+		else {
+			mpi_ptr_t tspace;
+			tspace = mpi_alloc_limb_space(2 * size);
+			mul_n(prodp, up, vp, size, tspace);
+			mpi_free_limb_space(tspace);
+		}
+	}
+}
+
+>>>>>>> upstream/android-13
 int
 mpihelp_mul_karatsuba_case(mpi_ptr_t prodp,
 			   mpi_ptr_t up, mpi_size_t usize,

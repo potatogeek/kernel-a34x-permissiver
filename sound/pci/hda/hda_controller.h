@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Common functionality for the alsa driver code base for HD Audio.
  *
@@ -10,6 +11,11 @@
  *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  *  more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ *  Common functionality for the alsa driver code base for HD Audio.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __SOUND_HDA_CONTROLLER_H
@@ -20,7 +26,11 @@
 #include <sound/core.h>
 #include <sound/pcm.h>
 #include <sound/initval.h>
+<<<<<<< HEAD
 #include "hda_codec.h"
+=======
+#include <sound/hda_codec.h>
+>>>>>>> upstream/android-13
 #include <sound/hda_register.h>
 
 #define AZX_MAX_CODECS		HDA_MAX_CODECS
@@ -42,7 +52,11 @@
 #define AZX_DCAPS_POSFIX_LPIB	(1 << 16)	/* Use LPIB as default */
 #define AZX_DCAPS_AMD_WORKAROUND (1 << 17)	/* AMD-specific workaround */
 #define AZX_DCAPS_NO_64BIT	(1 << 18)	/* No 64bit address */
+<<<<<<< HEAD
 #define AZX_DCAPS_SYNC_WRITE	(1 << 19)	/* sync each cmd write */
+=======
+/* 19 unused */
+>>>>>>> upstream/android-13
 #define AZX_DCAPS_OLD_SSYNC	(1 << 20)	/* Old SSYNC reg for ICH */
 #define AZX_DCAPS_NO_ALIGN_BUFSIZE (1 << 21)	/* no buffer size alignment */
 /* 22 unused */
@@ -50,11 +64,15 @@
 /* 24 unused */
 #define AZX_DCAPS_COUNT_LPIB_DELAY  (1 << 25)	/* Take LPIB as delay */
 #define AZX_DCAPS_PM_RUNTIME	(1 << 26)	/* runtime PM support */
+<<<<<<< HEAD
 #ifdef CONFIG_SND_HDA_I915
 #define AZX_DCAPS_I915_POWERWELL (1 << 27)	/* HSW i915 powerwell support */
 #else
 #define AZX_DCAPS_I915_POWERWELL 0		/* NOP */
 #endif
+=======
+#define AZX_DCAPS_RETRY_PROBE	(1 << 27)	/* retry probe if no codec is configured */
+>>>>>>> upstream/android-13
 #define AZX_DCAPS_CORBRP_SELF_CLEAR (1 << 28)	/* CORBRP clears itself after reset */
 #define AZX_DCAPS_NO_MSI64      (1 << 29)	/* Stick to 32-bit MSIs */
 #define AZX_DCAPS_SEPARATE_STREAM_TAG	(1 << 30) /* capture and playback use separate stream tag */
@@ -76,7 +94,10 @@ struct azx_dev {
 	 *  when link position is not greater than FIFO size
 	 */
 	unsigned int insufficient:1;
+<<<<<<< HEAD
 	unsigned int wc_marked:1;
+=======
+>>>>>>> upstream/android-13
 };
 
 #define azx_stream(dev)		(&(dev)->core)
@@ -88,6 +109,7 @@ struct azx;
 struct hda_controller_ops {
 	/* Disable msi if supported, PCI only */
 	int (*disable_msi_reset_irq)(struct azx *);
+<<<<<<< HEAD
 	int (*substream_alloc_pages)(struct azx *chip,
 				     struct snd_pcm_substream *substream,
 				     size_t size);
@@ -95,6 +117,8 @@ struct hda_controller_ops {
 				    struct snd_pcm_substream *substream);
 	void (*pcm_mmap_prepare)(struct snd_pcm_substream *substream,
 				 struct vm_area_struct *area);
+=======
+>>>>>>> upstream/android-13
 	/* Check if current position is acceptable */
 	int (*position_check)(struct azx *chip, struct azx_dev *azx_dev);
 	/* enable/disable the link power */
@@ -127,7 +151,11 @@ struct azx {
 	int capture_streams;
 	int capture_index_offset;
 	int num_streams;
+<<<<<<< HEAD
 	const int *jackpoll_ms; /* per-card jack poll interval */
+=======
+	int jackpoll_interval; /* jack poll interval in jiffies */
+>>>>>>> upstream/android-13
 
 	/* Register interaction. */
 	const struct hda_controller_ops *ops;
@@ -152,18 +180,29 @@ struct azx {
 
 	/* flags */
 	int bdl_pos_adj;
+<<<<<<< HEAD
 	int poll_count;
 	unsigned int running:1;
 	unsigned int fallback_to_single_cmd:1;
 	unsigned int single_cmd:1;
 	unsigned int polling_mode:1;
+=======
+	unsigned int running:1;
+	unsigned int fallback_to_single_cmd:1;
+	unsigned int single_cmd:1;
+>>>>>>> upstream/android-13
 	unsigned int msi:1;
 	unsigned int probing:1; /* codec probing phase */
 	unsigned int snoop:1;
 	unsigned int uc_buffer:1; /* non-cached pages for stream buffers */
 	unsigned int align_buffer_size:1;
+<<<<<<< HEAD
 	unsigned int region_requested:1;
 	unsigned int disabled:1; /* disabled by vga_switcheroo */
+=======
+	unsigned int disabled:1; /* disabled by vga_switcheroo */
+	unsigned int pm_prepared:1;
+>>>>>>> upstream/android-13
 
 	/* GTS present */
 	unsigned int gts_present:1;
@@ -227,8 +266,12 @@ void azx_stop_chip(struct azx *chip);
 irqreturn_t azx_interrupt(int irq, void *dev_id);
 
 /* Codec interface */
+<<<<<<< HEAD
 int azx_bus_init(struct azx *chip, const char *model,
 		 const struct hdac_io_ops *io_ops);
+=======
+int azx_bus_init(struct azx *chip, const char *model);
+>>>>>>> upstream/android-13
 int azx_probe_codecs(struct azx *chip, unsigned int max_slots);
 int azx_codec_configure(struct azx *chip);
 int azx_init_streams(struct azx *chip);

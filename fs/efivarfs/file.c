@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 Red Hat, Inc.
  * Copyright (C) 2012 Jeremy Kerr <jeremy.kerr@canonical.com>
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2012 Red Hat, Inc.
+ * Copyright (C) 2012 Jeremy Kerr <jeremy.kerr@canonical.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/efi.h>
@@ -54,6 +61,10 @@ static ssize_t efivarfs_file_write(struct file *file,
 	} else {
 		inode_lock(inode);
 		i_size_write(inode, datasize + sizeof(attributes));
+<<<<<<< HEAD
+=======
+		inode->i_mtime = current_time(inode);
+>>>>>>> upstream/android-13
 		inode_unlock(inode);
 	}
 
@@ -75,10 +86,15 @@ static ssize_t efivarfs_file_read(struct file *file, char __user *userbuf,
 	ssize_t size = 0;
 	int err;
 
+<<<<<<< HEAD
 	while (!__ratelimit(&file->f_cred->user->ratelimit)) {
 		if (!msleep_interruptible(50))
 			return -EINTR;
 	}
+=======
+	while (!__ratelimit(&file->f_cred->user->ratelimit))
+		msleep(50);
+>>>>>>> upstream/android-13
 
 	err = efivar_entry_size(var, &datasize);
 
@@ -110,6 +126,7 @@ out_free:
 	return size;
 }
 
+<<<<<<< HEAD
 static int
 efivarfs_ioc_getxflags(struct file *file, void __user *arg)
 {
@@ -178,10 +195,15 @@ efivarfs_file_ioctl(struct file *file, unsigned int cmd, unsigned long p)
 	return -ENOTTY;
 }
 
+=======
+>>>>>>> upstream/android-13
 const struct file_operations efivarfs_file_operations = {
 	.open	= simple_open,
 	.read	= efivarfs_file_read,
 	.write	= efivarfs_file_write,
 	.llseek	= no_llseek,
+<<<<<<< HEAD
 	.unlocked_ioctl = efivarfs_file_ioctl,
+=======
+>>>>>>> upstream/android-13
 };

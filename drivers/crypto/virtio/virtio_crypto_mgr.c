@@ -1,3 +1,4 @@
+<<<<<<< HEAD
  /* Management for virtio crypto devices (refer to adf_dev_mgr.c)
   *
   * Copyright 2016 HUAWEI TECHNOLOGIES CO., LTD.
@@ -14,6 +15,12 @@
   *
   * You should have received a copy of the GNU General Public License
   * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+ /* Management for virtio crypto devices (refer to adf_dev_mgr.c)
+  *
+  * Copyright 2016 HUAWEI TECHNOLOGIES CO., LTD.
+>>>>>>> upstream/android-13
   */
 
 #include <linux/mutex.h>

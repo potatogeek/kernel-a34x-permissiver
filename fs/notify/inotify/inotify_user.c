@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * fs/inotify_user.c - inotify support for userspace
  *
@@ -10,6 +14,7 @@
  *
  * Copyright (C) 2009 Eric Paris <Red Hat Inc>
  * inotify was largely rewriten to make use of the fsnotify infrastructure
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,6 +25,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/file.h>
@@ -39,12 +46,28 @@
 #include <linux/poll.h>
 #include <linux/wait.h>
 #include <linux/memcontrol.h>
+<<<<<<< HEAD
+=======
+#include <linux/security.h>
+>>>>>>> upstream/android-13
 
 #include "inotify.h"
 #include "../fdinfo.h"
 
 #include <asm/ioctls.h>
 
+<<<<<<< HEAD
+=======
+/*
+ * An inotify watch requires allocating an inotify_inode_mark structure as
+ * well as pinning the watched inode. Doubling the size of a VFS inode
+ * should be more than enough to cover the additional filesystem inode
+ * size increase.
+ */
+#define INOTIFY_WATCH_COST	(sizeof(struct inotify_inode_mark) + \
+				 2 * sizeof(struct inode))
+
+>>>>>>> upstream/android-13
 /* configurable via /proc/sys/fs/inotify/ */
 static int inotify_max_queued_events __read_mostly;
 
@@ -54,24 +77,45 @@ struct kmem_cache *inotify_inode_mark_cachep __read_mostly;
 
 #include <linux/sysctl.h>
 
+<<<<<<< HEAD
 static int zero;
+=======
+static long it_zero = 0;
+static long it_int_max = INT_MAX;
+>>>>>>> upstream/android-13
 
 struct ctl_table inotify_table[] = {
 	{
 		.procname	= "max_user_instances",
 		.data		= &init_user_ns.ucount_max[UCOUNT_INOTIFY_INSTANCES],
+<<<<<<< HEAD
 		.maxlen		= sizeof(int),
 		.mode		= 0644,
 		.proc_handler	= proc_dointvec_minmax,
 		.extra1		= &zero,
+=======
+		.maxlen		= sizeof(long),
+		.mode		= 0644,
+		.proc_handler	= proc_doulongvec_minmax,
+		.extra1		= &it_zero,
+		.extra2		= &it_int_max,
+>>>>>>> upstream/android-13
 	},
 	{
 		.procname	= "max_user_watches",
 		.data		= &init_user_ns.ucount_max[UCOUNT_INOTIFY_WATCHES],
+<<<<<<< HEAD
 		.maxlen		= sizeof(int),
 		.mode		= 0644,
 		.proc_handler	= proc_dointvec_minmax,
 		.extra1		= &zero,
+=======
+		.maxlen		= sizeof(long),
+		.mode		= 0644,
+		.proc_handler	= proc_doulongvec_minmax,
+		.extra1		= &it_zero,
+		.extra2		= &it_int_max,
+>>>>>>> upstream/android-13
 	},
 	{
 		.procname	= "max_queued_events",
@@ -79,21 +123,38 @@ struct ctl_table inotify_table[] = {
 		.maxlen		= sizeof(int),
 		.mode		= 0644,
 		.proc_handler	= proc_dointvec_minmax,
+<<<<<<< HEAD
 		.extra1		= &zero
+=======
+		.extra1		= SYSCTL_ZERO
+>>>>>>> upstream/android-13
 	},
 	{ }
 };
 #endif /* CONFIG_SYSCTL */
 
+<<<<<<< HEAD
 static inline __u32 inotify_arg_to_mask(u32 arg)
+=======
+static inline __u32 inotify_arg_to_mask(struct inode *inode, u32 arg)
+>>>>>>> upstream/android-13
 {
 	__u32 mask;
 
 	/*
+<<<<<<< HEAD
 	 * everything should accept their own ignored, cares about children,
 	 * and should receive events when the inode is unmounted
 	 */
 	mask = (FS_IN_IGNORED | FS_EVENT_ON_CHILD | FS_UNMOUNT);
+=======
+	 * Everything should accept their own ignored and should receive events
+	 * when the inode is unmounted.  All directories care about children.
+	 */
+	mask = (FS_IN_IGNORED | FS_UNMOUNT);
+	if (S_ISDIR(inode->i_mode))
+		mask |= FS_EVENT_ON_CHILD;
+>>>>>>> upstream/android-13
 
 	/* mask off the flags used to open the fd */
 	mask |= (arg & (IN_ALL_EVENTS | IN_ONESHOT | IN_EXCL_UNLINK));
@@ -145,10 +206,16 @@ static struct fsnotify_event *get_one_event(struct fsnotify_group *group,
 	size_t event_size = sizeof(struct inotify_event);
 	struct fsnotify_event *event;
 
+<<<<<<< HEAD
 	if (fsnotify_notify_queue_is_empty(group))
 		return NULL;
 
 	event = fsnotify_peek_first_event(group);
+=======
+	event = fsnotify_peek_first_event(group);
+	if (!event)
+		return NULL;
+>>>>>>> upstream/android-13
 
 	pr_debug("%s: group=%p event=%p\n", __func__, group, event);
 
@@ -189,7 +256,11 @@ static ssize_t copy_event_to_user(struct fsnotify_group *group,
 	 */
 	pad_name_len = round_event_name_len(fsn_event);
 	inotify_event.len = pad_name_len;
+<<<<<<< HEAD
 	inotify_event.mask = inotify_mask_to_arg(fsn_event->mask);
+=======
+	inotify_event.mask = inotify_mask_to_arg(event->mask);
+>>>>>>> upstream/android-13
 	inotify_event.wd = event->wd;
 	inotify_event.cookie = event->sync_cookie;
 
@@ -342,7 +413,12 @@ static const struct file_operations inotify_fops = {
 /*
  * find_inode - resolve a user-given path to a specific inode
  */
+<<<<<<< HEAD
 static int inotify_find_inode(const char __user *dirname, struct path *path, unsigned flags)
+=======
+static int inotify_find_inode(const char __user *dirname, struct path *path,
+						unsigned int flags, __u64 mask)
+>>>>>>> upstream/android-13
 {
 	int error;
 
@@ -350,9 +426,22 @@ static int inotify_find_inode(const char __user *dirname, struct path *path, uns
 	if (error)
 		return error;
 	/* you can only watch an inode if you have read permissions on it */
+<<<<<<< HEAD
 	error = inode_permission2(path->mnt, path->dentry->d_inode, MAY_READ);
 	if (error)
 		path_put(path);
+=======
+	error = path_permission(path, MAY_READ);
+	if (error) {
+		path_put(path);
+		return error;
+	}
+	error = security_path_notify(path, mask,
+				FSNOTIFY_OBJ_TYPE_INODE);
+	if (error)
+		path_put(path);
+
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -486,6 +575,7 @@ void inotify_ignored_and_remove_idr(struct fsnotify_mark *fsn_mark,
 				    struct fsnotify_group *group)
 {
 	struct inotify_inode_mark *i_mark;
+<<<<<<< HEAD
 	struct fsnotify_iter_info iter_info = { };
 
 	fsnotify_iter_set_report_type_mark(&iter_info, FSNOTIFY_OBJ_TYPE_INODE,
@@ -494,6 +584,12 @@ void inotify_ignored_and_remove_idr(struct fsnotify_mark *fsn_mark,
 	/* Queue ignore event for the watch */
 	inotify_handle_event(group, NULL, FS_IN_IGNORED, NULL,
 			     FSNOTIFY_EVENT_NONE, NULL, 0, &iter_info);
+=======
+
+	/* Queue ignore event for the watch */
+	inotify_handle_inode_event(fsn_mark, FS_IN_IGNORED, NULL, NULL, NULL,
+				   0);
+>>>>>>> upstream/android-13
 
 	i_mark = container_of(fsn_mark, struct inotify_inode_mark, fsn_mark);
 	/* remove this mark from the idr */
@@ -514,7 +610,11 @@ static int inotify_update_existing_watch(struct fsnotify_group *group,
 	int create = (arg & IN_MASK_CREATE);
 	int ret;
 
+<<<<<<< HEAD
 	mask = inotify_arg_to_mask(arg);
+=======
+	mask = inotify_arg_to_mask(inode, arg);
+>>>>>>> upstream/android-13
 
 	fsn_mark = fsnotify_find_mark(&inode->i_fsnotify_marks, group);
 	if (!fsn_mark)
@@ -567,7 +667,11 @@ static int inotify_new_watch(struct fsnotify_group *group,
 	struct idr *idr = &group->inotify_data.idr;
 	spinlock_t *idr_lock = &group->inotify_data.idr_lock;
 
+<<<<<<< HEAD
 	mask = inotify_arg_to_mask(arg);
+=======
+	mask = inotify_arg_to_mask(inode, arg);
+>>>>>>> upstream/android-13
 
 	tmp_i_mark = kmem_cache_alloc(inotify_inode_mark_cachep, GFP_KERNEL);
 	if (unlikely(!tmp_i_mark))
@@ -627,17 +731,30 @@ static struct fsnotify_group *inotify_new_group(unsigned int max_events)
 	struct fsnotify_group *group;
 	struct inotify_event_info *oevent;
 
+<<<<<<< HEAD
 	group = fsnotify_alloc_group(&inotify_fsnotify_ops);
 	if (IS_ERR(group))
 		return group;
 
 	oevent = kmalloc(sizeof(struct inotify_event_info), GFP_KERNEL);
+=======
+	group = fsnotify_alloc_user_group(&inotify_fsnotify_ops);
+	if (IS_ERR(group))
+		return group;
+
+	oevent = kmalloc(sizeof(struct inotify_event_info), GFP_KERNEL_ACCOUNT);
+>>>>>>> upstream/android-13
 	if (unlikely(!oevent)) {
 		fsnotify_destroy_group(group);
 		return ERR_PTR(-ENOMEM);
 	}
 	group->overflow_event = &oevent->fse;
+<<<<<<< HEAD
 	fsnotify_init_event(group->overflow_event, NULL, FS_Q_OVERFLOW);
+=======
+	fsnotify_init_event(group->overflow_event);
+	oevent->mask = FS_Q_OVERFLOW;
+>>>>>>> upstream/android-13
 	oevent->wd = -1;
 	oevent->sync_cookie = 0;
 	oevent->name_len = 0;
@@ -745,7 +862,12 @@ SYSCALL_DEFINE3(inotify_add_watch, int, fd, const char __user *, pathname,
 	if (mask & IN_ONLYDIR)
 		flags |= LOOKUP_DIRECTORY;
 
+<<<<<<< HEAD
 	ret = inotify_find_inode(pathname, &path, flags);
+=======
+	ret = inotify_find_inode(pathname, &path, flags,
+			(mask & IN_ALL_EVENTS));
+>>>>>>> upstream/android-13
 	if (ret)
 		goto fput_and_out;
 
@@ -776,20 +898,30 @@ SYSCALL_DEFINE2(inotify_rm_watch, int, fd, __s32, wd)
 	struct fsnotify_group *group;
 	struct inotify_inode_mark *i_mark;
 	struct fd f;
+<<<<<<< HEAD
 	int ret = 0;
+=======
+	int ret = -EINVAL;
+>>>>>>> upstream/android-13
 
 	f = fdget(fd);
 	if (unlikely(!f.file))
 		return -EBADF;
 
 	/* verify that this is indeed an inotify instance */
+<<<<<<< HEAD
 	ret = -EINVAL;
+=======
+>>>>>>> upstream/android-13
 	if (unlikely(f.file->f_op != &inotify_fops))
 		goto out;
 
 	group = f.file->private_data;
 
+<<<<<<< HEAD
 	ret = -EINVAL;
+=======
+>>>>>>> upstream/android-13
 	i_mark = inotify_idr_find(group, wd);
 	if (unlikely(!i_mark))
 		goto out;
@@ -813,6 +945,21 @@ out:
  */
 static int __init inotify_user_setup(void)
 {
+<<<<<<< HEAD
+=======
+	unsigned long watches_max;
+	struct sysinfo si;
+
+	si_meminfo(&si);
+	/*
+	 * Allow up to 1% of addressable memory to be allocated for inotify
+	 * watches (per user) limited to the range [8192, 1048576].
+	 */
+	watches_max = (((si.totalram - si.totalhigh) / 100) << PAGE_SHIFT) /
+			INOTIFY_WATCH_COST;
+	watches_max = clamp(watches_max, 8192UL, 1048576UL);
+
+>>>>>>> upstream/android-13
 	BUILD_BUG_ON(IN_ACCESS != FS_ACCESS);
 	BUILD_BUG_ON(IN_MODIFY != FS_MODIFY);
 	BUILD_BUG_ON(IN_ATTRIB != FS_ATTRIB);
@@ -832,14 +979,22 @@ static int __init inotify_user_setup(void)
 	BUILD_BUG_ON(IN_ISDIR != FS_ISDIR);
 	BUILD_BUG_ON(IN_ONESHOT != FS_IN_ONESHOT);
 
+<<<<<<< HEAD
 	BUG_ON(hweight32(ALL_INOTIFY_BITS) != 22);
+=======
+	BUILD_BUG_ON(HWEIGHT32(ALL_INOTIFY_BITS) != 22);
+>>>>>>> upstream/android-13
 
 	inotify_inode_mark_cachep = KMEM_CACHE(inotify_inode_mark,
 					       SLAB_PANIC|SLAB_ACCOUNT);
 
 	inotify_max_queued_events = 16384;
 	init_user_ns.ucount_max[UCOUNT_INOTIFY_INSTANCES] = 128;
+<<<<<<< HEAD
 	init_user_ns.ucount_max[UCOUNT_INOTIFY_WATCHES] = 8192;
+=======
+	init_user_ns.ucount_max[UCOUNT_INOTIFY_WATCHES] = watches_max;
+>>>>>>> upstream/android-13
 
 	return 0;
 }

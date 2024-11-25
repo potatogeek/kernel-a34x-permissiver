@@ -141,6 +141,7 @@
 #define FUNCTION_TRANSFORM_TODO_FLAGS_START 0
 #endif
 
+<<<<<<< HEAD
 #if BUILDING_GCC_VERSION >= 4009
 namespace {
 static const pass_data _PASS_NAME_PASS_DATA = {
@@ -153,6 +154,13 @@ static struct ipa_opt_pass_d _PASS_NAME_PASS = {
 #if BUILDING_GCC_VERSION >= 4008
 		.optinfo_flags		= OPTGROUP_NONE,
 #endif
+=======
+namespace {
+static const pass_data _PASS_NAME_PASS_DATA = {
+		.type			= IPA_PASS,
+		.name			= _PASS_NAME_NAME,
+		.optinfo_flags		= OPTGROUP_NONE,
+>>>>>>> upstream/android-13
 #if BUILDING_GCC_VERSION >= 5000
 #elif BUILDING_GCC_VERSION == 4009
 		.has_gate		= _HAS_GATE,
@@ -170,6 +178,7 @@ static struct ipa_opt_pass_d _PASS_NAME_PASS = {
 		.properties_destroyed	= PROPERTIES_DESTROYED,
 		.todo_flags_start	= TODO_FLAGS_START,
 		.todo_flags_finish	= TODO_FLAGS_FINISH,
+<<<<<<< HEAD
 #if BUILDING_GCC_VERSION < 4009
 	},
 	.generate_summary		= _GENERATE_SUMMARY,
@@ -187,6 +196,10 @@ static struct ipa_opt_pass_d _PASS_NAME_PASS = {
 };
 
 #if BUILDING_GCC_VERSION >= 4009
+=======
+};
+
+>>>>>>> upstream/android-13
 class _PASS_NAME_PASS : public ipa_opt_pass_d {
 public:
 	_PASS_NAME_PASS() : ipa_opt_pass_d(_PASS_NAME_PASS_DATA,
@@ -207,7 +220,10 @@ public:
 #else
 	virtual bool gate(void) { return _GATE(); }
 #endif
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	virtual opt_pass *clone() { return new _PASS_NAME_PASS(); }
 

@@ -21,9 +21,20 @@
  */
 
 #include <linux/export.h>
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/drm_mode_object.h>
 #include <drm/drm_atomic.h>
+=======
+#include <linux/uaccess.h>
+
+#include <drm/drm_atomic.h>
+#include <drm/drm_drv.h>
+#include <drm/drm_device.h>
+#include <drm/drm_file.h>
+#include <drm/drm_mode_object.h>
+#include <drm/drm_print.h>
+>>>>>>> upstream/android-13
 
 #include "drm_crtc_internal.h"
 
@@ -37,8 +48,16 @@ int __drm_mode_object_add(struct drm_device *dev, struct drm_mode_object *obj,
 {
 	int ret;
 
+<<<<<<< HEAD
 	mutex_lock(&dev->mode_config.idr_mutex);
 	ret = idr_alloc(&dev->mode_config.crtc_idr, register_obj ? obj : NULL, 1, 0, GFP_KERNEL);
+=======
+	WARN_ON(!dev->driver->load && dev->registered && !obj_free_cb);
+
+	mutex_lock(&dev->mode_config.idr_mutex);
+	ret = idr_alloc(&dev->mode_config.object_idr, register_obj ? obj : NULL,
+			1, 0, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (ret >= 0) {
 		/*
 		 * Set up the object linking under the protection of the idr
@@ -78,12 +97,20 @@ void drm_mode_object_register(struct drm_device *dev,
 			      struct drm_mode_object *obj)
 {
 	mutex_lock(&dev->mode_config.idr_mutex);
+<<<<<<< HEAD
 	idr_replace(&dev->mode_config.crtc_idr, obj, obj->id);
+=======
+	idr_replace(&dev->mode_config.object_idr, obj, obj->id);
+>>>>>>> upstream/android-13
 	mutex_unlock(&dev->mode_config.idr_mutex);
 }
 
 /**
+<<<<<<< HEAD
  * drm_mode_object_unregister - free a modeset identifer
+=======
+ * drm_mode_object_unregister - free a modeset identifier
+>>>>>>> upstream/android-13
  * @dev: DRM device
  * @object: object to free
  *
@@ -96,16 +123,28 @@ void drm_mode_object_register(struct drm_device *dev,
 void drm_mode_object_unregister(struct drm_device *dev,
 				struct drm_mode_object *object)
 {
+<<<<<<< HEAD
 	mutex_lock(&dev->mode_config.idr_mutex);
 	if (object->id) {
 		idr_remove(&dev->mode_config.crtc_idr, object->id);
+=======
+	WARN_ON(!dev->driver->load && dev->registered && !object->free_cb);
+
+	mutex_lock(&dev->mode_config.idr_mutex);
+	if (object->id) {
+		idr_remove(&dev->mode_config.object_idr, object->id);
+>>>>>>> upstream/android-13
 		object->id = 0;
 	}
 	mutex_unlock(&dev->mode_config.idr_mutex);
 }
 
 /**
+<<<<<<< HEAD
  * drm_lease_required - check types which must be leased to be used
+=======
+ * drm_mode_object_lease_required - check types which must be leased to be used
+>>>>>>> upstream/android-13
  * @type: type of object
  *
  * Returns whether the provided type of drm_mode_object must
@@ -130,7 +169,11 @@ struct drm_mode_object *__drm_mode_object_find(struct drm_device *dev,
 	struct drm_mode_object *obj = NULL;
 
 	mutex_lock(&dev->mode_config.idr_mutex);
+<<<<<<< HEAD
 	obj = idr_find(&dev->mode_config.crtc_idr, id);
+=======
+	obj = idr_find(&dev->mode_config.object_idr, id);
+>>>>>>> upstream/android-13
 	if (obj && type != DRM_MODE_OBJECT_ANY && obj->type != type)
 		obj = NULL;
 	if (obj && obj->id != id)
@@ -214,12 +257,32 @@ EXPORT_SYMBOL(drm_mode_object_get);
  * This attaches the given property to the modeset object with the given initial
  * value. Currently this function cannot fail since the properties are stored in
  * a statically sized array.
+<<<<<<< HEAD
+=======
+ *
+ * Note that all properties must be attached before the object itself is
+ * registered and accessible from userspace.
+>>>>>>> upstream/android-13
  */
 void drm_object_attach_property(struct drm_mode_object *obj,
 				struct drm_property *property,
 				uint64_t init_val)
 {
 	int count = obj->properties->count;
+<<<<<<< HEAD
+=======
+	struct drm_device *dev = property->dev;
+
+
+	if (obj->type == DRM_MODE_OBJECT_CONNECTOR) {
+		struct drm_connector *connector = obj_to_connector(obj);
+
+		WARN_ON(!dev->driver->load &&
+			connector->registration_state == DRM_CONNECTOR_REGISTERED);
+	} else {
+		WARN_ON(!dev->driver->load && dev->registered);
+	}
+>>>>>>> upstream/android-13
 
 	if (count == DRM_OBJECT_MAX_PROPERTY) {
 		WARN(1, "Failed to attach object property (type: 0x%x). Please "
@@ -378,12 +441,22 @@ int drm_mode_obj_get_properties_ioctl(struct drm_device *dev, void *data,
 {
 	struct drm_mode_obj_get_properties *arg = data;
 	struct drm_mode_object *obj;
+<<<<<<< HEAD
 	int ret = 0;
 
 	if (!drm_core_check_feature(dev, DRIVER_MODESET))
 		return -EINVAL;
 
 	drm_modeset_lock_all(dev);
+=======
+	struct drm_modeset_acquire_ctx ctx;
+	int ret = 0;
+
+	if (!drm_core_check_feature(dev, DRIVER_MODESET))
+		return -EOPNOTSUPP;
+
+	DRM_MODESET_LOCK_ALL_BEGIN(dev, ctx, 0, ret);
+>>>>>>> upstream/android-13
 
 	obj = drm_mode_object_find(dev, file_priv, arg->obj_id, arg->obj_type);
 	if (!obj) {
@@ -403,7 +476,11 @@ int drm_mode_obj_get_properties_ioctl(struct drm_device *dev, void *data,
 out_unref:
 	drm_mode_object_put(obj);
 out:
+<<<<<<< HEAD
 	drm_modeset_unlock_all(dev);
+=======
+	DRM_MODESET_LOCK_ALL_END(dev, ctx, ret);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -425,12 +502,20 @@ static int set_property_legacy(struct drm_mode_object *obj,
 {
 	struct drm_device *dev = prop->dev;
 	struct drm_mode_object *ref;
+<<<<<<< HEAD
+=======
+	struct drm_modeset_acquire_ctx ctx;
+>>>>>>> upstream/android-13
 	int ret = -EINVAL;
 
 	if (!drm_property_change_valid_get(prop, prop_value, &ref))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	drm_modeset_lock_all(dev);
+=======
+	DRM_MODESET_LOCK_ALL_BEGIN(dev, ctx, 0, ret);
+>>>>>>> upstream/android-13
 	switch (obj->type) {
 	case DRM_MODE_OBJECT_CONNECTOR:
 		ret = drm_connector_set_obj_prop(obj, prop, prop_value);
@@ -444,12 +529,20 @@ static int set_property_legacy(struct drm_mode_object *obj,
 		break;
 	}
 	drm_property_change_valid_put(prop, ref);
+<<<<<<< HEAD
 	drm_modeset_unlock_all(dev);
+=======
+	DRM_MODESET_LOCK_ALL_END(dev, ctx, ret);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
 static int set_property_atomic(struct drm_mode_object *obj,
+<<<<<<< HEAD
+=======
+			       struct drm_file *file_priv,
+>>>>>>> upstream/android-13
 			       struct drm_property *prop,
 			       uint64_t prop_value)
 {
@@ -476,7 +569,11 @@ retry:
 						       obj_to_connector(obj),
 						       prop_value);
 	} else {
+<<<<<<< HEAD
 		ret = drm_atomic_set_property(state, obj, prop, prop_value);
+=======
+		ret = drm_atomic_set_property(state, file_priv, obj, prop, prop_value);
+>>>>>>> upstream/android-13
 		if (ret)
 			goto out;
 		ret = drm_atomic_commit(state);
@@ -505,7 +602,11 @@ int drm_mode_obj_set_property_ioctl(struct drm_device *dev, void *data,
 	int ret = -EINVAL;
 
 	if (!drm_core_check_feature(dev, DRIVER_MODESET))
+<<<<<<< HEAD
 		return -EINVAL;
+=======
+		return -EOPNOTSUPP;
+>>>>>>> upstream/android-13
 
 	arg_obj = drm_mode_object_find(dev, file_priv, arg->obj_id, arg->obj_type);
 	if (!arg_obj)
@@ -519,7 +620,11 @@ int drm_mode_obj_set_property_ioctl(struct drm_device *dev, void *data,
 		goto out_unref;
 
 	if (drm_drv_uses_atomic_modeset(property->dev))
+<<<<<<< HEAD
 		ret = set_property_atomic(arg_obj, property, arg->value);
+=======
+		ret = set_property_atomic(arg_obj, file_priv, property, arg->value);
+>>>>>>> upstream/android-13
 	else
 		ret = set_property_legacy(arg_obj, property, arg->value);
 

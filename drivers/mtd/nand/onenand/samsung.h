@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 2008-2010 Samsung Electronics
  *  Kyungmin Park <kyungmin.park@samsung.com>
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ *  Copyright (C) 2008-2010 Samsung Electronics
+ *  Kyungmin Park <kyungmin.park@samsung.com>
+>>>>>>> upstream/android-13
  */
 #ifndef __SAMSUNG_ONENAND_H__
 #define __SAMSUNG_ONENAND_H__

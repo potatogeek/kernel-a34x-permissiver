@@ -6,7 +6,11 @@
 #include <inttypes.h>
 #include <limits.h>
 #include <linux/falloc.h>
+<<<<<<< HEAD
 #include <linux/fcntl.h>
+=======
+#include <fcntl.h>
+>>>>>>> upstream/android-13
 #include <linux/memfd.h>
 #include <sched.h>
 #include <stdio.h>
@@ -56,7 +60,11 @@ static int mfd_assert_new(const char *name, loff_t sz, unsigned int flags)
 
 static int mfd_assert_reopen_fd(int fd_in)
 {
+<<<<<<< HEAD
 	int r, fd;
+=======
+	int fd;
+>>>>>>> upstream/android-13
 	char path[100];
 
 	sprintf(path, "/proc/self/fd/%d", fd_in);
@@ -290,6 +298,43 @@ static void mfd_assert_read_shared(int fd)
 	munmap(p, mfd_def_size);
 }
 
+<<<<<<< HEAD
+=======
+static void mfd_assert_fork_private_write(int fd)
+{
+	int *p;
+	pid_t pid;
+
+	p = mmap(NULL,
+		 mfd_def_size,
+		 PROT_READ | PROT_WRITE,
+		 MAP_PRIVATE,
+		 fd,
+		 0);
+	if (p == MAP_FAILED) {
+		printf("mmap() failed: %m\n");
+		abort();
+	}
+
+	p[0] = 22;
+
+	pid = fork();
+	if (pid == 0) {
+		p[0] = 33;
+		exit(0);
+	} else {
+		waitpid(pid, NULL, 0);
+
+		if (p[0] != 22) {
+			printf("MAP_PRIVATE copy-on-write failed: %m\n");
+			abort();
+		}
+	}
+
+	munmap(p, mfd_def_size);
+}
+
+>>>>>>> upstream/android-13
 static void mfd_assert_write(int fd)
 {
 	ssize_t l;
@@ -421,6 +466,10 @@ static void mfd_fail_write(int fd)
 			printf("mmap()+mprotect() didn't fail as expected\n");
 			abort();
 		}
+<<<<<<< HEAD
+=======
+		munmap(p, mfd_def_size);
+>>>>>>> upstream/android-13
 	}
 
 	/* verify PUNCH_HOLE fails */
@@ -760,6 +809,11 @@ static void test_seal_future_write(void)
 	mfd_assert_read_shared(fd2);
 	mfd_fail_write(fd2);
 
+<<<<<<< HEAD
+=======
+	mfd_assert_fork_private_write(fd);
+
+>>>>>>> upstream/android-13
 	munmap(p, mfd_def_size);
 	close(fd2);
 	close(fd);

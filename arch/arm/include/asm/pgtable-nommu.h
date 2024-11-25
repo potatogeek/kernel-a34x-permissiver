@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  arch/arm/include/asm/pgtable-nommu.h
  *
  *  Copyright (C) 1995-2002 Russell King
  *  Copyright (C) 2004  Hyok S. Choi
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _ASMARM_PGTABLE_NOMMU_H
 #define _ASMARM_PGTABLE_NOMMU_H
@@ -25,7 +32,10 @@
 #define pgd_bad(pgd)		(0)
 #define pgd_clear(pgdp)
 #define kern_addr_valid(addr)	(1)
+<<<<<<< HEAD
 #define	pmd_offset(a, b)	((void *)0)
+=======
+>>>>>>> upstream/android-13
 /* FIXME */
 /*
  * PMD_SHIFT determines the size of the area a second-level page table can map
@@ -45,12 +55,15 @@
 
 #define swapper_pg_dir ((pgd_t *) 0)
 
+<<<<<<< HEAD
 #define __swp_type(x)		(0)
 #define __swp_offset(x)		(0)
 #define __swp_entry(typ,off)	((swp_entry_t) { ((typ) | ((off) << 7)) })
 #define __pte_to_swp_entry(pte)	((swp_entry_t) { pte_val(pte) })
 #define __swp_entry_to_pte(x)	((pte_t) { (x).val })
 
+=======
+>>>>>>> upstream/android-13
 
 typedef pte_t *pte_addr_t;
 
@@ -65,7 +78,10 @@ typedef pte_t *pte_addr_t;
  */
 #define pgprot_noncached(prot)	(prot)
 #define pgprot_writecombine(prot) (prot)
+<<<<<<< HEAD
 #define pgprot_dmacoherent(prot) (prot)
+=======
+>>>>>>> upstream/android-13
 #define pgprot_device(prot)	(prot)
 
 
@@ -75,11 +91,14 @@ typedef pte_t *pte_addr_t;
 extern unsigned int kobjsize(const void *objp);
 
 /*
+<<<<<<< HEAD
  * No page table caches to initialise.
  */
 #define pgtable_cache_init()	do { } while (0)
 
 /*
+=======
+>>>>>>> upstream/android-13
  * All 32bit addresses are effectively valid for vmalloc...
  * Sort of meaningless for non-VM targets.
  */
@@ -88,8 +107,11 @@ extern unsigned int kobjsize(const void *objp);
 
 #define FIRST_USER_ADDRESS      0UL
 
+<<<<<<< HEAD
 #include <asm-generic/pgtable.h>
 
+=======
+>>>>>>> upstream/android-13
 #else 
 
 /*

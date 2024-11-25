@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * arch/sh/boards/superh/microdev/irq.c
  *
  * Copyright (C) 2003 Sean McGoogan (Sean.McGoogan@superh.com)
  *
  * SuperH SH4-202 MicroDev board support.
+<<<<<<< HEAD
  *
  * May be copied or modified under the terms of the GNU General Public
  * License.  See linux/COPYING for more information.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>

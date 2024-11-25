@@ -49,6 +49,11 @@
 			arm-supply = <&reg_arm>;
 			pu-supply = <&reg_pu>;
 			soc-supply = <&reg_soc>;
+<<<<<<< HEAD
+=======
+			nvmem-cells = <&cpu_speed_grade>;
+			nvmem-cell-names = "speed_grade";
+>>>>>>> upstream/android-13
 		};
 
 		cpu1: cpu@1 {
@@ -73,6 +78,10 @@
 				396000	1175000
 			>;
 			clock-latency = <61036>; /* two CLK32 periods */
+<<<<<<< HEAD
+=======
+			#cooling-cells = <2>;
+>>>>>>> upstream/android-13
 			clocks = <&clks IMX6QDL_CLK_ARM>,
 				 <&clks IMX6QDL_CLK_PLL2_PFD2_396M>,
 				 <&clks IMX6QDL_CLK_STEP>,
@@ -107,6 +116,10 @@
 				396000	1175000
 			>;
 			clock-latency = <61036>; /* two CLK32 periods */
+<<<<<<< HEAD
+=======
+			#cooling-cells = <2>;
+>>>>>>> upstream/android-13
 			clocks = <&clks IMX6QDL_CLK_ARM>,
 				 <&clks IMX6QDL_CLK_PLL2_PFD2_396M>,
 				 <&clks IMX6QDL_CLK_STEP>,
@@ -141,6 +154,10 @@
 				396000	1175000
 			>;
 			clock-latency = <61036>; /* two CLK32 periods */
+<<<<<<< HEAD
+=======
+			#cooling-cells = <2>;
+>>>>>>> upstream/android-13
 			clocks = <&clks IMX6QDL_CLK_ARM>,
 				 <&clks IMX6QDL_CLK_PLL2_PFD2_396M>,
 				 <&clks IMX6QDL_CLK_STEP>,
@@ -161,9 +178,15 @@
 			clocks = <&clks IMX6QDL_CLK_OCRAM>;
 		};
 
+<<<<<<< HEAD
 		aips-bus@2000000 { /* AIPS1 */
 			spba-bus@2000000 {
 				ecspi5: ecspi@2018000 {
+=======
+		bus@2000000 { /* AIPS1 */
+			spba-bus@2000000 {
+				ecspi5: spi@2018000 {
+>>>>>>> upstream/android-13
 					#address-cells = <1>;
 					#size-cells = <0>;
 					compatible = "fsl,imx6q-ecspi", "fsl,imx51-ecspi";
@@ -172,15 +195,22 @@
 					clocks = <&clks IMX6Q_CLK_ECSPI5>,
 						 <&clks IMX6Q_CLK_ECSPI5>;
 					clock-names = "ipg", "per";
+<<<<<<< HEAD
 					dmas = <&sdma 11 8 1>, <&sdma 12 8 2>;
+=======
+					dmas = <&sdma 11 7 1>, <&sdma 12 7 2>;
+>>>>>>> upstream/android-13
 					dma-names = "rx", "tx";
 					status = "disabled";
 				};
 			};
+<<<<<<< HEAD
 
 			iomuxc: iomuxc@20e0000 {
 				compatible = "fsl,imx6q-iomuxc";
 			};
+=======
+>>>>>>> upstream/android-13
 		};
 
 		sata: sata@2200000 {
@@ -202,6 +232,10 @@
 				 <&clks IMX6QDL_CLK_GPU2D_CORE>;
 			clock-names = "bus", "core";
 			power-domains = <&pd_pu>;
+<<<<<<< HEAD
+=======
+			#cooling-cells = <2>;
+>>>>>>> upstream/android-13
 		};
 
 		ipu2: ipu@2800000 {
@@ -404,6 +438,7 @@
 &hdmi {
 	compatible = "fsl,imx6q-hdmi";
 
+<<<<<<< HEAD
 	port@2 {
 		reg = <2>;
 
@@ -419,6 +454,29 @@
 			remote-endpoint = <&ipu2_di1_hdmi>;
 		};
 	};
+=======
+	ports {
+		port@2 {
+			reg = <2>;
+
+			hdmi_mux_2: endpoint {
+				remote-endpoint = <&ipu2_di0_hdmi>;
+			};
+		};
+
+		port@3 {
+			reg = <3>;
+
+			hdmi_mux_3: endpoint {
+				remote-endpoint = <&ipu2_di1_hdmi>;
+			};
+		};
+	};
+};
+
+&iomuxc {
+	compatible = "fsl,imx6q-iomuxc";
+>>>>>>> upstream/android-13
 };
 
 &ipu1_csi1 {

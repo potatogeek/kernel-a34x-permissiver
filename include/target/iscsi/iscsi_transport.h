@@ -26,7 +26,11 @@ struct iscsit_transport {
 	void (*iscsit_aborted_task)(struct iscsi_conn *, struct iscsi_cmd *);
 	int (*iscsit_xmit_pdu)(struct iscsi_conn *, struct iscsi_cmd *,
 			       struct iscsi_datain_req *, const void *, u32);
+<<<<<<< HEAD
 	void (*iscsit_release_cmd)(struct iscsi_conn *, struct iscsi_cmd *);
+=======
+	void (*iscsit_unmap_cmd)(struct iscsi_conn *, struct iscsi_cmd *);
+>>>>>>> upstream/android-13
 	void (*iscsit_get_rx_pdu)(struct iscsi_conn *);
 	int (*iscsit_validate_params)(struct iscsi_conn *);
 	void (*iscsit_get_r2t_ttt)(struct iscsi_conn *, struct iscsi_cmd *,
@@ -43,7 +47,11 @@ static inline void *iscsit_priv_cmd(struct iscsi_cmd *cmd)
  * From iscsi_target_transport.c
  */
 
+<<<<<<< HEAD
 extern int iscsit_register_transport(struct iscsit_transport *);
+=======
+extern void iscsit_register_transport(struct iscsit_transport *);
+>>>>>>> upstream/android-13
 extern void iscsit_unregister_transport(struct iscsit_transport *);
 extern struct iscsit_transport *iscsit_get_transport(int);
 extern void iscsit_put_transport(struct iscsit_transport *);
@@ -53,7 +61,11 @@ extern void iscsit_put_transport(struct iscsit_transport *);
  */
 extern int iscsit_setup_scsi_cmd(struct iscsi_conn *, struct iscsi_cmd *,
 				unsigned char *);
+<<<<<<< HEAD
 extern void iscsit_set_unsoliticed_dataout(struct iscsi_cmd *);
+=======
+extern void iscsit_set_unsolicited_dataout(struct iscsi_cmd *);
+>>>>>>> upstream/android-13
 extern int iscsit_process_scsi_cmd(struct iscsi_conn *, struct iscsi_cmd *,
 				struct iscsi_scsi_req *);
 extern int

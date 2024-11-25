@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 	Copyright (C) 2004 - 2009 Ivo van Doorn <IvDoorn@gmail.com>
 	<http://rt2x00.serialmonkey.com>
 
+<<<<<<< HEAD
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation; either version 2 of the License, or
@@ -14,6 +19,8 @@
 
 	You should have received a copy of the GNU General Public License
 	along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -2384,7 +2391,10 @@ static void rt73usb_queue_init(struct data_queue *queue)
 		break;
 
 	case QID_ATIM:
+<<<<<<< HEAD
 		/* fallthrough */
+=======
+>>>>>>> upstream/android-13
 	default:
 		BUG();
 		break;
@@ -2525,7 +2535,10 @@ static const struct usb_device_id rt73usb_device_table[] = {
 MODULE_AUTHOR(DRV_PROJECT);
 MODULE_VERSION(DRV_VERSION);
 MODULE_DESCRIPTION("Ralink RT73 USB Wireless LAN driver.");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("Ralink RT2571W & RT2671 USB chipset based cards");
+=======
+>>>>>>> upstream/android-13
 MODULE_DEVICE_TABLE(usb, rt73usb_device_table);
 MODULE_FIRMWARE(FIRMWARE_RT2571);
 MODULE_LICENSE("GPL");

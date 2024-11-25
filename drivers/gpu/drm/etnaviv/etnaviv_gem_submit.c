@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015 Etnaviv Project
  *
@@ -17,6 +18,22 @@
 #include <linux/dma-fence-array.h>
 #include <linux/reservation.h>
 #include <linux/sync_file.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2015 Etnaviv Project
+ */
+
+#include <drm/drm_file.h>
+#include <linux/dma-fence-array.h>
+#include <linux/file.h>
+#include <linux/pm_runtime.h>
+#include <linux/dma-resv.h>
+#include <linux/sync_file.h>
+#include <linux/uaccess.h>
+#include <linux/vmalloc.h>
+
+>>>>>>> upstream/android-13
 #include "etnaviv_cmdbuf.h"
 #include "etnaviv_drv.h"
 #include "etnaviv_gpu.h"
@@ -77,6 +94,17 @@ static int submit_lookup_objects(struct etnaviv_gem_submit *submit,
 		}
 
 		submit->bos[i].flags = bo->flags;
+<<<<<<< HEAD
+=======
+		if (submit->flags & ETNA_SUBMIT_SOFTPIN) {
+			if (bo->presumed < ETNAVIV_SOFTPIN_START_ADDRESS) {
+				DRM_ERROR("invalid softpin address\n");
+				ret = -EINVAL;
+				goto out_unlock;
+			}
+			submit->bos[i].va = bo->presumed;
+		}
+>>>>>>> upstream/android-13
 
 		/* normally use drm_gem_object_lookup(), but for bulk lookup
 		 * all under single table_lock just hit object_idr directly:
@@ -108,9 +136,15 @@ out_unlock:
 static void submit_unlock_object(struct etnaviv_gem_submit *submit, int i)
 {
 	if (submit->bos[i].flags & BO_LOCKED) {
+<<<<<<< HEAD
 		struct etnaviv_gem_object *etnaviv_obj = submit->bos[i].obj;
 
 		ww_mutex_unlock(&etnaviv_obj->resv->lock);
+=======
+		struct drm_gem_object *obj = &submit->bos[i].obj->base;
+
+		dma_resv_unlock(obj->resv);
+>>>>>>> upstream/android-13
 		submit->bos[i].flags &= ~BO_LOCKED;
 	}
 }
@@ -122,7 +156,11 @@ static int submit_lock_objects(struct etnaviv_gem_submit *submit,
 
 retry:
 	for (i = 0; i < submit->nr_bos; i++) {
+<<<<<<< HEAD
 		struct etnaviv_gem_object *etnaviv_obj = submit->bos[i].obj;
+=======
+		struct drm_gem_object *obj = &submit->bos[i].obj->base;
+>>>>>>> upstream/android-13
 
 		if (slow_locked == i)
 			slow_locked = -1;
@@ -130,8 +168,12 @@ retry:
 		contended = i;
 
 		if (!(submit->bos[i].flags & BO_LOCKED)) {
+<<<<<<< HEAD
 			ret = ww_mutex_lock_interruptible(&etnaviv_obj->resv->lock,
 							  ticket);
+=======
+			ret = dma_resv_lock_interruptible(obj->resv, ticket);
+>>>>>>> upstream/android-13
 			if (ret == -EALREADY)
 				DRM_ERROR("BO at index %u already on submit list\n",
 					  i);
@@ -153,6 +195,7 @@ fail:
 		submit_unlock_object(submit, slow_locked);
 
 	if (ret == -EDEADLK) {
+<<<<<<< HEAD
 		struct etnaviv_gem_object *etnaviv_obj;
 
 		etnaviv_obj = submit->bos[contended].obj;
@@ -160,6 +203,14 @@ fail:
 		/* we lost out in a seqno race, lock and retry.. */
 		ret = ww_mutex_lock_slow_interruptible(&etnaviv_obj->resv->lock,
 						       ticket);
+=======
+		struct drm_gem_object *obj;
+
+		obj = &submit->bos[contended].obj->base;
+
+		/* we lost out in a seqno race, lock and retry.. */
+		ret = dma_resv_lock_slow_interruptible(obj->resv, ticket);
+>>>>>>> upstream/android-13
 		if (!ret) {
 			submit->bos[contended].flags |= BO_LOCKED;
 			slow_locked = contended;
@@ -176,10 +227,17 @@ static int submit_fence_sync(struct etnaviv_gem_submit *submit)
 
 	for (i = 0; i < submit->nr_bos; i++) {
 		struct etnaviv_gem_submit_bo *bo = &submit->bos[i];
+<<<<<<< HEAD
 		struct reservation_object *robj = bo->obj->resv;
 
 		if (!(bo->flags & ETNA_SUBMIT_BO_WRITE)) {
 			ret = reservation_object_reserve_shared(robj);
+=======
+		struct dma_resv *robj = bo->obj->base.resv;
+
+		if (!(bo->flags & ETNA_SUBMIT_BO_WRITE)) {
+			ret = dma_resv_reserve_shared(robj, 1);
+>>>>>>> upstream/android-13
 			if (ret)
 				return ret;
 		}
@@ -188,6 +246,7 @@ static int submit_fence_sync(struct etnaviv_gem_submit *submit)
 			continue;
 
 		if (bo->flags & ETNA_SUBMIT_BO_WRITE) {
+<<<<<<< HEAD
 			ret = reservation_object_get_fences_rcu(robj, &bo->excl,
 								&bo->nr_shared,
 								&bo->shared);
@@ -195,6 +254,15 @@ static int submit_fence_sync(struct etnaviv_gem_submit *submit)
 				return ret;
 		} else {
 			bo->excl = reservation_object_get_excl_rcu(robj);
+=======
+			ret = dma_resv_get_fences(robj, &bo->excl,
+						  &bo->nr_shared,
+						  &bo->shared);
+			if (ret)
+				return ret;
+		} else {
+			bo->excl = dma_resv_get_excl_unlocked(robj);
+>>>>>>> upstream/android-13
 		}
 
 	}
@@ -207,6 +275,7 @@ static void submit_attach_object_fences(struct etnaviv_gem_submit *submit)
 	int i;
 
 	for (i = 0; i < submit->nr_bos; i++) {
+<<<<<<< HEAD
 		struct etnaviv_gem_object *etnaviv_obj = submit->bos[i].obj;
 
 		if (submit->bos[i].flags & ETNA_SUBMIT_BO_WRITE)
@@ -214,6 +283,15 @@ static void submit_attach_object_fences(struct etnaviv_gem_submit *submit)
 							  submit->out_fence);
 		else
 			reservation_object_add_shared_fence(etnaviv_obj->resv,
+=======
+		struct drm_gem_object *obj = &submit->bos[i].obj->base;
+
+		if (submit->bos[i].flags & ETNA_SUBMIT_BO_WRITE)
+			dma_resv_add_excl_fence(obj->resv,
+							  submit->out_fence);
+		else
+			dma_resv_add_shared_fence(obj->resv,
+>>>>>>> upstream/android-13
 							    submit->out_fence);
 
 		submit_unlock_object(submit, i);
@@ -229,11 +307,26 @@ static int submit_pin_objects(struct etnaviv_gem_submit *submit)
 		struct etnaviv_vram_mapping *mapping;
 
 		mapping = etnaviv_gem_mapping_get(&etnaviv_obj->base,
+<<<<<<< HEAD
 						  submit->gpu);
+=======
+						  submit->mmu_context,
+						  submit->bos[i].va);
+>>>>>>> upstream/android-13
 		if (IS_ERR(mapping)) {
 			ret = PTR_ERR(mapping);
 			break;
 		}
+<<<<<<< HEAD
+=======
+
+		if ((submit->flags & ETNA_SUBMIT_SOFTPIN) &&
+		     submit->bos[i].va != mapping->iova) {
+			etnaviv_gem_mapping_unreference(mapping);
+			return -EINVAL;
+		}
+
+>>>>>>> upstream/android-13
 		atomic_inc(&etnaviv_obj->gpu_active);
 
 		submit->bos[i].flags |= BO_PINNED;
@@ -266,6 +359,13 @@ static int submit_reloc(struct etnaviv_gem_submit *submit, void *stream,
 	u32 *ptr = stream;
 	int ret;
 
+<<<<<<< HEAD
+=======
+	/* Submits using softpin don't blend with relocs */
+	if ((submit->flags & ETNA_SUBMIT_SOFTPIN) && nr_relocs != 0)
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	for (i = 0; i < nr_relocs; i++) {
 		const struct drm_etnaviv_gem_submit_reloc *r = relocs + i;
 		struct etnaviv_gem_submit_bo *bo;
@@ -366,6 +466,15 @@ static void submit_cleanup(struct kref *kref)
 	if (submit->cmdbuf.suballoc)
 		etnaviv_cmdbuf_free(&submit->cmdbuf);
 
+<<<<<<< HEAD
+=======
+	if (submit->mmu_context)
+		etnaviv_iommu_context_put(submit->mmu_context);
+
+	if (submit->prev_mmu_context)
+		etnaviv_iommu_context_put(submit->prev_mmu_context);
+
+>>>>>>> upstream/android-13
 	for (i = 0; i < submit->nr_bos; i++) {
 		struct etnaviv_gem_object *etnaviv_obj = submit->bos[i].obj;
 
@@ -379,7 +488,11 @@ static void submit_cleanup(struct kref *kref)
 
 		/* if the GPU submit failed, objects might still be locked */
 		submit_unlock_object(submit, i);
+<<<<<<< HEAD
 		drm_gem_object_put_unlocked(&etnaviv_obj->base);
+=======
+		drm_gem_object_put(&etnaviv_obj->base);
+>>>>>>> upstream/android-13
 	}
 
 	wake_up_all(&submit->gpu->fence_event);
@@ -444,6 +557,21 @@ int etnaviv_ioctl_gem_submit(struct drm_device *dev, void *data,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
+=======
+	if ((args->flags & ETNA_SUBMIT_SOFTPIN) &&
+	    priv->mmu_global->version != ETNAVIV_IOMMU_V2) {
+		DRM_ERROR("softpin requested on incompatible MMU\n");
+		return -EINVAL;
+	}
+
+	if (args->stream_size > SZ_128K || args->nr_relocs > SZ_128K ||
+	    args->nr_bos > SZ_128K || args->nr_pmrs > 128) {
+		DRM_ERROR("submit arguments out of size limits\n");
+		return -EINVAL;
+	}
+
+>>>>>>> upstream/android-13
 	/*
 	 * Copy the command submission and bo array to kernel space in
 	 * one go, and do this outside of any locks.
@@ -501,12 +629,21 @@ int etnaviv_ioctl_gem_submit(struct drm_device *dev, void *data,
 		goto err_submit_ww_acquire;
 	}
 
+<<<<<<< HEAD
 	ret = etnaviv_cmdbuf_init(gpu->cmdbuf_suballoc, &submit->cmdbuf,
+=======
+	ret = etnaviv_cmdbuf_init(priv->cmdbuf_suballoc, &submit->cmdbuf,
+>>>>>>> upstream/android-13
 				  ALIGN(args->stream_size, 8) + 8);
 	if (ret)
 		goto err_submit_objects;
 
+<<<<<<< HEAD
 	submit->cmdbuf.ctx = file->driver_priv;
+=======
+	submit->ctx = file->driver_priv;
+	submit->mmu_context = etnaviv_iommu_context_get(submit->ctx->mmu);
+>>>>>>> upstream/android-13
 	submit->exec_state = args->exec_state;
 	submit->flags = args->flags;
 
@@ -514,7 +651,12 @@ int etnaviv_ioctl_gem_submit(struct drm_device *dev, void *data,
 	if (ret)
 		goto err_submit_objects;
 
+<<<<<<< HEAD
 	if (!etnaviv_cmd_validate_one(gpu, stream, args->stream_size / 4,
+=======
+	if ((priv->mmu_global->version != ETNAVIV_IOMMU_V2) &&
+	    !etnaviv_cmd_validate_one(gpu, stream, args->stream_size / 4,
+>>>>>>> upstream/android-13
 				      relocs, args->nr_relocs)) {
 		ret = -EINVAL;
 		goto err_submit_objects;
@@ -584,6 +726,7 @@ err_submit_ww_acquire:
 err_submit_cmds:
 	if (ret && (out_fence_fd >= 0))
 		put_unused_fd(out_fence_fd);
+<<<<<<< HEAD
 	if (stream)
 		kvfree(stream);
 	if (bos)
@@ -592,6 +735,12 @@ err_submit_cmds:
 		kvfree(relocs);
 	if (pmrs)
 		kvfree(pmrs);
+=======
+	kvfree(stream);
+	kvfree(bos);
+	kvfree(relocs);
+	kvfree(pmrs);
+>>>>>>> upstream/android-13
 
 	return ret;
 }

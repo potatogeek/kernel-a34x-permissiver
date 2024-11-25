@@ -9,13 +9,20 @@
 #include <linux/types.h>
 #include <linux/init.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/mm.h>
 
 #include <asm/ip32/crime.h>
 #include <asm/bootinfo.h>
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
 #include <asm/pgalloc.h>
+=======
+>>>>>>> upstream/android-13
 
 extern void crime_init(void);
 
@@ -38,6 +45,7 @@ void __init prom_meminit(void)
 
 		printk("CRIME MC: bank %u base 0x%016Lx size %LuMiB\n",
 			bank, base, size >> 20);
+<<<<<<< HEAD
 		add_memory_region(base, size, BOOT_MEM_RAM);
 	}
 }
@@ -46,3 +54,8 @@ void __init prom_meminit(void)
 void __init prom_free_prom_memory(void)
 {
 }
+=======
+		memblock_add(base, size);
+	}
+}
+>>>>>>> upstream/android-13

@@ -16,11 +16,30 @@
 	model = "Hardkernel ODROID-U3 board based on Exynos4412";
 	compatible = "hardkernel,odroid-u3", "samsung,exynos4412", "samsung,exynos4";
 
+<<<<<<< HEAD
+=======
+	aliases {
+		ethernet = &ethernet;
+	};
+
+>>>>>>> upstream/android-13
 	memory@40000000 {
 		device_type = "memory";
 		reg = <0x40000000 0x7FF00000>;
 	};
 
+<<<<<<< HEAD
+=======
+	vbus_otg_reg: regulator-1 {
+		compatible = "regulator-fixed";
+		regulator-name = "VBUS_VDD_5.0V";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		gpio = <&gpl2 0 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
+>>>>>>> upstream/android-13
 	leds {
 		compatible = "gpio-leds";
 		led1 {
@@ -34,6 +53,7 @@
 	fan0: pwm-fan {
 		compatible = "pwm-fan";
 		pwms = <&pwm 0 10000 0>;
+<<<<<<< HEAD
 		cooling-min-state = <0>;
 		cooling-max-state = <3>;
 		#cooling-cells = <2>;
@@ -66,6 +86,16 @@
 			};
 		};
 	};
+=======
+		#cooling-cells = <2>;
+		cooling-levels = <0 102 170 230>;
+	};
+};
+
+&adc {
+	vdd-supply = <&ldo10_reg>;
+	/* Nothing connected to ADC inputs, keep it disabled */
+>>>>>>> upstream/android-13
 };
 
 /* Supply for LAN9730/SMSC95xx */
@@ -75,6 +105,30 @@
 	regulator-max-microvolt = <3300000>;
 };
 
+<<<<<<< HEAD
+=======
+&cpu_thermal {
+	cooling-maps {
+		map0 {
+			trip = <&cpu_alert1>;
+			cooling-device = <&cpu0 9 9>, <&cpu1 9 9>,
+					 <&cpu2 9 9>, <&cpu3 9 9>,
+					 <&fan0 1 2>;
+		};
+		map1 {
+			trip = <&cpu_alert2>;
+			cooling-device = <&cpu0 15 15>, <&cpu1 15 15>,
+					 <&cpu2 15 15>, <&cpu3 15 15>,
+					 <&fan0 2 3>;
+		};
+		map2 {
+			trip = <&cpu_alert0>;
+			cooling-device = <&fan0 0 1>;
+		};
+	};
+};
+
+>>>>>>> upstream/android-13
 &hdmicec {
 	needs-hpd;
 };
@@ -104,6 +158,7 @@
 };
 
 &ehci {
+<<<<<<< HEAD
 	port@1 {
 		status = "okay";
 	};
@@ -112,6 +167,25 @@
 	};
 };
 
+=======
+	#address-cells = <1>;
+	#size-cells = <0>;
+	phys = <&exynos_usbphy 2>, <&exynos_usbphy 3>;
+	phy-names = "hsic0", "hsic1";
+
+	ethernet: usbether@2 {
+		compatible = "usb0424,9730";
+		reg = <2>;
+		local-mac-address = [00 00 00 00 00 00]; /* Filled in by a bootloader */
+	};
+};
+
+&hsotg {
+	dr_mode = "otg";
+	vbus-supply = <&vbus_otg_reg>;
+};
+
+>>>>>>> upstream/android-13
 &sound {
 	model = "Odroid-U3";
 	samsung,audio-widgets =

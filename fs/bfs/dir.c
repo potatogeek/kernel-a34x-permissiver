@@ -2,8 +2,13 @@
 /*
  *	fs/bfs/dir.c
  *	BFS directory operations.
+<<<<<<< HEAD
  *	Copyright (C) 1999,2000  Tigran Aivazian <tigran@veritas.com>
  *      Made endianness-clean by Andrew Stribblehill <ads@wompom.org> 2005
+=======
+ *	Copyright (C) 1999-2018  Tigran Aivazian <aivazian.tigran@gmail.com>
+ *  Made endianness-clean by Andrew Stribblehill <ads@wompom.org> 2005
+>>>>>>> upstream/android-13
  */
 
 #include <linux/time.h>
@@ -75,8 +80,13 @@ const struct file_operations bfs_dir_operations = {
 	.llseek		= generic_file_llseek,
 };
 
+<<<<<<< HEAD
 static int bfs_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 						bool excl)
+=======
+static int bfs_create(struct user_namespace *mnt_userns, struct inode *dir,
+		      struct dentry *dentry, umode_t mode, bool excl)
+>>>>>>> upstream/android-13
 {
 	int err;
 	struct inode *inode;
@@ -96,7 +106,11 @@ static int bfs_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 	}
 	set_bit(ino, info->si_imap);
 	info->si_freei--;
+<<<<<<< HEAD
 	inode_init_owner(inode, dir, mode);
+=======
+	inode_init_owner(&init_user_ns, inode, dir, mode);
+>>>>>>> upstream/android-13
 	inode->i_mtime = inode->i_atime = inode->i_ctime = current_time(inode);
 	inode->i_blocks = 0;
 	inode->i_op = &bfs_file_inops;
@@ -199,9 +213,15 @@ out_brelse:
 	return error;
 }
 
+<<<<<<< HEAD
 static int bfs_rename(struct inode *old_dir, struct dentry *old_dentry,
 		      struct inode *new_dir, struct dentry *new_dentry,
 		      unsigned int flags)
+=======
+static int bfs_rename(struct user_namespace *mnt_userns, struct inode *old_dir,
+		      struct dentry *old_dentry, struct inode *new_dir,
+		      struct dentry *new_dentry, unsigned int flags)
+>>>>>>> upstream/android-13
 {
 	struct inode *old_inode, *new_inode;
 	struct buffer_head *old_bh, *new_bh;

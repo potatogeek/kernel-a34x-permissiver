@@ -7,6 +7,15 @@ test_guid=210be57c-9849-4fc7-a635-e6382d1aec27
 # Kselftest framework requirement - SKIP code is 4.
 ksft_skip=4
 
+<<<<<<< HEAD
+=======
+file_cleanup()
+{
+	chattr -i $1
+	rm -f $1
+}
+
+>>>>>>> upstream/android-13
 check_prereqs()
 {
 	local msg="skip all tests:"
@@ -58,8 +67,15 @@ test_create()
 
 	if [ $(stat -c %s $file) -ne 5 ]; then
 		echo "$file has invalid size" >&2
+<<<<<<< HEAD
 		exit 1
 	fi
+=======
+		file_cleanup $file
+		exit 1
+	fi
+	file_cleanup $file
+>>>>>>> upstream/android-13
 }
 
 test_create_empty()
@@ -72,12 +88,20 @@ test_create_empty()
 		echo "$file can not be created without writing" >&2
 		exit 1
 	fi
+<<<<<<< HEAD
+=======
+	file_cleanup $file
+>>>>>>> upstream/android-13
 }
 
 test_create_read()
 {
 	local file=$efivarfs_mount/$FUNCNAME-$test_guid
 	./create-read $file
+<<<<<<< HEAD
+=======
+	file_cleanup $file
+>>>>>>> upstream/android-13
 }
 
 test_delete()
@@ -92,11 +116,15 @@ test_delete()
 		exit 1
 	fi
 
+<<<<<<< HEAD
 	rm $file 2>/dev/null
 	if [ $? -ne 0 ]; then
 		chattr -i $file
 		rm $file
 	fi
+=======
+	file_cleanup $file
+>>>>>>> upstream/android-13
 
 	if [ -e $file ]; then
 		echo "$file couldn't be deleted" >&2
@@ -150,11 +178,15 @@ test_valid_filenames()
 			echo "$file could not be created" >&2
 			ret=1
 		else
+<<<<<<< HEAD
 			rm $file 2>/dev/null
 			if [ $? -ne 0 ]; then
 				chattr -i $file
 				rm $file
 			fi
+=======
+			file_cleanup $file
+>>>>>>> upstream/android-13
 		fi
 	done
 
@@ -187,11 +219,15 @@ test_invalid_filenames()
 
 		if [ -e $file ]; then
 			echo "Creating $file should have failed" >&2
+<<<<<<< HEAD
 			rm $file 2>/dev/null
 			if [ $? -ne 0 ]; then
 				chattr -i $file
 				rm $file
 			fi
+=======
+			file_cleanup $file
+>>>>>>> upstream/android-13
 			ret=1
 		fi
 	done

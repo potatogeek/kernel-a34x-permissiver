@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014 Alexander Shiyan <shc_work@mail.ru>
  *
@@ -7,6 +8,11 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2014 Alexander Shiyan <shc_work@mail.ru>
+>>>>>>> upstream/android-13
  */
 
 #include "imx27-eukrea-cpuimx27.dtsi"
@@ -17,11 +23,18 @@
 
 	display0: CMO-QVGA {
 		model = "CMO-QVGA";
+<<<<<<< HEAD
 		native-mode = <&timing0>;
+=======
+>>>>>>> upstream/android-13
 		bits-per-pixel = <16>;
 		fsl,pcr = <0xfad08b80>;
 
 		display-timings {
+<<<<<<< HEAD
+=======
+			native-mode = <&timing0>;
+>>>>>>> upstream/android-13
 			timing0: 320x240 {
 				clock-frequency = <6500000>;
 				hactive = <320>;

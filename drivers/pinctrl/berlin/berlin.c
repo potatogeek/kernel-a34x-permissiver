@@ -64,16 +64,24 @@ static int berlin_pinctrl_dt_node_to_map(struct pinctrl_dev *pctrl_dev,
 	ret = of_property_read_string(node, "function", &function_name);
 	if (ret) {
 		dev_err(pctrl->dev,
+<<<<<<< HEAD
 			"missing function property in node %s\n",
 			node->name);
+=======
+			"missing function property in node %pOFn\n", node);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	ngroups = of_property_count_strings(node, "groups");
 	if (ngroups < 0) {
 		dev_err(pctrl->dev,
+<<<<<<< HEAD
 			"missing groups property in node %s\n",
 			node->name);
+=======
+			"missing groups property in node %pOFn\n", node);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 

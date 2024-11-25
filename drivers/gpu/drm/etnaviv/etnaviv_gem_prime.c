@@ -3,7 +3,13 @@
  * Copyright (C) 2014-2018 Etnaviv Project
  */
 
+<<<<<<< HEAD
 #include <linux/dma-buf.h>
+=======
+#include <drm/drm_prime.h>
+#include <linux/dma-buf.h>
+
+>>>>>>> upstream/android-13
 #include "etnaviv_drv.h"
 #include "etnaviv_gem.h"
 
@@ -17,6 +23,7 @@ struct sg_table *etnaviv_gem_prime_get_sg_table(struct drm_gem_object *obj)
 	if (WARN_ON(!etnaviv_obj->pages))  /* should have already pinned! */
 		return ERR_PTR(-EINVAL);
 
+<<<<<<< HEAD
 	return drm_prime_pages_to_sg(etnaviv_obj->pages, npages);
 }
 
@@ -41,6 +48,21 @@ int etnaviv_gem_prime_mmap(struct drm_gem_object *obj,
 		return ret;
 
 	return etnaviv_obj->ops->mmap(etnaviv_obj, vma);
+=======
+	return drm_prime_pages_to_sg(obj->dev, etnaviv_obj->pages, npages);
+}
+
+int etnaviv_gem_prime_vmap(struct drm_gem_object *obj, struct dma_buf_map *map)
+{
+	void *vaddr;
+
+	vaddr = etnaviv_gem_vmap(obj);
+	if (!vaddr)
+		return -ENOMEM;
+	dma_buf_map_set_vaddr(map, vaddr);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 int etnaviv_gem_prime_pin(struct drm_gem_object *obj)
@@ -68,24 +90,47 @@ void etnaviv_gem_prime_unpin(struct drm_gem_object *obj)
 
 static void etnaviv_gem_prime_release(struct etnaviv_gem_object *etnaviv_obj)
 {
+<<<<<<< HEAD
 	if (etnaviv_obj->vaddr)
 		dma_buf_vunmap(etnaviv_obj->base.import_attach->dmabuf,
 			       etnaviv_obj->vaddr);
+=======
+	struct dma_buf_map map = DMA_BUF_MAP_INIT_VADDR(etnaviv_obj->vaddr);
+
+	if (etnaviv_obj->vaddr)
+		dma_buf_vunmap(etnaviv_obj->base.import_attach->dmabuf, &map);
+>>>>>>> upstream/android-13
 
 	/* Don't drop the pages for imported dmabuf, as they are not
 	 * ours, just free the array we allocated:
 	 */
+<<<<<<< HEAD
 	if (etnaviv_obj->pages)
 		kvfree(etnaviv_obj->pages);
+=======
+	kvfree(etnaviv_obj->pages);
+>>>>>>> upstream/android-13
 
 	drm_prime_gem_destroy(&etnaviv_obj->base, etnaviv_obj->sgt);
 }
 
 static void *etnaviv_gem_prime_vmap_impl(struct etnaviv_gem_object *etnaviv_obj)
 {
+<<<<<<< HEAD
 	lockdep_assert_held(&etnaviv_obj->lock);
 
 	return dma_buf_vmap(etnaviv_obj->base.import_attach->dmabuf);
+=======
+	struct dma_buf_map map;
+	int ret;
+
+	lockdep_assert_held(&etnaviv_obj->lock);
+
+	ret = dma_buf_vmap(etnaviv_obj->base.import_attach->dmabuf, &map);
+	if (ret)
+		return NULL;
+	return map.vaddr;
+>>>>>>> upstream/android-13
 }
 
 static int etnaviv_gem_prime_mmap_obj(struct etnaviv_gem_object *etnaviv_obj,
@@ -109,7 +154,10 @@ struct drm_gem_object *etnaviv_gem_prime_import_sg_table(struct drm_device *dev,
 	int ret, npages;
 
 	ret = etnaviv_gem_new_private(dev, size, ETNA_BO_WC,
+<<<<<<< HEAD
 				      attach->dmabuf->resv,
+=======
+>>>>>>> upstream/android-13
 				      &etnaviv_gem_prime_ops, &etnaviv_obj);
 	if (ret < 0)
 		return ERR_PTR(ret);
@@ -125,8 +173,12 @@ struct drm_gem_object *etnaviv_gem_prime_import_sg_table(struct drm_device *dev,
 		goto fail;
 	}
 
+<<<<<<< HEAD
 	ret = drm_prime_sg_to_page_addr_arrays(sgt, etnaviv_obj->pages,
 					       NULL, npages);
+=======
+	ret = drm_prime_sg_to_page_array(sgt, etnaviv_obj->pages, npages);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto fail;
 
@@ -135,6 +187,7 @@ struct drm_gem_object *etnaviv_gem_prime_import_sg_table(struct drm_device *dev,
 	return &etnaviv_obj->base;
 
 fail:
+<<<<<<< HEAD
 	drm_gem_object_put_unlocked(&etnaviv_obj->base);
 
 	return ERR_PTR(ret);
@@ -146,3 +199,9 @@ struct reservation_object *etnaviv_gem_prime_res_obj(struct drm_gem_object *obj)
 
 	return etnaviv_obj->resv;
 }
+=======
+	drm_gem_object_put(&etnaviv_obj->base);
+
+	return ERR_PTR(ret);
+}
+>>>>>>> upstream/android-13

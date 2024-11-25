@@ -1,7 +1,15 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 menu "Bus options (PCI, PCMCIA, EISA, GSC, ISA)"
 
 config GSC
 	bool "VSC/GSC/HSC bus support"
+<<<<<<< HEAD
+=======
+	select HAVE_EISA
+>>>>>>> upstream/android-13
 	default y
 	help
 	  The VSC, GSC and HSC busses were used from the earliest 700-series
@@ -46,6 +54,7 @@ config GSC_WAX
 	  used), a HIL interface chip and is also known to be used as the
 	  GSC bridge for an X.25 GSC card.
 
+<<<<<<< HEAD
 config EISA
 	bool "EISA support"
 	depends on GSC
@@ -56,6 +65,8 @@ config EISA
 
 source "drivers/eisa/Kconfig"
 
+=======
+>>>>>>> upstream/android-13
 config ISA
 	bool "ISA support"
 	depends on EISA
@@ -63,6 +74,7 @@ config ISA
 	  If you want to plug an ISA card into your EISA bus, say Y here.
 	  Most people should say N.
 
+<<<<<<< HEAD
 config PCI
 	bool "PCI support"
 	help
@@ -74,6 +86,8 @@ config PCI
 
 source "drivers/pci/Kconfig"
 
+=======
+>>>>>>> upstream/android-13
 config GSC_DINO
 	bool "GSCtoPCI/Dino PCI support"
 	depends on PCI && GSC
@@ -103,8 +117,11 @@ config IOMMU_SBA
 	depends on PCI_LBA
 	default PCI_LBA
 
+<<<<<<< HEAD
 source "drivers/pcmcia/Kconfig"
 
+=======
+>>>>>>> upstream/android-13
 endmenu
 
 menu "PA-RISC specific drivers"

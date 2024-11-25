@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /***************************************************************************
  * Linux PPP over L2TP (PPPoL2TP) Socket Implementation (RFC 2661)
  *
@@ -5,11 +9,14 @@
  * (l2tp_ppp.c).  All version information wrt this file is located in l2tp_ppp.c
  *
  * License:
+<<<<<<< HEAD
  *		This program is free software; you can redistribute it and/or
  *		modify it under the terms of the GNU General Public License
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __LINUX_IF_PPPOL2TP_H
 #define __LINUX_IF_PPPOL2TP_H

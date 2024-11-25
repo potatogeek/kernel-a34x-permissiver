@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Maxim Integrated DS1803 digital potentiometer driver
  * Copyright (c) 2016 Slawomir Stepien
@@ -6,10 +10,13 @@
  *
  * DEVID	#Wipers	#Positions	Resistor Opts (kOhm)	i2c address
  * ds1803	2	256		10, 50, 100		0101xxx
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -17,7 +24,11 @@
 #include <linux/i2c.h>
 #include <linux/iio/iio.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/of.h>
+=======
+#include <linux/mod_devicetable.h>
+>>>>>>> upstream/android-13
 
 #define DS1803_MAX_POS		255
 #define DS1803_WRITE(chan)	(0xa8 | ((chan) + 1))
@@ -129,7 +140,10 @@ static int ds1803_probe(struct i2c_client *client,
 	data->client = client;
 	data->cfg = &ds1803_cfg[id->driver_data];
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->info = &ds1803_info;
 	indio_dev->channels = ds1803_channels;
 	indio_dev->num_channels = ARRAY_SIZE(ds1803_channels);
@@ -138,7 +152,10 @@ static int ds1803_probe(struct i2c_client *client,
 	return devm_iio_device_register(dev, indio_dev);
 }
 
+<<<<<<< HEAD
 #if defined(CONFIG_OF)
+=======
+>>>>>>> upstream/android-13
 static const struct of_device_id ds1803_dt_ids[] = {
 	{ .compatible = "maxim,ds1803-010", .data = &ds1803_cfg[DS1803_010] },
 	{ .compatible = "maxim,ds1803-050", .data = &ds1803_cfg[DS1803_050] },
@@ -146,7 +163,10 @@ static const struct of_device_id ds1803_dt_ids[] = {
 	{}
 };
 MODULE_DEVICE_TABLE(of, ds1803_dt_ids);
+<<<<<<< HEAD
 #endif /* CONFIG_OF */
+=======
+>>>>>>> upstream/android-13
 
 static const struct i2c_device_id ds1803_id[] = {
 	{ "ds1803-010", DS1803_010 },
@@ -159,7 +179,11 @@ MODULE_DEVICE_TABLE(i2c, ds1803_id);
 static struct i2c_driver ds1803_driver = {
 	.driver = {
 		.name	= "ds1803",
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(ds1803_dt_ids),
+=======
+		.of_match_table = ds1803_dt_ids,
+>>>>>>> upstream/android-13
 	},
 	.probe		= ds1803_probe,
 	.id_table	= ds1803_id,

@@ -8,6 +8,7 @@
 #include <linux/prefetch.h>
 #include "mount.h"
 
+<<<<<<< HEAD
 static int prepend(char **buffer, int *buflen, const char *str, int namelen)
 {
 	*buflen -= namelen;
@@ -16,6 +17,73 @@ static int prepend(char **buffer, int *buflen, const char *str, int namelen)
 	*buffer -= namelen;
 	memcpy(*buffer, str, namelen);
 	return 0;
+=======
+struct prepend_buffer {
+	char *buf;
+	int len;
+};
+#define DECLARE_BUFFER(__name, __buf, __len) \
+	struct prepend_buffer __name = {.buf = __buf + __len, .len = __len}
+
+static char *extract_string(struct prepend_buffer *p)
+{
+	if (likely(p->len >= 0))
+		return p->buf;
+	return ERR_PTR(-ENAMETOOLONG);
+}
+
+static bool prepend_char(struct prepend_buffer *p, unsigned char c)
+{
+	if (likely(p->len > 0)) {
+		p->len--;
+		*--p->buf = c;
+		return true;
+	}
+	p->len = -1;
+	return false;
+}
+
+/*
+ * The source of the prepend data can be an optimistoc load
+ * of a dentry name and length. And because we don't hold any
+ * locks, the length and the pointer to the name may not be
+ * in sync if a concurrent rename happens, and the kernel
+ * copy might fault as a result.
+ *
+ * The end result will correct itself when we check the
+ * rename sequence count, but we need to be able to handle
+ * the fault gracefully.
+ */
+static bool prepend_copy(void *dst, const void *src, int len)
+{
+	if (unlikely(copy_from_kernel_nofault(dst, src, len))) {
+		memset(dst, 'x', len);
+		return false;
+	}
+	return true;
+}
+
+static bool prepend(struct prepend_buffer *p, const char *str, int namelen)
+{
+	// Already overflowed?
+	if (p->len < 0)
+		return false;
+
+	// Will overflow?
+	if (p->len < namelen) {
+		// Fill as much as possible from the end of the name
+		str += namelen - p->len;
+		p->buf -= p->len;
+		prepend_copy(p->buf, str, p->len);
+		p->len = -1;
+		return false;
+	}
+
+	// Fits fully
+	p->len -= namelen;
+	p->buf -= namelen;
+	return prepend_copy(p->buf, str, namelen);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -27,12 +95,18 @@ static int prepend(char **buffer, int *buflen, const char *str, int namelen)
  * With RCU path tracing, it may race with d_move(). Use READ_ONCE() to
  * make sure that either the old or the new name pointer and length are
  * fetched. However, there may be mismatch between length and pointer.
+<<<<<<< HEAD
  * The length cannot be trusted, we need to copy it byte-by-byte until
  * the length is reached or a null byte is found. It also prepends "/" at
+=======
+ * But since the length cannot be trusted, we need to copy the name very
+ * carefully when doing the prepend_copy(). It also prepends "/" at
+>>>>>>> upstream/android-13
  * the beginning of the name. The sequence number check at the caller will
  * retry it again when a d_move() does happen. So any garbage in the buffer
  * due to mismatched pointer and length will be discarded.
  *
+<<<<<<< HEAD
  * Load acquire is needed to make sure that we see that terminating NUL.
  */
 static int prepend_name(char **buffer, int *buflen, const struct qstr *name)
@@ -51,6 +125,51 @@ static int prepend_name(char **buffer, int *buflen, const struct qstr *name)
 		if (!c)
 			break;
 		*p++ = c;
+=======
+ * Load acquire is needed to make sure that we see the new name data even
+ * if we might get the length wrong.
+ */
+static bool prepend_name(struct prepend_buffer *p, const struct qstr *name)
+{
+	const char *dname = smp_load_acquire(&name->name); /* ^^^ */
+	u32 dlen = READ_ONCE(name->len);
+
+	return prepend(p, dname, dlen) && prepend_char(p, '/');
+}
+
+static int __prepend_path(const struct dentry *dentry, const struct mount *mnt,
+			  const struct path *root, struct prepend_buffer *p)
+{
+	while (dentry != root->dentry || &mnt->mnt != root->mnt) {
+		const struct dentry *parent = READ_ONCE(dentry->d_parent);
+
+		if (dentry == mnt->mnt.mnt_root) {
+			struct mount *m = READ_ONCE(mnt->mnt_parent);
+			struct mnt_namespace *mnt_ns;
+
+			if (likely(mnt != m)) {
+				dentry = READ_ONCE(mnt->mnt_mountpoint);
+				mnt = m;
+				continue;
+			}
+			/* Global root */
+			mnt_ns = READ_ONCE(mnt->mnt_ns);
+			/* open-coded is_mounted() to use local mnt_ns */
+			if (!IS_ERR_OR_NULL(mnt_ns) && !is_anon_ns(mnt_ns))
+				return 1;	// absolute root
+			else
+				return 2;	// detached or not attached yet
+		}
+
+		if (unlikely(dentry == parent))
+			/* Escaped? */
+			return 3;
+
+		prefetch(parent);
+		if (!prepend_name(p, &dentry->d_name))
+			break;
+		dentry = parent;
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
@@ -74,6 +193,7 @@ static int prepend_name(char **buffer, int *buflen, const struct qstr *name)
  */
 static int prepend_path(const struct path *path,
 			const struct path *root,
+<<<<<<< HEAD
 			char **buffer, int *buflen)
 {
 	struct dentry *dentry;
@@ -83,6 +203,13 @@ static int prepend_path(const struct path *path,
 	unsigned seq, m_seq = 0;
 	char *bptr;
 	int blen;
+=======
+			struct prepend_buffer *p)
+{
+	unsigned seq, m_seq = 0;
+	struct prepend_buffer b;
+	int error;
+>>>>>>> upstream/android-13
 
 	rcu_read_lock();
 restart_mnt:
@@ -90,6 +217,7 @@ restart_mnt:
 	seq = 0;
 	rcu_read_lock();
 restart:
+<<<<<<< HEAD
 	bptr = *buffer;
 	blen = *buflen;
 	error = 0;
@@ -132,6 +260,11 @@ restart:
 
 		dentry = parent;
 	}
+=======
+	b = *p;
+	read_seqbegin_or_lock(&rename_lock, &seq);
+	error = __prepend_path(path->dentry, real_mount(path->mnt), root, &b);
+>>>>>>> upstream/android-13
 	if (!(seq & 1))
 		rcu_read_unlock();
 	if (need_seqretry(&rename_lock, seq)) {
@@ -148,6 +281,7 @@ restart:
 	}
 	done_seqretry(&mount_lock, m_seq);
 
+<<<<<<< HEAD
 	if (error >= 0 && bptr == *buffer) {
 		if (--blen < 0)
 			error = -ENAMETOOLONG;
@@ -156,6 +290,15 @@ restart:
 	}
 	*buffer = bptr;
 	*buflen = blen;
+=======
+	if (unlikely(error == 3))
+		b = *p;
+
+	if (b.len == p->len)
+		prepend_char(&b, '/');
+
+	*p = b;
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -179,6 +322,7 @@ char *__d_path(const struct path *path,
 	       const struct path *root,
 	       char *buf, int buflen)
 {
+<<<<<<< HEAD
 	char *res = buf + buflen;
 	int error;
 
@@ -190,12 +334,21 @@ char *__d_path(const struct path *path,
 	if (error > 0)
 		return NULL;
 	return res;
+=======
+	DECLARE_BUFFER(b, buf, buflen);
+
+	prepend_char(&b, 0);
+	if (unlikely(prepend_path(path, root, &b) > 0))
+		return NULL;
+	return extract_string(&b);
+>>>>>>> upstream/android-13
 }
 
 char *d_absolute_path(const struct path *path,
 	       char *buf, int buflen)
 {
 	struct path root = {};
+<<<<<<< HEAD
 	char *res = buf + buflen;
 	int error;
 
@@ -229,6 +382,14 @@ static int path_with_deleted(const struct path *path,
 static int prepend_unreachable(char **buffer, int *buflen)
 {
 	return prepend(buffer, buflen, "(unreachable)", 13);
+=======
+	DECLARE_BUFFER(b, buf, buflen);
+
+	prepend_char(&b, 0);
+	if (unlikely(prepend_path(path, &root, &b) > 1))
+		return ERR_PTR(-EINVAL);
+	return extract_string(&b);
+>>>>>>> upstream/android-13
 }
 
 static void get_fs_root_rcu(struct fs_struct *fs, struct path *root)
@@ -259,9 +420,14 @@ static void get_fs_root_rcu(struct fs_struct *fs, struct path *root)
  */
 char *d_path(const struct path *path, char *buf, int buflen)
 {
+<<<<<<< HEAD
 	char *res = buf + buflen;
 	struct path root;
 	int error;
+=======
+	DECLARE_BUFFER(b, buf, buflen);
+	struct path root;
+>>>>>>> upstream/android-13
 
 	/*
 	 * We have various synthetic filesystems that never get mounted.  On
@@ -280,12 +446,23 @@ char *d_path(const struct path *path, char *buf, int buflen)
 
 	rcu_read_lock();
 	get_fs_root_rcu(current->fs, &root);
+<<<<<<< HEAD
 	error = path_with_deleted(path, &root, &res, &buflen);
 	rcu_read_unlock();
 
 	if (error < 0)
 		res = ERR_PTR(error);
 	return res;
+=======
+	if (unlikely(d_unlinked(path->dentry)))
+		prepend(&b, " (deleted)", 11);
+	else
+		prepend_char(&b, 0);
+	prepend_path(path, &root, &b);
+	rcu_read_unlock();
+
+	return extract_string(&b);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(d_path);
 
@@ -312,6 +489,7 @@ char *dynamic_dname(struct dentry *dentry, char *buffer, int buflen,
 
 char *simple_dname(struct dentry *dentry, char *buffer, int buflen)
 {
+<<<<<<< HEAD
 	char *end = buffer + buflen;
 	/* these dentries are never renamed, so d_lock is not needed */
 	if (prepend(&end, &buflen, " (deleted)", 11) ||
@@ -321,10 +499,20 @@ char *simple_dname(struct dentry *dentry, char *buffer, int buflen)
 	return end;
 }
 EXPORT_SYMBOL(simple_dname);
+=======
+	DECLARE_BUFFER(b, buffer, buflen);
+	/* these dentries are never renamed, so d_lock is not needed */
+	prepend(&b, " (deleted)", 11);
+	prepend(&b, dentry->d_name.name, dentry->d_name.len);
+	prepend_char(&b, '/');
+	return extract_string(&b);
+}
+>>>>>>> upstream/android-13
 
 /*
  * Write full pathname from the root of the filesystem into the buffer.
  */
+<<<<<<< HEAD
 static char *__dentry_path(struct dentry *d, char *buf, int buflen)
 {
 	struct dentry *dentry;
@@ -334,10 +522,18 @@ static char *__dentry_path(struct dentry *d, char *buf, int buflen)
 
 	if (buflen < 2)
 		goto Elong;
+=======
+static char *__dentry_path(const struct dentry *d, struct prepend_buffer *p)
+{
+	const struct dentry *dentry;
+	struct prepend_buffer b;
+	int seq = 0;
+>>>>>>> upstream/android-13
 
 	rcu_read_lock();
 restart:
 	dentry = d;
+<<<<<<< HEAD
 	end = buf + buflen;
 	len = buflen;
 	prepend(&end, &len, "\0", 1);
@@ -354,6 +550,16 @@ restart:
 			break;
 
 		retval = end;
+=======
+	b = *p;
+	read_seqbegin_or_lock(&rename_lock, &seq);
+	while (!IS_ROOT(dentry)) {
+		const struct dentry *parent = dentry->d_parent;
+
+		prefetch(parent);
+		if (!prepend_name(&b, &dentry->d_name))
+			break;
+>>>>>>> upstream/android-13
 		dentry = parent;
 	}
 	if (!(seq & 1))
@@ -363,6 +569,7 @@ restart:
 		goto restart;
 	}
 	done_seqretry(&rename_lock, seq);
+<<<<<<< HEAD
 	if (error)
 		goto Elong;
 	return retval;
@@ -393,6 +600,31 @@ char *dentry_path(struct dentry *dentry, char *buf, int buflen)
 	return retval;
 Elong:
 	return ERR_PTR(-ENAMETOOLONG);
+=======
+	if (b.len == p->len)
+		prepend_char(&b, '/');
+	return extract_string(&b);
+}
+
+char *dentry_path_raw(const struct dentry *dentry, char *buf, int buflen)
+{
+	DECLARE_BUFFER(b, buf, buflen);
+
+	prepend_char(&b, 0);
+	return __dentry_path(dentry, &b);
+}
+EXPORT_SYMBOL(dentry_path_raw);
+
+char *dentry_path(const struct dentry *dentry, char *buf, int buflen)
+{
+	DECLARE_BUFFER(b, buf, buflen);
+
+	if (unlikely(d_unlinked(dentry)))
+		prepend(&b, "//deleted", 10);
+	else
+		prepend_char(&b, 0);
+	return __dentry_path(dentry, &b);
+>>>>>>> upstream/android-13
 }
 
 static void get_fs_root_and_pwd_rcu(struct fs_struct *fs, struct path *root,
@@ -437,6 +669,7 @@ SYSCALL_DEFINE2(getcwd, char __user *, buf, unsigned long, size)
 	rcu_read_lock();
 	get_fs_root_and_pwd_rcu(current->fs, &root, &pwd);
 
+<<<<<<< HEAD
 	error = -ENOENT;
 	if (!d_unlinked(pwd.dentry)) {
 		unsigned long len;
@@ -469,6 +702,30 @@ SYSCALL_DEFINE2(getcwd, char __user *, buf, unsigned long, size)
 	}
 
 out:
+=======
+	if (unlikely(d_unlinked(pwd.dentry))) {
+		rcu_read_unlock();
+		error = -ENOENT;
+	} else {
+		unsigned len;
+		DECLARE_BUFFER(b, page, PATH_MAX);
+
+		prepend_char(&b, 0);
+		if (unlikely(prepend_path(&pwd, &root, &b) > 0))
+			prepend(&b, "(unreachable)", 13);
+		rcu_read_unlock();
+
+		len = PATH_MAX - b.len;
+		if (unlikely(len > PATH_MAX))
+			error = -ENAMETOOLONG;
+		else if (unlikely(len > size))
+			error = -ERANGE;
+		else if (copy_to_user(buf, b.buf, len))
+			error = -EFAULT;
+		else
+			error = len;
+	}
+>>>>>>> upstream/android-13
 	__putname(page);
 	return error;
 }

@@ -12,7 +12,11 @@
 #ifndef __PINMUX_SPEAR_H__
 #define __PINMUX_SPEAR_H__
 
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/driver.h>
+>>>>>>> upstream/android-13
 #include <linux/io.h>
 #include <linux/pinctrl/pinctrl.h>
 #include <linux/types.h>

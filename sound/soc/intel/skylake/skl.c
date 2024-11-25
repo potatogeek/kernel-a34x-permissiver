@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  skl.c - Implementation of ASoC Intel SKL HD Audio driver
  *
@@ -9,6 +13,7 @@
  *                     PeiSen Hou <pshou@realtek.com.tw>
  *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; version 2 of the License.
@@ -18,6 +23,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  */
 
@@ -33,10 +40,26 @@
 #include <sound/hda_register.h>
 #include <sound/hdaudio.h>
 #include <sound/hda_i915.h>
+<<<<<<< HEAD
+=======
+#include <sound/hda_codec.h>
+#include <sound/intel-nhlt.h>
+#include <sound/intel-dsp-config.h>
+>>>>>>> upstream/android-13
 #include "skl.h"
 #include "skl-sst-dsp.h"
 #include "skl-sst-ipc.h"
 
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_SND_SOC_INTEL_SKYLAKE_HDAUDIO_CODEC)
+#include "../../../soc/codecs/hdac_hda.h"
+#endif
+static int skl_pci_binding;
+module_param_named(pci_binding, skl_pci_binding, int, 0444);
+MODULE_PARM_DESC(pci_binding, "PCI binding (0=auto, 1=only legacy, 2=only asoc");
+
+>>>>>>> upstream/android-13
 /*
  * initialize the PCI registers
  */
@@ -51,7 +74,11 @@ static void skl_update_pci_byte(struct pci_dev *pci, unsigned int reg,
 	pci_write_config_byte(pci, reg, data);
 }
 
+<<<<<<< HEAD
 static void skl_init_pci(struct skl *skl)
+=======
+static void skl_init_pci(struct skl_dev *skl)
+>>>>>>> upstream/android-13
 {
 	struct hdac_bus *bus = skl_to_bus(skl);
 
@@ -128,14 +155,25 @@ static int skl_init_chip(struct hdac_bus *bus, bool full_reset)
 	struct hdac_ext_link *hlink;
 	int ret;
 
+<<<<<<< HEAD
+=======
+	snd_hdac_set_codec_wakeup(bus, true);
+>>>>>>> upstream/android-13
 	skl_enable_miscbdcge(bus->dev, false);
 	ret = snd_hdac_bus_init_chip(bus, full_reset);
 
 	/* Reset stream-to-link mapping */
 	list_for_each_entry(hlink, &bus->hlink_list, list)
+<<<<<<< HEAD
 		bus->io_ops->reg_writel(0, hlink->ml_addr + AZX_REG_ML_LOSIDV);
 
 	skl_enable_miscbdcge(bus->dev, true);
+=======
+		writel(0, hlink->ml_addr + AZX_REG_ML_LOSIDV);
+
+	skl_enable_miscbdcge(bus->dev, true);
+	snd_hdac_set_codec_wakeup(bus, false);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -185,6 +223,28 @@ void skl_update_d0i3c(struct device *dev, bool enable)
 			snd_hdac_chip_readb(bus, VS_D0I3C));
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * skl_dum_set - set DUM bit in EM2 register
+ * @bus: HD-audio core bus
+ *
+ * Addresses incorrect position reporting for capture streams.
+ * Used on device power up.
+ */
+static void skl_dum_set(struct hdac_bus *bus)
+{
+	/* For the DUM bit to be set, CRST needs to be out of reset state */
+	if (!(snd_hdac_chip_readb(bus, GCTL) & AZX_GCTL_RESET)) {
+		skl_enable_miscbdcge(bus->dev, false);
+		snd_hdac_bus_exit_link_reset(bus);
+		skl_enable_miscbdcge(bus->dev, true);
+	}
+
+	snd_hdac_chip_updatel(bus, VS_EM2, AZX_VS_EM2_DUM, AZX_VS_EM2_DUM);
+}
+
+>>>>>>> upstream/android-13
 /* called from IRQ */
 static void skl_stream_update(struct hdac_bus *bus, struct hdac_stream *hstr)
 {
@@ -234,7 +294,11 @@ static irqreturn_t skl_threaded_handler(int irq, void *dev_id)
 
 static int skl_acquire_irq(struct hdac_bus *bus, int do_disconnect)
 {
+<<<<<<< HEAD
 	struct skl *skl = bus_to_skl(bus);
+=======
+	struct skl_dev *skl = bus_to_skl(bus);
+>>>>>>> upstream/android-13
 	int ret;
 
 	ret = request_threaded_irq(skl->pci->irq, skl_interrupt,
@@ -258,7 +322,11 @@ static int skl_suspend_late(struct device *dev)
 {
 	struct pci_dev *pci = to_pci_dev(dev);
 	struct hdac_bus *bus = pci_get_drvdata(pci);
+<<<<<<< HEAD
 	struct skl *skl = bus_to_skl(bus);
+=======
+	struct skl_dev *skl = bus_to_skl(bus);
+>>>>>>> upstream/android-13
 
 	return skl_suspend_late_dsp(skl);
 }
@@ -266,7 +334,11 @@ static int skl_suspend_late(struct device *dev)
 #ifdef CONFIG_PM
 static int _skl_suspend(struct hdac_bus *bus)
 {
+<<<<<<< HEAD
 	struct skl *skl = bus_to_skl(bus);
+=======
+	struct skl_dev *skl = bus_to_skl(bus);
+>>>>>>> upstream/android-13
 	struct pci_dev *pci = to_pci_dev(bus->dev);
 	int ret;
 
@@ -289,9 +361,16 @@ static int _skl_suspend(struct hdac_bus *bus)
 
 static int _skl_resume(struct hdac_bus *bus)
 {
+<<<<<<< HEAD
 	struct skl *skl = bus_to_skl(bus);
 
 	skl_init_pci(skl);
+=======
+	struct skl_dev *skl = bus_to_skl(bus);
+
+	skl_init_pci(skl);
+	skl_dum_set(bus);
+>>>>>>> upstream/android-13
 	skl_init_chip(bus, true);
 
 	return skl_resume_dsp(skl);
@@ -306,8 +385,13 @@ static int skl_suspend(struct device *dev)
 {
 	struct pci_dev *pci = to_pci_dev(dev);
 	struct hdac_bus *bus = pci_get_drvdata(pci);
+<<<<<<< HEAD
 	struct skl *skl  = bus_to_skl(bus);
 	int ret = 0;
+=======
+	struct skl_dev *skl  = bus_to_skl(bus);
+	int ret;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Do not suspend if streams which are marked ignore suspend are
@@ -326,6 +410,7 @@ static int skl_suspend(struct device *dev)
 		ret = _skl_suspend(bus);
 		if (ret < 0)
 			return ret;
+<<<<<<< HEAD
 		skl->skl_sst->fw_loaded = false;
 	}
 
@@ -337,12 +422,19 @@ static int skl_suspend(struct device *dev)
 	}
 
 	return ret;
+=======
+		skl->fw_loaded = false;
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int skl_resume(struct device *dev)
 {
 	struct pci_dev *pci = to_pci_dev(dev);
 	struct hdac_bus *bus = pci_get_drvdata(pci);
+<<<<<<< HEAD
 	struct skl *skl  = bus_to_skl(bus);
 	struct hdac_ext_link *hlink = NULL;
 	int ret;
@@ -357,6 +449,12 @@ static int skl_resume(struct device *dev)
 		}
 	}
 
+=======
+	struct skl_dev *skl  = bus_to_skl(bus);
+	struct hdac_ext_link *hlink;
+	int ret;
+
+>>>>>>> upstream/android-13
 	/*
 	 * resume only when we are not in suspend active, otherwise need to
 	 * restore the device
@@ -428,7 +526,11 @@ static const struct dev_pm_ops skl_pm = {
  */
 static int skl_free(struct hdac_bus *bus)
 {
+<<<<<<< HEAD
 	struct skl *skl  = bus_to_skl(bus);
+=======
+	struct skl_dev *skl  = bus_to_skl(bus);
+>>>>>>> upstream/android-13
 
 	skl->init_done = 0; /* to be sure */
 
@@ -448,9 +550,16 @@ static int skl_free(struct hdac_bus *bus)
 
 	snd_hdac_ext_bus_exit(bus);
 
+<<<<<<< HEAD
 	cancel_work_sync(&skl->probe_work);
 	if (IS_ENABLED(CONFIG_SND_SOC_HDAC_HDMI))
 		snd_hdac_i915_exit(bus);
+=======
+	if (IS_ENABLED(CONFIG_SND_SOC_HDAC_HDMI)) {
+		snd_hdac_display_power(bus, HDA_CODEC_IDX_CONTROLLER, false);
+		snd_hdac_i915_exit(bus);
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -472,16 +581,44 @@ static struct skl_ssp_clk skl_ssp_clks[] = {
 						{.name = "ssp5_sclkfs"},
 };
 
+<<<<<<< HEAD
 static int skl_find_machine(struct skl *skl, void *driver_data)
+=======
+static struct snd_soc_acpi_mach *skl_find_hda_machine(struct skl_dev *skl,
+					struct snd_soc_acpi_mach *machines)
+{
+	struct snd_soc_acpi_mach *mach;
+
+	/* point to common table */
+	mach = snd_soc_acpi_intel_hda_machines;
+
+	/* all entries in the machine table use the same firmware */
+	mach->fw_filename = machines->fw_filename;
+
+	return mach;
+}
+
+static int skl_find_machine(struct skl_dev *skl, void *driver_data)
+>>>>>>> upstream/android-13
 {
 	struct hdac_bus *bus = skl_to_bus(skl);
 	struct snd_soc_acpi_mach *mach = driver_data;
 	struct skl_machine_pdata *pdata;
 
 	mach = snd_soc_acpi_find_machine(mach);
+<<<<<<< HEAD
 	if (mach == NULL) {
 		dev_err(bus->dev, "No matching machine driver found\n");
 		return -ENODEV;
+=======
+	if (!mach) {
+		dev_dbg(bus->dev, "No matching I2S machine driver found\n");
+		mach = skl_find_hda_machine(skl, driver_data);
+		if (!mach) {
+			dev_err(bus->dev, "No matching machine driver found\n");
+			return -ENODEV;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	skl->mach = mach;
@@ -490,16 +627,29 @@ static int skl_find_machine(struct skl *skl, void *driver_data)
 
 	if (pdata) {
 		skl->use_tplg_pcm = pdata->use_tplg_pcm;
+<<<<<<< HEAD
 		pdata->dmic_num = skl_get_dmic_geo(skl);
+=======
+		mach->mach_params.dmic_num =
+			intel_nhlt_get_dmic_geo(&skl->pci->dev,
+						skl->nhlt);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int skl_machine_device_register(struct skl *skl)
 {
 	struct hdac_bus *bus = skl_to_bus(skl);
 	struct snd_soc_acpi_mach *mach = skl->mach;
+=======
+static int skl_machine_device_register(struct skl_dev *skl)
+{
+	struct snd_soc_acpi_mach *mach = skl->mach;
+	struct hdac_bus *bus = skl_to_bus(skl);
+>>>>>>> upstream/android-13
 	struct platform_device *pdev;
 	int ret;
 
@@ -509,6 +659,19 @@ static int skl_machine_device_register(struct skl *skl)
 		return -EIO;
 	}
 
+<<<<<<< HEAD
+=======
+	mach->mach_params.platform = dev_name(bus->dev);
+	mach->mach_params.codec_mask = bus->codec_mask;
+
+	ret = platform_device_add_data(pdev, (const void *)mach, sizeof(*mach));
+	if (ret) {
+		dev_err(bus->dev, "failed to add machine device platform data\n");
+		platform_device_put(pdev);
+		return ret;
+	}
+
+>>>>>>> upstream/android-13
 	ret = platform_device_add(pdev);
 	if (ret) {
 		dev_err(bus->dev, "failed to add machine device\n");
@@ -516,21 +679,32 @@ static int skl_machine_device_register(struct skl *skl)
 		return -EIO;
 	}
 
+<<<<<<< HEAD
 	if (mach->pdata)
 		dev_set_drvdata(&pdev->dev, mach->pdata);
+=======
+>>>>>>> upstream/android-13
 
 	skl->i2s_dev = pdev;
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static void skl_machine_device_unregister(struct skl *skl)
+=======
+static void skl_machine_device_unregister(struct skl_dev *skl)
+>>>>>>> upstream/android-13
 {
 	if (skl->i2s_dev)
 		platform_device_unregister(skl->i2s_dev);
 }
 
+<<<<<<< HEAD
 static int skl_dmic_device_register(struct skl *skl)
+=======
+static int skl_dmic_device_register(struct skl_dev *skl)
+>>>>>>> upstream/android-13
 {
 	struct hdac_bus *bus = skl_to_bus(skl);
 	struct platform_device *pdev;
@@ -554,7 +728,11 @@ static int skl_dmic_device_register(struct skl *skl)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void skl_dmic_device_unregister(struct skl *skl)
+=======
+static void skl_dmic_device_unregister(struct skl_dev *skl)
+>>>>>>> upstream/android-13
 {
 	if (skl->dmic_dev)
 		platform_device_unregister(skl->dmic_dev);
@@ -592,11 +770,21 @@ static void init_skl_xtal_rate(int pci_id)
 	}
 }
 
+<<<<<<< HEAD
 static int skl_clock_device_register(struct skl *skl)
+=======
+static int skl_clock_device_register(struct skl_dev *skl)
+>>>>>>> upstream/android-13
 {
 	struct platform_device_info pdevinfo = {NULL};
 	struct skl_clk_pdata *clk_pdata;
 
+<<<<<<< HEAD
+=======
+	if (!skl->nhlt)
+		return 0;
+
+>>>>>>> upstream/android-13
 	clk_pdata = devm_kzalloc(&skl->pci->dev, sizeof(*clk_pdata),
 							GFP_KERNEL);
 	if (!clk_pdata)
@@ -622,12 +810,41 @@ static int skl_clock_device_register(struct skl *skl)
 	return PTR_ERR_OR_ZERO(skl->clk_dev);
 }
 
+<<<<<<< HEAD
 static void skl_clock_device_unregister(struct skl *skl)
+=======
+static void skl_clock_device_unregister(struct skl_dev *skl)
+>>>>>>> upstream/android-13
 {
 	if (skl->clk_dev)
 		platform_device_unregister(skl->clk_dev);
 }
 
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_SND_SOC_INTEL_SKYLAKE_HDAUDIO_CODEC)
+
+#define IDISP_INTEL_VENDOR_ID	0x80860000
+
+/*
+ * load the legacy codec driver
+ */
+static void load_codec_module(struct hda_codec *codec)
+{
+#ifdef MODULE
+	char modalias[MODULE_NAME_LEN];
+	const char *mod = NULL;
+
+	snd_hdac_codec_modalias(&codec->core, modalias, sizeof(modalias));
+	mod = modalias;
+	dev_dbg(&codec->core.dev, "loading %s codec module\n", mod);
+	request_module(mod);
+#endif
+}
+
+#endif /* CONFIG_SND_SOC_INTEL_SKYLAKE_HDAUDIO_CODEC */
+
+>>>>>>> upstream/android-13
 /*
  * Probe the given codec address
  */
@@ -636,7 +853,15 @@ static int probe_codec(struct hdac_bus *bus, int addr)
 	unsigned int cmd = (addr << 28) | (AC_NODE_ROOT << 20) |
 		(AC_VERB_PARAMETERS << 8) | AC_PAR_VENDOR_ID;
 	unsigned int res = -1;
+<<<<<<< HEAD
 	struct skl *skl = bus_to_skl(bus);
+=======
+	struct skl_dev *skl = bus_to_skl(bus);
+#if IS_ENABLED(CONFIG_SND_SOC_INTEL_SKYLAKE_HDAUDIO_CODEC)
+	struct hdac_hda_priv *hda_codec;
+	int err;
+#endif
+>>>>>>> upstream/android-13
 	struct hdac_device *hdev;
 
 	mutex_lock(&bus->cmd_mutex);
@@ -645,13 +870,43 @@ static int probe_codec(struct hdac_bus *bus, int addr)
 	mutex_unlock(&bus->cmd_mutex);
 	if (res == -1)
 		return -EIO;
+<<<<<<< HEAD
 	dev_dbg(bus->dev, "codec #%d probed OK\n", addr);
 
+=======
+	dev_dbg(bus->dev, "codec #%d probed OK: %x\n", addr, res);
+
+#if IS_ENABLED(CONFIG_SND_SOC_INTEL_SKYLAKE_HDAUDIO_CODEC)
+	hda_codec = devm_kzalloc(&skl->pci->dev, sizeof(*hda_codec),
+				 GFP_KERNEL);
+	if (!hda_codec)
+		return -ENOMEM;
+
+	hda_codec->codec.bus = skl_to_hbus(skl);
+	hdev = &hda_codec->codec.core;
+
+	err = snd_hdac_ext_bus_device_init(bus, addr, hdev, HDA_DEV_ASOC);
+	if (err < 0)
+		return err;
+
+	/* use legacy bus only for HDA codecs, idisp uses ext bus */
+	if ((res & 0xFFFF0000) != IDISP_INTEL_VENDOR_ID) {
+		hdev->type = HDA_DEV_LEGACY;
+		load_codec_module(&hda_codec->codec);
+	}
+	return 0;
+#else
+>>>>>>> upstream/android-13
 	hdev = devm_kzalloc(&skl->pci->dev, sizeof(*hdev), GFP_KERNEL);
 	if (!hdev)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	return snd_hdac_ext_bus_device_init(bus, addr, hdev);
+=======
+	return snd_hdac_ext_bus_device_init(bus, addr, hdev, HDA_DEV_ASOC);
+#endif /* CONFIG_SND_SOC_INTEL_SKYLAKE_HDAUDIO_CODEC */
+>>>>>>> upstream/android-13
 }
 
 /* Codec initialization */
@@ -687,11 +942,14 @@ static void skl_codec_create(struct hdac_bus *bus)
 	}
 }
 
+<<<<<<< HEAD
 static const struct hdac_bus_ops bus_core_ops = {
 	.command = snd_hdac_bus_send_cmd,
 	.get_response = snd_hdac_bus_get_response,
 };
 
+=======
+>>>>>>> upstream/android-13
 static int skl_i915_init(struct hdac_bus *bus)
 {
 	int err;
@@ -704,18 +962,30 @@ static int skl_i915_init(struct hdac_bus *bus)
 	if (err < 0)
 		return err;
 
+<<<<<<< HEAD
 	err = snd_hdac_display_power(bus, true);
 	if (err < 0)
 		dev_err(bus->dev, "Cannot turn on display power on i915\n");
 
 	return err;
+=======
+	snd_hdac_display_power(bus, HDA_CODEC_IDX_CONTROLLER, true);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void skl_probe_work(struct work_struct *work)
 {
+<<<<<<< HEAD
 	struct skl *skl = container_of(work, struct skl, probe_work);
 	struct hdac_bus *bus = skl_to_bus(skl);
 	struct hdac_ext_link *hlink = NULL;
+=======
+	struct skl_dev *skl = container_of(work, struct skl_dev, probe_work);
+	struct hdac_bus *bus = skl_to_bus(skl);
+	struct hdac_ext_link *hlink;
+>>>>>>> upstream/android-13
 	int err;
 
 	if (IS_ENABLED(CONFIG_SND_SOC_HDAC_HDMI)) {
@@ -724,6 +994,12 @@ static void skl_probe_work(struct work_struct *work)
 			return;
 	}
 
+<<<<<<< HEAD
+=======
+	skl_init_pci(skl);
+	skl_dum_set(bus);
+
+>>>>>>> upstream/android-13
 	err = skl_init_chip(bus, true);
 	if (err < 0) {
 		dev_err(bus->dev, "Init chip failed with err: %d\n", err);
@@ -741,6 +1017,7 @@ static void skl_probe_work(struct work_struct *work)
 	err = skl_platform_register(bus->dev);
 	if (err < 0) {
 		dev_err(bus->dev, "platform register failed: %d\n", err);
+<<<<<<< HEAD
 		return;
 	}
 
@@ -750,6 +1027,15 @@ static void skl_probe_work(struct work_struct *work)
 			dev_err(bus->dev, "machine register failed: %d\n", err);
 			goto out_err;
 		}
+=======
+		goto out_err;
+	}
+
+	err = skl_machine_device_register(skl);
+	if (err < 0) {
+		dev_err(bus->dev, "machine register failed: %d\n", err);
+		goto out_err;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -758,6 +1044,7 @@ static void skl_probe_work(struct work_struct *work)
 	list_for_each_entry(hlink, &bus->hlink_list, list)
 		snd_hdac_ext_bus_link_put(bus, hlink);
 
+<<<<<<< HEAD
 	if (IS_ENABLED(CONFIG_SND_SOC_HDAC_HDMI)) {
 		err = snd_hdac_display_power(bus, false);
 		if (err < 0) {
@@ -766,6 +1053,10 @@ static void skl_probe_work(struct work_struct *work)
 			return;
 		}
 	}
+=======
+	if (IS_ENABLED(CONFIG_SND_SOC_HDAC_HDMI))
+		snd_hdac_display_power(bus, HDA_CODEC_IDX_CONTROLLER, false);
+>>>>>>> upstream/android-13
 
 	/* configure PM */
 	pm_runtime_put_noidle(bus->dev);
@@ -776,19 +1067,32 @@ static void skl_probe_work(struct work_struct *work)
 
 out_err:
 	if (IS_ENABLED(CONFIG_SND_SOC_HDAC_HDMI))
+<<<<<<< HEAD
 		err = snd_hdac_display_power(bus, false);
+=======
+		snd_hdac_display_power(bus, HDA_CODEC_IDX_CONTROLLER, false);
+>>>>>>> upstream/android-13
 }
 
 /*
  * constructor
  */
 static int skl_create(struct pci_dev *pci,
+<<<<<<< HEAD
 		      const struct hdac_io_ops *io_ops,
 		      struct skl **rskl)
 {
 	struct skl *skl;
 	struct hdac_bus *bus;
 
+=======
+		      struct skl_dev **rskl)
+{
+	struct hdac_ext_bus_ops *ext_ops = NULL;
+	struct skl_dev *skl;
+	struct hdac_bus *bus;
+	struct hda_bus *hbus;
+>>>>>>> upstream/android-13
 	int err;
 
 	*rskl = NULL;
@@ -803,13 +1107,34 @@ static int skl_create(struct pci_dev *pci,
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	bus = skl_to_bus(skl);
 	snd_hdac_ext_bus_init(bus, &pci->dev, &bus_core_ops, io_ops, NULL);
+=======
+	hbus = skl_to_hbus(skl);
+	bus = skl_to_bus(skl);
+
+	INIT_LIST_HEAD(&skl->ppl_list);
+	INIT_LIST_HEAD(&skl->bind_list);
+
+#if IS_ENABLED(CONFIG_SND_SOC_INTEL_SKYLAKE_HDAUDIO_CODEC)
+	ext_ops = snd_soc_hdac_hda_get_ops();
+#endif
+	snd_hdac_ext_bus_init(bus, &pci->dev, NULL, ext_ops);
+>>>>>>> upstream/android-13
 	bus->use_posbuf = 1;
 	skl->pci = pci;
 	INIT_WORK(&skl->probe_work, skl_probe_work);
 	bus->bdl_pos_adj = 0;
 
+<<<<<<< HEAD
+=======
+	mutex_init(&hbus->prepare_mutex);
+	hbus->pci = pci;
+	hbus->mixer_assigned = -1;
+	hbus->modelname = "sklbus";
+
+>>>>>>> upstream/android-13
 	*rskl = skl;
 
 	return 0;
@@ -817,7 +1142,11 @@ static int skl_create(struct pci_dev *pci,
 
 static int skl_first_init(struct hdac_bus *bus)
 {
+<<<<<<< HEAD
 	struct skl *skl = bus_to_skl(bus);
+=======
+	struct skl_dev *skl = bus_to_skl(bus);
+>>>>>>> upstream/android-13
 	struct pci_dev *pci = skl->pci;
 	int err;
 	unsigned short gcap;
@@ -834,10 +1163,21 @@ static int skl_first_init(struct hdac_bus *bus)
 		return -ENXIO;
 	}
 
+<<<<<<< HEAD
 	snd_hdac_bus_reset_link(bus, true);
 
 	snd_hdac_bus_parse_capabilities(bus);
 
+=======
+	snd_hdac_bus_parse_capabilities(bus);
+
+	/* check if PPCAP exists */
+	if (!bus->ppcap) {
+		dev_err(bus->dev, "bus ppcap not set, HDAudio or DSP not present?\n");
+		return -ENODEV;
+	}
+
+>>>>>>> upstream/android-13
 	if (skl_acquire_irq(bus, 0) < 0)
 		return -EBUSY;
 
@@ -847,6 +1187,7 @@ static int skl_first_init(struct hdac_bus *bus)
 	gcap = snd_hdac_chip_readw(bus, GCAP);
 	dev_dbg(bus->dev, "chipset global capabilities = 0x%x\n", gcap);
 
+<<<<<<< HEAD
 	/* allow 64bit DMA address if supported by H/W */
 	if (!dma_set_mask(bus->dev, DMA_BIT_MASK(64))) {
 		dma_set_coherent_mask(bus->dev, DMA_BIT_MASK(64));
@@ -855,15 +1196,31 @@ static int skl_first_init(struct hdac_bus *bus)
 		dma_set_coherent_mask(bus->dev, DMA_BIT_MASK(32));
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/* read number of streams from GCAP register */
 	cp_streams = (gcap >> 8) & 0x0f;
 	pb_streams = (gcap >> 12) & 0x0f;
 
+<<<<<<< HEAD
 	if (!pb_streams && !cp_streams)
 		return -EIO;
 
 	bus->num_streams = cp_streams + pb_streams;
 
+=======
+	if (!pb_streams && !cp_streams) {
+		dev_err(bus->dev, "no streams found in GCAP definitions?\n");
+		return -EIO;
+	}
+
+	bus->num_streams = cp_streams + pb_streams;
+
+	/* allow 64bit DMA address if supported by H/W */
+	if (dma_set_mask_and_coherent(bus->dev, DMA_BIT_MASK(64)))
+		dma_set_mask_and_coherent(bus->dev, DMA_BIT_MASK(32));
+
+>>>>>>> upstream/android-13
 	/* initialize streams */
 	snd_hdac_ext_stream_init_all
 		(bus, 0, cp_streams, SNDRV_PCM_STREAM_CAPTURE);
@@ -875,34 +1232,73 @@ static int skl_first_init(struct hdac_bus *bus)
 	if (err < 0)
 		return err;
 
+<<<<<<< HEAD
 	/* initialize chip */
 	skl_init_pci(skl);
 
 	return skl_init_chip(bus, true);
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int skl_probe(struct pci_dev *pci,
 		     const struct pci_device_id *pci_id)
 {
+<<<<<<< HEAD
 	struct skl *skl;
 	struct hdac_bus *bus = NULL;
 	int err;
 
 	/* we use ext core ops, so provide NULL for ops here */
 	err = skl_create(pci, NULL, &skl);
+=======
+	struct skl_dev *skl;
+	struct hdac_bus *bus = NULL;
+	int err;
+
+	switch (skl_pci_binding) {
+	case SND_SKL_PCI_BIND_AUTO:
+		err = snd_intel_dsp_driver_probe(pci);
+		if (err != SND_INTEL_DSP_DRIVER_ANY &&
+		    err != SND_INTEL_DSP_DRIVER_SST)
+			return -ENODEV;
+		break;
+	case SND_SKL_PCI_BIND_LEGACY:
+		dev_info(&pci->dev, "Module parameter forced binding with HDAudio legacy, aborting probe\n");
+		return -ENODEV;
+	case SND_SKL_PCI_BIND_ASOC:
+		dev_info(&pci->dev, "Module parameter forced binding with SKL driver, bypassed detection logic\n");
+		break;
+	default:
+		dev_err(&pci->dev, "invalid value for skl_pci_binding module parameter, ignored\n");
+		break;
+	}
+
+	/* we use ext core ops, so provide NULL for ops here */
+	err = skl_create(pci, &skl);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
 	bus = skl_to_bus(skl);
 
 	err = skl_first_init(bus);
+<<<<<<< HEAD
 	if (err < 0)
 		goto out_free;
+=======
+	if (err < 0) {
+		dev_err(bus->dev, "skl_first_init failed with err: %d\n", err);
+		goto out_free;
+	}
+>>>>>>> upstream/android-13
 
 	skl->pci_id = pci->device;
 
 	device_disable_async_suspend(bus->dev);
 
+<<<<<<< HEAD
 	skl->nhlt = skl_nhlt_init(bus->dev);
 
 	if (skl->nhlt == NULL) {
@@ -946,6 +1342,62 @@ static int skl_probe(struct pci_dev *pci,
 	err = skl_dmic_device_register(skl);
 	if (err < 0)
 		goto out_dsp_free;
+=======
+	skl->nhlt = intel_nhlt_init(bus->dev);
+
+	if (skl->nhlt == NULL) {
+#if !IS_ENABLED(CONFIG_SND_SOC_INTEL_SKYLAKE_HDAUDIO_CODEC)
+		dev_err(bus->dev, "no nhlt info found\n");
+		err = -ENODEV;
+		goto out_free;
+#else
+		dev_warn(bus->dev, "no nhlt info found, continuing to try to enable HDAudio codec\n");
+#endif
+	} else {
+
+		err = skl_nhlt_create_sysfs(skl);
+		if (err < 0) {
+			dev_err(bus->dev, "skl_nhlt_create_sysfs failed with err: %d\n", err);
+			goto out_nhlt_free;
+		}
+
+		skl_nhlt_update_topology_bin(skl);
+
+		/* create device for dsp clk */
+		err = skl_clock_device_register(skl);
+		if (err < 0) {
+			dev_err(bus->dev, "skl_clock_device_register failed with err: %d\n", err);
+			goto out_clk_free;
+		}
+	}
+
+	pci_set_drvdata(skl->pci, bus);
+
+
+	err = skl_find_machine(skl, (void *)pci_id->driver_data);
+	if (err < 0) {
+		dev_err(bus->dev, "skl_find_machine failed with err: %d\n", err);
+		goto out_nhlt_free;
+	}
+
+	err = skl_init_dsp(skl);
+	if (err < 0) {
+		dev_dbg(bus->dev, "error failed to register dsp\n");
+		goto out_nhlt_free;
+	}
+	skl->enable_miscbdcge = skl_enable_miscbdcge;
+	skl->clock_power_gating = skl_clock_power_gating;
+
+	if (bus->mlcap)
+		snd_hdac_ext_bus_get_ml_capabilities(bus);
+
+	/* create device for soc dmic */
+	err = skl_dmic_device_register(skl);
+	if (err < 0) {
+		dev_err(bus->dev, "skl_dmic_device_register failed with err: %d\n", err);
+		goto out_dsp_free;
+	}
+>>>>>>> upstream/android-13
 
 	schedule_work(&skl->probe_work);
 
@@ -956,7 +1408,12 @@ out_dsp_free:
 out_clk_free:
 	skl_clock_device_unregister(skl);
 out_nhlt_free:
+<<<<<<< HEAD
 	skl_nhlt_free(skl->nhlt);
+=======
+	if (skl->nhlt)
+		intel_nhlt_free(skl->nhlt);
+>>>>>>> upstream/android-13
 out_free:
 	skl_free(bus);
 
@@ -968,7 +1425,11 @@ static void skl_shutdown(struct pci_dev *pci)
 	struct hdac_bus *bus = pci_get_drvdata(pci);
 	struct hdac_stream *s;
 	struct hdac_ext_stream *stream;
+<<<<<<< HEAD
 	struct skl *skl;
+=======
+	struct skl_dev *skl;
+>>>>>>> upstream/android-13
 
 	if (!bus)
 		return;
@@ -990,29 +1451,44 @@ static void skl_shutdown(struct pci_dev *pci)
 static void skl_remove(struct pci_dev *pci)
 {
 	struct hdac_bus *bus = pci_get_drvdata(pci);
+<<<<<<< HEAD
 	struct skl *skl = bus_to_skl(bus);
 
 	release_firmware(skl->tplg);
+=======
+	struct skl_dev *skl = bus_to_skl(bus);
+
+	cancel_work_sync(&skl->probe_work);
+>>>>>>> upstream/android-13
 
 	pm_runtime_get_noresume(&pci->dev);
 
 	/* codec removal, invoke bus_device_remove */
 	snd_hdac_ext_bus_device_remove(bus);
 
+<<<<<<< HEAD
 	skl->debugfs = NULL;
+=======
+>>>>>>> upstream/android-13
 	skl_platform_unregister(&pci->dev);
 	skl_free_dsp(skl);
 	skl_machine_device_unregister(skl);
 	skl_dmic_device_unregister(skl);
 	skl_clock_device_unregister(skl);
 	skl_nhlt_remove_sysfs(skl);
+<<<<<<< HEAD
 	skl_nhlt_free(skl->nhlt);
+=======
+	if (skl->nhlt)
+		intel_nhlt_free(skl->nhlt);
+>>>>>>> upstream/android-13
 	skl_free(bus);
 	dev_set_drvdata(&pci->dev, NULL);
 }
 
 /* PCI IDs */
 static const struct pci_device_id skl_ids[] = {
+<<<<<<< HEAD
 	/* Sunrise Point-LP */
 	{ PCI_DEVICE(0x8086, 0x9d70),
 		.driver_data = (unsigned long)&snd_soc_acpi_intel_skl_machines},
@@ -1028,6 +1504,48 @@ static const struct pci_device_id skl_ids[] = {
 	/* CNL */
 	{ PCI_DEVICE(0x8086, 0x9dc8),
 		.driver_data = (unsigned long)&snd_soc_acpi_intel_cnl_machines},
+=======
+#if IS_ENABLED(CONFIG_SND_SOC_INTEL_SKL)
+	/* Sunrise Point-LP */
+	{ PCI_DEVICE(0x8086, 0x9d70),
+		.driver_data = (unsigned long)&snd_soc_acpi_intel_skl_machines},
+#endif
+#if IS_ENABLED(CONFIG_SND_SOC_INTEL_APL)
+	/* BXT-P */
+	{ PCI_DEVICE(0x8086, 0x5a98),
+		.driver_data = (unsigned long)&snd_soc_acpi_intel_bxt_machines},
+#endif
+#if IS_ENABLED(CONFIG_SND_SOC_INTEL_KBL)
+	/* KBL */
+	{ PCI_DEVICE(0x8086, 0x9D71),
+		.driver_data = (unsigned long)&snd_soc_acpi_intel_kbl_machines},
+#endif
+#if IS_ENABLED(CONFIG_SND_SOC_INTEL_GLK)
+	/* GLK */
+	{ PCI_DEVICE(0x8086, 0x3198),
+		.driver_data = (unsigned long)&snd_soc_acpi_intel_glk_machines},
+#endif
+#if IS_ENABLED(CONFIG_SND_SOC_INTEL_CNL)
+	/* CNL */
+	{ PCI_DEVICE(0x8086, 0x9dc8),
+		.driver_data = (unsigned long)&snd_soc_acpi_intel_cnl_machines},
+#endif
+#if IS_ENABLED(CONFIG_SND_SOC_INTEL_CFL)
+	/* CFL */
+	{ PCI_DEVICE(0x8086, 0xa348),
+		.driver_data = (unsigned long)&snd_soc_acpi_intel_cnl_machines},
+#endif
+#if IS_ENABLED(CONFIG_SND_SOC_INTEL_CML_LP)
+	/* CML-LP */
+	{ PCI_DEVICE(0x8086, 0x02c8),
+		.driver_data = (unsigned long)&snd_soc_acpi_intel_cnl_machines},
+#endif
+#if IS_ENABLED(CONFIG_SND_SOC_INTEL_CML_H)
+	/* CML-H */
+	{ PCI_DEVICE(0x8086, 0x06c8),
+		.driver_data = (unsigned long)&snd_soc_acpi_intel_cnl_machines},
+#endif
+>>>>>>> upstream/android-13
 	{ 0, }
 };
 MODULE_DEVICE_TABLE(pci, skl_ids);

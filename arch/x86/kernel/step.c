@@ -127,12 +127,25 @@ static int enable_single_step(struct task_struct *child)
 		regs->flags |= X86_EFLAGS_TF;
 
 	/*
+<<<<<<< HEAD
 	 * Always set TIF_SINGLESTEP - this guarantees that
 	 * we single-step system calls etc..  This will also
+=======
+	 * Always set TIF_SINGLESTEP.  This will also
+>>>>>>> upstream/android-13
 	 * cause us to set TF when returning to user mode.
 	 */
 	set_tsk_thread_flag(child, TIF_SINGLESTEP);
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Ensure that a trap is triggered once stepping out of a system
+	 * call prior to executing any user instruction.
+	 */
+	set_task_syscall_work(child, SYSCALL_EXIT_TRAP);
+
+>>>>>>> upstream/android-13
 	oflags = regs->flags;
 
 	/* Set TF on the kernel stack.. */
@@ -230,6 +243,10 @@ void user_disable_single_step(struct task_struct *child)
 
 	/* Always clear TIF_SINGLESTEP... */
 	clear_tsk_thread_flag(child, TIF_SINGLESTEP);
+<<<<<<< HEAD
+=======
+	clear_task_syscall_work(child, SYSCALL_EXIT_TRAP);
+>>>>>>> upstream/android-13
 
 	/* But touch TF only if it was set by us.. */
 	if (test_and_clear_tsk_thread_flag(child, TIF_FORCED_TF))

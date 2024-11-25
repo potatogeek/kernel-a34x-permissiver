@@ -51,8 +51,13 @@
 #include <linux/dma-mapping.h>
 #include <linux/bitrev.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+
+>>>>>>> upstream/android-13
 #include <asm/io.h>
 #include <asm/hwtest.h>
 #include <asm/dma.h>
@@ -114,6 +119,7 @@ static inline void bit_reverse_addr(unsigned char addr[6])
 		addr[i] = bitrev8(addr[i]);
 }
 
+<<<<<<< HEAD
 static irqreturn_t macsonic_interrupt(int irq, void *dev_id)
 {
 	irqreturn_t result;
@@ -125,6 +131,8 @@ static irqreturn_t macsonic_interrupt(int irq, void *dev_id)
 	return result;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int macsonic_open(struct net_device* dev)
 {
 	int retval;
@@ -135,12 +143,21 @@ static int macsonic_open(struct net_device* dev)
 				dev->name, dev->irq);
 		goto err;
 	}
+<<<<<<< HEAD
 	/* Under the A/UX interrupt scheme, the onboard SONIC interrupt comes
 	 * in at priority level 3. However, we sometimes get the level 2 inter-
 	 * rupt as well, which must prevent re-entrance of the sonic handler.
 	 */
 	if (dev->irq == IRQ_AUTO_3) {
 		retval = request_irq(IRQ_NUBUS_9, macsonic_interrupt, 0,
+=======
+	/* Under the A/UX interrupt scheme, the onboard SONIC interrupt gets
+	 * moved from level 2 to level 3. Unfortunately we still get some
+	 * level 2 interrupts so register the handler for both.
+	 */
+	if (dev->irq == IRQ_AUTO_3) {
+		retval = request_irq(IRQ_NUBUS_9, sonic_interrupt, 0,
+>>>>>>> upstream/android-13
 				     "sonic", dev);
 		if (retval) {
 			printk(KERN_ERR "%s: unable to get IRQ %d.\n",
@@ -186,6 +203,7 @@ static const struct net_device_ops macsonic_netdev_ops = {
 static int macsonic_init(struct net_device *dev)
 {
 	struct sonic_local* lp = netdev_priv(dev);
+<<<<<<< HEAD
 
 	/* Allocate the entire chunk of memory for the descriptors.
            Note that this cannot cross a 64K boundary. */
@@ -213,6 +231,12 @@ static int macsonic_init(struct net_device *dev)
 	                     * SONIC_BUS_SCALE(lp->dma_bitmode));
 	lp->rra_laddr = lp->rda_laddr + (SIZEOF_SONIC_RD * SONIC_NUM_RDS
 	                     * SONIC_BUS_SCALE(lp->dma_bitmode));
+=======
+	int err = sonic_alloc_descriptors(dev);
+
+	if (err)
+		return err;
+>>>>>>> upstream/android-13
 
 	dev->netdev_ops = &macsonic_netdev_ops;
 	dev->watchdog_timeo = TX_TIMEOUT;
@@ -637,7 +661,11 @@ out:
 	return err;
 }
 
+<<<<<<< HEAD
 static int mac_sonic_nubus_remove(struct nubus_board *board)
+=======
+static void mac_sonic_nubus_remove(struct nubus_board *board)
+>>>>>>> upstream/android-13
 {
 	struct net_device *ndev = nubus_get_drvdata(board);
 	struct sonic_local *lp = netdev_priv(ndev);
@@ -647,8 +675,11 @@ static int mac_sonic_nubus_remove(struct nubus_board *board)
 			  SIZEOF_SONIC_DESC * SONIC_BUS_SCALE(lp->dma_bitmode),
 			  lp->descriptors, lp->descriptors_laddr);
 	free_netdev(ndev);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static struct nubus_driver mac_sonic_nubus_driver = {

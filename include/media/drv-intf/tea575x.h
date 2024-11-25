@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef __SOUND_TEA575X_TUNER_H
 #define __SOUND_TEA575X_TUNER_H
 
@@ -5,6 +9,7 @@
  *   ALSA driver for TEA5757/5759 Philips AM/FM tuner chips
  *
  *	Copyright (c) 2004 Jaroslav Kysela <perex@perex.cz>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *   GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/videodev2.h>

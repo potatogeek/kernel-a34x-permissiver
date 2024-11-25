@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2011-2014, The Linux Foundation. All rights reserved.
  *
@@ -9,6 +10,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2011-2014, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _DMA_H_
@@ -50,6 +56,11 @@ int qce_dma_prep_sgs(struct qce_dma_data *dma, struct scatterlist *sg_in,
 void qce_dma_issue_pending(struct qce_dma_data *dma);
 int qce_dma_terminate_all(struct qce_dma_data *dma);
 struct scatterlist *
+<<<<<<< HEAD
 qce_sgtable_add(struct sg_table *sgt, struct scatterlist *sg_add);
+=======
+qce_sgtable_add(struct sg_table *sgt, struct scatterlist *sg_add,
+		unsigned int max_len);
+>>>>>>> upstream/android-13
 
 #endif /* _DMA_H_ */

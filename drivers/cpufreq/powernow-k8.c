@@ -1,8 +1,14 @@
+<<<<<<< HEAD
 /*
  *   (c) 2003-2012 Advanced Micro Devices, Inc.
  *  Your use of this code is subject to the terms and conditions of the
  *  GNU general public license version 2. See "COPYING" or
  *  http://www.gnu.org/licenses/gpl.html
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *   (c) 2003-2012 Advanced Micro Devices, Inc.
+>>>>>>> upstream/android-13
  *
  *  Maintainer:
  *  Andreas Herrmann <herrmann.der.user@googlemail.com>
@@ -11,7 +17,10 @@
  *  (C) 2003 Dave Jones on behalf of SuSE Labs
  *  (C) 2004 Dominik Brodowski <linux@brodo.de>
  *  (C) 2004 Pavel Machek <pavel@ucw.cz>
+<<<<<<< HEAD
  *  Licensed under the terms of the GNU GPL License version 2.
+=======
+>>>>>>> upstream/android-13
  *  Based upon datasheets & sample CPUs kindly provided by AMD.
  *
  *  Valuable input gratefully received from Dave Jones, Pavel Machek,
@@ -89,7 +98,11 @@ static u32 convert_fid_to_vco_fid(u32 fid)
  */
 static int pending_bit_stuck(void)
 {
+<<<<<<< HEAD
 	u32 lo, hi;
+=======
+	u32 lo, hi __always_unused;
+>>>>>>> upstream/android-13
 
 	rdmsr(MSR_FIDVID_STATUS, lo, hi);
 	return lo & MSR_S_LO_CHANGE_PENDING ? 1 : 0;
@@ -285,7 +298,11 @@ static int core_voltage_pre_transition(struct powernow_k8_data *data,
 {
 	u32 rvosteps = data->rvo;
 	u32 savefid = data->currfid;
+<<<<<<< HEAD
 	u32 maxvid, lo, rvomult = 1;
+=======
+	u32 maxvid, lo __always_unused, rvomult = 1;
+>>>>>>> upstream/android-13
 
 	pr_debug("ph1 (cpu%d): start, currfid 0x%x, currvid 0x%x, reqvid 0x%x, rvo 0x%x\n",
 		smp_processor_id(),
@@ -455,7 +472,11 @@ static int core_voltage_post_transition(struct powernow_k8_data *data,
 
 static const struct x86_cpu_id powernow_k8_ids[] = {
 	/* IO based frequency switching */
+<<<<<<< HEAD
 	{ X86_VENDOR_AMD, 0xf },
+=======
+	X86_MATCH_VENDOR_FAM(AMD, 0xf, NULL),
+>>>>>>> upstream/android-13
 	{}
 };
 MODULE_DEVICE_TABLE(x86cpu, powernow_k8_ids);
@@ -1175,7 +1196,11 @@ static int powernowk8_init(void)
 	unsigned int i, supported_cpus = 0;
 	int ret;
 
+<<<<<<< HEAD
 	if (static_cpu_has(X86_FEATURE_HW_PSTATE)) {
+=======
+	if (boot_cpu_has(X86_FEATURE_HW_PSTATE)) {
+>>>>>>> upstream/android-13
 		__request_acpi_cpufreq();
 		return -ENODEV;
 	}
@@ -1183,7 +1208,11 @@ static int powernowk8_init(void)
 	if (!x86_match_cpu(powernow_k8_ids))
 		return -ENODEV;
 
+<<<<<<< HEAD
 	get_online_cpus();
+=======
+	cpus_read_lock();
+>>>>>>> upstream/android-13
 	for_each_online_cpu(i) {
 		smp_call_function_single(i, check_supported_cpu, &ret, 1);
 		if (!ret)
@@ -1191,10 +1220,17 @@ static int powernowk8_init(void)
 	}
 
 	if (supported_cpus != num_online_cpus()) {
+<<<<<<< HEAD
 		put_online_cpus();
 		return -ENODEV;
 	}
 	put_online_cpus();
+=======
+		cpus_read_unlock();
+		return -ENODEV;
+	}
+	cpus_read_unlock();
+>>>>>>> upstream/android-13
 
 	ret = cpufreq_register_driver(&cpufreq_amd64_driver);
 	if (ret)

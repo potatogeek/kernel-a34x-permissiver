@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2010 Google, Inc
  * Copyright (c) 2014 NVIDIA Corporation
  *
  * Author:
  *	Colin Cross <ccross@google.com>
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -14,6 +19,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __SOC_TEGRA_PMC_H__
@@ -26,11 +33,17 @@
 struct clk;
 struct reset_control;
 
+<<<<<<< HEAD
 #ifdef CONFIG_SMP
 bool tegra_pmc_cpu_is_powered(unsigned int cpuid);
 int tegra_pmc_cpu_power_on(unsigned int cpuid);
 int tegra_pmc_cpu_remove_clamping(unsigned int cpuid);
 #endif /* CONFIG_SMP */
+=======
+bool tegra_pmc_cpu_is_powered(unsigned int cpuid);
+int tegra_pmc_cpu_power_on(unsigned int cpuid);
+int tegra_pmc_cpu_remove_clamping(unsigned int cpuid);
+>>>>>>> upstream/android-13
 
 /*
  * powergate and I/O rail APIs
@@ -90,6 +103,13 @@ enum tegra_io_pad {
 	TEGRA_IO_PAD_CSID,
 	TEGRA_IO_PAD_CSIE,
 	TEGRA_IO_PAD_CSIF,
+<<<<<<< HEAD
+=======
+	TEGRA_IO_PAD_CSIG,
+	TEGRA_IO_PAD_CSIH,
+	TEGRA_IO_PAD_DAP3,
+	TEGRA_IO_PAD_DAP5,
+>>>>>>> upstream/android-13
 	TEGRA_IO_PAD_DBG,
 	TEGRA_IO_PAD_DEBUG_NONAO,
 	TEGRA_IO_PAD_DMIC,
@@ -102,10 +122,22 @@ enum tegra_io_pad {
 	TEGRA_IO_PAD_EDP,
 	TEGRA_IO_PAD_EMMC,
 	TEGRA_IO_PAD_EMMC2,
+<<<<<<< HEAD
 	TEGRA_IO_PAD_GPIO,
 	TEGRA_IO_PAD_HDMI,
 	TEGRA_IO_PAD_HDMI_DP0,
 	TEGRA_IO_PAD_HDMI_DP1,
+=======
+	TEGRA_IO_PAD_EQOS,
+	TEGRA_IO_PAD_GPIO,
+	TEGRA_IO_PAD_GP_PWM2,
+	TEGRA_IO_PAD_GP_PWM3,
+	TEGRA_IO_PAD_HDMI,
+	TEGRA_IO_PAD_HDMI_DP0,
+	TEGRA_IO_PAD_HDMI_DP1,
+	TEGRA_IO_PAD_HDMI_DP2,
+	TEGRA_IO_PAD_HDMI_DP3,
+>>>>>>> upstream/android-13
 	TEGRA_IO_PAD_HSIC,
 	TEGRA_IO_PAD_HV,
 	TEGRA_IO_PAD_LVDS,
@@ -116,7 +148,18 @@ enum tegra_io_pad {
 	TEGRA_IO_PAD_PEX_CLK1,
 	TEGRA_IO_PAD_PEX_CLK2,
 	TEGRA_IO_PAD_PEX_CLK3,
+<<<<<<< HEAD
 	TEGRA_IO_PAD_PEX_CNTRL,
+=======
+	TEGRA_IO_PAD_PEX_CLK_2_BIAS,
+	TEGRA_IO_PAD_PEX_CLK_2,
+	TEGRA_IO_PAD_PEX_CNTRL,
+	TEGRA_IO_PAD_PEX_CTL2,
+	TEGRA_IO_PAD_PEX_L0_RST_N,
+	TEGRA_IO_PAD_PEX_L1_RST_N,
+	TEGRA_IO_PAD_PEX_L5_RST_N,
+	TEGRA_IO_PAD_PWR_CTL,
+>>>>>>> upstream/android-13
 	TEGRA_IO_PAD_SDMMC1,
 	TEGRA_IO_PAD_SDMMC1_HV,
 	TEGRA_IO_PAD_SDMMC2,
@@ -124,10 +167,22 @@ enum tegra_io_pad {
 	TEGRA_IO_PAD_SDMMC3,
 	TEGRA_IO_PAD_SDMMC3_HV,
 	TEGRA_IO_PAD_SDMMC4,
+<<<<<<< HEAD
+=======
+	TEGRA_IO_PAD_SOC_GPIO10,
+	TEGRA_IO_PAD_SOC_GPIO12,
+	TEGRA_IO_PAD_SOC_GPIO13,
+	TEGRA_IO_PAD_SOC_GPIO53,
+>>>>>>> upstream/android-13
 	TEGRA_IO_PAD_SPI,
 	TEGRA_IO_PAD_SPI_HV,
 	TEGRA_IO_PAD_SYS_DDC,
 	TEGRA_IO_PAD_UART,
+<<<<<<< HEAD
+=======
+	TEGRA_IO_PAD_UART4,
+	TEGRA_IO_PAD_UART5,
+>>>>>>> upstream/android-13
 	TEGRA_IO_PAD_UFS,
 	TEGRA_IO_PAD_USB0,
 	TEGRA_IO_PAD_USB1,
@@ -141,6 +196,7 @@ enum tegra_io_pad {
 #define TEGRA_IO_RAIL_HDMI	TEGRA_IO_PAD_HDMI
 #define TEGRA_IO_RAIL_LVDS	TEGRA_IO_PAD_LVDS
 
+<<<<<<< HEAD
 /**
  * enum tegra_io_pad_voltage - voltage level of the I/O pad's source rail
  * @TEGRA_IO_PAD_1800000UV: 1.8 V
@@ -153,6 +209,9 @@ enum tegra_io_pad_voltage {
 
 #ifdef CONFIG_SOC_TEGRA_PMC
 int tegra_powergate_is_powered(unsigned int id);
+=======
+#ifdef CONFIG_SOC_TEGRA_PMC
+>>>>>>> upstream/android-13
 int tegra_powergate_power_on(unsigned int id);
 int tegra_powergate_power_off(unsigned int id);
 int tegra_powergate_remove_clamping(unsigned int id);
@@ -163,14 +222,18 @@ int tegra_powergate_sequence_power_up(unsigned int id, struct clk *clk,
 
 int tegra_io_pad_power_enable(enum tegra_io_pad id);
 int tegra_io_pad_power_disable(enum tegra_io_pad id);
+<<<<<<< HEAD
 int tegra_io_pad_set_voltage(enum tegra_io_pad id,
 			     enum tegra_io_pad_voltage voltage);
 int tegra_io_pad_get_voltage(enum tegra_io_pad id);
+=======
+>>>>>>> upstream/android-13
 
 /* deprecated, use tegra_io_pad_power_{enable,disable}() instead */
 int tegra_io_rail_power_on(unsigned int id);
 int tegra_io_rail_power_off(unsigned int id);
 
+<<<<<<< HEAD
 enum tegra_suspend_mode tegra_pmc_get_suspend_mode(void);
 void tegra_pmc_set_suspend_mode(enum tegra_suspend_mode mode);
 void tegra_pmc_enter_suspend_mode(enum tegra_suspend_mode mode);
@@ -181,6 +244,14 @@ static inline int tegra_powergate_is_powered(unsigned int id)
 	return -ENOSYS;
 }
 
+=======
+void tegra_pmc_set_suspend_mode(enum tegra_suspend_mode mode);
+void tegra_pmc_enter_suspend_mode(enum tegra_suspend_mode mode);
+
+bool tegra_pmc_core_domain_state_synced(void);
+
+#else
+>>>>>>> upstream/android-13
 static inline int tegra_powergate_power_on(unsigned int id)
 {
 	return -ENOSYS;
@@ -213,12 +284,15 @@ static inline int tegra_io_pad_power_disable(enum tegra_io_pad id)
 	return -ENOSYS;
 }
 
+<<<<<<< HEAD
 static inline int tegra_io_pad_set_voltage(enum tegra_io_pad id,
 					   enum tegra_io_pad_voltage voltage)
 {
 	return -ENOSYS;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline int tegra_io_pad_get_voltage(enum tegra_io_pad id)
 {
 	return -ENOSYS;
@@ -234,11 +308,14 @@ static inline int tegra_io_rail_power_off(unsigned int id)
 	return -ENOSYS;
 }
 
+<<<<<<< HEAD
 static inline enum tegra_suspend_mode tegra_pmc_get_suspend_mode(void)
 {
 	return TEGRA_SUSPEND_NONE;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void tegra_pmc_set_suspend_mode(enum tegra_suspend_mode mode)
 {
 }
@@ -247,6 +324,25 @@ static inline void tegra_pmc_enter_suspend_mode(enum tegra_suspend_mode mode)
 {
 }
 
+<<<<<<< HEAD
 #endif /* CONFIG_SOC_TEGRA_PMC */
 
+=======
+static inline bool tegra_pmc_core_domain_state_synced(void)
+{
+	return false;
+}
+
+#endif /* CONFIG_SOC_TEGRA_PMC */
+
+#if defined(CONFIG_SOC_TEGRA_PMC) && defined(CONFIG_PM_SLEEP)
+enum tegra_suspend_mode tegra_pmc_get_suspend_mode(void);
+#else
+static inline enum tegra_suspend_mode tegra_pmc_get_suspend_mode(void)
+{
+	return TEGRA_SUSPEND_NONE;
+}
+#endif
+
+>>>>>>> upstream/android-13
 #endif /* __SOC_TEGRA_PMC_H__ */

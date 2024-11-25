@@ -102,6 +102,7 @@ int sync_flip_cover_detector_status(void)
 void print_flip_cover_detector_debug(void)
 {
 	struct shub_sensor *sensor = get_sensor(SENSOR_TYPE_FLIP_COVER_DETECTOR);
+<<<<<<< HEAD
 	struct sensor_event *event = &(sensor->last_event_buffer);
 	struct flip_cover_detector_event *sensor_value = (struct flip_cover_detector_event *)(event->value);
 
@@ -110,6 +111,15 @@ void print_flip_cover_detector_debug(void)
 		  (int)sensor_value->stable_min, (int)sensor_value->stable_max, (int)sensor_value->detach_mismatch_cnt, 
 		  (int)sensor_value->detach_mismatch_stop_cnt, (int)sensor_value->attach_retry_cnt, (int)sensor_value->uncal_mag_x, 
 		  (int)sensor_value->uncal_mag_y, (int)sensor_value->uncal_mag_z, sensor_value->saturation, event->timestamp, sensor->sampling_period,
+=======
+	struct sensor_event *event = &(sensor->event_buffer);
+	struct flip_cover_detector_event *sensor_value = (struct flip_cover_detector_event *)(event->value);
+
+	shub_info("%s(%u) : %d, %d, %d / %d, %d, %d, %d (%lld) (%ums, %dms)", sensor->name,
+		  SENSOR_TYPE_FLIP_COVER_DETECTOR, sensor_value->value, (int)sensor_value->magX,
+		  (int)sensor_value->stable_min_max, (int)sensor_value->uncal_mag_x, (int)sensor_value->uncal_mag_y,
+		  (int)sensor_value->uncal_mag_z, sensor_value->saturation, event->timestamp, sensor->sampling_period,
+>>>>>>> upstream/android-13
 		  sensor->max_report_latency);
 }
 
@@ -121,6 +131,7 @@ void report_event_flip_cover_detector(void)
 		check_cover_detection_factory();
 }
 
+<<<<<<< HEAD
 static struct sensor_funcs flip_cover_detector_sensor_func = {
 	.sync_status = sync_flip_cover_detector_status,
 	.report_event = report_event_flip_cover_detector,
@@ -132,12 +143,17 @@ static struct flip_cover_detector_data flip_cover_detector_data;
 int init_flip_cover_detector(bool en)
 {
 	int ret = 0;
+=======
+int init_flip_cover_detector(bool en)
+{
+>>>>>>> upstream/android-13
 	struct shub_sensor *sensor = get_sensor(SENSOR_TYPE_FLIP_COVER_DETECTOR);
 
 	if (!sensor)
 		return 0;
 
 	if (en) {
+<<<<<<< HEAD
 		ret = init_default_func(sensor, "flip_cover_detector", 37, 24, sizeof(struct flip_cover_detector_event));
 
 		sensor->data = (void *)&flip_cover_detector_data;
@@ -147,4 +163,48 @@ int init_flip_cover_detector(bool en)
 	}
 
 	return ret;
+=======
+		strcpy(sensor->name, "flip_cover_detector");
+		sensor->receive_event_size = 22;
+		sensor->report_event_size = 9;
+		sensor->event_buffer.value = kzalloc(sizeof(struct flip_cover_detector_event), GFP_KERNEL);
+		if (!sensor->event_buffer.value)
+			goto err_no_mem;
+
+		sensor->data = kzalloc(sizeof(struct flip_cover_detector_data), GFP_KERNEL);
+		if (!sensor->data)
+			goto err_no_mem;
+
+		sensor->funcs = kzalloc(sizeof(struct sensor_funcs), GFP_KERNEL);
+		if (!sensor->funcs)
+			goto err_no_mem;
+
+		sensor->funcs->sync_status = sync_flip_cover_detector_status;
+		sensor->funcs->report_event = report_event_flip_cover_detector;
+		sensor->funcs->print_debug = print_flip_cover_detector_debug;
+		sensor->funcs->parse_dt = parse_dt_flip_cover_detector_variable;
+	} else {
+		kfree(sensor->event_buffer.value);
+		sensor->event_buffer.value = NULL;
+
+		kfree(sensor->data);
+		sensor->data = NULL;
+
+		kfree(sensor->funcs);
+		sensor->funcs = NULL;
+	}
+	return 0;
+
+err_no_mem:
+	kfree(sensor->event_buffer.value);
+	sensor->event_buffer.value = NULL;
+
+	kfree(sensor->data);
+	sensor->data = NULL;
+
+	kfree(sensor->funcs);
+	sensor->funcs = NULL;
+
+	return -ENOMEM;
+>>>>>>> upstream/android-13
 }

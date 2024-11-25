@@ -200,7 +200,11 @@ int kobject_synth_uevent(struct kobject *kobj, const char *buf, size_t count)
 
 	r = kobject_action_type(buf, count, &action, &action_args);
 	if (r) {
+<<<<<<< HEAD
 		msg = "unknown uevent action string\n";
+=======
+		msg = "unknown uevent action string";
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
@@ -212,7 +216,11 @@ int kobject_synth_uevent(struct kobject *kobj, const char *buf, size_t count)
 	r = kobject_action_args(action_args,
 				count - (action_args - buf), &env);
 	if (r == -EINVAL) {
+<<<<<<< HEAD
 		msg = "incorrect uevent action arguments\n";
+=======
+		msg = "incorrect uevent action arguments";
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
@@ -224,7 +232,11 @@ int kobject_synth_uevent(struct kobject *kobj, const char *buf, size_t count)
 out:
 	if (r) {
 		devpath = kobject_get_path(kobj, GFP_KERNEL);
+<<<<<<< HEAD
 		printk(KERN_WARNING "synth uevent: %s: %s",
+=======
+		pr_warn("synth uevent: %s: %s\n",
+>>>>>>> upstream/android-13
 		       devpath ?: "unknown device",
 		       msg ?: "failed to send uevent");
 		kfree(devpath);
@@ -240,6 +252,10 @@ static int kobj_usermode_filter(struct kobject *kobj)
 	ops = kobj_ns_ops(kobj);
 	if (ops) {
 		const void *init_ns, *ns;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		ns = kobj->ktype->namespace(kobj);
 		init_ns = ops->initial_ns();
 		return ns != init_ns;
@@ -391,6 +407,10 @@ static int kobject_uevent_net_broadcast(struct kobject *kobj,
 	ops = kobj_ns_ops(kobj);
 	if (!ops && kobj->kset) {
 		struct kobject *ksobj = &kobj->kset->kobj;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		if (ksobj->parent != NULL)
 			ops = kobj_ns_ops(ksobj->parent);
 	}
@@ -583,7 +603,11 @@ int kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
 
 	mutex_lock(&uevent_sock_mutex);
 	/* we will send an event, so request a new sequence number */
+<<<<<<< HEAD
 	retval = add_uevent_var(env, "SEQNUM=%llu", (unsigned long long)++uevent_seqnum);
+=======
+	retval = add_uevent_var(env, "SEQNUM=%llu", ++uevent_seqnum);
+>>>>>>> upstream/android-13
 	if (retval) {
 		mutex_unlock(&uevent_sock_mutex);
 		goto exit;
@@ -767,8 +791,12 @@ static int uevent_net_init(struct net *net)
 
 	ue_sk->sk = netlink_kernel_create(net, NETLINK_KOBJECT_UEVENT, &cfg);
 	if (!ue_sk->sk) {
+<<<<<<< HEAD
 		printk(KERN_ERR
 		       "kobject_uevent: unable to create netlink socket!\n");
+=======
+		pr_err("kobject_uevent: unable to create netlink socket!\n");
+>>>>>>> upstream/android-13
 		kfree(ue_sk);
 		return -ENODEV;
 	}

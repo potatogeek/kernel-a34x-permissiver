@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Debugging macro include header
  *
  *  Copyright (C) 2009 ST-Ericsson
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 
@@ -24,6 +31,7 @@
 #define U8500_UART0_PHYS_BASE	(0x80120000)
 #define U8500_UART1_PHYS_BASE	(0x80121000)
 #define U8500_UART2_PHYS_BASE	(0x80007000)
+<<<<<<< HEAD
 #define U8500_UART0_VIRT_BASE	(0xf8120000)
 #define U8500_UART1_VIRT_BASE	(0xf8121000)
 #define U8500_UART2_VIRT_BASE	(0xf8007000)
@@ -32,13 +40,24 @@
 #endif
 
 #if !defined(__UX500_PHYS_UART) || !defined(__UX500_VIRT_UART)
+=======
+#define __UX500_PHYS_UART(n)	U8500_UART##n##_PHYS_BASE
+#endif
+
+#if !defined(__UX500_PHYS_UART)
+>>>>>>> upstream/android-13
 #error Unknown SOC
 #endif
 
 #define UX500_PHYS_UART(n)	__UX500_PHYS_UART(n)
+<<<<<<< HEAD
 #define UX500_VIRT_UART(n)	__UX500_VIRT_UART(n)
 #define UART_PHYS_BASE	UX500_PHYS_UART(CONFIG_UX500_DEBUG_UART)
 #define UART_VIRT_BASE	UX500_VIRT_UART(CONFIG_UX500_DEBUG_UART)
+=======
+#define UART_PHYS_BASE	UX500_PHYS_UART(CONFIG_UX500_DEBUG_UART)
+#define UART_VIRT_BASE	(0xfff07000)
+>>>>>>> upstream/android-13
 
 	.macro	addruart, rp, rv, tmp
 	ldr	\rp, =UART_PHYS_BASE		@ no, physical address

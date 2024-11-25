@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 	Mantis PCI bridge driver
 
 	Copyright (C) Manu Abraham (abraham.manu@gmail.com)
 
+<<<<<<< HEAD
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation; either version 2 of the License, or
@@ -20,6 +25,11 @@
 
 #include <linux/module.h>
 #include <linux/moduleparam.h>
+=======
+*/
+
+#include <linux/module.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/pci.h>
 #include <linux/slab.h>
@@ -82,10 +92,15 @@ static irqreturn_t mantis_irq_handler(int irq, void *dev_id)
 	struct mantis_ca *ca;
 
 	mantis = (struct mantis_pci *) dev_id;
+<<<<<<< HEAD
 	if (unlikely(mantis == NULL)) {
 		dprintk(MANTIS_ERROR, 1, "Mantis == NULL");
 		return IRQ_NONE;
 	}
+=======
+	if (unlikely(!mantis))
+		return IRQ_NONE;
+>>>>>>> upstream/android-13
 	ca = mantis->mantis_ca;
 
 	stat = mmread(MANTIS_INT_STAT);

@@ -36,6 +36,10 @@
 
 #include <linux/bitops.h>
 #include <linux/compiler.h>
+<<<<<<< HEAD
+=======
+#include <linux/ethtool.h>
+>>>>>>> upstream/android-13
 #include <linux/list.h>
 #include <linux/mutex.h>
 #include <linux/netdevice.h>
@@ -46,6 +50,10 @@
 #endif
 #include <linux/cpu_rmap.h>
 #include <linux/ptp_clock_kernel.h>
+<<<<<<< HEAD
+=======
+#include <linux/irq.h>
+>>>>>>> upstream/android-13
 #include <net/xdp.h>
 
 #include <linux/mlx4/device.h>
@@ -72,7 +80,11 @@
 #define MLX4_EN_PAGE_SIZE	(1 << MLX4_EN_PAGE_SHIFT)
 #define DEF_RX_RINGS		16
 #define MAX_RX_RINGS		128
+<<<<<<< HEAD
 #define MIN_RX_RINGS		4
+=======
+#define MIN_RX_RINGS		1
+>>>>>>> upstream/android-13
 #define LOG_TXBB_SIZE		6
 #define TXBB_SIZE		BIT(LOG_TXBB_SIZE)
 #define HEADROOM		(2048 / TXBB_SIZE + 1)
@@ -170,6 +182,7 @@
 #define MLX4_EN_LOOPBACK_RETRIES	5
 #define MLX4_EN_LOOPBACK_TIMEOUT	100
 
+<<<<<<< HEAD
 #ifdef MLX4_EN_PERF_STAT
 /* Number of samples to 'average' */
 #define AVG_SIZE			128
@@ -191,6 +204,8 @@
 #define GET_AVG_PERF_COUNTER(cnt)	(0)
 #endif /* MLX4_EN_PERF_STAT */
 
+=======
+>>>>>>> upstream/android-13
 /* Constants for TX flow */
 enum {
 	MAX_INLINE = 104, /* 128 - 16 - 4 - 4 */
@@ -385,7 +400,11 @@ struct mlx4_en_cq {
 	struct mlx4_cqe *buf;
 #define MLX4_EN_OPCODE_ERROR	0x1e
 
+<<<<<<< HEAD
 	struct irq_desc *irq_desc;
+=======
+	const struct cpumask *aff_mask;
+>>>>>>> upstream/android-13
 };
 
 struct mlx4_en_port_profile {
@@ -571,7 +590,10 @@ struct mlx4_en_priv {
 
 	struct mlx4_hwq_resources res;
 	int link_state;
+<<<<<<< HEAD
 	int last_link_state;
+=======
+>>>>>>> upstream/android-13
 	bool port_up;
 	int port;
 	int registered;
@@ -608,9 +630,12 @@ struct mlx4_en_priv {
 	struct work_struct linkstate_task;
 	struct delayed_work stats_task;
 	struct delayed_work service_task;
+<<<<<<< HEAD
 	struct work_struct vxlan_add_task;
 	struct work_struct vxlan_del_task;
 	struct mlx4_en_perf_stats pstats;
+=======
+>>>>>>> upstream/android-13
 	struct mlx4_en_pkt_stats pkstats;
 	struct mlx4_en_counter_stats pf_stats;
 	struct mlx4_en_flow_stats_rx rx_priority_flowstats[MLX4_NUM_PRIORITIES];
@@ -708,8 +733,12 @@ void mlx4_en_arm_cq(struct mlx4_en_priv *priv, struct mlx4_en_cq *cq);
 
 void mlx4_en_tx_irq(struct mlx4_cq *mcq);
 u16 mlx4_en_select_queue(struct net_device *dev, struct sk_buff *skb,
+<<<<<<< HEAD
 			 struct net_device *sb_dev,
 			 select_queue_fallback_t fallback);
+=======
+			 struct net_device *sb_dev);
+>>>>>>> upstream/android-13
 netdev_tx_t mlx4_en_xmit(struct sk_buff *skb, struct net_device *dev);
 netdev_tx_t mlx4_en_xmit_frame(struct mlx4_en_rx_ring *rx_ring,
 			       struct mlx4_en_rx_alloc *frame,
@@ -748,8 +777,13 @@ int mlx4_en_process_rx_cq(struct net_device *dev,
 			  int budget);
 int mlx4_en_poll_rx_cq(struct napi_struct *napi, int budget);
 int mlx4_en_poll_tx_cq(struct napi_struct *napi, int budget);
+<<<<<<< HEAD
 bool mlx4_en_process_tx_cq(struct net_device *dev,
 			   struct mlx4_en_cq *cq, int napi_budget);
+=======
+int mlx4_en_process_tx_cq(struct net_device *dev,
+			  struct mlx4_en_cq *cq, int napi_budget);
+>>>>>>> upstream/android-13
 u32 mlx4_en_free_tx_desc(struct mlx4_en_priv *priv,
 			 struct mlx4_en_tx_ring *ring,
 			 int index, u64 timestamp,

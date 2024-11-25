@@ -9,7 +9,11 @@
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/ioport.h>
 #include <linux/pm.h>
 #include <asm/bootinfo.h>
@@ -146,7 +150,11 @@ void __init plat_time_init(void)
 
 void __init plat_mem_setup(void)
 {
+<<<<<<< HEAD
 	add_memory_region(0, bcm63xx_get_memory_size(), BOOT_MEM_RAM);
+=======
+	memblock_add(0, bcm63xx_get_memory_size());
+>>>>>>> upstream/android-13
 
 	_machine_halt = bcm63xx_machine_halt;
 	_machine_restart = __bcm63xx_machine_reboot;

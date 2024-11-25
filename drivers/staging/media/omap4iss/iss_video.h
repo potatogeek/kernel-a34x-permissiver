@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+>>>>>>> upstream/android-13
 /*
  * TI OMAP4 ISS V4L2 Driver - Generic video node
  *
  * Copyright (C) 2012 Texas Instruments, Inc.
  *
  * Author: Sergio Aguirre <sergio.a.aguirre@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef OMAP4_ISS_VIDEO_H
@@ -22,7 +29,10 @@
 #include <media/videobuf2-dma-contig.h>
 
 #define ISS_VIDEO_DRIVER_NAME		"issvideo"
+<<<<<<< HEAD
 #define ISS_VIDEO_DRIVER_VERSION	"0.0.2"
+=======
+>>>>>>> upstream/android-13
 
 struct iss_device;
 struct iss_video;
@@ -40,7 +50,10 @@ struct v4l2_pix_format;
  *	shifted to be 8 bits per pixel. =0 if format is not shiftable.
  * @pixelformat: V4L2 pixel format FCC identifier
  * @bpp: Bits per pixel
+<<<<<<< HEAD
  * @description: Human-readable format description
+=======
+>>>>>>> upstream/android-13
  */
 struct iss_format_info {
 	u32 code;
@@ -49,7 +62,10 @@ struct iss_format_info {
 	u32 flavor;
 	u32 pixelformat;
 	unsigned int bpp;
+<<<<<<< HEAD
 	const char *description;
+=======
+>>>>>>> upstream/android-13
 };
 
 enum iss_pipeline_stream_state {

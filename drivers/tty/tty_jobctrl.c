@@ -11,6 +11,10 @@
 #include <linux/tty.h>
 #include <linux/fcntl.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
+=======
+#include "tty.h"
+>>>>>>> upstream/android-13
 
 static int is_ignored(int sig)
 {
@@ -19,14 +23,24 @@ static int is_ignored(int sig)
 }
 
 /**
+<<<<<<< HEAD
  *	tty_check_change	-	check for POSIX terminal changes
  *	@tty: tty to check
+=======
+ *	__tty_check_change	-	check for POSIX terminal changes
+ *	@tty: tty to check
+ *	@sig: signal to send
+>>>>>>> upstream/android-13
  *
  *	If we try to write to, or set the state of, a terminal and we're
  *	not in the foreground, send a SIGTTOU.  If the signal is blocked or
  *	ignored, go ahead and perform the operation.  (POSIX 7.2)
  *
+<<<<<<< HEAD
  *	Locking: ctrl_lock
+=======
+ *	Locking: ctrl.lock
+>>>>>>> upstream/android-13
  */
 int __tty_check_change(struct tty_struct *tty, int sig)
 {
@@ -40,11 +54,19 @@ int __tty_check_change(struct tty_struct *tty, int sig)
 	rcu_read_lock();
 	pgrp = task_pgrp(current);
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&tty->ctrl_lock, flags);
 	tty_pgrp = tty->pgrp;
 	spin_unlock_irqrestore(&tty->ctrl_lock, flags);
 
 	if (tty_pgrp && pgrp != tty->pgrp) {
+=======
+	spin_lock_irqsave(&tty->ctrl.lock, flags);
+	tty_pgrp = tty->ctrl.pgrp;
+	spin_unlock_irqrestore(&tty->ctrl.lock, flags);
+
+	if (tty_pgrp && pgrp != tty_pgrp) {
+>>>>>>> upstream/android-13
 		if (is_ignored(sig)) {
 			if (sig == SIGTTIN)
 				ret = -EIO;
@@ -74,6 +96,10 @@ void proc_clear_tty(struct task_struct *p)
 {
 	unsigned long flags;
 	struct tty_struct *tty;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&p->sighand->siglock, flags);
 	tty = p->signal->tty;
 	p->signal->tty = NULL;
@@ -82,7 +108,12 @@ void proc_clear_tty(struct task_struct *p)
 }
 
 /**
+<<<<<<< HEAD
  * proc_set_tty -  set the controlling terminal
+=======
+ * __proc_set_tty -  set the controlling terminal
+ *	@tty: tty structure
+>>>>>>> upstream/android-13
  *
  * Only callable by the session leader and only if it does not already have
  * a controlling terminal.
@@ -95,16 +126,28 @@ static void __proc_set_tty(struct tty_struct *tty)
 {
 	unsigned long flags;
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&tty->ctrl_lock, flags);
+=======
+	spin_lock_irqsave(&tty->ctrl.lock, flags);
+>>>>>>> upstream/android-13
 	/*
 	 * The session and fg pgrp references will be non-NULL if
 	 * tiocsctty() is stealing the controlling tty
 	 */
+<<<<<<< HEAD
 	put_pid(tty->session);
 	put_pid(tty->pgrp);
 	tty->pgrp = get_pid(task_pgrp(current));
 	tty->session = get_pid(task_session(current));
 	spin_unlock_irqrestore(&tty->ctrl_lock, flags);
+=======
+	put_pid(tty->ctrl.session);
+	put_pid(tty->ctrl.pgrp);
+	tty->ctrl.pgrp = get_pid(task_pgrp(current));
+	tty->ctrl.session = get_pid(task_session(current));
+	spin_unlock_irqrestore(&tty->ctrl.lock, flags);
+>>>>>>> upstream/android-13
 	if (current->signal->tty) {
 		tty_debug(tty, "current tty %s not NULL!!\n",
 			  current->signal->tty->name);
@@ -131,7 +174,11 @@ void tty_open_proc_set_tty(struct file *filp, struct tty_struct *tty)
 	spin_lock_irq(&current->sighand->siglock);
 	if (current->signal->leader &&
 	    !current->signal->tty &&
+<<<<<<< HEAD
 	    tty->session == NULL) {
+=======
+	    tty->ctrl.session == NULL) {
+>>>>>>> upstream/android-13
 		/*
 		 * Don't let a process that only has write access to the tty
 		 * obtain the privileges associated with having a tty as
@@ -171,6 +218,10 @@ EXPORT_SYMBOL_GPL(get_current_tty);
 void session_clear_tty(struct pid *session)
 {
 	struct task_struct *p;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	do_each_pid_task(session, PIDTYPE_SID, p) {
 		proc_clear_tty(p);
 	} while_each_pid_task(session, PIDTYPE_SID, p);
@@ -178,8 +229,13 @@ void session_clear_tty(struct pid *session)
 
 /**
  *	tty_signal_session_leader	- sends SIGHUP to session leader
+<<<<<<< HEAD
  *	@tty		controlling tty
  *	@exit_session	if non-zero, signal all foreground group processes
+=======
+ *	@tty: controlling tty
+ *	@exit_session: if non-zero, signal all foreground group processes
+>>>>>>> upstream/android-13
  *
  *	Send SIGHUP and SIGCONT to the session leader and its process group.
  *	Optionally, signal all processes in the foreground process group.
@@ -195,6 +251,7 @@ int tty_signal_session_leader(struct tty_struct *tty, int exit_session)
 	struct pid *tty_pgrp = NULL;
 
 	read_lock(&tasklist_lock);
+<<<<<<< HEAD
 	if (tty->session) {
 		do_each_pid_task(tty->session, PIDTYPE_SID, p) {
 			spin_lock_irq(&p->sighand->siglock);
@@ -202,6 +259,17 @@ int tty_signal_session_leader(struct tty_struct *tty, int exit_session)
 				p->signal->tty = NULL;
 				/* We defer the dereferences outside fo
 				   the tasklist lock */
+=======
+	if (tty->ctrl.session) {
+		do_each_pid_task(tty->ctrl.session, PIDTYPE_SID, p) {
+			spin_lock_irq(&p->sighand->siglock);
+			if (p->signal->tty == tty) {
+				p->signal->tty = NULL;
+				/*
+				 * We defer the dereferences outside of
+				 * the tasklist lock.
+				 */
+>>>>>>> upstream/android-13
 				refs++;
 			}
 			if (!p->signal->leader) {
@@ -211,6 +279,7 @@ int tty_signal_session_leader(struct tty_struct *tty, int exit_session)
 			__group_send_sig_info(SIGHUP, SEND_SIG_PRIV, p);
 			__group_send_sig_info(SIGCONT, SEND_SIG_PRIV, p);
 			put_pid(p->signal->tty_old_pgrp);  /* A noop */
+<<<<<<< HEAD
 			spin_lock(&tty->ctrl_lock);
 			tty_pgrp = get_pid(tty->pgrp);
 			if (tty->pgrp)
@@ -218,6 +287,16 @@ int tty_signal_session_leader(struct tty_struct *tty, int exit_session)
 			spin_unlock(&tty->ctrl_lock);
 			spin_unlock_irq(&p->sighand->siglock);
 		} while_each_pid_task(tty->session, PIDTYPE_SID, p);
+=======
+			spin_lock(&tty->ctrl.lock);
+			tty_pgrp = get_pid(tty->ctrl.pgrp);
+			if (tty->ctrl.pgrp)
+				p->signal->tty_old_pgrp =
+					get_pid(tty->ctrl.pgrp);
+			spin_unlock(&tty->ctrl.lock);
+			spin_unlock_irq(&p->sighand->siglock);
+		} while_each_pid_task(tty->ctrl.session, PIDTYPE_SID, p);
+>>>>>>> upstream/android-13
 	}
 	read_unlock(&tasklist_lock);
 
@@ -238,10 +317,17 @@ int tty_signal_session_leader(struct tty_struct *tty, int exit_session)
  *	it wants to disassociate itself from its controlling tty.
  *
  *	It performs the following functions:
+<<<<<<< HEAD
  * 	(1)  Sends a SIGHUP and SIGCONT to the foreground process group
  * 	(2)  Clears the tty from being controlling the session
  * 	(3)  Clears the controlling tty for all processes in the
  * 		session group.
+=======
+ *	(1)  Sends a SIGHUP and SIGCONT to the foreground process group
+ *	(2)  Clears the tty from being controlling the session
+ *	(3)  Clears the controlling tty for all processes in the
+ *		session group.
+>>>>>>> upstream/android-13
  *
  *	The argument on_exit is set to 1 if called when a process is
  *	exiting; it is 0 if called by the ioctl TIOCNOTTY.
@@ -267,6 +353,10 @@ void disassociate_ctty(int on_exit)
 			tty_vhangup_session(tty);
 		} else {
 			struct pid *tty_pgrp = tty_get_pgrp(tty);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 			if (tty_pgrp) {
 				kill_pgrp(tty_pgrp, SIGHUP, on_exit);
 				if (!on_exit)
@@ -278,6 +368,10 @@ void disassociate_ctty(int on_exit)
 
 	} else if (on_exit) {
 		struct pid *old_pgrp;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		spin_lock_irq(&current->sighand->siglock);
 		old_pgrp = current->signal->tty_old_pgrp;
 		current->signal->tty_old_pgrp = NULL;
@@ -300,12 +394,21 @@ void disassociate_ctty(int on_exit)
 		unsigned long flags;
 
 		tty_lock(tty);
+<<<<<<< HEAD
 		spin_lock_irqsave(&tty->ctrl_lock, flags);
 		put_pid(tty->session);
 		put_pid(tty->pgrp);
 		tty->session = NULL;
 		tty->pgrp = NULL;
 		spin_unlock_irqrestore(&tty->ctrl_lock, flags);
+=======
+		spin_lock_irqsave(&tty->ctrl.lock, flags);
+		put_pid(tty->ctrl.session);
+		put_pid(tty->ctrl.pgrp);
+		tty->ctrl.session = NULL;
+		tty->ctrl.pgrp = NULL;
+		spin_unlock_irqrestore(&tty->ctrl.lock, flags);
+>>>>>>> upstream/android-13
 		tty_unlock(tty);
 		tty_kref_put(tty);
 	}
@@ -316,16 +419,30 @@ void disassociate_ctty(int on_exit)
 	read_unlock(&tasklist_lock);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  *
  *	no_tty	- Ensure the current process does not have a controlling tty
  */
 void no_tty(void)
 {
+<<<<<<< HEAD
 	/* FIXME: Review locking here. The tty_lock never covered any race
 	   between a new association and proc_clear_tty but possible we need
 	   to protect against this anyway */
 	struct task_struct *tsk = current;
+=======
+	/*
+	 * FIXME: Review locking here. The tty_lock never covered any race
+	 * between a new association and proc_clear_tty but possibly we need
+	 * to protect against this anyway.
+	 */
+	struct task_struct *tsk = current;
+
+>>>>>>> upstream/android-13
 	disassociate_ctty(0);
 	proc_clear_tty(tsk);
 }
@@ -333,6 +450,10 @@ void no_tty(void)
 /**
  *	tiocsctty	-	set controlling tty
  *	@tty: tty structure
+<<<<<<< HEAD
+=======
+ *	@file: file structure used to check permissions
+>>>>>>> upstream/android-13
  *	@arg: user argument
  *
  *	This ioctl is used to manage job control. It permits a session
@@ -350,7 +471,12 @@ static int tiocsctty(struct tty_struct *tty, struct file *file, int arg)
 	tty_lock(tty);
 	read_lock(&tasklist_lock);
 
+<<<<<<< HEAD
 	if (current->signal->leader && (task_session(current) == tty->session))
+=======
+	if (current->signal->leader &&
+			task_session(current) == tty->ctrl.session)
+>>>>>>> upstream/android-13
 		goto unlock;
 
 	/*
@@ -362,7 +488,11 @@ static int tiocsctty(struct tty_struct *tty, struct file *file, int arg)
 		goto unlock;
 	}
 
+<<<<<<< HEAD
 	if (tty->session) {
+=======
+	if (tty->ctrl.session) {
+>>>>>>> upstream/android-13
 		/*
 		 * This tty is already the controlling
 		 * tty for another session group!
@@ -371,7 +501,11 @@ static int tiocsctty(struct tty_struct *tty, struct file *file, int arg)
 			/*
 			 * Steal it away
 			 */
+<<<<<<< HEAD
 			session_clear_tty(tty->session);
+=======
+			session_clear_tty(tty->ctrl.session);
+>>>>>>> upstream/android-13
 		} else {
 			ret = -EPERM;
 			goto unlock;
@@ -403,9 +537,15 @@ struct pid *tty_get_pgrp(struct tty_struct *tty)
 	unsigned long flags;
 	struct pid *pgrp;
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&tty->ctrl_lock, flags);
 	pgrp = get_pid(tty->pgrp);
 	spin_unlock_irqrestore(&tty->ctrl_lock, flags);
+=======
+	spin_lock_irqsave(&tty->ctrl.lock, flags);
+	pgrp = get_pid(tty->ctrl.pgrp);
+	spin_unlock_irqrestore(&tty->ctrl.lock, flags);
+>>>>>>> upstream/android-13
 
 	return pgrp;
 }
@@ -486,10 +626,17 @@ static int tiocspgrp(struct tty_struct *tty, struct tty_struct *real_tty, pid_t 
 	if (pgrp_nr < 0)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	spin_lock_irq(&real_tty->ctrl_lock);
 	if (!current->signal->tty ||
 	    (current->signal->tty != real_tty) ||
 	    (real_tty->session != task_session(current))) {
+=======
+	spin_lock_irq(&real_tty->ctrl.lock);
+	if (!current->signal->tty ||
+	    (current->signal->tty != real_tty) ||
+	    (real_tty->ctrl.session != task_session(current))) {
+>>>>>>> upstream/android-13
 		retval = -ENOTTY;
 		goto out_unlock_ctrl;
 	}
@@ -502,12 +649,21 @@ static int tiocspgrp(struct tty_struct *tty, struct tty_struct *real_tty, pid_t 
 	if (session_of_pgrp(pgrp) != task_session(current))
 		goto out_unlock;
 	retval = 0;
+<<<<<<< HEAD
 	put_pid(real_tty->pgrp);
 	real_tty->pgrp = get_pid(pgrp);
 out_unlock:
 	rcu_read_unlock();
 out_unlock_ctrl:
 	spin_unlock_irq(&real_tty->ctrl_lock);
+=======
+	put_pid(real_tty->ctrl.pgrp);
+	real_tty->ctrl.pgrp = get_pid(pgrp);
+out_unlock:
+	rcu_read_unlock();
+out_unlock_ctrl:
+	spin_unlock_irq(&real_tty->ctrl.lock);
+>>>>>>> upstream/android-13
 	return retval;
 }
 
@@ -528,6 +684,7 @@ static int tiocgsid(struct tty_struct *tty, struct tty_struct *real_tty, pid_t _
 	/*
 	 * (tty == real_tty) is a cheap way of
 	 * testing if the tty is NOT a master pty.
+<<<<<<< HEAD
 	*/
 	if (tty == real_tty && current->signal->tty != real_tty)
 		return -ENOTTY;
@@ -537,11 +694,26 @@ static int tiocgsid(struct tty_struct *tty, struct tty_struct *real_tty, pid_t _
 		goto err;
 	sid = pid_vnr(real_tty->session);
 	spin_unlock_irqrestore(&real_tty->ctrl_lock, flags);
+=======
+	 */
+	if (tty == real_tty && current->signal->tty != real_tty)
+		return -ENOTTY;
+
+	spin_lock_irqsave(&real_tty->ctrl.lock, flags);
+	if (!real_tty->ctrl.session)
+		goto err;
+	sid = pid_vnr(real_tty->ctrl.session);
+	spin_unlock_irqrestore(&real_tty->ctrl.lock, flags);
+>>>>>>> upstream/android-13
 
 	return put_user(sid, p);
 
 err:
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&real_tty->ctrl_lock, flags);
+=======
+	spin_unlock_irqrestore(&real_tty->ctrl.lock, flags);
+>>>>>>> upstream/android-13
 	return -ENOTTY;
 }
 

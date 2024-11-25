@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 //#define DEBUG
 #include <linux/spinlock.h>
 #include <linux/slab.h>
@@ -10,14 +14,28 @@
 #include <linux/virtio_blk.h>
 #include <linux/scatterlist.h>
 #include <linux/string_helpers.h>
+<<<<<<< HEAD
 #include <scsi/scsi_cmnd.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/idr.h>
 #include <linux/blk-mq.h>
 #include <linux/blk-mq-virtio.h>
 #include <linux/numa.h>
+<<<<<<< HEAD
 
 #define PART_BITS 4
 #define VQ_NAME_LEN 16
+=======
+#include <uapi/linux/virtio_ring.h>
+
+#define PART_BITS 4
+#define VQ_NAME_LEN 16
+#define MAX_DISCARD_SEGMENTS 256u
+
+/* The maximum number of sg elements that fit into a virtqueue */
+#define VIRTIO_BLK_MAX_SG_ELEMS 32768
+>>>>>>> upstream/android-13
 
 static int major;
 static DEFINE_IDA(vd_index_ida);
@@ -70,11 +88,14 @@ struct virtio_blk {
 };
 
 struct virtblk_req {
+<<<<<<< HEAD
 #ifdef CONFIG_VIRTIO_BLK_SCSI
 	struct scsi_request sreq;	/* for SCSI passthrough, must be first */
 	u8 sense[SCSI_SENSE_BUFFERSIZE];
 	struct virtio_scsi_inhdr in_hdr;
 #endif
+=======
+>>>>>>> upstream/android-13
 	struct virtio_blk_outhdr out_hdr;
 	u8 status;
 	struct scatterlist sg[];
@@ -92,6 +113,7 @@ static inline blk_status_t virtblk_result(struct virtblk_req *vbr)
 	}
 }
 
+<<<<<<< HEAD
 /*
  * If this is a packet command we need a couple of additional headers.  Behind
  * the normal outhdr we put a segment with the scsi command block, and before
@@ -166,6 +188,8 @@ static inline void virtblk_scsi_request_done(struct request *req)
 #define virtblk_ioctl	NULL
 #endif /* CONFIG_VIRTIO_BLK_SCSI */
 
+=======
+>>>>>>> upstream/android-13
 static int virtblk_add_req(struct virtqueue *vq, struct virtblk_req *vbr,
 		struct scatterlist *data_sg, bool have_data)
 {
@@ -188,10 +212,62 @@ static int virtblk_add_req(struct virtqueue *vq, struct virtblk_req *vbr,
 	return virtqueue_add_sgs(vq, sgs, num_out, num_in, vbr, GFP_ATOMIC);
 }
 
+<<<<<<< HEAD
+=======
+static int virtblk_setup_discard_write_zeroes(struct request *req, bool unmap)
+{
+	unsigned short segments = blk_rq_nr_discard_segments(req);
+	unsigned short n = 0;
+	struct virtio_blk_discard_write_zeroes *range;
+	struct bio *bio;
+	u32 flags = 0;
+
+	if (unmap)
+		flags |= VIRTIO_BLK_WRITE_ZEROES_FLAG_UNMAP;
+
+	range = kmalloc_array(segments, sizeof(*range), GFP_ATOMIC);
+	if (!range)
+		return -ENOMEM;
+
+	/*
+	 * Single max discard segment means multi-range discard isn't
+	 * supported, and block layer only runs contiguity merge like
+	 * normal RW request. So we can't reply on bio for retrieving
+	 * each range info.
+	 */
+	if (queue_max_discard_segments(req->q) == 1) {
+		range[0].flags = cpu_to_le32(flags);
+		range[0].num_sectors = cpu_to_le32(blk_rq_sectors(req));
+		range[0].sector = cpu_to_le64(blk_rq_pos(req));
+		n = 1;
+	} else {
+		__rq_for_each_bio(bio, req) {
+			u64 sector = bio->bi_iter.bi_sector;
+			u32 num_sectors = bio->bi_iter.bi_size >> SECTOR_SHIFT;
+
+			range[n].flags = cpu_to_le32(flags);
+			range[n].num_sectors = cpu_to_le32(num_sectors);
+			range[n].sector = cpu_to_le64(sector);
+			n++;
+		}
+	}
+
+	WARN_ON_ONCE(n != segments);
+
+	req->special_vec.bv_page = virt_to_page(range);
+	req->special_vec.bv_offset = offset_in_page(range);
+	req->special_vec.bv_len = sizeof(*range) * segments;
+	req->rq_flags |= RQF_SPECIAL_PAYLOAD;
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static inline void virtblk_request_done(struct request *req)
 {
 	struct virtblk_req *vbr = blk_mq_rq_to_pdu(req);
 
+<<<<<<< HEAD
 	switch (req_op(req)) {
 	case REQ_OP_SCSI_IN:
 	case REQ_OP_SCSI_OUT:
@@ -199,6 +275,10 @@ static inline void virtblk_request_done(struct request *req)
 		break;
 	}
 
+=======
+	if (req->rq_flags & RQF_SPECIAL_PAYLOAD)
+		kfree(bvec_virt(&req->special_vec));
+>>>>>>> upstream/android-13
 	blk_mq_end_request(req, virtblk_result(vbr));
 }
 
@@ -217,7 +297,12 @@ static void virtblk_done(struct virtqueue *vq)
 		while ((vbr = virtqueue_get_buf(vblk->vqs[qid].vq, &len)) != NULL) {
 			struct request *req = blk_mq_rq_from_pdu(vbr);
 
+<<<<<<< HEAD
 			blk_mq_complete_request(req);
+=======
+			if (likely(!blk_should_fake_timeout(req->q)))
+				blk_mq_complete_request(req);
+>>>>>>> upstream/android-13
 			req_done = true;
 		}
 		if (unlikely(virtqueue_is_broken(vq)))
@@ -230,6 +315,23 @@ static void virtblk_done(struct virtqueue *vq)
 	spin_unlock_irqrestore(&vblk->vqs[qid].lock, flags);
 }
 
+<<<<<<< HEAD
+=======
+static void virtio_commit_rqs(struct blk_mq_hw_ctx *hctx)
+{
+	struct virtio_blk *vblk = hctx->queue->queuedata;
+	struct virtio_blk_vq *vq = &vblk->vqs[hctx->queue_num];
+	bool kick;
+
+	spin_lock_irq(&vq->lock);
+	kick = virtqueue_kick_prepare(vq->vq);
+	spin_unlock_irq(&vq->lock);
+
+	if (kick)
+		virtqueue_notify(vq->vq);
+}
+
+>>>>>>> upstream/android-13
 static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
 			   const struct blk_mq_queue_data *bd)
 {
@@ -241,10 +343,16 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
 	int qid = hctx->queue_num;
 	int err;
 	bool notify = false;
+<<<<<<< HEAD
 	u32 type;
 
 	BUG_ON(req->nr_phys_segments + 2 > vblk->sg_elems);
 
+=======
+	bool unmap = false;
+	u32 type;
+
+>>>>>>> upstream/android-13
 	switch (req_op(req)) {
 	case REQ_OP_READ:
 	case REQ_OP_WRITE:
@@ -253,9 +361,18 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
 	case REQ_OP_FLUSH:
 		type = VIRTIO_BLK_T_FLUSH;
 		break;
+<<<<<<< HEAD
 	case REQ_OP_SCSI_IN:
 	case REQ_OP_SCSI_OUT:
 		type = VIRTIO_BLK_T_SCSI_CMD;
+=======
+	case REQ_OP_DISCARD:
+		type = VIRTIO_BLK_T_DISCARD;
+		break;
+	case REQ_OP_WRITE_ZEROES:
+		type = VIRTIO_BLK_T_WRITE_ZEROES;
+		unmap = !(req->cmd_flags & REQ_NOUNMAP);
+>>>>>>> upstream/android-13
 		break;
 	case REQ_OP_DRV_IN:
 		type = VIRTIO_BLK_T_GET_ID;
@@ -265,6 +382,13 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
 		return BLK_STS_IOERR;
 	}
 
+<<<<<<< HEAD
+=======
+	BUG_ON(type != VIRTIO_BLK_T_DISCARD &&
+	       type != VIRTIO_BLK_T_WRITE_ZEROES &&
+	       (req->nr_phys_segments + 2 > vblk->sg_elems));
+
+>>>>>>> upstream/android-13
 	vbr->out_hdr.type = cpu_to_virtio32(vblk->vdev, type);
 	vbr->out_hdr.sector = type ?
 		0 : cpu_to_virtio64(vblk->vdev, blk_rq_pos(req));
@@ -272,6 +396,15 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
 
 	blk_mq_start_request(req);
 
+<<<<<<< HEAD
+=======
+	if (type == VIRTIO_BLK_T_DISCARD || type == VIRTIO_BLK_T_WRITE_ZEROES) {
+		err = virtblk_setup_discard_write_zeroes(req, unmap);
+		if (err)
+			return BLK_STS_RESOURCE;
+	}
+
+>>>>>>> upstream/android-13
 	num = blk_rq_map_sg(hctx->queue, req, vbr->sg);
 	if (num) {
 		if (rq_data_dir(req) == WRITE)
@@ -281,10 +414,14 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
 	}
 
 	spin_lock_irqsave(&vblk->vqs[qid].lock, flags);
+<<<<<<< HEAD
 	if (blk_rq_is_scsi(req))
 		err = virtblk_add_req_scsi(vblk->vqs[qid].vq, vbr, vbr->sg, num);
 	else
 		err = virtblk_add_req(vblk->vqs[qid].vq, vbr, vbr->sg, num);
+=======
+	err = virtblk_add_req(vblk->vqs[qid].vq, vbr, vbr->sg, num);
+>>>>>>> upstream/android-13
 	if (err) {
 		virtqueue_kick(vblk->vqs[qid].vq);
 		/* Don't stop the queue if -ENOMEM: we may have failed to
@@ -329,7 +466,11 @@ static int virtblk_get_id(struct gendisk *disk, char *id_str)
 	if (err)
 		goto out;
 
+<<<<<<< HEAD
 	blk_execute_rq(vblk->disk->queue, vblk->disk, req, false);
+=======
+	blk_execute_rq(vblk->disk, req, false);
+>>>>>>> upstream/android-13
 	err = blk_status_to_errno(virtblk_result(blk_mq_rq_to_pdu(req)));
 out:
 	blk_put_request(req);
@@ -406,7 +547,10 @@ out:
 }
 
 static const struct block_device_operations virtblk_fops = {
+<<<<<<< HEAD
 	.ioctl  = virtblk_ioctl,
+=======
+>>>>>>> upstream/android-13
 	.owner  = THIS_MODULE,
 	.open = virtblk_open,
 	.release = virtblk_release,
@@ -423,8 +567,13 @@ static int minor_to_index(int minor)
 	return minor >> PART_BITS;
 }
 
+<<<<<<< HEAD
 static ssize_t virtblk_serial_show(struct device *dev,
 				struct device_attribute *attr, char *buf)
+=======
+static ssize_t serial_show(struct device *dev,
+			   struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct gendisk *disk = dev_to_disk(dev);
 	int err;
@@ -443,7 +592,11 @@ static ssize_t virtblk_serial_show(struct device *dev,
 	return err;
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(serial, 0444, virtblk_serial_show, NULL);
+=======
+static DEVICE_ATTR_RO(serial);
+>>>>>>> upstream/android-13
 
 /* The queue's logical block size must be set before calling this */
 static void virtblk_update_capacity(struct virtio_blk *vblk, bool resize)
@@ -457,6 +610,7 @@ static void virtblk_update_capacity(struct virtio_blk *vblk, bool resize)
 	/* Host must always specify the capacity. */
 	virtio_cread(vdev, struct virtio_blk_config, capacity, &capacity);
 
+<<<<<<< HEAD
 	/* If capacity is too big, truncate with warning. */
 	if ((sector_t)capacity != capacity) {
 		dev_warn(&vdev->dev, "Capacity %llu too large: truncating\n",
@@ -464,6 +618,8 @@ static void virtblk_update_capacity(struct virtio_blk *vblk, bool resize)
 		capacity = (sector_t)-1;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	nblocks = DIV_ROUND_UP_ULL(capacity, queue_logical_block_size(q) >> 9);
 
 	string_get_size(nblocks, queue_logical_block_size(q),
@@ -480,18 +636,27 @@ static void virtblk_update_capacity(struct virtio_blk *vblk, bool resize)
 		   cap_str_10,
 		   cap_str_2);
 
+<<<<<<< HEAD
 	set_capacity(vblk->disk, capacity);
+=======
+	set_capacity_and_notify(vblk->disk, capacity);
+>>>>>>> upstream/android-13
 }
 
 static void virtblk_config_changed_work(struct work_struct *work)
 {
 	struct virtio_blk *vblk =
 		container_of(work, struct virtio_blk, config_work);
+<<<<<<< HEAD
 	char *envp[] = { "RESIZE=1", NULL };
 
 	virtblk_update_capacity(vblk, true);
 	revalidate_disk(vblk->disk);
 	kobject_uevent_env(&disk_to_dev(vblk->disk)->kobj, KOBJ_CHANGE, envp);
+=======
+
+	virtblk_update_capacity(vblk, true);
+>>>>>>> upstream/android-13
 }
 
 static void virtblk_config_changed(struct virtio_device *vdev)
@@ -517,6 +682,13 @@ static int init_vq(struct virtio_blk *vblk)
 				   &num_vqs);
 	if (err)
 		num_vqs = 1;
+<<<<<<< HEAD
+=======
+	if (!err && !num_vqs) {
+		dev_err(&vdev->dev, "MQ advertisted but zero queues reported\n");
+		return -EINVAL;
+	}
+>>>>>>> upstream/android-13
 
 	num_vqs = min_t(unsigned int, nr_cpu_ids, num_vqs);
 
@@ -611,7 +783,10 @@ static void virtblk_update_cache_mode(struct virtio_device *vdev)
 	struct virtio_blk *vblk = vdev->priv;
 
 	blk_queue_write_cache(vblk->disk->queue, writeback, false);
+<<<<<<< HEAD
 	revalidate_disk(vblk->disk);
+=======
+>>>>>>> upstream/android-13
 }
 
 static const char *const virtblk_cache_types[] = {
@@ -619,8 +794,13 @@ static const char *const virtblk_cache_types[] = {
 };
 
 static ssize_t
+<<<<<<< HEAD
 virtblk_cache_type_store(struct device *dev, struct device_attribute *attr,
 			 const char *buf, size_t count)
+=======
+cache_type_store(struct device *dev, struct device_attribute *attr,
+		 const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct gendisk *disk = dev_to_disk(dev);
 	struct virtio_blk *vblk = disk->private_data;
@@ -638,8 +818,12 @@ virtblk_cache_type_store(struct device *dev, struct device_attribute *attr,
 }
 
 static ssize_t
+<<<<<<< HEAD
 virtblk_cache_type_show(struct device *dev, struct device_attribute *attr,
 			 char *buf)
+=======
+cache_type_show(struct device *dev, struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct gendisk *disk = dev_to_disk(dev);
 	struct virtio_blk *vblk = disk->private_data;
@@ -649,12 +833,47 @@ virtblk_cache_type_show(struct device *dev, struct device_attribute *attr,
 	return snprintf(buf, 40, "%s\n", virtblk_cache_types[writeback]);
 }
 
+<<<<<<< HEAD
 static const struct device_attribute dev_attr_cache_type_ro =
 	__ATTR(cache_type, 0444,
 	       virtblk_cache_type_show, NULL);
 static const struct device_attribute dev_attr_cache_type_rw =
 	__ATTR(cache_type, 0644,
 	       virtblk_cache_type_show, virtblk_cache_type_store);
+=======
+static DEVICE_ATTR_RW(cache_type);
+
+static struct attribute *virtblk_attrs[] = {
+	&dev_attr_serial.attr,
+	&dev_attr_cache_type.attr,
+	NULL,
+};
+
+static umode_t virtblk_attrs_are_visible(struct kobject *kobj,
+		struct attribute *a, int n)
+{
+	struct device *dev = kobj_to_dev(kobj);
+	struct gendisk *disk = dev_to_disk(dev);
+	struct virtio_blk *vblk = disk->private_data;
+	struct virtio_device *vdev = vblk->vdev;
+
+	if (a == &dev_attr_cache_type.attr &&
+	    !virtio_has_feature(vdev, VIRTIO_BLK_F_CONFIG_WCE))
+		return S_IRUGO;
+
+	return a->mode;
+}
+
+static const struct attribute_group virtblk_attr_group = {
+	.attrs = virtblk_attrs,
+	.is_visible = virtblk_attrs_are_visible,
+};
+
+static const struct attribute_group *virtblk_attr_groups[] = {
+	&virtblk_attr_group,
+	NULL,
+};
+>>>>>>> upstream/android-13
 
 static int virtblk_init_request(struct blk_mq_tag_set *set, struct request *rq,
 		unsigned int hctx_idx, unsigned int numa_node)
@@ -662,9 +881,12 @@ static int virtblk_init_request(struct blk_mq_tag_set *set, struct request *rq,
 	struct virtio_blk *vblk = set->driver_data;
 	struct virtblk_req *vbr = blk_mq_rq_to_pdu(rq);
 
+<<<<<<< HEAD
 #ifdef CONFIG_VIRTIO_BLK_SCSI
 	vbr->sreq.sense = vbr->sense;
 #endif
+=======
+>>>>>>> upstream/android-13
 	sg_init_table(vbr->sg, vblk->sg_elems);
 	return 0;
 }
@@ -673,6 +895,7 @@ static int virtblk_map_queues(struct blk_mq_tag_set *set)
 {
 	struct virtio_blk *vblk = set->driver_data;
 
+<<<<<<< HEAD
 	return blk_mq_virtio_map_queues(set, vblk->vdev, 0);
 }
 
@@ -692,6 +915,17 @@ static const struct blk_mq_ops virtio_mq_ops = {
 #ifdef CONFIG_VIRTIO_BLK_SCSI
 	.initialize_rq_fn = virtblk_initialize_rq,
 #endif
+=======
+	return blk_mq_virtio_map_queues(&set->map[HCTX_TYPE_DEFAULT],
+					vblk->vdev, 0);
+}
+
+static const struct blk_mq_ops virtio_mq_ops = {
+	.queue_rq	= virtio_queue_rq,
+	.commit_rqs	= virtio_commit_rqs,
+	.complete	= virtblk_request_done,
+	.init_request	= virtblk_init_request,
+>>>>>>> upstream/android-13
 	.map_queues	= virtblk_map_queues,
 };
 
@@ -704,9 +938,16 @@ static int virtblk_probe(struct virtio_device *vdev)
 	struct request_queue *q;
 	int err, index;
 
+<<<<<<< HEAD
 	u32 v, blk_size, sg_elems, opt_io_size;
 	u16 min_io_size;
 	u8 physical_block_exp, alignment_offset;
+=======
+	u32 v, blk_size, max_size, sg_elems, opt_io_size;
+	u16 min_io_size;
+	u8 physical_block_exp, alignment_offset;
+	unsigned int queue_depth;
+>>>>>>> upstream/android-13
 
 	if (!vdev->config->get) {
 		dev_err(&vdev->dev, "%s failure: config access disabled\n",
@@ -729,7 +970,14 @@ static int virtblk_probe(struct virtio_device *vdev)
 	if (err || !sg_elems)
 		sg_elems = 1;
 
+<<<<<<< HEAD
 	/* We need an extra sg elements at head and tail. */
+=======
+	/* Prevent integer overflows and honor max vq size */
+	sg_elems = min_t(u32, sg_elems, VIRTIO_BLK_MAX_SG_ELEMS - 2);
+
+	/* We need extra sg elements at head and tail. */
+>>>>>>> upstream/android-13
 	sg_elems += 2;
 	vdev->priv = vblk = kmalloc(sizeof(*vblk), GFP_KERNEL);
 	if (!vblk) {
@@ -750,6 +998,7 @@ static int virtblk_probe(struct virtio_device *vdev)
 	if (err)
 		goto out_free_vblk;
 
+<<<<<<< HEAD
 	/* FIXME: How many partitions?  How long is a piece of string? */
 	vblk->disk = alloc_disk(1 << PART_BITS);
 	if (!vblk->disk) {
@@ -763,11 +1012,25 @@ static int virtblk_probe(struct virtio_device *vdev)
 		/* ... but without indirect descs, we use 2 descs per req */
 		if (!virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC))
 			virtblk_queue_depth /= 2;
+=======
+	/* Default queue sizing is to fill the ring. */
+	if (!virtblk_queue_depth) {
+		queue_depth = vblk->vqs[0].vq->num_free;
+		/* ... but without indirect descs, we use 2 descs per req */
+		if (!virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC))
+			queue_depth /= 2;
+	} else {
+		queue_depth = virtblk_queue_depth;
+>>>>>>> upstream/android-13
 	}
 
 	memset(&vblk->tag_set, 0, sizeof(vblk->tag_set));
 	vblk->tag_set.ops = &virtio_mq_ops;
+<<<<<<< HEAD
 	vblk->tag_set.queue_depth = virtblk_queue_depth;
+=======
+	vblk->tag_set.queue_depth = queue_depth;
+>>>>>>> upstream/android-13
 	vblk->tag_set.numa_node = NUMA_NO_NODE;
 	vblk->tag_set.flags = BLK_MQ_F_SHOULD_MERGE;
 	vblk->tag_set.cmd_size =
@@ -778,6 +1041,7 @@ static int virtblk_probe(struct virtio_device *vdev)
 
 	err = blk_mq_alloc_tag_set(&vblk->tag_set);
 	if (err)
+<<<<<<< HEAD
 		goto out_put_disk;
 
 	q = blk_mq_init_queue(&vblk->tag_set);
@@ -788,11 +1052,25 @@ static int virtblk_probe(struct virtio_device *vdev)
 	vblk->disk->queue = q;
 
 	q->queuedata = vblk;
+=======
+		goto out_free_vq;
+
+	vblk->disk = blk_mq_alloc_disk(&vblk->tag_set, vblk);
+	if (IS_ERR(vblk->disk)) {
+		err = PTR_ERR(vblk->disk);
+		goto out_free_tags;
+	}
+	q = vblk->disk->queue;
+>>>>>>> upstream/android-13
 
 	virtblk_name_format("vd", index, vblk->disk->disk_name, DISK_NAME_LEN);
 
 	vblk->disk->major = major;
 	vblk->disk->first_minor = index_to_minor(index);
+<<<<<<< HEAD
+=======
+	vblk->disk->minors = 1 << PART_BITS;
+>>>>>>> upstream/android-13
 	vblk->disk->private_data = vblk;
 	vblk->disk->fops = &virtblk_fops;
 	vblk->disk->flags |= GENHD_FL_EXT_DEVT;
@@ -811,22 +1089,47 @@ static int virtblk_probe(struct virtio_device *vdev)
 	/* No real sector limit. */
 	blk_queue_max_hw_sectors(q, -1U);
 
+<<<<<<< HEAD
+=======
+	max_size = virtio_max_dma_size(vdev);
+
+>>>>>>> upstream/android-13
 	/* Host can optionally specify maximum segment size and number of
 	 * segments. */
 	err = virtio_cread_feature(vdev, VIRTIO_BLK_F_SIZE_MAX,
 				   struct virtio_blk_config, size_max, &v);
 	if (!err)
+<<<<<<< HEAD
 		blk_queue_max_segment_size(q, v);
 	else
 		blk_queue_max_segment_size(q, -1U);
+=======
+		max_size = min(max_size, v);
+
+	blk_queue_max_segment_size(q, max_size);
+>>>>>>> upstream/android-13
 
 	/* Host can optionally specify the block size of the device */
 	err = virtio_cread_feature(vdev, VIRTIO_BLK_F_BLK_SIZE,
 				   struct virtio_blk_config, blk_size,
 				   &blk_size);
+<<<<<<< HEAD
 	if (!err)
 		blk_queue_logical_block_size(q, blk_size);
 	else
+=======
+	if (!err) {
+		err = blk_validate_block_size(blk_size);
+		if (err) {
+			dev_err(&vdev->dev,
+				"virtio_blk: invalid block size: 0x%x\n",
+				blk_size);
+			goto out_cleanup_disk;
+		}
+
+		blk_queue_logical_block_size(q, blk_size);
+	} else
+>>>>>>> upstream/android-13
 		blk_size = queue_logical_block_size(q);
 
 	/* Use topology information if available */
@@ -855,6 +1158,7 @@ static int virtblk_probe(struct virtio_device *vdev)
 	if (!err && opt_io_size)
 		blk_queue_io_opt(q, blk_size * opt_io_size);
 
+<<<<<<< HEAD
 	virtblk_update_capacity(vblk, false);
 	virtio_device_ready(vdev);
 
@@ -880,6 +1184,53 @@ out_free_tags:
 	blk_mq_free_tag_set(&vblk->tag_set);
 out_put_disk:
 	put_disk(vblk->disk);
+=======
+	if (virtio_has_feature(vdev, VIRTIO_BLK_F_DISCARD)) {
+		q->limits.discard_granularity = blk_size;
+
+		virtio_cread(vdev, struct virtio_blk_config,
+			     discard_sector_alignment, &v);
+		q->limits.discard_alignment = v ? v << SECTOR_SHIFT : 0;
+
+		virtio_cread(vdev, struct virtio_blk_config,
+			     max_discard_sectors, &v);
+		blk_queue_max_discard_sectors(q, v ? v : UINT_MAX);
+
+		virtio_cread(vdev, struct virtio_blk_config, max_discard_seg,
+			     &v);
+
+		/*
+		 * max_discard_seg == 0 is out of spec but we always
+		 * handled it.
+		 */
+		if (!v)
+			v = sg_elems - 2;
+		blk_queue_max_discard_segments(q,
+					       min(v, MAX_DISCARD_SEGMENTS));
+
+		blk_queue_flag_set(QUEUE_FLAG_DISCARD, q);
+	}
+
+	if (virtio_has_feature(vdev, VIRTIO_BLK_F_WRITE_ZEROES)) {
+		virtio_cread(vdev, struct virtio_blk_config,
+			     max_write_zeroes_sectors, &v);
+		blk_queue_max_write_zeroes_sectors(q, v ? v : UINT_MAX);
+	}
+
+	virtblk_update_capacity(vblk, false);
+	virtio_device_ready(vdev);
+
+	err = device_add_disk(&vdev->dev, vblk->disk, virtblk_attr_groups);
+	if (err)
+		goto out_cleanup_disk;
+
+	return 0;
+
+out_cleanup_disk:
+	blk_cleanup_disk(vblk->disk);
+out_free_tags:
+	blk_mq_free_tag_set(&vblk->tag_set);
+>>>>>>> upstream/android-13
 out_free_vq:
 	vdev->config->del_vqs(vdev);
 	kfree(vblk->vqs);
@@ -899,8 +1250,12 @@ static void virtblk_remove(struct virtio_device *vdev)
 	flush_work(&vblk->config_work);
 
 	del_gendisk(vblk->disk);
+<<<<<<< HEAD
 	blk_cleanup_queue(vblk->disk->queue);
 
+=======
+	blk_cleanup_disk(vblk->disk);
+>>>>>>> upstream/android-13
 	blk_mq_free_tag_set(&vblk->tag_set);
 
 	mutex_lock(&vblk->vdev_mutex);
@@ -911,7 +1266,10 @@ static void virtblk_remove(struct virtio_device *vdev)
 	/* Virtqueues are stopped, nothing can use vblk->vdev anymore. */
 	vblk->vdev = NULL;
 
+<<<<<<< HEAD
 	put_disk(vblk->disk);
+=======
+>>>>>>> upstream/android-13
 	vdev->config->del_vqs(vdev);
 	kfree(vblk->vqs);
 
@@ -934,6 +1292,11 @@ static int virtblk_freeze(struct virtio_device *vdev)
 	blk_mq_quiesce_queue(vblk->disk->queue);
 
 	vdev->config->del_vqs(vdev);
+<<<<<<< HEAD
+=======
+	kfree(vblk->vqs);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -961,18 +1324,27 @@ static const struct virtio_device_id id_table[] = {
 static unsigned int features_legacy[] = {
 	VIRTIO_BLK_F_SEG_MAX, VIRTIO_BLK_F_SIZE_MAX, VIRTIO_BLK_F_GEOMETRY,
 	VIRTIO_BLK_F_RO, VIRTIO_BLK_F_BLK_SIZE,
+<<<<<<< HEAD
 #ifdef CONFIG_VIRTIO_BLK_SCSI
 	VIRTIO_BLK_F_SCSI,
 #endif
 	VIRTIO_BLK_F_FLUSH, VIRTIO_BLK_F_TOPOLOGY, VIRTIO_BLK_F_CONFIG_WCE,
 	VIRTIO_BLK_F_MQ,
+=======
+	VIRTIO_BLK_F_FLUSH, VIRTIO_BLK_F_TOPOLOGY, VIRTIO_BLK_F_CONFIG_WCE,
+	VIRTIO_BLK_F_MQ, VIRTIO_BLK_F_DISCARD, VIRTIO_BLK_F_WRITE_ZEROES,
+>>>>>>> upstream/android-13
 }
 ;
 static unsigned int features[] = {
 	VIRTIO_BLK_F_SEG_MAX, VIRTIO_BLK_F_SIZE_MAX, VIRTIO_BLK_F_GEOMETRY,
 	VIRTIO_BLK_F_RO, VIRTIO_BLK_F_BLK_SIZE,
 	VIRTIO_BLK_F_FLUSH, VIRTIO_BLK_F_TOPOLOGY, VIRTIO_BLK_F_CONFIG_WCE,
+<<<<<<< HEAD
 	VIRTIO_BLK_F_MQ,
+=======
+	VIRTIO_BLK_F_MQ, VIRTIO_BLK_F_DISCARD, VIRTIO_BLK_F_WRITE_ZEROES,
+>>>>>>> upstream/android-13
 };
 
 static struct virtio_driver virtio_blk = {

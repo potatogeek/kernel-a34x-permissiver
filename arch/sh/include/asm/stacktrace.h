@@ -12,8 +12,11 @@
 
 struct stacktrace_ops {
 	void (*address)(void *data, unsigned long address, int reliable);
+<<<<<<< HEAD
 	/* On negative return stop dumping */
 	int (*stack)(void *data, char *name);
+=======
+>>>>>>> upstream/android-13
 };
 
 void dump_trace(struct task_struct *tsk, struct pt_regs *regs,

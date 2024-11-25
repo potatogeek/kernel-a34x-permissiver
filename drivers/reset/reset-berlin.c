@@ -14,7 +14,11 @@
 #include <linux/delay.h>
 #include <linux/io.h>
 #include <linux/mfd/syscon.h>
+<<<<<<< HEAD
 #include <linux/init.h>
+=======
+#include <linux/module.h>
+>>>>>>> upstream/android-13
 #include <linux/of.h>
 #include <linux/of_address.h>
 #include <linux/platform_device.h>
@@ -55,7 +59,11 @@ static const struct reset_control_ops berlin_reset_ops = {
 static int berlin_reset_xlate(struct reset_controller_dev *rcdev,
 			      const struct of_phandle_args *reset_spec)
 {
+<<<<<<< HEAD
 	unsigned offset, bit;
+=======
+	unsigned int offset, bit;
+>>>>>>> upstream/android-13
 
 	offset = reset_spec->args[0];
 	bit = reset_spec->args[1];
@@ -93,6 +101,10 @@ static const struct of_device_id berlin_reset_dt_match[] = {
 	{ .compatible = "marvell,berlin2-reset" },
 	{ },
 };
+<<<<<<< HEAD
+=======
+MODULE_DEVICE_TABLE(of, berlin_reset_dt_match);
+>>>>>>> upstream/android-13
 
 static struct platform_driver berlin_reset_driver = {
 	.probe	= berlin2_reset_probe,
@@ -101,4 +113,13 @@ static struct platform_driver berlin_reset_driver = {
 		.of_match_table = berlin_reset_dt_match,
 	},
 };
+<<<<<<< HEAD
 builtin_platform_driver(berlin_reset_driver);
+=======
+module_platform_driver(berlin_reset_driver);
+
+MODULE_AUTHOR("Antoine Tenart <antoine.tenart@free-electrons.com>");
+MODULE_AUTHOR("Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>");
+MODULE_DESCRIPTION("Synaptics Berlin reset controller");
+MODULE_LICENSE("GPL");
+>>>>>>> upstream/android-13

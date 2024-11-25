@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 ARM Ltd.
  *
@@ -12,6 +13,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2012 ARM Ltd.
+>>>>>>> upstream/android-13
  */
 #ifndef __ASM_FP_H
 #define __ASM_FP_H
@@ -24,12 +30,24 @@
 
 #ifndef __ASSEMBLY__
 
+<<<<<<< HEAD
 #include <linux/build_bug.h>
 #include <linux/cache.h>
 #include <linux/init.h>
 #include <linux/stddef.h>
 
 #if defined(__KERNEL__) && defined(CONFIG_COMPAT)
+=======
+#include <linux/bitmap.h>
+#include <linux/build_bug.h>
+#include <linux/bug.h>
+#include <linux/cache.h>
+#include <linux/init.h>
+#include <linux/stddef.h>
+#include <linux/types.h>
+
+#ifdef CONFIG_COMPAT
+>>>>>>> upstream/android-13
 /* Masks for extracting the FPSR and FPCR from the FPSCR */
 #define VFP_FPSCR_STAT_MASK	0xf800009f
 #define VFP_FPSCR_CTRL_MASK	0x07f79f00
@@ -45,8 +63,11 @@ struct task_struct;
 extern void fpsimd_save_state(struct user_fpsimd_state *state);
 extern void fpsimd_load_state(struct user_fpsimd_state *state);
 
+<<<<<<< HEAD
 extern void fpsimd_save(void);
 
+=======
+>>>>>>> upstream/android-13
 extern void fpsimd_thread_switch(struct task_struct *next);
 extern void fpsimd_flush_thread(void);
 
@@ -55,12 +76,20 @@ extern void fpsimd_preserve_current_state(void);
 extern void fpsimd_restore_current_state(void);
 extern void fpsimd_update_current_state(struct user_fpsimd_state const *state);
 
+<<<<<<< HEAD
 extern void fpsimd_bind_task_to_cpu(void);
 extern void fpsimd_bind_state_to_cpu(struct user_fpsimd_state *state);
 
 extern void fpsimd_flush_task_state(struct task_struct *target);
 extern void fpsimd_flush_cpu_state(void);
 extern void sve_flush_cpu_state(void);
+=======
+extern void fpsimd_bind_state_to_cpu(struct user_fpsimd_state *state,
+				     void *sve_state, unsigned int sve_vl);
+
+extern void fpsimd_flush_task_state(struct task_struct *target);
+extern void fpsimd_save_and_flush_cpu_state(void);
+>>>>>>> upstream/android-13
 
 /* Maximum VL that SVE VL-agnostic software can transparently support */
 #define SVE_VL_ARCH_MAX 0x100
@@ -79,7 +108,15 @@ static inline void *sve_pffr(struct thread_struct *thread)
 extern void sve_save_state(void *state, u32 *pfpsr);
 extern void sve_load_state(void const *state, u32 const *pfpsr,
 			   unsigned long vq_minus_1);
+<<<<<<< HEAD
 extern unsigned int sve_get_vl(void);
+=======
+extern void sve_flush_live(unsigned long vq_minus_1);
+extern void sve_load_from_fpsimd_state(struct user_fpsimd_state const *state,
+				       unsigned long vq_minus_1);
+extern unsigned int sve_get_vl(void);
+extern void sve_set_vq(unsigned long vq_minus_1);
+>>>>>>> upstream/android-13
 
 struct arm64_cpu_capabilities;
 extern void sve_kernel_enable(const struct arm64_cpu_capabilities *__unused);
@@ -87,6 +124,32 @@ extern void sve_kernel_enable(const struct arm64_cpu_capabilities *__unused);
 extern u64 read_zcr_features(void);
 
 extern int __ro_after_init sve_max_vl;
+<<<<<<< HEAD
+=======
+extern int __ro_after_init sve_max_virtualisable_vl;
+extern __ro_after_init DECLARE_BITMAP(sve_vq_map, SVE_VQ_MAX);
+
+/*
+ * Helpers to translate bit indices in sve_vq_map to VQ values (and
+ * vice versa).  This allows find_next_bit() to be used to find the
+ * _maximum_ VQ not exceeding a certain value.
+ */
+static inline unsigned int __vq_to_bit(unsigned int vq)
+{
+	return SVE_VQ_MAX - vq;
+}
+
+static inline unsigned int __bit_to_vq(unsigned int bit)
+{
+	return SVE_VQ_MAX - bit;
+}
+
+/* Ensure vq >= SVE_VQ_MIN && vq <= SVE_VQ_MAX before calling this function */
+static inline bool sve_vq_available(unsigned int vq)
+{
+	return test_bit(__vq_to_bit(vq), sve_vq_map);
+}
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_ARM64_SVE
 
@@ -114,6 +177,18 @@ static inline void sve_user_enable(void)
 	sysreg_clear_set(cpacr_el1, 0, CPACR_EL1_ZEN_EL0EN);
 }
 
+<<<<<<< HEAD
+=======
+#define sve_cond_update_zcr_vq(val, reg)		\
+	do {						\
+		u64 __zcr = read_sysreg_s((reg));	\
+		u64 __new = __zcr & ~ZCR_ELx_LEN_MASK;	\
+		__new |= (val) & ZCR_ELx_LEN_MASK;	\
+		if (__zcr != __new)			\
+			write_sysreg_s(__new, (reg));	\
+	} while (0)
+
+>>>>>>> upstream/android-13
 /*
  * Probing and setup functions.
  * Calls to these functions must be serialised with one another.
@@ -143,6 +218,11 @@ static inline int sve_get_current_vl(void)
 static inline void sve_user_disable(void) { BUILD_BUG(); }
 static inline void sve_user_enable(void) { BUILD_BUG(); }
 
+<<<<<<< HEAD
+=======
+#define sve_cond_update_zcr_vq(val, reg) do { } while (0)
+
+>>>>>>> upstream/android-13
 static inline void sve_init_vq_map(void) { }
 static inline void sve_update_vq_map(void) { }
 static inline int sve_verify_vq_map(void) { return 0; }

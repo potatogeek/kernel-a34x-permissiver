@@ -1,7 +1,12 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright (C) 2013 John Crispin <john@phrozen.org>
  */
@@ -62,18 +67,31 @@ static int __init ill_acc_of_setup(void)
 
 	pdev = of_find_device_by_node(np);
 	if (!pdev) {
+<<<<<<< HEAD
 		pr_err("%s: failed to lookup pdev\n", np->name);
+=======
+		pr_err("%pOFn: failed to lookup pdev\n", np);
+		of_node_put(np);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	irq = irq_of_parse_and_map(np, 0);
 	if (!irq) {
 		dev_err(&pdev->dev, "failed to get irq\n");
+<<<<<<< HEAD
+=======
+		put_device(&pdev->dev);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	if (request_irq(irq, ill_acc_irq_handler, 0, "ill_acc", &pdev->dev)) {
 		dev_err(&pdev->dev, "failed to request irq\n");
+<<<<<<< HEAD
+=======
+		put_device(&pdev->dev);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 

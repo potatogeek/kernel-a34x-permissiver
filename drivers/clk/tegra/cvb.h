@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Utility functions for parsing Tegra CVB voltage tables
  *
@@ -10,6 +11,11 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Utility functions for parsing Tegra CVB voltage tables
+>>>>>>> upstream/android-13
  */
 
 #ifndef __DRIVERS_CLK_TEGRA_CVB_H
@@ -41,6 +47,10 @@ struct cvb_cpu_dfll_data {
 	u32 tune0_low;
 	u32 tune0_high;
 	u32 tune1;
+<<<<<<< HEAD
+=======
+	unsigned int tune_high_min_millivolts;
+>>>>>>> upstream/android-13
 };
 
 struct cvb_table {
@@ -49,7 +59,10 @@ struct cvb_table {
 
 	int min_millivolts;
 	int max_millivolts;
+<<<<<<< HEAD
 	struct rail_alignment alignment;
+=======
+>>>>>>> upstream/android-13
 
 	int speedo_scale;
 	int voltage_scale;
@@ -59,8 +72,14 @@ struct cvb_table {
 
 const struct cvb_table *
 tegra_cvb_add_opp_table(struct device *dev, const struct cvb_table *cvb_tables,
+<<<<<<< HEAD
 			size_t count, int process_id, int speedo_id,
 			int speedo_value, unsigned long max_freq);
+=======
+			size_t count, struct rail_alignment *align,
+			int process_id, int speedo_id, int speedo_value,
+			unsigned long max_freq);
+>>>>>>> upstream/android-13
 void tegra_cvb_remove_opp_table(struct device *dev,
 				const struct cvb_table *table,
 				unsigned long max_freq);

@@ -15,6 +15,10 @@
 #include <linux/perf_event.h>
 
 #include <asm/intel_ds.h>
+<<<<<<< HEAD
+=======
+#include <asm/cpu.h>
+>>>>>>> upstream/android-13
 
 /* To enable MSR tracing please use the generic trace points. */
 
@@ -49,18 +53,35 @@ struct event_constraint {
 		unsigned long	idxmsk[BITS_TO_LONGS(X86_PMC_IDX_MAX)];
 		u64		idxmsk64;
 	};
+<<<<<<< HEAD
 	u64	code;
 	u64	cmask;
 	int	weight;
 	int	overlap;
 	int	flags;
 };
+=======
+	u64		code;
+	u64		cmask;
+	int		weight;
+	int		overlap;
+	int		flags;
+	unsigned int	size;
+};
+
+static inline bool constraint_match(struct event_constraint *c, u64 ecode)
+{
+	return ((ecode & c->cmask) - c->code) <= (u64)c->size;
+}
+
+>>>>>>> upstream/android-13
 /*
  * struct hw_perf_event.flags flags
  */
 #define PERF_X86_EVENT_PEBS_LDLAT	0x0001 /* ld+ldlat data address sampling */
 #define PERF_X86_EVENT_PEBS_ST		0x0002 /* st data address sampling */
 #define PERF_X86_EVENT_PEBS_ST_HSW	0x0004 /* haswell style datala, store */
+<<<<<<< HEAD
 #define PERF_X86_EVENT_COMMITTED	0x0008 /* event passed commit_txn */
 #define PERF_X86_EVENT_PEBS_LD_HSW	0x0010 /* haswell style datala, load */
 #define PERF_X86_EVENT_PEBS_NA_HSW	0x0020 /* haswell style datala, unknown */
@@ -71,6 +92,45 @@ struct event_constraint {
 #define PERF_X86_EVENT_AUTO_RELOAD	0x0400 /* use PEBS auto-reload */
 #define PERF_X86_EVENT_LARGE_PEBS	0x0800 /* use large PEBS */
 
+=======
+#define PERF_X86_EVENT_PEBS_LD_HSW	0x0008 /* haswell style datala, load */
+#define PERF_X86_EVENT_PEBS_NA_HSW	0x0010 /* haswell style datala, unknown */
+#define PERF_X86_EVENT_EXCL		0x0020 /* HT exclusivity on counter */
+#define PERF_X86_EVENT_DYNAMIC		0x0040 /* dynamic alloc'd constraint */
+#define PERF_X86_EVENT_RDPMC_ALLOWED	0x0080 /* grant rdpmc permission */
+#define PERF_X86_EVENT_EXCL_ACCT	0x0100 /* accounted EXCL event */
+#define PERF_X86_EVENT_AUTO_RELOAD	0x0200 /* use PEBS auto-reload */
+#define PERF_X86_EVENT_LARGE_PEBS	0x0400 /* use large PEBS */
+#define PERF_X86_EVENT_PEBS_VIA_PT	0x0800 /* use PT buffer for PEBS */
+#define PERF_X86_EVENT_PAIR		0x1000 /* Large Increment per Cycle */
+#define PERF_X86_EVENT_LBR_SELECT	0x2000 /* Save/Restore MSR_LBR_SELECT */
+#define PERF_X86_EVENT_TOPDOWN		0x4000 /* Count Topdown slots/metrics events */
+#define PERF_X86_EVENT_PEBS_STLAT	0x8000 /* st+stlat data address sampling */
+
+static inline bool is_topdown_count(struct perf_event *event)
+{
+	return event->hw.flags & PERF_X86_EVENT_TOPDOWN;
+}
+
+static inline bool is_metric_event(struct perf_event *event)
+{
+	u64 config = event->attr.config;
+
+	return ((config & ARCH_PERFMON_EVENTSEL_EVENT) == 0) &&
+		((config & INTEL_ARCH_EVENT_MASK) >= INTEL_TD_METRIC_RETIRING)  &&
+		((config & INTEL_ARCH_EVENT_MASK) <= INTEL_TD_METRIC_MAX);
+}
+
+static inline bool is_slots_event(struct perf_event *event)
+{
+	return (event->attr.config & INTEL_ARCH_EVENT_MASK) == INTEL_TD_SLOTS;
+}
+
+static inline bool is_topdown_event(struct perf_event *event)
+{
+	return is_metric_event(event) || is_slots_event(event);
+}
+>>>>>>> upstream/android-13
 
 struct amd_nb {
 	int nb_id;  /* NorthBridge id */
@@ -80,6 +140,14 @@ struct amd_nb {
 };
 
 #define PEBS_COUNTER_MASK	((1ULL << MAX_PEBS_EVENTS) - 1)
+<<<<<<< HEAD
+=======
+#define PEBS_PMI_AFTER_EACH_RECORD BIT_ULL(60)
+#define PEBS_OUTPUT_OFFSET	61
+#define PEBS_OUTPUT_MASK	(3ull << PEBS_OUTPUT_OFFSET)
+#define PEBS_OUTPUT_PT		(1ull << PEBS_OUTPUT_OFFSET)
+#define PEBS_VIA_PT_MASK	(PEBS_OUTPUT_PT | PEBS_PMI_AFTER_EACH_RECORD)
+>>>>>>> upstream/android-13
 
 /*
  * Flags PEBS can handle without an PMI.
@@ -94,7 +162,11 @@ struct amd_nb {
 	PERF_SAMPLE_DATA_SRC | PERF_SAMPLE_IDENTIFIER | \
 	PERF_SAMPLE_TRANSACTION | PERF_SAMPLE_PHYS_ADDR | \
 	PERF_SAMPLE_REGS_INTR | PERF_SAMPLE_REGS_USER | \
+<<<<<<< HEAD
 	PERF_SAMPLE_PERIOD)
+=======
+	PERF_SAMPLE_PERIOD | PERF_SAMPLE_CODE_PAGE_SIZE)
+>>>>>>> upstream/android-13
 
 #define PEBS_GP_REGS			\
 	((1ULL << PERF_REG_X86_AX)    | \
@@ -167,6 +239,20 @@ struct x86_perf_task_context;
 #define MAX_LBR_ENTRIES		32
 
 enum {
+<<<<<<< HEAD
+=======
+	LBR_FORMAT_32		= 0x00,
+	LBR_FORMAT_LIP		= 0x01,
+	LBR_FORMAT_EIP		= 0x02,
+	LBR_FORMAT_EIP_FLAGS	= 0x03,
+	LBR_FORMAT_EIP_FLAGS2	= 0x04,
+	LBR_FORMAT_INFO		= 0x05,
+	LBR_FORMAT_TIME		= 0x06,
+	LBR_FORMAT_MAX_KNOWN    = LBR_FORMAT_TIME,
+};
+
+enum {
+>>>>>>> upstream/android-13
 	X86_PERF_KFREE_SHARED = 0,
 	X86_PERF_KFREE_EXCL   = 1,
 	X86_PERF_KFREE_MAX
@@ -178,7 +264,11 @@ struct cpu_hw_events {
 	 */
 	struct perf_event	*events[X86_PMC_IDX_MAX]; /* in counter order */
 	unsigned long		active_mask[BITS_TO_LONGS(X86_PMC_IDX_MAX)];
+<<<<<<< HEAD
 	unsigned long		running[BITS_TO_LONGS(X86_PMC_IDX_MAX)];
+=======
+	unsigned long		dirty[BITS_TO_LONGS(X86_PMC_IDX_MAX)];
+>>>>>>> upstream/android-13
 	int			enabled;
 
 	int			n_events; /* the # of events in the below arrays */
@@ -186,6 +276,11 @@ struct cpu_hw_events {
 					     they've never been enabled yet */
 	int			n_txn;    /* the # last events in the below arrays;
 					     added in the current transaction */
+<<<<<<< HEAD
+=======
+	int			n_txn_pair;
+	int			n_txn_metric;
+>>>>>>> upstream/android-13
 	int			assign[X86_PMC_IDX_MAX]; /* event to counter assignment */
 	u64			tags[X86_PMC_IDX_MAX];
 
@@ -206,17 +301,42 @@ struct cpu_hw_events {
 	u64			pebs_enabled;
 	int			n_pebs;
 	int			n_large_pebs;
+<<<<<<< HEAD
+=======
+	int			n_pebs_via_pt;
+	int			pebs_output;
+
+	/* Current super set of events hardware configuration */
+	u64			pebs_data_cfg;
+	u64			active_pebs_data_cfg;
+	int			pebs_record_size;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Intel LBR bits
 	 */
 	int				lbr_users;
+<<<<<<< HEAD
 	struct perf_branch_stack	lbr_stack;
 	struct perf_branch_entry	lbr_entries[MAX_LBR_ENTRIES];
 	struct er_account		*lbr_sel;
 	u64				br_sel;
 	struct x86_perf_task_context	*last_task_ctx;
 	int				last_log_id;
+=======
+	int				lbr_pebs_users;
+	struct perf_branch_stack	lbr_stack;
+	struct perf_branch_entry	lbr_entries[MAX_LBR_ENTRIES];
+	union {
+		struct er_account		*lbr_sel;
+		struct er_account		*lbr_ctl;
+	};
+	u64				br_sel;
+	void				*last_task_ctx;
+	int				last_log_id;
+	int				lbr_select;
+	void				*lbr_xsave;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Intel host/guest exclude bits
@@ -248,11 +368,21 @@ struct cpu_hw_events {
 	u64				tfa_shadow;
 
 	/*
+<<<<<<< HEAD
+=======
+	 * Perf Metrics
+	 */
+	/* number of accepted metrics events */
+	int				n_metric;
+
+	/*
+>>>>>>> upstream/android-13
 	 * AMD specific bits
 	 */
 	struct amd_nb			*amd_nb;
 	/* Inverted mask of bits to clear in the perf_ctr ctrl registers */
 	u64				perf_ctr_virt_mask;
+<<<<<<< HEAD
 
 	void				*kfree_on_online[X86_PERF_KFREE_MAX];
 };
@@ -260,15 +390,44 @@ struct cpu_hw_events {
 #define __EVENT_CONSTRAINT(c, n, m, w, o, f) {\
 	{ .idxmsk64 = (n) },		\
 	.code = (c),			\
+=======
+	int				n_pair; /* Large increment events */
+
+	void				*kfree_on_online[X86_PERF_KFREE_MAX];
+
+	struct pmu			*pmu;
+};
+
+#define __EVENT_CONSTRAINT_RANGE(c, e, n, m, w, o, f) {	\
+	{ .idxmsk64 = (n) },		\
+	.code = (c),			\
+	.size = (e) - (c),		\
+>>>>>>> upstream/android-13
 	.cmask = (m),			\
 	.weight = (w),			\
 	.overlap = (o),			\
 	.flags = f,			\
 }
 
+<<<<<<< HEAD
 #define EVENT_CONSTRAINT(c, n, m)	\
 	__EVENT_CONSTRAINT(c, n, m, HWEIGHT(n), 0, 0)
 
+=======
+#define __EVENT_CONSTRAINT(c, n, m, w, o, f) \
+	__EVENT_CONSTRAINT_RANGE(c, c, n, m, w, o, f)
+
+#define EVENT_CONSTRAINT(c, n, m)	\
+	__EVENT_CONSTRAINT(c, n, m, HWEIGHT(n), 0, 0)
+
+/*
+ * The constraint_match() function only works for 'simple' event codes
+ * and not for extended (AMD64_EVENTSEL_EVENT) events codes.
+ */
+#define EVENT_CONSTRAINT_RANGE(c, e, n, m) \
+	__EVENT_CONSTRAINT_RANGE(c, e, n, m, HWEIGHT(n), 0, 0)
+
+>>>>>>> upstream/android-13
 #define INTEL_EXCLEVT_CONSTRAINT(c, n)	\
 	__EVENT_CONSTRAINT(c, n, ARCH_PERFMON_EVENTSEL_EVENT, HWEIGHT(n),\
 			   0, PERF_X86_EVENT_EXCL)
@@ -304,6 +463,15 @@ struct cpu_hw_events {
 	EVENT_CONSTRAINT(c, n, ARCH_PERFMON_EVENTSEL_EVENT)
 
 /*
+<<<<<<< HEAD
+=======
+ * Constraint on a range of Event codes
+ */
+#define INTEL_EVENT_CONSTRAINT_RANGE(c, e, n)			\
+	EVENT_CONSTRAINT_RANGE(c, e, n, ARCH_PERFMON_EVENTSEL_EVENT)
+
+/*
+>>>>>>> upstream/android-13
  * Constraint on the Event code + UMask + fixed-mask
  *
  * filter mask to validate fixed counter events.
@@ -321,6 +489,22 @@ struct cpu_hw_events {
 	EVENT_CONSTRAINT(c, (1ULL << (32+n)), FIXED_EVENT_FLAGS)
 
 /*
+<<<<<<< HEAD
+=======
+ * The special metric counters do not actually exist. They are calculated from
+ * the combination of the FxCtr3 + MSR_PERF_METRICS.
+ *
+ * The special metric counters are mapped to a dummy offset for the scheduler.
+ * The sharing between multiple users of the same metric without multiplexing
+ * is not allowed, even though the hardware supports that in principle.
+ */
+
+#define METRIC_EVENT_CONSTRAINT(c, n)					\
+	EVENT_CONSTRAINT(c, (1ULL << (INTEL_PMC_IDX_METRIC_BASE + n)),	\
+			 INTEL_ARCH_EVENT_MASK)
+
+/*
+>>>>>>> upstream/android-13
  * Constraint on the Event code + UMask
  */
 #define INTEL_UEVENT_CONSTRAINT(c, n)	\
@@ -342,13 +526,27 @@ struct cpu_hw_events {
 	__EVENT_CONSTRAINT(c, n, INTEL_ARCH_EVENT_MASK|X86_ALL_EVENT_FLAGS, \
 			   HWEIGHT(n), 0, PERF_X86_EVENT_PEBS_LDLAT)
 
+<<<<<<< HEAD
+=======
+#define INTEL_PSD_CONSTRAINT(c, n)	\
+	__EVENT_CONSTRAINT(c, n, INTEL_ARCH_EVENT_MASK|X86_ALL_EVENT_FLAGS, \
+			   HWEIGHT(n), 0, PERF_X86_EVENT_PEBS_STLAT)
+
+>>>>>>> upstream/android-13
 #define INTEL_PST_CONSTRAINT(c, n)	\
 	__EVENT_CONSTRAINT(c, n, INTEL_ARCH_EVENT_MASK|X86_ALL_EVENT_FLAGS, \
 			  HWEIGHT(n), 0, PERF_X86_EVENT_PEBS_ST)
 
 /* Event constraint, but match on all event flags too. */
 #define INTEL_FLAGS_EVENT_CONSTRAINT(c, n) \
+<<<<<<< HEAD
 	EVENT_CONSTRAINT(c, n, INTEL_ARCH_EVENT_MASK|X86_ALL_EVENT_FLAGS)
+=======
+	EVENT_CONSTRAINT(c, n, ARCH_PERFMON_EVENTSEL_EVENT|X86_ALL_EVENT_FLAGS)
+
+#define INTEL_FLAGS_EVENT_CONSTRAINT_RANGE(c, e, n)			\
+	EVENT_CONSTRAINT_RANGE(c, e, n, ARCH_PERFMON_EVENTSEL_EVENT|X86_ALL_EVENT_FLAGS)
+>>>>>>> upstream/android-13
 
 /* Check only flags, but allow all event/umask */
 #define INTEL_ALL_EVENT_CONSTRAINT(code, n)	\
@@ -366,6 +564,14 @@ struct cpu_hw_events {
 			  ARCH_PERFMON_EVENTSEL_EVENT|X86_ALL_EVENT_FLAGS, \
 			  HWEIGHT(n), 0, PERF_X86_EVENT_PEBS_LD_HSW)
 
+<<<<<<< HEAD
+=======
+#define INTEL_FLAGS_EVENT_CONSTRAINT_DATALA_LD_RANGE(code, end, n) \
+	__EVENT_CONSTRAINT_RANGE(code, end, n,				\
+			  ARCH_PERFMON_EVENTSEL_EVENT|X86_ALL_EVENT_FLAGS, \
+			  HWEIGHT(n), 0, PERF_X86_EVENT_PEBS_LD_HSW)
+
+>>>>>>> upstream/android-13
 #define INTEL_FLAGS_EVENT_CONSTRAINT_DATALA_XLD(code, n) \
 	__EVENT_CONSTRAINT(code, n,			\
 			  ARCH_PERFMON_EVENTSEL_EVENT|X86_ALL_EVENT_FLAGS, \
@@ -473,6 +679,13 @@ union perf_capabilities {
 		 * values > 32bit.
 		 */
 		u64	full_width_write:1;
+<<<<<<< HEAD
+=======
+		u64     pebs_baseline:1;
+		u64	perf_metrics:1;
+		u64	pebs_output_pt_available:1;
+		u64	anythread_deprecated:1;
+>>>>>>> upstream/android-13
 	};
 	u64	capabilities;
 };
@@ -512,6 +725,88 @@ enum {
 	x86_lbr_exclusive_max,
 };
 
+<<<<<<< HEAD
+=======
+struct x86_hybrid_pmu {
+	struct pmu			pmu;
+	const char			*name;
+	u8				cpu_type;
+	cpumask_t			supported_cpus;
+	union perf_capabilities		intel_cap;
+	u64				intel_ctrl;
+	int				max_pebs_events;
+	int				num_counters;
+	int				num_counters_fixed;
+	struct event_constraint		unconstrained;
+
+	u64				hw_cache_event_ids
+					[PERF_COUNT_HW_CACHE_MAX]
+					[PERF_COUNT_HW_CACHE_OP_MAX]
+					[PERF_COUNT_HW_CACHE_RESULT_MAX];
+	u64				hw_cache_extra_regs
+					[PERF_COUNT_HW_CACHE_MAX]
+					[PERF_COUNT_HW_CACHE_OP_MAX]
+					[PERF_COUNT_HW_CACHE_RESULT_MAX];
+	struct event_constraint		*event_constraints;
+	struct event_constraint		*pebs_constraints;
+	struct extra_reg		*extra_regs;
+
+	unsigned int			late_ack	:1,
+					mid_ack		:1,
+					enabled_ack	:1;
+};
+
+static __always_inline struct x86_hybrid_pmu *hybrid_pmu(struct pmu *pmu)
+{
+	return container_of(pmu, struct x86_hybrid_pmu, pmu);
+}
+
+extern struct static_key_false perf_is_hybrid;
+#define is_hybrid()		static_branch_unlikely(&perf_is_hybrid)
+
+#define hybrid(_pmu, _field)				\
+(*({							\
+	typeof(&x86_pmu._field) __Fp = &x86_pmu._field;	\
+							\
+	if (is_hybrid() && (_pmu))			\
+		__Fp = &hybrid_pmu(_pmu)->_field;	\
+							\
+	__Fp;						\
+}))
+
+#define hybrid_var(_pmu, _var)				\
+(*({							\
+	typeof(&_var) __Fp = &_var;			\
+							\
+	if (is_hybrid() && (_pmu))			\
+		__Fp = &hybrid_pmu(_pmu)->_var;		\
+							\
+	__Fp;						\
+}))
+
+#define hybrid_bit(_pmu, _field)			\
+({							\
+	bool __Fp = x86_pmu._field;			\
+							\
+	if (is_hybrid() && (_pmu))			\
+		__Fp = hybrid_pmu(_pmu)->_field;	\
+							\
+	__Fp;						\
+})
+
+enum hybrid_pmu_type {
+	hybrid_big		= 0x40,
+	hybrid_small		= 0x20,
+
+	hybrid_big_small	= hybrid_big | hybrid_small,
+};
+
+#define X86_HYBRID_PMU_ATOM_IDX		0
+#define X86_HYBRID_PMU_CORE_IDX		1
+
+#define X86_HYBRID_NUM_PMUS		2
+
+>>>>>>> upstream/android-13
 /*
  * struct x86_pmu - generic x86 pmu
  */
@@ -565,15 +860,25 @@ struct x86_pmu {
 	struct event_constraint *event_constraints;
 	struct x86_pmu_quirk *quirks;
 	int		perfctr_second_write;
+<<<<<<< HEAD
 	bool		late_ack;
 	u64		(*limit_period)(struct perf_event *event, u64 l);
 
+=======
+	u64		(*limit_period)(struct perf_event *event, u64 l);
+
+	/* PMI handler bits */
+	unsigned int	late_ack		:1,
+			mid_ack			:1,
+			enabled_ack		:1;
+>>>>>>> upstream/android-13
 	/*
 	 * sysfs attrs
 	 */
 	int		attr_rdpmc_broken;
 	int		attr_rdpmc;
 	struct attribute **format_attrs;
+<<<<<<< HEAD
 	struct attribute **event_attrs;
 	struct attribute **caps_attrs;
 
@@ -582,6 +887,13 @@ struct x86_pmu {
 
 	unsigned long	attr_freeze_on_smi;
 	struct attribute **attrs;
+=======
+
+	ssize_t		(*events_sysfs_show)(char *page, u64 config);
+	const struct attribute_group **attr_update;
+
+	unsigned long	attr_freeze_on_smi;
+>>>>>>> upstream/android-13
 
 	/*
 	 * CPU Hotplug hooks
@@ -604,6 +916,7 @@ struct x86_pmu {
 	/*
 	 * Intel DebugStore bits
 	 */
+<<<<<<< HEAD
 	unsigned int	bts		:1,
 			bts_active	:1,
 			pebs		:1,
@@ -618,26 +931,101 @@ struct x86_pmu {
 	void		(*pebs_aliases)(struct perf_event *event);
 	int 		max_pebs_events;
 	unsigned long	large_pebs_flags;
+=======
+	unsigned int	bts			:1,
+			bts_active		:1,
+			pebs			:1,
+			pebs_active		:1,
+			pebs_broken		:1,
+			pebs_prec_dist		:1,
+			pebs_no_tlb		:1,
+			pebs_no_isolation	:1,
+			pebs_block		:1;
+	int		pebs_record_size;
+	int		pebs_buffer_size;
+	int		max_pebs_events;
+	void		(*drain_pebs)(struct pt_regs *regs, struct perf_sample_data *data);
+	struct event_constraint *pebs_constraints;
+	void		(*pebs_aliases)(struct perf_event *event);
+	unsigned long	large_pebs_flags;
+	u64		rtm_abort_event;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Intel LBR
 	 */
+<<<<<<< HEAD
 	unsigned long	lbr_tos, lbr_from, lbr_to; /* MSR base regs       */
 	int		lbr_nr;			   /* hardware stack size */
 	u64		lbr_sel_mask;		   /* LBR_SELECT valid bits */
 	const int	*lbr_sel_map;		   /* lbr_select mappings */
+=======
+	unsigned int	lbr_tos, lbr_from, lbr_to,
+			lbr_info, lbr_nr;	   /* LBR base regs and size */
+	union {
+		u64	lbr_sel_mask;		   /* LBR_SELECT valid bits */
+		u64	lbr_ctl_mask;		   /* LBR_CTL valid bits */
+	};
+	union {
+		const int	*lbr_sel_map;	   /* lbr_select mappings */
+		int		*lbr_ctl_map;	   /* LBR_CTL mappings */
+	};
+>>>>>>> upstream/android-13
 	bool		lbr_double_abort;	   /* duplicated lbr aborts */
 	bool		lbr_pt_coexist;		   /* (LBR|BTS) may coexist with PT */
 
 	/*
+<<<<<<< HEAD
+=======
+	 * Intel Architectural LBR CPUID Enumeration
+	 */
+	unsigned int	lbr_depth_mask:8;
+	unsigned int	lbr_deep_c_reset:1;
+	unsigned int	lbr_lip:1;
+	unsigned int	lbr_cpl:1;
+	unsigned int	lbr_filter:1;
+	unsigned int	lbr_call_stack:1;
+	unsigned int	lbr_mispred:1;
+	unsigned int	lbr_timed_lbr:1;
+	unsigned int	lbr_br_type:1;
+
+	void		(*lbr_reset)(void);
+	void		(*lbr_read)(struct cpu_hw_events *cpuc);
+	void		(*lbr_save)(void *ctx);
+	void		(*lbr_restore)(void *ctx);
+
+	/*
+>>>>>>> upstream/android-13
 	 * Intel PT/LBR/BTS are exclusive
 	 */
 	atomic_t	lbr_exclusive[x86_lbr_exclusive_max];
 
 	/*
+<<<<<<< HEAD
 	 * AMD bits
 	 */
 	unsigned int	amd_nb_constraints : 1;
+=======
+	 * Intel perf metrics
+	 */
+	int		num_topdown_events;
+	u64		(*update_topdown_event)(struct perf_event *event);
+	int		(*set_topdown_event_period)(struct perf_event *event);
+
+	/*
+	 * perf task context (i.e. struct perf_event_context::task_ctx_data)
+	 * switch helper to bridge calls from perf/core to perf/x86.
+	 * See struct pmu::swap_task_ctx() usage for examples;
+	 */
+	void		(*swap_task_ctx)(struct perf_event_context *prev,
+					 struct perf_event_context *next);
+
+	/*
+	 * AMD bits
+	 */
+	unsigned int	amd_nb_constraints : 1;
+	u64		perf_ctr_pair_en;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Extra registers for events
@@ -654,6 +1042,7 @@ struct x86_pmu {
 	 * Check period value for PERF_EVENT_IOC_PERIOD ioctl.
 	 */
 	int (*check_period) (struct perf_event *event, u64 period);
+<<<<<<< HEAD
 };
 
 struct x86_perf_task_context {
@@ -662,11 +1051,68 @@ struct x86_perf_task_context {
 	u64 lbr_info[MAX_LBR_ENTRIES];
 	int tos;
 	int valid_lbrs;
+=======
+
+	int (*aux_output_match) (struct perf_event *event);
+
+	int (*filter_match)(struct perf_event *event);
+	/*
+	 * Hybrid support
+	 *
+	 * Most PMU capabilities are the same among different hybrid PMUs.
+	 * The global x86_pmu saves the architecture capabilities, which
+	 * are available for all PMUs. The hybrid_pmu only includes the
+	 * unique capabilities.
+	 */
+	int				num_hybrid_pmus;
+	struct x86_hybrid_pmu		*hybrid_pmu;
+	u8 (*get_hybrid_cpu_type)	(void);
+};
+
+struct x86_perf_task_context_opt {
+>>>>>>> upstream/android-13
 	int lbr_callstack_users;
 	int lbr_stack_state;
 	int log_id;
 };
 
+<<<<<<< HEAD
+=======
+struct x86_perf_task_context {
+	u64 lbr_sel;
+	int tos;
+	int valid_lbrs;
+	struct x86_perf_task_context_opt opt;
+	struct lbr_entry lbr[MAX_LBR_ENTRIES];
+};
+
+struct x86_perf_task_context_arch_lbr {
+	struct x86_perf_task_context_opt opt;
+	struct lbr_entry entries[];
+};
+
+/*
+ * Add padding to guarantee the 64-byte alignment of the state buffer.
+ *
+ * The structure is dynamically allocated. The size of the LBR state may vary
+ * based on the number of LBR registers.
+ *
+ * Do not put anything after the LBR state.
+ */
+struct x86_perf_task_context_arch_lbr_xsave {
+	struct x86_perf_task_context_opt		opt;
+
+	union {
+		struct xregs_state			xsave;
+		struct {
+			struct fxregs_state		i387;
+			struct xstate_header		header;
+			struct arch_lbr_state		lbr;
+		} __attribute__ ((packed, aligned (XSAVE_ALIGNMENT)));
+	};
+};
+
+>>>>>>> upstream/android-13
 #define x86_add_quirk(func_)						\
 do {									\
 	static struct x86_pmu_quirk __quirk __initdata = {		\
@@ -685,6 +1131,12 @@ do {									\
 #define PMU_FL_EXCL_ENABLED	0x8 /* exclusive counter active */
 #define PMU_FL_PEBS_ALL		0x10 /* all events are valid PEBS events */
 #define PMU_FL_TFA		0x20 /* deal with TSX force abort */
+<<<<<<< HEAD
+=======
+#define PMU_FL_PAIR		0x40 /* merge counters for large incr. events */
+#define PMU_FL_INSTR_LATENCY	0x80 /* Support Instruction Latency in PEBS Memory Info Record */
+#define PMU_FL_MEM_LOADS_AUX	0x100 /* Require an auxiliary event for the complete memory info */
+>>>>>>> upstream/android-13
 
 #define EVENT_VAR(_id)  event_attr_##_id
 #define EVENT_PTR(_id) &event_attr_##_id.attr.attr
@@ -711,8 +1163,38 @@ static struct perf_pmu_events_ht_attr event_attr_##v = {		\
 	.event_str_ht	= ht,						\
 }
 
+<<<<<<< HEAD
 extern struct x86_pmu x86_pmu __read_mostly;
 
+=======
+#define EVENT_ATTR_STR_HYBRID(_name, v, str, _pmu)			\
+static struct perf_pmu_events_hybrid_attr event_attr_##v = {		\
+	.attr		= __ATTR(_name, 0444, events_hybrid_sysfs_show, NULL),\
+	.id		= 0,						\
+	.event_str	= str,						\
+	.pmu_type	= _pmu,						\
+}
+
+#define FORMAT_HYBRID_PTR(_id) (&format_attr_hybrid_##_id.attr.attr)
+
+#define FORMAT_ATTR_HYBRID(_name, _pmu)					\
+static struct perf_pmu_format_hybrid_attr format_attr_hybrid_##_name = {\
+	.attr		= __ATTR_RO(_name),				\
+	.pmu_type	= _pmu,						\
+}
+
+struct pmu *x86_get_pmu(unsigned int cpu);
+extern struct x86_pmu x86_pmu __read_mostly;
+
+static __always_inline struct x86_perf_task_context_opt *task_context_opt(void *ctx)
+{
+	if (static_cpu_has(X86_FEATURE_ARCH_LBR))
+		return &((struct x86_perf_task_context_arch_lbr *)ctx)->opt;
+
+	return &((struct x86_perf_task_context *)ctx)->opt;
+}
+
+>>>>>>> upstream/android-13
 static inline bool x86_pmu_has_lbr_callstack(void)
 {
 	return  x86_pmu.lbr_sel_map &&
@@ -761,6 +1243,12 @@ static inline int x86_pmu_rdpmc_index(int index)
 	return x86_pmu.rdpmc_index ? x86_pmu.rdpmc_index(index) : index;
 }
 
+<<<<<<< HEAD
+=======
+bool check_hw_exists(struct pmu *pmu, int num_counters,
+		     int num_counters_fixed);
+
+>>>>>>> upstream/android-13
 int x86_add_exclusive(unsigned int what);
 
 void x86_del_exclusive(unsigned int what);
@@ -779,6 +1267,14 @@ int x86_pmu_hw_config(struct perf_event *event);
 
 void x86_pmu_disable_all(void);
 
+<<<<<<< HEAD
+=======
+static inline bool is_counter_pair(struct hw_perf_event *hwc)
+{
+	return hwc->flags & PERF_X86_EVENT_PAIR;
+}
+
+>>>>>>> upstream/android-13
 static inline void __x86_pmu_enable_event(struct hw_perf_event *hwc,
 					  u64 enable_mask)
 {
@@ -786,6 +1282,17 @@ static inline void __x86_pmu_enable_event(struct hw_perf_event *hwc,
 
 	if (hwc->extra_reg.reg)
 		wrmsrl(hwc->extra_reg.reg, hwc->extra_reg.config);
+<<<<<<< HEAD
+=======
+
+	/*
+	 * Add enabled Merge event on next counter
+	 * if large increment event being enabled on this counter
+	 */
+	if (is_counter_pair(hwc))
+		wrmsrl(x86_pmu_config_addr(hwc->idx + 1), x86_pmu.perf_ctr_pair_en);
+
+>>>>>>> upstream/android-13
 	wrmsrl(hwc->config_base, (hwc->config | enable_mask) & ~disable_mask);
 }
 
@@ -799,15 +1306,33 @@ void x86_pmu_stop(struct perf_event *event, int flags);
 
 static inline void x86_pmu_disable_event(struct perf_event *event)
 {
+<<<<<<< HEAD
 	struct hw_perf_event *hwc = &event->hw;
 
 	wrmsrl(hwc->config_base, hwc->config);
+=======
+	u64 disable_mask = __this_cpu_read(cpu_hw_events.perf_ctr_virt_mask);
+	struct hw_perf_event *hwc = &event->hw;
+
+	wrmsrl(hwc->config_base, hwc->config & ~disable_mask);
+
+	if (is_counter_pair(hwc))
+		wrmsrl(x86_pmu_config_addr(hwc->idx + 1), 0);
+>>>>>>> upstream/android-13
 }
 
 void x86_pmu_enable_event(struct perf_event *event);
 
 int x86_pmu_handle_irq(struct pt_regs *regs);
 
+<<<<<<< HEAD
+=======
+void x86_pmu_show_pmu_cap(int num_counters, int num_counters_fixed,
+			  u64 intel_ctrl);
+
+void x86_pmu_update_cpu_context(struct pmu *pmu, int cpu);
+
+>>>>>>> upstream/android-13
 extern struct event_constraint emptyconstraint;
 
 extern struct event_constraint unconstrained;
@@ -844,12 +1369,28 @@ static inline void set_linear_ip(struct pt_regs *regs, unsigned long ip)
 ssize_t x86_event_sysfs_show(char *page, u64 config, u64 event);
 ssize_t intel_event_sysfs_show(char *page, u64 config);
 
+<<<<<<< HEAD
 struct attribute **merge_attr(struct attribute **a, struct attribute **b);
 
+=======
+>>>>>>> upstream/android-13
 ssize_t events_sysfs_show(struct device *dev, struct device_attribute *attr,
 			  char *page);
 ssize_t events_ht_sysfs_show(struct device *dev, struct device_attribute *attr,
 			  char *page);
+<<<<<<< HEAD
+=======
+ssize_t events_hybrid_sysfs_show(struct device *dev,
+				 struct device_attribute *attr,
+				 char *page);
+
+static inline bool fixed_counter_disabled(int i, struct pmu *pmu)
+{
+	u64 intel_ctrl = hybrid(pmu, intel_ctrl);
+
+	return !(intel_ctrl >> (i + INTEL_PMC_IDX_FIXED));
+}
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_CPU_SUP_AMD
 
@@ -864,6 +1405,14 @@ static inline int amd_pmu_init(void)
 
 #endif /* CONFIG_CPU_SUP_AMD */
 
+<<<<<<< HEAD
+=======
+static inline int is_pebs_pt(struct perf_event *event)
+{
+	return !!(event->hw.flags & PERF_X86_EVENT_PEBS_VIA_PT);
+}
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_CPU_SUP_INTEL
 
 static inline bool intel_pmu_has_bts_period(struct perf_event *event, u64 period)
@@ -906,7 +1455,16 @@ void release_ds_buffers(void);
 
 void reserve_ds_buffers(void);
 
+<<<<<<< HEAD
 extern struct event_constraint bts_constraint;
+=======
+void release_lbr_buffers(void);
+
+void reserve_lbr_buffers(void);
+
+extern struct event_constraint bts_constraint;
+extern struct event_constraint vlbr_constraint;
+>>>>>>> upstream/android-13
 
 void intel_pmu_enable_bts(u64 config);
 
@@ -924,6 +1482,11 @@ extern struct event_constraint intel_glm_pebs_event_constraints[];
 
 extern struct event_constraint intel_glp_pebs_event_constraints[];
 
+<<<<<<< HEAD
+=======
+extern struct event_constraint intel_grt_pebs_event_constraints[];
+
+>>>>>>> upstream/android-13
 extern struct event_constraint intel_nehalem_pebs_event_constraints[];
 
 extern struct event_constraint intel_westmere_pebs_event_constraints[];
@@ -938,6 +1501,13 @@ extern struct event_constraint intel_bdw_pebs_event_constraints[];
 
 extern struct event_constraint intel_skl_pebs_event_constraints[];
 
+<<<<<<< HEAD
+=======
+extern struct event_constraint intel_icl_pebs_event_constraints[];
+
+extern struct event_constraint intel_spr_pebs_event_constraints[];
+
+>>>>>>> upstream/android-13
 struct event_constraint *intel_pebs_constraints(struct perf_event *event);
 
 void intel_pmu_pebs_add(struct perf_event *event);
@@ -956,14 +1526,31 @@ void intel_pmu_pebs_sched_task(struct perf_event_context *ctx, bool sched_in);
 
 void intel_pmu_auto_reload_read(struct perf_event *event);
 
+<<<<<<< HEAD
 void intel_ds_init(void);
 
+=======
+void intel_pmu_store_pebs_lbrs(struct lbr_entry *lbr);
+
+void intel_ds_init(void);
+
+void intel_pmu_lbr_swap_task_ctx(struct perf_event_context *prev,
+				 struct perf_event_context *next);
+
+>>>>>>> upstream/android-13
 void intel_pmu_lbr_sched_task(struct perf_event_context *ctx, bool sched_in);
 
 u64 lbr_from_signext_quirk_wr(u64 val);
 
 void intel_pmu_lbr_reset(void);
 
+<<<<<<< HEAD
+=======
+void intel_pmu_lbr_reset_32(void);
+
+void intel_pmu_lbr_reset_64(void);
+
+>>>>>>> upstream/android-13
 void intel_pmu_lbr_add(struct perf_event *event);
 
 void intel_pmu_lbr_del(struct perf_event *event);
@@ -974,6 +1561,17 @@ void intel_pmu_lbr_disable_all(void);
 
 void intel_pmu_lbr_read(void);
 
+<<<<<<< HEAD
+=======
+void intel_pmu_lbr_read_32(struct cpu_hw_events *cpuc);
+
+void intel_pmu_lbr_read_64(struct cpu_hw_events *cpuc);
+
+void intel_pmu_lbr_save(void *ctx);
+
+void intel_pmu_lbr_restore(void *ctx);
+
+>>>>>>> upstream/android-13
 void intel_pmu_lbr_init_core(void);
 
 void intel_pmu_lbr_init_nhm(void);
@@ -990,6 +1588,11 @@ void intel_pmu_lbr_init_skl(void);
 
 void intel_pmu_lbr_init_knl(void);
 
+<<<<<<< HEAD
+=======
+void intel_pmu_arch_lbr_init(void);
+
+>>>>>>> upstream/android-13
 void intel_pmu_pebs_data_source_nhm(void);
 
 void intel_pmu_pebs_data_source_skl(bool pmem);
@@ -1025,6 +1628,17 @@ static inline void release_ds_buffers(void)
 {
 }
 
+<<<<<<< HEAD
+=======
+static inline void release_lbr_buffers(void)
+{
+}
+
+static inline void reserve_lbr_buffers(void)
+{
+}
+
+>>>>>>> upstream/android-13
 static inline int intel_pmu_init(void)
 {
 	return 0;
@@ -1044,3 +1658,15 @@ static inline int is_ht_workaround_enabled(void)
 	return 0;
 }
 #endif /* CONFIG_CPU_SUP_INTEL */
+<<<<<<< HEAD
+=======
+
+#if ((defined CONFIG_CPU_SUP_CENTAUR) || (defined CONFIG_CPU_SUP_ZHAOXIN))
+int zhaoxin_pmu_init(void);
+#else
+static inline int zhaoxin_pmu_init(void)
+{
+	return 0;
+}
+#endif /*CONFIG_CPU_SUP_CENTAUR or CONFIG_CPU_SUP_ZHAOXIN*/
+>>>>>>> upstream/android-13

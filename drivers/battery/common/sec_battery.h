@@ -42,7 +42,13 @@
 #endif
 #endif
 #include <linux/battery/sec_pd.h>
+<<<<<<< HEAD
 #include "sec_cisd.h"
+=======
+#if defined(CONFIG_BATTERY_CISD)
+#include "sec_cisd.h"
+#endif
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_DIRECT_CHARGING)
 #include "sec_direct_charger.h"
 #endif
@@ -51,7 +57,10 @@
 #endif
 #include "sec_adc.h"
 #include "sb_checklist_app.h"
+<<<<<<< HEAD
 #include "sb_full_soc.h"
+=======
+>>>>>>> upstream/android-13
 
 extern const char *sb_get_ct_str(int cable_type);
 extern const char *sb_get_cm_str(int chg_mode);
@@ -123,7 +132,11 @@ extern const char *sb_charge_mode_str(int charge_mode);
 #define BATT_MISC_EVENT_DIRECT_POWER_MODE		0x00004000
 #define BATT_MISC_EVENT_BATTERY_HEALTH			0x000F0000
 #define BATT_MISC_EVENT_HEALTH_OVERHEATLIMIT		0x00100000
+<<<<<<< HEAD
 //#define BATT_MISC_EVENT_ABNORMAL_PAD		0x00200000
+=======
+#define BATT_MISC_EVENT_ABNORMAL_PAD		0x00200000
+>>>>>>> upstream/android-13
 #define BATT_MISC_EVENT_WIRELESS_MISALIGN	0x00400000
 #define BATT_MISC_EVENT_FULL_CAPACITY		0x01000000
 #define BATT_MISC_EVENT_PASS_THROUGH		0x02000000
@@ -147,7 +160,15 @@ enum misc_battery_health {
 					BATT_MISC_EVENT_WATER_HICCUP_TYPE |\
 					BATT_MISC_EVENT_TEMP_HICCUP_TYPE)
 
+<<<<<<< HEAD
 #define DEFAULT_HEALTH_CHECK_COUNT	5
+=======
+#define ADC_CH_COUNT		10
+#define ADC_SAMPLE_COUNT	10
+
+#define DEFAULT_HEALTH_CHECK_COUNT	5
+#define TEMP_HIGHLIMIT_DEFAULT	2000
+>>>>>>> upstream/android-13
 
 #define SIOP_INPUT_LIMIT_CURRENT                1200
 #define SIOP_CHARGING_LIMIT_CURRENT             1800
@@ -180,18 +201,24 @@ enum {
 #define HV_CHARGER_STATUS_STANDARD3 24500 /* mW */
 #define HV_CHARGER_STATUS_STANDARD4 40000 /* mW */
 
+<<<<<<< HEAD
 #define WFC10_WIRELESS_POWER	7500000 /* mW */
 #define WFC20_WIRELESS_POWER	12000000 /* mW */
 #define WFC21_WIRELESS_POWER	15000000 /* mW */
 
+=======
+>>>>>>> upstream/android-13
 #define mW_by_mVmA(v, a)	((v) * (a) / 1000)
 #define mV_by_mWmA(w, a)	((a) ? (((w) * 1000) / (a)) : (0))
 #define mA_by_mWmV(w, v)	((v) ? (((w) * 1000) / (v)) : (0))
 
+<<<<<<< HEAD
 #define DEFAULT_FULL_MARGIN 50 /* mV */
 #define DEFAULT_RCHG_MARGIN 70 /* mV */
 #define DEFAULT_LOW_SWELLING_RCHG_MARGIN 150 /* mV */
 
+=======
+>>>>>>> upstream/android-13
 enum battery_misc_test {
 	MISC_TEST_RESET = 0,
 	MISC_TEST_DISPLAY,
@@ -207,6 +234,19 @@ enum {
 	SFC_45W,
 };
 
+<<<<<<< HEAD
+=======
+struct sec_bat_pdic_info {
+	unsigned int pdo_index;
+	int pdo_type;
+	unsigned int max_voltage;
+	unsigned int min_voltage;
+	unsigned int max_current;
+	unsigned int comm_capable;
+	unsigned int suspend;
+};
+
+>>>>>>> upstream/android-13
 struct sec_bat_pdic_list {
 	unsigned int max_pd_count;
 	bool now_isApdo;
@@ -215,6 +255,7 @@ struct sec_bat_pdic_list {
 };
 
 enum {
+<<<<<<< HEAD
 	USB_CONN_NORMAL = 0x0,
 	USB_CONN_SLOPE_OVER = 0x1,
 	USB_CONN_GAP_OVER1 = 0x2,
@@ -223,6 +264,21 @@ enum {
 };
 
 #define MAX_USB_CONN_CHECK_CNT 10
+=======
+	USB_THM_NORMAL = 0,
+	USB_THM_GAP_OVER1,
+	USB_THM_GAP_OVER2,
+	USB_THM_OVERHEATLIMIT,
+};
+
+struct adc_sample_info {
+	unsigned int cnt;
+	int total_adc;
+	int average_adc;
+	int adc_arr[ADC_SAMPLE_COUNT];
+	int index;
+};
+>>>>>>> upstream/android-13
 
 typedef struct sec_charging_current {
 	unsigned int input_current_limit;
@@ -268,6 +324,24 @@ struct sec_siop_table {
 
 #define SIOP_SCENARIO_NUM_MAX		10
 
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_TABLET_MODEL_CONCEPT) && !defined(CONFIG_SEC_FACTORY)
+#define SLOW_CHARGING_CURRENT_STANDARD          1000
+#else
+#define SLOW_CHARGING_CURRENT_STANDARD          400
+#endif
+
+struct sec_wireless_rx_power_info {
+	unsigned int vout;
+	unsigned int input_current_limit;
+	unsigned int fast_charging_current;
+	unsigned int ttf_charge_current;
+	unsigned int wireless_power_class;
+	unsigned int rx_power;
+};
+
+>>>>>>> upstream/android-13
 struct sec_bat_thm_info {
 	int source;
 	sec_bat_adc_table_data_t *adc_table;
@@ -278,6 +352,7 @@ struct sec_bat_thm_info {
 	int test;
 	int adc;
 	int channel;
+<<<<<<< HEAD
 	unsigned int adc_rsense;
 };
 
@@ -291,6 +366,12 @@ enum sec_battery_thm_info {
 	THM_INFO_BLK,
 	THM_INFO_DCHG,
 };
+=======
+};
+
+#define sec_wireless_rx_power_info_t \
+	struct sec_wireless_rx_power_info
+>>>>>>> upstream/android-13
 
 /* LRP structure */
 #define LRP_PROPS 12
@@ -367,6 +448,10 @@ typedef struct sec_battery_platform_data {
 	sec_bat_adc_region_t *cable_adc_value;
 	/* charging current for type (0: not use) */
 	sec_charging_current_t charging_current[SEC_BATTERY_CABLE_MAX];
+<<<<<<< HEAD
+=======
+	sec_wireless_rx_power_info_t *wireless_power_info;
+>>>>>>> upstream/android-13
 	unsigned int *polling_time;
 	char *chip_vendor;
 	/* NO NEED TO BE CHANGED */
@@ -374,47 +459,74 @@ typedef struct sec_battery_platform_data {
 	unsigned int pre_wc_afc_input_current;
 	unsigned int select_pd_input_current;
 	unsigned int store_mode_max_input_power;
+<<<<<<< HEAD
+=======
+	unsigned int prepare_ta_delay;
+>>>>>>> upstream/android-13
 
 	char *pmic_name;
 
 	/* battery */
 	char *vendor;
 	int technology;
+<<<<<<< HEAD
+=======
+	int battery_type;
+>>>>>>> upstream/android-13
 	void *battery_data;
 
 	int bat_gpio_ta_nconnected;
 	/* 1 : active high, 0 : active low */
 	int bat_polarity_ta_nconnected;
+<<<<<<< HEAD
+=======
+	int bat_irq;
+	int bat_irq_gpio; /* BATT_INT(BAT_ID detecting) */
+	unsigned long bat_irq_attr;
+>>>>>>> upstream/android-13
 	sec_battery_cable_check_t cable_check_type;
 	sec_battery_cable_source_t cable_source_type;
 
 	unsigned int swelling_high_rechg_voltage;
 	unsigned int swelling_low_rechg_voltage;
 	unsigned int swelling_low_cool3_rechg_voltage;
+<<<<<<< HEAD
 	bool chgen_over_swell_rechg_vol;
+=======
+>>>>>>> upstream/android-13
 
 #if IS_ENABLED(CONFIG_STEP_CHARGING)
 	/* step charging */
 	unsigned int **step_chg_cond;
+<<<<<<< HEAD
 	unsigned int **wpc_step_chg_cond;
 	unsigned int **step_chg_cond_soc;
+=======
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_DUAL_BATTERY)
 	unsigned int **step_chg_cond_sub;
 #endif
 	unsigned int *step_chg_cond_curr;
 	unsigned int **step_chg_curr;
 	unsigned int **step_chg_vfloat;
+<<<<<<< HEAD
 	unsigned int *wpc_step_chg_cond_curr;
 	unsigned int **wpc_step_chg_curr;
 	unsigned int **wpc_step_chg_vfloat;
+=======
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_DIRECT_CHARGING)
 #if IS_ENABLED(CONFIG_DUAL_BATTERY)
 	unsigned int **dc_step_chg_cond_vol_sub;
 	unsigned int dc_step_cond_v_margin_main;
 	unsigned int dc_step_cond_v_margin_sub;
+<<<<<<< HEAD
 	unsigned int sc_vbat_thresh_main; /* main vbat threshold which dc to sc */
 	unsigned int sc_vbat_thresh_sub; /* sub vbat threshold which dc to sc */
 	unsigned int *dc_step_chg_vsublim;
+=======
+	unsigned int sc_vbat_thresh; /* vbat threshold which dc to sc */
+>>>>>>> upstream/android-13
 #endif
 	unsigned int dc_step_chg_cond_v_margin;
 	unsigned int **dc_step_chg_cond_vol;
@@ -455,7 +567,10 @@ typedef struct sec_battery_platform_data {
 	struct sec_bat_thm_info dchg_thm_info;
 	bool dctp_by_cgtp;
 	bool dctp_bootmode_en;
+<<<<<<< HEAD
 	bool lrpts_by_batts;
+=======
+>>>>>>> upstream/android-13
 	int usb_temp_check_type_backup; /* sec_bat_set_temp_control_test() */
 	int lrp_temp_check_type;
 	unsigned int temp_check_count;
@@ -505,9 +620,12 @@ typedef struct sec_battery_platform_data {
 	unsigned int limiter_sub_cool2_current;
 	unsigned int limiter_main_cool3_current;
 	unsigned int limiter_sub_cool3_current;
+<<<<<<< HEAD
 	unsigned int limiter_aging_float_offset;
 
 	unsigned int step_chg_vsublim;
+=======
+>>>>>>> upstream/android-13
 #endif
 
 	int buck_recovery_margin;
@@ -547,6 +665,7 @@ typedef struct sec_battery_platform_data {
 	int wpc_temp_v2_cond_12w;
 	int wpc_temp_v2_cond_15w;
 
+<<<<<<< HEAD
 	int wpc_lrp_high_temp;
 	int wpc_lrp_high_temp_recovery;
 	int wpc_lrp_high_temp_12w;
@@ -557,6 +676,8 @@ typedef struct sec_battery_platform_data {
 	int wpc_lrp_temp_v2_cond_12w;
 	int wpc_lrp_temp_v2_cond_15w;
 
+=======
+>>>>>>> upstream/android-13
 	unsigned int wpc_step_limit_size;
 	unsigned int *wpc_step_limit_temp;
 	unsigned int *wpc_step_limit_fcc;
@@ -588,8 +709,11 @@ typedef struct sec_battery_platform_data {
 	int mix_v2_chg_cond;
 	int mix_v2_dchg_cond;
 
+<<<<<<< HEAD
 	bool wpc_high_check_using_lrp;
 
+=======
+>>>>>>> upstream/android-13
 	unsigned int icl_by_tx_gear; /* check limited charging current during wireless power sharing with cable charging */
 	unsigned int fcc_by_tx;
 	unsigned int fcc_by_tx_gear;
@@ -616,6 +740,10 @@ typedef struct sec_battery_platform_data {
 	unsigned int recharge_check_count;
 	sec_battery_recharge_condition_t recharge_condition_type;
 	unsigned int recharge_condition_soc;
+<<<<<<< HEAD
+=======
+	unsigned int recharge_condition_avgvcell;
+>>>>>>> upstream/android-13
 	unsigned int recharge_condition_vcell;
 
 	unsigned long charging_reset_time;
@@ -638,7 +766,10 @@ typedef struct sec_battery_platform_data {
 	/* wireless charger */
 	char *wireless_charger_name;
 	int wireless_cc_cv;
+<<<<<<< HEAD
 	bool p2p_cv_headroom;
+=======
+>>>>>>> upstream/android-13
 
 	/* float voltage (mV) */
 	unsigned int chg_float_voltage;
@@ -649,6 +780,7 @@ typedef struct sec_battery_platform_data {
 	char *dual_battery_name;
 	char *main_limiter_name;
 	char *sub_limiter_name;
+<<<<<<< HEAD
 	int main_bat_enb_gpio;
 	int main_bat_enb2_gpio;
 	int sub_bat_enb_gpio;
@@ -665,6 +797,23 @@ typedef struct sec_battery_platform_data {
 	int num_age_step;
 	int age_step;
 	sec_age_data_t* age_data;
+=======
+	bool support_dual_battery;
+	int main_bat_enb_gpio;
+	int main_bat_enb2_gpio;
+	int sub_bat_enb_gpio;
+
+	unsigned int main_cell_sensing;
+	unsigned int sub_cell_sensing;
+#endif
+
+#if defined(CONFIG_BATTERY_AGE_FORECAST)
+	int num_age_step;
+	int age_step;
+	int age_data_length;
+	sec_age_data_t* age_data;
+#endif
+>>>>>>> upstream/android-13
 	battery_health_condition* health_condition;
 
 	int siop_icl;
@@ -680,7 +829,10 @@ typedef struct sec_battery_platform_data {
 	int siop_wpc_icl;
 	int *siop_wpc_fcc;
 	int siop_hv_wpc_icl;
+<<<<<<< HEAD
 	int rechg_hv_wpc_icl;
+=======
+>>>>>>> upstream/android-13
 	int *siop_hv_wpc_fcc;
 	int wireless_otg_input_current;
 	int wc_hero_stand_cc_cv;
@@ -697,8 +849,11 @@ typedef struct sec_battery_platform_data {
 	int default_usb_charging_current;
 	unsigned int default_wc20_input_current;
 	unsigned int default_wc20_charging_current;
+<<<<<<< HEAD
 	unsigned int default_mpp_input_current;
 	unsigned int default_mpp_charging_current;
+=======
+>>>>>>> upstream/android-13
 	int max_input_voltage;
 	int max_input_current;
 	int pre_afc_work_delay;
@@ -710,16 +865,26 @@ typedef struct sec_battery_platform_data {
 	unsigned int rp_current_rdu_rp3;
 	unsigned int rp_current_abnormal_rp3;
 
+<<<<<<< HEAD
 	bool fake_capacity;
 	bool en_batt_full_status_usage;
 	bool en_auto_shipmode_temp_ctrl;
+=======
+	sec_charger_functions_t chg_functions_setting;
+
+	bool fake_capacity;
+	bool dis_auto_shipmode_temp_ctrl;
+>>>>>>> upstream/android-13
 	bool boosting_voltage_aicl;
 	bool tx_5v_disable;
 	unsigned int phm_vout_ctrl_dev;
 	unsigned int power_value;
 
+<<<<<<< HEAD
 	bool bc12_ifcon_wa;
 
+=======
+>>>>>>> upstream/android-13
 	bool mass_with_usb_thm;
 	bool usb_protection;
 
@@ -727,6 +892,10 @@ typedef struct sec_battery_platform_data {
 	unsigned int tx_stop_capacity;
 
 	unsigned int battery_full_capacity;
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_BATTERY_CISD)
+>>>>>>> upstream/android-13
 	unsigned int cisd_cap_high_thr;
 	unsigned int cisd_cap_low_thr;
 	unsigned int cisd_cap_limit;
@@ -734,6 +903,10 @@ typedef struct sec_battery_platform_data {
 	unsigned int cisd_alg_index;
 	unsigned int *ignore_cisd_index;
 	unsigned int *ignore_cisd_index_d;
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 #if IS_ENABLED(CONFIG_DUAL_BATTERY)
 	/* zone 1 : 0C ~ 0.4C */
@@ -765,8 +938,11 @@ typedef struct sec_battery_platform_data {
 	/* ADC setting */
 	unsigned int adc_check_count;
 
+<<<<<<< HEAD
 	unsigned int adc_read_type;
 
+=======
+>>>>>>> upstream/android-13
 	unsigned int full_check_current_1st;
 	unsigned int full_check_current_2nd;
 
@@ -780,6 +956,7 @@ typedef struct sec_battery_platform_data {
 	unsigned int tx_minduty_5V;
 	unsigned int tx_minduty_default;
 
+<<<<<<< HEAD
 	unsigned int tx_ping_duty_no_ta;
 	unsigned int tx_ping_duty_default;
 
@@ -787,11 +964,18 @@ typedef struct sec_battery_platform_data {
 	unsigned int tx_uno_iout;
 	unsigned int tx_uno_iout_gear;
 	unsigned int tx_uno_iout_aov_gear;
+=======
+	unsigned int tx_uno_vout;
+	unsigned int tx_uno_iout;
+>>>>>>> upstream/android-13
 	unsigned int tx_buds_vout; // true wireless stereo type like buds
 	unsigned int tx_gear_vout; // watch type
 	unsigned int tx_ping_vout;
 	unsigned int tx_mfc_iout_gear;
+<<<<<<< HEAD
 	unsigned int tx_mfc_iout_aov_gear;
+=======
+>>>>>>> upstream/android-13
 	unsigned int tx_mfc_iout_phone;
 	unsigned int tx_mfc_iout_phone_5v;
 	unsigned int tx_mfc_iout_lcd_on;
@@ -816,6 +1000,7 @@ typedef struct sec_battery_platform_data {
 
 	unsigned int d2d_check_type;
 	bool support_vpdo;
+<<<<<<< HEAD
 	bool support_fpdo_dc;
 	unsigned int fpdo_dc_charge_power;
 
@@ -837,6 +1022,12 @@ typedef struct sec_battery_platform_data {
 	bool support_spsn_ctrl;
 
 	bool pogo_chgin;
+=======
+
+	bool sc_LRP_25W;
+	/* ADC type for each channel */
+	unsigned int adc_type[];
+>>>>>>> upstream/android-13
 } sec_battery_platform_data_t;
 
 struct sec_ttf_data;
@@ -859,6 +1050,10 @@ struct sec_battery_info {
 	struct power_supply *psy_wireless;
 	struct power_supply *psy_pogo;
 	struct power_supply *psy_otg;
+<<<<<<< HEAD
+=======
+	unsigned int irq;
+>>>>>>> upstream/android-13
 
 	int pd_usb_attached;
 #if IS_ENABLED(CONFIG_USB_TYPEC_MANAGER_NOTIFIER)
@@ -911,6 +1106,7 @@ struct sec_battery_info {
 	int charge_counter;		/* remaining capacity (uAh) */
 	int current_adc;
 
+<<<<<<< HEAD
 	int voltage_now_main;		/* pack voltage main battery (mV) */
 	int voltage_now_sub;		/* pack voltage sub battery (mV) */
 	int voltage_avg_main;		/* pack voltage main battery (mV) */
@@ -930,12 +1126,30 @@ struct sec_battery_info {
 	unsigned int sub_capacity;		/* SUB SOC (%) */
 #endif
 
+=======
+#if IS_ENABLED(CONFIG_DUAL_BATTERY)
+	int voltage_pack_main;		/* pack voltage main battery (mV) */
+	int voltage_pack_sub;		/* pack voltage sub battery (mV) */
+	int voltage_cell_main;		/* cell voltage main battery (mV) */
+	int voltage_cell_sub;		/* cell voltage sub battery (mV) */
+	int current_now_main;		/* current from main battery (mA) */
+	int current_now_sub;		/* current from sub battery (mA) */
+	unsigned int limiter_check;
+#endif
+
+	unsigned int capacity;			/* SOC (%) */
+>>>>>>> upstream/android-13
 	unsigned int input_voltage;		/* CHGIN/WCIN input voltage (V) */
 	unsigned int charge_power;		/* charge power (mW) */
 	unsigned int max_charge_power;		/* max charge power (mW) */
 	unsigned int pd_max_charge_power;		/* max charge power for pd (mW) */
 	unsigned int pd_rated_power;		/* rated power for pd (W) */
 
+<<<<<<< HEAD
+=======
+	struct adc_sample_info	adc_sample[ADC_CH_COUNT];
+
+>>>>>>> upstream/android-13
 	/* keep awake until monitor is done */
 	struct wakeup_source *monitor_ws;
 	struct workqueue_struct *monitor_wqueue;
@@ -949,6 +1163,10 @@ struct sec_battery_info {
 	struct alarm polling_alarm;
 	ktime_t last_poll_time;
 
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_BATTERY_CISD)
+>>>>>>> upstream/android-13
 	struct cisd cisd;
 	bool skip_cisd;
 	bool usb_overheat_check;
@@ -959,6 +1177,10 @@ struct sec_battery_info {
 	int prev_jig_on;
 	int enable_update_data;
 	int prev_chg_on;
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 #if defined(CONFIG_WIRELESS_AUTH)
 	sec_bat_misc_dev_t *misc_dev;
@@ -984,6 +1206,10 @@ struct sec_battery_info {
 
 	unsigned long wc_heating_start_time;
 	unsigned long wc_heating_passed_time;
+<<<<<<< HEAD
+=======
+	unsigned int wc_heat_limit;
+>>>>>>> upstream/android-13
 
 	/* chg temperature check */
 	unsigned int chg_limit;
@@ -1007,14 +1233,24 @@ struct sec_battery_info {
 	int usb_temp;
 	int chg_temp;		/* charger temperature */
 	int wpc_temp;
+<<<<<<< HEAD
 	int sub_bat_temp;
 	int usb_conn_status;
+=======
+	int coil_temp;
+	int sub_bat_temp;
+	int usb_thm_status;
+>>>>>>> upstream/android-13
 	int usb_protection_temp;
 	int temp_gap_bat_usb;
 	int dchg_temp;
 	int blkt_temp;		/* blanket temperature(instead of batt temp in mix_temp func for tablet model) */
 
+<<<<<<< HEAD
 	int lrp; /* Linear Regression for Predicting Surface Temperature, this value is from SSRM */
+=======
+	int lrp;
+>>>>>>> upstream/android-13
 	int lrp_test;
 	unsigned int lrp_chg_src;
 
@@ -1040,15 +1276,27 @@ struct sec_battery_info {
 	bool is_jig_on;
 	int cable_type;
 	int muic_cable_type;
+<<<<<<< HEAD
+=======
+	int extended_cable_type;
+>>>>>>> upstream/android-13
 
 	bool auto_mode;
 
 	struct wakeup_source *cable_ws;
 	struct delayed_work cable_work;
 	struct wakeup_source *vbus_ws;
+<<<<<<< HEAD
 	struct wakeup_source *input_ws;
 	struct delayed_work input_check_work;
 #if defined(CONFIG_WIRELESS_FIRMWARE_UPDATE)
+=======
+	struct delayed_work siop_work;
+	struct wakeup_source *input_ws;
+	struct delayed_work input_check_work;
+#if defined(CONFIG_WIRELESS_FIRMWARE_UPDATE)
+	struct delayed_work update_work;
+>>>>>>> upstream/android-13
 	struct delayed_work fw_init_work;
 #endif
 	struct delayed_work siop_level_work;
@@ -1066,20 +1314,30 @@ struct sec_battery_info {
 	struct delayed_work parse_mode_dt_work;
 	struct wakeup_source *parse_mode_dt_ws;
 #endif
+<<<<<<< HEAD
 	struct delayed_work dev_init_work;
 	struct wakeup_source *dev_init_ws;
 	struct delayed_work afc_init_work;
 	struct delayed_work usb_conn_check_work;
 	struct wakeup_source *usb_conn_check_ws;
 	struct delayed_work transit_clear_work;
+=======
+	struct delayed_work otg_work;
+	struct delayed_work dev_init_work;
+	struct wakeup_source *dev_init_ws;
+	struct delayed_work afc_init_work;
+>>>>>>> upstream/android-13
 
 	char batt_type[48];
 	unsigned int full_check_cnt;
 	unsigned int recharge_check_cnt;
 
 	unsigned int input_check_cnt;
+<<<<<<< HEAD
 	unsigned int usb_conn_check_cnt;
 	bool run_usb_conn_check;
+=======
+>>>>>>> upstream/android-13
 
 	struct mutex iolock;
 	int input_current;
@@ -1099,6 +1357,7 @@ struct sec_battery_info {
 	int wc_enable_cnt;
 	int wc_enable_cnt_value;
 	int led_cover;
+<<<<<<< HEAD
 	int mag_cover;
 	int wc_status;
 	bool wc_cv_mode;
@@ -1114,12 +1373,31 @@ struct sec_battery_info {
 
 	int wire_status;
 #if IS_ENABLED(CONFIG_MTK_CHARGER) && !IS_ENABLED(CONFIG_VIRTUAL_MUIC)
+=======
+	int wc_status;
+	int wc_tx_freq;
+	bool wc_cv_mode;
+	bool wc_pack_max_curr;
+	bool wc_rx_phm_mode;
+	bool wc_tx_phm_mode;
+	bool prev_tx_phm_mode;
+	bool wc_tx_adaptive_vout;
+	bool wc_found_gear_freq;
+	bool wc_need_ldo_on;
+
+	int wire_status;
+#if defined(CONFIG_MTK_CHARGER) && !defined(CONFIG_VIRTUAL_MUIC)
+>>>>>>> upstream/android-13
 	int bc12_cable;
 #endif
 
 	/* wireless tx */
 	bool wc_tx_enable;
 	bool wc_rx_connected;
+<<<<<<< HEAD
+=======
+	bool wc_tx_chg_limit;
+>>>>>>> upstream/android-13
 	bool afc_disable;
 	bool pd_disable;
 	bool buck_cntl_by_tx;
@@ -1128,7 +1406,10 @@ struct sec_battery_info {
 	bool uno_en;
 	unsigned int wc_rx_type;
 	unsigned int tx_minduty;
+<<<<<<< HEAD
 	unsigned int tx_ping_duty;
+=======
+>>>>>>> upstream/android-13
 	unsigned int tx_switch_mode;
 	unsigned int tx_switch_start_soc;
 
@@ -1155,10 +1436,20 @@ struct sec_battery_info {
 	bool is_hc_usb;
 
 	int siop_level;
+<<<<<<< HEAD
+=======
+	int siop_prev_event;
+>>>>>>> upstream/android-13
 	int stability_test;
 	int eng_not_full_status;
 
 	int wpc_temp_v2_offset;
+<<<<<<< HEAD
+=======
+	bool skip_chg_temp_check;
+	bool skip_wpc_temp_check;
+	bool wpc_temp_mode;
+>>>>>>> upstream/android-13
 	bool wpc_vout_ctrl_mode;
 	char *hv_chg_name;
 #if IS_ENABLED(CONFIG_WIRELESS_CHARGING)
@@ -1173,15 +1464,27 @@ struct sec_battery_info {
 	unsigned int wc20_vout;
 	unsigned int wc20_power_class;
 	unsigned int wc20_rx_power;
+<<<<<<< HEAD
+=======
+	unsigned int wc20_info_len;
+	unsigned int wc20_info_idx;
+>>>>>>> upstream/android-13
 	struct delayed_work wc20_current_work;
 	struct delayed_work wc_ept_timeout_work;
 	struct wakeup_source *wc20_current_ws;
 	struct wakeup_source *wc_ept_timeout_ws;
 #endif
 	struct delayed_work slowcharging_work;
+<<<<<<< HEAD
 	int batt_cycle;
 	int batt_asoc;
 	int batt_full_status_usage;
+=======
+#if defined(CONFIG_BATTERY_AGE_FORECAST)
+	int batt_cycle;
+#endif
+	int batt_asoc;
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_STEP_CHARGING)
 	bool step_charging_skip_lcd_on;
 	bool step_chg_en_in_factory;
@@ -1189,12 +1492,15 @@ struct sec_battery_info {
 	unsigned int step_chg_charge_power;
 	int step_chg_status;
 	int step_chg_step;
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_WIRELESS_CHARGING)
 	unsigned int wpc_step_chg_type;
 	unsigned int wpc_step_chg_charge_power;
 	int wpc_step_chg_step;
 	int wpc_step_chg_status;
 #endif
+=======
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_DIRECT_CHARGING)
 	int dc_step_chg_step;
 	unsigned int *dc_step_chg_type;
@@ -1222,7 +1528,11 @@ struct sec_battery_info {
 	struct mutex batt_handlelock;
 	struct mutex current_eventlock;
 	struct mutex typec_notylock;
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTK_CHARGER)  && !IS_ENABLED(CONFIG_VIRTUAL_MUIC)
+=======
+#if defined(CONFIG_MTK_CHARGER)  && !defined(CONFIG_VIRTUAL_MUIC)
+>>>>>>> upstream/android-13
 	struct mutex bc12_notylock;
 #endif
 	struct mutex voutlock;
@@ -1248,8 +1558,11 @@ struct sec_battery_info {
 	struct sec_vote *topoff_vote;
 	struct sec_vote *iv_vote;
 
+<<<<<<< HEAD
 	struct sb_full_soc *fs;
 
+=======
+>>>>>>> upstream/android-13
 	/* 25w ta alert */
 	bool ta_alert_wa;
 	int ta_alert_mode;
@@ -1258,6 +1571,7 @@ struct sec_battery_info {
 	bool mfc_fw_update;
 
 	int charging_night_mode;
+<<<<<<< HEAD
 
 	/* Linear Regression for Predicting Battery Temperature */
 	unsigned long lr_start_time;
@@ -1267,6 +1581,16 @@ struct sec_battery_info {
 
 	bool is_fpdo_dc;
 
+=======
+	int batt_full_capacity;
+
+	/* MAIN LRPST compensation */
+	unsigned long lr_start_time;
+	unsigned long lr_time_span;
+	int lrp_temp;
+	int lr_bat_t_1;
+
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_USB_FACTORY_MODE)
 	bool usb_factory_init;
 	int usb_factory_mode;
@@ -1275,14 +1599,18 @@ struct sec_battery_info {
 #endif
 	unsigned int batt_f_mode;
 #endif
+<<<<<<< HEAD
 	bool abnormal_ta;
 	int srccap_transit_cnt;
 	bool srccap_transit;
 	int dc_check_cnt;
+=======
+>>>>>>> upstream/android-13
 	bool usb_slow_chg;
 	bool usb_bootcomplete;
 	unsigned int flash_state;
 	unsigned int mst_en;
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTK_CHARGER)
 	unsigned int mtk_fg_init;
 #endif
@@ -1293,13 +1621,44 @@ struct sec_battery_info {
 	bool smart_sw_src;
 };
 
+=======
+#if defined(CONFIG_MTK_CHARGER)
+	unsigned int mtk_fg_init;
+#endif
+#if IS_ENABLED(CONFIG_VBUS_NOTIFIER) && IS_ENABLED(CONFIG_LSI_IFPMIC)
+	struct notifier_block vbus_nb;
+#endif
+};
+
+/* event check */
+#define EVENT_NONE				(0)
+#define EVENT_2G_CALL			(0x1 << 0)
+#define EVENT_3G_CALL			(0x1 << 1)
+#define EVENT_MUSIC				(0x1 << 2)
+#define EVENT_VIDEO				(0x1 << 3)
+#define EVENT_BROWSER			(0x1 << 4)
+#define EVENT_HOTSPOT			(0x1 << 5)
+#define EVENT_CAMERA			(0x1 << 6)
+#define EVENT_CAMCORDER			(0x1 << 7)
+#define EVENT_DATA_CALL			(0x1 << 8)
+#define EVENT_WIFI				(0x1 << 9)
+#define EVENT_WIBRO				(0x1 << 10)
+#define EVENT_LTE				(0x1 << 11)
+#define EVENT_LCD			(0x1 << 12)
+#define EVENT_GPS			(0x1 << 13)
+
+>>>>>>> upstream/android-13
 enum {
 	EXT_DEV_NONE = 0,
 	EXT_DEV_GAMEPAD_CHG,
 	EXT_DEV_GAMEPAD_OTG,
 };
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTK_CHARGER) && IS_ENABLED(CONFIG_AFC_CHARGER)
+=======
+#if defined(CONFIG_MTK_CHARGER) && defined(CONFIG_AFC_CHARGER)
+>>>>>>> upstream/android-13
 extern int afc_set_voltage(int vol);
 #endif
 extern unsigned int sec_bat_get_lpmode(void);
@@ -1315,7 +1674,11 @@ extern int adc_read(struct sec_battery_info *battery, int channel);
 extern void adc_init(struct platform_device *pdev, struct sec_battery_info *battery);
 extern void adc_exit(struct sec_battery_info *battery);
 extern void sec_cable_init(struct platform_device *pdev, struct sec_battery_info *battery);
+<<<<<<< HEAD
 extern int sec_bat_get_adc_data(struct device *dev, int adc_ch, int count, int batt_adc_type);
+=======
+extern int sec_bat_get_adc_data(struct device *dev, int adc_ch, int count);
+>>>>>>> upstream/android-13
 extern int sec_bat_get_charger_type_adc(struct sec_battery_info *battery);
 extern bool sec_bat_convert_adc_to_val(int adc, int offset,
 		sec_bat_adc_table_data_t *adc_table, int size, int *value);
@@ -1352,9 +1715,14 @@ extern void sec_bat_check_lrp_temp(struct sec_battery_info *battery, int ct, int
 extern void sec_bat_check_tx_temperature(struct sec_battery_info *battery);
 extern void sec_bat_change_default_current(struct sec_battery_info *battery, int cable_type, int input, int output);
 extern int sec_bat_set_charge(void *data, int chg_mode);
+<<<<<<< HEAD
 extern int lr_predict_bat_temp(struct sec_battery_info *battery, int batt_temp, int sub_bat_temp);
 extern int get_chg_power_type(int ct, int ws, int pd_max_pw, int max_pw);
 extern int sec_usb_conn_check(struct sec_battery_info *battery);
+=======
+extern int adjust_bat_temp(struct sec_battery_info *battery, int batt_temp, int sub_bat_temp);
+extern int get_chg_power_type(int ct, int ws, int pd_max_pw, int max_pw);
+>>>>>>> upstream/android-13
 #if !defined(CONFIG_SEC_FACTORY)
 extern void sec_bat_check_temp_ctrl_by_cable(struct sec_battery_info *battery);
 #endif
@@ -1367,9 +1735,15 @@ extern bool sec_bat_hv_wc_normal_mode_check(struct sec_battery_info *battery);
 extern void sec_bat_ext_event_work_content(struct sec_battery_info *battery);
 extern void sec_bat_wpc_tx_work_content(struct sec_battery_info *battery);
 extern void sec_bat_wpc_tx_en_work_content(struct sec_battery_info *battery);
+<<<<<<< HEAD
 extern void sec_bat_set_wc20_current(struct sec_battery_info *battery);
 extern void sec_wireless_otg_vout_control(struct sec_battery_info *battery, int enable);
 extern void sec_wireless_otg_icl_control(struct sec_battery_info *battery);
+=======
+extern void sec_bat_set_wc20_current(struct sec_battery_info *battery, int rx_power);
+extern void sec_wireless_otg_control(struct sec_battery_info *battery, int enable);
+extern void set_wireless_otg_input_current(struct sec_battery_info *battery);
+>>>>>>> upstream/android-13
 extern void sec_bat_set_mfc_off(struct sec_battery_info *battery, char flag, bool need_ept);
 extern void sec_bat_set_mfc_on(struct sec_battery_info *battery, char flag);
 extern int sec_bat_choose_cable_type(struct sec_battery_info *battery);
@@ -1385,10 +1759,15 @@ extern void sec_bat_run_wpc_tx_work(struct sec_battery_info *battery, int work_d
 extern void sec_bat_txpower_calc(struct sec_battery_info *battery);
 extern void sec_wireless_set_tx_enable(struct sec_battery_info *battery, bool wc_tx_enable);
 extern void sec_bat_check_wc_re_auth(struct sec_battery_info *battery);
+<<<<<<< HEAD
 extern unsigned int get_wc20_vout(unsigned int vout);
 extern void sec_bat_mfc_ldo_cntl(struct sec_battery_info *battery, bool en);
 extern int sec_bat_check_wpc_vout(struct sec_battery_info *battery, int ct, unsigned int chg_limit,
 		int pre_vout, unsigned int evt);
+=======
+extern unsigned int get_wc20_info_idx(sec_wireless_rx_power_info_t *wc20_info,
+	unsigned int wc20_info_len, unsigned int vout, unsigned int rx_power);
+>>>>>>> upstream/android-13
 #else
 static inline void sec_bat_set_mfc_off(struct sec_battery_info *battery, char flag, bool need_ept) {}
 static inline void sec_bat_set_mfc_on(struct sec_battery_info *battery, char flag) {}
@@ -1403,6 +1782,7 @@ extern bool sec_bat_check_boost_mfc_condition(struct sec_battery_info *battery, 
 extern void sec_bat_reset_step_charging(struct sec_battery_info *battery);
 extern void sec_step_charging_init(struct sec_battery_info *battery, struct device *dev);
 extern bool sec_bat_check_step_charging(struct sec_battery_info *battery);
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_WIRELESS_CHARGING)
 extern bool sec_bat_check_wpc_step_charging(struct sec_battery_info *battery);
 #endif
@@ -1411,6 +1791,15 @@ extern bool sec_bat_check_dc_step_charging(struct sec_battery_info *battery);
 #endif
 void sec_bat_set_aging_info_step_charging(struct sec_battery_info *battery);
 #endif
+=======
+#if IS_ENABLED(CONFIG_DIRECT_CHARGING)
+extern bool sec_bat_check_dc_step_charging(struct sec_battery_info *battery);
+#endif
+#if defined(CONFIG_BATTERY_AGE_FORECAST)
+void sec_bat_set_aging_info_step_charging(struct sec_battery_info *battery);
+#endif
+#endif
+>>>>>>> upstream/android-13
 
 #if !defined(CONFIG_SEC_FACTORY)
 bool sales_code_is(char *str);
@@ -1419,11 +1808,19 @@ bool sales_code_is(char *str);
 #if defined(CONFIG_UPDATE_BATTERY_DATA)
 extern int sec_battery_update_data(const char* file_path);
 #endif
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_BATTERY_CISD)
+>>>>>>> upstream/android-13
 extern bool sec_bat_cisd_check(struct sec_battery_info *battery);
 extern void sec_battery_cisd_init(struct sec_battery_info *battery);
 extern void set_cisd_pad_data(struct sec_battery_info *battery, const char* buf);
 extern void set_cisd_power_data(struct sec_battery_info *battery, const char* buf);
 extern void set_cisd_pd_data(struct sec_battery_info *battery, const char *buf);
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 #if defined(CONFIG_WIRELESS_AUTH)
 extern int sec_bat_misc_init(struct sec_battery_info *battery);
@@ -1432,6 +1829,7 @@ extern int sec_bat_misc_init(struct sec_battery_info *battery);
 int sec_bat_parse_dt(struct device *dev, struct sec_battery_info *battery);
 void sec_bat_parse_mode_dt(struct sec_battery_info *battery);
 void sec_bat_parse_mode_dt_work(struct work_struct *work);
+<<<<<<< HEAD
 void sec_bat_check_battery_health(struct sec_battery_info *battery);
 bool sec_bat_hv_wc_normal_mode_check(struct sec_battery_info *battery);
 int sec_bat_get_temperature(struct device *dev, struct sec_bat_thm_info *info, int old_val,
@@ -1441,5 +1839,14 @@ void sec_bat_smart_sw_src(struct sec_battery_info *battery, bool enable, int cur
 #if IS_ENABLED(CONFIG_DUAL_BATTERY)
 int sec_bat_dual_battery_vbat(struct sec_battery_info *battery, int battery_type);
 #endif
+=======
+#if defined(CONFIG_BATTERY_AGE_FORECAST)
+void sec_bat_check_battery_health(struct sec_battery_info *battery);
+#endif
+bool sec_bat_hv_wc_normal_mode_check(struct sec_battery_info *battery);
+int sec_bat_get_temperature(struct device *dev, struct sec_bat_thm_info *info, int old_val,
+		char *chg_name, char *fg_name);
+int sec_bat_get_inbat_vol_ocv(struct sec_battery_info *battery);
+>>>>>>> upstream/android-13
 
 #endif /* __SEC_BATTERY_H */

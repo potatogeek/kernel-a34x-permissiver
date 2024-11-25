@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 Sascha Hauer, Pengutronix <s.hauer@pengutronix.de>
  *
@@ -5,6 +6,11 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2012 Sascha Hauer, Pengutronix <s.hauer@pengutronix.de>
+>>>>>>> upstream/android-13
  */
 #include <linux/mm.h>
 #include <linux/delay.h>
@@ -86,6 +92,7 @@ enum mx35_clks {
 
 static struct clk *clk[clk_max];
 
+<<<<<<< HEAD
 static struct clk ** const uart_clks[] __initconst = {
 	&clk[ipg],
 	&clk[uart1_gate],
@@ -94,6 +101,8 @@ static struct clk ** const uart_clks[] __initconst = {
 	NULL
 };
 
+=======
+>>>>>>> upstream/android-13
 static void __init _mx35_clocks_init(void)
 {
 	void __iomem *base;
@@ -247,11 +256,16 @@ static void __init _mx35_clocks_init(void)
 	 */
 	clk_prepare_enable(clk[scc_gate]);
 
+<<<<<<< HEAD
 	imx_register_uart_clocks(uart_clks);
+=======
+	imx_register_uart_clocks(4);
+>>>>>>> upstream/android-13
 
 	imx_print_silicon_rev("i.MX35", mx35_revision());
 }
 
+<<<<<<< HEAD
 int __init mx35_clocks_init(void)
 {
 	_mx35_clocks_init();
@@ -320,6 +334,8 @@ int __init mx35_clocks_init(void)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void __init mx35_clocks_init_dt(struct device_node *ccm_node)
 {
 	_mx35_clocks_init();

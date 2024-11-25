@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ec_access.c
  *
  * Copyright (C) 2010 SUSE Linux Products GmbH
  * Author:
  *      Thomas Renninger <trenn@suse.de>
+<<<<<<< HEAD
  *
  * This work is licensed under the terms of the GNU GPL, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <fcntl.h>

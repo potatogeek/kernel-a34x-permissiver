@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2007 - 2009 Intel Corporation. All rights reserved.
  *
@@ -17,6 +18,11 @@
  *
  * The full GNU General Public License is included in this distribution in the
  * file called COPYING.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright(c) 2007 - 2009 Intel Corporation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -40,9 +46,13 @@ int dca_sysfs_add_req(struct dca_provider *dca, struct device *dev, int slot)
 
 	cd = device_create(dca_class, dca->cd, MKDEV(0, slot + 1), NULL,
 			   "requester%d", req_count++);
+<<<<<<< HEAD
 	if (IS_ERR(cd))
 		return PTR_ERR(cd);
 	return 0;
+=======
+	return PTR_ERR_OR_ZERO(cd);
+>>>>>>> upstream/android-13
 }
 
 void dca_sysfs_remove_req(struct dca_provider *dca, int slot)

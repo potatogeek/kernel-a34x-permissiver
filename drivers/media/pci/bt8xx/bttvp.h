@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
 
     bttv - Bt848 frame grabber driver
@@ -7,6 +11,7 @@
 
     (c) 2000-2002 Gerd Knorr <kraxel@bytesex.org>
 
+<<<<<<< HEAD
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -20,6 +25,8 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
 */
 
 #ifndef _BTTVP_H_
@@ -111,7 +118,10 @@ struct bttv_tvnorm {
 extern const struct bttv_tvnorm bttv_tvnorms[];
 
 struct bttv_format {
+<<<<<<< HEAD
 	char *name;
+=======
+>>>>>>> upstream/android-13
 	int  fourcc;          /* video4linux 2      */
 	int  btformat;        /* BT848_COLOR_FMT_*  */
 	int  btswap;          /* BT848_COLOR_CTL_*  */

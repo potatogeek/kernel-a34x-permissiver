@@ -144,9 +144,15 @@ unsigned long fman_muram_alloc(struct muram_info *muram, size_t size)
 
 /**
  * fman_muram_free_mem
+<<<<<<< HEAD
  * muram:	FM-MURAM module pointer.
  * offset:	offset of the memory region to be freed.
  * size:	size of the memory to be freed.
+=======
+ * @muram:	FM-MURAM module pointer.
+ * @offset:	offset of the memory region to be freed.
+ * @size:	size of the memory to be freed.
+>>>>>>> upstream/android-13
  *
  * Free an allocated memory from FM-MURAM partition.
  */

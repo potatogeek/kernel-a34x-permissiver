@@ -1,19 +1,30 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * BIOS auto-parser helper functions for HD-audio
  *
  * Copyright (c) 2012 Takashi Iwai <tiwai@suse.de>
+<<<<<<< HEAD
  *
  * This driver is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
 #include <linux/export.h>
 #include <linux/sort.h>
 #include <sound/core.h>
+<<<<<<< HEAD
 #include "hda_codec.h"
+=======
+#include <sound/hda_codec.h>
+>>>>>>> upstream/android-13
 #include "hda_local.h"
 #include "hda_auto_parser.h"
 
@@ -354,7 +365,11 @@ int snd_hda_parse_pin_defcfg(struct hda_codec *codec,
 	 */
 	if (!cfg->line_outs && cfg->hp_outs > 1 &&
 	    !(cond_flags & HDA_PINCFG_NO_HP_FIXUP)) {
+<<<<<<< HEAD
 		int i = 0;
+=======
+		i = 0;
+>>>>>>> upstream/android-13
 		while (i < cfg->hp_outs) {
 			/* The real HPs should have the sequence 0x0f */
 			if ((hp_out[i].seq & 0x0f) == 0x0f) {
@@ -768,7 +783,11 @@ int snd_hda_get_pin_label(struct hda_codec *codec, hda_nid_t nid,
 	}
 	if (!name)
 		return 0;
+<<<<<<< HEAD
 	strlcpy(label, name, maxlen);
+=======
+	strscpy(label, name, maxlen);
+>>>>>>> upstream/android-13
 	return 1;
 }
 EXPORT_SYMBOL_GPL(snd_hda_get_pin_label);
@@ -894,7 +913,12 @@ EXPORT_SYMBOL_GPL(snd_hda_apply_fixup);
 #define IGNORE_SEQ_ASSOC (~(AC_DEFCFG_SEQUENCE | AC_DEFCFG_DEF_ASSOC))
 
 static bool pin_config_match(struct hda_codec *codec,
+<<<<<<< HEAD
 			     const struct hda_pintbl *pins)
+=======
+			     const struct hda_pintbl *pins,
+			     bool match_all_pins)
+>>>>>>> upstream/android-13
 {
 	const struct hda_pincfg *pin;
 	int i;
@@ -918,7 +942,12 @@ static bool pin_config_match(struct hda_codec *codec,
 					return false;
 			}
 		}
+<<<<<<< HEAD
 		if (!found && (cfg & 0xf0000000) != 0x40000000)
+=======
+		if (match_all_pins &&
+		    !found && (cfg & 0xf0000000) != 0x40000000)
+>>>>>>> upstream/android-13
 			return false;
 	}
 
@@ -930,10 +959,19 @@ static bool pin_config_match(struct hda_codec *codec,
  * @codec: the HDA codec
  * @pin_quirk: zero-terminated pin quirk list
  * @fixlist: the fixup list
+<<<<<<< HEAD
  */
 void snd_hda_pick_pin_fixup(struct hda_codec *codec,
 			    const struct snd_hda_pin_quirk *pin_quirk,
 			    const struct hda_fixup *fixlist)
+=======
+ * @match_all_pins: all valid pins must match with the table entries
+ */
+void snd_hda_pick_pin_fixup(struct hda_codec *codec,
+			    const struct snd_hda_pin_quirk *pin_quirk,
+			    const struct hda_fixup *fixlist,
+			    bool match_all_pins)
+>>>>>>> upstream/android-13
 {
 	const struct snd_hda_pin_quirk *pq;
 
@@ -945,7 +983,11 @@ void snd_hda_pick_pin_fixup(struct hda_codec *codec,
 			continue;
 		if (codec->core.vendor_id != pq->codec)
 			continue;
+<<<<<<< HEAD
 		if (pin_config_match(codec, pq->pins)) {
+=======
+		if (pin_config_match(codec, pq->pins, match_all_pins)) {
+>>>>>>> upstream/android-13
 			codec->fixup_id = pq->value;
 #ifdef CONFIG_SND_DEBUG_VERBOSE
 			codec->fixup_name = pq->name;
@@ -971,6 +1013,11 @@ EXPORT_SYMBOL_GPL(snd_hda_pick_pin_fixup);
  * When a special model string "nofixup" is given, also no fixup is applied.
  *
  * The function tries to find the matching model name at first, if given.
+<<<<<<< HEAD
+=======
+ * If the model string contains the SSID alias, try to look up with the given
+ * alias ID.
+>>>>>>> upstream/android-13
  * If nothing matched, try to look up the PCI SSID.
  * If still nothing matched, try to look up the codec SSID.
  */
@@ -982,12 +1029,18 @@ void snd_hda_pick_fixup(struct hda_codec *codec,
 	const struct snd_pci_quirk *q;
 	int id = HDA_FIXUP_ID_NOT_SET;
 	const char *name = NULL;
+<<<<<<< HEAD
+=======
+	const char *type = NULL;
+	unsigned int vendor, device;
+>>>>>>> upstream/android-13
 
 	if (codec->fixup_id != HDA_FIXUP_ID_NOT_SET)
 		return;
 
 	/* when model=nofixup is given, don't pick up any fixups */
 	if (codec->modelname && !strcmp(codec->modelname, "nofixup")) {
+<<<<<<< HEAD
 		codec->fixup_list = NULL;
 		codec->fixup_name = NULL;
 		codec->fixup_id = HDA_FIXUP_ID_NO_FIXUP;
@@ -1005,10 +1058,29 @@ void snd_hda_pick_fixup(struct hda_codec *codec,
 				codec_dbg(codec, "%s: picked fixup %s (model specified)\n",
 					  codec->core.chip_name, codec->fixup_name);
 				return;
+=======
+		id = HDA_FIXUP_ID_NO_FIXUP;
+		fixlist = NULL;
+		codec_dbg(codec, "%s: picked no fixup (nofixup specified)\n",
+			  codec->core.chip_name);
+		goto found;
+	}
+
+	/* match with the model name string */
+	if (codec->modelname && models) {
+		while (models->name) {
+			if (!strcmp(codec->modelname, models->name)) {
+				id = models->id;
+				name = models->name;
+				codec_dbg(codec, "%s: picked fixup %s (model specified)\n",
+					  codec->core.chip_name, codec->fixup_name);
+				goto found;
+>>>>>>> upstream/android-13
 			}
 			models++;
 		}
 	}
+<<<<<<< HEAD
 	if (quirk) {
 		q = snd_pci_quirk_lookup(codec->bus->pci, quirk);
 		if (q) {
@@ -1042,5 +1114,51 @@ void snd_hda_pick_fixup(struct hda_codec *codec,
 		codec->fixup_list = fixlist;
 		codec->fixup_name = name;
 	}
+=======
+
+	if (!quirk)
+		return;
+
+	/* match with the SSID alias given by the model string "XXXX:YYYY" */
+	if (codec->modelname &&
+	    sscanf(codec->modelname, "%04x:%04x", &vendor, &device) == 2) {
+		q = snd_pci_quirk_lookup_id(vendor, device, quirk);
+		if (q) {
+			type = "alias SSID";
+			goto found_device;
+		}
+	}
+
+	/* match with the PCI SSID */
+	q = snd_pci_quirk_lookup(codec->bus->pci, quirk);
+	if (q) {
+		type = "PCI SSID";
+		goto found_device;
+	}
+
+	/* match with the codec SSID */
+	q = snd_pci_quirk_lookup_id(codec->core.subsystem_id >> 16,
+				    codec->core.subsystem_id & 0xffff,
+				    quirk);
+	if (q) {
+		type = "codec SSID";
+		goto found_device;
+	}
+
+	return; /* no matching */
+
+ found_device:
+	id = q->value;
+#ifdef CONFIG_SND_DEBUG_VERBOSE
+	name = q->name;
+#endif
+	codec_dbg(codec, "%s: picked fixup %s for %s %04x:%04x\n",
+		  codec->core.chip_name, name ? name : "",
+		  type, q->subvendor, q->subdevice);
+ found:
+	codec->fixup_id = id;
+	codec->fixup_list = fixlist;
+	codec->fixup_name = name;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(snd_hda_pick_fixup);

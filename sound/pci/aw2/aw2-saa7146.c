@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*****************************************************************************
  *
  * Copyright (C) 2008 Cedric Bregardis <cedric.bregardis@free.fr> and
@@ -5,6 +9,7 @@
  *
  * This file is part of the Audiowerk2 ALSA driver
  *
+<<<<<<< HEAD
  * The Audiowerk2 ALSA driver is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2.
@@ -19,6 +24,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
+=======
+>>>>>>> upstream/android-13
  *****************************************************************************/
 
 #define AW2_SAA7146_M
@@ -343,7 +350,11 @@ void snd_aw2_saa7146_pcm_trigger_stop_capture(struct snd_aw2_saa7146 *chip,
 irqreturn_t snd_aw2_saa7146_interrupt(int irq, void *dev_id)
 {
 	unsigned int isr;
+<<<<<<< HEAD
 	unsigned int iicsta;
+=======
+	__always_unused unsigned int iicsta;
+>>>>>>> upstream/android-13
 	struct snd_aw2_saa7146 *chip = dev_id;
 
 	isr = READREG(ISR);

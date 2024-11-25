@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
+=======
+/* SPDX-License-Identifier: MIT */
+>>>>>>> upstream/android-13
 #define NV04_PTIMER_INTR_0      0x009100
 #define NV04_PTIMER_INTR_EN_0   0x009140
 #define NV04_PTIMER_NUMERATOR   0x009200

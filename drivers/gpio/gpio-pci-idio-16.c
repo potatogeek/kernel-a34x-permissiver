@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * GPIO driver for the ACCES PCI-IDIO-16
  * Copyright (C) 2017 William Breathitt Gray
@@ -10,6 +11,12 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * GPIO driver for the ACCES PCI-IDIO-16
+ * Copyright (C) 2017 William Breathitt Gray
+>>>>>>> upstream/android-13
  */
 #include <linux/bitmap.h>
 #include <linux/bitops.h>
@@ -69,9 +76,15 @@ static int idio_16_gpio_get_direction(struct gpio_chip *chip,
 	unsigned int offset)
 {
 	if (offset > 15)
+<<<<<<< HEAD
 		return 1;
 
 	return 0;
+=======
+		return GPIO_LINE_DIRECTION_IN;
+
+	return GPIO_LINE_DIRECTION_OUT;
+>>>>>>> upstream/android-13
 }
 
 static int idio_16_gpio_direction_input(struct gpio_chip *chip,
@@ -108,6 +121,7 @@ static int idio_16_gpio_get_multiple(struct gpio_chip *chip,
 	unsigned long *mask, unsigned long *bits)
 {
 	struct idio_16_gpio *const idio16gpio = gpiochip_get_data(chip);
+<<<<<<< HEAD
 	size_t i;
 	const unsigned int gpio_reg_size = 8;
 	unsigned int bits_offset;
@@ -116,14 +130,24 @@ static int idio_16_gpio_get_multiple(struct gpio_chip *chip,
 	unsigned long word_mask;
 	const unsigned long port_mask = GENMASK(gpio_reg_size - 1, 0);
 	unsigned long port_state;
+=======
+	unsigned long offset;
+	unsigned long gpio_mask;
+>>>>>>> upstream/android-13
 	void __iomem *ports[] = {
 		&idio16gpio->reg->out0_7, &idio16gpio->reg->out8_15,
 		&idio16gpio->reg->in0_7, &idio16gpio->reg->in8_15,
 	};
+<<<<<<< HEAD
+=======
+	void __iomem *port_addr;
+	unsigned long port_state;
+>>>>>>> upstream/android-13
 
 	/* clear bits array to a clean slate */
 	bitmap_zero(bits, chip->ngpio);
 
+<<<<<<< HEAD
 	/* get bits are evaluated a gpio port register at a time */
 	for (i = 0; i < ARRAY_SIZE(ports); i++) {
 		/* gpio offset in bits array */
@@ -147,6 +171,13 @@ static int idio_16_gpio_get_multiple(struct gpio_chip *chip,
 
 		/* store acquired bits at respective bits array offset */
 		bits[word_index] |= port_state << word_offset;
+=======
+	for_each_set_clump8(offset, gpio_mask, mask, ARRAY_SIZE(ports) * 8) {
+		port_addr = ports[offset / 8];
+		port_state = ioread8(port_addr) & gpio_mask;
+
+		bitmap_set_value8(bits, port_state, offset);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -186,6 +217,7 @@ static void idio_16_gpio_set_multiple(struct gpio_chip *chip,
 	unsigned long *mask, unsigned long *bits)
 {
 	struct idio_16_gpio *const idio16gpio = gpiochip_get_data(chip);
+<<<<<<< HEAD
 	unsigned long flags;
 	unsigned int out_state;
 
@@ -210,6 +242,33 @@ static void idio_16_gpio_set_multiple(struct gpio_chip *chip,
 	}
 
 	raw_spin_unlock_irqrestore(&idio16gpio->lock, flags);
+=======
+	unsigned long offset;
+	unsigned long gpio_mask;
+	void __iomem *ports[] = {
+		&idio16gpio->reg->out0_7, &idio16gpio->reg->out8_15,
+	};
+	size_t index;
+	void __iomem *port_addr;
+	unsigned long bitmask;
+	unsigned long flags;
+	unsigned long out_state;
+
+	for_each_set_clump8(offset, gpio_mask, mask, ARRAY_SIZE(ports) * 8) {
+		index = offset / 8;
+		port_addr = ports[index];
+
+		bitmask = bitmap_get_value8(bits, offset) & gpio_mask;
+
+		raw_spin_lock_irqsave(&idio16gpio->lock, flags);
+
+		out_state = ioread8(port_addr) & ~gpio_mask;
+		out_state |= bitmask;
+		iowrite8(out_state, port_addr);
+
+		raw_spin_unlock_irqrestore(&idio16gpio->lock, flags);
+	}
+>>>>>>> upstream/android-13
 }
 
 static void idio_16_irq_ack(struct irq_data *data)
@@ -289,7 +348,11 @@ static irqreturn_t idio_16_irq_handler(int irq, void *dev_id)
 		return IRQ_NONE;
 
 	for_each_set_bit(gpio, &idio16gpio->irq_mask, chip->ngpio)
+<<<<<<< HEAD
 		generic_handle_irq(irq_find_mapping(chip->irq.domain, gpio));
+=======
+		generic_handle_domain_irq(chip->irq.domain, gpio);
+>>>>>>> upstream/android-13
 
 	raw_spin_lock(&idio16gpio->lock);
 
@@ -309,6 +372,20 @@ static const char *idio_16_names[IDIO_16_NGPIO] = {
 	"IIN8", "IIN9", "IIN10", "IIN11", "IIN12", "IIN13", "IIN14", "IIN15"
 };
 
+<<<<<<< HEAD
+=======
+static int idio_16_irq_init_hw(struct gpio_chip *gc)
+{
+	struct idio_16_gpio *const idio16gpio = gpiochip_get_data(gc);
+
+	/* Disable IRQ by default and clear any pending interrupt */
+	iowrite8(0, &idio16gpio->reg->irq_ctl);
+	iowrite8(0, &idio16gpio->reg->in0_7);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int idio_16_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 {
 	struct device *const dev = &pdev->dev;
@@ -316,6 +393,10 @@ static int idio_16_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	int err;
 	const size_t pci_bar_index = 2;
 	const char *const name = pci_name(pdev);
+<<<<<<< HEAD
+=======
+	struct gpio_irq_chip *girq;
+>>>>>>> upstream/android-13
 
 	idio16gpio = devm_kzalloc(dev, sizeof(*idio16gpio), GFP_KERNEL);
 	if (!idio16gpio)
@@ -352,6 +433,19 @@ static int idio_16_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	idio16gpio->chip.set = idio_16_gpio_set;
 	idio16gpio->chip.set_multiple = idio_16_gpio_set_multiple;
 
+<<<<<<< HEAD
+=======
+	girq = &idio16gpio->chip.irq;
+	girq->chip = &idio_16_irqchip;
+	/* This will let us handle the parent IRQ in the driver */
+	girq->parent_handler = NULL;
+	girq->num_parents = 0;
+	girq->parents = NULL;
+	girq->default_type = IRQ_TYPE_NONE;
+	girq->handler = handle_edge_irq;
+	girq->init_hw = idio_16_irq_init_hw;
+
+>>>>>>> upstream/android-13
 	raw_spin_lock_init(&idio16gpio->lock);
 
 	err = devm_gpiochip_add_data(dev, &idio16gpio->chip, idio16gpio);
@@ -360,6 +454,7 @@ static int idio_16_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 		return err;
 	}
 
+<<<<<<< HEAD
 	/* Disable IRQ by default and clear any pending interrupt */
 	iowrite8(0, &idio16gpio->reg->irq_ctl);
 	iowrite8(0, &idio16gpio->reg->in0_7);
@@ -371,6 +466,8 @@ static int idio_16_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 		return err;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	err = devm_request_irq(dev, pdev->irq, idio_16_irq_handler, IRQF_SHARED,
 		name, idio16gpio);
 	if (err) {

@@ -4,14 +4,23 @@
 #include "builtin.h"
 #include "perf.h"
 
+<<<<<<< HEAD
 #include "util/evlist.h"
 #include "util/evsel.h"
 #include "util/util.h"
 #include "util/cache.h"
+=======
+#include "util/evlist.h" // for struct evsel_str_handler
+#include "util/evsel.h"
+>>>>>>> upstream/android-13
 #include "util/symbol.h"
 #include "util/thread.h"
 #include "util/header.h"
 
+<<<<<<< HEAD
+=======
+#include <subcmd/pager.h>
+>>>>>>> upstream/android-13
 #include <subcmd/parse-options.h>
 #include "util/trace-event.h"
 
@@ -30,6 +39,11 @@
 #include <linux/list.h>
 #include <linux/hash.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
+=======
+#include <linux/zalloc.h>
+#include <linux/err.h>
+>>>>>>> upstream/android-13
 
 static struct perf_session *session;
 
@@ -47,8 +61,13 @@ struct lock_stat {
 	struct rb_node		rb;		/* used for sorting */
 
 	/*
+<<<<<<< HEAD
 	 * FIXME: perf_evsel__intval() returns u64,
 	 * so address of lockdep_map should be dealed as 64bit.
+=======
+	 * FIXME: evsel__intval() returns u64,
+	 * so address of lockdep_map should be treated as 64bit.
+>>>>>>> upstream/android-13
 	 * Is there more better solution?
 	 */
 	void			*addr;		/* address of lockdep_map, used as ID */
@@ -347,6 +366,7 @@ alloc_failed:
 }
 
 struct trace_lock_handler {
+<<<<<<< HEAD
 	int (*acquire_event)(struct perf_evsel *evsel,
 			     struct perf_sample *sample);
 
@@ -357,6 +377,18 @@ struct trace_lock_handler {
 			       struct perf_sample *sample);
 
 	int (*release_event)(struct perf_evsel *evsel,
+=======
+	int (*acquire_event)(struct evsel *evsel,
+			     struct perf_sample *sample);
+
+	int (*acquired_event)(struct evsel *evsel,
+			      struct perf_sample *sample);
+
+	int (*contended_event)(struct evsel *evsel,
+			       struct perf_sample *sample);
+
+	int (*release_event)(struct evsel *evsel,
+>>>>>>> upstream/android-13
 			     struct perf_sample *sample);
 };
 
@@ -396,16 +428,26 @@ enum acquire_flags {
 	READ_LOCK = 2,
 };
 
+<<<<<<< HEAD
 static int report_lock_acquire_event(struct perf_evsel *evsel,
+=======
+static int report_lock_acquire_event(struct evsel *evsel,
+>>>>>>> upstream/android-13
 				     struct perf_sample *sample)
 {
 	void *addr;
 	struct lock_stat *ls;
 	struct thread_stat *ts;
 	struct lock_seq_stat *seq;
+<<<<<<< HEAD
 	const char *name = perf_evsel__strval(evsel, sample, "name");
 	u64 tmp = perf_evsel__intval(evsel, sample, "lockdep_addr");
 	int flag = perf_evsel__intval(evsel, sample, "flag");
+=======
+	const char *name = evsel__strval(evsel, sample, "name");
+	u64 tmp	 = evsel__intval(evsel, sample, "lockdep_addr");
+	int flag = evsel__intval(evsel, sample, "flags");
+>>>>>>> upstream/android-13
 
 	memcpy(&addr, &tmp, sizeof(void *));
 
@@ -454,7 +496,11 @@ broken:
 		/* broken lock sequence, discard it */
 		ls->discard = 1;
 		bad_hist[BROKEN_ACQUIRE]++;
+<<<<<<< HEAD
 		list_del(&seq->list);
+=======
+		list_del_init(&seq->list);
+>>>>>>> upstream/android-13
 		free(seq);
 		goto end;
 	default:
@@ -468,7 +514,11 @@ end:
 	return 0;
 }
 
+<<<<<<< HEAD
 static int report_lock_acquired_event(struct perf_evsel *evsel,
+=======
+static int report_lock_acquired_event(struct evsel *evsel,
+>>>>>>> upstream/android-13
 				      struct perf_sample *sample)
 {
 	void *addr;
@@ -476,8 +526,13 @@ static int report_lock_acquired_event(struct perf_evsel *evsel,
 	struct thread_stat *ts;
 	struct lock_seq_stat *seq;
 	u64 contended_term;
+<<<<<<< HEAD
 	const char *name = perf_evsel__strval(evsel, sample, "name");
 	u64 tmp = perf_evsel__intval(evsel, sample, "lockdep_addr");
+=======
+	const char *name = evsel__strval(evsel, sample, "name");
+	u64 tmp = evsel__intval(evsel, sample, "lockdep_addr");
+>>>>>>> upstream/android-13
 
 	memcpy(&addr, &tmp, sizeof(void *));
 
@@ -515,7 +570,11 @@ static int report_lock_acquired_event(struct perf_evsel *evsel,
 		/* broken lock sequence, discard it */
 		ls->discard = 1;
 		bad_hist[BROKEN_ACQUIRED]++;
+<<<<<<< HEAD
 		list_del(&seq->list);
+=======
+		list_del_init(&seq->list);
+>>>>>>> upstream/android-13
 		free(seq);
 		goto end;
 	default:
@@ -531,15 +590,24 @@ end:
 	return 0;
 }
 
+<<<<<<< HEAD
 static int report_lock_contended_event(struct perf_evsel *evsel,
+=======
+static int report_lock_contended_event(struct evsel *evsel,
+>>>>>>> upstream/android-13
 				       struct perf_sample *sample)
 {
 	void *addr;
 	struct lock_stat *ls;
 	struct thread_stat *ts;
 	struct lock_seq_stat *seq;
+<<<<<<< HEAD
 	const char *name = perf_evsel__strval(evsel, sample, "name");
 	u64 tmp = perf_evsel__intval(evsel, sample, "lockdep_addr");
+=======
+	const char *name = evsel__strval(evsel, sample, "name");
+	u64 tmp = evsel__intval(evsel, sample, "lockdep_addr");
+>>>>>>> upstream/android-13
 
 	memcpy(&addr, &tmp, sizeof(void *));
 
@@ -570,7 +638,11 @@ static int report_lock_contended_event(struct perf_evsel *evsel,
 		/* broken lock sequence, discard it */
 		ls->discard = 1;
 		bad_hist[BROKEN_CONTENDED]++;
+<<<<<<< HEAD
 		list_del(&seq->list);
+=======
+		list_del_init(&seq->list);
+>>>>>>> upstream/android-13
 		free(seq);
 		goto end;
 	default:
@@ -586,15 +658,24 @@ end:
 	return 0;
 }
 
+<<<<<<< HEAD
 static int report_lock_release_event(struct perf_evsel *evsel,
+=======
+static int report_lock_release_event(struct evsel *evsel,
+>>>>>>> upstream/android-13
 				     struct perf_sample *sample)
 {
 	void *addr;
 	struct lock_stat *ls;
 	struct thread_stat *ts;
 	struct lock_seq_stat *seq;
+<<<<<<< HEAD
 	const char *name = perf_evsel__strval(evsel, sample, "name");
 	u64 tmp = perf_evsel__intval(evsel, sample, "lockdep_addr");
+=======
+	const char *name = evsel__strval(evsel, sample, "name");
+	u64 tmp = evsel__intval(evsel, sample, "lockdep_addr");
+>>>>>>> upstream/android-13
 
 	memcpy(&addr, &tmp, sizeof(void *));
 
@@ -639,7 +720,11 @@ static int report_lock_release_event(struct perf_evsel *evsel,
 
 	ls->nr_release++;
 free_seq:
+<<<<<<< HEAD
 	list_del(&seq->list);
+=======
+	list_del_init(&seq->list);
+>>>>>>> upstream/android-13
 	free(seq);
 end:
 	return 0;
@@ -656,32 +741,48 @@ static struct trace_lock_handler report_lock_ops  = {
 
 static struct trace_lock_handler *trace_handler;
 
+<<<<<<< HEAD
 static int perf_evsel__process_lock_acquire(struct perf_evsel *evsel,
 					     struct perf_sample *sample)
+=======
+static int evsel__process_lock_acquire(struct evsel *evsel, struct perf_sample *sample)
+>>>>>>> upstream/android-13
 {
 	if (trace_handler->acquire_event)
 		return trace_handler->acquire_event(evsel, sample);
 	return 0;
 }
 
+<<<<<<< HEAD
 static int perf_evsel__process_lock_acquired(struct perf_evsel *evsel,
 					      struct perf_sample *sample)
+=======
+static int evsel__process_lock_acquired(struct evsel *evsel, struct perf_sample *sample)
+>>>>>>> upstream/android-13
 {
 	if (trace_handler->acquired_event)
 		return trace_handler->acquired_event(evsel, sample);
 	return 0;
 }
 
+<<<<<<< HEAD
 static int perf_evsel__process_lock_contended(struct perf_evsel *evsel,
 					      struct perf_sample *sample)
+=======
+static int evsel__process_lock_contended(struct evsel *evsel, struct perf_sample *sample)
+>>>>>>> upstream/android-13
 {
 	if (trace_handler->contended_event)
 		return trace_handler->contended_event(evsel, sample);
 	return 0;
 }
 
+<<<<<<< HEAD
 static int perf_evsel__process_lock_release(struct perf_evsel *evsel,
 					    struct perf_sample *sample)
+=======
+static int evsel__process_lock_release(struct evsel *evsel, struct perf_sample *sample)
+>>>>>>> upstream/android-13
 {
 	if (trace_handler->release_event)
 		return trace_handler->release_event(evsel, sample);
@@ -774,7 +875,11 @@ static void dump_threads(void)
 		pr_info("%10d: %s\n", st->tid, thread__comm_str(t));
 		node = rb_next(node);
 		thread__put(t);
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 }
 
 static void dump_map(void)
@@ -806,13 +911,21 @@ static int dump_info(void)
 	return rc;
 }
 
+<<<<<<< HEAD
 typedef int (*tracepoint_handler)(struct perf_evsel *evsel,
+=======
+typedef int (*tracepoint_handler)(struct evsel *evsel,
+>>>>>>> upstream/android-13
 				  struct perf_sample *sample);
 
 static int process_sample_event(struct perf_tool *tool __maybe_unused,
 				union perf_event *event,
 				struct perf_sample *sample,
+<<<<<<< HEAD
 				struct perf_evsel *evsel,
+=======
+				struct evsel *evsel,
+>>>>>>> upstream/android-13
 				struct machine *machine)
 {
 	int err = 0;
@@ -847,11 +960,19 @@ static void sort_result(void)
 	}
 }
 
+<<<<<<< HEAD
 static const struct perf_evsel_str_handler lock_tracepoints[] = {
 	{ "lock:lock_acquire",	 perf_evsel__process_lock_acquire,   }, /* CONFIG_LOCKDEP */
 	{ "lock:lock_acquired",	 perf_evsel__process_lock_acquired,  }, /* CONFIG_LOCKDEP, CONFIG_LOCK_STAT */
 	{ "lock:lock_contended", perf_evsel__process_lock_contended, }, /* CONFIG_LOCKDEP, CONFIG_LOCK_STAT */
 	{ "lock:lock_release",	 perf_evsel__process_lock_release,   }, /* CONFIG_LOCKDEP */
+=======
+static const struct evsel_str_handler lock_tracepoints[] = {
+	{ "lock:lock_acquire",	 evsel__process_lock_acquire,   }, /* CONFIG_LOCKDEP */
+	{ "lock:lock_acquired",	 evsel__process_lock_acquired,  }, /* CONFIG_LOCKDEP, CONFIG_LOCK_STAT */
+	{ "lock:lock_contended", evsel__process_lock_contended, }, /* CONFIG_LOCKDEP, CONFIG_LOCK_STAT */
+	{ "lock:lock_release",	 evsel__process_lock_release,   }, /* CONFIG_LOCKDEP */
+>>>>>>> upstream/android-13
 };
 
 static bool force;
@@ -866,6 +987,7 @@ static int __cmd_report(bool display_info)
 		.ordered_events	 = true,
 	};
 	struct perf_data data = {
+<<<<<<< HEAD
 		.file      = {
 			.path = input_name,
 		},
@@ -877,6 +999,17 @@ static int __cmd_report(bool display_info)
 	if (!session) {
 		pr_err("Initializing perf session failed\n");
 		return -1;
+=======
+		.path  = input_name,
+		.mode  = PERF_DATA_MODE_READ,
+		.force = force,
+	};
+
+	session = perf_session__new(&data, &eops);
+	if (IS_ERR(session)) {
+		pr_err("Initializing perf session failed\n");
+		return PTR_ERR(session);
+>>>>>>> upstream/android-13
 	}
 
 	symbol__init(&session->header.env);

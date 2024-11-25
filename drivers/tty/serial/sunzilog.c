@@ -35,15 +35,22 @@
 #include <linux/init.h>
 #include <linux/of_device.h>
 
+<<<<<<< HEAD
 #include <asm/io.h>
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <asm/irq.h>
 #include <asm/prom.h>
 #include <asm/setup.h>
 
+<<<<<<< HEAD
 #if defined(CONFIG_SERIAL_SUNZILOG_CONSOLE) && defined(CONFIG_MAGIC_SYSRQ)
 #define SUPPORT_SYSRQ
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/serial_core.h>
 #include <linux/sunserialcore.h>
 
@@ -310,7 +317,11 @@ static void sunzilog_kbdms_receive_chars(struct uart_sunzilog_port *up,
 		switch (ret) {
 		case 2:
 			sunzilog_change_mouse_baud(up);
+<<<<<<< HEAD
 			/* fallthru */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case 1:
 			break;
 
@@ -1225,7 +1236,11 @@ static int __init sunzilog_console_setup(struct console *con, char *options)
 	int baud, brg;
 
 	if (up->port.type != PORT_SUNZILOG)
+<<<<<<< HEAD
 		return -1;
+=======
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	printk(KERN_INFO "Console: ttyS%d (SunZilog zs%d)\n",
 	       (sunzilog_reg.minor - 64) + con->index, con->index);
@@ -1444,6 +1459,10 @@ static int zs_probe(struct platform_device *op)
 	up[0].port.line = (inst * 2) + 0;
 	up[0].port.dev = &op->dev;
 	up[0].flags |= SUNZILOG_FLAG_IS_CHANNEL_A;
+<<<<<<< HEAD
+=======
+	up[0].port.has_sysrq = IS_ENABLED(CONFIG_SERIAL_SUNZILOG_CONSOLE);
+>>>>>>> upstream/android-13
 	if (keyboard_mouse)
 		up[0].flags |= SUNZILOG_FLAG_CONS_KEYB;
 	sunzilog_init_hw(&up[0]);
@@ -1461,6 +1480,10 @@ static int zs_probe(struct platform_device *op)
 	up[1].port.line = (inst * 2) + 1;
 	up[1].port.dev = &op->dev;
 	up[1].flags |= 0;
+<<<<<<< HEAD
+=======
+	up[1].port.has_sysrq = IS_ENABLED(CONFIG_SERIAL_SUNZILOG_CONSOLE);
+>>>>>>> upstream/android-13
 	if (keyboard_mouse)
 		up[1].flags |= SUNZILOG_FLAG_CONS_MOUSE;
 	sunzilog_init_hw(&up[1]);

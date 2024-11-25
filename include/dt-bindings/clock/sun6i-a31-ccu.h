@@ -49,6 +49,11 @@
 
 #define CLK_PLL_VIDEO1_2X	13
 
+<<<<<<< HEAD
+=======
+#define CLK_PLL_MIPI		15
+
+>>>>>>> upstream/android-13
 #define CLK_CPU			18
 
 #define CLK_AHB1_MIPIDSI	23

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Cirrus Logic CLPS711X CLK driver
  *
  *  Copyright (C) 2014 Alexander Shiyan <shc_work@mail.ru>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk-provider.h>
@@ -32,11 +39,19 @@ static const struct clk_div_table spi_div_table[] = {
 	{ .val = 1, .div = 8, },
 	{ .val = 2, .div = 2, },
 	{ .val = 3, .div = 1, },
+<<<<<<< HEAD
+=======
+	{ /* sentinel */ }
+>>>>>>> upstream/android-13
 };
 
 static const struct clk_div_table timer_div_table[] = {
 	{ .val = 0, .div = 256, },
 	{ .val = 1, .div = 1, },
+<<<<<<< HEAD
+=======
+	{ /* sentinel */ }
+>>>>>>> upstream/android-13
 };
 
 struct clps711x_clk {
@@ -44,6 +59,7 @@ struct clps711x_clk {
 	struct clk_hw_onecell_data	clk_data;
 };
 
+<<<<<<< HEAD
 static struct clps711x_clk * __init _clps711x_clk_init(void __iomem *base,
 						       u32 fref)
 {
@@ -53,12 +69,28 @@ static struct clps711x_clk * __init _clps711x_clk_init(void __iomem *base,
 
 	if (!base)
 		return ERR_PTR(-ENOMEM);
+=======
+static void __init clps711x_clk_init_dt(struct device_node *np)
+{
+	u32 tmp, f_cpu, f_pll, f_bus, f_tim, f_pwm, f_spi, fref = 0;
+	struct clps711x_clk *clps711x_clk;
+	void __iomem *base;
+
+	WARN_ON(of_property_read_u32(np, "startup-frequency", &fref));
+
+	base = of_iomap(np, 0);
+	BUG_ON(!base);
+>>>>>>> upstream/android-13
 
 	clps711x_clk = kzalloc(struct_size(clps711x_clk, clk_data.hws,
 					   CLPS711X_CLK_MAX),
 			       GFP_KERNEL);
+<<<<<<< HEAD
 	if (!clps711x_clk)
 		return ERR_PTR(-ENOMEM);
+=======
+	BUG_ON(!clps711x_clk);
+>>>>>>> upstream/android-13
 
 	spin_lock_init(&clps711x_clk->lock);
 
@@ -137,6 +169,7 @@ static struct clps711x_clk * __init _clps711x_clk_init(void __iomem *base,
 		clk_hw_register_fixed_factor(NULL, "uart", "bus", 0, 1, 10);
 	clps711x_clk->clk_data.hws[CLPS711X_CLK_TICK] =
 		clk_hw_register_fixed_rate(NULL, "tick", NULL, 0, 64);
+<<<<<<< HEAD
 	for (i = 0; i < CLPS711X_CLK_MAX; i++)
 		if (IS_ERR(clps711x_clk->clk_data.hws[i]))
 			pr_err("clk %i: register failed with %ld\n",
@@ -179,10 +212,19 @@ static void __init clps711x_clk_init_dt(struct device_node *np)
 
 	clps711x_clk = _clps711x_clk_init(base, fref);
 	BUG_ON(IS_ERR(clps711x_clk));
+=======
+	for (tmp = 0; tmp < CLPS711X_CLK_MAX; tmp++)
+		if (IS_ERR(clps711x_clk->clk_data.hws[tmp]))
+			pr_err("clk %i: register failed with %ld\n",
+			       tmp, PTR_ERR(clps711x_clk->clk_data.hws[tmp]));
+>>>>>>> upstream/android-13
 
 	clps711x_clk->clk_data.num = CLPS711X_CLK_MAX;
 	of_clk_add_hw_provider(np, of_clk_hw_onecell_get,
 			       &clps711x_clk->clk_data);
 }
 CLK_OF_DECLARE(clps711x, "cirrus,ep7209-clk", clps711x_clk_init_dt);
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13

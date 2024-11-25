@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * dvb_net.c
  *
@@ -13,6 +17,7 @@
  *                      and Wolfram Stering <wstering@cosy.sbg.ac.at>
  *
  * ULE Decaps according to RFC 4326.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,6 +30,8 @@
  * GNU General Public License for more details.
  * To obtain the license, point your browser to
  * http://www.gnu.org/copyleft/gpl.html
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -56,6 +63,10 @@
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/netdevice.h>
+<<<<<<< HEAD
+=======
+#include <linux/nospec.h>
+>>>>>>> upstream/android-13
 #include <linux/etherdevice.h>
 #include <linux/dvb/net.h>
 #include <linux/uio.h>
@@ -557,7 +568,11 @@ static int dvb_net_ule_new_payload(struct dvb_net_ule_handle *h)
 		h->priv->ule_sndu_type_1 = 1;
 		h->ts_remain -= 1;
 		h->from_where += 1;
+<<<<<<< HEAD
 		/* fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 0:
 		h->new_ts = 1;
 		h->ts += TS_SZ;
@@ -1473,14 +1488,30 @@ static int dvb_net_do_ioctl(struct file *file,
 		struct net_device *netdev;
 		struct dvb_net_priv *priv_data;
 		struct dvb_net_if *dvbnetif = parg;
+<<<<<<< HEAD
 
 		if (dvbnetif->if_num >= DVB_NET_DEVICES_MAX ||
 		    !dvbnet->state[dvbnetif->if_num]) {
+=======
+		int if_num = dvbnetif->if_num;
+
+		if (if_num >= DVB_NET_DEVICES_MAX) {
+			ret = -EINVAL;
+			goto ioctl_error;
+		}
+		if_num = array_index_nospec(if_num, DVB_NET_DEVICES_MAX);
+
+		if (!dvbnet->state[if_num]) {
+>>>>>>> upstream/android-13
 			ret = -EINVAL;
 			goto ioctl_error;
 		}
 
+<<<<<<< HEAD
 		netdev = dvbnet->device[dvbnetif->if_num];
+=======
+		netdev = dvbnet->device[if_num];
+>>>>>>> upstream/android-13
 
 		priv_data = netdev_priv(netdev);
 		dvbnetif->pid=priv_data->pid;
@@ -1533,14 +1564,30 @@ static int dvb_net_do_ioctl(struct file *file,
 		struct net_device *netdev;
 		struct dvb_net_priv *priv_data;
 		struct __dvb_net_if_old *dvbnetif = parg;
+<<<<<<< HEAD
 
 		if (dvbnetif->if_num >= DVB_NET_DEVICES_MAX ||
 		    !dvbnet->state[dvbnetif->if_num]) {
+=======
+		int if_num = dvbnetif->if_num;
+
+		if (if_num >= DVB_NET_DEVICES_MAX) {
+			ret = -EINVAL;
+			goto ioctl_error;
+		}
+		if_num = array_index_nospec(if_num, DVB_NET_DEVICES_MAX);
+
+		if (!dvbnet->state[if_num]) {
+>>>>>>> upstream/android-13
 			ret = -EINVAL;
 			goto ioctl_error;
 		}
 
+<<<<<<< HEAD
 		netdev = dvbnet->device[dvbnetif->if_num];
+=======
+		netdev = dvbnet->device[if_num];
+>>>>>>> upstream/android-13
 
 		priv_data = netdev_priv(netdev);
 		dvbnetif->pid=priv_data->pid;

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Freescale GPMI NAND Flash Driver
  *
  * Copyright 2008-2011 Freescale Semiconductor, Inc.
  * Copyright 2008 Embedded Alley Solutions, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __GPMI_NAND_GPMI_REGS_H
 #define __GPMI_NAND_GPMI_REGS_H
@@ -120,6 +127,10 @@
 #define BV_GPMI_CTRL1_WRN_DLY_SEL_7_TO_12NS		0x2
 #define BV_GPMI_CTRL1_WRN_DLY_SEL_NO_DELAY		0x3
 
+<<<<<<< HEAD
+=======
+#define BM_GPMI_CTRL1_GANGED_RDYBUSY			(1 << 19)
+>>>>>>> upstream/android-13
 #define BM_GPMI_CTRL1_BCH_MODE				(1 << 18)
 
 #define BP_GPMI_CTRL1_DLL_ENABLE			17

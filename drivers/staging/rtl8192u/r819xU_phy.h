@@ -7,6 +7,14 @@
 #define MAX_RFDEPENDCMD_CNT 16
 #define MAX_POSTCMD_CNT 16
 
+<<<<<<< HEAD
+=======
+enum baseband_config_type {
+	BASEBAND_CONFIG_PHY_REG = 0,			//Radio Path A
+	BASEBAND_CONFIG_AGC_TAB = 1,			//Radio Path B
+};
+
+>>>>>>> upstream/android-13
 enum switch_chan_cmd_id {
 	CMD_ID_END,
 	CMD_ID_SET_TX_PWR_LEVEL,
@@ -52,7 +60,10 @@ u32 rtl8192_phy_QueryRFReg(struct net_device *dev,
 			   enum rf90_radio_path_e e_rfpath,
 			   u32 reg_addr, u32 bitmask);
 void rtl8192_phy_configmac(struct net_device *dev);
+<<<<<<< HEAD
 void rtl8192_phyConfigBB(struct net_device *dev, u8 ConfigType);
+=======
+>>>>>>> upstream/android-13
 u8 rtl8192_phy_checkBBAndRF(struct net_device *dev,
 			    enum hw90_block_e CheckBlock,
 			    enum rf90_radio_path_e e_rfpath);

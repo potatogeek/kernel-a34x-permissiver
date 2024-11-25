@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Support PCI/PCIe on PowerNV platforms
  *
  * Copyright 2011 Benjamin Herrenschmidt, IBM Corp.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #undef DEBUG
@@ -17,6 +24,7 @@
 #include <linux/delay.h>
 #include <linux/string.h>
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
 #include <linux/irq.h>
 #include <linux/io.h>
@@ -25,6 +33,16 @@
 #include <linux/iommu.h>
 #include <linux/rculist.h>
 #include <linux/sizes.h>
+=======
+#include <linux/memblock.h>
+#include <linux/irq.h>
+#include <linux/io.h>
+#include <linux/msi.h>
+#include <linux/iommu.h>
+#include <linux/rculist.h>
+#include <linux/sizes.h>
+#include <linux/debugfs.h>
+>>>>>>> upstream/android-13
 
 #include <asm/sections.h>
 #include <asm/io.h>
@@ -37,10 +55,17 @@
 #include <asm/iommu.h>
 #include <asm/tce.h>
 #include <asm/xics.h>
+<<<<<<< HEAD
 #include <asm/debugfs.h>
 #include <asm/firmware.h>
 #include <asm/pnv-pci.h>
 #include <asm/mmzone.h>
+=======
+#include <asm/firmware.h>
+#include <asm/pnv-pci.h>
+#include <asm/mmzone.h>
+#include <asm/xive.h>
+>>>>>>> upstream/android-13
 
 #include <misc/cxl-base.h>
 
@@ -52,8 +77,15 @@
 #define PNV_IODA1_M64_SEGS	8	/* Segments per M64 BAR	*/
 #define PNV_IODA1_DMA32_SEGSIZE	0x10000000
 
+<<<<<<< HEAD
 static const char * const pnv_phb_names[] = { "IODA1", "IODA2", "NPU_NVLINK",
 					      "NPU_OCAPI" };
+=======
+static const char * const pnv_phb_names[] = { "IODA1", "IODA2", "NPU_OCAPI" };
+
+static void pnv_pci_ioda2_set_bypass(struct pnv_ioda_pe *pe, bool enable);
+static void pnv_pci_configure_bus(struct pci_bus *bus);
+>>>>>>> upstream/android-13
 
 void pe_level_printk(const struct pnv_ioda_pe *pe, const char *level,
 			    const char *fmt, ...)
@@ -117,6 +149,7 @@ static int __init pci_reset_phbs_setup(char *str)
 
 early_param("ppc_pci_reset_phbs", pci_reset_phbs_setup);
 
+<<<<<<< HEAD
 static inline bool pnv_pci_is_m64(struct pnv_phb *phb, struct resource *r)
 {
 	/*
@@ -137,12 +170,18 @@ static inline bool pnv_pci_is_m64_flags(unsigned long resource_flags)
 	return (resource_flags & flags) == flags;
 }
 
+=======
+>>>>>>> upstream/android-13
 static struct pnv_ioda_pe *pnv_ioda_init_pe(struct pnv_phb *phb, int pe_no)
 {
 	s64 rc;
 
 	phb->ioda.pe_array[pe_no].phb = phb;
 	phb->ioda.pe_array[pe_no].pe_number = pe_no;
+<<<<<<< HEAD
+=======
+	phb->ioda.pe_array[pe_no].dma_setup_done = false;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Clear the PE frozen state as it might be put into frozen state
@@ -166,13 +205,22 @@ static void pnv_ioda_reserve_pe(struct pnv_phb *phb, int pe_no)
 		return;
 	}
 
+<<<<<<< HEAD
 	if (test_and_set_bit(pe_no, phb->ioda.pe_alloc))
 		pr_debug("%s: PE %x was reserved on PHB#%x\n",
 			 __func__, pe_no, phb->hose->global_number);
+=======
+	mutex_lock(&phb->ioda.pe_alloc_mutex);
+	if (test_and_set_bit(pe_no, phb->ioda.pe_alloc))
+		pr_debug("%s: PE %x was reserved on PHB#%x\n",
+			 __func__, pe_no, phb->hose->global_number);
+	mutex_unlock(&phb->ioda.pe_alloc_mutex);
+>>>>>>> upstream/android-13
 
 	pnv_ioda_init_pe(phb, pe_no);
 }
 
+<<<<<<< HEAD
 static struct pnv_ioda_pe *pnv_ioda_alloc_pe(struct pnv_phb *phb)
 {
 	long pe;
@@ -186,14 +234,57 @@ static struct pnv_ioda_pe *pnv_ioda_alloc_pe(struct pnv_phb *phb)
 }
 
 static void pnv_ioda_free_pe(struct pnv_ioda_pe *pe)
+=======
+struct pnv_ioda_pe *pnv_ioda_alloc_pe(struct pnv_phb *phb, int count)
+{
+	struct pnv_ioda_pe *ret = NULL;
+	int run = 0, pe, i;
+
+	mutex_lock(&phb->ioda.pe_alloc_mutex);
+
+	/* scan backwards for a run of @count cleared bits */
+	for (pe = phb->ioda.total_pe_num - 1; pe >= 0; pe--) {
+		if (test_bit(pe, phb->ioda.pe_alloc)) {
+			run = 0;
+			continue;
+		}
+
+		run++;
+		if (run == count)
+			break;
+	}
+	if (run != count)
+		goto out;
+
+	for (i = pe; i < pe + count; i++) {
+		set_bit(i, phb->ioda.pe_alloc);
+		pnv_ioda_init_pe(phb, i);
+	}
+	ret = &phb->ioda.pe_array[pe];
+
+out:
+	mutex_unlock(&phb->ioda.pe_alloc_mutex);
+	return ret;
+}
+
+void pnv_ioda_free_pe(struct pnv_ioda_pe *pe)
+>>>>>>> upstream/android-13
 {
 	struct pnv_phb *phb = pe->phb;
 	unsigned int pe_num = pe->pe_number;
 
 	WARN_ON(pe->pdev);
+<<<<<<< HEAD
 
 	memset(pe, 0, sizeof(struct pnv_ioda_pe));
 	clear_bit(pe_num, phb->ioda.pe_alloc);
+=======
+	memset(pe, 0, sizeof(struct pnv_ioda_pe));
+
+	mutex_lock(&phb->ioda.pe_alloc_mutex);
+	clear_bit(pe_num, phb->ioda.pe_alloc);
+	mutex_unlock(&phb->ioda.pe_alloc_mutex);
+>>>>>>> upstream/android-13
 }
 
 /* The default M64 BAR is shared by all PEs */
@@ -253,8 +344,12 @@ fail:
 static void pnv_ioda_reserve_dev_m64_pe(struct pci_dev *pdev,
 					 unsigned long *pe_bitmap)
 {
+<<<<<<< HEAD
 	struct pci_controller *hose = pci_bus_to_host(pdev->bus);
 	struct pnv_phb *phb = hose->private_data;
+=======
+	struct pnv_phb *phb = pci_bus_to_pnvhb(pdev->bus);
+>>>>>>> upstream/android-13
 	struct resource *r;
 	resource_size_t base, sgsz, start, end;
 	int segno, i;
@@ -266,8 +361,13 @@ static void pnv_ioda_reserve_dev_m64_pe(struct pci_dev *pdev,
 		if (!r->parent || !pnv_pci_is_m64(phb, r))
 			continue;
 
+<<<<<<< HEAD
 		start = _ALIGN_DOWN(r->start - base, sgsz);
 		end = _ALIGN_UP(r->end - base, sgsz);
+=======
+		start = ALIGN_DOWN(r->start - base, sgsz);
+		end = ALIGN(r->end - base, sgsz);
+>>>>>>> upstream/android-13
 		for (segno = start / sgsz; segno < end / sgsz; segno++) {
 			if (pe_bitmap)
 				set_bit(segno, pe_bitmap);
@@ -312,6 +412,31 @@ static int pnv_ioda1_init_m64(struct pnv_phb *phb)
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	for (index = 0; index < phb->ioda.total_pe_num; index++) {
+		int64_t rc;
+
+		/*
+		 * P7IOC supports M64DT, which helps mapping M64 segment
+		 * to one particular PE#. However, PHB3 has fixed mapping
+		 * between M64 segment and PE#. In order to have same logic
+		 * for P7IOC and PHB3, we enforce fixed mapping between M64
+		 * segment and PE# on P7IOC.
+		 */
+		rc = opal_pci_map_pe_mmio_window(phb->opal_id,
+				index, OPAL_M64_WINDOW_TYPE,
+				index / PNV_IODA1_M64_SEGS,
+				index % PNV_IODA1_M64_SEGS);
+		if (rc != OPAL_SUCCESS) {
+			pr_warn("%s: Error %lld mapping M64 for PHB#%x-PE#%x\n",
+				__func__, rc, phb->hose->global_number,
+				index);
+			goto fail;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	/*
 	 * Exclude the segments for reserved and root bus PE, which
 	 * are first or last two PEs.
@@ -352,8 +477,12 @@ static void pnv_ioda_reserve_m64_pe(struct pci_bus *bus,
 
 static struct pnv_ioda_pe *pnv_ioda_pick_m64_pe(struct pci_bus *bus, bool all)
 {
+<<<<<<< HEAD
 	struct pci_controller *hose = pci_bus_to_host(bus);
 	struct pnv_phb *phb = hose->private_data;
+=======
+	struct pnv_phb *phb = pci_bus_to_pnvhb(bus);
+>>>>>>> upstream/android-13
 	struct pnv_ioda_pe *master_pe, *pe;
 	unsigned long size, *pe_alloc;
 	int i;
@@ -363,7 +492,11 @@ static struct pnv_ioda_pe *pnv_ioda_pick_m64_pe(struct pci_bus *bus, bool all)
 		return NULL;
 
 	/* Allocate bitmap */
+<<<<<<< HEAD
 	size = _ALIGN_UP(phb->ioda.total_pe_num / 8, sizeof(unsigned long));
+=======
+	size = ALIGN(phb->ioda.total_pe_num / 8, sizeof(unsigned long));
+>>>>>>> upstream/android-13
 	pe_alloc = kzalloc(size, GFP_KERNEL);
 	if (!pe_alloc) {
 		pr_warn("%s: Out of memory !\n",
@@ -404,6 +537,7 @@ static struct pnv_ioda_pe *pnv_ioda_pick_m64_pe(struct pci_bus *bus, bool all)
 			pe->master = master_pe;
 			list_add_tail(&pe->list, &master_pe->slaves);
 		}
+<<<<<<< HEAD
 
 		/*
 		 * P7IOC supports M64DT, which helps mapping M64 segment
@@ -424,6 +558,8 @@ static struct pnv_ioda_pe *pnv_ioda_pick_m64_pe(struct pci_bus *bus, bool all)
 					__func__, rc, phb->hose->global_number,
 					pe->pe_number);
 		}
+=======
+>>>>>>> upstream/android-13
 	}
 
 	kfree(pe_alloc);
@@ -518,8 +654,11 @@ static void __init pnv_ioda_parse_m64_window(struct pnv_phb *phb)
 		phb->init_m64 = pnv_ioda1_init_m64;
 	else
 		phb->init_m64 = pnv_ioda2_init_m64;
+<<<<<<< HEAD
 	phb->reserve_m64_pe = pnv_ioda_reserve_m64_pe;
 	phb->pick_m64_pe = pnv_ioda_pick_m64_pe;
+=======
+>>>>>>> upstream/android-13
 }
 
 static void pnv_ioda_freeze_pe(struct pnv_phb *phb, int pe_no)
@@ -664,6 +803,7 @@ static int pnv_ioda_get_pe_state(struct pnv_phb *phb, int pe_no)
 	return state;
 }
 
+<<<<<<< HEAD
 /* Currently those 2 are only used when MSIs are enabled, this will change
  * but in the meantime, we need to protect them to avoid warnings
  */
@@ -672,6 +812,21 @@ struct pnv_ioda_pe *pnv_ioda_get_pe(struct pci_dev *dev)
 {
 	struct pci_controller *hose = pci_bus_to_host(dev->bus);
 	struct pnv_phb *phb = hose->private_data;
+=======
+struct pnv_ioda_pe *pnv_pci_bdfn_to_pe(struct pnv_phb *phb, u16 bdfn)
+{
+	int pe_number = phb->ioda.pe_rmap[bdfn];
+
+	if (pe_number == IODA_INVALID_PE)
+		return NULL;
+
+	return &phb->ioda.pe_array[pe_number];
+}
+
+struct pnv_ioda_pe *pnv_ioda_get_pe(struct pci_dev *dev)
+{
+	struct pnv_phb *phb = pci_bus_to_pnvhb(dev->bus);
+>>>>>>> upstream/android-13
 	struct pci_dn *pdn = pci_get_pdn(dev);
 
 	if (!pdn)
@@ -680,7 +835,10 @@ struct pnv_ioda_pe *pnv_ioda_get_pe(struct pci_dev *dev)
 		return NULL;
 	return &phb->ioda.pe_array[pdn->pe_number];
 }
+<<<<<<< HEAD
 #endif /* CONFIG_PCI_MSI */
+=======
+>>>>>>> upstream/android-13
 
 static int pnv_ioda_set_one_peltv(struct pnv_phb *phb,
 				  struct pnv_ioda_pe *parent,
@@ -786,7 +944,39 @@ static int pnv_ioda_set_peltv(struct pnv_phb *phb,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int pnv_ioda_deconfigure_pe(struct pnv_phb *phb, struct pnv_ioda_pe *pe)
+=======
+static void pnv_ioda_unset_peltv(struct pnv_phb *phb,
+				 struct pnv_ioda_pe *pe,
+				 struct pci_dev *parent)
+{
+	int64_t rc;
+
+	while (parent) {
+		struct pci_dn *pdn = pci_get_pdn(parent);
+
+		if (pdn && pdn->pe_number != IODA_INVALID_PE) {
+			rc = opal_pci_set_peltv(phb->opal_id, pdn->pe_number,
+						pe->pe_number,
+						OPAL_REMOVE_PE_FROM_DOMAIN);
+			/* XXX What to do in case of error ? */
+		}
+		parent = parent->bus->self;
+	}
+
+	opal_pci_eeh_freeze_clear(phb->opal_id, pe->pe_number,
+				  OPAL_EEH_ACTION_CLEAR_FREEZE_ALL);
+
+	/* Disassociate PE in PELT */
+	rc = opal_pci_set_peltv(phb->opal_id, pe->pe_number,
+				pe->pe_number, OPAL_REMOVE_PE_FROM_DOMAIN);
+	if (rc)
+		pe_warn(pe, "OPAL error %lld remove self from PELTV\n", rc);
+}
+
+int pnv_ioda_deconfigure_pe(struct pnv_phb *phb, struct pnv_ioda_pe *pe)
+>>>>>>> upstream/android-13
 {
 	struct pci_dev *parent;
 	uint8_t bcomp, dcomp, fcomp;
@@ -801,7 +991,11 @@ static int pnv_ioda_deconfigure_pe(struct pnv_phb *phb, struct pnv_ioda_pe *pe)
 		fcomp = OPAL_IGNORE_RID_FUNCTION_NUMBER;
 		parent = pe->pbus->self;
 		if (pe->flags & PNV_IODA_PE_BUS_ALL)
+<<<<<<< HEAD
 			count = pe->pbus->busn_res.end - pe->pbus->busn_res.start + 1;
+=======
+			count = resource_size(&pe->pbus->busn_res);
+>>>>>>> upstream/android-13
 		else
 			count = 1;
 
@@ -836,6 +1030,7 @@ static int pnv_ioda_deconfigure_pe(struct pnv_phb *phb, struct pnv_ioda_pe *pe)
 	for (rid = pe->rid; rid < rid_end; rid++)
 		phb->ioda.pe_rmap[rid] = IODA_INVALID_PE;
 
+<<<<<<< HEAD
 	/* Release from all parents PELT-V */
 	while (parent) {
 		struct pci_dn *pdn = pci_get_pdn(parent);
@@ -859,6 +1054,19 @@ static int pnv_ioda_deconfigure_pe(struct pnv_phb *phb, struct pnv_ioda_pe *pe)
 			     bcomp, dcomp, fcomp, OPAL_UNMAP_PE);
 	if (rc)
 		pe_err(pe, "OPAL error %ld trying to setup PELT table\n", rc);
+=======
+	/*
+	 * Release from all parents PELT-V. NPUs don't have a PELTV
+	 * table
+	 */
+	if (phb->type != PNV_PHB_NPU_OCAPI)
+		pnv_ioda_unset_peltv(phb, pe, parent);
+
+	rc = opal_pci_set_pe(phb->opal_id, pe->pe_number, pe->rid,
+			     bcomp, dcomp, fcomp, OPAL_UNMAP_PE);
+	if (rc)
+		pe_err(pe, "OPAL error %lld trying to setup PELT table\n", rc);
+>>>>>>> upstream/android-13
 
 	pe->pbus = NULL;
 	pe->pdev = NULL;
@@ -869,9 +1077,14 @@ static int pnv_ioda_deconfigure_pe(struct pnv_phb *phb, struct pnv_ioda_pe *pe)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int pnv_ioda_configure_pe(struct pnv_phb *phb, struct pnv_ioda_pe *pe)
 {
 	struct pci_dev *parent;
+=======
+int pnv_ioda_configure_pe(struct pnv_phb *phb, struct pnv_ioda_pe *pe)
+{
+>>>>>>> upstream/android-13
 	uint8_t bcomp, dcomp, fcomp;
 	long rc, rid_end, rid;
 
@@ -881,9 +1094,14 @@ static int pnv_ioda_configure_pe(struct pnv_phb *phb, struct pnv_ioda_pe *pe)
 
 		dcomp = OPAL_IGNORE_RID_DEVICE_NUMBER;
 		fcomp = OPAL_IGNORE_RID_FUNCTION_NUMBER;
+<<<<<<< HEAD
 		parent = pe->pbus->self;
 		if (pe->flags & PNV_IODA_PE_BUS_ALL)
 			count = pe->pbus->busn_res.end - pe->pbus->busn_res.start + 1;
+=======
+		if (pe->flags & PNV_IODA_PE_BUS_ALL)
+			count = resource_size(&pe->pbus->busn_res);
+>>>>>>> upstream/android-13
 		else
 			count = 1;
 
@@ -902,12 +1120,15 @@ static int pnv_ioda_configure_pe(struct pnv_phb *phb, struct pnv_ioda_pe *pe)
 		}
 		rid_end = pe->rid + (count << 8);
 	} else {
+<<<<<<< HEAD
 #ifdef CONFIG_PCI_IOV
 		if (pe->flags & PNV_IODA_PE_VF)
 			parent = pe->parent_dev;
 		else
 #endif /* CONFIG_PCI_IOV */
 			parent = pe->pdev->bus->self;
+=======
+>>>>>>> upstream/android-13
 		bcomp = OpalPciBusAll;
 		dcomp = OPAL_COMPARE_RID_DEVICE_NUMBER;
 		fcomp = OPAL_COMPARE_RID_FUNCTION_NUMBER;
@@ -931,7 +1152,11 @@ static int pnv_ioda_configure_pe(struct pnv_phb *phb, struct pnv_ioda_pe *pe)
 	 * Configure PELTV. NPUs don't have a PELTV table so skip
 	 * configuration on them.
 	 */
+<<<<<<< HEAD
 	if (phb->type != PNV_PHB_NPU_NVLINK && phb->type != PNV_PHB_NPU_OCAPI)
+=======
+	if (phb->type != PNV_PHB_NPU_OCAPI)
+>>>>>>> upstream/android-13
 		pnv_ioda_set_peltv(phb, pe, true);
 
 	/* Setup reverse map */
@@ -964,6 +1189,7 @@ out:
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PCI_IOV
 static int pnv_pci_vf_resource_shift(struct pci_dev *dev, int offset)
 {
@@ -1053,6 +1279,11 @@ static struct pnv_ioda_pe *pnv_ioda_setup_dev_PE(struct pci_dev *dev)
 {
 	struct pci_controller *hose = pci_bus_to_host(dev->bus);
 	struct pnv_phb *phb = hose->private_data;
+=======
+static struct pnv_ioda_pe *pnv_ioda_setup_dev_PE(struct pci_dev *dev)
+{
+	struct pnv_phb *phb = pci_bus_to_pnvhb(dev->bus);
+>>>>>>> upstream/android-13
 	struct pci_dn *pdn = pci_get_pdn(dev);
 	struct pnv_ioda_pe *pe;
 
@@ -1064,13 +1295,18 @@ static struct pnv_ioda_pe *pnv_ioda_setup_dev_PE(struct pci_dev *dev)
 	if (pdn->pe_number != IODA_INVALID_PE)
 		return NULL;
 
+<<<<<<< HEAD
 	pe = pnv_ioda_alloc_pe(phb);
+=======
+	pe = pnv_ioda_alloc_pe(phb, 1);
+>>>>>>> upstream/android-13
 	if (!pe) {
 		pr_warn("%s: Not enough PE# available, disabling device\n",
 			pci_name(dev));
 		return NULL;
 	}
 
+<<<<<<< HEAD
 	/* NOTE: We get only one ref to the pci_dev for the pdn, not for the
 	 * pointer in the PE data structure, both should be destroyed at the
 	 * same time. However, this needs to be looked at more closely again
@@ -1079,12 +1315,24 @@ static struct pnv_ioda_pe *pnv_ioda_setup_dev_PE(struct pci_dev *dev)
 	 * At some point we want to remove the PDN completely anyways
 	 */
 	pci_dev_get(dev);
+=======
+	/* NOTE: We don't get a reference for the pointer in the PE
+	 * data structure, both the device and PE structures should be
+	 * destroyed at the same time.
+	 *
+	 * At some point we want to remove the PDN completely anyways
+	 */
+>>>>>>> upstream/android-13
 	pdn->pe_number = pe->pe_number;
 	pe->flags = PNV_IODA_PE_DEV;
 	pe->pdev = dev;
 	pe->pbus = NULL;
 	pe->mve_number = -1;
 	pe->rid = dev->bus->number << 8 | pdn->devfn;
+<<<<<<< HEAD
+=======
+	pe->device_count++;
+>>>>>>> upstream/android-13
 
 	pe_info(pe, "Associated device to PE\n");
 
@@ -1093,11 +1341,15 @@ static struct pnv_ioda_pe *pnv_ioda_setup_dev_PE(struct pci_dev *dev)
 		pnv_ioda_free_pe(pe);
 		pdn->pe_number = IODA_INVALID_PE;
 		pe->pdev = NULL;
+<<<<<<< HEAD
 		pci_dev_put(dev);
+=======
+>>>>>>> upstream/android-13
 		return NULL;
 	}
 
 	/* Put PE to the list */
+<<<<<<< HEAD
 	list_add_tail(&pe->list, &phb->ioda.pe_list);
 
 	return pe;
@@ -1131,6 +1383,14 @@ static void pnv_ioda_setup_same_PE(struct pci_bus *bus, struct pnv_ioda_pe *pe)
 	}
 }
 
+=======
+	mutex_lock(&phb->ioda.pe_list_mutex);
+	list_add_tail(&pe->list, &phb->ioda.pe_list);
+	mutex_unlock(&phb->ioda.pe_list_mutex);
+	return pe;
+}
+
+>>>>>>> upstream/android-13
 /*
  * There're 2 types of PCI bus sensitive PEs: One that is compromised of
  * single PCI bus. Another one that contains the primary PCI bus and its
@@ -1139,8 +1399,12 @@ static void pnv_ioda_setup_same_PE(struct pci_bus *bus, struct pnv_ioda_pe *pe)
  */
 static struct pnv_ioda_pe *pnv_ioda_setup_bus_PE(struct pci_bus *bus, bool all)
 {
+<<<<<<< HEAD
 	struct pci_controller *hose = pci_bus_to_host(bus);
 	struct pnv_phb *phb = hose->private_data;
+=======
+	struct pnv_phb *phb = pci_bus_to_pnvhb(bus);
+>>>>>>> upstream/android-13
 	struct pnv_ioda_pe *pe = NULL;
 	unsigned int pe_num;
 
@@ -1149,13 +1413,19 @@ static struct pnv_ioda_pe *pnv_ioda_setup_bus_PE(struct pci_bus *bus, bool all)
 	 * We should reuse it instead of allocating a new one.
 	 */
 	pe_num = phb->ioda.pe_rmap[bus->number << 8];
+<<<<<<< HEAD
 	if (pe_num != IODA_INVALID_PE) {
 		pe = &phb->ioda.pe_array[pe_num];
 		pnv_ioda_setup_same_PE(bus, pe);
+=======
+	if (WARN_ON(pe_num != IODA_INVALID_PE)) {
+		pe = &phb->ioda.pe_array[pe_num];
+>>>>>>> upstream/android-13
 		return NULL;
 	}
 
 	/* PE number for root bus should have been reserved */
+<<<<<<< HEAD
 	if (pci_is_root_bus(bus) &&
 	    phb->ioda.root_pe_idx != IODA_INVALID_PE)
 		pe = &phb->ioda.pe_array[phb->ioda.root_pe_idx];
@@ -1167,6 +1437,18 @@ static struct pnv_ioda_pe *pnv_ioda_setup_bus_PE(struct pci_bus *bus, bool all)
 	/* The PE number isn't pinned by M64 */
 	if (!pe)
 		pe = pnv_ioda_alloc_pe(phb);
+=======
+	if (pci_is_root_bus(bus))
+		pe = &phb->ioda.pe_array[phb->ioda.root_pe_idx];
+
+	/* Check if PE is determined by M64 */
+	if (!pe)
+		pe = pnv_ioda_pick_m64_pe(bus, all);
+
+	/* The PE number isn't pinned by M64 */
+	if (!pe)
+		pe = pnv_ioda_alloc_pe(phb, 1);
+>>>>>>> upstream/android-13
 
 	if (!pe) {
 		pr_warn("%s: Not enough PE# available for PCI bus %04x:%02x\n",
@@ -1181,11 +1463,20 @@ static struct pnv_ioda_pe *pnv_ioda_setup_bus_PE(struct pci_bus *bus, bool all)
 	pe->rid = bus->busn_res.start << 8;
 
 	if (all)
+<<<<<<< HEAD
 		pe_info(pe, "Secondary bus %d..%d associated with PE#%x\n",
 			bus->busn_res.start, bus->busn_res.end, pe->pe_number);
 	else
 		pe_info(pe, "Secondary bus %d associated with PE#%x\n",
 			bus->busn_res.start, pe->pe_number);
+=======
+		pe_info(pe, "Secondary bus %pad..%pad associated with PE#%x\n",
+			&bus->busn_res.start, &bus->busn_res.end,
+			pe->pe_number);
+	else
+		pe_info(pe, "Secondary bus %pad associated with PE#%x\n",
+			&bus->busn_res.start, pe->pe_number);
+>>>>>>> upstream/android-13
 
 	if (pnv_ioda_configure_pe(phb, pe)) {
 		/* XXX What do we do here ? */
@@ -1194,15 +1485,19 @@ static struct pnv_ioda_pe *pnv_ioda_setup_bus_PE(struct pci_bus *bus, bool all)
 		return NULL;
 	}
 
+<<<<<<< HEAD
 	/* Associate it with all child devices */
 	pnv_ioda_setup_same_PE(bus, pe);
 
+=======
+>>>>>>> upstream/android-13
 	/* Put PE to the list */
 	list_add_tail(&pe->list, &phb->ioda.pe_list);
 
 	return pe;
 }
 
+<<<<<<< HEAD
 static struct pnv_ioda_pe *pnv_ioda_setup_npu_PE(struct pci_dev *npu_pdev)
 {
 	int pe_num, found_pe = false, rc;
@@ -1780,6 +2075,68 @@ static bool pnv_pci_ioda_pe_single_vendor(struct pnv_ioda_pe *pe)
 	}
 
 	return true;
+=======
+static void pnv_pci_ioda1_setup_dma_pe(struct pnv_phb *phb,
+				       struct pnv_ioda_pe *pe);
+
+static void pnv_pci_ioda_dma_dev_setup(struct pci_dev *pdev)
+{
+	struct pnv_phb *phb = pci_bus_to_pnvhb(pdev->bus);
+	struct pci_dn *pdn = pci_get_pdn(pdev);
+	struct pnv_ioda_pe *pe;
+
+	/* Check if the BDFN for this device is associated with a PE yet */
+	pe = pnv_pci_bdfn_to_pe(phb, pdev->devfn | (pdev->bus->number << 8));
+	if (!pe) {
+		/* VF PEs should be pre-configured in pnv_pci_sriov_enable() */
+		if (WARN_ON(pdev->is_virtfn))
+			return;
+
+		pnv_pci_configure_bus(pdev->bus);
+		pe = pnv_pci_bdfn_to_pe(phb, pdev->devfn | (pdev->bus->number << 8));
+		pci_info(pdev, "Configured PE#%x\n", pe ? pe->pe_number : 0xfffff);
+
+
+		/*
+		 * If we can't setup the IODA PE something has gone horribly
+		 * wrong and we can't enable DMA for the device.
+		 */
+		if (WARN_ON(!pe))
+			return;
+	} else {
+		pci_info(pdev, "Added to existing PE#%x\n", pe->pe_number);
+	}
+
+	/*
+	 * We assume that bridges *probably* don't need to do any DMA so we can
+	 * skip allocating a TCE table, etc unless we get a non-bridge device.
+	 */
+	if (!pe->dma_setup_done && !pci_is_bridge(pdev)) {
+		switch (phb->type) {
+		case PNV_PHB_IODA1:
+			pnv_pci_ioda1_setup_dma_pe(phb, pe);
+			break;
+		case PNV_PHB_IODA2:
+			pnv_pci_ioda2_setup_dma_pe(phb, pe);
+			break;
+		default:
+			pr_warn("%s: No DMA for PHB#%x (type %d)\n",
+				__func__, phb->hose->global_number, phb->type);
+		}
+	}
+
+	if (pdn)
+		pdn->pe_number = pe->pe_number;
+	pe->device_count++;
+
+	WARN_ON(get_dma_ops(&pdev->dev) != &dma_iommu_ops);
+	pdev->dev.archdata.dma_offset = pe->tce_bypass_base;
+	set_iommu_table_base(&pdev->dev, pe->table_group.tables[0]);
+
+	/* PEs with a DMA weight of zero won't have a group */
+	if (pe->table_group.group)
+		iommu_add_device(&pe->table_group, &pdev->dev);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1851,6 +2208,7 @@ err:
 	return -EIO;
 }
 
+<<<<<<< HEAD
 static int pnv_pci_ioda_dma_set_mask(struct pci_dev *pdev, u64 dma_mask)
 {
 	struct pci_controller *hose = pci_bus_to_host(pdev->bus);
@@ -1951,6 +2309,46 @@ static void pnv_ioda_setup_bus_dma(struct pnv_ioda_pe *pe,
 			pnv_ioda_setup_bus_dma(pe, dev->subordinate,
 					add_to_group);
 	}
+=======
+static bool pnv_pci_ioda_iommu_bypass_supported(struct pci_dev *pdev,
+		u64 dma_mask)
+{
+	struct pnv_phb *phb = pci_bus_to_pnvhb(pdev->bus);
+	struct pci_dn *pdn = pci_get_pdn(pdev);
+	struct pnv_ioda_pe *pe;
+
+	if (WARN_ON(!pdn || pdn->pe_number == IODA_INVALID_PE))
+		return false;
+
+	pe = &phb->ioda.pe_array[pdn->pe_number];
+	if (pe->tce_bypass_enabled) {
+		u64 top = pe->tce_bypass_base + memblock_end_of_DRAM() - 1;
+		if (dma_mask >= top)
+			return true;
+	}
+
+	/*
+	 * If the device can't set the TCE bypass bit but still wants
+	 * to access 4GB or more, on PHB3 we can reconfigure TVE#0 to
+	 * bypass the 32-bit region and be usable for 64-bit DMAs.
+	 * The device needs to be able to address all of this space.
+	 */
+	if (dma_mask >> 32 &&
+	    dma_mask > (memory_hotplug_max() + (1ULL << 32)) &&
+	    /* pe->pdev should be set if it's a single device, pe->pbus if not */
+	    (pe->device_count == 1 || !pe->pbus) &&
+	    phb->model == PNV_PHB_MODEL_PHB3) {
+		/* Configure the bypass mode */
+		s64 rc = pnv_pci_ioda_dma_64bit_bypass(pe);
+		if (rc)
+			return false;
+		/* 4GB offset bypasses 32-bit space */
+		pdev->dev.archdata.dma_offset = (1ULL << 32);
+		return true;
+	}
+
+	return false;
+>>>>>>> upstream/android-13
 }
 
 static inline __be64 __iomem *pnv_ioda_get_inval_reg(struct pnv_phb *phb,
@@ -2012,6 +2410,7 @@ static int pnv_ioda1_tce_build(struct iommu_table *tbl, long index,
 }
 
 #ifdef CONFIG_IOMMU_API
+<<<<<<< HEAD
 static int pnv_ioda1_tce_xchg(struct iommu_table *tbl, long index,
 		unsigned long *hpa, enum dma_data_direction *direction)
 {
@@ -2032,6 +2431,14 @@ static int pnv_ioda1_tce_xchg_rm(struct iommu_table *tbl, long index,
 		pnv_pci_p7ioc_tce_invalidate(tbl, index, 1, true);
 
 	return ret;
+=======
+/* Common for IODA1 and IODA2 */
+static int pnv_ioda_tce_xchg_no_kill(struct iommu_table *tbl, long index,
+		unsigned long *hpa, enum dma_data_direction *direction,
+		bool realmode)
+{
+	return pnv_tce_xchg(tbl, index, hpa, direction, !realmode);
+>>>>>>> upstream/android-13
 }
 #endif
 
@@ -2046,8 +2453,13 @@ static void pnv_ioda1_tce_free(struct iommu_table *tbl, long index,
 static struct iommu_table_ops pnv_ioda1_iommu_ops = {
 	.set = pnv_ioda1_tce_build,
 #ifdef CONFIG_IOMMU_API
+<<<<<<< HEAD
 	.exchange = pnv_ioda1_tce_xchg,
 	.exchange_rm = pnv_ioda1_tce_xchg_rm,
+=======
+	.xchg_no_kill = pnv_ioda_tce_xchg_no_kill,
+	.tce_kill = pnv_pci_p7ioc_tce_invalidate,
+>>>>>>> upstream/android-13
 	.useraddrptr = pnv_tce_useraddrptr,
 #endif
 	.clear = pnv_ioda1_tce_free,
@@ -2058,6 +2470,7 @@ static struct iommu_table_ops pnv_ioda1_iommu_ops = {
 #define PHB3_TCE_KILL_INVAL_PE		PPC_BIT(1)
 #define PHB3_TCE_KILL_INVAL_ONE		PPC_BIT(2)
 
+<<<<<<< HEAD
 static void pnv_pci_phb3_tce_invalidate_entire(struct pnv_phb *phb, bool rm)
 {
 	__be64 __iomem *invalidate = pnv_ioda_get_inval_reg(phb, rm);
@@ -2070,6 +2483,8 @@ static void pnv_pci_phb3_tce_invalidate_entire(struct pnv_phb *phb, bool rm)
 		__raw_writeq_be(val, invalidate);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void pnv_pci_phb3_tce_invalidate_pe(struct pnv_ioda_pe *pe)
 {
 	/* 01xb - invalidate TCEs that match the specified PE# */
@@ -2129,6 +2544,7 @@ static void pnv_pci_ioda2_tce_invalidate(struct iommu_table *tbl,
 		struct pnv_phb *phb = pe->phb;
 		unsigned int shift = tbl->it_page_shift;
 
+<<<<<<< HEAD
 		/*
 		 * NVLink1 can use the TCE kill register directly as
 		 * it's the same as PHB3. NVLink2 is different and
@@ -2143,6 +2559,8 @@ static void pnv_pci_ioda2_tce_invalidate(struct iommu_table *tbl,
 			pnv_pci_phb3_tce_invalidate_entire(phb, rm);
 			continue;
 		}
+=======
+>>>>>>> upstream/android-13
 		if (phb->model == PNV_PHB_MODEL_PHB3 && phb->regs)
 			pnv_pci_phb3_tce_invalidate(pe, rm, shift,
 						    index, npages);
@@ -2154,6 +2572,7 @@ static void pnv_pci_ioda2_tce_invalidate(struct iommu_table *tbl,
 	}
 }
 
+<<<<<<< HEAD
 void pnv_pci_ioda2_tce_invalidate_entire(struct pnv_phb *phb, bool rm)
 {
 	if (phb->model == PNV_PHB_MODEL_NPU || phb->model == PNV_PHB_MODEL_PHB3)
@@ -2162,6 +2581,8 @@ void pnv_pci_ioda2_tce_invalidate_entire(struct pnv_phb *phb, bool rm)
 		opal_pci_tce_kill(phb->opal_id, OPAL_PCI_TCE_KILL, 0, 0, 0, 0);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int pnv_ioda2_tce_build(struct iommu_table *tbl, long index,
 		long npages, unsigned long uaddr,
 		enum dma_data_direction direction,
@@ -2176,6 +2597,7 @@ static int pnv_ioda2_tce_build(struct iommu_table *tbl, long index,
 	return ret;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_IOMMU_API
 static int pnv_ioda2_tce_xchg(struct iommu_table *tbl, long index,
 		unsigned long *hpa, enum dma_data_direction *direction)
@@ -2200,6 +2622,8 @@ static int pnv_ioda2_tce_xchg_rm(struct iommu_table *tbl, long index,
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static void pnv_ioda2_tce_free(struct iommu_table *tbl, long index,
 		long npages)
 {
@@ -2211,8 +2635,13 @@ static void pnv_ioda2_tce_free(struct iommu_table *tbl, long index,
 static struct iommu_table_ops pnv_ioda2_iommu_ops = {
 	.set = pnv_ioda2_tce_build,
 #ifdef CONFIG_IOMMU_API
+<<<<<<< HEAD
 	.exchange = pnv_ioda2_tce_xchg,
 	.exchange_rm = pnv_ioda2_tce_xchg_rm,
+=======
+	.xchg_no_kill = pnv_ioda_tce_xchg_no_kill,
+	.tce_kill = pnv_pci_ioda2_tce_invalidate,
+>>>>>>> upstream/android-13
 	.useraddrptr = pnv_tce_useraddrptr,
 #endif
 	.clear = pnv_ioda2_tce_free,
@@ -2358,8 +2787,13 @@ found:
 					      __pa(addr) + tce32_segsz * i,
 					      tce32_segsz, IOMMU_PAGE_SIZE_4K);
 		if (rc) {
+<<<<<<< HEAD
 			pe_err(pe, " Failed to configure 32-bit TCE table,"
 			       " err %ld\n", rc);
+=======
+			pe_err(pe, " Failed to configure 32-bit TCE table, err %lld\n",
+			       rc);
+>>>>>>> upstream/android-13
 			goto fail;
 		}
 	}
@@ -2376,6 +2810,7 @@ found:
 	tbl->it_ops = &pnv_ioda1_iommu_ops;
 	pe->table_group.tce32_start = tbl->it_offset << tbl->it_page_shift;
 	pe->table_group.tce32_size = tbl->it_size << tbl->it_page_shift;
+<<<<<<< HEAD
 	iommu_init_table(tbl, phb->hose->node);
 
 	if (pe->flags & PNV_IODA_PE_DEV) {
@@ -2389,6 +2824,12 @@ found:
 	} else if (pe->flags & (PNV_IODA_PE_BUS | PNV_IODA_PE_BUS_ALL))
 		pnv_ioda_setup_bus_dma(pe, pe->pbus, true);
 
+=======
+	if (!iommu_init_table(tbl, phb->hose->node, 0, 0))
+		panic("Failed to initialize iommu table");
+
+	pe->dma_setup_done = true;
+>>>>>>> upstream/android-13
 	return;
  fail:
 	/* XXX Failure: Try to fallback to 64-bit only ? */
@@ -2412,9 +2853,15 @@ static long pnv_pci_ioda2_set_window(struct iommu_table_group *table_group,
 	const __u64 start_addr = tbl->it_offset << tbl->it_page_shift;
 	const __u64 win_size = tbl->it_size << tbl->it_page_shift;
 
+<<<<<<< HEAD
 	pe_info(pe, "Setting up window#%d %llx..%llx pg=%x\n", num,
 			start_addr, start_addr + win_size - 1,
 			IOMMU_PAGE_SIZE(tbl));
+=======
+	pe_info(pe, "Setting up window#%d %llx..%llx pg=%lx\n",
+		num, start_addr, start_addr + win_size - 1,
+		IOMMU_PAGE_SIZE(tbl));
+>>>>>>> upstream/android-13
 
 	/*
 	 * Map TCE table through TVT. The TVE index is the PE number
@@ -2428,7 +2875,11 @@ static long pnv_pci_ioda2_set_window(struct iommu_table_group *table_group,
 			size << 3,
 			IOMMU_PAGE_SIZE(tbl));
 	if (rc) {
+<<<<<<< HEAD
 		pe_err(pe, "Failed to configure TCE table, err %ld\n", rc);
+=======
+		pe_err(pe, "Failed to configure TCE table, err %lld\n", rc);
+>>>>>>> upstream/android-13
 		return rc;
 	}
 
@@ -2439,7 +2890,11 @@ static long pnv_pci_ioda2_set_window(struct iommu_table_group *table_group,
 	return 0;
 }
 
+<<<<<<< HEAD
 void pnv_pci_ioda2_set_bypass(struct pnv_ioda_pe *pe, bool enable)
+=======
+static void pnv_pci_ioda2_set_bypass(struct pnv_ioda_pe *pe, bool enable)
+>>>>>>> upstream/android-13
 {
 	uint16_t window_id = (pe->pe_number << 1 ) + 1;
 	int64_t rc;
@@ -2501,6 +2956,10 @@ static long pnv_pci_ioda2_setup_default_config(struct pnv_ioda_pe *pe)
 {
 	struct iommu_table *tbl = NULL;
 	long rc;
+<<<<<<< HEAD
+=======
+	unsigned long res_start, res_end;
+>>>>>>> upstream/android-13
 
 	/*
 	 * crashkernel= specifies the kdump kernel's maximum memory at
@@ -2514,18 +2973,48 @@ static long pnv_pci_ioda2_setup_default_config(struct pnv_ioda_pe *pe)
 	 * DMA window can be larger than available memory, which will
 	 * cause errors later.
 	 */
+<<<<<<< HEAD
 	const u64 window_size = min((u64)pe->table_group.tce32_size, max_memory);
 
 	rc = pnv_pci_ioda2_create_table(&pe->table_group, 0,
 			IOMMU_PAGE_SHIFT_4K,
 			window_size,
 			POWERNV_IOMMU_DEFAULT_LEVELS, false, &tbl);
+=======
+	const u64 maxblock = 1UL << (PAGE_SHIFT + MAX_ORDER - 1);
+
+	/*
+	 * We create the default window as big as we can. The constraint is
+	 * the max order of allocation possible. The TCE table is likely to
+	 * end up being multilevel and with on-demand allocation in place,
+	 * the initial use is not going to be huge as the default window aims
+	 * to support crippled devices (i.e. not fully 64bit DMAble) only.
+	 */
+	/* iommu_table::it_map uses 1 bit per IOMMU page, hence 8 */
+	const u64 window_size = min((maxblock * 8) << PAGE_SHIFT, max_memory);
+	/* Each TCE level cannot exceed maxblock so go multilevel if needed */
+	unsigned long tces_order = ilog2(window_size >> PAGE_SHIFT);
+	unsigned long tcelevel_order = ilog2(maxblock >> 3);
+	unsigned int levels = tces_order / tcelevel_order;
+
+	if (tces_order % tcelevel_order)
+		levels += 1;
+	/*
+	 * We try to stick to default levels (which is >1 at the moment) in
+	 * order to save memory by relying on on-demain TCE level allocation.
+	 */
+	levels = max_t(unsigned int, levels, POWERNV_IOMMU_DEFAULT_LEVELS);
+
+	rc = pnv_pci_ioda2_create_table(&pe->table_group, 0, PAGE_SHIFT,
+			window_size, levels, false, &tbl);
+>>>>>>> upstream/android-13
 	if (rc) {
 		pe_err(pe, "Failed to create 32-bit TCE table, err %ld",
 				rc);
 		return rc;
 	}
 
+<<<<<<< HEAD
 	iommu_init_table(tbl, pe->phb->hose->node);
 
 	rc = pnv_pci_ioda2_set_window(&pe->table_group, 0, tbl);
@@ -2536,21 +3025,51 @@ static long pnv_pci_ioda2_setup_default_config(struct pnv_ioda_pe *pe)
 		return rc;
 	}
 
+=======
+	/* We use top part of 32bit space for MMIO so exclude it from DMA */
+	res_start = 0;
+	res_end = 0;
+	if (window_size > pe->phb->ioda.m32_pci_base) {
+		res_start = pe->phb->ioda.m32_pci_base >> tbl->it_page_shift;
+		res_end = min(window_size, SZ_4G) >> tbl->it_page_shift;
+	}
+
+	if (iommu_init_table(tbl, pe->phb->hose->node, res_start, res_end))
+		rc = pnv_pci_ioda2_set_window(&pe->table_group, 0, tbl);
+	else
+		rc = -ENOMEM;
+	if (rc) {
+		pe_err(pe, "Failed to configure 32-bit TCE table, err %ld\n", rc);
+		iommu_tce_table_put(tbl);
+		tbl = NULL; /* This clears iommu_table_base below */
+	}
+>>>>>>> upstream/android-13
 	if (!pnv_iommu_bypass_disabled)
 		pnv_pci_ioda2_set_bypass(pe, true);
 
 	/*
+<<<<<<< HEAD
 	 * Setting table base here only for carrying iommu_group
 	 * further down to let iommu_add_device() do the job.
 	 * pnv_pci_ioda_dma_dev_setup will override it later anyway.
 	 */
 	if (pe->flags & PNV_IODA_PE_DEV)
+=======
+	 * Set table base for the case of IOMMU DMA use. Usually this is done
+	 * from dma_dev_setup() which is not called when a device is returned
+	 * from VFIO so do it here.
+	 */
+	if (pe->pdev)
+>>>>>>> upstream/android-13
 		set_iommu_table_base(&pe->pdev->dev, tbl);
 
 	return 0;
 }
 
+<<<<<<< HEAD
 #if defined(CONFIG_IOMMU_API) || defined(CONFIG_PCI_IOV)
+=======
+>>>>>>> upstream/android-13
 static long pnv_pci_ioda2_unset_window(struct iommu_table_group *table_group,
 		int num)
 {
@@ -2574,10 +3093,16 @@ static long pnv_pci_ioda2_unset_window(struct iommu_table_group *table_group,
 
 	return ret;
 }
+<<<<<<< HEAD
 #endif
 
 #ifdef CONFIG_IOMMU_API
 static unsigned long pnv_pci_ioda2_get_table_size(__u32 page_shift,
+=======
+
+#ifdef CONFIG_IOMMU_API
+unsigned long pnv_pci_ioda2_get_table_size(__u32 page_shift,
+>>>>>>> upstream/android-13
 		__u64 window_size, __u32 levels)
 {
 	unsigned long bytes = 0;
@@ -2598,7 +3123,11 @@ static unsigned long pnv_pci_ioda2_get_table_size(__u32 page_shift,
 	direct_table_size =  1UL << table_shift;
 
 	for ( ; levels; --levels) {
+<<<<<<< HEAD
 		bytes += _ALIGN_UP(tce_table_size, direct_table_size);
+=======
+		bytes += ALIGN(tce_table_size, direct_table_size);
+>>>>>>> upstream/android-13
 
 		tce_table_size /= direct_table_size;
 		tce_table_size <<= 3;
@@ -2623,6 +3152,22 @@ static long pnv_pci_ioda2_create_table_userspace(
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static void pnv_ioda_setup_bus_dma(struct pnv_ioda_pe *pe, struct pci_bus *bus)
+{
+	struct pci_dev *dev;
+
+	list_for_each_entry(dev, &bus->devices, bus_list) {
+		set_iommu_table_base(&dev->dev, pe->table_group.tables[0]);
+		dev->dev.archdata.dma_offset = pe->tce_bypass_base;
+
+		if ((pe->flags & PNV_IODA_PE_BUS_ALL) && dev->subordinate)
+			pnv_ioda_setup_bus_dma(pe, dev->subordinate);
+	}
+}
+
+>>>>>>> upstream/android-13
 static void pnv_ioda2_take_ownership(struct iommu_table_group *table_group)
 {
 	struct pnv_ioda_pe *pe = container_of(table_group, struct pnv_ioda_pe,
@@ -2633,7 +3178,13 @@ static void pnv_ioda2_take_ownership(struct iommu_table_group *table_group)
 	pnv_pci_ioda2_set_bypass(pe, false);
 	pnv_pci_ioda2_unset_window(&pe->table_group, 0);
 	if (pe->pbus)
+<<<<<<< HEAD
 		pnv_ioda_setup_bus_dma(pe, pe->pbus, false);
+=======
+		pnv_ioda_setup_bus_dma(pe, pe->pbus);
+	else if (pe->pdev)
+		set_iommu_table_base(&pe->pdev->dev, NULL);
+>>>>>>> upstream/android-13
 	iommu_tce_table_put(tbl);
 }
 
@@ -2644,7 +3195,11 @@ static void pnv_ioda2_release_ownership(struct iommu_table_group *table_group)
 
 	pnv_pci_ioda2_setup_default_config(pe);
 	if (pe->pbus)
+<<<<<<< HEAD
 		pnv_ioda_setup_bus_dma(pe, pe->pbus, false);
+=======
+		pnv_ioda_setup_bus_dma(pe, pe->pbus);
+>>>>>>> upstream/android-13
 }
 
 static struct iommu_table_group_ops pnv_pci_ioda2_ops = {
@@ -2655,6 +3210,7 @@ static struct iommu_table_group_ops pnv_pci_ioda2_ops = {
 	.take_ownership = pnv_ioda2_take_ownership,
 	.release_ownership = pnv_ioda2_release_ownership,
 };
+<<<<<<< HEAD
 
 static int gpe_table_group_to_npe_cb(struct device *dev, void *opaque)
 {
@@ -2830,6 +3386,18 @@ static void pnv_pci_ioda2_setup_dma_pe(struct pnv_phb *phb,
 	iommu_register_group(&pe->table_group, phb->hose->global_number,
 			pe->pe_number);
 
+=======
+#endif
+
+void pnv_pci_ioda2_setup_dma_pe(struct pnv_phb *phb,
+				struct pnv_ioda_pe *pe)
+{
+	int64_t rc;
+
+	/* TVE #1 is selected by PCI address bit 59 */
+	pe->tce_bypass_base = 1ull << 59;
+
+>>>>>>> upstream/android-13
 	/* The PE will reserve all possible 32-bits space */
 	pe_info(pe, "Setting up 32-bit TCE table at 0..%08x\n",
 		phb->ioda.m32_pci_base);
@@ -2841,14 +3409,18 @@ static void pnv_pci_ioda2_setup_dma_pe(struct pnv_phb *phb,
 			IOMMU_TABLE_GROUP_MAX_TABLES;
 	pe->table_group.max_levels = POWERNV_IOMMU_MAX_LEVELS;
 	pe->table_group.pgsizes = pnv_ioda_parse_tce_sizes(phb);
+<<<<<<< HEAD
 #ifdef CONFIG_IOMMU_API
 	pe->table_group.ops = &pnv_pci_ioda2_ops;
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	rc = pnv_pci_ioda2_setup_default_config(pe);
 	if (rc)
 		return;
 
+<<<<<<< HEAD
 	if (pe->flags & (PNV_IODA_PE_BUS | PNV_IODA_PE_BUS_ALL))
 		pnv_ioda_setup_bus_dma(pe, pe->pbus, true);
 }
@@ -2862,19 +3434,60 @@ int64_t pnv_opal_pci_msi_eoi(struct irq_chip *chip, unsigned int hw_irq)
 	return opal_pci_msi_eoi(phb->opal_id, hw_irq);
 }
 
+=======
+#ifdef CONFIG_IOMMU_API
+	pe->table_group.ops = &pnv_pci_ioda2_ops;
+	iommu_register_group(&pe->table_group, phb->hose->global_number,
+			     pe->pe_number);
+#endif
+	pe->dma_setup_done = true;
+}
+
+/*
+ * Called from KVM in real mode to EOI passthru interrupts. The ICP
+ * EOI is handled directly in KVM in kvmppc_deliver_irq_passthru().
+ *
+ * The IRQ data is mapped in the PCI-MSI domain and the EOI OPAL call
+ * needs an HW IRQ number mapped in the XICS IRQ domain. The HW IRQ
+ * numbers of the in-the-middle MSI domain are vector numbers and it's
+ * good enough for OPAL. Use that.
+ */
+int64_t pnv_opal_pci_msi_eoi(struct irq_data *d)
+{
+	struct pci_controller *hose = irq_data_get_irq_chip_data(d->parent_data);
+	struct pnv_phb *phb = hose->private_data;
+
+	return opal_pci_msi_eoi(phb->opal_id, d->parent_data->hwirq);
+}
+
+/*
+ * The IRQ data is mapped in the XICS domain, with OPAL HW IRQ numbers
+ */
+>>>>>>> upstream/android-13
 static void pnv_ioda2_msi_eoi(struct irq_data *d)
 {
 	int64_t rc;
 	unsigned int hw_irq = (unsigned int)irqd_to_hwirq(d);
+<<<<<<< HEAD
 	struct irq_chip *chip = irq_data_get_irq_chip(d);
 
 	rc = pnv_opal_pci_msi_eoi(chip, hw_irq);
+=======
+	struct pci_controller *hose = irq_data_get_irq_chip_data(d);
+	struct pnv_phb *phb = hose->private_data;
+
+	rc = opal_pci_msi_eoi(phb->opal_id, hw_irq);
+>>>>>>> upstream/android-13
 	WARN_ON_ONCE(rc);
 
 	icp_native_eoi(d);
 }
 
+<<<<<<< HEAD
 
+=======
+/* P8/CXL only */
+>>>>>>> upstream/android-13
 void pnv_set_msi_irq_chip(struct pnv_phb *phb, unsigned int virq)
 {
 	struct irq_data *idata;
@@ -2896,14 +3509,23 @@ void pnv_set_msi_irq_chip(struct pnv_phb *phb, unsigned int virq)
 		phb->ioda.irq_chip.irq_eoi = pnv_ioda2_msi_eoi;
 	}
 	irq_set_chip(virq, &phb->ioda.irq_chip);
+<<<<<<< HEAD
 }
 
+=======
+	irq_set_chip_data(virq, phb->hose);
+}
+
+static struct irq_chip pnv_pci_msi_irq_chip;
+
+>>>>>>> upstream/android-13
 /*
  * Returns true iff chip is something that we could call
  * pnv_opal_pci_msi_eoi for.
  */
 bool is_pnv_opal_msi(struct irq_chip *chip)
 {
+<<<<<<< HEAD
 	return chip->irq_eoi == pnv_ioda2_msi_eoi;
 }
 EXPORT_SYMBOL_GPL(is_pnv_opal_msi);
@@ -2917,6 +3539,23 @@ static int pnv_pci_ioda_msi_setup(struct pnv_phb *phb, struct pci_dev *dev,
 	__be32 data;
 	int rc;
 
+=======
+	return chip == &pnv_pci_msi_irq_chip;
+}
+EXPORT_SYMBOL_GPL(is_pnv_opal_msi);
+
+static int __pnv_pci_ioda_msi_setup(struct pnv_phb *phb, struct pci_dev *dev,
+				    unsigned int xive_num,
+				    unsigned int is_64, struct msi_msg *msg)
+{
+	struct pnv_ioda_pe *pe = pnv_ioda_get_pe(dev);
+	__be32 data;
+	int rc;
+
+	dev_dbg(&dev->dev, "%s: setup %s-bit MSI for vector #%d\n", __func__,
+		is_64 ? "64" : "32", xive_num);
+
+>>>>>>> upstream/android-13
 	/* No PE assigned ? bail out ... no MSI for you ! */
 	if (pe == NULL)
 		return -ENXIO;
@@ -2964,12 +3603,218 @@ static int pnv_pci_ioda_msi_setup(struct pnv_phb *phb, struct pci_dev *dev,
 	}
 	msg->data = be32_to_cpu(data);
 
+<<<<<<< HEAD
 	pnv_set_msi_irq_chip(phb, virq);
 
 	pr_devel("%s: %s-bit MSI on hwirq %x (xive #%d),"
 		 " address=%x_%08x data=%x PE# %x\n",
 		 pci_name(dev), is_64 ? "64" : "32", hwirq, xive_num,
 		 msg->address_hi, msg->address_lo, data, pe->pe_number);
+=======
+	return 0;
+}
+
+/*
+ * The msi_free() op is called before irq_domain_free_irqs_top() when
+ * the handler data is still available. Use that to clear the XIVE
+ * controller.
+ */
+static void pnv_msi_ops_msi_free(struct irq_domain *domain,
+				 struct msi_domain_info *info,
+				 unsigned int irq)
+{
+	if (xive_enabled())
+		xive_irq_free_data(irq);
+}
+
+static struct msi_domain_ops pnv_pci_msi_domain_ops = {
+	.msi_free	= pnv_msi_ops_msi_free,
+};
+
+static void pnv_msi_shutdown(struct irq_data *d)
+{
+	d = d->parent_data;
+	if (d->chip->irq_shutdown)
+		d->chip->irq_shutdown(d);
+}
+
+static void pnv_msi_mask(struct irq_data *d)
+{
+	pci_msi_mask_irq(d);
+	irq_chip_mask_parent(d);
+}
+
+static void pnv_msi_unmask(struct irq_data *d)
+{
+	pci_msi_unmask_irq(d);
+	irq_chip_unmask_parent(d);
+}
+
+static struct irq_chip pnv_pci_msi_irq_chip = {
+	.name		= "PNV-PCI-MSI",
+	.irq_shutdown	= pnv_msi_shutdown,
+	.irq_mask	= pnv_msi_mask,
+	.irq_unmask	= pnv_msi_unmask,
+	.irq_eoi	= irq_chip_eoi_parent,
+};
+
+static struct msi_domain_info pnv_msi_domain_info = {
+	.flags = (MSI_FLAG_USE_DEF_DOM_OPS | MSI_FLAG_USE_DEF_CHIP_OPS |
+		  MSI_FLAG_MULTI_PCI_MSI  | MSI_FLAG_PCI_MSIX),
+	.ops   = &pnv_pci_msi_domain_ops,
+	.chip  = &pnv_pci_msi_irq_chip,
+};
+
+static void pnv_msi_compose_msg(struct irq_data *d, struct msi_msg *msg)
+{
+	struct msi_desc *entry = irq_data_get_msi_desc(d);
+	struct pci_dev *pdev = msi_desc_to_pci_dev(entry);
+	struct pci_controller *hose = irq_data_get_irq_chip_data(d);
+	struct pnv_phb *phb = hose->private_data;
+	int rc;
+
+	rc = __pnv_pci_ioda_msi_setup(phb, pdev, d->hwirq,
+				      entry->msi_attrib.is_64, msg);
+	if (rc)
+		dev_err(&pdev->dev, "Failed to setup %s-bit MSI #%ld : %d\n",
+			entry->msi_attrib.is_64 ? "64" : "32", d->hwirq, rc);
+}
+
+/*
+ * The IRQ data is mapped in the MSI domain in which HW IRQ numbers
+ * correspond to vector numbers.
+ */
+static void pnv_msi_eoi(struct irq_data *d)
+{
+	struct pci_controller *hose = irq_data_get_irq_chip_data(d);
+	struct pnv_phb *phb = hose->private_data;
+
+	if (phb->model == PNV_PHB_MODEL_PHB3) {
+		/*
+		 * The EOI OPAL call takes an OPAL HW IRQ number but
+		 * since it is translated into a vector number in
+		 * OPAL, use that directly.
+		 */
+		WARN_ON_ONCE(opal_pci_msi_eoi(phb->opal_id, d->hwirq));
+	}
+
+	irq_chip_eoi_parent(d);
+}
+
+static struct irq_chip pnv_msi_irq_chip = {
+	.name			= "PNV-MSI",
+	.irq_shutdown		= pnv_msi_shutdown,
+	.irq_mask		= irq_chip_mask_parent,
+	.irq_unmask		= irq_chip_unmask_parent,
+	.irq_eoi		= pnv_msi_eoi,
+	.irq_set_affinity	= irq_chip_set_affinity_parent,
+	.irq_compose_msi_msg	= pnv_msi_compose_msg,
+};
+
+static int pnv_irq_parent_domain_alloc(struct irq_domain *domain,
+				       unsigned int virq, int hwirq)
+{
+	struct irq_fwspec parent_fwspec;
+	int ret;
+
+	parent_fwspec.fwnode = domain->parent->fwnode;
+	parent_fwspec.param_count = 2;
+	parent_fwspec.param[0] = hwirq;
+	parent_fwspec.param[1] = IRQ_TYPE_EDGE_RISING;
+
+	ret = irq_domain_alloc_irqs_parent(domain, virq, 1, &parent_fwspec);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
+static int pnv_irq_domain_alloc(struct irq_domain *domain, unsigned int virq,
+				unsigned int nr_irqs, void *arg)
+{
+	struct pci_controller *hose = domain->host_data;
+	struct pnv_phb *phb = hose->private_data;
+	msi_alloc_info_t *info = arg;
+	struct pci_dev *pdev = msi_desc_to_pci_dev(info->desc);
+	int hwirq;
+	int i, ret;
+
+	hwirq = msi_bitmap_alloc_hwirqs(&phb->msi_bmp, nr_irqs);
+	if (hwirq < 0) {
+		dev_warn(&pdev->dev, "failed to find a free MSI\n");
+		return -ENOSPC;
+	}
+
+	dev_dbg(&pdev->dev, "%s bridge %pOF %d/%x #%d\n", __func__,
+		hose->dn, virq, hwirq, nr_irqs);
+
+	for (i = 0; i < nr_irqs; i++) {
+		ret = pnv_irq_parent_domain_alloc(domain, virq + i,
+						  phb->msi_base + hwirq + i);
+		if (ret)
+			goto out;
+
+		irq_domain_set_hwirq_and_chip(domain, virq + i, hwirq + i,
+					      &pnv_msi_irq_chip, hose);
+	}
+
+	return 0;
+
+out:
+	irq_domain_free_irqs_parent(domain, virq, i - 1);
+	msi_bitmap_free_hwirqs(&phb->msi_bmp, hwirq, nr_irqs);
+	return ret;
+}
+
+static void pnv_irq_domain_free(struct irq_domain *domain, unsigned int virq,
+				unsigned int nr_irqs)
+{
+	struct irq_data *d = irq_domain_get_irq_data(domain, virq);
+	struct pci_controller *hose = irq_data_get_irq_chip_data(d);
+	struct pnv_phb *phb = hose->private_data;
+
+	pr_debug("%s bridge %pOF %d/%lx #%d\n", __func__, hose->dn,
+		 virq, d->hwirq, nr_irqs);
+
+	msi_bitmap_free_hwirqs(&phb->msi_bmp, d->hwirq, nr_irqs);
+	/* XIVE domain is cleared through ->msi_free() */
+}
+
+static const struct irq_domain_ops pnv_irq_domain_ops = {
+	.alloc  = pnv_irq_domain_alloc,
+	.free   = pnv_irq_domain_free,
+};
+
+static int pnv_msi_allocate_domains(struct pci_controller *hose, unsigned int count)
+{
+	struct pnv_phb *phb = hose->private_data;
+	struct irq_domain *parent = irq_get_default_host();
+
+	hose->fwnode = irq_domain_alloc_named_id_fwnode("PNV-MSI", phb->opal_id);
+	if (!hose->fwnode)
+		return -ENOMEM;
+
+	hose->dev_domain = irq_domain_create_hierarchy(parent, 0, count,
+						       hose->fwnode,
+						       &pnv_irq_domain_ops, hose);
+	if (!hose->dev_domain) {
+		pr_err("PCI: failed to create IRQ domain bridge %pOF (domain %d)\n",
+		       hose->dn, hose->global_number);
+		irq_domain_free_fwnode(hose->fwnode);
+		return -ENOMEM;
+	}
+
+	hose->msi_domain = pci_msi_create_irq_domain(of_node_to_fwnode(hose->dn),
+						     &pnv_msi_domain_info,
+						     hose->dev_domain);
+	if (!hose->msi_domain) {
+		pr_err("PCI: failed to create MSI IRQ domain bridge %pOF (domain %d)\n",
+		       hose->dn, hose->global_number);
+		irq_domain_free_fwnode(hose->fwnode);
+		irq_domain_remove(hose->dev_domain);
+		return -ENOMEM;
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -2994,6 +3839,7 @@ static void pnv_pci_init_ioda_msis(struct pnv_phb *phb)
 		return;
 	}
 
+<<<<<<< HEAD
 	phb->msi_setup = pnv_pci_ioda_msi_setup;
 	phb->msi32_support = 1;
 	pr_info("  Allocated bitmap for %d MSIs (base IRQ 0x%x)\n",
@@ -3114,6 +3960,13 @@ static void pnv_pci_ioda_fixup_iov(struct pci_dev *pdev)
 	}
 }
 #endif /* CONFIG_PCI_IOV */
+=======
+	pr_info("  Allocated bitmap for %d MSIs (base IRQ 0x%x)\n",
+		count, phb->msi_base);
+
+	pnv_msi_allocate_domains(phb->hose, count);
+}
+>>>>>>> upstream/android-13
 
 static void pnv_ioda_setup_pe_res(struct pnv_ioda_pe *pe,
 				  struct resource *res)
@@ -3209,6 +4062,7 @@ static void pnv_ioda_setup_pe_seg(struct pnv_ioda_pe *pe)
 #ifdef CONFIG_DEBUG_FS
 static int pnv_pci_diag_data_set(void *data, u64 val)
 {
+<<<<<<< HEAD
 	struct pci_controller *hose;
 	struct pnv_phb *phb;
 	s64 ret;
@@ -3222,6 +4076,11 @@ static int pnv_pci_diag_data_set(void *data, u64 val)
 
 	phb = hose->private_data;
 
+=======
+	struct pnv_phb *phb = data;
+	s64 ret;
+
+>>>>>>> upstream/android-13
 	/* Retrieve the diag data from firmware */
 	ret = opal_pci_get_phb_diag_data2(phb->opal_id, phb->diag_data,
 					  phb->diag_data_size);
@@ -3233,8 +4092,40 @@ static int pnv_pci_diag_data_set(void *data, u64 val)
 	return 0;
 }
 
+<<<<<<< HEAD
 DEFINE_SIMPLE_ATTRIBUTE(pnv_pci_diag_data_fops, NULL,
 			pnv_pci_diag_data_set, "%llu\n");
+=======
+DEFINE_DEBUGFS_ATTRIBUTE(pnv_pci_diag_data_fops, NULL, pnv_pci_diag_data_set,
+			 "%llu\n");
+
+static int pnv_pci_ioda_pe_dump(void *data, u64 val)
+{
+	struct pnv_phb *phb = data;
+	int pe_num;
+
+	for (pe_num = 0; pe_num < phb->ioda.total_pe_num; pe_num++) {
+		struct pnv_ioda_pe *pe = &phb->ioda.pe_array[pe_num];
+
+		if (!test_bit(pe_num, phb->ioda.pe_alloc))
+			continue;
+
+		pe_warn(pe, "rid: %04x dev count: %2d flags: %s%s%s%s%s%s\n",
+			pe->rid, pe->device_count,
+			(pe->flags & PNV_IODA_PE_DEV) ? "dev " : "",
+			(pe->flags & PNV_IODA_PE_BUS) ? "bus " : "",
+			(pe->flags & PNV_IODA_PE_BUS_ALL) ? "all " : "",
+			(pe->flags & PNV_IODA_PE_MASTER) ? "master " : "",
+			(pe->flags & PNV_IODA_PE_SLAVE) ? "slave " : "",
+			(pe->flags & PNV_IODA_PE_VF) ? "vf " : "");
+	}
+
+	return 0;
+}
+
+DEFINE_DEBUGFS_ATTRIBUTE(pnv_pci_ioda_pe_dump_fops, NULL,
+			 pnv_pci_ioda_pe_dump, "%llu\n");
+>>>>>>> upstream/android-13
 
 #endif /* CONFIG_DEBUG_FS */
 
@@ -3248,6 +4139,7 @@ static void pnv_pci_ioda_create_dbgfs(void)
 	list_for_each_entry_safe(hose, tmp, &hose_list, list_node) {
 		phb = hose->private_data;
 
+<<<<<<< HEAD
 		/* Notify initialization of PHB done */
 		phb->initialized = 1;
 
@@ -3261,6 +4153,15 @@ static void pnv_pci_ioda_create_dbgfs(void)
 
 		debugfs_create_file("dump_diag_regs", 0200, phb->dbgfs, hose,
 				    &pnv_pci_diag_data_fops);
+=======
+		sprintf(name, "PCI%04x", hose->global_number);
+		phb->dbgfs = debugfs_create_dir(name, arch_debugfs_dir);
+
+		debugfs_create_file_unsafe("dump_diag_regs", 0200, phb->dbgfs,
+					   phb, &pnv_pci_diag_data_fops);
+		debugfs_create_file_unsafe("dump_ioda_pe_state", 0200, phb->dbgfs,
+					   phb, &pnv_pci_ioda_pe_dump_fops);
+>>>>>>> upstream/android-13
 	}
 #endif /* CONFIG_DEBUG_FS */
 }
@@ -3302,8 +4203,11 @@ static void pnv_pci_enable_bridges(void)
 
 static void pnv_pci_ioda_fixup(void)
 {
+<<<<<<< HEAD
 	pnv_pci_ioda_setup_PEs();
 	pnv_pci_ioda_setup_iommu_api();
+=======
+>>>>>>> upstream/android-13
 	pnv_pci_ioda_create_dbgfs();
 
 	pnv_pci_enable_bridges();
@@ -3328,10 +4232,16 @@ static void pnv_pci_ioda_fixup(void)
 static resource_size_t pnv_pci_window_alignment(struct pci_bus *bus,
 						unsigned long type)
 {
+<<<<<<< HEAD
 	struct pci_dev *bridge;
 	struct pci_controller *hose = pci_bus_to_host(bus);
 	struct pnv_phb *phb = hose->private_data;
 	int num_pci_bridges = 0;
+=======
+	struct pnv_phb *phb = pci_bus_to_pnvhb(bus);
+	int num_pci_bridges = 0;
+	struct pci_dev *bridge;
+>>>>>>> upstream/android-13
 
 	bridge = bus->self;
 	while (bridge) {
@@ -3415,6 +4325,7 @@ static void pnv_pci_fixup_bridge_resources(struct pci_bus *bus,
 	}
 }
 
+<<<<<<< HEAD
 static void pnv_pci_setup_bridge(struct pci_bus *bus, unsigned long type)
 {
 	struct pci_controller *hose = pci_bus_to_host(bus);
@@ -3442,6 +4353,22 @@ static void pnv_pci_setup_bridge(struct pci_bus *bus, unsigned long type)
 	/* Reserve PEs according to used M64 resources */
 	if (phb->reserve_m64_pe)
 		phb->reserve_m64_pe(bus, NULL, all);
+=======
+static void pnv_pci_configure_bus(struct pci_bus *bus)
+{
+	struct pci_dev *bridge = bus->self;
+	struct pnv_ioda_pe *pe;
+	bool all = (bridge && pci_pcie_type(bridge) == PCI_EXP_TYPE_PCI_BRIDGE);
+
+	dev_info(&bus->dev, "Configuring PE for bus\n");
+
+	/* Don't assign PE to PCI bus, which doesn't have subordinate devices */
+	if (WARN_ON(list_empty(&bus->devices)))
+		return;
+
+	/* Reserve PEs according to used M64 resources */
+	pnv_ioda_reserve_m64_pe(bus, NULL, all);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Assign PE. We might run here because of partial hotplug.
@@ -3453,6 +4380,7 @@ static void pnv_pci_setup_bridge(struct pci_bus *bus, unsigned long type)
 		return;
 
 	pnv_ioda_setup_pe_seg(pe);
+<<<<<<< HEAD
 	switch (phb->type) {
 	case PNV_PHB_IODA1:
 		pnv_pci_ioda1_setup_dma_pe(phb, pe);
@@ -3464,6 +4392,8 @@ static void pnv_pci_setup_bridge(struct pci_bus *bus, unsigned long type)
 		pr_warn("%s: No DMA for PHB#%x (type %d)\n",
 			__func__, phb->hose->global_number, phb->type);
 	}
+=======
+>>>>>>> upstream/android-13
 }
 
 static resource_size_t pnv_pci_default_alignment(void)
@@ -3471,6 +4401,7 @@ static resource_size_t pnv_pci_default_alignment(void)
 	return PAGE_SIZE;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PCI_IOV
 static resource_size_t pnv_pci_iov_resource_alignment(struct pci_dev *pdev,
 						      int resno)
@@ -3507,11 +4438,14 @@ static resource_size_t pnv_pci_iov_resource_alignment(struct pci_dev *pdev,
 }
 #endif /* CONFIG_PCI_IOV */
 
+=======
+>>>>>>> upstream/android-13
 /* Prevent enabling devices for which we couldn't properly
  * assign a PE
  */
 static bool pnv_pci_enable_device_hook(struct pci_dev *dev)
 {
+<<<<<<< HEAD
 	struct pci_controller *hose = pci_bus_to_host(dev->bus);
 	struct pnv_phb *phb = hose->private_data;
 	struct pci_dn *pdn;
@@ -3528,6 +4462,33 @@ static bool pnv_pci_enable_device_hook(struct pci_dev *dev)
 	if (!pdn || pdn->pe_number == IODA_INVALID_PE)
 		return false;
 
+=======
+	struct pci_dn *pdn;
+
+	pdn = pci_get_pdn(dev);
+	if (!pdn || pdn->pe_number == IODA_INVALID_PE) {
+		pci_err(dev, "pci_enable_device() blocked, no PE assigned.\n");
+		return false;
+	}
+
+	return true;
+}
+
+static bool pnv_ocapi_enable_device_hook(struct pci_dev *dev)
+{
+	struct pci_dn *pdn;
+	struct pnv_ioda_pe *pe;
+
+	pdn = pci_get_pdn(dev);
+	if (!pdn)
+		return false;
+
+	if (pdn->pe_number == IODA_INVALID_PE) {
+		pe = pnv_ioda_setup_dev_PE(dev);
+		if (!pe)
+			return false;
+	}
+>>>>>>> upstream/android-13
 	return true;
 }
 
@@ -3562,11 +4523,18 @@ static long pnv_pci_ioda1_unset_window(struct iommu_table_group *table_group,
 
 static void pnv_pci_ioda1_release_pe_dma(struct pnv_ioda_pe *pe)
 {
+<<<<<<< HEAD
 	unsigned int weight = pnv_pci_ioda_pe_dma_weight(pe);
 	struct iommu_table *tbl = pe->table_group.tables[0];
 	int64_t rc;
 
 	if (!weight)
+=======
+	struct iommu_table *tbl = pe->table_group.tables[0];
+	int64_t rc;
+
+	if (!pe->dma_setup_done)
+>>>>>>> upstream/android-13
 		return;
 
 	rc = pnv_pci_ioda1_unset_window(&pe->table_group, 0);
@@ -3583,6 +4551,7 @@ static void pnv_pci_ioda1_release_pe_dma(struct pnv_ioda_pe *pe)
 	iommu_tce_table_put(tbl);
 }
 
+<<<<<<< HEAD
 static void pnv_pci_ioda2_release_pe_dma(struct pnv_ioda_pe *pe)
 {
 	struct iommu_table *tbl = pe->table_group.tables[0];
@@ -3599,6 +4568,19 @@ static void pnv_pci_ioda2_release_pe_dma(struct pnv_ioda_pe *pe)
 	if (rc)
 		pe_warn(pe, "OPAL error %ld release DMA window\n", rc);
 #endif
+=======
+void pnv_pci_ioda2_release_pe_dma(struct pnv_ioda_pe *pe)
+{
+	struct iommu_table *tbl = pe->table_group.tables[0];
+	int64_t rc;
+
+	if (!pe->dma_setup_done)
+		return;
+
+	rc = pnv_pci_ioda2_unset_window(&pe->table_group, 0);
+	if (rc)
+		pe_warn(pe, "OPAL error %lld release DMA window\n", rc);
+>>>>>>> upstream/android-13
 
 	pnv_pci_ioda2_set_bypass(pe, false);
 	if (pe->table_group.group) {
@@ -3621,6 +4603,7 @@ static void pnv_ioda_free_pe_seg(struct pnv_ioda_pe *pe,
 		if (map[idx] != pe->pe_number)
 			continue;
 
+<<<<<<< HEAD
 		if (win == OPAL_M64_WINDOW_TYPE)
 			rc = opal_pci_map_pe_mmio_window(phb->opal_id,
 					phb->ioda.reserved_pe_idx, win,
@@ -3632,6 +4615,13 @@ static void pnv_ioda_free_pe_seg(struct pnv_ioda_pe *pe,
 
 		if (rc != OPAL_SUCCESS)
 			pe_warn(pe, "Error %ld unmapping (%d) segment#%d\n",
+=======
+		rc = opal_pci_map_pe_mmio_window(phb->opal_id,
+				phb->ioda.reserved_pe_idx, win, 0, idx);
+
+		if (rc != OPAL_SUCCESS)
+			pe_warn(pe, "Error %lld unmapping (%d) segment#%d\n",
+>>>>>>> upstream/android-13
 				rc, win, idx);
 
 		map[idx] = IODA_INVALID_PE;
@@ -3647,8 +4637,12 @@ static void pnv_ioda_release_pe_seg(struct pnv_ioda_pe *pe)
 				     phb->ioda.io_segmap);
 		pnv_ioda_free_pe_seg(pe, OPAL_M32_WINDOW_TYPE,
 				     phb->ioda.m32_segmap);
+<<<<<<< HEAD
 		pnv_ioda_free_pe_seg(pe, OPAL_M64_WINDOW_TYPE,
 				     phb->ioda.m64_segmap);
+=======
+		/* M64 is pre-configured by pnv_ioda1_init_m64() */
+>>>>>>> upstream/android-13
 	} else if (phb->type == PNV_PHB_IODA2) {
 		pnv_ioda_free_pe_seg(pe, OPAL_M32_WINDOW_TYPE,
 				     phb->ioda.m32_segmap);
@@ -3660,7 +4654,16 @@ static void pnv_ioda_release_pe(struct pnv_ioda_pe *pe)
 	struct pnv_phb *phb = pe->phb;
 	struct pnv_ioda_pe *slave, *tmp;
 
+<<<<<<< HEAD
 	list_del(&pe->list);
+=======
+	pe_info(pe, "Releasing PE\n");
+
+	mutex_lock(&phb->ioda.pe_list_mutex);
+	list_del(&pe->list);
+	mutex_unlock(&phb->ioda.pe_list_mutex);
+
+>>>>>>> upstream/android-13
 	switch (phb->type) {
 	case PNV_PHB_IODA1:
 		pnv_pci_ioda1_release_pe_dma(pe);
@@ -3668,6 +4671,11 @@ static void pnv_ioda_release_pe(struct pnv_ioda_pe *pe)
 	case PNV_PHB_IODA2:
 		pnv_pci_ioda2_release_pe_dma(pe);
 		break;
+<<<<<<< HEAD
+=======
+	case PNV_PHB_NPU_OCAPI:
+		break;
+>>>>>>> upstream/android-13
 	default:
 		WARN_ON(1);
 	}
@@ -3689,26 +4697,54 @@ static void pnv_ioda_release_pe(struct pnv_ioda_pe *pe)
 	 * that it can be populated again in PCI hot add path. The PE
 	 * shouldn't be destroyed as it's the global reserved resource.
 	 */
+<<<<<<< HEAD
 	if (phb->ioda.root_pe_populated &&
 	    phb->ioda.root_pe_idx == pe->pe_number)
 		phb->ioda.root_pe_populated = false;
 	else
 		pnv_ioda_free_pe(pe);
+=======
+	if (phb->ioda.root_pe_idx == pe->pe_number)
+		return;
+
+	pnv_ioda_free_pe(pe);
+>>>>>>> upstream/android-13
 }
 
 static void pnv_pci_release_device(struct pci_dev *pdev)
 {
+<<<<<<< HEAD
 	struct pci_controller *hose = pci_bus_to_host(pdev->bus);
 	struct pnv_phb *phb = hose->private_data;
 	struct pci_dn *pdn = pci_get_pdn(pdev);
 	struct pnv_ioda_pe *pe;
 
+=======
+	struct pnv_phb *phb = pci_bus_to_pnvhb(pdev->bus);
+	struct pci_dn *pdn = pci_get_pdn(pdev);
+	struct pnv_ioda_pe *pe;
+
+	/* The VF PE state is torn down when sriov_disable() is called */
+>>>>>>> upstream/android-13
 	if (pdev->is_virtfn)
 		return;
 
 	if (!pdn || pdn->pe_number == IODA_INVALID_PE)
 		return;
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PCI_IOV
+	/*
+	 * FIXME: Try move this to sriov_disable(). It's here since we allocate
+	 * the iov state at probe time since we need to fiddle with the IOV
+	 * resources.
+	 */
+	if (pdev->is_physfn)
+		kfree(pdev->dev.archdata.iov_data);
+#endif
+
+>>>>>>> upstream/android-13
 	/*
 	 * PCI hotplug can happen as part of EEH error recovery. The @pdn
 	 * isn't removed and added afterwards in this scenario. We should
@@ -3733,6 +4769,7 @@ static void pnv_pci_ioda_shutdown(struct pci_controller *hose)
 		       OPAL_ASSERT_RESET);
 }
 
+<<<<<<< HEAD
 static const struct pci_controller_ops pnv_pci_ioda_controller_ops = {
 	.dma_dev_setup		= pnv_pci_dma_dev_setup,
 	.dma_bus_setup		= pnv_pci_dma_bus_setup,
@@ -3768,11 +4805,46 @@ static const struct pci_controller_ops pnv_npu_ioda_controller_ops = {
 	.window_alignment	= pnv_pci_window_alignment,
 	.reset_secondary_bus	= pnv_pci_reset_secondary_bus,
 	.dma_set_mask		= pnv_npu_dma_set_mask,
+=======
+static void pnv_pci_ioda_dma_bus_setup(struct pci_bus *bus)
+{
+	struct pnv_phb *phb = pci_bus_to_pnvhb(bus);
+	struct pnv_ioda_pe *pe;
+
+	list_for_each_entry(pe, &phb->ioda.pe_list, list) {
+		if (!(pe->flags & (PNV_IODA_PE_BUS | PNV_IODA_PE_BUS_ALL)))
+			continue;
+
+		if (!pe->pbus)
+			continue;
+
+		if (bus->number == ((pe->rid >> 8) & 0xFF)) {
+			pe->pbus = bus;
+			break;
+		}
+	}
+}
+
+static const struct pci_controller_ops pnv_pci_ioda_controller_ops = {
+	.dma_dev_setup		= pnv_pci_ioda_dma_dev_setup,
+	.dma_bus_setup		= pnv_pci_ioda_dma_bus_setup,
+	.iommu_bypass_supported	= pnv_pci_ioda_iommu_bypass_supported,
+	.enable_device_hook	= pnv_pci_enable_device_hook,
+	.release_device		= pnv_pci_release_device,
+	.window_alignment	= pnv_pci_window_alignment,
+	.setup_bridge		= pnv_pci_fixup_bridge_resources,
+	.reset_secondary_bus	= pnv_pci_reset_secondary_bus,
+>>>>>>> upstream/android-13
 	.shutdown		= pnv_pci_ioda_shutdown,
 };
 
 static const struct pci_controller_ops pnv_npu_ocapi_ioda_controller_ops = {
+<<<<<<< HEAD
 	.enable_device_hook	= pnv_pci_enable_device_hook,
+=======
+	.enable_device_hook	= pnv_ocapi_enable_device_hook,
+	.release_device		= pnv_pci_release_device,
+>>>>>>> upstream/android-13
 	.window_alignment	= pnv_pci_window_alignment,
 	.reset_secondary_bus	= pnv_pci_reset_secondary_bus,
 	.shutdown		= pnv_pci_ioda_shutdown,
@@ -3785,6 +4857,10 @@ static void __init pnv_pci_init_ioda_phb(struct device_node *np,
 	struct pnv_phb *phb;
 	unsigned long size, m64map_off, m32map_off, pemap_off;
 	unsigned long iomap_off = 0, dma32map_off = 0;
+<<<<<<< HEAD
+=======
+	struct pnv_ioda_pe *root_pe;
+>>>>>>> upstream/android-13
 	struct resource r;
 	const __be64 *prop64;
 	const __be32 *prop32;
@@ -3807,7 +4883,14 @@ static void __init pnv_pci_init_ioda_phb(struct device_node *np,
 	phb_id = be64_to_cpup(prop64);
 	pr_debug("  PHB-ID  : 0x%016llx\n", phb_id);
 
+<<<<<<< HEAD
 	phb = memblock_virt_alloc(sizeof(*phb), 0);
+=======
+	phb = kzalloc(sizeof(*phb), GFP_KERNEL);
+	if (!phb)
+		panic("%s: Failed to allocate %zu bytes\n", __func__,
+		      sizeof(*phb));
+>>>>>>> upstream/android-13
 
 	/* Allocate PCI controller */
 	phb->hose = hose = pcibios_alloc_controller(np);
@@ -3839,10 +4922,13 @@ static void __init pnv_pci_init_ioda_phb(struct device_node *np,
 		phb->model = PNV_PHB_MODEL_P7IOC;
 	else if (of_device_is_compatible(np, "ibm,power8-pciex"))
 		phb->model = PNV_PHB_MODEL_PHB3;
+<<<<<<< HEAD
 	else if (of_device_is_compatible(np, "ibm,power8-npu-pciex"))
 		phb->model = PNV_PHB_MODEL_NPU;
 	else if (of_device_is_compatible(np, "ibm,power9-npu-pciex"))
 		phb->model = PNV_PHB_MODEL_NPU2;
+=======
+>>>>>>> upstream/android-13
 	else
 		phb->model = PNV_PHB_MODEL_UNKNOWN;
 
@@ -3853,7 +4939,14 @@ static void __init pnv_pci_init_ioda_phb(struct device_node *np,
 	else
 		phb->diag_data_size = PNV_PCI_DIAG_BUF_SIZE;
 
+<<<<<<< HEAD
 	phb->diag_data = memblock_virt_alloc(phb->diag_data_size, 0);
+=======
+	phb->diag_data = kzalloc(phb->diag_data_size, GFP_KERNEL);
+	if (!phb->diag_data)
+		panic("%s: Failed to allocate %u bytes\n", __func__,
+		      phb->diag_data_size);
+>>>>>>> upstream/android-13
 
 	/* Parse 32-bit and IO ranges (if any) */
 	pci_process_bridge_OF_ranges(hose, np, !hose->global_number);
@@ -3897,7 +4990,11 @@ static void __init pnv_pci_init_ioda_phb(struct device_node *np,
 				PNV_IODA1_DMA32_SEGSIZE;
 
 	/* Allocate aux data & arrays. We don't have IO ports on PHB3 */
+<<<<<<< HEAD
 	size = _ALIGN_UP(max_t(unsigned, phb->ioda.total_pe_num, 8) / 8,
+=======
+	size = ALIGN(max_t(unsigned, phb->ioda.total_pe_num, 8) / 8,
+>>>>>>> upstream/android-13
 			sizeof(unsigned long));
 	m64map_off = size;
 	size += phb->ioda.total_pe_num * sizeof(phb->ioda.m64_segmap[0]);
@@ -3912,7 +5009,14 @@ static void __init pnv_pci_init_ioda_phb(struct device_node *np,
 	}
 	pemap_off = size;
 	size += phb->ioda.total_pe_num * sizeof(struct pnv_ioda_pe);
+<<<<<<< HEAD
 	aux = memblock_virt_alloc(size, 0);
+=======
+	aux = kzalloc(size, GFP_KERNEL);
+	if (!aux)
+		panic("%s: Failed to allocate %lu bytes\n", __func__, size);
+
+>>>>>>> upstream/android-13
 	phb->ioda.pe_alloc = aux;
 	phb->ioda.m64_segmap = aux + m64map_off;
 	phb->ioda.m32_segmap = aux + m32map_off;
@@ -3944,7 +5048,13 @@ static void __init pnv_pci_init_ioda_phb(struct device_node *np,
 		phb->ioda.root_pe_idx = phb->ioda.reserved_pe_idx - 1;
 		pnv_ioda_reserve_pe(phb, phb->ioda.root_pe_idx);
 	} else {
+<<<<<<< HEAD
 		phb->ioda.root_pe_idx = IODA_INVALID_PE;
+=======
+		/* otherwise just allocate one */
+		root_pe = pnv_ioda_alloc_pe(phb, 1);
+		phb->ioda.root_pe_idx = root_pe->pe_number;
+>>>>>>> upstream/android-13
 	}
 
 	INIT_LIST_HEAD(&phb->ioda.pe_list);
@@ -3992,14 +5102,20 @@ static void __init pnv_pci_init_ioda_phb(struct device_node *np,
 	ppc_md.pcibios_fixup = pnv_pci_ioda_fixup;
 
 	switch (phb->type) {
+<<<<<<< HEAD
 	case PNV_PHB_NPU_NVLINK:
 		hose->controller_ops = pnv_npu_ioda_controller_ops;
 		break;
+=======
+>>>>>>> upstream/android-13
 	case PNV_PHB_NPU_OCAPI:
 		hose->controller_ops = pnv_npu_ocapi_ioda_controller_ops;
 		break;
 	default:
+<<<<<<< HEAD
 		phb->dma_dev_setup = pnv_pci_ioda_dma_dev_setup;
+=======
+>>>>>>> upstream/android-13
 		hose->controller_ops = pnv_pci_ioda_controller_ops;
 	}
 
@@ -4024,9 +5140,18 @@ static void __init pnv_pci_init_ioda_phb(struct device_node *np,
 	 * shutdown PCI devices correctly. We already got IODA table
 	 * cleaned out. So we have to issue PHB reset to stop all PCI
 	 * transactions from previous kernel. The ppc_pci_reset_phbs
+<<<<<<< HEAD
 	 * kernel parameter will force this reset too.
 	 */
 	if (is_kdump_kernel() || pci_reset_phbs) {
+=======
+	 * kernel parameter will force this reset too. Additionally,
+	 * if the IODA reset above failed then use a bigger hammer.
+	 * This can happen if we get a PHB fatal error in very early
+	 * boot.
+	 */
+	if (is_kdump_kernel() || pci_reset_phbs || rc) {
+>>>>>>> upstream/android-13
 		pr_info("  Issue PHB reset ...\n");
 		pnv_eeh_phb_reset(hose, EEH_RESET_FUNDAMENTAL);
 		pnv_eeh_phb_reset(hose, EEH_RESET_DEACTIVATE);
@@ -4035,6 +5160,12 @@ static void __init pnv_pci_init_ioda_phb(struct device_node *np,
 	/* Remove M64 resource if we can't configure it successfully */
 	if (!phb->init_m64 || phb->init_m64(phb))
 		hose->mem_resources[1].flags = 0;
+<<<<<<< HEAD
+=======
+
+	/* create pci_dn's for DT nodes under this PHB */
+	pci_devs_phb_init_dynamic(hose);
+>>>>>>> upstream/android-13
 }
 
 void __init pnv_pci_init_ioda2_phb(struct device_node *np)
@@ -4042,11 +5173,14 @@ void __init pnv_pci_init_ioda2_phb(struct device_node *np)
 	pnv_pci_init_ioda_phb(np, 0, PNV_PHB_IODA2);
 }
 
+<<<<<<< HEAD
 void __init pnv_pci_init_npu_phb(struct device_node *np)
 {
 	pnv_pci_init_ioda_phb(np, 0, PNV_PHB_NPU_NVLINK);
 }
 
+=======
+>>>>>>> upstream/android-13
 void __init pnv_pci_init_npu2_opencapi_phb(struct device_node *np)
 {
 	pnv_pci_init_ioda_phb(np, 0, PNV_PHB_NPU_OCAPI);
@@ -4054,8 +5188,12 @@ void __init pnv_pci_init_npu2_opencapi_phb(struct device_node *np)
 
 static void pnv_npu2_opencapi_cfg_size_fixup(struct pci_dev *dev)
 {
+<<<<<<< HEAD
 	struct pci_controller *hose = pci_bus_to_host(dev->bus);
 	struct pnv_phb *phb = hose->private_data;
+=======
+	struct pnv_phb *phb = pci_bus_to_pnvhb(dev->bus);
+>>>>>>> upstream/android-13
 
 	if (!machine_is(powernv))
 		return;

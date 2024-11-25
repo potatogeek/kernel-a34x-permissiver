@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Voltage regulator support for AMS AS3722 PMIC
  *
@@ -5,6 +9,7 @@
  *
  * Author: Florian Lobmaier <florian.lobmaier@ams.com>
  * Author: Laxman Dewangan <ldewangan@nvidia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +25,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -81,7 +88,10 @@ struct as3722_regulator_config_data {
 struct as3722_regulators {
 	struct device *dev;
 	struct as3722 *as3722;
+<<<<<<< HEAD
 	struct regulator_dev *rdevs[AS3722_REGULATOR_ID_MAX];
+=======
+>>>>>>> upstream/android-13
 	struct regulator_desc desc[AS3722_REGULATOR_ID_MAX];
 	struct as3722_regulator_config_data
 			reg_config_data[AS3722_REGULATOR_ID_MAX];
@@ -314,6 +324,7 @@ static const struct as3722_register_mapping as3722_reg_lookup[] = {
 	},
 };
 
+<<<<<<< HEAD
 
 static const int as3722_ldo_current[] = { 150000, 300000 };
 static const int as3722_sd016_current[] = { 2500000, 3000000, 3500000 };
@@ -371,6 +382,12 @@ static int as3722_ldo_set_current_limit(struct regulator_dev *rdev,
 	return as3722_update_bits(as3722, as3722_reg_lookup[id].vsel_reg,
 			AS3722_LDO_ILIMIT_MASK, reg);
 }
+=======
+static const unsigned int as3722_ldo_current[] = { 150000, 300000 };
+static const unsigned int as3722_sd016_current[] = {
+	2500000, 3000000, 3500000
+};
+>>>>>>> upstream/android-13
 
 static const struct regulator_ops as3722_ldo0_ops = {
 	.is_enabled = regulator_is_enabled_regmap,
@@ -379,16 +396,26 @@ static const struct regulator_ops as3722_ldo0_ops = {
 	.list_voltage = regulator_list_voltage_linear,
 	.get_voltage_sel = regulator_get_voltage_sel_regmap,
 	.set_voltage_sel = regulator_set_voltage_sel_regmap,
+<<<<<<< HEAD
 	.get_current_limit = as3722_ldo_get_current_limit,
 	.set_current_limit = as3722_ldo_set_current_limit,
+=======
+	.get_current_limit = regulator_get_current_limit_regmap,
+	.set_current_limit = regulator_set_current_limit_regmap,
+>>>>>>> upstream/android-13
 };
 
 static const struct regulator_ops as3722_ldo0_extcntrl_ops = {
 	.list_voltage = regulator_list_voltage_linear,
 	.get_voltage_sel = regulator_get_voltage_sel_regmap,
 	.set_voltage_sel = regulator_set_voltage_sel_regmap,
+<<<<<<< HEAD
 	.get_current_limit = as3722_ldo_get_current_limit,
 	.set_current_limit = as3722_ldo_set_current_limit,
+=======
+	.get_current_limit = regulator_get_current_limit_regmap,
+	.set_current_limit = regulator_set_current_limit_regmap,
+>>>>>>> upstream/android-13
 };
 
 static int as3722_ldo3_set_tracking_mode(struct as3722_regulators *as3722_reg,
@@ -440,8 +467,13 @@ static const struct regulator_ops as3722_ldo6_ops = {
 	.set_voltage_sel = regulator_set_voltage_sel_regmap,
 	.get_voltage_sel = regulator_get_voltage_sel_regmap,
 	.list_voltage = regulator_list_voltage_linear_range,
+<<<<<<< HEAD
 	.get_current_limit = as3722_ldo_get_current_limit,
 	.set_current_limit = as3722_ldo_set_current_limit,
+=======
+	.get_current_limit = regulator_get_current_limit_regmap,
+	.set_current_limit = regulator_set_current_limit_regmap,
+>>>>>>> upstream/android-13
 	.get_bypass = regulator_get_bypass_regmap,
 	.set_bypass = regulator_set_bypass_regmap,
 };
@@ -451,13 +483,22 @@ static const struct regulator_ops as3722_ldo6_extcntrl_ops = {
 	.set_voltage_sel = regulator_set_voltage_sel_regmap,
 	.get_voltage_sel = regulator_get_voltage_sel_regmap,
 	.list_voltage = regulator_list_voltage_linear_range,
+<<<<<<< HEAD
 	.get_current_limit = as3722_ldo_get_current_limit,
 	.set_current_limit = as3722_ldo_set_current_limit,
+=======
+	.get_current_limit = regulator_get_current_limit_regmap,
+	.set_current_limit = regulator_set_current_limit_regmap,
+>>>>>>> upstream/android-13
 	.get_bypass = regulator_get_bypass_regmap,
 	.set_bypass = regulator_set_bypass_regmap,
 };
 
+<<<<<<< HEAD
 static const struct regulator_linear_range as3722_ldo_ranges[] = {
+=======
+static const struct linear_range as3722_ldo_ranges[] = {
+>>>>>>> upstream/android-13
 	REGULATOR_LINEAR_RANGE(0, 0x00, 0x00, 0),
 	REGULATOR_LINEAR_RANGE(825000, 0x01, 0x24, 25000),
 	REGULATOR_LINEAR_RANGE(1725000, 0x40, 0x7F, 25000),
@@ -471,8 +512,13 @@ static const struct regulator_ops as3722_ldo_ops = {
 	.set_voltage_sel = regulator_set_voltage_sel_regmap,
 	.get_voltage_sel = regulator_get_voltage_sel_regmap,
 	.list_voltage = regulator_list_voltage_linear_range,
+<<<<<<< HEAD
 	.get_current_limit = as3722_ldo_get_current_limit,
 	.set_current_limit = as3722_ldo_set_current_limit,
+=======
+	.get_current_limit = regulator_get_current_limit_regmap,
+	.set_current_limit = regulator_set_current_limit_regmap,
+>>>>>>> upstream/android-13
 };
 
 static const struct regulator_ops as3722_ldo_extcntrl_ops = {
@@ -480,8 +526,13 @@ static const struct regulator_ops as3722_ldo_extcntrl_ops = {
 	.set_voltage_sel = regulator_set_voltage_sel_regmap,
 	.get_voltage_sel = regulator_get_voltage_sel_regmap,
 	.list_voltage = regulator_list_voltage_linear_range,
+<<<<<<< HEAD
 	.get_current_limit = as3722_ldo_get_current_limit,
 	.set_current_limit = as3722_ldo_set_current_limit,
+=======
+	.get_current_limit = regulator_get_current_limit_regmap,
+	.set_current_limit = regulator_set_current_limit_regmap,
+>>>>>>> upstream/android-13
 };
 
 static unsigned int as3722_sd_get_mode(struct regulator_dev *rdev)
@@ -523,7 +574,12 @@ static int as3722_sd_set_mode(struct regulator_dev *rdev,
 	switch (mode) {
 	case REGULATOR_MODE_FAST:
 		val = as3722_reg_lookup[id].mode_mask;
+<<<<<<< HEAD
 	case REGULATOR_MODE_NORMAL: /* fall down */
+=======
+		fallthrough;
+	case REGULATOR_MODE_NORMAL:
+>>>>>>> upstream/android-13
 		break;
 	default:
 		return -EINVAL;
@@ -539,6 +595,7 @@ static int as3722_sd_set_mode(struct regulator_dev *rdev,
 	return ret;
 }
 
+<<<<<<< HEAD
 static int as3722_sd016_get_current_limit(struct regulator_dev *rdev)
 {
 	struct as3722_regulators *as3722_regs = rdev_get_drvdata(rdev);
@@ -618,6 +675,8 @@ static int as3722_sd016_set_current_limit(struct regulator_dev *rdev,
 	return as3722_update_bits(as3722, reg, mask, val);
 }
 
+=======
+>>>>>>> upstream/android-13
 static bool as3722_sd0_is_low_voltage(struct as3722_regulators *as3722_regs)
 {
 	int err;
@@ -634,7 +693,11 @@ static bool as3722_sd0_is_low_voltage(struct as3722_regulators *as3722_regs)
 	return false;
 }
 
+<<<<<<< HEAD
 static const struct regulator_linear_range as3722_sd2345_ranges[] = {
+=======
+static const struct linear_range as3722_sd2345_ranges[] = {
+>>>>>>> upstream/android-13
 	REGULATOR_LINEAR_RANGE(0, 0x00, 0x00, 0),
 	REGULATOR_LINEAR_RANGE(612500, 0x01, 0x40, 12500),
 	REGULATOR_LINEAR_RANGE(1425000, 0x41, 0x70, 25000),
@@ -649,8 +712,13 @@ static const struct regulator_ops as3722_sd016_ops = {
 	.map_voltage = regulator_map_voltage_linear,
 	.get_voltage_sel = regulator_get_voltage_sel_regmap,
 	.set_voltage_sel = regulator_set_voltage_sel_regmap,
+<<<<<<< HEAD
 	.get_current_limit = as3722_sd016_get_current_limit,
 	.set_current_limit = as3722_sd016_set_current_limit,
+=======
+	.get_current_limit = regulator_get_current_limit_regmap,
+	.set_current_limit = regulator_set_current_limit_regmap,
+>>>>>>> upstream/android-13
 	.get_mode = as3722_sd_get_mode,
 	.set_mode = as3722_sd_set_mode,
 };
@@ -660,8 +728,13 @@ static const struct regulator_ops as3722_sd016_extcntrl_ops = {
 	.map_voltage = regulator_map_voltage_linear,
 	.get_voltage_sel = regulator_get_voltage_sel_regmap,
 	.set_voltage_sel = regulator_set_voltage_sel_regmap,
+<<<<<<< HEAD
 	.get_current_limit = as3722_sd016_get_current_limit,
 	.set_current_limit = as3722_sd016_set_current_limit,
+=======
+	.get_current_limit = regulator_get_current_limit_regmap,
+	.set_current_limit = regulator_set_current_limit_regmap,
+>>>>>>> upstream/android-13
 	.get_mode = as3722_sd_get_mode,
 	.set_mode = as3722_sd_set_mode,
 };
@@ -807,6 +880,7 @@ static int as3722_regulator_probe(struct platform_device *pdev)
 	config.regmap = as3722->regmap;
 
 	for (id = 0; id < AS3722_REGULATOR_ID_MAX; id++) {
+<<<<<<< HEAD
 		reg_config = &as3722_regs->reg_config_data[id];
 
 		as3722_regs->desc[id].name = as3722_reg_lookup[id].name;
@@ -823,26 +897,61 @@ static int as3722_regulator_probe(struct platform_device *pdev)
 		as3722_regs->desc[id].vsel_reg = as3722_reg_lookup[id].vsel_reg;
 		as3722_regs->desc[id].vsel_mask =
 					as3722_reg_lookup[id].vsel_mask;
+=======
+		struct regulator_desc *desc;
+
+		desc = &as3722_regs->desc[id];
+		reg_config = &as3722_regs->reg_config_data[id];
+
+		desc->name = as3722_reg_lookup[id].name;
+		desc->supply_name = as3722_reg_lookup[id].sname;
+		desc->id = as3722_reg_lookup[id].regulator_id;
+		desc->n_voltages = as3722_reg_lookup[id].n_voltages;
+		desc->type = REGULATOR_VOLTAGE;
+		desc->owner = THIS_MODULE;
+		desc->enable_reg = as3722_reg_lookup[id].enable_reg;
+		desc->enable_mask = as3722_reg_lookup[id].enable_mask;
+		desc->vsel_reg = as3722_reg_lookup[id].vsel_reg;
+		desc->vsel_mask = as3722_reg_lookup[id].vsel_mask;
+>>>>>>> upstream/android-13
 		switch (id) {
 		case AS3722_REGULATOR_ID_LDO0:
 			if (reg_config->ext_control)
 				ops = &as3722_ldo0_extcntrl_ops;
 			else
 				ops = &as3722_ldo0_ops;
+<<<<<<< HEAD
 			as3722_regs->desc[id].min_uV = 825000;
 			as3722_regs->desc[id].uV_step = 25000;
 			as3722_regs->desc[id].linear_min_sel = 1;
 			as3722_regs->desc[id].enable_time = 500;
+=======
+			desc->min_uV = 825000;
+			desc->uV_step = 25000;
+			desc->linear_min_sel = 1;
+			desc->enable_time = 500;
+			desc->curr_table = as3722_ldo_current;
+			desc->n_current_limits = ARRAY_SIZE(as3722_ldo_current);
+			desc->csel_reg = as3722_reg_lookup[id].vsel_reg;
+			desc->csel_mask = AS3722_LDO_ILIMIT_MASK;
+>>>>>>> upstream/android-13
 			break;
 		case AS3722_REGULATOR_ID_LDO3:
 			if (reg_config->ext_control)
 				ops = &as3722_ldo3_extcntrl_ops;
 			else
 				ops = &as3722_ldo3_ops;
+<<<<<<< HEAD
 			as3722_regs->desc[id].min_uV = 620000;
 			as3722_regs->desc[id].uV_step = 20000;
 			as3722_regs->desc[id].linear_min_sel = 1;
 			as3722_regs->desc[id].enable_time = 500;
+=======
+			desc->min_uV = 620000;
+			desc->uV_step = 20000;
+			desc->linear_min_sel = 1;
+			desc->enable_time = 500;
+>>>>>>> upstream/android-13
 			if (reg_config->enable_tracking) {
 				ret = as3722_ldo3_set_tracking_mode(as3722_regs,
 					id, AS3722_LDO3_MODE_PMOS_TRACKING);
@@ -859,6 +968,7 @@ static int as3722_regulator_probe(struct platform_device *pdev)
 				ops = &as3722_ldo6_extcntrl_ops;
 			else
 				ops = &as3722_ldo6_ops;
+<<<<<<< HEAD
 			as3722_regs->desc[id].enable_time = 500;
 			as3722_regs->desc[id].bypass_reg =
 						AS3722_LDO6_VOLTAGE_REG;
@@ -871,6 +981,19 @@ static int as3722_regulator_probe(struct platform_device *pdev)
 			as3722_regs->desc[id].linear_ranges = as3722_ldo_ranges;
 			as3722_regs->desc[id].n_linear_ranges =
 						ARRAY_SIZE(as3722_ldo_ranges);
+=======
+			desc->enable_time = 500;
+			desc->bypass_reg = AS3722_LDO6_VOLTAGE_REG;
+			desc->bypass_mask = AS3722_LDO_VSEL_MASK;
+			desc->bypass_val_on = AS3722_LDO6_VSEL_BYPASS;
+			desc->bypass_val_off = AS3722_LDO6_VSEL_BYPASS;
+			desc->linear_ranges = as3722_ldo_ranges;
+			desc->n_linear_ranges = ARRAY_SIZE(as3722_ldo_ranges);
+			desc->curr_table = as3722_ldo_current;
+			desc->n_current_limits = ARRAY_SIZE(as3722_ldo_current);
+			desc->csel_reg = as3722_reg_lookup[id].vsel_reg;
+			desc->csel_mask = AS3722_LDO_ILIMIT_MASK;
+>>>>>>> upstream/android-13
 			break;
 		case AS3722_REGULATOR_ID_SD0:
 		case AS3722_REGULATOR_ID_SD1:
@@ -886,12 +1009,37 @@ static int as3722_regulator_probe(struct platform_device *pdev)
 				as3722_regs->desc[id].min_uV = 410000;
 			} else {
 				as3722_regs->desc[id].n_voltages =
+<<<<<<< HEAD
 					AS3722_SD0_VSEL_MAX + 1,
 				as3722_regs->desc[id].min_uV = 610000;
 			}
 			as3722_regs->desc[id].uV_step = 10000;
 			as3722_regs->desc[id].linear_min_sel = 1;
 			as3722_regs->desc[id].enable_time = 600;
+=======
+					AS3722_SD0_VSEL_MAX + 1;
+				as3722_regs->desc[id].min_uV = 610000;
+			}
+			desc->uV_step = 10000;
+			desc->linear_min_sel = 1;
+			desc->enable_time = 600;
+			desc->curr_table = as3722_sd016_current;
+			desc->n_current_limits =
+				ARRAY_SIZE(as3722_sd016_current);
+			if (id == AS3722_REGULATOR_ID_SD0) {
+				desc->csel_reg = AS3722_OVCURRENT_REG;
+				desc->csel_mask =
+					AS3722_OVCURRENT_SD0_TRIP_MASK;
+			} else if (id == AS3722_REGULATOR_ID_SD1) {
+				desc->csel_reg = AS3722_OVCURRENT_REG;
+				desc->csel_mask =
+					AS3722_OVCURRENT_SD1_TRIP_MASK;
+			} else if (id == AS3722_REGULATOR_ID_SD6) {
+				desc->csel_reg = AS3722_OVCURRENT_DEB_REG;
+				desc->csel_mask =
+					AS3722_OVCURRENT_SD6_TRIP_MASK;
+			}
+>>>>>>> upstream/android-13
 			break;
 		case AS3722_REGULATOR_ID_SD2:
 		case AS3722_REGULATOR_ID_SD3:
@@ -901,9 +1049,14 @@ static int as3722_regulator_probe(struct platform_device *pdev)
 				ops = &as3722_sd2345_extcntrl_ops;
 			else
 				ops = &as3722_sd2345_ops;
+<<<<<<< HEAD
 			as3722_regs->desc[id].linear_ranges =
 						as3722_sd2345_ranges;
 			as3722_regs->desc[id].n_linear_ranges =
+=======
+			desc->linear_ranges = as3722_sd2345_ranges;
+			desc->n_linear_ranges =
+>>>>>>> upstream/android-13
 					ARRAY_SIZE(as3722_sd2345_ranges);
 			break;
 		default:
@@ -911,6 +1064,7 @@ static int as3722_regulator_probe(struct platform_device *pdev)
 				ops = &as3722_ldo_extcntrl_ops;
 			else
 				ops = &as3722_ldo_ops;
+<<<<<<< HEAD
 			as3722_regs->desc[id].enable_time = 500;
 			as3722_regs->desc[id].linear_ranges = as3722_ldo_ranges;
 			as3722_regs->desc[id].n_linear_ranges =
@@ -922,6 +1076,21 @@ static int as3722_regulator_probe(struct platform_device *pdev)
 		config.of_node = as3722_regulator_matches[id].of_node;
 		rdev = devm_regulator_register(&pdev->dev,
 					&as3722_regs->desc[id], &config);
+=======
+			desc->enable_time = 500;
+			desc->linear_ranges = as3722_ldo_ranges;
+			desc->n_linear_ranges = ARRAY_SIZE(as3722_ldo_ranges);
+			desc->curr_table = as3722_ldo_current;
+			desc->n_current_limits = ARRAY_SIZE(as3722_ldo_current);
+			desc->csel_reg = as3722_reg_lookup[id].vsel_reg;
+			desc->csel_mask = AS3722_LDO_ILIMIT_MASK;
+			break;
+		}
+		desc->ops = ops;
+		config.init_data = reg_config->reg_init;
+		config.of_node = as3722_regulator_matches[id].of_node;
+		rdev = devm_regulator_register(&pdev->dev, desc, &config);
+>>>>>>> upstream/android-13
 		if (IS_ERR(rdev)) {
 			ret = PTR_ERR(rdev);
 			dev_err(&pdev->dev, "regulator %d register failed %d\n",
@@ -929,7 +1098,10 @@ static int as3722_regulator_probe(struct platform_device *pdev)
 			return ret;
 		}
 
+<<<<<<< HEAD
 		as3722_regs->rdevs[id] = rdev;
+=======
+>>>>>>> upstream/android-13
 		if (reg_config->ext_control) {
 			ret = regulator_enable_regmap(rdev);
 			if (ret < 0) {

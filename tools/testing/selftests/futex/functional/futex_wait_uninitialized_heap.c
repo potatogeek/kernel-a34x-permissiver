@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /******************************************************************************
  *
  * Copyright FUJITSU LIMITED 2010
  * Copyright KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>
  *
+<<<<<<< HEAD
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
  *   the Free Software Foundation; either version 2 of the License, or
  *   (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * DESCRIPTION
  *      Wait on uninitialized heap. It shold be zero and FUTEX_WAIT should
  *      return immediately. This test is intent to test zero page handling in
@@ -100,6 +107,10 @@ int main(int argc, char **argv)
 	}
 
 	ksft_print_header();
+<<<<<<< HEAD
+=======
+	ksft_set_plan(1);
+>>>>>>> upstream/android-13
 	ksft_print_msg("%s: Test the uninitialized futex value in FUTEX_WAIT\n",
 	       basename(argv[0]));
 

@@ -9,8 +9,15 @@ ARCH_REL_TYPE_ABS := R_X86_64_JUMP_SLOT|R_X86_64_GLOB_DAT|R_X86_64_RELATIVE|
 ARCH_REL_TYPE_ABS += R_386_GLOB_DAT|R_386_JMP_SLOT|R_386_RELATIVE
 include $(srctree)/lib/vdso/Makefile
 
+<<<<<<< HEAD
 KASAN_SANITIZE			:= n
 UBSAN_SANITIZE			:= n
+=======
+# Sanitizer runtimes are unavailable and cannot be linked here.
+KASAN_SANITIZE			:= n
+UBSAN_SANITIZE			:= n
+KCSAN_SANITIZE			:= n
+>>>>>>> upstream/android-13
 OBJECT_FILES_NON_STANDARD	:= y
 
 # Prevents link failures: __sanitizer_cov_trace_pc() is not linked in.
@@ -23,9 +30,21 @@ VDSO32-$(CONFIG_IA32_EMULATION)	:= y
 
 # files to link into the vdso
 vobjs-y := vdso-note.o vclock_gettime.o vgetcpu.o
+<<<<<<< HEAD
 
 # files to link into kernel
 obj-y				+= vma.o
+=======
+vobjs32-y := vdso32/note.o vdso32/system_call.o vdso32/sigreturn.o
+vobjs32-y += vdso32/vclock_gettime.o
+vobjs-$(CONFIG_X86_SGX)	+= vsgx.o
+
+# files to link into kernel
+obj-y				+= vma.o extable.o
+KASAN_SANITIZE_vma.o		:= y
+UBSAN_SANITIZE_vma.o		:= y
+KCSAN_SANITIZE_vma.o		:= y
+>>>>>>> upstream/android-13
 OBJECT_FILES_NON_STANDARD_vma.o	:= n
 
 # vDSO images to build
@@ -36,10 +55,18 @@ vdso_img-$(VDSO32-y)		+= 32
 obj-$(VDSO32-y)			+= vdso32-setup.o
 
 vobjs := $(foreach F,$(vobjs-y),$(obj)/$F)
+<<<<<<< HEAD
+=======
+vobjs32 := $(foreach F,$(vobjs32-y),$(obj)/$F)
+>>>>>>> upstream/android-13
 
 $(obj)/vdso.o: $(obj)/vdso.so
 
 targets += vdso.lds $(vobjs-y)
+<<<<<<< HEAD
+=======
+targets += vdso32/vdso32.lds $(vobjs32-y)
+>>>>>>> upstream/android-13
 
 # Build the vDSO image C files and link them in.
 vdso_img_objs := $(vdso_img-y:%=vdso-image-%.o)
@@ -58,7 +85,11 @@ $(obj)/vdso64.so.dbg: $(obj)/vdso.lds $(vobjs) FORCE
 	$(call if_changed,vdso_and_check)
 
 HOST_EXTRACFLAGS += -I$(srctree)/tools/include -I$(srctree)/include/uapi -I$(srctree)/arch/$(SUBARCH)/include/uapi
+<<<<<<< HEAD
 hostprogs-y			+= vdso2c
+=======
+hostprogs += vdso2c
+>>>>>>> upstream/android-13
 
 quiet_cmd_vdso2c = VDSO2C  $@
       cmd_vdso2c = $(obj)/vdso2c $< $(<:%.dbg=%) $@
@@ -71,9 +102,15 @@ $(obj)/vdso-image-%.c: $(obj)/vdso%.so.dbg $(obj)/vdso%.so $(obj)/vdso2c FORCE
 # optimize sibling calls.
 #
 CFL := $(PROFILING) -mcmodel=small -fPIC -O2 -fasynchronous-unwind-tables -m64 \
+<<<<<<< HEAD
        $(filter -g%,$(KBUILD_CFLAGS)) $(call cc-option, -fno-stack-protector) \
        -fno-omit-frame-pointer -foptimize-sibling-calls \
        -DDISABLE_BRANCH_PROFILING -DBUILD_VDSO $(DISABLE_LTO)
+=======
+       $(filter -g%,$(KBUILD_CFLAGS)) -fno-stack-protector \
+       -fno-omit-frame-pointer -foptimize-sibling-calls \
+       -DDISABLE_BRANCH_PROFILING -DBUILD_VDSO
+>>>>>>> upstream/android-13
 
 ifdef CONFIG_RETPOLINE
 ifneq ($(RETPOLINE_VDSO_CFLAGS),)
@@ -86,10 +123,17 @@ $(vobjs): KBUILD_CFLAGS := $(filter-out $(CC_FLAGS_LTO) $(GCC_PLUGINS_CFLAGS) $(
 #
 # vDSO code runs in userspace and -pg doesn't help with profiling anyway.
 #
+<<<<<<< HEAD
 CFLAGS_REMOVE_vdso-note.o = -pg
 CFLAGS_REMOVE_vclock_gettime.o = -pg
 CFLAGS_REMOVE_vgetcpu.o = -pg
 CFLAGS_REMOVE_vvar.o = -pg
+=======
+CFLAGS_REMOVE_vclock_gettime.o = -pg
+CFLAGS_REMOVE_vdso32/vclock_gettime.o = -pg
+CFLAGS_REMOVE_vgetcpu.o = -pg
+CFLAGS_REMOVE_vsgx.o = -pg
+>>>>>>> upstream/android-13
 
 #
 # X32 processes use x32 vDSO to access 64bit kernel data.
@@ -120,13 +164,19 @@ $(obj)/%-x32.o: $(obj)/%.o FORCE
 
 targets += vdsox32.lds $(vobjx32s-y)
 
+<<<<<<< HEAD
 $(obj)/%.so: OBJCOPYFLAGS := -S
 $(obj)/%.so: $(obj)/%.so.dbg
+=======
+$(obj)/%.so: OBJCOPYFLAGS := -S --remove-section __ex_table
+$(obj)/%.so: $(obj)/%.so.dbg FORCE
+>>>>>>> upstream/android-13
 	$(call if_changed,objcopy)
 
 $(obj)/vdsox32.so.dbg: $(obj)/vdsox32.lds $(vobjx32s) FORCE
 	$(call if_changed,vdso_and_check)
 
+<<<<<<< HEAD
 CPPFLAGS_vdso32.lds = $(CPPFLAGS_vdso.lds)
 VDSO_LDFLAGS_vdso32.lds = -m elf_i386 -soname linux-gate.so.1
 
@@ -134,6 +184,11 @@ targets += vdso32/vdso32.lds
 targets += vdso32/note.o vdso32/system_call.o vdso32/sigreturn.o
 targets += vdso32/vclock_gettime.o
 
+=======
+CPPFLAGS_vdso32/vdso32.lds = $(CPPFLAGS_vdso.lds)
+VDSO_LDFLAGS_vdso32.lds = -m elf_i386 -soname linux-gate.so.1
+
+>>>>>>> upstream/android-13
 KBUILD_AFLAGS_32 := $(filter-out -m64,$(KBUILD_AFLAGS)) -DBUILD_VDSO
 $(obj)/vdso32.so.dbg: KBUILD_AFLAGS = $(KBUILD_AFLAGS_32)
 $(obj)/vdso32.so.dbg: asflags-$(CONFIG_X86_64) += -m32
@@ -144,11 +199,17 @@ KBUILD_CFLAGS_32 := $(filter-out -fno-pic,$(KBUILD_CFLAGS_32))
 KBUILD_CFLAGS_32 := $(filter-out -mfentry,$(KBUILD_CFLAGS_32))
 KBUILD_CFLAGS_32 := $(filter-out $(GCC_PLUGINS_CFLAGS),$(KBUILD_CFLAGS_32))
 KBUILD_CFLAGS_32 := $(filter-out $(RETPOLINE_CFLAGS),$(KBUILD_CFLAGS_32))
+<<<<<<< HEAD
 KBUILD_CFLAGS_32 := $(filter-out $(LTO_CFLAGS),$(KBUILD_CFLAGS_32))
 KBUILD_CFLAGS_32 := $(filter-out $(CFI_CFLAGS),$(KBUILD_CFLAGS_32))
 KBUILD_CFLAGS_32 := $(filter-out $(CC_FLAGS_LTO),$(KBUILD_CFLAGS_32))
 KBUILD_CFLAGS_32 += -m32 -msoft-float -mregparm=0 -fpic
 KBUILD_CFLAGS_32 += $(call cc-option, -fno-stack-protector)
+=======
+KBUILD_CFLAGS_32 := $(filter-out $(CC_FLAGS_LTO),$(KBUILD_CFLAGS_32))
+KBUILD_CFLAGS_32 += -m32 -msoft-float -mregparm=0 -fpic
+KBUILD_CFLAGS_32 += -fno-stack-protector
+>>>>>>> upstream/android-13
 KBUILD_CFLAGS_32 += $(call cc-option, -foptimize-sibling-calls)
 KBUILD_CFLAGS_32 += -fno-omit-frame-pointer
 KBUILD_CFLAGS_32 += -DDISABLE_BRANCH_PROFILING
@@ -161,12 +222,16 @@ endif
 
 $(obj)/vdso32.so.dbg: KBUILD_CFLAGS = $(KBUILD_CFLAGS_32)
 
+<<<<<<< HEAD
 $(obj)/vdso32.so.dbg: FORCE \
 		      $(obj)/vdso32/vdso32.lds \
 		      $(obj)/vdso32/vclock_gettime.o \
 		      $(obj)/vdso32/note.o \
 		      $(obj)/vdso32/system_call.o \
 		      $(obj)/vdso32/sigreturn.o
+=======
+$(obj)/vdso32.so.dbg: $(obj)/vdso32/vdso32.lds $(vobjs32) FORCE
+>>>>>>> upstream/android-13
 	$(call if_changed,vdso_and_check)
 
 #
@@ -178,9 +243,14 @@ quiet_cmd_vdso = VDSO    $@
 		       -T $(filter %.lds,$^) $(filter %.o,$^) && \
 		 sh $(srctree)/$(src)/checkundef.sh '$(NM)' '$@'
 
+<<<<<<< HEAD
 VDSO_LDFLAGS = -shared $(call ld-option, --hash-style=both) \
 	$(call ld-option, --build-id) $(call ld-option, --eh-frame-hdr) \
 	-Bsymbolic
+=======
+VDSO_LDFLAGS = -shared --hash-style=both --build-id=sha1 \
+	$(call ld-option, --eh-frame-hdr) -Bsymbolic
+>>>>>>> upstream/android-13
 GCOV_PROFILE := n
 
 quiet_cmd_vdso_and_check = VDSO    $@

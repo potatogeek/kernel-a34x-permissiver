@@ -1,8 +1,14 @@
+<<<<<<< HEAD
 /**
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  * SHA-256 routines supporting the Power 7+ Nest Accelerators driver
  *
  * Copyright (C) 2011-2012 International Business Machines Inc.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 only.
@@ -16,11 +22,17 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  * Author: Kent Yoder <yoder1@us.ibm.com>
  */
 
 #include <crypto/internal/hash.h>
+<<<<<<< HEAD
 #include <crypto/sha.h>
+=======
+#include <crypto/sha2.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <asm/vio.h>
 #include <asm/byteorder.h>
@@ -28,6 +40,14 @@
 #include "nx_csbcpb.h"
 #include "nx.h"
 
+<<<<<<< HEAD
+=======
+struct sha256_state_be {
+	__be32 state[SHA256_DIGEST_SIZE / 4];
+	u64 count;
+	u8 buf[SHA256_BLOCK_SIZE];
+};
+>>>>>>> upstream/android-13
 
 static int nx_crypto_ctx_sha256_init(struct crypto_tfm *tfm)
 {
@@ -48,7 +68,11 @@ static int nx_crypto_ctx_sha256_init(struct crypto_tfm *tfm)
 }
 
 static int nx_sha256_init(struct shash_desc *desc) {
+<<<<<<< HEAD
 	struct sha256_state *sctx = shash_desc_ctx(desc);
+=======
+	struct sha256_state_be *sctx = shash_desc_ctx(desc);
+>>>>>>> upstream/android-13
 
 	memset(sctx, 0, sizeof *sctx);
 
@@ -68,7 +92,11 @@ static int nx_sha256_init(struct shash_desc *desc) {
 static int nx_sha256_update(struct shash_desc *desc, const u8 *data,
 			    unsigned int len)
 {
+<<<<<<< HEAD
 	struct sha256_state *sctx = shash_desc_ctx(desc);
+=======
+	struct sha256_state_be *sctx = shash_desc_ctx(desc);
+>>>>>>> upstream/android-13
 	struct nx_crypto_ctx *nx_ctx = crypto_tfm_ctx(&desc->tfm->base);
 	struct nx_csbcpb *csbcpb = (struct nx_csbcpb *)nx_ctx->csbcpb;
 	struct nx_sg *out_sg;
@@ -162,8 +190,12 @@ static int nx_sha256_update(struct shash_desc *desc, const u8 *data,
 			goto out;
 		}
 
+<<<<<<< HEAD
 		rc = nx_hcall_sync(nx_ctx, &nx_ctx->op,
 				   desc->flags & CRYPTO_TFM_REQ_MAY_SLEEP);
+=======
+		rc = nx_hcall_sync(nx_ctx, &nx_ctx->op, 0);
+>>>>>>> upstream/android-13
 		if (rc)
 			goto out;
 
@@ -188,7 +220,11 @@ out:
 
 static int nx_sha256_final(struct shash_desc *desc, u8 *out)
 {
+<<<<<<< HEAD
 	struct sha256_state *sctx = shash_desc_ctx(desc);
+=======
+	struct sha256_state_be *sctx = shash_desc_ctx(desc);
+>>>>>>> upstream/android-13
 	struct nx_crypto_ctx *nx_ctx = crypto_tfm_ctx(&desc->tfm->base);
 	struct nx_csbcpb *csbcpb = (struct nx_csbcpb *)nx_ctx->csbcpb;
 	struct nx_sg *in_sg, *out_sg;
@@ -243,8 +279,12 @@ static int nx_sha256_final(struct shash_desc *desc, u8 *out)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	rc = nx_hcall_sync(nx_ctx, &nx_ctx->op,
 			   desc->flags & CRYPTO_TFM_REQ_MAY_SLEEP);
+=======
+	rc = nx_hcall_sync(nx_ctx, &nx_ctx->op, 0);
+>>>>>>> upstream/android-13
 	if (rc)
 		goto out;
 
@@ -259,7 +299,11 @@ out:
 
 static int nx_sha256_export(struct shash_desc *desc, void *out)
 {
+<<<<<<< HEAD
 	struct sha256_state *sctx = shash_desc_ctx(desc);
+=======
+	struct sha256_state_be *sctx = shash_desc_ctx(desc);
+>>>>>>> upstream/android-13
 
 	memcpy(out, sctx, sizeof(*sctx));
 
@@ -268,7 +312,11 @@ static int nx_sha256_export(struct shash_desc *desc, void *out)
 
 static int nx_sha256_import(struct shash_desc *desc, const void *in)
 {
+<<<<<<< HEAD
 	struct sha256_state *sctx = shash_desc_ctx(desc);
+=======
+	struct sha256_state_be *sctx = shash_desc_ctx(desc);
+>>>>>>> upstream/android-13
 
 	memcpy(sctx, in, sizeof(*sctx));
 
@@ -282,8 +330,13 @@ struct shash_alg nx_shash_sha256_alg = {
 	.final      = nx_sha256_final,
 	.export     = nx_sha256_export,
 	.import     = nx_sha256_import,
+<<<<<<< HEAD
 	.descsize   = sizeof(struct sha256_state),
 	.statesize  = sizeof(struct sha256_state),
+=======
+	.descsize   = sizeof(struct sha256_state_be),
+	.statesize  = sizeof(struct sha256_state_be),
+>>>>>>> upstream/android-13
 	.base       = {
 		.cra_name        = "sha256",
 		.cra_driver_name = "sha256-nx",

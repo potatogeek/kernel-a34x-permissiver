@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015-2016 Quantenna Communications, Inc.
  * All rights reserved.
@@ -13,10 +14,18 @@
  * GNU General Public License for more details.
  *
  */
+=======
+// SPDX-License-Identifier: GPL-2.0+
+/* Copyright (c) 2015-2016 Quantenna Communications. All rights reserved. */
+>>>>>>> upstream/android-13
 
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/if_ether.h>
+<<<<<<< HEAD
+=======
+#include <linux/nospec.h>
+>>>>>>> upstream/android-13
 
 #include "core.h"
 #include "bus.h"
@@ -25,6 +34,7 @@
 #include "cfg80211.h"
 #include "event.h"
 #include "util.h"
+<<<<<<< HEAD
 
 #define QTNF_DMP_MAX_LEN 48
 #define QTNF_PRIMARY_VIF_IDX	0
@@ -35,16 +45,49 @@ struct qtnf_frame_meta_info {
 	u8 macid;
 	u8 magic_e;
 } __packed;
+=======
+#include "switchdev.h"
+
+#define QTNF_PRIMARY_VIF_IDX	0
+
+static bool slave_radar = true;
+module_param(slave_radar, bool, 0644);
+MODULE_PARM_DESC(slave_radar, "set 0 to disable radar detection in slave mode");
+
+static bool dfs_offload;
+module_param(dfs_offload, bool, 0644);
+MODULE_PARM_DESC(dfs_offload, "set 1 to enable DFS offload to firmware");
+
+static struct dentry *qtnf_debugfs_dir;
+
+bool qtnf_slave_radar_get(void)
+{
+	return slave_radar;
+}
+
+bool qtnf_dfs_offload_get(void)
+{
+	return dfs_offload;
+}
+>>>>>>> upstream/android-13
 
 struct qtnf_wmac *qtnf_core_get_mac(const struct qtnf_bus *bus, u8 macid)
 {
 	struct qtnf_wmac *mac = NULL;
 
+<<<<<<< HEAD
 	if (unlikely(macid >= QTNF_MAX_MAC)) {
+=======
+	if (macid >= QTNF_MAX_MAC) {
+>>>>>>> upstream/android-13
 		pr_err("invalid MAC index %u\n", macid);
 		return NULL;
 	}
 
+<<<<<<< HEAD
+=======
+	macid = array_index_nospec(macid, QTNF_MAX_MAC);
+>>>>>>> upstream/android-13
 	mac = bus->mac[macid];
 
 	if (unlikely(!mac)) {
@@ -74,6 +117,17 @@ static int qtnf_netdev_close(struct net_device *ndev)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void qtnf_packet_send_hi_pri(struct sk_buff *skb)
+{
+	struct qtnf_vif *vif = qtnf_netdev_get_priv(skb->dev);
+
+	skb_queue_tail(&vif->high_pri_tx_queue, skb);
+	queue_work(vif->mac->bus->hprio_workqueue, &vif->high_pri_tx_work);
+}
+
+>>>>>>> upstream/android-13
 /* Netdev handler for data transmission.
  */
 static netdev_tx_t
@@ -114,6 +168,7 @@ qtnf_netdev_hard_start_xmit(struct sk_buff *skb, struct net_device *ndev)
 	/* tx path is enabled: reset vif timeout */
 	vif->cons_tx_timeout_cnt = 0;
 
+<<<<<<< HEAD
 	return qtnf_bus_data_tx(mac->bus, skb);
 }
 
@@ -151,11 +206,24 @@ static void qtnf_netdev_get_stats64(struct net_device *ndev,
 		stats->tx_packets += tx_packets;
 		stats->tx_bytes += tx_bytes;
 	}
+=======
+	if (unlikely(skb->protocol == htons(ETH_P_PAE))) {
+		qtnf_packet_send_hi_pri(skb);
+		dev_sw_netstats_tx_add(ndev, 1, skb->len);
+		return NETDEV_TX_OK;
+	}
+
+	return qtnf_bus_data_tx(mac->bus, skb, mac->macid, vif->vifid);
+>>>>>>> upstream/android-13
 }
 
 /* Netdev handler for transmission timeout.
  */
+<<<<<<< HEAD
 static void qtnf_netdev_tx_timeout(struct net_device *ndev)
+=======
+static void qtnf_netdev_tx_timeout(struct net_device *ndev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct qtnf_vif *vif = qtnf_netdev_get_priv(ndev);
 	struct qtnf_wmac *mac;
@@ -195,6 +263,10 @@ static int qtnf_netdev_set_mac_address(struct net_device *ndev, void *addr)
 	qtnf_scan_done(vif->mac, true);
 
 	ret = qtnf_cmd_send_change_intf_type(vif, vif->wdev.iftype,
+<<<<<<< HEAD
+=======
+					     vif->wdev.use_4addr,
+>>>>>>> upstream/android-13
 					     sa->sa_data);
 
 	if (ret)
@@ -203,14 +275,51 @@ static int qtnf_netdev_set_mac_address(struct net_device *ndev, void *addr)
 	return ret;
 }
 
+<<<<<<< HEAD
 /* Network device ops handlers */
 const struct net_device_ops qtnf_netdev_ops = {
+=======
+static int qtnf_netdev_port_parent_id(struct net_device *ndev,
+				      struct netdev_phys_item_id *ppid)
+{
+	const struct qtnf_vif *vif = qtnf_netdev_get_priv(ndev);
+	const struct qtnf_bus *bus = vif->mac->bus;
+
+	ppid->id_len = sizeof(bus->hw_id);
+	memcpy(&ppid->id, bus->hw_id, ppid->id_len);
+
+	return 0;
+}
+
+static int qtnf_netdev_alloc_pcpu_stats(struct net_device *dev)
+{
+	dev->tstats = netdev_alloc_pcpu_stats(struct pcpu_sw_netstats);
+
+	return dev->tstats ? 0 : -ENOMEM;
+}
+
+static void qtnf_netdev_free_pcpu_stats(struct net_device *dev)
+{
+	free_percpu(dev->tstats);
+}
+
+/* Network device ops handlers */
+const struct net_device_ops qtnf_netdev_ops = {
+	.ndo_init = qtnf_netdev_alloc_pcpu_stats,
+	.ndo_uninit = qtnf_netdev_free_pcpu_stats,
+>>>>>>> upstream/android-13
 	.ndo_open = qtnf_netdev_open,
 	.ndo_stop = qtnf_netdev_close,
 	.ndo_start_xmit = qtnf_netdev_hard_start_xmit,
 	.ndo_tx_timeout = qtnf_netdev_tx_timeout,
+<<<<<<< HEAD
 	.ndo_get_stats64 = qtnf_netdev_get_stats64,
 	.ndo_set_mac_address = qtnf_netdev_set_mac_address,
+=======
+	.ndo_get_stats64 = dev_get_tstats64,
+	.ndo_set_mac_address = qtnf_netdev_set_mac_address,
+	.ndo_get_port_parent_id = qtnf_netdev_port_parent_id,
+>>>>>>> upstream/android-13
 };
 
 static int qtnf_mac_init_single_band(struct wiphy *wiphy,
@@ -380,6 +489,7 @@ static void qtnf_mac_scan_timeout(struct work_struct *work)
 	qtnf_mac_scan_finish(mac, true);
 }
 
+<<<<<<< HEAD
 static struct qtnf_wmac *qtnf_core_mac_alloc(struct qtnf_bus *bus,
 					     unsigned int macid)
 {
@@ -390,10 +500,53 @@ static struct qtnf_wmac *qtnf_core_mac_alloc(struct qtnf_bus *bus,
 	wiphy = qtnf_wiphy_allocate(bus);
 	if (!wiphy)
 		return ERR_PTR(-ENOMEM);
+=======
+static void qtnf_vif_send_data_high_pri(struct work_struct *work)
+{
+	struct qtnf_vif *vif =
+		container_of(work, struct qtnf_vif, high_pri_tx_work);
+	struct sk_buff *skb;
+
+	if (!vif->netdev ||
+	    vif->wdev.iftype == NL80211_IFTYPE_UNSPECIFIED)
+		return;
+
+	while ((skb = skb_dequeue(&vif->high_pri_tx_queue))) {
+		qtnf_cmd_send_frame(vif, 0, QLINK_FRAME_TX_FLAG_8023,
+				    0, skb->data, skb->len);
+		dev_kfree_skb_any(skb);
+	}
+}
+
+static struct qtnf_wmac *qtnf_core_mac_alloc(struct qtnf_bus *bus,
+					     unsigned int macid)
+{
+	struct platform_device *pdev = NULL;
+	struct qtnf_wmac *mac;
+	struct qtnf_vif *vif;
+	struct wiphy *wiphy;
+	unsigned int i;
+
+	if (bus->hw_info.num_mac > 1) {
+		pdev = platform_device_register_data(bus->dev,
+						     dev_name(bus->dev),
+						     macid, NULL, 0);
+		if (IS_ERR(pdev))
+			return ERR_PTR(-EINVAL);
+	}
+
+	wiphy = qtnf_wiphy_allocate(bus, pdev);
+	if (!wiphy) {
+		if (pdev)
+			platform_device_unregister(pdev);
+		return ERR_PTR(-ENOMEM);
+	}
+>>>>>>> upstream/android-13
 
 	mac = wiphy_priv(wiphy);
 
 	mac->macid = macid;
+<<<<<<< HEAD
 	mac->bus = bus;
 
 	for (i = 0; i < QTNF_MAX_INTF; i++) {
@@ -409,6 +562,23 @@ static struct qtnf_wmac *qtnf_core_mac_alloc(struct qtnf_bus *bus,
 		if (!mac->iflist[i].stats64)
 			pr_warn("VIF%u.%u: per cpu stats allocation failed\n",
 				macid, i);
+=======
+	mac->pdev = pdev;
+	mac->bus = bus;
+	mutex_init(&mac->mac_lock);
+	INIT_DELAYED_WORK(&mac->scan_timeout, qtnf_mac_scan_timeout);
+
+	for (i = 0; i < QTNF_MAX_INTF; i++) {
+		vif = &mac->iflist[i];
+
+		memset(vif, 0, sizeof(*vif));
+		vif->wdev.iftype = NL80211_IFTYPE_UNSPECIFIED;
+		vif->mac = mac;
+		vif->vifid = i;
+		qtnf_sta_list_init(&vif->sta_list);
+		INIT_WORK(&vif->high_pri_tx_work, qtnf_vif_send_data_high_pri);
+		skb_queue_head_init(&vif->high_pri_tx_queue);
+>>>>>>> upstream/android-13
 	}
 
 	qtnf_mac_init_primary_intf(mac);
@@ -431,10 +601,15 @@ int qtnf_core_net_attach(struct qtnf_wmac *mac, struct qtnf_vif *vif,
 
 	dev = alloc_netdev_mqs(sizeof(struct qtnf_vif *), name,
 			       name_assign_type, ether_setup, 1, 1);
+<<<<<<< HEAD
 	if (!dev) {
 		vif->wdev.iftype = NL80211_IFTYPE_UNSPECIFIED;
 		return -ENOMEM;
 	}
+=======
+	if (!dev)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	vif->netdev = dev;
 
@@ -443,12 +618,16 @@ int qtnf_core_net_attach(struct qtnf_wmac *mac, struct qtnf_vif *vif,
 	dev_net_set(dev, wiphy_net(wiphy));
 	dev->ieee80211_ptr = &vif->wdev;
 	ether_addr_copy(dev->dev_addr, vif->mac_addr);
+<<<<<<< HEAD
 	SET_NETDEV_DEV(dev, wiphy_dev(wiphy));
+=======
+>>>>>>> upstream/android-13
 	dev->flags |= IFF_BROADCAST | IFF_MULTICAST;
 	dev->watchdog_timeo = QTNF_DEF_WDOG_TIMEOUT;
 	dev->tx_queue_len = 100;
 	dev->ethtool_ops = &qtnf_ethtool_ops;
 
+<<<<<<< HEAD
 	qdev_vif = netdev_priv(dev);
 	*((void **)qdev_vif) = vif;
 
@@ -458,6 +637,20 @@ int qtnf_core_net_attach(struct qtnf_wmac *mac, struct qtnf_vif *vif,
 	if (ret) {
 		free_netdev(dev);
 		vif->wdev.iftype = NL80211_IFTYPE_UNSPECIFIED;
+=======
+	if (qtnf_hwcap_is_set(&mac->bus->hw_info, QLINK_HW_CAPAB_HW_BRIDGE))
+		dev->needed_tailroom = sizeof(struct qtnf_frame_meta_info);
+
+	qdev_vif = netdev_priv(dev);
+	*((void **)qdev_vif) = vif;
+
+	SET_NETDEV_DEV(dev, wiphy_dev(wiphy));
+
+	ret = cfg80211_register_netdevice(dev);
+	if (ret) {
+		free_netdev(dev);
+		vif->netdev = NULL;
+>>>>>>> upstream/android-13
 	}
 
 	return ret;
@@ -488,7 +681,10 @@ static void qtnf_core_mac_detach(struct qtnf_bus *bus, unsigned int macid)
 		}
 		rtnl_unlock();
 		qtnf_sta_list_free(&vif->sta_list);
+<<<<<<< HEAD
 		free_percpu(vif->stats64);
+=======
+>>>>>>> upstream/android-13
 	}
 
 	if (mac->wiphy_registered)
@@ -498,6 +694,12 @@ static void qtnf_core_mac_detach(struct qtnf_bus *bus, unsigned int macid)
 		if (!wiphy->bands[band])
 			continue;
 
+<<<<<<< HEAD
+=======
+		kfree(wiphy->bands[band]->iftype_data);
+		wiphy->bands[band]->n_iftype_data = 0;
+
+>>>>>>> upstream/android-13
 		kfree(wiphy->bands[band]->channels);
 		wiphy->bands[band]->n_channels = 0;
 
@@ -505,9 +707,18 @@ static void qtnf_core_mac_detach(struct qtnf_bus *bus, unsigned int macid)
 		wiphy->bands[band] = NULL;
 	}
 
+<<<<<<< HEAD
 	qtnf_mac_iface_comb_free(mac);
 	qtnf_mac_ext_caps_free(mac);
 	kfree(mac->macinfo.wowlan);
+=======
+	platform_device_unregister(mac->pdev);
+	qtnf_mac_iface_comb_free(mac);
+	qtnf_mac_ext_caps_free(mac);
+	kfree(mac->macinfo.wowlan);
+	kfree(mac->rd);
+	mac->rd = NULL;
+>>>>>>> upstream/android-13
 	wiphy_free(wiphy);
 	bus->mac[macid] = NULL;
 }
@@ -529,12 +740,15 @@ static int qtnf_core_mac_attach(struct qtnf_bus *bus, unsigned int macid)
 		return PTR_ERR(mac);
 	}
 
+<<<<<<< HEAD
 	ret = qtnf_cmd_get_mac_info(mac);
 	if (ret) {
 		pr_err("MAC%u: failed to get info\n", macid);
 		goto error;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	vif = qtnf_mac_get_base_vif(mac);
 	if (!vif) {
 		pr_err("MAC%u: primary VIF is not ready\n", macid);
@@ -542,12 +756,18 @@ static int qtnf_core_mac_attach(struct qtnf_bus *bus, unsigned int macid)
 		goto error;
 	}
 
+<<<<<<< HEAD
 	ret = qtnf_cmd_send_add_intf(vif, vif->wdev.iftype, vif->mac_addr);
+=======
+	ret = qtnf_cmd_send_add_intf(vif, vif->wdev.iftype,
+				     vif->wdev.use_4addr, vif->mac_addr);
+>>>>>>> upstream/android-13
 	if (ret) {
 		pr_err("MAC%u: failed to add VIF\n", macid);
 		goto error;
 	}
 
+<<<<<<< HEAD
 	ret = qtnf_cmd_send_get_phy_params(mac);
 	if (ret) {
 		pr_err("MAC%u: failed to get PHY settings\n", macid);
@@ -558,45 +778,167 @@ static int qtnf_core_mac_attach(struct qtnf_bus *bus, unsigned int macid)
 	if (ret) {
 		pr_err("MAC%u: failed to init bands\n", macid);
 		goto error;
+=======
+	ret = qtnf_cmd_get_mac_info(mac);
+	if (ret) {
+		pr_err("MAC%u: failed to get MAC info\n", macid);
+		goto error_del_vif;
+	}
+
+	/* Use MAC address of the first active radio as a unique device ID */
+	if (is_zero_ether_addr(mac->bus->hw_id))
+		ether_addr_copy(mac->bus->hw_id, mac->macaddr);
+
+	ret = qtnf_mac_init_bands(mac);
+	if (ret) {
+		pr_err("MAC%u: failed to init bands\n", macid);
+		goto error_del_vif;
+>>>>>>> upstream/android-13
 	}
 
 	ret = qtnf_wiphy_register(&bus->hw_info, mac);
 	if (ret) {
 		pr_err("MAC%u: wiphy registration failed\n", macid);
+<<<<<<< HEAD
 		goto error;
+=======
+		goto error_del_vif;
+>>>>>>> upstream/android-13
 	}
 
 	mac->wiphy_registered = 1;
 
 	rtnl_lock();
+<<<<<<< HEAD
 
 	ret = qtnf_core_net_attach(mac, vif, "wlan%d", NET_NAME_ENUM);
+=======
+	wiphy_lock(priv_to_wiphy(mac));
+	ret = qtnf_core_net_attach(mac, vif, "wlan%d", NET_NAME_ENUM);
+	wiphy_unlock(priv_to_wiphy(mac));
+>>>>>>> upstream/android-13
 	rtnl_unlock();
 
 	if (ret) {
 		pr_err("MAC%u: failed to attach netdev\n", macid);
+<<<<<<< HEAD
 		vif->wdev.iftype = NL80211_IFTYPE_UNSPECIFIED;
 		vif->netdev = NULL;
 		goto error;
+=======
+		goto error_del_vif;
+	}
+
+	if (qtnf_hwcap_is_set(&bus->hw_info, QLINK_HW_CAPAB_HW_BRIDGE)) {
+		ret = qtnf_cmd_netdev_changeupper(vif, vif->netdev->ifindex);
+		if (ret)
+			goto error;
+>>>>>>> upstream/android-13
 	}
 
 	pr_debug("MAC%u initialized\n", macid);
 
 	return 0;
 
+<<<<<<< HEAD
+=======
+error_del_vif:
+	qtnf_cmd_send_del_intf(vif);
+	vif->wdev.iftype = NL80211_IFTYPE_UNSPECIFIED;
+>>>>>>> upstream/android-13
 error:
 	qtnf_core_mac_detach(bus, macid);
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+bool qtnf_netdev_is_qtn(const struct net_device *ndev)
+{
+	return ndev->netdev_ops == &qtnf_netdev_ops;
+}
+
+static int qtnf_check_br_ports(struct net_device *dev,
+			       struct netdev_nested_priv *priv)
+{
+	struct net_device *ndev = (struct net_device *)priv->data;
+
+	if (dev != ndev && netdev_port_same_parent_id(dev, ndev))
+		return -ENOTSUPP;
+
+	return 0;
+}
+
+static int qtnf_core_netdevice_event(struct notifier_block *nb,
+				     unsigned long event, void *ptr)
+{
+	struct net_device *ndev = netdev_notifier_info_to_dev(ptr);
+	const struct netdev_notifier_changeupper_info *info;
+	struct netdev_nested_priv priv = {
+		.data = (void *)ndev,
+	};
+	struct net_device *brdev;
+	struct qtnf_vif *vif;
+	struct qtnf_bus *bus;
+	int br_domain;
+	int ret = 0;
+
+	if (!qtnf_netdev_is_qtn(ndev))
+		return NOTIFY_DONE;
+
+	if (!net_eq(dev_net(ndev), &init_net))
+		return NOTIFY_OK;
+
+	vif = qtnf_netdev_get_priv(ndev);
+	bus = vif->mac->bus;
+
+	switch (event) {
+	case NETDEV_CHANGEUPPER:
+		info = ptr;
+		brdev = info->upper_dev;
+
+		if (!netif_is_bridge_master(brdev))
+			break;
+
+		pr_debug("[VIF%u.%u] change bridge: %s %s\n",
+			 vif->mac->macid, vif->vifid, netdev_name(brdev),
+			 info->linking ? "add" : "del");
+
+		if (IS_ENABLED(CONFIG_NET_SWITCHDEV) &&
+		    qtnf_hwcap_is_set(&bus->hw_info,
+				      QLINK_HW_CAPAB_HW_BRIDGE)) {
+			if (info->linking)
+				br_domain = brdev->ifindex;
+			else
+				br_domain = ndev->ifindex;
+
+			ret = qtnf_cmd_netdev_changeupper(vif, br_domain);
+		} else {
+			ret = netdev_walk_all_lower_dev(brdev,
+							qtnf_check_br_ports,
+							&priv);
+		}
+
+		break;
+	default:
+		break;
+	}
+
+	return notifier_from_errno(ret);
+}
+
+>>>>>>> upstream/android-13
 int qtnf_core_attach(struct qtnf_bus *bus)
 {
 	unsigned int i;
 	int ret;
 
 	qtnf_trans_init(bus);
+<<<<<<< HEAD
 
 	bus->fw_state = QTNF_FW_STATE_BOOT_DONE;
+=======
+>>>>>>> upstream/android-13
 	qtnf_bus_data_rx_start(bus);
 
 	bus->workqueue = alloc_ordered_workqueue("QTNF_BUS", 0);
@@ -606,6 +948,16 @@ int qtnf_core_attach(struct qtnf_bus *bus)
 		goto error;
 	}
 
+<<<<<<< HEAD
+=======
+	bus->hprio_workqueue = alloc_workqueue("QTNF_HPRI", WQ_HIGHPRI, 0);
+	if (!bus->hprio_workqueue) {
+		pr_err("failed to alloc high prio workqueue\n");
+		ret = -ENOMEM;
+		goto error;
+	}
+
+>>>>>>> upstream/android-13
 	INIT_WORK(&bus->event_work, qtnf_event_work_handler);
 
 	ret = qtnf_cmd_send_init_fw(bus);
@@ -614,20 +966,39 @@ int qtnf_core_attach(struct qtnf_bus *bus)
 		goto error;
 	}
 
+<<<<<<< HEAD
 	bus->fw_state = QTNF_FW_STATE_ACTIVE;
 
+=======
+	if (QLINK_VER_MAJOR(bus->hw_info.ql_proto_ver) !=
+	    QLINK_PROTO_VER_MAJOR) {
+		pr_err("qlink driver vs FW version mismatch: %u vs %u\n",
+		       QLINK_PROTO_VER_MAJOR,
+		       QLINK_VER_MAJOR(bus->hw_info.ql_proto_ver));
+		ret = -EPROTONOSUPPORT;
+		goto error;
+	}
+
+	bus->fw_state = QTNF_FW_STATE_ACTIVE;
+>>>>>>> upstream/android-13
 	ret = qtnf_cmd_get_hw_info(bus);
 	if (ret) {
 		pr_err("failed to get HW info: %d\n", ret);
 		goto error;
 	}
 
+<<<<<<< HEAD
 	if (bus->hw_info.ql_proto_ver != QLINK_PROTO_VER) {
 		pr_err("qlink version mismatch %u != %u\n",
 		       QLINK_PROTO_VER, bus->hw_info.ql_proto_ver);
 		ret = -EPROTONOSUPPORT;
 		goto error;
 	}
+=======
+	if (qtnf_hwcap_is_set(&bus->hw_info, QLINK_HW_CAPAB_HW_BRIDGE) &&
+	    bus->bus_ops->data_tx_use_meta_set)
+		bus->bus_ops->data_tx_use_meta_set(bus, true);
+>>>>>>> upstream/android-13
 
 	if (bus->hw_info.num_mac > QTNF_MAX_MAC) {
 		pr_err("no support for number of MACs=%u\n",
@@ -645,11 +1016,25 @@ int qtnf_core_attach(struct qtnf_bus *bus)
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	bus->netdev_nb.notifier_call = qtnf_core_netdevice_event;
+	ret = register_netdevice_notifier(&bus->netdev_nb);
+	if (ret) {
+		pr_err("failed to register netdev notifier: %d\n", ret);
+		goto error;
+	}
+
+	bus->fw_state = QTNF_FW_STATE_RUNNING;
+>>>>>>> upstream/android-13
 	return 0;
 
 error:
 	qtnf_core_detach(bus);
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 EXPORT_SYMBOL_GPL(qtnf_core_attach);
@@ -658,12 +1043,20 @@ void qtnf_core_detach(struct qtnf_bus *bus)
 {
 	unsigned int macid;
 
+<<<<<<< HEAD
+=======
+	unregister_netdevice_notifier(&bus->netdev_nb);
+>>>>>>> upstream/android-13
 	qtnf_bus_data_rx_stop(bus);
 
 	for (macid = 0; macid < QTNF_MAX_MAC; macid++)
 		qtnf_core_mac_detach(bus, macid);
 
+<<<<<<< HEAD
 	if (bus->fw_state == QTNF_FW_STATE_ACTIVE)
+=======
+	if (qtnf_fw_is_up(bus))
+>>>>>>> upstream/android-13
 		qtnf_cmd_send_deinit_fw(bus);
 
 	bus->fw_state = QTNF_FW_STATE_DETACHED;
@@ -671,10 +1064,21 @@ void qtnf_core_detach(struct qtnf_bus *bus)
 	if (bus->workqueue) {
 		flush_workqueue(bus->workqueue);
 		destroy_workqueue(bus->workqueue);
+<<<<<<< HEAD
 	}
 
 	kfree(bus->hw_info.rd);
 	bus->hw_info.rd = NULL;
+=======
+		bus->workqueue = NULL;
+	}
+
+	if (bus->hprio_workqueue) {
+		flush_workqueue(bus->hprio_workqueue);
+		destroy_workqueue(bus->hprio_workqueue);
+		bus->hprio_workqueue = NULL;
+	}
+>>>>>>> upstream/android-13
 
 	qtnf_trans_free(bus);
 }
@@ -682,7 +1086,12 @@ EXPORT_SYMBOL_GPL(qtnf_core_detach);
 
 static inline int qtnf_is_frame_meta_magic_valid(struct qtnf_frame_meta_info *m)
 {
+<<<<<<< HEAD
 	return m->magic_s == 0xAB && m->magic_e == 0xBA;
+=======
+	return m->magic_s == HBM_FRAME_META_MAGIC_PATTERN_S &&
+		m->magic_e == HBM_FRAME_META_MAGIC_PATTERN_E;
+>>>>>>> upstream/android-13
 }
 
 struct net_device *qtnf_classify_skb(struct qtnf_bus *bus, struct sk_buff *skb)
@@ -692,6 +1101,12 @@ struct net_device *qtnf_classify_skb(struct qtnf_bus *bus, struct sk_buff *skb)
 	struct qtnf_wmac *mac;
 	struct qtnf_vif *vif;
 
+<<<<<<< HEAD
+=======
+	if (unlikely(bus->fw_state != QTNF_FW_STATE_RUNNING))
+		return NULL;
+
+>>>>>>> upstream/android-13
 	meta = (struct qtnf_frame_meta_info *)
 		(skb_tail_pointer(skb) - sizeof(*meta));
 
@@ -734,6 +1149,11 @@ struct net_device *qtnf_classify_skb(struct qtnf_bus *bus, struct sk_buff *skb)
 	}
 
 	__skb_trim(skb, skb->len - sizeof(*meta));
+<<<<<<< HEAD
+=======
+	/* Firmware always handles packets that require flooding */
+	qtnfmac_switch_mark_skb_flooded(skb);
+>>>>>>> upstream/android-13
 
 out:
 	return ndev;
@@ -767,6 +1187,7 @@ void qtnf_wake_all_queues(struct net_device *ndev)
 }
 EXPORT_SYMBOL_GPL(qtnf_wake_all_queues);
 
+<<<<<<< HEAD
 void qtnf_update_rx_stats(struct net_device *ndev, const struct sk_buff *skb)
 {
 	struct qtnf_vif *vif = qtnf_netdev_get_priv(ndev);
@@ -806,6 +1227,31 @@ void qtnf_update_tx_stats(struct net_device *ndev, const struct sk_buff *skb)
 	u64_stats_update_end(&stats64->syncp);
 }
 EXPORT_SYMBOL_GPL(qtnf_update_tx_stats);
+=======
+struct dentry *qtnf_get_debugfs_dir(void)
+{
+	return qtnf_debugfs_dir;
+}
+EXPORT_SYMBOL_GPL(qtnf_get_debugfs_dir);
+
+static int __init qtnf_core_register(void)
+{
+	qtnf_debugfs_dir = debugfs_create_dir(KBUILD_MODNAME, NULL);
+
+	if (IS_ERR(qtnf_debugfs_dir))
+		qtnf_debugfs_dir = NULL;
+
+	return 0;
+}
+
+static void __exit qtnf_core_exit(void)
+{
+	debugfs_remove(qtnf_debugfs_dir);
+}
+
+module_init(qtnf_core_register);
+module_exit(qtnf_core_exit);
+>>>>>>> upstream/android-13
 
 MODULE_AUTHOR("Quantenna Communications");
 MODULE_DESCRIPTION("Quantenna 802.11 wireless LAN FullMAC driver.");

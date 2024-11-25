@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Amlogic Meson6 and Meson8 DWMAC glue layer
  *
  * Copyright (C) 2014 Beniamino Galvani <b.galvani@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -9,6 +14,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -52,14 +59,21 @@ static int meson6_dwmac_probe(struct platform_device *pdev)
 	struct plat_stmmacenet_data *plat_dat;
 	struct stmmac_resources stmmac_res;
 	struct meson_dwmac *dwmac;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	ret = stmmac_get_platform_resources(pdev, &stmmac_res);
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	plat_dat = stmmac_probe_config_dt(pdev, &stmmac_res.mac);
+=======
+	plat_dat = stmmac_probe_config_dt(pdev, stmmac_res.mac);
+>>>>>>> upstream/android-13
 	if (IS_ERR(plat_dat))
 		return PTR_ERR(plat_dat);
 
@@ -69,8 +83,12 @@ static int meson6_dwmac_probe(struct platform_device *pdev)
 		goto err_remove_config_dt;
 	}
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
 	dwmac->reg = devm_ioremap_resource(&pdev->dev, res);
+=======
+	dwmac->reg = devm_platform_ioremap_resource(pdev, 1);
+>>>>>>> upstream/android-13
 	if (IS_ERR(dwmac->reg)) {
 		ret = PTR_ERR(dwmac->reg);
 		goto err_remove_config_dt;

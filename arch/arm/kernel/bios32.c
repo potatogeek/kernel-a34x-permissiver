@@ -252,6 +252,7 @@ static void pci_fixup_cy82c693(struct pci_dev *dev)
 }
 DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_CONTAQ, PCI_DEVICE_ID_CONTAQ_82C693, pci_fixup_cy82c693);
 
+<<<<<<< HEAD
 static void pci_fixup_it8152(struct pci_dev *dev)
 {
 	int i;
@@ -269,6 +270,8 @@ static void pci_fixup_it8152(struct pci_dev *dev)
 }
 DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_ITE, PCI_DEVICE_ID_ITE_8152, pci_fixup_it8152);
 
+=======
+>>>>>>> upstream/android-13
 /*
  * If the bus contains any of these devices, then we must not turn on
  * parity checking of any kind.  Currently this is CyberPro 20x0 only.
@@ -411,8 +414,12 @@ static int pcibios_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
 	return irq;
 }
 
+<<<<<<< HEAD
 static int pcibios_init_resource(int busnr, struct pci_sys_data *sys,
 				 int io_optional)
+=======
+static int pcibios_init_resource(int busnr, struct pci_sys_data *sys)
+>>>>>>> upstream/android-13
 {
 	int ret;
 	struct resource_entry *window;
@@ -422,6 +429,7 @@ static int pcibios_init_resource(int busnr, struct pci_sys_data *sys,
 			 &iomem_resource, sys->mem_offset);
 	}
 
+<<<<<<< HEAD
 	/*
 	 * If a platform says I/O port support is optional, we don't add
 	 * the default I/O space.  The platform is responsible for adding
@@ -430,6 +438,8 @@ static int pcibios_init_resource(int busnr, struct pci_sys_data *sys,
 	if (io_optional)
 		return 0;
 
+=======
+>>>>>>> upstream/android-13
 	resource_list_for_each_entry(window, &sys->resources)
 		if (resource_type(window->res) == IORESOURCE_IO)
 			return 0;
@@ -479,7 +489,11 @@ static void pcibios_init_hw(struct device *parent, struct hw_pci *hw,
 
 		if (ret > 0) {
 
+<<<<<<< HEAD
 			ret = pcibios_init_resource(nr, sys, hw->io_optional);
+=======
+			ret = pcibios_init_resource(nr, sys);
+>>>>>>> upstream/android-13
 			if (ret)  {
 				pci_free_host_bridge(bridge);
 				break;
@@ -497,9 +511,12 @@ static void pcibios_init_hw(struct device *parent, struct hw_pci *hw,
 				bridge->sysdata = sys;
 				bridge->busnr = sys->busnr;
 				bridge->ops = hw->ops;
+<<<<<<< HEAD
 				bridge->msi = hw->msi_ctrl;
 				bridge->align_resource =
 						hw->align_resource;
+=======
+>>>>>>> upstream/android-13
 
 				ret = pci_scan_root_bus_bridge(bridge);
 			}

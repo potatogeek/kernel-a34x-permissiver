@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * TCP Vegas congestion control
  *
@@ -292,10 +296,17 @@ size_t tcp_vegas_get_info(struct sock *sk, u32 ext, int *attr,
 	const struct vegas *ca = inet_csk_ca(sk);
 
 	if (ext & (1 << (INET_DIAG_VEGASINFO - 1))) {
+<<<<<<< HEAD
 		info->vegas.tcpv_enabled = ca->doing_vegas_now,
 		info->vegas.tcpv_rttcnt = ca->cntRTT,
 		info->vegas.tcpv_rtt = ca->baseRTT,
 		info->vegas.tcpv_minrtt = ca->minRTT,
+=======
+		info->vegas.tcpv_enabled = ca->doing_vegas_now;
+		info->vegas.tcpv_rttcnt = ca->cntRTT;
+		info->vegas.tcpv_rtt = ca->baseRTT;
+		info->vegas.tcpv_minrtt = ca->minRTT;
+>>>>>>> upstream/android-13
 
 		*attr = INET_DIAG_VEGASINFO;
 		return sizeof(struct tcpvegas_info);

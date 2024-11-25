@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2005 Stephen Street / StreetFire Sound Labs
  * Copyright (C) 2013, Intel Corporation
@@ -33,6 +34,39 @@
 #include <linux/clk.h>
 #include <linux/pm_runtime.h>
 #include <linux/acpi.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2005 Stephen Street / StreetFire Sound Labs
+ * Copyright (C) 2013, 2021 Intel Corporation
+ */
+
+#include <linux/acpi.h>
+#include <linux/bitops.h>
+#include <linux/clk.h>
+#include <linux/delay.h>
+#include <linux/device.h>
+#include <linux/dmaengine.h>
+#include <linux/err.h>
+#include <linux/errno.h>
+#include <linux/gpio/consumer.h>
+#include <linux/gpio.h>
+#include <linux/init.h>
+#include <linux/interrupt.h>
+#include <linux/ioport.h>
+#include <linux/kernel.h>
+#include <linux/module.h>
+#include <linux/mod_devicetable.h>
+#include <linux/of.h>
+#include <linux/pci.h>
+#include <linux/platform_device.h>
+#include <linux/pm_runtime.h>
+#include <linux/property.h>
+#include <linux/slab.h>
+
+#include <linux/spi/pxa2xx_spi.h>
+#include <linux/spi/spi.h>
+>>>>>>> upstream/android-13
 
 #include "spi-pxa2xx.h"
 
@@ -44,11 +78,19 @@ MODULE_ALIAS("platform:pxa2xx-spi");
 #define TIMOUT_DFLT		1000
 
 /*
+<<<<<<< HEAD
  * for testing SSCR1 changes that require SSP restart, basically
  * everything except the service and interrupt enables, the pxa270 developer
  * manual says only SSCR1_SCFR, SSCR1_SPH, SSCR1_SPO need to be in this
  * list, but the PXA255 dev man says all bits without really meaning the
  * service and interrupt enables
+=======
+ * For testing SSCR1 changes that require SSP restart, basically
+ * everything except the service and interrupt enables, the PXA270 developer
+ * manual says only SSCR1_SCFR, SSCR1_SPH, SSCR1_SPO need to be in this
+ * list, but the PXA255 developer manual says all bits without really meaning
+ * the service and interrupt enables.
+>>>>>>> upstream/android-13
  */
 #define SSCR1_CHANGE_MASK (SSCR1_TTELP | SSCR1_TTE | SSCR1_SCFR \
 				| SSCR1_ECRA | SSCR1_ECRB | SSCR1_SCLKDIR \
@@ -199,6 +241,25 @@ static bool is_quark_x1000_ssp(const struct driver_data *drv_data)
 	return drv_data->ssp_type == QUARK_X1000_SSP;
 }
 
+<<<<<<< HEAD
+=======
+static bool is_mmp2_ssp(const struct driver_data *drv_data)
+{
+	return drv_data->ssp_type == MMP2_SSP;
+}
+
+static bool is_mrfld_ssp(const struct driver_data *drv_data)
+{
+	return drv_data->ssp_type == MRFLD_SSP;
+}
+
+static void pxa2xx_spi_update(const struct driver_data *drv_data, u32 reg, u32 mask, u32 value)
+{
+	if ((pxa2xx_spi_read(drv_data, reg) & mask) != value)
+		pxa2xx_spi_write(drv_data, reg, value & mask);
+}
+
+>>>>>>> upstream/android-13
 static u32 pxa2xx_spi_get_ssrc1_change_mask(const struct driver_data *drv_data)
 {
 	switch (drv_data->ssp_type) {
@@ -240,7 +301,11 @@ static bool pxa2xx_spi_txfifo_full(const struct driver_data *drv_data)
 		break;
 	}
 
+<<<<<<< HEAD
 	return (pxa2xx_spi_read(drv_data, SSSR) & mask) == mask;
+=======
+	return read_SSSR_bits(drv_data, mask) == mask;
+>>>>>>> upstream/android-13
 }
 
 static void pxa2xx_spi_clear_rx_thre(const struct driver_data *drv_data,
@@ -285,13 +350,20 @@ static u32 pxa2xx_configure_sscr0(const struct driver_data *drv_data,
 	case QUARK_X1000_SSP:
 		return clk_div
 			| QUARK_X1000_SSCR0_Motorola
+<<<<<<< HEAD
 			| QUARK_X1000_SSCR0_DataSize(bits > 32 ? 8 : bits)
 			| SSCR0_SSE;
+=======
+			| QUARK_X1000_SSCR0_DataSize(bits > 32 ? 8 : bits);
+>>>>>>> upstream/android-13
 	default:
 		return clk_div
 			| SSCR0_Motorola
 			| SSCR0_DataSize(bits > 16 ? bits - 16 : bits)
+<<<<<<< HEAD
 			| SSCR0_SSE
+=======
+>>>>>>> upstream/android-13
 			| (bits > 16 ? SSCR0_EDSS : 0);
 	}
 }
@@ -326,7 +398,11 @@ static void lpss_ssp_setup(struct driver_data *drv_data)
 	u32 value;
 
 	config = lpss_get_config(drv_data);
+<<<<<<< HEAD
 	drv_data->lpss_base = drv_data->ioaddr + config->offset;
+=======
+	drv_data->lpss_base = drv_data->ssp->mmio_base + config->offset;
+>>>>>>> upstream/android-13
 
 	/* Enable software chip select control */
 	value = __lpss_ssp_read_priv(drv_data, config->reg_cs_ctrl);
@@ -335,7 +411,11 @@ static void lpss_ssp_setup(struct driver_data *drv_data)
 	__lpss_ssp_write_priv(drv_data, config->reg_cs_ctrl, value);
 
 	/* Enable multiblock DMA transfers */
+<<<<<<< HEAD
 	if (drv_data->master_info->enable_dma) {
+=======
+	if (drv_data->controller_info->enable_dma) {
+>>>>>>> upstream/android-13
 		__lpss_ssp_write_priv(drv_data, config->reg_ssp, 1);
 
 		if (config->reg_general >= 0) {
@@ -375,7 +455,11 @@ static void lpss_ssp_select_cs(struct spi_device *spi,
 		__lpss_ssp_write_priv(drv_data,
 				      config->reg_cs_ctrl, value);
 		ndelay(1000000000 /
+<<<<<<< HEAD
 		       (drv_data->master->max_speed_hz / 2));
+=======
+		       (drv_data->controller->max_speed_hz / 2));
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -422,7 +506,11 @@ static void cs_assert(struct spi_device *spi)
 		spi_controller_get_devdata(spi->controller);
 
 	if (drv_data->ssp_type == CE4100_SSP) {
+<<<<<<< HEAD
 		pxa2xx_spi_write(drv_data, SSSR, chip->frm);
+=======
+		pxa2xx_spi_write(drv_data, SSSR, spi->chip_select);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -431,11 +519,14 @@ static void cs_assert(struct spi_device *spi)
 		return;
 	}
 
+<<<<<<< HEAD
 	if (chip->gpiod_cs) {
 		gpiod_set_value(chip->gpiod_cs, chip->gpio_cs_inverted);
 		return;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (is_lpss_ssp(drv_data))
 		lpss_ssp_cs_control(spi, true);
 }
@@ -461,11 +552,14 @@ static void cs_deassert(struct spi_device *spi)
 		return;
 	}
 
+<<<<<<< HEAD
 	if (chip->gpiod_cs) {
 		gpiod_set_value(chip->gpiod_cs, !chip->gpio_cs_inverted);
 		return;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (is_lpss_ssp(drv_data))
 		lpss_ssp_cs_control(spi, false);
 }
@@ -483,7 +577,11 @@ int pxa2xx_spi_flush(struct driver_data *drv_data)
 	unsigned long limit = loops_per_jiffy << 1;
 
 	do {
+<<<<<<< HEAD
 		while (pxa2xx_spi_read(drv_data, SSSR) & SSSR_RNE)
+=======
+		while (read_SSSR_bits(drv_data, SSSR_RNE))
+>>>>>>> upstream/android-13
 			pxa2xx_spi_read(drv_data, SSDR);
 	} while ((pxa2xx_spi_read(drv_data, SSSR) & SSSR_BSY) && --limit);
 	write_SSSR_CS(drv_data, SSSR_ROR);
@@ -491,6 +589,18 @@ int pxa2xx_spi_flush(struct driver_data *drv_data)
 	return limit;
 }
 
+<<<<<<< HEAD
+=======
+static void pxa2xx_spi_off(struct driver_data *drv_data)
+{
+	/* On MMP, disabling SSE seems to corrupt the Rx FIFO */
+	if (is_mmp2_ssp(drv_data))
+		return;
+
+	pxa_ssp_disable(drv_data->ssp);
+}
+
+>>>>>>> upstream/android-13
 static int null_writer(struct driver_data *drv_data)
 {
 	u8 n_bytes = drv_data->n_bytes;
@@ -509,8 +619,12 @@ static int null_reader(struct driver_data *drv_data)
 {
 	u8 n_bytes = drv_data->n_bytes;
 
+<<<<<<< HEAD
 	while ((pxa2xx_spi_read(drv_data, SSSR) & SSSR_RNE)
 	       && (drv_data->rx < drv_data->rx_end)) {
+=======
+	while (read_SSSR_bits(drv_data, SSSR_RNE) && drv_data->rx < drv_data->rx_end) {
+>>>>>>> upstream/android-13
 		pxa2xx_spi_read(drv_data, SSDR);
 		drv_data->rx += n_bytes;
 	}
@@ -532,8 +646,12 @@ static int u8_writer(struct driver_data *drv_data)
 
 static int u8_reader(struct driver_data *drv_data)
 {
+<<<<<<< HEAD
 	while ((pxa2xx_spi_read(drv_data, SSSR) & SSSR_RNE)
 	       && (drv_data->rx < drv_data->rx_end)) {
+=======
+	while (read_SSSR_bits(drv_data, SSSR_RNE) && drv_data->rx < drv_data->rx_end) {
+>>>>>>> upstream/android-13
 		*(u8 *)(drv_data->rx) = pxa2xx_spi_read(drv_data, SSDR);
 		++drv_data->rx;
 	}
@@ -555,8 +673,12 @@ static int u16_writer(struct driver_data *drv_data)
 
 static int u16_reader(struct driver_data *drv_data)
 {
+<<<<<<< HEAD
 	while ((pxa2xx_spi_read(drv_data, SSSR) & SSSR_RNE)
 	       && (drv_data->rx < drv_data->rx_end)) {
+=======
+	while (read_SSSR_bits(drv_data, SSSR_RNE) && drv_data->rx < drv_data->rx_end) {
+>>>>>>> upstream/android-13
 		*(u16 *)(drv_data->rx) = pxa2xx_spi_read(drv_data, SSDR);
 		drv_data->rx += 2;
 	}
@@ -578,8 +700,12 @@ static int u32_writer(struct driver_data *drv_data)
 
 static int u32_reader(struct driver_data *drv_data)
 {
+<<<<<<< HEAD
 	while ((pxa2xx_spi_read(drv_data, SSSR) & SSSR_RNE)
 	       && (drv_data->rx < drv_data->rx_end)) {
+=======
+	while (read_SSSR_bits(drv_data, SSSR_RNE) && drv_data->rx < drv_data->rx_end) {
+>>>>>>> upstream/android-13
 		*(u32 *)(drv_data->rx) = pxa2xx_spi_read(drv_data, SSDR);
 		drv_data->rx += 4;
 	}
@@ -589,6 +715,7 @@ static int u32_reader(struct driver_data *drv_data)
 
 static void reset_sccr1(struct driver_data *drv_data)
 {
+<<<<<<< HEAD
 	struct chip_data *chip =
 		spi_get_ctldata(drv_data->master->cur_msg->spi);
 	u32 sccr1_reg;
@@ -627,18 +754,73 @@ static void int_error_stop(struct driver_data *drv_data, const char* msg)
 }
 
 static void int_transfer_complete(struct driver_data *drv_data)
+=======
+	u32 mask = drv_data->int_cr1 | drv_data->dma_cr1, threshold;
+	struct chip_data *chip;
+
+	if (drv_data->controller->cur_msg) {
+		chip = spi_get_ctldata(drv_data->controller->cur_msg->spi);
+		threshold = chip->threshold;
+	} else {
+		threshold = 0;
+	}
+
+	switch (drv_data->ssp_type) {
+	case QUARK_X1000_SSP:
+		mask |= QUARK_X1000_SSCR1_RFT;
+		break;
+	case CE4100_SSP:
+		mask |= CE4100_SSCR1_RFT;
+		break;
+	default:
+		mask |= SSCR1_RFT;
+		break;
+	}
+
+	pxa2xx_spi_update(drv_data, SSCR1, mask, threshold);
+}
+
+static void int_stop_and_reset(struct driver_data *drv_data)
+>>>>>>> upstream/android-13
 {
 	/* Clear and disable interrupts */
 	write_SSSR_CS(drv_data, drv_data->clear_sr);
 	reset_sccr1(drv_data);
+<<<<<<< HEAD
 	if (!pxa25x_ssp_comp(drv_data))
 		pxa2xx_spi_write(drv_data, SSTO, 0);
 
 	spi_finalize_current_transfer(drv_data->master);
+=======
+	if (pxa25x_ssp_comp(drv_data))
+		return;
+
+	pxa2xx_spi_write(drv_data, SSTO, 0);
+}
+
+static void int_error_stop(struct driver_data *drv_data, const char *msg, int err)
+{
+	int_stop_and_reset(drv_data);
+	pxa2xx_spi_flush(drv_data);
+	pxa2xx_spi_off(drv_data);
+
+	dev_err(drv_data->ssp->dev, "%s\n", msg);
+
+	drv_data->controller->cur_msg->status = err;
+	spi_finalize_current_transfer(drv_data->controller);
+}
+
+static void int_transfer_complete(struct driver_data *drv_data)
+{
+	int_stop_and_reset(drv_data);
+
+	spi_finalize_current_transfer(drv_data->controller);
+>>>>>>> upstream/android-13
 }
 
 static irqreturn_t interrupt_transfer(struct driver_data *drv_data)
 {
+<<<<<<< HEAD
 	u32 irq_mask = (pxa2xx_spi_read(drv_data, SSCR1) & SSCR1_TIE) ?
 		       drv_data->mask_sr : drv_data->mask_sr & ~SSSR_TFS;
 
@@ -646,6 +828,21 @@ static irqreturn_t interrupt_transfer(struct driver_data *drv_data)
 
 	if (irq_status & SSSR_ROR) {
 		int_error_stop(drv_data, "interrupt_transfer: fifo overrun");
+=======
+	u32 irq_status;
+
+	irq_status = read_SSSR_bits(drv_data, drv_data->mask_sr);
+	if (!(pxa2xx_spi_read(drv_data, SSCR1) & SSCR1_TIE))
+		irq_status &= ~SSSR_TFS;
+
+	if (irq_status & SSSR_ROR) {
+		int_error_stop(drv_data, "interrupt_transfer: FIFO overrun", -EIO);
+		return IRQ_HANDLED;
+	}
+
+	if (irq_status & SSSR_TUR) {
+		int_error_stop(drv_data, "interrupt_transfer: FIFO underrun", -EIO);
+>>>>>>> upstream/android-13
 		return IRQ_HANDLED;
 	}
 
@@ -657,7 +854,11 @@ static irqreturn_t interrupt_transfer(struct driver_data *drv_data)
 		}
 	}
 
+<<<<<<< HEAD
 	/* Drain rx fifo, Fill tx fifo and prevent overruns */
+=======
+	/* Drain Rx FIFO, Fill Tx FIFO and prevent overruns */
+>>>>>>> upstream/android-13
 	do {
 		if (drv_data->read(drv_data)) {
 			int_transfer_complete(drv_data);
@@ -678,8 +879,13 @@ static irqreturn_t interrupt_transfer(struct driver_data *drv_data)
 		sccr1_reg &= ~SSCR1_TIE;
 
 		/*
+<<<<<<< HEAD
 		 * PXA25x_SSP has no timeout, set up rx threshould for the
 		 * remaining RX bytes.
+=======
+		 * PXA25x_SSP has no timeout, set up Rx threshold for
+		 * the remaining Rx bytes.
+>>>>>>> upstream/android-13
 		 */
 		if (pxa25x_ssp_comp(drv_data)) {
 			u32 rx_thre;
@@ -689,9 +895,17 @@ static irqreturn_t interrupt_transfer(struct driver_data *drv_data)
 			bytes_left = drv_data->rx_end - drv_data->rx;
 			switch (drv_data->n_bytes) {
 			case 4:
+<<<<<<< HEAD
 				bytes_left >>= 1;
 			case 2:
 				bytes_left >>= 1;
+=======
+				bytes_left >>= 2;
+				break;
+			case 2:
+				bytes_left >>= 1;
+				break;
+>>>>>>> upstream/android-13
 			}
 
 			rx_thre = pxa2xx_spi_get_rx_default_thre(drv_data);
@@ -709,6 +923,7 @@ static irqreturn_t interrupt_transfer(struct driver_data *drv_data)
 
 static void handle_bad_msg(struct driver_data *drv_data)
 {
+<<<<<<< HEAD
 	pxa2xx_spi_write(drv_data, SSCR0,
 			 pxa2xx_spi_read(drv_data, SSCR0) & ~SSCR0_SSE);
 	pxa2xx_spi_write(drv_data, SSCR1,
@@ -719,6 +934,12 @@ static void handle_bad_msg(struct driver_data *drv_data)
 
 	dev_err(&drv_data->pdev->dev,
 		"bad message state in interrupt handler\n");
+=======
+	int_stop_and_reset(drv_data);
+	pxa2xx_spi_off(drv_data);
+
+	dev_err(drv_data->ssp->dev, "bad message state in interrupt handler\n");
+>>>>>>> upstream/android-13
 }
 
 static irqreturn_t ssp_int(int irq, void *dev_id)
@@ -734,7 +955,11 @@ static irqreturn_t ssp_int(int irq, void *dev_id)
 	 * the IRQ was not for us (we shouldn't be RPM suspended when the
 	 * interrupt is enabled).
 	 */
+<<<<<<< HEAD
 	if (pm_runtime_suspended(&drv_data->pdev->dev))
+=======
+	if (pm_runtime_suspended(drv_data->ssp->dev))
+>>>>>>> upstream/android-13
 		return IRQ_NONE;
 
 	/*
@@ -763,7 +988,11 @@ static irqreturn_t ssp_int(int irq, void *dev_id)
 	pxa2xx_spi_write(drv_data, SSCR1, sccr1_reg & ~drv_data->int_cr1);
 	pxa2xx_spi_write(drv_data, SSCR1, sccr1_reg);
 
+<<<<<<< HEAD
 	if (!drv_data->master->cur_msg) {
+=======
+	if (!drv_data->controller->cur_msg) {
+>>>>>>> upstream/android-13
 		handle_bad_msg(drv_data);
 		/* Never fail */
 		return IRQ_HANDLED;
@@ -895,14 +1124,22 @@ static unsigned int quark_x1000_get_clk_div(int rate, u32 *dds)
 
 static unsigned int ssp_get_clk_div(struct driver_data *drv_data, int rate)
 {
+<<<<<<< HEAD
 	unsigned long ssp_clk = drv_data->master->max_speed_hz;
+=======
+	unsigned long ssp_clk = drv_data->controller->max_speed_hz;
+>>>>>>> upstream/android-13
 	const struct ssp_device *ssp = drv_data->ssp;
 
 	rate = min_t(int, ssp_clk, rate);
 
 	/*
 	 * Calculate the divisor for the SCR (Serial Clock Rate), avoiding
+<<<<<<< HEAD
 	 * that the SSP transmission rate can be greater than the device rate
+=======
+	 * that the SSP transmission rate can be greater than the device rate.
+>>>>>>> upstream/android-13
 	 */
 	if (ssp->type == PXA25x_SSP || ssp->type == CE4100_SSP)
 		return (DIV_ROUND_UP(ssp_clk, 2 * rate) - 1) & 0xff;
@@ -914,7 +1151,11 @@ static unsigned int pxa2xx_ssp_get_clk_div(struct driver_data *drv_data,
 					   int rate)
 {
 	struct chip_data *chip =
+<<<<<<< HEAD
 		spi_get_ctldata(drv_data->master->cur_msg->spi);
+=======
+		spi_get_ctldata(drv_data->controller->cur_msg->spi);
+>>>>>>> upstream/android-13
 	unsigned int clk_div;
 
 	switch (drv_data->ssp_type) {
@@ -928,7 +1169,11 @@ static unsigned int pxa2xx_ssp_get_clk_div(struct driver_data *drv_data,
 	return clk_div << 8;
 }
 
+<<<<<<< HEAD
 static bool pxa2xx_spi_can_dma(struct spi_controller *master,
+=======
+static bool pxa2xx_spi_can_dma(struct spi_controller *controller,
+>>>>>>> upstream/android-13
 			       struct spi_device *spi,
 			       struct spi_transfer *xfer)
 {
@@ -939,6 +1184,7 @@ static bool pxa2xx_spi_can_dma(struct spi_controller *master,
 	       xfer->len >= chip->dma_burst_size;
 }
 
+<<<<<<< HEAD
 static int pxa2xx_spi_transfer_one(struct spi_controller *master,
 				   struct spi_device *spi,
 				   struct spi_transfer *transfer)
@@ -946,6 +1192,15 @@ static int pxa2xx_spi_transfer_one(struct spi_controller *master,
 	struct driver_data *drv_data = spi_controller_get_devdata(master);
 	struct spi_message *message = master->cur_msg;
 	struct chip_data *chip = spi_get_ctldata(message->spi);
+=======
+static int pxa2xx_spi_transfer_one(struct spi_controller *controller,
+				   struct spi_device *spi,
+				   struct spi_transfer *transfer)
+{
+	struct driver_data *drv_data = spi_controller_get_devdata(controller);
+	struct spi_message *message = controller->cur_msg;
+	struct chip_data *chip = spi_get_ctldata(spi);
+>>>>>>> upstream/android-13
 	u32 dma_thresh = chip->dma_threshold;
 	u32 dma_burst = chip->dma_burst_size;
 	u32 change_mask = pxa2xx_spi_get_ssrc1_change_mask(drv_data);
@@ -960,24 +1215,42 @@ static int pxa2xx_spi_transfer_one(struct spi_controller *master,
 	/* Check if we can DMA this transfer */
 	if (transfer->len > MAX_DMA_LEN && chip->enable_dma) {
 
+<<<<<<< HEAD
 		/* reject already-mapped transfers; PIO won't always work */
 		if (message->is_dma_mapped
 				|| transfer->rx_dma || transfer->tx_dma) {
 			dev_err(&drv_data->pdev->dev,
+=======
+		/* Reject already-mapped transfers; PIO won't always work */
+		if (message->is_dma_mapped
+				|| transfer->rx_dma || transfer->tx_dma) {
+			dev_err(&spi->dev,
+>>>>>>> upstream/android-13
 				"Mapped transfer length of %u is greater than %d\n",
 				transfer->len, MAX_DMA_LEN);
 			return -EINVAL;
 		}
 
+<<<<<<< HEAD
 		/* warn ... we force this to PIO mode */
 		dev_warn_ratelimited(&message->spi->dev,
 				     "DMA disabled for transfer length %ld greater than %d\n",
 				     (long)transfer->len, MAX_DMA_LEN);
+=======
+		/* Warn ... we force this to PIO mode */
+		dev_warn_ratelimited(&spi->dev,
+				     "DMA disabled for transfer length %u greater than %d\n",
+				     transfer->len, MAX_DMA_LEN);
+>>>>>>> upstream/android-13
 	}
 
 	/* Setup the transfer state based on the type of transfer */
 	if (pxa2xx_spi_flush(drv_data) == 0) {
+<<<<<<< HEAD
 		dev_err(&drv_data->pdev->dev, "Flush failed\n");
+=======
+		dev_err(&spi->dev, "Flush failed\n");
+>>>>>>> upstream/android-13
 		return -EIO;
 	}
 	drv_data->n_bytes = chip->n_bytes;
@@ -1014,6 +1287,7 @@ static int pxa2xx_spi_transfer_one(struct spi_controller *master,
 					u32_writer : null_writer;
 	}
 	/*
+<<<<<<< HEAD
 	 * if bits/word is changed in dma mode, then must check the
 	 * thresholds and burst also
 	 */
@@ -1029,6 +1303,23 @@ static int pxa2xx_spi_transfer_one(struct spi_controller *master,
 	dma_mapped = master->can_dma &&
 		     master->can_dma(master, message->spi, transfer) &&
 		     master->cur_msg_mapped;
+=======
+	 * If bits per word is changed in DMA mode, then must check
+	 * the thresholds and burst also.
+	 */
+	if (chip->enable_dma) {
+		if (pxa2xx_spi_set_dma_burst_and_threshold(chip,
+						spi,
+						bits, &dma_burst,
+						&dma_thresh))
+			dev_warn_ratelimited(&spi->dev,
+					     "DMA burst size reduced to match bits_per_word\n");
+	}
+
+	dma_mapped = controller->can_dma &&
+		     controller->can_dma(controller, spi, transfer) &&
+		     controller->cur_msg_mapped;
+>>>>>>> upstream/android-13
 	if (dma_mapped) {
 
 		/* Ensure we have the correct interrupt handler */
@@ -1055,6 +1346,7 @@ static int pxa2xx_spi_transfer_one(struct spi_controller *master,
 	/* NOTE:  PXA25x_SSP _could_ use external clocking ... */
 	cr0 = pxa2xx_configure_sscr0(drv_data, clk_div, bits);
 	if (!pxa25x_ssp_comp(drv_data))
+<<<<<<< HEAD
 		dev_dbg(&message->spi->dev, "%u Hz actual, %s\n",
 			master->max_speed_hz
 				/ (1 + ((cr0 & SSCR0_SCR(0xfff)) >> 8)),
@@ -1062,10 +1354,20 @@ static int pxa2xx_spi_transfer_one(struct spi_controller *master,
 	else
 		dev_dbg(&message->spi->dev, "%u Hz actual, %s\n",
 			master->max_speed_hz / 2
+=======
+		dev_dbg(&spi->dev, "%u Hz actual, %s\n",
+			controller->max_speed_hz
+				/ (1 + ((cr0 & SSCR0_SCR(0xfff)) >> 8)),
+			dma_mapped ? "DMA" : "PIO");
+	else
+		dev_dbg(&spi->dev, "%u Hz actual, %s\n",
+			controller->max_speed_hz / 2
+>>>>>>> upstream/android-13
 				/ (1 + ((cr0 & SSCR0_SCR(0x0ff)) >> 8)),
 			dma_mapped ? "DMA" : "PIO");
 
 	if (is_lpss_ssp(drv_data)) {
+<<<<<<< HEAD
 		if ((pxa2xx_spi_read(drv_data, SSIRF) & 0xff)
 		    != chip->lpss_rx_threshold)
 			pxa2xx_spi_write(drv_data, SSIRF,
@@ -1096,17 +1398,77 @@ static int pxa2xx_spi_transfer_one(struct spi_controller *master,
 	} else {
 		if (!pxa25x_ssp_comp(drv_data))
 			pxa2xx_spi_write(drv_data, SSTO, chip->timeout);
+=======
+		pxa2xx_spi_update(drv_data, SSIRF, GENMASK(7, 0), chip->lpss_rx_threshold);
+		pxa2xx_spi_update(drv_data, SSITF, GENMASK(15, 0), chip->lpss_tx_threshold);
+	}
+
+	if (is_mrfld_ssp(drv_data)) {
+		u32 mask = SFIFOTT_RFT | SFIFOTT_TFT;
+		u32 thresh = 0;
+
+		thresh |= SFIFOTT_RxThresh(chip->lpss_rx_threshold);
+		thresh |= SFIFOTT_TxThresh(chip->lpss_tx_threshold);
+
+		pxa2xx_spi_update(drv_data, SFIFOTT, mask, thresh);
+	}
+
+	if (is_quark_x1000_ssp(drv_data))
+		pxa2xx_spi_update(drv_data, DDS_RATE, GENMASK(23, 0), chip->dds_rate);
+
+	/* Stop the SSP */
+	if (!is_mmp2_ssp(drv_data))
+		pxa_ssp_disable(drv_data->ssp);
+
+	if (!pxa25x_ssp_comp(drv_data))
+		pxa2xx_spi_write(drv_data, SSTO, chip->timeout);
+
+	/* First set CR1 without interrupt and service enables */
+	pxa2xx_spi_update(drv_data, SSCR1, change_mask, cr1);
+
+	/* See if we need to reload the configuration registers */
+	pxa2xx_spi_update(drv_data, SSCR0, GENMASK(31, 0), cr0);
+
+	/* Restart the SSP */
+	pxa_ssp_enable(drv_data->ssp);
+
+	if (is_mmp2_ssp(drv_data)) {
+		u8 tx_level = read_SSSR_bits(drv_data, SSSR_TFL_MASK) >> 8;
+
+		if (tx_level) {
+			/* On MMP2, flipping SSE doesn't to empty Tx FIFO. */
+			dev_warn(&spi->dev, "%u bytes of garbage in Tx FIFO!\n", tx_level);
+			if (tx_level > transfer->len)
+				tx_level = transfer->len;
+			drv_data->tx += tx_level;
+		}
+	}
+
+	if (spi_controller_is_slave(controller)) {
+		while (drv_data->write(drv_data))
+			;
+		if (drv_data->gpiod_ready) {
+			gpiod_set_value(drv_data->gpiod_ready, 1);
+			udelay(1);
+			gpiod_set_value(drv_data->gpiod_ready, 0);
+		}
+>>>>>>> upstream/android-13
 	}
 
 	/*
 	 * Release the data by enabling service requests and interrupts,
+<<<<<<< HEAD
 	 * without changing any mode bits
+=======
+	 * without changing any mode bits.
+>>>>>>> upstream/android-13
 	 */
 	pxa2xx_spi_write(drv_data, SSCR1, cr1);
 
 	return 1;
 }
 
+<<<<<<< HEAD
 static void pxa2xx_spi_handle_err(struct spi_controller *master,
 				 struct spi_message *msg)
 {
@@ -1122,6 +1484,26 @@ static void pxa2xx_spi_handle_err(struct spi_controller *master,
 			 & ~(drv_data->int_cr1 | drv_data->dma_cr1));
 	if (!pxa25x_ssp_comp(drv_data))
 		pxa2xx_spi_write(drv_data, SSTO, 0);
+=======
+static int pxa2xx_spi_slave_abort(struct spi_controller *controller)
+{
+	struct driver_data *drv_data = spi_controller_get_devdata(controller);
+
+	int_error_stop(drv_data, "transfer aborted", -EINTR);
+
+	return 0;
+}
+
+static void pxa2xx_spi_handle_err(struct spi_controller *controller,
+				 struct spi_message *msg)
+{
+	struct driver_data *drv_data = spi_controller_get_devdata(controller);
+
+	int_stop_and_reset(drv_data);
+
+	/* Disable the SSP */
+	pxa2xx_spi_off(drv_data);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Stop the DMA if running. Note DMA callback handler may have unset
@@ -1134,6 +1516,7 @@ static void pxa2xx_spi_handle_err(struct spi_controller *master,
 		pxa2xx_spi_dma_stop(drv_data);
 }
 
+<<<<<<< HEAD
 static int pxa2xx_spi_unprepare_transfer(struct spi_controller *master)
 {
 	struct driver_data *drv_data = spi_controller_get_devdata(master);
@@ -1141,10 +1524,19 @@ static int pxa2xx_spi_unprepare_transfer(struct spi_controller *master)
 	/* Disable the SSP now */
 	pxa2xx_spi_write(drv_data, SSCR0,
 			 pxa2xx_spi_read(drv_data, SSCR0) & ~SSCR0_SSE);
+=======
+static int pxa2xx_spi_unprepare_transfer(struct spi_controller *controller)
+{
+	struct driver_data *drv_data = spi_controller_get_devdata(controller);
+
+	/* Disable the SSP now */
+	pxa2xx_spi_off(drv_data);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int setup_cs(struct spi_device *spi, struct chip_data *chip,
 		    struct pxa2xx_spi_chip *chip_info)
 {
@@ -1152,10 +1544,26 @@ static int setup_cs(struct spi_device *spi, struct chip_data *chip,
 		spi_controller_get_devdata(spi->controller);
 	struct gpio_desc *gpiod;
 	int err = 0;
+=======
+static void cleanup_cs(struct spi_device *spi)
+{
+	if (!gpio_is_valid(spi->cs_gpio))
+		return;
+
+	gpio_free(spi->cs_gpio);
+	spi->cs_gpio = -ENOENT;
+}
+
+static int setup_cs(struct spi_device *spi, struct chip_data *chip,
+		    struct pxa2xx_spi_chip *chip_info)
+{
+	struct driver_data *drv_data = spi_controller_get_devdata(spi->controller);
+>>>>>>> upstream/android-13
 
 	if (chip == NULL)
 		return 0;
 
+<<<<<<< HEAD
 	if (drv_data->cs_gpiods) {
 		gpiod = drv_data->cs_gpiods[spi->chip_select];
 		if (gpiod) {
@@ -1179,12 +1587,28 @@ static int setup_cs(struct spi_device *spi, struct chip_data *chip,
 	}
 
 	/* If (*cs_control) is provided, ignore GPIO chip select */
+=======
+	if (chip_info == NULL)
+		return 0;
+
+	if (drv_data->ssp_type == CE4100_SSP)
+		return 0;
+
+	/*
+	 * NOTE: setup() can be called multiple times, possibly with
+	 * different chip_info, release previously requested GPIO.
+	 */
+	cleanup_cs(spi);
+
+	/* If ->cs_control() is provided, ignore GPIO chip select */
+>>>>>>> upstream/android-13
 	if (chip_info->cs_control) {
 		chip->cs_control = chip_info->cs_control;
 		return 0;
 	}
 
 	if (gpio_is_valid(chip_info->gpio_cs)) {
+<<<<<<< HEAD
 		err = gpio_request(chip_info->gpio_cs, "SPI_CS");
 		if (err) {
 			dev_err(&spi->dev, "failed to request chip select GPIO%d\n",
@@ -1200,6 +1624,27 @@ static int setup_cs(struct spi_device *spi, struct chip_data *chip,
 	}
 
 	return err;
+=======
+		int gpio = chip_info->gpio_cs;
+		int err;
+
+		err = gpio_request(gpio, "SPI_CS");
+		if (err) {
+			dev_err(&spi->dev, "failed to request chip select GPIO%d\n", gpio);
+			return err;
+		}
+
+		err = gpio_direction_output(gpio, !(spi->mode & SPI_CS_HIGH));
+		if (err) {
+			gpio_free(gpio);
+			return err;
+		}
+
+		spi->cs_gpio = gpio;
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int setup(struct spi_device *spi)
@@ -1210,6 +1655,10 @@ static int setup(struct spi_device *spi)
 	struct driver_data *drv_data =
 		spi_controller_get_devdata(spi->controller);
 	uint tx_thres, tx_hi_thres, rx_thres;
+<<<<<<< HEAD
+=======
+	int err;
+>>>>>>> upstream/android-13
 
 	switch (drv_data->ssp_type) {
 	case QUARK_X1000_SSP:
@@ -1217,6 +1666,14 @@ static int setup(struct spi_device *spi)
 		tx_hi_thres = 0;
 		rx_thres = RX_THRESH_QUARK_X1000_DFLT;
 		break;
+<<<<<<< HEAD
+=======
+	case MRFLD_SSP:
+		tx_thres = TX_THRESH_MRFLD_DFLT;
+		tx_hi_thres = 0;
+		rx_thres = RX_THRESH_MRFLD_DFLT;
+		break;
+>>>>>>> upstream/android-13
 	case CE4100_SSP:
 		tx_thres = TX_THRESH_CE4100_DFLT;
 		tx_hi_thres = 0;
@@ -1234,6 +1691,7 @@ static int setup(struct spi_device *spi)
 		rx_thres = config->rx_threshold;
 		break;
 	default:
+<<<<<<< HEAD
 		tx_thres = TX_THRESH_DFLT;
 		tx_hi_thres = 0;
 		rx_thres = RX_THRESH_DFLT;
@@ -1241,6 +1699,20 @@ static int setup(struct spi_device *spi)
 	}
 
 	/* Only alloc on first setup */
+=======
+		tx_hi_thres = 0;
+		if (spi_controller_is_slave(drv_data->controller)) {
+			tx_thres = 1;
+			rx_thres = 2;
+		} else {
+			tx_thres = TX_THRESH_DFLT;
+			rx_thres = RX_THRESH_DFLT;
+		}
+		break;
+	}
+
+	/* Only allocate on the first setup */
+>>>>>>> upstream/android-13
 	chip = spi_get_ctldata(spi);
 	if (!chip) {
 		chip = kzalloc(sizeof(struct chip_data), GFP_KERNEL);
@@ -1254,6 +1726,7 @@ static int setup(struct spi_device *spi)
 				kfree(chip);
 				return -EINVAL;
 			}
+<<<<<<< HEAD
 
 			chip->frm = spi->chip_select;
 		}
@@ -1263,6 +1736,17 @@ static int setup(struct spi_device *spi)
 
 	/* protocol drivers may change the chip settings, so...
 	 * if chip_info exists, use it */
+=======
+		}
+		chip->enable_dma = drv_data->controller_info->enable_dma;
+		chip->timeout = TIMOUT_DFLT;
+	}
+
+	/*
+	 * Protocol drivers may change the chip settings, so...
+	 * if chip_info exists, use it.
+	 */
+>>>>>>> upstream/android-13
 	chip_info = spi->controller_data;
 
 	/* chip_info isn't always needed */
@@ -1280,6 +1764,7 @@ static int setup(struct spi_device *spi)
 		if (chip_info->enable_loopback)
 			chip->cr1 = SSCR1_LBM;
 	}
+<<<<<<< HEAD
 
 	chip->lpss_rx_threshold = SSIRF_RxThresh(rx_thres);
 	chip->lpss_tx_threshold = SSITF_TxLoThresh(tx_thres)
@@ -1290,6 +1775,33 @@ static int setup(struct spi_device *spi)
 	 * burst and threshold can still respond to changes in bits_per_word */
 	if (chip->enable_dma) {
 		/* set up legal burst and threshold for dma */
+=======
+	if (spi_controller_is_slave(drv_data->controller)) {
+		chip->cr1 |= SSCR1_SCFR;
+		chip->cr1 |= SSCR1_SCLKDIR;
+		chip->cr1 |= SSCR1_SFRMDIR;
+		chip->cr1 |= SSCR1_SPH;
+	}
+
+	if (is_lpss_ssp(drv_data)) {
+		chip->lpss_rx_threshold = SSIRF_RxThresh(rx_thres);
+		chip->lpss_tx_threshold = SSITF_TxLoThresh(tx_thres) |
+					  SSITF_TxHiThresh(tx_hi_thres);
+	}
+
+	if (is_mrfld_ssp(drv_data)) {
+		chip->lpss_rx_threshold = rx_thres;
+		chip->lpss_tx_threshold = tx_thres;
+	}
+
+	/*
+	 * Set DMA burst and threshold outside of chip_info path so that if
+	 * chip_info goes away after setting chip->enable_dma, the burst and
+	 * threshold can still respond to changes in bits_per_word.
+	 */
+	if (chip->enable_dma) {
+		/* Set up legal burst and threshold for DMA */
+>>>>>>> upstream/android-13
 		if (pxa2xx_spi_set_dma_burst_and_threshold(chip, spi,
 						spi->bits_per_word,
 						&chip->dma_burst_size,
@@ -1297,6 +1809,12 @@ static int setup(struct spi_device *spi)
 			dev_warn(&spi->dev,
 				 "in setup: DMA burst size reduced to match bits_per_word\n");
 		}
+<<<<<<< HEAD
+=======
+		dev_dbg(&spi->dev,
+			"in setup: DMA burst size set to %u\n",
+			chip->dma_burst_size);
+>>>>>>> upstream/android-13
 	}
 
 	switch (drv_data->ssp_type) {
@@ -1317,8 +1835,13 @@ static int setup(struct spi_device *spi)
 	}
 
 	chip->cr1 &= ~(SSCR1_SPO | SSCR1_SPH);
+<<<<<<< HEAD
 	chip->cr1 |= (((spi->mode & SPI_CPHA) != 0) ? SSCR1_SPH : 0)
 			| (((spi->mode & SPI_CPOL) != 0) ? SSCR1_SPO : 0);
+=======
+	chip->cr1 |= ((spi->mode & SPI_CPHA) ? SSCR1_SPH : 0) |
+		     ((spi->mode & SPI_CPOL) ? SSCR1_SPO : 0);
+>>>>>>> upstream/android-13
 
 	if (spi->mode & SPI_LOOP)
 		chip->cr1 |= SSCR1_LBM;
@@ -1342,12 +1865,21 @@ static int setup(struct spi_device *spi)
 	if (drv_data->ssp_type == CE4100_SSP)
 		return 0;
 
+<<<<<<< HEAD
 	return setup_cs(spi, chip, chip_info);
+=======
+	err = setup_cs(spi, chip, chip_info);
+	if (err)
+		kfree(chip);
+
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static void cleanup(struct spi_device *spi)
 {
 	struct chip_data *chip = spi_get_ctldata(spi);
+<<<<<<< HEAD
 	struct driver_data *drv_data =
 		spi_controller_get_devdata(spi->controller);
 
@@ -1364,6 +1896,14 @@ static void cleanup(struct spi_device *spi)
 #ifdef CONFIG_PCI
 #ifdef CONFIG_ACPI
 
+=======
+
+	cleanup_cs(spi);
+	kfree(chip);
+}
+
+#ifdef CONFIG_ACPI
+>>>>>>> upstream/android-13
 static const struct acpi_device_id pxa2xx_spi_acpi_match[] = {
 	{ "INT33C0", LPSS_LPT_SSP },
 	{ "INT33C1", LPSS_LPT_SSP },
@@ -1374,6 +1914,7 @@ static const struct acpi_device_id pxa2xx_spi_acpi_match[] = {
 	{ },
 };
 MODULE_DEVICE_TABLE(acpi, pxa2xx_spi_acpi_match);
+<<<<<<< HEAD
 
 static int pxa2xx_spi_get_port_id(struct acpi_device *adev)
 {
@@ -1390,6 +1931,8 @@ static int pxa2xx_spi_get_port_id(struct acpi_device *adev)
 {
 	return -1;
 }
+=======
+>>>>>>> upstream/android-13
 #endif
 
 /*
@@ -1407,6 +1950,12 @@ static const struct pci_device_id pxa2xx_spi_pci_compound_match[] = {
 	/* KBL-H */
 	{ PCI_VDEVICE(INTEL, 0xa2a9), LPSS_SPT_SSP },
 	{ PCI_VDEVICE(INTEL, 0xa2aa), LPSS_SPT_SSP },
+<<<<<<< HEAD
+=======
+	/* CML-V */
+	{ PCI_VDEVICE(INTEL, 0xa3a9), LPSS_SPT_SSP },
+	{ PCI_VDEVICE(INTEL, 0xa3aa), LPSS_SPT_SSP },
+>>>>>>> upstream/android-13
 	/* BXT A-Step */
 	{ PCI_VDEVICE(INTEL, 0x0ac2), LPSS_BXT_SSP },
 	{ PCI_VDEVICE(INTEL, 0x0ac4), LPSS_BXT_SSP },
@@ -1423,10 +1972,42 @@ static const struct pci_device_id pxa2xx_spi_pci_compound_match[] = {
 	{ PCI_VDEVICE(INTEL, 0x34aa), LPSS_CNL_SSP },
 	{ PCI_VDEVICE(INTEL, 0x34ab), LPSS_CNL_SSP },
 	{ PCI_VDEVICE(INTEL, 0x34fb), LPSS_CNL_SSP },
+<<<<<<< HEAD
+=======
+	/* EHL */
+	{ PCI_VDEVICE(INTEL, 0x4b2a), LPSS_BXT_SSP },
+	{ PCI_VDEVICE(INTEL, 0x4b2b), LPSS_BXT_SSP },
+	{ PCI_VDEVICE(INTEL, 0x4b37), LPSS_BXT_SSP },
+	/* JSL */
+	{ PCI_VDEVICE(INTEL, 0x4daa), LPSS_CNL_SSP },
+	{ PCI_VDEVICE(INTEL, 0x4dab), LPSS_CNL_SSP },
+	{ PCI_VDEVICE(INTEL, 0x4dfb), LPSS_CNL_SSP },
+	/* TGL-H */
+	{ PCI_VDEVICE(INTEL, 0x43aa), LPSS_CNL_SSP },
+	{ PCI_VDEVICE(INTEL, 0x43ab), LPSS_CNL_SSP },
+	{ PCI_VDEVICE(INTEL, 0x43fb), LPSS_CNL_SSP },
+	{ PCI_VDEVICE(INTEL, 0x43fd), LPSS_CNL_SSP },
+	/* ADL-P */
+	{ PCI_VDEVICE(INTEL, 0x51aa), LPSS_CNL_SSP },
+	{ PCI_VDEVICE(INTEL, 0x51ab), LPSS_CNL_SSP },
+	{ PCI_VDEVICE(INTEL, 0x51fb), LPSS_CNL_SSP },
+	/* ADL-M */
+	{ PCI_VDEVICE(INTEL, 0x54aa), LPSS_CNL_SSP },
+	{ PCI_VDEVICE(INTEL, 0x54ab), LPSS_CNL_SSP },
+	{ PCI_VDEVICE(INTEL, 0x54fb), LPSS_CNL_SSP },
+>>>>>>> upstream/android-13
 	/* APL */
 	{ PCI_VDEVICE(INTEL, 0x5ac2), LPSS_BXT_SSP },
 	{ PCI_VDEVICE(INTEL, 0x5ac4), LPSS_BXT_SSP },
 	{ PCI_VDEVICE(INTEL, 0x5ac6), LPSS_BXT_SSP },
+<<<<<<< HEAD
+=======
+	/* ADL-S */
+	{ PCI_VDEVICE(INTEL, 0x7aaa), LPSS_CNL_SSP },
+	{ PCI_VDEVICE(INTEL, 0x7aab), LPSS_CNL_SSP },
+	{ PCI_VDEVICE(INTEL, 0x7af9), LPSS_CNL_SSP },
+	{ PCI_VDEVICE(INTEL, 0x7afb), LPSS_CNL_SSP },
+>>>>>>> upstream/android-13
 	/* CNL-LP */
 	{ PCI_VDEVICE(INTEL, 0x9daa), LPSS_CNL_SSP },
 	{ PCI_VDEVICE(INTEL, 0x9dab), LPSS_CNL_SSP },
@@ -1435,14 +2016,70 @@ static const struct pci_device_id pxa2xx_spi_pci_compound_match[] = {
 	{ PCI_VDEVICE(INTEL, 0xa32a), LPSS_CNL_SSP },
 	{ PCI_VDEVICE(INTEL, 0xa32b), LPSS_CNL_SSP },
 	{ PCI_VDEVICE(INTEL, 0xa37b), LPSS_CNL_SSP },
+<<<<<<< HEAD
 	{ },
 };
 
+=======
+	/* CML-LP */
+	{ PCI_VDEVICE(INTEL, 0x02aa), LPSS_CNL_SSP },
+	{ PCI_VDEVICE(INTEL, 0x02ab), LPSS_CNL_SSP },
+	{ PCI_VDEVICE(INTEL, 0x02fb), LPSS_CNL_SSP },
+	/* CML-H */
+	{ PCI_VDEVICE(INTEL, 0x06aa), LPSS_CNL_SSP },
+	{ PCI_VDEVICE(INTEL, 0x06ab), LPSS_CNL_SSP },
+	{ PCI_VDEVICE(INTEL, 0x06fb), LPSS_CNL_SSP },
+	/* TGL-LP */
+	{ PCI_VDEVICE(INTEL, 0xa0aa), LPSS_CNL_SSP },
+	{ PCI_VDEVICE(INTEL, 0xa0ab), LPSS_CNL_SSP },
+	{ PCI_VDEVICE(INTEL, 0xa0de), LPSS_CNL_SSP },
+	{ PCI_VDEVICE(INTEL, 0xa0df), LPSS_CNL_SSP },
+	{ PCI_VDEVICE(INTEL, 0xa0fb), LPSS_CNL_SSP },
+	{ PCI_VDEVICE(INTEL, 0xa0fd), LPSS_CNL_SSP },
+	{ PCI_VDEVICE(INTEL, 0xa0fe), LPSS_CNL_SSP },
+	{ },
+};
+
+static const struct of_device_id pxa2xx_spi_of_match[] = {
+	{ .compatible = "marvell,mmp2-ssp", .data = (void *)MMP2_SSP },
+	{},
+};
+MODULE_DEVICE_TABLE(of, pxa2xx_spi_of_match);
+
+#ifdef CONFIG_ACPI
+
+static int pxa2xx_spi_get_port_id(struct device *dev)
+{
+	struct acpi_device *adev;
+	unsigned int devid;
+	int port_id = -1;
+
+	adev = ACPI_COMPANION(dev);
+	if (adev && adev->pnp.unique_id &&
+	    !kstrtouint(adev->pnp.unique_id, 0, &devid))
+		port_id = devid;
+	return port_id;
+}
+
+#else /* !CONFIG_ACPI */
+
+static int pxa2xx_spi_get_port_id(struct device *dev)
+{
+	return -1;
+}
+
+#endif /* CONFIG_ACPI */
+
+
+#ifdef CONFIG_PCI
+
+>>>>>>> upstream/android-13
 static bool pxa2xx_spi_idma_filter(struct dma_chan *chan, void *param)
 {
 	return param == chan->device->dev;
 }
 
+<<<<<<< HEAD
 static struct pxa2xx_spi_master *
 pxa2xx_spi_init_pdata(struct platform_device *pdev)
 {
@@ -1507,10 +2144,75 @@ pxa2xx_spi_init_pdata(struct platform_device *pdev)
 
 	pdata->num_chipselect = 1;
 	pdata->enable_dma = true;
+=======
+#endif /* CONFIG_PCI */
+
+static struct pxa2xx_spi_controller *
+pxa2xx_spi_init_pdata(struct platform_device *pdev)
+{
+	struct pxa2xx_spi_controller *pdata;
+	struct ssp_device *ssp;
+	struct resource *res;
+	struct device *parent = pdev->dev.parent;
+	struct pci_dev *pcidev = dev_is_pci(parent) ? to_pci_dev(parent) : NULL;
+	const struct pci_device_id *pcidev_id = NULL;
+	enum pxa_ssp_type type;
+	const void *match;
+
+	if (pcidev)
+		pcidev_id = pci_match_id(pxa2xx_spi_pci_compound_match, pcidev);
+
+	match = device_get_match_data(&pdev->dev);
+	if (match)
+		type = (enum pxa_ssp_type)match;
+	else if (pcidev_id)
+		type = (enum pxa_ssp_type)pcidev_id->driver_data;
+	else
+		return ERR_PTR(-EINVAL);
+
+	pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
+	if (!pdata)
+		return ERR_PTR(-ENOMEM);
+
+	ssp = &pdata->ssp;
+
+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+	ssp->mmio_base = devm_ioremap_resource(&pdev->dev, res);
+	if (IS_ERR(ssp->mmio_base))
+		return ERR_CAST(ssp->mmio_base);
+
+	ssp->phys_base = res->start;
+
+#ifdef CONFIG_PCI
+	if (pcidev_id) {
+		pdata->tx_param = parent;
+		pdata->rx_param = parent;
+		pdata->dma_filter = pxa2xx_spi_idma_filter;
+	}
+#endif
+
+	ssp->clk = devm_clk_get(&pdev->dev, NULL);
+	if (IS_ERR(ssp->clk))
+		return ERR_CAST(ssp->clk);
+
+	ssp->irq = platform_get_irq(pdev, 0);
+	if (ssp->irq < 0)
+		return ERR_PTR(ssp->irq);
+
+	ssp->type = type;
+	ssp->dev = &pdev->dev;
+	ssp->port_id = pxa2xx_spi_get_port_id(&pdev->dev);
+
+	pdata->is_slave = device_property_read_bool(&pdev->dev, "spi-slave");
+	pdata->num_chipselect = 1;
+	pdata->enable_dma = true;
+	pdata->dma_burst_size = 1;
+>>>>>>> upstream/android-13
 
 	return pdata;
 }
 
+<<<<<<< HEAD
 #else /* !CONFIG_PCI */
 static inline struct pxa2xx_spi_master *
 pxa2xx_spi_init_pdata(struct platform_device *pdev)
@@ -1525,6 +2227,14 @@ static int pxa2xx_spi_fw_translate_cs(struct spi_controller *master,
 	struct driver_data *drv_data = spi_controller_get_devdata(master);
 
 	if (has_acpi_companion(&drv_data->pdev->dev)) {
+=======
+static int pxa2xx_spi_fw_translate_cs(struct spi_controller *controller,
+				      unsigned int cs)
+{
+	struct driver_data *drv_data = spi_controller_get_devdata(controller);
+
+	if (has_acpi_companion(drv_data->ssp->dev)) {
+>>>>>>> upstream/android-13
 		switch (drv_data->ssp_type) {
 		/*
 		 * For Atoms the ACPI DeviceSelection used by the Windows
@@ -1543,6 +2253,7 @@ static int pxa2xx_spi_fw_translate_cs(struct spi_controller *master,
 	return cs;
 }
 
+<<<<<<< HEAD
 static int pxa2xx_spi_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
@@ -1552,14 +2263,36 @@ static int pxa2xx_spi_probe(struct platform_device *pdev)
 	struct ssp_device *ssp;
 	const struct lpss_config *config;
 	int status, count;
+=======
+static size_t pxa2xx_spi_max_dma_transfer_size(struct spi_device *spi)
+{
+	return MAX_DMA_LEN;
+}
+
+static int pxa2xx_spi_probe(struct platform_device *pdev)
+{
+	struct device *dev = &pdev->dev;
+	struct pxa2xx_spi_controller *platform_info;
+	struct spi_controller *controller;
+	struct driver_data *drv_data;
+	struct ssp_device *ssp;
+	const struct lpss_config *config;
+	int status;
+>>>>>>> upstream/android-13
 	u32 tmp;
 
 	platform_info = dev_get_platdata(dev);
 	if (!platform_info) {
 		platform_info = pxa2xx_spi_init_pdata(pdev);
+<<<<<<< HEAD
 		if (!platform_info) {
 			dev_err(&pdev->dev, "missing platform data\n");
 			return -ENODEV;
+=======
+		if (IS_ERR(platform_info)) {
+			dev_err(&pdev->dev, "missing platform data\n");
+			return PTR_ERR(platform_info);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -1568,6 +2301,7 @@ static int pxa2xx_spi_probe(struct platform_device *pdev)
 		ssp = &platform_info->ssp;
 
 	if (!ssp->mmio_base) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "failed to get ssp\n");
 		return -ENODEV;
 	}
@@ -1611,6 +2345,55 @@ static int pxa2xx_spi_probe(struct platform_device *pdev)
 			break;
 		default:
 			master->bits_per_word_mask = SPI_BPW_RANGE_MASK(4, 16);
+=======
+		dev_err(&pdev->dev, "failed to get SSP\n");
+		return -ENODEV;
+	}
+
+	if (platform_info->is_slave)
+		controller = devm_spi_alloc_slave(dev, sizeof(*drv_data));
+	else
+		controller = devm_spi_alloc_master(dev, sizeof(*drv_data));
+
+	if (!controller) {
+		dev_err(&pdev->dev, "cannot alloc spi_controller\n");
+		status = -ENOMEM;
+		goto out_error_controller_alloc;
+	}
+	drv_data = spi_controller_get_devdata(controller);
+	drv_data->controller = controller;
+	drv_data->controller_info = platform_info;
+	drv_data->ssp = ssp;
+
+	controller->dev.of_node = dev->of_node;
+	controller->dev.fwnode = dev->fwnode;
+
+	/* The spi->mode bits understood by this driver: */
+	controller->mode_bits = SPI_CPOL | SPI_CPHA | SPI_CS_HIGH | SPI_LOOP;
+
+	controller->bus_num = ssp->port_id;
+	controller->dma_alignment = DMA_ALIGNMENT;
+	controller->cleanup = cleanup;
+	controller->setup = setup;
+	controller->set_cs = pxa2xx_spi_set_cs;
+	controller->transfer_one = pxa2xx_spi_transfer_one;
+	controller->slave_abort = pxa2xx_spi_slave_abort;
+	controller->handle_err = pxa2xx_spi_handle_err;
+	controller->unprepare_transfer_hardware = pxa2xx_spi_unprepare_transfer;
+	controller->fw_translate_cs = pxa2xx_spi_fw_translate_cs;
+	controller->auto_runtime_pm = true;
+	controller->flags = SPI_CONTROLLER_MUST_RX | SPI_CONTROLLER_MUST_TX;
+
+	drv_data->ssp_type = ssp->type;
+
+	if (pxa25x_ssp_comp(drv_data)) {
+		switch (drv_data->ssp_type) {
+		case QUARK_X1000_SSP:
+			controller->bits_per_word_mask = SPI_BPW_RANGE_MASK(4, 32);
+			break;
+		default:
+			controller->bits_per_word_mask = SPI_BPW_RANGE_MASK(4, 16);
+>>>>>>> upstream/android-13
 			break;
 		}
 
@@ -1619,29 +2402,52 @@ static int pxa2xx_spi_probe(struct platform_device *pdev)
 		drv_data->clear_sr = SSSR_ROR;
 		drv_data->mask_sr = SSSR_RFS | SSSR_TFS | SSSR_ROR;
 	} else {
+<<<<<<< HEAD
 		master->bits_per_word_mask = SPI_BPW_RANGE_MASK(4, 32);
 		drv_data->int_cr1 = SSCR1_TIE | SSCR1_RIE | SSCR1_TINTE;
 		drv_data->dma_cr1 = DEFAULT_DMA_CR1;
 		drv_data->clear_sr = SSSR_ROR | SSSR_TINT;
 		drv_data->mask_sr = SSSR_TINT | SSSR_RFS | SSSR_TFS | SSSR_ROR;
+=======
+		controller->bits_per_word_mask = SPI_BPW_RANGE_MASK(4, 32);
+		drv_data->int_cr1 = SSCR1_TIE | SSCR1_RIE | SSCR1_TINTE;
+		drv_data->dma_cr1 = DEFAULT_DMA_CR1;
+		drv_data->clear_sr = SSSR_ROR | SSSR_TINT;
+		drv_data->mask_sr = SSSR_TINT | SSSR_RFS | SSSR_TFS
+						| SSSR_ROR | SSSR_TUR;
+>>>>>>> upstream/android-13
 	}
 
 	status = request_irq(ssp->irq, ssp_int, IRQF_SHARED, dev_name(dev),
 			drv_data);
 	if (status < 0) {
 		dev_err(&pdev->dev, "cannot get IRQ %d\n", ssp->irq);
+<<<<<<< HEAD
 		goto out_error_master_alloc;
+=======
+		goto out_error_controller_alloc;
+>>>>>>> upstream/android-13
 	}
 
 	/* Setup DMA if requested */
 	if (platform_info->enable_dma) {
 		status = pxa2xx_spi_dma_setup(drv_data);
 		if (status) {
+<<<<<<< HEAD
 			dev_dbg(dev, "no DMA channels available, using PIO\n");
 			platform_info->enable_dma = false;
 		} else {
 			master->can_dma = pxa2xx_spi_can_dma;
 			master->max_dma_len = MAX_DMA_LEN;
+=======
+			dev_warn(dev, "no DMA channels available, using PIO\n");
+			platform_info->enable_dma = false;
+		} else {
+			controller->can_dma = pxa2xx_spi_can_dma;
+			controller->max_dma_len = MAX_DMA_LEN;
+			controller->max_transfer_size =
+				pxa2xx_spi_max_dma_transfer_size;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -1650,17 +2456,39 @@ static int pxa2xx_spi_probe(struct platform_device *pdev)
 	if (status)
 		goto out_error_dma_irq_alloc;
 
+<<<<<<< HEAD
 	master->max_speed_hz = clk_get_rate(ssp->clk);
 
 	/* Load default SSP configuration */
 	pxa2xx_spi_write(drv_data, SSCR0, 0);
+=======
+	controller->max_speed_hz = clk_get_rate(ssp->clk);
+	/*
+	 * Set minimum speed for all other platforms than Intel Quark which is
+	 * able do under 1 Hz transfers.
+	 */
+	if (!pxa25x_ssp_comp(drv_data))
+		controller->min_speed_hz =
+			DIV_ROUND_UP(controller->max_speed_hz, 4096);
+	else if (!is_quark_x1000_ssp(drv_data))
+		controller->min_speed_hz =
+			DIV_ROUND_UP(controller->max_speed_hz, 512);
+
+	pxa_ssp_disable(ssp);
+
+	/* Load default SSP configuration */
+>>>>>>> upstream/android-13
 	switch (drv_data->ssp_type) {
 	case QUARK_X1000_SSP:
 		tmp = QUARK_X1000_SSCR1_RxTresh(RX_THRESH_QUARK_X1000_DFLT) |
 		      QUARK_X1000_SSCR1_TxTresh(TX_THRESH_QUARK_X1000_DFLT);
 		pxa2xx_spi_write(drv_data, SSCR1, tmp);
 
+<<<<<<< HEAD
 		/* using the Motorola SPI protocol and use 8 bit frame */
+=======
+		/* Using the Motorola SPI protocol and use 8 bit frame */
+>>>>>>> upstream/android-13
 		tmp = QUARK_X1000_SSCR0_Motorola | QUARK_X1000_SSCR0_DataSize(8);
 		pxa2xx_spi_write(drv_data, SSCR0, tmp);
 		break;
@@ -1672,10 +2500,29 @@ static int pxa2xx_spi_probe(struct platform_device *pdev)
 		pxa2xx_spi_write(drv_data, SSCR0, tmp);
 		break;
 	default:
+<<<<<<< HEAD
 		tmp = SSCR1_RxTresh(RX_THRESH_DFLT) |
 		      SSCR1_TxTresh(TX_THRESH_DFLT);
 		pxa2xx_spi_write(drv_data, SSCR1, tmp);
 		tmp = SSCR0_SCR(2) | SSCR0_Motorola | SSCR0_DataSize(8);
+=======
+
+		if (spi_controller_is_slave(controller)) {
+			tmp = SSCR1_SCFR |
+			      SSCR1_SCLKDIR |
+			      SSCR1_SFRMDIR |
+			      SSCR1_RxTresh(2) |
+			      SSCR1_TxTresh(1) |
+			      SSCR1_SPH;
+		} else {
+			tmp = SSCR1_RxTresh(RX_THRESH_DFLT) |
+			      SSCR1_TxTresh(TX_THRESH_DFLT);
+		}
+		pxa2xx_spi_write(drv_data, SSCR1, tmp);
+		tmp = SSCR0_Motorola | SSCR0_DataSize(8);
+		if (!spi_controller_is_slave(controller))
+			tmp |= SSCR0_SCR(2);
+>>>>>>> upstream/android-13
 		pxa2xx_spi_write(drv_data, SSCR0, tmp);
 		break;
 	}
@@ -1699,6 +2546,7 @@ static int pxa2xx_spi_probe(struct platform_device *pdev)
 			platform_info->num_chipselect = config->cs_num;
 		}
 	}
+<<<<<<< HEAD
 	master->num_chipselect = platform_info->num_chipselect;
 
 	count = gpiod_count(&pdev->dev, "cs");
@@ -1731,6 +2579,18 @@ static int pxa2xx_spi_probe(struct platform_device *pdev)
 				drv_data->cs_gpiods[i] = gpiod;
 			}
 		}
+=======
+	controller->num_chipselect = platform_info->num_chipselect;
+	controller->use_gpio_descriptors = true;
+
+	if (platform_info->is_slave) {
+		drv_data->gpiod_ready = devm_gpiod_get_optional(dev,
+						"ready", GPIOD_OUT_LOW);
+		if (IS_ERR(drv_data->gpiod_ready)) {
+			status = PTR_ERR(drv_data->gpiod_ready);
+			goto out_error_clock_enabled;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	pm_runtime_set_autosuspend_delay(&pdev->dev, 50);
@@ -1740,9 +2600,15 @@ static int pxa2xx_spi_probe(struct platform_device *pdev)
 
 	/* Register with the SPI framework */
 	platform_set_drvdata(pdev, drv_data);
+<<<<<<< HEAD
 	status = spi_register_controller(master);
 	if (status != 0) {
 		dev_err(&pdev->dev, "problem registering spi master\n");
+=======
+	status = spi_register_controller(controller);
+	if (status) {
+		dev_err(&pdev->dev, "problem registering SPI controller\n");
+>>>>>>> upstream/android-13
 		goto out_error_pm_runtime_enabled;
 	}
 
@@ -1758,7 +2624,11 @@ out_error_dma_irq_alloc:
 	pxa2xx_spi_dma_release(drv_data);
 	free_irq(ssp->irq, drv_data);
 
+<<<<<<< HEAD
 out_error_master_alloc:
+=======
+out_error_controller_alloc:
+>>>>>>> upstream/android-13
 	pxa_ssp_free(ssp);
 	return status;
 }
@@ -1766,6 +2636,7 @@ out_error_master_alloc:
 static int pxa2xx_spi_remove(struct platform_device *pdev)
 {
 	struct driver_data *drv_data = platform_get_drvdata(pdev);
+<<<<<<< HEAD
 	struct ssp_device *ssp;
 
 	if (!drv_data)
@@ -1782,6 +2653,20 @@ static int pxa2xx_spi_remove(struct platform_device *pdev)
 
 	/* Release DMA */
 	if (drv_data->master_info->enable_dma)
+=======
+	struct ssp_device *ssp = drv_data->ssp;
+
+	pm_runtime_get_sync(&pdev->dev);
+
+	spi_unregister_controller(drv_data->controller);
+
+	/* Disable the SSP at the peripheral and SOC level */
+	pxa_ssp_disable(ssp);
+	clk_disable_unprepare(ssp->clk);
+
+	/* Release DMA */
+	if (drv_data->controller_info->enable_dma)
+>>>>>>> upstream/android-13
 		pxa2xx_spi_dma_release(drv_data);
 
 	pm_runtime_put_noidle(&pdev->dev);
@@ -1796,6 +2681,7 @@ static int pxa2xx_spi_remove(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void pxa2xx_spi_shutdown(struct platform_device *pdev)
 {
 	int status = 0;
@@ -1804,6 +2690,8 @@ static void pxa2xx_spi_shutdown(struct platform_device *pdev)
 		dev_err(&pdev->dev, "shutdown failed with %d\n", status);
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM_SLEEP
 static int pxa2xx_spi_suspend(struct device *dev)
 {
@@ -1811,10 +2699,18 @@ static int pxa2xx_spi_suspend(struct device *dev)
 	struct ssp_device *ssp = drv_data->ssp;
 	int status;
 
+<<<<<<< HEAD
 	status = spi_controller_suspend(drv_data->master);
 	if (status != 0)
 		return status;
 	pxa2xx_spi_write(drv_data, SSCR0, 0);
+=======
+	status = spi_controller_suspend(drv_data->controller);
+	if (status)
+		return status;
+
+	pxa_ssp_disable(ssp);
+>>>>>>> upstream/android-13
 
 	if (!pm_runtime_suspended(dev))
 		clk_disable_unprepare(ssp->clk);
@@ -1835,6 +2731,7 @@ static int pxa2xx_spi_resume(struct device *dev)
 			return status;
 	}
 
+<<<<<<< HEAD
 	/* Restore LPSS private register bits */
 	if (is_lpss_ssp(drv_data))
 		lpss_ssp_setup(drv_data);
@@ -1847,6 +2744,10 @@ static int pxa2xx_spi_resume(struct device *dev)
 	}
 
 	return 0;
+=======
+	/* Start the queue running */
+	return spi_controller_resume(drv_data->controller);
+>>>>>>> upstream/android-13
 }
 #endif
 
@@ -1880,10 +2781,17 @@ static struct platform_driver driver = {
 		.name	= "pxa2xx-spi",
 		.pm	= &pxa2xx_spi_pm_ops,
 		.acpi_match_table = ACPI_PTR(pxa2xx_spi_acpi_match),
+<<<<<<< HEAD
 	},
 	.probe = pxa2xx_spi_probe,
 	.remove = pxa2xx_spi_remove,
 	.shutdown = pxa2xx_spi_shutdown,
+=======
+		.of_match_table = of_match_ptr(pxa2xx_spi_of_match),
+	},
+	.probe = pxa2xx_spi_probe,
+	.remove = pxa2xx_spi_remove,
+>>>>>>> upstream/android-13
 };
 
 static int __init pxa2xx_spi_init(void)
@@ -1897,3 +2805,8 @@ static void __exit pxa2xx_spi_exit(void)
 	platform_driver_unregister(&driver);
 }
 module_exit(pxa2xx_spi_exit);
+<<<<<<< HEAD
+=======
+
+MODULE_SOFTDEP("pre: dw_dmac");
+>>>>>>> upstream/android-13

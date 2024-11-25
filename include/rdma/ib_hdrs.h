@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2016 Intel Corporation.
  *
@@ -43,6 +44,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+/*
+ * Copyright(c) 2016 - 2018 Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #ifndef IB_HDRS_H
@@ -100,6 +106,11 @@ struct ib_atomic_eth {
 	__be64 compare_data; /* potentially unaligned */
 } __packed;
 
+<<<<<<< HEAD
+=======
+#include <rdma/tid_rdma_defs.h>
+
+>>>>>>> upstream/android-13
 union ib_ehdrs {
 	struct {
 		__be32 deth[2];
@@ -117,6 +128,19 @@ union ib_ehdrs {
 	__be32 aeth;
 	__be32 ieth;
 	struct ib_atomic_eth atomic_eth;
+<<<<<<< HEAD
+=======
+	/* TID RDMA headers */
+	union {
+		struct tid_rdma_read_req r_req;
+		struct tid_rdma_read_resp r_rsp;
+		struct tid_rdma_write_req w_req;
+		struct tid_rdma_write_resp w_rsp;
+		struct tid_rdma_write_data w_data;
+		struct tid_rdma_resync resync;
+		struct tid_rdma_ack ack;
+	} tid_rdma;
+>>>>>>> upstream/android-13
 }  __packed;
 
 struct ib_other_headers {
@@ -236,11 +260,14 @@ static inline u8 ib_get_lver(struct ib_header *hdr)
 		   IB_LVER_MASK);
 }
 
+<<<<<<< HEAD
 static inline u16 ib_get_len(struct ib_header *hdr)
 {
 	return (u16)(be16_to_cpu(hdr->lrh[2]));
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline u32 ib_get_qkey(struct ib_other_headers *ohdr)
 {
 	return be32_to_cpu(ohdr->u.ud.deth[0]);

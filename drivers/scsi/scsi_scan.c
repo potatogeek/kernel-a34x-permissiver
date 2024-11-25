@@ -198,6 +198,56 @@ static void scsi_unlock_floptical(struct scsi_device *sdev,
 			 SCSI_TIMEOUT, 3, NULL);
 }
 
+<<<<<<< HEAD
+=======
+static int scsi_realloc_sdev_budget_map(struct scsi_device *sdev,
+					unsigned int depth)
+{
+	int new_shift = sbitmap_calculate_shift(depth);
+	bool need_alloc = !sdev->budget_map.map;
+	bool need_free = false;
+	int ret;
+	struct sbitmap sb_backup;
+
+	depth = min_t(unsigned int, depth, scsi_device_max_queue_depth(sdev));
+
+	/*
+	 * realloc if new shift is calculated, which is caused by setting
+	 * up one new default queue depth after calling ->slave_configure
+	 */
+	if (!need_alloc && new_shift != sdev->budget_map.shift)
+		need_alloc = need_free = true;
+
+	if (!need_alloc)
+		return 0;
+
+	/*
+	 * Request queue has to be frozen for reallocating budget map,
+	 * and here disk isn't added yet, so freezing is pretty fast
+	 */
+	if (need_free) {
+		blk_mq_freeze_queue(sdev->request_queue);
+		sb_backup = sdev->budget_map;
+	}
+	ret = sbitmap_init_node(&sdev->budget_map,
+				scsi_device_max_queue_depth(sdev),
+				new_shift, GFP_KERNEL,
+				sdev->request_queue->node, false, true);
+	if (!ret)
+		sbitmap_resize(&sdev->budget_map, depth);
+
+	if (need_free) {
+		if (ret)
+			sdev->budget_map = sb_backup;
+		else
+			sbitmap_free(&sb_backup);
+		ret = 0;
+		blk_mq_unfreeze_queue(sdev->request_queue);
+	}
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 /**
  * scsi_alloc_sdev - allocate and setup a scsi_Device
  * @starget: which target to allocate a &scsi_device for
@@ -215,7 +265,13 @@ static void scsi_unlock_floptical(struct scsi_device *sdev,
 static struct scsi_device *scsi_alloc_sdev(struct scsi_target *starget,
 					   u64 lun, void *hostdata)
 {
+<<<<<<< HEAD
 	struct scsi_device *sdev;
+=======
+	unsigned int depth;
+	struct scsi_device *sdev;
+	struct request_queue *q;
+>>>>>>> upstream/android-13
 	int display_failure_msg = 1, ret;
 	struct Scsi_Host *shost = dev_to_shost(starget->dev.parent);
 
@@ -236,7 +292,10 @@ static struct scsi_device *scsi_alloc_sdev(struct scsi_target *starget,
 	sdev->sdev_state = SDEV_CREATED;
 	INIT_LIST_HEAD(&sdev->siblings);
 	INIT_LIST_HEAD(&sdev->same_target_siblings);
+<<<<<<< HEAD
 	INIT_LIST_HEAD(&sdev->cmd_list);
+=======
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&sdev->starved_entry);
 	INIT_LIST_HEAD(&sdev->event_list);
 	spin_lock_init(&sdev->list_lock);
@@ -266,17 +325,25 @@ static struct scsi_device *scsi_alloc_sdev(struct scsi_target *starget,
 	 */
 	sdev->borken = 1;
 
+<<<<<<< HEAD
 	if (shost_use_blk_mq(shost))
 		sdev->request_queue = scsi_mq_alloc_queue(sdev);
 	else
 		sdev->request_queue = scsi_old_alloc_queue(sdev);
 	if (!sdev->request_queue) {
+=======
+	sdev->sg_reserved_size = INT_MAX;
+
+	q = blk_mq_init_queue(&sdev->host->tag_set);
+	if (IS_ERR(q)) {
+>>>>>>> upstream/android-13
 		/* release fn is set up in scsi_sysfs_device_initialise, so
 		 * have to free and put manually here */
 		put_device(&starget->dev);
 		kfree(sdev);
 		goto out;
 	}
+<<<<<<< HEAD
 	WARN_ON_ONCE(!blk_get_queue(sdev->request_queue));
 	sdev->request_queue->queuedata = sdev;
 
@@ -287,6 +354,29 @@ static struct scsi_device *scsi_alloc_sdev(struct scsi_target *starget,
 	}
 	scsi_change_queue_depth(sdev, sdev->host->cmd_per_lun ?
 					sdev->host->cmd_per_lun : 1);
+=======
+	sdev->request_queue = q;
+	q->queuedata = sdev;
+	__scsi_init_queue(sdev->host, q);
+	blk_queue_flag_set(QUEUE_FLAG_SCSI_PASSTHROUGH, q);
+	WARN_ON_ONCE(!blk_get_queue(q));
+
+	depth = sdev->host->cmd_per_lun ?: 1;
+
+	/*
+	 * Use .can_queue as budget map's depth because we have to
+	 * support adjusting queue depth from sysfs. Meantime use
+	 * default device queue depth to figure out sbitmap shift
+	 * since we use this queue depth most of times.
+	 */
+	if (scsi_realloc_sdev_budget_map(sdev, depth)) {
+		put_device(&starget->dev);
+		kfree(sdev);
+		goto out;
+	}
+
+	scsi_change_queue_depth(sdev, depth);
+>>>>>>> upstream/android-13
 
 	scsi_sysfs_device_initialize(sdev);
 
@@ -303,11 +393,14 @@ static struct scsi_device *scsi_alloc_sdev(struct scsi_target *starget,
 		}
 	}
 
+<<<<<<< HEAD
 #ifdef CONFIG_BLK_TURBO_WRITE
 	if (!strncmp(shost->hostt->name, "ufshcd", 6))
 		scsi_alloc_tw(sdev);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	return sdev;
 
 out_device_destroy:
@@ -467,7 +560,12 @@ static struct scsi_target *scsi_alloc_target(struct device *parent,
 		error = shost->hostt->target_alloc(starget);
 
 		if(error) {
+<<<<<<< HEAD
 			dev_printk(KERN_ERR, dev, "target allocation failed, error %d\n", error);
+=======
+			if (error != -ENXIO)
+				dev_err(dev, "target allocation failed, error %d\n", error);
+>>>>>>> upstream/android-13
 			/* don't want scsi_target_reap to do the final
 			 * put because it will be under the host lock */
 			scsi_target_destroy(starget);
@@ -612,14 +710,22 @@ static int scsi_probe_lun(struct scsi_device *sdev, unsigned char *inq_result,
 				"scsi scan: INQUIRY %s with code 0x%x\n",
 				result ? "failed" : "successful", result));
 
+<<<<<<< HEAD
 		if (result) {
+=======
+		if (result > 0) {
+>>>>>>> upstream/android-13
 			/*
 			 * not-ready to ready transition [asc/ascq=0x28/0x0]
 			 * or power-on, reset [asc/ascq=0x29/0x0], continue.
 			 * INQUIRY should not yield UNIT_ATTENTION
 			 * but many buggy devices do so anyway. 
 			 */
+<<<<<<< HEAD
 			if (driver_byte(result) == DRIVER_SENSE &&
+=======
+			if (scsi_status_is_check_condition(result) &&
+>>>>>>> upstream/android-13
 			    scsi_sense_valid(&sshdr)) {
 				if ((sshdr.sense_key == UNIT_ATTENTION) &&
 				    ((sshdr.asc == 0x28) ||
@@ -627,7 +733,11 @@ static int scsi_probe_lun(struct scsi_device *sdev, unsigned char *inq_result,
 				    (sshdr.ascq == 0))
 					continue;
 			}
+<<<<<<< HEAD
 		} else {
+=======
+		} else if (result == 0) {
+>>>>>>> upstream/android-13
 			/*
 			 * if nothing was transferred, we try
 			 * again. It's a workaround for some USB
@@ -965,6 +1075,12 @@ static int scsi_add_lun(struct scsi_device *sdev, unsigned char *inq_result,
 	if (*bflags & BLIST_UNMAP_LIMIT_WS)
 		sdev->unmap_limit_for_ws = 1;
 
+<<<<<<< HEAD
+=======
+	if (*bflags & BLIST_IGN_MEDIA_CHANGE)
+		sdev->ignore_media_change = 1;
+
+>>>>>>> upstream/android-13
 	sdev->eh_timeout = SCSI_DEFAULT_EH_TIMEOUT;
 
 	if (*bflags & BLIST_TRY_VPD_PAGES)
@@ -987,12 +1103,26 @@ static int scsi_add_lun(struct scsi_device *sdev, unsigned char *inq_result,
 			}
 			return SCSI_SCAN_NO_RESPONSE;
 		}
+<<<<<<< HEAD
+=======
+
+		/*
+		 * The queue_depth is often changed in ->slave_configure.
+		 * Set up budget map again since memory consumption of
+		 * the map depends on actual queue depth.
+		 */
+		scsi_realloc_sdev_budget_map(sdev, sdev->queue_depth);
+>>>>>>> upstream/android-13
 	}
 
 	if (sdev->scsi_level >= SCSI_3)
 		scsi_attach_vpd(sdev);
 
 	sdev->max_queue_depth = sdev->queue_depth;
+<<<<<<< HEAD
+=======
+	WARN_ON_ONCE(sdev->max_queue_depth > sdev->budget_map.depth);
+>>>>>>> upstream/android-13
 	sdev->sdev_bflags = *bflags;
 
 	/*
@@ -1092,8 +1222,12 @@ static int scsi_probe_and_add_lun(struct scsi_target *starget,
 	if (!sdev)
 		goto out;
 
+<<<<<<< HEAD
 	result = kmalloc(result_len, GFP_KERNEL |
 			((shost->unchecked_isa_dma) ? __GFP_DMA : 0));
+=======
+	result = kmalloc(result_len, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!result)
 		goto out_free_sdev;
 
@@ -1142,7 +1276,12 @@ static int scsi_probe_and_add_lun(struct scsi_target *starget,
 	 * that no LUN is present, so don't add sdev in these cases.
 	 * Two specific examples are:
 	 * 1) NetApp targets: return PQ=1, PDT=0x1f
+<<<<<<< HEAD
 	 * 2) USB UFI: returns PDT=0x1f, with the PQ bits being "reserved"
+=======
+	 * 2) IBM/2145 targets: return PQ=1, PDT=0
+	 * 3) USB UFI: returns PDT=0x1f, with the PQ bits being "reserved"
+>>>>>>> upstream/android-13
 	 *    in the UFI 1.0 spec (we cannot rely on reserved bits).
 	 *
 	 * References:
@@ -1156,8 +1295,13 @@ static int scsi_probe_and_add_lun(struct scsi_target *starget,
 	 * PDT=00h Direct-access device (floppy)
 	 * PDT=1Fh none (no FDD connected to the requested logical unit)
 	 */
+<<<<<<< HEAD
 	if (((result[0] >> 5) == 1 || starget->pdt_1f_for_no_lun) &&
 	    (result[0] & 0x1f) == 0x1f &&
+=======
+	if (((result[0] >> 5) == 1 ||
+	    (starget->pdt_1f_for_no_lun && (result[0] & 0x1f) == 0x1f)) &&
+>>>>>>> upstream/android-13
 	    !scsi_is_wlun(lun)) {
 		SCSI_LOG_SCAN_BUS(3, sdev_printk(KERN_INFO, sdev,
 					"scsi scan: peripheral device type"
@@ -1349,8 +1493,12 @@ static int scsi_report_lun_scan(struct scsi_target *starget, blist_flags_t bflag
 	 */
 	length = (511 + 1) * sizeof(struct scsi_lun);
 retry:
+<<<<<<< HEAD
 	lun_data = kmalloc(length, GFP_KERNEL |
 			   (sdev->host->unchecked_isa_dma ? __GFP_DMA : 0));
+=======
+	lun_data = kmalloc(length, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!lun_data) {
 		printk(ALLOC_FAILURE_MSG, __func__);
 		goto out;

@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
+>>>>>>> upstream/android-13
  */
 
 #ifndef __ARC_ASM_CACHE_H
@@ -28,6 +34,11 @@
 
 #ifndef __ASSEMBLY__
 
+<<<<<<< HEAD
+=======
+#include <linux/build_bug.h>
+
+>>>>>>> upstream/android-13
 /* Uncached access macros */
 #define arc_read_uncached_32(ptr)	\
 ({					\
@@ -63,10 +74,13 @@
 #define ARCH_SLAB_MINALIGN	8
 #endif
 
+<<<<<<< HEAD
 extern void arc_cache_init(void);
 extern char *arc_cache_mumbojumbo(int cpu_id, char *buf, int len);
 extern void read_decode_cache_bcr(void);
 
+=======
+>>>>>>> upstream/android-13
 extern int ioc_enable;
 extern unsigned long perip_base, perip_end;
 

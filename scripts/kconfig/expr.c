@@ -1,8 +1,18 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2002 Roman Zippel <zippel@linux-m68k.org>
  * Released under the terms of the GNU GPL v2.0.
  */
 
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2002 Roman Zippel <zippel@linux-m68k.org>
+ */
+
+#include <ctype.h>
+#include <errno.h>
+>>>>>>> upstream/android-13
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,7 +21,10 @@
 
 #define DEBUG_EXPR	0
 
+<<<<<<< HEAD
 static int expr_eq(struct expr *e1, struct expr *e2);
+=======
+>>>>>>> upstream/android-13
 static struct expr *expr_eliminate_yn(struct expr *e);
 
 struct expr *expr_alloc_symbol(struct symbol *sym)
@@ -248,7 +261,11 @@ void expr_eliminate_eq(struct expr **ep1, struct expr **ep2)
  * equals some operand in the other (operands do not need to appear in the same
  * order), recursively.
  */
+<<<<<<< HEAD
 static int expr_eq(struct expr *e1, struct expr *e2)
+=======
+int expr_eq(struct expr *e1, struct expr *e2)
+>>>>>>> upstream/android-13
 {
 	int res, old_count;
 
@@ -987,7 +1004,10 @@ enum string_value_kind {
 	k_string,
 	k_signed,
 	k_unsigned,
+<<<<<<< HEAD
 	k_invalid
+=======
+>>>>>>> upstream/android-13
 };
 
 union string_value {
@@ -1018,6 +1038,7 @@ static enum string_value_kind expr_parse_string(const char *str,
 		val->u = strtoull(str, &tail, 16);
 		kind = k_unsigned;
 		break;
+<<<<<<< HEAD
 	case S_STRING:
 	case S_UNKNOWN:
 		val->s = strtoll(str, &tail, 0);
@@ -1025,6 +1046,12 @@ static enum string_value_kind expr_parse_string(const char *str,
 		break;
 	default:
 		return k_invalid;
+=======
+	default:
+		val->s = strtoll(str, &tail, 0);
+		kind = k_signed;
+		break;
+>>>>>>> upstream/android-13
 	}
 	return !errno && !*tail && tail > str && isxdigit(tail[-1])
 	       ? kind : k_string;
@@ -1080,6 +1107,7 @@ tristate expr_calc_value(struct expr *e)
 
 	if (k1 == k_string || k2 == k_string)
 		res = strcmp(str1, str2);
+<<<<<<< HEAD
 	else if (k1 == k_invalid || k2 == k_invalid) {
 		if (e->type != E_EQUAL && e->type != E_UNEQUAL) {
 			printf("Cannot compare \"%s\" and \"%s\"\n", str1, str2);
@@ -1087,6 +1115,9 @@ tristate expr_calc_value(struct expr *e)
 		}
 		res = strcmp(str1, str2);
 	} else if (k1 == k_unsigned || k2 == k_unsigned)
+=======
+	else if (k1 == k_unsigned || k2 == k_unsigned)
+>>>>>>> upstream/android-13
 		res = (lval.u > rval.u) - (lval.u < rval.u);
 	else /* if (k1 == k_signed && k2 == k_signed) */
 		res = (lval.s > rval.s) - (lval.s < rval.s);

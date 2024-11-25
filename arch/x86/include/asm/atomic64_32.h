@@ -9,7 +9,11 @@
 /* An 64bit atomic type */
 
 typedef struct {
+<<<<<<< HEAD
 	u64 __aligned(8) counter;
+=======
+	s64 __aligned(8) counter;
+>>>>>>> upstream/android-13
 } atomic64_t;
 
 #define ATOMIC64_INIT(val)	{ (val) }
@@ -71,11 +75,19 @@ ATOMIC64_DECL(add_unless);
  * the old value.
  */
 
+<<<<<<< HEAD
 static inline long long arch_atomic64_cmpxchg(atomic64_t *v, long long o,
 					      long long n)
 {
 	return arch_cmpxchg64(&v->counter, o, n);
 }
+=======
+static inline s64 arch_atomic64_cmpxchg(atomic64_t *v, s64 o, s64 n)
+{
+	return arch_cmpxchg64(&v->counter, o, n);
+}
+#define arch_atomic64_cmpxchg arch_atomic64_cmpxchg
+>>>>>>> upstream/android-13
 
 /**
  * arch_atomic64_xchg - xchg atomic64 variable
@@ -85,9 +97,15 @@ static inline long long arch_atomic64_cmpxchg(atomic64_t *v, long long o,
  * Atomically xchgs the value of @v to @n and returns
  * the old value.
  */
+<<<<<<< HEAD
 static inline long long arch_atomic64_xchg(atomic64_t *v, long long n)
 {
 	long long o;
+=======
+static inline s64 arch_atomic64_xchg(atomic64_t *v, s64 n)
+{
+	s64 o;
+>>>>>>> upstream/android-13
 	unsigned high = (unsigned)(n >> 32);
 	unsigned low = (unsigned)n;
 	alternative_atomic64(xchg, "=&A" (o),
@@ -95,6 +113,10 @@ static inline long long arch_atomic64_xchg(atomic64_t *v, long long n)
 			     : "memory");
 	return o;
 }
+<<<<<<< HEAD
+=======
+#define arch_atomic64_xchg arch_atomic64_xchg
+>>>>>>> upstream/android-13
 
 /**
  * arch_atomic64_set - set atomic64 variable
@@ -103,7 +125,11 @@ static inline long long arch_atomic64_xchg(atomic64_t *v, long long n)
  *
  * Atomically sets the value of @v to @n.
  */
+<<<<<<< HEAD
 static inline void arch_atomic64_set(atomic64_t *v, long long i)
+=======
+static inline void arch_atomic64_set(atomic64_t *v, s64 i)
+>>>>>>> upstream/android-13
 {
 	unsigned high = (unsigned)(i >> 32);
 	unsigned low = (unsigned)i;
@@ -118,9 +144,15 @@ static inline void arch_atomic64_set(atomic64_t *v, long long i)
  *
  * Atomically reads the value of @v and returns it.
  */
+<<<<<<< HEAD
 static inline long long arch_atomic64_read(const atomic64_t *v)
 {
 	long long r;
+=======
+static inline s64 arch_atomic64_read(const atomic64_t *v)
+{
+	s64 r;
+>>>>>>> upstream/android-13
 	alternative_atomic64(read, "=&A" (r), "c" (v) : "memory");
 	return r;
 }
@@ -132,37 +164,63 @@ static inline long long arch_atomic64_read(const atomic64_t *v)
  *
  * Atomically adds @i to @v and returns @i + *@v
  */
+<<<<<<< HEAD
 static inline long long arch_atomic64_add_return(long long i, atomic64_t *v)
+=======
+static inline s64 arch_atomic64_add_return(s64 i, atomic64_t *v)
+>>>>>>> upstream/android-13
 {
 	alternative_atomic64(add_return,
 			     ASM_OUTPUT2("+A" (i), "+c" (v)),
 			     ASM_NO_INPUT_CLOBBER("memory"));
 	return i;
 }
+<<<<<<< HEAD
+=======
+#define arch_atomic64_add_return arch_atomic64_add_return
+>>>>>>> upstream/android-13
 
 /*
  * Other variants with different arithmetic operators:
  */
+<<<<<<< HEAD
 static inline long long arch_atomic64_sub_return(long long i, atomic64_t *v)
+=======
+static inline s64 arch_atomic64_sub_return(s64 i, atomic64_t *v)
+>>>>>>> upstream/android-13
 {
 	alternative_atomic64(sub_return,
 			     ASM_OUTPUT2("+A" (i), "+c" (v)),
 			     ASM_NO_INPUT_CLOBBER("memory"));
 	return i;
 }
+<<<<<<< HEAD
 
 static inline long long arch_atomic64_inc_return(atomic64_t *v)
 {
 	long long a;
+=======
+#define arch_atomic64_sub_return arch_atomic64_sub_return
+
+static inline s64 arch_atomic64_inc_return(atomic64_t *v)
+{
+	s64 a;
+>>>>>>> upstream/android-13
 	alternative_atomic64(inc_return, "=&A" (a),
 			     "S" (v) : "memory", "ecx");
 	return a;
 }
 #define arch_atomic64_inc_return arch_atomic64_inc_return
 
+<<<<<<< HEAD
 static inline long long arch_atomic64_dec_return(atomic64_t *v)
 {
 	long long a;
+=======
+static inline s64 arch_atomic64_dec_return(atomic64_t *v)
+{
+	s64 a;
+>>>>>>> upstream/android-13
 	alternative_atomic64(dec_return, "=&A" (a),
 			     "S" (v) : "memory", "ecx");
 	return a;
@@ -176,7 +234,11 @@ static inline long long arch_atomic64_dec_return(atomic64_t *v)
  *
  * Atomically adds @i to @v.
  */
+<<<<<<< HEAD
 static inline long long arch_atomic64_add(long long i, atomic64_t *v)
+=======
+static inline s64 arch_atomic64_add(s64 i, atomic64_t *v)
+>>>>>>> upstream/android-13
 {
 	__alternative_atomic64(add, add_return,
 			       ASM_OUTPUT2("+A" (i), "+c" (v)),
@@ -191,7 +253,11 @@ static inline long long arch_atomic64_add(long long i, atomic64_t *v)
  *
  * Atomically subtracts @i from @v.
  */
+<<<<<<< HEAD
 static inline long long arch_atomic64_sub(long long i, atomic64_t *v)
+=======
+static inline s64 arch_atomic64_sub(s64 i, atomic64_t *v)
+>>>>>>> upstream/android-13
 {
 	__alternative_atomic64(sub, sub_return,
 			       ASM_OUTPUT2("+A" (i), "+c" (v)),
@@ -234,8 +300,12 @@ static inline void arch_atomic64_dec(atomic64_t *v)
  * Atomically adds @a to @v, so long as it was not @u.
  * Returns non-zero if the add was done, zero otherwise.
  */
+<<<<<<< HEAD
 static inline int arch_atomic64_add_unless(atomic64_t *v, long long a,
 					   long long u)
+=======
+static inline int arch_atomic64_add_unless(atomic64_t *v, s64 a, s64 u)
+>>>>>>> upstream/android-13
 {
 	unsigned low = (unsigned)u;
 	unsigned high = (unsigned)(u >> 32);
@@ -244,6 +314,10 @@ static inline int arch_atomic64_add_unless(atomic64_t *v, long long a,
 			     "S" (v) : "memory");
 	return (int)a;
 }
+<<<<<<< HEAD
+=======
+#define arch_atomic64_add_unless arch_atomic64_add_unless
+>>>>>>> upstream/android-13
 
 static inline int arch_atomic64_inc_not_zero(atomic64_t *v)
 {
@@ -254,9 +328,15 @@ static inline int arch_atomic64_inc_not_zero(atomic64_t *v)
 }
 #define arch_atomic64_inc_not_zero arch_atomic64_inc_not_zero
 
+<<<<<<< HEAD
 static inline long long arch_atomic64_dec_if_positive(atomic64_t *v)
 {
 	long long r;
+=======
+static inline s64 arch_atomic64_dec_if_positive(atomic64_t *v)
+{
+	s64 r;
+>>>>>>> upstream/android-13
 	alternative_atomic64(dec_if_positive, "=&A" (r),
 			     "S" (v) : "ecx", "memory");
 	return r;
@@ -266,69 +346,121 @@ static inline long long arch_atomic64_dec_if_positive(atomic64_t *v)
 #undef alternative_atomic64
 #undef __alternative_atomic64
 
+<<<<<<< HEAD
 static inline void arch_atomic64_and(long long i, atomic64_t *v)
 {
 	long long old, c = 0;
+=======
+static inline void arch_atomic64_and(s64 i, atomic64_t *v)
+{
+	s64 old, c = 0;
+>>>>>>> upstream/android-13
 
 	while ((old = arch_atomic64_cmpxchg(v, c, c & i)) != c)
 		c = old;
 }
 
+<<<<<<< HEAD
 static inline long long arch_atomic64_fetch_and(long long i, atomic64_t *v)
 {
 	long long old, c = 0;
+=======
+static inline s64 arch_atomic64_fetch_and(s64 i, atomic64_t *v)
+{
+	s64 old, c = 0;
+>>>>>>> upstream/android-13
 
 	while ((old = arch_atomic64_cmpxchg(v, c, c & i)) != c)
 		c = old;
 
 	return old;
 }
+<<<<<<< HEAD
 
 static inline void arch_atomic64_or(long long i, atomic64_t *v)
 {
 	long long old, c = 0;
+=======
+#define arch_atomic64_fetch_and arch_atomic64_fetch_and
+
+static inline void arch_atomic64_or(s64 i, atomic64_t *v)
+{
+	s64 old, c = 0;
+>>>>>>> upstream/android-13
 
 	while ((old = arch_atomic64_cmpxchg(v, c, c | i)) != c)
 		c = old;
 }
 
+<<<<<<< HEAD
 static inline long long arch_atomic64_fetch_or(long long i, atomic64_t *v)
 {
 	long long old, c = 0;
+=======
+static inline s64 arch_atomic64_fetch_or(s64 i, atomic64_t *v)
+{
+	s64 old, c = 0;
+>>>>>>> upstream/android-13
 
 	while ((old = arch_atomic64_cmpxchg(v, c, c | i)) != c)
 		c = old;
 
 	return old;
 }
+<<<<<<< HEAD
 
 static inline void arch_atomic64_xor(long long i, atomic64_t *v)
 {
 	long long old, c = 0;
+=======
+#define arch_atomic64_fetch_or arch_atomic64_fetch_or
+
+static inline void arch_atomic64_xor(s64 i, atomic64_t *v)
+{
+	s64 old, c = 0;
+>>>>>>> upstream/android-13
 
 	while ((old = arch_atomic64_cmpxchg(v, c, c ^ i)) != c)
 		c = old;
 }
 
+<<<<<<< HEAD
 static inline long long arch_atomic64_fetch_xor(long long i, atomic64_t *v)
 {
 	long long old, c = 0;
+=======
+static inline s64 arch_atomic64_fetch_xor(s64 i, atomic64_t *v)
+{
+	s64 old, c = 0;
+>>>>>>> upstream/android-13
 
 	while ((old = arch_atomic64_cmpxchg(v, c, c ^ i)) != c)
 		c = old;
 
 	return old;
 }
+<<<<<<< HEAD
 
 static inline long long arch_atomic64_fetch_add(long long i, atomic64_t *v)
 {
 	long long old, c = 0;
+=======
+#define arch_atomic64_fetch_xor arch_atomic64_fetch_xor
+
+static inline s64 arch_atomic64_fetch_add(s64 i, atomic64_t *v)
+{
+	s64 old, c = 0;
+>>>>>>> upstream/android-13
 
 	while ((old = arch_atomic64_cmpxchg(v, c, c + i)) != c)
 		c = old;
 
 	return old;
 }
+<<<<<<< HEAD
+=======
+#define arch_atomic64_fetch_add arch_atomic64_fetch_add
+>>>>>>> upstream/android-13
 
 #define arch_atomic64_fetch_sub(i, v)	arch_atomic64_fetch_add(-(i), (v))
 

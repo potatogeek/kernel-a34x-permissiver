@@ -12,6 +12,10 @@
 #include <linux/export.h>
 #include <linux/interrupt.h>
 #include <linux/of_device.h>
+<<<<<<< HEAD
+=======
+#include <linux/numa.h>
+>>>>>>> upstream/android-13
 
 #include <asm/iommu.h>
 #include <asm/irq.h>
@@ -1347,7 +1351,11 @@ static int schizo_pbm_init(struct pci_pbm_info *pbm,
 	pbm->next = pci_pbm_root;
 	pci_pbm_root = pbm;
 
+<<<<<<< HEAD
 	pbm->numa_node = -1;
+=======
+	pbm->numa_node = NUMA_NO_NODE;
+>>>>>>> upstream/android-13
 
 	pbm->pci_ops = &sun4u_pci_ops;
 	pbm->config_space_reg_bits = 8;

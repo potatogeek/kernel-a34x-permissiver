@@ -10,12 +10,23 @@
 
 #include <linux/bio.h>
 #include <linux/blkdev.h>
+<<<<<<< HEAD
 #include <linux/math64.h>
 #include <linux/ratelimit.h>
+=======
+#include <linux/dm-ioctl.h>
+#include <linux/math64.h>
+#include <linux/ratelimit.h>
+#include <linux/android_kabi.h>
+>>>>>>> upstream/android-13
 
 struct dm_dev;
 struct dm_target;
 struct dm_table;
+<<<<<<< HEAD
+=======
+struct dm_report_zones_args;
+>>>>>>> upstream/android-13
 struct mapped_device;
 struct bio_vec;
 
@@ -26,12 +37,19 @@ enum dm_queue_mode {
 	DM_TYPE_NONE		 = 0,
 	DM_TYPE_BIO_BASED	 = 1,
 	DM_TYPE_REQUEST_BASED	 = 2,
+<<<<<<< HEAD
 	DM_TYPE_MQ_REQUEST_BASED = 3,
 	DM_TYPE_DAX_BIO_BASED	 = 4,
 	DM_TYPE_NVME_BIO_BASED	 = 5,
 };
 
 typedef enum { STATUSTYPE_INFO, STATUSTYPE_TABLE } status_type_t;
+=======
+	DM_TYPE_DAX_BIO_BASED	 = 3,
+};
+
+typedef enum { STATUSTYPE_INFO, STATUSTYPE_TABLE, STATUSTYPE_IMA } status_type_t;
+>>>>>>> upstream/android-13
 
 union map_info {
 	void *ptr;
@@ -93,6 +111,22 @@ typedef int (*dm_message_fn) (struct dm_target *ti, unsigned argc, char **argv,
 
 typedef int (*dm_prepare_ioctl_fn) (struct dm_target *ti, struct block_device **bdev);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_BLK_DEV_ZONED
+typedef int (*dm_report_zones_fn) (struct dm_target *ti,
+				   struct dm_report_zones_args *args,
+				   unsigned int nr_zones);
+#else
+/*
+ * Define dm_report_zones_fn so that targets can assign to NULL if
+ * CONFIG_BLK_DEV_ZONED disabled. Otherwise each target needs to do
+ * awkward #ifdefs in their target_type, etc.
+ */
+typedef int (*dm_report_zones_fn) (struct dm_target *dummy);
+#endif
+
+>>>>>>> upstream/android-13
 /*
  * These iteration functions are typically used to check (and combine)
  * properties of underlying devices.
@@ -136,7 +170,12 @@ typedef long (*dm_dax_direct_access_fn) (struct dm_target *ti, pgoff_t pgoff,
 		long nr_pages, void **kaddr, pfn_t *pfn);
 typedef size_t (*dm_dax_copy_iter_fn)(struct dm_target *ti, pgoff_t pgoff,
 		void *addr, size_t bytes, struct iov_iter *i);
+<<<<<<< HEAD
 #define PAGE_SECTORS (PAGE_SIZE / 512)
+=======
+typedef int (*dm_dax_zero_page_range_fn)(struct dm_target *ti, pgoff_t pgoff,
+		size_t nr_pages);
+>>>>>>> upstream/android-13
 
 void dm_error(const char *message);
 
@@ -181,12 +220,23 @@ struct target_type {
 	dm_status_fn status;
 	dm_message_fn message;
 	dm_prepare_ioctl_fn prepare_ioctl;
+<<<<<<< HEAD
+=======
+	dm_report_zones_fn report_zones;
+>>>>>>> upstream/android-13
 	dm_busy_fn busy;
 	dm_iterate_devices_fn iterate_devices;
 	dm_io_hints_fn io_hints;
 	dm_dax_direct_access_fn direct_access;
 	dm_dax_copy_iter_fn dax_copy_from_iter;
 	dm_dax_copy_iter_fn dax_copy_to_iter;
+<<<<<<< HEAD
+=======
+	dm_dax_zero_page_range_fn dax_zero_page_range;
+
+	ANDROID_KABI_RESERVE(1);
+	ANDROID_KABI_RESERVE(2);
+>>>>>>> upstream/android-13
 
 	/* For internal device-mapper use. */
 	struct list_head list;
@@ -236,10 +286,47 @@ struct target_type {
 #define dm_target_passes_integrity(type) ((type)->features & DM_TARGET_PASSES_INTEGRITY)
 
 /*
+<<<<<<< HEAD
  * Indicates that a target supports host-managed zoned block devices.
  */
 #define DM_TARGET_ZONED_HM		0x00000040
 #define dm_target_supports_zoned_hm(type) ((type)->features & DM_TARGET_ZONED_HM)
+=======
+ * Indicates support for zoned block devices:
+ * - DM_TARGET_ZONED_HM: the target also supports host-managed zoned
+ *   block devices but does not support combining different zoned models.
+ * - DM_TARGET_MIXED_ZONED_MODEL: the target supports combining multiple
+ *   devices with different zoned models.
+ */
+#ifdef CONFIG_BLK_DEV_ZONED
+#define DM_TARGET_ZONED_HM		0x00000040
+#define dm_target_supports_zoned_hm(type) ((type)->features & DM_TARGET_ZONED_HM)
+#else
+#define DM_TARGET_ZONED_HM		0x00000000
+#define dm_target_supports_zoned_hm(type) (false)
+#endif
+
+/*
+ * A target handles REQ_NOWAIT
+ */
+#define DM_TARGET_NOWAIT		0x00000080
+#define dm_target_supports_nowait(type) ((type)->features & DM_TARGET_NOWAIT)
+
+/*
+ * A target supports passing through inline crypto support.
+ */
+#define DM_TARGET_PASSES_CRYPTO		0x00000100
+#define dm_target_passes_crypto(type) ((type)->features & DM_TARGET_PASSES_CRYPTO)
+
+#ifdef CONFIG_BLK_DEV_ZONED
+#define DM_TARGET_MIXED_ZONED_MODEL	0x00000200
+#define dm_target_supports_mixed_zoned_model(type) \
+	((type)->features & DM_TARGET_MIXED_ZONED_MODEL)
+#else
+#define DM_TARGET_MIXED_ZONED_MODEL	0x00000000
+#define dm_target_supports_mixed_zoned_model(type) (false)
+#endif
+>>>>>>> upstream/android-13
 
 struct dm_target {
 	struct dm_table *table;
@@ -311,6 +398,7 @@ struct dm_target {
 	bool discards_supported:1;
 
 	/*
+<<<<<<< HEAD
 	 * Set if the target required discard bios to be split
 	 * on max_io_len boundary.
 	 */
@@ -327,12 +415,31 @@ struct dm_target {
 struct dm_target_callbacks {
 	struct list_head list;
 	int (*congested_fn) (struct dm_target_callbacks *, int);
+=======
+	 * Set if we need to limit the number of in-flight bios when swapping.
+	 */
+	bool limit_swap_bios:1;
+
+	/*
+	 * Set if this target implements a a zoned device and needs emulation of
+	 * zone append operations using regular writes.
+	 */
+	bool emulate_zone_append:1;
+
+	ANDROID_KABI_RESERVE(1);
+	ANDROID_KABI_RESERVE(2);
+>>>>>>> upstream/android-13
 };
 
 void *dm_per_bio_data(struct bio *bio, size_t data_size);
 struct bio *dm_bio_from_per_bio_data(void *data, size_t data_size);
 unsigned dm_bio_get_target_bio_nr(const struct bio *bio);
 
+<<<<<<< HEAD
+=======
+u64 dm_start_time_ns_from_clone(struct bio *bio);
+
+>>>>>>> upstream/android-13
 int dm_register_target(struct target_type *t);
 void dm_unregister_target(struct target_type *t);
 
@@ -428,10 +535,39 @@ int dm_suspended(struct dm_target *ti);
 int dm_post_suspending(struct dm_target *ti);
 int dm_noflush_suspending(struct dm_target *ti);
 void dm_accept_partial_bio(struct bio *bio, unsigned n_sectors);
+<<<<<<< HEAD
 void dm_remap_zone_report(struct dm_target *ti, struct bio *bio,
 			  sector_t start);
 union map_info *dm_get_rq_mapinfo(struct request *rq);
 
+=======
+union map_info *dm_get_rq_mapinfo(struct request *rq);
+
+#ifdef CONFIG_BLK_DEV_ZONED
+struct dm_report_zones_args {
+	struct dm_target *tgt;
+	sector_t next_sector;
+
+	void *orig_data;
+	report_zones_cb orig_cb;
+	unsigned int zone_idx;
+
+	/* must be filled by ->report_zones before calling dm_report_zones_cb */
+	sector_t start;
+};
+int dm_report_zones(struct block_device *bdev, sector_t start, sector_t sector,
+		    struct dm_report_zones_args *args, unsigned int nr_zones);
+#endif /* CONFIG_BLK_DEV_ZONED */
+
+/*
+ * Device mapper functions to parse and create devices specified by the
+ * parameter "dm-mod.create="
+ */
+int __init dm_early_create(struct dm_ioctl *dmi,
+			   struct dm_target_spec **spec_array,
+			   char **target_params_array);
+
+>>>>>>> upstream/android-13
 struct queue_limits *dm_get_queue_limits(struct mapped_device *md);
 
 /*
@@ -457,11 +593,14 @@ int dm_table_add_target(struct dm_table *t, const char *type,
 			sector_t start, sector_t len, char *params);
 
 /*
+<<<<<<< HEAD
  * Target_ctr should call this if it needs to add any callbacks.
  */
 void dm_table_add_target_callbacks(struct dm_table *t, struct dm_target_callbacks *cb);
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Target can use this to set the table's type.
  * Can only ever be called from a target's ctr.
  * Useful for "hybrid" target (supports both bio-based
@@ -498,6 +637,10 @@ sector_t dm_table_get_size(struct dm_table *t);
 unsigned int dm_table_get_num_targets(struct dm_table *t);
 fmode_t dm_table_get_mode(struct dm_table *t);
 struct mapped_device *dm_table_get_md(struct dm_table *t);
+<<<<<<< HEAD
+=======
+const char *dm_table_device_name(struct dm_table *t);
+>>>>>>> upstream/android-13
 
 /*
  * Trigger an event.
@@ -517,15 +660,22 @@ struct dm_table *dm_swap_table(struct mapped_device *md,
 			       struct dm_table *t);
 
 /*
+<<<<<<< HEAD
  * A wrapper around vmalloc.
  */
 void *dm_vcalloc(unsigned long nmemb, unsigned long elem_size);
+=======
+ * Table keyslot manager functions
+ */
+void dm_destroy_keyslot_manager(struct blk_keyslot_manager *ksm);
+>>>>>>> upstream/android-13
 
 /*-----------------------------------------------------------------
  * Macros.
  *---------------------------------------------------------------*/
 #define DM_NAME "device-mapper"
 
+<<<<<<< HEAD
 #define DM_RATELIMIT(pr_func, fmt, ...)					\
 do {									\
 	static DEFINE_RATELIMIT_STATE(rs, DEFAULT_RATELIMIT_INTERVAL,	\
@@ -535,11 +685,14 @@ do {									\
 		pr_func(DM_FMT(fmt), ##__VA_ARGS__);			\
 } while (0)
 
+=======
+>>>>>>> upstream/android-13
 #define DM_FMT(fmt) DM_NAME ": " DM_MSG_PREFIX ": " fmt "\n"
 
 #define DMCRIT(fmt, ...) pr_crit(DM_FMT(fmt), ##__VA_ARGS__)
 
 #define DMERR(fmt, ...) pr_err(DM_FMT(fmt), ##__VA_ARGS__)
+<<<<<<< HEAD
 #define DMERR_LIMIT(fmt, ...) DM_RATELIMIT(pr_err, fmt, ##__VA_ARGS__)
 #define DMWARN(fmt, ...) pr_warn(DM_FMT(fmt), ##__VA_ARGS__)
 #define DMWARN_LIMIT(fmt, ...) DM_RATELIMIT(pr_warn, fmt, ##__VA_ARGS__)
@@ -553,10 +706,27 @@ do {									\
 #define DMDEBUG(fmt, ...) no_printk(fmt, ##__VA_ARGS__)
 #define DMDEBUG_LIMIT(fmt, ...) no_printk(fmt, ##__VA_ARGS__)
 #endif
+=======
+#define DMERR_LIMIT(fmt, ...) pr_err_ratelimited(DM_FMT(fmt), ##__VA_ARGS__)
+#define DMWARN(fmt, ...) pr_warn(DM_FMT(fmt), ##__VA_ARGS__)
+#define DMWARN_LIMIT(fmt, ...) pr_warn_ratelimited(DM_FMT(fmt), ##__VA_ARGS__)
+#define DMINFO(fmt, ...) pr_info(DM_FMT(fmt), ##__VA_ARGS__)
+#define DMINFO_LIMIT(fmt, ...) pr_info_ratelimited(DM_FMT(fmt), ##__VA_ARGS__)
+
+#define DMDEBUG(fmt, ...) pr_debug(DM_FMT(fmt), ##__VA_ARGS__)
+#define DMDEBUG_LIMIT(fmt, ...) pr_debug_ratelimited(DM_FMT(fmt), ##__VA_ARGS__)
+>>>>>>> upstream/android-13
 
 #define DMEMIT(x...) sz += ((sz >= maxlen) ? \
 			  0 : scnprintf(result + sz, maxlen - sz, x))
 
+<<<<<<< HEAD
+=======
+#define DMEMIT_TARGET_NAME_VERSION(y) \
+		DMEMIT("target_name=%s,target_version=%u.%u.%u", \
+		       (y)->name, (y)->version[0], (y)->version[1], (y)->version[2])
+
+>>>>>>> upstream/android-13
 /*
  * Definitions of return values from target end_io function.
  */
@@ -600,9 +770,12 @@ do {									\
  */
 #define dm_round_up(n, sz) (dm_div_up((n), (sz)) * (sz))
 
+<<<<<<< HEAD
 #define dm_array_too_big(fixed, obj, num) \
 	((num) > (UINT_MAX - (fixed)) / (obj))
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Sector offset taken relative to the start of the target instead of
  * relative to the start of the device.

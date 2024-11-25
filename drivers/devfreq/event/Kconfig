@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 menuconfig PM_DEVFREQ_EVENT
 	bool "DEVFREQ-Event device Support"
 	help
@@ -14,7 +18,11 @@ menuconfig PM_DEVFREQ_EVENT
 if PM_DEVFREQ_EVENT
 
 config DEVFREQ_EVENT_EXYNOS_NOCP
+<<<<<<< HEAD
 	tristate "EXYNOS NoC (Network On Chip) Probe DEVFREQ event Driver"
+=======
+	tristate "Exynos NoC (Network On Chip) Probe DEVFREQ event Driver"
+>>>>>>> upstream/android-13
 	depends on ARCH_EXYNOS || COMPILE_TEST
 	select PM_OPP
 	select REGMAP_MMIO
@@ -23,7 +31,11 @@ config DEVFREQ_EVENT_EXYNOS_NOCP
 	  (Network on Chip) Probe counters to measure the bandwidth of AXI bus.
 
 config DEVFREQ_EVENT_EXYNOS_PPMU
+<<<<<<< HEAD
 	tristate "EXYNOS PPMU (Platform Performance Monitoring Unit) DEVFREQ event Driver"
+=======
+	tristate "Exynos PPMU (Platform Performance Monitoring Unit) DEVFREQ event Driver"
+>>>>>>> upstream/android-13
 	depends on ARCH_EXYNOS || COMPILE_TEST
 	select PM_OPP
 	help

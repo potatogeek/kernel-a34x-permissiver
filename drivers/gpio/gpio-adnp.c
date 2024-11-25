@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2011-2012 Avionic Design GmbH
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2011-2012 Avionic Design GmbH
+>>>>>>> upstream/android-13
  */
 
 #include <linux/gpio/driver.h>
@@ -241,6 +247,7 @@ unlock:
 	mutex_unlock(&adnp->i2c_lock);
 }
 
+<<<<<<< HEAD
 static int adnp_gpio_setup(struct adnp *adnp, unsigned int num_gpios)
 {
 	struct gpio_chip *chip = &adnp->gpio;
@@ -271,6 +278,8 @@ static int adnp_gpio_setup(struct adnp *adnp, unsigned int num_gpios)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static irqreturn_t adnp_irq(int irq, void *data)
 {
 	struct adnp *adnp = data;
@@ -467,6 +476,7 @@ static int adnp_irq_setup(struct adnp *adnp)
 		return err;
 	}
 
+<<<<<<< HEAD
 	err = gpiochip_irqchip_add_nested(chip,
 					  &adnp_irq_chip,
 					  0,
@@ -479,6 +489,56 @@ static int adnp_irq_setup(struct adnp *adnp)
 	}
 
 	gpiochip_set_nested_irqchip(chip, &adnp_irq_chip, adnp->client->irq);
+=======
+	return 0;
+}
+
+static int adnp_gpio_setup(struct adnp *adnp, unsigned int num_gpios,
+			   bool is_irq_controller)
+{
+	struct gpio_chip *chip = &adnp->gpio;
+	int err;
+
+	adnp->reg_shift = get_count_order(num_gpios) - 3;
+
+	chip->direction_input = adnp_gpio_direction_input;
+	chip->direction_output = adnp_gpio_direction_output;
+	chip->get = adnp_gpio_get;
+	chip->set = adnp_gpio_set;
+	chip->can_sleep = true;
+
+	if (IS_ENABLED(CONFIG_DEBUG_FS))
+		chip->dbg_show = adnp_gpio_dbg_show;
+
+	chip->base = -1;
+	chip->ngpio = num_gpios;
+	chip->label = adnp->client->name;
+	chip->parent = &adnp->client->dev;
+	chip->of_node = chip->parent->of_node;
+	chip->owner = THIS_MODULE;
+
+	if (is_irq_controller) {
+		struct gpio_irq_chip *girq;
+
+		err = adnp_irq_setup(adnp);
+		if (err)
+			return err;
+
+		girq = &chip->irq;
+		girq->chip = &adnp_irq_chip;
+		/* This will let us handle the parent IRQ in the driver */
+		girq->parent_handler = NULL;
+		girq->num_parents = 0;
+		girq->parents = NULL;
+		girq->default_type = IRQ_TYPE_NONE;
+		girq->handler = handle_simple_irq;
+		girq->threaded = true;
+	}
+
+	err = devm_gpiochip_add_data(&adnp->client->dev, chip, adnp);
+	if (err)
+		return err;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -506,6 +566,7 @@ static int adnp_i2c_probe(struct i2c_client *client,
 	mutex_init(&adnp->i2c_lock);
 	adnp->client = client;
 
+<<<<<<< HEAD
 	err = adnp_gpio_setup(adnp, num_gpios);
 	if (err)
 		return err;
@@ -516,6 +577,13 @@ static int adnp_i2c_probe(struct i2c_client *client,
 			return err;
 	}
 
+=======
+	err = adnp_gpio_setup(adnp, num_gpios,
+			of_property_read_bool(np, "interrupt-controller"));
+	if (err)
+		return err;
+
+>>>>>>> upstream/android-13
 	i2c_set_clientdata(client, adnp);
 
 	return 0;

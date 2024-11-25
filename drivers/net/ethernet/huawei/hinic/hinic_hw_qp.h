@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Huawei HiNIC PCI Express Linux driver
  * Copyright(c) 2017 Huawei Technologies Co., Ltd
@@ -11,6 +12,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Huawei HiNIC PCI Express Linux driver
+ * Copyright(c) 2017 Huawei Technologies Co., Ltd
+>>>>>>> upstream/android-13
  */
 
 #ifndef HINIC_HW_QP_H
@@ -47,12 +54,23 @@
 #define HINIC_SQ_WQEBB_SIZE                     64
 #define HINIC_RQ_WQEBB_SIZE                     32
 
+<<<<<<< HEAD
 #define HINIC_SQ_PAGE_SIZE                      SZ_4K
 #define HINIC_RQ_PAGE_SIZE                      SZ_4K
+=======
+#define HINIC_SQ_PAGE_SIZE                      SZ_256K
+#define HINIC_RQ_PAGE_SIZE                      SZ_256K
+>>>>>>> upstream/android-13
 
 #define HINIC_SQ_DEPTH                          SZ_4K
 #define HINIC_RQ_DEPTH                          SZ_4K
 
+<<<<<<< HEAD
+=======
+#define HINIC_MAX_QUEUE_DEPTH			SZ_4K
+#define HINIC_MIN_QUEUE_DEPTH			128
+
+>>>>>>> upstream/android-13
 /* In any change to HINIC_RX_BUF_SZ, HINIC_RX_BUF_SZ_IDX must be changed */
 #define HINIC_RX_BUF_SZ                         2048
 #define HINIC_RX_BUF_SZ_IDX			HINIC_RX_BUF_SZ_2048_IDX
@@ -87,6 +105,11 @@ struct hinic_sq {
 
 	struct hinic_wq         *wq;
 
+<<<<<<< HEAD
+=======
+	u16			qid;
+
+>>>>>>> upstream/android-13
 	u32                     irq;
 	u16                     msix_entry;
 
@@ -96,6 +119,10 @@ struct hinic_sq {
 	void __iomem            *db_base;
 
 	struct sk_buff          **saved_skb;
+<<<<<<< HEAD
+=======
+	struct hinic_debug_priv	*dbg;
+>>>>>>> upstream/android-13
 };
 
 struct hinic_rq {
@@ -103,6 +130,11 @@ struct hinic_rq {
 
 	struct hinic_wq         *wq;
 
+<<<<<<< HEAD
+=======
+	u16			qid;
+
+>>>>>>> upstream/android-13
 	struct cpumask		affinity_mask;
 	u32                     irq;
 	u16                     msix_entry;
@@ -116,6 +148,10 @@ struct hinic_rq {
 
 	u16                     *pi_virt_addr;
 	dma_addr_t              pi_dma_addr;
+<<<<<<< HEAD
+=======
+	struct hinic_debug_priv	*dbg;
+>>>>>>> upstream/android-13
 };
 
 struct hinic_qp {
@@ -150,6 +186,34 @@ int hinic_get_sq_free_wqebbs(struct hinic_sq *sq);
 
 int hinic_get_rq_free_wqebbs(struct hinic_rq *rq);
 
+<<<<<<< HEAD
+=======
+void hinic_task_set_l2hdr(struct hinic_sq_task *task, u32 len);
+
+void hinic_task_set_outter_l3(struct hinic_sq_task *task,
+			      enum hinic_l3_offload_type l3_type,
+			      u32 network_len);
+
+void hinic_task_set_inner_l3(struct hinic_sq_task *task,
+			     enum hinic_l3_offload_type l3_type,
+			     u32 network_len);
+
+void hinic_task_set_tunnel_l4(struct hinic_sq_task *task,
+			      enum hinic_l4_tunnel_type l4_type,
+			      u32 tunnel_len);
+
+void hinic_set_cs_inner_l4(struct hinic_sq_task *task,
+			   u32 *queue_info,
+			   enum hinic_l4_offload_type l4_offload,
+			   u32 l4_len, u32 offset);
+
+void hinic_set_tso_inner_l4(struct hinic_sq_task *task,
+			    u32 *queue_info,
+			    enum hinic_l4_offload_type l4_offload,
+			    u32 l4_len,
+			    u32 offset, u32 ip_ident, u32 mss);
+
+>>>>>>> upstream/android-13
 void hinic_sq_prepare_wqe(struct hinic_sq *sq, u16 prod_idx,
 			  struct hinic_sq_wqe *wqe, struct hinic_sge *sges,
 			  int nr_sges);
@@ -160,6 +224,11 @@ void hinic_sq_write_db(struct hinic_sq *sq, u16 prod_idx, unsigned int wqe_size,
 struct hinic_sq_wqe *hinic_sq_get_wqe(struct hinic_sq *sq,
 				      unsigned int wqe_size, u16 *prod_idx);
 
+<<<<<<< HEAD
+=======
+void hinic_sq_return_wqe(struct hinic_sq *sq, unsigned int wqe_size);
+
+>>>>>>> upstream/android-13
 void hinic_sq_write_wqe(struct hinic_sq *sq, u16 prod_idx,
 			struct hinic_sq_wqe *wqe, struct sk_buff *skb,
 			unsigned int wqe_size);

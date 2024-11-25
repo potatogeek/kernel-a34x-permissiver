@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  arch/arm/include/asm/io.h
  *
  *  Copyright (C) 1996-2000 Russell King
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Modifications:
  *  16-Sep-1996	RMK	Inlined the inx/outx functions & optimised for both
  *			constant addresses and variable addresses.
@@ -28,13 +35,19 @@
 #include <asm/byteorder.h>
 #include <asm/memory.h>
 #include <asm-generic/pci_iomap.h>
+<<<<<<< HEAD
 #include <xen/xen.h>
+=======
+>>>>>>> upstream/android-13
 
 /*
  * ISA I/O bus memory addresses are 1:1 with the physical address.
  */
 #define isa_virt_to_bus virt_to_phys
+<<<<<<< HEAD
 #define isa_page_to_bus page_to_phys
+=======
+>>>>>>> upstream/android-13
 #define isa_bus_to_virt phys_to_virt
 
 /*
@@ -282,8 +295,11 @@ extern void _memcpy_fromio(void *, const volatile void __iomem *, size_t);
 extern void _memcpy_toio(volatile void __iomem *, const void *, size_t);
 extern void _memset_io(volatile void __iomem *, int, size_t);
 
+<<<<<<< HEAD
 #define mmiowb()
 
+=======
+>>>>>>> upstream/android-13
 /*
  *  Memory access primitives
  *  ------------------------
@@ -363,7 +379,10 @@ static inline void memcpy_toio(volatile void __iomem *to, const void *from,
  *
  * Function		Memory type	Cacheability	Cache hint
  * ioremap()		Device		n/a		n/a
+<<<<<<< HEAD
  * ioremap_nocache()	Device		n/a		n/a
+=======
+>>>>>>> upstream/android-13
  * ioremap_cache()	Normal		Writeback	Read allocate
  * ioremap_wc()		Normal		Non-cacheable	n/a
  * ioremap_wt()		Normal		Non-cacheable	n/a
@@ -375,6 +394,7 @@ static inline void memcpy_toio(volatile void __iomem *to, const void *from,
  * - unaligned accesses are "unpredictable"
  * - writes may be delayed before they hit the endpoint device
  *
+<<<<<<< HEAD
  * ioremap_nocache() is the same as ioremap() as there are too many device
  * drivers using this for device registers, and documentation which tells
  * people to use it for such for this to be any different.  This is not a
@@ -382,6 +402,8 @@ static inline void memcpy_toio(volatile void __iomem *to, const void *from,
  * compiler may generate unaligned accesses - eg, via inlining its own
  * memcpy.
  *
+=======
+>>>>>>> upstream/android-13
  * All normal memory mappings have the following properties:
  * - reads can be repeated with no side effects
  * - repeated reads return the last value written
@@ -399,7 +421,10 @@ static inline void memcpy_toio(volatile void __iomem *to, const void *from,
  */
 void __iomem *ioremap(resource_size_t res_cookie, size_t size);
 #define ioremap ioremap
+<<<<<<< HEAD
 #define ioremap_nocache ioremap
+=======
+>>>>>>> upstream/android-13
 
 /*
  * Do not use ioremap_cache for mapping memory. Use memremap instead.
@@ -407,12 +432,15 @@ void __iomem *ioremap(resource_size_t res_cookie, size_t size);
 void __iomem *ioremap_cache(resource_size_t res_cookie, size_t size);
 #define ioremap_cache ioremap_cache
 
+<<<<<<< HEAD
 /*
  * Do not use ioremap_cached in new code. Provided for the benefit of
  * the pxa2xx-flash MTD driver only.
  */
 void __iomem *ioremap_cached(resource_size_t res_cookie, size_t size);
 
+=======
+>>>>>>> upstream/android-13
 void __iomem *ioremap_wc(resource_size_t res_cookie, size_t size);
 #define ioremap_wc ioremap_wc
 #define ioremap_wt ioremap_wc
@@ -452,6 +480,7 @@ extern void pci_iounmap(struct pci_dev *dev, void __iomem *addr);
  */
 #define xlate_dev_mem_ptr(p)	__va(p)
 
+<<<<<<< HEAD
 /*
  * Convert a virtual cached pointer to an uncached pointer
  */
@@ -473,11 +502,21 @@ extern bool xen_biovec_phys_mergeable(const struct bio_vec *vec1,
 	(__BIOVEC_PHYS_MERGEABLE(vec1, vec2) &&				\
 	 (!xen_domain() || xen_biovec_phys_mergeable(vec1, vec2)))
 
+=======
+#include <asm-generic/io.h>
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_MMU
 #define ARCH_HAS_VALID_PHYS_ADDR_RANGE
 extern int valid_phys_addr_range(phys_addr_t addr, size_t size);
 extern int valid_mmap_phys_addr_range(unsigned long pfn, size_t size);
+<<<<<<< HEAD
 extern int devmem_is_allowed(unsigned long pfn);
+=======
+extern bool arch_memremap_can_ram_remap(resource_size_t offset, size_t size,
+					unsigned long flags);
+#define arch_memremap_can_ram_remap arch_memremap_can_ram_remap
+>>>>>>> upstream/android-13
 #endif
 
 /*

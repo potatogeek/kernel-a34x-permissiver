@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Battery and Power Management code for the Sharp SL-5x00
  *
  * Copyright (C) 2009 Thomas Kunze
  *
  * based on tosa_battery.c
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -16,7 +23,13 @@
 #include <linux/delay.h>
 #include <linux/spinlock.h>
 #include <linux/interrupt.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/driver.h>
+#include <linux/gpio/machine.h>
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/mfd/ucb1x00.h>
 
 #include <asm/mach/sharpsl_param.h>
@@ -35,18 +48,31 @@ struct collie_bat {
 	struct mutex work_lock; /* protects data */
 
 	bool (*is_present)(struct collie_bat *bat);
+<<<<<<< HEAD
 	int gpio_full;
 	int gpio_charge_on;
 
 	int technology;
 
 	int gpio_bat;
+=======
+	struct gpio_desc *gpio_full;
+	struct gpio_desc *gpio_charge_on;
+
+	int technology;
+
+	struct gpio_desc *gpio_bat;
+>>>>>>> upstream/android-13
 	int adc_bat;
 	int adc_bat_divider;
 	int bat_max;
 	int bat_min;
 
+<<<<<<< HEAD
 	int gpio_temp;
+=======
+	struct gpio_desc *gpio_temp;
+>>>>>>> upstream/android-13
 	int adc_temp;
 	int adc_temp_divider;
 };
@@ -57,15 +83,26 @@ static unsigned long collie_read_bat(struct collie_bat *bat)
 {
 	unsigned long value = 0;
 
+<<<<<<< HEAD
 	if (bat->gpio_bat < 0 || bat->adc_bat < 0)
 		return 0;
 	mutex_lock(&bat_lock);
 	gpio_set_value(bat->gpio_bat, 1);
+=======
+	if (!bat->gpio_bat || bat->adc_bat < 0)
+		return 0;
+	mutex_lock(&bat_lock);
+	gpiod_set_value(bat->gpio_bat, 1);
+>>>>>>> upstream/android-13
 	msleep(5);
 	ucb1x00_adc_enable(ucb);
 	value = ucb1x00_adc_read(ucb, bat->adc_bat, UCB_SYNC);
 	ucb1x00_adc_disable(ucb);
+<<<<<<< HEAD
 	gpio_set_value(bat->gpio_bat, 0);
+=======
+	gpiod_set_value(bat->gpio_bat, 0);
+>>>>>>> upstream/android-13
 	mutex_unlock(&bat_lock);
 	value = value * 1000000 / bat->adc_bat_divider;
 
@@ -75,16 +112,28 @@ static unsigned long collie_read_bat(struct collie_bat *bat)
 static unsigned long collie_read_temp(struct collie_bat *bat)
 {
 	unsigned long value = 0;
+<<<<<<< HEAD
 	if (bat->gpio_temp < 0 || bat->adc_temp < 0)
 		return 0;
 
 	mutex_lock(&bat_lock);
 	gpio_set_value(bat->gpio_temp, 1);
+=======
+	if (!bat->gpio_temp || bat->adc_temp < 0)
+		return 0;
+
+	mutex_lock(&bat_lock);
+	gpiod_set_value(bat->gpio_temp, 1);
+>>>>>>> upstream/android-13
 	msleep(5);
 	ucb1x00_adc_enable(ucb);
 	value = ucb1x00_adc_read(ucb, bat->adc_temp, UCB_SYNC);
 	ucb1x00_adc_disable(ucb);
+<<<<<<< HEAD
 	gpio_set_value(bat->gpio_temp, 0);
+=======
+	gpiod_set_value(bat->gpio_temp, 0);
+>>>>>>> upstream/android-13
 	mutex_unlock(&bat_lock);
 
 	value = value * 10000 / bat->adc_temp_divider;
@@ -166,15 +215,24 @@ static void collie_bat_update(struct collie_bat *bat)
 		bat->full_chrg = -1;
 	} else if (power_supply_am_i_supplied(psy)) {
 		if (bat->status == POWER_SUPPLY_STATUS_DISCHARGING) {
+<<<<<<< HEAD
 			gpio_set_value(bat->gpio_charge_on, 1);
 			mdelay(15);
 		}
 
 		if (gpio_get_value(bat->gpio_full)) {
+=======
+			gpiod_set_value(bat->gpio_charge_on, 1);
+			mdelay(15);
+		}
+
+		if (gpiod_get_value(bat->gpio_full)) {
+>>>>>>> upstream/android-13
 			if (old == POWER_SUPPLY_STATUS_CHARGING ||
 					bat->full_chrg == -1)
 				bat->full_chrg = collie_read_bat(bat);
 
+<<<<<<< HEAD
 			gpio_set_value(bat->gpio_charge_on, 0);
 			bat->status = POWER_SUPPLY_STATUS_FULL;
 		} else {
@@ -183,6 +241,16 @@ static void collie_bat_update(struct collie_bat *bat)
 		}
 	} else {
 		gpio_set_value(bat->gpio_charge_on, 0);
+=======
+			gpiod_set_value(bat->gpio_charge_on, 0);
+			bat->status = POWER_SUPPLY_STATUS_FULL;
+		} else {
+			gpiod_set_value(bat->gpio_charge_on, 1);
+			bat->status = POWER_SUPPLY_STATUS_CHARGING;
+		}
+	} else {
+		gpiod_set_value(bat->gpio_charge_on, 0);
+>>>>>>> upstream/android-13
 		bat->status = POWER_SUPPLY_STATUS_DISCHARGING;
 	}
 
@@ -234,18 +302,31 @@ static struct collie_bat collie_bat_main = {
 	.full_chrg = -1,
 	.psy = NULL,
 
+<<<<<<< HEAD
 	.gpio_full = COLLIE_GPIO_CO,
 	.gpio_charge_on = COLLIE_GPIO_CHARGE_ON,
 
 	.technology = POWER_SUPPLY_TECHNOLOGY_LIPO,
 
 	.gpio_bat = COLLIE_GPIO_MBAT_ON,
+=======
+	.gpio_full = NULL,
+	.gpio_charge_on = NULL,
+
+	.technology = POWER_SUPPLY_TECHNOLOGY_LIPO,
+
+	.gpio_bat = NULL,
+>>>>>>> upstream/android-13
 	.adc_bat = UCB_ADC_INP_AD1,
 	.adc_bat_divider = 155,
 	.bat_max = 4310000,
 	.bat_min = 1551 * 1000000 / 414,
 
+<<<<<<< HEAD
 	.gpio_temp = COLLIE_GPIO_TMP_ON,
+=======
+	.gpio_temp = NULL,
+>>>>>>> upstream/android-13
 	.adc_temp = UCB_ADC_INP_AD0,
 	.adc_temp_divider = 10000,
 };
@@ -264,22 +345,36 @@ static struct collie_bat collie_bat_bu = {
 	.full_chrg = -1,
 	.psy = NULL,
 
+<<<<<<< HEAD
 	.gpio_full = -1,
 	.gpio_charge_on = -1,
 
 	.technology = POWER_SUPPLY_TECHNOLOGY_LiMn,
 
 	.gpio_bat = COLLIE_GPIO_BBAT_ON,
+=======
+	.gpio_full = NULL,
+	.gpio_charge_on = NULL,
+
+	.technology = POWER_SUPPLY_TECHNOLOGY_LiMn,
+
+	.gpio_bat = NULL,
+>>>>>>> upstream/android-13
 	.adc_bat = UCB_ADC_INP_AD1,
 	.adc_bat_divider = 155,
 	.bat_max = 3000000,
 	.bat_min = 1900000,
 
+<<<<<<< HEAD
 	.gpio_temp = -1,
+=======
+	.gpio_temp = NULL,
+>>>>>>> upstream/android-13
 	.adc_temp = -1,
 	.adc_temp_divider = -1,
 };
 
+<<<<<<< HEAD
 static struct gpio collie_batt_gpios[] = {
 	{ COLLIE_GPIO_CO,	    GPIOF_IN,		"main battery full" },
 	{ COLLIE_GPIO_MAIN_BAT_LOW, GPIOF_IN,		"main battery low" },
@@ -288,6 +383,10 @@ static struct gpio collie_batt_gpios[] = {
 	{ COLLIE_GPIO_TMP_ON,	    GPIOF_OUT_INIT_LOW,	"main battery temp" },
 	{ COLLIE_GPIO_BBAT_ON,	    GPIOF_OUT_INIT_LOW,	"backup battery" },
 };
+=======
+/* Obtained but unused GPIO */
+static struct gpio_desc *collie_mbat_low;
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PM
 static int wakeup_enabled;
@@ -299,7 +398,11 @@ static int collie_bat_suspend(struct ucb1x00_dev *dev)
 
 	if (device_may_wakeup(&dev->ucb->dev) &&
 	    collie_bat_main.status == POWER_SUPPLY_STATUS_CHARGING)
+<<<<<<< HEAD
 		wakeup_enabled = !enable_irq_wake(gpio_to_irq(COLLIE_GPIO_CO));
+=======
+		wakeup_enabled = !enable_irq_wake(gpiod_to_irq(collie_bat_main.gpio_full));
+>>>>>>> upstream/android-13
 	else
 		wakeup_enabled = 0;
 
@@ -309,7 +412,11 @@ static int collie_bat_suspend(struct ucb1x00_dev *dev)
 static int collie_bat_resume(struct ucb1x00_dev *dev)
 {
 	if (wakeup_enabled)
+<<<<<<< HEAD
 		disable_irq_wake(gpio_to_irq(COLLIE_GPIO_CO));
+=======
+		disable_irq_wake(gpiod_to_irq(collie_bat_main.gpio_full));
+>>>>>>> upstream/android-13
 
 	/* things may have changed while we were away */
 	schedule_work(&bat_work);
@@ -324,16 +431,81 @@ static int collie_bat_probe(struct ucb1x00_dev *dev)
 {
 	int ret;
 	struct power_supply_config psy_main_cfg = {}, psy_bu_cfg = {};
+<<<<<<< HEAD
+=======
+	struct gpio_chip *gc = &dev->ucb->gpio;
+>>>>>>> upstream/android-13
 
 	if (!machine_is_collie())
 		return -ENODEV;
 
 	ucb = dev->ucb;
 
+<<<<<<< HEAD
 	ret = gpio_request_array(collie_batt_gpios,
 				 ARRAY_SIZE(collie_batt_gpios));
 	if (ret)
 		return ret;
+=======
+	/* Obtain all the main battery GPIOs */
+	collie_bat_main.gpio_full = gpiod_get(&dev->ucb->dev,
+					      "main battery full",
+					      GPIOD_IN);
+	if (IS_ERR(collie_bat_main.gpio_full))
+		return PTR_ERR(collie_bat_main.gpio_full);
+
+	collie_mbat_low = gpiod_get(&dev->ucb->dev,
+				    "main battery low",
+				    GPIOD_IN);
+	if (IS_ERR(collie_mbat_low)) {
+		ret = PTR_ERR(collie_mbat_low);
+		goto err_put_gpio_full;
+	}
+
+	collie_bat_main.gpio_charge_on = gpiod_get(&dev->ucb->dev,
+						   "main charge on",
+						   GPIOD_OUT_LOW);
+	if (IS_ERR(collie_bat_main.gpio_charge_on)) {
+		ret = PTR_ERR(collie_bat_main.gpio_charge_on);
+		goto err_put_mbat_low;
+	}
+
+	/* COLLIE_GPIO_MBAT_ON = GPIO 7 on the UCB (TC35143) */
+	collie_bat_main.gpio_bat = gpiochip_request_own_desc(gc,
+						7,
+						"main battery",
+						GPIO_ACTIVE_HIGH,
+						GPIOD_OUT_LOW);
+	if (IS_ERR(collie_bat_main.gpio_bat)) {
+		ret = PTR_ERR(collie_bat_main.gpio_bat);
+		goto err_put_gpio_charge_on;
+	}
+
+	/* COLLIE_GPIO_TMP_ON = GPIO 9 on the UCB (TC35143) */
+	collie_bat_main.gpio_temp = gpiochip_request_own_desc(gc,
+						9,
+						"main battery temp",
+						GPIO_ACTIVE_HIGH,
+						GPIOD_OUT_LOW);
+	if (IS_ERR(collie_bat_main.gpio_temp)) {
+		ret = PTR_ERR(collie_bat_main.gpio_temp);
+		goto err_free_gpio_bat;
+	}
+
+	/*
+	 * Obtain the backup battery COLLIE_GPIO_BBAT_ON which is
+	 * GPIO 8 on the UCB (TC35143)
+	 */
+	collie_bat_bu.gpio_bat = gpiochip_request_own_desc(gc,
+						8,
+						"backup battery",
+						GPIO_ACTIVE_HIGH,
+						GPIOD_OUT_LOW);
+	if (IS_ERR(collie_bat_bu.gpio_bat)) {
+		ret = PTR_ERR(collie_bat_bu.gpio_bat);
+		goto err_free_gpio_temp;
+	}
+>>>>>>> upstream/android-13
 
 	mutex_init(&collie_bat_main.work_lock);
 
@@ -374,27 +546,61 @@ err_irq:
 err_psy_reg_bu:
 	power_supply_unregister(collie_bat_main.psy);
 err_psy_reg_main:
+<<<<<<< HEAD
 
 	/* see comment in collie_bat_remove */
 	cancel_work_sync(&bat_work);
 	gpio_free_array(collie_batt_gpios, ARRAY_SIZE(collie_batt_gpios));
+=======
+	/* see comment in collie_bat_remove */
+	cancel_work_sync(&bat_work);
+	gpiochip_free_own_desc(collie_bat_bu.gpio_bat);
+err_free_gpio_temp:
+	gpiochip_free_own_desc(collie_bat_main.gpio_temp);
+err_free_gpio_bat:
+	gpiochip_free_own_desc(collie_bat_main.gpio_bat);
+err_put_gpio_charge_on:
+	gpiod_put(collie_bat_main.gpio_charge_on);
+err_put_mbat_low:
+	gpiod_put(collie_mbat_low);
+err_put_gpio_full:
+	gpiod_put(collie_bat_main.gpio_full);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 static void collie_bat_remove(struct ucb1x00_dev *dev)
 {
 	free_irq(gpio_to_irq(COLLIE_GPIO_CO), &collie_bat_main);
+<<<<<<< HEAD
 
 	power_supply_unregister(collie_bat_bu.psy);
 	power_supply_unregister(collie_bat_main.psy);
 
+=======
+	power_supply_unregister(collie_bat_bu.psy);
+	power_supply_unregister(collie_bat_main.psy);
+
+	/* These are obtained from the machine */
+	gpiod_put(collie_bat_main.gpio_full);
+	gpiod_put(collie_mbat_low);
+	gpiod_put(collie_bat_main.gpio_charge_on);
+	/* These are directly from the UCB so let's free them */
+	gpiochip_free_own_desc(collie_bat_main.gpio_bat);
+	gpiochip_free_own_desc(collie_bat_main.gpio_temp);
+	gpiochip_free_own_desc(collie_bat_bu.gpio_bat);
+>>>>>>> upstream/android-13
 	/*
 	 * Now cancel the bat_work.  We won't get any more schedules,
 	 * since all sources (isr and external_power_changed) are
 	 * unregistered now.
 	 */
 	cancel_work_sync(&bat_work);
+<<<<<<< HEAD
 	gpio_free_array(collie_batt_gpios, ARRAY_SIZE(collie_batt_gpios));
+=======
+>>>>>>> upstream/android-13
 }
 
 static struct ucb1x00_driver collie_bat_driver = {

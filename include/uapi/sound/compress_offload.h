@@ -31,7 +31,11 @@
 #include <sound/compress_params.h>
 
 
+<<<<<<< HEAD
 #define SNDRV_COMPRESS_VERSION SNDRV_PROTOCOL_VERSION(0, 1, 2)
+=======
+#define SNDRV_COMPRESS_VERSION SNDRV_PROTOCOL_VERSION(0, 2, 0)
+>>>>>>> upstream/android-13
 /**
  * struct snd_compressed_buffer - compressed buffer
  * @fragment_size: size of buffer fragment in bytes
@@ -67,7 +71,11 @@ struct snd_compr_params {
  */
 struct snd_compr_tstamp {
 	__u32 byte_offset;
+<<<<<<< HEAD
 	__u64 copied_total;
+=======
+	__u32 copied_total;
+>>>>>>> upstream/android-13
 	__u32 pcm_frames;
 	__u32 pcm_io_frames;
 	__u32 sampling_rate;
@@ -123,6 +131,7 @@ struct snd_compr_codec_caps {
 } __attribute__((packed, aligned(4)));
 
 /**
+<<<<<<< HEAD
  * struct snd_compr_audio_info: compressed input audio information
  * @frame_size: legth of the encoded frame with valid data
  * @reserved: reserved for furture use
@@ -135,6 +144,8 @@ struct snd_compr_audio_info {
 #define SND_COMPR_AUDIO_INFO
 
 /**
+=======
+>>>>>>> upstream/android-13
  * enum sndrv_compress_encoder
  * @SNDRV_COMPRESS_ENCODER_PADDING: no of samples appended by the encoder at the
  * end of the track
@@ -156,7 +167,11 @@ struct snd_compr_metadata {
 	 __u32 value[8];
 } __attribute__((packed, aligned(4)));
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * compress path ioctl definitions
  * SNDRV_COMPRESS_GET_CAPS: Query capability of DSP
  * SNDRV_COMPRESS_GET_CODEC_CAPS: Query capability of a codec
@@ -172,8 +187,11 @@ struct snd_compr_metadata {
  * SNDRV_COMPRESS_STOP: stop a running stream, discarding ring buffer content
  * and the buffers currently with DSP
  * SNDRV_COMPRESS_DRAIN: Play till end of buffers and stop after that
+<<<<<<< HEAD
  * SNDRV_COMPRESS_SET_NEXT_TRACK_PARAM: send codec specific data for the next
  * track in gapless
+=======
+>>>>>>> upstream/android-13
  * SNDRV_COMPRESS_IOCTL_VERSION: Query the API version
  */
 #define SNDRV_COMPRESS_IOCTL_VERSION	_IOR('C', 0x00, int)
@@ -195,8 +213,11 @@ struct snd_compr_metadata {
 #define SNDRV_COMPRESS_DRAIN		_IO('C', 0x34)
 #define SNDRV_COMPRESS_NEXT_TRACK	_IO('C', 0x35)
 #define SNDRV_COMPRESS_PARTIAL_DRAIN	_IO('C', 0x36)
+<<<<<<< HEAD
 #define SNDRV_COMPRESS_SET_NEXT_TRACK_PARAM\
 					_IOW('C', 0x80, union snd_codec_options)
+=======
+>>>>>>> upstream/android-13
 /*
  * TODO
  * 1. add mmap support

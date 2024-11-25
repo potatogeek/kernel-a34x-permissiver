@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2001 - 2007 Jeff Dike (jdike@{addtoit,linux.intel}.com)
  * Copyright (C) 2013 Richard Weinberger <richrd@nod.at>
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2001 - 2007 Jeff Dike (jdike@{addtoit,linux.intel}.com)
+ * Copyright (C) 2013 Richard Weinberger <richrd@nod.at>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kallsyms.h>
@@ -20,7 +27,13 @@
 
 static void _print_addr(void *data, unsigned long address, int reliable)
 {
+<<<<<<< HEAD
 	pr_info(" [<%08lx>] %s%pF\n", address, reliable ? "" : "? ",
+=======
+	const char *loglvl = data;
+
+	printk("%s [<%08lx>] %s%pS\n", loglvl, address, reliable ? "" : "? ",
+>>>>>>> upstream/android-13
 		(void *)address);
 }
 
@@ -28,9 +41,15 @@ static const struct stacktrace_ops stackops = {
 	.address = _print_addr
 };
 
+<<<<<<< HEAD
 void show_stack(struct task_struct *task, unsigned long *stack)
 {
 	unsigned long *sp = stack;
+=======
+void show_stack(struct task_struct *task, unsigned long *stack,
+		       const char *loglvl)
+{
+>>>>>>> upstream/android-13
 	struct pt_regs *segv_regs = current->thread.segv_regs;
 	int i;
 
@@ -41,10 +60,16 @@ void show_stack(struct task_struct *task, unsigned long *stack)
 	}
 
 	if (!stack)
+<<<<<<< HEAD
 		sp = get_stack_pointer(task, segv_regs);
 
 	pr_info("Stack:\n");
 	stack = sp;
+=======
+		stack = get_stack_pointer(task, segv_regs);
+
+	printk("%sStack:\n", loglvl);
+>>>>>>> upstream/android-13
 	for (i = 0; i < 3 * STACKSLOTS_PER_LINE; i++) {
 		if (kstack_end(stack))
 			break;
@@ -52,9 +77,15 @@ void show_stack(struct task_struct *task, unsigned long *stack)
 			pr_cont("\n");
 		pr_cont(" %08lx", *stack++);
 	}
+<<<<<<< HEAD
 	pr_cont("\n");
 
 	pr_info("Call Trace:\n");
 	dump_trace(current, &stackops, NULL);
 	pr_info("\n");
+=======
+
+	printk("%sCall Trace:\n", loglvl);
+	dump_trace(current, &stackops, (void *)loglvl);
+>>>>>>> upstream/android-13
 }

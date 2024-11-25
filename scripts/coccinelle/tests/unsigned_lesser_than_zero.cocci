@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /// Unsigned expressions cannot be lesser than zero. Presence of
 /// comparisons 'unsigned (<|<=|>|>=) 0' often indicates a bug,
 /// usually wrong type of variable.
@@ -11,7 +15,11 @@
 ///   result is used to avoid false positives difficult to detect by other ways
 ///
 // Confidence: Average
+<<<<<<< HEAD
 // Copyright: (C) 2015 Andrzej Hajda, Samsung Electronics Co., Ltd. GPLv2.
+=======
+// Copyright: (C) 2015 Andrzej Hajda, Samsung Electronics Co., Ltd.
+>>>>>>> upstream/android-13
 // URL: http://coccinelle.lip6.fr/
 // Options: --all-includes
 

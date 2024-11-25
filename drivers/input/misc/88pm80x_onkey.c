@@ -77,7 +77,10 @@ static int pm80x_onkey_probe(struct platform_device *pdev)
 
 	info->irq = platform_get_irq(pdev, 0);
 	if (info->irq < 0) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "No IRQ resource!\n");
+=======
+>>>>>>> upstream/android-13
 		err = -EINVAL;
 		goto out;
 	}

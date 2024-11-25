@@ -25,6 +25,7 @@
 #include <linux/of_gpio.h>
 #include <linux/slab.h>
 
+<<<<<<< HEAD
 #ifdef CONFIG_SHUB_TEST_FOR_ONLY_UML
 #define CALIBRATION_FILE_PATH "baro_delta.txt"
 #define SW_OFFSET_FILE_PATH "baro_sw_offset.txt"
@@ -32,11 +33,18 @@
 #define CALIBRATION_FILE_PATH "/efs/FactoryApp/baro_delta"
 #define SW_OFFSET_FILE_PATH "/efs/FactoryApp/baro_sw_offset"
 #endif
+=======
+#define CALIBRATION_FILE_PATH "/efs/FactoryApp/baro_delta"
+#define SW_OFFSET_FILE_PATH "/efs/FactoryApp/baro_sw_offset"
+>>>>>>> upstream/android-13
 
 get_init_chipset_funcs_ptr get_pressure_funcs_ary[] = {
 	get_pressure_bmp580_function_pointer,
 	get_pressure_lps22hh_function_pointer,
+<<<<<<< HEAD
 	get_pressure_lps22df_function_pointer,
+=======
+>>>>>>> upstream/android-13
 };
 
 static get_init_chipset_funcs_ptr *get_pressure_init_chipset_funcs(int *len)
@@ -154,6 +162,11 @@ static void report_pressure_event(void)
 	struct pressure_event *sensor_value = (struct pressure_event *)(event->value);
 	struct pressure_data *data = sensor->data;
 
+<<<<<<< HEAD
+=======
+	shub_infof("%d %d %d", sensor_value->pressure, data->sw_offset,  data->convert_coef);
+
+>>>>>>> upstream/android-13
 	sensor_value->pressure -= data->sw_offset * data->convert_coef / 100;
 #endif
 }
@@ -161,6 +174,7 @@ static void report_pressure_event(void)
 void print_pressure_debug(void)
 {
 	struct shub_sensor *sensor = get_sensor(SENSOR_TYPE_PRESSURE);
+<<<<<<< HEAD
 	struct sensor_event *event = &(sensor->last_event_buffer);
 	struct pressure_event *sensor_value = (struct pressure_event *)(event->value);
 	struct pressure_data *data = sensor->data;
@@ -168,6 +182,15 @@ void print_pressure_debug(void)
 	shub_info("%s(%u) : %d, %d, %d, %d, %d (%lld) (%ums, %dms)", sensor->name, SENSOR_TYPE_PRESSURE,
 		  sensor_value->pressure, sensor_value->temperature, sensor_value->pressure_cal, data->sw_offset,
 		  data->convert_coef, event->timestamp, sensor->sampling_period, sensor->max_report_latency);
+=======
+	struct sensor_event *event = &(sensor->event_buffer);
+	struct pressure_event *sensor_value = (struct pressure_event *)(event->value);
+	struct pressure_data *data = sensor->data;
+
+	shub_info("%s(%u) : %d, %d, %d, %d (%lld) (%ums, %dms)", sensor->name, SENSOR_TYPE_PRESSURE,
+		  sensor_value->pressure, sensor_value->temperature, sensor_value->pressure_cal, data->sw_offset,
+		  event->timestamp, sensor->sampling_period, sensor->max_report_latency);
+>>>>>>> upstream/android-13
 }
 
 static int open_pressure_files(void)
@@ -198,6 +221,7 @@ static int disable_pressure_sensor(void)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct sensor_funcs pressure_sensor_funcs = {
 	.enable = enable_pressure_sensor,
 	.disable = disable_pressure_sensor,
@@ -213,12 +237,17 @@ static struct pressure_data pressure_data;
 int init_pressure(bool en)
 {
 	int ret = 0;
+=======
+int init_pressure(bool en)
+{
+>>>>>>> upstream/android-13
 	struct shub_sensor *sensor = get_sensor(SENSOR_TYPE_PRESSURE);
 
 	if (!sensor)
 		return 0;
 
 	if (en) {
+<<<<<<< HEAD
 		ret = init_default_func(sensor, "pressure_sensor", 6, 14, sizeof(struct pressure_event));
 		sensor->report_mode_continuous = true;
 		sensor->data = (void *)&pressure_data;
@@ -228,4 +257,47 @@ int init_pressure(bool en)
 	}
 
 	return ret;
+=======
+		strcpy(sensor->name, "pressure_sensor");
+		sensor->report_mode_continuous = true;
+		sensor->receive_event_size = 6;
+		sensor->report_event_size = 14;
+		sensor->event_buffer.value = kzalloc(sizeof(struct pressure_event), GFP_KERNEL);
+		if (!sensor->event_buffer.value)
+			goto err_no_mem;
+
+		sensor->funcs = kzalloc(sizeof(struct sensor_funcs), GFP_KERNEL);
+		if (!sensor->funcs)
+			goto err_no_mem;
+
+		sensor->data = kzalloc(sizeof(struct pressure_data), GFP_KERNEL);
+		if (!sensor->data)
+			goto err_no_mem;
+
+		sensor->funcs->enable = enable_pressure_sensor;
+		sensor->funcs->disable = disable_pressure_sensor;
+		sensor->funcs->print_debug = print_pressure_debug;
+		sensor->funcs->open_calibration_file = open_pressure_files;
+		sensor->funcs->report_event = report_pressure_event;
+		sensor->funcs->parse_dt = parse_dt_pressure;
+		sensor->funcs->get_init_chipset_funcs = get_pressure_init_chipset_funcs;
+
+	} else {
+		kfree(sensor->funcs);
+		sensor->funcs = NULL;
+
+		kfree(sensor->event_buffer.value);
+		sensor->event_buffer.value = NULL;
+	}
+	return 0;
+
+err_no_mem:
+	kfree(sensor->event_buffer.value);
+	sensor->event_buffer.value = NULL;
+
+	kfree(sensor->funcs);
+	sensor->funcs = NULL;
+
+	return -ENOMEM;
+>>>>>>> upstream/android-13
 }

@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+<<<<<<< HEAD
 /*
  * Copyright (C) 2018 Netronome Systems, Inc.
  *
@@ -34,6 +35,9 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+=======
+/* Copyright (C) 2018 Netronome Systems, Inc. */
+>>>>>>> upstream/android-13
 
 #define _GNU_SOURCE
 #include <stdarg.h>
@@ -41,6 +45,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
+<<<<<<< HEAD
+=======
+#include <bpf/libbpf.h>
+>>>>>>> upstream/android-13
 
 #include "disasm.h"
 #include "json_writer.h"
@@ -64,9 +72,13 @@ void kernel_syms_load(struct dump_data *dd)
 	if (!fp)
 		return;
 
+<<<<<<< HEAD
 	while (!feof(fp)) {
 		if (!fgets(buff, sizeof(buff), fp))
 			break;
+=======
+	while (fgets(buff, sizeof(buff), fp)) {
+>>>>>>> upstream/android-13
 		tmp = reallocarray(dd->sym_mapping, dd->sym_count + 1,
 				   sizeof(*dd->sym_mapping));
 		if (!tmp) {
@@ -114,7 +126,11 @@ struct kernel_sym *kernel_syms_search(struct dump_data *dd,
 		       sizeof(*dd->sym_mapping), kernel_syms_cmp) : NULL;
 }
 
+<<<<<<< HEAD
 static void print_insn(void *private_data, const char *fmt, ...)
+=======
+static void __printf(2, 3) print_insn(void *private_data, const char *fmt, ...)
+>>>>>>> upstream/android-13
 {
 	va_list args;
 
@@ -123,7 +139,11 @@ static void print_insn(void *private_data, const char *fmt, ...)
 	va_end(args);
 }
 
+<<<<<<< HEAD
 static void
+=======
+static void __printf(2, 3)
+>>>>>>> upstream/android-13
 print_insn_for_graph(void *private_data, const char *fmt, ...)
 {
 	char buf[64], *p;
@@ -154,7 +174,12 @@ print_insn_for_graph(void *private_data, const char *fmt, ...)
 	printf("%s", buf);
 }
 
+<<<<<<< HEAD
 static void print_insn_json(void *private_data, const char *fmt, ...)
+=======
+static void __printf(2, 3)
+print_insn_json(void *private_data, const char *fmt, ...)
+>>>>>>> upstream/android-13
 {
 	unsigned int l = strlen(fmt);
 	char chomped_fmt[l];
@@ -208,7 +233,11 @@ static const char *print_call(void *private_data,
 	struct kernel_sym *sym;
 
 	if (insn->src_reg == BPF_PSEUDO_CALL &&
+<<<<<<< HEAD
 	    (__u32) insn->imm < dd->nr_jited_ksyms)
+=======
+	    (__u32) insn->imm < dd->nr_jited_ksyms && dd->jited_ksyms)
+>>>>>>> upstream/android-13
 		address = dd->jited_ksyms[insn->imm];
 
 	sym = kernel_syms_search(dd, address);
@@ -227,6 +256,18 @@ static const char *print_imm(void *private_data,
 	if (insn->src_reg == BPF_PSEUDO_MAP_FD)
 		snprintf(dd->scratch_buff, sizeof(dd->scratch_buff),
 			 "map[id:%u]", insn->imm);
+<<<<<<< HEAD
+=======
+	else if (insn->src_reg == BPF_PSEUDO_MAP_VALUE)
+		snprintf(dd->scratch_buff, sizeof(dd->scratch_buff),
+			 "map[id:%u][0]+%u", insn->imm, (insn + 1)->imm);
+	else if (insn->src_reg == BPF_PSEUDO_MAP_IDX_VALUE)
+		snprintf(dd->scratch_buff, sizeof(dd->scratch_buff),
+			 "map[idx:%u]+%u", insn->imm, (insn + 1)->imm);
+	else if (insn->src_reg == BPF_PSEUDO_FUNC)
+		snprintf(dd->scratch_buff, sizeof(dd->scratch_buff),
+			 "subprog[%+d]", insn->imm);
+>>>>>>> upstream/android-13
 	else
 		snprintf(dd->scratch_buff, sizeof(dd->scratch_buff),
 			 "0x%llx", (unsigned long long)full_imm);
@@ -234,19 +275,38 @@ static const char *print_imm(void *private_data,
 }
 
 void dump_xlated_json(struct dump_data *dd, void *buf, unsigned int len,
+<<<<<<< HEAD
 		      bool opcodes)
 {
+=======
+		      bool opcodes, bool linum)
+{
+	const struct bpf_prog_linfo *prog_linfo = dd->prog_linfo;
+>>>>>>> upstream/android-13
 	const struct bpf_insn_cbs cbs = {
 		.cb_print	= print_insn_json,
 		.cb_call	= print_call,
 		.cb_imm		= print_imm,
 		.private_data	= dd,
 	};
+<<<<<<< HEAD
 	struct bpf_insn *insn = buf;
 	bool double_insn = false;
 	unsigned int i;
 
 	jsonw_start_array(json_wtr);
+=======
+	struct bpf_func_info *record;
+	struct bpf_insn *insn = buf;
+	struct btf *btf = dd->btf;
+	bool double_insn = false;
+	unsigned int nr_skip = 0;
+	char func_sig[1024];
+	unsigned int i;
+
+	jsonw_start_array(json_wtr);
+	record = dd->func_info;
+>>>>>>> upstream/android-13
 	for (i = 0; i < len / sizeof(*insn); i++) {
 		if (double_insn) {
 			double_insn = false;
@@ -255,6 +315,33 @@ void dump_xlated_json(struct dump_data *dd, void *buf, unsigned int len,
 		double_insn = insn[i].code == (BPF_LD | BPF_IMM | BPF_DW);
 
 		jsonw_start_object(json_wtr);
+<<<<<<< HEAD
+=======
+
+		if (btf && record) {
+			if (record->insn_off == i) {
+				btf_dumper_type_only(btf, record->type_id,
+						     func_sig,
+						     sizeof(func_sig));
+				if (func_sig[0] != '\0') {
+					jsonw_name(json_wtr, "proto");
+					jsonw_string(json_wtr, func_sig);
+				}
+				record = (void *)record + dd->finfo_rec_size;
+			}
+		}
+
+		if (prog_linfo) {
+			const struct bpf_line_info *linfo;
+
+			linfo = bpf_prog_linfo__lfind(prog_linfo, i, nr_skip);
+			if (linfo) {
+				btf_dump_linfo_json(btf, linfo, linum);
+				nr_skip++;
+			}
+		}
+
+>>>>>>> upstream/android-13
 		jsonw_name(json_wtr, "disasm");
 		print_bpf_insn(&cbs, insn + i, true);
 
@@ -289,24 +376,67 @@ void dump_xlated_json(struct dump_data *dd, void *buf, unsigned int len,
 }
 
 void dump_xlated_plain(struct dump_data *dd, void *buf, unsigned int len,
+<<<<<<< HEAD
 		       bool opcodes)
 {
+=======
+		       bool opcodes, bool linum)
+{
+	const struct bpf_prog_linfo *prog_linfo = dd->prog_linfo;
+>>>>>>> upstream/android-13
 	const struct bpf_insn_cbs cbs = {
 		.cb_print	= print_insn,
 		.cb_call	= print_call,
 		.cb_imm		= print_imm,
 		.private_data	= dd,
 	};
+<<<<<<< HEAD
 	struct bpf_insn *insn = buf;
 	bool double_insn = false;
 	unsigned int i;
 
+=======
+	struct bpf_func_info *record;
+	struct bpf_insn *insn = buf;
+	struct btf *btf = dd->btf;
+	unsigned int nr_skip = 0;
+	bool double_insn = false;
+	char func_sig[1024];
+	unsigned int i;
+
+	record = dd->func_info;
+>>>>>>> upstream/android-13
 	for (i = 0; i < len / sizeof(*insn); i++) {
 		if (double_insn) {
 			double_insn = false;
 			continue;
 		}
 
+<<<<<<< HEAD
+=======
+		if (btf && record) {
+			if (record->insn_off == i) {
+				btf_dumper_type_only(btf, record->type_id,
+						     func_sig,
+						     sizeof(func_sig));
+				if (func_sig[0] != '\0')
+					printf("%s:\n", func_sig);
+				record = (void *)record + dd->finfo_rec_size;
+			}
+		}
+
+		if (prog_linfo) {
+			const struct bpf_line_info *linfo;
+
+			linfo = bpf_prog_linfo__lfind(prog_linfo, i, nr_skip);
+			if (linfo) {
+				btf_dump_linfo_plain(btf, linfo, "; ",
+						     linum);
+				nr_skip++;
+			}
+		}
+
+>>>>>>> upstream/android-13
 		double_insn = insn[i].code == (BPF_LD | BPF_IMM | BPF_DW);
 
 		printf("% 4d: ", i);

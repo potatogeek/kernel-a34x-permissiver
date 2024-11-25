@@ -62,6 +62,7 @@ void lmcEventLog(u32 EventNum, u32 arg2, u32 arg3)
 }
 #endif  /*  DEBUG  */
 
+<<<<<<< HEAD
 void lmc_trace(struct net_device *dev, char *msg){
 #ifdef LMC_TRACE
     unsigned long j = jiffies + 3; /* Wait for 50 ms */
@@ -80,4 +81,6 @@ void lmc_trace(struct net_device *dev, char *msg){
 }
 
 
+=======
+>>>>>>> upstream/android-13
 /* --------------------------- end if_lmc_linux.c ------------------------ */

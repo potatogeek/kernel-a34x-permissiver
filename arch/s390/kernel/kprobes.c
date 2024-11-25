@@ -7,6 +7,10 @@
  * s390 port, used ppc64 as template. Mike Grundy <grundym@us.ibm.com>
  */
 
+<<<<<<< HEAD
+=======
+#include <linux/moduleloader.h>
+>>>>>>> upstream/android-13
 #include <linux/kprobes.h>
 #include <linux/ptrace.h>
 #include <linux/preempt.h>
@@ -21,12 +25,17 @@
 #include <asm/set_memory.h>
 #include <asm/sections.h>
 #include <asm/dis.h>
+<<<<<<< HEAD
+=======
+#include "entry.h"
+>>>>>>> upstream/android-13
 
 DEFINE_PER_CPU(struct kprobe *, current_kprobe);
 DEFINE_PER_CPU(struct kprobe_ctlblk, kprobe_ctlblk);
 
 struct kretprobe_blackpoint kretprobe_blacklist[] = { };
 
+<<<<<<< HEAD
 DEFINE_INSN_CACHE_OPS(dmainsn);
 
 static void *alloc_dmainsn_page(void)
@@ -50,11 +59,46 @@ struct kprobe_insn_cache kprobe_dmainsn_slots = {
 	.alloc = alloc_dmainsn_page,
 	.free = free_dmainsn_page,
 	.pages = LIST_HEAD_INIT(kprobe_dmainsn_slots.pages),
+=======
+DEFINE_INSN_CACHE_OPS(s390_insn);
+
+static int insn_page_in_use;
+
+void *alloc_insn_page(void)
+{
+	void *page;
+
+	page = module_alloc(PAGE_SIZE);
+	if (!page)
+		return NULL;
+	__set_memory((unsigned long) page, 1, SET_MEMORY_RO | SET_MEMORY_X);
+	return page;
+}
+
+static void *alloc_s390_insn_page(void)
+{
+	if (xchg(&insn_page_in_use, 1) == 1)
+		return NULL;
+	return &kprobes_insn_page;
+}
+
+static void free_s390_insn_page(void *page)
+{
+	xchg(&insn_page_in_use, 0);
+}
+
+struct kprobe_insn_cache kprobe_s390_insn_slots = {
+	.mutex = __MUTEX_INITIALIZER(kprobe_s390_insn_slots.mutex),
+	.alloc = alloc_s390_insn_page,
+	.free = free_s390_insn_page,
+	.pages = LIST_HEAD_INIT(kprobe_s390_insn_slots.pages),
+>>>>>>> upstream/android-13
 	.insn_size = MAX_INSN_SIZE,
 };
 
 static void copy_instruction(struct kprobe *p)
 {
+<<<<<<< HEAD
 	unsigned long ip = (unsigned long) p->addr;
 	s64 disp, new_disp;
 	u64 addr, new_addr;
@@ -93,6 +137,34 @@ static inline int is_kernel_addr(void *addr)
 	return addr < (void *)_end;
 }
 
+=======
+	kprobe_opcode_t insn[MAX_INSN_SIZE];
+	s64 disp, new_disp;
+	u64 addr, new_addr;
+	unsigned int len;
+
+	len = insn_length(*p->addr >> 8);
+	memcpy(&insn, p->addr, len);
+	p->opcode = insn[0];
+	if (probe_is_insn_relative_long(&insn[0])) {
+		/*
+		 * For pc-relative instructions in RIL-b or RIL-c format patch
+		 * the RI2 displacement field. We have already made sure that
+		 * the insn slot for the patched instruction is within the same
+		 * 2GB area as the original instruction (either kernel image or
+		 * module area). Therefore the new displacement will always fit.
+		 */
+		disp = *(s32 *)&insn[1];
+		addr = (u64)(unsigned long)p->addr;
+		new_addr = (u64)(unsigned long)p->ainsn.insn;
+		new_disp = ((addr + (disp * 2)) - new_addr) / 2;
+		*(s32 *)&insn[1] = new_disp;
+	}
+	s390_kernel_write(p->ainsn.insn, &insn, len);
+}
+NOKPROBE_SYMBOL(copy_instruction);
+
+>>>>>>> upstream/android-13
 static int s390_get_insn_slot(struct kprobe *p)
 {
 	/*
@@ -101,8 +173,13 @@ static int s390_get_insn_slot(struct kprobe *p)
 	 * field can be patched and executed within the insn slot.
 	 */
 	p->ainsn.insn = NULL;
+<<<<<<< HEAD
 	if (is_kernel_addr(p->addr))
 		p->ainsn.insn = get_dmainsn_slot();
+=======
+	if (is_kernel((unsigned long)p->addr))
+		p->ainsn.insn = get_s390_insn_slot();
+>>>>>>> upstream/android-13
 	else if (is_module_addr(p->addr))
 		p->ainsn.insn = get_insn_slot();
 	return p->ainsn.insn ? 0 : -ENOMEM;
@@ -113,8 +190,13 @@ static void s390_free_insn_slot(struct kprobe *p)
 {
 	if (!p->ainsn.insn)
 		return;
+<<<<<<< HEAD
 	if (is_kernel_addr(p->addr))
 		free_dmainsn_slot(p->ainsn.insn, 0);
+=======
+	if (is_kernel((unsigned long)p->addr))
+		free_s390_insn_slot(p->ainsn.insn, 0);
+>>>>>>> upstream/android-13
 	else
 		free_insn_slot(p->ainsn.insn, 0);
 	p->ainsn.insn = NULL;
@@ -135,11 +217,14 @@ int arch_prepare_kprobe(struct kprobe *p)
 }
 NOKPROBE_SYMBOL(arch_prepare_kprobe);
 
+<<<<<<< HEAD
 int arch_check_ftrace_location(struct kprobe *p)
 {
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 struct swap_insn_args {
 	struct kprobe *p;
 	unsigned int arm_kprobe : 1;
@@ -148,6 +233,7 @@ struct swap_insn_args {
 static int swap_instruction(void *data)
 {
 	struct swap_insn_args *args = data;
+<<<<<<< HEAD
 	struct ftrace_insn new_insn, *insn;
 	struct kprobe *p = args->p;
 	size_t len;
@@ -170,6 +256,13 @@ static int swap_instruction(void *data)
 	}
 skip_ftrace:
 	s390_kernel_write(p->addr, &new_insn, len);
+=======
+	struct kprobe *p = args->p;
+	u16 opc;
+
+	opc = args->arm_kprobe ? BREAKPOINT_INSTRUCTION : p->opcode;
+	s390_kernel_write(p->addr, &opc, sizeof(opc));
+>>>>>>> upstream/android-13
 	return 0;
 }
 NOKPROBE_SYMBOL(swap_instruction);
@@ -260,6 +353,10 @@ NOKPROBE_SYMBOL(pop_kprobe);
 void arch_prepare_kretprobe(struct kretprobe_instance *ri, struct pt_regs *regs)
 {
 	ri->ret_addr = (kprobe_opcode_t *) regs->gprs[14];
+<<<<<<< HEAD
+=======
+	ri->fp = NULL;
+>>>>>>> upstream/android-13
 
 	/* Replace the return addr with trampoline addr */
 	regs->gprs[14] = (unsigned long) &kretprobe_trampoline;
@@ -363,6 +460,7 @@ static void __used kretprobe_trampoline_holder(void)
  */
 static int trampoline_probe_handler(struct kprobe *p, struct pt_regs *regs)
 {
+<<<<<<< HEAD
 	struct kretprobe_instance *ri;
 	struct hlist_head *head, empty_rp;
 	struct hlist_node *tmp;
@@ -440,6 +538,9 @@ static int trampoline_probe_handler(struct kprobe *p, struct pt_regs *regs)
 		hlist_del(&ri->hlist);
 		kfree(ri);
 	}
+=======
+	regs->psw.addr = __kretprobe_trampoline_handler(regs, &kretprobe_trampoline, NULL);
+>>>>>>> upstream/android-13
 	/*
 	 * By returning a non-zero value, we are telling
 	 * kprobe_handler() that we don't want the post_handler
@@ -463,6 +564,7 @@ static void resume_execution(struct kprobe *p, struct pt_regs *regs)
 	unsigned long ip = regs->psw.addr;
 	int fixup = probe_get_fixup_type(p->ainsn.insn);
 
+<<<<<<< HEAD
 	/* Check if the kprobes location is an enabled ftrace caller */
 	if (p->ainsn.is_ftrace_insn) {
 		struct ftrace_insn *insn = (struct ftrace_insn *) p->addr;
@@ -481,6 +583,8 @@ static void resume_execution(struct kprobe *p, struct pt_regs *regs)
 		}
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (fixup & FIXUP_PSW_NORMAL)
 		ip += (unsigned long) p->addr - (unsigned long) p->ainsn.insn;
 
@@ -552,6 +656,7 @@ static int kprobe_trap_handler(struct pt_regs *regs, int trapnr)
 	case KPROBE_HIT_ACTIVE:
 	case KPROBE_HIT_SSDONE:
 		/*
+<<<<<<< HEAD
 		 * We increment the nmissed count for accounting,
 		 * we can also use npre/npostfault count for accounting
 		 * these specific fault cases.
@@ -577,6 +682,14 @@ static int kprobe_trap_handler(struct pt_regs *regs, int trapnr)
 			regs->psw.addr = extable_fixup(entry);
 			return 1;
 		}
+=======
+		 * In case the user-specified fault handler returned
+		 * zero, try to fix up.
+		 */
+		entry = s390_search_extables(regs->psw.addr);
+		if (entry && ex_handle(entry, regs))
+			return 1;
+>>>>>>> upstream/android-13
 
 		/*
 		 * fixup_exception() could not handle it,

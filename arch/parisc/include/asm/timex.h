@@ -7,6 +7,10 @@
 #ifndef _ASMPARISC_TIMEX_H
 #define _ASMPARISC_TIMEX_H
 
+<<<<<<< HEAD
+=======
+#include <asm/special_insns.h>
+>>>>>>> upstream/android-13
 
 #define CLOCK_TICK_RATE	1193180 /* Underlying HZ */
 

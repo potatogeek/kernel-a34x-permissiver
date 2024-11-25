@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Interface the pinmux subsystem
  *
@@ -6,8 +10,11 @@
  * Based on bits of regulator core, gpio core and clk core
  *
  * Author: Linus Walleij <linus.walleij@linaro.org>
+<<<<<<< HEAD
  *
  * License terms: GNU General Public License (GPL) version 2
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __LINUX_PINCTRL_PINMUX_H
 #define __LINUX_PINCTRL_PINMUX_H
@@ -16,8 +23,11 @@
 #include <linux/seq_file.h>
 #include <linux/pinctrl/pinctrl.h>
 
+<<<<<<< HEAD
 #ifdef CONFIG_PINMUX
 
+=======
+>>>>>>> upstream/android-13
 struct pinctrl_dev;
 
 /**
@@ -85,6 +95,9 @@ struct pinmux_ops {
 	bool strict;
 };
 
+<<<<<<< HEAD
 #endif /* CONFIG_PINMUX */
 
+=======
+>>>>>>> upstream/android-13
 #endif /* __LINUX_PINCTRL_PINMUX_H */

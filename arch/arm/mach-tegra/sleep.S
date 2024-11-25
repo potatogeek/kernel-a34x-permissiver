@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * arch/arm/mach-tegra/sleep.S
  *
@@ -6,6 +10,7 @@
  *
  * Author: Colin Cross <ccross@android.com>
  *         Gary King <gking@nvidia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +25,8 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
@@ -49,8 +56,14 @@ ENTRY(tegra_disable_clean_inv_dcache)
 
 	/* Disable the D-cache */
 	mrc	p15, 0, r2, c1, c0, 0
+<<<<<<< HEAD
 	bic	r2, r2, #CR_C
 	mcr	p15, 0, r2, c1, c0, 0
+=======
+	tst	r2, #CR_C			@ see tegra_sleep_cpu()
+	bic	r2, r2, #CR_C
+	mcrne	p15, 0, r2, c1, c0, 0
+>>>>>>> upstream/android-13
 	isb
 
 	/* Flush the D-cache */
@@ -132,10 +145,20 @@ ENTRY(tegra_shut_off_mmu)
 #ifdef CONFIG_CACHE_L2X0
 	/* Disable L2 cache */
 	check_cpu_part_num 0xc09, r9, r10
+<<<<<<< HEAD
 	movweq	r2, #:lower16:(TEGRA_ARM_PERIF_BASE + 0x3000)
 	movteq	r2, #:upper16:(TEGRA_ARM_PERIF_BASE + 0x3000)
 	moveq	r3, #0
 	streq	r3, [r2, #L2X0_CTRL]
+=======
+	retne	r0
+
+	mov32	r2, TEGRA_ARM_PERIF_BASE + 0x3000
+	ldr	r3, [r2, #L2X0_CTRL]
+	tst	r3, #L2X0_CTRL_EN		@ see tegra_sleep_cpu()
+	mov	r3, #0
+	strne	r3, [r2, #L2X0_CTRL]
+>>>>>>> upstream/android-13
 #endif
 	ret	r0
 ENDPROC(tegra_shut_off_mmu)

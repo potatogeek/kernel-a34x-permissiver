@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /******************************************************************************
  *
  * Copyright(c) 2007 - 2010 Realtek Corporation. All rights reserved.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -15,6 +20,8 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
  *
+=======
+>>>>>>> upstream/android-13
  * Modifications for inclusion into the Linux staging tree are
  * Copyright(c) 2010 Larry Finger. All rights reserved.
  *
@@ -49,16 +56,29 @@ struct xmit_buf;
 int r8712_xmit_entry(_pkt *pkt, struct  net_device *pnetdev);
 void r8712_SetFilter(struct work_struct *work);
 int r8712_xmit_resource_alloc(struct _adapter *padapter,
+<<<<<<< HEAD
 			   struct xmit_buf *pxmitbuf);
 void r8712_xmit_resource_free(struct _adapter *padapter,
 			   struct xmit_buf *pxmitbuf);
 
 void r8712_set_qos(struct pkt_file *ppktfile,
 		    struct pkt_attrib *pattrib);
+=======
+			      struct xmit_buf *pxmitbuf);
+void r8712_xmit_resource_free(struct _adapter *padapter,
+			      struct xmit_buf *pxmitbuf);
+
+void r8712_set_qos(struct pkt_file *ppktfile,
+		   struct pkt_attrib *pattrib);
+>>>>>>> upstream/android-13
 void _r8712_open_pktfile(_pkt *pktptr, struct pkt_file *pfile);
 uint _r8712_pktfile_read(struct pkt_file *pfile, u8 *rmem, uint rlen);
 sint r8712_endofpktfile(struct pkt_file *pfile);
 void r8712_xmit_complete(struct _adapter *padapter,
+<<<<<<< HEAD
 			     struct xmit_frame *pxframe);
+=======
+			 struct xmit_frame *pxframe);
+>>>>>>> upstream/android-13
 
 #endif

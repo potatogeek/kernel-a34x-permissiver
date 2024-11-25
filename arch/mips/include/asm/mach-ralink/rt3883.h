@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Ralink RT3662/RT3883 SoC register definitions
  *
  * Copyright (C) 2011-2012 Gabor Juhos <juhosg@openwrt.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _RT3883_REGS_H_
@@ -112,6 +119,7 @@
 #define RT3883_CLKCFG1_PCI_CLK_EN	BIT(19)
 #define RT3883_CLKCFG1_UPHY0_CLK_EN	BIT(18)
 
+<<<<<<< HEAD
 #define RT3883_GPIO_MODE_UART0_SHIFT	2
 #define RT3883_GPIO_MODE_UART0_MASK	0x7
 #define RT3883_GPIO_MODE_UART0(x)	((x) << RT3883_GPIO_MODE_UART0_SHIFT)
@@ -146,6 +154,8 @@
 #define RT3883_GPIO_MODE_LNA_G_GPIO	0x3
 #define RT3883_GPIO_MODE_LNA_G		_RT3883_GPIO_MODE_LNA_G(RT3883_GPIO_MODE_LNA_G_MASK)
 
+=======
+>>>>>>> upstream/android-13
 #define RT3883_GPIO_I2C_SD		1
 #define RT3883_GPIO_I2C_SCLK		2
 #define RT3883_GPIO_SPI_CS0		3

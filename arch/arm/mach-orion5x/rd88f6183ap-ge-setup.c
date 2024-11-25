@@ -18,7 +18,11 @@
 #include <linux/spi/spi.h>
 #include <linux/spi/flash.h>
 #include <linux/ethtool.h>
+<<<<<<< HEAD
 #include <net/dsa.h>
+=======
+#include <linux/platform_data/dsa.h>
+>>>>>>> upstream/android-13
 #include <asm/mach-types.h>
 #include <asm/mach/arch.h>
 #include <asm/mach/pci.h>

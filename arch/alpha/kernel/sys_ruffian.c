@@ -23,7 +23,10 @@
 #include <asm/irq.h>
 #include <asm/mmu_context.h>
 #include <asm/io.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/core_cia.h>
 #include <asm/tlbflush.h>
 
@@ -82,7 +85,12 @@ ruffian_init_rtc(void)
 	outb(0x31, 0x42);
 	outb(0x13, 0x42);
 
+<<<<<<< HEAD
 	setup_irq(0, &timer_irqaction);
+=======
+	if (request_irq(0, rtc_timer_interrupt, 0, "timer", NULL))
+		pr_err("Failed to request irq 0 (timer)\n");
+>>>>>>> upstream/android-13
 }
 
 static void

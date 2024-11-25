@@ -93,7 +93,12 @@ static irqreturn_t aiodma_irq(int irq, void *p)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int uniphier_aiodma_open(struct snd_pcm_substream *substream)
+=======
+static int uniphier_aiodma_open(struct snd_soc_component *component,
+				struct snd_pcm_substream *substream)
+>>>>>>> upstream/android-13
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 
@@ -103,6 +108,7 @@ static int uniphier_aiodma_open(struct snd_pcm_substream *substream)
 		SNDRV_PCM_HW_PARAM_BUFFER_BYTES, 256);
 }
 
+<<<<<<< HEAD
 static int uniphier_aiodma_hw_params(struct snd_pcm_substream *substream,
 				     struct snd_pcm_hw_params *params)
 {
@@ -125,6 +131,14 @@ static int uniphier_aiodma_prepare(struct snd_pcm_substream *substream)
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct snd_soc_pcm_runtime *rtd = snd_pcm_substream_chip(substream);
 	struct uniphier_aio *aio = uniphier_priv(rtd->cpu_dai);
+=======
+static int uniphier_aiodma_prepare(struct snd_soc_component *component,
+				   struct snd_pcm_substream *substream)
+{
+	struct snd_pcm_runtime *runtime = substream->runtime;
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct uniphier_aio *aio = uniphier_priv(asoc_rtd_to_cpu(rtd, 0));
+>>>>>>> upstream/android-13
 	struct uniphier_aio_sub *sub = &aio->sub[substream->stream];
 	int bytes = runtime->period_size *
 		runtime->channels * samples_to_bytes(runtime, 1);
@@ -146,11 +160,20 @@ static int uniphier_aiodma_prepare(struct snd_pcm_substream *substream)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int uniphier_aiodma_trigger(struct snd_pcm_substream *substream, int cmd)
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct snd_soc_pcm_runtime *rtd = snd_pcm_substream_chip(substream);
 	struct uniphier_aio *aio = uniphier_priv(rtd->cpu_dai);
+=======
+static int uniphier_aiodma_trigger(struct snd_soc_component *component,
+				   struct snd_pcm_substream *substream, int cmd)
+{
+	struct snd_pcm_runtime *runtime = substream->runtime;
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct uniphier_aio *aio = uniphier_priv(asoc_rtd_to_cpu(rtd, 0));
+>>>>>>> upstream/android-13
 	struct uniphier_aio_sub *sub = &aio->sub[substream->stream];
 	struct device *dev = &aio->chip->pdev->dev;
 	int bytes = runtime->period_size *
@@ -181,11 +204,20 @@ static int uniphier_aiodma_trigger(struct snd_pcm_substream *substream, int cmd)
 }
 
 static snd_pcm_uframes_t uniphier_aiodma_pointer(
+<<<<<<< HEAD
 					struct snd_pcm_substream *substream)
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct snd_soc_pcm_runtime *rtd = snd_pcm_substream_chip(substream);
 	struct uniphier_aio *aio = uniphier_priv(rtd->cpu_dai);
+=======
+					struct snd_soc_component *component,
+					struct snd_pcm_substream *substream)
+{
+	struct snd_pcm_runtime *runtime = substream->runtime;
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct uniphier_aio *aio = uniphier_priv(asoc_rtd_to_cpu(rtd, 0));
+>>>>>>> upstream/android-13
 	struct uniphier_aio_sub *sub = &aio->sub[substream->stream];
 	int bytes = runtime->period_size *
 		runtime->channels * samples_to_bytes(runtime, 1);
@@ -204,12 +236,18 @@ static snd_pcm_uframes_t uniphier_aiodma_pointer(
 	return pos;
 }
 
+<<<<<<< HEAD
 static int uniphier_aiodma_mmap(struct snd_pcm_substream *substream,
+=======
+static int uniphier_aiodma_mmap(struct snd_soc_component *component,
+				struct snd_pcm_substream *substream,
+>>>>>>> upstream/android-13
 				struct vm_area_struct *vma)
 {
 	vma->vm_page_prot = pgprot_writecombine(vma->vm_page_prot);
 
 	return remap_pfn_range(vma, vma->vm_start,
+<<<<<<< HEAD
 			       substream->dma_buffer.addr >> PAGE_SHIFT,
 			       vma->vm_end - vma->vm_start, vma->vm_page_prot);
 }
@@ -226,6 +264,14 @@ static const struct snd_pcm_ops uniphier_aiodma_ops = {
 };
 
 static int uniphier_aiodma_new(struct snd_soc_pcm_runtime *rtd)
+=======
+			       substream->runtime->dma_addr >> PAGE_SHIFT,
+			       vma->vm_end - vma->vm_start, vma->vm_page_prot);
+}
+
+static int uniphier_aiodma_new(struct snd_soc_component *component,
+			       struct snd_soc_pcm_runtime *rtd)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = rtd->card->snd_card->dev;
 	struct snd_pcm *pcm = rtd->pcm;
@@ -235,6 +281,7 @@ static int uniphier_aiodma_new(struct snd_soc_pcm_runtime *rtd)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	return snd_pcm_lib_preallocate_pages_for_all(pcm,
 		SNDRV_DMA_TYPE_DEV, dev,
 		uniphier_aiodma_hw.buffer_bytes_max,
@@ -251,6 +298,23 @@ static const struct snd_soc_component_driver uniphier_soc_platform = {
 	.pcm_free  = uniphier_aiodma_free,
 	.ops       = &uniphier_aiodma_ops,
 	.compr_ops = &uniphier_aio_compr_ops,
+=======
+	snd_pcm_set_managed_buffer_all(pcm,
+		SNDRV_DMA_TYPE_DEV, dev,
+		uniphier_aiodma_hw.buffer_bytes_max,
+		uniphier_aiodma_hw.buffer_bytes_max);
+	return 0;
+}
+
+static const struct snd_soc_component_driver uniphier_soc_platform = {
+	.open		= uniphier_aiodma_open,
+	.prepare	= uniphier_aiodma_prepare,
+	.trigger	= uniphier_aiodma_trigger,
+	.pointer	= uniphier_aiodma_pointer,
+	.mmap		= uniphier_aiodma_mmap,
+	.pcm_construct	= uniphier_aiodma_new,
+	.compress_ops	= &uniphier_aio_compress_ops,
+>>>>>>> upstream/android-13
 };
 
 static const struct regmap_config aiodma_regmap_config = {
@@ -275,12 +339,19 @@ int uniphier_aiodma_soc_register_platform(struct platform_device *pdev)
 {
 	struct uniphier_aio_chip *chip = platform_get_drvdata(pdev);
 	struct device *dev = &pdev->dev;
+<<<<<<< HEAD
 	struct resource *res;
 	void __iomem *preg;
 	int irq, ret;
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	preg = devm_ioremap_resource(dev, res);
+=======
+	void __iomem *preg;
+	int irq, ret;
+
+	preg = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(preg))
 		return PTR_ERR(preg);
 
@@ -290,10 +361,15 @@ int uniphier_aiodma_soc_register_platform(struct platform_device *pdev)
 		return PTR_ERR(chip->regmap);
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(dev, "Could not get irq.\n");
 		return irq;
 	}
+=======
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 
 	ret = devm_request_irq(dev, irq, aiodma_irq,
 			       IRQF_SHARED, dev_name(dev), pdev);

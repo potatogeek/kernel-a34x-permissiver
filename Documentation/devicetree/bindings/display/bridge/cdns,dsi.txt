@@ -31,6 +31,7 @@ Required subnodes:
 - one subnode per DSI device connected on the DSI bus. Each DSI device should
   contain a reg property encoding its virtual channel.
 
+<<<<<<< HEAD
 Cadence DPHY
 ============
 
@@ -53,6 +54,9 @@ Example:
 		#phy-cells = <0>;
 	};
 
+=======
+Example:
+>>>>>>> upstream/android-13
 	dsi0: dsi@fd0c0000 {
 		compatible = "cdns,dsi";
 		reg = <0x0 0xfd0c0000 0x0 0x1000>;

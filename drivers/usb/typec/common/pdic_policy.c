@@ -31,11 +31,15 @@
 #if IS_ENABLED(CONFIG_IF_CB_MANAGER)
 #include <linux/usb/typec/manager/if_cb_manager.h>
 #endif
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_BATTERY_NOTIFIER)
 #include <linux/battery/battery_notifier.h>
 #else
 #include <linux/battery/sec_pd.h>
 #endif
+=======
+#include <linux/battery/sec_pd.h>
+>>>>>>> upstream/android-13
 #include <linux/usb_notify.h>
 #include <linux/power_supply.h>
 
@@ -219,7 +223,10 @@ static const char * const pp_msg[] = {
 	[MSG_U255K] = "U255K",
 	[MSG_U523K] = "U523K",
 	[MSG_U619K] = "U619K",
+<<<<<<< HEAD
 	[MSG_FAC_ERR] = "FAC ERROR",
+=======
+>>>>>>> upstream/android-13
 	[MSG_EX_CNT]	= "EXPLICIT CONTRACT",
 	[MSG_KILLER]	= "USB_KILLER",
 	[MSG_DCOVER]	= "DISCOVER ALT DEVICE",
@@ -227,6 +234,7 @@ static const char * const pp_msg[] = {
 	[MSG_DP_DISCONN]	= "DP DISCONNECT",
 	[MSG_DP_LINK_CONF]	= "DP LINK CONFIGURATION",
 	[MSG_DP_HPD]	= "DP HPD",
+<<<<<<< HEAD
 	[MSG_DEVICE_INFO] = "DEVICE INFO",
 	[MSG_SVID_INFO] = "SVID_INFO",
 	[MSG_SELECT_PDO]	= "SELECT_PDO",
@@ -237,6 +245,11 @@ static const char * const pp_msg[] = {
 	[MSG_GET_ACC] = "GET_ACC",
 	[MSG_MUIC_SET_BC12] = "MUIC_SET_BC12",
 	[MSG_SHUTDOWN] = "SHUTDOWN",
+=======
+	[MSG_SELECT_PDO]	= "SELECT_PDO",
+	[MSG_CURRENT_PDO]	= "CURRENT_PDO",
+	[MSG_PD_POWER_STATUS]	= "PD_POWER_STATUS",
+>>>>>>> upstream/android-13
 	[MSG_CCOFF]	= "CC OFF",
 	[MSG_MAX]	= "MSG MAX",
 };
@@ -546,6 +559,7 @@ inline void process_typec_power_role(struct pdic_policy *pp_data, int msg) {}
 
 static void pdic_policy_alt_dev_detach(struct pdic_policy *pp_data)
 {
+<<<<<<< HEAD
 	struct pp_ic_data *ic_data;
 
 	pr_info("%s\n", __func__);
@@ -556,6 +570,8 @@ static void pdic_policy_alt_dev_detach(struct pdic_policy *pp_data)
 		goto err;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (pp_data->acc_type != PDIC_DOCK_DETACHED) {
 		if (pp_data->acc_type != PDIC_DOCK_NEW)
 			pdic_send_dock_intent(PDIC_DOCK_DETACHED);
@@ -563,6 +579,7 @@ static void pdic_policy_alt_dev_detach(struct pdic_policy *pp_data)
 				pp_data->alt_info.product_id,
 				PDIC_DOCK_DETACHED);
 		memset(&pp_data->alt_info, 0, sizeof(struct pdic_alt_info));
+<<<<<<< HEAD
 		pp_data->acc_type = PDIC_DOCK_DETACHED;
 		if (ic_data->p_ops && ic_data->p_ops->alt_info_clear)
 			ic_data->p_ops->alt_info_clear(ic_data->drv_data);
@@ -571,6 +588,9 @@ static void pdic_policy_alt_dev_detach(struct pdic_policy *pp_data)
 	}
 err:
 	return;
+=======
+	}
+>>>>>>> upstream/android-13
 }
 
 static void pdic_policy_dp_detach(struct pdic_policy *pp_data)
@@ -606,11 +626,17 @@ static void pdic_policy_pd_initial(struct pdic_notifier_struct *pd_noti)
 	pd_noti->sink_status.available_pdo_num = 0;
 	pd_noti->sink_status.selected_pdo_num = 0;
 	pd_noti->sink_status.current_pdo_num = 0;
+<<<<<<< HEAD
 #if !IS_ENABLED(CONFIG_BATTERY_NOTIFIER)
 	pd_noti->sink_status.vid = 0;
 	pd_noti->sink_status.pid = 0;
 	pd_noti->sink_status.xid = 0;
 #endif
+=======
+	pd_noti->sink_status.vid = 0;
+	pd_noti->sink_status.pid = 0;
+	pd_noti->sink_status.xid = 0;
+>>>>>>> upstream/android-13
 	pd_noti->sink_status.pps_voltage = 0;
 	pd_noti->sink_status.pps_current = 0;
 	pd_noti->sink_status.rp_currentlvl = RP_CURRENT_LEVEL_NONE;
@@ -678,6 +704,7 @@ static void process_policy_cc_attach(struct pdic_policy *pp_data, int msg)
 		process_typec_power_role(pp_data, PP_SOURCE);
 #endif
 	} else if (msg == MSG_SNK) {
+<<<<<<< HEAD
 		if (pp_data->power_role == PP_SOURCE &&
 				pp_data->cc_state == PP_CCRD) {
 			if (pp_pd_noti.pd_noti) {
@@ -689,6 +716,8 @@ static void process_policy_cc_attach(struct pdic_policy *pp_data, int msg)
 					0, 0, 0);
 			}
 		}
+=======
+>>>>>>> upstream/android-13
 		pp_data->cc_state = PP_CCRP;
 		pp_data->power_role = PP_SINK;
 		send_otg_notify(o_notify, NOTIFY_EVENT_POWER_SOURCE, 0);
@@ -797,9 +826,12 @@ static void process_policy_vbus(struct pdic_policy *pp_data, int msg)
 static void process_policy_rpcurrent(struct pdic_policy *pp_data, int msg)
 {
 	struct pdic_notifier_struct *pd_noti = NULL; 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_TYPEC)
 		enum typec_pwr_opmode mode = TYPEC_PWR_MODE_USB;
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	pr_info("%s %s (%s)\n", __func__, pp_msg[msg],
 			pd_p_contract[pp_data->explicit_contract]);
@@ -812,6 +844,7 @@ static void process_policy_rpcurrent(struct pdic_policy *pp_data, int msg)
 		} else if (msg == MSG_RP22K) {
 			pd_noti->sink_status.rp_currentlvl = RP_CURRENT_LEVEL2;
 			pp_data->cc_rp_current = PP_22K;
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_TYPEC)
 			mode = TYPEC_PWR_MODE_1_5A;
 #endif
@@ -821,14 +854,22 @@ static void process_policy_rpcurrent(struct pdic_policy *pp_data, int msg)
 #if IS_ENABLED(CONFIG_TYPEC)
 			mode = TYPEC_PWR_MODE_3_0A;
 #endif
+=======
+		} else if (msg == MSG_RP10K) {
+			pd_noti->sink_status.rp_currentlvl = RP_CURRENT_LEVEL3;
+			pp_data->cc_rp_current = PP_10K;
+>>>>>>> upstream/android-13
 		} else
 			;
 		pd_noti->event = PDIC_NOTIFY_EVENT_PDIC_ATTACH;
 
 		if (pp_data->explicit_contract == PP_NO_EXCNT) {
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_TYPEC)
 			typec_set_pwr_opmode(pp_data->port, mode);
 #endif
+=======
+>>>>>>> upstream/android-13
 			if (msg == MSG_RP56K && !is_short(pp_data)) {
 				PDIC_POLICY_SEND_NOTI(pp_data, PDIC_NOTIFY_DEV_MUIC,
 					PDIC_NOTIFY_ID_TA,
@@ -837,11 +878,14 @@ static void process_policy_rpcurrent(struct pdic_policy *pp_data, int msg)
 			PDIC_POLICY_SEND_NOTI(pp_data, PDIC_NOTIFY_DEV_BATT,
 				PDIC_NOTIFY_ID_POWER_STATUS,
 				0/* no power nego*/, 0, 0);
+<<<<<<< HEAD
 			PDIC_POLICY_SEND_NOTI(pp_data, PDIC_NOTIFY_DEV_MUIC,
 				PDIC_NOTIFY_ID_RPLEVEL,
 				PDIC_NOTIFY_ATTACH,
 				USB_STATUS_NOTIFY_DETACH,
 				pd_noti->sink_status.rp_currentlvl);
+=======
+>>>>>>> upstream/android-13
 		}
 	}
 }
@@ -962,6 +1006,10 @@ static void process_policy_rid(struct pdic_policy *pp_data, int msg)
 		break;
 	case MSG_R255K:
 		rid = RID_255K;
+<<<<<<< HEAD
+=======
+		no_usb = 1;
+>>>>>>> upstream/android-13
 		pp_data->rid = PP_R255K;
 		break;
 	case MSG_R523K:
@@ -971,7 +1019,10 @@ static void process_policy_rid(struct pdic_policy *pp_data, int msg)
 		break;
 	case MSG_R619K:
 		rid = RID_619K;
+<<<<<<< HEAD
 		no_usb = 1;
+=======
+>>>>>>> upstream/android-13
 		pp_data->rid = PP_R619K;
 		break;
 	default:
@@ -988,7 +1039,11 @@ static void process_policy_rid(struct pdic_policy *pp_data, int msg)
 }
 
 static void process_policy_explicit_contract
+<<<<<<< HEAD
 		(struct pdic_policy *pp_data, int msg, int skip_event)
+=======
+		(struct pdic_policy *pp_data, int msg)
+>>>>>>> upstream/android-13
 {
 	struct pdic_notifier_struct *pd_noti = NULL;
 	int mode = TYPEC_PWR_MODE_USB;
@@ -1005,10 +1060,15 @@ static void process_policy_explicit_contract
 		}
 		if (pp_data->power_role == PP_SINK) {
 			if (pp_pd_noti.pd_noti) {
+<<<<<<< HEAD
 				if (!skip_event) {
 					pd_noti = pp_pd_noti.pd_noti;
 					pd_noti->event = PDIC_NOTIFY_EVENT_PD_SINK;
 				}
+=======
+				pd_noti = pp_pd_noti.pd_noti;
+				pd_noti->event = PDIC_NOTIFY_EVENT_PD_SINK;
+>>>>>>> upstream/android-13
 
 				PDIC_POLICY_SEND_NOTI(pp_data, PDIC_NOTIFY_DEV_BATT,
 					PDIC_NOTIFY_ID_POWER_STATUS,
@@ -1021,6 +1081,7 @@ static void process_policy_explicit_contract
 static void process_policy_usb_killer(struct pdic_policy *pp_data)
 {
 	int event = 0;
+<<<<<<< HEAD
 	struct otg_notify *o_notify = get_otg_notify();
 
 	pp_data->usb_killer = PP_KILLER;
@@ -1118,6 +1179,13 @@ static void process_policy_shutdown(struct pdic_policy *pp_data)
 			pr_info("%s vbus_discharging %d->%d\n", __func__, val1, val2);
 		}
 	}
+=======
+	
+	pp_data->usb_killer = PP_KILLER;
+
+	event = NOTIFY_EXTRA_USBKILLER;
+	store_usblog_notify(NOTIFY_EXTRA, (void *)&event, NULL);	
+>>>>>>> upstream/android-13
 }
 
 static int pdic_policy_get_alt_info(struct pdic_policy *pp_data)
@@ -1283,7 +1351,10 @@ static void process_policy_dp(struct pdic_policy *pp_data, int msg)
 			1/*dp_is_connect*/, 1/*dp_hs_connect*/, 0);
 		break;
 	case MSG_DP_DISCONN:
+<<<<<<< HEAD
 		pp_data->usb_host.detach_done_wait = 1;
+=======
+>>>>>>> upstream/android-13
 		PDIC_POLICY_SEND_NOTI(pp_data,
 			PDIC_NOTIFY_DEV_USB_DP, PDIC_NOTIFY_ID_USB_DP,
 			0/*dp_is_connect*/, 0/*dp_hs_connect*/, 0);
@@ -1291,6 +1362,7 @@ static void process_policy_dp(struct pdic_policy *pp_data, int msg)
 			PDIC_NOTIFY_ID_DP_CONNECT, 0/*attach*/, 0/*drp*/, 0);
 		break;
 	case MSG_DP_LINK_CONF:
+<<<<<<< HEAD
 		if (alt_info->dp_selected_pin == PDIC_NOTIFY_DP_PIN_C ||
 				alt_info->dp_selected_pin == PDIC_NOTIFY_DP_PIN_E ||
 				alt_info->dp_selected_pin == PDIC_NOTIFY_DP_PIN_A)
@@ -1298,6 +1370,8 @@ static void process_policy_dp(struct pdic_policy *pp_data, int msg)
 		else
 			usb_restart_host_mode(pp_data->man, 2);
 
+=======
+>>>>>>> upstream/android-13
 		PDIC_POLICY_SEND_NOTI(pp_data, PDIC_NOTIFY_DEV_DP,
 			PDIC_NOTIFY_ID_DP_LINK_CONF,
 			alt_info->dp_selected_pin, 0, 0);
@@ -1316,6 +1390,7 @@ err:
 	return;
 }
 
+<<<<<<< HEAD
 static void process_policy_device_info(struct pdic_policy *pp_data)
 {
 	struct pdic_alt_info *alt_info;
@@ -1344,6 +1419,8 @@ static void process_policy_svid_info(struct pdic_policy *pp_data, int svid)
 		PDIC_NOTIFY_ID_SVID_INFO, svid, 0, 0);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void pdic_policy_update_pdo_num(void *data, int msg, int pdo_num)
 {
 	struct pdic_notifier_struct *pd_noti = NULL;
@@ -1398,7 +1475,10 @@ static void process_policy_cc_detach(struct pdic_policy *pp_data)
 		pr_info("%s vbus_discharging %d->%d\n", __func__, val1, val2);
 	}
 
+<<<<<<< HEAD
 	pp_data->usb_host.detach_done_wait = 1;
+=======
+>>>>>>> upstream/android-13
 	pp_data->cc_on = PP_CCOFF;
 	pp_data->cc_state = PP_TOGGLE;
 	pp_data->cc_direction = PP_CC1;
@@ -1418,9 +1498,13 @@ static void process_policy_cc_detach(struct pdic_policy *pp_data)
 	pdic_policy_pd_detach(pp_data);
 
 	pdic_policy_alt_dev_detach(pp_data);
+<<<<<<< HEAD
 
 	PDIC_POLICY_SEND_NOTI(pp_data, PDIC_NOTIFY_DEV_ALL,
 		PDIC_NOTIFY_ID_CLEAR_INFO, PDIC_NOTIFY_ID_SVID_INFO, 0, 0);
+=======
+	
+>>>>>>> upstream/android-13
 	PDIC_POLICY_SEND_NOTI(pp_data, PDIC_NOTIFY_DEV_MUIC, PDIC_NOTIFY_ID_ATTACH,
 		0/*attach*/, 0/*rprd*/, 0);
 	PDIC_POLICY_SEND_NOTI(pp_data, PDIC_NOTIFY_DEV_USB, PDIC_NOTIFY_ID_USB,
@@ -1549,12 +1633,15 @@ int pdic_policy_send_msg(void *data, int msg, int param1, int param2)
 	case MSG_RP10K:
 		process_policy_rpcurrent(pp_data, msg);
 		break;
+<<<<<<< HEAD
 	case MSG_CC_SHORT:
 		process_policy_cc_short(pp_data, param1);
 		break;
 	case MSG_SBU_SHORT:
 		process_policy_sbu_short(pp_data, param1);
 		break;
+=======
+>>>>>>> upstream/android-13
 	case MSG_UFP:
 	case MSG_DFP:
 		process_policy_data_role(pp_data, msg);
@@ -1574,11 +1661,16 @@ int pdic_policy_send_msg(void *data, int msg, int param1, int param2)
 	case MSG_R619K:
 		process_policy_rid(pp_data, msg);
 		break;
+<<<<<<< HEAD
 	case MSG_FAC_ERR:
 		process_policy_fac_err(pp_data, param1);
 		break;
 	case MSG_EX_CNT:
 		process_policy_explicit_contract(pp_data, msg, param1);
+=======
+	case MSG_EX_CNT:
+		process_policy_explicit_contract(pp_data, msg);
+>>>>>>> upstream/android-13
 		break;
 	case MSG_KILLER:
 		process_policy_usb_killer(pp_data);
@@ -1592,10 +1684,13 @@ int pdic_policy_send_msg(void *data, int msg, int param1, int param2)
 	case MSG_DP_HPD:
 		process_policy_dp(pp_data, msg);
 		break;
+<<<<<<< HEAD
 	case MSG_DEVICE_INFO:
 		process_policy_device_info(pp_data);
 	case MSG_SVID_INFO:
 		process_policy_svid_info(pp_data, param1);
+=======
+>>>>>>> upstream/android-13
 	case MSG_SELECT_PDO:
 	case MSG_CURRENT_PDO:
 		pdic_policy_update_pdo_num(pp_data, msg, param1);
@@ -1603,6 +1698,7 @@ int pdic_policy_send_msg(void *data, int msg, int param1, int param2)
 	case MSG_PD_POWER_STATUS:
 		pdic_policy_pd_power_status(pp_data, param1, param2);
 		break;
+<<<<<<< HEAD
 	case MSG_FAC_MODE_NOTI_TO_MUIC:
 		process_policy_fac_mode_noti_to_muic(pp_data, param1);
 		break;
@@ -1616,6 +1712,8 @@ int pdic_policy_send_msg(void *data, int msg, int param1, int param2)
 	case MSG_SHUTDOWN:
 		process_policy_shutdown(pp_data);
 		break;
+=======
+>>>>>>> upstream/android-13
 	case MSG_CCOFF:
 		process_policy_cc_detach(pp_data);
 		break;
@@ -1967,6 +2065,7 @@ err:
 	return;
 }
 
+<<<<<<< HEAD
 static int pdic_policy_usbpd_sbu_test_read(void *data)
 {
 	struct pdic_policy *pp_data = data;
@@ -2001,6 +2100,10 @@ struct usbpd_ops ops_usbpd = {
 	.usbpd_set_host_on = pdic_policy_usbpd_set_host_on,
 	.usbpd_sbu_test_read = pdic_policy_usbpd_sbu_test_read,
 	.usbpd_cc_control_command = pdic_policy_cc_control_command,
+=======
+struct usbpd_ops ops_usbpd = {
+	.usbpd_set_host_on = pdic_policy_usbpd_set_host_on,
+>>>>>>> upstream/android-13
 };
 
 static int pdic_policy_handle_usb_ext_noti(struct notifier_block *nb,
@@ -2108,17 +2211,27 @@ void *pdic_policy_init(struct pp_ic_data *ic_data)
 
 	pp_data->ic_data = ic_data;
 	ic_data->pp_data = pp_data;
+<<<<<<< HEAD
 	pp_data->acc_type = PDIC_DOCK_DETACHED;
+=======
+
+>>>>>>> upstream/android-13
 	if (ic_data->pd_noti) {
 		pp_pd_noti.pd_noti = ic_data->pd_noti;
 		pr_info("%s ic_data pd_noti registered\n", __func__);
 	} else {
+<<<<<<< HEAD
 #if !IS_ENABLED(CONFIG_BATTERY_NOTIFIER)
+=======
+>>>>>>> upstream/android-13
 		pp_data->pd_noti.sink_status.fp_sec_pd_select_pdo
 			= pdic_policy_select_pdo;
 		pp_pd_noti.pd_noti = &pp_data->pd_noti;
 		pr_info("%s ic_data pd_noti is none.\n", __func__);
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 	}
 	pp_pd_noti.pp_data = pp_data;
 

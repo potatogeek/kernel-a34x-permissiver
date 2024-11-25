@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /****************************************************************************
  * Driver for Solarflare network controllers and boards
  * Copyright 2005-2006 Fen Systems Ltd.
  * Copyright 2005-2013 Solarflare Communications Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation, incorporated herein by reference.
+=======
+>>>>>>> upstream/android-13
  */
 
 /* Common definitions for all Efx net driver code */
@@ -27,9 +34,15 @@
 #include <linux/mutex.h>
 #include <linux/rwsem.h>
 #include <linux/vmalloc.h>
+<<<<<<< HEAD
 #include <linux/i2c.h>
 #include <linux/mtd/mtd.h>
 #include <net/busy_poll.h>
+=======
+#include <linux/mtd/mtd.h>
+#include <net/busy_poll.h>
+#include <net/xdp.h>
+>>>>>>> upstream/android-13
 
 #include "enum.h"
 #include "bitfield.h"
@@ -41,8 +54,11 @@
  *
  **************************************************************************/
 
+<<<<<<< HEAD
 #define EFX_DRIVER_VERSION	"4.1"
 
+=======
+>>>>>>> upstream/android-13
 #ifdef DEBUG
 #define EFX_WARN_ON_ONCE_PARANOID(x) WARN_ON_ONCE(x)
 #define EFX_WARN_ON_PARANOID(x) WARN_ON(x)
@@ -68,10 +84,20 @@
  * queues. */
 #define EFX_MAX_TX_TC		2
 #define EFX_MAX_CORE_TX_QUEUES	(EFX_MAX_TX_TC * EFX_MAX_CHANNELS)
+<<<<<<< HEAD
 #define EFX_TXQ_TYPE_OFFLOAD	1	/* flag */
 #define EFX_TXQ_TYPE_HIGHPRI	2	/* flag */
 #define EFX_TXQ_TYPES		4
 #define EFX_MAX_TX_QUEUES	(EFX_TXQ_TYPES * EFX_MAX_CHANNELS)
+=======
+#define EFX_TXQ_TYPE_OUTER_CSUM	1	/* Outer checksum offload */
+#define EFX_TXQ_TYPE_INNER_CSUM	2	/* Inner checksum offload */
+#define EFX_TXQ_TYPE_HIGHPRI	4	/* High-priority (for TC) */
+#define EFX_TXQ_TYPES		8
+/* HIGHPRI is Siena-only, and INNER_CSUM is EF10, so no need for both */
+#define EFX_MAX_TXQ_PER_CHANNEL	4
+#define EFX_MAX_TX_QUEUES	(EFX_MAX_TXQ_PER_CHANNEL * EFX_MAX_CHANNELS)
+>>>>>>> upstream/android-13
 
 /* Maximum possible MTU the driver supports */
 #define EFX_MAX_MTU (9 * 1024)
@@ -79,6 +105,12 @@
 /* Minimum MTU, from RFC791 (IP) */
 #define EFX_MIN_MTU 68
 
+<<<<<<< HEAD
+=======
+/* Maximum total header length for TSOv2 */
+#define EFX_TSO2_MAX_HDRLEN	208
+
+>>>>>>> upstream/android-13
 /* Size of an RX scatter buffer.  Small enough to pack 2 into a 4K page,
  * and should be a multiple of the cache line size.
  */
@@ -94,6 +126,15 @@
 #define EFX_RX_BUF_ALIGNMENT	4
 #endif
 
+<<<<<<< HEAD
+=======
+/* Non-standard XDP_PACKET_HEADROOM and tailroom to satisfy XDP_REDIRECT and
+ * still fit two standard MTU size packets into a single 4K page.
+ */
+#define EFX_XDP_HEADROOM	128
+#define EFX_XDP_TAILROOM	SKB_DATA_ALIGN(sizeof(struct skb_shared_info))
+
+>>>>>>> upstream/android-13
 /* Forward declare Precision Time Protocol (PTP) support structure. */
 struct efx_ptp_data;
 struct hwtstamp_config;
@@ -139,7 +180,14 @@ struct efx_special_buffer {
  * struct efx_tx_buffer - buffer state for a TX descriptor
  * @skb: When @flags & %EFX_TX_BUF_SKB, the associated socket buffer to be
  *	freed when descriptor completes
+<<<<<<< HEAD
  * @option: When @flags & %EFX_TX_BUF_OPTION, a NIC-specific option descriptor.
+=======
+ * @xdpf: When @flags & %EFX_TX_BUF_XDP, the XDP frame information; its @data
+ *	member is the associated buffer to drop a page reference on.
+ * @option: When @flags & %EFX_TX_BUF_OPTION, an EF10-specific option
+ *	descriptor.
+>>>>>>> upstream/android-13
  * @dma_addr: DMA address of the fragment.
  * @flags: Flags for allocation and DMA mapping type
  * @len: Length of this fragment.
@@ -149,9 +197,18 @@ struct efx_special_buffer {
  * Only valid if @unmap_len != 0.
  */
 struct efx_tx_buffer {
+<<<<<<< HEAD
 	const struct sk_buff *skb;
 	union {
 		efx_qword_t option;
+=======
+	union {
+		const struct sk_buff *skb;
+		struct xdp_frame *xdpf;
+	};
+	union {
+		efx_qword_t option;    /* EF10 */
+>>>>>>> upstream/android-13
 		dma_addr_t dma_addr;
 	};
 	unsigned short flags;
@@ -163,6 +220,11 @@ struct efx_tx_buffer {
 #define EFX_TX_BUF_SKB		2	/* buffer is last part of skb */
 #define EFX_TX_BUF_MAP_SINGLE	8	/* buffer was mapped with dma_map_single() */
 #define EFX_TX_BUF_OPTION	0x10	/* empty buffer for option descriptor */
+<<<<<<< HEAD
+=======
+#define EFX_TX_BUF_XDP		0x20	/* buffer was sent with XDP */
+#define EFX_TX_BUF_TSO_V3	0x40	/* empty buffer for a TSO_V3 descriptor */
+>>>>>>> upstream/android-13
 
 /**
  * struct efx_tx_queue - An Efx TX queue
@@ -179,7 +241,15 @@ struct efx_tx_buffer {
  *
  * @efx: The associated Efx NIC
  * @queue: DMA queue number
+<<<<<<< HEAD
  * @tso_version: Version of TSO in use for this queue.
+=======
+ * @label: Label for TX completion events.
+ *	Is our index within @channel->tx_queue array.
+ * @type: configuration type of this TX queue.  A bitmask of %EFX_TXQ_TYPE_* flags.
+ * @tso_version: Version of TSO in use for this queue.
+ * @tso_encap: Is encapsulated TSO supported? Supported in TSOv2 on 8000 series.
+>>>>>>> upstream/android-13
  * @channel: The associated channel
  * @core_txq: The networking core TX queue structure
  * @buffer: The software buffer ring
@@ -192,8 +262,12 @@ struct efx_tx_buffer {
  * @piobuf_offset: Buffer offset to be specified in PIO descriptors
  * @initialised: Has hardware queue been initialised?
  * @timestamping: Is timestamping enabled for this channel?
+<<<<<<< HEAD
  * @handle_tso: TSO xmit preparation handler.  Sets up the TSO metadata and
  *	may also map tx data, depending on the nature of the TSO implementation.
+=======
+ * @xdp_tx: Is this an XDP tx queue?
+>>>>>>> upstream/android-13
  * @read_count: Current read pointer.
  *	This is the number of buffers that have been removed from both rings.
  * @old_write_count: The value of @write_count when last checked.
@@ -203,8 +277,11 @@ struct efx_tx_buffer {
  *	avoid cache-line ping-pong between the xmit path and the
  *	completion path.
  * @merge_events: Number of TX merged completion events
+<<<<<<< HEAD
  * @completed_desc_ptr: Most recent completed pointer - only used with
  *      timestamping.
+=======
+>>>>>>> upstream/android-13
  * @completed_timestamp_major: Top part of the most recent tx timestamp.
  * @completed_timestamp_minor: Low part of the most recent tx timestamp.
  * @insert_count: Current insert pointer
@@ -232,8 +309,14 @@ struct efx_tx_buffer {
  * @tso_fallbacks: Number of times TSO fallback used
  * @pushes: Number of times the TX push feature has been used
  * @pio_packets: Number of times the TX PIO feature has been used
+<<<<<<< HEAD
  * @xmit_more_available: Are any packets waiting to be pushed to the NIC
  * @cb_packets: Number of times the TX copybreak feature has been used
+=======
+ * @xmit_pending: Are any packets waiting to be pushed to the NIC
+ * @cb_packets: Number of times the TX copybreak feature has been used
+ * @notify_count: Count of notified descriptors to the NIC
+>>>>>>> upstream/android-13
  * @empty_read_count: If the completion path has seen the queue as empty
  *	and the transmission path has not yet checked this, the value of
  *	@read_count bitwise-added to %EFX_EMPTY_COUNT_VALID; otherwise 0.
@@ -241,8 +324,16 @@ struct efx_tx_buffer {
 struct efx_tx_queue {
 	/* Members which don't change on the fast path */
 	struct efx_nic *efx ____cacheline_aligned_in_smp;
+<<<<<<< HEAD
 	unsigned queue;
 	unsigned int tso_version;
+=======
+	unsigned int queue;
+	unsigned int label;
+	unsigned int type;
+	unsigned int tso_version;
+	bool tso_encap;
+>>>>>>> upstream/android-13
 	struct efx_channel *channel;
 	struct netdev_queue *core_txq;
 	struct efx_tx_buffer *buffer;
@@ -253,9 +344,13 @@ struct efx_tx_queue {
 	unsigned int piobuf_offset;
 	bool initialised;
 	bool timestamping;
+<<<<<<< HEAD
 
 	/* Function pointers used in the fast path. */
 	int (*handle_tso)(struct efx_tx_queue*, struct sk_buff*, bool *);
+=======
+	bool xdp_tx;
+>>>>>>> upstream/android-13
 
 	/* Members used mainly on the completion path */
 	unsigned int read_count ____cacheline_aligned_in_smp;
@@ -263,7 +358,10 @@ struct efx_tx_queue {
 	unsigned int merge_events;
 	unsigned int bytes_compl;
 	unsigned int pkts_compl;
+<<<<<<< HEAD
 	unsigned int completed_desc_ptr;
+=======
+>>>>>>> upstream/android-13
 	u32 completed_timestamp_major;
 	u32 completed_timestamp_minor;
 
@@ -278,8 +376,14 @@ struct efx_tx_queue {
 	unsigned int tso_fallbacks;
 	unsigned int pushes;
 	unsigned int pio_packets;
+<<<<<<< HEAD
 	bool xmit_more_available;
 	unsigned int cb_packets;
+=======
+	bool xmit_pending;
+	unsigned int cb_packets;
+	unsigned int notify_count;
+>>>>>>> upstream/android-13
 	/* Statistics to supplement MAC stats */
 	unsigned long tx_packets;
 
@@ -330,7 +434,11 @@ struct efx_rx_buffer {
 struct efx_rx_page_state {
 	dma_addr_t dma_addr;
 
+<<<<<<< HEAD
 	unsigned int __pad[0] ____cacheline_aligned;
+=======
+	unsigned int __pad[] ____cacheline_aligned;
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -366,6 +474,11 @@ struct efx_rx_page_state {
  *	refill was triggered.
  * @recycle_count: RX buffer recycle counter.
  * @slow_fill: Timer used to defer efx_nic_generate_fill_event().
+<<<<<<< HEAD
+=======
+ * @xdp_rxq_info: XDP specific RX queue information.
+ * @xdp_rxq_info_valid: Is xdp_rxq_info valid data?.
+>>>>>>> upstream/android-13
  */
 struct efx_rx_queue {
 	struct efx_nic *efx;
@@ -397,6 +510,11 @@ struct efx_rx_queue {
 	unsigned int slow_fill_count;
 	/* Statistics to supplement MAC stats */
 	unsigned long rx_packets;
+<<<<<<< HEAD
+=======
+	struct xdp_rxq_info xdp_rxq_info;
+	bool xdp_rxq_info_valid;
+>>>>>>> upstream/android-13
 };
 
 enum efx_sync_events_state {
@@ -430,6 +548,16 @@ enum efx_sync_events_state {
  * @event_test_cpu: Last CPU to handle interrupt or test event for this channel
  * @irq_count: Number of IRQs since last adaptive moderation decision
  * @irq_mod_score: IRQ moderation score
+<<<<<<< HEAD
+=======
+ * @rfs_filter_count: number of accelerated RFS filters currently in place;
+ *	equals the count of @rps_flow_id slots filled
+ * @rfs_last_expiry: value of jiffies last time some accelerated RFS filters
+ *	were checked for expiry
+ * @rfs_expire_index: next accelerated RFS filter ID to check for expiry
+ * @n_rfs_succeeded: number of successful accelerated RFS filter insertions
+ * @n_rfs_failed: number of failed accelerated RFS filter insertions
+>>>>>>> upstream/android-13
  * @filter_work: Work item for efx_filter_rfs_expire()
  * @rps_flow_id: Flow IDs of filters allocated for accelerated RFS,
  *      indexed by filter ID
@@ -444,6 +572,13 @@ enum efx_sync_events_state {
  *	lack of descriptors
  * @n_rx_merge_events: Number of RX merged completion events
  * @n_rx_merge_packets: Number of RX packets completed by merged events
+<<<<<<< HEAD
+=======
+ * @n_rx_xdp_drops: Count of RX packets intentionally dropped due to XDP
+ * @n_rx_xdp_bad_drops: Count of RX packets dropped due to XDP errors
+ * @n_rx_xdp_tx: Count of RX packets retransmitted due to XDP
+ * @n_rx_xdp_redirect: Count of RX packets redirected to a different NIC by XDP
+>>>>>>> upstream/android-13
  * @rx_pkt_n_frags: Number of fragments in next packet to be delivered by
  *	__efx_rx_packet(), or zero if there is none
  * @rx_pkt_index: Ring index of first buffer for next packet to be delivered
@@ -451,6 +586,10 @@ enum efx_sync_events_state {
  * @rx_list: list of SKBs from current RX, awaiting processing
  * @rx_queue: RX queue for this channel
  * @tx_queue: TX queues for this channel
+<<<<<<< HEAD
+=======
+ * @tx_queue_by_type: pointers into @tx_queue, or %NULL, indexed by txq type
+>>>>>>> upstream/android-13
  * @sync_events_state: Current state of sync events on this channel
  * @sync_timestamp_major: Major part of the last ptp sync event
  * @sync_timestamp_minor: Minor part of the last ptp sync event
@@ -476,8 +615,17 @@ struct efx_channel {
 	unsigned int irq_count;
 	unsigned int irq_mod_score;
 #ifdef CONFIG_RFS_ACCEL
+<<<<<<< HEAD
 	unsigned int rfs_filters_added;
 	struct work_struct filter_work;
+=======
+	unsigned int rfs_filter_count;
+	unsigned int rfs_last_expiry;
+	unsigned int rfs_expire_index;
+	unsigned int n_rfs_succeeded;
+	unsigned int n_rfs_failed;
+	struct delayed_work filter_work;
+>>>>>>> upstream/android-13
 #define RPS_FLOW_ID_INVALID 0xFFFFFFFF
 	u32 *rps_flow_id;
 #endif
@@ -497,6 +645,13 @@ struct efx_channel {
 	unsigned int n_rx_nodesc_trunc;
 	unsigned int n_rx_merge_events;
 	unsigned int n_rx_merge_packets;
+<<<<<<< HEAD
+=======
+	unsigned int n_rx_xdp_drops;
+	unsigned int n_rx_xdp_bad_drops;
+	unsigned int n_rx_xdp_tx;
+	unsigned int n_rx_xdp_redirect;
+>>>>>>> upstream/android-13
 
 	unsigned int rx_pkt_n_frags;
 	unsigned int rx_pkt_index;
@@ -504,7 +659,12 @@ struct efx_channel {
 	struct list_head *rx_list;
 
 	struct efx_rx_queue rx_queue;
+<<<<<<< HEAD
 	struct efx_tx_queue tx_queue[EFX_TXQ_TYPES];
+=======
+	struct efx_tx_queue tx_queue[EFX_MAX_TXQ_PER_CHANNEL];
+	struct efx_tx_queue *tx_queue_by_type[EFX_TXQ_TYPES];
+>>>>>>> upstream/android-13
 
 	enum efx_sync_events_state sync_events_state;
 	u32 sync_timestamp_major;
@@ -574,8 +734,11 @@ extern const unsigned int efx_reset_type_max;
 #define RESET_TYPE(type) \
 	STRING_TABLE_LOOKUP(type, efx_reset_type)
 
+<<<<<<< HEAD
 void efx_get_udp_tunnel_type_name(u16 type, char *buf, size_t buflen);
 
+=======
+>>>>>>> upstream/android-13
 enum efx_int_mode {
 	/* Be careful if altering to correct macro below */
 	EFX_INT_MODE_MSIX = 0,
@@ -622,6 +785,7 @@ static inline bool efx_link_state_equal(const struct efx_link_state *left,
 }
 
 /**
+<<<<<<< HEAD
  * struct efx_phy_operations - Efx PHY operations table
  * @probe: Probe PHY and initialise efx->mdio.mode_support, efx->mdio.mmds,
  *	efx->loopback_modes.
@@ -667,6 +831,8 @@ struct efx_phy_operations {
 };
 
 /**
+=======
+>>>>>>> upstream/android-13
  * enum efx_phy_mode - PHY operating mode flags
  * @PHY_MODE_NORMAL: on and should pass traffic
  * @PHY_MODE_TX_DISABLED: on with TX disabled
@@ -715,13 +881,22 @@ union efx_multicast_hash {
 struct vfdi_status;
 
 /* The reserved RSS context value */
+<<<<<<< HEAD
 #define EFX_EF10_RSS_CONTEXT_INVALID	0xffffffff
+=======
+#define EFX_MCDI_RSS_CONTEXT_INVALID	0xffffffff
+>>>>>>> upstream/android-13
 /**
  * struct efx_rss_context - A user-defined RSS context for filtering
  * @list: node of linked list on which this struct is stored
  * @context_id: the RSS_CONTEXT_ID returned by MC firmware, or
+<<<<<<< HEAD
  *	%EFX_EF10_RSS_CONTEXT_INVALID if this context is not present on the NIC.
  *	For Siena, 0 if RSS is active, else %EFX_EF10_RSS_CONTEXT_INVALID.
+=======
+ *	%EFX_MCDI_RSS_CONTEXT_INVALID if this context is not present on the NIC.
+ *	For Siena, 0 if RSS is active, else %EFX_MCDI_RSS_CONTEXT_INVALID.
+>>>>>>> upstream/android-13
  * @user_id: the rss_context ID exposed to userspace over ethtool.
  * @rx_hash_udp_4tuple: UDP 4-tuple hashing enabled
  * @rx_hash_key: Toeplitz hash key for this RSS context
@@ -786,6 +961,15 @@ struct efx_async_filter_insertion {
 #define EFX_RPS_MAX_IN_FLIGHT	8
 #endif /* CONFIG_RFS_ACCEL */
 
+<<<<<<< HEAD
+=======
+enum efx_xdp_tx_queues_mode {
+	EFX_XDP_TX_QUEUES_DEDICATED,	/* one queue per core, locking not needed */
+	EFX_XDP_TX_QUEUES_SHARED,	/* each queue used by more than 1 core */
+	EFX_XDP_TX_QUEUES_BORROWED	/* queues borrowed from net stack */
+};
+
+>>>>>>> upstream/android-13
 /**
  * struct efx_nic - an Efx NIC
  * @name: Device name (net device name or bus id before net device registered)
@@ -810,6 +994,10 @@ struct efx_async_filter_insertion {
  * @timer_quantum_ns: Interrupt timer quantum, in nanoseconds
  * @timer_max_ns: Interrupt timer maximum value, in nanoseconds
  * @irq_rx_adaptive: Adaptive IRQ moderation enabled for RX event queues
+<<<<<<< HEAD
+=======
+ * @irqs_hooked: Channel interrupts are hooked
+>>>>>>> upstream/android-13
  * @irq_rx_mod_step_us: Step size for IRQ moderation for RX event queues
  * @irq_rx_moderation_us: IRQ moderation time for RX event queues
  * @msg_enable: Log message enable flags
@@ -821,6 +1009,12 @@ struct efx_async_filter_insertion {
  * @msi_context: Context for each MSI
  * @extra_channel_types: Types of extra (non-traffic) channels that
  *	should be allocated for this NIC
+<<<<<<< HEAD
+=======
+ * @xdp_tx_queue_count: Number of entries in %xdp_tx_queues.
+ * @xdp_tx_queues: Array of pointers to tx queues used for XDP transmit.
+ * @xdp_txq_queues_mode: XDP TX queues sharing strategy.
+>>>>>>> upstream/android-13
  * @rxq_entries: Size of receive queues requested by user.
  * @txq_entries: Size of transmit queues requested by user.
  * @txq_stop_thresh: TX queue fill level at or above which we stop it.
@@ -833,6 +1027,13 @@ struct efx_async_filter_insertion {
  * @n_rx_channels: Number of channels used for RX (= number of RX queues)
  * @n_tx_channels: Number of channels used for TX
  * @n_extra_tx_channels: Number of extra channels with TX queues
+<<<<<<< HEAD
+=======
+ * @tx_queues_per_channel: number of TX queues probed on each channel
+ * @n_xdp_channels: Number of channels used for XDP TX
+ * @xdp_channel_offset: Offset of zeroth channel used for XPD TX.
+ * @xdp_tx_per_channel: Max number of TX queues on an XDP TX channel.
+>>>>>>> upstream/android-13
  * @rx_ip_align: RX DMA address offset to have IP header aligned in
  *	in accordance with NET_IP_ALIGN
  * @rx_dma_len: Current maximum RX DMA length
@@ -850,8 +1051,15 @@ struct efx_async_filter_insertion {
  * @rss_context: Main RSS context.  Its @list member is the head of the list of
  *	RSS contexts created by user requests
  * @rss_lock: Protects custom RSS context software state in @rss_context.list
+<<<<<<< HEAD
  * @int_error_count: Number of internal errors seen recently
  * @int_error_expire: Time at which error count will be expired
+=======
+ * @vport_id: The function's vport ID, only relevant for PFs
+ * @int_error_count: Number of internal errors seen recently
+ * @int_error_expire: Time at which error count will be expired
+ * @must_realloc_vis: Flag: VIs have yet to be reallocated after MC reboot
+>>>>>>> upstream/android-13
  * @irq_soft_enabled: Are IRQs soft-enabled? If not, IRQ handler will
  *	acknowledge but do nothing else.
  * @irq_status: Interrupt status buffer
@@ -875,7 +1083,10 @@ struct efx_async_filter_insertion {
  *	field of %MC_CMD_GET_CAPABILITIES_V4 response, or %MC_CMD_MAC_NSTATS)
  * @stats_buffer: DMA buffer for statistics
  * @phy_type: PHY type
+<<<<<<< HEAD
  * @phy_op: PHY interface
+=======
+>>>>>>> upstream/android-13
  * @phy_data: PHY private data (including PHY-specific stats)
  * @mdio: PHY MDIO interface
  * @mdio_bus: PHY MDIO bus ID (only used by Siena)
@@ -897,12 +1108,19 @@ struct efx_async_filter_insertion {
  * @loopback_mode: Loopback status
  * @loopback_modes: Supported loopback mode bitmask
  * @loopback_selftest: Offline self-test private state
+<<<<<<< HEAD
  * @filter_sem: Filter table rw_semaphore, protects existence of @filter_state
  * @filter_state: Architecture-dependent filter table state
  * @rps_mutex: Protects RPS state of all channels
  * @rps_expire_channel: Next channel to check for expiry
  * @rps_expire_index: Next index to check for expiry in
  *	@rps_expire_channel's @rps_flow_id
+=======
+ * @xdp_prog: Current XDP programme for this interface
+ * @filter_sem: Filter table rw_semaphore, protects existence of @filter_state
+ * @filter_state: Architecture-dependent filter table state
+ * @rps_mutex: Protects RPS state of all channels
+>>>>>>> upstream/android-13
  * @rps_slot_map: bitmap of in-flight entries in @rps_slot
  * @rps_slot: array of ARFS insertion requests for efx_filter_rfs_work()
  * @rps_hash_lock: Protects ARFS filter mapping state (@rps_hash_table and
@@ -922,6 +1140,14 @@ struct efx_async_filter_insertion {
  * @ptp_data: PTP state data
  * @ptp_warned: has this NIC seen and warned about unexpected PTP events?
  * @vpd_sn: Serial number read from VPD
+<<<<<<< HEAD
+=======
+ * @xdp_rxq_info_failed: Have any of the rx queues failed to initialise their
+ *      xdp_rxq_info structures?
+ * @netdev_notifier: Netdevice notifier.
+ * @mem_bar: The BAR that is mapped into membase.
+ * @reg_base: Offset from the start of the bar to the function control window.
+>>>>>>> upstream/android-13
  * @monitor_work: Hardware monitor workitem
  * @biu_lock: BIU (bus interface unit) lock
  * @last_irq_cpu: Last CPU to handle a possible test interrupt.  This
@@ -957,6 +1183,10 @@ struct efx_nic {
 	unsigned int timer_quantum_ns;
 	unsigned int timer_max_ns;
 	bool irq_rx_adaptive;
+<<<<<<< HEAD
+=======
+	bool irqs_hooked;
+>>>>>>> upstream/android-13
 	unsigned int irq_mod_step_us;
 	unsigned int irq_rx_moderation_us;
 	u32 msg_enable;
@@ -969,6 +1199,13 @@ struct efx_nic {
 	const struct efx_channel_type *
 	extra_channel_type[EFX_MAX_EXTRA_CHANNELS];
 
+<<<<<<< HEAD
+=======
+	unsigned int xdp_tx_queue_count;
+	struct efx_tx_queue **xdp_tx_queues;
+	enum efx_xdp_tx_queues_mode xdp_txq_queues_mode;
+
+>>>>>>> upstream/android-13
 	unsigned rxq_entries;
 	unsigned txq_entries;
 	unsigned int txq_stop_thresh;
@@ -980,6 +1217,10 @@ struct efx_nic {
 	unsigned next_buffer_table;
 
 	unsigned int max_channels;
+<<<<<<< HEAD
+=======
+	unsigned int max_vis;
+>>>>>>> upstream/android-13
 	unsigned int max_tx_channels;
 	unsigned n_channels;
 	unsigned n_rx_channels;
@@ -987,6 +1228,13 @@ struct efx_nic {
 	unsigned tx_channel_offset;
 	unsigned n_tx_channels;
 	unsigned n_extra_tx_channels;
+<<<<<<< HEAD
+=======
+	unsigned int tx_queues_per_channel;
+	unsigned int n_xdp_channels;
+	unsigned int xdp_channel_offset;
+	unsigned int xdp_tx_per_channel;
+>>>>>>> upstream/android-13
 	unsigned int rx_ip_align;
 	unsigned int rx_dma_len;
 	unsigned int rx_buffer_order;
@@ -1001,10 +1249,18 @@ struct efx_nic {
 	bool rx_scatter;
 	struct efx_rss_context rss_context;
 	struct mutex rss_lock;
+<<<<<<< HEAD
+=======
+	u32 vport_id;
+>>>>>>> upstream/android-13
 
 	unsigned int_error_count;
 	unsigned long int_error_expire;
 
+<<<<<<< HEAD
+=======
+	bool must_realloc_vis;
+>>>>>>> upstream/android-13
 	bool irq_soft_enabled;
 	struct efx_buffer irq_status;
 	unsigned irq_zero_count;
@@ -1035,7 +1291,10 @@ struct efx_nic {
 	bool rx_nodesc_drops_prev_state;
 
 	unsigned int phy_type;
+<<<<<<< HEAD
 	const struct efx_phy_operations *phy_op;
+=======
+>>>>>>> upstream/android-13
 	void *phy_data;
 	struct mdio_if_info mdio;
 	unsigned int mdio_bus;
@@ -1056,13 +1315,23 @@ struct efx_nic {
 	u64 loopback_modes;
 
 	void *loopback_selftest;
+<<<<<<< HEAD
+=======
+	/* We access loopback_selftest immediately before running XDP,
+	 * so we want them next to each other.
+	 */
+	struct bpf_prog __rcu *xdp_prog;
+>>>>>>> upstream/android-13
 
 	struct rw_semaphore filter_sem;
 	void *filter_state;
 #ifdef CONFIG_RFS_ACCEL
 	struct mutex rps_mutex;
+<<<<<<< HEAD
 	unsigned int rps_expire_channel;
 	unsigned int rps_expire_index;
+=======
+>>>>>>> upstream/android-13
 	unsigned long rps_slot_map;
 	struct efx_async_filter_insertion rps_slot[EFX_RPS_MAX_IN_FLIGHT];
 	spinlock_t rps_hash_lock;
@@ -1085,6 +1354,15 @@ struct efx_nic {
 	bool ptp_warned;
 
 	char *vpd_sn;
+<<<<<<< HEAD
+=======
+	bool xdp_rxq_info_failed;
+
+	struct notifier_block netdev_notifier;
+
+	unsigned int mem_bar;
+	u32 reg_base;
+>>>>>>> upstream/android-13
 
 	/* The following fields may be written more often */
 
@@ -1114,12 +1392,18 @@ struct efx_mtd_partition {
 };
 
 struct efx_udp_tunnel {
+<<<<<<< HEAD
 	u16 type; /* TUNNEL_ENCAP_UDP_PORT_ENTRY_foo, see mcdi_pcol.h */
 	__be16 port;
 	/* Count of repeated adds of the same port.  Used only inside the list,
 	 * not in request arguments.
 	 */
 	u16 count;
+=======
+#define TUNNEL_ENCAP_UDP_PORT_ENTRY_INVALID	0xffff
+	u16 type; /* TUNNEL_ENCAP_UDP_PORT_ENTRY_foo, see mcdi_pcol.h */
+	__be16 port;
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -1150,10 +1434,19 @@ struct efx_udp_tunnel {
  * @describe_stats: Describe statistics for ethtool
  * @update_stats: Update statistics not provided by event handling.
  *	Either argument may be %NULL.
+<<<<<<< HEAD
  * @start_stats: Start the regular fetching of statistics
  * @pull_stats: Pull stats from the NIC and wait until they arrive.
  * @stop_stats: Stop the regular fetching of statistics
  * @set_id_led: Set state of identifying LED or revert to automatic function
+=======
+ * @update_stats_atomic: Update statistics while in atomic context, if that
+ *	is more limiting than @update_stats.  Otherwise, leave %NULL and
+ *	driver core will call @update_stats.
+ * @start_stats: Start the regular fetching of statistics
+ * @pull_stats: Pull stats from the NIC and wait until they arrive.
+ * @stop_stats: Stop the regular fetching of statistics
+>>>>>>> upstream/android-13
  * @push_irq_moderation: Apply interrupt moderation value
  * @reconfigure_port: Push loopback/power/txdis changes to the MAC and PHY
  * @prepare_enable_fc_tx: Prepare MAC to enable pause frame TX (may be %NULL)
@@ -1163,6 +1456,10 @@ struct efx_udp_tunnel {
  * @get_wol: Get WoL configuration from driver state
  * @set_wol: Push WoL configuration to the NIC
  * @resume_wol: Synchronise WoL state between driver and MC (e.g. after resume)
+<<<<<<< HEAD
+=======
+ * @get_fec_stats: Get standard FEC statistics.
+>>>>>>> upstream/android-13
  * @test_chip: Test registers.  May use efx_farch_test_registers(), and is
  *	expected to reset the NIC.
  * @test_nvram: Test validity of NVRAM contents
@@ -1186,10 +1483,18 @@ struct efx_udp_tunnel {
  *	a pointer to the &struct efx_msi_context for the channel.
  * @irq_handle_legacy: Handle legacy interrupt.  The @dev_id argument
  *	is a pointer to the &struct efx_nic.
+<<<<<<< HEAD
  * @tx_probe: Allocate resources for TX queue
  * @tx_init: Initialise TX queue on the NIC
  * @tx_remove: Free resources for TX queue
  * @tx_write: Write TX descriptors and doorbell
+=======
+ * @tx_probe: Allocate resources for TX queue (and select TXQ type)
+ * @tx_init: Initialise TX queue on the NIC
+ * @tx_remove: Free resources for TX queue
+ * @tx_write: Write TX descriptors and doorbell
+ * @tx_enqueue: Add an SKB to TX queue
+>>>>>>> upstream/android-13
  * @rx_push_rss_config: Write RSS hash key and indirection table to the NIC
  * @rx_pull_rss_config: Read RSS hash key and indirection table back from the NIC
  * @rx_push_rss_context_config: Write RSS hash key and indirection table for
@@ -1201,6 +1506,11 @@ struct efx_udp_tunnel {
  * @rx_remove: Free resources for RX queue
  * @rx_write: Write RX descriptors and doorbell
  * @rx_defer_refill: Generate a refill reminder event
+<<<<<<< HEAD
+=======
+ * @rx_packet: Receive the queued RX buffer on a channel
+ * @rx_buf_hash_valid: Determine whether the RX prefix contains a valid hash
+>>>>>>> upstream/android-13
  * @ev_probe: Allocate resources for event queue
  * @ev_init: Initialise event queue on the NIC
  * @ev_fini: Deinitialise event queue on the NIC
@@ -1243,9 +1553,15 @@ struct efx_udp_tunnel {
  * @tso_versions: Returns mask of firmware-assisted TSO versions supported.
  *	If %NULL, then device does not support any TSO version.
  * @udp_tnl_push_ports: Push the list of UDP tunnel ports to the NIC if required.
+<<<<<<< HEAD
  * @udp_tnl_add_port: Add a UDP tunnel port
  * @udp_tnl_has_port: Check if a port has been added as UDP tunnel
  * @udp_tnl_del_port: Remove a UDP tunnel port
+=======
+ * @udp_tnl_has_port: Check if a port has been added as UDP tunnel
+ * @print_additional_fwver: Dump NIC-specific additional FW version info
+ * @sensor_event: Handle a sensor event from MCDI
+>>>>>>> upstream/android-13
  * @revision: Hardware architecture revision
  * @txd_ptr_tbl_base: TX descriptor ring base address
  * @rxd_ptr_tbl_base: RX descriptor ring base address
@@ -1262,8 +1578,11 @@ struct efx_udp_tunnel {
  * @option_descriptors: NIC supports TX option descriptors
  * @min_interrupt_mode: Lowest capability interrupt mode supported
  *	from &enum efx_int_mode.
+<<<<<<< HEAD
  * @max_interrupt_mode: Highest capability interrupt mode supported
  *	from &enum efx_int_mode.
+=======
+>>>>>>> upstream/android-13
  * @timer_period_max: Maximum period of interrupt timer (in ticks)
  * @offload_features: net_device feature flags for protocol offload
  *	features implemented in hardware
@@ -1294,6 +1613,7 @@ struct efx_nic_type {
 	size_t (*describe_stats)(struct efx_nic *efx, u8 *names);
 	size_t (*update_stats)(struct efx_nic *efx, u64 *full_stats,
 			       struct rtnl_link_stats64 *core_stats);
+<<<<<<< HEAD
 	void (*start_stats)(struct efx_nic *efx);
 	void (*pull_stats)(struct efx_nic *efx);
 	void (*stop_stats)(struct efx_nic *efx);
@@ -1302,10 +1622,29 @@ struct efx_nic_type {
 	int (*reconfigure_port)(struct efx_nic *efx);
 	void (*prepare_enable_fc_tx)(struct efx_nic *efx);
 	int (*reconfigure_mac)(struct efx_nic *efx);
+=======
+	size_t (*update_stats_atomic)(struct efx_nic *efx, u64 *full_stats,
+				      struct rtnl_link_stats64 *core_stats);
+	void (*start_stats)(struct efx_nic *efx);
+	void (*pull_stats)(struct efx_nic *efx);
+	void (*stop_stats)(struct efx_nic *efx);
+	void (*push_irq_moderation)(struct efx_channel *channel);
+	int (*reconfigure_port)(struct efx_nic *efx);
+	void (*prepare_enable_fc_tx)(struct efx_nic *efx);
+	int (*reconfigure_mac)(struct efx_nic *efx, bool mtu_only);
+>>>>>>> upstream/android-13
 	bool (*check_mac_fault)(struct efx_nic *efx);
 	void (*get_wol)(struct efx_nic *efx, struct ethtool_wolinfo *wol);
 	int (*set_wol)(struct efx_nic *efx, u32 type);
 	void (*resume_wol)(struct efx_nic *efx);
+<<<<<<< HEAD
+=======
+	void (*get_fec_stats)(struct efx_nic *efx,
+			      struct ethtool_fec_stats *fec_stats);
+	unsigned int (*check_caps)(const struct efx_nic *efx,
+				   u8 flag,
+				   u32 offset);
+>>>>>>> upstream/android-13
 	int (*test_chip)(struct efx_nic *efx, struct efx_self_tests *tests);
 	int (*test_nvram)(struct efx_nic *efx);
 	void (*mcdi_request)(struct efx_nic *efx,
@@ -1325,6 +1664,10 @@ struct efx_nic_type {
 	void (*tx_init)(struct efx_tx_queue *tx_queue);
 	void (*tx_remove)(struct efx_tx_queue *tx_queue);
 	void (*tx_write)(struct efx_tx_queue *tx_queue);
+<<<<<<< HEAD
+=======
+	netdev_tx_t (*tx_enqueue)(struct efx_tx_queue *tx_queue, struct sk_buff *skb);
+>>>>>>> upstream/android-13
 	unsigned int (*tx_limit_len)(struct efx_tx_queue *tx_queue,
 				     dma_addr_t dma_addr, unsigned int len);
 	int (*rx_push_rss_config)(struct efx_nic *efx, bool user,
@@ -1342,6 +1685,11 @@ struct efx_nic_type {
 	void (*rx_remove)(struct efx_rx_queue *rx_queue);
 	void (*rx_write)(struct efx_rx_queue *rx_queue);
 	void (*rx_defer_refill)(struct efx_rx_queue *rx_queue);
+<<<<<<< HEAD
+=======
+	void (*rx_packet)(struct efx_channel *channel);
+	bool (*rx_buf_hash_valid)(const u8 *prefix);
+>>>>>>> upstream/android-13
 	int (*ev_probe)(struct efx_channel *channel);
 	int (*ev_init)(struct efx_channel *channel);
 	void (*ev_fini)(struct efx_channel *channel);
@@ -1413,9 +1761,16 @@ struct efx_nic_type {
 	int (*set_mac_address)(struct efx_nic *efx);
 	u32 (*tso_versions)(struct efx_nic *efx);
 	int (*udp_tnl_push_ports)(struct efx_nic *efx);
+<<<<<<< HEAD
 	int (*udp_tnl_add_port)(struct efx_nic *efx, struct efx_udp_tunnel tnl);
 	bool (*udp_tnl_has_port)(struct efx_nic *efx, __be16 port);
 	int (*udp_tnl_del_port)(struct efx_nic *efx, struct efx_udp_tunnel tnl);
+=======
+	bool (*udp_tnl_has_port)(struct efx_nic *efx, __be16 port);
+	size_t (*print_additional_fwver)(struct efx_nic *efx, char *buf,
+					 size_t len);
+	void (*sensor_event)(struct efx_nic *efx, efx_qword_t *ev);
+>>>>>>> upstream/android-13
 
 	int revision;
 	unsigned int txd_ptr_tbl_base;
@@ -1432,7 +1787,10 @@ struct efx_nic_type {
 	bool always_rx_scatter;
 	bool option_descriptors;
 	unsigned int min_interrupt_mode;
+<<<<<<< HEAD
 	unsigned int max_interrupt_mode;
+=======
+>>>>>>> upstream/android-13
 	unsigned int timer_period_max;
 	netdev_features_t offload_features;
 	int mcdi_max_ver;
@@ -1468,16 +1826,38 @@ efx_get_channel(struct efx_nic *efx, unsigned index)
 	     _channel = _channel->channel ?				\
 		     (_efx)->channel[_channel->channel - 1] : NULL)
 
+<<<<<<< HEAD
 static inline struct efx_tx_queue *
 efx_get_tx_queue(struct efx_nic *efx, unsigned index, unsigned type)
 {
 	EFX_WARN_ON_ONCE_PARANOID(index >= efx->n_tx_channels ||
 				  type >= EFX_TXQ_TYPES);
 	return &efx->channel[efx->tx_channel_offset + index]->tx_queue[type];
+=======
+static inline struct efx_channel *
+efx_get_tx_channel(struct efx_nic *efx, unsigned int index)
+{
+	EFX_WARN_ON_ONCE_PARANOID(index >= efx->n_tx_channels);
+	return efx->channel[efx->tx_channel_offset + index];
+}
+
+static inline struct efx_channel *
+efx_get_xdp_channel(struct efx_nic *efx, unsigned int index)
+{
+	EFX_WARN_ON_ONCE_PARANOID(index >= efx->n_xdp_channels);
+	return efx->channel[efx->xdp_channel_offset + index];
+}
+
+static inline bool efx_channel_is_xdp_tx(struct efx_channel *channel)
+{
+	return channel->channel - channel->efx->xdp_channel_offset <
+	       channel->efx->n_xdp_channels;
+>>>>>>> upstream/android-13
 }
 
 static inline bool efx_channel_has_tx_queues(struct efx_channel *channel)
 {
+<<<<<<< HEAD
 	return channel->type && channel->type->want_txqs &&
 				channel->type->want_txqs(channel);
 }
@@ -1494,6 +1874,31 @@ static inline bool efx_tx_queue_used(struct efx_tx_queue *tx_queue)
 {
 	return !(tx_queue->efx->net_dev->num_tc < 2 &&
 		 tx_queue->queue & EFX_TXQ_TYPE_HIGHPRI);
+=======
+	return true;
+}
+
+static inline unsigned int efx_channel_num_tx_queues(struct efx_channel *channel)
+{
+	if (efx_channel_is_xdp_tx(channel))
+		return channel->efx->xdp_tx_per_channel;
+	return channel->efx->tx_queues_per_channel;
+}
+
+static inline struct efx_tx_queue *
+efx_channel_get_tx_queue(struct efx_channel *channel, unsigned int type)
+{
+	EFX_WARN_ON_ONCE_PARANOID(type >= EFX_TXQ_TYPES);
+	return channel->tx_queue_by_type[type];
+}
+
+static inline struct efx_tx_queue *
+efx_get_tx_queue(struct efx_nic *efx, unsigned int index, unsigned int type)
+{
+	struct efx_channel *channel = efx_get_tx_channel(efx, index);
+
+	return efx_channel_get_tx_queue(channel, type);
+>>>>>>> upstream/android-13
 }
 
 /* Iterate over all TX queues belonging to a channel */
@@ -1502,6 +1907,7 @@ static inline bool efx_tx_queue_used(struct efx_tx_queue *tx_queue)
 		;							\
 	else								\
 		for (_tx_queue = (_channel)->tx_queue;			\
+<<<<<<< HEAD
 		     _tx_queue < (_channel)->tx_queue + EFX_TXQ_TYPES && \
 			     efx_tx_queue_used(_tx_queue);		\
 		     _tx_queue++)
@@ -1513,6 +1919,10 @@ static inline bool efx_tx_queue_used(struct efx_tx_queue *tx_queue)
 	else								\
 		for (_tx_queue = (_channel)->tx_queue;			\
 		     _tx_queue < (_channel)->tx_queue + EFX_TXQ_TYPES;	\
+=======
+		     _tx_queue < (_channel)->tx_queue +			\
+				 efx_channel_num_tx_queues(_channel);		\
+>>>>>>> upstream/android-13
 		     _tx_queue++)
 
 static inline bool efx_channel_has_rx_queue(struct efx_channel *channel)
@@ -1556,6 +1966,18 @@ static inline struct efx_rx_buffer *efx_rx_buffer(struct efx_rx_queue *rx_queue,
 	return &rx_queue->buffer[index];
 }
 
+<<<<<<< HEAD
+=======
+static inline struct efx_rx_buffer *
+efx_rx_buf_next(struct efx_rx_queue *rx_queue, struct efx_rx_buffer *rx_buf)
+{
+	if (unlikely(rx_buf == efx_rx_buffer(rx_queue, rx_queue->ptr_mask)))
+		return efx_rx_buffer(rx_queue, 0);
+	else
+		return rx_buf + 1;
+}
+
+>>>>>>> upstream/android-13
 /**
  * EFX_MAX_FRAME_LEN - calculate maximum frame length
  *
@@ -1586,6 +2008,37 @@ static inline void efx_xmit_hwtstamp_pending(struct sk_buff *skb)
 	skb_shinfo(skb)->tx_flags |= SKBTX_IN_PROGRESS;
 }
 
+<<<<<<< HEAD
+=======
+/* Get the max fill level of the TX queues on this channel */
+static inline unsigned int
+efx_channel_tx_fill_level(struct efx_channel *channel)
+{
+	struct efx_tx_queue *tx_queue;
+	unsigned int fill_level = 0;
+
+	efx_for_each_channel_tx_queue(tx_queue, channel)
+		fill_level = max(fill_level,
+				 tx_queue->insert_count - tx_queue->read_count);
+
+	return fill_level;
+}
+
+/* Conservative approximation of efx_channel_tx_fill_level using cached value */
+static inline unsigned int
+efx_channel_tx_old_fill_level(struct efx_channel *channel)
+{
+	struct efx_tx_queue *tx_queue;
+	unsigned int fill_level = 0;
+
+	efx_for_each_channel_tx_queue(tx_queue, channel)
+		fill_level = max(fill_level,
+				 tx_queue->insert_count - tx_queue->old_read_count);
+
+	return fill_level;
+}
+
+>>>>>>> upstream/android-13
 /* Get all supported features.
  * If a feature is not fixed, it is present in hw_features.
  * If a feature is fixed, it does not present in hw_features, but

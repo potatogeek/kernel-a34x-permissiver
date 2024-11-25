@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/mach-ep93xx/micro9.c
  *
@@ -5,10 +9,13 @@
  *                    Manfred Gruber <m.gruber@tirol.com>
  * Copyright (C) 2009 Contec Steuerungstechnik & Automation GmbH
  *                    Hubert Feurstein <hubert.feurstein@contec.at>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -16,7 +23,11 @@
 #include <linux/platform_device.h>
 #include <linux/io.h>
 
+<<<<<<< HEAD
 #include <mach/hardware.h>
+=======
+#include "hardware.h"
+>>>>>>> upstream/android-13
 
 #include <asm/mach-types.h>
 #include <asm/mach/arch.h>
@@ -83,7 +94,10 @@ MACHINE_START(MICRO9, "Contec Micro9-High")
 	.init_irq	= ep93xx_init_irq,
 	.init_time	= ep93xx_timer_init,
 	.init_machine	= micro9_init_machine,
+<<<<<<< HEAD
 	.init_late	= ep93xx_init_late,
+=======
+>>>>>>> upstream/android-13
 	.restart	= ep93xx_restart,
 MACHINE_END
 #endif
@@ -96,7 +110,10 @@ MACHINE_START(MICRO9M, "Contec Micro9-Mid")
 	.init_irq	= ep93xx_init_irq,
 	.init_time	= ep93xx_timer_init,
 	.init_machine	= micro9_init_machine,
+<<<<<<< HEAD
 	.init_late	= ep93xx_init_late,
+=======
+>>>>>>> upstream/android-13
 	.restart	= ep93xx_restart,
 MACHINE_END
 #endif
@@ -109,7 +126,10 @@ MACHINE_START(MICRO9L, "Contec Micro9-Lite")
 	.init_irq	= ep93xx_init_irq,
 	.init_time	= ep93xx_timer_init,
 	.init_machine	= micro9_init_machine,
+<<<<<<< HEAD
 	.init_late	= ep93xx_init_late,
+=======
+>>>>>>> upstream/android-13
 	.restart	= ep93xx_restart,
 MACHINE_END
 #endif
@@ -122,7 +142,10 @@ MACHINE_START(MICRO9S, "Contec Micro9-Slim")
 	.init_irq	= ep93xx_init_irq,
 	.init_time	= ep93xx_timer_init,
 	.init_machine	= micro9_init_machine,
+<<<<<<< HEAD
 	.init_late	= ep93xx_init_late,
+=======
+>>>>>>> upstream/android-13
 	.restart	= ep93xx_restart,
 MACHINE_END
 #endif

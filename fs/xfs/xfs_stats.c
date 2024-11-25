@@ -4,7 +4,10 @@
  * All Rights Reserved.
  */
 #include "xfs.h"
+<<<<<<< HEAD
 #include <linux/proc_fs.h>
+=======
+>>>>>>> upstream/android-13
 
 struct xstats xfsstats;
 
@@ -24,11 +27,16 @@ int xfs_stats_format(struct xfsstats __percpu *stats, char *buf)
 	uint64_t	xs_xstrat_bytes = 0;
 	uint64_t	xs_write_bytes = 0;
 	uint64_t	xs_read_bytes = 0;
+<<<<<<< HEAD
+=======
+	uint64_t	defer_relog = 0;
+>>>>>>> upstream/android-13
 
 	static const struct xstats_entry {
 		char	*desc;
 		int	endpoint;
 	} xstats[] = {
+<<<<<<< HEAD
 		{ "extent_alloc",	XFSSTAT_END_EXTENT_ALLOC	},
 		{ "abt",		XFSSTAT_END_ALLOC_BTREE		},
 		{ "blk_map",		XFSSTAT_END_BLOCK_MAPPING	},
@@ -53,11 +61,38 @@ int xfs_stats_format(struct xfsstats __percpu *stats, char *buf)
 		{ "refcntbt",		XFSSTAT_END_REFCOUNT		},
 		/* we print both series of quota information together */
 		{ "qm",			XFSSTAT_END_QM			},
+=======
+		{ "extent_alloc",	xfsstats_offset(xs_abt_lookup)	},
+		{ "abt",		xfsstats_offset(xs_blk_mapr)	},
+		{ "blk_map",		xfsstats_offset(xs_bmbt_lookup)	},
+		{ "bmbt",		xfsstats_offset(xs_dir_lookup)	},
+		{ "dir",		xfsstats_offset(xs_trans_sync)	},
+		{ "trans",		xfsstats_offset(xs_ig_attempts)	},
+		{ "ig",			xfsstats_offset(xs_log_writes)	},
+		{ "log",		xfsstats_offset(xs_try_logspace)},
+		{ "push_ail",		xfsstats_offset(xs_xstrat_quick)},
+		{ "xstrat",		xfsstats_offset(xs_write_calls)	},
+		{ "rw",			xfsstats_offset(xs_attr_get)	},
+		{ "attr",		xfsstats_offset(xs_iflush_count)},
+		{ "icluster",		xfsstats_offset(vn_active)	},
+		{ "vnodes",		xfsstats_offset(xb_get)		},
+		{ "buf",		xfsstats_offset(xs_abtb_2)	},
+		{ "abtb2",		xfsstats_offset(xs_abtc_2)	},
+		{ "abtc2",		xfsstats_offset(xs_bmbt_2)	},
+		{ "bmbt2",		xfsstats_offset(xs_ibt_2)	},
+		{ "ibt2",		xfsstats_offset(xs_fibt_2)	},
+		{ "fibt2",		xfsstats_offset(xs_rmap_2)	},
+		{ "rmapbt",		xfsstats_offset(xs_refcbt_2)	},
+		{ "refcntbt",		xfsstats_offset(xs_qm_dqreclaims)},
+		/* we print both series of quota information together */
+		{ "qm",			xfsstats_offset(xs_xstrat_bytes)},
+>>>>>>> upstream/android-13
 	};
 
 	/* Loop over all stats groups */
 
 	for (i = j = 0; i < ARRAY_SIZE(xstats); i++) {
+<<<<<<< HEAD
 		len += snprintf(buf + len, PATH_MAX - len, "%s",
 				xstats[i].desc);
 		/* inner loop does each group */
@@ -65,17 +100,37 @@ int xfs_stats_format(struct xfsstats __percpu *stats, char *buf)
 			len += snprintf(buf + len, PATH_MAX - len, " %u",
 					counter_val(stats, j));
 		len += snprintf(buf + len, PATH_MAX - len, "\n");
+=======
+		len += scnprintf(buf + len, PATH_MAX - len, "%s",
+				xstats[i].desc);
+		/* inner loop does each group */
+		for (; j < xstats[i].endpoint; j++)
+			len += scnprintf(buf + len, PATH_MAX - len, " %u",
+					counter_val(stats, j));
+		len += scnprintf(buf + len, PATH_MAX - len, "\n");
+>>>>>>> upstream/android-13
 	}
 	/* extra precision counters */
 	for_each_possible_cpu(i) {
 		xs_xstrat_bytes += per_cpu_ptr(stats, i)->s.xs_xstrat_bytes;
 		xs_write_bytes += per_cpu_ptr(stats, i)->s.xs_write_bytes;
 		xs_read_bytes += per_cpu_ptr(stats, i)->s.xs_read_bytes;
+<<<<<<< HEAD
 	}
 
 	len += snprintf(buf + len, PATH_MAX-len, "xpc %Lu %Lu %Lu\n",
 			xs_xstrat_bytes, xs_write_bytes, xs_read_bytes);
 	len += snprintf(buf + len, PATH_MAX-len, "debug %u\n",
+=======
+		defer_relog += per_cpu_ptr(stats, i)->s.defer_relog;
+	}
+
+	len += scnprintf(buf + len, PATH_MAX-len, "xpc %Lu %Lu %Lu\n",
+			xs_xstrat_bytes, xs_write_bytes, xs_read_bytes);
+	len += scnprintf(buf + len, PATH_MAX-len, "defer_relog %llu\n",
+			defer_relog);
+	len += scnprintf(buf + len, PATH_MAX-len, "debug %u\n",
+>>>>>>> upstream/android-13
 #if defined(DEBUG)
 		1);
 #else
@@ -104,6 +159,13 @@ void xfs_stats_clearall(struct xfsstats __percpu *stats)
 #ifdef CONFIG_PROC_FS
 /* legacy quota interfaces */
 #ifdef CONFIG_XFS_QUOTA
+<<<<<<< HEAD
+=======
+
+#define XFSSTAT_START_XQMSTAT xfsstats_offset(xs_qm_dqreclaims)
+#define XFSSTAT_END_XQMSTAT xfsstats_offset(xs_qm_dquot)
+
+>>>>>>> upstream/android-13
 static int xqm_proc_show(struct seq_file *m, void *v)
 {
 	/* maximum; incore; ratio free to inuse; freelist */
@@ -119,7 +181,11 @@ static int xqmstat_proc_show(struct seq_file *m, void *v)
 	int j;
 
 	seq_printf(m, "qm");
+<<<<<<< HEAD
 	for (j = XFSSTAT_END_REFCOUNT; j < XFSSTAT_END_XQMSTAT; j++)
+=======
+	for (j = XFSSTAT_START_XQMSTAT; j < XFSSTAT_END_XQMSTAT; j++)
+>>>>>>> upstream/android-13
 		seq_printf(m, " %u", counter_val(xfsstats.xs_stats, j));
 	seq_putc(m, '\n');
 	return 0;

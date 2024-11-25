@@ -10,7 +10,10 @@
 #include <linux/interrupt.h>
 #include <linux/usb.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 #include <linux/vmalloc.h>
+=======
+>>>>>>> upstream/android-13
 
 #include <linux/delay.h>
 #include <sound/core.h>
@@ -52,13 +55,20 @@ MODULE_PARM_DESC(index, "Index value for tm6000x capture interface(s).");
 MODULE_DESCRIPTION("ALSA driver module for tm5600/tm6000/tm6010 based TV cards");
 MODULE_AUTHOR("Mauro Carvalho Chehab");
 MODULE_LICENSE("GPL v2");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{{Trident,tm5600},{{Trident,tm6000},{{Trident,tm6010}");
+=======
+>>>>>>> upstream/android-13
 static unsigned int debug;
 module_param(debug, int, 0644);
 MODULE_PARM_DESC(debug, "enable debug messages");
 
 /****************************************************************************
+<<<<<<< HEAD
 			Module specific funtions
+=======
+			Module specific functions
+>>>>>>> upstream/android-13
  ****************************************************************************/
 
 /*
@@ -94,6 +104,7 @@ static int _tm6000_stop_audio_dma(struct snd_tm6000_card *chip)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void dsp_buffer_free(struct snd_pcm_substream *substream)
 {
 	struct snd_tm6000_card *chip = snd_pcm_substream_chip(substream);
@@ -128,6 +139,8 @@ static int dsp_buffer_alloc(struct snd_pcm_substream *substream, int size)
 }
 
 
+=======
+>>>>>>> upstream/android-13
 /****************************************************************************
 				ALSA PCM Interface
  ****************************************************************************/
@@ -269,6 +282,7 @@ static int tm6000_fillbuf(struct tm6000_core *core, char *buf, int size)
 }
 
 /*
+<<<<<<< HEAD
  * hw_params callback
  */
 static int snd_tm6000_hw_params(struct snd_pcm_substream *substream,
@@ -303,6 +317,8 @@ static int snd_tm6000_hw_free(struct snd_pcm_substream *substream)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * prepare callback
  */
 static int snd_tm6000_prepare(struct snd_pcm_substream *substream)
@@ -341,6 +357,7 @@ static int snd_tm6000_card_trigger(struct snd_pcm_substream *substream, int cmd)
 	int err = 0;
 
 	switch (cmd) {
+<<<<<<< HEAD
 	case SNDRV_PCM_TRIGGER_PAUSE_RELEASE: /* fall through */
 	case SNDRV_PCM_TRIGGER_RESUME: /* fall through */
 	case SNDRV_PCM_TRIGGER_START:
@@ -348,6 +365,15 @@ static int snd_tm6000_card_trigger(struct snd_pcm_substream *substream, int cmd)
 		break;
 	case SNDRV_PCM_TRIGGER_PAUSE_PUSH: /* fall through */
 	case SNDRV_PCM_TRIGGER_SUSPEND: /* fall through */
+=======
+	case SNDRV_PCM_TRIGGER_PAUSE_RELEASE:
+	case SNDRV_PCM_TRIGGER_RESUME:
+	case SNDRV_PCM_TRIGGER_START:
+		atomic_set(&core->stream_started, 1);
+		break;
+	case SNDRV_PCM_TRIGGER_PAUSE_PUSH:
+	case SNDRV_PCM_TRIGGER_SUSPEND:
+>>>>>>> upstream/android-13
 	case SNDRV_PCM_TRIGGER_STOP:
 		atomic_set(&core->stream_started, 0);
 		break;
@@ -369,6 +395,7 @@ static snd_pcm_uframes_t snd_tm6000_pointer(struct snd_pcm_substream *substream)
 	return chip->buf_pos;
 }
 
+<<<<<<< HEAD
 static struct page *snd_pcm_get_vmalloc_page(struct snd_pcm_substream *subs,
 					     unsigned long offset)
 {
@@ -377,12 +404,15 @@ static struct page *snd_pcm_get_vmalloc_page(struct snd_pcm_substream *subs,
 	return vmalloc_to_page(pageptr);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * operators
  */
 static const struct snd_pcm_ops snd_tm6000_pcm_ops = {
 	.open = snd_tm6000_pcm_open,
 	.close = snd_tm6000_close,
+<<<<<<< HEAD
 	.ioctl = snd_pcm_lib_ioctl,
 	.hw_params = snd_tm6000_hw_params,
 	.hw_free = snd_tm6000_hw_free,
@@ -390,6 +420,11 @@ static const struct snd_pcm_ops snd_tm6000_pcm_ops = {
 	.trigger = snd_tm6000_card_trigger,
 	.pointer = snd_tm6000_pointer,
 	.page = snd_pcm_get_vmalloc_page,
+=======
+	.prepare = snd_tm6000_prepare,
+	.trigger = snd_tm6000_card_trigger,
+	.pointer = snd_tm6000_pointer,
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -429,8 +464,13 @@ static int tm6000_audio_init(struct tm6000_core *dev)
 		snd_printk(KERN_ERR "cannot create card instance %d\n", devnr);
 		return rc;
 	}
+<<<<<<< HEAD
 	strcpy(card->driver, "tm6000-alsa");
 	strcpy(card->shortname, "TM5600/60x0");
+=======
+	strscpy(card->driver, "tm6000-alsa", sizeof(card->driver));
+	strscpy(card->shortname, "TM5600/60x0", sizeof(card->shortname));
+>>>>>>> upstream/android-13
 	sprintf(card->longname, "TM5600/60x0 Audio at bus %d device %d",
 		dev->udev->bus->busnum, dev->udev->devnum);
 
@@ -456,9 +496,16 @@ static int tm6000_audio_init(struct tm6000_core *dev)
 
 	pcm->info_flags = 0;
 	pcm->private_data = chip;
+<<<<<<< HEAD
 	strcpy(pcm->name, "Trident TM5600/60x0");
 
 	snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_CAPTURE, &snd_tm6000_pcm_ops);
+=======
+	strscpy(pcm->name, "Trident TM5600/60x0", sizeof(pcm->name));
+
+	snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_CAPTURE, &snd_tm6000_pcm_ops);
+	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_VMALLOC, NULL, 0, 0);
+>>>>>>> upstream/android-13
 
 	INIT_WORK(&dev->wq_trigger, audio_trigger);
 	rc = snd_card_register(card);

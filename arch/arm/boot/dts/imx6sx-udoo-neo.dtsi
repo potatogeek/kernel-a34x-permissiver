@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016 Andreas Färber
  *
@@ -38,6 +39,11 @@
  *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *     OTHER DEALINGS IN THE SOFTWARE.
+=======
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (c) 2016 Andreas Färber
+>>>>>>> upstream/android-13
  */
 
 #include "imx6sx.dtsi"
@@ -107,6 +113,7 @@
 		startup-delay-us = <70000>;
 		enable-active-high;
 	};
+<<<<<<< HEAD
 
 	reg_bt: regulator-bt {
 		compatible = "regulator-fixed";
@@ -119,6 +126,8 @@
 		regulator-max-microvolt = <1800000>;
 		regulator-always-on;
 	};
+=======
+>>>>>>> upstream/android-13
 };
 
 &fec1 {
@@ -225,6 +234,23 @@
 	};
 };
 
+<<<<<<< HEAD
+=======
+&i2c2 { /* Brick snap in sensors connector */
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_i2c2>;
+	clock-frequency = <100000>;
+	status = "okay";
+};
+
+&i2c4 { /* Onboard Motion sensors */
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_i2c4>;
+	clock-frequency = <100000>;
+	status = "disabled";
+};
+
+>>>>>>> upstream/android-13
 &iomuxc {
 	pinctrl_bt_reg: btreggrp {
 		fsl,pins =
@@ -256,30 +282,66 @@
 			<MX6SX_PAD_GPIO1_IO01__I2C1_SDA		0x4001b8b1>;
 	};
 
+<<<<<<< HEAD
 	pinctrl_uart1: uart1grp {
 		fsl,pins =
 			<MX6SX_PAD_GPIO1_IO04__UART1_TX		0x1b0b1>,
 			<MX6SX_PAD_GPIO1_IO05__UART1_RX		0x1b0b1>;
+=======
+	pinctrl_i2c2: i2c2grp {
+		fsl,pins =
+			<MX6SX_PAD_GPIO1_IO03__I2C2_SDA		0x4001b8b1>,
+			<MX6SX_PAD_GPIO1_IO02__I2C2_SCL		0x4001b8b1>;
+	};
+
+	pinctrl_i2c4: i2c4grp {
+		fsl,pins =
+			<MX6SX_PAD_USB_H_DATA__I2C4_SDA		0x4001b8b1>,
+			<MX6SX_PAD_USB_H_STROBE__I2C4_SCL	0x4001b8b1>;
+	};
+
+	pinctrl_uart1: uart1grp {
+		fsl,pins =
+			<MX6SX_PAD_GPIO1_IO04__UART1_DCE_TX	0x1b0b1>,
+			<MX6SX_PAD_GPIO1_IO05__UART1_DCE_RX	0x1b0b1>;
+>>>>>>> upstream/android-13
 	};
 
 	pinctrl_uart2: uart2grp {
 		fsl,pins =
+<<<<<<< HEAD
 			<MX6SX_PAD_GPIO1_IO06__UART2_TX		0x1b0b1>,
 			<MX6SX_PAD_GPIO1_IO07__UART2_RX		0x1b0b1>;
+=======
+			<MX6SX_PAD_GPIO1_IO06__UART2_DCE_TX	0x1b0b1>,
+			<MX6SX_PAD_GPIO1_IO07__UART2_DCE_RX	0x1b0b1>;
+>>>>>>> upstream/android-13
 	};
 
 	pinctrl_uart3: uart3grp {
 		fsl,pins =
+<<<<<<< HEAD
 			<MX6SX_PAD_SD3_DATA4__UART3_RX          0x13059>,
 			<MX6SX_PAD_SD3_DATA5__UART3_TX          0x13059>,
 			<MX6SX_PAD_SD3_DATA6__UART3_RTS_B       0x13059>,
 			<MX6SX_PAD_SD3_DATA7__UART3_CTS_B       0x13059>;
+=======
+			<MX6SX_PAD_SD3_DATA4__UART3_DCE_RX	0x13059>,
+			<MX6SX_PAD_SD3_DATA5__UART3_DCE_TX	0x13059>,
+			<MX6SX_PAD_SD3_DATA6__UART3_DCE_RTS	0x13059>,
+			<MX6SX_PAD_SD3_DATA7__UART3_DCE_CTS	0x13059>;
+>>>>>>> upstream/android-13
 	};
 
 	pinctrl_uart5: uart5grp {
 		fsl,pins =
+<<<<<<< HEAD
 			<MX6SX_PAD_SD4_DATA4__UART5_RX		0x1b0b1>,
 			<MX6SX_PAD_SD4_DATA5__UART5_TX		0x1b0b1>;
+=======
+			<MX6SX_PAD_SD4_DATA4__UART5_DCE_RX	0x1b0b1>,
+			<MX6SX_PAD_SD4_DATA5__UART5_DCE_TX	0x1b0b1>;
+>>>>>>> upstream/android-13
 	};
 
 	pinctrl_uart6: uart6grp {
@@ -288,10 +350,17 @@
 			<MX6SX_PAD_CSI_DATA01__UART6_DSR_B	0x1b0b1>,
 			<MX6SX_PAD_CSI_DATA02__UART6_DTR_B	0x1b0b1>,
 			<MX6SX_PAD_CSI_DATA03__UART6_DCD_B	0x1b0b1>,
+<<<<<<< HEAD
 			<MX6SX_PAD_CSI_DATA04__UART6_RX		0x1b0b1>,
 			<MX6SX_PAD_CSI_DATA05__UART6_TX		0x1b0b1>,
 			<MX6SX_PAD_CSI_DATA06__UART6_RTS_B	0x1b0b1>,
 			<MX6SX_PAD_CSI_DATA07__UART6_CTS_B	0x1b0b1>;
+=======
+			<MX6SX_PAD_CSI_DATA04__UART6_DCE_RX	0x1b0b1>,
+			<MX6SX_PAD_CSI_DATA05__UART6_DCE_TX	0x1b0b1>,
+			<MX6SX_PAD_CSI_DATA06__UART6_DCE_RTS	0x1b0b1>,
+			<MX6SX_PAD_CSI_DATA07__UART6_DCE_CTS	0x1b0b1>;
+>>>>>>> upstream/android-13
 	};
 
 	pinctrl_otg1_reg: otg1grp {
@@ -354,11 +423,27 @@
 	status = "disabled";
 };
 
+<<<<<<< HEAD
 &uart3 { /* Bluetooth */
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_uart3>;
 	uart-has-rtscts;
 	status = "okay";
+=======
+&uart3 { /* Bluetooth - only on Extended/Full versions */
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_uart3>;
+	uart-has-rtscts;
+	status = "disabled";
+
+	bluetooth {
+		compatible = "ti,wl1831-st";
+		enable-gpios = <&gpio2 17 GPIO_ACTIVE_HIGH>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_bt_reg>;
+		max-speed = <921600>;
+	};
+>>>>>>> upstream/android-13
 };
 
 /* Arduino serial */

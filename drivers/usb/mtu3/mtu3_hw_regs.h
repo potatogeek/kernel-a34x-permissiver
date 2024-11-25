@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * mtu3_hw_regs.h - MediaTek USB3 DRD register and field definitions
  *
@@ -27,9 +31,12 @@
 #define U3D_LV1IESR		(SSUSB_DEV_BASE + 0x0008)
 #define U3D_LV1IECR		(SSUSB_DEV_BASE + 0x000C)
 
+<<<<<<< HEAD
 #define U3D_MAC_U1_EN_CTRL	(SSUSB_DEV_BASE + 0x0030)
 #define U3D_MAC_U2_EN_CTRL	(SSUSB_DEV_BASE + 0x0034)
 
+=======
+>>>>>>> upstream/android-13
 #define U3D_EPISR		(SSUSB_DEV_BASE + 0x0080)
 #define U3D_EPIER		(SSUSB_DEV_BASE + 0x0084)
 #define U3D_EPIESR		(SSUSB_DEV_BASE + 0x0088)
@@ -106,10 +113,13 @@
 /* U3D_LV1IECR */
 #define LV1IECR_MSK		GENMASK(31, 0)
 
+<<<<<<< HEAD
 /* U3D_MAC_U1_EN_CTRL */
 /* U3D_MAC_U2_EN_CTRL */
 #define ACCEPT_BMU_RX_EMPTY_HCK	BIT(20)
 
+=======
+>>>>>>> upstream/android-13
 /* U3D_EPISR */
 #define EPRISR(x)		(BIT(16) << (x))
 #define SETUPENDISR		BIT(16)
@@ -141,7 +151,11 @@
 #define TX_W1C_BITS		(~(TX_SENTSTALL))
 
 /* U3D_TX1CSR1 */
+<<<<<<< HEAD
 #define TX_MAX_PKT_G2(x)	(((x) & 0x7f) << 24)
+=======
+#define TX_MAX_PKT_G2(x)	(((x) & 0xff) << 24)
+>>>>>>> upstream/android-13
 #define TX_MULT_G2(x)		(((x) & 0x7) << 21)
 #define TX_MULT_OG(x)		(((x) & 0x3) << 22)
 #define TX_MAX_PKT_OG(x)	(((x) & 0x3f) << 16)
@@ -180,7 +194,11 @@
 #define RX_W1C_BITS		(~(RX_SENTSTALL | RX_RXPKTRDY))
 
 /* U3D_RX1CSR1 */
+<<<<<<< HEAD
 #define RX_MAX_PKT_G2(x)	(((x) & 0x7f) << 24)
+=======
+#define RX_MAX_PKT_G2(x)	(((x) & 0xff) << 24)
+>>>>>>> upstream/android-13
 #define RX_MULT_G2(x)		(((x) & 0x7) << 21)
 #define RX_MULT_OG(x)		(((x) & 0x3) << 22)
 #define RX_MAX_PKT_OG(x)	(((x) & 0x3f) << 16)
@@ -268,10 +286,15 @@
 #define U3D_DEVICE_CONF			(SSUSB_EPCTL_CSR_BASE + 0x0000)
 #define U3D_EP_RST			(SSUSB_EPCTL_CSR_BASE + 0x0004)
 
+<<<<<<< HEAD
 #define U3D_USB2_EPCTL_LPM		(SSUSB_EPCTL_CSR_BASE + 0x0028)
 #define U3D_DEV_LINK_INTR_ENABLE	(SSUSB_EPCTL_CSR_BASE + 0x0050)
 #define U3D_DEV_LINK_INTR		(SSUSB_EPCTL_CSR_BASE + 0x0054)
 #define U3D_USB2_EPCTL_LPM_FC_CHK	(SSUSB_EPCTL_CSR_BASE + 0x0060)
+=======
+#define U3D_DEV_LINK_INTR_ENABLE	(SSUSB_EPCTL_CSR_BASE + 0x0050)
+#define U3D_DEV_LINK_INTR		(SSUSB_EPCTL_CSR_BASE + 0x0054)
+>>>>>>> upstream/android-13
 
 /*---------------- SSUSB_EPCTL_CSR FIELD DEFINITION ----------------*/
 
@@ -289,6 +312,7 @@
 #define EP_RST(is_in, epnum)	(((is_in) ? BIT(16) : BIT(0)) << (epnum))
 #define EP0_RST			BIT(0)
 
+<<<<<<< HEAD
 /* U3D_USB2_EPCTL_LPM */
 #define L1_EXIT_EP0_CHK BIT(0)
 #define L1_EXIT_EP_CHK(is_in, epnum) \
@@ -298,6 +322,8 @@
 #define L1_EXIT_EP_FC_CHK(is_in, epnum) \
 	(((is_in) ? BIT(0) : BIT(16)) << (epnum))
 
+=======
+>>>>>>> upstream/android-13
 /* U3D_DEV_LINK_INTR_ENABLE */
 /* U3D_DEV_LINK_INTR */
 #define SSUSB_DEV_SPEED_CHG_INTR	BIT(0)
@@ -390,7 +416,10 @@
 #define U3D_USB2_TEST_MODE		(SSUSB_USB2_CSR_BASE + 0x0014)
 #define U3D_COMMON_USB_INTR_ENABLE	(SSUSB_USB2_CSR_BASE + 0x0018)
 #define U3D_COMMON_USB_INTR		(SSUSB_USB2_CSR_BASE + 0x001C)
+<<<<<<< HEAD
 #define U3D_USB_BUS_PERFORMANCE		(SSUSB_USB2_CSR_BASE + 0x0020)
+=======
+>>>>>>> upstream/android-13
 #define U3D_LINK_RESET_INFO		(SSUSB_USB2_CSR_BASE + 0x0024)
 #define U3D_USB20_FRAME_NUM		(SSUSB_USB2_CSR_BASE + 0x003C)
 #define U3D_USB20_LPM_PARAMETER		(SSUSB_USB2_CSR_BASE + 0x0044)
@@ -437,9 +466,12 @@
 #define RESUME_INTR		BIT(1)
 #define SUSPEND_INTR		BIT(0)
 
+<<<<<<< HEAD
 /* U3D_USB_UBS_PERFORMANCE */
 #define NOISE_STILL_TRANSFER	BIT(21)
 
+=======
+>>>>>>> upstream/android-13
 /* U3D_LINK_RESET_INFO */
 #define WTCHRP_MSK		GENMASK(19, 16)
 

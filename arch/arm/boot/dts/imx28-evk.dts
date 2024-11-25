@@ -10,6 +10,10 @@
 	compatible = "fsl,imx28-evk", "fsl,imx28";
 
 	memory@40000000 {
+<<<<<<< HEAD
+=======
+		device_type = "memory";
+>>>>>>> upstream/android-13
 		reg = <0x40000000 0x08000000>;
 	};
 
@@ -96,14 +100,22 @@
 
 	apb@80000000 {
 		apbh@80000000 {
+<<<<<<< HEAD
 			gpmi-nand@8000c000 {
+=======
+			nand-controller@8000c000 {
+>>>>>>> upstream/android-13
 				pinctrl-names = "default";
 				pinctrl-0 = <&gpmi_pins_a &gpmi_status_cfg
 					     &gpmi_pins_evk>;
 				status = "okay";
 			};
 
+<<<<<<< HEAD
 			ssp0: ssp@80010000 {
+=======
+			ssp0: spi@80010000 {
+>>>>>>> upstream/android-13
 				compatible = "fsl,imx28-mmc";
 				pinctrl-names = "default";
 				pinctrl-0 = <&mmc0_8bit_pins_a
@@ -114,13 +126,21 @@
 				status = "okay";
 			};
 
+<<<<<<< HEAD
 			ssp1: ssp@80012000 {
+=======
+			ssp1: spi@80012000 {
+>>>>>>> upstream/android-13
 				compatible = "fsl,imx28-mmc";
 				bus-width = <8>;
 				wp-gpios = <&gpio0 28 0>;
 			};
 
+<<<<<<< HEAD
 			ssp2: ssp@80014000 {
+=======
+			ssp2: spi@80014000 {
+>>>>>>> upstream/android-13
 				#address-cells = <1>;
 				#size-cells = <0>;
 				compatible = "fsl,imx28-spi";

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	Sound core.  This file is composed of two parts.  sound_class
  *	which is common to both OSS and ALSA and OSS sound core which
@@ -73,12 +77,15 @@ module_exit(cleanup_soundcore);
  *
  *	Fixes:
  *
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *                         --------------------
  * 
  *	Top level handler for the sound subsystem. Various devices can

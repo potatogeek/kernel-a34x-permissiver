@@ -1,15 +1,29 @@
 // SPDX-License-Identifier: GPL-2.0
 #include <inttypes.h>
+<<<<<<< HEAD
 #include "perf.h"
 #include "util/debug.h"
 #include "util/symbol.h"
 #include "util/sort.h"
 #include "util/evsel.h"
 #include "util/evlist.h"
+=======
+#include "util/debug.h"
+#include "util/dso.h"
+#include "util/event.h" // struct perf_sample
+#include "util/map.h"
+#include "util/symbol.h"
+#include "util/sort.h"
+#include "util/evsel.h"
+>>>>>>> upstream/android-13
 #include "util/machine.h"
 #include "util/thread.h"
 #include "tests/hists_common.h"
 #include <linux/kernel.h>
+<<<<<<< HEAD
+=======
+#include <linux/perf_event.h>
+>>>>>>> upstream/android-13
 
 static struct {
 	u32 pid;
@@ -161,7 +175,11 @@ out:
 void print_hists_in(struct hists *hists)
 {
 	int i = 0;
+<<<<<<< HEAD
 	struct rb_root *root;
+=======
+	struct rb_root_cached *root;
+>>>>>>> upstream/android-13
 	struct rb_node *node;
 
 	if (hists__has(hists, need_collapse))
@@ -170,7 +188,11 @@ void print_hists_in(struct hists *hists)
 		root = hists->entries_in;
 
 	pr_info("----- %s --------\n", __func__);
+<<<<<<< HEAD
 	node = rb_first(root);
+=======
+	node = rb_first_cached(root);
+>>>>>>> upstream/android-13
 	while (node) {
 		struct hist_entry *he;
 
@@ -191,13 +213,21 @@ void print_hists_in(struct hists *hists)
 void print_hists_out(struct hists *hists)
 {
 	int i = 0;
+<<<<<<< HEAD
 	struct rb_root *root;
+=======
+	struct rb_root_cached *root;
+>>>>>>> upstream/android-13
 	struct rb_node *node;
 
 	root = &hists->entries;
 
 	pr_info("----- %s --------\n", __func__);
+<<<<<<< HEAD
 	node = rb_first(root);
+=======
+	node = rb_first_cached(root);
+>>>>>>> upstream/android-13
 	while (node) {
 		struct hist_entry *he;
 

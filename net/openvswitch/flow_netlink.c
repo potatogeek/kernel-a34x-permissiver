@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2007-2017 Nicira, Inc.
  *
@@ -14,6 +15,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2007-2017 Nicira, Inc.
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -91,6 +97,12 @@ static bool actions_may_change_flow(const struct nlattr *actions)
 		case OVS_ACTION_ATTR_SET:
 		case OVS_ACTION_ATTR_SET_MASKED:
 		case OVS_ACTION_ATTR_METER:
+<<<<<<< HEAD
+=======
+		case OVS_ACTION_ATTR_CHECK_PKT_LEN:
+		case OVS_ACTION_ATTR_ADD_MPLS:
+		case OVS_ACTION_ATTR_DEC_TTL:
+>>>>>>> upstream/android-13
 		default:
 			return true;
 		}
@@ -403,6 +415,10 @@ static const struct ovs_len_tbl ovs_tunnel_key_lens[OVS_TUNNEL_KEY_ATTR_MAX + 1]
 	[OVS_TUNNEL_KEY_ATTR_IPV6_SRC]      = { .len = sizeof(struct in6_addr) },
 	[OVS_TUNNEL_KEY_ATTR_IPV6_DST]      = { .len = sizeof(struct in6_addr) },
 	[OVS_TUNNEL_KEY_ATTR_ERSPAN_OPTS]   = { .len = OVS_ATTR_VARIABLE },
+<<<<<<< HEAD
+=======
+	[OVS_TUNNEL_KEY_ATTR_IPV4_INFO_BRIDGE]   = { .len = 0 },
+>>>>>>> upstream/android-13
 };
 
 static const struct ovs_len_tbl
@@ -435,7 +451,11 @@ static const struct ovs_len_tbl ovs_key_lens[OVS_KEY_ATTR_MAX + 1] = {
 	[OVS_KEY_ATTR_DP_HASH]	 = { .len = sizeof(u32) },
 	[OVS_KEY_ATTR_TUNNEL]	 = { .len = OVS_ATTR_NESTED,
 				     .next = ovs_tunnel_key_lens, },
+<<<<<<< HEAD
 	[OVS_KEY_ATTR_MPLS]	 = { .len = sizeof(struct ovs_key_mpls) },
+=======
+	[OVS_KEY_ATTR_MPLS]	 = { .len = OVS_ATTR_VARIABLE },
+>>>>>>> upstream/android-13
 	[OVS_KEY_ATTR_CT_STATE]	 = { .len = sizeof(u32) },
 	[OVS_KEY_ATTR_CT_ZONE]	 = { .len = sizeof(u16) },
 	[OVS_KEY_ATTR_CT_MARK]	 = { .len = sizeof(u32) },
@@ -666,6 +686,10 @@ static int ip_tun_from_nlattr(const struct nlattr *attr,
 			      bool log)
 {
 	bool ttl = false, ipv4 = false, ipv6 = false;
+<<<<<<< HEAD
+=======
+	bool info_bridge_mode = false;
+>>>>>>> upstream/android-13
 	__be16 tun_flags = 0;
 	int opts_type = 0;
 	struct nlattr *a;
@@ -782,6 +806,13 @@ static int ip_tun_from_nlattr(const struct nlattr *attr,
 			tun_flags |= TUNNEL_ERSPAN_OPT;
 			opts_type = type;
 			break;
+<<<<<<< HEAD
+=======
+		case OVS_TUNNEL_KEY_ATTR_IPV4_INFO_BRIDGE:
+			info_bridge_mode = true;
+			ipv4 = true;
+			break;
+>>>>>>> upstream/android-13
 		default:
 			OVS_NLERR(log, "Unknown IP tunnel attribute %d",
 				  type);
@@ -812,16 +843,39 @@ static int ip_tun_from_nlattr(const struct nlattr *attr,
 			OVS_NLERR(log, "IP tunnel dst address not specified");
 			return -EINVAL;
 		}
+<<<<<<< HEAD
 		if (ipv4 && !match->key->tun_key.u.ipv4.dst) {
 			OVS_NLERR(log, "IPv4 tunnel dst address is zero");
 			return -EINVAL;
+=======
+		if (ipv4) {
+			if (info_bridge_mode) {
+				if (match->key->tun_key.u.ipv4.src ||
+				    match->key->tun_key.u.ipv4.dst ||
+				    match->key->tun_key.tp_src ||
+				    match->key->tun_key.tp_dst ||
+				    match->key->tun_key.ttl ||
+				    match->key->tun_key.tos ||
+				    tun_flags & ~TUNNEL_KEY) {
+					OVS_NLERR(log, "IPv4 tun info is not correct");
+					return -EINVAL;
+				}
+			} else if (!match->key->tun_key.u.ipv4.dst) {
+				OVS_NLERR(log, "IPv4 tunnel dst address is zero");
+				return -EINVAL;
+			}
+>>>>>>> upstream/android-13
 		}
 		if (ipv6 && ipv6_addr_any(&match->key->tun_key.u.ipv6.dst)) {
 			OVS_NLERR(log, "IPv6 tunnel dst address is zero");
 			return -EINVAL;
 		}
 
+<<<<<<< HEAD
 		if (!ttl) {
+=======
+		if (!ttl && !info_bridge_mode) {
+>>>>>>> upstream/android-13
 			OVS_NLERR(log, "IP tunnel TTL not specified.");
 			return -EINVAL;
 		}
@@ -836,7 +890,11 @@ static int vxlan_opt_to_nlattr(struct sk_buff *skb,
 	const struct vxlan_metadata *opts = tun_opts;
 	struct nlattr *nla;
 
+<<<<<<< HEAD
 	nla = nla_nest_start(skb, OVS_TUNNEL_KEY_ATTR_VXLAN_OPTS);
+=======
+	nla = nla_nest_start_noflag(skb, OVS_TUNNEL_KEY_ATTR_VXLAN_OPTS);
+>>>>>>> upstream/android-13
 	if (!nla)
 		return -EMSGSIZE;
 
@@ -850,12 +908,24 @@ static int vxlan_opt_to_nlattr(struct sk_buff *skb,
 static int __ip_tun_to_nlattr(struct sk_buff *skb,
 			      const struct ip_tunnel_key *output,
 			      const void *tun_opts, int swkey_tun_opts_len,
+<<<<<<< HEAD
 			      unsigned short tun_proto)
+=======
+			      unsigned short tun_proto, u8 mode)
+>>>>>>> upstream/android-13
 {
 	if (output->tun_flags & TUNNEL_KEY &&
 	    nla_put_be64(skb, OVS_TUNNEL_KEY_ATTR_ID, output->tun_id,
 			 OVS_TUNNEL_KEY_ATTR_PAD))
 		return -EMSGSIZE;
+<<<<<<< HEAD
+=======
+
+	if (mode & IP_TUNNEL_INFO_BRIDGE)
+		return nla_put_flag(skb, OVS_TUNNEL_KEY_ATTR_IPV4_INFO_BRIDGE)
+		       ? -EMSGSIZE : 0;
+
+>>>>>>> upstream/android-13
 	switch (tun_proto) {
 	case AF_INET:
 		if (output->u.ipv4.src &&
@@ -918,17 +988,29 @@ static int __ip_tun_to_nlattr(struct sk_buff *skb,
 static int ip_tun_to_nlattr(struct sk_buff *skb,
 			    const struct ip_tunnel_key *output,
 			    const void *tun_opts, int swkey_tun_opts_len,
+<<<<<<< HEAD
 			    unsigned short tun_proto)
+=======
+			    unsigned short tun_proto, u8 mode)
+>>>>>>> upstream/android-13
 {
 	struct nlattr *nla;
 	int err;
 
+<<<<<<< HEAD
 	nla = nla_nest_start(skb, OVS_KEY_ATTR_TUNNEL);
+=======
+	nla = nla_nest_start_noflag(skb, OVS_KEY_ATTR_TUNNEL);
+>>>>>>> upstream/android-13
 	if (!nla)
 		return -EMSGSIZE;
 
 	err = __ip_tun_to_nlattr(skb, output, tun_opts, swkey_tun_opts_len,
+<<<<<<< HEAD
 				 tun_proto);
+=======
+				 tun_proto, mode);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
@@ -942,7 +1024,11 @@ int ovs_nla_put_tunnel_info(struct sk_buff *skb,
 	return __ip_tun_to_nlattr(skb, &tun_info->key,
 				  ip_tunnel_info_opts(tun_info),
 				  tun_info->options_len,
+<<<<<<< HEAD
 				  ip_tunnel_info_af(tun_info));
+=======
+				  ip_tunnel_info_af(tun_info), tun_info->mode);
+>>>>>>> upstream/android-13
 }
 
 static int encode_vlan_from_nlattrs(struct sw_flow_match *match,
@@ -990,9 +1076,15 @@ static int validate_vlan_from_nlattrs(const struct sw_flow_match *match,
 	if (a[OVS_KEY_ATTR_VLAN])
 		tci = nla_get_be16(a[OVS_KEY_ATTR_VLAN]);
 
+<<<<<<< HEAD
 	if (!(tci & htons(VLAN_TAG_PRESENT))) {
 		if (tci) {
 			OVS_NLERR(log, "%s TCI does not have VLAN_TAG_PRESENT bit set.",
+=======
+	if (!(tci & htons(VLAN_CFI_MASK))) {
+		if (tci) {
+			OVS_NLERR(log, "%s TCI does not have VLAN_CFI_MASK bit set.",
+>>>>>>> upstream/android-13
 				  (inner) ? "C-VLAN" : "VLAN");
 			return -EINVAL;
 		} else if (nla_len(a[OVS_KEY_ATTR_ENCAP])) {
@@ -1013,9 +1105,15 @@ static int validate_vlan_mask_from_nlattrs(const struct sw_flow_match *match,
 	__be16 tci = 0;
 	__be16 tpid = 0;
 	bool encap_valid = !!(match->key->eth.vlan.tci &
+<<<<<<< HEAD
 			      htons(VLAN_TAG_PRESENT));
 	bool i_encap_valid = !!(match->key->eth.cvlan.tci &
 				htons(VLAN_TAG_PRESENT));
+=======
+			      htons(VLAN_CFI_MASK));
+	bool i_encap_valid = !!(match->key->eth.cvlan.tci &
+				htons(VLAN_CFI_MASK));
+>>>>>>> upstream/android-13
 
 	if (!(key_attrs & (1 << OVS_KEY_ATTR_ENCAP))) {
 		/* Not a VLAN. */
@@ -1039,8 +1137,13 @@ static int validate_vlan_mask_from_nlattrs(const struct sw_flow_match *match,
 			  (inner) ? "C-VLAN" : "VLAN", ntohs(tpid));
 		return -EINVAL;
 	}
+<<<<<<< HEAD
 	if (!(tci & htons(VLAN_TAG_PRESENT))) {
 		OVS_NLERR(log, "%s TCI mask does not have exact match for VLAN_TAG_PRESENT bit.",
+=======
+	if (!(tci & htons(VLAN_CFI_MASK))) {
+		OVS_NLERR(log, "%s TCI mask does not have exact match for VLAN_CFI_MASK bit.",
+>>>>>>> upstream/android-13
 			  (inner) ? "C-VLAN" : "VLAN");
 		return -EINVAL;
 	}
@@ -1095,7 +1198,11 @@ static int parse_vlan_from_nlattrs(struct sw_flow_match *match,
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	encap_valid = !!(match->key->eth.vlan.tci & htons(VLAN_TAG_PRESENT));
+=======
+	encap_valid = !!(match->key->eth.vlan.tci & htons(VLAN_CFI_MASK));
+>>>>>>> upstream/android-13
 	if (encap_valid) {
 		err = __parse_vlan_from_nlattrs(match, key_attrs, true, a,
 						is_mask, log);
@@ -1616,10 +1723,32 @@ static int ovs_key_from_nlattrs(struct net *net, struct sw_flow_match *match,
 
 	if (attrs & (1 << OVS_KEY_ATTR_MPLS)) {
 		const struct ovs_key_mpls *mpls_key;
+<<<<<<< HEAD
 
 		mpls_key = nla_data(a[OVS_KEY_ATTR_MPLS]);
 		SW_FLOW_KEY_PUT(match, mpls.top_lse,
 				mpls_key->mpls_lse, is_mask);
+=======
+		u32 hdr_len;
+		u32 label_count, label_count_mask, i;
+
+		mpls_key = nla_data(a[OVS_KEY_ATTR_MPLS]);
+		hdr_len = nla_len(a[OVS_KEY_ATTR_MPLS]);
+		label_count = hdr_len / sizeof(struct ovs_key_mpls);
+
+		if (label_count == 0 || label_count > MPLS_LABEL_DEPTH ||
+		    hdr_len % sizeof(struct ovs_key_mpls))
+			return -EINVAL;
+
+		label_count_mask =  GENMASK(label_count - 1, 0);
+
+		for (i = 0 ; i < label_count; i++)
+			SW_FLOW_KEY_PUT(match, mpls.lse[i],
+					mpls_key[i].mpls_lse, is_mask);
+
+		SW_FLOW_KEY_PUT(match, mpls.num_labels_mask,
+				label_count_mask, is_mask);
+>>>>>>> upstream/android-13
 
 		attrs &= ~(1 << OVS_KEY_ATTR_MPLS);
 	 }
@@ -1734,11 +1863,19 @@ static void mask_set_nlattr(struct nlattr *attr, u8 val)
  * does not include any don't care bit.
  * @net: Used to determine per-namespace field support.
  * @match: receives the extracted flow match information.
+<<<<<<< HEAD
  * @key: Netlink attribute holding nested %OVS_KEY_ATTR_* Netlink attribute
  * sequence. The fields should of the packet that triggered the creation
  * of this flow.
  * @mask: Optional. Netlink attribute holding nested %OVS_KEY_ATTR_* Netlink
  * attribute specifies the mask field of the wildcarded flow.
+=======
+ * @nla_key: Netlink attribute holding nested %OVS_KEY_ATTR_* Netlink attribute
+ * sequence. The fields should of the packet that triggered the creation
+ * of this flow.
+ * @nla_mask: Optional. Netlink attribute holding nested %OVS_KEY_ATTR_*
+ * Netlink attribute specifies the mask field of the wildcarded flow.
+>>>>>>> upstream/android-13
  * @log: Boolean to allow kernel error logging.  Normally true, but when
  * probing for feature compatibility this should be passed in as false to
  * suppress unnecessary error logging.
@@ -1932,7 +2069,11 @@ static int nsh_key_to_nlattr(const struct ovs_key_nsh *nsh, bool is_mask,
 {
 	struct nlattr *start;
 
+<<<<<<< HEAD
 	start = nla_nest_start(skb, OVS_KEY_ATTR_NSH);
+=======
+	start = nla_nest_start_noflag(skb, OVS_KEY_ATTR_NSH);
+>>>>>>> upstream/android-13
 	if (!start)
 		return -EMSGSIZE;
 
@@ -1980,7 +2121,11 @@ static int __ovs_nla_put_key(const struct sw_flow_key *swkey,
 			opts = TUN_METADATA_OPTS(output, swkey->tun_opts_len);
 
 		if (ip_tun_to_nlattr(skb, &output->tun_key, opts,
+<<<<<<< HEAD
 				     swkey->tun_opts_len, swkey->tun_proto))
+=======
+				     swkey->tun_opts_len, swkey->tun_proto, 0))
+>>>>>>> upstream/android-13
 			goto nla_put_failure;
 	}
 
@@ -2015,14 +2160,23 @@ static int __ovs_nla_put_key(const struct sw_flow_key *swkey,
 		if (swkey->eth.vlan.tci || eth_type_vlan(swkey->eth.type)) {
 			if (ovs_nla_put_vlan(skb, &output->eth.vlan, is_mask))
 				goto nla_put_failure;
+<<<<<<< HEAD
 			encap = nla_nest_start(skb, OVS_KEY_ATTR_ENCAP);
+=======
+			encap = nla_nest_start_noflag(skb, OVS_KEY_ATTR_ENCAP);
+>>>>>>> upstream/android-13
 			if (!swkey->eth.vlan.tci)
 				goto unencap;
 
 			if (swkey->eth.cvlan.tci || eth_type_vlan(swkey->eth.type)) {
 				if (ovs_nla_put_vlan(skb, &output->eth.cvlan, is_mask))
 					goto nla_put_failure;
+<<<<<<< HEAD
 				in_encap = nla_nest_start(skb, OVS_KEY_ATTR_ENCAP);
+=======
+				in_encap = nla_nest_start_noflag(skb,
+								 OVS_KEY_ATTR_ENCAP);
+>>>>>>> upstream/android-13
 				if (!swkey->eth.cvlan.tci)
 					goto unencap;
 			}
@@ -2101,6 +2255,7 @@ static int __ovs_nla_put_key(const struct sw_flow_key *swkey,
 		ether_addr_copy(arp_key->arp_sha, output->ipv4.arp.sha);
 		ether_addr_copy(arp_key->arp_tha, output->ipv4.arp.tha);
 	} else if (eth_p_mpls(swkey->eth.type)) {
+<<<<<<< HEAD
 		struct ovs_key_mpls *mpls_key;
 
 		nla = nla_reserve(skb, OVS_KEY_ATTR_MPLS, sizeof(*mpls_key));
@@ -2108,6 +2263,20 @@ static int __ovs_nla_put_key(const struct sw_flow_key *swkey,
 			goto nla_put_failure;
 		mpls_key = nla_data(nla);
 		mpls_key->mpls_lse = output->mpls.top_lse;
+=======
+		u8 i, num_labels;
+		struct ovs_key_mpls *mpls_key;
+
+		num_labels = hweight_long(output->mpls.num_labels_mask);
+		nla = nla_reserve(skb, OVS_KEY_ATTR_MPLS,
+				  num_labels * sizeof(*mpls_key));
+		if (!nla)
+			goto nla_put_failure;
+
+		mpls_key = nla_data(nla);
+		for (i = 0; i < num_labels; i++)
+			mpls_key[i].mpls_lse = output->mpls.lse[i];
+>>>>>>> upstream/android-13
 	}
 
 	if ((swkey->eth.type == htons(ETH_P_IP) ||
@@ -2166,8 +2335,13 @@ static int __ovs_nla_put_key(const struct sw_flow_key *swkey,
 			icmpv6_key->icmpv6_type = ntohs(output->tp.src);
 			icmpv6_key->icmpv6_code = ntohs(output->tp.dst);
 
+<<<<<<< HEAD
 			if (icmpv6_key->icmpv6_type == NDISC_NEIGHBOUR_SOLICITATION ||
 			    icmpv6_key->icmpv6_type == NDISC_NEIGHBOUR_ADVERTISEMENT) {
+=======
+			if (swkey->tp.src == htons(NDISC_NEIGHBOUR_SOLICITATION) ||
+			    swkey->tp.src == htons(NDISC_NEIGHBOUR_ADVERTISEMENT)) {
+>>>>>>> upstream/android-13
 				struct ovs_key_nd *nd_key;
 
 				nla = nla_reserve(skb, OVS_KEY_ATTR_ND, sizeof(*nd_key));
@@ -2201,7 +2375,11 @@ int ovs_nla_put_key(const struct sw_flow_key *swkey,
 	int err;
 	struct nlattr *nla;
 
+<<<<<<< HEAD
 	nla = nla_nest_start(skb, attr);
+=======
+	nla = nla_nest_start_noflag(skb, attr);
+>>>>>>> upstream/android-13
 	if (!nla)
 		return -EMSGSIZE;
 	err = __ovs_nla_put_key(swkey, output, is_mask, skb);
@@ -2253,6 +2431,65 @@ static struct sw_flow_actions *nla_alloc_flow_actions(int size)
 	return sfa;
 }
 
+<<<<<<< HEAD
+=======
+static void ovs_nla_free_nested_actions(const struct nlattr *actions, int len);
+
+static void ovs_nla_free_check_pkt_len_action(const struct nlattr *action)
+{
+	const struct nlattr *a;
+	int rem;
+
+	nla_for_each_nested(a, action, rem) {
+		switch (nla_type(a)) {
+		case OVS_CHECK_PKT_LEN_ATTR_ACTIONS_IF_LESS_EQUAL:
+		case OVS_CHECK_PKT_LEN_ATTR_ACTIONS_IF_GREATER:
+			ovs_nla_free_nested_actions(nla_data(a), nla_len(a));
+			break;
+		}
+	}
+}
+
+static void ovs_nla_free_clone_action(const struct nlattr *action)
+{
+	const struct nlattr *a = nla_data(action);
+	int rem = nla_len(action);
+
+	switch (nla_type(a)) {
+	case OVS_CLONE_ATTR_EXEC:
+		/* The real list of actions follows this attribute. */
+		a = nla_next(a, &rem);
+		ovs_nla_free_nested_actions(a, rem);
+		break;
+	}
+}
+
+static void ovs_nla_free_dec_ttl_action(const struct nlattr *action)
+{
+	const struct nlattr *a = nla_data(action);
+
+	switch (nla_type(a)) {
+	case OVS_DEC_TTL_ATTR_ACTION:
+		ovs_nla_free_nested_actions(nla_data(a), nla_len(a));
+		break;
+	}
+}
+
+static void ovs_nla_free_sample_action(const struct nlattr *action)
+{
+	const struct nlattr *a = nla_data(action);
+	int rem = nla_len(action);
+
+	switch (nla_type(a)) {
+	case OVS_SAMPLE_ATTR_ARG:
+		/* The real list of actions follows this attribute. */
+		a = nla_next(a, &rem);
+		ovs_nla_free_nested_actions(a, rem);
+		break;
+	}
+}
+
+>>>>>>> upstream/android-13
 static void ovs_nla_free_set_action(const struct nlattr *a)
 {
 	const struct nlattr *ovs_key = nla_data(a);
@@ -2266,11 +2503,16 @@ static void ovs_nla_free_set_action(const struct nlattr *a)
 	}
 }
 
+<<<<<<< HEAD
 void ovs_nla_free_flow_actions(struct sw_flow_actions *sf_acts)
+=======
+static void ovs_nla_free_nested_actions(const struct nlattr *actions, int len)
+>>>>>>> upstream/android-13
 {
 	const struct nlattr *a;
 	int rem;
 
+<<<<<<< HEAD
 	if (!sf_acts)
 		return;
 
@@ -2285,6 +2527,51 @@ void ovs_nla_free_flow_actions(struct sw_flow_actions *sf_acts)
 		}
 	}
 
+=======
+	/* Whenever new actions are added, the need to update this
+	 * function should be considered.
+	 */
+	BUILD_BUG_ON(OVS_ACTION_ATTR_MAX != 23);
+
+	if (!actions)
+		return;
+
+	nla_for_each_attr(a, actions, len, rem) {
+		switch (nla_type(a)) {
+		case OVS_ACTION_ATTR_CHECK_PKT_LEN:
+			ovs_nla_free_check_pkt_len_action(a);
+			break;
+
+		case OVS_ACTION_ATTR_CLONE:
+			ovs_nla_free_clone_action(a);
+			break;
+
+		case OVS_ACTION_ATTR_CT:
+			ovs_ct_free_action(a);
+			break;
+
+		case OVS_ACTION_ATTR_DEC_TTL:
+			ovs_nla_free_dec_ttl_action(a);
+			break;
+
+		case OVS_ACTION_ATTR_SAMPLE:
+			ovs_nla_free_sample_action(a);
+			break;
+
+		case OVS_ACTION_ATTR_SET:
+			ovs_nla_free_set_action(a);
+			break;
+		}
+	}
+}
+
+void ovs_nla_free_flow_actions(struct sw_flow_actions *sf_acts)
+{
+	if (!sf_acts)
+		return;
+
+	ovs_nla_free_nested_actions(sf_acts->actions, sf_acts->actions_len);
+>>>>>>> upstream/android-13
 	kfree(sf_acts);
 }
 
@@ -2316,7 +2603,11 @@ static struct nlattr *reserve_sfa_size(struct sw_flow_actions **sfa,
 	new_acts_size = max(next_offset + req_size, ksize(*sfa) * 2);
 
 	if (new_acts_size > MAX_ACTIONS_BUFSIZE) {
+<<<<<<< HEAD
 		if ((MAX_ACTIONS_BUFSIZE - next_offset) < req_size) {
+=======
+		if ((next_offset + req_size) > MAX_ACTIONS_BUFSIZE) {
+>>>>>>> upstream/android-13
 			OVS_NLERR(log, "Flow action size exceeds max %u",
 				  MAX_ACTIONS_BUFSIZE);
 			return ERR_PTR(-EMSGSIZE);
@@ -2393,13 +2684,22 @@ static inline void add_nested_action_end(struct sw_flow_actions *sfa,
 static int __ovs_nla_copy_actions(struct net *net, const struct nlattr *attr,
 				  const struct sw_flow_key *key,
 				  struct sw_flow_actions **sfa,
+<<<<<<< HEAD
 				  __be16 eth_type, __be16 vlan_tci, bool log);
+=======
+				  __be16 eth_type, __be16 vlan_tci,
+				  u32 mpls_label_count, bool log);
+>>>>>>> upstream/android-13
 
 static int validate_and_copy_sample(struct net *net, const struct nlattr *attr,
 				    const struct sw_flow_key *key,
 				    struct sw_flow_actions **sfa,
 				    __be16 eth_type, __be16 vlan_tci,
+<<<<<<< HEAD
 				    bool log, bool last)
+=======
+				    u32 mpls_label_count, bool log, bool last)
+>>>>>>> upstream/android-13
 {
 	const struct nlattr *attrs[OVS_SAMPLE_ATTR_MAX + 1];
 	const struct nlattr *probability, *actions;
@@ -2450,7 +2750,11 @@ static int validate_and_copy_sample(struct net *net, const struct nlattr *attr,
 		return err;
 
 	err = __ovs_nla_copy_actions(net, actions, key, sfa,
+<<<<<<< HEAD
 				     eth_type, vlan_tci, log);
+=======
+				     eth_type, vlan_tci, mpls_label_count, log);
+>>>>>>> upstream/android-13
 
 	if (err)
 		return err;
@@ -2460,12 +2764,76 @@ static int validate_and_copy_sample(struct net *net, const struct nlattr *attr,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int validate_and_copy_dec_ttl(struct net *net,
+				     const struct nlattr *attr,
+				     const struct sw_flow_key *key,
+				     struct sw_flow_actions **sfa,
+				     __be16 eth_type, __be16 vlan_tci,
+				     u32 mpls_label_count, bool log)
+{
+	const struct nlattr *attrs[OVS_DEC_TTL_ATTR_MAX + 1];
+	int start, action_start, err, rem;
+	const struct nlattr *a, *actions;
+
+	memset(attrs, 0, sizeof(attrs));
+	nla_for_each_nested(a, attr, rem) {
+		int type = nla_type(a);
+
+		/* Ignore unknown attributes to be future proof. */
+		if (type > OVS_DEC_TTL_ATTR_MAX)
+			continue;
+
+		if (!type || attrs[type]) {
+			OVS_NLERR(log, "Duplicate or invalid key (type %d).",
+				  type);
+			return -EINVAL;
+		}
+
+		attrs[type] = a;
+	}
+
+	if (rem) {
+		OVS_NLERR(log, "Message has %d unknown bytes.", rem);
+		return -EINVAL;
+	}
+
+	actions = attrs[OVS_DEC_TTL_ATTR_ACTION];
+	if (!actions || (nla_len(actions) && nla_len(actions) < NLA_HDRLEN)) {
+		OVS_NLERR(log, "Missing valid actions attribute.");
+		return -EINVAL;
+	}
+
+	start = add_nested_action_start(sfa, OVS_ACTION_ATTR_DEC_TTL, log);
+	if (start < 0)
+		return start;
+
+	action_start = add_nested_action_start(sfa, OVS_DEC_TTL_ATTR_ACTION, log);
+	if (action_start < 0)
+		return action_start;
+
+	err = __ovs_nla_copy_actions(net, actions, key, sfa, eth_type,
+				     vlan_tci, mpls_label_count, log);
+	if (err)
+		return err;
+
+	add_nested_action_end(*sfa, action_start);
+	add_nested_action_end(*sfa, start);
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int validate_and_copy_clone(struct net *net,
 				   const struct nlattr *attr,
 				   const struct sw_flow_key *key,
 				   struct sw_flow_actions **sfa,
 				   __be16 eth_type, __be16 vlan_tci,
+<<<<<<< HEAD
 				   bool log, bool last)
+=======
+				   u32 mpls_label_count, bool log, bool last)
+>>>>>>> upstream/android-13
 {
 	int start, err;
 	u32 exec;
@@ -2485,7 +2853,11 @@ static int validate_and_copy_clone(struct net *net,
 		return err;
 
 	err = __ovs_nla_copy_actions(net, attr, key, sfa,
+<<<<<<< HEAD
 				     eth_type, vlan_tci, log);
+=======
+				     eth_type, vlan_tci, mpls_label_count, log);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
@@ -2605,6 +2977,11 @@ static int validate_and_copy_set_tun(const struct nlattr *attr,
 	tun_info->mode = IP_TUNNEL_INFO_TX;
 	if (key.tun_proto == AF_INET6)
 		tun_info->mode |= IP_TUNNEL_INFO_IPV6;
+<<<<<<< HEAD
+=======
+	else if (key.tun_proto == AF_INET && key.tun_key.u.ipv4.dst == 0)
+		tun_info->mode |= IP_TUNNEL_INFO_BRIDGE;
+>>>>>>> upstream/android-13
 	tun_info->key = key.tun_key;
 
 	/* We need to store the options in the action itself since
@@ -2671,10 +3048,13 @@ static int validate_set(const struct nlattr *a,
 		return -EINVAL;
 
 	switch (key_type) {
+<<<<<<< HEAD
 	const struct ovs_key_ipv4 *ipv4_key;
 	const struct ovs_key_ipv6 *ipv6_key;
 	int err;
 
+=======
+>>>>>>> upstream/android-13
 	case OVS_KEY_ATTR_PRIORITY:
 	case OVS_KEY_ATTR_SKB_MARK:
 	case OVS_KEY_ATTR_CT_MARK:
@@ -2686,7 +3066,13 @@ static int validate_set(const struct nlattr *a,
 			return -EINVAL;
 		break;
 
+<<<<<<< HEAD
 	case OVS_KEY_ATTR_TUNNEL:
+=======
+	case OVS_KEY_ATTR_TUNNEL: {
+		int err;
+
+>>>>>>> upstream/android-13
 		if (masked)
 			return -EINVAL; /* Masked tunnel set not supported. */
 
@@ -2695,8 +3081,15 @@ static int validate_set(const struct nlattr *a,
 		if (err)
 			return err;
 		break;
+<<<<<<< HEAD
 
 	case OVS_KEY_ATTR_IPV4:
+=======
+	}
+	case OVS_KEY_ATTR_IPV4: {
+		const struct ovs_key_ipv4 *ipv4_key;
+
+>>>>>>> upstream/android-13
 		if (eth_type != htons(ETH_P_IP))
 			return -EINVAL;
 
@@ -2716,8 +3109,15 @@ static int validate_set(const struct nlattr *a,
 				return -EINVAL;
 		}
 		break;
+<<<<<<< HEAD
 
 	case OVS_KEY_ATTR_IPV6:
+=======
+	}
+	case OVS_KEY_ATTR_IPV6: {
+		const struct ovs_key_ipv6 *ipv6_key;
+
+>>>>>>> upstream/android-13
 		if (eth_type != htons(ETH_P_IPV6))
 			return -EINVAL;
 
@@ -2744,7 +3144,11 @@ static int validate_set(const struct nlattr *a,
 			return -EINVAL;
 
 		break;
+<<<<<<< HEAD
 
+=======
+	}
+>>>>>>> upstream/android-13
 	case OVS_KEY_ATTR_TCP:
 		if ((eth_type != htons(ETH_P_IP) &&
 		     eth_type != htons(ETH_P_IPV6)) ||
@@ -2826,8 +3230,13 @@ static int validate_userspace(const struct nlattr *attr)
 	struct nlattr *a[OVS_USERSPACE_ATTR_MAX + 1];
 	int error;
 
+<<<<<<< HEAD
 	error = nla_parse_nested(a, OVS_USERSPACE_ATTR_MAX, attr,
 				 userspace_policy, NULL);
+=======
+	error = nla_parse_nested_deprecated(a, OVS_USERSPACE_ATTR_MAX, attr,
+					    userspace_policy, NULL);
+>>>>>>> upstream/android-13
 	if (error)
 		return error;
 
@@ -2838,6 +3247,92 @@ static int validate_userspace(const struct nlattr *attr)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static const struct nla_policy cpl_policy[OVS_CHECK_PKT_LEN_ATTR_MAX + 1] = {
+	[OVS_CHECK_PKT_LEN_ATTR_PKT_LEN] = {.type = NLA_U16 },
+	[OVS_CHECK_PKT_LEN_ATTR_ACTIONS_IF_GREATER] = {.type = NLA_NESTED },
+	[OVS_CHECK_PKT_LEN_ATTR_ACTIONS_IF_LESS_EQUAL] = {.type = NLA_NESTED },
+};
+
+static int validate_and_copy_check_pkt_len(struct net *net,
+					   const struct nlattr *attr,
+					   const struct sw_flow_key *key,
+					   struct sw_flow_actions **sfa,
+					   __be16 eth_type, __be16 vlan_tci,
+					   u32 mpls_label_count,
+					   bool log, bool last)
+{
+	const struct nlattr *acts_if_greater, *acts_if_lesser_eq;
+	struct nlattr *a[OVS_CHECK_PKT_LEN_ATTR_MAX + 1];
+	struct check_pkt_len_arg arg;
+	int nested_acts_start;
+	int start, err;
+
+	err = nla_parse_deprecated_strict(a, OVS_CHECK_PKT_LEN_ATTR_MAX,
+					  nla_data(attr), nla_len(attr),
+					  cpl_policy, NULL);
+	if (err)
+		return err;
+
+	if (!a[OVS_CHECK_PKT_LEN_ATTR_PKT_LEN] ||
+	    !nla_get_u16(a[OVS_CHECK_PKT_LEN_ATTR_PKT_LEN]))
+		return -EINVAL;
+
+	acts_if_lesser_eq = a[OVS_CHECK_PKT_LEN_ATTR_ACTIONS_IF_LESS_EQUAL];
+	acts_if_greater = a[OVS_CHECK_PKT_LEN_ATTR_ACTIONS_IF_GREATER];
+
+	/* Both the nested action should be present. */
+	if (!acts_if_greater || !acts_if_lesser_eq)
+		return -EINVAL;
+
+	/* validation done, copy the nested actions. */
+	start = add_nested_action_start(sfa, OVS_ACTION_ATTR_CHECK_PKT_LEN,
+					log);
+	if (start < 0)
+		return start;
+
+	arg.pkt_len = nla_get_u16(a[OVS_CHECK_PKT_LEN_ATTR_PKT_LEN]);
+	arg.exec_for_lesser_equal =
+		last || !actions_may_change_flow(acts_if_lesser_eq);
+	arg.exec_for_greater =
+		last || !actions_may_change_flow(acts_if_greater);
+
+	err = ovs_nla_add_action(sfa, OVS_CHECK_PKT_LEN_ATTR_ARG, &arg,
+				 sizeof(arg), log);
+	if (err)
+		return err;
+
+	nested_acts_start = add_nested_action_start(sfa,
+		OVS_CHECK_PKT_LEN_ATTR_ACTIONS_IF_LESS_EQUAL, log);
+	if (nested_acts_start < 0)
+		return nested_acts_start;
+
+	err = __ovs_nla_copy_actions(net, acts_if_lesser_eq, key, sfa,
+				     eth_type, vlan_tci, mpls_label_count, log);
+
+	if (err)
+		return err;
+
+	add_nested_action_end(*sfa, nested_acts_start);
+
+	nested_acts_start = add_nested_action_start(sfa,
+		OVS_CHECK_PKT_LEN_ATTR_ACTIONS_IF_GREATER, log);
+	if (nested_acts_start < 0)
+		return nested_acts_start;
+
+	err = __ovs_nla_copy_actions(net, acts_if_greater, key, sfa,
+				     eth_type, vlan_tci, mpls_label_count, log);
+
+	if (err)
+		return err;
+
+	add_nested_action_end(*sfa, nested_acts_start);
+	add_nested_action_end(*sfa, start);
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int copy_action(const struct nlattr *from,
 		       struct sw_flow_actions **sfa, bool log)
 {
@@ -2855,7 +3350,12 @@ static int copy_action(const struct nlattr *from,
 static int __ovs_nla_copy_actions(struct net *net, const struct nlattr *attr,
 				  const struct sw_flow_key *key,
 				  struct sw_flow_actions **sfa,
+<<<<<<< HEAD
 				  __be16 eth_type, __be16 vlan_tci, bool log)
+=======
+				  __be16 eth_type, __be16 vlan_tci,
+				  u32 mpls_label_count, bool log)
+>>>>>>> upstream/android-13
 {
 	u8 mac_proto = ovs_key_mac_proto(key);
 	const struct nlattr *a;
@@ -2884,6 +3384,12 @@ static int __ovs_nla_copy_actions(struct net *net, const struct nlattr *attr,
 			[OVS_ACTION_ATTR_POP_NSH] = 0,
 			[OVS_ACTION_ATTR_METER] = sizeof(u32),
 			[OVS_ACTION_ATTR_CLONE] = (u32)-1,
+<<<<<<< HEAD
+=======
+			[OVS_ACTION_ATTR_CHECK_PKT_LEN] = (u32)-1,
+			[OVS_ACTION_ATTR_ADD_MPLS] = sizeof(struct ovs_action_add_mpls),
+			[OVS_ACTION_ATTR_DEC_TTL] = (u32)-1,
+>>>>>>> upstream/android-13
 		};
 		const struct ovs_action_push_vlan *vlan;
 		int type = nla_type(a);
@@ -2943,7 +3449,11 @@ static int __ovs_nla_copy_actions(struct net *net, const struct nlattr *attr,
 			vlan = nla_data(a);
 			if (!eth_type_vlan(vlan->vlan_tpid))
 				return -EINVAL;
+<<<<<<< HEAD
 			if (!(vlan->vlan_tci & htons(VLAN_TAG_PRESENT)))
+=======
+			if (!(vlan->vlan_tci & htons(VLAN_CFI_MASK)))
+>>>>>>> upstream/android-13
 				return -EINVAL;
 			vlan_tci = vlan->vlan_tci;
 			break;
@@ -2951,6 +3461,36 @@ static int __ovs_nla_copy_actions(struct net *net, const struct nlattr *attr,
 		case OVS_ACTION_ATTR_RECIRC:
 			break;
 
+<<<<<<< HEAD
+=======
+		case OVS_ACTION_ATTR_ADD_MPLS: {
+			const struct ovs_action_add_mpls *mpls = nla_data(a);
+
+			if (!eth_p_mpls(mpls->mpls_ethertype))
+				return -EINVAL;
+
+			if (mpls->tun_flags & OVS_MPLS_L3_TUNNEL_FLAG_MASK) {
+				if (vlan_tci & htons(VLAN_CFI_MASK) ||
+				    (eth_type != htons(ETH_P_IP) &&
+				     eth_type != htons(ETH_P_IPV6) &&
+				     eth_type != htons(ETH_P_ARP) &&
+				     eth_type != htons(ETH_P_RARP) &&
+				     !eth_p_mpls(eth_type)))
+					return -EINVAL;
+				mpls_label_count++;
+			} else {
+				if (mac_proto == MAC_PROTO_ETHERNET) {
+					mpls_label_count = 1;
+					mac_proto = MAC_PROTO_NONE;
+				} else {
+					mpls_label_count++;
+				}
+			}
+			eth_type = mpls->mpls_ethertype;
+			break;
+		}
+
+>>>>>>> upstream/android-13
 		case OVS_ACTION_ATTR_PUSH_MPLS: {
 			const struct ovs_action_push_mpls *mpls = nla_data(a);
 
@@ -2959,7 +3499,11 @@ static int __ovs_nla_copy_actions(struct net *net, const struct nlattr *attr,
 			/* Prohibit push MPLS other than to a white list
 			 * for packets that have a known tag order.
 			 */
+<<<<<<< HEAD
 			if (vlan_tci & htons(VLAN_TAG_PRESENT) ||
+=======
+			if (vlan_tci & htons(VLAN_CFI_MASK) ||
+>>>>>>> upstream/android-13
 			    (eth_type != htons(ETH_P_IP) &&
 			     eth_type != htons(ETH_P_IPV6) &&
 			     eth_type != htons(ETH_P_ARP) &&
@@ -2967,6 +3511,7 @@ static int __ovs_nla_copy_actions(struct net *net, const struct nlattr *attr,
 			     !eth_p_mpls(eth_type)))
 				return -EINVAL;
 			eth_type = mpls->mpls_ethertype;
+<<<<<<< HEAD
 			break;
 		}
 
@@ -2980,12 +3525,48 @@ static int __ovs_nla_copy_actions(struct net *net, const struct nlattr *attr,
 			 * eth_type is valid and thus set actions could
 			 * write off the end of the packet or otherwise
 			 * corrupt it.
+=======
+			mpls_label_count++;
+			break;
+		}
+
+		case OVS_ACTION_ATTR_POP_MPLS: {
+			__be16  proto;
+			if (vlan_tci & htons(VLAN_CFI_MASK) ||
+			    !eth_p_mpls(eth_type))
+				return -EINVAL;
+
+			/* Disallow subsequent L2.5+ set actions and mpls_pop
+			 * actions once the last MPLS label in the packet is
+			 * is popped as there is no check here to ensure that
+			 * the new eth type is valid and thus set actions could
+			 * write off the end of the packet or otherwise corrupt
+			 * it.
+>>>>>>> upstream/android-13
 			 *
 			 * Support for these actions is planned using packet
 			 * recirculation.
 			 */
+<<<<<<< HEAD
 			eth_type = htons(0);
 			break;
+=======
+			proto = nla_get_be16(a);
+
+			if (proto == htons(ETH_P_TEB) &&
+			    mac_proto != MAC_PROTO_NONE)
+				return -EINVAL;
+
+			mpls_label_count--;
+
+			if (!eth_p_mpls(proto) || !mpls_label_count)
+				eth_type = htons(0);
+			else
+				eth_type =  proto;
+
+			break;
+		}
+>>>>>>> upstream/android-13
 
 		case OVS_ACTION_ATTR_SET:
 			err = validate_set(a, key, sfa,
@@ -3008,6 +3589,10 @@ static int __ovs_nla_copy_actions(struct net *net, const struct nlattr *attr,
 
 			err = validate_and_copy_sample(net, a, key, sfa,
 						       eth_type, vlan_tci,
+<<<<<<< HEAD
+=======
+						       mpls_label_count,
+>>>>>>> upstream/android-13
 						       log, last);
 			if (err)
 				return err;
@@ -3036,7 +3621,11 @@ static int __ovs_nla_copy_actions(struct net *net, const struct nlattr *attr,
 		case OVS_ACTION_ATTR_POP_ETH:
 			if (mac_proto != MAC_PROTO_ETHERNET)
 				return -EINVAL;
+<<<<<<< HEAD
 			if (vlan_tci & htons(VLAN_TAG_PRESENT))
+=======
+			if (vlan_tci & htons(VLAN_CFI_MASK))
+>>>>>>> upstream/android-13
 				return -EINVAL;
 			mac_proto = MAC_PROTO_NONE;
 			break;
@@ -3078,6 +3667,10 @@ static int __ovs_nla_copy_actions(struct net *net, const struct nlattr *attr,
 
 			err = validate_and_copy_clone(net, a, key, sfa,
 						      eth_type, vlan_tci,
+<<<<<<< HEAD
+=======
+						      mpls_label_count,
+>>>>>>> upstream/android-13
 						      log, last);
 			if (err)
 				return err;
@@ -3085,6 +3678,32 @@ static int __ovs_nla_copy_actions(struct net *net, const struct nlattr *attr,
 			break;
 		}
 
+<<<<<<< HEAD
+=======
+		case OVS_ACTION_ATTR_CHECK_PKT_LEN: {
+			bool last = nla_is_last(a, rem);
+
+			err = validate_and_copy_check_pkt_len(net, a, key, sfa,
+							      eth_type,
+							      vlan_tci,
+							      mpls_label_count,
+							      log, last);
+			if (err)
+				return err;
+			skip_copy = true;
+			break;
+		}
+
+		case OVS_ACTION_ATTR_DEC_TTL:
+			err = validate_and_copy_dec_ttl(net, a, key, sfa,
+							eth_type, vlan_tci,
+							mpls_label_count, log);
+			if (err)
+				return err;
+			skip_copy = true;
+			break;
+
+>>>>>>> upstream/android-13
 		default:
 			OVS_NLERR(log, "Unknown Action type %d", type);
 			return -EINVAL;
@@ -3108,14 +3727,27 @@ int ovs_nla_copy_actions(struct net *net, const struct nlattr *attr,
 			 struct sw_flow_actions **sfa, bool log)
 {
 	int err;
+<<<<<<< HEAD
+=======
+	u32 mpls_label_count = 0;
+>>>>>>> upstream/android-13
 
 	*sfa = nla_alloc_flow_actions(min(nla_len(attr), MAX_ACTIONS_BUFSIZE));
 	if (IS_ERR(*sfa))
 		return PTR_ERR(*sfa);
 
+<<<<<<< HEAD
 	(*sfa)->orig_len = nla_len(attr);
 	err = __ovs_nla_copy_actions(net, attr, key, sfa, key->eth.type,
 				     key->eth.vlan.tci, log);
+=======
+	if (eth_p_mpls(key->eth.type))
+		mpls_label_count = hweight_long(key->mpls.num_labels_mask);
+
+	(*sfa)->orig_len = nla_len(attr);
+	err = __ovs_nla_copy_actions(net, attr, key, sfa, key->eth.type,
+				     key->eth.vlan.tci, mpls_label_count, log);
+>>>>>>> upstream/android-13
 	if (err)
 		ovs_nla_free_flow_actions(*sfa);
 
@@ -3130,7 +3762,11 @@ static int sample_action_to_attr(const struct nlattr *attr,
 	const struct sample_arg *arg;
 	struct nlattr *actions;
 
+<<<<<<< HEAD
 	start = nla_nest_start(skb, OVS_ACTION_ATTR_SAMPLE);
+=======
+	start = nla_nest_start_noflag(skb, OVS_ACTION_ATTR_SAMPLE);
+>>>>>>> upstream/android-13
 	if (!start)
 		return -EMSGSIZE;
 
@@ -3143,7 +3779,11 @@ static int sample_action_to_attr(const struct nlattr *attr,
 		goto out;
 	}
 
+<<<<<<< HEAD
 	ac_start = nla_nest_start(skb, OVS_SAMPLE_ATTR_ACTIONS);
+=======
+	ac_start = nla_nest_start_noflag(skb, OVS_SAMPLE_ATTR_ACTIONS);
+>>>>>>> upstream/android-13
 	if (!ac_start) {
 		err = -EMSGSIZE;
 		goto out;
@@ -3169,11 +3809,21 @@ static int clone_action_to_attr(const struct nlattr *attr,
 	struct nlattr *start;
 	int err = 0, rem = nla_len(attr);
 
+<<<<<<< HEAD
 	start = nla_nest_start(skb, OVS_ACTION_ATTR_CLONE);
 	if (!start)
 		return -EMSGSIZE;
 
 	err = ovs_nla_put_actions(nla_data(attr), rem, skb);
+=======
+	start = nla_nest_start_noflag(skb, OVS_ACTION_ATTR_CLONE);
+	if (!start)
+		return -EMSGSIZE;
+
+	/* Skipping the OVS_CLONE_ATTR_EXEC that is always the first attribute. */
+	attr = nla_next(nla_data(attr), &rem);
+	err = ovs_nla_put_actions(attr, rem, skb);
+>>>>>>> upstream/android-13
 
 	if (err)
 		nla_nest_cancel(skb, start);
@@ -3183,6 +3833,120 @@ static int clone_action_to_attr(const struct nlattr *attr,
 	return err;
 }
 
+<<<<<<< HEAD
+=======
+static int check_pkt_len_action_to_attr(const struct nlattr *attr,
+					struct sk_buff *skb)
+{
+	struct nlattr *start, *ac_start = NULL;
+	const struct check_pkt_len_arg *arg;
+	const struct nlattr *a, *cpl_arg;
+	int err = 0, rem = nla_len(attr);
+
+	start = nla_nest_start_noflag(skb, OVS_ACTION_ATTR_CHECK_PKT_LEN);
+	if (!start)
+		return -EMSGSIZE;
+
+	/* The first nested attribute in 'attr' is always
+	 * 'OVS_CHECK_PKT_LEN_ATTR_ARG'.
+	 */
+	cpl_arg = nla_data(attr);
+	arg = nla_data(cpl_arg);
+
+	if (nla_put_u16(skb, OVS_CHECK_PKT_LEN_ATTR_PKT_LEN, arg->pkt_len)) {
+		err = -EMSGSIZE;
+		goto out;
+	}
+
+	/* Second nested attribute in 'attr' is always
+	 * 'OVS_CHECK_PKT_LEN_ATTR_ACTIONS_IF_LESS_EQUAL'.
+	 */
+	a = nla_next(cpl_arg, &rem);
+	ac_start =  nla_nest_start_noflag(skb,
+					  OVS_CHECK_PKT_LEN_ATTR_ACTIONS_IF_LESS_EQUAL);
+	if (!ac_start) {
+		err = -EMSGSIZE;
+		goto out;
+	}
+
+	err = ovs_nla_put_actions(nla_data(a), nla_len(a), skb);
+	if (err) {
+		nla_nest_cancel(skb, ac_start);
+		goto out;
+	} else {
+		nla_nest_end(skb, ac_start);
+	}
+
+	/* Third nested attribute in 'attr' is always
+	 * OVS_CHECK_PKT_LEN_ATTR_ACTIONS_IF_GREATER.
+	 */
+	a = nla_next(a, &rem);
+	ac_start =  nla_nest_start_noflag(skb,
+					  OVS_CHECK_PKT_LEN_ATTR_ACTIONS_IF_GREATER);
+	if (!ac_start) {
+		err = -EMSGSIZE;
+		goto out;
+	}
+
+	err = ovs_nla_put_actions(nla_data(a), nla_len(a), skb);
+	if (err) {
+		nla_nest_cancel(skb, ac_start);
+		goto out;
+	} else {
+		nla_nest_end(skb, ac_start);
+	}
+
+	nla_nest_end(skb, start);
+	return 0;
+
+out:
+	nla_nest_cancel(skb, start);
+	return err;
+}
+
+static int dec_ttl_action_to_attr(const struct nlattr *attr,
+				  struct sk_buff *skb)
+{
+	struct nlattr *start, *action_start;
+	const struct nlattr *a;
+	int err = 0, rem;
+
+	start = nla_nest_start_noflag(skb, OVS_ACTION_ATTR_DEC_TTL);
+	if (!start)
+		return -EMSGSIZE;
+
+	nla_for_each_attr(a, nla_data(attr), nla_len(attr), rem) {
+		switch (nla_type(a)) {
+		case OVS_DEC_TTL_ATTR_ACTION:
+
+			action_start = nla_nest_start_noflag(skb, OVS_DEC_TTL_ATTR_ACTION);
+			if (!action_start) {
+				err = -EMSGSIZE;
+				goto out;
+			}
+
+			err = ovs_nla_put_actions(nla_data(a), nla_len(a), skb);
+			if (err)
+				goto out;
+
+			nla_nest_end(skb, action_start);
+			break;
+
+		default:
+			/* Ignore all other option to be future compatible */
+			break;
+		}
+	}
+
+	nla_nest_end(skb, start);
+	return 0;
+
+out:
+	nla_nest_cancel(skb, start);
+	return err;
+}
+
+>>>>>>> upstream/android-13
 static int set_action_to_attr(const struct nlattr *a, struct sk_buff *skb)
 {
 	const struct nlattr *ovs_key = nla_data(a);
@@ -3195,14 +3959,22 @@ static int set_action_to_attr(const struct nlattr *a, struct sk_buff *skb)
 		struct ovs_tunnel_info *ovs_tun = nla_data(ovs_key);
 		struct ip_tunnel_info *tun_info = &ovs_tun->tun_dst->u.tun_info;
 
+<<<<<<< HEAD
 		start = nla_nest_start(skb, OVS_ACTION_ATTR_SET);
+=======
+		start = nla_nest_start_noflag(skb, OVS_ACTION_ATTR_SET);
+>>>>>>> upstream/android-13
 		if (!start)
 			return -EMSGSIZE;
 
 		err =  ip_tun_to_nlattr(skb, &tun_info->key,
 					ip_tunnel_info_opts(tun_info),
 					tun_info->options_len,
+<<<<<<< HEAD
 					ip_tunnel_info_af(tun_info));
+=======
+					ip_tunnel_info_af(tun_info), tun_info->mode);
+>>>>>>> upstream/android-13
 		if (err)
 			return err;
 		nla_nest_end(skb, start);
@@ -3227,7 +3999,11 @@ static int masked_set_action_to_set_action_attr(const struct nlattr *a,
 	/* Revert the conversion we did from a non-masked set action to
 	 * masked set action.
 	 */
+<<<<<<< HEAD
 	nla = nla_nest_start(skb, OVS_ACTION_ATTR_SET);
+=======
+	nla = nla_nest_start_noflag(skb, OVS_ACTION_ATTR_SET);
+>>>>>>> upstream/android-13
 	if (!nla)
 		return -EMSGSIZE;
 
@@ -3277,6 +4053,21 @@ int ovs_nla_put_actions(const struct nlattr *attr, int len, struct sk_buff *skb)
 				return err;
 			break;
 
+<<<<<<< HEAD
+=======
+		case OVS_ACTION_ATTR_CHECK_PKT_LEN:
+			err = check_pkt_len_action_to_attr(a, skb);
+			if (err)
+				return err;
+			break;
+
+		case OVS_ACTION_ATTR_DEC_TTL:
+			err = dec_ttl_action_to_attr(a, skb);
+			if (err)
+				return err;
+			break;
+
+>>>>>>> upstream/android-13
 		default:
 			if (nla_put(skb, type, nla_len(a), nla_data(a)))
 				return -EMSGSIZE;

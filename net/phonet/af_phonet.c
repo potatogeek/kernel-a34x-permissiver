@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * File: af_phonet.c
  *
@@ -7,6 +11,7 @@
  *
  * Authors: Sakari Ailus <sakari.ailus@nokia.com>
  *          Rémi Denis-Courmont
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,6 +26,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -288,8 +295,12 @@ int pn_skb_send(struct sock *sk, struct sk_buff *skb,
 
 drop:
 	kfree_skb(skb);
+<<<<<<< HEAD
 	if (dev)
 		dev_put(dev);
+=======
+	dev_put(dev);
+>>>>>>> upstream/android-13
 	return err;
 }
 EXPORT_SYMBOL(pn_skb_send);

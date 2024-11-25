@@ -70,7 +70,12 @@
 #define TMC_AXICTL_PROT_CTL_B0	BIT(0)
 #define TMC_AXICTL_PROT_CTL_B1	BIT(1)
 #define TMC_AXICTL_SCT_GAT_MODE	BIT(7)
+<<<<<<< HEAD
 #define TMC_AXICTL_WR_BURST_16	0xF00
+=======
+#define TMC_AXICTL_WR_BURST(v)	(((v) & 0xf) << 8)
+#define TMC_AXICTL_WR_BURST_16	0xf
+>>>>>>> upstream/android-13
 /* Write-back Read and Write-allocate */
 #define TMC_AXICTL_AXCACHE_OS	(0xf << 2)
 #define TMC_AXICTL_ARCACHE_OS	(0xf << 16)
@@ -165,7 +170,10 @@ struct etr_buf {
 /**
  * struct tmc_drvdata - specifics associated to an TMC component
  * @base:	memory mapped base address for this component.
+<<<<<<< HEAD
  * @dev:	the device entity associated to this component.
+=======
+>>>>>>> upstream/android-13
  * @csdev:	component vitals needed by the framework.
  * @miscdev:	specifics to handle "/dev/xyz.tmc" entry.
  * @spinlock:	only one at a time pls.
@@ -175,6 +183,11 @@ struct etr_buf {
  * @etr_buf:	details of buffer used in TMC-ETR
  * @len:	size of the available trace for ETF/ETB.
  * @size:	trace buffer size for this TMC (common for all modes).
+<<<<<<< HEAD
+=======
+ * @max_burst_size: The maximum burst size that can be initiated by
+ *		TMC-ETR on AXI bus.
+>>>>>>> upstream/android-13
  * @mode:	how this TMC is being used.
  * @config_type: TMC variant, must be of type @tmc_config_type.
  * @memwidth:	width of the memory interface databus, in bytes.
@@ -188,7 +201,10 @@ struct etr_buf {
  */
 struct tmc_drvdata {
 	void __iomem		*base;
+<<<<<<< HEAD
 	struct device		*dev;
+=======
+>>>>>>> upstream/android-13
 	struct coresight_device	*csdev;
 	struct miscdevice	miscdev;
 	spinlock_t		spinlock;
@@ -200,6 +216,10 @@ struct tmc_drvdata {
 	};
 	u32			len;
 	u32			size;
+<<<<<<< HEAD
+=======
+	u32			max_burst_size;
+>>>>>>> upstream/android-13
 	u32			mode;
 	enum tmc_config_type	config_type;
 	enum tmc_mem_intf_width	memwidth;
@@ -270,6 +290,10 @@ ssize_t tmc_etb_get_sysfs_trace(struct tmc_drvdata *drvdata,
 /* ETR functions */
 int tmc_read_prepare_etr(struct tmc_drvdata *drvdata);
 int tmc_read_unprepare_etr(struct tmc_drvdata *drvdata);
+<<<<<<< HEAD
+=======
+void tmc_etr_disable_hw(struct tmc_drvdata *drvdata);
+>>>>>>> upstream/android-13
 extern const struct coresight_ops tmc_etr_cs_ops;
 ssize_t tmc_etr_get_sysfs_trace(struct tmc_drvdata *drvdata,
 				loff_t pos, size_t len, char **bufpp);
@@ -327,4 +351,10 @@ tmc_sg_table_buf_size(struct tmc_sg_table *sg_table)
 
 struct coresight_device *tmc_etr_get_catu_device(struct tmc_drvdata *drvdata);
 
+<<<<<<< HEAD
+=======
+void tmc_etr_set_catu_ops(const struct etr_buf_operations *catu);
+void tmc_etr_remove_catu_ops(void);
+
+>>>>>>> upstream/android-13
 #endif

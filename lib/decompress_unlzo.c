@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * LZO decompressor for the Linux kernel. Code borrowed from the lzo
  * implementation by Markus Franz Xaver Johannes Oberhumer.
@@ -10,6 +14,7 @@
  * Copyright (C) 1996-2005 Markus Franz Xaver Johannes Oberhumer
  * All Rights Reserved.
  *
+<<<<<<< HEAD
  * lzop and the LZO library are free software; you can redistribute them
  * and/or modify them under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of
@@ -25,6 +30,8 @@
  * If not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
+=======
+>>>>>>> upstream/android-13
  * Markus F.X.J. Oberhumer
  * <markus@oberhumer.com>
  * http://www.oberhumer.com/opensource/lzop/
@@ -57,7 +64,10 @@ STATIC inline long INIT parse_header(u8 *input, long *skip, long in_len)
 	int l;
 	u8 *parse = input;
 	u8 *end = input + in_len;
+<<<<<<< HEAD
 	u8 level = 0;
+=======
+>>>>>>> upstream/android-13
 	u16 version;
 
 	/*
@@ -79,7 +89,11 @@ STATIC inline long INIT parse_header(u8 *input, long *skip, long in_len)
 	version = get_unaligned_be16(parse);
 	parse += 7;
 	if (version >= 0x0940)
+<<<<<<< HEAD
 		level = *parse++;
+=======
+		parse++;
+>>>>>>> upstream/android-13
 	if (get_unaligned_be32(parse) & HEADER_HAS_FILTER)
 		parse += 8; /* flags + filter info */
 	else

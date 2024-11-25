@@ -1,6 +1,10 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 #ifndef _PARISC_PSW_H
+<<<<<<< HEAD
 
+=======
+#define _PARISC_PSW_H
+>>>>>>> upstream/android-13
 
 #define	PSW_I	0x00000001
 #define	PSW_D	0x00000002

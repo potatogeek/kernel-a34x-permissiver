@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Driver for the Conexant CX23885 PCIe bridge
  *
  *  Copyright (c) 2006 Steven Toth <stoth@linuxtv.org>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "cx23885.h"
@@ -1228,7 +1235,12 @@ int cx23885_risc_buffer(struct pci_dev *pci, struct cx23885_riscmem *risc,
 		/ PAGE_SIZE + lines);
 	instructions += 5;
 	risc->size = instructions * 12;
+<<<<<<< HEAD
 	risc->cpu = pci_alloc_consistent(pci, risc->size, &risc->dma);
+=======
+	risc->cpu = dma_alloc_coherent(&pci->dev, risc->size, &risc->dma,
+				       GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (risc->cpu == NULL)
 		return -ENOMEM;
 
@@ -1265,7 +1277,12 @@ int cx23885_risc_databuffer(struct pci_dev *pci,
 	instructions += 4;
 
 	risc->size = instructions * 12;
+<<<<<<< HEAD
 	risc->cpu = pci_alloc_consistent(pci, risc->size, &risc->dma);
+=======
+	risc->cpu = dma_alloc_coherent(&pci->dev, risc->size, &risc->dma,
+				       GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (risc->cpu == NULL)
 		return -ENOMEM;
 
@@ -1303,7 +1320,12 @@ int cx23885_risc_vbibuffer(struct pci_dev *pci, struct cx23885_riscmem *risc,
 		/ PAGE_SIZE + lines);
 	instructions += 5;
 	risc->size = instructions * 12;
+<<<<<<< HEAD
 	risc->cpu = pci_alloc_consistent(pci, risc->size, &risc->dma);
+=======
+	risc->cpu = dma_alloc_coherent(&pci->dev, risc->size, &risc->dma,
+				       GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (risc->cpu == NULL)
 		return -ENOMEM;
 	/* write risc instructions */
@@ -1332,8 +1354,12 @@ void cx23885_free_buffer(struct cx23885_dev *dev, struct cx23885_buffer *buf)
 {
 	struct cx23885_riscmem *risc = &buf->risc;
 
+<<<<<<< HEAD
 	BUG_ON(in_interrupt());
 	pci_free_consistent(dev->pci, risc->size, risc->cpu, risc->dma);
+=======
+	dma_free_coherent(&dev->pci->dev, risc->size, risc->cpu, risc->dma);
+>>>>>>> upstream/android-13
 }
 
 static void cx23885_tsport_reg_dump(struct cx23885_tsport *port)
@@ -1996,9 +2022,15 @@ static inline int encoder_on_portc(struct cx23885_dev *dev)
  * and report errors if we think we're tampering with a GPIo that might
  * be assigned to the encoder (and used for the host bus).
  *
+<<<<<<< HEAD
  * GPIO  2 thru  0 - On the cx23885 bridge
  * GPIO 18 thru  3 - On the cx23417 host bus interface
  * GPIO 23 thru 19 - On the cx25840 a/v core
+=======
+ * GPIO  2 through  0 - On the cx23885 bridge
+ * GPIO 18 through  3 - On the cx23417 host bus interface
+ * GPIO 23 through 19 - On the cx25840 a/v core
+>>>>>>> upstream/android-13
  */
 void cx23885_gpio_set(struct cx23885_dev *dev, u32 mask)
 {
@@ -2088,6 +2120,18 @@ static struct {
 	 * 0x1423 is the PCI ID for the IOMMU found on Kaveri
 	 */
 	{ PCI_VENDOR_ID_AMD, 0x1423 },
+<<<<<<< HEAD
+=======
+	/* 0x1481 is the PCI ID for the IOMMU found on Starship/Matisse
+	 */
+	{ PCI_VENDOR_ID_AMD, 0x1481 },
+	/* 0x1419 is the PCI ID for the IOMMU found on 15h (Models 10h-1fh) family
+	 */
+	{ PCI_VENDOR_ID_AMD, 0x1419 },
+	/* 0x5a23 is the PCI ID for the IOMMU found on RD890S/RD990
+	 */
+	{ PCI_VENDOR_ID_ATI, 0x5a23 },
+>>>>>>> upstream/android-13
 };
 
 static bool cx23885_does_need_dma_reset(void)
@@ -2161,7 +2205,11 @@ static int cx23885_initdev(struct pci_dev *pci_dev,
 		(unsigned long long)pci_resource_start(pci_dev, 0));
 
 	pci_set_master(pci_dev);
+<<<<<<< HEAD
 	err = pci_set_dma_mask(pci_dev, 0xffffffff);
+=======
+	err = dma_set_mask(&pci_dev->dev, 0xffffffff);
+>>>>>>> upstream/android-13
 	if (err) {
 		pr_err("%s/0: Oops: no 32bit PCI DMA ???\n", dev->name);
 		goto fail_ctrl;
@@ -2249,9 +2297,12 @@ static struct pci_driver cx23885_pci_driver = {
 	.id_table = cx23885_pci_tbl,
 	.probe    = cx23885_initdev,
 	.remove   = cx23885_finidev,
+<<<<<<< HEAD
 	/* TODO */
 	.suspend  = NULL,
 	.resume   = NULL,
+=======
+>>>>>>> upstream/android-13
 };
 
 static int __init cx23885_init(void)

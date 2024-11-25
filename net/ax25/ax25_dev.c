@@ -1,8 +1,13 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright (C) Jonathan Naylor G4KLX (g4klx@g4klx.demon.co.uk)
  */
@@ -40,6 +45,10 @@ ax25_dev *ax25_addr_ax25dev(ax25_address *addr)
 	for (ax25_dev = ax25_dev_list; ax25_dev != NULL; ax25_dev = ax25_dev->next)
 		if (ax25cmp(addr, (ax25_address *)ax25_dev->dev->dev_addr) == 0) {
 			res = ax25_dev;
+<<<<<<< HEAD
+=======
+			ax25_dev_hold(ax25_dev);
+>>>>>>> upstream/android-13
 		}
 	spin_unlock_bh(&ax25_dev_lock);
 
@@ -59,6 +68,10 @@ void ax25_dev_device_up(struct net_device *dev)
 		return;
 	}
 
+<<<<<<< HEAD
+=======
+	refcount_set(&ax25_dev->refcount, 1);
+>>>>>>> upstream/android-13
 	dev->ax25_ptr     = ax25_dev;
 	ax25_dev->dev     = dev;
 	dev_hold(dev);
@@ -87,6 +100,10 @@ void ax25_dev_device_up(struct net_device *dev)
 	ax25_dev->next = ax25_dev_list;
 	ax25_dev_list  = ax25_dev;
 	spin_unlock_bh(&ax25_dev_lock);
+<<<<<<< HEAD
+=======
+	ax25_dev_hold(ax25_dev);
+>>>>>>> upstream/android-13
 
 	ax25_register_dev_sysctl(ax25_dev);
 }
@@ -116,9 +133,16 @@ void ax25_dev_device_down(struct net_device *dev)
 	if ((s = ax25_dev_list) == ax25_dev) {
 		ax25_dev_list = s->next;
 		spin_unlock_bh(&ax25_dev_lock);
+<<<<<<< HEAD
 		dev->ax25_ptr = NULL;
 		dev_put(dev);
 		kfree(ax25_dev);
+=======
+		ax25_dev_put(ax25_dev);
+		dev->ax25_ptr = NULL;
+		dev_put(dev);
+		ax25_dev_put(ax25_dev);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -126,9 +150,16 @@ void ax25_dev_device_down(struct net_device *dev)
 		if (s->next == ax25_dev) {
 			s->next = ax25_dev->next;
 			spin_unlock_bh(&ax25_dev_lock);
+<<<<<<< HEAD
 			dev->ax25_ptr = NULL;
 			dev_put(dev);
 			kfree(ax25_dev);
+=======
+			ax25_dev_put(ax25_dev);
+			dev->ax25_ptr = NULL;
+			dev_put(dev);
+			ax25_dev_put(ax25_dev);
+>>>>>>> upstream/android-13
 			return;
 		}
 
@@ -136,6 +167,10 @@ void ax25_dev_device_down(struct net_device *dev)
 	}
 	spin_unlock_bh(&ax25_dev_lock);
 	dev->ax25_ptr = NULL;
+<<<<<<< HEAD
+=======
+	ax25_dev_put(ax25_dev);
+>>>>>>> upstream/android-13
 }
 
 int ax25_fwd_ioctl(unsigned int cmd, struct ax25_fwd_struct *fwd)
@@ -147,6 +182,7 @@ int ax25_fwd_ioctl(unsigned int cmd, struct ax25_fwd_struct *fwd)
 
 	switch (cmd) {
 	case SIOCAX25ADDFWD:
+<<<<<<< HEAD
 		if ((fwd_dev = ax25_addr_ax25dev(&fwd->port_to)) == NULL)
 			return -EINVAL;
 		if (ax25_dev->forward != NULL)
@@ -161,6 +197,34 @@ int ax25_fwd_ioctl(unsigned int cmd, struct ax25_fwd_struct *fwd)
 		break;
 
 	default:
+=======
+		fwd_dev = ax25_addr_ax25dev(&fwd->port_to);
+		if (!fwd_dev) {
+			ax25_dev_put(ax25_dev);
+			return -EINVAL;
+		}
+		if (ax25_dev->forward) {
+			ax25_dev_put(fwd_dev);
+			ax25_dev_put(ax25_dev);
+			return -EINVAL;
+		}
+		ax25_dev->forward = fwd_dev->dev;
+		ax25_dev_put(fwd_dev);
+		ax25_dev_put(ax25_dev);
+		break;
+
+	case SIOCAX25DELFWD:
+		if (!ax25_dev->forward) {
+			ax25_dev_put(ax25_dev);
+			return -EINVAL;
+		}
+		ax25_dev->forward = NULL;
+		ax25_dev_put(ax25_dev);
+		break;
+
+	default:
+		ax25_dev_put(ax25_dev);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 

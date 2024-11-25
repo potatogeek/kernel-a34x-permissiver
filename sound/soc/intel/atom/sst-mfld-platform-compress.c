@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  sst_mfld_platform.c - Intel MID Platform driver
  *
@@ -5,6 +9,7 @@
  *  Author: Vinod Koul <vinod.koul@intel.com>
  *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; version 2 of the License.
@@ -14,6 +19,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  */
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -47,10 +54,17 @@ static void sst_drain_notify(void *arg)
 		snd_compr_drain_notify(cstream);
 }
 
+<<<<<<< HEAD
 static int sst_platform_compr_open(struct snd_compr_stream *cstream)
 {
 
 	int ret_val = 0;
+=======
+static int sst_platform_compr_open(struct snd_soc_component *component,
+				   struct snd_compr_stream *cstream)
+{
+	int ret_val;
+>>>>>>> upstream/android-13
 	struct snd_compr_runtime *runtime = cstream->runtime;
 	struct sst_runtime_stream *stream;
 
@@ -80,7 +94,12 @@ out_ops:
 	return ret_val;
 }
 
+<<<<<<< HEAD
 static int sst_platform_compr_free(struct snd_compr_stream *cstream)
+=======
+static int sst_platform_compr_free(struct snd_soc_component *component,
+				   struct snd_compr_stream *cstream)
+>>>>>>> upstream/android-13
 {
 	struct sst_runtime_stream *stream;
 	int ret_val = 0, str_id;
@@ -99,15 +118,24 @@ static int sst_platform_compr_free(struct snd_compr_stream *cstream)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int sst_platform_compr_set_params(struct snd_compr_stream *cstream,
 					struct snd_compr_params *params)
+=======
+static int sst_platform_compr_set_params(struct snd_soc_component *component,
+					 struct snd_compr_stream *cstream,
+					 struct snd_compr_params *params)
+>>>>>>> upstream/android-13
 {
 	struct sst_runtime_stream *stream;
 	int retval;
 	struct snd_sst_params str_params;
 	struct sst_compress_cb cb;
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = cstream->private_data;
 	struct snd_soc_component *component = snd_soc_rtdcom_lookup(rtd, DRV_NAME);
+=======
+>>>>>>> upstream/android-13
 	struct sst_data *ctx = snd_soc_component_get_drvdata(component);
 
 	stream = cstream->runtime->private_data;
@@ -174,7 +202,12 @@ static int sst_platform_compr_set_params(struct snd_compr_stream *cstream,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int sst_platform_compr_trigger(struct snd_compr_stream *cstream, int cmd)
+=======
+static int sst_platform_compr_trigger(struct snd_soc_component *component,
+				      struct snd_compr_stream *cstream, int cmd)
+>>>>>>> upstream/android-13
 {
 	struct sst_runtime_stream *stream = cstream->runtime->private_data;
 
@@ -207,21 +240,38 @@ static int sst_platform_compr_trigger(struct snd_compr_stream *cstream, int cmd)
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 static int sst_platform_compr_pointer(struct snd_compr_stream *cstream,
 					struct snd_compr_tstamp *tstamp)
+=======
+static int sst_platform_compr_pointer(struct snd_soc_component *component,
+				      struct snd_compr_stream *cstream,
+				      struct snd_compr_tstamp *tstamp)
+>>>>>>> upstream/android-13
 {
 	struct sst_runtime_stream *stream;
 
 	stream  = cstream->runtime->private_data;
 	stream->compr_ops->tstamp(sst->dev, stream->id, tstamp);
+<<<<<<< HEAD
 	div_u64_rem(tstamp->copied_total, (u32)cstream->runtime->buffer_size,
 				 &tstamp->byte_offset);
+=======
+	tstamp->byte_offset = tstamp->copied_total %
+				 (u32)cstream->runtime->buffer_size;
+>>>>>>> upstream/android-13
 	pr_debug("calc bytes offset/copied bytes as %d\n", tstamp->byte_offset);
 	return 0;
 }
 
+<<<<<<< HEAD
 static int sst_platform_compr_ack(struct snd_compr_stream *cstream,
 					size_t bytes)
+=======
+static int sst_platform_compr_ack(struct snd_soc_component *component,
+				  struct snd_compr_stream *cstream,
+				  size_t bytes)
+>>>>>>> upstream/android-13
 {
 	struct sst_runtime_stream *stream;
 
@@ -232,8 +282,14 @@ static int sst_platform_compr_ack(struct snd_compr_stream *cstream,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int sst_platform_compr_get_caps(struct snd_compr_stream *cstream,
 					struct snd_compr_caps *caps)
+=======
+static int sst_platform_compr_get_caps(struct snd_soc_component *component,
+				       struct snd_compr_stream *cstream,
+				       struct snd_compr_caps *caps)
+>>>>>>> upstream/android-13
 {
 	struct sst_runtime_stream *stream =
 		cstream->runtime->private_data;
@@ -241,8 +297,14 @@ static int sst_platform_compr_get_caps(struct snd_compr_stream *cstream,
 	return stream->compr_ops->get_caps(caps);
 }
 
+<<<<<<< HEAD
 static int sst_platform_compr_get_codec_caps(struct snd_compr_stream *cstream,
 					struct snd_compr_codec_caps *codec)
+=======
+static int sst_platform_compr_get_codec_caps(struct snd_soc_component *component,
+					     struct snd_compr_stream *cstream,
+					     struct snd_compr_codec_caps *codec)
+>>>>>>> upstream/android-13
 {
 	struct sst_runtime_stream *stream =
 		cstream->runtime->private_data;
@@ -250,8 +312,14 @@ static int sst_platform_compr_get_codec_caps(struct snd_compr_stream *cstream,
 	return stream->compr_ops->get_codec_caps(codec);
 }
 
+<<<<<<< HEAD
 static int sst_platform_compr_set_metadata(struct snd_compr_stream *cstream,
 					struct snd_compr_metadata *metadata)
+=======
+static int sst_platform_compr_set_metadata(struct snd_soc_component *component,
+					   struct snd_compr_stream *cstream,
+					   struct snd_compr_metadata *metadata)
+>>>>>>> upstream/android-13
 {
 	struct sst_runtime_stream *stream  =
 		 cstream->runtime->private_data;
@@ -259,7 +327,11 @@ static int sst_platform_compr_set_metadata(struct snd_compr_stream *cstream,
 	return stream->compr_ops->set_metadata(sst->dev, stream->id, metadata);
 }
 
+<<<<<<< HEAD
 const struct snd_compr_ops sst_platform_compr_ops = {
+=======
+const struct snd_compress_ops sst_platform_compress_ops = {
+>>>>>>> upstream/android-13
 
 	.open = sst_platform_compr_open,
 	.free = sst_platform_compr_free,

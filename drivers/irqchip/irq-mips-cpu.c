@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright 2001 MontaVista Software Inc.
  * Author: Jun Sun, jsun@mvista.com or jsun@junsun.net
@@ -7,11 +11,14 @@
  *	Author: Maciej W. Rozycki <macro@mips.com>
  *
  * This file define the irq handler for MIPS CPU interrupts.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute	it and/or modify it
  * under  the terms of	the GNU General	 Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -131,7 +138,10 @@ static struct irq_chip mips_mt_cpu_irq_controller = {
 asmlinkage void __weak plat_irq_dispatch(void)
 {
 	unsigned long pending = read_c0_cause() & read_c0_status() & ST0_IM;
+<<<<<<< HEAD
 	unsigned int virq;
+=======
+>>>>>>> upstream/android-13
 	int irq;
 
 	if (!pending) {
@@ -141,12 +151,24 @@ asmlinkage void __weak plat_irq_dispatch(void)
 
 	pending >>= CAUSEB_IP;
 	while (pending) {
+<<<<<<< HEAD
 		irq = fls(pending) - 1;
 		if (IS_ENABLED(CONFIG_GENERIC_IRQ_IPI) && irq < 2)
 			virq = irq_linear_revmap(ipi_domain, irq);
 		else
 			virq = irq_linear_revmap(irq_domain, irq);
 		do_IRQ(virq);
+=======
+		struct irq_domain *d;
+
+		irq = fls(pending) - 1;
+		if (IS_ENABLED(CONFIG_GENERIC_IRQ_IPI) && irq < 2)
+			d = ipi_domain;
+		else
+			d = irq_domain;
+
+		do_domain_IRQ(d, irq);
+>>>>>>> upstream/android-13
 		pending &= ~BIT(irq);
 	}
 }

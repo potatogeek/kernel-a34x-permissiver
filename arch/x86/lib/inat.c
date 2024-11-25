@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * x86 instruction attribute tables
  *
  * Written by Masami Hiramatsu <mhiramat@redhat.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +24,10 @@
  *
  */
 #include <asm/insn.h>
+=======
+ */
+#include <asm/insn.h> /* __ignore_sync_check__ */
+>>>>>>> upstream/android-13
 
 /* Attribute tables are generated from opcode map */
 #include "inat-tables.c"

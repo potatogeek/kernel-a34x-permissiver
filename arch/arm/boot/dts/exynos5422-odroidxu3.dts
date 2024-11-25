@@ -15,40 +15,72 @@
 / {
 	model = "Hardkernel Odroid XU3";
 	compatible = "hardkernel,odroid-xu3", "samsung,exynos5800", "samsung,exynos5";
+<<<<<<< HEAD
+=======
+
+	aliases {
+		ethernet = &ethernet;
+	};
+>>>>>>> upstream/android-13
 };
 
 &i2c_0 {
 	status = "okay";
 
 	/* A15 cluster: VDD_ARM */
+<<<<<<< HEAD
 	ina231@40 {
+=======
+	power-sensor@40 {
+>>>>>>> upstream/android-13
 		compatible = "ti,ina231";
 		reg = <0x40>;
 		shunt-resistor = <10000>;
 	};
 
 	/* memory: VDD_MEM */
+<<<<<<< HEAD
 	ina231@41 {
+=======
+	power-sensor@41 {
+>>>>>>> upstream/android-13
 		compatible = "ti,ina231";
 		reg = <0x41>;
 		shunt-resistor = <10000>;
 	};
 
 	/* GPU: VDD_G3D */
+<<<<<<< HEAD
 	ina231@44 {
+=======
+	power-sensor@44 {
+>>>>>>> upstream/android-13
 		compatible = "ti,ina231";
 		reg = <0x44>;
 		shunt-resistor = <10000>;
 	};
 
 	/* A7 cluster: VDD_KFC */
+<<<<<<< HEAD
 	ina231@45 {
+=======
+	power-sensor@45 {
+>>>>>>> upstream/android-13
 		compatible = "ti,ina231";
 		reg = <0x45>;
 		shunt-resistor = <10000>;
 	};
 };
 
+<<<<<<< HEAD
+=======
+&ldo28_reg {
+	regulator-name = "dp_p3v3";
+	regulator-min-microvolt = <3300000>;
+	regulator-max-microvolt = <3300000>;
+};
+
+>>>>>>> upstream/android-13
 &pwm {
 	/*
 	 * PWM 0 -- fan
@@ -64,3 +96,24 @@
 &usbdrd_dwc3_1 {
 	dr_mode = "peripheral";
 };
+<<<<<<< HEAD
+=======
+
+&usbhost2 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	hub@1 {
+		compatible = "usb0424,9514";
+		reg = <1>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		ethernet: usbether@1 {
+			compatible = "usb0424,ec00";
+			reg = <1>;
+			local-mac-address = [00 00 00 00 00 00]; /* Filled in by a bootloader */
+		};
+	};
+};
+>>>>>>> upstream/android-13

@@ -40,7 +40,10 @@
 #include <asm/elf.h>
 #include <asm/irq.h>
 #include <asm/kexec.h>
+<<<<<<< HEAD
 #include <asm/pgalloc.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/processor.h>
 #include <asm/sal.h>
 #include <asm/switch_to.h>
@@ -48,6 +51,7 @@
 #include <linux/uaccess.h>
 #include <asm/unwind.h>
 #include <asm/user.h>
+<<<<<<< HEAD
 
 #include "entry.h"
 
@@ -55,6 +59,12 @@
 # include <asm/perfmon.h>
 #endif
 
+=======
+#include <asm/xtp.h>
+
+#include "entry.h"
+
+>>>>>>> upstream/android-13
 #include "sigframe.h"
 
 void (*ia64_mark_idle)(int);
@@ -64,12 +74,22 @@ EXPORT_SYMBOL(boot_option_idle_override);
 void (*pm_power_off) (void);
 EXPORT_SYMBOL(pm_power_off);
 
+<<<<<<< HEAD
 void
 ia64_do_show_stack (struct unw_frame_info *info, void *arg)
 {
 	unsigned long ip, sp, bsp;
 
 	printk("\nCall Trace:\n");
+=======
+static void
+ia64_do_show_stack (struct unw_frame_info *info, void *arg)
+{
+	unsigned long ip, sp, bsp;
+	const char *loglvl = arg;
+
+	printk("%s\nCall Trace:\n", loglvl);
+>>>>>>> upstream/android-13
 	do {
 		unw_get_ip(info, &ip);
 		if (ip == 0)
@@ -77,22 +97,39 @@ ia64_do_show_stack (struct unw_frame_info *info, void *arg)
 
 		unw_get_sp(info, &sp);
 		unw_get_bsp(info, &bsp);
+<<<<<<< HEAD
 		printk(" [<%016lx>] %pS\n"
 			 "                                sp=%016lx bsp=%016lx\n",
 			 ip, (void *)ip, sp, bsp);
+=======
+		printk("%s [<%016lx>] %pS\n"
+			 "                                sp=%016lx bsp=%016lx\n",
+			 loglvl, ip, (void *)ip, sp, bsp);
+>>>>>>> upstream/android-13
 	} while (unw_unwind(info) >= 0);
 }
 
 void
+<<<<<<< HEAD
 show_stack (struct task_struct *task, unsigned long *sp)
 {
 	if (!task)
 		unw_init_running(ia64_do_show_stack, NULL);
+=======
+show_stack (struct task_struct *task, unsigned long *sp, const char *loglvl)
+{
+	if (!task)
+		unw_init_running(ia64_do_show_stack, (void *)loglvl);
+>>>>>>> upstream/android-13
 	else {
 		struct unw_frame_info info;
 
 		unw_init_from_blocked_task(&info, task);
+<<<<<<< HEAD
 		ia64_do_show_stack(&info, NULL);
+=======
+		ia64_do_show_stack(&info, (void *)loglvl);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -150,7 +187,11 @@ show_regs (struct pt_regs *regs)
 			       ((i == sof - 1) || (i % 3) == 2) ? "\n" : " ");
 		}
 	} else
+<<<<<<< HEAD
 		show_stack(NULL, NULL);
+=======
+		show_stack(NULL, NULL, KERN_DEFAULT);
+>>>>>>> upstream/android-13
 }
 
 /* local support for deprecated console_print */
@@ -173,6 +214,7 @@ do_notify_resume_user(sigset_t *unused, struct sigscratch *scr, long in_syscall)
 		return;
 	}
 
+<<<<<<< HEAD
 #ifdef CONFIG_PERFMON
 	if (current->thread.pfm_needs_checking)
 		/*
@@ -184,11 +226,20 @@ do_notify_resume_user(sigset_t *unused, struct sigscratch *scr, long in_syscall)
 
 	/* deal with pending signal delivery */
 	if (test_thread_flag(TIF_SIGPENDING)) {
+=======
+	/* deal with pending signal delivery */
+	if (test_thread_flag(TIF_SIGPENDING) ||
+	    test_thread_flag(TIF_NOTIFY_SIGNAL)) {
+>>>>>>> upstream/android-13
 		local_irq_enable();	/* force interrupt enable */
 		ia64_do_signal(scr, in_syscall);
 	}
 
+<<<<<<< HEAD
 	if (test_and_clear_thread_flag(TIF_NOTIFY_RESUME)) {
+=======
+	if (test_thread_flag(TIF_NOTIFY_RESUME)) {
+>>>>>>> upstream/android-13
 		local_irq_enable();	/* force interrupt enable */
 		tracehook_notify_resume(&scr->pt);
 	}
@@ -251,7 +302,11 @@ void arch_cpu_idle(void)
 	if (mark_idle)
 		(*mark_idle)(1);
 
+<<<<<<< HEAD
 	safe_halt();
+=======
+	raw_safe_halt();
+>>>>>>> upstream/android-13
 
 	if (mark_idle)
 		(*mark_idle)(0);
@@ -263,6 +318,7 @@ void arch_cpu_idle(void)
 void
 ia64_save_extra (struct task_struct *task)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_PERFMON
 	unsigned long info;
 #endif
@@ -278,11 +334,16 @@ ia64_save_extra (struct task_struct *task)
 	if (info & PFM_CPUINFO_SYST_WIDE)
 		pfm_syst_wide_update_task(task, info, 0);
 #endif
+=======
+	if ((task->thread.flags & IA64_THREAD_DBG_VALID) != 0)
+		ia64_save_debug_regs(&task->thread.dbr[0]);
+>>>>>>> upstream/android-13
 }
 
 void
 ia64_load_extra (struct task_struct *task)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_PERFMON
 	unsigned long info;
 #endif
@@ -298,6 +359,10 @@ ia64_load_extra (struct task_struct *task)
 	if (info & PFM_CPUINFO_SYST_WIDE) 
 		pfm_syst_wide_update_task(task, info, 1);
 #endif
+=======
+	if ((task->thread.flags & IA64_THREAD_DBG_VALID) != 0)
+		ia64_load_debug_regs(&task->thread.dbr[0]);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -309,7 +374,11 @@ ia64_load_extra (struct task_struct *task)
  *
  *	<clone syscall>	        <some kernel call frames>
  *	sys_clone		   :
+<<<<<<< HEAD
  *	do_fork			do_fork
+=======
+ *	kernel_clone		kernel_clone
+>>>>>>> upstream/android-13
  *	copy_thread		copy_thread
  *
  * This means that the stack layout is as follows:
@@ -332,9 +401,14 @@ ia64_load_extra (struct task_struct *task)
  * so there is nothing to worry about.
  */
 int
+<<<<<<< HEAD
 copy_thread(unsigned long clone_flags,
 	     unsigned long user_stack_base, unsigned long user_stack_size,
 	     struct task_struct *p)
+=======
+copy_thread(unsigned long clone_flags, unsigned long user_stack_base,
+	    unsigned long user_stack_size, struct task_struct *p, unsigned long tls)
+>>>>>>> upstream/android-13
 {
 	extern char ia64_ret_from_clone;
 	struct switch_stack *child_stack, *stack;
@@ -376,7 +450,11 @@ copy_thread(unsigned long clone_flags,
 
 	ia64_drop_fpu(p);	/* don't pick up stale state from a CPU's fph */
 
+<<<<<<< HEAD
 	if (unlikely(p->flags & PF_KTHREAD)) {
+=======
+	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
+>>>>>>> upstream/android-13
 		if (unlikely(!user_stack_base)) {
 			/* fork_idle() called us */
 			return 0;
@@ -415,7 +493,11 @@ copy_thread(unsigned long clone_flags,
 	rbs_size = stack->ar_bspstore - rbs;
 	memcpy((void *) child_rbs, (void *) rbs, rbs_size);
 	if (clone_flags & CLONE_SETTLS)
+<<<<<<< HEAD
 		child_ptregs->r13 = regs->r16;	/* see sys_clone2() in entry.S */
+=======
+		child_ptregs->r13 = tls;
+>>>>>>> upstream/android-13
 	if (user_stack_base) {
 		child_ptregs->r12 = user_stack_base + user_stack_size - 16;
 		child_ptregs->ar_bspstore = user_stack_base;
@@ -432,6 +514,7 @@ copy_thread(unsigned long clone_flags,
 	 */
 	child_ptregs->cr_ipsr = ((child_ptregs->cr_ipsr | IA64_PSR_BITS_TO_SET)
 				 & ~(IA64_PSR_BITS_TO_CLEAR | IA64_PSR_PP | IA64_PSR_UP));
+<<<<<<< HEAD
 
 #ifdef CONFIG_PERFMON
 	if (current->thread.pfm_context)
@@ -440,11 +523,38 @@ copy_thread(unsigned long clone_flags,
 	return retval;
 }
 
+=======
+	return retval;
+}
+
+asmlinkage long ia64_clone(unsigned long clone_flags, unsigned long stack_start,
+			   unsigned long stack_size, unsigned long parent_tidptr,
+			   unsigned long child_tidptr, unsigned long tls)
+{
+	struct kernel_clone_args args = {
+		.flags		= (lower_32_bits(clone_flags) & ~CSIGNAL),
+		.pidfd		= (int __user *)parent_tidptr,
+		.child_tid	= (int __user *)child_tidptr,
+		.parent_tid	= (int __user *)parent_tidptr,
+		.exit_signal	= (lower_32_bits(clone_flags) & CSIGNAL),
+		.stack		= stack_start,
+		.stack_size	= stack_size,
+		.tls		= tls,
+	};
+
+	return kernel_clone(&args);
+}
+
+>>>>>>> upstream/android-13
 static void
 do_copy_task_regs (struct task_struct *task, struct unw_frame_info *info, void *arg)
 {
 	unsigned long mask, sp, nat_bits = 0, ar_rnat, urbs_end, cfm;
+<<<<<<< HEAD
 	unsigned long uninitialized_var(ip);	/* GCC be quiet */
+=======
+	unsigned long ip;
+>>>>>>> upstream/android-13
 	elf_greg_t *dst = arg;
 	struct pt_regs *pt;
 	char nat;
@@ -513,6 +623,7 @@ do_copy_task_regs (struct task_struct *task, struct unw_frame_info *info, void *
 	unw_get_ar(info, UNW_AR_SSD, &dst[56]);
 }
 
+<<<<<<< HEAD
 void
 do_dump_task_fpu (struct task_struct *task, struct unw_frame_info *info, void *arg)
 {
@@ -535,23 +646,30 @@ do_dump_task_fpu (struct task_struct *task, struct unw_frame_info *info, void *a
 }
 
 void
+=======
+static void
+>>>>>>> upstream/android-13
 do_copy_regs (struct unw_frame_info *info, void *arg)
 {
 	do_copy_task_regs(current, info, arg);
 }
 
 void
+<<<<<<< HEAD
 do_dump_fpu (struct unw_frame_info *info, void *arg)
 {
 	do_dump_task_fpu(current, info, arg);
 }
 
 void
+=======
+>>>>>>> upstream/android-13
 ia64_elf_core_copy_regs (struct pt_regs *pt, elf_gregset_t dst)
 {
 	unw_init_running(do_copy_regs, dst);
 }
 
+<<<<<<< HEAD
 int
 dump_fpu (struct pt_regs *pt, elf_fpregset_t dst)
 {
@@ -559,6 +677,8 @@ dump_fpu (struct pt_regs *pt, elf_fpregset_t dst)
 	return 1;	/* f0-f31 are always valid so we always return 1 */
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Flush thread state.  This is called when a thread does an execve().
  */
@@ -579,6 +699,7 @@ exit_thread (struct task_struct *tsk)
 {
 
 	ia64_drop_fpu(tsk);
+<<<<<<< HEAD
 #ifdef CONFIG_PERFMON
        /* if needed, stop monitoring and flush state to perfmon context */
 	if (tsk->thread.pfm_context)
@@ -588,6 +709,8 @@ exit_thread (struct task_struct *tsk)
 	if (tsk->thread.flags & IA64_THREAD_DBG_VALID)
 		pfm_release_debug_registers(tsk);
 #endif
+=======
+>>>>>>> upstream/android-13
 }
 
 unsigned long
@@ -597,7 +720,11 @@ get_wchan (struct task_struct *p)
 	unsigned long ip;
 	int count = 0;
 
+<<<<<<< HEAD
 	if (!p || p == current || p->state == TASK_RUNNING)
+=======
+	if (!p || p == current || task_is_running(p))
+>>>>>>> upstream/android-13
 		return 0;
 
 	/*
@@ -610,7 +737,11 @@ get_wchan (struct task_struct *p)
 	 */
 	unw_init_from_blocked_task(&info, p);
 	do {
+<<<<<<< HEAD
 		if (p->state == TASK_RUNNING)
+=======
+		if (task_is_running(p))
+>>>>>>> upstream/android-13
 			return 0;
 		if (unw_unwind(&info) < 0)
 			return 0;
@@ -646,6 +777,7 @@ cpu_halt (void)
 
 void machine_shutdown(void)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_HOTPLUG_CPU
 	int cpu;
 
@@ -654,6 +786,10 @@ void machine_shutdown(void)
 			cpu_down(cpu);
 	}
 #endif
+=======
+	smp_shutdown_nonboot_cpus(reboot_cpu);
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_KEXEC
 	kexec_disable_iosapic();
 #endif
@@ -681,3 +817,7 @@ machine_power_off (void)
 	machine_halt();
 }
 
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL(ia64_delay_loop);
+>>>>>>> upstream/android-13

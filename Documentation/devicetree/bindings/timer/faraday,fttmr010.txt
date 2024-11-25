@@ -11,6 +11,10 @@ Required properties:
   "moxa,moxart-timer", "faraday,fttmr010"
   "aspeed,ast2400-timer"
   "aspeed,ast2500-timer"
+<<<<<<< HEAD
+=======
+  "aspeed,ast2600-timer"
+>>>>>>> upstream/android-13
 
 - reg : Should contain registers location and length
 - interrupts : Should contain the three timer interrupts usually with

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * upd6408x - NEC Electronics 3-Dimensional Y/C separation driver
  *
  * 2003 by T.Adachi (tadachi@tadachi-net.com)
  * 2003 by Takeru KOMORIYA <komoriya@paken.org>
  * 2006 by Hans Verkuil <hverkuil@xs4all.nl>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -14,6 +19,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>

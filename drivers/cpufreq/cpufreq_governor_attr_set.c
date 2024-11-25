@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Abstract code for CPUFreq governor tunable sysfs attributes.
  *
  * Copyright (C) 2016, Intel Corporation
  * Author: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "cpufreq_governor.h"
@@ -77,8 +84,13 @@ unsigned int gov_attr_set_put(struct gov_attr_set *attr_set, struct list_head *l
 	if (count)
 		return count;
 
+<<<<<<< HEAD
 	kobject_put(&attr_set->kobj);
 	mutex_destroy(&attr_set->update_lock);
+=======
+	mutex_destroy(&attr_set->update_lock);
+	kobject_put(&attr_set->kobj);
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL_GPL(gov_attr_set_put);

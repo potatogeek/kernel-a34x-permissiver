@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* -*- mode: c; c-basic-offset: 8; -*-
  * vim: noexpandtab sw=8 ts=8 sts=0:
  *
@@ -18,6 +19,12 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 021110-1307, USA.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * configfs.h - definitions for the device driver filesystem
+ *
+>>>>>>> upstream/android-13
  * Based on sysfs:
  * 	sysfs is Copyright (C) 2001, 2002, 2003 Patrick Mochel
  *
@@ -27,7 +34,11 @@
  *
  * configfs Copyright (C) 2005 Oracle.  All rights reserved.
  *
+<<<<<<< HEAD
  * Please read Documentation/filesystems/configfs/configfs.txt before using
+=======
+ * Please read Documentation/filesystems/configfs.rst before using
+>>>>>>> upstream/android-13
  * the configfs interface, ESPECIALLY the parts about reference counts and
  * item destructors.
  */

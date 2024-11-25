@@ -18,6 +18,7 @@ static irqreturn_t timer_interrupt(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static struct irqaction irq0  = {
 	.handler = timer_interrupt,
 	.flags = IRQF_NOBALANCING | IRQF_TIMER,
@@ -28,6 +29,15 @@ void __init setup_pit_timer(void)
 {
 	clockevent_i8253_init(true);
 	setup_irq(0, &irq0);
+=======
+void __init setup_pit_timer(void)
+{
+	unsigned long flags = IRQF_NOBALANCING | IRQF_TIMER;
+
+	clockevent_i8253_init(true);
+	if (request_irq(0, timer_interrupt, flags, "timer", NULL))
+		pr_err("Failed to request irq 0 (timer)\n");
+>>>>>>> upstream/android-13
 }
 
 static int __init init_pit_clocksource(void)

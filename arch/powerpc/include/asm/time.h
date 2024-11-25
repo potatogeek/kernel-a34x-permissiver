@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Common time prototypes and such for all ppc machines.
  *
  * Written by Cort Dougan (cort@cs.nmt.edu) to merge
  * Paul Mackerras' version and mine for PReP and Pmac.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __POWERPC_TIME_H
@@ -19,6 +26,10 @@
 
 #include <asm/processor.h>
 #include <asm/cpu_has_feature.h>
+<<<<<<< HEAD
+=======
+#include <asm/vdso/timebase.h>
+>>>>>>> upstream/android-13
 
 /* time.c */
 extern unsigned long tb_ticks_per_jiffy;
@@ -28,7 +39,10 @@ extern struct clock_event_device decrementer_clockevent;
 
 
 extern void generic_calibrate_decr(void);
+<<<<<<< HEAD
 extern void hdec_interrupt(struct pt_regs *regs);
+=======
+>>>>>>> upstream/android-13
 
 /* Some sane defaults: 125 MHz timebase, 1GHz processor */
 extern unsigned long ppc_proc_freq;
@@ -36,11 +50,17 @@ extern unsigned long ppc_proc_freq;
 extern unsigned long ppc_tb_freq;
 #define DEFAULT_TB_FREQ		125000000UL
 
+<<<<<<< HEAD
+=======
+extern bool tb_invalid;
+
+>>>>>>> upstream/android-13
 struct div_result {
 	u64 result_high;
 	u64 result_low;
 };
 
+<<<<<<< HEAD
 /* Accessor functions for the timebase (RTC on 601) registers. */
 /* If one day CONFIG_POWER is added just define __USE_RTC as 1 */
 #ifdef CONFIG_6xx
@@ -139,6 +159,16 @@ static inline void set_tb(unsigned int upper, unsigned int lower)
 	mtspr(SPRN_TBWL, lower);
 }
 
+=======
+static inline u64 get_vtb(void)
+{
+	if (cpu_has_feature(CPU_FTR_ARCH_207S))
+		return mfspr(SPRN_VTB);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /* Accessor functions for the decrementer register.
  * The 4xx doesn't even have a decrementer.  I tried to use the
  * generic timer interrupt code, which seems OK, with the 4xx PIT
@@ -147,11 +177,18 @@ static inline void set_tb(unsigned int upper, unsigned int lower)
  */
 static inline u64 get_dec(void)
 {
+<<<<<<< HEAD
 #if defined(CONFIG_40x)
 	return (mfspr(SPRN_PIT));
 #else
 	return (mfspr(SPRN_DEC));
 #endif
+=======
+	if (IS_ENABLED(CONFIG_40x))
+		return mfspr(SPRN_PIT);
+
+	return mfspr(SPRN_DEC);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -161,6 +198,7 @@ static inline u64 get_dec(void)
  */
 static inline void set_dec(u64 val)
 {
+<<<<<<< HEAD
 #if defined(CONFIG_40x)
 	mtspr(SPRN_PIT, (u32) val);
 #else
@@ -169,15 +207,27 @@ static inline void set_dec(u64 val)
 #endif
 	mtspr(SPRN_DEC, val);
 #endif /* not 40x */
+=======
+	if (IS_ENABLED(CONFIG_40x))
+		mtspr(SPRN_PIT, (u32)val);
+	else if (IS_ENABLED(CONFIG_BOOKE))
+		mtspr(SPRN_DEC, val);
+	else
+		mtspr(SPRN_DEC, val - 1);
+>>>>>>> upstream/android-13
 }
 
 static inline unsigned long tb_ticks_since(unsigned long tstamp)
 {
+<<<<<<< HEAD
 	if (__USE_RTC()) {
 		int delta = get_rtcl() - (unsigned int) tstamp;
 		return delta < 0 ? delta + 1000000000 : delta;
 	}
 	return get_tbl() - tstamp;
+=======
+	return mftb() - tstamp;
+>>>>>>> upstream/android-13
 }
 
 #define mulhwu(x,y) \
@@ -196,10 +246,33 @@ extern void div128_by_32(u64 dividend_high, u64 dividend_low,
 extern void secondary_cpu_time_init(void);
 extern void __init time_init(void);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PPC64
+static inline unsigned long test_irq_work_pending(void)
+{
+	unsigned long x;
+
+	asm volatile("lbz %0,%1(13)"
+		: "=r" (x)
+		: "i" (offsetof(struct paca_struct, irq_work_pending)));
+	return x;
+}
+#endif
+
+>>>>>>> upstream/android-13
 DECLARE_PER_CPU(u64, decrementers_next_tb);
 
 /* Convert timebase ticks to nanoseconds */
 unsigned long long tb_to_ns(unsigned long long tb_ticks);
 
+<<<<<<< HEAD
+=======
+void timer_broadcast_interrupt(void);
+
+/* SPLPAR */
+void accumulate_stolen_time(void);
+
+>>>>>>> upstream/android-13
 #endif /* __KERNEL__ */
 #endif /* __POWERPC_TIME_H */

@@ -10,7 +10,11 @@
     |         arc: |  ok  |
     |         arm: |  ok  |
     |       arm64: |  ok  |
+<<<<<<< HEAD
     |         c6x: | TODO |
+=======
+    |        csky: | TODO |
+>>>>>>> upstream/android-13
     |       h8300: |  ok  |
     |     hexagon: |  ok  |
     |        ia64: | TODO |
@@ -20,14 +24,23 @@
     |       nds32: | TODO |
     |       nios2: |  ok  |
     |    openrisc: | TODO |
+<<<<<<< HEAD
     |      parisc: | TODO |
     |     powerpc: |  ok  |
     |       riscv: | TODO |
+=======
+    |      parisc: |  ok  |
+    |     powerpc: |  ok  |
+    |       riscv: |  ok  |
+>>>>>>> upstream/android-13
     |        s390: | TODO |
     |          sh: |  ok  |
     |       sparc: |  ok  |
     |          um: | TODO |
+<<<<<<< HEAD
     |   unicore32: | TODO |
+=======
+>>>>>>> upstream/android-13
     |         x86: |  ok  |
     |      xtensa: | TODO |
     -----------------------

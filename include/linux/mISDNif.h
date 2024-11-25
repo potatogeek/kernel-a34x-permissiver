@@ -18,7 +18,10 @@
 #ifndef mISDNIF_H
 #define mISDNIF_H
 
+<<<<<<< HEAD
 #include <stdarg.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/types.h>
 #include <linux/errno.h>
 #include <linux/socket.h>

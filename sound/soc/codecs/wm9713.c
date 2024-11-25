@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * wm9713.c  --  ALSA Soc WM9713 codec support
  *
  * Copyright 2006-10 Wolfson Microelectronics PLC.
  * Author: Liam Girdwood <lrg@slimlogic.co.uk>
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute  it and/or modify it
  *  under  the terms of  the GNU General  Public License as published by the
  *  Free Software Foundation;  either version 2 of the  License, or (at your
  *  option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *  Features:-
  *
  *   o Support for AC97 Codec, Voice DAC and Aux DAC
@@ -759,7 +766,11 @@ static void pll_factors(struct snd_soc_component *component,
 	u64 Kpart;
 	unsigned int K, Ndiv, Nmod, target;
 
+<<<<<<< HEAD
 	/* The the PLL output is always 98.304MHz. */
+=======
+	/* The PLL output is always 98.304MHz. */
+>>>>>>> upstream/android-13
 	target = 98304000;
 
 	/* If the input frequency is over 14.4MHz then scale it down. */
@@ -811,7 +822,11 @@ static void pll_factors(struct snd_soc_component *component,
 	pll_div->k = K;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Please note that changing the PLL input frequency may require
  * resynchronisation with the AC97 controller.
  */
@@ -943,7 +958,11 @@ static int wm9713_set_dai_fmt(struct snd_soc_dai *codec_dai,
 		unsigned int fmt)
 {
 	struct snd_soc_component *component = codec_dai->component;
+<<<<<<< HEAD
 	u16 gpio = snd_soc_component_read32(component, AC97_GPIO_CFG) & 0xffc5;
+=======
+	u16 gpio = snd_soc_component_read(component, AC97_GPIO_CFG) & 0xffc5;
+>>>>>>> upstream/android-13
 	u16 reg = 0x8000;
 
 	/* clock masters */
@@ -1138,7 +1157,11 @@ static struct snd_soc_dai_driver wm9713_dai[] = {
 		.rates = WM9713_PCM_RATES,
 		.formats = WM9713_PCM_FORMATS,},
 	.ops = &wm9713_dai_ops_voice,
+<<<<<<< HEAD
 	.symmetric_rates = 1,
+=======
+	.symmetric_rate = 1,
+>>>>>>> upstream/android-13
 	},
 };
 

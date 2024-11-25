@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Private header for the mmc subsystem
  *
  * Copyright (C) 2016 Linaro Ltd
  *
  * Author: Ulf Hansson <ulf.hansson@linaro.org>
+<<<<<<< HEAD
  *
  * License terms: GNU General Public License (GPL) version 2
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _MMC_CORE_CARD_H
@@ -23,19 +30,26 @@
 #define MMC_STATE_BLOCKADDR	(1<<2)		/* card uses block-addressing */
 #define MMC_CARD_SDXC		(1<<3)		/* card is SDXC */
 #define MMC_CARD_REMOVED	(1<<4)		/* card has been removed */
+<<<<<<< HEAD
 #define MMC_STATE_DOING_BKOPS	(1<<5)		/* card is doing BKOPS */
 #define MMC_STATE_SUSPENDED	(1<<6)		/* card is suspended */
 
 #if defined(CONFIG_MTK_EMMC_CQ_SUPPORT) || defined(CONFIG_MTK_EMMC_HW_CQ)
 #define MMC_STATE_CMDQ		(1<<12)         /* card is in cmd queue mode */
 #endif
+=======
+#define MMC_STATE_SUSPENDED	(1<<5)		/* card is suspended */
+>>>>>>> upstream/android-13
 
 #define mmc_card_present(c)	((c)->state & MMC_STATE_PRESENT)
 #define mmc_card_readonly(c)	((c)->state & MMC_STATE_READONLY)
 #define mmc_card_blockaddr(c)	((c)->state & MMC_STATE_BLOCKADDR)
 #define mmc_card_ext_capacity(c) ((c)->state & MMC_CARD_SDXC)
 #define mmc_card_removed(c)	((c) && ((c)->state & MMC_CARD_REMOVED))
+<<<<<<< HEAD
 #define mmc_card_doing_bkops(c)	((c)->state & MMC_STATE_DOING_BKOPS)
+=======
+>>>>>>> upstream/android-13
 #define mmc_card_suspended(c)	((c)->state & MMC_STATE_SUSPENDED)
 
 #define mmc_card_set_present(c)	((c)->state |= MMC_STATE_PRESENT)
@@ -43,6 +57,7 @@
 #define mmc_card_set_blockaddr(c) ((c)->state |= MMC_STATE_BLOCKADDR)
 #define mmc_card_set_ext_capacity(c) ((c)->state |= MMC_CARD_SDXC)
 #define mmc_card_set_removed(c) ((c)->state |= MMC_CARD_REMOVED)
+<<<<<<< HEAD
 #define mmc_card_set_doing_bkops(c)	((c)->state |= MMC_STATE_DOING_BKOPS)
 #define mmc_card_clr_doing_bkops(c)	((c)->state &= ~MMC_STATE_DOING_BKOPS)
 #define mmc_card_set_suspended(c) ((c)->state |= MMC_STATE_SUSPENDED)
@@ -55,6 +70,11 @@
 #endif
 
 
+=======
+#define mmc_card_set_suspended(c) ((c)->state |= MMC_STATE_SUSPENDED)
+#define mmc_card_clr_suspended(c) ((c)->state &= ~MMC_STATE_SUSPENDED)
+
+>>>>>>> upstream/android-13
 /*
  * The world is not perfect and supplies us with broken mmc/sdio devices.
  * For at least some of these bugs we need a work-around.

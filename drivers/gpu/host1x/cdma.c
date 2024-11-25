@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Tegra host1x Command DMA
  *
  * Copyright (c) 2010-2013, NVIDIA Corporation.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -14,6 +19,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 
@@ -41,7 +48,21 @@
  * means that the push buffer is full, not empty.
  */
 
+<<<<<<< HEAD
 #define HOST1X_PUSHBUFFER_SLOTS	512
+=======
+/*
+ * Typically the commands written into the push buffer are a pair of words. We
+ * use slots to represent each of these pairs and to simplify things. Note the
+ * strange number of slots allocated here. 512 slots will fit exactly within a
+ * single memory page. We also need one additional word at the end of the push
+ * buffer for the RESTART opcode that will instruct the CDMA to jump back to
+ * the beginning of the push buffer. With 512 slots, this means that we'll use
+ * 2 memory pages and waste 4092 bytes of the second page that will never be
+ * used.
+ */
+#define HOST1X_PUSHBUFFER_SLOTS	511
+>>>>>>> upstream/android-13
 
 /*
  * Clean up push buffer resources
@@ -143,7 +164,14 @@ static void host1x_pushbuffer_push(struct push_buffer *pb, u32 op1, u32 op2)
 	WARN_ON(pb->pos == pb->fence);
 	*(p++) = op1;
 	*(p++) = op2;
+<<<<<<< HEAD
 	pb->pos = (pb->pos + 8) & (pb->size - 1);
+=======
+	pb->pos += 8;
+
+	if (pb->pos >= pb->size)
+		pb->pos -= pb->size;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -153,7 +181,14 @@ static void host1x_pushbuffer_push(struct push_buffer *pb, u32 op1, u32 op2)
 static void host1x_pushbuffer_pop(struct push_buffer *pb, unsigned int slots)
 {
 	/* Advance the next write position */
+<<<<<<< HEAD
 	pb->fence = (pb->fence + slots * 8) & (pb->size - 1);
+=======
+	pb->fence += slots * 8;
+
+	if (pb->fence >= pb->size)
+		pb->fence -= pb->size;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -161,7 +196,16 @@ static void host1x_pushbuffer_pop(struct push_buffer *pb, unsigned int slots)
  */
 static u32 host1x_pushbuffer_space(struct push_buffer *pb)
 {
+<<<<<<< HEAD
 	return ((pb->fence - pb->pos) & (pb->size - 1)) / 8;
+=======
+	unsigned int fence = pb->fence;
+
+	if (pb->fence < pb->pos)
+		fence += pb->size;
+
+	return (fence - pb->pos) / 8;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -210,7 +254,11 @@ unsigned int host1x_cdma_wait_locked(struct host1x_cdma *cdma,
 		cdma->event = event;
 
 		mutex_unlock(&cdma->lock);
+<<<<<<< HEAD
 		down(&cdma->sem);
+=======
+		wait_for_completion(&cdma->complete);
+>>>>>>> upstream/android-13
 		mutex_lock(&cdma->lock);
 	}
 
@@ -218,21 +266,70 @@ unsigned int host1x_cdma_wait_locked(struct host1x_cdma *cdma,
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * Sleep (if necessary) until the push buffer has enough free space.
+ *
+ * Must be called with the cdma lock held.
+ */
+static int host1x_cdma_wait_pushbuffer_space(struct host1x *host1x,
+					     struct host1x_cdma *cdma,
+					     unsigned int needed)
+{
+	while (true) {
+		struct push_buffer *pb = &cdma->push_buffer;
+		unsigned int space;
+
+		space = host1x_pushbuffer_space(pb);
+		if (space >= needed)
+			break;
+
+		trace_host1x_wait_cdma(dev_name(cdma_to_channel(cdma)->dev),
+				       CDMA_EVENT_PUSH_BUFFER_SPACE);
+
+		host1x_hw_cdma_flush(host1x, cdma);
+
+		/* If somebody has managed to already start waiting, yield */
+		if (cdma->event != CDMA_EVENT_NONE) {
+			mutex_unlock(&cdma->lock);
+			schedule();
+			mutex_lock(&cdma->lock);
+			continue;
+		}
+
+		cdma->event = CDMA_EVENT_PUSH_BUFFER_SPACE;
+
+		mutex_unlock(&cdma->lock);
+		wait_for_completion(&cdma->complete);
+		mutex_lock(&cdma->lock);
+	}
+
+	return 0;
+}
+/*
+>>>>>>> upstream/android-13
  * Start timer that tracks the time spent by the job.
  * Must be called with the cdma lock held.
  */
 static void cdma_start_timer_locked(struct host1x_cdma *cdma,
 				    struct host1x_job *job)
 {
+<<<<<<< HEAD
 	struct host1x *host = cdma_to_host1x(cdma);
 
+=======
+>>>>>>> upstream/android-13
 	if (cdma->timeout.client) {
 		/* timer already started */
 		return;
 	}
 
 	cdma->timeout.client = job->client;
+<<<<<<< HEAD
 	cdma->timeout.syncpt = host1x_syncpt_get(host, job->syncpt_id);
+=======
+	cdma->timeout.syncpt = job->syncpt;
+>>>>>>> upstream/android-13
 	cdma->timeout.syncpt_val = job->syncpt_end;
 	cdma->timeout.start_ktime = ktime_get();
 
@@ -263,6 +360,7 @@ static void stop_cdma_timer_locked(struct host1x_cdma *cdma)
 static void update_cdma_locked(struct host1x_cdma *cdma)
 {
 	bool signal = false;
+<<<<<<< HEAD
 	struct host1x *host1x = cdma_to_host1x(cdma);
 	struct host1x_job *job, *n;
 
@@ -270,16 +368,28 @@ static void update_cdma_locked(struct host1x_cdma *cdma)
 	if (!cdma->running)
 		return;
 
+=======
+	struct host1x_job *job, *n;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Walk the sync queue, reading the sync point registers as necessary,
 	 * to consume as many sync queue entries as possible without blocking
 	 */
 	list_for_each_entry_safe(job, n, &cdma->sync_queue, list) {
+<<<<<<< HEAD
 		struct host1x_syncpt *sp =
 			host1x_syncpt_get(host1x, job->syncpt_id);
 
 		/* Check whether this syncpt has completed, and bail if not */
 		if (!host1x_syncpt_is_expired(sp, job->syncpt_end)) {
+=======
+		struct host1x_syncpt *sp = job->syncpt;
+
+		/* Check whether this syncpt has completed, and bail if not */
+		if (!host1x_syncpt_is_expired(sp, job->syncpt_end) &&
+		    !job->cancelled) {
+>>>>>>> upstream/android-13
 			/* Start timer on next pending syncpt */
 			if (job->timeout)
 				cdma_start_timer_locked(cdma, job);
@@ -314,7 +424,11 @@ static void update_cdma_locked(struct host1x_cdma *cdma)
 
 	if (signal) {
 		cdma->event = CDMA_EVENT_NONE;
+<<<<<<< HEAD
 		up(&cdma->sem);
+=======
+		complete(&cdma->complete);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -323,7 +437,11 @@ void host1x_cdma_update_sync_queue(struct host1x_cdma *cdma,
 {
 	struct host1x *host1x = cdma_to_host1x(cdma);
 	u32 restart_addr, syncpt_incrs, syncpt_val;
+<<<<<<< HEAD
 	struct host1x_job *job = NULL;
+=======
+	struct host1x_job *job, *next_job = NULL;
+>>>>>>> upstream/android-13
 
 	syncpt_val = host1x_syncpt_load(cdma->timeout.syncpt);
 
@@ -341,12 +459,23 @@ void host1x_cdma_update_sync_queue(struct host1x_cdma *cdma,
 		__func__);
 
 	list_for_each_entry(job, &cdma->sync_queue, list) {
+<<<<<<< HEAD
 		if (syncpt_val < job->syncpt_end)
 			break;
+=======
+		if (syncpt_val < job->syncpt_end) {
+
+			if (!list_is_last(&job->list, &cdma->sync_queue))
+				next_job = list_next_entry(job, list);
+
+			goto syncpt_incr;
+		}
+>>>>>>> upstream/android-13
 
 		host1x_job_dump(dev, job);
 	}
 
+<<<<<<< HEAD
 	/*
 	 * Walk the sync_queue, first incrementing with the CPU syncpts that
 	 * are partially executed (the first buffer) or fully skipped while
@@ -375,6 +504,31 @@ void host1x_cdma_update_sync_queue(struct host1x_cdma *cdma,
 		/* different context, gets us out of this loop */
 		if (job->client != cdma->timeout.client)
 			break;
+=======
+	/* all jobs have been completed */
+	job = NULL;
+
+syncpt_incr:
+
+	/*
+	 * Increment with CPU the remaining syncpts of a partially executed job.
+	 *
+	 * CDMA will continue execution starting with the next job or will get
+	 * into idle state.
+	 */
+	if (next_job)
+		restart_addr = next_job->first_get;
+	else
+		restart_addr = cdma->last_pos;
+
+	if (!job)
+		goto resume;
+
+	/* do CPU increments for the remaining syncpts */
+	if (job->syncpt_recovery) {
+		dev_dbg(dev, "%s: perform CPU incr on pending buffers\n",
+			__func__);
+>>>>>>> upstream/android-13
 
 		/* won't need a timeout when replayed */
 		job->timeout = 0;
@@ -389,6 +543,7 @@ void host1x_cdma_update_sync_queue(struct host1x_cdma *cdma,
 						syncpt_incrs, job->syncpt_end,
 						job->num_slots);
 
+<<<<<<< HEAD
 		syncpt_val += syncpt_incrs;
 	}
 
@@ -404,6 +559,48 @@ void host1x_cdma_update_sync_queue(struct host1x_cdma *cdma,
 
 	dev_dbg(dev, "%s: finished sync_queue modification\n", __func__);
 
+=======
+		dev_dbg(dev, "%s: finished sync_queue modification\n",
+			__func__);
+	} else {
+		struct host1x_job *failed_job = job;
+
+		host1x_job_dump(dev, job);
+
+		host1x_syncpt_set_locked(job->syncpt);
+		failed_job->cancelled = true;
+
+		list_for_each_entry_continue(job, &cdma->sync_queue, list) {
+			unsigned int i;
+
+			if (job->syncpt != failed_job->syncpt)
+				continue;
+
+			for (i = 0; i < job->num_slots; i++) {
+				unsigned int slot = (job->first_get/8 + i) %
+						    HOST1X_PUSHBUFFER_SLOTS;
+				u32 *mapped = cdma->push_buffer.mapped;
+
+				/*
+				 * Overwrite opcodes with 0 word writes
+				 * to offset 0xbad. This does nothing but
+				 * has a easily detected signature in debug
+				 * traces.
+				 */
+				mapped[2*slot+0] = 0x1bad0000;
+				mapped[2*slot+1] = 0x1bad0000;
+			}
+
+			job->cancelled = true;
+		}
+
+		wmb();
+
+		update_cdma_locked(cdma);
+	}
+
+resume:
+>>>>>>> upstream/android-13
 	/* roll back DMAGET and start up channel again */
 	host1x_hw_cdma_resume(host1x, cdma, restart_addr);
 }
@@ -416,7 +613,11 @@ int host1x_cdma_init(struct host1x_cdma *cdma)
 	int err;
 
 	mutex_init(&cdma->lock);
+<<<<<<< HEAD
 	sema_init(&cdma->sem, 0);
+=======
+	init_completion(&cdma->complete);
+>>>>>>> upstream/android-13
 
 	INIT_LIST_HEAD(&cdma->sync_queue);
 
@@ -459,13 +660,30 @@ int host1x_cdma_begin(struct host1x_cdma *cdma, struct host1x_job *job)
 
 	mutex_lock(&cdma->lock);
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Check if syncpoint was locked due to previous job timeout.
+	 * This needs to be done within the cdma lock to avoid a race
+	 * with the timeout handler.
+	 */
+	if (job->syncpt->locked) {
+		mutex_unlock(&cdma->lock);
+		return -EPERM;
+	}
+
+>>>>>>> upstream/android-13
 	if (job->timeout) {
 		/* init state on first submit with timeout value */
 		if (!cdma->timeout.initialized) {
 			int err;
 
+<<<<<<< HEAD
 			err = host1x_hw_cdma_timeout_init(host1x, cdma,
 							  job->syncpt_id);
+=======
+			err = host1x_hw_cdma_timeout_init(host1x, cdma);
+>>>>>>> upstream/android-13
 			if (err) {
 				mutex_unlock(&cdma->lock);
 				return err;
@@ -510,6 +728,62 @@ void host1x_cdma_push(struct host1x_cdma *cdma, u32 op1, u32 op2)
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * Push four words into two consecutive push buffer slots. Note that extra
+ * care needs to be taken not to split the two slots across the end of the
+ * push buffer. Otherwise the RESTART opcode at the end of the push buffer
+ * that ensures processing will restart at the beginning will break up the
+ * four words.
+ *
+ * Blocks as necessary if the push buffer is full.
+ */
+void host1x_cdma_push_wide(struct host1x_cdma *cdma, u32 op1, u32 op2,
+			   u32 op3, u32 op4)
+{
+	struct host1x_channel *channel = cdma_to_channel(cdma);
+	struct host1x *host1x = cdma_to_host1x(cdma);
+	struct push_buffer *pb = &cdma->push_buffer;
+	unsigned int needed = 2, extra = 0, i;
+	unsigned int space = cdma->slots_free;
+
+	if (host1x_debug_trace_cmdbuf)
+		trace_host1x_cdma_push_wide(dev_name(channel->dev), op1, op2,
+					    op3, op4);
+
+	/* compute number of extra slots needed for padding */
+	if (pb->pos + 16 > pb->size) {
+		extra = (pb->size - pb->pos) / 8;
+		needed += extra;
+	}
+
+	host1x_cdma_wait_pushbuffer_space(host1x, cdma, needed);
+	space = host1x_pushbuffer_space(pb);
+
+	cdma->slots_free = space - needed;
+	cdma->slots_used += needed;
+
+	/*
+	 * Note that we rely on the fact that this is only used to submit wide
+	 * gather opcodes, which consist of 3 words, and they are padded with
+	 * a NOP to avoid having to deal with fractional slots (a slot always
+	 * represents 2 words). The fourth opcode passed to this function will
+	 * therefore always be a NOP.
+	 *
+	 * This works around a slight ambiguity when it comes to opcodes. For
+	 * all current host1x incarnations the NOP opcode uses the exact same
+	 * encoding (0x20000000), so we could hard-code the value here, but a
+	 * new incarnation may change it and break that assumption.
+	 */
+	for (i = 0; i < extra; i++)
+		host1x_pushbuffer_push(pb, op4, op4);
+
+	host1x_pushbuffer_push(pb, op1, op2);
+	host1x_pushbuffer_push(pb, op3, op4);
+}
+
+/*
+>>>>>>> upstream/android-13
  * End a cdma submit
  * Kick off DMA, add job to the sync queue, and a number of slots to be freed
  * from the pushbuffer. The handles for a submit must all be pinned at the same

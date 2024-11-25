@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /* (C) 1999-2001 Paul `Rusty' Russell
  * (C) 2002-2004 Netfilter Core Team <coreteam@netfilter.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* (C) 1999-2001 Paul `Rusty' Russell
+ * (C) 2002-2004 Netfilter Core Team <coreteam@netfilter.org>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -92,10 +98,17 @@ static const struct nf_hook_ops ipv6_defrag_ops[] = {
 
 static void __net_exit defrag6_net_exit(struct net *net)
 {
+<<<<<<< HEAD
 	if (net->nf.defrag_ipv6) {
 		nf_unregister_net_hooks(net, ipv6_defrag_ops,
 					ARRAY_SIZE(ipv6_defrag_ops));
 		net->nf.defrag_ipv6 = false;
+=======
+	if (net->nf.defrag_ipv6_users) {
+		nf_unregister_net_hooks(net, ipv6_defrag_ops,
+					ARRAY_SIZE(ipv6_defrag_ops));
+		net->nf.defrag_ipv6_users = 0;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -135,6 +148,7 @@ int nf_defrag_ipv6_enable(struct net *net)
 {
 	int err = 0;
 
+<<<<<<< HEAD
 	might_sleep();
 
 	if (net->nf.defrag_ipv6)
@@ -143,11 +157,27 @@ int nf_defrag_ipv6_enable(struct net *net)
 	mutex_lock(&defrag6_mutex);
 	if (net->nf.defrag_ipv6)
 		goto out_unlock;
+=======
+	mutex_lock(&defrag6_mutex);
+	if (net->nf.defrag_ipv6_users == UINT_MAX) {
+		err = -EOVERFLOW;
+		goto out_unlock;
+	}
+
+	if (net->nf.defrag_ipv6_users) {
+		net->nf.defrag_ipv6_users++;
+		goto out_unlock;
+	}
+>>>>>>> upstream/android-13
 
 	err = nf_register_net_hooks(net, ipv6_defrag_ops,
 				    ARRAY_SIZE(ipv6_defrag_ops));
 	if (err == 0)
+<<<<<<< HEAD
 		net->nf.defrag_ipv6 = true;
+=======
+		net->nf.defrag_ipv6_users = 1;
+>>>>>>> upstream/android-13
 
  out_unlock:
 	mutex_unlock(&defrag6_mutex);
@@ -155,6 +185,22 @@ int nf_defrag_ipv6_enable(struct net *net)
 }
 EXPORT_SYMBOL_GPL(nf_defrag_ipv6_enable);
 
+<<<<<<< HEAD
+=======
+void nf_defrag_ipv6_disable(struct net *net)
+{
+	mutex_lock(&defrag6_mutex);
+	if (net->nf.defrag_ipv6_users) {
+		net->nf.defrag_ipv6_users--;
+		if (net->nf.defrag_ipv6_users == 0)
+			nf_unregister_net_hooks(net, ipv6_defrag_ops,
+						ARRAY_SIZE(ipv6_defrag_ops));
+	}
+	mutex_unlock(&defrag6_mutex);
+}
+EXPORT_SYMBOL_GPL(nf_defrag_ipv6_disable);
+
+>>>>>>> upstream/android-13
 module_init(nf_defrag_init);
 module_exit(nf_defrag_fini);
 

@@ -34,7 +34,11 @@ struct usbport_trig_port {
  * Helpers
  ***************************************/
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * usbport_trig_usb_dev_observed - Check if dev is connected to observed port
  */
 static bool usbport_trig_usb_dev_observed(struct usbport_trig_data *usbport_data,
@@ -64,7 +68,11 @@ static int usbport_trig_usb_dev_check(struct usb_device *usb_dev, void *data)
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * usbport_trig_update_count - Recalculate amount of connected matching devices
  */
 static void usbport_trig_update_count(struct usbport_trig_data *usbport_data)
@@ -123,7 +131,11 @@ static const struct attribute_group ports_group = {
  * Adding & removing ports
  ***************************************/
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * usbport_trig_port_observed - Check if port should be observed
  */
 static bool usbport_trig_port_observed(struct usbport_trig_data *usbport_data,

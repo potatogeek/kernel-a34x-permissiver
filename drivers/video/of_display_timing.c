@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * OF helpers for parsing display timings
  *
  * Copyright (c) 2012 Steffen Trumtrar <s.trumtrar@pengutronix.de>, Pengutronix
  *
  * based on of_videomode.c by Sascha Hauer <s.hauer@pengutronix.de>
+<<<<<<< HEAD
  *
  * This file is released under the GPLv2
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/export.h>
 #include <linux/of.h>
@@ -53,6 +60,10 @@ static int parse_timing_property(const struct device_node *np, const char *name,
 /**
  * of_parse_display_timing - parse display_timing entry from device_node
  * @np: device_node with the properties
+<<<<<<< HEAD
+=======
+ * @dt: display_timing that contains the result. I may be partially written in case of errors
+>>>>>>> upstream/android-13
  **/
 static int of_parse_display_timing(const struct device_node *np,
 		struct display_timing *dt)
@@ -120,17 +131,32 @@ int of_get_display_timing(const struct device_node *np, const char *name,
 		struct display_timing *dt)
 {
 	struct device_node *timing_np;
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (!np)
 		return -EINVAL;
 
 	timing_np = of_get_child_by_name(np, name);
+<<<<<<< HEAD
 	if (!timing_np) {
 		pr_err("%pOF: could not find node '%s'\n", np, name);
 		return -ENOENT;
 	}
 
 	return of_parse_display_timing(timing_np, dt);
+=======
+	if (!timing_np)
+		return -ENOENT;
+
+	ret = of_parse_display_timing(timing_np, dt);
+
+	of_node_put(timing_np);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(of_get_display_timing);
 
@@ -170,7 +196,11 @@ struct display_timings *of_get_display_timings(const struct device_node *np)
 		goto entryfail;
 	}
 
+<<<<<<< HEAD
 	pr_debug("%pOF: using %s as default timing\n", np, entry->name);
+=======
+	pr_debug("%pOF: using %pOFn as default timing\n", np, entry);
+>>>>>>> upstream/android-13
 
 	native_mode = entry;
 

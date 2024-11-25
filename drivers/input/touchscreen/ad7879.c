@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * AD7879/AD7889 based touchscreen and GPIO driver
  *
  * Copyright (C) 2008-2010 Michael Hennerich, Analog Devices Inc.
  *
+<<<<<<< HEAD
  * Licensed under the GPL-2 or later.
  *
+=======
+>>>>>>> upstream/android-13
  * History:
  * Copyright (c) 2005 David Brownell
  * Copyright (c) 2006 Nokia Corporation
@@ -29,10 +36,16 @@
 #include <linux/property.h>
 #include <linux/regmap.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
 
 #include <linux/input/touchscreen.h>
 #include <linux/platform_data/ad7879.h>
+=======
+#include <linux/gpio/driver.h>
+
+#include <linux/input/touchscreen.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include "ad7879.h"
 
@@ -247,11 +260,22 @@ static void ad7879_timer(struct timer_list *t)
 static irqreturn_t ad7879_irq(int irq, void *handle)
 {
 	struct ad7879 *ts = handle;
+<<<<<<< HEAD
 
 	regmap_bulk_read(ts->regmap, AD7879_REG_XPLUS,
 			 ts->conversion_data, AD7879_NR_SENSE);
 
 	if (!ad7879_report(ts))
+=======
+	int error;
+
+	error = regmap_bulk_read(ts->regmap, AD7879_REG_XPLUS,
+				 ts->conversion_data, AD7879_NR_SENSE);
+	if (error)
+		dev_err_ratelimited(ts->dev, "failed to read %#02x: %d\n",
+				    AD7879_REG_XPLUS, error);
+	else if (!ad7879_report(ts))
+>>>>>>> upstream/android-13
 		mod_timer(&ts->timer, jiffies + TS_PEN_UP_TIMEOUT);
 
 	return IRQ_HANDLED;
@@ -290,7 +314,11 @@ static int ad7879_open(struct input_dev *input)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void ad7879_close(struct input_dev* input)
+=======
+static void ad7879_close(struct input_dev *input)
+>>>>>>> upstream/android-13
 {
 	struct ad7879 *ts = input_get_drvdata(input);
 
@@ -305,7 +333,11 @@ static int __maybe_unused ad7879_suspend(struct device *dev)
 
 	mutex_lock(&ts->input->mutex);
 
+<<<<<<< HEAD
 	if (!ts->suspended && !ts->disabled && ts->input->users)
+=======
+	if (!ts->suspended && !ts->disabled && input_device_enabled(ts->input))
+>>>>>>> upstream/android-13
 		__ad7879_disable(ts);
 
 	ts->suspended = true;
@@ -321,7 +353,11 @@ static int __maybe_unused ad7879_resume(struct device *dev)
 
 	mutex_lock(&ts->input->mutex);
 
+<<<<<<< HEAD
 	if (ts->suspended && !ts->disabled && ts->input->users)
+=======
+	if (ts->suspended && !ts->disabled && input_device_enabled(ts->input))
+>>>>>>> upstream/android-13
 		__ad7879_enable(ts);
 
 	ts->suspended = false;
@@ -338,7 +374,11 @@ static void ad7879_toggle(struct ad7879 *ts, bool disable)
 {
 	mutex_lock(&ts->input->mutex);
 
+<<<<<<< HEAD
 	if (!ts->suspended && ts->input->users != 0) {
+=======
+	if (!ts->suspended && input_device_enabled(ts->input)) {
+>>>>>>> upstream/android-13
 
 		if (disable) {
 			if (ts->disabled)
@@ -452,6 +492,7 @@ static void ad7879_gpio_set_value(struct gpio_chip *chip,
 	mutex_unlock(&ts->mutex);
 }
 
+<<<<<<< HEAD
 static int ad7879_gpio_add(struct ad7879 *ts,
 			   const struct ad7879_platform_data *pdata)
 {
@@ -487,12 +528,43 @@ static int ad7879_gpio_add(struct ad7879 *ts,
 			dev_err(ts->dev, "failed to register gpio %d\n",
 				ts->gc.base);
 	}
+=======
+static int ad7879_gpio_add(struct ad7879 *ts)
+{
+	int ret = 0;
+
+	mutex_init(&ts->mutex);
+
+	/* Do not create a chip unless flagged for it */
+	if (!device_property_read_bool(ts->dev, "gpio-controller"))
+		return 0;
+
+	ts->gc.direction_input = ad7879_gpio_direction_input;
+	ts->gc.direction_output = ad7879_gpio_direction_output;
+	ts->gc.get = ad7879_gpio_get_value;
+	ts->gc.set = ad7879_gpio_set_value;
+	ts->gc.can_sleep = 1;
+	ts->gc.base = -1;
+	ts->gc.ngpio = 1;
+	ts->gc.label = "AD7879-GPIO";
+	ts->gc.owner = THIS_MODULE;
+	ts->gc.parent = ts->dev;
+
+	ret = devm_gpiochip_add_data(ts->dev, &ts->gc, ts);
+	if (ret)
+		dev_err(ts->dev, "failed to register gpio %d\n",
+			ts->gc.base);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 #else
+<<<<<<< HEAD
 static int ad7879_gpio_add(struct ad7879 *ts,
 			   const struct ad7879_platform_data *pdata)
+=======
+static int ad7879_gpio_add(struct ad7879 *ts)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
@@ -527,7 +599,10 @@ static int ad7879_parse_dt(struct device *dev, struct ad7879 *ts)
 int ad7879_probe(struct device *dev, struct regmap *regmap,
 		 int irq, u16 bustype, u8 devid)
 {
+<<<<<<< HEAD
 	struct ad7879_platform_data *pdata = dev_get_platdata(dev);
+=======
+>>>>>>> upstream/android-13
 	struct ad7879 *ts;
 	struct input_dev *input_dev;
 	int err;
@@ -542,6 +617,7 @@ int ad7879_probe(struct device *dev, struct regmap *regmap,
 	if (!ts)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	if (pdata) {
 		/* Platform data use swapped axis (backward compatibility) */
 		ts->swap_xy = !pdata->swap_xy;
@@ -558,6 +634,11 @@ int ad7879_probe(struct device *dev, struct regmap *regmap,
 		if (err)
 			return err;
 	}
+=======
+	err = ad7879_parse_dt(dev, ts);
+	if (err)
+		return err;
+>>>>>>> upstream/android-13
 
 	input_dev = devm_input_allocate_device(dev);
 	if (!input_dev) {
@@ -585,6 +666,7 @@ int ad7879_probe(struct device *dev, struct regmap *regmap,
 
 	input_set_capability(input_dev, EV_KEY, BTN_TOUCH);
 
+<<<<<<< HEAD
 	if (pdata) {
 		input_set_abs_params(input_dev, ABS_X,
 				pdata->x_min ? : 0,
@@ -607,6 +689,15 @@ int ad7879_probe(struct device *dev, struct regmap *regmap,
 			dev_err(dev, "Touchscreen pressure is not specified\n");
 			return -EINVAL;
 		}
+=======
+	input_set_abs_params(input_dev, ABS_X, 0, MAX_12BIT, 0, 0);
+	input_set_abs_params(input_dev, ABS_Y, 0, MAX_12BIT, 0, 0);
+	input_set_capability(input_dev, EV_ABS, ABS_PRESSURE);
+	touchscreen_parse_properties(input_dev, false, NULL);
+	if (!input_abs_get_max(input_dev, ABS_PRESSURE)) {
+		dev_err(dev, "Touchscreen pressure is not specified\n");
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 
 	err = ad7879_write(ts, AD7879_REG_CTRL2, AD7879_RESET);
@@ -655,7 +746,11 @@ int ad7879_probe(struct device *dev, struct regmap *regmap,
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	err = ad7879_gpio_add(ts, pdata);
+=======
+	err = ad7879_gpio_add(ts);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 

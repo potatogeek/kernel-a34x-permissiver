@@ -80,6 +80,7 @@ $(obj)/vmlinux.bin.xz: $(obj)/vmlinux.bin FORCE
 $(obj)/vmlinux.bin.lzo: $(obj)/vmlinux.bin FORCE
 	$(call if_changed,lzo)
 
+<<<<<<< HEAD
 $(obj)/uImage.bz2: $(obj)/vmlinux.bin.bz2
 	$(call if_changed,uimage,bzip2)
 
@@ -104,6 +105,32 @@ $(obj)/vmlinux.srec: $(obj)/compressed/vmlinux
 
 OBJCOPYFLAGS_uImage.srec := -I binary -O srec
 $(obj)/uImage.srec: $(obj)/uImage
+=======
+$(obj)/uImage.bz2: $(obj)/vmlinux.bin.bz2 FORCE
+	$(call if_changed,uimage,bzip2)
+
+$(obj)/uImage.gz: $(obj)/vmlinux.bin.gz FORCE
+	$(call if_changed,uimage,gzip)
+
+$(obj)/uImage.lzma: $(obj)/vmlinux.bin.lzma FORCE
+	$(call if_changed,uimage,lzma)
+
+$(obj)/uImage.xz: $(obj)/vmlinux.bin.xz FORCE
+	$(call if_changed,uimage,xz)
+
+$(obj)/uImage.lzo: $(obj)/vmlinux.bin.lzo FORCE
+	$(call if_changed,uimage,lzo)
+
+$(obj)/uImage.bin: $(obj)/vmlinux.bin FORCE
+	$(call if_changed,uimage,none)
+
+OBJCOPYFLAGS_vmlinux.srec := -I binary -O srec
+$(obj)/vmlinux.srec: $(obj)/compressed/vmlinux FORCE
+	$(call if_changed,objcopy)
+
+OBJCOPYFLAGS_uImage.srec := -I binary -O srec
+$(obj)/uImage.srec: $(obj)/uImage FORCE
+>>>>>>> upstream/android-13
 	$(call if_changed,objcopy)
 
 $(obj)/uImage: $(obj)/uImage.$(suffix-y)

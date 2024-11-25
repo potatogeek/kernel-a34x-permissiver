@@ -11,6 +11,10 @@ source $TEST_DIR/fw_lib.sh
 
 export HAS_FW_LOADER_USER_HELPER=""
 export HAS_FW_LOADER_USER_HELPER_FALLBACK=""
+<<<<<<< HEAD
+=======
+export HAS_FW_LOADER_COMPRESS=""
+>>>>>>> upstream/android-13
 
 run_tests()
 {
@@ -60,6 +64,13 @@ run_test_config_0003()
 check_mods
 check_setup
 
+<<<<<<< HEAD
+=======
+echo "Running namespace test: "
+$TEST_DIR/fw_namespace $DIR/trigger_request
+echo "OK"
+
+>>>>>>> upstream/android-13
 if [ -f $FW_FORCE_SYSFS_FALLBACK ]; then
 	run_test_config_0001
 	run_test_config_0002

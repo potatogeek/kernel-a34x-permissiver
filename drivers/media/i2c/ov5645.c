@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for the OV5645 camera sensor.
  *
@@ -14,6 +18,7 @@
  */
 
 /*
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -23,6 +28,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
@@ -42,10 +49,13 @@
 #include <media/v4l2-fwnode.h>
 #include <media/v4l2-subdev.h>
 
+<<<<<<< HEAD
 #define OV5645_VOLTAGE_ANALOG               2800000
 #define OV5645_VOLTAGE_DIGITAL_CORE         1500000
 #define OV5645_VOLTAGE_DIGITAL_IO           1800000
 
+=======
+>>>>>>> upstream/android-13
 #define OV5645_SYSTEM_CTRL0		0x3008
 #define		OV5645_SYSTEM_CTRL0_START	0x02
 #define		OV5645_SYSTEM_CTRL0_STOP	0x42
@@ -73,6 +83,18 @@
 #define OV5645_SDE_SAT_U		0x5583
 #define OV5645_SDE_SAT_V		0x5584
 
+<<<<<<< HEAD
+=======
+/* regulator supplies */
+static const char * const ov5645_supply_name[] = {
+	"vdddo", /* Digital I/O (1.8V) supply */
+	"vdda",  /* Analog (2.8V) supply */
+	"vddd",  /* Digital Core (1.5V) supply */
+};
+
+#define OV5645_NUM_SUPPLIES ARRAY_SIZE(ov5645_supply_name)
+
+>>>>>>> upstream/android-13
 struct reg_value {
 	u16 reg;
 	u8 val;
@@ -97,9 +119,13 @@ struct ov5645 {
 	struct v4l2_rect crop;
 	struct clk *xclk;
 
+<<<<<<< HEAD
 	struct regulator *io_regulator;
 	struct regulator *core_regulator;
 	struct regulator *analog_regulator;
+=======
+	struct regulator_bulk_data supplies[OV5645_NUM_SUPPLIES];
+>>>>>>> upstream/android-13
 
 	const struct ov5645_mode_info *current_mode;
 
@@ -546,6 +572,7 @@ static const struct ov5645_mode_info ov5645_mode_info_data[] = {
 	},
 };
 
+<<<<<<< HEAD
 static int ov5645_regulators_enable(struct ov5645 *ov5645)
 {
 	int ret;
@@ -595,6 +622,8 @@ static void ov5645_regulators_disable(struct ov5645 *ov5645)
 		dev_err(ov5645->dev, "io regulator disable failed\n");
 }
 
+=======
+>>>>>>> upstream/android-13
 static int ov5645_write_reg(struct ov5645 *ov5645, u16 reg, u8 val)
 {
 	u8 regbuf[3];
@@ -693,15 +722,25 @@ static int ov5645_set_power_on(struct ov5645 *ov5645)
 {
 	int ret;
 
+<<<<<<< HEAD
 	ret = ov5645_regulators_enable(ov5645);
 	if (ret < 0) {
 		return ret;
 	}
+=======
+	ret = regulator_bulk_enable(OV5645_NUM_SUPPLIES, ov5645->supplies);
+	if (ret < 0)
+		return ret;
+>>>>>>> upstream/android-13
 
 	ret = clk_prepare_enable(ov5645->xclk);
 	if (ret < 0) {
 		dev_err(ov5645->dev, "clk prepare enable failed\n");
+<<<<<<< HEAD
 		ov5645_regulators_disable(ov5645);
+=======
+		regulator_bulk_disable(OV5645_NUM_SUPPLIES, ov5645->supplies);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
@@ -721,7 +760,11 @@ static void ov5645_set_power_off(struct ov5645 *ov5645)
 	gpiod_set_value_cansleep(ov5645->rst_gpio, 1);
 	gpiod_set_value_cansleep(ov5645->enable_gpio, 0);
 	clk_disable_unprepare(ov5645->xclk);
+<<<<<<< HEAD
 	ov5645_regulators_disable(ov5645);
+=======
+	regulator_bulk_disable(OV5645_NUM_SUPPLIES, ov5645->supplies);
+>>>>>>> upstream/android-13
 }
 
 static int ov5645_s_power(struct v4l2_subdev *sd, int on)
@@ -887,12 +930,20 @@ static int ov5645_s_ctrl(struct v4l2_ctrl *ctrl)
 	return ret;
 }
 
+<<<<<<< HEAD
 static struct v4l2_ctrl_ops ov5645_ctrl_ops = {
+=======
+static const struct v4l2_ctrl_ops ov5645_ctrl_ops = {
+>>>>>>> upstream/android-13
 	.s_ctrl = ov5645_s_ctrl,
 };
 
 static int ov5645_enum_mbus_code(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 				 struct v4l2_subdev_pad_config *cfg,
+=======
+				 struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 				 struct v4l2_subdev_mbus_code_enum *code)
 {
 	if (code->index > 0)
@@ -904,7 +955,11 @@ static int ov5645_enum_mbus_code(struct v4l2_subdev *sd,
 }
 
 static int ov5645_enum_frame_size(struct v4l2_subdev *subdev,
+<<<<<<< HEAD
 				  struct v4l2_subdev_pad_config *cfg,
+=======
+				  struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 				  struct v4l2_subdev_frame_size_enum *fse)
 {
 	if (fse->code != MEDIA_BUS_FMT_UYVY8_2X8)
@@ -923,13 +978,21 @@ static int ov5645_enum_frame_size(struct v4l2_subdev *subdev,
 
 static struct v4l2_mbus_framefmt *
 __ov5645_get_pad_format(struct ov5645 *ov5645,
+<<<<<<< HEAD
 			struct v4l2_subdev_pad_config *cfg,
+=======
+			struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			unsigned int pad,
 			enum v4l2_subdev_format_whence which)
 {
 	switch (which) {
 	case V4L2_SUBDEV_FORMAT_TRY:
+<<<<<<< HEAD
 		return v4l2_subdev_get_try_format(&ov5645->sd, cfg, pad);
+=======
+		return v4l2_subdev_get_try_format(&ov5645->sd, sd_state, pad);
+>>>>>>> upstream/android-13
 	case V4L2_SUBDEV_FORMAT_ACTIVE:
 		return &ov5645->fmt;
 	default:
@@ -938,23 +1001,41 @@ __ov5645_get_pad_format(struct ov5645 *ov5645,
 }
 
 static int ov5645_get_format(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 			     struct v4l2_subdev_pad_config *cfg,
+=======
+			     struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			     struct v4l2_subdev_format *format)
 {
 	struct ov5645 *ov5645 = to_ov5645(sd);
 
+<<<<<<< HEAD
 	format->format = *__ov5645_get_pad_format(ov5645, cfg, format->pad,
+=======
+	format->format = *__ov5645_get_pad_format(ov5645, sd_state,
+						  format->pad,
+>>>>>>> upstream/android-13
 						  format->which);
 	return 0;
 }
 
 static struct v4l2_rect *
+<<<<<<< HEAD
 __ov5645_get_pad_crop(struct ov5645 *ov5645, struct v4l2_subdev_pad_config *cfg,
+=======
+__ov5645_get_pad_crop(struct ov5645 *ov5645,
+		      struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 		      unsigned int pad, enum v4l2_subdev_format_whence which)
 {
 	switch (which) {
 	case V4L2_SUBDEV_FORMAT_TRY:
+<<<<<<< HEAD
 		return v4l2_subdev_get_try_crop(&ov5645->sd, cfg, pad);
+=======
+		return v4l2_subdev_get_try_crop(&ov5645->sd, sd_state, pad);
+>>>>>>> upstream/android-13
 	case V4L2_SUBDEV_FORMAT_ACTIVE:
 		return &ov5645->crop;
 	default:
@@ -963,7 +1044,11 @@ __ov5645_get_pad_crop(struct ov5645 *ov5645, struct v4l2_subdev_pad_config *cfg,
 }
 
 static int ov5645_set_format(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 			     struct v4l2_subdev_pad_config *cfg,
+=======
+			     struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			     struct v4l2_subdev_format *format)
 {
 	struct ov5645 *ov5645 = to_ov5645(sd);
@@ -972,8 +1057,13 @@ static int ov5645_set_format(struct v4l2_subdev *sd,
 	const struct ov5645_mode_info *new_mode;
 	int ret;
 
+<<<<<<< HEAD
 	__crop = __ov5645_get_pad_crop(ov5645, cfg, format->pad,
 			format->which);
+=======
+	__crop = __ov5645_get_pad_crop(ov5645, sd_state, format->pad,
+				       format->which);
+>>>>>>> upstream/android-13
 
 	new_mode = v4l2_find_nearest_size(ov5645_mode_info_data,
 			       ARRAY_SIZE(ov5645_mode_info_data),
@@ -997,8 +1087,13 @@ static int ov5645_set_format(struct v4l2_subdev *sd,
 		ov5645->current_mode = new_mode;
 	}
 
+<<<<<<< HEAD
 	__format = __ov5645_get_pad_format(ov5645, cfg, format->pad,
 			format->which);
+=======
+	__format = __ov5645_get_pad_format(ov5645, sd_state, format->pad,
+					   format->which);
+>>>>>>> upstream/android-13
 	__format->width = __crop->width;
 	__format->height = __crop->height;
 	__format->code = MEDIA_BUS_FMT_UYVY8_2X8;
@@ -1011,6 +1106,7 @@ static int ov5645_set_format(struct v4l2_subdev *sd,
 }
 
 static int ov5645_entity_init_cfg(struct v4l2_subdev *subdev,
+<<<<<<< HEAD
 				  struct v4l2_subdev_pad_config *cfg)
 {
 	struct v4l2_subdev_format fmt = { 0 };
@@ -1020,12 +1116,27 @@ static int ov5645_entity_init_cfg(struct v4l2_subdev *subdev,
 	fmt.format.height = 1080;
 
 	ov5645_set_format(subdev, cfg, &fmt);
+=======
+				  struct v4l2_subdev_state *sd_state)
+{
+	struct v4l2_subdev_format fmt = { 0 };
+
+	fmt.which = sd_state ? V4L2_SUBDEV_FORMAT_TRY : V4L2_SUBDEV_FORMAT_ACTIVE;
+	fmt.format.width = 1920;
+	fmt.format.height = 1080;
+
+	ov5645_set_format(subdev, sd_state, &fmt);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static int ov5645_get_selection(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 			   struct v4l2_subdev_pad_config *cfg,
+=======
+			   struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			   struct v4l2_subdev_selection *sel)
 {
 	struct ov5645 *ov5645 = to_ov5645(sd);
@@ -1033,7 +1144,11 @@ static int ov5645_get_selection(struct v4l2_subdev *sd,
 	if (sel->target != V4L2_SEL_TGT_CROP)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	sel->r = *__ov5645_get_pad_crop(ov5645, cfg, sel->pad,
+=======
+	sel->r = *__ov5645_get_pad_crop(ov5645, sd_state, sel->pad,
+>>>>>>> upstream/android-13
 					sel->which);
 	return 0;
 }
@@ -1104,13 +1219,21 @@ static const struct v4l2_subdev_ops ov5645_subdev_ops = {
 	.pad = &ov5645_subdev_pad_ops,
 };
 
+<<<<<<< HEAD
 static int ov5645_probe(struct i2c_client *client,
 			const struct i2c_device_id *id)
+=======
+static int ov5645_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &client->dev;
 	struct device_node *endpoint;
 	struct ov5645 *ov5645;
 	u8 chip_id_high, chip_id_low;
+<<<<<<< HEAD
+=======
+	unsigned int i;
+>>>>>>> upstream/android-13
 	u32 xclk_freq;
 	int ret;
 
@@ -1137,7 +1260,11 @@ static int ov5645_probe(struct i2c_client *client,
 		return ret;
 	}
 
+<<<<<<< HEAD
 	if (ov5645->ep.bus_type != V4L2_MBUS_CSI2) {
+=======
+	if (ov5645->ep.bus_type != V4L2_MBUS_CSI2_DPHY) {
+>>>>>>> upstream/android-13
 		dev_err(dev, "invalid bus type, must be CSI2\n");
 		return -EINVAL;
 	}
@@ -1168,6 +1295,7 @@ static int ov5645_probe(struct i2c_client *client,
 		return ret;
 	}
 
+<<<<<<< HEAD
 	ov5645->io_regulator = devm_regulator_get(dev, "vdddo");
 	if (IS_ERR(ov5645->io_regulator)) {
 		dev_err(dev, "cannot get io regulator\n");
@@ -1209,6 +1337,15 @@ static int ov5645_probe(struct i2c_client *client,
 		dev_err(dev, "cannot set analog voltage\n");
 		return ret;
 	}
+=======
+	for (i = 0; i < OV5645_NUM_SUPPLIES; i++)
+		ov5645->supplies[i].supply = ov5645_supply_name[i];
+
+	ret = devm_regulator_bulk_get(dev, OV5645_NUM_SUPPLIES,
+				      ov5645->supplies);
+	if (ret < 0)
+		return ret;
+>>>>>>> upstream/android-13
 
 	ov5645->enable_gpio = devm_gpiod_get(dev, "enable", GPIOD_OUT_HIGH);
 	if (IS_ERR(ov5645->enable_gpio)) {
@@ -1373,7 +1510,11 @@ static struct i2c_driver ov5645_i2c_driver = {
 		.of_match_table = of_match_ptr(ov5645_of_match),
 		.name  = "ov5645",
 	},
+<<<<<<< HEAD
 	.probe  = ov5645_probe,
+=======
+	.probe_new = ov5645_probe,
+>>>>>>> upstream/android-13
 	.remove = ov5645_remove,
 	.id_table = ov5645_id,
 };

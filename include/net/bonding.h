@@ -38,6 +38,18 @@
 #define __long_aligned __attribute__((aligned((sizeof(long)))))
 #endif
 
+<<<<<<< HEAD
+=======
+#define slave_info(bond_dev, slave_dev, fmt, ...) \
+	netdev_info(bond_dev, "(slave %s): " fmt, (slave_dev)->name, ##__VA_ARGS__)
+#define slave_warn(bond_dev, slave_dev, fmt, ...) \
+	netdev_warn(bond_dev, "(slave %s): " fmt, (slave_dev)->name, ##__VA_ARGS__)
+#define slave_dbg(bond_dev, slave_dev, fmt, ...) \
+	netdev_dbg(bond_dev, "(slave %s): " fmt, (slave_dev)->name, ##__VA_ARGS__)
+#define slave_err(bond_dev, slave_dev, fmt, ...) \
+	netdev_err(bond_dev, "(slave %s): " fmt, (slave_dev)->name, ##__VA_ARGS__)
+
+>>>>>>> upstream/android-13
 #define BOND_MODE(bond) ((bond)->params.mode)
 
 /* slave list primitives */
@@ -77,6 +89,14 @@
 #define bond_for_each_slave_rcu(bond, pos, iter) \
 	netdev_for_each_lower_private_rcu((bond)->dev, pos, iter)
 
+<<<<<<< HEAD
+=======
+#define BOND_XFRM_FEATURES (NETIF_F_HW_ESP | NETIF_F_HW_ESP_TX_CSUM | \
+			    NETIF_F_GSO_ESP)
+
+#define BOND_TLS_FEATURES (NETIF_F_HW_TLS_TX | NETIF_F_HW_TLS_RX)
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_NET_POLL_CONTROLLER
 extern atomic_t netpoll_block_tx;
 
@@ -114,6 +134,11 @@ struct bond_params {
 	int fail_over_mac;
 	int updelay;
 	int downdelay;
+<<<<<<< HEAD
+=======
+	int peer_notif_delay;
+	int lacp_active;
+>>>>>>> upstream/android-13
 	int lacp_fast;
 	unsigned int min_links;
 	int ad_select;
@@ -134,11 +159,14 @@ struct bond_params {
 	u8 ad_actor_system[ETH_ALEN + 2];
 };
 
+<<<<<<< HEAD
 struct bond_parm_tbl {
 	char *modename;
 	int mode;
 };
 
+=======
+>>>>>>> upstream/android-13
 struct slave {
 	struct net_device *dev; /* first - useful for panic debug */
 	struct bonding *bond; /* our master */
@@ -178,7 +206,11 @@ static inline struct slave *to_slave(struct kobject *kobj)
 struct bond_up_slave {
 	unsigned int	count;
 	struct rcu_head rcu;
+<<<<<<< HEAD
 	struct slave	*arr[0];
+=======
+	struct slave	*arr[];
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -186,6 +218,14 @@ struct bond_up_slave {
  */
 #define BOND_LINK_NOCHANGE -1
 
+<<<<<<< HEAD
+=======
+struct bond_ipsec {
+	struct list_head list;
+	struct xfrm_state *xs;
+};
+
+>>>>>>> upstream/android-13
 /*
  * Here are the locking policies for the two bonding locks:
  * Get rcu_read_lock when reading or RTNL when writing slave list.
@@ -195,9 +235,15 @@ struct bonding {
 	struct   slave __rcu *curr_active_slave;
 	struct   slave __rcu *current_arp_slave;
 	struct   slave __rcu *primary_slave;
+<<<<<<< HEAD
 	struct   bond_up_slave __rcu *slave_arr; /* Array of usable slaves */
 	bool     force_primary;
 	u32      nest_level;
+=======
+	struct   bond_up_slave __rcu *usable_slaves;
+	struct   bond_up_slave __rcu *all_slaves;
+	bool     force_primary;
+>>>>>>> upstream/android-13
 	s32      slave_cnt; /* never change this value outside the attach/detach wrappers */
 	int     (*recv_probe)(const struct sk_buff *, struct bonding *,
 			      struct slave *);
@@ -217,7 +263,11 @@ struct bonding {
 	char     proc_file_name[IFNAMSIZ];
 #endif /* CONFIG_PROC_FS */
 	struct   list_head bond_list;
+<<<<<<< HEAD
 	u32      rr_tx_counter;
+=======
+	u32 __percpu *rr_tx_counter;
+>>>>>>> upstream/android-13
 	struct   ad_bond_info ad_info;
 	struct   alb_bond_info alb_info;
 	struct   bond_params params;
@@ -233,6 +283,15 @@ struct bonding {
 	struct	 dentry *debug_dir;
 #endif /* CONFIG_DEBUG_FS */
 	struct rtnl_link_stats64 bond_stats;
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_XFRM_OFFLOAD
+	struct list_head ipsec_list;
+	/* protecting ipsec_list */
+	spinlock_t ipsec_lock;
+#endif /* CONFIG_XFRM_OFFLOAD */
+	struct bpf_prog *xdp_prog;
+>>>>>>> upstream/android-13
 };
 
 #define bond_slave_get_rcu(dev) \
@@ -249,6 +308,11 @@ struct bond_vlan_tag {
 	unsigned short	vlan_id;
 };
 
+<<<<<<< HEAD
+=======
+bool bond_sk_check(struct bonding *bond);
+
+>>>>>>> upstream/android-13
 /**
  * Returns NULL if the net_device does not belong to any of the bond's slaves
  *
@@ -500,6 +564,7 @@ static inline unsigned long slave_last_rx(struct bonding *bond,
 }
 
 #ifdef CONFIG_NET_POLL_CONTROLLER
+<<<<<<< HEAD
 static inline void bond_netpoll_send_skb(const struct slave *slave,
 					 struct sk_buff *skb)
 {
@@ -512,6 +577,19 @@ static inline void bond_netpoll_send_skb(const struct slave *slave,
 static inline void bond_netpoll_send_skb(const struct slave *slave,
 					 struct sk_buff *skb)
 {
+=======
+static inline netdev_tx_t bond_netpoll_send_skb(const struct slave *slave,
+					 struct sk_buff *skb)
+{
+	return netpoll_send_skb(slave->np, skb);
+}
+#else
+static inline netdev_tx_t bond_netpoll_send_skb(const struct slave *slave,
+					 struct sk_buff *skb)
+{
+	BUG();
+	return NETDEV_TX_OK;
+>>>>>>> upstream/android-13
 }
 #endif
 
@@ -605,7 +683,11 @@ struct bond_net {
 };
 
 int bond_arp_rcv(const struct sk_buff *skb, struct bonding *bond, struct slave *slave);
+<<<<<<< HEAD
 void bond_dev_queue_xmit(struct bonding *bond, struct sk_buff *skb, struct net_device *slave_dev);
+=======
+netdev_tx_t bond_dev_queue_xmit(struct bonding *bond, struct sk_buff *skb, struct net_device *slave_dev);
+>>>>>>> upstream/android-13
 int bond_create(struct net *net, const char *name);
 int bond_create_sysfs(struct bond_net *net);
 void bond_destroy_sysfs(struct bond_net *net);
@@ -727,6 +809,7 @@ static inline int bond_get_targets_ip(__be32 *targets, __be32 ip)
 
 /* exported from bond_main.c */
 extern unsigned int bond_net_id;
+<<<<<<< HEAD
 extern const struct bond_parm_tbl bond_lacp_tbl[];
 extern const struct bond_parm_tbl xmit_hashtype_tbl[];
 extern const struct bond_parm_tbl arp_validate_tbl[];
@@ -734,6 +817,8 @@ extern const struct bond_parm_tbl arp_all_targets_tbl[];
 extern const struct bond_parm_tbl fail_over_mac_tbl[];
 extern const struct bond_parm_tbl pri_reselect_tbl[];
 extern struct bond_parm_tbl ad_select_tbl[];
+=======
+>>>>>>> upstream/android-13
 
 /* exported from bond_netlink.c */
 extern struct rtnl_link_ops bond_link_ops;
@@ -741,10 +826,18 @@ extern struct rtnl_link_ops bond_link_ops;
 /* exported from bond_sysfs_slave.c */
 extern const struct sysfs_ops slave_sysfs_ops;
 
+<<<<<<< HEAD
 static inline void bond_tx_drop(struct net_device *dev, struct sk_buff *skb)
 {
 	atomic_long_inc(&dev->tx_dropped);
 	dev_kfree_skb_any(skb);
+=======
+static inline netdev_tx_t bond_tx_drop(struct net_device *dev, struct sk_buff *skb)
+{
+	atomic_long_inc(&dev->tx_dropped);
+	dev_kfree_skb_any(skb);
+	return NET_XMIT_DROP;
+>>>>>>> upstream/android-13
 }
 
 #endif /* _NET_BONDING_H */

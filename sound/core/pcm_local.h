@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * pcm_local.h - a local header file for snd-pcm module.
  *
  * Copyright (c) Takashi Sakamoto <o-takashi@sakamocchi.jp>
+<<<<<<< HEAD
  *
  * Licensed under the terms of the GNU General Public License, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __SOUND_CORE_PCM_LOCAL_H
@@ -21,9 +28,12 @@ void snd_interval_muldivk(const struct snd_interval *a,
 void snd_interval_mulkdiv(const struct snd_interval *a, unsigned int k,
 			  const struct snd_interval *b, struct snd_interval *c);
 
+<<<<<<< HEAD
 int snd_pcm_hw_constraints_init(struct snd_pcm_substream *substream);
 int snd_pcm_hw_constraints_complete(struct snd_pcm_substream *substream);
 
+=======
+>>>>>>> upstream/android-13
 int snd_pcm_hw_constraint_mask(struct snd_pcm_runtime *runtime,
 			       snd_pcm_hw_param_t var, u_int32_t mask);
 
@@ -66,5 +76,18 @@ static inline void snd_pcm_timer_done(struct snd_pcm_substream *substream) {}
 #endif
 
 void __snd_pcm_xrun(struct snd_pcm_substream *substream);
+<<<<<<< HEAD
+=======
+void snd_pcm_group_init(struct snd_pcm_group *group);
+void snd_pcm_sync_stop(struct snd_pcm_substream *substream, bool sync_irq);
+
+#define PCM_RUNTIME_CHECK(sub) snd_BUG_ON(!(sub) || !(sub)->runtime)
+
+/* loop over all PCM substreams */
+#define for_each_pcm_substream(pcm, str, subs) \
+	for ((str) = 0; (str) < 2; (str)++) \
+		for ((subs) = (pcm)->streams[str].substream; (subs); \
+		     (subs) = (subs)->next)
+>>>>>>> upstream/android-13
 
 #endif	/* __SOUND_CORE_PCM_LOCAL_H */

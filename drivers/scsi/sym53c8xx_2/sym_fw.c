@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Device driver for the SYMBIOS/LSILOGIC 53C8XX and 53C1010 family 
  * of PCI-SCSI IO processors.
@@ -21,6 +25,7 @@
  * Copyright (C) 1997 Richard Waltham <dormouse@farsrobt.demon.co.uk>
  *
  *-----------------------------------------------------------------------------
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,6 +40,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "sym_glue.h"
@@ -382,7 +389,11 @@ void sym_fw_bind_script(struct sym_hcb *np, u32 *start, int len)
 				sym_name(np), (int) (cur-start));
 			++cur;
 			continue;
+<<<<<<< HEAD
 		};
+=======
+		}
+>>>>>>> upstream/android-13
 
 		/*
 		 *  We use the bogus value 0xf00ff00f ;-)
@@ -490,7 +501,11 @@ void sym_fw_bind_script(struct sym_hcb *np, u32 *start, int len)
 		default:
 			relocs = 0;
 			break;
+<<<<<<< HEAD
 		};
+=======
+		}
+>>>>>>> upstream/android-13
 
 		/*
 		 *  Scriptify:) the opcode.
@@ -536,7 +551,11 @@ void sym_fw_bind_script(struct sym_hcb *np, u32 *start, int len)
 					new = old;
 					break;
 				}
+<<<<<<< HEAD
 				/* fall through */
+=======
+				fallthrough;
+>>>>>>> upstream/android-13
 			default:
 				new = 0;
 				panic("sym_fw_bind_script: "
@@ -546,5 +565,9 @@ void sym_fw_bind_script(struct sym_hcb *np, u32 *start, int len)
 
 			*cur++ = cpu_to_scr(new);
 		}
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 }

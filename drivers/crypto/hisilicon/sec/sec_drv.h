@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
 /* Copyright (c) 2016-2017 Hisilicon Limited. */
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/* Copyright (c) 2016-2017 HiSilicon Limited. */
+>>>>>>> upstream/android-13
 
 #ifndef _SEC_DRV_H_
 #define _SEC_DRV_H_

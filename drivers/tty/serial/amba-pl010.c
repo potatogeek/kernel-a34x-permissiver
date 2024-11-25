@@ -15,10 +15,13 @@
  * and hooked into this driver.
  */
 
+<<<<<<< HEAD
 #if defined(CONFIG_SERIAL_AMBA_PL010_CONSOLE) && defined(CONFIG_MAGIC_SYSRQ)
 #define SUPPORT_SYSRQ
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/ioport.h>
 #include <linux/init.h>
@@ -163,9 +166,13 @@ static void pl010_rx_chars(struct uart_amba_port *uap)
 	ignore_char:
 		status = readb(uap->port.membase + UART01x_FR);
 	}
+<<<<<<< HEAD
 	spin_unlock(&uap->port.lock);
 	tty_flip_buffer_push(&uap->port.state->port);
 	spin_lock(&uap->port.lock);
+=======
+	tty_flip_buffer_push(&uap->port.state->port);
+>>>>>>> upstream/android-13
 }
 
 static void pl010_tx_chars(struct uart_amba_port *uap)
@@ -452,14 +459,20 @@ pl010_set_termios(struct uart_port *port, struct ktermios *termios,
 	if ((termios->c_cflag & CREAD) == 0)
 		uap->port.ignore_status_mask |= UART_DUMMY_RSR_RX;
 
+<<<<<<< HEAD
 	/* first, disable everything */
+=======
+>>>>>>> upstream/android-13
 	old_cr = readb(uap->port.membase + UART010_CR) & ~UART010_CR_MSIE;
 
 	if (UART_ENABLE_MS(port, termios->c_cflag))
 		old_cr |= UART010_CR_MSIE;
 
+<<<<<<< HEAD
 	writel(0, uap->port.membase + UART010_CR);
 
+=======
+>>>>>>> upstream/android-13
 	/* Set baud rate */
 	quot -= 1;
 	writel((quot & 0xf00) >> 8, uap->port.membase + UART010_LCRM);
@@ -728,6 +741,10 @@ static int pl010_probe(struct amba_device *dev, const struct amba_id *id)
 	uap->port.iotype = UPIO_MEM;
 	uap->port.irq = dev->irq[0];
 	uap->port.fifosize = 16;
+<<<<<<< HEAD
+=======
+	uap->port.has_sysrq = IS_ENABLED(CONFIG_SERIAL_AMBA_PL010_CONSOLE);
+>>>>>>> upstream/android-13
 	uap->port.ops = &amba_pl010_pops;
 	uap->port.flags = UPF_BOOT_AUTOCONF;
 	uap->port.line = i;
@@ -757,7 +774,11 @@ static int pl010_probe(struct amba_device *dev, const struct amba_id *id)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int pl010_remove(struct amba_device *dev)
+=======
+static void pl010_remove(struct amba_device *dev)
+>>>>>>> upstream/android-13
 {
 	struct uart_amba_port *uap = amba_get_drvdata(dev);
 	int i;
@@ -773,8 +794,11 @@ static int pl010_remove(struct amba_device *dev)
 
 	if (!busy)
 		uart_unregister_driver(&amba_reg);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_PM_SLEEP

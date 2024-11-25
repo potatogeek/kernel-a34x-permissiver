@@ -16,6 +16,7 @@
 #include <asm/asm-eva.h>
 #include <asm/extable.h>
 
+<<<<<<< HEAD
 /*
  * The fs value determines whether argument validity checking should be
  * performed or not.  If get_fs() == USER_DS, checking is performed, with
@@ -30,6 +31,11 @@
 #else
 #define __UA_LIMIT 0x80000000UL
 #endif
+=======
+#ifdef CONFIG_32BIT
+
+#define __UA_LIMIT 0x80000000UL
+>>>>>>> upstream/android-13
 
 #define __UA_ADDR	".word"
 #define __UA_LA		"la"
@@ -54,6 +60,7 @@ extern u64 __ua_limit;
 #endif /* CONFIG_64BIT */
 
 /*
+<<<<<<< HEAD
  * USER_DS is a bitmask that has the bits set that may not be set in a valid
  * userspace address.  Note that we limit 32-bit userspace to 0x7fff8000 but
  * the arithmetic we're doing only works if the limit is a power of two, so
@@ -92,6 +99,8 @@ static inline bool eva_kernel_access(void)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Is a address valid? This does a straightforward calculation rather
  * than tests.
  *
@@ -109,9 +118,12 @@ static inline bool eva_kernel_access(void)
 
 /*
  * access_ok: - Checks if a user space pointer is valid
+<<<<<<< HEAD
  * @type: Type of access: %VERIFY_READ or %VERIFY_WRITE.  Note that
  *	  %VERIFY_WRITE is a superset of %VERIFY_READ - if it is safe
  *	  to write to a block, it is always safe to read from it.
+=======
+>>>>>>> upstream/android-13
  * @addr: User space pointer to start of block to check
  * @size: Size of block to check
  *
@@ -131,10 +143,19 @@ static inline bool eva_kernel_access(void)
 static inline int __access_ok(const void __user *p, unsigned long size)
 {
 	unsigned long addr = (unsigned long)p;
+<<<<<<< HEAD
 	return (get_fs().seg & (addr | (addr + size) | __ua_size(size))) == 0;
 }
 
 #define access_ok(type, addr, size)					\
+=======
+	unsigned long end = addr + size - !!size;
+
+	return (__UA_LIMIT & (addr | end | __ua_size(size))) == 0;
+}
+
+#define access_ok(addr, size)					\
+>>>>>>> upstream/android-13
 	likely(__access_ok((addr), (size)))
 
 /*
@@ -154,8 +175,18 @@ static inline int __access_ok(const void __user *p, unsigned long size)
  *
  * Returns zero on success, or -EFAULT on error.
  */
+<<<<<<< HEAD
 #define put_user(x,ptr) \
 	__put_user_check((x), (ptr), sizeof(*(ptr)))
+=======
+#define put_user(x, ptr)						\
+({									\
+	__typeof__(*(ptr)) __user *__p = (ptr);				\
+									\
+	might_fault();							\
+	access_ok(__p, sizeof(*__p)) ? __put_user((x), __p) : -EFAULT;	\
+})
+>>>>>>> upstream/android-13
 
 /*
  * get_user: - Get a simple variable from user space.
@@ -175,8 +206,19 @@ static inline int __access_ok(const void __user *p, unsigned long size)
  * Returns zero on success, or -EFAULT on error.
  * On error, the variable @x is set to zero.
  */
+<<<<<<< HEAD
 #define get_user(x,ptr) \
 	__get_user_check((x), (ptr), sizeof(*(ptr)))
+=======
+#define get_user(x, ptr)						\
+({									\
+	const __typeof__(*(ptr)) __user *__p = (ptr);			\
+									\
+	might_fault();							\
+	access_ok(__p, sizeof(*__p)) ? __get_user((x), __p) :		\
+				       ((x) = 0, -EFAULT);		\
+})
+>>>>>>> upstream/android-13
 
 /*
  * __put_user: - Write a simple value into user space, with less checking.
@@ -198,8 +240,37 @@ static inline int __access_ok(const void __user *p, unsigned long size)
  *
  * Returns zero on success, or -EFAULT on error.
  */
+<<<<<<< HEAD
 #define __put_user(x,ptr) \
 	__put_user_nocheck((x), (ptr), sizeof(*(ptr)))
+=======
+#define __put_user(x, ptr)						\
+({									\
+	__typeof__(*(ptr)) __user *__pu_ptr = (ptr);			\
+	__typeof__(*(ptr)) __pu_val = (x);				\
+	int __pu_err = 0;						\
+									\
+	__chk_user_ptr(__pu_ptr);					\
+	switch (sizeof(*__pu_ptr)) {					\
+	case 1:								\
+		__put_data_asm(user_sb, __pu_ptr);			\
+		break;							\
+	case 2:								\
+		__put_data_asm(user_sh, __pu_ptr);			\
+		break;							\
+	case 4:								\
+		__put_data_asm(user_sw, __pu_ptr);			\
+		break;							\
+	case 8:								\
+		__PUT_DW(user_sd, __pu_ptr);				\
+		break;							\
+	default:							\
+		BUILD_BUG();						\
+	}								\
+									\
+	__pu_err;							\
+})
+>>>>>>> upstream/android-13
 
 /*
  * __get_user: - Get a simple variable from user space, with less checking.
@@ -222,12 +293,41 @@ static inline int __access_ok(const void __user *p, unsigned long size)
  * Returns zero on success, or -EFAULT on error.
  * On error, the variable @x is set to zero.
  */
+<<<<<<< HEAD
 #define __get_user(x,ptr) \
 	__get_user_nocheck((x), (ptr), sizeof(*(ptr)))
+=======
+#define __get_user(x, ptr)						\
+({									\
+	const __typeof__(*(ptr)) __user *__gu_ptr = (ptr);		\
+	int __gu_err = 0;						\
+									\
+	__chk_user_ptr(__gu_ptr);					\
+	switch (sizeof(*__gu_ptr)) {					\
+	case 1:								\
+		__get_data_asm((x), user_lb, __gu_ptr);			\
+		break;							\
+	case 2:								\
+		__get_data_asm((x), user_lh, __gu_ptr);			\
+		break;							\
+	case 4:								\
+		__get_data_asm((x), user_lw, __gu_ptr);			\
+		break;							\
+	case 8:								\
+		__GET_DW((x), user_ld, __gu_ptr);			\
+		break;							\
+	default:							\
+		BUILD_BUG();						\
+	}								\
+									\
+	__gu_err;							\
+})
+>>>>>>> upstream/android-13
 
 struct __large_struct { unsigned long buf[100]; };
 #define __m(x) (*(struct __large_struct __user *)(x))
 
+<<<<<<< HEAD
 /*
  * Yuck.  We need two variants, one for 64bit operation and one
  * for 32 bit mode and old iron.
@@ -265,6 +365,8 @@ do {									\
 } while (0)
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_32BIT
 #define __GET_DW(val, insn, ptr) __get_data_asm_ll32(val, insn, ptr)
 #endif
@@ -272,6 +374,7 @@ do {									\
 #define __GET_DW(val, insn, ptr) __get_data_asm(val, insn, ptr)
 #endif
 
+<<<<<<< HEAD
 extern void __get_user_unknown(void);
 
 #define __get_user_common(val, size, ptr)				\
@@ -315,6 +418,8 @@ do {									\
 	__gu_err;							\
 })
 
+=======
+>>>>>>> upstream/android-13
 #define __get_data_asm(val, insn, addr)					\
 {									\
 	long __gu_tmp;							\
@@ -368,6 +473,7 @@ do {									\
 	(val) = __gu_tmp.t;						\
 }
 
+<<<<<<< HEAD
 #ifndef CONFIG_EVA
 #define __put_kernel_common(ptr, size) __put_user_common(ptr, size)
 #else
@@ -401,6 +507,38 @@ do {									\
 	}								\
 } while(0)
 #endif
+=======
+#define HAVE_GET_KERNEL_NOFAULT
+
+#define __get_kernel_nofault(dst, src, type, err_label)			\
+do {									\
+	int __gu_err;							\
+									\
+	switch (sizeof(type)) {						\
+	case 1:								\
+		__get_data_asm(*(type *)(dst), kernel_lb,		\
+			       (__force type *)(src));			\
+		break;							\
+	case 2:								\
+		__get_data_asm(*(type *)(dst), kernel_lh,		\
+			       (__force type *)(src));			\
+		break;							\
+	case 4:								\
+		 __get_data_asm(*(type *)(dst), kernel_lw,		\
+			       (__force type *)(src));			\
+		break;							\
+	case 8:								\
+		__GET_DW(*(type *)(dst), kernel_ld,			\
+			 (__force type *)(src));			\
+		break;							\
+	default:							\
+		BUILD_BUG();						\
+		break;							\
+	}								\
+	if (unlikely(__gu_err))						\
+		goto err_label;						\
+} while (0)
+>>>>>>> upstream/android-13
 
 /*
  * Yuck.  We need two variants, one for 64bit operation and one
@@ -413,6 +551,7 @@ do {									\
 #define __PUT_DW(insn, ptr) __put_data_asm(insn, ptr)
 #endif
 
+<<<<<<< HEAD
 #define __put_user_common(ptr, size)					\
 do {									\
 	switch (size) {							\
@@ -456,6 +595,8 @@ do {									\
 	__pu_err;							\
 })
 
+=======
+>>>>>>> upstream/android-13
 #define __put_data_asm(insn, ptr)					\
 {									\
 	__asm__ __volatile__(						\
@@ -494,7 +635,37 @@ do {									\
 	  "i" (-EFAULT));						\
 }
 
+<<<<<<< HEAD
 extern void __put_user_unknown(void);
+=======
+#define __put_kernel_nofault(dst, src, type, err_label)			\
+do {									\
+	type __pu_val;					\
+	int __pu_err = 0;						\
+									\
+	__pu_val = *(__force type *)(src);				\
+	switch (sizeof(type)) {						\
+	case 1:								\
+		__put_data_asm(kernel_sb, (type *)(dst));		\
+		break;							\
+	case 2:								\
+		__put_data_asm(kernel_sh, (type *)(dst));		\
+		break;							\
+	case 4:								\
+		__put_data_asm(kernel_sw, (type *)(dst))		\
+		break;							\
+	case 8:								\
+		__PUT_DW(kernel_sd, (type *)(dst));			\
+		break;							\
+	default:							\
+		BUILD_BUG();						\
+		break;							\
+	}								\
+	if (unlikely(__pu_err))						\
+		goto err_label;						\
+} while (0)
+
+>>>>>>> upstream/android-13
 
 /*
  * We're generating jump to subroutines which will be outside the range of
@@ -518,6 +689,7 @@ extern void __put_user_unknown(void);
 #define DADDI_SCRATCH "$0"
 #endif
 
+<<<<<<< HEAD
 extern size_t __copy_user(void *__to, const void *__from, size_t __n);
 
 #define __invoke_copy_from(func, to, from, n)				\
@@ -613,19 +785,69 @@ raw_copy_to_user(void __user *to, const void *from, unsigned long n)
 	else
 		return __invoke_copy_to_user(to, from, n);
 }
+=======
+extern size_t __raw_copy_from_user(void *__to, const void *__from, size_t __n);
+extern size_t __raw_copy_to_user(void *__to, const void *__from, size_t __n);
+>>>>>>> upstream/android-13
 
 static inline unsigned long
 raw_copy_from_user(void *to, const void __user *from, unsigned long n)
 {
+<<<<<<< HEAD
 	if (eva_kernel_access())
 		return __invoke_copy_from_kernel(to, from, n);
 	else
 		return __invoke_copy_from_user(to, from, n);
+=======
+	register void *__cu_to_r __asm__("$4");
+	register const void __user *__cu_from_r __asm__("$5");
+	register long __cu_len_r __asm__("$6");
+
+	__cu_to_r = to;
+	__cu_from_r = from;
+	__cu_len_r = n;
+
+	__asm__ __volatile__(
+		".set\tnoreorder\n\t"
+		__MODULE_JAL(__raw_copy_from_user)
+		".set\tnoat\n\t"
+		__UA_ADDU "\t$1, %1, %2\n\t"
+		".set\tat\n\t"
+		".set\treorder"
+		: "+r" (__cu_to_r), "+r" (__cu_from_r), "+r" (__cu_len_r)
+		:
+		: "$8", "$9", "$10", "$11", "$12", "$14", "$15", "$24", "$31",
+		  DADDI_SCRATCH, "memory");
+
+	return __cu_len_r;
+}
+
+static inline unsigned long
+raw_copy_to_user(void __user *to, const void *from, unsigned long n)
+{
+	register void __user *__cu_to_r __asm__("$4");
+	register const void *__cu_from_r __asm__("$5");
+	register long __cu_len_r __asm__("$6");
+
+	__cu_to_r = (to);
+	__cu_from_r = (from);
+	__cu_len_r = (n);
+
+	__asm__ __volatile__(
+		__MODULE_JAL(__raw_copy_to_user)
+		: "+r" (__cu_to_r), "+r" (__cu_from_r), "+r" (__cu_len_r)
+		:
+		: "$8", "$9", "$10", "$11", "$12", "$14", "$15", "$24", "$31",
+		  DADDI_SCRATCH, "memory");
+
+	return __cu_len_r;
+>>>>>>> upstream/android-13
 }
 
 #define INLINE_COPY_FROM_USER
 #define INLINE_COPY_TO_USER
 
+<<<<<<< HEAD
 static inline unsigned long
 raw_copy_in_user(void __user*to, const void __user *from, unsigned long n)
 {
@@ -636,6 +858,8 @@ raw_copy_in_user(void __user*to, const void __user *from, unsigned long n)
 }
 
 extern __kernel_size_t __bzero_kernel(void __user *addr, __kernel_size_t size);
+=======
+>>>>>>> upstream/android-13
 extern __kernel_size_t __bzero(void __user *addr, __kernel_size_t size);
 
 /*
@@ -661,6 +885,7 @@ __clear_user(void __user *addr, __kernel_size_t size)
 #define bzero_clobbers "$4", "$5", "$6", __UA_t0, __UA_t1, "$31"
 #endif /* CONFIG_CPU_MICROMIPS */
 
+<<<<<<< HEAD
 	if (eva_kernel_access()) {
 		__asm__ __volatile__(
 			"move\t$4, %1\n\t"
@@ -683,6 +908,18 @@ __clear_user(void __user *addr, __kernel_size_t size)
 			: "r" (addr), "r" (size)
 			: bzero_clobbers);
 	}
+=======
+	might_fault();
+	__asm__ __volatile__(
+		"move\t$4, %1\n\t"
+		"move\t$5, $0\n\t"
+		"move\t$6, %2\n\t"
+		__MODULE_JAL(__bzero)
+		"move\t%0, $6"
+		: "=r" (res)
+		: "r" (addr), "r" (size)
+		: bzero_clobbers);
+>>>>>>> upstream/android-13
 
 	return res;
 }
@@ -691,13 +928,20 @@ __clear_user(void __user *addr, __kernel_size_t size)
 ({									\
 	void __user * __cl_addr = (addr);				\
 	unsigned long __cl_size = (n);					\
+<<<<<<< HEAD
 	if (__cl_size && access_ok(VERIFY_WRITE,			\
 					__cl_addr, __cl_size))		\
+=======
+	if (__cl_size && access_ok(__cl_addr, __cl_size))		\
+>>>>>>> upstream/android-13
 		__cl_size = __clear_user(__cl_addr, __cl_size);		\
 	__cl_size;							\
 })
 
+<<<<<<< HEAD
 extern long __strncpy_from_kernel_asm(char *__to, const char __user *__from, long __len);
+=======
+>>>>>>> upstream/android-13
 extern long __strncpy_from_user_asm(char *__to, const char __user *__from, long __len);
 
 /*
@@ -723,6 +967,7 @@ strncpy_from_user(char *__to, const char __user *__from, long __len)
 {
 	long res;
 
+<<<<<<< HEAD
 	if (eva_kernel_access()) {
 		__asm__ __volatile__(
 			"move\t$4, %1\n\t"
@@ -745,11 +990,29 @@ strncpy_from_user(char *__to, const char __user *__from, long __len)
 			: "r" (__to), "r" (__from), "r" (__len)
 			: "$2", "$3", "$4", "$5", "$6", __UA_t0, "$31", "memory");
 	}
+=======
+	if (!access_ok(__from, __len))
+		return -EFAULT;
+
+	might_fault();
+	__asm__ __volatile__(
+		"move\t$4, %1\n\t"
+		"move\t$5, %2\n\t"
+		"move\t$6, %3\n\t"
+		__MODULE_JAL(__strncpy_from_user_asm)
+		"move\t%0, $2"
+		: "=r" (res)
+		: "r" (__to), "r" (__from), "r" (__len)
+		: "$2", "$3", "$4", "$5", "$6", __UA_t0, "$31", "memory");
+>>>>>>> upstream/android-13
 
 	return res;
 }
 
+<<<<<<< HEAD
 extern long __strnlen_kernel_asm(const char __user *s, long n);
+=======
+>>>>>>> upstream/android-13
 extern long __strnlen_user_asm(const char __user *s, long n);
 
 /*
@@ -769,6 +1032,7 @@ static inline long strnlen_user(const char __user *s, long n)
 {
 	long res;
 
+<<<<<<< HEAD
 	might_fault();
 	if (eva_kernel_access()) {
 		__asm__ __volatile__(
@@ -789,6 +1053,20 @@ static inline long strnlen_user(const char __user *s, long n)
 			: "r" (s), "r" (n)
 			: "$2", "$4", "$5", __UA_t0, "$31");
 	}
+=======
+	if (!access_ok(s, 1))
+		return 0;
+
+	might_fault();
+	__asm__ __volatile__(
+		"move\t$4, %1\n\t"
+		"move\t$5, %2\n\t"
+		__MODULE_JAL(__strnlen_user_asm)
+		"move\t%0, $2"
+		: "=r" (res)
+		: "r" (s), "r" (n)
+		: "$2", "$4", "$5", __UA_t0, "$31");
+>>>>>>> upstream/android-13
 
 	return res;
 }

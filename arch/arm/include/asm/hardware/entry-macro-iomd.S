@@ -16,25 +16,45 @@
 		ldr	\tmp, =irq_prio_h
 		teq	\irqstat, #0
 #ifdef IOMD_BASE
+<<<<<<< HEAD
 		ldreqb	\irqstat, [\base, #IOMD_DMAREQ]	@ get dma
+=======
+		ldrbeq	\irqstat, [\base, #IOMD_DMAREQ]	@ get dma
+>>>>>>> upstream/android-13
 		addeq	\tmp, \tmp, #256		@ irq_prio_h table size
 		teqeq	\irqstat, #0
 		bne	2406f
 #endif
+<<<<<<< HEAD
 		ldreqb	\irqstat, [\base, #IOMD_IRQREQA]	@ get low priority
 		addeq	\tmp, \tmp, #256		@ irq_prio_d table size
 		teqeq	\irqstat, #0
 #ifdef IOMD_IRQREQC
 		ldreqb	\irqstat, [\base, #IOMD_IRQREQC]
+=======
+		ldrbeq	\irqstat, [\base, #IOMD_IRQREQA]	@ get low priority
+		addeq	\tmp, \tmp, #256		@ irq_prio_d table size
+		teqeq	\irqstat, #0
+#ifdef IOMD_IRQREQC
+		ldrbeq	\irqstat, [\base, #IOMD_IRQREQC]
+>>>>>>> upstream/android-13
 		addeq	\tmp, \tmp, #256		@ irq_prio_l table size
 		teqeq	\irqstat, #0
 #endif
 #ifdef IOMD_IRQREQD
+<<<<<<< HEAD
 		ldreqb	\irqstat, [\base, #IOMD_IRQREQD]
 		addeq	\tmp, \tmp, #256		@ irq_prio_lc table size
 		teqeq	\irqstat, #0
 #endif
 2406:		ldrneb	\irqnr, [\tmp, \irqstat]	@ get IRQ number
+=======
+		ldrbeq	\irqstat, [\base, #IOMD_IRQREQD]
+		addeq	\tmp, \tmp, #256		@ irq_prio_lc table size
+		teqeq	\irqstat, #0
+#endif
+2406:		ldrbne	\irqnr, [\tmp, \irqstat]	@ get IRQ number
+>>>>>>> upstream/android-13
 		.endm
 
 /*

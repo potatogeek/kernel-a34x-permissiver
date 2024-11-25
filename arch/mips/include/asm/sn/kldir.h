@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
@@ -123,12 +124,22 @@
  */
 
 #ifdef __ASSEMBLY__
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+
+#ifndef _ASM_SN_KLDIR_H
+#define _ASM_SN_KLDIR_H
+
+#define KLDIR_MAGIC		0x434d5f53505f5357
+
+>>>>>>> upstream/android-13
 #define KLDIR_OFF_MAGIC			0x00
 #define KLDIR_OFF_OFFSET		0x08
 #define KLDIR_OFF_POINTER		0x10
 #define KLDIR_OFF_SIZE			0x18
 #define KLDIR_OFF_COUNT			0x20
 #define KLDIR_OFF_STRIDE		0x28
+<<<<<<< HEAD
 #endif /* __ASSEMBLY__ */
 
 /*
@@ -196,6 +207,8 @@
  */
 #define IP27_NMI_EFRAME_OFFSET		0x11800
 #define IP27_NMI_EFRAME_SIZE		0x200
+=======
+>>>>>>> upstream/android-13
 
 #define KLDIR_ENT_SIZE			0x40
 #define KLDIR_MAX_ENTRIES		(0x400 / 0x40)
@@ -214,4 +227,11 @@ typedef struct kldir_ent_s {
 } kldir_ent_t;
 #endif /* !__ASSEMBLY__ */
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_SGI_IP27
+#include <asm/sn/sn0/kldir.h>
+#endif
+
+>>>>>>> upstream/android-13
 #endif /* _ASM_SN_KLDIR_H */

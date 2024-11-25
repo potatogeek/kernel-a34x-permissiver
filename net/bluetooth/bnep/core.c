@@ -126,8 +126,13 @@ static int bnep_ctrl_set_netfilter(struct bnep_session *s, __be16 *data, int len
 			f[i].start = get_unaligned_be16(data++);
 			f[i].end   = get_unaligned_be16(data++);
 
+<<<<<<< HEAD
 			BT_DBG("proto filter start %d end %d",
 				f[i].start, f[i].end);
+=======
+			BT_DBG("proto filter start %u end %u",
+			       f[i].start, f[i].end);
+>>>>>>> upstream/android-13
 		}
 
 		if (i < BNEP_MAX_PROTO_FILTERS)
@@ -266,7 +271,11 @@ static int bnep_rx_extension(struct bnep_session *s, struct sk_buff *skb)
 			break;
 		}
 
+<<<<<<< HEAD
 		BT_DBG("type 0x%x len %d", h->type, h->len);
+=======
+		BT_DBG("type 0x%x len %u", h->type, h->len);
+>>>>>>> upstream/android-13
 
 		switch (h->type & BNEP_TYPE_MASK) {
 		case BNEP_EXT_CONTROL:
@@ -424,7 +433,11 @@ static int bnep_tx_frame(struct bnep_session *s, struct sk_buff *skb)
 	int len = 0, il = 0;
 	u8 type = 0;
 
+<<<<<<< HEAD
 	BT_DBG("skb %p dev %p type %d", skb, skb->dev, skb->pkt_type);
+=======
+	BT_DBG("skb %p dev %p type %u", skb, skb->dev, skb->pkt_type);
+>>>>>>> upstream/android-13
 
 	if (!skb->dev) {
 		/* Control frame sent by us */
@@ -489,9 +502,12 @@ static int bnep_session(void *arg)
 
 	add_wait_queue(sk_sleep(sk), &wait);
 	while (1) {
+<<<<<<< HEAD
 		/* Ensure session->terminate is updated */
 		smp_mb__before_atomic();
 
+=======
+>>>>>>> upstream/android-13
 		if (atomic_read(&s->terminate))
 			break;
 		/* RX */
@@ -512,6 +528,13 @@ static int bnep_session(void *arg)
 				break;
 		netif_wake_queue(dev);
 
+<<<<<<< HEAD
+=======
+		/*
+		 * wait_woken() performs the necessary memory barriers
+		 * for us; see the header comment for this primitive.
+		 */
+>>>>>>> upstream/android-13
 		wait_woken(&wait, TASK_INTERRUPTIBLE, MAX_SCHEDULE_TIMEOUT);
 	}
 	remove_wait_queue(sk_sleep(sk), &wait);

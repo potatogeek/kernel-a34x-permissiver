@@ -67,7 +67,11 @@ struct ath6kl_llc_snap_hdr {
 	__be16 eth_type;
 } __packed;
 
+<<<<<<< HEAD
 enum crypto_type {
+=======
+enum ath6kl_crypto_type {
+>>>>>>> upstream/android-13
 	NONE_CRYPT          = 0x01,
 	WEP_CRYPT           = 0x02,
 	TKIP_CRYPT          = 0x04,

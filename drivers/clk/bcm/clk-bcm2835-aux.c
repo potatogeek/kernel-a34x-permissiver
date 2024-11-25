@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015 Broadcom
  *
@@ -10,10 +11,19 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (C) 2015 Broadcom
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
 #include <linux/clk-provider.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/platform_device.h>
 #include <dt-bindings/clock/bcm2835-aux.h>
@@ -27,7 +37,10 @@ static int bcm2835_aux_clk_probe(struct platform_device *pdev)
 	struct clk_hw_onecell_data *onecell;
 	const char *parent;
 	struct clk *parent_clk;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	void __iomem *reg, *gate;
 
 	parent_clk = devm_clk_get(dev, NULL);
@@ -35,8 +48,12 @@ static int bcm2835_aux_clk_probe(struct platform_device *pdev)
 		return PTR_ERR(parent_clk);
 	parent = __clk_get_name(parent_clk);
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	reg = devm_ioremap_resource(dev, res);
+=======
+	reg = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(reg))
 		return PTR_ERR(reg);
 
@@ -79,4 +96,8 @@ builtin_platform_driver(bcm2835_aux_clk_driver);
 
 MODULE_AUTHOR("Eric Anholt <eric@anholt.net>");
 MODULE_DESCRIPTION("BCM2835 auxiliary peripheral clock driver");
+<<<<<<< HEAD
 MODULE_LICENSE("GPL v2");
+=======
+MODULE_LICENSE("GPL");
+>>>>>>> upstream/android-13

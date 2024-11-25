@@ -19,13 +19,39 @@
 #include <linux/ksm.h>
 #include <linux/mman.h>
 
+<<<<<<< HEAD
 #include <asm/pgtable.h>
 #include <asm/pgalloc.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/tlb.h>
 #include <asm/tlbflush.h>
 #include <asm/mmu_context.h>
 #include <asm/page-states.h>
 
+<<<<<<< HEAD
+=======
+pgprot_t pgprot_writecombine(pgprot_t prot)
+{
+	/*
+	 * mio_wb_bit_mask may be set on a different CPU, but it is only set
+	 * once at init and only read afterwards.
+	 */
+	return __pgprot(pgprot_val(prot) | mio_wb_bit_mask);
+}
+EXPORT_SYMBOL_GPL(pgprot_writecombine);
+
+pgprot_t pgprot_writethrough(pgprot_t prot)
+{
+	/*
+	 * mio_wb_bit_mask may be set on a different CPU, but it is only set
+	 * once at init and only read afterwards.
+	 */
+	return __pgprot(pgprot_val(prot) & ~mio_wb_bit_mask);
+}
+EXPORT_SYMBOL_GPL(pgprot_writethrough);
+
+>>>>>>> upstream/android-13
 static inline void ptep_ipte_local(struct mm_struct *mm, unsigned long addr,
 				   pte_t *ptep, int nodat)
 {
@@ -301,12 +327,20 @@ pte_t ptep_xchg_lazy(struct mm_struct *mm, unsigned long addr,
 }
 EXPORT_SYMBOL(ptep_xchg_lazy);
 
+<<<<<<< HEAD
 pte_t ptep_modify_prot_start(struct mm_struct *mm, unsigned long addr,
+=======
+pte_t ptep_modify_prot_start(struct vm_area_struct *vma, unsigned long addr,
+>>>>>>> upstream/android-13
 			     pte_t *ptep)
 {
 	pgste_t pgste;
 	pte_t old;
 	int nodat;
+<<<<<<< HEAD
+=======
+	struct mm_struct *mm = vma->vm_mm;
+>>>>>>> upstream/android-13
 
 	preempt_disable();
 	pgste = ptep_xchg_start(mm, addr, ptep);
@@ -318,12 +352,21 @@ pte_t ptep_modify_prot_start(struct mm_struct *mm, unsigned long addr,
 	}
 	return old;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(ptep_modify_prot_start);
 
 void ptep_modify_prot_commit(struct mm_struct *mm, unsigned long addr,
 			     pte_t *ptep, pte_t pte)
 {
 	pgste_t pgste;
+=======
+
+void ptep_modify_prot_commit(struct vm_area_struct *vma, unsigned long addr,
+			     pte_t *ptep, pte_t old_pte, pte_t pte)
+{
+	pgste_t pgste;
+	struct mm_struct *mm = vma->vm_mm;
+>>>>>>> upstream/android-13
 
 	if (!MACHINE_HAS_NX)
 		pte_val(pte) &= ~_PAGE_NOEXEC;
@@ -337,7 +380,10 @@ void ptep_modify_prot_commit(struct mm_struct *mm, unsigned long addr,
 	}
 	preempt_enable();
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(ptep_modify_prot_commit);
+=======
+>>>>>>> upstream/android-13
 
 static inline void pmdp_idte_local(struct mm_struct *mm,
 				   unsigned long addr, pmd_t *pmdp)
@@ -411,6 +457,7 @@ static inline pmd_t pmdp_flush_lazy(struct mm_struct *mm,
 }
 
 #ifdef CONFIG_PGSTE
+<<<<<<< HEAD
 static pmd_t *pmd_alloc_map(struct mm_struct *mm, unsigned long addr)
 {
 	pgd_t *pgd;
@@ -427,6 +474,38 @@ static pmd_t *pmd_alloc_map(struct mm_struct *mm, unsigned long addr)
 		return NULL;
 	pmd = pmd_alloc(mm, pud, addr);
 	return pmd;
+=======
+static int pmd_lookup(struct mm_struct *mm, unsigned long addr, pmd_t **pmdp)
+{
+	struct vm_area_struct *vma;
+	pgd_t *pgd;
+	p4d_t *p4d;
+	pud_t *pud;
+
+	/* We need a valid VMA, otherwise this is clearly a fault. */
+	vma = vma_lookup(mm, addr);
+	if (!vma)
+		return -EFAULT;
+
+	pgd = pgd_offset(mm, addr);
+	if (!pgd_present(*pgd))
+		return -ENOENT;
+
+	p4d = p4d_offset(pgd, addr);
+	if (!p4d_present(*p4d))
+		return -ENOENT;
+
+	pud = pud_offset(p4d, addr);
+	if (!pud_present(*pud))
+		return -ENOENT;
+
+	/* Large PUDs are not supported yet. */
+	if (pud_large(*pud))
+		return -EFAULT;
+
+	*pmdp = pmd_offset(pud, addr);
+	return 0;
+>>>>>>> upstream/android-13
 }
 #endif
 
@@ -673,7 +752,11 @@ static void ptep_zap_swap_entry(struct mm_struct *mm, swp_entry_t entry)
 	if (!non_swap_entry(entry))
 		dec_mm_counter(mm, MM_SWAPENTS);
 	else if (is_migration_entry(entry)) {
+<<<<<<< HEAD
 		struct page *page = migration_entry_to_page(entry);
+=======
+		struct page *page = pfn_swap_entry_to_page(entry);
+>>>>>>> upstream/android-13
 
 		dec_mm_counter(mm, mm_counter(page));
 	}
@@ -760,8 +843,12 @@ int set_guest_storage_key(struct mm_struct *mm, unsigned long addr,
 	pmd_t *pmdp;
 	pte_t *ptep;
 
+<<<<<<< HEAD
 	pmdp = pmd_alloc_map(mm, addr);
 	if (unlikely(!pmdp))
+=======
+	if (pmd_lookup(mm, addr, &pmdp))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	ptl = pmd_lock(mm, pmdp);
@@ -816,7 +903,11 @@ int set_guest_storage_key(struct mm_struct *mm, unsigned long addr,
 }
 EXPORT_SYMBOL(set_guest_storage_key);
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Conditionally set a guest storage key (handling csske).
  * oldkey will be updated when either mr or mc is set and a pointer is given.
  *
@@ -849,7 +940,11 @@ int cond_set_guest_storage_key(struct mm_struct *mm, unsigned long addr,
 }
 EXPORT_SYMBOL(cond_set_guest_storage_key);
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Reset a guest reference bit (rrbe), returning the reference and changed bit.
  *
  * Returns < 0 in case of error, otherwise the cc to be reported to the guest.
@@ -863,8 +958,12 @@ int reset_guest_reference_bit(struct mm_struct *mm, unsigned long addr)
 	pte_t *ptep;
 	int cc = 0;
 
+<<<<<<< HEAD
 	pmdp = pmd_alloc_map(mm, addr);
 	if (unlikely(!pmdp))
+=======
+	if (pmd_lookup(mm, addr, &pmdp))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	ptl = pmd_lock(mm, pmdp);
@@ -917,6 +1016,7 @@ int get_guest_storage_key(struct mm_struct *mm, unsigned long addr,
 	pmd_t *pmdp;
 	pte_t *ptep;
 
+<<<<<<< HEAD
 	pmdp = pmd_alloc_map(mm, addr);
 	if (unlikely(!pmdp))
 		return -EFAULT;
@@ -926,6 +1026,26 @@ int get_guest_storage_key(struct mm_struct *mm, unsigned long addr,
 		/* Not yet mapped memory has a zero key */
 		spin_unlock(ptl);
 		*key = 0;
+=======
+	/*
+	 * If we don't have a PTE table and if there is no huge page mapped,
+	 * the storage key is 0.
+	 */
+	*key = 0;
+
+	switch (pmd_lookup(mm, addr, &pmdp)) {
+	case -ENOENT:
+		return 0;
+	case 0:
+		break;
+	default:
+		return -EFAULT;
+	}
+
+	ptl = pmd_lock(mm, pmdp);
+	if (!pmd_present(*pmdp)) {
+		spin_unlock(ptl);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
@@ -970,6 +1090,10 @@ EXPORT_SYMBOL(get_guest_storage_key);
 int pgste_perform_essa(struct mm_struct *mm, unsigned long hva, int orc,
 			unsigned long *oldpte, unsigned long *oldpgste)
 {
+<<<<<<< HEAD
+=======
+	struct vm_area_struct *vma;
+>>>>>>> upstream/android-13
 	unsigned long pgstev;
 	spinlock_t *ptl;
 	pgste_t pgste;
@@ -979,6 +1103,13 @@ int pgste_perform_essa(struct mm_struct *mm, unsigned long hva, int orc,
 	WARN_ON_ONCE(orc > ESSA_MAX);
 	if (unlikely(orc > ESSA_MAX))
 		return -EINVAL;
+<<<<<<< HEAD
+=======
+
+	vma = vma_lookup(mm, hva);
+	if (!vma || is_vm_hugetlb_page(vma))
+		return -EFAULT;
+>>>>>>> upstream/android-13
 	ptep = get_locked_pte(mm, hva, &ptl);
 	if (unlikely(!ptep))
 		return -EFAULT;
@@ -1071,10 +1202,20 @@ EXPORT_SYMBOL(pgste_perform_essa);
 int set_pgste_bits(struct mm_struct *mm, unsigned long hva,
 			unsigned long bits, unsigned long value)
 {
+<<<<<<< HEAD
+=======
+	struct vm_area_struct *vma;
+>>>>>>> upstream/android-13
 	spinlock_t *ptl;
 	pgste_t new;
 	pte_t *ptep;
 
+<<<<<<< HEAD
+=======
+	vma = vma_lookup(mm, hva);
+	if (!vma || is_vm_hugetlb_page(vma))
+		return -EFAULT;
+>>>>>>> upstream/android-13
 	ptep = get_locked_pte(mm, hva, &ptl);
 	if (unlikely(!ptep))
 		return -EFAULT;
@@ -1099,9 +1240,19 @@ EXPORT_SYMBOL(set_pgste_bits);
  */
 int get_pgste(struct mm_struct *mm, unsigned long hva, unsigned long *pgstep)
 {
+<<<<<<< HEAD
 	spinlock_t *ptl;
 	pte_t *ptep;
 
+=======
+	struct vm_area_struct *vma;
+	spinlock_t *ptl;
+	pte_t *ptep;
+
+	vma = vma_lookup(mm, hva);
+	if (!vma || is_vm_hugetlb_page(vma))
+		return -EFAULT;
+>>>>>>> upstream/android-13
 	ptep = get_locked_pte(mm, hva, &ptl);
 	if (unlikely(!ptep))
 		return -EFAULT;

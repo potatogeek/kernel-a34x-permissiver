@@ -7,6 +7,10 @@
  * Copyright (c) 1999, 2000  Silicon Graphics, Inc.
  */
 #include <linux/bitops.h>
+<<<<<<< HEAD
+=======
+#include <linux/bits.h>
+>>>>>>> upstream/android-13
 #include <linux/irqflags.h>
 #include <linux/export.h>
 
@@ -19,12 +23,20 @@
  */
 void __mips_set_bit(unsigned long nr, volatile unsigned long *addr)
 {
+<<<<<<< HEAD
 	unsigned long *a = (unsigned long *)addr;
 	unsigned bit = nr & SZLONG_MASK;
 	unsigned long mask;
 	unsigned long flags;
 
 	a += nr >> SZLONG_LOG;
+=======
+	volatile unsigned long *a = &addr[BIT_WORD(nr)];
+	unsigned int bit = nr % BITS_PER_LONG;
+	unsigned long mask;
+	unsigned long flags;
+
+>>>>>>> upstream/android-13
 	mask = 1UL << bit;
 	raw_local_irq_save(flags);
 	*a |= mask;
@@ -41,12 +53,20 @@ EXPORT_SYMBOL(__mips_set_bit);
  */
 void __mips_clear_bit(unsigned long nr, volatile unsigned long *addr)
 {
+<<<<<<< HEAD
 	unsigned long *a = (unsigned long *)addr;
 	unsigned bit = nr & SZLONG_MASK;
 	unsigned long mask;
 	unsigned long flags;
 
 	a += nr >> SZLONG_LOG;
+=======
+	volatile unsigned long *a = &addr[BIT_WORD(nr)];
+	unsigned int bit = nr % BITS_PER_LONG;
+	unsigned long mask;
+	unsigned long flags;
+
+>>>>>>> upstream/android-13
 	mask = 1UL << bit;
 	raw_local_irq_save(flags);
 	*a &= ~mask;
@@ -63,12 +83,20 @@ EXPORT_SYMBOL(__mips_clear_bit);
  */
 void __mips_change_bit(unsigned long nr, volatile unsigned long *addr)
 {
+<<<<<<< HEAD
 	unsigned long *a = (unsigned long *)addr;
 	unsigned bit = nr & SZLONG_MASK;
 	unsigned long mask;
 	unsigned long flags;
 
 	a += nr >> SZLONG_LOG;
+=======
+	volatile unsigned long *a = &addr[BIT_WORD(nr)];
+	unsigned int bit = nr % BITS_PER_LONG;
+	unsigned long mask;
+	unsigned long flags;
+
+>>>>>>> upstream/android-13
 	mask = 1UL << bit;
 	raw_local_irq_save(flags);
 	*a ^= mask;
@@ -78,6 +106,7 @@ EXPORT_SYMBOL(__mips_change_bit);
 
 
 /**
+<<<<<<< HEAD
  * __mips_test_and_set_bit - Set a bit and return its old value.  This is
  * called by test_and_set_bit() if it cannot find a faster solution.
  * @nr: Bit to set
@@ -104,6 +133,8 @@ EXPORT_SYMBOL(__mips_test_and_set_bit);
 
 
 /**
+=======
+>>>>>>> upstream/android-13
  * __mips_test_and_set_bit_lock - Set a bit and return its old value.  This is
  * called by test_and_set_bit_lock() if it cannot find a faster solution.
  * @nr: Bit to set
@@ -112,13 +143,21 @@ EXPORT_SYMBOL(__mips_test_and_set_bit);
 int __mips_test_and_set_bit_lock(unsigned long nr,
 				 volatile unsigned long *addr)
 {
+<<<<<<< HEAD
 	unsigned long *a = (unsigned long *)addr;
 	unsigned bit = nr & SZLONG_MASK;
+=======
+	volatile unsigned long *a = &addr[BIT_WORD(nr)];
+	unsigned int bit = nr % BITS_PER_LONG;
+>>>>>>> upstream/android-13
 	unsigned long mask;
 	unsigned long flags;
 	int res;
 
+<<<<<<< HEAD
 	a += nr >> SZLONG_LOG;
+=======
+>>>>>>> upstream/android-13
 	mask = 1UL << bit;
 	raw_local_irq_save(flags);
 	res = (mask & *a) != 0;
@@ -137,13 +176,21 @@ EXPORT_SYMBOL(__mips_test_and_set_bit_lock);
  */
 int __mips_test_and_clear_bit(unsigned long nr, volatile unsigned long *addr)
 {
+<<<<<<< HEAD
 	unsigned long *a = (unsigned long *)addr;
 	unsigned bit = nr & SZLONG_MASK;
+=======
+	volatile unsigned long *a = &addr[BIT_WORD(nr)];
+	unsigned int bit = nr % BITS_PER_LONG;
+>>>>>>> upstream/android-13
 	unsigned long mask;
 	unsigned long flags;
 	int res;
 
+<<<<<<< HEAD
 	a += nr >> SZLONG_LOG;
+=======
+>>>>>>> upstream/android-13
 	mask = 1UL << bit;
 	raw_local_irq_save(flags);
 	res = (mask & *a) != 0;
@@ -162,13 +209,21 @@ EXPORT_SYMBOL(__mips_test_and_clear_bit);
  */
 int __mips_test_and_change_bit(unsigned long nr, volatile unsigned long *addr)
 {
+<<<<<<< HEAD
 	unsigned long *a = (unsigned long *)addr;
 	unsigned bit = nr & SZLONG_MASK;
+=======
+	volatile unsigned long *a = &addr[BIT_WORD(nr)];
+	unsigned int bit = nr % BITS_PER_LONG;
+>>>>>>> upstream/android-13
 	unsigned long mask;
 	unsigned long flags;
 	int res;
 
+<<<<<<< HEAD
 	a += nr >> SZLONG_LOG;
+=======
+>>>>>>> upstream/android-13
 	mask = 1UL << bit;
 	raw_local_irq_save(flags);
 	res = (mask & *a) != 0;

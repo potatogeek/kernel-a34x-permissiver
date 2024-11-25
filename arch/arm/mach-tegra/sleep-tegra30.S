@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2012, NVIDIA Corporation. All rights reserved.
  *
@@ -12,6 +13,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2012, NVIDIA Corporation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
@@ -29,7 +35,10 @@
 #define EMC_CFG				0xc
 #define EMC_ADR_CFG			0x10
 #define EMC_TIMING_CONTROL		0x28
+<<<<<<< HEAD
 #define EMC_REFRESH			0x70
+=======
+>>>>>>> upstream/android-13
 #define EMC_NOP				0xdc
 #define EMC_SELF_REF			0xe0
 #define EMC_MRW				0xe8
@@ -71,6 +80,12 @@
 #define CLK_RESET_PLLX_MISC3_IDDQ	3
 #define CLK_RESET_PLLM_MISC_IDDQ	5
 #define CLK_RESET_PLLC_MISC_IDDQ	26
+<<<<<<< HEAD
+=======
+#define CLK_RESET_PLLP_RESHIFT		0x528
+#define CLK_RESET_PLLP_RESHIFT_DEFAULT	0x3b
+#define CLK_RESET_PLLP_RESHIFT_ENABLE	0x3
+>>>>>>> upstream/android-13
 
 #define CLK_RESET_CLK_SOURCE_MSELECT	0x3b4
 
@@ -80,6 +95,16 @@
 
 #define TEGRA30_POWER_HOTPLUG_SHUTDOWN	(1 << 27) /* Hotplug shutdown */
 
+<<<<<<< HEAD
+=======
+#define PLLA_STORE_MASK			(1 << 0)
+#define PLLC_STORE_MASK			(1 << 1)
+#define PLLM_STORE_MASK			(1 << 2)
+#define PLLP_STORE_MASK			(1 << 3)
+#define PLLX_STORE_MASK			(1 << 4)
+#define PLLM_PMC_STORE_MASK		(1 << 5)
+
+>>>>>>> upstream/android-13
 .macro emc_device_mask, rd, base
 	ldr	\rd, [\base, #EMC_ADR_CFG]
 	tst	\rd, #0x1
@@ -96,7 +121,47 @@
 	bne	1001b
 .endm
 
+<<<<<<< HEAD
 .macro pll_enable, rd, r_car_base, pll_base, pll_misc
+=======
+.macro test_pll_state, rd, test_mask
+	ldr	\rd, tegra_pll_state
+	tst	\rd, #\test_mask
+.endm
+
+.macro store_pll_state, rd, tmp, r_car_base, pll_base, pll_mask
+	ldr	\rd, [\r_car_base, #\pll_base]
+	tst	\rd, #(1 << 30)
+	ldr	\rd, tegra_pll_state
+	biceq	\rd, \rd, #\pll_mask
+	orrne	\rd, \rd, #\pll_mask
+	adr	\tmp, tegra_pll_state
+	str	\rd, [\tmp]
+.endm
+
+.macro store_pllm_pmc_state, rd, tmp, pmc_base
+	ldr	\rd, [\pmc_base, #PMC_PLLP_WB0_OVERRIDE]
+	tst	\rd, #(1 << 12)
+	ldr	\rd, tegra_pll_state
+	biceq	\rd, \rd, #PLLM_PMC_STORE_MASK
+	orrne	\rd, \rd, #PLLM_PMC_STORE_MASK
+	adr	\tmp, tegra_pll_state
+	str	\rd, [\tmp]
+.endm
+
+.macro pllm_pmc_enable, rd, pmc_base
+	test_pll_state \rd, PLLM_PMC_STORE_MASK
+
+	ldrne	\rd, [\pmc_base, #PMC_PLLP_WB0_OVERRIDE]
+	orrne	\rd, \rd, #(1 << 12)
+	strne	\rd, [\pmc_base, #PMC_PLLP_WB0_OVERRIDE]
+.endm
+
+.macro pll_enable, rd, r_car_base, pll_base, pll_misc, test_mask
+	test_pll_state \rd, \test_mask
+	beq	1f
+
+>>>>>>> upstream/android-13
 	ldr	\rd, [\r_car_base, #\pll_base]
 	tst	\rd, #(1 << 30)
 	orreq	\rd, \rd, #(1 << 30)
@@ -111,13 +176,26 @@
 	orr	\rd, \rd, #(1 << 18)
 	str	\rd, [\r_car_base, #\pll_misc]
 	.endif
+<<<<<<< HEAD
 .endm
 
 .macro pll_locked, rd, r_car_base, pll_base
+=======
+1:
+.endm
+
+.macro pll_locked, rd, r_car_base, pll_base, test_mask
+	test_pll_state \rd, \test_mask
+	beq	2f
+>>>>>>> upstream/android-13
 1:
 	ldr	\rd, [\r_car_base, #\pll_base]
 	tst	\rd, #(1 << 27)
 	beq	1b
+<<<<<<< HEAD
+=======
+2:
+>>>>>>> upstream/android-13
 .endm
 
 .macro pll_iddq_exit, rd, car, iddq, iddq_bit
@@ -274,11 +352,19 @@ ENTRY(tegra30_sleep_core_finish)
 ENDPROC(tegra30_sleep_core_finish)
 
 /*
+<<<<<<< HEAD
  * tegra30_sleep_cpu_secondary_finish(unsigned long v2p)
  *
  * Enters LP2 on secondary CPU by exiting coherency and powergating the CPU.
  */
 ENTRY(tegra30_sleep_cpu_secondary_finish)
+=======
+ * tegra30_pm_secondary_cpu_suspend(unsigned long unused_arg)
+ *
+ * Enters LP2 on secondary CPU by exiting coherency and powergating the CPU.
+ */
+ENTRY(tegra30_pm_secondary_cpu_suspend)
+>>>>>>> upstream/android-13
 	mov	r7, lr
 
 	/* Flush and disable the L1 data cache */
@@ -290,7 +376,11 @@ ENTRY(tegra30_sleep_cpu_secondary_finish)
 	bl	tegra30_cpu_shutdown
 	mov	r0, #1                          @ never return here
 	ret	r7
+<<<<<<< HEAD
 ENDPROC(tegra30_sleep_cpu_secondary_finish)
+=======
+ENDPROC(tegra30_pm_secondary_cpu_suspend)
+>>>>>>> upstream/android-13
 
 /*
  * tegra30_tear_down_cpu
@@ -351,6 +441,7 @@ ENTRY(tegra30_lp1_reset)
 
 	/* enable PLLM via PMC */
 	mov32	r2, TEGRA_PMC_BASE
+<<<<<<< HEAD
 	ldr	r1, [r2, #PMC_PLLP_WB0_OVERRIDE]
 	orr	r1, r1, #(1 << 12)
 	str	r1, [r2, #PMC_PLLP_WB0_OVERRIDE]
@@ -358,12 +449,20 @@ ENTRY(tegra30_lp1_reset)
 	pll_enable r1, r0, CLK_RESET_PLLM_BASE, 0
 	pll_enable r1, r0, CLK_RESET_PLLC_BASE, 0
 	pll_enable r1, r0, CLK_RESET_PLLX_BASE, 0
+=======
+	pllm_pmc_enable r1, r2
+
+	pll_enable r1, r0, CLK_RESET_PLLM_BASE, 0, PLLM_STORE_MASK
+	pll_enable r1, r0, CLK_RESET_PLLC_BASE, 0, PLLC_STORE_MASK
+	pll_enable r1, r0, CLK_RESET_PLLX_BASE, 0, PLLX_STORE_MASK
+>>>>>>> upstream/android-13
 
 	b	_pll_m_c_x_done
 
 _no_pll_iddq_exit:
 	/* enable PLLM via PMC */
 	mov32	r2, TEGRA_PMC_BASE
+<<<<<<< HEAD
 	ldr	r1, [r2, #PMC_PLLP_WB0_OVERRIDE]
 	orr	r1, r1, #(1 << 12)
 	str	r1, [r2, #PMC_PLLP_WB0_OVERRIDE]
@@ -388,6 +487,39 @@ _pll_m_c_x_done:
 	ldr	r1, [r0, #CLK_RESET_PLLP_BASE]
 	bic	r1, r1, #(1<<31)	@ disable PllP bypass
 	str	r1, [r0, #CLK_RESET_PLLP_BASE]
+=======
+	pllm_pmc_enable r1, r2
+
+	pll_enable r1, r0, CLK_RESET_PLLM_BASE, CLK_RESET_PLLM_MISC, PLLM_STORE_MASK
+	pll_enable r1, r0, CLK_RESET_PLLC_BASE, CLK_RESET_PLLC_MISC, PLLC_STORE_MASK
+
+_pll_m_c_x_done:
+	pll_enable r1, r0, CLK_RESET_PLLP_BASE, CLK_RESET_PLLP_MISC, PLLP_STORE_MASK
+	pll_enable r1, r0, CLK_RESET_PLLA_BASE, CLK_RESET_PLLA_MISC, PLLA_STORE_MASK
+
+	pll_locked r1, r0, CLK_RESET_PLLM_BASE, PLLM_STORE_MASK
+	pll_locked r1, r0, CLK_RESET_PLLP_BASE, PLLP_STORE_MASK
+	pll_locked r1, r0, CLK_RESET_PLLA_BASE, PLLA_STORE_MASK
+	pll_locked r1, r0, CLK_RESET_PLLC_BASE, PLLC_STORE_MASK
+
+	/*
+	 * CPUFreq driver could select other PLL for CPU. PLLX will be
+	 * enabled by the Tegra30 CLK driver on an as-needed basis, see
+	 * tegra30_cpu_clock_resume().
+	 */
+	tegra_get_soc_id TEGRA_APB_MISC_BASE, r1
+	cmp	r1, #TEGRA30
+	beq	1f
+
+	pll_locked r1, r0, CLK_RESET_PLLX_BASE, PLLX_STORE_MASK
+
+	ldr	r1, [r0, #CLK_RESET_PLLP_BASE]
+	bic	r1, r1, #(1<<31)	@ disable PllP bypass
+	str	r1, [r0, #CLK_RESET_PLLP_BASE]
+
+	mov	r1, #CLK_RESET_PLLP_RESHIFT_DEFAULT
+	str	r1, [r0, #CLK_RESET_PLLP_RESHIFT]
+>>>>>>> upstream/android-13
 1:
 
 	mov32	r7, TEGRA_TMRUS_BASE
@@ -403,11 +535,16 @@ _pll_m_c_x_done:
 	ldr	r4, [r5, #0x1C]		@ restore SCLK_BURST
 	str	r4, [r0, #CLK_RESET_SCLK_BURST]
 
+<<<<<<< HEAD
 	cmp	r10, #TEGRA30
 	movweq	r4, #:lower16:((1 << 28) | (0x8))	@ burst policy is PLLX
 	movteq	r4, #:upper16:((1 << 28) | (0x8))
 	movwne	r4, #:lower16:((1 << 28) | (0xe))
 	movtne	r4, #:upper16:((1 << 28) | (0xe))
+=======
+	movw	r4, #:lower16:((1 << 28) | (0x4))	@ burst policy is PLLP
+	movt	r4, #:upper16:((1 << 28) | (0x4))
+>>>>>>> upstream/android-13
 	str	r4, [r0, #CLK_RESET_CCLK_BURST]
 
 	/* Restore pad power state to normal */
@@ -467,7 +604,10 @@ emc_wait_auto_cal_onetime:
 	cmp	r10, #TEGRA30
 	streq	r1, [r0, #EMC_NOP]
 	streq	r1, [r0, #EMC_NOP]
+<<<<<<< HEAD
 	streq	r1, [r0, #EMC_REFRESH]
+=======
+>>>>>>> upstream/android-13
 
 	emc_device_mask r1, r0
 
@@ -529,6 +669,11 @@ zcal_done:
 	ldr	r1, [r5, #0x0]		@ restore EMC_CFG
 	str	r1, [r0, #EMC_CFG]
 
+<<<<<<< HEAD
+=======
+	emc_timing_update r1, r0
+
+>>>>>>> upstream/android-13
 	/* Tegra114 had dual EMC channel, now config the other one */
 	cmp	r10, #TEGRA114
 	bne	__no_dual_emc_chanl
@@ -595,6 +740,12 @@ tegra_sdram_pad_save:
 	.long	0
 	.endr
 
+<<<<<<< HEAD
+=======
+tegra_pll_state:
+	.word	0x0
+
+>>>>>>> upstream/android-13
 /*
  * tegra30_tear_down_core
  *
@@ -643,6 +794,17 @@ tegra30_switch_cpu_to_clk32k:
 	add	r1, r1, #2
 	wait_until r1, r7, r9
 
+<<<<<<< HEAD
+=======
+	/* store enable-state of PLLs */
+	store_pll_state r0, r1, r5, CLK_RESET_PLLA_BASE, PLLA_STORE_MASK
+	store_pll_state r0, r1, r5, CLK_RESET_PLLC_BASE, PLLC_STORE_MASK
+	store_pll_state r0, r1, r5, CLK_RESET_PLLM_BASE, PLLM_STORE_MASK
+	store_pll_state r0, r1, r5, CLK_RESET_PLLP_BASE, PLLP_STORE_MASK
+	store_pll_state r0, r1, r5, CLK_RESET_PLLX_BASE, PLLX_STORE_MASK
+	store_pllm_pmc_state r0, r1, r4
+
+>>>>>>> upstream/android-13
 	/* disable PLLM via PMC in LP1 */
 	ldr	r0, [r4, #PMC_PLLP_WB0_OVERRIDE]
 	bic	r0, r0, #(1 << 12)
@@ -655,6 +817,13 @@ tegra30_switch_cpu_to_clk32k:
 	orrne	r0, r0, #(1 << 31)	@ enable PllP bypass on fast cluster
 	bic	r0, r0, #(1 << 30)
 	str	r0, [r5, #CLK_RESET_PLLP_BASE]
+<<<<<<< HEAD
+=======
+	beq	1f
+	mov	r0, #CLK_RESET_PLLP_RESHIFT_ENABLE
+	str	r0, [r5, #CLK_RESET_PLLP_RESHIFT]
+1:
+>>>>>>> upstream/android-13
 	ldr	r0, [r5, #CLK_RESET_PLLA_BASE]
 	bic	r0, r0, #(1 << 30)
 	str	r0, [r5, #CLK_RESET_PLLA_BASE]
@@ -670,8 +839,17 @@ tegra30_switch_cpu_to_clk32k:
 	pll_iddq_entry r1, r5, CLK_RESET_PLLX_MISC3, CLK_RESET_PLLX_MISC3_IDDQ
 _no_pll_in_iddq:
 
+<<<<<<< HEAD
 	/* switch to CLKS */
 	mov	r0, #0	/* brust policy = 32KHz */
+=======
+	/*
+	 * Switch to clk_s (32KHz); bits 28:31=0
+	 * Enable burst on CPU IRQ; bit 24=1
+	 * Set IRQ burst clock source to clk_m; bits 10:8=0
+	 */
+	mov	r0, #(1 << 24)
+>>>>>>> upstream/android-13
 	str	r0, [r5, #CLK_RESET_SCLK_BURST]
 
 	ret	lr
@@ -704,10 +882,19 @@ tegra30_enter_sleep:
 	dsb
 	ldr	r0, [r6, r2] /* memory barrier */
 
+<<<<<<< HEAD
 halted:
 	isb
 	dsb
 	wfi	/* CPU should be power gated here */
+=======
+	cmp	r10, #TEGRA30
+halted:
+	isb
+	dsb
+	wfine	/* CPU should be power gated here */
+	wfeeq
+>>>>>>> upstream/android-13
 
 	/* !!!FIXME!!! Implement halt failure handler */
 	b	halted

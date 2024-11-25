@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * sdhci-dove.c Support for SDHCI on Marvell's Dove SoC
  *
  * Author: Saeed Bishara <saeed@marvell.com>
  *	   Mike Rapoport <mike@compulab.co.il>
  * Based on sdhci-cns3xxx.c
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -117,6 +124,10 @@ MODULE_DEVICE_TABLE(of, sdhci_dove_of_match_table);
 static struct platform_driver sdhci_dove_driver = {
 	.driver		= {
 		.name	= "sdhci-dove",
+<<<<<<< HEAD
+=======
+		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
+>>>>>>> upstream/android-13
 		.pm	= &sdhci_pltfm_pmops,
 		.of_match_table = sdhci_dove_of_match_table,
 	},

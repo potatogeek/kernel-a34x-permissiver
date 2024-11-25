@@ -13,11 +13,18 @@
 #include "ext4_extents.h"
 
 /**
+<<<<<<< HEAD
  * get_ext_path - Find an extent path for designated logical block number.
  *
  * @inode:	an inode which is searched
  * @lblock:	logical block number to find an extent path
  * @path:	pointer to an extent path pointer (for output)
+=======
+ * get_ext_path() - Find an extent path for designated logical block number.
+ * @inode:	inode to be searched
+ * @lblock:	logical block number to find an extent path
+ * @ppath:	pointer to an extent path pointer (for output)
+>>>>>>> upstream/android-13
  *
  * ext4_find_extent wrapper. Return 0 on success, or a negative error value
  * on failure.
@@ -42,8 +49,14 @@ get_ext_path(struct inode *inode, ext4_lblk_t lblock,
 }
 
 /**
+<<<<<<< HEAD
  * ext4_double_down_write_data_sem - Acquire two inodes' write lock
  *                                   of i_data_sem
+=======
+ * ext4_double_down_write_data_sem() - write lock two inodes's i_data_sem
+ * @first: inode to be locked
+ * @second: inode to be locked
+>>>>>>> upstream/android-13
  *
  * Acquire write lock of i_data_sem of the two inodes
  */
@@ -215,7 +228,11 @@ mext_page_mkuptodate(struct page *page, unsigned from, unsigned to)
 	for (i = 0; i < nr; i++) {
 		bh = arr[i];
 		if (!bh_uptodate_or_lock(bh)) {
+<<<<<<< HEAD
 			err = bh_submit_read(bh);
+=======
+			err = ext4_read_bh(bh, 0, NULL);
+>>>>>>> upstream/android-13
 			if (err)
 				return err;
 		}
@@ -422,8 +439,13 @@ repair_branches:
 					   block_len_in_page, 0, &err2);
 	ext4_double_up_write_data_sem(orig_inode, donor_inode);
 	if (replaced_count != block_len_in_page) {
+<<<<<<< HEAD
 		EXT4_ERROR_INODE_BLOCK(orig_inode, (sector_t)(orig_blk_offset),
 				       "Unable to copy data block,"
+=======
+		ext4_error_inode_block(orig_inode, (sector_t)(orig_blk_offset),
+				       EIO, "Unable to copy data block,"
+>>>>>>> upstream/android-13
 				       " data will be lost.");
 		*err = -EIO;
 	}
@@ -593,11 +615,17 @@ ext4_move_extents(struct file *o_filp, struct file *d_filp, __u64 orig_blk,
 		return -EOPNOTSUPP;
 	}
 
+<<<<<<< HEAD
 	if ((IS_ENCRYPTED(orig_inode) || IS_ENCRYPTED(donor_inode))
 	 && (!fscrypt_inode_uses_inline_crypto(orig_inode) ||
 	     !fscrypt_inode_uses_inline_crypto(donor_inode))) {
 		ext4_msg(orig_inode->i_sb, KERN_ERR,
 			"Online defrag not supported for SW encrypted files");
+=======
+	if (IS_ENCRYPTED(orig_inode) || IS_ENCRYPTED(donor_inode)) {
+		ext4_msg(orig_inode->i_sb, KERN_ERR,
+			 "Online defrag not supported for encrypted files");
+>>>>>>> upstream/android-13
 		return -EOPNOTSUPP;
 	}
 
@@ -688,8 +716,13 @@ ext4_move_extents(struct file *o_filp, struct file *d_filp, __u64 orig_blk,
 
 out:
 	if (*moved_len) {
+<<<<<<< HEAD
 		ext4_discard_preallocations(orig_inode);
 		ext4_discard_preallocations(donor_inode);
+=======
+		ext4_discard_preallocations(orig_inode, 0);
+		ext4_discard_preallocations(donor_inode, 0);
+>>>>>>> upstream/android-13
 	}
 
 	ext4_ext_drop_refs(path);

@@ -1,4 +1,8 @@
 /* SPDX-License-Identifier: GPL-2.0 */
+<<<<<<< HEAD
+=======
+#include <stdlib.h>
+>>>>>>> upstream/android-13
 #if defined(__i386__) || defined(__x86_64__)
 #define barrier() asm volatile("" ::: "memory")
 #define virt_mb() __sync_synchronize()
@@ -15,6 +19,19 @@
 # define mb() abort()
 # define dma_rmb() abort()
 # define dma_wmb() abort()
+<<<<<<< HEAD
+=======
+#elif defined(__aarch64__)
+#define dmb(opt) asm volatile("dmb " #opt : : : "memory")
+#define virt_mb() __sync_synchronize()
+#define virt_rmb() dmb(ishld)
+#define virt_wmb() dmb(ishst)
+#define virt_store_mb(var, value)  do { WRITE_ONCE(var, value); dmb(ish); } while (0)
+/* Weak barriers should be used. If not - it's a bug */
+# define mb() abort()
+# define dma_rmb() abort()
+# define dma_wmb() abort()
+>>>>>>> upstream/android-13
 #else
 #error Please fill in barrier macros
 #endif

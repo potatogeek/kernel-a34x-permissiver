@@ -1,9 +1,16 @@
+<<<<<<< HEAD
 /*
  * max98926.c -- ALSA SoC MAX98926 driver
  * Copyright 2013-15 Maxim Integrated Products
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * max98926.c -- ALSA SoC MAX98926 driver
+ * Copyright 2013-15 Maxim Integrated Products
+>>>>>>> upstream/android-13
  */
 #include <linux/delay.h>
 #include <linux/i2c.h>
@@ -22,6 +29,7 @@ static const char * const max98926_boost_voltage_txt[] = {
 	"6.5V", "6.5V", "6.5V", "6.5V", "6.5V", "6.5V", "6.5V", "6.5V"
 };
 
+<<<<<<< HEAD
 static const char * const max98926_boost_current_txt[] = {
 	"0.6", "0.8", "1.0", "1.2", "1.4", "1.6", "1.8", "2.0",
 	"2.2", "2.4", "2.6", "2.8", "3.2", "3.6", "4.0", "4.4"
@@ -31,6 +39,8 @@ static const char *const max98926_dai_txt[] = {
 	"Left", "Right", "LeftRight", "LeftRightDiv2",
 };
 
+=======
+>>>>>>> upstream/android-13
 static const char *const max98926_pdm_ch_text[] = {
 	"Current", "Voltage",
 };
@@ -582,17 +592,28 @@ static const struct i2c_device_id max98926_i2c_id[] = {
 };
 MODULE_DEVICE_TABLE(i2c, max98926_i2c_id);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_OF
+>>>>>>> upstream/android-13
 static const struct of_device_id max98926_of_match[] = {
 	{ .compatible = "maxim,max98926", },
 	{ }
 };
 MODULE_DEVICE_TABLE(of, max98926_of_match);
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 static struct i2c_driver max98926_i2c_driver = {
 	.driver = {
 		.name = "max98926",
 		.of_match_table = of_match_ptr(max98926_of_match),
+<<<<<<< HEAD
 		.pm = NULL,
+=======
+>>>>>>> upstream/android-13
 	},
 	.probe	= max98926_i2c_probe,
 	.id_table = max98926_i2c_id,

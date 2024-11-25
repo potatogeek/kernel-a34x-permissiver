@@ -632,12 +632,15 @@ core_init:
 	bal	set_zephyr
 	nop
 
+<<<<<<< HEAD
 #if ENABLE_FPU==1
 	/* initialize the Floating point unit (both TPs) */
 	bal	init_fpu
 	nop
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	/* set low latency memory bus */
 	li	a0, 1
 	bal	set_llmb

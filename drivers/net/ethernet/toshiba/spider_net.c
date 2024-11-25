@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Network device driver for Cell Processor-Based Blade and Celleb platform
  *
@@ -6,6 +10,7 @@
  *
  * Authors : Utz Bacher <utz.bacher@de.ibm.com>
  *           Jens Osterkamp <Jens.Osterkamp@de.ibm.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +25,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/compiler.h>
@@ -159,7 +166,12 @@ spider_net_read_phy(struct net_device *netdev, int mii_id, int reg)
 
 	/* we don't use semaphores to wait for an SPIDER_NET_GPROPCMPINT
 	 * interrupt, as we poll for the completion of the read operation
+<<<<<<< HEAD
 	 * in spider_net_read_phy. Should take about 50 us */
+=======
+	 * in spider_net_read_phy. Should take about 50 us
+	 */
+>>>>>>> upstream/android-13
 	do {
 		readvalue = spider_net_read_reg(card, SPIDER_NET_GPCROPCMD);
 	} while (readvalue & SPIDER_NET_GPREXEC);
@@ -267,7 +279,11 @@ spider_net_set_promisc(struct spider_net_card *card)
 
 /**
  * spider_net_get_descr_status -- returns the status of a descriptor
+<<<<<<< HEAD
  * @descr: descriptor to look at
+=======
+ * @hwdescr: descriptor to look at
+>>>>>>> upstream/android-13
  *
  * returns the status as in the dmac_cmd_status field of the descriptor
  */
@@ -327,8 +343,11 @@ spider_net_init_chain(struct spider_net_card *card,
 	if (!chain->hwring)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	memset(chain->ring, 0, chain->num_desc * sizeof(struct spider_net_descr));
 
+=======
+>>>>>>> upstream/android-13
 	/* Set up the hardware pointers in each descriptor */
 	descr = chain->ring;
 	hwdescr = chain->hwring;
@@ -368,9 +387,16 @@ spider_net_free_rx_chain_contents(struct spider_net_card *card)
 	descr = card->rx_chain.head;
 	do {
 		if (descr->skb) {
+<<<<<<< HEAD
 			pci_unmap_single(card->pdev, descr->hwdescr->buf_addr,
 					 SPIDER_NET_MAX_FRAME,
 					 PCI_DMA_BIDIRECTIONAL);
+=======
+			dma_unmap_single(&card->pdev->dev,
+					 descr->hwdescr->buf_addr,
+					 SPIDER_NET_MAX_FRAME,
+					 DMA_BIDIRECTIONAL);
+>>>>>>> upstream/android-13
 			dev_kfree_skb(descr->skb);
 			descr->skb = NULL;
 		}
@@ -402,7 +428,12 @@ spider_net_prepare_rx_descr(struct spider_net_card *card,
 		(~(SPIDER_NET_RXBUF_ALIGN - 1));
 
 	/* and we need to have it 128 byte aligned, therefore we allocate a
+<<<<<<< HEAD
 	 * bit more */
+=======
+	 * bit more
+	 */
+>>>>>>> upstream/android-13
 	/* allocate an skb */
 	descr->skb = netdev_alloc_skb(card->netdev,
 				      bufsize + SPIDER_NET_RXBUF_ALIGN - 1);
@@ -424,9 +455,15 @@ spider_net_prepare_rx_descr(struct spider_net_card *card,
 	if (offset)
 		skb_reserve(descr->skb, SPIDER_NET_RXBUF_ALIGN - offset);
 	/* iommu-map the skb */
+<<<<<<< HEAD
 	buf = pci_map_single(card->pdev, descr->skb->data,
 			SPIDER_NET_MAX_FRAME, PCI_DMA_FROMDEVICE);
 	if (pci_dma_mapping_error(card->pdev, buf)) {
+=======
+	buf = dma_map_single(&card->pdev->dev, descr->skb->data,
+			     SPIDER_NET_MAX_FRAME, DMA_FROM_DEVICE);
+	if (dma_mapping_error(&card->pdev->dev, buf)) {
+>>>>>>> upstream/android-13
 		dev_kfree_skb_any(descr->skb);
 		descr->skb = NULL;
 		if (netif_msg_rx_err(card) && net_ratelimit())
@@ -503,7 +540,12 @@ spider_net_refill_rx_chain(struct spider_net_card *card)
 	/* one context doing the refill (and a second context seeing that
 	 * and omitting it) is ok. If called by NAPI, we'll be called again
 	 * as spider_net_decode_one_descr is called several times. If some
+<<<<<<< HEAD
 	 * interrupt calls us, the NAPI is about to clean up anyway. */
+=======
+	 * interrupt calls us, the NAPI is about to clean up anyway.
+	 */
+>>>>>>> upstream/android-13
 	if (!spin_trylock_irqsave(&chain->lock, flags))
 		return;
 
@@ -538,14 +580,24 @@ spider_net_alloc_rx_skbs(struct spider_net_card *card)
 
 	/* Put at least one buffer into the chain. if this fails,
 	 * we've got a problem. If not, spider_net_refill_rx_chain
+<<<<<<< HEAD
 	 * will do the rest at the end of this function. */
+=======
+	 * will do the rest at the end of this function.
+	 */
+>>>>>>> upstream/android-13
 	if (spider_net_prepare_rx_descr(card, chain->head))
 		goto error;
 	else
 		chain->head = chain->head->next;
 
 	/* This will allocate the rest of the rx buffers;
+<<<<<<< HEAD
 	 * if not, it's business as usual later on. */
+=======
+	 * if not, it's business as usual later on.
+	 */
+>>>>>>> upstream/android-13
 	spider_net_refill_rx_chain(card);
 	spider_net_enable_rxdmac(card);
 	return 0;
@@ -557,6 +609,10 @@ error:
 
 /**
  * spider_net_get_multicast_hash - generates hash for multicast filter table
+<<<<<<< HEAD
+=======
+ * @netdev: interface device structure
+>>>>>>> upstream/android-13
  * @addr: multicast address
  *
  * returns the hash value.
@@ -662,8 +718,14 @@ spider_net_prepare_tx_descr(struct spider_net_card *card,
 	dma_addr_t buf;
 	unsigned long flags;
 
+<<<<<<< HEAD
 	buf = pci_map_single(card->pdev, skb->data, skb->len, PCI_DMA_TODEVICE);
 	if (pci_dma_mapping_error(card->pdev, buf)) {
+=======
+	buf = dma_map_single(&card->pdev->dev, skb->data, skb->len,
+			     DMA_TO_DEVICE);
+	if (dma_mapping_error(&card->pdev->dev, buf)) {
+>>>>>>> upstream/android-13
 		if (netif_msg_tx_err(card) && net_ratelimit())
 			dev_err(&card->netdev->dev, "could not iommu-map packet (%p, %i). "
 				  "Dropping packet\n", skb->data, skb->len);
@@ -675,7 +737,12 @@ spider_net_prepare_tx_descr(struct spider_net_card *card,
 	descr = card->tx_chain.head;
 	if (descr->next == chain->tail->prev) {
 		spin_unlock_irqrestore(&chain->lock, flags);
+<<<<<<< HEAD
 		pci_unmap_single(card->pdev, buf, skb->len, PCI_DMA_TODEVICE);
+=======
+		dma_unmap_single(&card->pdev->dev, buf, skb->len,
+				 DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 	}
 	hwdescr = descr->hwdescr;
@@ -720,7 +787,12 @@ spider_net_set_low_watermark(struct spider_net_card *card)
 	int i;
 
 	/* Measure the length of the queue. Measurement does not
+<<<<<<< HEAD
 	 * need to be precise -- does not need a lock. */
+=======
+	 * need to be precise -- does not need a lock.
+	 */
+>>>>>>> upstream/android-13
 	while (descr != card->tx_chain.head) {
 		status = descr->hwdescr->dmac_cmd_status & SPIDER_NET_DESCR_NOT_IN_USE;
 		if (status == SPIDER_NET_DESCR_NOT_IN_USE)
@@ -800,7 +872,13 @@ spider_net_release_tx_chain(struct spider_net_card *card, int brutal)
 
 			/* fallthrough, if we release the descriptors
 			 * brutally (then we don't care about
+<<<<<<< HEAD
 			 * SPIDER_NET_DESCR_CARDOWNED) */
+=======
+			 * SPIDER_NET_DESCR_CARDOWNED)
+			 */
+			fallthrough;
+>>>>>>> upstream/android-13
 
 		case SPIDER_NET_DESCR_RESPONSE_ERROR:
 		case SPIDER_NET_DESCR_PROTECTION_ERROR:
@@ -828,8 +906,13 @@ spider_net_release_tx_chain(struct spider_net_card *card, int brutal)
 
 		/* unmap the skb */
 		if (skb) {
+<<<<<<< HEAD
 			pci_unmap_single(card->pdev, buf_addr, skb->len,
 					PCI_DMA_TODEVICE);
+=======
+			dma_unmap_single(&card->pdev->dev, buf_addr, skb->len,
+					 DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 			dev_consume_skb_any(skb);
 		}
 	}
@@ -904,7 +987,11 @@ spider_net_xmit(struct sk_buff *skb, struct net_device *netdev)
 
 /**
  * spider_net_cleanup_tx_ring - cleans up the TX ring
+<<<<<<< HEAD
  * @card: card structure
+=======
+ * @t: timer context used to obtain the pointer to net card data structure
+>>>>>>> upstream/android-13
  *
  * spider_net_cleanup_tx_ring is called by either the tx_timer
  * or from the NAPI polling routine.
@@ -961,7 +1048,12 @@ spider_net_pass_skb_up(struct spider_net_descr *descr,
 	skb_put(skb, hwdescr->valid_size);
 
 	/* the card seems to add 2 bytes of junk in front
+<<<<<<< HEAD
 	 * of the ethernet frame */
+=======
+	 * of the ethernet frame
+	 */
+>>>>>>> upstream/android-13
 #define SPIDER_MISALIGN		2
 	skb_pull(skb, SPIDER_MISALIGN);
 	skb->protocol = eth_type_trans(skb, netdev);
@@ -1077,6 +1169,10 @@ static void show_rx_chain(struct spider_net_card *card)
 
 /**
  * spider_net_resync_head_ptr - Advance head ptr past empty descrs
+<<<<<<< HEAD
+=======
+ * @card: card structure
+>>>>>>> upstream/android-13
  *
  * If the driver fails to keep up and empty the queue, then the
  * hardware wil run out of room to put incoming packets. This
@@ -1169,8 +1265,13 @@ spider_net_decode_one_descr(struct spider_net_card *card)
 	/* unmap descriptor */
 	hw_buf_addr = hwdescr->buf_addr;
 	hwdescr->buf_addr = 0xffffffff;
+<<<<<<< HEAD
 	pci_unmap_single(card->pdev, hw_buf_addr,
 			SPIDER_NET_MAX_FRAME, PCI_DMA_FROMDEVICE);
+=======
+	dma_unmap_single(&card->pdev->dev, hw_buf_addr, SPIDER_NET_MAX_FRAME,
+			 DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 
 	if ( (status == SPIDER_NET_DESCR_RESPONSE_ERROR) ||
 	     (status == SPIDER_NET_DESCR_PROTECTION_ERROR) ||
@@ -1234,7 +1335,11 @@ bad_desc:
 
 /**
  * spider_net_poll - NAPI poll function called by the stack to return packets
+<<<<<<< HEAD
  * @netdev: interface device structure
+=======
+ * @napi: napi device structure
+>>>>>>> upstream/android-13
  * @budget: number of packets we can pass to the stack at most
  *
  * returns 0 if no more packets available to the driver/stack. Returns 1,
@@ -1282,7 +1387,11 @@ static int spider_net_poll(struct napi_struct *napi, int budget)
 /**
  * spider_net_set_mac - sets the MAC of an interface
  * @netdev: interface device structure
+<<<<<<< HEAD
  * @ptr: pointer to new MAC address
+=======
+ * @p: pointer to new MAC address
+>>>>>>> upstream/android-13
  *
  * Returns 0 on success, <0 on failure. Currently, we don't support this
  * and will always return EOPNOTSUPP.
@@ -1354,6 +1463,11 @@ spider_net_link_reset(struct net_device *netdev)
  * spider_net_handle_error_irq - handles errors raised by an interrupt
  * @card: card structure
  * @status_reg: interrupt status register 0 (GHIINT0STS)
+<<<<<<< HEAD
+=======
+ * @error_reg1: interrupt status register 1 (GHIINT1STS)
+ * @error_reg2: interrupt status register 2 (GHIINT2STS)
+>>>>>>> upstream/android-13
  *
  * spider_net_handle_error_irq treats or ignores all error conditions
  * found when an interrupt is presented
@@ -1392,7 +1506,12 @@ spider_net_handle_error_irq(struct spider_net_card *card, u32 status_reg,
 		/* PHY read operation completed */
 		/* we don't use semaphores, as we poll for the completion
 		 * of the read operation in spider_net_read_phy. Should take
+<<<<<<< HEAD
 		 * about 50 us */
+=======
+		 * about 50 us
+		 */
+>>>>>>> upstream/android-13
 		show_error = 0;
 		break;
 	case SPIDER_NET_GPWFFINT:
@@ -1411,9 +1530,15 @@ spider_net_handle_error_irq(struct spider_net_card *card, u32 status_reg,
 		show_error = 0;
 		break;
 
+<<<<<<< HEAD
 	case SPIDER_NET_GDDDEN0INT: /* fallthrough */
 	case SPIDER_NET_GDCDEN0INT: /* fallthrough */
 	case SPIDER_NET_GDBDEN0INT: /* fallthrough */
+=======
+	case SPIDER_NET_GDDDEN0INT:
+	case SPIDER_NET_GDCDEN0INT:
+	case SPIDER_NET_GDBDEN0INT:
+>>>>>>> upstream/android-13
 	case SPIDER_NET_GDADEN0INT:
 		/* someone has set RX_DMA_EN to 0 */
 		show_error = 0;
@@ -1460,6 +1585,7 @@ spider_net_handle_error_irq(struct spider_net_card *card, u32 status_reg,
 	{
 	case SPIDER_NET_GTMFLLINT:
 		/* TX RAM full may happen on a usual case.
+<<<<<<< HEAD
 		 * Logging is not needed. */
 		show_error = 0;
 		break;
@@ -1467,6 +1593,16 @@ spider_net_handle_error_irq(struct spider_net_card *card, u32 status_reg,
 	case SPIDER_NET_GRFCFLLINT: /* fallthrough */
 	case SPIDER_NET_GRFBFLLINT: /* fallthrough */
 	case SPIDER_NET_GRFAFLLINT: /* fallthrough */
+=======
+		 * Logging is not needed.
+		 */
+		show_error = 0;
+		break;
+	case SPIDER_NET_GRFDFLLINT:
+	case SPIDER_NET_GRFCFLLINT:
+	case SPIDER_NET_GRFBFLLINT:
+	case SPIDER_NET_GRFAFLLINT:
+>>>>>>> upstream/android-13
 	case SPIDER_NET_GRMFLLINT:
 		/* Could happen when rx chain is full */
 		if (card->ignore_rx_ramfull == 0) {
@@ -1487,9 +1623,15 @@ spider_net_handle_error_irq(struct spider_net_card *card, u32 status_reg,
 		break;
 
 	/* chain end */
+<<<<<<< HEAD
 	case SPIDER_NET_GDDDCEINT: /* fallthrough */
 	case SPIDER_NET_GDCDCEINT: /* fallthrough */
 	case SPIDER_NET_GDBDCEINT: /* fallthrough */
+=======
+	case SPIDER_NET_GDDDCEINT:
+	case SPIDER_NET_GDCDCEINT:
+	case SPIDER_NET_GDBDCEINT:
+>>>>>>> upstream/android-13
 	case SPIDER_NET_GDADCEINT:
 		spider_net_resync_head_ptr(card);
 		spider_net_refill_rx_chain(card);
@@ -1500,9 +1642,15 @@ spider_net_handle_error_irq(struct spider_net_card *card, u32 status_reg,
 		break;
 
 	/* invalid descriptor */
+<<<<<<< HEAD
 	case SPIDER_NET_GDDINVDINT: /* fallthrough */
 	case SPIDER_NET_GDCINVDINT: /* fallthrough */
 	case SPIDER_NET_GDBINVDINT: /* fallthrough */
+=======
+	case SPIDER_NET_GDDINVDINT:
+	case SPIDER_NET_GDCINVDINT:
+	case SPIDER_NET_GDBINVDINT:
+>>>>>>> upstream/android-13
 	case SPIDER_NET_GDAINVDINT:
 		/* Could happen when rx chain is full */
 		spider_net_resync_head_ptr(card);
@@ -1627,7 +1775,11 @@ spider_net_interrupt(int irq, void *ptr)
  * spider_net_poll_controller - artificial interrupt for netconsole etc.
  * @netdev: interface device structure
  *
+<<<<<<< HEAD
  * see Documentation/networking/netconsole.txt
+=======
+ * see Documentation/networking/netconsole.rst
+>>>>>>> upstream/android-13
  */
 static void
 spider_net_poll_controller(struct net_device *netdev)
@@ -1704,7 +1856,12 @@ spider_net_enable_card(struct spider_net_card *card)
 {
 	int i;
 	/* the following array consists of (register),(value) pairs
+<<<<<<< HEAD
 	 * that are set in this function. A register of 0 ends the list */
+=======
+	 * that are set in this function. A register of 0 ends the list
+	 */
+>>>>>>> upstream/android-13
 	u32 regs[][2] = {
 		{ SPIDER_NET_GRESUMINTNUM, 0 },
 		{ SPIDER_NET_GREINTNUM, 0 },
@@ -1767,7 +1924,12 @@ spider_net_enable_card(struct spider_net_card *card)
 	spider_net_write_reg(card, SPIDER_NET_ECMODE, SPIDER_NET_ECMODE_VALUE);
 
 	/* set chain tail address for RX chains and
+<<<<<<< HEAD
 	 * enable DMA */
+=======
+	 * enable DMA
+	 */
+>>>>>>> upstream/android-13
 	spider_net_enable_rxchtails(card);
 	spider_net_enable_rxdmac(card);
 
@@ -1975,8 +2137,12 @@ init_firmware_failed:
 
 /**
  * spider_net_link_phy
+<<<<<<< HEAD
  * @data: used for pointer to card structure
  *
+=======
+ * @t: timer context used to obtain the pointer to net card data structure
+>>>>>>> upstream/android-13
  */
 static void spider_net_link_phy(struct timer_list *t)
 {
@@ -2006,7 +2172,12 @@ static void spider_net_link_phy(struct timer_list *t)
 
 		case BCM54XX_UNKNOWN:
 			/* copper, fiber with and without failed,
+<<<<<<< HEAD
 			 * retry from beginning */
+=======
+			 * retry from beginning
+			 */
+>>>>>>> upstream/android-13
 			spider_net_setup_aneg(card);
 			card->medium = BCM54XX_COPPER;
 			break;
@@ -2154,7 +2325,11 @@ spider_net_stop(struct net_device *netdev)
 /**
  * spider_net_tx_timeout_task - task scheduled by the watchdog timeout
  * function (to be called not under interrupt status)
+<<<<<<< HEAD
  * @data: data, is interface device structure
+=======
+ * @work: work context used to obtain the pointer to net card data structure
+>>>>>>> upstream/android-13
  *
  * called as task when tx hangs, resets interface (if interface is up)
  */
@@ -2188,11 +2363,19 @@ out:
 /**
  * spider_net_tx_timeout - called when the tx timeout watchdog kicks in.
  * @netdev: interface device structure
+<<<<<<< HEAD
+=======
+ * @txqueue: unused
+>>>>>>> upstream/android-13
  *
  * called, if tx hangs. Schedules a task that resets the interface
  */
 static void
+<<<<<<< HEAD
 spider_net_tx_timeout(struct net_device *netdev)
+=======
+spider_net_tx_timeout(struct net_device *netdev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct spider_net_card *card;
 
@@ -2211,7 +2394,11 @@ static const struct net_device_ops spider_net_ops = {
 	.ndo_start_xmit		= spider_net_xmit,
 	.ndo_set_rx_mode	= spider_net_set_multi,
 	.ndo_set_mac_address	= spider_net_set_mac,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= spider_net_do_ioctl,
+=======
+	.ndo_eth_ioctl		= spider_net_do_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_tx_timeout		= spider_net_tx_timeout,
 	.ndo_validate_addr	= eth_validate_addr,
 	/* HW VLAN */
@@ -2273,7 +2460,12 @@ spider_net_setup_netdev(struct spider_net_card *card)
 		netdev->features |= NETIF_F_RXCSUM;
 	netdev->features |= NETIF_F_IP_CSUM | NETIF_F_LLTX;
 	/* some time: NETIF_F_HW_VLAN_CTAG_TX | NETIF_F_HW_VLAN_CTAG_RX |
+<<<<<<< HEAD
 	 *		NETIF_F_HW_VLAN_CTAG_FILTER */
+=======
+	 *		NETIF_F_HW_VLAN_CTAG_FILTER
+	 */
+>>>>>>> upstream/android-13
 
 	/* MTU range: 64 - 2294 */
 	netdev->min_mtu = SPIDER_NET_MIN_MTU;
@@ -2323,11 +2515,17 @@ spider_net_alloc_card(void)
 {
 	struct net_device *netdev;
 	struct spider_net_card *card;
+<<<<<<< HEAD
 	size_t alloc_size;
 
 	alloc_size = sizeof(struct spider_net_card) +
 	   (tx_descriptors + rx_descriptors) * sizeof(struct spider_net_descr);
 	netdev = alloc_etherdev(alloc_size);
+=======
+
+	netdev = alloc_etherdev(struct_size(card, darray,
+					    tx_descriptors + rx_descriptors));
+>>>>>>> upstream/android-13
 	if (!netdev)
 		return NULL;
 

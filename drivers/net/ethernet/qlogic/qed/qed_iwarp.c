@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* QLogic qed NIC Driver
  * Copyright (c) 2015-2017  QLogic Corporation
  *
@@ -29,6 +30,14 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+=======
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause)
+/* QLogic qed NIC Driver
+ * Copyright (c) 2015-2017  QLogic Corporation
+ * Copyright (c) 2019-2020 Marvell International Ltd.
+ */
+
+>>>>>>> upstream/android-13
 #include <linux/if_ether.h>
 #include <linux/if_vlan.h>
 #include <linux/ip.h>
@@ -63,7 +72,16 @@ struct mpa_v2_hdr {
 #define MPA_REV2(_mpa_rev) ((_mpa_rev) == MPA_NEGOTIATION_TYPE_ENHANCED)
 
 #define QED_IWARP_INVALID_TCP_CID	0xffffffff
+<<<<<<< HEAD
 #define QED_IWARP_RCV_WND_SIZE_DEF	(256 * 1024)
+=======
+
+#define QED_IWARP_RCV_WND_SIZE_DEF_BB_2P (200 * 1024)
+#define QED_IWARP_RCV_WND_SIZE_DEF_BB_4P (100 * 1024)
+#define QED_IWARP_RCV_WND_SIZE_DEF_AH_2P (150 * 1024)
+#define QED_IWARP_RCV_WND_SIZE_DEF_AH_4P (90 * 1024)
+
+>>>>>>> upstream/android-13
 #define QED_IWARP_RCV_WND_SIZE_MIN	(0xffff)
 #define TIMESTAMP_HEADER_SIZE		(12)
 #define QED_IWARP_MAX_FIN_RT_DEFAULT	(2)
@@ -79,9 +97,14 @@ struct mpa_v2_hdr {
 #define QED_IWARP_DEF_KA_TIMEOUT	(1200000)	/* 20 min */
 #define QED_IWARP_DEF_KA_INTERVAL	(1000)		/* 1 sec */
 
+<<<<<<< HEAD
 static int qed_iwarp_async_event(struct qed_hwfn *p_hwfn,
 				 u8 fw_event_code, u16 echo,
 				 union event_ring_data *data,
+=======
+static int qed_iwarp_async_event(struct qed_hwfn *p_hwfn, u8 fw_event_code,
+				 __le16 echo, union event_ring_data *data,
+>>>>>>> upstream/android-13
 				 u8 fw_return_code);
 
 /* Override devinfo with iWARP specific values */
@@ -132,8 +155,13 @@ qed_iwarp_init_fw_ramrod(struct qed_hwfn *p_hwfn,
 			 struct iwarp_init_func_ramrod_data *p_ramrod)
 {
 	p_ramrod->iwarp.ll2_ooo_q_index =
+<<<<<<< HEAD
 		RESC_START(p_hwfn, QED_LL2_QUEUE) +
 		p_hwfn->p_rdma_info->iwarp.ll2_ooo_handle;
+=======
+	    RESC_START(p_hwfn, QED_LL2_RAM_QUEUE) +
+	    p_hwfn->p_rdma_info->iwarp.ll2_ooo_handle;
+>>>>>>> upstream/android-13
 
 	p_ramrod->tcp.max_fin_rt = QED_IWARP_MAX_FIN_RT_DEFAULT;
 
@@ -267,6 +295,7 @@ int qed_iwarp_create_qp(struct qed_hwfn *p_hwfn,
 	SET_FIELD(p_ramrod->flags,
 		  IWARP_CREATE_QP_RAMROD_DATA_SRQ_FLG, qp->use_srq);
 
+<<<<<<< HEAD
 	p_ramrod->pd = qp->pd;
 	p_ramrod->sq_num_pages = qp->sq_num_pages;
 	p_ramrod->rq_num_pages = qp->rq_num_pages;
@@ -275,6 +304,16 @@ int qed_iwarp_create_qp(struct qed_hwfn *p_hwfn,
 	p_ramrod->srq_id.opaque_fid = cpu_to_le16(p_hwfn->hw_info.opaque_fid);
 	p_ramrod->qp_handle_for_cqe.hi = cpu_to_le32(qp->qp_handle.hi);
 	p_ramrod->qp_handle_for_cqe.lo = cpu_to_le32(qp->qp_handle.lo);
+=======
+	p_ramrod->pd = cpu_to_le16(qp->pd);
+	p_ramrod->sq_num_pages = cpu_to_le16(qp->sq_num_pages);
+	p_ramrod->rq_num_pages = cpu_to_le16(qp->rq_num_pages);
+
+	p_ramrod->srq_id.srq_idx = cpu_to_le16(qp->srq_id);
+	p_ramrod->srq_id.opaque_fid = cpu_to_le16(p_hwfn->hw_info.opaque_fid);
+	p_ramrod->qp_handle_for_cqe.hi = qp->qp_handle.hi;
+	p_ramrod->qp_handle_for_cqe.lo = qp->qp_handle.lo;
+>>>>>>> upstream/android-13
 
 	p_ramrod->cq_cid_for_sq =
 	    cpu_to_le32((p_hwfn->hw_info.opaque_fid << 16) | qp->sq_cq_id);
@@ -309,6 +348,10 @@ static int qed_iwarp_modify_fw(struct qed_hwfn *p_hwfn, struct qed_rdma_qp *qp)
 	struct iwarp_modify_qp_ramrod_data *p_ramrod;
 	struct qed_sp_init_data init_data;
 	struct qed_spq_entry *p_ent;
+<<<<<<< HEAD
+=======
+	u16 flags, trans_to_state;
+>>>>>>> upstream/android-13
 	int rc;
 
 	/* Get SPQ entry */
@@ -324,12 +367,26 @@ static int qed_iwarp_modify_fw(struct qed_hwfn *p_hwfn, struct qed_rdma_qp *qp)
 		return rc;
 
 	p_ramrod = &p_ent->ramrod.iwarp_modify_qp;
+<<<<<<< HEAD
 	SET_FIELD(p_ramrod->flags, IWARP_MODIFY_QP_RAMROD_DATA_STATE_TRANS_EN,
 		  0x1);
 	if (qp->iwarp_state == QED_IWARP_QP_STATE_CLOSING)
 		p_ramrod->transition_to_state = IWARP_MODIFY_QP_STATE_CLOSING;
 	else
 		p_ramrod->transition_to_state = IWARP_MODIFY_QP_STATE_ERROR;
+=======
+
+	flags = le16_to_cpu(p_ramrod->flags);
+	SET_FIELD(flags, IWARP_MODIFY_QP_RAMROD_DATA_STATE_TRANS_EN, 0x1);
+	p_ramrod->flags = cpu_to_le16(flags);
+
+	if (qp->iwarp_state == QED_IWARP_QP_STATE_CLOSING)
+		trans_to_state = IWARP_MODIFY_QP_STATE_CLOSING;
+	else
+		trans_to_state = IWARP_MODIFY_QP_STATE_ERROR;
+
+	p_ramrod->transition_to_state = cpu_to_le16(trans_to_state);
+>>>>>>> upstream/android-13
 
 	rc = qed_spq_post(p_hwfn, p_ent, NULL);
 
@@ -377,7 +434,11 @@ qed_iwarp2roce_state(enum qed_iwarp_qp_state state)
 	}
 }
 
+<<<<<<< HEAD
 const static char *iwarp_state_names[] = {
+=======
+static const char * const iwarp_state_names[] = {
+>>>>>>> upstream/android-13
 	"IDLE",
 	"RTS",
 	"TERMINATE",
@@ -642,6 +703,10 @@ qed_iwarp_tcp_offload(struct qed_hwfn *p_hwfn, struct qed_iwarp_ep *ep)
 	dma_addr_t async_output_phys;
 	dma_addr_t in_pdata_phys;
 	u16 physical_q;
+<<<<<<< HEAD
+=======
+	u16 flags = 0;
+>>>>>>> upstream/android-13
 	u8 tcp_flags;
 	int rc;
 	int i;
@@ -694,6 +759,7 @@ qed_iwarp_tcp_offload(struct qed_hwfn *p_hwfn, struct qed_iwarp_ep *ep)
 	tcp->vlan_id = cpu_to_le16(ep->cm_info.vlan);
 
 	tcp_flags = p_hwfn->p_rdma_info->iwarp.tcp_flags;
+<<<<<<< HEAD
 	tcp->flags = 0;
 	SET_FIELD(tcp->flags, TCP_OFFLOAD_PARAMS_OPT2_TS_EN,
 		  !!(tcp_flags & QED_IWARP_TS_EN));
@@ -701,6 +767,16 @@ qed_iwarp_tcp_offload(struct qed_hwfn *p_hwfn, struct qed_iwarp_ep *ep)
 	SET_FIELD(tcp->flags, TCP_OFFLOAD_PARAMS_OPT2_DA_EN,
 		  !!(tcp_flags & QED_IWARP_DA_EN));
 
+=======
+
+	SET_FIELD(flags, TCP_OFFLOAD_PARAMS_OPT2_TS_EN,
+		  !!(tcp_flags & QED_IWARP_TS_EN));
+
+	SET_FIELD(flags, TCP_OFFLOAD_PARAMS_OPT2_DA_EN,
+		  !!(tcp_flags & QED_IWARP_DA_EN));
+
+	tcp->flags = cpu_to_le16(flags);
+>>>>>>> upstream/android-13
 	tcp->ip_version = ep->cm_info.ip_version;
 
 	for (i = 0; i < 4; i++) {
@@ -716,10 +792,17 @@ qed_iwarp_tcp_offload(struct qed_hwfn *p_hwfn, struct qed_iwarp_ep *ep)
 	tcp->tos_or_tc = 0;
 
 	tcp->max_rt_time = QED_IWARP_DEF_MAX_RT_TIME;
+<<<<<<< HEAD
 	tcp->cwnd = QED_IWARP_DEF_CWND_FACTOR *  tcp->mss;
 	tcp->ka_max_probe_cnt = QED_IWARP_DEF_KA_MAX_PROBE_CNT;
 	tcp->ka_timeout = QED_IWARP_DEF_KA_TIMEOUT;
 	tcp->ka_interval = QED_IWARP_DEF_KA_INTERVAL;
+=======
+	tcp->cwnd = cpu_to_le32(QED_IWARP_DEF_CWND_FACTOR * ep->mss);
+	tcp->ka_max_probe_cnt = QED_IWARP_DEF_KA_MAX_PROBE_CNT;
+	tcp->ka_timeout = cpu_to_le32(QED_IWARP_DEF_KA_TIMEOUT);
+	tcp->ka_interval = cpu_to_le32(QED_IWARP_DEF_KA_INTERVAL);
+>>>>>>> upstream/android-13
 
 	tcp->rcv_wnd_scale = (u8)p_hwfn->p_rdma_info->iwarp.rcv_wnd_scale;
 	tcp->connect_mode = ep->connect_mode;
@@ -750,6 +833,10 @@ qed_iwarp_mpa_received(struct qed_hwfn *p_hwfn, struct qed_iwarp_ep *ep)
 	union async_output *async_data;
 	u16 mpa_ord, mpa_ird;
 	u8 mpa_hdr_size = 0;
+<<<<<<< HEAD
+=======
+	u16 ulp_data_len;
+>>>>>>> upstream/android-13
 	u8 mpa_rev;
 
 	async_data = &ep->ep_buffer_virt->async_output;
@@ -813,8 +900,13 @@ qed_iwarp_mpa_received(struct qed_hwfn *p_hwfn, struct qed_iwarp_ep *ep)
 	/* Strip mpa v2 hdr from private data before sending to upper layer */
 	ep->cm_info.private_data = ep->ep_buffer_virt->in_pdata + mpa_hdr_size;
 
+<<<<<<< HEAD
 	ep->cm_info.private_data_len = async_data->mpa_request.ulp_data_len -
 				       mpa_hdr_size;
+=======
+	ulp_data_len = le16_to_cpu(async_data->mpa_request.ulp_data_len);
+	ep->cm_info.private_data_len = ulp_data_len - mpa_hdr_size;
+>>>>>>> upstream/android-13
 
 	params.event = QED_IWARP_EVENT_MPA_REQUEST;
 	params.cm_info = &ep->cm_info;
@@ -829,6 +921,10 @@ static int
 qed_iwarp_mpa_offload(struct qed_hwfn *p_hwfn, struct qed_iwarp_ep *ep)
 {
 	struct iwarp_mpa_offload_ramrod_data *p_mpa_ramrod;
+<<<<<<< HEAD
+=======
+	struct mpa_outgoing_params *common;
+>>>>>>> upstream/android-13
 	struct qed_iwarp_info *iwarp_info;
 	struct qed_sp_init_data init_data;
 	dma_addr_t async_output_phys;
@@ -837,6 +933,10 @@ qed_iwarp_mpa_offload(struct qed_hwfn *p_hwfn, struct qed_iwarp_ep *ep)
 	dma_addr_t in_pdata_phys;
 	struct qed_rdma_qp *qp;
 	bool reject;
+<<<<<<< HEAD
+=======
+	u32 val;
+>>>>>>> upstream/android-13
 	int rc;
 
 	if (!ep)
@@ -861,6 +961,7 @@ qed_iwarp_mpa_offload(struct qed_hwfn *p_hwfn, struct qed_iwarp_ep *ep)
 		return rc;
 
 	p_mpa_ramrod = &p_ent->ramrod.iwarp_mpa_offload;
+<<<<<<< HEAD
 	out_pdata_phys = ep->ep_buffer_phys +
 			 offsetof(struct qed_iwarp_ep_memory, out_pdata);
 	DMA_REGPAIR_LE(p_mpa_ramrod->common.outgoing_ulp_buffer.addr,
@@ -873,6 +974,23 @@ qed_iwarp_mpa_offload(struct qed_hwfn *p_hwfn, struct qed_iwarp_ep *ep)
 	p_mpa_ramrod->common.out_rq.ird = ep->cm_info.ird;
 
 	p_mpa_ramrod->tcp_cid = p_hwfn->hw_info.opaque_fid << 16 | ep->tcp_cid;
+=======
+	common = &p_mpa_ramrod->common;
+
+	out_pdata_phys = ep->ep_buffer_phys +
+			 offsetof(struct qed_iwarp_ep_memory, out_pdata);
+	DMA_REGPAIR_LE(common->outgoing_ulp_buffer.addr, out_pdata_phys);
+
+	val = ep->cm_info.private_data_len;
+	common->outgoing_ulp_buffer.len = cpu_to_le16(val);
+	common->crc_needed = p_hwfn->p_rdma_info->iwarp.crc_needed;
+
+	common->out_rq.ord = cpu_to_le32(ep->cm_info.ord);
+	common->out_rq.ird = cpu_to_le32(ep->cm_info.ird);
+
+	val = p_hwfn->hw_info.opaque_fid << 16 | ep->tcp_cid;
+	p_mpa_ramrod->tcp_cid = cpu_to_le32(val);
+>>>>>>> upstream/android-13
 
 	in_pdata_phys = ep->ep_buffer_phys +
 			offsetof(struct qed_iwarp_ep_memory, in_pdata);
@@ -894,11 +1012,19 @@ qed_iwarp_mpa_offload(struct qed_hwfn *p_hwfn, struct qed_iwarp_ep *ep)
 		p_mpa_ramrod->stats_counter_id =
 		    RESC_START(p_hwfn, QED_RDMA_STATS_QUEUE) + qp->stats_queue;
 	} else {
+<<<<<<< HEAD
 		p_mpa_ramrod->common.reject = 1;
 	}
 
 	iwarp_info = &p_hwfn->p_rdma_info->iwarp;
 	p_mpa_ramrod->rcv_wnd = iwarp_info->rcv_wnd_size;
+=======
+		common->reject = 1;
+	}
+
+	iwarp_info = &p_hwfn->p_rdma_info->iwarp;
+	p_mpa_ramrod->rcv_wnd = cpu_to_le16(iwarp_info->rcv_wnd_size);
+>>>>>>> upstream/android-13
 	p_mpa_ramrod->mode = ep->mpa_rev;
 	SET_FIELD(p_mpa_ramrod->rtr_pref,
 		  IWARP_MPA_OFFLOAD_RAMROD_DATA_RTR_SUPPORTED, ep->rtr_type);
@@ -936,9 +1062,14 @@ qed_iwarp_return_ep(struct qed_hwfn *p_hwfn, struct qed_iwarp_ep *ep)
 	}
 	spin_lock_bh(&p_hwfn->p_rdma_info->iwarp.iw_lock);
 
+<<<<<<< HEAD
 	list_del(&ep->list_entry);
 	list_add_tail(&ep->list_entry,
 		      &p_hwfn->p_rdma_info->iwarp.ep_free_list);
+=======
+	list_move_tail(&ep->list_entry,
+		       &p_hwfn->p_rdma_info->iwarp.ep_free_list);
+>>>>>>> upstream/android-13
 
 	spin_unlock_bh(&p_hwfn->p_rdma_info->iwarp.iw_lock);
 }
@@ -950,6 +1081,10 @@ qed_iwarp_parse_private_data(struct qed_hwfn *p_hwfn, struct qed_iwarp_ep *ep)
 	union async_output *async_data;
 	u16 mpa_ird, mpa_ord;
 	u8 mpa_data_size = 0;
+<<<<<<< HEAD
+=======
+	u16 ulp_data_len;
+>>>>>>> upstream/android-13
 
 	if (MPA_REV2(p_hwfn->p_rdma_info->iwarp.mpa_rev)) {
 		mpa_v2_params =
@@ -961,11 +1096,20 @@ qed_iwarp_parse_private_data(struct qed_hwfn *p_hwfn, struct qed_iwarp_ep *ep)
 		ep->cm_info.ird = (u8)(mpa_ord & MPA_V2_IRD_ORD_MASK);
 		ep->cm_info.ord = (u8)(mpa_ird & MPA_V2_IRD_ORD_MASK);
 	}
+<<<<<<< HEAD
 	async_data = &ep->ep_buffer_virt->async_output;
 
 	ep->cm_info.private_data = ep->ep_buffer_virt->in_pdata + mpa_data_size;
 	ep->cm_info.private_data_len = async_data->mpa_response.ulp_data_len -
 				       mpa_data_size;
+=======
+
+	async_data = &ep->ep_buffer_virt->async_output;
+	ep->cm_info.private_data = ep->ep_buffer_virt->in_pdata + mpa_data_size;
+
+	ulp_data_len = le16_to_cpu(async_data->mpa_response.ulp_data_len);
+	ep->cm_info.private_data_len = ulp_data_len - mpa_data_size;
+>>>>>>> upstream/android-13
 }
 
 static void
@@ -1303,6 +1447,17 @@ qed_iwarp_wait_cid_map_cleared(struct qed_hwfn *p_hwfn, struct qed_bmap *bmap)
 	prev_weight = weight;
 
 	while (weight) {
+<<<<<<< HEAD
+=======
+		/* If the HW device is during recovery, all resources are
+		 * immediately reset without receiving a per-cid indication
+		 * from HW. In this case we don't expect the cid_map to be
+		 * cleared.
+		 */
+		if (p_hwfn->cdev->recov_in_prog)
+			return 0;
+
+>>>>>>> upstream/android-13
 		msleep(QED_IWARP_MAX_CID_CLEAN_TIME);
 
 		weight = bitmap_weight(bmap->bitmap, bmap->max_count);
@@ -1630,8 +1785,11 @@ qed_iwarp_get_listener(struct qed_hwfn *p_hwfn,
 	static const u32 ip_zero[4] = { 0, 0, 0, 0 };
 	bool found = false;
 
+<<<<<<< HEAD
 	qed_iwarp_print_cm_info(p_hwfn, cm_info);
 
+=======
+>>>>>>> upstream/android-13
 	list_for_each_entry(listener,
 			    &p_hwfn->p_rdma_info->iwarp.listen_list,
 			    list_entry) {
@@ -1842,7 +2000,11 @@ qed_iwarp_mpa_classify(struct qed_hwfn *p_hwfn,
 		goto out;
 	}
 
+<<<<<<< HEAD
 	mpa_len = ntohs(*((u16 *)(mpa_data)));
+=======
+	mpa_len = ntohs(*(__force __be16 *)mpa_data);
+>>>>>>> upstream/android-13
 	fpdu->fpdu_length = QED_IWARP_FPDU_LEN_WITH_PAD(mpa_len);
 
 	if (fpdu->fpdu_length <= tcp_payload_len)
@@ -1864,11 +2026,21 @@ qed_iwarp_init_fpdu(struct qed_iwarp_ll2_buff *buf,
 		    struct unaligned_opaque_data *pkt_data,
 		    u16 tcp_payload_size, u8 placement_offset)
 {
+<<<<<<< HEAD
 	fpdu->mpa_buf = buf;
 	fpdu->pkt_hdr = buf->data_phys_addr + placement_offset;
 	fpdu->pkt_hdr_size = pkt_data->tcp_payload_offset;
 	fpdu->mpa_frag = buf->data_phys_addr + pkt_data->first_mpa_offset;
 	fpdu->mpa_frag_virt = (u8 *)(buf->data) + pkt_data->first_mpa_offset;
+=======
+	u16 first_mpa_offset = le16_to_cpu(pkt_data->first_mpa_offset);
+
+	fpdu->mpa_buf = buf;
+	fpdu->pkt_hdr = buf->data_phys_addr + placement_offset;
+	fpdu->pkt_hdr_size = pkt_data->tcp_payload_offset;
+	fpdu->mpa_frag = buf->data_phys_addr + first_mpa_offset;
+	fpdu->mpa_frag_virt = (u8 *)(buf->data) + first_mpa_offset;
+>>>>>>> upstream/android-13
 
 	if (tcp_payload_size == 1)
 		fpdu->incomplete_bytes = QED_IWARP_INVALID_FPDU_LENGTH;
@@ -1886,6 +2058,10 @@ qed_iwarp_cp_pkt(struct qed_hwfn *p_hwfn,
 		 struct unaligned_opaque_data *pkt_data,
 		 struct qed_iwarp_ll2_buff *buf, u16 tcp_payload_size)
 {
+<<<<<<< HEAD
+=======
+	u16 first_mpa_offset = le16_to_cpu(pkt_data->first_mpa_offset);
+>>>>>>> upstream/android-13
 	u8 *tmp_buf = p_hwfn->p_rdma_info->iwarp.mpa_intermediate_buf;
 	int rc;
 
@@ -1906,6 +2082,7 @@ qed_iwarp_cp_pkt(struct qed_hwfn *p_hwfn,
 	DP_VERBOSE(p_hwfn, QED_MSG_RDMA,
 		   "MPA ALIGN Copying fpdu: [%p, %d] [%p, %d]\n",
 		   fpdu->mpa_frag_virt, fpdu->mpa_frag_len,
+<<<<<<< HEAD
 		   (u8 *)(buf->data) + pkt_data->first_mpa_offset,
 		   tcp_payload_size);
 
@@ -1913,6 +2090,13 @@ qed_iwarp_cp_pkt(struct qed_hwfn *p_hwfn,
 	memcpy(tmp_buf + fpdu->mpa_frag_len,
 	       (u8 *)(buf->data) + pkt_data->first_mpa_offset,
 	       tcp_payload_size);
+=======
+		   (u8 *)(buf->data) + first_mpa_offset, tcp_payload_size);
+
+	memcpy(tmp_buf, fpdu->mpa_frag_virt, fpdu->mpa_frag_len);
+	memcpy(tmp_buf + fpdu->mpa_frag_len,
+	       (u8 *)(buf->data) + first_mpa_offset, tcp_payload_size);
+>>>>>>> upstream/android-13
 
 	rc = qed_iwarp_recycle_pkt(p_hwfn, fpdu, fpdu->mpa_buf);
 	if (rc)
@@ -2055,6 +2239,10 @@ qed_iwarp_send_fpdu(struct qed_hwfn *p_hwfn,
 		    u16 tcp_payload_size, enum qed_iwarp_mpa_pkt_type pkt_type)
 {
 	struct qed_ll2_tx_pkt_info tx_pkt;
+<<<<<<< HEAD
+=======
+	u16 first_mpa_offset;
+>>>>>>> upstream/android-13
 	u8 ll2_handle;
 	int rc;
 
@@ -2106,11 +2294,20 @@ qed_iwarp_send_fpdu(struct qed_hwfn *p_hwfn,
 	if (!fpdu->incomplete_bytes)
 		goto out;
 
+<<<<<<< HEAD
+=======
+	first_mpa_offset = le16_to_cpu(curr_pkt->first_mpa_offset);
+
+>>>>>>> upstream/android-13
 	/* Set third fragment to second part of the packet */
 	rc = qed_ll2_set_fragment_of_tx_packet(p_hwfn,
 					       ll2_handle,
 					       buf->data_phys_addr +
+<<<<<<< HEAD
 					       curr_pkt->first_mpa_offset,
+=======
+					       first_mpa_offset,
+>>>>>>> upstream/android-13
 					       fpdu->incomplete_bytes);
 out:
 	DP_VERBOSE(p_hwfn,
@@ -2131,12 +2328,21 @@ qed_iwarp_mpa_get_data(struct qed_hwfn *p_hwfn,
 {
 	u64 opaque_data;
 
+<<<<<<< HEAD
 	opaque_data = HILO_64(opaque_data1, opaque_data0);
 	*curr_pkt = *((struct unaligned_opaque_data *)&opaque_data);
 
 	curr_pkt->first_mpa_offset = curr_pkt->tcp_payload_offset +
 				     le16_to_cpu(curr_pkt->first_mpa_offset);
 	curr_pkt->cid = le32_to_cpu(curr_pkt->cid);
+=======
+	opaque_data = HILO_64(cpu_to_le32(opaque_data1),
+			      cpu_to_le32(opaque_data0));
+	*curr_pkt = *((struct unaligned_opaque_data *)&opaque_data);
+
+	le16_add_cpu(&curr_pkt->first_mpa_offset,
+		     curr_pkt->tcp_payload_offset);
+>>>>>>> upstream/android-13
 }
 
 /* This function is called when an unaligned or incomplete MPA packet arrives
@@ -2151,6 +2357,7 @@ qed_iwarp_process_mpa_pkt(struct qed_hwfn *p_hwfn,
 	struct qed_iwarp_ll2_buff *buf = mpa_buf->ll2_buf;
 	enum qed_iwarp_mpa_pkt_type pkt_type;
 	struct qed_iwarp_fpdu *fpdu;
+<<<<<<< HEAD
 	int rc = -EINVAL;
 	u8 *mpa_data;
 
@@ -2158,11 +2365,28 @@ qed_iwarp_process_mpa_pkt(struct qed_hwfn *p_hwfn,
 	if (!fpdu) { /* something corrupt with cid, post rx back */
 		DP_ERR(p_hwfn, "Invalid cid, drop and post back to rx cid=%x\n",
 		       curr_pkt->cid);
+=======
+	u16 cid, first_mpa_offset;
+	int rc = -EINVAL;
+	u8 *mpa_data;
+
+	cid = le32_to_cpu(curr_pkt->cid);
+
+	fpdu = qed_iwarp_get_curr_fpdu(p_hwfn, (u16)cid);
+	if (!fpdu) { /* something corrupt with cid, post rx back */
+		DP_ERR(p_hwfn, "Invalid cid, drop and post back to rx cid=%x\n",
+		       cid);
+>>>>>>> upstream/android-13
 		goto err;
 	}
 
 	do {
+<<<<<<< HEAD
 		mpa_data = ((u8 *)(buf->data) + curr_pkt->first_mpa_offset);
+=======
+		first_mpa_offset = le16_to_cpu(curr_pkt->first_mpa_offset);
+		mpa_data = ((u8 *)(buf->data) + first_mpa_offset);
+>>>>>>> upstream/android-13
 
 		pkt_type = qed_iwarp_mpa_classify(p_hwfn, fpdu,
 						  mpa_buf->tcp_payload_len,
@@ -2208,7 +2432,12 @@ qed_iwarp_process_mpa_pkt(struct qed_hwfn *p_hwfn,
 			}
 
 			mpa_buf->tcp_payload_len -= fpdu->fpdu_length;
+<<<<<<< HEAD
 			curr_pkt->first_mpa_offset += fpdu->fpdu_length;
+=======
+			le16_add_cpu(&curr_pkt->first_mpa_offset,
+				     fpdu->fpdu_length);
+>>>>>>> upstream/android-13
 			break;
 		case QED_IWARP_MPA_PKT_UNALIGNED:
 			qed_iwarp_update_fpdu_length(p_hwfn, fpdu, mpa_data);
@@ -2247,7 +2476,13 @@ qed_iwarp_process_mpa_pkt(struct qed_hwfn *p_hwfn,
 			}
 
 			mpa_buf->tcp_payload_len -= fpdu->incomplete_bytes;
+<<<<<<< HEAD
 			curr_pkt->first_mpa_offset += fpdu->incomplete_bytes;
+=======
+			le16_add_cpu(&curr_pkt->first_mpa_offset,
+				     fpdu->incomplete_bytes);
+
+>>>>>>> upstream/android-13
 			/* The framed PDU was sent - no more incomplete bytes */
 			fpdu->incomplete_bytes = 0;
 			break;
@@ -2282,8 +2517,13 @@ static void qed_iwarp_process_pending_pkts(struct qed_hwfn *p_hwfn)
 		if (rc == -EBUSY)
 			break;
 
+<<<<<<< HEAD
 		list_del(&mpa_buf->list_entry);
 		list_add_tail(&mpa_buf->list_entry, &iwarp_info->mpa_buf_list);
+=======
+		list_move_tail(&mpa_buf->list_entry,
+			       &iwarp_info->mpa_buf_list);
+>>>>>>> upstream/android-13
 
 		if (rc) {	/* different error, don't continue */
 			DP_NOTICE(p_hwfn, "process pkts failed rc=%d\n", rc);
@@ -2298,6 +2538,10 @@ qed_iwarp_ll2_comp_mpa_pkt(void *cxt, struct qed_ll2_comp_rx_data *data)
 	struct qed_iwarp_ll2_mpa_buf *mpa_buf;
 	struct qed_iwarp_info *iwarp_info;
 	struct qed_hwfn *p_hwfn = cxt;
+<<<<<<< HEAD
+=======
+	u16 first_mpa_offset;
+>>>>>>> upstream/android-13
 
 	iwarp_info = &p_hwfn->p_rdma_info->iwarp;
 	mpa_buf = list_first_entry(&iwarp_info->mpa_buf_list,
@@ -2311,17 +2555,33 @@ qed_iwarp_ll2_comp_mpa_pkt(void *cxt, struct qed_ll2_comp_rx_data *data)
 	qed_iwarp_mpa_get_data(p_hwfn, &mpa_buf->data,
 			       data->opaque_data_0, data->opaque_data_1);
 
+<<<<<<< HEAD
 	DP_VERBOSE(p_hwfn,
 		   QED_MSG_RDMA,
 		   "LL2 MPA CompRx payload_len:0x%x\tfirst_mpa_offset:0x%x\ttcp_payload_offset:0x%x\tflags:0x%x\tcid:0x%x\n",
 		   data->length.packet_length, mpa_buf->data.first_mpa_offset,
+=======
+	first_mpa_offset = le16_to_cpu(mpa_buf->data.first_mpa_offset);
+
+	DP_VERBOSE(p_hwfn,
+		   QED_MSG_RDMA,
+		   "LL2 MPA CompRx payload_len:0x%x\tfirst_mpa_offset:0x%x\ttcp_payload_offset:0x%x\tflags:0x%x\tcid:0x%x\n",
+		   data->length.packet_length, first_mpa_offset,
+>>>>>>> upstream/android-13
 		   mpa_buf->data.tcp_payload_offset, mpa_buf->data.flags,
 		   mpa_buf->data.cid);
 
 	mpa_buf->ll2_buf = data->cookie;
 	mpa_buf->tcp_payload_len = data->length.packet_length -
+<<<<<<< HEAD
 				   mpa_buf->data.first_mpa_offset;
 	mpa_buf->data.first_mpa_offset += data->u.placement_offset;
+=======
+				   first_mpa_offset;
+
+	first_mpa_offset += data->u.placement_offset;
+	mpa_buf->data.first_mpa_offset = cpu_to_le16(first_mpa_offset);
+>>>>>>> upstream/android-13
 	mpa_buf->placement_offset = data->u.placement_offset;
 
 	list_add_tail(&mpa_buf->list_entry, &iwarp_info->mpa_buf_pending_list);
@@ -2520,19 +2780,35 @@ qed_iwarp_ll2_slowpath(void *cxt,
 	struct unaligned_opaque_data unalign_data;
 	struct qed_hwfn *p_hwfn = cxt;
 	struct qed_iwarp_fpdu *fpdu;
+<<<<<<< HEAD
+=======
+	u32 cid;
+>>>>>>> upstream/android-13
 
 	qed_iwarp_mpa_get_data(p_hwfn, &unalign_data,
 			       opaque_data_0, opaque_data_1);
 
+<<<<<<< HEAD
 	DP_VERBOSE(p_hwfn, QED_MSG_RDMA, "(0x%x) Flush fpdu\n",
 		   unalign_data.cid);
 
 	fpdu = qed_iwarp_get_curr_fpdu(p_hwfn, (u16)unalign_data.cid);
+=======
+	cid = le32_to_cpu(unalign_data.cid);
+
+	DP_VERBOSE(p_hwfn, QED_MSG_RDMA, "(0x%x) Flush fpdu\n", cid);
+
+	fpdu = qed_iwarp_get_curr_fpdu(p_hwfn, (u16)cid);
+>>>>>>> upstream/android-13
 	if (fpdu)
 		memset(fpdu, 0, sizeof(*fpdu));
 }
 
+<<<<<<< HEAD
 static int qed_iwarp_ll2_stop(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt)
+=======
+static int qed_iwarp_ll2_stop(struct qed_hwfn *p_hwfn)
+>>>>>>> upstream/android-13
 {
 	struct qed_iwarp_info *iwarp_info = &p_hwfn->p_rdma_info->iwarp;
 	int rc = 0;
@@ -2567,8 +2843,14 @@ static int qed_iwarp_ll2_stop(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt)
 		iwarp_info->ll2_mpa_handle = QED_IWARP_HANDLE_INVAL;
 	}
 
+<<<<<<< HEAD
 	qed_llh_remove_mac_filter(p_hwfn,
 				  p_ptt, p_hwfn->p_rdma_info->iwarp.mac_addr);
+=======
+	qed_llh_remove_mac_filter(p_hwfn->cdev, 0,
+				  p_hwfn->p_rdma_info->iwarp.mac_addr);
+
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -2613,7 +2895,11 @@ qed_iwarp_ll2_alloc_buffers(struct qed_hwfn *p_hwfn,
 static int
 qed_iwarp_ll2_start(struct qed_hwfn *p_hwfn,
 		    struct qed_rdma_start_in_params *params,
+<<<<<<< HEAD
 		    struct qed_ptt *p_ptt)
+=======
+		    u32 rcv_wnd_size)
+>>>>>>> upstream/android-13
 {
 	struct qed_iwarp_info *iwarp_info;
 	struct qed_ll2_acquire_data data;
@@ -2632,7 +2918,11 @@ qed_iwarp_ll2_start(struct qed_hwfn *p_hwfn,
 
 	ether_addr_copy(p_hwfn->p_rdma_info->iwarp.mac_addr, params->mac_addr);
 
+<<<<<<< HEAD
 	rc = qed_llh_add_mac_filter(p_hwfn, p_ptt, params->mac_addr);
+=======
+	rc = qed_llh_add_mac_filter(p_hwfn->cdev, 0, params->mac_addr);
+>>>>>>> upstream/android-13
 	if (rc)
 		return rc;
 
@@ -2646,6 +2936,11 @@ qed_iwarp_ll2_start(struct qed_hwfn *p_hwfn,
 
 	memset(&data, 0, sizeof(data));
 	data.input.conn_type = QED_LL2_TYPE_IWARP;
+<<<<<<< HEAD
+=======
+	/* SYN will use ctx based queues */
+	data.input.rx_conn_type = QED_LL2_RX_TYPE_CTX;
+>>>>>>> upstream/android-13
 	data.input.mtu = params->max_mtu;
 	data.input.rx_num_desc = QED_IWARP_LL2_SYN_RX_SIZE;
 	data.input.tx_num_desc = QED_IWARP_LL2_SYN_TX_SIZE;
@@ -2658,7 +2953,11 @@ qed_iwarp_ll2_start(struct qed_hwfn *p_hwfn,
 	rc = qed_ll2_acquire_connection(p_hwfn, &data);
 	if (rc) {
 		DP_NOTICE(p_hwfn, "Failed to acquire LL2 connection\n");
+<<<<<<< HEAD
 		qed_llh_remove_mac_filter(p_hwfn, p_ptt, params->mac_addr);
+=======
+		qed_llh_remove_mac_filter(p_hwfn->cdev, 0, params->mac_addr);
+>>>>>>> upstream/android-13
 		return rc;
 	}
 
@@ -2678,9 +2977,17 @@ qed_iwarp_ll2_start(struct qed_hwfn *p_hwfn,
 
 	/* Start OOO connection */
 	data.input.conn_type = QED_LL2_TYPE_OOO;
+<<<<<<< HEAD
 	data.input.mtu = params->max_mtu;
 
 	n_ooo_bufs = (QED_IWARP_MAX_OOO * QED_IWARP_RCV_WND_SIZE_DEF) /
+=======
+	/* OOO/unaligned will use legacy ll2 queues (ram based) */
+	data.input.rx_conn_type = QED_LL2_RX_TYPE_LEGACY;
+	data.input.mtu = params->max_mtu;
+
+	n_ooo_bufs = (QED_IWARP_MAX_OOO * rcv_wnd_size) /
+>>>>>>> upstream/android-13
 		     iwarp_info->max_mtu;
 	n_ooo_bufs = min_t(u32, n_ooo_bufs, QED_IWARP_LL2_OOO_MAX_RX_SIZE);
 
@@ -2770,21 +3077,50 @@ qed_iwarp_ll2_start(struct qed_hwfn *p_hwfn,
 			      &iwarp_info->mpa_buf_list);
 	return rc;
 err:
+<<<<<<< HEAD
 	qed_iwarp_ll2_stop(p_hwfn, p_ptt);
+=======
+	qed_iwarp_ll2_stop(p_hwfn);
+>>>>>>> upstream/android-13
 
 	return rc;
 }
 
+<<<<<<< HEAD
 int qed_iwarp_setup(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt,
 		    struct qed_rdma_start_in_params *params)
 {
 	struct qed_iwarp_info *iwarp_info;
+=======
+static struct {
+	u32 two_ports;
+	u32 four_ports;
+} qed_iwarp_rcv_wnd_size[MAX_CHIP_IDS] = {
+	{QED_IWARP_RCV_WND_SIZE_DEF_BB_2P, QED_IWARP_RCV_WND_SIZE_DEF_BB_4P},
+	{QED_IWARP_RCV_WND_SIZE_DEF_AH_2P, QED_IWARP_RCV_WND_SIZE_DEF_AH_4P}
+};
+
+int qed_iwarp_setup(struct qed_hwfn *p_hwfn,
+		    struct qed_rdma_start_in_params *params)
+{
+	struct qed_dev *cdev = p_hwfn->cdev;
+	struct qed_iwarp_info *iwarp_info;
+	enum chip_ids chip_id;
+>>>>>>> upstream/android-13
 	u32 rcv_wnd_size;
 
 	iwarp_info = &p_hwfn->p_rdma_info->iwarp;
 
 	iwarp_info->tcp_flags = QED_IWARP_TS_EN;
+<<<<<<< HEAD
 	rcv_wnd_size = QED_IWARP_RCV_WND_SIZE_DEF;
+=======
+
+	chip_id = QED_IS_BB(cdev) ? CHIP_BB : CHIP_K2;
+	rcv_wnd_size = (qed_device_num_ports(cdev) == 4) ?
+		qed_iwarp_rcv_wnd_size[chip_id].four_ports :
+		qed_iwarp_rcv_wnd_size[chip_id].two_ports;
+>>>>>>> upstream/android-13
 
 	/* value 0 is used for ilog2(QED_IWARP_RCV_WND_SIZE_MIN) */
 	iwarp_info->rcv_wnd_scale = ilog2(rcv_wnd_size) -
@@ -2807,10 +3143,17 @@ int qed_iwarp_setup(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt,
 				  qed_iwarp_async_event);
 	qed_ooo_setup(p_hwfn);
 
+<<<<<<< HEAD
 	return qed_iwarp_ll2_start(p_hwfn, params, p_ptt);
 }
 
 int qed_iwarp_stop(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt)
+=======
+	return qed_iwarp_ll2_start(p_hwfn, params, rcv_wnd_size);
+}
+
+int qed_iwarp_stop(struct qed_hwfn *p_hwfn)
+>>>>>>> upstream/android-13
 {
 	int rc;
 
@@ -2819,9 +3162,13 @@ int qed_iwarp_stop(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt)
 	if (rc)
 		return rc;
 
+<<<<<<< HEAD
 	qed_spq_unregister_async_cb(p_hwfn, PROTOCOLID_IWARP);
 
 	return qed_iwarp_ll2_stop(p_hwfn, p_ptt);
+=======
+	return qed_iwarp_ll2_stop(p_hwfn);
+>>>>>>> upstream/android-13
 }
 
 static void qed_iwarp_qp_in_error(struct qed_hwfn *p_hwfn,
@@ -3018,9 +3365,14 @@ qed_iwarp_check_ep_ok(struct qed_hwfn *p_hwfn, struct qed_iwarp_ep *ep)
 	return true;
 }
 
+<<<<<<< HEAD
 static int qed_iwarp_async_event(struct qed_hwfn *p_hwfn,
 				 u8 fw_event_code, u16 echo,
 				 union event_ring_data *data,
+=======
+static int qed_iwarp_async_event(struct qed_hwfn *p_hwfn, u8 fw_event_code,
+				 __le16 echo, union event_ring_data *data,
+>>>>>>> upstream/android-13
 				 u8 fw_return_code)
 {
 	struct qed_rdma_events events = p_hwfn->p_rdma_info->events;

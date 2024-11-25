@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 Sven Schnelle <svens@stackframe.org>
  *
@@ -6,6 +7,10 @@
  * published by the Free Software Foundation.
  *
  */
+=======
+// SPDX-License-Identifier: GPL-2.0
+// Copyright (C) 2012 Sven Schnelle <svens@stackframe.org>
+>>>>>>> upstream/android-13
 
 #include <linux/platform_device.h>
 #include <linux/module.h>
@@ -29,6 +34,7 @@
 #define DS2404_COPY_SCRATCHPAD_CMD 0x55
 #define DS2404_READ_MEMORY_CMD 0xf0
 
+<<<<<<< HEAD
 struct ds2404;
 
 struct ds2404_chip_ops {
@@ -37,6 +43,8 @@ struct ds2404_chip_ops {
 	void (*unmap_io)(struct ds2404 *chip);
 };
 
+=======
+>>>>>>> upstream/android-13
 #define DS2404_RST	0
 #define DS2404_CLK	1
 #define DS2404_DQ	2
@@ -48,7 +56,10 @@ struct ds2404_gpio {
 
 struct ds2404 {
 	struct ds2404_gpio *gpio;
+<<<<<<< HEAD
 	const struct ds2404_chip_ops *ops;
+=======
+>>>>>>> upstream/android-13
 	struct rtc_device *rtc;
 };
 
@@ -87,7 +98,11 @@ err_request:
 	return err;
 }
 
+<<<<<<< HEAD
 static void ds2404_gpio_unmap(struct ds2404 *chip)
+=======
+static void ds2404_gpio_unmap(void *data)
+>>>>>>> upstream/android-13
 {
 	int i;
 
@@ -95,11 +110,14 @@ static void ds2404_gpio_unmap(struct ds2404 *chip)
 		gpio_free(ds2404_gpio[i].gpio);
 }
 
+<<<<<<< HEAD
 static const struct ds2404_chip_ops ds2404_gpio_ops = {
 	.map_io		= ds2404_gpio_map,
 	.unmap_io	= ds2404_gpio_unmap,
 };
 
+=======
+>>>>>>> upstream/android-13
 static void ds2404_reset(struct device *dev)
 {
 	gpio_set_value(ds2404_gpio[DS2404_RST].gpio, 0);
@@ -202,6 +220,7 @@ static void ds2404_enable_osc(struct device *dev)
 static int ds2404_read_time(struct device *dev, struct rtc_time *dt)
 {
 	unsigned long time = 0;
+<<<<<<< HEAD
 
 	ds2404_read_memory(dev, 0x203, 4, (u8 *)&time);
 	time = le32_to_cpu(time);
@@ -213,13 +232,31 @@ static int ds2404_read_time(struct device *dev, struct rtc_time *dt)
 static int ds2404_set_mmss(struct device *dev, unsigned long secs)
 {
 	u32 time = cpu_to_le32(secs);
+=======
+	__le32 hw_time = 0;
+
+	ds2404_read_memory(dev, 0x203, 4, (u8 *)&hw_time);
+	time = le32_to_cpu(hw_time);
+
+	rtc_time64_to_tm(time, dt);
+	return 0;
+}
+
+static int ds2404_set_time(struct device *dev, struct rtc_time *dt)
+{
+	u32 time = cpu_to_le32(rtc_tm_to_time64(dt));
+>>>>>>> upstream/android-13
 	ds2404_write_memory(dev, 0x203, 4, (u8 *)&time);
 	return 0;
 }
 
 static const struct rtc_class_ops ds2404_rtc_ops = {
 	.read_time	= ds2404_read_time,
+<<<<<<< HEAD
 	.set_mmss	= ds2404_set_mmss,
+=======
+	.set_time	= ds2404_set_time,
+>>>>>>> upstream/android-13
 };
 
 static int rtc_probe(struct platform_device *pdev)
@@ -232,11 +269,25 @@ static int rtc_probe(struct platform_device *pdev)
 	if (!chip)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	chip->ops = &ds2404_gpio_ops;
 
 	retval = chip->ops->map_io(chip, pdev, pdata);
 	if (retval)
 		goto err_chip;
+=======
+	chip->rtc = devm_rtc_allocate_device(&pdev->dev);
+	if (IS_ERR(chip->rtc))
+		return PTR_ERR(chip->rtc);
+
+	retval = ds2404_gpio_map(chip, pdev, pdata);
+	if (retval)
+		return retval;
+
+	retval = devm_add_action_or_reset(&pdev->dev, ds2404_gpio_unmap, chip);
+	if (retval)
+		return retval;
+>>>>>>> upstream/android-13
 
 	dev_info(&pdev->dev, "using GPIOs RST:%d, CLK:%d, DQ:%d\n",
 		 chip->gpio[DS2404_RST].gpio, chip->gpio[DS2404_CLK].gpio,
@@ -244,6 +295,7 @@ static int rtc_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, chip);
 
+<<<<<<< HEAD
 	chip->rtc = devm_rtc_device_register(&pdev->dev, "ds2404",
 					&ds2404_rtc_ops, THIS_MODULE);
 	if (IS_ERR(chip->rtc)) {
@@ -267,11 +319,25 @@ static int rtc_remove(struct platform_device *dev)
 	chip->ops->unmap_io(chip);
 
 	return 0;
+=======
+	chip->rtc->ops = &ds2404_rtc_ops;
+	chip->rtc->range_max = U32_MAX;
+
+	retval = devm_rtc_register_device(chip->rtc);
+	if (retval)
+		return retval;
+
+	ds2404_enable_osc(&pdev->dev);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static struct platform_driver rtc_device_driver = {
 	.probe	= rtc_probe,
+<<<<<<< HEAD
 	.remove = rtc_remove,
+=======
+>>>>>>> upstream/android-13
 	.driver = {
 		.name	= "ds2404",
 	},

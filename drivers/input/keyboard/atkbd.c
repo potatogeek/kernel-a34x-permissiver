@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * AT and PS/2 keyboard driver
  *
  * Copyright (c) 1999-2002 Vojtech Pavlik
  */
 
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
  */
+=======
+>>>>>>> upstream/android-13
 
 /*
  * This driver can handle standard AT keyboards and PS/2 keyboards in
@@ -28,6 +35,10 @@
 #include <linux/libps2.h>
 #include <linux/mutex.h>
 #include <linux/dmi.h>
+<<<<<<< HEAD
+=======
+#include <linux/property.h>
+>>>>>>> upstream/android-13
 
 #define DRIVER_DESC	"AT and PS/2 keyboard driver"
 
@@ -67,6 +78,14 @@ static bool atkbd_terminal;
 module_param_named(terminal, atkbd_terminal, bool, 0);
 MODULE_PARM_DESC(terminal, "Enable break codes on an IBM Terminal keyboard connected via AT/PS2");
 
+<<<<<<< HEAD
+=======
+#define MAX_FUNCTION_ROW_KEYS	24
+
+#define SCANCODE(keymap)	((keymap >> 16) & 0xFFFF)
+#define KEYCODE(keymap)		(keymap & 0xFFFF)
+
+>>>>>>> upstream/android-13
 /*
  * Scancode to keycode tables. These are just the default setting, and
  * are loadable via a userland utility.
@@ -234,6 +253,12 @@ struct atkbd {
 
 	/* Serializes reconnect(), attr->set() and event work */
 	struct mutex mutex;
+<<<<<<< HEAD
+=======
+
+	u32 function_row_physmap[MAX_FUNCTION_ROW_KEYS];
+	int num_function_row_keys;
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -287,6 +312,10 @@ static struct device_attribute atkbd_attr_##_name =				\
 	__ATTR(_name, S_IRUGO, atkbd_do_show_##_name, NULL);
 
 ATKBD_DEFINE_RO_ATTR(err_count);
+<<<<<<< HEAD
+=======
+ATKBD_DEFINE_RO_ATTR(function_row_physmap);
+>>>>>>> upstream/android-13
 
 static struct attribute *atkbd_attributes[] = {
 	&atkbd_attr_extra.attr,
@@ -296,11 +325,50 @@ static struct attribute *atkbd_attributes[] = {
 	&atkbd_attr_softrepeat.attr,
 	&atkbd_attr_softraw.attr,
 	&atkbd_attr_err_count.attr,
+<<<<<<< HEAD
 	NULL
 };
 
 static struct attribute_group atkbd_attribute_group = {
 	.attrs	= atkbd_attributes,
+=======
+	&atkbd_attr_function_row_physmap.attr,
+	NULL
+};
+
+static ssize_t atkbd_show_function_row_physmap(struct atkbd *atkbd, char *buf)
+{
+	ssize_t size = 0;
+	int i;
+
+	if (!atkbd->num_function_row_keys)
+		return 0;
+
+	for (i = 0; i < atkbd->num_function_row_keys; i++)
+		size += scnprintf(buf + size, PAGE_SIZE - size, "%02X ",
+				  atkbd->function_row_physmap[i]);
+	size += scnprintf(buf + size, PAGE_SIZE - size, "\n");
+	return size;
+}
+
+static umode_t atkbd_attr_is_visible(struct kobject *kobj,
+				struct attribute *attr, int i)
+{
+	struct device *dev = kobj_to_dev(kobj);
+	struct serio *serio = to_serio_port(dev);
+	struct atkbd *atkbd = serio_get_drvdata(serio);
+
+	if (attr == &atkbd_attr_function_row_physmap.attr &&
+	    !atkbd->num_function_row_keys)
+		return 0;
+
+	return attr->mode;
+}
+
+static struct attribute_group atkbd_attribute_group = {
+	.attrs	= atkbd_attributes,
+	.is_visible = atkbd_attr_is_visible,
+>>>>>>> upstream/android-13
 };
 
 static const unsigned int xl_table[] = {
@@ -401,6 +469,11 @@ static irqreturn_t atkbd_interrupt(struct serio *serio, unsigned char data,
 		if  (ps2_handle_response(&atkbd->ps2dev, data))
 			goto out;
 
+<<<<<<< HEAD
+=======
+	pm_wakeup_event(&serio->dev, 0);
+
+>>>>>>> upstream/android-13
 	if (!atkbd->enabled)
 		goto out;
 
@@ -841,7 +914,11 @@ static int atkbd_select_set(struct atkbd *atkbd, int target_set, int allow_extra
 	if (param[0] != 3) {
 		param[0] = 2;
 		if (ps2_command(ps2dev, param, ATKBD_CMD_SSCANSET))
+<<<<<<< HEAD
 		return 2;
+=======
+			return 2;
+>>>>>>> upstream/android-13
 	}
 
 	ps2_command(ps2dev, param, ATKBD_CMD_SETALL_MBR);
@@ -996,6 +1073,42 @@ static unsigned int atkbd_oqo_01plus_scancode_fixup(struct atkbd *atkbd,
 	return code;
 }
 
+<<<<<<< HEAD
+=======
+static int atkbd_get_keymap_from_fwnode(struct atkbd *atkbd)
+{
+	struct device *dev = &atkbd->ps2dev.serio->dev;
+	int i, n;
+	u32 *ptr;
+	u16 scancode, keycode;
+
+	/* Parse "linux,keymap" property */
+	n = device_property_count_u32(dev, "linux,keymap");
+	if (n <= 0 || n > ATKBD_KEYMAP_SIZE)
+		return -ENXIO;
+
+	ptr = kcalloc(n, sizeof(u32), GFP_KERNEL);
+	if (!ptr)
+		return -ENOMEM;
+
+	if (device_property_read_u32_array(dev, "linux,keymap", ptr, n)) {
+		dev_err(dev, "problem parsing FW keymap property\n");
+		kfree(ptr);
+		return -EINVAL;
+	}
+
+	memset(atkbd->keycode, 0, sizeof(atkbd->keycode));
+	for (i = 0; i < n; i++) {
+		scancode = SCANCODE(ptr[i]);
+		keycode = KEYCODE(ptr[i]);
+		atkbd->keycode[scancode] = keycode;
+	}
+
+	kfree(ptr);
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /*
  * atkbd_set_keycode_table() initializes keyboard's keycode table
  * according to the selected scancode set
@@ -1003,13 +1116,23 @@ static unsigned int atkbd_oqo_01plus_scancode_fixup(struct atkbd *atkbd,
 
 static void atkbd_set_keycode_table(struct atkbd *atkbd)
 {
+<<<<<<< HEAD
+=======
+	struct device *dev = &atkbd->ps2dev.serio->dev;
+>>>>>>> upstream/android-13
 	unsigned int scancode;
 	int i, j;
 
 	memset(atkbd->keycode, 0, sizeof(atkbd->keycode));
 	bitmap_zero(atkbd->force_release_mask, ATKBD_KEYMAP_SIZE);
 
+<<<<<<< HEAD
 	if (atkbd->translated) {
+=======
+	if (!atkbd_get_keymap_from_fwnode(atkbd)) {
+		dev_dbg(dev, "Using FW keymap\n");
+	} else if (atkbd->translated) {
+>>>>>>> upstream/android-13
 		for (i = 0; i < 128; i++) {
 			scancode = atkbd_unxlate_table[i];
 			atkbd->keycode[i] = atkbd_set2_keycode[scancode];
@@ -1123,6 +1246,25 @@ static void atkbd_set_device_attrs(struct atkbd *atkbd)
 	}
 }
 
+<<<<<<< HEAD
+=======
+static void atkbd_parse_fwnode_data(struct serio *serio)
+{
+	struct atkbd *atkbd = serio_get_drvdata(serio);
+	struct device *dev = &serio->dev;
+	int n;
+
+	/* Parse "function-row-physmap" property */
+	n = device_property_count_u32(dev, "function-row-physmap");
+	if (n > 0 && n <= MAX_FUNCTION_ROW_KEYS &&
+	    !device_property_read_u32_array(dev, "function-row-physmap",
+					    atkbd->function_row_physmap, n)) {
+		atkbd->num_function_row_keys = n;
+		dev_dbg(dev, "FW reported %d function-row key locations\n", n);
+	}
+}
+
+>>>>>>> upstream/android-13
 /*
  * atkbd_connect() is called when the serio module finds an interface
  * that isn't handled yet by an appropriate device driver. We check if
@@ -1150,7 +1292,11 @@ static int atkbd_connect(struct serio *serio, struct serio_driver *drv)
 
 	case SERIO_8042_XL:
 		atkbd->translated = true;
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case SERIO_8042:
 		if (serio->write)
@@ -1186,6 +1332,11 @@ static int atkbd_connect(struct serio *serio, struct serio_driver *drv)
 		atkbd->id = 0xab00;
 	}
 
+<<<<<<< HEAD
+=======
+	atkbd_parse_fwnode_data(serio);
+
+>>>>>>> upstream/android-13
 	atkbd_set_keycode_table(atkbd);
 	atkbd_set_device_attrs(atkbd);
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014-2015 Hisilicon Limited.
  *
@@ -5,6 +6,11 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2014-2015 Hisilicon Limited.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/etherdevice.h>
@@ -17,8 +23,11 @@
 #include "hns_dsaf_ppe.h"
 #include "hns_dsaf_rcb.h"
 
+<<<<<<< HEAD
 #define AE_NAME_PORT_ID_IDX 6
 
+=======
+>>>>>>> upstream/android-13
 static struct hns_mac_cb *hns_get_mac_cb(struct hnae_handle *handle)
 {
 	struct  hnae_vf_cb *vf_cb = hns_ae_get_vf_cb(handle);
@@ -468,8 +477,11 @@ static void hns_ae_adjust_link(struct hnae_handle *handle, int speed,
 	default:
 		break;
 	}
+<<<<<<< HEAD
 
 	return;
+=======
+>>>>>>> upstream/android-13
 }
 
 static void hns_ae_get_ring_bdnum_limit(struct hnae_queue *queue,
@@ -493,6 +505,7 @@ static void hns_ae_get_pauseparam(struct hnae_handle *handle,
 		hns_dsaf_get_rx_mac_pause_en(dsaf_dev, mac_cb->mac_id, rx_en);
 }
 
+<<<<<<< HEAD
 static int hns_ae_set_autoneg(struct hnae_handle *handle, u8 enable)
 {
 	assert(handle);
@@ -500,6 +513,8 @@ static int hns_ae_set_autoneg(struct hnae_handle *handle, u8 enable)
 	return hns_mac_set_autoneg(hns_get_mac_cb(handle), enable);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void hns_ae_set_promisc_mode(struct hnae_handle *handle, u32 en)
 {
 	struct hns_mac_cb *mac_cb = hns_get_mac_cb(handle);
@@ -508,6 +523,7 @@ static void hns_ae_set_promisc_mode(struct hnae_handle *handle, u32 en)
 	hns_mac_set_promisc(mac_cb, (u8)!!en);
 }
 
+<<<<<<< HEAD
 static int hns_ae_get_autoneg(struct hnae_handle *handle)
 {
 	u32     auto_neg;
@@ -519,6 +535,8 @@ static int hns_ae_get_autoneg(struct hnae_handle *handle)
 	return auto_neg;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int hns_ae_set_pauseparam(struct hnae_handle *handle,
 				 u32 autoneg, u32 rx_en, u32 tx_en)
 {
@@ -654,7 +672,11 @@ static void hns_ae_update_stats(struct hnae_handle *handle,
 	struct hnae_vf_cb *vf_cb = hns_ae_get_vf_cb(handle);
 	u64 tx_bytes = 0, rx_bytes = 0, tx_packets = 0, rx_packets = 0;
 	u64 rx_errors = 0, tx_errors = 0, tx_dropped = 0;
+<<<<<<< HEAD
 	u64 rx_missed_errors = 0;
+=======
+	u64 rx_missed_errors;
+>>>>>>> upstream/android-13
 
 	dsaf_dev = hns_ae_get_dsaf_dev(handle->dev);
 	if (!dsaf_dev)
@@ -971,8 +993,11 @@ static struct hnae_ae_ops hns_dsaf_ops = {
 	.set_loopback = hns_ae_config_loopback,
 	.get_ring_bdnum_limit = hns_ae_get_ring_bdnum_limit,
 	.get_pauseparam = hns_ae_get_pauseparam,
+<<<<<<< HEAD
 	.set_autoneg = hns_ae_set_autoneg,
 	.get_autoneg = hns_ae_get_autoneg,
+=======
+>>>>>>> upstream/android-13
 	.set_pauseparam = hns_ae_set_pauseparam,
 	.get_coalesce_usecs = hns_ae_get_coalesce_usecs,
 	.get_max_coalesced_frames = hns_ae_get_max_coalesced_frames,

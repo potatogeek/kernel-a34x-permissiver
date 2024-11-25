@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Copyright (c) 2000-2001 Vojtech Pavlik
  */
@@ -7,6 +11,7 @@
  */
 
 /*
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -20,6 +25,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/errno.h>
@@ -53,7 +60,11 @@ struct gunze {
 	char phys[32];
 };
 
+<<<<<<< HEAD
 static void gunze_process_packet(struct gunze* gunze)
+=======
+static void gunze_process_packet(struct gunze *gunze)
+>>>>>>> upstream/android-13
 {
 	struct input_dev *dev = gunze->dev;
 
@@ -72,7 +83,11 @@ static void gunze_process_packet(struct gunze* gunze)
 static irqreturn_t gunze_interrupt(struct serio *serio,
 		unsigned char data, unsigned int flags)
 {
+<<<<<<< HEAD
 	struct gunze* gunze = serio_get_drvdata(serio);
+=======
+	struct gunze *gunze = serio_get_drvdata(serio);
+>>>>>>> upstream/android-13
 
 	if (data == '\r') {
 		gunze_process_packet(gunze);

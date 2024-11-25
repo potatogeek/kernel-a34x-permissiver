@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2012, NVIDIA CORPORATION.  All rights reserved.
  *
@@ -12,6 +13,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2012, NVIDIA CORPORATION.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/io.h>
@@ -141,8 +147,11 @@ static struct cpu_clk_suspend_context {
 static void __iomem *clk_base;
 static void __iomem *pmc_base;
 
+<<<<<<< HEAD
 static DEFINE_SPINLOCK(emc_lock);
 
+=======
+>>>>>>> upstream/android-13
 #define TEGRA_INIT_DATA_MUX(_name, _parents, _offset,	\
 			    _clk_num, _gate_flags, _clk_id)	\
 	TEGRA_INIT_DATA(_name, NULL, NULL, _parents, _offset,	\
@@ -404,6 +413,11 @@ static struct tegra_clk_pll_params pll_x_params = {
 	.lock_delay = 300,
 	.freq_table = pll_x_freq_table,
 	.flags = TEGRA_PLL_HAS_CPCON | TEGRA_PLL_HAS_LOCK_ENABLE,
+<<<<<<< HEAD
+=======
+	.pre_rate_change = tegra_cclk_pre_pllx_rate_change,
+	.post_rate_change = tegra_cclk_post_pllx_rate_change,
+>>>>>>> upstream/android-13
 };
 
 static struct tegra_clk_pll_params pll_e_params = {
@@ -471,7 +485,10 @@ static struct tegra_devclk devclks[] __initdata = {
 	{ .con_id = "cdev1", .dt_id = TEGRA20_CLK_CDEV1 },
 	{ .con_id = "cdev2", .dt_id = TEGRA20_CLK_CDEV2 },
 	{ .con_id = "clk_32k", .dt_id = TEGRA20_CLK_CLK_32K },
+<<<<<<< HEAD
 	{ .con_id = "blink", .dt_id = TEGRA20_CLK_BLINK },
+=======
+>>>>>>> upstream/android-13
 	{ .con_id = "clk_m", .dt_id = TEGRA20_CLK_CLK_M },
 	{ .con_id = "pll_ref", .dt_id = TEGRA20_CLK_PLL_REF },
 	{ .dev_id = "tegra20-i2s.0", .dt_id = TEGRA20_CLK_I2S1 },
@@ -550,7 +567,10 @@ static struct tegra_clk tegra20_clks[tegra_clk_max] __initdata = {
 	[tegra_clk_csi] = { .dt_id = TEGRA20_CLK_CSI, .present = true },
 	[tegra_clk_isp] = { .dt_id = TEGRA20_CLK_ISP, .present = true },
 	[tegra_clk_clk_32k] = { .dt_id = TEGRA20_CLK_CLK_32K, .present = true },
+<<<<<<< HEAD
 	[tegra_clk_blink] = { .dt_id = TEGRA20_CLK_BLINK, .present = true },
+=======
+>>>>>>> upstream/android-13
 	[tegra_clk_hclk] = { .dt_id = TEGRA20_CLK_HCLK, .present = true },
 	[tegra_clk_pclk] = { .dt_id = TEGRA20_CLK_PCLK, .present = true },
 	[tegra_clk_pll_p_out1] = { .dt_id = TEGRA20_CLK_PLL_P_OUT1, .present = true },
@@ -717,9 +737,16 @@ static void tegra20_super_clk_init(void)
 	struct clk *clk;
 
 	/* CCLK */
+<<<<<<< HEAD
 	clk = tegra_clk_register_super_mux("cclk", cclk_parents,
 			      ARRAY_SIZE(cclk_parents), CLK_SET_RATE_PARENT,
 			      clk_base + CCLK_BURST_POLICY, 0, 4, 0, 0, NULL);
+=======
+	clk = tegra_clk_register_super_cclk("cclk", cclk_parents,
+			      ARRAY_SIZE(cclk_parents), CLK_SET_RATE_PARENT,
+			      clk_base + CCLK_BURST_POLICY, TEGRA20_SUPER_CLK,
+			      NULL);
+>>>>>>> upstream/android-13
 	clks[TEGRA20_CLK_CCLK] = clk;
 
 	/* SCLK */
@@ -771,7 +798,10 @@ static const char *pwm_parents[] = { "pll_p", "pll_c", "audio", "clk_m",
 static const char *mux_pllpcm_clkm[] = { "pll_p", "pll_c", "pll_m", "clk_m" };
 static const char *mux_pllpdc_clkm[] = { "pll_p", "pll_d_out0", "pll_c",
 					 "clk_m" };
+<<<<<<< HEAD
 static const char *mux_pllmcp_clkm[] = { "pll_m", "pll_c", "pll_p", "clk_m" };
+=======
+>>>>>>> upstream/android-13
 
 static struct tegra_periph_init_data tegra_periph_clk_list[] = {
 	TEGRA_INIT_DATA_MUX("i2s1", i2s1_parents,     CLK_SOURCE_I2S1,   11, TEGRA_PERIPH_ON_APB, TEGRA20_CLK_I2S1),
@@ -798,6 +828,7 @@ static struct tegra_periph_init_data tegra_periph_nodiv_clk_list[] = {
 	TEGRA_INIT_DATA_NODIV("disp2",	mux_pllpdc_clkm, CLK_SOURCE_DISP2, 30, 2, 26,  0, TEGRA20_CLK_DISP2),
 };
 
+<<<<<<< HEAD
 static void __init tegra20_emc_clk_init(void)
 {
 	struct clk *clk;
@@ -823,6 +854,8 @@ static void __init tegra20_emc_clk_init(void)
 	clks[TEGRA20_CLK_EMC] = clk;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void __init tegra20_periph_clk_init(void)
 {
 	struct tegra_periph_init_data *data;
@@ -836,7 +869,17 @@ static void __init tegra20_periph_clk_init(void)
 	clks[TEGRA20_CLK_AC97] = clk;
 
 	/* emc */
+<<<<<<< HEAD
 	tegra20_emc_clk_init();
+=======
+	clk = tegra20_clk_register_emc(clk_base + CLK_SOURCE_EMC, false);
+
+	clks[TEGRA20_CLK_EMC] = clk;
+
+	clk = tegra_clk_register_mc("mc", "emc", clk_base + CLK_SOURCE_EMC,
+				    NULL);
+	clks[TEGRA20_CLK_MC] = clk;
+>>>>>>> upstream/android-13
 
 	/* dsi */
 	clk = tegra_clk_register_periph_gate("dsi", "pll_d", 0, clk_base, 0,
@@ -988,6 +1031,10 @@ static void tegra20_cpu_clock_suspend(void)
 static void tegra20_cpu_clock_resume(void)
 {
 	unsigned int reg, policy;
+<<<<<<< HEAD
+=======
+	u32 misc, base;
+>>>>>>> upstream/android-13
 
 	/* Is CPU complex already running on PLLX? */
 	reg = readl(clk_base + CCLK_BURST_POLICY);
@@ -1001,6 +1048,7 @@ static void tegra20_cpu_clock_resume(void)
 		BUG();
 
 	if (reg != CCLK_BURST_POLICY_PLLX) {
+<<<<<<< HEAD
 		/* restore PLLX settings if CPU is on different PLL */
 		writel(tegra20_cpu_clk_sctx.pllx_misc,
 					clk_base + PLLX_MISC);
@@ -1010,6 +1058,23 @@ static void tegra20_cpu_clock_resume(void)
 		/* wait for PLL stabilization if PLLX was enabled */
 		if (tegra20_cpu_clk_sctx.pllx_base & (1 << 30))
 			udelay(300);
+=======
+		misc = readl_relaxed(clk_base + PLLX_MISC);
+		base = readl_relaxed(clk_base + PLLX_BASE);
+
+		if (misc != tegra20_cpu_clk_sctx.pllx_misc ||
+		    base != tegra20_cpu_clk_sctx.pllx_base) {
+			/* restore PLLX settings if CPU is on different PLL */
+			writel(tegra20_cpu_clk_sctx.pllx_misc,
+						clk_base + PLLX_MISC);
+			writel(tegra20_cpu_clk_sctx.pllx_base,
+						clk_base + PLLX_BASE);
+
+			/* wait for PLL stabilization if PLLX was enabled */
+			if (tegra20_cpu_clk_sctx.pllx_base & (1 << 30))
+				udelay(300);
+		}
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -1046,9 +1111,15 @@ static struct tegra_clk_init_table init_table[] __initdata = {
 	{ TEGRA20_CLK_PLL_P_OUT3, TEGRA20_CLK_CLK_MAX, 72000000, 1 },
 	{ TEGRA20_CLK_PLL_P_OUT4, TEGRA20_CLK_CLK_MAX, 24000000, 1 },
 	{ TEGRA20_CLK_PLL_C, TEGRA20_CLK_CLK_MAX, 600000000, 0 },
+<<<<<<< HEAD
 	{ TEGRA20_CLK_PLL_C_OUT1, TEGRA20_CLK_CLK_MAX, 240000000, 0 },
 	{ TEGRA20_CLK_SCLK, TEGRA20_CLK_PLL_C_OUT1, 240000000, 0 },
 	{ TEGRA20_CLK_HCLK, TEGRA20_CLK_CLK_MAX, 240000000, 0 },
+=======
+	{ TEGRA20_CLK_PLL_C_OUT1, TEGRA20_CLK_CLK_MAX, 120000000, 0 },
+	{ TEGRA20_CLK_SCLK, TEGRA20_CLK_PLL_C_OUT1, 120000000, 0 },
+	{ TEGRA20_CLK_HCLK, TEGRA20_CLK_CLK_MAX, 120000000, 0 },
+>>>>>>> upstream/android-13
 	{ TEGRA20_CLK_PCLK, TEGRA20_CLK_CLK_MAX, 60000000, 0 },
 	{ TEGRA20_CLK_CSITE, TEGRA20_CLK_CLK_MAX, 0, 1 },
 	{ TEGRA20_CLK_CCLK, TEGRA20_CLK_CLK_MAX, 0, 1 },
@@ -1057,10 +1128,15 @@ static struct tegra_clk_init_table init_table[] __initdata = {
 	{ TEGRA20_CLK_UARTC, TEGRA20_CLK_PLL_P, 0, 0 },
 	{ TEGRA20_CLK_UARTD, TEGRA20_CLK_PLL_P, 0, 0 },
 	{ TEGRA20_CLK_UARTE, TEGRA20_CLK_PLL_P, 0, 0 },
+<<<<<<< HEAD
 	{ TEGRA20_CLK_PLL_A, TEGRA20_CLK_CLK_MAX, 56448000, 1 },
 	{ TEGRA20_CLK_PLL_A_OUT0, TEGRA20_CLK_CLK_MAX, 11289600, 1 },
 	{ TEGRA20_CLK_CDEV1, TEGRA20_CLK_CLK_MAX, 0, 1 },
 	{ TEGRA20_CLK_BLINK, TEGRA20_CLK_CLK_MAX, 32768, 1 },
+=======
+	{ TEGRA20_CLK_PLL_A, TEGRA20_CLK_CLK_MAX, 56448000, 0 },
+	{ TEGRA20_CLK_PLL_A_OUT0, TEGRA20_CLK_CLK_MAX, 11289600, 0 },
+>>>>>>> upstream/android-13
 	{ TEGRA20_CLK_I2S1, TEGRA20_CLK_PLL_A_OUT0, 11289600, 0 },
 	{ TEGRA20_CLK_I2S2, TEGRA20_CLK_PLL_A_OUT0, 11289600, 0 },
 	{ TEGRA20_CLK_SDMMC1, TEGRA20_CLK_PLL_P, 48000000, 0 },
@@ -1072,11 +1148,17 @@ static struct tegra_clk_init_table init_table[] __initdata = {
 	{ TEGRA20_CLK_SBC3, TEGRA20_CLK_PLL_P, 100000000, 0 },
 	{ TEGRA20_CLK_SBC4, TEGRA20_CLK_PLL_P, 100000000, 0 },
 	{ TEGRA20_CLK_HOST1X, TEGRA20_CLK_PLL_C, 150000000, 0 },
+<<<<<<< HEAD
 	{ TEGRA20_CLK_DISP1, TEGRA20_CLK_PLL_P, 600000000, 0 },
 	{ TEGRA20_CLK_DISP2, TEGRA20_CLK_PLL_P, 600000000, 0 },
 	{ TEGRA20_CLK_GR2D, TEGRA20_CLK_PLL_C, 300000000, 0 },
 	{ TEGRA20_CLK_GR3D, TEGRA20_CLK_PLL_C, 300000000, 0 },
 	{ TEGRA20_CLK_VDE, TEGRA20_CLK_CLK_MAX, 300000000, 0 },
+=======
+	{ TEGRA20_CLK_GR2D, TEGRA20_CLK_PLL_C, 300000000, 0 },
+	{ TEGRA20_CLK_GR3D, TEGRA20_CLK_PLL_C, 300000000, 0 },
+	{ TEGRA20_CLK_VDE, TEGRA20_CLK_PLL_C, 300000000, 0 },
+>>>>>>> upstream/android-13
 	/* must be the last entry */
 	{ TEGRA20_CLK_CLK_MAX, TEGRA20_CLK_CLK_MAX, 0, 0 },
 };
@@ -1116,6 +1198,11 @@ static struct clk *tegra20_clk_src_onecell_get(struct of_phandle_args *clkspec,
 	if (IS_ERR(clk))
 		return clk;
 
+<<<<<<< HEAD
+=======
+	hw = __clk_get_hw(clk);
+
+>>>>>>> upstream/android-13
 	/*
 	 * Tegra20 CDEV1 and CDEV2 clocks are a bit special case, their parent
 	 * clock is created by the pinctrl driver. It is possible for clk user
@@ -1125,13 +1212,24 @@ static struct clk *tegra20_clk_src_onecell_get(struct of_phandle_args *clkspec,
 	 */
 	if (clkspec->args[0] == TEGRA20_CLK_CDEV1 ||
 	    clkspec->args[0] == TEGRA20_CLK_CDEV2) {
+<<<<<<< HEAD
 		hw = __clk_get_hw(clk);
 
+=======
+>>>>>>> upstream/android-13
 		parent_hw = clk_hw_get_parent(hw);
 		if (!parent_hw)
 			return ERR_PTR(-EPROBE_DEFER);
 	}
 
+<<<<<<< HEAD
+=======
+	if (clkspec->args[0] == TEGRA20_CLK_EMC) {
+		if (!tegra20_clk_emc_driver_available(hw))
+			return ERR_PTR(-EPROBE_DEFER);
+	}
+
+>>>>>>> upstream/android-13
 	return clk;
 }
 
@@ -1169,7 +1267,10 @@ static void __init tegra20_clock_init(struct device_node *np)
 	tegra_super_clk_gen4_init(clk_base, pmc_base, tegra20_clks, NULL);
 	tegra20_periph_clk_init();
 	tegra20_audio_clk_init();
+<<<<<<< HEAD
 	tegra_pmc_clk_init(pmc_base, tegra20_clks);
+=======
+>>>>>>> upstream/android-13
 
 	tegra_init_dup_clks(tegra_clk_duplicates, clks, TEGRA20_CLK_CLK_MAX);
 

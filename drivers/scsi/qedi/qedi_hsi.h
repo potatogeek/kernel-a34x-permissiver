@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * QLogic iSCSI Offload Driver
  * Copyright (c) 2016 Cavium Inc.
@@ -5,6 +6,12 @@
  * This software is available under the terms of the GNU General Public License
  * (GPL) Version 2, available from the file COPYING in the main directory of
  * this source tree.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * QLogic iSCSI Offload Driver
+ * Copyright (c) 2016 Cavium Inc.
+>>>>>>> upstream/android-13
  */
 #ifndef __QEDI_HSI__
 #define __QEDI_HSI__

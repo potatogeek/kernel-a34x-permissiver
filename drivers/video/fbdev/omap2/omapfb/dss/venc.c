@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/drivers/video/omap2/dss/venc.c
  *
@@ -5,6 +9,7 @@
  * Author: Tomi Valkeinen <tomi.valkeinen@nokia.com>
  *
  * VENC settings from TI's DSS driver
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
@@ -17,6 +22,8 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define DSS_SUBSYS_NAME "VENC"
@@ -220,6 +227,7 @@ static const struct venc_config venc_config_ntsc_trm = {
 	.gen_ctrl				= 0x00F90000,
 };
 
+<<<<<<< HEAD
 static const struct venc_config venc_config_pal_bdghi = {
 	.f_control				= 0,
 	.vidout_ctrl				= 0,
@@ -263,6 +271,8 @@ static const struct venc_config venc_config_pal_bdghi = {
 	.fid_ext_start_y__fid_ext_offset_y	= 0x01380005,
 };
 
+=======
+>>>>>>> upstream/android-13
 const struct omap_video_timings omap_dss_pal_timings = {
 	.x_res		= 720,
 	.y_res		= 574,
@@ -841,7 +851,11 @@ static int venc_probe_of(struct platform_device *pdev)
 		venc.type = OMAP_DSS_VENC_TYPE_SVIDEO;
 		break;
 	default:
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "bad channel propert '%d'\n", channels);
+=======
+		dev_err(&pdev->dev, "bad channel property '%d'\n", channels);
+>>>>>>> upstream/android-13
 		r = -EINVAL;
 		goto err;
 	}
@@ -944,8 +958,12 @@ static int venc_remove(struct platform_device *pdev)
 
 static int venc_runtime_suspend(struct device *dev)
 {
+<<<<<<< HEAD
 	if (venc.tv_dac_clk)
 		clk_disable_unprepare(venc.tv_dac_clk);
+=======
+	clk_disable_unprepare(venc.tv_dac_clk);
+>>>>>>> upstream/android-13
 
 	dispc_runtime_put();
 
@@ -960,8 +978,12 @@ static int venc_runtime_resume(struct device *dev)
 	if (r < 0)
 		return r;
 
+<<<<<<< HEAD
 	if (venc.tv_dac_clk)
 		clk_prepare_enable(venc.tv_dac_clk);
+=======
+	clk_prepare_enable(venc.tv_dac_clk);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

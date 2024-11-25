@@ -8,6 +8,10 @@
 
 #include <asm/asm.h>
 #include <linux/bitops.h>
+<<<<<<< HEAD
+=======
+#include <asm/alternative.h>
+>>>>>>> upstream/android-13
 
 enum cpuid_leafs
 {
@@ -23,13 +27,21 @@ enum cpuid_leafs
 	CPUID_7_0_EBX,
 	CPUID_D_1_EAX,
 	CPUID_LNX_4,
+<<<<<<< HEAD
 	CPUID_DUMMY,
+=======
+	CPUID_7_1_EAX,
+>>>>>>> upstream/android-13
 	CPUID_8000_0008_EBX,
 	CPUID_6_EAX,
 	CPUID_8000_000A_EDX,
 	CPUID_7_ECX,
 	CPUID_8000_0007_EBX,
 	CPUID_7_EDX,
+<<<<<<< HEAD
+=======
+	CPUID_8000_001F_EAX,
+>>>>>>> upstream/android-13
 };
 
 #ifdef CONFIG_X86_FEATURE_NAMES
@@ -61,6 +73,16 @@ extern const char * const x86_bug_flags[NBUGINTS*32];
 #define CHECK_BIT_IN_MASK_WORD(maskname, word, bit)	\
 	(((bit)>>5)==(word) && (1UL<<((bit)&31) & maskname##word ))
 
+<<<<<<< HEAD
+=======
+/*
+ * {REQUIRED,DISABLED}_MASK_CHECK below may seem duplicated with the
+ * following BUILD_BUG_ON_ZERO() check but when NCAPINTS gets changed, all
+ * header macros which use NCAPINTS need to be changed. The duplicated macro
+ * use causes the compiler to issue errors for all headers so that all usage
+ * sites can be corrected.
+ */
+>>>>>>> upstream/android-13
 #define REQUIRED_MASK_BIT_SET(feature_bit)		\
 	 ( CHECK_BIT_IN_MASK_WORD(REQUIRED_MASK,  0, feature_bit) ||	\
 	   CHECK_BIT_IN_MASK_WORD(REQUIRED_MASK,  1, feature_bit) ||	\
@@ -81,8 +103,14 @@ extern const char * const x86_bug_flags[NBUGINTS*32];
 	   CHECK_BIT_IN_MASK_WORD(REQUIRED_MASK, 16, feature_bit) ||	\
 	   CHECK_BIT_IN_MASK_WORD(REQUIRED_MASK, 17, feature_bit) ||	\
 	   CHECK_BIT_IN_MASK_WORD(REQUIRED_MASK, 18, feature_bit) ||	\
+<<<<<<< HEAD
 	   REQUIRED_MASK_CHECK					  ||	\
 	   BUILD_BUG_ON_ZERO(NCAPINTS != 19))
+=======
+	   CHECK_BIT_IN_MASK_WORD(REQUIRED_MASK, 19, feature_bit) ||	\
+	   REQUIRED_MASK_CHECK					  ||	\
+	   BUILD_BUG_ON_ZERO(NCAPINTS != 20))
+>>>>>>> upstream/android-13
 
 #define DISABLED_MASK_BIT_SET(feature_bit)				\
 	 ( CHECK_BIT_IN_MASK_WORD(DISABLED_MASK,  0, feature_bit) ||	\
@@ -104,16 +132,28 @@ extern const char * const x86_bug_flags[NBUGINTS*32];
 	   CHECK_BIT_IN_MASK_WORD(DISABLED_MASK, 16, feature_bit) ||	\
 	   CHECK_BIT_IN_MASK_WORD(DISABLED_MASK, 17, feature_bit) ||	\
 	   CHECK_BIT_IN_MASK_WORD(DISABLED_MASK, 18, feature_bit) ||	\
+<<<<<<< HEAD
 	   DISABLED_MASK_CHECK					  ||	\
 	   BUILD_BUG_ON_ZERO(NCAPINTS != 19))
+=======
+	   CHECK_BIT_IN_MASK_WORD(DISABLED_MASK, 19, feature_bit) ||	\
+	   DISABLED_MASK_CHECK					  ||	\
+	   BUILD_BUG_ON_ZERO(NCAPINTS != 20))
+>>>>>>> upstream/android-13
 
 #define cpu_has(c, bit)							\
 	(__builtin_constant_p(bit) && REQUIRED_MASK_BIT_SET(bit) ? 1 :	\
 	 test_cpu_cap(c, bit))
 
 #define this_cpu_has(bit)						\
+<<<<<<< HEAD
 	(__builtin_constant_p(bit) && REQUIRED_MASK_BIT_SET(bit) ? 1 : 	\
 	 x86_this_cpu_test_bit(bit, (unsigned long *)&cpu_info.x86_capability))
+=======
+	(__builtin_constant_p(bit) && REQUIRED_MASK_BIT_SET(bit) ? 1 :	\
+	 x86_this_cpu_test_bit(bit,					\
+		(unsigned long __percpu *)&cpu_info.x86_capability))
+>>>>>>> upstream/android-13
 
 /*
  * This macro is for detection of features which need kernel
@@ -146,12 +186,19 @@ extern void clear_cpu_cap(struct cpuinfo_x86 *c, unsigned int bit);
  * Workaround for the sake of BPF compilation which utilizes kernel
  * headers, but clang does not support ASM GOTO and fails the build.
  */
+<<<<<<< HEAD
+=======
+#ifndef __BPF_TRACING__
+#warning "Compiler lacks ASM_GOTO support. Add -D __BPF_TRACING__ to your compiler arguments"
+#endif
+>>>>>>> upstream/android-13
 
 #define static_cpu_has(bit)            boot_cpu_has(bit)
 
 #else
 
 /*
+<<<<<<< HEAD
  * Static testing of CPU features.  Used the same as boot_cpu_has().
  * These will statically patch the target code for additional
  * performance.
@@ -191,6 +238,26 @@ static __always_inline __pure bool _static_cpu_has(u16 bit)
 		 ".previous\n"
 		 : : [feature]  "i" (bit),
 		     [always]   "i" (X86_FEATURE_ALWAYS),
+=======
+ * Static testing of CPU features. Used the same as boot_cpu_has(). It
+ * statically patches the target code for additional performance. Use
+ * static_cpu_has() only in fast paths, where every cycle counts. Which
+ * means that the boot_cpu_has() variant is already fast enough for the
+ * majority of cases and you should stick to using it as it is generally
+ * only two instructions: a RIP-relative MOV and a TEST.
+ */
+static __always_inline bool _static_cpu_has(u16 bit)
+{
+	asm_volatile_goto(
+		ALTERNATIVE_TERNARY("jmp 6f", %P[feature], "", "jmp %l[t_no]")
+		".section .altinstr_aux,\"ax\"\n"
+		"6:\n"
+		" testb %[bitnum],%[cap_byte]\n"
+		" jnz %l[t_yes]\n"
+		" jmp %l[t_no]\n"
+		".previous\n"
+		 : : [feature]  "i" (bit),
+>>>>>>> upstream/android-13
 		     [bitnum]   "i" (1 << (bit & 7)),
 		     [cap_byte] "m" (((const char *)boot_cpu_data.x86_capability)[bit >> 3])
 		 : : t_yes, t_no);

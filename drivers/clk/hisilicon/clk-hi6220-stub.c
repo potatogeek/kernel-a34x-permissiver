@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Hi6220 stub clock driver
  *
@@ -5,11 +9,14 @@
  * Copyright (c) 2015 Linaro Limited.
  *
  * Author: Leo Yan <leo.yan@linaro.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk-provider.h>
@@ -197,7 +204,11 @@ static const struct clk_ops hi6220_stub_clk_ops = {
 static int hi6220_stub_clk_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	struct hi6220_stub_clk *stub_clk;
 	struct clk *clk;
 	struct device_node *np = pdev->dev.of_node;

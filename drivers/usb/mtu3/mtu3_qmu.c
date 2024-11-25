@@ -20,7 +20,10 @@
 
 #include <linux/dmapool.h>
 #include <linux/iopoll.h>
+<<<<<<< HEAD
 #include <linux/timekeeping.h>
+=======
+>>>>>>> upstream/android-13
 
 #include "mtu3.h"
 #include "mtu3_trace.h"
@@ -71,6 +74,7 @@
 #define HILO_DMA(hi, lo)	\
 	((dma_addr_t)HILO_GEN64((le32_to_cpu(hi)), (le32_to_cpu(lo))))
 
+<<<<<<< HEAD
 #define MAX_LEN 100
 #define MAX_COUNT 500
 char mtu3_dump[MAX_COUNT][MAX_LEN];
@@ -85,6 +89,8 @@ unsigned long dump_i;
 	} while (0)
 
 
+=======
+>>>>>>> upstream/android-13
 static dma_addr_t read_txq_cur_addr(void __iomem *mbase, u8 epnum)
 {
 	u32 txcpr;
@@ -273,9 +279,13 @@ static int mtu3_prepare_tx_gpd(struct mtu3_ep *mep, struct mtu3_request *mreq)
 	/* get the next GPD */
 	enq = advance_enq_gpd(ring);
 	enq_dma = gpd_virt_to_dma(ring, enq);
+<<<<<<< HEAD
 	dev_dbg(mep->mtu->dev, "TX-EP%d queue gpd=%pK, enq=%pK, qdma=%pKad\n",
 		mep->epnum, gpd, enq, &enq_dma);
 	mtu3_dump_print("TX-EP%d gpd=%pK,enq=%pK,qdma=%pKad\n",
+=======
+	dev_dbg(mep->mtu->dev, "TX-EP%d queue gpd=%p, enq=%p, qdma=%pad\n",
+>>>>>>> upstream/android-13
 		mep->epnum, gpd, enq, &enq_dma);
 
 	enq->dw0_info &= cpu_to_le32(~GPD_FLAGS_HWO);
@@ -290,8 +300,13 @@ static int mtu3_prepare_tx_gpd(struct mtu3_ep *mep, struct mtu3_request *mreq)
 			gpd->dw3_info |= cpu_to_le32(GPD_EXT_FLAG_ZLP);
 	}
 
+<<<<<<< HEAD
 	/* requires a memory barrier */
 	smp_mb();
+=======
+	/* prevent reorder, make sure GPD's HWO is set last */
+	mb();
+>>>>>>> upstream/android-13
 	gpd->dw0_info |= cpu_to_le32(GPD_FLAGS_IOC | GPD_FLAGS_HWO);
 
 	mreq->gpd = gpd;
@@ -318,17 +333,26 @@ static int mtu3_prepare_rx_gpd(struct mtu3_ep *mep, struct mtu3_request *mreq)
 	/* get the next GPD */
 	enq = advance_enq_gpd(ring);
 	enq_dma = gpd_virt_to_dma(ring, enq);
+<<<<<<< HEAD
 	dev_dbg(mep->mtu->dev, "RX-EP%d queue gpd=%pK, enq=%pK, qdma=%pKad\n",
 		mep->epnum, gpd, enq, &enq_dma);
 	mtu3_dump_print("RX-EP%d gpd=%pK,enq=%pK,qdma=%pKad\n",
+=======
+	dev_dbg(mep->mtu->dev, "RX-EP%d queue gpd=%p, enq=%p, qdma=%pad\n",
+>>>>>>> upstream/android-13
 		mep->epnum, gpd, enq, &enq_dma);
 
 	enq->dw0_info &= cpu_to_le32(~GPD_FLAGS_HWO);
 	gpd->next_gpd = cpu_to_le32(lower_32_bits(enq_dma));
 	ext_addr |= GPD_EXT_NGP(mtu, upper_32_bits(enq_dma));
 	gpd->dw3_info = cpu_to_le32(ext_addr);
+<<<<<<< HEAD
 	/* requires a memory barrier */
 	smp_mb();
+=======
+	/* prevent reorder, make sure GPD's HWO is set last */
+	mb();
+>>>>>>> upstream/android-13
 	gpd->dw0_info |= cpu_to_le32(GPD_FLAGS_IOC | GPD_FLAGS_HWO);
 
 	mreq->gpd = gpd;
@@ -456,7 +480,11 @@ static void qmu_tx_zlp_error_handler(struct mtu3 *mtu, u8 epnum)
 		return;
 	}
 
+<<<<<<< HEAD
 	dev_dbg(mtu->dev, "%s send ZLP for req=%pK\n", __func__, mreq);
+=======
+	dev_dbg(mtu->dev, "%s send ZLP for req=%p\n", __func__, mreq);
+>>>>>>> upstream/android-13
 	trace_mtu3_zlp_exp_gpd(mep, gpd_current);
 
 	mtu3_clrbits(mbase, MU3D_EP_TXCR0(mep->epnum), TX_DMAREQEN);
@@ -468,10 +496,15 @@ static void qmu_tx_zlp_error_handler(struct mtu3 *mtu, u8 epnum)
 		return;
 	}
 	mtu3_setbits(mbase, MU3D_EP_TXCR0(mep->epnum), TX_TXPKTRDY);
+<<<<<<< HEAD
 
 	/* requires a memory barrier */
 	smp_mb();
 
+=======
+	/* prevent reorder, make sure GPD's HWO is set last */
+	mb();
+>>>>>>> upstream/android-13
 	/* by pass the current GDP */
 	gpd_current->dw0_info |= cpu_to_le32(GPD_FLAGS_BPS | GPD_FLAGS_HWO);
 
@@ -502,6 +535,7 @@ static void qmu_done_tx(struct mtu3 *mtu, u8 epnum)
 	cur_gpd_dma = read_txq_cur_addr(mbase, epnum);
 	gpd_current = gpd_dma_to_virt(ring, cur_gpd_dma);
 
+<<<<<<< HEAD
 	dev_dbg(mtu->dev, "%s EP%d, last=%pK, current=%pK, enq=%pK\n",
 		__func__, epnum, gpd, gpd_current, ring->enqueue);
 	mtu3_dump_print("tx_dn EP%d, last=%pK, current=%pK, enq=%pK\n",
@@ -509,6 +543,12 @@ static void qmu_done_tx(struct mtu3 *mtu, u8 epnum)
 
 	while (gpd != NULL && gpd != gpd_current &&
 			!GET_GPD_HWO(gpd)) {
+=======
+	dev_dbg(mtu->dev, "%s EP%d, last=%p, current=%p, enq=%p\n",
+		__func__, epnum, gpd, gpd_current, ring->enqueue);
+
+	while (gpd != gpd_current && !GET_GPD_HWO(gpd)) {
+>>>>>>> upstream/android-13
 
 		mreq = next_request(mep);
 
@@ -525,10 +565,16 @@ static void qmu_done_tx(struct mtu3 *mtu, u8 epnum)
 		gpd = advance_deq_gpd(ring);
 	}
 
+<<<<<<< HEAD
 	dev_dbg(mtu->dev, "%s EP%d, deq=%pK, enq=%pK, complete\n",
 		__func__, epnum, ring->dequeue, ring->enqueue);
 	mtu3_dump_print("tx_dn EP%d, deq=%pK, enq=%pK, complete\n",
 		epnum, ring->dequeue, ring->enqueue);
+=======
+	dev_dbg(mtu->dev, "%s EP%d, deq=%p, enq=%p, complete\n",
+		__func__, epnum, ring->dequeue, ring->enqueue);
+
+>>>>>>> upstream/android-13
 }
 
 static void qmu_done_rx(struct mtu3 *mtu, u8 epnum)
@@ -545,6 +591,7 @@ static void qmu_done_rx(struct mtu3 *mtu, u8 epnum)
 	cur_gpd_dma = read_rxq_cur_addr(mbase, epnum);
 	gpd_current = gpd_dma_to_virt(ring, cur_gpd_dma);
 
+<<<<<<< HEAD
 	dev_dbg(mtu->dev, "%s EP%d, last=%pK, current=%pK, enq=%pK\n",
 		__func__, epnum, gpd, gpd_current, ring->enqueue);
 	mtu3_dump_print("rx_dn EP%d,last=%pK,cur=%pK,enq=%pK\n",
@@ -552,6 +599,12 @@ static void qmu_done_rx(struct mtu3 *mtu, u8 epnum)
 
 	while (gpd != NULL && gpd != gpd_current &&
 			!GET_GPD_HWO(gpd)) {
+=======
+	dev_dbg(mtu->dev, "%s EP%d, last=%p, current=%p, enq=%p\n",
+		__func__, epnum, gpd, gpd_current, ring->enqueue);
+
+	while (gpd != gpd_current && !GET_GPD_HWO(gpd)) {
+>>>>>>> upstream/android-13
 
 		mreq = next_request(mep);
 
@@ -568,10 +621,15 @@ static void qmu_done_rx(struct mtu3 *mtu, u8 epnum)
 		gpd = advance_deq_gpd(ring);
 	}
 
+<<<<<<< HEAD
 	dev_dbg(mtu->dev, "%s EP%d, deq=%pK, enq=%pK, complete\n",
 		__func__, epnum, ring->dequeue, ring->enqueue);
 	mtu3_dump_print("rx_dn EP%d, deq=%pK, enq=%pK, complete\n",
 		epnum, ring->dequeue, ring->enqueue);
+=======
+	dev_dbg(mtu->dev, "%s EP%d, deq=%p, enq=%p, complete\n",
+		__func__, epnum, ring->dequeue, ring->enqueue);
+>>>>>>> upstream/android-13
 }
 
 static void qmu_done_isr(struct mtu3 *mtu, u32 done_status)
@@ -608,7 +666,11 @@ static void qmu_exception_isr(struct mtu3 *mtu, u32 qmu_status)
 		errval = mtu3_readl(mbase, U3D_RQERRIR1);
 		for (i = 1; i < mtu->num_eps; i++) {
 			if (errval & QMU_RX_ZLP_ERR(i))
+<<<<<<< HEAD
 				dev_err(mtu->dev, "RX EP%d Recv ZLP\n", i);
+=======
+				dev_dbg(mtu->dev, "RX EP%d Recv ZLP\n", i);
+>>>>>>> upstream/android-13
 		}
 		mtu3_writel(mbase, U3D_RQERRIR1, errval);
 	}

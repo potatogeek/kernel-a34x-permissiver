@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * RTC subsystem, base class
  *
@@ -5,11 +9,15 @@
  * Author: Alessandro Zummo <a.zummo@towertech.it>
  *
  * class skeleton from drivers/hwmon/hwmon.c
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
 */
+=======
+ */
+>>>>>>> upstream/android-13
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
@@ -23,20 +31,76 @@
 
 #include "rtc-core.h"
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static DEFINE_IDA(rtc_ida);
 struct class *rtc_class;
 
 static void rtc_device_release(struct device *dev)
 {
 	struct rtc_device *rtc = to_rtc_device(dev);
+<<<<<<< HEAD
 	ida_simple_remove(&rtc_ida, rtc->id);
+=======
+
+	ida_simple_remove(&rtc_ida, rtc->id);
+	mutex_destroy(&rtc->ops_lock);
+>>>>>>> upstream/android-13
 	kfree(rtc);
 }
 
 #ifdef CONFIG_RTC_HCTOSYS_DEVICE
 /* Result of the last RTC to system clock attempt. */
 int rtc_hctosys_ret = -ENODEV;
+<<<<<<< HEAD
+=======
+
+/* IMPORTANT: the RTC only stores whole seconds. It is arbitrary
+ * whether it stores the most close value or the value with partial
+ * seconds truncated. However, it is important that we use it to store
+ * the truncated value. This is because otherwise it is necessary,
+ * in an rtc sync function, to read both xtime.tv_sec and
+ * xtime.tv_nsec. On some processors (i.e. ARM), an atomic read
+ * of >32bits is not possible. So storing the most close value would
+ * slow down the sync API. So here we have the truncated value and
+ * the best guess is to add 0.5s.
+ */
+
+static void rtc_hctosys(struct rtc_device *rtc)
+{
+	int err;
+	struct rtc_time tm;
+	struct timespec64 tv64 = {
+		.tv_nsec = NSEC_PER_SEC >> 1,
+	};
+
+	err = rtc_read_time(rtc, &tm);
+	if (err) {
+		dev_err(rtc->dev.parent,
+			"hctosys: unable to read the hardware clock\n");
+		goto err_read;
+	}
+
+	tv64.tv_sec = rtc_tm_to_time64(&tm);
+
+#if BITS_PER_LONG == 32
+	if (tv64.tv_sec > INT_MAX) {
+		err = -ERANGE;
+		goto err_read;
+	}
+#endif
+
+	err = do_settimeofday64(&tv64);
+
+	dev_info(rtc->dev.parent, "setting system clock to %ptR UTC (%lld)\n",
+		 &tm, (long long)tv64.tv_sec);
+
+err_read:
+	rtc_hctosys_ret = err;
+}
+>>>>>>> upstream/android-13
 #endif
 
 #if defined(CONFIG_PM_SLEEP) && defined(CONFIG_RTC_HCTOSYS_DEVICE)
@@ -47,7 +111,10 @@ int rtc_hctosys_ret = -ENODEV;
 
 static struct timespec64 old_rtc, old_system, old_delta;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static int rtc_suspend(struct device *dev)
 {
 	struct rtc_device	*rtc = to_rtc_device(dev);
@@ -71,7 +138,10 @@ static int rtc_suspend(struct device *dev)
 	ktime_get_real_ts64(&old_system);
 	old_rtc.tv_sec = rtc_tm_to_time64(&tm);
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * To avoid drift caused by repeated suspend/resumes,
 	 * which each can add ~1 second drift error,
@@ -83,7 +153,11 @@ static int rtc_suspend(struct device *dev)
 	if (delta_delta.tv_sec < -2 || delta_delta.tv_sec >= 2) {
 		/*
 		 * if delta_delta is too large, assume time correction
+<<<<<<< HEAD
 		 * has occured and set old_delta to the current delta.
+=======
+		 * has occurred and set old_delta to the current delta.
+>>>>>>> upstream/android-13
 		 */
 		old_delta = delta;
 	} else {
@@ -136,7 +210,11 @@ static int rtc_resume(struct device *dev)
 	 * to keep things accurate.
 	 */
 	sleep_time = timespec64_sub(sleep_time,
+<<<<<<< HEAD
 			timespec64_sub(new_system, old_system));
+=======
+				    timespec64_sub(new_system, old_system));
+>>>>>>> upstream/android-13
 
 	if (sleep_time.tv_sec >= 0)
 		timekeeping_inject_sleeptime64(&sleep_time);
@@ -161,8 +239,18 @@ static struct rtc_device *rtc_allocate_device(void)
 
 	device_initialize(&rtc->dev);
 
+<<<<<<< HEAD
 	/* Drivers can revise this default after allocating the device. */
 	rtc->set_offset_nsec =  NSEC_PER_SEC / 2;
+=======
+	/*
+	 * Drivers can revise this default after allocating the device.
+	 * The default is what most RTCs do: Increment seconds exactly one
+	 * second after the write happened. This adds a default transport
+	 * time of 5ms which is at least halfways close to reality.
+	 */
+	rtc->set_offset_nsec = NSEC_PER_SEC + 5 * NSEC_PER_MSEC;
+>>>>>>> upstream/android-13
 
 	rtc->irq_freq = 1;
 	rtc->max_user_freq = 64;
@@ -178,14 +266,25 @@ static struct rtc_device *rtc_allocate_device(void)
 	timerqueue_init_head(&rtc->timerqueue);
 	INIT_WORK(&rtc->irqwork, rtc_timer_do_work);
 	/* Init aie timer */
+<<<<<<< HEAD
 	rtc_timer_init(&rtc->aie_timer, rtc_aie_update_irq, (void *)rtc);
 	/* Init uie timer */
 	rtc_timer_init(&rtc->uie_rtctimer, rtc_uie_update_irq, (void *)rtc);
+=======
+	rtc_timer_init(&rtc->aie_timer, rtc_aie_update_irq, rtc);
+	/* Init uie timer */
+	rtc_timer_init(&rtc->uie_rtctimer, rtc_uie_update_irq, rtc);
+>>>>>>> upstream/android-13
 	/* Init pie timer */
 	hrtimer_init(&rtc->pie_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
 	rtc->pie_timer.function = rtc_pie_update_irq;
 	rtc->pie_enabled = 0;
 
+<<<<<<< HEAD
+=======
+	set_bit(RTC_FEATURE_ALARM, rtc->features);
+
+>>>>>>> upstream/android-13
 	return rtc;
 }
 
@@ -277,6 +376,7 @@ static void rtc_device_get_offset(struct rtc_device *rtc)
 		rtc->offset_secs = 0;
 }
 
+<<<<<<< HEAD
 /**
  * rtc_device_register - register w/ RTC class
  * @dev: the device to register
@@ -366,6 +466,12 @@ EXPORT_SYMBOL_GPL(rtc_device_register);
  */
 void rtc_device_unregister(struct rtc_device *rtc)
 {
+=======
+static void devm_rtc_unregister_device(void *data)
+{
+	struct rtc_device *rtc = data;
+
+>>>>>>> upstream/android-13
 	mutex_lock(&rtc->ops_lock);
 	/*
 	 * Remove innards of this RTC, then disable it, before
@@ -375,6 +481,7 @@ void rtc_device_unregister(struct rtc_device *rtc)
 	cdev_device_del(&rtc->char_dev, &rtc->dev);
 	rtc->ops = NULL;
 	mutex_unlock(&rtc->ops_lock);
+<<<<<<< HEAD
 	put_device(&rtc->dev);
 }
 EXPORT_SYMBOL_GPL(rtc_device_unregister);
@@ -465,12 +572,27 @@ static void devm_rtc_release_device(struct device *dev, void *res)
 struct rtc_device *devm_rtc_allocate_device(struct device *dev)
 {
 	struct rtc_device **ptr, *rtc;
+=======
+}
+
+static void devm_rtc_release_device(void *res)
+{
+	struct rtc_device *rtc = res;
+
+	put_device(&rtc->dev);
+}
+
+struct rtc_device *devm_rtc_allocate_device(struct device *dev)
+{
+	struct rtc_device *rtc;
+>>>>>>> upstream/android-13
 	int id, err;
 
 	id = rtc_device_get_id(dev);
 	if (id < 0)
 		return ERR_PTR(id);
 
+<<<<<<< HEAD
 	ptr = devres_alloc(devm_rtc_release_device, sizeof(*ptr), GFP_KERNEL);
 	if (!ptr) {
 		err = -ENOMEM;
@@ -486,10 +608,19 @@ struct rtc_device *devm_rtc_allocate_device(struct device *dev)
 	*ptr = rtc;
 	devres_add(dev, ptr);
 
+=======
+	rtc = rtc_allocate_device();
+	if (!rtc) {
+		ida_simple_remove(&rtc_ida, id);
+		return ERR_PTR(-ENOMEM);
+	}
+
+>>>>>>> upstream/android-13
 	rtc->id = id;
 	rtc->dev.parent = dev;
 	dev_set_name(&rtc->dev, "rtc%d", id);
 
+<<<<<<< HEAD
 	return rtc;
 
 exit_devres:
@@ -501,12 +632,33 @@ exit_ida:
 EXPORT_SYMBOL_GPL(devm_rtc_allocate_device);
 
 int __rtc_register_device(struct module *owner, struct rtc_device *rtc)
+=======
+	err = devm_add_action_or_reset(dev, devm_rtc_release_device, rtc);
+	if (err)
+		return ERR_PTR(err);
+
+	return rtc;
+}
+EXPORT_SYMBOL_GPL(devm_rtc_allocate_device);
+
+int __devm_rtc_register_device(struct module *owner, struct rtc_device *rtc)
+>>>>>>> upstream/android-13
 {
 	struct rtc_wkalrm alrm;
 	int err;
 
+<<<<<<< HEAD
 	if (!rtc->ops)
 		return -EINVAL;
+=======
+	if (!rtc->ops) {
+		dev_dbg(&rtc->dev, "no ops set\n");
+		return -EINVAL;
+	}
+
+	if (!rtc->ops->set_alarm)
+		clear_bit(RTC_FEATURE_ALARM, rtc->features);
+>>>>>>> upstream/android-13
 
 	rtc->owner = owner;
 	rtc_device_get_offset(rtc);
@@ -528,18 +680,67 @@ int __rtc_register_device(struct module *owner, struct rtc_device *rtc)
 
 	rtc_proc_add_device(rtc);
 
+<<<<<<< HEAD
 	rtc->registered = true;
+=======
+>>>>>>> upstream/android-13
 	dev_info(rtc->dev.parent, "registered as %s\n",
 		 dev_name(&rtc->dev));
 
 #ifdef CONFIG_RTC_HCTOSYS_DEVICE
 	if (!strcmp(dev_name(&rtc->dev), CONFIG_RTC_HCTOSYS_DEVICE))
+<<<<<<< HEAD
 		rtc_hctosys();
 #endif
 
 	return 0;
 }
 EXPORT_SYMBOL_GPL(__rtc_register_device);
+=======
+		rtc_hctosys(rtc);
+#endif
+
+	return devm_add_action_or_reset(rtc->dev.parent,
+					devm_rtc_unregister_device, rtc);
+}
+EXPORT_SYMBOL_GPL(__devm_rtc_register_device);
+
+/**
+ * devm_rtc_device_register - resource managed rtc_device_register()
+ * @dev: the device to register
+ * @name: the name of the device (unused)
+ * @ops: the rtc operations structure
+ * @owner: the module owner
+ *
+ * @return a struct rtc on success, or an ERR_PTR on error
+ *
+ * Managed rtc_device_register(). The rtc_device returned from this function
+ * are automatically freed on driver detach.
+ * This function is deprecated, use devm_rtc_allocate_device and
+ * rtc_register_device instead
+ */
+struct rtc_device *devm_rtc_device_register(struct device *dev,
+					    const char *name,
+					    const struct rtc_class_ops *ops,
+					    struct module *owner)
+{
+	struct rtc_device *rtc;
+	int err;
+
+	rtc = devm_rtc_allocate_device(dev);
+	if (IS_ERR(rtc))
+		return rtc;
+
+	rtc->ops = ops;
+
+	err = __devm_rtc_register_device(owner, rtc);
+	if (err)
+		return ERR_PTR(err);
+
+	return rtc;
+}
+EXPORT_SYMBOL_GPL(devm_rtc_device_register);
+>>>>>>> upstream/android-13
 
 static int __init rtc_init(void)
 {

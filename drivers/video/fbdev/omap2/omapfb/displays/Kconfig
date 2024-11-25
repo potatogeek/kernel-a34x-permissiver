@@ -1,5 +1,11 @@
+<<<<<<< HEAD
 menu "OMAPFB Panel and Encoder Drivers"
         depends on FB_OMAP2_DSS
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+menu "OMAPFB Panel and Encoder Drivers"
+	depends on FB_OMAP2_DSS
+>>>>>>> upstream/android-13
 
 config FB_OMAP2_ENCODER_OPA362
 	tristate "OPA362 external analog amplifier"
@@ -8,29 +14,49 @@ config FB_OMAP2_ENCODER_OPA362
 	  through a GPIO.
 
 config FB_OMAP2_ENCODER_TFP410
+<<<<<<< HEAD
         tristate "TFP410 DPI to DVI Encoder"
+=======
+	tristate "TFP410 DPI to DVI Encoder"
+>>>>>>> upstream/android-13
 	help
 	  Driver for TFP410 DPI to DVI encoder.
 
 config FB_OMAP2_ENCODER_TPD12S015
+<<<<<<< HEAD
         tristate "TPD12S015 HDMI ESD protection and level shifter"
+=======
+	tristate "TPD12S015 HDMI ESD protection and level shifter"
+>>>>>>> upstream/android-13
 	help
 	  Driver for TPD12S015, which offers HDMI ESD protection and level
 	  shifting.
 
 config FB_OMAP2_CONNECTOR_DVI
+<<<<<<< HEAD
         tristate "DVI Connector"
+=======
+	tristate "DVI Connector"
+>>>>>>> upstream/android-13
 	depends on I2C
 	help
 	  Driver for a generic DVI connector.
 
 config FB_OMAP2_CONNECTOR_HDMI
+<<<<<<< HEAD
         tristate "HDMI Connector"
+=======
+	tristate "HDMI Connector"
+>>>>>>> upstream/android-13
 	help
 	  Driver for a generic HDMI connector.
 
 config FB_OMAP2_CONNECTOR_ANALOG_TV
+<<<<<<< HEAD
         tristate "Analog TV Connector"
+=======
+	tristate "Analog TV Connector"
+>>>>>>> upstream/android-13
 	help
 	  Driver for a generic analog TV connector.
 
@@ -42,12 +68,20 @@ config FB_OMAP2_PANEL_DPI
 config FB_OMAP2_PANEL_DSI_CM
 	tristate "Generic DSI Command Mode Panel"
 	depends on BACKLIGHT_CLASS_DEVICE
+<<<<<<< HEAD
+=======
+	depends on DRM_PANEL_DSI_CM = n
+>>>>>>> upstream/android-13
 	help
 	  Driver for generic DSI command mode panels.
 
 config FB_OMAP2_PANEL_SONY_ACX565AKM
 	tristate "ACX565AKM Panel"
 	depends on SPI && BACKLIGHT_CLASS_DEVICE
+<<<<<<< HEAD
+=======
+	depends on DRM_PANEL_SONY_ACX565AKM = n
+>>>>>>> upstream/android-13
 	help
 	  This is the LCD panel used on Nokia N900
 
@@ -58,6 +92,7 @@ config FB_OMAP2_PANEL_LGPHILIPS_LB035Q02
 	  LCD Panel used on the Gumstix Overo Palo35
 
 config FB_OMAP2_PANEL_SHARP_LS037V7DW01
+<<<<<<< HEAD
         tristate "Sharp LS037V7DW01 LCD Panel"
         depends on BACKLIGHT_CLASS_DEVICE
         help
@@ -74,13 +109,41 @@ config FB_OMAP2_PANEL_TPO_TD043MTEA1
         depends on SPI
         help
           LCD Panel used in OMAP3 Pandora
+=======
+	tristate "Sharp LS037V7DW01 LCD Panel"
+	depends on BACKLIGHT_CLASS_DEVICE
+	depends on DRM_PANEL_SHARP_LS037V7DW01 = n
+	help
+	  LCD Panel used in TI's SDP3430 and EVM boards
+
+config FB_OMAP2_PANEL_TPO_TD028TTEC1
+	tristate "TPO TD028TTEC1 LCD Panel"
+	depends on SPI
+	depends on DRM_PANEL_TPO_TD028TTEC1 = n
+	help
+	  LCD panel used in Openmoko.
+
+config FB_OMAP2_PANEL_TPO_TD043MTEA1
+	tristate "TPO TD043MTEA1 LCD Panel"
+	depends on SPI
+	depends on DRM_PANEL_TPO_TD043MTEA1 = n
+	help
+	  LCD Panel used in OMAP3 Pandora
+>>>>>>> upstream/android-13
 
 config FB_OMAP2_PANEL_NEC_NL8048HL11
 	tristate "NEC NL8048HL11 Panel"
 	depends on SPI
 	depends on BACKLIGHT_CLASS_DEVICE
+<<<<<<< HEAD
 	help
 		This NEC NL8048HL11 panel is TFT LCD used in the
 		Zoom2/3/3630 sdp boards.
+=======
+	depends on DRM_PANEL_NEC_NL8048HL11 = n
+	help
+	  This NEC NL8048HL11 panel is TFT LCD used in the
+	  Zoom2/3/3630 sdp boards.
+>>>>>>> upstream/android-13
 
 endmenu

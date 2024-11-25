@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
+>>>>>>> upstream/android-13
 // Copyright (C) 1994, 1995, 1996 by Ralf Baechle
 // Copyright (C) 2005-2017 Andes Technology Corporation
 #ifndef	_ASM_CACHECTL

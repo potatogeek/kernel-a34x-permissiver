@@ -1,11 +1,19 @@
+<<<<<<< HEAD
 /*
 * Filename: dma.c
 *
 *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+* Filename: dma.c
+*
+>>>>>>> upstream/android-13
 * Authors: Joshua Morris <josh.h.morris@us.ibm.com>
 *	Philip Kelleher <pjk1939@linux.vnet.ibm.com>
 *
 * (C) Copyright 2013 IBM Corporation
+<<<<<<< HEAD
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -20,6 +28,8 @@
 * You should have received a copy of the GNU General Public License
 * along with this program; if not, write to the Free Software Foundation,
 * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
 */
 
 #include <linux/slab.h>
@@ -88,6 +98,7 @@ struct dma_tracker {
 	struct rsxx_dma	*dma;
 };
 
+<<<<<<< HEAD
 #define DMA_TRACKER_LIST_SIZE8 (sizeof(struct dma_tracker_list) + \
 		(sizeof(struct dma_tracker) * RSXX_MAX_OUTSTANDING_CMDS))
 
@@ -95,6 +106,12 @@ struct dma_tracker_list {
 	spinlock_t		lock;
 	int			head;
 	struct dma_tracker	list[0];
+=======
+struct dma_tracker_list {
+	spinlock_t		lock;
+	int			head;
+	struct dma_tracker	list[];
+>>>>>>> upstream/android-13
 };
 
 
@@ -224,12 +241,21 @@ static void dma_intr_coal_auto_tune(struct rsxx_cardinfo *card)
 static void rsxx_free_dma(struct rsxx_dma_ctrl *ctrl, struct rsxx_dma *dma)
 {
 	if (dma->cmd != HW_CMD_BLK_DISCARD) {
+<<<<<<< HEAD
 		if (!pci_dma_mapping_error(ctrl->card->dev, dma->dma_addr)) {
 			pci_unmap_page(ctrl->card->dev, dma->dma_addr,
 				       get_dma_size(dma),
 				       dma->cmd == HW_CMD_BLK_WRITE ?
 						   PCI_DMA_TODEVICE :
 						   PCI_DMA_FROMDEVICE);
+=======
+		if (!dma_mapping_error(&ctrl->card->dev->dev, dma->dma_addr)) {
+			dma_unmap_page(&ctrl->card->dev->dev, dma->dma_addr,
+				       get_dma_size(dma),
+				       dma->cmd == HW_CMD_BLK_WRITE ?
+						   DMA_TO_DEVICE :
+						   DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -438,16 +464,26 @@ static void rsxx_issue_dmas(struct rsxx_dma_ctrl *ctrl)
 
 		if (dma->cmd != HW_CMD_BLK_DISCARD) {
 			if (dma->cmd == HW_CMD_BLK_WRITE)
+<<<<<<< HEAD
 				dir = PCI_DMA_TODEVICE;
 			else
 				dir = PCI_DMA_FROMDEVICE;
 
 			/*
 			 * The function pci_map_page is placed here because we
+=======
+				dir = DMA_TO_DEVICE;
+			else
+				dir = DMA_FROM_DEVICE;
+
+			/*
+			 * The function dma_map_page is placed here because we
+>>>>>>> upstream/android-13
 			 * can only, by design, issue up to 255 commands to the
 			 * hardware at one time per DMA channel. So the maximum
 			 * amount of mapped memory would be 255 * 4 channels *
 			 * 4096 Bytes which is less than 2GB, the limit of a x8
+<<<<<<< HEAD
 			 * Non-HWWD PCIe slot. This way the pci_map_page
 			 * function should never fail because of a lack of
 			 * mappable memory.
@@ -455,6 +491,15 @@ static void rsxx_issue_dmas(struct rsxx_dma_ctrl *ctrl)
 			dma->dma_addr = pci_map_page(ctrl->card->dev, dma->page,
 					dma->pg_off, dma->sub_page.cnt << 9, dir);
 			if (pci_dma_mapping_error(ctrl->card->dev, dma->dma_addr)) {
+=======
+			 * Non-HWWD PCIe slot. This way the dma_map_page
+			 * function should never fail because of a lack of
+			 * mappable memory.
+			 */
+			dma->dma_addr = dma_map_page(&ctrl->card->dev->dev, dma->page,
+					dma->pg_off, dma->sub_page.cnt << 9, dir);
+			if (dma_mapping_error(&ctrl->card->dev->dev, dma->dma_addr)) {
+>>>>>>> upstream/android-13
 				push_tracker(ctrl->trackers, tag);
 				rsxx_complete_dma(ctrl, dma, DMA_CANCELLED);
 				continue;
@@ -776,10 +821,17 @@ bvec_err:
 /*----------------- DMA Engine Initialization & Setup -------------------*/
 int rsxx_hw_buffers_init(struct pci_dev *dev, struct rsxx_dma_ctrl *ctrl)
 {
+<<<<<<< HEAD
 	ctrl->status.buf = pci_alloc_consistent(dev, STATUS_BUFFER_SIZE8,
 				&ctrl->status.dma_addr);
 	ctrl->cmd.buf = pci_alloc_consistent(dev, COMMAND_BUFFER_SIZE8,
 				&ctrl->cmd.dma_addr);
+=======
+	ctrl->status.buf = dma_alloc_coherent(&dev->dev, STATUS_BUFFER_SIZE8,
+				&ctrl->status.dma_addr, GFP_KERNEL);
+	ctrl->cmd.buf = dma_alloc_coherent(&dev->dev, COMMAND_BUFFER_SIZE8,
+				&ctrl->cmd.dma_addr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (ctrl->status.buf == NULL || ctrl->cmd.buf == NULL)
 		return -ENOMEM;
 
@@ -822,7 +874,12 @@ static int rsxx_dma_ctrl_init(struct pci_dev *dev,
 
 	memset(&ctrl->stats, 0, sizeof(ctrl->stats));
 
+<<<<<<< HEAD
 	ctrl->trackers = vmalloc(DMA_TRACKER_LIST_SIZE8);
+=======
+	ctrl->trackers = vmalloc(struct_size(ctrl->trackers, list,
+					     RSXX_MAX_OUTSTANDING_CMDS));
+>>>>>>> upstream/android-13
 	if (!ctrl->trackers)
 		return -ENOMEM;
 
@@ -958,6 +1015,7 @@ failed_dma_setup:
 			ctrl->done_wq = NULL;
 		}
 
+<<<<<<< HEAD
 		if (ctrl->trackers)
 			vfree(ctrl->trackers);
 
@@ -968,6 +1026,17 @@ failed_dma_setup:
 		if (ctrl->cmd.buf)
 			pci_free_consistent(card->dev, COMMAND_BUFFER_SIZE8,
 					    ctrl->cmd.buf, ctrl->cmd.dma_addr);
+=======
+		vfree(ctrl->trackers);
+
+		if (ctrl->status.buf)
+			dma_free_coherent(&card->dev->dev, STATUS_BUFFER_SIZE8,
+					  ctrl->status.buf,
+					  ctrl->status.dma_addr);
+		if (ctrl->cmd.buf)
+			dma_free_coherent(&card->dev->dev, COMMAND_BUFFER_SIZE8,
+					  ctrl->cmd.buf, ctrl->cmd.dma_addr);
+>>>>>>> upstream/android-13
 	}
 
 	return st;
@@ -1023,10 +1092,17 @@ void rsxx_dma_destroy(struct rsxx_cardinfo *card)
 
 		vfree(ctrl->trackers);
 
+<<<<<<< HEAD
 		pci_free_consistent(card->dev, STATUS_BUFFER_SIZE8,
 				    ctrl->status.buf, ctrl->status.dma_addr);
 		pci_free_consistent(card->dev, COMMAND_BUFFER_SIZE8,
 				    ctrl->cmd.buf, ctrl->cmd.dma_addr);
+=======
+		dma_free_coherent(&card->dev->dev, STATUS_BUFFER_SIZE8,
+				  ctrl->status.buf, ctrl->status.dma_addr);
+		dma_free_coherent(&card->dev->dev, COMMAND_BUFFER_SIZE8,
+				  ctrl->cmd.buf, ctrl->cmd.dma_addr);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1059,11 +1135,19 @@ int rsxx_eeh_save_issued_dmas(struct rsxx_cardinfo *card)
 				card->ctrl[i].stats.reads_issued--;
 
 			if (dma->cmd != HW_CMD_BLK_DISCARD) {
+<<<<<<< HEAD
 				pci_unmap_page(card->dev, dma->dma_addr,
 					       get_dma_size(dma),
 					       dma->cmd == HW_CMD_BLK_WRITE ?
 					       PCI_DMA_TODEVICE :
 					       PCI_DMA_FROMDEVICE);
+=======
+				dma_unmap_page(&card->dev->dev, dma->dma_addr,
+					       get_dma_size(dma),
+					       dma->cmd == HW_CMD_BLK_WRITE ?
+					       DMA_TO_DEVICE :
+					       DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 			}
 
 			list_add_tail(&dma->list, &issued_dmas[i]);

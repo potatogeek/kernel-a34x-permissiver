@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2012 Pavel Machek <pavel@denx.de>
  * Copyright (C) 2012-2015 Altera Corporation
@@ -15,6 +16,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright 2012 Pavel Machek <pavel@denx.de>
+ * Copyright (C) 2012-2015 Altera Corporation
+>>>>>>> upstream/android-13
  */
 
 #ifndef __MACH_CORE_H
@@ -34,8 +41,11 @@
 
 #define RSTMGR_MPUMODRST_CPU1		0x2     /* CPU1 Reset */
 
+<<<<<<< HEAD
 extern void socfpga_init_clocks(void);
 extern void socfpga_sysmgr_init(void);
+=======
+>>>>>>> upstream/android-13
 void socfpga_init_l2_ecc(void);
 void socfpga_init_ocram_ecc(void);
 void socfpga_init_arria10_l2_ecc(void);
@@ -48,7 +58,11 @@ extern void __iomem *sdr_ctl_base_addr;
 u32 socfpga_sdram_self_refresh(u32 sdr_base);
 extern unsigned int socfpga_sdram_self_refresh_sz;
 
+<<<<<<< HEAD
 extern char secondary_trampoline, secondary_trampoline_end;
+=======
+extern char secondary_trampoline[], secondary_trampoline_end[];
+>>>>>>> upstream/android-13
 
 extern unsigned long socfpga_cpu1start_addr;
 

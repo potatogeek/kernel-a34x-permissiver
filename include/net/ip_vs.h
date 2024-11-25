@@ -14,6 +14,10 @@
 #include <linux/spinlock.h>             /* for struct rwlock_t */
 #include <linux/atomic.h>               /* for struct atomic_t */
 #include <linux/refcount.h>             /* for struct refcount_t */
+<<<<<<< HEAD
+=======
+#include <linux/workqueue.h>
+>>>>>>> upstream/android-13
 
 #include <linux/compiler.h>
 #include <linux/timer.h>
@@ -24,9 +28,12 @@
 #include <linux/ip.h>
 #include <linux/ipv6.h>			/* for struct ipv6hdr */
 #include <net/ipv6.h>
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_IP_VS_IPV6)
 #include <linux/netfilter_ipv6/ip6_tables.h>
 #endif
+=======
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_NF_CONNTRACK)
 #include <net/netfilter/nf_conntrack.h>
 #endif
@@ -453,9 +460,12 @@ struct ip_vs_protocol {
 	int (*dnat_handler)(struct sk_buff *skb, struct ip_vs_protocol *pp,
 			    struct ip_vs_conn *cp, struct ip_vs_iphdr *iph);
 
+<<<<<<< HEAD
 	int (*csum_check)(int af, struct sk_buff *skb,
 			  struct ip_vs_protocol *pp);
 
+=======
+>>>>>>> upstream/android-13
 	const char *(*state_name)(int state);
 
 	void (*state_transition)(struct ip_vs_conn *cp, int direction,
@@ -603,6 +613,13 @@ struct ip_vs_dest_user_kern {
 
 	/* Address family of addr */
 	u16			af;
+<<<<<<< HEAD
+=======
+
+	u16			tun_type;	/* tunnel type */
+	__be16			tun_port;	/* tunnel port */
+	u16			tun_flags;	/* tunnel flags */
+>>>>>>> upstream/android-13
 };
 
 
@@ -663,6 +680,12 @@ struct ip_vs_dest {
 	atomic_t		conn_flags;	/* flags to copy to conn */
 	atomic_t		weight;		/* server weight */
 	atomic_t		last_weight;	/* server latest weight */
+<<<<<<< HEAD
+=======
+	__u16			tun_type;	/* tunnel type */
+	__be16			tun_port;	/* tunnel port */
+	__u16			tun_flags;	/* tunnel flags */
+>>>>>>> upstream/android-13
 
 	refcount_t		refcnt;		/* reference counter */
 	struct ip_vs_stats      stats;          /* statistics */
@@ -870,6 +893,10 @@ struct netns_ipvs {
 	struct ip_vs_stats		tot_stats;  /* Statistics & est. */
 
 	int			num_services;    /* no of virtual services */
+<<<<<<< HEAD
+=======
+	int			num_services6;   /* IPv6 virtual services */
+>>>>>>> upstream/android-13
 
 	/* Trash for destinations */
 	struct list_head	dest_trash;
@@ -881,6 +908,11 @@ struct netns_ipvs {
 	atomic_t		conn_out_counter;
 
 #ifdef CONFIG_SYSCTL
+<<<<<<< HEAD
+=======
+	/* delayed work for expiring no dest connections */
+	struct delayed_work	expire_nodest_conn_work;
+>>>>>>> upstream/android-13
 	/* 1/rate drop and drop-entry variables */
 	struct delayed_work	defense_work;   /* Work handler */
 	int			drop_rate;
@@ -956,6 +988,10 @@ struct netns_ipvs {
 	 * are not supported when synchronization is enabled.
 	 */
 	unsigned int		mixed_address_family_dests;
+<<<<<<< HEAD
+=======
+	unsigned int		hooks_afmask;	/* &1=AF_INET, &2=AF_INET6 */
+>>>>>>> upstream/android-13
 };
 
 #define DEFAULT_SYNC_THRESHOLD	3
@@ -1045,6 +1081,14 @@ static inline int sysctl_conn_reuse_mode(struct netns_ipvs *ipvs)
 	return ipvs->sysctl_conn_reuse_mode;
 }
 
+<<<<<<< HEAD
+=======
+static inline int sysctl_expire_nodest_conn(struct netns_ipvs *ipvs)
+{
+	return ipvs->sysctl_expire_nodest_conn;
+}
+
+>>>>>>> upstream/android-13
 static inline int sysctl_schedule_icmp(struct netns_ipvs *ipvs)
 {
 	return ipvs->sysctl_schedule_icmp;
@@ -1132,6 +1176,14 @@ static inline int sysctl_conn_reuse_mode(struct netns_ipvs *ipvs)
 	return 1;
 }
 
+<<<<<<< HEAD
+=======
+static inline int sysctl_expire_nodest_conn(struct netns_ipvs *ipvs)
+{
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static inline int sysctl_schedule_icmp(struct netns_ipvs *ipvs)
 {
 	return 0;
@@ -1321,7 +1373,11 @@ void ip_vs_protocol_net_cleanup(struct netns_ipvs *ipvs);
 void ip_vs_control_net_cleanup(struct netns_ipvs *ipvs);
 void ip_vs_estimator_net_cleanup(struct netns_ipvs *ipvs);
 void ip_vs_sync_net_cleanup(struct netns_ipvs *ipvs);
+<<<<<<< HEAD
 void ip_vs_service_net_cleanup(struct netns_ipvs *ipvs);
+=======
+void ip_vs_service_nets_cleanup(struct list_head *net_list);
+>>>>>>> upstream/android-13
 
 /* IPVS application functions
  * (from ip_vs_app.c)
@@ -1405,6 +1461,12 @@ bool ip_vs_has_real_service(struct netns_ipvs *ipvs, int af, __u16 protocol,
 struct ip_vs_dest *
 ip_vs_find_real_service(struct netns_ipvs *ipvs, int af, __u16 protocol,
 			const union nf_inet_addr *daddr, __be16 dport);
+<<<<<<< HEAD
+=======
+struct ip_vs_dest *ip_vs_find_tunnel(struct netns_ipvs *ipvs, int af,
+				     const union nf_inet_addr *daddr,
+				     __be16 tun_port);
+>>>>>>> upstream/android-13
 
 int ip_vs_use_count_inc(void);
 void ip_vs_use_count_dec(void);
@@ -1498,6 +1560,28 @@ static inline int ip_vs_todrop(struct netns_ipvs *ipvs)
 static inline int ip_vs_todrop(struct netns_ipvs *ipvs) { return 0; }
 #endif
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_SYSCTL
+/* Enqueue delayed work for expiring no dest connections
+ * Only run when sysctl_expire_nodest=1
+ */
+static inline void ip_vs_enqueue_expire_nodest_conns(struct netns_ipvs *ipvs)
+{
+	if (sysctl_expire_nodest_conn(ipvs))
+		queue_delayed_work(system_long_wq,
+				   &ipvs->expire_nodest_conn_work, 1);
+}
+
+void ip_vs_expire_nodest_conn_flush(struct netns_ipvs *ipvs);
+#else
+static inline void ip_vs_enqueue_expire_nodest_conns(struct netns_ipvs *ipvs) {}
+#endif
+
+#define IP_VS_DFWD_METHOD(dest) (atomic_read(&(dest)->conn_flags) & \
+				 IP_VS_CONN_F_FWD_MASK)
+
+>>>>>>> upstream/android-13
 /* ip_vs_fwd_tag returns the forwarding tag of the connection */
 #define IP_VS_FWD_METHOD(cp)  (cp->flags & IP_VS_CONN_F_FWD_MASK)
 
@@ -1658,6 +1742,12 @@ static inline void ip_vs_unregister_conntrack(struct ip_vs_service *svc)
 #endif
 }
 
+<<<<<<< HEAD
+=======
+int ip_vs_register_hooks(struct netns_ipvs *ipvs, unsigned int af);
+void ip_vs_unregister_hooks(struct netns_ipvs *ipvs, unsigned int af);
+
+>>>>>>> upstream/android-13
 static inline int
 ip_vs_dest_conn_overhead(struct ip_vs_dest *dest)
 {
@@ -1671,4 +1761,18 @@ ip_vs_dest_conn_overhead(struct ip_vs_dest *dest)
 		atomic_read(&dest->inactconns);
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_IP_VS_PROTO_TCP
+INDIRECT_CALLABLE_DECLARE(int
+	tcp_snat_handler(struct sk_buff *skb, struct ip_vs_protocol *pp,
+			 struct ip_vs_conn *cp, struct ip_vs_iphdr *iph));
+#endif
+
+#ifdef CONFIG_IP_VS_PROTO_UDP
+INDIRECT_CALLABLE_DECLARE(int
+	udp_snat_handler(struct sk_buff *skb, struct ip_vs_protocol *pp,
+			 struct ip_vs_conn *cp, struct ip_vs_iphdr *iph));
+#endif
+>>>>>>> upstream/android-13
 #endif	/* _NET_IP_VS_H */

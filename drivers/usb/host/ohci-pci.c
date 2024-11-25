@@ -152,7 +152,11 @@ static int ohci_quirk_amd700(struct usb_hcd *hcd)
 {
 	struct ohci_hcd *ohci = hcd_to_ohci(hcd);
 
+<<<<<<< HEAD
 	if (usb_amd_find_chipset_info())
+=======
+	if (usb_amd_quirk_pll_check())
+>>>>>>> upstream/android-13
 		ohci->flags |= OHCI_QUIRK_AMD_PLL;
 
 	/* SB800 needs pre-fetch fix */
@@ -232,10 +236,13 @@ static const struct pci_device_id ohci_pci_quirks[] = {
 		.driver_data	= (unsigned long)ohci_quirk_qemu,
 	},
 
+<<<<<<< HEAD
 	/* FIXME for some of the early AMD 760 southbridges, OHCI
 	 * won't work at all.  blacklist them.
 	 */
 
+=======
+>>>>>>> upstream/android-13
 	{},
 };
 
@@ -274,6 +281,7 @@ static const struct ohci_driver_overrides pci_overrides __initconst = {
 	.reset =		ohci_pci_reset,
 };
 
+<<<<<<< HEAD
 static const struct pci_device_id pci_ids [] = { {
 	/* handle any USB OHCI controller */
 	PCI_DEVICE_CLASS(PCI_CLASS_SERIAL_USB_OHCI, ~0),
@@ -282,16 +290,38 @@ static const struct pci_device_id pci_ids [] = { {
 	/* The device in the ConneXT I/O hub has no class reg */
 	PCI_VDEVICE(STMICRO, PCI_DEVICE_ID_STMICRO_USB_OHCI),
 	.driver_data =	(unsigned long) &ohci_pci_hc_driver,
+=======
+static const struct pci_device_id pci_ids[] = { {
+	/* handle any USB OHCI controller */
+	PCI_DEVICE_CLASS(PCI_CLASS_SERIAL_USB_OHCI, ~0),
+	}, {
+	/* The device in the ConneXT I/O hub has no class reg */
+	PCI_VDEVICE(STMICRO, PCI_DEVICE_ID_STMICRO_USB_OHCI),
+>>>>>>> upstream/android-13
 	}, { /* end: all zeroes */ }
 };
 MODULE_DEVICE_TABLE (pci, pci_ids);
 
+<<<<<<< HEAD
 /* pci driver glue; this is a "new style" PCI driver module */
 static struct pci_driver ohci_pci_driver = {
 	.name =		(char *) hcd_name,
 	.id_table =	pci_ids,
 
 	.probe =	usb_hcd_pci_probe,
+=======
+static int ohci_pci_probe(struct pci_dev *dev, const struct pci_device_id *id)
+{
+	return usb_hcd_pci_probe(dev, id, &ohci_pci_hc_driver);
+}
+
+/* pci driver glue; this is a "new style" PCI driver module */
+static struct pci_driver ohci_pci_driver = {
+	.name =		hcd_name,
+	.id_table =	pci_ids,
+
+	.probe =	ohci_pci_probe,
+>>>>>>> upstream/android-13
 	.remove =	usb_hcd_pci_remove,
 	.shutdown =	usb_hcd_pci_shutdown,
 

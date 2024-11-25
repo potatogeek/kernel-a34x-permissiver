@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * net/sched/act_ipt.c		iptables target interface
  *
  *TODO: Add other tables. For now we only support the ipv4 table targets
  *
+<<<<<<< HEAD
  *		This program is free software; you can redistribute it and/or
  *		modify it under the terms of the GNU General Public License
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * Copyright:	Jamal Hadi Salim (2002-13)
  */
 
@@ -98,9 +105,17 @@ static const struct nla_policy ipt_policy[TCA_IPT_MAX + 1] = {
 
 static int __tcf_ipt_init(struct net *net, unsigned int id, struct nlattr *nla,
 			  struct nlattr *est, struct tc_action **a,
+<<<<<<< HEAD
 			  const struct tc_action_ops *ops, int ovr, int bind)
 {
 	struct tc_action_net *tn = net_generic(net, id);
+=======
+			  const struct tc_action_ops *ops,
+			  struct tcf_proto *tp, u32 flags)
+{
+	struct tc_action_net *tn = net_generic(net, id);
+	bool bind = flags & TCA_ACT_FLAGS_BIND;
+>>>>>>> upstream/android-13
 	struct nlattr *tb[TCA_IPT_MAX + 1];
 	struct tcf_ipt *ipt;
 	struct xt_entry_target *td, *t;
@@ -113,7 +128,12 @@ static int __tcf_ipt_init(struct net *net, unsigned int id, struct nlattr *nla,
 	if (nla == NULL)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	err = nla_parse_nested(tb, TCA_IPT_MAX, nla, ipt_policy, NULL);
+=======
+	err = nla_parse_nested_deprecated(tb, TCA_IPT_MAX, nla, ipt_policy,
+					  NULL);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -146,7 +166,11 @@ static int __tcf_ipt_init(struct net *net, unsigned int id, struct nlattr *nla,
 
 	if (!exists) {
 		ret = tcf_idr_create(tn, index, est, a, ops, bind,
+<<<<<<< HEAD
 				     false);
+=======
+				     false, 0);
+>>>>>>> upstream/android-13
 		if (ret) {
 			tcf_idr_cleanup(tn, index);
 			return ret;
@@ -156,7 +180,11 @@ static int __tcf_ipt_init(struct net *net, unsigned int id, struct nlattr *nla,
 		if (bind)/* dont override defaults */
 			return 0;
 
+<<<<<<< HEAD
 		if (!ovr) {
+=======
+		if (!(flags & TCA_ACT_FLAGS_REPLACE)) {
+>>>>>>> upstream/android-13
 			tcf_idr_release(*a, bind);
 			return -EEXIST;
 		}
@@ -168,7 +196,11 @@ static int __tcf_ipt_init(struct net *net, unsigned int id, struct nlattr *nla,
 	if (unlikely(!tname))
 		goto err1;
 	if (tb[TCA_IPT_TABLE] == NULL ||
+<<<<<<< HEAD
 	    nla_strlcpy(tname, tb[TCA_IPT_TABLE], IFNAMSIZ) >= IFNAMSIZ)
+=======
+	    nla_strscpy(tname, tb[TCA_IPT_TABLE], IFNAMSIZ) >= IFNAMSIZ)
+>>>>>>> upstream/android-13
 		strcpy(tname, "mangle");
 
 	t = kmemdup(td, td->u.target_size, GFP_KERNEL);
@@ -191,8 +223,11 @@ static int __tcf_ipt_init(struct net *net, unsigned int id, struct nlattr *nla,
 	ipt->tcfi_t     = t;
 	ipt->tcfi_hook  = hook;
 	spin_unlock_bh(&ipt->tcf_lock);
+<<<<<<< HEAD
 	if (ret == ACT_P_CREATED)
 		tcf_idr_insert(tn, *a);
+=======
+>>>>>>> upstream/android-13
 	return ret;
 
 err3:
@@ -205,6 +240,7 @@ err1:
 }
 
 static int tcf_ipt_init(struct net *net, struct nlattr *nla,
+<<<<<<< HEAD
 			struct nlattr *est, struct tc_action **a, int ovr,
 			int bind, bool rtnl_held,
 			struct netlink_ext_ack *extack)
@@ -220,6 +256,23 @@ static int tcf_xt_init(struct net *net, struct nlattr *nla,
 {
 	return __tcf_ipt_init(net, xt_net_id, nla, est, a, &act_xt_ops, ovr,
 			      bind);
+=======
+			struct nlattr *est, struct tc_action **a,
+			struct tcf_proto *tp,
+			u32 flags, struct netlink_ext_ack *extack)
+{
+	return __tcf_ipt_init(net, ipt_net_id, nla, est, a, &act_ipt_ops,
+			      tp, flags);
+}
+
+static int tcf_xt_init(struct net *net, struct nlattr *nla,
+		       struct nlattr *est, struct tc_action **a,
+		       struct tcf_proto *tp,
+		       u32 flags, struct netlink_ext_ack *extack)
+{
+	return __tcf_ipt_init(net, xt_net_id, nla, est, a, &act_xt_ops,
+			      tp, flags);
+>>>>>>> upstream/android-13
 }
 
 static int tcf_ipt_act(struct sk_buff *skb, const struct tc_action *a,
@@ -329,8 +382,12 @@ static int tcf_ipt_walker(struct net *net, struct sk_buff *skb,
 	return tcf_generic_walker(tn, skb, cb, type, ops, extack);
 }
 
+<<<<<<< HEAD
 static int tcf_ipt_search(struct net *net, struct tc_action **a, u32 index,
 			  struct netlink_ext_ack *extack)
+=======
+static int tcf_ipt_search(struct net *net, struct tc_action **a, u32 index)
+>>>>>>> upstream/android-13
 {
 	struct tc_action_net *tn = net_generic(net, ipt_net_id);
 
@@ -339,7 +396,11 @@ static int tcf_ipt_search(struct net *net, struct tc_action **a, u32 index,
 
 static struct tc_action_ops act_ipt_ops = {
 	.kind		=	"ipt",
+<<<<<<< HEAD
 	.type		=	TCA_ACT_IPT,
+=======
+	.id		=	TCA_ID_IPT,
+>>>>>>> upstream/android-13
 	.owner		=	THIS_MODULE,
 	.act		=	tcf_ipt_act,
 	.dump		=	tcf_ipt_dump,
@@ -379,8 +440,12 @@ static int tcf_xt_walker(struct net *net, struct sk_buff *skb,
 	return tcf_generic_walker(tn, skb, cb, type, ops, extack);
 }
 
+<<<<<<< HEAD
 static int tcf_xt_search(struct net *net, struct tc_action **a, u32 index,
 			 struct netlink_ext_ack *extack)
+=======
+static int tcf_xt_search(struct net *net, struct tc_action **a, u32 index)
+>>>>>>> upstream/android-13
 {
 	struct tc_action_net *tn = net_generic(net, xt_net_id);
 
@@ -389,7 +454,11 @@ static int tcf_xt_search(struct net *net, struct tc_action **a, u32 index,
 
 static struct tc_action_ops act_xt_ops = {
 	.kind		=	"xt",
+<<<<<<< HEAD
 	.type		=	TCA_ACT_XT,
+=======
+	.id		=	TCA_ID_XT,
+>>>>>>> upstream/android-13
 	.owner		=	THIS_MODULE,
 	.act		=	tcf_ipt_act,
 	.dump		=	tcf_ipt_dump,

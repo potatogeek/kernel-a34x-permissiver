@@ -16,6 +16,10 @@
 #include <linux/export.h>
 #include <linux/interrupt.h>
 #include <linux/io.h>
+<<<<<<< HEAD
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/serial.h>
 #include <linux/smp.h>
 #include <linux/types.h>
@@ -36,7 +40,13 @@
 #include <asm/mipsregs.h>
 #include <asm/bootinfo.h>
 #include <asm/sections.h>
+<<<<<<< HEAD
 #include <asm/setup.h>
+=======
+#include <asm/fw/fw.h>
+#include <asm/setup.h>
+#include <asm/prom.h>
+>>>>>>> upstream/android-13
 #include <asm/time.h>
 
 #include <asm/octeon/octeon.h>
@@ -72,7 +82,11 @@ static unsigned long long reserve_low_mem;
 DEFINE_SEMAPHORE(octeon_bootbus_sem);
 EXPORT_SYMBOL(octeon_bootbus_sem);
 
+<<<<<<< HEAD
 struct octeon_boot_descriptor *octeon_boot_desc_ptr;
+=======
+static struct octeon_boot_descriptor *octeon_boot_desc_ptr;
+>>>>>>> upstream/android-13
 
 struct cvmx_bootinfo *octeon_bootinfo;
 EXPORT_SYMBOL(octeon_bootinfo);
@@ -96,7 +110,11 @@ static void octeon_kexec_smp_down(void *ignored)
 	"	sync						\n"
 	"	synci	($0)					\n");
 
+<<<<<<< HEAD
 	relocated_kexec_smp_wait(NULL);
+=======
+	kexec_reboot();
+>>>>>>> upstream/android-13
 }
 #endif
 
@@ -281,11 +299,14 @@ void octeon_crash_smp_send_stop(void)
 
 #endif /* CONFIG_KEXEC */
 
+<<<<<<< HEAD
 #ifdef CONFIG_CAVIUM_RESERVE32
 uint64_t octeon_reserve32_memory;
 EXPORT_SYMBOL(octeon_reserve32_memory);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_KEXEC
 /* crashkernel cmdline parameter is parsed _after_ memory setup
  * we also parse it here (workaround for EHB5200) */
@@ -297,9 +318,16 @@ static int octeon_uart;
 extern asmlinkage void handle_int(void);
 
 /**
+<<<<<<< HEAD
  * Return non zero if we are currently running in the Octeon simulator
  *
  * Returns
+=======
+ * octeon_is_simulation - Return non-zero if we are currently running
+ * in the Octeon simulator
+ *
+ * Return: non-0 if running in the Octeon simulator, 0 otherwise
+>>>>>>> upstream/android-13
  */
 int octeon_is_simulation(void)
 {
@@ -308,10 +336,17 @@ int octeon_is_simulation(void)
 EXPORT_SYMBOL(octeon_is_simulation);
 
 /**
+<<<<<<< HEAD
  * Return true if Octeon is in PCI Host mode. This means
  * Linux can control the PCI bus.
  *
  * Returns Non zero if Octeon in host mode.
+=======
+ * octeon_is_pci_host - Return true if Octeon is in PCI Host mode. This means
+ * Linux can control the PCI bus.
+ *
+ * Return: Non-zero if Octeon is in host mode.
+>>>>>>> upstream/android-13
  */
 int octeon_is_pci_host(void)
 {
@@ -323,9 +358,15 @@ int octeon_is_pci_host(void)
 }
 
 /**
+<<<<<<< HEAD
  * Get the clock rate of Octeon
  *
  * Returns Clock rate in HZ
+=======
+ * octeon_get_clock_rate - Get the clock rate of Octeon
+ *
+ * Return: Clock rate in HZ
+>>>>>>> upstream/android-13
  */
 uint64_t octeon_get_clock_rate(void)
 {
@@ -345,6 +386,7 @@ EXPORT_SYMBOL(octeon_get_io_clock_rate);
 
 
 /**
+<<<<<<< HEAD
  * Write to the LCD display connected to the bootbus. This display
  * exists on most Cavium evaluation boards. If it doesn't exist, then
  * this function doesn't do anything.
@@ -356,6 +398,19 @@ void octeon_write_lcd(const char *s)
 	if (octeon_bootinfo->led_display_base_addr) {
 		void __iomem *lcd_address =
 			ioremap_nocache(octeon_bootinfo->led_display_base_addr,
+=======
+ * octeon_write_lcd - Write to the LCD display connected to the bootbus.
+ * @s:	    String to write
+ *
+ * This display exists on most Cavium evaluation boards. If it doesn't exist,
+ * then this function doesn't do anything.
+ */
+static void octeon_write_lcd(const char *s)
+{
+	if (octeon_bootinfo->led_display_base_addr) {
+		void __iomem *lcd_address =
+			ioremap(octeon_bootinfo->led_display_base_addr,
+>>>>>>> upstream/android-13
 					8);
 		int i;
 		for (i = 0; i < 8; i++, s++) {
@@ -369,20 +424,34 @@ void octeon_write_lcd(const char *s)
 }
 
 /**
+<<<<<<< HEAD
  * Return the console uart passed by the bootloader
  *
  * Returns uart	  (0 or 1)
  */
 int octeon_get_boot_uart(void)
+=======
+ * octeon_get_boot_uart - Return the console uart passed by the bootloader
+ *
+ * Return: uart number (0 or 1)
+ */
+static int octeon_get_boot_uart(void)
+>>>>>>> upstream/android-13
 {
 	return (octeon_boot_desc_ptr->flags & OCTEON_BL_FLAG_CONSOLE_UART1) ?
 		1 : 0;
 }
 
 /**
+<<<<<<< HEAD
  * Get the coremask Linux was booted on.
  *
  * Returns Core mask
+=======
+ * octeon_get_boot_coremask - Get the coremask Linux was booted on.
+ *
+ * Return: Core mask
+>>>>>>> upstream/android-13
  */
 int octeon_get_boot_coremask(void)
 {
@@ -390,7 +459,11 @@ int octeon_get_boot_coremask(void)
 }
 
 /**
+<<<<<<< HEAD
  * Check the hardware BIST results for a CPU
+=======
+ * octeon_check_cpu_bist - Check the hardware BIST results for a CPU
+>>>>>>> upstream/android-13
  */
 void octeon_check_cpu_bist(void)
 {
@@ -421,7 +494,11 @@ void octeon_check_cpu_bist(void)
 }
 
 /**
+<<<<<<< HEAD
  * Reboot Octeon
+=======
+ * octeon_restart - Reboot Octeon
+>>>>>>> upstream/android-13
  *
  * @command: Command to pass to the bootloader. Currently ignored.
  */
@@ -446,7 +523,11 @@ static void octeon_restart(char *command)
 
 
 /**
+<<<<<<< HEAD
  * Permanently stop a core.
+=======
+ * octeon_kill_core - Permanently stop a core.
+>>>>>>> upstream/android-13
  *
  * @arg: Ignored.
  */
@@ -466,7 +547,11 @@ static void octeon_kill_core(void *arg)
 
 
 /**
+<<<<<<< HEAD
  * Halt the system
+=======
+ * octeon_halt - Halt the system
+>>>>>>> upstream/android-13
  */
 static void octeon_halt(void)
 {
@@ -509,9 +594,15 @@ static void __init init_octeon_system_type(void)
 }
 
 /**
+<<<<<<< HEAD
  * Return a string representing the system type
  *
  * Returns
+=======
+ * octeon_board_type_string - Return a string representing the system type
+ *
+ * Return: system type string
+>>>>>>> upstream/android-13
  */
 const char *octeon_board_type_string(void)
 {
@@ -652,7 +743,11 @@ void octeon_user_io_init(void)
 }
 
 /**
+<<<<<<< HEAD
  * Early entry point for arch setup
+=======
+ * prom_init - Early entry point for arch setup
+>>>>>>> upstream/android-13
  */
 void __init prom_init(void)
 {
@@ -662,9 +757,13 @@ void __init prom_init(void)
 	int i;
 	u64 t;
 	int argc;
+<<<<<<< HEAD
 #ifdef CONFIG_CAVIUM_RESERVE32
 	int64_t addr = -1;
 #endif
+=======
+
+>>>>>>> upstream/android-13
 	/*
 	 * The bootloader passes a pointer to the boot descriptor in
 	 * $a3, this is available as fw_arg3.
@@ -779,6 +878,7 @@ void __init prom_init(void)
 		cvmx_write_csr(CVMX_LED_UDD_DATX(1), 0);
 		cvmx_write_csr(CVMX_LED_EN, 1);
 	}
+<<<<<<< HEAD
 #ifdef CONFIG_CAVIUM_RESERVE32
 	/*
 	 * We need to temporarily allocate all memory in the reserve32
@@ -798,6 +898,8 @@ void __init prom_init(void)
 	else
 		octeon_reserve32_memory = addr;
 #endif
+=======
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_CAVIUM_OCTEON_LOCK_L2
 	if (cvmx_read_csr(CVMX_L2D_FUS3) & (3ull << 34)) {
@@ -842,7 +944,11 @@ void __init prom_init(void)
 	 * BIST should always be enabled when doing a soft reset. L2
 	 * Cache locking for instance is not cleared unless BIST is
 	 * enabled.  Unfortunately due to a chip errata G-200 for
+<<<<<<< HEAD
 	 * Cn38XX and CN31XX, BIST msut be disabled on these parts.
+=======
+	 * Cn38XX and CN31XX, BIST must be disabled on these parts.
+>>>>>>> upstream/android-13
 	 */
 	if (OCTEON_IS_MODEL(OCTEON_CN38XX_PASS2) ||
 	    OCTEON_IS_MODEL(OCTEON_CN31XX))
@@ -928,7 +1034,11 @@ static __init void memory_exclude_page(u64 addr, u64 *mem, u64 *size)
 {
 	if (addr > *mem && addr < *mem + *size) {
 		u64 inc = addr - *mem;
+<<<<<<< HEAD
 		add_memory_region(*mem, inc, BOOT_MEM_RAM);
+=======
+		memblock_add(*mem, inc);
+>>>>>>> upstream/android-13
 		*mem += inc;
 		*size -= inc;
 	}
@@ -970,8 +1080,11 @@ void __init plat_mem_setup(void)
 	uint64_t crashk_end;
 #ifndef CONFIG_CRASH_DUMP
 	int64_t memory;
+<<<<<<< HEAD
 	uint64_t kernel_start;
 	uint64_t kernel_size;
+=======
+>>>>>>> upstream/android-13
 #endif
 
 	total = 0;
@@ -990,16 +1103,25 @@ void __init plat_mem_setup(void)
 
 /* Crashkernel ignores bootmem list. It relies on mem=X@Y option */
 #ifdef CONFIG_CRASH_DUMP
+<<<<<<< HEAD
 	add_memory_region(reserve_low_mem, max_memory, BOOT_MEM_RAM);
+=======
+	memblock_add(reserve_low_mem, max_memory);
+>>>>>>> upstream/android-13
 	total += max_memory;
 #else
 #ifdef CONFIG_KEXEC
 	if (crashk_size > 0) {
+<<<<<<< HEAD
 		add_memory_region(crashk_base, crashk_size, BOOT_MEM_RAM);
+=======
+		memblock_add(crashk_base, crashk_size);
+>>>>>>> upstream/android-13
 		crashk_end = crashk_base + crashk_size;
 	}
 #endif
 	/*
+<<<<<<< HEAD
 	 * When allocating memory, we want incrementing addresses from
 	 * bootmem_alloc so the code in add_memory_region can merge
 	 * regions next to each other.
@@ -1007,6 +1129,13 @@ void __init plat_mem_setup(void)
 	cvmx_bootmem_lock();
 	while ((boot_mem_map.nr_map < BOOT_MEM_MAP_MAX)
 		&& (total < max_memory)) {
+=======
+	 * When allocating memory, we want incrementing addresses,
+	 * which is handled by memblock
+	 */
+	cvmx_bootmem_lock();
+	while (total < max_memory) {
+>>>>>>> upstream/android-13
 		memory = cvmx_bootmem_phy_alloc(mem_alloc_size,
 						__pa_symbol(&_end), -1,
 						0x100000,
@@ -1038,6 +1167,7 @@ void __init plat_mem_setup(void)
 			 */
 			if (memory < crashk_base && end >  crashk_end) {
 				/* region is fully in */
+<<<<<<< HEAD
 				add_memory_region(memory,
 						  crashk_base - memory,
 						  BOOT_MEM_RAM);
@@ -1045,6 +1175,11 @@ void __init plat_mem_setup(void)
 				add_memory_region(crashk_end,
 						  end - crashk_end,
 						  BOOT_MEM_RAM);
+=======
+				memblock_add(memory, crashk_base - memory);
+				total += crashk_base - memory;
+				memblock_add(crashk_end, end - crashk_end);
+>>>>>>> upstream/android-13
 				total += end - crashk_end;
 				continue;
 			}
@@ -1072,7 +1207,11 @@ void __init plat_mem_setup(void)
 				 */
 				mem_alloc_size -= end - crashk_base;
 #endif
+<<<<<<< HEAD
 			add_memory_region(memory, mem_alloc_size, BOOT_MEM_RAM);
+=======
+			memblock_add(memory, mem_alloc_size);
+>>>>>>> upstream/android-13
 			total += mem_alloc_size;
 			/* Recovering mem_alloc_size */
 			mem_alloc_size = 4 << 20;
@@ -1081,6 +1220,7 @@ void __init plat_mem_setup(void)
 		}
 	}
 	cvmx_bootmem_unlock();
+<<<<<<< HEAD
 	/* Add the memory region for the kernel. */
 	kernel_start = (unsigned long) _text;
 	kernel_size = _end - _text;
@@ -1100,6 +1240,10 @@ void __init plat_mem_setup(void)
 		cvmx_bootmem_free_named("CAVIUM_RESERVE32");
 #endif /* CONFIG_CAVIUM_RESERVE32 */
 
+=======
+#endif /* CONFIG_CRASH_DUMP */
+
+>>>>>>> upstream/android-13
 	if (total == 0)
 		panic("Unable to allocate memory from "
 		      "cvmx_bootmem_phy_alloc");
@@ -1125,7 +1269,11 @@ EXPORT_SYMBOL(prom_putchar);
 
 void __init prom_free_prom_memory(void)
 {
+<<<<<<< HEAD
 	if (CAVIUM_OCTEON_DCACHE_PREFETCH_WAR) {
+=======
+	if (OCTEON_IS_MODEL(OCTEON_CN6XXX)) {
+>>>>>>> upstream/android-13
 		/* Check for presence of Core-14449 fix.  */
 		u32 insn;
 		u32 *foo;

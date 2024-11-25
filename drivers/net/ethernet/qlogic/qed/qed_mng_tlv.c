@@ -1,4 +1,10 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause)
+/* Copyright (c) 2019-2020 Marvell International Ltd. */
+
+>>>>>>> upstream/android-13
 #include <linux/types.h>
 #include <asm/byteorder.h>
 #include <linux/bug.h>
@@ -1274,7 +1280,11 @@ int qed_mfw_process_tlv_req(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt)
 	 */
 	for (offset = 0; offset < size; offset += sizeof(u32)) {
 		val = qed_rd(p_hwfn, p_ptt, addr + offset);
+<<<<<<< HEAD
 		val = be32_to_cpu(val);
+=======
+		val = be32_to_cpu((__force __be32)val);
+>>>>>>> upstream/android-13
 		memcpy(&p_mfw_buf[offset], &val, sizeof(u32));
 	}
 
@@ -1304,7 +1314,12 @@ int qed_mfw_process_tlv_req(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt)
 	}
 
 	if ((tlv_group & QED_MFW_TLV_ISCSI) &&
+<<<<<<< HEAD
 	    p_hwfn->hw_info.personality != QED_PCI_ISCSI) {
+=======
+	    p_hwfn->hw_info.personality != QED_PCI_ISCSI &&
+		p_hwfn->hw_info.personality != QED_PCI_NVMETCP) {
+>>>>>>> upstream/android-13
 		DP_VERBOSE(p_hwfn, QED_MSG_SP,
 			   "Skipping iSCSI TLVs for non-iSCSI function\n");
 		tlv_group &= ~QED_MFW_TLV_ISCSI;
@@ -1323,7 +1338,11 @@ int qed_mfw_process_tlv_req(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt)
 	 */
 	for (offset = 0; offset < size; offset += sizeof(u32)) {
 		memcpy(&val, &p_mfw_buf[offset], sizeof(u32));
+<<<<<<< HEAD
 		val = cpu_to_be32(val);
+=======
+		val = (__force u32)cpu_to_be32(val);
+>>>>>>> upstream/android-13
 		qed_wr(p_hwfn, p_ptt, addr + offset, val);
 	}
 

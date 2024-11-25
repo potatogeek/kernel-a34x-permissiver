@@ -182,14 +182,21 @@ int pvrdma_page_dir_insert_dma(struct pvrdma_page_dir *pdir, u64 idx,
 int pvrdma_page_dir_insert_umem(struct pvrdma_page_dir *pdir,
 				struct ib_umem *umem, u64 offset)
 {
+<<<<<<< HEAD
 	u64 i = offset;
 	int j, entry;
 	int ret = 0, len = 0;
 	struct scatterlist *sg;
+=======
+	struct ib_block_iter biter;
+	u64 i = offset;
+	int ret = 0;
+>>>>>>> upstream/android-13
 
 	if (offset >= pdir->npages)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	for_each_sg(umem->sg_head.sgl, sg, umem->nmap, entry) {
 		len = sg_dma_len(sg) >> PAGE_SHIFT;
 		for (j = 0; j < len; j++) {
@@ -202,6 +209,15 @@ int pvrdma_page_dir_insert_umem(struct pvrdma_page_dir *pdir,
 
 			i++;
 		}
+=======
+	rdma_umem_for_each_dma_block (umem, &biter, PAGE_SIZE) {
+		ret = pvrdma_page_dir_insert_dma(
+			pdir, i, rdma_block_iter_dma_address(&biter));
+		if (ret)
+			goto exit;
+
+		i++;
+>>>>>>> upstream/android-13
 	}
 
 exit:

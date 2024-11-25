@@ -9,6 +9,7 @@
 
 #include <trace/events/tlb.h>
 
+<<<<<<< HEAD
 #include <asm/pgalloc.h>
 #include <asm/tlbflush.h>
 #include <asm/paravirt.h>
@@ -17,10 +18,20 @@
 extern atomic64_t last_mm_ctx_id;
 
 #ifndef CONFIG_PARAVIRT
+=======
+#include <asm/tlbflush.h>
+#include <asm/paravirt.h>
+#include <asm/debugreg.h>
+
+extern atomic64_t last_mm_ctx_id;
+
+#ifndef CONFIG_PARAVIRT_XXL
+>>>>>>> upstream/android-13
 static inline void paravirt_activate_mm(struct mm_struct *prev,
 					struct mm_struct *next)
 {
 }
+<<<<<<< HEAD
 #endif	/* !CONFIG_PARAVIRT */
 
 #ifdef CONFIG_PERF_EVENTS
@@ -37,6 +48,14 @@ static inline void load_mm_cr4(struct mm_struct *mm)
 }
 #else
 static inline void load_mm_cr4(struct mm_struct *mm) {}
+=======
+#endif	/* !CONFIG_PARAVIRT_XXL */
+
+#ifdef CONFIG_PERF_EVENTS
+DECLARE_STATIC_KEY_FALSE(rdpmc_never_available_key);
+DECLARE_STATIC_KEY_FALSE(rdpmc_always_available_key);
+void cr4_update_pce(void *ignored);
+>>>>>>> upstream/android-13
 #endif
 
 #ifdef CONFIG_MODIFY_LDT_SYSCALL
@@ -66,6 +85,7 @@ struct ldt_struct {
 	int			slot;
 };
 
+<<<<<<< HEAD
 /* This is a multiple of PAGE_SIZE. */
 #define LDT_SLOT_STRIDE (LDT_ENTRIES * LDT_ENTRY_SIZE)
 
@@ -74,6 +94,8 @@ static inline void *ldt_slot_va(int slot)
 	return (void *)(LDT_BASE_ADDR + LDT_SLOT_STRIDE * slot);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Used for LDT copy/destruction.
  */
@@ -96,6 +118,7 @@ static inline void destroy_context_ldt(struct mm_struct *mm) { }
 static inline void ldt_arch_exit_mmap(struct mm_struct *mm) { }
 #endif
 
+<<<<<<< HEAD
 static inline void load_mm_ldt(struct mm_struct *mm)
 {
 #ifdef CONFIG_MODIFY_LDT_SYSCALL
@@ -177,11 +200,33 @@ static inline void switch_ldt(struct mm_struct *prev, struct mm_struct *next)
 }
 
 void enter_lazy_tlb(struct mm_struct *mm, struct task_struct *tsk);
+=======
+#ifdef CONFIG_MODIFY_LDT_SYSCALL
+extern void load_mm_ldt(struct mm_struct *mm);
+extern void switch_ldt(struct mm_struct *prev, struct mm_struct *next);
+#else
+static inline void load_mm_ldt(struct mm_struct *mm)
+{
+	clear_LDT();
+}
+static inline void switch_ldt(struct mm_struct *prev, struct mm_struct *next)
+{
+	DEBUG_LOCKS_WARN_ON(preemptible());
+}
+#endif
+
+#define enter_lazy_tlb enter_lazy_tlb
+extern void enter_lazy_tlb(struct mm_struct *mm, struct task_struct *tsk);
+>>>>>>> upstream/android-13
 
 /*
  * Init a new mm.  Used on mm copies, like at fork()
  * and on mm's that are brand-new, like at execve().
  */
+<<<<<<< HEAD
+=======
+#define init_new_context init_new_context
+>>>>>>> upstream/android-13
 static inline int init_new_context(struct task_struct *tsk,
 				   struct mm_struct *mm)
 {
@@ -201,6 +246,11 @@ static inline int init_new_context(struct task_struct *tsk,
 	init_new_context_ldt(mm);
 	return 0;
 }
+<<<<<<< HEAD
+=======
+
+#define destroy_context destroy_context
+>>>>>>> upstream/android-13
 static inline void destroy_context(struct mm_struct *mm)
 {
 	destroy_context_ldt(mm);
@@ -262,7 +312,11 @@ static inline void arch_exit_mmap(struct mm_struct *mm)
 static inline bool is_64bit_mm(struct mm_struct *mm)
 {
 	return	!IS_ENABLED(CONFIG_IA32_EMULATION) ||
+<<<<<<< HEAD
 		!(mm->context.ia32_compat == TIF_IA32);
+=======
+		!(mm->context.flags & MM_CONTEXT_UPROBE_IA32);
+>>>>>>> upstream/android-13
 }
 #else
 static inline bool is_64bit_mm(struct mm_struct *mm)
@@ -271,6 +325,7 @@ static inline bool is_64bit_mm(struct mm_struct *mm)
 }
 #endif
 
+<<<<<<< HEAD
 static inline void arch_bprm_mm_init(struct mm_struct *mm,
 		struct vm_area_struct *vma)
 {
@@ -299,6 +354,11 @@ static inline void arch_unmap(struct mm_struct *mm, struct vm_area_struct *vma,
 	 */
 	if (unlikely(cpu_feature_enabled(X86_FEATURE_MPX)))
 		mpx_notify_unmap(mm, vma, start, end);
+=======
+static inline void arch_unmap(struct mm_struct *mm, unsigned long start,
+			      unsigned long end)
+{
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -310,6 +370,7 @@ static inline void arch_unmap(struct mm_struct *mm, struct vm_area_struct *vma,
  * So do not enforce things if the VMA is not from the current
  * mm, or if we are in a kernel thread.
  */
+<<<<<<< HEAD
 static inline bool vma_is_foreign(struct vm_area_struct *vma)
 {
 	if (!current->mm)
@@ -325,6 +386,8 @@ static inline bool vma_is_foreign(struct vm_area_struct *vma)
 	return false;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline bool arch_vma_access_permitted(struct vm_area_struct *vma,
 		bool write, bool execute, bool foreign)
 {
@@ -337,6 +400,7 @@ static inline bool arch_vma_access_permitted(struct vm_area_struct *vma,
 	return __pkru_allows_pkey(vma_pkey(vma), write);
 }
 
+<<<<<<< HEAD
 /*
  * This can be used from process context to figure out what the value of
  * CR3 is without needing to do a (slow) __read_cr3().
@@ -355,5 +419,10 @@ static inline unsigned long __get_current_cr3_fast(void)
 	VM_BUG_ON(cr3 != __read_cr3());
 	return cr3;
 }
+=======
+unsigned long __get_current_cr3_fast(void);
+
+#include <asm-generic/mmu_context.h>
+>>>>>>> upstream/android-13
 
 #endif /* _ASM_X86_MMU_CONTEXT_H */

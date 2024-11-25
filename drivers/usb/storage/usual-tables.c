@@ -40,7 +40,11 @@
 	.driver_info = (flags) \
 }
 
+<<<<<<< HEAD
 struct usb_device_id usb_storage_usb_ids[] = {
+=======
+const struct usb_device_id usb_storage_usb_ids[] = {
+>>>>>>> upstream/android-13
 #	include "unusual_devs.h"
 	{ }		/* Terminating entry */
 };
@@ -68,7 +72,11 @@ struct ignore_entry {
 	.bcdmax = bcdDeviceMax,		\
 }
 
+<<<<<<< HEAD
 static struct ignore_entry ignore_ids[] = {
+=======
+static const struct ignore_entry ignore_ids[] = {
+>>>>>>> upstream/android-13
 #	include "unusual_alauda.h"
 #	include "unusual_cypress.h"
 #	include "unusual_datafab.h"
@@ -92,7 +100,11 @@ int usb_usual_ignore_device(struct usb_interface *intf)
 {
 	struct usb_device *udev;
 	unsigned vid, pid, bcd;
+<<<<<<< HEAD
 	struct ignore_entry *p;
+=======
+	const struct ignore_entry *p;
+>>>>>>> upstream/android-13
 
 	udev = interface_to_usbdev(intf);
 	vid = le16_to_cpu(udev->descriptor.idVendor);

@@ -11,7 +11,11 @@
 #ifndef _XTENSA_ASMMACRO_H
 #define _XTENSA_ASMMACRO_H
 
+<<<<<<< HEAD
 #include <variant/core.h>
+=======
+#include <asm/core.h>
+>>>>>>> upstream/android-13
 
 /*
  * Some little helpers for loops. Use zero-overhead-loops
@@ -191,4 +195,55 @@
 #endif
 	.endm
 
+<<<<<<< HEAD
+=======
+#define XTENSA_STACK_ALIGNMENT		16
+
+#if defined(__XTENSA_WINDOWED_ABI__)
+#define XTENSA_FRAME_SIZE_RESERVE	16
+#define XTENSA_SPILL_STACK_RESERVE	32
+
+#define abi_entry(frame_size) \
+	entry sp, (XTENSA_FRAME_SIZE_RESERVE + \
+		   (((frame_size) + XTENSA_STACK_ALIGNMENT - 1) & \
+		    -XTENSA_STACK_ALIGNMENT))
+#define abi_entry_default abi_entry(0)
+
+#define abi_ret(frame_size) retw
+#define abi_ret_default retw
+
+#elif defined(__XTENSA_CALL0_ABI__)
+
+#define XTENSA_SPILL_STACK_RESERVE	0
+
+#define abi_entry(frame_size) __abi_entry (frame_size)
+
+	.macro	__abi_entry frame_size
+	.ifgt \frame_size
+	addi sp, sp, -(((\frame_size) + XTENSA_STACK_ALIGNMENT - 1) & \
+		       -XTENSA_STACK_ALIGNMENT)
+	.endif
+	.endm
+
+#define abi_entry_default
+
+#define abi_ret(frame_size) __abi_ret (frame_size)
+
+	.macro	__abi_ret frame_size
+	.ifgt \frame_size
+	addi sp, sp, (((\frame_size) + XTENSA_STACK_ALIGNMENT - 1) & \
+		      -XTENSA_STACK_ALIGNMENT)
+	.endif
+	ret
+	.endm
+
+#define abi_ret_default ret
+
+#else
+#error Unsupported Xtensa ABI
+#endif
+
+#define __XTENSA_HANDLER	.section ".exception.text", "ax"
+
+>>>>>>> upstream/android-13
 #endif /* _XTENSA_ASMMACRO_H */

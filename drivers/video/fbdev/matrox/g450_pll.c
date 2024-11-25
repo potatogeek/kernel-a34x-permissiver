@@ -333,11 +333,17 @@ static int __g450_setclk(struct matrox_fb_info *minfo, unsigned int fout,
 			 unsigned int *deltaarray)
 {
 	unsigned int mnpcount;
+<<<<<<< HEAD
 	unsigned int pixel_vco;
 	const struct matrox_pll_limits* pi;
 	struct matrox_pll_cache* ci;
 
 	pixel_vco = 0;
+=======
+	const struct matrox_pll_limits* pi;
+	struct matrox_pll_cache* ci;
+
+>>>>>>> upstream/android-13
 	switch (pll) {
 		case M_PIXEL_PLL_A:
 		case M_PIXEL_PLL_B:
@@ -420,7 +426,10 @@ static int __g450_setclk(struct matrox_fb_info *minfo, unsigned int fout,
 				
 				mnp = matroxfb_DAC_in(minfo, M1064_XPIXPLLCM) << 16;
 				mnp |= matroxfb_DAC_in(minfo, M1064_XPIXPLLCN) << 8;
+<<<<<<< HEAD
 				pixel_vco = g450_mnp2vco(minfo, mnp);
+=======
+>>>>>>> upstream/android-13
 				matroxfb_DAC_unlock_irqrestore(flags);
 			}
 			pi = &minfo->limits.video;
@@ -441,6 +450,7 @@ static int __g450_setclk(struct matrox_fb_info *minfo, unsigned int fout,
 			unsigned int delta;
 
 			vco = g450_mnp2vco(minfo, mnp);
+<<<<<<< HEAD
 #if 0			
 			if (pll == M_VIDEO_PLL) {
 				unsigned int big, small;
@@ -460,6 +470,8 @@ static int __g450_setclk(struct matrox_fb_info *minfo, unsigned int fout,
 				}
 			}
 #endif			
+=======
+>>>>>>> upstream/android-13
 			delta = pll_freq_delta(fout, g450_vco2f(mnp, vco));
 			for (idx = mnpcount; idx > 0; idx--) {
 				/* == is important; due to nextpll algorithm we get

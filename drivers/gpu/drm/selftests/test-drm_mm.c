@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Test cases for the drm_mm range manager
  */
@@ -9,6 +13,10 @@
 #include <linux/slab.h>
 #include <linux/random.h>
 #include <linux/vmalloc.h>
+<<<<<<< HEAD
+=======
+#include <linux/ktime.h>
+>>>>>>> upstream/android-13
 
 #include <drm/drm_mm.h>
 
@@ -52,7 +60,11 @@ static int igt_sanitycheck(void *ignored)
 static bool assert_no_holes(const struct drm_mm *mm)
 {
 	struct drm_mm_node *hole;
+<<<<<<< HEAD
 	u64 hole_start, hole_end;
+=======
+	u64 hole_start, __always_unused hole_end;
+>>>>>>> upstream/android-13
 	unsigned long count;
 
 	count = 0;
@@ -853,7 +865,11 @@ static bool assert_contiguous_in_range(struct drm_mm *mm,
 
 	if (start > 0) {
 		node = __drm_mm_interval_first(mm, 0, start - 1);
+<<<<<<< HEAD
 		if (node->allocated) {
+=======
+		if (drm_mm_node_allocated(node)) {
+>>>>>>> upstream/android-13
 			pr_err("node before start: node=%llx+%llu, start=%llx\n",
 			       node->start, node->size, start);
 			return false;
@@ -862,7 +878,11 @@ static bool assert_contiguous_in_range(struct drm_mm *mm,
 
 	if (end < U64_MAX) {
 		node = __drm_mm_interval_first(mm, end, U64_MAX);
+<<<<<<< HEAD
 		if (node->allocated) {
+=======
+		if (drm_mm_node_allocated(node)) {
+>>>>>>> upstream/android-13
 			pr_err("node after end: node=%llx+%llu, end=%llx\n",
 			       node->start, node->size, end);
 			return false;
@@ -1032,6 +1052,125 @@ static int igt_insert_range(void *ignored)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int prepare_igt_frag(struct drm_mm *mm,
+			    struct drm_mm_node *nodes,
+			    unsigned int num_insert,
+			    const struct insert_mode *mode)
+{
+	unsigned int size = 4096;
+	unsigned int i;
+
+	for (i = 0; i < num_insert; i++) {
+		if (!expect_insert(mm, &nodes[i], size, 0, i,
+				   mode) != 0) {
+			pr_err("%s insert failed\n", mode->name);
+			return -EINVAL;
+		}
+	}
+
+	/* introduce fragmentation by freeing every other node */
+	for (i = 0; i < num_insert; i++) {
+		if (i % 2 == 0)
+			drm_mm_remove_node(&nodes[i]);
+	}
+
+	return 0;
+
+}
+
+static u64 get_insert_time(struct drm_mm *mm,
+			   unsigned int num_insert,
+			   struct drm_mm_node *nodes,
+			   const struct insert_mode *mode)
+{
+	unsigned int size = 8192;
+	ktime_t start;
+	unsigned int i;
+
+	start = ktime_get();
+	for (i = 0; i < num_insert; i++) {
+		if (!expect_insert(mm, &nodes[i], size, 0, i, mode) != 0) {
+			pr_err("%s insert failed\n", mode->name);
+			return 0;
+		}
+	}
+
+	return ktime_to_ns(ktime_sub(ktime_get(), start));
+}
+
+static int igt_frag(void *ignored)
+{
+	struct drm_mm mm;
+	const struct insert_mode *mode;
+	struct drm_mm_node *nodes, *node, *next;
+	unsigned int insert_size = 10000;
+	unsigned int scale_factor = 4;
+	int ret = -EINVAL;
+
+	/* We need 4 * insert_size nodes to hold intermediate allocated
+	 * drm_mm nodes.
+	 * 1 times for prepare_igt_frag()
+	 * 1 times for get_insert_time()
+	 * 2 times for get_insert_time()
+	 */
+	nodes = vzalloc(array_size(insert_size * 4, sizeof(*nodes)));
+	if (!nodes)
+		return -ENOMEM;
+
+	/* For BOTTOMUP and TOPDOWN, we first fragment the
+	 * address space using prepare_igt_frag() and then try to verify
+	 * that that insertions scale quadratically from 10k to 20k insertions
+	 */
+	drm_mm_init(&mm, 1, U64_MAX - 2);
+	for (mode = insert_modes; mode->name; mode++) {
+		u64 insert_time1, insert_time2;
+
+		if (mode->mode != DRM_MM_INSERT_LOW &&
+		    mode->mode != DRM_MM_INSERT_HIGH)
+			continue;
+
+		ret = prepare_igt_frag(&mm, nodes, insert_size, mode);
+		if (ret)
+			goto err;
+
+		insert_time1 = get_insert_time(&mm, insert_size,
+					       nodes + insert_size, mode);
+		if (insert_time1 == 0)
+			goto err;
+
+		insert_time2 = get_insert_time(&mm, (insert_size * 2),
+					       nodes + insert_size * 2, mode);
+		if (insert_time2 == 0)
+			goto err;
+
+		pr_info("%s fragmented insert of %u and %u insertions took %llu and %llu nsecs\n",
+			mode->name, insert_size, insert_size * 2,
+			insert_time1, insert_time2);
+
+		if (insert_time2 > (scale_factor * insert_time1)) {
+			pr_err("%s fragmented insert took %llu nsecs more\n",
+			       mode->name,
+			       insert_time2 - (scale_factor * insert_time1));
+			goto err;
+		}
+
+		drm_mm_for_each_node_safe(node, next, &mm)
+			drm_mm_remove_node(node);
+	}
+
+	ret = 0;
+err:
+	drm_mm_for_each_node_safe(node, next, &mm)
+		drm_mm_remove_node(node);
+	drm_mm_takedown(&mm);
+	vfree(nodes);
+
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 static int igt_align(void *ignored)
 {
 	const struct insert_mode *mode;
@@ -1155,12 +1294,20 @@ static void show_holes(const struct drm_mm *mm, int count)
 		struct drm_mm_node *next = list_next_entry(hole, node_list);
 		const char *node1 = NULL, *node2 = NULL;
 
+<<<<<<< HEAD
 		if (hole->allocated)
+=======
+		if (drm_mm_node_allocated(hole))
+>>>>>>> upstream/android-13
 			node1 = kasprintf(GFP_KERNEL,
 					  "[%llx + %lld, color=%ld], ",
 					  hole->start, hole->size, hole->color);
 
+<<<<<<< HEAD
 		if (next->allocated)
+=======
+		if (drm_mm_node_allocated(next))
+>>>>>>> upstream/android-13
 			node2 = kasprintf(GFP_KERNEL,
 					  ", [%llx + %lld, color=%ld]",
 					  next->start, next->size, next->color);
@@ -1615,7 +1762,11 @@ static int igt_topdown(void *ignored)
 	DRM_RND_STATE(prng, random_seed);
 	const unsigned int count = 8192;
 	unsigned int size;
+<<<<<<< HEAD
 	unsigned long *bitmap = NULL;
+=======
+	unsigned long *bitmap;
+>>>>>>> upstream/android-13
 	struct drm_mm mm;
 	struct drm_mm_node *nodes, *node, *next;
 	unsigned int *order, n, m, o = 0;
@@ -1631,8 +1782,12 @@ static int igt_topdown(void *ignored)
 	if (!nodes)
 		goto err;
 
+<<<<<<< HEAD
 	bitmap = kcalloc(count / BITS_PER_LONG, sizeof(unsigned long),
 			 GFP_KERNEL);
+=======
+	bitmap = bitmap_zalloc(count, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!bitmap)
 		goto err_nodes;
 
@@ -1717,7 +1872,11 @@ out:
 	drm_mm_takedown(&mm);
 	kfree(order);
 err_bitmap:
+<<<<<<< HEAD
 	kfree(bitmap);
+=======
+	bitmap_free(bitmap);
+>>>>>>> upstream/android-13
 err_nodes:
 	vfree(nodes);
 err:
@@ -1745,8 +1904,12 @@ static int igt_bottomup(void *ignored)
 	if (!nodes)
 		goto err;
 
+<<<<<<< HEAD
 	bitmap = kcalloc(count / BITS_PER_LONG, sizeof(unsigned long),
 			 GFP_KERNEL);
+=======
+	bitmap = bitmap_zalloc(count, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!bitmap)
 		goto err_nodes;
 
@@ -1818,7 +1981,11 @@ out:
 	drm_mm_takedown(&mm);
 	kfree(order);
 err_bitmap:
+<<<<<<< HEAD
 	kfree(bitmap);
+=======
+	bitmap_free(bitmap);
+>>>>>>> upstream/android-13
 err_nodes:
 	vfree(nodes);
 err:
@@ -1858,6 +2025,7 @@ static int __igt_once(unsigned int mode)
 	}
 
 	memset(&node, 0, sizeof(node));
+<<<<<<< HEAD
 	err = drm_mm_insert_node_generic(&mm, &node,
 					 2, 0, 0,
 					 mode | DRM_MM_INSERT_ONCE);
@@ -1868,6 +2036,8 @@ static int __igt_once(unsigned int mode)
 		goto err_node;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	err = drm_mm_insert_node_generic(&mm, &node, 2, 0, 0, mode);
 	if (err) {
 		pr_err("Could not insert the node into the available hole!\n");
@@ -1875,7 +2045,10 @@ static int __igt_once(unsigned int mode)
 		goto err_hi;
 	}
 
+<<<<<<< HEAD
 err_node:
+=======
+>>>>>>> upstream/android-13
 	drm_mm_remove_node(&node);
 err_hi:
 	drm_mm_remove_node(&rsvd_hi);
@@ -1901,18 +2074,30 @@ static void separate_adjacent_colors(const struct drm_mm_node *node,
 				     u64 *start,
 				     u64 *end)
 {
+<<<<<<< HEAD
 	if (node->allocated && node->color != color)
 		++*start;
 
 	node = list_next_entry(node, node_list);
 	if (node->allocated && node->color != color)
+=======
+	if (drm_mm_node_allocated(node) && node->color != color)
+		++*start;
+
+	node = list_next_entry(node, node_list);
+	if (drm_mm_node_allocated(node) && node->color != color)
+>>>>>>> upstream/android-13
 		--*end;
 }
 
 static bool colors_abutt(const struct drm_mm_node *node)
 {
 	if (!drm_mm_hole_follows(node) &&
+<<<<<<< HEAD
 	    list_next_entry(node, node_list)->allocated) {
+=======
+	    drm_mm_node_allocated(list_next_entry(node, node_list))) {
+>>>>>>> upstream/android-13
 		pr_err("colors abutt; %ld [%llx + %llx] is next to %ld [%llx + %llx]!\n",
 		       node->color, node->start, node->size,
 		       list_next_entry(node, node_list)->color,
@@ -2360,7 +2545,11 @@ static int __init test_drm_mm_init(void)
 	while (!random_seed)
 		random_seed = get_random_int();
 
+<<<<<<< HEAD
 	pr_info("Testing DRM range manger (struct drm_mm), with random_seed=0x%x max_iterations=%u max_prime=%u\n",
+=======
+	pr_info("Testing DRM range manager (struct drm_mm), with random_seed=0x%x max_iterations=%u max_prime=%u\n",
+>>>>>>> upstream/android-13
 		random_seed, max_iterations, max_prime);
 	err = run_selftests(selftests, ARRAY_SIZE(selftests), NULL);
 

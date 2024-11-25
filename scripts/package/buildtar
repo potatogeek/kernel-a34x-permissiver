@@ -2,7 +2,11 @@
 # SPDX-License-Identifier: GPL-2.0
 
 #
+<<<<<<< HEAD
 # buildtar 0.0.4
+=======
+# buildtar 0.0.5
+>>>>>>> upstream/android-13
 #
 # (C) 2004-2006 by Jan-Benedict Glaw <jbglaw@lug-owl.de>
 #
@@ -24,6 +28,7 @@ tarball="${objtree}/linux-${KERNELRELEASE}-${ARCH}.tar"
 # Figure out how to compress, if requested at all
 #
 case "${1}" in
+<<<<<<< HEAD
 	tar-pkg)
 		opts=
 		;;
@@ -37,6 +42,21 @@ case "${1}" in
 		;;
 	tarxz-pkg)
 		opts=--xz
+=======
+	dir-pkg|tar-pkg)
+		opts=
+		;;
+	targz-pkg)
+		opts="-I ${KGZIP}"
+		tarball=${tarball}.gz
+		;;
+	tarbz2-pkg)
+		opts="-I ${KBZIP2}"
+		tarball=${tarball}.bz2
+		;;
+	tarxz-pkg)
+		opts="-I ${XZ}"
+>>>>>>> upstream/android-13
 		tarball=${tarball}.xz
 		;;
 	*)
@@ -53,11 +73,31 @@ rm -rf -- "${tmpdir}"
 mkdir -p -- "${tmpdir}/boot"
 dirs=boot
 
+<<<<<<< HEAD
 #
 # Try to install modules
 #
 if grep -q '^CONFIG_MODULES=y' "${KCONFIG_CONFIG}"; then
 	make ARCH="${ARCH}" O="${objtree}" KBUILD_SRC= INSTALL_MOD_PATH="${tmpdir}" modules_install
+=======
+
+#
+# Try to install dtbs
+#
+if grep -q '^CONFIG_OF_EARLY_FLATTREE=y' include/config/auto.conf; then
+	# Only some architectures with OF support have this target
+	if [ -d "${srctree}/arch/${SRCARCH}/boot/dts" ]; then
+		$MAKE ARCH="${ARCH}" -f ${srctree}/Makefile INSTALL_DTBS_PATH="${tmpdir}/boot/dtbs/${KERNELRELEASE}" dtbs_install
+    fi
+fi
+
+
+#
+# Try to install modules
+#
+if grep -q '^CONFIG_MODULES=y' include/config/auto.conf; then
+	make ARCH="${ARCH}" -f ${srctree}/Makefile INSTALL_MOD_PATH="${tmpdir}" modules_install
+>>>>>>> upstream/android-13
 	dirs="$dirs lib"
 fi
 
@@ -113,6 +153,17 @@ case "${ARCH}" in
 			fi
 		done
 		;;
+<<<<<<< HEAD
+=======
+	riscv)
+		for i in Image.bz2 Image.gz Image; do
+			if [ -f "${objtree}/arch/riscv/boot/${i}" ] ; then
+				cp -v -- "${objtree}/arch/riscv/boot/${i}" "${tmpdir}/boot/vmlinux-${KERNELRELEASE}"
+				break
+			fi
+		done
+		;;
+>>>>>>> upstream/android-13
 	*)
 		[ -f "${KBUILD_IMAGE}" ] && cp -v -- "${KBUILD_IMAGE}" "${tmpdir}/boot/vmlinux-kbuild-${KERNELRELEASE}"
 		echo "" >&2
@@ -125,6 +176,13 @@ case "${ARCH}" in
 		;;
 esac
 
+<<<<<<< HEAD
+=======
+if [ "${1}" = dir-pkg ]; then
+	echo "Kernel tree successfully created in $tmpdir"
+	exit 0
+fi
+>>>>>>> upstream/android-13
 
 #
 # Create the tarball

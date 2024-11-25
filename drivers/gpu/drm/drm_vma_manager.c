@@ -23,9 +23,12 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/drm_mm.h>
 #include <drm/drm_vma_manager.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/mm.h>
 #include <linux/module.h>
 #include <linux/rbtree.h>
@@ -33,6 +36,12 @@
 #include <linux/spinlock.h>
 #include <linux/types.h>
 
+<<<<<<< HEAD
+=======
+#include <drm/drm_mm.h>
+#include <drm/drm_vma_manager.h>
+
+>>>>>>> upstream/android-13
 /**
  * DOC: vma offset manager
  *
@@ -103,10 +112,14 @@ EXPORT_SYMBOL(drm_vma_offset_manager_init);
  */
 void drm_vma_offset_manager_destroy(struct drm_vma_offset_manager *mgr)
 {
+<<<<<<< HEAD
 	/* take the lock to protect against buggy drivers */
 	write_lock(&mgr->vm_lock);
 	drm_mm_takedown(&mgr->vm_addr_space_mm);
 	write_unlock(&mgr->vm_lock);
+=======
+	drm_mm_takedown(&mgr->vm_addr_space_mm);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(drm_vma_offset_manager_destroy);
 
@@ -364,7 +377,11 @@ EXPORT_SYMBOL(drm_vma_node_revoke);
  * This is locked against concurrent access internally.
  *
  * RETURNS:
+<<<<<<< HEAD
  * true iff @filp is on the list
+=======
+ * true if @filp is on the list
+>>>>>>> upstream/android-13
  */
 bool drm_vma_node_is_allowed(struct drm_vma_offset_node *node,
 			     struct drm_file *tag)

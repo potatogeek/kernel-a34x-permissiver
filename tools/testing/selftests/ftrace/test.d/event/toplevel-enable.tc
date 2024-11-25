@@ -1,6 +1,10 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-2.0
 # description: event tracing - enable/disable with top level files
+<<<<<<< HEAD
+=======
+# requires: available_events set_event events/enable
+>>>>>>> upstream/android-13
 
 do_reset() {
     echo > set_event
@@ -8,11 +12,15 @@ do_reset() {
 }
 
 fail() { #msg
+<<<<<<< HEAD
     do_reset
+=======
+>>>>>>> upstream/android-13
     echo $1
     exit_fail
 }
 
+<<<<<<< HEAD
 yield() {
     ping localhost -c 1 || sleep .001 || usleep 1 || sleep 1
 }
@@ -25,6 +33,8 @@ fi
 reset_tracer
 do_reset
 
+=======
+>>>>>>> upstream/android-13
 echo '*:*' > set_event
 
 yield
@@ -60,6 +70,9 @@ if [ $count -ne 0 ]; then
     fail "any of events should not be recorded"
 fi
 
+<<<<<<< HEAD
 do_reset
 
+=======
+>>>>>>> upstream/android-13
 exit 0

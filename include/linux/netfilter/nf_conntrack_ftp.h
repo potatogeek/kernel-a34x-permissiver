@@ -2,8 +2,17 @@
 #ifndef _NF_CONNTRACK_FTP_H
 #define _NF_CONNTRACK_FTP_H
 
+<<<<<<< HEAD
 #include <uapi/linux/netfilter/nf_conntrack_ftp.h>
 
+=======
+#include <linux/netfilter.h>
+#include <linux/skbuff.h>
+#include <linux/types.h>
+#include <net/netfilter/nf_conntrack_expect.h>
+#include <uapi/linux/netfilter/nf_conntrack_ftp.h>
+#include <uapi/linux/netfilter/nf_conntrack_tuple_common.h>
+>>>>>>> upstream/android-13
 
 #define FTP_PORT	21
 
@@ -20,8 +29,11 @@ struct nf_ct_ftp_master {
 	u_int16_t flags[IP_CT_DIR_MAX];
 };
 
+<<<<<<< HEAD
 struct nf_conntrack_expect;
 
+=======
+>>>>>>> upstream/android-13
 /* For NAT to hook in when we find a packet which describes what other
  * connection we should expect. */
 extern unsigned int (*nf_nat_ftp_hook)(struct sk_buff *skb,

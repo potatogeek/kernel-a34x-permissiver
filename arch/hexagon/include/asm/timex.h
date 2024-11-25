@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2010-2011, The Linux Foundation. All rights reserved.
  *
@@ -14,22 +15,38 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2010-2011, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_TIMEX_H
 #define _ASM_TIMEX_H
 
 #include <asm-generic/timex.h>
+<<<<<<< HEAD
 #include <asm/timer-regs.h>
 
 /* Using TCX0 as our clock.  CLOCK_TICK_RATE scheduled to be removed. */
 #define CLOCK_TICK_RATE              TCX0_CLK_RATE
+=======
+#include <asm/hexagon_vm.h>
+
+/* Using TCX0 as our clock.  CLOCK_TICK_RATE scheduled to be removed. */
+#define CLOCK_TICK_RATE              19200
+>>>>>>> upstream/android-13
 
 #define ARCH_HAS_READ_CURRENT_TIMER
 
 static inline int read_current_timer(unsigned long *timer_val)
 {
+<<<<<<< HEAD
 	*timer_val = (unsigned long) __vmgettime();
+=======
+	*timer_val = __vmgettime();
+>>>>>>> upstream/android-13
 	return 0;
 }
 

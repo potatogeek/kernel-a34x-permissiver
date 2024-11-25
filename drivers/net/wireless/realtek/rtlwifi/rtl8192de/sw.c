@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2012  Realtek Corporation.
@@ -22,6 +23,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+// SPDX-License-Identifier: GPL-2.0
+/* Copyright(c) 2009-2012  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #include "../wifi.h"
 #include "../core.h"
@@ -394,18 +399,27 @@ static struct pci_driver rtl92de_driver = {
 
 /* add global spin lock to solve the problem that
  * Dul mac register operation on the same time */
+<<<<<<< HEAD
 spinlock_t globalmutex_power;
 spinlock_t globalmutex_for_fwdownload;
 spinlock_t globalmutex_for_power_and_efuse;
+=======
+DEFINE_SPINLOCK(globalmutex_power);
+DEFINE_SPINLOCK(globalmutex_for_fwdownload);
+DEFINE_SPINLOCK(globalmutex_for_power_and_efuse);
+>>>>>>> upstream/android-13
 
 static int __init rtl92de_module_init(void)
 {
 	int ret = 0;
 
+<<<<<<< HEAD
 	spin_lock_init(&globalmutex_power);
 	spin_lock_init(&globalmutex_for_fwdownload);
 	spin_lock_init(&globalmutex_for_power_and_efuse);
 
+=======
+>>>>>>> upstream/android-13
 	ret = pci_register_driver(&rtl92de_driver);
 	if (ret)
 		WARN_ONCE(true, "rtl8192de: No device found\n");

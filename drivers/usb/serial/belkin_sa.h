@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0+
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+>>>>>>> upstream/android-13
 /*
  * Definitions for Belkin USB Serial Adapter Driver
  *
@@ -9,7 +13,11 @@
  *  and associated source files.  Please see the usb/serial files for
  *  individual credits and copyrights.
  *
+<<<<<<< HEAD
  * See Documentation/usb/usb-serial.txt for more information on using this
+=======
+ * See Documentation/usb/usb-serial.rst for more information on using this
+>>>>>>> upstream/android-13
  * driver
  *
  * 12-Mar-2001 gkh

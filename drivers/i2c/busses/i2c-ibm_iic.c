@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * drivers/i2c/busses/i2c-ibm_iic.c
  *
@@ -23,12 +27,15 @@
  *
  *   	With some changes from Kyösti Mälkki <kmalkki@cc.hut.fi>
  *	and even Frodo Looijaard <frodol@dds.nl>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -437,7 +444,11 @@ static int iic_wait_for_tc(struct ibm_iic_private* dev){
 				break;
 			}
 
+<<<<<<< HEAD
 			if (unlikely(signal_pending(current))){
+=======
+			if (signal_pending(current)){
+>>>>>>> upstream/android-13
 				DBG("%d: poll interrupted\n", dev->idx);
 				ret = -ERESTARTSYS;
 				break;

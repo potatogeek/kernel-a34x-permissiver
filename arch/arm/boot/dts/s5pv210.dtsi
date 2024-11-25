@@ -25,6 +25,11 @@
 
 	aliases {
 		csis0 = &csis0;
+<<<<<<< HEAD
+=======
+		dmc0 = &dmc0;
+		dmc1 = &dmc1;
+>>>>>>> upstream/android-13
 		fimc0 = &fimc0;
 		fimc1 = &fimc1;
 		fimc2 = &fimc2;
@@ -50,12 +55,30 @@
 		};
 	};
 
+<<<<<<< HEAD
+=======
+	xxti: oscillator-0 {
+		compatible = "fixed-clock";
+		clock-frequency = <0>;
+		clock-output-names = "xxti";
+		#clock-cells = <0>;
+	};
+
+	xusbxti: oscillator-1 {
+		compatible = "fixed-clock";
+		clock-frequency = <0>;
+		clock-output-names = "xusbxti";
+		#clock-cells = <0>;
+	};
+
+>>>>>>> upstream/android-13
 	soc {
 		compatible = "simple-bus";
 		#address-cells = <1>;
 		#size-cells = <1>;
 		ranges;
 
+<<<<<<< HEAD
 		external-clocks {
 			compatible = "simple-bus";
 			#address-cells = <1>;
@@ -79,6 +102,9 @@
 		};
 
 		onenand: onenand@b0000000 {
+=======
+		onenand: onenand@b0600000 {
+>>>>>>> upstream/android-13
 			compatible = "samsung,s5pv210-onenand";
 			reg = <0xb0600000 0x2000>,
 				<0xb0000000 0x20000>,
@@ -117,7 +143,11 @@
 			interrupts = <30>;
 
 			wakeup-interrupt-controller {
+<<<<<<< HEAD
 				compatible = "samsung,exynos4210-wakeup-eint";
+=======
+				compatible = "samsung,s5pv210-wakeup-eint";
+>>>>>>> upstream/android-13
 				interrupts = <16>;
 				interrupt-parent = <&vic0>;
 			};
@@ -147,6 +177,20 @@
 			#dma-requests = <32>;
 		};
 
+<<<<<<< HEAD
+=======
+		adc: adc@e1700000 {
+			compatible = "samsung,s5pv210-adc";
+			reg = <0xe1700000 0x1000>;
+			interrupt-parent = <&vic2>;
+			interrupts = <23>, <24>;
+			clocks = <&clocks CLK_TSADC>;
+			clock-names = "adc";
+			#io-channel-cells = <1>;
+			status = "disabled";
+		};
+
+>>>>>>> upstream/android-13
 		spi0: spi@e1300000 {
 			compatible = "samsung,s5pv210-spi";
 			reg = <0xe1300000 0x1000>;
@@ -494,7 +538,11 @@
 		};
 
 		fimd: fimd@f8000000 {
+<<<<<<< HEAD
 			compatible = "samsung,exynos4210-fimd";
+=======
+			compatible = "samsung,s5pv210-fimd";
+>>>>>>> upstream/android-13
 			interrupt-parent = <&vic2>;
 			reg = <0xf8000000 0x20000>;
 			interrupt-names = "fifo", "vsync", "lcd_sys";
@@ -504,6 +552,19 @@
 			status = "disabled";
 		};
 
+<<<<<<< HEAD
+=======
+		dmc0: dmc@f0000000 {
+			compatible = "samsung,s5pv210-dmc";
+			reg = <0xf0000000 0x1000>;
+		};
+
+		dmc1: dmc@f1400000 {
+			compatible = "samsung,s5pv210-dmc";
+			reg = <0xf1400000 0x1000>;
+		};
+
+>>>>>>> upstream/android-13
 		g2d: g2d@fa000000 {
 			compatible = "samsung,s5pv210-g2d";
 			reg = <0xfa000000 0x1000>;
@@ -525,6 +586,18 @@
 			#dma-requests = <1>;
 		};
 
+<<<<<<< HEAD
+=======
+		rotator: rotator@fa300000 {
+			compatible = "samsung,s5pv210-rotator";
+			reg = <0xfa300000 0x1000>;
+			interrupt-parent = <&vic2>;
+			interrupts = <4>;
+			clocks = <&clocks CLK_ROTATOR>;
+			clock-names = "rotator";
+		};
+
+>>>>>>> upstream/android-13
 		i2c1: i2c@fab00000 {
 			compatible = "samsung,s3c2440-i2c";
 			reg = <0xfab00000 0x1000>;
@@ -547,12 +620,19 @@
 			clock-names = "sclk_cam0", "sclk_cam1";
 			#address-cells = <1>;
 			#size-cells = <1>;
+<<<<<<< HEAD
 			ranges;
 
 			clock_cam: clock-controller {
 				#clock-cells = <1>;
 			};
 
+=======
+			#clock-cells = <1>;
+			clock-output-names = "cam_a_clkout", "cam_b_clkout";
+			ranges;
+
+>>>>>>> upstream/android-13
 			csis0: csis@fa600000 {
 				compatible = "samsung,s5pv210-csis";
 				reg = <0xfa600000 0x4000>;
@@ -578,7 +658,11 @@
 				clock-names = "fimc",
 						"sclk_fimc";
 				samsung,pix-limits = <4224 8192 1920 4224>;
+<<<<<<< HEAD
 				samsung,mainscaler-ext;
+=======
+				samsung,min-pix-alignment = <16 8>;
+>>>>>>> upstream/android-13
 				samsung,cam-if;
 			};
 
@@ -592,8 +676,15 @@
 				clock-names = "fimc",
 						"sclk_fimc";
 				samsung,pix-limits = <4224 8192 1920 4224>;
+<<<<<<< HEAD
 				samsung,mainscaler-ext;
 				samsung,cam-if;
+=======
+				samsung,min-pix-alignment = <1 1>;
+				samsung,mainscaler-ext;
+				samsung,cam-if;
+				samsung,lcd-wb;
+>>>>>>> upstream/android-13
 			};
 
 			fimc2: fimc@fb400000 {
@@ -605,11 +696,29 @@
 						<&clocks SCLK_FIMC2>;
 				clock-names = "fimc",
 						"sclk_fimc";
+<<<<<<< HEAD
 				samsung,pix-limits = <4224 8192 1920 4224>;
 				samsung,mainscaler-ext;
 				samsung,lcd-wb;
 			};
 		};
+=======
+				samsung,pix-limits = <1920 8192 1280 1920>;
+				samsung,min-pix-alignment = <16 8>;
+				samsung,rotators = <0>;
+				samsung,cam-if;
+			};
+		};
+
+		jpeg_codec: jpeg-codec@fb600000 {
+			compatible = "samsung,s5pv210-jpeg";
+			reg = <0xfb600000 0x1000>;
+			interrupt-parent = <&vic2>;
+			interrupts = <8>;
+			clocks = <&clocks CLK_JPEG>;
+			clock-names = "jpeg";
+		};
+>>>>>>> upstream/android-13
 	};
 };
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2007 Casey Schaufler <casey@schaufler-ca.com>
  *
@@ -5,6 +6,12 @@
  *  	it under the terms of the GNU General Public License as published by
  *	the Free Software Foundation, version 2.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2007 Casey Schaufler <casey@schaufler-ca.com>
+ *
+>>>>>>> upstream/android-13
  * Authors:
  * 	Casey Schaufler <casey@schaufler-ca.com>
  * 	Ahmed S. Darwish <darwish.07@gmail.com>
@@ -13,7 +20,10 @@
  *
  *	Karl MacMillan <kmacmillan@tresys.com>
  *	James Morris <jmorris@redhat.com>
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -27,6 +37,10 @@
 #include <linux/ctype.h>
 #include <linux/audit.h>
 #include <linux/magic.h>
+<<<<<<< HEAD
+=======
+#include <linux/fs_context.h>
+>>>>>>> upstream/android-13
 #include "smack.h"
 
 #define BEBITS	(sizeof(__be32) * 8)
@@ -67,7 +81,10 @@ enum smk_inos {
 /*
  * List locks
  */
+<<<<<<< HEAD
 static DEFINE_MUTEX(smack_master_list_lock);
+=======
+>>>>>>> upstream/android-13
 static DEFINE_MUTEX(smack_cipso_lock);
 static DEFINE_MUTEX(smack_ambient_lock);
 static DEFINE_MUTEX(smk_net4addr_lock);
@@ -134,6 +151,7 @@ LIST_HEAD(smk_net6addr_list);
 
 /*
  * Rule lists are maintained for each label.
+<<<<<<< HEAD
  * This master list is just for reading /smack/load and /smack/load2.
  */
 struct smack_master_list {
@@ -143,6 +161,9 @@ struct smack_master_list {
 
 static LIST_HEAD(smack_rule_list);
 
+=======
+ */
+>>>>>>> upstream/android-13
 struct smack_parsed_rule {
 	struct smack_known	*smk_subject;
 	struct smack_known	*smk_object;
@@ -211,7 +232,10 @@ static void smk_netlabel_audit_set(struct netlbl_audit *nap)
  * @srp: the rule to add or replace
  * @rule_list: the list of rules
  * @rule_lock: the rule list lock
+<<<<<<< HEAD
  * @global: if non-zero, indicates a global rule
+=======
+>>>>>>> upstream/android-13
  *
  * Looks through the current subject/object/access list for
  * the subject/object pair and replaces the access that was
@@ -223,10 +247,16 @@ static void smk_netlabel_audit_set(struct netlbl_audit *nap)
  */
 static int smk_set_access(struct smack_parsed_rule *srp,
 				struct list_head *rule_list,
+<<<<<<< HEAD
 				struct mutex *rule_lock, int global)
 {
 	struct smack_rule *sp;
 	struct smack_master_list *smlp;
+=======
+				struct mutex *rule_lock)
+{
+	struct smack_rule *sp;
+>>>>>>> upstream/android-13
 	int found = 0;
 	int rc = 0;
 
@@ -247,7 +277,11 @@ static int smk_set_access(struct smack_parsed_rule *srp,
 	}
 
 	if (found == 0) {
+<<<<<<< HEAD
 		sp = kzalloc(sizeof(*sp), GFP_KERNEL);
+=======
+		sp = kmem_cache_zalloc(smack_rule_cache, GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (sp == NULL) {
 			rc = -ENOMEM;
 			goto out;
@@ -258,6 +292,7 @@ static int smk_set_access(struct smack_parsed_rule *srp,
 		sp->smk_access = srp->smk_access1 & ~srp->smk_access2;
 
 		list_add_rcu(&sp->list, rule_list);
+<<<<<<< HEAD
 		/*
 		 * If this is a global as opposed to self and a new rule
 		 * it needs to get added for reporting.
@@ -274,6 +309,8 @@ static int smk_set_access(struct smack_parsed_rule *srp,
 				rc = -ENOMEM;
 			return rc;
 		}
+=======
+>>>>>>> upstream/android-13
 	}
 
 out:
@@ -410,7 +447,11 @@ static int smk_parse_rule(const char *data, struct smack_parsed_rule *rule,
  * @data: string to be parsed, null terminated
  * @rule: Will be filled with Smack parsed rule
  * @import: if non-zero, import labels
+<<<<<<< HEAD
  * @tokens: numer of substrings expected in data
+=======
+ * @tokens: number of substrings expected in data
+>>>>>>> upstream/android-13
  *
  * Returns number of processed bytes on success, -ERRNO on failure.
  */
@@ -540,9 +581,15 @@ static ssize_t smk_write_rules_list(struct file *file, const char __user *buf,
 
 		if (rule_list == NULL)
 			rc = smk_set_access(&rule, &rule.smk_subject->smk_rules,
+<<<<<<< HEAD
 				&rule.smk_subject->smk_rules_lock, 1);
 		else
 			rc = smk_set_access(&rule, rule_list, rule_lock, 0);
+=======
+				&rule.smk_subject->smk_rules_lock);
+		else
+			rc = smk_set_access(&rule, rule_list, rule_lock);
+>>>>>>> upstream/android-13
 
 		if (rc)
 			goto out;
@@ -636,21 +683,38 @@ static void smk_rule_show(struct seq_file *s, struct smack_rule *srp, int max)
 
 static void *load2_seq_start(struct seq_file *s, loff_t *pos)
 {
+<<<<<<< HEAD
 	return smk_seq_start(s, pos, &smack_rule_list);
+=======
+	return smk_seq_start(s, pos, &smack_known_list);
+>>>>>>> upstream/android-13
 }
 
 static void *load2_seq_next(struct seq_file *s, void *v, loff_t *pos)
 {
+<<<<<<< HEAD
 	return smk_seq_next(s, v, pos, &smack_rule_list);
+=======
+	return smk_seq_next(s, v, pos, &smack_known_list);
+>>>>>>> upstream/android-13
 }
 
 static int load_seq_show(struct seq_file *s, void *v)
 {
 	struct list_head *list = v;
+<<<<<<< HEAD
 	struct smack_master_list *smlp =
 		list_entry_rcu(list, struct smack_master_list, list);
 
 	smk_rule_show(s, smlp->smk_rule, SMK_LABELLEN);
+=======
+	struct smack_rule *srp;
+	struct smack_known *skp =
+		list_entry_rcu(list, struct smack_known, list);
+
+	list_for_each_entry_rcu(srp, &skp->smk_rules, list)
+		smk_rule_show(s, srp, SMK_LABELLEN);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -721,9 +785,13 @@ static void smk_cipso_doi(void)
 		printk(KERN_WARNING "%s:%d remove rc = %d\n",
 		       __func__, __LINE__, rc);
 
+<<<<<<< HEAD
 	doip = kmalloc(sizeof(struct cipso_v4_doi), GFP_KERNEL);
 	if (doip == NULL)
 		panic("smack:  Failed to initialize cipso DOI.\n");
+=======
+	doip = kmalloc(sizeof(struct cipso_v4_doi), GFP_KERNEL | __GFP_NOFAIL);
+>>>>>>> upstream/android-13
 	doip->map.std = NULL;
 	doip->doi = smk_cipso_doi_value;
 	doip->type = CIPSO_V4_MAP_PASS;
@@ -742,7 +810,11 @@ static void smk_cipso_doi(void)
 	if (rc != 0) {
 		printk(KERN_WARNING "%s:%d map add rc = %d\n",
 		       __func__, __LINE__, rc);
+<<<<<<< HEAD
 		kfree(doip);
+=======
+		netlbl_cfg_cipsov4_del(doip->doi, &nai);
+>>>>>>> upstream/android-13
 		return;
 	}
 }
@@ -859,6 +931,10 @@ static int smk_open_cipso(struct inode *inode, struct file *file)
 static ssize_t smk_set_cipso(struct file *file, const char __user *buf,
 				size_t count, loff_t *ppos, int format)
 {
+<<<<<<< HEAD
+=======
+	struct netlbl_lsm_catmap *old_cat;
+>>>>>>> upstream/android-13
 	struct smack_known *skp;
 	struct netlbl_lsm_secattr ncats;
 	char mapcatset[SMK_CIPSOLEN];
@@ -883,6 +959,11 @@ static ssize_t smk_set_cipso(struct file *file, const char __user *buf,
 	if (format == SMK_FIXED24_FMT &&
 	    (count < SMK_CIPSOMIN || count > SMK_CIPSOMAX))
 		return -EINVAL;
+<<<<<<< HEAD
+=======
+	if (count > PAGE_SIZE)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	data = memdup_user_nul(buf, count);
 	if (IS_ERR(data))
@@ -946,10 +1027,23 @@ static ssize_t smk_set_cipso(struct file *file, const char __user *buf,
 
 	rc = smk_netlbl_mls(maplevel, mapcatset, &ncats, SMK_CIPSOLEN);
 	if (rc >= 0) {
+<<<<<<< HEAD
 		netlbl_catmap_free(skp->smk_netlabel.attr.mls.cat);
 		skp->smk_netlabel.attr.mls.cat = ncats.attr.mls.cat;
 		skp->smk_netlabel.attr.mls.lvl = ncats.attr.mls.lvl;
 		rc = count;
+=======
+		old_cat = skp->smk_netlabel.attr.mls.cat;
+		skp->smk_netlabel.attr.mls.cat = ncats.attr.mls.cat;
+		skp->smk_netlabel.attr.mls.lvl = ncats.attr.mls.lvl;
+		synchronize_rcu();
+		netlbl_catmap_free(old_cat);
+		rc = count;
+		/*
+		 * This mapping may have been cached, so clear the cache.
+		 */
+		netlbl_cache_invalidate();
+>>>>>>> upstream/android-13
 	}
 
 out:
@@ -1970,7 +2064,11 @@ static void smk_list_swap_rcu(struct list_head *public,
  * smk_parse_label_list - parse list of Smack labels, separated by spaces
  *
  * @data: the string to parse
+<<<<<<< HEAD
  * @private: destination list
+=======
+ * @list: destination list
+>>>>>>> upstream/android-13
  *
  * Returns zero on success or error code, as appropriate
  */
@@ -2001,7 +2099,11 @@ static int smk_parse_label_list(char *data, struct list_head *list)
 
 /**
  * smk_destroy_label_list - destroy a list of smack_known_list_elem
+<<<<<<< HEAD
  * @head: header pointer of the list to destroy
+=======
+ * @list: header pointer of the list to destroy
+>>>>>>> upstream/android-13
  */
 void smk_destroy_label_list(struct list_head *list)
 {
@@ -2165,7 +2267,11 @@ static const struct file_operations smk_unconfined_ops = {
  * smk_read_logging - read() for /smack/logging
  * @filp: file pointer, not actually used
  * @buf: where to put the result
+<<<<<<< HEAD
  * @cn: maximum to send along
+=======
+ * @count: maximum to send along
+>>>>>>> upstream/android-13
  * @ppos: where to start
  *
  * Returns number of bytes read or error code, as appropriate
@@ -2232,14 +2338,22 @@ static const struct file_operations smk_logging_ops = {
 
 static void *load_self_seq_start(struct seq_file *s, loff_t *pos)
 {
+<<<<<<< HEAD
 	struct task_smack *tsp = current_security();
+=======
+	struct task_smack *tsp = smack_cred(current_cred());
+>>>>>>> upstream/android-13
 
 	return smk_seq_start(s, pos, &tsp->smk_rules);
 }
 
 static void *load_self_seq_next(struct seq_file *s, void *v, loff_t *pos)
 {
+<<<<<<< HEAD
 	struct task_smack *tsp = current_security();
+=======
+	struct task_smack *tsp = smack_cred(current_cred());
+>>>>>>> upstream/android-13
 
 	return smk_seq_next(s, v, pos, &tsp->smk_rules);
 }
@@ -2286,7 +2400,11 @@ static int smk_open_load_self(struct inode *inode, struct file *file)
 static ssize_t smk_write_load_self(struct file *file, const char __user *buf,
 			      size_t count, loff_t *ppos)
 {
+<<<<<<< HEAD
 	struct task_smack *tsp = current_security();
+=======
+	struct task_smack *tsp = smack_cred(current_cred());
+>>>>>>> upstream/android-13
 
 	return smk_write_rules_list(file, buf, count, ppos, &tsp->smk_rules,
 				    &tsp->smk_rules_lock, SMK_FIXED24_FMT);
@@ -2306,6 +2424,10 @@ static const struct file_operations smk_load_self_ops = {
  * @buf: data from user space
  * @count: bytes sent
  * @ppos: where to start - must be 0
+<<<<<<< HEAD
+=======
+ * @format: /smack/load or /smack/load2 or /smack/change-rule format.
+>>>>>>> upstream/android-13
  */
 static ssize_t smk_user_access(struct file *file, const char __user *buf,
 				size_t count, loff_t *ppos, int format)
@@ -2376,10 +2498,19 @@ static const struct file_operations smk_access_ops = {
 static int load2_seq_show(struct seq_file *s, void *v)
 {
 	struct list_head *list = v;
+<<<<<<< HEAD
 	struct smack_master_list *smlp =
 		list_entry_rcu(list, struct smack_master_list, list);
 
 	smk_rule_show(s, smlp->smk_rule, SMK_LONGLABEL);
+=======
+	struct smack_rule *srp;
+	struct smack_known *skp =
+		list_entry_rcu(list, struct smack_known, list);
+
+	list_for_each_entry_rcu(srp, &skp->smk_rules, list)
+		smk_rule_show(s, srp, SMK_LONGLABEL);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -2438,14 +2569,22 @@ static const struct file_operations smk_load2_ops = {
 
 static void *load_self2_seq_start(struct seq_file *s, loff_t *pos)
 {
+<<<<<<< HEAD
 	struct task_smack *tsp = current_security();
+=======
+	struct task_smack *tsp = smack_cred(current_cred());
+>>>>>>> upstream/android-13
 
 	return smk_seq_start(s, pos, &tsp->smk_rules);
 }
 
 static void *load_self2_seq_next(struct seq_file *s, void *v, loff_t *pos)
 {
+<<<<<<< HEAD
 	struct task_smack *tsp = current_security();
+=======
+	struct task_smack *tsp = smack_cred(current_cred());
+>>>>>>> upstream/android-13
 
 	return smk_seq_next(s, v, pos, &tsp->smk_rules);
 }
@@ -2491,7 +2630,11 @@ static int smk_open_load_self2(struct inode *inode, struct file *file)
 static ssize_t smk_write_load_self2(struct file *file, const char __user *buf,
 			      size_t count, loff_t *ppos)
 {
+<<<<<<< HEAD
 	struct task_smack *tsp = current_security();
+=======
+	struct task_smack *tsp = smack_cred(current_cred());
+>>>>>>> upstream/android-13
 
 	return smk_write_rules_list(file, buf, count, ppos, &tsp->smk_rules,
 				    &tsp->smk_rules_lock, SMK_LONG_FMT);
@@ -2709,14 +2852,22 @@ static const struct file_operations smk_syslog_ops = {
 
 static void *relabel_self_seq_start(struct seq_file *s, loff_t *pos)
 {
+<<<<<<< HEAD
 	struct task_smack *tsp = current_security();
+=======
+	struct task_smack *tsp = smack_cred(current_cred());
+>>>>>>> upstream/android-13
 
 	return smk_seq_start(s, pos, &tsp->smk_relabel);
 }
 
 static void *relabel_self_seq_next(struct seq_file *s, void *v, loff_t *pos)
 {
+<<<<<<< HEAD
 	struct task_smack *tsp = current_security();
+=======
+	struct task_smack *tsp = smack_cred(current_cred());
+>>>>>>> upstream/android-13
 
 	return smk_seq_next(s, v, pos, &tsp->smk_relabel);
 }
@@ -2799,7 +2950,11 @@ static ssize_t smk_write_relabel_self(struct file *file, const char __user *buf,
 			rc = -ENOMEM;
 			goto out;
 		}
+<<<<<<< HEAD
 		tsp = new->security;
+=======
+		tsp = smack_cred(new);
+>>>>>>> upstream/android-13
 		smk_destroy_label_list(&tsp->smk_relabel);
 		list_splice(&list_tmp, &tsp->smk_relabel);
 		commit_creds(new);
@@ -2883,17 +3038,27 @@ static const struct file_operations smk_ptrace_ops = {
 /**
  * smk_fill_super - fill the smackfs superblock
  * @sb: the empty superblock
+<<<<<<< HEAD
  * @data: unused
  * @silent: unused
+=======
+ * @fc: unused
+>>>>>>> upstream/android-13
  *
  * Fill in the well known entries for the smack filesystem
  *
  * Returns 0 on success, an error code on failure
  */
+<<<<<<< HEAD
 static int smk_fill_super(struct super_block *sb, void *data, int silent)
 {
 	int rc;
 	struct inode *root_inode;
+=======
+static int smk_fill_super(struct super_block *sb, struct fs_context *fc)
+{
+	int rc;
+>>>>>>> upstream/android-13
 
 	static const struct tree_descr smack_files[] = {
 		[SMK_LOAD] = {
@@ -2957,36 +3122,69 @@ static int smk_fill_super(struct super_block *sb, void *data, int silent)
 		return rc;
 	}
 
+<<<<<<< HEAD
 	root_inode = d_inode(sb->s_root);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 /**
+<<<<<<< HEAD
  * smk_mount - get the smackfs superblock
  * @fs_type: passed along without comment
  * @flags: passed along without comment
  * @dev_name: passed along without comment
  * @data: passed along without comment
+=======
+ * smk_get_tree - get the smackfs superblock
+ * @fc: The mount context, including any options
+>>>>>>> upstream/android-13
  *
  * Just passes everything along.
  *
  * Returns what the lower level code does.
  */
+<<<<<<< HEAD
 static struct dentry *smk_mount(struct file_system_type *fs_type,
 		      int flags, const char *dev_name, void *data)
 {
 	return mount_single(fs_type, flags, data, smk_fill_super);
+=======
+static int smk_get_tree(struct fs_context *fc)
+{
+	return get_tree_single(fc, smk_fill_super);
+}
+
+static const struct fs_context_operations smk_context_ops = {
+	.get_tree	= smk_get_tree,
+};
+
+/**
+ * smk_init_fs_context - Initialise a filesystem context for smackfs
+ * @fc: The blank mount context
+ */
+static int smk_init_fs_context(struct fs_context *fc)
+{
+	fc->ops = &smk_context_ops;
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static struct file_system_type smk_fs_type = {
 	.name		= "smackfs",
+<<<<<<< HEAD
 	.mount		= smk_mount,
+=======
+	.init_fs_context = smk_init_fs_context,
+>>>>>>> upstream/android-13
 	.kill_sb	= kill_litter_super,
 };
 
 static struct vfsmount *smackfs_mount;
 
+<<<<<<< HEAD
 static int __init smk_preset_netlabel(struct smack_known *skp)
 {
 	skp->smk_netlabel.domain = skp->smk_known;
@@ -2996,6 +3194,8 @@ static int __init smk_preset_netlabel(struct smack_known *skp)
 				&skp->smk_netlabel, strlen(skp->smk_known));
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * init_smk_fs - get the smackfs superblock
  *
@@ -3034,6 +3234,7 @@ static int __init init_smk_fs(void)
 	smk_cipso_doi();
 	smk_unlbl_ambient(NULL);
 
+<<<<<<< HEAD
 	rc = smk_preset_netlabel(&smack_known_floor);
 	if (err == 0 && rc < 0)
 		err = rc;
@@ -3047,6 +3248,21 @@ static int __init init_smk_fs(void)
 	if (err == 0 && rc < 0)
 		err = rc;
 	rc = smk_preset_netlabel(&smack_known_web);
+=======
+	rc = smack_populate_secattr(&smack_known_floor);
+	if (err == 0 && rc < 0)
+		err = rc;
+	rc = smack_populate_secattr(&smack_known_hat);
+	if (err == 0 && rc < 0)
+		err = rc;
+	rc = smack_populate_secattr(&smack_known_huh);
+	if (err == 0 && rc < 0)
+		err = rc;
+	rc = smack_populate_secattr(&smack_known_star);
+	if (err == 0 && rc < 0)
+		err = rc;
+	rc = smack_populate_secattr(&smack_known_web);
+>>>>>>> upstream/android-13
 	if (err == 0 && rc < 0)
 		err = rc;
 

@@ -11,6 +11,7 @@
 	#include <linux/mmc/sdio_func.h>
 	#include <linux/mmc/sdio_ids.h>
 
+<<<<<<< HEAD
 #if defined(CONFIG_WOWLAN) || defined(CONFIG_AP_WOWLAN)
 	#include <linux/mmc/host.h>
 	#include <linux/mmc/card.h>
@@ -18,6 +19,9 @@
 
 typedef struct sdio_data
 {
+=======
+struct sdio_data {
+>>>>>>> upstream/android-13
 	u8  func_number;
 
 	u8  tx_block_mode;
@@ -26,6 +30,10 @@ typedef struct sdio_data
 
 	struct sdio_func	 *func;
 	void *sys_sdio_irq_thd;
+<<<<<<< HEAD
 } SDIO_DATA, *PSDIO_DATA;
+=======
+};
+>>>>>>> upstream/android-13
 
 #endif

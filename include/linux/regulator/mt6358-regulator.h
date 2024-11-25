@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2019 MediaTek Inc.
  */
@@ -6,12 +10,15 @@
 #ifndef __LINUX_REGULATOR_MT6358_H
 #define __LINUX_REGULATOR_MT6358_H
 
+<<<<<<< HEAD
 #if defined(CONFIG_MACH_MT6781)
 #define USE_PMIC_MT6366		1
 #else
 #define USE_PMIC_MT6366		0
 #endif
 
+=======
+>>>>>>> upstream/android-13
 enum {
 	MT6358_ID_VDRAM1 = 0,
 	MT6358_ID_VCORE,
@@ -28,10 +35,15 @@ enum {
 	MT6358_ID_VRF12,
 	MT6358_ID_VIO18,
 	MT6358_ID_VUSB,
+<<<<<<< HEAD
 #if !USE_PMIC_MT6366
 	MT6358_ID_VCAMIO,
 	MT6358_ID_VCAMD,
 #endif
+=======
+	MT6358_ID_VCAMIO,
+	MT6358_ID_VCAMD,
+>>>>>>> upstream/android-13
 	MT6358_ID_VCN18,
 	MT6358_ID_VFE28,
 	MT6358_ID_VSRAM_PROC11,
@@ -44,15 +56,20 @@ enum {
 	MT6358_ID_VMCH,
 	MT6358_ID_VBIF28,
 	MT6358_ID_VSRAM_PROC12,
+<<<<<<< HEAD
 #if !USE_PMIC_MT6366
 	MT6358_ID_VCAMA1,
 #endif
+=======
+	MT6358_ID_VCAMA1,
+>>>>>>> upstream/android-13
 	MT6358_ID_VEMC,
 	MT6358_ID_VIO28,
 	MT6358_ID_VA12,
 	MT6358_ID_VRF18,
 	MT6358_ID_VCN33_BT,
 	MT6358_ID_VCN33_WIFI,
+<<<<<<< HEAD
 #if !USE_PMIC_MT6366
 	MT6358_ID_VCAMA2,
 #endif
@@ -63,6 +80,13 @@ enum {
 	MT6358_ID_VAUD28,
 	MT6358_ID_VSIM2,
 	MT6358_ID_VA09,
+=======
+	MT6358_ID_VCAMA2,
+	MT6358_ID_VMC,
+	MT6358_ID_VLDO28,
+	MT6358_ID_VAUD28,
+	MT6358_ID_VSIM2,
+>>>>>>> upstream/android-13
 	MT6358_ID_RG_MAX,
 };
 

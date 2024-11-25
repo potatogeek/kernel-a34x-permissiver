@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * OpenRISC Linux
  *
@@ -9,11 +13,14 @@
  * Copyright (C) 2003 Matjaz Breskvar <phoenix@bsemi.com>
  * Copyright (C) 2010-2011 Jonas Bonn <jonas@southpole.se>
  * et al.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_THREAD_INFO_H
@@ -29,7 +36,11 @@
 
 /* THREAD_SIZE is the size of the task_struct/kernel_stack combo.
  * normally, the stack is found by doing something like p + THREAD_SIZE
+<<<<<<< HEAD
  * in or32, a page is 8192 bytes, which seems like a sane size
+=======
+ * in or1k, a page is 8192 bytes, which seems like a sane size
+>>>>>>> upstream/android-13
  */
 
 #define THREAD_SIZE_ORDER 0
@@ -102,6 +113,10 @@ register struct thread_info *current_thread_info_reg asm("r10");
 #define TIF_SINGLESTEP		4	/* restore singlestep on return to user
 					 * mode
 					 */
+<<<<<<< HEAD
+=======
+#define TIF_NOTIFY_SIGNAL	5	/* signal notifications exist */
+>>>>>>> upstream/android-13
 #define TIF_SYSCALL_TRACEPOINT  8       /* for ftrace syscall instrumentation */
 #define TIF_RESTORE_SIGMASK     9
 #define TIF_POLLING_NRFLAG	16	/* true if poll_idle() is polling						 * TIF_NEED_RESCHED
@@ -113,6 +128,10 @@ register struct thread_info *current_thread_info_reg asm("r10");
 #define _TIF_SIGPENDING		(1<<TIF_SIGPENDING)
 #define _TIF_NEED_RESCHED	(1<<TIF_NEED_RESCHED)
 #define _TIF_SINGLESTEP		(1<<TIF_SINGLESTEP)
+<<<<<<< HEAD
+=======
+#define _TIF_NOTIFY_SIGNAL	(1<<TIF_NOTIFY_SIGNAL)
+>>>>>>> upstream/android-13
 #define _TIF_POLLING_NRFLAG	(1<<TIF_POLLING_NRFLAG)
 
 

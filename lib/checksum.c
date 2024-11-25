@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *
  * INET		An implementation of the TCP/IP protocol suite for the LINUX
@@ -22,11 +26,14 @@
  *		data-registers to hold input values and one tries to
  *		specify d0 and d1 as scratch registers. Letting gcc
  *		choose these registers itself solves the problem.
+<<<<<<< HEAD
  *
  *		This program is free software; you can redistribute it and/or
  *		modify it under the terms of the GNU General Public License
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 /* Revised by Kenneth Albanowski for m68knommu. Basic problem: unaligned access
@@ -149,6 +156,7 @@ __sum16 ip_compute_csum(const void *buff, int len)
 }
 EXPORT_SYMBOL(ip_compute_csum);
 
+<<<<<<< HEAD
 /*
  * copy from fs while checksumming, otherwise like csum_partial
  */
@@ -180,6 +188,8 @@ csum_partial_copy(const void *src, void *dst, int len, __wsum sum)
 }
 EXPORT_SYMBOL(csum_partial_copy);
 
+=======
+>>>>>>> upstream/android-13
 #ifndef csum_tcpudp_nofold
 static inline u32 from64to32(u64 x)
 {

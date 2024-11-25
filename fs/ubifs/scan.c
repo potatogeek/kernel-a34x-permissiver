@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * This file is part of UBIFS.
  *
  * Copyright (C) 2006-2008 Nokia Corporation
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
@@ -16,6 +21,8 @@
  * this program; if not, write to the Free Software Foundation, Inc., 51
  * Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  * Authors: Adrian Hunter
  *          Artem Bityutskiy (Битюцкий Артём)
  */
@@ -88,7 +95,11 @@ int ubifs_scan_a_node(const struct ubifs_info *c, void *buf, int len, int lnum,
 	dbg_scan("scanning %s at LEB %d:%d",
 		 dbg_ntype(ch->node_type), lnum, offs);
 
+<<<<<<< HEAD
 	if (ubifs_check_node(c, buf, lnum, offs, quiet, 1))
+=======
+	if (ubifs_check_node(c, buf, len, lnum, offs, quiet, 1))
+>>>>>>> upstream/android-13
 		return SCANNED_A_CORRUPT_NODE;
 
 	if (ch->node_type == UBIFS_PAD_NODE) {
@@ -102,7 +113,11 @@ int ubifs_scan_a_node(const struct ubifs_info *c, void *buf, int len, int lnum,
 			if (!quiet) {
 				ubifs_err(c, "bad pad node at LEB %d:%d",
 					  lnum, offs);
+<<<<<<< HEAD
 				ubifs_dump_node(c, pad);
+=======
+				ubifs_dump_node(c, pad, len);
+>>>>>>> upstream/android-13
 			}
 			return SCANNED_A_BAD_PAD_NODE;
 		}

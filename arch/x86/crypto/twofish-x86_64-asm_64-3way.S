@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Twofish Cipher 3-way parallel algorithm (x86_64)
  *
  * Copyright (C) 2011 Jussi Kivilinna <jussi.kivilinna@mbnet.fi>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
  * USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
@@ -103,7 +110,11 @@
 
 /*
  * Combined G1 & G2 function. Reordered with help of rotates to have moves
+<<<<<<< HEAD
  * at begining.
+=======
+ * at beginning.
+>>>>>>> upstream/android-13
  */
 #define g1g2_3(ab, cd, Tx0, Tx1, Tx2, Tx3, Ty0, Ty1, Ty2, Ty3, x, y) \
 	/* G1,1 && G2,1 */ \
@@ -235,7 +246,11 @@
 	rorq $32,			RAB2; \
 	outunpack3(mov, RIO, 2, RAB, 2);
 
+<<<<<<< HEAD
 ENTRY(__twofish_enc_blk_3way)
+=======
+SYM_FUNC_START(__twofish_enc_blk_3way)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	%rdi: ctx, CTX
 	 *	%rsi: dst
@@ -273,7 +288,11 @@ ENTRY(__twofish_enc_blk_3way)
 	popq %rbx;
 	popq %r12;
 	popq %r13;
+<<<<<<< HEAD
 	ret;
+=======
+	RET;
+>>>>>>> upstream/android-13
 
 .L__enc_xor3:
 	outunpack_enc3(xor);
@@ -281,10 +300,17 @@ ENTRY(__twofish_enc_blk_3way)
 	popq %rbx;
 	popq %r12;
 	popq %r13;
+<<<<<<< HEAD
 	ret;
 ENDPROC(__twofish_enc_blk_3way)
 
 ENTRY(twofish_dec_blk_3way)
+=======
+	RET;
+SYM_FUNC_END(__twofish_enc_blk_3way)
+
+SYM_FUNC_START(twofish_dec_blk_3way)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	%rdi: ctx, CTX
 	 *	%rsi: dst
@@ -316,5 +342,10 @@ ENTRY(twofish_dec_blk_3way)
 	popq %rbx;
 	popq %r12;
 	popq %r13;
+<<<<<<< HEAD
 	ret;
 ENDPROC(twofish_dec_blk_3way)
+=======
+	RET;
+SYM_FUNC_END(twofish_dec_blk_3way)
+>>>>>>> upstream/android-13

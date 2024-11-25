@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/drivers/acorn/scsi/queue.c: queue handling primitives
  *
  *  Copyright (C) 1997-2000 Russell King
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  *  Changelog:
  *   15-Sep-1997 RMK	Created.
  *   11-Oct-1997 RMK	Corrected problem with queue_remove_exclude
@@ -217,7 +224,11 @@ struct scsi_cmnd *queue_remove_tgtluntag(Queue_t *queue, int target, int lun,
 	list_for_each(l, &queue->head) {
 		QE_t *q = list_entry(l, QE_t, list);
 		if (q->SCpnt->device->id == target && q->SCpnt->device->lun == lun &&
+<<<<<<< HEAD
 		    q->SCpnt->tag == tag) {
+=======
+		    scsi_cmd_to_rq(q->SCpnt)->tag == tag) {
+>>>>>>> upstream/android-13
 			SCpnt = __queue_remove(queue, l);
 			break;
 		}

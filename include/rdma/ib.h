@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2010 Intel Corporation.  All rights reserved.
  *
@@ -31,11 +32,24 @@
  */
 
 #if !defined(_RDMA_IB_H)
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB */
+/*
+ * Copyright (c) 2010 Intel Corporation.  All rights reserved.
+ */
+
+#ifndef _RDMA_IB_H
+>>>>>>> upstream/android-13
 #define _RDMA_IB_H
 
 #include <linux/types.h>
 #include <linux/sched.h>
 #include <linux/cred.h>
+<<<<<<< HEAD
+=======
+#include <linux/uaccess.h>
+#include <linux/fs.h>
+>>>>>>> upstream/android-13
 
 struct ib_addr {
 	union {

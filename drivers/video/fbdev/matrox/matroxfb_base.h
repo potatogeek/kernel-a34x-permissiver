@@ -86,7 +86,11 @@
 #ifdef DEBUG
 #define dprintk(X...)	printk(X)
 #else
+<<<<<<< HEAD
 #define dprintk(X...)
+=======
+#define dprintk(X...)	no_printk(X)
+>>>>>>> upstream/android-13
 #endif
 
 #ifndef PCI_SS_VENDOR_ID_SIEMENS_NIXDORF

@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
+>>>>>>> upstream/android-13
  */
 
 #include <linux/vmalloc.h>
@@ -42,7 +48,12 @@ void __iomem *ioremap(phys_addr_t paddr, unsigned long size)
 	if (arc_uncached_addr_space(paddr))
 		return (void __iomem *)(u32)paddr;
 
+<<<<<<< HEAD
 	return ioremap_prot(paddr, size, PAGE_KERNEL_NO_CACHE);
+=======
+	return ioremap_prot(paddr, size,
+			    pgprot_val(pgprot_noncached(PAGE_KERNEL)));
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(ioremap);
 
@@ -56,9 +67,16 @@ EXPORT_SYMBOL(ioremap);
 void __iomem *ioremap_prot(phys_addr_t paddr, unsigned long size,
 			   unsigned long flags)
 {
+<<<<<<< HEAD
 	unsigned long vaddr;
 	struct vm_struct *area;
 	phys_addr_t off, end;
+=======
+	unsigned int off;
+	unsigned long vaddr;
+	struct vm_struct *area;
+	phys_addr_t end;
+>>>>>>> upstream/android-13
 	pgprot_t prot = __pgprot(flags);
 
 	/* Don't allow wraparound, zero size */
@@ -75,7 +93,11 @@ void __iomem *ioremap_prot(phys_addr_t paddr, unsigned long size,
 
 	/* Mappings have to be page-aligned */
 	off = paddr & ~PAGE_MASK;
+<<<<<<< HEAD
 	paddr &= PAGE_MASK;
+=======
+	paddr &= PAGE_MASK_PHYS;
+>>>>>>> upstream/android-13
 	size = PAGE_ALIGN(end + 1) - paddr;
 
 	/*

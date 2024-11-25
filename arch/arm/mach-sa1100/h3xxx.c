@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Support for Compaq iPAQ H3100 and H3600 handheld computers (common code)
  *
  * Copyright (c) 2000,1 Compaq Computer Corporation. (Author: Jamey Hicks)
  * Copyright (c) 2009 Dmitry Artamonow <mad_soft@inbox.ru>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -87,6 +94,7 @@ static struct resource h3xxx_flash_resource =
 /*
  * H3xxx uart support
  */
+<<<<<<< HEAD
 static struct gpio h3xxx_uart_gpio[] = {
 	{ H3XXX_GPIO_COM_DCD,	GPIOF_IN,		"COM DCD" },
 	{ H3XXX_GPIO_COM_CTS,	GPIOF_IN,		"COM CTS" },
@@ -138,6 +146,8 @@ static u_int h3xxx_uart_get_mctrl(struct uart_port *port)
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void h3xxx_uart_pm(struct uart_port *port, u_int state, u_int oldstate)
 {
 	if (port->mapbase == _Ser3UTCR0) {
@@ -170,12 +180,28 @@ static int h3xxx_uart_set_wake(struct uart_port *port, u_int enable)
 }
 
 static struct sa1100_port_fns h3xxx_port_fns __initdata = {
+<<<<<<< HEAD
 	.set_mctrl	= h3xxx_uart_set_mctrl,
 	.get_mctrl	= h3xxx_uart_get_mctrl,
+=======
+>>>>>>> upstream/android-13
 	.pm		= h3xxx_uart_pm,
 	.set_wake	= h3xxx_uart_set_wake,
 };
 
+<<<<<<< HEAD
+=======
+static struct gpiod_lookup_table h3xxx_uart3_gpio_table = {
+	.dev_id = "sa11x0-uart.3",
+	.table = {
+		GPIO_LOOKUP("gpio", H3XXX_GPIO_COM_DCD, "dcd", GPIO_ACTIVE_LOW),
+		GPIO_LOOKUP("gpio", H3XXX_GPIO_COM_CTS, "cts", GPIO_ACTIVE_LOW),
+		GPIO_LOOKUP("gpio", H3XXX_GPIO_COM_RTS, "rts", GPIO_ACTIVE_LOW),
+		{ },
+	},
+};
+
+>>>>>>> upstream/android-13
 /*
  * EGPIO
  */
@@ -283,6 +309,10 @@ static struct gpiod_lookup_table h3xxx_pcmcia_gpio_table = {
 void __init h3xxx_mach_init(void)
 {
 	gpiod_add_lookup_table(&h3xxx_pcmcia_gpio_table);
+<<<<<<< HEAD
+=======
+	gpiod_add_lookup_table(&h3xxx_uart3_gpio_table);
+>>>>>>> upstream/android-13
 	sa1100_register_uart_fns(&h3xxx_port_fns);
 	sa11x0_register_mtd(&h3xxx_flash_data, &h3xxx_flash_resource, 1);
 	platform_add_devices(h3xxx_devices, ARRAY_SIZE(h3xxx_devices));

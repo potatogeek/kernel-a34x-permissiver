@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  sdricoh_cs.c - driver for Ricoh Secure Digital Card Readers that can be
  *     found on some Ricoh RL5c476 II cardbus bridge
  *
  *  Copyright (C) 2006 - 2008 Sascha Sommer <saschasommer@freenet.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -29,6 +36,10 @@
 #include <linux/module.h>
 #include <linux/pci.h>
 #include <linux/ioport.h>
+<<<<<<< HEAD
+=======
+#include <linux/iopoll.h>
+>>>>>>> upstream/android-13
 #include <linux/scatterlist.h>
 
 #include <pcmcia/cistpl.h>
@@ -36,6 +47,10 @@
 #include <linux/io.h>
 
 #include <linux/mmc/host.h>
+<<<<<<< HEAD
+=======
+#include <linux/mmc/mmc.h>
+>>>>>>> upstream/android-13
 
 #define DRIVER_NAME "sdricoh_cs"
 
@@ -71,10 +86,15 @@ static unsigned int switchlocked;
 #define STATUS_BUSY              0x40000000
 
 /* timeouts */
+<<<<<<< HEAD
 #define INIT_TIMEOUT      100
 #define CMD_TIMEOUT       100000
 #define TRANSFER_TIMEOUT  100000
 #define BUSY_TIMEOUT      32767
+=======
+#define SDRICOH_CMD_TIMEOUT_US	1000000
+#define SDRICOH_DATA_TIMEOUT_US	1000000
+>>>>>>> upstream/android-13
 
 /* list of supported pcmcia devices */
 static const struct pcmcia_device_id pcmcia_ids[] = {
@@ -138,6 +158,7 @@ static inline unsigned int sdricoh_readb(struct sdricoh_host *host,
 	return value;
 }
 
+<<<<<<< HEAD
 static int sdricoh_query_status(struct sdricoh_host *host, unsigned int wanted,
 				unsigned int timeout){
 	unsigned int loop;
@@ -151,6 +172,26 @@ static int sdricoh_query_status(struct sdricoh_host *host, unsigned int wanted,
 	}
 
 	if (loop == timeout) {
+=======
+static bool sdricoh_status_ok(struct sdricoh_host *host, unsigned int status,
+			      unsigned int wanted)
+{
+	sdricoh_writel(host, R2E4_STATUS_RESP, status);
+	return status & wanted;
+}
+
+static int sdricoh_query_status(struct sdricoh_host *host, unsigned int wanted)
+{
+	int ret;
+	unsigned int status = 0;
+	struct device *dev = host->dev;
+
+	ret = read_poll_timeout(sdricoh_readl, status,
+				sdricoh_status_ok(host, status, wanted),
+				32, SDRICOH_DATA_TIMEOUT_US, false,
+				host, R21C_STATUS);
+	if (ret) {
+>>>>>>> upstream/android-13
 		dev_err(dev, "query_status: timeout waiting for %x\n", wanted);
 		return -ETIMEDOUT;
 	}
@@ -164,6 +205,7 @@ static int sdricoh_query_status(struct sdricoh_host *host, unsigned int wanted,
 
 }
 
+<<<<<<< HEAD
 static int sdricoh_mmc_cmd(struct sdricoh_host *host, unsigned char opcode,
 			   unsigned int arg)
 {
@@ -193,6 +235,48 @@ static int sdricoh_mmc_cmd(struct sdricoh_host *host, unsigned char opcode,
 
 	return result;
 
+=======
+static int sdricoh_mmc_cmd(struct sdricoh_host *host, struct mmc_command *cmd)
+{
+	unsigned int status, timeout_us;
+	int ret;
+	unsigned char opcode = cmd->opcode;
+
+	/* reset status reg? */
+	sdricoh_writel(host, R21C_STATUS, 0x18);
+
+	/* MMC_APP_CMDs need some special handling */
+	if (host->app_cmd) {
+		opcode |= 64;
+		host->app_cmd = 0;
+	} else if (opcode == MMC_APP_CMD)
+		host->app_cmd = 1;
+
+	/* fill parameters */
+	sdricoh_writel(host, R204_CMD_ARG, cmd->arg);
+	sdricoh_writel(host, R200_CMD, (0x10000 << 8) | opcode);
+
+	/* wait for command completion */
+	if (!opcode)
+		return 0;
+
+	timeout_us = cmd->busy_timeout ? cmd->busy_timeout * 1000 :
+		SDRICOH_CMD_TIMEOUT_US;
+
+	ret = read_poll_timeout(sdricoh_readl, status,
+			sdricoh_status_ok(host, status, STATUS_CMD_FINISHED),
+			32, timeout_us, false,
+			host, R21C_STATUS);
+
+	/*
+	 * Don't check for timeout status in the loop, as it's not always reset
+	 * correctly.
+	 */
+	if (ret || status & STATUS_CMD_TIMEOUT)
+		return -ETIMEDOUT;
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int sdricoh_reset(struct sdricoh_host *host)
@@ -221,8 +305,12 @@ static int sdricoh_blockio(struct sdricoh_host *host, int read,
 	u32 data = 0;
 	/* wait until the data is available */
 	if (read) {
+<<<<<<< HEAD
 		if (sdricoh_query_status(host, STATUS_READY_TO_READ,
 						TRANSFER_TIMEOUT))
+=======
+		if (sdricoh_query_status(host, STATUS_READY_TO_READ))
+>>>>>>> upstream/android-13
 			return -ETIMEDOUT;
 		sdricoh_writel(host, R21C_STATUS, 0x18);
 		/* read data */
@@ -238,8 +326,12 @@ static int sdricoh_blockio(struct sdricoh_host *host, int read,
 			}
 		}
 	} else {
+<<<<<<< HEAD
 		if (sdricoh_query_status(host, STATUS_READY_TO_WRITE,
 						TRANSFER_TIMEOUT))
+=======
+		if (sdricoh_query_status(host, STATUS_READY_TO_WRITE))
+>>>>>>> upstream/android-13
 			return -ETIMEDOUT;
 		sdricoh_writel(host, R21C_STATUS, 0x18);
 		/* write data */
@@ -265,6 +357,7 @@ static void sdricoh_request(struct mmc_host *mmc, struct mmc_request *mrq)
 	struct mmc_command *cmd = mrq->cmd;
 	struct mmc_data *data = cmd->data;
 	struct device *dev = host->dev;
+<<<<<<< HEAD
 	unsigned char opcode = cmd->opcode;
 	int i;
 
@@ -280,13 +373,26 @@ static void sdricoh_request(struct mmc_host *mmc, struct mmc_request *mrq)
 	} else if (opcode == 55)
 		host->app_cmd = 1;
 
+=======
+	int i;
+
+	dev_dbg(dev, "=============================\n");
+	dev_dbg(dev, "sdricoh_request opcode=%i\n", cmd->opcode);
+
+	sdricoh_writel(host, R21C_STATUS, 0x18);
+
+>>>>>>> upstream/android-13
 	/* read/write commands seem to require this */
 	if (data) {
 		sdricoh_writew(host, R226_BLOCKSIZE, data->blksz);
 		sdricoh_writel(host, R208_DATAIO, 0);
 	}
 
+<<<<<<< HEAD
 	cmd->error = sdricoh_mmc_cmd(host, opcode, cmd->arg);
+=======
+	cmd->error = sdricoh_mmc_cmd(host, cmd);
+>>>>>>> upstream/android-13
 
 	/* read response buffer */
 	if (cmd->flags & MMC_RSP_PRESENT) {
@@ -337,8 +443,12 @@ static void sdricoh_request(struct mmc_host *mmc, struct mmc_request *mrq)
 
 		sdricoh_writel(host, R208_DATAIO, 1);
 
+<<<<<<< HEAD
 		if (sdricoh_query_status(host, STATUS_TRANSFER_FINISHED,
 					TRANSFER_TIMEOUT)) {
+=======
+		if (sdricoh_query_status(host, STATUS_TRANSFER_FINISHED)) {
+>>>>>>> upstream/android-13
 			dev_err(dev, "sdricoh_request: transfer end error\n");
 			cmd->error = -EINVAL;
 		}

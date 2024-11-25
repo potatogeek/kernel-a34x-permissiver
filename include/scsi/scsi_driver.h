@@ -2,6 +2,10 @@
 #ifndef _SCSI_SCSI_DRIVER_H
 #define _SCSI_SCSI_DRIVER_H
 
+<<<<<<< HEAD
+=======
+#include <linux/blk_types.h>
+>>>>>>> upstream/android-13
 #include <linux/device.h>
 
 struct module;
@@ -13,7 +17,11 @@ struct scsi_driver {
 	struct device_driver	gendrv;
 
 	void (*rescan)(struct device *);
+<<<<<<< HEAD
 	int (*init_command)(struct scsi_cmnd *);
+=======
+	blk_status_t (*init_command)(struct scsi_cmnd *);
+>>>>>>> upstream/android-13
 	void (*uninit_command)(struct scsi_cmnd *);
 	int (*done)(struct scsi_cmnd *);
 	int (*eh_action)(struct scsi_cmnd *, int);

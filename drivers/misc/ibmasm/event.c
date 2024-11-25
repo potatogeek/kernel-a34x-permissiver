@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 
 /*
  * IBM ASM Service Processor Device Driver
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -20,6 +25,11 @@
  *
  * Author: Max Asböck <amax@us.ibm.com>
  *
+=======
+ * Copyright (C) IBM Corporation, 2004
+ *
+ * Author: Max Asböck <amax@us.ibm.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/sched.h>
@@ -45,7 +55,11 @@ static void wake_up_event_readers(struct service_processor *sp)
                 wake_up_interruptible(&reader->wait);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * receive_event
  * Called by the interrupt handler when a dot command of type sp_event is
  * received.
@@ -82,7 +96,11 @@ static inline int event_available(struct event_buffer *b, struct event_reader *r
 	return (r->next_serial_number < b->next_serial_number);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * get_next_event
  * Called by event readers (initiated from user space through the file
  * system).

@@ -1,2 +1,7 @@
+<<<<<<< HEAD
 libperf-y += common.o
 libperf-y += $(SRCARCH)/
+=======
+perf-y += common.o
+perf-y += $(SRCARCH)/
+>>>>>>> upstream/android-13

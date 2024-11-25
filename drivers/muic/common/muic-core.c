@@ -491,6 +491,7 @@ int muic_afc_request_cause_clear(void)
 }
 EXPORT_SYMBOL_GPL(muic_afc_request_cause_clear);
 
+<<<<<<< HEAD
 int muic_afc_get_request_cause(void)
 {
 	struct muic_platform_data *pdata = &muic_pdata;
@@ -521,6 +522,8 @@ bool muic_is_enable_afc_request(void)
 }
 EXPORT_SYMBOL_GPL(muic_is_enable_afc_request);
 
+=======
+>>>>>>> upstream/android-13
 static int muic_afc_request_voltage_check(int cause, int vol)
 {
 	int ret = 0;

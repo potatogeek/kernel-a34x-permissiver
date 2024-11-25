@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (c) 2015-2018, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -8,16 +9,26 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* Copyright (c) 2015-2018, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include "dpu_hwio.h"
 #include "dpu_hw_catalog.h"
 #include "dpu_hw_top.h"
+<<<<<<< HEAD
 #include "dpu_dbg.h"
 #include "dpu_kms.h"
 
 #define SSPP_SPARE                        0x28
 #define UBWC_STATIC                       0x144
+=======
+#include "dpu_kms.h"
+
+#define SSPP_SPARE                        0x28
+>>>>>>> upstream/android-13
 
 #define FLD_SPLIT_DISPLAY_CMD             BIT(1)
 #define FLD_SMART_PANEL_FREE_RUN          BIT(2)
@@ -98,6 +109,7 @@ static void dpu_hw_setup_split_pipe(struct dpu_hw_mdp *mdp,
 	DPU_REG_WRITE(c, SPLIT_DISPLAY_EN, cfg->en & 0x1);
 }
 
+<<<<<<< HEAD
 static void dpu_hw_setup_cdm_output(struct dpu_hw_mdp *mdp,
 		struct cdm_output_cfg *cfg)
 {
@@ -115,6 +127,8 @@ static void dpu_hw_setup_cdm_output(struct dpu_hw_mdp *mdp,
 	DPU_REG_WRITE(c, MDP_OUT_CTL_0, out_ctl);
 }
 
+=======
+>>>>>>> upstream/android-13
 static bool dpu_hw_setup_clk_force_ctrl(struct dpu_hw_mdp *mdp,
 		enum dpu_clk_ctrl_type clk_ctrl, bool enable)
 {
@@ -275,6 +289,7 @@ static void dpu_hw_get_safe_status(struct dpu_hw_mdp *mdp,
 	status->sspp[SSPP_CURSOR1] = (value >> 26) & 0x1;
 }
 
+<<<<<<< HEAD
 static void dpu_hw_reset_ubwc(struct dpu_hw_mdp *mdp, struct dpu_mdss_cfg *m)
 {
 	struct dpu_hw_blk_reg_map c;
@@ -291,6 +306,8 @@ static void dpu_hw_reset_ubwc(struct dpu_hw_mdp *mdp, struct dpu_mdss_cfg *m)
 	DPU_REG_WRITE(&c, UBWC_STATIC, m->mdp[0].ubwc_static);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void dpu_hw_intf_audio_select(struct dpu_hw_mdp *mdp)
 {
 	struct dpu_hw_blk_reg_map *c;
@@ -307,12 +324,18 @@ static void _setup_mdp_ops(struct dpu_hw_mdp_ops *ops,
 		unsigned long cap)
 {
 	ops->setup_split_pipe = dpu_hw_setup_split_pipe;
+<<<<<<< HEAD
 	ops->setup_cdm_output = dpu_hw_setup_cdm_output;
+=======
+>>>>>>> upstream/android-13
 	ops->setup_clk_force_ctrl = dpu_hw_setup_clk_force_ctrl;
 	ops->get_danger_status = dpu_hw_get_danger_status;
 	ops->setup_vsync_source = dpu_hw_setup_vsync_source;
 	ops->get_safe_status = dpu_hw_get_safe_status;
+<<<<<<< HEAD
 	ops->reset_ubwc = dpu_hw_reset_ubwc;
+=======
+>>>>>>> upstream/android-13
 	ops->intf_audio_select = dpu_hw_intf_audio_select;
 }
 
@@ -340,18 +363,24 @@ static const struct dpu_mdp_cfg *_top_offset(enum dpu_mdp mdp,
 	return ERR_PTR(-EINVAL);
 }
 
+<<<<<<< HEAD
 static struct dpu_hw_blk_ops dpu_hw_ops = {
 	.start = NULL,
 	.stop = NULL,
 };
 
+=======
+>>>>>>> upstream/android-13
 struct dpu_hw_mdp *dpu_hw_mdptop_init(enum dpu_mdp idx,
 		void __iomem *addr,
 		const struct dpu_mdss_cfg *m)
 {
 	struct dpu_hw_mdp *mdp;
 	const struct dpu_mdp_cfg *cfg;
+<<<<<<< HEAD
 	int rc;
+=======
+>>>>>>> upstream/android-13
 
 	if (!addr || !m)
 		return ERR_PTR(-EINVAL);
@@ -373,6 +402,7 @@ struct dpu_hw_mdp *dpu_hw_mdptop_init(enum dpu_mdp idx,
 	mdp->caps = cfg;
 	_setup_mdp_ops(&mdp->ops, mdp->caps->features);
 
+<<<<<<< HEAD
 	rc = dpu_hw_blk_init(&mdp->base, DPU_HW_BLK_TOP, idx, &dpu_hw_ops);
 	if (rc) {
 		DPU_ERROR("failed to init hw blk %d\n", rc);
@@ -387,12 +417,18 @@ blk_init_error:
 	kzfree(mdp);
 
 	return ERR_PTR(rc);
+=======
+	return mdp;
+>>>>>>> upstream/android-13
 }
 
 void dpu_hw_mdp_destroy(struct dpu_hw_mdp *mdp)
 {
+<<<<<<< HEAD
 	if (mdp)
 		dpu_hw_blk_destroy(&mdp->base);
+=======
+>>>>>>> upstream/android-13
 	kfree(mdp);
 }
 

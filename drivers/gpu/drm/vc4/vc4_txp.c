@@ -7,18 +7,34 @@
  *	Boris Brezillon <boris.brezillon@bootlin.com>
  */
 
+<<<<<<< HEAD
 #include <drm/drm_atomic_helper.h>
 #include <drm/drm_fb_cma_helper.h>
 #include <drm/drm_crtc_helper.h>
 #include <drm/drm_edid.h>
 #include <drm/drm_panel.h>
 #include <drm/drm_writeback.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/clk.h>
 #include <linux/component.h>
 #include <linux/of_graph.h>
 #include <linux/of_platform.h>
 #include <linux/pm_runtime.h>
 
+<<<<<<< HEAD
+=======
+#include <drm/drm_atomic.h>
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_edid.h>
+#include <drm/drm_fb_cma_helper.h>
+#include <drm/drm_fourcc.h>
+#include <drm/drm_panel.h>
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_vblank.h>
+#include <drm/drm_writeback.h>
+
+>>>>>>> upstream/android-13
 #include "vc4_drv.h"
 #include "vc4_regs.h"
 
@@ -143,11 +159,20 @@
 #define TXP_WRITE(offset, val) writel(val, txp->regs + (offset))
 
 struct vc4_txp {
+<<<<<<< HEAD
+=======
+	struct vc4_crtc	base;
+
+>>>>>>> upstream/android-13
 	struct platform_device *pdev;
 
 	struct drm_writeback_connector connector;
 
 	void __iomem *regs;
+<<<<<<< HEAD
+=======
+	struct debugfs_regset32 regset;
+>>>>>>> upstream/android-13
 };
 
 static inline struct vc4_txp *encoder_to_vc4_txp(struct drm_encoder *encoder)
@@ -160,6 +185,7 @@ static inline struct vc4_txp *connector_to_vc4_txp(struct drm_connector *conn)
 	return container_of(conn, struct vc4_txp, connector.base);
 }
 
+<<<<<<< HEAD
 #define TXP_REG(reg) { reg, #reg }
 static const struct {
 	u32 reg;
@@ -194,6 +220,16 @@ int vc4_txp_debugfs_regs(struct seq_file *m, void *unused)
 }
 #endif
 
+=======
+static const struct debugfs_reg32 txp_regs[] = {
+	VC4_REG32(TXP_DST_PTR),
+	VC4_REG32(TXP_DST_PITCH),
+	VC4_REG32(TXP_DIM),
+	VC4_REG32(TXP_DST_CTRL),
+	VC4_REG32(TXP_PROGRESS),
+};
+
+>>>>>>> upstream/android-13
 static int vc4_txp_connector_get_modes(struct drm_connector *connector)
 {
 	struct drm_device *dev = connector->dev;
@@ -245,6 +281,7 @@ static const u32 txp_fmts[] = {
 	TXP_FORMAT_BGRA8888,
 };
 
+<<<<<<< HEAD
 static int vc4_txp_connector_atomic_check(struct drm_connector *conn,
 					struct drm_connector_state *conn_state)
 {
@@ -258,6 +295,28 @@ static int vc4_txp_connector_atomic_check(struct drm_connector *conn,
 
 	crtc_state = drm_atomic_get_new_crtc_state(conn_state->state,
 						   conn_state->crtc);
+=======
+static void vc4_txp_armed(struct drm_crtc_state *state)
+{
+	struct vc4_crtc_state *vc4_state = to_vc4_crtc_state(state);
+
+	vc4_state->txp_armed = true;
+}
+
+static int vc4_txp_connector_atomic_check(struct drm_connector *conn,
+					  struct drm_atomic_state *state)
+{
+	struct drm_connector_state *conn_state;
+	struct drm_crtc_state *crtc_state;
+	struct drm_framebuffer *fb;
+	int i;
+
+	conn_state = drm_atomic_get_new_connector_state(state, conn);
+	if (!conn_state->writeback_job)
+		return 0;
+
+	crtc_state = drm_atomic_get_new_crtc_state(state, conn_state->crtc);
+>>>>>>> upstream/android-13
 
 	fb = conn_state->writeback_job->fb;
 	if (fb->width != crtc_state->mode.hdisplay ||
@@ -275,20 +334,34 @@ static int vc4_txp_connector_atomic_check(struct drm_connector *conn,
 	if (i == ARRAY_SIZE(drm_fmts))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	gem = drm_fb_cma_get_gem_obj(fb, 0);
 
+=======
+>>>>>>> upstream/android-13
 	/* Pitch must be aligned on 16 bytes. */
 	if (fb->pitches[0] & GENMASK(3, 0))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	vc4_crtc_txp_armed(crtc_state);
+=======
+	vc4_txp_armed(crtc_state);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static void vc4_txp_connector_atomic_commit(struct drm_connector *conn,
+<<<<<<< HEAD
 					struct drm_connector_state *conn_state)
 {
+=======
+					struct drm_atomic_state *state)
+{
+	struct drm_connector_state *conn_state = drm_atomic_get_new_connector_state(state,
+										    conn);
+>>>>>>> upstream/android-13
 	struct vc4_txp *txp = connector_to_vc4_txp(conn);
 	struct drm_gem_cma_object *gem;
 	struct drm_display_mode *mode;
@@ -296,8 +369,12 @@ static void vc4_txp_connector_atomic_commit(struct drm_connector *conn,
 	u32 ctrl;
 	int i;
 
+<<<<<<< HEAD
 	if (WARN_ON(!conn_state->writeback_job ||
 		    !conn_state->writeback_job->fb))
+=======
+	if (WARN_ON(!conn_state->writeback_job))
+>>>>>>> upstream/android-13
 		return;
 
 	mode = &conn_state->crtc->state->adjusted_mode;
@@ -327,7 +404,11 @@ static void vc4_txp_connector_atomic_commit(struct drm_connector *conn,
 
 	TXP_WRITE(TXP_DST_CTRL, ctrl);
 
+<<<<<<< HEAD
 	drm_writeback_queue_job(&txp->connector, conn_state->writeback_job);
+=======
+	drm_writeback_queue_job(&txp->connector, conn_state);
+>>>>>>> upstream/android-13
 }
 
 static const struct drm_connector_helper_funcs vc4_txp_connector_helper_funcs = {
@@ -381,23 +462,121 @@ static const struct drm_encoder_helper_funcs vc4_txp_encoder_helper_funcs = {
 	.disable = vc4_txp_encoder_disable,
 };
 
+<<<<<<< HEAD
 static irqreturn_t vc4_txp_interrupt(int irq, void *data)
 {
 	struct vc4_txp *txp = data;
 
 	TXP_WRITE(TXP_DST_CTRL, TXP_READ(TXP_DST_CTRL) & ~TXP_EI);
 	vc4_crtc_handle_vblank(to_vc4_crtc(txp->connector.base.state->crtc));
+=======
+static int vc4_txp_enable_vblank(struct drm_crtc *crtc)
+{
+	return 0;
+}
+
+static void vc4_txp_disable_vblank(struct drm_crtc *crtc) {}
+
+static const struct drm_crtc_funcs vc4_txp_crtc_funcs = {
+	.set_config		= drm_atomic_helper_set_config,
+	.destroy		= vc4_crtc_destroy,
+	.page_flip		= vc4_page_flip,
+	.reset			= vc4_crtc_reset,
+	.atomic_duplicate_state	= vc4_crtc_duplicate_state,
+	.atomic_destroy_state	= vc4_crtc_destroy_state,
+	.enable_vblank		= vc4_txp_enable_vblank,
+	.disable_vblank		= vc4_txp_disable_vblank,
+};
+
+static int vc4_txp_atomic_check(struct drm_crtc *crtc,
+				struct drm_atomic_state *state)
+{
+	struct drm_crtc_state *crtc_state = drm_atomic_get_new_crtc_state(state,
+									  crtc);
+	int ret;
+
+	ret = vc4_hvs_atomic_check(crtc, state);
+	if (ret)
+		return ret;
+
+	crtc_state->no_vblank = true;
+
+	return 0;
+}
+
+static void vc4_txp_atomic_enable(struct drm_crtc *crtc,
+				  struct drm_atomic_state *state)
+{
+	drm_crtc_vblank_on(crtc);
+	vc4_hvs_atomic_enable(crtc, state);
+}
+
+static void vc4_txp_atomic_disable(struct drm_crtc *crtc,
+				   struct drm_atomic_state *state)
+{
+	struct drm_device *dev = crtc->dev;
+
+	/* Disable vblank irq handling before crtc is disabled. */
+	drm_crtc_vblank_off(crtc);
+
+	vc4_hvs_atomic_disable(crtc, state);
+
+	/*
+	 * Make sure we issue a vblank event after disabling the CRTC if
+	 * someone was waiting it.
+	 */
+	if (crtc->state->event) {
+		unsigned long flags;
+
+		spin_lock_irqsave(&dev->event_lock, flags);
+		drm_crtc_send_vblank_event(crtc, crtc->state->event);
+		crtc->state->event = NULL;
+		spin_unlock_irqrestore(&dev->event_lock, flags);
+	}
+}
+
+static const struct drm_crtc_helper_funcs vc4_txp_crtc_helper_funcs = {
+	.atomic_check	= vc4_txp_atomic_check,
+	.atomic_begin	= vc4_hvs_atomic_begin,
+	.atomic_flush	= vc4_hvs_atomic_flush,
+	.atomic_enable	= vc4_txp_atomic_enable,
+	.atomic_disable	= vc4_txp_atomic_disable,
+};
+
+static irqreturn_t vc4_txp_interrupt(int irq, void *data)
+{
+	struct vc4_txp *txp = data;
+	struct vc4_crtc *vc4_crtc = &txp->base;
+
+	TXP_WRITE(TXP_DST_CTRL, TXP_READ(TXP_DST_CTRL) & ~TXP_EI);
+	vc4_crtc_handle_vblank(vc4_crtc);
+>>>>>>> upstream/android-13
 	drm_writeback_signal_completion(&txp->connector, 0);
 
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
+=======
+static const struct vc4_crtc_data vc4_txp_crtc_data = {
+	.hvs_available_channels = BIT(2),
+	.hvs_output = 2,
+};
+
+>>>>>>> upstream/android-13
 static int vc4_txp_bind(struct device *dev, struct device *master, void *data)
 {
 	struct platform_device *pdev = to_platform_device(dev);
 	struct drm_device *drm = dev_get_drvdata(master);
 	struct vc4_dev *vc4 = to_vc4_dev(drm);
+<<<<<<< HEAD
 	struct vc4_txp *txp;
+=======
+	struct vc4_crtc *vc4_crtc;
+	struct vc4_txp *txp;
+	struct drm_crtc *crtc;
+	struct drm_encoder *encoder;
+>>>>>>> upstream/android-13
 	int ret, irq;
 
 	irq = platform_get_irq(pdev, 0);
@@ -407,12 +586,27 @@ static int vc4_txp_bind(struct device *dev, struct device *master, void *data)
 	txp = devm_kzalloc(dev, sizeof(*txp), GFP_KERNEL);
 	if (!txp)
 		return -ENOMEM;
+<<<<<<< HEAD
+=======
+	vc4_crtc = &txp->base;
+	crtc = &vc4_crtc->base;
+
+	vc4_crtc->pdev = pdev;
+	vc4_crtc->data = &vc4_txp_crtc_data;
+	vc4_crtc->feeds_txp = true;
+>>>>>>> upstream/android-13
 
 	txp->pdev = pdev;
 
 	txp->regs = vc4_ioremap_regs(pdev, 0);
 	if (IS_ERR(txp->regs))
 		return PTR_ERR(txp->regs);
+<<<<<<< HEAD
+=======
+	txp->regset.base = txp->regs;
+	txp->regset.regs = txp_regs;
+	txp->regset.nregs = ARRAY_SIZE(txp_regs);
+>>>>>>> upstream/android-13
 
 	drm_connector_helper_add(&txp->connector.base,
 				 &vc4_txp_connector_helper_funcs);
@@ -423,6 +617,17 @@ static int vc4_txp_bind(struct device *dev, struct device *master, void *data)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
+=======
+	ret = vc4_crtc_init(drm, vc4_crtc,
+			    &vc4_txp_crtc_funcs, &vc4_txp_crtc_helper_funcs);
+	if (ret)
+		return ret;
+
+	encoder = &txp->connector.encoder;
+	encoder->possible_crtcs = drm_crtc_mask(crtc);
+
+>>>>>>> upstream/android-13
 	ret = devm_request_irq(dev, irq, vc4_txp_interrupt, 0,
 			       dev_name(dev), txp);
 	if (ret)
@@ -431,6 +636,11 @@ static int vc4_txp_bind(struct device *dev, struct device *master, void *data)
 	dev_set_drvdata(dev, txp);
 	vc4->txp = txp;
 
+<<<<<<< HEAD
+=======
+	vc4_debugfs_add_regset32(drm, "txp_regs", &txp->regset);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 

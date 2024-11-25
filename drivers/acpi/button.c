@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  button.c - ACPI Button Driver
  *
  *  Copyright (C) 2001, 2002 Andy Grover <andrew.grover@intel.com>
  *  Copyright (C) 2001, 2002 Paul Diefenbaugh <paul.s.diefenbaugh@intel.com>
+<<<<<<< HEAD
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
@@ -17,6 +22,8 @@
  *  General Public License for more details.
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "ACPI: button: " fmt
@@ -34,25 +41,36 @@
 #include <linux/dmi.h>
 #include <acpi/button.h>
 
+<<<<<<< HEAD
 #define PREFIX "ACPI: "
 
 #define ACPI_BUTTON_CLASS		"button"
 #define ACPI_BUTTON_FILE_INFO		"info"
+=======
+#define ACPI_BUTTON_CLASS		"button"
+>>>>>>> upstream/android-13
 #define ACPI_BUTTON_FILE_STATE		"state"
 #define ACPI_BUTTON_TYPE_UNKNOWN	0x00
 #define ACPI_BUTTON_NOTIFY_STATUS	0x80
 
 #define ACPI_BUTTON_SUBCLASS_POWER	"power"
+<<<<<<< HEAD
 #define ACPI_BUTTON_HID_POWER		"PNP0C0C"
+=======
+>>>>>>> upstream/android-13
 #define ACPI_BUTTON_DEVICE_NAME_POWER	"Power Button"
 #define ACPI_BUTTON_TYPE_POWER		0x01
 
 #define ACPI_BUTTON_SUBCLASS_SLEEP	"sleep"
+<<<<<<< HEAD
 #define ACPI_BUTTON_HID_SLEEP		"PNP0C0E"
+=======
+>>>>>>> upstream/android-13
 #define ACPI_BUTTON_DEVICE_NAME_SLEEP	"Sleep Button"
 #define ACPI_BUTTON_TYPE_SLEEP		0x03
 
 #define ACPI_BUTTON_SUBCLASS_LID	"lid"
+<<<<<<< HEAD
 #define ACPI_BUTTON_HID_LID		"PNP0C0D"
 #define ACPI_BUTTON_DEVICE_NAME_LID	"Lid Switch"
 #define ACPI_BUTTON_TYPE_LID		0x05
@@ -63,6 +81,24 @@
 
 #define _COMPONENT		ACPI_BUTTON_COMPONENT
 ACPI_MODULE_NAME("button");
+=======
+#define ACPI_BUTTON_DEVICE_NAME_LID	"Lid Switch"
+#define ACPI_BUTTON_TYPE_LID		0x05
+
+enum {
+	ACPI_BUTTON_LID_INIT_IGNORE,
+	ACPI_BUTTON_LID_INIT_OPEN,
+	ACPI_BUTTON_LID_INIT_METHOD,
+	ACPI_BUTTON_LID_INIT_DISABLED,
+};
+
+static const char * const lid_init_state_str[] = {
+	[ACPI_BUTTON_LID_INIT_IGNORE]		= "ignore",
+	[ACPI_BUTTON_LID_INIT_OPEN]		= "open",
+	[ACPI_BUTTON_LID_INIT_METHOD]		= "method",
+	[ACPI_BUTTON_LID_INIT_DISABLED]		= "disabled",
+};
+>>>>>>> upstream/android-13
 
 MODULE_AUTHOR("Paul Diefenbaugh");
 MODULE_DESCRIPTION("ACPI Button Driver");
@@ -78,6 +114,7 @@ static const struct acpi_device_id button_device_ids[] = {
 };
 MODULE_DEVICE_TABLE(acpi, button_device_ids);
 
+<<<<<<< HEAD
 /*
  * Some devices which don't even have a lid in anyway have a broken _LID
  * method (e.g. pointing to a floating gpio pin) causing spurious LID events.
@@ -85,11 +122,32 @@ MODULE_DEVICE_TABLE(acpi, button_device_ids);
 static const struct dmi_system_id lid_blacklst[] = {
 	{
 		/* GP-electronic T701 */
+=======
+/* Please keep this list sorted alphabetically by vendor and model */
+static const struct dmi_system_id dmi_lid_quirks[] = {
+	{
+		/* GP-electronic T701, _LID method points to a floating GPIO */
+>>>>>>> upstream/android-13
 		.matches = {
 			DMI_MATCH(DMI_SYS_VENDOR, "Insyde"),
 			DMI_MATCH(DMI_PRODUCT_NAME, "T701"),
 			DMI_MATCH(DMI_BIOS_VERSION, "BYT70A.YNCHENG.WIN.007"),
 		},
+<<<<<<< HEAD
+=======
+		.driver_data = (void *)(long)ACPI_BUTTON_LID_INIT_DISABLED,
+	},
+	{
+		/*
+		 * Lenovo Yoga 9 14ITL5, initial notification of the LID device
+		 * never happens.
+		 */
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "82BG"),
+		},
+		.driver_data = (void *)(long)ACPI_BUTTON_LID_INIT_OPEN,
+>>>>>>> upstream/android-13
 	},
 	{
 		/*
@@ -163,18 +221,27 @@ struct acpi_button {
 	bool lid_state_initialized;
 };
 
+<<<<<<< HEAD
 static BLOCKING_NOTIFIER_HEAD(acpi_lid_notifier);
 static struct acpi_device *lid_device;
 static u8 lid_init_state = ACPI_BUTTON_LID_INIT_METHOD;
+=======
+static struct acpi_device *lid_device;
+static long lid_init_state = -1;
+>>>>>>> upstream/android-13
 
 static unsigned long lid_report_interval __read_mostly = 500;
 module_param(lid_report_interval, ulong, 0644);
 MODULE_PARM_DESC(lid_report_interval, "Interval (ms) between lid key events");
 
+<<<<<<< HEAD
 /* --------------------------------------------------------------------------
                               FS Interface (/proc)
    -------------------------------------------------------------------------- */
 
+=======
+/* FS Interface (/proc) */
+>>>>>>> upstream/android-13
 static struct proc_dir_entry *acpi_button_dir;
 static struct proc_dir_entry *acpi_lid_dir;
 
@@ -193,7 +260,10 @@ static int acpi_lid_evaluate_state(struct acpi_device *device)
 static int acpi_lid_notify_state(struct acpi_device *device, int state)
 {
 	struct acpi_button *button = acpi_driver_data(device);
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 	ktime_t next_report;
 	bool do_update;
 
@@ -270,6 +340,7 @@ static int acpi_lid_notify_state(struct acpi_device *device, int state)
 		button->last_time = ktime_get();
 	}
 
+<<<<<<< HEAD
 	ret = blocking_notifier_call_chain(&acpi_lid_notifier, state, device);
 	if (ret == NOTIFY_DONE)
 		ret = blocking_notifier_call_chain(&acpi_lid_notifier, state,
@@ -282,6 +353,9 @@ static int acpi_lid_notify_state(struct acpi_device *device, int state)
 		ret = 0;
 	}
 	return ret;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int __maybe_unused acpi_button_state_seq_show(struct seq_file *seq,
@@ -307,7 +381,11 @@ static int acpi_button_add_fs(struct acpi_device *device)
 		return 0;
 
 	if (acpi_button_dir || acpi_lid_dir) {
+<<<<<<< HEAD
 		printk(KERN_ERR PREFIX "More than one Lid device found!\n");
+=======
+		pr_info("More than one Lid device found!\n");
+>>>>>>> upstream/android-13
 		return -EEXIST;
 	}
 
@@ -375,6 +453,7 @@ static int acpi_button_remove_fs(struct acpi_device *device)
 	return 0;
 }
 
+<<<<<<< HEAD
 /* --------------------------------------------------------------------------
                                 Driver Interface
    -------------------------------------------------------------------------- */
@@ -390,6 +469,9 @@ int acpi_lid_notifier_unregister(struct notifier_block *nb)
 }
 EXPORT_SYMBOL(acpi_lid_notifier_unregister);
 
+=======
+/* Driver Interface */
+>>>>>>> upstream/android-13
 int acpi_lid_open(void)
 {
 	if (!lid_device)
@@ -441,7 +523,11 @@ static void acpi_button_notify(struct acpi_device *device, u32 event)
 	switch (event) {
 	case ACPI_FIXED_HARDWARE_EVENT:
 		event = ACPI_BUTTON_NOTIFY_STATUS;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ACPI_BUTTON_NOTIFY_STATUS:
 		input = button->input;
 		if (button->type == ACPI_BUTTON_TYPE_LID) {
@@ -468,8 +554,13 @@ static void acpi_button_notify(struct acpi_device *device, u32 event)
 		}
 		break;
 	default:
+<<<<<<< HEAD
 		ACPI_DEBUG_PRINT((ACPI_DB_INFO,
 				  "Unsupported event [0x%x]\n", event));
+=======
+		acpi_handle_debug(device->handle, "Unsupported event [0x%x]\n",
+				  event);
+>>>>>>> upstream/android-13
 		break;
 	}
 }
@@ -519,7 +610,12 @@ static int acpi_button_add(struct acpi_device *device)
 	char *name, *class;
 	int error;
 
+<<<<<<< HEAD
 	if (!strcmp(hid, ACPI_BUTTON_HID_LID) && dmi_check_system(lid_blacklst))
+=======
+	if (!strcmp(hid, ACPI_BUTTON_HID_LID) &&
+	     lid_init_state == ACPI_BUTTON_LID_INIT_DISABLED)
+>>>>>>> upstream/android-13
 		return -ENODEV;
 
 	button = kzalloc(sizeof(struct acpi_button), GFP_KERNEL);
@@ -556,7 +652,11 @@ static int acpi_button_add(struct acpi_device *device)
 			ACPI_BUTTON_CLASS, ACPI_BUTTON_SUBCLASS_LID);
 		input->open = acpi_lid_input_open;
 	} else {
+<<<<<<< HEAD
 		printk(KERN_ERR PREFIX "Unsupported hid [%s]\n", hid);
+=======
+		pr_info("Unsupported hid [%s]\n", hid);
+>>>>>>> upstream/android-13
 		error = -ENODEV;
 		goto err_free_input;
 	}
@@ -600,7 +700,11 @@ static int acpi_button_add(struct acpi_device *device)
 	}
 
 	device_init_wakeup(&device->dev, true);
+<<<<<<< HEAD
 	printk(KERN_INFO PREFIX "%s [%s]\n", name, acpi_device_bid(device));
+=======
+	pr_info("%s [%s]\n", name, acpi_device_bid(device));
+>>>>>>> upstream/android-13
 	return 0;
 
  err_remove_fs:
@@ -625,6 +729,7 @@ static int acpi_button_remove(struct acpi_device *device)
 static int param_set_lid_init_state(const char *val,
 				    const struct kernel_param *kp)
 {
+<<<<<<< HEAD
 	int result = 0;
 
 	if (!strncmp(val, "open", sizeof("open") - 1)) {
@@ -655,6 +760,32 @@ static int param_get_lid_init_state(char *buffer,
 		return sprintf(buffer, "invalid");
 	}
 	return 0;
+=======
+	int i;
+
+	i = sysfs_match_string(lid_init_state_str, val);
+	if (i < 0)
+		return i;
+
+	lid_init_state = i;
+	pr_info("Initial lid state set to '%s'\n", lid_init_state_str[i]);
+	return 0;
+}
+
+static int param_get_lid_init_state(char *buf, const struct kernel_param *kp)
+{
+	int i, c = 0;
+
+	for (i = 0; i < ARRAY_SIZE(lid_init_state_str); i++)
+		if (i == lid_init_state)
+			c += sprintf(buf + c, "[%s] ", lid_init_state_str[i]);
+		else
+			c += sprintf(buf + c, "%s ", lid_init_state_str[i]);
+
+	buf[c - 1] = '\n'; /* Replace the final space with a newline */
+
+	return c;
+>>>>>>> upstream/android-13
 }
 
 module_param_call(lid_init_state,
@@ -664,6 +795,19 @@ MODULE_PARM_DESC(lid_init_state, "Behavior for reporting LID initial state");
 
 static int acpi_button_register_driver(struct acpi_driver *driver)
 {
+<<<<<<< HEAD
+=======
+	const struct dmi_system_id *dmi_id;
+
+	if (lid_init_state == -1) {
+		dmi_id = dmi_first_match(dmi_lid_quirks);
+		if (dmi_id)
+			lid_init_state = (long)dmi_id->driver_data;
+		else
+			lid_init_state = ACPI_BUTTON_LID_INIT_METHOD;
+	}
+
+>>>>>>> upstream/android-13
 	/*
 	 * Modules such as nouveau.ko and i915.ko have a link time dependency
 	 * on acpi_lid_open(), and would therefore not be loadable on ACPI

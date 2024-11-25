@@ -17,11 +17,19 @@ static int __init nobp_setup_early(char *str)
 		 * The user explicitely requested nobp=1, enable it and
 		 * disable the expoline support.
 		 */
+<<<<<<< HEAD
 		__set_facility(82, S390_lowcore.alt_stfle_fac_list);
 		if (IS_ENABLED(CONFIG_EXPOLINE))
 			nospec_disable = 1;
 	} else {
 		__clear_facility(82, S390_lowcore.alt_stfle_fac_list);
+=======
+		__set_facility(82, alt_stfle_fac_list);
+		if (IS_ENABLED(CONFIG_EXPOLINE))
+			nospec_disable = 1;
+	} else {
+		__clear_facility(82, alt_stfle_fac_list);
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
@@ -29,7 +37,11 @@ early_param("nobp", nobp_setup_early);
 
 static int __init nospec_setup_early(char *str)
 {
+<<<<<<< HEAD
 	__clear_facility(82, S390_lowcore.alt_stfle_fac_list);
+=======
+	__clear_facility(82, alt_stfle_fac_list);
+>>>>>>> upstream/android-13
 	return 0;
 }
 early_param("nospec", nospec_setup_early);
@@ -38,9 +50,15 @@ static int __init nospec_report(void)
 {
 	if (test_facility(156))
 		pr_info("Spectre V2 mitigation: etokens\n");
+<<<<<<< HEAD
 	if (IS_ENABLED(CC_USING_EXPOLINE) && !nospec_disable)
 		pr_info("Spectre V2 mitigation: execute trampolines\n");
 	if (__test_facility(82, S390_lowcore.alt_stfle_fac_list))
+=======
+	if (__is_defined(CC_USING_EXPOLINE) && !nospec_disable)
+		pr_info("Spectre V2 mitigation: execute trampolines\n");
+	if (__test_facility(82, alt_stfle_fac_list))
+>>>>>>> upstream/android-13
 		pr_info("Spectre V2 mitigation: limited branch prediction\n");
 	return 0;
 }
@@ -64,16 +82,27 @@ void __init nospec_auto_detect(void)
 		 * The machine supports etokens.
 		 * Disable expolines and disable nobp.
 		 */
+<<<<<<< HEAD
 		if (IS_ENABLED(CC_USING_EXPOLINE))
 			nospec_disable = 1;
 		__clear_facility(82, S390_lowcore.alt_stfle_fac_list);
 	} else if (IS_ENABLED(CC_USING_EXPOLINE)) {
+=======
+		if (__is_defined(CC_USING_EXPOLINE))
+			nospec_disable = 1;
+		__clear_facility(82, alt_stfle_fac_list);
+	} else if (__is_defined(CC_USING_EXPOLINE)) {
+>>>>>>> upstream/android-13
 		/*
 		 * The kernel has been compiled with expolines.
 		 * Keep expolines enabled and disable nobp.
 		 */
 		nospec_disable = 0;
+<<<<<<< HEAD
 		__clear_facility(82, S390_lowcore.alt_stfle_fac_list);
+=======
+		__clear_facility(82, alt_stfle_fac_list);
+>>>>>>> upstream/android-13
 	}
 	/*
 	 * If the kernel has not been compiled with expolines the
@@ -86,7 +115,11 @@ static int __init spectre_v2_setup_early(char *str)
 {
 	if (str && !strncmp(str, "on", 2)) {
 		nospec_disable = 0;
+<<<<<<< HEAD
 		__clear_facility(82, S390_lowcore.alt_stfle_fac_list);
+=======
+		__clear_facility(82, alt_stfle_fac_list);
+>>>>>>> upstream/android-13
 	}
 	if (str && !strncmp(str, "off", 3))
 		nospec_disable = 1;
@@ -99,6 +132,10 @@ early_param("spectre_v2", spectre_v2_setup_early);
 static void __init_or_module __nospec_revert(s32 *start, s32 *end)
 {
 	enum { BRCL_EXPOLINE, BRASL_EXPOLINE } type;
+<<<<<<< HEAD
+=======
+	static const u8 branch[] = { 0x47, 0x00, 0x07, 0x00 };
+>>>>>>> upstream/android-13
 	u8 *instr, *thunk, *br;
 	u8 insnbuf[6];
 	s32 *epo;
@@ -128,7 +165,11 @@ static void __init_or_module __nospec_revert(s32 *start, s32 *end)
 		if ((br[0] & 0xbf) != 0x07 || (br[1] & 0xf0) != 0xf0)
 			continue;
 
+<<<<<<< HEAD
 		memcpy(insnbuf + 2, (char[]) { 0x47, 0x00, 0x07, 0x00 }, 4);
+=======
+		memcpy(insnbuf + 2, branch, sizeof(branch));
+>>>>>>> upstream/android-13
 		switch (type) {
 		case BRCL_EXPOLINE:
 			insnbuf[0] = br[0];

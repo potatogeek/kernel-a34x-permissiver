@@ -31,10 +31,19 @@
 		serial0 = &scif2;
 		i2c9 = &gpioi2c1;
 		i2c10 = &i2chdmi;
+<<<<<<< HEAD
 	};
 
 	chosen {
 		bootargs = "ignore_loglevel rw root=/dev/nfs ip=dhcp";
+=======
+		mmc0 = &mmcif0;
+		mmc1 = &sdhi1;
+	};
+
+	chosen {
+		bootargs = "ignore_loglevel rw root=/dev/nfs ip=on";
+>>>>>>> upstream/android-13
 		stdout-path = "serial0:115200n8";
 	};
 
@@ -43,9 +52,18 @@
 		reg = <0 0x40000000 0 0x40000000>;
 	};
 
+<<<<<<< HEAD
 	gpio-keys {
 		compatible = "gpio-keys";
 
+=======
+	keyboard {
+		compatible = "gpio-keys";
+
+		pinctrl-0 = <&keyboard_pins>;
+		pinctrl-names = "default";
+
+>>>>>>> upstream/android-13
 		key-3 {
 			gpios = <&gpio5 10 GPIO_ACTIVE_LOW>;
 			linux,code = <KEY_3>;
@@ -126,8 +144,12 @@
 
 		gpios = <&gpio4 29 GPIO_ACTIVE_HIGH>;
 		gpios-states = <1>;
+<<<<<<< HEAD
 		states = <3300000 1
 			  1800000 0>;
+=======
+		states = <3300000 1>, <1800000 0>;
+>>>>>>> upstream/android-13
 	};
 
 	vga-encoder {
@@ -237,7 +259,10 @@
 		composite-in@20 {
 			compatible = "adi,adv7180";
 			reg = <0x20>;
+<<<<<<< HEAD
 			remote = <&vin0>;
+=======
+>>>>>>> upstream/android-13
 
 			port {
 				adv7180: endpoint {
@@ -256,8 +281,11 @@
 			adi,input-depth = <8>;
 			adi,input-colorspace = "rgb";
 			adi,input-clock = "1x";
+<<<<<<< HEAD
 			adi,input-style = <1>;
 			adi,input-justification = "evenly";
+=======
+>>>>>>> upstream/android-13
 
 			ports {
 				#address-cells = <1>;
@@ -360,6 +388,14 @@
 		function = "du1";
 	};
 
+<<<<<<< HEAD
+=======
+	keyboard_pins: keyboard {
+		pins = "GP_3_9", "GP_3_10", "GP_3_11", "GP_3_12";
+		bias-pull-up;
+	};
+
+>>>>>>> upstream/android-13
 	ssi_pins: sound {
 		groups = "ssi0129_ctrl", "ssi0_data", "ssi1_data";
 		function = "ssi";
@@ -383,7 +419,11 @@
 };
 
 &ether {
+<<<<<<< HEAD
 	pinctrl-0 = <&ether_pins &phy1_pins>;
+=======
+	pinctrl-0 = <&ether_pins>, <&phy1_pins>;
+>>>>>>> upstream/android-13
 	pinctrl-names = "default";
 
 	phy-handle = <&phy1>;
@@ -395,6 +435,10 @@
 		interrupt-parent = <&irqc0>;
 		interrupts = <8 IRQ_TYPE_LEVEL_LOW>;
 		micrel,led-mode = <1>;
+<<<<<<< HEAD
+=======
+		reset-gpios = <&gpio1 24 GPIO_ACTIVE_LOW>;
+>>>>>>> upstream/android-13
 	};
 };
 
@@ -405,6 +449,34 @@
 	clock-frequency = <400000>;
 };
 
+<<<<<<< HEAD
+=======
+&i2c7 {
+	status = "okay";
+	clock-frequency = <100000>;
+
+	pmic@58 {
+		compatible = "dlg,da9063";
+		reg = <0x58>;
+		interrupt-parent = <&gpio3>;
+		interrupts = <31 IRQ_TYPE_LEVEL_LOW>;
+		interrupt-controller;
+
+		onkey {
+			compatible = "dlg,da9063-onkey";
+		};
+
+		rtc {
+			compatible = "dlg,da9063-rtc";
+		};
+
+		wdt {
+			compatible = "dlg,da9063-watchdog";
+		};
+	};
+};
+
+>>>>>>> upstream/android-13
 &mmcif0 {
 	pinctrl-0 = <&mmcif0_pins>;
 	pinctrl-names = "default";
@@ -496,7 +568,11 @@
 };
 
 &du {
+<<<<<<< HEAD
 	pinctrl-0 = <&du0_pins &du1_pins>;
+=======
+	pinctrl-0 = <&du0_pins>, <&du1_pins>;
+>>>>>>> upstream/android-13
 	pinctrl-names = "default";
 	status = "okay";
 
@@ -519,7 +595,11 @@
 };
 
 &rcar_sound {
+<<<<<<< HEAD
 	pinctrl-0 = <&ssi_pins &audio_clk_pins>;
+=======
+	pinctrl-0 = <&ssi_pins>, <&audio_clk_pins>;
+>>>>>>> upstream/android-13
 	pinctrl-names = "default";
 	status = "okay";
 

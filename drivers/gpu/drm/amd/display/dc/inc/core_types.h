@@ -33,9 +33,18 @@
 #include "dc_bios_types.h"
 #include "mem_input.h"
 #include "hubp.h"
+<<<<<<< HEAD
 #if defined(CONFIG_DRM_AMD_DC_DCN1_0)
 #include "mpc.h"
 #endif
+=======
+#if defined(CONFIG_DRM_AMD_DC_DCN)
+#include "mpc.h"
+#endif
+#include "dwb.h"
+#include "mcif_wb.h"
+#include "panel_cntl.h"
+>>>>>>> upstream/android-13
 
 #define MAX_CLOCK_SOURCES 7
 
@@ -48,7 +57,13 @@ void enable_surface_flip_reporting(struct dc_plane_state *plane_state,
 #include "clock_source.h"
 #include "audio.h"
 #include "dm_pp_smu.h"
+<<<<<<< HEAD
 
+=======
+#ifdef CONFIG_DRM_AMD_DC_HDCP
+#include "dm_cp_psp.h"
+#endif
+>>>>>>> upstream/android-13
 
 /************ link *****************/
 struct link_init_data {
@@ -59,11 +74,14 @@ struct link_init_data {
 				TODO: remove it when DC is complete. */
 };
 
+<<<<<<< HEAD
 enum {
 	FREE_ACQUIRED_RESOURCE = 0,
 	KEEP_ACQUIRED_RESOURCE = 1,
 };
 
+=======
+>>>>>>> upstream/android-13
 struct dc_link *link_create(const struct link_init_data *init_params);
 void link_destroy(struct dc_link **link);
 
@@ -78,27 +96,86 @@ void core_link_enable_stream(
 		struct dc_state *state,
 		struct pipe_ctx *pipe_ctx);
 
+<<<<<<< HEAD
 void core_link_disable_stream(struct pipe_ctx *pipe_ctx, int option);
 
 void core_link_set_avmute(struct pipe_ctx *pipe_ctx, bool enable);
 /********** DAL Core*********************/
 #include "display_clock.h"
+=======
+void core_link_disable_stream(struct pipe_ctx *pipe_ctx);
+
+void core_link_set_avmute(struct pipe_ctx *pipe_ctx, bool enable);
+/********** DAL Core*********************/
+>>>>>>> upstream/android-13
 #include "transform.h"
 #include "dpp.h"
 
 struct resource_pool;
 struct dc_state;
 struct resource_context;
+<<<<<<< HEAD
+=======
+struct clk_bw_params;
+>>>>>>> upstream/android-13
 
 struct resource_funcs {
 	void (*destroy)(struct resource_pool **pool);
 	void (*link_init)(struct dc_link *link);
+<<<<<<< HEAD
 	struct link_encoder *(*link_enc_create)(
 			const struct encoder_init_data *init);
 
 	bool (*validate_bandwidth)(
 					struct dc *dc,
 					struct dc_state *context);
+=======
+	struct panel_cntl*(*panel_cntl_create)(
+		const struct panel_cntl_init_data *panel_cntl_init_data);
+	struct link_encoder *(*link_enc_create)(
+			const struct encoder_init_data *init);
+	/* Create a minimal link encoder object with no dc_link object
+	 * associated with it. */
+	struct link_encoder *(*link_enc_create_minimal)(struct dc_context *ctx, enum engine_id eng_id);
+
+	bool (*validate_bandwidth)(
+					struct dc *dc,
+					struct dc_state *context,
+					bool fast_validate);
+	void (*calculate_wm_and_dlg)(
+				struct dc *dc, struct dc_state *context,
+				display_e2e_pipe_params_st *pipes,
+				int pipe_cnt,
+				int vlevel);
+	void (*update_soc_for_wm_a)(
+				struct dc *dc, struct dc_state *context);
+	int (*populate_dml_pipes)(
+		struct dc *dc,
+		struct dc_state *context,
+		display_e2e_pipe_params_st *pipes,
+		bool fast_validate);
+
+	/*
+	 * Algorithm for assigning available link encoders to links.
+	 *
+	 * Update link_enc_assignments table and link_enc_avail list accordingly in
+	 * struct resource_context.
+	 */
+	void (*link_encs_assign)(
+			struct dc *dc,
+			struct dc_state *state,
+			struct dc_stream_state *streams[],
+			uint8_t stream_count);
+	/*
+	 * Unassign a link encoder from a stream.
+	 *
+	 * Update link_enc_assignments table and link_enc_avail list accordingly in
+	 * struct resource_context.
+	 */
+	void (*link_enc_unassign)(
+			struct dc_state *state,
+			struct dc_stream_state *stream);
+>>>>>>> upstream/android-13
 
 	enum dc_status (*validate_global)(
 		struct dc *dc,
@@ -120,6 +197,46 @@ struct resource_funcs {
 				struct dc *dc,
 				struct dc_state *new_ctx,
 				struct dc_stream_state *stream);
+<<<<<<< HEAD
+=======
+	enum dc_status (*patch_unknown_plane_state)(
+			struct dc_plane_state *plane_state);
+
+	struct stream_encoder *(*find_first_free_match_stream_enc_for_link)(
+			struct resource_context *res_ctx,
+			const struct resource_pool *pool,
+			struct dc_stream_state *stream);
+	void (*populate_dml_writeback_from_context)(
+			struct dc *dc,
+			struct resource_context *res_ctx,
+			display_e2e_pipe_params_st *pipes);
+
+	void (*set_mcif_arb_params)(
+			struct dc *dc,
+			struct dc_state *context,
+			display_e2e_pipe_params_st *pipes,
+			int pipe_cnt);
+	void (*update_bw_bounding_box)(
+			struct dc *dc,
+			struct clk_bw_params *bw_params);
+#if defined(CONFIG_DRM_AMD_DC_DCN)
+	bool (*acquire_post_bldn_3dlut)(
+			struct resource_context *res_ctx,
+			const struct resource_pool *pool,
+			int mpcc_id,
+			struct dc_3dlut **lut,
+			struct dc_transfer_func **shaper);
+
+	bool (*release_post_bldn_3dlut)(
+			struct resource_context *res_ctx,
+			const struct resource_pool *pool,
+			struct dc_3dlut **lut,
+			struct dc_transfer_func **shaper);
+#endif
+	enum dc_status (*add_dsc_to_stream_resource)(
+			struct dc *dc, struct dc_state *state,
+			struct dc_stream_state *stream);
+>>>>>>> upstream/android-13
 };
 
 struct audio_support{
@@ -139,18 +256,64 @@ struct resource_pool {
 	struct output_pixel_processor *opps[MAX_PIPES];
 	struct timing_generator *timing_generators[MAX_PIPES];
 	struct stream_encoder *stream_enc[MAX_PIPES * 2];
+<<<<<<< HEAD
 	struct aux_engine *engines[MAX_PIPES];
 	struct hubbub *hubbub;
 	struct mpc *mpc;
 	struct pp_smu_funcs_rv *pp_smu;
 	struct pp_smu_display_requirement_rv pp_smu_req;
+=======
+	struct hubbub *hubbub;
+	struct mpc *mpc;
+	struct pp_smu_funcs *pp_smu;
+	struct dce_aux *engines[MAX_PIPES];
+	struct dce_i2c_hw *hw_i2cs[MAX_PIPES];
+	struct dce_i2c_sw *sw_i2cs[MAX_PIPES];
+	bool i2c_hw_buffer_in_use;
+
+	struct dwbc *dwbc[MAX_DWB_PIPES];
+	struct mcif_wb *mcif_wb[MAX_DWB_PIPES];
+	struct {
+		unsigned int gsl_0:1;
+		unsigned int gsl_1:1;
+		unsigned int gsl_2:1;
+	} gsl_groups;
+
+	struct display_stream_compressor *dscs[MAX_PIPES];
+>>>>>>> upstream/android-13
 
 	unsigned int pipe_count;
 	unsigned int underlay_pipe_index;
 	unsigned int stream_enc_count;
+<<<<<<< HEAD
 	unsigned int ref_clock_inKhz;
 	unsigned int timing_generator_count;
 
+=======
+
+	/* An array for accessing the link encoder objects that have been created.
+	 * Index in array corresponds to engine ID - viz. 0: ENGINE_ID_DIGA
+	 */
+	struct link_encoder *link_encoders[MAX_DIG_LINK_ENCODERS];
+	/* Number of DIG link encoder objects created - i.e. number of valid
+	 * entries in link_encoders array.
+	 */
+	unsigned int dig_link_enc_count;
+
+#if defined(CONFIG_DRM_AMD_DC_DCN)
+	struct dc_3dlut *mpc_lut[MAX_PIPES];
+	struct dc_transfer_func *mpc_shaper[MAX_PIPES];
+#endif
+	struct {
+		unsigned int xtalin_clock_inKhz;
+		unsigned int dccg_ref_clock_inKhz;
+		unsigned int dchub_ref_clock_inKhz;
+	} ref_clocks;
+	unsigned int timing_generator_count;
+	unsigned int mpcc_count;
+
+	unsigned int writeback_pipe_count;
+>>>>>>> upstream/android-13
 	/*
 	 * reserved clock source for DP
 	 */
@@ -168,6 +331,7 @@ struct resource_pool {
 
 	struct abm *abm;
 	struct dmcu *dmcu;
+<<<<<<< HEAD
 
 	const struct resource_funcs *funcs;
 	const struct resource_caps *res_cap;
@@ -180,10 +344,31 @@ struct dcn_fe_clocks {
 struct dcn_fe_bandwidth {
 	struct dcn_fe_clocks calc;
 	struct dcn_fe_clocks cur;
+=======
+	struct dmub_psr *psr;
+
+#if defined(CONFIG_DRM_AMD_DC_DCN)
+	struct abm *multiple_abms[MAX_PIPES];
+#endif
+
+	const struct resource_funcs *funcs;
+	const struct resource_caps *res_cap;
+
+	struct ddc_service *oem_device;
+};
+
+struct dcn_fe_bandwidth {
+	int dppclk_khz;
+
+>>>>>>> upstream/android-13
 };
 
 struct stream_resource {
 	struct output_pixel_processor *opp;
+<<<<<<< HEAD
+=======
+	struct display_stream_compressor *dsc;
+>>>>>>> upstream/android-13
 	struct timing_generator *tg;
 	struct stream_encoder *stream_enc;
 	struct audio *audio;
@@ -192,6 +377,13 @@ struct stream_resource {
 	struct encoder_info_frame encoder_info_frame;
 
 	struct abm *abm;
+<<<<<<< HEAD
+=======
+	/* There are only (num_pipes+1)/2 groups. 0 means unassigned,
+	 * otherwise it's using group number 'gsl_group-1'
+	 */
+	uint8_t gsl_group;
+>>>>>>> upstream/android-13
 };
 
 struct plane_resource {
@@ -206,6 +398,30 @@ struct plane_resource {
 	struct dcn_fe_bandwidth bw;
 };
 
+<<<<<<< HEAD
+=======
+union pipe_update_flags {
+	struct {
+		uint32_t enable : 1;
+		uint32_t disable : 1;
+		uint32_t odm : 1;
+		uint32_t global_sync : 1;
+		uint32_t opp_changed : 1;
+		uint32_t tg_changed : 1;
+		uint32_t mpcc : 1;
+		uint32_t dppclk : 1;
+		uint32_t hubp_interdependent : 1;
+		uint32_t hubp_rq_dlg_ttu : 1;
+		uint32_t gamut_remap : 1;
+		uint32_t scaler : 1;
+		uint32_t viewport : 1;
+		uint32_t plane_changed : 1;
+		uint32_t det_size : 1;
+	} bits;
+	uint32_t raw;
+};
+
+>>>>>>> upstream/android-13
 struct pipe_ctx {
 	struct dc_plane_state *plane_state;
 	struct dc_stream_state *stream;
@@ -221,13 +437,30 @@ struct pipe_ctx {
 
 	struct pipe_ctx *top_pipe;
 	struct pipe_ctx *bottom_pipe;
+<<<<<<< HEAD
 
 #ifdef CONFIG_DRM_AMD_DC_DCN1_0
+=======
+	struct pipe_ctx *next_odm_pipe;
+	struct pipe_ctx *prev_odm_pipe;
+
+#ifdef CONFIG_DRM_AMD_DC_DCN
+>>>>>>> upstream/android-13
 	struct _vcs_dpi_display_dlg_regs_st dlg_regs;
 	struct _vcs_dpi_display_ttu_regs_st ttu_regs;
 	struct _vcs_dpi_display_rq_regs_st rq_regs;
 	struct _vcs_dpi_display_pipe_dest_params_st pipe_dlg_param;
+<<<<<<< HEAD
 #endif
+=======
+	int det_buffer_size_kb;
+	bool unbounded_req;
+#endif
+	union pipe_update_flags update_flags;
+	struct dwbc *dwbc;
+	struct mcif_wb *mcif_wb;
+	bool vtp_locked;
+>>>>>>> upstream/android-13
 };
 
 struct resource_context {
@@ -236,6 +469,19 @@ struct resource_context {
 	bool is_audio_acquired[MAX_PIPES];
 	uint8_t clock_source_ref_count[MAX_CLOCK_SOURCES];
 	uint8_t dp_clock_source_ref_count;
+<<<<<<< HEAD
+=======
+	bool is_dsc_acquired[MAX_PIPES];
+	/* A table/array of encoder-to-link assignments. One entry per stream.
+	 * Indexed by stream index in dc_state.
+	 */
+	struct link_enc_assignment link_enc_assignments[MAX_PIPES];
+	/* List of available link encoders. Uses engine ID as encoder identifier. */
+	enum engine_id link_enc_avail[MAX_DIG_LINK_ENCODERS];
+#if defined(CONFIG_DRM_AMD_DC_DCN)
+	bool is_mpc_3dlut_acquired[MAX_PIPES];
+#endif
+>>>>>>> upstream/android-13
 };
 
 struct dce_bw_output {
@@ -255,20 +501,54 @@ struct dce_bw_output {
 	int blackout_recovery_time_us;
 };
 
+<<<<<<< HEAD
 struct dcn_bw_output {
 	struct dc_clocks clk;
 	struct dcn_watermark_set watermarks;
 };
 
 union bw_context {
+=======
+struct dcn_bw_writeback {
+	struct mcif_arb_params mcif_wb_arb[MAX_DWB_PIPES];
+};
+
+struct dcn_bw_output {
+	struct dc_clocks clk;
+	struct dcn_watermark_set watermarks;
+	struct dcn_bw_writeback bw_writeback;
+	int compbuf_size_kb;
+};
+
+union bw_output {
+>>>>>>> upstream/android-13
 	struct dcn_bw_output dcn;
 	struct dce_bw_output dce;
 };
 
+<<<<<<< HEAD
+=======
+struct bw_context {
+	union bw_output bw;
+	struct display_mode_lib dml;
+};
+/**
+ * struct dc_state - The full description of a state requested by a user
+ *
+ * @streams: Stream properties
+ * @stream_status: The planes on a given stream
+ * @res_ctx: Persistent state of resources
+ * @bw_ctx: The output from bandwidth and watermark calculations and the DML
+ * @pp_display_cfg: PowerPlay clocks and settings
+ * @dcn_bw_vars: non-stack memory to support bandwidth calculations
+ *
+ */
+>>>>>>> upstream/android-13
 struct dc_state {
 	struct dc_stream_state *streams[MAX_PIPES];
 	struct dc_stream_status stream_status[MAX_PIPES];
 	uint8_t stream_count;
+<<<<<<< HEAD
 
 	struct resource_context res_ctx;
 
@@ -284,6 +564,27 @@ struct dc_state {
 	struct dccg *dis_clk;
 
 	struct kref refcount;
+=======
+	uint8_t stream_mask;
+
+	struct resource_context res_ctx;
+
+	struct bw_context bw_ctx;
+
+	/* Note: these are big structures, do *not* put on stack! */
+	struct dm_pp_display_configuration pp_display_cfg;
+#ifdef CONFIG_DRM_AMD_DC_DCN
+	struct dcn_bw_internal_vars dcn_bw_vars;
+#endif
+
+	struct clk_mgr *clk_mgr;
+
+	struct kref refcount;
+
+	struct {
+		unsigned int stutter_period_us;
+	} perf_params;
+>>>>>>> upstream/android-13
 };
 
 #endif /* _CORE_TYPES_H_ */

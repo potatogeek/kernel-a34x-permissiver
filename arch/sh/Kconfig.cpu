@@ -13,7 +13,10 @@ config CPU_LITTLE_ENDIAN
 
 config CPU_BIG_ENDIAN
 	bool "Big Endian"
+<<<<<<< HEAD
 	depends on !CPU_SH5
+=======
+>>>>>>> upstream/android-13
 
 endchoice
 
@@ -27,10 +30,13 @@ config SH_FPU
 
 	  This option must be set in order to enable the FPU.
 
+<<<<<<< HEAD
 config SH64_FPU_DENORM_FLUSH
 	bool "Flush floating point denorms to zero"
 	depends on SH_FPU && SUPERH64
 
+=======
+>>>>>>> upstream/android-13
 config SH_FPU_EMU
 	def_bool n
 	prompt "FPU emulation support"
@@ -77,10 +83,13 @@ config SPECULATIVE_EXECUTION
 
 	  If unsure, say N.
 
+<<<<<<< HEAD
 config SH64_ID2815_WORKAROUND
 	bool "Include workaround for SH5-101 cut2 silicon defect ID2815"
 	depends on CPU_SUBTYPE_SH5_101
 
+=======
+>>>>>>> upstream/android-13
 config CPU_HAS_INTEVT
 	bool
 
@@ -94,7 +103,11 @@ config CPU_HAS_SR_RB
 	  that are lacking this bit must have another method in place for
 	  accomplishing what is taken care of by the banked registers.
 
+<<<<<<< HEAD
 	  See <file:Documentation/sh/register-banks.txt> for further
+=======
+	  See <file:Documentation/sh/register-banks.rst> for further
+>>>>>>> upstream/android-13
 	  information on SR.RB and register banking in the kernel in general.
 
 config CPU_HAS_PTEAEX

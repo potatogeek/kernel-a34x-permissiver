@@ -1,6 +1,10 @@
 What:		/sys/bus/scsi/drivers/st/debug_flag
 Date:		October 2015
+<<<<<<< HEAD
 Kernel Version:	?.?
+=======
+KernelVersion:	?.?
+>>>>>>> upstream/android-13
 Contact:	shane.seymour@hpe.com
 Description:
 		This file allows you to turn debug output from the st driver

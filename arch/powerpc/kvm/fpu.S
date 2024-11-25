@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  FPU helper code to use FPU operations from inside the kernel
  *
  *    Copyright (C) 2010 Alexander Graf (agraf@suse.de)
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -14,6 +19,14 @@
 #include <asm/page.h>
 #include <asm/mmu.h>
 #include <asm/pgtable.h>
+=======
+ */
+
+#include <linux/pgtable.h>
+#include <asm/reg.h>
+#include <asm/page.h>
+#include <asm/mmu.h>
+>>>>>>> upstream/android-13
 #include <asm/cputable.h>
 #include <asm/cache.h>
 #include <asm/thread_info.h>

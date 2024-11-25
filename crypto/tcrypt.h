@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Quick & dirty crypto testing module.
  *
@@ -7,12 +11,15 @@
  * Copyright (c) 2002 James Morris <jmorris@intercode.com.au>
  * Copyright (c) 2002 Jean-Francois Dive <jef@linuxbe.org>
  * Copyright (c) 2007 Nokia Siemens Networks
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _CRYPTO_TCRYPT_H
 #define _CRYPTO_TCRYPT_H
@@ -30,7 +37,10 @@ struct aead_speed_template {
 struct hash_speed {
 	unsigned int blen;	/* buffer length */
 	unsigned int plen;	/* per-update length */
+<<<<<<< HEAD
 	unsigned int klen;	/* key length */
+=======
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -51,6 +61,10 @@ static struct cipher_speed_template des3_speed_template[] = {
  * Cipher speed tests
  */
 static u8 speed_template_8[] = {8, 0};
+<<<<<<< HEAD
+=======
+static u8 speed_template_16[] = {16, 0};
+>>>>>>> upstream/android-13
 static u8 speed_template_24[] = {24, 0};
 static u8 speed_template_8_16[] = {8, 16, 0};
 static u8 speed_template_8_32[] = {8, 32, 0};
@@ -101,6 +115,7 @@ static struct hash_speed generic_hash_speed_template[] = {
 	{  .blen = 0,	.plen = 0, }
 };
 
+<<<<<<< HEAD
 static struct hash_speed hash_speed_template_16[] = {
 	{ .blen = 16,	.plen = 16,	.klen = 16, },
 	{ .blen = 64,	.plen = 16,	.klen = 16, },
@@ -129,6 +144,8 @@ static struct hash_speed hash_speed_template_16[] = {
 	{  .blen = 0,	.plen = 0,	.klen = 0, }
 };
 
+=======
+>>>>>>> upstream/android-13
 static struct hash_speed poly1305_speed_template[] = {
 	{ .blen = 96,	.plen = 16, },
 	{ .blen = 96,	.plen = 32, },

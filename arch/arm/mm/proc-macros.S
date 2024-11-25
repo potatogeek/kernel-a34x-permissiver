@@ -5,7 +5,10 @@
  *  VMA_VM_FLAGS
  *  VM_EXEC
  */
+<<<<<<< HEAD
 #include <linux/const.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/asm-offsets.h>
 #include <asm/thread_info.h>
 
@@ -31,8 +34,12 @@
  * act_mm - get current->active_mm
  */
 	.macro	act_mm, rd
+<<<<<<< HEAD
 	bic	\rd, sp, #(THREAD_SIZE - 1) & ~63
 	bic	\rd, \rd, #63
+=======
+	get_thread_info \rd
+>>>>>>> upstream/android-13
 	ldr	\rd, [\rd, #TI_TASK]
 	.if (TSK_ACTIVE_MM > IMM12_MASK)
 	add	\rd, \rd, #TSK_ACTIVE_MM & ~IMM12_MASK
@@ -135,6 +142,7 @@
 	.macro	armv6_mt_table pfx
 \pfx\()_mt_table:
 	.long	0x00						@ L_PTE_MT_UNCACHED
+<<<<<<< HEAD
 	.long	PTE_EXT_TEX(1)					@ L_PTE_MT_BUFFERABLE(L_PTE_MT_DEV_WC)
 	.long	PTE_CACHEABLE					@ L_PTE_MT_WRITETHROUGH
 	.long	PTE_CACHEABLE | PTE_BUFFERABLE			@ L_PTE_MT_WRITEBACK(L_PTE_MT_DEV_CACHED)
@@ -150,6 +158,23 @@
 	.long	0x00						@ unused
 	.long	0x00						@ unused
 	.long	0x00						@ unused
+=======
+	.long	PTE_EXT_TEX(1)					@ L_PTE_MT_BUFFERABLE
+	.long	PTE_CACHEABLE					@ L_PTE_MT_WRITETHROUGH
+	.long	PTE_CACHEABLE | PTE_BUFFERABLE			@ L_PTE_MT_WRITEBACK
+	.long	PTE_BUFFERABLE					@ L_PTE_MT_DEV_SHARED
+	.long	0x00						@ unused
+	.long	0x00						@ L_PTE_MT_MINICACHE (not present)
+	.long	PTE_EXT_TEX(1) | PTE_CACHEABLE | PTE_BUFFERABLE	@ L_PTE_MT_WRITEALLOC
+	.long	0x00						@ unused
+	.long	PTE_EXT_TEX(1)					@ L_PTE_MT_DEV_WC
+	.long	0x00						@ unused
+	.long	PTE_CACHEABLE | PTE_BUFFERABLE			@ L_PTE_MT_DEV_CACHED
+	.long	PTE_EXT_TEX(2)					@ L_PTE_MT_DEV_NONSHARED
+	.long	0x00						@ unused
+	.long	0x00						@ unused
+	.long	PTE_CACHEABLE | PTE_BUFFERABLE | PTE_EXT_APX	@ L_PTE_MT_VECTORS
+>>>>>>> upstream/android-13
 	.endm
 
 	.macro	armv6_set_pte_ext pfx
@@ -342,6 +367,10 @@ ENTRY(\name\()_cache_fns)
 
 .macro define_tlb_functions name:req, flags_up:req, flags_smp
 	.type	\name\()_tlb_fns, #object
+<<<<<<< HEAD
+=======
+	.align 2
+>>>>>>> upstream/android-13
 ENTRY(\name\()_tlb_fns)
 	.long	\name\()_flush_user_tlb_range
 	.long	\name\()_flush_kern_tlb_range

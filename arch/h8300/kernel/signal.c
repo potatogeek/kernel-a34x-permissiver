@@ -43,7 +43,10 @@
 
 #include <asm/setup.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/traps.h>
 #include <asm/ucontext.h>
 
@@ -110,7 +113,11 @@ asmlinkage int sys_rt_sigreturn(void)
 	sigset_t set;
 	int er0;
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
+=======
+	if (!access_ok(frame, sizeof(*frame)))
+>>>>>>> upstream/android-13
 		goto badframe;
 	if (__copy_from_user(&set, &frame->uc.uc_sigmask, sizeof(set)))
 		goto badframe;
@@ -126,7 +133,11 @@ asmlinkage int sys_rt_sigreturn(void)
 	return er0;
 
 badframe:
+<<<<<<< HEAD
 	force_sig(SIGSEGV, current);
+=======
+	force_sig(SIGSEGV);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -165,7 +176,11 @@ static int setup_rt_frame(struct ksignal *ksig, sigset_t *set,
 
 	frame = get_sigframe(ksig, regs, sizeof(*frame));
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, frame, sizeof(*frame)))
+=======
+	if (!access_ok(frame, sizeof(*frame)))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	if (ksig->ka.sa.sa_flags & SA_SIGINFO)
@@ -228,7 +243,11 @@ handle_restart(struct pt_regs *regs, struct k_sigaction *ka)
 			regs->er0 = -EINTR;
 			break;
 		}
+<<<<<<< HEAD
 		/* fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case -ERESTARTNOINTR:
 do_restart:
 		regs->er0 = regs->orig_er0;
@@ -280,6 +299,7 @@ static void do_signal(struct pt_regs *regs)
 
 asmlinkage void do_notify_resume(struct pt_regs *regs, u32 thread_info_flags)
 {
+<<<<<<< HEAD
 	if (thread_info_flags & _TIF_SIGPENDING)
 		do_signal(regs);
 
@@ -287,4 +307,11 @@ asmlinkage void do_notify_resume(struct pt_regs *regs, u32 thread_info_flags)
 		clear_thread_flag(TIF_NOTIFY_RESUME);
 		tracehook_notify_resume(regs);
 	}
+=======
+	if (thread_info_flags & (_TIF_SIGPENDING | _TIF_NOTIFY_SIGNAL))
+		do_signal(regs);
+
+	if (thread_info_flags & _TIF_NOTIFY_RESUME)
+		tracehook_notify_resume(regs);
+>>>>>>> upstream/android-13
 }

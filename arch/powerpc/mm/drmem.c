@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Dynamic reconfiguration memory support
  *
  * Copyright 2017 IBM Corporation
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "drmem: " fmt
@@ -18,8 +25,16 @@
 #include <asm/prom.h>
 #include <asm/drmem.h>
 
+<<<<<<< HEAD
 static struct drmem_lmb_info __drmem_info;
 struct drmem_lmb_info *drmem_info = &__drmem_info;
+=======
+static int n_root_addr_cells, n_root_size_cells;
+
+static struct drmem_lmb_info __drmem_info;
+struct drmem_lmb_info *drmem_info = &__drmem_info;
+static bool in_drmem_update;
+>>>>>>> upstream/android-13
 
 u64 drmem_lmb_memory_max(void)
 {
@@ -180,6 +195,14 @@ int drmem_update_dt(void)
 	if (!memory)
 		return -1;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Set in_drmem_update to prevent the notifier callback to process the
+	 * DT property back since the change is coming from the LMB tree.
+	 */
+	in_drmem_update = true;
+>>>>>>> upstream/android-13
 	prop = of_find_property(memory, "ibm,dynamic-memory", NULL);
 	if (prop) {
 		rc = drmem_update_dt_v1(memory, prop);
@@ -188,17 +211,30 @@ int drmem_update_dt(void)
 		if (prop)
 			rc = drmem_update_dt_v2(memory, prop);
 	}
+<<<<<<< HEAD
+=======
+	in_drmem_update = false;
+>>>>>>> upstream/android-13
 
 	of_node_put(memory);
 	return rc;
 }
 
+<<<<<<< HEAD
 static void __init read_drconf_v1_cell(struct drmem_lmb *lmb,
+=======
+static void read_drconf_v1_cell(struct drmem_lmb *lmb,
+>>>>>>> upstream/android-13
 				       const __be32 **prop)
 {
 	const __be32 *p = *prop;
 
+<<<<<<< HEAD
 	lmb->base_addr = dt_mem_next_cell(dt_root_addr_cells, &p);
+=======
+	lmb->base_addr = of_read_number(p, n_root_addr_cells);
+	p += n_root_addr_cells;
+>>>>>>> upstream/android-13
 	lmb->drc_index = of_read_number(p++, 1);
 
 	p++; /* skip reserved field */
@@ -209,6 +245,7 @@ static void __init read_drconf_v1_cell(struct drmem_lmb *lmb,
 	*prop = p;
 }
 
+<<<<<<< HEAD
 static void __init __walk_drmem_v1_lmbs(const __be32 *prop, const __be32 *usm,
 			void (*func)(struct drmem_lmb *, const __be32 **))
 {
@@ -226,12 +263,39 @@ static void __init __walk_drmem_v1_lmbs(const __be32 *prop, const __be32 *usm,
 }
 
 static void __init read_drconf_v2_cell(struct of_drconf_cell_v2 *dr_cell,
+=======
+static int
+__walk_drmem_v1_lmbs(const __be32 *prop, const __be32 *usm, void *data,
+		     int (*func)(struct drmem_lmb *, const __be32 **, void *))
+{
+	struct drmem_lmb lmb;
+	u32 i, n_lmbs;
+	int ret = 0;
+
+	n_lmbs = of_read_number(prop++, 1);
+	for (i = 0; i < n_lmbs; i++) {
+		read_drconf_v1_cell(&lmb, &prop);
+		ret = func(&lmb, &usm, data);
+		if (ret)
+			break;
+	}
+
+	return ret;
+}
+
+static void read_drconf_v2_cell(struct of_drconf_cell_v2 *dr_cell,
+>>>>>>> upstream/android-13
 				       const __be32 **prop)
 {
 	const __be32 *p = *prop;
 
 	dr_cell->seq_lmbs = of_read_number(p++, 1);
+<<<<<<< HEAD
 	dr_cell->base_addr = dt_mem_next_cell(dt_root_addr_cells, &p);
+=======
+	dr_cell->base_addr = of_read_number(p, n_root_addr_cells);
+	p += n_root_addr_cells;
+>>>>>>> upstream/android-13
 	dr_cell->drc_index = of_read_number(p++, 1);
 	dr_cell->aa_index = of_read_number(p++, 1);
 	dr_cell->flags = of_read_number(p++, 1);
@@ -239,17 +303,29 @@ static void __init read_drconf_v2_cell(struct of_drconf_cell_v2 *dr_cell,
 	*prop = p;
 }
 
+<<<<<<< HEAD
 static void __init __walk_drmem_v2_lmbs(const __be32 *prop, const __be32 *usm,
 			void (*func)(struct drmem_lmb *, const __be32 **))
+=======
+static int
+__walk_drmem_v2_lmbs(const __be32 *prop, const __be32 *usm, void *data,
+		     int (*func)(struct drmem_lmb *, const __be32 **, void *))
+>>>>>>> upstream/android-13
 {
 	struct of_drconf_cell_v2 dr_cell;
 	struct drmem_lmb lmb;
 	u32 i, j, lmb_sets;
+<<<<<<< HEAD
 
 	lmb_sets = of_read_number(prop++, 1);
 	if (lmb_sets == 0)
 		return;
 
+=======
+	int ret = 0;
+
+	lmb_sets = of_read_number(prop++, 1);
+>>>>>>> upstream/android-13
 	for (i = 0; i < lmb_sets; i++) {
 		read_drconf_v2_cell(&dr_cell, &prop);
 
@@ -263,6 +339,7 @@ static void __init __walk_drmem_v2_lmbs(const __be32 *prop, const __be32 *usm,
 			lmb.aa_index = dr_cell.aa_index;
 			lmb.flags = dr_cell.flags;
 
+<<<<<<< HEAD
 			func(&lmb, &usm);
 		}
 	}
@@ -278,6 +355,31 @@ void __init walk_drmem_lmbs_early(unsigned long node,
 	prop = of_get_flat_dt_prop(node, "ibm,lmb-size", &len);
 	if (!prop || len < dt_root_size_cells * sizeof(__be32))
 		return;
+=======
+			ret = func(&lmb, &usm, data);
+			if (ret)
+				break;
+		}
+	}
+
+	return ret;
+}
+
+#ifdef CONFIG_PPC_PSERIES
+int __init walk_drmem_lmbs_early(unsigned long node, void *data,
+		int (*func)(struct drmem_lmb *, const __be32 **, void *))
+{
+	const __be32 *prop, *usm;
+	int len, ret = -ENODEV;
+
+	prop = of_get_flat_dt_prop(node, "ibm,lmb-size", &len);
+	if (!prop || len < dt_root_size_cells * sizeof(__be32))
+		return ret;
+
+	/* Get the address & size cells */
+	n_root_addr_cells = dt_root_addr_cells;
+	n_root_size_cells = dt_root_size_cells;
+>>>>>>> upstream/android-13
 
 	drmem_info->lmb_size = dt_mem_next_cell(dt_root_size_cells, &prop);
 
@@ -285,11 +387,16 @@ void __init walk_drmem_lmbs_early(unsigned long node,
 
 	prop = of_get_flat_dt_prop(node, "ibm,dynamic-memory", &len);
 	if (prop) {
+<<<<<<< HEAD
 		__walk_drmem_v1_lmbs(prop, usm, func);
+=======
+		ret = __walk_drmem_v1_lmbs(prop, usm, data, func);
+>>>>>>> upstream/android-13
 	} else {
 		prop = of_get_flat_dt_prop(node, "ibm,dynamic-memory-v2",
 					   &len);
 		if (prop)
+<<<<<<< HEAD
 			__walk_drmem_v2_lmbs(prop, usm, func);
 	}
 
@@ -299,6 +406,57 @@ void __init walk_drmem_lmbs_early(unsigned long node,
 #endif
 
 static int __init init_drmem_lmb_size(struct device_node *dn)
+=======
+			ret = __walk_drmem_v2_lmbs(prop, usm, data, func);
+	}
+
+	memblock_dump_all();
+	return ret;
+}
+
+/*
+ * Update the LMB associativity index.
+ */
+static int update_lmb(struct drmem_lmb *updated_lmb,
+		      __maybe_unused const __be32 **usm,
+		      __maybe_unused void *data)
+{
+	struct drmem_lmb *lmb;
+
+	for_each_drmem_lmb(lmb) {
+		if (lmb->drc_index != updated_lmb->drc_index)
+			continue;
+
+		lmb->aa_index = updated_lmb->aa_index;
+		break;
+	}
+	return 0;
+}
+
+/*
+ * Update the LMB associativity index.
+ *
+ * This needs to be called when the hypervisor is updating the
+ * dynamic-reconfiguration-memory node property.
+ */
+void drmem_update_lmbs(struct property *prop)
+{
+	/*
+	 * Don't update the LMBs if triggered by the update done in
+	 * drmem_update_dt(), the LMB values have been used to the update the DT
+	 * property in that case.
+	 */
+	if (in_drmem_update)
+		return;
+	if (!strcmp(prop->name, "ibm,dynamic-memory"))
+		__walk_drmem_v1_lmbs(prop->value, NULL, NULL, update_lmb);
+	else if (!strcmp(prop->name, "ibm,dynamic-memory-v2"))
+		__walk_drmem_v2_lmbs(prop->value, NULL, NULL, update_lmb);
+}
+#endif
+
+static int init_drmem_lmb_size(struct device_node *dn)
+>>>>>>> upstream/android-13
 {
 	const __be32 *prop;
 	int len;
@@ -307,12 +465,20 @@ static int __init init_drmem_lmb_size(struct device_node *dn)
 		return 0;
 
 	prop = of_get_property(dn, "ibm,lmb-size", &len);
+<<<<<<< HEAD
 	if (!prop || len < dt_root_size_cells * sizeof(__be32)) {
+=======
+	if (!prop || len < n_root_size_cells * sizeof(__be32)) {
+>>>>>>> upstream/android-13
 		pr_info("Could not determine LMB size\n");
 		return -1;
 	}
 
+<<<<<<< HEAD
 	drmem_info->lmb_size = dt_mem_next_cell(dt_root_size_cells, &prop);
+=======
+	drmem_info->lmb_size = of_read_number(prop, n_root_size_cells);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -333,6 +499,7 @@ static const __be32 *of_get_usable_memory(struct device_node *dn)
 	return prop;
 }
 
+<<<<<<< HEAD
 void __init walk_drmem_lmbs(struct device_node *dn,
 			    void (*func)(struct drmem_lmb *, const __be32 **))
 {
@@ -340,17 +507,47 @@ void __init walk_drmem_lmbs(struct device_node *dn,
 
 	if (init_drmem_lmb_size(dn))
 		return;
+=======
+int walk_drmem_lmbs(struct device_node *dn, void *data,
+		    int (*func)(struct drmem_lmb *, const __be32 **, void *))
+{
+	const __be32 *prop, *usm;
+	int ret = -ENODEV;
+
+	if (!of_root)
+		return ret;
+
+	/* Get the address & size cells */
+	of_node_get(of_root);
+	n_root_addr_cells = of_n_addr_cells(of_root);
+	n_root_size_cells = of_n_size_cells(of_root);
+	of_node_put(of_root);
+
+	if (init_drmem_lmb_size(dn))
+		return ret;
+>>>>>>> upstream/android-13
 
 	usm = of_get_usable_memory(dn);
 
 	prop = of_get_property(dn, "ibm,dynamic-memory", NULL);
 	if (prop) {
+<<<<<<< HEAD
 		__walk_drmem_v1_lmbs(prop, usm, func);
 	} else {
 		prop = of_get_property(dn, "ibm,dynamic-memory-v2", NULL);
 		if (prop)
 			__walk_drmem_v2_lmbs(prop, usm, func);
 	}
+=======
+		ret = __walk_drmem_v1_lmbs(prop, usm, data, func);
+	} else {
+		prop = of_get_property(dn, "ibm,dynamic-memory-v2", NULL);
+		if (prop)
+			ret = __walk_drmem_v2_lmbs(prop, usm, data, func);
+	}
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void __init init_drmem_v1_lmbs(const __be32 *prop)

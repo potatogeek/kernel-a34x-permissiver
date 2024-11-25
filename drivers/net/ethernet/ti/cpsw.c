@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Texas Instruments Ethernet Switch Driver
  *
  * Copyright (C) 2012 Texas Instruments
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation version 2.
@@ -11,6 +16,8 @@
  * kind, whether express or implied; without even the implied warranty
  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -26,6 +33,10 @@
 #include <linux/netdevice.h>
 #include <linux/net_tstamp.h>
 #include <linux/phy.h>
+<<<<<<< HEAD
+=======
+#include <linux/phy/phy.h>
+>>>>>>> upstream/android-13
 #include <linux/workqueue.h>
 #include <linux/delay.h>
 #include <linux/pm_runtime.h>
@@ -37,17 +48,29 @@
 #include <linux/if_vlan.h>
 #include <linux/kmemleak.h>
 #include <linux/sys_soc.h>
+<<<<<<< HEAD
+=======
+#include <net/page_pool.h>
+#include <linux/bpf.h>
+#include <linux/bpf_trace.h>
+>>>>>>> upstream/android-13
 
 #include <linux/pinctrl/consumer.h>
 #include <net/pkt_cls.h>
 
 #include "cpsw.h"
 #include "cpsw_ale.h"
+<<<<<<< HEAD
+=======
+#include "cpsw_priv.h"
+#include "cpsw_sl.h"
+>>>>>>> upstream/android-13
 #include "cpts.h"
 #include "davinci_cpdma.h"
 
 #include <net/pkt_sched.h>
 
+<<<<<<< HEAD
 #define CPSW_DEBUG	(NETIF_MSG_HW		| NETIF_MSG_WOL		| \
 			 NETIF_MSG_DRV		| NETIF_MSG_LINK	| \
 			 NETIF_MSG_IFUP		| NETIF_MSG_INTR	| \
@@ -175,6 +198,8 @@ enum {
 	CPSW_RX_VLAN_ENCAP_HDR_PKT_UNTAG,
 };
 
+=======
+>>>>>>> upstream/android-13
 static int debug_level;
 module_param(debug_level, int, 0);
 MODULE_PARM_DESC(debug_level, "cpsw debug level (NETIF_MSG bits)");
@@ -191,6 +216,7 @@ static int descs_pool_size = CPSW_CPDMA_DESCS_POOL_SIZE_DEFAULT;
 module_param(descs_pool_size, int, 0444);
 MODULE_PARM_DESC(descs_pool_size, "Number of CPDMA CPPI descriptors in pool");
 
+<<<<<<< HEAD
 struct cpsw_wr_regs {
 	u32	id_ver;
 	u32	soft_reset;
@@ -551,6 +577,8 @@ static const struct cpsw_stats cpsw_gstrings_ch_stats[] = {
 
 #define ndev_to_cpsw(ndev) (((struct cpsw_priv *)netdev_priv(ndev))->cpsw)
 #define napi_to_cpsw(napi)	container_of(napi, struct cpsw_common, napi)
+=======
+>>>>>>> upstream/android-13
 #define for_each_slave(priv, func, arg...)				\
 	do {								\
 		struct cpsw_slave *slave;				\
@@ -565,11 +593,22 @@ static const struct cpsw_stats cpsw_gstrings_ch_stats[] = {
 				(func)(slave++, ##arg);			\
 	} while (0)
 
+<<<<<<< HEAD
 static inline int cpsw_get_slave_port(u32 slave_num)
+=======
+static int cpsw_slave_index_priv(struct cpsw_common *cpsw,
+				 struct cpsw_priv *priv)
+{
+	return cpsw->data.dual_emac ? priv->emac_port : cpsw->data.active_slave;
+}
+
+static int cpsw_get_slave_port(u32 slave_num)
+>>>>>>> upstream/android-13
 {
 	return slave_num + 1;
 }
 
+<<<<<<< HEAD
 static void cpsw_add_mcast(struct cpsw_priv *priv, u8 *addr)
 {
 	struct cpsw_common *cpsw = priv->cpsw;
@@ -586,6 +625,10 @@ static void cpsw_add_mcast(struct cpsw_priv *priv, u8 *addr)
 
 	cpsw_ale_add_mcast(cpsw->ale, addr, ALE_ALL_PORTS, 0, 0, 0);
 }
+=======
+static int cpsw_ndo_vlan_rx_add_vid(struct net_device *ndev,
+				    __be16 proto, u16 vid);
+>>>>>>> upstream/android-13
 
 static void cpsw_set_promiscious(struct net_device *ndev, bool enable)
 {
@@ -642,7 +685,11 @@ static void cpsw_set_promiscious(struct net_device *ndev, bool enable)
 
 			/* Clear all mcast from ALE */
 			cpsw_ale_flush_multicast(ale, ALE_ALL_PORTS, -1);
+<<<<<<< HEAD
 			__dev_mc_unsync(ndev, NULL);
+=======
+			__hw_addr_ref_unsync_dev(&ndev->mc, ndev, NULL);
+>>>>>>> upstream/android-13
 
 			/* Flood All Unicast Packets to Host port */
 			cpsw_ale_control_set(ale, 0, ALE_P0_UNI_FLOOD, 1);
@@ -663,21 +710,173 @@ static void cpsw_set_promiscious(struct net_device *ndev, bool enable)
 	}
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * cpsw_set_mc - adds multicast entry to the table if it's not added or deletes
+ * if it's not deleted
+ * @ndev: device to sync
+ * @addr: address to be added or deleted
+ * @vid: vlan id, if vid < 0 set/unset address for real device
+ * @add: add address if the flag is set or remove otherwise
+ */
+static int cpsw_set_mc(struct net_device *ndev, const u8 *addr,
+		       int vid, int add)
+{
+	struct cpsw_priv *priv = netdev_priv(ndev);
+	struct cpsw_common *cpsw = priv->cpsw;
+	int mask, flags, ret;
+
+	if (vid < 0) {
+		if (cpsw->data.dual_emac)
+			vid = cpsw->slaves[priv->emac_port].port_vlan;
+		else
+			vid = 0;
+	}
+
+	mask = cpsw->data.dual_emac ? ALE_PORT_HOST : ALE_ALL_PORTS;
+	flags = vid ? ALE_VLAN : 0;
+
+	if (add)
+		ret = cpsw_ale_add_mcast(cpsw->ale, addr, mask, flags, vid, 0);
+	else
+		ret = cpsw_ale_del_mcast(cpsw->ale, addr, 0, flags, vid);
+
+	return ret;
+}
+
+static int cpsw_update_vlan_mc(struct net_device *vdev, int vid, void *ctx)
+{
+	struct addr_sync_ctx *sync_ctx = ctx;
+	struct netdev_hw_addr *ha;
+	int found = 0, ret = 0;
+
+	if (!vdev || !(vdev->flags & IFF_UP))
+		return 0;
+
+	/* vlan address is relevant if its sync_cnt != 0 */
+	netdev_for_each_mc_addr(ha, vdev) {
+		if (ether_addr_equal(ha->addr, sync_ctx->addr)) {
+			found = ha->sync_cnt;
+			break;
+		}
+	}
+
+	if (found)
+		sync_ctx->consumed++;
+
+	if (sync_ctx->flush) {
+		if (!found)
+			cpsw_set_mc(sync_ctx->ndev, sync_ctx->addr, vid, 0);
+		return 0;
+	}
+
+	if (found)
+		ret = cpsw_set_mc(sync_ctx->ndev, sync_ctx->addr, vid, 1);
+
+	return ret;
+}
+
+static int cpsw_add_mc_addr(struct net_device *ndev, const u8 *addr, int num)
+{
+	struct addr_sync_ctx sync_ctx;
+	int ret;
+
+	sync_ctx.consumed = 0;
+	sync_ctx.addr = addr;
+	sync_ctx.ndev = ndev;
+	sync_ctx.flush = 0;
+
+	ret = vlan_for_each(ndev, cpsw_update_vlan_mc, &sync_ctx);
+	if (sync_ctx.consumed < num && !ret)
+		ret = cpsw_set_mc(ndev, addr, -1, 1);
+
+	return ret;
+}
+
+static int cpsw_del_mc_addr(struct net_device *ndev, const u8 *addr, int num)
+{
+	struct addr_sync_ctx sync_ctx;
+
+	sync_ctx.consumed = 0;
+	sync_ctx.addr = addr;
+	sync_ctx.ndev = ndev;
+	sync_ctx.flush = 1;
+
+	vlan_for_each(ndev, cpsw_update_vlan_mc, &sync_ctx);
+	if (sync_ctx.consumed == num)
+		cpsw_set_mc(ndev, addr, -1, 0);
+
+	return 0;
+}
+
+static int cpsw_purge_vlan_mc(struct net_device *vdev, int vid, void *ctx)
+{
+	struct addr_sync_ctx *sync_ctx = ctx;
+	struct netdev_hw_addr *ha;
+	int found = 0;
+
+	if (!vdev || !(vdev->flags & IFF_UP))
+		return 0;
+
+	/* vlan address is relevant if its sync_cnt != 0 */
+	netdev_for_each_mc_addr(ha, vdev) {
+		if (ether_addr_equal(ha->addr, sync_ctx->addr)) {
+			found = ha->sync_cnt;
+			break;
+		}
+	}
+
+	if (!found)
+		return 0;
+
+	sync_ctx->consumed++;
+	cpsw_set_mc(sync_ctx->ndev, sync_ctx->addr, vid, 0);
+	return 0;
+}
+
+static int cpsw_purge_all_mc(struct net_device *ndev, const u8 *addr, int num)
+{
+	struct addr_sync_ctx sync_ctx;
+
+	sync_ctx.addr = addr;
+	sync_ctx.ndev = ndev;
+	sync_ctx.consumed = 0;
+
+	vlan_for_each(ndev, cpsw_purge_vlan_mc, &sync_ctx);
+	if (sync_ctx.consumed < num)
+		cpsw_set_mc(ndev, addr, -1, 0);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static void cpsw_ndo_set_rx_mode(struct net_device *ndev)
 {
 	struct cpsw_priv *priv = netdev_priv(ndev);
 	struct cpsw_common *cpsw = priv->cpsw;
+<<<<<<< HEAD
 	int vid;
 
 	if (cpsw->data.dual_emac)
 		vid = cpsw->slaves[priv->emac_port].port_vlan;
 	else
 		vid = cpsw->data.default_vlan;
+=======
+	int slave_port = -1;
+
+	if (cpsw->data.dual_emac)
+		slave_port = priv->emac_port + 1;
+>>>>>>> upstream/android-13
 
 	if (ndev->flags & IFF_PROMISC) {
 		/* Enable promiscuous mode */
 		cpsw_set_promiscious(ndev, true);
+<<<<<<< HEAD
 		cpsw_ale_set_allmulti(cpsw->ale, IFF_ALLMULTI);
+=======
+		cpsw_ale_set_allmulti(cpsw->ale, IFF_ALLMULTI, slave_port);
+>>>>>>> upstream/android-13
 		return;
 	} else {
 		/* Disable promiscuous mode */
@@ -685,6 +884,7 @@ static void cpsw_ndo_set_rx_mode(struct net_device *ndev)
 	}
 
 	/* Restore allmulti on vlans if necessary */
+<<<<<<< HEAD
 	cpsw_ale_set_allmulti(cpsw->ale, priv->ndev->flags & IFF_ALLMULTI);
 
 	/* Clear all mcast from ALE */
@@ -779,10 +979,27 @@ static void cpsw_rx_vlan_encap(struct sk_buff *skb)
 		memmove(skb->data + VLAN_HLEN, skb->data, 2 * ETH_ALEN);
 		skb_pull(skb, VLAN_HLEN);
 	}
+=======
+	cpsw_ale_set_allmulti(cpsw->ale,
+			      ndev->flags & IFF_ALLMULTI, slave_port);
+
+	/* add/remove mcast address either for real netdev or for vlan */
+	__hw_addr_ref_sync_dev(&ndev->mc, ndev, cpsw_add_mc_addr,
+			       cpsw_del_mc_addr);
+}
+
+static unsigned int cpsw_rxbuf_total_len(unsigned int len)
+{
+	len += CPSW_HEADROOM;
+	len += SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
+
+	return SKB_DATA_ALIGN(len);
+>>>>>>> upstream/android-13
 }
 
 static void cpsw_rx_handler(void *token, int len, int status)
 {
+<<<<<<< HEAD
 	struct cpdma_chan	*ch;
 	struct sk_buff		*skb = token;
 	struct sk_buff		*new_skb;
@@ -798,6 +1015,30 @@ static void cpsw_rx_handler(void *token, int len, int status)
 		}
 	}
 
+=======
+	struct page		*new_page, *page = token;
+	void			*pa = page_address(page);
+	struct cpsw_meta_xdp	*xmeta = pa + CPSW_XMETA_OFFSET;
+	struct cpsw_common	*cpsw = ndev_to_cpsw(xmeta->ndev);
+	int			pkt_size = cpsw->rx_packet_max;
+	int			ret = 0, port, ch = xmeta->ch;
+	int			headroom = CPSW_HEADROOM_NA;
+	struct net_device	*ndev = xmeta->ndev;
+	struct cpsw_priv	*priv;
+	struct page_pool	*pool;
+	struct sk_buff		*skb;
+	struct xdp_buff		xdp;
+	dma_addr_t		dma;
+
+	if (cpsw->data.dual_emac && status >= 0) {
+		port = CPDMA_RX_SOURCE_PORT(status);
+		if (port)
+			ndev = cpsw->slaves[--port].ndev;
+	}
+
+	priv = netdev_priv(ndev);
+	pool = cpsw->page_pool[ch];
+>>>>>>> upstream/android-13
 	if (unlikely(status < 0) || unlikely(!netif_running(ndev))) {
 		/* In dual emac mode check for all interfaces */
 		if (cpsw->data.dual_emac && cpsw->usage_count &&
@@ -806,6 +1047,7 @@ static void cpsw_rx_handler(void *token, int len, int status)
 			 * is already down and the other interface is up
 			 * and running, instead of freeing which results
 			 * in reducing of the number of rx descriptor in
+<<<<<<< HEAD
 			 * DMA engine, requeue skb back to cpdma.
 			 */
 			new_skb = skb;
@@ -1115,6 +1357,84 @@ static void cpsw_fifo_shp_on(struct cpsw_priv *priv, int fifo, int on)
 	val = on ? val | mask : val & ~mask;
 
 	writel_relaxed(val, &cpsw->regs->ptype);
+=======
+			 * DMA engine, requeue page back to cpdma.
+			 */
+			new_page = page;
+			goto requeue;
+		}
+
+		/* the interface is going down, pages are purged */
+		page_pool_recycle_direct(pool, page);
+		return;
+	}
+
+	new_page = page_pool_dev_alloc_pages(pool);
+	if (unlikely(!new_page)) {
+		new_page = page;
+		ndev->stats.rx_dropped++;
+		goto requeue;
+	}
+
+	if (priv->xdp_prog) {
+		int size = len;
+
+		xdp_init_buff(&xdp, PAGE_SIZE, &priv->xdp_rxq[ch]);
+		if (status & CPDMA_RX_VLAN_ENCAP) {
+			headroom += CPSW_RX_VLAN_ENCAP_HDR_SIZE;
+			size -= CPSW_RX_VLAN_ENCAP_HDR_SIZE;
+		}
+
+		xdp_prepare_buff(&xdp, pa, headroom, size, false);
+
+		port = priv->emac_port + cpsw->data.dual_emac;
+		ret = cpsw_run_xdp(priv, ch, &xdp, page, port, &len);
+		if (ret != CPSW_XDP_PASS)
+			goto requeue;
+
+		headroom = xdp.data - xdp.data_hard_start;
+
+		/* XDP prog can modify vlan tag, so can't use encap header */
+		status &= ~CPDMA_RX_VLAN_ENCAP;
+	}
+
+	/* pass skb to netstack if no XDP prog or returned XDP_PASS */
+	skb = build_skb(pa, cpsw_rxbuf_total_len(pkt_size));
+	if (!skb) {
+		ndev->stats.rx_dropped++;
+		page_pool_recycle_direct(pool, page);
+		goto requeue;
+	}
+
+	skb_reserve(skb, headroom);
+	skb_put(skb, len);
+	skb->dev = ndev;
+	if (status & CPDMA_RX_VLAN_ENCAP)
+		cpsw_rx_vlan_encap(skb);
+	if (priv->rx_ts_enabled)
+		cpts_rx_timestamp(cpsw->cpts, skb);
+	skb->protocol = eth_type_trans(skb, ndev);
+
+	/* mark skb for recycling */
+	skb_mark_for_recycle(skb);
+	netif_receive_skb(skb);
+
+	ndev->stats.rx_bytes += len;
+	ndev->stats.rx_packets++;
+
+requeue:
+	xmeta = page_address(new_page) + CPSW_XMETA_OFFSET;
+	xmeta->ndev = ndev;
+	xmeta->ch = ch;
+
+	dma = page_pool_get_dma_addr(new_page) + CPSW_HEADROOM_NA;
+	ret = cpdma_chan_submit_mapped(cpsw->rxv[ch].ch, new_page, dma,
+				       pkt_size, 0);
+	if (ret < 0) {
+		WARN_ON(ret == -ENOMEM);
+		page_pool_recycle_direct(pool, new_page);
+	}
+>>>>>>> upstream/android-13
 }
 
 static void _cpsw_adjust_link(struct cpsw_slave *slave,
@@ -1131,12 +1451,38 @@ static void _cpsw_adjust_link(struct cpsw_slave *slave,
 	slave_port = cpsw_get_slave_port(slave->slave_num);
 
 	if (phy->link) {
+<<<<<<< HEAD
 		mac_control = cpsw->data.mac_control;
+=======
+		mac_control = CPSW_SL_CTL_GMII_EN;
+
+		if (phy->speed == 1000)
+			mac_control |= CPSW_SL_CTL_GIG;
+		if (phy->duplex)
+			mac_control |= CPSW_SL_CTL_FULLDUPLEX;
+
+		/* set speed_in input in case RMII mode is used in 100Mbps */
+		if (phy->speed == 100)
+			mac_control |= CPSW_SL_CTL_IFCTL_A;
+		/* in band mode only works in 10Mbps RGMII mode */
+		else if ((phy->speed == 10) && phy_interface_is_rgmii(phy))
+			mac_control |= CPSW_SL_CTL_EXT_EN; /* In Band mode */
+
+		if (priv->rx_pause)
+			mac_control |= CPSW_SL_CTL_RX_FLOW_EN;
+
+		if (priv->tx_pause)
+			mac_control |= CPSW_SL_CTL_TX_FLOW_EN;
+
+		if (mac_control != slave->mac_control)
+			cpsw_sl_ctl_set(slave->mac_sl, mac_control);
+>>>>>>> upstream/android-13
 
 		/* enable forwarding */
 		cpsw_ale_control_set(cpsw->ale, slave_port,
 				     ALE_PORT_STATE, ALE_PORT_STATE_FORWARD);
 
+<<<<<<< HEAD
 		if (phy->speed == 1000)
 			mac_control |= BIT(7);	/* GIGABITEN	*/
 		if (phy->duplex)
@@ -1155,6 +1501,8 @@ static void _cpsw_adjust_link(struct cpsw_slave *slave,
 		if (priv->tx_pause)
 			mac_control |= BIT(4);
 
+=======
+>>>>>>> upstream/android-13
 		*link = true;
 
 		if (priv->shp_cfg_speed &&
@@ -1167,16 +1515,28 @@ static void _cpsw_adjust_link(struct cpsw_slave *slave,
 		/* disable forwarding */
 		cpsw_ale_control_set(cpsw->ale, slave_port,
 				     ALE_PORT_STATE, ALE_PORT_STATE_DISABLE);
+<<<<<<< HEAD
 	}
 
 	if (mac_control != slave->mac_control) {
 		phy_print_status(phy);
 		writel_relaxed(mac_control, &slave->sliver->mac_control);
 	}
+=======
+
+		cpsw_sl_wait_for_idle(slave->mac_sl, 100);
+
+		cpsw_sl_ctl_reset(slave->mac_sl);
+	}
+
+	if (mac_control != slave->mac_control)
+		phy_print_status(phy);
+>>>>>>> upstream/android-13
 
 	slave->mac_control = mac_control;
 }
 
+<<<<<<< HEAD
 static int cpsw_get_common_speed(struct cpsw_common *cpsw)
 {
 	int i, speed;
@@ -1215,6 +1575,8 @@ static int cpsw_need_resplit(struct cpsw_common *cpsw)
 	return 1;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void cpsw_adjust_link(struct net_device *ndev)
 {
 	struct cpsw_priv	*priv = netdev_priv(ndev);
@@ -1225,7 +1587,11 @@ static void cpsw_adjust_link(struct net_device *ndev)
 
 	if (link) {
 		if (cpsw_need_resplit(cpsw))
+<<<<<<< HEAD
 			cpsw_split_res(ndev);
+=======
+			cpsw_split_res(cpsw);
+>>>>>>> upstream/android-13
 
 		netif_carrier_on(ndev);
 		if (netif_running(ndev))
@@ -1236,6 +1602,7 @@ static void cpsw_adjust_link(struct net_device *ndev)
 	}
 }
 
+<<<<<<< HEAD
 static int cpsw_get_coalesce(struct net_device *ndev,
 				struct ethtool_coalesce *coal)
 {
@@ -1397,6 +1764,8 @@ static inline int cpsw_tx_packet_submit(struct cpsw_priv *priv,
 				 priv->emac_port + cpsw->data.dual_emac);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void cpsw_add_dual_emac_def_ale_entries(
 		struct cpsw_priv *priv, struct cpsw_slave *slave,
 		u32 slave_port)
@@ -1411,7 +1780,11 @@ static inline void cpsw_add_dual_emac_def_ale_entries(
 	cpsw_ale_add_vlan(cpsw->ale, slave->port_vlan, port_mask,
 			  port_mask, port_mask, 0);
 	cpsw_ale_add_mcast(cpsw->ale, priv->ndev->broadcast,
+<<<<<<< HEAD
 			   port_mask, ALE_VLAN, slave->port_vlan, 0);
+=======
+			   ALE_PORT_HOST, ALE_VLAN, slave->port_vlan, 0);
+>>>>>>> upstream/android-13
 	cpsw_ale_add_ucast(cpsw->ale, priv->mac_addr,
 			   HOST_PORT_NUM, ALE_VLAN |
 			   ALE_SECURE, slave->port_vlan);
@@ -1419,6 +1792,7 @@ static inline void cpsw_add_dual_emac_def_ale_entries(
 			     ALE_PORT_DROP_UNKNOWN_VLAN, 1);
 }
 
+<<<<<<< HEAD
 static void soft_reset_slave(struct cpsw_slave *slave)
 {
 	char name[32];
@@ -1427,16 +1801,27 @@ static void soft_reset_slave(struct cpsw_slave *slave)
 	soft_reset(name, &slave->sliver->soft_reset);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void cpsw_slave_open(struct cpsw_slave *slave, struct cpsw_priv *priv)
 {
 	u32 slave_port;
 	struct phy_device *phy;
 	struct cpsw_common *cpsw = priv->cpsw;
 
+<<<<<<< HEAD
 	soft_reset_slave(slave);
 
 	/* setup priority mapping */
 	writel_relaxed(RX_PRIORITY_MAPPING, &slave->sliver->rx_pri_map);
+=======
+	cpsw_sl_reset(slave->mac_sl, 100);
+	cpsw_sl_ctl_reset(slave->mac_sl);
+
+	/* setup priority mapping */
+	cpsw_sl_reg_write(slave->mac_sl, CPSW_SL_RX_PRI_MAP,
+			  RX_PRIORITY_MAPPING);
+>>>>>>> upstream/android-13
 
 	switch (cpsw->version) {
 	case CPSW_VERSION_1:
@@ -1462,7 +1847,12 @@ static void cpsw_slave_open(struct cpsw_slave *slave, struct cpsw_priv *priv)
 	}
 
 	/* setup max packet size, and mac address */
+<<<<<<< HEAD
 	writel_relaxed(cpsw->rx_packet_max, &slave->sliver->rx_maxlen);
+=======
+	cpsw_sl_reg_write(slave->mac_sl, CPSW_SL_RX_MAXLEN,
+			  cpsw->rx_packet_max);
+>>>>>>> upstream/android-13
 	cpsw_set_slave_mac(slave, priv);
 
 	slave->mac_control = 0;	/* no link yet */
@@ -1503,7 +1893,16 @@ static void cpsw_slave_open(struct cpsw_slave *slave, struct cpsw_priv *priv)
 	phy_start(slave->phy);
 
 	/* Configure GMII_SEL register */
+<<<<<<< HEAD
 	cpsw_phy_sel(cpsw->dev, slave->phy->interface, slave->slave_num);
+=======
+	if (!IS_ERR(slave->data->ifphy))
+		phy_set_mode_ext(slave->data->ifphy, PHY_MODE_ETHERNET,
+				 slave->data->phy_if);
+	else
+		cpsw_phy_sel(cpsw->dev, slave->phy->interface,
+			     slave->slave_num);
+>>>>>>> upstream/android-13
 }
 
 static inline void cpsw_add_default_vlan(struct cpsw_priv *priv)
@@ -1568,6 +1967,7 @@ static void cpsw_init_host_port(struct cpsw_priv *priv)
 	}
 }
 
+<<<<<<< HEAD
 static int cpsw_fill_rx_channels(struct cpsw_priv *priv)
 {
 	struct cpsw_common *cpsw = priv->cpsw;
@@ -1607,6 +2007,8 @@ static int cpsw_fill_rx_channels(struct cpsw_priv *priv)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void cpsw_slave_stop(struct cpsw_slave *slave, struct cpsw_common *cpsw)
 {
 	u32 slave_port;
@@ -1620,6 +2022,7 @@ static void cpsw_slave_stop(struct cpsw_slave *slave, struct cpsw_common *cpsw)
 	slave->phy = NULL;
 	cpsw_ale_control_set(cpsw->ale, slave_port,
 			     ALE_PORT_STATE, ALE_PORT_STATE_DISABLE);
+<<<<<<< HEAD
 	soft_reset_slave(slave);
 }
 
@@ -1836,11 +2239,32 @@ static void cpsw_mqprio_resume(struct cpsw_slave *slave, struct cpsw_priv *priv)
 		     CPSW1_TX_PRI_MAP : CPSW2_TX_PRI_MAP;
 
 	slave_write(slave, tx_prio_map, tx_prio_rg);
+=======
+	cpsw_sl_reset(slave->mac_sl, 100);
+	cpsw_sl_ctl_reset(slave->mac_sl);
+}
+
+static int cpsw_restore_vlans(struct net_device *vdev, int vid, void *arg)
+{
+	struct cpsw_priv *priv = arg;
+
+	if (!vdev)
+		return 0;
+
+	cpsw_ndo_vlan_rx_add_vid(priv->ndev, 0, vid);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /* restore resources after port reset */
 static void cpsw_restore(struct cpsw_priv *priv)
 {
+<<<<<<< HEAD
+=======
+	/* restore vlan configurations */
+	vlan_for_each(priv->ndev, cpsw_restore_vlans, priv);
+
+>>>>>>> upstream/android-13
 	/* restore MQPRIO offload */
 	for_each_slave(priv, cpsw_mqprio_resume, priv);
 
@@ -1918,13 +2342,32 @@ static int cpsw_ndo_open(struct net_device *ndev)
 			enable_irq(cpsw->irqs_table[0]);
 		}
 
+<<<<<<< HEAD
+=======
+		/* create rxqs for both infs in dual mac as they use same pool
+		 * and must be destroyed together when no users.
+		 */
+		ret = cpsw_create_xdp_rxqs(cpsw);
+		if (ret < 0)
+			goto err_cleanup;
+
+>>>>>>> upstream/android-13
 		ret = cpsw_fill_rx_channels(priv);
 		if (ret < 0)
 			goto err_cleanup;
 
+<<<<<<< HEAD
 		if (cpts_register(cpsw->cpts))
 			dev_err(priv->dev, "error registering cpts device\n");
 
+=======
+		if (cpsw->cpts) {
+			if (cpts_register(cpsw->cpts))
+				dev_err(priv->dev, "error registering cpts device\n");
+			else
+				writel(0x10, &cpsw->wr_regs->misc_en);
+		}
+>>>>>>> upstream/android-13
 	}
 
 	cpsw_restore(priv);
@@ -1934,7 +2377,11 @@ static int cpsw_ndo_open(struct net_device *ndev)
 		struct ethtool_coalesce coal;
 
 		coal.rx_coalesce_usecs = cpsw->coal_intvl;
+<<<<<<< HEAD
 		cpsw_set_coalesce(ndev, &coal);
+=======
+		cpsw_set_coalesce(ndev, &coal, NULL, NULL);
+>>>>>>> upstream/android-13
 	}
 
 	cpdma_ctlr_start(cpsw->dma);
@@ -1944,7 +2391,15 @@ static int cpsw_ndo_open(struct net_device *ndev)
 	return 0;
 
 err_cleanup:
+<<<<<<< HEAD
 	cpdma_ctlr_stop(cpsw->dma);
+=======
+	if (!cpsw->usage_count) {
+		cpdma_ctlr_stop(cpsw->dma);
+		cpsw_destroy_xdp_rxqs(cpsw);
+	}
+
+>>>>>>> upstream/android-13
 	for_each_slave(priv, cpsw_slave_stop, cpsw);
 	pm_runtime_put_sync(cpsw->dev);
 	netif_carrier_off(priv->ndev);
@@ -1957,6 +2412,10 @@ static int cpsw_ndo_stop(struct net_device *ndev)
 	struct cpsw_common *cpsw = priv->cpsw;
 
 	cpsw_info(priv, ifdown, "shutting down cpsw device\n");
+<<<<<<< HEAD
+=======
+	__hw_addr_ref_unsync_dev(&ndev->mc, ndev, cpsw_purge_all_mc);
+>>>>>>> upstream/android-13
 	netif_tx_stop_all_queues(priv->ndev);
 	netif_carrier_off(priv->ndev);
 
@@ -1967,11 +2426,19 @@ static int cpsw_ndo_stop(struct net_device *ndev)
 		cpsw_intr_disable(cpsw);
 		cpdma_ctlr_stop(cpsw->dma);
 		cpsw_ale_stop(cpsw->ale);
+<<<<<<< HEAD
+=======
+		cpsw_destroy_xdp_rxqs(cpsw);
+>>>>>>> upstream/android-13
 	}
 	for_each_slave(priv, cpsw_slave_stop, cpsw);
 
 	if (cpsw_need_resplit(cpsw))
+<<<<<<< HEAD
 		cpsw_split_res(ndev);
+=======
+		cpsw_split_res(cpsw);
+>>>>>>> upstream/android-13
 
 	cpsw->usage_count--;
 	pm_runtime_put_sync(cpsw->dev);
@@ -1988,14 +2455,22 @@ static netdev_tx_t cpsw_ndo_start_xmit(struct sk_buff *skb,
 	struct cpdma_chan *txch;
 	int ret, q_idx;
 
+<<<<<<< HEAD
 	if (skb_padto(skb, CPSW_MIN_PACKET_SIZE)) {
+=======
+	if (skb_put_padto(skb, CPSW_MIN_PACKET_SIZE)) {
+>>>>>>> upstream/android-13
 		cpsw_err(priv, tx_err, "packet pad failed\n");
 		ndev->stats.tx_dropped++;
 		return NET_XMIT_DROP;
 	}
 
 	if (skb_shinfo(skb)->tx_flags & SKBTX_HW_TSTAMP &&
+<<<<<<< HEAD
 	    cpts_is_tx_enabled(cpts) && cpts_can_timestamp(cpts, skb))
+=======
+	    priv->tx_ts_enabled && cpts_can_timestamp(cpts, skb))
+>>>>>>> upstream/android-13
 		skb_shinfo(skb)->tx_flags |= SKBTX_IN_PROGRESS;
 
 	q_idx = skb_get_queue_mapping(skb);
@@ -2004,7 +2479,13 @@ static netdev_tx_t cpsw_ndo_start_xmit(struct sk_buff *skb,
 
 	txch = cpsw->txv[q_idx].ch;
 	txq = netdev_get_tx_queue(ndev, q_idx);
+<<<<<<< HEAD
 	ret = cpsw_tx_packet_submit(priv, skb, txch);
+=======
+	skb_tx_timestamp(skb);
+	ret = cpdma_chan_submit(txch, skb, skb->data, skb->len,
+				priv->emac_port + cpsw->data.dual_emac);
+>>>>>>> upstream/android-13
 	if (unlikely(ret != 0)) {
 		cpsw_err(priv, tx_err, "desc submit failed\n");
 		goto fail;
@@ -2037,6 +2518,7 @@ fail:
 	return NETDEV_TX_BUSY;
 }
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_TI_CPTS)
 
 static void cpsw_hwtstamp_v1(struct cpsw_common *cpsw)
@@ -2240,6 +2722,8 @@ static void cpsw_ndo_tx_timeout(struct net_device *ndev)
 	netif_tx_wake_all_queues(ndev);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int cpsw_ndo_set_mac_address(struct net_device *ndev, void *p)
 {
 	struct cpsw_priv *priv = netdev_priv(ndev);
@@ -2277,6 +2761,7 @@ static int cpsw_ndo_set_mac_address(struct net_device *ndev, void *p)
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_NET_POLL_CONTROLLER
 static void cpsw_ndo_poll_controller(struct net_device *ndev)
 {
@@ -2289,21 +2774,36 @@ static void cpsw_ndo_poll_controller(struct net_device *ndev)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static inline int cpsw_add_vlan_ale_entry(struct cpsw_priv *priv,
 				unsigned short vid)
 {
 	int ret;
 	int unreg_mcast_mask = 0;
+<<<<<<< HEAD
+=======
+	int mcast_mask;
+>>>>>>> upstream/android-13
 	u32 port_mask;
 	struct cpsw_common *cpsw = priv->cpsw;
 
 	if (cpsw->data.dual_emac) {
 		port_mask = (1 << (priv->emac_port + 1)) | ALE_PORT_HOST;
 
+<<<<<<< HEAD
 		if (priv->ndev->flags & IFF_ALLMULTI)
 			unreg_mcast_mask = port_mask;
 	} else {
 		port_mask = ALE_ALL_PORTS;
+=======
+		mcast_mask = ALE_PORT_HOST;
+		if (priv->ndev->flags & IFF_ALLMULTI)
+			unreg_mcast_mask = mcast_mask;
+	} else {
+		port_mask = ALE_ALL_PORTS;
+		mcast_mask = port_mask;
+>>>>>>> upstream/android-13
 
 		if (priv->ndev->flags & IFF_ALLMULTI)
 			unreg_mcast_mask = ALE_ALL_PORTS;
@@ -2322,7 +2822,11 @@ static inline int cpsw_add_vlan_ale_entry(struct cpsw_priv *priv,
 		goto clean_vid;
 
 	ret = cpsw_ale_add_mcast(cpsw->ale, priv->ndev->broadcast,
+<<<<<<< HEAD
 				 port_mask, ALE_VLAN, vid, 0);
+=======
+				 mcast_mask, ALE_VLAN, vid, 0);
+>>>>>>> upstream/android-13
 	if (ret != 0)
 		goto clean_vlan_ucast;
 	return 0;
@@ -2404,11 +2908,16 @@ static int cpsw_ndo_vlan_rx_kill_vid(struct net_device *ndev,
 				  HOST_PORT_NUM, ALE_VLAN, vid);
 	ret |= cpsw_ale_del_mcast(cpsw->ale, priv->ndev->broadcast,
 				  0, ALE_VLAN, vid);
+<<<<<<< HEAD
+=======
+	ret |= cpsw_ale_flush_multicast(cpsw->ale, ALE_PORT_HOST, vid);
+>>>>>>> upstream/android-13
 err:
 	pm_runtime_put(cpsw->dev);
 	return ret;
 }
 
+<<<<<<< HEAD
 static int cpsw_ndo_set_tx_maxrate(struct net_device *ndev, int queue, u32 rate)
 {
 	struct cpsw_priv *priv = netdev_priv(ndev);
@@ -2531,13 +3040,55 @@ static int cpsw_ndo_setup_tc(struct net_device *ndev, enum tc_setup_type type,
 		return -EOPNOTSUPP;
 	}
 }
+=======
+static int cpsw_ndo_xdp_xmit(struct net_device *ndev, int n,
+			     struct xdp_frame **frames, u32 flags)
+{
+	struct cpsw_priv *priv = netdev_priv(ndev);
+	struct cpsw_common *cpsw = priv->cpsw;
+	struct xdp_frame *xdpf;
+	int i, nxmit = 0, port;
+
+	if (unlikely(flags & ~XDP_XMIT_FLAGS_MASK))
+		return -EINVAL;
+
+	for (i = 0; i < n; i++) {
+		xdpf = frames[i];
+		if (xdpf->len < CPSW_MIN_PACKET_SIZE)
+			break;
+
+		port = priv->emac_port + cpsw->data.dual_emac;
+		if (cpsw_xdp_tx_frame(priv, xdpf, NULL, port))
+			break;
+		nxmit++;
+	}
+
+	return nxmit;
+}
+
+#ifdef CONFIG_NET_POLL_CONTROLLER
+static void cpsw_ndo_poll_controller(struct net_device *ndev)
+{
+	struct cpsw_common *cpsw = ndev_to_cpsw(ndev);
+
+	cpsw_intr_disable(cpsw);
+	cpsw_rx_interrupt(cpsw->irqs_table[0], cpsw);
+	cpsw_tx_interrupt(cpsw->irqs_table[1], cpsw);
+	cpsw_intr_enable(cpsw);
+}
+#endif
+>>>>>>> upstream/android-13
 
 static const struct net_device_ops cpsw_netdev_ops = {
 	.ndo_open		= cpsw_ndo_open,
 	.ndo_stop		= cpsw_ndo_stop,
 	.ndo_start_xmit		= cpsw_ndo_start_xmit,
 	.ndo_set_mac_address	= cpsw_ndo_set_mac_address,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= cpsw_ndo_ioctl,
+=======
+	.ndo_eth_ioctl		= cpsw_ndo_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_validate_addr	= eth_validate_addr,
 	.ndo_tx_timeout		= cpsw_ndo_tx_timeout,
 	.ndo_set_rx_mode	= cpsw_ndo_set_rx_mode,
@@ -2548,6 +3099,7 @@ static const struct net_device_ops cpsw_netdev_ops = {
 	.ndo_vlan_rx_add_vid	= cpsw_ndo_vlan_rx_add_vid,
 	.ndo_vlan_rx_kill_vid	= cpsw_ndo_vlan_rx_kill_vid,
 	.ndo_setup_tc           = cpsw_ndo_setup_tc,
+<<<<<<< HEAD
 };
 
 static int cpsw_get_regs_len(struct net_device *ndev)
@@ -2569,6 +3121,12 @@ static void cpsw_get_regs(struct net_device *ndev,
 	cpsw_ale_dump(cpsw->ale, reg);
 }
 
+=======
+	.ndo_bpf		= cpsw_ndo_bpf,
+	.ndo_xdp_xmit		= cpsw_ndo_xdp_xmit,
+};
+
+>>>>>>> upstream/android-13
 static void cpsw_get_drvinfo(struct net_device *ndev,
 			     struct ethtool_drvinfo *info)
 {
@@ -2580,6 +3138,7 @@ static void cpsw_get_drvinfo(struct net_device *ndev,
 	strlcpy(info->bus_info, pdev->name, sizeof(info->bus_info));
 }
 
+<<<<<<< HEAD
 static u32 cpsw_get_msglevel(struct net_device *ndev)
 {
 	struct cpsw_priv *priv = netdev_priv(ndev);
@@ -2693,6 +3252,8 @@ static void cpsw_get_pauseparam(struct net_device *ndev,
 	pause->tx_pause = priv->tx_pause ? true : false;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int cpsw_set_pauseparam(struct net_device *ndev,
 			       struct ethtool_pauseparam *pause)
 {
@@ -2706,6 +3267,7 @@ static int cpsw_set_pauseparam(struct net_device *ndev,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int cpsw_ethtool_op_begin(struct net_device *ndev)
 {
 	struct cpsw_priv *priv = netdev_priv(ndev);
@@ -3019,6 +3581,16 @@ static int cpsw_set_ringparam(struct net_device *ndev,
 }
 
 static const struct ethtool_ops cpsw_ethtool_ops = {
+=======
+static int cpsw_set_channels(struct net_device *ndev,
+			     struct ethtool_channels *chs)
+{
+	return cpsw_set_channels_common(ndev, chs, cpsw_rx_handler);
+}
+
+static const struct ethtool_ops cpsw_ethtool_ops = {
+	.supported_coalesce_params = ETHTOOL_COALESCE_RX_USECS,
+>>>>>>> upstream/android-13
 	.get_drvinfo	= cpsw_get_drvinfo,
 	.get_msglevel	= cpsw_get_msglevel,
 	.set_msglevel	= cpsw_set_msglevel,
@@ -3048,6 +3620,7 @@ static const struct ethtool_ops cpsw_ethtool_ops = {
 	.set_ringparam = cpsw_set_ringparam,
 };
 
+<<<<<<< HEAD
 static void cpsw_slave_init(struct cpsw_slave *slave, struct cpsw_common *cpsw,
 			    u32 slave_reg_ofs, u32 sliver_reg_ofs)
 {
@@ -3061,6 +3634,8 @@ static void cpsw_slave_init(struct cpsw_slave *slave, struct cpsw_common *cpsw,
 	slave->port_vlan = data->dual_emac_res_vlan;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int cpsw_probe_dt(struct cpsw_platform_data *data,
 			 struct platform_device *pdev)
 {
@@ -3097,12 +3672,15 @@ static int cpsw_probe_dt(struct cpsw_platform_data *data,
 	}
 	data->channels = prop;
 
+<<<<<<< HEAD
 	if (of_property_read_u32(node, "ale_entries", &prop)) {
 		dev_err(&pdev->dev, "Missing ale_entries property in the DT.\n");
 		return -EINVAL;
 	}
 	data->ale_entries = prop;
 
+=======
+>>>>>>> upstream/android-13
 	if (of_property_read_u32(node, "bd_ram_size", &prop)) {
 		dev_err(&pdev->dev, "Missing bd_ram_size property in the DT.\n");
 		return -EINVAL;
@@ -3116,7 +3694,11 @@ static int cpsw_probe_dt(struct cpsw_platform_data *data,
 	data->mac_control = prop;
 
 	if (of_property_read_bool(node, "dual_emac"))
+<<<<<<< HEAD
 		data->dual_emac = 1;
+=======
+		data->dual_emac = true;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Populate all the child nodes here...
@@ -3128,14 +3710,34 @@ static int cpsw_probe_dt(struct cpsw_platform_data *data,
 
 	for_each_available_child_of_node(node, slave_node) {
 		struct cpsw_slave_data *slave_data = data->slave_data + i;
+<<<<<<< HEAD
 		const void *mac_addr = NULL;
+=======
+>>>>>>> upstream/android-13
 		int lenp;
 		const __be32 *parp;
 
 		/* This is no slave child node, continue */
+<<<<<<< HEAD
 		if (strcmp(slave_node->name, "slave"))
 			continue;
 
+=======
+		if (!of_node_name_eq(slave_node, "slave"))
+			continue;
+
+		slave_data->ifphy = devm_of_phy_get(&pdev->dev, slave_node,
+						    NULL);
+		if (!IS_ENABLED(CONFIG_TI_CPSW_PHY_SEL) &&
+		    IS_ERR(slave_data->ifphy)) {
+			ret = PTR_ERR(slave_data->ifphy);
+			dev_err(&pdev->dev,
+				"%d: Error retrieving port phy: %d\n", i, ret);
+			goto err_node_put;
+		}
+
+		slave_data->slave_node = slave_node;
+>>>>>>> upstream/android-13
 		slave_data->phy_node = of_parse_phandle(slave_node,
 							"phy-handle", 0);
 		parp = of_get_property(slave_node, "phy_id", &lenp);
@@ -3151,7 +3753,11 @@ static int cpsw_probe_dt(struct cpsw_platform_data *data,
 			if (ret) {
 				if (ret != -EPROBE_DEFER)
 					dev_err(&pdev->dev, "failed to register fixed-link phy: %d\n", ret);
+<<<<<<< HEAD
 				return ret;
+=======
+				goto err_node_put;
+>>>>>>> upstream/android-13
 			}
 			slave_data->phy_node = of_node_get(slave_node);
 		} else if (parp) {
@@ -3169,7 +3775,12 @@ static int cpsw_probe_dt(struct cpsw_platform_data *data,
 			of_node_put(mdio_node);
 			if (!mdio) {
 				dev_err(&pdev->dev, "Missing mdio platform device\n");
+<<<<<<< HEAD
 				return -EINVAL;
+=======
+				ret = -EINVAL;
+				goto err_node_put;
+>>>>>>> upstream/android-13
 			}
 			snprintf(slave_data->phy_id, sizeof(slave_data->phy_id),
 				 PHY_ID_FMT, mdio->name, phyid);
@@ -3180,6 +3791,7 @@ static int cpsw_probe_dt(struct cpsw_platform_data *data,
 				i);
 			goto no_phy_slave;
 		}
+<<<<<<< HEAD
 		slave_data->phy_if = of_get_phy_mode(slave_node);
 		if (slave_data->phy_if < 0) {
 			dev_err(&pdev->dev, "Missing or malformed slave[%d] phy-mode property\n",
@@ -3196,6 +3808,22 @@ no_phy_slave:
 					      slave_data->mac_addr);
 			if (ret)
 				return ret;
+=======
+		ret = of_get_phy_mode(slave_node, &slave_data->phy_if);
+		if (ret) {
+			dev_err(&pdev->dev, "Missing or malformed slave[%d] phy-mode property\n",
+				i);
+			goto err_node_put;
+		}
+
+no_phy_slave:
+		ret = of_get_mac_address(slave_node, slave_data->mac_addr);
+		if (ret) {
+			ret = ti_cm_get_macid(&pdev->dev, i,
+					      slave_data->mac_addr);
+			if (ret)
+				goto err_node_put;
+>>>>>>> upstream/android-13
 		}
 		if (data->dual_emac) {
 			if (of_property_read_u32(slave_node, "dual_emac_res_vlan",
@@ -3210,17 +3838,35 @@ no_phy_slave:
 		}
 
 		i++;
+<<<<<<< HEAD
 		if (i == data->slaves)
 			break;
 	}
 
 	return 0;
+=======
+		if (i == data->slaves) {
+			ret = 0;
+			goto err_node_put;
+		}
+	}
+
+	return 0;
+
+err_node_put:
+	of_node_put(slave_node);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void cpsw_remove_dt(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct net_device *ndev = platform_get_drvdata(pdev);
 	struct cpsw_common *cpsw = ndev_to_cpsw(ndev);
+=======
+	struct cpsw_common *cpsw = platform_get_drvdata(pdev);
+>>>>>>> upstream/android-13
 	struct cpsw_platform_data *data = &cpsw->data;
 	struct device_node *node = pdev->dev.of_node;
 	struct device_node *slave_node;
@@ -3229,7 +3875,11 @@ static void cpsw_remove_dt(struct platform_device *pdev)
 	for_each_available_child_of_node(node, slave_node) {
 		struct cpsw_slave_data *slave_data = &data->slave_data[i];
 
+<<<<<<< HEAD
 		if (strcmp(slave_node->name, "slave"))
+=======
+		if (!of_node_name_eq(slave_node, "slave"))
+>>>>>>> upstream/android-13
 			continue;
 
 		if (of_phy_is_fixed_link(slave_node))
@@ -3238,8 +3888,15 @@ static void cpsw_remove_dt(struct platform_device *pdev)
 		of_node_put(slave_data->phy_node);
 
 		i++;
+<<<<<<< HEAD
 		if (i == data->slaves)
 			break;
+=======
+		if (i == data->slaves) {
+			of_node_put(slave_node);
+			break;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	of_platform_depopulate(&pdev->dev);
@@ -3253,7 +3910,12 @@ static int cpsw_probe_dual_emac(struct cpsw_priv *priv)
 	struct cpsw_priv		*priv_sl2;
 	int ret = 0;
 
+<<<<<<< HEAD
 	ndev = alloc_etherdev_mq(sizeof(struct cpsw_priv), CPSW_MAX_QUEUES);
+=======
+	ndev = devm_alloc_etherdev_mqs(cpsw->dev, sizeof(struct cpsw_priv),
+				       CPSW_MAX_QUEUES, CPSW_MAX_QUEUES);
+>>>>>>> upstream/android-13
 	if (!ndev) {
 		dev_err(cpsw->dev, "cpsw: error allocating net_device\n");
 		return -ENOMEM;
@@ -3286,12 +3948,19 @@ static int cpsw_probe_dual_emac(struct cpsw_priv *priv)
 
 	/* register the network device */
 	SET_NETDEV_DEV(ndev, cpsw->dev);
+<<<<<<< HEAD
 	ret = register_netdev(ndev);
 	if (ret) {
 		dev_err(cpsw->dev, "cpsw: error registering net device\n");
 		free_netdev(ndev);
 		ret = -ENODEV;
 	}
+=======
+	ndev->dev.of_node = cpsw->slaves[1].data->slave_node;
+	ret = register_netdev(ndev);
+	if (ret)
+		dev_err(cpsw->dev, "cpsw: error registering net device\n");
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -3312,10 +3981,15 @@ static const struct soc_device_attribute cpsw_soc_devices[] = {
 
 static int cpsw_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
+=======
+	struct device			*dev = &pdev->dev;
+>>>>>>> upstream/android-13
 	struct clk			*clk;
 	struct cpsw_platform_data	*data;
 	struct net_device		*ndev;
 	struct cpsw_priv		*priv;
+<<<<<<< HEAD
 	struct cpdma_params		dma_params;
 	struct cpsw_ale_params		ale_params;
 	void __iomem			*ss_regs;
@@ -3362,13 +4036,84 @@ static int cpsw_probe(struct platform_device *pdev)
 
 	/* Select default pin state */
 	pinctrl_pm_select_default_state(&pdev->dev);
+=======
+	void __iomem			*ss_regs;
+	struct resource			*ss_res;
+	struct gpio_descs		*mode;
+	const struct soc_device_attribute *soc;
+	struct cpsw_common		*cpsw;
+	int ret = 0, ch;
+	int irq;
+
+	cpsw = devm_kzalloc(dev, sizeof(struct cpsw_common), GFP_KERNEL);
+	if (!cpsw)
+		return -ENOMEM;
+
+	platform_set_drvdata(pdev, cpsw);
+	cpsw_slave_index = cpsw_slave_index_priv;
+
+	cpsw->dev = dev;
+
+	mode = devm_gpiod_get_array_optional(dev, "mode", GPIOD_OUT_LOW);
+	if (IS_ERR(mode)) {
+		ret = PTR_ERR(mode);
+		dev_err(dev, "gpio request failed, ret %d\n", ret);
+		return ret;
+	}
+
+	clk = devm_clk_get(dev, "fck");
+	if (IS_ERR(clk)) {
+		ret = PTR_ERR(clk);
+		dev_err(dev, "fck is not found %d\n", ret);
+		return ret;
+	}
+	cpsw->bus_freq_mhz = clk_get_rate(clk) / 1000000;
+
+	ss_regs = devm_platform_get_and_ioremap_resource(pdev, 0, &ss_res);
+	if (IS_ERR(ss_regs))
+		return PTR_ERR(ss_regs);
+	cpsw->regs = ss_regs;
+
+	cpsw->wr_regs = devm_platform_ioremap_resource(pdev, 1);
+	if (IS_ERR(cpsw->wr_regs))
+		return PTR_ERR(cpsw->wr_regs);
+
+	/* RX IRQ */
+	irq = platform_get_irq(pdev, 1);
+	if (irq < 0)
+		return irq;
+	cpsw->irqs_table[0] = irq;
+
+	/* TX IRQ */
+	irq = platform_get_irq(pdev, 2);
+	if (irq < 0)
+		return irq;
+	cpsw->irqs_table[1] = irq;
+
+	/* get misc irq*/
+	irq = platform_get_irq(pdev, 3);
+	if (irq <= 0)
+		return irq;
+	cpsw->misc_irq = irq;
+
+	/*
+	 * This may be required here for child devices.
+	 */
+	pm_runtime_enable(dev);
+>>>>>>> upstream/android-13
 
 	/* Need to enable clocks with runtime PM api to access module
 	 * registers
 	 */
+<<<<<<< HEAD
 	ret = pm_runtime_get_sync(&pdev->dev);
 	if (ret < 0) {
 		pm_runtime_put_noidle(&pdev->dev);
+=======
+	ret = pm_runtime_get_sync(dev);
+	if (ret < 0) {
+		pm_runtime_put_noidle(dev);
+>>>>>>> upstream/android-13
 		goto clean_runtime_disable_ret;
 	}
 
@@ -3376,6 +4121,7 @@ static int cpsw_probe(struct platform_device *pdev)
 	if (ret)
 		goto clean_dt_ret;
 
+<<<<<<< HEAD
 	data = &cpsw->data;
 	cpsw->rx_ch_num = 1;
 	cpsw->tx_ch_num = 1;
@@ -3391,12 +4137,21 @@ static int cpsw_probe(struct platform_device *pdev)
 	memcpy(ndev->dev_addr, priv->mac_addr, ETH_ALEN);
 
 	cpsw->slaves = devm_kcalloc(&pdev->dev,
+=======
+	soc = soc_device_match(cpsw_soc_devices);
+	if (soc)
+		cpsw->quirk_irq = true;
+
+	data = &cpsw->data;
+	cpsw->slaves = devm_kcalloc(dev,
+>>>>>>> upstream/android-13
 				    data->slaves, sizeof(struct cpsw_slave),
 				    GFP_KERNEL);
 	if (!cpsw->slaves) {
 		ret = -ENOMEM;
 		goto clean_dt_ret;
 	}
+<<<<<<< HEAD
 	for (i = 0; i < data->slaves; i++)
 		cpsw->slaves[i].slave_num = i;
 
@@ -3499,17 +4254,35 @@ static int cpsw_probe(struct platform_device *pdev)
 	soc = soc_device_match(cpsw_soc_devices);
 	if (soc)
 		cpsw->quirk_irq = 1;
+=======
+
+	cpsw->rx_packet_max = max(rx_packet_max, CPSW_MAX_PACKET_SIZE);
+	cpsw->descs_pool_size = descs_pool_size;
+
+	ret = cpsw_init_common(cpsw, ss_regs, ale_ageout,
+			       ss_res->start + CPSW2_BD_OFFSET,
+			       descs_pool_size);
+	if (ret)
+		goto clean_dt_ret;
+>>>>>>> upstream/android-13
 
 	ch = cpsw->quirk_irq ? 0 : 7;
 	cpsw->txv[0].ch = cpdma_chan_create(cpsw->dma, ch, cpsw_tx_handler, 0);
 	if (IS_ERR(cpsw->txv[0].ch)) {
+<<<<<<< HEAD
 		dev_err(priv->dev, "error initializing tx dma channel\n");
 		ret = PTR_ERR(cpsw->txv[0].ch);
 		goto clean_dma_ret;
+=======
+		dev_err(dev, "error initializing tx dma channel\n");
+		ret = PTR_ERR(cpsw->txv[0].ch);
+		goto clean_cpts;
+>>>>>>> upstream/android-13
 	}
 
 	cpsw->rxv[0].ch = cpdma_chan_create(cpsw->dma, 0, cpsw_rx_handler, 1);
 	if (IS_ERR(cpsw->rxv[0].ch)) {
+<<<<<<< HEAD
 		dev_err(priv->dev, "error initializing rx dma channel\n");
 		ret = PTR_ERR(cpsw->rxv[0].ch);
 		goto clean_dma_ret;
@@ -3539,6 +4312,41 @@ static int cpsw_probe(struct platform_device *pdev)
 		ret = ndev->irq;
 		goto clean_dma_ret;
 	}
+=======
+		dev_err(dev, "error initializing rx dma channel\n");
+		ret = PTR_ERR(cpsw->rxv[0].ch);
+		goto clean_cpts;
+	}
+	cpsw_split_res(cpsw);
+
+	/* setup netdev */
+	ndev = devm_alloc_etherdev_mqs(dev, sizeof(struct cpsw_priv),
+				       CPSW_MAX_QUEUES, CPSW_MAX_QUEUES);
+	if (!ndev) {
+		dev_err(dev, "error allocating net_device\n");
+		ret = -ENOMEM;
+		goto clean_cpts;
+	}
+
+	priv = netdev_priv(ndev);
+	priv->cpsw = cpsw;
+	priv->ndev = ndev;
+	priv->dev  = dev;
+	priv->msg_enable = netif_msg_init(debug_level, CPSW_DEBUG);
+	priv->emac_port = 0;
+
+	if (is_valid_ether_addr(data->slave_data[0].mac_addr)) {
+		memcpy(priv->mac_addr, data->slave_data[0].mac_addr, ETH_ALEN);
+		dev_info(dev, "Detected MACID = %pM\n", priv->mac_addr);
+	} else {
+		eth_random_addr(priv->mac_addr);
+		dev_info(dev, "Random MACID = %pM\n", priv->mac_addr);
+	}
+
+	memcpy(ndev->dev_addr, priv->mac_addr, ETH_ALEN);
+
+	cpsw->slaves[0].ndev = ndev;
+>>>>>>> upstream/android-13
 
 	ndev->features |= NETIF_F_HW_VLAN_CTAG_FILTER | NETIF_F_HW_VLAN_CTAG_RX;
 
@@ -3550,6 +4358,7 @@ static int cpsw_probe(struct platform_device *pdev)
 	netif_tx_napi_add(ndev, &cpsw->napi_tx,
 			  cpsw->quirk_irq ? cpsw_tx_poll : cpsw_tx_mq_poll,
 			  CPSW_POLL_WEIGHT);
+<<<<<<< HEAD
 	cpsw_split_res(ndev);
 
 	/* register the network device */
@@ -3559,6 +4368,17 @@ static int cpsw_probe(struct platform_device *pdev)
 		dev_err(priv->dev, "error registering net device\n");
 		ret = -ENODEV;
 		goto clean_dma_ret;
+=======
+
+	/* register the network device */
+	SET_NETDEV_DEV(ndev, dev);
+	ndev->dev.of_node = cpsw->slaves[0].data->slave_node;
+	ret = register_netdev(ndev);
+	if (ret) {
+		dev_err(dev, "error registering net device\n");
+		ret = -ENODEV;
+		goto clean_cpts;
+>>>>>>> upstream/android-13
 	}
 
 	if (cpsw->data.dual_emac) {
@@ -3576,6 +4396,7 @@ static int cpsw_probe(struct platform_device *pdev)
 	 * If anyone wants to implement support for those, make sure to
 	 * first request and append them to irqs_table array.
 	 */
+<<<<<<< HEAD
 
 	/* RX IRQ */
 	irq = platform_get_irq(pdev, 1);
@@ -3610,6 +4431,40 @@ static int cpsw_probe(struct platform_device *pdev)
 	cpsw_notice(priv, probe,
 		    "initialized device (regs %pa, irq %d, pool size %d)\n",
 		    &ss_res->start, ndev->irq, dma_params.descs_pool_size);
+=======
+	ret = devm_request_irq(dev, cpsw->irqs_table[0], cpsw_rx_interrupt,
+			       0, dev_name(dev), cpsw);
+	if (ret < 0) {
+		dev_err(dev, "error attaching irq (%d)\n", ret);
+		goto clean_unregister_netdev_ret;
+	}
+
+
+	ret = devm_request_irq(dev, cpsw->irqs_table[1], cpsw_tx_interrupt,
+			       0, dev_name(&pdev->dev), cpsw);
+	if (ret < 0) {
+		dev_err(dev, "error attaching irq (%d)\n", ret);
+		goto clean_unregister_netdev_ret;
+	}
+
+	if (!cpsw->cpts)
+		goto skip_cpts;
+
+	ret = devm_request_irq(&pdev->dev, cpsw->misc_irq, cpsw_misc_interrupt,
+			       0, dev_name(&pdev->dev), cpsw);
+	if (ret < 0) {
+		dev_err(dev, "error attaching misc irq (%d)\n", ret);
+		goto clean_unregister_netdev_ret;
+	}
+
+	/* Enable misc CPTS evnt_pend IRQ */
+	cpts_set_irqpoll(cpsw->cpts, false);
+
+skip_cpts:
+	cpsw_notice(priv, probe,
+		    "initialized device (regs %pa, irq %d, pool size %d)\n",
+		    &ss_res->start, cpsw->irqs_table[0], descs_pool_size);
+>>>>>>> upstream/android-13
 
 	pm_runtime_put(&pdev->dev);
 
@@ -3617,23 +4472,36 @@ static int cpsw_probe(struct platform_device *pdev)
 
 clean_unregister_netdev_ret:
 	unregister_netdev(ndev);
+<<<<<<< HEAD
 clean_dma_ret:
+=======
+clean_cpts:
+	cpts_release(cpsw->cpts);
+>>>>>>> upstream/android-13
 	cpdma_ctlr_destroy(cpsw->dma);
 clean_dt_ret:
 	cpsw_remove_dt(pdev);
 	pm_runtime_put_sync(&pdev->dev);
 clean_runtime_disable_ret:
 	pm_runtime_disable(&pdev->dev);
+<<<<<<< HEAD
 clean_ndev_ret:
 	free_netdev(priv->ndev);
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 static int cpsw_remove(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct net_device *ndev = platform_get_drvdata(pdev);
 	struct cpsw_common *cpsw = ndev_to_cpsw(ndev);
 	int ret;
+=======
+	struct cpsw_common *cpsw = platform_get_drvdata(pdev);
+	int i, ret;
+>>>>>>> upstream/android-13
 
 	ret = pm_runtime_get_sync(&pdev->dev);
 	if (ret < 0) {
@@ -3641,24 +4509,34 @@ static int cpsw_remove(struct platform_device *pdev)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	if (cpsw->data.dual_emac)
 		unregister_netdev(cpsw->slaves[1].ndev);
 	unregister_netdev(ndev);
+=======
+	for (i = 0; i < cpsw->data.slaves; i++)
+		if (cpsw->slaves[i].ndev)
+			unregister_netdev(cpsw->slaves[i].ndev);
+>>>>>>> upstream/android-13
 
 	cpts_release(cpsw->cpts);
 	cpdma_ctlr_destroy(cpsw->dma);
 	cpsw_remove_dt(pdev);
 	pm_runtime_put_sync(&pdev->dev);
 	pm_runtime_disable(&pdev->dev);
+<<<<<<< HEAD
 	if (cpsw->data.dual_emac)
 		free_netdev(cpsw->slaves[1].ndev);
 	free_netdev(ndev);
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 #ifdef CONFIG_PM_SLEEP
 static int cpsw_suspend(struct device *dev)
 {
+<<<<<<< HEAD
 	struct platform_device	*pdev = to_platform_device(dev);
 	struct net_device	*ndev = platform_get_drvdata(pdev);
 	struct cpsw_common	*cpsw = ndev_to_cpsw(ndev);
@@ -3674,6 +4552,19 @@ static int cpsw_suspend(struct device *dev)
 		if (netif_running(ndev))
 			cpsw_ndo_stop(ndev);
 	}
+=======
+	struct cpsw_common *cpsw = dev_get_drvdata(dev);
+	int i;
+
+	rtnl_lock();
+
+	for (i = 0; i < cpsw->data.slaves; i++)
+		if (cpsw->slaves[i].ndev)
+			if (netif_running(cpsw->slaves[i].ndev))
+				cpsw_ndo_stop(cpsw->slaves[i].ndev);
+
+	rtnl_unlock();
+>>>>>>> upstream/android-13
 
 	/* Select sleep pin state */
 	pinctrl_pm_select_sleep_state(dev);
@@ -3683,15 +4574,21 @@ static int cpsw_suspend(struct device *dev)
 
 static int cpsw_resume(struct device *dev)
 {
+<<<<<<< HEAD
 	struct platform_device	*pdev = to_platform_device(dev);
 	struct net_device	*ndev = platform_get_drvdata(pdev);
 	struct cpsw_common	*cpsw = ndev_to_cpsw(ndev);
+=======
+	struct cpsw_common *cpsw = dev_get_drvdata(dev);
+	int i;
+>>>>>>> upstream/android-13
 
 	/* Select default pin state */
 	pinctrl_pm_select_default_state(dev);
 
 	/* shut up ASSERT_RTNL() warning in netif_set_real_num_tx/rx_queues */
 	rtnl_lock();
+<<<<<<< HEAD
 	if (cpsw->data.dual_emac) {
 		int i;
 
@@ -3703,6 +4600,14 @@ static int cpsw_resume(struct device *dev)
 		if (netif_running(ndev))
 			cpsw_ndo_open(ndev);
 	}
+=======
+
+	for (i = 0; i < cpsw->data.slaves; i++)
+		if (cpsw->slaves[i].ndev)
+			if (netif_running(cpsw->slaves[i].ndev))
+				cpsw_ndo_open(cpsw->slaves[i].ndev);
+
+>>>>>>> upstream/android-13
 	rtnl_unlock();
 
 	return 0;

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Cryptographic API for the 842 software compression algorithm.
  *
@@ -11,6 +12,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Cryptographic API for the 842 software compression algorithm.
+ *
+>>>>>>> upstream/android-13
  * Copyright (C) IBM Corporation, 2011-2015
  *
  * Original Authors: Robert Jennings <rcj@linux.vnet.ibm.com>
@@ -144,7 +151,11 @@ static int __init crypto842_mod_init(void)
 
 	return ret;
 }
+<<<<<<< HEAD
 module_init(crypto842_mod_init);
+=======
+subsys_initcall(crypto842_mod_init);
+>>>>>>> upstream/android-13
 
 static void __exit crypto842_mod_exit(void)
 {

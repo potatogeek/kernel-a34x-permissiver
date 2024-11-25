@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2006-2008 Michael Hennerich, Analog Devices Inc.
  *
@@ -6,6 +10,7 @@
  *
  * Bugs:        Enter bugs at http://blackfin.uclinux.org/
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -21,6 +26,8 @@
  * to the Free Software Foundation, Inc.,
  * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
+=======
+>>>>>>> upstream/android-13
  * History:
  * Copyright (c) 2005 David Brownell
  * Copyright (c) 2006 Nokia Corporation
@@ -295,12 +302,22 @@ static int ad7877_read_adc(struct spi_device *spi, unsigned command)
 
 	req->xfer[1].tx_buf = &req->ref_on;
 	req->xfer[1].len = 2;
+<<<<<<< HEAD
 	req->xfer[1].delay_usecs = ts->vref_delay_usecs;
+=======
+	req->xfer[1].delay.value = ts->vref_delay_usecs;
+	req->xfer[1].delay.unit = SPI_DELAY_UNIT_USECS;
+>>>>>>> upstream/android-13
 	req->xfer[1].cs_change = 1;
 
 	req->xfer[2].tx_buf = &req->command;
 	req->xfer[2].len = 2;
+<<<<<<< HEAD
 	req->xfer[2].delay_usecs = ts->vref_delay_usecs;
+=======
+	req->xfer[2].delay.value = ts->vref_delay_usecs;
+	req->xfer[2].delay.unit = SPI_DELAY_UNIT_USECS;
+>>>>>>> upstream/android-13
 	req->xfer[2].cs_change = 1;
 
 	req->xfer[3].rx_buf = &req->sample;

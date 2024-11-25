@@ -144,12 +144,15 @@ static irqreturn_t corehi_handler(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static struct irqaction corehi_irqaction = {
 	.handler = corehi_handler,
 	.name = "CoreHi",
 	.flags = IRQF_NO_THREAD,
 };
 
+=======
+>>>>>>> upstream/android-13
 static msc_irqmap_t msc_irqmap[] __initdata = {
 	{MSC01C_INT_TMR,		MSC01_IRQ_EDGE, 0},
 	{MSC01C_INT_PCI,		MSC01_IRQ_LEVEL, 0},
@@ -223,5 +226,11 @@ void __init arch_init_irq(void)
 		corehi_irq = MIPS_CPU_IRQ_BASE + MIPSCPU_INT_COREHI;
 	}
 
+<<<<<<< HEAD
 	setup_irq(corehi_irq, &corehi_irqaction);
+=======
+	if (request_irq(corehi_irq, corehi_handler, IRQF_NO_THREAD, "CoreHi",
+			NULL))
+		pr_err("Failed to request irq %d (CoreHi)\n", corehi_irq);
+>>>>>>> upstream/android-13
 }

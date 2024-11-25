@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  PowerPC version
  *    Copyright (C) 1995-1996 Gary Thomas (gdt@linuxppc.org)
@@ -9,6 +13,7 @@
  *
  *  Derived from "arch/i386/mm/init.c"
  *    Copyright (C) 1991, 1992, 1993, 1994  Linus Torvalds
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -61,10 +66,27 @@
 #define CPU_FTR_COHERENT_ICACHE	0	/* XXX for now */
 #define CPU_FTR_NOEXECUTE	0
 #endif
+=======
+ */
+
+#include <linux/memblock.h>
+#include <linux/highmem.h>
+#include <linux/suspend.h>
+#include <linux/dma-direct.h>
+
+#include <asm/machdep.h>
+#include <asm/rtas.h>
+#include <asm/kasan.h>
+#include <asm/svm.h>
+#include <asm/mmzone.h>
+
+#include <mm/mmu_decl.h>
+>>>>>>> upstream/android-13
 
 unsigned long long memory_limit;
 bool init_mem_is_free;
 
+<<<<<<< HEAD
 #ifdef CONFIG_HIGHMEM
 pte_t *kmap_pte;
 EXPORT_SYMBOL(kmap_pte);
@@ -85,6 +107,10 @@ int page_is_ram(unsigned long pfn)
 {
 	return memblock_is_memory(__pfn_to_phys(pfn));
 }
+=======
+unsigned long empty_zero_page[PAGE_SIZE / sizeof(unsigned long)] __page_aligned_bss;
+EXPORT_SYMBOL(empty_zero_page);
+>>>>>>> upstream/android-13
 
 pgprot_t phys_mem_access_prot(struct file *file, unsigned long pfn,
 			      unsigned long size, pgprot_t vma_prot)
@@ -100,6 +126,10 @@ pgprot_t phys_mem_access_prot(struct file *file, unsigned long pfn,
 EXPORT_SYMBOL(phys_mem_access_prot);
 
 #ifdef CONFIG_MEMORY_HOTPLUG
+<<<<<<< HEAD
+=======
+static DEFINE_MUTEX(linear_mapping_mutex);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_NUMA
 int memory_add_physaddr_to_nid(u64 start)
@@ -108,7 +138,12 @@ int memory_add_physaddr_to_nid(u64 start)
 }
 #endif
 
+<<<<<<< HEAD
 int __weak create_section_mapping(unsigned long start, unsigned long end, int nid)
+=======
+int __weak create_section_mapping(unsigned long start, unsigned long end,
+				  int nid, pgprot_t prot)
+>>>>>>> upstream/android-13
 {
 	return -ENODEV;
 }
@@ -118,6 +153,7 @@ int __weak remove_section_mapping(unsigned long start, unsigned long end)
 	return -ENODEV;
 }
 
+<<<<<<< HEAD
 int __ref arch_add_memory(int nid, u64 start, u64 size, struct vmem_altmap *altmap,
 			  bool want_memblock)
 {
@@ -153,11 +189,45 @@ void __ref arch_remove_memory(int nid, u64 start, u64 size,
 	flush_inval_dcache_range(start, start + size);
 	ret = remove_section_mapping(start, start + size);
 	WARN_ON_ONCE(ret);
+=======
+int __ref arch_create_linear_mapping(int nid, u64 start, u64 size,
+				     struct mhp_params *params)
+{
+	int rc;
+
+	start = (unsigned long)__va(start);
+	mutex_lock(&linear_mapping_mutex);
+	rc = create_section_mapping(start, start + size, nid,
+				    params->pgprot);
+	mutex_unlock(&linear_mapping_mutex);
+	if (rc) {
+		pr_warn("Unable to create linear mapping for 0x%llx..0x%llx: %d\n",
+			start, start + size, rc);
+		return -EFAULT;
+	}
+	return 0;
+}
+
+void __ref arch_remove_linear_mapping(u64 start, u64 size)
+{
+	int ret;
+
+	/* Remove htab bolted mappings for this section of memory */
+	start = (unsigned long)__va(start);
+
+	mutex_lock(&linear_mapping_mutex);
+	ret = remove_section_mapping(start, start + size);
+	mutex_unlock(&linear_mapping_mutex);
+	if (ret)
+		pr_warn("Unable to remove linear mapping for 0x%llx..0x%llx: %d\n",
+			start, start + size, ret);
+>>>>>>> upstream/android-13
 
 	/* Ensure all vmalloc mappings are flushed in case they also
 	 * hit that section of memory
 	 */
 	vm_unmap_aliases();
+<<<<<<< HEAD
 
 	resize_hpt_for_hotplug(memblock_phys_mem_size());
 }
@@ -192,6 +262,37 @@ walk_system_ram_range(unsigned long start_pfn, unsigned long nr_pages,
 EXPORT_SYMBOL_GPL(walk_system_ram_range);
 
 #ifndef CONFIG_NEED_MULTIPLE_NODES
+=======
+}
+
+int __ref arch_add_memory(int nid, u64 start, u64 size,
+			  struct mhp_params *params)
+{
+	unsigned long start_pfn = start >> PAGE_SHIFT;
+	unsigned long nr_pages = size >> PAGE_SHIFT;
+	int rc;
+
+	rc = arch_create_linear_mapping(nid, start, size, params);
+	if (rc)
+		return rc;
+	rc = __add_pages(nid, start_pfn, nr_pages, params);
+	if (rc)
+		arch_remove_linear_mapping(start, size);
+	return rc;
+}
+
+void __ref arch_remove_memory(u64 start, u64 size, struct vmem_altmap *altmap)
+{
+	unsigned long start_pfn = start >> PAGE_SHIFT;
+	unsigned long nr_pages = size >> PAGE_SHIFT;
+
+	__remove_pages(start_pfn, nr_pages, altmap);
+	arch_remove_linear_mapping(start, size);
+}
+#endif
+
+#ifndef CONFIG_NUMA
+>>>>>>> upstream/android-13
 void __init mem_topology_setup(void)
 {
 	max_low_pfn = max_pfn = memblock_end_of_DRAM() >> PAGE_SHIFT;
@@ -208,14 +309,18 @@ void __init mem_topology_setup(void)
 
 void __init initmem_init(void)
 {
+<<<<<<< HEAD
 	/* XXX need to clip this if using highmem? */
 	sparse_memory_present_with_active_regions(0);
+=======
+>>>>>>> upstream/android-13
 	sparse_init();
 }
 
 /* mark pages that don't exist as nosave */
 static int __init mark_nonram_nosave(void)
 {
+<<<<<<< HEAD
 	struct memblock_region *reg, *prev = NULL;
 
 	for_each_memblock(memory, reg) {
@@ -228,12 +333,28 @@ static int __init mark_nonram_nosave(void)
 	return 0;
 }
 #else /* CONFIG_NEED_MULTIPLE_NODES */
+=======
+	unsigned long spfn, epfn, prev = 0;
+	int i;
+
+	for_each_mem_pfn_range(i, MAX_NUMNODES, &spfn, &epfn, NULL) {
+		if (prev && prev < spfn)
+			register_nosave_region(prev, spfn);
+
+		prev = epfn;
+	}
+
+	return 0;
+}
+#else /* CONFIG_NUMA */
+>>>>>>> upstream/android-13
 static int __init mark_nonram_nosave(void)
 {
 	return 0;
 }
 #endif
 
+<<<<<<< HEAD
 static bool zone_limits_final;
 
 /*
@@ -282,6 +403,21 @@ int dma_pfn_limit_to_zone(u64 pfn_limit)
 
 	return -EPERM;
 }
+=======
+/*
+ * Zones usage:
+ *
+ * We setup ZONE_DMA to be 31-bits on all platforms and ZONE_NORMAL to be
+ * everything else. GFP_DMA32 page allocations automatically fall back to
+ * ZONE_DMA.
+ *
+ * By using 31-bit unconditionally, we can exploit zone_dma_bits to inform the
+ * generic DMA mapping code.  32-bit only devices (if not handled by an IOMMU
+ * anyway) will take a first dip into ZONE_NORMAL and get otherwise served by
+ * ZONE_DMA.
+ */
+static unsigned long max_zone_pfns[MAX_NR_ZONES];
+>>>>>>> upstream/android-13
 
 /*
  * paging_init() sets up the page tables - in fact we've already done this.
@@ -291,6 +427,7 @@ void __init paging_init(void)
 	unsigned long long total_ram = memblock_phys_mem_size();
 	phys_addr_t top_of_ram = memblock_end_of_DRAM();
 
+<<<<<<< HEAD
 #ifdef CONFIG_PPC32
 	unsigned long v = __fix_to_virt(__end_of_fixed_addresses - 1);
 	unsigned long end = __fix_to_virt(FIX_HOLE);
@@ -305,6 +442,17 @@ void __init paging_init(void)
 
 	kmap_pte = virt_to_kpte(__fix_to_virt(FIX_KMAP_BEGIN));
 	kmap_prot = PAGE_KERNEL;
+=======
+#ifdef CONFIG_HIGHMEM
+	unsigned long v = __fix_to_virt(FIX_KMAP_END);
+	unsigned long end = __fix_to_virt(FIX_KMAP_BEGIN);
+
+	for (; v < end; v += PAGE_SIZE)
+		map_kernel_page(v, 0, __pgprot(0)); /* XXX gross */
+
+	map_kernel_page(PKMAP_BASE, 0, __pgprot(0));	/* XXX gross */
+	pkmap_page_table = virt_to_kpte(PKMAP_BASE);
+>>>>>>> upstream/android-13
 #endif /* CONFIG_HIGHMEM */
 
 	printk(KERN_DEBUG "Top of RAM: 0x%llx, Total RAM: 0x%llx\n",
@@ -312,12 +460,34 @@ void __init paging_init(void)
 	printk(KERN_DEBUG "Memory hole size: %ldMB\n",
 	       (long int)((top_of_ram - total_ram) >> 20));
 
+<<<<<<< HEAD
 #ifdef CONFIG_HIGHMEM
 	limit_zone_pfn(ZONE_NORMAL, lowmem_end_addr >> PAGE_SHIFT);
 #endif
 	limit_zone_pfn(TOP_ZONE, top_of_ram >> PAGE_SHIFT);
 	zone_limits_final = true;
 	free_area_init_nodes(max_zone_pfns);
+=======
+	/*
+	 * Allow 30-bit DMA for very limited Broadcom wifi chips on many
+	 * powerbooks.
+	 */
+	if (IS_ENABLED(CONFIG_PPC32))
+		zone_dma_bits = 30;
+	else
+		zone_dma_bits = 31;
+
+#ifdef CONFIG_ZONE_DMA
+	max_zone_pfns[ZONE_DMA]	= min(max_low_pfn,
+				      1UL << (zone_dma_bits - PAGE_SHIFT));
+#endif
+	max_zone_pfns[ZONE_NORMAL] = max_low_pfn;
+#ifdef CONFIG_HIGHMEM
+	max_zone_pfns[ZONE_HIGHMEM] = max_pfn;
+#endif
+
+	free_area_init(max_zone_pfns);
+>>>>>>> upstream/android-13
 
 	mark_nonram_nosave();
 }
@@ -339,12 +509,26 @@ void __init mem_init(void)
 	 * back to to-down.
 	 */
 	memblock_set_bottom_up(true);
+<<<<<<< HEAD
 	swiotlb_init(0);
+=======
+	if (is_secure_guest())
+		svm_swiotlb_init();
+	else
+		swiotlb_init(0);
+>>>>>>> upstream/android-13
 #endif
 
 	high_memory = (void *) __va(max_low_pfn * PAGE_SIZE);
 	set_max_mapnr(max_pfn);
+<<<<<<< HEAD
 	free_all_bootmem();
+=======
+
+	kasan_late_init();
+
+	memblock_free_all();
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_HIGHMEM
 	{
@@ -369,14 +553,24 @@ void __init mem_init(void)
 		(mfspr(SPRN_TLB1CFG) & TLBnCFG_N_ENTRY) - 1;
 #endif
 
+<<<<<<< HEAD
 	mem_init_print_info(NULL);
 #ifdef CONFIG_PPC32
 	pr_info("Kernel virtual memory layout:\n");
+=======
+#ifdef CONFIG_PPC32
+	pr_info("Kernel virtual memory layout:\n");
+#ifdef CONFIG_KASAN
+	pr_info("  * 0x%08lx..0x%08lx  : kasan shadow mem\n",
+		KASAN_SHADOW_START, KASAN_SHADOW_END);
+#endif
+>>>>>>> upstream/android-13
 	pr_info("  * 0x%08lx..0x%08lx  : fixmap\n", FIXADDR_START, FIXADDR_TOP);
 #ifdef CONFIG_HIGHMEM
 	pr_info("  * 0x%08lx..0x%08lx  : highmem PTEs\n",
 		PKMAP_BASE, PKMAP_ADDR(LAST_PKMAP));
 #endif /* CONFIG_HIGHMEM */
+<<<<<<< HEAD
 #ifdef CONFIG_NOT_COHERENT_CACHE
 	pr_info("  * 0x%08lx..0x%08lx  : consistent mem\n",
 		IOREMAP_TOP, IOREMAP_TOP + CONFIG_CONSISTENT_SIZE);
@@ -385,6 +579,17 @@ void __init mem_init(void)
 		ioremap_bot, IOREMAP_TOP);
 	pr_info("  * 0x%08lx..0x%08lx  : vmalloc & ioremap\n",
 		VMALLOC_START, VMALLOC_END);
+=======
+	if (ioremap_bot != IOREMAP_TOP)
+		pr_info("  * 0x%08lx..0x%08lx  : early ioremap\n",
+			ioremap_bot, IOREMAP_TOP);
+	pr_info("  * 0x%08lx..0x%08lx  : vmalloc & ioremap\n",
+		VMALLOC_START, VMALLOC_END);
+#ifdef MODULES_VADDR
+	pr_info("  * 0x%08lx..0x%08lx  : modules\n",
+		MODULES_VADDR, MODULES_END);
+#endif
+>>>>>>> upstream/android-13
 #endif /* CONFIG_PPC32 */
 }
 
@@ -396,6 +601,7 @@ void free_initmem(void)
 	free_initmem_default(POISON_FREE_INITMEM);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_BLK_DEV_INITRD
 void __init free_initrd_mem(unsigned long start, unsigned long end)
 {
@@ -544,26 +750,46 @@ void update_mmu_cache(struct vm_area_struct *vma, unsigned long address,
 #endif
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * System memory should not be in /proc/iomem but various tools expect it
  * (eg kdump).
  */
 static int __init add_system_ram_resources(void)
 {
+<<<<<<< HEAD
 	struct memblock_region *reg;
 
 	for_each_memblock(memory, reg) {
 		struct resource *res;
 		unsigned long base = reg->base;
 		unsigned long size = reg->size;
+=======
+	phys_addr_t start, end;
+	u64 i;
+
+	for_each_mem_range(i, &start, &end) {
+		struct resource *res;
+>>>>>>> upstream/android-13
 
 		res = kzalloc(sizeof(struct resource), GFP_KERNEL);
 		WARN_ON(!res);
 
 		if (res) {
 			res->name = "System RAM";
+<<<<<<< HEAD
 			res->start = base;
 			res->end = base + size - 1;
+=======
+			res->start = start;
+			/*
+			 * In memblock, end points to the first byte after
+			 * the range while in resourses, end points to the
+			 * last byte in the range.
+			 */
+			res->end = end - 1;
+>>>>>>> upstream/android-13
 			res->flags = IORESOURCE_SYSTEM_RAM | IORESOURCE_BUSY;
 			WARN_ON(request_resource(&iomem_resource, res) < 0);
 		}
@@ -592,3 +818,12 @@ int devmem_is_allowed(unsigned long pfn)
 	return 0;
 }
 #endif /* CONFIG_STRICT_DEVMEM */
+<<<<<<< HEAD
+=======
+
+/*
+ * This is defined in kernel/resource.c but only powerpc needs to export it, for
+ * the EHEA driver. Drop this when drivers/net/ethernet/ibm/ehea is removed.
+ */
+EXPORT_SYMBOL_GPL(walk_system_ram_range);
+>>>>>>> upstream/android-13

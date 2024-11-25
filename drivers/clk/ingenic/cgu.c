@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Ingenic SoC CGU driver
  *
  * Copyright (c) 2013-2015 Imagination Technologies
  * Author: Paul Burton <paul.burton@mips.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -13,6 +18,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
@@ -20,15 +27,34 @@
 #include <linux/clk-provider.h>
 #include <linux/clkdev.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+#include <linux/iopoll.h>
+>>>>>>> upstream/android-13
 #include <linux/math64.h>
 #include <linux/of.h>
 #include <linux/of_address.h>
 #include <linux/slab.h>
 #include <linux/spinlock.h>
+<<<<<<< HEAD
+=======
+#include <linux/time.h>
+
+>>>>>>> upstream/android-13
 #include "cgu.h"
 
 #define MHZ (1000 * 1000)
 
+<<<<<<< HEAD
+=======
+static inline const struct ingenic_cgu_clk_info *
+to_clk_info(struct ingenic_clk *clk)
+{
+	return &clk->cgu->clock_info[clk->idx];
+}
+
+>>>>>>> upstream/android-13
 /**
  * ingenic_cgu_gate_get() - get the value of clock gate register bit
  * @cgu: reference to the CGU whose registers should be read
@@ -79,6 +105,7 @@ static unsigned long
 ingenic_pll_recalc_rate(struct clk_hw *hw, unsigned long parent_rate)
 {
 	struct ingenic_clk *ingenic_clk = to_ingenic_clk(hw);
+<<<<<<< HEAD
 	struct ingenic_cgu *cgu = ingenic_clk->cgu;
 	const struct ingenic_cgu_clk_info *clk_info;
 	const struct ingenic_cgu_pll_info *pll_info;
@@ -94,6 +121,19 @@ ingenic_pll_recalc_rate(struct clk_hw *hw, unsigned long parent_rate)
 	spin_lock_irqsave(&cgu->lock, flags);
 	ctl = readl(cgu->base + pll_info->reg);
 	spin_unlock_irqrestore(&cgu->lock, flags);
+=======
+	const struct ingenic_cgu_clk_info *clk_info = to_clk_info(ingenic_clk);
+	struct ingenic_cgu *cgu = ingenic_clk->cgu;
+	const struct ingenic_cgu_pll_info *pll_info;
+	unsigned m, n, od_enc, od;
+	bool bypass;
+	u32 ctl;
+
+	BUG_ON(clk_info->type != CGU_CLK_PLL);
+	pll_info = &clk_info->pll;
+
+	ctl = readl(cgu->base + pll_info->reg);
+>>>>>>> upstream/android-13
 
 	m = (ctl >> pll_info->m_shift) & GENMASK(pll_info->m_bits - 1, 0);
 	m += pll_info->m_offset;
@@ -101,12 +141,24 @@ ingenic_pll_recalc_rate(struct clk_hw *hw, unsigned long parent_rate)
 	n += pll_info->n_offset;
 	od_enc = ctl >> pll_info->od_shift;
 	od_enc &= GENMASK(pll_info->od_bits - 1, 0);
+<<<<<<< HEAD
 	bypass = !pll_info->no_bypass_bit &&
 		 !!(ctl & BIT(pll_info->bypass_bit));
 	enable = !!(ctl & BIT(pll_info->enable_bit));
 
 	if (bypass)
 		return parent_rate;
+=======
+
+	if (pll_info->bypass_bit >= 0) {
+		ctl = readl(cgu->base + pll_info->bypass_reg);
+
+		bypass = !!(ctl & BIT(pll_info->bypass_bit));
+
+		if (bypass)
+			return parent_rate;
+	}
+>>>>>>> upstream/android-13
 
 	for (od = 0; od < pll_info->od_max; od++) {
 		if (pll_info->od_encoding[od] == od_enc)
@@ -115,6 +167,7 @@ ingenic_pll_recalc_rate(struct clk_hw *hw, unsigned long parent_rate)
 	BUG_ON(od == pll_info->od_max);
 	od++;
 
+<<<<<<< HEAD
 	return div_u64((u64)parent_rate * m, n * od);
 }
 
@@ -128,18 +181,57 @@ ingenic_pll_calc(const struct ingenic_cgu_clk_info *clk_info,
 
 	pll_info = &clk_info->pll;
 	od = 1;
+=======
+	return div_u64((u64)parent_rate * m * pll_info->rate_multiplier,
+		n * od);
+}
+
+static void
+ingenic_pll_calc_m_n_od(const struct ingenic_cgu_pll_info *pll_info,
+			unsigned long rate, unsigned long parent_rate,
+			unsigned int *pm, unsigned int *pn, unsigned int *pod)
+{
+	unsigned int m, n, od = 1;
+>>>>>>> upstream/android-13
 
 	/*
 	 * The frequency after the input divider must be between 10 and 50 MHz.
 	 * The highest divider yields the best resolution.
 	 */
 	n = parent_rate / (10 * MHZ);
+<<<<<<< HEAD
 	n = min_t(unsigned, n, 1 << clk_info->pll.n_bits);
 	n = max_t(unsigned, n, pll_info->n_offset);
 
 	m = (rate / MHZ) * od * n / (parent_rate / MHZ);
 	m = min_t(unsigned, m, 1 << clk_info->pll.m_bits);
 	m = max_t(unsigned, m, pll_info->m_offset);
+=======
+	n = min_t(unsigned int, n, 1 << pll_info->n_bits);
+	n = max_t(unsigned int, n, pll_info->n_offset);
+
+	m = (rate / MHZ) * od * n / (parent_rate / MHZ);
+	m = min_t(unsigned int, m, 1 << pll_info->m_bits);
+	m = max_t(unsigned int, m, pll_info->m_offset);
+
+	*pm = m;
+	*pn = n;
+	*pod = od;
+}
+
+static unsigned long
+ingenic_pll_calc(const struct ingenic_cgu_clk_info *clk_info,
+		 unsigned long rate, unsigned long parent_rate,
+		 unsigned int *pm, unsigned int *pn, unsigned int *pod)
+{
+	const struct ingenic_cgu_pll_info *pll_info = &clk_info->pll;
+	unsigned int m, n, od;
+
+	if (pll_info->calc_m_n_od)
+		(*pll_info->calc_m_n_od)(pll_info, rate, parent_rate, &m, &n, &od);
+	else
+		ingenic_pll_calc_m_n_od(pll_info, rate, parent_rate, &m, &n, &od);
+>>>>>>> upstream/android-13
 
 	if (pm)
 		*pm = m;
@@ -148,6 +240,7 @@ ingenic_pll_calc(const struct ingenic_cgu_clk_info *clk_info,
 	if (pod)
 		*pod = od;
 
+<<<<<<< HEAD
 	return div_u64((u64)parent_rate * m, n * od);
 }
 
@@ -161,6 +254,10 @@ static inline const struct ingenic_cgu_clk_info *to_clk_info(
 	BUG_ON(clk_info->type != CGU_CLK_PLL);
 
 	return clk_info;
+=======
+	return div_u64((u64)parent_rate * m * pll_info->rate_multiplier,
+		n * od);
+>>>>>>> upstream/android-13
 }
 
 static long
@@ -173,6 +270,19 @@ ingenic_pll_round_rate(struct clk_hw *hw, unsigned long req_rate,
 	return ingenic_pll_calc(clk_info, req_rate, *prate, NULL, NULL, NULL);
 }
 
+<<<<<<< HEAD
+=======
+static inline int ingenic_pll_check_stable(struct ingenic_cgu *cgu,
+					   const struct ingenic_cgu_pll_info *pll_info)
+{
+	u32 ctl;
+
+	return readl_poll_timeout(cgu->base + pll_info->reg, ctl,
+				  ctl & BIT(pll_info->stable_bit),
+				  0, 100 * USEC_PER_MSEC);
+}
+
+>>>>>>> upstream/android-13
 static int
 ingenic_pll_set_rate(struct clk_hw *hw, unsigned long req_rate,
 		     unsigned long parent_rate)
@@ -183,6 +293,10 @@ ingenic_pll_set_rate(struct clk_hw *hw, unsigned long req_rate,
 	const struct ingenic_cgu_pll_info *pll_info = &clk_info->pll;
 	unsigned long rate, flags;
 	unsigned int m, n, od;
+<<<<<<< HEAD
+=======
+	int ret = 0;
+>>>>>>> upstream/android-13
 	u32 ctl;
 
 	rate = ingenic_pll_calc(clk_info, req_rate, parent_rate,
@@ -204,9 +318,20 @@ ingenic_pll_set_rate(struct clk_hw *hw, unsigned long req_rate,
 	ctl |= pll_info->od_encoding[od - 1] << pll_info->od_shift;
 
 	writel(ctl, cgu->base + pll_info->reg);
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&cgu->lock, flags);
 
 	return 0;
+=======
+
+	/* If the PLL is enabled, verify that it's stable */
+	if (ctl & BIT(pll_info->enable_bit))
+		ret = ingenic_pll_check_stable(cgu, pll_info);
+
+	spin_unlock_irqrestore(&cgu->lock, flags);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int ingenic_pll_enable(struct clk_hw *hw)
@@ -215,6 +340,7 @@ static int ingenic_pll_enable(struct clk_hw *hw)
 	struct ingenic_cgu *cgu = ingenic_clk->cgu;
 	const struct ingenic_cgu_clk_info *clk_info = to_clk_info(ingenic_clk);
 	const struct ingenic_cgu_pll_info *pll_info = &clk_info->pll;
+<<<<<<< HEAD
 	const unsigned int timeout = 100;
 	unsigned long flags;
 	unsigned int i;
@@ -224,10 +350,28 @@ static int ingenic_pll_enable(struct clk_hw *hw)
 	ctl = readl(cgu->base + pll_info->reg);
 
 	ctl &= ~BIT(pll_info->bypass_bit);
+=======
+	unsigned long flags;
+	int ret;
+	u32 ctl;
+
+	spin_lock_irqsave(&cgu->lock, flags);
+	if (pll_info->bypass_bit >= 0) {
+		ctl = readl(cgu->base + pll_info->bypass_reg);
+
+		ctl &= ~BIT(pll_info->bypass_bit);
+
+		writel(ctl, cgu->base + pll_info->bypass_reg);
+	}
+
+	ctl = readl(cgu->base + pll_info->reg);
+
+>>>>>>> upstream/android-13
 	ctl |= BIT(pll_info->enable_bit);
 
 	writel(ctl, cgu->base + pll_info->reg);
 
+<<<<<<< HEAD
 	/* wait for the PLL to stabilise */
 	for (i = 0; i < timeout; i++) {
 		ctl = readl(cgu->base + pll_info->reg);
@@ -242,6 +386,12 @@ static int ingenic_pll_enable(struct clk_hw *hw)
 		return -EBUSY;
 
 	return 0;
+=======
+	ret = ingenic_pll_check_stable(cgu, pll_info);
+	spin_unlock_irqrestore(&cgu->lock, flags);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void ingenic_pll_disable(struct clk_hw *hw)
@@ -268,12 +418,18 @@ static int ingenic_pll_is_enabled(struct clk_hw *hw)
 	struct ingenic_cgu *cgu = ingenic_clk->cgu;
 	const struct ingenic_cgu_clk_info *clk_info = to_clk_info(ingenic_clk);
 	const struct ingenic_cgu_pll_info *pll_info = &clk_info->pll;
+<<<<<<< HEAD
 	unsigned long flags;
 	u32 ctl;
 
 	spin_lock_irqsave(&cgu->lock, flags);
 	ctl = readl(cgu->base + pll_info->reg);
 	spin_unlock_irqrestore(&cgu->lock, flags);
+=======
+	u32 ctl;
+
+	ctl = readl(cgu->base + pll_info->reg);
+>>>>>>> upstream/android-13
 
 	return !!(ctl & BIT(pll_info->enable_bit));
 }
@@ -295,6 +451,7 @@ static const struct clk_ops ingenic_pll_ops = {
 static u8 ingenic_clk_get_parent(struct clk_hw *hw)
 {
 	struct ingenic_clk *ingenic_clk = to_ingenic_clk(hw);
+<<<<<<< HEAD
 	struct ingenic_cgu *cgu = ingenic_clk->cgu;
 	const struct ingenic_cgu_clk_info *clk_info;
 	u32 reg;
@@ -302,6 +459,13 @@ static u8 ingenic_clk_get_parent(struct clk_hw *hw)
 
 	clk_info = &cgu->clock_info[ingenic_clk->idx];
 
+=======
+	const struct ingenic_cgu_clk_info *clk_info = to_clk_info(ingenic_clk);
+	struct ingenic_cgu *cgu = ingenic_clk->cgu;
+	u32 reg;
+	u8 i, hw_idx, idx = 0;
+
+>>>>>>> upstream/android-13
 	if (clk_info->type & CGU_CLK_MUX) {
 		reg = readl(cgu->base + clk_info->mux.reg);
 		hw_idx = (reg >> clk_info->mux.shift) &
@@ -323,14 +487,22 @@ static u8 ingenic_clk_get_parent(struct clk_hw *hw)
 static int ingenic_clk_set_parent(struct clk_hw *hw, u8 idx)
 {
 	struct ingenic_clk *ingenic_clk = to_ingenic_clk(hw);
+<<<<<<< HEAD
 	struct ingenic_cgu *cgu = ingenic_clk->cgu;
 	const struct ingenic_cgu_clk_info *clk_info;
+=======
+	const struct ingenic_cgu_clk_info *clk_info = to_clk_info(ingenic_clk);
+	struct ingenic_cgu *cgu = ingenic_clk->cgu;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	u8 curr_idx, hw_idx, num_poss;
 	u32 reg, mask;
 
+<<<<<<< HEAD
 	clk_info = &cgu->clock_info[ingenic_clk->idx];
 
+=======
+>>>>>>> upstream/android-13
 	if (clk_info->type & CGU_CLK_MUX) {
 		/*
 		 * Convert the parent index to the hardware index by adding
@@ -373,6 +545,7 @@ static unsigned long
 ingenic_clk_recalc_rate(struct clk_hw *hw, unsigned long parent_rate)
 {
 	struct ingenic_clk *ingenic_clk = to_ingenic_clk(hw);
+<<<<<<< HEAD
 	struct ingenic_cgu *cgu = ingenic_clk->cgu;
 	const struct ingenic_cgu_clk_info *clk_info;
 	unsigned long rate = parent_rate;
@@ -388,6 +561,29 @@ ingenic_clk_recalc_rate(struct clk_hw *hw, unsigned long parent_rate)
 		div *= clk_info->div.div;
 
 		rate /= div;
+=======
+	const struct ingenic_cgu_clk_info *clk_info = to_clk_info(ingenic_clk);
+	struct ingenic_cgu *cgu = ingenic_clk->cgu;
+	unsigned long rate = parent_rate;
+	u32 div_reg, div;
+	u8 parent;
+
+	if (clk_info->type & CGU_CLK_DIV) {
+		parent = ingenic_clk_get_parent(hw);
+
+		if (!(clk_info->div.bypass_mask & BIT(parent))) {
+			div_reg = readl(cgu->base + clk_info->div.reg);
+			div = (div_reg >> clk_info->div.shift) &
+			      GENMASK(clk_info->div.bits - 1, 0);
+
+			if (clk_info->div.div_table)
+				div = clk_info->div.div_table[div];
+			else
+				div = (div + 1) * clk_info->div.div;
+
+			rate /= div;
+		}
+>>>>>>> upstream/android-13
 	} else if (clk_info->type & CGU_CLK_FIXDIV) {
 		rate /= clk_info->fixdiv.div;
 	}
@@ -395,25 +591,76 @@ ingenic_clk_recalc_rate(struct clk_hw *hw, unsigned long parent_rate)
 	return rate;
 }
 
+<<<<<<< HEAD
 static unsigned
 ingenic_clk_calc_div(const struct ingenic_cgu_clk_info *clk_info,
 		     unsigned long parent_rate, unsigned long req_rate)
 {
 	unsigned div;
+=======
+static unsigned int
+ingenic_clk_calc_hw_div(const struct ingenic_cgu_clk_info *clk_info,
+			unsigned int div)
+{
+	unsigned int i, best_i = 0, best = (unsigned int)-1;
+
+	for (i = 0; i < (1 << clk_info->div.bits)
+				&& clk_info->div.div_table[i]; i++) {
+		if (clk_info->div.div_table[i] >= div &&
+		    clk_info->div.div_table[i] < best) {
+			best = clk_info->div.div_table[i];
+			best_i = i;
+
+			if (div == best)
+				break;
+		}
+	}
+
+	return best_i;
+}
+
+static unsigned
+ingenic_clk_calc_div(struct clk_hw *hw,
+		     const struct ingenic_cgu_clk_info *clk_info,
+		     unsigned long parent_rate, unsigned long req_rate)
+{
+	unsigned int div, hw_div;
+	u8 parent;
+
+	parent = ingenic_clk_get_parent(hw);
+	if (clk_info->div.bypass_mask & BIT(parent))
+		return 1;
+>>>>>>> upstream/android-13
 
 	/* calculate the divide */
 	div = DIV_ROUND_UP(parent_rate, req_rate);
 
+<<<<<<< HEAD
 	/* and impose hardware constraints */
 	div = min_t(unsigned, div, 1 << clk_info->div.bits);
 	div = max_t(unsigned, div, 1);
+=======
+	if (clk_info->div.div_table) {
+		hw_div = ingenic_clk_calc_hw_div(clk_info, div);
+
+		return clk_info->div.div_table[hw_div];
+	}
+
+	/* Impose hardware constraints */
+	div = clamp_t(unsigned int, div, clk_info->div.div,
+		      clk_info->div.div << clk_info->div.bits);
+>>>>>>> upstream/android-13
 
 	/*
 	 * If the divider value itself must be divided before being written to
 	 * the divider register, we must ensure we don't have any bits set that
 	 * would be lost as a result of doing so.
 	 */
+<<<<<<< HEAD
 	div /= clk_info->div.div;
+=======
+	div = DIV_ROUND_UP(div, clk_info->div.div);
+>>>>>>> upstream/android-13
 	div *= clk_info->div.div;
 
 	return div;
@@ -424,6 +671,7 @@ ingenic_clk_round_rate(struct clk_hw *hw, unsigned long req_rate,
 		       unsigned long *parent_rate)
 {
 	struct ingenic_clk *ingenic_clk = to_ingenic_clk(hw);
+<<<<<<< HEAD
 	struct ingenic_cgu *cgu = ingenic_clk->cgu;
 	const struct ingenic_cgu_clk_info *clk_info;
 	unsigned int div = 1;
@@ -434,15 +682,40 @@ ingenic_clk_round_rate(struct clk_hw *hw, unsigned long req_rate,
 		div = ingenic_clk_calc_div(clk_info, *parent_rate, req_rate);
 	else if (clk_info->type & CGU_CLK_FIXDIV)
 		div = clk_info->fixdiv.div;
+=======
+	const struct ingenic_cgu_clk_info *clk_info = to_clk_info(ingenic_clk);
+	unsigned int div = 1;
+
+	if (clk_info->type & CGU_CLK_DIV)
+		div = ingenic_clk_calc_div(hw, clk_info, *parent_rate, req_rate);
+	else if (clk_info->type & CGU_CLK_FIXDIV)
+		div = clk_info->fixdiv.div;
+	else if (clk_hw_can_set_rate_parent(hw))
+		*parent_rate = req_rate;
+>>>>>>> upstream/android-13
 
 	return DIV_ROUND_UP(*parent_rate, div);
 }
 
+<<<<<<< HEAD
+=======
+static inline int ingenic_clk_check_stable(struct ingenic_cgu *cgu,
+					   const struct ingenic_cgu_clk_info *clk_info)
+{
+	u32 reg;
+
+	return readl_poll_timeout(cgu->base + clk_info->div.reg, reg,
+				  !(reg & BIT(clk_info->div.busy_bit)),
+				  0, 100 * USEC_PER_MSEC);
+}
+
+>>>>>>> upstream/android-13
 static int
 ingenic_clk_set_rate(struct clk_hw *hw, unsigned long req_rate,
 		     unsigned long parent_rate)
 {
 	struct ingenic_clk *ingenic_clk = to_ingenic_clk(hw);
+<<<<<<< HEAD
 	struct ingenic_cgu *cgu = ingenic_clk->cgu;
 	const struct ingenic_cgu_clk_info *clk_info;
 	const unsigned timeout = 100;
@@ -455,18 +728,41 @@ ingenic_clk_set_rate(struct clk_hw *hw, unsigned long req_rate,
 
 	if (clk_info->type & CGU_CLK_DIV) {
 		div = ingenic_clk_calc_div(clk_info, parent_rate, req_rate);
+=======
+	const struct ingenic_cgu_clk_info *clk_info = to_clk_info(ingenic_clk);
+	struct ingenic_cgu *cgu = ingenic_clk->cgu;
+	unsigned long rate, flags;
+	unsigned int hw_div, div;
+	u32 reg, mask;
+	int ret = 0;
+
+	if (clk_info->type & CGU_CLK_DIV) {
+		div = ingenic_clk_calc_div(hw, clk_info, parent_rate, req_rate);
+>>>>>>> upstream/android-13
 		rate = DIV_ROUND_UP(parent_rate, div);
 
 		if (rate != req_rate)
 			return -EINVAL;
 
+<<<<<<< HEAD
+=======
+		if (clk_info->div.div_table)
+			hw_div = ingenic_clk_calc_hw_div(clk_info, div);
+		else
+			hw_div = ((div / clk_info->div.div) - 1);
+
+>>>>>>> upstream/android-13
 		spin_lock_irqsave(&cgu->lock, flags);
 		reg = readl(cgu->base + clk_info->div.reg);
 
 		/* update the divide */
 		mask = GENMASK(clk_info->div.bits - 1, 0);
 		reg &= ~(mask << clk_info->div.shift);
+<<<<<<< HEAD
 		reg |= ((div / clk_info->div.div) - 1) << clk_info->div.shift;
+=======
+		reg |= hw_div << clk_info->div.shift;
+>>>>>>> upstream/android-13
 
 		/* clear the stop bit */
 		if (clk_info->div.stop_bit != -1)
@@ -480,6 +776,7 @@ ingenic_clk_set_rate(struct clk_hw *hw, unsigned long req_rate,
 		writel(reg, cgu->base + clk_info->div.reg);
 
 		/* wait for the change to take effect */
+<<<<<<< HEAD
 		if (clk_info->div.busy_bit != -1) {
 			for (i = 0; i < timeout; i++) {
 				reg = readl(cgu->base + clk_info->div.reg);
@@ -490,6 +787,10 @@ ingenic_clk_set_rate(struct clk_hw *hw, unsigned long req_rate,
 			if (i == timeout)
 				ret = -EBUSY;
 		}
+=======
+		if (clk_info->div.busy_bit != -1)
+			ret = ingenic_clk_check_stable(cgu, clk_info);
+>>>>>>> upstream/android-13
 
 		spin_unlock_irqrestore(&cgu->lock, flags);
 		return ret;
@@ -501,12 +802,19 @@ ingenic_clk_set_rate(struct clk_hw *hw, unsigned long req_rate,
 static int ingenic_clk_enable(struct clk_hw *hw)
 {
 	struct ingenic_clk *ingenic_clk = to_ingenic_clk(hw);
+<<<<<<< HEAD
 	struct ingenic_cgu *cgu = ingenic_clk->cgu;
 	const struct ingenic_cgu_clk_info *clk_info;
 	unsigned long flags;
 
 	clk_info = &cgu->clock_info[ingenic_clk->idx];
 
+=======
+	const struct ingenic_cgu_clk_info *clk_info = to_clk_info(ingenic_clk);
+	struct ingenic_cgu *cgu = ingenic_clk->cgu;
+	unsigned long flags;
+
+>>>>>>> upstream/android-13
 	if (clk_info->type & CGU_CLK_GATE) {
 		/* ungate the clock */
 		spin_lock_irqsave(&cgu->lock, flags);
@@ -523,12 +831,19 @@ static int ingenic_clk_enable(struct clk_hw *hw)
 static void ingenic_clk_disable(struct clk_hw *hw)
 {
 	struct ingenic_clk *ingenic_clk = to_ingenic_clk(hw);
+<<<<<<< HEAD
 	struct ingenic_cgu *cgu = ingenic_clk->cgu;
 	const struct ingenic_cgu_clk_info *clk_info;
 	unsigned long flags;
 
 	clk_info = &cgu->clock_info[ingenic_clk->idx];
 
+=======
+	const struct ingenic_cgu_clk_info *clk_info = to_clk_info(ingenic_clk);
+	struct ingenic_cgu *cgu = ingenic_clk->cgu;
+	unsigned long flags;
+
+>>>>>>> upstream/android-13
 	if (clk_info->type & CGU_CLK_GATE) {
 		/* gate the clock */
 		spin_lock_irqsave(&cgu->lock, flags);
@@ -540,6 +855,7 @@ static void ingenic_clk_disable(struct clk_hw *hw)
 static int ingenic_clk_is_enabled(struct clk_hw *hw)
 {
 	struct ingenic_clk *ingenic_clk = to_ingenic_clk(hw);
+<<<<<<< HEAD
 	struct ingenic_cgu *cgu = ingenic_clk->cgu;
 	const struct ingenic_cgu_clk_info *clk_info;
 	unsigned long flags;
@@ -552,6 +868,14 @@ static int ingenic_clk_is_enabled(struct clk_hw *hw)
 		enabled = !ingenic_cgu_gate_get(cgu, &clk_info->gate);
 		spin_unlock_irqrestore(&cgu->lock, flags);
 	}
+=======
+	const struct ingenic_cgu_clk_info *clk_info = to_clk_info(ingenic_clk);
+	struct ingenic_cgu *cgu = ingenic_clk->cgu;
+	int enabled = 1;
+
+	if (clk_info->type & CGU_CLK_GATE)
+		enabled = !ingenic_cgu_gate_get(cgu, &clk_info->gate);
+>>>>>>> upstream/android-13
 
 	return enabled;
 }
@@ -624,6 +948,16 @@ static int ingenic_register_clock(struct ingenic_cgu *cgu, unsigned idx)
 
 	caps = clk_info->type;
 
+<<<<<<< HEAD
+=======
+	if (caps & CGU_CLK_DIV) {
+		caps &= ~CGU_CLK_DIV;
+	} else if (!(caps & CGU_CLK_CUSTOM)) {
+		/* pass rate changes to the parent clock */
+		clk_init.flags |= CLK_SET_RATE_PARENT;
+	}
+
+>>>>>>> upstream/android-13
 	if (caps & (CGU_CLK_MUX | CGU_CLK_CUSTOM)) {
 		clk_init.num_parents = 0;
 
@@ -663,7 +997,10 @@ static int ingenic_register_clock(struct ingenic_cgu *cgu, unsigned idx)
 		}
 	} else if (caps & CGU_CLK_PLL) {
 		clk_init.ops = &ingenic_pll_ops;
+<<<<<<< HEAD
 		clk_init.flags |= CLK_SET_RATE_GATE;
+=======
+>>>>>>> upstream/android-13
 
 		caps &= ~CGU_CLK_PLL;
 
@@ -686,6 +1023,7 @@ static int ingenic_register_clock(struct ingenic_cgu *cgu, unsigned idx)
 		caps &= ~(CGU_CLK_MUX | CGU_CLK_MUX_GLITCHFREE);
 	}
 
+<<<<<<< HEAD
 	if (caps & CGU_CLK_DIV) {
 		caps &= ~CGU_CLK_DIV;
 	} else {
@@ -693,6 +1031,8 @@ static int ingenic_register_clock(struct ingenic_cgu *cgu, unsigned idx)
 		clk_init.flags |= CLK_SET_RATE_PARENT;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (caps) {
 		pr_err("%s: unknown clock type 0x%x\n", __func__, caps);
 		goto out;

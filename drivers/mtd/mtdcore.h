@@ -5,6 +5,10 @@
  */
 
 extern struct mutex mtd_table_mutex;
+<<<<<<< HEAD
+=======
+extern struct backing_dev_info *mtd_bdi;
+>>>>>>> upstream/android-13
 
 struct mtd_info *__mtd_next_device(int i);
 int __must_check add_mtd_device(struct mtd_info *mtd);

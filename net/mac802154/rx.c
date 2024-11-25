@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2007-2012 Siemens AG
  *
@@ -10,6 +11,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2007-2012 Siemens AG
+ *
+>>>>>>> upstream/android-13
  * Written by:
  * Pavel Smolenskiy <pavel.smolenskiy@gmail.com>
  * Maxim Gorbachyov <maxim.gorbachev@siemens.com>

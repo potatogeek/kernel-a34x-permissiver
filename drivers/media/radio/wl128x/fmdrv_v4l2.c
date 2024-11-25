@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  FM Driver for Connectivity chip of Texas Instruments.
  *  This file provides interfaces to V4L2 subsystem.
@@ -12,6 +16,7 @@
  *  Copyright (C) 2011 Texas Instruments
  *  Author: Raja Mani <raja_mani@ti.com>
  *  Author: Manjunatha Halli <manjunatha_halli@ti.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
@@ -22,6 +27,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/export.h>
@@ -190,6 +197,7 @@ release_unlock:
 static int fm_v4l2_vidioc_querycap(struct file *file, void *priv,
 		struct v4l2_capability *capability)
 {
+<<<<<<< HEAD
 	strlcpy(capability->driver, FM_DRV_NAME, sizeof(capability->driver));
 	strlcpy(capability->card, FM_DRV_CARD_SHORT_NAME,
 			sizeof(capability->card));
@@ -201,6 +209,12 @@ static int fm_v4l2_vidioc_querycap(struct file *file, void *priv,
 	capability->capabilities = capability->device_caps |
 		V4L2_CAP_DEVICE_CAPS;
 
+=======
+	strscpy(capability->driver, FM_DRV_NAME, sizeof(capability->driver));
+	strscpy(capability->card, FM_DRV_CARD_SHORT_NAME,
+		sizeof(capability->card));
+	sprintf(capability->bus_info, "UART");
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -249,7 +263,11 @@ static int fm_v4l2_vidioc_g_audio(struct file *file, void *priv,
 		struct v4l2_audio *audio)
 {
 	memset(audio, 0, sizeof(*audio));
+<<<<<<< HEAD
 	strcpy(audio->name, "Radio");
+=======
+	strscpy(audio->name, "Radio", sizeof(audio->name));
+>>>>>>> upstream/android-13
 	audio->capability = V4L2_AUDCAP_STEREO;
 
 	return 0;
@@ -293,7 +311,11 @@ static int fm_v4l2_vidioc_g_tuner(struct file *file, void *priv,
 	if (ret != 0)
 		return ret;
 
+<<<<<<< HEAD
 	strcpy(tuner->name, "FM");
+=======
+	strscpy(tuner->name, "FM", sizeof(tuner->name));
+>>>>>>> upstream/android-13
 	tuner->type = V4L2_TUNER_RADIO;
 	/* Store rangelow and rangehigh freq in unit of 62.5 Hz */
 	tuner->rangelow = bottom_freq * 16;
@@ -524,6 +546,12 @@ static const struct video_device fm_viddev_template = {
 	 * but that would affect applications using this driver.
 	 */
 	.vfl_dir = VFL_DIR_M2M,
+<<<<<<< HEAD
+=======
+	.device_caps = V4L2_CAP_HW_FREQ_SEEK | V4L2_CAP_TUNER | V4L2_CAP_RADIO |
+		       V4L2_CAP_MODULATOR | V4L2_CAP_AUDIO |
+		       V4L2_CAP_READWRITE | V4L2_CAP_RDS_CAPTURE,
+>>>>>>> upstream/android-13
 };
 
 int fm_v4l2_init_video_device(struct fmdev *fmdev, int radio_nr)
@@ -531,7 +559,12 @@ int fm_v4l2_init_video_device(struct fmdev *fmdev, int radio_nr)
 	struct v4l2_ctrl *ctrl;
 	int ret;
 
+<<<<<<< HEAD
 	strlcpy(fmdev->v4l2_dev.name, FM_DRV_NAME, sizeof(fmdev->v4l2_dev.name));
+=======
+	strscpy(fmdev->v4l2_dev.name, FM_DRV_NAME,
+		sizeof(fmdev->v4l2_dev.name));
+>>>>>>> upstream/android-13
 	ret = v4l2_device_register(NULL, &fmdev->v4l2_dev);
 	if (ret < 0)
 		return ret;

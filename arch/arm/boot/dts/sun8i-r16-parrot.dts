@@ -63,6 +63,7 @@
 
 	leds {
 		compatible = "gpio-leds";
+<<<<<<< HEAD
 		pinctrl-names = "default";
 		pinctrl-0 = <&led_pins_parrot>;
 
@@ -74,6 +75,17 @@
 		led2 {
 			label = "parrot:led2:usr";
 			gpio = <&pio 4 16 GPIO_ACTIVE_HIGH>; /* PE16 */
+=======
+
+		led-1 {
+			label = "parrot:led1:usr";
+			gpios = <&pio 4 17 GPIO_ACTIVE_HIGH>; /* PE17 */
+		};
+
+		led-2 {
+			label = "parrot:led2:usr";
+			gpios = <&pio 4 16 GPIO_ACTIVE_HIGH>; /* PE16 */
+>>>>>>> upstream/android-13
 		};
 	};
 
@@ -97,8 +109,11 @@
 };
 
 &i2c1 {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c1_pins_a>;
+=======
+>>>>>>> upstream/android-13
 	status = "okay";
 
 	/*
@@ -111,14 +126,22 @@
 	vref-supply = <&reg_aldo3>;
 	status = "okay";
 
+<<<<<<< HEAD
 	button@0 {
+=======
+	button-190 {
+>>>>>>> upstream/android-13
 		label = "V+";
 		linux,code = <KEY_VOLUMEUP>;
 		channel = <0>;
 		voltage = <190000>;
 	};
 
+<<<<<<< HEAD
 	button@1 {
+=======
+	button-390 {
+>>>>>>> upstream/android-13
 		label = "V-";
 		linux,code = <KEY_VOLUMEDOWN>;
 		channel = <0>;
@@ -128,8 +151,11 @@
 };
 
 &mmc0 {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&mmc0_pins_a>, <&mmc0_cd_pin_parrot>;
+=======
+>>>>>>> upstream/android-13
 	vmmc-supply = <&reg_dcdc1>;
 	cd-gpios = <&pio 3 14 GPIO_ACTIVE_LOW>; /* PD14 */
 	bus-width = <4>;
@@ -138,7 +164,11 @@
 
 &mmc1 {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&mmc1_pins_a>, <&wifi_reset_pin_parrot>;
+=======
+	pinctrl-0 = <&mmc1_pg_pins>;
+>>>>>>> upstream/android-13
 	vmmc-supply = <&reg_aldo1>;
 	mmc-pwrseq = <&wifi_pwrseq>;
 	bus-width = <4>;
@@ -158,13 +188,17 @@
 
 &mmc2_8bit_pins {
 	drive-strength = <40>;
+<<<<<<< HEAD
 	bias-pull-up;
+=======
+>>>>>>> upstream/android-13
 };
 
 &ohci0 {
 	status = "okay";
 };
 
+<<<<<<< HEAD
 &pio {
 	mmc0_cd_pin_parrot: mmc0_cd_pin@0 {
 		pins = "PD14";
@@ -196,14 +230,21 @@
 	};
 };
 
+=======
+>>>>>>> upstream/android-13
 &r_rsb {
 	status = "okay";
 
 	axp22x: pmic@3a3 {
 		compatible = "x-powers,axp223";
 		reg = <0x3a3>;
+<<<<<<< HEAD
 		interrupt-parent = <&nmi_intc>;
 		interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
+=======
+		interrupt-parent = <&r_intc>;
+		interrupts = <GIC_SPI 32 IRQ_TYPE_LEVEL_LOW>;
+>>>>>>> upstream/android-13
 		drivevbus-supply = <&reg_vcc5v0>;
 		x-powers,drive-vbus-en;
 	};
@@ -319,8 +360,11 @@
 };
 
 &reg_usb1_vbus {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&usb1_vbus_pin_parrot>;
+=======
+>>>>>>> upstream/android-13
 	gpio = <&pio 3 12 GPIO_ACTIVE_HIGH>; /* PD12 */
 	status = "okay";
 };
@@ -331,7 +375,11 @@
 
 &uart0 {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&uart0_pins_b>;
+=======
+	pinctrl-0 = <&uart0_pb_pins>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
@@ -346,10 +394,15 @@
 
 &usbphy {
 	status = "okay";
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&usb0_id_det>;
 	usb0_vbus-supply = <&reg_drivevbus>;
 	usb0_id_det-gpios = <&pio 3 10 GPIO_ACTIVE_HIGH>; /* PD10 */
+=======
+	usb0_vbus-supply = <&reg_drivevbus>;
+	usb0_id_det-gpios = <&pio 3 10 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; /* PD10 */
+>>>>>>> upstream/android-13
 	usb0_vbus_power-supply = <&usb_power_supply>;
 	usb1_vbus-supply = <&reg_usb1_vbus>;
 };

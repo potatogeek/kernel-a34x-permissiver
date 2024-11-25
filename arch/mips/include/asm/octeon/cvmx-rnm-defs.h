@@ -47,6 +47,7 @@ union cvmx_rnm_bist_status {
 		uint64_t reserved_2_63:62;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_rnm_bist_status_s cn30xx;
 	struct cvmx_rnm_bist_status_s cn31xx;
 	struct cvmx_rnm_bist_status_s cn38xx;
@@ -65,6 +66,8 @@ union cvmx_rnm_bist_status {
 	struct cvmx_rnm_bist_status_s cn68xx;
 	struct cvmx_rnm_bist_status_s cn68xxp1;
 	struct cvmx_rnm_bist_status_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_rnm_ctl_status {
@@ -109,9 +112,12 @@ union cvmx_rnm_ctl_status {
 		uint64_t reserved_4_63:60;
 #endif
 	} cn30xx;
+<<<<<<< HEAD
 	struct cvmx_rnm_ctl_status_cn30xx cn31xx;
 	struct cvmx_rnm_ctl_status_cn30xx cn38xx;
 	struct cvmx_rnm_ctl_status_cn30xx cn38xxp2;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_rnm_ctl_status_cn50xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_9_63:55;
@@ -131,6 +137,7 @@ union cvmx_rnm_ctl_status {
 		uint64_t reserved_9_63:55;
 #endif
 	} cn50xx;
+<<<<<<< HEAD
 	struct cvmx_rnm_ctl_status_cn50xx cn52xx;
 	struct cvmx_rnm_ctl_status_cn50xx cn52xxp1;
 	struct cvmx_rnm_ctl_status_cn50xx cn56xx;
@@ -138,6 +145,8 @@ union cvmx_rnm_ctl_status {
 	struct cvmx_rnm_ctl_status_cn50xx cn58xx;
 	struct cvmx_rnm_ctl_status_cn50xx cn58xxp1;
 	struct cvmx_rnm_ctl_status_s cn61xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_rnm_ctl_status_cn63xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_11_63:53;
@@ -161,11 +170,14 @@ union cvmx_rnm_ctl_status {
 		uint64_t reserved_11_63:53;
 #endif
 	} cn63xx;
+<<<<<<< HEAD
 	struct cvmx_rnm_ctl_status_cn63xx cn63xxp1;
 	struct cvmx_rnm_ctl_status_s cn66xx;
 	struct cvmx_rnm_ctl_status_cn63xx cn68xx;
 	struct cvmx_rnm_ctl_status_cn63xx cn68xxp1;
 	struct cvmx_rnm_ctl_status_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_rnm_eer_dbg {
@@ -177,6 +189,7 @@ union cvmx_rnm_eer_dbg {
 		uint64_t dat:64;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_rnm_eer_dbg_s cn61xx;
 	struct cvmx_rnm_eer_dbg_s cn63xx;
 	struct cvmx_rnm_eer_dbg_s cn63xxp1;
@@ -184,6 +197,8 @@ union cvmx_rnm_eer_dbg {
 	struct cvmx_rnm_eer_dbg_s cn68xx;
 	struct cvmx_rnm_eer_dbg_s cn68xxp1;
 	struct cvmx_rnm_eer_dbg_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_rnm_eer_key {
@@ -195,6 +210,7 @@ union cvmx_rnm_eer_key {
 		uint64_t key:64;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_rnm_eer_key_s cn61xx;
 	struct cvmx_rnm_eer_key_s cn63xx;
 	struct cvmx_rnm_eer_key_s cn63xxp1;
@@ -202,6 +218,8 @@ union cvmx_rnm_eer_key {
 	struct cvmx_rnm_eer_key_s cn68xx;
 	struct cvmx_rnm_eer_key_s cn68xxp1;
 	struct cvmx_rnm_eer_key_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_rnm_serial_num {
@@ -213,12 +231,15 @@ union cvmx_rnm_serial_num {
 		uint64_t dat:64;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_rnm_serial_num_s cn61xx;
 	struct cvmx_rnm_serial_num_s cn63xx;
 	struct cvmx_rnm_serial_num_s cn66xx;
 	struct cvmx_rnm_serial_num_s cn68xx;
 	struct cvmx_rnm_serial_num_s cn68xxp1;
 	struct cvmx_rnm_serial_num_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 #endif

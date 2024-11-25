@@ -5,7 +5,11 @@
  *              Licensed under the GPLv2
  *
  *  This test signals the kernel to insert a leap second
+<<<<<<< HEAD
  *  every day at midnight GMT. This allows for stessing the
+=======
+ *  every day at midnight GMT. This allows for stressing the
+>>>>>>> upstream/android-13
  *  kernel's leap-second behavior, as well as how well applications
  *  handle the leap-second discontinuity.
  *

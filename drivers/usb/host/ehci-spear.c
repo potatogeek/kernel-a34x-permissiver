@@ -34,8 +34,12 @@ struct spear_ehci {
 
 static struct hc_driver __read_mostly ehci_spear_hc_driver;
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM_SLEEP
 static int ehci_spear_drv_suspend(struct device *dev)
+=======
+static int __maybe_unused ehci_spear_drv_suspend(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct usb_hcd *hcd = dev_get_drvdata(dev);
 	bool do_wakeup = device_may_wakeup(dev);
@@ -43,14 +47,21 @@ static int ehci_spear_drv_suspend(struct device *dev)
 	return ehci_suspend(hcd, do_wakeup);
 }
 
+<<<<<<< HEAD
 static int ehci_spear_drv_resume(struct device *dev)
+=======
+static int __maybe_unused ehci_spear_drv_resume(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct usb_hcd *hcd = dev_get_drvdata(dev);
 
 	ehci_resume(hcd, false);
 	return 0;
 }
+<<<<<<< HEAD
 #endif /* CONFIG_PM_SLEEP */
+=======
+>>>>>>> upstream/android-13
 
 static SIMPLE_DEV_PM_OPS(ehci_spear_pm_ops, ehci_spear_drv_suspend,
 		ehci_spear_drv_resume);
@@ -155,7 +166,11 @@ static struct platform_driver spear_ehci_hcd_driver = {
 	.driver		= {
 		.name = "spear-ehci",
 		.bus = &platform_bus_type,
+<<<<<<< HEAD
 		.pm = &ehci_spear_pm_ops,
+=======
+		.pm = pm_ptr(&ehci_spear_pm_ops),
+>>>>>>> upstream/android-13
 		.of_match_table = spear_ehci_id_table,
 	}
 };

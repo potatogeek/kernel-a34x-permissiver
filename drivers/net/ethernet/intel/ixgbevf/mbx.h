@@ -62,6 +62,10 @@ enum ixgbe_pfvf_api_rev {
 	ixgbe_mbox_api_11,	/* API version 1.1, linux/freebsd VF driver */
 	ixgbe_mbox_api_12,	/* API version 1.2, linux/freebsd VF driver */
 	ixgbe_mbox_api_13,	/* API version 1.3, linux/freebsd VF driver */
+<<<<<<< HEAD
+=======
+	ixgbe_mbox_api_14,	/* API version 1.4, linux/freebsd VF driver */
+>>>>>>> upstream/android-13
 	/* This value should always be last */
 	ixgbe_mbox_api_unknown,	/* indicates that API version is not known */
 };
@@ -92,6 +96,13 @@ enum ixgbe_pfvf_api_rev {
 
 #define IXGBE_VF_UPDATE_XCAST_MODE	0x0c
 
+<<<<<<< HEAD
+=======
+/* mailbox API, version 1.4 VF requests */
+#define IXGBE_VF_IPSEC_ADD	0x0d
+#define IXGBE_VF_IPSEC_DEL	0x0e
+
+>>>>>>> upstream/android-13
 /* length of permanent address message returned from PF */
 #define IXGBE_VF_PERMADDR_MSG_LEN	4
 /* word in permanent address message with the current multicast type */

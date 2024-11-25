@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 /* Copyright (C) 2013-2018  B.A.T.M.A.N. contributors:
  *
  * Martin Hundebøll <martin@hundeboll.net>
@@ -14,6 +15,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+/* Copyright (C) B.A.T.M.A.N. contributors:
+ *
+ * Martin Hundebøll <martin@hundeboll.net>
+>>>>>>> upstream/android-13
  */
 
 #include "fragmentation.h"
@@ -26,8 +32,13 @@
 #include <linux/gfp.h>
 #include <linux/if_ether.h>
 #include <linux/jiffies.h>
+<<<<<<< HEAD
 #include <linux/kernel.h>
 #include <linux/lockdep.h>
+=======
+#include <linux/lockdep.h>
+#include <linux/minmax.h>
+>>>>>>> upstream/android-13
 #include <linux/netdevice.h>
 #include <linux/skbuff.h>
 #include <linux/slab.h>
@@ -39,7 +50,10 @@
 #include "originator.h"
 #include "routing.h"
 #include "send.h"
+<<<<<<< HEAD
 #include "soft-interface.h"
+=======
+>>>>>>> upstream/android-13
 
 /**
  * batadv_frag_clear_chain() - delete entries in the fragment buffer chain
@@ -114,8 +128,13 @@ static int batadv_frag_size_limit(void)
  *
  * Caller must hold chain->lock.
  *
+<<<<<<< HEAD
  * Return: true if chain is empty and caller can just insert the new fragment
  * without searching for the right position.
+=======
+ * Return: true if chain is empty and the caller can just insert the new
+ * fragment without searching for the right position.
+>>>>>>> upstream/android-13
  */
 static bool batadv_frag_init_chain(struct batadv_frag_table_entry *chain,
 				   u16 seqno)
@@ -318,7 +337,11 @@ free:
  * set *skb to merged packet; 2) Packet is buffered: Return true and set *skb
  * to NULL; 3) Error: Return false and free skb.
  *
+<<<<<<< HEAD
  * Return: true when packet is merged or buffered, false when skb is not not
+=======
+ * Return: true when the packet is merged or buffered, false when skb is not
+>>>>>>> upstream/android-13
  * used.
  */
 bool batadv_frag_skb_buffer(struct sk_buff **skb,
@@ -394,15 +417,24 @@ bool batadv_frag_skb_fwd(struct sk_buff *skb,
 	}
 
 out:
+<<<<<<< HEAD
 	if (orig_node_dst)
 		batadv_orig_node_put(orig_node_dst);
 	if (neigh_node)
 		batadv_neigh_node_put(neigh_node);
+=======
+	batadv_orig_node_put(orig_node_dst);
+	batadv_neigh_node_put(neigh_node);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 /**
  * batadv_frag_create() - create a fragment from skb
+<<<<<<< HEAD
+=======
+ * @net_dev: outgoing device for fragment
+>>>>>>> upstream/android-13
  * @skb: skb to create fragment from
  * @frag_head: header to use in new fragment
  * @fragment_size: size of new fragment
@@ -413,22 +445,40 @@ out:
  *
  * Return: the new fragment, NULL on error.
  */
+<<<<<<< HEAD
 static struct sk_buff *batadv_frag_create(struct sk_buff *skb,
 					  struct batadv_frag_packet *frag_head,
 					  unsigned int fragment_size)
 {
+=======
+static struct sk_buff *batadv_frag_create(struct net_device *net_dev,
+					  struct sk_buff *skb,
+					  struct batadv_frag_packet *frag_head,
+					  unsigned int fragment_size)
+{
+	unsigned int ll_reserved = LL_RESERVED_SPACE(net_dev);
+	unsigned int tailroom = net_dev->needed_tailroom;
+>>>>>>> upstream/android-13
 	struct sk_buff *skb_fragment;
 	unsigned int header_size = sizeof(*frag_head);
 	unsigned int mtu = fragment_size + header_size;
 
+<<<<<<< HEAD
 	skb_fragment = netdev_alloc_skb(NULL, mtu + ETH_HLEN);
+=======
+	skb_fragment = dev_alloc_skb(ll_reserved + mtu + tailroom);
+>>>>>>> upstream/android-13
 	if (!skb_fragment)
 		goto err;
 
 	skb_fragment->priority = skb->priority;
 
 	/* Eat the last mtu-bytes of the skb */
+<<<<<<< HEAD
 	skb_reserve(skb_fragment, header_size + ETH_HLEN);
+=======
+	skb_reserve(skb_fragment, ll_reserved + header_size);
+>>>>>>> upstream/android-13
 	skb_split(skb, skb_fragment, skb->len - fragment_size);
 
 	/* Add the header */
@@ -451,11 +501,19 @@ int batadv_frag_send_packet(struct sk_buff *skb,
 			    struct batadv_orig_node *orig_node,
 			    struct batadv_neigh_node *neigh_node)
 {
+<<<<<<< HEAD
+=======
+	struct net_device *net_dev = neigh_node->if_incoming->net_dev;
+>>>>>>> upstream/android-13
 	struct batadv_priv *bat_priv;
 	struct batadv_hard_iface *primary_if = NULL;
 	struct batadv_frag_packet frag_header;
 	struct sk_buff *skb_fragment;
+<<<<<<< HEAD
 	unsigned int mtu = neigh_node->if_incoming->net_dev->mtu;
+=======
+	unsigned int mtu = net_dev->mtu;
+>>>>>>> upstream/android-13
 	unsigned int header_size = sizeof(frag_header);
 	unsigned int max_fragment_size, num_fragments;
 	int ret;
@@ -485,6 +543,20 @@ int batadv_frag_send_packet(struct sk_buff *skb,
 		goto free_skb;
 	}
 
+<<<<<<< HEAD
+=======
+	/* GRO might have added fragments to the fragment list instead of
+	 * frags[]. But this is not handled by skb_split and must be
+	 * linearized to avoid incorrect length information after all
+	 * batman-adv fragments were created and submitted to the
+	 * hard-interface
+	 */
+	if (skb_has_frag_list(skb) && __skb_linearize(skb)) {
+		ret = -ENOMEM;
+		goto free_skb;
+	}
+
+>>>>>>> upstream/android-13
 	/* Create one header to be copied to all fragments */
 	frag_header.packet_type = BATADV_UNICAST_FRAG;
 	frag_header.version = BATADV_COMPAT_VERSION;
@@ -515,7 +587,11 @@ int batadv_frag_send_packet(struct sk_buff *skb,
 			goto put_primary_if;
 		}
 
+<<<<<<< HEAD
 		skb_fragment = batadv_frag_create(skb, &frag_header,
+=======
+		skb_fragment = batadv_frag_create(net_dev, skb, &frag_header,
+>>>>>>> upstream/android-13
 						  max_fragment_size);
 		if (!skb_fragment) {
 			ret = -ENOMEM;
@@ -534,6 +610,7 @@ int batadv_frag_send_packet(struct sk_buff *skb,
 		frag_header.no++;
 	}
 
+<<<<<<< HEAD
 	/* Make room for the fragment header. */
 	if (batadv_skb_head_push(skb, header_size) < 0 ||
 	    pskb_expand_head(skb, header_size + ETH_HLEN, 0, GFP_ATOMIC) < 0) {
@@ -541,6 +618,16 @@ int batadv_frag_send_packet(struct sk_buff *skb,
 		goto put_primary_if;
 	}
 
+=======
+	/* make sure that there is at least enough head for the fragmentation
+	 * and ethernet headers
+	 */
+	ret = skb_cow_head(skb, ETH_HLEN + header_size);
+	if (ret < 0)
+		goto put_primary_if;
+
+	skb_push(skb, header_size);
+>>>>>>> upstream/android-13
 	memcpy(skb->data, &frag_header, header_size);
 
 	/* Send the last fragment */

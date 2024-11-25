@@ -23,7 +23,11 @@
  */
 #include "priv.h"
 
+<<<<<<< HEAD
 static void
+=======
+void
+>>>>>>> upstream/android-13
 gp102_pmu_reset(struct nvkm_pmu *pmu)
 {
 	struct nvkm_device *device = pmu->subdev.device;
@@ -39,12 +43,30 @@ gp102_pmu_enabled(struct nvkm_pmu *pmu)
 
 static const struct nvkm_pmu_func
 gp102_pmu = {
+<<<<<<< HEAD
+=======
+	.flcn = &gm200_pmu_flcn,
+>>>>>>> upstream/android-13
 	.enabled = gp102_pmu_enabled,
 	.reset = gp102_pmu_reset,
 };
 
+<<<<<<< HEAD
 int
 gp102_pmu_new(struct nvkm_device *device, int index, struct nvkm_pmu **ppmu)
 {
 	return nvkm_pmu_new_(&gp102_pmu, device, index, ppmu);
+=======
+static const struct nvkm_pmu_fwif
+gp102_pmu_fwif[] = {
+	{ -1, gm200_pmu_nofw, &gp102_pmu },
+	{}
+};
+
+int
+gp102_pmu_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+	      struct nvkm_pmu **ppmu)
+{
+	return nvkm_pmu_new_(gp102_pmu_fwif, device, type, inst, ppmu);
+>>>>>>> upstream/android-13
 }

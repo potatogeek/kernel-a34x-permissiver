@@ -1,8 +1,14 @@
+<<<<<<< HEAD
 /******************************************************************************
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+>>>>>>> upstream/android-13
  * Copyright(c) 2008 - 2010 Realtek Corporation. All rights reserved.
  *
  * Based on the r8180 driver, which is:
  * Copyright 2004-2005 Andrea Merello <andrea.merello@gmail.com>, et al.
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -18,6 +24,11 @@
  * Contact Information:
  * wlanfae <wlanfae@realtek.com>
  *****************************************************************************/
+=======
+ *
+ * Contact Information: wlanfae <wlanfae@realtek.com>
+ */
+>>>>>>> upstream/android-13
 #include "rtl_ps.h"
 #include "rtl_core.h"
 #include "r8192E_phy.h"
@@ -301,7 +312,11 @@ void rtl92e_leisure_ps_leave(struct net_device *dev)
 				if (priv->rtllib->SetFwCmdHandler)
 					priv->rtllib->SetFwCmdHandler(dev,
 							 FW_CMD_LPS_LEAVE);
+<<<<<<< HEAD
 		    }
+=======
+			}
+>>>>>>> upstream/android-13
 		}
 	}
 }

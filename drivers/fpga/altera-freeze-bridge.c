@@ -198,11 +198,19 @@ static const struct fpga_bridge_ops altera_freeze_br_br_ops = {
 	.enable_show = altera_freeze_br_enable_show,
 };
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_OF
+>>>>>>> upstream/android-13
 static const struct of_device_id altera_freeze_br_of_match[] = {
 	{ .compatible = "altr,freeze-bridge-controller", },
 	{},
 };
 MODULE_DEVICE_TABLE(of, altera_freeze_br_of_match);
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 static int altera_freeze_br_probe(struct platform_device *pdev)
 {
@@ -213,7 +221,10 @@ static int altera_freeze_br_probe(struct platform_device *pdev)
 	struct fpga_bridge *br;
 	struct resource *res;
 	u32 status, revision;
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 
 	if (!np)
 		return -ENODEV;
@@ -245,13 +256,19 @@ static int altera_freeze_br_probe(struct platform_device *pdev)
 
 	priv->base_addr = base_addr;
 
+<<<<<<< HEAD
 	br = fpga_bridge_create(dev, FREEZE_BRIDGE_NAME,
 				&altera_freeze_br_br_ops, priv);
+=======
+	br = devm_fpga_bridge_create(dev, FREEZE_BRIDGE_NAME,
+				     &altera_freeze_br_br_ops, priv);
+>>>>>>> upstream/android-13
 	if (!br)
 		return -ENOMEM;
 
 	platform_set_drvdata(pdev, br);
 
+<<<<<<< HEAD
 	ret = fpga_bridge_register(br);
 	if (ret) {
 		fpga_bridge_free(br);
@@ -259,6 +276,9 @@ static int altera_freeze_br_probe(struct platform_device *pdev)
 	}
 
 	return 0;
+=======
+	return fpga_bridge_register(br);
+>>>>>>> upstream/android-13
 }
 
 static int altera_freeze_br_remove(struct platform_device *pdev)

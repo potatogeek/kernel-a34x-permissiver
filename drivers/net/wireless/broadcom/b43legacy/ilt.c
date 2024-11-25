@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 
   Broadcom B43legacy wireless driver
@@ -8,6 +12,7 @@
 		     Danny van Dyk <kugelfang@gentoo.org>
 		     Andreas Jaggi <andreas.jaggi@waterwave.ch>
 
+<<<<<<< HEAD
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 2 of the License, or
@@ -22,6 +27,8 @@
   along with this program; see the file COPYING.  If not, write to
   the Free Software Foundation, Inc., 51 Franklin Steet, Fifth Floor,
   Boston, MA 02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
 
 */
 
@@ -315,14 +322,20 @@ const u16 b43legacy_ilt_sigmasqr2[B43legacy_ILT_SIGMASQR_SIZE] = {
 void b43legacy_ilt_write(struct b43legacy_wldev *dev, u16 offset, u16 val)
 {
 	b43legacy_phy_write(dev, B43legacy_PHY_ILT_G_CTRL, offset);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	b43legacy_phy_write(dev, B43legacy_PHY_ILT_G_DATA1, val);
 }
 
 void b43legacy_ilt_write32(struct b43legacy_wldev *dev, u16 offset, u32 val)
 {
 	b43legacy_phy_write(dev, B43legacy_PHY_ILT_G_CTRL, offset);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	b43legacy_phy_write(dev, B43legacy_PHY_ILT_G_DATA2,
 			    (val & 0xFFFF0000) >> 16);
 	b43legacy_phy_write(dev, B43legacy_PHY_ILT_G_DATA1,

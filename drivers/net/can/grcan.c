@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Socket CAN driver for Aeroflex Gaisler GRCAN and GRHCAN.
  *
@@ -18,11 +22,14 @@
  * See "Documentation/admin-guide/kernel-parameters.rst" for information on the module
  * parameters.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * Contributors: Andreas Larsson <andreas@gaisler.com>
  */
 
@@ -245,13 +252,21 @@ struct grcan_device_config {
 		.rxsize		= GRCAN_DEFAULT_BUFFER_SIZE,	\
 		}
 
+<<<<<<< HEAD
 #define GRCAN_TXBUG_SAFE_GRLIB_VERSION	0x4100
+=======
+#define GRCAN_TXBUG_SAFE_GRLIB_VERSION	4100
+>>>>>>> upstream/android-13
 #define GRLIB_VERSION_MASK		0xffff
 
 /* GRCAN private data structure */
 struct grcan_priv {
 	struct can_priv can;	/* must be the first member */
 	struct net_device *dev;
+<<<<<<< HEAD
+=======
+	struct device *ofdev_dev;
+>>>>>>> upstream/android-13
 	struct napi_struct napi;
 
 	struct grcan_registers __iomem *regs;	/* ioremap'ed registers */
@@ -521,10 +536,17 @@ static int catch_up_echo_skb(struct net_device *dev, int budget, bool echo)
 			stats->tx_packets++;
 			stats->tx_bytes += priv->txdlc[i];
 			priv->txdlc[i] = 0;
+<<<<<<< HEAD
 			can_get_echo_skb(dev, i);
 		} else {
 			/* For cleanup of untransmitted messages */
 			can_free_echo_skb(dev, i);
+=======
+			can_get_echo_skb(dev, i, NULL);
+		} else {
+			/* For cleanup of untransmitted messages */
+			can_free_echo_skb(dev, i, NULL);
+>>>>>>> upstream/android-13
 		}
 
 		priv->eskbp = grcan_ring_add(priv->eskbp, GRCAN_MSG_SIZE,
@@ -730,7 +752,11 @@ static void grcan_err(struct net_device *dev, u32 sources, u32 status)
 			txrx = "on rx ";
 			stats->rx_errors++;
 		}
+<<<<<<< HEAD
 		netdev_err(dev, "Fatal AHB buss error %s- halting device\n",
+=======
+		netdev_err(dev, "Fatal AHB bus error %s- halting device\n",
+>>>>>>> upstream/android-13
 			   txrx);
 
 		spin_lock_irqsave(&priv->lock, flags);
@@ -928,7 +954,11 @@ static void grcan_free_dma_buffers(struct net_device *dev)
 	struct grcan_priv *priv = netdev_priv(dev);
 	struct grcan_dma *dma = &priv->dma;
 
+<<<<<<< HEAD
 	dma_free_coherent(&dev->dev, dma->base_size, dma->base_buf,
+=======
+	dma_free_coherent(priv->ofdev_dev, dma->base_size, dma->base_buf,
+>>>>>>> upstream/android-13
 			  dma->base_handle);
 	memset(dma, 0, sizeof(*dma));
 }
@@ -953,7 +983,11 @@ static int grcan_allocate_dma_buffers(struct net_device *dev,
 
 	/* Extra GRCAN_BUFFER_ALIGNMENT to allow for alignment */
 	dma->base_size = lsize + ssize + GRCAN_BUFFER_ALIGNMENT;
+<<<<<<< HEAD
 	dma->base_buf = dma_alloc_coherent(&dev->dev,
+=======
+	dma->base_buf = dma_alloc_coherent(priv->ofdev_dev,
+>>>>>>> upstream/android-13
 					   dma->base_size,
 					   &dma->base_handle,
 					   GFP_KERNEL);
@@ -1117,8 +1151,15 @@ static int grcan_close(struct net_device *dev)
 
 	priv->closing = true;
 	if (priv->need_txbug_workaround) {
+<<<<<<< HEAD
 		del_timer_sync(&priv->hang_timer);
 		del_timer_sync(&priv->rr_timer);
+=======
+		spin_unlock_irqrestore(&priv->lock, flags);
+		del_timer_sync(&priv->hang_timer);
+		del_timer_sync(&priv->rr_timer);
+		spin_lock_irqsave(&priv->lock, flags);
+>>>>>>> upstream/android-13
 	}
 	netif_stop_queue(dev);
 	grcan_stop_hardware(dev);
@@ -1138,7 +1179,11 @@ static int grcan_close(struct net_device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int grcan_transmit_catch_up(struct net_device *dev, int budget)
+=======
+static void grcan_transmit_catch_up(struct net_device *dev)
+>>>>>>> upstream/android-13
 {
 	struct grcan_priv *priv = netdev_priv(dev);
 	unsigned long flags;
@@ -1146,7 +1191,11 @@ static int grcan_transmit_catch_up(struct net_device *dev, int budget)
 
 	spin_lock_irqsave(&priv->lock, flags);
 
+<<<<<<< HEAD
 	work_done = catch_up_echo_skb(dev, budget, true);
+=======
+	work_done = catch_up_echo_skb(dev, -1, true);
+>>>>>>> upstream/android-13
 	if (work_done) {
 		if (!priv->resetting && !priv->closing &&
 		    !(priv->can.ctrlmode & CAN_CTRLMODE_LISTENONLY))
@@ -1160,8 +1209,11 @@ static int grcan_transmit_catch_up(struct net_device *dev, int budget)
 	}
 
 	spin_unlock_irqrestore(&priv->lock, flags);
+<<<<<<< HEAD
 
 	return work_done;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int grcan_receive(struct net_device *dev, int budget)
@@ -1205,12 +1257,20 @@ static int grcan_receive(struct net_device *dev, int budget)
 			cf->can_id = ((slot[0] & GRCAN_MSG_BID)
 				      >> GRCAN_MSG_BID_BIT);
 		}
+<<<<<<< HEAD
 		cf->can_dlc = get_can_dlc((slot[1] & GRCAN_MSG_DLC)
+=======
+		cf->len = can_cc_dlc2len((slot[1] & GRCAN_MSG_DLC)
+>>>>>>> upstream/android-13
 					  >> GRCAN_MSG_DLC_BIT);
 		if (rtr) {
 			cf->can_id |= CAN_RTR_FLAG;
 		} else {
+<<<<<<< HEAD
 			for (i = 0; i < cf->can_dlc; i++) {
+=======
+			for (i = 0; i < cf->len; i++) {
+>>>>>>> upstream/android-13
 				j = GRCAN_MSG_DATA_SLOT_INDEX(i);
 				shift = GRCAN_MSG_DATA_SHIFT(i);
 				cf->data[i] = (u8)(slot[j] >> shift);
@@ -1219,7 +1279,11 @@ static int grcan_receive(struct net_device *dev, int budget)
 
 		/* Update statistics and read pointer */
 		stats->rx_packets++;
+<<<<<<< HEAD
 		stats->rx_bytes += cf->can_dlc;
+=======
+		stats->rx_bytes += cf->len;
+>>>>>>> upstream/android-13
 		netif_receive_skb(skb);
 
 		rd = grcan_ring_add(rd, GRCAN_MSG_SIZE, dma->rx.size);
@@ -1243,6 +1307,7 @@ static int grcan_poll(struct napi_struct *napi, int budget)
 	struct net_device *dev = priv->dev;
 	struct grcan_registers __iomem *regs = priv->regs;
 	unsigned long flags;
+<<<<<<< HEAD
 	int tx_work_done, rx_work_done;
 	int rx_budget = budget / 2;
 	int tx_budget = budget - rx_budget;
@@ -1256,6 +1321,15 @@ static int grcan_poll(struct napi_struct *napi, int budget)
 	tx_work_done = grcan_transmit_catch_up(dev, tx_budget);
 
 	if (rx_work_done < rx_budget && tx_work_done < tx_budget) {
+=======
+	int work_done;
+
+	work_done = grcan_receive(dev, budget);
+
+	grcan_transmit_catch_up(dev);
+
+	if (work_done < budget) {
+>>>>>>> upstream/android-13
 		napi_complete(napi);
 
 		/* Guarantee no interference with a running reset that otherwise
@@ -1272,7 +1346,11 @@ static int grcan_poll(struct napi_struct *napi, int budget)
 		spin_unlock_irqrestore(&priv->lock, flags);
 	}
 
+<<<<<<< HEAD
 	return rx_work_done + tx_work_done;
+=======
+	return work_done;
+>>>>>>> upstream/android-13
 }
 
 /* Work tx bug by waiting while for the risky situation to clear. If that fails,
@@ -1403,7 +1481,11 @@ static netdev_tx_t grcan_start_xmit(struct sk_buff *skb,
 	eff = cf->can_id & CAN_EFF_FLAG;
 	rtr = cf->can_id & CAN_RTR_FLAG;
 	id = cf->can_id & (eff ? CAN_EFF_MASK : CAN_SFF_MASK);
+<<<<<<< HEAD
 	dlc = cf->can_dlc;
+=======
+	dlc = cf->len;
+>>>>>>> upstream/android-13
 	if (eff)
 		tmp = (id << GRCAN_MSG_EID_BIT) & GRCAN_MSG_EID;
 	else
@@ -1451,8 +1533,13 @@ static netdev_tx_t grcan_start_xmit(struct sk_buff *skb,
 	 * can_put_echo_skb would be an error unless other measures are
 	 * taken.
 	 */
+<<<<<<< HEAD
 	priv->txdlc[slotindex] = cf->can_dlc; /* Store dlc for statistics */
 	can_put_echo_skb(skb, dev, slotindex);
+=======
+	priv->txdlc[slotindex] = cf->len; /* Store dlc for statistics */
+	can_put_echo_skb(skb, dev, slotindex, 0);
+>>>>>>> upstream/android-13
 
 	/* Make sure everything is written before allowing hardware to
 	 * read from the memory
@@ -1604,6 +1691,10 @@ static int grcan_setup_netdev(struct platform_device *ofdev,
 	memcpy(&priv->config, &grcan_module_config,
 	       sizeof(struct grcan_device_config));
 	priv->dev = dev;
+<<<<<<< HEAD
+=======
+	priv->ofdev_dev = &ofdev->dev;
+>>>>>>> upstream/android-13
 	priv->regs = base;
 	priv->can.bittiming_const = &grcan_bittiming_const;
 	priv->can.do_set_bittiming = grcan_set_bittiming;
@@ -1656,7 +1747,11 @@ exit_free_candev:
 static int grcan_probe(struct platform_device *ofdev)
 {
 	struct device_node *np = ofdev->dev.of_node;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+	struct device_node *sysid_parent;
+>>>>>>> upstream/android-13
 	u32 sysid, ambafreq;
 	int irq, err;
 	void __iomem *base;
@@ -1665,10 +1760,22 @@ static int grcan_probe(struct platform_device *ofdev)
 	/* Compare GRLIB version number with the first that does not
 	 * have the tx bug (see start_xmit)
 	 */
+<<<<<<< HEAD
 	err = of_property_read_u32(np, "systemid", &sysid);
 	if (!err && ((sysid & GRLIB_VERSION_MASK)
 		     >= GRCAN_TXBUG_SAFE_GRLIB_VERSION))
 		txbug = false;
+=======
+	sysid_parent = of_find_node_by_path("/ambapp0");
+	if (sysid_parent) {
+		of_node_get(sysid_parent);
+		err = of_property_read_u32(sysid_parent, "systemid", &sysid);
+		if (!err && ((sysid & GRLIB_VERSION_MASK) >=
+			     GRCAN_TXBUG_SAFE_GRLIB_VERSION))
+			txbug = false;
+		of_node_put(sysid_parent);
+	}
+>>>>>>> upstream/android-13
 
 	err = of_property_read_u32(np, "freq", &ambafreq);
 	if (err) {
@@ -1676,8 +1783,12 @@ static int grcan_probe(struct platform_device *ofdev)
 		goto exit_error;
 	}
 
+<<<<<<< HEAD
 	res = platform_get_resource(ofdev, IORESOURCE_MEM, 0);
 	base = devm_ioremap_resource(&ofdev->dev, res);
+=======
+	base = devm_platform_ioremap_resource(ofdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(base)) {
 		err = PTR_ERR(base);
 		goto exit_error;

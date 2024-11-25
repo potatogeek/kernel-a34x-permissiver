@@ -1,10 +1,19 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2007 - 2014 Intel Corporation. All rights reserved.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/******************************************************************************
+ *
+ * Copyright(c) 2007 - 2014 Intel Corporation. All rights reserved.
+ * Copyright (C) 2019 Intel Corporation
+>>>>>>> upstream/android-13
  *
  * Portions of this file are derived from the ipw3945 project, as well
  * as portions of the ieee80211 subsystem header files.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -21,6 +30,8 @@
  * The full GNU General Public License is included in this distribution in the
  * file called LICENSE.
  *
+=======
+>>>>>>> upstream/android-13
  * Contact Information:
  *  Intel Linux Wireless <linuxwifi@intel.com>
  * Intel Corporation, 5200 N.E. Elam Young Parkway, Hillsboro, OR 97124-6497
@@ -214,7 +225,11 @@ static void iwl_static_sleep_cmd(struct iwl_priv *priv,
 	else
 		cmd->flags &= ~IWL_POWER_SLEEP_OVER_DTIM_MSK;
 
+<<<<<<< HEAD
 	if (priv->cfg->base_params->shadow_reg_enable)
+=======
+	if (priv->trans->trans_cfg->base_params->shadow_reg_enable)
+>>>>>>> upstream/android-13
 		cmd->flags |= IWL_POWER_SHADOW_REG_ENA;
 	else
 		cmd->flags &= ~IWL_POWER_SHADOW_REG_ENA;

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**
  * 1588 PTP support for Cadence GEM device.
  *
@@ -17,6 +18,16 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * 1588 PTP support for Cadence GEM device.
+ *
+ * Copyright (C) 2017 Cadence Design Systems - https://www.cadence.com
+ *
+ * Authors: Rafal Ozieblo <rafalo@cadence.com>
+ *          Bartosz Folta <bfolta@cadence.com>
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/types.h>
@@ -149,7 +160,11 @@ static int gem_ptp_adjfine(struct ptp_clock_info *ptp, long scaled_ppm)
 	 * (temp / USEC_PER_SEC) + 0.5
 	 */
 	adj += (USEC_PER_SEC >> 1);
+<<<<<<< HEAD
 	adj >>= GEM_SUBNSINCR_SIZE; /* remove fractions */
+=======
+	adj >>= PPM_FRACTION; /* remove fractions */
+>>>>>>> upstream/android-13
 	adj = div_u64(adj, USEC_PER_SEC);
 	adj = neg_adj ? (word - adj) : (word + adj);
 
@@ -286,6 +301,15 @@ void gem_ptp_rxstamp(struct macb *bp, struct sk_buff *skb,
 
 	if (GEM_BFEXT(DMA_RXVALID, desc->addr)) {
 		desc_ptp = macb_ptp_desc(bp, desc);
+<<<<<<< HEAD
+=======
+		/* Unlikely but check */
+		if (!desc_ptp) {
+			dev_warn_ratelimited(&bp->pdev->dev,
+					     "Timestamp not supported in BD\n");
+			return;
+		}
+>>>>>>> upstream/android-13
 		gem_hw_timestamp(bp, desc_ptp->ts_1, desc_ptp->ts_2, &ts);
 		memset(shhwtstamps, 0, sizeof(struct skb_shared_hwtstamps));
 		shhwtstamps->hwtstamp = ktime_set(ts.tv_sec, ts.tv_nsec);
@@ -318,8 +342,16 @@ int gem_ptp_txstamp(struct macb_queue *queue, struct sk_buff *skb,
 	if (CIRC_SPACE(head, tail, PTP_TS_BUFFER_SIZE) == 0)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	skb_shinfo(skb)->tx_flags |= SKBTX_IN_PROGRESS;
 	desc_ptp = macb_ptp_desc(queue->bp, desc);
+=======
+	desc_ptp = macb_ptp_desc(queue->bp, desc);
+	/* Unlikely but check */
+	if (!desc_ptp)
+		return -EINVAL;
+	skb_shinfo(skb)->tx_flags |= SKBTX_IN_PROGRESS;
+>>>>>>> upstream/android-13
 	tx_timestamp = &queue->tx_timestamps[head];
 	tx_timestamp->skb = skb;
 	/* ensure ts_1/ts_2 is loaded after ctrl (TX_USED check) */
@@ -471,7 +503,11 @@ int gem_set_hwtst(struct net_device *dev, struct ifreq *ifr, int cmd)
 	case HWTSTAMP_TX_ONESTEP_SYNC:
 		if (gem_ptp_set_one_step_sync(bp, 1) != 0)
 			return -ERANGE;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case HWTSTAMP_TX_ON:
 		tx_bd_control = TSTAMP_ALL_FRAMES;
 		break;

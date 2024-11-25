@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/kernel/power/snapshot.c
  *
@@ -5,12 +9,18 @@
  *
  * Copyright (C) 1998-2005 Pavel Machek <pavel@ucw.cz>
  * Copyright (C) 2006 Rafael J. Wysocki <rjw@sisk.pl>
+<<<<<<< HEAD
  *
  * This file is released under the GPLv2.
  *
  */
 
 #define pr_fmt(fmt) "PM: " fmt
+=======
+ */
+
+#define pr_fmt(fmt) "PM: hibernation: " fmt
+>>>>>>> upstream/android-13
 
 #include <linux/version.h>
 #include <linux/module.h>
@@ -23,7 +33,11 @@
 #include <linux/pm.h>
 #include <linux/device.h>
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/nmi.h>
 #include <linux/syscalls.h>
 #include <linux/console.h>
@@ -36,7 +50,10 @@
 
 #include <linux/uaccess.h>
 #include <asm/mmu_context.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/tlbflush.h>
 #include <asm/io.h>
 
@@ -79,6 +96,43 @@ static inline void hibernate_restore_protect_page(void *page_address) {}
 static inline void hibernate_restore_unprotect_page(void *page_address) {}
 #endif /* CONFIG_STRICT_KERNEL_RWX  && CONFIG_ARCH_HAS_SET_MEMORY */
 
+<<<<<<< HEAD
+=======
+
+/*
+ * The calls to set_direct_map_*() should not fail because remapping a page
+ * here means that we only update protection bits in an existing PTE.
+ * It is still worth to have a warning here if something changes and this
+ * will no longer be the case.
+ */
+static inline void hibernate_map_page(struct page *page)
+{
+	if (IS_ENABLED(CONFIG_ARCH_HAS_SET_DIRECT_MAP)) {
+		int ret = set_direct_map_default_noflush(page);
+
+		if (ret)
+			pr_warn_once("Failed to remap page\n");
+	} else {
+		debug_pagealloc_map_pages(page, 1);
+	}
+}
+
+static inline void hibernate_unmap_page(struct page *page)
+{
+	if (IS_ENABLED(CONFIG_ARCH_HAS_SET_DIRECT_MAP)) {
+		unsigned long addr = (unsigned long)page_address(page);
+		int ret  = set_direct_map_invalid_noflush(page);
+
+		if (ret)
+			pr_warn_once("Failed to remap page\n");
+
+		flush_tlb_kernel_range(addr, addr + PAGE_SIZE);
+	} else {
+		debug_pagealloc_unmap_pages(page, 1);
+	}
+}
+
+>>>>>>> upstream/android-13
 static int swsusp_page_is_free(struct page *);
 static void swsusp_set_page_forbidden(struct page *);
 static void swsusp_unset_page_forbidden(struct page *);
@@ -105,7 +159,11 @@ unsigned long image_size;
 
 void __init hibernate_image_size_init(void)
 {
+<<<<<<< HEAD
 	image_size = ((totalram_pages * 2) / 5) * PAGE_SIZE;
+=======
+	image_size = ((totalram_pages() * 2) / 5) * PAGE_SIZE;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -298,9 +356,15 @@ static void *chain_alloc(struct chain_allocator *ca, unsigned int size)
 /**
  * Data types related to memory bitmaps.
  *
+<<<<<<< HEAD
  * Memory bitmap is a structure consiting of many linked lists of
  * objects.  The main list's elements are of type struct zone_bitmap
  * and each of them corresonds to one zone.  For each zone bitmap
+=======
+ * Memory bitmap is a structure consisting of many linked lists of
+ * objects.  The main list's elements are of type struct zone_bitmap
+ * and each of them corresponds to one zone.  For each zone bitmap
+>>>>>>> upstream/android-13
  * object there is a list of objects of type struct bm_block that
  * represent each blocks of bitmap in which information is stored.
  *
@@ -738,7 +802,11 @@ zone_found:
 	 */
 
 	/*
+<<<<<<< HEAD
 	 * If the zone we wish to scan is the the current zone and the
+=======
+	 * If the zone we wish to scan is the current zone and the
+>>>>>>> upstream/android-13
 	 * pfn falls into the current node then we do not need to walk
 	 * the tree.
 	 */
@@ -947,8 +1015,12 @@ static void memory_bm_recycle(struct memory_bitmap *bm)
  * Register a range of page frames the contents of which should not be saved
  * during hibernation (to be used in the early initialization code).
  */
+<<<<<<< HEAD
 void __init __register_nosave_region(unsigned long start_pfn,
 				     unsigned long end_pfn, int use_kmalloc)
+=======
+void __init register_nosave_region(unsigned long start_pfn, unsigned long end_pfn)
+>>>>>>> upstream/android-13
 {
 	struct nosave_region *region;
 
@@ -964,6 +1036,7 @@ void __init __register_nosave_region(unsigned long start_pfn,
 			goto Report;
 		}
 	}
+<<<<<<< HEAD
 	if (use_kmalloc) {
 		/* During init, this shouldn't fail */
 		region = kmalloc(sizeof(struct nosave_region), GFP_KERNEL);
@@ -972,6 +1045,14 @@ void __init __register_nosave_region(unsigned long start_pfn,
 		/* This allocation cannot fail */
 		region = memblock_virt_alloc(sizeof(struct nosave_region), 0);
 	}
+=======
+	/* This allocation cannot fail */
+	region = memblock_alloc(sizeof(struct nosave_region),
+				SMP_CACHE_BYTES);
+	if (!region)
+		panic("%s: Failed to allocate %zu bytes\n", __func__,
+		      sizeof(struct nosave_region));
+>>>>>>> upstream/android-13
 	region->start_pfn = start_pfn;
 	region->end_pfn = end_pfn;
 	list_add_tail(&region->list, &nosave_regions);
@@ -1111,7 +1192,11 @@ int create_basic_memory_bitmaps(void)
  Free_second_object:
 	kfree(bm2);
  Free_first_bitmap:
+<<<<<<< HEAD
  	memory_bm_free(bm1, PG_UNSAFE_CLEAR);
+=======
+	memory_bm_free(bm1, PG_UNSAFE_CLEAR);
+>>>>>>> upstream/android-13
  Free_first_object:
 	kfree(bm1);
 	return -ENOMEM;
@@ -1143,7 +1228,19 @@ void free_basic_memory_bitmaps(void)
 	pr_debug("Basic memory bitmaps freed\n");
 }
 
+<<<<<<< HEAD
 void clear_free_pages(void)
+=======
+static void clear_or_poison_free_page(struct page *page)
+{
+	if (page_poisoning_enabled_static())
+		__kernel_poison_pages(page, 1);
+	else if (want_init_on_free())
+		clear_highpage(page);
+}
+
+void clear_or_poison_free_pages(void)
+>>>>>>> upstream/android-13
 {
 	struct memory_bitmap *bm = free_pages_map;
 	unsigned long pfn;
@@ -1151,12 +1248,20 @@ void clear_free_pages(void)
 	if (WARN_ON(!(free_pages_map)))
 		return;
 
+<<<<<<< HEAD
 	if (IS_ENABLED(CONFIG_PAGE_POISONING_ZERO) || want_init_on_free()) {
+=======
+	if (page_poisoning_enabled() || want_init_on_free()) {
+>>>>>>> upstream/android-13
 		memory_bm_position_reset(bm);
 		pfn = memory_bm_next_pfn(bm);
 		while (pfn != BM_END_OF_MAP) {
 			if (pfn_valid(pfn))
+<<<<<<< HEAD
 				clear_highpage(pfn_to_page(pfn));
+=======
+				clear_or_poison_free_page(pfn_to_page(pfn));
+>>>>>>> upstream/android-13
 
 			pfn = memory_bm_next_pfn(bm);
 		}
@@ -1221,14 +1326,26 @@ static struct page *saveable_highmem_page(struct zone *zone, unsigned long pfn)
 	if (!pfn_valid(pfn))
 		return NULL;
 
+<<<<<<< HEAD
 	page = pfn_to_page(pfn);
 	if (page_zone(page) != zone)
+=======
+	page = pfn_to_online_page(pfn);
+	if (!page || page_zone(page) != zone)
+>>>>>>> upstream/android-13
 		return NULL;
 
 	BUG_ON(!PageHighMem(page));
 
+<<<<<<< HEAD
 	if (swsusp_page_is_forbidden(page) ||  swsusp_page_is_free(page) ||
 	    PageReserved(page))
+=======
+	if (swsusp_page_is_forbidden(page) ||  swsusp_page_is_free(page))
+		return NULL;
+
+	if (PageReserved(page) || PageOffline(page))
+>>>>>>> upstream/android-13
 		return NULL;
 
 	if (page_is_guard(page))
@@ -1283,8 +1400,13 @@ static struct page *saveable_page(struct zone *zone, unsigned long pfn)
 	if (!pfn_valid(pfn))
 		return NULL;
 
+<<<<<<< HEAD
 	page = pfn_to_page(pfn);
 	if (page_zone(page) != zone)
+=======
+	page = pfn_to_online_page(pfn);
+	if (!page || page_zone(page) != zone)
+>>>>>>> upstream/android-13
 		return NULL;
 
 	BUG_ON(PageHighMem(page));
@@ -1292,6 +1414,12 @@ static struct page *saveable_page(struct zone *zone, unsigned long pfn)
 	if (swsusp_page_is_forbidden(page) || swsusp_page_is_free(page))
 		return NULL;
 
+<<<<<<< HEAD
+=======
+	if (PageOffline(page))
+		return NULL;
+
+>>>>>>> upstream/android-13
 	if (PageReserved(page)
 	    && (!kernel_page_present(page) || pfn_is_nosave(pfn)))
 		return NULL;
@@ -1340,17 +1468,29 @@ static inline void do_copy_page(long *dst, long *src)
  * safe_copy_page - Copy a page in a safe way.
  *
  * Check if the page we are going to copy is marked as present in the kernel
+<<<<<<< HEAD
  * page tables (this always is the case if CONFIG_DEBUG_PAGEALLOC is not set
  * and in that case kernel_page_present() always returns 'true').
+=======
+ * page tables. This always is the case if CONFIG_DEBUG_PAGEALLOC or
+ * CONFIG_ARCH_HAS_SET_DIRECT_MAP is not set. In that case kernel_page_present()
+ * always returns 'true'.
+>>>>>>> upstream/android-13
  */
 static void safe_copy_page(void *dst, struct page *s_page)
 {
 	if (kernel_page_present(s_page)) {
 		do_copy_page(dst, page_address(s_page));
 	} else {
+<<<<<<< HEAD
 		kernel_map_pages(s_page, 1, 1);
 		do_copy_page(dst, page_address(s_page));
 		kernel_map_pages(s_page, 1, 0);
+=======
+		hibernate_map_page(s_page);
+		do_copy_page(dst, page_address(s_page));
+		hibernate_unmap_page(s_page);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1451,7 +1591,11 @@ static struct memory_bitmap copy_bm;
 /**
  * swsusp_free - Free pages allocated for hibernation image.
  *
+<<<<<<< HEAD
  * Image pages are alocated before snapshot creation, so they need to be
+=======
+ * Image pages are allocated before snapshot creation, so they need to be
+>>>>>>> upstream/android-13
  * released after resume.
  */
 void swsusp_free(void)
@@ -1558,9 +1702,13 @@ static unsigned long preallocate_image_highmem(unsigned long nr_pages)
  */
 static unsigned long __fraction(u64 x, u64 multiplier, u64 base)
 {
+<<<<<<< HEAD
 	x *= multiplier;
 	do_div(x, base);
 	return (unsigned long)x;
+=======
+	return div64_u64(x * multiplier, base);
+>>>>>>> upstream/android-13
 }
 
 static unsigned long preallocate_highmem_fraction(unsigned long nr_pages,
@@ -1658,7 +1806,11 @@ static unsigned long minimum_image_size(unsigned long saveable)
 {
 	unsigned long size;
 
+<<<<<<< HEAD
 	size = global_node_page_state(NR_SLAB_RECLAIMABLE)
+=======
+	size = global_node_page_state_pages(NR_SLAB_RECLAIMABLE_B)
+>>>>>>> upstream/android-13
 		+ global_node_page_state(NR_ACTIVE_ANON)
 		+ global_node_page_state(NR_INACTIVE_ANON)
 		+ global_node_page_state(NR_ACTIVE_FILE)
@@ -1675,7 +1827,11 @@ static unsigned long minimum_image_size(unsigned long saveable)
  * hibernation for allocations made while saving the image and for device
  * drivers, in case they need to allocate memory from their hibernation
  * callbacks (these two numbers are given by PAGES_FOR_IO (which is a rough
+<<<<<<< HEAD
  * estimate) and reserverd_size divided by PAGE_SIZE (which is tunable through
+=======
+ * estimate) and reserved_size divided by PAGE_SIZE (which is tunable through
+>>>>>>> upstream/android-13
  * /sys/power/reserved_size, respectively).  To make this happen, we compute the
  * total number of available page frames and allocate at least
  *
@@ -1697,6 +1853,7 @@ int hibernate_preallocate_memory(void)
 	ktime_t start, stop;
 	int error;
 
+<<<<<<< HEAD
 	pr_info("Preallocating image memory... ");
 	start = ktime_get();
 
@@ -1707,6 +1864,22 @@ int hibernate_preallocate_memory(void)
 	error = memory_bm_create(&copy_bm, GFP_IMAGE, PG_ANY);
 	if (error)
 		goto err_out;
+=======
+	pr_info("Preallocating image memory\n");
+	start = ktime_get();
+
+	error = memory_bm_create(&orig_bm, GFP_IMAGE, PG_ANY);
+	if (error) {
+		pr_err("Cannot allocate original bitmap\n");
+		goto err_out;
+	}
+
+	error = memory_bm_create(&copy_bm, GFP_IMAGE, PG_ANY);
+	if (error) {
+		pr_err("Cannot allocate copy bitmap\n");
+		goto err_out;
+	}
+>>>>>>> upstream/android-13
 
 	alloc_normal = 0;
 	alloc_highmem = 0;
@@ -1734,9 +1907,12 @@ int hibernate_preallocate_memory(void)
 	count += highmem;
 	count -= totalreserve_pages;
 
+<<<<<<< HEAD
 	/* Add number of pages required for page keys (s390 only). */
 	size += page_key_additional_pages(saveable);
 
+=======
+>>>>>>> upstream/android-13
 	/* Compute the maximum number of saveable pages to leave in memory. */
 	max_size = (count - (size + PAGES_FOR_IO)) / 2
 			- 2 * DIV_ROUND_UP(reserved_size, PAGE_SIZE);
@@ -1796,8 +1972,16 @@ int hibernate_preallocate_memory(void)
 		alloc -= pages;
 		pages += pages_highmem;
 		pages_highmem = preallocate_image_highmem(alloc);
+<<<<<<< HEAD
 		if (pages_highmem < alloc)
 			goto err_out;
+=======
+		if (pages_highmem < alloc) {
+			pr_err("Image allocation is %lu pages short\n",
+				alloc - pages_highmem);
+			goto err_out;
+		}
+>>>>>>> upstream/android-13
 		pages += pages_highmem;
 		/*
 		 * size is the desired number of saveable pages to leave in
@@ -1828,13 +2012,20 @@ int hibernate_preallocate_memory(void)
 
  out:
 	stop = ktime_get();
+<<<<<<< HEAD
 	pr_cont("done (allocated %lu pages)\n", pages);
+=======
+	pr_info("Allocated %lu pages for snapshot\n", pages);
+>>>>>>> upstream/android-13
 	swsusp_show_speed(start, stop, pages, "Allocated");
 
 	return 0;
 
  err_out:
+<<<<<<< HEAD
 	pr_cont("\n");
+=======
+>>>>>>> upstream/android-13
 	swsusp_free();
 	return -ENOMEM;
 }
@@ -1968,7 +2159,11 @@ asmlinkage __visible int swsusp_save(void)
 {
 	unsigned int nr_pages, nr_highmem;
 
+<<<<<<< HEAD
 	pr_info("Creating hibernation image:\n");
+=======
+	pr_info("Creating image:\n");
+>>>>>>> upstream/android-13
 
 	drain_local_pages(NULL);
 	nr_pages = count_data_pages();
@@ -2002,7 +2197,11 @@ asmlinkage __visible int swsusp_save(void)
 	nr_copy_pages = nr_pages;
 	nr_meta_pages = DIV_ROUND_UP(nr_pages * sizeof(long), PAGE_SIZE);
 
+<<<<<<< HEAD
 	pr_info("Hibernation image created (%d pages copied)\n", nr_pages);
+=======
+	pr_info("Image created (%d pages copied)\n", nr_pages);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -2015,7 +2214,11 @@ static int init_header_complete(struct swsusp_info *info)
 	return 0;
 }
 
+<<<<<<< HEAD
 static char *check_image_kernel(struct swsusp_info *info)
+=======
+static const char *check_image_kernel(struct swsusp_info *info)
+>>>>>>> upstream/android-13
 {
 	if (info->version_code != LINUX_VERSION_CODE)
 		return "kernel version";
@@ -2063,8 +2266,11 @@ static inline void pack_pfns(unsigned long *buf, struct memory_bitmap *bm)
 		buf[j] = memory_bm_next_pfn(bm);
 		if (unlikely(buf[j] == BM_END_OF_MAP))
 			break;
+<<<<<<< HEAD
 		/* Save page key for data page (s390 only). */
 		page_key_read(buf + j);
+=======
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -2170,7 +2376,11 @@ static void mark_unsafe_pages(struct memory_bitmap *bm)
 
 static int check_header(struct swsusp_info *info)
 {
+<<<<<<< HEAD
 	char *reason;
+=======
+	const char *reason;
+>>>>>>> upstream/android-13
 
 	reason = check_image_kernel(info);
 	if (!reason && info->num_physpages != get_num_physpages())
@@ -2214,9 +2424,12 @@ static int unpack_orig_pfns(unsigned long *buf, struct memory_bitmap *bm)
 		if (unlikely(buf[j] == BM_END_OF_MAP))
 			break;
 
+<<<<<<< HEAD
 		/* Extract and buffer page key for data page (s390 only). */
 		page_key_memorize(buf + j);
 
+=======
+>>>>>>> upstream/android-13
 		if (pfn_valid(buf[j]) && memory_bm_pfn_present(bm, buf[j]))
 			memory_bm_set_bit(bm, buf[j]);
 		else
@@ -2281,7 +2494,11 @@ static struct memory_bitmap *safe_highmem_bm;
  * (@nr_highmem_p points to the variable containing the number of highmem image
  * pages).  The pages that are "safe" (ie. will not be overwritten when the
  * hibernation image is restored entirely) have the corresponding bits set in
+<<<<<<< HEAD
  * @bm (it must be unitialized).
+=======
+ * @bm (it must be uninitialized).
+>>>>>>> upstream/android-13
  *
  * NOTE: This function should not be called if there are no highmem image pages.
  */
@@ -2438,7 +2655,11 @@ static inline void free_highmem_data(void) {}
 
 /**
  * prepare_image - Make room for loading hibernation image.
+<<<<<<< HEAD
  * @new_bm: Unitialized memory bitmap structure.
+=======
+ * @new_bm: Uninitialized memory bitmap structure.
+>>>>>>> upstream/android-13
  * @bm: Memory bitmap with unsafe pages marked.
  *
  * Use @bm to mark the pages that will be overwritten in the process of
@@ -2611,11 +2832,14 @@ int snapshot_write_next(struct snapshot_handle *handle)
 		if (error)
 			return error;
 
+<<<<<<< HEAD
 		/* Allocate buffer for page keys. */
 		error = page_key_alloc(nr_copy_pages);
 		if (error)
 			return error;
 
+=======
+>>>>>>> upstream/android-13
 		hibernate_restore_protection_begin();
 	} else if (handle->cur <= nr_meta_pages + 1) {
 		error = unpack_orig_pfns(buffer, &copy_bm);
@@ -2637,8 +2861,11 @@ int snapshot_write_next(struct snapshot_handle *handle)
 		}
 	} else {
 		copy_last_highmem_page();
+<<<<<<< HEAD
 		/* Restore page key for data page (s390 only). */
 		page_key_write(handle->buffer);
+=======
+>>>>>>> upstream/android-13
 		hibernate_restore_protect_page(handle->buffer);
 		handle->buffer = get_buffer(&orig_bm, &ca);
 		if (IS_ERR(handle->buffer))
@@ -2661,9 +2888,12 @@ int snapshot_write_next(struct snapshot_handle *handle)
 void snapshot_write_finalize(struct snapshot_handle *handle)
 {
 	copy_last_highmem_page();
+<<<<<<< HEAD
 	/* Restore page key for data page (s390 only). */
 	page_key_write(handle->buffer);
 	page_key_free();
+=======
+>>>>>>> upstream/android-13
 	hibernate_restore_protect_page(handle->buffer);
 	/* Do that only if we have loaded the image entirely */
 	if (handle->cur > 1 && handle->cur > nr_meta_pages + nr_copy_pages) {

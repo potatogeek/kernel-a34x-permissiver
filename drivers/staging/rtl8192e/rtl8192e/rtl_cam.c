@@ -1,8 +1,14 @@
+<<<<<<< HEAD
 /******************************************************************************
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+>>>>>>> upstream/android-13
  * Copyright(c) 2008 - 2010 Realtek Corporation. All rights reserved.
  *
  * Based on the r8180 driver, which is:
  * Copyright 2004-2005 Andrea Merello <andrea.merello@gmail.com>, et al.
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -18,6 +24,11 @@
  * Contact Information:
  * wlanfae <wlanfae@realtek.com>
  *****************************************************************************/
+=======
+ *
+ * Contact Information: wlanfae <wlanfae@realtek.com>
+ */
+>>>>>>> upstream/android-13
 #include "rtl_core.h"
 #include "r8192E_phy.h"
 #include "r8192E_phyreg.h"
@@ -119,8 +130,13 @@ void rtl92e_set_key(struct net_device *dev, u8 EntryNo, u8 KeyIndex,
 	}
 
 	RT_TRACE(COMP_SEC,
+<<<<<<< HEAD
 		 "====>to rtl92e_set_key(), dev:%p, EntryNo:%d, KeyIndex:%d,KeyType:%d, MacAddr %pM\n",
 		 dev, EntryNo, KeyIndex, KeyType, MacAddr);
+=======
+		 "====>to %s, dev:%p, EntryNo:%d, KeyIndex:%d,KeyType:%d, MacAddr %pM\n",
+		 __func__, dev, EntryNo, KeyIndex, KeyType, MacAddr);
+>>>>>>> upstream/android-13
 
 	if (DefaultKey)
 		usConfig |= BIT15 | (KeyType<<2);
@@ -174,7 +190,11 @@ void rtl92e_cam_restore(struct net_device *dev)
 		0xff, 0xff, 0xff, 0xff, 0xff, 0xff
 	};
 
+<<<<<<< HEAD
 	RT_TRACE(COMP_SEC, "rtl92e_cam_restore:\n");
+=======
+	RT_TRACE(COMP_SEC, "%s:\n", __func__);
+>>>>>>> upstream/android-13
 
 
 	if ((priv->rtllib->pairwise_key_type == KEY_TYPE_WEP40) ||
@@ -196,14 +216,22 @@ void rtl92e_cam_restore(struct net_device *dev)
 			rtl92e_set_key(dev, 4, 0,
 				       priv->rtllib->pairwise_key_type,
 				       (u8 *)dev->dev_addr, 0,
+<<<<<<< HEAD
 				       (u32 *)(&priv->rtllib->swcamtable[4].
 				       key_buf[0]));
+=======
+				       (u32 *)(&priv->rtllib->swcamtable[4].key_buf[0]));
+>>>>>>> upstream/android-13
 		} else {
 			rtl92e_set_key(dev, 4, 0,
 				       priv->rtllib->pairwise_key_type,
 				       MacAddr, 0,
+<<<<<<< HEAD
 				       (u32 *)(&priv->rtllib->swcamtable[4].
 				       key_buf[0]));
+=======
+				       (u32 *)(&priv->rtllib->swcamtable[4].key_buf[0]));
+>>>>>>> upstream/android-13
 		}
 
 	} else if (priv->rtllib->pairwise_key_type == KEY_TYPE_CCMP) {
@@ -211,6 +239,7 @@ void rtl92e_cam_restore(struct net_device *dev)
 			rtl92e_set_key(dev, 4, 0,
 				       priv->rtllib->pairwise_key_type,
 				       (u8 *)dev->dev_addr, 0,
+<<<<<<< HEAD
 				       (u32 *)(&priv->rtllib->swcamtable[4].
 				       key_buf[0]));
 		} else {
@@ -218,6 +247,13 @@ void rtl92e_cam_restore(struct net_device *dev)
 				       priv->rtllib->pairwise_key_type, MacAddr,
 				       0, (u32 *)(&priv->rtllib->swcamtable[4].
 				       key_buf[0]));
+=======
+				       (u32 *)(&priv->rtllib->swcamtable[4].key_buf[0]));
+		} else {
+			rtl92e_set_key(dev, 4, 0,
+				       priv->rtllib->pairwise_key_type, MacAddr,
+				       0, (u32 *)(&priv->rtllib->swcamtable[4].key_buf[0]));
+>>>>>>> upstream/android-13
 			}
 	}
 

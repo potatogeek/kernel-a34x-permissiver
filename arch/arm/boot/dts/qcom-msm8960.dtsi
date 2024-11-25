@@ -1,14 +1,22 @@
 // SPDX-License-Identifier: GPL-2.0
 /dts-v1/;
 
+<<<<<<< HEAD
 /include/ "skeleton.dtsi"
 
+=======
+>>>>>>> upstream/android-13
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/clock/qcom,gcc-msm8960.h>
 #include <dt-bindings/mfd/qcom-rpm.h>
 #include <dt-bindings/soc/qcom,gsbi.h>
 
 / {
+<<<<<<< HEAD
+=======
+	#address-cells = <1>;
+	#size-cells = <1>;
+>>>>>>> upstream/android-13
 	model = "Qualcomm MSM8960";
 	compatible = "qcom,msm8960";
 	interrupt-parent = <&intc>;
@@ -44,6 +52,14 @@
 		};
 	};
 
+<<<<<<< HEAD
+=======
+	memory {
+		device_type = "memory";
+		reg = <0x0 0x0>;
+	};
+
+>>>>>>> upstream/android-13
 	cpu-pmu {
 		compatible = "qcom,krait-pmu";
 		interrupts = <1 10 0x304>;
@@ -102,6 +118,10 @@
 		msmgpio: pinctrl@800000 {
 			compatible = "qcom,msm8960-pinctrl";
 			gpio-controller;
+<<<<<<< HEAD
+=======
+			gpio-ranges = <&msmgpio 0 0 152>;
+>>>>>>> upstream/android-13
 			#gpio-cells = <2>;
 			interrupts = <0 16 0x4>;
 			interrupt-controller;
@@ -140,7 +160,13 @@
 			reg		= <0x108000 0x1000>;
 			qcom,ipc	= <&l2cc 0x8 2>;
 
+<<<<<<< HEAD
 			interrupts	= <0 19 0>, <0 21 0>, <0 22 0>;
+=======
+			interrupts	= <GIC_SPI 19 IRQ_TYPE_EDGE_RISING>,
+					  <GIC_SPI 21 IRQ_TYPE_EDGE_RISING>,
+					  <GIC_SPI 22 IRQ_TYPE_EDGE_RISING>;
+>>>>>>> upstream/android-13
 			interrupt-names	= "ack", "err", "wakeup";
 
 			regulators {
@@ -186,7 +212,11 @@
 				compatible = "qcom,msm-uartdm-v1.3", "qcom,msm-uartdm";
 				reg = <0x16440000 0x1000>,
 				      <0x16400000 0x1000>;
+<<<<<<< HEAD
 				interrupts = <0 154 0x0>;
+=======
+				interrupts = <GIC_SPI 154 IRQ_TYPE_LEVEL_HIGH>;
+>>>>>>> upstream/android-13
 				clocks = <&gcc GSBI5_UART_CLK>, <&gcc GSBI5_H_CLK>;
 				clock-names = "core", "iface";
 				status = "disabled";
@@ -312,7 +342,11 @@
 				#address-cells = <1>;
 				#size-cells = <0>;
 				reg = <0x16080000 0x1000>;
+<<<<<<< HEAD
 				interrupts = <0 147 0>;
+=======
+				interrupts = <GIC_SPI 147 IRQ_TYPE_LEVEL_HIGH>;
+>>>>>>> upstream/android-13
 				spi-max-frequency = <24000000>;
 				cs-gpios = <&msmgpio 8 0>;
 

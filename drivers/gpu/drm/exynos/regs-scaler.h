@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /* drivers/gpu/drm/exynos/regs-scaler.h
  *
  * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *		http://www.samsung.com/
+<<<<<<< HEAD
  * Author: Andrzej Pietrasiewicz <andrzej.p@samsung.com>
  *
  * Register definition file for Samsung scaler driver
@@ -9,6 +14,11 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+ * Author: Andrzej Pietrasiewicz <andrzejtp2010@gmail.com>
+ *
+ * Register definition file for Samsung scaler driver
+>>>>>>> upstream/android-13
  */
 
 #ifndef EXYNOS_REGS_SCALER_H

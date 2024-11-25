@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /******************************************************************************
  *
  * Copyright(c) 2009 - 2014 Intel Corporation. All rights reserved.
  * Copyright(c) 2015 Intel Mobile Communications GmbH
  * Copyright(c) 2016 - 2017 Intel Deutschland GmbH
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -19,6 +24,9 @@
  *
  * The full GNU General Public License is included in this distribution in the
  * file called LICENSE.
+=======
+ * Copyright(c) 2018        Intel Corporation
+>>>>>>> upstream/android-13
  *
  * Contact Information:
  *  Intel Linux Wireless <linuxwifi@intel.com>
@@ -75,6 +83,7 @@ TRACE_EVENT(iwlwifi_dev_rx,
 	TP_STRUCT__entry(
 		DEV_ENTRY
 		__field(u16, cmd)
+<<<<<<< HEAD
 		__dynamic_array(u8, rxbuf, iwl_rx_trace_len(trans, pkt, len))
 	),
 	TP_fast_assign(
@@ -82,6 +91,20 @@ TRACE_EVENT(iwlwifi_dev_rx,
 		__entry->cmd = WIDE_ID(pkt->hdr.group_id, pkt->hdr.cmd);
 		memcpy(__get_dynamic_array(rxbuf), pkt,
 		       iwl_rx_trace_len(trans, pkt, len));
+=======
+		__field(u8, hdr_offset)
+		__dynamic_array(u8, rxbuf,
+				iwl_rx_trace_len(trans, pkt, len, NULL))
+	),
+	TP_fast_assign(
+		size_t hdr_offset = 0;
+
+		DEV_ASSIGN;
+		__entry->cmd = WIDE_ID(pkt->hdr.group_id, pkt->hdr.cmd);
+		memcpy(__get_dynamic_array(rxbuf), pkt,
+		       iwl_rx_trace_len(trans, pkt, len, &hdr_offset));
+		__entry->hdr_offset = hdr_offset;
+>>>>>>> upstream/android-13
 	),
 	TP_printk("[%s] RX cmd %#.2x",
 		  __get_str(dev), __entry->cmd)
@@ -126,6 +149,7 @@ TRACE_EVENT(iwlwifi_dev_tx,
 		  __entry->framelen, __entry->skbaddr)
 );
 
+<<<<<<< HEAD
 struct iwl_error_event_table;
 TRACE_EVENT(iwlwifi_dev_ucode_error,
 	TP_PROTO(const struct device *dev, const struct iwl_error_event_table *table,
@@ -181,6 +205,8 @@ TRACE_EVENT(iwlwifi_dev_ucode_error,
 		  __entry->hw_ver, __entry->brd_ver)
 );
 
+=======
+>>>>>>> upstream/android-13
 TRACE_EVENT(iwlwifi_dev_ucode_event,
 	TP_PROTO(const struct device *dev, u32 time, u32 data, u32 ev),
 	TP_ARGS(dev, time, data, ev),

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * INET		An implementation of the TCP/IP protocol suite for the LINUX
  *		operating system.  INET is implemented using the  BSD Socket
@@ -265,6 +269,10 @@ void tcp_time_wait(struct sock *sk, int state, int timeo)
 
 		tw->tw_transparent	= inet->transparent;
 		tw->tw_mark		= sk->sk_mark;
+<<<<<<< HEAD
+=======
+		tw->tw_priority		= sk->sk_priority;
+>>>>>>> upstream/android-13
 		tw->tw_rcv_wscale	= tp->rx_opt.rcv_wscale;
 		tcptw->tw_rcv_nxt	= tp->rcv_nxt;
 		tcptw->tw_snd_nxt	= tp->snd_nxt;
@@ -273,7 +281,11 @@ void tcp_time_wait(struct sock *sk, int state, int timeo)
 		tcptw->tw_ts_recent_stamp = tp->rx_opt.ts_recent_stamp;
 		tcptw->tw_ts_offset	= tp->tsoffset;
 		tcptw->tw_last_oow_ack_time = 0;
+<<<<<<< HEAD
 
+=======
+		tcptw->tw_tx_delay	= tp->tcp_tx_delay;
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_IPV6)
 		if (tw->tw_family == PF_INET6) {
 			struct ipv6_pinfo *np = inet6_sk(sk);
@@ -282,6 +294,10 @@ void tcp_time_wait(struct sock *sk, int state, int timeo)
 			tw->tw_v6_rcv_saddr = sk->sk_v6_rcv_saddr;
 			tw->tw_tclass = np->tclass;
 			tw->tw_flowlabel = be32_to_cpu(np->flow_label & IPV6_FLOWLABEL_MASK);
+<<<<<<< HEAD
+=======
+			tw->tw_txhash = sk->sk_txhash;
+>>>>>>> upstream/android-13
 			tw->tw_ipv6only = sk->sk_ipv6only;
 		}
 #endif
@@ -294,12 +310,24 @@ void tcp_time_wait(struct sock *sk, int state, int timeo)
 		 * so the timewait ack generating code has the key.
 		 */
 		do {
+<<<<<<< HEAD
 			struct tcp_md5sig_key *key;
 			tcptw->tw_md5_key = NULL;
 			key = tp->af_specific->md5_lookup(sk, sk);
 			if (key) {
 				tcptw->tw_md5_key = kmemdup(key, sizeof(*key), GFP_ATOMIC);
 				BUG_ON(tcptw->tw_md5_key && !tcp_alloc_md5sig_pool());
+=======
+			tcptw->tw_md5_key = NULL;
+			if (static_branch_unlikely(&tcp_md5_needed)) {
+				struct tcp_md5sig_key *key;
+
+				key = tp->af_specific->md5_lookup(sk, sk);
+				if (key) {
+					tcptw->tw_md5_key = kmemdup(key, sizeof(*key), GFP_ATOMIC);
+					BUG_ON(tcptw->tw_md5_key && !tcp_alloc_md5sig_pool());
+				}
+>>>>>>> upstream/android-13
 			}
 		} while (0);
 #endif
@@ -338,10 +366,19 @@ EXPORT_SYMBOL(tcp_time_wait);
 void tcp_twsk_destructor(struct sock *sk)
 {
 #ifdef CONFIG_TCP_MD5SIG
+<<<<<<< HEAD
 	struct tcp_timewait_sock *twsk = tcp_twsk(sk);
 
 	if (twsk->tw_md5_key)
 		kfree_rcu(twsk->tw_md5_key, rcu);
+=======
+	if (static_branch_unlikely(&tcp_md5_needed)) {
+		struct tcp_timewait_sock *twsk = tcp_twsk(sk);
+
+		if (twsk->tw_md5_key)
+			kfree_rcu(twsk->tw_md5_key, rcu);
+	}
+>>>>>>> upstream/android-13
 #endif
 }
 EXPORT_SYMBOL_GPL(tcp_twsk_destructor);
@@ -406,7 +443,11 @@ void tcp_ca_openreq_child(struct sock *sk, const struct dst_entry *dst)
 
 		rcu_read_lock();
 		ca = tcp_ca_find_key(ca_key);
+<<<<<<< HEAD
 		if (likely(ca && try_module_get(ca->owner))) {
+=======
+		if (likely(ca && bpf_try_module_get(ca, ca->owner))) {
+>>>>>>> upstream/android-13
 			icsk->icsk_ca_dst_locked = tcp_ca_dst_locked(dst);
 			icsk->icsk_ca_ops = ca;
 			ca_got_dst = true;
@@ -417,7 +458,11 @@ void tcp_ca_openreq_child(struct sock *sk, const struct dst_entry *dst)
 	/* If no valid choice made yet, assign current system default ca. */
 	if (!ca_got_dst &&
 	    (!icsk->icsk_ca_setsockopt ||
+<<<<<<< HEAD
 	     !try_module_get(icsk->icsk_ca_ops->owner)))
+=======
+	     !bpf_try_module_get(icsk->icsk_ca_ops, icsk->icsk_ca_ops->owner)))
+>>>>>>> upstream/android-13
 		tcp_assign_congestion_control(sk);
 
 	tcp_set_ca_state(sk, TCP_CA_Open);
@@ -474,14 +519,22 @@ struct sock *tcp_create_openreq_child(const struct sock *sk,
 	WRITE_ONCE(newtp->rcv_nxt, seq);
 	newtp->segs_in = 1;
 
+<<<<<<< HEAD
 	newtp->snd_sml = newtp->snd_una =
 	newtp->snd_nxt = newtp->snd_up = treq->snt_isn + 1;
+=======
+	seq = treq->snt_isn + 1;
+	newtp->snd_sml = newtp->snd_una = seq;
+	WRITE_ONCE(newtp->snd_nxt, seq);
+	newtp->snd_up = seq;
+>>>>>>> upstream/android-13
 
 	INIT_LIST_HEAD(&newtp->tsq_node);
 	INIT_LIST_HEAD(&newtp->tsorted_sent_queue);
 
 	tcp_init_wl(newtp, treq->rcv_isn);
 
+<<<<<<< HEAD
 	newtp->srtt_us = 0;
 	newtp->mdev_us = jiffies_to_usecs(TCP_TIMEOUT_INIT);
 	minmax_reset(&newtp->rtt_min, tcp_jiffies32, ~0U);
@@ -519,6 +572,18 @@ struct sock *tcp_create_openreq_child(const struct sock *sk,
 
 	newtp->urg_data = 0;
 
+=======
+	minmax_reset(&newtp->rtt_min, tcp_jiffies32, ~0U);
+	newicsk->icsk_ack.lrcvtime = tcp_jiffies32;
+
+	newtp->lsndtime = tcp_jiffies32;
+	newsk->sk_txhash = treq->txhash;
+	newtp->total_retrans = req->num_retrans;
+
+	tcp_init_xmit_timers(newsk);
+	WRITE_ONCE(newtp->write_seq, newtp->pushed_seq = treq->snt_isn + 1);
+
+>>>>>>> upstream/android-13
 	if (sock_flag(newsk, SOCK_KEEPOPEN))
 		inet_csk_reset_keepalive_timer(newsk,
 					       keepalive_time_when(newtp));
@@ -547,10 +612,22 @@ struct sock *tcp_create_openreq_child(const struct sock *sk,
 		newtp->rx_opt.ts_recent_stamp = 0;
 		newtp->tcp_header_len = sizeof(struct tcphdr);
 	}
+<<<<<<< HEAD
 	newtp->tsoffset = treq->ts_off;
 #ifdef CONFIG_TCP_MD5SIG
 	newtp->md5sig_info = NULL;	/*XXX*/
 	if (newtp->af_specific->md5_lookup(sk, newsk))
+=======
+	if (req->num_timeout) {
+		newtp->undo_marker = treq->snt_isn;
+		newtp->retrans_stamp = div_u64(treq->snt_synack,
+					       USEC_PER_SEC / TCP_TS_HZ);
+	}
+	newtp->tsoffset = treq->ts_off;
+#ifdef CONFIG_TCP_MD5SIG
+	newtp->md5sig_info = NULL;	/*XXX*/
+	if (treq->af_specific->req_md5_lookup(sk, req_to_sk(req)))
+>>>>>>> upstream/android-13
 		newtp->tcp_header_len += TCPOLEN_MD5SIG_ALIGNED;
 #endif
 	if (skb->len >= TCP_MSS_DEFAULT + newtp->tcp_header_len)
@@ -558,6 +635,7 @@ struct sock *tcp_create_openreq_child(const struct sock *sk,
 	newtp->rx_opt.mss_clamp = req->mss;
 	tcp_ecn_openreq_child(newtp, req);
 	newtp->fastopen_req = NULL;
+<<<<<<< HEAD
 	newtp->fastopen_rsk = NULL;
 	newtp->syn_data_acked = 0;
 	newtp->rack.mstamp = 0;
@@ -566,6 +644,11 @@ struct sock *tcp_create_openreq_child(const struct sock *sk,
 	newtp->rack.last_delivered = 0;
 	newtp->rack.reo_wnd_persist = 0;
 	newtp->rack.dsack_seen = 0;
+=======
+	RCU_INIT_POINTER(newtp->fastopen_rsk, NULL);
+
+	tcp_bpf_clone(sk, newsk);
+>>>>>>> upstream/android-13
 
 	__TCP_INC_STATS(sock_net(sk), TCP_MIB_PASSIVEOPENS);
 
@@ -791,12 +874,27 @@ struct sock *tcp_check_req(struct sock *sk, struct sk_buff *skb,
 	if (!child)
 		goto listen_overflow;
 
+<<<<<<< HEAD
+=======
+	if (own_req && rsk_drop_req(req)) {
+		reqsk_queue_removed(&inet_csk(req->rsk_listener)->icsk_accept_queue, req);
+		inet_csk_reqsk_queue_drop_and_put(req->rsk_listener, req);
+		return child;
+	}
+
+>>>>>>> upstream/android-13
 	sock_rps_save_rxhash(child, skb);
 	tcp_synack_rtt_meas(child, req);
 	*req_stolen = !own_req;
 	return inet_csk_complete_hashdance(sk, child, req, own_req);
 
 listen_overflow:
+<<<<<<< HEAD
+=======
+	if (sk != req->rsk_listener)
+		__NET_INC_STATS(sock_net(sk), LINUX_MIB_TCPMIGRATEREQFAILURE);
+
+>>>>>>> upstream/android-13
 	if (!sock_net(sk)->ipv4.sysctl_tcp_abort_on_overflow) {
 		inet_rsk(req)->acked = 1;
 		return NULL;
@@ -812,7 +910,11 @@ embryonic_reset:
 		req->rsk_ops->send_reset(sk, skb);
 	} else if (fastopen) { /* received a valid RST pkt */
 		reqsk_fastopen_remove(sk, req, true);
+<<<<<<< HEAD
 		tcp_reset(sk);
+=======
+		tcp_reset(sk, skb);
+>>>>>>> upstream/android-13
 	}
 	if (!fastopen) {
 		bool unlinked = inet_csk_reqsk_queue_drop(sk, req);
@@ -839,6 +941,10 @@ EXPORT_SYMBOL(tcp_check_req);
 
 int tcp_child_process(struct sock *parent, struct sock *child,
 		      struct sk_buff *skb)
+<<<<<<< HEAD
+=======
+	__releases(&((child)->sk_lock.slock))
+>>>>>>> upstream/android-13
 {
 	int ret = 0;
 	int state = child->sk_state;

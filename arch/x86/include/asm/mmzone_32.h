@@ -14,6 +14,7 @@ extern struct pglist_data *node_data[];
 #define NODE_DATA(nid)	(node_data[nid])
 #endif /* CONFIG_NUMA */
 
+<<<<<<< HEAD
 #ifdef CONFIG_DISCONTIGMEM
 
 /*
@@ -53,4 +54,6 @@ static inline int pfn_valid(int pfn)
 
 #endif /* CONFIG_DISCONTIGMEM */
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _ASM_X86_MMZONE_32_H */

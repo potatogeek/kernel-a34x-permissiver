@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /***************************************************************************
  *   Copyright (C) 2011-2012 Hans de Goede <hdegoede@redhat.com>           *
  *                                                                         *
@@ -15,6 +16,12 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/***************************************************************************
+ *   Copyright (C) 2011-2012 Hans de Goede <hdegoede@redhat.com>           *
+ *                                                                         *
+>>>>>>> upstream/android-13
  ***************************************************************************/
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -67,7 +74,10 @@ static const u16 SCH5636_REG_FAN_VAL[SCH5636_NO_FANS] = {
 struct sch5636_data {
 	unsigned short addr;
 	struct device *hwmon_dev;
+<<<<<<< HEAD
 	struct sch56xx_watchdog_data *watchdog;
+=======
+>>>>>>> upstream/android-13
 
 	struct mutex update_lock;
 	char valid;			/* !=0 if following fields are valid */
@@ -170,6 +180,7 @@ static int reg_to_rpm(u16 reg)
 	return 5400540 / reg;
 }
 
+<<<<<<< HEAD
 static ssize_t show_name(struct device *dev, struct device_attribute *devattr,
 	char *buf)
 {
@@ -178,6 +189,16 @@ static ssize_t show_name(struct device *dev, struct device_attribute *devattr,
 
 static ssize_t show_in_value(struct device *dev, struct device_attribute
 	*devattr, char *buf)
+=======
+static ssize_t name_show(struct device *dev, struct device_attribute *devattr,
+			 char *buf)
+{
+	return sysfs_emit(buf, "%s\n", DEVNAME);
+}
+
+static ssize_t in_value_show(struct device *dev,
+			     struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct sch5636_data *data = sch5636_update_device(dev);
@@ -189,6 +210,7 @@ static ssize_t show_in_value(struct device *dev, struct device_attribute
 	val = DIV_ROUND_CLOSEST(
 		data->in[attr->index] * SCH5636_REG_IN_FACTORS[attr->index],
 		255);
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%d\n", val);
 }
 
@@ -203,6 +225,22 @@ static ssize_t show_in_label(struct device *dev, struct device_attribute
 
 static ssize_t show_temp_value(struct device *dev, struct device_attribute
 	*devattr, char *buf)
+=======
+	return sysfs_emit(buf, "%d\n", val);
+}
+
+static ssize_t in_label_show(struct device *dev,
+			     struct device_attribute *devattr, char *buf)
+{
+	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
+
+	return sysfs_emit(buf, "%s\n",
+			  SCH5636_IN_LABELS[attr->index]);
+}
+
+static ssize_t temp_value_show(struct device *dev,
+			       struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct sch5636_data *data = sch5636_update_device(dev);
@@ -212,11 +250,19 @@ static ssize_t show_temp_value(struct device *dev, struct device_attribute
 		return PTR_ERR(data);
 
 	val = (data->temp_val[attr->index] - 64) * 1000;
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%d\n", val);
 }
 
 static ssize_t show_temp_fault(struct device *dev, struct device_attribute
 	*devattr, char *buf)
+=======
+	return sysfs_emit(buf, "%d\n", val);
+}
+
+static ssize_t temp_fault_show(struct device *dev,
+			       struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct sch5636_data *data = sch5636_update_device(dev);
@@ -226,11 +272,19 @@ static ssize_t show_temp_fault(struct device *dev, struct device_attribute
 		return PTR_ERR(data);
 
 	val = (data->temp_ctrl[attr->index] & SCH5636_TEMP_WORKING) ? 0 : 1;
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%d\n", val);
 }
 
 static ssize_t show_temp_alarm(struct device *dev, struct device_attribute
 	*devattr, char *buf)
+=======
+	return sysfs_emit(buf, "%d\n", val);
+}
+
+static ssize_t temp_alarm_show(struct device *dev,
+			       struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct sch5636_data *data = sch5636_update_device(dev);
@@ -240,11 +294,19 @@ static ssize_t show_temp_alarm(struct device *dev, struct device_attribute
 		return PTR_ERR(data);
 
 	val = (data->temp_ctrl[attr->index] & SCH5636_TEMP_ALARM) ? 1 : 0;
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%d\n", val);
 }
 
 static ssize_t show_fan_value(struct device *dev, struct device_attribute
 	*devattr, char *buf)
+=======
+	return sysfs_emit(buf, "%d\n", val);
+}
+
+static ssize_t fan_value_show(struct device *dev,
+			      struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct sch5636_data *data = sch5636_update_device(dev);
@@ -257,11 +319,19 @@ static ssize_t show_fan_value(struct device *dev, struct device_attribute
 	if (val < 0)
 		return val;
 
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%d\n", val);
 }
 
 static ssize_t show_fan_fault(struct device *dev, struct device_attribute
 	*devattr, char *buf)
+=======
+	return sysfs_emit(buf, "%d\n", val);
+}
+
+static ssize_t fan_fault_show(struct device *dev,
+			      struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct sch5636_data *data = sch5636_update_device(dev);
@@ -271,11 +341,19 @@ static ssize_t show_fan_fault(struct device *dev, struct device_attribute
 		return PTR_ERR(data);
 
 	val = (data->fan_ctrl[attr->index] & SCH5636_FAN_NOT_PRESENT) ? 1 : 0;
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%d\n", val);
 }
 
 static ssize_t show_fan_alarm(struct device *dev, struct device_attribute
 	*devattr, char *buf)
+=======
+	return sysfs_emit(buf, "%d\n", val);
+}
+
+static ssize_t fan_alarm_show(struct device *dev,
+			      struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct sch5636_data *data = sch5636_update_device(dev);
@@ -285,6 +363,7 @@ static ssize_t show_fan_alarm(struct device *dev, struct device_attribute
 		return PTR_ERR(data);
 
 	val = (data->fan_ctrl[attr->index] & SCH5636_FAN_ALARM) ? 1 : 0;
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%d\n", val);
 }
 
@@ -378,6 +457,101 @@ static struct sensor_device_attribute sch5636_fan_attr[] = {
 	SENSOR_ATTR(fan8_input, 0444, show_fan_value, NULL, 7),
 	SENSOR_ATTR(fan8_fault, 0444, show_fan_fault, NULL, 7),
 	SENSOR_ATTR(fan8_alarm, 0444, show_fan_alarm, NULL, 7),
+=======
+	return sysfs_emit(buf, "%d\n", val);
+}
+
+static struct sensor_device_attribute sch5636_attr[] = {
+	SENSOR_ATTR_RO(name, name, 0),
+	SENSOR_ATTR_RO(in0_input, in_value, 0),
+	SENSOR_ATTR_RO(in0_label, in_label, 0),
+	SENSOR_ATTR_RO(in1_input, in_value, 1),
+	SENSOR_ATTR_RO(in1_label, in_label, 1),
+	SENSOR_ATTR_RO(in2_input, in_value, 2),
+	SENSOR_ATTR_RO(in2_label, in_label, 2),
+	SENSOR_ATTR_RO(in3_input, in_value, 3),
+	SENSOR_ATTR_RO(in3_label, in_label, 3),
+	SENSOR_ATTR_RO(in4_input, in_value, 4),
+	SENSOR_ATTR_RO(in4_label, in_label, 4),
+};
+
+static struct sensor_device_attribute sch5636_temp_attr[] = {
+	SENSOR_ATTR_RO(temp1_input, temp_value, 0),
+	SENSOR_ATTR_RO(temp1_fault, temp_fault, 0),
+	SENSOR_ATTR_RO(temp1_alarm, temp_alarm, 0),
+	SENSOR_ATTR_RO(temp2_input, temp_value, 1),
+	SENSOR_ATTR_RO(temp2_fault, temp_fault, 1),
+	SENSOR_ATTR_RO(temp2_alarm, temp_alarm, 1),
+	SENSOR_ATTR_RO(temp3_input, temp_value, 2),
+	SENSOR_ATTR_RO(temp3_fault, temp_fault, 2),
+	SENSOR_ATTR_RO(temp3_alarm, temp_alarm, 2),
+	SENSOR_ATTR_RO(temp4_input, temp_value, 3),
+	SENSOR_ATTR_RO(temp4_fault, temp_fault, 3),
+	SENSOR_ATTR_RO(temp4_alarm, temp_alarm, 3),
+	SENSOR_ATTR_RO(temp5_input, temp_value, 4),
+	SENSOR_ATTR_RO(temp5_fault, temp_fault, 4),
+	SENSOR_ATTR_RO(temp5_alarm, temp_alarm, 4),
+	SENSOR_ATTR_RO(temp6_input, temp_value, 5),
+	SENSOR_ATTR_RO(temp6_fault, temp_fault, 5),
+	SENSOR_ATTR_RO(temp6_alarm, temp_alarm, 5),
+	SENSOR_ATTR_RO(temp7_input, temp_value, 6),
+	SENSOR_ATTR_RO(temp7_fault, temp_fault, 6),
+	SENSOR_ATTR_RO(temp7_alarm, temp_alarm, 6),
+	SENSOR_ATTR_RO(temp8_input, temp_value, 7),
+	SENSOR_ATTR_RO(temp8_fault, temp_fault, 7),
+	SENSOR_ATTR_RO(temp8_alarm, temp_alarm, 7),
+	SENSOR_ATTR_RO(temp9_input, temp_value, 8),
+	SENSOR_ATTR_RO(temp9_fault, temp_fault, 8),
+	SENSOR_ATTR_RO(temp9_alarm, temp_alarm, 8),
+	SENSOR_ATTR_RO(temp10_input, temp_value, 9),
+	SENSOR_ATTR_RO(temp10_fault, temp_fault, 9),
+	SENSOR_ATTR_RO(temp10_alarm, temp_alarm, 9),
+	SENSOR_ATTR_RO(temp11_input, temp_value, 10),
+	SENSOR_ATTR_RO(temp11_fault, temp_fault, 10),
+	SENSOR_ATTR_RO(temp11_alarm, temp_alarm, 10),
+	SENSOR_ATTR_RO(temp12_input, temp_value, 11),
+	SENSOR_ATTR_RO(temp12_fault, temp_fault, 11),
+	SENSOR_ATTR_RO(temp12_alarm, temp_alarm, 11),
+	SENSOR_ATTR_RO(temp13_input, temp_value, 12),
+	SENSOR_ATTR_RO(temp13_fault, temp_fault, 12),
+	SENSOR_ATTR_RO(temp13_alarm, temp_alarm, 12),
+	SENSOR_ATTR_RO(temp14_input, temp_value, 13),
+	SENSOR_ATTR_RO(temp14_fault, temp_fault, 13),
+	SENSOR_ATTR_RO(temp14_alarm, temp_alarm, 13),
+	SENSOR_ATTR_RO(temp15_input, temp_value, 14),
+	SENSOR_ATTR_RO(temp15_fault, temp_fault, 14),
+	SENSOR_ATTR_RO(temp15_alarm, temp_alarm, 14),
+	SENSOR_ATTR_RO(temp16_input, temp_value, 15),
+	SENSOR_ATTR_RO(temp16_fault, temp_fault, 15),
+	SENSOR_ATTR_RO(temp16_alarm, temp_alarm, 15),
+};
+
+static struct sensor_device_attribute sch5636_fan_attr[] = {
+	SENSOR_ATTR_RO(fan1_input, fan_value, 0),
+	SENSOR_ATTR_RO(fan1_fault, fan_fault, 0),
+	SENSOR_ATTR_RO(fan1_alarm, fan_alarm, 0),
+	SENSOR_ATTR_RO(fan2_input, fan_value, 1),
+	SENSOR_ATTR_RO(fan2_fault, fan_fault, 1),
+	SENSOR_ATTR_RO(fan2_alarm, fan_alarm, 1),
+	SENSOR_ATTR_RO(fan3_input, fan_value, 2),
+	SENSOR_ATTR_RO(fan3_fault, fan_fault, 2),
+	SENSOR_ATTR_RO(fan3_alarm, fan_alarm, 2),
+	SENSOR_ATTR_RO(fan4_input, fan_value, 3),
+	SENSOR_ATTR_RO(fan4_fault, fan_fault, 3),
+	SENSOR_ATTR_RO(fan4_alarm, fan_alarm, 3),
+	SENSOR_ATTR_RO(fan5_input, fan_value, 4),
+	SENSOR_ATTR_RO(fan5_fault, fan_fault, 4),
+	SENSOR_ATTR_RO(fan5_alarm, fan_alarm, 4),
+	SENSOR_ATTR_RO(fan6_input, fan_value, 5),
+	SENSOR_ATTR_RO(fan6_fault, fan_fault, 5),
+	SENSOR_ATTR_RO(fan6_alarm, fan_alarm, 5),
+	SENSOR_ATTR_RO(fan7_input, fan_value, 6),
+	SENSOR_ATTR_RO(fan7_fault, fan_fault, 6),
+	SENSOR_ATTR_RO(fan7_alarm, fan_alarm, 6),
+	SENSOR_ATTR_RO(fan8_input, fan_value, 7),
+	SENSOR_ATTR_RO(fan8_fault, fan_fault, 7),
+	SENSOR_ATTR_RO(fan8_alarm, fan_alarm, 7),
+>>>>>>> upstream/android-13
 };
 
 static int sch5636_remove(struct platform_device *pdev)
@@ -385,9 +559,12 @@ static int sch5636_remove(struct platform_device *pdev)
 	struct sch5636_data *data = platform_get_drvdata(pdev);
 	int i;
 
+<<<<<<< HEAD
 	if (data->watchdog)
 		sch56xx_watchdog_unregister(data->watchdog);
 
+=======
+>>>>>>> upstream/android-13
 	if (data->hwmon_dev)
 		hwmon_device_unregister(data->hwmon_dev);
 
@@ -508,9 +685,14 @@ static int sch5636_probe(struct platform_device *pdev)
 	}
 
 	/* Note failing to register the watchdog is not a fatal error */
+<<<<<<< HEAD
 	data->watchdog = sch56xx_watchdog_register(&pdev->dev, data->addr,
 					(revision[0] << 8) | revision[1],
 					&data->update_lock, 0);
+=======
+	sch56xx_watchdog_register(&pdev->dev, data->addr, (revision[0] << 8) | revision[1],
+				  &data->update_lock, 0);
+>>>>>>> upstream/android-13
 
 	return 0;
 

@@ -1,4 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0 */
+<<<<<<< HEAD
 /* Copyright (C) 2007-2018  B.A.T.M.A.N. contributors:
  *
  * Marek Lindner, Simon Wunderlich
@@ -14,6 +15,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+/* Copyright (C) B.A.T.M.A.N. contributors:
+ *
+ * Marek Lindner, Simon Wunderlich
+>>>>>>> upstream/android-13
  */
 
 #ifndef _NET_BATMAN_ADV_TYPES_H_
@@ -26,21 +32,34 @@
 #include <linux/average.h>
 #include <linux/bitops.h>
 #include <linux/compiler.h>
+<<<<<<< HEAD
+=======
+#include <linux/if.h>
+>>>>>>> upstream/android-13
 #include <linux/if_ether.h>
 #include <linux/kref.h>
 #include <linux/mutex.h>
 #include <linux/netdevice.h>
 #include <linux/netlink.h>
 #include <linux/sched.h> /* for linux/wait.h */
+<<<<<<< HEAD
 #include <linux/spinlock.h>
+=======
+#include <linux/skbuff.h>
+#include <linux/spinlock.h>
+#include <linux/timer.h>
+>>>>>>> upstream/android-13
 #include <linux/types.h>
 #include <linux/wait.h>
 #include <linux/workqueue.h>
 #include <uapi/linux/batadv_packet.h>
 #include <uapi/linux/batman_adv.h>
 
+<<<<<<< HEAD
 struct seq_file;
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_BATMAN_ADV_DAT
 
 /**
@@ -131,6 +150,18 @@ struct batadv_hard_iface_bat_v {
 	/** @elp_wq: workqueue used to schedule ELP transmissions */
 	struct delayed_work elp_wq;
 
+<<<<<<< HEAD
+=======
+	/** @aggr_wq: workqueue used to transmit queued OGM packets */
+	struct delayed_work aggr_wq;
+
+	/** @aggr_list: queue for to be aggregated OGM packets */
+	struct sk_buff_head aggr_list;
+
+	/** @aggr_len: size of the OGM aggregate (excluding ethernet header) */
+	unsigned int aggr_len;
+
+>>>>>>> upstream/android-13
 	/**
 	 * @throughput_override: throughput override to disable link
 	 *  auto-detection
@@ -171,9 +202,12 @@ struct batadv_hard_iface {
 	/** @list: list node for batadv_hardif_list */
 	struct list_head list;
 
+<<<<<<< HEAD
 	/** @if_num: identificator of the interface */
 	unsigned int if_num;
 
+=======
+>>>>>>> upstream/android-13
 	/** @if_status: status of the interface for batman-adv */
 	char if_status;
 
@@ -191,9 +225,12 @@ struct batadv_hard_iface {
 	/** @net_dev: pointer to the net_device */
 	struct net_device *net_dev;
 
+<<<<<<< HEAD
 	/** @hardif_obj: kobject of the per interface sysfs "mesh" directory */
 	struct kobject *hardif_obj;
 
+=======
+>>>>>>> upstream/android-13
 	/** @refcount: number of contexts the object is used */
 	struct kref refcount;
 
@@ -212,6 +249,15 @@ struct batadv_hard_iface {
 	/** @rcu: struct used for freeing in an RCU-safe manner */
 	struct rcu_head rcu;
 
+<<<<<<< HEAD
+=======
+	/**
+	 * @hop_penalty: penalty which will be applied to the tq-field
+	 * of an OGM received via this interface
+	 */
+	atomic_t hop_penalty;
+
+>>>>>>> upstream/android-13
 	/** @bat_iv: per hard-interface B.A.T.M.A.N. IV data */
 	struct batadv_hard_iface_bat_iv bat_iv;
 
@@ -220,6 +266,7 @@ struct batadv_hard_iface {
 	struct batadv_hard_iface_bat_v bat_v;
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_BATMAN_ADV_DEBUGFS
 	/**
 	 * @debug_dir: dentry for nc subdir in batman-adv directory in debugfs
@@ -227,6 +274,8 @@ struct batadv_hard_iface {
 	struct dentry *debug_dir;
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	/**
 	 * @neigh_list: list of unique single hop neighbors via this interface
 	 */
@@ -237,6 +286,24 @@ struct batadv_hard_iface {
 };
 
 /**
+<<<<<<< HEAD
+=======
+ * struct batadv_orig_ifinfo_bat_iv - B.A.T.M.A.N. IV private orig_ifinfo
+ *  members
+ */
+struct batadv_orig_ifinfo_bat_iv {
+	/**
+	 * @bcast_own: bitfield which counts the number of our OGMs this
+	 * orig_node rebroadcasted "back" to us  (relative to last_real_seqno)
+	 */
+	DECLARE_BITMAP(bcast_own, BATADV_TQ_LOCAL_WINDOW_SIZE);
+
+	/** @bcast_own_sum: sum of bcast_own */
+	u8 bcast_own_sum;
+};
+
+/**
+>>>>>>> upstream/android-13
  * struct batadv_orig_ifinfo - originator info per outgoing interface
  */
 struct batadv_orig_ifinfo {
@@ -261,6 +328,12 @@ struct batadv_orig_ifinfo {
 	/** @batman_seqno_reset: time when the batman seqno window was reset */
 	unsigned long batman_seqno_reset;
 
+<<<<<<< HEAD
+=======
+	/** @bat_iv: B.A.T.M.A.N. IV private structure */
+	struct batadv_orig_ifinfo_bat_iv bat_iv;
+
+>>>>>>> upstream/android-13
 	/** @refcount: number of contexts the object is used */
 	struct kref refcount;
 
@@ -343,6 +416,7 @@ struct batadv_orig_node_vlan {
  */
 struct batadv_orig_bat_iv {
 	/**
+<<<<<<< HEAD
 	 * @bcast_own: set of bitfields (one per hard-interface) where each one
 	 * counts the number of our OGMs this orig_node rebroadcasted "back" to
 	 * us  (relative to last_real_seqno). Every bitfield is
@@ -356,6 +430,12 @@ struct batadv_orig_bat_iv {
 	/**
 	 * @ogm_cnt_lock: lock protecting bcast_own, bcast_own_sum,
 	 * neigh_node->bat_iv.real_bits & neigh_node->bat_iv.real_packet_count
+=======
+	 * @ogm_cnt_lock: lock protecting &batadv_orig_ifinfo_bat_iv.bcast_own,
+	 * &batadv_orig_ifinfo_bat_iv.bcast_own_sum,
+	 * &batadv_neigh_ifinfo_bat_iv.bat_iv.real_bits and
+	 * &batadv_neigh_ifinfo_bat_iv.real_packet_count
+>>>>>>> upstream/android-13
 	 */
 	spinlock_t ogm_cnt_lock;
 };
@@ -413,6 +493,20 @@ struct batadv_orig_node {
 	 *  list
 	 */
 	struct hlist_node mcast_want_all_ipv6_node;
+<<<<<<< HEAD
+=======
+
+	/**
+	 * @mcast_want_all_rtr4_node: a list node for the mcast.want_all_rtr4
+	 *  list
+	 */
+	struct hlist_node mcast_want_all_rtr4_node;
+	/**
+	 * @mcast_want_all_rtr6_node: a list node for the mcast.want_all_rtr6
+	 *  list
+	 */
+	struct hlist_node mcast_want_all_rtr6_node;
+>>>>>>> upstream/android-13
 #endif
 
 	/** @capabilities: announced capabilities of this originator */
@@ -440,9 +534,15 @@ struct batadv_orig_node {
 	spinlock_t tt_buff_lock;
 
 	/**
+<<<<<<< HEAD
 	 * @tt_lock: prevents from updating the table while reading it. Table
 	 *  update is made up by two operations (data structure update and
 	 *  metdata -CRC/TTVN-recalculation) and they have to be executed
+=======
+	 * @tt_lock: avoids concurrent read from and write to the table. Table
+	 *  update is made up of two operations (data structure update and
+	 *  metadata -CRC/TTVN-recalculation) and they have to be executed
+>>>>>>> upstream/android-13
 	 *  atomically in order to avoid another thread to read the
 	 *  table/metadata between those.
 	 */
@@ -733,7 +833,11 @@ struct batadv_neigh_ifinfo {
  * struct batadv_bcast_duplist_entry - structure for LAN broadcast suppression
  */
 struct batadv_bcast_duplist_entry {
+<<<<<<< HEAD
 	/** @orig: mac address of orig node orginating the broadcast */
+=======
+	/** @orig: mac address of orig node originating the broadcast */
+>>>>>>> upstream/android-13
 	u8 orig[ETH_ALEN];
 
 	/** @crc: crc32 checksum of broadcast payload */
@@ -995,8 +1099,13 @@ struct batadv_priv_tt {
 
 	/**
 	 * @commit_lock: prevents from executing a local TT commit while reading
+<<<<<<< HEAD
 	 *  the local table. The local TT commit is made up by two operations
 	 *  (data structure update and metdata -CRC/TTVN- recalculation) and
+=======
+	 *  the local table. The local TT commit is made up of two operations
+	 *  (data structure update and metadata -CRC/TTVN- recalculation) and
+>>>>>>> upstream/android-13
 	 *  they have to be executed atomically in order to avoid another thread
 	 *  to read the table/metadata between those.
 	 */
@@ -1009,7 +1118,11 @@ struct batadv_priv_tt {
 #ifdef CONFIG_BATMAN_ADV_BLA
 
 /**
+<<<<<<< HEAD
  * struct batadv_priv_bla - per mesh interface bridge loope avoidance data
+=======
+ * struct batadv_priv_bla - per mesh interface bridge loop avoidance data
+>>>>>>> upstream/android-13
  */
 struct batadv_priv_bla {
 	/** @num_requests: number of bla requests in flight */
@@ -1071,7 +1184,11 @@ struct batadv_priv_bla {
  * struct batadv_priv_debug_log - debug logging data
  */
 struct batadv_priv_debug_log {
+<<<<<<< HEAD
 	/** @log_buff: buffer holding the logs (ring bufer) */
+=======
+	/** @log_buff: buffer holding the logs (ring buffer) */
+>>>>>>> upstream/android-13
 	char log_buff[BATADV_LOG_BUF_LEN];
 
 	/** @log_start: index of next character to read */
@@ -1095,12 +1212,22 @@ struct batadv_priv_gw {
 	/** @gateway_list: list of available gateway nodes */
 	struct hlist_head gateway_list;
 
+<<<<<<< HEAD
 	/** @list_lock: lock protecting gateway_list & curr_gw */
+=======
+	/** @list_lock: lock protecting gateway_list, curr_gw, generation */
+>>>>>>> upstream/android-13
 	spinlock_t list_lock;
 
 	/** @curr_gw: pointer to currently selected gateway node */
 	struct batadv_gw_node __rcu *curr_gw;
 
+<<<<<<< HEAD
+=======
+	/** @generation: current (generation) sequence number */
+	unsigned int generation;
+
+>>>>>>> upstream/android-13
 	/**
 	 * @mode: gateway operation: off, client or server (see batadv_gw_modes)
 	 */
@@ -1177,6 +1304,29 @@ struct batadv_mcast_querier_state {
 };
 
 /**
+<<<<<<< HEAD
+=======
+ * struct batadv_mcast_mla_flags - flags for the querier, bridge and tvlv state
+ */
+struct batadv_mcast_mla_flags {
+	/** @querier_ipv4: the current state of an IGMP querier in the mesh */
+	struct batadv_mcast_querier_state querier_ipv4;
+
+	/** @querier_ipv6: the current state of an MLD querier in the mesh */
+	struct batadv_mcast_querier_state querier_ipv6;
+
+	/** @enabled: whether the multicast tvlv is currently enabled */
+	unsigned char enabled:1;
+
+	/** @bridged: whether the soft interface has a bridge on top */
+	unsigned char bridged:1;
+
+	/** @tvlv_flags: the flags we have last sent in our mcast tvlv */
+	u8 tvlv_flags;
+};
+
+/**
+>>>>>>> upstream/android-13
  * struct batadv_priv_mcast - per mesh interface mcast data
  */
 struct batadv_priv_mcast {
@@ -1204,6 +1354,7 @@ struct batadv_priv_mcast {
 	 */
 	struct hlist_head want_all_ipv6_list;
 
+<<<<<<< HEAD
 	/** @querier_ipv4: the current state of an IGMP querier in the mesh */
 	struct batadv_mcast_querier_state querier_ipv4;
 
@@ -1218,6 +1369,24 @@ struct batadv_priv_mcast {
 
 	/** @bridged: whether the soft interface has a bridge on top */
 	unsigned char bridged:1;
+=======
+	/**
+	 * @want_all_rtr4_list: a list of orig_nodes wanting all routable IPv4
+	 *  multicast traffic
+	 */
+	struct hlist_head want_all_rtr4_list;
+
+	/**
+	 * @want_all_rtr6_list: a list of orig_nodes wanting all routable IPv6
+	 *  multicast traffic
+	 */
+	struct hlist_head want_all_rtr6_list;
+
+	/**
+	 * @mla_flags: flags for the querier, bridge and tvlv state
+	 */
+	struct batadv_mcast_mla_flags mla_flags;
+>>>>>>> upstream/android-13
 
 	/**
 	 * @mla_lock: a lock protecting mla_list and mla_flags
@@ -1236,6 +1405,15 @@ struct batadv_priv_mcast {
 	/** @num_want_all_ipv6: counter for items in want_all_ipv6_list */
 	atomic_t num_want_all_ipv6;
 
+<<<<<<< HEAD
+=======
+	/** @num_want_all_rtr4: counter for items in want_all_rtr4_list */
+	atomic_t num_want_all_rtr4;
+
+	/** @num_want_all_rtr6: counter for items in want_all_rtr6_list */
+	atomic_t num_want_all_rtr6;
+
+>>>>>>> upstream/android-13
 	/**
 	 * @want_lists_lock: lock for protecting modifications to mcasts
 	 *  want_all_{unsnoopables,ipv4,ipv6}_list (traversals are rcu-locked)
@@ -1254,6 +1432,7 @@ struct batadv_priv_nc {
 	/** @work: work queue callback item for cleanup */
 	struct delayed_work work;
 
+<<<<<<< HEAD
 #ifdef CONFIG_BATMAN_ADV_DEBUGFS
 	/**
 	 * @debug_dir: dentry for nc subdir in batman-adv directory in debugfs
@@ -1261,6 +1440,8 @@ struct batadv_priv_nc {
 	struct dentry *debug_dir;
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	/**
 	 * @min_tq: only consider neighbors for encoding if neigh_tq > min_tq
 	 */
@@ -1440,7 +1621,11 @@ struct batadv_tp_vars {
 	/** @unacked_lock: protect unacked_list */
 	spinlock_t unacked_lock;
 
+<<<<<<< HEAD
 	/** @last_recv_time: time time (jiffies) a msg was received */
+=======
+	/** @last_recv_time: time (jiffies) a msg was received */
+>>>>>>> upstream/android-13
 	unsigned long last_recv_time;
 
 	/** @refcount: number of context where the object is used */
@@ -1460,9 +1645,12 @@ struct batadv_softif_vlan {
 	/** @vid: VLAN identifier */
 	unsigned short vid;
 
+<<<<<<< HEAD
 	/** @kobj: kobject for sysfs vlan subdirectory */
 	struct kobject *kobj;
 
+=======
+>>>>>>> upstream/android-13
 	/** @ap_isolation: AP isolation state */
 	atomic_t ap_isolation;		/* boolean */
 
@@ -1569,6 +1757,15 @@ struct batadv_priv {
 	 *  node's sender/originating side
 	 */
 	atomic_t multicast_mode;
+<<<<<<< HEAD
+=======
+
+	/**
+	 * @multicast_fanout: Maximum number of packet copies to generate for a
+	 *  multicast-to-unicast conversion
+	 */
+	atomic_t multicast_fanout;
+>>>>>>> upstream/android-13
 #endif
 
 	/** @orig_interval: OGM broadcast interval in milliseconds */
@@ -1609,6 +1806,7 @@ struct batadv_priv {
 	/** @batman_queue_left: number of remaining OGM packet slots */
 	atomic_t batman_queue_left;
 
+<<<<<<< HEAD
 	/** @num_ifaces: number of interfaces assigned to this mesh interface */
 	unsigned int num_ifaces;
 
@@ -1620,6 +1818,8 @@ struct batadv_priv {
 	struct dentry *debug_dir;
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	/** @forw_bat_list: list of aggregated OGMs that will be forwarded */
 	struct hlist_head forw_bat_list;
 
@@ -1632,6 +1832,7 @@ struct batadv_priv {
 	/** @tp_list: list of tp sessions */
 	struct hlist_head tp_list;
 
+<<<<<<< HEAD
 	/** @tp_num: number of currently active tp sessions */
 	struct batadv_hashtable *orig_hash;
 
@@ -1645,6 +1846,21 @@ struct batadv_priv {
 	spinlock_t tp_list_lock;
 
 	/** @tp_list_lock: spinlock protecting @tp_list */
+=======
+	/** @orig_hash: hash table containing mesh participants (orig nodes) */
+	struct batadv_hashtable *orig_hash;
+
+	/** @forw_bat_list_lock: lock protecting forw_bat_list */
+	spinlock_t forw_bat_list_lock;
+
+	/** @forw_bcast_list_lock: lock protecting forw_bcast_list */
+	spinlock_t forw_bcast_list_lock;
+
+	/** @tp_list_lock: spinlock protecting @tp_list */
+	spinlock_t tp_list_lock;
+
+	/** @tp_num: number of currently active tp sessions */
+>>>>>>> upstream/android-13
 	atomic_t tp_num;
 
 	/** @orig_work: work queue callback item for orig node purging */
@@ -1669,7 +1885,11 @@ struct batadv_priv {
 	spinlock_t softif_vlan_list_lock;
 
 #ifdef CONFIG_BATMAN_ADV_BLA
+<<<<<<< HEAD
 	/** @bla: bridge loope avoidance data */
+=======
+	/** @bla: bridge loop avoidance data */
+>>>>>>> upstream/android-13
 	struct batadv_priv_bla bla;
 #endif
 
@@ -1941,7 +2161,11 @@ struct batadv_tt_change_node {
  */
 struct batadv_tt_req_node {
 	/**
+<<<<<<< HEAD
 	 * @addr: mac address address of the originator this request was sent to
+=======
+	 * @addr: mac address of the originator this request was sent to
+>>>>>>> upstream/android-13
 	 */
 	u8 addr[ETH_ALEN];
 
@@ -2179,11 +2403,14 @@ struct batadv_algo_neigh_ops {
 				     struct batadv_neigh_node *neigh2,
 				     struct batadv_hard_iface *if_outgoing2);
 
+<<<<<<< HEAD
 #ifdef CONFIG_BATMAN_ADV_DEBUGFS
 	/** @print: print the single hop neighbor list (optional) */
 	void (*print)(struct batadv_priv *priv, struct seq_file *seq);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	/** @dump: dump neighbors to a netlink socket (optional) */
 	void (*dump)(struct sk_buff *msg, struct netlink_callback *cb,
 		     struct batadv_priv *priv,
@@ -2194,6 +2421,7 @@ struct batadv_algo_neigh_ops {
  * struct batadv_algo_orig_ops - mesh algorithm callbacks (originator specific)
  */
 struct batadv_algo_orig_ops {
+<<<<<<< HEAD
 	/**
 	 * @free: free the resources allocated by the routing algorithm for an
 	 *  orig_node object (optional)
@@ -2222,6 +2450,8 @@ struct batadv_algo_orig_ops {
 		      struct batadv_hard_iface *hard_iface);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	/** @dump: dump originators to a netlink socket (optional) */
 	void (*dump)(struct sk_buff *msg, struct netlink_callback *cb,
 		     struct batadv_priv *priv,
@@ -2241,10 +2471,13 @@ struct batadv_algo_gw_ops {
 	 */
 	ssize_t (*store_sel_class)(struct batadv_priv *bat_priv, char *buff,
 				   size_t count);
+<<<<<<< HEAD
 
 	/** @show_sel_class: prints the current GW selection class (optional) */
 	ssize_t (*show_sel_class)(struct batadv_priv *bat_priv, char *buff);
 
+=======
+>>>>>>> upstream/android-13
 	/**
 	 * @get_best_gw_node: select the best GW from the list of available
 	 *  nodes (optional)
@@ -2260,11 +2493,14 @@ struct batadv_algo_gw_ops {
 			    struct batadv_orig_node *curr_gw_orig,
 			    struct batadv_orig_node *orig_node);
 
+<<<<<<< HEAD
 #ifdef CONFIG_BATMAN_ADV_DEBUGFS
 	/** @print: print the gateway table (optional) */
 	void (*print)(struct batadv_priv *bat_priv, struct seq_file *seq);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	/** @dump: dump gateways to a netlink socket (optional) */
 	void (*dump)(struct sk_buff *msg, struct netlink_callback *cb,
 		     struct batadv_priv *priv);
@@ -2423,6 +2659,7 @@ enum batadv_tvlv_handler_flags {
 	BATADV_TVLV_HANDLER_OGM_CALLED = BIT(2),
 };
 
+<<<<<<< HEAD
 /**
  * struct batadv_store_mesh_work - Work queue item to detach add/del interface
  *  from sysfs locks
@@ -2440,4 +2677,6 @@ struct batadv_store_mesh_work {
 	struct work_struct work;
 };
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _NET_BATMAN_ADV_TYPES_H_ */

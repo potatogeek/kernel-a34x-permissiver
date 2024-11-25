@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Glue Code for AVX assembler versions of Serpent Cipher
  *
@@ -5,6 +9,7 @@
  *     <Johannes.Goetzfried@informatik.stud.uni-erlangen.de>
  *
  * Copyright © 2011-2013 Jussi Kivilinna <jussi.kivilinna@iki.fi>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +26,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
  * USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -30,6 +37,7 @@
 #include <crypto/algapi.h>
 #include <crypto/internal/simd.h>
 #include <crypto/serpent.h>
+<<<<<<< HEAD
 #include <crypto/xts.h>
 #include <asm/crypto/glue_helper.h>
 #include <asm/crypto/serpent-avx.h>
@@ -85,12 +93,32 @@ void serpent_xts_dec(void *ctx, u128 *dst, const u128 *src, le128 *iv)
 }
 EXPORT_SYMBOL_GPL(serpent_xts_dec);
 
+=======
+
+#include "serpent-avx.h"
+#include "ecb_cbc_helpers.h"
+
+/* 8-way parallel cipher functions */
+asmlinkage void serpent_ecb_enc_8way_avx(const void *ctx, u8 *dst,
+					 const u8 *src);
+EXPORT_SYMBOL_GPL(serpent_ecb_enc_8way_avx);
+
+asmlinkage void serpent_ecb_dec_8way_avx(const void *ctx, u8 *dst,
+					 const u8 *src);
+EXPORT_SYMBOL_GPL(serpent_ecb_dec_8way_avx);
+
+asmlinkage void serpent_cbc_dec_8way_avx(const void *ctx, u8 *dst,
+					 const u8 *src);
+EXPORT_SYMBOL_GPL(serpent_cbc_dec_8way_avx);
+
+>>>>>>> upstream/android-13
 static int serpent_setkey_skcipher(struct crypto_skcipher *tfm,
 				   const u8 *key, unsigned int keylen)
 {
 	return __serpent_setkey(crypto_skcipher_ctx(tfm), key, keylen);
 }
 
+<<<<<<< HEAD
 int xts_serpent_setkey(struct crypto_skcipher *tfm, const u8 *key,
 		       unsigned int keylen)
 {
@@ -192,21 +220,43 @@ static const struct common_glue_ctx serpent_dec_xts = {
 static int ecb_encrypt(struct skcipher_request *req)
 {
 	return glue_ecb_req_128bit(&serpent_enc, req);
+=======
+static int ecb_encrypt(struct skcipher_request *req)
+{
+	ECB_WALK_START(req, SERPENT_BLOCK_SIZE, SERPENT_PARALLEL_BLOCKS);
+	ECB_BLOCK(SERPENT_PARALLEL_BLOCKS, serpent_ecb_enc_8way_avx);
+	ECB_BLOCK(1, __serpent_encrypt);
+	ECB_WALK_END();
+>>>>>>> upstream/android-13
 }
 
 static int ecb_decrypt(struct skcipher_request *req)
 {
+<<<<<<< HEAD
 	return glue_ecb_req_128bit(&serpent_dec, req);
+=======
+	ECB_WALK_START(req, SERPENT_BLOCK_SIZE, SERPENT_PARALLEL_BLOCKS);
+	ECB_BLOCK(SERPENT_PARALLEL_BLOCKS, serpent_ecb_dec_8way_avx);
+	ECB_BLOCK(1, __serpent_decrypt);
+	ECB_WALK_END();
+>>>>>>> upstream/android-13
 }
 
 static int cbc_encrypt(struct skcipher_request *req)
 {
+<<<<<<< HEAD
 	return glue_cbc_encrypt_req_128bit(GLUE_FUNC_CAST(__serpent_encrypt),
 					   req);
+=======
+	CBC_WALK_START(req, SERPENT_BLOCK_SIZE, -1);
+	CBC_ENC_BLOCK(__serpent_encrypt);
+	CBC_WALK_END();
+>>>>>>> upstream/android-13
 }
 
 static int cbc_decrypt(struct skcipher_request *req)
 {
+<<<<<<< HEAD
 	return glue_cbc_decrypt_req_128bit(&serpent_dec_cbc, req);
 }
 
@@ -233,6 +283,12 @@ static int xts_decrypt(struct skcipher_request *req)
 	return glue_xts_req_128bit(&serpent_dec_xts, req,
 				   XTS_TWEAK_CAST(__serpent_encrypt),
 				   &ctx->tweak_ctx, &ctx->crypt_ctx);
+=======
+	CBC_WALK_START(req, SERPENT_BLOCK_SIZE, SERPENT_PARALLEL_BLOCKS);
+	CBC_DEC_BLOCK(SERPENT_PARALLEL_BLOCKS, serpent_cbc_dec_8way_avx);
+	CBC_DEC_BLOCK(1, __serpent_decrypt);
+	CBC_WALK_END();
+>>>>>>> upstream/android-13
 }
 
 static struct skcipher_alg serpent_algs[] = {
@@ -263,6 +319,7 @@ static struct skcipher_alg serpent_algs[] = {
 		.setkey			= serpent_setkey_skcipher,
 		.encrypt		= cbc_encrypt,
 		.decrypt		= cbc_decrypt,
+<<<<<<< HEAD
 	}, {
 		.base.cra_name		= "__ctr(serpent)",
 		.base.cra_driver_name	= "__ctr-serpent-avx",
@@ -292,6 +349,8 @@ static struct skcipher_alg serpent_algs[] = {
 		.setkey			= xts_serpent_setkey,
 		.encrypt		= xts_encrypt,
 		.decrypt		= xts_decrypt,
+=======
+>>>>>>> upstream/android-13
 	},
 };
 

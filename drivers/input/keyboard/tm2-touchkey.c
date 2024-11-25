@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * TM2 touchkey device driver
  *
@@ -6,10 +10,13 @@
  *
  * Author: Beomho Seo <beomho.seo@samsung.com>
  * Author: Jaechul Lee <jcsing.lee@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
@@ -22,12 +29,22 @@
 #include <linux/leds.h>
 #include <linux/module.h>
 #include <linux/of.h>
+<<<<<<< HEAD
+=======
+#include <linux/of_device.h>
+>>>>>>> upstream/android-13
 #include <linux/pm.h>
 #include <linux/regulator/consumer.h>
 
 #define TM2_TOUCHKEY_DEV_NAME		"tm2-touchkey"
+<<<<<<< HEAD
 #define TM2_TOUCHKEY_KEYCODE_REG	0x03
 #define TM2_TOUCHKEY_BASE_REG		0x00
+=======
+
+#define ARIES_TOUCHKEY_CMD_LED_ON	0x1
+#define ARIES_TOUCHKEY_CMD_LED_OFF	0x2
+>>>>>>> upstream/android-13
 #define TM2_TOUCHKEY_CMD_LED_ON		0x10
 #define TM2_TOUCHKEY_CMD_LED_OFF	0x20
 #define TM2_TOUCHKEY_BIT_PRESS_EV	BIT(3)
@@ -35,9 +52,19 @@
 #define TM2_TOUCHKEY_LED_VOLTAGE_MIN	2500000
 #define TM2_TOUCHKEY_LED_VOLTAGE_MAX	3300000
 
+<<<<<<< HEAD
 enum {
 	TM2_TOUCHKEY_KEY_MENU = 0x1,
 	TM2_TOUCHKEY_KEY_BACK,
+=======
+struct touchkey_variant {
+	u8 keycode_reg;
+	u8 base_reg;
+	u8 cmd_led_on;
+	u8 cmd_led_off;
+	bool no_reg;
+	bool fixed_regulator;
+>>>>>>> upstream/android-13
 };
 
 struct tm2_touchkey_data {
@@ -45,10 +72,49 @@ struct tm2_touchkey_data {
 	struct input_dev *input_dev;
 	struct led_classdev led_dev;
 	struct regulator *vdd;
+<<<<<<< HEAD
 	struct regulator_bulk_data regulators[2];
 };
 
 static void tm2_touchkey_led_brightness_set(struct led_classdev *led_dev,
+=======
+	struct regulator_bulk_data regulators[3];
+	const struct touchkey_variant *variant;
+	u32 keycodes[4];
+	int num_keycodes;
+};
+
+static const struct touchkey_variant tm2_touchkey_variant = {
+	.keycode_reg = 0x03,
+	.base_reg = 0x00,
+	.cmd_led_on = TM2_TOUCHKEY_CMD_LED_ON,
+	.cmd_led_off = TM2_TOUCHKEY_CMD_LED_OFF,
+};
+
+static const struct touchkey_variant midas_touchkey_variant = {
+	.keycode_reg = 0x00,
+	.base_reg = 0x00,
+	.cmd_led_on = TM2_TOUCHKEY_CMD_LED_ON,
+	.cmd_led_off = TM2_TOUCHKEY_CMD_LED_OFF,
+};
+
+static struct touchkey_variant aries_touchkey_variant = {
+	.no_reg = true,
+	.fixed_regulator = true,
+	.cmd_led_on = ARIES_TOUCHKEY_CMD_LED_ON,
+	.cmd_led_off = ARIES_TOUCHKEY_CMD_LED_OFF,
+};
+
+static const struct touchkey_variant tc360_touchkey_variant = {
+	.keycode_reg = 0x00,
+	.base_reg = 0x00,
+	.fixed_regulator = true,
+	.cmd_led_on = TM2_TOUCHKEY_CMD_LED_ON,
+	.cmd_led_off = TM2_TOUCHKEY_CMD_LED_OFF,
+};
+
+static int tm2_touchkey_led_brightness_set(struct led_classdev *led_dev,
+>>>>>>> upstream/android-13
 					    enum led_brightness brightness)
 {
 	struct tm2_touchkey_data *touchkey =
@@ -58,6 +124,7 @@ static void tm2_touchkey_led_brightness_set(struct led_classdev *led_dev,
 
 	if (brightness == LED_OFF) {
 		volt = TM2_TOUCHKEY_LED_VOLTAGE_MIN;
+<<<<<<< HEAD
 		data = TM2_TOUCHKEY_CMD_LED_OFF;
 	} else {
 		volt = TM2_TOUCHKEY_LED_VOLTAGE_MAX;
@@ -67,6 +134,21 @@ static void tm2_touchkey_led_brightness_set(struct led_classdev *led_dev,
 	regulator_set_voltage(touchkey->vdd, volt, volt);
 	i2c_smbus_write_byte_data(touchkey->client,
 				  TM2_TOUCHKEY_BASE_REG, data);
+=======
+		data = touchkey->variant->cmd_led_off;
+	} else {
+		volt = TM2_TOUCHKEY_LED_VOLTAGE_MAX;
+		data = touchkey->variant->cmd_led_on;
+	}
+
+	if (!touchkey->variant->fixed_regulator)
+		regulator_set_voltage(touchkey->vdd, volt, volt);
+
+	return touchkey->variant->no_reg ?
+		i2c_smbus_write_byte(touchkey->client, data) :
+		i2c_smbus_write_byte_data(touchkey->client,
+					  touchkey->variant->base_reg, data);
+>>>>>>> upstream/android-13
 }
 
 static int tm2_touchkey_power_enable(struct tm2_touchkey_data *touchkey)
@@ -96,16 +178,28 @@ static irqreturn_t tm2_touchkey_irq_handler(int irq, void *devid)
 {
 	struct tm2_touchkey_data *touchkey = devid;
 	int data;
+<<<<<<< HEAD
 	int key;
 
 	data = i2c_smbus_read_byte_data(touchkey->client,
 					TM2_TOUCHKEY_KEYCODE_REG);
+=======
+	int index;
+	int i;
+
+	if (touchkey->variant->no_reg)
+		data = i2c_smbus_read_byte(touchkey->client);
+	else
+		data = i2c_smbus_read_byte_data(touchkey->client,
+						touchkey->variant->keycode_reg);
+>>>>>>> upstream/android-13
 	if (data < 0) {
 		dev_err(&touchkey->client->dev,
 			"failed to read i2c data: %d\n", data);
 		goto out;
 	}
 
+<<<<<<< HEAD
 	switch (data & TM2_TOUCHKEY_BIT_KEYCODE) {
 	case TM2_TOUCHKEY_KEY_MENU:
 		key = KEY_PHONE;
@@ -118,27 +212,60 @@ static irqreturn_t tm2_touchkey_irq_handler(int irq, void *devid)
 	default:
 		dev_warn(&touchkey->client->dev,
 			 "unhandled keycode, data %#02x\n", data);
+=======
+	index = (data & TM2_TOUCHKEY_BIT_KEYCODE) - 1;
+	if (index < 0 || index >= touchkey->num_keycodes) {
+		dev_warn(&touchkey->client->dev,
+			 "invalid keycode index %d\n", index);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
 	if (data & TM2_TOUCHKEY_BIT_PRESS_EV) {
+<<<<<<< HEAD
 		input_report_key(touchkey->input_dev, KEY_PHONE, 0);
 		input_report_key(touchkey->input_dev, KEY_BACK, 0);
 	} else {
 		input_report_key(touchkey->input_dev, key, 1);
+=======
+		for (i = 0; i < touchkey->num_keycodes; i++)
+			input_report_key(touchkey->input_dev,
+					 touchkey->keycodes[i], 0);
+	} else {
+		input_report_key(touchkey->input_dev,
+				 touchkey->keycodes[index], 1);
+>>>>>>> upstream/android-13
 	}
 
 	input_sync(touchkey->input_dev);
 
 out:
+<<<<<<< HEAD
+=======
+	if (touchkey->variant->fixed_regulator &&
+				data & TM2_TOUCHKEY_BIT_PRESS_EV) {
+		/* touch turns backlight on, so make sure we're in sync */
+		if (touchkey->led_dev.brightness == LED_OFF)
+			tm2_touchkey_led_brightness_set(&touchkey->led_dev,
+							LED_OFF);
+	}
+
+>>>>>>> upstream/android-13
 	return IRQ_HANDLED;
 }
 
 static int tm2_touchkey_probe(struct i2c_client *client,
 			      const struct i2c_device_id *id)
 {
+<<<<<<< HEAD
 	struct tm2_touchkey_data *touchkey;
 	int error;
+=======
+	struct device_node *np = client->dev.of_node;
+	struct tm2_touchkey_data *touchkey;
+	int error;
+	int i;
+>>>>>>> upstream/android-13
 
 	if (!i2c_check_functionality(client->adapter,
 			I2C_FUNC_SMBUS_BYTE | I2C_FUNC_SMBUS_BYTE_DATA)) {
@@ -153,8 +280,16 @@ static int tm2_touchkey_probe(struct i2c_client *client,
 	touchkey->client = client;
 	i2c_set_clientdata(client, touchkey);
 
+<<<<<<< HEAD
 	touchkey->regulators[0].supply = "vcc";
 	touchkey->regulators[1].supply = "vdd";
+=======
+	touchkey->variant = of_device_get_match_data(&client->dev);
+
+	touchkey->regulators[0].supply = "vcc";
+	touchkey->regulators[1].supply = "vdd";
+	touchkey->regulators[2].supply = "vddio";
+>>>>>>> upstream/android-13
 	error = devm_regulator_bulk_get(&client->dev,
 					ARRAY_SIZE(touchkey->regulators),
 					touchkey->regulators);
@@ -166,6 +301,19 @@ static int tm2_touchkey_probe(struct i2c_client *client,
 	/* Save VDD for easy access */
 	touchkey->vdd = touchkey->regulators[1].consumer;
 
+<<<<<<< HEAD
+=======
+	touchkey->num_keycodes = of_property_read_variable_u32_array(np,
+					"linux,keycodes", touchkey->keycodes, 0,
+					ARRAY_SIZE(touchkey->keycodes));
+	if (touchkey->num_keycodes <= 0) {
+		/* default keycodes */
+		touchkey->keycodes[0] = KEY_PHONE;
+		touchkey->keycodes[1] = KEY_BACK;
+		touchkey->num_keycodes = 2;
+	}
+
+>>>>>>> upstream/android-13
 	error = tm2_touchkey_power_enable(touchkey);
 	if (error) {
 		dev_err(&client->dev, "failed to power up device: %d\n", error);
@@ -190,8 +338,14 @@ static int tm2_touchkey_probe(struct i2c_client *client,
 	touchkey->input_dev->name = TM2_TOUCHKEY_DEV_NAME;
 	touchkey->input_dev->id.bustype = BUS_I2C;
 
+<<<<<<< HEAD
 	input_set_capability(touchkey->input_dev, EV_KEY, KEY_PHONE);
 	input_set_capability(touchkey->input_dev, EV_KEY, KEY_BACK);
+=======
+	for (i = 0; i < touchkey->num_keycodes; i++)
+		input_set_capability(touchkey->input_dev, EV_KEY,
+				     touchkey->keycodes[i]);
+>>>>>>> upstream/android-13
 
 	error = input_register_device(touchkey->input_dev);
 	if (error) {
@@ -212,9 +366,16 @@ static int tm2_touchkey_probe(struct i2c_client *client,
 
 	/* led device */
 	touchkey->led_dev.name = TM2_TOUCHKEY_DEV_NAME;
+<<<<<<< HEAD
 	touchkey->led_dev.brightness = LED_FULL;
 	touchkey->led_dev.max_brightness = LED_ON;
 	touchkey->led_dev.brightness_set = tm2_touchkey_led_brightness_set;
+=======
+	touchkey->led_dev.brightness = LED_ON;
+	touchkey->led_dev.max_brightness = LED_ON;
+	touchkey->led_dev.brightness_set_blocking =
+					tm2_touchkey_led_brightness_set;
+>>>>>>> upstream/android-13
 
 	error = devm_led_classdev_register(&client->dev, &touchkey->led_dev);
 	if (error) {
@@ -223,6 +384,12 @@ static int tm2_touchkey_probe(struct i2c_client *client,
 		return error;
 	}
 
+<<<<<<< HEAD
+=======
+	if (touchkey->variant->fixed_regulator)
+		tm2_touchkey_led_brightness_set(&touchkey->led_dev, LED_ON);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -262,7 +429,23 @@ static const struct i2c_device_id tm2_touchkey_id_table[] = {
 MODULE_DEVICE_TABLE(i2c, tm2_touchkey_id_table);
 
 static const struct of_device_id tm2_touchkey_of_match[] = {
+<<<<<<< HEAD
 	{ .compatible = "cypress,tm2-touchkey", },
+=======
+	{
+		.compatible = "cypress,tm2-touchkey",
+		.data = &tm2_touchkey_variant,
+	}, {
+		.compatible = "cypress,midas-touchkey",
+		.data = &midas_touchkey_variant,
+	}, {
+		.compatible = "cypress,aries-touchkey",
+		.data = &aries_touchkey_variant,
+	}, {
+		.compatible = "coreriver,tc360-touchkey",
+		.data = &tc360_touchkey_variant,
+	},
+>>>>>>> upstream/android-13
 	{ },
 };
 MODULE_DEVICE_TABLE(of, tm2_touchkey_of_match);

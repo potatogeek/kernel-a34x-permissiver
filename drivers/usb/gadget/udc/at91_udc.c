@@ -799,7 +799,10 @@ static int at91_wakeup(struct usb_gadget *gadget)
 {
 	struct at91_udc	*udc = to_udc(gadget);
 	u32		glbstate;
+<<<<<<< HEAD
 	int		status = -EINVAL;
+=======
+>>>>>>> upstream/android-13
 	unsigned long	flags;
 
 	DBG("%s\n", __func__ );
@@ -818,7 +821,11 @@ static int at91_wakeup(struct usb_gadget *gadget)
 
 done:
 	spin_unlock_irqrestore(&udc->lock, flags);
+<<<<<<< HEAD
 	return status;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /* reinit == restore initial software state */
@@ -1809,7 +1816,10 @@ static int at91udc_probe(struct platform_device *pdev)
 	struct device	*dev = &pdev->dev;
 	struct at91_udc	*udc;
 	int		retval;
+<<<<<<< HEAD
 	struct resource	*res;
+=======
+>>>>>>> upstream/android-13
 	struct at91_ep	*ep;
 	int		i;
 
@@ -1840,8 +1850,12 @@ static int at91udc_probe(struct platform_device *pdev)
 			ep->is_pingpong = 1;
 	}
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	udc->udp_baseaddr = devm_ioremap_resource(dev, res);
+=======
+	udc->udp_baseaddr = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(udc->udp_baseaddr))
 		return PTR_ERR(udc->udp_baseaddr);
 
@@ -1879,7 +1893,13 @@ static int at91udc_probe(struct platform_device *pdev)
 	clk_disable(udc->iclk);
 
 	/* request UDC and maybe VBUS irqs */
+<<<<<<< HEAD
 	udc->udp_irq = platform_get_irq(pdev, 0);
+=======
+	udc->udp_irq = retval = platform_get_irq(pdev, 0);
+	if (retval < 0)
+		goto err_unprepare_iclk;
+>>>>>>> upstream/android-13
 	retval = devm_request_irq(dev, udc->udp_irq, at91_udc_irq, 0,
 				  driver_name, udc);
 	if (retval) {
@@ -2024,7 +2044,11 @@ static struct platform_driver at91_udc_driver = {
 	.suspend	= at91udc_suspend,
 	.resume		= at91udc_resume,
 	.driver		= {
+<<<<<<< HEAD
 		.name	= (char *) driver_name,
+=======
+		.name	= driver_name,
+>>>>>>> upstream/android-13
 		.of_match_table	= at91_udc_dt_ids,
 	},
 };

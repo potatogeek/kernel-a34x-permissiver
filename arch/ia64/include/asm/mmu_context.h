@@ -49,11 +49,14 @@ DECLARE_PER_CPU(u8, ia64_need_tlb_flush);
 extern void mmu_context_init (void);
 extern void wrap_mmu_context (struct mm_struct *mm);
 
+<<<<<<< HEAD
 static inline void
 enter_lazy_tlb (struct mm_struct *mm, struct task_struct *tsk)
 {
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * When the context counter wraps around all TLBs need to be flushed because
  * an old context number might have been reused. This is signalled by the
@@ -116,6 +119,10 @@ out:
  * Initialize context number to some sane value.  MM is guaranteed to be a
  * brand-new address-space, so no TLB flushing is needed, ever.
  */
+<<<<<<< HEAD
+=======
+#define init_new_context init_new_context
+>>>>>>> upstream/android-13
 static inline int
 init_new_context (struct task_struct *p, struct mm_struct *mm)
 {
@@ -124,12 +131,15 @@ init_new_context (struct task_struct *p, struct mm_struct *mm)
 }
 
 static inline void
+<<<<<<< HEAD
 destroy_context (struct mm_struct *mm)
 {
 	/* Nothing to do.  */
 }
 
 static inline void
+=======
+>>>>>>> upstream/android-13
 reload_context (nv_mm_context_t context)
 {
 	unsigned long rid;
@@ -178,11 +188,18 @@ activate_context (struct mm_struct *mm)
 	} while (unlikely(context != mm->context));
 }
 
+<<<<<<< HEAD
 #define deactivate_mm(tsk,mm)	do { } while (0)
 
 /*
  * Switch from address space PREV to address space NEXT.
  */
+=======
+/*
+ * Switch from address space PREV to address space NEXT.
+ */
+#define activate_mm activate_mm
+>>>>>>> upstream/android-13
 static inline void
 activate_mm (struct mm_struct *prev, struct mm_struct *next)
 {
@@ -196,5 +213,10 @@ activate_mm (struct mm_struct *prev, struct mm_struct *next)
 
 #define switch_mm(prev_mm,next_mm,next_task)	activate_mm(prev_mm, next_mm)
 
+<<<<<<< HEAD
+=======
+#include <asm-generic/mmu_context.h>
+
+>>>>>>> upstream/android-13
 # endif /* ! __ASSEMBLY__ */
 #endif /* _ASM_IA64_MMU_CONTEXT_H */

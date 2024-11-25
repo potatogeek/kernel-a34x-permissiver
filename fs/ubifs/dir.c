@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* * This file is part of UBIFS.
  *
  * Copyright (C) 2006-2008 Nokia Corporation.
  * Copyright (C) 2006, 2007 University of Szeged, Hungary
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
@@ -16,6 +21,8 @@
  * this program; if not, write to the Free Software Foundation, Inc., 51
  * Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  * Authors: Artem Bityutskiy (Битюцкий Артём)
  *          Adrian Hunter
  *          Zoltan Sogor
@@ -93,6 +100,7 @@ struct inode *ubifs_new_inode(struct ubifs_info *c, struct inode *dir,
 	struct ubifs_inode *ui;
 	bool encrypted = false;
 
+<<<<<<< HEAD
 	if (ubifs_crypt_is_encrypted(dir)) {
 		err = fscrypt_get_encryption_info(dir);
 		if (err) {
@@ -106,6 +114,8 @@ struct inode *ubifs_new_inode(struct ubifs_info *c, struct inode *dir,
 		encrypted = true;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	inode = new_inode(c->vfs_sb);
 	ui = ubifs_inode(inode);
 	if (!inode)
@@ -119,11 +129,24 @@ struct inode *ubifs_new_inode(struct ubifs_info *c, struct inode *dir,
 	 */
 	inode->i_flags |= S_NOCMTIME;
 
+<<<<<<< HEAD
 	inode_init_owner(inode, dir, mode);
+=======
+	inode_init_owner(&init_user_ns, inode, dir, mode);
+>>>>>>> upstream/android-13
 	inode->i_mtime = inode->i_atime = inode->i_ctime =
 			 current_time(inode);
 	inode->i_mapping->nrpages = 0;
 
+<<<<<<< HEAD
+=======
+	err = fscrypt_prepare_new_inode(dir, inode, &encrypted);
+	if (err) {
+		ubifs_err(c, "fscrypt_prepare_new_inode failed: %i", err);
+		goto out_iput;
+	}
+
+>>>>>>> upstream/android-13
 	switch (mode & S_IFMT) {
 	case S_IFREG:
 		inode->i_mapping->a_ops = &ubifs_file_address_operations;
@@ -143,7 +166,10 @@ struct inode *ubifs_new_inode(struct ubifs_info *c, struct inode *dir,
 	case S_IFBLK:
 	case S_IFCHR:
 		inode->i_op  = &ubifs_file_inode_operations;
+<<<<<<< HEAD
 		encrypted = false;
+=======
+>>>>>>> upstream/android-13
 		break;
 	default:
 		BUG();
@@ -163,9 +189,14 @@ struct inode *ubifs_new_inode(struct ubifs_info *c, struct inode *dir,
 		if (c->highest_inum >= INUM_WATERMARK) {
 			spin_unlock(&c->cnt_lock);
 			ubifs_err(c, "out of inode numbers");
+<<<<<<< HEAD
 			make_bad_inode(inode);
 			iput(inode);
 			return ERR_PTR(-EINVAL);
+=======
+			err = -EINVAL;
+			goto out_iput;
+>>>>>>> upstream/android-13
 		}
 		ubifs_warn(c, "running out of inode numbers (current %lu, max %u)",
 			   (unsigned long)c->highest_inum, INUM_WATERMARK);
@@ -183,16 +214,31 @@ struct inode *ubifs_new_inode(struct ubifs_info *c, struct inode *dir,
 	spin_unlock(&c->cnt_lock);
 
 	if (encrypted) {
+<<<<<<< HEAD
 		err = fscrypt_inherit_context(dir, inode, &encrypted, true);
 		if (err) {
 			ubifs_err(c, "fscrypt_inherit_context failed: %i", err);
 			make_bad_inode(inode);
 			iput(inode);
 			return ERR_PTR(err);
+=======
+		err = fscrypt_set_context(inode, NULL);
+		if (err) {
+			ubifs_err(c, "fscrypt_set_context failed: %i", err);
+			goto out_iput;
+>>>>>>> upstream/android-13
 		}
 	}
 
 	return inode;
+<<<<<<< HEAD
+=======
+
+out_iput:
+	make_bad_inode(inode);
+	iput(inode);
+	return ERR_PTR(err);
+>>>>>>> upstream/android-13
 }
 
 static int dbg_check_name(const struct ubifs_info *c,
@@ -208,7 +254,10 @@ static int dbg_check_name(const struct ubifs_info *c,
 	return 0;
 }
 
+<<<<<<< HEAD
 static void ubifs_set_d_ops(struct inode *dir, struct dentry *dentry);
+=======
+>>>>>>> upstream/android-13
 static struct dentry *ubifs_lookup(struct inode *dir, struct dentry *dentry,
 				   unsigned int flags)
 {
@@ -222,7 +271,11 @@ static struct dentry *ubifs_lookup(struct inode *dir, struct dentry *dentry,
 	dbg_gen("'%pd' in dir ino %lu", dentry, dir->i_ino);
 
 	err = fscrypt_prepare_lookup(dir, dentry, &nm);
+<<<<<<< HEAD
 	ubifs_set_d_ops(dir, dentry);
+=======
+	generic_set_encrypted_ci_d_ops(dentry);
+>>>>>>> upstream/android-13
 	if (err == -ENOENT)
 		return d_splice_alias(NULL, dentry);
 	if (err)
@@ -275,7 +328,11 @@ static struct dentry *ubifs_lookup(struct inode *dir, struct dentry *dentry,
 		goto done;
 	}
 
+<<<<<<< HEAD
 	if (ubifs_crypt_is_encrypted(dir) &&
+=======
+	if (IS_ENCRYPTED(dir) &&
+>>>>>>> upstream/android-13
 	    (S_ISDIR(inode->i_mode) || S_ISLNK(inode->i_mode)) &&
 	    !fscrypt_has_permitted_context(dir, inode)) {
 		ubifs_warn(c, "Inconsistent encryption contexts: %lu/%lu",
@@ -299,8 +356,13 @@ static int ubifs_prepare_create(struct inode *dir, struct dentry *dentry,
 	return fscrypt_setup_filename(dir, &dentry->d_name, 0, nm);
 }
 
+<<<<<<< HEAD
 static int ubifs_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 			bool excl)
+=======
+static int ubifs_create(struct user_namespace *mnt_userns, struct inode *dir,
+			struct dentry *dentry, umode_t mode, bool excl)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode;
 	struct ubifs_info *c = dir->i_sb->s_fs_info;
@@ -368,6 +430,7 @@ out_budg:
 	return err;
 }
 
+<<<<<<< HEAD
 static int do_tmpfile(struct inode *dir, struct dentry *dentry,
 		      umode_t mode, struct inode **whiteout)
 {
@@ -376,12 +439,104 @@ static int do_tmpfile(struct inode *dir, struct dentry *dentry,
 	struct ubifs_budget_req req = { .new_ino = 1, .new_dent = 1};
 	struct ubifs_budget_req ino_req = { .dirtied_ino = 1 };
 	struct ubifs_inode *ui, *dir_ui = ubifs_inode(dir);
+=======
+static struct inode *create_whiteout(struct inode *dir, struct dentry *dentry)
+{
+	int err;
+	umode_t mode = S_IFCHR | WHITEOUT_MODE;
+	struct inode *inode;
+	struct ubifs_info *c = dir->i_sb->s_fs_info;
+	struct fscrypt_name nm;
+
+	/*
+	 * Create an inode('nlink = 1') for whiteout without updating journal,
+	 * let ubifs_jnl_rename() store it on flash to complete rename whiteout
+	 * atomically.
+	 */
+
+	dbg_gen("dent '%pd', mode %#hx in dir ino %lu",
+		dentry, mode, dir->i_ino);
+
+	err = fscrypt_setup_filename(dir, &dentry->d_name, 0, &nm);
+	if (err)
+		return ERR_PTR(err);
+
+	inode = ubifs_new_inode(c, dir, mode);
+	if (IS_ERR(inode)) {
+		err = PTR_ERR(inode);
+		goto out_free;
+	}
+
+	init_special_inode(inode, inode->i_mode, WHITEOUT_DEV);
+	ubifs_assert(c, inode->i_op == &ubifs_file_inode_operations);
+
+	err = ubifs_init_security(dir, inode, &dentry->d_name);
+	if (err)
+		goto out_inode;
+
+	/* The dir size is updated by do_rename. */
+	insert_inode_hash(inode);
+
+	return inode;
+
+out_inode:
+	make_bad_inode(inode);
+	iput(inode);
+out_free:
+	fscrypt_free_filename(&nm);
+	ubifs_err(c, "cannot create whiteout file, error %d", err);
+	return ERR_PTR(err);
+}
+
+/**
+ * lock_2_inodes - a wrapper for locking two UBIFS inodes.
+ * @inode1: first inode
+ * @inode2: second inode
+ *
+ * We do not implement any tricks to guarantee strict lock ordering, because
+ * VFS has already done it for us on the @i_mutex. So this is just a simple
+ * wrapper function.
+ */
+static void lock_2_inodes(struct inode *inode1, struct inode *inode2)
+{
+	mutex_lock_nested(&ubifs_inode(inode1)->ui_mutex, WB_MUTEX_1);
+	mutex_lock_nested(&ubifs_inode(inode2)->ui_mutex, WB_MUTEX_2);
+}
+
+/**
+ * unlock_2_inodes - a wrapper for unlocking two UBIFS inodes.
+ * @inode1: first inode
+ * @inode2: second inode
+ */
+static void unlock_2_inodes(struct inode *inode1, struct inode *inode2)
+{
+	mutex_unlock(&ubifs_inode(inode2)->ui_mutex);
+	mutex_unlock(&ubifs_inode(inode1)->ui_mutex);
+}
+
+static int ubifs_tmpfile(struct user_namespace *mnt_userns, struct inode *dir,
+			 struct dentry *dentry, umode_t mode)
+{
+	struct inode *inode;
+	struct ubifs_info *c = dir->i_sb->s_fs_info;
+	struct ubifs_budget_req req = { .new_ino = 1, .new_dent = 1,
+					.dirtied_ino = 1};
+	struct ubifs_budget_req ino_req = { .dirtied_ino = 1 };
+	struct ubifs_inode *ui;
+>>>>>>> upstream/android-13
 	int err, instantiated = 0;
 	struct fscrypt_name nm;
 
 	/*
+<<<<<<< HEAD
 	 * Budget request settings: new dirty inode, new direntry,
 	 * budget for dirtied inode will be released via writeback.
+=======
+	 * Budget request settings: new inode, new direntry, changing the
+	 * parent directory inode.
+	 * Allocate budget separately for new dirtied inode, the budget will
+	 * be released via writeback.
+>>>>>>> upstream/android-13
 	 */
 
 	dbg_gen("dent '%pd', mode %#hx in dir ino %lu",
@@ -411,17 +566,21 @@ static int do_tmpfile(struct inode *dir, struct dentry *dentry,
 	}
 	ui = ubifs_inode(inode);
 
+<<<<<<< HEAD
 	if (whiteout) {
 		init_special_inode(inode, inode->i_mode, WHITEOUT_DEV);
 		ubifs_assert(c, inode->i_op == &ubifs_file_inode_operations);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	err = ubifs_init_security(dir, inode, &dentry->d_name);
 	if (err)
 		goto out_inode;
 
 	mutex_lock(&ui->ui_mutex);
 	insert_inode_hash(inode);
+<<<<<<< HEAD
 
 	if (whiteout) {
 		mark_inode_dirty(inode);
@@ -430,23 +589,38 @@ static int do_tmpfile(struct inode *dir, struct dentry *dentry,
 	} else {
 		d_tmpfile(dentry, inode);
 	}
+=======
+	d_tmpfile(dentry, inode);
+>>>>>>> upstream/android-13
 	ubifs_assert(c, ui->dirty);
 
 	instantiated = 1;
 	mutex_unlock(&ui->ui_mutex);
 
+<<<<<<< HEAD
 	mutex_lock(&dir_ui->ui_mutex);
 	err = ubifs_jnl_update(c, dir, &nm, inode, 1, 0);
 	if (err)
 		goto out_cancel;
 	mutex_unlock(&dir_ui->ui_mutex);
+=======
+	lock_2_inodes(dir, inode);
+	err = ubifs_jnl_update(c, dir, &nm, inode, 1, 0);
+	if (err)
+		goto out_cancel;
+	unlock_2_inodes(dir, inode);
+>>>>>>> upstream/android-13
 
 	ubifs_release_budget(c, &req);
 
 	return 0;
 
 out_cancel:
+<<<<<<< HEAD
 	mutex_unlock(&dir_ui->ui_mutex);
+=======
+	unlock_2_inodes(dir, inode);
+>>>>>>> upstream/android-13
 out_inode:
 	make_bad_inode(inode);
 	if (!instantiated)
@@ -460,12 +634,15 @@ out_budg:
 	return err;
 }
 
+<<<<<<< HEAD
 static int ubifs_tmpfile(struct inode *dir, struct dentry *dentry,
 			 umode_t mode)
 {
 	return do_tmpfile(dir, dentry, mode, NULL);
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * vfs_dent_type - get VFS directory entry type.
  * @type: UBIFS directory entry type
@@ -522,7 +699,11 @@ static int ubifs_readdir(struct file *file, struct dir_context *ctx)
 	struct ubifs_dent_node *dent;
 	struct inode *dir = file_inode(file);
 	struct ubifs_info *c = dir->i_sb->s_fs_info;
+<<<<<<< HEAD
 	bool encrypted = ubifs_crypt_is_encrypted(dir);
+=======
+	bool encrypted = IS_ENCRYPTED(dir);
+>>>>>>> upstream/android-13
 
 	dbg_gen("dir ino %lu, f_pos %#llx", dir->i_ino, ctx->pos);
 
@@ -534,11 +715,19 @@ static int ubifs_readdir(struct file *file, struct dir_context *ctx)
 		return 0;
 
 	if (encrypted) {
+<<<<<<< HEAD
 		err = fscrypt_get_encryption_info(dir);
 		if (err)
 			return err;
 
 		err = fscrypt_fname_alloc_buffer(dir, UBIFS_MAX_NLEN, &fstr);
+=======
+		err = fscrypt_prepare_readdir(dir);
+		if (err)
+			return err;
+
+		err = fscrypt_fname_alloc_buffer(UBIFS_MAX_NLEN, &fstr);
+>>>>>>> upstream/android-13
 		if (err)
 			return err;
 
@@ -679,6 +868,7 @@ static int ubifs_dir_release(struct inode *dir, struct file *file)
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
  * lock_2_inodes - a wrapper for locking two UBIFS inodes.
  * @inode1: first inode
@@ -705,6 +895,8 @@ static void unlock_2_inodes(struct inode *inode1, struct inode *inode2)
 	mutex_unlock(&ubifs_inode(inode1)->ui_mutex);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int ubifs_link(struct dentry *old_dentry, struct inode *dir,
 		      struct dentry *dentry)
 {
@@ -801,16 +993,26 @@ static int ubifs_unlink(struct inode *dir, struct dentry *dentry)
 		dentry, inode->i_ino,
 		inode->i_nlink, dir->i_ino);
 
+<<<<<<< HEAD
 	if (ubifs_crypt_is_encrypted(dir)) {
 		err = fscrypt_get_encryption_info(dir);
 		if (err && err != -ENOKEY)
 			return err;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	err = fscrypt_setup_filename(dir, &dentry->d_name, 1, &nm);
 	if (err)
 		return err;
 
+<<<<<<< HEAD
+=======
+	err = ubifs_purge_xattrs(inode);
+	if (err)
+		return err;
+
+>>>>>>> upstream/android-13
 	sz_change = CALC_DENT_SIZE(fname_len(&nm));
 
 	ubifs_assert(c, inode_is_locked(dir));
@@ -865,7 +1067,11 @@ out_fname:
  *
  * This function checks if directory @dir is empty. Returns zero if the
  * directory is empty, %-ENOTEMPTY if it is not, and other negative error codes
+<<<<<<< HEAD
  * in case of of errors.
+=======
+ * in case of errors.
+>>>>>>> upstream/android-13
  */
 int ubifs_check_dir_empty(struct inode *dir)
 {
@@ -911,16 +1117,26 @@ static int ubifs_rmdir(struct inode *dir, struct dentry *dentry)
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	if (ubifs_crypt_is_encrypted(dir)) {
 		err = fscrypt_get_encryption_info(dir);
 		if (err && err != -ENOKEY)
 			return err;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	err = fscrypt_setup_filename(dir, &dentry->d_name, 1, &nm);
 	if (err)
 		return err;
 
+<<<<<<< HEAD
+=======
+	err = ubifs_purge_xattrs(inode);
+	if (err)
+		return err;
+
+>>>>>>> upstream/android-13
 	sz_change = CALC_DENT_SIZE(fname_len(&nm));
 
 	err = ubifs_budget_space(c, &req);
@@ -965,13 +1181,23 @@ out_fname:
 	return err;
 }
 
+<<<<<<< HEAD
 static int ubifs_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
+=======
+static int ubifs_mkdir(struct user_namespace *mnt_userns, struct inode *dir,
+		       struct dentry *dentry, umode_t mode)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode;
 	struct ubifs_inode *dir_ui = ubifs_inode(dir);
 	struct ubifs_info *c = dir->i_sb->s_fs_info;
 	int err, sz_change;
+<<<<<<< HEAD
 	struct ubifs_budget_req req = { .new_ino = 1, .new_dent = 1 };
+=======
+	struct ubifs_budget_req req = { .new_ino = 1, .new_dent = 1,
+					.dirtied_ino = 1};
+>>>>>>> upstream/android-13
 	struct fscrypt_name nm;
 
 	/*
@@ -1036,8 +1262,13 @@ out_budg:
 	return err;
 }
 
+<<<<<<< HEAD
 static int ubifs_mknod(struct inode *dir, struct dentry *dentry,
 		       umode_t mode, dev_t rdev)
+=======
+static int ubifs_mknod(struct user_namespace *mnt_userns, struct inode *dir,
+		       struct dentry *dentry, umode_t mode, dev_t rdev)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode;
 	struct ubifs_inode *ui;
@@ -1125,8 +1356,13 @@ out_budg:
 	return err;
 }
 
+<<<<<<< HEAD
 static int ubifs_symlink(struct inode *dir, struct dentry *dentry,
 			 const char *symname)
+=======
+static int ubifs_symlink(struct user_namespace *mnt_userns, struct inode *dir,
+			 struct dentry *dentry, const char *symname)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode;
 	struct ubifs_inode *ui;
@@ -1286,6 +1522,7 @@ static int do_rename(struct inode *old_dir, struct dentry *old_dentry,
 					.dirtied_ino = 3 };
 	struct ubifs_budget_req ino_req = { .dirtied_ino = 1,
 			.dirtied_ino_d = ALIGN(old_inode_ui->data_len, 8) };
+<<<<<<< HEAD
 	struct timespec64 time;
 	unsigned int uninitialized_var(saved_nlink);
 	struct fscrypt_name old_nm, new_nm;
@@ -1297,15 +1534,41 @@ static int do_rename(struct inode *old_dir, struct dentry *old_dentry,
 	 * However, this operation also marks the target inode as dirty and
 	 * does not write it, so we allocate budget for the target inode
 	 * separately.
+=======
+	struct ubifs_budget_req wht_req;
+	struct timespec64 time;
+	unsigned int saved_nlink;
+	struct fscrypt_name old_nm, new_nm;
+
+	/*
+	 * Budget request settings:
+	 *   req: deletion direntry, new direntry, removing the old inode,
+	 *   and changing old and new parent directory inodes.
+	 *
+	 *   wht_req: new whiteout inode for RENAME_WHITEOUT.
+	 *
+	 *   ino_req: marks the target inode as dirty and does not write it.
+>>>>>>> upstream/android-13
 	 */
 
 	dbg_gen("dent '%pd' ino %lu in dir ino %lu to dent '%pd' in dir ino %lu flags 0x%x",
 		old_dentry, old_inode->i_ino, old_dir->i_ino,
 		new_dentry, new_dir->i_ino, flags);
 
+<<<<<<< HEAD
 	if (unlink)
 		ubifs_assert(c, inode_is_locked(new_inode));
 
+=======
+	if (unlink) {
+		ubifs_assert(c, inode_is_locked(new_inode));
+
+		err = ubifs_purge_xattrs(new_inode);
+		if (err)
+			return err;
+	}
+
+>>>>>>> upstream/android-13
 	if (unlink && is_dir) {
 		err = ubifs_check_dir_empty(new_inode);
 		if (err)
@@ -1348,17 +1611,56 @@ static int do_rename(struct inode *old_dir, struct dentry *old_dentry,
 			goto out_release;
 		}
 
+<<<<<<< HEAD
 		err = do_tmpfile(old_dir, old_dentry, S_IFCHR | WHITEOUT_MODE, &whiteout);
 		if (err) {
+=======
+		/*
+		 * The whiteout inode without dentry is pinned in memory,
+		 * umount won't happen during rename process because we
+		 * got parent dentry.
+		 */
+		whiteout = create_whiteout(old_dir, old_dentry);
+		if (IS_ERR(whiteout)) {
+			err = PTR_ERR(whiteout);
+>>>>>>> upstream/android-13
 			kfree(dev);
 			goto out_release;
 		}
 
+<<<<<<< HEAD
 		whiteout->i_state |= I_LINKABLE;
+=======
+>>>>>>> upstream/android-13
 		whiteout_ui = ubifs_inode(whiteout);
 		whiteout_ui->data = dev;
 		whiteout_ui->data_len = ubifs_encode_dev(dev, MKDEV(0, 0));
 		ubifs_assert(c, !whiteout_ui->dirty);
+<<<<<<< HEAD
+=======
+
+		memset(&wht_req, 0, sizeof(struct ubifs_budget_req));
+		wht_req.new_ino = 1;
+		wht_req.new_ino_d = ALIGN(whiteout_ui->data_len, 8);
+		/*
+		 * To avoid deadlock between space budget (holds ui_mutex and
+		 * waits wb work) and writeback work(waits ui_mutex), do space
+		 * budget before ubifs inodes locked.
+		 */
+		err = ubifs_budget_space(c, &wht_req);
+		if (err) {
+			/*
+			 * Whiteout inode can not be written on flash by
+			 * ubifs_jnl_write_inode(), because it's neither
+			 * dirty nor zero-nlink.
+			 */
+			iput(whiteout);
+			goto out_release;
+		}
+
+		/* Add the old_dentry size to the old_dir size. */
+		old_sz -= CALC_DENT_SIZE(fname_len(&old_nm));
+>>>>>>> upstream/android-13
 	}
 
 	lock_4_inodes(old_dir, new_dir, new_inode, whiteout);
@@ -1430,6 +1732,7 @@ static int do_rename(struct inode *old_dir, struct dentry *old_dentry,
 		sync = IS_DIRSYNC(old_dir) || IS_DIRSYNC(new_dir);
 		if (unlink && IS_SYNC(new_inode))
 			sync = 1;
+<<<<<<< HEAD
 	}
 
 	if (whiteout) {
@@ -1449,6 +1752,13 @@ static int do_rename(struct inode *old_dir, struct dentry *old_dentry,
 		mark_inode_dirty(whiteout);
 		whiteout->i_state &= ~I_LINKABLE;
 		iput(whiteout);
+=======
+		/*
+		 * S_SYNC flag of whiteout inherits from the old_dir, and we
+		 * have already checked the old dir inode. So there is no need
+		 * to check whiteout.
+		 */
+>>>>>>> upstream/android-13
 	}
 
 	err = ubifs_jnl_rename(c, old_dir, old_inode, &old_nm, new_dir,
@@ -1459,6 +1769,14 @@ static int do_rename(struct inode *old_dir, struct dentry *old_dentry,
 	unlock_4_inodes(old_dir, new_dir, new_inode, whiteout);
 	ubifs_release_budget(c, &req);
 
+<<<<<<< HEAD
+=======
+	if (whiteout) {
+		ubifs_release_budget(c, &wht_req);
+		iput(whiteout);
+	}
+
+>>>>>>> upstream/android-13
 	mutex_lock(&old_inode_ui->ui_mutex);
 	release = old_inode_ui->dirty;
 	mark_inode_dirty_sync(old_inode);
@@ -1467,11 +1785,24 @@ static int do_rename(struct inode *old_dir, struct dentry *old_dentry,
 	if (release)
 		ubifs_release_budget(c, &ino_req);
 	if (IS_SYNC(old_inode))
+<<<<<<< HEAD
 		err = old_inode->i_sb->s_op->write_inode(old_inode, NULL);
 
 	fscrypt_free_filename(&old_nm);
 	fscrypt_free_filename(&new_nm);
 	return err;
+=======
+		/*
+		 * Rename finished here. Although old inode cannot be updated
+		 * on flash, old ctime is not a big problem, don't return err
+		 * code to userspace.
+		 */
+		old_inode->i_sb->s_op->write_inode(old_inode, NULL);
+
+	fscrypt_free_filename(&old_nm);
+	fscrypt_free_filename(&new_nm);
+	return 0;
+>>>>>>> upstream/android-13
 
 out_cancel:
 	if (unlink) {
@@ -1492,11 +1823,19 @@ out_cancel:
 				inc_nlink(old_dir);
 		}
 	}
+<<<<<<< HEAD
 	if (whiteout) {
 		drop_nlink(whiteout);
 		iput(whiteout);
 	}
 	unlock_4_inodes(old_dir, new_dir, new_inode, whiteout);
+=======
+	unlock_4_inodes(old_dir, new_dir, new_inode, whiteout);
+	if (whiteout) {
+		ubifs_release_budget(c, &wht_req);
+		iput(whiteout);
+	}
+>>>>>>> upstream/android-13
 out_release:
 	ubifs_release_budget(c, &ino_req);
 	ubifs_release_budget(c, &req);
@@ -1560,7 +1899,12 @@ static int ubifs_xrename(struct inode *old_dir, struct dentry *old_dentry,
 	return err;
 }
 
+<<<<<<< HEAD
 static int ubifs_rename(struct inode *old_dir, struct dentry *old_dentry,
+=======
+static int ubifs_rename(struct user_namespace *mnt_userns,
+			struct inode *old_dir, struct dentry *old_dentry,
+>>>>>>> upstream/android-13
 			struct inode *new_dir, struct dentry *new_dentry,
 			unsigned int flags)
 {
@@ -1584,8 +1928,13 @@ static int ubifs_rename(struct inode *old_dir, struct dentry *old_dentry,
 	return do_rename(old_dir, old_dentry, new_dir, new_dentry, flags);
 }
 
+<<<<<<< HEAD
 int ubifs_getattr(const struct path *path, struct kstat *stat,
 		  u32 request_mask, unsigned int flags)
+=======
+int ubifs_getattr(struct user_namespace *mnt_userns, const struct path *path,
+		  struct kstat *stat, u32 request_mask, unsigned int flags)
+>>>>>>> upstream/android-13
 {
 	loff_t size;
 	struct inode *inode = d_inode(path->dentry);
@@ -1607,7 +1956,11 @@ int ubifs_getattr(const struct path *path, struct kstat *stat,
 				STATX_ATTR_ENCRYPTED |
 				STATX_ATTR_IMMUTABLE);
 
+<<<<<<< HEAD
 	generic_fillattr(inode, stat);
+=======
+	generic_fillattr(&init_user_ns, inode, stat);
+>>>>>>> upstream/android-13
 	stat->blksize = UBIFS_BLOCK_SIZE;
 	stat->size = ui->ui_size;
 
@@ -1638,6 +1991,7 @@ int ubifs_getattr(const struct path *path, struct kstat *stat,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int ubifs_dir_open(struct inode *dir, struct file *file)
 {
 	if (ubifs_crypt_is_encrypted(dir))
@@ -1646,6 +2000,8 @@ static int ubifs_dir_open(struct inode *dir, struct file *file)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 const struct inode_operations ubifs_dir_inode_operations = {
 	.lookup      = ubifs_lookup,
 	.create      = ubifs_create,
@@ -1658,6 +2014,7 @@ const struct inode_operations ubifs_dir_inode_operations = {
 	.rename      = ubifs_rename,
 	.setattr     = ubifs_setattr,
 	.getattr     = ubifs_getattr,
+<<<<<<< HEAD
 #ifdef CONFIG_UBIFS_FS_XATTR
 	.listxattr   = ubifs_listxattr,
 #endif
@@ -1665,6 +2022,13 @@ const struct inode_operations ubifs_dir_inode_operations = {
 	.update_time = ubifs_update_time,
 #endif
 	.tmpfile     = ubifs_tmpfile,
+=======
+	.listxattr   = ubifs_listxattr,
+	.update_time = ubifs_update_time,
+	.tmpfile     = ubifs_tmpfile,
+	.fileattr_get = ubifs_fileattr_get,
+	.fileattr_set = ubifs_fileattr_set,
+>>>>>>> upstream/android-13
 };
 
 const struct file_operations ubifs_dir_operations = {
@@ -1674,11 +2038,15 @@ const struct file_operations ubifs_dir_operations = {
 	.iterate_shared = ubifs_readdir,
 	.fsync          = ubifs_fsync,
 	.unlocked_ioctl = ubifs_ioctl,
+<<<<<<< HEAD
 	.open		= ubifs_dir_open,
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_COMPAT
 	.compat_ioctl   = ubifs_compat_ioctl,
 #endif
 };
+<<<<<<< HEAD
 
 #ifdef CONFIG_FS_ENCRYPTION
 static const struct dentry_operations ubifs_encrypted_dentry_ops = {
@@ -1695,3 +2063,5 @@ static void ubifs_set_d_ops(struct inode *dir, struct dentry *dentry)
 	}
 #endif
 }
+=======
+>>>>>>> upstream/android-13

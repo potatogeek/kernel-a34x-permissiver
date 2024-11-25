@@ -86,6 +86,10 @@ static int lbs_mesh_config_send(struct lbs_private *priv,
 static int lbs_mesh_config(struct lbs_private *priv, uint16_t action,
 		uint16_t chan)
 {
+<<<<<<< HEAD
+=======
+	struct wireless_dev *mesh_wdev;
+>>>>>>> upstream/android-13
 	struct cmd_ds_mesh_config cmd;
 	struct mrvl_meshie *ie;
 
@@ -105,10 +109,24 @@ static int lbs_mesh_config(struct lbs_private *priv, uint16_t action,
 		ie->val.active_protocol_id = MARVELL_MESH_PROTO_ID_HWMP;
 		ie->val.active_metric_id = MARVELL_MESH_METRIC_ID;
 		ie->val.mesh_capability = MARVELL_MESH_CAPABILITY;
+<<<<<<< HEAD
 		ie->val.mesh_id_len = priv->mesh_ssid_len;
 		memcpy(ie->val.mesh_id, priv->mesh_ssid, priv->mesh_ssid_len);
 		ie->len = sizeof(struct mrvl_meshie_val) -
 			IEEE80211_MAX_SSID_LEN + priv->mesh_ssid_len;
+=======
+
+		if (priv->mesh_dev) {
+			mesh_wdev = priv->mesh_dev->ieee80211_ptr;
+			ie->val.mesh_id_len = mesh_wdev->u.mesh.id_up_len;
+			memcpy(ie->val.mesh_id, mesh_wdev->u.mesh.id,
+						mesh_wdev->u.mesh.id_up_len);
+		}
+
+		ie->len = sizeof(struct mrvl_meshie_val) -
+			IEEE80211_MAX_SSID_LEN + ie->val.mesh_id_len;
+
+>>>>>>> upstream/android-13
 		cmd.length = cpu_to_le16(sizeof(struct mrvl_meshie_val));
 		break;
 	case CMD_ACT_MESH_CONFIG_STOP:
@@ -117,8 +135,13 @@ static int lbs_mesh_config(struct lbs_private *priv, uint16_t action,
 		return -1;
 	}
 	lbs_deb_cmd("mesh config action %d type %x channel %d SSID %*pE\n",
+<<<<<<< HEAD
 		    action, priv->mesh_tlv, chan, priv->mesh_ssid_len,
 		    priv->mesh_ssid);
+=======
+		    action, priv->mesh_tlv, chan, ie->val.mesh_id_len,
+		    ie->val.mesh_id);
+>>>>>>> upstream/android-13
 
 	return __lbs_mesh_config_send(priv, &cmd, action, priv->mesh_tlv);
 }
@@ -143,13 +166,22 @@ static uint16_t lbs_mesh_get_channel(struct lbs_private *priv)
  */
 
 /**
+<<<<<<< HEAD
  * lbs_anycast_get - Get function for sysfs attribute anycast_mask
+=======
+ * anycast_mask_show - Get function for sysfs attribute anycast_mask
+>>>>>>> upstream/android-13
  * @dev: the &struct device
  * @attr: device attributes
  * @buf: buffer where data will be returned
  */
+<<<<<<< HEAD
 static ssize_t lbs_anycast_get(struct device *dev,
 		struct device_attribute *attr, char * buf)
+=======
+static ssize_t anycast_mask_show(struct device *dev,
+				 struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct lbs_private *priv = to_net_dev(dev)->ml_priv;
 	struct cmd_ds_mesh_access mesh_access;
@@ -165,14 +197,24 @@ static ssize_t lbs_anycast_get(struct device *dev,
 }
 
 /**
+<<<<<<< HEAD
  * lbs_anycast_set - Set function for sysfs attribute anycast_mask
+=======
+ * anycast_mask_store - Set function for sysfs attribute anycast_mask
+>>>>>>> upstream/android-13
  * @dev: the &struct device
  * @attr: device attributes
  * @buf: buffer that contains new attribute value
  * @count: size of buffer
  */
+<<<<<<< HEAD
 static ssize_t lbs_anycast_set(struct device *dev,
 		struct device_attribute *attr, const char * buf, size_t count)
+=======
+static ssize_t anycast_mask_store(struct device *dev,
+				  struct device_attribute *attr,
+				  const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct lbs_private *priv = to_net_dev(dev)->ml_priv;
 	struct cmd_ds_mesh_access mesh_access;
@@ -191,13 +233,22 @@ static ssize_t lbs_anycast_set(struct device *dev,
 }
 
 /**
+<<<<<<< HEAD
  * lbs_prb_rsp_limit_get - Get function for sysfs attribute prb_rsp_limit
+=======
+ * prb_rsp_limit_show - Get function for sysfs attribute prb_rsp_limit
+>>>>>>> upstream/android-13
  * @dev: the &struct device
  * @attr: device attributes
  * @buf: buffer where data will be returned
  */
+<<<<<<< HEAD
 static ssize_t lbs_prb_rsp_limit_get(struct device *dev,
 		struct device_attribute *attr, char *buf)
+=======
+static ssize_t prb_rsp_limit_show(struct device *dev,
+				  struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct lbs_private *priv = to_net_dev(dev)->ml_priv;
 	struct cmd_ds_mesh_access mesh_access;
@@ -217,14 +268,24 @@ static ssize_t lbs_prb_rsp_limit_get(struct device *dev,
 }
 
 /**
+<<<<<<< HEAD
  * lbs_prb_rsp_limit_set - Set function for sysfs attribute prb_rsp_limit
+=======
+ * prb_rsp_limit_store - Set function for sysfs attribute prb_rsp_limit
+>>>>>>> upstream/android-13
  * @dev: the &struct device
  * @attr: device attributes
  * @buf: buffer that contains new attribute value
  * @count: size of buffer
  */
+<<<<<<< HEAD
 static ssize_t lbs_prb_rsp_limit_set(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t count)
+=======
+static ssize_t prb_rsp_limit_store(struct device *dev,
+				   struct device_attribute *attr,
+				   const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct lbs_private *priv = to_net_dev(dev)->ml_priv;
 	struct cmd_ds_mesh_access mesh_access;
@@ -251,27 +312,46 @@ static ssize_t lbs_prb_rsp_limit_set(struct device *dev,
 }
 
 /**
+<<<<<<< HEAD
  * lbs_mesh_get - Get function for sysfs attribute mesh
+=======
+ * lbs_mesh_show - Get function for sysfs attribute mesh
+>>>>>>> upstream/android-13
  * @dev: the &struct device
  * @attr: device attributes
  * @buf: buffer where data will be returned
  */
+<<<<<<< HEAD
 static ssize_t lbs_mesh_get(struct device *dev,
 		struct device_attribute *attr, char * buf)
+=======
+static ssize_t lbs_mesh_show(struct device *dev,
+			     struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct lbs_private *priv = to_net_dev(dev)->ml_priv;
 	return snprintf(buf, 5, "0x%X\n", !!priv->mesh_dev);
 }
 
 /**
+<<<<<<< HEAD
  * lbs_mesh_set - Set function for sysfs attribute mesh
+=======
+ * lbs_mesh_store - Set function for sysfs attribute mesh
+>>>>>>> upstream/android-13
  * @dev: the &struct device
  * @attr: device attributes
  * @buf: buffer that contains new attribute value
  * @count: size of buffer
  */
+<<<<<<< HEAD
 static ssize_t lbs_mesh_set(struct device *dev,
 		struct device_attribute *attr, const char * buf, size_t count)
+=======
+static ssize_t lbs_mesh_store(struct device *dev,
+			      struct device_attribute *attr,
+			      const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct lbs_private *priv = to_net_dev(dev)->ml_priv;
 	int enable;
@@ -293,20 +373,32 @@ static ssize_t lbs_mesh_set(struct device *dev,
  * lbs_mesh attribute to be exported per ethX interface
  * through sysfs (/sys/class/net/ethX/lbs_mesh)
  */
+<<<<<<< HEAD
 static DEVICE_ATTR(lbs_mesh, 0644, lbs_mesh_get, lbs_mesh_set);
+=======
+static DEVICE_ATTR_RW(lbs_mesh);
+>>>>>>> upstream/android-13
 
 /*
  * anycast_mask attribute to be exported per mshX interface
  * through sysfs (/sys/class/net/mshX/anycast_mask)
  */
+<<<<<<< HEAD
 static DEVICE_ATTR(anycast_mask, 0644, lbs_anycast_get, lbs_anycast_set);
+=======
+static DEVICE_ATTR_RW(anycast_mask);
+>>>>>>> upstream/android-13
 
 /*
  * prb_rsp_limit attribute to be exported per mshX interface
  * through sysfs (/sys/class/net/mshX/prb_rsp_limit)
  */
+<<<<<<< HEAD
 static DEVICE_ATTR(prb_rsp_limit, 0644, lbs_prb_rsp_limit_get,
 		lbs_prb_rsp_limit_set);
+=======
+static DEVICE_ATTR_RW(prb_rsp_limit);
+>>>>>>> upstream/android-13
 
 static struct attribute *lbs_mesh_sysfs_entries[] = {
 	&dev_attr_anycast_mask.attr,
@@ -343,13 +435,22 @@ static int mesh_get_default_parameters(struct device *dev,
 }
 
 /**
+<<<<<<< HEAD
  * bootflag_get - Get function for sysfs attribute bootflag
+=======
+ * bootflag_show - Get function for sysfs attribute bootflag
+>>>>>>> upstream/android-13
  * @dev: the &struct device
  * @attr: device attributes
  * @buf: buffer where data will be returned
  */
+<<<<<<< HEAD
 static ssize_t bootflag_get(struct device *dev,
 			    struct device_attribute *attr, char *buf)
+=======
+static ssize_t bootflag_show(struct device *dev,
+			     struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct mrvl_mesh_defaults defs;
 	int ret;
@@ -363,14 +464,23 @@ static ssize_t bootflag_get(struct device *dev,
 }
 
 /**
+<<<<<<< HEAD
  * bootflag_set - Set function for sysfs attribute bootflag
+=======
+ * bootflag_store - Set function for sysfs attribute bootflag
+>>>>>>> upstream/android-13
  * @dev: the &struct device
  * @attr: device attributes
  * @buf: buffer that contains new attribute value
  * @count: size of buffer
  */
+<<<<<<< HEAD
 static ssize_t bootflag_set(struct device *dev, struct device_attribute *attr,
 			    const char *buf, size_t count)
+=======
+static ssize_t bootflag_store(struct device *dev, struct device_attribute *attr,
+			      const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct lbs_private *priv = to_net_dev(dev)->ml_priv;
 	struct cmd_ds_mesh_config cmd;
@@ -393,13 +503,22 @@ static ssize_t bootflag_set(struct device *dev, struct device_attribute *attr,
 }
 
 /**
+<<<<<<< HEAD
  * boottime_get - Get function for sysfs attribute boottime
+=======
+ * boottime_show - Get function for sysfs attribute boottime
+>>>>>>> upstream/android-13
  * @dev: the &struct device
  * @attr: device attributes
  * @buf: buffer where data will be returned
  */
+<<<<<<< HEAD
 static ssize_t boottime_get(struct device *dev,
 			    struct device_attribute *attr, char *buf)
+=======
+static ssize_t boottime_show(struct device *dev,
+			     struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct mrvl_mesh_defaults defs;
 	int ret;
@@ -413,14 +532,24 @@ static ssize_t boottime_get(struct device *dev,
 }
 
 /**
+<<<<<<< HEAD
  * boottime_set - Set function for sysfs attribute boottime
+=======
+ * boottime_store - Set function for sysfs attribute boottime
+>>>>>>> upstream/android-13
  * @dev: the &struct device
  * @attr: device attributes
  * @buf: buffer that contains new attribute value
  * @count: size of buffer
  */
+<<<<<<< HEAD
 static ssize_t boottime_set(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t count)
+=======
+static ssize_t boottime_store(struct device *dev,
+			      struct device_attribute *attr,
+			      const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct lbs_private *priv = to_net_dev(dev)->ml_priv;
 	struct cmd_ds_mesh_config cmd;
@@ -452,13 +581,22 @@ static ssize_t boottime_set(struct device *dev,
 }
 
 /**
+<<<<<<< HEAD
  * channel_get - Get function for sysfs attribute channel
+=======
+ * channel_show - Get function for sysfs attribute channel
+>>>>>>> upstream/android-13
  * @dev: the &struct device
  * @attr: device attributes
  * @buf: buffer where data will be returned
  */
+<<<<<<< HEAD
 static ssize_t channel_get(struct device *dev,
 			   struct device_attribute *attr, char *buf)
+=======
+static ssize_t channel_show(struct device *dev,
+			    struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct mrvl_mesh_defaults defs;
 	int ret;
@@ -472,14 +610,23 @@ static ssize_t channel_get(struct device *dev,
 }
 
 /**
+<<<<<<< HEAD
  * channel_set - Set function for sysfs attribute channel
+=======
+ * channel_store - Set function for sysfs attribute channel
+>>>>>>> upstream/android-13
  * @dev: the &struct device
  * @attr: device attributes
  * @buf: buffer that contains new attribute value
  * @count: size of buffer
  */
+<<<<<<< HEAD
 static ssize_t channel_set(struct device *dev, struct device_attribute *attr,
 			   const char *buf, size_t count)
+=======
+static ssize_t channel_store(struct device *dev, struct device_attribute *attr,
+			     const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct lbs_private *priv = to_net_dev(dev)->ml_priv;
 	struct cmd_ds_mesh_config cmd;
@@ -502,13 +649,22 @@ static ssize_t channel_set(struct device *dev, struct device_attribute *attr,
 }
 
 /**
+<<<<<<< HEAD
  * mesh_id_get - Get function for sysfs attribute mesh_id
+=======
+ * mesh_id_show - Get function for sysfs attribute mesh_id
+>>>>>>> upstream/android-13
  * @dev: the &struct device
  * @attr: device attributes
  * @buf: buffer where data will be returned
  */
+<<<<<<< HEAD
 static ssize_t mesh_id_get(struct device *dev, struct device_attribute *attr,
 			   char *buf)
+=======
+static ssize_t mesh_id_show(struct device *dev, struct device_attribute *attr,
+			    char *buf)
+>>>>>>> upstream/android-13
 {
 	struct mrvl_mesh_defaults defs;
 	int ret;
@@ -531,14 +687,23 @@ static ssize_t mesh_id_get(struct device *dev, struct device_attribute *attr,
 }
 
 /**
+<<<<<<< HEAD
  * mesh_id_set - Set function for sysfs attribute mesh_id
+=======
+ * mesh_id_store - Set function for sysfs attribute mesh_id
+>>>>>>> upstream/android-13
  * @dev: the &struct device
  * @attr: device attributes
  * @buf: buffer that contains new attribute value
  * @count: size of buffer
  */
+<<<<<<< HEAD
 static ssize_t mesh_id_set(struct device *dev, struct device_attribute *attr,
 			   const char *buf, size_t count)
+=======
+static ssize_t mesh_id_store(struct device *dev, struct device_attribute *attr,
+			     const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct cmd_ds_mesh_config cmd;
 	struct mrvl_mesh_defaults defs;
@@ -577,13 +742,23 @@ static ssize_t mesh_id_set(struct device *dev, struct device_attribute *attr,
 }
 
 /**
+<<<<<<< HEAD
  * protocol_id_get - Get function for sysfs attribute protocol_id
+=======
+ * protocol_id_show - Get function for sysfs attribute protocol_id
+>>>>>>> upstream/android-13
  * @dev: the &struct device
  * @attr: device attributes
  * @buf: buffer where data will be returned
  */
+<<<<<<< HEAD
 static ssize_t protocol_id_get(struct device *dev,
 			       struct device_attribute *attr, char *buf)
+=======
+static ssize_t protocol_id_show(struct device *dev,
+				struct device_attribute *attr,
+				char *buf)
+>>>>>>> upstream/android-13
 {
 	struct mrvl_mesh_defaults defs;
 	int ret;
@@ -597,14 +772,24 @@ static ssize_t protocol_id_get(struct device *dev,
 }
 
 /**
+<<<<<<< HEAD
  * protocol_id_set - Set function for sysfs attribute protocol_id
+=======
+ * protocol_id_store - Set function for sysfs attribute protocol_id
+>>>>>>> upstream/android-13
  * @dev: the &struct device
  * @attr: device attributes
  * @buf: buffer that contains new attribute value
  * @count: size of buffer
  */
+<<<<<<< HEAD
 static ssize_t protocol_id_set(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t count)
+=======
+static ssize_t protocol_id_store(struct device *dev,
+				 struct device_attribute *attr,
+				 const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct cmd_ds_mesh_config cmd;
 	struct mrvl_mesh_defaults defs;
@@ -638,13 +823,22 @@ static ssize_t protocol_id_set(struct device *dev,
 }
 
 /**
+<<<<<<< HEAD
  * metric_id_get - Get function for sysfs attribute metric_id
+=======
+ * metric_id_show - Get function for sysfs attribute metric_id
+>>>>>>> upstream/android-13
  * @dev: the &struct device
  * @attr: device attributes
  * @buf: buffer where data will be returned
  */
+<<<<<<< HEAD
 static ssize_t metric_id_get(struct device *dev,
 		struct device_attribute *attr, char *buf)
+=======
+static ssize_t metric_id_show(struct device *dev,
+			      struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct mrvl_mesh_defaults defs;
 	int ret;
@@ -658,14 +852,24 @@ static ssize_t metric_id_get(struct device *dev,
 }
 
 /**
+<<<<<<< HEAD
  * metric_id_set - Set function for sysfs attribute metric_id
+=======
+ * metric_id_store - Set function for sysfs attribute metric_id
+>>>>>>> upstream/android-13
  * @dev: the &struct device
  * @attr: device attributes
  * @buf: buffer that contains new attribute value
  * @count: size of buffer
  */
+<<<<<<< HEAD
 static ssize_t metric_id_set(struct device *dev, struct device_attribute *attr,
 			     const char *buf, size_t count)
+=======
+static ssize_t metric_id_store(struct device *dev,
+			       struct device_attribute *attr,
+			       const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct cmd_ds_mesh_config cmd;
 	struct mrvl_mesh_defaults defs;
@@ -699,13 +903,22 @@ static ssize_t metric_id_set(struct device *dev, struct device_attribute *attr,
 }
 
 /**
+<<<<<<< HEAD
  * capability_get - Get function for sysfs attribute capability
+=======
+ * capability_show - Get function for sysfs attribute capability
+>>>>>>> upstream/android-13
  * @dev: the &struct device
  * @attr: device attributes
  * @buf: buffer where data will be returned
  */
+<<<<<<< HEAD
 static ssize_t capability_get(struct device *dev,
 		struct device_attribute *attr, char *buf)
+=======
+static ssize_t capability_show(struct device *dev,
+			       struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct mrvl_mesh_defaults defs;
 	int ret;
@@ -719,14 +932,24 @@ static ssize_t capability_get(struct device *dev,
 }
 
 /**
+<<<<<<< HEAD
  * capability_set - Set function for sysfs attribute capability
+=======
+ * capability_store - Set function for sysfs attribute capability
+>>>>>>> upstream/android-13
  * @dev: the &struct device
  * @attr: device attributes
  * @buf: buffer that contains new attribute value
  * @count: size of buffer
  */
+<<<<<<< HEAD
 static ssize_t capability_set(struct device *dev, struct device_attribute *attr,
 			      const char *buf, size_t count)
+=======
+static ssize_t capability_store(struct device *dev,
+				struct device_attribute *attr,
+				const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct cmd_ds_mesh_config cmd;
 	struct mrvl_mesh_defaults defs;
@@ -760,6 +983,7 @@ static ssize_t capability_set(struct device *dev, struct device_attribute *attr,
 }
 
 
+<<<<<<< HEAD
 static DEVICE_ATTR(bootflag, 0644, bootflag_get, bootflag_set);
 static DEVICE_ATTR(boottime, 0644, boottime_get, boottime_set);
 static DEVICE_ATTR(channel, 0644, channel_get, channel_set);
@@ -767,6 +991,15 @@ static DEVICE_ATTR(mesh_id, 0644, mesh_id_get, mesh_id_set);
 static DEVICE_ATTR(protocol_id, 0644, protocol_id_get, protocol_id_set);
 static DEVICE_ATTR(metric_id, 0644, metric_id_get, metric_id_set);
 static DEVICE_ATTR(capability, 0644, capability_get, capability_set);
+=======
+static DEVICE_ATTR_RW(bootflag);
+static DEVICE_ATTR_RW(boottime);
+static DEVICE_ATTR_RW(channel);
+static DEVICE_ATTR_RW(mesh_id);
+static DEVICE_ATTR_RW(protocol_id);
+static DEVICE_ATTR_RW(metric_id);
+static DEVICE_ATTR_RW(capability);
+>>>>>>> upstream/android-13
 
 static struct attribute *boot_opts_attrs[] = {
 	&dev_attr_bootflag.attr,
@@ -793,6 +1026,7 @@ static const struct attribute_group mesh_ie_group = {
 	.attrs = mesh_ie_attrs,
 };
 
+<<<<<<< HEAD
 static void lbs_persist_config_init(struct net_device *dev)
 {
 	int ret;
@@ -806,6 +1040,8 @@ static void lbs_persist_config_remove(struct net_device *dev)
 	sysfs_remove_group(&(dev->dev.kobj), &mesh_ie_group);
 }
 
+=======
+>>>>>>> upstream/android-13
 
 /***************************************************************************
  * Initializing and starting, stopping mesh
@@ -815,10 +1051,15 @@ static void lbs_persist_config_remove(struct net_device *dev)
  * Check mesh FW version and appropriately send the mesh start
  * command
  */
+<<<<<<< HEAD
 int lbs_init_mesh(struct lbs_private *priv)
 {
 	int ret = 0;
 
+=======
+void lbs_init_mesh(struct lbs_private *priv)
+{
+>>>>>>> upstream/android-13
 	/* Determine mesh_fw_ver from fwrelease and fwcapinfo */
 	/* 5.0.16p0 9.0.0.p0 is known to NOT support any mesh */
 	/* 5.110.22 have mesh command with 0xa3 command id */
@@ -857,6 +1098,7 @@ int lbs_init_mesh(struct lbs_private *priv)
 
 	/* Stop meshing until interface is brought up */
 	lbs_mesh_config(priv, CMD_ACT_MESH_CONFIG_STOP, 1);
+<<<<<<< HEAD
 
 	if (priv->mesh_tlv) {
 		sprintf(priv->mesh_ssid, "mesh");
@@ -865,6 +1107,8 @@ int lbs_init_mesh(struct lbs_private *priv)
 	}
 
 	return ret;
+=======
+>>>>>>> upstream/android-13
 }
 
 void lbs_start_mesh(struct lbs_private *priv)
@@ -992,6 +1236,15 @@ static int lbs_add_mesh(struct lbs_private *priv)
 
 	mesh_wdev->iftype = NL80211_IFTYPE_MESH_POINT;
 	mesh_wdev->wiphy = priv->wdev->wiphy;
+<<<<<<< HEAD
+=======
+
+	if (priv->mesh_tlv) {
+		sprintf(mesh_wdev->u.mesh.id, "mesh");
+		mesh_wdev->u.mesh.id_up_len = 4;
+	}
+
+>>>>>>> upstream/android-13
 	mesh_wdev->netdev = mesh_dev;
 
 	mesh_dev->ml_priv = priv;
@@ -1005,6 +1258,13 @@ static int lbs_add_mesh(struct lbs_private *priv)
 	SET_NETDEV_DEV(priv->mesh_dev, priv->dev->dev.parent);
 
 	mesh_dev->flags |= IFF_BROADCAST | IFF_MULTICAST;
+<<<<<<< HEAD
+=======
+	mesh_dev->sysfs_groups[0] = &lbs_mesh_attr_group;
+	mesh_dev->sysfs_groups[1] = &boot_opts_group;
+	mesh_dev->sysfs_groups[2] = &mesh_ie_group;
+
+>>>>>>> upstream/android-13
 	/* Register virtual mesh interface */
 	ret = register_netdev(mesh_dev);
 	if (ret) {
@@ -1012,19 +1272,25 @@ static int lbs_add_mesh(struct lbs_private *priv)
 		goto err_free_netdev;
 	}
 
+<<<<<<< HEAD
 	ret = sysfs_create_group(&(mesh_dev->dev.kobj), &lbs_mesh_attr_group);
 	if (ret)
 		goto err_unregister;
 
 	lbs_persist_config_init(mesh_dev);
 
+=======
+>>>>>>> upstream/android-13
 	/* Everything successful */
 	ret = 0;
 	goto done;
 
+<<<<<<< HEAD
 err_unregister:
 	unregister_netdev(mesh_dev);
 
+=======
+>>>>>>> upstream/android-13
 err_free_netdev:
 	free_netdev(mesh_dev);
 
@@ -1045,8 +1311,11 @@ void lbs_remove_mesh(struct lbs_private *priv)
 
 	netif_stop_queue(mesh_dev);
 	netif_carrier_off(mesh_dev);
+<<<<<<< HEAD
 	sysfs_remove_group(&(mesh_dev->dev.kobj), &lbs_mesh_attr_group);
 	lbs_persist_config_remove(mesh_dev);
+=======
+>>>>>>> upstream/android-13
 	unregister_netdev(mesh_dev);
 	priv->mesh_dev = NULL;
 	kfree(mesh_dev->ieee80211_ptr);

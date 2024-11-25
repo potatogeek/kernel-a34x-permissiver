@@ -60,9 +60,13 @@ typedef struct gda {
 				/* Pointer to a mask of nodes with copies
 				 * of the kernel. */
 	char	g_padding[56];	/* pad out to 128 bytes */
+<<<<<<< HEAD
 	nasid_t g_nasidtable[MAX_COMPACT_NODES]; /* NASID of each node,
 						  * indexed by cnodeid.
 						  */
+=======
+	nasid_t g_nasidtable[MAX_NUMNODES]; /* NASID of each node */
+>>>>>>> upstream/android-13
 } gda_t;
 
 #define GDA ((gda_t*) GDA_ADDR(get_nasid()))

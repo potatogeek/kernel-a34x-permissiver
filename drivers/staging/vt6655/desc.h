@@ -1,10 +1,17 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0+
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 1996, 2003 VIA Networking Technologies, Inc.
  * All rights reserved.
  *
+<<<<<<< HEAD
  * File: desc.h
  *
+=======
+>>>>>>> upstream/android-13
  * Purpose:The header file of descriptor
  *
  * Revision History:

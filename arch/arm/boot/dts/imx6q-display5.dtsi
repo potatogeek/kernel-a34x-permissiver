@@ -48,6 +48,10 @@
 	compatible = "lwn,display5", "fsl,imx6q";
 
 	memory@10000000 {
+<<<<<<< HEAD
+=======
+		device_type = "memory";
+>>>>>>> upstream/android-13
 		reg = <0x10000000 0x40000000>;
 	};
 
@@ -398,7 +402,10 @@
 };
 
 &pwm2 {
+<<<<<<< HEAD
 	#pwm-cells = <3>;
+=======
+>>>>>>> upstream/android-13
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_pwm2>;
 	status = "okay";

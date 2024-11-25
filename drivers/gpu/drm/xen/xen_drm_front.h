@@ -11,6 +11,7 @@
 #ifndef __XEN_DRM_FRONT_H_
 #define __XEN_DRM_FRONT_H_
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/drm_simple_kms_helper.h>
 
@@ -18,6 +19,20 @@
 
 #include "xen_drm_front_cfg.h"
 
+=======
+#include <linux/scatterlist.h>
+
+#include <drm/drm_connector.h>
+#include <drm/drm_simple_kms_helper.h>
+
+#include "xen_drm_front_cfg.h"
+
+struct drm_device;
+struct drm_framebuffer;
+struct drm_gem_object;
+struct drm_pending_vblank_event;
+
+>>>>>>> upstream/android-13
 /**
  * DOC: Driver modes of operation in terms of display buffers used
  *
@@ -140,7 +155,11 @@ int xen_drm_front_mode_set(struct xen_drm_front_drm_pipeline *pipeline,
 
 int xen_drm_front_dbuf_create(struct xen_drm_front_info *front_info,
 			      u64 dbuf_cookie, u32 width, u32 height,
+<<<<<<< HEAD
 			      u32 bpp, u64 size, struct page **pages);
+=======
+			      u32 bpp, u64 size, u32 offset, struct page **pages);
+>>>>>>> upstream/android-13
 
 int xen_drm_front_fb_attach(struct xen_drm_front_info *front_info,
 			    u64 dbuf_cookie, u64 fb_cookie, u32 width,
@@ -155,4 +174,9 @@ int xen_drm_front_page_flip(struct xen_drm_front_info *front_info,
 void xen_drm_front_on_frame_done(struct xen_drm_front_info *front_info,
 				 int conn_idx, u64 fb_cookie);
 
+<<<<<<< HEAD
+=======
+void xen_drm_front_gem_object_free(struct drm_gem_object *obj);
+
+>>>>>>> upstream/android-13
 #endif /* __XEN_DRM_FRONT_H_ */

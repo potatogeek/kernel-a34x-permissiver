@@ -4,11 +4,18 @@
  * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
  *
  ******************************************************************************/
+<<<<<<< HEAD
 #define _IEEE80211_C
+=======
+>>>>>>> upstream/android-13
 
 #include <drv_types.h>
 #include <rtw_debug.h>
 #include <linux/of.h>
+<<<<<<< HEAD
+=======
+#include <asm/unaligned.h>
+>>>>>>> upstream/android-13
 
 u8 RTW_WPA_OUI_TYPE[] = { 0x00, 0x50, 0xf2, 1 };
 u16 RTW_WPA_VERSION = 1;
@@ -95,11 +102,16 @@ bool rtw_is_cckratesonly_included(u8 *rate)
 int rtw_check_network_type(unsigned char *rate, int ratelen, int channel)
 {
 	if (channel > 14) {
+<<<<<<< HEAD
 		if (rtw_is_cckrates_included(rate))
 			return WIRELESS_INVALID;
 		else
 			return WIRELESS_11A;
 	} else{ /*  could be pure B, pure G, or B/G */
+=======
+		return WIRELESS_INVALID;
+	} else { /*  could be pure B, pure G, or B/G */
+>>>>>>> upstream/android-13
 		if (rtw_is_cckratesonly_included(rate))
 			return WIRELESS_11B;
 		else if (rtw_is_cckrates_included(rate))
@@ -114,6 +126,7 @@ u8 *rtw_set_fixed_ie(unsigned char *pbuf, unsigned int len, unsigned char *sourc
 {
 	memcpy((void *)pbuf, (void *)source, len);
 	*frlen = *frlen + len;
+<<<<<<< HEAD
 	return (pbuf + len);
 }
 
@@ -126,6 +139,17 @@ u8 *rtw_set_ie
 	u8 *source,
 	uint *frlen /* frame length */
 )
+=======
+	return pbuf + len;
+}
+
+/*  rtw_set_ie will update frame length */
+u8 *rtw_set_ie(u8 *pbuf,
+	       signed int index,
+	       uint len,
+	       u8 *source,
+	       uint *frlen) /* frame length */
+>>>>>>> upstream/android-13
 {
 	*pbuf = (u8)index;
 
@@ -136,15 +160,25 @@ u8 *rtw_set_ie
 
 	*frlen = *frlen + (len + 2);
 
+<<<<<<< HEAD
 	return (pbuf + len + 2);
+=======
+	return pbuf + len + 2;
+>>>>>>> upstream/android-13
 }
 
 /*----------------------------------------------------------------------------
 index: the information element id index, limit is the limit for search
 -----------------------------------------------------------------------------*/
+<<<<<<< HEAD
 u8 *rtw_get_ie(u8 *pbuf, sint index, sint *len, sint limit)
 {
 	sint tmp, i;
+=======
+u8 *rtw_get_ie(u8 *pbuf, signed int index, signed int *len, signed int limit)
+{
+	signed int tmp, i;
+>>>>>>> upstream/android-13
 	u8 *p;
 
 	if (limit < 1)
@@ -157,7 +191,11 @@ u8 *rtw_get_ie(u8 *pbuf, sint index, sint *len, sint limit)
 		if (*p == index) {
 			*len = *(p + 1);
 			return p;
+<<<<<<< HEAD
 		} else{
+=======
+		} else {
+>>>>>>> upstream/android-13
 			tmp = *(p + 1);
 			p += (tmp + 2);
 			i += (tmp + 2);
@@ -205,7 +243,11 @@ u8 *rtw_get_ie_ex(u8 *in_ie, uint in_len, u8 eid, u8 *oui, u8 oui_len, u8 *ie, u
 				*ielen = in_ie[cnt+1]+2;
 
 			break;
+<<<<<<< HEAD
 		} else{
+=======
+		} else {
+>>>>>>> upstream/android-13
 			cnt += in_ie[cnt+1]+2; /* goto next */
 		}
 	}
@@ -217,7 +259,11 @@ u8 *rtw_get_ie_ex(u8 *in_ie, uint in_len, u8 eid, u8 *oui, u8 oui_len, u8 *ie, u
  * rtw_ies_remove_ie - Find matching IEs and remove
  * @ies: Address of IEs to search
  * @ies_len: Pointer of length of ies, will update to new length
+<<<<<<< HEAD
  * @offset: The offset to start scarch
+=======
+ * @offset: The offset to start search
+>>>>>>> upstream/android-13
  * @eid: Element ID to match
  * @oui: OUI to match
  * @oui_len: OUI length
@@ -241,12 +287,19 @@ int rtw_ies_remove_ie(u8 *ies, uint *ies_len, uint offset, u8 eid, u8 *oui, u8 o
 	while (1) {
 		target_ie = rtw_get_ie_ex(start, search_len, eid, oui, oui_len, NULL, &target_ielen);
 		if (target_ie && target_ielen) {
+<<<<<<< HEAD
 			u8 buf[MAX_IE_SZ] = {0};
 			u8 *remain_ies = target_ie + target_ielen;
 			uint remain_len = search_len - (remain_ies - start);
 
 			memcpy(buf, remain_ies, remain_len);
 			memcpy(target_ie, buf, remain_len);
+=======
+			u8 *remain_ies = target_ie + target_ielen;
+			uint remain_len = search_len - (remain_ies - start);
+
+			memcpy(target_ie, remain_ies, remain_len);
+>>>>>>> upstream/android-13
 			*ies_len = *ies_len - target_ielen;
 			ret = _SUCCESS;
 
@@ -260,6 +313,7 @@ exit:
 	return ret;
 }
 
+<<<<<<< HEAD
 void rtw_set_supported_rate(u8 *SupportedRates, uint mode)
 {
 	memset(SupportedRates, 0, NDIS_802_11_LENGTH_RATES_EX);
@@ -275,14 +329,32 @@ void rtw_set_supported_rate(u8 *SupportedRates, uint mode)
 	case WIRELESS_11A_5N:/* Todo: no basic rate for ofdm ? */
 	case WIRELESS_11_5AC:
 		memcpy(SupportedRates, WIFI_OFDMRATES, IEEE80211_NUM_OFDM_RATESLEN);
+=======
+void rtw_set_supported_rate(u8 *supported_rates, uint mode)
+{
+	memset(supported_rates, 0, NDIS_802_11_LENGTH_RATES_EX);
+
+	switch (mode) {
+	case WIRELESS_11B:
+		memcpy(supported_rates, WIFI_CCKRATES, IEEE80211_CCK_RATE_LEN);
+		break;
+
+	case WIRELESS_11G:
+		memcpy(supported_rates, WIFI_OFDMRATES, IEEE80211_NUM_OFDM_RATESLEN);
+>>>>>>> upstream/android-13
 		break;
 
 	case WIRELESS_11BG:
 	case WIRELESS_11G_24N:
 	case WIRELESS_11_24N:
 	case WIRELESS_11BG_24N:
+<<<<<<< HEAD
 		memcpy(SupportedRates, WIFI_CCKRATES, IEEE80211_CCK_RATE_LEN);
 		memcpy(SupportedRates + IEEE80211_CCK_RATE_LEN, WIFI_OFDMRATES, IEEE80211_NUM_OFDM_RATESLEN);
+=======
+		memcpy(supported_rates, WIFI_CCKRATES, IEEE80211_CCK_RATE_LEN);
+		memcpy(supported_rates + IEEE80211_CCK_RATE_LEN, WIFI_OFDMRATES, IEEE80211_NUM_OFDM_RATESLEN);
+>>>>>>> upstream/android-13
 		break;
 	}
 }
@@ -302,20 +374,29 @@ int rtw_generate_ie(struct registry_priv *pregistrypriv)
 	u8 wireless_mode;
 	int	sz = 0, rateLen;
 	struct wlan_bssid_ex *pdev_network = &pregistrypriv->dev_network;
+<<<<<<< HEAD
 	u8 *ie = pdev_network->IEs;
+=======
+	u8 *ie = pdev_network->ies;
+>>>>>>> upstream/android-13
 
 	/* timestamp will be inserted by hardware */
 	sz += 8;
 	ie += sz;
 
 	/* beacon interval : 2bytes */
+<<<<<<< HEAD
 	*(__le16 *)ie = cpu_to_le16((u16)pdev_network->Configuration.BeaconPeriod);/* BCN_INTERVAL; */
+=======
+	*(__le16 *)ie = cpu_to_le16((u16)pdev_network->configuration.beacon_period);/* BCN_INTERVAL; */
+>>>>>>> upstream/android-13
 	sz += 2;
 	ie += 2;
 
 	/* capability info */
 	*(u16 *)ie = 0;
 
+<<<<<<< HEAD
 	*(__le16 *)ie |= cpu_to_le16(cap_IBSS);
 
 	if (pregistrypriv->preamble == PREAMBLE_SHORT)
@@ -323,11 +404,21 @@ int rtw_generate_ie(struct registry_priv *pregistrypriv)
 
 	if (pdev_network->Privacy)
 		*(__le16 *)ie |= cpu_to_le16(cap_Privacy);
+=======
+	*(__le16 *)ie |= cpu_to_le16(WLAN_CAPABILITY_IBSS);
+
+	if (pregistrypriv->preamble == PREAMBLE_SHORT)
+		*(__le16 *)ie |= cpu_to_le16(WLAN_CAPABILITY_SHORT_PREAMBLE);
+
+	if (pdev_network->privacy)
+		*(__le16 *)ie |= cpu_to_le16(WLAN_CAPABILITY_PRIVACY);
+>>>>>>> upstream/android-13
 
 	sz += 2;
 	ie += 2;
 
 	/* SSID */
+<<<<<<< HEAD
 	ie = rtw_set_ie(ie, _SSID_IE_, pdev_network->Ssid.SsidLength, pdev_network->Ssid.Ssid, &sz);
 
 	/* supported rates */
@@ -369,6 +460,42 @@ int rtw_generate_ie(struct registry_priv *pregistrypriv)
 	}
 
 	/* pdev_network->IELength =  sz; update IELength */
+=======
+	ie = rtw_set_ie(ie, WLAN_EID_SSID, pdev_network->ssid.ssid_length, pdev_network->ssid.ssid, &sz);
+
+	/* supported rates */
+	wireless_mode = pregistrypriv->wireless_mode;
+
+	rtw_set_supported_rate(pdev_network->supported_rates, wireless_mode);
+
+	rateLen = rtw_get_rateset_len(pdev_network->supported_rates);
+
+	if (rateLen > 8) {
+		ie = rtw_set_ie(ie, WLAN_EID_SUPP_RATES, 8, pdev_network->supported_rates, &sz);
+		/* ie = rtw_set_ie(ie, WLAN_EID_EXT_SUPP_RATES, (rateLen - 8), (pdev_network->supported_rates + 8), &sz); */
+	} else {
+		ie = rtw_set_ie(ie, WLAN_EID_SUPP_RATES, rateLen, pdev_network->supported_rates, &sz);
+	}
+
+	/* DS parameter set */
+	ie = rtw_set_ie(ie, WLAN_EID_DS_PARAMS, 1, (u8 *)&(pdev_network->configuration.ds_config), &sz);
+
+	/* IBSS Parameter Set */
+
+	ie = rtw_set_ie(ie, WLAN_EID_IBSS_PARAMS, 2, (u8 *)&(pdev_network->configuration.atim_window), &sz);
+
+	if (rateLen > 8) {
+		ie = rtw_set_ie(ie, WLAN_EID_EXT_SUPP_RATES, (rateLen - 8), (pdev_network->supported_rates + 8), &sz);
+	}
+
+	/* HT Cap. */
+	if ((pregistrypriv->wireless_mode & WIRELESS_11_24N) &&
+	    (pregistrypriv->ht_enable == true)) {
+		/* todo: */
+	}
+
+	/* pdev_network->ie_length =  sz; update ie_length */
+>>>>>>> upstream/android-13
 
 	/* return _SUCCESS; */
 
@@ -385,7 +512,11 @@ unsigned char *rtw_get_wpa_ie(unsigned char *pie, int *wpa_ie_len, int limit)
 	__le16 le_tmp;
 
 	while (1) {
+<<<<<<< HEAD
 		pbuf = rtw_get_ie(pbuf, _WPA_IE_ID_, &len, limit_new);
+=======
+		pbuf = rtw_get_ie(pbuf, WLAN_EID_VENDOR_SPECIFIC, &len, limit_new);
+>>>>>>> upstream/android-13
 
 		if (pbuf) {
 			/* check if oui matches... */
@@ -404,7 +535,11 @@ unsigned char *rtw_get_wpa_ie(unsigned char *pie, int *wpa_ie_len, int limit)
 
 			return pbuf;
 
+<<<<<<< HEAD
 		} else{
+=======
+		} else {
+>>>>>>> upstream/android-13
 			*wpa_ie_len = 0;
 			return NULL;
 		}
@@ -426,7 +561,11 @@ check_next_ie:
 
 unsigned char *rtw_get_wpa2_ie(unsigned char *pie, int *rsn_ie_len, int limit)
 {
+<<<<<<< HEAD
 	return rtw_get_ie(pie, _WPA2_IE_ID_, rsn_ie_len, limit);
+=======
+	return rtw_get_ie(pie, WLAN_EID_RSN, rsn_ie_len, limit);
+>>>>>>> upstream/android-13
 }
 
 int rtw_get_wpa_cipher_suite(u8 *s)
@@ -473,7 +612,11 @@ int rtw_parse_wpa_ie(u8 *wpa_ie, int wpa_ie_len, int *group_cipher, int *pairwis
 		return _FAIL;
 	}
 
+<<<<<<< HEAD
 	if ((*wpa_ie != _WPA_IE_ID_) || (*(wpa_ie+1) != (u8)(wpa_ie_len - 2)) ||
+=======
+	if ((*wpa_ie != WLAN_EID_VENDOR_SPECIFIC) || (*(wpa_ie+1) != (u8)(wpa_ie_len - 2)) ||
+>>>>>>> upstream/android-13
 	   (memcmp(wpa_ie+2, RTW_WPA_OUI_TYPE, WPA_SELECTOR_LEN))) {
 		return _FAIL;
 	}
@@ -490,15 +633,21 @@ int rtw_parse_wpa_ie(u8 *wpa_ie, int wpa_ie_len, int *group_cipher, int *pairwis
 		pos += WPA_SELECTOR_LEN;
 		left -= WPA_SELECTOR_LEN;
 
+<<<<<<< HEAD
 	} else if (left > 0) {
 		RT_TRACE(_module_rtl871x_mlme_c_, _drv_err_, ("%s: ie length mismatch, %u too much", __func__, left));
 
 		return _FAIL;
 	}
+=======
+	} else if (left > 0)
+		return _FAIL;
+>>>>>>> upstream/android-13
 
 	/* pairwise_cipher */
 	if (left >= 2) {
 		/* count = le16_to_cpu(*(u16*)pos); */
+<<<<<<< HEAD
 		count = RTW_GET_LE16(pos);
 		pos += 2;
 		left -= 2;
@@ -508,6 +657,14 @@ int rtw_parse_wpa_ie(u8 *wpa_ie, int wpa_ie_len, int *group_cipher, int *pairwis
 						"count %u left %u", __func__, count, left));
 			return _FAIL;
 		}
+=======
+		count = get_unaligned_le16(pos);
+		pos += 2;
+		left -= 2;
+
+		if (count == 0 || left < count * WPA_SELECTOR_LEN)
+			return _FAIL;
+>>>>>>> upstream/android-13
 
 		for (i = 0; i < count; i++) {
 			*pairwise_cipher |= rtw_get_wpa_cipher_suite(pos);
@@ -516,16 +673,24 @@ int rtw_parse_wpa_ie(u8 *wpa_ie, int wpa_ie_len, int *group_cipher, int *pairwis
 			left -= WPA_SELECTOR_LEN;
 		}
 
+<<<<<<< HEAD
 	} else if (left == 1) {
 		RT_TRACE(_module_rtl871x_mlme_c_, _drv_err_, ("%s: ie too short (for key mgmt)",   __func__));
 		return _FAIL;
 	}
+=======
+	} else if (left == 1)
+		return _FAIL;
+>>>>>>> upstream/android-13
 
 	if (is_8021x) {
 		if (left >= 6) {
 			pos += 2;
 			if (!memcmp(pos, SUITE_1X, 4)) {
+<<<<<<< HEAD
 				RT_TRACE(_module_rtl871x_mlme_c_, _drv_info_, ("%s : there has 802.1x auth\n", __func__));
+=======
+>>>>>>> upstream/android-13
 				*is_8021x = 1;
 			}
 		}
@@ -546,7 +711,11 @@ int rtw_parse_wpa2_ie(u8 *rsn_ie, int rsn_ie_len, int *group_cipher, int *pairwi
 		return _FAIL;
 	}
 
+<<<<<<< HEAD
 	if ((*rsn_ie != _WPA2_IE_ID_) || (*(rsn_ie+1) != (u8)(rsn_ie_len - 2))) {
+=======
+	if ((*rsn_ie != WLAN_EID_RSN) || (*(rsn_ie+1) != (u8)(rsn_ie_len - 2))) {
+>>>>>>> upstream/android-13
 		return _FAIL;
 	}
 
@@ -561,14 +730,20 @@ int rtw_parse_wpa2_ie(u8 *rsn_ie, int rsn_ie_len, int *group_cipher, int *pairwi
 		pos += RSN_SELECTOR_LEN;
 		left -= RSN_SELECTOR_LEN;
 
+<<<<<<< HEAD
 	} else if (left > 0) {
 		RT_TRACE(_module_rtl871x_mlme_c_, _drv_err_, ("%s: ie length mismatch, %u too much", __func__, left));
 		return _FAIL;
 	}
+=======
+	} else if (left > 0)
+		return _FAIL;
+>>>>>>> upstream/android-13
 
 	/* pairwise_cipher */
 	if (left >= 2) {
 	  /* count = le16_to_cpu(*(u16*)pos); */
+<<<<<<< HEAD
 		count = RTW_GET_LE16(pos);
 		pos += 2;
 		left -= 2;
@@ -578,6 +753,14 @@ int rtw_parse_wpa2_ie(u8 *rsn_ie, int rsn_ie_len, int *group_cipher, int *pairwi
 						 "count %u left %u", __func__, count, left));
 			return _FAIL;
 		}
+=======
+		count = get_unaligned_le16(pos);
+		pos += 2;
+		left -= 2;
+
+		if (count == 0 || left < count * RSN_SELECTOR_LEN)
+			return _FAIL;
+>>>>>>> upstream/android-13
 
 		for (i = 0; i < count; i++) {
 			*pairwise_cipher |= rtw_get_wpa2_cipher_suite(pos);
@@ -586,19 +769,29 @@ int rtw_parse_wpa2_ie(u8 *rsn_ie, int rsn_ie_len, int *group_cipher, int *pairwi
 			left -= RSN_SELECTOR_LEN;
 		}
 
+<<<<<<< HEAD
 	} else if (left == 1) {
 		RT_TRACE(_module_rtl871x_mlme_c_, _drv_err_, ("%s: ie too short (for key mgmt)",  __func__));
 
 		return _FAIL;
 	}
+=======
+	} else if (left == 1)
+		return _FAIL;
+>>>>>>> upstream/android-13
 
 	if (is_8021x) {
 		if (left >= 6) {
 			pos += 2;
+<<<<<<< HEAD
 			if (!memcmp(pos, SUITE_1X, 4)) {
 				RT_TRACE(_module_rtl871x_mlme_c_, _drv_info_, ("%s (): there has 802.1x auth\n", __func__));
 				*is_8021x = 1;
 			}
+=======
+			if (!memcmp(pos, SUITE_1X, 4))
+				*is_8021x = 1;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -609,7 +802,11 @@ int rtw_parse_wpa2_ie(u8 *rsn_ie, int rsn_ie_len, int *group_cipher, int *pairwi
 int rtw_get_wapi_ie(u8 *in_ie, uint in_len, u8 *wapi_ie, u16 *wapi_len)
 {
 	int len = 0;
+<<<<<<< HEAD
 	u8 authmode, i;
+=======
+	u8 authmode;
+>>>>>>> upstream/android-13
 	uint	cnt;
 	u8 wapi_oui1[4] = {0x0, 0x14, 0x72, 0x01};
 	u8 wapi_oui2[4] = {0x0, 0x14, 0x72, 0x02};
@@ -625,6 +822,7 @@ int rtw_get_wapi_ie(u8 *in_ie, uint in_len, u8 *wapi_ie, u16 *wapi_len)
 	while (cnt < in_len) {
 		authmode = in_ie[cnt];
 
+<<<<<<< HEAD
 		/* if (authmode == _WAPI_IE_) */
 		if (authmode == _WAPI_IE_ && (!memcmp(&in_ie[cnt+6], wapi_oui1, 4) ||
 					!memcmp(&in_ie[cnt+6], wapi_oui2, 4))) {
@@ -638,11 +836,23 @@ int rtw_get_wapi_ie(u8 *in_ie, uint in_len, u8 *wapi_ie, u16 *wapi_len)
 				}
 			}
 
+=======
+		/* if (authmode == WLAN_EID_BSS_AC_ACCESS_DELAY) */
+		if (authmode == WLAN_EID_BSS_AC_ACCESS_DELAY && (!memcmp(&in_ie[cnt+6], wapi_oui1, 4) ||
+					!memcmp(&in_ie[cnt+6], wapi_oui2, 4))) {
+			if (wapi_ie)
+				memcpy(wapi_ie, &in_ie[cnt], in_ie[cnt+1]+2);
+
+>>>>>>> upstream/android-13
 			if (wapi_len)
 				*wapi_len = in_ie[cnt+1]+2;
 
 			cnt += in_ie[cnt+1]+2;  /* get next */
+<<<<<<< HEAD
 		} else{
+=======
+		} else {
+>>>>>>> upstream/android-13
 			cnt += in_ie[cnt+1]+2;   /* get next */
 		}
 	}
@@ -654,9 +864,15 @@ int rtw_get_wapi_ie(u8 *in_ie, uint in_len, u8 *wapi_ie, u16 *wapi_len)
 }
 /* endif */
 
+<<<<<<< HEAD
 int rtw_get_sec_ie(u8 *in_ie, uint in_len, u8 *rsn_ie, u16 *rsn_len, u8 *wpa_ie, u16 *wpa_len)
 {
 	u8 authmode, sec_idx, i;
+=======
+void rtw_get_sec_ie(u8 *in_ie, uint in_len, u8 *rsn_ie, u16 *rsn_len, u8 *wpa_ie, u16 *wpa_len)
+{
+	u8 authmode;
+>>>>>>> upstream/android-13
 	u8 wpa_oui[4] = {0x0, 0x50, 0xf2, 0x01};
 	uint	cnt;
 
@@ -664,6 +880,7 @@ int rtw_get_sec_ie(u8 *in_ie, uint in_len, u8 *rsn_ie, u16 *rsn_len, u8 *wpa_ie,
 
 	cnt = (_TIMESTAMP_ + _BEACON_ITERVAL_ + _CAPABILITY_);
 
+<<<<<<< HEAD
 	sec_idx = 0;
 
 	while (cnt < in_len) {
@@ -701,12 +918,34 @@ int rtw_get_sec_ie(u8 *in_ie, uint in_len, u8 *rsn_ie, u16 *rsn_len, u8 *wpa_ie,
 				*rsn_len = in_ie[cnt+1]+2;
 				cnt += in_ie[cnt+1]+2;  /* get next */
 			} else{
+=======
+	while (cnt < in_len) {
+		authmode = in_ie[cnt];
+
+		if ((authmode == WLAN_EID_VENDOR_SPECIFIC) && (!memcmp(&in_ie[cnt+2], &wpa_oui[0], 4))) {
+			if (wpa_ie)
+				memcpy(wpa_ie, &in_ie[cnt], in_ie[cnt+1]+2);
+
+			*wpa_len = in_ie[cnt + 1] + 2;
+			cnt += in_ie[cnt + 1] + 2;  /* get next */
+		} else {
+			if (authmode == WLAN_EID_RSN) {
+				if (rsn_ie)
+					memcpy(rsn_ie, &in_ie[cnt], in_ie[cnt + 1] + 2);
+
+				*rsn_len = in_ie[cnt+1]+2;
+				cnt += in_ie[cnt+1]+2;  /* get next */
+			} else {
+>>>>>>> upstream/android-13
 				cnt += in_ie[cnt+1]+2;   /* get next */
 			}
 		}
 	}
+<<<<<<< HEAD
 
 	return (*rsn_len + *wpa_len);
+=======
+>>>>>>> upstream/android-13
 }
 
 u8 rtw_is_wps_ie(u8 *ie_ptr, uint *wps_ielen)
@@ -719,8 +958,12 @@ u8 rtw_is_wps_ie(u8 *ie_ptr, uint *wps_ielen)
 
 	eid = ie_ptr[0];
 
+<<<<<<< HEAD
 	if ((eid == _WPA_IE_ID_) && (!memcmp(&ie_ptr[2], wps_oui, 4))) {
 		/* DBG_8192C("==> found WPS_IE.....\n"); */
+=======
+	if ((eid == WLAN_EID_VENDOR_SPECIFIC) && (!memcmp(&ie_ptr[2], wps_oui, 4))) {
+>>>>>>> upstream/android-13
 		*wps_ielen = ie_ptr[1]+2;
 		match = true;
 	}
@@ -753,7 +996,11 @@ u8 *rtw_get_wps_ie(u8 *in_ie, uint in_len, u8 *wps_ie, uint *wps_ielen)
 	while (cnt < in_len) {
 		eid = in_ie[cnt];
 
+<<<<<<< HEAD
 		if ((eid == _WPA_IE_ID_) && (!memcmp(&in_ie[cnt+2], wps_oui, 4))) {
+=======
+		if ((eid == WLAN_EID_VENDOR_SPECIFIC) && (!memcmp(&in_ie[cnt+2], wps_oui, 4))) {
+>>>>>>> upstream/android-13
 			wpsie_ptr = &in_ie[cnt];
 
 			if (wps_ie)
@@ -765,7 +1012,11 @@ u8 *rtw_get_wps_ie(u8 *in_ie, uint in_len, u8 *wps_ie, uint *wps_ielen)
 			cnt += in_ie[cnt+1]+2;
 
 			break;
+<<<<<<< HEAD
 		} else{
+=======
+		} else {
+>>>>>>> upstream/android-13
 			cnt += in_ie[cnt+1]+2; /* goto next */
 		}
 	}
@@ -792,7 +1043,11 @@ u8 *rtw_get_wps_attr(u8 *wps_ie, uint wps_ielen, u16 target_attr_id, u8 *buf_att
 	if (len_attr)
 		*len_attr = 0;
 
+<<<<<<< HEAD
 	if ((wps_ie[0] != _VENDOR_SPECIFIC_IE_) ||
+=======
+	if ((wps_ie[0] != WLAN_EID_VENDOR_SPECIFIC) ||
+>>>>>>> upstream/android-13
 		(memcmp(wps_ie + 2, wps_oui, 4))) {
 		return attr_ptr;
 	}
@@ -802,11 +1057,18 @@ u8 *rtw_get_wps_attr(u8 *wps_ie, uint wps_ielen, u16 target_attr_id, u8 *buf_att
 
 	while (attr_ptr - wps_ie < wps_ielen) {
 		/*  4 = 2(Attribute ID) + 2(Length) */
+<<<<<<< HEAD
 		u16 attr_id = RTW_GET_BE16(attr_ptr);
 		u16 attr_data_len = RTW_GET_BE16(attr_ptr + 2);
 		u16 attr_len = attr_data_len + 4;
 
 		/* DBG_871X("%s attr_ptr:%p, id:%u, length:%u\n", __func__, attr_ptr, attr_id, attr_data_len); */
+=======
+		u16 attr_id = get_unaligned_be16(attr_ptr);
+		u16 attr_data_len = get_unaligned_be16(attr_ptr + 2);
+		u16 attr_len = attr_data_len + 4;
+
+>>>>>>> upstream/android-13
 		if (attr_id == target_attr_id) {
 			target_attr_ptr = attr_ptr;
 
@@ -817,7 +1079,11 @@ u8 *rtw_get_wps_attr(u8 *wps_ie, uint wps_ielen, u16 target_attr_id, u8 *buf_att
 				*len_attr = attr_len;
 
 			break;
+<<<<<<< HEAD
 		} else{
+=======
+		} else {
+>>>>>>> upstream/android-13
 			attr_ptr += attr_len; /* goto next */
 		}
 	}
@@ -867,6 +1133,7 @@ static int rtw_ieee802_11_parse_vendor_specific(u8 *pos, uint elen,
 	/* first 3 bytes in vendor specific information element are the IEEE
 	 * OUI of the vendor. The following byte is used a vendor specific
 	 * sub-type. */
+<<<<<<< HEAD
 	if (elen < 4) {
 		if (show_errors) {
 			DBG_871X("short vendor specific "
@@ -877,6 +1144,12 @@ static int rtw_ieee802_11_parse_vendor_specific(u8 *pos, uint elen,
 	}
 
 	oui = RTW_GET_BE24(pos);
+=======
+	if (elen < 4)
+		return -1;
+
+	oui = get_unaligned_be24(pos);
+>>>>>>> upstream/android-13
 	switch (oui) {
 	case OUI_MICROSOFT:
 		/* Microsoft/Wi-Fi information elements are further typed and
@@ -889,6 +1162,7 @@ static int rtw_ieee802_11_parse_vendor_specific(u8 *pos, uint elen,
 			elems->wpa_ie_len = elen;
 			break;
 		case WME_OUI_TYPE: /* this is a Wi-Fi WME info. element */
+<<<<<<< HEAD
 			if (elen < 5) {
 				DBG_871X("short WME "
 					   "information element ignored "
@@ -896,6 +1170,11 @@ static int rtw_ieee802_11_parse_vendor_specific(u8 *pos, uint elen,
 					   (unsigned long) elen);
 				return -1;
 			}
+=======
+			if (elen < 5)
+				return -1;
+
+>>>>>>> upstream/android-13
 			switch (pos[4]) {
 			case WME_OUI_SUBTYPE_INFORMATION_ELEMENT:
 			case WME_OUI_SUBTYPE_PARAMETER_ELEMENT:
@@ -907,10 +1186,13 @@ static int rtw_ieee802_11_parse_vendor_specific(u8 *pos, uint elen,
 				elems->wme_tspec_len = elen;
 				break;
 			default:
+<<<<<<< HEAD
 				DBG_871X("unknown WME "
 					   "information element ignored "
 					   "(subtype =%d len =%lu)\n",
 					   pos[4], (unsigned long) elen);
+=======
+>>>>>>> upstream/android-13
 				return -1;
 			}
 			break;
@@ -920,10 +1202,13 @@ static int rtw_ieee802_11_parse_vendor_specific(u8 *pos, uint elen,
 			elems->wps_ie_len = elen;
 			break;
 		default:
+<<<<<<< HEAD
 			DBG_871X("Unknown Microsoft "
 				   "information element ignored "
 				   "(type =%d len =%lu)\n",
 				   pos[3], (unsigned long) elen);
+=======
+>>>>>>> upstream/android-13
 			return -1;
 		}
 		break;
@@ -935,19 +1220,25 @@ static int rtw_ieee802_11_parse_vendor_specific(u8 *pos, uint elen,
 			elems->vendor_ht_cap_len = elen;
 			break;
 		default:
+<<<<<<< HEAD
 			DBG_871X("Unknown Broadcom "
 				   "information element ignored "
 				   "(type =%d len =%lu)\n",
 				   pos[3], (unsigned long) elen);
+=======
+>>>>>>> upstream/android-13
 			return -1;
 		}
 		break;
 
 	default:
+<<<<<<< HEAD
 		DBG_871X("unknown vendor specific information "
 			   "element ignored (vendor OUI %02x:%02x:%02x "
 			   "len =%lu)\n",
 			   pos[0], pos[1], pos[2], (unsigned long) elen);
+=======
+>>>>>>> upstream/android-13
 		return -1;
 	}
 
@@ -955,14 +1246,22 @@ static int rtw_ieee802_11_parse_vendor_specific(u8 *pos, uint elen,
 }
 
 /**
+<<<<<<< HEAD
  * ieee802_11_parse_elems - Parse information elements in management frames
+=======
+ * rtw_ieee802_11_parse_elems - Parse information elements in management frames
+>>>>>>> upstream/android-13
  * @start: Pointer to the start of IEs
  * @len: Length of IE buffer in octets
  * @elems: Data structure for parsed elements
  * @show_errors: Whether to show parsing errors in debug log
  * Returns: Parsing result
  */
+<<<<<<< HEAD
 ParseRes rtw_ieee802_11_parse_elems(u8 *start, uint len,
+=======
+enum ParseRes rtw_ieee802_11_parse_elems(u8 *start, uint len,
+>>>>>>> upstream/android-13
 				struct rtw_ieee802_11_elems *elems,
 				int show_errors)
 {
@@ -979,6 +1278,7 @@ ParseRes rtw_ieee802_11_parse_elems(u8 *start, uint len,
 		elen = *pos++;
 		left -= 2;
 
+<<<<<<< HEAD
 		if (elen > left) {
 			if (show_errors) {
 				DBG_871X("IEEE 802.11 element "
@@ -988,6 +1288,10 @@ ParseRes rtw_ieee802_11_parse_elems(u8 *start, uint len,
 			}
 			return ParseFailed;
 		}
+=======
+		if (elen > left)
+			return ParseFailed;
+>>>>>>> upstream/android-13
 
 		switch (id) {
 		case WLAN_EID_SSID:
@@ -1060,7 +1364,11 @@ ParseRes rtw_ieee802_11_parse_elems(u8 *start, uint len,
 			elems->timeout_int = pos;
 			elems->timeout_int_len = elen;
 			break;
+<<<<<<< HEAD
 		case WLAN_EID_HT_CAP:
+=======
+		case WLAN_EID_HT_CAPABILITY:
+>>>>>>> upstream/android-13
 			elems->ht_capabilities = pos;
 			elems->ht_capabilities_len = elen;
 			break;
@@ -1076,17 +1384,24 @@ ParseRes rtw_ieee802_11_parse_elems(u8 *start, uint len,
 			elems->vht_operation = pos;
 			elems->vht_operation_len = elen;
 			break;
+<<<<<<< HEAD
 		case WLAN_EID_VHT_OP_MODE_NOTIFY:
+=======
+		case WLAN_EID_OPMODE_NOTIF:
+>>>>>>> upstream/android-13
 			elems->vht_op_mode_notify = pos;
 			elems->vht_op_mode_notify_len = elen;
 			break;
 		default:
 			unknown++;
+<<<<<<< HEAD
 			if (!show_errors)
 				break;
 			DBG_871X("IEEE 802.11 element parse "
 				   "ignored unknown element (id =%d elen =%d)\n",
 				   id, elen);
+=======
+>>>>>>> upstream/android-13
 			break;
 		}
 
@@ -1119,6 +1434,7 @@ void rtw_macaddr_cfg(struct device *dev, u8 *mac_addr)
 	}
 
 	if (is_broadcast_ether_addr(mac) || is_zero_ether_addr(mac)) {
+<<<<<<< HEAD
 		if ((addr = of_get_property(np, "local-mac-address", &len)) &&
 		    len == ETH_ALEN) {
 			ether_addr_copy(mac_addr, addr);
@@ -1129,6 +1445,16 @@ void rtw_macaddr_cfg(struct device *dev, u8 *mac_addr)
 	}
 
 	DBG_871X("rtw_macaddr_cfg MAC Address  = "MAC_FMT"\n", MAC_ARG(mac_addr));
+=======
+		addr = of_get_property(np, "local-mac-address", &len);
+
+		if (addr && len == ETH_ALEN) {
+			ether_addr_copy(mac_addr, addr);
+		} else {
+			eth_random_addr(mac_addr);
+		}
+	}
+>>>>>>> upstream/android-13
 }
 
 static int rtw_get_cipher_info(struct wlan_network *pnetwork)
@@ -1138,6 +1464,7 @@ static int rtw_get_cipher_info(struct wlan_network *pnetwork)
 	int group_cipher = 0, pairwise_cipher = 0, is8021x = 0;
 	int ret = _FAIL;
 
+<<<<<<< HEAD
 	pbuf = rtw_get_wpa_ie(&pnetwork->network.IEs[12], &wpa_ielen, pnetwork->network.IELength-12);
 
 	if (pbuf && (wpa_ielen > 0)) {
@@ -1163,6 +1490,25 @@ static int rtw_get_cipher_info(struct wlan_network *pnetwork)
 				RT_TRACE(_module_rtl871x_mlme_c_, _drv_info_, ("%s: pnetwork->pairwise_cipher: %d,"
 							"pnetwork->group_cipher is %d, is_8021x is %d",	__func__, pnetwork->BcnInfo.pairwise_cipher,
 							pnetwork->BcnInfo.group_cipher, pnetwork->BcnInfo.is_8021x));
+=======
+	pbuf = rtw_get_wpa_ie(&pnetwork->network.ies[12], &wpa_ielen, pnetwork->network.ie_length-12);
+
+	if (pbuf && (wpa_ielen > 0)) {
+		if (_SUCCESS == rtw_parse_wpa_ie(pbuf, wpa_ielen+2, &group_cipher, &pairwise_cipher, &is8021x)) {
+			pnetwork->bcn_info.pairwise_cipher = pairwise_cipher;
+			pnetwork->bcn_info.group_cipher = group_cipher;
+			pnetwork->bcn_info.is_8021x = is8021x;
+			ret = _SUCCESS;
+		}
+	} else {
+		pbuf = rtw_get_wpa2_ie(&pnetwork->network.ies[12], &wpa_ielen, pnetwork->network.ie_length-12);
+
+		if (pbuf && (wpa_ielen > 0)) {
+			if (_SUCCESS == rtw_parse_wpa2_ie(pbuf, wpa_ielen+2, &group_cipher, &pairwise_cipher, &is8021x)) {
+				pnetwork->bcn_info.pairwise_cipher = pairwise_cipher;
+				pnetwork->bcn_info.group_cipher = group_cipher;
+				pnetwork->bcn_info.is_8021x = is8021x;
+>>>>>>> upstream/android-13
 				ret = _SUCCESS;
 			}
 		}
@@ -1183,6 +1529,7 @@ void rtw_get_bcn_info(struct wlan_network *pnetwork)
 	unsigned char 	*p;
 	__le16 le_cap;
 
+<<<<<<< HEAD
 	memcpy((u8 *)&le_cap, rtw_get_capability_from_ie(pnetwork->network.IEs), 2);
 	cap = le16_to_cpu(le_cap);
 	if (cap & WLAN_CAPABILITY_PRIVACY) {
@@ -1209,10 +1556,31 @@ void rtw_get_bcn_info(struct wlan_network *pnetwork)
 				pnetwork->BcnInfo.encryp_protocol));
 	RT_TRACE(_module_rtl871x_mlme_c_, _drv_info_, ("rtw_get_bcn_info: pnetwork->encryp_protocol is %x\n",
 				pnetwork->BcnInfo.encryp_protocol));
+=======
+	memcpy((u8 *)&le_cap, rtw_get_capability_from_ie(pnetwork->network.ies), 2);
+	cap = le16_to_cpu(le_cap);
+	if (cap & WLAN_CAPABILITY_PRIVACY) {
+		bencrypt = 1;
+		pnetwork->network.privacy = 1;
+	} else {
+		pnetwork->bcn_info.encryp_protocol = ENCRYP_PROTOCOL_OPENSYS;
+	}
+	rtw_get_sec_ie(pnetwork->network.ies, pnetwork->network.ie_length, NULL, &rsn_len, NULL, &wpa_len);
+
+	if (rsn_len > 0) {
+		pnetwork->bcn_info.encryp_protocol = ENCRYP_PROTOCOL_WPA2;
+	} else if (wpa_len > 0) {
+		pnetwork->bcn_info.encryp_protocol = ENCRYP_PROTOCOL_WPA;
+	} else {
+		if (bencrypt)
+			pnetwork->bcn_info.encryp_protocol = ENCRYP_PROTOCOL_WEP;
+	}
+>>>>>>> upstream/android-13
 	rtw_get_cipher_info(pnetwork);
 
 	/* get bwmode and ch_offset */
 	/* parsing HT_CAP_IE */
+<<<<<<< HEAD
 	p = rtw_get_ie(pnetwork->network.IEs + _FIXED_IE_LENGTH_, _HT_CAPABILITY_IE_, &len, pnetwork->network.IELength - _FIXED_IE_LENGTH_);
 	if (p && len > 0) {
 			pht_cap = (struct ieee80211_ht_cap *)(p + 2);
@@ -1227,10 +1595,27 @@ void rtw_get_bcn_info(struct wlan_network *pnetwork)
 			pnetwork->BcnInfo.ht_info_infos_0 = pht_info->infos[0];
 	} else {
 			pnetwork->BcnInfo.ht_info_infos_0 = 0;
+=======
+	p = rtw_get_ie(pnetwork->network.ies + _FIXED_IE_LENGTH_, WLAN_EID_HT_CAPABILITY, &len, pnetwork->network.ie_length - _FIXED_IE_LENGTH_);
+	if (p && len > 0) {
+			pht_cap = (struct ieee80211_ht_cap *)(p + 2);
+			pnetwork->bcn_info.ht_cap_info = le16_to_cpu(pht_cap->cap_info);
+	} else {
+			pnetwork->bcn_info.ht_cap_info = 0;
+	}
+	/* parsing HT_INFO_IE */
+	p = rtw_get_ie(pnetwork->network.ies + _FIXED_IE_LENGTH_, WLAN_EID_HT_OPERATION, &len, pnetwork->network.ie_length - _FIXED_IE_LENGTH_);
+	if (p && len > 0) {
+			pht_info = (struct HT_info_element *)(p + 2);
+			pnetwork->bcn_info.ht_info_infos_0 = pht_info->infos[0];
+	} else {
+			pnetwork->bcn_info.ht_info_infos_0 = 0;
+>>>>>>> upstream/android-13
 	}
 }
 
 /* show MCS rate, unit: 100Kbps */
+<<<<<<< HEAD
 u16 rtw_mcs_rate(u8 rf_type, u8 bw_40MHz, u8 short_GI, unsigned char *MCS_rate)
 {
 	u16 max_rate = 0;
@@ -1289,6 +1674,29 @@ u16 rtw_mcs_rate(u8 rf_type, u8 bw_40MHz, u8 short_GI, unsigned char *MCS_rate)
 				max_rate = (bw_40MHz) ? ((short_GI)?150:135):((short_GI)?72:65);
 		}
 	}
+=======
+u16 rtw_mcs_rate(u8 bw_40MHz, u8 short_GI, unsigned char *MCS_rate)
+{
+	u16 max_rate = 0;
+
+	if (MCS_rate[0] & BIT(7))
+		max_rate = (bw_40MHz) ? ((short_GI)?1500:1350):((short_GI)?722:650);
+	else if (MCS_rate[0] & BIT(6))
+		max_rate = (bw_40MHz) ? ((short_GI)?1350:1215):((short_GI)?650:585);
+	else if (MCS_rate[0] & BIT(5))
+		max_rate = (bw_40MHz) ? ((short_GI)?1200:1080):((short_GI)?578:520);
+	else if (MCS_rate[0] & BIT(4))
+		max_rate = (bw_40MHz) ? ((short_GI)?900:810):((short_GI)?433:390);
+	else if (MCS_rate[0] & BIT(3))
+		max_rate = (bw_40MHz) ? ((short_GI)?600:540):((short_GI)?289:260);
+	else if (MCS_rate[0] & BIT(2))
+		max_rate = (bw_40MHz) ? ((short_GI)?450:405):((short_GI)?217:195);
+	else if (MCS_rate[0] & BIT(1))
+		max_rate = (bw_40MHz) ? ((short_GI)?300:270):((short_GI)?144:130);
+	else if (MCS_rate[0] & BIT(0))
+		max_rate = (bw_40MHz) ? ((short_GI)?150:135):((short_GI)?72:65);
+
+>>>>>>> upstream/android-13
 	return max_rate;
 }
 

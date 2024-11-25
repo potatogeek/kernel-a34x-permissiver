@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* SCTP kernel implementation
  * (C) Copyright IBM Corp. 2001, 2004
  * Copyright (c) 1999-2000 Cisco, Inc.
@@ -8,6 +12,7 @@
  *
  * These functions manipulate sctp tsn mapping array.
  *
+<<<<<<< HEAD
  * This SCTP implementation is free software;
  * you can redistribute it and/or modify it under the terms of
  * the GNU General Public License as published by
@@ -24,6 +29,8 @@
  * along with GNU CC; see the file COPYING.  If not, see
  * <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  * Please send any bug reports or fixes you make to the
  * email address(es):
  *    lksctp developers <linux-sctp@vger.kernel.org>
@@ -90,7 +97,11 @@ int sctp_tsnmap_check(const struct sctp_tsnmap *map, __u32 tsn)
 		return 1;
 
 	/* Verify that we can hold this TSN and that it will not
+<<<<<<< HEAD
 	 * overlfow our map
+=======
+	 * overflow our map
+>>>>>>> upstream/android-13
 	 */
 	if (!TSN_lt(tsn, map->base_tsn + SCTP_TSN_MAP_SIZE))
 		return -1;

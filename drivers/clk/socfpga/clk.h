@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2013, Steffen Trumtrar <s.trumtrar@pengutronix.de>
  *
  * based on drivers/clk/tegra/clk.h
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -12,6 +17,8 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __SOCFPGA_CLK_H

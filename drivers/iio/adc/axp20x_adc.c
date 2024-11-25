@@ -1,21 +1,35 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* ADC driver for AXP20X and AXP22X PMICs
  *
  * Copyright (c) 2016 Free Electrons NextThing Co.
  *	Quentin Schulz <quentin.schulz@free-electrons.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License version 2 as published by the
  * Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/completion.h>
 #include <linux/interrupt.h>
 #include <linux/io.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/of.h>
 #include <linux/of_device.h>
 #include <linux/platform_device.h>
 #include <linux/pm_runtime.h>
+=======
+#include <linux/mod_devicetable.h>
+#include <linux/platform_device.h>
+#include <linux/pm_runtime.h>
+#include <linux/property.h>
+>>>>>>> upstream/android-13
 #include <linux/regmap.h>
 #include <linux/thermal.h>
 
@@ -70,7 +84,11 @@ struct axp_data;
 
 struct axp20x_adc_iio {
 	struct regmap		*regmap;
+<<<<<<< HEAD
 	struct axp_data		*data;
+=======
+	const struct axp_data	*data;
+>>>>>>> upstream/android-13
 };
 
 enum axp20x_adc_channel_v {
@@ -254,6 +272,7 @@ static int axp22x_adc_raw(struct iio_dev *indio_dev,
 			  struct iio_chan_spec const *chan, int *val)
 {
 	struct axp20x_adc_iio *info = iio_priv(indio_dev);
+<<<<<<< HEAD
 	int size;
 
 	/*
@@ -267,6 +286,10 @@ static int axp22x_adc_raw(struct iio_dev *indio_dev,
 		size = 12;
 
 	*val = axp20x_read_variable_width(info->regmap, chan->address, size);
+=======
+
+	*val = axp20x_read_variable_width(info->regmap, chan->address, 12);
+>>>>>>> upstream/android-13
 	if (*val < 0)
 		return *val;
 
@@ -389,9 +412,14 @@ static int axp22x_adc_scale(struct iio_chan_spec const *chan, int *val,
 		return IIO_VAL_INT_PLUS_MICRO;
 
 	case IIO_CURRENT:
+<<<<<<< HEAD
 		*val = 0;
 		*val2 = 500000;
 		return IIO_VAL_INT_PLUS_MICRO;
+=======
+		*val = 1;
+		return IIO_VAL_INT;
+>>>>>>> upstream/android-13
 
 	case IIO_TEMP:
 		*val = 100;
@@ -671,6 +699,7 @@ static int axp20x_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, indio_dev);
 
 	info->regmap = axp20x_dev->regmap;
+<<<<<<< HEAD
 	indio_dev->dev.parent = &pdev->dev;
 	indio_dev->dev.of_node = pdev->dev.of_node;
 	indio_dev->modes = INDIO_DIRECT_MODE;
@@ -684,6 +713,19 @@ static int axp20x_probe(struct platform_device *pdev)
 		struct device *dev = &pdev->dev;
 
 		info->data = (struct axp_data *)of_device_get_match_data(dev);
+=======
+	indio_dev->modes = INDIO_DIRECT_MODE;
+
+	if (!dev_fwnode(&pdev->dev)) {
+		const struct platform_device_id *id;
+
+		id = platform_get_device_id(pdev);
+		info->data = (const struct axp_data *)id->driver_data;
+	} else {
+		struct device *dev = &pdev->dev;
+
+		info->data = device_get_match_data(dev);
+>>>>>>> upstream/android-13
 	}
 
 	indio_dev->name = platform_get_device_id(pdev)->name;
@@ -747,7 +789,11 @@ static int axp20x_remove(struct platform_device *pdev)
 static struct platform_driver axp20x_adc_driver = {
 	.driver = {
 		.name = "axp20x-adc",
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(axp20x_adc_of_match),
+=======
+		.of_match_table = axp20x_adc_of_match,
+>>>>>>> upstream/android-13
 	},
 	.id_table = axp20x_adc_id_match,
 	.probe = axp20x_probe,

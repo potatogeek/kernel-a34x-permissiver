@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2015 MediaTek Inc.
  * Author: Hongzhou.Yang <hongzhou.yang@mediatek.com>
  *         Yingjoe Chen <yingjoe.chen@mediatek.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -11,6 +16,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -300,6 +307,12 @@ static const struct mtk_pinctrl_devdata mt8127_pinctrl_data = {
 	.port_shf = 4,
 	.port_mask = 0xf,
 	.port_align = 4,
+<<<<<<< HEAD
+=======
+	.mode_mask = 0xf,
+	.mode_per_reg = 5,
+	.mode_shf = 4,
+>>>>>>> upstream/android-13
 	.eint_hw = {
 		.port_mask = 7,
 		.ports     = 6,

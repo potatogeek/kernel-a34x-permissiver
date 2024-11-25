@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2007-2009 Texas Instruments Inc
  * Copyright (C) 2007 MontaVista Software, Inc.
@@ -6,6 +10,7 @@
  * - Initial version
  * Murali Karicheri (mkaricheri@gmail.com), Texas Instruments Ltd.
  * - ported to sub device interface
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _OSD_H
 #define _OSD_H
@@ -63,9 +70,15 @@ enum osd_win_layer {
  * @PIXFMT_4BPP: 4-bits-per-pixel bitmap
  * @PIXFMT_8BPP: 8-bits-per-pixel bitmap
  * @PIXFMT_RGB565: 16-bits-per-pixel RGB565
+<<<<<<< HEAD
  * @PIXFMT_YCbCrI: YUV 4:2:2
  * @PIXFMT_RGB888: 24-bits-per-pixel RGB888
  * @PIXFMT_YCrCbI: YUV 4:2:2 with chroma swap
+=======
+ * @PIXFMT_YCBCRI: YUV 4:2:2
+ * @PIXFMT_RGB888: 24-bits-per-pixel RGB888
+ * @PIXFMT_YCRCBI: YUV 4:2:2 with chroma swap
+>>>>>>> upstream/android-13
  * @PIXFMT_NV12: YUV 4:2:0 planar
  * @PIXFMT_OSD_ATTR: OSD Attribute Window pixel format (4bpp)
  *
@@ -219,7 +232,11 @@ enum osd_cursor_h_width {
 };
 
 /**
+<<<<<<< HEAD
  * enum davinci_cursor_v_width
+=======
+ * enum osd_cursor_v_width
+>>>>>>> upstream/android-13
  * @V_WIDTH_1: vertical line width is 1 line
  * @V_WIDTH_2: vertical line width is 2 lines
  * @V_WIDTH_4: vertical line width is 4 lines

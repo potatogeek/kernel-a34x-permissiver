@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) STMicroelectronics 2017
  *
  * Author: Fabrice Gasnier <fabrice.gasnier@st.com>
+<<<<<<< HEAD
  *
  * License terms:  GNU General Public License (GPL), version 2
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _STM32_LPTIM_TRIGGER_H_

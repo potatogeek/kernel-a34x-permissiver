@@ -3,7 +3,11 @@
  *
  * Module Name: tbfadt   - FADT table utilities
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -556,7 +560,11 @@ static void acpi_tb_convert_fadt(void)
 				 * 64-bit X length field.
 				 * Note: If the legacy length field is > 0xFF bits, ignore
 				 * this check. (GPE registers can be larger than the
+<<<<<<< HEAD
 				 * 64-bit GAS structure can accomodate, 0xFF bits).
+=======
+				 * 64-bit GAS structure can accommodate, 0xFF bits).
+>>>>>>> upstream/android-13
 				 */
 				if ((ACPI_MUL_8(length) <= ACPI_UINT8_MAX) &&
 				    (address64->bit_width !=

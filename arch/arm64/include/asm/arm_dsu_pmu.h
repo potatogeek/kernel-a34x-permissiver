@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * ARM DynamIQ Shared Unit (DSU) PMU Low level register access routines.
  *
  * Copyright (C) ARM Limited, 2017.
  *
  * Author: Suzuki K Poulose <suzuki.poulose@arm.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2, as published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>

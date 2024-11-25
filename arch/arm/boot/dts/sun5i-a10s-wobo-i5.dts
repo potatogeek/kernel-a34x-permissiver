@@ -61,10 +61,15 @@
 
 	leds {
 		compatible = "gpio-leds";
+<<<<<<< HEAD
 		pinctrl-names = "default";
 		pinctrl-0 = <&led_pins_wobo_i5>;
 
 		blue {
+=======
+
+		led {
+>>>>>>> upstream/android-13
 			label = "a10s-wobo-i5:blue:usr";
 			gpios = <&pio 1 2 GPIO_ACTIVE_HIGH>;
 			default-state = "on";
@@ -73,8 +78,11 @@
 
 	reg_emac_3v3: emac-3v3 {
 		compatible = "regulator-fixed";
+<<<<<<< HEAD
 		pinctrl-names = "default";
 		pinctrl-0 = <&emac_power_pin_wobo>;
+=======
+>>>>>>> upstream/android-13
 		regulator-name = "emac-3v3";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
@@ -94,8 +102,13 @@
 
 &emac {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&emac_pins_a>;
 	phy = <&phy1>;
+=======
+	pinctrl-0 = <&emac_pd_pins>;
+	phy-handle = <&phy1>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
@@ -104,8 +117,11 @@
 };
 
 &i2c0 {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c0_pins_a>;
+=======
+>>>>>>> upstream/android-13
 	status = "okay";
 
 	axp209: pmic@34 {
@@ -126,8 +142,11 @@
 };
 
 &mmc0 {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&mmc0_pins_a>, <&mmc0_cd_pin_wobo_i5>;
+=======
+>>>>>>> upstream/android-13
 	vmmc-supply = <&reg_vcc3v3>;
 	bus-width = <4>;
 	cd-gpios = <&pio 1 3 GPIO_ACTIVE_LOW>; /* PB3 */
@@ -142,6 +161,7 @@
 	status = "okay";
 };
 
+<<<<<<< HEAD
 &pio {
 	led_pins_wobo_i5: led_pins@0 {
 		pins = "PB2";
@@ -160,6 +180,8 @@
 	};
 };
 
+=======
+>>>>>>> upstream/android-13
 &reg_dcdc2 {
 	regulator-always-on;
 	regulator-min-microvolt = <1000000>;
@@ -206,7 +228,11 @@
 
 &uart0 {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&uart0_pins_a>;
+=======
+	pinctrl-0 = <&uart0_pb_pins>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 Samsung S5P/EXYNOS SoC series JPEG codec
+=======
+Samsung S5P/Exynos SoC series JPEG codec
+>>>>>>> upstream/android-13
 
 Required properties:
 

@@ -1,15 +1,22 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Asynchronous Compression operations
  *
  * Copyright (c) 2016, Intel Corporation
  * Authors: Weigang Li <weigang.li@intel.com>
  *          Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _CRYPTO_ACOMP_H
 #define _CRYPTO_ACOMP_H
@@ -111,6 +118,27 @@ struct acomp_alg {
  */
 struct crypto_acomp *crypto_alloc_acomp(const char *alg_name, u32 type,
 					u32 mask);
+<<<<<<< HEAD
+=======
+/**
+ * crypto_alloc_acomp_node() -- allocate ACOMPRESS tfm handle with desired NUMA node
+ * @alg_name:	is the cra_name / name or cra_driver_name / driver name of the
+ *		compression algorithm e.g. "deflate"
+ * @type:	specifies the type of the algorithm
+ * @mask:	specifies the mask for the algorithm
+ * @node:	specifies the NUMA node the ZIP hardware belongs to
+ *
+ * Allocate a handle for a compression algorithm. Drivers should try to use
+ * (de)compressors on the specified NUMA node.
+ * The returned struct crypto_acomp is the handle that is required for any
+ * subsequent API invocation for the compression operations.
+ *
+ * Return:	allocated handle in case of success; IS_ERR() is true in case
+ *		of an error, PTR_ERR() returns the error code.
+ */
+struct crypto_acomp *crypto_alloc_acomp_node(const char *alg_name, u32 type,
+					u32 mask, int node);
+>>>>>>> upstream/android-13
 
 static inline struct crypto_tfm *crypto_acomp_tfm(struct crypto_acomp *tfm)
 {
@@ -164,7 +192,11 @@ static inline int crypto_has_acomp(const char *alg_name, u32 type, u32 mask)
 {
 	type &= ~CRYPTO_ALG_TYPE_MASK;
 	type |= CRYPTO_ALG_TYPE_ACOMPRESS;
+<<<<<<< HEAD
 	mask |= CRYPTO_ALG_TYPE_MASK;
+=======
+	mask |= CRYPTO_ALG_TYPE_ACOMPRESS_MASK;
+>>>>>>> upstream/android-13
 
 	return crypto_has_alg(alg_name, type, mask);
 }
@@ -248,8 +280,19 @@ static inline void acomp_request_set_params(struct acomp_req *req,
 static inline int crypto_acomp_compress(struct acomp_req *req)
 {
 	struct crypto_acomp *tfm = crypto_acomp_reqtfm(req);
+<<<<<<< HEAD
 
 	return tfm->compress(req);
+=======
+	struct crypto_alg *alg = tfm->base.__crt_alg;
+	unsigned int slen = req->slen;
+	int ret;
+
+	crypto_stats_get(alg);
+	ret = tfm->compress(req);
+	crypto_stats_compress(slen, ret, alg);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -264,8 +307,19 @@ static inline int crypto_acomp_compress(struct acomp_req *req)
 static inline int crypto_acomp_decompress(struct acomp_req *req)
 {
 	struct crypto_acomp *tfm = crypto_acomp_reqtfm(req);
+<<<<<<< HEAD
 
 	return tfm->decompress(req);
+=======
+	struct crypto_alg *alg = tfm->base.__crt_alg;
+	unsigned int slen = req->slen;
+	int ret;
+
+	crypto_stats_get(alg);
+	ret = tfm->decompress(req);
+	crypto_stats_decompress(slen, ret, alg);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 #endif

@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * AD7766/AD7767 SPI ADC driver
  *
  * Copyright 2016 Analog Devices Inc.
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2 or later.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -179,8 +186,11 @@ static const struct ad7766_chip_info ad7766_chip_info[] = {
 
 static const struct iio_buffer_setup_ops ad7766_buffer_setup_ops = {
 	.preenable = &ad7766_preenable,
+<<<<<<< HEAD
 	.postenable = &iio_triggered_buffer_postenable,
 	.predisable = &iio_triggered_buffer_predisable,
+=======
+>>>>>>> upstream/android-13
 	.postdisable = &ad7766_postdisable,
 };
 
@@ -243,7 +253,10 @@ static int ad7766_probe(struct spi_device *spi)
 	if (IS_ERR(ad7766->pd_gpio))
 		return PTR_ERR(ad7766->pd_gpio);
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &spi->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->name = spi_get_device_id(spi)->name;
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->channels = ad7766_channels;
@@ -252,11 +265,17 @@ static int ad7766_probe(struct spi_device *spi)
 
 	if (spi->irq > 0) {
 		ad7766->trig = devm_iio_trigger_alloc(&spi->dev, "%s-dev%d",
+<<<<<<< HEAD
 			indio_dev->name, indio_dev->id);
+=======
+						      indio_dev->name,
+						      iio_device_id(indio_dev));
+>>>>>>> upstream/android-13
 		if (!ad7766->trig)
 			return -ENOMEM;
 
 		ad7766->trig->ops = &ad7766_trigger_ops;
+<<<<<<< HEAD
 		ad7766->trig->dev.parent = &spi->dev;
 		iio_trigger_set_drvdata(ad7766->trig, ad7766);
 
@@ -272,14 +291,32 @@ static int ad7766_probe(struct spi_device *spi)
 		 * disable the interrupt to avoid extra load on the system
 		 */
 		disable_irq(spi->irq);
+=======
+		iio_trigger_set_drvdata(ad7766->trig, ad7766);
+
+		/*
+		 * The device generates interrupts as long as it is powered up.
+		 * Some platforms might not allow the option to power it down so
+		 * don't enable the interrupt to avoid extra load on the system
+		 */
+		ret = devm_request_irq(&spi->dev, spi->irq, ad7766_irq,
+				       IRQF_TRIGGER_FALLING | IRQF_NO_AUTOEN,
+				       dev_name(&spi->dev),
+				       ad7766->trig);
+		if (ret < 0)
+			return ret;
+>>>>>>> upstream/android-13
 
 		ret = devm_iio_trigger_register(&spi->dev, ad7766->trig);
 		if (ret)
 			return ret;
 	}
 
+<<<<<<< HEAD
 	spi_set_drvdata(spi, indio_dev);
 
+=======
+>>>>>>> upstream/android-13
 	ad7766->spi = spi;
 
 	/* First byte always 0 */
@@ -295,10 +332,14 @@ static int ad7766_probe(struct spi_device *spi)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	ret = devm_iio_device_register(&spi->dev, indio_dev);
 	if (ret)
 		return ret;
 	return 0;
+=======
+	return devm_iio_device_register(&spi->dev, indio_dev);
+>>>>>>> upstream/android-13
 }
 
 static const struct spi_device_id ad7766_id[] = {

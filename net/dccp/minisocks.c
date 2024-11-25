@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  net/dccp/minisocks.c
  *
  *  An implementation of the DCCP protocol
  *  Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/dccp.h>
@@ -98,6 +105,11 @@ struct sock *dccp_create_openreq_child(const struct sock *sk,
 		newdp->dccps_role	    = DCCP_ROLE_SERVER;
 		newdp->dccps_hc_rx_ackvec   = NULL;
 		newdp->dccps_service_list   = NULL;
+<<<<<<< HEAD
+=======
+		newdp->dccps_hc_rx_ccid     = NULL;
+		newdp->dccps_hc_tx_ccid     = NULL;
+>>>>>>> upstream/android-13
 		newdp->dccps_service	    = dreq->dreq_service;
 		newdp->dccps_timestamp_echo = dreq->dreq_timestamp_echo;
 		newdp->dccps_timestamp_time = dreq->dreq_timestamp_time;
@@ -220,6 +232,10 @@ EXPORT_SYMBOL_GPL(dccp_check_req);
  */
 int dccp_child_process(struct sock *parent, struct sock *child,
 		       struct sk_buff *skb)
+<<<<<<< HEAD
+=======
+	__releases(child)
+>>>>>>> upstream/android-13
 {
 	int ret = 0;
 	const int state = child->sk_state;

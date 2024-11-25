@@ -1,10 +1,17 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0+
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 1996, 2003 VIA Networking Technologies, Inc.
  * All rights reserved.
  *
+<<<<<<< HEAD
  * File: upc.h
  *
+=======
+>>>>>>> upstream/android-13
  * Purpose: Macros to access device
  *
  * Author: Tevin Chen
@@ -20,10 +27,15 @@
 
 /*---------------------  Export Definitions -------------------------*/
 
+<<<<<<< HEAD
 
 /* For memory mapped IO */
 
 
+=======
+/* For memory mapped IO */
+
+>>>>>>> upstream/android-13
 #define VNSvInPortB(dwIOAddress, pbyData) \
 	(*(pbyData) = ioread8(dwIOAddress))
 
@@ -44,7 +56,11 @@
 
 #define PCAvDelayByIO(uDelayUnit)				\
 do {								\
+<<<<<<< HEAD
 	unsigned char byData;					\
+=======
+	unsigned char __maybe_unused byData;			\
+>>>>>>> upstream/android-13
 	unsigned long ii;					\
 								\
 	if (uDelayUnit <= 50) {					\

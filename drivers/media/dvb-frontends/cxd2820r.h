@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Sony CXD2820R demodulator driver
  *
  * Copyright (C) 2010 Antti Palosaari <crope@iki.fi>
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  *    You should have received a copy of the GNU General Public License along
  *    with this program; if not, write to the Free Software Foundation, Inc.,
  *    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 
@@ -109,7 +116,11 @@ struct cxd2820r_config {
 
 #if IS_REACHABLE(CONFIG_DVB_CXD2820R)
 /**
+<<<<<<< HEAD
  * Attach a cxd2820r demod
+=======
+ * cxd2820r_attach - Attach a cxd2820r demod
+>>>>>>> upstream/android-13
  *
  * @config: pointer to &struct cxd2820r_config with demod configuration.
  * @i2c: i2c adapter to use.

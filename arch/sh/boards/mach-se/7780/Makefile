@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 #
 # Makefile for the HITACHI UL SolutionEngine 7780 specific parts of the kernel
 #

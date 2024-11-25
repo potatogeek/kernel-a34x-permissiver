@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -13,6 +14,10 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -75,7 +80,10 @@ void *snd_usb_find_csint_desc(void *buffer, int buflen, void *after, u8 dsubtype
 	}
 	return NULL;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(snd_usb_find_csint_desc);
+=======
+>>>>>>> upstream/android-13
 
 /*
  * Wrapper for usb_control_msg().
@@ -89,6 +97,12 @@ int snd_usb_ctl_msg(struct usb_device *dev, unsigned int pipe, __u8 request,
 	void *buf = NULL;
 	int timeout;
 
+<<<<<<< HEAD
+=======
+	if (usb_pipe_type_check(dev, pipe))
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	if (size > 0) {
 		buf = kmemdup(data, size, GFP_KERNEL);
 		if (!buf)
@@ -132,3 +146,16 @@ unsigned char snd_usb_parse_datainterval(struct snd_usb_audio *chip,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+struct usb_host_interface *
+snd_usb_get_host_interface(struct snd_usb_audio *chip, int ifnum, int altsetting)
+{
+	struct usb_interface *iface;
+
+	iface = usb_ifnum_to_if(chip->dev, ifnum);
+	if (!iface)
+		return NULL;
+	return usb_altnum_to_altsetting(iface, altsetting);
+}
+>>>>>>> upstream/android-13

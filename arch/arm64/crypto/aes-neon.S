@@ -1,18 +1,43 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * linux/arch/arm64/crypto/aes-neon.S - AES cipher for ARMv8 NEON
  *
  * Copyright (C) 2013 - 2017 Linaro Ltd. <ard.biesheuvel@linaro.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
 #include <asm/assembler.h>
 
+<<<<<<< HEAD
 #define AES_ENTRY(func)		ENTRY(neon_ ## func)
 #define AES_ENDPROC(func)	ENDPROC(neon_ ## func)
+=======
+#define AES_FUNC_START(func)		SYM_FUNC_START(neon_ ## func)
+#define AES_FUNC_END(func)		SYM_FUNC_END(neon_ ## func)
+
+	xtsmask		.req	v7
+	cbciv		.req	v7
+	vctr		.req	v4
+
+	.macro		xts_reload_mask, tmp
+	xts_load_mask	\tmp
+	.endm
+
+	/* special case for the neon-bs driver calling into this one for CTS */
+	.macro		xts_cts_skip_tw, reg, lbl
+	tbnz		\reg, #1, \lbl
+	.endm
+>>>>>>> upstream/android-13
 
 	/* multiply by polynomial 'x' in GF(2^8) */
 	.macro		mul_by_x, out, in, temp, const
@@ -44,7 +69,11 @@
 
 	/* do preload for encryption */
 	.macro		enc_prepare, ignore0, ignore1, temp
+<<<<<<< HEAD
 	prepare		.LForward_Sbox, .LForward_ShiftRows, \temp
+=======
+	prepare		crypto_aes_sbox, .LForward_ShiftRows, \temp
+>>>>>>> upstream/android-13
 	.endm
 
 	.macro		enc_switch_key, ignore0, ignore1, temp
@@ -53,7 +82,11 @@
 
 	/* do preload for decryption */
 	.macro		dec_prepare, ignore0, ignore1, temp
+<<<<<<< HEAD
 	prepare		.LReverse_Sbox, .LReverse_ShiftRows, \temp
+=======
+	prepare		crypto_aes_inv_sbox, .LReverse_ShiftRows, \temp
+>>>>>>> upstream/android-13
 	.endm
 
 	/* apply SubBytes transformation using the the preloaded Sbox */
@@ -111,6 +144,7 @@
 
 	/*
 	 * Interleaved versions: functionally equivalent to the
+<<<<<<< HEAD
 	 * ones above, but applied to 2 or 4 AES states in parallel.
 	 */
 
@@ -131,6 +165,11 @@
 	tbx		\in1\().16b, {v28.16b-v31.16b}, v9.16b
 	.endm
 
+=======
+	 * ones above, but applied to AES states in parallel.
+	 */
+
+>>>>>>> upstream/android-13
 	.macro		sub_bytes_4x, in0, in1, in2, in3
 	sub		v8.16b, \in0\().16b, v15.16b
 	tbl		\in0\().16b, {v16.16b-v19.16b}, \in0\().16b
@@ -209,6 +248,7 @@
 	eor		\in1\().16b, \in1\().16b, v11.16b
 	.endm
 
+<<<<<<< HEAD
 	.macro		do_block_2x, enc, in0, in1, rounds, rk, rkp, i
 	ld1		{v15.4s}, [\rk]
 	add		\rkp, \rk, #16
@@ -228,6 +268,8 @@
 	eor		\in1\().16b, \in1\().16b, v15.16b	/* ^round key */
 	.endm
 
+=======
+>>>>>>> upstream/android-13
 	.macro		do_block_4x, enc, in0, in1, in2, in3, rounds, rk, rkp, i
 	ld1		{v15.4s}, [\rk]
 	add		\rkp, \rk, #16
@@ -254,6 +296,7 @@
 	eor		\in3\().16b, \in3\().16b, v15.16b	/* ^round key */
 	.endm
 
+<<<<<<< HEAD
 	.macro		encrypt_block2x, in0, in1, rounds, rk, rkp, i
 	do_block_2x	1, \in0, \in1, \rounds, \rk, \rkp, \i
 	.endm
@@ -262,6 +305,8 @@
 	do_block_2x	0, \in0, \in1, \rounds, \rk, \rkp, \i
 	.endm
 
+=======
+>>>>>>> upstream/android-13
 	.macro		encrypt_block4x, in0, in1, in2, in3, rounds, rk, rkp, i
 	do_block_4x	1, \in0, \in1, \in2, \in3, \rounds, \rk, \rkp, \i
 	.endm
@@ -273,6 +318,7 @@
 #include "aes-modes.S"
 
 	.section	".rodata", "a"
+<<<<<<< HEAD
 	.align		6
 .LForward_Sbox:
 	.byte		0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5
@@ -342,6 +388,9 @@
 	.byte		0x17, 0x2b, 0x04, 0x7e, 0xba, 0x77, 0xd6, 0x26
 	.byte		0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d
 
+=======
+	.align		4
+>>>>>>> upstream/android-13
 .LForward_ShiftRows:
 	.octa		0x0b06010c07020d08030e09040f0a0500
 

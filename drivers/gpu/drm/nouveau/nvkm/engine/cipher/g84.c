@@ -127,8 +127,15 @@ g84_cipher = {
 };
 
 int
+<<<<<<< HEAD
 g84_cipher_new(struct nvkm_device *device, int index,
 	       struct nvkm_engine **pengine)
 {
 	return nvkm_engine_new_(&g84_cipher, device, index, true, pengine);
+=======
+g84_cipher_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+	       struct nvkm_engine **pengine)
+{
+	return nvkm_engine_new_(&g84_cipher, device, type, inst, true, pengine);
+>>>>>>> upstream/android-13
 }

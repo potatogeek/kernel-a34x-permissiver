@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2014 IBM Corp.
  *
@@ -5,6 +6,11 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright 2014 IBM Corp.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_PNV_PCI_H
@@ -19,6 +25,10 @@
 #define PCI_SLOT_ID_PREFIX	(1UL << 63)
 #define PCI_SLOT_ID(phb_id, bdfn)	\
 	(PCI_SLOT_ID_PREFIX | ((uint64_t)(bdfn) << 16) | (phb_id))
+<<<<<<< HEAD
+=======
+#define PCI_PHB_SLOT_ID(phb_id)		(phb_id)
+>>>>>>> upstream/android-13
 
 extern int pnv_pci_get_slot_id(struct device_node *np, uint64_t *id);
 extern int pnv_pci_get_device_tree(uint32_t phandle, void *buf, uint64_t len);
@@ -26,6 +36,7 @@ extern int pnv_pci_get_presence_state(uint64_t id, uint8_t *state);
 extern int pnv_pci_get_power_state(uint64_t id, uint8_t *state);
 extern int pnv_pci_set_power_state(uint64_t id, uint8_t state,
 				   struct opal_msg *msg);
+<<<<<<< HEAD
 extern int pnv_pci_set_p2p(struct pci_dev *initiator, struct pci_dev *target,
 			   u64 desc);
 
@@ -35,6 +46,11 @@ extern int pnv_pci_set_tunnel_bar(struct pci_dev *dev, uint64_t addr,
 				  int enable);
 extern int pnv_pci_get_as_notify_info(struct task_struct *task, u32 *lpid,
 				      u32 *pid, u32 *tid);
+=======
+
+extern int pnv_pci_set_tunnel_bar(struct pci_dev *dev, uint64_t addr,
+				  int enable);
+>>>>>>> upstream/android-13
 int pnv_phb_to_cxl_mode(struct pci_dev *dev, uint64_t mode);
 int pnv_cxl_ioda_msi_setup(struct pci_dev *dev, unsigned int hwirq,
 			   unsigned int virq);
@@ -42,7 +58,11 @@ int pnv_cxl_alloc_hwirqs(struct pci_dev *dev, int num);
 void pnv_cxl_release_hwirqs(struct pci_dev *dev, int hwirq, int num);
 int pnv_cxl_get_irq_count(struct pci_dev *dev);
 struct device_node *pnv_pci_get_phb_node(struct pci_dev *dev);
+<<<<<<< HEAD
 int64_t pnv_opal_pci_msi_eoi(struct irq_chip *chip, unsigned int hw_irq);
+=======
+int64_t pnv_opal_pci_msi_eoi(struct irq_data *d);
+>>>>>>> upstream/android-13
 bool is_pnv_opal_msi(struct irq_chip *chip);
 
 #ifdef CONFIG_CXL_BASE
@@ -54,7 +74,10 @@ void pnv_cxl_release_hwirq_ranges(struct cxl_irq_ranges *irqs,
 
 struct pnv_php_slot {
 	struct hotplug_slot		slot;
+<<<<<<< HEAD
 	struct hotplug_slot_info	slot_info;
+=======
+>>>>>>> upstream/android-13
 	uint64_t			id;
 	char				*name;
 	int				slot_no;
@@ -72,6 +95,10 @@ struct pnv_php_slot {
 	struct pci_dev			*pdev;
 	struct pci_bus			*bus;
 	bool				power_state_check;
+<<<<<<< HEAD
+=======
+	u8				attention_state;
+>>>>>>> upstream/android-13
 	void				*fdt;
 	void				*dt;
 	struct of_changeset		ocs;

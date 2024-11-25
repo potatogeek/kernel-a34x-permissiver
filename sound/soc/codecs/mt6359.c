@@ -2,6 +2,7 @@
 //
 // mt6359.c  --  mt6359 ALSA SoC audio codec driver
 //
+<<<<<<< HEAD
 // Copyright (c) 2018 MediaTek Inc.
 // Author: KaiChieh Chuang <kaichieh.chuang@mediatek.com>
 
@@ -351,20 +352,48 @@ static void gpio_driving_set(struct mt6359_priv *priv)
 }
 
 static void playback_gpio_set(struct mt6359_priv *priv)
+=======
+// Copyright (c) 2020 MediaTek Inc.
+// Author: KaiChieh Chuang <kaichieh.chuang@mediatek.com>
+
+#include <linux/delay.h>
+#include <linux/kthread.h>
+#include <linux/mfd/mt6397/core.h>
+#include <linux/module.h>
+#include <linux/of_device.h>
+#include <linux/platform_device.h>
+#include <linux/regulator/consumer.h>
+#include <linux/sched.h>
+#include <sound/soc.h>
+#include <sound/tlv.h>
+
+#include "mt6359.h"
+
+static void mt6359_set_playback_gpio(struct mt6359_priv *priv)
+>>>>>>> upstream/android-13
 {
 	/* set gpio mosi mode, clk / data mosi */
 	regmap_write(priv->regmap, MT6359_GPIO_MODE2_CLR, 0x0ffe);
 	regmap_write(priv->regmap, MT6359_GPIO_MODE2_SET, 0x0249);
+<<<<<<< HEAD
 	regmap_write(priv->regmap, MT6359_GPIO_MODE2, 0x0249);
+=======
+>>>>>>> upstream/android-13
 
 	/* sync mosi */
 	regmap_write(priv->regmap, MT6359_GPIO_MODE3_CLR, 0x6);
 	regmap_write(priv->regmap, MT6359_GPIO_MODE3_SET, 0x1);
+<<<<<<< HEAD
 	regmap_update_bits(priv->regmap, MT6359_GPIO_MODE3,
 			   0x7, 0x1);
 }
 
 static void playback_gpio_reset(struct mt6359_priv *priv)
+=======
+}
+
+static void mt6359_reset_playback_gpio(struct mt6359_priv *priv)
+>>>>>>> upstream/android-13
 {
 	/* set pad_aud_*_mosi to GPIO mode and dir input
 	 * reason:
@@ -372,6 +401,7 @@ static void playback_gpio_reset(struct mt6359_priv *priv)
 	 * don't clean clk/sync, for mtkaif protocol 2
 	 */
 	regmap_write(priv->regmap, MT6359_GPIO_MODE2_CLR, 0x0ff8);
+<<<<<<< HEAD
 	regmap_update_bits(priv->regmap, MT6359_GPIO_MODE2,
 			   0x0ff8, 0x0000);
 	regmap_update_bits(priv->regmap, MT6359_GPIO_DIR0,
@@ -379,10 +409,17 @@ static void playback_gpio_reset(struct mt6359_priv *priv)
 }
 
 static void capture_gpio_set(struct mt6359_priv *priv)
+=======
+	regmap_update_bits(priv->regmap, MT6359_GPIO_DIR0, 0x7 << 9, 0x0);
+}
+
+static void mt6359_set_capture_gpio(struct mt6359_priv *priv)
+>>>>>>> upstream/android-13
 {
 	/* set gpio miso mode */
 	regmap_write(priv->regmap, MT6359_GPIO_MODE3_CLR, 0x0e00);
 	regmap_write(priv->regmap, MT6359_GPIO_MODE3_SET, 0x0200);
+<<<<<<< HEAD
 	regmap_update_bits(priv->regmap, MT6359_GPIO_MODE3,
 			   0x0e00, 0x0200);
 
@@ -393,6 +430,14 @@ static void capture_gpio_set(struct mt6359_priv *priv)
 }
 
 static void capture_gpio_reset(struct mt6359_priv *priv)
+=======
+
+	regmap_write(priv->regmap, MT6359_GPIO_MODE4_CLR, 0x003f);
+	regmap_write(priv->regmap, MT6359_GPIO_MODE4_SET, 0x0009);
+}
+
+static void mt6359_reset_capture_gpio(struct mt6359_priv *priv)
+>>>>>>> upstream/android-13
 {
 	/* set pad_aud_*_miso to GPIO mode and dir input
 	 * reason:
@@ -401,12 +446,17 @@ static void capture_gpio_reset(struct mt6359_priv *priv)
 	 * pad_aud_dat_miso*, because the pin is used as boot strap
 	 */
 	regmap_write(priv->regmap, MT6359_GPIO_MODE3_CLR, 0x0e00);
+<<<<<<< HEAD
 	regmap_update_bits(priv->regmap, MT6359_GPIO_MODE3,
 			   0x0e00, 0x0000);
 
 	regmap_write(priv->regmap, MT6359_GPIO_MODE4_CLR, 0x003f);
 	regmap_update_bits(priv->regmap, MT6359_GPIO_MODE4,
 			   0x003f, 0x0000);
+=======
+
+	regmap_write(priv->regmap, MT6359_GPIO_MODE4_CLR, 0x003f);
+>>>>>>> upstream/android-13
 
 	regmap_update_bits(priv->regmap, MT6359_GPIO_DIR0,
 			   0x7 << 13, 0x0);
@@ -414,6 +464,7 @@ static void capture_gpio_reset(struct mt6359_priv *priv)
 			   0x3 << 0, 0x0);
 }
 
+<<<<<<< HEAD
 static void vow_gpio_set(struct mt6359_priv *priv)
 {
 	/* vow gpio set (data) */
@@ -452,10 +503,15 @@ static void vow_gpio_reset(struct mt6359_priv *priv)
 
 /* use only when not govern by DAPM */
 static int mt6359_set_dcxo(struct mt6359_priv *priv, bool enable)
+=======
+/* use only when doing mtkaif calibraiton at the boot time */
+static void mt6359_set_dcxo(struct mt6359_priv *priv, bool enable)
+>>>>>>> upstream/android-13
 {
 	regmap_update_bits(priv->regmap, MT6359_DCXO_CW12,
 			   0x1 << RG_XO_AUDIO_EN_M_SFT,
 			   (enable ? 1 : 0) << RG_XO_AUDIO_EN_M_SFT);
+<<<<<<< HEAD
 	return 0;
 }
 
@@ -467,19 +523,34 @@ static int mt6359_set_clksq(struct mt6359_priv *priv, bool enable)
 			   RG_CLKSQ_IN_SEL_TEST_MASK_SFT,
 			   0x0);
 
+=======
+}
+
+/* use only when doing mtkaif calibraiton at the boot time */
+static void mt6359_set_clksq(struct mt6359_priv *priv, bool enable)
+{
+>>>>>>> upstream/android-13
 	/* Enable/disable CLKSQ 26MHz */
 	regmap_update_bits(priv->regmap, MT6359_AUDENC_ANA_CON23,
 			   RG_CLKSQ_EN_MASK_SFT,
 			   (enable ? 1 : 0) << RG_CLKSQ_EN_SFT);
+<<<<<<< HEAD
 	return 0;
 }
 
 /* use only when not govern by DAPM */
 static int mt6359_set_aud_global_bias(struct mt6359_priv *priv, bool enable)
+=======
+}
+
+/* use only when doing mtkaif calibraiton at the boot time */
+static void mt6359_set_aud_global_bias(struct mt6359_priv *priv, bool enable)
+>>>>>>> upstream/android-13
 {
 	regmap_update_bits(priv->regmap, MT6359_AUDDEC_ANA_CON13,
 			   RG_AUDGLB_PWRDN_VA32_MASK_SFT,
 			   (enable ? 0 : 1) << RG_AUDGLB_PWRDN_VA32_SFT);
+<<<<<<< HEAD
 	return 0;
 }
 
@@ -492,14 +563,32 @@ static int mt6359_set_topck(struct mt6359_priv *priv, bool enable)
 }
 
 static int mt6359_set_decoder_clk(struct mt6359_priv *priv, bool enable)
+=======
+}
+
+/* use only when doing mtkaif calibraiton at the boot time */
+static void mt6359_set_topck(struct mt6359_priv *priv, bool enable)
+{
+	regmap_update_bits(priv->regmap, MT6359_AUD_TOP_CKPDN_CON0,
+			   0x0066, enable ? 0x0 : 0x66);
+}
+
+static void mt6359_set_decoder_clk(struct mt6359_priv *priv, bool enable)
+>>>>>>> upstream/android-13
 {
 	regmap_update_bits(priv->regmap, MT6359_AUDDEC_ANA_CON13,
 			   RG_RSTB_DECODER_VA32_MASK_SFT,
 			   (enable ? 1 : 0) << RG_RSTB_DECODER_VA32_SFT);
+<<<<<<< HEAD
 	return 0;
 }
 
 static int mt6359_mtkaif_tx_enable(struct mt6359_priv *priv)
+=======
+}
+
+static void mt6359_mtkaif_tx_enable(struct mt6359_priv *priv)
+>>>>>>> upstream/android-13
 {
 	switch (priv->mtkaif_protocol) {
 	case MT6359_MTKAIF_PROTOCOL_2_CLK_P2:
@@ -537,14 +626,21 @@ static int mt6359_mtkaif_tx_enable(struct mt6359_priv *priv)
 				   0xff00, 0x3100);
 		break;
 	}
+<<<<<<< HEAD
 	return 0;
 }
 
 static int mt6359_mtkaif_tx_disable(struct mt6359_priv *priv)
+=======
+}
+
+static void mt6359_mtkaif_tx_disable(struct mt6359_priv *priv)
+>>>>>>> upstream/android-13
 {
 	/* disable aud_pad TX fifos */
 	regmap_update_bits(priv->regmap, MT6359_AFE_AUD_PAD_TOP,
 			   0xff00, 0x3000);
+<<<<<<< HEAD
 	return 0;
 }
 
@@ -554,6 +650,25 @@ int mt6359_mtkaif_calibration_enable(struct snd_soc_component *cmpnt)
 
 	playback_gpio_set(priv);
 	capture_gpio_set(priv);
+=======
+}
+
+void mt6359_set_mtkaif_protocol(struct snd_soc_component *cmpnt,
+				int mtkaif_protocol)
+{
+	struct mt6359_priv *priv = snd_soc_component_get_drvdata(cmpnt);
+
+	priv->mtkaif_protocol = mtkaif_protocol;
+}
+EXPORT_SYMBOL_GPL(mt6359_set_mtkaif_protocol);
+
+void mt6359_mtkaif_calibration_enable(struct snd_soc_component *cmpnt)
+{
+	struct mt6359_priv *priv = snd_soc_component_get_drvdata(cmpnt);
+
+	mt6359_set_playback_gpio(priv);
+	mt6359_set_capture_gpio(priv);
+>>>>>>> upstream/android-13
 	mt6359_mtkaif_tx_enable(priv);
 
 	mt6359_set_dcxo(priv, true);
@@ -571,11 +686,18 @@ int mt6359_mtkaif_calibration_enable(struct snd_soc_component *cmpnt)
 	regmap_update_bits(priv->regmap, MT6359_AUDIO_DIG_CFG1,
 			   RG_AUD_PAD_TOP_DAT_MISO3_LOOPBACK_MASK_SFT,
 			   1 << RG_AUD_PAD_TOP_DAT_MISO3_LOOPBACK_SFT);
+<<<<<<< HEAD
 	return 0;
 }
 EXPORT_SYMBOL_GPL(mt6359_mtkaif_calibration_enable);
 
 int mt6359_mtkaif_calibration_disable(struct snd_soc_component *cmpnt)
+=======
+}
+EXPORT_SYMBOL_GPL(mt6359_mtkaif_calibration_enable);
+
+void mt6359_mtkaif_calibration_disable(struct snd_soc_component *cmpnt)
+>>>>>>> upstream/android-13
 {
 	struct mt6359_priv *priv = snd_soc_component_get_drvdata(cmpnt);
 
@@ -596,6 +718,7 @@ int mt6359_mtkaif_calibration_disable(struct snd_soc_component *cmpnt)
 	mt6359_set_dcxo(priv, false);
 
 	mt6359_mtkaif_tx_disable(priv);
+<<<<<<< HEAD
 	playback_gpio_reset(priv);
 	capture_gpio_reset(priv);
 	return 0;
@@ -604,6 +727,15 @@ EXPORT_SYMBOL_GPL(mt6359_mtkaif_calibration_disable);
 
 int mt6359_set_mtkaif_calibration_phase(struct snd_soc_component *cmpnt,
 					int phase_1, int phase_2, int phase_3)
+=======
+	mt6359_reset_playback_gpio(priv);
+	mt6359_reset_capture_gpio(priv);
+}
+EXPORT_SYMBOL_GPL(mt6359_mtkaif_calibration_disable);
+
+void mt6359_set_mtkaif_calibration_phase(struct snd_soc_component *cmpnt,
+					 int phase_1, int phase_2, int phase_3)
+>>>>>>> upstream/android-13
 {
 	struct mt6359_priv *priv = snd_soc_component_get_drvdata(cmpnt);
 
@@ -616,6 +748,7 @@ int mt6359_set_mtkaif_calibration_phase(struct snd_soc_component *cmpnt,
 	regmap_update_bits(priv->regmap, MT6359_AUDIO_DIG_CFG1,
 			   RG_AUD_PAD_TOP_PHASE_MODE3_MASK_SFT,
 			   phase_3 << RG_AUD_PAD_TOP_PHASE_MODE3_SFT);
+<<<<<<< HEAD
 	return 0;
 }
 EXPORT_SYMBOL_GPL(mt6359_set_mtkaif_calibration_phase);
@@ -723,11 +856,23 @@ static void zcd_enable(struct mt6359_priv *priv, bool enable, int device)
 		regmap_update_bits(priv->regmap, MT6359_ZCD_CON0,
 				   0xffff, 0x0000);
 	}
+=======
+}
+EXPORT_SYMBOL_GPL(mt6359_set_mtkaif_calibration_phase);
+
+static void zcd_disable(struct mt6359_priv *priv)
+{
+	regmap_write(priv->regmap, MT6359_ZCD_CON0, 0x0000);
+>>>>>>> upstream/android-13
 }
 
 static void hp_main_output_ramp(struct mt6359_priv *priv, bool up)
 {
+<<<<<<< HEAD
 	int i = 0, stage = 0;
+=======
+	int i, stage;
+>>>>>>> upstream/android-13
 	int target = 7;
 
 	/* Enable/Reduce HPL/R main output stage step by step */
@@ -745,11 +890,20 @@ static void hp_main_output_ramp(struct mt6359_priv *priv, bool up)
 
 static void hp_aux_feedback_loop_gain_ramp(struct mt6359_priv *priv, bool up)
 {
+<<<<<<< HEAD
 	int i = 0, stage = 0;
 
 	/* Reduce HP aux feedback loop gain step by step */
 	for (i = 0; i <= 0xf; i++) {
 		stage = up ? i : 0xf - i;
+=======
+	int i, stage;
+	int target = 0xf;
+
+	/* Enable/Reduce HP aux feedback loop gain step by step */
+	for (i = 0; i <= target; i++) {
+		stage = up ? i : target - i;
+>>>>>>> upstream/android-13
 		regmap_update_bits(priv->regmap, MT6359_AUDDEC_ANA_CON9,
 				   0xf << 12, stage << 12);
 		usleep_range(600, 650);
@@ -758,7 +912,11 @@ static void hp_aux_feedback_loop_gain_ramp(struct mt6359_priv *priv, bool up)
 
 static void hp_in_pair_current(struct mt6359_priv *priv, bool increase)
 {
+<<<<<<< HEAD
 	int i = 0, stage = 0;
+=======
+	int i, stage;
+>>>>>>> upstream/android-13
 	int target = 0x3;
 
 	/* Set input diff pair bias select (Hi-Fi mode) */
@@ -795,6 +953,7 @@ static void hp_pull_down(struct mt6359_priv *priv, bool enable)
 	}
 }
 
+<<<<<<< HEAD
 static int hp_gain_ctl_select(struct mt6359_priv *priv,
 			      unsigned int hp_gain_ctl)
 {
@@ -815,6 +974,8 @@ static int hp_gain_ctl_select(struct mt6359_priv *priv,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static bool is_valid_hp_pga_idx(int reg_idx)
 {
 	return (reg_idx >= DL_GAIN_8DB && reg_idx <= DL_GAIN_N_22DB) ||
@@ -826,12 +987,22 @@ static void headset_volume_ramp(struct mt6359_priv *priv,
 {
 	int offset = 0, count = 1, reg_idx;
 
+<<<<<<< HEAD
 	if (!is_valid_hp_pga_idx(from) || !is_valid_hp_pga_idx(to))
 		dev_warn(priv->dev, "%s(), volume index is not valid, from %d, to %d\n",
 			 __func__, from, to);
 
 	dev_dbg(priv->dev, "%s(), from %d, to %d\n",
 		__func__, from, to);
+=======
+	if (!is_valid_hp_pga_idx(from) || !is_valid_hp_pga_idx(to)) {
+		dev_warn(priv->dev, "%s(), volume index is not valid, from %d, to %d\n",
+			 __func__, from, to);
+		return;
+	}
+
+	dev_dbg(priv->dev, "%s(), from %d, to %d\n", __func__, from, to);
+>>>>>>> upstream/android-13
 
 	if (to > from)
 		offset = to - from;
@@ -856,6 +1027,7 @@ static void headset_volume_ramp(struct mt6359_priv *priv,
 	}
 }
 
+<<<<<<< HEAD
 static int dl_pga_get(struct snd_kcontrol *kcontrol,
 		      struct snd_ctl_elem_value *ucontrol)
 {
@@ -933,6 +1105,8 @@ static int dl_pga_set(struct snd_kcontrol *kcontrol,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int mt6359_put_volsw(struct snd_kcontrol *kcontrol,
 			    struct snd_ctl_elem_value *ucontrol)
 {
@@ -983,7 +1157,10 @@ static int mt6359_put_volsw(struct snd_kcontrol *kcontrol,
 		regmap_read(priv->regmap, MT6359_AUDENC_ANA_CON2, &reg);
 		priv->ana_gain[AUDIO_ANALOG_VOLUME_MICAMP3] =
 			(reg >> RG_AUDPREAMP3GAIN_SFT) & RG_AUDPREAMP3GAIN_MASK;
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 		break;
 	}
 
@@ -993,6 +1170,7 @@ static int mt6359_put_volsw(struct snd_kcontrol *kcontrol,
 	return ret;
 }
 
+<<<<<<< HEAD
 static const DECLARE_TLV_DB_SCALE(hp_playback_tlv, -2200, 100, 0);
 static const DECLARE_TLV_DB_SCALE(playback_tlv, -1000, 100, 0);
 static const DECLARE_TLV_DB_SCALE(capture_tlv, 0, 600, 0);
@@ -1219,10 +1397,16 @@ enum {
 	LO_MUX_MASK = 0x3,
 };
 
+=======
+/* MUX */
+
+/* LOL MUX */
+>>>>>>> upstream/android-13
 static const char * const lo_in_mux_map[] = {
 	"Open", "Playback_L_DAC", "Playback", "Test Mode"
 };
 
+<<<<<<< HEAD
 static int lo_in_mux_map_value[] = {
 	0x0, 0x1, 0x2, 0x3,
 };
@@ -1233,10 +1417,14 @@ static SOC_VALUE_ENUM_SINGLE_DECL(lo_in_mux_map_enum,
 				  LO_MUX_MASK,
 				  lo_in_mux_map,
 				  lo_in_mux_map_value);
+=======
+static SOC_ENUM_SINGLE_DECL(lo_in_mux_map_enum, SND_SOC_NOPM, 0, lo_in_mux_map);
+>>>>>>> upstream/android-13
 
 static const struct snd_kcontrol_new lo_in_mux_control =
 	SOC_DAPM_ENUM("LO Select", lo_in_mux_map_enum);
 
+<<<<<<< HEAD
 /*Vow micbias MUX */
 enum {
 	VOW_MIABIAS_MUX_CLOSE = 0,
@@ -1274,12 +1462,16 @@ enum {
 	HP_MUX_MASK = 0x7,
 };
 
+=======
+/*HP MUX */
+>>>>>>> upstream/android-13
 static const char * const hp_in_mux_map[] = {
 	"Open",
 	"LoudSPK Playback",
 	"Audio Playback",
 	"Test Mode",
 	"HP Impedance",
+<<<<<<< HEAD
 	"undefined1",
 	"undefined2",
 	"undefined3",
@@ -1325,10 +1517,24 @@ enum {
 	RCV_MUX_MASK = 0x3,
 };
 
+=======
+};
+
+static SOC_ENUM_SINGLE_DECL(hp_in_mux_map_enum,
+				  SND_SOC_NOPM,
+				  0,
+				  hp_in_mux_map);
+
+static const struct snd_kcontrol_new hp_in_mux_control =
+	SOC_DAPM_ENUM("HP Select", hp_in_mux_map_enum);
+
+/* RCV MUX */
+>>>>>>> upstream/android-13
 static const char * const rcv_in_mux_map[] = {
 	"Open", "Mute", "Voice Playback", "Test Mode"
 };
 
+<<<<<<< HEAD
 static int rcv_in_mux_map_value[] = {
 	RCV_MUX_OPEN,
 	RCV_MUX_MUTE,
@@ -1342,6 +1548,12 @@ static SOC_VALUE_ENUM_SINGLE_DECL(rcv_in_mux_map_enum,
 				  RCV_MUX_MASK,
 				  rcv_in_mux_map,
 				  rcv_in_mux_map_value);
+=======
+static SOC_ENUM_SINGLE_DECL(rcv_in_mux_map_enum,
+				  SND_SOC_NOPM,
+				  0,
+				  rcv_in_mux_map);
+>>>>>>> upstream/android-13
 
 static const struct snd_kcontrol_new rcv_in_mux_control =
 	SOC_DAPM_ENUM("RCV Select", rcv_in_mux_map_enum);
@@ -1386,12 +1598,15 @@ static SOC_VALUE_ENUM_SINGLE_DECL(aif2_out_mux_map_enum,
 static const struct snd_kcontrol_new aif2_out_mux_control =
 	SOC_DAPM_ENUM("AIF Out Select", aif2_out_mux_map_enum);
 
+<<<<<<< HEAD
 /* UL SRC MUX */
 enum {
 	UL_SRC_MUX_AMIC = 0,
 	UL_SRC_MUX_DMIC,
 };
 
+=======
+>>>>>>> upstream/android-13
 static const char * const ul_src_mux_map[] = {
 	"AMIC",
 	"DMIC",
@@ -1422,6 +1637,7 @@ static SOC_VALUE_ENUM_SINGLE_DECL(ul2_src_mux_map_enum,
 static const struct snd_kcontrol_new ul2_src_mux_control =
 	SOC_DAPM_ENUM("UL_SRC_MUX Select", ul2_src_mux_map_enum);
 
+<<<<<<< HEAD
 /* VOW UL SRC MUX */
 static SOC_VALUE_ENUM_SINGLE_DECL(vow_ul_src_mux_map_enum,
 				  MT6359_AFE_VOW_TOP_CON0,
@@ -1441,6 +1657,8 @@ enum {
 	MISO_MUX_UL2_CH2,
 };
 
+=======
+>>>>>>> upstream/android-13
 static const char * const miso_mux_map[] = {
 	"UL1_CH1",
 	"UL1_CH2",
@@ -1485,6 +1703,7 @@ static SOC_VALUE_ENUM_SINGLE_DECL(miso2_mux_map_enum,
 static const struct snd_kcontrol_new miso2_mux_control =
 	SOC_DAPM_ENUM("MISO_MUX Select", miso2_mux_map_enum);
 
+<<<<<<< HEAD
 /* VOW AMIC MUX */
 enum {
 	VOW_AMIC_MUX_ADC_L = 0,
@@ -1533,6 +1752,8 @@ enum {
 	DMIC_MUX_DMIC_DATA1_R,
 };
 
+=======
+>>>>>>> upstream/android-13
 static const char * const dmic_mux_map[] = {
 	"DMIC_DATA0",
 	"DMIC_DATA1_L",
@@ -1557,22 +1778,38 @@ static SOC_VALUE_ENUM_SINGLE_DECL(dmic0_mux_map_enum,
 static const struct snd_kcontrol_new dmic0_mux_control =
 	SOC_DAPM_ENUM("DMIC_MUX Select", dmic0_mux_map_enum);
 
+<<<<<<< HEAD
 /* ul2 ch1 use RG_DMIC_ADC2_SOURCE_SEL */
 static SOC_VALUE_ENUM_SINGLE_DECL(dmic1_mux_map_enum,
 				  MT6359_AFE_MIC_ARRAY_CFG,
 				  RG_DMIC_ADC2_SOURCE_SEL_SFT,
 				  RG_DMIC_ADC2_SOURCE_SEL_MASK,
+=======
+/* ul1 ch2 use RG_DMIC_ADC3_SOURCE_SEL */
+static SOC_VALUE_ENUM_SINGLE_DECL(dmic1_mux_map_enum,
+				  MT6359_AFE_MIC_ARRAY_CFG,
+				  RG_DMIC_ADC3_SOURCE_SEL_SFT,
+				  RG_DMIC_ADC3_SOURCE_SEL_MASK,
+>>>>>>> upstream/android-13
 				  dmic_mux_map,
 				  dmic_mux_map_value);
 
 static const struct snd_kcontrol_new dmic1_mux_control =
 	SOC_DAPM_ENUM("DMIC_MUX Select", dmic1_mux_map_enum);
 
+<<<<<<< HEAD
 /* ul1 ch2 use RG_DMIC_ADC3_SOURCE_SEL */
 static SOC_VALUE_ENUM_SINGLE_DECL(dmic2_mux_map_enum,
 				  MT6359_AFE_MIC_ARRAY_CFG,
 				  RG_DMIC_ADC3_SOURCE_SEL_SFT,
 				  RG_DMIC_ADC3_SOURCE_SEL_MASK,
+=======
+/* ul2 ch1 use RG_DMIC_ADC2_SOURCE_SEL */
+static SOC_VALUE_ENUM_SINGLE_DECL(dmic2_mux_map_enum,
+				  MT6359_AFE_MIC_ARRAY_CFG,
+				  RG_DMIC_ADC2_SOURCE_SEL_SFT,
+				  RG_DMIC_ADC2_SOURCE_SEL_MASK,
+>>>>>>> upstream/android-13
 				  dmic_mux_map,
 				  dmic_mux_map_value);
 
@@ -1580,6 +1817,7 @@ static const struct snd_kcontrol_new dmic2_mux_control =
 	SOC_DAPM_ENUM("DMIC_MUX Select", dmic2_mux_map_enum);
 
 /* ADC L MUX */
+<<<<<<< HEAD
 enum {
 	ADC_MUX_IDLE = 0,
 	ADC_MUX_AIN0,
@@ -1587,6 +1825,8 @@ enum {
 	ADC_MUX_IDLE1,
 };
 
+=======
+>>>>>>> upstream/android-13
 static const char * const adc_left_mux_map[] = {
 	"Idle", "AIN0", "Left Preamplifier", "Idle_1"
 };
@@ -1638,6 +1878,7 @@ static SOC_VALUE_ENUM_SINGLE_DECL(adc_3_mux_map_enum,
 static const struct snd_kcontrol_new adc_3_mux_control =
 	SOC_DAPM_ENUM("ADC 3 Select", adc_3_mux_map_enum);
 
+<<<<<<< HEAD
 /* PGA L MUX */
 enum {
 	PGA_L_MUX_NONE = 0,
@@ -1645,6 +1886,8 @@ enum {
 	PGA_L_MUX_AIN1,
 };
 
+=======
+>>>>>>> upstream/android-13
 static const char * const pga_l_mux_map[] = {
 	"None", "AIN0", "AIN1"
 };
@@ -1665,6 +1908,7 @@ static SOC_VALUE_ENUM_SINGLE_DECL(pga_left_mux_map_enum,
 static const struct snd_kcontrol_new pga_left_mux_control =
 	SOC_DAPM_ENUM("PGA L Select", pga_left_mux_map_enum);
 
+<<<<<<< HEAD
 /* PGA R MUX */
 enum {
 	PGA_R_MUX_NONE = 0,
@@ -1673,6 +1917,8 @@ enum {
 	PGA_R_MUX_AIN0,
 };
 
+=======
+>>>>>>> upstream/android-13
 static const char * const pga_r_mux_map[] = {
 	"None", "AIN2", "AIN3", "AIN0"
 };
@@ -1694,6 +1940,7 @@ static SOC_VALUE_ENUM_SINGLE_DECL(pga_right_mux_map_enum,
 static const struct snd_kcontrol_new pga_right_mux_control =
 	SOC_DAPM_ENUM("PGA R Select", pga_right_mux_map_enum);
 
+<<<<<<< HEAD
 /* PGA 3 MUX */
 enum {
 	PGA_3_MUX_NONE = 0,
@@ -1701,6 +1948,8 @@ enum {
 	PGA_3_MUX_AIN2,
 };
 
+=======
+>>>>>>> upstream/android-13
 static const char * const pga_3_mux_map[] = {
 	"None", "AIN3", "AIN2"
 };
@@ -1721,6 +1970,7 @@ static SOC_VALUE_ENUM_SINGLE_DECL(pga_3_mux_map_enum,
 static const struct snd_kcontrol_new pga_3_mux_control =
 	SOC_DAPM_ENUM("PGA 3 Select", pga_3_mux_map_enum);
 
+<<<<<<< HEAD
 static int mt_clksq_event(struct snd_soc_dapm_widget *w,
 			  struct snd_kcontrol *kcontrol,
 			  int event)
@@ -1744,6 +1994,8 @@ static int mt_clksq_event(struct snd_soc_dapm_widget *w,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int mt_sgen_event(struct snd_soc_dapm_widget *w,
 			 struct snd_kcontrol *kcontrol,
 			 int event)
@@ -1758,11 +2010,19 @@ static int mt_sgen_event(struct snd_soc_dapm_widget *w,
 		/* sdm audio fifo clock power on */
 		regmap_write(priv->regmap, MT6359_AFUNC_AUD_CON2, 0x0006);
 		/* scrambler clock on enable */
+<<<<<<< HEAD
 		regmap_write(priv->regmap, MT6359_AFUNC_AUD_CON0, 0xCBA1);
 		/* sdm power on */
 		regmap_write(priv->regmap, MT6359_AFUNC_AUD_CON2, 0x0003);
 		/* sdm fifo enable */
 		regmap_write(priv->regmap, MT6359_AFUNC_AUD_CON2, 0x000B);
+=======
+		regmap_write(priv->regmap, MT6359_AFUNC_AUD_CON0, 0xcba1);
+		/* sdm power on */
+		regmap_write(priv->regmap, MT6359_AFUNC_AUD_CON2, 0x0003);
+		/* sdm fifo enable */
+		regmap_write(priv->regmap, MT6359_AFUNC_AUD_CON2, 0x000b);
+>>>>>>> upstream/android-13
 
 		regmap_update_bits(priv->regmap, MT6359_AFE_SGEN_CFG0,
 				   0xff3f,
@@ -1783,6 +2043,7 @@ static int mt_sgen_event(struct snd_soc_dapm_widget *w,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int mtk_hp_enable(struct mt6359_priv *priv)
 {
 	dev_info(priv->dev, "%s(), dev_counter[DEV_HP] %d, mux %u\n",
@@ -1816,6 +2077,10 @@ static int mtk_hp_enable(struct mt6359_priv *priv)
 	/* Enable AUD_ZCD */
 	zcd_enable(priv, true, DEVICE_HP);
 
+=======
+static void mtk_hp_enable(struct mt6359_priv *priv)
+{
+>>>>>>> upstream/android-13
 	if (priv->hp_hifi_mode) {
 		/* Set HP DR bias current optimization, 010: 6uA */
 		regmap_update_bits(priv->regmap, MT6359_AUDDEC_ANA_CON11,
@@ -1845,7 +2110,11 @@ static int mtk_hp_enable(struct mt6359_priv *priv)
 	}
 
 	/* HP damp circuit enable */
+<<<<<<< HEAD
 	/*Enable HPRN/HPLN output 4K to VCM */
+=======
+	/* Enable HPRN/HPLN output 4K to VCM */
+>>>>>>> upstream/android-13
 	regmap_write(priv->regmap, MT6359_AUDDEC_ANA_CON10, 0x0087);
 
 	/* HP Feedback Cap select 2'b00: 15pF */
@@ -1858,7 +2127,10 @@ static int mtk_hp_enable(struct mt6359_priv *priv)
 	else
 		regmap_write(priv->regmap, MT6359_AUDDEC_ANA_CON4, 0x0000);
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	/* Set HPP/N STB enhance circuits */
 	regmap_write(priv->regmap, MT6359_AUDDEC_ANA_CON2, 0xf133);
 
@@ -1904,6 +2176,12 @@ static int mtk_hp_enable(struct mt6359_priv *priv)
 	regmap_write(priv->regmap, MT6359_AUDDEC_ANA_CON1, 0x7703);
 	usleep_range(100, 120);
 
+<<<<<<< HEAD
+=======
+	/* Enable AUD_CLK */
+	mt6359_set_decoder_clk(priv, true);
+
+>>>>>>> upstream/android-13
 	/* Enable Audio DAC  */
 	regmap_write(priv->regmap, MT6359_AUDDEC_ANA_CON0, 0x30ff);
 	if (priv->hp_hifi_mode) {
@@ -1915,6 +2193,7 @@ static int mtk_hp_enable(struct mt6359_priv *priv)
 	}
 	usleep_range(100, 120);
 
+<<<<<<< HEAD
 	if (priv->mux_select[MUX_HP_L] == HP_MUX_HPSPK) {
 		/* Switch HPL MUX to audio LOL */
 		regmap_update_bits(priv->regmap, MT6359_AUDDEC_ANA_CON0,
@@ -1940,10 +2219,23 @@ static int mtk_hp_enable(struct mt6359_priv *priv)
 }
 
 static int mtk_hp_disable(struct mt6359_priv *priv)
+=======
+	/* Switch HPL MUX to audio DAC */
+	regmap_write(priv->regmap, MT6359_AUDDEC_ANA_CON0, 0x32ff);
+	/* Switch HPR MUX to audio DAC */
+	regmap_write(priv->regmap, MT6359_AUDDEC_ANA_CON0, 0x3aff);
+
+	/* Disable Pull-down HPL/R to AVSS28_AUD */
+	hp_pull_down(priv, false);
+}
+
+static void mtk_hp_disable(struct mt6359_priv *priv)
+>>>>>>> upstream/android-13
 {
 	/* Pull-down HPL/R to AVSS28_AUD */
 	hp_pull_down(priv, true);
 
+<<<<<<< HEAD
 	/* Disable LO when MUX to HPSPK*/
 	if (priv->mux_select[MUX_HP_L] == HP_MUX_HPSPK) {
 		/* Switch LOL MUX to open */
@@ -1963,6 +2255,8 @@ static int mtk_hp_disable(struct mt6359_priv *priv)
 				   RG_AUDLOLPWRUP_IBIAS_VAUDP32_MASK_SFT, 0x0);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/* HPR/HPL mux to open */
 	regmap_update_bits(priv->regmap, MT6359_AUDDEC_ANA_CON0,
 			   0x0f00, 0x0000);
@@ -1975,6 +2269,12 @@ static int mtk_hp_disable(struct mt6359_priv *priv)
 	regmap_update_bits(priv->regmap, MT6359_AUDDEC_ANA_CON0,
 			   0x000f, 0x0000);
 
+<<<<<<< HEAD
+=======
+	/* Disable AUD_CLK */
+	mt6359_set_decoder_clk(priv, false);
+
+>>>>>>> upstream/android-13
 	/* Short HP main output to HP aux output stage */
 	regmap_write(priv->regmap, MT6359_AUDDEC_ANA_CON1, 0x77c3);
 	/* Enable HP aux output stage */
@@ -2028,6 +2328,7 @@ static int mtk_hp_disable(struct mt6359_priv *priv)
 	/* Disable HP aux output stage */
 	regmap_update_bits(priv->regmap, MT6359_AUDDEC_ANA_CON1,
 			   0x3 << 2, 0x0);
+<<<<<<< HEAD
 
 	/* Disable AUD_ZCD */
 	zcd_enable(priv, false, DEVICE_HP);
@@ -2096,6 +2397,8 @@ static int mtk_hp_impedance_disable(struct mt6359_priv *priv)
 	accdet_modify_vref_volt();
 #endif
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int mt_hp_event(struct snd_soc_dapm_widget *w,
@@ -2107,15 +2410,21 @@ static int mt_hp_event(struct snd_soc_dapm_widget *w,
 	unsigned int mux = dapm_kcontrol_get_value(w->kcontrols[0]);
 	int device = DEVICE_HP;
 
+<<<<<<< HEAD
 	dev_info(priv->dev, "%s(), event 0x%x, dev_counter[DEV_HP] %d, mux %u\n",
 		 __func__,
 		 event,
 		 priv->dev_counter[device],
 		 mux);
+=======
+	dev_dbg(priv->dev, "%s(), event 0x%x, dev_counter[DEV_HP] %d, mux %u\n",
+		__func__, event, priv->dev_counter[device], mux);
+>>>>>>> upstream/android-13
 
 	switch (event) {
 	case SND_SOC_DAPM_PRE_PMU:
 		priv->dev_counter[device]++;
+<<<<<<< HEAD
 		if (priv->dev_counter[device] > 1)
 			break;	/* already enabled, do nothing */
 		else if (priv->dev_counter[device] <= 0)
@@ -2149,6 +2458,15 @@ static int mt_hp_event(struct snd_soc_dapm_widget *w,
 			mtk_hp_impedance_disable(priv);
 
 		priv->mux_select[MUX_HP_L] = mux;
+=======
+		if (mux == HP_MUX_HP)
+			mtk_hp_enable(priv);
+		break;
+	case SND_SOC_DAPM_PRE_PMD:
+		priv->dev_counter[device]--;
+		if (mux == HP_MUX_HP)
+			mtk_hp_disable(priv);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		break;
@@ -2164,6 +2482,7 @@ static int mt_rcv_event(struct snd_soc_dapm_widget *w,
 	struct snd_soc_component *cmpnt = snd_soc_dapm_to_component(w->dapm);
 	struct mt6359_priv *priv = snd_soc_component_get_drvdata(cmpnt);
 
+<<<<<<< HEAD
 	dev_info(priv->dev, "%s(), event 0x%x, mux %u\n",
 		 __func__,
 		 event,
@@ -2174,6 +2493,13 @@ static int mt_rcv_event(struct snd_soc_dapm_widget *w,
 		/* Enable AUD_ZCD */
 		zcd_enable(priv, true, DEVICE_RCV);
 
+=======
+	dev_dbg(priv->dev, "%s(), event 0x%x, mux %u\n",
+		__func__, event, dapm_kcontrol_get_value(w->kcontrols[0]));
+
+	switch (event) {
+	case SND_SOC_DAPM_PRE_PMU:
+>>>>>>> upstream/android-13
 		/* Disable handset short-circuit protection */
 		regmap_write(priv->regmap, MT6359_AUDDEC_ANA_CON6, 0x0010);
 
@@ -2205,6 +2531,12 @@ static int mt_rcv_event(struct snd_soc_dapm_widget *w,
 		regmap_write(priv->regmap, MT6359_ZCD_CON3,
 			     priv->ana_gain[AUDIO_ANALOG_VOLUME_HSOUTL]);
 
+<<<<<<< HEAD
+=======
+		/* Enable AUD_CLK */
+		mt6359_set_decoder_clk(priv, true);
+
+>>>>>>> upstream/android-13
 		/* Enable Audio DAC  */
 		regmap_write(priv->regmap, MT6359_AUDDEC_ANA_CON0, 0x0009);
 		/* Enable low-noise mode of DAC */
@@ -2222,6 +2554,12 @@ static int mt_rcv_event(struct snd_soc_dapm_widget *w,
 		regmap_update_bits(priv->regmap, MT6359_AUDDEC_ANA_CON0,
 				   0x000f, 0x0000);
 
+<<<<<<< HEAD
+=======
+		/* Disable AUD_CLK */
+		mt6359_set_decoder_clk(priv, false);
+
+>>>>>>> upstream/android-13
 		/* decrease HS gain to minimum gain step by step */
 		regmap_write(priv->regmap, MT6359_ZCD_CON3, DL_GAIN_N_40DB);
 
@@ -2232,9 +2570,12 @@ static int mt_rcv_event(struct snd_soc_dapm_widget *w,
 		/* Disable HS driver bias circuits */
 		regmap_update_bits(priv->regmap, MT6359_AUDDEC_ANA_CON6,
 				   RG_AUDHSPWRUP_IBIAS_VAUDP32_MASK_SFT, 0x0);
+<<<<<<< HEAD
 
 		/* Disable AUD_ZCD */
 		zcd_enable(priv, false, DEVICE_RCV);
+=======
+>>>>>>> upstream/android-13
 		break;
 	default:
 		break;
@@ -2244,6 +2585,7 @@ static int mt_rcv_event(struct snd_soc_dapm_widget *w,
 }
 
 static int mt_lo_event(struct snd_soc_dapm_widget *w,
+<<<<<<< HEAD
 			struct snd_kcontrol *kcontrol,
 			int event)
 {
@@ -2259,6 +2601,19 @@ static int mt_lo_event(struct snd_soc_dapm_widget *w,
 		/* Enable AUD_ZCD */
 		zcd_enable(priv, true, DEVICE_LO);
 
+=======
+		       struct snd_kcontrol *kcontrol,
+		       int event)
+{
+	struct snd_soc_component *cmpnt = snd_soc_dapm_to_component(w->dapm);
+	struct mt6359_priv *priv = snd_soc_component_get_drvdata(cmpnt);
+
+	dev_dbg(priv->dev, "%s(), event 0x%x, mux %u\n",
+		__func__, event, dapm_kcontrol_get_value(w->kcontrols[0]));
+
+	switch (event) {
+	case SND_SOC_DAPM_PRE_PMU:
+>>>>>>> upstream/android-13
 		/* Disable handset short-circuit protection */
 		regmap_write(priv->regmap, MT6359_AUDDEC_ANA_CON7, 0x0010);
 
@@ -2290,6 +2645,7 @@ static int mt_lo_event(struct snd_soc_dapm_widget *w,
 		regmap_write(priv->regmap, MT6359_ZCD_CON1,
 			     priv->ana_gain[AUDIO_ANALOG_VOLUME_LINEOUTL]);
 
+<<<<<<< HEAD
 		/* Save MUX selection */
 		priv->mux_select[MUX_LO] = mux;
 
@@ -2318,12 +2674,26 @@ static int mt_lo_event(struct snd_soc_dapm_widget *w,
 			regmap_write(priv->regmap, MT6359_AUDDEC_ANA_CON7, 0x311b);
 		}
 
+=======
+		/* Enable AUD_CLK */
+		mt6359_set_decoder_clk(priv, true);
+
+		/* Enable Audio DAC (3rd DAC) */
+		regmap_write(priv->regmap, MT6359_AUDDEC_ANA_CON7, 0x3113);
+		/* Enable low-noise mode of DAC */
+		if (priv->dev_counter[DEVICE_HP] == 0)
+			regmap_write(priv->regmap,
+				     MT6359_AUDDEC_ANA_CON9, 0x0001);
+		/* Switch LOL MUX to audio 3rd DAC */
+		regmap_write(priv->regmap, MT6359_AUDDEC_ANA_CON7, 0x311b);
+>>>>>>> upstream/android-13
 		break;
 	case SND_SOC_DAPM_PRE_PMD:
 		/* Switch LOL MUX to open */
 		regmap_update_bits(priv->regmap, MT6359_AUDDEC_ANA_CON7,
 				   RG_AUDLOLMUXINPUTSEL_VAUDP32_MASK_SFT,
 				   LO_MUX_OPEN);
+<<<<<<< HEAD
 		if (priv->mux_select[MUX_LO] == LO_MUX_L_DAC) {
 			/* Disable Audio DAC */
 			regmap_update_bits(priv->regmap, MT6359_AUDDEC_ANA_CON0,
@@ -2336,6 +2706,15 @@ static int mt_lo_event(struct snd_soc_dapm_widget *w,
 					   0x3 << 6, 0x0);
 		}
 		priv->mux_select[MUX_LO] = mux;
+=======
+
+		/* Disable Audio DAC */
+		regmap_update_bits(priv->regmap, MT6359_AUDDEC_ANA_CON0,
+				   0x000f, 0x0000);
+
+		/* Disable AUD_CLK */
+		mt6359_set_decoder_clk(priv, false);
+>>>>>>> upstream/android-13
 
 		/* decrease LO gain to minimum gain step by step */
 		regmap_write(priv->regmap, MT6359_ZCD_CON1, DL_GAIN_N_40DB);
@@ -2347,9 +2726,12 @@ static int mt_lo_event(struct snd_soc_dapm_widget *w,
 		/* Disable LO driver bias circuits */
 		regmap_update_bits(priv->regmap, MT6359_AUDDEC_ANA_CON7,
 				   RG_AUDLOLPWRUP_IBIAS_VAUDP32_MASK_SFT, 0x0);
+<<<<<<< HEAD
 
 		/* Disable AUD_ZCD */
 		zcd_enable(priv, false, DEVICE_LO);
+=======
+>>>>>>> upstream/android-13
 		break;
 	default:
 		break;
@@ -2365,6 +2747,7 @@ static int mt_adc_clk_gen_event(struct snd_soc_dapm_widget *w,
 	struct snd_soc_component *cmpnt = snd_soc_dapm_to_component(w->dapm);
 	struct mt6359_priv *priv = snd_soc_component_get_drvdata(cmpnt);
 
+<<<<<<< HEAD
 	dev_info(priv->dev, "%s(), event 0x%x, vow_enable %d\n",
 		 __func__, event, priv->vow_enable);
 
@@ -2396,6 +2779,23 @@ static int mt_adc_clk_gen_event(struct snd_soc_dapm_widget *w,
 					   RG_AUDADCCLKGENMODE_MASK_SFT,
 					   0x1 << RG_AUDADCCLKGENMODE_SFT);
 		}
+=======
+	dev_dbg(priv->dev, "%s(), event 0x%x\n", __func__, event);
+
+	switch (event) {
+	case SND_SOC_DAPM_POST_PMU:
+		/* ADC CLK from CLKGEN (6.5MHz) */
+		regmap_update_bits(priv->regmap, MT6359_AUDENC_ANA_CON5,
+				   RG_AUDADCCLKRSTB_MASK_SFT,
+				   0x1 << RG_AUDADCCLKRSTB_SFT);
+		regmap_update_bits(priv->regmap, MT6359_AUDENC_ANA_CON5,
+				   RG_AUDADCCLKSOURCE_MASK_SFT, 0x0);
+		regmap_update_bits(priv->regmap, MT6359_AUDENC_ANA_CON5,
+				   RG_AUDADCCLKSEL_MASK_SFT, 0x0);
+		regmap_update_bits(priv->regmap, MT6359_AUDENC_ANA_CON5,
+				   RG_AUDADCCLKGENMODE_MASK_SFT,
+				   0x1 << RG_AUDADCCLKGENMODE_SFT);
+>>>>>>> upstream/android-13
 		break;
 	case SND_SOC_DAPM_PRE_PMD:
 		regmap_update_bits(priv->regmap, MT6359_AUDENC_ANA_CON5,
@@ -2421,7 +2821,11 @@ static int mt_dcc_clk_event(struct snd_soc_dapm_widget *w,
 	struct snd_soc_component *cmpnt = snd_soc_dapm_to_component(w->dapm);
 	struct mt6359_priv *priv = snd_soc_component_get_drvdata(cmpnt);
 
+<<<<<<< HEAD
 	dev_info(priv->dev, "%s(), event 0x%x\n", __func__, event);
+=======
+	dev_dbg(priv->dev, "%s(), event 0x%x\n", __func__, event);
+>>>>>>> upstream/android-13
 
 	switch (event) {
 	case SND_SOC_DAPM_PRE_PMU:
@@ -2431,6 +2835,7 @@ static int mt_dcc_clk_event(struct snd_soc_dapm_widget *w,
 				   0xfff7, 0x2062);
 		regmap_update_bits(priv->regmap, MT6359_AFE_DCCLK_CFG0,
 				   0xfff7, 0x2060);
+<<<<<<< HEAD
 		if (priv->vow_enable) {
 			regmap_update_bits(priv->regmap, MT6359_AFE_DCCLK_CFG0,
 					   0xfff7, 0x2065);
@@ -2438,6 +2843,11 @@ static int mt_dcc_clk_event(struct snd_soc_dapm_widget *w,
 			regmap_update_bits(priv->regmap, MT6359_AFE_DCCLK_CFG0,
 					   0xfff7, 0x2061);
 		}
+=======
+		regmap_update_bits(priv->regmap, MT6359_AFE_DCCLK_CFG0,
+				   0xfff7, 0x2061);
+
+>>>>>>> upstream/android-13
 		regmap_write(priv->regmap, MT6359_AFE_DCCLK_CFG1, 0x0100);
 		break;
 	case SND_SOC_DAPM_POST_PMD:
@@ -2461,8 +2871,13 @@ static int mt_mic_bias_0_event(struct snd_soc_dapm_widget *w,
 	struct mt6359_priv *priv = snd_soc_component_get_drvdata(cmpnt);
 	unsigned int mic_type = priv->mux_select[MUX_MIC_TYPE_0];
 
+<<<<<<< HEAD
 	dev_info(priv->dev, "%s(), event 0x%x, mic_type %d, vow_enable: %d\n",
 		 __func__, event, mic_type, priv->vow_enable);
+=======
+	dev_dbg(priv->dev, "%s(), event 0x%x, mic_type %d\n",
+		__func__, event, mic_type);
+>>>>>>> upstream/android-13
 
 	switch (event) {
 	case SND_SOC_DAPM_PRE_PMU:
@@ -2484,15 +2899,28 @@ static int mt_mic_bias_0_event(struct snd_soc_dapm_widget *w,
 			break;
 		}
 
+<<<<<<< HEAD
+=======
+		/* DMIC enable */
+		regmap_write(priv->regmap,
+			     MT6359_AUDENC_ANA_CON14, 0x0004);
+>>>>>>> upstream/android-13
 		/* MISBIAS0 = 1P9V */
 		regmap_update_bits(priv->regmap, MT6359_AUDENC_ANA_CON15,
 				   RG_AUDMICBIAS0VREF_MASK_SFT,
 				   MIC_BIAS_1P9 << RG_AUDMICBIAS0VREF_SFT);
+<<<<<<< HEAD
 		/* vow low power select */
 		regmap_update_bits(priv->regmap, MT6359_AUDENC_ANA_CON15,
 				   RG_AUDMICBIAS0LOWPEN_MASK_SFT,
 				   (priv->vow_enable ? 1 : 0)
 				   << RG_AUDMICBIAS0LOWPEN_SFT);
+=======
+		/* normal power select */
+		regmap_update_bits(priv->regmap, MT6359_AUDENC_ANA_CON15,
+				   RG_AUDMICBIAS0LOWPEN_MASK_SFT,
+				   0 << RG_AUDMICBIAS0LOWPEN_SFT);
+>>>>>>> upstream/android-13
 		break;
 	case SND_SOC_DAPM_POST_PMD:
 		/* Disable MICBIAS0, MISBIAS0 = 1P7V */
@@ -2513,8 +2941,13 @@ static int mt_mic_bias_1_event(struct snd_soc_dapm_widget *w,
 	struct mt6359_priv *priv = snd_soc_component_get_drvdata(cmpnt);
 	unsigned int mic_type = priv->mux_select[MUX_MIC_TYPE_1];
 
+<<<<<<< HEAD
 	dev_info(priv->dev, "%s(), event 0x%x, mic_type %d, vow_enable: %d\n",
 		 __func__, event, mic_type, priv->vow_enable);
+=======
+	dev_dbg(priv->dev, "%s(), event 0x%x, mic_type %d\n",
+		__func__, event, mic_type);
+>>>>>>> upstream/android-13
 
 	switch (event) {
 	case SND_SOC_DAPM_PRE_PMU:
@@ -2523,6 +2956,7 @@ static int mt_mic_bias_1_event(struct snd_soc_dapm_widget *w,
 			regmap_write(priv->regmap,
 				     MT6359_AUDENC_ANA_CON16, 0x0160);
 		else
+<<<<<<< HEAD
 #ifdef CONFIG_MICBIAS1_1P9V
  			regmap_write(priv->regmap,
 				     MT6359_AUDENC_ANA_CON16, 0x0020);
@@ -2535,6 +2969,15 @@ static int mt_mic_bias_1_event(struct snd_soc_dapm_widget *w,
 				   RG_AUDMICBIAS1LOWPEN_MASK_SFT,
 				   (priv->vow_enable ? 1 : 0)
 				   << RG_AUDMICBIAS1LOWPEN_SFT);
+=======
+			regmap_write(priv->regmap,
+				     MT6359_AUDENC_ANA_CON16, 0x0060);
+
+		/* normal power select */
+		regmap_update_bits(priv->regmap, MT6359_AUDENC_ANA_CON16,
+				   RG_AUDMICBIAS1LOWPEN_MASK_SFT,
+				   0 << RG_AUDMICBIAS1LOWPEN_SFT);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		break;
@@ -2551,8 +2994,13 @@ static int mt_mic_bias_2_event(struct snd_soc_dapm_widget *w,
 	struct mt6359_priv *priv = snd_soc_component_get_drvdata(cmpnt);
 	unsigned int mic_type = priv->mux_select[MUX_MIC_TYPE_2];
 
+<<<<<<< HEAD
 	dev_info(priv->dev, "%s(), event 0x%x, mic_type %d, vow_enable: %d\n",
 		 __func__, event, mic_type, priv->vow_enable);
+=======
+	dev_dbg(priv->dev, "%s(), event 0x%x, mic_type %d\n",
+		__func__, event, mic_type);
+>>>>>>> upstream/android-13
 
 	switch (event) {
 	case SND_SOC_DAPM_PRE_PMU:
@@ -2578,11 +3026,18 @@ static int mt_mic_bias_2_event(struct snd_soc_dapm_widget *w,
 		regmap_update_bits(priv->regmap, MT6359_AUDENC_ANA_CON17,
 				   RG_AUDMICBIAS2VREF_MASK_SFT,
 				   MIC_BIAS_1P9 << RG_AUDMICBIAS2VREF_SFT);
+<<<<<<< HEAD
 		/* vow low power select */
 		regmap_update_bits(priv->regmap, MT6359_AUDENC_ANA_CON17,
 				   RG_AUDMICBIAS2LOWPEN_MASK_SFT,
 				   (priv->vow_enable ? 1 : 0)
 				   << RG_AUDMICBIAS2LOWPEN_SFT);
+=======
+		/* normal power select */
+		regmap_update_bits(priv->regmap, MT6359_AUDENC_ANA_CON17,
+				   RG_AUDMICBIAS2LOWPEN_MASK_SFT,
+				   0 << RG_AUDMICBIAS2LOWPEN_SFT);
+>>>>>>> upstream/android-13
 		break;
 	case SND_SOC_DAPM_POST_PMD:
 		/* Disable MICBIAS2, MISBIAS0 = 1P7V */
@@ -2595,6 +3050,7 @@ static int mt_mic_bias_2_event(struct snd_soc_dapm_widget *w,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int mt_vow_aud_lpw_event(struct snd_soc_dapm_widget *w,
 				struct snd_kcontrol *kcontrol,
 				int event)
@@ -3072,6 +3528,8 @@ static int mt_vow_out_event(struct snd_soc_dapm_widget *w,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int mt_mtkaif_tx_event(struct snd_soc_dapm_widget *w,
 			      struct snd_kcontrol *kcontrol,
 			      int event)
@@ -3079,7 +3537,11 @@ static int mt_mtkaif_tx_event(struct snd_soc_dapm_widget *w,
 	struct snd_soc_component *cmpnt = snd_soc_dapm_to_component(w->dapm);
 	struct mt6359_priv *priv = snd_soc_component_get_drvdata(cmpnt);
 
+<<<<<<< HEAD
 	dev_info(priv->dev, "%s(), event = 0x%x\n", __func__, event);
+=======
+	dev_dbg(priv->dev, "%s(), event = 0x%x\n", __func__, event);
+>>>>>>> upstream/android-13
 
 	switch (event) {
 	case SND_SOC_DAPM_PRE_PMU:
@@ -3102,17 +3564,29 @@ static int mt_ul_src_dmic_event(struct snd_soc_dapm_widget *w,
 	struct snd_soc_component *cmpnt = snd_soc_dapm_to_component(w->dapm);
 	struct mt6359_priv *priv = snd_soc_component_get_drvdata(cmpnt);
 
+<<<<<<< HEAD
 	dev_info(priv->dev, "%s(), event = 0x%x\n", __func__, event);
 
 	switch (event) {
 	case SND_SOC_DAPM_PRE_PMU:
+=======
+	dev_dbg(priv->dev, "%s(), event = 0x%x\n", __func__, event);
+
+	switch (event) {
+	case SND_SOC_DAPM_PRE_PMU:
+		/* UL dmic setting */
+>>>>>>> upstream/android-13
 		if (priv->dmic_one_wire_mode)
 			regmap_write(priv->regmap, MT6359_AFE_UL_SRC_CON0_H,
 				     0x0400);
 		else
 			regmap_write(priv->regmap, MT6359_AFE_UL_SRC_CON0_H,
 				     0x0080);
+<<<<<<< HEAD
 
+=======
+		/* default one wire, 3.25M */
+>>>>>>> upstream/android-13
 		regmap_update_bits(priv->regmap, MT6359_AFE_UL_SRC_CON0_L,
 				   0xfffc, 0x0000);
 		break;
@@ -3134,6 +3608,7 @@ static int mt_ul_src_34_dmic_event(struct snd_soc_dapm_widget *w,
 	struct snd_soc_component *cmpnt = snd_soc_dapm_to_component(w->dapm);
 	struct mt6359_priv *priv = snd_soc_component_get_drvdata(cmpnt);
 
+<<<<<<< HEAD
 	dev_info(priv->dev, "%s(), event = 0x%x\n", __func__, event);
 
 	switch (event) {
@@ -3145,6 +3620,15 @@ static int mt_ul_src_34_dmic_event(struct snd_soc_dapm_widget *w,
 			regmap_write(priv->regmap,
 				     MT6359_AFE_ADDA6_L_SRC_CON0_H, 0x0080);
 
+=======
+	dev_dbg(priv->dev, "%s(), event = 0x%x\n", __func__, event);
+
+	switch (event) {
+	case SND_SOC_DAPM_PRE_PMU:
+		/* default two wire, 3.25M */
+		regmap_write(priv->regmap,
+			     MT6359_AFE_ADDA6_L_SRC_CON0_H, 0x0080);
+>>>>>>> upstream/android-13
 		regmap_update_bits(priv->regmap, MT6359_AFE_ADDA6_UL_SRC_CON0_L,
 				   0xfffc, 0x0000);
 		break;
@@ -3158,6 +3642,7 @@ static int mt_ul_src_34_dmic_event(struct snd_soc_dapm_widget *w,
 
 	return 0;
 }
+<<<<<<< HEAD
 static int mt6359_rc_reset(struct mt6359_priv *priv, int ch)
 {
 	unsigned int reg = 0, reg_shift = 0, reg_reset = 0;
@@ -3209,6 +3694,9 @@ static int mt6359_rc_reset(struct mt6359_priv *priv, int ch)
 	return 0;
 
 }
+=======
+
+>>>>>>> upstream/android-13
 static int mt_adc_l_event(struct snd_soc_dapm_widget *w,
 			  struct snd_kcontrol *kcontrol,
 			  int event)
@@ -3216,11 +3704,19 @@ static int mt_adc_l_event(struct snd_soc_dapm_widget *w,
 	struct snd_soc_component *cmpnt = snd_soc_dapm_to_component(w->dapm);
 	struct mt6359_priv *priv = snd_soc_component_get_drvdata(cmpnt);
 
+<<<<<<< HEAD
 	dev_info(priv->dev, "%s(), event = 0x%x\n", __func__, event);
 
 	switch (event) {
 	case SND_SOC_DAPM_POST_PMU:
 		mt6359_rc_reset(priv, AUDIO_ANALOG_CHANNELS_L);
+=======
+	dev_dbg(priv->dev, "%s(), event = 0x%x\n", __func__, event);
+
+	switch (event) {
+	case SND_SOC_DAPM_POST_PMU:
+		usleep_range(100, 120);
+>>>>>>> upstream/android-13
 		/* Audio L preamplifier DCC precharge off */
 		regmap_update_bits(priv->regmap, MT6359_AUDENC_ANA_CON0,
 				   RG_AUDPREAMPLDCPRECHARGE_MASK_SFT,
@@ -3240,11 +3736,19 @@ static int mt_adc_r_event(struct snd_soc_dapm_widget *w,
 	struct snd_soc_component *cmpnt = snd_soc_dapm_to_component(w->dapm);
 	struct mt6359_priv *priv = snd_soc_component_get_drvdata(cmpnt);
 
+<<<<<<< HEAD
 	dev_info(priv->dev, "%s(), event = 0x%x\n", __func__, event);
 
 	switch (event) {
 	case SND_SOC_DAPM_POST_PMU:
 		mt6359_rc_reset(priv, AUDIO_ANALOG_CHANNELS_R);
+=======
+	dev_dbg(priv->dev, "%s(), event = 0x%x\n", __func__, event);
+
+	switch (event) {
+	case SND_SOC_DAPM_POST_PMU:
+		usleep_range(100, 120);
+>>>>>>> upstream/android-13
 		/* Audio R preamplifier DCC precharge off */
 		regmap_update_bits(priv->regmap, MT6359_AUDENC_ANA_CON1,
 				   RG_AUDPREAMPRDCPRECHARGE_MASK_SFT,
@@ -3264,11 +3768,19 @@ static int mt_adc_3_event(struct snd_soc_dapm_widget *w,
 	struct snd_soc_component *cmpnt = snd_soc_dapm_to_component(w->dapm);
 	struct mt6359_priv *priv = snd_soc_component_get_drvdata(cmpnt);
 
+<<<<<<< HEAD
 	dev_info(priv->dev, "%s(), event = 0x%x\n", __func__, event);
 
 	switch (event) {
 	case SND_SOC_DAPM_POST_PMU:
 		mt6359_rc_reset(priv, AUDIO_ANALOG_CHANNELS_3);
+=======
+	dev_dbg(priv->dev, "%s(), event = 0x%x\n", __func__, event);
+
+	switch (event) {
+	case SND_SOC_DAPM_POST_PMU:
+		usleep_range(100, 120);
+>>>>>>> upstream/android-13
 		/* Audio R preamplifier DCC precharge off */
 		regmap_update_bits(priv->regmap, MT6359_AUDENC_ANA_CON2,
 				   RG_AUDPREAMP3DCPRECHARGE_MASK_SFT,
@@ -3289,7 +3801,11 @@ static int mt_pga_l_mux_event(struct snd_soc_dapm_widget *w,
 	struct mt6359_priv *priv = snd_soc_component_get_drvdata(cmpnt);
 	unsigned int mux = dapm_kcontrol_get_value(w->kcontrols[0]);
 
+<<<<<<< HEAD
 	dev_info(priv->dev, "%s(), mux %d\n", __func__, mux);
+=======
+	dev_dbg(priv->dev, "%s(), mux %d\n", __func__, mux);
+>>>>>>> upstream/android-13
 	priv->mux_select[MUX_PGA_L] = mux >> RG_AUDPREAMPLINPUTSEL_SFT;
 	return 0;
 }
@@ -3302,7 +3818,11 @@ static int mt_pga_r_mux_event(struct snd_soc_dapm_widget *w,
 	struct mt6359_priv *priv = snd_soc_component_get_drvdata(cmpnt);
 	unsigned int mux = dapm_kcontrol_get_value(w->kcontrols[0]);
 
+<<<<<<< HEAD
 	dev_info(priv->dev, "%s(), mux %d\n", __func__, mux);
+=======
+	dev_dbg(priv->dev, "%s(), mux %d\n", __func__, mux);
+>>>>>>> upstream/android-13
 	priv->mux_select[MUX_PGA_R] = mux >> RG_AUDPREAMPRINPUTSEL_SFT;
 	return 0;
 }
@@ -3315,7 +3835,11 @@ static int mt_pga_3_mux_event(struct snd_soc_dapm_widget *w,
 	struct mt6359_priv *priv = snd_soc_component_get_drvdata(cmpnt);
 	unsigned int mux = dapm_kcontrol_get_value(w->kcontrols[0]);
 
+<<<<<<< HEAD
 	dev_info(priv->dev, "%s(), mux %d\n", __func__, mux);
+=======
+	dev_dbg(priv->dev, "%s(), mux %d\n", __func__, mux);
+>>>>>>> upstream/android-13
 	priv->mux_select[MUX_PGA_3] = mux >> RG_AUDPREAMP3INPUTSEL_SFT;
 	return 0;
 }
@@ -3342,11 +3866,14 @@ static int mt_pga_l_event(struct snd_soc_dapm_widget *w,
 			__func__, mux_pga);
 		return -EINVAL;
 	}
+<<<<<<< HEAD
 	/* if is VOW, then force 24dB */
 	if (priv->vow_enable)
 		mic_gain_l = 4;
 	dev_info(priv->dev, "%s(), event = 0x%x, mic_type %d, mic_gain_l %d, mux_pga %d\n",
 		 __func__, event, mic_type, mic_gain_l, mux_pga);
+=======
+>>>>>>> upstream/android-13
 
 	switch (event) {
 	case SND_SOC_DAPM_PRE_PMU:
@@ -3362,7 +3889,23 @@ static int mt_pga_l_event(struct snd_soc_dapm_widget *w,
 		regmap_update_bits(priv->regmap, MT6359_AUDENC_ANA_CON0,
 				   RG_AUDPREAMPLGAIN_MASK_SFT,
 				   mic_gain_l << RG_AUDPREAMPLGAIN_SFT);
+<<<<<<< HEAD
 		usleep_range(1000, 1050);
+=======
+
+		if (IS_DCC_BASE(mic_type)) {
+			/* L preamplifier DCCEN */
+			regmap_update_bits(priv->regmap, MT6359_AUDENC_ANA_CON0,
+					   RG_AUDPREAMPLDCCEN_MASK_SFT,
+					   0x1 << RG_AUDPREAMPLDCCEN_SFT);
+		}
+		break;
+	case SND_SOC_DAPM_POST_PMD:
+		/* L preamplifier DCCEN */
+		regmap_update_bits(priv->regmap, MT6359_AUDENC_ANA_CON0,
+				   RG_AUDPREAMPLDCCEN_MASK_SFT,
+				   0x0 << RG_AUDPREAMPLDCCEN_SFT);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		break;
@@ -3394,11 +3937,14 @@ static int mt_pga_r_event(struct snd_soc_dapm_widget *w,
 			__func__, mux_pga);
 		return -EINVAL;
 	}
+<<<<<<< HEAD
 	/* if is VOW, then force 24dB */
 	if (priv->vow_enable)
 		mic_gain_r = 4;
 	dev_info(priv->dev, "%s(), event = 0x%x, mic_type %d, mic_gain_r %d, mux_pga %d\n",
 		 __func__, event, mic_type, mic_gain_r, mux_pga);
+=======
+>>>>>>> upstream/android-13
 
 	switch (event) {
 	case SND_SOC_DAPM_PRE_PMU:
@@ -3414,7 +3960,23 @@ static int mt_pga_r_event(struct snd_soc_dapm_widget *w,
 		regmap_update_bits(priv->regmap, MT6359_AUDENC_ANA_CON1,
 				   RG_AUDPREAMPRGAIN_MASK_SFT,
 				   mic_gain_r << RG_AUDPREAMPRGAIN_SFT);
+<<<<<<< HEAD
 		usleep_range(1000, 1050);
+=======
+
+		if (IS_DCC_BASE(mic_type)) {
+			/* R preamplifier DCCEN */
+			regmap_update_bits(priv->regmap, MT6359_AUDENC_ANA_CON1,
+					   RG_AUDPREAMPRDCCEN_MASK_SFT,
+					   0x1 << RG_AUDPREAMPRDCCEN_SFT);
+		}
+		break;
+	case SND_SOC_DAPM_POST_PMD:
+		/* R preamplifier DCCEN */
+		regmap_update_bits(priv->regmap, MT6359_AUDENC_ANA_CON1,
+				   RG_AUDPREAMPRDCCEN_MASK_SFT,
+				   0x0 << RG_AUDPREAMPRDCCEN_SFT);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		break;
@@ -3443,11 +4005,14 @@ static int mt_pga_3_event(struct snd_soc_dapm_widget *w,
 			__func__, mux_pga);
 		return -EINVAL;
 	}
+<<<<<<< HEAD
 	/* if is VOW, then force 24dB */
 	if (priv->vow_enable)
 		mic_gain_3 = 4;
 	dev_info(priv->dev, "%s(), event = 0x%x, mic_type %d, mic_gain_3 %d, mux_pga %d\n",
 		 __func__, event, mic_type, mic_gain_3, mux_pga);
+=======
+>>>>>>> upstream/android-13
 
 	switch (event) {
 	case SND_SOC_DAPM_PRE_PMU:
@@ -3463,7 +4028,23 @@ static int mt_pga_3_event(struct snd_soc_dapm_widget *w,
 		regmap_update_bits(priv->regmap, MT6359_AUDENC_ANA_CON2,
 				   RG_AUDPREAMP3GAIN_MASK_SFT,
 				   mic_gain_3 << RG_AUDPREAMP3GAIN_SFT);
+<<<<<<< HEAD
 		usleep_range(1000, 1050);
+=======
+
+		if (IS_DCC_BASE(mic_type)) {
+			/* 3 preamplifier DCCEN */
+			regmap_update_bits(priv->regmap, MT6359_AUDENC_ANA_CON2,
+					   RG_AUDPREAMP3DCCEN_MASK_SFT,
+					   0x1 << RG_AUDPREAMP3DCCEN_SFT);
+		}
+		break;
+	case SND_SOC_DAPM_POST_PMD:
+		/* 3 preamplifier DCCEN */
+		regmap_update_bits(priv->regmap, MT6359_AUDENC_ANA_CON2,
+				   RG_AUDPREAMP3DCCEN_MASK_SFT,
+				   0x0 << RG_AUDPREAMP3DCCEN_SFT);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		break;
@@ -3472,6 +4053,10 @@ static int mt_pga_3_event(struct snd_soc_dapm_widget *w,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+/* It is based on hw's control sequenece to add some delay when PMU/PMD */
+>>>>>>> upstream/android-13
 static int mt_delay_250_event(struct snd_soc_dapm_widget *w,
 			      struct snd_kcontrol *kcontrol,
 			      int event)
@@ -3568,6 +4153,7 @@ static int mt_hp_damp_event(struct snd_soc_dapm_widget *w,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int mt_hp_ana_trim_event(struct snd_soc_dapm_widget *w,
 				struct snd_kcontrol *kcontrol,
 				int event)
@@ -3611,6 +4197,8 @@ static int mt_hp_ana_trim_event(struct snd_soc_dapm_widget *w,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int mt_esd_resist_event(struct snd_soc_dapm_widget *w,
 			       struct snd_kcontrol *kcontrol,
 			       int event)
@@ -3651,7 +4239,11 @@ static int mt_sdm_event(struct snd_soc_dapm_widget *w,
 		regmap_update_bits(priv->regmap, MT6359_AFUNC_AUD_CON2,
 				   0xfffd, 0x0006);
 		/* scrambler clock on enable */
+<<<<<<< HEAD
 		regmap_write(priv->regmap, MT6359_AFUNC_AUD_CON0, 0xCBA1);
+=======
+		regmap_write(priv->regmap, MT6359_AFUNC_AUD_CON0, 0xcba1);
+>>>>>>> upstream/android-13
 		/* sdm power on */
 		regmap_update_bits(priv->regmap, MT6359_AFUNC_AUD_CON2,
 				   0xfffd, 0x0003);
@@ -3668,6 +4260,10 @@ static int mt_sdm_event(struct snd_soc_dapm_widget *w,
 	default:
 		break;
 	}
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -3683,11 +4279,19 @@ static int mt_sdm_3rd_event(struct snd_soc_dapm_widget *w,
 		/* sdm audio fifo clock power on */
 		regmap_write(priv->regmap, MT6359_AFUNC_AUD_CON11, 0x0006);
 		/* scrambler clock on enable */
+<<<<<<< HEAD
 		regmap_write(priv->regmap, MT6359_AFUNC_AUD_CON9, 0xCBA1);
 		/* sdm power on */
 		regmap_write(priv->regmap, MT6359_AFUNC_AUD_CON11, 0x0003);
 		/* sdm fifo enable */
 		regmap_write(priv->regmap, MT6359_AFUNC_AUD_CON11, 0x000B);
+=======
+		regmap_write(priv->regmap, MT6359_AFUNC_AUD_CON9, 0xcba1);
+		/* sdm power on */
+		regmap_write(priv->regmap, MT6359_AFUNC_AUD_CON11, 0x0003);
+		/* sdm fifo enable */
+		regmap_write(priv->regmap, MT6359_AFUNC_AUD_CON11, 0x000b);
+>>>>>>> upstream/android-13
 		break;
 	case SND_SOC_DAPM_POST_PMD:
 		/* DL scrambler disabling sequence */
@@ -3697,6 +4301,10 @@ static int mt_sdm_3rd_event(struct snd_soc_dapm_widget *w,
 	default:
 		break;
 	}
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -3714,6 +4322,7 @@ static int mt_ncp_event(struct snd_soc_dapm_widget *w,
 	default:
 		break;
 	}
+<<<<<<< HEAD
 	return 0;
 }
 
@@ -3772,6 +4381,9 @@ static int mt_dc_trim_event(struct snd_soc_dapm_widget *w,
 		return 0;
 
 	kthread_run(dc_trim_thread, priv, "dc_trim_thread");
+=======
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -3781,6 +4393,7 @@ static const struct snd_soc_dapm_widget mt6359_dapm_widgets[] = {
 	SND_SOC_DAPM_SUPPLY_S("CLK_BUF", SUPPLY_SEQ_CLK_BUF,
 			      MT6359_DCXO_CW12,
 			      RG_XO_AUDIO_EN_M_SFT, 0, NULL, 0),
+<<<<<<< HEAD
 	SND_SOC_DAPM_SUPPLY_S("LDO_VAUD18", SUPPLY_SEQ_LDO_VAUD18,
 			      MT6359_LDO_VAUD18_CON0,
 			      RG_LDO_VAUD18_EN_SFT, 0, NULL, 0),
@@ -3795,6 +4408,14 @@ static const struct snd_soc_dapm_widget mt6359_dapm_widgets[] = {
 			      RG_CLKSQ_EN_SFT, 0,
 			      mt_clksq_event,
 			      SND_SOC_DAPM_PRE_PMU),
+=======
+	SND_SOC_DAPM_SUPPLY_S("AUDGLB", SUPPLY_SEQ_AUD_GLB,
+			      MT6359_AUDDEC_ANA_CON13,
+			      RG_AUDGLB_PWRDN_VA32_SFT, 1, NULL, 0),
+	SND_SOC_DAPM_SUPPLY_S("CLKSQ Audio", SUPPLY_SEQ_CLKSQ,
+			      MT6359_AUDENC_ANA_CON23,
+			      RG_CLKSQ_EN_SFT, 0, NULL, SND_SOC_DAPM_PRE_PMU),
+>>>>>>> upstream/android-13
 	SND_SOC_DAPM_SUPPLY_S("AUDNCP_CK", SUPPLY_SEQ_TOP_CK,
 			      MT6359_AUD_TOP_CKPDN_CON0,
 			      RG_AUDNCP_CK_PDN_SFT, 1, NULL, 0),
@@ -3803,12 +4424,17 @@ static const struct snd_soc_dapm_widget mt6359_dapm_widgets[] = {
 			      RG_ZCD13M_CK_PDN_SFT, 1, NULL, 0),
 	SND_SOC_DAPM_SUPPLY_S("AUD_CK", SUPPLY_SEQ_TOP_CK_LAST,
 			      MT6359_AUD_TOP_CKPDN_CON0,
+<<<<<<< HEAD
 			      RG_AUD_CK_PDN_SFT, 1,
 			      mt_delay_250_event,
+=======
+			      RG_AUD_CK_PDN_SFT, 1, mt_delay_250_event,
+>>>>>>> upstream/android-13
 			      SND_SOC_DAPM_POST_PMU | SND_SOC_DAPM_PRE_PMD),
 	SND_SOC_DAPM_SUPPLY_S("AUDIF_CK", SUPPLY_SEQ_TOP_CK,
 			      MT6359_AUD_TOP_CKPDN_CON0,
 			      RG_AUDIF_CK_PDN_SFT, 1, NULL, 0),
+<<<<<<< HEAD
 	/* vow */
 	SND_SOC_DAPM_SUPPLY_S("VOW_AUD_LPW", SUPPLY_SEQ_VOW_AUD_LPW,
 			      SND_SOC_NOPM, 0, 0,
@@ -3829,6 +4455,10 @@ static const struct snd_soc_dapm_widget mt6359_dapm_widgets[] = {
 			      SND_SOC_NOPM, 0, 0,
 			      mt_vow_periodic_cfg_event,
 			      SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMD),
+=======
+	SND_SOC_DAPM_REGULATOR_SUPPLY("vaud18", 0, 0),
+
+>>>>>>> upstream/android-13
 	/* Digital Clock */
 	SND_SOC_DAPM_SUPPLY_S("AUDIO_TOP_AFE_CTL", SUPPLY_SEQ_AUD_TOP_LAST,
 			      MT6359_AUDIO_TOP_CON0,
@@ -3885,17 +4515,21 @@ static const struct snd_soc_dapm_widget mt6359_dapm_widgets[] = {
 	SND_SOC_DAPM_SUPPLY("DL Digital Clock CH_3", SND_SOC_NOPM,
 			    0, 0, NULL, 0),
 
+<<<<<<< HEAD
 	/* AUDDEC */
 	SND_SOC_DAPM_SUPPLY_S("AUDDEC_CLK", SUPPLY_SEQ_DEC_CLK,
 				MT6359_AUDDEC_ANA_CON13,
 				RG_RSTB_DECODER_VA32_SFT, 0,
 				NULL, 0),
 
+=======
+>>>>>>> upstream/android-13
 	/* AFE ON */
 	SND_SOC_DAPM_SUPPLY_S("AFE_ON", SUPPLY_SEQ_AFE,
 			      MT6359_AFE_UL_DL_CON0, AFE_ON_SFT, 0,
 			      NULL, 0),
 
+<<<<<<< HEAD
 	/* GPIO */
 	SND_SOC_DAPM_SUPPLY_S("DL_GPIO", SUPPLY_SEQ_DL_GPIO,
 			      SND_SOC_NOPM, 0, 0,
@@ -3906,6 +4540,8 @@ static const struct snd_soc_dapm_widget mt6359_dapm_widgets[] = {
 			      mt_ul_gpio_event,
 			      SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMD),
 
+=======
+>>>>>>> upstream/android-13
 	/* AIF Rx*/
 	SND_SOC_DAPM_AIF_IN("AIF_RX", "AIF1 Playback", 0,
 			    SND_SOC_NOPM, 0, 0),
@@ -3953,6 +4589,7 @@ static const struct snd_soc_dapm_widget mt6359_dapm_widgets[] = {
 
 	SND_SOC_DAPM_DAC("DAC_3RD", NULL, SND_SOC_NOPM, 0, 0),
 
+<<<<<<< HEAD
 	/* VOW Micbias */
 	SND_SOC_DAPM_MUX("VOW Micbias Mux", SND_SOC_NOPM, 0, 0, &vow_micbias_mux_control),
 
@@ -3964,6 +4601,11 @@ static const struct snd_soc_dapm_widget mt6359_dapm_widgets[] = {
 
 	SND_SOC_DAPM_MUX_E("HPR Mux", SND_SOC_NOPM, 0, 0,
 			   &hpr_in_mux_control,
+=======
+	/* Headphone */
+	SND_SOC_DAPM_MUX_E("HP Mux", SND_SOC_NOPM, 0, 0,
+			   &hp_in_mux_control,
+>>>>>>> upstream/android-13
 			   mt_hp_event,
 			   SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_PRE_PMD),
 
@@ -3984,11 +4626,14 @@ static const struct snd_soc_dapm_widget mt6359_dapm_widgets[] = {
 			      0, 0,
 			      mt_hp_damp_event,
 			      SND_SOC_DAPM_POST_PMD),
+<<<<<<< HEAD
 	SND_SOC_DAPM_SUPPLY_S("HP_ANA_TRIM", SUPPLY_SEQ_HP_ANA_TRIM,
 			      MT6359_AUDDEC_ANA_CON2,
 			      RG_AUDHPTRIM_EN_VAUDP32_SFT, 0,
 			      mt_hp_ana_trim_event,
 			      SND_SOC_DAPM_POST_PMU | SND_SOC_DAPM_POST_PMD),
+=======
+>>>>>>> upstream/android-13
 
 	/* Receiver */
 	SND_SOC_DAPM_MUX_E("RCV Mux", SND_SOC_NOPM, 0, 0,
@@ -4009,7 +4654,10 @@ static const struct snd_soc_dapm_widget mt6359_dapm_widgets[] = {
 	SND_SOC_DAPM_OUTPUT("Headphone L Ext Spk Amp"),
 	SND_SOC_DAPM_OUTPUT("Headphone R Ext Spk Amp"),
 	SND_SOC_DAPM_OUTPUT("LINEOUT L"),
+<<<<<<< HEAD
 	SND_SOC_DAPM_OUTPUT("VOW DSP"),
+=======
+>>>>>>> upstream/android-13
 
 	/* SGEN */
 	SND_SOC_DAPM_SUPPLY("SGEN DL Enable", MT6359_AFE_SGEN_CFG0,
@@ -4020,7 +4668,10 @@ static const struct snd_soc_dapm_widget mt6359_dapm_widgets[] = {
 			    SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMD),
 	SND_SOC_DAPM_SUPPLY("SGEN DL SRC", MT6359_AFE_DL_SRC2_CON0_L,
 			    DL_2_SRC_ON_TMP_CTL_PRE_SFT, 0, NULL, 0),
+<<<<<<< HEAD
 			/* tricky, same reg/bit as "AIF_RX", reconsider */
+=======
+>>>>>>> upstream/android-13
 
 	SND_SOC_DAPM_INPUT("SGEN DL"),
 
@@ -4082,18 +4733,24 @@ static const struct snd_soc_dapm_widget mt6359_dapm_widgets[] = {
 			 &ul_src_mux_control),
 	SND_SOC_DAPM_MUX("UL2_SRC_MUX", SND_SOC_NOPM, 0, 0,
 			 &ul2_src_mux_control),
+<<<<<<< HEAD
 	SND_SOC_DAPM_MUX("VOW_UL_SRC_MUX", SND_SOC_NOPM, 0, 0,
 			 &vow_ul_src_mux_control),
+=======
+>>>>>>> upstream/android-13
 
 	SND_SOC_DAPM_MUX("DMIC0_MUX", SND_SOC_NOPM, 0, 0, &dmic0_mux_control),
 	SND_SOC_DAPM_MUX("DMIC1_MUX", SND_SOC_NOPM, 0, 0, &dmic1_mux_control),
 	SND_SOC_DAPM_MUX("DMIC2_MUX", SND_SOC_NOPM, 0, 0, &dmic2_mux_control),
 
+<<<<<<< HEAD
 	SND_SOC_DAPM_MUX("VOW_AMIC0_MUX", SND_SOC_NOPM, 0, 0,
 			 &vow_amic0_mux_control),
 	SND_SOC_DAPM_MUX("VOW_AMIC1_MUX", SND_SOC_NOPM, 0, 0,
 			 &vow_amic1_mux_control),
 
+=======
+>>>>>>> upstream/android-13
 	SND_SOC_DAPM_MUX_E("ADC_L_Mux", SND_SOC_NOPM, 0, 0,
 			   &adc_left_mux_control, NULL, 0),
 	SND_SOC_DAPM_MUX_E("ADC_R_Mux", SND_SOC_NOPM, 0, 0,
@@ -4165,7 +4822,10 @@ static const struct snd_soc_dapm_widget mt6359_dapm_widgets[] = {
 	SND_SOC_DAPM_INPUT("AIN1"),
 	SND_SOC_DAPM_INPUT("AIN2"),
 	SND_SOC_DAPM_INPUT("AIN3"),
+<<<<<<< HEAD
 	SND_SOC_DAPM_INPUT("VOW_ONLY"),
+=======
+>>>>>>> upstream/android-13
 
 	SND_SOC_DAPM_INPUT("AIN0_DMIC"),
 	SND_SOC_DAPM_INPUT("AIN2_DMIC"),
@@ -4197,6 +4857,7 @@ static const struct snd_soc_dapm_widget mt6359_dapm_widgets[] = {
 			      MT6359_AUDENC_ANA_CON14,
 			      RG_AUDDIGMIC1EN_SFT, 0,
 			      NULL, 0),
+<<<<<<< HEAD
 
 	/* DC trim : trigger dc trim flow because set the reg when init_reg */
 	/* this must be at the last widget */
@@ -4244,6 +4905,10 @@ static int mt_vow_amic_dcc_connect(struct snd_soc_dapm_widget *source,
 		return 0;
 }
 
+=======
+};
+
+>>>>>>> upstream/android-13
 static int mt_dcc_clk_connect(struct snd_soc_dapm_widget *source,
 			      struct snd_soc_dapm_widget *sink)
 {
@@ -4262,6 +4927,7 @@ static int mt_dcc_clk_connect(struct snd_soc_dapm_widget *source,
 static const struct snd_soc_dapm_route mt6359_dapm_routes[] = {
 	/* Capture */
 	{"AIFTX_Supply", NULL, "CLK_BUF"},
+<<<<<<< HEAD
 	{"AIFTX_Supply", NULL, "LDO_VAUD18"},
 	{"AIFTX_Supply", NULL, "AUDGLB"},
 	{"AIFTX_Supply", NULL, "CLKSQ Audio"},
@@ -4269,6 +4935,13 @@ static const struct snd_soc_dapm_route mt6359_dapm_routes[] = {
 	{"AIFTX_Supply", NULL, "AUD_CK"},
 	{"AIFTX_Supply", NULL, "AUDIF_CK"},
 
+=======
+	{"AIFTX_Supply", NULL, "vaud18"},
+	{"AIFTX_Supply", NULL, "AUDGLB"},
+	{"AIFTX_Supply", NULL, "CLKSQ Audio"},
+	{"AIFTX_Supply", NULL, "AUD_CK"},
+	{"AIFTX_Supply", NULL, "AUDIF_CK"},
+>>>>>>> upstream/android-13
 	{"AIFTX_Supply", NULL, "AUDIO_TOP_AFE_CTL"},
 	{"AIFTX_Supply", NULL, "AUDIO_TOP_PWR_CLK"},
 	{"AIFTX_Supply", NULL, "AUDIO_TOP_PDN_RESERVED"},
@@ -4279,23 +4952,35 @@ static const struct snd_soc_dapm_route mt6359_dapm_routes[] = {
 	 */
 	{"AIFTX_Supply", NULL, "AUDIO_TOP_ADC_CTL"},
 	{"AIFTX_Supply", NULL, "AUDIO_TOP_ADDA6_ADC_CTL"},
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	{"AIFTX_Supply", NULL, "AFE_ON"},
 
 	/* ul ch 12 */
 	{"AIF1TX", NULL, "AIF Out Mux"},
 	{"AIF1TX", NULL, "AIFTX_Supply"},
+<<<<<<< HEAD
 	{"AIF1TX", NULL, "UL_GPIO"},
+=======
+>>>>>>> upstream/android-13
 	{"AIF1TX", NULL, "MTKAIF_TX"},
 
 	{"AIF2TX", NULL, "AIF2 Out Mux"},
 	{"AIF2TX", NULL, "AIFTX_Supply"},
+<<<<<<< HEAD
 	{"AIF2TX", NULL, "UL_GPIO"},
+=======
+>>>>>>> upstream/android-13
 	{"AIF2TX", NULL, "MTKAIF_TX"},
 
 	{"AIF Out Mux", "Normal Path", "MISO0_MUX"},
 	{"AIF Out Mux", "Normal Path", "MISO1_MUX"},
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	{"AIF2 Out Mux", "Normal Path", "MISO2_MUX"},
 
 	{"MISO0_MUX", "UL1_CH1", "UL_SRC_MUX"},
@@ -4317,8 +5002,13 @@ static const struct snd_soc_dapm_route mt6359_dapm_routes[] = {
 	{"UL_SRC_MUX", "AMIC", "ADC_R"},
 	{"UL_SRC_MUX", "DMIC", "DMIC0_MUX"},
 	{"UL_SRC_MUX", "DMIC", "DMIC1_MUX"},
+<<<<<<< HEAD
 
 	{"UL_SRC_MUX", NULL, "UL_SRC"},
+=======
+	{"UL_SRC_MUX", NULL, "UL_SRC"},
+
+>>>>>>> upstream/android-13
 	{"UL2_SRC_MUX", "AMIC", "ADC_3"},
 	{"UL2_SRC_MUX", "DMIC", "DMIC2_MUX"},
 	{"UL2_SRC_MUX", NULL, "UL_SRC_34"},
@@ -4343,9 +5033,16 @@ static const struct snd_soc_dapm_route mt6359_dapm_routes[] = {
 	{"AIN0_DMIC", NULL, "DMIC_0"},
 	{"AIN2_DMIC", NULL, "DMIC_1"},
 	{"AIN3_DMIC", NULL, "DMIC_1"},
+<<<<<<< HEAD
 
 	{"AIN2_DMIC", NULL, "MIC_BIAS_2"},
 	{"AIN3_DMIC", NULL, "MIC_BIAS_2"},
+=======
+	{"AIN0_DMIC", NULL, "MIC_BIAS_0"},
+	{"AIN2_DMIC", NULL, "MIC_BIAS_2"},
+	{"AIN3_DMIC", NULL, "MIC_BIAS_2"},
+
+>>>>>>> upstream/android-13
 	/* adc */
 	{"ADC_L", NULL, "ADC_L_Mux"},
 	{"ADC_L", NULL, "ADC_CLKGEN"},
@@ -4363,17 +5060,26 @@ static const struct snd_soc_dapm_route mt6359_dapm_routes[] = {
 	{"ADC_3", NULL, "ADC_3_EN"},
 
 	{"ADC_L_Mux", "Left Preamplifier", "PGA_L"},
+<<<<<<< HEAD
 
 	{"ADC_R_Mux", "Right Preamplifier", "PGA_R"},
 
+=======
+	{"ADC_R_Mux", "Right Preamplifier", "PGA_R"},
+>>>>>>> upstream/android-13
 	{"ADC_3_Mux", "Preamplifier", "PGA_3"},
 
 	{"PGA_L", NULL, "PGA_L_Mux"},
 	{"PGA_L", NULL, "PGA_L_EN"},
+<<<<<<< HEAD
 
 	{"PGA_R", NULL, "PGA_R_Mux"},
 	{"PGA_R", NULL, "PGA_R_EN"},
 
+=======
+	{"PGA_R", NULL, "PGA_R_Mux"},
+	{"PGA_R", NULL, "PGA_R_EN"},
+>>>>>>> upstream/android-13
 	{"PGA_3", NULL, "PGA_3_Mux"},
 	{"PGA_3", NULL, "PGA_3_EN"},
 
@@ -4394,6 +5100,7 @@ static const struct snd_soc_dapm_route mt6359_dapm_routes[] = {
 	{"AIN0", NULL, "MIC_BIAS_0"},
 	{"AIN1", NULL, "MIC_BIAS_1"},
 	{"AIN2", NULL, "MIC_BIAS_0"},
+<<<<<<< HEAD
 	{"AIN2", NULL, "MIC_BIAS_1"},
 	{"AIN2", NULL, "MIC_BIAS_2"},
 	{"AIN3", NULL, "MIC_BIAS_2"},
@@ -4411,11 +5118,24 @@ static const struct snd_soc_dapm_route mt6359_dapm_routes[] = {
 	{"DL Power Supply", NULL, "CLKSQ Audio"},
 	{"DL Power Supply", NULL, "AUDDEC_CLK"},
 
+=======
+	{"AIN2", NULL, "MIC_BIAS_2"},
+	{"AIN3", NULL, "MIC_BIAS_2"},
+
+	/* DL Supply */
+	{"DL Power Supply", NULL, "CLK_BUF"},
+	{"DL Power Supply", NULL, "vaud18"},
+	{"DL Power Supply", NULL, "AUDGLB"},
+	{"DL Power Supply", NULL, "CLKSQ Audio"},
+>>>>>>> upstream/android-13
 	{"DL Power Supply", NULL, "AUDNCP_CK"},
 	{"DL Power Supply", NULL, "ZCD13M_CK"},
 	{"DL Power Supply", NULL, "AUD_CK"},
 	{"DL Power Supply", NULL, "AUDIF_CK"},
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	{"DL Power Supply", NULL, "ESD_RESIST"},
 	{"DL Power Supply", NULL, "LDO"},
 	{"DL Power Supply", NULL, "LDO_REMOTE"},
@@ -4427,10 +5147,15 @@ static const struct snd_soc_dapm_route mt6359_dapm_routes[] = {
 	{"DL Digital Clock", NULL, "AUDIO_TOP_DAC_CTL"},
 	{"DL Digital Clock", NULL, "AUDIO_TOP_PWR_CLK"},
 	{"DL Digital Clock", NULL, "AUDIO_TOP_PDN_RESERVED"},
+<<<<<<< HEAD
 
 	{"DL Digital Clock", NULL, "SDM_FIFO_CLK"},
 	{"DL Digital Clock", NULL, "NCP"},
 
+=======
+	{"DL Digital Clock", NULL, "SDM_FIFO_CLK"},
+	{"DL Digital Clock", NULL, "NCP"},
+>>>>>>> upstream/android-13
 	{"DL Digital Clock", NULL, "AFE_ON"},
 	{"DL Digital Clock", NULL, "AFE_DL_SRC"},
 
@@ -4441,6 +5166,7 @@ static const struct snd_soc_dapm_route mt6359_dapm_routes[] = {
 	{"DL Digital Clock CH_3", NULL, "SDM_3RD"},
 
 	{"AIF_RX", NULL, "DL Digital Clock CH_1_2"},
+<<<<<<< HEAD
 	{"AIF_RX", NULL, "DL_GPIO"},
 
 	{"AIF2_RX", NULL, "DL Digital Clock CH_3"},
@@ -4449,6 +5175,13 @@ static const struct snd_soc_dapm_route mt6359_dapm_routes[] = {
 	/* DL Path */
 	{"DAC In Mux", "Normal Path", "AIF_RX"},
 
+=======
+
+	{"AIF2_RX", NULL, "DL Digital Clock CH_3"},
+
+	/* DL Path */
+	{"DAC In Mux", "Normal Path", "AIF_RX"},
+>>>>>>> upstream/android-13
 	{"DAC In Mux", "Sgen", "SGEN DL"},
 	{"SGEN DL", NULL, "SGEN DL SRC"},
 	{"SGEN DL", NULL, "SGEN MUTE"},
@@ -4470,13 +5203,17 @@ static const struct snd_soc_dapm_route mt6359_dapm_routes[] = {
 
 	/* Lineout Path */
 	{"LOL Mux", "Playback", "DAC_3RD"},
+<<<<<<< HEAD
 	{"LOL Mux", "Playback_L_DAC", "DACL"},
+=======
+>>>>>>> upstream/android-13
 	{"LINEOUT L", NULL, "LOL Mux"},
 
 	/* Headphone Path */
 	{"HP_Supply", NULL, "HP_PULL_DOWN"},
 	{"HP_Supply", NULL, "HP_MUTE"},
 	{"HP_Supply", NULL, "HP_DAMP"},
+<<<<<<< HEAD
 	{"HP_Supply", NULL, "HP_ANA_TRIM"},
 	{"HPL Mux", NULL, "HP_Supply"},
 	{"HPR Mux", NULL, "HP_Supply"},
@@ -4492,10 +5229,26 @@ static const struct snd_soc_dapm_route mt6359_dapm_routes[] = {
 	{"Headphone R", NULL, "HPR Mux"},
 	{"Headphone L Ext Spk Amp", NULL, "HPL Mux"},
 	{"Headphone R Ext Spk Amp", NULL, "HPR Mux"},
+=======
+	{"HP Mux", NULL, "HP_Supply"},
+
+	{"HP Mux", "Audio Playback", "DACL"},
+	{"HP Mux", "Audio Playback", "DACR"},
+	{"HP Mux", "HP Impedance", "DACL"},
+	{"HP Mux", "HP Impedance", "DACR"},
+	{"HP Mux", "LoudSPK Playback", "DACL"},
+	{"HP Mux", "LoudSPK Playback", "DACR"},
+
+	{"Headphone L", NULL, "HP Mux"},
+	{"Headphone R", NULL, "HP Mux"},
+	{"Headphone L Ext Spk Amp", NULL, "HP Mux"},
+	{"Headphone R Ext Spk Amp", NULL, "HP Mux"},
+>>>>>>> upstream/android-13
 
 	/* Receiver Path */
 	{"RCV Mux", "Voice Playback", "DACL"},
 	{"Receiver", NULL, "RCV Mux"},
+<<<<<<< HEAD
 
 	/* VOW */
 	{"VOW TX", NULL, "VOW_UL_SRC_MUX"},
@@ -4519,6 +5272,8 @@ static const struct snd_soc_dapm_route mt6359_dapm_routes[] = {
 	{"VOW_AMIC1_MUX", "ADC_L", "ADC_L"},
 	{"VOW_AMIC1_MUX", "ADC_R", "ADC_R"},
 	{"VOW_AMIC1_MUX", "ADC_T", "ADC_3"},
+=======
+>>>>>>> upstream/android-13
 };
 
 static int mt6359_codec_dai_hw_params(struct snd_pcm_substream *substream,
@@ -4530,6 +5285,7 @@ static int mt6359_codec_dai_hw_params(struct snd_pcm_substream *substream,
 	unsigned int rate = params_rate(params);
 	int id = dai->id;
 
+<<<<<<< HEAD
 
 	dev_info(priv->dev, "%s(), id %d, substream->stream %d, rate %d, number %d\n",
 		 __func__,
@@ -4537,6 +5293,10 @@ static int mt6359_codec_dai_hw_params(struct snd_pcm_substream *substream,
 		 substream->stream,
 		 rate,
 		 substream->number);
+=======
+	dev_dbg(priv->dev, "%s(), id %d, substream->stream %d, rate %d, number %d\n",
+		__func__, id, substream->stream, rate, substream->number);
+>>>>>>> upstream/android-13
 
 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
 		priv->dl_rate[id] = rate;
@@ -4546,6 +5306,7 @@ static int mt6359_codec_dai_hw_params(struct snd_pcm_substream *substream,
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct snd_soc_dai_ops mt6359_codec_dai_ops = {
 	.hw_params = mt6359_codec_dai_hw_params,
 };
@@ -4566,12 +5327,45 @@ static int mt6359_codec_dai_vow_hw_params(struct snd_pcm_substream *substream,
 
 	priv->vow_channel = channel;
 	priv->vow_enable = 1; //enter vow enable flow.
+=======
+static int mt6359_codec_dai_startup(struct snd_pcm_substream *substream,
+				    struct snd_soc_dai *dai)
+{
+	struct snd_soc_component *cmpnt = dai->component;
+	struct mt6359_priv *priv = snd_soc_component_get_drvdata(cmpnt);
+
+	dev_dbg(priv->dev, "%s stream %d\n", __func__, substream->stream);
+	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
+		mt6359_set_playback_gpio(priv);
+	else if (substream->stream == SNDRV_PCM_STREAM_CAPTURE)
+		mt6359_set_capture_gpio(priv);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct snd_soc_dai_ops mt6359_codec_dai_vow_ops = {
 	.hw_params = mt6359_codec_dai_vow_hw_params,
+=======
+static void mt6359_codec_dai_shutdown(struct snd_pcm_substream *substream,
+				      struct snd_soc_dai *dai)
+{
+	struct snd_soc_component *cmpnt = dai->component;
+	struct mt6359_priv *priv = snd_soc_component_get_drvdata(cmpnt);
+
+	dev_dbg(priv->dev, "%s stream %d\n", __func__, substream->stream);
+	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
+		mt6359_reset_playback_gpio(priv);
+	else if (substream->stream == SNDRV_PCM_STREAM_CAPTURE)
+		mt6359_reset_capture_gpio(priv);
+}
+
+static const struct snd_soc_dai_ops mt6359_codec_dai_ops = {
+	.hw_params = mt6359_codec_dai_hw_params,
+	.startup = mt6359_codec_dai_startup,
+	.shutdown = mt6359_codec_dai_shutdown,
+>>>>>>> upstream/android-13
 };
 
 #define MT6359_FORMATS (SNDRV_PCM_FMTBIT_S16_LE | SNDRV_PCM_FMTBIT_S16_BE |\
@@ -4632,6 +5426,7 @@ static struct snd_soc_dai_driver mt6359_dai_driver[] = {
 		},
 		.ops = &mt6359_codec_dai_ops,
 	},
+<<<<<<< HEAD
 	{
 		.id = MT6359_AIF_VOW,
 		.name = "mt6359-snd-codec-vow",
@@ -6636,6 +7431,14 @@ static int mt6359_codec_init_reg(struct mt6359_priv *priv)
 {
 	int ret = 0;
 
+=======
+};
+
+static int mt6359_codec_init_reg(struct snd_soc_component *cmpnt)
+{
+	struct mt6359_priv *priv = snd_soc_component_get_drvdata(cmpnt);
+
+>>>>>>> upstream/android-13
 	/* enable clk buf */
 	regmap_update_bits(priv->regmap, MT6359_DCXO_CW12,
 			   0x1 << RG_XO_AUDIO_EN_M_SFT,
@@ -6664,6 +7467,7 @@ static int mt6359_codec_init_reg(struct mt6359_priv *priv)
 			   RG_AUDLOLSCDISABLE_VAUDP32_MASK_SFT,
 			   0x1 << RG_AUDLOLSCDISABLE_VAUDP32_SFT);
 
+<<<<<<< HEAD
 	/* Set HP_EINT trigger level to 2.0v */
 	regmap_update_bits(priv->regmap, MT6359_AUDENC_ANA_CON19,
 			   RG_EINTCOMPVTH_MASK_SFT,
@@ -6678,16 +7482,26 @@ static int mt6359_codec_init_reg(struct mt6359_priv *priv)
 	/* hp gain ctl default choose ZCD */
 	priv->hp_gain_ctl = HP_GAIN_CTL_ZCD;
 	hp_gain_ctl_select(priv, priv->hp_gain_ctl);
+=======
+	/* set gpio */
+	mt6359_reset_playback_gpio(priv);
+	mt6359_reset_capture_gpio(priv);
+>>>>>>> upstream/android-13
 
 	/* hp hifi mode, default normal mode */
 	priv->hp_hifi_mode = 0;
 
 	/* Disable AUD_ZCD */
+<<<<<<< HEAD
 	zcd_enable(priv, false, DEVICE_HP);
+=======
+	zcd_disable(priv);
+>>>>>>> upstream/android-13
 
 	/* disable clk buf */
 	regmap_update_bits(priv->regmap, MT6359_DCXO_CW12,
 			   0x1 << RG_XO_AUDIO_EN_M_SFT,
+<<<<<<< HEAD
 			   0x0);
 
 	/* this will trigger dctrim widgat power down event */
@@ -6761,11 +7575,17 @@ static int get_hp_current_calibrate_val(struct mt6359_priv *priv)
 
 	dev_info(priv->dev, "%s(), efuse: %d\n", __func__, value);
 	return value;
+=======
+			   0x0 << RG_XO_AUDIO_EN_M_SFT);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int mt6359_codec_probe(struct snd_soc_component *cmpnt)
 {
 	struct mt6359_priv *priv = snd_soc_component_get_drvdata(cmpnt);
+<<<<<<< HEAD
 	int ret;
 
 	snd_soc_component_init_regmap(cmpnt, priv->regmap);
@@ -6810,12 +7630,61 @@ static int mt6359_codec_probe(struct snd_soc_component *cmpnt)
 static const struct snd_soc_component_driver mt6359_soc_component_driver = {
 	.name = CODEC_MT6359_NAME,
 	.probe = mt6359_codec_probe,
+=======
+
+	snd_soc_component_init_regmap(cmpnt, priv->regmap);
+
+	return mt6359_codec_init_reg(cmpnt);
+}
+
+static void mt6359_codec_remove(struct snd_soc_component *cmpnt)
+{
+	snd_soc_component_exit_regmap(cmpnt);
+}
+
+static const DECLARE_TLV_DB_SCALE(hp_playback_tlv, -2200, 100, 0);
+static const DECLARE_TLV_DB_SCALE(playback_tlv, -1000, 100, 0);
+static const DECLARE_TLV_DB_SCALE(capture_tlv, 0, 600, 0);
+
+static const struct snd_kcontrol_new mt6359_snd_controls[] = {
+	/* dl pga gain */
+	SOC_DOUBLE_EXT_TLV("Headset Volume",
+			   MT6359_ZCD_CON2, 0, 7, 0x1E, 0,
+			   snd_soc_get_volsw, mt6359_put_volsw,
+			   hp_playback_tlv),
+	SOC_DOUBLE_EXT_TLV("Lineout Volume",
+			   MT6359_ZCD_CON1, 0, 7, 0x12, 0,
+			   snd_soc_get_volsw, mt6359_put_volsw, playback_tlv),
+	SOC_SINGLE_EXT_TLV("Handset Volume",
+			   MT6359_ZCD_CON3, 0, 0x12, 0,
+			   snd_soc_get_volsw, mt6359_put_volsw, playback_tlv),
+
+	/* ul pga gain */
+	SOC_SINGLE_EXT_TLV("PGA1 Volume",
+			   MT6359_AUDENC_ANA_CON0, RG_AUDPREAMPLGAIN_SFT, 4, 0,
+			   snd_soc_get_volsw, mt6359_put_volsw, capture_tlv),
+	SOC_SINGLE_EXT_TLV("PGA2 Volume",
+			   MT6359_AUDENC_ANA_CON1, RG_AUDPREAMPRGAIN_SFT, 4, 0,
+			   snd_soc_get_volsw, mt6359_put_volsw, capture_tlv),
+	SOC_SINGLE_EXT_TLV("PGA3 Volume",
+			   MT6359_AUDENC_ANA_CON2, RG_AUDPREAMP3GAIN_SFT, 4, 0,
+			   snd_soc_get_volsw, mt6359_put_volsw, capture_tlv),
+};
+
+static const struct snd_soc_component_driver mt6359_soc_component_driver = {
+	.name = CODEC_MT6359_NAME,
+	.probe = mt6359_codec_probe,
+	.remove = mt6359_codec_remove,
+	.controls = mt6359_snd_controls,
+	.num_controls = ARRAY_SIZE(mt6359_snd_controls),
+>>>>>>> upstream/android-13
 	.dapm_widgets = mt6359_dapm_widgets,
 	.num_dapm_widgets = ARRAY_SIZE(mt6359_dapm_widgets),
 	.dapm_routes = mt6359_dapm_routes,
 	.num_dapm_routes = ARRAY_SIZE(mt6359_dapm_routes),
 };
 
+<<<<<<< HEAD
 #ifdef CONFIG_DEBUG_FS
 static void debug_write_reg(struct file *file, void *arg)
 {
@@ -7957,6 +8826,52 @@ static int mt6359_parse_dt(struct mt6359_priv *priv)
 #ifdef CONFIG_IIO_CHANNEL
 		return ret;
 #endif
+=======
+static int mt6359_parse_dt(struct mt6359_priv *priv)
+{
+	int ret;
+	struct device *dev = priv->dev;
+	struct device_node *np;
+
+	np = of_get_child_by_name(dev->parent->of_node, "mt6359codec");
+	if (!np)
+		return -EINVAL;
+
+	ret = of_property_read_u32(np, "mediatek,dmic-mode",
+				   &priv->dmic_one_wire_mode);
+	if (ret) {
+		dev_info(priv->dev,
+			 "%s() failed to read dmic-mode, use default (0)\n",
+			 __func__);
+		priv->dmic_one_wire_mode = 0;
+	}
+
+	ret = of_property_read_u32(np, "mediatek,mic-type-0",
+				   &priv->mux_select[MUX_MIC_TYPE_0]);
+	if (ret) {
+		dev_info(priv->dev,
+			 "%s() failed to read mic-type-0, use default (%d)\n",
+			 __func__, MIC_TYPE_MUX_IDLE);
+		priv->mux_select[MUX_MIC_TYPE_0] = MIC_TYPE_MUX_IDLE;
+	}
+
+	ret = of_property_read_u32(np, "mediatek,mic-type-1",
+				   &priv->mux_select[MUX_MIC_TYPE_1]);
+	if (ret) {
+		dev_info(priv->dev,
+			 "%s() failed to read mic-type-1, use default (%d)\n",
+			 __func__, MIC_TYPE_MUX_IDLE);
+		priv->mux_select[MUX_MIC_TYPE_1] = MIC_TYPE_MUX_IDLE;
+	}
+
+	ret = of_property_read_u32(np, "mediatek,mic-type-2",
+				   &priv->mux_select[MUX_MIC_TYPE_2]);
+	if (ret) {
+		dev_info(priv->dev,
+			 "%s() failed to read mic-type-2, use default (%d)\n",
+			 __func__, MIC_TYPE_MUX_IDLE);
+		priv->mux_select[MUX_MIC_TYPE_2] = MIC_TYPE_MUX_IDLE;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -7966,6 +8881,7 @@ static int mt6359_platform_driver_probe(struct platform_device *pdev)
 {
 	struct mt6359_priv *priv;
 	int ret;
+<<<<<<< HEAD
 #ifndef CONFIG_MTK_PMIC_WRAP
 	struct mt6397_chip *mt6397 = dev_get_drvdata(pdev->dev.parent);
 #else
@@ -8009,12 +8925,25 @@ static int mt6359_platform_driver_probe(struct platform_device *pdev)
 #endif
 	}
 #endif
+=======
+	struct mt6397_chip *mt6397 = dev_get_drvdata(pdev->dev.parent);
+
+	dev_dbg(&pdev->dev, "%s(), dev name %s\n",
+		__func__, dev_name(&pdev->dev));
+
+	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
+	if (!priv)
+		return -ENOMEM;
+
+	priv->regmap = mt6397->regmap;
+>>>>>>> upstream/android-13
 	if (IS_ERR(priv->regmap))
 		return PTR_ERR(priv->regmap);
 
 	dev_set_drvdata(&pdev->dev, priv);
 	priv->dev = &pdev->dev;
 
+<<<<<<< HEAD
 #ifdef CONFIG_DEBUG_FS
 	/* create debugfs file */
 	priv->debugfs = debugfs_create_file("mtksocanaaudio",
@@ -8066,6 +8995,25 @@ static struct platform_driver mt6359_platform_driver = {
 	},
 	.probe = mt6359_platform_driver_probe,
 	.remove = mt6359_platform_driver_remove,
+=======
+	ret = mt6359_parse_dt(priv);
+	if (ret) {
+		dev_warn(&pdev->dev, "%s() failed to parse dts\n", __func__);
+		return ret;
+	}
+
+	return devm_snd_soc_register_component(&pdev->dev,
+					       &mt6359_soc_component_driver,
+					       mt6359_dai_driver,
+					       ARRAY_SIZE(mt6359_dai_driver));
+}
+
+static struct platform_driver mt6359_platform_driver = {
+	.driver = {
+		.name = "mt6359-sound",
+	},
+	.probe = mt6359_platform_driver_probe,
+>>>>>>> upstream/android-13
 };
 
 module_platform_driver(mt6359_platform_driver)
@@ -8073,4 +9021,8 @@ module_platform_driver(mt6359_platform_driver)
 /* Module information */
 MODULE_DESCRIPTION("MT6359 ALSA SoC codec driver");
 MODULE_AUTHOR("KaiChieh Chuang <kaichieh.chuang@mediatek.com>");
+<<<<<<< HEAD
+=======
+MODULE_AUTHOR("Eason Yen <eason.yen@mediatek.com>");
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL v2");

@@ -1,11 +1,18 @@
 #!/bin/sh
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 
 # pstore_crash_test - Pstore test shell script which causes crash and reboot
 #
 # Copyright (C) Hitachi Ltd., 2015
 #  Written by Hiraku Toyooka <hiraku.toyooka.gu@hitachi.com>
 #
+<<<<<<< HEAD
 # Released under the terms of the GPL v2.
+=======
+>>>>>>> upstream/android-13
 
 # exit if pstore backend is not registered
 . ./common_tests

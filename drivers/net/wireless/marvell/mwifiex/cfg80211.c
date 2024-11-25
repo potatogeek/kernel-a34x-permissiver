@@ -1,10 +1,19 @@
 /*
+<<<<<<< HEAD
  * Marvell Wireless LAN device driver: CFG80211
  *
  * Copyright (C) 2011-2014, Marvell International Ltd.
  *
  * This software file (the "File") is distributed by Marvell International
  * Ltd. under the terms of the GNU General Public License Version 2, June 1991
+=======
+ * NXP Wireless LAN device driver: CFG80211
+ *
+ * Copyright 2011-2020 NXP
+ *
+ * This software file (the "File") is distributed by NXP
+ * under the terms of the GNU General Public License Version 2, June 1991
+>>>>>>> upstream/android-13
  * (the "License").  You may use, redistribute and/or modify this File in
  * accordance with the terms and conditions of the License, a copy of which
  * is available by writing to the Free Software Foundation, Inc.,
@@ -27,7 +36,12 @@ module_param(reg_alpha2, charp, 0);
 
 static const struct ieee80211_iface_limit mwifiex_ap_sta_limits[] = {
 	{
+<<<<<<< HEAD
 		.max = 3, .types = BIT(NL80211_IFTYPE_STATION) |
+=======
+		.max = MWIFIEX_MAX_BSS_NUM,
+		.types = BIT(NL80211_IFTYPE_STATION) |
+>>>>>>> upstream/android-13
 				   BIT(NL80211_IFTYPE_P2P_GO) |
 				   BIT(NL80211_IFTYPE_P2P_CLIENT) |
 				   BIT(NL80211_IFTYPE_AP),
@@ -153,7 +167,12 @@ static void *mwifiex_cfg80211_get_adapter(struct wiphy *wiphy)
  */
 static int
 mwifiex_cfg80211_del_key(struct wiphy *wiphy, struct net_device *netdev,
+<<<<<<< HEAD
 			 u8 key_index, bool pairwise, const u8 *mac_addr)
+=======
+			 int link_id, u8 key_index, bool pairwise,
+			 const u8 *mac_addr)
+>>>>>>> upstream/android-13
 {
 	struct mwifiex_private *priv = mwifiex_netdev_get_priv(netdev);
 	static const u8 bc_mac[] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
@@ -269,6 +288,7 @@ mwifiex_cfg80211_mgmt_tx(struct wiphy *wiphy, struct wireless_dev *wdev,
  * CFG802.11 operation handler to register a mgmt frame.
  */
 static void
+<<<<<<< HEAD
 mwifiex_cfg80211_mgmt_frame_register(struct wiphy *wiphy,
 				     struct wireless_dev *wdev,
 				     u16 frame_type, bool reg)
@@ -280,6 +300,14 @@ mwifiex_cfg80211_mgmt_frame_register(struct wiphy *wiphy,
 		mask = priv->mgmt_frame_mask | BIT(frame_type >> 4);
 	else
 		mask = priv->mgmt_frame_mask & ~BIT(frame_type >> 4);
+=======
+mwifiex_cfg80211_update_mgmt_frame_registrations(struct wiphy *wiphy,
+						 struct wireless_dev *wdev,
+						 struct mgmt_frame_regs *upd)
+{
+	struct mwifiex_private *priv = mwifiex_netdev_get_priv(wdev->netdev);
+	u32 mask = upd->interface_stypes;
+>>>>>>> upstream/android-13
 
 	if (mask != priv->mgmt_frame_mask) {
 		priv->mgmt_frame_mask = mask;
@@ -447,7 +475,11 @@ mwifiex_cfg80211_set_power_mgmt(struct wiphy *wiphy,
  */
 static int
 mwifiex_cfg80211_set_default_key(struct wiphy *wiphy, struct net_device *netdev,
+<<<<<<< HEAD
 				 u8 key_index, bool unicast,
+=======
+				 int link_id, u8 key_index, bool unicast,
+>>>>>>> upstream/android-13
 				 bool multicast)
 {
 	struct mwifiex_private *priv = mwifiex_netdev_get_priv(netdev);
@@ -472,8 +504,13 @@ mwifiex_cfg80211_set_default_key(struct wiphy *wiphy, struct net_device *netdev,
  */
 static int
 mwifiex_cfg80211_add_key(struct wiphy *wiphy, struct net_device *netdev,
+<<<<<<< HEAD
 			 u8 key_index, bool pairwise, const u8 *mac_addr,
 			 struct key_params *params)
+=======
+			 int link_id, u8 key_index, bool pairwise,
+			 const u8 *mac_addr, struct key_params *params)
+>>>>>>> upstream/android-13
 {
 	struct mwifiex_private *priv = mwifiex_netdev_get_priv(netdev);
 	struct mwifiex_wep_key *wep_key;
@@ -510,6 +547,10 @@ mwifiex_cfg80211_add_key(struct wiphy *wiphy, struct net_device *netdev,
 static int
 mwifiex_cfg80211_set_default_mgmt_key(struct wiphy *wiphy,
 				      struct net_device *netdev,
+<<<<<<< HEAD
+=======
+				      int link_id,
+>>>>>>> upstream/android-13
 				      u8 key_index)
 {
 	struct mwifiex_private *priv = mwifiex_netdev_get_priv(netdev);
@@ -876,6 +917,7 @@ static int mwifiex_deinit_priv_params(struct mwifiex_private *priv)
 		spin_unlock_irqrestore(&adapter->main_proc_lock, flags);
 	}
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&adapter->rx_proc_lock, flags);
 	adapter->rx_locked = true;
 	if (adapter->rx_processing) {
@@ -883,6 +925,15 @@ static int mwifiex_deinit_priv_params(struct mwifiex_private *priv)
 		flush_workqueue(adapter->rx_workqueue);
 	} else {
 	spin_unlock_irqrestore(&adapter->rx_proc_lock, flags);
+=======
+	spin_lock_bh(&adapter->rx_proc_lock);
+	adapter->rx_locked = true;
+	if (adapter->rx_processing) {
+		spin_unlock_bh(&adapter->rx_proc_lock);
+		flush_workqueue(adapter->rx_workqueue);
+	} else {
+	spin_unlock_bh(&adapter->rx_proc_lock);
+>>>>>>> upstream/android-13
 	}
 
 	mwifiex_free_priv(priv);
@@ -912,6 +963,7 @@ mwifiex_init_new_priv_params(struct mwifiex_private *priv,
 	switch (type) {
 	case NL80211_IFTYPE_STATION:
 	case NL80211_IFTYPE_ADHOC:
+<<<<<<< HEAD
 		priv->bss_role =  MWIFIEX_BSS_ROLE_STA;
 		break;
 	case NL80211_IFTYPE_P2P_CLIENT:
@@ -922,6 +974,22 @@ mwifiex_init_new_priv_params(struct mwifiex_private *priv,
 		break;
 	case NL80211_IFTYPE_AP:
 		priv->bss_role = MWIFIEX_BSS_ROLE_UAP;
+=======
+		priv->bss_role = MWIFIEX_BSS_ROLE_STA;
+		priv->bss_type = MWIFIEX_BSS_TYPE_STA;
+		break;
+	case NL80211_IFTYPE_P2P_CLIENT:
+		priv->bss_role = MWIFIEX_BSS_ROLE_STA;
+		priv->bss_type = MWIFIEX_BSS_TYPE_P2P;
+		break;
+	case NL80211_IFTYPE_P2P_GO:
+		priv->bss_role = MWIFIEX_BSS_ROLE_UAP;
+		priv->bss_type = MWIFIEX_BSS_TYPE_P2P;
+		break;
+	case NL80211_IFTYPE_AP:
+		priv->bss_role = MWIFIEX_BSS_ROLE_UAP;
+		priv->bss_type = MWIFIEX_BSS_TYPE_UAP;
+>>>>>>> upstream/android-13
 		break;
 	default:
 		mwifiex_dbg(adapter, ERROR,
@@ -934,9 +1002,15 @@ mwifiex_init_new_priv_params(struct mwifiex_private *priv,
 	adapter->main_locked = false;
 	spin_unlock_irqrestore(&adapter->main_proc_lock, flags);
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&adapter->rx_proc_lock, flags);
 	adapter->rx_locked = false;
 	spin_unlock_irqrestore(&adapter->rx_proc_lock, flags);
+=======
+	spin_lock_bh(&adapter->rx_proc_lock);
+	adapter->rx_locked = false;
+	spin_unlock_bh(&adapter->rx_proc_lock);
+>>>>>>> upstream/android-13
 
 	mwifiex_set_mac_address(priv, dev, false, NULL);
 
@@ -1167,7 +1241,11 @@ mwifiex_cfg80211_change_virtual_intf(struct wiphy *wiphy,
 		case NL80211_IFTYPE_UNSPECIFIED:
 			mwifiex_dbg(priv->adapter, INFO,
 				    "%s: kept type as IBSS\n", dev->name);
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case NL80211_IFTYPE_ADHOC:	/* This shouldn't happen */
 			return 0;
 		default:
@@ -1198,7 +1276,11 @@ mwifiex_cfg80211_change_virtual_intf(struct wiphy *wiphy,
 		case NL80211_IFTYPE_UNSPECIFIED:
 			mwifiex_dbg(priv->adapter, INFO,
 				    "%s: kept type as STA\n", dev->name);
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case NL80211_IFTYPE_STATION:	/* This shouldn't happen */
 			return 0;
 		default:
@@ -1221,7 +1303,11 @@ mwifiex_cfg80211_change_virtual_intf(struct wiphy *wiphy,
 		case NL80211_IFTYPE_UNSPECIFIED:
 			mwifiex_dbg(priv->adapter, INFO,
 				    "%s: kept type as AP\n", dev->name);
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case NL80211_IFTYPE_AP:		/* This shouldn't happen */
 			return 0;
 		default:
@@ -1233,6 +1319,7 @@ mwifiex_cfg80211_change_virtual_intf(struct wiphy *wiphy,
 		break;
 	case NL80211_IFTYPE_P2P_CLIENT:
 	case NL80211_IFTYPE_P2P_GO:
+<<<<<<< HEAD
 		switch (type) {
 		case NL80211_IFTYPE_STATION:
 			if (mwifiex_cfg80211_deinit_p2p(priv))
@@ -1256,12 +1343,27 @@ mwifiex_cfg80211_change_virtual_intf(struct wiphy *wiphy,
 		case NL80211_IFTYPE_AP:
 			if (mwifiex_cfg80211_deinit_p2p(priv))
 				return -EFAULT;
+=======
+		if (mwifiex_cfg80211_deinit_p2p(priv))
+			return -EFAULT;
+
+		switch (type) {
+		case NL80211_IFTYPE_ADHOC:
+		case NL80211_IFTYPE_STATION:
+			return mwifiex_change_vif_to_sta_adhoc(dev, curr_iftype,
+							       type, params);
+		case NL80211_IFTYPE_AP:
+>>>>>>> upstream/android-13
 			return mwifiex_change_vif_to_ap(dev, curr_iftype, type,
 							params);
 		case NL80211_IFTYPE_UNSPECIFIED:
 			mwifiex_dbg(priv->adapter, INFO,
 				    "%s: kept type as P2P\n", dev->name);
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case NL80211_IFTYPE_P2P_CLIENT:
 		case NL80211_IFTYPE_P2P_GO:
 			return 0;
@@ -1284,13 +1386,18 @@ mwifiex_cfg80211_change_virtual_intf(struct wiphy *wiphy,
 }
 
 static void
+<<<<<<< HEAD
 mwifiex_parse_htinfo(struct mwifiex_private *priv, u8 tx_htinfo,
+=======
+mwifiex_parse_htinfo(struct mwifiex_private *priv, u8 rateinfo, u8 htinfo,
+>>>>>>> upstream/android-13
 		     struct rate_info *rate)
 {
 	struct mwifiex_adapter *adapter = priv->adapter;
 
 	if (adapter->is_hw_11ac_capable) {
 		/* bit[1-0]: 00=LG 01=HT 10=VHT */
+<<<<<<< HEAD
 		if (tx_htinfo & BIT(0)) {
 			/* HT */
 			rate->mcs = priv->tx_rate;
@@ -1305,6 +1412,22 @@ mwifiex_parse_htinfo(struct mwifiex_private *priv, u8 tx_htinfo,
 		if (tx_htinfo & (BIT(1) | BIT(0))) {
 			/* HT or VHT */
 			switch (tx_htinfo & (BIT(3) | BIT(2))) {
+=======
+		if (htinfo & BIT(0)) {
+			/* HT */
+			rate->mcs = rateinfo;
+			rate->flags |= RATE_INFO_FLAGS_MCS;
+		}
+		if (htinfo & BIT(1)) {
+			/* VHT */
+			rate->mcs = rateinfo & 0x0F;
+			rate->flags |= RATE_INFO_FLAGS_VHT_MCS;
+		}
+
+		if (htinfo & (BIT(1) | BIT(0))) {
+			/* HT or VHT */
+			switch (htinfo & (BIT(3) | BIT(2))) {
+>>>>>>> upstream/android-13
 			case 0:
 				rate->bw = RATE_INFO_BW_20;
 				break;
@@ -1319,16 +1442,24 @@ mwifiex_parse_htinfo(struct mwifiex_private *priv, u8 tx_htinfo,
 				break;
 			}
 
+<<<<<<< HEAD
 			if (tx_htinfo & BIT(4))
 				rate->flags |= RATE_INFO_FLAGS_SHORT_GI;
 
 			if ((priv->tx_rate >> 4) == 1)
+=======
+			if (htinfo & BIT(4))
+				rate->flags |= RATE_INFO_FLAGS_SHORT_GI;
+
+			if ((rateinfo >> 4) == 1)
+>>>>>>> upstream/android-13
 				rate->nss = 2;
 			else
 				rate->nss = 1;
 		}
 	} else {
 		/*
+<<<<<<< HEAD
 		 * Bit 0 in tx_htinfo indicates that current Tx rate
 		 * is 11n rate. Valid MCS index values for us are 0 to 15.
 		 */
@@ -1342,6 +1473,43 @@ mwifiex_parse_htinfo(struct mwifiex_private *priv, u8 tx_htinfo,
 				rate->flags |= RATE_INFO_FLAGS_SHORT_GI;
 		}
 	}
+=======
+		 * Bit 0 in htinfo indicates that current rate is 11n. Valid
+		 * MCS index values for us are 0 to 15.
+		 */
+		if ((htinfo & BIT(0)) && (rateinfo < 16)) {
+			rate->mcs = rateinfo;
+			rate->flags |= RATE_INFO_FLAGS_MCS;
+			rate->bw = RATE_INFO_BW_20;
+			if (htinfo & BIT(1))
+				rate->bw = RATE_INFO_BW_40;
+			if (htinfo & BIT(2))
+				rate->flags |= RATE_INFO_FLAGS_SHORT_GI;
+		}
+	}
+
+	/* Decode legacy rates for non-HT. */
+	if (!(htinfo & (BIT(0) | BIT(1)))) {
+		/* Bitrates in multiples of 100kb/s. */
+		static const int legacy_rates[] = {
+			[0] = 10,
+			[1] = 20,
+			[2] = 55,
+			[3] = 110,
+			[4] = 60, /* MWIFIEX_RATE_INDEX_OFDM0 */
+			[5] = 60,
+			[6] = 90,
+			[7] = 120,
+			[8] = 180,
+			[9] = 240,
+			[10] = 360,
+			[11] = 480,
+			[12] = 540,
+		};
+		if (rateinfo < ARRAY_SIZE(legacy_rates))
+			rate->legacy = legacy_rates[rateinfo];
+	}
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1384,7 +1552,12 @@ mwifiex_dump_station_info(struct mwifiex_private *priv,
 		sinfo->tx_packets = node->stats.tx_packets;
 		sinfo->tx_failed = node->stats.tx_failed;
 
+<<<<<<< HEAD
 		mwifiex_parse_htinfo(priv, node->stats.last_tx_htinfo,
+=======
+		mwifiex_parse_htinfo(priv, priv->tx_rate,
+				     node->stats.last_tx_htinfo,
+>>>>>>> upstream/android-13
 				     &sinfo->txrate);
 		sinfo->txrate.legacy = node->stats.last_tx_rate * 5;
 
@@ -1410,7 +1583,12 @@ mwifiex_dump_station_info(struct mwifiex_private *priv,
 			 HostCmd_ACT_GEN_GET, DTIM_PERIOD_I,
 			 &priv->dtim_period, true);
 
+<<<<<<< HEAD
 	mwifiex_parse_htinfo(priv, priv->tx_htinfo, &sinfo->txrate);
+=======
+	mwifiex_parse_htinfo(priv, priv->tx_rate, priv->tx_htinfo,
+			     &sinfo->txrate);
+>>>>>>> upstream/android-13
 
 	sinfo->signal_avg = priv->bcn_rssi_avg;
 	sinfo->rx_bytes = priv->stats.rx_bytes;
@@ -1421,6 +1599,13 @@ mwifiex_dump_station_info(struct mwifiex_private *priv,
 	/* bit rate is in 500 kb/s units. Convert it to 100kb/s units */
 	sinfo->txrate.legacy = rate * 5;
 
+<<<<<<< HEAD
+=======
+	sinfo->filled |= BIT(NL80211_STA_INFO_RX_BITRATE);
+	mwifiex_parse_htinfo(priv, priv->rxpd_rate, priv->rxpd_htinfo,
+			     &sinfo->rxrate);
+
+>>>>>>> upstream/android-13
 	if (priv->bss_mode == NL80211_IFTYPE_STATION) {
 		sinfo->filled |= BIT_ULL(NL80211_STA_INFO_BSS_PARAM);
 		sinfo->bss_param.flags = 0;
@@ -1666,10 +1851,19 @@ mwifiex_mgmt_stypes[NUM_NL80211_IFTYPES] = {
  * Function configures data rates to firmware using bitrate mask
  * provided by cfg80211.
  */
+<<<<<<< HEAD
 static int mwifiex_cfg80211_set_bitrate_mask(struct wiphy *wiphy,
 				struct net_device *dev,
 				const u8 *peer,
 				const struct cfg80211_bitrate_mask *mask)
+=======
+static int
+mwifiex_cfg80211_set_bitrate_mask(struct wiphy *wiphy,
+				  struct net_device *dev,
+				  unsigned int link_id,
+				  const u8 *peer,
+				  const struct cfg80211_bitrate_mask *mask)
+>>>>>>> upstream/android-13
 {
 	struct mwifiex_private *priv = mwifiex_netdev_get_priv(dev);
 	u16 bitmap_rates[MAX_BITMAP_RATES_SIZE];
@@ -1797,7 +1991,10 @@ mwifiex_cfg80211_del_station(struct wiphy *wiphy, struct net_device *dev,
 	struct mwifiex_private *priv = mwifiex_netdev_get_priv(dev);
 	struct mwifiex_sta_node *sta_node;
 	u8 deauth_mac[ETH_ALEN];
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 
 	if (!priv->bss_started && priv->wdev.cac_started) {
 		mwifiex_dbg(priv->adapter, INFO, "%s: abort CAC!\n", __func__);
@@ -1815,11 +2012,19 @@ mwifiex_cfg80211_del_station(struct wiphy *wiphy, struct net_device *dev,
 
 	eth_zero_addr(deauth_mac);
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&priv->sta_list_spinlock, flags);
 	sta_node = mwifiex_get_sta_entry(priv, params->mac);
 	if (sta_node)
 		ether_addr_copy(deauth_mac, params->mac);
 	spin_unlock_irqrestore(&priv->sta_list_spinlock, flags);
+=======
+	spin_lock_bh(&priv->sta_list_spinlock);
+	sta_node = mwifiex_get_sta_entry(priv, params->mac);
+	if (sta_node)
+		ether_addr_copy(deauth_mac, params->mac);
+	spin_unlock_bh(&priv->sta_list_spinlock);
+>>>>>>> upstream/android-13
 
 	if (is_valid_ether_addr(deauth_mac)) {
 		if (mwifiex_send_cmd(priv, HostCmd_CMD_UAP_STA_DEAUTH,
@@ -1912,7 +2117,12 @@ mwifiex_cfg80211_get_antenna(struct wiphy *wiphy, u32 *tx_ant, u32 *rx_ant)
 /* cfg80211 operation handler for stop ap.
  * Function stops BSS running at uAP interface.
  */
+<<<<<<< HEAD
 static int mwifiex_cfg80211_stop_ap(struct wiphy *wiphy, struct net_device *dev)
+=======
+static int mwifiex_cfg80211_stop_ap(struct wiphy *wiphy, struct net_device *dev,
+				    unsigned int link_id)
+>>>>>>> upstream/android-13
 {
 	struct mwifiex_private *priv = mwifiex_netdev_get_priv(dev);
 
@@ -2074,7 +2284,11 @@ mwifiex_cfg80211_disconnect(struct wiphy *wiphy, struct net_device *dev,
 	struct mwifiex_private *priv = mwifiex_netdev_get_priv(dev);
 
 	if (!mwifiex_stop_bg_scan(priv))
+<<<<<<< HEAD
 		cfg80211_sched_scan_stopped_rtnl(priv->wdev.wiphy, 0);
+=======
+		cfg80211_sched_scan_stopped_locked(priv->wdev.wiphy, 0);
+>>>>>>> upstream/android-13
 
 	if (mwifiex_deauthenticate(priv, NULL))
 		return -EFAULT;
@@ -2150,7 +2364,12 @@ static int
 mwifiex_cfg80211_assoc(struct mwifiex_private *priv, size_t ssid_len,
 		       const u8 *ssid, const u8 *bssid, int mode,
 		       struct ieee80211_channel *channel,
+<<<<<<< HEAD
 		       struct cfg80211_connect_params *sme, bool privacy)
+=======
+		       struct cfg80211_connect_params *sme, bool privacy,
+		       struct cfg80211_bss **sel_bss)
+>>>>>>> upstream/android-13
 {
 	struct cfg80211_ssid req_ssid;
 	int ret, auth_type = 0;
@@ -2276,25 +2495,56 @@ done:
 			is_scanning_required = 1;
 		} else {
 			mwifiex_dbg(priv->adapter, MSG,
+<<<<<<< HEAD
 				    "info: trying to associate to '%.*s' bssid %pM\n",
 				    req_ssid.ssid_len, (char *)req_ssid.ssid,
+=======
+				    "info: trying to associate to bssid %pM\n",
+>>>>>>> upstream/android-13
 				    bss->bssid);
 			memcpy(&priv->cfg_bssid, bss->bssid, ETH_ALEN);
 			break;
 		}
 	}
 
+<<<<<<< HEAD
 	ret = mwifiex_bss_start(priv, bss, &req_ssid);
 	if (ret)
 		return ret;
+=======
+	if (bss)
+		cfg80211_ref_bss(priv->adapter->wiphy, bss);
+
+	ret = mwifiex_bss_start(priv, bss, &req_ssid);
+	if (ret)
+		goto cleanup;
+>>>>>>> upstream/android-13
 
 	if (mode == NL80211_IFTYPE_ADHOC) {
 		/* Inform the BSS information to kernel, otherwise
 		 * kernel will give a panic after successful assoc */
+<<<<<<< HEAD
 		if (mwifiex_cfg80211_inform_ibss_bss(priv))
 			return -EFAULT;
 	}
 
+=======
+		if (mwifiex_cfg80211_inform_ibss_bss(priv)) {
+			ret = -EFAULT;
+			goto cleanup;
+		}
+	}
+
+	/* Pass the selected BSS entry to caller. */
+	if (sel_bss) {
+		*sel_bss = bss;
+		bss = NULL;
+	}
+
+cleanup:
+	if (bss)
+		cfg80211_put_bss(priv->adapter->wiphy, bss);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -2311,6 +2561,10 @@ mwifiex_cfg80211_connect(struct wiphy *wiphy, struct net_device *dev,
 {
 	struct mwifiex_private *priv = mwifiex_netdev_get_priv(dev);
 	struct mwifiex_adapter *adapter = priv->adapter;
+<<<<<<< HEAD
+=======
+	struct cfg80211_bss *bss = NULL;
+>>>>>>> upstream/android-13
 	int ret;
 
 	if (GET_BSS_ROLE(priv) != MWIFIEX_BSS_ROLE_STA) {
@@ -2320,7 +2574,11 @@ mwifiex_cfg80211_connect(struct wiphy *wiphy, struct net_device *dev,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	if (priv->wdev.current_bss) {
+=======
+	if (priv->wdev.connected) {
+>>>>>>> upstream/android-13
 		mwifiex_dbg(adapter, ERROR,
 			    "%s: already connected\n", dev->name);
 		return -EALREADY;
@@ -2339,6 +2597,7 @@ mwifiex_cfg80211_connect(struct wiphy *wiphy, struct net_device *dev,
 	}
 
 	mwifiex_dbg(adapter, INFO,
+<<<<<<< HEAD
 		    "info: Trying to associate to %.*s and bssid %pM\n",
 		    (int)sme->ssid_len, (char *)sme->ssid, sme->bssid);
 
@@ -2351,6 +2610,20 @@ mwifiex_cfg80211_connect(struct wiphy *wiphy, struct net_device *dev,
 		cfg80211_connect_result(priv->netdev, priv->cfg_bssid, NULL, 0,
 					NULL, 0, WLAN_STATUS_SUCCESS,
 					GFP_KERNEL);
+=======
+		    "info: Trying to associate to bssid %pM\n", sme->bssid);
+
+	if (!mwifiex_stop_bg_scan(priv))
+		cfg80211_sched_scan_stopped_locked(priv->wdev.wiphy, 0);
+
+	ret = mwifiex_cfg80211_assoc(priv, sme->ssid_len, sme->ssid, sme->bssid,
+				     priv->bss_mode, sme->channel, sme, 0,
+				     &bss);
+	if (!ret) {
+		cfg80211_connect_bss(priv->netdev, priv->cfg_bssid, bss, NULL,
+				     0, NULL, 0, WLAN_STATUS_SUCCESS,
+				     GFP_KERNEL, NL80211_TIMEOUT_UNSPECIFIED);
+>>>>>>> upstream/android-13
 		mwifiex_dbg(priv->adapter, MSG,
 			    "info: associated to bssid %pM successfully\n",
 			    priv->cfg_bssid);
@@ -2472,16 +2745,25 @@ mwifiex_cfg80211_join_ibss(struct wiphy *wiphy, struct net_device *dev,
 		goto done;
 	}
 
+<<<<<<< HEAD
 	mwifiex_dbg(priv->adapter, MSG,
 		    "info: trying to join to %.*s and bssid %pM\n",
 		    params->ssid_len, (char *)params->ssid, params->bssid);
+=======
+	mwifiex_dbg(priv->adapter, MSG, "info: trying to join to bssid %pM\n",
+		    params->bssid);
+>>>>>>> upstream/android-13
 
 	mwifiex_set_ibss_params(priv, params);
 
 	ret = mwifiex_cfg80211_assoc(priv, params->ssid_len, params->ssid,
 				     params->bssid, priv->bss_mode,
 				     params->chandef.chan, NULL,
+<<<<<<< HEAD
 				     params->privacy);
+=======
+				     params->privacy, NULL);
+>>>>>>> upstream/android-13
 done:
 	if (!ret) {
 		cfg80211_ibss_joined(priv->netdev, priv->cfg_bssid,
@@ -2549,11 +2831,19 @@ mwifiex_cfg80211_scan(struct wiphy *wiphy,
 		return -EBUSY;
 	}
 
+<<<<<<< HEAD
 	if (!priv->wdev.current_bss && priv->scan_block)
 		priv->scan_block = false;
 
 	if (!mwifiex_stop_bg_scan(priv))
 		cfg80211_sched_scan_stopped_rtnl(priv->wdev.wiphy, 0);
+=======
+	if (!priv->wdev.connected && priv->scan_block)
+		priv->scan_block = false;
+
+	if (!mwifiex_stop_bg_scan(priv))
+		cfg80211_sched_scan_stopped_locked(priv->wdev.wiphy, 0);
+>>>>>>> upstream/android-13
 
 	user_scan_cfg = kzalloc(sizeof(*user_scan_cfg), GFP_KERNEL);
 	if (!user_scan_cfg)
@@ -3023,7 +3313,11 @@ struct wireless_dev *mwifiex_add_virtual_intf(struct wiphy *wiphy,
 
 	dev->flags |= IFF_BROADCAST | IFF_MULTICAST;
 	dev->watchdog_timeo = MWIFIEX_DEFAULT_WATCHDOG_TIMEOUT;
+<<<<<<< HEAD
 	dev->hard_header_len += MWIFIEX_MIN_DATA_HEADER_LEN;
+=======
+	dev->needed_headroom = MWIFIEX_MIN_DATA_HEADER_LEN;
+>>>>>>> upstream/android-13
 	dev->ethtool_ops = &mwifiex_ethtool_ops;
 
 	mdev_priv = netdev_priv(dev);
@@ -3058,7 +3352,11 @@ struct wireless_dev *mwifiex_add_virtual_intf(struct wiphy *wiphy,
 	mutex_init(&priv->async_mutex);
 
 	/* Register network device */
+<<<<<<< HEAD
 	if (register_netdevice(dev)) {
+=======
+	if (cfg80211_register_netdevice(dev)) {
+>>>>>>> upstream/android-13
 		mwifiex_dbg(adapter, ERROR, "cannot register network device\n");
 		ret = -EFAULT;
 		goto err_reg_netdev;
@@ -3137,7 +3435,11 @@ int mwifiex_del_virtual_intf(struct wiphy *wiphy, struct wireless_dev *wdev)
 		netif_carrier_off(priv->netdev);
 
 	if (wdev->netdev->reg_state == NETREG_REGISTERED)
+<<<<<<< HEAD
 		unregister_netdevice(wdev->netdev);
+=======
+		cfg80211_unregister_netdevice(wdev->netdev);
+>>>>>>> upstream/android-13
 
 	if (priv->dfs_cac_workqueue) {
 		flush_workqueue(priv->dfs_cac_workqueue);
@@ -3238,7 +3540,11 @@ static void mwifiex_set_auto_arp_mef_entry(struct mwifiex_private *priv,
 			in_dev = __in_dev_get_rtnl(adapter->priv[i]->netdev);
 			if (!in_dev)
 				continue;
+<<<<<<< HEAD
 			ifa = in_dev->ifa_list;
+=======
+			ifa = rtnl_dereference(in_dev->ifa_list);
+>>>>>>> upstream/android-13
 			if (!ifa || !ifa->ifa_local)
 				continue;
 			ips[i] = ifa->ifa_local;
@@ -3704,11 +4010,19 @@ mwifiex_cfg80211_tdls_mgmt(struct wiphy *wiphy, struct net_device *dev,
 	int ret;
 
 	if (!(wiphy->flags & WIPHY_FLAG_SUPPORTS_TDLS))
+<<<<<<< HEAD
 		return -ENOTSUPP;
 
 	/* make sure we are in station mode and connected */
 	if (!(priv->bss_type == MWIFIEX_BSS_TYPE_STA && priv->media_connected))
 		return -ENOTSUPP;
+=======
+		return -EOPNOTSUPP;
+
+	/* make sure we are in station mode and connected */
+	if (!(priv->bss_type == MWIFIEX_BSS_TYPE_STA && priv->media_connected))
+		return -EOPNOTSUPP;
+>>>>>>> upstream/android-13
 
 	switch (action_code) {
 	case WLAN_TDLS_SETUP_REQUEST:
@@ -3776,11 +4090,19 @@ mwifiex_cfg80211_tdls_oper(struct wiphy *wiphy, struct net_device *dev,
 
 	if (!(wiphy->flags & WIPHY_FLAG_SUPPORTS_TDLS) ||
 	    !(wiphy->flags & WIPHY_FLAG_TDLS_EXTERNAL_SETUP))
+<<<<<<< HEAD
 		return -ENOTSUPP;
 
 	/* make sure we are in station mode and connected */
 	if (!(priv->bss_type == MWIFIEX_BSS_TYPE_STA && priv->media_connected))
 		return -ENOTSUPP;
+=======
+		return -EOPNOTSUPP;
+
+	/* make sure we are in station mode and connected */
+	if (!(priv->bss_type == MWIFIEX_BSS_TYPE_STA && priv->media_connected))
+		return -EOPNOTSUPP;
+>>>>>>> upstream/android-13
 
 	mwifiex_dbg(priv->adapter, MSG,
 		    "TDLS peer=%pM, oper=%d\n", peer, action);
@@ -3810,7 +4132,11 @@ mwifiex_cfg80211_tdls_oper(struct wiphy *wiphy, struct net_device *dev,
 	default:
 		mwifiex_dbg(priv->adapter, ERROR,
 			    "tdls_oper: operation not supported\n");
+<<<<<<< HEAD
 		return -ENOTSUPP;
+=======
+		return -EOPNOTSUPP;
+>>>>>>> upstream/android-13
 	}
 
 	return mwifiex_tdls_oper(priv, peer, action);
@@ -3822,15 +4148,25 @@ mwifiex_cfg80211_tdls_chan_switch(struct wiphy *wiphy, struct net_device *dev,
 				  struct cfg80211_chan_def *chandef)
 {
 	struct mwifiex_sta_node *sta_ptr;
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 	u16 chan;
 	u8 second_chan_offset, band;
 	struct mwifiex_private *priv = mwifiex_netdev_get_priv(dev);
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&priv->sta_list_spinlock, flags);
 	sta_ptr = mwifiex_get_sta_entry(priv, addr);
 	if (!sta_ptr) {
 		spin_unlock_irqrestore(&priv->sta_list_spinlock, flags);
+=======
+	spin_lock_bh(&priv->sta_list_spinlock);
+	sta_ptr = mwifiex_get_sta_entry(priv, addr);
+	if (!sta_ptr) {
+		spin_unlock_bh(&priv->sta_list_spinlock);
+>>>>>>> upstream/android-13
 		wiphy_err(wiphy, "%s: Invalid TDLS peer %pM\n",
 			  __func__, addr);
 		return -ENOENT;
@@ -3838,18 +4174,30 @@ mwifiex_cfg80211_tdls_chan_switch(struct wiphy *wiphy, struct net_device *dev,
 
 	if (!(sta_ptr->tdls_cap.extcap.ext_capab[3] &
 	      WLAN_EXT_CAPA4_TDLS_CHAN_SWITCH)) {
+<<<<<<< HEAD
 		spin_unlock_irqrestore(&priv->sta_list_spinlock, flags);
+=======
+		spin_unlock_bh(&priv->sta_list_spinlock);
+>>>>>>> upstream/android-13
 		wiphy_err(wiphy, "%pM do not support tdls cs\n", addr);
 		return -ENOENT;
 	}
 
 	if (sta_ptr->tdls_status == TDLS_CHAN_SWITCHING ||
 	    sta_ptr->tdls_status == TDLS_IN_OFF_CHAN) {
+<<<<<<< HEAD
 		spin_unlock_irqrestore(&priv->sta_list_spinlock, flags);
 		wiphy_err(wiphy, "channel switch is running, abort request\n");
 		return -EALREADY;
 	}
 	spin_unlock_irqrestore(&priv->sta_list_spinlock, flags);
+=======
+		spin_unlock_bh(&priv->sta_list_spinlock);
+		wiphy_err(wiphy, "channel switch is running, abort request\n");
+		return -EALREADY;
+	}
+	spin_unlock_bh(&priv->sta_list_spinlock);
+>>>>>>> upstream/android-13
 
 	chan = chandef->chan->hw_value;
 	second_chan_offset = mwifiex_get_sec_chan_offset(chan);
@@ -3865,6 +4213,7 @@ mwifiex_cfg80211_tdls_cancel_chan_switch(struct wiphy *wiphy,
 					 const u8 *addr)
 {
 	struct mwifiex_sta_node *sta_ptr;
+<<<<<<< HEAD
 	unsigned long flags;
 	struct mwifiex_private *priv = mwifiex_netdev_get_priv(dev);
 
@@ -3872,16 +4221,32 @@ mwifiex_cfg80211_tdls_cancel_chan_switch(struct wiphy *wiphy,
 	sta_ptr = mwifiex_get_sta_entry(priv, addr);
 	if (!sta_ptr) {
 		spin_unlock_irqrestore(&priv->sta_list_spinlock, flags);
+=======
+	struct mwifiex_private *priv = mwifiex_netdev_get_priv(dev);
+
+	spin_lock_bh(&priv->sta_list_spinlock);
+	sta_ptr = mwifiex_get_sta_entry(priv, addr);
+	if (!sta_ptr) {
+		spin_unlock_bh(&priv->sta_list_spinlock);
+>>>>>>> upstream/android-13
 		wiphy_err(wiphy, "%s: Invalid TDLS peer %pM\n",
 			  __func__, addr);
 	} else if (!(sta_ptr->tdls_status == TDLS_CHAN_SWITCHING ||
 		     sta_ptr->tdls_status == TDLS_IN_BASE_CHAN ||
 		     sta_ptr->tdls_status == TDLS_IN_OFF_CHAN)) {
+<<<<<<< HEAD
 		spin_unlock_irqrestore(&priv->sta_list_spinlock, flags);
 		wiphy_err(wiphy, "tdls chan switch not initialize by %pM\n",
 			  addr);
 	} else {
 		spin_unlock_irqrestore(&priv->sta_list_spinlock, flags);
+=======
+		spin_unlock_bh(&priv->sta_list_spinlock);
+		wiphy_err(wiphy, "tdls chan switch not initialize by %pM\n",
+			  addr);
+	} else {
+		spin_unlock_bh(&priv->sta_list_spinlock);
+>>>>>>> upstream/android-13
 		mwifiex_stop_tdls_cs(priv, addr);
 	}
 }
@@ -3893,11 +4258,19 @@ mwifiex_cfg80211_add_station(struct wiphy *wiphy, struct net_device *dev,
 	struct mwifiex_private *priv = mwifiex_netdev_get_priv(dev);
 
 	if (!(params->sta_flags_set & BIT(NL80211_STA_FLAG_TDLS_PEER)))
+<<<<<<< HEAD
 		return -ENOTSUPP;
 
 	/* make sure we are in station mode and connected */
 	if ((priv->bss_type != MWIFIEX_BSS_TYPE_STA) || !priv->media_connected)
 		return -ENOTSUPP;
+=======
+		return -EOPNOTSUPP;
+
+	/* make sure we are in station mode and connected */
+	if ((priv->bss_type != MWIFIEX_BSS_TYPE_STA) || !priv->media_connected)
+		return -EOPNOTSUPP;
+>>>>>>> upstream/android-13
 
 	return mwifiex_tdls_oper(priv, mac, MWIFIEX_TDLS_CREATE_LINK);
 }
@@ -3962,6 +4335,10 @@ mwifiex_cfg80211_channel_switch(struct wiphy *wiphy, struct net_device *dev,
 
 static int mwifiex_cfg80211_get_channel(struct wiphy *wiphy,
 					struct wireless_dev *wdev,
+<<<<<<< HEAD
+=======
+					unsigned int link_id,
+>>>>>>> upstream/android-13
 					struct cfg80211_chan_def *chandef)
 {
 	struct mwifiex_private *priv = mwifiex_netdev_get_priv(wdev->netdev);
@@ -4029,8 +4406,13 @@ static int mwifiex_tm_cmd(struct wiphy *wiphy, struct wireless_dev *wdev,
 	if (!priv)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	err = nla_parse(tb, MWIFIEX_TM_ATTR_MAX, data, len, mwifiex_tm_policy,
 			NULL);
+=======
+	err = nla_parse_deprecated(tb, MWIFIEX_TM_ATTR_MAX, data, len,
+				   mwifiex_tm_policy, NULL);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
@@ -4130,11 +4512,19 @@ mwifiex_cfg80211_change_station(struct wiphy *wiphy, struct net_device *dev,
 
 	/* we support change_station handler only for TDLS peers*/
 	if (!(params->sta_flags_set & BIT(NL80211_STA_FLAG_TDLS_PEER)))
+<<<<<<< HEAD
 		return -ENOTSUPP;
 
 	/* make sure we are in station mode and connected */
 	if ((priv->bss_type != MWIFIEX_BSS_TYPE_STA) || !priv->media_connected)
 		return -ENOTSUPP;
+=======
+		return -EOPNOTSUPP;
+
+	/* make sure we are in station mode and connected */
+	if ((priv->bss_type != MWIFIEX_BSS_TYPE_STA) || !priv->media_connected)
+		return -EOPNOTSUPP;
+>>>>>>> upstream/android-13
 
 	priv->sta_params = params;
 
@@ -4162,7 +4552,12 @@ static struct cfg80211_ops mwifiex_cfg80211_ops = {
 	.del_key = mwifiex_cfg80211_del_key,
 	.set_default_mgmt_key = mwifiex_cfg80211_set_default_mgmt_key,
 	.mgmt_tx = mwifiex_cfg80211_mgmt_tx,
+<<<<<<< HEAD
 	.mgmt_frame_register = mwifiex_cfg80211_mgmt_frame_register,
+=======
+	.update_mgmt_frame_registrations =
+		mwifiex_cfg80211_update_mgmt_frame_registrations,
+>>>>>>> upstream/android-13
 	.remain_on_channel = mwifiex_cfg80211_remain_on_channel,
 	.cancel_remain_on_channel = mwifiex_cfg80211_cancel_remain_on_channel,
 	.set_default_key = mwifiex_cfg80211_set_default_key,
@@ -4314,6 +4709,14 @@ int mwifiex_register_cfg80211(struct mwifiex_adapter *adapter)
 		wiphy->iface_combinations = &mwifiex_iface_comb_ap_sta;
 	wiphy->n_iface_combinations = 1;
 
+<<<<<<< HEAD
+=======
+	if (adapter->max_sta_conn > adapter->max_p2p_conn)
+		wiphy->max_ap_assoc_sta = adapter->max_sta_conn;
+	else
+		wiphy->max_ap_assoc_sta = adapter->max_p2p_conn;
+
+>>>>>>> upstream/android-13
 	/* Initialize cipher suits */
 	wiphy->cipher_suites = mwifiex_cipher_suites;
 	wiphy->n_cipher_suites = ARRAY_SIZE(mwifiex_cipher_suites);

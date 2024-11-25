@@ -415,9 +415,14 @@ ssize_t ndev_ntb3_debugfs_read(struct file *filp, char __user *ubuf,
 	return ret;
 }
 
+<<<<<<< HEAD
 static int intel_ntb3_link_enable(struct ntb_dev *ntb,
 				  enum ntb_speed max_speed,
 				  enum ntb_width max_width)
+=======
+int intel_ntb3_link_enable(struct ntb_dev *ntb, enum ntb_speed max_speed,
+		enum ntb_width max_width)
+>>>>>>> upstream/android-13
 {
 	struct intel_ntb_dev *ndev;
 	u32 ntb_ctl;
@@ -532,7 +537,42 @@ static int intel_ntb3_mw_set_trans(struct ntb_dev *ntb, int pidx, int idx,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int intel_ntb3_peer_db_set(struct ntb_dev *ntb, u64 db_bits)
+=======
+int intel_ntb3_peer_db_addr(struct ntb_dev *ntb, phys_addr_t *db_addr,
+				   resource_size_t *db_size,
+				   u64 *db_data, int db_bit)
+{
+	phys_addr_t db_addr_base;
+	struct intel_ntb_dev *ndev = ntb_ndev(ntb);
+
+	if (unlikely(db_bit >= BITS_PER_LONG_LONG))
+		return -EINVAL;
+
+	if (unlikely(BIT_ULL(db_bit) & ~ntb_ndev(ntb)->db_valid_mask))
+		return -EINVAL;
+
+	ndev_db_addr(ndev, &db_addr_base, db_size, ndev->peer_addr,
+				ndev->peer_reg->db_bell);
+
+	if (db_addr) {
+		*db_addr = db_addr_base + (db_bit * 4);
+		dev_dbg(&ndev->ntb.pdev->dev, "Peer db addr %llx db bit %d\n",
+				*db_addr, db_bit);
+	}
+
+	if (db_data) {
+		*db_data = 1;
+		dev_dbg(&ndev->ntb.pdev->dev, "Peer db data %llx db bit %d\n",
+				*db_data, db_bit);
+	}
+
+	return 0;
+}
+
+int intel_ntb3_peer_db_set(struct ntb_dev *ntb, u64 db_bits)
+>>>>>>> upstream/android-13
 {
 	struct intel_ntb_dev *ndev = ntb_ndev(ntb);
 	int bit;
@@ -550,7 +590,11 @@ static int intel_ntb3_peer_db_set(struct ntb_dev *ntb, u64 db_bits)
 	return 0;
 }
 
+<<<<<<< HEAD
 static u64 intel_ntb3_db_read(struct ntb_dev *ntb)
+=======
+u64 intel_ntb3_db_read(struct ntb_dev *ntb)
+>>>>>>> upstream/android-13
 {
 	struct intel_ntb_dev *ndev = ntb_ndev(ntb);
 
@@ -559,7 +603,11 @@ static u64 intel_ntb3_db_read(struct ntb_dev *ntb)
 			    ndev->self_reg->db_clear);
 }
 
+<<<<<<< HEAD
 static int intel_ntb3_db_clear(struct ntb_dev *ntb, u64 db_bits)
+=======
+int intel_ntb3_db_clear(struct ntb_dev *ntb, u64 db_bits)
+>>>>>>> upstream/android-13
 {
 	struct intel_ntb_dev *ndev = ntb_ndev(ntb);
 
@@ -584,7 +632,11 @@ const struct ntb_dev_ops intel_ntb3_ops = {
 	.db_clear		= intel_ntb3_db_clear,
 	.db_set_mask		= intel_ntb_db_set_mask,
 	.db_clear_mask		= intel_ntb_db_clear_mask,
+<<<<<<< HEAD
 	.peer_db_addr		= intel_ntb_peer_db_addr,
+=======
+	.peer_db_addr		= intel_ntb3_peer_db_addr,
+>>>>>>> upstream/android-13
 	.peer_db_set		= intel_ntb3_peer_db_set,
 	.spad_is_unsafe		= intel_ntb_spad_is_unsafe,
 	.spad_count		= intel_ntb_spad_count,

@@ -5,7 +5,10 @@
 struct cy8ctmg110_pdata
 {
 	int reset_pin;		/* Reset pin is wired to this GPIO (optional) */
+<<<<<<< HEAD
 	int irq_pin;		/* IRQ pin is wired to this GPIO */
+=======
+>>>>>>> upstream/android-13
 };
 
 #endif

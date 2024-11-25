@@ -25,9 +25,14 @@ EXPORT_SYMBOL(g_psink_status);
 static SEC_PD_SINK_STATUS *g_psink_status;
 #endif
 
+<<<<<<< HEAD
 #if defined(CONFIG_ARCH_MTK_PROJECT) || IS_ENABLED(CONFIG_SEC_MTK_CHARGER)
 struct pdic_notifier_struct pd_noti;
 EXPORT_SYMBOL(pd_noti);
+=======
+#if defined(CONFIG_ARCH_MTK_PROJECT)
+struct pdic_notifier_struct pd_noti;
+>>>>>>> upstream/android-13
 #endif
 
 const char* sec_pd_pdo_type_str(int pdo_type)
@@ -129,6 +134,7 @@ int sec_pd_is_apdo(unsigned int pdo)
 }
 EXPORT_SYMBOL(sec_pd_is_apdo);
 
+<<<<<<< HEAD
 int sec_pd_detach_with_cc(int state)
 {
 	if (!g_psink_status) {
@@ -147,6 +153,8 @@ int sec_pd_detach_with_cc(int state)
 }
 EXPORT_SYMBOL(sec_pd_detach_with_cc);
 
+=======
+>>>>>>> upstream/android-13
 static int sec_pd_check_pdo(unsigned int pdo, unsigned int min_volt, unsigned int max_volt, unsigned int max_curr)
 {
 	POWER_LIST *pwr = &g_psink_status->power_list[pdo];
@@ -300,6 +308,7 @@ int sec_pd_vpdo_auth(int auth, int d2d_type)
 }
 EXPORT_SYMBOL(sec_pd_vpdo_auth);
 
+<<<<<<< HEAD
 int sec_pd_change_src(int max_cur)
 {
 	if (!g_psink_status) {
@@ -318,6 +327,8 @@ int sec_pd_change_src(int max_cur)
 }
 EXPORT_SYMBOL(sec_pd_change_src);
 
+=======
+>>>>>>> upstream/android-13
 int sec_pd_get_apdo_max_power(unsigned int *pdo_pos, unsigned int *taMaxVol, unsigned int *taMaxCur, unsigned int *taMaxPwr)
 {
 	int i;
@@ -420,6 +431,7 @@ void sec_pd_manual_ccopen_req(int is_on)
 }
 EXPORT_SYMBOL(sec_pd_manual_ccopen_req);
 
+<<<<<<< HEAD
 void sec_pd_manual_jig_ctrl(bool mode)
 {
 	if (!g_psink_status) {
@@ -436,6 +448,8 @@ void sec_pd_manual_jig_ctrl(bool mode)
 }
 EXPORT_SYMBOL(sec_pd_manual_jig_ctrl);
 
+=======
+>>>>>>> upstream/android-13
 static int __init sec_pd_init(void)
 {
 	pr_info("%s: \n", __func__);

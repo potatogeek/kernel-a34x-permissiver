@@ -88,6 +88,7 @@ static int find_dynamic_major(void)
 /*
  * Register a single major with a specified minor range.
  *
+<<<<<<< HEAD
  * If major == 0 this functions will dynamically allocate a major and return
  * its number.
  *
@@ -95,15 +96,40 @@ static int find_dynamic_major(void)
  * minors and will return zero on success.
  *
  * Returns a -ve errno on failure.
+=======
+ * If major == 0 this function will dynamically allocate an unused major.
+ * If major > 0 this function will attempt to reserve the range of minors
+ * with given major.
+ *
+>>>>>>> upstream/android-13
  */
 static struct char_device_struct *
 __register_chrdev_region(unsigned int major, unsigned int baseminor,
 			   int minorct, const char *name)
 {
+<<<<<<< HEAD
 	struct char_device_struct *cd, **cp;
 	int ret = 0;
 	int i;
 
+=======
+	struct char_device_struct *cd, *curr, *prev = NULL;
+	int ret;
+	int i;
+
+	if (major >= CHRDEV_MAJOR_MAX) {
+		pr_err("CHRDEV \"%s\" major requested (%u) is greater than the maximum (%u)\n",
+		       name, major, CHRDEV_MAJOR_MAX-1);
+		return ERR_PTR(-EINVAL);
+	}
+
+	if (minorct > MINORMASK + 1 - baseminor) {
+		pr_err("CHRDEV \"%s\" minor range requested (%u-%u) is out of range of maximum range (%u-%u) for a single major\n",
+			name, baseminor, baseminor + minorct - 1, 0, MINORMASK);
+		return ERR_PTR(-EINVAL);
+	}
+
+>>>>>>> upstream/android-13
 	cd = kzalloc(sizeof(struct char_device_struct), GFP_KERNEL);
 	if (cd == NULL)
 		return ERR_PTR(-ENOMEM);
@@ -120,10 +146,28 @@ __register_chrdev_region(unsigned int major, unsigned int baseminor,
 		major = ret;
 	}
 
+<<<<<<< HEAD
 	if (major >= CHRDEV_MAJOR_MAX) {
 		pr_err("CHRDEV \"%s\" major requested (%u) is greater than the maximum (%u)\n",
 		       name, major, CHRDEV_MAJOR_MAX-1);
 		ret = -EINVAL;
+=======
+	ret = -EBUSY;
+	i = major_to_index(major);
+	for (curr = chrdevs[i]; curr; prev = curr, curr = curr->next) {
+		if (curr->major < major)
+			continue;
+
+		if (curr->major > major)
+			break;
+
+		if (curr->baseminor + curr->minorct <= baseminor)
+			continue;
+
+		if (curr->baseminor >= baseminor + minorct)
+			break;
+
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
@@ -132,6 +176,7 @@ __register_chrdev_region(unsigned int major, unsigned int baseminor,
 	cd->minorct = minorct;
 	strlcpy(cd->name, name, sizeof(cd->name));
 
+<<<<<<< HEAD
 	i = major_to_index(major);
 
 	for (cp = &chrdevs[i]; *cp; cp = &(*cp)->next)
@@ -169,6 +214,16 @@ __register_chrdev_region(unsigned int major, unsigned int baseminor,
 
 	cd->next = *cp;
 	*cp = cd;
+=======
+	if (!prev) {
+		cd->next = curr;
+		chrdevs[i] = cd;
+	} else {
+		cd->next = prev->next;
+		prev->next = cd;
+	}
+
+>>>>>>> upstream/android-13
 	mutex_unlock(&chrdevs_lock);
 	return cd;
 out:
@@ -492,6 +547,12 @@ int cdev_add(struct cdev *p, dev_t dev, unsigned count)
 	p->dev = dev;
 	p->count = count;
 
+<<<<<<< HEAD
+=======
+	if (WARN_ON(dev == WHITEOUT_DEV))
+		return -EBUSY;
+
+>>>>>>> upstream/android-13
 	error = kobj_map(cdev_map, dev, count, NULL,
 			 exact_match, exact_lock, p);
 	if (error)

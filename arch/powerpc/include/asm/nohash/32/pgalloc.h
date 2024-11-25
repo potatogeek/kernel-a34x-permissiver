@@ -6,6 +6,7 @@
 #include <linux/slab.h>
 
 /*
+<<<<<<< HEAD
  * Functions that deal with pagetables that could be at any level of
  * the table need to be passed an "index_size" so they know how to
  * handle allocation.  For PTE pages (which are linked to a struct
@@ -42,6 +43,8 @@ static inline void pgd_free(struct mm_struct *mm, pgd_t *pgd)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * We don't have any real pmd's, and this code never triggers because
  * the pgd will always be present..
  */
@@ -50,17 +53,28 @@ static inline void pgd_free(struct mm_struct *mm, pgd_t *pgd)
 #define __pmd_free_tlb(tlb,x,a)		do { } while (0)
 /* #define pgd_populate(mm, pmd, pte)      BUG() */
 
+<<<<<<< HEAD
 #ifndef CONFIG_BOOKE
 
 static inline void pmd_populate_kernel(struct mm_struct *mm, pmd_t *pmdp,
 				       pte_t *pte)
 {
 	*pmdp = __pmd(__pa(pte) | _PMD_PRESENT);
+=======
+static inline void pmd_populate_kernel(struct mm_struct *mm, pmd_t *pmdp,
+				       pte_t *pte)
+{
+	if (IS_ENABLED(CONFIG_BOOKE))
+		*pmdp = __pmd((unsigned long)pte | _PMD_PRESENT);
+	else
+		*pmdp = __pmd(__pa(pte) | _PMD_PRESENT);
+>>>>>>> upstream/android-13
 }
 
 static inline void pmd_populate(struct mm_struct *mm, pmd_t *pmdp,
 				pgtable_t pte_page)
 {
+<<<<<<< HEAD
 	*pmdp = __pmd((page_to_pfn(pte_page) << PAGE_SHIFT) | _PMD_USER |
 		      _PMD_PRESENT);
 }
@@ -142,4 +156,12 @@ static inline void __pte_free_tlb(struct mmu_gather *tlb, pgtable_t table,
 	tlb_flush_pgtable(tlb, address);
 	pgtable_free_tlb(tlb, page_address(table), 0);
 }
+=======
+	if (IS_ENABLED(CONFIG_BOOKE))
+		*pmdp = __pmd((unsigned long)pte_page | _PMD_PRESENT);
+	else
+		*pmdp = __pmd(__pa(pte_page) | _PMD_USER | _PMD_PRESENT);
+}
+
+>>>>>>> upstream/android-13
 #endif /* _ASM_POWERPC_PGALLOC_32_H */

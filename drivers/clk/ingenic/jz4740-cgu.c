@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Ingenic JZ4740 SoC CGU driver
  *
  * Copyright (c) 2015 Imagination Technologies
  * Author: Paul Burton <paul.burton@mips.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -13,14 +18,26 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk-provider.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
 #include <linux/of.h>
 #include <dt-bindings/clock/jz4740-cgu.h>
 #include <asm/mach-jz4740/clock.h>
 #include "cgu.h"
+=======
+#include <linux/io.h>
+#include <linux/of.h>
+
+#include <dt-bindings/clock/jz4740-cgu.h>
+
+#include "cgu.h"
+#include "pm.h"
+>>>>>>> upstream/android-13
 
 /* CGU register offsets */
 #define CGU_REG_CPCCR		0x00
@@ -57,6 +74,17 @@ static const s8 pll_od_encoding[4] = {
 	0x0, 0x1, -1, 0x3,
 };
 
+<<<<<<< HEAD
+=======
+static const u8 jz4740_cgu_cpccr_div_table[] = {
+	1, 2, 3, 4, 6, 8, 12, 16, 24, 32,
+};
+
+static const u8 jz4740_cgu_pll_half_div_table[] = {
+	2, 1,
+};
+
+>>>>>>> upstream/android-13
 static const struct ingenic_cgu_clk_info jz4740_cgu_clocks[] = {
 
 	/* External clocks */
@@ -69,6 +97,10 @@ static const struct ingenic_cgu_clk_info jz4740_cgu_clocks[] = {
 		.parents = { JZ4740_CLK_EXT, -1, -1, -1 },
 		.pll = {
 			.reg = CGU_REG_CPPCR,
+<<<<<<< HEAD
+=======
+			.rate_multiplier = 1,
+>>>>>>> upstream/android-13
 			.m_shift = 23,
 			.m_bits = 9,
 			.m_offset = 2,
@@ -80,6 +112,10 @@ static const struct ingenic_cgu_clk_info jz4740_cgu_clocks[] = {
 			.od_max = 4,
 			.od_encoding = pll_od_encoding,
 			.stable_bit = 10,
+<<<<<<< HEAD
+=======
+			.bypass_reg = CGU_REG_CPPCR,
+>>>>>>> upstream/android-13
 			.bypass_bit = 9,
 			.enable_bit = 8,
 		},
@@ -90,37 +126,79 @@ static const struct ingenic_cgu_clk_info jz4740_cgu_clocks[] = {
 	[JZ4740_CLK_PLL_HALF] = {
 		"pll half", CGU_CLK_DIV,
 		.parents = { JZ4740_CLK_PLL, -1, -1, -1 },
+<<<<<<< HEAD
 		.div = { CGU_REG_CPCCR, 21, 1, 1, -1, -1, -1 },
+=======
+		.div = {
+			CGU_REG_CPCCR, 21, 1, 1, -1, -1, -1, 0,
+			jz4740_cgu_pll_half_div_table,
+		},
+>>>>>>> upstream/android-13
 	},
 
 	[JZ4740_CLK_CCLK] = {
 		"cclk", CGU_CLK_DIV,
 		.parents = { JZ4740_CLK_PLL, -1, -1, -1 },
+<<<<<<< HEAD
 		.div = { CGU_REG_CPCCR, 0, 1, 4, 22, -1, -1 },
+=======
+		.div = {
+			CGU_REG_CPCCR, 0, 1, 4, 22, -1, -1, 0,
+			jz4740_cgu_cpccr_div_table,
+		},
+>>>>>>> upstream/android-13
 	},
 
 	[JZ4740_CLK_HCLK] = {
 		"hclk", CGU_CLK_DIV,
 		.parents = { JZ4740_CLK_PLL, -1, -1, -1 },
+<<<<<<< HEAD
 		.div = { CGU_REG_CPCCR, 4, 1, 4, 22, -1, -1 },
+=======
+		.div = {
+			CGU_REG_CPCCR, 4, 1, 4, 22, -1, -1, 0,
+			jz4740_cgu_cpccr_div_table,
+		},
+>>>>>>> upstream/android-13
 	},
 
 	[JZ4740_CLK_PCLK] = {
 		"pclk", CGU_CLK_DIV,
 		.parents = { JZ4740_CLK_PLL, -1, -1, -1 },
+<<<<<<< HEAD
 		.div = { CGU_REG_CPCCR, 8, 1, 4, 22, -1, -1 },
+=======
+		.div = {
+			CGU_REG_CPCCR, 8, 1, 4, 22, -1, -1, 0,
+			jz4740_cgu_cpccr_div_table,
+		},
+>>>>>>> upstream/android-13
 	},
 
 	[JZ4740_CLK_MCLK] = {
 		"mclk", CGU_CLK_DIV,
 		.parents = { JZ4740_CLK_PLL, -1, -1, -1 },
+<<<<<<< HEAD
 		.div = { CGU_REG_CPCCR, 12, 1, 4, 22, -1, -1 },
+=======
+		.div = {
+			CGU_REG_CPCCR, 12, 1, 4, 22, -1, -1, 0,
+			jz4740_cgu_cpccr_div_table,
+		},
+>>>>>>> upstream/android-13
 	},
 
 	[JZ4740_CLK_LCD] = {
 		"lcd", CGU_CLK_DIV | CGU_CLK_GATE,
 		.parents = { JZ4740_CLK_PLL_HALF, -1, -1, -1 },
+<<<<<<< HEAD
 		.div = { CGU_REG_CPCCR, 16, 1, 5, 22, -1, -1 },
+=======
+		.div = {
+			CGU_REG_CPCCR, 16, 1, 5, 22, -1, -1, 0,
+			jz4740_cgu_cpccr_div_table,
+		},
+>>>>>>> upstream/android-13
 		.gate = { CGU_REG_CLKGR, 10 },
 	},
 
@@ -211,6 +289,15 @@ static const struct ingenic_cgu_clk_info jz4740_cgu_clocks[] = {
 		.parents = { JZ4740_CLK_EXT, -1, -1, -1 },
 		.gate = { CGU_REG_CLKGR, 5 },
 	},
+<<<<<<< HEAD
+=======
+
+	[JZ4740_CLK_TCU] = {
+		"tcu", CGU_CLK_GATE,
+		.parents = { JZ4740_CLK_EXT, -1, -1, -1 },
+		.gate = { CGU_REG_CLKGR, 1 },
+	},
+>>>>>>> upstream/android-13
 };
 
 static void __init jz4740_cgu_init(struct device_node *np)
@@ -227,6 +314,7 @@ static void __init jz4740_cgu_init(struct device_node *np)
 	retval = ingenic_cgu_register_clocks(cgu);
 	if (retval)
 		pr_err("%s: failed to register CGU Clocks\n", __func__);
+<<<<<<< HEAD
 }
 CLK_OF_DECLARE(jz4740_cgu, "ingenic,jz4740-cgu", jz4740_cgu_init);
 
@@ -301,3 +389,9 @@ void jz4740_clock_resume(void)
 	clkgr &= ~JZ_CLOCK_GATE_UART0;
 	writel(clkgr, cgu->base + CGU_REG_CLKGR);
 }
+=======
+
+	ingenic_cgu_register_syscore_ops(cgu);
+}
+CLK_OF_DECLARE_DRIVER(jz4740_cgu, "ingenic,jz4740-cgu", jz4740_cgu_init);
+>>>>>>> upstream/android-13

@@ -29,7 +29,16 @@
 
 #ifndef __ASSEMBLY__
 
+<<<<<<< HEAD
 struct pt_regs {
+=======
+#ifdef __KERNEL__
+struct user_pt_regs
+#else
+struct pt_regs
+#endif
+{
+>>>>>>> upstream/android-13
 	unsigned long gpr[32];
 	unsigned long nip;
 	unsigned long msr;
@@ -160,6 +169,13 @@ struct pt_regs {
 #define PTRACE_GETVSRREGS	0x1b
 #define PTRACE_SETVSRREGS	0x1c
 
+<<<<<<< HEAD
+=======
+/* Syscall emulation defines */
+#define PTRACE_SYSEMU			0x1d
+#define PTRACE_SYSEMU_SINGLESTEP	0x1e
+
+>>>>>>> upstream/android-13
 /*
  * Get or set a debug register. The first 16 are DABR registers and the
  * second 16 are IABR registers.
@@ -213,6 +229,10 @@ struct ppc_debug_info {
 #define PPC_DEBUG_FEATURE_DATA_BP_RANGE		0x0000000000000004
 #define PPC_DEBUG_FEATURE_DATA_BP_MASK		0x0000000000000008
 #define PPC_DEBUG_FEATURE_DATA_BP_DAWR		0x0000000000000010
+<<<<<<< HEAD
+=======
+#define PPC_DEBUG_FEATURE_DATA_BP_ARCH_31	0x0000000000000020
+>>>>>>> upstream/android-13
 
 #ifndef __ASSEMBLY__
 

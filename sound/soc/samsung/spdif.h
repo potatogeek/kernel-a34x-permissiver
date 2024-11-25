@@ -1,13 +1,21 @@
+<<<<<<< HEAD
 /* sound/soc/samsung/spdif.h
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+>>>>>>> upstream/android-13
  * ALSA SoC Audio Layer - Samsung S/PDIF Controller driver
  *
  * Copyright (c) 2010 Samsung Electronics Co. Ltd
  *		http://www.samsung.com/
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __SND_SOC_SAMSUNG_SPDIF_H

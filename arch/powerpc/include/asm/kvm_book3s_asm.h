@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -11,6 +12,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright SUSE Linux Products GmbH 2009
  *
@@ -25,6 +30,12 @@
 #define XICS_MFRR		0xc
 #define XICS_IPI		2	/* interrupt source # for IPIs */
 
+<<<<<<< HEAD
+=======
+/* LPIDs we support with this build -- runtime limit may be lower */
+#define KVMPPC_NR_LPIDS			(LPID_RSVD + 1)
+
+>>>>>>> upstream/android-13
 /* Maximum number of threads per physical core */
 #define MAX_SMT_THREADS		8
 
@@ -82,6 +93,7 @@ struct kvm_split_mode {
 	u8		do_nap;
 	u8		napped[MAX_SMT_THREADS];
 	struct kvmppc_vcore *vc[MAX_SUBCORES];
+<<<<<<< HEAD
 	/* Bits for changing lpcr on P9 */
 	unsigned long	lpcr_req;
 	unsigned long	lpidr_req;
@@ -92,6 +104,8 @@ struct kvm_split_mode {
 		u32	allphases;
 		u8	phase[4];
 	} lpcr_sync;
+=======
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -118,7 +132,10 @@ struct kvmppc_host_state {
 	u8 hwthread_state;
 	u8 host_ipi;
 	u8 ptid;		/* thread number within subcore when split */
+<<<<<<< HEAD
 	u8 tid;			/* thread number within whole core */
+=======
+>>>>>>> upstream/android-13
 	u8 fake_suspend;
 	struct kvm_vcpu *kvm_vcpu;
 	struct kvmppc_vcore *kvm_vcore;
@@ -127,7 +144,11 @@ struct kvmppc_host_state {
 	void __iomem *xive_tima_virt;
 	u32 saved_xirr;
 	u64 dabr;
+<<<<<<< HEAD
 	u64 host_mmcr[7];	/* MMCR 0,1,A, SIAR, SDAR, MMCR2, SIER */
+=======
+	u64 host_mmcr[10];	/* MMCR 0,1,A, SIAR, SDAR, MMCR2, SIER, MMCR3, SIER2/3 */
+>>>>>>> upstream/android-13
 	u32 host_pmc[8];
 	u64 host_purr;
 	u64 host_spurr;

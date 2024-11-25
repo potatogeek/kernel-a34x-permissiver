@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2011-2016 Zhang, Keguang <keguang.zhang@gmail.com>
  *
@@ -5,6 +6,11 @@
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2011-2016 Zhang, Keguang <keguang.zhang@gmail.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/leds.h>
@@ -16,6 +22,7 @@
 #include <nand.h>
 #include <platform.h>
 
+<<<<<<< HEAD
 struct plat_ls1x_dma ls1x_dma_pdata = {
 	.nr_channels	= 3,
 };
@@ -40,6 +47,8 @@ struct plat_ls1x_nand ls1x_nand_pdata = {
 	.wait_cycle	= 0xc,
 };
 
+=======
+>>>>>>> upstream/android-13
 static const struct gpio_led ls1x_gpio_leds[] __initconst = {
 	{
 		.name			= "LED9",
@@ -64,13 +73,19 @@ static const struct gpio_led_platform_data ls1x_led_pdata __initconst = {
 static struct platform_device *ls1b_platform_devices[] __initdata = {
 	&ls1x_uart_pdev,
 	&ls1x_cpufreq_pdev,
+<<<<<<< HEAD
 	&ls1x_dma_pdev,
+=======
+>>>>>>> upstream/android-13
 	&ls1x_eth0_pdev,
 	&ls1x_eth1_pdev,
 	&ls1x_ehci_pdev,
 	&ls1x_gpio0_pdev,
 	&ls1x_gpio1_pdev,
+<<<<<<< HEAD
 	&ls1x_nand_pdev,
+=======
+>>>>>>> upstream/android-13
 	&ls1x_rtc_pdev,
 	&ls1x_wdt_pdev,
 };
@@ -78,8 +93,11 @@ static struct platform_device *ls1b_platform_devices[] __initdata = {
 static int __init ls1b_platform_init(void)
 {
 	ls1x_serial_set_uartclk(&ls1x_uart_pdev);
+<<<<<<< HEAD
 	ls1x_dma_set_platdata(&ls1x_dma_pdata);
 	ls1x_nand_set_platdata(&ls1x_nand_pdata);
+=======
+>>>>>>> upstream/android-13
 
 	gpio_led_register_device(-1, &ls1x_led_pdata);
 

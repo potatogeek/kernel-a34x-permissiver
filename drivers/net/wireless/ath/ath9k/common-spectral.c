@@ -59,8 +59,12 @@ ath_cmn_max_idx_verify_ht20_fft(u8 *sample_end, int bytes_read)
 
 	sample = sample_end - SPECTRAL_HT20_SAMPLE_LEN + 1;
 
+<<<<<<< HEAD
 	max_index = spectral_max_index(mag_info->all_bins,
 				       SPECTRAL_HT20_NUM_BINS);
+=======
+	max_index = spectral_max_index_ht20(mag_info->all_bins);
+>>>>>>> upstream/android-13
 	max_magnitude = spectral_max_magnitude(mag_info->all_bins);
 
 	max_exp = mag_info->max_exp & 0xf;
@@ -72,7 +76,11 @@ ath_cmn_max_idx_verify_ht20_fft(u8 *sample_end, int bytes_read)
 	if (bytes_read < SPECTRAL_HT20_SAMPLE_LEN && max_index < 1)
 		return -1;
 
+<<<<<<< HEAD
 	if (sample[max_index] != (max_magnitude >> max_exp))
+=======
+	if ((sample[max_index] & 0xf8) != ((max_magnitude >> max_exp) & 0xf8))
+>>>>>>> upstream/android-13
 		return -1;
 	else
 		return 0;
@@ -100,12 +108,19 @@ ath_cmn_max_idx_verify_ht20_40_fft(u8 *sample_end, int bytes_read)
 	sample = sample_end - SPECTRAL_HT20_40_SAMPLE_LEN + 1;
 
 	lower_mag = spectral_max_magnitude(mag_info->lower_bins);
+<<<<<<< HEAD
 	lower_max_index = spectral_max_index(mag_info->lower_bins,
 					     SPECTRAL_HT20_40_NUM_BINS);
 
 	upper_mag = spectral_max_magnitude(mag_info->upper_bins);
 	upper_max_index = spectral_max_index(mag_info->upper_bins,
 					     SPECTRAL_HT20_40_NUM_BINS);
+=======
+	lower_max_index = spectral_max_index_ht40(mag_info->lower_bins);
+
+	upper_mag = spectral_max_magnitude(mag_info->upper_bins);
+	upper_max_index = spectral_max_index_ht40(mag_info->upper_bins);
+>>>>>>> upstream/android-13
 
 	max_exp = mag_info->max_exp & 0xf;
 
@@ -117,6 +132,7 @@ ath_cmn_max_idx_verify_ht20_40_fft(u8 *sample_end, int bytes_read)
 	   ((upper_max_index < 1) || (lower_max_index < 1)))
 		return -1;
 
+<<<<<<< HEAD
 	/* Some time hardware messes up the index and adds
 	 * the index of the middle point (dc_pos). Try to fix it.
 	 */
@@ -130,6 +146,12 @@ ath_cmn_max_idx_verify_ht20_40_fft(u8 *sample_end, int bytes_read)
 
 	if ((sample[upper_max_index + dc_pos] != (upper_mag >> max_exp)) ||
 	   (sample[lower_max_index] != (lower_mag >> max_exp)))
+=======
+	if (((sample[upper_max_index + dc_pos] & 0xf8) !=
+	     ((upper_mag >> max_exp) & 0xf8)) ||
+	    ((sample[lower_max_index] & 0xf8) !=
+	     ((lower_mag >> max_exp) & 0xf8)))
+>>>>>>> upstream/android-13
 		return -1;
 	else
 		return 0;
@@ -169,8 +191,12 @@ ath_cmn_process_ht20_fft(struct ath_rx_status *rs,
 	magnitude = spectral_max_magnitude(mag_info->all_bins);
 	fft_sample_20.max_magnitude = __cpu_to_be16(magnitude);
 
+<<<<<<< HEAD
 	max_index = spectral_max_index(mag_info->all_bins,
 					SPECTRAL_HT20_NUM_BINS);
+=======
+	max_index = spectral_max_index_ht20(mag_info->all_bins);
+>>>>>>> upstream/android-13
 	fft_sample_20.max_index = max_index;
 
 	bitmap_w = spectral_bitmap_weight(mag_info->all_bins);
@@ -188,7 +214,12 @@ ath_cmn_process_ht20_fft(struct ath_rx_status *rs,
 					magnitude >> max_exp,
 					max_index);
 
+<<<<<<< HEAD
 	if (fft_sample_20.data[max_index] != (magnitude >> max_exp)) {
+=======
+	if ((fft_sample_20.data[max_index] & 0xf8) !=
+	    ((magnitude >> max_exp) & 0xf8)) {
+>>>>>>> upstream/android-13
 		ath_dbg(common, SPECTRAL_SCAN, "Magnitude mismatch !\n");
 		ret = -1;
 	}
@@ -302,12 +333,19 @@ ath_cmn_process_ht20_40_fft(struct ath_rx_status *rs,
 	upper_mag = spectral_max_magnitude(mag_info->upper_bins);
 	fft_sample_40.upper_max_magnitude = __cpu_to_be16(upper_mag);
 
+<<<<<<< HEAD
 	lower_max_index = spectral_max_index(mag_info->lower_bins,
 					SPECTRAL_HT20_40_NUM_BINS);
 	fft_sample_40.lower_max_index = lower_max_index;
 
 	upper_max_index = spectral_max_index(mag_info->upper_bins,
 					SPECTRAL_HT20_40_NUM_BINS);
+=======
+	lower_max_index = spectral_max_index_ht40(mag_info->lower_bins);
+	fft_sample_40.lower_max_index = lower_max_index;
+
+	upper_max_index = spectral_max_index_ht40(mag_info->upper_bins);
+>>>>>>> upstream/android-13
 	fft_sample_40.upper_max_index = upper_max_index;
 
 	lower_bitmap_w = spectral_bitmap_weight(mag_info->lower_bins);
@@ -331,6 +369,7 @@ ath_cmn_process_ht20_40_fft(struct ath_rx_status *rs,
 					upper_mag >> max_exp,
 					upper_max_index);
 
+<<<<<<< HEAD
 	/* Some time hardware messes up the index and adds
 	 * the index of the middle point (dc_pos). Try to fix it.
 	 */
@@ -354,6 +393,15 @@ ath_cmn_process_ht20_40_fft(struct ath_rx_status *rs,
 	    != (upper_mag >> max_exp)) ||
 	   (fft_sample_40.data[lower_max_index]
 	    != (lower_mag >> max_exp))) {
+=======
+	/* Check if we got the expected magnitude values at
+	 * the expected bins
+	 */
+	if (((fft_sample_40.data[upper_max_index + dc_pos] & 0xf8)
+	    != ((upper_mag >> max_exp) & 0xf8)) ||
+	   ((fft_sample_40.data[lower_max_index] & 0xf8)
+	    != ((lower_mag >> max_exp) & 0xf8))) {
+>>>>>>> upstream/android-13
 		ath_dbg(common, SPECTRAL_SCAN, "Magnitude mismatch !\n");
 		ret = -1;
 	}
@@ -501,6 +549,10 @@ int ath_cmn_process_fft(struct ath_spec_scan_priv *spec_priv, struct ieee80211_h
 	u8 sample_buf[SPECTRAL_SAMPLE_MAX_LEN] = {0};
 	struct ath_hw *ah = spec_priv->ah;
 	struct ath_common *common = ath9k_hw_common(spec_priv->ah);
+<<<<<<< HEAD
+=======
+	struct ath_softc *sc = (struct ath_softc *)common->priv;
+>>>>>>> upstream/android-13
 	u8 num_bins, *vdata = (u8 *)hdr;
 	struct ath_radar_info *radar_info;
 	int len = rs->rs_datalen;
@@ -649,8 +701,18 @@ int ath_cmn_process_fft(struct ath_spec_scan_priv *spec_priv, struct ieee80211_h
 						       sample_buf, sample_len,
 						       sample_bytes);
 
+<<<<<<< HEAD
 				fft_handler(rs, spec_priv, sample_buf,
 					    tsf, freq, chan_type);
+=======
+				ret = fft_handler(rs, spec_priv, sample_buf,
+						  tsf, freq, chan_type);
+
+				if (ret == 0)
+					RX_STAT_INC(sc, rx_spectral_sample_good);
+				else
+					RX_STAT_INC(sc, rx_spectral_sample_err);
+>>>>>>> upstream/android-13
 
 				memset(sample_buf, 0, SPECTRAL_SAMPLE_MAX_LEN);
 
@@ -665,6 +727,14 @@ int ath_cmn_process_fft(struct ath_spec_scan_priv *spec_priv, struct ieee80211_h
 				ret = fft_handler(rs, spec_priv, sample_start,
 						  tsf, freq, chan_type);
 
+<<<<<<< HEAD
+=======
+				if (ret == 0)
+					RX_STAT_INC(sc, rx_spectral_sample_good);
+				else
+					RX_STAT_INC(sc, rx_spectral_sample_err);
+
+>>>>>>> upstream/android-13
 				/* Mix the received bins to the /dev/random
 				 * pool
 				 */
@@ -675,7 +745,11 @@ int ath_cmn_process_fft(struct ath_spec_scan_priv *spec_priv, struct ieee80211_h
 			 * loop.
 			 */
 			if (len <= fft_len + 2)
+<<<<<<< HEAD
 				break;
+=======
+				return 1;
+>>>>>>> upstream/android-13
 
 			sample_start = &vdata[i + 1];
 
@@ -1058,6 +1132,12 @@ static struct dentry *create_buf_file_handler(const char *filename,
 
 	buf_file = debugfs_create_file(filename, mode, parent, buf,
 				       &relay_file_operations);
+<<<<<<< HEAD
+=======
+	if (IS_ERR(buf_file))
+		return NULL;
+
+>>>>>>> upstream/android-13
 	*is_global = 1;
 	return buf_file;
 }
@@ -1069,7 +1149,11 @@ static int remove_buf_file_handler(struct dentry *dentry)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct rchan_callbacks rfs_spec_scan_cb = {
+=======
+static const struct rchan_callbacks rfs_spec_scan_cb = {
+>>>>>>> upstream/android-13
 	.create_buf_file = create_buf_file_handler,
 	.remove_buf_file = remove_buf_file_handler,
 };

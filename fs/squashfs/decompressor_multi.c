@@ -1,14 +1,25 @@
+<<<<<<< HEAD
 /*
  *  Copyright (c) 2013
  *  Minchan Kim <minchan@kernel.org>
  *
  *  This work is licensed under the terms of the GNU GPL, version 2. See
  *  the COPYING file in the top-level directory.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *  Copyright (c) 2013
+ *  Minchan Kim <minchan@kernel.org>
+>>>>>>> upstream/android-13
  */
 #include <linux/types.h>
 #include <linux/mutex.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 #include <linux/buffer_head.h>
+=======
+#include <linux/bio.h>
+>>>>>>> upstream/android-13
 #include <linux/sched.h>
 #include <linux/wait.h>
 #include <linux/cpumask.h>
@@ -182,14 +193,24 @@ wait:
 }
 
 
+<<<<<<< HEAD
 int squashfs_decompress(struct squashfs_sb_info *msblk, struct buffer_head **bh,
 	int b, int offset, int length, struct squashfs_page_actor *output)
+=======
+int squashfs_decompress(struct squashfs_sb_info *msblk, struct bio *bio,
+			int offset, int length,
+			struct squashfs_page_actor *output)
+>>>>>>> upstream/android-13
 {
 	int res;
 	struct squashfs_stream *stream = msblk->stream;
 	struct decomp_stream *decomp_stream = get_decomp_stream(msblk, stream);
 	res = msblk->decompressor->decompress(msblk, decomp_stream->stream,
+<<<<<<< HEAD
 		bh, b, offset, length, output);
+=======
+		bio, offset, length, output);
+>>>>>>> upstream/android-13
 	put_decomp_stream(decomp_stream, stream);
 	if (res < 0)
 		ERROR("%s decompression failed, data probably corrupt\n",

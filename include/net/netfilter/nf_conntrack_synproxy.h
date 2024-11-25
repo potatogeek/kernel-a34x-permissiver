@@ -2,6 +2,10 @@
 #ifndef _NF_CONNTRACK_SYNPROXY_H
 #define _NF_CONNTRACK_SYNPROXY_H
 
+<<<<<<< HEAD
+=======
+#include <net/netfilter/nf_conntrack_seqadj.h>
+>>>>>>> upstream/android-13
 #include <net/netns/generic.h>
 
 struct nf_conn_synproxy {
@@ -31,6 +35,10 @@ static inline struct nf_conn_synproxy *nfct_synproxy_ext_add(struct nf_conn *ct)
 static inline bool nf_ct_add_synproxy(struct nf_conn *ct,
 				      const struct nf_conn *tmpl)
 {
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_NETFILTER_SYNPROXY)
+>>>>>>> upstream/android-13
 	if (tmpl && nfct_synproxy(tmpl)) {
 		if (!nfct_seqadj_ext_add(ct))
 			return false;
@@ -38,10 +46,15 @@ static inline bool nf_ct_add_synproxy(struct nf_conn *ct,
 		if (!nfct_synproxy_ext_add(ct))
 			return false;
 	}
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 	return true;
 }
 
+<<<<<<< HEAD
 struct synproxy_stats {
 	unsigned int			syn_received;
 	unsigned int			cookie_invalid;
@@ -89,4 +102,6 @@ unsigned int synproxy_tstamp_adjust(struct sk_buff *skb, unsigned int protoff,
 				    enum ip_conntrack_info ctinfo,
 				    const struct nf_conn_synproxy *synproxy);
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _NF_CONNTRACK_SYNPROXY_H */

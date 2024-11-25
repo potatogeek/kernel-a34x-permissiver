@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
     TDA10021  - Single Chip Cable Channel Receiver driver module
 	       used on the Siemens DVB-C cards
@@ -6,6 +10,7 @@
     Copyright (C) 2004 Markus Schulz <msc@antzsystem.de>
 		   Support for TDA10021
 
+<<<<<<< HEAD
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -19,6 +24,8 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
 */
 
 #include <linux/delay.h>
@@ -149,6 +156,7 @@ static int tda10021_set_symbolrate (struct tda10021_state* state, u32 symbolrate
 {
 	s32 BDR;
 	s32 BDRI;
+<<<<<<< HEAD
 	s16 SFIL=0;
 	u16 NDEC = 0;
 	u32 tmp, ratio;
@@ -169,6 +177,38 @@ static int tda10021_set_symbolrate (struct tda10021_state* state, u32 symbolrate
 	if (symbolrate < (u32)(XIN/49.2)) SFIL = 1;
 	if (symbolrate < (u32)(XIN/64))	 SFIL = 0;
 	if (symbolrate < (u32)(XIN/98.4)) SFIL = 1;
+=======
+	s16 SFIL = 0;
+	u16 NDEC = 0;
+	u32 tmp, ratio;
+
+	if (symbolrate > XIN / 2)
+		symbolrate = XIN / 2;
+	else if (symbolrate < 500000)
+		symbolrate = 500000;
+
+	if (symbolrate < XIN / 16)
+		NDEC = 1;
+	if (symbolrate < XIN / 32)
+		NDEC = 2;
+	if (symbolrate < XIN / 64)
+		NDEC = 3;
+
+	if (symbolrate < XIN * 10 / 123)
+		SFIL = 1;
+	if (symbolrate < XIN * 10 / 160)
+		SFIL = 0;
+	if (symbolrate < XIN * 10 / 246)
+		SFIL = 1;
+	if (symbolrate < XIN * 10 / 320)
+		SFIL = 0;
+	if (symbolrate < XIN * 10 / 492)
+		SFIL = 1;
+	if (symbolrate < XIN * 10 / 640)
+		SFIL = 0;
+	if (symbolrate < XIN * 10 / 984)
+		SFIL = 1;
+>>>>>>> upstream/android-13
 
 	symbolrate <<= NDEC;
 	ratio = (symbolrate << 4) / FIN;

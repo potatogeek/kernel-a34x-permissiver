@@ -1,7 +1,13 @@
 #!/usr/bin/env perl
+<<<<<<< HEAD
 #
 # Copyright 2005-2009 - Steven Rostedt
 # Licensed under the terms of the GNU GPL License version 2
+=======
+# SPDX-License-Identifier: GPL-2.0
+#
+# Copyright 2005-2009 - Steven Rostedt
+>>>>>>> upstream/android-13
 #
 #  It's simple enough to figure out how this works.
 #  If not, then you can ask me at stripconfig@goodmis.org
@@ -21,7 +27,11 @@
 #  1. Boot up the kernel that you want to stream line the config on.
 #  2. Change directory to the directory holding the source of the
 #       kernel that you just booted.
+<<<<<<< HEAD
 #  3. Copy the configuraton file to this directory as .config
+=======
+#  3. Copy the configuration file to this directory as .config
+>>>>>>> upstream/android-13
 #  4. Have all your devices that you need modules for connected and
 #      operational (make sure that their corresponding modules are loaded)
 #  5. Run this script redirecting the output to some other file
@@ -56,8 +66,11 @@ sub dprint {
     print STDERR @_;
 }
 
+<<<<<<< HEAD
 my $config = ".config";
 
+=======
+>>>>>>> upstream/android-13
 my $uname = `uname -r`;
 chomp $uname;
 
@@ -145,6 +158,10 @@ my %depends;
 my %selects;
 my %prompts;
 my %objects;
+<<<<<<< HEAD
+=======
+my %config2kfile;
+>>>>>>> upstream/android-13
 my $var;
 my $iflevel = 0;
 my @ifdeps;
@@ -203,6 +220,10 @@ sub read_kconfig {
 	if (/^\s*(menu)?config\s+(\S+)\s*$/) {
 	    $state = "NEW";
 	    $config = $2;
+<<<<<<< HEAD
+=======
+	    $config2kfile{"CONFIG_$config"} = $kconfig;
+>>>>>>> upstream/android-13
 
 	    # Add depends for 'if' nesting
 	    for (my $i = 0; $i < $iflevel; $i++) {
@@ -374,7 +395,11 @@ if (defined($lsmod_file)) {
 	    $lsmod = "$dir/lsmod";
 	    last;
 	}
+<<<<<<< HEAD
 }
+=======
+    }
+>>>>>>> upstream/android-13
     if (!defined($lsmod)) {
 	# try just the path
 	$lsmod = "lsmod";
@@ -481,7 +506,11 @@ sub parse_config_depends
 # The idea is we look at all the configs that select it. If one
 # is already in our list of configs to enable, then there's nothing
 # else to do. If there isn't, we pick the first config that was
+<<<<<<< HEAD
 # enabled in the orignal config and use that.
+=======
+# enabled in the original config and use that.
+>>>>>>> upstream/android-13
 sub parse_config_selects
 {
     my ($config, $p) = @_;
@@ -593,6 +622,26 @@ while ($repeat) {
 }
 
 my %setconfigs;
+<<<<<<< HEAD
+=======
+my @preserved_kconfigs;
+if (defined($ENV{'LMC_KEEP'})) {
+	@preserved_kconfigs = split(/:/,$ENV{LMC_KEEP});
+}
+
+sub in_preserved_kconfigs {
+    my $kconfig = $config2kfile{$_[0]};
+    if (!defined($kconfig)) {
+	return 0;
+    }
+    foreach my $excl (@preserved_kconfigs) {
+	if($kconfig =~ /^$excl/) {
+	    return 1;
+	}
+    }
+    return 0;
+}
+>>>>>>> upstream/android-13
 
 # Finally, read the .config file and turn off any module enabled that
 # we could not find a reason to keep enabled.
@@ -612,6 +661,7 @@ foreach my $line (@config_file) {
     }
 
     if (/CONFIG_MODULE_SIG_KEY="(.+)"/) {
+<<<<<<< HEAD
         my $orig_cert = $1;
         my $default_cert = "certs/signing_key.pem";
 
@@ -653,6 +703,54 @@ foreach my $line (@config_file) {
 		next;
 	    } else {
 	        $setconfigs{$1} = $2;
+=======
+	my $orig_cert = $1;
+	my $default_cert = "certs/signing_key.pem";
+
+	# Check that the logic in this script still matches the one in Kconfig
+	if (!defined($depends{"MODULE_SIG_KEY"}) ||
+	    $depends{"MODULE_SIG_KEY"} !~ /"\Q$default_cert\E"/) {
+	    print STDERR "WARNING: MODULE_SIG_KEY assertion failure, ",
+		"update needed to ", __FILE__, " line ", __LINE__, "\n";
+	    print;
+	} elsif ($orig_cert ne $default_cert && ! -f $orig_cert) {
+	    print STDERR "Module signature verification enabled but ",
+		"module signing key \"$orig_cert\" not found. Resetting ",
+		"signing key to default value.\n";
+	    print "CONFIG_MODULE_SIG_KEY=\"$default_cert\"\n";
+	} else {
+	    print;
+	}
+	next;
+    }
+
+    if (/CONFIG_SYSTEM_TRUSTED_KEYS="(.+)"/) {
+	my $orig_keys = $1;
+
+	if (! -f $orig_keys) {
+	    print STDERR "System keyring enabled but keys \"$orig_keys\" ",
+		"not found. Resetting keys to default value.\n";
+	    print "CONFIG_SYSTEM_TRUSTED_KEYS=\"\"\n";
+	} else {
+	    print;
+	}
+	next;
+    }
+
+    if (/^(CONFIG.*)=(m|y)/) {
+	if (in_preserved_kconfigs($1)) {
+	    dprint "Preserve config $1";
+	    print;
+	    next;
+	}
+	if (defined($configs{$1})) {
+	    if ($localyesconfig) {
+		$setconfigs{$1} = 'y';
+		print "$1=y\n";
+		next;
+	    } else {
+		$setconfigs{$1} = $2;
+>>>>>>> upstream/android-13
 	    }
 	} elsif ($2 eq "m") {
 	    print "# $1 is not set\n";
@@ -680,3 +778,8 @@ foreach my $module (keys(%modules)) {
 	print STDERR "\n";
     }
 }
+<<<<<<< HEAD
+=======
+
+# vim: softtabstop=4
+>>>>>>> upstream/android-13

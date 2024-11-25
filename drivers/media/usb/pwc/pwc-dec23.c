@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* Linux driver for Philips webcam
    Decompression for chipset version 2 et 3
    (C) 2004-2006  Luc Saillard (luc@saillard.org)
@@ -8,6 +12,7 @@
    The decompression routines have been implemented by reverse-engineering the
    Nemosoft binary pwcx module. Caveat emptor.
 
+<<<<<<< HEAD
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
@@ -21,6 +26,8 @@
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
 
 */
 
@@ -41,7 +48,11 @@
  * UNROLL_LOOP_FOR_COPYING_BLOCK
  *   0: use a loop for a smaller code (but little slower)
  *   1: when unrolling the loop, gcc produces some faster code (perhaps only
+<<<<<<< HEAD
  *   valid for intel processor class). Activating this option, automaticaly
+=======
+ *   valid for intel processor class). Activating this option, automatically
+>>>>>>> upstream/android-13
  *   activate USE_LOOKUP_TABLE_TO_CLAMP
  */
 #define UNROLL_LOOP_FOR_COPY		1
@@ -332,7 +343,11 @@ void pwc_dec23_init(struct pwc_device *pdev, const unsigned char *cmd)
 		build_table_color(TimonRomTable[version][1], pdec->table_0004_pass2, pdec->table_8004_pass2);
 	}
 
+<<<<<<< HEAD
 	/* Informations can be coded on a variable number of bits but never less than 8 */
+=======
+	/* Information can be coded on a variable number of bits but never less than 8 */
+>>>>>>> upstream/android-13
 	shift = 8 - pdec->nbits;
 	pdec->scalebits = SCALEBITS - shift;
 	pdec->nbitsmask = 0xFF >> shift;
@@ -649,7 +664,11 @@ static void DecompressBand23(struct pwc_dec23_private *pdec,
 }
 
 /**
+<<<<<<< HEAD
  * Uncompress a pwc23 buffer.
+=======
+ * pwc_dec23_decompress - Uncompress a pwc23 buffer.
+>>>>>>> upstream/android-13
  * @pdev: pointer to pwc device's internal struct
  * @src: raw data
  * @dst: image output

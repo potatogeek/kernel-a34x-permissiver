@@ -23,7 +23,11 @@
 
 #include "priv.h"
 
+<<<<<<< HEAD
 void
+=======
+static void
+>>>>>>> upstream/android-13
 gp10b_mc_init(struct nvkm_mc *mc)
 {
 	struct nvkm_device *device = mc->subdev.device;
@@ -43,7 +47,13 @@ gp10b_mc = {
 };
 
 int
+<<<<<<< HEAD
 gp10b_mc_new(struct nvkm_device *device, int index, struct nvkm_mc **pmc)
 {
 	return gp100_mc_new_(&gp10b_mc, device, index, pmc);
+=======
+gp10b_mc_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst, struct nvkm_mc **pmc)
+{
+	return gp100_mc_new_(&gp10b_mc, device, type, inst, pmc);
+>>>>>>> upstream/android-13
 }

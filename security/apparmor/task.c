@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * AppArmor security module
  *
@@ -5,11 +9,14 @@
  *
  * Copyright 2017 Canonical Ltd.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, version 2 of the
  * License.
  *
+=======
+>>>>>>> upstream/android-13
  * TODO
  * If a task uses change_hat it currently does not return to the old
  * cred or task context but instead creates a new one.  Ideally the task
@@ -81,7 +88,11 @@ int aa_replace_current_label(struct aa_label *label)
 	 */
 	aa_get_label(label);
 	aa_put_label(cred_label(new));
+<<<<<<< HEAD
 	cred_label(new) = label;
+=======
+	set_cred_label(new, label);
+>>>>>>> upstream/android-13
 
 	commit_creds(new);
 	return 0;
@@ -138,7 +149,11 @@ int aa_set_current_hat(struct aa_label *label, u64 token)
 		return -EACCES;
 	}
 
+<<<<<<< HEAD
 	cred_label(new) = aa_get_newest_label(label);
+=======
+	set_cred_label(new, aa_get_newest_label(label));
+>>>>>>> upstream/android-13
 	/* clear exec on switching context */
 	aa_put_label(ctx->onexec);
 	ctx->onexec = NULL;
@@ -172,7 +187,11 @@ int aa_restore_previous_label(u64 token)
 		return -ENOMEM;
 
 	aa_put_label(cred_label(new));
+<<<<<<< HEAD
 	cred_label(new) = aa_get_newest_label(ctx->previous);
+=======
+	set_cred_label(new, aa_get_newest_label(ctx->previous));
+>>>>>>> upstream/android-13
 	AA_BUG(!cred_label(new));
 	/* clear exec && prev information when restoring to previous context */
 	aa_clear_task_ctx_trans(ctx);

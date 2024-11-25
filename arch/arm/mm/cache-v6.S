@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/mm/cache-v6.S
  *
  *  Copyright (C) 2001 Deep Blue Solutions Ltd.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  *  This is the "shell" of the ARMv6 processor support.
  */
 #include <linux/linkage.h>
@@ -215,8 +222,13 @@ v6_dma_inv_range:
 #endif
 	tst	r1, #D_CACHE_LINE_SIZE - 1
 #ifdef CONFIG_DMA_CACHE_RWFO
+<<<<<<< HEAD
 	ldrneb	r2, [r1, #-1]			@ read for ownership
 	strneb	r2, [r1, #-1]			@ write for ownership
+=======
+	ldrbne	r2, [r1, #-1]			@ read for ownership
+	strbne	r2, [r1, #-1]			@ write for ownership
+>>>>>>> upstream/android-13
 #endif
 	bic	r1, r1, #D_CACHE_LINE_SIZE - 1
 #ifdef HARVARD_CACHE
@@ -284,8 +296,13 @@ ENTRY(v6_dma_flush_range)
 	add	r0, r0, #D_CACHE_LINE_SIZE
 	cmp	r0, r1
 #ifdef CONFIG_DMA_CACHE_RWFO
+<<<<<<< HEAD
 	ldrlob	r2, [r0]			@ read for ownership
 	strlob	r2, [r0]			@ write for ownership
+=======
+	ldrblo	r2, [r0]			@ read for ownership
+	strblo	r2, [r0]			@ write for ownership
+>>>>>>> upstream/android-13
 #endif
 	blo	1b
 	mov	r0, #0

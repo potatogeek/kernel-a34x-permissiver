@@ -86,6 +86,7 @@ void *sclp_unmake_buffer(struct sclp_buffer *);
 int sclp_buffer_space(struct sclp_buffer *);
 int sclp_write(struct sclp_buffer *buffer, const unsigned char *, int);
 int sclp_emit_buffer(struct sclp_buffer *,void (*)(struct sclp_buffer *,int));
+<<<<<<< HEAD
 void sclp_set_columns(struct sclp_buffer *, unsigned short);
 void sclp_set_htab(struct sclp_buffer *, unsigned short);
 int sclp_chars_in_buffer(struct sclp_buffer *);
@@ -95,5 +96,8 @@ void sclp_console_pm_event(enum sclp_pm_event sclp_pm_event);
 #else
 static inline void sclp_console_pm_event(enum sclp_pm_event sclp_pm_event) { }
 #endif
+=======
+unsigned int sclp_chars_in_buffer(struct sclp_buffer *);
+>>>>>>> upstream/android-13
 
 #endif	/* __SCLP_RW_H__ */

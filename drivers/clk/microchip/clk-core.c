@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Purna Chandra Mandal,<purna.mandal@microchip.com>
  * Copyright (C) 2015 Microchip Technology Inc.  All rights reserved.
@@ -10,11 +11,21 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Purna Chandra Mandal,<purna.mandal@microchip.com>
+ * Copyright (C) 2015 Microchip Technology Inc.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 #include <linux/clk-provider.h>
 #include <linux/delay.h>
 #include <linux/device.h>
 #include <linux/interrupt.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/iopoll.h>
 #include <asm/mach-pic32/pic32.h>
 #include <asm/traps.h>
@@ -273,10 +284,19 @@ static void roclk_disable(struct clk_hw *hw)
 	writel(REFO_ON | REFO_OE, PIC32_CLR(refo->ctrl_reg));
 }
 
+<<<<<<< HEAD
 static void roclk_init(struct clk_hw *hw)
 {
 	/* initialize clock in disabled state */
 	roclk_disable(hw);
+=======
+static int roclk_init(struct clk_hw *hw)
+{
+	/* initialize clock in disabled state */
+	roclk_disable(hw);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static u8 roclk_get_parent(struct clk_hw *hw)
@@ -887,7 +907,11 @@ static int sclk_set_parent(struct clk_hw *hw, u8 index)
 	return err;
 }
 
+<<<<<<< HEAD
 static void sclk_init(struct clk_hw *hw)
+=======
+static int sclk_init(struct clk_hw *hw)
+>>>>>>> upstream/android-13
 {
 	struct pic32_sys_clk *sclk = clkhw_to_sys_clk(hw);
 	unsigned long flags;
@@ -906,6 +930,11 @@ static void sclk_init(struct clk_hw *hw)
 		writel(v, sclk->slew_reg);
 		spin_unlock_irqrestore(&sclk->core->reg_lock, flags);
 	}
+<<<<<<< HEAD
+=======
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /* sclk with post-divider */

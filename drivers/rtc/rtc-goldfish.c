@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /* drivers/rtc/rtc-goldfish.c
  *
  * Copyright (C) 2007 Google, Inc.
  * Copyright (C) 2017 Imagination Technologies Ltd.
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -18,6 +23,15 @@
 #include <linux/platform_device.h>
 #include <linux/rtc.h>
 #include <linux/io.h>
+=======
+ */
+
+#include <linux/io.h>
+#include <linux/module.h>
+#include <linux/of.h>
+#include <linux/platform_device.h>
+#include <linux/rtc.h>
+>>>>>>> upstream/android-13
 
 #define TIMER_TIME_LOW		0x00	/* get low bits of current time  */
 					/*   and update TIMER_TIME_HIGH  */
@@ -56,7 +70,11 @@ static int goldfish_rtc_read_alarm(struct device *dev,
 	do_div(rtc_alarm, NSEC_PER_SEC);
 	memset(alrm, 0, sizeof(struct rtc_wkalrm));
 
+<<<<<<< HEAD
 	rtc_time_to_tm(rtc_alarm, &alrm->time);
+=======
+	rtc_time64_to_tm(rtc_alarm, &alrm->time);
+>>>>>>> upstream/android-13
 
 	if (readl(base + TIMER_ALARM_STATUS))
 		alrm->enabled = 1;
@@ -70,21 +88,31 @@ static int goldfish_rtc_set_alarm(struct device *dev,
 				  struct rtc_wkalrm *alrm)
 {
 	struct goldfish_rtc *rtcdrv;
+<<<<<<< HEAD
 	unsigned long rtc_alarm;
 	u64 rtc_alarm64;
 	u64 rtc_status_reg;
 	void __iomem *base;
 	int ret = 0;
+=======
+	u64 rtc_alarm64;
+	u64 rtc_status_reg;
+	void __iomem *base;
+>>>>>>> upstream/android-13
 
 	rtcdrv = dev_get_drvdata(dev);
 	base = rtcdrv->base;
 
 	if (alrm->enabled) {
+<<<<<<< HEAD
 		ret = rtc_tm_to_time(&alrm->time, &rtc_alarm);
 		if (ret != 0)
 			return ret;
 
 		rtc_alarm64 = rtc_alarm * NSEC_PER_SEC;
+=======
+		rtc_alarm64 = rtc_tm_to_time64(&alrm->time) * NSEC_PER_SEC;
+>>>>>>> upstream/android-13
 		writel((rtc_alarm64 >> 32), base + TIMER_ALARM_HIGH);
 		writel(rtc_alarm64, base + TIMER_ALARM_LOW);
 		writel(1, base + TIMER_IRQ_ENABLED);
@@ -99,7 +127,11 @@ static int goldfish_rtc_set_alarm(struct device *dev,
 			writel(1, base + TIMER_CLEAR_ALARM);
 	}
 
+<<<<<<< HEAD
 	return ret;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int goldfish_rtc_alarm_irq_enable(struct device *dev,
@@ -148,7 +180,11 @@ static int goldfish_rtc_read_time(struct device *dev, struct rtc_time *tm)
 
 	do_div(time, NSEC_PER_SEC);
 
+<<<<<<< HEAD
 	rtc_time_to_tm(time, tm);
+=======
+	rtc_time64_to_tm(time, tm);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -157,13 +193,18 @@ static int goldfish_rtc_set_time(struct device *dev, struct rtc_time *tm)
 {
 	struct goldfish_rtc *rtcdrv;
 	void __iomem *base;
+<<<<<<< HEAD
 	unsigned long now;
 	u64 now64;
 	int ret;
+=======
+	u64 now64;
+>>>>>>> upstream/android-13
 
 	rtcdrv = dev_get_drvdata(dev);
 	base = rtcdrv->base;
 
+<<<<<<< HEAD
 	ret = rtc_tm_to_time(tm, &now);
 	if (ret == 0) {
 		now64 = now * NSEC_PER_SEC;
@@ -172,6 +213,13 @@ static int goldfish_rtc_set_time(struct device *dev, struct rtc_time *tm)
 	}
 
 	return ret;
+=======
+	now64 = rtc_tm_to_time64(tm) * NSEC_PER_SEC;
+	writel((now64 >> 32), base + TIMER_TIME_HIGH);
+	writel(now64, base + TIMER_TIME_LOW);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static const struct rtc_class_ops goldfish_rtc_ops = {
@@ -185,7 +233,10 @@ static const struct rtc_class_ops goldfish_rtc_ops = {
 static int goldfish_rtc_probe(struct platform_device *pdev)
 {
 	struct goldfish_rtc *rtcdrv;
+<<<<<<< HEAD
 	struct resource *r;
+=======
+>>>>>>> upstream/android-13
 	int err;
 
 	rtcdrv = devm_kzalloc(&pdev->dev, sizeof(*rtcdrv), GFP_KERNEL);
@@ -193,6 +244,7 @@ static int goldfish_rtc_probe(struct platform_device *pdev)
 		return -ENOMEM;
 
 	platform_set_drvdata(pdev, rtcdrv);
+<<<<<<< HEAD
 
 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	if (!r)
@@ -201,24 +253,43 @@ static int goldfish_rtc_probe(struct platform_device *pdev)
 	rtcdrv->base = devm_ioremap_resource(&pdev->dev, r);
 	if (IS_ERR(rtcdrv->base))
 		return -ENODEV;
+=======
+	rtcdrv->base = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(rtcdrv->base))
+		return PTR_ERR(rtcdrv->base);
+>>>>>>> upstream/android-13
 
 	rtcdrv->irq = platform_get_irq(pdev, 0);
 	if (rtcdrv->irq < 0)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	rtcdrv->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
 					       &goldfish_rtc_ops,
 					       THIS_MODULE);
 	if (IS_ERR(rtcdrv->rtc))
 		return PTR_ERR(rtcdrv->rtc);
 
+=======
+	rtcdrv->rtc = devm_rtc_allocate_device(&pdev->dev);
+	if (IS_ERR(rtcdrv->rtc))
+		return PTR_ERR(rtcdrv->rtc);
+
+	rtcdrv->rtc->ops = &goldfish_rtc_ops;
+	rtcdrv->rtc->range_max = U64_MAX / NSEC_PER_SEC;
+
+>>>>>>> upstream/android-13
 	err = devm_request_irq(&pdev->dev, rtcdrv->irq,
 			       goldfish_rtc_interrupt,
 			       0, pdev->name, rtcdrv);
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	return 0;
+=======
+	return devm_rtc_register_device(rtcdrv->rtc);
+>>>>>>> upstream/android-13
 }
 
 static const struct of_device_id goldfish_rtc_of_match[] = {

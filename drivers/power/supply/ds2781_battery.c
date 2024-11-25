@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * 1-wire client/driver for the Maxim/Dallas DS2781 Stand-Alone Fuel Gauge IC
  *
  * Author: Renata Sayakhova <renata@oktetlabs.ru>
  *
  * Based on ds2780_battery drivers
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -172,7 +179,11 @@ static int ds2781_get_voltage(struct ds2781_device_info *dev_info,
 		return ret;
 	/*
 	 * The voltage value is located in 10 bits across the voltage MSB
+<<<<<<< HEAD
 	 * and LSB registers in two's compliment form
+=======
+	 * and LSB registers in two's complement form
+>>>>>>> upstream/android-13
 	 * Sign bit of the voltage value is in bit 7 of the voltage MSB register
 	 * Bits 9 - 3 of the voltage value are in bits 6 - 0 of the
 	 * voltage MSB register
@@ -201,7 +212,11 @@ static int ds2781_get_temperature(struct ds2781_device_info *dev_info,
 		return ret;
 	/*
 	 * The temperature value is located in 10 bits across the temperature
+<<<<<<< HEAD
 	 * MSB and LSB registers in two's compliment form
+=======
+	 * MSB and LSB registers in two's complement form
+>>>>>>> upstream/android-13
 	 * Sign bit of the temperature value is in bit 7 of the temperature
 	 * MSB register
 	 * Bits 9 - 3 of the temperature value are in bits 6 - 0 of the
@@ -246,7 +261,11 @@ static int ds2781_get_current(struct ds2781_device_info *dev_info,
 
 	/*
 	 * The current value is located in 16 bits across the current MSB
+<<<<<<< HEAD
 	 * and LSB registers in two's compliment form
+=======
+	 * and LSB registers in two's complement form
+>>>>>>> upstream/android-13
 	 * Sign bit of the current value is in bit 7 of the current MSB register
 	 * Bits 14 - 8 of the current value are in bits 6 - 0 of the current
 	 * MSB register
@@ -630,7 +649,11 @@ static ssize_t ds2781_read_param_eeprom_bin(struct file *filp,
 				struct bin_attribute *bin_attr,
 				char *buf, loff_t off, size_t count)
 {
+<<<<<<< HEAD
 	struct device *dev = container_of(kobj, struct device, kobj);
+=======
+	struct device *dev = kobj_to_dev(kobj);
+>>>>>>> upstream/android-13
 	struct power_supply *psy = to_power_supply(dev);
 	struct ds2781_device_info *dev_info = to_ds2781_device_info(psy);
 
@@ -643,7 +666,11 @@ static ssize_t ds2781_write_param_eeprom_bin(struct file *filp,
 				struct bin_attribute *bin_attr,
 				char *buf, loff_t off, size_t count)
 {
+<<<<<<< HEAD
 	struct device *dev = container_of(kobj, struct device, kobj);
+=======
+	struct device *dev = kobj_to_dev(kobj);
+>>>>>>> upstream/android-13
 	struct power_supply *psy = to_power_supply(dev);
 	struct ds2781_device_info *dev_info = to_ds2781_device_info(psy);
 	int ret;
@@ -660,7 +687,11 @@ static ssize_t ds2781_write_param_eeprom_bin(struct file *filp,
 	return count;
 }
 
+<<<<<<< HEAD
 static const struct bin_attribute ds2781_param_eeprom_bin_attr = {
+=======
+static struct bin_attribute ds2781_param_eeprom_bin_attr = {
+>>>>>>> upstream/android-13
 	.attr = {
 		.name = "param_eeprom",
 		.mode = S_IRUGO | S_IWUSR,
@@ -675,7 +706,11 @@ static ssize_t ds2781_read_user_eeprom_bin(struct file *filp,
 				struct bin_attribute *bin_attr,
 				char *buf, loff_t off, size_t count)
 {
+<<<<<<< HEAD
 	struct device *dev = container_of(kobj, struct device, kobj);
+=======
+	struct device *dev = kobj_to_dev(kobj);
+>>>>>>> upstream/android-13
 	struct power_supply *psy = to_power_supply(dev);
 	struct ds2781_device_info *dev_info = to_ds2781_device_info(psy);
 
@@ -689,7 +724,11 @@ static ssize_t ds2781_write_user_eeprom_bin(struct file *filp,
 				struct bin_attribute *bin_attr,
 				char *buf, loff_t off, size_t count)
 {
+<<<<<<< HEAD
 	struct device *dev = container_of(kobj, struct device, kobj);
+=======
+	struct device *dev = kobj_to_dev(kobj);
+>>>>>>> upstream/android-13
 	struct power_supply *psy = to_power_supply(dev);
 	struct ds2781_device_info *dev_info = to_ds2781_device_info(psy);
 	int ret;
@@ -706,7 +745,11 @@ static ssize_t ds2781_write_user_eeprom_bin(struct file *filp,
 	return count;
 }
 
+<<<<<<< HEAD
 static const struct bin_attribute ds2781_user_eeprom_bin_attr = {
+=======
+static struct bin_attribute ds2781_user_eeprom_bin_attr = {
+>>>>>>> upstream/android-13
 	.attr = {
 		.name = "user_eeprom",
 		.mode = S_IRUGO | S_IWUSR,
@@ -725,8 +768,12 @@ static DEVICE_ATTR(rsgain_setting, S_IRUGO | S_IWUSR, ds2781_get_rsgain_setting,
 static DEVICE_ATTR(pio_pin, S_IRUGO | S_IWUSR, ds2781_get_pio_pin,
 	ds2781_set_pio_pin);
 
+<<<<<<< HEAD
 
 static struct attribute *ds2781_attributes[] = {
+=======
+static struct attribute *ds2781_sysfs_attrs[] = {
+>>>>>>> upstream/android-13
 	&dev_attr_pmod_enabled.attr,
 	&dev_attr_sense_resistor_value.attr,
 	&dev_attr_rsgain_setting.attr,
@@ -734,14 +781,35 @@ static struct attribute *ds2781_attributes[] = {
 	NULL
 };
 
+<<<<<<< HEAD
 static const struct attribute_group ds2781_attr_group = {
 	.attrs = ds2781_attributes,
+=======
+static struct bin_attribute *ds2781_sysfs_bin_attrs[] = {
+	&ds2781_param_eeprom_bin_attr,
+	&ds2781_user_eeprom_bin_attr,
+	NULL,
+};
+
+static const struct attribute_group ds2781_sysfs_group = {
+	.attrs = ds2781_sysfs_attrs,
+	.bin_attrs = ds2781_sysfs_bin_attrs,
+
+};
+
+static const struct attribute_group *ds2781_sysfs_groups[] = {
+	&ds2781_sysfs_group,
+	NULL,
+>>>>>>> upstream/android-13
 };
 
 static int ds2781_battery_probe(struct platform_device *pdev)
 {
 	struct power_supply_config psy_cfg = {};
+<<<<<<< HEAD
 	int ret = 0;
+=======
+>>>>>>> upstream/android-13
 	struct ds2781_device_info *dev_info;
 
 	dev_info = devm_kzalloc(&pdev->dev, sizeof(*dev_info), GFP_KERNEL);
@@ -759,6 +827,7 @@ static int ds2781_battery_probe(struct platform_device *pdev)
 	dev_info->bat_desc.get_property	= ds2781_battery_get_property;
 
 	psy_cfg.drv_data		= dev_info;
+<<<<<<< HEAD
 
 	dev_info->bat = power_supply_register(&pdev->dev, &dev_info->bat_desc,
 						&psy_cfg);
@@ -815,6 +884,18 @@ static int ds2781_battery_remove(struct platform_device *pdev)
 
 	power_supply_unregister(dev_info->bat);
 
+=======
+	psy_cfg.attr_grp		= ds2781_sysfs_groups;
+
+	dev_info->bat = devm_power_supply_register(&pdev->dev,
+						   &dev_info->bat_desc,
+						   &psy_cfg);
+	if (IS_ERR(dev_info->bat)) {
+		dev_err(dev_info->dev, "failed to register battery\n");
+		return PTR_ERR(dev_info->bat);
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -823,12 +904,19 @@ static struct platform_driver ds2781_battery_driver = {
 		.name = "ds2781-battery",
 	},
 	.probe	  = ds2781_battery_probe,
+<<<<<<< HEAD
 	.remove   = ds2781_battery_remove,
+=======
+>>>>>>> upstream/android-13
 };
 module_platform_driver(ds2781_battery_driver);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Renata Sayakhova <renata@oktetlabs.ru>");
+<<<<<<< HEAD
 MODULE_DESCRIPTION("Maxim/Dallas DS2781 Stand-Alone Fuel Gauage IC driver");
+=======
+MODULE_DESCRIPTION("Maxim/Dallas DS2781 Stand-Alone Fuel Gauge IC driver");
+>>>>>>> upstream/android-13
 MODULE_ALIAS("platform:ds2781-battery");
 

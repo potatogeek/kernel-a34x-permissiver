@@ -3,7 +3,10 @@
 
 #include "gtk.h"
 #include "../progress.h"
+<<<<<<< HEAD
 #include "util.h"
+=======
+>>>>>>> upstream/android-13
 
 static GtkWidget *dialog;
 static GtkWidget *progress;

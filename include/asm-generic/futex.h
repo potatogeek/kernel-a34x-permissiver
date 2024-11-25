@@ -34,7 +34,10 @@ arch_futex_atomic_op_inuser(int op, u32 oparg, int *oval, u32 __user *uaddr)
 	u32 tmp;
 
 	preempt_disable();
+<<<<<<< HEAD
 	pagefault_disable();
+=======
+>>>>>>> upstream/android-13
 
 	ret = -EFAULT;
 	if (unlikely(get_user(oldval, uaddr) != 0))
@@ -67,7 +70,10 @@ arch_futex_atomic_op_inuser(int op, u32 oparg, int *oval, u32 __user *uaddr)
 		ret = -EFAULT;
 
 out_pagefault_enable:
+<<<<<<< HEAD
 	pagefault_enable();
+=======
+>>>>>>> upstream/android-13
 	preempt_enable();
 
 	if (ret == 0)
@@ -118,6 +124,7 @@ futex_atomic_cmpxchg_inatomic(u32 *uval, u32 __user *uaddr,
 static inline int
 arch_futex_atomic_op_inuser(int op, u32 oparg, int *oval, u32 __user *uaddr)
 {
+<<<<<<< HEAD
 	int oldval = 0, ret;
 
 	pagefault_disable();
@@ -138,6 +145,9 @@ arch_futex_atomic_op_inuser(int op, u32 oparg, int *oval, u32 __user *uaddr)
 		*oval = oldval;
 
 	return ret;
+=======
+	return -ENOSYS;
+>>>>>>> upstream/android-13
 }
 
 static inline int

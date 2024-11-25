@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014 Oleksij Rempel <linux@rempel-privat.de>.
  *
@@ -12,6 +13,11 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2014 Oleksij Rempel <linux@rempel-privat.de>.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -271,7 +277,10 @@ static void __init asm9260_acc_init(struct device_node *np)
 	const char *ref_clk, *pll_clk = "pll";
 	u32 rate;
 	int n;
+<<<<<<< HEAD
 	u32 accuracy = 0;
+=======
+>>>>>>> upstream/android-13
 
 	clk_data = kzalloc(struct_size(clk_data, hws, MAX_CLKS), GFP_KERNEL);
 	if (!clk_data)
@@ -281,11 +290,16 @@ static void __init asm9260_acc_init(struct device_node *np)
 
 	base = of_io_request_and_map(np, 0, np->name);
 	if (IS_ERR(base))
+<<<<<<< HEAD
 		panic("%s: unable to map resource", np->name);
+=======
+		panic("%pOFn: unable to map resource", np);
+>>>>>>> upstream/android-13
 
 	/* register pll */
 	rate = (ioread32(base + HW_SYSPLLCTRL) & 0xffff) * 1000000;
 
+<<<<<<< HEAD
 	ref_clk = of_clk_get_parent_name(np, 0);
 	accuracy = clk_get_accuracy(__clk_lookup(ref_clk));
 	hw = clk_hw_register_fixed_rate_with_accuracy(NULL, pll_clk,
@@ -293,6 +307,16 @@ static void __init asm9260_acc_init(struct device_node *np)
 
 	if (IS_ERR(hw))
 		panic("%s: can't register REFCLK. Check DT!", np->name);
+=======
+	/* TODO: Convert to DT parent scheme */
+	ref_clk = of_clk_get_parent_name(np, 0);
+	hw = __clk_hw_register_fixed_rate(NULL, NULL, pll_clk,
+			ref_clk, NULL, NULL, 0, rate, 0,
+			CLK_FIXED_RATE_PARENT_ACCURACY);
+
+	if (IS_ERR(hw))
+		panic("%pOFn: can't register REFCLK. Check DT!", np);
+>>>>>>> upstream/android-13
 
 	for (n = 0; n < ARRAY_SIZE(asm9260_mux_clks); n++) {
 		const struct asm9260_mux_clock *mc = &asm9260_mux_clks[n];

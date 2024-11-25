@@ -33,6 +33,11 @@
 #include <asm/processor-flags.h>
 #include <asm/asm-offsets.h>
 #include <asm/bootparam.h>
+<<<<<<< HEAD
+=======
+#include <asm/desc_defs.h>
+#include <asm/trapnr.h>
+>>>>>>> upstream/android-13
 #include "pgtable.h"
 
 /*
@@ -40,6 +45,7 @@
  */
 	.hidden _bss
 	.hidden _ebss
+<<<<<<< HEAD
 	.hidden _got
 	.hidden _egot
 	.hidden _end
@@ -47,6 +53,39 @@
 	__HEAD
 	.code32
 ENTRY(startup_32)
+=======
+	.hidden _end
+
+	__HEAD
+
+/*
+ * This macro gives the relative virtual address of X, i.e. the offset of X
+ * from startup_32. This is the same as the link-time virtual address of X,
+ * since startup_32 is at 0, but defining it this way tells the
+ * assembler/linker that we do not want the actual run-time address of X. This
+ * prevents the linker from trying to create unwanted run-time relocation
+ * entries for the reference when the compressed kernel is linked as PIE.
+ *
+ * A reference X(%reg) will result in the link-time VA of X being stored with
+ * the instruction, and a run-time R_X86_64_RELATIVE relocation entry that
+ * adds the 64-bit base address where the kernel is loaded.
+ *
+ * Replacing it with (X-startup_32)(%reg) results in the offset being stored,
+ * and no run-time relocation.
+ *
+ * The macro should be used as a displacement with a base register containing
+ * the run-time address of startup_32 [i.e. rva(X)(%reg)], or as an immediate
+ * [$ rva(X)].
+ *
+ * This macro can only be used from within the .head.text section, since the
+ * expression requires startup_32 to be in the same section as the code being
+ * assembled.
+ */
+#define rva(X) ((X) - startup_32)
+
+	.code32
+SYM_FUNC_START(startup_32)
+>>>>>>> upstream/android-13
 	/*
 	 * 32bit entry is 0 and it is ABI so immutable!
 	 * If we come here directly from a bootloader,
@@ -54,6 +93,7 @@ ENTRY(startup_32)
 	 * all need to be under the 4G limit.
 	 */
 	cld
+<<<<<<< HEAD
 	/*
 	 * Test KEEP_SEGMENTS flag to see if the bootloader is asking
 	 * us to not reload segments
@@ -67,6 +107,9 @@ ENTRY(startup_32)
 	movl	%eax, %es
 	movl	%eax, %ss
 1:
+=======
+	cli
+>>>>>>> upstream/android-13
 
 /*
  * Calculate the delta between where we were compiled to run
@@ -79,6 +122,7 @@ ENTRY(startup_32)
 	leal	(BP_scratch+4)(%esi), %esp
 	call	1f
 1:	popl	%ebp
+<<<<<<< HEAD
 	subl	$1b, %ebp
 
 /* setup a stack and make sure cpu supports long mode. */
@@ -89,6 +133,39 @@ ENTRY(startup_32)
 	call	verify_cpu
 	testl	%eax, %eax
 	jnz	no_longmode
+=======
+	subl	$ rva(1b), %ebp
+
+	/* Load new GDT with the 64bit segments using 32bit descriptor */
+	leal	rva(gdt)(%ebp), %eax
+	movl	%eax, 2(%eax)
+	lgdt	(%eax)
+
+	/* Load segment registers with our descriptors */
+	movl	$__BOOT_DS, %eax
+	movl	%eax, %ds
+	movl	%eax, %es
+	movl	%eax, %fs
+	movl	%eax, %gs
+	movl	%eax, %ss
+
+	/* Setup a stack and load CS from current GDT */
+	leal	rva(boot_stack_end)(%ebp), %esp
+
+	pushl	$__KERNEL32_CS
+	leal	rva(1f)(%ebp), %eax
+	pushl	%eax
+	lretl
+1:
+
+	/* Setup Exception handling for SEV-ES */
+	call	startup32_load_idt
+
+	/* Make sure cpu supports long mode. */
+	call	verify_cpu
+	testl	%eax, %eax
+	jnz	.Lno_longmode
+>>>>>>> upstream/android-13
 
 /*
  * Compute the delta between where we were compiled to run at
@@ -101,6 +178,22 @@ ENTRY(startup_32)
 
 #ifdef CONFIG_RELOCATABLE
 	movl	%ebp, %ebx
+<<<<<<< HEAD
+=======
+
+#ifdef CONFIG_EFI_STUB
+/*
+ * If we were loaded via the EFI LoadImage service, startup_32 will be at an
+ * offset to the start of the space allocated for the image. efi_pe_entry will
+ * set up image_offset to tell us where the image actually starts, so that we
+ * can use the full available buffer.
+ *	image_offset = startup_32 - image_base
+ * Otherwise image_offset will be zero and has no effect on the calculations.
+ */
+	subl    rva(image_offset)(%ebp), %ebx
+#endif
+
+>>>>>>> upstream/android-13
 	movl	BP_kernel_alignment(%esi), %eax
 	decl	%eax
 	addl	%eax, %ebx
@@ -113,18 +206,26 @@ ENTRY(startup_32)
 1:
 
 	/* Target address to relocate to for decompression */
+<<<<<<< HEAD
 	movl	BP_init_size(%esi), %eax
 	subl	$_end, %eax
 	addl	%eax, %ebx
+=======
+	addl	BP_init_size(%esi), %ebx
+	subl	$ rva(_end), %ebx
+>>>>>>> upstream/android-13
 
 /*
  * Prepare for entering 64 bit mode
  */
 
+<<<<<<< HEAD
 	/* Load new GDT with the 64bit segments using 32bit descriptor */
 	addl	%ebp, gdt+2(%ebp)
 	lgdt	gdt(%ebp)
 
+=======
+>>>>>>> upstream/android-13
 	/* Enable PAE mode */
 	movl	%cr4, %eax
 	orl	$X86_CR4_PAE, %eax
@@ -140,26 +241,54 @@ ENTRY(startup_32)
 	 */
 	call	get_sev_encryption_bit
 	xorl	%edx, %edx
+<<<<<<< HEAD
+=======
+#ifdef	CONFIG_AMD_MEM_ENCRYPT
+>>>>>>> upstream/android-13
 	testl	%eax, %eax
 	jz	1f
 	subl	$32, %eax	/* Encryption bit is always above bit 31 */
 	bts	%eax, %edx	/* Set encryption mask for page tables */
+<<<<<<< HEAD
 1:
 
 	/* Initialize Page tables to 0 */
 	leal	pgtable(%ebx), %edi
+=======
+	/*
+	 * Mark SEV as active in sev_status so that startup32_check_sev_cbit()
+	 * will do a check. The sev_status memory will be fully initialized
+	 * with the contents of MSR_AMD_SEV_STATUS later in
+	 * set_sev_encryption_mask(). For now it is sufficient to know that SEV
+	 * is active.
+	 */
+	movl	$1, rva(sev_status)(%ebp)
+1:
+#endif
+
+	/* Initialize Page tables to 0 */
+	leal	rva(pgtable)(%ebx), %edi
+>>>>>>> upstream/android-13
 	xorl	%eax, %eax
 	movl	$(BOOT_INIT_PGT_SIZE/4), %ecx
 	rep	stosl
 
 	/* Build Level 4 */
+<<<<<<< HEAD
 	leal	pgtable + 0(%ebx), %edi
+=======
+	leal	rva(pgtable + 0)(%ebx), %edi
+>>>>>>> upstream/android-13
 	leal	0x1007 (%edi), %eax
 	movl	%eax, 0(%edi)
 	addl	%edx, 4(%edi)
 
 	/* Build Level 3 */
+<<<<<<< HEAD
 	leal	pgtable + 0x1000(%ebx), %edi
+=======
+	leal	rva(pgtable + 0x1000)(%ebx), %edi
+>>>>>>> upstream/android-13
 	leal	0x1007(%edi), %eax
 	movl	$4, %ecx
 1:	movl	%eax, 0x00(%edi)
@@ -170,7 +299,11 @@ ENTRY(startup_32)
 	jnz	1b
 
 	/* Build Level 2 */
+<<<<<<< HEAD
 	leal	pgtable + 0x2000(%ebx), %edi
+=======
+	leal	rva(pgtable + 0x2000)(%ebx), %edi
+>>>>>>> upstream/android-13
 	movl	$0x00000183, %eax
 	movl	$2048, %ecx
 1:	movl	%eax, 0(%edi)
@@ -181,7 +314,11 @@ ENTRY(startup_32)
 	jnz	1b
 
 	/* Enable the boot page tables */
+<<<<<<< HEAD
 	leal	pgtable(%ebx), %eax
+=======
+	leal	rva(pgtable)(%ebx), %eax
+>>>>>>> upstream/android-13
 	movl	%eax, %cr3
 
 	/* Enable Long mode in EFER (Extended Feature Enable Register) */
@@ -199,13 +336,18 @@ ENTRY(startup_32)
 	/*
 	 * Setup for the jump to 64bit mode
 	 *
+<<<<<<< HEAD
 	 * When the jump is performend we will be in long mode but
+=======
+	 * When the jump is performed we will be in long mode but
+>>>>>>> upstream/android-13
 	 * in 32bit compatibility mode with EFER.LME = 1, CS.L = 0, CS.D = 1
 	 * (and in turn EFER.LMA = 1).	To jump into 64bit mode we use
 	 * the new gdt/idt that has __KERNEL_CS with CS.L = 1.
 	 * We place all of the values on our mini stack so lret can
 	 * used to perform that far jump.
 	 */
+<<<<<<< HEAD
 	pushl	$__KERNEL_CS
 	leal	startup_64(%ebp), %eax
 #ifdef CONFIG_EFI_MIXED
@@ -215,6 +357,35 @@ ENTRY(startup_32)
 	leal	handover_entry(%ebp), %eax
 1:
 #endif
+=======
+	leal	rva(startup_64)(%ebp), %eax
+#ifdef CONFIG_EFI_MIXED
+	movl	rva(efi32_boot_args)(%ebp), %edi
+	testl	%edi, %edi
+	jz	1f
+	leal	rva(efi64_stub_entry)(%ebp), %eax
+	movl	rva(efi32_boot_args+4)(%ebp), %esi
+	movl	rva(efi32_boot_args+8)(%ebp), %edx	// saved bootparams pointer
+	testl	%edx, %edx
+	jnz	1f
+	/*
+	 * efi_pe_entry uses MS calling convention, which requires 32 bytes of
+	 * shadow space on the stack even if all arguments are passed in
+	 * registers. We also need an additional 8 bytes for the space that
+	 * would be occupied by the return address, and this also results in
+	 * the correct stack alignment for entry.
+	 */
+	subl	$40, %esp
+	leal	rva(efi_pe_entry)(%ebp), %eax
+	movl	%edi, %ecx			// MS calling convention
+	movl	%esi, %edx
+1:
+#endif
+	/* Check if the C-bit position is correct when SEV is active */
+	call	startup32_check_sev_cbit
+
+	pushl	$__KERNEL_CS
+>>>>>>> upstream/android-13
 	pushl	%eax
 
 	/* Enter paged protected Mode, activating Long Mode */
@@ -223,16 +394,25 @@ ENTRY(startup_32)
 
 	/* Jump from 32bit compatibility mode into 64bit mode. */
 	lret
+<<<<<<< HEAD
 ENDPROC(startup_32)
 
 #ifdef CONFIG_EFI_MIXED
 	.org 0x190
 ENTRY(efi32_stub_entry)
+=======
+SYM_FUNC_END(startup_32)
+
+#ifdef CONFIG_EFI_MIXED
+	.org 0x190
+SYM_FUNC_START(efi32_stub_entry)
+>>>>>>> upstream/android-13
 	add	$0x4, %esp		/* Discard return address */
 	popl	%ecx
 	popl	%edx
 	popl	%esi
 
+<<<<<<< HEAD
 	leal	(BP_scratch+4)(%esi), %esp
 	call	1f
 1:	pop	%ebp
@@ -244,6 +424,25 @@ ENTRY(efi32_stub_entry)
 
 	leal	efi32_config(%ebp), %eax
 	movl	%eax, efi_config(%ebp)
+=======
+	call	1f
+1:	pop	%ebp
+	subl	$ rva(1b), %ebp
+
+	movl	%esi, rva(efi32_boot_args+8)(%ebp)
+SYM_INNER_LABEL(efi32_pe_stub_entry, SYM_L_LOCAL)
+	movl	%ecx, rva(efi32_boot_args)(%ebp)
+	movl	%edx, rva(efi32_boot_args+4)(%ebp)
+	movb	$0, rva(efi_is64)(%ebp)
+
+	/* Save firmware GDTR and code/data selectors */
+	sgdtl	rva(efi32_boot_gdt)(%ebp)
+	movw	%cs, rva(efi32_boot_cs)(%ebp)
+	movw	%ds, rva(efi32_boot_ds)(%ebp)
+
+	/* Store firmware IDT descriptor */
+	sidtl	rva(efi32_boot_idt)(%ebp)
+>>>>>>> upstream/android-13
 
 	/* Disable paging */
 	movl	%cr0, %eax
@@ -251,12 +450,20 @@ ENTRY(efi32_stub_entry)
 	movl	%eax, %cr0
 
 	jmp	startup_32
+<<<<<<< HEAD
 ENDPROC(efi32_stub_entry)
+=======
+SYM_FUNC_END(efi32_stub_entry)
+>>>>>>> upstream/android-13
 #endif
 
 	.code64
 	.org 0x200
+<<<<<<< HEAD
 ENTRY(startup_64)
+=======
+SYM_CODE_START(startup_64)
+>>>>>>> upstream/android-13
 	/*
 	 * 64bit entry is 0x200 and it is ABI so immutable!
 	 * We come here either from startup_32 or directly from a
@@ -268,6 +475,12 @@ ENTRY(startup_64)
 	 * and command line.
 	 */
 
+<<<<<<< HEAD
+=======
+	cld
+	cli
+
+>>>>>>> upstream/android-13
 	/* Setup data segments. */
 	xorl	%eax, %eax
 	movl	%eax, %ds
@@ -292,6 +505,23 @@ ENTRY(startup_64)
 	/* Start with the delta to where the kernel will run at. */
 #ifdef CONFIG_RELOCATABLE
 	leaq	startup_32(%rip) /* - $startup_32 */, %rbp
+<<<<<<< HEAD
+=======
+
+#ifdef CONFIG_EFI_STUB
+/*
+ * If we were loaded via the EFI LoadImage service, startup_32 will be at an
+ * offset to the start of the space allocated for the image. efi_pe_entry will
+ * set up image_offset to tell us where the image actually starts, so that we
+ * can use the full available buffer.
+ *	image_offset = startup_32 - image_base
+ * Otherwise image_offset will be zero and has no effect on the calculations.
+ */
+	movl    image_offset(%rip), %eax
+	subq	%rax, %rbp
+#endif
+
+>>>>>>> upstream/android-13
 	movl	BP_kernel_alignment(%rsi), %eax
 	decl	%eax
 	addq	%rax, %rbp
@@ -305,6 +535,7 @@ ENTRY(startup_64)
 
 	/* Target address to relocate to for decompression */
 	movl	BP_init_size(%rsi), %ebx
+<<<<<<< HEAD
 	subl	$_end, %ebx
 	addq	%rbp, %rbx
 
@@ -329,6 +560,13 @@ ENTRY(startup_64)
 	subq	$1b, %rdi
 
 	call	adjust_got
+=======
+	subl	$ rva(_end), %ebx
+	addq	%rbp, %rbx
+
+	/* Set up the stack */
+	leaq	rva(boot_stack_end)(%rbx), %rsp
+>>>>>>> upstream/android-13
 
 	/*
 	 * At this point we are in long mode with 4-level paging enabled,
@@ -356,16 +594,42 @@ ENTRY(startup_64)
 	 */
 
 	/* Make sure we have GDT with 32-bit code segment */
+<<<<<<< HEAD
 	leaq	gdt(%rip), %rax
 	movq	%rax, gdt64+2(%rip)
 	lgdt	gdt64(%rip)
+=======
+	leaq	gdt64(%rip), %rax
+	addq	%rax, 2(%rax)
+	lgdt	(%rax)
+
+	/* Reload CS so IRET returns to a CS actually in the GDT */
+	pushq	$__KERNEL_CS
+	leaq	.Lon_kernel_cs(%rip), %rax
+	pushq	%rax
+	lretq
+
+.Lon_kernel_cs:
+
+	pushq	%rsi
+	call	load_stage1_idt
+	popq	%rsi
+>>>>>>> upstream/android-13
 
 	/*
 	 * paging_prepare() sets up the trampoline and checks if we need to
 	 * enable 5-level paging.
 	 *
+<<<<<<< HEAD
 	 * Address of the trampoline is returned in RAX.
 	 * Non zero RDX on return means we need to enable 5-level paging.
+=======
+	 * paging_prepare() returns a two-quadword structure which lands
+	 * into RDX:RAX:
+	 *   - Address of the trampoline is returned in RAX.
+	 *   - Non zero RDX means trampoline needs to enable 5-level
+	 *     paging.
+>>>>>>> upstream/android-13
 	 *
 	 * RSI holds real mode data and needs to be preserved across
 	 * this function call.
@@ -391,7 +655,11 @@ ENTRY(startup_64)
 	lretq
 trampoline_return:
 	/* Restore the stack, the 32-bit trampoline uses its own stack */
+<<<<<<< HEAD
 	leaq	boot_stack_end(%rbx), %rsp
+=======
+	leaq	rva(boot_stack_end)(%rbx), %rsp
+>>>>>>> upstream/android-13
 
 	/*
 	 * cleanup_trampoline() would restore trampoline memory.
@@ -403,7 +671,11 @@ trampoline_return:
 	 * this function call.
 	 */
 	pushq	%rsi
+<<<<<<< HEAD
 	leaq	top_pgtable(%rbx), %rdi
+=======
+	leaq	rva(top_pgtable)(%rbx), %rdi
+>>>>>>> upstream/android-13
 	call	cleanup_trampoline
 	popq	%rsi
 
@@ -411,6 +683,7 @@ trampoline_return:
 	pushq	$0
 	popfq
 
+<<<<<<< HEAD
 	/*
 	 * Previously we've adjusted the GOT with address the binary was
 	 * loaded at. Now we need to re-adjust for relocation address.
@@ -426,20 +699,29 @@ trampoline_return:
 	movq	%rbx, %rdi
 	call	adjust_got
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Copy the compressed kernel to the end of our buffer
  * where decompression in place becomes safe.
  */
 	pushq	%rsi
 	leaq	(_bss-8)(%rip), %rsi
+<<<<<<< HEAD
 	leaq	(_bss-8)(%rbx), %rdi
 	movq	$_bss /* - $startup_32 */, %rcx
 	shrq	$3, %rcx
+=======
+	leaq	rva(_bss-8)(%rbx), %rdi
+	movl	$(_bss - startup_32), %ecx
+	shrl	$3, %ecx
+>>>>>>> upstream/android-13
 	std
 	rep	movsq
 	cld
 	popq	%rsi
 
+<<<<<<< HEAD
 /*
  * Jump to the relocated address.
  */
@@ -515,6 +797,41 @@ ENDPROC(efi64_stub_entry)
 
 	.text
 relocated:
+=======
+	/*
+	 * The GDT may get overwritten either during the copy we just did or
+	 * during extract_kernel below. To avoid any issues, repoint the GDTR
+	 * to the new copy of the GDT.
+	 */
+	leaq	rva(gdt64)(%rbx), %rax
+	leaq	rva(gdt)(%rbx), %rdx
+	movq	%rdx, 2(%rax)
+	lgdt	(%rax)
+
+/*
+ * Jump to the relocated address.
+ */
+	leaq	rva(.Lrelocated)(%rbx), %rax
+	jmp	*%rax
+SYM_CODE_END(startup_64)
+
+#ifdef CONFIG_EFI_STUB
+	.org 0x390
+SYM_FUNC_START(efi64_stub_entry)
+SYM_FUNC_START_ALIAS(efi_stub_entry)
+	and	$~0xf, %rsp			/* realign the stack */
+	movq	%rdx, %rbx			/* save boot_params pointer */
+	call	efi_main
+	movq	%rbx,%rsi
+	leaq	rva(startup_64)(%rax), %rax
+	jmp	*%rax
+SYM_FUNC_END(efi64_stub_entry)
+SYM_FUNC_END_ALIAS(efi_stub_entry)
+#endif
+
+	.text
+SYM_FUNC_START_LOCAL_NOALIGN(.Lrelocated)
+>>>>>>> upstream/android-13
 
 /*
  * Clear BSS (stack is currently empty)
@@ -527,15 +844,42 @@ relocated:
 	rep	stosq
 
 /*
+<<<<<<< HEAD
+=======
+ * If running as an SEV guest, the encryption mask is required in the
+ * page-table setup code below. When the guest also has SEV-ES enabled
+ * set_sev_encryption_mask() will cause #VC exceptions, but the stage2
+ * handler can't map its GHCB because the page-table is not set up yet.
+ * So set up the encryption mask here while still on the stage1 #VC
+ * handler. Then load stage2 IDT and switch to the kernel's own
+ * page-table.
+ */
+	pushq	%rsi
+	call	set_sev_encryption_mask
+	call	load_stage2_idt
+
+	/* Pass boot_params to initialize_identity_maps() */
+	movq	(%rsp), %rdi
+	call	initialize_identity_maps
+	popq	%rsi
+
+/*
+>>>>>>> upstream/android-13
  * Do the extraction, and jump to the new kernel..
  */
 	pushq	%rsi			/* Save the real mode argument */
 	movq	%rsi, %rdi		/* real mode address */
 	leaq	boot_heap(%rip), %rsi	/* malloc area for uncompression */
 	leaq	input_data(%rip), %rdx  /* input_data */
+<<<<<<< HEAD
 	movl	$z_input_len, %ecx	/* input_len */
 	movq	%rbp, %r8		/* output target address */
 	movq	$z_output_len, %r9	/* decompressed length, end of relocs */
+=======
+	movl	input_len(%rip), %ecx	/* input_len */
+	movq	%rbp, %r8		/* output target address */
+	movl	output_len(%rip), %r9d	/* decompressed length, end of relocs */
+>>>>>>> upstream/android-13
 	call	extract_kernel		/* returns kernel location in %rax */
 	popq	%rsi
 
@@ -543,6 +887,7 @@ relocated:
  * Jump to the decompressed kernel.
  */
 	jmp	*%rax
+<<<<<<< HEAD
 
 /*
  * Adjust the global offset table
@@ -564,6 +909,9 @@ adjust_got:
 	jmp	1b
 2:
 	ret
+=======
+SYM_FUNC_END(.Lrelocated)
+>>>>>>> upstream/android-13
 
 	.code32
 /*
@@ -571,9 +919,15 @@ adjust_got:
  *
  * RDI contains the return address (might be above 4G).
  * ECX contains the base address of the trampoline memory.
+<<<<<<< HEAD
  * Non zero RDX on return means we need to enable 5-level paging.
  */
 ENTRY(trampoline_32bit_src)
+=======
+ * Non zero RDX means trampoline needs to enable 5-level paging.
+ */
+SYM_CODE_START(trampoline_32bit_src)
+>>>>>>> upstream/android-13
 	/* Set up data and stack segments */
 	movl	$__KERNEL_DS, %eax
 	movl	%eax, %ds
@@ -588,7 +942,11 @@ ENTRY(trampoline_32bit_src)
 	movl	%eax, %cr0
 
 	/* Check what paging mode we want to be in after the trampoline */
+<<<<<<< HEAD
 	cmpl	$0, %edx
+=======
+	testl	%edx, %edx
+>>>>>>> upstream/android-13
 	jz	1f
 
 	/* We want 5-level paging: don't touch CR3 if it already points to 5-level page tables */
@@ -618,14 +976,22 @@ ENTRY(trampoline_32bit_src)
 
 	/* Enable PAE and LA57 (if required) paging modes */
 	movl	$X86_CR4_PAE, %eax
+<<<<<<< HEAD
 	cmpl	$0, %edx
+=======
+	testl	%edx, %edx
+>>>>>>> upstream/android-13
 	jz	1f
 	orl	$X86_CR4_LA57, %eax
 1:
 	movl	%eax, %cr4
 
 	/* Calculate address of paging_enabled() once we are executing in the trampoline */
+<<<<<<< HEAD
 	leal	paging_enabled - trampoline_32bit_src + TRAMPOLINE_32BIT_CODE_OFFSET(%ecx), %eax
+=======
+	leal	.Lpaging_enabled - trampoline_32bit_src + TRAMPOLINE_32BIT_CODE_OFFSET(%ecx), %eax
+>>>>>>> upstream/android-13
 
 	/* Prepare the stack for far return to Long Mode */
 	pushl	$__KERNEL_CS
@@ -636,11 +1002,21 @@ ENTRY(trampoline_32bit_src)
 	movl	%eax, %cr0
 
 	lret
+<<<<<<< HEAD
 
 	.code64
 paging_enabled:
 	/* Return from the trampoline */
 	jmp	*%rdi
+=======
+SYM_CODE_END(trampoline_32bit_src)
+
+	.code64
+SYM_FUNC_START_LOCAL_NOALIGN(.Lpaging_enabled)
+	/* Return from the trampoline */
+	jmp	*%rdi
+SYM_FUNC_END(.Lpaging_enabled)
+>>>>>>> upstream/android-13
 
 	/*
          * The trampoline code has a size limit.
@@ -650,15 +1026,24 @@ paging_enabled:
 	.org	trampoline_32bit_src + TRAMPOLINE_32BIT_CODE_SIZE
 
 	.code32
+<<<<<<< HEAD
 no_longmode:
+=======
+SYM_FUNC_START_LOCAL_NOALIGN(.Lno_longmode)
+>>>>>>> upstream/android-13
 	/* This isn't an x86-64 CPU, so hang intentionally, we cannot continue */
 1:
 	hlt
 	jmp     1b
+<<<<<<< HEAD
+=======
+SYM_FUNC_END(.Lno_longmode)
+>>>>>>> upstream/android-13
 
 #include "../../kernel/verify_cpu.S"
 
 	.data
+<<<<<<< HEAD
 gdt64:
 	.word	gdt_end - gdt
 	.long	0
@@ -668,11 +1053,23 @@ gdt:
 	.word	gdt_end - gdt
 	.long	gdt
 	.word	0
+=======
+SYM_DATA_START_LOCAL(gdt64)
+	.word	gdt_end - gdt - 1
+	.quad   gdt - gdt64
+SYM_DATA_END(gdt64)
+	.balign	8
+SYM_DATA_START_LOCAL(gdt)
+	.word	gdt_end - gdt - 1
+	.long	0
+	.word	0
+>>>>>>> upstream/android-13
 	.quad	0x00cf9a000000ffff	/* __KERNEL32_CS */
 	.quad	0x00af9a000000ffff	/* __KERNEL_CS */
 	.quad	0x00cf92000000ffff	/* __KERNEL_DS */
 	.quad	0x0080890000000000	/* TS descriptor */
 	.quad   0x0000000000000000	/* TS continued */
+<<<<<<< HEAD
 gdt_end:
 
 #ifdef CONFIG_EFI_STUB
@@ -693,29 +1090,299 @@ efi64_config:
 	.quad	efi_call
 	.byte	1
 #endif /* CONFIG_EFI_STUB */
+=======
+SYM_DATA_END_LABEL(gdt, SYM_L_LOCAL, gdt_end)
+
+SYM_DATA_START(boot_idt_desc)
+	.word	boot_idt_end - boot_idt - 1
+	.quad	0
+SYM_DATA_END(boot_idt_desc)
+	.balign 8
+SYM_DATA_START(boot_idt)
+	.rept	BOOT_IDT_ENTRIES
+	.quad	0
+	.quad	0
+	.endr
+SYM_DATA_END_LABEL(boot_idt, SYM_L_GLOBAL, boot_idt_end)
+
+#ifdef CONFIG_AMD_MEM_ENCRYPT
+SYM_DATA_START(boot32_idt_desc)
+	.word   boot32_idt_end - boot32_idt - 1
+	.long   0
+SYM_DATA_END(boot32_idt_desc)
+	.balign 8
+SYM_DATA_START(boot32_idt)
+	.rept 32
+	.quad 0
+	.endr
+SYM_DATA_END_LABEL(boot32_idt, SYM_L_GLOBAL, boot32_idt_end)
+#endif
+
+#ifdef CONFIG_EFI_STUB
+SYM_DATA(image_offset, .long 0)
+#endif
+#ifdef CONFIG_EFI_MIXED
+SYM_DATA_LOCAL(efi32_boot_args, .long 0, 0, 0)
+SYM_DATA(efi_is64, .byte 1)
+
+#define ST32_boottime		60 // offsetof(efi_system_table_32_t, boottime)
+#define BS32_handle_protocol	88 // offsetof(efi_boot_services_32_t, handle_protocol)
+#define LI32_image_base		32 // offsetof(efi_loaded_image_32_t, image_base)
+
+	__HEAD
+	.code32
+SYM_FUNC_START(efi32_pe_entry)
+/*
+ * efi_status_t efi32_pe_entry(efi_handle_t image_handle,
+ *			       efi_system_table_32_t *sys_table)
+ */
+
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%eax				// dummy push to allocate loaded_image
+
+	pushl	%ebx				// save callee-save registers
+	pushl	%edi
+
+	call	verify_cpu			// check for long mode support
+	testl	%eax, %eax
+	movl	$0x80000003, %eax		// EFI_UNSUPPORTED
+	jnz	2f
+
+	call	1f
+1:	pop	%ebx
+	subl	$ rva(1b), %ebx
+
+	/* Get the loaded image protocol pointer from the image handle */
+	leal	-4(%ebp), %eax
+	pushl	%eax				// &loaded_image
+	leal	rva(loaded_image_proto)(%ebx), %eax
+	pushl	%eax				// pass the GUID address
+	pushl	8(%ebp)				// pass the image handle
+
+	/*
+	 * Note the alignment of the stack frame.
+	 *   sys_table
+	 *   handle             <-- 16-byte aligned on entry by ABI
+	 *   return address
+	 *   frame pointer
+	 *   loaded_image       <-- local variable
+	 *   saved %ebx		<-- 16-byte aligned here
+	 *   saved %edi
+	 *   &loaded_image
+	 *   &loaded_image_proto
+	 *   handle             <-- 16-byte aligned for call to handle_protocol
+	 */
+
+	movl	12(%ebp), %eax			// sys_table
+	movl	ST32_boottime(%eax), %eax	// sys_table->boottime
+	call	*BS32_handle_protocol(%eax)	// sys_table->boottime->handle_protocol
+	addl	$12, %esp			// restore argument space
+	testl	%eax, %eax
+	jnz	2f
+
+	movl	8(%ebp), %ecx			// image_handle
+	movl	12(%ebp), %edx			// sys_table
+	movl	-4(%ebp), %esi			// loaded_image
+	movl	LI32_image_base(%esi), %esi	// loaded_image->image_base
+	movl	%ebx, %ebp			// startup_32 for efi32_pe_stub_entry
+	/*
+	 * We need to set the image_offset variable here since startup_32() will
+	 * use it before we get to the 64-bit efi_pe_entry() in C code.
+	 */
+	subl	%esi, %ebx
+	movl	%ebx, rva(image_offset)(%ebp)	// save image_offset
+	jmp	efi32_pe_stub_entry
+
+2:	popl	%edi				// restore callee-save registers
+	popl	%ebx
+	leave
+	RET
+SYM_FUNC_END(efi32_pe_entry)
+
+	.section ".rodata"
+	/* EFI loaded image protocol GUID */
+	.balign 4
+SYM_DATA_START_LOCAL(loaded_image_proto)
+	.long	0x5b1b31a1
+	.word	0x9562, 0x11d2
+	.byte	0x8e, 0x3f, 0x00, 0xa0, 0xc9, 0x69, 0x72, 0x3b
+SYM_DATA_END(loaded_image_proto)
+#endif
+
+#ifdef CONFIG_AMD_MEM_ENCRYPT
+	__HEAD
+	.code32
+/*
+ * Write an IDT entry into boot32_idt
+ *
+ * Parameters:
+ *
+ * %eax:	Handler address
+ * %edx:	Vector number
+ *
+ * Physical offset is expected in %ebp
+ */
+SYM_FUNC_START(startup32_set_idt_entry)
+	push    %ebx
+	push    %ecx
+
+	/* IDT entry address to %ebx */
+	leal    rva(boot32_idt)(%ebp), %ebx
+	shl	$3, %edx
+	addl    %edx, %ebx
+
+	/* Build IDT entry, lower 4 bytes */
+	movl    %eax, %edx
+	andl    $0x0000ffff, %edx	# Target code segment offset [15:0]
+	movl    $__KERNEL32_CS, %ecx	# Target code segment selector
+	shl     $16, %ecx
+	orl     %ecx, %edx
+
+	/* Store lower 4 bytes to IDT */
+	movl    %edx, (%ebx)
+
+	/* Build IDT entry, upper 4 bytes */
+	movl    %eax, %edx
+	andl    $0xffff0000, %edx	# Target code segment offset [31:16]
+	orl     $0x00008e00, %edx	# Present, Type 32-bit Interrupt Gate
+
+	/* Store upper 4 bytes to IDT */
+	movl    %edx, 4(%ebx)
+
+	pop     %ecx
+	pop     %ebx
+	RET
+SYM_FUNC_END(startup32_set_idt_entry)
+#endif
+
+SYM_FUNC_START(startup32_load_idt)
+#ifdef CONFIG_AMD_MEM_ENCRYPT
+	/* #VC handler */
+	leal    rva(startup32_vc_handler)(%ebp), %eax
+	movl    $X86_TRAP_VC, %edx
+	call    startup32_set_idt_entry
+
+	/* Load IDT */
+	leal	rva(boot32_idt)(%ebp), %eax
+	movl	%eax, rva(boot32_idt_desc+2)(%ebp)
+	lidt    rva(boot32_idt_desc)(%ebp)
+#endif
+	RET
+SYM_FUNC_END(startup32_load_idt)
+
+/*
+ * Check for the correct C-bit position when the startup_32 boot-path is used.
+ *
+ * The check makes use of the fact that all memory is encrypted when paging is
+ * disabled. The function creates 64 bits of random data using the RDRAND
+ * instruction. RDRAND is mandatory for SEV guests, so always available. If the
+ * hypervisor violates that the kernel will crash right here.
+ *
+ * The 64 bits of random data are stored to a memory location and at the same
+ * time kept in the %eax and %ebx registers. Since encryption is always active
+ * when paging is off the random data will be stored encrypted in main memory.
+ *
+ * Then paging is enabled. When the C-bit position is correct all memory is
+ * still mapped encrypted and comparing the register values with memory will
+ * succeed. An incorrect C-bit position will map all memory unencrypted, so that
+ * the compare will use the encrypted random data and fail.
+ */
+SYM_FUNC_START(startup32_check_sev_cbit)
+#ifdef CONFIG_AMD_MEM_ENCRYPT
+	pushl	%eax
+	pushl	%ebx
+	pushl	%ecx
+	pushl	%edx
+
+	/* Check for non-zero sev_status */
+	movl	rva(sev_status)(%ebp), %eax
+	testl	%eax, %eax
+	jz	4f
+
+	/*
+	 * Get two 32-bit random values - Don't bail out if RDRAND fails
+	 * because it is better to prevent forward progress if no random value
+	 * can be gathered.
+	 */
+1:	rdrand	%eax
+	jnc	1b
+2:	rdrand	%ebx
+	jnc	2b
+
+	/* Store to memory and keep it in the registers */
+	movl	%eax, rva(sev_check_data)(%ebp)
+	movl	%ebx, rva(sev_check_data+4)(%ebp)
+
+	/* Enable paging to see if encryption is active */
+	movl	%cr0, %edx			 /* Backup %cr0 in %edx */
+	movl	$(X86_CR0_PG | X86_CR0_PE), %ecx /* Enable Paging and Protected mode */
+	movl	%ecx, %cr0
+
+	cmpl	%eax, rva(sev_check_data)(%ebp)
+	jne	3f
+	cmpl	%ebx, rva(sev_check_data+4)(%ebp)
+	jne	3f
+
+	movl	%edx, %cr0	/* Restore previous %cr0 */
+
+	jmp	4f
+
+3:	/* Check failed - hlt the machine */
+	hlt
+	jmp	3b
+
+4:
+	popl	%edx
+	popl	%ecx
+	popl	%ebx
+	popl	%eax
+#endif
+	RET
+SYM_FUNC_END(startup32_check_sev_cbit)
+>>>>>>> upstream/android-13
 
 /*
  * Stack and heap for uncompression
  */
 	.bss
 	.balign 4
+<<<<<<< HEAD
 boot_heap:
 	.fill BOOT_HEAP_SIZE, 1, 0
 boot_stack:
 	.fill BOOT_STACK_SIZE, 1, 0
 boot_stack_end:
+=======
+SYM_DATA_LOCAL(boot_heap,	.fill BOOT_HEAP_SIZE, 1, 0)
+
+SYM_DATA_START_LOCAL(boot_stack)
+	.fill BOOT_STACK_SIZE, 1, 0
+	.balign 16
+SYM_DATA_END_LABEL(boot_stack, SYM_L_LOCAL, boot_stack_end)
+>>>>>>> upstream/android-13
 
 /*
  * Space for page tables (not in .bss so not zeroed)
  */
+<<<<<<< HEAD
 	.section ".pgtable","a",@nobits
 	.balign 4096
 pgtable:
 	.fill BOOT_PGT_SIZE, 1, 0
+=======
+	.section ".pgtable","aw",@nobits
+	.balign 4096
+SYM_DATA_LOCAL(pgtable,		.fill BOOT_PGT_SIZE, 1, 0)
+>>>>>>> upstream/android-13
 
 /*
  * The page table is going to be used instead of page table in the trampoline
  * memory.
  */
+<<<<<<< HEAD
 top_pgtable:
 	.fill PAGE_SIZE, 1, 0
+=======
+SYM_DATA_LOCAL(top_pgtable,	.fill PAGE_SIZE, 1, 0)
+>>>>>>> upstream/android-13

@@ -22,8 +22,13 @@ Required properties:
 - i2c-parent: The phandle of the I2C bus that this multiplexer's master-side
   port is connected to.
 - mux-gpios: list of gpios used to control the muxer
+<<<<<<< HEAD
 * Standard I2C mux properties. See i2c-mux.txt in this directory.
 * I2C child bus nodes. See i2c-mux.txt in this directory.
+=======
+* Standard I2C mux properties. See i2c-mux.yaml in this directory.
+* I2C child bus nodes. See i2c-mux.yaml in this directory.
+>>>>>>> upstream/android-13
 
 Optional properties:
 - idle-state: value to set the muxer to when idle. When no value is
@@ -62,7 +67,10 @@ Example:
 				reg = <0x3c>;
 				pwms = <&pwm 4 3000>;
 				reset-gpios = <&gpio2 7 1>;
+<<<<<<< HEAD
 				reset-active-low;
+=======
+>>>>>>> upstream/android-13
 			};
 		};
 

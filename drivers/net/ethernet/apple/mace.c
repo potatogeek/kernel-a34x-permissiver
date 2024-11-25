@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Network device driver for the MACE ethernet controller on
  * Apple Powermacs.  Assumes it's under a DBDMA controller.
@@ -18,10 +22,17 @@
 #include <linux/spinlock.h>
 #include <linux/bitrev.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 #include <asm/prom.h>
 #include <asm/dbdma.h>
 #include <asm/io.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+#include <asm/prom.h>
+#include <asm/dbdma.h>
+#include <asm/io.h>
+>>>>>>> upstream/android-13
 #include <asm/macio.h>
 
 #include "mace.h"
@@ -363,9 +374,15 @@ static void mace_reset(struct net_device *dev)
 	out_8(&mb->iac, 0);
 
     if (mp->port_aaui)
+<<<<<<< HEAD
     	out_8(&mb->plscc, PORTSEL_AUI + ENPLSIO);
     else
     	out_8(&mb->plscc, PORTSEL_GPSI + ENPLSIO);
+=======
+	out_8(&mb->plscc, PORTSEL_AUI + ENPLSIO);
+    else
+	out_8(&mb->plscc, PORTSEL_GPSI + ENPLSIO);
+>>>>>>> upstream/android-13
 }
 
 static void __mace_set_address(struct net_device *dev, void *addr)
@@ -377,9 +394,15 @@ static void __mace_set_address(struct net_device *dev, void *addr)
 
     /* load up the hardware address */
     if (mp->chipid == BROKEN_ADDRCHG_REV)
+<<<<<<< HEAD
     	out_8(&mb->iac, PHYADDR);
     else {
     	out_8(&mb->iac, ADDRCHG | PHYADDR);
+=======
+	out_8(&mb->iac, PHYADDR);
+    else {
+	out_8(&mb->iac, ADDRCHG | PHYADDR);
+>>>>>>> upstream/android-13
 	while ((in_8(&mb->iac) & ADDRCHG) != 0)
 	    ;
     }
@@ -764,7 +787,11 @@ static irqreturn_t mace_interrupt(int irq, void *dev_id)
 	    dev->stats.tx_bytes += mp->tx_bufs[i]->len;
 	    ++dev->stats.tx_packets;
 	}
+<<<<<<< HEAD
 	dev_kfree_skb_irq(mp->tx_bufs[i]);
+=======
+	dev_consume_skb_irq(mp->tx_bufs[i]);
+>>>>>>> upstream/android-13
 	--mp->tx_active;
 	if (++i >= N_TX_RING)
 	    i = 0;

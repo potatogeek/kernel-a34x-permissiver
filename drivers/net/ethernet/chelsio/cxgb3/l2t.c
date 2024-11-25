@@ -136,7 +136,11 @@ again:
 		if (e->state == L2T_STATE_STALE)
 			e->state = L2T_STATE_VALID;
 		spin_unlock_bh(&e->lock);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case L2T_STATE_VALID:	/* fast-path, send the packet on */
 		return cxgb3_ofld_send(dev, skb);
 	case L2T_STATE_RESOLVING:
@@ -443,9 +447,15 @@ found:
 struct l2t_data *t3_init_l2t(unsigned int l2t_capacity)
 {
 	struct l2t_data *d;
+<<<<<<< HEAD
 	int i, size = sizeof(*d) + l2t_capacity * sizeof(struct l2t_entry);
 
 	d = kvzalloc(size, GFP_KERNEL);
+=======
+	int i;
+
+	d = kvzalloc(struct_size(d, l2tab, l2t_capacity), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!d)
 		return NULL;
 

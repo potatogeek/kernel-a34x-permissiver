@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2012  Realtek Corporation. All rights reserved.
@@ -20,6 +21,10 @@
  * Hsinchu 300, Taiwan.
  *
  *****************************************************************************/
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/* Copyright(c) 2009-2012  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #ifndef __RTL_USB_H__
 #define __RTL_USB_H__
@@ -37,7 +42,10 @@
 #define USB_HIGH_SPEED_BULK_SIZE	512
 #define USB_FULL_SPEED_BULK_SIZE	64
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 #define RTL_USB_MAX_TXQ_NUM		4		/* max tx queue */
 #define RTL_USB_MAX_EP_NUM		6		/* max ep number */
 #define RTL_USB_MAX_TX_URBS_NUM		8
@@ -73,11 +81,18 @@ static inline void _rtl_install_trx_info(struct rtl_usb *rtlusb,
 					 u32 ep_num)
 {
 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(skb);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	info->rate_driver_data[0] = rtlusb;
 	info->rate_driver_data[1] = (void *)(__kernel_size_t)ep_num;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 /*  Add suspend/resume later */
 enum rtl_usb_state {
 	USB_STATE_STOP	= 0,
@@ -104,7 +119,11 @@ struct rtl_usb {
 	/* Bcn control register setting */
 	u32 reg_bcn_ctrl_val;
 	/* for 88/92cu card disable */
+<<<<<<< HEAD
 	u8	disableHWSM;
+=======
+	u8	disablehwsm;
+>>>>>>> upstream/android-13
 	/*QOS & EDCA */
 	enum acm_method acm_method;
 	/* irq  . HIMR,HIMR_EX */
@@ -153,8 +172,11 @@ struct rtl_usb_priv {
 #define rtl_usbpriv(hw)	 (((struct rtl_usb_priv *)(rtl_priv(hw))->priv))
 #define rtl_usbdev(usbpriv)	(&((usbpriv)->dev))
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> upstream/android-13
 int rtl_usb_probe(struct usb_interface *intf,
 		  const struct usb_device_id *id,
 		  struct rtl_hal_cfg *rtl92cu_hal_cfg);

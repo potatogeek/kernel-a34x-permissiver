@@ -64,8 +64,13 @@ static int current_css_set_read(struct seq_file *seq, void *v)
 		css = cset->subsys[ss->id];
 		if (!css)
 			continue;
+<<<<<<< HEAD
 		seq_printf(seq, "%2d: %-4s\t- %lx[%d]\n", ss->id, ss->name,
 			  (unsigned long)css, css->id);
+=======
+		seq_printf(seq, "%2d: %-4s\t- %p[%d]\n", ss->id, ss->name,
+			  css, css->id);
+>>>>>>> upstream/android-13
 	}
 	rcu_read_unlock();
 	spin_unlock_irq(&css_set_lock);
@@ -224,8 +229,13 @@ static int cgroup_subsys_states_read(struct seq_file *seq, void *v)
 		if (css->parent)
 			snprintf(pbuf, sizeof(pbuf) - 1, " P=%d",
 				 css->parent->id);
+<<<<<<< HEAD
 		seq_printf(seq, "%2d: %-4s\t- %lx[%d] %d%s\n", ss->id, ss->name,
 			  (unsigned long)css, css->id,
+=======
+		seq_printf(seq, "%2d: %-4s\t- %p[%d] %d%s\n", ss->id, ss->name,
+			  css, css->id,
+>>>>>>> upstream/android-13
 			  atomic_read(&css->online_cnt), pbuf);
 	}
 
@@ -373,11 +383,19 @@ struct cgroup_subsys debug_cgrp_subsys = {
  * On v2, debug is an implicit controller enabled by "cgroup_debug" boot
  * parameter.
  */
+<<<<<<< HEAD
 static int __init enable_cgroup_debug(char *str)
+=======
+void __init enable_debug_cgroup(void)
+>>>>>>> upstream/android-13
 {
 	debug_cgrp_subsys.dfl_cftypes = debug_files;
 	debug_cgrp_subsys.implicit_on_dfl = true;
 	debug_cgrp_subsys.threaded = true;
+<<<<<<< HEAD
 	return 1;
 }
 __setup("cgroup_debug", enable_cgroup_debug);
+=======
+}
+>>>>>>> upstream/android-13

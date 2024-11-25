@@ -45,7 +45,11 @@ FPU_accum_1:
 
 
 .text
+<<<<<<< HEAD
 ENTRY(FPU_u_mul)
+=======
+SYM_FUNC_START(FPU_u_mul)
+>>>>>>> upstream/android-13
 	pushl	%ebp
 	movl	%esp,%ebp
 #ifndef NON_REENTRANT_FPU
@@ -144,7 +148,14 @@ L_exit:
 	popl	%edi
 	popl	%esi
 	leave
+<<<<<<< HEAD
 	ret
 #endif /* PARANOID */ 
 
 ENDPROC(FPU_u_mul)
+=======
+	RET
+#endif /* PARANOID */ 
+
+SYM_FUNC_END(FPU_u_mul)
+>>>>>>> upstream/android-13

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	IPV4 GSO/GRO offload support
  *	Linux INET implementation
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
@@ -10,6 +15,12 @@
  *	TCPv4 GSO/GRO support
  */
 
+=======
+ *	TCPv4 GSO/GRO support
+ */
+
+#include <linux/indirect_call_wrapper.h>
+>>>>>>> upstream/android-13
 #include <linux/skbuff.h>
 #include <net/tcp.h>
 #include <net/protocol.h>
@@ -301,11 +312,22 @@ int tcp_gro_complete(struct sk_buff *skb)
 	if (th->cwr)
 		skb_shinfo(skb)->gso_type |= SKB_GSO_TCP_ECN;
 
+<<<<<<< HEAD
+=======
+	if (skb->encapsulation)
+		skb->inner_transport_header = skb->transport_header;
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL(tcp_gro_complete);
 
+<<<<<<< HEAD
 static struct sk_buff *tcp4_gro_receive(struct list_head *head, struct sk_buff *skb)
+=======
+INDIRECT_CALLABLE_SCOPE
+struct sk_buff *tcp4_gro_receive(struct list_head *head, struct sk_buff *skb)
+>>>>>>> upstream/android-13
 {
 	/* Don't bother verifying checksum if we're going to flush anyway. */
 	if (!NAPI_GRO_CB(skb)->flush &&
@@ -318,7 +340,11 @@ static struct sk_buff *tcp4_gro_receive(struct list_head *head, struct sk_buff *
 	return tcp_gro_receive(head, skb);
 }
 
+<<<<<<< HEAD
 static int tcp4_gro_complete(struct sk_buff *skb, int thoff)
+=======
+INDIRECT_CALLABLE_SCOPE int tcp4_gro_complete(struct sk_buff *skb, int thoff)
+>>>>>>> upstream/android-13
 {
 	const struct iphdr *iph = ip_hdr(skb);
 	struct tcphdr *th = tcp_hdr(skb);

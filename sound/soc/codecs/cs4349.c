@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * cs4349.c  --  CS4349 ALSA Soc Audio driver
  *
  * Copyright 2015 Cirrus Logic, Inc.
  *
  * Authors: Tim Howe <Tim.Howe@cirrus.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -134,7 +141,11 @@ static int cs4349_pcm_hw_params(struct snd_pcm_substream *substream,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int cs4349_digital_mute(struct snd_soc_dai *dai, int mute)
+=======
+static int cs4349_mute(struct snd_soc_dai *dai, int mute, int direction)
+>>>>>>> upstream/android-13
 {
 	struct snd_soc_component *component = dai->component;
 	int reg;
@@ -239,7 +250,12 @@ static const struct snd_soc_dapm_route cs4349_routes[] = {
 static const struct snd_soc_dai_ops cs4349_dai_ops = {
 	.hw_params	= cs4349_pcm_hw_params,
 	.set_fmt	= cs4349_set_dai_fmt,
+<<<<<<< HEAD
 	.digital_mute	= cs4349_digital_mute,
+=======
+	.mute_stream	= cs4349_mute,
+	.no_capture_mute = 1,
+>>>>>>> upstream/android-13
 };
 
 static struct snd_soc_dai_driver cs4349_dai = {
@@ -252,7 +268,11 @@ static struct snd_soc_dai_driver cs4349_dai = {
 		.formats	= CS4349_PCM_FORMATS,
 	},
 	.ops = &cs4349_dai_ops,
+<<<<<<< HEAD
 	.symmetric_rates = 1,
+=======
+	.symmetric_rate = 1,
+>>>>>>> upstream/android-13
 };
 
 static const struct snd_soc_component_driver soc_component_dev_cs4349 = {

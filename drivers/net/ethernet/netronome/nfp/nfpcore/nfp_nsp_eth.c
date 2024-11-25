@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015-2017 Netronome Systems, Inc.
  *
@@ -30,6 +31,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+=======
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+/* Copyright (C) 2015-2017 Netronome Systems, Inc. */
+>>>>>>> upstream/android-13
 
 /* Authors: David Brunecz <david.brunecz@netronome.com>
  *          Jakub Kicinski <jakub.kicinski@netronome.com>
@@ -236,6 +241,12 @@ nfp_eth_calc_port_type(struct nfp_cpp *cpp, struct nfp_eth_table_port *entry)
 	if (entry->interface == NFP_INTERFACE_NONE) {
 		entry->port_type = PORT_NONE;
 		return;
+<<<<<<< HEAD
+=======
+	} else if (entry->interface == NFP_INTERFACE_RJ45) {
+		entry->port_type = PORT_TP;
+		return;
+>>>>>>> upstream/android-13
 	}
 
 	if (entry->media == NFP_MEDIA_FIBRE)
@@ -299,8 +310,12 @@ __nfp_eth_read_ports(struct nfp_cpp *cpp, struct nfp_nsp *nsp)
 		goto err;
 	}
 
+<<<<<<< HEAD
 	table = kzalloc(sizeof(*table) +
 			sizeof(struct nfp_eth_table_port) * cnt, GFP_KERNEL);
+=======
+	table = kzalloc(struct_size(table, ports, cnt), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!table)
 		goto err;
 

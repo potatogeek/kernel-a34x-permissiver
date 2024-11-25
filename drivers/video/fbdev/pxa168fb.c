@@ -60,8 +60,11 @@ static int determine_best_pix_fmt(struct fb_var_screeninfo *var)
 			else
 				return PIX_FMT_BGR1555;
 		}
+<<<<<<< HEAD
 
 		/* fall through */
+=======
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -87,8 +90,11 @@ static int determine_best_pix_fmt(struct fb_var_screeninfo *var)
 			else
 				return PIX_FMT_BGR888UNPACK;
 		}
+<<<<<<< HEAD
 
 		/* fall through */
+=======
+>>>>>>> upstream/android-13
 	}
 
 	return -EINVAL;
@@ -279,7 +285,11 @@ static void set_clock_divider(struct pxa168fb_info *fbi,
 
 	/* check whether divisor is too small. */
 	if (divider_int < 2) {
+<<<<<<< HEAD
 		dev_warn(fbi->dev, "Warning: clock source is too slow."
+=======
+		dev_warn(fbi->dev, "Warning: clock source is too slow. "
+>>>>>>> upstream/android-13
 				"Try smaller resolution\n");
 		divider_int = 2;
 	}
@@ -405,9 +415,12 @@ static int pxa168fb_set_par(struct fb_info *info)
 	struct fb_var_screeninfo *var = &info->var;
 	struct fb_videomode mode;
 	u32 x;
+<<<<<<< HEAD
 	struct pxa168fb_mach_info *mi;
 
 	mi = dev_get_platdata(fbi->dev);
+=======
+>>>>>>> upstream/android-13
 
 	/*
 	 * Set additional mode info.
@@ -548,7 +561,11 @@ static irqreturn_t pxa168fb_handle_irq(int irq, void *dev_id)
 	return IRQ_NONE;
 }
 
+<<<<<<< HEAD
 static struct fb_ops pxa168fb_ops = {
+=======
+static const struct fb_ops pxa168fb_ops = {
+>>>>>>> upstream/android-13
 	.owner		= THIS_MODULE,
 	.fb_check_var	= pxa168fb_check_var,
 	.fb_set_par	= pxa168fb_set_par,
@@ -560,12 +577,19 @@ static struct fb_ops pxa168fb_ops = {
 	.fb_imageblit	= cfb_imageblit,
 };
 
+<<<<<<< HEAD
 static int pxa168fb_init_mode(struct fb_info *info,
+=======
+static void pxa168fb_init_mode(struct fb_info *info,
+>>>>>>> upstream/android-13
 			      struct pxa168fb_mach_info *mi)
 {
 	struct pxa168fb_info *fbi = info->par;
 	struct fb_var_screeninfo *var = &info->var;
+<<<<<<< HEAD
 	int ret = 0;
+=======
+>>>>>>> upstream/android-13
 	u32 total_w, total_h, refresh;
 	u64 div_result;
 	const struct fb_videomode *m;
@@ -596,8 +620,11 @@ static int pxa168fb_init_mode(struct fb_info *info,
 	div_result = 1000000000000ll;
 	do_div(div_result, total_w * total_h * refresh);
 	var->pixclock = (u32)div_result;
+<<<<<<< HEAD
 
 	return ret;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int pxa168fb_probe(struct platform_device *pdev)
@@ -668,7 +695,11 @@ static int pxa168fb_probe(struct platform_device *pdev)
 	/*
 	 * Map LCD controller registers.
 	 */
+<<<<<<< HEAD
 	fbi->reg_base = devm_ioremap_nocache(&pdev->dev, res->start,
+=======
+	fbi->reg_base = devm_ioremap(&pdev->dev, res->start,
+>>>>>>> upstream/android-13
 					     resource_size(res));
 	if (fbi->reg_base == NULL) {
 		ret = -ENOMEM;
@@ -772,7 +803,11 @@ failed_free_fbmem:
 	dma_free_wc(fbi->dev, info->fix.smem_len,
 		    info->screen_base, fbi->fb_start_dma);
 failed_free_info:
+<<<<<<< HEAD
 	kfree(info);
+=======
+	framebuffer_release(info);
+>>>>>>> upstream/android-13
 
 	dev_err(&pdev->dev, "frame buffer device init failed with %d\n", ret);
 	return ret;
@@ -782,7 +817,10 @@ static int pxa168fb_remove(struct platform_device *pdev)
 {
 	struct pxa168fb_info *fbi = platform_get_drvdata(pdev);
 	struct fb_info *info;
+<<<<<<< HEAD
 	int irq;
+=======
+>>>>>>> upstream/android-13
 	unsigned int data;
 
 	if (!fbi)
@@ -802,8 +840,11 @@ static int pxa168fb_remove(struct platform_device *pdev)
 	if (info->cmap.len)
 		fb_dealloc_cmap(&info->cmap);
 
+<<<<<<< HEAD
 	irq = platform_get_irq(pdev, 0);
 
+=======
+>>>>>>> upstream/android-13
 	dma_free_wc(fbi->dev, info->fix.smem_len,
 		    info->screen_base, info->fix.smem_start);
 

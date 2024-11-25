@@ -3,6 +3,10 @@
 #include <linux/init.h>
 #include <linux/proc_fs.h>
 #include <linux/seq_file.h>
+<<<<<<< HEAD
+=======
+#include <linux/blkdev.h>
+>>>>>>> upstream/android-13
 
 static int devinfo_show(struct seq_file *f, void *v)
 {

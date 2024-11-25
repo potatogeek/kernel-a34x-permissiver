@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for Richtek RT9455WSC battery charger.
  *
  * Copyright (C) 2015 Intel Corporation
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -1593,7 +1600,11 @@ static const struct regmap_config rt9455_regmap_config = {
 static int rt9455_probe(struct i2c_client *client,
 			const struct i2c_device_id *id)
 {
+<<<<<<< HEAD
 	struct i2c_adapter *adapter = to_i2c_adapter(client->dev.parent);
+=======
+	struct i2c_adapter *adapter = client->adapter;
+>>>>>>> upstream/android-13
 	struct device *dev = &client->dev;
 	struct rt9455_info *info;
 	struct power_supply_config rt9455_charger_config = {};
@@ -1740,11 +1751,19 @@ static const struct of_device_id rt9455_of_match[] = {
 };
 MODULE_DEVICE_TABLE(of, rt9455_of_match);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_ACPI
+>>>>>>> upstream/android-13
 static const struct acpi_device_id rt9455_i2c_acpi_match[] = {
 	{ "RT945500", 0 },
 	{ }
 };
 MODULE_DEVICE_TABLE(acpi, rt9455_i2c_acpi_match);
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 static struct i2c_driver rt9455_driver = {
 	.probe		= rt9455_probe,

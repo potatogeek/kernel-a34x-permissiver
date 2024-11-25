@@ -43,13 +43,23 @@
 		serial1 = &uart1;
 	};
 
+<<<<<<< HEAD
 	memory {
+=======
+	memory@80000000 {
+		device_type = "memory";
+>>>>>>> upstream/android-13
 		reg = <0x80000000 0x10000000>;
 	};
 };
 
+<<<<<<< HEAD
 &nand {
 	nandcs@0 {
+=======
+&nand_controller {
+	nand@0 {
+>>>>>>> upstream/android-13
 		compatible = "brcm,nandcs";
 		reg = <0>;
 		nand-on-flash-bbt;

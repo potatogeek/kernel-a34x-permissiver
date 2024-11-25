@@ -428,7 +428,11 @@ u16 ath9k_hw_get_scaled_power(struct ath_hw *ah, u16 power_limit,
 	else
 		power_limit = 0;
 
+<<<<<<< HEAD
 	return power_limit;
+=======
+	return min_t(u16, power_limit, MAX_RATE_POWER);
+>>>>>>> upstream/android-13
 }
 
 void ath9k_hw_update_regulatory_maxpower(struct ath_hw *ah)

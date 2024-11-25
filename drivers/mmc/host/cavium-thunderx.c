@@ -76,8 +76,15 @@ static int thunder_mmc_probe(struct pci_dev *pdev,
 		return ret;
 
 	host->base = pcim_iomap(pdev, 0, pci_resource_len(pdev, 0));
+<<<<<<< HEAD
 	if (!host->base)
 		return -EINVAL;
+=======
+	if (!host->base) {
+		ret = -EINVAL;
+		goto error;
+	}
+>>>>>>> upstream/android-13
 
 	/* On ThunderX these are identical */
 	host->dma_base = host->base;
@@ -86,12 +93,23 @@ static int thunder_mmc_probe(struct pci_dev *pdev,
 	host->reg_off_dma = 0x160;
 
 	host->clk = devm_clk_get(dev, NULL);
+<<<<<<< HEAD
 	if (IS_ERR(host->clk))
 		return PTR_ERR(host->clk);
 
 	ret = clk_prepare_enable(host->clk);
 	if (ret)
 		return ret;
+=======
+	if (IS_ERR(host->clk)) {
+		ret = PTR_ERR(host->clk);
+		goto error;
+	}
+
+	ret = clk_prepare_enable(host->clk);
+	if (ret)
+		goto error;
+>>>>>>> upstream/android-13
 	host->sys_freq = clk_get_rate(host->clk);
 
 	spin_lock_init(&host->irq_handler_lock);
@@ -157,6 +175,10 @@ error:
 		}
 	}
 	clk_disable_unprepare(host->clk);
+<<<<<<< HEAD
+=======
+	pci_release_regions(pdev);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -175,6 +197,10 @@ static void thunder_mmc_remove(struct pci_dev *pdev)
 	writeq(dma_cfg, host->dma_base + MIO_EMM_DMA_CFG(host));
 
 	clk_disable_unprepare(host->clk);
+<<<<<<< HEAD
+=======
+	pci_release_regions(pdev);
+>>>>>>> upstream/android-13
 }
 
 static const struct pci_device_id thunder_mmc_id_table[] = {

@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * MPC85xx setup and early boot code plus other random bits.
  *
  * Maintained by Kumar Gala (see MAINTAINERS for contact information)
  *
  * Copyright 2005, 2011-2012 Freescale Semiconductor Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/stddef.h>
@@ -26,8 +33,13 @@
 #include <linux/interrupt.h>
 #include <linux/fsl_devices.h>
 #include <linux/of_platform.h>
+<<<<<<< HEAD
 
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+
+>>>>>>> upstream/android-13
 #include <asm/page.h>
 #include <linux/atomic.h>
 #include <asm/time.h>
@@ -222,12 +234,15 @@ static irqreturn_t mpc85xx_8259_cascade_action(int irq, void *dev_id)
 {
 	return IRQ_HANDLED;
 }
+<<<<<<< HEAD
 
 static struct irqaction mpc85xxcds_8259_irqaction = {
 	.handler = mpc85xx_8259_cascade_action,
 	.flags = IRQF_SHARED | IRQF_NO_THREAD,
 	.name = "8259 cascade",
 };
+=======
+>>>>>>> upstream/android-13
 #endif /* PPC_I8259 */
 #endif /* CONFIG_PCI */
 
@@ -275,7 +290,14 @@ static int mpc85xx_cds_8259_attach(void)
 	 *  disabled when the last user of the shared IRQ line frees their
 	 *  interrupt.
 	 */
+<<<<<<< HEAD
 	if ((ret = setup_irq(cascade_irq, &mpc85xxcds_8259_irqaction))) {
+=======
+	ret = request_irq(cascade_irq, mpc85xx_8259_cascade_action,
+			  IRQF_SHARED | IRQF_NO_THREAD, "8259 cascade",
+			  cascade_node);
+	if (ret) {
+>>>>>>> upstream/android-13
 		printk(KERN_ERR "Failed to setup cascade interrupt\n");
 		return ret;
 	}

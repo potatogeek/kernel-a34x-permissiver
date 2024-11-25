@@ -55,10 +55,14 @@ struct tps65132_reg_pdata {
 
 struct tps65132_regulator {
 	struct device *dev;
+<<<<<<< HEAD
 	struct regmap *rmap;
 	struct regulator_desc *rdesc[TPS65132_MAX_REGULATORS];
 	struct tps65132_reg_pdata reg_pdata[TPS65132_MAX_REGULATORS];
 	struct regulator_dev *rdev[TPS65132_MAX_REGULATORS];
+=======
+	struct tps65132_reg_pdata reg_pdata[TPS65132_MAX_REGULATORS];
+>>>>>>> upstream/android-13
 };
 
 static int tps65132_regulator_enable(struct regulator_dev *rdev)
@@ -120,7 +124,11 @@ static int tps65132_regulator_is_enabled(struct regulator_dev *rdev)
 	return 1;
 }
 
+<<<<<<< HEAD
 static struct regulator_ops tps65132_regulator_ops = {
+=======
+static const struct regulator_ops tps65132_regulator_ops = {
+>>>>>>> upstream/android-13
 	.enable = tps65132_regulator_enable,
 	.disable = tps65132_regulator_disable,
 	.is_enabled = tps65132_regulator_is_enabled,
@@ -139,8 +147,14 @@ static int tps65132_of_parse_cb(struct device_node *np,
 	struct tps65132_reg_pdata *rpdata = &tps->reg_pdata[desc->id];
 	int ret;
 
+<<<<<<< HEAD
 	rpdata->en_gpiod = devm_fwnode_get_index_gpiod_from_child(tps->dev,
 					"enable", 0, &np->fwnode, 0, "enable");
+=======
+	rpdata->en_gpiod = devm_fwnode_gpiod_get(tps->dev, of_fwnode_handle(np),
+						 "enable", GPIOD_ASIS,
+						 "enable");
+>>>>>>> upstream/android-13
 	if (IS_ERR(rpdata->en_gpiod)) {
 		ret = PTR_ERR(rpdata->en_gpiod);
 
@@ -150,9 +164,17 @@ static int tps65132_of_parse_cb(struct device_node *np,
 		return 0;
 	}
 
+<<<<<<< HEAD
 	rpdata->act_dis_gpiod = devm_fwnode_get_index_gpiod_from_child(
 					tps->dev, "active-discharge", 0,
 					&np->fwnode, 0, "active-discharge");
+=======
+	rpdata->act_dis_gpiod = devm_fwnode_gpiod_get(tps->dev,
+						      of_fwnode_handle(np),
+						      "active-discharge",
+						      GPIOD_ASIS,
+						      "active-discharge");
+>>>>>>> upstream/android-13
 	if (IS_ERR(rpdata->act_dis_gpiod)) {
 		ret = PTR_ERR(rpdata->act_dis_gpiod);
 
@@ -196,7 +218,11 @@ static int tps65132_of_parse_cb(struct device_node *np,
 		.owner = THIS_MODULE,			\
 	}
 
+<<<<<<< HEAD
 static struct regulator_desc tps_regs_desc[TPS65132_MAX_REGULATORS] = {
+=======
+static const struct regulator_desc tps_regs_desc[TPS65132_MAX_REGULATORS] = {
+>>>>>>> upstream/android-13
 	TPS65132_REGULATOR_DESC(VPOS, outp),
 	TPS65132_REGULATOR_DESC(VNEG, outn),
 };
@@ -220,11 +246,20 @@ static const struct regmap_config tps65132_regmap_config = {
 	.wr_table	= &tps65132_no_reg_table,
 };
 
+<<<<<<< HEAD
 static int tps65132_probe(struct i2c_client *client,
 			  const struct i2c_device_id *client_id)
 {
 	struct device *dev = &client->dev;
 	struct tps65132_regulator *tps;
+=======
+static int tps65132_probe(struct i2c_client *client)
+{
+	struct device *dev = &client->dev;
+	struct tps65132_regulator *tps;
+	struct regulator_dev *rdev;
+	struct regmap *rmap;
+>>>>>>> upstream/android-13
 	struct regulator_config config = { };
 	int id;
 	int ret;
@@ -233,9 +268,15 @@ static int tps65132_probe(struct i2c_client *client,
 	if (!tps)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	tps->rmap = devm_regmap_init_i2c(client, &tps65132_regmap_config);
 	if (IS_ERR(tps->rmap)) {
 		ret = PTR_ERR(tps->rmap);
+=======
+	rmap = devm_regmap_init_i2c(client, &tps65132_regmap_config);
+	if (IS_ERR(rmap)) {
+		ret = PTR_ERR(rmap);
+>>>>>>> upstream/android-13
 		dev_err(dev, "regmap init failed: %d\n", ret);
 		return ret;
 	}
@@ -244,6 +285,7 @@ static int tps65132_probe(struct i2c_client *client,
 	tps->dev = dev;
 
 	for (id = 0; id < TPS65132_MAX_REGULATORS; ++id) {
+<<<<<<< HEAD
 		tps->rdesc[id] = &tps_regs_desc[id];
 
 		config.regmap = tps->rmap;
@@ -256,6 +298,18 @@ static int tps65132_probe(struct i2c_client *client,
 			ret = PTR_ERR(tps->rdev[id]);
 			dev_err(dev, "regulator %s register failed: %d\n",
 				tps->rdesc[id]->name, ret);
+=======
+		config.regmap = rmap;
+		config.dev = dev;
+		config.driver_data = tps;
+
+		rdev = devm_regulator_register(dev, &tps_regs_desc[id],
+					       &config);
+		if (IS_ERR(rdev)) {
+			ret = PTR_ERR(rdev);
+			dev_err(dev, "regulator %s register failed: %d\n",
+				tps_regs_desc[id].name, ret);
+>>>>>>> upstream/android-13
 			return ret;
 		}
 	}
@@ -272,7 +326,11 @@ static struct i2c_driver tps65132_i2c_driver = {
 	.driver = {
 		.name = "tps65132",
 	},
+<<<<<<< HEAD
 	.probe = tps65132_probe,
+=======
+	.probe_new = tps65132_probe,
+>>>>>>> upstream/android-13
 	.id_table = tps65132_id,
 };
 

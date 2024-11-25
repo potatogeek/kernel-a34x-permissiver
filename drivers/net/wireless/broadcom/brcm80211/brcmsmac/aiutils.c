@@ -531,9 +531,12 @@ void ai_detach(struct si_pub *sih)
 
 	sii = container_of(sih, struct si_info, pub);
 
+<<<<<<< HEAD
 	if (sii == NULL)
 		return;
 
+=======
+>>>>>>> upstream/android-13
 	kfree(sii);
 }
 

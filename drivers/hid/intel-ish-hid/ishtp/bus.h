@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * ISHTP bus definitions
  *
  * Copyright (c) 2014-2016, Intel Corporation.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -11,12 +16,18 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _LINUX_ISHTP_CL_BUS_H
 #define _LINUX_ISHTP_CL_BUS_H
 
 #include <linux/device.h>
 #include <linux/mod_devicetable.h>
+<<<<<<< HEAD
+=======
+#include <linux/intel-ish-client-if.h>
+>>>>>>> upstream/android-13
 
 struct ishtp_cl;
 struct ishtp_cl_device;
@@ -52,6 +63,7 @@ struct ishtp_cl_device {
 	void (*event_cb)(struct ishtp_cl_device *device);
 };
 
+<<<<<<< HEAD
 /**
  * struct ishtp_cl_device - ISHTP device handle
  * @driver:	driver instance on a bus
@@ -71,6 +83,8 @@ struct ishtp_cl_driver {
 };
 
 
+=======
+>>>>>>> upstream/android-13
 int	ishtp_bus_new_client(struct ishtp_device *dev);
 void	ishtp_remove_all_clients(struct ishtp_device *dev);
 int	ishtp_cl_device_bind(struct ishtp_cl *cl);
@@ -85,7 +99,11 @@ int	ishtp_send_msg(struct ishtp_device *dev,
 /* Write a single-fragment message */
 int	ishtp_write_message(struct ishtp_device *dev,
 			    struct ishtp_msg_hdr *hdr,
+<<<<<<< HEAD
 			    unsigned char *buf);
+=======
+			    void *buf);
+>>>>>>> upstream/android-13
 
 /* Use DMA to send/receive messages */
 int ishtp_use_dma_transfer(void);
@@ -98,6 +116,7 @@ void	ishtp_recv(struct ishtp_device *dev);
 void	ishtp_reset_handler(struct ishtp_device *dev);
 void	ishtp_reset_compl_handler(struct ishtp_device *dev);
 
+<<<<<<< HEAD
 void	ishtp_put_device(struct ishtp_cl_device *);
 void	ishtp_get_device(struct ishtp_cl_device *);
 
@@ -111,4 +130,7 @@ int	ishtp_register_event_cb(struct ishtp_cl_device *device,
 				void (*read_cb)(struct ishtp_cl_device *));
 int	ishtp_fw_cl_by_uuid(struct ishtp_device *dev, const uuid_le *cuuid);
 
+=======
+int	ishtp_fw_cl_by_uuid(struct ishtp_device *dev, const guid_t *cuuid);
+>>>>>>> upstream/android-13
 #endif /* _LINUX_ISHTP_CL_BUS_H */

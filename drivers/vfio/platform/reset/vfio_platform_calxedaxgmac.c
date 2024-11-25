@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * VFIO platform driver specialized for Calxeda xgmac reset
  * reset code is inherited from calxeda xgmac native driver
@@ -5,6 +9,7 @@
  * Copyright 2010-2011 Calxeda, Inc.
  * Copyright (c) 2015 Linaro Ltd.
  *              www.linaro.org
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -17,6 +22,8 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -24,7 +31,11 @@
 #include <linux/init.h>
 #include <linux/io.h>
 
+<<<<<<< HEAD
 #include "vfio_platform_private.h"
+=======
+#include "../vfio_platform_private.h"
+>>>>>>> upstream/android-13
 
 #define DRIVER_VERSION  "0.1"
 #define DRIVER_AUTHOR   "Eric Auger <eric.auger@linaro.org>"
@@ -37,7 +48,11 @@
 #define XGMAC_DMA_CONTROL       0x00000f18      /* Ctrl (Operational Mode) */
 #define XGMAC_DMA_INTR_ENA      0x00000f1c      /* Interrupt Enable */
 
+<<<<<<< HEAD
 /* DMA Control registe defines */
+=======
+/* DMA Control register defines */
+>>>>>>> upstream/android-13
 #define DMA_CONTROL_ST          0x00002000      /* Start/Stop Transmission */
 #define DMA_CONTROL_SR          0x00000002      /* Start/Stop Receive */
 
@@ -63,7 +78,11 @@ static int vfio_platform_calxedaxgmac_reset(struct vfio_platform_device *vdev)
 
 	if (!reg->ioaddr) {
 		reg->ioaddr =
+<<<<<<< HEAD
 			ioremap_nocache(reg->addr, reg->size);
+=======
+			ioremap(reg->addr, reg->size);
+>>>>>>> upstream/android-13
 		if (!reg->ioaddr)
 			return -ENOMEM;
 	}

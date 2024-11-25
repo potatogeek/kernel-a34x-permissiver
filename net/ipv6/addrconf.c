@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	IPv6 Address [auto]configuration
  *	Linux INET6 implementation
@@ -5,11 +9,14 @@
  *	Authors:
  *	Pedro Roque		<roque@di.fc.ul.pt>
  *	Alexey Kuznetsov	<kuznet@ms2.inr.ac.ru>
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -93,19 +100,28 @@
 #include <linux/proc_fs.h>
 #include <linux/seq_file.h>
 #include <linux/export.h>
+<<<<<<< HEAD
 
 #define	INFINITY_LIFE_TIME	0xFFFFFFFF
 #define	RTR_SOLICITS_MAX	3
+=======
+#include <linux/ioam6.h>
+
+#define	INFINITY_LIFE_TIME	0xFFFFFFFF
+>>>>>>> upstream/android-13
 
 #define IPV6_MAX_STRLEN \
 	sizeof("ffff:ffff:ffff:ffff:ffff:ffff:255.255.255.255")
 
+<<<<<<< HEAD
 #ifdef CONFIG_MTK_SRIL_SUPPORT
 #define NET_IF_NAME	"rmnet"
 #else
 #define NET_IF_NAME	"ccmni"
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static inline u32 cstamp_delta(unsigned long cstamp)
 {
 	return (cstamp - INITIAL_JIFFIES) * 100UL / HZ;
@@ -146,8 +162,12 @@ static inline void addrconf_sysctl_unregister(struct inet6_dev *idev)
 }
 #endif
 
+<<<<<<< HEAD
 static void ipv6_regen_rndid(struct inet6_dev *idev);
 static void ipv6_try_regen_rndid(struct inet6_dev *idev, struct in6_addr *tmpaddr);
+=======
+static void ipv6_gen_rnd_iid(struct in6_addr *addr);
+>>>>>>> upstream/android-13
 
 static int ipv6_generate_eui64(u8 *eui, struct net_device *dev);
 static int ipv6_count_addresses(const struct inet6_dev *idev);
@@ -162,6 +182,7 @@ static int ipv6_generate_stable_address(struct in6_addr *addr,
  */
 static struct hlist_head inet6_addr_lst[IN6_ADDR_HSIZE];
 static DEFINE_SPINLOCK(addrconf_hash_lock);
+<<<<<<< HEAD
 struct fib6_info *calc_lft_vzw(struct inet6_ifaddr *ifp_vzw,
 			       u32 *min_lft_vzw);
 static void calc_next_vzw(struct inet6_ifaddr *ifp_vzw,
@@ -172,6 +193,9 @@ static void calc_next_vzw(struct inet6_ifaddr *ifp_vzw,
 static int inet6_fill_nora(struct sk_buff *skb, struct inet6_dev *idev,
 			   u32 portid, u32 seq, int event);
 static void inet6_no_ra_notify(int event, struct inet6_dev *idev);
+=======
+
+>>>>>>> upstream/android-13
 static void addrconf_verify(void);
 static void addrconf_verify_rtnl(void);
 static void addrconf_verify_work(struct work_struct *);
@@ -184,12 +208,21 @@ static void addrconf_leave_anycast(struct inet6_ifaddr *ifp);
 
 static void addrconf_type_change(struct net_device *dev,
 				 unsigned long event);
+<<<<<<< HEAD
 static int addrconf_ifdown(struct net_device *dev, int how);
+=======
+static int addrconf_ifdown(struct net_device *dev, bool unregister);
+>>>>>>> upstream/android-13
 
 static struct fib6_info *addrconf_get_prefix_route(const struct in6_addr *pfx,
 						  int plen,
 						  const struct net_device *dev,
+<<<<<<< HEAD
 						  u32 flags, u32 noflags);
+=======
+						  u32 flags, u32 noflags,
+						  bool no_gw);
+>>>>>>> upstream/android-13
 
 static void addrconf_dad_start(struct inet6_ifaddr *ifp);
 static void addrconf_dad_work(struct work_struct *w);
@@ -203,16 +236,22 @@ static void ipv6_ifa_notify(int event, struct inet6_ifaddr *ifa);
 static void inet6_prefix_notify(int event, struct inet6_dev *idev,
 				struct prefix_info *pinfo);
 
+<<<<<<< HEAD
 static void inet6_send_rs_vzw(struct inet6_ifaddr *ifp);
 
 static void put_ifaddrmsg(struct nlmsghdr *nlh, u8 prefixlen, u32 flags,
 			  u8 scope, int ifindex);
 
+=======
+>>>>>>> upstream/android-13
 static struct ipv6_devconf ipv6_devconf __read_mostly = {
 	.forwarding		= 0,
 	.hop_limit		= IPV6_DEFAULT_HOPLIMIT,
 	.mtu6			= IPV6_MIN_MTU,
+<<<<<<< HEAD
 	.ra_mtu			= 0,
+=======
+>>>>>>> upstream/android-13
 	.accept_ra		= 1,
 	.accept_redirects	= 1,
 	.autoconf		= 1,
@@ -231,6 +270,10 @@ static struct ipv6_devconf ipv6_devconf __read_mostly = {
 	.max_desync_factor	= MAX_DESYNC_FACTOR,
 	.max_addresses		= IPV6_MAX_ADDRESSES,
 	.accept_ra_defrtr	= 1,
+<<<<<<< HEAD
+=======
+	.ra_defrtr_metric	= IP6_RT_PRIO_USER,
+>>>>>>> upstream/android-13
 	.accept_ra_from_local	= 0,
 	.accept_ra_min_hop_limit= 1,
 	.accept_ra_pinfo	= 1,
@@ -262,13 +305,23 @@ static struct ipv6_devconf ipv6_devconf __read_mostly = {
 	.enhanced_dad           = 1,
 	.addr_gen_mode		= IN6_ADDR_GEN_MODE_EUI64,
 	.disable_policy		= 0,
+<<<<<<< HEAD
+=======
+	.rpl_seg_enabled	= 0,
+	.ioam6_enabled		= 0,
+	.ioam6_id               = IOAM6_DEFAULT_IF_ID,
+	.ioam6_id_wide		= IOAM6_DEFAULT_IF_ID_WIDE,
+>>>>>>> upstream/android-13
 };
 
 static struct ipv6_devconf ipv6_devconf_dflt __read_mostly = {
 	.forwarding		= 0,
 	.hop_limit		= IPV6_DEFAULT_HOPLIMIT,
 	.mtu6			= IPV6_MIN_MTU,
+<<<<<<< HEAD
 	.ra_mtu			= 0,
+=======
+>>>>>>> upstream/android-13
 	.accept_ra		= 1,
 	.accept_redirects	= 1,
 	.autoconf		= 1,
@@ -287,6 +340,10 @@ static struct ipv6_devconf ipv6_devconf_dflt __read_mostly = {
 	.max_desync_factor	= MAX_DESYNC_FACTOR,
 	.max_addresses		= IPV6_MAX_ADDRESSES,
 	.accept_ra_defrtr	= 1,
+<<<<<<< HEAD
+=======
+	.ra_defrtr_metric	= IP6_RT_PRIO_USER,
+>>>>>>> upstream/android-13
 	.accept_ra_from_local	= 0,
 	.accept_ra_min_hop_limit= 1,
 	.accept_ra_pinfo	= 1,
@@ -318,6 +375,7 @@ static struct ipv6_devconf ipv6_devconf_dflt __read_mostly = {
 	.enhanced_dad           = 1,
 	.addr_gen_mode		= IN6_ADDR_GEN_MODE_EUI64,
 	.disable_policy		= 0,
+<<<<<<< HEAD
 };
 
 /* this is save current operator value */
@@ -402,6 +460,14 @@ errout:
 		rtnl_set_sk_err(net, RTNLGRP_IPV6_IFADDR, err);
 }
 
+=======
+	.rpl_seg_enabled	= 0,
+	.ioam6_enabled		= 0,
+	.ioam6_id               = IOAM6_DEFAULT_IF_ID,
+	.ioam6_id_wide		= IOAM6_DEFAULT_IF_ID_WIDE,
+};
+
+>>>>>>> upstream/android-13
 /* Check if link is ready: is it up and is a valid qdisc available */
 static inline bool addrconf_link_ready(const struct net_device *dev)
 {
@@ -494,6 +560,10 @@ static struct inet6_dev *ipv6_add_dev(struct net_device *dev)
 		ndev->cnf.addr_gen_mode = IN6_ADDR_GEN_MODE_STABLE_PRIVACY;
 
 	ndev->cnf.mtu6 = dev->mtu;
+<<<<<<< HEAD
+=======
+	ndev->ra_mtu = 0;
+>>>>>>> upstream/android-13
 	ndev->nd_parms = neigh_parms_alloc(dev, &nd_tbl);
 	if (!ndev->nd_parms) {
 		kfree(ndev);
@@ -540,8 +610,12 @@ static struct inet6_dev *ipv6_add_dev(struct net_device *dev)
 	    dev->type == ARPHRD_SIT ||
 	    dev->type == ARPHRD_NONE) {
 		ndev->cnf.use_tempaddr = -1;
+<<<<<<< HEAD
 	} else
 		ipv6_regen_rndid(ndev);
+=======
+	}
+>>>>>>> upstream/android-13
 
 	ndev->token = in6addr_any;
 
@@ -588,7 +662,11 @@ static struct inet6_dev *ipv6_find_idev(struct net_device *dev)
 	if (!idev) {
 		idev = ipv6_add_dev(dev);
 		if (IS_ERR(idev))
+<<<<<<< HEAD
 			return NULL;
+=======
+			return idev;
+>>>>>>> upstream/android-13
 	}
 
 	if (dev->flags&IFF_UP)
@@ -652,7 +730,11 @@ static int inet6_netconf_fill_devconf(struct sk_buff *skb, int ifindex,
 #ifdef CONFIG_IPV6_MROUTE
 	if ((all || type == NETCONFA_MC_FORWARDING) &&
 	    nla_put_s32(skb, NETCONFA_MC_FORWARDING,
+<<<<<<< HEAD
 			devconf->mc_forwarding) < 0)
+=======
+			atomic_read(&devconf->mc_forwarding)) < 0)
+>>>>>>> upstream/android-13
 		goto nla_put_failure;
 #endif
 	if ((all || type == NETCONFA_PROXY_NEIGH) &&
@@ -704,6 +786,48 @@ static const struct nla_policy devconf_ipv6_policy[NETCONFA_MAX+1] = {
 	[NETCONFA_IGNORE_ROUTES_WITH_LINKDOWN]	= { .len = sizeof(int) },
 };
 
+<<<<<<< HEAD
+=======
+static int inet6_netconf_valid_get_req(struct sk_buff *skb,
+				       const struct nlmsghdr *nlh,
+				       struct nlattr **tb,
+				       struct netlink_ext_ack *extack)
+{
+	int i, err;
+
+	if (nlh->nlmsg_len < nlmsg_msg_size(sizeof(struct netconfmsg))) {
+		NL_SET_ERR_MSG_MOD(extack, "Invalid header for netconf get request");
+		return -EINVAL;
+	}
+
+	if (!netlink_strict_get_check(skb))
+		return nlmsg_parse_deprecated(nlh, sizeof(struct netconfmsg),
+					      tb, NETCONFA_MAX,
+					      devconf_ipv6_policy, extack);
+
+	err = nlmsg_parse_deprecated_strict(nlh, sizeof(struct netconfmsg),
+					    tb, NETCONFA_MAX,
+					    devconf_ipv6_policy, extack);
+	if (err)
+		return err;
+
+	for (i = 0; i <= NETCONFA_MAX; i++) {
+		if (!tb[i])
+			continue;
+
+		switch (i) {
+		case NETCONFA_IFINDEX:
+			break;
+		default:
+			NL_SET_ERR_MSG_MOD(extack, "Unsupported attribute in netconf get request");
+			return -EINVAL;
+		}
+	}
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int inet6_netconf_get_devconf(struct sk_buff *in_skb,
 				     struct nlmsghdr *nlh,
 				     struct netlink_ext_ack *extack)
@@ -712,14 +836,21 @@ static int inet6_netconf_get_devconf(struct sk_buff *in_skb,
 	struct nlattr *tb[NETCONFA_MAX+1];
 	struct inet6_dev *in6_dev = NULL;
 	struct net_device *dev = NULL;
+<<<<<<< HEAD
 	struct netconfmsg *ncm;
+=======
+>>>>>>> upstream/android-13
 	struct sk_buff *skb;
 	struct ipv6_devconf *devconf;
 	int ifindex;
 	int err;
 
+<<<<<<< HEAD
 	err = nlmsg_parse(nlh, sizeof(*ncm), tb, NETCONFA_MAX,
 			  devconf_ipv6_policy, extack);
+=======
+	err = inet6_netconf_valid_get_req(in_skb, nlh, tb, extack);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -765,14 +896,22 @@ static int inet6_netconf_get_devconf(struct sk_buff *in_skb,
 errout:
 	if (in6_dev)
 		in6_dev_put(in6_dev);
+<<<<<<< HEAD
 	if (dev)
 		dev_put(dev);
+=======
+	dev_put(dev);
+>>>>>>> upstream/android-13
 	return err;
 }
 
 static int inet6_netconf_dump_devconf(struct sk_buff *skb,
 				      struct netlink_callback *cb)
 {
+<<<<<<< HEAD
+=======
+	const struct nlmsghdr *nlh = cb->nlh;
+>>>>>>> upstream/android-13
 	struct net *net = sock_net(skb->sk);
 	int h, s_h;
 	int idx, s_idx;
@@ -780,6 +919,24 @@ static int inet6_netconf_dump_devconf(struct sk_buff *skb,
 	struct inet6_dev *idev;
 	struct hlist_head *head;
 
+<<<<<<< HEAD
+=======
+	if (cb->strict_check) {
+		struct netlink_ext_ack *extack = cb->extack;
+		struct netconfmsg *ncm;
+
+		if (nlh->nlmsg_len < nlmsg_msg_size(sizeof(*ncm))) {
+			NL_SET_ERR_MSG_MOD(extack, "Invalid header for netconf dump request");
+			return -EINVAL;
+		}
+
+		if (nlmsg_attrlen(nlh, sizeof(*ncm))) {
+			NL_SET_ERR_MSG_MOD(extack, "Invalid data after header in netconf dump request");
+			return -EINVAL;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	s_h = cb->args[0];
 	s_idx = idx = cb->args[1];
 
@@ -799,7 +956,11 @@ static int inet6_netconf_dump_devconf(struct sk_buff *skb,
 			if (inet6_netconf_fill_devconf(skb, dev->ifindex,
 						       &idev->cnf,
 						       NETLINK_CB(cb->skb).portid,
+<<<<<<< HEAD
 						       cb->nlh->nlmsg_seq,
+=======
+						       nlh->nlmsg_seq,
+>>>>>>> upstream/android-13
 						       RTM_NEWNETCONF,
 						       NLM_F_MULTI,
 						       NETCONFA_ALL) < 0) {
@@ -816,7 +977,11 @@ cont:
 		if (inet6_netconf_fill_devconf(skb, NETCONFA_IFINDEX_ALL,
 					       net->ipv6.devconf_all,
 					       NETLINK_CB(cb->skb).portid,
+<<<<<<< HEAD
 					       cb->nlh->nlmsg_seq,
+=======
+					       nlh->nlmsg_seq,
+>>>>>>> upstream/android-13
 					       RTM_NEWNETCONF, NLM_F_MULTI,
 					       NETCONFA_ALL) < 0)
 			goto done;
@@ -827,7 +992,11 @@ cont:
 		if (inet6_netconf_fill_devconf(skb, NETCONFA_IFINDEX_DEFAULT,
 					       net->ipv6.devconf_dflt,
 					       NETLINK_CB(cb->skb).portid,
+<<<<<<< HEAD
 					       cb->nlh->nlmsg_seq,
+=======
+					       nlh->nlmsg_seq,
+>>>>>>> upstream/android-13
 					       RTM_NEWNETCONF, NLM_F_MULTI,
 					       NETCONFA_ALL) < 0)
 			goto done;
@@ -1105,6 +1274,10 @@ ipv6_add_addr(struct inet6_dev *idev, struct ifa6_config *cfg,
 	    (addr_type & IPV6_ADDR_MULTICAST &&
 	     !(cfg->ifa_flags & IFA_F_MCAUTOJOIN)) ||
 	    (!(idev->dev->flags & IFF_LOOPBACK) &&
+<<<<<<< HEAD
+=======
+	     !netif_is_l3_master(idev->dev) &&
+>>>>>>> upstream/android-13
 	     addr_type & IPV6_ADDR_LOOPBACK))
 		return ERR_PTR(-EADDRNOTAVAIL);
 
@@ -1134,7 +1307,11 @@ ipv6_add_addr(struct inet6_dev *idev, struct ifa6_config *cfg,
 			goto out;
 	}
 
+<<<<<<< HEAD
 	ifa = kzalloc(sizeof(*ifa), gfp_flags);
+=======
+	ifa = kzalloc(sizeof(*ifa), gfp_flags | __GFP_ACCOUNT);
+>>>>>>> upstream/android-13
 	if (!ifa) {
 		err = -ENOBUFS;
 		goto out;
@@ -1288,12 +1465,20 @@ cleanup_prefix_route(struct inet6_ifaddr *ifp, unsigned long expires,
 	struct fib6_info *f6i;
 
 	f6i = addrconf_get_prefix_route(del_peer ? &ifp->peer_addr : &ifp->addr,
+<<<<<<< HEAD
 				       ifp->prefix_len,
 				       ifp->idev->dev,
 				       0, RTF_GATEWAY | RTF_DEFAULT);
 	if (f6i) {
 		if (del_rt)
 			ip6_del_rt(dev_net(ifp->idev->dev), f6i);
+=======
+					ifp->prefix_len,
+					ifp->idev->dev, 0, RTF_DEFAULT, true);
+	if (f6i) {
+		if (del_rt)
+			ip6_del_rt(dev_net(ifp->idev->dev), f6i, false);
+>>>>>>> upstream/android-13
 		else {
 			if (!(f6i->fib6_flags & RTF_EXPIRES))
 				fib6_set_expires(f6i, expires);
@@ -1361,6 +1546,7 @@ out:
 	in6_ifa_put(ifp);
 }
 
+<<<<<<< HEAD
 static int ipv6_create_tempaddr(struct inet6_ifaddr *ifp,
 				struct inet6_ifaddr *ift,
 				bool block)
@@ -1384,6 +1570,23 @@ static int ipv6_create_tempaddr(struct inet6_ifaddr *ifp,
 	} else {
 		tmpaddr = NULL;
 	}
+=======
+static int ipv6_create_tempaddr(struct inet6_ifaddr *ifp, bool block)
+{
+	struct inet6_dev *idev = ifp->idev;
+	unsigned long tmp_tstamp, age;
+	unsigned long regen_advance;
+	unsigned long now = jiffies;
+	s32 cnf_temp_preferred_lft;
+	struct inet6_ifaddr *ift;
+	struct ifa6_config cfg;
+	long max_desync_factor;
+	struct in6_addr addr;
+	int ret = 0;
+
+	write_lock_bh(&idev->lock);
+
+>>>>>>> upstream/android-13
 retry:
 	in6_dev_hold(idev);
 	if (idev->cnf.use_tempaddr <= 0) {
@@ -1406,13 +1609,22 @@ retry:
 	}
 	in6_ifa_hold(ifp);
 	memcpy(addr.s6_addr, ifp->addr.s6_addr, 8);
+<<<<<<< HEAD
 	ipv6_try_regen_rndid(idev, tmpaddr);
 	memcpy(&addr.s6_addr[8], idev->rndid, 8);
+=======
+	ipv6_gen_rnd_iid(&addr);
+
+>>>>>>> upstream/android-13
 	age = (now - ifp->tstamp) / HZ;
 
 	regen_advance = idev->cnf.regen_max_retry *
 			idev->cnf.dad_transmits *
+<<<<<<< HEAD
 			NEIGH_VAR(idev->nd_parms, RETRANS_TIME) / HZ;
+=======
+			max(NEIGH_VAR(idev->nd_parms, RETRANS_TIME), HZ/100) / HZ;
+>>>>>>> upstream/android-13
 
 	/* recalculate max_desync_factor each time and update
 	 * idev->desync_factor if it's larger
@@ -1472,7 +1684,10 @@ retry:
 		in6_ifa_put(ifp);
 		in6_dev_put(idev);
 		pr_info("%s: retry temporary address regeneration\n", __func__);
+<<<<<<< HEAD
 		tmpaddr = &addr;
+=======
+>>>>>>> upstream/android-13
 		write_lock_bh(&idev->lock);
 		goto retry;
 	}
@@ -1894,8 +2109,13 @@ out:
 }
 EXPORT_SYMBOL(ipv6_dev_get_saddr);
 
+<<<<<<< HEAD
 int __ipv6_get_lladdr(struct inet6_dev *idev, struct in6_addr *addr,
 		      u32 banned_flags)
+=======
+static int __ipv6_get_lladdr(struct inet6_dev *idev, struct in6_addr *addr,
+			      u32 banned_flags)
+>>>>>>> upstream/android-13
 {
 	struct inet6_ifaddr *ifp;
 	int err = -EADDRNOTAVAIL;
@@ -1959,12 +2179,22 @@ EXPORT_SYMBOL(ipv6_chk_addr);
  *   2. does the address exist on the specific device
  *      (skip_dev_check = false)
  */
+<<<<<<< HEAD
 int ipv6_chk_addr_and_flags(struct net *net, const struct in6_addr *addr,
 			    const struct net_device *dev, bool skip_dev_check,
 			    int strict, u32 banned_flags)
 {
 	unsigned int hash = inet6_addr_hash(net, addr);
 	const struct net_device *l3mdev;
+=======
+static struct net_device *
+__ipv6_chk_addr_and_flags(struct net *net, const struct in6_addr *addr,
+			  const struct net_device *dev, bool skip_dev_check,
+			  int strict, u32 banned_flags)
+{
+	unsigned int hash = inet6_addr_hash(net, addr);
+	struct net_device *l3mdev, *ndev;
+>>>>>>> upstream/android-13
 	struct inet6_ifaddr *ifp;
 	u32 ifp_flags;
 
@@ -1975,10 +2205,18 @@ int ipv6_chk_addr_and_flags(struct net *net, const struct in6_addr *addr,
 		dev = NULL;
 
 	hlist_for_each_entry_rcu(ifp, &inet6_addr_lst[hash], addr_lst) {
+<<<<<<< HEAD
 		if (!net_eq(dev_net(ifp->idev->dev), net))
 			continue;
 
 		if (l3mdev_master_dev_rcu(ifp->idev->dev) != l3mdev)
+=======
+		ndev = ifp->idev->dev;
+		if (!net_eq(dev_net(ndev), net))
+			continue;
+
+		if (l3mdev_master_dev_rcu(ndev) != l3mdev)
+>>>>>>> upstream/android-13
 			continue;
 
 		/* Decouple optimistic from tentative for evaluation here.
@@ -1989,15 +2227,34 @@ int ipv6_chk_addr_and_flags(struct net *net, const struct in6_addr *addr,
 			    : ifp->flags;
 		if (ipv6_addr_equal(&ifp->addr, addr) &&
 		    !(ifp_flags&banned_flags) &&
+<<<<<<< HEAD
 		    (!dev || ifp->idev->dev == dev ||
 		     !(ifp->scope&(IFA_LINK|IFA_HOST) || strict))) {
 			rcu_read_unlock();
 			return 1;
+=======
+		    (!dev || ndev == dev ||
+		     !(ifp->scope&(IFA_LINK|IFA_HOST) || strict))) {
+			rcu_read_unlock();
+			return ndev;
+>>>>>>> upstream/android-13
 		}
 	}
 
 	rcu_read_unlock();
+<<<<<<< HEAD
 	return 0;
+=======
+	return NULL;
+}
+
+int ipv6_chk_addr_and_flags(struct net *net, const struct in6_addr *addr,
+			    const struct net_device *dev, bool skip_dev_check,
+			    int strict, u32 banned_flags)
+{
+	return __ipv6_chk_addr_and_flags(net, addr, dev, skip_dev_check,
+					 strict, banned_flags) ? 1 : 0;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(ipv6_chk_addr_and_flags);
 
@@ -2049,6 +2306,25 @@ int ipv6_chk_prefix(const struct in6_addr *addr, struct net_device *dev)
 }
 EXPORT_SYMBOL(ipv6_chk_prefix);
 
+<<<<<<< HEAD
+=======
+/**
+ * ipv6_dev_find - find the first device with a given source address.
+ * @net: the net namespace
+ * @addr: the source address
+ * @dev: used to find the L3 domain of interest
+ *
+ * The caller should be protected by RCU, or RTNL.
+ */
+struct net_device *ipv6_dev_find(struct net *net, const struct in6_addr *addr,
+				 struct net_device *dev)
+{
+	return __ipv6_chk_addr_and_flags(net, addr, dev, !dev, 1,
+					 IFA_F_TENTATIVE);
+}
+EXPORT_SYMBOL(ipv6_dev_find);
+
+>>>>>>> upstream/android-13
 struct inet6_ifaddr *ipv6_get_ifaddr(struct net *net, const struct in6_addr *addr,
 				     struct net_device *dev, int strict)
 {
@@ -2087,7 +2363,11 @@ static void addrconf_dad_stop(struct inet6_ifaddr *ifp, int dad_failed)
 		if (ifpub) {
 			in6_ifa_hold(ifpub);
 			spin_unlock_bh(&ifp->lock);
+<<<<<<< HEAD
 			ipv6_create_tempaddr(ifpub, ifp, true);
+=======
+			ipv6_create_tempaddr(ifpub, true);
+>>>>>>> upstream/android-13
 			in6_ifa_put(ifpub);
 		} else {
 			spin_unlock_bh(&ifp->lock);
@@ -2340,9 +2620,12 @@ static int addrconf_ifid_ip6tnl(u8 *eui, struct net_device *dev)
 
 static int ipv6_generate_eui64(u8 *eui, struct net_device *dev)
 {
+<<<<<<< HEAD
 	/* MTK_NET_CHANGES */
 	if (strncmp(dev->name, NET_IF_NAME, 2) == 0)
 		return -1;
+=======
+>>>>>>> upstream/android-13
 	switch (dev->type) {
 	case ARPHRD_ETHER:
 	case ARPHRD_FDDI:
@@ -2387,6 +2670,7 @@ static int ipv6_inherit_eui64(u8 *eui, struct inet6_dev *idev)
 	return err;
 }
 
+<<<<<<< HEAD
 /* (re)generation of randomized interface identifier (RFC 3041 3.2, 3.5) */
 static void ipv6_regen_rndid(struct inet6_dev *idev)
 {
@@ -2421,6 +2705,40 @@ static void  ipv6_try_regen_rndid(struct inet6_dev *idev, struct in6_addr *tmpad
 {
 	if (tmpaddr && memcmp(idev->rndid, &tmpaddr->s6_addr[8], 8) == 0)
 		ipv6_regen_rndid(idev);
+=======
+/* Generation of a randomized Interface Identifier
+ * draft-ietf-6man-rfc4941bis, Section 3.3.1
+ */
+
+static void ipv6_gen_rnd_iid(struct in6_addr *addr)
+{
+regen:
+	get_random_bytes(&addr->s6_addr[8], 8);
+
+	/* <draft-ietf-6man-rfc4941bis-08.txt>, Section 3.3.1:
+	 * check if generated address is not inappropriate:
+	 *
+	 * - Reserved IPv6 Interface Identifiers
+	 * - XXX: already assigned to an address on the device
+	 */
+
+	/* Subnet-router anycast: 0000:0000:0000:0000 */
+	if (!(addr->s6_addr32[2] | addr->s6_addr32[3]))
+		goto regen;
+
+	/* IANA Ethernet block: 0200:5EFF:FE00:0000-0200:5EFF:FE00:5212
+	 * Proxy Mobile IPv6:   0200:5EFF:FE00:5213
+	 * IANA Ethernet block: 0200:5EFF:FE00:5214-0200:5EFF:FEFF:FFFF
+	 */
+	if (ntohl(addr->s6_addr32[2]) == 0x02005eff &&
+	    (ntohl(addr->s6_addr32[3]) & 0Xff000000) == 0xfe000000)
+		goto regen;
+
+	/* Reserved subnet anycast addresses */
+	if (ntohl(addr->s6_addr32[2]) == 0xfdffffff &&
+	    ntohl(addr->s6_addr32[3]) >= 0Xffffff80)
+		goto regen;
+>>>>>>> upstream/android-13
 }
 
 u32 addrconf_rt_table(const struct net_device *dev, u32 default_table)
@@ -2482,7 +2800,12 @@ addrconf_prefix_route(struct in6_addr *pfx, int plen, u32 metric,
 static struct fib6_info *addrconf_get_prefix_route(const struct in6_addr *pfx,
 						  int plen,
 						  const struct net_device *dev,
+<<<<<<< HEAD
 						  u32 flags, u32 noflags)
+=======
+						  u32 flags, u32 noflags,
+						  bool no_gw)
+>>>>>>> upstream/android-13
 {
 	struct fib6_node *fn;
 	struct fib6_info *rt = NULL;
@@ -2499,7 +2822,17 @@ static struct fib6_info *addrconf_get_prefix_route(const struct in6_addr *pfx,
 		goto out;
 
 	for_each_fib6_node_rt_rcu(fn) {
+<<<<<<< HEAD
 		if (rt->fib6_nh.nh_dev->ifindex != dev->ifindex)
+=======
+		/* prefix routes only use builtin fib6_nh */
+		if (rt->nh)
+			continue;
+
+		if (rt->fib6_nh->fib_nh_dev->ifindex != dev->ifindex)
+			continue;
+		if (no_gw && rt->fib6_nh->fib_nh_gw_family)
+>>>>>>> upstream/android-13
 			continue;
 		if ((rt->fib6_flags & flags) != flags)
 			continue;
@@ -2542,8 +2875,13 @@ static struct inet6_dev *addrconf_add_dev(struct net_device *dev)
 	ASSERT_RTNL();
 
 	idev = ipv6_find_idev(dev);
+<<<<<<< HEAD
 	if (!idev)
 		return ERR_PTR(-ENOBUFS);
+=======
+	if (IS_ERR(idev))
+		return idev;
+>>>>>>> upstream/android-13
 
 	if (idev->cnf.disable_ipv6)
 		return ERR_PTR(-EACCES);
@@ -2616,7 +2954,11 @@ static void manage_tempaddrs(struct inet6_dev *idev,
 		 * no temporary address currently exists.
 		 */
 		read_unlock_bh(&idev->lock);
+<<<<<<< HEAD
 		ipv6_create_tempaddr(ifp, NULL, false);
+=======
+		ipv6_create_tempaddr(ifp, false);
+>>>>>>> upstream/android-13
 	} else {
 		read_unlock_bh(&idev->lock);
 	}
@@ -2798,12 +3140,20 @@ void addrconf_prefix_rcv(struct net_device *dev, u8 *opt, int len, bool sllao)
 					       pinfo->prefix_len,
 					       dev,
 					       RTF_ADDRCONF | RTF_PREFIX_RT,
+<<<<<<< HEAD
 					       RTF_GATEWAY | RTF_DEFAULT);
+=======
+					       RTF_DEFAULT, true);
+>>>>>>> upstream/android-13
 
 		if (rt) {
 			/* Autoconf prefix route */
 			if (valid_lft == 0) {
+<<<<<<< HEAD
 				ip6_del_rt(net, rt);
+=======
+				ip6_del_rt(net, rt, false);
+>>>>>>> upstream/android-13
 				rt = NULL;
 			} else if (addrconf_finite_timeout(rt_expires)) {
 				/* not infinity */
@@ -2881,6 +3231,36 @@ put:
 	in6_dev_put(in6_dev);
 }
 
+<<<<<<< HEAD
+=======
+static int addrconf_set_sit_dstaddr(struct net *net, struct net_device *dev,
+		struct in6_ifreq *ireq)
+{
+	struct ip_tunnel_parm p = { };
+	int err;
+
+	if (!(ipv6_addr_type(&ireq->ifr6_addr) & IPV6_ADDR_COMPATv4))
+		return -EADDRNOTAVAIL;
+
+	p.iph.daddr = ireq->ifr6_addr.s6_addr32[3];
+	p.iph.version = 4;
+	p.iph.ihl = 5;
+	p.iph.protocol = IPPROTO_IPV6;
+	p.iph.ttl = 64;
+
+	if (!dev->netdev_ops->ndo_tunnel_ctl)
+		return -EOPNOTSUPP;
+	err = dev->netdev_ops->ndo_tunnel_ctl(dev, &p, SIOCADDTUNNEL);
+	if (err)
+		return err;
+
+	dev = __dev_get_by_name(net, p.name);
+	if (!dev)
+		return -ENOBUFS;
+	return dev_open(dev, NULL);
+}
+
+>>>>>>> upstream/android-13
 /*
  *	Set destination address.
  *	Special case for SIT interfaces where we create a new "virtual"
@@ -2888,6 +3268,7 @@ put:
  */
 int addrconf_set_dstaddr(struct net *net, void __user *arg)
 {
+<<<<<<< HEAD
 	struct in6_ifreq ireq;
 	struct net_device *dev;
 	int err = -EINVAL;
@@ -2943,6 +3324,21 @@ int addrconf_set_dstaddr(struct net *net, void __user *arg)
 #endif
 
 err_exit:
+=======
+	struct net_device *dev;
+	struct in6_ifreq ireq;
+	int err = -ENODEV;
+
+	if (!IS_ENABLED(CONFIG_IPV6_SIT))
+		return -ENODEV;
+	if (copy_from_user(&ireq, arg, sizeof(struct in6_ifreq)))
+		return -EFAULT;
+
+	rtnl_lock();
+	dev = __dev_get_by_index(net, ireq.ifr6_ifindex);
+	if (dev && dev->type == ARPHRD_SIT)
+		err = addrconf_set_sit_dstaddr(net, dev, &ireq);
+>>>>>>> upstream/android-13
 	rtnl_unlock();
 	return err;
 }
@@ -3169,21 +3565,42 @@ static void add_addr(struct inet6_dev *idev, const struct in6_addr *addr,
 	}
 }
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_IPV6_SIT)
 static void sit_add_v4_addrs(struct inet6_dev *idev)
+=======
+#if IS_ENABLED(CONFIG_IPV6_SIT) || IS_ENABLED(CONFIG_NET_IPGRE) || IS_ENABLED(CONFIG_IPV6_GRE)
+static void add_v4_addrs(struct inet6_dev *idev)
+>>>>>>> upstream/android-13
 {
 	struct in6_addr addr;
 	struct net_device *dev;
 	struct net *net = dev_net(idev->dev);
+<<<<<<< HEAD
 	int scope, plen;
+=======
+	int scope, plen, offset = 0;
+>>>>>>> upstream/android-13
 	u32 pflags = 0;
 
 	ASSERT_RTNL();
 
 	memset(&addr, 0, sizeof(struct in6_addr));
+<<<<<<< HEAD
 	memcpy(&addr.s6_addr32[3], idev->dev->dev_addr, 4);
 
 	if (idev->dev->flags&IFF_POINTOPOINT) {
+=======
+	/* in case of IP6GRE the dev_addr is an IPv6 and therefore we use only the last 4 bytes */
+	if (idev->dev->addr_len == sizeof(struct in6_addr))
+		offset = sizeof(struct in6_addr) - 4;
+	memcpy(&addr.s6_addr32[3], idev->dev->dev_addr + offset, 4);
+
+	if (idev->dev->flags&IFF_POINTOPOINT) {
+		if (idev->cnf.addr_gen_mode == IN6_ADDR_GEN_MODE_NONE)
+			return;
+
+>>>>>>> upstream/android-13
 		addr.s6_addr32[0] = htonl(0xfe800000);
 		scope = IFA_LINK;
 		plen = 64;
@@ -3204,11 +3621,17 @@ static void sit_add_v4_addrs(struct inet6_dev *idev)
 		struct in_device *in_dev = __in_dev_get_rtnl(dev);
 		if (in_dev && (dev->flags & IFF_UP)) {
 			struct in_ifaddr *ifa;
+<<<<<<< HEAD
 
 			int flag = scope;
 
 			for (ifa = in_dev->ifa_list; ifa; ifa = ifa->ifa_next) {
 
+=======
+			int flag = scope;
+
+			in_dev_for_each_ifa_rtnl(ifa, in_dev) {
+>>>>>>> upstream/android-13
 				addr.s6_addr32[3] = ifa->ifa_local;
 
 				if (ifa->ifa_scope == RT_SCOPE_LINK)
@@ -3237,7 +3660,11 @@ static void init_loopback(struct net_device *dev)
 	ASSERT_RTNL();
 
 	idev = ipv6_find_idev(dev);
+<<<<<<< HEAD
 	if (!idev) {
+=======
+	if (IS_ERR(idev)) {
+>>>>>>> upstream/android-13
 		pr_debug("%s: add_dev failed\n", __func__);
 		return;
 	}
@@ -3296,11 +3723,19 @@ static int ipv6_generate_stable_address(struct in6_addr *address,
 					const struct inet6_dev *idev)
 {
 	static DEFINE_SPINLOCK(lock);
+<<<<<<< HEAD
 	static __u32 digest[SHA_DIGEST_WORDS];
 	static __u32 workspace[SHA_WORKSPACE_WORDS];
 
 	static union {
 		char __data[SHA_MESSAGE_BYTES];
+=======
+	static __u32 digest[SHA1_DIGEST_WORDS];
+	static __u32 workspace[SHA1_WORKSPACE_WORDS];
+
+	static union {
+		char __data[SHA1_BLOCK_SIZE];
+>>>>>>> upstream/android-13
 		struct {
 			struct in6_addr secret;
 			__be32 prefix[2];
@@ -3325,7 +3760,11 @@ static int ipv6_generate_stable_address(struct in6_addr *address,
 retry:
 	spin_lock_bh(&lock);
 
+<<<<<<< HEAD
 	sha_init(digest);
+=======
+	sha1_init(digest);
+>>>>>>> upstream/android-13
 	memset(&data, 0, sizeof(data));
 	memset(workspace, 0, sizeof(workspace));
 	memcpy(data.hwaddr, idev->dev->perm_addr, idev->dev->addr_len);
@@ -3334,7 +3773,11 @@ retry:
 	data.secret = secret;
 	data.dad_count = dad_count;
 
+<<<<<<< HEAD
 	sha_transform(digest, data.__data, workspace);
+=======
+	sha1_transform(digest, data.__data, workspace);
+>>>>>>> upstream/android-13
 
 	temp = *address;
 	temp.s6_addr32[2] = (__force __be32)digest[0];
@@ -3381,7 +3824,11 @@ static void addrconf_addr_gen(struct inet6_dev *idev, bool prefix_route)
 	switch (idev->cnf.addr_gen_mode) {
 	case IN6_ADDR_GEN_MODE_RANDOM:
 		ipv6_gen_mode_random_init(idev);
+<<<<<<< HEAD
 		/* fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case IN6_ADDR_GEN_MODE_STABLE_PRIVACY:
 		if (!ipv6_generate_stable_address(&addr, 0, idev))
 			addrconf_add_linklocal(idev, &addr,
@@ -3421,8 +3868,11 @@ static void addrconf_dev_config(struct net_device *dev)
 	    (dev->type != ARPHRD_IEEE1394) &&
 	    (dev->type != ARPHRD_TUNNEL6) &&
 	    (dev->type != ARPHRD_6LOWPAN) &&
+<<<<<<< HEAD
 	    (dev->type != ARPHRD_IP6GRE) &&
 	    (dev->type != ARPHRD_IPGRE) &&
+=======
+>>>>>>> upstream/android-13
 	    (dev->type != ARPHRD_TUNNEL) &&
 	    (dev->type != ARPHRD_NONE) &&
 	    (dev->type != ARPHRD_RAWIP)) {
@@ -3438,10 +3888,13 @@ static void addrconf_dev_config(struct net_device *dev)
 	if (IS_ERR(idev))
 		return;
 
+<<<<<<< HEAD
 	/*mobile device doesn't need auto-linklocal addr  */
 	if (dev->type == ARPHRD_RAWIP)
 		return;
 
+=======
+>>>>>>> upstream/android-13
 	/* this device type has no EUI support */
 	if (dev->type == ARPHRD_NONE &&
 	    idev->cnf.addr_gen_mode == IN6_ADDR_GEN_MODE_EUI64)
@@ -3464,7 +3917,11 @@ static void addrconf_sit_config(struct net_device *dev)
 	 */
 
 	idev = ipv6_find_idev(dev);
+<<<<<<< HEAD
 	if (!idev) {
+=======
+	if (IS_ERR(idev)) {
+>>>>>>> upstream/android-13
 		pr_debug("%s: add_dev failed\n", __func__);
 		return;
 	}
@@ -3474,14 +3931,22 @@ static void addrconf_sit_config(struct net_device *dev)
 		return;
 	}
 
+<<<<<<< HEAD
 	sit_add_v4_addrs(idev);
+=======
+	add_v4_addrs(idev);
+>>>>>>> upstream/android-13
 
 	if (dev->flags&IFF_POINTOPOINT)
 		addrconf_add_mroute(dev);
 }
 #endif
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_NET_IPGRE)
+=======
+#if IS_ENABLED(CONFIG_NET_IPGRE) || IS_ENABLED(CONFIG_IPV6_GRE)
+>>>>>>> upstream/android-13
 static void addrconf_gre_config(struct net_device *dev)
 {
 	struct inet6_dev *idev;
@@ -3489,12 +3954,26 @@ static void addrconf_gre_config(struct net_device *dev)
 	ASSERT_RTNL();
 
 	idev = ipv6_find_idev(dev);
+<<<<<<< HEAD
 	if (!idev) {
+=======
+	if (IS_ERR(idev)) {
+>>>>>>> upstream/android-13
 		pr_debug("%s: add_dev failed\n", __func__);
 		return;
 	}
 
+<<<<<<< HEAD
 	addrconf_addr_gen(idev, true);
+=======
+	if (dev->type == ARPHRD_ETHER) {
+		addrconf_addr_gen(idev, true);
+		return;
+	}
+
+	add_v4_addrs(idev);
+
+>>>>>>> upstream/android-13
 	if (dev->flags & IFF_POINTOPOINT)
 		addrconf_add_mroute(dev);
 }
@@ -3607,9 +4086,13 @@ static int addrconf_notify(struct notifier_block *this, unsigned long event,
 			break;
 
 		run_pending = 1;
+<<<<<<< HEAD
 
 		/* fall through */
 
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case NETDEV_UP:
 	case NETDEV_CHANGE:
 		if (dev->flags & IFF_SLAVE)
@@ -3624,8 +4107,13 @@ static int addrconf_notify(struct notifier_block *this, unsigned long event,
 
 			if (!addrconf_link_ready(dev)) {
 				/* device is not ready yet. */
+<<<<<<< HEAD
 				pr_info("ADDRCONF(NETDEV_UP): %s: link is not ready\n",
 					dev->name);
+=======
+				pr_debug("ADDRCONF(NETDEV_UP): %s: link is not ready\n",
+					 dev->name);
+>>>>>>> upstream/android-13
 				break;
 			}
 
@@ -3672,7 +4160,12 @@ static int addrconf_notify(struct notifier_block *this, unsigned long event,
 			addrconf_sit_config(dev);
 			break;
 #endif
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_NET_IPGRE)
+=======
+#if IS_ENABLED(CONFIG_NET_IPGRE) || IS_ENABLED(CONFIG_IPV6_GRE)
+		case ARPHRD_IP6GRE:
+>>>>>>> upstream/android-13
 		case ARPHRD_IPGRE:
 			addrconf_gre_config(dev);
 			break;
@@ -3751,7 +4244,11 @@ static int addrconf_notify(struct notifier_block *this, unsigned long event,
 		 * an L3 master device (e.g., VRF)
 		 */
 		if (info->upper_dev && netif_is_l3_master(info->upper_dev))
+<<<<<<< HEAD
 			addrconf_ifdown(dev, 0);
+=======
+			addrconf_ifdown(dev, false);
+>>>>>>> upstream/android-13
 	}
 
 	return NOTIFY_OK;
@@ -3784,13 +4281,23 @@ static bool addr_is_local(const struct in6_addr *addr)
 		(IPV6_ADDR_LINKLOCAL | IPV6_ADDR_LOOPBACK);
 }
 
+<<<<<<< HEAD
 static int addrconf_ifdown(struct net_device *dev, int how)
 {
 	unsigned long event = how ? NETDEV_UNREGISTER : NETDEV_DOWN;
+=======
+static int addrconf_ifdown(struct net_device *dev, bool unregister)
+{
+	unsigned long event = unregister ? NETDEV_UNREGISTER : NETDEV_DOWN;
+>>>>>>> upstream/android-13
 	struct net *net = dev_net(dev);
 	struct inet6_dev *idev;
 	struct inet6_ifaddr *ifa, *tmp;
 	bool keep_addr = false;
+<<<<<<< HEAD
+=======
+	bool was_ready;
+>>>>>>> upstream/android-13
 	int state, i;
 
 	ASSERT_RTNL();
@@ -3805,7 +4312,11 @@ static int addrconf_ifdown(struct net_device *dev, int how)
 	 * Step 1: remove reference to ipv6 device from parent device.
 	 *	   Do not dev_put!
 	 */
+<<<<<<< HEAD
 	if (how) {
+=======
+	if (unregister) {
+>>>>>>> upstream/android-13
 		idev->dead = 1;
 
 		/* protected by rtnl_lock */
@@ -3819,7 +4330,11 @@ static int addrconf_ifdown(struct net_device *dev, int how)
 	/* combine the user config with event to determine if permanent
 	 * addresses are to be removed from address hash table
 	 */
+<<<<<<< HEAD
 	if (!how && !idev->cnf.disable_ipv6) {
+=======
+	if (!unregister && !idev->cnf.disable_ipv6) {
+>>>>>>> upstream/android-13
 		/* aggregate the system setting and interface setting */
 		int _keep_addr = net->ipv6.devconf_all->keep_addr_on_down;
 
@@ -3856,8 +4371,16 @@ restart:
 
 	addrconf_del_rs_timer(idev);
 
+<<<<<<< HEAD
 	/* Step 2: clear flags for stateless addrconf */
 	if (!how)
+=======
+	/* Step 2: clear flags for stateless addrconf, repeated down
+	 *         detection
+	 */
+	was_ready = idev->if_flags & IF_READY;
+	if (!unregister)
+>>>>>>> upstream/android-13
 		idev->if_flags &= ~(IF_RS_SENT|IF_RA_RCVD|IF_READY);
 
 	/* Step 3: clear tempaddr list */
@@ -3906,7 +4429,11 @@ restart:
 		spin_unlock_bh(&ifa->lock);
 
 		if (rt)
+<<<<<<< HEAD
 			ip6_del_rt(net, rt);
+=======
+			ip6_del_rt(net, rt, false);
+>>>>>>> upstream/android-13
 
 		if (state != INET6_IFADDR_STATE_DEAD) {
 			__ipv6_ifa_notify(RTM_DELADDR, ifa);
@@ -3927,17 +4454,31 @@ restart:
 	write_unlock_bh(&idev->lock);
 
 	/* Step 5: Discard anycast and multicast list */
+<<<<<<< HEAD
 	if (how) {
 		ipv6_ac_destroy_dev(idev);
 		ipv6_mc_destroy_dev(idev);
 	} else {
+=======
+	if (unregister) {
+		ipv6_ac_destroy_dev(idev);
+		ipv6_mc_destroy_dev(idev);
+	} else if (was_ready) {
+>>>>>>> upstream/android-13
 		ipv6_mc_down(idev);
 	}
 
 	idev->tstamp = jiffies;
+<<<<<<< HEAD
 
 	/* Last: Shot the device (if unregistered) */
 	if (how) {
+=======
+	idev->ra_mtu = 0;
+
+	/* Last: Shot the device (if unregistered) */
+	if (unregister) {
+>>>>>>> upstream/android-13
 		addrconf_sysctl_unregister(idev);
 		neigh_parms_release(&nd_tbl, idev->nd_parms);
 		neigh_ifdown(&nd_tbl, dev);
@@ -3963,12 +4504,15 @@ static void addrconf_rs_timer(struct timer_list *t)
 	if (idev->if_flags & IF_RA_RCVD)
 		goto out;
 
+<<<<<<< HEAD
 	if (idev->rs_probes == RTR_SOLICITS_MAX && (idev->if_flags & IF_RS_VZW_SENT)) {
 		inet6_no_ra_notify(RTM_DELADDR, idev);
 		idev->if_flags &= ~IF_RS_VZW_SENT;
 		goto out;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (idev->rs_probes++ < idev->cnf.rtr_solicits || idev->cnf.rtr_solicits < 0) {
 		write_unlock(&idev->lock);
 		if (!ipv6_get_lladdr(dev, &lladdr, IFA_F_TENTATIVE))
@@ -3978,6 +4522,7 @@ static void addrconf_rs_timer(struct timer_list *t)
 			goto put;
 
 		write_lock(&idev->lock);
+<<<<<<< HEAD
 
 		if (sysctl_optr == MTK_IPV6_VZW_ALL &&
 		    (strncmp(dev->name, NET_IF_NAME, 2) == 0))
@@ -3987,6 +4532,10 @@ static void addrconf_rs_timer(struct timer_list *t)
 				(idev->rs_interval,
 				 idev->cnf.rtr_solicit_max_interval);
 
+=======
+		idev->rs_interval = rfc3315_s14_backoff_update(
+			idev->rs_interval, idev->cnf.rtr_solicit_max_interval);
+>>>>>>> upstream/android-13
 		/* The wait after the last probe can be shorter */
 		addrconf_mod_rs_timer(idev, (idev->rs_probes ==
 					     idev->cnf.rtr_solicits) ?
@@ -4172,7 +4721,11 @@ static void addrconf_dad_work(struct work_struct *w)
 		in6_ifa_hold(ifp);
 		addrconf_dad_stop(ifp, 1);
 		if (disable_ipv6)
+<<<<<<< HEAD
 			addrconf_ifdown(idev->dev, 0);
+=======
+			addrconf_ifdown(idev->dev, false);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
@@ -4213,6 +4766,7 @@ static void addrconf_dad_work(struct work_struct *w)
 	}
 
 	ifp->dad_probes--;
+<<<<<<< HEAD
 	if (ifp->idev->dev != NULL && !strcmp(ifp->idev->dev->name, "aware_data0")) {
 		pr_info("Reduce wating time from %lu to %lu (HZ=%lu) to send NS for quick transmission for %s\n",
 			NEIGH_VAR(ifp->idev->nd_parms, RETRANS_TIME),
@@ -4224,6 +4778,11 @@ static void addrconf_dad_work(struct work_struct *w)
 	} else
 	addrconf_mod_dad_work(ifp,
 			      NEIGH_VAR(ifp->idev->nd_parms, RETRANS_TIME));
+=======
+	addrconf_mod_dad_work(ifp,
+			      max(NEIGH_VAR(ifp->idev->nd_parms, RETRANS_TIME),
+				  HZ/100));
+>>>>>>> upstream/android-13
 	spin_unlock(&ifp->lock);
 	write_unlock_bh(&idev->lock);
 
@@ -4309,6 +4868,7 @@ static void addrconf_dad_completed(struct inet6_ifaddr *ifp, bool bump_id,
 
 		write_lock_bh(&ifp->idev->lock);
 		spin_lock(&ifp->lock);
+<<<<<<< HEAD
 		if (sysctl_optr == MTK_IPV6_VZW_ALL &&
 		    (strncmp(dev->name, NET_IF_NAME, 2) == 0))
 			ifp->idev->rs_interval =
@@ -4317,6 +4877,10 @@ static void addrconf_dad_completed(struct inet6_ifaddr *ifp, bool bump_id,
 			ifp->idev->rs_interval = rfc3315_s14_backoff_init
 				(ifp->idev->cnf.rtr_solicit_interval);
 
+=======
+		ifp->idev->rs_interval = rfc3315_s14_backoff_init(
+			ifp->idev->cnf.rtr_solicit_interval);
+>>>>>>> upstream/android-13
 		ifp->idev->rs_probes = 1;
 		ifp->idev->if_flags |= IF_RS_SENT;
 		addrconf_mod_rs_timer(ifp->idev, ifp->idev->rs_interval);
@@ -4512,6 +5076,7 @@ int ipv6_chk_home_addr(struct net *net, const struct in6_addr *addr)
 }
 #endif
 
+<<<<<<< HEAD
 static void inet6_send_rs_vzw(struct inet6_ifaddr *ifp)
 {
 	struct net_device *dev = ifp->idev->dev;
@@ -4589,6 +5154,59 @@ static void calc_next_vzw(struct inet6_ifaddr *ifp_vzw,
 				       ((min_lft_vzw * 3 / 4) * HZ);
 		}
 	}
+=======
+/* RFC6554 has some algorithm to avoid loops in segment routing by
+ * checking if the segments contains any of a local interface address.
+ *
+ * Quote:
+ *
+ * To detect loops in the SRH, a router MUST determine if the SRH
+ * includes multiple addresses assigned to any interface on that router.
+ * If such addresses appear more than once and are separated by at least
+ * one address not assigned to that router.
+ */
+int ipv6_chk_rpl_srh_loop(struct net *net, const struct in6_addr *segs,
+			  unsigned char nsegs)
+{
+	const struct in6_addr *addr;
+	int i, ret = 0, found = 0;
+	struct inet6_ifaddr *ifp;
+	bool separated = false;
+	unsigned int hash;
+	bool hash_found;
+
+	rcu_read_lock();
+	for (i = 0; i < nsegs; i++) {
+		addr = &segs[i];
+		hash = inet6_addr_hash(net, addr);
+
+		hash_found = false;
+		hlist_for_each_entry_rcu(ifp, &inet6_addr_lst[hash], addr_lst) {
+			if (!net_eq(dev_net(ifp->idev->dev), net))
+				continue;
+
+			if (ipv6_addr_equal(&ifp->addr, addr)) {
+				hash_found = true;
+				break;
+			}
+		}
+
+		if (hash_found) {
+			if (found > 1 && separated) {
+				ret = 1;
+				break;
+			}
+
+			separated = false;
+			found++;
+		} else {
+			separated = true;
+		}
+	}
+	rcu_read_unlock();
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -4613,6 +5231,7 @@ static void addrconf_verify_rtnl(void)
 restart:
 		hlist_for_each_entry_rcu_bh(ifp, &inet6_addr_lst[i], addr_lst) {
 			unsigned long age;
+<<<<<<< HEAD
 			u32 min_lft;
 			struct fib6_info *rt = NULL;
 
@@ -4620,6 +5239,9 @@ restart:
 				sysctl_optr == MTK_IPV6_EX_RS_INTERVAL) &&
 				(strncmp(ifp->idev->dev->name, NET_IF_NAME, 2) == 0))
 				rt = calc_lft_vzw(ifp, &min_lft);
+=======
+
+>>>>>>> upstream/android-13
 			/* When setting preferred_lft to a value not zero or
 			 * infinity, while valid_lft is infinity
 			 * IFA_F_PERMANENT has a non-infinity life time.
@@ -4636,6 +5258,7 @@ restart:
 			    age >= ifp->valid_lft) {
 				spin_unlock(&ifp->lock);
 				in6_ifa_hold(ifp);
+<<<<<<< HEAD
 				ipv6_del_addr(ifp);
 				goto restart;
 			} else if (ifp->prefered_lft == INFINITY_LIFE_TIME) {
@@ -4650,6 +5273,13 @@ restart:
 					calc_next_vzw(ifp, rt, &next, age,
 						      0, min_lft);
 				}
+=======
+				rcu_read_unlock_bh();
+				ipv6_del_addr(ifp);
+				rcu_read_lock_bh();
+				goto restart;
+			} else if (ifp->prefered_lft == INFINITY_LIFE_TIME) {
+>>>>>>> upstream/android-13
 				spin_unlock(&ifp->lock);
 				continue;
 			} else if (age >= ifp->prefered_lft) {
@@ -4678,7 +5308,11 @@ restart:
 				   !(ifp->flags&IFA_F_TENTATIVE)) {
 				unsigned long regen_advance = ifp->idev->cnf.regen_max_retry *
 					ifp->idev->cnf.dad_transmits *
+<<<<<<< HEAD
 					NEIGH_VAR(ifp->idev->nd_parms, RETRANS_TIME) / HZ;
+=======
+					max(NEIGH_VAR(ifp->idev->nd_parms, RETRANS_TIME), HZ/100) / HZ;
+>>>>>>> upstream/android-13
 
 				if (age >= ifp->prefered_lft - regen_advance) {
 					struct inet6_ifaddr *ifpub = ifp->ifpub;
@@ -4694,7 +5328,11 @@ restart:
 						ifpub->regen_count = 0;
 						spin_unlock(&ifpub->lock);
 						rcu_read_unlock_bh();
+<<<<<<< HEAD
 						ipv6_create_tempaddr(ifpub, ifp, true);
+=======
+						ipv6_create_tempaddr(ifpub, true);
+>>>>>>> upstream/android-13
 						in6_ifa_put(ifpub);
 						in6_ifa_put(ifp);
 						rcu_read_lock_bh();
@@ -4707,6 +5345,7 @@ restart:
 				/* ifp->prefered_lft <= ifp->valid_lft */
 				if (time_before(ifp->tstamp + ifp->prefered_lft * HZ, next))
 					next = ifp->tstamp + ifp->prefered_lft * HZ;
+<<<<<<< HEAD
 				if ((sysctl_optr == MTK_IPV6_VZW_ALL ||
 					sysctl_optr == MTK_IPV6_EX_RS_INTERVAL) &&
 					(strncmp(ifp->idev->dev->name, NET_IF_NAME, 2) == 0)) {
@@ -4719,6 +5358,8 @@ restart:
 					calc_next_vzw(ifp, rt, &next, age,
 						      1, min_lft);
 				}
+=======
+>>>>>>> upstream/android-13
 				spin_unlock(&ifp->lock);
 			}
 		}
@@ -4778,6 +5419,10 @@ static const struct nla_policy ifa_ipv6_policy[IFA_MAX+1] = {
 	[IFA_CACHEINFO]		= { .len = sizeof(struct ifa_cacheinfo) },
 	[IFA_FLAGS]		= { .len = sizeof(u32) },
 	[IFA_RT_PRIORITY]	= { .len = sizeof(u32) },
+<<<<<<< HEAD
+=======
+	[IFA_TARGET_NETNSID]	= { .type = NLA_S32 },
+>>>>>>> upstream/android-13
 };
 
 static int
@@ -4791,8 +5436,13 @@ inet6_rtm_deladdr(struct sk_buff *skb, struct nlmsghdr *nlh,
 	u32 ifa_flags;
 	int err;
 
+<<<<<<< HEAD
 	err = nlmsg_parse(nlh, sizeof(*ifm), tb, IFA_MAX, ifa_ipv6_policy,
 			  extack);
+=======
+	err = nlmsg_parse_deprecated(nlh, sizeof(*ifm), tb, IFA_MAX,
+				     ifa_ipv6_policy, extack);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -4819,15 +5469,23 @@ static int modify_prefix_route(struct inet6_ifaddr *ifp,
 
 	f6i = addrconf_get_prefix_route(modify_peer ? &ifp->peer_addr : &ifp->addr,
 					ifp->prefix_len,
+<<<<<<< HEAD
 					ifp->idev->dev,
 					0, RTF_GATEWAY | RTF_DEFAULT);
+=======
+					ifp->idev->dev, 0, RTF_DEFAULT, true);
+>>>>>>> upstream/android-13
 	if (!f6i)
 		return -ENOENT;
 
 	prio = ifp->rt_priority ? : IP6_RT_PRIO_ADDRCONF;
 	if (f6i->fib6_metric != prio) {
 		/* delete old one */
+<<<<<<< HEAD
 		ip6_del_rt(dev_net(ifp->idev->dev), f6i);
+=======
+		ip6_del_rt(dev_net(ifp->idev->dev), f6i, false);
+>>>>>>> upstream/android-13
 
 		/* add new one */
 		addrconf_prefix_route(modify_peer ? &ifp->peer_addr : &ifp->addr,
@@ -4979,8 +5637,13 @@ inet6_rtm_newaddr(struct sk_buff *skb, struct nlmsghdr *nlh,
 	struct ifa6_config cfg;
 	int err;
 
+<<<<<<< HEAD
 	err = nlmsg_parse(nlh, sizeof(*ifm), tb, IFA_MAX, ifa_ipv6_policy,
 			  extack);
+=======
+	err = nlmsg_parse_deprecated(nlh, sizeof(*ifm), tb, IFA_MAX,
+				     ifa_ipv6_policy, extack);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -5022,8 +5685,13 @@ inet6_rtm_newaddr(struct sk_buff *skb, struct nlmsghdr *nlh,
 			 IFA_F_MCAUTOJOIN | IFA_F_OPTIMISTIC;
 
 	idev = ipv6_find_idev(dev);
+<<<<<<< HEAD
 	if (!idev)
 		return -ENOBUFS;
+=======
+	if (IS_ERR(idev))
+		return PTR_ERR(idev);
+>>>>>>> upstream/android-13
 
 	if (!ipv6_allow_optimistic_dad(net, idev))
 		cfg.ifa_flags &= ~IFA_F_OPTIMISTIC;
@@ -5102,19 +5770,53 @@ static inline int inet6_ifaddr_msgsize(void)
 	       + nla_total_size(4)  /* IFA_RT_PRIORITY */;
 }
 
+<<<<<<< HEAD
 static int inet6_fill_ifaddr(struct sk_buff *skb, struct inet6_ifaddr *ifa,
 			     u32 portid, u32 seq, int event, unsigned int flags)
+=======
+enum addr_type_t {
+	UNICAST_ADDR,
+	MULTICAST_ADDR,
+	ANYCAST_ADDR,
+};
+
+struct inet6_fill_args {
+	u32 portid;
+	u32 seq;
+	int event;
+	unsigned int flags;
+	int netnsid;
+	int ifindex;
+	enum addr_type_t type;
+};
+
+static int inet6_fill_ifaddr(struct sk_buff *skb, struct inet6_ifaddr *ifa,
+			     struct inet6_fill_args *args)
+>>>>>>> upstream/android-13
 {
 	struct nlmsghdr  *nlh;
 	u32 preferred, valid;
 
+<<<<<<< HEAD
 	nlh = nlmsg_put(skb, portid, seq, event, sizeof(struct ifaddrmsg), flags);
+=======
+	nlh = nlmsg_put(skb, args->portid, args->seq, args->event,
+			sizeof(struct ifaddrmsg), args->flags);
+>>>>>>> upstream/android-13
 	if (!nlh)
 		return -EMSGSIZE;
 
 	put_ifaddrmsg(nlh, ifa->prefix_len, ifa->flags, rt_scope(ifa->scope),
 		      ifa->idev->dev->ifindex);
 
+<<<<<<< HEAD
+=======
+	if (args->netnsid >= 0 &&
+	    nla_put_s32(skb, IFA_TARGET_NETNSID, args->netnsid))
+		goto error;
+
+	spin_lock_bh(&ifa->lock);
+>>>>>>> upstream/android-13
 	if (!((ifa->flags&IFA_F_PERMANENT) &&
 	      (ifa->prefered_lft == INFINITY_LIFE_TIME))) {
 		preferred = ifa->prefered_lft;
@@ -5136,6 +5838,10 @@ static int inet6_fill_ifaddr(struct sk_buff *skb, struct inet6_ifaddr *ifa,
 		preferred = INFINITY_LIFE_TIME;
 		valid = INFINITY_LIFE_TIME;
 	}
+<<<<<<< HEAD
+=======
+	spin_unlock_bh(&ifa->lock);
+>>>>>>> upstream/android-13
 
 	if (!ipv6_addr_any(&ifa->peer_addr)) {
 		if (nla_put_in6_addr(skb, IFA_LOCAL, &ifa->addr) < 0 ||
@@ -5164,7 +5870,11 @@ error:
 }
 
 static int inet6_fill_ifmcaddr(struct sk_buff *skb, struct ifmcaddr6 *ifmca,
+<<<<<<< HEAD
 				u32 portid, u32 seq, int event, u16 flags)
+=======
+			       struct inet6_fill_args *args)
+>>>>>>> upstream/android-13
 {
 	struct nlmsghdr  *nlh;
 	u8 scope = RT_SCOPE_UNIVERSE;
@@ -5173,10 +5883,24 @@ static int inet6_fill_ifmcaddr(struct sk_buff *skb, struct ifmcaddr6 *ifmca,
 	if (ipv6_addr_scope(&ifmca->mca_addr) & IFA_SITE)
 		scope = RT_SCOPE_SITE;
 
+<<<<<<< HEAD
 	nlh = nlmsg_put(skb, portid, seq, event, sizeof(struct ifaddrmsg), flags);
 	if (!nlh)
 		return -EMSGSIZE;
 
+=======
+	nlh = nlmsg_put(skb, args->portid, args->seq, args->event,
+			sizeof(struct ifaddrmsg), args->flags);
+	if (!nlh)
+		return -EMSGSIZE;
+
+	if (args->netnsid >= 0 &&
+	    nla_put_s32(skb, IFA_TARGET_NETNSID, args->netnsid)) {
+		nlmsg_cancel(skb, nlh);
+		return -EMSGSIZE;
+	}
+
+>>>>>>> upstream/android-13
 	put_ifaddrmsg(nlh, 128, IFA_F_PERMANENT, scope, ifindex);
 	if (nla_put_in6_addr(skb, IFA_MULTICAST, &ifmca->mca_addr) < 0 ||
 	    put_cacheinfo(skb, ifmca->mca_cstamp, ifmca->mca_tstamp,
@@ -5190,7 +5914,11 @@ static int inet6_fill_ifmcaddr(struct sk_buff *skb, struct ifmcaddr6 *ifmca,
 }
 
 static int inet6_fill_ifacaddr(struct sk_buff *skb, struct ifacaddr6 *ifaca,
+<<<<<<< HEAD
 				u32 portid, u32 seq, int event, unsigned int flags)
+=======
+			       struct inet6_fill_args *args)
+>>>>>>> upstream/android-13
 {
 	struct net_device *dev = fib6_info_nh_dev(ifaca->aca_rt);
 	int ifindex = dev ? dev->ifindex : 1;
@@ -5200,10 +5928,24 @@ static int inet6_fill_ifacaddr(struct sk_buff *skb, struct ifacaddr6 *ifaca,
 	if (ipv6_addr_scope(&ifaca->aca_addr) & IFA_SITE)
 		scope = RT_SCOPE_SITE;
 
+<<<<<<< HEAD
 	nlh = nlmsg_put(skb, portid, seq, event, sizeof(struct ifaddrmsg), flags);
 	if (!nlh)
 		return -EMSGSIZE;
 
+=======
+	nlh = nlmsg_put(skb, args->portid, args->seq, args->event,
+			sizeof(struct ifaddrmsg), args->flags);
+	if (!nlh)
+		return -EMSGSIZE;
+
+	if (args->netnsid >= 0 &&
+	    nla_put_s32(skb, IFA_TARGET_NETNSID, args->netnsid)) {
+		nlmsg_cancel(skb, nlh);
+		return -EMSGSIZE;
+	}
+
+>>>>>>> upstream/android-13
 	put_ifaddrmsg(nlh, 128, IFA_F_PERMANENT, scope, ifindex);
 	if (nla_put_in6_addr(skb, IFA_ANYCAST, &ifaca->aca_addr) < 0 ||
 	    put_cacheinfo(skb, ifaca->aca_cstamp, ifaca->aca_tstamp,
@@ -5216,6 +5958,7 @@ static int inet6_fill_ifacaddr(struct sk_buff *skb, struct ifacaddr6 *ifaca,
 	return 0;
 }
 
+<<<<<<< HEAD
 enum addr_type_t {
 	UNICAST_ADDR,
 	MULTICAST_ADDR,
@@ -5236,16 +5979,37 @@ static int in6_dump_addrs(struct inet6_dev *idev, struct sk_buff *skb,
 	switch (type) {
 	case UNICAST_ADDR: {
 		struct inet6_ifaddr *ifa;
+=======
+/* called with rcu_read_lock() */
+static int in6_dump_addrs(struct inet6_dev *idev, struct sk_buff *skb,
+			  struct netlink_callback *cb, int s_ip_idx,
+			  struct inet6_fill_args *fillargs)
+{
+	struct ifmcaddr6 *ifmca;
+	struct ifacaddr6 *ifaca;
+	int ip_idx = 0;
+	int err = 1;
+
+	read_lock_bh(&idev->lock);
+	switch (fillargs->type) {
+	case UNICAST_ADDR: {
+		struct inet6_ifaddr *ifa;
+		fillargs->event = RTM_NEWADDR;
+>>>>>>> upstream/android-13
 
 		/* unicast address incl. temp addr */
 		list_for_each_entry(ifa, &idev->addr_list, if_list) {
 			if (ip_idx < s_ip_idx)
 				goto next;
+<<<<<<< HEAD
 			err = inet6_fill_ifaddr(skb, ifa,
 						NETLINK_CB(cb->skb).portid,
 						cb->nlh->nlmsg_seq,
 						RTM_NEWADDR,
 						NLM_F_MULTI);
+=======
+			err = inet6_fill_ifaddr(skb, ifa, fillargs);
+>>>>>>> upstream/android-13
 			if (err < 0)
 				break;
 			nl_dump_check_consistent(cb, nlmsg_hdr(skb));
@@ -5255,6 +6019,7 @@ next:
 		break;
 	}
 	case MULTICAST_ADDR:
+<<<<<<< HEAD
 		/* multicast address */
 		for (ifmca = idev->mc_list; ifmca;
 		     ifmca = ifmca->next, ip_idx++) {
@@ -5270,16 +6035,39 @@ next:
 		}
 		break;
 	case ANYCAST_ADDR:
+=======
+		read_unlock_bh(&idev->lock);
+		fillargs->event = RTM_GETMULTICAST;
+
+		/* multicast address */
+		for (ifmca = rcu_dereference(idev->mc_list);
+		     ifmca;
+		     ifmca = rcu_dereference(ifmca->next), ip_idx++) {
+			if (ip_idx < s_ip_idx)
+				continue;
+			err = inet6_fill_ifmcaddr(skb, ifmca, fillargs);
+			if (err < 0)
+				break;
+		}
+		read_lock_bh(&idev->lock);
+		break;
+	case ANYCAST_ADDR:
+		fillargs->event = RTM_GETANYCAST;
+>>>>>>> upstream/android-13
 		/* anycast address */
 		for (ifaca = idev->ac_list; ifaca;
 		     ifaca = ifaca->aca_next, ip_idx++) {
 			if (ip_idx < s_ip_idx)
 				continue;
+<<<<<<< HEAD
 			err = inet6_fill_ifacaddr(skb, ifaca,
 						  NETLINK_CB(cb->skb).portid,
 						  cb->nlh->nlmsg_seq,
 						  RTM_GETANYCAST,
 						  NLM_F_MULTI);
+=======
+			err = inet6_fill_ifacaddr(skb, ifaca, fillargs);
+>>>>>>> upstream/android-13
 			if (err < 0)
 				break;
 		}
@@ -5288,6 +6076,7 @@ next:
 		break;
 	}
 	read_unlock_bh(&idev->lock);
+<<<<<<< HEAD
 	*p_ip_idx = ip_idx;
 	return err;
 }
@@ -5312,18 +6101,140 @@ static int inet6_dump_addr(struct sk_buff *skb, struct netlink_callback *cb,
 	for (h = s_h; h < NETDEV_HASHENTRIES; h++, s_idx = 0) {
 		idx = 0;
 		head = &net->dev_index_head[h];
+=======
+	cb->args[2] = ip_idx;
+	return err;
+}
+
+static int inet6_valid_dump_ifaddr_req(const struct nlmsghdr *nlh,
+				       struct inet6_fill_args *fillargs,
+				       struct net **tgt_net, struct sock *sk,
+				       struct netlink_callback *cb)
+{
+	struct netlink_ext_ack *extack = cb->extack;
+	struct nlattr *tb[IFA_MAX+1];
+	struct ifaddrmsg *ifm;
+	int err, i;
+
+	if (nlh->nlmsg_len < nlmsg_msg_size(sizeof(*ifm))) {
+		NL_SET_ERR_MSG_MOD(extack, "Invalid header for address dump request");
+		return -EINVAL;
+	}
+
+	ifm = nlmsg_data(nlh);
+	if (ifm->ifa_prefixlen || ifm->ifa_flags || ifm->ifa_scope) {
+		NL_SET_ERR_MSG_MOD(extack, "Invalid values in header for address dump request");
+		return -EINVAL;
+	}
+
+	fillargs->ifindex = ifm->ifa_index;
+	if (fillargs->ifindex) {
+		cb->answer_flags |= NLM_F_DUMP_FILTERED;
+		fillargs->flags |= NLM_F_DUMP_FILTERED;
+	}
+
+	err = nlmsg_parse_deprecated_strict(nlh, sizeof(*ifm), tb, IFA_MAX,
+					    ifa_ipv6_policy, extack);
+	if (err < 0)
+		return err;
+
+	for (i = 0; i <= IFA_MAX; ++i) {
+		if (!tb[i])
+			continue;
+
+		if (i == IFA_TARGET_NETNSID) {
+			struct net *net;
+
+			fillargs->netnsid = nla_get_s32(tb[i]);
+			net = rtnl_get_net_ns_capable(sk, fillargs->netnsid);
+			if (IS_ERR(net)) {
+				fillargs->netnsid = -1;
+				NL_SET_ERR_MSG_MOD(extack, "Invalid target network namespace id");
+				return PTR_ERR(net);
+			}
+			*tgt_net = net;
+		} else {
+			NL_SET_ERR_MSG_MOD(extack, "Unsupported attribute in dump request");
+			return -EINVAL;
+		}
+	}
+
+	return 0;
+}
+
+static int inet6_dump_addr(struct sk_buff *skb, struct netlink_callback *cb,
+			   enum addr_type_t type)
+{
+	const struct nlmsghdr *nlh = cb->nlh;
+	struct inet6_fill_args fillargs = {
+		.portid = NETLINK_CB(cb->skb).portid,
+		.seq = cb->nlh->nlmsg_seq,
+		.flags = NLM_F_MULTI,
+		.netnsid = -1,
+		.type = type,
+	};
+	struct net *tgt_net = sock_net(skb->sk);
+	int idx, s_idx, s_ip_idx;
+	int h, s_h;
+	struct net_device *dev;
+	struct inet6_dev *idev;
+	struct hlist_head *head;
+	int err = 0;
+
+	s_h = cb->args[0];
+	s_idx = idx = cb->args[1];
+	s_ip_idx = cb->args[2];
+
+	if (cb->strict_check) {
+		err = inet6_valid_dump_ifaddr_req(nlh, &fillargs, &tgt_net,
+						  skb->sk, cb);
+		if (err < 0)
+			goto put_tgt_net;
+
+		err = 0;
+		if (fillargs.ifindex) {
+			dev = __dev_get_by_index(tgt_net, fillargs.ifindex);
+			if (!dev) {
+				err = -ENODEV;
+				goto put_tgt_net;
+			}
+			idev = __in6_dev_get(dev);
+			if (idev) {
+				err = in6_dump_addrs(idev, skb, cb, s_ip_idx,
+						     &fillargs);
+				if (err > 0)
+					err = 0;
+			}
+			goto put_tgt_net;
+		}
+	}
+
+	rcu_read_lock();
+	cb->seq = atomic_read(&tgt_net->ipv6.dev_addr_genid) ^ tgt_net->dev_base_seq;
+	for (h = s_h; h < NETDEV_HASHENTRIES; h++, s_idx = 0) {
+		idx = 0;
+		head = &tgt_net->dev_index_head[h];
+>>>>>>> upstream/android-13
 		hlist_for_each_entry_rcu(dev, head, index_hlist) {
 			if (idx < s_idx)
 				goto cont;
 			if (h > s_h || idx > s_idx)
 				s_ip_idx = 0;
+<<<<<<< HEAD
 			ip_idx = 0;
+=======
+>>>>>>> upstream/android-13
 			idev = __in6_dev_get(dev);
 			if (!idev)
 				goto cont;
 
+<<<<<<< HEAD
 			if (in6_dump_addrs(idev, skb, cb, type,
 					   s_ip_idx, &ip_idx) < 0)
+=======
+			if (in6_dump_addrs(idev, skb, cb, s_ip_idx,
+					   &fillargs) < 0)
+>>>>>>> upstream/android-13
 				goto done;
 cont:
 			idx++;
@@ -5333,9 +6244,17 @@ done:
 	rcu_read_unlock();
 	cb->args[0] = h;
 	cb->args[1] = idx;
+<<<<<<< HEAD
 	cb->args[2] = ip_idx;
 
 	return skb->len;
+=======
+put_tgt_net:
+	if (fillargs.netnsid >= 0)
+		put_net(tgt_net);
+
+	return skb->len ? : err;
+>>>>>>> upstream/android-13
 }
 
 static int inet6_dump_ifaddr(struct sk_buff *skb, struct netlink_callback *cb)
@@ -5360,10 +6279,70 @@ static int inet6_dump_ifacaddr(struct sk_buff *skb, struct netlink_callback *cb)
 	return inet6_dump_addr(skb, cb, type);
 }
 
+<<<<<<< HEAD
 static int inet6_rtm_getaddr(struct sk_buff *in_skb, struct nlmsghdr *nlh,
 			     struct netlink_ext_ack *extack)
 {
 	struct net *net = sock_net(in_skb->sk);
+=======
+static int inet6_rtm_valid_getaddr_req(struct sk_buff *skb,
+				       const struct nlmsghdr *nlh,
+				       struct nlattr **tb,
+				       struct netlink_ext_ack *extack)
+{
+	struct ifaddrmsg *ifm;
+	int i, err;
+
+	if (nlh->nlmsg_len < nlmsg_msg_size(sizeof(*ifm))) {
+		NL_SET_ERR_MSG_MOD(extack, "Invalid header for get address request");
+		return -EINVAL;
+	}
+
+	if (!netlink_strict_get_check(skb))
+		return nlmsg_parse_deprecated(nlh, sizeof(*ifm), tb, IFA_MAX,
+					      ifa_ipv6_policy, extack);
+
+	ifm = nlmsg_data(nlh);
+	if (ifm->ifa_prefixlen || ifm->ifa_flags || ifm->ifa_scope) {
+		NL_SET_ERR_MSG_MOD(extack, "Invalid values in header for get address request");
+		return -EINVAL;
+	}
+
+	err = nlmsg_parse_deprecated_strict(nlh, sizeof(*ifm), tb, IFA_MAX,
+					    ifa_ipv6_policy, extack);
+	if (err)
+		return err;
+
+	for (i = 0; i <= IFA_MAX; i++) {
+		if (!tb[i])
+			continue;
+
+		switch (i) {
+		case IFA_TARGET_NETNSID:
+		case IFA_ADDRESS:
+		case IFA_LOCAL:
+			break;
+		default:
+			NL_SET_ERR_MSG_MOD(extack, "Unsupported attribute in get address request");
+			return -EINVAL;
+		}
+	}
+
+	return 0;
+}
+
+static int inet6_rtm_getaddr(struct sk_buff *in_skb, struct nlmsghdr *nlh,
+			     struct netlink_ext_ack *extack)
+{
+	struct net *tgt_net = sock_net(in_skb->sk);
+	struct inet6_fill_args fillargs = {
+		.portid = NETLINK_CB(in_skb).portid,
+		.seq = nlh->nlmsg_seq,
+		.event = RTM_NEWADDR,
+		.flags = 0,
+		.netnsid = -1,
+	};
+>>>>>>> upstream/android-13
 	struct ifaddrmsg *ifm;
 	struct nlattr *tb[IFA_MAX+1];
 	struct in6_addr *addr = NULL, *peer;
@@ -5372,20 +6351,42 @@ static int inet6_rtm_getaddr(struct sk_buff *in_skb, struct nlmsghdr *nlh,
 	struct sk_buff *skb;
 	int err;
 
+<<<<<<< HEAD
 	err = nlmsg_parse(nlh, sizeof(*ifm), tb, IFA_MAX, ifa_ipv6_policy,
 			  extack);
 	if (err < 0)
 		return err;
 
+=======
+	err = inet6_rtm_valid_getaddr_req(in_skb, nlh, tb, extack);
+	if (err < 0)
+		return err;
+
+	if (tb[IFA_TARGET_NETNSID]) {
+		fillargs.netnsid = nla_get_s32(tb[IFA_TARGET_NETNSID]);
+
+		tgt_net = rtnl_get_net_ns_capable(NETLINK_CB(in_skb).sk,
+						  fillargs.netnsid);
+		if (IS_ERR(tgt_net))
+			return PTR_ERR(tgt_net);
+	}
+
+>>>>>>> upstream/android-13
 	addr = extract_addr(tb[IFA_ADDRESS], tb[IFA_LOCAL], &peer);
 	if (!addr)
 		return -EINVAL;
 
 	ifm = nlmsg_data(nlh);
 	if (ifm->ifa_index)
+<<<<<<< HEAD
 		dev = dev_get_by_index(net, ifm->ifa_index);
 
 	ifa = ipv6_get_ifaddr(net, addr, dev, 1);
+=======
+		dev = dev_get_by_index(tgt_net, ifm->ifa_index);
+
+	ifa = ipv6_get_ifaddr(tgt_net, addr, dev, 1);
+>>>>>>> upstream/android-13
 	if (!ifa) {
 		err = -EADDRNOTAVAIL;
 		goto errout;
@@ -5397,20 +6398,35 @@ static int inet6_rtm_getaddr(struct sk_buff *in_skb, struct nlmsghdr *nlh,
 		goto errout_ifa;
 	}
 
+<<<<<<< HEAD
 	err = inet6_fill_ifaddr(skb, ifa, NETLINK_CB(in_skb).portid,
 				nlh->nlmsg_seq, RTM_NEWADDR, 0);
+=======
+	err = inet6_fill_ifaddr(skb, ifa, &fillargs);
+>>>>>>> upstream/android-13
 	if (err < 0) {
 		/* -EMSGSIZE implies BUG in inet6_ifaddr_msgsize() */
 		WARN_ON(err == -EMSGSIZE);
 		kfree_skb(skb);
 		goto errout_ifa;
 	}
+<<<<<<< HEAD
 	err = rtnl_unicast(skb, net, NETLINK_CB(in_skb).portid);
 errout_ifa:
 	in6_ifa_put(ifa);
 errout:
 	if (dev)
 		dev_put(dev);
+=======
+	err = rtnl_unicast(skb, tgt_net, NETLINK_CB(in_skb).portid);
+errout_ifa:
+	in6_ifa_put(ifa);
+errout:
+	dev_put(dev);
+	if (fillargs.netnsid >= 0)
+		put_net(tgt_net);
+
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -5418,13 +6434,27 @@ static void inet6_ifa_notify(int event, struct inet6_ifaddr *ifa)
 {
 	struct sk_buff *skb;
 	struct net *net = dev_net(ifa->idev->dev);
+<<<<<<< HEAD
+=======
+	struct inet6_fill_args fillargs = {
+		.portid = 0,
+		.seq = 0,
+		.event = event,
+		.flags = 0,
+		.netnsid = -1,
+	};
+>>>>>>> upstream/android-13
 	int err = -ENOBUFS;
 
 	skb = nlmsg_new(inet6_ifaddr_msgsize(), GFP_ATOMIC);
 	if (!skb)
 		goto errout;
 
+<<<<<<< HEAD
 	err = inet6_fill_ifaddr(skb, ifa, 0, 0, event, 0);
+=======
+	err = inet6_fill_ifaddr(skb, ifa, &fillargs);
+>>>>>>> upstream/android-13
 	if (err < 0) {
 		/* -EMSGSIZE implies BUG in inet6_ifaddr_msgsize() */
 		WARN_ON(err == -EMSGSIZE);
@@ -5447,7 +6477,10 @@ static inline void ipv6_store_devconf(struct ipv6_devconf *cnf,
 	array[DEVCONF_FORWARDING] = cnf->forwarding;
 	array[DEVCONF_HOPLIMIT] = cnf->hop_limit;
 	array[DEVCONF_MTU6] = cnf->mtu6;
+<<<<<<< HEAD
 	array[DEVCONF_RA_MTU] = cnf->ra_mtu;
+=======
+>>>>>>> upstream/android-13
 	array[DEVCONF_ACCEPT_RA] = cnf->accept_ra;
 	array[DEVCONF_ACCEPT_REDIRECTS] = cnf->accept_redirects;
 	array[DEVCONF_AUTOCONF] = cnf->autoconf;
@@ -5471,6 +6504,10 @@ static inline void ipv6_store_devconf(struct ipv6_devconf *cnf,
 	array[DEVCONF_MAX_DESYNC_FACTOR] = cnf->max_desync_factor;
 	array[DEVCONF_MAX_ADDRESSES] = cnf->max_addresses;
 	array[DEVCONF_ACCEPT_RA_DEFRTR] = cnf->accept_ra_defrtr;
+<<<<<<< HEAD
+=======
+	array[DEVCONF_RA_DEFRTR_METRIC] = cnf->ra_defrtr_metric;
+>>>>>>> upstream/android-13
 	array[DEVCONF_ACCEPT_RA_MIN_HOP_LIMIT] = cnf->accept_ra_min_hop_limit;
 	array[DEVCONF_ACCEPT_RA_PINFO] = cnf->accept_ra_pinfo;
 #ifdef CONFIG_IPV6_ROUTER_PREF
@@ -5489,7 +6526,11 @@ static inline void ipv6_store_devconf(struct ipv6_devconf *cnf,
 	array[DEVCONF_USE_OPTIMISTIC] = cnf->use_optimistic;
 #endif
 #ifdef CONFIG_IPV6_MROUTE
+<<<<<<< HEAD
 	array[DEVCONF_MC_FORWARDING] = cnf->mc_forwarding;
+=======
+	array[DEVCONF_MC_FORWARDING] = atomic_read(&cnf->mc_forwarding);
+>>>>>>> upstream/android-13
 #endif
 	array[DEVCONF_DISABLE_IPV6] = cnf->disable_ipv6;
 	array[DEVCONF_ACCEPT_DAD] = cnf->accept_dad;
@@ -5512,6 +6553,13 @@ static inline void ipv6_store_devconf(struct ipv6_devconf *cnf,
 	array[DEVCONF_ADDR_GEN_MODE] = cnf->addr_gen_mode;
 	array[DEVCONF_DISABLE_POLICY] = cnf->disable_policy;
 	array[DEVCONF_NDISC_TCLASS] = cnf->ndisc_tclass;
+<<<<<<< HEAD
+=======
+	array[DEVCONF_RPL_SEG_ENABLED] = cnf->rpl_seg_enabled;
+	array[DEVCONF_IOAM6_ENABLED] = cnf->ioam6_enabled;
+	array[DEVCONF_IOAM6_ID] = cnf->ioam6_id;
+	array[DEVCONF_IOAM6_ID_WIDE] = cnf->ioam6_id_wide;
+>>>>>>> upstream/android-13
 }
 
 static inline size_t inet6_ifla6_size(void)
@@ -5523,6 +6571,10 @@ static inline size_t inet6_ifla6_size(void)
 	     + nla_total_size(ICMP6_MIB_MAX * 8) /* IFLA_INET6_ICMP6STATS */
 	     + nla_total_size(sizeof(struct in6_addr)) /* IFLA_INET6_TOKEN */
 	     + nla_total_size(1) /* IFLA_INET6_ADDR_GEN_MODE */
+<<<<<<< HEAD
+=======
+	     + nla_total_size(4) /* IFLA_INET6_RA_MTU */
+>>>>>>> upstream/android-13
 	     + 0;
 }
 
@@ -5624,13 +6676,25 @@ static int inet6_fill_ifla6_attrs(struct sk_buff *skb, struct inet6_dev *idev,
 	nla = nla_reserve(skb, IFLA_INET6_TOKEN, sizeof(struct in6_addr));
 	if (!nla)
 		goto nla_put_failure;
+<<<<<<< HEAD
+=======
+	read_lock_bh(&idev->lock);
+	memcpy(nla_data(nla), idev->token.s6_addr, nla_len(nla));
+	read_unlock_bh(&idev->lock);
+>>>>>>> upstream/android-13
 
 	if (nla_put_u8(skb, IFLA_INET6_ADDR_GEN_MODE, idev->cnf.addr_gen_mode))
 		goto nla_put_failure;
 
+<<<<<<< HEAD
 	read_lock_bh(&idev->lock);
 	memcpy(nla_data(nla), idev->token.s6_addr, nla_len(nla));
 	read_unlock_bh(&idev->lock);
+=======
+	if (idev->ra_mtu &&
+	    nla_put_u32(skb, IFLA_INET6_RA_MTU, idev->ra_mtu))
+		goto nla_put_failure;
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -5661,7 +6725,12 @@ static int inet6_fill_link_af(struct sk_buff *skb, const struct net_device *dev,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int inet6_set_iftoken(struct inet6_dev *idev, struct in6_addr *token)
+=======
+static int inet6_set_iftoken(struct inet6_dev *idev, struct in6_addr *token,
+			     struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct inet6_ifaddr *ifp;
 	struct net_device *dev = idev->dev;
@@ -5672,12 +6741,38 @@ static int inet6_set_iftoken(struct inet6_dev *idev, struct in6_addr *token)
 
 	if (!token)
 		return -EINVAL;
+<<<<<<< HEAD
 	if (dev->flags & (IFF_LOOPBACK | IFF_NOARP))
 		return -EINVAL;
 	if (!ipv6_accept_ra(idev))
 		return -EINVAL;
 	if (idev->cnf.rtr_solicits == 0)
 		return -EINVAL;
+=======
+
+	if (dev->flags & IFF_LOOPBACK) {
+		NL_SET_ERR_MSG_MOD(extack, "Device is loopback");
+		return -EINVAL;
+	}
+
+	if (dev->flags & IFF_NOARP) {
+		NL_SET_ERR_MSG_MOD(extack,
+				   "Device does not do neighbour discovery");
+		return -EINVAL;
+	}
+
+	if (!ipv6_accept_ra(idev)) {
+		NL_SET_ERR_MSG_MOD(extack,
+				   "Router advertisement is disabled on device");
+		return -EINVAL;
+	}
+
+	if (idev->cnf.rtr_solicits == 0) {
+		NL_SET_ERR_MSG(extack,
+			       "Router solicitation is disabled on device");
+		return -EINVAL;
+	}
+>>>>>>> upstream/android-13
 
 	write_lock_bh(&idev->lock);
 
@@ -5705,6 +6800,7 @@ update_lft:
 
 	if (update_rs) {
 		idev->if_flags |= IF_RS_SENT;
+<<<<<<< HEAD
 
 		if (sysctl_optr == MTK_IPV6_VZW_ALL &&
 		    (strncmp(dev->name, NET_IF_NAME, 2) == 0))
@@ -5713,6 +6809,10 @@ update_lft:
 			idev->rs_interval = rfc3315_s14_backoff_init
 				(idev->cnf.rtr_solicit_interval);
 
+=======
+		idev->rs_interval = rfc3315_s14_backoff_init(
+			idev->cnf.rtr_solicit_interval);
+>>>>>>> upstream/android-13
 		idev->rs_probes = 1;
 		addrconf_mod_rs_timer(idev, idev->rs_interval);
 	}
@@ -5736,6 +6836,7 @@ update_lft:
 static const struct nla_policy inet6_af_policy[IFLA_INET6_MAX + 1] = {
 	[IFLA_INET6_ADDR_GEN_MODE]	= { .type = NLA_U8 },
 	[IFLA_INET6_TOKEN]		= { .len = sizeof(struct in6_addr) },
+<<<<<<< HEAD
 };
 
 static int inet6_validate_link_af(const struct net_device *dev,
@@ -5750,6 +6851,13 @@ static int inet6_validate_link_af(const struct net_device *dev,
 				NULL);
 }
 
+=======
+	[IFLA_INET6_RA_MTU]		= { .type = NLA_REJECT,
+					    .reject_message =
+						"IFLA_INET6_RA_MTU can not be set" },
+};
+
+>>>>>>> upstream/android-13
 static int check_addr_gen_mode(int mode)
 {
 	if (mode != IN6_ADDR_GEN_MODE_EUI64 &&
@@ -5770,20 +6878,72 @@ static int check_stable_privacy(struct inet6_dev *idev, struct net *net,
 	return 1;
 }
 
+<<<<<<< HEAD
 static int inet6_set_link_af(struct net_device *dev, const struct nlattr *nla)
 {
 	int err = -EINVAL;
 	struct inet6_dev *idev = __in6_dev_get(dev);
 	struct nlattr *tb[IFLA_INET6_MAX + 1];
+=======
+static int inet6_validate_link_af(const struct net_device *dev,
+				  const struct nlattr *nla,
+				  struct netlink_ext_ack *extack)
+{
+	struct nlattr *tb[IFLA_INET6_MAX + 1];
+	struct inet6_dev *idev = NULL;
+	int err;
+
+	if (dev) {
+		idev = __in6_dev_get(dev);
+		if (!idev)
+			return -EAFNOSUPPORT;
+	}
+
+	err = nla_parse_nested_deprecated(tb, IFLA_INET6_MAX, nla,
+					  inet6_af_policy, extack);
+	if (err)
+		return err;
+
+	if (!tb[IFLA_INET6_TOKEN] && !tb[IFLA_INET6_ADDR_GEN_MODE])
+		return -EINVAL;
+
+	if (tb[IFLA_INET6_ADDR_GEN_MODE]) {
+		u8 mode = nla_get_u8(tb[IFLA_INET6_ADDR_GEN_MODE]);
+
+		if (check_addr_gen_mode(mode) < 0)
+			return -EINVAL;
+		if (dev && check_stable_privacy(idev, dev_net(dev), mode) < 0)
+			return -EINVAL;
+	}
+
+	return 0;
+}
+
+static int inet6_set_link_af(struct net_device *dev, const struct nlattr *nla,
+			     struct netlink_ext_ack *extack)
+{
+	struct inet6_dev *idev = __in6_dev_get(dev);
+	struct nlattr *tb[IFLA_INET6_MAX + 1];
+	int err;
+>>>>>>> upstream/android-13
 
 	if (!idev)
 		return -EAFNOSUPPORT;
 
+<<<<<<< HEAD
 	if (nla_parse_nested(tb, IFLA_INET6_MAX, nla, NULL, NULL) < 0)
 		BUG();
 
 	if (tb[IFLA_INET6_TOKEN]) {
 		err = inet6_set_iftoken(idev, nla_data(tb[IFLA_INET6_TOKEN]));
+=======
+	if (nla_parse_nested_deprecated(tb, IFLA_INET6_MAX, nla, NULL, NULL) < 0)
+		return -EINVAL;
+
+	if (tb[IFLA_INET6_TOKEN]) {
+		err = inet6_set_iftoken(idev, nla_data(tb[IFLA_INET6_TOKEN]),
+					extack);
+>>>>>>> upstream/android-13
 		if (err)
 			return err;
 	}
@@ -5791,6 +6951,7 @@ static int inet6_set_link_af(struct net_device *dev, const struct nlattr *nla)
 	if (tb[IFLA_INET6_ADDR_GEN_MODE]) {
 		u8 mode = nla_get_u8(tb[IFLA_INET6_ADDR_GEN_MODE]);
 
+<<<<<<< HEAD
 		if (check_addr_gen_mode(mode) < 0 ||
 		    check_stable_privacy(idev, dev_net(dev), mode) < 0)
 			return -EINVAL;
@@ -5800,6 +6961,12 @@ static int inet6_set_link_af(struct net_device *dev, const struct nlattr *nla)
 	}
 
 	return err;
+=======
+		idev->cnf.addr_gen_mode = mode;
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int inet6_fill_ifinfo(struct sk_buff *skb, struct inet6_dev *idev,
@@ -5831,7 +6998,11 @@ static int inet6_fill_ifinfo(struct sk_buff *skb, struct inet6_dev *idev,
 	    nla_put_u8(skb, IFLA_OPERSTATE,
 		       netif_running(dev) ? dev->operstate : IF_OPER_DOWN))
 		goto nla_put_failure;
+<<<<<<< HEAD
 	protoinfo = nla_nest_start(skb, IFLA_PROTINFO);
+=======
+	protoinfo = nla_nest_start_noflag(skb, IFLA_PROTINFO);
+>>>>>>> upstream/android-13
 	if (!protoinfo)
 		goto nla_put_failure;
 
@@ -5847,6 +7018,34 @@ nla_put_failure:
 	return -EMSGSIZE;
 }
 
+<<<<<<< HEAD
+=======
+static int inet6_valid_dump_ifinfo(const struct nlmsghdr *nlh,
+				   struct netlink_ext_ack *extack)
+{
+	struct ifinfomsg *ifm;
+
+	if (nlh->nlmsg_len < nlmsg_msg_size(sizeof(*ifm))) {
+		NL_SET_ERR_MSG_MOD(extack, "Invalid header for link dump request");
+		return -EINVAL;
+	}
+
+	if (nlmsg_attrlen(nlh, sizeof(*ifm))) {
+		NL_SET_ERR_MSG_MOD(extack, "Invalid data after header");
+		return -EINVAL;
+	}
+
+	ifm = nlmsg_data(nlh);
+	if (ifm->__ifi_pad || ifm->ifi_type || ifm->ifi_flags ||
+	    ifm->ifi_change || ifm->ifi_index) {
+		NL_SET_ERR_MSG_MOD(extack, "Invalid values in header for dump request");
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int inet6_dump_ifinfo(struct sk_buff *skb, struct netlink_callback *cb)
 {
 	struct net *net = sock_net(skb->sk);
@@ -5856,6 +7055,19 @@ static int inet6_dump_ifinfo(struct sk_buff *skb, struct netlink_callback *cb)
 	struct inet6_dev *idev;
 	struct hlist_head *head;
 
+<<<<<<< HEAD
+=======
+	/* only requests using strict checking can pass data to
+	 * influence the dump
+	 */
+	if (cb->strict_check) {
+		int err = inet6_valid_dump_ifinfo(cb->nlh, cb->extack);
+
+		if (err < 0)
+			return err;
+	}
+
+>>>>>>> upstream/android-13
 	s_h = cb->args[0];
 	s_idx = cb->args[1];
 
@@ -6023,12 +7235,22 @@ static void __ipv6_ifa_notify(int event, struct inet6_ifaddr *ifp)
 			struct fib6_info *rt;
 
 			rt = addrconf_get_prefix_route(&ifp->peer_addr, 128,
+<<<<<<< HEAD
 						       ifp->idev->dev, 0, 0);
 			if (rt)
 				ip6_del_rt(net, rt);
 		}
 		if (ifp->rt) {
 			ip6_del_rt(net, ifp->rt);
+=======
+						       ifp->idev->dev, 0, 0,
+						       false);
+			if (rt)
+				ip6_del_rt(net, rt, false);
+		}
+		if (ifp->rt) {
+			ip6_del_rt(net, ifp->rt, false);
+>>>>>>> upstream/android-13
 			ifp->rt = NULL;
 		}
 		rt_genid_bump_ipv6(net);
@@ -6039,17 +7261,27 @@ static void __ipv6_ifa_notify(int event, struct inet6_ifaddr *ifp)
 
 static void ipv6_ifa_notify(int event, struct inet6_ifaddr *ifp)
 {
+<<<<<<< HEAD
 	rcu_read_lock_bh();
 	if (likely(ifp->idev->dead == 0))
 		__ipv6_ifa_notify(event, ifp);
 	rcu_read_unlock_bh();
+=======
+	if (likely(ifp->idev->dead == 0))
+		__ipv6_ifa_notify(event, ifp);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_SYSCTL
 
+<<<<<<< HEAD
 static
 int addrconf_sysctl_forward(struct ctl_table *ctl, int write,
 			   void __user *buffer, size_t *lenp, loff_t *ppos)
+=======
+static int addrconf_sysctl_forward(struct ctl_table *ctl, int write,
+		void *buffer, size_t *lenp, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	int *valp = ctl->data;
 	int val = *valp;
@@ -6073,9 +7305,14 @@ int addrconf_sysctl_forward(struct ctl_table *ctl, int write,
 	return ret;
 }
 
+<<<<<<< HEAD
 static
 int addrconf_sysctl_mtu(struct ctl_table *ctl, int write,
 			void __user *buffer, size_t *lenp, loff_t *ppos)
+=======
+static int addrconf_sysctl_mtu(struct ctl_table *ctl, int write,
+		void *buffer, size_t *lenp, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	struct inet6_dev *idev = ctl->extra1;
 	int min_mtu = IPV6_MIN_MTU;
@@ -6145,9 +7382,14 @@ static int addrconf_disable_ipv6(struct ctl_table *table, int *p, int newf)
 	return 0;
 }
 
+<<<<<<< HEAD
 static
 int addrconf_sysctl_disable(struct ctl_table *ctl, int write,
 			    void __user *buffer, size_t *lenp, loff_t *ppos)
+=======
+static int addrconf_sysctl_disable(struct ctl_table *ctl, int write,
+		void *buffer, size_t *lenp, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	int *valp = ctl->data;
 	int val = *valp;
@@ -6171,9 +7413,14 @@ int addrconf_sysctl_disable(struct ctl_table *ctl, int write,
 	return ret;
 }
 
+<<<<<<< HEAD
 static
 int addrconf_sysctl_proxy_ndp(struct ctl_table *ctl, int write,
 			      void __user *buffer, size_t *lenp, loff_t *ppos)
+=======
+static int addrconf_sysctl_proxy_ndp(struct ctl_table *ctl, int write,
+		void *buffer, size_t *lenp, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	int *valp = ctl->data;
 	int ret;
@@ -6214,7 +7461,11 @@ int addrconf_sysctl_proxy_ndp(struct ctl_table *ctl, int write,
 }
 
 static int addrconf_sysctl_addr_gen_mode(struct ctl_table *ctl, int write,
+<<<<<<< HEAD
 					 void __user *buffer, size_t *lenp,
+=======
+					 void *buffer, size_t *lenp,
+>>>>>>> upstream/android-13
 					 loff_t *ppos)
 {
 	int ret = 0;
@@ -6276,7 +7527,11 @@ out:
 }
 
 static int addrconf_sysctl_stable_secret(struct ctl_table *ctl, int write,
+<<<<<<< HEAD
 					 void __user *buffer, size_t *lenp,
+=======
+					 void *buffer, size_t *lenp,
+>>>>>>> upstream/android-13
 					 loff_t *ppos)
 {
 	int err;
@@ -6343,8 +7598,12 @@ out:
 
 static
 int addrconf_sysctl_ignore_routes_with_linkdown(struct ctl_table *ctl,
+<<<<<<< HEAD
 						int write,
 						void __user *buffer,
+=======
+						int write, void *buffer,
+>>>>>>> upstream/android-13
 						size_t *lenp,
 						loff_t *ppos)
 {
@@ -6389,16 +7648,29 @@ void addrconf_disable_policy_idev(struct inet6_dev *idev, int val)
 	list_for_each_entry(ifa, &idev->addr_list, if_list) {
 		spin_lock(&ifa->lock);
 		if (ifa->rt) {
+<<<<<<< HEAD
 			struct fib6_info *rt = ifa->rt;
+=======
+			/* host routes only use builtin fib6_nh */
+			struct fib6_nh *nh = ifa->rt->fib6_nh;
+>>>>>>> upstream/android-13
 			int cpu;
 
 			rcu_read_lock();
 			ifa->rt->dst_nopolicy = val ? true : false;
+<<<<<<< HEAD
 			if (rt->rt6i_pcpu) {
 				for_each_possible_cpu(cpu) {
 					struct rt6_info **rtp;
 
 					rtp = per_cpu_ptr(rt->rt6i_pcpu, cpu);
+=======
+			if (nh->rt6i_pcpu) {
+				for_each_possible_cpu(cpu) {
+					struct rt6_info **rtp;
+
+					rtp = per_cpu_ptr(nh->rt6i_pcpu, cpu);
+>>>>>>> upstream/android-13
 					addrconf_set_nopolicy(*rtp, val);
 				}
 			}
@@ -6443,10 +7715,15 @@ int addrconf_disable_policy(struct ctl_table *ctl, int *valp, int val)
 	return 0;
 }
 
+<<<<<<< HEAD
 static
 int addrconf_sysctl_disable_policy(struct ctl_table *ctl, int write,
 				   void __user *buffer, size_t *lenp,
 				   loff_t *ppos)
+=======
+static int addrconf_sysctl_disable_policy(struct ctl_table *ctl, int write,
+				   void *buffer, size_t *lenp, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	int *valp = ctl->data;
 	int val = *valp;
@@ -6468,9 +7745,14 @@ int addrconf_sysctl_disable_policy(struct ctl_table *ctl, int write,
 }
 
 static int minus_one = -1;
+<<<<<<< HEAD
 static const int zero = 0;
 static const int one = 1;
 static const int two_five_five = 255;
+=======
+static const int two_five_five = 255;
+static u32 ioam6_if_id_max = U16_MAX;
+>>>>>>> upstream/android-13
 
 static const struct ctl_table addrconf_sysctl[] = {
 	{
@@ -6486,7 +7768,11 @@ static const struct ctl_table addrconf_sysctl[] = {
 		.maxlen		= sizeof(int),
 		.mode		= 0644,
 		.proc_handler	= proc_dointvec_minmax,
+<<<<<<< HEAD
 		.extra1		= (void *)&one,
+=======
+		.extra1		= (void *)SYSCTL_ONE,
+>>>>>>> upstream/android-13
 		.extra2		= (void *)&two_five_five,
 	},
 	{
@@ -6497,6 +7783,7 @@ static const struct ctl_table addrconf_sysctl[] = {
 		.proc_handler	= addrconf_sysctl_mtu,
 	},
 	{
+<<<<<<< HEAD
 		.procname	= "ra_mtu",
 		.data		= &ipv6_devconf.ra_mtu,
 		.maxlen		= sizeof(int),
@@ -6504,6 +7791,8 @@ static const struct ctl_table addrconf_sysctl[] = {
 		.proc_handler	= proc_dointvec,
 	},
 	{
+=======
+>>>>>>> upstream/android-13
 		.procname	= "accept_ra",
 		.data		= &ipv6_devconf.accept_ra,
 		.maxlen		= sizeof(int),
@@ -6633,6 +7922,17 @@ static const struct ctl_table addrconf_sysctl[] = {
 		.proc_handler	= proc_dointvec,
 	},
 	{
+<<<<<<< HEAD
+=======
+		.procname	= "ra_defrtr_metric",
+		.data		= &ipv6_devconf.ra_defrtr_metric,
+		.maxlen		= sizeof(u32),
+		.mode		= 0644,
+		.proc_handler	= proc_douintvec_minmax,
+		.extra1		= (void *)SYSCTL_ONE,
+	},
+	{
+>>>>>>> upstream/android-13
 		.procname	= "accept_ra_min_hop_limit",
 		.data		= &ipv6_devconf.accept_ra_min_hop_limit,
 		.maxlen		= sizeof(int),
@@ -6840,10 +8140,17 @@ static const struct ctl_table addrconf_sysctl[] = {
 		.proc_handler   = proc_dointvec,
 	},
 	{
+<<<<<<< HEAD
 		.procname		= "addr_gen_mode",
 		.data			= &ipv6_devconf.addr_gen_mode,
 		.maxlen			= sizeof(int),
 		.mode			= 0644,
+=======
+		.procname	= "addr_gen_mode",
+		.data		= &ipv6_devconf.addr_gen_mode,
+		.maxlen		= sizeof(int),
+		.mode		= 0644,
+>>>>>>> upstream/android-13
 		.proc_handler	= addrconf_sysctl_addr_gen_mode,
 	},
 	{
@@ -6859,10 +8166,49 @@ static const struct ctl_table addrconf_sysctl[] = {
 		.maxlen		= sizeof(int),
 		.mode		= 0644,
 		.proc_handler	= proc_dointvec_minmax,
+<<<<<<< HEAD
 		.extra1		= (void *)&zero,
 		.extra2		= (void *)&two_five_five,
 	},
 	{
+=======
+		.extra1		= (void *)SYSCTL_ZERO,
+		.extra2		= (void *)&two_five_five,
+	},
+	{
+		.procname	= "rpl_seg_enabled",
+		.data		= &ipv6_devconf.rpl_seg_enabled,
+		.maxlen		= sizeof(int),
+		.mode		= 0644,
+		.proc_handler	= proc_dointvec,
+	},
+	{
+		.procname	= "ioam6_enabled",
+		.data		= &ipv6_devconf.ioam6_enabled,
+		.maxlen		= sizeof(u8),
+		.mode		= 0644,
+		.proc_handler	= proc_dou8vec_minmax,
+		.extra1		= (void *)SYSCTL_ZERO,
+		.extra2		= (void *)SYSCTL_ONE,
+	},
+	{
+		.procname	= "ioam6_id",
+		.data		= &ipv6_devconf.ioam6_id,
+		.maxlen		= sizeof(u32),
+		.mode		= 0644,
+		.proc_handler	= proc_douintvec_minmax,
+		.extra1		= (void *)SYSCTL_ZERO,
+		.extra2		= (void *)&ioam6_if_id_max,
+	},
+	{
+		.procname	= "ioam6_id_wide",
+		.data		= &ipv6_devconf.ioam6_id_wide,
+		.maxlen		= sizeof(u32),
+		.mode		= 0644,
+		.proc_handler	= proc_douintvec,
+	},
+	{
+>>>>>>> upstream/android-13
 		/* sentinel */
 	}
 };
@@ -6970,6 +8316,32 @@ static int __net_init addrconf_init_net(struct net *net)
 	if (!dflt)
 		goto err_alloc_dflt;
 
+<<<<<<< HEAD
+=======
+	if (IS_ENABLED(CONFIG_SYSCTL) &&
+	    !net_eq(net, &init_net)) {
+		switch (sysctl_devconf_inherit_init_net) {
+		case 1:  /* copy from init_net */
+			memcpy(all, init_net.ipv6.devconf_all,
+			       sizeof(ipv6_devconf));
+			memcpy(dflt, init_net.ipv6.devconf_dflt,
+			       sizeof(ipv6_devconf_dflt));
+			break;
+		case 3: /* copy from the current netns */
+			memcpy(all, current->nsproxy->net_ns->ipv6.devconf_all,
+			       sizeof(ipv6_devconf));
+			memcpy(dflt,
+			       current->nsproxy->net_ns->ipv6.devconf_dflt,
+			       sizeof(ipv6_devconf_dflt));
+			break;
+		case 0:
+		case 2:
+			/* use compiled values */
+			break;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	/* these will be inherited by all namespaces */
 	dflt->autoconf = ipv6_defaults.autoconf;
 	dflt->disable_ipv6 = ipv6_defaults.disable_ipv6;
@@ -7159,9 +8531,15 @@ void addrconf_cleanup(void)
 	for_each_netdev(&init_net, dev) {
 		if (__in6_dev_get(dev) == NULL)
 			continue;
+<<<<<<< HEAD
 		addrconf_ifdown(dev, 1);
 	}
 	addrconf_ifdown(init_net.loopback_dev, 2);
+=======
+		addrconf_ifdown(dev, true);
+	}
+	addrconf_ifdown(init_net.loopback_dev, true);
+>>>>>>> upstream/android-13
 
 	/*
 	 *	Check hash table.

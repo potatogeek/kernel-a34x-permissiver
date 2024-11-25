@@ -53,17 +53,27 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+<<<<<<< HEAD
 /**
  * This file contains the implementation of the SCIC_SDS_REMOTE_NODE_TABLE
  *    public, protected, and private methods.
  *
  *
+=======
+/*
+ * This file contains the implementation of the SCIC_SDS_REMOTE_NODE_TABLE
+ *    public, protected, and private methods.
+>>>>>>> upstream/android-13
  */
 #include "remote_node_table.h"
 #include "remote_node_context.h"
 
 /**
+<<<<<<< HEAD
  *
+=======
+ * sci_remote_node_table_get_group_index()
+>>>>>>> upstream/android-13
  * @remote_node_table: This is the remote node index table from which the
  *    selection will be made.
  * @group_table_index: This is the index to the group table from which to
@@ -98,10 +108,17 @@ static u32 sci_remote_node_table_get_group_index(
 }
 
 /**
+<<<<<<< HEAD
  *
  * @out]: remote_node_table This the remote node table in which to clear the
  *    selector.
  * @set_index: This is the remote node selector in which the change will be
+=======
+ * sci_remote_node_table_clear_group_index()
+ * @remote_node_table: This the remote node table in which to clear the
+ *    selector.
+ * @group_table_index: This is the remote node selector in which the change will be
+>>>>>>> upstream/android-13
  *    made.
  * @group_index: This is the bit index in the table to be modified.
  *
@@ -128,8 +145,13 @@ static void sci_remote_node_table_clear_group_index(
 }
 
 /**
+<<<<<<< HEAD
  *
  * @out]: remote_node_table This the remote node table in which to set the
+=======
+ * sci_remote_node_table_set_group_index()
+ * @remote_node_table: This the remote node table in which to set the
+>>>>>>> upstream/android-13
  *    selector.
  * @group_table_index: This is the remote node selector in which the change
  *    will be made.
@@ -158,8 +180,13 @@ static void sci_remote_node_table_set_group_index(
 }
 
 /**
+<<<<<<< HEAD
  *
  * @out]: remote_node_table This is the remote node table in which to modify
+=======
+ * sci_remote_node_table_set_node_index()
+ * @remote_node_table: This is the remote node table in which to modify
+>>>>>>> upstream/android-13
  *    the remote node availability.
  * @remote_node_index: This is the remote node index that is being returned to
  *    the table.
@@ -191,8 +218,13 @@ static void sci_remote_node_table_set_node_index(
 }
 
 /**
+<<<<<<< HEAD
  *
  * @out]: remote_node_table This is the remote node table from which to clear
+=======
+ * sci_remote_node_table_clear_node_index()
+ * @remote_node_table: This is the remote node table from which to clear
+>>>>>>> upstream/android-13
  *    the available remote node bit.
  * @remote_node_index: This is the remote node index which is to be cleared
  *    from the table.
@@ -224,8 +256,13 @@ static void sci_remote_node_table_clear_node_index(
 }
 
 /**
+<<<<<<< HEAD
  *
  * @out]: remote_node_table The remote node table from which the slot will be
+=======
+ * sci_remote_node_table_clear_group()
+ * @remote_node_table: The remote node table from which the slot will be
+>>>>>>> upstream/android-13
  *    cleared.
  * @group_index: The index for the slot that is to be cleared.
  *
@@ -252,9 +289,14 @@ static void sci_remote_node_table_clear_group(
 	remote_node_table->available_remote_nodes[dword_location] = dword_value;
 }
 
+<<<<<<< HEAD
 /**
  *
  * @remote_node_table:
+=======
+/*
+ * sci_remote_node_table_set_group()
+>>>>>>> upstream/android-13
  *
  * THis method sets an entire remote node group in the remote node table.
  */
@@ -280,7 +322,11 @@ static void sci_remote_node_table_set_group(
 }
 
 /**
+<<<<<<< HEAD
  *
+=======
+ * sci_remote_node_table_get_group_value()
+>>>>>>> upstream/android-13
  * @remote_node_table: This is the remote node table that for which the group
  *    value is to be returned.
  * @group_index: This is the group index to use to find the group value.
@@ -307,8 +353,13 @@ static u8 sci_remote_node_table_get_group_value(
 }
 
 /**
+<<<<<<< HEAD
  *
  * @out]: remote_node_table The remote that which is to be initialized.
+=======
+ * sci_remote_node_table_initialize()
+ * @remote_node_table: The remote that which is to be initialized.
+>>>>>>> upstream/android-13
  * @remote_node_entries: The number of entries to put in the table.
  *
  * This method will initialize the remote node table for use. none
@@ -365,10 +416,17 @@ void sci_remote_node_table_initialize(
 }
 
 /**
+<<<<<<< HEAD
  *
  * @out]: remote_node_table The remote node table from which to allocate a
  *    remote node.
  * @table_index: The group index that is to be used for the search.
+=======
+ * sci_remote_node_table_allocate_single_remote_node()
+ * @remote_node_table: The remote node table from which to allocate a
+ *    remote node.
+ * @group_table_index: The group index that is to be used for the search.
+>>>>>>> upstream/android-13
  *
  * This method will allocate a single RNi from the remote node table.  The
  * table index will determine from which remote node group table to search.
@@ -425,10 +483,17 @@ static u16 sci_remote_node_table_allocate_single_remote_node(
 }
 
 /**
+<<<<<<< HEAD
  *
  * @remote_node_table: This is the remote node table from which to allocate the
  *    remote node entries.
  * @group_table_index: THis is the group table index which must equal two (2)
+=======
+ * sci_remote_node_table_allocate_triple_remote_node()
+ * @remote_node_table: This is the remote node table from which to allocate the
+ *    remote node entries.
+ * @group_table_index: This is the group table index which must equal two (2)
+>>>>>>> upstream/android-13
  *    for this operation.
  *
  * This method will allocate three consecutive remote node context entries. If
@@ -462,7 +527,11 @@ static u16 sci_remote_node_table_allocate_triple_remote_node(
 }
 
 /**
+<<<<<<< HEAD
  *
+=======
+ * sci_remote_node_table_allocate_remote_node()
+>>>>>>> upstream/android-13
  * @remote_node_table: This is the remote node table from which the remote node
  *    allocation is to take place.
  * @remote_node_count: This is ther remote node count which is one of
@@ -505,9 +574,16 @@ u16 sci_remote_node_table_allocate_remote_node(
 }
 
 /**
+<<<<<<< HEAD
  *
  * @remote_node_table:
  *
+=======
+ * sci_remote_node_table_release_single_remote_node()
+ * @remote_node_table: This is the remote node table from which the remote node
+ *    release is to take place.
+ * @remote_node_index: This is the remote node index that is being released.
+>>>>>>> upstream/android-13
  * This method will free a single remote node index back to the remote node
  * table.  This routine will update the remote node groups
  */
@@ -550,9 +626,16 @@ static void sci_remote_node_table_release_single_remote_node(
 }
 
 /**
+<<<<<<< HEAD
  *
  * @remote_node_table: This is the remote node table to which the remote node
  *    index is to be freed.
+=======
+ * sci_remote_node_table_release_triple_remote_node()
+ * @remote_node_table: This is the remote node table to which the remote node
+ *    index is to be freed.
+ * @remote_node_index: This is the remote node index that is being released.
+>>>>>>> upstream/android-13
  *
  * This method will release a group of three consecutive remote nodes back to
  * the free remote nodes.
@@ -573,11 +656,19 @@ static void sci_remote_node_table_release_triple_remote_node(
 }
 
 /**
+<<<<<<< HEAD
  *
+=======
+ * sci_remote_node_table_release_remote_node_index()
+>>>>>>> upstream/android-13
  * @remote_node_table: The remote node table to which the remote node index is
  *    to be freed.
  * @remote_node_count: This is the count of consecutive remote nodes that are
  *    to be freed.
+<<<<<<< HEAD
+=======
+ * @remote_node_index: This is the remote node index that is being released.
+>>>>>>> upstream/android-13
  *
  * This method will release the remote node index back into the remote node
  * table free pool.

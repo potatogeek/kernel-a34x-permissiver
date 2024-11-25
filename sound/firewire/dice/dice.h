@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * dice.h - a part of driver for Dice based devices
  *
  * Copyright (c) Clemens Ladisch
  * Copyright (c) 2014 Takashi Sakamoto
+<<<<<<< HEAD
  *
  * Licensed under the terms of the GNU General Public License, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef SOUND_DICE_H_INCLUDED
@@ -79,9 +86,12 @@ struct snd_dice {
 	spinlock_t lock;
 	struct mutex mutex;
 
+<<<<<<< HEAD
 	bool registered;
 	struct delayed_work dwork;
 
+=======
+>>>>>>> upstream/android-13
 	/* Offsets for sub-addresses */
 	unsigned int global_offset;
 	unsigned int rx_offset;
@@ -94,7 +104,10 @@ struct snd_dice {
 	unsigned int rx_pcm_chs[MAX_STREAMS][SND_DICE_RATE_MODE_COUNT];
 	unsigned int tx_midi_ports[MAX_STREAMS];
 	unsigned int rx_midi_ports[MAX_STREAMS];
+<<<<<<< HEAD
 	snd_dice_detect_formats_t detect_formats;
+=======
+>>>>>>> upstream/android-13
 
 	struct fw_address_handler notification_handler;
 	int owner_generation;
@@ -110,9 +123,18 @@ struct snd_dice {
 	struct fw_iso_resources rx_resources[MAX_STREAMS];
 	struct amdtp_stream tx_stream[MAX_STREAMS];
 	struct amdtp_stream rx_stream[MAX_STREAMS];
+<<<<<<< HEAD
 	bool global_enabled;
 	struct completion clock_accepted;
 	unsigned int substreams_counter;
+=======
+	bool global_enabled:1;
+	bool disable_double_pcm_frames:1;
+	struct completion clock_accepted;
+	unsigned int substreams_counter;
+
+	struct amdtp_domain domain;
+>>>>>>> upstream/android-13
 };
 
 enum snd_dice_addr_type {
@@ -205,10 +227,20 @@ extern const unsigned int snd_dice_rates[SND_DICE_RATES_COUNT];
 
 int snd_dice_stream_get_rate_mode(struct snd_dice *dice, unsigned int rate,
 				  enum snd_dice_rate_mode *mode);
+<<<<<<< HEAD
 int snd_dice_stream_start_duplex(struct snd_dice *dice, unsigned int rate);
 void snd_dice_stream_stop_duplex(struct snd_dice *dice);
 int snd_dice_stream_init_duplex(struct snd_dice *dice);
 void snd_dice_stream_destroy_duplex(struct snd_dice *dice);
+=======
+int snd_dice_stream_start_duplex(struct snd_dice *dice);
+void snd_dice_stream_stop_duplex(struct snd_dice *dice);
+int snd_dice_stream_init_duplex(struct snd_dice *dice);
+void snd_dice_stream_destroy_duplex(struct snd_dice *dice);
+int snd_dice_stream_reserve_duplex(struct snd_dice *dice, unsigned int rate,
+				   unsigned int events_per_period,
+				   unsigned int events_per_buffer);
+>>>>>>> upstream/android-13
 void snd_dice_stream_update_duplex(struct snd_dice *dice);
 int snd_dice_stream_detect_current_formats(struct snd_dice *dice);
 
@@ -225,7 +257,15 @@ int snd_dice_create_midi(struct snd_dice *dice);
 
 int snd_dice_detect_tcelectronic_formats(struct snd_dice *dice);
 int snd_dice_detect_alesis_formats(struct snd_dice *dice);
+<<<<<<< HEAD
 int snd_dice_detect_extension_formats(struct snd_dice *dice);
 int snd_dice_detect_mytek_formats(struct snd_dice *dice);
+=======
+int snd_dice_detect_alesis_mastercontrol_formats(struct snd_dice *dice);
+int snd_dice_detect_extension_formats(struct snd_dice *dice);
+int snd_dice_detect_mytek_formats(struct snd_dice *dice);
+int snd_dice_detect_presonus_formats(struct snd_dice *dice);
+int snd_dice_detect_harman_formats(struct snd_dice *dice);
+>>>>>>> upstream/android-13
 
 #endif

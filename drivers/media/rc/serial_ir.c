@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * serial_ir.c
  *
@@ -10,6 +14,7 @@
  * Copyright (C) 1999 Christoph Bartelmus <lirc@bartelmus.de>
  * Copyright (C) 2007 Andrei Tanas <andrei@tanas.ca> (suspend/resume support)
  * Copyright (C) 2016 Sean Young <sean@mess.org> (port to rc-core)
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
@@ -19,6 +24,8 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -273,11 +280,19 @@ static void frbwrite(unsigned int l, bool is_pulse)
 {
 	/* simple noise filter */
 	static unsigned int ptr, pulse, space;
+<<<<<<< HEAD
 	DEFINE_IR_RAW_EVENT(ev);
 
 	if (ptr > 0 && is_pulse) {
 		pulse += l;
 		if (pulse > 250000) {
+=======
+	struct ir_raw_event ev = {};
+
+	if (ptr > 0 && is_pulse) {
+		pulse += l;
+		if (pulse > 250) {
+>>>>>>> upstream/android-13
 			ev.duration = space;
 			ev.pulse = false;
 			ir_raw_event_store_with_filter(serial_ir.rcdev, &ev);
@@ -291,13 +306,21 @@ static void frbwrite(unsigned int l, bool is_pulse)
 	}
 	if (!is_pulse) {
 		if (ptr == 0) {
+<<<<<<< HEAD
 			if (l > 20000000) {
+=======
+			if (l > 20000) {
+>>>>>>> upstream/android-13
 				space = l;
 				ptr++;
 				return;
 			}
 		} else {
+<<<<<<< HEAD
 			if (l > 20000000) {
+=======
+			if (l > 20000) {
+>>>>>>> upstream/android-13
 				space += pulse;
 				if (space > IR_MAX_DURATION)
 					space = IR_MAX_DURATION;
@@ -361,7 +384,11 @@ static irqreturn_t serial_ir_irq_handler(int i, void *blah)
 			dcd = (status & hardware[type].signal_pin) ? 1 : 0;
 
 			if (dcd == last_dcd) {
+<<<<<<< HEAD
 				dev_err(&serial_ir.pdev->dev,
+=======
+				dev_dbg(&serial_ir.pdev->dev,
+>>>>>>> upstream/android-13
 					"ignoring spike: %d %d %lldns %lldns\n",
 					dcd, sense, ktime_to_ns(kt),
 					ktime_to_ns(serial_ir.lastkt));
@@ -384,7 +411,11 @@ static irqreturn_t serial_ir_irq_handler(int i, void *blah)
 					sense = sense ? 0 : 1;
 				}
 			} else {
+<<<<<<< HEAD
 				data = ktime_to_ns(delkt);
+=======
+				data = ktime_to_us(delkt);
+>>>>>>> upstream/android-13
 			}
 			frbwrite(data, !(dcd ^ sense));
 			serial_ir.lastkt = kt;
@@ -393,7 +424,11 @@ static irqreturn_t serial_ir_irq_handler(int i, void *blah)
 	} while (!(sinp(UART_IIR) & UART_IIR_NO_INT)); /* still pending ? */
 
 	mod_timer(&serial_ir.timeout_timer,
+<<<<<<< HEAD
 		  jiffies + nsecs_to_jiffies(serial_ir.rcdev->timeout));
+=======
+		  jiffies + usecs_to_jiffies(serial_ir.rcdev->timeout));
+>>>>>>> upstream/android-13
 
 	ir_raw_event_handle(serial_ir.rcdev);
 
@@ -472,10 +507,17 @@ static int hardware_init_port(void)
 
 static void serial_ir_timeout(struct timer_list *unused)
 {
+<<<<<<< HEAD
 	DEFINE_IR_RAW_EVENT(ev);
 
 	ev.timeout = true;
 	ev.duration = serial_ir.rcdev->timeout;
+=======
+	struct ir_raw_event ev = {
+		.timeout = true,
+		.duration = serial_ir.rcdev->timeout
+	};
+>>>>>>> upstream/android-13
 	ir_raw_event_store_with_filter(serial_ir.rcdev, &ev);
 	ir_raw_event_handle(serial_ir.rcdev);
 }
@@ -536,7 +578,11 @@ static int serial_ir_probe(struct platform_device *dev)
 	rcdev->min_timeout = 1;
 	rcdev->timeout = IR_DEFAULT_TIMEOUT;
 	rcdev->max_timeout = 10 * IR_DEFAULT_TIMEOUT;
+<<<<<<< HEAD
 	rcdev->rx_resolution = 250000;
+=======
+	rcdev->rx_resolution = 250;
+>>>>>>> upstream/android-13
 
 	serial_ir.rcdev = rcdev;
 
@@ -555,7 +601,11 @@ static int serial_ir_probe(struct platform_device *dev)
 
 	/* Reserve io region. */
 	if ((iommap &&
+<<<<<<< HEAD
 	     (devm_request_mem_region(&dev->dev, iommap, 8 << ioshift,
+=======
+	     (devm_request_mem_region(&dev->dev, iommap, 8UL << ioshift,
+>>>>>>> upstream/android-13
 				      KBUILD_MODNAME) == NULL)) ||
 	     (!iommap && (devm_request_region(&dev->dev, io, 8,
 			  KBUILD_MODNAME) == NULL))) {

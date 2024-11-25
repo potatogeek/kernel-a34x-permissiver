@@ -79,10 +79,16 @@ static void ts4800_ic_chained_handle_irq(struct irq_desc *desc)
 
 	do {
 		unsigned int bit = __ffs(status);
+<<<<<<< HEAD
 		int irq = irq_find_mapping(data->domain, bit);
 
 		status &= ~(1 << bit);
 		generic_handle_irq(irq);
+=======
+
+		generic_handle_domain_irq(data->domain, bit);
+		status &= ~(1 << bit);
+>>>>>>> upstream/android-13
 	} while (status);
 
 out:

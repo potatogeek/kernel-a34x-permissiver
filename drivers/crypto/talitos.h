@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: BSD-3-Clause */
+>>>>>>> upstream/android-13
 /*
  * Freescale SEC (talitos) device register and descriptor header defines
  *
  * Copyright (c) 2006-2011 Freescale Semiconductor, Inc.
+<<<<<<< HEAD
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -26,6 +31,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define TALITOS_TIMEOUT 100000
@@ -69,7 +76,10 @@ struct talitos_desc {
  * talitos_edesc - s/w-extended descriptor
  * @src_nents: number of segments in input scatterlist
  * @dst_nents: number of segments in output scatterlist
+<<<<<<< HEAD
  * @icv_ool: whether ICV is out-of-line
+=======
+>>>>>>> upstream/android-13
  * @iv_dma: dma address of iv for checking continuity and link table
  * @dma_len: length of dma mapped link_tbl space
  * @dma_link_tbl: bus physical address of link_tbl/buf
@@ -84,7 +94,10 @@ struct talitos_desc {
 struct talitos_edesc {
 	int src_nents;
 	int dst_nents;
+<<<<<<< HEAD
 	bool icv_ool;
+=======
+>>>>>>> upstream/android-13
 	dma_addr_t iv_dma;
 	int dma_len;
 	dma_addr_t dma_link_tbl;
@@ -180,12 +193,15 @@ struct talitos_private {
 	bool rng_registered;
 };
 
+<<<<<<< HEAD
 extern int talitos_submit(struct device *dev, int ch, struct talitos_desc *desc,
 			  void (*callback)(struct device *dev,
 					   struct talitos_desc *desc,
 					   void *context, int error),
 			  void *context);
 
+=======
+>>>>>>> upstream/android-13
 /* .features flag */
 #define TALITOS_FTR_SRC_LINK_TBL_LEN_INCLUDES_EXTENT 0x00000001
 #define TALITOS_FTR_HW_AUTH_CHECK 0x00000002
@@ -200,6 +216,7 @@ extern int talitos_submit(struct device *dev, int ch, struct talitos_desc *desc,
  */
 static inline bool has_ftr_sec1(struct talitos_private *priv)
 {
+<<<<<<< HEAD
 #if defined(CONFIG_CRYPTO_DEV_TALITOS1) && defined(CONFIG_CRYPTO_DEV_TALITOS2)
 	return priv->features & TALITOS_FTR_SEC1 ? true : false;
 #elif defined(CONFIG_CRYPTO_DEV_TALITOS1)
@@ -207,6 +224,13 @@ static inline bool has_ftr_sec1(struct talitos_private *priv)
 #else
 	return false;
 #endif
+=======
+	if (IS_ENABLED(CONFIG_CRYPTO_DEV_TALITOS1) &&
+	    IS_ENABLED(CONFIG_CRYPTO_DEV_TALITOS2))
+		return priv->features & TALITOS_FTR_SEC1;
+
+	return IS_ENABLED(CONFIG_CRYPTO_DEV_TALITOS1);
+>>>>>>> upstream/android-13
 }
 
 /*

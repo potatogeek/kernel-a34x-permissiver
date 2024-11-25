@@ -26,6 +26,7 @@
 #include <core/option.h>
 #include <subdev/mc.h>
 
+<<<<<<< HEAD
 static struct lock_class_key nvkm_subdev_lock_class[NVKM_SUBDEV_NR];
 
 const char *
@@ -86,6 +87,15 @@ nvkm_subdev_name[NVKM_SUBDEV_NR] = {
 	[NVKM_ENGINE_SW      ] = "sw",
 	[NVKM_ENGINE_VIC     ] = "vic",
 	[NVKM_ENGINE_VP      ] = "vp",
+=======
+const char *
+nvkm_subdev_type[NVKM_SUBDEV_NR] = {
+#define NVKM_LAYOUT_ONCE(type,data,ptr,...) [type] = #ptr,
+#define NVKM_LAYOUT_INST(A...) NVKM_LAYOUT_ONCE(A)
+#include <core/layout.h>
+#undef NVKM_LAYOUT_ONCE
+#undef NVKM_LAYOUT_INST
+>>>>>>> upstream/android-13
 };
 
 void
@@ -122,7 +132,11 @@ nvkm_subdev_fini(struct nvkm_subdev *subdev, bool suspend)
 		}
 	}
 
+<<<<<<< HEAD
 	nvkm_mc_reset(device, subdev->index);
+=======
+	nvkm_mc_reset(device, subdev->type, subdev->inst);
+>>>>>>> upstream/android-13
 
 	time = ktime_to_us(ktime_get()) - time;
 	nvkm_trace(subdev, "%s completed in %lldus\n", action, time);
@@ -196,6 +210,10 @@ nvkm_subdev_del(struct nvkm_subdev **psubdev)
 	if (subdev && !WARN_ON(!subdev->func)) {
 		nvkm_trace(subdev, "destroy running...\n");
 		time = ktime_to_us(ktime_get());
+<<<<<<< HEAD
+=======
+		list_del(&subdev->head);
+>>>>>>> upstream/android-13
 		if (subdev->func->dtor)
 			*psubdev = subdev->func->dtor(subdev);
 		time = ktime_to_us(ktime_get()) - time;
@@ -206,6 +224,7 @@ nvkm_subdev_del(struct nvkm_subdev **psubdev)
 }
 
 void
+<<<<<<< HEAD
 nvkm_subdev_ctor(const struct nvkm_subdev_func *func,
 		 struct nvkm_device *device, int index,
 		 struct nvkm_subdev *subdev)
@@ -217,4 +236,43 @@ nvkm_subdev_ctor(const struct nvkm_subdev_func *func,
 
 	__mutex_init(&subdev->mutex, name, &nvkm_subdev_lock_class[index]);
 	subdev->debug = nvkm_dbgopt(device->dbgopt, name);
+=======
+nvkm_subdev_disable(struct nvkm_device *device, enum nvkm_subdev_type type, int inst)
+{
+	struct nvkm_subdev *subdev;
+	list_for_each_entry(subdev, &device->subdev, head) {
+		if (subdev->type == type && subdev->inst == inst) {
+			*subdev->pself = NULL;
+			nvkm_subdev_del(&subdev);
+			break;
+		}
+	}
+}
+
+void
+nvkm_subdev_ctor(const struct nvkm_subdev_func *func, struct nvkm_device *device,
+		 enum nvkm_subdev_type type, int inst, struct nvkm_subdev *subdev)
+{
+	subdev->func = func;
+	subdev->device = device;
+	subdev->type = type;
+	subdev->inst = inst < 0 ? 0 : inst;
+
+	if (inst >= 0)
+		snprintf(subdev->name, sizeof(subdev->name), "%s%d", nvkm_subdev_type[type], inst);
+	else
+		strscpy(subdev->name, nvkm_subdev_type[type], sizeof(subdev->name));
+	subdev->debug = nvkm_dbgopt(device->dbgopt, subdev->name);
+	list_add_tail(&subdev->head, &device->subdev);
+}
+
+int
+nvkm_subdev_new_(const struct nvkm_subdev_func *func, struct nvkm_device *device,
+		 enum nvkm_subdev_type type, int inst, struct nvkm_subdev **psubdev)
+{
+	if (!(*psubdev = kzalloc(sizeof(**psubdev), GFP_KERNEL)))
+		return -ENOMEM;
+	nvkm_subdev_ctor(func, device, type, inst, *psubdev);
+	return 0;
+>>>>>>> upstream/android-13
 }

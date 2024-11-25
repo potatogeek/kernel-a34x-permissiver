@@ -31,6 +31,10 @@
 #include "../hw_gpio.h"
 #include "../hw_ddc.h"
 #include "../hw_hpd.h"
+<<<<<<< HEAD
+=======
+#include "../hw_generic.h"
+>>>>>>> upstream/android-13
 
 #include "hw_factory_dcn10.h"
 
@@ -121,6 +125,45 @@ static const struct ddc_sh_mask ddc_mask = {
 		DDC_MASK_SH_LIST(_MASK)
 };
 
+<<<<<<< HEAD
+=======
+#include "../generic_regs.h"
+
+/* set field name */
+#define SF_GENERIC(reg_name, field_name, post_fix)\
+	.field_name = reg_name ## __ ## field_name ## post_fix
+
+#define generic_regs(id) \
+{\
+	GENERIC_REG_LIST(id)\
+}
+
+static const struct generic_registers generic_regs[] = {
+	generic_regs(A),
+	generic_regs(B),
+};
+
+static const struct generic_sh_mask generic_shift[] = {
+	GENERIC_MASK_SH_LIST(__SHIFT, A),
+	GENERIC_MASK_SH_LIST(__SHIFT, B),
+};
+
+static const struct generic_sh_mask generic_mask[] = {
+	GENERIC_MASK_SH_LIST(_MASK, A),
+	GENERIC_MASK_SH_LIST(_MASK, B),
+};
+
+static void define_generic_registers(struct hw_gpio_pin *pin, uint32_t en)
+{
+	struct hw_generic *generic = HW_GENERIC_FROM_BASE(pin);
+
+	generic->regs = &generic_regs[en];
+	generic->shifts = &generic_shift[en];
+	generic->masks = &generic_mask[en];
+	generic->base.regs = &generic_regs[en].gpio;
+}
+
+>>>>>>> upstream/android-13
 static void define_ddc_registers(
 		struct hw_gpio_pin *pin,
 		uint32_t en)
@@ -157,6 +200,7 @@ static void define_hpd_registers(struct hw_gpio_pin *pin, uint32_t en)
 }
 
 
+<<<<<<< HEAD
 /* fucntion table */
 static const struct hw_factory_funcs funcs = {
 	.create_ddc_data = dal_hw_ddc_create,
@@ -167,6 +211,19 @@ static const struct hw_factory_funcs funcs = {
 	.create_gsl = NULL,
 	.define_hpd_registers = define_hpd_registers,
 	.define_ddc_registers = define_ddc_registers
+=======
+/* function table */
+static const struct hw_factory_funcs funcs = {
+	.init_ddc_data = dal_hw_ddc_init,
+	.init_generic = dal_hw_generic_init,
+	.init_hpd = dal_hw_hpd_init,
+	.get_ddc_pin = dal_hw_ddc_get_pin,
+	.get_hpd_pin = dal_hw_hpd_get_pin,
+	.get_generic_pin = dal_hw_generic_get_pin,
+	.define_hpd_registers = define_hpd_registers,
+	.define_ddc_registers = define_ddc_registers,
+	.define_generic_registers = define_generic_registers
+>>>>>>> upstream/android-13
 };
 /*
  * dal_hw_factory_dcn10_init

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * net/sched/sch_qfq.c         Quick Fair Queueing Plus Scheduler.
  *
  * Copyright (c) 2009 Fabio Checconi, Luigi Rizzo, and Paolo Valente.
  * Copyright (c) 2012 Paolo Valente.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -217,6 +224,7 @@ static struct qfq_class *qfq_find_class(struct Qdisc *sch, u32 classid)
 	return container_of(clc, struct qfq_class, common);
 }
 
+<<<<<<< HEAD
 static void qfq_purge_queue(struct qfq_class *cl)
 {
 	unsigned int len = cl->qdisc->q.qlen;
@@ -226,6 +234,8 @@ static void qfq_purge_queue(struct qfq_class *cl)
 	qdisc_tree_reduce_backlog(cl->qdisc, len, backlog);
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct nla_policy qfq_policy[TCA_QFQ_MAX + 1] = {
 	[TCA_QFQ_WEIGHT] = { .type = NLA_U32 },
 	[TCA_QFQ_LMAX] = { .type = NLA_U32 },
@@ -419,8 +429,13 @@ static int qfq_change_class(struct Qdisc *sch, u32 classid, u32 parentid,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	err = nla_parse_nested(tb, TCA_QFQ_MAX, tca[TCA_OPTIONS], qfq_policy,
 			       NULL);
+=======
+	err = nla_parse_nested_deprecated(tb, TCA_QFQ_MAX, tca[TCA_OPTIONS],
+					  qfq_policy, NULL);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -497,11 +512,14 @@ static int qfq_change_class(struct Qdisc *sch, u32 classid, u32 parentid,
 
 	if (cl->qdisc != &noop_qdisc)
 		qdisc_hash_add(cl->qdisc, true);
+<<<<<<< HEAD
 	sch_tree_lock(sch);
 	qdisc_class_hash_insert(&q->clhash, &cl->common);
 	sch_tree_unlock(sch);
 
 	qdisc_class_hash_grow(sch, &q->clhash);
+=======
+>>>>>>> upstream/android-13
 
 set_change_agg:
 	sch_tree_lock(sch);
@@ -519,14 +537,26 @@ set_change_agg:
 	}
 	if (existing)
 		qfq_deact_rm_from_agg(q, cl);
+<<<<<<< HEAD
 	qfq_add_to_agg(q, new_agg, cl);
 	sch_tree_unlock(sch);
+=======
+	else
+		qdisc_class_hash_insert(&q->clhash, &cl->common);
+	qfq_add_to_agg(q, new_agg, cl);
+	sch_tree_unlock(sch);
+	qdisc_class_hash_grow(sch, &q->clhash);
+>>>>>>> upstream/android-13
 
 	*arg = (unsigned long)cl;
 	return 0;
 
 destroy_class:
+<<<<<<< HEAD
 	qdisc_destroy(cl->qdisc);
+=======
+	qdisc_put(cl->qdisc);
+>>>>>>> upstream/android-13
 	kfree(cl);
 	return err;
 }
@@ -537,11 +567,20 @@ static void qfq_destroy_class(struct Qdisc *sch, struct qfq_class *cl)
 
 	qfq_rm_from_agg(q, cl);
 	gen_kill_estimator(&cl->rate_est);
+<<<<<<< HEAD
 	qdisc_destroy(cl->qdisc);
 	kfree(cl);
 }
 
 static int qfq_delete_class(struct Qdisc *sch, unsigned long arg)
+=======
+	qdisc_put(cl->qdisc);
+	kfree(cl);
+}
+
+static int qfq_delete_class(struct Qdisc *sch, unsigned long arg,
+			    struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct qfq_sched *q = qdisc_priv(sch);
 	struct qfq_class *cl = (struct qfq_class *)arg;
@@ -551,7 +590,11 @@ static int qfq_delete_class(struct Qdisc *sch, unsigned long arg)
 
 	sch_tree_lock(sch);
 
+<<<<<<< HEAD
 	qfq_purge_queue(cl);
+=======
+	qdisc_purge_queue(cl->qdisc);
+>>>>>>> upstream/android-13
 	qdisc_class_hash_remove(&q->clhash, &cl->common);
 
 	sch_tree_unlock(sch);
@@ -628,7 +671,11 @@ static int qfq_dump_class(struct Qdisc *sch, unsigned long arg,
 	tcm->tcm_handle	= cl->common.classid;
 	tcm->tcm_info	= cl->qdisc->handle;
 
+<<<<<<< HEAD
 	nest = nla_nest_start(skb, TCA_OPTIONS);
+=======
+	nest = nla_nest_start_noflag(skb, TCA_OPTIONS);
+>>>>>>> upstream/android-13
 	if (nest == NULL)
 		goto nla_put_failure;
 	if (nla_put_u32(skb, TCA_QFQ_WEIGHT, cl->agg->class_weight) ||
@@ -655,8 +702,12 @@ static int qfq_dump_class_stats(struct Qdisc *sch, unsigned long arg,
 	if (gnet_stats_copy_basic(qdisc_root_sleeping_running(sch),
 				  d, NULL, &cl->bstats) < 0 ||
 	    gnet_stats_copy_rate_est(d, &cl->rate_est) < 0 ||
+<<<<<<< HEAD
 	    gnet_stats_copy_queue(d, NULL,
 				  &cl->qdisc->qstats, cl->qdisc->q.qlen) < 0)
+=======
+	    qdisc_qstats_copy(d, cl->qdisc) < 0)
+>>>>>>> upstream/android-13
 		return -1;
 
 	return gnet_stats_copy_app(d, &xstats, sizeof(xstats));
@@ -704,7 +755,11 @@ static struct qfq_class *qfq_classify(struct sk_buff *skb, struct Qdisc *sch,
 
 	*qerr = NET_XMIT_SUCCESS | __NET_XMIT_BYPASS;
 	fl = rcu_dereference_bh(q->filter_list);
+<<<<<<< HEAD
 	result = tcf_classify(skb, fl, &res, false);
+=======
+	result = tcf_classify(skb, NULL, fl, &res, false);
+>>>>>>> upstream/android-13
 	if (result >= 0) {
 #ifdef CONFIG_NET_CLS_ACT
 		switch (result) {
@@ -712,7 +767,11 @@ static struct qfq_class *qfq_classify(struct sk_buff *skb, struct Qdisc *sch,
 		case TC_ACT_STOLEN:
 		case TC_ACT_TRAP:
 			*qerr = NET_XMIT_SUCCESS | __NET_XMIT_STOLEN;
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case TC_ACT_SHOT:
 			return NULL;
 		}
@@ -1210,10 +1269,18 @@ static struct qfq_aggregate *qfq_choose_next_agg(struct qfq_sched *q)
 static int qfq_enqueue(struct sk_buff *skb, struct Qdisc *sch,
 		       struct sk_buff **to_free)
 {
+<<<<<<< HEAD
+=======
+	unsigned int len = qdisc_pkt_len(skb), gso_segs;
+>>>>>>> upstream/android-13
 	struct qfq_sched *q = qdisc_priv(sch);
 	struct qfq_class *cl;
 	struct qfq_aggregate *agg;
 	int err = 0;
+<<<<<<< HEAD
+=======
+	bool first;
+>>>>>>> upstream/android-13
 
 	cl = qfq_classify(skb, sch, &err);
 	if (cl == NULL) {
@@ -1224,17 +1291,29 @@ static int qfq_enqueue(struct sk_buff *skb, struct Qdisc *sch,
 	}
 	pr_debug("qfq_enqueue: cl = %x\n", cl->common.classid);
 
+<<<<<<< HEAD
 	if (unlikely(cl->agg->lmax < qdisc_pkt_len(skb))) {
 		pr_debug("qfq: increasing maxpkt from %u to %u for class %u",
 			 cl->agg->lmax, qdisc_pkt_len(skb), cl->common.classid);
 		err = qfq_change_agg(sch, cl, cl->agg->class_weight,
 				     qdisc_pkt_len(skb));
+=======
+	if (unlikely(cl->agg->lmax < len)) {
+		pr_debug("qfq: increasing maxpkt from %u to %u for class %u",
+			 cl->agg->lmax, len, cl->common.classid);
+		err = qfq_change_agg(sch, cl, cl->agg->class_weight, len);
+>>>>>>> upstream/android-13
 		if (err) {
 			cl->qstats.drops++;
 			return qdisc_drop(skb, sch, to_free);
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	gso_segs = skb_is_gso(skb) ? skb_shinfo(skb)->gso_segs : 1;
+	first = !cl->qdisc->q.qlen;
+>>>>>>> upstream/android-13
 	err = qdisc_enqueue(skb, cl->qdisc, to_free);
 	if (unlikely(err != NET_XMIT_SUCCESS)) {
 		pr_debug("qfq_enqueue: enqueue failed %d\n", err);
@@ -1245,16 +1324,29 @@ static int qfq_enqueue(struct sk_buff *skb, struct Qdisc *sch,
 		return err;
 	}
 
+<<<<<<< HEAD
 	bstats_update(&cl->bstats, skb);
 	qdisc_qstats_backlog_inc(sch, skb);
+=======
+	cl->bstats.bytes += len;
+	cl->bstats.packets += gso_segs;
+	sch->qstats.backlog += len;
+>>>>>>> upstream/android-13
 	++sch->q.qlen;
 
 	agg = cl->agg;
 	/* if the queue was not empty, then done here */
+<<<<<<< HEAD
 	if (cl->qdisc->q.qlen != 1) {
 		if (unlikely(skb == cl->qdisc->ops->peek(cl->qdisc)) &&
 		    list_first_entry(&agg->active, struct qfq_class, alist)
 		    == cl && cl->deficit < qdisc_pkt_len(skb))
+=======
+	if (!first) {
+		if (unlikely(skb == cl->qdisc->ops->peek(cl->qdisc)) &&
+		    list_first_entry(&agg->active, struct qfq_class, alist)
+		    == cl && cl->deficit < len)
+>>>>>>> upstream/android-13
 			list_move_tail(&cl->alist, &agg->active);
 
 		return err;
@@ -1432,10 +1524,15 @@ static int qfq_init_qdisc(struct Qdisc *sch, struct nlattr *opt,
 	if (err < 0)
 		return err;
 
+<<<<<<< HEAD
 	if (qdisc_dev(sch)->tx_queue_len + 1 > QFQ_MAX_AGG_CLASSES)
 		max_classes = QFQ_MAX_AGG_CLASSES;
 	else
 		max_classes = qdisc_dev(sch)->tx_queue_len + 1;
+=======
+	max_classes = min_t(u64, (u64)qdisc_dev(sch)->tx_queue_len + 1,
+			    QFQ_MAX_AGG_CLASSES);
+>>>>>>> upstream/android-13
 	/* max_cl_shift = floor(log_2(max_classes)) */
 	max_cl_shift = __fls(max_classes);
 	q->max_agg_classes = 1<<max_cl_shift;

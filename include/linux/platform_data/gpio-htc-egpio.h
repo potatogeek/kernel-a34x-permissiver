@@ -50,7 +50,10 @@ struct htc_egpio_platform_data {
 	int                   num_chips;
 };
 
+<<<<<<< HEAD
 /* Determine the wakeup irq, to be called during early resume */
 extern int htc_egpio_get_wakeup_irq(struct device *dev);
 
+=======
+>>>>>>> upstream/android-13
 #endif

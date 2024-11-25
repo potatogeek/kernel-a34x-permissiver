@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Common header for Virtio crypto device.
  *
  * Copyright 2016 HUAWEI TECHNOLOGIES CO., LTD.
@@ -14,6 +15,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/* Common header for Virtio crypto device.
+ *
+ * Copyright 2016 HUAWEI TECHNOLOGIES CO., LTD.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _VIRTIO_CRYPTO_COMMON_H
@@ -124,7 +131,11 @@ struct virtio_crypto *virtcrypto_get_dev_node(int node,
 					      uint32_t algo);
 int virtcrypto_dev_start(struct virtio_crypto *vcrypto);
 void virtcrypto_dev_stop(struct virtio_crypto *vcrypto);
+<<<<<<< HEAD
 int virtio_crypto_ablkcipher_crypt_req(
+=======
+int virtio_crypto_skcipher_crypt_req(
+>>>>>>> upstream/android-13
 	struct crypto_engine *engine, void *vreq);
 
 void

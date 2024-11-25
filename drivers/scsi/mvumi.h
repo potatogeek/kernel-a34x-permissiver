@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
   * Marvell UMI head file
   *
   * Copyright 2011 Marvell. <jyli@marvell.com>
+<<<<<<< HEAD
   *
   * This file is licensed under GPLv2.
   *
@@ -19,6 +24,8 @@
   * along with this program; if not, write to the Free Software
   * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
   * USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef MVUMI_H
@@ -146,7 +153,11 @@ enum {
 struct mvumi_hotplug_event {
 	u16 size;
 	u8 dummy[2];
+<<<<<<< HEAD
 	u8 bitmap[0];
+=======
+	u8 bitmap[];
+>>>>>>> upstream/android-13
 };
 
 struct mvumi_driver_event {
@@ -306,7 +317,11 @@ struct mvumi_rsp_frame {
 
 struct mvumi_ob_data {
 	struct list_head list;
+<<<<<<< HEAD
 	unsigned char data[0];
+=======
+	unsigned char data[];
+>>>>>>> upstream/android-13
 };
 
 struct version_info {

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * QLogic iSCSI Offload Driver
  * Copyright (c) 2016 Cavium Inc.
@@ -5,6 +6,12 @@
  * This software is available under the terms of the GNU General Public License
  * (GPL) Version 2, available from the file COPYING in the main directory of
  * this source tree.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * QLogic iSCSI Offload Driver
+ * Copyright (c) 2016 Cavium Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/blkdev.h>
@@ -61,7 +68,10 @@ struct scsi_host_template qedi_host_template = {
 	.max_sectors = 0xffff,
 	.dma_boundary = QEDI_HW_DMA_BOUNDARY,
 	.cmd_per_lun = 128,
+<<<<<<< HEAD
 	.use_clustering = ENABLE_CLUSTERING,
+=======
+>>>>>>> upstream/android-13
 	.shost_attrs = qedi_shost_attrs,
 };
 
@@ -334,12 +344,30 @@ free_conn:
 
 void qedi_mark_device_missing(struct iscsi_cls_session *cls_session)
 {
+<<<<<<< HEAD
 	iscsi_block_session(cls_session);
+=======
+	struct iscsi_session *session = cls_session->dd_data;
+	struct qedi_conn *qedi_conn = session->leadconn->dd_data;
+
+	spin_lock_bh(&session->frwd_lock);
+	set_bit(QEDI_BLOCK_IO, &qedi_conn->qedi->flags);
+	spin_unlock_bh(&session->frwd_lock);
+>>>>>>> upstream/android-13
 }
 
 void qedi_mark_device_available(struct iscsi_cls_session *cls_session)
 {
+<<<<<<< HEAD
 	iscsi_unblock_session(cls_session);
+=======
+	struct iscsi_session *session = cls_session->dd_data;
+	struct qedi_conn *qedi_conn = session->leadconn->dd_data;
+
+	spin_lock_bh(&session->frwd_lock);
+	clear_bit(QEDI_BLOCK_IO, &qedi_conn->qedi->flags);
+	spin_unlock_bh(&session->frwd_lock);
+>>>>>>> upstream/android-13
 }
 
 static int qedi_bind_conn_to_iscsi_cid(struct qedi_ctx *qedi,
@@ -381,6 +409,10 @@ static int qedi_conn_bind(struct iscsi_cls_session *cls_session,
 	struct qedi_ctx *qedi = iscsi_host_priv(shost);
 	struct qedi_endpoint *qedi_ep;
 	struct iscsi_endpoint *ep;
+<<<<<<< HEAD
+=======
+	int rc = 0;
+>>>>>>> upstream/android-13
 
 	ep = iscsi_lookup_endpoint(transport_fd);
 	if (!ep)
@@ -388,6 +420,7 @@ static int qedi_conn_bind(struct iscsi_cls_session *cls_session,
 
 	qedi_ep = ep->dd_data;
 	if ((qedi_ep->state == EP_STATE_TCP_FIN_RCVD) ||
+<<<<<<< HEAD
 	    (qedi_ep->state == EP_STATE_TCP_RST_RCVD))
 		return -EINVAL;
 
@@ -396,18 +429,48 @@ static int qedi_conn_bind(struct iscsi_cls_session *cls_session,
 
 	qedi_ep->conn = qedi_conn;
 	qedi_conn->ep = qedi_ep;
+=======
+	    (qedi_ep->state == EP_STATE_TCP_RST_RCVD)) {
+		rc = -EINVAL;
+		goto put_ep;
+	}
+
+	if (iscsi_conn_bind(cls_session, cls_conn, is_leading)) {
+		rc = -EINVAL;
+		goto put_ep;
+	}
+
+
+	qedi_ep->conn = qedi_conn;
+	qedi_conn->ep = qedi_ep;
+	qedi_conn->iscsi_ep = ep;
+>>>>>>> upstream/android-13
 	qedi_conn->iscsi_conn_id = qedi_ep->iscsi_cid;
 	qedi_conn->fw_cid = qedi_ep->fw_cid;
 	qedi_conn->cmd_cleanup_req = 0;
 	qedi_conn->cmd_cleanup_cmpl = 0;
 
+<<<<<<< HEAD
 	if (qedi_bind_conn_to_iscsi_cid(qedi, qedi_conn))
 		return -EINVAL;
+=======
+	if (qedi_bind_conn_to_iscsi_cid(qedi, qedi_conn)) {
+		rc = -EINVAL;
+		goto put_ep;
+	}
+
+>>>>>>> upstream/android-13
 
 	spin_lock_init(&qedi_conn->tmf_work_lock);
 	INIT_LIST_HEAD(&qedi_conn->tmf_work_list);
 	init_waitqueue_head(&qedi_conn->wait_queue);
+<<<<<<< HEAD
 	return 0;
+=======
+put_ep:
+	iscsi_put_endpoint(ep);
+	return rc;
+>>>>>>> upstream/android-13
 }
 
 static int qedi_iscsi_update_conn(struct qedi_ctx *qedi,
@@ -481,8 +544,13 @@ static u16 qedi_calc_mss(u16 pmtu, u8 is_ipv6, u8 tcp_ts_en, u8 vlan_en)
 
 static int qedi_iscsi_offload_conn(struct qedi_endpoint *qedi_ep)
 {
+<<<<<<< HEAD
 	struct qedi_ctx *qedi = qedi_ep->qedi;
 	struct qed_iscsi_params_offload *conn_info;
+=======
+	struct qed_iscsi_params_offload *conn_info;
+	struct qedi_ctx *qedi = qedi_ep->qedi;
+>>>>>>> upstream/android-13
 	int rval;
 	int i;
 
@@ -559,10 +627,44 @@ static int qedi_iscsi_offload_conn(struct qedi_endpoint *qedi_ep)
 		  "Default cq index [%d], mss [%d]\n",
 		  conn_info->default_cq, conn_info->mss);
 
+<<<<<<< HEAD
 	rval = qedi_ops->offload_conn(qedi->cdev, qedi_ep->handle, conn_info);
 	if (rval)
 		QEDI_ERR(&qedi->dbg_ctx, "offload_conn returned %d, ep=%p\n",
 			 rval, qedi_ep);
+=======
+	/* Prepare the doorbell parameters */
+	qedi_ep->db_data.agg_flags = 0;
+	qedi_ep->db_data.params = 0;
+	SET_FIELD(qedi_ep->db_data.params, ISCSI_DB_DATA_DEST, DB_DEST_XCM);
+	SET_FIELD(qedi_ep->db_data.params, ISCSI_DB_DATA_AGG_CMD,
+		  DB_AGG_CMD_MAX);
+	SET_FIELD(qedi_ep->db_data.params, ISCSI_DB_DATA_AGG_VAL_SEL,
+		  DQ_XCM_ISCSI_SQ_PROD_CMD);
+	SET_FIELD(qedi_ep->db_data.params, ISCSI_DB_DATA_BYPASS_EN, 1);
+
+	/* Register doorbell with doorbell recovery mechanism */
+	rval = qedi_ops->common->db_recovery_add(qedi->cdev,
+						 qedi_ep->p_doorbell,
+						 &qedi_ep->db_data,
+						 DB_REC_WIDTH_32B,
+						 DB_REC_KERNEL);
+	if (rval) {
+		kfree(conn_info);
+		return rval;
+	}
+
+	rval = qedi_ops->offload_conn(qedi->cdev, qedi_ep->handle, conn_info);
+	if (rval) {
+		/* delete doorbell from doorbell recovery mechanism */
+		rval = qedi_ops->common->db_recovery_del(qedi->cdev,
+							 qedi_ep->p_doorbell,
+							 &qedi_ep->db_data);
+
+		QEDI_ERR(&qedi->dbg_ctx, "offload_conn returned %d, ep=%p\n",
+			 rval, qedi_ep);
+	}
+>>>>>>> upstream/android-13
 
 	kfree(conn_info);
 	return rval;
@@ -580,18 +682,34 @@ static int qedi_conn_start(struct iscsi_cls_conn *cls_conn)
 	rval = qedi_iscsi_update_conn(qedi, qedi_conn);
 	if (rval) {
 		iscsi_conn_printk(KERN_ALERT, conn,
+<<<<<<< HEAD
 				  "conn_start: FW oflload conn failed.\n");
+=======
+				  "conn_start: FW offload conn failed.\n");
+>>>>>>> upstream/android-13
 		rval = -EINVAL;
 		goto start_err;
 	}
 
+<<<<<<< HEAD
 	clear_bit(QEDI_CONN_FW_CLEANUP, &qedi_conn->flags);
+=======
+	spin_lock(&qedi_conn->tmf_work_lock);
+	qedi_conn->fw_cleanup_works = 0;
+	qedi_conn->ep_disconnect_starting = false;
+	spin_unlock(&qedi_conn->tmf_work_lock);
+
+>>>>>>> upstream/android-13
 	qedi_conn->abrt_conn = 0;
 
 	rval = iscsi_conn_start(cls_conn);
 	if (rval) {
 		iscsi_conn_printk(KERN_ALERT, conn,
+<<<<<<< HEAD
 				  "iscsi_conn_start: FW oflload conn failed!!\n");
+=======
+				  "iscsi_conn_start: FW offload conn failed!!\n");
+>>>>>>> upstream/android-13
 	}
 
 start_err:
@@ -745,7 +863,11 @@ static int qedi_iscsi_send_generic_request(struct iscsi_task *task)
 		rc = qedi_send_iscsi_logout(qedi_conn, task);
 		break;
 	case ISCSI_OP_SCSI_TMFUNC:
+<<<<<<< HEAD
 		rc = qedi_iscsi_abort_work(qedi_conn, task);
+=======
+		rc = qedi_send_iscsi_tmf(qedi_conn, task);
+>>>>>>> upstream/android-13
 		break;
 	case ISCSI_OP_TEXT:
 		rc = qedi_send_iscsi_text(qedi_conn, task);
@@ -775,7 +897,10 @@ static int qedi_mtask_xmit(struct iscsi_conn *conn, struct iscsi_task *task)
 	}
 
 	cmd->conn = conn->dd_data;
+<<<<<<< HEAD
 	cmd->scsi_cmd = NULL;
+=======
+>>>>>>> upstream/android-13
 	return qedi_iscsi_send_generic_request(task);
 }
 
@@ -786,6 +911,19 @@ static int qedi_task_xmit(struct iscsi_task *task)
 	struct qedi_cmd *cmd = task->dd_data;
 	struct scsi_cmnd *sc = task->sc;
 
+<<<<<<< HEAD
+=======
+	/* Clear now so in cleanup_task we know it didn't make it */
+	cmd->scsi_cmd = NULL;
+	cmd->task_id = U16_MAX;
+
+	if (test_bit(QEDI_IN_SHUTDOWN, &qedi_conn->qedi->flags))
+		return -ENODEV;
+
+	if (test_bit(QEDI_BLOCK_IO, &qedi_conn->qedi->flags))
+		return -EACCES;
+
+>>>>>>> upstream/android-13
 	cmd->state = 0;
 	cmd->task = NULL;
 	cmd->use_slowpath = false;
@@ -801,6 +939,40 @@ static int qedi_task_xmit(struct iscsi_task *task)
 	return qedi_iscsi_send_ioreq(task);
 }
 
+<<<<<<< HEAD
+=======
+static void qedi_offload_work(struct work_struct *work)
+{
+	struct qedi_endpoint *qedi_ep =
+		container_of(work, struct qedi_endpoint, offload_work);
+	struct qedi_ctx *qedi;
+	int wait_delay = 5 * HZ;
+	int ret;
+
+	qedi = qedi_ep->qedi;
+
+	ret = qedi_iscsi_offload_conn(qedi_ep);
+	if (ret) {
+		QEDI_ERR(&qedi->dbg_ctx,
+			 "offload error: iscsi_cid=%u, qedi_ep=%p, ret=%d\n",
+			 qedi_ep->iscsi_cid, qedi_ep, ret);
+		qedi_ep->state = EP_STATE_OFLDCONN_FAILED;
+		return;
+	}
+
+	ret = wait_event_interruptible_timeout(qedi_ep->tcp_ofld_wait,
+					       (qedi_ep->state ==
+					       EP_STATE_OFLDCONN_COMPL),
+					       wait_delay);
+	if (ret <= 0 || qedi_ep->state != EP_STATE_OFLDCONN_COMPL) {
+		qedi_ep->state = EP_STATE_OFLDCONN_FAILED;
+		QEDI_ERR(&qedi->dbg_ctx,
+			 "Offload conn TIMEOUT iscsi_cid=%u, qedi_ep=%p\n",
+			 qedi_ep->iscsi_cid, qedi_ep);
+	}
+}
+
+>>>>>>> upstream/android-13
 static struct iscsi_endpoint *
 qedi_ep_connect(struct Scsi_Host *shost, struct sockaddr *dst_addr,
 		int non_blocking)
@@ -836,6 +1008,14 @@ qedi_ep_connect(struct Scsi_Host *shost, struct sockaddr *dst_addr,
 		return ERR_PTR(ret);
 	}
 
+<<<<<<< HEAD
+=======
+	if (atomic_read(&qedi->link_state) != QEDI_LINK_UP) {
+		QEDI_WARN(&qedi->dbg_ctx, "qedi link down\n");
+		return ERR_PTR(-ENXIO);
+	}
+
+>>>>>>> upstream/android-13
 	ep = iscsi_create_endpoint(sizeof(struct qedi_endpoint));
 	if (!ep) {
 		QEDI_ERR(&qedi->dbg_ctx, "endpoint create fail\n");
@@ -844,6 +1024,10 @@ qedi_ep_connect(struct Scsi_Host *shost, struct sockaddr *dst_addr,
 	}
 	qedi_ep = ep->dd_data;
 	memset(qedi_ep, 0, sizeof(struct qedi_endpoint));
+<<<<<<< HEAD
+=======
+	INIT_WORK(&qedi_ep->offload_work, qedi_offload_work);
+>>>>>>> upstream/android-13
 	qedi_ep->state = EP_STATE_IDLE;
 	qedi_ep->iscsi_cid = (u32)-1;
 	qedi_ep->qedi = qedi;
@@ -870,12 +1054,15 @@ qedi_ep_connect(struct Scsi_Host *shost, struct sockaddr *dst_addr,
 		QEDI_ERR(&qedi->dbg_ctx, "Invalid endpoint\n");
 	}
 
+<<<<<<< HEAD
 	if (atomic_read(&qedi->link_state) != QEDI_LINK_UP) {
 		QEDI_WARN(&qedi->dbg_ctx, "qedi link down\n");
 		ret = -ENXIO;
 		goto ep_conn_exit;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	ret = qedi_alloc_sq(qedi, qedi_ep);
 	if (ret)
 		goto ep_conn_exit;
@@ -989,6 +1176,7 @@ static void qedi_ep_disconnect(struct iscsi_endpoint *ep)
 {
 	struct qedi_endpoint *qedi_ep;
 	struct qedi_conn *qedi_conn = NULL;
+<<<<<<< HEAD
 	struct iscsi_conn *conn = NULL;
 	struct qedi_ctx *qedi;
 	int ret = 0;
@@ -1018,6 +1206,39 @@ static void qedi_ep_disconnect(struct iscsi_endpoint *ep)
 			}
 			msleep(1000);
 		}
+=======
+	struct qedi_ctx *qedi;
+	int ret = 0;
+	int wait_delay;
+	int abrt_conn = 0;
+
+	wait_delay = 60 * HZ + DEF_MAX_RT_TIME;
+	qedi_ep = ep->dd_data;
+	qedi = qedi_ep->qedi;
+
+	flush_work(&qedi_ep->offload_work);
+
+	if (qedi_ep->state == EP_STATE_OFLDCONN_START)
+		goto ep_exit_recover;
+
+	if (qedi_ep->conn) {
+		qedi_conn = qedi_ep->conn;
+		abrt_conn = qedi_conn->abrt_conn;
+
+		QEDI_INFO(&qedi->dbg_ctx, QEDI_LOG_INFO,
+			  "cid=0x%x qedi_ep=%p waiting for %d tmfs\n",
+			  qedi_ep->iscsi_cid, qedi_ep,
+			  qedi_conn->fw_cleanup_works);
+
+		spin_lock(&qedi_conn->tmf_work_lock);
+		qedi_conn->ep_disconnect_starting = true;
+		while (qedi_conn->fw_cleanup_works > 0) {
+			spin_unlock(&qedi_conn->tmf_work_lock);
+			msleep(1000);
+			spin_lock(&qedi_conn->tmf_work_lock);
+		}
+		spin_unlock(&qedi_conn->tmf_work_lock);
+>>>>>>> upstream/android-13
 
 		if (test_bit(QEDI_IN_RECOVERY, &qedi->flags)) {
 			if (qedi_do_not_recover) {
@@ -1071,6 +1292,19 @@ static void qedi_ep_disconnect(struct iscsi_endpoint *ep)
 		wait_delay += qedi->pf_params.iscsi_pf_params.two_msl_timer;
 
 	qedi_ep->state = EP_STATE_DISCONN_START;
+<<<<<<< HEAD
+=======
+
+	if (test_bit(QEDI_IN_SHUTDOWN, &qedi->flags) ||
+	    test_bit(QEDI_IN_RECOVERY, &qedi->flags))
+		goto ep_release_conn;
+
+	/* Delete doorbell from doorbell recovery mechanism */
+	ret = qedi_ops->common->db_recovery_del(qedi->cdev,
+					       qedi_ep->p_doorbell,
+					       &qedi_ep->db_data);
+
+>>>>>>> upstream/android-13
 	ret = qedi_ops->destroy_conn(qedi->cdev, qedi_ep->handle, abrt_conn);
 	if (ret) {
 		QEDI_WARN(&qedi->dbg_ctx,
@@ -1164,6 +1398,7 @@ static int qedi_data_avail(struct qedi_ctx *qedi, u16 vlanid)
 	return rc;
 }
 
+<<<<<<< HEAD
 static void qedi_offload_work(struct work_struct *work)
 {
 	struct qedi_endpoint *qedi_ep =
@@ -1195,6 +1430,8 @@ static void qedi_offload_work(struct work_struct *work)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 static int qedi_set_path(struct Scsi_Host *shost, struct iscsi_path *path_data)
 {
 	struct qedi_ctx *qedi;
@@ -1310,7 +1547,10 @@ static int qedi_set_path(struct Scsi_Host *shost, struct iscsi_path *path_data)
 			  qedi_ep->dst_addr, qedi_ep->dst_port);
 	}
 
+<<<<<<< HEAD
 	INIT_WORK(&qedi_ep->offload_work, qedi_offload_work);
+=======
+>>>>>>> upstream/android-13
 	queue_work(qedi->offload_thread, &qedi_ep->offload_work);
 
 	ret = 0;
@@ -1378,13 +1618,32 @@ static umode_t qedi_attr_is_visible(int param_type, int param)
 
 static void qedi_cleanup_task(struct iscsi_task *task)
 {
+<<<<<<< HEAD
 	if (!task->sc || task->state == ISCSI_TASK_PENDING) {
+=======
+	struct qedi_cmd *cmd;
+
+	if (task->state == ISCSI_TASK_PENDING) {
+>>>>>>> upstream/android-13
 		QEDI_INFO(NULL, QEDI_LOG_IO, "Returning ref_cnt=%d\n",
 			  refcount_read(&task->refcount));
 		return;
 	}
 
+<<<<<<< HEAD
 	qedi_iscsi_unmap_sg_list(task->dd_data);
+=======
+	if (task->sc)
+		qedi_iscsi_unmap_sg_list(task->dd_data);
+
+	cmd = task->dd_data;
+	if (cmd->task_id != U16_MAX)
+		qedi_clear_task_idx(iscsi_host_priv(task->conn->session->host),
+				    cmd->task_id);
+
+	cmd->task_id = U16_MAX;
+	cmd->scsi_cmd = NULL;
+>>>>>>> upstream/android-13
 }
 
 struct iscsi_transport qedi_iscsi_transport = {
@@ -1396,6 +1655,10 @@ struct iscsi_transport qedi_iscsi_transport = {
 	.destroy_session = qedi_session_destroy,
 	.create_conn = qedi_conn_create,
 	.bind_conn = qedi_conn_bind,
+<<<<<<< HEAD
+=======
+	.unbind_conn = iscsi_conn_unbind,
+>>>>>>> upstream/android-13
 	.start_conn = qedi_conn_start,
 	.stop_conn = iscsi_conn_stop,
 	.destroy_conn = qedi_conn_destroy,
@@ -1548,7 +1811,11 @@ static const struct {
 	},
 };
 
+<<<<<<< HEAD
 char *qedi_get_iscsi_error(enum iscsi_error_types err_code)
+=======
+static char *qedi_get_iscsi_error(enum iscsi_error_types err_code)
+>>>>>>> upstream/android-13
 {
 	int i;
 	char *msg = NULL;

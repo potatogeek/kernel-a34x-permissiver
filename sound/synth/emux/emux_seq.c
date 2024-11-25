@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Midi Sequencer interface routines.
  *
  *  Copyright (C) 1999 Steve Ratcliffe
  *  Copyright (c) 1999-2000 Takashi Iwai <tiwai@suse.de>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "emux_voice.h"
@@ -32,7 +39,11 @@ static int snd_emux_unuse(void *private_data, struct snd_seq_port_subscribe *inf
 /*
  * MIDI emulation operators
  */
+<<<<<<< HEAD
 static struct snd_midi_op emux_ops = {
+=======
+static const struct snd_midi_op emux_ops = {
+>>>>>>> upstream/android-13
 	.note_on = snd_emux_note_on,
 	.note_off = snd_emux_note_off,
 	.key_press = snd_emux_key_press,

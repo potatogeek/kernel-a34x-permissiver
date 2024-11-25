@@ -112,7 +112,10 @@ int bmp280_common_probe(struct device *dev,
 			unsigned int chip,
 			const char *name,
 			int irq);
+<<<<<<< HEAD
 int bmp280_common_remove(struct device *dev);
+=======
+>>>>>>> upstream/android-13
 
 /* PM ops */
 extern const struct dev_pm_ops bmp280_dev_pm_ops;

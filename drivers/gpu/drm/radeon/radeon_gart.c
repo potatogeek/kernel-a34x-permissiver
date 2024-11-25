@@ -25,7 +25,14 @@
  *          Alex Deucher
  *          Jerome Glisse
  */
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+
+#include <linux/pci.h>
+#include <linux/vmalloc.h>
+
+>>>>>>> upstream/android-13
 #include <drm/radeon_drm.h>
 #ifdef CONFIG_X86
 #include <asm/set_memory.h>
@@ -69,8 +76,13 @@ int radeon_gart_table_ram_alloc(struct radeon_device *rdev)
 {
 	void *ptr;
 
+<<<<<<< HEAD
 	ptr = pci_alloc_consistent(rdev->pdev, rdev->gart.table_size,
 				   &rdev->gart.table_addr);
+=======
+	ptr = dma_alloc_coherent(&rdev->pdev->dev, rdev->gart.table_size,
+				 &rdev->gart.table_addr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (ptr == NULL) {
 		return -ENOMEM;
 	}
@@ -82,7 +94,10 @@ int radeon_gart_table_ram_alloc(struct radeon_device *rdev)
 	}
 #endif
 	rdev->gart.ptr = ptr;
+<<<<<<< HEAD
 	memset((void *)rdev->gart.ptr, 0, rdev->gart.table_size);
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -107,9 +122,14 @@ void radeon_gart_table_ram_free(struct radeon_device *rdev)
 			      rdev->gart.table_size >> PAGE_SHIFT);
 	}
 #endif
+<<<<<<< HEAD
 	pci_free_consistent(rdev->pdev, rdev->gart.table_size,
 			    (void *)rdev->gart.ptr,
 			    rdev->gart.table_addr);
+=======
+	dma_free_coherent(&rdev->pdev->dev, rdev->gart.table_size,
+			  (void *)rdev->gart.ptr, rdev->gart.table_addr);
+>>>>>>> upstream/android-13
 	rdev->gart.ptr = NULL;
 	rdev->gart.table_addr = 0;
 }
@@ -300,7 +320,12 @@ int radeon_gart_bind(struct radeon_device *rdev, unsigned offset,
 	p = t / (PAGE_SIZE / RADEON_GPU_PAGE_SIZE);
 
 	for (i = 0; i < pages; i++, p++) {
+<<<<<<< HEAD
 		rdev->gart.pages[p] = pagelist[i];
+=======
+		rdev->gart.pages[p] = pagelist ? pagelist[i] :
+			rdev->dummy_page.page;
+>>>>>>> upstream/android-13
 		page_base = dma_addr[i];
 		for (j = 0; j < (PAGE_SIZE / RADEON_GPU_PAGE_SIZE); j++, t++) {
 			page_entry = radeon_gart_get_page_entry(page_base, flags);

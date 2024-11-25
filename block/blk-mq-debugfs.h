@@ -18,6 +18,7 @@ struct blk_mq_debugfs_attr {
 int __blk_mq_debugfs_rq_show(struct seq_file *m, struct request *rq);
 int blk_mq_debugfs_rq_show(struct seq_file *m, void *v);
 
+<<<<<<< HEAD
 int blk_mq_debugfs_register(struct request_queue *q);
 void blk_mq_debugfs_unregister(struct request_queue *q);
 int blk_mq_debugfs_register_hctx(struct request_queue *q,
@@ -35,49 +36,108 @@ void blk_mq_debugfs_unregister_sched_hctx(struct blk_mq_hw_ctx *hctx);
 static inline int blk_mq_debugfs_register(struct request_queue *q)
 {
 	return 0;
+=======
+void blk_mq_debugfs_register(struct request_queue *q);
+void blk_mq_debugfs_unregister(struct request_queue *q);
+void blk_mq_debugfs_register_hctx(struct request_queue *q,
+				  struct blk_mq_hw_ctx *hctx);
+void blk_mq_debugfs_unregister_hctx(struct blk_mq_hw_ctx *hctx);
+void blk_mq_debugfs_register_hctxs(struct request_queue *q);
+void blk_mq_debugfs_unregister_hctxs(struct request_queue *q);
+
+void blk_mq_debugfs_register_sched(struct request_queue *q);
+void blk_mq_debugfs_unregister_sched(struct request_queue *q);
+void blk_mq_debugfs_register_sched_hctx(struct request_queue *q,
+				       struct blk_mq_hw_ctx *hctx);
+void blk_mq_debugfs_unregister_sched_hctx(struct blk_mq_hw_ctx *hctx);
+
+void blk_mq_debugfs_register_rqos(struct rq_qos *rqos);
+void blk_mq_debugfs_unregister_rqos(struct rq_qos *rqos);
+void blk_mq_debugfs_unregister_queue_rqos(struct request_queue *q);
+#else
+static inline void blk_mq_debugfs_register(struct request_queue *q)
+{
+>>>>>>> upstream/android-13
 }
 
 static inline void blk_mq_debugfs_unregister(struct request_queue *q)
 {
 }
 
+<<<<<<< HEAD
 static inline int blk_mq_debugfs_register_hctx(struct request_queue *q,
 					       struct blk_mq_hw_ctx *hctx)
 {
 	return 0;
+=======
+static inline void blk_mq_debugfs_register_hctx(struct request_queue *q,
+						struct blk_mq_hw_ctx *hctx)
+{
+>>>>>>> upstream/android-13
 }
 
 static inline void blk_mq_debugfs_unregister_hctx(struct blk_mq_hw_ctx *hctx)
 {
 }
 
+<<<<<<< HEAD
 static inline int blk_mq_debugfs_register_hctxs(struct request_queue *q)
 {
 	return 0;
+=======
+static inline void blk_mq_debugfs_register_hctxs(struct request_queue *q)
+{
+>>>>>>> upstream/android-13
 }
 
 static inline void blk_mq_debugfs_unregister_hctxs(struct request_queue *q)
 {
 }
 
+<<<<<<< HEAD
 static inline int blk_mq_debugfs_register_sched(struct request_queue *q)
 {
 	return 0;
+=======
+static inline void blk_mq_debugfs_register_sched(struct request_queue *q)
+{
+>>>>>>> upstream/android-13
 }
 
 static inline void blk_mq_debugfs_unregister_sched(struct request_queue *q)
 {
 }
 
+<<<<<<< HEAD
 static inline int blk_mq_debugfs_register_sched_hctx(struct request_queue *q,
 						     struct blk_mq_hw_ctx *hctx)
 {
 	return 0;
+=======
+static inline void blk_mq_debugfs_register_sched_hctx(struct request_queue *q,
+						      struct blk_mq_hw_ctx *hctx)
+{
+>>>>>>> upstream/android-13
 }
 
 static inline void blk_mq_debugfs_unregister_sched_hctx(struct blk_mq_hw_ctx *hctx)
 {
 }
+<<<<<<< HEAD
+=======
+
+static inline void blk_mq_debugfs_register_rqos(struct rq_qos *rqos)
+{
+}
+
+static inline void blk_mq_debugfs_unregister_rqos(struct rq_qos *rqos)
+{
+}
+
+static inline void blk_mq_debugfs_unregister_queue_rqos(struct request_queue *q)
+{
+}
+>>>>>>> upstream/android-13
 #endif
 
 #ifdef CONFIG_BLK_DEBUG_FS_ZONED

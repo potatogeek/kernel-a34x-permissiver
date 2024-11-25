@@ -13,6 +13,10 @@
 #include <linux/decompress/inflate.h>
 #include <linux/decompress/unlzo.h>
 #include <linux/decompress/unlz4.h>
+<<<<<<< HEAD
+=======
+#include <linux/decompress/unzstd.h>
+>>>>>>> upstream/android-13
 
 #include <linux/types.h>
 #include <linux/string.h>
@@ -37,6 +41,12 @@
 #ifndef CONFIG_DECOMPRESS_LZ4
 # define unlz4 NULL
 #endif
+<<<<<<< HEAD
+=======
+#ifndef CONFIG_DECOMPRESS_ZSTD
+# define unzstd NULL
+#endif
+>>>>>>> upstream/android-13
 
 struct compress_format {
 	unsigned char magic[2];
@@ -52,6 +62,10 @@ static const struct compress_format compressed_formats[] __initconst = {
 	{ {0xfd, 0x37}, "xz", unxz },
 	{ {0x89, 0x4c}, "lzo", unlzo },
 	{ {0x02, 0x21}, "lz4", unlz4 },
+<<<<<<< HEAD
+=======
+	{ {0x28, 0xb5}, "zstd", unzstd },
+>>>>>>> upstream/android-13
 	{ {0, 0}, NULL, NULL }
 };
 

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for PowerMac AWACS
  * Copyright (c) 2001 by Takashi Iwai <tiwai@suse.de>
  *   based on dmasound.c.
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -31,7 +38,10 @@
 #define CHIP_NAME "PMac"
 
 MODULE_DESCRIPTION("PowerMac");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{{Apple,PowerMac}}");
+=======
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");
 
 static int index = SNDRV_DEFAULT_IDX1;		/* Index 0-MAX */
@@ -62,7 +72,12 @@ static int snd_pmac_probe(struct platform_device *devptr)
 	if (err < 0)
 		return err;
 
+<<<<<<< HEAD
 	if ((err = snd_pmac_new(card, &chip)) < 0)
+=======
+	err = snd_pmac_new(card, &chip);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		goto __error;
 	card->private_data = chip;
 
@@ -72,7 +87,12 @@ static int snd_pmac_probe(struct platform_device *devptr)
 		strcpy(card->shortname, "PowerMac Burgundy");
 		sprintf(card->longname, "%s (Dev %d) Sub-frame %d",
 			card->shortname, chip->device_id, chip->subframe);
+<<<<<<< HEAD
 		if ((err = snd_pmac_burgundy_init(chip)) < 0)
+=======
+		err = snd_pmac_burgundy_init(chip);
+		if (err < 0)
+>>>>>>> upstream/android-13
 			goto __error;
 		break;
 	case PMAC_DACA:
@@ -80,7 +100,12 @@ static int snd_pmac_probe(struct platform_device *devptr)
 		strcpy(card->shortname, "PowerMac DACA");
 		sprintf(card->longname, "%s (Dev %d) Sub-frame %d",
 			card->shortname, chip->device_id, chip->subframe);
+<<<<<<< HEAD
 		if ((err = snd_pmac_daca_init(chip)) < 0)
+=======
+		err = snd_pmac_daca_init(chip);
+		if (err < 0)
+>>>>>>> upstream/android-13
 			goto __error;
 		break;
 	case PMAC_TUMBLER:
@@ -90,7 +115,15 @@ static int snd_pmac_probe(struct platform_device *devptr)
 		sprintf(card->shortname, "PowerMac %s", name_ext);
 		sprintf(card->longname, "%s (Dev %d) Sub-frame %d",
 			card->shortname, chip->device_id, chip->subframe);
+<<<<<<< HEAD
 		if ( snd_pmac_tumbler_init(chip) < 0 || snd_pmac_tumbler_post_init() < 0)
+=======
+		err = snd_pmac_tumbler_init(chip);
+		if (err < 0)
+			goto __error;
+		err = snd_pmac_tumbler_post_init();
+		if (err < 0)
+>>>>>>> upstream/android-13
 			goto __error;
 		break;
 	case PMAC_AWACS:
@@ -106,7 +139,12 @@ static int snd_pmac_probe(struct platform_device *devptr)
 			name_ext = "";
 		sprintf(card->longname, "%s%s Rev %d",
 			card->shortname, name_ext, chip->revision);
+<<<<<<< HEAD
 		if ((err = snd_pmac_awacs_init(chip)) < 0)
+=======
+		err = snd_pmac_awacs_init(chip);
+		if (err < 0)
+>>>>>>> upstream/android-13
 			goto __error;
 		break;
 	default:
@@ -115,14 +153,24 @@ static int snd_pmac_probe(struct platform_device *devptr)
 		goto __error;
 	}
 
+<<<<<<< HEAD
 	if ((err = snd_pmac_pcm_new(chip)) < 0)
+=======
+	err = snd_pmac_pcm_new(chip);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		goto __error;
 
 	chip->initialized = 1;
 	if (enable_beep)
 		snd_pmac_attach_beep(chip);
 
+<<<<<<< HEAD
 	if ((err = snd_card_register(card)) < 0)
+=======
+	err = snd_card_register(card);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		goto __error;
 
 	platform_set_drvdata(devptr, card);
@@ -176,7 +224,12 @@ static int __init alsa_card_pmac_init(void)
 {
 	int err;
 
+<<<<<<< HEAD
 	if ((err = platform_driver_register(&snd_pmac_driver)) < 0)
+=======
+	err = platform_driver_register(&snd_pmac_driver);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 	device = platform_device_register_simple(SND_PMAC_DRIVER, -1, NULL, 0);
 	return 0;

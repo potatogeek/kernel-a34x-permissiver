@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Common functions for in-kernel torture tests.
  *
@@ -18,6 +19,15 @@
  * Copyright (C) IBM Corporation, 2014
  *
  * Author: Paul E. McKenney <paulmck@us.ibm.com>
+=======
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Common functions for in-kernel torture tests.
+ *
+ * Copyright (C) IBM Corporation, 2014
+ *
+ * Author: Paul E. McKenney <paulmck@linux.ibm.com>
+>>>>>>> upstream/android-13
  *	Based on kernel/rcu/torture.c.
  */
 
@@ -53,7 +63,23 @@
 #include "rcu/rcu.h"
 
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_AUTHOR("Paul E. McKenney <paulmck@us.ibm.com>");
+=======
+MODULE_AUTHOR("Paul E. McKenney <paulmck@linux.ibm.com>");
+
+static bool disable_onoff_at_boot;
+module_param(disable_onoff_at_boot, bool, 0444);
+
+static bool ftrace_dump_at_shutdown;
+module_param(ftrace_dump_at_shutdown, bool, 0444);
+
+static int verbose_sleep_frequency;
+module_param(verbose_sleep_frequency, int, 0444);
+
+static int verbose_sleep_duration = 1;
+module_param(verbose_sleep_duration, int, 0444);
+>>>>>>> upstream/android-13
 
 static char *torture_type;
 static int verbose;
@@ -65,6 +91,98 @@ static int verbose;
 static int fullstop = FULLSTOP_RMMOD;
 static DEFINE_MUTEX(fullstop_mutex);
 
+<<<<<<< HEAD
+=======
+static atomic_t verbose_sleep_counter;
+
+/*
+ * Sleep if needed from VERBOSE_TOROUT*().
+ */
+void verbose_torout_sleep(void)
+{
+	if (verbose_sleep_frequency > 0 &&
+	    verbose_sleep_duration > 0 &&
+	    !(atomic_inc_return(&verbose_sleep_counter) % verbose_sleep_frequency))
+		schedule_timeout_uninterruptible(verbose_sleep_duration);
+}
+EXPORT_SYMBOL_GPL(verbose_torout_sleep);
+
+/*
+ * Schedule a high-resolution-timer sleep in nanoseconds, with a 32-bit
+ * nanosecond random fuzz.  This function and its friends desynchronize
+ * testing from the timer wheel.
+ */
+int torture_hrtimeout_ns(ktime_t baset_ns, u32 fuzzt_ns, struct torture_random_state *trsp)
+{
+	ktime_t hto = baset_ns;
+
+	if (trsp)
+		hto += (torture_random(trsp) >> 3) % fuzzt_ns;
+	set_current_state(TASK_UNINTERRUPTIBLE);
+	return schedule_hrtimeout(&hto, HRTIMER_MODE_REL);
+}
+EXPORT_SYMBOL_GPL(torture_hrtimeout_ns);
+
+/*
+ * Schedule a high-resolution-timer sleep in microseconds, with a 32-bit
+ * nanosecond (not microsecond!) random fuzz.
+ */
+int torture_hrtimeout_us(u32 baset_us, u32 fuzzt_ns, struct torture_random_state *trsp)
+{
+	ktime_t baset_ns = baset_us * NSEC_PER_USEC;
+
+	return torture_hrtimeout_ns(baset_ns, fuzzt_ns, trsp);
+}
+EXPORT_SYMBOL_GPL(torture_hrtimeout_us);
+
+/*
+ * Schedule a high-resolution-timer sleep in milliseconds, with a 32-bit
+ * microsecond (not millisecond!) random fuzz.
+ */
+int torture_hrtimeout_ms(u32 baset_ms, u32 fuzzt_us, struct torture_random_state *trsp)
+{
+	ktime_t baset_ns = baset_ms * NSEC_PER_MSEC;
+	u32 fuzzt_ns;
+
+	if ((u32)~0U / NSEC_PER_USEC < fuzzt_us)
+		fuzzt_ns = (u32)~0U;
+	else
+		fuzzt_ns = fuzzt_us * NSEC_PER_USEC;
+	return torture_hrtimeout_ns(baset_ns, fuzzt_ns, trsp);
+}
+EXPORT_SYMBOL_GPL(torture_hrtimeout_ms);
+
+/*
+ * Schedule a high-resolution-timer sleep in jiffies, with an
+ * implied one-jiffy random fuzz.  This is intended to replace calls to
+ * schedule_timeout_interruptible() and friends.
+ */
+int torture_hrtimeout_jiffies(u32 baset_j, struct torture_random_state *trsp)
+{
+	ktime_t baset_ns = jiffies_to_nsecs(baset_j);
+
+	return torture_hrtimeout_ns(baset_ns, jiffies_to_nsecs(1), trsp);
+}
+EXPORT_SYMBOL_GPL(torture_hrtimeout_jiffies);
+
+/*
+ * Schedule a high-resolution-timer sleep in milliseconds, with a 32-bit
+ * millisecond (not second!) random fuzz.
+ */
+int torture_hrtimeout_s(u32 baset_s, u32 fuzzt_ms, struct torture_random_state *trsp)
+{
+	ktime_t baset_ns = baset_s * NSEC_PER_SEC;
+	u32 fuzzt_ns;
+
+	if ((u32)~0U / NSEC_PER_MSEC < fuzzt_ms)
+		fuzzt_ns = (u32)~0U;
+	else
+		fuzzt_ns = fuzzt_ms * NSEC_PER_MSEC;
+	return torture_hrtimeout_ns(baset_ns, fuzzt_ns, trsp);
+}
+EXPORT_SYMBOL_GPL(torture_hrtimeout_s);
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_HOTPLUG_CPU
 
 /*
@@ -75,6 +193,10 @@ static DEFINE_MUTEX(fullstop_mutex);
 static struct task_struct *onoff_task;
 static long onoff_holdoff;
 static long onoff_interval;
+<<<<<<< HEAD
+=======
+static torture_ofl_func *onoff_f;
+>>>>>>> upstream/android-13
 static long n_offline_attempts;
 static long n_offline_successes;
 static unsigned long sum_offline;
@@ -86,6 +208,22 @@ static unsigned long sum_online;
 static int min_online = -1;
 static int max_online;
 
+<<<<<<< HEAD
+=======
+static int torture_online_cpus = NR_CPUS;
+
+/*
+ * Some torture testing leverages confusion as to the number of online
+ * CPUs.  This function returns the torture-testing view of this number,
+ * which allows torture tests to load-balance appropriately.
+ */
+int torture_num_online_cpus(void)
+{
+	return READ_ONCE(torture_online_cpus);
+}
+EXPORT_SYMBOL_GPL(torture_num_online_cpus);
+
+>>>>>>> upstream/android-13
 /*
  * Attempt to take a CPU offline.  Return false if the CPU is already
  * offline or if it is not subject to CPU-hotplug operations.  The
@@ -96,10 +234,19 @@ bool torture_offline(int cpu, long *n_offl_attempts, long *n_offl_successes,
 {
 	unsigned long delta;
 	int ret;
+<<<<<<< HEAD
+=======
+	char *s;
+>>>>>>> upstream/android-13
 	unsigned long starttime;
 
 	if (!cpu_online(cpu) || !cpu_is_hotpluggable(cpu))
 		return false;
+<<<<<<< HEAD
+=======
+	if (num_online_cpus() <= 1)
+		return false;  /* Can't offline the last CPU. */
+>>>>>>> upstream/android-13
 
 	if (verbose > 1)
 		pr_alert("%s" TORTURE_FLAG
@@ -107,17 +254,37 @@ bool torture_offline(int cpu, long *n_offl_attempts, long *n_offl_successes,
 			 torture_type, cpu);
 	starttime = jiffies;
 	(*n_offl_attempts)++;
+<<<<<<< HEAD
 	ret = cpu_down(cpu);
 	if (ret) {
 		if (verbose)
 			pr_alert("%s" TORTURE_FLAG
 				 "torture_onoff task: offline %d failed: errno %d\n",
 				 torture_type, cpu, ret);
+=======
+	ret = remove_cpu(cpu);
+	if (ret) {
+		s = "";
+		if (!rcu_inkernel_boot_has_ended() && ret == -EBUSY) {
+			// PCI probe frequently disables hotplug during boot.
+			(*n_offl_attempts)--;
+			s = " (-EBUSY forgiven during boot)";
+		}
+		if (verbose)
+			pr_alert("%s" TORTURE_FLAG
+				 "torture_onoff task: offline %d failed%s: errno %d\n",
+				 torture_type, cpu, s, ret);
+>>>>>>> upstream/android-13
 	} else {
 		if (verbose > 1)
 			pr_alert("%s" TORTURE_FLAG
 				 "torture_onoff task: offlined %d\n",
 				 torture_type, cpu);
+<<<<<<< HEAD
+=======
+		if (onoff_f)
+			onoff_f();
+>>>>>>> upstream/android-13
 		(*n_offl_successes)++;
 		delta = jiffies - starttime;
 		*sum_offl += delta;
@@ -129,6 +296,11 @@ bool torture_offline(int cpu, long *n_offl_attempts, long *n_offl_successes,
 			*min_offl = delta;
 		if (*max_offl < delta)
 			*max_offl = delta;
+<<<<<<< HEAD
+=======
+		WRITE_ONCE(torture_online_cpus, torture_online_cpus - 1);
+		WARN_ON_ONCE(torture_online_cpus <= 0);
+>>>>>>> upstream/android-13
 	}
 
 	return true;
@@ -145,6 +317,10 @@ bool torture_online(int cpu, long *n_onl_attempts, long *n_onl_successes,
 {
 	unsigned long delta;
 	int ret;
+<<<<<<< HEAD
+=======
+	char *s;
+>>>>>>> upstream/android-13
 	unsigned long starttime;
 
 	if (cpu_online(cpu) || !cpu_is_hotpluggable(cpu))
@@ -156,12 +332,27 @@ bool torture_online(int cpu, long *n_onl_attempts, long *n_onl_successes,
 			 torture_type, cpu);
 	starttime = jiffies;
 	(*n_onl_attempts)++;
+<<<<<<< HEAD
 	ret = cpu_up(cpu);
 	if (ret) {
 		if (verbose)
 			pr_alert("%s" TORTURE_FLAG
 				 "torture_onoff task: online %d failed: errno %d\n",
 				 torture_type, cpu, ret);
+=======
+	ret = add_cpu(cpu);
+	if (ret) {
+		s = "";
+		if (!rcu_inkernel_boot_has_ended() && ret == -EBUSY) {
+			// PCI probe frequently disables hotplug during boot.
+			(*n_onl_attempts)--;
+			s = " (-EBUSY forgiven during boot)";
+		}
+		if (verbose)
+			pr_alert("%s" TORTURE_FLAG
+				 "torture_onoff task: online %d failed%s: errno %d\n",
+				 torture_type, cpu, s, ret);
+>>>>>>> upstream/android-13
 	} else {
 		if (verbose > 1)
 			pr_alert("%s" TORTURE_FLAG
@@ -178,6 +369,10 @@ bool torture_online(int cpu, long *n_onl_attempts, long *n_onl_successes,
 			*min_onl = delta;
 		if (*max_onl < delta)
 			*max_onl = delta;
+<<<<<<< HEAD
+=======
+		WRITE_ONCE(torture_online_cpus, torture_online_cpus + 1);
+>>>>>>> upstream/android-13
 	}
 
 	return true;
@@ -185,6 +380,29 @@ bool torture_online(int cpu, long *n_onl_attempts, long *n_onl_successes,
 EXPORT_SYMBOL_GPL(torture_online);
 
 /*
+<<<<<<< HEAD
+=======
+ * Get everything online at the beginning and ends of tests.
+ */
+static void torture_online_all(char *phase)
+{
+	int cpu;
+	int ret;
+
+	for_each_possible_cpu(cpu) {
+		if (cpu_online(cpu))
+			continue;
+		ret = add_cpu(cpu);
+		if (ret && verbose) {
+			pr_alert("%s" TORTURE_FLAG
+				 "%s: %s online %d: errno %d\n",
+				 __func__, phase, torture_type, cpu, ret);
+		}
+	}
+}
+
+/*
+>>>>>>> upstream/android-13
  * Execute random CPU-hotplug operations at the interval specified
  * by the onoff_interval.
  */
@@ -199,7 +417,11 @@ torture_onoff(void *arg)
 	for_each_online_cpu(cpu)
 		maxcpu = cpu;
 	WARN_ON(maxcpu < 0);
+<<<<<<< HEAD
 
+=======
+	torture_online_all("Initial");
+>>>>>>> upstream/android-13
 	if (maxcpu == 0) {
 		VERBOSE_TOROUT_STRING("Only one CPU, so CPU-hotplug testing is disabled");
 		goto stop;
@@ -211,6 +433,13 @@ torture_onoff(void *arg)
 		VERBOSE_TOROUT_STRING("torture_onoff end holdoff");
 	}
 	while (!torture_must_stop()) {
+<<<<<<< HEAD
+=======
+		if (disable_onoff_at_boot && !rcu_inkernel_boot_has_ended()) {
+			schedule_timeout_interruptible(HZ / 10);
+			continue;
+		}
+>>>>>>> upstream/android-13
 		cpu = (torture_random(&rand) >> 4) % (maxcpu + 1);
 		if (!torture_offline(cpu,
 				     &n_offline_attempts, &n_offline_successes,
@@ -223,6 +452,10 @@ torture_onoff(void *arg)
 
 stop:
 	torture_kthread_stopping("torture_onoff");
+<<<<<<< HEAD
+=======
+	torture_online_all("Final");
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -231,6 +464,7 @@ stop:
 /*
  * Initiate online-offline handling.
  */
+<<<<<<< HEAD
 int torture_onoff_init(long ooholdoff, long oointerval)
 {
 	int ret = 0;
@@ -243,6 +477,20 @@ int torture_onoff_init(long ooholdoff, long oointerval)
 	ret = torture_create_kthread(torture_onoff, NULL, onoff_task);
 #endif /* #ifdef CONFIG_HOTPLUG_CPU */
 	return ret;
+=======
+int torture_onoff_init(long ooholdoff, long oointerval, torture_ofl_func *f)
+{
+#ifdef CONFIG_HOTPLUG_CPU
+	onoff_holdoff = ooholdoff;
+	onoff_interval = oointerval;
+	onoff_f = f;
+	if (onoff_interval <= 0)
+		return 0;
+	return torture_create_kthread(torture_onoff, NULL, onoff_task);
+#else /* #ifdef CONFIG_HOTPLUG_CPU */
+	return 0;
+#endif /* #else #ifdef CONFIG_HOTPLUG_CPU */
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(torture_onoff_init);
 
@@ -259,7 +507,10 @@ static void torture_onoff_cleanup(void)
 	onoff_task = NULL;
 #endif /* #ifdef CONFIG_HOTPLUG_CPU */
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(torture_onoff_cleanup);
+=======
+>>>>>>> upstream/android-13
 
 /*
  * Print online/offline testing statistics.
@@ -374,11 +625,19 @@ static void torture_shuffle_tasks(void)
 	struct shuffle_task *stp;
 
 	cpumask_setall(shuffle_tmp_mask);
+<<<<<<< HEAD
 	get_online_cpus();
 
 	/* No point in shuffling if there is only one online CPU (ex: UP) */
 	if (num_online_cpus() == 1) {
 		put_online_cpus();
+=======
+	cpus_read_lock();
+
+	/* No point in shuffling if there is only one online CPU (ex: UP) */
+	if (num_online_cpus() == 1) {
+		cpus_read_unlock();
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -394,7 +653,11 @@ static void torture_shuffle_tasks(void)
 		set_cpus_allowed_ptr(stp->st_t, shuffle_tmp_mask);
 	mutex_unlock(&shuffle_task_mutex);
 
+<<<<<<< HEAD
 	put_online_cpus();
+=======
+	cpus_read_unlock();
+>>>>>>> upstream/android-13
 }
 
 /* Shuffle tasks across CPUs, with the intent of allowing each CPU in the
@@ -445,7 +708,10 @@ static void torture_shuffle_cleanup(void)
 	}
 	shuffler_task = NULL;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(torture_shuffle_cleanup);
+=======
+>>>>>>> upstream/android-13
 
 /*
  * Variables for auto-shutdown.  This allows "lights out" torture runs
@@ -503,7 +769,12 @@ static int torture_shutdown(void *arg)
 		torture_shutdown_hook();
 	else
 		VERBOSE_TOROUT_STRING("No torture_shutdown_hook(), skipping.");
+<<<<<<< HEAD
 	rcu_ftrace_dump(DUMP_ALL);
+=======
+	if (ftrace_dump_at_shutdown)
+		rcu_ftrace_dump(DUMP_ALL);
+>>>>>>> upstream/android-13
 	kernel_power_off();	/* Shut down the system. */
 	return 0;
 }
@@ -513,6 +784,7 @@ static int torture_shutdown(void *arg)
  */
 int torture_shutdown_init(int ssecs, void (*cleanup)(void))
 {
+<<<<<<< HEAD
 	int ret = 0;
 
 	torture_shutdown_hook = cleanup;
@@ -522,6 +794,15 @@ int torture_shutdown_init(int ssecs, void (*cleanup)(void))
 					     shutdown_task);
 	}
 	return ret;
+=======
+	torture_shutdown_hook = cleanup;
+	if (ssecs > 0) {
+		shutdown_time = ktime_add(ktime_get(), ktime_set(ssecs, 0));
+		return torture_create_kthread(torture_shutdown, NULL,
+					     shutdown_task);
+	}
+	return 0;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(torture_shutdown_init);
 
@@ -568,28 +849,58 @@ static void torture_shutdown_cleanup(void)
 static struct task_struct *stutter_task;
 static int stutter_pause_test;
 static int stutter;
+<<<<<<< HEAD
+=======
+static int stutter_gap;
+>>>>>>> upstream/android-13
 
 /*
  * Block until the stutter interval ends.  This must be called periodically
  * by all running kthreads that need to be subject to stuttering.
  */
+<<<<<<< HEAD
 void stutter_wait(const char *title)
 {
+=======
+bool stutter_wait(const char *title)
+{
+	unsigned int i = 0;
+	bool ret = false;
+>>>>>>> upstream/android-13
 	int spt;
 
 	cond_resched_tasks_rcu_qs();
 	spt = READ_ONCE(stutter_pause_test);
 	for (; spt; spt = READ_ONCE(stutter_pause_test)) {
+<<<<<<< HEAD
 		if (spt == 1) {
 			schedule_timeout_interruptible(1);
 		} else if (spt == 2) {
 			while (READ_ONCE(stutter_pause_test))
 				cond_resched();
+=======
+		if (!ret) {
+			sched_set_normal(current, MAX_NICE);
+			ret = true;
+		}
+		if (spt == 1) {
+			schedule_timeout_interruptible(1);
+		} else if (spt == 2) {
+			while (READ_ONCE(stutter_pause_test)) {
+				if (!(i++ & 0xffff))
+					torture_hrtimeout_us(10, 0, NULL);
+				cond_resched();
+			}
+>>>>>>> upstream/android-13
 		} else {
 			schedule_timeout_interruptible(round_jiffies_relative(HZ));
 		}
 		torture_shutdown_absorb(title);
 	}
+<<<<<<< HEAD
+=======
+	return ret;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(stutter_wait);
 
@@ -599,6 +910,7 @@ EXPORT_SYMBOL_GPL(stutter_wait);
  */
 static int torture_stutter(void *arg)
 {
+<<<<<<< HEAD
 	VERBOSE_TOROUT_STRING("torture_stutter task started");
 	do {
 		if (!torture_must_stop() && stutter > 1) {
@@ -610,6 +922,27 @@ static int torture_stutter(void *arg)
 		WRITE_ONCE(stutter_pause_test, 0);
 		if (!torture_must_stop())
 			schedule_timeout_interruptible(stutter);
+=======
+	DEFINE_TORTURE_RANDOM(rand);
+	int wtime;
+
+	VERBOSE_TOROUT_STRING("torture_stutter task started");
+	do {
+		if (!torture_must_stop() && stutter > 1) {
+			wtime = stutter;
+			if (stutter > 2) {
+				WRITE_ONCE(stutter_pause_test, 1);
+				wtime = stutter - 3;
+				torture_hrtimeout_jiffies(wtime, &rand);
+				wtime = 2;
+			}
+			WRITE_ONCE(stutter_pause_test, 2);
+			torture_hrtimeout_jiffies(wtime, NULL);
+		}
+		WRITE_ONCE(stutter_pause_test, 0);
+		if (!torture_must_stop())
+			torture_hrtimeout_jiffies(stutter_gap, NULL);
+>>>>>>> upstream/android-13
 		torture_shutdown_absorb("torture_stutter");
 	} while (!torture_must_stop());
 	torture_kthread_stopping("torture_stutter");
@@ -619,6 +952,7 @@ static int torture_stutter(void *arg)
 /*
  * Initialize and kick off the torture_stutter kthread.
  */
+<<<<<<< HEAD
 int torture_stutter_init(int s)
 {
 	int ret;
@@ -626,6 +960,13 @@ int torture_stutter_init(int s)
 	stutter = s;
 	ret = torture_create_kthread(torture_stutter, NULL, stutter_task);
 	return ret;
+=======
+int torture_stutter_init(const int s, const int sgap)
+{
+	stutter = s;
+	stutter_gap = sgap;
+	return torture_create_kthread(torture_stutter, NULL, stutter_task);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(torture_stutter_init);
 
@@ -654,9 +995,15 @@ bool torture_init_begin(char *ttype, int v)
 {
 	mutex_lock(&fullstop_mutex);
 	if (torture_type != NULL) {
+<<<<<<< HEAD
 		pr_alert("torture_init_begin: Refusing %s init: %s running.\n",
 			 ttype, torture_type);
 		pr_alert("torture_init_begin: One torture test at a time!\n");
+=======
+		pr_alert("%s: Refusing %s init: %s running.\n",
+			  __func__, ttype, torture_type);
+		pr_alert("%s: One torture test at a time!\n", __func__);
+>>>>>>> upstream/android-13
 		mutex_unlock(&fullstop_mutex);
 		return false;
 	}

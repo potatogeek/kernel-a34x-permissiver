@@ -3,7 +3,10 @@
 #define __UM_FIXMAP_H
 
 #include <asm/processor.h>
+<<<<<<< HEAD
 #include <asm/kmap_types.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/archparam.h>
 #include <asm/page.h>
 #include <linux/threads.h>

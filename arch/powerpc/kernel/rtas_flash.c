@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  c 2001 PPC 64 Team, IBM Corp
  *
@@ -6,6 +7,12 @@
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  c 2001 PPC 64 Team, IBM Corp
+ *
+>>>>>>> upstream/android-13
  * /proc/powerpc/rtas/firmware_flash interface
  *
  * This file implements a firmware_flash interface to pump a firmware
@@ -523,7 +530,11 @@ static ssize_t validate_flash_write(struct file *file, const char __user *buf,
 		args_buf->status = VALIDATE_INCOMPLETE;
 	}
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_READ, buf, count)) {
+=======
+	if (!access_ok(buf, count)) {
+>>>>>>> upstream/android-13
 		rc = -EFAULT;
 		goto done;
 	}
@@ -659,7 +670,11 @@ struct rtas_flash_file {
 	const char *filename;
 	const char *rtas_call_name;
 	int *status;
+<<<<<<< HEAD
 	const struct file_operations fops;
+=======
+	const struct proc_ops ops;
+>>>>>>> upstream/android-13
 };
 
 static const struct rtas_flash_file rtas_flash_files[] = {
@@ -667,36 +682,63 @@ static const struct rtas_flash_file rtas_flash_files[] = {
 		.filename	= "powerpc/rtas/" FIRMWARE_FLASH_NAME,
 		.rtas_call_name	= "ibm,update-flash-64-and-reboot",
 		.status		= &rtas_update_flash_data.status,
+<<<<<<< HEAD
 		.fops.read	= rtas_flash_read_msg,
 		.fops.write	= rtas_flash_write,
 		.fops.release	= rtas_flash_release,
 		.fops.llseek	= default_llseek,
+=======
+		.ops.proc_read	= rtas_flash_read_msg,
+		.ops.proc_write	= rtas_flash_write,
+		.ops.proc_release = rtas_flash_release,
+		.ops.proc_lseek	= default_llseek,
+>>>>>>> upstream/android-13
 	},
 	{
 		.filename	= "powerpc/rtas/" FIRMWARE_UPDATE_NAME,
 		.rtas_call_name	= "ibm,update-flash-64-and-reboot",
 		.status		= &rtas_update_flash_data.status,
+<<<<<<< HEAD
 		.fops.read	= rtas_flash_read_num,
 		.fops.write	= rtas_flash_write,
 		.fops.release	= rtas_flash_release,
 		.fops.llseek	= default_llseek,
+=======
+		.ops.proc_read	= rtas_flash_read_num,
+		.ops.proc_write	= rtas_flash_write,
+		.ops.proc_release = rtas_flash_release,
+		.ops.proc_lseek	= default_llseek,
+>>>>>>> upstream/android-13
 	},
 	{
 		.filename	= "powerpc/rtas/" VALIDATE_FLASH_NAME,
 		.rtas_call_name	= "ibm,validate-flash-image",
 		.status		= &rtas_validate_flash_data.status,
+<<<<<<< HEAD
 		.fops.read	= validate_flash_read,
 		.fops.write	= validate_flash_write,
 		.fops.release	= validate_flash_release,
 		.fops.llseek	= default_llseek,
+=======
+		.ops.proc_read	= validate_flash_read,
+		.ops.proc_write	= validate_flash_write,
+		.ops.proc_release = validate_flash_release,
+		.ops.proc_lseek	= default_llseek,
+>>>>>>> upstream/android-13
 	},
 	{
 		.filename	= "powerpc/rtas/" MANAGE_FLASH_NAME,
 		.rtas_call_name	= "ibm,manage-flash-image",
 		.status		= &rtas_manage_flash_data.status,
+<<<<<<< HEAD
 		.fops.read	= manage_flash_read,
 		.fops.write	= manage_flash_write,
 		.fops.llseek	= default_llseek,
+=======
+		.ops.proc_read	= manage_flash_read,
+		.ops.proc_write	= manage_flash_write,
+		.ops.proc_lseek	= default_llseek,
+>>>>>>> upstream/android-13
 	}
 };
 
@@ -727,7 +769,11 @@ static int __init rtas_flash_init(void)
 		const struct rtas_flash_file *f = &rtas_flash_files[i];
 		int token;
 
+<<<<<<< HEAD
 		if (!proc_create(f->filename, 0600, NULL, &f->fops))
+=======
+		if (!proc_create(f->filename, 0600, NULL, &f->ops))
+>>>>>>> upstream/android-13
 			goto enomem;
 
 		/*

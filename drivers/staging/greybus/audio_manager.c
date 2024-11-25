@@ -45,6 +45,12 @@ int gb_audio_manager_add(struct gb_audio_manager_module_descriptor *desc)
 	int err;
 
 	id = ida_simple_get(&module_id, 0, 0, GFP_KERNEL);
+<<<<<<< HEAD
+=======
+	if (id < 0)
+		return id;
+
+>>>>>>> upstream/android-13
 	err = gb_audio_manager_module_create(&module, manager_kset,
 					     id, desc);
 	if (err) {
@@ -83,7 +89,11 @@ EXPORT_SYMBOL_GPL(gb_audio_manager_remove);
 void gb_audio_manager_remove_all(void)
 {
 	struct gb_audio_manager_module *module, *next;
+<<<<<<< HEAD
 	int is_empty = 1;
+=======
+	int is_empty;
+>>>>>>> upstream/android-13
 
 	down_write(&modules_rwsem);
 

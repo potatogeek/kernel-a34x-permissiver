@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * NFC Digital Protocol stack
  * Copyright (c) 2013, Intel Corporation.
@@ -11,6 +12,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * NFC Digital Protocol stack
+ * Copyright (c) 2013, Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "digital: %s: " fmt, __func__
@@ -286,6 +293,10 @@ int digital_tg_configure_hw(struct nfc_digital_dev *ddev, int type, int param)
 static int digital_tg_listen_mdaa(struct nfc_digital_dev *ddev, u8 rf_tech)
 {
 	struct digital_tg_mdaa_params *params;
+<<<<<<< HEAD
+=======
+	int rc;
+>>>>>>> upstream/android-13
 
 	params = kzalloc(sizeof(*params), GFP_KERNEL);
 	if (!params)
@@ -300,8 +311,17 @@ static int digital_tg_listen_mdaa(struct nfc_digital_dev *ddev, u8 rf_tech)
 	get_random_bytes(params->nfcid2 + 2, NFC_NFCID2_MAXSIZE - 2);
 	params->sc = DIGITAL_SENSF_FELICA_SC;
 
+<<<<<<< HEAD
 	return digital_send_cmd(ddev, DIGITAL_CMD_TG_LISTEN_MDAA, NULL, params,
 				500, digital_tg_recv_atr_req, NULL);
+=======
+	rc = digital_send_cmd(ddev, DIGITAL_CMD_TG_LISTEN_MDAA, NULL, params,
+			      500, digital_tg_recv_atr_req, NULL);
+	if (rc)
+		kfree(params);
+
+	return rc;
+>>>>>>> upstream/android-13
 }
 
 static int digital_tg_listen_md(struct nfc_digital_dev *ddev, u8 rf_tech)
@@ -466,7 +486,14 @@ static void digital_add_poll_tech(struct nfc_digital_dev *ddev, u8 rf_tech,
 }
 
 /**
+<<<<<<< HEAD
  * start_poll operation
+=======
+ * digital_start_poll - start_poll operation
+ * @nfc_dev: device to be polled
+ * @im_protocols: bitset of nfc initiator protocols to be used for polling
+ * @tm_protocols: bitset of nfc transport protocols to be used for polling
+>>>>>>> upstream/android-13
  *
  * For every supported protocol, the corresponding polling function is added
  * to the table of polling technologies (ddev->poll_techs[]) using
@@ -738,7 +765,11 @@ exit:
 	return rc;
 }
 
+<<<<<<< HEAD
 static struct nfc_ops digital_nfc_ops = {
+=======
+static const struct nfc_ops digital_nfc_ops = {
+>>>>>>> upstream/android-13
 	.dev_up = digital_dev_up,
 	.dev_down = digital_dev_down,
 	.start_poll = digital_start_poll,
@@ -751,7 +782,11 @@ static struct nfc_ops digital_nfc_ops = {
 	.im_transceive = digital_in_send,
 };
 
+<<<<<<< HEAD
 struct nfc_digital_dev *nfc_digital_allocate_device(struct nfc_digital_ops *ops,
+=======
+struct nfc_digital_dev *nfc_digital_allocate_device(const struct nfc_digital_ops *ops,
+>>>>>>> upstream/android-13
 					    __u32 supported_protocols,
 					    __u32 driver_capabilities,
 					    int tx_headroom, int tx_tailroom)

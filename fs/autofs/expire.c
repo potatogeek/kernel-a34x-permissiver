@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright 1997-1998 Transmeta Corporation -- All Rights Reserved
  * Copyright 1999-2000 Jeremy Fitzhardinge <jeremy@goop.org>
  * Copyright 2001-2006 Ian Kent <raven@themaw.net>
+<<<<<<< HEAD
  *
  * This file is part of the Linux kernel and is made available under
  * the terms of the GNU General Public License, version 2, or at your
  * option, any later version, incorporated herein by reference.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "autofs_i.h"
@@ -73,6 +80,30 @@ done:
 	return status;
 }
 
+<<<<<<< HEAD
+=======
+/* p->d_lock held */
+static struct dentry *positive_after(struct dentry *p, struct dentry *child)
+{
+	if (child)
+		child = list_next_entry(child, d_child);
+	else
+		child = list_first_entry(&p->d_subdirs, struct dentry, d_child);
+
+	list_for_each_entry_from(child, &p->d_subdirs, d_child) {
+		spin_lock_nested(&child->d_lock, DENTRY_D_LOCK_NESTED);
+		if (simple_positive(child)) {
+			dget_dlock(child);
+			spin_unlock(&child->d_lock);
+			return child;
+		}
+		spin_unlock(&child->d_lock);
+	}
+
+	return NULL;
+}
+
+>>>>>>> upstream/android-13
 /*
  * Calculate and dget next entry in the subdirs list under root.
  */
@@ -80,11 +111,15 @@ static struct dentry *get_next_positive_subdir(struct dentry *prev,
 					       struct dentry *root)
 {
 	struct autofs_sb_info *sbi = autofs_sbi(root->d_sb);
+<<<<<<< HEAD
 	struct list_head *next;
+=======
+>>>>>>> upstream/android-13
 	struct dentry *q;
 
 	spin_lock(&sbi->lookup_lock);
 	spin_lock(&root->d_lock);
+<<<<<<< HEAD
 
 	if (prev)
 		next = prev->d_child.next;
@@ -117,6 +152,12 @@ cont:
 
 	dput(prev);
 
+=======
+	q = positive_after(root, prev);
+	spin_unlock(&root->d_lock);
+	spin_unlock(&sbi->lookup_lock);
+	dput(prev);
+>>>>>>> upstream/android-13
 	return q;
 }
 
@@ -127,13 +168,18 @@ static struct dentry *get_next_positive_dentry(struct dentry *prev,
 					       struct dentry *root)
 {
 	struct autofs_sb_info *sbi = autofs_sbi(root->d_sb);
+<<<<<<< HEAD
 	struct list_head *next;
 	struct dentry *p, *ret;
+=======
+	struct dentry *p = prev, *ret = NULL, *d = NULL;
+>>>>>>> upstream/android-13
 
 	if (prev == NULL)
 		return dget(root);
 
 	spin_lock(&sbi->lookup_lock);
+<<<<<<< HEAD
 relock:
 	p = prev;
 	spin_lock(&p->d_lock);
@@ -180,6 +226,24 @@ again:
 
 	dput(prev);
 
+=======
+	spin_lock(&p->d_lock);
+	while (1) {
+		struct dentry *parent;
+
+		ret = positive_after(p, d);
+		if (ret || p == root)
+			break;
+		parent = p->d_parent;
+		spin_unlock(&p->d_lock);
+		spin_lock(&parent->d_lock);
+		d = p;
+		p = parent;
+	}
+	spin_unlock(&p->d_lock);
+	spin_unlock(&sbi->lookup_lock);
+	dput(prev);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -253,7 +317,11 @@ static int autofs_tree_busy(struct vfsmount *mnt,
 			}
 		} else {
 			struct autofs_info *ino = autofs_dentry_ino(p);
+<<<<<<< HEAD
 			unsigned int ino_count = atomic_read(&ino->count);
+=======
+			unsigned int ino_count = READ_ONCE(ino->count);
+>>>>>>> upstream/android-13
 
 			/* allow for dget above and top is already dgot */
 			if (p == top)
@@ -397,7 +465,11 @@ static struct dentry *should_expire(struct dentry *dentry,
 		return NULL;
 	}
 
+<<<<<<< HEAD
 	if (d_really_is_positive(dentry) && d_is_symlink(dentry)) {
+=======
+	if (d_is_symlink(dentry)) {
+>>>>>>> upstream/android-13
 		pr_debug("checking symlink %p %pd\n", dentry, dentry);
 
 		/* Forced expire, user space handles busy mounts */
@@ -421,7 +493,11 @@ static struct dentry *should_expire(struct dentry *dentry,
 		/* Not a forced expire? */
 		if (!(how & AUTOFS_EXP_FORCED)) {
 			/* ref-walk currently on this dentry? */
+<<<<<<< HEAD
 			ino_count = atomic_read(&ino->count) + 1;
+=======
+			ino_count = READ_ONCE(ino->count) + 1;
+>>>>>>> upstream/android-13
 			if (d_count(dentry) > ino_count)
 				return NULL;
 		}
@@ -438,7 +514,11 @@ static struct dentry *should_expire(struct dentry *dentry,
 		/* Not a forced expire? */
 		if (!(how & AUTOFS_EXP_FORCED)) {
 			/* ref-walk currently on this dentry? */
+<<<<<<< HEAD
 			ino_count = atomic_read(&ino->count) + 1;
+=======
+			ino_count = READ_ONCE(ino->count) + 1;
+>>>>>>> upstream/android-13
 			if (d_count(dentry) > ino_count)
 				return NULL;
 		}

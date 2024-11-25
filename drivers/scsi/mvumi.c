@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Marvell UMI driver
  *
  * Copyright 2011 Marvell. <jyli@marvell.com>
+<<<<<<< HEAD
  *
  * This file is licensed under GPLv2.
  *
@@ -19,6 +24,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA
+=======
+>>>>>>> upstream/android-13
 */
 
 #include <linux/kernel.h>
@@ -82,9 +89,15 @@ static void tag_release_one(struct mvumi_hba *mhba, struct mvumi_tag *st,
 static bool tag_is_empty(struct mvumi_tag *st)
 {
 	if (st->top == 0)
+<<<<<<< HEAD
 		return 1;
 	else
 		return 0;
+=======
+		return true;
+	else
+		return false;
+>>>>>>> upstream/android-13
 }
 
 static void mvumi_unmap_pci_addr(struct pci_dev *dev, void **addr_array)
@@ -143,8 +156,14 @@ static struct mvumi_res *mvumi_alloc_mem_resource(struct mvumi_hba *mhba,
 
 	case RESOURCE_UNCACHED_MEMORY:
 		size = round_up(size, 8);
+<<<<<<< HEAD
 		res->virt_addr = pci_zalloc_consistent(mhba->pdev, size,
 						       &res->bus_addr);
+=======
+		res->virt_addr = dma_alloc_coherent(&mhba->pdev->dev, size,
+						    &res->bus_addr,
+						    GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (!res->virt_addr) {
 			dev_err(&mhba->pdev->dev,
 					"unable to allocate consistent mem,"
@@ -175,7 +194,11 @@ static void mvumi_release_mem_resource(struct mvumi_hba *mhba)
 	list_for_each_entry_safe(res, tmp, &mhba->res_list, entry) {
 		switch (res->type) {
 		case RESOURCE_UNCACHED_MEMORY:
+<<<<<<< HEAD
 			pci_free_consistent(mhba->pdev, res->size,
+=======
+			dma_free_coherent(&mhba->pdev->dev, res->size,
+>>>>>>> upstream/android-13
 						res->virt_addr, res->bus_addr);
 			break;
 		case RESOURCE_CACHED_MEMORY:
@@ -197,7 +220,11 @@ static void mvumi_release_mem_resource(struct mvumi_hba *mhba)
  * @mhba:		Adapter soft state
  * @scmd:		SCSI command from the mid-layer
  * @sgl_p:		SGL to be filled in
+<<<<<<< HEAD
  * @sg_count		return the number of SG elements
+=======
+ * @sg_count:		return the number of SG elements
+>>>>>>> upstream/android-13
  *
  * If successful, this function returns 0. otherwise, it returns -1.
  */
@@ -210,13 +237,19 @@ static int mvumi_make_sgl(struct mvumi_hba *mhba, struct scsi_cmnd *scmd,
 	unsigned int sgnum = scsi_sg_count(scmd);
 	dma_addr_t busaddr;
 
+<<<<<<< HEAD
 	sg = scsi_sglist(scmd);
 	*sg_count = pci_map_sg(mhba->pdev, sg, sgnum,
 			       (int) scmd->sc_data_direction);
+=======
+	*sg_count = dma_map_sg(&mhba->pdev->dev, scsi_sglist(scmd), sgnum,
+			       scmd->sc_data_direction);
+>>>>>>> upstream/android-13
 	if (*sg_count > mhba->max_sge) {
 		dev_err(&mhba->pdev->dev,
 			"sg count[0x%x] is bigger than max sg[0x%x].\n",
 			*sg_count, mhba->max_sge);
+<<<<<<< HEAD
 		pci_unmap_sg(mhba->pdev, sg, sgnum,
 			     (int) scmd->sc_data_direction);
 		return -1;
@@ -227,6 +260,18 @@ static int mvumi_make_sgl(struct mvumi_hba *mhba, struct scsi_cmnd *scmd,
 		m_sg->baseaddr_h = cpu_to_le32(upper_32_bits(busaddr));
 		m_sg->flags = 0;
 		sgd_setsz(mhba, m_sg, cpu_to_le32(sg_dma_len(&sg[i])));
+=======
+		dma_unmap_sg(&mhba->pdev->dev, scsi_sglist(scmd), sgnum,
+			     scmd->sc_data_direction);
+		return -1;
+	}
+	scsi_for_each_sg(scmd, sg, *sg_count, i) {
+		busaddr = sg_dma_address(sg);
+		m_sg->baseaddr_l = cpu_to_le32(lower_32_bits(busaddr));
+		m_sg->baseaddr_h = cpu_to_le32(upper_32_bits(busaddr));
+		m_sg->flags = 0;
+		sgd_setsz(mhba, m_sg, cpu_to_le32(sg_dma_len(sg)));
+>>>>>>> upstream/android-13
 		if ((i + 1) == *sg_count)
 			m_sg->flags |= 1U << mhba->eot_flag;
 
@@ -246,7 +291,12 @@ static int mvumi_internal_cmd_sgl(struct mvumi_hba *mhba, struct mvumi_cmd *cmd,
 	if (size == 0)
 		return 0;
 
+<<<<<<< HEAD
 	virt_addr = pci_zalloc_consistent(mhba->pdev, size, &phy_addr);
+=======
+	virt_addr = dma_alloc_coherent(&mhba->pdev->dev, size, &phy_addr,
+				       GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!virt_addr)
 		return -1;
 
@@ -274,8 +324,13 @@ static struct mvumi_cmd *mvumi_create_internal_cmd(struct mvumi_hba *mhba,
 	}
 	INIT_LIST_HEAD(&cmd->queue_pointer);
 
+<<<<<<< HEAD
 	cmd->frame = pci_alloc_consistent(mhba->pdev,
 				mhba->ib_max_size, &cmd->frame_phys);
+=======
+	cmd->frame = dma_alloc_coherent(&mhba->pdev->dev, mhba->ib_max_size,
+			&cmd->frame_phys, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!cmd->frame) {
 		dev_err(&mhba->pdev->dev, "failed to allocate memory for FW"
 			" frame,size = %d.\n", mhba->ib_max_size);
@@ -287,7 +342,11 @@ static struct mvumi_cmd *mvumi_create_internal_cmd(struct mvumi_hba *mhba,
 		if (mvumi_internal_cmd_sgl(mhba, cmd, buf_size)) {
 			dev_err(&mhba->pdev->dev, "failed to allocate memory"
 						" for internal frame\n");
+<<<<<<< HEAD
 			pci_free_consistent(mhba->pdev, mhba->ib_max_size,
+=======
+			dma_free_coherent(&mhba->pdev->dev, mhba->ib_max_size,
+>>>>>>> upstream/android-13
 					cmd->frame, cmd->frame_phys);
 			kfree(cmd);
 			return NULL;
@@ -313,10 +372,17 @@ static void mvumi_delete_internal_cmd(struct mvumi_hba *mhba,
 			phy_addr = (dma_addr_t) m_sg->baseaddr_l |
 				(dma_addr_t) ((m_sg->baseaddr_h << 16) << 16);
 
+<<<<<<< HEAD
 			pci_free_consistent(mhba->pdev, size, cmd->data_buf,
 								phy_addr);
 		}
 		pci_free_consistent(mhba->pdev, mhba->ib_max_size,
+=======
+			dma_free_coherent(&mhba->pdev->dev, size, cmd->data_buf,
+								phy_addr);
+		}
+		dma_free_coherent(&mhba->pdev->dev, mhba->ib_max_size,
+>>>>>>> upstream/android-13
 				cmd->frame, cmd->frame_phys);
 		kfree(cmd);
 	}
@@ -663,6 +729,7 @@ static void mvumi_restore_bar_addr(struct mvumi_hba *mhba)
 	}
 }
 
+<<<<<<< HEAD
 static unsigned int mvumi_pci_set_master(struct pci_dev *pdev)
 {
 	unsigned int ret = 0;
@@ -673,6 +740,19 @@ static unsigned int mvumi_pci_set_master(struct pci_dev *pdev)
 			ret = pci_set_dma_mask(pdev, DMA_BIT_MASK(32));
 	} else
 		ret = pci_set_dma_mask(pdev, DMA_BIT_MASK(32));
+=======
+static int mvumi_pci_set_master(struct pci_dev *pdev)
+{
+	int ret = 0;
+
+	pci_set_master(pdev);
+
+	if (IS_DMA64) {
+		if (dma_set_mask(&pdev->dev, DMA_BIT_MASK(64)))
+			ret = dma_set_mask(&pdev->dev, DMA_BIT_MASK(32));
+	} else
+		ret = dma_set_mask(&pdev->dev, DMA_BIT_MASK(32));
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -715,8 +795,13 @@ static int mvumi_host_reset(struct scsi_cmnd *scmd)
 
 	mhba = (struct mvumi_hba *) scmd->device->host->hostdata;
 
+<<<<<<< HEAD
 	scmd_printk(KERN_NOTICE, scmd, "RESET -%ld cmd=%x retries=%x\n",
 			scmd->serial_number, scmd->cmnd[0], scmd->retries);
+=======
+	scmd_printk(KERN_NOTICE, scmd, "RESET -%u cmd=%x retries=%x\n",
+			scsi_cmd_to_rq(scmd)->tag, scmd->cmnd[0], scmd->retries);
+>>>>>>> upstream/android-13
 
 	return mhba->instancet->reset_host(mhba);
 }
@@ -749,7 +834,11 @@ static int mvumi_issue_blocked_cmd(struct mvumi_hba *mhba,
 		spin_lock_irqsave(mhba->shost->host_lock, flags);
 		atomic_dec(&cmd->sync_cmd);
 		if (mhba->tag_cmd[cmd->frame->tag]) {
+<<<<<<< HEAD
 			mhba->tag_cmd[cmd->frame->tag] = 0;
+=======
+			mhba->tag_cmd[cmd->frame->tag] = NULL;
+>>>>>>> upstream/android-13
 			dev_warn(&mhba->pdev->dev, "TIMEOUT:release tag [%d]\n",
 							cmd->frame->tag);
 			tag_release_one(mhba, &mhba->tag_pool, cmd->frame->tag);
@@ -771,7 +860,11 @@ static void mvumi_release_fw(struct mvumi_hba *mhba)
 	mvumi_free_cmds(mhba);
 	mvumi_release_mem_resource(mhba);
 	mvumi_unmap_pci_addr(mhba->pdev, mhba->base_addr);
+<<<<<<< HEAD
 	pci_free_consistent(mhba->pdev, HSP_MAX_SIZE,
+=======
+	dma_free_coherent(&mhba->pdev->dev, HSP_MAX_SIZE,
+>>>>>>> upstream/android-13
 		mhba->handshake_page, mhba->handshake_page_phys);
 	kfree(mhba->regs);
 	pci_release_regions(mhba->pdev);
@@ -1309,6 +1402,10 @@ static unsigned char mvumi_start(struct mvumi_hba *mhba)
  * mvumi_complete_cmd -	Completes a command
  * @mhba:			Adapter soft state
  * @cmd:			Command to be completed
+<<<<<<< HEAD
+=======
+ * @ob_frame:			Command response
+>>>>>>> upstream/android-13
  */
 static void mvumi_complete_cmd(struct mvumi_hba *mhba, struct mvumi_cmd *cmd,
 					struct mvumi_rsp_frame *ob_frame)
@@ -1330,18 +1427,31 @@ static void mvumi_complete_cmd(struct mvumi_hba *mhba, struct mvumi_cmd *cmd,
 		if (ob_frame->rsp_flag & CL_RSP_FLAG_SENSEDATA) {
 			memcpy(cmd->scmd->sense_buffer, ob_frame->payload,
 				sizeof(struct mvumi_sense_data));
+<<<<<<< HEAD
 			scmd->result |=  (DRIVER_SENSE << 24);
 		}
 		break;
 	default:
 		scmd->result |= (DRIVER_INVALID << 24) | (DID_ABORT << 16);
+=======
+		}
+		break;
+	default:
+		scmd->result |= (DID_ABORT << 16);
+>>>>>>> upstream/android-13
 		break;
 	}
 
 	if (scsi_bufflen(scmd))
+<<<<<<< HEAD
 		pci_unmap_sg(mhba->pdev, scsi_sglist(scmd),
 			     scsi_sg_count(scmd),
 			     (int) scmd->sc_data_direction);
+=======
+		dma_unmap_sg(&mhba->pdev->dev, scsi_sglist(scmd),
+			     scsi_sg_count(scmd),
+			     scmd->sc_data_direction);
+>>>>>>> upstream/android-13
 	cmd->scmd->scsi_done(scmd);
 	mvumi_return_cmd(mhba, cmd);
 }
@@ -1791,7 +1901,11 @@ static void mvumi_handle_clob(struct mvumi_hba *mhba)
 		cmd = mhba->tag_cmd[ob_frame->tag];
 
 		atomic_dec(&mhba->fw_outstanding);
+<<<<<<< HEAD
 		mhba->tag_cmd[ob_frame->tag] = 0;
+=======
+		mhba->tag_cmd[ob_frame->tag] = NULL;
+>>>>>>> upstream/android-13
 		tag_release_one(mhba, &mhba->tag_pool, ob_frame->tag);
 		if (cmd->scmd)
 			mvumi_complete_cmd(mhba, cmd, ob_frame);
@@ -2081,17 +2195,26 @@ static unsigned char mvumi_build_frame(struct mvumi_hba *mhba,
 	return 0;
 
 error:
+<<<<<<< HEAD
 	scmd->result = (DID_OK << 16) | (DRIVER_SENSE << 24) |
 		SAM_STAT_CHECK_CONDITION;
 	scsi_build_sense_buffer(0, scmd->sense_buffer, ILLEGAL_REQUEST, 0x24,
 									0);
+=======
+	scsi_build_sense(scmd, 0, ILLEGAL_REQUEST, 0x24, 0);
+>>>>>>> upstream/android-13
 	return -1;
 }
 
 /**
  * mvumi_queue_command -	Queue entry point
+<<<<<<< HEAD
  * @scmd:			SCSI command to be queued
  * @done:			Callback entry point
+=======
+ * @shost:			Scsi host to queue command on
+ * @scmd:			SCSI command to be queued
+>>>>>>> upstream/android-13
  */
 static int mvumi_queue_command(struct Scsi_Host *shost,
 					struct scsi_cmnd *scmd)
@@ -2101,7 +2224,10 @@ static int mvumi_queue_command(struct Scsi_Host *shost,
 	unsigned long irq_flags;
 
 	spin_lock_irqsave(shost->host_lock, irq_flags);
+<<<<<<< HEAD
 	scsi_cmd_get_serial(shost, scmd);
+=======
+>>>>>>> upstream/android-13
 
 	mhba = (struct mvumi_hba *) shost->hostdata;
 	scmd->result = 0;
@@ -2137,7 +2263,11 @@ static enum blk_eh_timer_return mvumi_timed_out(struct scsi_cmnd *scmd)
 	spin_lock_irqsave(mhba->shost->host_lock, flags);
 
 	if (mhba->tag_cmd[cmd->frame->tag]) {
+<<<<<<< HEAD
 		mhba->tag_cmd[cmd->frame->tag] = 0;
+=======
+		mhba->tag_cmd[cmd->frame->tag] = NULL;
+>>>>>>> upstream/android-13
 		tag_release_one(mhba, &mhba->tag_pool, cmd->frame->tag);
 	}
 	if (!list_empty(&cmd->queue_pointer))
@@ -2145,12 +2275,21 @@ static enum blk_eh_timer_return mvumi_timed_out(struct scsi_cmnd *scmd)
 	else
 		atomic_dec(&mhba->fw_outstanding);
 
+<<<<<<< HEAD
 	scmd->result = (DRIVER_INVALID << 24) | (DID_ABORT << 16);
 	scmd->SCp.ptr = NULL;
 	if (scsi_bufflen(scmd)) {
 		pci_unmap_sg(mhba->pdev, scsi_sglist(scmd),
 			     scsi_sg_count(scmd),
 			     (int)scmd->sc_data_direction);
+=======
+	scmd->result = (DID_ABORT << 16);
+	scmd->SCp.ptr = NULL;
+	if (scsi_bufflen(scmd)) {
+		dma_unmap_sg(&mhba->pdev->dev, scsi_sglist(scmd),
+			     scsi_sg_count(scmd),
+			     scmd->sc_data_direction);
+>>>>>>> upstream/android-13
 	}
 	mvumi_return_cmd(mhba, cmd);
 	spin_unlock_irqrestore(mhba->shost->host_lock, flags);
@@ -2195,6 +2334,10 @@ static struct scsi_host_template mvumi_template = {
 	.eh_timed_out = mvumi_timed_out,
 	.eh_host_reset_handler = mvumi_host_reset,
 	.bios_param = mvumi_bios_param,
+<<<<<<< HEAD
+=======
+	.dma_boundary = PAGE_SIZE - 1,
+>>>>>>> upstream/android-13
 	.this_id = -1,
 };
 
@@ -2310,7 +2453,10 @@ static int mvumi_cfg_hw_reg(struct mvumi_hba *mhba)
 		break;
 	default:
 		return -1;
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -2362,8 +2508,13 @@ static int mvumi_init_fw(struct mvumi_hba *mhba)
 		ret = -ENOMEM;
 		goto fail_alloc_mem;
 	}
+<<<<<<< HEAD
 	mhba->handshake_page = pci_alloc_consistent(mhba->pdev, HSP_MAX_SIZE,
 						&mhba->handshake_page_phys);
+=======
+	mhba->handshake_page = dma_alloc_coherent(&mhba->pdev->dev,
+			HSP_MAX_SIZE, &mhba->handshake_page_phys, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!mhba->handshake_page) {
 		dev_err(&mhba->pdev->dev,
 			"failed to allocate memory for handshake\n");
@@ -2383,7 +2534,11 @@ static int mvumi_init_fw(struct mvumi_hba *mhba)
 
 fail_ready_state:
 	mvumi_release_mem_resource(mhba);
+<<<<<<< HEAD
 	pci_free_consistent(mhba->pdev, HSP_MAX_SIZE,
+=======
+	dma_free_coherent(&mhba->pdev->dev, HSP_MAX_SIZE,
+>>>>>>> upstream/android-13
 		mhba->handshake_page, mhba->handshake_page_phys);
 fail_alloc_page:
 	kfree(mhba->regs);
@@ -2481,6 +2636,7 @@ static int mvumi_probe_one(struct pci_dev *pdev, const struct pci_device_id *id)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	pci_set_master(pdev);
 
 	if (IS_DMA64) {
@@ -2495,6 +2651,11 @@ static int mvumi_probe_one(struct pci_dev *pdev, const struct pci_device_id *id)
 		if (ret)
 			goto fail_set_dma_mask;
 	}
+=======
+	ret = mvumi_pci_set_master(pdev);
+	if (ret)
+		goto fail_set_dma_mask;
+>>>>>>> upstream/android-13
 
 	host = scsi_host_alloc(&mvumi_template, sizeof(*mhba));
 	if (!host) {
@@ -2584,7 +2745,11 @@ static void mvumi_detach_one(struct pci_dev *pdev)
 
 /**
  * mvumi_shutdown -	Shutdown entry point
+<<<<<<< HEAD
  * @device:		Generic device structure
+=======
+ * @pdev:		PCI device structure
+>>>>>>> upstream/android-13
  */
 static void mvumi_shutdown(struct pci_dev *pdev)
 {
@@ -2593,6 +2758,7 @@ static void mvumi_shutdown(struct pci_dev *pdev)
 	mvumi_flush_cache(mhba);
 }
 
+<<<<<<< HEAD
 static int __maybe_unused mvumi_suspend(struct pci_dev *pdev, pm_message_t state)
 {
 	struct mvumi_hba *mhba = NULL;
@@ -2608,10 +2774,22 @@ static int __maybe_unused mvumi_suspend(struct pci_dev *pdev, pm_message_t state
 	pci_save_state(pdev);
 	pci_disable_device(pdev);
 	pci_set_power_state(pdev, pci_choose_state(pdev, state));
+=======
+static int __maybe_unused mvumi_suspend(struct device *dev)
+{
+	struct pci_dev *pdev = to_pci_dev(dev);
+	struct mvumi_hba *mhba = pci_get_drvdata(pdev);
+
+	mvumi_flush_cache(mhba);
+
+	mhba->instancet->disable_intr(mhba);
+	mvumi_unmap_pci_addr(pdev, mhba->base_addr);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int __maybe_unused mvumi_resume(struct pci_dev *pdev)
 {
 	int ret;
@@ -2642,6 +2820,15 @@ static int __maybe_unused mvumi_resume(struct pci_dev *pdev)
 			goto fail;
 	}
 	ret = pci_request_regions(mhba->pdev, MV_DRIVER_NAME);
+=======
+static int __maybe_unused mvumi_resume(struct device *dev)
+{
+	int ret;
+	struct pci_dev *pdev = to_pci_dev(dev);
+	struct mvumi_hba *mhba = pci_get_drvdata(pdev);
+
+	ret = dma_set_mask(&pdev->dev, DMA_BIT_MASK(32));
+>>>>>>> upstream/android-13
 	if (ret)
 		goto fail;
 	ret = mvumi_map_pci_addr(mhba->pdev, mhba->base_addr);
@@ -2661,12 +2848,15 @@ static int __maybe_unused mvumi_resume(struct pci_dev *pdev)
 		goto unmap_pci_addr;
 	}
 
+<<<<<<< HEAD
 	ret = request_irq(mhba->pdev->irq, mvumi_isr_handler, IRQF_SHARED,
 				"mvumi", mhba);
 	if (ret) {
 		dev_err(&pdev->dev, "failed to register IRQ\n");
 		goto unmap_pci_addr;
 	}
+=======
+>>>>>>> upstream/android-13
 	mhba->instancet->enable_intr(mhba);
 
 	return 0;
@@ -2676,11 +2866,19 @@ unmap_pci_addr:
 release_regions:
 	pci_release_regions(pdev);
 fail:
+<<<<<<< HEAD
 	pci_disable_device(pdev);
+=======
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static SIMPLE_DEV_PM_OPS(mvumi_pm_ops, mvumi_suspend, mvumi_resume);
+
+>>>>>>> upstream/android-13
 static struct pci_driver mvumi_pci_driver = {
 
 	.name = MV_DRIVER_NAME,
@@ -2688,10 +2886,14 @@ static struct pci_driver mvumi_pci_driver = {
 	.probe = mvumi_probe_one,
 	.remove = mvumi_detach_one,
 	.shutdown = mvumi_shutdown,
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 	.suspend = mvumi_suspend,
 	.resume = mvumi_resume,
 #endif
+=======
+	.driver.pm = &mvumi_pm_ops,
+>>>>>>> upstream/android-13
 };
 
 module_pci_driver(mvumi_pci_driver);

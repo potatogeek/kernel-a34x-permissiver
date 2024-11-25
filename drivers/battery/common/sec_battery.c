@@ -50,7 +50,11 @@ static unsigned int __read_mostly lpcharge;
 module_param(lpcharge, uint, 0444);
 static int __read_mostly fg_reset;
 module_param(fg_reset, int, 0444);
+<<<<<<< HEAD
 static int factory_mode;
+=======
+static int __read_mostly factory_mode;
+>>>>>>> upstream/android-13
 module_param(factory_mode, int, 0444);
 static unsigned int __read_mostly charging_mode;
 module_param(charging_mode, uint, 0444);
@@ -164,8 +168,11 @@ const char *sb_get_ct_str(int ct)
 		return "OTG";
 	case SEC_BATTERY_CABLE_LAN_HUB:
 		return "LAN_HUB";
+<<<<<<< HEAD
 	case SEC_BATTERY_CABLE_LO_TA:
 		return "LO_TA";
+=======
+>>>>>>> upstream/android-13
 	case SEC_BATTERY_CABLE_POWER_SHARING:
 		return "POWER_SHARING";
 	case SEC_BATTERY_CABLE_HMT_CONNECTED:
@@ -202,6 +209,7 @@ const char *sb_get_ct_str(int ct)
 		return "POGO";
 	case SEC_BATTERY_CABLE_POGO_9V:
 		return "POGO_9V";
+<<<<<<< HEAD
 	case SEC_BATTERY_CABLE_FPDO_DC:
 		return "FPDO_DC";
 	case SEC_BATTERY_CABLE_WIRELESS_EPP:
@@ -210,6 +218,8 @@ const char *sb_get_ct_str(int ct)
 		return "WC_EPP_NV";
 	case SEC_BATTERY_CABLE_WIRELESS_EPP_FAKE:
 		return "WC_EPP_FAKE";
+=======
+>>>>>>> upstream/android-13
 	default:
 		return "UNDEFINED";
 	}
@@ -327,8 +337,11 @@ const char *sb_charge_mode_str(int charge_mode)
 	switch (charge_mode) {
 	case SEC_BAT_CHG_MODE_BUCK_OFF:
 		return "Buck-Off";
+<<<<<<< HEAD
 	case SEC_BAT_CHG_MODE_BUCK_OFF_LINEAR_CHARGING:
 		return "Buck-Off/Linear-On";
+=======
+>>>>>>> upstream/android-13
 	case SEC_BAT_CHG_MODE_CHARGING_OFF:
 		return "Charging-Off";
 	case SEC_BAT_CHG_MODE_PASS_THROUGH:
@@ -413,8 +426,11 @@ const char *sb_vout_ctr_mode_str(int vout_mode)
 		return "Set VOUT 10V Step";
 	case WIRELESS_VOUT_OTG:
 		return "Set VOUT OTG";
+<<<<<<< HEAD
 	case WIRELESS_VOUT_5_5V:
 		return "Set VOUT 5.5V";
+=======
+>>>>>>> upstream/android-13
 	default:
 		return "UNDEFINED";
 	}
@@ -426,12 +442,15 @@ const char *sb_rx_vout_str(int vout)
 	switch (vout) {
 	case MFC_VOUT_4_5V:
 		return "VOUT 4.5V";
+<<<<<<< HEAD
 	case MFC_VOUT_4_7V:
 		return "VOUT 4.7V";
 	case MFC_VOUT_4_8V:
 		return "VOUT 4.8V";
 	case MFC_VOUT_4_9V:
 		return "VOUT 4.9V";
+=======
+>>>>>>> upstream/android-13
 	case MFC_VOUT_5V:
 		return "VOUT 5V";
 	case MFC_VOUT_5_5V:
@@ -620,11 +639,16 @@ __visible_for_testing int set_charging_current(void *data, int v)
 
 #if IS_ENABLED(CONFIG_DUAL_BATTERY)
 	sec_bat_divide_limiter_current(battery, v);
+<<<<<<< HEAD
 	/* to set higher current, ex) 500mA -> 1000mA */
 	if (battery->charging_current < v) {
 		pr_info("%s: set limiter current right away\n", __func__);
 		sec_bat_set_limiter_current(battery);
 	}
+=======
+	if (battery->charging_current < v)
+		sec_bat_set_limiter_current(battery);
+>>>>>>> upstream/android-13
 #endif
 
 	value.intval = v;
@@ -642,6 +666,7 @@ __visible_for_testing int set_charging_current(void *data, int v)
 	}
 
 #if IS_ENABLED(CONFIG_DUAL_BATTERY)
+<<<<<<< HEAD
 	/* to set lower current, ex) 1000mA -> 500mA */
 	if (battery->charging_current > v) {
 		if (!is_wireless_type(battery->cable_type)) {
@@ -653,6 +678,11 @@ __visible_for_testing int set_charging_current(void *data, int v)
 				sec_bat_set_limiter_current(battery);
 			}
 		}
+=======
+	if (battery->charging_current > v) {
+		if (!is_wireless_type(battery->cable_type))
+			sec_bat_set_limiter_current(battery);
+>>>>>>> upstream/android-13
 	}
 #endif
 	battery->charging_current = v;
@@ -792,12 +822,19 @@ __visible_for_testing int sec_bat_change_iv(void *data, int voltage)
 
 	if ((is_hv_wire_type(battery->cable_type) || is_hv_wire_type(battery->wire_status)) &&
 		(battery->cable_type != SEC_BATTERY_CABLE_QC30)) {
+<<<<<<< HEAD
 		/* no need to set afc prepare current in already 9v cable status */
 		if (!is_hv_wire_type(battery->wire_status) ||
 			voltage != SEC_INPUT_VOLTAGE_9V)
 			sec_bat_check_afc_input_current(battery);
 #if IS_ENABLED(CONFIG_MUIC_NOTIFIER)
 #if IS_ENABLED(CONFIG_MTK_CHARGER) && IS_ENABLED(CONFIG_AFC_CHARGER)
+=======
+		/* set current event */
+		sec_bat_check_afc_input_current(battery);
+#if IS_ENABLED(CONFIG_MUIC_NOTIFIER)
+#if defined(CONFIG_MTK_CHARGER) && defined(CONFIG_AFC_CHARGER)
+>>>>>>> upstream/android-13
 		afc_set_voltage(voltage);
 #else
 		muic_afc_request_voltage(AFC_REQUEST_CHARGER, voltage/1000);
@@ -1117,6 +1154,7 @@ __visible_for_testing void sec_bat_get_input_current_in_power_list(struct sec_ba
 	battery->pdata->charging_current[SEC_BATTERY_CABLE_PDIC_APDO].input_current_limit =
 		battery->sink_status.power_list[pdo_num].max_current;
 
+<<<<<<< HEAD
 	if (battery->is_fpdo_dc && !(battery->current_event & SEC_BAT_CURRENT_EVENT_HV_DISABLE)) {
 		max_input_current =
 			battery->pdata->charging_current[SEC_BATTERY_CABLE_FPDO_DC].input_current_limit =
@@ -1127,6 +1165,9 @@ __visible_for_testing void sec_bat_get_input_current_in_power_list(struct sec_ba
 	}
 
 	pr_info("%s:max_input_current : %dmA, pdo_num : %d\n", __func__, max_input_current, pdo_num);
+=======
+	pr_info("%s:max_input_current : %dmA\n", __func__, max_input_current);
+>>>>>>> upstream/android-13
 	sec_vote(battery->input_vote, VOTER_CABLE, true, max_input_current);
 }
 EXPORT_SYMBOL_KUNIT(sec_bat_get_input_current_in_power_list);
@@ -1207,7 +1248,11 @@ void sec_bat_check_temp_ctrl_by_cable(struct sec_battery_info *battery)
 			battery->chg_limit = false;
 		}
 	}
+<<<<<<< HEAD
 	if (!is_wireless_all_type(ct))
+=======
+	if (!is_wireless_fake_type(ct))
+>>>>>>> upstream/android-13
 		sec_bat_check_lrp_temp(battery,
 			ct, battery->wire_status, siop_lvl, battery->lcd_status);
 
@@ -1297,6 +1342,7 @@ int sec_bat_set_charge(void * data, int chg_mode)
 			sec_bat_check_dc_step_charging(battery);
 		}
 #endif
+<<<<<<< HEAD
 #if defined(CONFIG_WIRELESS_RX_PHM_CTRL)
 		if (is_wireless_type(battery->cable_type)) {
 			val.intval = EXIT_PHM;
@@ -1304,6 +1350,8 @@ int sec_bat_set_charge(void * data, int chg_mode)
 				POWER_SUPPLY_EXT_PROP_RX_PHM, val);
 		}
 #endif
+=======
+>>>>>>> upstream/android-13
 	} else {
 		battery->charging_start_time = 0;
 		battery->charging_passed_time = 0;
@@ -1313,8 +1361,15 @@ int sec_bat_set_charge(void * data, int chg_mode)
 #if defined(CONFIG_STEP_CHARGING)
 		sec_bat_reset_step_charging(battery);
 #endif
+<<<<<<< HEAD
 		battery->usb_overheat_check = false;
 		battery->cisd.ab_vbat_check_count = 0;
+=======
+#if defined(CONFIG_BATTERY_CISD)
+		battery->usb_overheat_check = false;
+		battery->cisd.ab_vbat_check_count = 0;
+#endif
+>>>>>>> upstream/android-13
 	}
 
 	val.intval = chg_mode;
@@ -1342,6 +1397,7 @@ int sec_bat_set_charge(void * data, int chg_mode)
 		 * charging, discharging and buck off. But needs to disable supplement mode except
 		 * 2nd full charge done and swelling charging.
 		 */
+<<<<<<< HEAD
 #ifdef CONFIG_IFPMIC_LIMITER
 		if (chg_mode == SEC_BAT_CHG_MODE_BUCK_OFF)
 			return chg_mode;
@@ -1354,6 +1410,11 @@ int sec_bat_set_charge(void * data, int chg_mode)
 #endif
 		psy_do_property(battery->pdata->dual_battery_name, set,
 			POWER_SUPPLY_EXT_PROP_CHARGING_ENABLED, val);
+=======
+		val.intval = 0;
+		psy_do_property(battery->pdata->dual_battery_name, set,
+		POWER_SUPPLY_EXT_PROP_CHARGING_ENABLED, val);
+>>>>>>> upstream/android-13
 	}
 #endif
 	return chg_mode;
@@ -1391,7 +1452,11 @@ battery_check_error:
 }
 EXPORT_SYMBOL_KUNIT(sec_bat_check_by_psy);
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_DUAL_BATTERY) && IS_ENABLED(CONFIG_LIMITER_S2ASL01)
+=======
+#if IS_ENABLED(CONFIG_DUAL_BATTERY)
+>>>>>>> upstream/android-13
 static bool sec_bat_check_by_gpio(struct sec_battery_info *battery)
 {
 	union power_supply_propval value = {0, };
@@ -1439,11 +1504,19 @@ static void sec_bat_powerpath_check(struct sec_battery_info *battery, int m_heal
 		POWER_SUPPLY_EXT_PROP_SUPLLEMENT_MODE, value);
 	s_supplement_status = value.intval;
 
+<<<<<<< HEAD
 	if ((battery->current_avg_main == 0) &&
 		!m_supplement_status &&
 		!(battery->misc_event & BATT_MISC_EVENT_MAIN_POWERPATH)) {
 		m_abnormal_cnt++;
 	} else if (battery->current_avg_main != 0) {
+=======
+	if ((battery->current_now_main == 0) &&
+		!m_supplement_status &&
+		!(battery->misc_event & BATT_MISC_EVENT_MAIN_POWERPATH)) {
+		m_abnormal_cnt++;
+	} else if (battery->current_now_main != 0) {
+>>>>>>> upstream/android-13
 		if (battery->misc_event & BATT_MISC_EVENT_MAIN_POWERPATH) {
 			pr_info("%s : main power path get back to normal\n", __func__);
 			sec_bat_set_misc_event(battery,
@@ -1452,11 +1525,19 @@ static void sec_bat_powerpath_check(struct sec_battery_info *battery, int m_heal
 		m_abnormal_cnt = 0;
 	}
 
+<<<<<<< HEAD
 	if ((battery->current_avg_sub == 0) &&
 		!s_supplement_status &&
 		!(battery->misc_event & BATT_MISC_EVENT_SUB_POWERPATH)) {
 		s_abnormal_cnt++;
 	} else if (battery->current_avg_sub != 0) {
+=======
+	if ((battery->current_now_sub == 0) &&
+		!s_supplement_status &&
+		!(battery->misc_event & BATT_MISC_EVENT_SUB_POWERPATH)) {
+		s_abnormal_cnt++;
+	} else if (battery->current_now_sub != 0) {
+>>>>>>> upstream/android-13
 		if (battery->misc_event & BATT_MISC_EVENT_SUB_POWERPATH) {
 			pr_info("%s : sub power path get back to normal\n", __func__);
 			sec_bat_set_misc_event(battery,
@@ -1465,18 +1546,37 @@ static void sec_bat_powerpath_check(struct sec_battery_info *battery, int m_heal
 		s_abnormal_cnt = 0;
 	}
 
+<<<<<<< HEAD
 	if (m_abnormal_cnt > 5) {
+=======
+	if (m_abnormal_cnt > 3) {
+>>>>>>> upstream/android-13
 		pr_info("%s : main power path seems to have problem\n", __func__);
 		sec_bat_set_misc_event(battery,
 			BATT_MISC_EVENT_MAIN_POWERPATH, BATT_MISC_EVENT_MAIN_POWERPATH);
 		m_abnormal_cnt = 0;
+<<<<<<< HEAD
 	}
 
 	if (s_abnormal_cnt > 5) {
+=======
+#if IS_ENABLED(CONFIG_SEC_ABC)
+		sec_abc_send_event("MODULE=battery@WARN=pp_open");
+#endif
+	}
+
+	if (s_abnormal_cnt > 3) {
+>>>>>>> upstream/android-13
 		pr_info("%s : sub power path seems to have problem\n", __func__);
 		sec_bat_set_misc_event(battery,
 			BATT_MISC_EVENT_SUB_POWERPATH, BATT_MISC_EVENT_SUB_POWERPATH);
 		s_abnormal_cnt = 0;
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_SEC_ABC)
+		sec_abc_send_event("MODULE=battery@WARN=pp_open");
+#endif
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1485,8 +1585,11 @@ static void sec_bat_limiter_check(struct sec_battery_info *battery)
 	union power_supply_propval m_value = {0, }, s_value = {0, };
 	int main_enb, main_enb2, sub_enb;
 
+<<<<<<< HEAD
 	pr_info("%s: Start\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 	/* do not check limiter status when enb is not active status since it is certain test mode using enb pin */
 	main_enb = gpio_get_value(battery->pdata->main_bat_enb_gpio);
 	main_enb2 = gpio_get_value(battery->pdata->main_bat_enb2_gpio);
@@ -1505,16 +1608,24 @@ static void sec_bat_limiter_check(struct sec_battery_info *battery)
 	psy_do_property(battery->pdata->sub_limiter_name, get,
 		POWER_SUPPLY_PROP_HEALTH, s_value);
 
+<<<<<<< HEAD
 	/* discharging case with non sleep current since it has low powermeter resolution */
 	if (is_nocharge_type(battery->cable_type) &&
 		is_nocharge_type(battery->wire_status) &&
 		battery->current_avg < (-500) &&
 		!is_slate_mode(battery))
+=======
+	if (is_nocharge_type(battery->cable_type))
+>>>>>>> upstream/android-13
 		sec_bat_powerpath_check(battery, m_value.intval, s_value.intval);
 
 	/* do not check limiter status input curruent is not set fully */
 	if (is_nocharge_type(battery->cable_type) ||
+<<<<<<< HEAD
 		is_wireless_all_type(battery->cable_type) ||
+=======
+		is_wireless_fake_type(battery->cable_type) ||
+>>>>>>> upstream/android-13
 		battery->health != POWER_SUPPLY_HEALTH_GOOD ||
 		battery->status != POWER_SUPPLY_STATUS_CHARGING ||
 		battery->current_event & SEC_BAT_CURRENT_EVENT_SWELLING_MODE ||
@@ -1528,10 +1639,19 @@ static void sec_bat_limiter_check(struct sec_battery_info *battery)
 
 	if (m_value.intval != POWER_SUPPLY_HEALTH_GOOD) {
 		pr_info("%s : main limiter wa will work\n", __func__);
+<<<<<<< HEAD
 		battery->cisd.event_data[EVENT_MAIN_BAT_ERR]++;
 		sec_vote(battery->chgen_vote, VOTER_FULL_CHARGE, true, SEC_BAT_CHG_MODE_CHARGING_OFF);
 
 		m_value.intval = 1000;
+=======
+#if defined(CONFIG_BATTERY_CISD)
+		battery->cisd.event_data[EVENT_MAIN_BAT_ERR]++;
+#endif
+		sec_vote(battery->chgen_vote, VOTER_FULL_CHARGE, true, SEC_BAT_CHG_MODE_CHARGING_OFF);
+
+		m_value.intval = 400;
+>>>>>>> upstream/android-13
 		psy_do_property(battery->pdata->main_limiter_name, set,
 				POWER_SUPPLY_EXT_PROP_DISCHG_LIMIT_CURRENT, m_value);
 
@@ -1541,16 +1661,26 @@ static void sec_bat_limiter_check(struct sec_battery_info *battery)
 
 		/* deactivate main limiter */
 		gpio_direction_output(battery->pdata->main_bat_enb2_gpio, 1);
+<<<<<<< HEAD
 		usleep_range(1000, 2000);
 		/* activate main limiter */
 		gpio_direction_output(battery->pdata->main_bat_enb2_gpio, 0);
 		msleep(50);
+=======
+		msleep(100);
+		/* activate main limiter */
+		gpio_direction_output(battery->pdata->main_bat_enb2_gpio, 0);
+		msleep(100);
+>>>>>>> upstream/android-13
 
 		/* needs to init limiter setting again */
 		m_value.intval = 1;
 		psy_do_property(battery->pdata->main_limiter_name, set,
 				POWER_SUPPLY_EXT_PROP_POWERMETER_ENABLE, m_value);
+<<<<<<< HEAD
 		msleep(100);
+=======
+>>>>>>> upstream/android-13
 
 		sec_vote(battery->chgen_vote, VOTER_FULL_CHARGE, true, SEC_BAT_CHG_MODE_CHARGING);
 		battery->limiter_check = true;
@@ -1562,7 +1692,13 @@ static void sec_bat_limiter_check(struct sec_battery_info *battery)
 
 		if (m_value.intval != POWER_SUPPLY_HEALTH_GOOD) {
 			pr_info("%s : main limiter wa did not work\n", __func__);
+<<<<<<< HEAD
 			battery->cisd.event_data[EVENT_BAT_WA_ERR]++;
+=======
+#if defined(CONFIG_BATTERY_CISD)
+			battery->cisd.event_data[EVENT_BAT_WA_ERR]++;
+#endif
+>>>>>>> upstream/android-13
 		}
 #if IS_ENABLED(CONFIG_SEC_ABC)
 		sec_abc_send_event("MODULE=battery@WARN=lim_stuck");
@@ -1571,10 +1707,19 @@ static void sec_bat_limiter_check(struct sec_battery_info *battery)
 
 	if (s_value.intval != POWER_SUPPLY_HEALTH_GOOD) {
 		pr_info("%s : sub limiter wa will work\n", __func__);
+<<<<<<< HEAD
 		battery->cisd.event_data[EVENT_SUB_BAT_ERR]++;
 		sec_vote(battery->chgen_vote, VOTER_FULL_CHARGE, true, SEC_BAT_CHG_MODE_CHARGING_OFF);
 
 		s_value.intval = 1000;
+=======
+#if defined(CONFIG_BATTERY_CISD)
+		battery->cisd.event_data[EVENT_SUB_BAT_ERR]++;
+#endif
+		sec_vote(battery->chgen_vote, VOTER_FULL_CHARGE, true, SEC_BAT_CHG_MODE_CHARGING_OFF);
+
+		s_value.intval = 400;
+>>>>>>> upstream/android-13
 		psy_do_property(battery->pdata->sub_limiter_name, set,
 				POWER_SUPPLY_EXT_PROP_DISCHG_LIMIT_CURRENT, s_value);
 
@@ -1584,16 +1729,26 @@ static void sec_bat_limiter_check(struct sec_battery_info *battery)
 
 		/* deactivate sub limiter */
 		gpio_direction_output(battery->pdata->sub_bat_enb_gpio, 1);
+<<<<<<< HEAD
 		usleep_range(1000, 2000);
 		/* activate sub limiter */
 		gpio_direction_output(battery->pdata->sub_bat_enb_gpio, 0);
 		msleep(50);
+=======
+		msleep(100);
+		/* activate sub limiter */
+		gpio_direction_output(battery->pdata->sub_bat_enb_gpio, 0);
+		msleep(100);
+>>>>>>> upstream/android-13
 
 		/* needs to init limiter setting again */
 		s_value.intval = 1;
 		psy_do_property(battery->pdata->sub_limiter_name, set,
 				POWER_SUPPLY_EXT_PROP_POWERMETER_ENABLE, s_value);
+<<<<<<< HEAD
 		msleep(100);
+=======
+>>>>>>> upstream/android-13
 
 		sec_vote(battery->chgen_vote, VOTER_FULL_CHARGE, true, SEC_BAT_CHG_MODE_CHARGING);
 
@@ -1606,7 +1761,13 @@ static void sec_bat_limiter_check(struct sec_battery_info *battery)
 
 		if (s_value.intval != POWER_SUPPLY_HEALTH_GOOD) {
 			pr_info("%s : main limiter wa did not work\n", __func__);
+<<<<<<< HEAD
 			battery->cisd.event_data[EVENT_BAT_WA_ERR]++;
+=======
+#if defined(CONFIG_BATTERY_CISD)
+			battery->cisd.event_data[EVENT_BAT_WA_ERR]++;
+#endif
+>>>>>>> upstream/android-13
 		}
 #if IS_ENABLED(CONFIG_SEC_ABC)
 		sec_abc_send_event("MODULE=battery@WARN=lim_stuck");
@@ -1653,14 +1814,21 @@ static bool sec_bat_check(struct sec_battery_info *battery)
 	case SEC_BATTERY_CHECK_CHARGER:
 		ret = sec_bat_check_by_psy(battery);
 		break;
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_DUAL_BATTERY) && IS_ENABLED(CONFIG_LIMITER_S2ASL01)
+=======
+#if IS_ENABLED(CONFIG_DUAL_BATTERY)
+>>>>>>> upstream/android-13
 	case SEC_BATTERY_CHECK_DUAL_BAT_GPIO:
 		ret = sec_bat_check_by_gpio(battery);
 		break;
 #endif
 	case SEC_BATTERY_CHECK_NONE:
 		dev_dbg(battery->dev, "%s: No Check\n", __func__);
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
@@ -1672,7 +1840,11 @@ static void sec_bat_send_cs100(struct sec_battery_info *battery)
 {
 	union power_supply_propval value = {0, };
 
+<<<<<<< HEAD
 	if (is_wireless_all_type(battery->cable_type)) {
+=======
+	if (is_wireless_fake_type(battery->cable_type)) {
+>>>>>>> upstream/android-13
 		value.intval = POWER_SUPPLY_STATUS_FULL;
 		psy_do_property(battery->pdata->wireless_charger_name, set,
 			POWER_SUPPLY_PROP_STATUS, value);
@@ -1734,12 +1906,20 @@ void sec_bat_set_charging_status(struct sec_battery_info *battery, int status)
 	case POWER_SUPPLY_STATUS_DISCHARGING:
 		if ((battery->status == POWER_SUPPLY_STATUS_FULL ||
 			(battery->capacity == 100 && !is_slate_mode(battery))) &&
+<<<<<<< HEAD
 			!battery->store_mode && !is_eu_eco_rechg(battery->fs)) {
+=======
+			!battery->store_mode) {
+>>>>>>> upstream/android-13
 
 			pr_info("%s : Update fg scale to 101%%\n", __func__);
 			value.intval = 100;
 			psy_do_property(battery->pdata->fuelgauge_name, set,
+<<<<<<< HEAD
 				POWER_SUPPLY_PROP_CHARGE_FULL, value);
+=======
+					POWER_SUPPLY_PROP_CHARGE_FULL, value);
+>>>>>>> upstream/android-13
 
 			/* To get SOC value (NOT raw SOC), need to reset value */
 			value.intval = 0;
@@ -1769,7 +1949,11 @@ void sec_bat_set_health(struct sec_battery_info *battery, int health)
 			sec_bat_set_misc_event(battery, 0, BATT_MISC_EVENT_HEALTH_OVERHEATLIMIT);
 
 #if IS_ENABLED(CONFIG_WIRELESS_CHARGING) && !defined(CONFIG_SEC_FACTORY)
+<<<<<<< HEAD
 		if (is_wireless_all_type(battery->cable_type)) {
+=======
+		if (is_wireless_fake_type(battery->cable_type)) {
+>>>>>>> upstream/android-13
 			union power_supply_propval val = {0, };
 
 			if (!battery->wc_ept_timeout) {
@@ -1882,6 +2066,7 @@ ovp_uvlo_check_error:
 	/* Need to not display HEALTH UNKNOWN if driver cannot be read */
 	return ((ret == 0) ? value.intval : POWER_SUPPLY_HEALTH_GOOD);
 }
+<<<<<<< HEAD
 #if defined(CONFIG_SEC_KUNIT)
 int __mockable chk_ap_wake_chg(void)
 #else
@@ -1921,17 +2106,27 @@ static bool sec_bat_ovp_uvlo_result(struct sec_battery_info *battery, int health
 	union power_supply_propval value = {0, };
 #endif
 
+=======
+
+static bool sec_bat_ovp_uvlo_result(struct sec_battery_info *battery, int health)
+{
+>>>>>>> upstream/android-13
 	if (health == POWER_SUPPLY_EXT_HEALTH_DC_ERR) {
 		dev_info(battery->dev,
 			"%s: DC err (%d)\n",
 			__func__, health);
 		battery->is_recharging = false;
 		battery->health_check_count = DEFAULT_HEALTH_CHECK_COUNT;
+<<<<<<< HEAD
+=======
+		__pm_wakeup_event(battery->vbus_ws, jiffies_to_msecs(HZ * 10));
+>>>>>>> upstream/android-13
 		/* Enable charging anyway to check actual DC's health */
 		sec_vote(battery->chgen_vote, VOTER_DC_ERR, true, SEC_BAT_CHG_MODE_CHARGING_OFF);
 		sec_vote(battery->chgen_vote, VOTER_DC_ERR, false, 0);
 	}
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_WIRELESS_CHARGING)
 	if (health == POWER_SUPPLY_EXT_HEALTH_UNDERVOLTAGE) {
 		psy_do_property(battery->pdata->wireless_charger_name, get,
@@ -1947,6 +2142,10 @@ static bool sec_bat_ovp_uvlo_result(struct sec_battery_info *battery, int health
 	if (battery->health != health) {
 		sec_bat_set_health(battery, health);
 		sb_set_vbus_wake(battery->vbus_ws, health, battery->cable_type);
+=======
+	if (battery->health != health) {
+		sec_bat_set_health(battery, health);
+>>>>>>> upstream/android-13
 		switch (health) {
 		case POWER_SUPPLY_HEALTH_GOOD:
 			dev_info(battery->dev, "%s: Safe voltage\n", __func__);
@@ -1968,8 +2167,20 @@ static bool sec_bat_ovp_uvlo_result(struct sec_battery_info *battery, int health
 			battery->charging_mode = SEC_BATTERY_CHARGING_NONE;
 			battery->is_recharging = false;
 			battery->health_check_count = DEFAULT_HEALTH_CHECK_COUNT;
+<<<<<<< HEAD
 			battery->cisd.data[CISD_DATA_UNSAFETY_VOLTAGE]++;
 			battery->cisd.data[CISD_DATA_UNSAFE_VOLTAGE_PER_DAY]++;
+=======
+#if defined(CONFIG_BATTERY_CISD)
+			battery->cisd.data[CISD_DATA_UNSAFETY_VOLTAGE]++;
+			battery->cisd.data[CISD_DATA_UNSAFE_VOLTAGE_PER_DAY]++;
+#endif
+			/*
+			 * Take the wakelock during 10 seconds
+			 * when over-voltage status is detected
+			 */
+			__pm_wakeup_event(battery->vbus_ws, jiffies_to_msecs(HZ * 10));
+>>>>>>> upstream/android-13
 			break;
 		case POWER_SUPPLY_HEALTH_WATCHDOG_TIMER_EXPIRE:
 			dev_info(battery->dev,
@@ -1981,6 +2192,15 @@ static bool sec_bat_ovp_uvlo_result(struct sec_battery_info *battery, int health
 			battery->charging_mode = SEC_BATTERY_CHARGING_NONE;
 			battery->is_recharging = false;
 			battery->health_check_count = DEFAULT_HEALTH_CHECK_COUNT;
+<<<<<<< HEAD
+=======
+
+			/*
+			 * Take the wakelock during 10 seconds
+			 * when watchdog timer expired is detected
+			 */
+			__pm_wakeup_event(battery->vbus_ws, jiffies_to_msecs(HZ * 10));
+>>>>>>> upstream/android-13
 			break;
 		}
 		power_supply_changed(battery->psy_bat);
@@ -2058,8 +2278,12 @@ __visible_for_testing bool sec_bat_check_recharge(struct sec_battery_info *batte
 
 	if (battery->status == POWER_SUPPLY_STATUS_FULL &&
 		battery->charging_mode == SEC_BATTERY_CHARGING_NONE) {
+<<<<<<< HEAD
 		int recharging_voltage = battery->pdata->recharge_condition_vcell,
 			recharging_soc = battery->pdata->recharge_condition_soc;
+=======
+		int recharging_voltage = battery->pdata->recharge_condition_vcell;
+>>>>>>> upstream/android-13
 
 		if (battery->current_event & SEC_BAT_CURRENT_EVENT_LOW_TEMP_MODE) {
 			if (battery->current_event & SEC_BAT_CURRENT_EVENT_LOW_TEMP_SWELLING_COOL3)
@@ -2067,6 +2291,7 @@ __visible_for_testing bool sec_bat_check_recharge(struct sec_battery_info *batte
 			else
 				recharging_voltage = battery->pdata->swelling_low_rechg_voltage;
 		}
+<<<<<<< HEAD
 		dev_info(battery->dev, "%s: recharging voltage(%d) soc(%d) %s\n",
 			__func__, recharging_voltage, recharging_soc,
 			(battery->current_event & SEC_BAT_CURRENT_EVENT_LOW_TEMP_MODE ?
@@ -2075,6 +2300,16 @@ __visible_for_testing bool sec_bat_check_recharge(struct sec_battery_info *batte
 		if ((battery->pdata->recharge_condition_type &
 			SEC_BATTERY_RECHARGE_CONDITION_SOC) &&
 			(battery->capacity <= recharging_soc)) {
+=======
+
+		dev_info(battery->dev, "%s: recharging voltage(%d) %s\n",
+			__func__, recharging_voltage,
+			battery->current_event & SEC_BAT_CURRENT_EVENT_LOW_TEMP_MODE ? "changed by low temp" : "");
+
+		if ((battery->pdata->recharge_condition_type &
+			SEC_BATTERY_RECHARGE_CONDITION_SOC) &&
+			(battery->capacity <= battery->pdata->recharge_condition_soc)) {
+>>>>>>> upstream/android-13
 			dev_info(battery->dev, "%s: Re-charging by SOC (%d)\n",
 				__func__, battery->capacity);
 			goto check_recharge_check_count;
@@ -2099,15 +2334,26 @@ __visible_for_testing bool sec_bat_check_recharge(struct sec_battery_info *batte
 #if IS_ENABLED(CONFIG_DUAL_BATTERY)
 		if (battery->pdata->recharge_condition_type &
 			SEC_BATTERY_RECHARGE_CONDITION_LIMITER) {
+<<<<<<< HEAD
 			int voltage = max(battery->voltage_avg_main, battery->voltage_avg_sub);
+=======
+			int voltage = max(battery->voltage_pack_main, battery->voltage_pack_sub);
+>>>>>>> upstream/android-13
 			if (voltage <= recharging_voltage) {
 				dev_info(battery->dev, "%s: Re-charging by VPACK (%d)mV\n",
 					__func__, voltage);
 				goto check_recharge_check_count;
+<<<<<<< HEAD
 			} else if (abs(battery->voltage_avg_main - battery->voltage_avg_sub) >
 				battery->pdata->force_recharge_margin) {
 				dev_info(battery->dev, "%s: Force Re-charging by VPACK diff(%d, %d)mV\n",
 					__func__, battery->voltage_avg_main, battery->voltage_avg_sub);
+=======
+			} else if (abs(battery->voltage_pack_main - battery->voltage_pack_sub) >
+				battery->pdata->force_recharge_margin) {
+				dev_info(battery->dev, "%s: Force Re-charging by VPACK diff(%d, %d)mV\n",
+					__func__, battery->voltage_pack_main, battery->voltage_pack_sub);
+>>>>>>> upstream/android-13
 				goto check_recharge_check_count;
 			}
 		}
@@ -2142,7 +2388,11 @@ static bool sec_bat_voltage_check(struct sec_battery_info *battery)
 
 	if (battery->status == POWER_SUPPLY_STATUS_DISCHARGING ||
 		is_nocharge_type(battery->cable_type) ||
+<<<<<<< HEAD
 		is_wireless_fake_type(battery->cable_type)) {
+=======
+		battery->cable_type == SEC_BATTERY_CABLE_WIRELESS_FAKE) {
+>>>>>>> upstream/android-13
 		dev_dbg(battery->dev,
 			"%s: Charging Disabled\n", __func__);
 		return true;
@@ -2167,6 +2417,11 @@ static bool sec_bat_voltage_check(struct sec_battery_info *battery)
 #else
 		int soc_ref = battery->pdata->full_condition_soc;
 #endif
+<<<<<<< HEAD
+=======
+		pr_info("%s: chg mode (%d), voltage_ref(%d), voltage_now(%d)\n",
+			__func__, battery->charging_mode, voltage_ref, voltage_now);
+>>>>>>> upstream/android-13
 
 		if (battery->current_event & SEC_BAT_CURRENT_EVENT_LOW_TEMP_MODE) {
 			if (battery->current_event & SEC_BAT_CURRENT_EVENT_LOW_TEMP_SWELLING_COOL3)
@@ -2175,6 +2430,7 @@ static bool sec_bat_voltage_check(struct sec_battery_info *battery)
 				voltage_ref = battery->pdata->swelling_low_rechg_voltage - 50;
 		}
 
+<<<<<<< HEAD
 		if (is_eu_eco_rechg(battery->fs))
 			soc_ref = (soc_ref > battery->pdata->recharge_condition_soc) ?
 				battery->pdata->recharge_condition_soc : soc_ref;
@@ -2186,19 +2442,33 @@ static bool sec_bat_voltage_check(struct sec_battery_info *battery)
 		}
 #endif
 
+=======
+>>>>>>> upstream/android-13
 		value.intval = 0;
 		psy_do_property(battery->pdata->fuelgauge_name, get,
 			POWER_SUPPLY_PROP_CAPACITY, value);
 
+<<<<<<< HEAD
 		pr_info("%s: chg mode (%d), voltage_ref(%d), voltage_now(%d), soc_ref(%d), capacity(%d)\n",
 			__func__, battery->charging_mode, voltage_ref, voltage_now, soc_ref, value.intval);
 
+=======
+#if IS_ENABLED(CONFIG_DUAL_BATTERY)
+		if (battery->pdata->recharge_condition_type &
+			SEC_BATTERY_RECHARGE_CONDITION_LIMITER) {
+			voltage_now = max(battery->voltage_pack_main, battery->voltage_pack_sub);
+		}
+#endif
+>>>>>>> upstream/android-13
 		if (value.intval < soc_ref && voltage_now < voltage_ref) {
 			sec_bat_set_charging_status(battery, POWER_SUPPLY_STATUS_CHARGING);
 			battery->is_recharging = false;
 			battery->charging_mode = SEC_BATTERY_CHARGING_1ST;
+<<<<<<< HEAD
 			if (battery->pdata->change_FV_after_full)
 				sec_vote(battery->fv_vote, VOTER_FULL_CHARGE, false, battery->pdata->chg_float_voltage);
+=======
+>>>>>>> upstream/android-13
 			sec_vote(battery->chgen_vote, VOTER_CABLE, true, SEC_BAT_CHG_MODE_CHARGING);
 			sec_vote(battery->topoff_vote, VOTER_FULL_CHARGE, false, 0);
 			sec_vote(battery->chgen_vote, VOTER_FULL_CHARGE, false, 0);
@@ -2219,6 +2489,7 @@ static bool sec_bat_voltage_check(struct sec_battery_info *battery)
 			battery->charging_mode = SEC_BATTERY_CHARGING_2ND;
 
 		battery->is_recharging = true;
+<<<<<<< HEAD
 		battery->cisd.data[CISD_DATA_RECHARGING_COUNT]++;
 		battery->cisd.data[CISD_DATA_RECHARGING_COUNT_PER_DAY]++;
 		if (is_wireless_type(battery->cable_type)) {
@@ -2229,14 +2500,27 @@ static bool sec_bat_voltage_check(struct sec_battery_info *battery)
 #endif
 			psy_do_property(battery->pdata->wireless_charger_name, set,
 				POWER_SUPPLY_EXT_PROP_WIRELESS_1ST_DONE, value);
+=======
+#if defined(CONFIG_BATTERY_CISD)
+		battery->cisd.data[CISD_DATA_RECHARGING_COUNT]++;
+		battery->cisd.data[CISD_DATA_RECHARGING_COUNT_PER_DAY]++;
+#endif
+		if (is_wireless_type(battery->cable_type)) {
+			value.intval = WIRELESS_VOUT_CC_CV_VOUT;
+			psy_do_property(battery->pdata->wireless_charger_name, set,
+				POWER_SUPPLY_EXT_PROP_INPUT_VOLTAGE_REGULATION, value);
+>>>>>>> upstream/android-13
 
 			value.intval = WIRELESS_VRECT_ADJ_OFF;
 			psy_do_property(battery->pdata->wireless_charger_name, set,
 				POWER_SUPPLY_EXT_PROP_WIRELESS_RX_CONTROL, value);
 		}
 
+<<<<<<< HEAD
 		if (battery->pdata->change_FV_after_full)
 			sec_vote(battery->fv_vote, VOTER_FULL_CHARGE, false, battery->pdata->chg_float_voltage);
+=======
+>>>>>>> upstream/android-13
 		sec_vote(battery->chgen_vote, VOTER_CABLE, true, SEC_BAT_CHG_MODE_CHARGING);
 		sec_vote(battery->topoff_vote, VOTER_FULL_CHARGE, false, 0);
 		sec_vote(battery->chgen_vote, VOTER_FULL_CHARGE, false, 0);
@@ -2247,6 +2531,10 @@ static bool sec_bat_voltage_check(struct sec_battery_info *battery)
 	return true;
 }
 
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_BATTERY_AGE_FORECAST)
+>>>>>>> upstream/android-13
 __visible_for_testing bool sec_bat_set_aging_step(struct sec_battery_info *battery, int step)
 {
 	union power_supply_propval value = {0, };
@@ -2276,6 +2564,7 @@ __visible_for_testing bool sec_bat_set_aging_step(struct sec_battery_info *batte
 	value.intval = battery->pdata->age_step;
 	psy_do_property(battery->pdata->dual_battery_name, set,
 		POWER_SUPPLY_EXT_PROP_FULL_CONDITION, value);
+<<<<<<< HEAD
 
 	if (battery->pdata->limiter_aging_float_offset > 0) {
 		value.intval = battery->pdata->chg_float_voltage -
@@ -2283,6 +2572,8 @@ __visible_for_testing bool sec_bat_set_aging_step(struct sec_battery_info *batte
 		psy_do_property(battery->pdata->dual_battery_name, set,
 			POWER_SUPPLY_PROP_CONSTANT_CHARGE_VOLTAGE, value);
 	}
+=======
+>>>>>>> upstream/android-13
 #endif
 #if defined(CONFIG_LSI_IFPMIC)
 	value.intval = battery->pdata->age_step;
@@ -2296,7 +2587,11 @@ __visible_for_testing bool sec_bat_set_aging_step(struct sec_battery_info *batte
 #if defined(CONFIG_STEP_CHARGING)
 	sec_bat_set_aging_info_step_charging(battery);
 #endif
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTK_CHARGER)
+=======
+#if defined(CONFIG_MTK_CHARGER)
+>>>>>>> upstream/android-13
 	if (battery->pdata->dynamic_cv_factor) {
 		value.intval = (battery->pdata->chg_float_voltage) * 1000;
 		psy_do_property(battery->pdata->fuelgauge_name, set,
@@ -2307,7 +2602,11 @@ __visible_for_testing bool sec_bat_set_aging_step(struct sec_battery_info *batte
 	dev_info(battery->dev,
 		"%s: Step(%d/%d), Cycle(%d), float_v(%d), r_v(%d), f_s(%d), f_vl(%d)\n",
 		__func__,
+<<<<<<< HEAD
 		battery->pdata->age_step, battery->pdata->num_age_step-1, max(battery->batt_cycle, battery->batt_full_status_usage),
+=======
+		battery->pdata->age_step, battery->pdata->num_age_step-1, battery->batt_cycle,
+>>>>>>> upstream/android-13
 		battery->pdata->chg_float_voltage,
 		battery->pdata->recharge_condition_vcell,
 		battery->pdata->full_condition_soc,
@@ -2360,7 +2659,11 @@ void sec_bat_aging_check(struct sec_battery_info *battery)
 	}
 
 	for (calc_step = battery->pdata->num_age_step - 1; calc_step >= 0; calc_step--) {
+<<<<<<< HEAD
 		if (battery->pdata->age_data[calc_step].cycle <= max(battery->batt_cycle, battery->batt_full_status_usage))
+=======
+		if (battery->pdata->age_data[calc_step].cycle <= battery->batt_cycle)
+>>>>>>> upstream/android-13
 			break;
 	}
 
@@ -2372,7 +2675,11 @@ void sec_bat_aging_check(struct sec_battery_info *battery)
 	dev_info(battery->dev,
 		"%s: %s change step (%d->%d), Cycle(%d)\n",
 		__func__, ret ? "Succeed in" : "Fail to",
+<<<<<<< HEAD
 		prev_step, battery->pdata->age_step, max(battery->batt_cycle, battery->batt_full_status_usage));
+=======
+		prev_step, battery->pdata->age_step, battery->batt_cycle);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(sec_bat_aging_check);
 
@@ -2413,6 +2720,10 @@ void sec_bat_check_battery_health(struct sec_battery_info *battery)
 		(battery_health << BATTERY_HEALTH_SHIFT), BATT_MISC_EVENT_BATTERY_HEALTH);
 }
 EXPORT_SYMBOL(sec_bat_check_battery_health);
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 __visible_for_testing bool sec_bat_check_fullcharged_condition(struct sec_battery_info *battery)
 {
@@ -2480,6 +2791,7 @@ __visible_for_testing bool sec_bat_check_fullcharged_condition(struct sec_batter
 }
 EXPORT_SYMBOL_KUNIT(sec_bat_check_fullcharged_condition);
 
+<<<<<<< HEAD
 __visible_for_testing int sec_bat_do_test_function(struct sec_battery_info *battery)
 {
 	union power_supply_propval value = {0, };
@@ -2523,6 +2835,47 @@ __visible_for_testing int sec_bat_do_test_function(struct sec_battery_info *batt
 		break;
 	}
 	return battery->test_mode;
+=======
+__visible_for_testing void sec_bat_do_test_function(struct sec_battery_info *battery)
+{
+	union power_supply_propval value = {0, };
+
+	pr_info("%s: Test Mode\n", __func__);
+	switch (battery->test_mode) {
+		case 1:
+			if (battery->status == POWER_SUPPLY_STATUS_CHARGING) {
+				sec_vote(battery->chgen_vote, VOTER_TEST_MODE, true, SEC_BAT_CHG_MODE_CHARGING_OFF);
+				sec_bat_set_charging_status(battery,
+						POWER_SUPPLY_STATUS_DISCHARGING);
+			}
+			break;
+		case 2:
+			if (battery->status == POWER_SUPPLY_STATUS_DISCHARGING) {
+				sec_vote(battery->chgen_vote, VOTER_TEST_MODE, true, SEC_BAT_CHG_MODE_CHARGING);
+				psy_do_property(battery->pdata->charger_name, get,
+						POWER_SUPPLY_PROP_STATUS, value);
+				sec_bat_set_charging_status(battery, value.intval);
+			}
+			battery->test_mode = 0;
+			break;
+		case 3: // clear temp block
+			sec_bat_set_health(battery, POWER_SUPPLY_HEALTH_GOOD);
+			sec_bat_set_charging_status(battery,
+					POWER_SUPPLY_STATUS_DISCHARGING);
+			break;
+		case 4:
+			if (battery->status == POWER_SUPPLY_STATUS_DISCHARGING) {
+				sec_vote(battery->chgen_vote, VOTER_TEST_MODE, true, SEC_BAT_CHG_MODE_CHARGING);
+				psy_do_property(battery->pdata->charger_name, get,
+						POWER_SUPPLY_PROP_STATUS, value);
+				sec_bat_set_charging_status(battery, value.intval);
+			}
+			break;
+		default:
+			pr_info("%s: error test: unknown state\n", __func__);
+			break;
+	}
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_KUNIT(sec_bat_do_test_function);
 
@@ -2580,8 +2933,15 @@ static bool sec_bat_time_management(struct sec_battery_info *battery)
 			battery->charging_mode = SEC_BATTERY_CHARGING_NONE;
 			sec_bat_set_health(battery, POWER_SUPPLY_HEALTH_SAFETY_TIMER_EXPIRE);
 			sec_bat_set_charging_status(battery, POWER_SUPPLY_STATUS_NOT_CHARGING);
+<<<<<<< HEAD
 			battery->cisd.data[CISD_DATA_SAFETY_TIMER]++;
 			battery->cisd.data[CISD_DATA_SAFETY_TIMER_PER_DAY]++;
+=======
+#if defined(CONFIG_BATTERY_CISD)
+			battery->cisd.data[CISD_DATA_SAFETY_TIMER]++;
+			battery->cisd.data[CISD_DATA_SAFETY_TIMER_PER_DAY]++;
+#endif
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_SEC_ABC)
 			sec_abc_send_event("MODULE=battery@WARN=safety_timer");
 #endif
@@ -2610,8 +2970,12 @@ bool sec_bat_check_full(struct sec_battery_info *battery, int full_check_type)
 		current_adc =
 			sec_bat_get_adc_data(battery->dev,
 			SEC_BAT_ADC_CHANNEL_FULL_CHECK,
+<<<<<<< HEAD
 			battery->pdata->adc_check_count,
 			battery->pdata->adc_read_type);
+=======
+			battery->pdata->adc_check_count);
+>>>>>>> upstream/android-13
 
 		dev_dbg(battery->dev, "%s: Current ADC (%d)\n", __func__, current_adc);
 
@@ -2746,10 +3110,18 @@ bool sec_bat_check_full(struct sec_battery_info *battery, int full_check_type)
 		ret = true;
 	}
 
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_BATTERY_CISD)
+>>>>>>> upstream/android-13
 	if (ret && (battery->current_event & SEC_BAT_CURRENT_EVENT_SWELLING_MODE)) {
 		battery->cisd.data[CISD_DATA_SWELLING_FULL_CNT]++;
 		battery->cisd.data[CISD_DATA_SWELLING_FULL_CNT_PER_DAY]++;
 	}
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 	return ret;
 }
 EXPORT_SYMBOL_KUNIT(sec_bat_check_full);
@@ -2828,10 +3200,18 @@ __visible_for_testing void sec_bat_do_fullcharged(struct sec_battery_info *batte
 	 * To let charger/fuel gauge know the full status,
 	 * set status before calling sec_bat_set_charge()
 	 */
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_BATTERY_CISD)
+>>>>>>> upstream/android-13
 	if (battery->status != POWER_SUPPLY_STATUS_FULL) {
 		battery->cisd.data[CISD_DATA_FULL_COUNT]++;
 		battery->cisd.data[CISD_DATA_FULL_COUNT_PER_DAY]++;
 	}
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 	sec_bat_set_charging_status(battery,
 			POWER_SUPPLY_STATUS_FULL);
 
@@ -2842,8 +3222,11 @@ __visible_for_testing void sec_bat_do_fullcharged(struct sec_battery_info *batte
 		sec_vote(battery->topoff_vote, VOTER_FULL_CHARGE, true, battery->pdata->full_check_current_2nd);
 		sec_vote(battery->chgen_vote, VOTER_FULL_CHARGE, true, SEC_BAT_CHG_MODE_CHARGING);
 		pr_info("%s: 1st charging is done\n", __func__);
+<<<<<<< HEAD
 		psy_do_property(battery->pdata->wireless_charger_name, set,
 			POWER_SUPPLY_EXT_PROP_WIRELESS_1ST_DONE, value);
+=======
+>>>>>>> upstream/android-13
 	} else {
 		battery->charging_mode = SEC_BATTERY_CHARGING_NONE;
 		battery->is_recharging = false;
@@ -2852,6 +3235,7 @@ __visible_for_testing void sec_bat_do_fullcharged(struct sec_battery_info *batte
 			pr_info("%s: wdt kick enable -> Charger Off, %d\n",
 					__func__, battery->wdt_kick_disable);
 			sec_vote(battery->chgen_vote, VOTER_FULL_CHARGE, true, SEC_BAT_CHG_MODE_CHARGING_OFF);
+<<<<<<< HEAD
 			if (battery->pdata->change_FV_after_full)
 				sec_vote(battery->fv_vote, VOTER_FULL_CHARGE, true, battery->pdata->change_FV_after_full);
 			pr_info("%s: 2nd charging is done\n", __func__);
@@ -2863,13 +3247,25 @@ __visible_for_testing void sec_bat_do_fullcharged(struct sec_battery_info *batte
 				psy_do_property(battery->pdata->wireless_charger_name, set,
 					POWER_SUPPLY_EXT_PROP_RX_PHM, value);
 #endif
+=======
+			pr_info("%s: 2nd charging is done\n", __func__);
+			if (is_wireless_type(battery->cable_type) && !force_fullcharged) {
+				psy_do_property(battery->pdata->wireless_charger_name, set,
+					POWER_SUPPLY_EXT_PROP_WIRELESS_2ND_DONE, value);
+>>>>>>> upstream/android-13
 			}
 		} else {
 			pr_info("%s: wdt kick disabled -> skip charger off, %d\n",
 					__func__, battery->wdt_kick_disable);
 		}
 
+<<<<<<< HEAD
 		sec_bat_aging_check(battery);
+=======
+#if defined(CONFIG_BATTERY_AGE_FORECAST)
+		sec_bat_aging_check(battery);
+#endif
+>>>>>>> upstream/android-13
 
 		/* this concept is only for power-off charging mode*/
 		if (!battery->store_mode && sec_bat_get_lpmode()) {
@@ -2890,7 +3286,11 @@ __visible_for_testing void sec_bat_do_fullcharged(struct sec_battery_info *batte
 	 * activated wake lock in a few seconds
 	 */
 	if (battery->pdata->polling_type == SEC_BATTERY_MONITOR_ALARM)
+<<<<<<< HEAD
 		sb_set_vbus_wake(battery->vbus_ws, battery->health, battery->cable_type);
+=======
+		__pm_wakeup_event(battery->vbus_ws, jiffies_to_msecs(HZ * 10));
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_KUNIT(sec_bat_do_fullcharged);
 
@@ -2942,11 +3342,15 @@ int sec_bat_get_inbat_vol_ocv(struct sec_battery_info *battery)
 				POWER_SUPPLY_EXT_PROP_FGSRC_SWITCHING, value);
 
 		for (j = 0; j < 10; j++) {
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_FUELGAUGE_MAX77775)
 			msleep(200);
 #else
 			msleep(175);
 #endif
+=======
+			msleep(175);
+>>>>>>> upstream/android-13
 			value.intval = SEC_BATTERY_VOLTAGE_MV;
 			psy_do_property(pdata->fuelgauge_name, get,
 				POWER_SUPPLY_PROP_VOLTAGE_NOW, value);
@@ -3024,6 +3428,7 @@ int sec_bat_get_inbat_vol_ocv(struct sec_battery_info *battery)
 	return ret;
 }
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_DUAL_BATTERY)
 int sec_bat_dual_battery_vbat(struct sec_battery_info *battery, int battery_type)
 {
@@ -3097,13 +3502,21 @@ static bool sec_bat_is_unknown_wpc_temp(
 	return false;
 }
 
+=======
+#if !defined(CONFIG_SEC_FACTORY)
+>>>>>>> upstream/android-13
 static void sec_bat_calc_unknown_wpc_temp(
 	struct sec_battery_info *battery, int *batt_temp, int wpc_temp, int usb_temp)
 {
 	if ((battery->pdata->wpc_thm_info.source != SEC_BATTERY_THERMAL_SOURCE_NONE) &&
+<<<<<<< HEAD
 		!is_wireless_all_type(battery->cable_type)) {
 		if (sec_bat_is_unknown_wpc_temp(wpc_temp, usb_temp,
 								battery->pdata->loosened_unknown_temp)) {
+=======
+		!is_wireless_fake_type(battery->cable_type)) {
+		if (wpc_temp <= (-200)) {
+>>>>>>> upstream/android-13
 			if (usb_temp >= 270)
 				*batt_temp = (usb_temp + 60) > 900 ? 900 : (usb_temp + 60);
 			else if (usb_temp <= 210)
@@ -3115,8 +3528,12 @@ static void sec_bat_calc_unknown_wpc_temp(
 	}
 }
 
+<<<<<<< HEAD
 /* Linear Regression for Predicting Battery Temperature */
 int lr_predict_bat_temp(struct sec_battery_info *battery, int batt_temp, int sub_bat_temp)
+=======
+int adjust_bat_temp(struct sec_battery_info *battery, int batt_temp, int sub_bat_temp)
+>>>>>>> upstream/android-13
 {
 	int bat_t = 0, bat_t_1 = 0; /* bat_t = bat_v(t), bat_t_1 = bat_v(t_1) */
 	int lr_delta = battery->pdata->lr_delta;
@@ -3126,7 +3543,11 @@ int lr_predict_bat_temp(struct sec_battery_info *battery, int batt_temp, int sub
 
 	/* this temperature prediction formula has high accuracy at room temperature */
 	if (batt_temp <= 250 || sub_bat_temp <= 0) {
+<<<<<<< HEAD
 		battery->lr_bat_temp = 0x7FFF;
+=======
+		battery->lrp_temp = 0x7FFF;
+>>>>>>> upstream/android-13
 		battery->lr_start_time = 0;
 		battery->lr_time_span = 0;
 
@@ -3141,7 +3562,11 @@ int lr_predict_bat_temp(struct sec_battery_info *battery, int batt_temp, int sub
 	if (battery->lr_time_span < 1)
 		battery->lr_time_span = 1;
 
+<<<<<<< HEAD
 	if (battery->lr_bat_temp == 0x7FFF) {
+=======
+	if (battery->lrp_temp == 0x7FFF) {
+>>>>>>> upstream/android-13
 		/* init bat_t_1 as bat(0) */
 		bat_t_1 = (sub_bat_temp*battery->pdata->lr_param_init_sub_bat_thm + batt_temp*battery->pdata->lr_param_init_bat_thm)/100;
 	} else
@@ -3154,6 +3579,7 @@ int lr_predict_bat_temp(struct sec_battery_info *battery, int batt_temp, int sub
 	 * lrp_temp = A*bat_v(t) + B*bat
 	 */
 	bat_t = ((bat_t_1*1000) + ((batt_temp - bat_t_1)*lr_delta*battery->lr_time_span+battery->pdata->lr_round_off))/1000;
+<<<<<<< HEAD
 	battery->lr_bat_temp = (battery->pdata->lr_param_bat_thm*bat_t + battery->pdata->lr_param_sub_bat_thm*sub_bat_temp)/1000;
 
 	if ((is_wireless_all_type(battery->cable_type) ||
@@ -3176,6 +3602,28 @@ int sec_bat_get_temperature(struct device *dev, struct sec_bat_thm_info *info, i
 {
 	struct sec_battery_info *battery
 			= dev_get_drvdata(dev);
+=======
+	battery->lrp_temp = (battery->pdata->lr_param_bat_thm*bat_t + battery->pdata->lr_param_sub_bat_thm*sub_bat_temp)/1000;
+
+	if ((is_wireless_fake_type(battery->cable_type) ||
+		battery->misc_event & BATT_MISC_EVENT_WIRELESS_DET_LEVEL) &&
+		battery->lrp_temp >= 350)
+		battery->lrp_temp = battery->lrp_temp - 10;
+
+	pr_info("%s : LRP: %d, lrp_temp_raw: %d wpc_temp: %d lrp_bat_t_1: %d lrp_bat_v: %d time_span: %lds\n",
+		__func__, battery->lrp_temp, batt_temp, sub_bat_temp, bat_t_1, bat_t, battery->lr_time_span);
+
+	battery->lr_bat_t_1 = bat_t;
+
+	return battery->lrp_temp;
+}
+EXPORT_SYMBOL(adjust_bat_temp);
+#endif
+
+int sec_bat_get_temperature(struct device *dev, struct sec_bat_thm_info *info, int old_val,
+		char *chg_name, char *fg_name)
+{
+>>>>>>> upstream/android-13
 	union power_supply_propval value = {0, };
 	int temp = old_val;
 	int adc;
@@ -3197,6 +3645,7 @@ int sec_bat_get_temperature(struct device *dev, struct sec_bat_thm_info *info, i
 		pr_info("%s : need to implement\n", __func__);
 		break;
 	case SEC_BATTERY_THERMAL_SOURCE_ADC:
+<<<<<<< HEAD
 		adc = sec_bat_get_adc_data(dev, info->channel, info->check_count, adc_read_type);
 		if (adc >= 0) {
 			if (info->adc_rsense > 0) {
@@ -3206,6 +3655,10 @@ int sec_bat_get_temperature(struct device *dev, struct sec_bat_thm_info *info, i
 					}
 				}
 			}
+=======
+		adc = sec_bat_get_adc_data(dev, info->channel, info->check_count);
+		if (adc >= 0) {
+>>>>>>> upstream/android-13
 			info->adc = adc;
 			sec_bat_convert_adc_to_val(adc, info->offset,
 					info->adc_table, info->adc_table_size, &temp);
@@ -3219,9 +3672,12 @@ int sec_bat_get_temperature(struct device *dev, struct sec_bat_thm_info *info, i
 		}
 		break;
 	case SEC_BATTERY_THERMAL_SOURCE_FG_ADC:
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTK_CHARGER)
 		value.intval = SEC_BATTERY_TEMP_ADC;
 #endif
+=======
+>>>>>>> upstream/android-13
 		if (!psy_do_property(fg_name, get, POWER_SUPPLY_PROP_TEMP, value)) {
 			info->adc = value.intval;
 			sec_bat_convert_adc_to_val(value.intval, info->offset,
@@ -3236,6 +3692,7 @@ int sec_bat_get_temperature(struct device *dev, struct sec_bat_thm_info *info, i
 }
 EXPORT_SYMBOL(sec_bat_get_temperature);
 
+<<<<<<< HEAD
 
 int sec_bat_adjust_temperature(struct sec_battery_info *battery, int read_temp, int prev_temp)
 {
@@ -3256,6 +3713,8 @@ int sec_bat_adjust_temperature(struct sec_battery_info *battery, int read_temp, 
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 __visible_for_testing void sec_bat_get_temperature_info(struct sec_battery_info *battery)
 {
 	union power_supply_propval value = {0, };
@@ -3272,6 +3731,7 @@ __visible_for_testing void sec_bat_get_temperature_info(struct sec_battery_info 
 
 	/* get battery thm info */
 	batt_temp = sec_bat_get_temperature(battery->dev, &battery->pdata->bat_thm_info, batt_temp,
+<<<<<<< HEAD
 			chg_name, fg_name, battery->pdata->adc_read_type);
 	/* get usb thm info */
 	usb_temp = sec_bat_get_temperature(battery->dev, &battery->pdata->usb_thm_info, usb_temp,
@@ -3299,6 +3759,35 @@ __visible_for_testing void sec_bat_get_temperature_info(struct sec_battery_info 
 	else if (is_pd_apdo_wire_type(battery->wire_status))
 		dchg_temp = sec_bat_get_temperature(battery->dev, &battery->pdata->dchg_thm_info,
 				dchg_temp, chg_name, fg_name, battery->pdata->adc_read_type);
+=======
+			chg_name, fg_name);
+	/* get usb thm info */
+	usb_temp = sec_bat_get_temperature(battery->dev, &battery->pdata->usb_thm_info, usb_temp,
+			chg_name, fg_name);
+	/* get chg thm info */
+	chg_temp = sec_bat_get_temperature(battery->dev, &battery->pdata->chg_thm_info, chg_temp,
+			chg_name, fg_name);
+	/* get wpc thm info */
+	wpc_temp = sec_bat_get_temperature(battery->dev, &battery->pdata->wpc_thm_info, wpc_temp,
+			chg_name, fg_name);
+	/* get sub_bat thm info */
+	sub_bat_temp = sec_bat_get_temperature(battery->dev, &battery->pdata->sub_bat_thm_info, sub_bat_temp,
+			chg_name, fg_name);
+#if !defined(CONFIG_SEC_FACTORY)
+	if (battery->pdata->lr_enable)
+		batt_temp = adjust_bat_temp(battery, batt_temp, sub_bat_temp);
+#endif
+	/* get blkt thm info */
+	blkt_temp = sec_bat_get_temperature(battery->dev, &battery->pdata->blk_thm_info, blkt_temp,
+			chg_name, fg_name);
+
+#if IS_ENABLED(CONFIG_DIRECT_CHARGING)
+	if (battery->pdata->dctp_by_cgtp)
+		dchg_temp = battery->chg_temp;
+	else if (is_pd_apdo_wire_type(battery->wire_status))
+		dchg_temp = sec_bat_get_temperature(battery->dev, &battery->pdata->dchg_thm_info,
+				dchg_temp, chg_name, fg_name);
+>>>>>>> upstream/android-13
 #endif
 
 #if !defined(CONFIG_SEC_FACTORY)
@@ -3308,6 +3797,7 @@ __visible_for_testing void sec_bat_get_temperature_info(struct sec_battery_info 
 		sec_bat_calc_unknown_wpc_temp(battery, &batt_temp, wpc_temp, usb_temp);
 #endif
 
+<<<<<<< HEAD
 	if (battery->pdata->batt_temp_adj_gap_inc)
 		battery->temperature = sec_bat_adjust_temperature(battery,
 			batt_temp, battery->temperature);
@@ -3317,6 +3807,9 @@ __visible_for_testing void sec_bat_get_temperature_info(struct sec_battery_info 
 	if (battery->pdata->lrpts_by_batts)
 		battery->lrp = battery->temperature;
 
+=======
+	battery->temperature = batt_temp;
+>>>>>>> upstream/android-13
 	battery->temper_amb = batt_temp;
 	battery->usb_temp = usb_temp;
 	battery->chg_temp = chg_temp;
@@ -3338,7 +3831,11 @@ __visible_for_testing void sec_bat_get_temperature_info(struct sec_battery_info 
 	psy_do_property(battery->pdata->fuelgauge_name, set,
 		POWER_SUPPLY_PROP_TEMP_AMBIENT, value);
 
+<<<<<<< HEAD
 	if (battery->pdata->en_auto_shipmode_temp_ctrl) {
+=======
+	if (!battery->pdata->dis_auto_shipmode_temp_ctrl) {
+>>>>>>> upstream/android-13
 		if (battery->temperature < 0 && !shipmode_en) {
 			value.intval = 0;
 			psy_do_property(battery->pdata->charger_name, set,
@@ -3378,6 +3875,7 @@ void sec_bat_get_battery_info(struct sec_battery_info *battery)
 	}
 
 #if IS_ENABLED(CONFIG_DUAL_BATTERY)
+<<<<<<< HEAD
 	/* get main voltage */
 	value.intval = SEC_DUAL_BATTERY_MAIN;
 	psy_do_property(battery->pdata->dual_battery_name, get,
@@ -3401,16 +3899,34 @@ void sec_bat_get_battery_info(struct sec_battery_info *battery)
 	psy_do_property(battery->pdata->dual_battery_name, get,
 			POWER_SUPPLY_PROP_VOLTAGE_AVG, value);
 	battery->voltage_avg_sub = value.intval;
+=======
+	/* get main pack voltage */
+	value.intval = SEC_DUAL_BATTERY_MAIN;
+	psy_do_property(battery->pdata->dual_battery_name, get,
+		POWER_SUPPLY_PROP_VOLTAGE_AVG, value);
+	battery->voltage_pack_main = value.intval;
+
+	/* get sub pack voltage */
+	value.intval = SEC_DUAL_BATTERY_SUB;
+	psy_do_property(battery->pdata->dual_battery_name, get,
+		POWER_SUPPLY_PROP_VOLTAGE_AVG, value);
+	battery->voltage_pack_sub = value.intval;
+>>>>>>> upstream/android-13
 
 	/* get main current */
 	value.intval = SEC_DUAL_BATTERY_MAIN;
 	psy_do_property(battery->pdata->dual_battery_name, get,
+<<<<<<< HEAD
 		POWER_SUPPLY_PROP_CURRENT_NOW, value);
+=======
+		POWER_SUPPLY_PROP_CURRENT_AVG, value);
+>>>>>>> upstream/android-13
 	battery->current_now_main = value.intval;
 
 	/* get sub current */
 	value.intval = SEC_DUAL_BATTERY_SUB;
 	psy_do_property(battery->pdata->dual_battery_name, get,
+<<<<<<< HEAD
 		POWER_SUPPLY_PROP_CURRENT_NOW, value);
 	battery->current_now_sub = value.intval;
 
@@ -3439,6 +3955,10 @@ void sec_bat_get_battery_info(struct sec_battery_info *battery)
 	psy_do_property(battery->pdata->fuelgauge_name, get,
 		POWER_SUPPLY_EXT_PROP_FG_SOC, value);
 	battery->sub_capacity = value.intval;
+=======
+		POWER_SUPPLY_PROP_CURRENT_AVG, value);
+	battery->current_now_sub = value.intval;
+>>>>>>> upstream/android-13
 #endif
 
 	value.intval = SEC_BATTERY_CURRENT_MA;
@@ -3499,9 +4019,15 @@ void sec_bat_get_battery_info(struct sec_battery_info *battery)
 
 	/* voltage information */
 #if IS_ENABLED(CONFIG_DUAL_BATTERY)
+<<<<<<< HEAD
 	sprintf(str, "%s:Vm(%dmV),Vavgm(%dmV),Vs(%dmV),Vavgs(%dmV),", __func__,
 		battery->voltage_now_main, battery->voltage_avg_main,
 		battery->voltage_now_sub, battery->voltage_avg_sub
+=======
+	sprintf(str, "%s:Vnow(%dmV),Vavg(%dmV),Vmp(%dmV),Vsp(%dmV),", __func__,
+		battery->voltage_now, battery->voltage_avg,
+		battery->voltage_pack_main, battery->voltage_pack_sub
+>>>>>>> upstream/android-13
 	);
 #else
 	sprintf(str, "%s:Vnow(%dmV),Vavg(%dmV),", __func__,
@@ -3511,11 +4037,18 @@ void sec_bat_get_battery_info(struct sec_battery_info *battery)
 
 	/* current information */
 #if IS_ENABLED(CONFIG_DUAL_BATTERY)
+<<<<<<< HEAD
 	sprintf(str + strlen(str), "Inow(%dmA),Iavg(%dmA),Isysavg(%dmA),Inow_m(%dmA),Iavg_m(%dmA),Inow_s(%dmA),Iavg_s(%dmA),Imax(%dmA),Ichg(%dmA),Ichg_m(%dmA),Ichg_s(%dmA),SOC(%d%%),",
 		battery->current_now, battery->current_avg,
 		battery->current_sys_avg, battery->current_now_main,
 		battery->current_avg_main, battery->current_now_sub,
 		battery->current_avg_sub, battery->current_max,
+=======
+	sprintf(str + strlen(str), "Inow(%dmA),Iavg(%dmA),Isysavg(%dmA),Inow_m(%dmA),Inow_s(%dmA),Imax(%dmA),Ichg(%dmA),Ichg_m(%dmA),Ichg_s(%dmA),SOC(%d%%),",
+		battery->current_now, battery->current_avg,
+		battery->current_sys_avg, battery->current_now_main,
+		battery->current_now_sub, battery->current_max,
+>>>>>>> upstream/android-13
 		battery->charging_current, battery->main_current,
 		battery->sub_current, battery->capacity
 	);
@@ -3527,6 +4060,7 @@ void sec_bat_get_battery_info(struct sec_battery_info *battery)
 	);
 #endif
 
+<<<<<<< HEAD
 	/* soc information */
 #if IS_ENABLED(CONFIG_DUAL_FUELGAUGE)
 	sprintf(str + strlen(str), "MSOC(%d.%d%%),SSOC(%d.%d%%),",
@@ -3535,6 +4069,8 @@ void sec_bat_get_battery_info(struct sec_battery_info *battery)
 	);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	/* temperature information */
 #if IS_ENABLED(CONFIG_DUAL_BATTERY)
 	sprintf(str + strlen(str), "Tsub(%d),",
@@ -3999,15 +4535,24 @@ static void sec_bat_siop_level_work(struct work_struct *work)
 }
 
 #if defined(CONFIG_WIRELESS_FIRMWARE_UPDATE)
+<<<<<<< HEAD
 #define MFC_FW_UPDATE_MIN_CAP 20
+=======
+>>>>>>> upstream/android-13
 __visible_for_testing void sec_bat_fw_init_work(struct work_struct *work)
 {
 	struct sec_battery_info *battery = container_of(work,
 				struct sec_battery_info, fw_init_work.work);
 
+<<<<<<< HEAD
 #if defined(CONFIG_WIRELESS_IC_PARAM)
 	union power_supply_propval value = {0, };
 
+=======
+	union power_supply_propval value = {0, };
+
+#if defined(CONFIG_WIRELESS_IC_PARAM)
+>>>>>>> upstream/android-13
 	psy_do_property(battery->pdata->wireless_charger_name, get,
 		POWER_SUPPLY_EXT_PROP_WIRELESS_CHECK_FW_VER, value);
 	if (value.intval) {
@@ -4016,9 +4561,15 @@ __visible_for_testing void sec_bat_fw_init_work(struct work_struct *work)
 	}
 #endif
 
+<<<<<<< HEAD
 	/* auto mfc firmware update when only no otg, mst, wpc, jig */
 	if (sec_bat_check_boost_mfc_condition(battery, SEC_WIRELESS_FW_UPDATE_AUTO_MODE) &&
 		(battery->capacity >= MFC_FW_UPDATE_MIN_CAP) && !sec_bat_get_lpmode() && !battery->is_jig_on) {
+=======
+	/* auto mfc firmware update when only no otg, mst, wpc */
+	if (sec_bat_check_boost_mfc_condition(battery, SEC_WIRELESS_FW_UPDATE_AUTO_MODE) &&
+		battery->capacity > 30 && !sec_bat_get_lpmode()) {
+>>>>>>> upstream/android-13
 		sec_bat_fw_update(battery, SEC_WIRELESS_FW_UPDATE_AUTO_MODE);
 	}
 }
@@ -4149,7 +4700,11 @@ static void sec_bat_calculate_safety_time(struct sec_battery_info *battery)
 	pr_info("%s : REMAIN_TIME(%ld) CAL_REMAIN_TIME(%ld)\n", __func__, battery->expired_time, battery->cal_safety_time);
 }
 
+<<<<<<< HEAD
 static bool sb_check_skip_monitor(struct sec_battery_info *battery)
+=======
+static int sec_bat_check_skip_monitor(struct sec_battery_info *battery)
+>>>>>>> upstream/android-13
 {
 	static struct timespec64 old_ts = {0, };
 	struct timespec64 c_ts = {0, };
@@ -4160,6 +4715,7 @@ static bool sb_check_skip_monitor(struct sec_battery_info *battery)
 	/* monitor once after wakeup */
 	if (battery->polling_in_sleep) {
 		battery->polling_in_sleep = false;
+<<<<<<< HEAD
 		if (battery->status == POWER_SUPPLY_STATUS_DISCHARGING &&
 			!battery->wc_tx_enable &&
 			(battery->d2d_auth != D2D_AUTH_SRC) &&
@@ -4180,11 +4736,42 @@ static bool sb_check_skip_monitor(struct sec_battery_info *battery)
 				c_ts.tv_sec - old_ts.tv_sec, battery->voltage_now,
 				battery->capacity, battery->temperature);
 			return true;
+=======
+		if (battery->status == POWER_SUPPLY_STATUS_DISCHARGING && !battery->wc_tx_enable &&
+			(battery->d2d_auth != D2D_AUTH_SRC)) {
+			if ((unsigned long)(c_ts.tv_sec - old_ts.tv_sec) < 10 * 60) {
+				val.intval = SEC_BATTERY_VOLTAGE_MV;
+				psy_do_property(battery->pdata->fuelgauge_name, get,
+						POWER_SUPPLY_PROP_VOLTAGE_NOW, val);
+				battery->voltage_now = val.intval;
+
+				val.intval = 0;
+				psy_do_property(battery->pdata->fuelgauge_name, get,
+						POWER_SUPPLY_PROP_CAPACITY, val);
+				battery->capacity = val.intval;
+
+				sec_bat_get_temperature_info(battery);
+#if defined(CONFIG_BATTERY_CISD)
+				sec_bat_cisd_check(battery);
+#endif
+				power_supply_changed(battery->psy_bat);
+				pr_info("Skip monitor work(%llu, Vnow:%d(mV), SoC:%d(%%), Tbat:%d(0.1'C))\n",
+						c_ts.tv_sec - old_ts.tv_sec, battery->voltage_now, battery->capacity, battery->temperature);
+
+				return 0;
+			}
+>>>>>>> upstream/android-13
 		}
 	}
 	/* update last monitor time */
 	old_ts = c_ts;
+<<<<<<< HEAD
 	return false;
+=======
+
+	return 1;
+
+>>>>>>> upstream/android-13
 }
 
 static void sec_bat_check_store_mode(struct sec_battery_info *battery)
@@ -4244,6 +4831,58 @@ static void sec_bat_check_store_mode(struct sec_battery_info *battery)
 	}
 }
 
+<<<<<<< HEAD
+=======
+static void sec_bat_recov_full_capacity(struct sec_battery_info *battery)
+{
+	sec_bat_set_misc_event(battery, 0, BATT_MISC_EVENT_FULL_CAPACITY);
+	if (battery->status == POWER_SUPPLY_STATUS_NOT_CHARGING
+		&& battery->health == POWER_SUPPLY_HEALTH_GOOD) {
+#if defined(CONFIG_ENABLE_FULL_BY_SOC)
+		if (battery->capacity >= 100)
+			sec_bat_set_charging_status(battery,
+				POWER_SUPPLY_STATUS_FULL);
+		else
+#endif
+			sec_bat_set_charging_status(battery,
+				POWER_SUPPLY_STATUS_CHARGING);
+		}
+
+	sec_vote(battery->chgen_vote, VOTER_FULL_CAPACITY, false, 0);
+}
+
+static void sec_bat_check_full_capacity(struct sec_battery_info *battery)
+{
+	int rechg_capacity = battery->batt_full_capacity - 2;
+
+	if (battery->batt_full_capacity >= 100 || battery->batt_full_capacity <= 0 ||
+		battery->status == POWER_SUPPLY_STATUS_DISCHARGING) {
+		if (battery->misc_event & BATT_MISC_EVENT_FULL_CAPACITY) {
+			pr_info("%s: full_capacity(%d) status(%d)\n",
+				__func__, battery->batt_full_capacity, battery->status);
+			sec_bat_recov_full_capacity(battery);
+		}
+		return;
+	}
+
+	if (battery->misc_event & BATT_MISC_EVENT_FULL_CAPACITY) {
+		if (battery->capacity <= rechg_capacity ||
+			battery->status == POWER_SUPPLY_STATUS_CHARGING) {
+			pr_info("%s : start re-charging(%d, %d) status(%d)\n",
+				__func__, battery->capacity, rechg_capacity, battery->status);
+			sec_bat_recov_full_capacity(battery);
+		}
+	} else if (battery->capacity >= battery->batt_full_capacity) {
+		pr_info("%s : stop charging(%d, %d)\n", __func__, battery->capacity, battery->batt_full_capacity);
+		sec_bat_set_misc_event(battery, BATT_MISC_EVENT_FULL_CAPACITY,
+			BATT_MISC_EVENT_FULL_CAPACITY);
+		sec_bat_set_charging_status(battery, POWER_SUPPLY_STATUS_NOT_CHARGING);
+		sec_vote(battery->chgen_vote, VOTER_FULL_CAPACITY, true, SEC_BAT_CHG_MODE_CHARGING_OFF);
+		sec_bat_send_cs100(battery);
+	}
+}
+
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_DIRECT_CHARGING)
 static void sec_bat_check_boottime(void *data,
 	bool dctp_en)
@@ -4323,6 +4962,7 @@ static void sec_bat_d2d_check(struct sec_battery_info *battery,
 		battery->vpdo_auth_stat = auth;
 	}
 }
+<<<<<<< HEAD
 
 static void sec_bat_check_direct_charger(struct sec_battery_info *battery)
 {
@@ -4391,10 +5031,62 @@ static void sb_monitor_preliminary_checks(struct sec_battery_info *battery)
 	/* time to full check */
 	sec_bat_calc_time_to_full(battery);
 	sec_bat_check_full_capacity(battery);
+=======
+#endif
+
+static void sec_bat_monitor_work(struct work_struct *work)
+{
+	struct sec_battery_info *battery = container_of(work, struct sec_battery_info,
+		monitor_work.work);
+	union power_supply_propval val = {0, };
+
+	dev_dbg(battery->dev, "%s: Start\n", __func__);
+
+#if IS_ENABLED(CONFIG_WIRELESS_CHARGING)
+	if (sec_bat_check_wc_available(battery))
+		goto skip_monitor;
+
+	if (is_wireless_type(battery->cable_type)
+		&& !battery->wc_auth_retried && !sec_bat_get_lpmode())
+		sec_bat_check_wc_re_auth(battery);
+#endif
+
+#if IS_ENABLED(CONFIG_USB_FACTORY_MODE)
+	if ((battery->cable_type != SEC_BATTERY_CABLE_NONE) && (battery->batt_f_mode == OB_MODE)) {
+		battery->charging_mode = SEC_BATTERY_CHARGING_NONE;
+		sec_bat_set_charging_status(battery, POWER_SUPPLY_STATUS_DISCHARGING);
+		battery->cable_type = SEC_BATTERY_CABLE_NONE;
+		goto continue_monitor;
+	}
+#endif
+
+	if (!sec_bat_check_skip_monitor(battery))
+		goto skip_monitor;
+
+	sec_bat_get_battery_info(battery);
+
+#if IS_ENABLED(CONFIG_DIRECT_CHARGING)
+	sec_bat_d2d_check(battery, battery->capacity, battery->temperature, battery->lrp);
+#endif
+
+#if defined(CONFIG_BATTERY_CISD)
+	sec_bat_cisd_check(battery);
+#endif
+
+#if defined(CONFIG_STEP_CHARGING)
+	sec_bat_check_step_charging(battery);
+#endif
+	/* time to full check */
+	sec_bat_calc_time_to_full(battery);
+
+	sec_bat_check_full_capacity(battery);
+
+>>>>>>> upstream/android-13
 #if defined(CONFIG_WIRELESS_TX_MODE)
 	/* tx mode check */
 	sec_bat_check_tx_mode(battery);
 #endif
+<<<<<<< HEAD
 }
 
 static bool sb_monitor_critical_checks(struct sec_battery_info *battery)
@@ -4409,6 +5101,32 @@ static bool sb_monitor_critical_checks(struct sec_battery_info *battery)
 
 static void sb_monitor_nonurgent_checks(struct sec_battery_info *battery)
 {
+=======
+
+	/* 0. test mode */
+	if (battery->test_mode) {
+		sec_bat_do_test_function(battery);
+		if (battery->test_mode != 0)
+			goto continue_monitor;
+	}
+
+	/* 1. battery check */
+	if (!sec_bat_battery_cable_check(battery))
+		goto continue_monitor;
+
+	/* 2. voltage check */
+	if (!sec_bat_voltage_check(battery))
+		goto continue_monitor;
+
+	/* monitor short routine in initial monitor */
+	if (battery->pdata->monitor_initial_count || sec_bat_is_short_polling(battery))
+		goto skip_current_monitor;
+
+	/* 3. time management */
+	if (!sec_bat_time_management(battery))
+		goto continue_monitor;
+
+>>>>>>> upstream/android-13
 	/* 4. bat thm check */
 	sec_bat_thermal_check(battery);
 
@@ -4416,11 +5134,15 @@ static void sb_monitor_nonurgent_checks(struct sec_battery_info *battery)
 	if (!(battery->current_event & SEC_BAT_CURRENT_EVENT_HIGH_TEMP_SWELLING))
 		sec_bat_fullcharged_check(battery);
 
+<<<<<<< HEAD
 	/* 5-1. eu eco check */
 	if (check_eu_eco_full_status(battery))
 		sec_bat_do_fullcharged(battery, true);
 
 	/* 6. additional check */
+=======
+	/* 7. additional check */
+>>>>>>> upstream/android-13
 	if (battery->pdata->monitor_additional_check)
 		battery->pdata->monitor_additional_check();
 
@@ -4437,6 +5159,7 @@ static void sb_monitor_nonurgent_checks(struct sec_battery_info *battery)
 #endif
 #endif
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_DUAL_BATTERY) && IS_ENABLED(CONFIG_LIMITER_S2ASL01) && !defined(CONFIG_SEC_FACTORY)
 	sec_bat_limiter_check(battery);
 #endif
@@ -4571,10 +5294,75 @@ static void sb_monitor_print(struct sec_battery_info *battery, const char *funcn
 
 	sprintf(str + strlen(str), "\n");
 	pr_info("%s", str);
+=======
+#if IS_ENABLED(CONFIG_DUAL_BATTERY) && !defined(CONFIG_SEC_FACTORY)
+	sec_bat_limiter_check(battery);
+#endif
+
+continue_monitor:
+	/* clear HEATING_CONTROL*/
+	sec_bat_set_current_event(battery, 0, SEC_BAT_CURRENT_EVENT_SKIP_HEATING_CONTROL);
+
+	/* calculate safety time */
+	if (battery->charger_mode == SEC_BAT_CHG_MODE_CHARGING)
+		sec_bat_calculate_safety_time(battery);
+
+	/* set charging current */
+	sec_bat_set_charging_current(battery);
+
+	if (sec_bat_recheck_input_work(battery))
+		sec_bat_run_input_check_work(battery, 0);
+
+skip_current_monitor:
+	psy_do_property(battery->pdata->charger_name, get,
+		POWER_SUPPLY_EXT_PROP_MONITOR_WORK, val);
+#if IS_ENABLED(CONFIG_DIRECT_CHARGING)
+	if (is_pd_apdo_wire_type(battery->cable_type) && (val.intval == LOW_VBAT_SET))
+		sec_vote_refresh(battery->fcc_vote);
+#endif
+	psy_do_property(battery->pdata->fuelgauge_name, get,
+		POWER_SUPPLY_EXT_PROP_MONITOR_WORK, val);
+	if (battery->pdata->wireless_charger_name)
+		psy_do_property(battery->pdata->wireless_charger_name, get,
+			POWER_SUPPLY_EXT_PROP_MONITOR_WORK, val);
+
+	pr_info("%s: Status(%s), mode(%s), Health(%s), Cable(%s, %s, %d, %d), rp(%d), HV(%s), flash(%d) mst(%d)\n",
+			__func__,
+			sb_get_bst_str(battery->status),
+			sb_get_cm_str(battery->charging_mode),
+			sb_get_hl_str(battery->health),
+			sb_get_ct_str(battery->cable_type),
+			sb_get_ct_str(battery->wire_status),
+			battery->muic_cable_type,
+			battery->pd_usb_attached,
+			battery->sink_status.rp_currentlvl,
+			battery->hv_chg_name,
+			battery->flash_state,
+			battery->mst_en);
+	pr_info("%s: lcd(%d), slate(%d), store(%d), siop_level(%d), sleep_mode(%d)"
+#if defined(CONFIG_BATTERY_AGE_FORECAST_DETACHABLE)
+			", Cycle(%dw)"
+#else
+			", Cycle(%d)"
+#endif
+			"\n", __func__,
+			battery->lcd_status,
+			is_slate_mode(battery),
+			battery->store_mode,
+			battery->siop_level,
+			battery->sleep_mode
+#if defined(CONFIG_BATTERY_AGE_FORECAST)
+			, battery->batt_cycle
+#else
+			, -1
+#endif
+			);
+>>>>>>> upstream/android-13
 
 #if defined(CONFIG_WIRELESS_TX_MODE)
 	if (battery->wc_tx_enable) {
 		pr_info("@Tx_Mode %s: Rx(%s), WC_TX_VOUT(%dmV), UNO_IOUT(%d), MFC_IOUT(%d) AFC_DISABLE(%d)\n",
+<<<<<<< HEAD
 			funcname, sb_rx_type_str(battery->wc_rx_type), battery->wc_tx_vout,
 			battery->tx_uno_iout, battery->tx_mfc_iout, battery->afc_disable);
 	}
@@ -4596,6 +5384,24 @@ static void sec_bat_monitor_work(struct work_struct *work)
 		power_supply_changed(battery->psy_bat);
 	}
 
+=======
+			__func__, sb_rx_type_str(battery->wc_rx_type), battery->wc_tx_vout,
+			battery->tx_uno_iout, battery->tx_mfc_iout, battery->afc_disable);
+	}
+#endif
+
+#if defined(CONFIG_ENG_BATTERY_CONCEPT)
+	pr_info("%s: battery->stability_test(%d), battery->eng_not_full_status(%d)\n",
+			__func__, battery->stability_test, battery->eng_not_full_status);
+#endif
+
+	/* store mode & fac bin */
+	sec_bat_check_store_mode(battery);
+
+	power_supply_changed(battery->psy_bat);
+
+skip_monitor:
+>>>>>>> upstream/android-13
 	sec_bat_set_polling(battery);
 
 #if defined(CONFIG_WIRELESS_TX_MODE)
@@ -4609,6 +5415,11 @@ static void sec_bat_monitor_work(struct work_struct *work)
 		__pm_relax(battery->monitor_ws);
 
 	dev_dbg(battery->dev, "%s: End\n", __func__);
+<<<<<<< HEAD
+=======
+
+	return;
+>>>>>>> upstream/android-13
 }
 
 static enum alarmtimer_restart sec_bat_alarm(struct alarm *alarm, ktime_t now)
@@ -4650,7 +5461,11 @@ __visible_for_testing void sec_bat_check_input_voltage(struct sec_battery_info *
 	else if (is_hv_wire_9v_type(cable_type))
 		voltage = SEC_INPUT_VOLTAGE_9V;
 #if IS_ENABLED(CONFIG_WIRELESS_CHARGING)
+<<<<<<< HEAD
 	else if (cable_type == SEC_BATTERY_CABLE_PREPARE_WIRELESS_20 || is_pwr_nego_wireless_type(cable_type))
+=======
+	else if (cable_type == SEC_BATTERY_CABLE_PREPARE_WIRELESS_20 || cable_type == SEC_BATTERY_CABLE_HV_WIRELESS_20)
+>>>>>>> upstream/android-13
 		voltage = battery->wc20_vout;
 	else if (is_hv_wireless_type(cable_type) || cable_type == SEC_BATTERY_CABLE_PREPARE_WIRELESS_HV)
 		voltage = SEC_INPUT_VOLTAGE_10V;
@@ -4728,21 +5543,31 @@ static void sec_bat_set_usb_configure(struct sec_battery_info *battery, int usb_
 				}
 			}
 		} else if (battery->sink_status.rp_currentlvl == RP_CURRENT_LEVEL2) {
+<<<<<<< HEAD
 			if (!(is_pd_wire_type(battery->wire_status) ||
 				is_pd_wire_type(battery->cable_type))) {
 				sec_vote(battery->fcc_vote, VOTER_CABLE, true, battery->pdata->rp_current_rp2);
 				sec_vote(battery->input_vote, VOTER_CABLE, true, battery->pdata->rp_current_rp2);
 			}
+=======
+			sec_vote(battery->fcc_vote, VOTER_CABLE, true, battery->pdata->rp_current_rp2);
+			sec_vote(battery->input_vote, VOTER_CABLE, true, battery->pdata->rp_current_rp2);
+>>>>>>> upstream/android-13
 		}
 	} else if (usb_status == USB_CURRENT_SUSPENDED) {
 		battery->usb_slow_chg = false;
 		sec_bat_set_current_event(battery,
 				SEC_BAT_CURRENT_EVENT_USB_SUSPENDED, SEC_BAT_CURRENT_EVENT_USB_STATE);
 		sec_vote(battery->chgen_vote, VOTER_SUSPEND, true, SEC_BAT_CHG_MODE_BUCK_OFF);
+<<<<<<< HEAD
 		if (battery->sink_status.rp_currentlvl == RP_CURRENT_LEVEL_DEFAULT) {
 			sec_vote(battery->fcc_vote, VOTER_USB_100MA, true, 100);
 			sec_vote(battery->input_vote, VOTER_USB_100MA, true, 100);
 		}
+=======
+		sec_vote(battery->fcc_vote, VOTER_USB_100MA, true, 100);
+		sec_vote(battery->input_vote, VOTER_USB_100MA, true, 100);
+>>>>>>> upstream/android-13
 		cable_work_delay = 500;
 		store_battery_log(
 				"USB suspend:%d%%,%dmV,%s,ct(%d,%d,%d),cev(0x%x),mev(0x%x)",
@@ -4773,6 +5598,7 @@ static void sec_bat_set_usb_configure(struct sec_battery_info *battery, int usb_
 			msecs_to_jiffies(cable_work_delay));
 }
 
+<<<<<<< HEAD
 #define REDUCE_STEP 500
 #define MIN_FCC_VALUE 3500
 static void sec_bat_set_abnormal_ta_fcc(struct sec_battery_info *battery, bool enable)
@@ -4801,6 +5627,8 @@ static void sec_bat_set_abnormal_ta_fcc(struct sec_battery_info *battery, bool e
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_WIRELESS_CHARGING)
 __visible_for_testing void sec_bat_ext_event_work(struct work_struct *work)
 {
@@ -4837,12 +5665,28 @@ __visible_for_testing void sec_bat_txpower_calc_work(struct work_struct *work)
 }
 EXPORT_SYMBOL_KUNIT(sec_bat_txpower_calc_work);
 
+<<<<<<< HEAD
+=======
+__visible_for_testing void sec_bat_otg_work(struct work_struct *work)
+{
+	struct sec_battery_info *battery = container_of(work,
+				struct sec_battery_info, otg_work.work);
+	set_wireless_otg_input_current(battery);
+}
+EXPORT_SYMBOL_KUNIT(sec_bat_otg_work);
+
+>>>>>>> upstream/android-13
 static void sec_bat_wc20_current_work(struct work_struct *work)
 {
 	struct sec_battery_info *battery = container_of(work,
 				struct sec_battery_info, wc20_current_work.work);
 
+<<<<<<< HEAD
 	sec_bat_set_wc20_current(battery);
+=======
+	sec_bat_set_wc20_current(battery, battery->wc20_info_idx);
+	sec_bat_predict_wc20_time_to_full_current(battery, battery->wc20_info_idx);
+>>>>>>> upstream/android-13
 	__pm_relax(battery->wc20_current_ws);
 }
 
@@ -4912,8 +5756,12 @@ static bool cw_check_skip_condition(struct sec_battery_info *battery, int curren
 				SEC_BAT_CURRENT_EVENT_AFC | SEC_BAT_CURRENT_EVENT_AICL);
 			sec_vote(battery->input_vote, VOTER_AICL, false, 0);
 			sec_vote(battery->input_vote, VOTER_VBUS_CHANGE, false, 0);
+<<<<<<< HEAD
 			__pm_stay_awake(battery->monitor_ws);
 			queue_delayed_work(battery->monitor_wqueue, &battery->monitor_work, 0);
+=======
+			power_supply_changed(battery->psy_bat);
+>>>>>>> upstream/android-13
 		} else if (battery->prev_usb_conf != USB_CURRENT_NONE) {
 			dev_info(battery->dev, "%s: set usb charging current to %d mA\n",
 				__func__, battery->prev_usb_conf);
@@ -4932,8 +5780,13 @@ static bool cw_check_skip_condition(struct sec_battery_info *battery, int curren
 __visible_for_testing int cw_check_cable_switch(struct sec_battery_info *battery, int prev_ct,
 		int cur_ct, bool afc_disabled)
 {
+<<<<<<< HEAD
 	if ((is_wired_type(prev_ct) && is_wireless_all_type(cur_ct))
 		|| (is_wireless_all_type(prev_ct) && is_wired_type(cur_ct))
+=======
+	if ((is_wired_type(prev_ct) && is_wireless_fake_type(cur_ct))
+		|| (is_wireless_fake_type(prev_ct) && is_wired_type(cur_ct))
+>>>>>>> upstream/android-13
 		|| afc_disabled) {
 		battery->max_charge_power = 0;
 		sec_bat_set_threshold(battery, cur_ct);
@@ -4999,6 +5852,7 @@ static void cw_set_psp_online2drivers(struct sec_battery_info *battery)
 {
 	union power_supply_propval val = {0, };
 
+<<<<<<< HEAD
 	if (is_slate_mode(battery))
 		val.intval = SEC_BATTERY_CABLE_NONE;
 	else
@@ -5021,12 +5875,38 @@ static void cw_set_psp_online2drivers(struct sec_battery_info *battery)
 
 	if (!is_wireless_fake_type(battery->cable_type))
 		sec_vote_refresh(battery->chgen_vote);
+=======
+	if (battery->cable_type != SEC_BATTERY_CABLE_WIRELESS_FAKE) {
+		if (is_slate_mode(battery))
+			val.intval = SEC_BATTERY_CABLE_NONE;
+		else
+			val.intval = battery->cable_type;
+		psy_do_property(battery->pdata->charger_name, set, POWER_SUPPLY_PROP_ONLINE, val);
+
+		val.intval = battery->cable_type;
+		psy_do_property(battery->pdata->fuelgauge_name, set, POWER_SUPPLY_PROP_ONLINE, val);
+
+		if (battery->wc_tx_enable) {
+			val.intval = is_wired_type(battery->wire_status) ? 1 : 0;
+			psy_do_property(battery->pdata->wireless_charger_name, set,
+				POWER_SUPPLY_EXT_PROP_WIRELESS_WR_CONNECTED, val);
+		}
+		sec_vote_refresh(battery->chgen_vote);
+	}
+>>>>>>> upstream/android-13
 }
 
 static void cw_check_wc_condition(struct sec_battery_info *battery, int prev_cable_type)
 {
 	/* need to move to wireless set property */
+<<<<<<< HEAD
 	if (is_wireless_all_type(battery->cable_type)) {
+=======
+	battery->wpc_vout_level = WIRELESS_VOUT_10V;
+	if (is_wireless_type(battery->cable_type)) {
+		power_supply_changed(battery->psy_bat);
+	} else if (battery->cable_type == SEC_BATTERY_CABLE_WIRELESS_FAKE) {
+>>>>>>> upstream/android-13
 		power_supply_changed(battery->psy_bat);
 	}
 
@@ -5053,9 +5933,17 @@ static void chg_retention_time_check(struct sec_battery_info *battery)
 	/* get only minutes part */
 	battery->charging_retention_time /= 60;
 	pr_info("%s: retention time = %ld mins\n", __func__, battery->charging_retention_time);
+<<<<<<< HEAD
 	battery->cisd.data[CISD_DATA_TOTAL_CHG_RETENTION_TIME_PER_DAY] += battery->charging_retention_time;
 	battery->cisd.data[CISD_DATA_CHG_RETENTION_TIME_PER_DAY] =
 		max(battery->cisd.data[CISD_DATA_CHG_RETENTION_TIME_PER_DAY], (int)battery->charging_retention_time);
+=======
+#if defined(CONFIG_BATTERY_CISD)
+	battery->cisd.data[CISD_DATA_TOTAL_CHG_RETENTION_TIME_PER_DAY] += battery->charging_retention_time;
+	battery->cisd.data[CISD_DATA_CHG_RETENTION_TIME_PER_DAY] =
+		max(battery->cisd.data[CISD_DATA_CHG_RETENTION_TIME_PER_DAY], (int)battery->charging_retention_time);
+#endif
+>>>>>>> upstream/android-13
 	battery->charging_retention_time = 0;
 }
 
@@ -5068,6 +5956,7 @@ static void chg_start_time_check(struct sec_battery_info *battery)
 	pr_info("%s: start time = %lu\n", __func__, battery->charging_retention_time);
 }
 
+<<<<<<< HEAD
 void sec_bat_smart_sw_src(struct sec_battery_info *battery, bool enable, int curr)
 {
 	if (enable)
@@ -5083,6 +5972,8 @@ void sec_bat_smart_sw_src(struct sec_battery_info *battery, bool enable, int cur
 		__func__, enable ? "reduce" : "recover");
 }
 
+=======
+>>>>>>> upstream/android-13
 static void cw_nocharge_type(struct sec_battery_info *battery)
 {
 	int i;
@@ -5090,11 +5981,22 @@ static void cw_nocharge_type(struct sec_battery_info *battery)
 	/* initialize all status */
 	battery->charging_mode = SEC_BATTERY_CHARGING_NONE;
 	battery->is_recharging = false;
+<<<<<<< HEAD
 	battery->cisd.ab_vbat_check_count = 0;
 	battery->cisd.state &= ~CISD_STATE_OVER_VOLTAGE;
 	battery->d2d_check = false;
 #if IS_ENABLED(CONFIG_WIRELESS_CHARGING)
 	battery->wc20_power_class = 0;
+=======
+#if defined(CONFIG_BATTERY_CISD)
+	battery->cisd.ab_vbat_check_count = 0;
+	battery->cisd.state &= ~CISD_STATE_OVER_VOLTAGE;
+	battery->d2d_check = false;
+#endif
+#if IS_ENABLED(CONFIG_WIRELESS_CHARGING)
+	battery->wc20_power_class = 0;
+	sec_bat_predict_wc20_time_to_full_current(battery, -1);
+>>>>>>> upstream/android-13
 	battery->wc20_rx_power = 0;
 	battery->wc20_vout = 0;
 #endif
@@ -5119,7 +6021,10 @@ static void cw_nocharge_type(struct sec_battery_info *battery)
 	battery->ta_alert_mode = OCP_NONE;
 	battery->prev_tx_phm_mode = false;
 	battery->wpc_temp_v2_offset = 0;
+<<<<<<< HEAD
 	battery->is_fpdo_dc = false;
+=======
+>>>>>>> upstream/android-13
 
 	sec_bat_cancel_input_check_work(battery);
 	sec_bat_change_default_current(battery, SEC_BATTERY_CABLE_USB,
@@ -5131,9 +6036,12 @@ static void cw_nocharge_type(struct sec_battery_info *battery)
 	sec_bat_change_default_current(battery, SEC_BATTERY_CABLE_HV_WIRELESS_20,
 			battery->pdata->default_wc20_input_current,
 			battery->pdata->default_wc20_charging_current);
+<<<<<<< HEAD
 	sec_bat_change_default_current(battery, SEC_BATTERY_CABLE_WIRELESS_EPP,
 			battery->pdata->default_wc20_input_current,
 			battery->pdata->default_wc20_charging_current);
+=======
+>>>>>>> upstream/android-13
 	/* usb default current is 100mA before configured*/
 	sec_bat_set_current_event(battery, SEC_BAT_CURRENT_EVENT_USB_100MA,
 			(SEC_BAT_CURRENT_EVENT_CHARGE_DISABLE |
@@ -5165,7 +6073,10 @@ static void cw_nocharge_type(struct sec_battery_info *battery)
 					"%s: disable slate mode(smart switch) manually\n", __func__);
 		}
 	}
+<<<<<<< HEAD
 	sec_bat_smart_sw_src(battery, false, 500);
+=======
+>>>>>>> upstream/android-13
 
 	chg_retention_time_check(battery);
 	battery->wc_cv_mode = false;
@@ -5175,7 +6086,11 @@ static void cw_nocharge_type(struct sec_battery_info *battery)
 	battery->auto_mode = false;
 #if !defined(CONFIG_SEC_FACTORY)
 	if (sec_bat_get_lpmode())
+<<<<<<< HEAD
 		battery->usb_conn_status = USB_CONN_NORMAL;
+=======
+		battery->usb_thm_status = USB_THM_NORMAL;
+>>>>>>> upstream/android-13
 #endif
 	for (i = 0; i < VOTER_MAX; i++) {
 		if (i != VOTER_FLASH &&
@@ -5187,8 +6102,12 @@ static void cw_nocharge_type(struct sec_battery_info *battery)
 			i == VOTER_AGING_STEP ||
 			i == VOTER_WC_TX ||
 			i == VOTER_MUIC_ABNORMAL ||
+<<<<<<< HEAD
 			i == VOTER_NO_BATTERY ||
 			i == VOTER_FULL_CAPACITY)
+=======
+			i == VOTER_NO_BATTERY)
+>>>>>>> upstream/android-13
 			continue;
 		sec_vote(battery->topoff_vote, i, false, 0);
 		if (i != VOTER_FW)
@@ -5196,7 +6115,10 @@ static void cw_nocharge_type(struct sec_battery_info *battery)
 		sec_vote(battery->input_vote, i, false, 0);
 		sec_vote(battery->fcc_vote, i, false, 0);
 		sec_vote(battery->fv_vote, i, false, 0);
+<<<<<<< HEAD
 		sec_vote(battery->dc_fv_vote, i, false, 0);
+=======
+>>>>>>> upstream/android-13
 	}
 	cancel_delayed_work(&battery->slowcharging_work);
 #if !defined(CONFIG_NO_BATTERY)
@@ -5205,10 +6127,13 @@ static void cw_nocharge_type(struct sec_battery_info *battery)
 	sec_vote(battery->input_vote, VOTER_USB_100MA, true, 100);
 #endif
 	battery->usb_slow_chg = false;
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_DUAL_BATTERY)
 	battery->limiter_check = false;
 #endif
 	sec_bat_set_abnormal_ta_fcc(battery, false);
+=======
+>>>>>>> upstream/android-13
 }
 
 static void cw_slate_mode(struct sec_battery_info *battery)
@@ -5227,11 +6152,14 @@ static void cw_slate_mode(struct sec_battery_info *battery)
 	battery->is_sysovlo = false;
 	battery->is_vbatovlo = false;
 	battery->is_abnormal_temp = false;
+<<<<<<< HEAD
 	battery->lrp_limit = false;
 	battery->lrp_step = LRP_NONE;
 #if IS_ENABLED(CONFIG_DIRECT_CHARGING)
 	battery->lrp_chg_src = SEC_CHARGING_SOURCE_DIRECT;
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	for (j = 0; j < VOTER_MAX; j++) {
 		sec_vote(battery->iv_vote, j, false, 0);
@@ -5239,8 +6167,12 @@ static void cw_slate_mode(struct sec_battery_info *battery)
 			j == VOTER_SLATE ||
 			j == VOTER_SMART_SLATE ||
 			j == VOTER_AGING_STEP ||
+<<<<<<< HEAD
 			j == VOTER_WC_TX ||
 			j == VOTER_FULL_CAPACITY)
+=======
+			j == VOTER_WC_TX)
+>>>>>>> upstream/android-13
 			continue;
 		sec_vote(battery->topoff_vote, j, false, 0);
 		sec_vote(battery->chgen_vote, j, false, 0);
@@ -5274,13 +6206,21 @@ static void cw_usb_suspend(struct sec_battery_info *battery)
 
 static bool is_afc_evt_clear(int cable_type, int wire_status, int wc_status, unsigned int rp_currentlvl)
 {
+<<<<<<< HEAD
 	if ((cable_type == SEC_BATTERY_CABLE_TA && (rp_currentlvl == RP_CURRENT_LEVEL_DEFAULT ||
 			rp_currentlvl == RP_CURRENT_LEVEL_NONE)) ||
+=======
+	if ((cable_type == SEC_BATTERY_CABLE_TA && rp_currentlvl == RP_CURRENT_LEVEL_DEFAULT) ||
+>>>>>>> upstream/android-13
 			cable_type == SEC_BATTERY_CABLE_WIRELESS ||
 			cable_type == SEC_BATTERY_CABLE_PMA_WIRELESS ||
 			(is_hv_wire_type(cable_type) &&
 			(wc_status == SEC_BATTERY_CABLE_PREPARE_WIRELESS_20 ||
+<<<<<<< HEAD
 				is_pwr_nego_wireless_type(wc_status) ||
+=======
+				wc_status == SEC_BATTERY_CABLE_HV_WIRELESS_20 ||
+>>>>>>> upstream/android-13
 				wire_status == SEC_BATTERY_CABLE_HV_TA_CHG_LIMIT)))
 		return false;
 	else
@@ -5289,7 +6229,11 @@ static bool is_afc_evt_clear(int cable_type, int wire_status, int wc_status, uns
 
 static void cw_prev_cable_is_nocharge(struct sec_battery_info *battery)
 {
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTK_CHARGER)
+=======
+#if defined(CONFIG_MTK_CHARGER)
+>>>>>>> upstream/android-13
 	union power_supply_propval value = {0, };
 #endif
 
@@ -5300,7 +6244,11 @@ static void cw_prev_cable_is_nocharge(struct sec_battery_info *battery)
 		pr_info("%s: prev cable type was fake and health is not good\n", __func__);
 		return;
 	}
+<<<<<<< HEAD
 #if defined(CONFIG_ARCH_MTK_PROJECT) || IS_ENABLED(CONFIG_SEC_MTK_CHARGER)
+=======
+#if defined(CONFIG_ARCH_MTK_PROJECT)
+>>>>>>> upstream/android-13
 	if (battery->current_event & SEC_BAT_CURRENT_EVENT_USB_100MA) {
 		if ((battery->cable_type == SEC_BATTERY_CABLE_USB) && !lpcharge) {
 			pr_info("%s: usb unconfigured\n", __func__);
@@ -5318,7 +6266,11 @@ static void cw_prev_cable_is_nocharge(struct sec_battery_info *battery)
 	if (battery->capacity >= 100) {
 		sec_bat_do_fullcharged(battery, true);
 		pr_info("%s: charging start at full, do not turn on charging\n", __func__);
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTK_CHARGER)
+=======
+#if defined(CONFIG_MTK_CHARGER)
+>>>>>>> upstream/android-13
 		/*
 		 * MTK check the AFC when charging-on.
 		 *  Even though do not charging-on, need to check AFC still.
@@ -5388,7 +6340,11 @@ static bool sb_ct_has_9v(struct sec_battery_info *battery, int ct)
 
 static void cw_set_iv(struct sec_battery_info *battery)
 {
+<<<<<<< HEAD
 	if (is_nocharge_type(battery->cable_type) || is_wireless_all_type(battery->cable_type))
+=======
+	if (is_nocharge_type(battery->cable_type) || is_wireless_fake_type(battery->cable_type))
+>>>>>>> upstream/android-13
 		return;
 
 	if (is_hv_wire_type(battery->cable_type))
@@ -5419,12 +6375,17 @@ __visible_for_testing void sec_bat_cable_work(struct work_struct *work)
 	sec_bat_set_current_event(battery, SEC_BAT_CURRENT_EVENT_SKIP_HEATING_CONTROL,
 			SEC_BAT_CURRENT_EVENT_SKIP_HEATING_CONTROL);
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MUIC_NOTIFIER)
 #if !IS_ENABLED(CONFIG_MTK_CHARGER) || IS_ENABLED(CONFIG_VIRTUAL_MUIC)
+=======
+#if !defined(CONFIG_MTK_CHARGER) || defined(CONFIG_VIRTUAL_MUIC)
+>>>>>>> upstream/android-13
 	/*
 	 * showing charging icon and noti(no sound, vi, haptic) only
 	 * if slow insertion is detected by MUIC
 	 */
+<<<<<<< HEAD
 	if (!(battery->pogo_status && battery->pdata->pogo_chgin))
 		sec_bat_set_misc_event(battery,
 			(battery->muic_cable_type == ATTACHED_DEV_TIMEOUT_OPEN_MUIC ? BATT_MISC_EVENT_TIMEOUT_OPEN_TYPE : 0),
@@ -5432,6 +6393,16 @@ __visible_for_testing void sec_bat_cable_work(struct work_struct *work)
 #endif
 #endif
 
+=======
+	sec_bat_set_misc_event(battery,
+		(battery->muic_cable_type == ATTACHED_DEV_TIMEOUT_OPEN_MUIC ? BATT_MISC_EVENT_TIMEOUT_OPEN_TYPE : 0),
+		BATT_MISC_EVENT_TIMEOUT_OPEN_TYPE);
+#endif
+
+	/* check wire type PD charger case */
+	cw_check_pd_wire_type(battery);
+
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_WIRELESS_CHARGING)
 	current_cable_type = sec_bat_choose_cable_type(battery);
 #elif defined(CONFIG_USE_POGO)
@@ -5440,9 +6411,12 @@ __visible_for_testing void sec_bat_cable_work(struct work_struct *work)
 	current_cable_type = battery->wire_status;
 #endif
 
+<<<<<<< HEAD
 	/* check wire type PD charger case */
 	cw_check_pd_wire_type(battery);
 
+=======
+>>>>>>> upstream/android-13
 	/* check cable work skip condition */
 	if (cw_check_skip_condition(battery, current_cable_type))
 		goto end_of_cable_work;
@@ -5461,22 +6435,47 @@ __visible_for_testing void sec_bat_cable_work(struct work_struct *work)
 	if (battery->pdata->check_cable_result_callback)
 		battery->pdata->check_cable_result_callback(battery->cable_type);
 
+<<<<<<< HEAD
+=======
+	/*
+	 * platform can NOT get information of cable connection because wakeup time is too short to check uevent
+	 * To make sure that target is wakeup if cable is connected and disconnected,
+	 * activated wake lock in a few seconds
+	 */
+	__pm_wakeup_event(battery->vbus_ws, jiffies_to_msecs(HZ * 10));
+
+>>>>>>> upstream/android-13
 	if (is_nocharge_type(battery->cable_type) ||
 		((battery->pdata->cable_check_type & SEC_BATTERY_CABLE_CHECK_NOINCOMPATIBLECHARGE) &&
 		battery->cable_type == SEC_BATTERY_CABLE_UNKNOWN)) {
 		pr_info("%s: prev_cable_type(%d)\n", __func__, prev_cable_type);
 		cw_nocharge_type(battery);
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_DUAL_BATTERY)
+		battery->limiter_check = false;
+#endif
+>>>>>>> upstream/android-13
 	} else if (is_slate_mode(battery)) {
 		pr_info("%s: slate mode on\n", __func__);
 		cw_slate_mode(battery);
 	} else if (battery->current_event & SEC_BAT_CURRENT_EVENT_USB_SUSPENDED) {
 		pr_info("%s: usb suspend\n", __func__);
 		cw_usb_suspend(battery);
+<<<<<<< HEAD
 		battery->prev_usb_conf = USB_CURRENT_NONE;
 		monitor_work_delay = 3000;
 		goto run_monitor_work;
 	} else if (!battery->is_recharging &&
 		(is_nocharge_type(prev_cable_type) || is_wireless_fake_type(prev_cable_type))) {
+=======
+		if (battery->current_event & SEC_BAT_CURRENT_EVENT_USB_SUSPENDED) {
+			battery->prev_usb_conf = USB_CURRENT_NONE;
+			monitor_work_delay = 3000;
+			goto run_monitor_work;
+		}
+	} else if (is_nocharge_type(prev_cable_type) || prev_cable_type == SEC_BATTERY_CABLE_WIRELESS_FAKE) {
+>>>>>>> upstream/android-13
 		pr_info("%s: c: %d, ov: %d, at: %d, cm: %d, tz: %d\n", __func__,
 				battery->cable_type, battery->is_vbatovlo, battery->is_abnormal_temp,
 				battery->charger_mode, battery->thermal_zone);
@@ -5517,7 +6516,11 @@ __visible_for_testing void sec_bat_cable_work(struct work_struct *work)
 		/* to init battery type current when wireless charging -> battery case */
 		sec_vote_refresh(battery->input_vote);
 #if IS_ENABLED(CONFIG_WIRELESS_CHARGING)
+<<<<<<< HEAD
 		sec_wireless_otg_icl_control(battery);
+=======
+		set_wireless_otg_input_current(battery);
+>>>>>>> upstream/android-13
 #endif
 		input_current = battery->pdata->charging_current[current_cable_type].input_current_limit;
 		charging_current = battery->pdata->charging_current[current_cable_type].fast_charging_current;
@@ -5569,6 +6572,7 @@ __visible_for_testing void sec_bat_cable_work(struct work_struct *work)
 
 run_monitor_work:
 	__pm_stay_awake(battery->monitor_ws);
+<<<<<<< HEAD
 	/* run monitor_work immediately if SEC_BAT_CURRENT_EVENT_USB_SUSPENDED is cleared for timing issue */
 	if (!(battery->current_event & SEC_BAT_CURRENT_EVENT_USB_SUSPENDED))
 		cancel_delayed_work(&battery->monitor_work);
@@ -5577,6 +6581,11 @@ run_monitor_work:
 	sb_set_vbus_wake(battery->vbus_ws, battery->health, battery->cable_type);
 end_of_cable_work:
 #if IS_ENABLED(CONFIG_MTK_CHARGER)  && !IS_ENABLED(CONFIG_VIRTUAL_MUIC)
+=======
+	queue_delayed_work(battery->monitor_wqueue, &battery->monitor_work, msecs_to_jiffies(monitor_work_delay));
+end_of_cable_work:
+#if defined(CONFIG_MTK_CHARGER)  && !defined(CONFIG_VIRTUAL_MUIC)
+>>>>>>> upstream/android-13
 	if ((battery->bc12_cable != SEC_BATTERY_CABLE_TIMEOUT) &&
 				(battery->misc_event & BATT_MISC_EVENT_TIMEOUT_OPEN_TYPE))
 				sec_bat_set_misc_event(battery, 0,
@@ -5607,8 +6616,15 @@ __visible_for_testing void sec_bat_input_check_work(struct work_struct *work)
 		sec_bat_change_vbus(battery, battery->cable_type, battery->current_event, battery->siop_level);
 #endif
 
+<<<<<<< HEAD
 		if (battery->cable_type == SEC_BATTERY_CABLE_TA)
 			battery->cisd.cable_data[CISD_CABLE_TA]++;
+=======
+#if defined(CONFIG_BATTERY_CISD)
+		if (battery->cable_type == SEC_BATTERY_CABLE_TA)
+			battery->cisd.cable_data[CISD_CABLE_TA]++;
+#endif
+>>>>>>> upstream/android-13
 
 #if defined(CONFIG_WIRELESS_TX_MODE)
 		if (battery->wc_tx_enable)
@@ -5625,6 +6641,7 @@ __visible_for_testing void sec_bat_input_check_work(struct work_struct *work)
 			pr_info("%s: clear select_pdo event(%d, %d, %d)\n",
 				__func__, iv, pdo, curr_pdo);
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTK_CHARGER)
 			if (sec_pd_get_current_pdo(&curr_pdo) >= 0) {
 				pr_info("%s: sink_status.current_pdo_num(%d), curr_pdo(%d)\n",
@@ -5634,6 +6651,8 @@ __visible_for_testing void sec_bat_input_check_work(struct work_struct *work)
 				sec_bat_get_charging_current_in_power_list(battery);
 			}
 #endif
+=======
+>>>>>>> upstream/android-13
 			sec_bat_set_current_event(battery, 0, SEC_BAT_CURRENT_EVENT_SELECT_PDO);
 			sec_vote(battery->input_vote, VOTER_SELECT_PDO, false, 0);
 			battery->input_check_cnt = 0;
@@ -5655,6 +6674,7 @@ __visible_for_testing void sec_bat_input_check_work(struct work_struct *work)
 }
 EXPORT_SYMBOL_KUNIT(sec_bat_input_check_work);
 
+<<<<<<< HEAD
 static void sec_bat_transit_clear_work(struct work_struct *work)
 {
 	struct sec_battery_info *battery = container_of(work,
@@ -5696,10 +6716,14 @@ static void sec_bat_usb_conn_check_work(struct work_struct *work)
 }
 
 #if IS_ENABLED(CONFIG_MTK_CHARGER)  && !IS_ENABLED(CONFIG_VIRTUAL_MUIC)
+=======
+#if defined(CONFIG_MTK_CHARGER)  && !defined(CONFIG_VIRTUAL_MUIC)
+>>>>>>> upstream/android-13
 static void sec_bat_handle_bc12_connection(struct sec_battery_info *battery)
 {
 	mutex_lock(&battery->bc12_notylock);
 
+<<<<<<< HEAD
 	dev_info(battery->dev,
 		"%s: prev_cable_type(%d), bc12_cable(%d), wire_status(%d)\n",
 		__func__, battery->cable_type, battery->bc12_cable, battery->wire_status);
@@ -5713,6 +6737,15 @@ static void sec_bat_handle_bc12_connection(struct sec_battery_info *battery)
 
 	battery->wire_status = battery->bc12_cable;
 
+=======
+	battery->wire_status = battery->bc12_cable;
+
+	dev_info(battery->dev,
+			"%s: current_cable(%d), wc_status(%d), wire_status(%d)\n",
+			__func__, battery->bc12_cable, battery->wc_status,
+			battery->wire_status);
+
+>>>>>>> upstream/android-13
 	if (is_hv_wire_type(battery->bc12_cable)) {
 		sec_bat_set_current_event(battery, 0, SEC_BAT_CURRENT_EVENT_AICL);
 		sec_vote(battery->input_vote, VOTER_AICL, false, 0);
@@ -5721,15 +6754,26 @@ static void sec_bat_handle_bc12_connection(struct sec_battery_info *battery)
 #if IS_ENABLED(CONFIG_USB_FACTORY_MODE)
 		sec_bat_usb_factory_clear(battery);
 #endif
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MUIC_NOTIFIER)
 		battery->muic_cable_type = ATTACHED_DEV_NONE_MUIC;
 #endif
 #if IS_ENABLED(CONFIG_PDIC_NOTIFIER)
+=======
+#if defined(CONFIG_MUIC_NOTIFIER)
+		battery->muic_cable_type = ATTACHED_DEV_NONE_MUIC;
+#endif
+#if defined(CONFIG_PDIC_NOTIFIER)
+>>>>>>> upstream/android-13
 		battery->init_src_cap = false;
 		battery->sink_status.rp_currentlvl = RP_CURRENT_LEVEL_NONE;
 #endif
 	}
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_PDIC_NOTIFIER)
+=======
+#if defined(CONFIG_PDIC_NOTIFIER)
+>>>>>>> upstream/android-13
 	else if (battery->cable_type != battery->bc12_cable &&
 		battery->sink_status.rp_currentlvl >= RP_CURRENT_LEVEL_DEFAULT &&
 		(battery->bc12_cable == SEC_BATTERY_CABLE_USB ||
@@ -5772,6 +6816,7 @@ static void sec_bat_handle_bc12_connection(struct sec_battery_info *battery)
 } /* sec_bat_handle_bc12_connection */
 #endif
 
+<<<<<<< HEAD
 #define TRANSIT_CNT 5
 #define MAX_TRANSIT_CNT 100
 static void sec_bat_check_srccap_transit(struct sec_battery_info *battery, int enable)
@@ -5812,6 +6857,8 @@ static void sec_bat_check_srccap_transit(struct sec_battery_info *battery, int e
 #endif
 }
 
+=======
+>>>>>>> upstream/android-13
 static int sec_bat_set_property(struct power_supply *psy,
 				enum power_supply_property psp,
 				const union power_supply_propval *val)
@@ -5837,6 +6884,7 @@ static int sec_bat_set_property(struct power_supply *psy,
 		sec_bat_set_charging_status(battery, val->intval);
 		break;
 	case POWER_SUPPLY_PROP_HEALTH:
+<<<<<<< HEAD
 		if (val->intval == POWER_SUPPLY_HEALTH_UNSPEC_FAILURE) {
 			if (battery->status != POWER_SUPPLY_STATUS_DISCHARGING) {
 				pr_info("%s: unspec failure !!\n", __func__);
@@ -5883,6 +6931,12 @@ static int sec_bat_set_property(struct power_supply *psy,
 				queue_delayed_work(battery->monitor_wqueue,
 							&battery->monitor_work, 0);
 			}
+=======
+		if (battery->cable_type != SEC_BATTERY_CABLE_WIRELESS_FAKE) {
+			__pm_stay_awake(battery->monitor_ws);
+			queue_delayed_work(battery->monitor_wqueue,
+					&battery->monitor_work, msecs_to_jiffies(100));
+>>>>>>> upstream/android-13
 		}
 		break;
 	case POWER_SUPPLY_PROP_ONLINE:
@@ -5908,7 +6962,11 @@ static int sec_bat_set_property(struct power_supply *psy,
 						(battery->wc_status != SEC_BATTERY_CABLE_NONE))
 					current_cable_type = SEC_BATTERY_CABLE_WIRELESS;
 			}
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTK_CHARGER)  && !IS_ENABLED(CONFIG_VIRTUAL_MUIC)
+=======
+#if defined(CONFIG_MTK_CHARGER)  && !defined(CONFIG_VIRTUAL_MUIC)
+>>>>>>> upstream/android-13
 			battery->bc12_cable = current_cable_type;
 
 /* Skip notify from BC1.2 if PDIC is attached already */
@@ -5916,14 +6974,22 @@ static int sec_bat_set_property(struct power_supply *psy,
 				(battery->bc12_cable != SEC_BATTERY_CABLE_NONE)) {
 				if (lpcharge)
 					break;
+<<<<<<< HEAD
 				else if (battery->usb_conn_status == USB_CONN_NORMAL &&
+=======
+				else if (battery->usb_thm_status == USB_THM_NORMAL &&
+>>>>>>> upstream/android-13
 					!(battery->misc_event & BATT_MISC_EVENT_TEMP_HICCUP_TYPE))
 					break;
 			}
 			sec_bat_handle_bc12_connection(battery);
 #endif
 		}
+<<<<<<< HEAD
 #if !IS_ENABLED(CONFIG_MTK_CHARGER) || IS_ENABLED(CONFIG_VIRTUAL_MUIC)
+=======
+#if !defined(CONFIG_MTK_CHARGER) || defined(CONFIG_VIRTUAL_MUIC)
+>>>>>>> upstream/android-13
 		dev_info(battery->dev,
 				"%s: current_cable(%d), wc_status(%d), wire_status(%d)\n",
 				__func__, current_cable_type, battery->wc_status,
@@ -5972,6 +7038,10 @@ static int sec_bat_set_property(struct power_supply *psy,
 		break;
 	case POWER_SUPPLY_PROP_CHARGE_CONTROL_LIMIT:
 		break;
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_BATTERY_CISD)
+>>>>>>> upstream/android-13
 	case POWER_SUPPLY_PROP_VOLTAGE_MIN:
 		pr_info("%s: Valert was occurred! run monitor work for updating cisd data!\n", __func__);
 		battery->cisd.data[CISD_DATA_VALERT_COUNT]++;
@@ -5980,15 +7050,20 @@ static int sec_bat_set_property(struct power_supply *psy,
 		queue_delayed_work_on(0, battery->monitor_wqueue,
 			&battery->monitor_work, 0);
 		break;
+<<<<<<< HEAD
 	case POWER_SUPPLY_PROP_ENERGY_NOW:
 		if (!battery->factory_mode_boot_on)
 			factory_mode = 1;
 		break;
+=======
+#endif
+>>>>>>> upstream/android-13
 	case POWER_SUPPLY_EXT_PROP_MIN ... POWER_SUPPLY_EXT_PROP_MAX:
 		switch (ext_psp) {
 		case POWER_SUPPLY_EXT_PROP_AICL_CURRENT:
 			battery->max_charge_power = battery->charge_power =
 				mW_by_mVmA(battery->input_voltage, val->intval);
+<<<<<<< HEAD
 			/* Voter should be removed after all chargers is fixed */
 			sec_vote(battery->input_vote, VOTER_AICL, true, val->intval);
 #if defined(CONFIG_SUPPORT_HV_CTRL) && !defined(CONFIG_SEC_FACTORY)
@@ -6003,6 +7078,21 @@ static int sec_bat_set_property(struct power_supply *psy,
 					__pm_stay_awake(battery->siop_level_ws);
 					queue_delayed_work(battery->monitor_wqueue, &battery->siop_level_work, 0);
 				}
+=======
+			/* Voter should be removed after all chagers is fixed */
+			sec_vote(battery->input_vote, VOTER_AICL, true, val->intval);
+#if defined(CONFIG_SUPPORT_HV_CTRL) && !defined(CONFIG_SEC_FACTORY)
+			if (sb_ct_has_9v(battery, battery->cable_type) &&
+				battery->pdata->boosting_voltage_aicl) {
+				sec_bat_set_misc_event(battery, BATT_MISC_EVENT_HV_BY_AICL,
+					BATT_MISC_EVENT_HV_BY_AICL);
+				sec_vote(battery->input_vote, VOTER_AICL, false, 0);
+				sec_vote(battery->iv_vote, VOTER_AICL, true, SEC_INPUT_VOLTAGE_9V);
+
+				/* Check siop level to set current */
+				__pm_stay_awake(battery->siop_level_ws);
+				queue_delayed_work(battery->monitor_wqueue, &battery->siop_level_work, 0);
+>>>>>>> upstream/android-13
 			}
 #endif
 
@@ -6024,8 +7114,53 @@ static int sec_bat_set_property(struct power_supply *psy,
 					battery->current_event
 					);
 			}
+<<<<<<< HEAD
 			battery->cisd.data[CISD_DATA_AICL_COUNT]++;
 			battery->cisd.data[CISD_DATA_AICL_COUNT_PER_DAY]++;
+=======
+#if defined(CONFIG_BATTERY_CISD)
+			battery->cisd.data[CISD_DATA_AICL_COUNT]++;
+			battery->cisd.data[CISD_DATA_AICL_COUNT_PER_DAY]++;
+#endif
+			break;
+		case POWER_SUPPLY_EXT_PROP_SYSOVLO:
+			if (battery->status != POWER_SUPPLY_STATUS_DISCHARGING) {
+				pr_info("%s: Vsys is ovlo !!\n", __func__);
+				battery->is_sysovlo = true;
+				battery->is_recharging = false;
+				battery->charging_mode = SEC_BATTERY_CHARGING_NONE;
+				sec_bat_set_health(battery, POWER_SUPPLY_EXT_HEALTH_VSYS_OVP);
+				sec_bat_set_current_event(battery, SEC_BAT_CURRENT_EVENT_VSYS_OVP, SEC_BAT_CURRENT_EVENT_VSYS_OVP);
+				sec_bat_set_charging_status(battery, POWER_SUPPLY_STATUS_NOT_CHARGING);
+#if defined(CONFIG_BATTERY_CISD)
+				battery->cisd.data[CISD_DATA_VSYS_OVP]++;
+				battery->cisd.data[CISD_DATA_VSYS_OVP_PER_DAY]++;
+#endif
+#if IS_ENABLED(CONFIG_SEC_ABC)
+				sec_abc_send_event("MODULE=battery@WARN=vsys_ovp");
+#endif
+				sec_vote(battery->chgen_vote, VOTER_SYSOVLO, true, SEC_BAT_CHG_MODE_CHARGING_OFF);
+				__pm_stay_awake(battery->monitor_ws);
+				queue_delayed_work(battery->monitor_wqueue,
+							&battery->monitor_work, 0);
+			}
+			break;
+		case POWER_SUPPLY_EXT_PROP_VBAT_OVP:
+			if (battery->status != POWER_SUPPLY_STATUS_DISCHARGING) {
+				pr_info("%s: Vbat is ovlo !!\n", __func__);
+				battery->is_vbatovlo = true;
+				battery->is_recharging = false;
+				battery->charging_mode = SEC_BATTERY_CHARGING_NONE;
+				sec_bat_set_health(battery, POWER_SUPPLY_EXT_HEALTH_VBAT_OVP);
+				sec_bat_set_current_event(battery, SEC_BAT_CURRENT_EVENT_VBAT_OVP, SEC_BAT_CURRENT_EVENT_VBAT_OVP);
+				sec_bat_set_charging_status(battery, POWER_SUPPLY_STATUS_NOT_CHARGING);
+
+				sec_vote(battery->chgen_vote, VOTER_VBAT_OVP, true, SEC_BAT_CHG_MODE_CHARGING_OFF);
+				__pm_stay_awake(battery->monitor_ws);
+				queue_delayed_work(battery->monitor_wqueue,
+							&battery->monitor_work, 0);
+			}
+>>>>>>> upstream/android-13
 			break;
 		case POWER_SUPPLY_EXT_PROP_USB_CONFIGURE:
 #if IS_ENABLED(CONFIG_USB_FACTORY_MODE) && defined(CONFIG_SEC_FACTORY)
@@ -6111,8 +7246,15 @@ static int sec_bat_set_property(struct power_supply *psy,
 		case POWER_SUPPLY_EXT_PROP_CURRENT_EVENT:
 			if (!(battery->current_event & val->intval)) {
 				pr_info("%s: set new current_event %d\n", __func__, val->intval);
+<<<<<<< HEAD
 				if (val->intval == SEC_BAT_CURRENT_EVENT_DC_ERR)
 					battery->cisd.event_data[EVENT_DC_ERR]++;
+=======
+#if defined(CONFIG_BATTERY_CISD)
+				if (val->intval == SEC_BAT_CURRENT_EVENT_DC_ERR)
+					battery->cisd.event_data[EVENT_DC_ERR]++;
+#endif
+>>>>>>> upstream/android-13
 				sec_bat_set_current_event(battery, val->intval, val->intval);
 			}
 			break;
@@ -6128,15 +7270,32 @@ static int sec_bat_set_property(struct power_supply *psy,
 			break;
 #endif
 		case POWER_SUPPLY_EXT_PROP_SRCCAP:
+<<<<<<< HEAD
 			sec_bat_check_srccap_transit(battery, val->intval);
+=======
+			pr_info("%s: set init_src_cap(%d->%d)",
+				__func__, battery->init_src_cap, val->intval);
+			if (val->intval == 0)
+				sec_vote(battery->chgen_vote, VOTER_SRCCAP_TRANSIT, true, SEC_BAT_CHG_MODE_BUCK_OFF);
+			else
+				battery->init_src_cap = true;
+>>>>>>> upstream/android-13
 			break;
 #if IS_ENABLED(CONFIG_DIRECT_CHARGING)
 		case POWER_SUPPLY_EXT_PROP_DIRECT_TA_ALERT:
 			if (battery->ta_alert_wa) {
 				pr_info("@TA_ALERT: %s: TA OCP DETECT\n", __func__);
+<<<<<<< HEAD
 				battery->cisd.event_data[EVENT_TA_OCP_DET]++;
 				if (battery->ta_alert_mode == OCP_NONE)
 					battery->cisd.event_data[EVENT_TA_OCP_ON]++;
+=======
+#if defined(CONFIG_BATTERY_CISD)
+				battery->cisd.event_data[EVENT_TA_OCP_DET]++;
+				if (battery->ta_alert_mode == OCP_NONE)
+					battery->cisd.event_data[EVENT_TA_OCP_ON]++;
+#endif
+>>>>>>> upstream/android-13
 				battery->ta_alert_mode = OCP_DETECT;
 				sec_bat_set_current_event(battery, SEC_BAT_CURRENT_EVENT_25W_OCP,
 							SEC_BAT_CURRENT_EVENT_25W_OCP);
@@ -6172,6 +7331,7 @@ static int sec_bat_set_property(struct power_supply *psy,
 			}
 			break;
 		case POWER_SUPPLY_EXT_PROP_DIRECT_FIXED_PDO:
+<<<<<<< HEAD
 			if (!is_slate_mode(battery) && !is_wireless_all_type(battery->cable_type)) {
 				sec_vote(battery->iv_vote, VOTER_DC_MODE, true, val->intval);
 				if (val->intval == SEC_INPUT_VOLTAGE_APDO) {
@@ -6179,6 +7339,10 @@ static int sec_bat_set_property(struct power_supply *psy,
 					sec_bat_set_misc_event(battery, 0, BATT_MISC_EVENT_HV_BY_AICL);
 				}
 			}
+=======
+			if (!is_slate_mode(battery))
+				sec_vote(battery->iv_vote, VOTER_DC_MODE, true, val->intval);
+>>>>>>> upstream/android-13
 			break;
 #endif
 #if IS_ENABLED(CONFIG_DUAL_BATTERY)
@@ -6238,11 +7402,14 @@ static int sec_bat_set_property(struct power_supply *psy,
 				pr_info("%s: fw update done: (5V -> 9V).\n", __func__);
 				sec_vote(battery->chgen_vote, VOTER_FW, false, 0);
 				sec_vote(battery->iv_vote, VOTER_FW, false, 0);
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MUIC_NOTIFIER)
 #if !IS_ENABLED(CONFIG_MTK_CHARGER) || !IS_ENABLED(CONFIG_AFC_CHARGER)
 				muic_afc_request_voltage(AFC_REQUEST_MFC, SEC_INPUT_VOLTAGE_9V / 1000);
 #endif
 #endif
+=======
+>>>>>>> upstream/android-13
 			}
 			break;
 		case POWER_SUPPLY_EXT_PROP_THERMAL_ZONE:
@@ -6274,8 +7441,11 @@ static int sec_bat_set_property(struct power_supply *psy,
 #endif
 			}
 			break;
+<<<<<<< HEAD
 		case POWER_SUPPLY_EXT_PROP_TEMP_CHECK_TYPE:
 			break;
+=======
+>>>>>>> upstream/android-13
 		case POWER_SUPPLY_EXT_PROP_SUB_TEMP:
 			break;
 		case POWER_SUPPLY_EXT_PROP_WPC_FREQ_STRENGTH:
@@ -6288,27 +7458,45 @@ static int sec_bat_set_property(struct power_supply *psy,
 			value.intval = val->intval;
 			pr_info("%s: d2d reverse boost : %d\n", __func__, val->intval);
 			if (val->intval) {
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_BATTERY_CISD)
+>>>>>>> upstream/android-13
 				if (!battery->d2d_check) {
 					battery->cisd.event_data[EVENT_D2D]++;
 					battery->d2d_check = true;
 				}
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 				sec_vote(battery->chgen_vote, VOTER_D2D_WIRE, true, SEC_BAT_CHG_MODE_BUCK_OFF);
 			}
 			psy_do_property(battery->pdata->charger_name, set,
 				POWER_SUPPLY_EXT_PROP_D2D_REVERSE_VOLTAGE, value);
 			if (!val->intval) {
+<<<<<<< HEAD
 				battery->d2d_check = false;
 				sec_vote(battery->chgen_vote, VOTER_D2D_WIRE, false, 0);
 				battery->vpdo_auth_stat = AUTH_NONE;
+=======
+#if defined(CONFIG_BATTERY_CISD)
+				battery->d2d_check = false;
+#endif
+				sec_vote(battery->chgen_vote, VOTER_D2D_WIRE, false, 0);
+>>>>>>> upstream/android-13
 			}
 			break;
 		case POWER_SUPPLY_EXT_PROP_FLASH_STATE: /* check only for MTK */
 			battery->flash_state = val->intval;
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_DIRECT_CHARGING)
 			if (is_pd_apdo_wire_type(battery->cable_type))
 				psy_do_property(battery->pdata->charger_name, set,
 					POWER_SUPPLY_EXT_PROP_REFRESH_CHARGING_SOURCE, value);
 #endif
+=======
+>>>>>>> upstream/android-13
 			if (val->intval) {
 				pr_info("%s: Flash on: (9V -> 5V).\n", __func__);
 				sec_vote(battery->iv_vote, VOTER_FLASH, true, SEC_INPUT_VOLTAGE_5V);
@@ -6316,8 +7504,18 @@ static int sec_bat_set_property(struct power_supply *psy,
 				pr_info("%s: Flash off: (5V -> 9V).\n", __func__);
 				sec_vote(battery->iv_vote, VOTER_FLASH, false, 0);
 			}
+<<<<<<< HEAD
 			break;
 #if IS_ENABLED(CONFIG_MTK_CHARGER)
+=======
+#if IS_ENABLED(CONFIG_DIRECT_CHARGING)
+			if (is_pd_apdo_wire_type(battery->cable_type))
+				psy_do_property(battery->pdata->charger_name, set,
+					POWER_SUPPLY_EXT_PROP_REFRESH_CHARGING_SOURCE, value);
+#endif
+			break;
+#if defined(CONFIG_MTK_CHARGER)
+>>>>>>> upstream/android-13
 		case POWER_SUPPLY_EXT_PROP_MTK_FG_INIT: /* check only for MTK */
 			battery->mtk_fg_init = val->intval;
 			pr_info("%s: mtk_fg_init (%d)\n", __func__, battery->mtk_fg_init);
@@ -6359,6 +7557,7 @@ static int sec_bat_set_property(struct power_supply *psy,
 				val->intval
 			);
 			break;
+<<<<<<< HEAD
 		case POWER_SUPPLY_EXT_PROP_HARDRESET_OCCUR:
 			if (is_pd_wire_type(battery->cable_type)) {
 				battery->sink_status.selected_pdo_num = -1;
@@ -6386,6 +7585,8 @@ static int sec_bat_set_property(struct power_supply *psy,
 				sec_vote(battery->chgen_vote, VOTER_PHM, false, 0);
 #endif
 			break;
+=======
+>>>>>>> upstream/android-13
 		default:
 			return -EINVAL;
 		}
@@ -6397,6 +7598,7 @@ static int sec_bat_set_property(struct power_supply *psy,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int sec_bat_check_status(struct sec_battery_info *battery)
 {
 	/* need to update for DPM UI */
@@ -6442,6 +7644,8 @@ static int sec_bat_check_status(struct sec_battery_info *battery)
 	return battery->status;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int sec_bat_get_property(struct power_supply *psy,
 				enum power_supply_property psp,
 				union power_supply_propval *val)
@@ -6452,14 +7656,50 @@ static int sec_bat_get_property(struct power_supply *psy,
 
 	switch ((int)psp) {
 	case POWER_SUPPLY_PROP_STATUS:
+<<<<<<< HEAD
 		val->intval = sec_bat_check_status(battery);
+=======
+		/* need to update for DPM UI */
+		if (battery->misc_event & BATT_MISC_EVENT_DIRECT_POWER_MODE) {
+			val->intval = POWER_SUPPLY_STATUS_NOT_CHARGING;
+			return 0;
+		}
+		if ((battery->health == POWER_SUPPLY_HEALTH_OVERVOLTAGE) ||
+			(battery->health == POWER_SUPPLY_EXT_HEALTH_UNDERVOLTAGE)) {
+				val->intval = POWER_SUPPLY_STATUS_DISCHARGING;
+		} else {
+			if ((battery->pdata->cable_check_type &
+				SEC_BATTERY_CABLE_CHECK_NOUSBCHARGE) &&
+				!sec_bat_get_lpmode()) {
+				switch (battery->cable_type) {
+				case SEC_BATTERY_CABLE_USB:
+				case SEC_BATTERY_CABLE_USB_CDP:
+					val->intval =
+						POWER_SUPPLY_STATUS_DISCHARGING;
+					return 0;
+				}
+			}
+#if defined(CONFIG_STORE_MODE)
+			if (battery->store_mode && !sec_bat_get_lpmode() &&
+				!is_nocharge_type(battery->cable_type) &&
+				battery->status == POWER_SUPPLY_STATUS_DISCHARGING) {
+				val->intval = POWER_SUPPLY_STATUS_CHARGING;
+			} else
+#endif
+				val->intval = battery->status;
+		}
+>>>>>>> upstream/android-13
 		break;
 	case POWER_SUPPLY_PROP_CHARGE_TYPE:
 	{
 		unsigned int input_current = battery->pdata->charging_current[battery->cable_type].input_current_limit;
 		if (is_nocharge_type(battery->cable_type)) {
 			val->intval = POWER_SUPPLY_CHARGE_TYPE_NONE;
+<<<<<<< HEAD
 		} else if (is_hv_wire_type(battery->cable_type) || is_pd_wire_type(battery->cable_type) || is_wireless_all_type(battery->cable_type)) {
+=======
+		} else if (is_hv_wire_type(battery->cable_type) || is_pd_wire_type(battery->cable_type) || is_wireless_type(battery->cable_type)) {
+>>>>>>> upstream/android-13
 			val->intval = POWER_SUPPLY_CHARGE_TYPE_FAST;
 		} else if (!battery->usb_bootcomplete && !lpcharge && battery->pdata->slowcharging_usb_bootcomplete) {
 			val->intval = POWER_SUPPLY_CHARGE_TYPE_FAST;
@@ -6509,11 +7749,17 @@ static int sec_bat_get_property(struct power_supply *psy,
 			val->intval = SEC_BATTERY_CABLE_SILENT_TYPE;
 #if IS_ENABLED(CONFIG_WIRELESS_CHARGING)
 		else if (is_hv_wireless_type(battery->cable_type) ||
+<<<<<<< HEAD
 			(battery->cable_type == SEC_BATTERY_CABLE_PREPARE_WIRELESS_HV)) {
+=======
+			(battery->cable_type == SEC_BATTERY_CABLE_PREPARE_WIRELESS_HV) ||
+			(battery->cable_type == SEC_BATTERY_CABLE_PREPARE_WIRELESS_20)) {
+>>>>>>> upstream/android-13
 			if (sec_bat_hv_wc_normal_mode_check(battery))
 				val->intval = SEC_BATTERY_CABLE_WIRELESS;
 			else
 				val->intval = SEC_BATTERY_CABLE_HV_WIRELESS_ETX;
+<<<<<<< HEAD
 		} else if ((battery->cable_type == SEC_BATTERY_CABLE_PREPARE_WIRELESS_20) ||
 			(battery->cable_type == SEC_BATTERY_CABLE_WIRELESS_EPP_FAKE)) {
 			if (sec_bat_hv_wc_normal_mode_check(battery) ||
@@ -6522,13 +7768,23 @@ static int sec_bat_get_property(struct power_supply *psy,
 			else
 				val->intval = SEC_BATTERY_CABLE_HV_WIRELESS_ETX;
 		} else if (battery->cable_type == SEC_BATTERY_CABLE_WIRELESS_PACK ||
+=======
+		}
+		else if (battery->cable_type == SEC_BATTERY_CABLE_WIRELESS_PACK ||
+>>>>>>> upstream/android-13
 			battery->cable_type == SEC_BATTERY_CABLE_WIRELESS_STAND ||
 			battery->cable_type == SEC_BATTERY_CABLE_PMA_WIRELESS ||
 			battery->cable_type == SEC_BATTERY_CABLE_WIRELESS_VEHICLE ||
 			battery->cable_type == SEC_BATTERY_CABLE_WIRELESS_TX ||
+<<<<<<< HEAD
 			battery->cable_type == SEC_BATTERY_CABLE_WIRELESS_FAKE) {
 			val->intval = SEC_BATTERY_CABLE_WIRELESS;
 		}
+=======
+			battery->cable_type == SEC_BATTERY_CABLE_HV_WIRELESS_20 ||
+			battery->cable_type == SEC_BATTERY_CABLE_WIRELESS_FAKE)
+			val->intval = SEC_BATTERY_CABLE_WIRELESS;
+>>>>>>> upstream/android-13
 #endif
 		else
 			val->intval = battery->cable_type;
@@ -6585,6 +7841,7 @@ static int sec_bat_get_property(struct power_supply *psy,
 			val->intval = 70;
 			pr_info("%s : capacity(%d)\n", __func__, val->intval);
 		} else {
+<<<<<<< HEAD
 			val->intval = battery->capacity;
 			if ((battery->status == POWER_SUPPLY_STATUS_FULL) &&
 #if defined(CONFIG_ENG_BATTERY_CONCEPT)
@@ -6592,6 +7849,23 @@ static int sec_bat_get_property(struct power_supply *psy,
 #endif
 				!is_eu_eco_rechg(battery->fs))
 				val->intval = 100;
+=======
+#if defined(CONFIG_ENG_BATTERY_CONCEPT)
+			if (battery->status == POWER_SUPPLY_STATUS_FULL) {
+				if (battery->eng_not_full_status)
+					val->intval = battery->capacity;
+				else
+					val->intval = 100;
+			} else {
+				val->intval = battery->capacity;
+			}
+#else
+			if (battery->status == POWER_SUPPLY_STATUS_FULL)
+				val->intval = 100;
+			else
+				val->intval = battery->capacity;
+#endif
+>>>>>>> upstream/android-13
 		}
 		break;
 	case POWER_SUPPLY_PROP_TEMP:
@@ -6664,6 +7938,7 @@ static int sec_bat_get_property(struct power_supply *psy,
 			break;
 		case POWER_SUPPLY_EXT_PROP_DIRECT_SEND_UVDM:
 			break;
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_DUAL_BATTERY)
 		case POWER_SUPPLY_EXT_PROP_DIRECT_VBAT_CHECK:
 			pr_info("%s : step(%d/%d), vmp:%dmV, vsp:%dmV\n", __func__,
@@ -6672,16 +7947,27 @@ static int sec_bat_get_property(struct power_supply *psy,
 			if ((battery->step_chg_status == battery->dc_step_chg_step - 1) &&
 				((battery->voltage_avg_main >= battery->pdata->sc_vbat_thresh_main) ||
 				(battery->voltage_avg_sub >= battery->pdata->sc_vbat_thresh_sub)))
+=======
+#if IS_ENABLED(CONFIG_DUAL_BATTERY) && IS_ENABLED(CONFIG_DIRECT_CHARGING)
+		case POWER_SUPPLY_EXT_PROP_DIRECT_VBAT_CHECK:
+			pr_info("%s : mc:%dmV, sc:%dmV\n", __func__,
+				battery->voltage_pack_main, battery->voltage_pack_sub);
+			if ((battery->voltage_pack_main >= battery->pdata->sc_vbat_thresh) ||
+				(battery->voltage_pack_sub >= battery->pdata->sc_vbat_thresh))
+>>>>>>> upstream/android-13
 				val->intval = 1;
 			else
 				val->intval = 0;
 			break;
+<<<<<<< HEAD
 		case POWER_SUPPLY_EXT_PROP_VOLTAGE_PACK_MAIN:
 			val->intval = battery->voltage_avg_main;
 			break;
 		case POWER_SUPPLY_EXT_PROP_VOLTAGE_PACK_SUB:
 			val->intval = battery->voltage_avg_sub;
 			break;
+=======
+>>>>>>> upstream/android-13
 #endif
 #endif
 		case POWER_SUPPLY_EXT_PROP_HV_PDO:
@@ -6703,6 +7989,7 @@ static int sec_bat_get_property(struct power_supply *psy,
 		case POWER_SUPPLY_EXT_PROP_THERMAL_ZONE:
 			val->intval = battery->thermal_zone;
 			break;
+<<<<<<< HEAD
 		case POWER_SUPPLY_EXT_PROP_TEMP_CHECK_TYPE:
 			switch (val->intval) {
 			case THM_INFO_BAT:
@@ -6731,6 +8018,8 @@ static int sec_bat_get_property(struct power_supply *psy,
 				break;
 			}
 			break;
+=======
+>>>>>>> upstream/android-13
 		case POWER_SUPPLY_EXT_PROP_SUB_TEMP:
 			val->intval = battery->sub_bat_temp;
 			break;
@@ -6745,7 +8034,11 @@ static int sec_bat_get_property(struct power_supply *psy,
 		case POWER_SUPPLY_EXT_PROP_FLASH_STATE:  /* check only for MTK */
 			val->intval = battery->flash_state;
 			break;
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTK_CHARGER)
+=======
+#if defined(CONFIG_MTK_CHARGER)
+>>>>>>> upstream/android-13
 		case POWER_SUPPLY_EXT_PROP_MTK_FG_INIT:	 /* check only for MTK */
 			val->intval = battery->mtk_fg_init;
 			break;
@@ -6753,7 +8046,11 @@ static int sec_bat_get_property(struct power_supply *psy,
 		case POWER_SUPPLY_EXT_PROP_SRCCAP:
 			val->intval = battery->init_src_cap;
 			break;
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTK_CHARGER)
+=======
+#if defined(CONFIG_MTK_CHARGER)
+>>>>>>> upstream/android-13
 		case POWER_SUPPLY_EXT_PROP_RP_LEVEL:
 			val->intval = battery->sink_status.rp_currentlvl;
 			break;
@@ -6776,6 +8073,7 @@ static int sec_bat_get_property(struct power_supply *psy,
 			val->intval = 0;
 #endif
 			break;
+<<<<<<< HEAD
 		case POWER_SUPPLY_EXT_PROP_FPDO_DC_THERMAL_CHECK:
 			pr_info("%s:  FPDO_DC, Tbat(%d), chg_limit(%d), lrp_limit(%d), siop(%d), tz(%d), pdo(%d)\n",
 				__func__, battery->temperature, battery->chg_limit, battery->lrp_limit,
@@ -6795,6 +8093,8 @@ static int sec_bat_get_property(struct power_supply *psy,
 			else
 				val->intval = 0;
 			break;
+=======
+>>>>>>> upstream/android-13
 		default:
 			return -EINVAL;
 		}
@@ -6826,7 +8126,10 @@ static int sec_usb_get_property(struct power_supply *psy,
 		val->intval = 1;
 		break;
 	case SEC_BATTERY_CABLE_PDIC:
+<<<<<<< HEAD
 	case SEC_BATTERY_CABLE_FPDO_DC:
+=======
+>>>>>>> upstream/android-13
 		val->intval = (battery->pd_usb_attached) ? 1:0;
 		break;
 	default:
@@ -6859,7 +8162,10 @@ static int sec_ac_get_property(struct power_supply *psy,
 		case SEC_BATTERY_CABLE_TA:
 		case SEC_BATTERY_CABLE_UARTOFF:
 		case SEC_BATTERY_CABLE_LAN_HUB:
+<<<<<<< HEAD
 		case SEC_BATTERY_CABLE_LO_TA:
+=======
+>>>>>>> upstream/android-13
 		case SEC_BATTERY_CABLE_UNKNOWN:
 		case SEC_BATTERY_CABLE_PREPARE_TA:
 		case SEC_BATTERY_CABLE_9V_ERR:
@@ -6880,7 +8186,10 @@ static int sec_ac_get_property(struct power_supply *psy,
 			val->intval = 1;
 			break;
 		case SEC_BATTERY_CABLE_PDIC:
+<<<<<<< HEAD
 		case SEC_BATTERY_CABLE_FPDO_DC:
+=======
+>>>>>>> upstream/android-13
 			val->intval = (battery->pd_usb_attached) ? 0:1;
 			break;
 		default:
@@ -6924,7 +8233,11 @@ static int sec_wireless_get_property(struct power_supply *psy,
 
 	switch ((int)psp) {
 	case POWER_SUPPLY_PROP_ONLINE:
+<<<<<<< HEAD
 		val->intval = is_wireless_all_type(battery->cable_type) ? 1 : 0;
+=======
+		val->intval = is_wireless_fake_type(battery->cable_type) ? 1 : 0;
+>>>>>>> upstream/android-13
 		break;
 	case POWER_SUPPLY_PROP_PRESENT:
 		val->intval = (battery->pdata->wireless_charger_name) ?
@@ -6940,6 +8253,7 @@ static int sec_wireless_get_property(struct power_supply *psy,
 #endif
 				val->intval = 0;
 			break;
+<<<<<<< HEAD
 		case POWER_SUPPLY_EXT_PROP_WIRELESS_TX_ERR:
 			val->intval = battery->tx_event;
 			break;
@@ -6949,6 +8263,8 @@ static int sec_wireless_get_property(struct power_supply *psy,
 		case POWER_SUPPLY_EXT_PROP_WIRELESS_WC_STATUS:
 			val->intval = battery->wc_status;
 			break;
+=======
+>>>>>>> upstream/android-13
 		default:
 			return -EINVAL;
 		}
@@ -6966,16 +8282,27 @@ static int sec_wireless_set_property(struct power_supply *psy,
 {
 	struct sec_battery_info *battery = power_supply_get_drvdata(psy);
 	enum power_supply_ext_property ext_psp = (enum power_supply_ext_property) psp;
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_WIRELESS_CHARGING)
 	union power_supply_propval value = {0, };
 #endif
 
 	switch ((int)psp) {
 	case POWER_SUPPLY_PROP_ONLINE:
+=======
+
+	switch ((int)psp) {
+	case POWER_SUPPLY_PROP_ONLINE:
+#if defined(CONFIG_BATTERY_CISD)
+>>>>>>> upstream/android-13
 		if (val->intval != SEC_BATTERY_CABLE_NONE && battery->wc_status == SEC_BATTERY_CABLE_NONE) {
 			battery->cisd.data[CISD_DATA_WIRELESS_COUNT]++;
 			battery->cisd.data[CISD_DATA_WIRELESS_COUNT_PER_DAY]++;
 		}
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 		pr_info("%s : wireless_type(%s)\n", __func__, sb_get_ct_str(val->intval));
 
 		/* Clear the FOD , AUTH State */
@@ -6983,18 +8310,27 @@ static int sec_wireless_set_property(struct power_supply *psy,
 
 		battery->wc_status = val->intval;
 
+<<<<<<< HEAD
 #if !defined(CONFIG_WIRELESS_RX_PHM_CTRL)
+=======
+>>>>>>> upstream/android-13
 		if ((battery->ext_event & BATT_EXT_EVENT_CALL) &&
 			(battery->wc_status == SEC_BATTERY_CABLE_WIRELESS_PACK ||
 			battery->wc_status == SEC_BATTERY_CABLE_WIRELESS_HV_PACK ||
 			battery->wc_status == SEC_BATTERY_CABLE_WIRELESS_TX)) {
 				battery->wc_rx_phm_mode = true;
 		}
+<<<<<<< HEAD
 #endif
 
 		if (battery->wc_status == SEC_BATTERY_CABLE_NONE) {
 			if (!battery->is_otg_on)
 				battery->wpc_vout_level = WIRELESS_VOUT_10V;
+=======
+
+		if (battery->wc_status == SEC_BATTERY_CABLE_NONE) {
+			battery->wpc_vout_level = WIRELESS_VOUT_10V;
+>>>>>>> upstream/android-13
 			battery->wpc_max_vout_level = WIRELESS_VOUT_12_5V;
 			battery->auto_mode = false;
 			sec_bat_set_misc_event(battery, 0,
@@ -7004,16 +8340,27 @@ static int sec_wireless_set_property(struct power_supply *psy,
 			BATT_MISC_EVENT_WIRELESS_AUTH_FAIL |
 			BATT_MISC_EVENT_WIRELESS_AUTH_PASS |
 			BATT_MISC_EVENT_WC_JIG_PAD));
+<<<<<<< HEAD
 			change_sec_voter_pri(battery->input_vote, VOTER_WPC_CUR, VOTE_PRI_0);
 		} else if (!is_wireless_fake_type(battery->wc_status)) {
+=======
+		} else if (battery->wc_status != SEC_BATTERY_CABLE_WIRELESS_FAKE) {
+>>>>>>> upstream/android-13
 			sec_bat_set_misc_event(battery, BATT_MISC_EVENT_WIRELESS_DET_LEVEL, /* set wpc_det level status */
 			BATT_MISC_EVENT_WIRELESS_DET_LEVEL);
 
 			if (battery->wc_status == SEC_BATTERY_CABLE_HV_WIRELESS_20) {
 				sec_bat_set_misc_event(battery, BATT_MISC_EVENT_WIRELESS_AUTH_PASS,
 					BATT_MISC_EVENT_WIRELESS_AUTH_PASS);
+<<<<<<< HEAD
 				if (battery->wc_status == SEC_BATTERY_CABLE_HV_WIRELESS_20)
 					battery->cisd.cable_data[CISD_CABLE_HV_WC_20]++;
+=======
+#if defined(CONFIG_BATTERY_CISD)
+				if (battery->wc_status == SEC_BATTERY_CABLE_HV_WIRELESS_20)
+					battery->cisd.cable_data[CISD_CABLE_HV_WC_20]++;
+#endif
+>>>>>>> upstream/android-13
 			}
 		}
 
@@ -7032,8 +8379,15 @@ static int sec_wireless_set_property(struct power_supply *psy,
 		}
 		break;
 	case POWER_SUPPLY_PROP_AUTHENTIC:
+<<<<<<< HEAD
 		pr_info("%s : tx_type(0x%x)\n", __func__, val->intval);
 		count_cisd_pad_data(&battery->cisd, val->intval);
+=======
+#if defined(CONFIG_BATTERY_CISD)
+		pr_info("%s : tx_type(0x%x)\n", __func__, val->intval);
+		count_cisd_pad_data(&battery->cisd, val->intval);
+#endif
+>>>>>>> upstream/android-13
 		break;
 	case POWER_SUPPLY_PROP_CURRENT_MAX:
 		sec_vote(battery->input_vote, VOTER_AICL, false, 0);
@@ -7049,6 +8403,7 @@ static int sec_wireless_set_property(struct power_supply *psy,
 			break;
 		case POWER_SUPPLY_EXT_PROP_WIRELESS_TX_ERR:
 			if (val->intval & BATT_TX_EVENT_WIRELESS_TX_MISALIGN) {
+<<<<<<< HEAD
 				if (battery->tx_event & BATT_TX_EVENT_WIRELESS_TX_RETRY)
 					sec_bat_handle_tx_misalign(battery, false);
 				else
@@ -7058,6 +8413,11 @@ static int sec_wireless_set_property(struct power_supply *psy,
 					sec_bat_handle_tx_ocp(battery, false);
 				else
 					sec_bat_handle_tx_ocp(battery, true);
+=======
+				sec_bat_handle_tx_misalign(battery, true);
+			} else if (val->intval & BATT_TX_EVENT_WIRELESS_TX_OCP) {
+				sec_bat_handle_tx_ocp(battery, true);
+>>>>>>> upstream/android-13
 			} else if (val->intval & BATT_TX_EVENT_WIRELESS_TX_AC_MISSING) {
 				if (battery->wc_tx_enable)
 					sec_wireless_set_tx_enable(battery, false);
@@ -7066,12 +8426,15 @@ static int sec_wireless_set_property(struct power_supply *psy,
 				sec_bat_set_tx_event(battery, 0, BATT_TX_EVENT_WIRELESS_ALL_MASK);
 				sec_bat_set_tx_event(battery,
 						BATT_TX_EVENT_WIRELESS_TX_RETRY, BATT_TX_EVENT_WIRELESS_TX_RETRY);
+<<<<<<< HEAD
 			} else if (val->intval & BATT_TX_EVENT_WIRELESS_TX_RETRY) {
 				sec_wireless_set_tx_enable(battery, false);
 				/* clear tx all event */
 				sec_bat_set_tx_event(battery, 0, BATT_TX_EVENT_WIRELESS_ALL_MASK);
 				sec_bat_set_tx_event(battery,
 						BATT_TX_EVENT_WIRELESS_TX_RETRY, BATT_TX_EVENT_WIRELESS_TX_RETRY);
+=======
+>>>>>>> upstream/android-13
 			} else {
 				sec_wireless_set_tx_enable(battery, false);
 				sec_bat_set_tx_event(battery, val->intval, val->intval);
@@ -7096,12 +8459,20 @@ static int sec_wireless_set_property(struct power_supply *psy,
 			break;
 		case POWER_SUPPLY_EXT_PROP_WIRELESS_RX_TYPE:
 			battery->wc_rx_type = val->intval;
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_BATTERY_CISD)
+>>>>>>> upstream/android-13
 			if (battery->wc_rx_type) {
 				if (battery->wc_rx_type == SS_BUDS) {
 					battery->cisd.tx_data[SS_PHONE]--;
 				}
 				battery->cisd.tx_data[battery->wc_rx_type]++;
 			}
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 			pr_info("@Tx_Mode %s : RX_TYPE=%d\n", __func__, battery->wc_rx_type);
 			sec_bat_run_wpc_tx_work(battery, 0);
 			break;
@@ -7116,11 +8487,15 @@ static int sec_wireless_set_property(struct power_supply *psy,
 				sec_bat_set_misc_event(battery, BATT_MISC_EVENT_WIRELESS_AUTH_FAIL, BATT_MISC_EVENT_WIRELESS_AUTH_FAIL);
 			break;
 		case POWER_SUPPLY_EXT_PROP_CALL_EVENT:
+<<<<<<< HEAD
 #if !defined(CONFIG_WIRELESS_RX_PHM_CTRL)
+=======
+>>>>>>> upstream/android-13
 			if (val->intval == 1) {
 				pr_info("%s : PHM enabled\n", __func__);
 				battery->wc_rx_phm_mode = true;
 			}
+<<<<<<< HEAD
 #endif
 			break;
 		case POWER_SUPPLY_EXT_PROP_RX_PHM:
@@ -7128,6 +8503,8 @@ static int sec_wireless_set_property(struct power_supply *psy,
 			pr_info("%s : PHM %d\n", __func__, val->intval);
 			battery->wc_rx_pdetb_mode = val->intval;
 #endif
+=======
+>>>>>>> upstream/android-13
 			break;
 		case POWER_SUPPLY_EXT_PROP_GEAR_PHM_EVENT:
 			battery->wc_tx_phm_mode = val->intval;
@@ -7135,6 +8512,7 @@ static int sec_wireless_set_property(struct power_supply *psy,
 			sec_bat_run_wpc_tx_work(battery, 0);
 			break;
 		case POWER_SUPPLY_EXT_PROP_WIRELESS_RX_POWER:
+<<<<<<< HEAD
 			pr_info("@MPP @EPP %s : rx power %d\n", __func__, val->intval);
 			battery->wc20_rx_power = val->intval;
 
@@ -7160,6 +8538,30 @@ static int sec_wireless_set_property(struct power_supply *psy,
 			break;
 		case POWER_SUPPLY_EXT_PROP_CHARGE_OTG_ICL_CONTROL:
 			sec_wireless_otg_icl_control(battery);
+=======
+#if IS_ENABLED(CONFIG_WIRELESS_CHARGING)
+			pr_info("%s : rx power %d\n", __func__, val->intval);
+			battery->wc20_rx_power = val->intval;
+			battery->wc20_info_idx = get_wc20_info_idx(battery->pdata->wireless_power_info,
+					battery->wc20_info_len, battery->wpc_max_vout_level, battery->wc20_rx_power);
+			battery->wc20_vout =
+				battery->pdata->wireless_power_info[battery->wc20_info_idx].vout;
+			__pm_stay_awake(battery->wc20_current_ws);
+			queue_delayed_work(battery->monitor_wqueue, &battery->wc20_current_work,
+				msecs_to_jiffies(0));
+#endif
+			break;
+		case POWER_SUPPLY_EXT_PROP_WIRELESS_MAX_VOUT:
+			pr_info("%s : max vout %s\n", __func__, sb_vout_ctr_mode_str(val->intval));
+			battery->wpc_max_vout_level = val->intval;
+			break;
+		case POWER_SUPPLY_EXT_PROP_CHARGE_OTG_CONTROL:
+			sec_wireless_otg_control(battery, val->intval);
+			break;
+		case POWER_SUPPLY_EXT_PROP_WIRELESS_ABNORMAL_PAD:
+			sec_bat_set_misc_event(battery, val->intval ? BATT_MISC_EVENT_ABNORMAL_PAD : 0,
+					BATT_MISC_EVENT_ABNORMAL_PAD);
+>>>>>>> upstream/android-13
 			break;
 		case POWER_SUPPLY_EXT_PROP_WIRELESS_JIG_PAD:
 			if (sec_bat_get_lpmode()) {
@@ -7167,6 +8569,7 @@ static int sec_wireless_set_property(struct power_supply *psy,
 					BATT_MISC_EVENT_WC_JIG_PAD, BATT_MISC_EVENT_WC_JIG_PAD);
 			}
 			break;
+<<<<<<< HEAD
 		case POWER_SUPPLY_EXT_PROP_MPP_CLOAK:
 			pr_info("@MPP %s: set MPP_CLOAK(%d)\n", __func__, val->intval);
 			value.intval = val->intval;
@@ -7246,6 +8649,8 @@ static int sec_wireless_set_property(struct power_supply *psy,
 			sec_vote(battery->input_vote, VOTER_WPC_CUR, true, icl);
 		}
 			break;
+=======
+>>>>>>> upstream/android-13
 #endif
 		default:
 			return -EINVAL;
@@ -7346,11 +8751,14 @@ static int sec_pogo_set_property(struct power_supply *psy,
 		battery->pogo_status = (val->intval) ? 1 : 0;
 		battery->pogo_9v = (val->intval > 1) ? true : false;
 
+<<<<<<< HEAD
 		if (battery->pogo_status && battery->pdata->pogo_chgin) {
 			battery->muic_cable_type = ATTACHED_DEV_POGO_DOCK_MUIC;
 			sec_bat_set_misc_event(battery, 0, BATT_MISC_EVENT_TIMEOUT_OPEN_TYPE);
 		}
 
+=======
+>>>>>>> upstream/android-13
 		__pm_stay_awake(battery->cable_ws);
 		queue_delayed_work(battery->monitor_wqueue,
 			&battery->cable_work, 0);
@@ -7388,6 +8796,7 @@ static int sec_otg_set_property(struct power_supply *psy,
 	int ret = 0;
 
 	value.intval = val->intval;
+<<<<<<< HEAD
 
 	if ((int)psp == POWER_SUPPLY_PROP_ONLINE) {
 		battery->is_otg_on = val->intval;
@@ -7398,6 +8807,15 @@ static int sec_otg_set_property(struct power_supply *psy,
 			battery->otg_check = false;
 	}
 
+=======
+#if defined(CONFIG_BATTERY_CISD)
+	if (value.intval && !battery->otg_check) {
+		battery->cisd.event_data[EVENT_OTG]++;
+		battery->otg_check = true;
+	} else if (!value.intval)
+		battery->otg_check = false;
+#endif
+>>>>>>> upstream/android-13
 	ret = psy_do_property(battery->pdata->otg_name, set, psp, value);
 	return ret;
 }
@@ -7413,6 +8831,7 @@ __visible_for_testing int sec_bat_cable_check(struct sec_battery_info *battery,
 {
 	int current_cable_type = -1;
 	union power_supply_propval val = {0, };
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_SBP_FG)
 	int batt_present = 1;
 	int ret;
@@ -7423,12 +8842,15 @@ __visible_for_testing int sec_bat_cable_check(struct sec_battery_info *battery,
 		pr_info("%s: batt_present(%d)\n", __func__, batt_present);
 	}
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	pr_info("[%s]ATTACHED(%d)\n", __func__, attached_dev);
 
 	switch (attached_dev)
 	{
 	case ATTACHED_DEV_JIG_UART_OFF_MUIC:
+<<<<<<< HEAD
 		battery->is_jig_on = true;
 		battery->skip_cisd = true;
 		current_cable_type = SEC_BATTERY_CABLE_NONE;
@@ -7441,6 +8863,13 @@ __visible_for_testing int sec_bat_cable_check(struct sec_battery_info *battery,
 	case ATTACHED_DEV_JIG_UART_ON_MUIC:
 		battery->is_jig_on = true;
 		battery->skip_cisd = true;
+=======
+	case ATTACHED_DEV_JIG_UART_ON_MUIC:
+		battery->is_jig_on = true;
+#if defined(CONFIG_BATTERY_CISD)
+		battery->skip_cisd = true;
+#endif
+>>>>>>> upstream/android-13
 		current_cable_type = SEC_BATTERY_CABLE_NONE;
 		break;
 	case ATTACHED_DEV_SMARTDOCK_MUIC:
@@ -7488,6 +8917,7 @@ __visible_for_testing int sec_bat_cable_check(struct sec_battery_info *battery,
 		current_cable_type = SEC_BATTERY_CABLE_TA;
 		break;
 	case ATTACHED_DEV_TA_MUIC:
+<<<<<<< HEAD
 #if defined(CONFIG_BC12_DEVICE)
 		if (battery->pdata->bc12_ifcon_wa && !battery->sink_status.rp_currentlvl) {
 			pr_err("%s: IFCON_WA, wait rp_currentlvl\n", __func__);
@@ -7495,6 +8925,8 @@ __visible_for_testing int sec_bat_cable_check(struct sec_battery_info *battery,
 					battery->pdata->default_usb_input_current);
 		}
 #endif
+=======
+>>>>>>> upstream/android-13
 	case ATTACHED_DEV_CARDOCK_MUIC:
 	case ATTACHED_DEV_DESKDOCK_VB_MUIC:
 	case ATTACHED_DEV_SMARTDOCK_TA_MUIC:
@@ -7518,9 +8950,12 @@ __visible_for_testing int sec_bat_cable_check(struct sec_battery_info *battery,
 	case ATTACHED_DEV_USB_LANHUB_MUIC:
 		current_cable_type = SEC_BATTERY_CABLE_LAN_HUB;
 		break;
+<<<<<<< HEAD
 	case ATTACHED_DEV_LO_TA_MUIC:
 		current_cable_type = SEC_BATTERY_CABLE_LO_TA;
 		break;
+=======
+>>>>>>> upstream/android-13
 	case ATTACHED_DEV_CHARGING_CABLE_MUIC:
 		current_cable_type = SEC_BATTERY_CABLE_POWER_SHARING;
 		break;
@@ -7530,17 +8965,33 @@ __visible_for_testing int sec_bat_cable_check(struct sec_battery_info *battery,
 		break;
 	case ATTACHED_DEV_QC_CHARGER_9V_MUIC:
 		current_cable_type = SEC_BATTERY_CABLE_9V_TA;
+<<<<<<< HEAD
 		if ((battery->cable_type == SEC_BATTERY_CABLE_TA) ||
 				(battery->cable_type == SEC_BATTERY_CABLE_NONE))
 			battery->cisd.cable_data[CISD_CABLE_QC]++;
+=======
+#if defined(CONFIG_BATTERY_CISD)
+		if ((battery->cable_type == SEC_BATTERY_CABLE_TA) ||
+				(battery->cable_type == SEC_BATTERY_CABLE_NONE))
+			battery->cisd.cable_data[CISD_CABLE_QC]++;
+#endif
+>>>>>>> upstream/android-13
 		break;
 	case ATTACHED_DEV_AFC_CHARGER_9V_MUIC:
 	case ATTACHED_DEV_RETRY_AFC_CHARGER_9V_MUIC:
 	case ATTACHED_DEV_AFC_CHARGER_9V_DUPLI_MUIC:
 		current_cable_type = SEC_BATTERY_CABLE_9V_TA;
+<<<<<<< HEAD
 		if ((battery->cable_type == SEC_BATTERY_CABLE_TA) ||
 				(battery->cable_type == SEC_BATTERY_CABLE_NONE))
 			battery->cisd.cable_data[CISD_CABLE_AFC]++;
+=======
+#if defined(CONFIG_BATTERY_CISD)
+		if ((battery->cable_type == SEC_BATTERY_CABLE_TA) ||
+				(battery->cable_type == SEC_BATTERY_CABLE_NONE))
+			battery->cisd.cable_data[CISD_CABLE_AFC]++;
+#endif
+>>>>>>> upstream/android-13
 		break;
 #if defined(CONFIG_MUIC_HV_12V)
 	case ATTACHED_DEV_AFC_CHARGER_12V_MUIC:
@@ -7550,10 +9001,21 @@ __visible_for_testing int sec_bat_cable_check(struct sec_battery_info *battery,
 #endif
 	case ATTACHED_DEV_AFC_CHARGER_ERR_V_MUIC:
 	case ATTACHED_DEV_AFC_CHARGER_ERR_V_DUPLI_MUIC:
+<<<<<<< HEAD
 		battery->cisd.cable_data[CISD_CABLE_AFC_FAIL]++;
 		break;
 	case ATTACHED_DEV_QC_CHARGER_ERR_V_MUIC:
 		battery->cisd.cable_data[CISD_CABLE_QC_FAIL]++;
+=======
+#if defined(CONFIG_BATTERY_CISD)
+		battery->cisd.cable_data[CISD_CABLE_AFC_FAIL]++;
+#endif
+		break;
+	case ATTACHED_DEV_QC_CHARGER_ERR_V_MUIC:
+#if defined(CONFIG_BATTERY_CISD)
+		battery->cisd.cable_data[CISD_CABLE_QC_FAIL]++;
+#endif
+>>>>>>> upstream/android-13
 		break;
 	case ATTACHED_DEV_HV_ID_ERR_UNDEFINED_MUIC:
 	case ATTACHED_DEV_HV_ID_ERR_UNSUPPORTED_MUIC:
@@ -7569,6 +9031,7 @@ __visible_for_testing int sec_bat_cable_check(struct sec_battery_info *battery,
 		break;
 	}
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_SBP_FG)
 	switch (attached_dev) {
 	case ATTACHED_DEV_JIG_UART_OFF_MUIC:
@@ -7583,6 +9046,9 @@ __visible_for_testing int sec_bat_cable_check(struct sec_battery_info *battery,
 #endif
 
 #if IS_ENABLED(CONFIG_DUAL_BATTERY) && IS_ENABLED(CONFIG_LIMITER_S2ASL01) && defined(CONFIG_SEC_FACTORY)
+=======
+#if IS_ENABLED(CONFIG_DUAL_BATTERY) && defined(CONFIG_SEC_FACTORY)
+>>>>>>> upstream/android-13
 	if (!sec_bat_check_by_gpio(battery)) {
 		if (attached_dev == ATTACHED_DEV_JIG_UART_OFF_MUIC ||
 			attached_dev == ATTACHED_DEV_JIG_USB_ON_MUIC) {
@@ -7615,9 +9081,15 @@ __visible_for_testing int sec_bat_cable_check(struct sec_battery_info *battery,
 		pr_err("%s : FACTORY MODE TEST! (%d, %d)\n", __func__, val.intval,
 			battery->factory_mode_boot_on);
 		break;
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_CHARGER_S2MF301)
 	case ATTACHED_DEV_JIG_USB_OFF_MUIC:
 		val.intval = attached_dev;
+=======
+#if defined(CONFIG_CHARGER_S2MF301)
+	case ATTACHED_DEV_JIG_USB_OFF_MUIC:
+		val.intval = 0;
+>>>>>>> upstream/android-13
 		if (!battery->factory_mode_boot_on)
 			factory_mode = 0;
 		psy_do_property(battery->pdata->charger_name, set,
@@ -7667,7 +9139,10 @@ __visible_for_testing void sec_bat_set_rp_current(struct sec_battery_info *batte
 	case RP_CURRENT_ABNORMAL:
 		icl = battery->pdata->rp_current_abnormal_rp3;
 		fcc = battery->pdata->rp_current_abnormal_rp3;
+<<<<<<< HEAD
 		sec_bat_set_current_event(battery, 0, SEC_BAT_CURRENT_EVENT_AFC);
+=======
+>>>>>>> upstream/android-13
 		break;
 	case RP_CURRENT_LEVEL3:
 #if defined(CONFIG_PD_CHARGER_HV_DISABLE)
@@ -7686,12 +9161,18 @@ __visible_for_testing void sec_bat_set_rp_current(struct sec_battery_info *batte
 				fcc = battery->pdata->max_charging_current;
 			}
 		}
+<<<<<<< HEAD
 		sec_bat_set_current_event(battery, 0, SEC_BAT_CURRENT_EVENT_AFC);
+=======
+>>>>>>> upstream/android-13
 		break;
 	case RP_CURRENT_LEVEL2:
 		icl = battery->pdata->rp_current_rp2;
 		fcc = battery->pdata->rp_current_rp2;
+<<<<<<< HEAD
 		sec_bat_set_current_event(battery, 0, SEC_BAT_CURRENT_EVENT_AFC);
+=======
+>>>>>>> upstream/android-13
 		break;
 	case RP_CURRENT_LEVEL_DEFAULT:
 		if (cable_type == SEC_BATTERY_CABLE_USB) {
@@ -7724,6 +9205,7 @@ __visible_for_testing void sec_bat_set_rp_current(struct sec_battery_info *batte
 	battery->max_charge_power = 0;
 	sec_bat_check_input_voltage(battery, cable_type);
 
+<<<<<<< HEAD
 #if defined(CONFIG_BC12_DEVICE)
 	if (battery->pdata->bc12_ifcon_wa) {
 		if (battery->sink_status.rp_currentlvl)
@@ -7732,6 +9214,8 @@ __visible_for_testing void sec_bat_set_rp_current(struct sec_battery_info *batte
 			pr_err("%s: IFCON_WA keeps 500mA ICL, rp_currentlvl none\n", __func__);
 	}
 #endif
+=======
+>>>>>>> upstream/android-13
 	sec_vote(battery->input_vote, VOTER_AICL, false, 0);
 }
 EXPORT_SYMBOL_KUNIT(sec_bat_set_rp_current);
@@ -7762,7 +9246,11 @@ static int usb_typec_handle_id_attach(struct sec_battery_info *battery, PD_NOTI_
 		/* Skip notify from MUIC if PDIC is attached already */
 		if (is_pd_wire_type(battery->wire_status) || battery->init_src_cap) {
 			if (sec_bat_get_lpmode() ||
+<<<<<<< HEAD
 				(battery->usb_conn_status == USB_CONN_NORMAL &&
+=======
+				(battery->usb_thm_status == USB_THM_NORMAL &&
+>>>>>>> upstream/android-13
 				!(battery->misc_event & BATT_MISC_EVENT_TEMP_HICCUP_TYPE))) {
 				return -1; /* skip usb_typec_handle_after_id() */
 			}
@@ -7854,12 +9342,22 @@ static int usb_typec_handle_id_power_status(struct sec_battery_info *battery,
 		return -1; /* skip usb_typec_handle_after_id() */
 	}
 
+<<<<<<< HEAD
 	dev_info(battery->dev, "%s: pd_event(%d)\n", __func__, pd_noti->event);
+=======
+#ifdef CONFIG_SEC_FACTORY
+	dev_info(battery->dev, "%s: pd_event(%d)\n", __func__, pd_noti->event);
+#endif
+>>>>>>> upstream/android-13
 
 #if IS_ENABLED(CONFIG_HICCUP_CHARGER)
 	if (pd_noti->event != PDIC_NOTIFY_EVENT_DETACH &&
 		pd_noti->event != PDIC_NOTIFY_EVENT_PD_PRSWAP_SNKTOSRC) {
+<<<<<<< HEAD
 		if (!sec_bat_get_lpmode() && (battery->usb_conn_status ||
+=======
+		if (!sec_bat_get_lpmode() && (battery->usb_thm_status ||
+>>>>>>> upstream/android-13
 					(battery->misc_event & BATT_MISC_EVENT_TEMP_HICCUP_TYPE))) {
 			return 0;
 		}
@@ -7880,6 +9378,7 @@ static int usb_typec_handle_id_power_status(struct sec_battery_info *battery,
 		battery->sink_status.rp_currentlvl = psink_status->rp_currentlvl;
 		dev_info(battery->dev, "%s: battery->rp_currentlvl(%d)\n",
 				__func__, battery->sink_status.rp_currentlvl);
+<<<<<<< HEAD
 		if (battery->pdata->support_usb_conn_check &&
 			battery->wire_status == SEC_BATTERY_CABLE_NONE && !delayed_work_pending(&battery->usb_conn_check_work) &&
 			!battery->run_usb_conn_check) {
@@ -7890,6 +9389,9 @@ static int usb_typec_handle_id_power_status(struct sec_battery_info *battery,
 			queue_delayed_work(battery->monitor_wqueue, &battery->usb_conn_check_work, msecs_to_jiffies(1000));
 #endif
 		} else if (battery->wire_status == SEC_BATTERY_CABLE_USB || battery->wire_status == SEC_BATTERY_CABLE_TA) {
+=======
+		if (battery->wire_status == SEC_BATTERY_CABLE_USB || battery->wire_status == SEC_BATTERY_CABLE_TA) {
+>>>>>>> upstream/android-13
 			*cable_type = battery->wire_status;
 			battery->chg_limit = false;
 			battery->lrp_limit = false;
@@ -7959,34 +9461,54 @@ static int usb_typec_handle_id_power_status(struct sec_battery_info *battery,
 #if IS_ENABLED(CONFIG_DIRECT_CHARGING)
 #if defined(CONFIG_STEP_CHARGING)
 		sec_bat_reset_step_charging(battery);
+<<<<<<< HEAD
 		if (is_pd_apdo_wire_type(battery->cable_type))
 			sec_bat_check_dc_step_charging(battery);
+=======
+>>>>>>> upstream/android-13
 #endif
 		psy_do_property(battery->pdata->charger_name, set,
 				POWER_SUPPLY_EXT_PROP_DIRECT_CLEAR_ERR, value);
 #endif
 		battery->pdic_attach = false;
+<<<<<<< HEAD
+=======
+		battery->update_pd_list = false;
+		sec_vote_refresh(battery->iv_vote);
+>>>>>>> upstream/android-13
 	}
 
 	if (!battery->pdic_attach) {
 		battery->sink_status = *psink_status;
 		bPdIndexChanged = true;
 	} else {
+<<<<<<< HEAD
 		dev_info(battery->dev, "%s: sel_pdo(%d -> %d), cur_pdo(%d -> %d)\n",
 			__func__, battery->sink_status.selected_pdo_num, psink_status->selected_pdo_num,
 			battery->sink_status.current_pdo_num, psink_status->current_pdo_num);
+=======
+		dev_info(battery->dev, "%s: prev_pdo(%d), curr_pdo(%d)\n",
+			__func__, battery->sink_status.current_pdo_num, psink_status->current_pdo_num);
+>>>>>>> upstream/android-13
 
 		if (battery->sink_status.current_pdo_num != psink_status->current_pdo_num)
 			bPdIndexChanged = true;
 
 		battery->sink_status.selected_pdo_num = psink_status->selected_pdo_num;
 		battery->sink_status.current_pdo_num = psink_status->current_pdo_num;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		battery->pdic_ps_rdy = true;
 		sec_bat_get_input_current_in_power_list(battery);
 		sec_bat_get_charging_current_in_power_list(battery);
 		sec_vote(battery->chgen_vote, VOTER_SRCCAP_TRANSIT, false, 0);
+<<<<<<< HEAD
 		battery->srccap_transit = false;
 		battery->srccap_transit_cnt = 0;
+=======
+>>>>>>> upstream/android-13
 	}
 	current_pdo = battery->sink_status.current_pdo_num;
 	if (battery->sink_status.power_list[current_pdo].max_voltage > SEC_INPUT_VOLTAGE_5V)
@@ -8047,6 +9569,7 @@ static int usb_typec_handle_id_power_status(struct sec_battery_info *battery,
 			isAccept = battery->sink_status.power_list[i].accept;
 		}
 
+<<<<<<< HEAD
 		if (!(battery->current_event & SEC_BAT_CURRENT_EVENT_HV_DISABLE) &&
 				!battery->sink_status.has_apdo &&
 				pdo_type == FPDO_TYPE &&
@@ -8068,6 +9591,8 @@ static int usb_typec_handle_id_power_status(struct sec_battery_info *battery,
 #endif
 		}
 
+=======
+>>>>>>> upstream/android-13
 		if (bPrintPDlog)
 			pr_info("%s:%spower_list[%d,%s,%s], maxVol:%d, minVol:%d, maxCur:%d, power:%d\n",
 				__func__, i == current_pdo ? "**" : "  ",
@@ -8130,6 +9655,10 @@ static int usb_typec_handle_id_power_status(struct sec_battery_info *battery,
 		pr_info("%s: pd_max_charge_power(%d,%d,%d) = %d\n",
 			__func__, max_power, apdo_max_power, fpdo_max_power, battery->pd_max_charge_power * 1000);
 		battery->pd_rated_power = max_power / 1000 / 1000; /* save as W */
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_BATTERY_CISD)
+>>>>>>> upstream/android-13
 		count_cisd_power_data(&battery->cisd, max_power / 1000);
 		if (battery->cable_type == SEC_BATTERY_CABLE_NONE) {
 			if (battery->pd_max_charge_power > HV_CHARGER_STATUS_STANDARD1)
@@ -8137,6 +9666,7 @@ static int usb_typec_handle_id_power_status(struct sec_battery_info *battery,
 			else
 				battery->cisd.cable_data[CISD_CABLE_PD]++;
 		}
+<<<<<<< HEAD
 #if defined(CONFIG_SUPPORT_HV_CTRL) && !defined(CONFIG_SEC_FACTORY)
 		if (battery->pdata->boosting_voltage_aicl &&
 			(battery->misc_event & BATT_MISC_EVENT_HV_BY_AICL)) {
@@ -8147,6 +9677,8 @@ static int usb_typec_handle_id_power_status(struct sec_battery_info *battery,
 				sec_vote(battery->iv_vote, VOTER_AICL, false, 0);
 			}
 		}
+=======
+>>>>>>> upstream/android-13
 #endif
 		battery->pd_list.max_pd_count = num_pd_list;
 		pr_info("%s: total num_pd_list: %d\n", __func__, battery->pd_list.max_pd_count);
@@ -8159,6 +9691,7 @@ static int usb_typec_handle_id_power_status(struct sec_battery_info *battery,
 	battery->pdic_ps_rdy = true;
 #endif
 	if (is_pd_wire_type(battery->cable_type) && bPdIndexChanged) {
+<<<<<<< HEAD
 		if (battery->update_pd_list || ((battery->d2d_auth == D2D_AUTH_SNK) &&
 			(battery->sink_status.power_list[current_pdo].pdo_type == FPDO_TYPE)) ||
 			(battery->sink_status.has_apdo && (battery->current_event & SEC_BAT_CURRENT_EVENT_DC_ERR)) ||
@@ -8178,6 +9711,13 @@ static int usb_typec_handle_id_power_status(struct sec_battery_info *battery,
 			}
 
 			battery->update_pd_list = false;
+=======
+		if ((battery->d2d_auth == D2D_AUTH_SNK) &&
+			(battery->sink_status.power_list[current_pdo].pdo_type == FPDO_TYPE)) {
+			/* request vpdo for 15w d2d */
+			sec_vote(battery->iv_vote, VOTER_CABLE, true,
+				sec_bat_check_pd_iv(&battery->sink_status));
+>>>>>>> upstream/android-13
 		}
 
 		/* Check VOTER_SIOP to set up current based on chagned index */
@@ -8336,11 +9876,19 @@ static int usb_typec_handle_after_id(struct sec_battery_info *battery, int cable
 		BATT_MISC_EVENT_UNDEFINED_RANGE_TYPE);
 
 	if (battery->muic_cable_type == ATTACHED_DEV_HICCUP_MUIC) {
+<<<<<<< HEAD
 		if (battery->usb_conn_status || (battery->misc_event & BATT_MISC_EVENT_TEMP_HICCUP_TYPE)) {
 			pr_info("%s: Hiccup Set because of USB Temp\n", __func__);
 			sec_bat_set_misc_event(battery,
 					BATT_MISC_EVENT_TEMP_HICCUP_TYPE, BATT_MISC_EVENT_TEMP_HICCUP_TYPE);
 			battery->usb_conn_status = USB_CONN_NORMAL;
+=======
+		if (battery->usb_thm_status || (battery->misc_event & BATT_MISC_EVENT_TEMP_HICCUP_TYPE)) {
+			pr_info("%s: Hiccup Set because of USB Temp\n", __func__);
+			sec_bat_set_misc_event(battery,
+					BATT_MISC_EVENT_TEMP_HICCUP_TYPE, BATT_MISC_EVENT_TEMP_HICCUP_TYPE);
+			battery->usb_thm_status = USB_THM_NORMAL;
+>>>>>>> upstream/android-13
 		} else {
 			pr_info("%s: Hiccup Set because of Water detect\n", __func__);
 			sec_bat_set_misc_event(battery,
@@ -8479,7 +10027,13 @@ static int usb_typec_handle_notification(struct notifier_block *nb,
 		if (!battery->psink_status) {
 			battery->psink_status = psink_status;
 			sec_pd_init_data(battery->psink_status);
+<<<<<<< HEAD
 			sec_pd_register_chg_info_cb(count_cisd_pd_data);
+=======
+#if defined(CONFIG_BATTERY_CISD)
+			sec_pd_register_chg_info_cb(count_cisd_pd_data);
+#endif
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -8571,11 +10125,19 @@ static int batt_handle_notification(struct notifier_block *nb,
 		BATT_MISC_EVENT_UNDEFINED_RANGE_TYPE);
 
 	if (battery->muic_cable_type == ATTACHED_DEV_HICCUP_MUIC) {
+<<<<<<< HEAD
 		if (battery->usb_conn_status || (battery->misc_event & BATT_MISC_EVENT_TEMP_HICCUP_TYPE)) {
 			pr_info("%s: Hiccup Set because of USB Temp\n", __func__);
 			sec_bat_set_misc_event(battery,
 					BATT_MISC_EVENT_TEMP_HICCUP_TYPE, BATT_MISC_EVENT_TEMP_HICCUP_TYPE);
 			battery->usb_conn_status = USB_CONN_NORMAL;
+=======
+		if (battery->usb_thm_status || (battery->misc_event & BATT_MISC_EVENT_TEMP_HICCUP_TYPE)) {
+			pr_info("%s: Hiccup Set because of USB Temp\n", __func__);
+			sec_bat_set_misc_event(battery,
+					BATT_MISC_EVENT_TEMP_HICCUP_TYPE, BATT_MISC_EVENT_TEMP_HICCUP_TYPE);
+			battery->usb_thm_status = USB_THM_NORMAL;
+>>>>>>> upstream/android-13
 		} else {
 			pr_info("%s: Hiccup Set because of Water detect\n", __func__);
 			sec_bat_set_misc_event(battery,
@@ -8688,7 +10250,11 @@ static int batt_handle_notification(struct notifier_block *nb,
 #endif /* CONFIG_MUIC_NOTIFIER */
 #endif
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_VBUS_NOTIFIER)
+=======
+#if IS_ENABLED(CONFIG_VBUS_NOTIFIER) && IS_ENABLED(CONFIG_LSI_IFPMIC)
+>>>>>>> upstream/android-13
 static int vbus_handle_notification(struct notifier_block *nb,
 		unsigned long action, void *data)
 {
@@ -8697,16 +10263,24 @@ static int vbus_handle_notification(struct notifier_block *nb,
 		container_of(nb, struct sec_battery_info, vbus_nb);
 
 	mutex_lock(&battery->batt_handlelock);
+<<<<<<< HEAD
 	pr_info("battery: %s: action=%d, vbus_status=%s, otg=%s\n",
 		__func__, (int)action, vbus_status == STATUS_VBUS_HIGH ? "HIGH" : "LOW",
 		battery->is_otg_on ? "ON" : "OFF");
 
 #if IS_ENABLED(CONFIG_LSI_IFPMIC)
 	if (battery->pdata->support_vpdo && battery->cable_type == SEC_BATTERY_CABLE_PDIC) {
+=======
+	pr_debug("battery: %s: action=%d, vbus_status=%s\n",
+		__func__, (int)action, vbus_status == STATUS_VBUS_HIGH ? "HIGH" : "LOW");
+
+	if (battery->cable_type == SEC_BATTERY_CABLE_PDIC) {
+>>>>>>> upstream/android-13
 		sec_vote_refresh(battery->input_vote);
 		sec_vote_refresh(battery->fcc_vote);
 		sec_vote_refresh(battery->chgen_vote);
 	}
+<<<<<<< HEAD
 #endif
 	if (battery->pdata->support_usb_conn_check &&
 		!battery->is_otg_on && vbus_status == STATUS_VBUS_HIGH && !delayed_work_pending(&battery->usb_conn_check_work) &&
@@ -8718,6 +10292,9 @@ static int vbus_handle_notification(struct notifier_block *nb,
 		queue_delayed_work(battery->monitor_wqueue, &battery->usb_conn_check_work, msecs_to_jiffies(1000));
 #endif
 	}
+=======
+
+>>>>>>> upstream/android-13
 	mutex_unlock(&battery->batt_handlelock);
 
 	return 0;
@@ -8824,6 +10401,7 @@ static void sec_bat_afc_init_work(struct work_struct *work)
 	pr_info("%s, ret(%d)\n", __func__, ret);
 }
 
+<<<<<<< HEAD
 static void sec_bat_check_spsn_open(struct sec_battery_info *battery)
 {
 #if !defined(CONFIG_SEC_FACTORY)
@@ -8850,6 +10428,8 @@ static void sec_bat_check_spsn_open(struct sec_battery_info *battery)
 #endif
 }
 
+=======
+>>>>>>> upstream/android-13
 static void sec_batt_dev_init_work(struct work_struct *work)
 {
 	struct sec_battery_info *battery = container_of(work,
@@ -8870,20 +10450,26 @@ static void sec_batt_dev_init_work(struct work_struct *work)
 	/* updates temperatures on boot */
 	sec_bat_get_temperature_info(battery);
 
+<<<<<<< HEAD
 	/* initialize battery voltage*/
 	value.intval = SEC_BATTERY_VOLTAGE_MV;
 	psy_do_property(battery->pdata->fuelgauge_name, get,
 		POWER_SUPPLY_PROP_VOLTAGE_NOW, value);
 	battery->voltage_now = value.intval;
 
+=======
+>>>>>>> upstream/android-13
 	/* initialize battery level*/
 	value.intval = 0;
 	psy_do_property(battery->pdata->fuelgauge_name, get,
 		POWER_SUPPLY_PROP_CAPACITY, value);
 	battery->capacity = value.intval;
 
+<<<<<<< HEAD
 	sec_bat_check_spsn_open(battery);
 
+=======
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_DIRECT_CHARGING)
 	sec_bat_check_boottime(battery, battery->pdata->dctp_bootmode_en);
 #endif
@@ -8929,12 +10515,15 @@ static void sec_batt_dev_init_work(struct work_struct *work)
 	register_batterylog_proc();
 #if IS_ENABLED(CONFIG_USB_TYPEC_MANAGER_NOTIFIER)
 	battery->sink_status.rp_currentlvl = RP_CURRENT_LEVEL_NONE;
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_SEC_MTK_CHARGER)
 	psy_do_property("primary_chg", get,
 		POWER_SUPPLY_EXT_PROP_RP_LEVEL, value);
 	battery->sink_status.rp_currentlvl = value.intval;
 	pr_info("%s: battery->rp_currentlvl(%d)\n", __func__, battery->sink_status.rp_currentlvl);
 #endif
+=======
+>>>>>>> upstream/android-13
 	manager_notifier_register(&battery->usb_typec_nb,
 		usb_typec_handle_notification, MANAGER_NOTIFY_PDIC_BATTERY);
 #else
@@ -8979,9 +10568,16 @@ static void sec_batt_dev_init_work(struct work_struct *work)
 			POWER_SUPPLY_EXT_PROP_CHECK_INIT, value);
 #endif
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_VBUS_NOTIFIER)
 	vbus_notifier_register(&battery->vbus_nb,
 		vbus_handle_notification, VBUS_NOTIFY_DEV_BATTERY);
+=======
+#if IS_ENABLED(CONFIG_VBUS_NOTIFIER) && IS_ENABLED(CONFIG_LSI_IFPMIC)
+	if (battery->pdata->support_vpdo)
+		vbus_notifier_register(&battery->vbus_nb,
+			vbus_handle_notification, VBUS_NOTIFY_DEV_BATTERY);
+>>>>>>> upstream/android-13
 #endif
 
 	queue_delayed_work(battery->monitor_wqueue, &battery->afc_init_work, 0);
@@ -9140,7 +10736,11 @@ static int sec_battery_probe(struct platform_device *pdev)
 	mutex_init(&battery->batt_handlelock);
 	mutex_init(&battery->current_eventlock);
 	mutex_init(&battery->typec_notylock);
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTK_CHARGER)  && !IS_ENABLED(CONFIG_VIRTUAL_MUIC)
+=======
+#if defined(CONFIG_MTK_CHARGER)  && !defined(CONFIG_VIRTUAL_MUIC)
+>>>>>>> upstream/android-13
 	mutex_init(&battery->bc12_notylock);
 #endif
 	mutex_init(&battery->wclock);
@@ -9169,7 +10769,10 @@ static int sec_battery_probe(struct platform_device *pdev)
 	battery->misc_event_ws = wakeup_source_register(&pdev->dev, "sec-battery-misc-event");
 	battery->parse_mode_dt_ws = wakeup_source_register(&pdev->dev, "sec-battery-parse_mode_dt");
 	battery->dev_init_ws = wakeup_source_register(&pdev->dev, "sec-battery-dev-init");
+<<<<<<< HEAD
 	battery->usb_conn_check_ws = wakeup_source_register(&pdev->dev, "sec-battery-usb-thm-check");
+=======
+>>>>>>> upstream/android-13
 
 	/* create work queue */
 	battery->monitor_wqueue =
@@ -9193,6 +10796,10 @@ static int sec_battery_probe(struct platform_device *pdev)
 	INIT_DELAYED_WORK(&battery->wpc_tx_en_work, sec_bat_wpc_tx_en_work);
 	INIT_DELAYED_WORK(&battery->wpc_txpower_calc_work, sec_bat_txpower_calc_work);
 	INIT_DELAYED_WORK(&battery->ext_event_work, sec_bat_ext_event_work);
+<<<<<<< HEAD
+=======
+	INIT_DELAYED_WORK(&battery->otg_work, sec_bat_otg_work);
+>>>>>>> upstream/android-13
 	INIT_DELAYED_WORK(&battery->wc20_current_work, sec_bat_wc20_current_work);
 	INIT_DELAYED_WORK(&battery->wc_ept_timeout_work, sec_bat_wc_ept_timeout_work);
 #endif
@@ -9203,8 +10810,11 @@ static int sec_battery_probe(struct platform_device *pdev)
 	INIT_DELAYED_WORK(&battery->parse_mode_dt_work, sec_bat_parse_mode_dt_work);
 	INIT_DELAYED_WORK(&battery->dev_init_work, sec_batt_dev_init_work);
 	INIT_DELAYED_WORK(&battery->afc_init_work, sec_bat_afc_init_work);
+<<<<<<< HEAD
 	INIT_DELAYED_WORK(&battery->usb_conn_check_work, sec_bat_usb_conn_check_work);
 	INIT_DELAYED_WORK(&battery->transit_clear_work, sec_bat_transit_clear_work);
+=======
+>>>>>>> upstream/android-13
 
 	battery->fcc_vote = sec_vote_init("FCC", SEC_VOTE_MIN, VOTER_MAX,
 			500, sec_voter_name, set_charging_current, battery);
@@ -9227,11 +10837,17 @@ static int sec_battery_probe(struct platform_device *pdev)
 	change_sec_voter_pri(battery->iv_vote, VOTER_CHANGE_CHGMODE, VOTE_PRI_9);
 	change_sec_voter_pri(battery->iv_vote, VOTER_WC_TX, VOTE_PRI_8);
 	change_sec_voter_pri(battery->iv_vote, VOTER_AICL, VOTE_PRI_1);
+<<<<<<< HEAD
 	change_sec_voter_pri(battery->iv_vote, VOTER_FLASH, VOTE_PRI_3);
 	change_sec_voter_pri(battery->chgen_vote, VOTER_NO_BATTERY, VOTE_PRI_10);
 	change_sec_voter_pri(battery->chgen_vote, VOTER_CHANGE_CHGMODE, VOTE_PRI_9);
 	change_sec_voter_pri(battery->fv_vote, VOTER_SWELLING, VOTE_PRI_10);
 	change_sec_voter_pri(battery->dc_fv_vote, VOTER_SWELLING, VOTE_PRI_10);
+=======
+	change_sec_voter_pri(battery->chgen_vote, VOTER_NO_BATTERY, VOTE_PRI_10);
+	change_sec_voter_pri(battery->chgen_vote, VOTER_CHANGE_CHGMODE, VOTE_PRI_9);
+	change_sec_voter_pri(battery->fv_vote, VOTER_SWELLING, VOTE_PRI_10);
+>>>>>>> upstream/android-13
 
 	switch (pdata->polling_type) {
 	case SEC_BATTERY_MONITOR_WORKQUEUE:
@@ -9250,8 +10866,11 @@ static int sec_battery_probe(struct platform_device *pdev)
 	battery->pogo_status = 0;
 	battery->pogo_9v = false;
 
+<<<<<<< HEAD
 	battery->is_fpdo_dc = false;
 
+=======
+>>>>>>> upstream/android-13
 	battery->ta_alert_mode = OCP_NONE;
 	battery->present = true;
 	battery->is_jig_on = false;
@@ -9270,7 +10889,10 @@ static int sec_battery_probe(struct platform_device *pdev)
 	battery->main_current = 0;
 	battery->sub_current = 0;
 	battery->limiter_check = false;
+<<<<<<< HEAD
 	battery->set_lower_curr = false;
+=======
+>>>>>>> upstream/android-13
 #endif
 	battery->topoff_condition = 0;
 	battery->wpc_vout_level = WIRELESS_VOUT_10V;
@@ -9298,6 +10920,7 @@ static int sec_battery_probe(struct platform_device *pdev)
 	battery->wc_status = SEC_BATTERY_CABLE_NONE;
 	battery->wc_cv_mode = false;
 	battery->wire_status = SEC_BATTERY_CABLE_NONE;
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTK_CHARGER)  && !IS_ENABLED(CONFIG_VIRTUAL_MUIC)
 	battery->bc12_cable = SEC_BATTERY_CABLE_NONE;
 #endif
@@ -9306,6 +10929,12 @@ static int sec_battery_probe(struct platform_device *pdev)
 #else
 	battery->wc_rx_phm_mode = false;
 #endif
+=======
+#if defined(CONFIG_MTK_CHARGER)  && !defined(CONFIG_VIRTUAL_MUIC)
+	battery->bc12_cable = SEC_BATTERY_CABLE_NONE;
+#endif
+	battery->wc_rx_phm_mode = false;
+>>>>>>> upstream/android-13
 	battery->wc_tx_phm_mode = false;
 	battery->wc_tx_enable = false;
 	battery->uno_en = false;
@@ -9335,7 +10964,10 @@ static int sec_battery_probe(struct platform_device *pdev)
 	battery->bat_thm_count = 0;
 	battery->adc_init_count = 0;
 	battery->led_cover = 0;
+<<<<<<< HEAD
 	battery->mag_cover = 0;
+=======
+>>>>>>> upstream/android-13
 	battery->hiccup_status = 0;
 	battery->hiccup_clear = false;
 	battery->ext_event = BATT_EXT_EVENT_NONE;
@@ -9367,6 +10999,7 @@ static int sec_battery_probe(struct platform_device *pdev)
 	battery->wc20_power_class = 0;
 	battery->wc20_vout = 0;
 	battery->wc20_rx_power = 0;
+<<<<<<< HEAD
 #endif
 	battery->thermal_zone = BAT_THERMAL_NORMAL;
 	sec_bat_set_threshold(battery, battery->cable_type);
@@ -9379,11 +11012,34 @@ static int sec_battery_probe(struct platform_device *pdev)
 	battery->health_change = false;
 	battery->usb_conn_status = USB_CONN_NORMAL;
 	battery->lr_bat_temp = 0x7FFF;
+=======
+	battery->wc20_info_idx = 0;
+#endif
+	battery->thermal_zone = BAT_THERMAL_NORMAL;
+	sec_bat_set_threshold(battery, battery->cable_type);
+#if defined(CONFIG_BATTERY_CISD)
+	battery->usb_overheat_check = false;
+	battery->skip_cisd = false;
+#endif
+#if defined(CONFIG_BATTERY_AGE_FORECAST)
+	battery->batt_cycle = -1;
+	battery->pdata->age_step = 0;
+#endif
+	battery->batt_asoc = 100;
+	battery->health_change = false;
+	battery->usb_thm_status = USB_THM_NORMAL;
+	battery->batt_full_capacity = 0;
+	battery->lrp_temp = 0x7FFF;
+>>>>>>> upstream/android-13
 	battery->lr_start_time = 0;
 	battery->lr_time_span = 0;
 	battery->usb_slow_chg = false;
 	battery->usb_bootcomplete = false;
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTK_CHARGER)
+=======
+#if defined(CONFIG_MTK_CHARGER)
+>>>>>>> upstream/android-13
 	battery->mtk_fg_init = false;
 #endif
 	battery->d2d_auth = D2D_AUTH_NONE;
@@ -9395,6 +11051,7 @@ static int sec_battery_probe(struct platform_device *pdev)
 		battery->eoc_d->eoc_check = false;
 		battery->eoc_d->eoc_cnt = 0;
 	}
+<<<<<<< HEAD
 	battery->dc_check_cnt = 0;
 	battery->srccap_transit_cnt = 0;
 	battery->abnormal_ta = false;
@@ -9402,6 +11059,13 @@ static int sec_battery_probe(struct platform_device *pdev)
 
 	ttf_init(battery);
 	sec_battery_cisd_init(battery);
+=======
+
+	ttf_init(battery);
+#if defined(CONFIG_BATTERY_CISD)
+	sec_battery_cisd_init(battery);
+#endif
+>>>>>>> upstream/android-13
 #if defined(CONFIG_STORE_MODE) && !defined(CONFIG_SEC_FACTORY)
 	battery->store_mode = true;
 	sec_bat_parse_mode_dt(battery);
@@ -9509,9 +11173,12 @@ static int sec_battery_probe(struct platform_device *pdev)
 		goto err_req_irq;
 	}
 
+<<<<<<< HEAD
 	ret = sb_full_soc_init(battery);
 	dev_info(battery->dev, "%s: sb_full_soc (%s)\n", __func__, (ret) ? "fail" : "success");
 
+=======
+>>>>>>> upstream/android-13
 	ret = sb_notify_register(&battery->sb_nb, sb_handle_notification, "battery", SB_DEV_BATTERY);
 	dev_info(battery->dev, "%s: sb_notify_register (%s)\n", __func__, (ret) ? "fail" : "success");
 
@@ -9558,14 +11225,21 @@ err_irq:
 	wakeup_source_unregister(battery->misc_event_ws);
 	wakeup_source_unregister(battery->parse_mode_dt_ws);
 	wakeup_source_unregister(battery->dev_init_ws);
+<<<<<<< HEAD
 	wakeup_source_unregister(battery->usb_conn_check_ws);
+=======
+>>>>>>> upstream/android-13
 	mutex_destroy(&battery->iolock);
 	mutex_destroy(&battery->misclock);
 	mutex_destroy(&battery->txeventlock);
 	mutex_destroy(&battery->batt_handlelock);
 	mutex_destroy(&battery->current_eventlock);
 	mutex_destroy(&battery->typec_notylock);
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTK_CHARGER)  && !IS_ENABLED(CONFIG_VIRTUAL_MUIC)
+=======
+#if defined(CONFIG_MTK_CHARGER)  && !defined(CONFIG_VIRTUAL_MUIC)
+>>>>>>> upstream/android-13
 	mutex_destroy(&battery->bc12_notylock);
 #endif
 	mutex_destroy(&battery->wclock);
@@ -9617,14 +11291,21 @@ static int sec_battery_remove(struct platform_device *pdev)
 #endif
 	wakeup_source_unregister(battery->parse_mode_dt_ws);
 	wakeup_source_unregister(battery->dev_init_ws);
+<<<<<<< HEAD
 	wakeup_source_unregister(battery->usb_conn_check_ws);
+=======
+>>>>>>> upstream/android-13
 	mutex_destroy(&battery->iolock);
 	mutex_destroy(&battery->misclock);
 	mutex_destroy(&battery->txeventlock);
 	mutex_destroy(&battery->batt_handlelock);
 	mutex_destroy(&battery->current_eventlock);
 	mutex_destroy(&battery->typec_notylock);
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTK_CHARGER)  && !IS_ENABLED(CONFIG_VIRTUAL_MUIC)
+=======
+#if defined(CONFIG_MTK_CHARGER)  && !defined(CONFIG_VIRTUAL_MUIC)
+>>>>>>> upstream/android-13
 	mutex_destroy(&battery->bc12_notylock);
 #endif
 	mutex_destroy(&battery->wclock);
@@ -9746,6 +11427,10 @@ static void sec_battery_shutdown(struct platform_device *pdev)
 	cancel_delayed_work(&battery->wpc_tx_en_work);
 	cancel_delayed_work(&battery->wpc_txpower_calc_work);
 	cancel_delayed_work(&battery->ext_event_work);
+<<<<<<< HEAD
+=======
+	cancel_delayed_work(&battery->otg_work);
+>>>>>>> upstream/android-13
 	cancel_delayed_work(&battery->wc20_current_work);
 	cancel_delayed_work(&battery->wc_ept_timeout_work);
 #endif
@@ -9756,8 +11441,11 @@ static void sec_battery_shutdown(struct platform_device *pdev)
 	cancel_delayed_work(&battery->parse_mode_dt_work);
 	cancel_delayed_work(&battery->dev_init_work);
 	cancel_delayed_work(&battery->afc_init_work);
+<<<<<<< HEAD
 	cancel_delayed_work(&battery->usb_conn_check_work);
 	cancel_delayed_work(&battery->transit_clear_work);
+=======
+>>>>>>> upstream/android-13
 
 	pr_info("%s: --\n", __func__);
 }

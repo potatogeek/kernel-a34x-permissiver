@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* drivers/atm/eni.c - Efficient Networks ENI155P device driver */
  
 /* Written 1995-2000 by Werner Almesberger, EPFL LRC/ICA */
@@ -30,12 +34,15 @@
 #include "suni.h"
 #include "eni.h"
 
+<<<<<<< HEAD
 #if !defined(__i386__) && !defined(__x86_64__)
 #ifndef ioremap_nocache
 #define ioremap_nocache(X,Y) ioremap(X,Y)
 #endif 
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /*
  * TODO:
  *
@@ -241,7 +248,12 @@ static void __iomem *eni_alloc_mem(struct eni_dev *eni_dev, unsigned long *size)
 	len = eni_dev->free_len;
 	if (*size < MID_MIN_BUF_SIZE) *size = MID_MIN_BUF_SIZE;
 	if (*size > MID_MAX_BUF_SIZE) return NULL;
+<<<<<<< HEAD
 	for (order = 0; (1 << order) < *size; order++);
+=======
+	for (order = 0; (1 << order) < *size; order++)
+		;
+>>>>>>> upstream/android-13
 	DPRINTK("trying: %ld->%d\n",*size,order);
 	best_order = 65; /* we don't have more than 2^64 of anything ... */
 	index = 0; /* silence GCC */
@@ -1038,6 +1050,10 @@ static enum enq_res do_tx(struct sk_buff *skb)
 	u32 dma_rd,dma_wr;
 	u32 size; /* in words */
 	int aal5,dma_size,i,j;
+<<<<<<< HEAD
+=======
+	unsigned char skb_data3;
+>>>>>>> upstream/android-13
 
 	DPRINTK(">do_tx\n");
 	NULLCHECK(skb);
@@ -1112,8 +1128,16 @@ DPRINTK("iovcnt = %d\n",skb_shinfo(skb)->nr_frags);
 		    vcc->dev->number);
 		return enq_jam;
 	}
+<<<<<<< HEAD
 	paddr = dma_map_single(&eni_dev->pci_dev->dev,skb->data,skb->len,
 			       DMA_TO_DEVICE);
+=======
+	skb_data3 = skb->data[3];
+	paddr = dma_map_single(&eni_dev->pci_dev->dev,skb->data,skb->len,
+			       DMA_TO_DEVICE);
+	if (dma_mapping_error(&eni_dev->pci_dev->dev, paddr))
+		return enq_next;
+>>>>>>> upstream/android-13
 	ENI_PRV_PADDR(skb) = paddr;
 	/* prepare DMA queue entries */
 	j = 0;
@@ -1134,7 +1158,11 @@ DPRINTK("doing direct send\n"); /* @@@ well, this doesn't work anyway */
 			else
 				put_dma(tx->index,eni_dev->dma,&j,(unsigned long)
 				    skb_frag_page(&skb_shinfo(skb)->frags[i]) +
+<<<<<<< HEAD
 					skb_shinfo(skb)->frags[i].page_offset,
+=======
+					skb_frag_off(&skb_shinfo(skb)->frags[i]),
+>>>>>>> upstream/android-13
 				    skb_frag_size(&skb_shinfo(skb)->frags[i]));
 	}
 	if (skb->len & 3) {
@@ -1154,7 +1182,11 @@ DPRINTK("doing direct send\n"); /* @@@ well, this doesn't work anyway */
 	    (size/(ATM_CELL_PAYLOAD/4)),tx->send+tx->tx_pos*4);
 /*printk("dsc = 0x%08lx\n",(unsigned long) readl(tx->send+tx->tx_pos*4));*/
 	writel((vcc->vci << MID_SEG_VCI_SHIFT) |
+<<<<<<< HEAD
             (aal5 ? 0 : (skb->data[3] & 0xf)) |
+=======
+            (aal5 ? 0 : (skb_data3 & 0xf)) |
+>>>>>>> upstream/android-13
 	    (ATM_SKB(skb)->atm_options & ATM_ATMOPT_CLP ? MID_SEG_CLP : 0),
 	    tx->send+((tx->tx_pos+1) & (tx->words-1))*4);
 	DPRINTK("size: %d, len:%d\n",size,skb->len);
@@ -1723,7 +1755,11 @@ static int eni_do_init(struct atm_dev *dev)
 	}
 	printk(KERN_NOTICE DEV_LABEL "(itf %d): rev.%d,base=0x%lx,irq=%d,",
 	    dev->number,pci_dev->revision,real_base,eni_dev->irq);
+<<<<<<< HEAD
 	if (!(base = ioremap_nocache(real_base,MAP_MAX_SIZE))) {
+=======
+	if (!(base = ioremap(real_base,MAP_MAX_SIZE))) {
+>>>>>>> upstream/android-13
 		printk("\n");
 		printk(KERN_ERR DEV_LABEL "(itf %d): can't set up page "
 		    "mapping\n",dev->number);
@@ -2031,6 +2067,7 @@ static int eni_ioctl(struct atm_dev *dev,unsigned int cmd,void __user *arg)
 	return dev->phy->ioctl(dev,cmd,arg);
 }
 
+<<<<<<< HEAD
 
 static int eni_getsockopt(struct atm_vcc *vcc,int level,int optname,
     void __user *optval,int optlen)
@@ -2046,6 +2083,8 @@ static int eni_setsockopt(struct atm_vcc *vcc,int level,int optname,
 }
 
 
+=======
+>>>>>>> upstream/android-13
 static int eni_send(struct atm_vcc *vcc,struct sk_buff *skb)
 {
 	enum enq_res res;
@@ -2071,7 +2110,11 @@ static int eni_send(struct atm_vcc *vcc,struct sk_buff *skb)
 	}
 	submitted++;
 	ATM_SKB(skb)->vcc = vcc;
+<<<<<<< HEAD
 	tasklet_disable(&ENI_DEV(vcc->dev)->task);
+=======
+	tasklet_disable_in_atomic(&ENI_DEV(vcc->dev)->task);
+>>>>>>> upstream/android-13
 	res = do_tx(skb);
 	tasklet_enable(&ENI_DEV(vcc->dev)->task);
 	if (res == enq_ok) return 0;
@@ -2219,8 +2262,11 @@ static const struct atmdev_ops ops = {
 	.open		= eni_open,
 	.close		= eni_close,
 	.ioctl		= eni_ioctl,
+<<<<<<< HEAD
 	.getsockopt	= eni_getsockopt,
 	.setsockopt	= eni_setsockopt,
+=======
+>>>>>>> upstream/android-13
 	.send		= eni_send,
 	.phy_put	= eni_phy_put,
 	.phy_get	= eni_phy_get,

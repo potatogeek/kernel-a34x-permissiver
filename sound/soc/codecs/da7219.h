@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * da7219.h - DA7219 ALSA SoC Codec Driver
  *
  * Copyright (c) 2015 Dialog Semiconductor
  *
  * Author: Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __DA7219_H
@@ -809,6 +816,10 @@ struct da7219_aad_priv;
 
 /* Private data */
 struct da7219_priv {
+<<<<<<< HEAD
+=======
+	struct snd_soc_component *component;
+>>>>>>> upstream/android-13
 	struct da7219_aad_priv *aad;
 	struct da7219_pdata *pdata;
 
@@ -819,16 +830,28 @@ struct da7219_priv {
 	struct mutex pll_lock;
 
 #ifdef CONFIG_COMMON_CLK
+<<<<<<< HEAD
 	struct clk_hw dai_clks_hw;
 #endif
 	struct clk_lookup *dai_clks_lookup;
 	struct clk *dai_clks;
+=======
+	struct clk_hw dai_clks_hw[DA7219_DAI_NUM_CLKS];
+	struct clk_hw_onecell_data *clk_hw_data;
+#endif
+	struct clk_lookup *dai_clks_lookup[DA7219_DAI_NUM_CLKS];
+	struct clk *dai_clks[DA7219_DAI_NUM_CLKS];
+>>>>>>> upstream/android-13
 
 	struct clk *mclk;
 	unsigned int mclk_rate;
 	int clk_src;
 
 	bool master;
+<<<<<<< HEAD
+=======
+	bool tdm_en;
+>>>>>>> upstream/android-13
 	bool alc_en;
 	bool micbias_on_event;
 	unsigned int mic_pga_delay;

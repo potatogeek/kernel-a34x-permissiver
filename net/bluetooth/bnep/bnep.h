@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
   BNEP protocol definition for Linux Bluetooth stack (BlueZ).
   Copyright (C) 2002 Maxim Krasnyansky <maxk@qualcomm.com>
 
+<<<<<<< HEAD
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License, version 2, as
   published by the Free Software Foundation.
@@ -13,6 +18,8 @@
 
   You should have received a copy of the GNU General Public License
   along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
 */
 
 #ifndef _BNEP_H
@@ -84,14 +91,22 @@ struct bnep_setup_conn_req {
 	__u8 type;
 	__u8 ctrl;
 	__u8 uuid_size;
+<<<<<<< HEAD
 	__u8 service[0];
+=======
+	__u8 service[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct bnep_set_filter_req {
 	__u8 type;
 	__u8 ctrl;
 	__be16 len;
+<<<<<<< HEAD
 	__u8 list[0];
+=======
+	__u8 list[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct bnep_control_rsp {
@@ -103,7 +118,11 @@ struct bnep_control_rsp {
 struct bnep_ext_hdr {
 	__u8 type;
 	__u8 len;
+<<<<<<< HEAD
 	__u8 data[0];
+=======
+	__u8 data[];
+>>>>>>> upstream/android-13
 } __packed;
 
 /* BNEP ioctl defines */

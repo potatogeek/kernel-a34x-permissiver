@@ -1,5 +1,6 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 # Runs printf infrastructure using test_printf kernel module
 
 # Kselftest framework requirement - SKIP code is 4.
@@ -17,3 +18,7 @@ else
 	echo "printf: [FAIL]"
 	exit 1
 fi
+=======
+# Tests the printf infrastructure using test_printf kernel module.
+$(dirname $0)/../kselftest/module.sh "printf" test_printf
+>>>>>>> upstream/android-13

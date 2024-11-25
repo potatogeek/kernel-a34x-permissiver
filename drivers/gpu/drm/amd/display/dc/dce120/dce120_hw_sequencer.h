@@ -27,9 +27,17 @@
 #define __DC_HWSS_DCE120_H__
 
 #include "core_types.h"
+<<<<<<< HEAD
 
 struct dc;
 
+=======
+#include "hw_sequencer_private.h"
+
+struct dc;
+
+bool dce121_xgmi_enabled(struct dce_hwseq *hws);
+>>>>>>> upstream/android-13
 void dce120_hw_sequencer_construct(struct dc *dc);
 
 #endif /* __DC_HWSS_DCE112_H__ */

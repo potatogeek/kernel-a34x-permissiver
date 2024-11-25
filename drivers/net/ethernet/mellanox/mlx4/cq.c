@@ -55,11 +55,19 @@
 #define TASKLET_MAX_TIME 2
 #define TASKLET_MAX_TIME_JIFFIES msecs_to_jiffies(TASKLET_MAX_TIME)
 
+<<<<<<< HEAD
 void mlx4_cq_tasklet_cb(unsigned long data)
 {
 	unsigned long flags;
 	unsigned long end = jiffies + TASKLET_MAX_TIME_JIFFIES;
 	struct mlx4_eq_tasklet *ctx = (struct mlx4_eq_tasklet *)data;
+=======
+void mlx4_cq_tasklet_cb(struct tasklet_struct *t)
+{
+	unsigned long flags;
+	unsigned long end = jiffies + TASKLET_MAX_TIME_JIFFIES;
+	struct mlx4_eq_tasklet *ctx = from_tasklet(ctx, t, task);
+>>>>>>> upstream/android-13
 	struct mlx4_cq *mcq, *temp;
 
 	spin_lock_irqsave(&ctx->lock, flags);
@@ -144,9 +152,15 @@ void mlx4_cq_event(struct mlx4_dev *dev, u32 cqn, int event_type)
 }
 
 static int mlx4_SW2HW_CQ(struct mlx4_dev *dev, struct mlx4_cmd_mailbox *mailbox,
+<<<<<<< HEAD
 			 int cq_num)
 {
 	return mlx4_cmd(dev, mailbox->dma, cq_num, 0,
+=======
+			 int cq_num, u8 opmod)
+{
+	return mlx4_cmd(dev, mailbox->dma, cq_num, opmod,
+>>>>>>> upstream/android-13
 			MLX4_CMD_SW2HW_CQ, MLX4_CMD_TIME_CLASS_A,
 			MLX4_CMD_WRAPPED);
 }
@@ -287,11 +301,71 @@ static void mlx4_cq_free_icm(struct mlx4_dev *dev, int cqn)
 		__mlx4_cq_free_icm(dev, cqn);
 }
 
+<<<<<<< HEAD
 int mlx4_cq_alloc(struct mlx4_dev *dev, int nent,
 		  struct mlx4_mtt *mtt, struct mlx4_uar *uar, u64 db_rec,
 		  struct mlx4_cq *cq, unsigned vector, int collapsed,
 		  int timestamp_en)
 {
+=======
+static int mlx4_init_user_cqes(void *buf, int entries, int cqe_size)
+{
+	int entries_per_copy = PAGE_SIZE / cqe_size;
+	void *init_ents;
+	int err = 0;
+	int i;
+
+	init_ents = kmalloc(PAGE_SIZE, GFP_KERNEL);
+	if (!init_ents)
+		return -ENOMEM;
+
+	/* Populate a list of CQ entries to reduce the number of
+	 * copy_to_user calls. 0xcc is the initialization value
+	 * required by the FW.
+	 */
+	memset(init_ents, 0xcc, PAGE_SIZE);
+
+	if (entries_per_copy < entries) {
+		for (i = 0; i < entries / entries_per_copy; i++) {
+			err = copy_to_user((void __user *)buf, init_ents, PAGE_SIZE) ?
+				-EFAULT : 0;
+			if (err)
+				goto out;
+
+			buf += PAGE_SIZE;
+		}
+	} else {
+		err = copy_to_user((void __user *)buf, init_ents, entries * cqe_size) ?
+			-EFAULT : 0;
+	}
+
+out:
+	kfree(init_ents);
+
+	return err;
+}
+
+static void mlx4_init_kernel_cqes(struct mlx4_buf *buf,
+				  int entries,
+				  int cqe_size)
+{
+	int i;
+
+	if (buf->nbufs == 1)
+		memset(buf->direct.buf, 0xcc, entries * cqe_size);
+	else
+		for (i = 0; i < buf->npages; i++)
+			memset(buf->page_list[i].buf, 0xcc,
+			       1UL << buf->page_shift);
+}
+
+int mlx4_cq_alloc(struct mlx4_dev *dev, int nent,
+		  struct mlx4_mtt *mtt, struct mlx4_uar *uar, u64 db_rec,
+		  struct mlx4_cq *cq, unsigned vector, int collapsed,
+		  int timestamp_en, void *buf_addr, bool user_cq)
+{
+	bool sw_cq_init = dev->caps.flags2 & MLX4_DEV_CAP_FLAG2_SW_CQ_INIT;
+>>>>>>> upstream/android-13
 	struct mlx4_priv *priv = mlx4_priv(dev);
 	struct mlx4_cq_table *cq_table = &priv->cq_table;
 	struct mlx4_cmd_mailbox *mailbox;
@@ -336,7 +410,24 @@ int mlx4_cq_alloc(struct mlx4_dev *dev, int nent,
 	cq_context->mtt_base_addr_l = cpu_to_be32(mtt_addr & 0xffffffff);
 	cq_context->db_rec_addr     = cpu_to_be64(db_rec);
 
+<<<<<<< HEAD
 	err = mlx4_SW2HW_CQ(dev, mailbox, cq->cqn);
+=======
+	if (sw_cq_init) {
+		if (user_cq) {
+			err = mlx4_init_user_cqes(buf_addr, nent,
+						  dev->caps.cqe_size);
+			if (err)
+				sw_cq_init = false;
+		} else {
+			mlx4_init_kernel_cqes(buf_addr, nent,
+					      dev->caps.cqe_size);
+		}
+	}
+
+	err = mlx4_SW2HW_CQ(dev, mailbox, cq->cqn, sw_cq_init);
+
+>>>>>>> upstream/android-13
 	mlx4_free_cmd_mailbox(dev, mailbox);
 	if (err)
 		goto err_radix;
@@ -397,19 +488,27 @@ EXPORT_SYMBOL_GPL(mlx4_cq_free);
 int mlx4_init_cq_table(struct mlx4_dev *dev)
 {
 	struct mlx4_cq_table *cq_table = &mlx4_priv(dev)->cq_table;
+<<<<<<< HEAD
 	int err;
+=======
+>>>>>>> upstream/android-13
 
 	spin_lock_init(&cq_table->lock);
 	INIT_RADIX_TREE(&cq_table->tree, GFP_ATOMIC);
 	if (mlx4_is_slave(dev))
 		return 0;
 
+<<<<<<< HEAD
 	err = mlx4_bitmap_init(&cq_table->bitmap, dev->caps.num_cqs,
 			       dev->caps.num_cqs - 1, dev->caps.reserved_cqs, 0);
 	if (err)
 		return err;
 
 	return 0;
+=======
+	return mlx4_bitmap_init(&cq_table->bitmap, dev->caps.num_cqs,
+				dev->caps.num_cqs - 1, dev->caps.reserved_cqs, 0);
+>>>>>>> upstream/android-13
 }
 
 void mlx4_cleanup_cq_table(struct mlx4_dev *dev)

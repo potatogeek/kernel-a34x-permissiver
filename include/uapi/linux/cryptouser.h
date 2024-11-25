@@ -19,6 +19,12 @@
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+<<<<<<< HEAD
+=======
+#ifndef _UAPI_LINUX_CRYPTOUSER_H
+#define _UAPI_LINUX_CRYPTOUSER_H
+
+>>>>>>> upstream/android-13
 #include <linux/types.h>
 
 /* Netlink configuration messages.  */
@@ -29,6 +35,10 @@ enum {
 	CRYPTO_MSG_UPDATEALG,
 	CRYPTO_MSG_GETALG,
 	CRYPTO_MSG_DELRNG,
+<<<<<<< HEAD
+=======
+	CRYPTO_MSG_GETSTAT,
+>>>>>>> upstream/android-13
 	__CRYPTO_MSG_MAX
 };
 #define CRYPTO_MSG_MAX (__CRYPTO_MSG_MAX - 1)
@@ -50,6 +60,19 @@ enum crypto_attr_type_t {
 	CRYPTOCFGA_REPORT_AKCIPHER,	/* struct crypto_report_akcipher */
 	CRYPTOCFGA_REPORT_KPP,		/* struct crypto_report_kpp */
 	CRYPTOCFGA_REPORT_ACOMP,	/* struct crypto_report_acomp */
+<<<<<<< HEAD
+=======
+	CRYPTOCFGA_STAT_LARVAL,		/* struct crypto_stat */
+	CRYPTOCFGA_STAT_HASH,		/* struct crypto_stat */
+	CRYPTOCFGA_STAT_BLKCIPHER,	/* struct crypto_stat */
+	CRYPTOCFGA_STAT_AEAD,		/* struct crypto_stat */
+	CRYPTOCFGA_STAT_COMPRESS,	/* struct crypto_stat */
+	CRYPTOCFGA_STAT_RNG,		/* struct crypto_stat */
+	CRYPTOCFGA_STAT_CIPHER,		/* struct crypto_stat */
+	CRYPTOCFGA_STAT_AKCIPHER,	/* struct crypto_stat */
+	CRYPTOCFGA_STAT_KPP,		/* struct crypto_stat */
+	CRYPTOCFGA_STAT_ACOMP,		/* struct crypto_stat */
+>>>>>>> upstream/android-13
 	__CRYPTOCFGA_MAX
 
 #define CRYPTOCFGA_MAX (__CRYPTOCFGA_MAX - 1)
@@ -65,6 +88,74 @@ struct crypto_user_alg {
 	__u32 cru_flags;
 };
 
+<<<<<<< HEAD
+=======
+struct crypto_stat_aead {
+	char type[CRYPTO_MAX_NAME];
+	__u64 stat_encrypt_cnt;
+	__u64 stat_encrypt_tlen;
+	__u64 stat_decrypt_cnt;
+	__u64 stat_decrypt_tlen;
+	__u64 stat_err_cnt;
+};
+
+struct crypto_stat_akcipher {
+	char type[CRYPTO_MAX_NAME];
+	__u64 stat_encrypt_cnt;
+	__u64 stat_encrypt_tlen;
+	__u64 stat_decrypt_cnt;
+	__u64 stat_decrypt_tlen;
+	__u64 stat_verify_cnt;
+	__u64 stat_sign_cnt;
+	__u64 stat_err_cnt;
+};
+
+struct crypto_stat_cipher {
+	char type[CRYPTO_MAX_NAME];
+	__u64 stat_encrypt_cnt;
+	__u64 stat_encrypt_tlen;
+	__u64 stat_decrypt_cnt;
+	__u64 stat_decrypt_tlen;
+	__u64 stat_err_cnt;
+};
+
+struct crypto_stat_compress {
+	char type[CRYPTO_MAX_NAME];
+	__u64 stat_compress_cnt;
+	__u64 stat_compress_tlen;
+	__u64 stat_decompress_cnt;
+	__u64 stat_decompress_tlen;
+	__u64 stat_err_cnt;
+};
+
+struct crypto_stat_hash {
+	char type[CRYPTO_MAX_NAME];
+	__u64 stat_hash_cnt;
+	__u64 stat_hash_tlen;
+	__u64 stat_err_cnt;
+};
+
+struct crypto_stat_kpp {
+	char type[CRYPTO_MAX_NAME];
+	__u64 stat_setsecret_cnt;
+	__u64 stat_generate_public_key_cnt;
+	__u64 stat_compute_shared_secret_cnt;
+	__u64 stat_err_cnt;
+};
+
+struct crypto_stat_rng {
+	char type[CRYPTO_MAX_NAME];
+	__u64 stat_generate_cnt;
+	__u64 stat_generate_tlen;
+	__u64 stat_seed_cnt;
+	__u64 stat_err_cnt;
+};
+
+struct crypto_stat_larval {
+	char type[CRYPTO_MAX_NAME];
+};
+
+>>>>>>> upstream/android-13
 struct crypto_report_larval {
 	char type[CRYPTO_MAX_NAME];
 };
@@ -122,3 +213,8 @@ struct crypto_report_acomp {
 
 #define CRYPTO_REPORT_MAXSIZE (sizeof(struct crypto_user_alg) + \
 			       sizeof(struct crypto_report_blkcipher))
+<<<<<<< HEAD
+=======
+
+#endif /* _UAPI_LINUX_CRYPTOUSER_H */
+>>>>>>> upstream/android-13

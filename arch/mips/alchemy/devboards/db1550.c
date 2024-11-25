@@ -13,8 +13,12 @@
 #include <linux/io.h>
 #include <linux/interrupt.h>
 #include <linux/mtd/mtd.h>
+<<<<<<< HEAD
 #include <linux/mtd/rawnand.h>
 #include <linux/mtd/partitions.h>
+=======
+#include <linux/mtd/platnand.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/pm.h>
 #include <linux/spi/spi.h>
@@ -83,6 +87,11 @@ int __init db1550_board_setup(void)
 
 /*****************************************************************************/
 
+<<<<<<< HEAD
+=======
+static u64 au1550_all_dmamask = DMA_BIT_MASK(32);
+
+>>>>>>> upstream/android-13
 static struct mtd_partition db1550_spiflash_parts[] = {
 	{
 		.name	= "spi_flash",
@@ -126,11 +135,18 @@ static struct i2c_board_info db1550_i2c_devs[] __initdata = {
 
 /**********************************************************************/
 
+<<<<<<< HEAD
 static void au1550_nand_cmd_ctrl(struct mtd_info *mtd, int cmd,
 				 unsigned int ctrl)
 {
 	struct nand_chip *this = mtd_to_nand(mtd);
 	unsigned long ioaddr = (unsigned long)this->IO_ADDR_W;
+=======
+static void au1550_nand_cmd_ctrl(struct nand_chip *this, int cmd,
+				 unsigned int ctrl)
+{
+	unsigned long ioaddr = (unsigned long)this->legacy.IO_ADDR_W;
+>>>>>>> upstream/android-13
 
 	ioaddr &= 0xffffff00;
 
@@ -142,14 +158,24 @@ static void au1550_nand_cmd_ctrl(struct mtd_info *mtd, int cmd,
 		/* assume we want to r/w real data  by default */
 		ioaddr += MEM_STNAND_DATA;
 	}
+<<<<<<< HEAD
 	this->IO_ADDR_R = this->IO_ADDR_W = (void __iomem *)ioaddr;
 	if (cmd != NAND_CMD_NONE) {
 		__raw_writeb(cmd, this->IO_ADDR_W);
+=======
+	this->legacy.IO_ADDR_R = this->legacy.IO_ADDR_W = (void __iomem *)ioaddr;
+	if (cmd != NAND_CMD_NONE) {
+		__raw_writeb(cmd, this->legacy.IO_ADDR_W);
+>>>>>>> upstream/android-13
 		wmb();
 	}
 }
 
+<<<<<<< HEAD
 static int au1550_nand_device_ready(struct mtd_info *mtd)
+=======
+static int au1550_nand_device_ready(struct nand_chip *this)
+>>>>>>> upstream/android-13
 {
 	return alchemy_rdsmem(AU1000_MEM_STSTAT) & 1;
 }
@@ -225,7 +251,11 @@ static void __init pb1550_nand_setup(void)
 	case 0: case 2: case 8: case 0xC: case 0xD:
 		/* x16 NAND Flash */
 		pb1550_nand_pd.devwidth = 1;
+<<<<<<< HEAD
 		/* fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 1: case 3: case 9: case 0xE: case 0xF:
 		/* x8 NAND, already set up */
 		platform_device_register(&pb1550_nand_dev);
@@ -271,11 +301,18 @@ static struct au1550_spi_info db1550_spi_platdata = {
 	.activate_cs	= db1550_spi_cs_en,
 };
 
+<<<<<<< HEAD
 static u64 spi_dmamask = DMA_BIT_MASK(32);
 
 static struct platform_device db1550_spi_dev = {
 	.dev	= {
 		.dma_mask		= &spi_dmamask,
+=======
+
+static struct platform_device db1550_spi_dev = {
+	.dev	= {
+		.dma_mask		= &au1550_all_dmamask,
+>>>>>>> upstream/android-13
 		.coherent_dma_mask	= DMA_BIT_MASK(32),
 		.platform_data		= &db1550_spi_platdata,
 	},
@@ -399,10 +436,24 @@ static struct platform_device db1550_i2sdma_dev = {
 
 static struct platform_device db1550_sndac97_dev = {
 	.name		= "db1550-ac97",
+<<<<<<< HEAD
+=======
+	.dev = {
+		.dma_mask		= &au1550_all_dmamask,
+		.coherent_dma_mask	= DMA_BIT_MASK(32),
+	},
+>>>>>>> upstream/android-13
 };
 
 static struct platform_device db1550_sndi2s_dev = {
 	.name		= "db1550-i2s",
+<<<<<<< HEAD
+=======
+	.dev = {
+		.dma_mask		= &au1550_all_dmamask,
+		.coherent_dma_mask	= DMA_BIT_MASK(32),
+	},
+>>>>>>> upstream/android-13
 };
 
 /**********************************************************************/

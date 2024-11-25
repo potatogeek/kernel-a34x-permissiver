@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/drivers/pcmcia/sa1111_generic.c
  *
@@ -237,7 +241,11 @@ static int pcmcia_probe(struct sa1111_dev *dev)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int pcmcia_remove(struct sa1111_dev *dev)
+=======
+static void pcmcia_remove(struct sa1111_dev *dev)
+>>>>>>> upstream/android-13
 {
 	struct sa1111_pcmcia_socket *next, *s = dev_get_drvdata(&dev->dev);
 
@@ -251,7 +259,10 @@ static int pcmcia_remove(struct sa1111_dev *dev)
 
 	release_mem_region(dev->res.start, 512);
 	sa1111_disable_device(dev);
+<<<<<<< HEAD
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static struct sa1111_driver pcmcia_driver = {

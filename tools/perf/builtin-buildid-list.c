@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+>>>>>>> upstream/android-13
 /*
  * builtin-buildid-list.c
  *
@@ -11,13 +14,23 @@
 #include "builtin.h"
 #include "perf.h"
 #include "util/build-id.h"
+<<<<<<< HEAD
 #include "util/cache.h"
 #include "util/debug.h"
+=======
+#include "util/debug.h"
+#include "util/dso.h"
+#include <subcmd/pager.h>
+>>>>>>> upstream/android-13
 #include <subcmd/parse-options.h>
 #include "util/session.h"
 #include "util/symbol.h"
 #include "util/data.h"
 #include <errno.h>
+<<<<<<< HEAD
+=======
+#include <linux/err.h>
+>>>>>>> upstream/android-13
 
 static int sysfs__fprintf_build_id(FILE *fp)
 {
@@ -52,11 +65,17 @@ static int perf_session__list_build_ids(bool force, bool with_hits)
 {
 	struct perf_session *session;
 	struct perf_data data = {
+<<<<<<< HEAD
 		.file      = {
 			.path = input_name,
 		},
 		.mode      = PERF_DATA_MODE_READ,
 		.force     = force,
+=======
+		.path  = input_name,
+		.mode  = PERF_DATA_MODE_READ,
+		.force = force,
+>>>>>>> upstream/android-13
 	};
 
 	symbol__elf_init();
@@ -66,9 +85,15 @@ static int perf_session__list_build_ids(bool force, bool with_hits)
 	if (filename__fprintf_build_id(input_name, stdout) > 0)
 		goto out;
 
+<<<<<<< HEAD
 	session = perf_session__new(&data, false, &build_id__mark_dso_hit_ops);
 	if (session == NULL)
 		return -1;
+=======
+	session = perf_session__new(&data, &build_id__mark_dso_hit_ops);
+	if (IS_ERR(session))
+		return PTR_ERR(session);
+>>>>>>> upstream/android-13
 
 	/*
 	 * We take all buildids when the file contains AUX area tracing data
@@ -78,6 +103,15 @@ static int perf_session__list_build_ids(bool force, bool with_hits)
 	    perf_header__has_feat(&session->header, HEADER_AUXTRACE))
 		with_hits = false;
 
+<<<<<<< HEAD
+=======
+	if (!perf_header__has_feat(&session->header, HEADER_BUILD_ID))
+		with_hits = true;
+
+	if (zstd_init(&(session->zstd_data), 0) < 0)
+		pr_warning("Decompression initialization failed. Reported data may be incomplete.\n");
+
+>>>>>>> upstream/android-13
 	/*
 	 * in pipe-mode, the only way to get the buildids is to parse
 	 * the record stream. Buildids are stored as RECORD_HEADER_BUILD_ID

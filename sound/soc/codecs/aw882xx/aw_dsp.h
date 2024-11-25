@@ -1,7 +1,15 @@
 #ifndef __AWINIC_DSP_H__
 #define __AWINIC_DSP_H__
 
+<<<<<<< HEAD
 #define AW_MTK_PLATFORM_WITH_DSP
+=======
+//#define AW_MTK_PLATFORM_WITH_DSP
+#if IS_ENABLED(CONFIG_SND_AW_FEEDFORWARD)
+#define AW_ABOX_PLATFORM
+#endif
+#define AW_LSI_PLATFORM
+>>>>>>> upstream/android-13
 
 /*factor form 12bit(4096) to 1000*/
 #define AW_DSP_RE_TO_SHOW_RE(re)	(((re) * (1000)) >> (12))
@@ -38,6 +46,11 @@ int aw_dsp_read_cali_cfg(struct aw_device *aw_dev, char *data, unsigned int data
 int aw_dsp_noise_en(struct aw_device *aw_dev, bool is_noise);
 int aw_dsp_write_vmax(struct aw_device *aw_dev, char *data, unsigned int data_len);
 int aw_dsp_read_vmax(struct aw_device *aw_dev, char *data, unsigned int data_len);
+<<<<<<< HEAD
+=======
+int aw_dsp_write_ambient_temp(struct aw_device *aw_dev, int *temp);
+int aw_dsp_recover_algo_packet(void);
+>>>>>>> upstream/android-13
 int aw_dsp_write_params(struct aw_device *aw_dev, char *data, unsigned int data_len);
 int aw_dsp_write_cali_re(struct aw_device *aw_dev, int32_t cali_re);
 int aw_dsp_read_cali_re(struct aw_device *aw_dev, int32_t *cali_re);

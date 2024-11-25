@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* (C) 1999-2001 Paul `Rusty' Russell
  * (C) 2002-2004 Netfilter Core Team <coreteam@netfilter.org>
  * (C) 2002-2013 Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>
@@ -6,6 +7,13 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* (C) 1999-2001 Paul `Rusty' Russell
+ * (C) 2002-2004 Netfilter Core Team <coreteam@netfilter.org>
+ * (C) 2002-2013 Jozsef Kadlecsik <kadlec@netfilter.org>
+ * (C) 2006-2012 Patrick McHardy <kaber@trash.net>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -34,6 +42,7 @@
 #include <net/netfilter/ipv4/nf_conntrack_ipv4.h>
 #include <net/netfilter/ipv6/nf_conntrack_ipv6.h>
 
+<<<<<<< HEAD
 /* "Be conservative in what you do,
     be liberal in what you accept from others."
     If it's non-zero, we mark only out of window RST segments as INVALID. */
@@ -48,6 +57,8 @@ static int nf_ct_tcp_loose __read_mostly = 1;
    will be started. */
 static int nf_ct_tcp_max_retrans __read_mostly = 3;
 
+=======
+>>>>>>> upstream/android-13
   /* FIXME: Examine ipfilter's timeouts and conntrack transitions more
      closely.  They're more complex. --RR */
 
@@ -272,11 +283,14 @@ static const u8 tcp_conntracks[2][6][TCP_CONNTRACK_MAX] = {
 	}
 };
 
+<<<<<<< HEAD
 static inline struct nf_tcp_net *tcp_pernet(struct net *net)
 {
 	return &net->ct.nf_ct_proto.tcp;
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_NF_CONNTRACK_PROCFS
 /* Print out the private part of the conntrack. */
 static void tcp_print_conntrack(struct seq_file *s, struct nf_conn *ct)
@@ -360,10 +374,18 @@ static void tcp_options(const struct sk_buff *skb,
 
 	ptr = skb_header_pointer(skb, dataoff + sizeof(struct tcphdr),
 				 length, buff);
+<<<<<<< HEAD
 	BUG_ON(ptr == NULL);
 
 	state->td_scale =
 	state->flags = 0;
+=======
+	if (!ptr)
+		return;
+
+	state->td_scale = 0;
+	state->flags &= IP_CT_TCP_FLAG_BE_LIBERAL;
+>>>>>>> upstream/android-13
 
 	while (length > 0) {
 		int opcode=*ptr++;
@@ -416,7 +438,12 @@ static void tcp_sack(const struct sk_buff *skb, unsigned int dataoff,
 
 	ptr = skb_header_pointer(skb, dataoff + sizeof(struct tcphdr),
 				 length, buff);
+<<<<<<< HEAD
 	BUG_ON(ptr == NULL);
+=======
+	if (!ptr)
+		return;
+>>>>>>> upstream/android-13
 
 	/* Fast path for timestamp-only option */
 	if (length == TCPOLEN_TSTAMP_ALIGNED
@@ -466,16 +493,29 @@ static void tcp_sack(const struct sk_buff *skb, unsigned int dataoff,
 	}
 }
 
+<<<<<<< HEAD
 static bool tcp_in_window(const struct nf_conn *ct,
 			  struct ip_ct_tcp *state,
+=======
+static bool tcp_in_window(struct nf_conn *ct,
+>>>>>>> upstream/android-13
 			  enum ip_conntrack_dir dir,
 			  unsigned int index,
 			  const struct sk_buff *skb,
 			  unsigned int dataoff,
+<<<<<<< HEAD
 			  const struct tcphdr *tcph)
 {
 	struct net *net = nf_ct_net(ct);
 	struct nf_tcp_net *tn = tcp_pernet(net);
+=======
+			  const struct tcphdr *tcph,
+			  const struct nf_hook_state *hook_state)
+{
+	struct ip_ct_tcp *state = &ct->proto.tcp;
+	struct net *net = nf_ct_net(ct);
+	struct nf_tcp_net *tn = nf_tcp_pernet(net);
+>>>>>>> upstream/android-13
 	struct ip_ct_tcp_state *sender = &state->seen[dir];
 	struct ip_ct_tcp_state *receiver = &state->seen[!dir];
 	const struct nf_conntrack_tuple *tuple = &ct->tuplehash[dir].tuple;
@@ -690,7 +730,11 @@ static bool tcp_in_window(const struct nf_conn *ct,
 		    tn->tcp_be_liberal)
 			res = true;
 		if (!res) {
+<<<<<<< HEAD
 			nf_ct_l4proto_log_invalid(skb, ct,
+=======
+			nf_ct_l4proto_log_invalid(skb, ct, hook_state,
+>>>>>>> upstream/android-13
 			"%s",
 			before(seq, sender->td_maxend + 1) ?
 			in_recv_win ?
@@ -726,6 +770,7 @@ static const u8 tcp_valid_flags[(TCPHDR_FIN|TCPHDR_SYN|TCPHDR_RST|TCPHDR_ACK|
 	[TCPHDR_ACK|TCPHDR_URG]			= 1,
 };
 
+<<<<<<< HEAD
 static void tcp_error_log(const struct sk_buff *skb, struct net *net,
 			  u8 pf, const char *msg)
 {
@@ -755,6 +800,28 @@ static int tcp_error(struct net *net, struct nf_conn *tmpl,
 	if (th->doff*4 < sizeof(struct tcphdr) || tcplen < th->doff*4) {
 		tcp_error_log(skb, net, pf, "truncated packet");
 		return -NF_ACCEPT;
+=======
+static void tcp_error_log(const struct sk_buff *skb,
+			  const struct nf_hook_state *state,
+			  const char *msg)
+{
+	nf_l4proto_log_invalid(skb, state, IPPROTO_TCP, "%s", msg);
+}
+
+/* Protect conntrack agaist broken packets. Code taken from ipt_unclean.c.  */
+static bool tcp_error(const struct tcphdr *th,
+		      struct sk_buff *skb,
+		      unsigned int dataoff,
+		      const struct nf_hook_state *state)
+{
+	unsigned int tcplen = skb->len - dataoff;
+	u8 tcpflags;
+
+	/* Not whole TCP header or malformed packet */
+	if (th->doff*4 < sizeof(struct tcphdr) || tcplen < th->doff*4) {
+		tcp_error_log(skb, state, "truncated packet");
+		return true;
+>>>>>>> upstream/android-13
 	}
 
 	/* Checksum invalid? Ignore.
@@ -762,15 +829,24 @@ static int tcp_error(struct net *net, struct nf_conn *tmpl,
 	 * because the checksum is assumed to be correct.
 	 */
 	/* FIXME: Source route IP option packets --RR */
+<<<<<<< HEAD
 	if (net->ct.sysctl_checksum && hooknum == NF_INET_PRE_ROUTING &&
 	    nf_checksum(skb, hooknum, dataoff, IPPROTO_TCP, pf)) {
 		tcp_error_log(skb, net, pf, "bad checksum");
 		return -NF_ACCEPT;
+=======
+	if (state->net->ct.sysctl_checksum &&
+	    state->hook == NF_INET_PRE_ROUTING &&
+	    nf_checksum(skb, state->hook, dataoff, IPPROTO_TCP, state->pf)) {
+		tcp_error_log(skb, state, "bad checksum");
+		return true;
+>>>>>>> upstream/android-13
 	}
 
 	/* Check TCP flags. */
 	tcpflags = (tcp_flag_byte(th) & ~(TCPHDR_ECE|TCPHDR_CWR|TCPHDR_PSH));
 	if (!tcp_valid_flags[tcpflags]) {
+<<<<<<< HEAD
 		tcp_error_log(skb, net, pf, "invalid tcp flag combination");
 		return -NF_ACCEPT;
 	}
@@ -1121,6 +1197,25 @@ static bool tcp_new(struct nf_conn *ct, const struct sk_buff *skb,
 	th = skb_header_pointer(skb, dataoff, sizeof(_tcph), &_tcph);
 	BUG_ON(th == NULL);
 
+=======
+		tcp_error_log(skb, state, "invalid tcp flag combination");
+		return true;
+	}
+
+	return false;
+}
+
+static noinline bool tcp_new(struct nf_conn *ct, const struct sk_buff *skb,
+			     unsigned int dataoff,
+			     const struct tcphdr *th)
+{
+	enum tcp_conntrack new_state;
+	struct net *net = nf_ct_net(ct);
+	const struct nf_tcp_net *tn = nf_tcp_pernet(net);
+	const struct ip_ct_tcp_state *sender = &ct->proto.tcp.seen[0];
+	const struct ip_ct_tcp_state *receiver = &ct->proto.tcp.seen[1];
+
+>>>>>>> upstream/android-13
 	/* Don't need lock here: this conntrack not in circulation yet */
 	new_state = tcp_conntracks[0][get_conntrack_index(th)][TCP_CONNTRACK_NONE];
 
@@ -1173,8 +1268,14 @@ static bool tcp_new(struct nf_conn *ct, const struct sk_buff *skb,
 	/* tcp_packet will set them */
 	ct->proto.tcp.last_index = TCP_NONE_SET;
 
+<<<<<<< HEAD
 	pr_debug("tcp_new: sender end=%u maxend=%u maxwin=%u scale=%i "
 		 "receiver end=%u maxend=%u maxwin=%u scale=%i\n",
+=======
+	pr_debug("%s: sender end=%u maxend=%u maxwin=%u scale=%i "
+		 "receiver end=%u maxend=%u maxwin=%u scale=%i\n",
+		 __func__,
+>>>>>>> upstream/android-13
 		 sender->td_end, sender->td_maxend, sender->td_maxwin,
 		 sender->td_scale,
 		 receiver->td_end, receiver->td_maxend, receiver->td_maxwin,
@@ -1198,24 +1299,416 @@ static bool tcp_can_early_drop(const struct nf_conn *ct)
 	return false;
 }
 
+<<<<<<< HEAD
+=======
+static void nf_ct_tcp_state_reset(struct ip_ct_tcp_state *state)
+{
+	state->td_end		= 0;
+	state->td_maxend	= 0;
+	state->td_maxwin	= 0;
+	state->td_maxack	= 0;
+	state->td_scale		= 0;
+	state->flags		&= IP_CT_TCP_FLAG_BE_LIBERAL;
+}
+
+/* Returns verdict for packet, or -1 for invalid. */
+int nf_conntrack_tcp_packet(struct nf_conn *ct,
+			    struct sk_buff *skb,
+			    unsigned int dataoff,
+			    enum ip_conntrack_info ctinfo,
+			    const struct nf_hook_state *state)
+{
+	struct net *net = nf_ct_net(ct);
+	struct nf_tcp_net *tn = nf_tcp_pernet(net);
+	struct nf_conntrack_tuple *tuple;
+	enum tcp_conntrack new_state, old_state;
+	unsigned int index, *timeouts;
+	enum ip_conntrack_dir dir;
+	const struct tcphdr *th;
+	struct tcphdr _tcph;
+	unsigned long timeout;
+
+	th = skb_header_pointer(skb, dataoff, sizeof(_tcph), &_tcph);
+	if (th == NULL)
+		return -NF_ACCEPT;
+
+	if (tcp_error(th, skb, dataoff, state))
+		return -NF_ACCEPT;
+
+	if (!nf_ct_is_confirmed(ct) && !tcp_new(ct, skb, dataoff, th))
+		return -NF_ACCEPT;
+
+	spin_lock_bh(&ct->lock);
+	old_state = ct->proto.tcp.state;
+	dir = CTINFO2DIR(ctinfo);
+	index = get_conntrack_index(th);
+	new_state = tcp_conntracks[dir][index][old_state];
+	tuple = &ct->tuplehash[dir].tuple;
+
+	switch (new_state) {
+	case TCP_CONNTRACK_SYN_SENT:
+		if (old_state < TCP_CONNTRACK_TIME_WAIT)
+			break;
+		/* RFC 1122: "When a connection is closed actively,
+		 * it MUST linger in TIME-WAIT state for a time 2xMSL
+		 * (Maximum Segment Lifetime). However, it MAY accept
+		 * a new SYN from the remote TCP to reopen the connection
+		 * directly from TIME-WAIT state, if..."
+		 * We ignore the conditions because we are in the
+		 * TIME-WAIT state anyway.
+		 *
+		 * Handle aborted connections: we and the server
+		 * think there is an existing connection but the client
+		 * aborts it and starts a new one.
+		 */
+		if (((ct->proto.tcp.seen[dir].flags
+		      | ct->proto.tcp.seen[!dir].flags)
+		     & IP_CT_TCP_FLAG_CLOSE_INIT)
+		    || (ct->proto.tcp.last_dir == dir
+		        && ct->proto.tcp.last_index == TCP_RST_SET)) {
+			/* Attempt to reopen a closed/aborted connection.
+			 * Delete this connection and look up again. */
+			spin_unlock_bh(&ct->lock);
+
+			/* Only repeat if we can actually remove the timer.
+			 * Destruction may already be in progress in process
+			 * context and we must give it a chance to terminate.
+			 */
+			if (nf_ct_kill(ct))
+				return -NF_REPEAT;
+			return NF_DROP;
+		}
+		fallthrough;
+	case TCP_CONNTRACK_IGNORE:
+		/* Ignored packets:
+		 *
+		 * Our connection entry may be out of sync, so ignore
+		 * packets which may signal the real connection between
+		 * the client and the server.
+		 *
+		 * a) SYN in ORIGINAL
+		 * b) SYN/ACK in REPLY
+		 * c) ACK in reply direction after initial SYN in original.
+		 *
+		 * If the ignored packet is invalid, the receiver will send
+		 * a RST we'll catch below.
+		 */
+		if (index == TCP_SYNACK_SET
+		    && ct->proto.tcp.last_index == TCP_SYN_SET
+		    && ct->proto.tcp.last_dir != dir
+		    && ntohl(th->ack_seq) == ct->proto.tcp.last_end) {
+			/* b) This SYN/ACK acknowledges a SYN that we earlier
+			 * ignored as invalid. This means that the client and
+			 * the server are both in sync, while the firewall is
+			 * not. We get in sync from the previously annotated
+			 * values.
+			 */
+			old_state = TCP_CONNTRACK_SYN_SENT;
+			new_state = TCP_CONNTRACK_SYN_RECV;
+			ct->proto.tcp.seen[ct->proto.tcp.last_dir].td_end =
+				ct->proto.tcp.last_end;
+			ct->proto.tcp.seen[ct->proto.tcp.last_dir].td_maxend =
+				ct->proto.tcp.last_end;
+			ct->proto.tcp.seen[ct->proto.tcp.last_dir].td_maxwin =
+				ct->proto.tcp.last_win == 0 ?
+					1 : ct->proto.tcp.last_win;
+			ct->proto.tcp.seen[ct->proto.tcp.last_dir].td_scale =
+				ct->proto.tcp.last_wscale;
+			ct->proto.tcp.last_flags &= ~IP_CT_EXP_CHALLENGE_ACK;
+			ct->proto.tcp.seen[ct->proto.tcp.last_dir].flags =
+				ct->proto.tcp.last_flags;
+			nf_ct_tcp_state_reset(&ct->proto.tcp.seen[dir]);
+			break;
+		}
+		ct->proto.tcp.last_index = index;
+		ct->proto.tcp.last_dir = dir;
+		ct->proto.tcp.last_seq = ntohl(th->seq);
+		ct->proto.tcp.last_end =
+		    segment_seq_plus_len(ntohl(th->seq), skb->len, dataoff, th);
+		ct->proto.tcp.last_win = ntohs(th->window);
+
+		/* a) This is a SYN in ORIGINAL. The client and the server
+		 * may be in sync but we are not. In that case, we annotate
+		 * the TCP options and let the packet go through. If it is a
+		 * valid SYN packet, the server will reply with a SYN/ACK, and
+		 * then we'll get in sync. Otherwise, the server potentially
+		 * responds with a challenge ACK if implementing RFC5961.
+		 */
+		if (index == TCP_SYN_SET && dir == IP_CT_DIR_ORIGINAL) {
+			struct ip_ct_tcp_state seen = {};
+
+			ct->proto.tcp.last_flags =
+			ct->proto.tcp.last_wscale = 0;
+			tcp_options(skb, dataoff, th, &seen);
+			if (seen.flags & IP_CT_TCP_FLAG_WINDOW_SCALE) {
+				ct->proto.tcp.last_flags |=
+					IP_CT_TCP_FLAG_WINDOW_SCALE;
+				ct->proto.tcp.last_wscale = seen.td_scale;
+			}
+			if (seen.flags & IP_CT_TCP_FLAG_SACK_PERM) {
+				ct->proto.tcp.last_flags |=
+					IP_CT_TCP_FLAG_SACK_PERM;
+			}
+			/* Mark the potential for RFC5961 challenge ACK,
+			 * this pose a special problem for LAST_ACK state
+			 * as ACK is intrepretated as ACKing last FIN.
+			 */
+			if (old_state == TCP_CONNTRACK_LAST_ACK)
+				ct->proto.tcp.last_flags |=
+					IP_CT_EXP_CHALLENGE_ACK;
+		}
+		spin_unlock_bh(&ct->lock);
+		nf_ct_l4proto_log_invalid(skb, ct, state,
+					  "packet (index %d) in dir %d ignored, state %s",
+					  index, dir,
+					  tcp_conntrack_names[old_state]);
+		return NF_ACCEPT;
+	case TCP_CONNTRACK_MAX:
+		/* Special case for SYN proxy: when the SYN to the server or
+		 * the SYN/ACK from the server is lost, the client may transmit
+		 * a keep-alive packet while in SYN_SENT state. This needs to
+		 * be associated with the original conntrack entry in order to
+		 * generate a new SYN with the correct sequence number.
+		 */
+		if (nfct_synproxy(ct) && old_state == TCP_CONNTRACK_SYN_SENT &&
+		    index == TCP_ACK_SET && dir == IP_CT_DIR_ORIGINAL &&
+		    ct->proto.tcp.last_dir == IP_CT_DIR_ORIGINAL &&
+		    ct->proto.tcp.seen[dir].td_end - 1 == ntohl(th->seq)) {
+			pr_debug("nf_ct_tcp: SYN proxy client keep alive\n");
+			spin_unlock_bh(&ct->lock);
+			return NF_ACCEPT;
+		}
+
+		/* Invalid packet */
+		pr_debug("nf_ct_tcp: Invalid dir=%i index=%u ostate=%u\n",
+			 dir, get_conntrack_index(th), old_state);
+		spin_unlock_bh(&ct->lock);
+		nf_ct_l4proto_log_invalid(skb, ct, state, "invalid state");
+		return -NF_ACCEPT;
+	case TCP_CONNTRACK_TIME_WAIT:
+		/* RFC5961 compliance cause stack to send "challenge-ACK"
+		 * e.g. in response to spurious SYNs.  Conntrack MUST
+		 * not believe this ACK is acking last FIN.
+		 */
+		if (old_state == TCP_CONNTRACK_LAST_ACK &&
+		    index == TCP_ACK_SET &&
+		    ct->proto.tcp.last_dir != dir &&
+		    ct->proto.tcp.last_index == TCP_SYN_SET &&
+		    (ct->proto.tcp.last_flags & IP_CT_EXP_CHALLENGE_ACK)) {
+			/* Detected RFC5961 challenge ACK */
+			ct->proto.tcp.last_flags &= ~IP_CT_EXP_CHALLENGE_ACK;
+			spin_unlock_bh(&ct->lock);
+			nf_ct_l4proto_log_invalid(skb, ct, state, "challenge-ack ignored");
+			return NF_ACCEPT; /* Don't change state */
+		}
+		break;
+	case TCP_CONNTRACK_SYN_SENT2:
+		/* tcp_conntracks table is not smart enough to handle
+		 * simultaneous open.
+		 */
+		ct->proto.tcp.last_flags |= IP_CT_TCP_SIMULTANEOUS_OPEN;
+		break;
+	case TCP_CONNTRACK_SYN_RECV:
+		if (dir == IP_CT_DIR_REPLY && index == TCP_ACK_SET &&
+		    ct->proto.tcp.last_flags & IP_CT_TCP_SIMULTANEOUS_OPEN)
+			new_state = TCP_CONNTRACK_ESTABLISHED;
+		break;
+	case TCP_CONNTRACK_CLOSE:
+		if (index != TCP_RST_SET)
+			break;
+
+		/* If we are closing, tuple might have been re-used already.
+		 * last_index, last_ack, and all other ct fields used for
+		 * sequence/window validation are outdated in that case.
+		 *
+		 * As the conntrack can already be expired by GC under pressure,
+		 * just skip validation checks.
+		 */
+		if (tcp_can_early_drop(ct))
+			goto in_window;
+
+		/* td_maxack might be outdated if we let a SYN through earlier */
+		if ((ct->proto.tcp.seen[!dir].flags & IP_CT_TCP_FLAG_MAXACK_SET) &&
+		    ct->proto.tcp.last_index != TCP_SYN_SET) {
+			u32 seq = ntohl(th->seq);
+
+			/* If we are not in established state and SEQ=0 this is most
+			 * likely an answer to a SYN we let go through above (last_index
+			 * can be updated due to out-of-order ACKs).
+			 */
+			if (seq == 0 && !nf_conntrack_tcp_established(ct))
+				break;
+
+			if (before(seq, ct->proto.tcp.seen[!dir].td_maxack) &&
+			    !tn->tcp_ignore_invalid_rst) {
+				/* Invalid RST  */
+				spin_unlock_bh(&ct->lock);
+				nf_ct_l4proto_log_invalid(skb, ct, state, "invalid rst");
+				return -NF_ACCEPT;
+			}
+
+			if (!nf_conntrack_tcp_established(ct) ||
+			    seq == ct->proto.tcp.seen[!dir].td_maxack)
+				break;
+
+			/* Check if rst is part of train, such as
+			 *   foo:80 > bar:4379: P, 235946583:235946602(19) ack 42
+			 *   foo:80 > bar:4379: R, 235946602:235946602(0)  ack 42
+			 */
+			if (ct->proto.tcp.last_index == TCP_ACK_SET &&
+			    ct->proto.tcp.last_dir == dir &&
+			    seq == ct->proto.tcp.last_end)
+				break;
+
+			/* ... RST sequence number doesn't match exactly, keep
+			 * established state to allow a possible challenge ACK.
+			 */
+			new_state = old_state;
+		}
+		if (((test_bit(IPS_SEEN_REPLY_BIT, &ct->status)
+			 && ct->proto.tcp.last_index == TCP_SYN_SET)
+			|| (!test_bit(IPS_ASSURED_BIT, &ct->status)
+			    && ct->proto.tcp.last_index == TCP_ACK_SET))
+		    && ntohl(th->ack_seq) == ct->proto.tcp.last_end) {
+			/* RST sent to invalid SYN or ACK we had let through
+			 * at a) and c) above:
+			 *
+			 * a) SYN was in window then
+			 * c) we hold a half-open connection.
+			 *
+			 * Delete our connection entry.
+			 * We skip window checking, because packet might ACK
+			 * segments we ignored. */
+			goto in_window;
+		}
+		break;
+	default:
+		/* Keep compilers happy. */
+		break;
+	}
+
+	if (!tcp_in_window(ct, dir, index,
+			   skb, dataoff, th, state)) {
+		spin_unlock_bh(&ct->lock);
+		return -NF_ACCEPT;
+	}
+     in_window:
+	/* From now on we have got in-window packets */
+	ct->proto.tcp.last_index = index;
+	ct->proto.tcp.last_dir = dir;
+
+	pr_debug("tcp_conntracks: ");
+	nf_ct_dump_tuple(tuple);
+	pr_debug("syn=%i ack=%i fin=%i rst=%i old=%i new=%i\n",
+		 (th->syn ? 1 : 0), (th->ack ? 1 : 0),
+		 (th->fin ? 1 : 0), (th->rst ? 1 : 0),
+		 old_state, new_state);
+
+	ct->proto.tcp.state = new_state;
+	if (old_state != new_state
+	    && new_state == TCP_CONNTRACK_FIN_WAIT)
+		ct->proto.tcp.seen[dir].flags |= IP_CT_TCP_FLAG_CLOSE_INIT;
+
+	timeouts = nf_ct_timeout_lookup(ct);
+	if (!timeouts)
+		timeouts = tn->timeouts;
+
+	if (ct->proto.tcp.retrans >= tn->tcp_max_retrans &&
+	    timeouts[new_state] > timeouts[TCP_CONNTRACK_RETRANS])
+		timeout = timeouts[TCP_CONNTRACK_RETRANS];
+	else if (unlikely(index == TCP_RST_SET))
+		timeout = timeouts[TCP_CONNTRACK_CLOSE];
+	else if ((ct->proto.tcp.seen[0].flags | ct->proto.tcp.seen[1].flags) &
+		 IP_CT_TCP_FLAG_DATA_UNACKNOWLEDGED &&
+		 timeouts[new_state] > timeouts[TCP_CONNTRACK_UNACK])
+		timeout = timeouts[TCP_CONNTRACK_UNACK];
+	else if (ct->proto.tcp.last_win == 0 &&
+		 timeouts[new_state] > timeouts[TCP_CONNTRACK_RETRANS])
+		timeout = timeouts[TCP_CONNTRACK_RETRANS];
+	else
+		timeout = timeouts[new_state];
+	spin_unlock_bh(&ct->lock);
+
+	if (new_state != old_state)
+		nf_conntrack_event_cache(IPCT_PROTOINFO, ct);
+
+	if (!test_bit(IPS_SEEN_REPLY_BIT, &ct->status)) {
+		/* If only reply is a RST, we can consider ourselves not to
+		   have an established connection: this is a fairly common
+		   problem case, so we can delete the conntrack
+		   immediately.  --RR */
+		if (th->rst) {
+			nf_ct_kill_acct(ct, ctinfo, skb);
+			return NF_ACCEPT;
+		}
+
+		if (index == TCP_SYN_SET && old_state == TCP_CONNTRACK_SYN_SENT) {
+			/* do not renew timeout on SYN retransmit.
+			 *
+			 * Else port reuse by client or NAT middlebox can keep
+			 * entry alive indefinitely (including nat info).
+			 */
+			return NF_ACCEPT;
+		}
+
+		/* ESTABLISHED without SEEN_REPLY, i.e. mid-connection
+		 * pickup with loose=1. Avoid large ESTABLISHED timeout.
+		 */
+		if (new_state == TCP_CONNTRACK_ESTABLISHED &&
+		    timeout > timeouts[TCP_CONNTRACK_UNACK])
+			timeout = timeouts[TCP_CONNTRACK_UNACK];
+	} else if (!test_bit(IPS_ASSURED_BIT, &ct->status)
+		   && (old_state == TCP_CONNTRACK_SYN_RECV
+		       || old_state == TCP_CONNTRACK_ESTABLISHED)
+		   && new_state == TCP_CONNTRACK_ESTABLISHED) {
+		/* Set ASSURED if we see valid ack in ESTABLISHED
+		   after SYN_RECV or a valid answer for a picked up
+		   connection. */
+		set_bit(IPS_ASSURED_BIT, &ct->status);
+		nf_conntrack_event_cache(IPCT_ASSURED, ct);
+	}
+	nf_ct_refresh_acct(ct, ctinfo, skb, timeout);
+
+	return NF_ACCEPT;
+}
+
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_NF_CT_NETLINK)
 
 #include <linux/netfilter/nfnetlink.h>
 #include <linux/netfilter/nfnetlink_conntrack.h>
 
 static int tcp_to_nlattr(struct sk_buff *skb, struct nlattr *nla,
+<<<<<<< HEAD
 			 struct nf_conn *ct)
+=======
+			 struct nf_conn *ct, bool destroy)
+>>>>>>> upstream/android-13
 {
 	struct nlattr *nest_parms;
 	struct nf_ct_tcp_flags tmp = {};
 
 	spin_lock_bh(&ct->lock);
+<<<<<<< HEAD
 	nest_parms = nla_nest_start(skb, CTA_PROTOINFO_TCP | NLA_F_NESTED);
 	if (!nest_parms)
 		goto nla_put_failure;
 
 	if (nla_put_u8(skb, CTA_PROTOINFO_TCP_STATE, ct->proto.tcp.state) ||
 	    nla_put_u8(skb, CTA_PROTOINFO_TCP_WSCALE_ORIGINAL,
+=======
+	nest_parms = nla_nest_start(skb, CTA_PROTOINFO_TCP);
+	if (!nest_parms)
+		goto nla_put_failure;
+
+	if (nla_put_u8(skb, CTA_PROTOINFO_TCP_STATE, ct->proto.tcp.state))
+		goto nla_put_failure;
+
+	if (destroy)
+		goto skip_state;
+
+	if (nla_put_u8(skb, CTA_PROTOINFO_TCP_WSCALE_ORIGINAL,
+>>>>>>> upstream/android-13
 		       ct->proto.tcp.seen[0].td_scale) ||
 	    nla_put_u8(skb, CTA_PROTOINFO_TCP_WSCALE_REPLY,
 		       ct->proto.tcp.seen[1].td_scale))
@@ -1230,8 +1723,13 @@ static int tcp_to_nlattr(struct sk_buff *skb, struct nlattr *nla,
 	if (nla_put(skb, CTA_PROTOINFO_TCP_FLAGS_REPLY,
 		    sizeof(struct nf_ct_tcp_flags), &tmp))
 		goto nla_put_failure;
+<<<<<<< HEAD
 	spin_unlock_bh(&ct->lock);
 
+=======
+skip_state:
+	spin_unlock_bh(&ct->lock);
+>>>>>>> upstream/android-13
 	nla_nest_end(skb, nest_parms);
 
 	return 0;
@@ -1246,7 +1744,11 @@ static const struct nla_policy tcp_nla_policy[CTA_PROTOINFO_TCP_MAX+1] = {
 	[CTA_PROTOINFO_TCP_WSCALE_ORIGINAL] = { .type = NLA_U8 },
 	[CTA_PROTOINFO_TCP_WSCALE_REPLY]    = { .type = NLA_U8 },
 	[CTA_PROTOINFO_TCP_FLAGS_ORIGINAL]  = { .len = sizeof(struct nf_ct_tcp_flags) },
+<<<<<<< HEAD
 	[CTA_PROTOINFO_TCP_FLAGS_REPLY]	    = { .len =  sizeof(struct nf_ct_tcp_flags) },
+=======
+	[CTA_PROTOINFO_TCP_FLAGS_REPLY]	    = { .len = sizeof(struct nf_ct_tcp_flags) },
+>>>>>>> upstream/android-13
 };
 
 #define TCP_NLATTR_SIZE	( \
@@ -1266,8 +1768,13 @@ static int nlattr_to_tcp(struct nlattr *cda[], struct nf_conn *ct)
 	if (!pattr)
 		return 0;
 
+<<<<<<< HEAD
 	err = nla_parse_nested(tb, CTA_PROTOINFO_TCP_MAX, pattr,
 			       tcp_nla_policy, NULL);
+=======
+	err = nla_parse_nested_deprecated(tb, CTA_PROTOINFO_TCP_MAX, pattr,
+					  tcp_nla_policy, NULL);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -1326,7 +1833,11 @@ static unsigned int tcp_nlattr_tuple_size(void)
 static int tcp_timeout_nlattr_to_obj(struct nlattr *tb[],
 				     struct net *net, void *data)
 {
+<<<<<<< HEAD
 	struct nf_tcp_net *tn = tcp_pernet(net);
+=======
+	struct nf_tcp_net *tn = nf_tcp_pernet(net);
+>>>>>>> upstream/android-13
 	unsigned int *timeouts = data;
 	int i;
 
@@ -1435,6 +1946,7 @@ static const struct nla_policy tcp_timeout_nla_policy[CTA_TIMEOUT_TCP_MAX+1] = {
 };
 #endif /* CONFIG_NF_CONNTRACK_TIMEOUT */
 
+<<<<<<< HEAD
 #ifdef CONFIG_SYSCTL
 static struct ctl_table tcp_sysctl_table[] = {
 	{
@@ -1580,13 +2092,58 @@ static struct nf_proto_net *tcp_get_net_proto(struct net *net)
 const struct nf_conntrack_l4proto nf_conntrack_l4proto_tcp4 =
 {
 	.l3proto		= PF_INET,
+=======
+void nf_conntrack_tcp_init_net(struct net *net)
+{
+	struct nf_tcp_net *tn = nf_tcp_pernet(net);
+	int i;
+
+	for (i = 0; i < TCP_CONNTRACK_TIMEOUT_MAX; i++)
+		tn->timeouts[i] = tcp_timeouts[i];
+
+	/* timeouts[0] is unused, make it same as SYN_SENT so
+	 * ->timeouts[0] contains 'new' timeout, like udp or icmp.
+	 */
+	tn->timeouts[0] = tcp_timeouts[TCP_CONNTRACK_SYN_SENT];
+
+	/* If it is set to zero, we disable picking up already established
+	 * connections.
+	 */
+	tn->tcp_loose = 1;
+
+	/* "Be conservative in what you do,
+	 *  be liberal in what you accept from others."
+	 * If it's non-zero, we mark only out of window RST segments as INVALID.
+	 */
+	tn->tcp_be_liberal = 0;
+
+	/* If it's non-zero, we turn off RST sequence number check */
+	tn->tcp_ignore_invalid_rst = 0;
+
+	/* Max number of the retransmitted packets without receiving an (acceptable)
+	 * ACK from the destination. If this number is reached, a shorter timer
+	 * will be started.
+	 */
+	tn->tcp_max_retrans = 3;
+
+#if IS_ENABLED(CONFIG_NF_FLOW_TABLE)
+	tn->offload_timeout = 30 * HZ;
+#endif
+}
+
+const struct nf_conntrack_l4proto nf_conntrack_l4proto_tcp =
+{
+>>>>>>> upstream/android-13
 	.l4proto 		= IPPROTO_TCP,
 #ifdef CONFIG_NF_CONNTRACK_PROCFS
 	.print_conntrack 	= tcp_print_conntrack,
 #endif
+<<<<<<< HEAD
 	.packet 		= tcp_packet,
 	.new 			= tcp_new,
 	.error			= tcp_error,
+=======
+>>>>>>> upstream/android-13
 	.can_early_drop		= tcp_can_early_drop,
 #if IS_ENABLED(CONFIG_NF_CT_NETLINK)
 	.to_nlattr		= tcp_to_nlattr,
@@ -1607,6 +2164,7 @@ const struct nf_conntrack_l4proto nf_conntrack_l4proto_tcp4 =
 		.nla_policy	= tcp_timeout_nla_policy,
 	},
 #endif /* CONFIG_NF_CONNTRACK_TIMEOUT */
+<<<<<<< HEAD
 	.init_net		= tcp_init_net,
 	.get_net_proto		= tcp_get_net_proto,
 };
@@ -1646,3 +2204,6 @@ const struct nf_conntrack_l4proto nf_conntrack_l4proto_tcp6 =
 	.get_net_proto		= tcp_get_net_proto,
 };
 EXPORT_SYMBOL_GPL(nf_conntrack_l4proto_tcp6);
+=======
+};
+>>>>>>> upstream/android-13

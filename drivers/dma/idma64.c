@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Core driver for the Intel integrated DMA 64-bit
  *
  * Copyright (C) 2015 Intel Corporation
  * Author: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
@@ -19,10 +26,16 @@
 #include <linux/platform_device.h>
 #include <linux/slab.h>
 
+<<<<<<< HEAD
 #include "idma64.h"
 
 /* Platform driver name */
 #define DRV_NAME		"idma64"
+=======
+#include <linux/dma/idma64.h>
+
+#include "idma64.h"
+>>>>>>> upstream/android-13
 
 /* For now we support only two channels */
 #define IDMA64_NR_CHAN		2
@@ -142,9 +155,14 @@ static void idma64_chan_irq(struct idma64 *idma64, unsigned short c,
 {
 	struct idma64_chan *idma64c = &idma64->chan[c];
 	struct idma64_desc *desc;
+<<<<<<< HEAD
 	unsigned long flags;
 
 	spin_lock_irqsave(&idma64c->vchan.lock, flags);
+=======
+
+	spin_lock(&idma64c->vchan.lock);
+>>>>>>> upstream/android-13
 	desc = idma64c->desc;
 	if (desc) {
 		if (status_err & (1 << c)) {
@@ -161,7 +179,11 @@ static void idma64_chan_irq(struct idma64 *idma64, unsigned short c,
 		if (idma64c->desc == NULL || desc->status == DMA_ERROR)
 			idma64_stop_transfer(idma64c);
 	}
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&idma64c->vchan.lock, flags);
+=======
+	spin_unlock(&idma64c->vchan.lock);
+>>>>>>> upstream/android-13
 }
 
 static irqreturn_t idma64_irq(int irq, void *dev)
@@ -408,10 +430,13 @@ static int idma64_slave_config(struct dma_chan *chan,
 {
 	struct idma64_chan *idma64c = to_idma64_chan(chan);
 
+<<<<<<< HEAD
 	/* Check if chan will be configured for slave transfers */
 	if (!is_slave_direction(config->direction))
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	memcpy(&idma64c->config, config, sizeof(idma64c->config));
 
 	convert_burst(&idma64c->config.src_maxburst);
@@ -676,9 +701,13 @@ static int idma64_platform_remove(struct platform_device *pdev)
 	return idma64_remove(chip);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM_SLEEP
 
 static int idma64_pm_suspend(struct device *dev)
+=======
+static int __maybe_unused idma64_pm_suspend(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct idma64_chip *chip = dev_get_drvdata(dev);
 
@@ -686,7 +715,11 @@ static int idma64_pm_suspend(struct device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int idma64_pm_resume(struct device *dev)
+=======
+static int __maybe_unused idma64_pm_resume(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct idma64_chip *chip = dev_get_drvdata(dev);
 
@@ -694,8 +727,11 @@ static int idma64_pm_resume(struct device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 #endif /* CONFIG_PM_SLEEP */
 
+=======
+>>>>>>> upstream/android-13
 static const struct dev_pm_ops idma64_dev_pm_ops = {
 	SET_SYSTEM_SLEEP_PM_OPS(idma64_pm_suspend, idma64_pm_resume)
 };
@@ -704,7 +740,11 @@ static struct platform_driver idma64_platform_driver = {
 	.probe		= idma64_platform_probe,
 	.remove		= idma64_platform_remove,
 	.driver = {
+<<<<<<< HEAD
 		.name	= DRV_NAME,
+=======
+		.name	= LPSS_IDMA64_DRIVER_NAME,
+>>>>>>> upstream/android-13
 		.pm	= &idma64_dev_pm_ops,
 	},
 };
@@ -714,4 +754,8 @@ module_platform_driver(idma64_platform_driver);
 MODULE_LICENSE("GPL v2");
 MODULE_DESCRIPTION("iDMA64 core driver");
 MODULE_AUTHOR("Andy Shevchenko <andriy.shevchenko@linux.intel.com>");
+<<<<<<< HEAD
 MODULE_ALIAS("platform:" DRV_NAME);
+=======
+MODULE_ALIAS("platform:" LPSS_IDMA64_DRIVER_NAME);
+>>>>>>> upstream/android-13

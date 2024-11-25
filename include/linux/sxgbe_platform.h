@@ -1,18 +1,32 @@
+<<<<<<< HEAD
 /*
  * 10G controller driver for Samsung EXYNOS SoCs
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * 10G controller driver for Samsung Exynos SoCs
+>>>>>>> upstream/android-13
  *
  * Copyright (C) 2013 Samsung Electronics Co., Ltd.
  *		http://www.samsung.com
  *
  * Author: Siva Reddy Kallam <siva.kallam@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __SXGBE_PLATFORM_H__
 #define __SXGBE_PLATFORM_H__
 
+<<<<<<< HEAD
+=======
+#include <linux/phy.h>
+
+>>>>>>> upstream/android-13
 /* MDC Clock Selection define*/
 #define SXGBE_CSR_100_150M	0x0	/* MDC = clk_scr_i/62 */
 #define SXGBE_CSR_150_250M	0x1	/* MDC = clk_scr_i/102 */
@@ -41,7 +55,11 @@ struct sxgbe_plat_data {
 	char *phy_bus_name;
 	int bus_id;
 	int phy_addr;
+<<<<<<< HEAD
 	int interface;
+=======
+	phy_interface_t interface;
+>>>>>>> upstream/android-13
 	struct sxgbe_mdio_bus_data *mdio_bus_data;
 	struct sxgbe_dma_cfg *dma_cfg;
 	int clk_csr;

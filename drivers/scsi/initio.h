@@ -433,6 +433,7 @@ struct scsi_ctrl_blk {
 #define TARGET_BUSY     0x08
 #define INI_QUEUE_FULL	0x28
 
+<<<<<<< HEAD
 /* SCSI MESSAGE */
 #define MSG_COMP        0x00
 #define MSG_EXTEND      0x01
@@ -458,6 +459,8 @@ struct scsi_ctrl_blk {
 
 #define MSG_IDENT   0x80
 
+=======
+>>>>>>> upstream/android-13
 /***********************************************************************
 		Target Device Control Structure
 **********************************************************************/

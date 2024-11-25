@@ -52,6 +52,7 @@
 #include <linux/ntb.h>
 #include <linux/pci.h>
 
+<<<<<<< HEAD
 #define PCI_DEVICE_ID_AMD_NTB	0x145B
 #define AMD_LINK_HB_TIMEOUT	msecs_to_jiffies(1000)
 #define AMD_LINK_STATUS_OFFSET	0x68
@@ -59,6 +60,11 @@
 #define NTB_LNK_STA_SPEED_MASK	0x000F0000
 #define NTB_LNK_STA_WIDTH_MASK	0x03F00000
 #define NTB_LNK_STA_ACTIVE(x)	(!!((x) & NTB_LIN_STA_ACTIVE_BIT))
+=======
+#define AMD_LINK_HB_TIMEOUT	msecs_to_jiffies(1000)
+#define NTB_LNK_STA_SPEED_MASK	0x000F0000
+#define NTB_LNK_STA_WIDTH_MASK	0x03F00000
+>>>>>>> upstream/android-13
 #define NTB_LNK_STA_SPEED(x)	(((x) & NTB_LNK_STA_SPEED_MASK) >> 16)
 #define NTB_LNK_STA_WIDTH(x)	(((x) & NTB_LNK_STA_WIDTH_MASK) >> 20)
 
@@ -93,7 +99,10 @@ static inline void _write64(u64 val, void __iomem *mmio)
 
 enum {
 	/* AMD NTB Capability */
+<<<<<<< HEAD
 	AMD_MW_CNT		= 3,
+=======
+>>>>>>> upstream/android-13
 	AMD_DB_CNT		= 16,
 	AMD_MSIX_VECTOR_CNT	= 24,
 	AMD_SPADS_CNT		= 16,
@@ -170,6 +179,14 @@ enum {
 	AMD_PEER_OFFSET		= 0x400,
 };
 
+<<<<<<< HEAD
+=======
+struct ntb_dev_data {
+	const unsigned char mw_count;
+	const unsigned int mw_idx;
+};
+
+>>>>>>> upstream/android-13
 struct amd_ntb_dev;
 
 struct amd_ntb_vec {
@@ -185,6 +202,10 @@ struct amd_ntb_dev {
 	u32 cntl_sta;
 	u32 peer_sta;
 
+<<<<<<< HEAD
+=======
+	struct ntb_dev_data *dev_data;
+>>>>>>> upstream/android-13
 	unsigned char mw_count;
 	unsigned char spad_count;
 	unsigned char db_count;
@@ -192,6 +213,10 @@ struct amd_ntb_dev {
 
 	u64 db_valid_mask;
 	u64 db_mask;
+<<<<<<< HEAD
+=======
+	u64 db_last_bit;
+>>>>>>> upstream/android-13
 	u32 int_mask;
 
 	struct msix_entry *msix;
@@ -214,4 +239,11 @@ struct amd_ntb_dev {
 #define ntb_ndev(__ntb) container_of(__ntb, struct amd_ntb_dev, ntb)
 #define hb_ndev(__work) container_of(__work, struct amd_ntb_dev, hb_timer.work)
 
+<<<<<<< HEAD
+=======
+static void amd_set_side_info_reg(struct amd_ntb_dev *ndev, bool peer);
+static void amd_clear_side_info_reg(struct amd_ntb_dev *ndev, bool peer);
+static int amd_poll_link(struct amd_ntb_dev *ndev);
+
+>>>>>>> upstream/android-13
 #endif

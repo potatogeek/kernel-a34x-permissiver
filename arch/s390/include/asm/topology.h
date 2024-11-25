@@ -16,8 +16,13 @@ struct cpu_topology_s390 {
 	unsigned short socket_id;
 	unsigned short book_id;
 	unsigned short drawer_id;
+<<<<<<< HEAD
 	unsigned short node_id;
 	unsigned short dedicated : 1;
+=======
+	unsigned short dedicated : 1;
+	int booted_cores;
+>>>>>>> upstream/android-13
 	cpumask_t thread_mask;
 	cpumask_t core_mask;
 	cpumask_t book_mask;
@@ -25,7 +30,10 @@ struct cpu_topology_s390 {
 };
 
 extern struct cpu_topology_s390 cpu_topology[NR_CPUS];
+<<<<<<< HEAD
 extern cpumask_t cpus_with_topology;
+=======
+>>>>>>> upstream/android-13
 
 #define topology_physical_package_id(cpu) (cpu_topology[cpu].socket_id)
 #define topology_thread_id(cpu)		  (cpu_topology[cpu].thread_id)
@@ -37,6 +45,10 @@ extern cpumask_t cpus_with_topology;
 #define topology_drawer_id(cpu)		  (cpu_topology[cpu].drawer_id)
 #define topology_drawer_cpumask(cpu)	  (&cpu_topology[cpu].drawer_mask)
 #define topology_cpu_dedicated(cpu)	  (cpu_topology[cpu].dedicated)
+<<<<<<< HEAD
+=======
+#define topology_booted_cores(cpu)	  (cpu_topology[cpu].booted_cores)
+>>>>>>> upstream/android-13
 
 #define mc_capable() 1
 
@@ -45,6 +57,10 @@ int topology_cpu_init(struct cpu *);
 int topology_set_cpu_management(int fc);
 void topology_schedule_update(void);
 void store_topology(struct sysinfo_15_1_x *info);
+<<<<<<< HEAD
+=======
+void update_cpu_masks(void);
+>>>>>>> upstream/android-13
 void topology_expect_change(void);
 const struct cpumask *cpu_coregroup_mask(int cpu);
 
@@ -54,6 +70,11 @@ static inline void topology_init_early(void) { }
 static inline void topology_schedule_update(void) { }
 static inline int topology_cpu_init(struct cpu *cpu) { return 0; }
 static inline int topology_cpu_dedicated(int cpu_nr) { return 0; }
+<<<<<<< HEAD
+=======
+static inline int topology_booted_cores(int cpu_nr) { return 1; }
+static inline void update_cpu_masks(void) { }
+>>>>>>> upstream/android-13
 static inline void topology_expect_change(void) { }
 
 #endif /* CONFIG_SCHED_TOPOLOGY */
@@ -71,20 +92,31 @@ static inline void topology_expect_change(void) { }
 #define cpu_to_node cpu_to_node
 static inline int cpu_to_node(int cpu)
 {
+<<<<<<< HEAD
 	return cpu_topology[cpu].node_id;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /* Returns a pointer to the cpumask of CPUs on node 'node'. */
 #define cpumask_of_node cpumask_of_node
 static inline const struct cpumask *cpumask_of_node(int node)
 {
+<<<<<<< HEAD
 	return &node_to_cpumask_map[node];
+=======
+	return cpu_possible_mask;
+>>>>>>> upstream/android-13
 }
 
 #define pcibus_to_node(bus) __pcibus_to_node(bus)
 
+<<<<<<< HEAD
 #define node_distance(a, b) __node_distance(a, b)
 
+=======
+>>>>>>> upstream/android-13
 #else /* !CONFIG_NUMA */
 
 #define numa_node_id numa_node_id

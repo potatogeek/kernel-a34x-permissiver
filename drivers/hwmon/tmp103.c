@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Texas Instruments TMP103 SMBus temperature sensor driver
  * Copyright (C) 2014 Heiko Schocher <hs@denx.de>
@@ -6,6 +10,7 @@
  * Texas Instruments TMP102 SMBus temperature sensor driver
  *
  * Copyright (C) 2010 Steven King <sfking@fdwdc.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -61,9 +68,14 @@ static inline u8 tmp103_mc_to_reg(int val)
 	return DIV_ROUND_CLOSEST(val, 1000);
 }
 
+<<<<<<< HEAD
 static ssize_t tmp103_show_temp(struct device *dev,
 				struct device_attribute *attr,
 				char *buf)
+=======
+static ssize_t tmp103_temp_show(struct device *dev,
+				struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *sda = to_sensor_dev_attr(attr);
 	struct regmap *regmap = dev_get_drvdata(dev);
@@ -77,9 +89,15 @@ static ssize_t tmp103_show_temp(struct device *dev,
 	return sprintf(buf, "%d\n", tmp103_reg_to_mc(regval));
 }
 
+<<<<<<< HEAD
 static ssize_t tmp103_set_temp(struct device *dev,
 			       struct device_attribute *attr,
 			       const char *buf, size_t count)
+=======
+static ssize_t tmp103_temp_store(struct device *dev,
+				 struct device_attribute *attr,
+				 const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *sda = to_sensor_dev_attr(attr);
 	struct regmap *regmap = dev_get_drvdata(dev);
@@ -94,6 +112,7 @@ static ssize_t tmp103_set_temp(struct device *dev,
 	return ret ? ret : count;
 }
 
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(temp1_input, S_IRUGO, tmp103_show_temp, NULL ,
 			  TMP103_TEMP_REG);
 
@@ -102,6 +121,13 @@ static SENSOR_DEVICE_ATTR(temp1_min, S_IWUSR | S_IRUGO, tmp103_show_temp,
 
 static SENSOR_DEVICE_ATTR(temp1_max, S_IWUSR | S_IRUGO, tmp103_show_temp,
 			  tmp103_set_temp, TMP103_THIGH_REG);
+=======
+static SENSOR_DEVICE_ATTR_RO(temp1_input, tmp103_temp, TMP103_TEMP_REG);
+
+static SENSOR_DEVICE_ATTR_RW(temp1_min, tmp103_temp, TMP103_TLOW_REG);
+
+static SENSOR_DEVICE_ATTR_RW(temp1_max, tmp103_temp, TMP103_THIGH_REG);
+>>>>>>> upstream/android-13
 
 static struct attribute *tmp103_attrs[] = {
 	&sensor_dev_attr_temp1_input.dev_attr.attr,
@@ -123,8 +149,12 @@ static const struct regmap_config tmp103_regmap_config = {
 	.volatile_reg = tmp103_regmap_is_volatile,
 };
 
+<<<<<<< HEAD
 static int tmp103_probe(struct i2c_client *client,
 			const struct i2c_device_id *id)
+=======
+static int tmp103_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &client->dev;
 	struct device *hwmon_dev;
@@ -174,7 +204,11 @@ static const struct i2c_device_id tmp103_id[] = {
 };
 MODULE_DEVICE_TABLE(i2c, tmp103_id);
 
+<<<<<<< HEAD
 static const struct of_device_id tmp103_of_match[] = {
+=======
+static const struct of_device_id __maybe_unused tmp103_of_match[] = {
+>>>>>>> upstream/android-13
 	{ .compatible = "ti,tmp103" },
 	{ },
 };
@@ -186,7 +220,11 @@ static struct i2c_driver tmp103_driver = {
 		.of_match_table = of_match_ptr(tmp103_of_match),
 		.pm	= &tmp103_dev_pm_ops,
 	},
+<<<<<<< HEAD
 	.probe		= tmp103_probe,
+=======
+	.probe_new	= tmp103_probe,
+>>>>>>> upstream/android-13
 	.id_table	= tmp103_id,
 };
 

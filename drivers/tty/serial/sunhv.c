@@ -25,10 +25,13 @@
 #include <asm/irq.h>
 #include <asm/setup.h>
 
+<<<<<<< HEAD
 #if defined(CONFIG_MAGIC_SYSRQ)
 #define SUPPORT_SYSRQ
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/serial_core.h>
 #include <linux/sunserialcore.h>
 
@@ -552,6 +555,10 @@ static int hv_probe(struct platform_device *op)
 
 	sunhv_port = port;
 
+<<<<<<< HEAD
+=======
+	port->has_sysrq = 1;
+>>>>>>> upstream/android-13
 	port->line = 0;
 	port->ops = &sunhv_pops;
 	port->type = PORT_SUNHV;

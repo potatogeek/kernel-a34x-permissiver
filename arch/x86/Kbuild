@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 obj-y += entry/
 
 obj-$(CONFIG_PERF_EVENTS) += events/
@@ -7,6 +11,11 @@ obj-$(CONFIG_KVM) += kvm/
 # Xen paravirtualization support
 obj-$(CONFIG_XEN) += xen/
 
+<<<<<<< HEAD
+=======
+obj-$(CONFIG_PVH) += platform/pvh/
+
+>>>>>>> upstream/android-13
 # Hyper-V paravirtualization support
 obj-$(subst m,y,$(CONFIG_HYPERV)) += hyperv/
 

@@ -1,7 +1,17 @@
+<<<<<<< HEAD
 # Generic Trusted Execution Environment Configuration
 config TEE
 	tristate "Trusted Execution Environment support"
 	depends on HAVE_ARM_SMCCC || COMPILE_TEST
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+# Generic Trusted Execution Environment Configuration
+config TEE
+	tristate "Trusted Execution Environment support"
+	depends on HAVE_ARM_SMCCC || COMPILE_TEST || CPU_SUP_AMD
+	select CRYPTO
+	select CRYPTO_SHA1
+>>>>>>> upstream/android-13
 	select DMA_SHARED_BUFFER
 	select GENERIC_ALLOCATOR
 	help
@@ -13,10 +23,14 @@ if TEE
 menu "TEE drivers"
 
 source "drivers/tee/optee/Kconfig"
+<<<<<<< HEAD
 source "drivers/tee/gud/Kconfig"
 source "drivers/tee/teei/Kconfig"
 source "drivers/tee/tkcore/Kconfig"
 
+=======
+source "drivers/tee/amdtee/Kconfig"
+>>>>>>> upstream/android-13
 endmenu
 
 endif

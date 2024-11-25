@@ -1,8 +1,13 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright Tomi Manninen OH2BNS (oh2bns@sral.fi)
  */
@@ -62,8 +67,12 @@ static void nr_loopback_timer(struct timer_list *unused)
 		if (dev == NULL || nr_rx_frame(skb, dev) == 0)
 			kfree_skb(skb);
 
+<<<<<<< HEAD
 		if (dev != NULL)
 			dev_put(dev);
+=======
+		dev_put(dev);
+>>>>>>> upstream/android-13
 
 		if (!skb_queue_empty(&loopback_queue) && !nr_loopback_running())
 			mod_timer(&loopback_timer, jiffies + 10);

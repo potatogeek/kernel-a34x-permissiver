@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016 Socionext Inc.
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
@@ -11,6 +12,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2016 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk-provider.h>
@@ -23,7 +30,11 @@ struct clk_hw *uniphier_clk_register_fixed_rate(struct device *dev,
 				const struct uniphier_clk_fixed_rate_data *data)
 {
 	struct clk_fixed_rate *fixed;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	int ret;
 
 	/* allocate fixed-rate clock */
@@ -33,6 +44,10 @@ struct clk_hw *uniphier_clk_register_fixed_rate(struct device *dev,
 
 	init.name = name;
 	init.ops = &clk_fixed_rate_ops;
+<<<<<<< HEAD
+=======
+	init.flags = 0;
+>>>>>>> upstream/android-13
 	init.parent_names = NULL;
 	init.num_parents = 0;
 

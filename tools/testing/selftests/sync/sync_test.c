@@ -88,6 +88,10 @@ int main(void)
 	ksft_print_header();
 
 	sync_api_supported();
+<<<<<<< HEAD
+=======
+	ksft_set_plan(3 + 7);
+>>>>>>> upstream/android-13
 
 	ksft_print_msg("[RUN]\tTesting sync framework\n");
 

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* -*- linux-c -*- ------------------------------------------------------- *
  *
  *   Copyright (C) 1991, 1992 Linus Torvalds
  *   Copyright 2007 rPath, Inc. - All Rights Reserved
  *   Copyright 2009 Intel Corporation; author H. Peter Anvin
  *
+<<<<<<< HEAD
  *   This file is part of the Linux kernel, and is made available under
  *   the terms of the GNU General Public License version 2.
  *
+=======
+>>>>>>> upstream/android-13
  * ----------------------------------------------------------------------- */
 
 /*
@@ -115,7 +122,11 @@ static unsigned int get_entry(void)
 		} else if ((key >= '0' && key <= '9') ||
 			   (key >= 'A' && key <= 'Z') ||
 			   (key >= 'a' && key <= 'z')) {
+<<<<<<< HEAD
 			if (len < sizeof entry_buf) {
+=======
+			if (len < sizeof(entry_buf)) {
+>>>>>>> upstream/android-13
 				entry_buf[len++] = key;
 				putchar(key);
 			}

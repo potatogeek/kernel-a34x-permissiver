@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/fs/binfmt_aout.c
  *
@@ -29,11 +33,15 @@
 
 #include <linux/uaccess.h>
 #include <asm/cacheflush.h>
+<<<<<<< HEAD
 #include <asm/a.out-core.h>
+=======
+>>>>>>> upstream/android-13
 
 static int load_aout_binary(struct linux_binprm *);
 static int load_aout_library(struct file*);
 
+<<<<<<< HEAD
 #ifdef CONFIG_COREDUMP
 /*
  * Routine writes a core dump image in the current directory.
@@ -114,12 +122,17 @@ end_coredump:
 #define aout_core_dump NULL
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static struct linux_binfmt aout_format = {
 	.module		= THIS_MODULE,
 	.load_binary	= load_aout_binary,
 	.load_shlib	= load_aout_library,
+<<<<<<< HEAD
 	.core_dump	= aout_core_dump,
 	.min_coredump	= PAGE_SIZE
+=======
+>>>>>>> upstream/android-13
 };
 
 #define BAD_ADDR(x)	((unsigned long)(x) >= TASK_SIZE)
@@ -233,7 +246,11 @@ static int load_aout_binary(struct linux_binprm * bprm)
 		return -ENOMEM;
 
 	/* Flush all traces of the currently running executable */
+<<<<<<< HEAD
 	retval = flush_old_exec(bprm);
+=======
+	retval = begin_new_exec(bprm);
+>>>>>>> upstream/android-13
 	if (retval)
 		return retval;
 
@@ -256,7 +273,10 @@ static int load_aout_binary(struct linux_binprm * bprm)
 	if (retval < 0)
 		return retval;
 
+<<<<<<< HEAD
 	install_exec_creds(bprm);
+=======
+>>>>>>> upstream/android-13
 
 	if (N_MAGIC(ex) == OMAGIC) {
 		unsigned long text_addr, map_size;
@@ -304,8 +324,12 @@ static int load_aout_binary(struct linux_binprm * bprm)
 		}
 
 		error = vm_mmap(bprm->file, N_TXTADDR(ex), ex.a_text,
+<<<<<<< HEAD
 			PROT_READ | PROT_EXEC,
 			MAP_FIXED | MAP_PRIVATE | MAP_DENYWRITE | MAP_EXECUTABLE,
+=======
+			PROT_READ | PROT_EXEC, MAP_FIXED | MAP_PRIVATE,
+>>>>>>> upstream/android-13
 			fd_offset);
 
 		if (error != N_TXTADDR(ex))
@@ -313,7 +337,11 @@ static int load_aout_binary(struct linux_binprm * bprm)
 
 		error = vm_mmap(bprm->file, N_DATADDR(ex), ex.a_data,
 				PROT_READ | PROT_WRITE | PROT_EXEC,
+<<<<<<< HEAD
 				MAP_FIXED | MAP_PRIVATE | MAP_DENYWRITE | MAP_EXECUTABLE,
+=======
+				MAP_FIXED | MAP_PRIVATE,
+>>>>>>> upstream/android-13
 				fd_offset + ex.a_text);
 		if (error != N_DATADDR(ex))
 			return error;
@@ -392,7 +420,11 @@ static int load_aout_library(struct file *file)
 	/* Now use mmap to map the library into memory. */
 	error = vm_mmap(file, start_addr, ex.a_text + ex.a_data,
 			PROT_READ | PROT_WRITE | PROT_EXEC,
+<<<<<<< HEAD
 			MAP_FIXED | MAP_PRIVATE | MAP_DENYWRITE,
+=======
+			MAP_FIXED | MAP_PRIVATE,
+>>>>>>> upstream/android-13
 			N_TXTOFF(ex));
 	retval = error;
 	if (error != start_addr)

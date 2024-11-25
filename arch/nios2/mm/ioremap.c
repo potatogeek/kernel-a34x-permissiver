@@ -86,11 +86,22 @@ static int remap_area_pages(unsigned long address, unsigned long phys_addr,
 	if (address >= end)
 		BUG();
 	do {
+<<<<<<< HEAD
+=======
+		p4d_t *p4d;
+>>>>>>> upstream/android-13
 		pud_t *pud;
 		pmd_t *pmd;
 
 		error = -ENOMEM;
+<<<<<<< HEAD
 		pud = pud_alloc(&init_mm, dir, address);
+=======
+		p4d = p4d_alloc(&init_mm, dir, address);
+		if (!p4d)
+			break;
+		pud = pud_alloc(&init_mm, p4d, address);
+>>>>>>> upstream/android-13
 		if (!pud)
 			break;
 		pmd = pmd_alloc(&init_mm, pud, address);
@@ -112,8 +123,12 @@ static int remap_area_pages(unsigned long address, unsigned long phys_addr,
 /*
  * Map some physical address range into the kernel address space.
  */
+<<<<<<< HEAD
 void __iomem *__ioremap(unsigned long phys_addr, unsigned long size,
 			unsigned long cacheflag)
+=======
+void __iomem *ioremap(unsigned long phys_addr, unsigned long size)
+>>>>>>> upstream/android-13
 {
 	struct vm_struct *area;
 	unsigned long offset;
@@ -144,8 +159,12 @@ void __iomem *__ioremap(unsigned long phys_addr, unsigned long size,
 	 * CONFIG_NIOS2_IO_REGION_BASE
 	 */
 	if (IS_MAPPABLE_UNCACHEABLE(phys_addr) &&
+<<<<<<< HEAD
 	    IS_MAPPABLE_UNCACHEABLE(last_addr) &&
 	    !(cacheflag & _PAGE_CACHED))
+=======
+	    IS_MAPPABLE_UNCACHEABLE(last_addr))
+>>>>>>> upstream/android-13
 		return (void __iomem *)(CONFIG_NIOS2_IO_REGION_BASE + phys_addr);
 
 	/* Mappings have to be page-aligned */
@@ -158,13 +177,18 @@ void __iomem *__ioremap(unsigned long phys_addr, unsigned long size,
 	if (!area)
 		return NULL;
 	addr = area->addr;
+<<<<<<< HEAD
 	if (remap_area_pages((unsigned long) addr, phys_addr, size,
 		cacheflag)) {
+=======
+	if (remap_area_pages((unsigned long) addr, phys_addr, size, 0)) {
+>>>>>>> upstream/android-13
 		vunmap(addr);
 		return NULL;
 	}
 	return (void __iomem *) (offset + (char *)addr);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(__ioremap);
 
 /*
@@ -173,6 +197,16 @@ EXPORT_SYMBOL(__ioremap);
  * wasn't used anyway and might be added later.
  */
 void __iounmap(void __iomem *addr)
+=======
+EXPORT_SYMBOL(ioremap);
+
+/*
+ * iounmap unmaps nearly everything, so be careful
+ * it doesn't free currently pointer/page tables anymore but it
+ * wasn't used anyway and might be added later.
+ */
+void iounmap(void __iomem *addr)
+>>>>>>> upstream/android-13
 {
 	struct vm_struct *p;
 
@@ -184,4 +218,8 @@ void __iounmap(void __iomem *addr)
 		pr_err("iounmap: bad address %p\n", addr);
 	kfree(p);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(__iounmap);
+=======
+EXPORT_SYMBOL(iounmap);
+>>>>>>> upstream/android-13

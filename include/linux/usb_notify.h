@@ -237,6 +237,10 @@ extern struct otg_notify *get_otg_notify(void);
 extern void enable_usb_notify(void);
 extern int set_otg_notify(struct otg_notify *n);
 extern void put_otg_notify(struct otg_notify *n);
+<<<<<<< HEAD
+=======
+extern void enable_usb_notify(void);
+>>>>>>> upstream/android-13
 #else
 static inline const char *event_string(enum otg_notify_events event)
 			{return NULL; }

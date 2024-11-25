@@ -39,11 +39,21 @@ nlmsvc_binding
 nvkm_device_chip
 of_device_id
 pci_raw_ops
+<<<<<<< HEAD
+=======
+phy_ops
+pinctrl_ops
+pinmux_ops
+>>>>>>> upstream/android-13
 pipe_buf_operations
 platform_hibernation_ops
 platform_suspend_ops
 proto_ops
 regmap_access_table
+<<<<<<< HEAD
+=======
+regulator_ops
+>>>>>>> upstream/android-13
 rpc_pipe_ops
 rtc_class_ops
 sd_desc

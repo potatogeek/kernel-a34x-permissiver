@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Client connection-specific management code.
  *
  * Copyright (C) 2016 Red Hat, Inc. All Rights Reserved.
@@ -9,10 +10,19 @@
  * 2 of the Licence, or (at your option) any later version.
  *
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/* Client connection-specific management code.
+ *
+ * Copyright (C) 2016, 2020 Red Hat, Inc. All Rights Reserved.
+ * Written by David Howells (dhowells@redhat.com)
+ *
+>>>>>>> upstream/android-13
  * Client connections need to be cached for a little while after they've made a
  * call so as to handle retransmitted DATA packets in case the server didn't
  * receive the final ACK or terminating ABORT we sent it.
  *
+<<<<<<< HEAD
  * Client connections can be in one of a number of cache states:
  *
  *  (1) INACTIVE - The connection is not held in any list and may not have been
@@ -63,6 +73,10 @@
  *      connection and to discard the call immediately we think it is done
  *      with.  It also give us a chance to reuse the connection.
  *
+=======
+ * There are flags of relevance to the cache:
+ *
+>>>>>>> upstream/android-13
  *  (2) DONT_REUSE - The connection should be discarded as soon as possible and
  *      should not be reused.  This is set when an exclusive connection is used
  *      or a call ID counter overflows.
@@ -83,7 +97,10 @@
 
 #include "ar-internal.h"
 
+<<<<<<< HEAD
 __read_mostly unsigned int rxrpc_max_client_connections = 1000;
+=======
+>>>>>>> upstream/android-13
 __read_mostly unsigned int rxrpc_reap_client_connections = 900;
 __read_mostly unsigned long rxrpc_conn_idle_client_expiry = 2 * 60 * HZ;
 __read_mostly unsigned long rxrpc_conn_idle_client_fast_expiry = 2 * HZ;
@@ -94,8 +111,11 @@ __read_mostly unsigned long rxrpc_conn_idle_client_fast_expiry = 2 * HZ;
 DEFINE_IDR(rxrpc_client_conn_ids);
 static DEFINE_SPINLOCK(rxrpc_conn_id_lock);
 
+<<<<<<< HEAD
 static void rxrpc_cull_active_client_conns(struct rxrpc_net *);
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Get a connection ID and epoch for a client connection from the global pool.
  * The connection struct pointer is then recorded in the idr radix tree.  The
@@ -167,6 +187,7 @@ void rxrpc_destroy_client_conn_ids(void)
 }
 
 /*
+<<<<<<< HEAD
  * Allocate a client connection.
  */
 static struct rxrpc_connection *
@@ -174,6 +195,56 @@ rxrpc_alloc_client_connection(struct rxrpc_conn_parameters *cp, gfp_t gfp)
 {
 	struct rxrpc_connection *conn;
 	struct rxrpc_net *rxnet = cp->local->rxnet;
+=======
+ * Allocate a connection bundle.
+ */
+static struct rxrpc_bundle *rxrpc_alloc_bundle(struct rxrpc_conn_parameters *cp,
+					       gfp_t gfp)
+{
+	struct rxrpc_bundle *bundle;
+
+	bundle = kzalloc(sizeof(*bundle), gfp);
+	if (bundle) {
+		bundle->params = *cp;
+		rxrpc_get_peer(bundle->params.peer);
+		atomic_set(&bundle->usage, 1);
+		spin_lock_init(&bundle->channel_lock);
+		INIT_LIST_HEAD(&bundle->waiting_calls);
+	}
+	return bundle;
+}
+
+struct rxrpc_bundle *rxrpc_get_bundle(struct rxrpc_bundle *bundle)
+{
+	atomic_inc(&bundle->usage);
+	return bundle;
+}
+
+static void rxrpc_free_bundle(struct rxrpc_bundle *bundle)
+{
+	rxrpc_put_peer(bundle->params.peer);
+	kfree(bundle);
+}
+
+void rxrpc_put_bundle(struct rxrpc_bundle *bundle)
+{
+	unsigned int d = bundle->debug_id;
+	unsigned int u = atomic_dec_return(&bundle->usage);
+
+	_debug("PUT B=%x %u", d, u);
+	if (u == 0)
+		rxrpc_free_bundle(bundle);
+}
+
+/*
+ * Allocate a client connection.
+ */
+static struct rxrpc_connection *
+rxrpc_alloc_client_connection(struct rxrpc_bundle *bundle, gfp_t gfp)
+{
+	struct rxrpc_connection *conn;
+	struct rxrpc_net *rxnet = bundle->params.local->rxnet;
+>>>>>>> upstream/android-13
 	int ret;
 
 	_enter("");
@@ -185,6 +256,7 @@ rxrpc_alloc_client_connection(struct rxrpc_conn_parameters *cp, gfp_t gfp)
 	}
 
 	atomic_set(&conn->usage, 1);
+<<<<<<< HEAD
 	if (cp->exclusive)
 		__set_bit(RXRPC_CONN_DONT_REUSE, &conn->flags);
 	if (cp->upgrade)
@@ -194,6 +266,13 @@ rxrpc_alloc_client_connection(struct rxrpc_conn_parameters *cp, gfp_t gfp)
 	conn->out_clientflag	= RXRPC_CLIENT_INITIATED;
 	conn->state		= RXRPC_CONN_CLIENT;
 	conn->service_id	= cp->service_id;
+=======
+	conn->bundle		= bundle;
+	conn->params		= bundle->params;
+	conn->out_clientflag	= RXRPC_CLIENT_INITIATED;
+	conn->state		= RXRPC_CONN_CLIENT;
+	conn->service_id	= conn->params.service_id;
+>>>>>>> upstream/android-13
 
 	ret = rxrpc_get_client_connection_id(conn, gfp);
 	if (ret < 0)
@@ -203,29 +282,45 @@ rxrpc_alloc_client_connection(struct rxrpc_conn_parameters *cp, gfp_t gfp)
 	if (ret < 0)
 		goto error_1;
 
+<<<<<<< HEAD
 	ret = conn->security->prime_packet_security(conn);
 	if (ret < 0)
 		goto error_2;
 
+=======
+>>>>>>> upstream/android-13
 	atomic_inc(&rxnet->nr_conns);
 	write_lock(&rxnet->conn_lock);
 	list_add_tail(&conn->proc_link, &rxnet->conn_proc_list);
 	write_unlock(&rxnet->conn_lock);
 
+<<<<<<< HEAD
 	/* We steal the caller's peer ref. */
 	cp->peer = NULL;
+=======
+	rxrpc_get_bundle(bundle);
+	rxrpc_get_peer(conn->params.peer);
+>>>>>>> upstream/android-13
 	rxrpc_get_local(conn->params.local);
 	key_get(conn->params.key);
 
 	trace_rxrpc_conn(conn->debug_id, rxrpc_conn_new_client,
 			 atomic_read(&conn->usage),
 			 __builtin_return_address(0));
+<<<<<<< HEAD
+=======
+
+	atomic_inc(&rxnet->nr_client_conns);
+>>>>>>> upstream/android-13
 	trace_rxrpc_client(conn, -1, rxrpc_client_alloc);
 	_leave(" = %p", conn);
 	return conn;
 
+<<<<<<< HEAD
 error_2:
 	conn->security->clear(conn);
+=======
+>>>>>>> upstream/android-13
 error_1:
 	rxrpc_put_client_connection_id(conn);
 error_0:
@@ -239,6 +334,7 @@ error_0:
  */
 static bool rxrpc_may_reuse_conn(struct rxrpc_connection *conn)
 {
+<<<<<<< HEAD
 	struct rxrpc_net *rxnet = conn->params.local->rxnet;
 	int id_cursor, id, distance, limit;
 
@@ -246,6 +342,20 @@ static bool rxrpc_may_reuse_conn(struct rxrpc_connection *conn)
 		goto dont_reuse;
 
 	if (conn->proto.epoch != rxnet->epoch)
+=======
+	struct rxrpc_net *rxnet;
+	int id_cursor, id, distance, limit;
+
+	if (!conn)
+		goto dont_reuse;
+
+	rxnet = conn->params.local->rxnet;
+	if (test_bit(RXRPC_CONN_DONT_REUSE, &conn->flags))
+		goto dont_reuse;
+
+	if (conn->state != RXRPC_CONN_CLIENT ||
+	    conn->proto.epoch != rxnet->epoch)
+>>>>>>> upstream/android-13
 		goto mark_dont_reuse;
 
 	/* The IDR tree gets very expensive on memory if the connection IDs are
@@ -259,7 +369,11 @@ static bool rxrpc_may_reuse_conn(struct rxrpc_connection *conn)
 	distance = id - id_cursor;
 	if (distance < 0)
 		distance = -distance;
+<<<<<<< HEAD
 	limit = max(rxrpc_max_client_connections * 4, 1024U);
+=======
+	limit = max_t(unsigned long, atomic_read(&rxnet->nr_conns) * 4, 1024);
+>>>>>>> upstream/android-13
 	if (distance > limit)
 		goto mark_dont_reuse;
 
@@ -272,11 +386,103 @@ dont_reuse:
 }
 
 /*
+<<<<<<< HEAD
  * Create or find a client connection to use for a call.
+=======
+ * Look up the conn bundle that matches the connection parameters, adding it if
+ * it doesn't yet exist.
+ */
+static struct rxrpc_bundle *rxrpc_look_up_bundle(struct rxrpc_conn_parameters *cp,
+						 gfp_t gfp)
+{
+	static atomic_t rxrpc_bundle_id;
+	struct rxrpc_bundle *bundle, *candidate;
+	struct rxrpc_local *local = cp->local;
+	struct rb_node *p, **pp, *parent;
+	long diff;
+
+	_enter("{%px,%x,%u,%u}",
+	       cp->peer, key_serial(cp->key), cp->security_level, cp->upgrade);
+
+	if (cp->exclusive)
+		return rxrpc_alloc_bundle(cp, gfp);
+
+	/* First, see if the bundle is already there. */
+	_debug("search 1");
+	spin_lock(&local->client_bundles_lock);
+	p = local->client_bundles.rb_node;
+	while (p) {
+		bundle = rb_entry(p, struct rxrpc_bundle, local_node);
+
+#define cmp(X) ((long)bundle->params.X - (long)cp->X)
+		diff = (cmp(peer) ?:
+			cmp(key) ?:
+			cmp(security_level) ?:
+			cmp(upgrade));
+#undef cmp
+		if (diff < 0)
+			p = p->rb_left;
+		else if (diff > 0)
+			p = p->rb_right;
+		else
+			goto found_bundle;
+	}
+	spin_unlock(&local->client_bundles_lock);
+	_debug("not found");
+
+	/* It wasn't.  We need to add one. */
+	candidate = rxrpc_alloc_bundle(cp, gfp);
+	if (!candidate)
+		return NULL;
+
+	_debug("search 2");
+	spin_lock(&local->client_bundles_lock);
+	pp = &local->client_bundles.rb_node;
+	parent = NULL;
+	while (*pp) {
+		parent = *pp;
+		bundle = rb_entry(parent, struct rxrpc_bundle, local_node);
+
+#define cmp(X) ((long)bundle->params.X - (long)cp->X)
+		diff = (cmp(peer) ?:
+			cmp(key) ?:
+			cmp(security_level) ?:
+			cmp(upgrade));
+#undef cmp
+		if (diff < 0)
+			pp = &(*pp)->rb_left;
+		else if (diff > 0)
+			pp = &(*pp)->rb_right;
+		else
+			goto found_bundle_free;
+	}
+
+	_debug("new bundle");
+	candidate->debug_id = atomic_inc_return(&rxrpc_bundle_id);
+	rb_link_node(&candidate->local_node, parent, pp);
+	rb_insert_color(&candidate->local_node, &local->client_bundles);
+	rxrpc_get_bundle(candidate);
+	spin_unlock(&local->client_bundles_lock);
+	_leave(" = %u [new]", candidate->debug_id);
+	return candidate;
+
+found_bundle_free:
+	rxrpc_free_bundle(candidate);
+found_bundle:
+	rxrpc_get_bundle(bundle);
+	spin_unlock(&local->client_bundles_lock);
+	_leave(" = %u [found]", bundle->debug_id);
+	return bundle;
+}
+
+/*
+ * Create or find a client bundle to use for a call.
+>>>>>>> upstream/android-13
  *
  * If we return with a connection, the call will be on its waiting list.  It's
  * left to the caller to assign a channel and wake up the call.
  */
+<<<<<<< HEAD
 static int rxrpc_get_client_conn(struct rxrpc_sock *rx,
 				 struct rxrpc_call *call,
 				 struct rxrpc_conn_parameters *cp,
@@ -288,6 +494,15 @@ static int rxrpc_get_client_conn(struct rxrpc_sock *rx,
 	struct rb_node *p, **pp, *parent;
 	long diff;
 	int ret = -ENOMEM;
+=======
+static struct rxrpc_bundle *rxrpc_prep_call(struct rxrpc_sock *rx,
+					    struct rxrpc_call *call,
+					    struct rxrpc_conn_parameters *cp,
+					    struct sockaddr_rxrpc *srx,
+					    gfp_t gfp)
+{
+	struct rxrpc_bundle *bundle;
+>>>>>>> upstream/android-13
 
 	_enter("{%d,%lx},", call->debug_id, call->user_call_ID);
 
@@ -300,6 +515,7 @@ static int rxrpc_get_client_conn(struct rxrpc_sock *rx,
 		call->cong_mode = RXRPC_CALL_CONGEST_AVOIDANCE;
 	else
 		call->cong_mode = RXRPC_CALL_SLOW_START;
+<<<<<<< HEAD
 
 	/* If the connection is not meant to be exclusive, search the available
 	 * connections to see if the connection we want to use already exists.
@@ -540,6 +756,138 @@ static void rxrpc_deactivate_one_channel(struct rxrpc_connection *conn,
 
 	rcu_assign_pointer(chan->call, NULL);
 	conn->active_chans &= ~(1 << channel);
+=======
+	if (cp->upgrade)
+		__set_bit(RXRPC_CALL_UPGRADE, &call->flags);
+
+	/* Find the client connection bundle. */
+	bundle = rxrpc_look_up_bundle(cp, gfp);
+	if (!bundle)
+		goto error;
+
+	/* Get this call queued.  Someone else may activate it whilst we're
+	 * lining up a new connection, but that's fine.
+	 */
+	spin_lock(&bundle->channel_lock);
+	list_add_tail(&call->chan_wait_link, &bundle->waiting_calls);
+	spin_unlock(&bundle->channel_lock);
+
+	_leave(" = [B=%x]", bundle->debug_id);
+	return bundle;
+
+error:
+	_leave(" = -ENOMEM");
+	return ERR_PTR(-ENOMEM);
+}
+
+/*
+ * Allocate a new connection and add it into a bundle.
+ */
+static void rxrpc_add_conn_to_bundle(struct rxrpc_bundle *bundle, gfp_t gfp)
+	__releases(bundle->channel_lock)
+{
+	struct rxrpc_connection *candidate = NULL, *old = NULL;
+	bool conflict;
+	int i;
+
+	_enter("");
+
+	conflict = bundle->alloc_conn;
+	if (!conflict)
+		bundle->alloc_conn = true;
+	spin_unlock(&bundle->channel_lock);
+	if (conflict) {
+		_leave(" [conf]");
+		return;
+	}
+
+	candidate = rxrpc_alloc_client_connection(bundle, gfp);
+
+	spin_lock(&bundle->channel_lock);
+	bundle->alloc_conn = false;
+
+	if (IS_ERR(candidate)) {
+		bundle->alloc_error = PTR_ERR(candidate);
+		spin_unlock(&bundle->channel_lock);
+		_leave(" [err %ld]", PTR_ERR(candidate));
+		return;
+	}
+
+	bundle->alloc_error = 0;
+
+	for (i = 0; i < ARRAY_SIZE(bundle->conns); i++) {
+		unsigned int shift = i * RXRPC_MAXCALLS;
+		int j;
+
+		old = bundle->conns[i];
+		if (!rxrpc_may_reuse_conn(old)) {
+			if (old)
+				trace_rxrpc_client(old, -1, rxrpc_client_replace);
+			candidate->bundle_shift = shift;
+			bundle->conns[i] = candidate;
+			for (j = 0; j < RXRPC_MAXCALLS; j++)
+				set_bit(shift + j, &bundle->avail_chans);
+			candidate = NULL;
+			break;
+		}
+
+		old = NULL;
+	}
+
+	spin_unlock(&bundle->channel_lock);
+
+	if (candidate) {
+		_debug("discard C=%x", candidate->debug_id);
+		trace_rxrpc_client(candidate, -1, rxrpc_client_duplicate);
+		rxrpc_put_connection(candidate);
+	}
+
+	rxrpc_put_connection(old);
+	_leave("");
+}
+
+/*
+ * Add a connection to a bundle if there are no usable connections or we have
+ * connections waiting for extra capacity.
+ */
+static void rxrpc_maybe_add_conn(struct rxrpc_bundle *bundle, gfp_t gfp)
+{
+	struct rxrpc_call *call;
+	int i, usable;
+
+	_enter("");
+
+	spin_lock(&bundle->channel_lock);
+
+	/* See if there are any usable connections. */
+	usable = 0;
+	for (i = 0; i < ARRAY_SIZE(bundle->conns); i++)
+		if (rxrpc_may_reuse_conn(bundle->conns[i]))
+			usable++;
+
+	if (!usable && !list_empty(&bundle->waiting_calls)) {
+		call = list_first_entry(&bundle->waiting_calls,
+					struct rxrpc_call, chan_wait_link);
+		if (test_bit(RXRPC_CALL_UPGRADE, &call->flags))
+			bundle->try_upgrade = true;
+	}
+
+	if (!usable)
+		goto alloc_conn;
+
+	if (!bundle->avail_chans &&
+	    !bundle->try_upgrade &&
+	    !list_empty(&bundle->waiting_calls) &&
+	    usable < ARRAY_SIZE(bundle->conns))
+		goto alloc_conn;
+
+	spin_unlock(&bundle->channel_lock);
+	_leave("");
+	return;
+
+alloc_conn:
+	return rxrpc_add_conn_to_bundle(bundle, gfp);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -551,16 +899,27 @@ static void rxrpc_activate_one_channel(struct rxrpc_connection *conn,
 				       unsigned int channel)
 {
 	struct rxrpc_channel *chan = &conn->channels[channel];
+<<<<<<< HEAD
 	struct rxrpc_call *call = list_entry(conn->waiting_calls.next,
 					     struct rxrpc_call, chan_wait_link);
 	u32 call_id = chan->call_counter + 1;
 
+=======
+	struct rxrpc_bundle *bundle = conn->bundle;
+	struct rxrpc_call *call = list_entry(bundle->waiting_calls.next,
+					     struct rxrpc_call, chan_wait_link);
+	u32 call_id = chan->call_counter + 1;
+
+	_enter("C=%x,%u", conn->debug_id, channel);
+
+>>>>>>> upstream/android-13
 	trace_rxrpc_client(conn, channel, rxrpc_client_chan_activate);
 
 	/* Cancel the final ACK on the previous call if it hasn't been sent yet
 	 * as the DATA packet will implicitly ACK it.
 	 */
 	clear_bit(RXRPC_CONN_FINAL_ACK_0 + channel, &conn->flags);
+<<<<<<< HEAD
 
 	write_lock_bh(&call->state_lock);
 	if (!test_bit(RXRPC_CALL_TX_LASTQ, &call->flags))
@@ -575,14 +934,37 @@ static void rxrpc_activate_one_channel(struct rxrpc_connection *conn,
 	call->peer	= rxrpc_get_peer(conn->params.peer);
 	call->cid	= conn->proto.cid | channel;
 	call->call_id	= call_id;
+=======
+	clear_bit(conn->bundle_shift + channel, &bundle->avail_chans);
+
+	rxrpc_see_call(call);
+	list_del_init(&call->chan_wait_link);
+	call->peer	= rxrpc_get_peer(conn->params.peer);
+	call->conn	= rxrpc_get_connection(conn);
+	call->cid	= conn->proto.cid | channel;
+	call->call_id	= call_id;
+	call->security	= conn->security;
+	call->security_ix = conn->security_ix;
+	call->service_id = conn->service_id;
+>>>>>>> upstream/android-13
 
 	trace_rxrpc_connect_call(call);
 	_net("CONNECT call %08x:%08x as call %d on conn %d",
 	     call->cid, call->call_id, call->debug_id, conn->debug_id);
 
+<<<<<<< HEAD
 	/* Paired with the read barrier in rxrpc_wait_for_channel().  This
 	 * orders cid and epoch in the connection wrt to call_id without the
 	 * need to take the channel_lock.
+=======
+	write_lock_bh(&call->state_lock);
+	call->state = RXRPC_CALL_CLIENT_SEND_REQUEST;
+	write_unlock_bh(&call->state_lock);
+
+	/* Paired with the read barrier in rxrpc_connect_call().  This orders
+	 * cid and epoch in the connection wrt to call_id without the need to
+	 * take the channel_lock.
+>>>>>>> upstream/android-13
 	 *
 	 * We provisionally assign a callNumber at this point, but we don't
 	 * confirm it until the call is about to be exposed.
@@ -591,13 +973,20 @@ static void rxrpc_activate_one_channel(struct rxrpc_connection *conn,
 	 * at the call ID through a connection channel.
 	 */
 	smp_wmb();
+<<<<<<< HEAD
 	chan->call_id	= call_id;
 	chan->call_debug_id = call->debug_id;
+=======
+
+	chan->call_id		= call_id;
+	chan->call_debug_id	= call->debug_id;
+>>>>>>> upstream/android-13
 	rcu_assign_pointer(chan->call, call);
 	wake_up(&call->waitq);
 }
 
 /*
+<<<<<<< HEAD
  * Assign channels and callNumbers to waiting calls with channel_lock
  * held by caller.
  */
@@ -621,11 +1010,69 @@ static void rxrpc_activate_channels_locked(struct rxrpc_connection *conn)
 		avail &= mask,
 		avail != 0))
 		rxrpc_activate_one_channel(conn, __ffs(avail));
+=======
+ * Remove a connection from the idle list if it's on it.
+ */
+static void rxrpc_unidle_conn(struct rxrpc_bundle *bundle, struct rxrpc_connection *conn)
+{
+	struct rxrpc_net *rxnet = bundle->params.local->rxnet;
+	bool drop_ref;
+
+	if (!list_empty(&conn->cache_link)) {
+		drop_ref = false;
+		spin_lock(&rxnet->client_conn_cache_lock);
+		if (!list_empty(&conn->cache_link)) {
+			list_del_init(&conn->cache_link);
+			drop_ref = true;
+		}
+		spin_unlock(&rxnet->client_conn_cache_lock);
+		if (drop_ref)
+			rxrpc_put_connection(conn);
+	}
+}
+
+/*
+ * Assign channels and callNumbers to waiting calls with channel_lock
+ * held by caller.
+ */
+static void rxrpc_activate_channels_locked(struct rxrpc_bundle *bundle)
+{
+	struct rxrpc_connection *conn;
+	unsigned long avail, mask;
+	unsigned int channel, slot;
+
+	if (bundle->try_upgrade)
+		mask = 1;
+	else
+		mask = ULONG_MAX;
+
+	while (!list_empty(&bundle->waiting_calls)) {
+		avail = bundle->avail_chans & mask;
+		if (!avail)
+			break;
+		channel = __ffs(avail);
+		clear_bit(channel, &bundle->avail_chans);
+
+		slot = channel / RXRPC_MAXCALLS;
+		conn = bundle->conns[slot];
+		if (!conn)
+			break;
+
+		if (bundle->try_upgrade)
+			set_bit(RXRPC_CONN_PROBING_FOR_UPGRADE, &conn->flags);
+		rxrpc_unidle_conn(bundle, conn);
+
+		channel &= (RXRPC_MAXCALLS - 1);
+		conn->act_chans	|= 1 << channel;
+		rxrpc_activate_one_channel(conn, channel);
+	}
+>>>>>>> upstream/android-13
 }
 
 /*
  * Assign channels and callNumbers to waiting calls.
  */
+<<<<<<< HEAD
 static void rxrpc_activate_channels(struct rxrpc_connection *conn)
 {
 	_enter("%d", conn->debug_id);
@@ -638,18 +1085,40 @@ static void rxrpc_activate_channels(struct rxrpc_connection *conn)
 	spin_lock(&conn->channel_lock);
 	rxrpc_activate_channels_locked(conn);
 	spin_unlock(&conn->channel_lock);
+=======
+static void rxrpc_activate_channels(struct rxrpc_bundle *bundle)
+{
+	_enter("B=%x", bundle->debug_id);
+
+	trace_rxrpc_client(NULL, -1, rxrpc_client_activate_chans);
+
+	if (!bundle->avail_chans)
+		return;
+
+	spin_lock(&bundle->channel_lock);
+	rxrpc_activate_channels_locked(bundle);
+	spin_unlock(&bundle->channel_lock);
+>>>>>>> upstream/android-13
 	_leave("");
 }
 
 /*
  * Wait for a callNumber and a channel to be granted to a call.
  */
+<<<<<<< HEAD
 static int rxrpc_wait_for_channel(struct rxrpc_call *call, gfp_t gfp)
 {
+=======
+static int rxrpc_wait_for_channel(struct rxrpc_bundle *bundle,
+				  struct rxrpc_call *call, gfp_t gfp)
+{
+	DECLARE_WAITQUEUE(myself, current);
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 	_enter("%d", call->debug_id);
 
+<<<<<<< HEAD
 	if (!call->call_id) {
 		DECLARE_WAITQUEUE(myself, current);
 
@@ -675,6 +1144,45 @@ static int rxrpc_wait_for_channel(struct rxrpc_call *call, gfp_t gfp)
 
 	/* Paired with the write barrier in rxrpc_activate_one_channel(). */
 	smp_rmb();
+=======
+	if (!gfpflags_allow_blocking(gfp)) {
+		rxrpc_maybe_add_conn(bundle, gfp);
+		rxrpc_activate_channels(bundle);
+		ret = bundle->alloc_error ?: -EAGAIN;
+		goto out;
+	}
+
+	add_wait_queue_exclusive(&call->waitq, &myself);
+	for (;;) {
+		rxrpc_maybe_add_conn(bundle, gfp);
+		rxrpc_activate_channels(bundle);
+		ret = bundle->alloc_error;
+		if (ret < 0)
+			break;
+
+		switch (call->interruptibility) {
+		case RXRPC_INTERRUPTIBLE:
+		case RXRPC_PREINTERRUPTIBLE:
+			set_current_state(TASK_INTERRUPTIBLE);
+			break;
+		case RXRPC_UNINTERRUPTIBLE:
+		default:
+			set_current_state(TASK_UNINTERRUPTIBLE);
+			break;
+		}
+		if (READ_ONCE(call->state) != RXRPC_CALL_CLIENT_AWAIT_CONN)
+			break;
+		if ((call->interruptibility == RXRPC_INTERRUPTIBLE ||
+		     call->interruptibility == RXRPC_PREINTERRUPTIBLE) &&
+		    signal_pending(current)) {
+			ret = -ERESTARTSYS;
+			break;
+		}
+		schedule();
+	}
+	remove_wait_queue(&call->waitq, &myself);
+	__set_current_state(TASK_RUNNING);
+>>>>>>> upstream/android-13
 
 out:
 	_leave(" = %d", ret);
@@ -691,12 +1199,19 @@ int rxrpc_connect_call(struct rxrpc_sock *rx,
 		       struct sockaddr_rxrpc *srx,
 		       gfp_t gfp)
 {
+<<<<<<< HEAD
 	struct rxrpc_net *rxnet = cp->local->rxnet;
 	int ret;
+=======
+	struct rxrpc_bundle *bundle;
+	struct rxrpc_net *rxnet = cp->local->rxnet;
+	int ret = 0;
+>>>>>>> upstream/android-13
 
 	_enter("{%d,%lx},", call->debug_id, call->user_call_ID);
 
 	rxrpc_discard_expired_client_conns(&rxnet->client_conn_reaper);
+<<<<<<< HEAD
 	rxrpc_cull_active_client_conns(rxnet);
 
 	ret = rxrpc_get_client_conn(rx, call, cp, srx, gfp);
@@ -737,6 +1252,45 @@ static void rxrpc_expose_client_conn(struct rxrpc_connection *conn,
 		trace_rxrpc_client(conn, channel, rxrpc_client_exposed);
 		rxrpc_get_connection(conn);
 	}
+=======
+
+	bundle = rxrpc_prep_call(rx, call, cp, srx, gfp);
+	if (IS_ERR(bundle)) {
+		ret = PTR_ERR(bundle);
+		goto out;
+	}
+
+	if (call->state == RXRPC_CALL_CLIENT_AWAIT_CONN) {
+		ret = rxrpc_wait_for_channel(bundle, call, gfp);
+		if (ret < 0)
+			goto wait_failed;
+	}
+
+granted_channel:
+	/* Paired with the write barrier in rxrpc_activate_one_channel(). */
+	smp_rmb();
+
+out_put_bundle:
+	rxrpc_put_bundle(bundle);
+out:
+	_leave(" = %d", ret);
+	return ret;
+
+wait_failed:
+	spin_lock(&bundle->channel_lock);
+	list_del_init(&call->chan_wait_link);
+	spin_unlock(&bundle->channel_lock);
+
+	if (call->state != RXRPC_CALL_CLIENT_AWAIT_CONN) {
+		ret = 0;
+		goto granted_channel;
+	}
+
+	trace_rxrpc_client(call->conn, ret, rxrpc_client_chan_wait_failed);
+	rxrpc_set_call_completion(call, RXRPC_CALL_LOCAL_ERROR, 0, ret);
+	rxrpc_disconnect_client_call(bundle, call);
+	goto out_put_bundle;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -758,7 +1312,11 @@ void rxrpc_expose_client_call(struct rxrpc_call *call)
 		chan->call_counter++;
 		if (chan->call_counter >= INT_MAX)
 			set_bit(RXRPC_CONN_DONT_REUSE, &conn->flags);
+<<<<<<< HEAD
 		rxrpc_expose_client_conn(conn, channel);
+=======
+		trace_rxrpc_client(conn, channel, rxrpc_client_exposed);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -767,16 +1325,27 @@ void rxrpc_expose_client_call(struct rxrpc_call *call)
  */
 static void rxrpc_set_client_reap_timer(struct rxrpc_net *rxnet)
 {
+<<<<<<< HEAD
 	unsigned long now = jiffies;
 	unsigned long reap_at = now + rxrpc_conn_idle_client_expiry;
 
 	if (rxnet->live)
 		timer_reduce(&rxnet->client_conn_reap_timer, reap_at);
+=======
+	if (!rxnet->kill_all_client_conns) {
+		unsigned long now = jiffies;
+		unsigned long reap_at = now + rxrpc_conn_idle_client_expiry;
+
+		if (rxnet->live)
+			timer_reduce(&rxnet->client_conn_reap_timer, reap_at);
+	}
+>>>>>>> upstream/android-13
 }
 
 /*
  * Disconnect a client call.
  */
+<<<<<<< HEAD
 void rxrpc_disconnect_client_call(struct rxrpc_call *call)
 {
 	struct rxrpc_connection *conn = call->conn;
@@ -800,10 +1369,32 @@ void rxrpc_disconnect_client_call(struct rxrpc_call *call)
 	 * immediately unless someone else grabs it in the meantime.
 	 */
 	if (!list_empty(&call->chan_wait_link)) {
+=======
+void rxrpc_disconnect_client_call(struct rxrpc_bundle *bundle, struct rxrpc_call *call)
+{
+	struct rxrpc_connection *conn;
+	struct rxrpc_channel *chan = NULL;
+	struct rxrpc_net *rxnet = bundle->params.local->rxnet;
+	unsigned int channel;
+	bool may_reuse;
+	u32 cid;
+
+	_enter("c=%x", call->debug_id);
+
+	spin_lock(&bundle->channel_lock);
+	set_bit(RXRPC_CALL_DISCONNECTED, &call->flags);
+
+	/* Calls that have never actually been assigned a channel can simply be
+	 * discarded.
+	 */
+	conn = call->conn;
+	if (!conn) {
+>>>>>>> upstream/android-13
 		_debug("call is waiting");
 		ASSERTCMP(call->call_id, ==, 0);
 		ASSERT(!test_bit(RXRPC_CALL_EXPOSED, &call->flags));
 		list_del_init(&call->chan_wait_link);
+<<<<<<< HEAD
 
 		trace_rxrpc_client(conn, channel, rxrpc_client_chan_unstarted);
 
@@ -823,6 +1414,23 @@ void rxrpc_disconnect_client_call(struct rxrpc_call *call)
 		BUG();
 	}
 
+=======
+		goto out;
+	}
+
+	cid = call->cid;
+	channel = cid & RXRPC_CHANNELMASK;
+	chan = &conn->channels[channel];
+	trace_rxrpc_client(conn, channel, rxrpc_client_chan_disconnect);
+
+	if (rcu_access_pointer(chan->call) != call) {
+		spin_unlock(&bundle->channel_lock);
+		BUG();
+	}
+
+	may_reuse = rxrpc_may_reuse_conn(conn);
+
+>>>>>>> upstream/android-13
 	/* If a client call was exposed to the world, we save the result for
 	 * retransmission.
 	 *
@@ -835,6 +1443,7 @@ void rxrpc_disconnect_client_call(struct rxrpc_call *call)
 	if (test_bit(RXRPC_CALL_EXPOSED, &call->flags)) {
 		_debug("exposed %u,%u", call->call_id, call->abort_code);
 		__rxrpc_disconnect_call(conn, call);
+<<<<<<< HEAD
 	}
 
 	/* See if we can pass the channel directly to another call. */
@@ -843,6 +1452,23 @@ void rxrpc_disconnect_client_call(struct rxrpc_call *call)
 		trace_rxrpc_client(conn, channel, rxrpc_client_chan_pass);
 		rxrpc_activate_one_channel(conn, channel);
 		goto out_2;
+=======
+
+		if (test_and_clear_bit(RXRPC_CONN_PROBING_FOR_UPGRADE, &conn->flags)) {
+			trace_rxrpc_client(conn, channel, rxrpc_client_to_active);
+			bundle->try_upgrade = false;
+			if (may_reuse)
+				rxrpc_activate_channels_locked(bundle);
+		}
+
+	}
+
+	/* See if we can pass the channel directly to another call. */
+	if (may_reuse && !list_empty(&bundle->waiting_calls)) {
+		trace_rxrpc_client(conn, channel, rxrpc_client_chan_pass);
+		rxrpc_activate_one_channel(conn, channel);
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	/* Schedule the final ACK to be transmitted in a short while so that it
@@ -859,6 +1485,7 @@ void rxrpc_disconnect_client_call(struct rxrpc_call *call)
 		rxrpc_reduce_conn_timer(conn, final_ack_at);
 	}
 
+<<<<<<< HEAD
 	/* Things are more complex and we need the cache lock.  We might be
 	 * able to simply idle the conn or it might now be lurking on the wait
 	 * list.  It might even get moved back to the active list whilst we're
@@ -930,11 +1557,90 @@ idle_connection:
 		list_del_init(&conn->cache_link);
 	}
 	goto out;
+=======
+	/* Deactivate the channel. */
+	rcu_assign_pointer(chan->call, NULL);
+	set_bit(conn->bundle_shift + channel, &conn->bundle->avail_chans);
+	conn->act_chans	&= ~(1 << channel);
+
+	/* If no channels remain active, then put the connection on the idle
+	 * list for a short while.  Give it a ref to stop it going away if it
+	 * becomes unbundled.
+	 */
+	if (!conn->act_chans) {
+		trace_rxrpc_client(conn, channel, rxrpc_client_to_idle);
+		conn->idle_timestamp = jiffies;
+
+		rxrpc_get_connection(conn);
+		spin_lock(&rxnet->client_conn_cache_lock);
+		list_move_tail(&conn->cache_link, &rxnet->idle_client_conns);
+		spin_unlock(&rxnet->client_conn_cache_lock);
+
+		rxrpc_set_client_reap_timer(rxnet);
+	}
+
+out:
+	spin_unlock(&bundle->channel_lock);
+	_leave("");
+	return;
+}
+
+/*
+ * Remove a connection from a bundle.
+ */
+static void rxrpc_unbundle_conn(struct rxrpc_connection *conn)
+{
+	struct rxrpc_bundle *bundle = conn->bundle;
+	struct rxrpc_local *local = bundle->params.local;
+	unsigned int bindex;
+	bool need_drop = false, need_put = false;
+	int i;
+
+	_enter("C=%x", conn->debug_id);
+
+	if (conn->flags & RXRPC_CONN_FINAL_ACK_MASK)
+		rxrpc_process_delayed_final_acks(conn, true);
+
+	spin_lock(&bundle->channel_lock);
+	bindex = conn->bundle_shift / RXRPC_MAXCALLS;
+	if (bundle->conns[bindex] == conn) {
+		_debug("clear slot %u", bindex);
+		bundle->conns[bindex] = NULL;
+		for (i = 0; i < RXRPC_MAXCALLS; i++)
+			clear_bit(conn->bundle_shift + i, &bundle->avail_chans);
+		need_drop = true;
+	}
+	spin_unlock(&bundle->channel_lock);
+
+	/* If there are no more connections, remove the bundle */
+	if (!bundle->avail_chans) {
+		_debug("maybe unbundle");
+		spin_lock(&local->client_bundles_lock);
+
+		for (i = 0; i < ARRAY_SIZE(bundle->conns); i++)
+			if (bundle->conns[i])
+				break;
+		if (i == ARRAY_SIZE(bundle->conns) && !bundle->params.exclusive) {
+			_debug("erase bundle");
+			rb_erase(&bundle->local_node, &local->client_bundles);
+			need_put = true;
+		}
+
+		spin_unlock(&local->client_bundles_lock);
+		if (need_put)
+			rxrpc_put_bundle(bundle);
+	}
+
+	if (need_drop)
+		rxrpc_put_connection(conn);
+	_leave("");
+>>>>>>> upstream/android-13
 }
 
 /*
  * Clean up a dead client connection.
  */
+<<<<<<< HEAD
 static struct rxrpc_connection *
 rxrpc_put_one_client_conn(struct rxrpc_connection *conn)
 {
@@ -981,6 +1687,20 @@ rxrpc_put_one_client_conn(struct rxrpc_connection *conn)
 	 * can't call rxrpc_put_connection() recursively.
 	 */
 	return next;
+=======
+static void rxrpc_kill_client_conn(struct rxrpc_connection *conn)
+{
+	struct rxrpc_local *local = conn->params.local;
+	struct rxrpc_net *rxnet = local->rxnet;
+
+	_enter("C=%x", conn->debug_id);
+
+	trace_rxrpc_client(conn, -1, rxrpc_client_cleanup);
+	atomic_dec(&rxnet->nr_client_conns);
+
+	rxrpc_put_client_connection_id(conn);
+	rxrpc_kill_connection(conn);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -992,6 +1712,7 @@ void rxrpc_put_client_conn(struct rxrpc_connection *conn)
 	unsigned int debug_id = conn->debug_id;
 	int n;
 
+<<<<<<< HEAD
 	do {
 		n = atomic_dec_return(&conn->usage);
 		trace_rxrpc_conn(debug_id, rxrpc_conn_put_client, n, here);
@@ -1049,6 +1770,14 @@ static void rxrpc_cull_active_client_conns(struct rxrpc_net *rxnet)
 	spin_unlock(&rxnet->client_conn_cache_lock);
 	ASSERTCMP(nr_active, >=, 0);
 	_leave(" [culled]");
+=======
+	n = atomic_dec_return(&conn->usage);
+	trace_rxrpc_conn(debug_id, rxrpc_conn_put_client, n, here);
+	if (n <= 0) {
+		ASSERTCMP(n, >=, 0);
+		rxrpc_kill_client_conn(conn);
+	}
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1082,7 +1811,11 @@ void rxrpc_discard_expired_client_conns(struct work_struct *work)
 	/* We keep an estimate of what the number of conns ought to be after
 	 * we've discarded some so that we don't overdo the discarding.
 	 */
+<<<<<<< HEAD
 	nr_conns = rxnet->nr_client_conns;
+=======
+	nr_conns = atomic_read(&rxnet->nr_client_conns);
+>>>>>>> upstream/android-13
 
 next:
 	spin_lock(&rxnet->client_conn_cache_lock);
@@ -1092,7 +1825,10 @@ next:
 
 	conn = list_entry(rxnet->idle_client_conns.next,
 			  struct rxrpc_connection, cache_link);
+<<<<<<< HEAD
 	ASSERT(test_bit(RXRPC_CONN_EXPOSED, &conn->flags));
+=======
+>>>>>>> upstream/android-13
 
 	if (!rxnet->kill_all_client_conns) {
 		/* If the number of connections is over the reap limit, we
@@ -1114,18 +1850,27 @@ next:
 	}
 
 	trace_rxrpc_client(conn, -1, rxrpc_client_discard);
+<<<<<<< HEAD
 	if (!test_and_clear_bit(RXRPC_CONN_EXPOSED, &conn->flags))
 		BUG();
 	conn->cache_state = RXRPC_CONN_CLIENT_INACTIVE;
+=======
+>>>>>>> upstream/android-13
 	list_del_init(&conn->cache_link);
 
 	spin_unlock(&rxnet->client_conn_cache_lock);
 
+<<<<<<< HEAD
 	/* When we cleared the EXPOSED flag, we took on responsibility for the
 	 * reference that that had on the usage count.  We deal with that here.
 	 * If someone re-sets the flag and re-gets the ref, that's fine.
 	 */
 	rxrpc_put_connection(conn);
+=======
+	rxrpc_unbundle_conn(conn);
+	rxrpc_put_connection(conn); /* Drop the ->cache_link ref */
+
+>>>>>>> upstream/android-13
 	nr_conns--;
 	goto next;
 
@@ -1139,8 +1884,12 @@ not_yet_expired:
 	 */
 	_debug("not yet");
 	if (!rxnet->kill_all_client_conns)
+<<<<<<< HEAD
 		timer_reduce(&rxnet->client_conn_reap_timer,
 			     conn_expires_at);
+=======
+		timer_reduce(&rxnet->client_conn_reap_timer, conn_expires_at);
+>>>>>>> upstream/android-13
 
 out:
 	spin_unlock(&rxnet->client_conn_cache_lock);
@@ -1175,17 +1924,24 @@ void rxrpc_clean_up_local_conns(struct rxrpc_local *local)
 {
 	struct rxrpc_connection *conn, *tmp;
 	struct rxrpc_net *rxnet = local->rxnet;
+<<<<<<< HEAD
 	unsigned int nr_active;
+=======
+>>>>>>> upstream/android-13
 	LIST_HEAD(graveyard);
 
 	_enter("");
 
 	spin_lock(&rxnet->client_conn_cache_lock);
+<<<<<<< HEAD
 	nr_active = rxnet->nr_active_client_conns;
+=======
+>>>>>>> upstream/android-13
 
 	list_for_each_entry_safe(conn, tmp, &rxnet->idle_client_conns,
 				 cache_link) {
 		if (conn->params.local == local) {
+<<<<<<< HEAD
 			ASSERTCMP(conn->cache_state, ==, RXRPC_CONN_CLIENT_IDLE);
 
 			trace_rxrpc_client(conn, -1, rxrpc_client_discard);
@@ -1200,12 +1956,24 @@ void rxrpc_clean_up_local_conns(struct rxrpc_local *local)
 	rxnet->nr_active_client_conns = nr_active;
 	spin_unlock(&rxnet->client_conn_cache_lock);
 	ASSERTCMP(nr_active, >=, 0);
+=======
+			trace_rxrpc_client(conn, -1, rxrpc_client_discard);
+			list_move(&conn->cache_link, &graveyard);
+		}
+	}
+
+	spin_unlock(&rxnet->client_conn_cache_lock);
+>>>>>>> upstream/android-13
 
 	while (!list_empty(&graveyard)) {
 		conn = list_entry(graveyard.next,
 				  struct rxrpc_connection, cache_link);
 		list_del_init(&conn->cache_link);
+<<<<<<< HEAD
 
+=======
+		rxrpc_unbundle_conn(conn);
+>>>>>>> upstream/android-13
 		rxrpc_put_connection(conn);
 	}
 

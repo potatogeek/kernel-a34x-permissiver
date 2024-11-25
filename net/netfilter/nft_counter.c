@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2008-2009 Patrick McHardy <kaber@trash.net>
  *
@@ -5,6 +6,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2008-2009 Patrick McHardy <kaber@trash.net>
+ *
+>>>>>>> upstream/android-13
  * Development of this code funded by Astaro AG (http://www.astaro.com/)
  */
 
@@ -16,6 +23,10 @@
 #include <linux/netfilter.h>
 #include <linux/netfilter/nf_tables.h>
 #include <net/netfilter/nf_tables.h>
+<<<<<<< HEAD
+=======
+#include <net/netfilter/nf_tables_offload.h>
+>>>>>>> upstream/android-13
 
 struct nft_counter {
 	s64		bytes;
@@ -104,7 +115,11 @@ static void nft_counter_obj_destroy(const struct nft_ctx *ctx,
 	nft_counter_do_destroy(priv);
 }
 
+<<<<<<< HEAD
 static void nft_counter_reset(struct nft_counter_percpu_priv __percpu *priv,
+=======
+static void nft_counter_reset(struct nft_counter_percpu_priv *priv,
+>>>>>>> upstream/android-13
 			      struct nft_counter *total)
 {
 	struct nft_counter *this_cpu;
@@ -251,6 +266,35 @@ static int nft_counter_clone(struct nft_expr *dst, const struct nft_expr *src)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int nft_counter_offload(struct nft_offload_ctx *ctx,
+			       struct nft_flow_rule *flow,
+			       const struct nft_expr *expr)
+{
+	/* No specific offload action is needed, but report success. */
+	return 0;
+}
+
+static void nft_counter_offload_stats(struct nft_expr *expr,
+				      const struct flow_stats *stats)
+{
+	struct nft_counter_percpu_priv *priv = nft_expr_priv(expr);
+	struct nft_counter *this_cpu;
+	seqcount_t *myseq;
+
+	preempt_disable();
+	this_cpu = this_cpu_ptr(priv->counter);
+	myseq = this_cpu_ptr(&nft_counter_seq);
+
+	write_seqcount_begin(myseq);
+	this_cpu->packets += stats->pkts;
+	this_cpu->bytes += stats->bytes;
+	write_seqcount_end(myseq);
+	preempt_enable();
+}
+
+>>>>>>> upstream/android-13
 static struct nft_expr_type nft_counter_type;
 static const struct nft_expr_ops nft_counter_ops = {
 	.type		= &nft_counter_type,
@@ -261,6 +305,11 @@ static const struct nft_expr_ops nft_counter_ops = {
 	.destroy_clone	= nft_counter_destroy,
 	.dump		= nft_counter_dump,
 	.clone		= nft_counter_clone,
+<<<<<<< HEAD
+=======
+	.offload	= nft_counter_offload,
+	.offload_stats	= nft_counter_offload_stats,
+>>>>>>> upstream/android-13
 };
 
 static struct nft_expr_type nft_counter_type __read_mostly = {
@@ -306,3 +355,7 @@ MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Patrick McHardy <kaber@trash.net>");
 MODULE_ALIAS_NFT_EXPR("counter");
 MODULE_ALIAS_NFT_OBJ(NFT_OBJECT_COUNTER);
+<<<<<<< HEAD
+=======
+MODULE_DESCRIPTION("nftables counter rule support");
+>>>>>>> upstream/android-13

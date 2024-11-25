@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * MPC85xx DS Board Setup
  *
@@ -5,11 +9,14 @@
  * Roy Zang <tie-fei.zang@freescale.com>
  * 	- Add PCI/PCI Exprees support
  * Copyright 2007 Freescale Semiconductor Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/stddef.h>
@@ -174,10 +181,13 @@ machine_arch_initcall(mpc8544_ds, mpc85xx_common_publish_devices);
 machine_arch_initcall(mpc8572_ds, mpc85xx_common_publish_devices);
 machine_arch_initcall(p2020_ds, mpc85xx_common_publish_devices);
 
+<<<<<<< HEAD
 machine_arch_initcall(mpc8544_ds, swiotlb_setup_bus_notifier);
 machine_arch_initcall(mpc8572_ds, swiotlb_setup_bus_notifier);
 machine_arch_initcall(p2020_ds, swiotlb_setup_bus_notifier);
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Called very early, device-tree isn't unflattened
  */

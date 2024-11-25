@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Configfs interface for the NVMe target.
  * Copyright (c) 2015-2016 HGST, a Western Digital Company.
@@ -10,6 +11,12 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Configfs interface for the NVMe target.
+ * Copyright (c) 2015-2016 HGST, a Western Digital Company.
+>>>>>>> upstream/android-13
  */
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 #include <linux/kernel.h>
@@ -17,12 +24,18 @@
 #include <linux/slab.h>
 #include <linux/stat.h>
 #include <linux/ctype.h>
+<<<<<<< HEAD
+=======
+#include <linux/pci.h>
+#include <linux/pci-p2pdma.h>
+>>>>>>> upstream/android-13
 
 #include "nvmet.h"
 
 static const struct config_item_type nvmet_host_type;
 static const struct config_item_type nvmet_subsys_type;
 
+<<<<<<< HEAD
 static const struct nvmet_transport_name {
 	u8		type;
 	const char	*name;
@@ -32,10 +45,45 @@ static const struct nvmet_transport_name {
 	{ NVMF_TRTYPE_LOOP,	"loop" },
 };
 
+=======
+static LIST_HEAD(nvmet_ports_list);
+struct list_head *nvmet_ports = &nvmet_ports_list;
+
+struct nvmet_type_name_map {
+	u8		type;
+	const char	*name;
+};
+
+static struct nvmet_type_name_map nvmet_transport[] = {
+	{ NVMF_TRTYPE_RDMA,	"rdma" },
+	{ NVMF_TRTYPE_FC,	"fc" },
+	{ NVMF_TRTYPE_TCP,	"tcp" },
+	{ NVMF_TRTYPE_LOOP,	"loop" },
+};
+
+static const struct nvmet_type_name_map nvmet_addr_family[] = {
+	{ NVMF_ADDR_FAMILY_PCI,		"pcie" },
+	{ NVMF_ADDR_FAMILY_IP4,		"ipv4" },
+	{ NVMF_ADDR_FAMILY_IP6,		"ipv6" },
+	{ NVMF_ADDR_FAMILY_IB,		"ib" },
+	{ NVMF_ADDR_FAMILY_FC,		"fc" },
+	{ NVMF_ADDR_FAMILY_LOOP,	"loop" },
+};
+
+static bool nvmet_is_port_enabled(struct nvmet_port *p, const char *caller)
+{
+	if (p->enabled)
+		pr_err("Disable port '%u' before changing attribute in %s\n",
+		       le16_to_cpu(p->disc_addr.portid), caller);
+	return p->enabled;
+}
+
+>>>>>>> upstream/android-13
 /*
  * nvmet_port Generic ConfigFS definitions.
  * Used in any place in the ConfigFS tree that refers to an address.
  */
+<<<<<<< HEAD
 static ssize_t nvmet_addr_adrfam_show(struct config_item *item,
 		char *page)
 {
@@ -51,12 +99,26 @@ static ssize_t nvmet_addr_adrfam_show(struct config_item *item,
 	default:
 		return sprintf(page, "\n");
 	}
+=======
+static ssize_t nvmet_addr_adrfam_show(struct config_item *item, char *page)
+{
+	u8 adrfam = to_nvmet_port(item)->disc_addr.adrfam;
+	int i;
+
+	for (i = 1; i < ARRAY_SIZE(nvmet_addr_family); i++) {
+		if (nvmet_addr_family[i].type == adrfam)
+			return sprintf(page, "%s\n", nvmet_addr_family[i].name);
+	}
+
+	return sprintf(page, "\n");
+>>>>>>> upstream/android-13
 }
 
 static ssize_t nvmet_addr_adrfam_store(struct config_item *item,
 		const char *page, size_t count)
 {
 	struct nvmet_port *port = to_nvmet_port(item);
+<<<<<<< HEAD
 
 	if (port->enabled) {
 		pr_err("Cannot modify address while enabled\n");
@@ -77,6 +139,23 @@ static ssize_t nvmet_addr_adrfam_store(struct config_item *item,
 		return -EINVAL;
 	}
 
+=======
+	int i;
+
+	if (nvmet_is_port_enabled(port, __func__))
+		return -EACCES;
+
+	for (i = 1; i < ARRAY_SIZE(nvmet_addr_family); i++) {
+		if (sysfs_streq(page, nvmet_addr_family[i].name))
+			goto found;
+	}
+
+	pr_err("Invalid value '%s' for adrfam\n", page);
+	return -EINVAL;
+
+found:
+	port->disc_addr.adrfam = nvmet_addr_family[i].type;
+>>>>>>> upstream/android-13
 	return count;
 }
 
@@ -102,11 +181,17 @@ static ssize_t nvmet_addr_portid_store(struct config_item *item,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	if (port->enabled) {
 		pr_err("Cannot modify address while enabled\n");
 		pr_err("Disable the address before modifying\n");
 		return -EACCES;
 	}
+=======
+	if (nvmet_is_port_enabled(port, __func__))
+		return -EACCES;
+
+>>>>>>> upstream/android-13
 	port->disc_addr.portid = cpu_to_le16(portid);
 	return count;
 }
@@ -132,11 +217,16 @@ static ssize_t nvmet_addr_traddr_store(struct config_item *item,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	if (port->enabled) {
 		pr_err("Cannot modify address while enabled\n");
 		pr_err("Disable the address before modifying\n");
 		return -EACCES;
 	}
+=======
+	if (nvmet_is_port_enabled(port, __func__))
+		return -EACCES;
+>>>>>>> upstream/android-13
 
 	if (sscanf(page, "%s\n", port->disc_addr.traddr) != 1)
 		return -EINVAL;
@@ -145,6 +235,7 @@ static ssize_t nvmet_addr_traddr_store(struct config_item *item,
 
 CONFIGFS_ATTR(nvmet_, addr_traddr);
 
+<<<<<<< HEAD
 static ssize_t nvmet_addr_treq_show(struct config_item *item,
 		char *page)
 {
@@ -158,12 +249,33 @@ static ssize_t nvmet_addr_treq_show(struct config_item *item,
 	default:
 		return sprintf(page, "\n");
 	}
+=======
+static const struct nvmet_type_name_map nvmet_addr_treq[] = {
+	{ NVMF_TREQ_NOT_SPECIFIED,	"not specified" },
+	{ NVMF_TREQ_REQUIRED,		"required" },
+	{ NVMF_TREQ_NOT_REQUIRED,	"not required" },
+};
+
+static ssize_t nvmet_addr_treq_show(struct config_item *item, char *page)
+{
+	u8 treq = to_nvmet_port(item)->disc_addr.treq &
+		NVME_TREQ_SECURE_CHANNEL_MASK;
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(nvmet_addr_treq); i++) {
+		if (treq == nvmet_addr_treq[i].type)
+			return sprintf(page, "%s\n", nvmet_addr_treq[i].name);
+	}
+
+	return sprintf(page, "\n");
+>>>>>>> upstream/android-13
 }
 
 static ssize_t nvmet_addr_treq_store(struct config_item *item,
 		const char *page, size_t count)
 {
 	struct nvmet_port *port = to_nvmet_port(item);
+<<<<<<< HEAD
 
 	if (port->enabled) {
 		pr_err("Cannot modify address while enabled\n");
@@ -182,6 +294,25 @@ static ssize_t nvmet_addr_treq_store(struct config_item *item,
 		return -EINVAL;
 	}
 
+=======
+	u8 treq = port->disc_addr.treq & ~NVME_TREQ_SECURE_CHANNEL_MASK;
+	int i;
+
+	if (nvmet_is_port_enabled(port, __func__))
+		return -EACCES;
+
+	for (i = 0; i < ARRAY_SIZE(nvmet_addr_treq); i++) {
+		if (sysfs_streq(page, nvmet_addr_treq[i].name))
+			goto found;
+	}
+
+	pr_err("Invalid value '%s' for treq\n", page);
+	return -EINVAL;
+
+found:
+	treq |= nvmet_addr_treq[i].type;
+	port->disc_addr.treq = treq;
+>>>>>>> upstream/android-13
 	return count;
 }
 
@@ -205,11 +336,16 @@ static ssize_t nvmet_addr_trsvcid_store(struct config_item *item,
 		pr_err("Invalid value '%s' for trsvcid\n", page);
 		return -EINVAL;
 	}
+<<<<<<< HEAD
 	if (port->enabled) {
 		pr_err("Cannot modify address while enabled\n");
 		pr_err("Disable the address before modifying\n");
 		return -EACCES;
 	}
+=======
+	if (nvmet_is_port_enabled(port, __func__))
+		return -EACCES;
+>>>>>>> upstream/android-13
 
 	if (sscanf(page, "%s\n", port->disc_addr.trsvcid) != 1)
 		return -EINVAL;
@@ -232,11 +368,16 @@ static ssize_t nvmet_param_inline_data_size_store(struct config_item *item,
 	struct nvmet_port *port = to_nvmet_port(item);
 	int ret;
 
+<<<<<<< HEAD
 	if (port->enabled) {
 		pr_err("Cannot modify inline_data_size while port enabled\n");
 		pr_err("Disable the port before modifying\n");
 		return -EACCES;
 	}
+=======
+	if (nvmet_is_port_enabled(port, __func__))
+		return -EACCES;
+>>>>>>> upstream/android-13
 	ret = kstrtoint(page, 0, &port->inline_data_size);
 	if (ret) {
 		pr_err("Invalid value '%s' for inline_data_size\n", page);
@@ -247,16 +388,53 @@ static ssize_t nvmet_param_inline_data_size_store(struct config_item *item,
 
 CONFIGFS_ATTR(nvmet_, param_inline_data_size);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_BLK_DEV_INTEGRITY
+static ssize_t nvmet_param_pi_enable_show(struct config_item *item,
+		char *page)
+{
+	struct nvmet_port *port = to_nvmet_port(item);
+
+	return snprintf(page, PAGE_SIZE, "%d\n", port->pi_enable);
+}
+
+static ssize_t nvmet_param_pi_enable_store(struct config_item *item,
+		const char *page, size_t count)
+{
+	struct nvmet_port *port = to_nvmet_port(item);
+	bool val;
+
+	if (strtobool(page, &val))
+		return -EINVAL;
+
+	if (nvmet_is_port_enabled(port, __func__))
+		return -EACCES;
+
+	port->pi_enable = val;
+	return count;
+}
+
+CONFIGFS_ATTR(nvmet_, param_pi_enable);
+#endif
+
+>>>>>>> upstream/android-13
 static ssize_t nvmet_addr_trtype_show(struct config_item *item,
 		char *page)
 {
 	struct nvmet_port *port = to_nvmet_port(item);
 	int i;
 
+<<<<<<< HEAD
 	for (i = 0; i < ARRAY_SIZE(nvmet_transport_names); i++) {
 		if (port->disc_addr.trtype != nvmet_transport_names[i].type)
 			continue;
 		return sprintf(page, "%s\n", nvmet_transport_names[i].name);
+=======
+	for (i = 0; i < ARRAY_SIZE(nvmet_transport); i++) {
+		if (port->disc_addr.trtype == nvmet_transport[i].type)
+			return sprintf(page, "%s\n", nvmet_transport[i].name);
+>>>>>>> upstream/android-13
 	}
 
 	return sprintf(page, "\n");
@@ -275,6 +453,7 @@ static ssize_t nvmet_addr_trtype_store(struct config_item *item,
 	struct nvmet_port *port = to_nvmet_port(item);
 	int i;
 
+<<<<<<< HEAD
 	if (port->enabled) {
 		pr_err("Cannot modify address while enabled\n");
 		pr_err("Disable the address before modifying\n");
@@ -283,14 +462,28 @@ static ssize_t nvmet_addr_trtype_store(struct config_item *item,
 
 	for (i = 0; i < ARRAY_SIZE(nvmet_transport_names); i++) {
 		if (sysfs_streq(page, nvmet_transport_names[i].name))
+=======
+	if (nvmet_is_port_enabled(port, __func__))
+		return -EACCES;
+
+	for (i = 0; i < ARRAY_SIZE(nvmet_transport); i++) {
+		if (sysfs_streq(page, nvmet_transport[i].name))
+>>>>>>> upstream/android-13
 			goto found;
 	}
 
 	pr_err("Invalid value '%s' for trtype\n", page);
 	return -EINVAL;
+<<<<<<< HEAD
 found:
 	memset(&port->disc_addr.tsas, 0, NVMF_TSAS_SIZE);
 	port->disc_addr.trtype = nvmet_transport_names[i].type;
+=======
+
+found:
+	memset(&port->disc_addr.tsas, 0, NVMF_TSAS_SIZE);
+	port->disc_addr.trtype = nvmet_transport[i].type;
+>>>>>>> upstream/android-13
 	if (port->disc_addr.trtype == NVMF_TRTYPE_RDMA)
 		nvmet_port_init_tsas_rdma(port);
 	return count;
@@ -326,7 +519,11 @@ static ssize_t nvmet_ns_device_path_store(struct config_item *item,
 
 	kfree(ns->device_path);
 	ret = -ENOMEM;
+<<<<<<< HEAD
 	ns->device_path = kstrndup(page, len, GFP_KERNEL);
+=======
+	ns->device_path = kmemdup_nul(page, len, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!ns->device_path)
 		goto out_unlock;
 
@@ -340,6 +537,51 @@ out_unlock:
 
 CONFIGFS_ATTR(nvmet_ns_, device_path);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PCI_P2PDMA
+static ssize_t nvmet_ns_p2pmem_show(struct config_item *item, char *page)
+{
+	struct nvmet_ns *ns = to_nvmet_ns(item);
+
+	return pci_p2pdma_enable_show(page, ns->p2p_dev, ns->use_p2pmem);
+}
+
+static ssize_t nvmet_ns_p2pmem_store(struct config_item *item,
+		const char *page, size_t count)
+{
+	struct nvmet_ns *ns = to_nvmet_ns(item);
+	struct pci_dev *p2p_dev = NULL;
+	bool use_p2pmem;
+	int ret = count;
+	int error;
+
+	mutex_lock(&ns->subsys->lock);
+	if (ns->enabled) {
+		ret = -EBUSY;
+		goto out_unlock;
+	}
+
+	error = pci_p2pdma_enable_store(page, &p2p_dev, &use_p2pmem);
+	if (error) {
+		ret = error;
+		goto out_unlock;
+	}
+
+	ns->use_p2pmem = use_p2pmem;
+	pci_dev_put(ns->p2p_dev);
+	ns->p2p_dev = p2p_dev;
+
+out_unlock:
+	mutex_unlock(&ns->subsys->lock);
+
+	return ret;
+}
+
+CONFIGFS_ATTR(nvmet_ns_, p2pmem);
+#endif /* CONFIG_PCI_P2PDMA */
+
+>>>>>>> upstream/android-13
 static ssize_t nvmet_ns_device_uuid_show(struct config_item *item, char *page)
 {
 	return sprintf(page, "%pUb\n", &to_nvmet_ns(item)->uuid);
@@ -352,14 +594,20 @@ static ssize_t nvmet_ns_device_uuid_store(struct config_item *item,
 	struct nvmet_subsys *subsys = ns->subsys;
 	int ret = 0;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	mutex_lock(&subsys->lock);
 	if (ns->enabled) {
 		ret = -EBUSY;
 		goto out_unlock;
 	}
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	if (uuid_parse(page, &ns->uuid))
 		ret = -EINVAL;
 
@@ -502,6 +750,34 @@ static ssize_t nvmet_ns_buffered_io_store(struct config_item *item,
 
 CONFIGFS_ATTR(nvmet_ns_, buffered_io);
 
+<<<<<<< HEAD
+=======
+static ssize_t nvmet_ns_revalidate_size_store(struct config_item *item,
+		const char *page, size_t count)
+{
+	struct nvmet_ns *ns = to_nvmet_ns(item);
+	bool val;
+
+	if (strtobool(page, &val))
+		return -EINVAL;
+
+	if (!val)
+		return -EINVAL;
+
+	mutex_lock(&ns->subsys->lock);
+	if (!ns->enabled) {
+		pr_err("enable ns before revalidate.\n");
+		mutex_unlock(&ns->subsys->lock);
+		return -EINVAL;
+	}
+	nvmet_ns_revalidate(ns);
+	mutex_unlock(&ns->subsys->lock);
+	return count;
+}
+
+CONFIGFS_ATTR_WO(nvmet_ns_, revalidate_size);
+
+>>>>>>> upstream/android-13
 static struct configfs_attribute *nvmet_ns_attrs[] = {
 	&nvmet_ns_attr_device_path,
 	&nvmet_ns_attr_device_nguid,
@@ -509,6 +785,13 @@ static struct configfs_attribute *nvmet_ns_attrs[] = {
 	&nvmet_ns_attr_ana_grpid,
 	&nvmet_ns_attr_enable,
 	&nvmet_ns_attr_buffered_io,
+<<<<<<< HEAD
+=======
+	&nvmet_ns_attr_revalidate_size,
+#ifdef CONFIG_PCI_P2PDMA
+	&nvmet_ns_attr_p2pmem,
+#endif
+>>>>>>> upstream/android-13
 	NULL,
 };
 
@@ -542,8 +825,15 @@ static struct config_group *nvmet_ns_make(struct config_group *group,
 		goto out;
 
 	ret = -EINVAL;
+<<<<<<< HEAD
 	if (nsid == 0 || nsid == NVME_NSID_ALL)
 		goto out;
+=======
+	if (nsid == 0 || nsid == NVME_NSID_ALL) {
+		pr_err("invalid nsid %#x", nsid);
+		goto out;
+	}
+>>>>>>> upstream/android-13
 
 	ret = -ENOMEM;
 	ns = nvmet_ns_alloc(subsys, nsid);
@@ -567,6 +857,146 @@ static const struct config_item_type nvmet_namespaces_type = {
 	.ct_owner		= THIS_MODULE,
 };
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_NVME_TARGET_PASSTHRU
+
+static ssize_t nvmet_passthru_device_path_show(struct config_item *item,
+		char *page)
+{
+	struct nvmet_subsys *subsys = to_subsys(item->ci_parent);
+
+	return snprintf(page, PAGE_SIZE, "%s\n", subsys->passthru_ctrl_path);
+}
+
+static ssize_t nvmet_passthru_device_path_store(struct config_item *item,
+		const char *page, size_t count)
+{
+	struct nvmet_subsys *subsys = to_subsys(item->ci_parent);
+	size_t len;
+	int ret;
+
+	mutex_lock(&subsys->lock);
+
+	ret = -EBUSY;
+	if (subsys->passthru_ctrl)
+		goto out_unlock;
+
+	ret = -EINVAL;
+	len = strcspn(page, "\n");
+	if (!len)
+		goto out_unlock;
+
+	kfree(subsys->passthru_ctrl_path);
+	ret = -ENOMEM;
+	subsys->passthru_ctrl_path = kstrndup(page, len, GFP_KERNEL);
+	if (!subsys->passthru_ctrl_path)
+		goto out_unlock;
+
+	mutex_unlock(&subsys->lock);
+
+	return count;
+out_unlock:
+	mutex_unlock(&subsys->lock);
+	return ret;
+}
+CONFIGFS_ATTR(nvmet_passthru_, device_path);
+
+static ssize_t nvmet_passthru_enable_show(struct config_item *item,
+		char *page)
+{
+	struct nvmet_subsys *subsys = to_subsys(item->ci_parent);
+
+	return sprintf(page, "%d\n", subsys->passthru_ctrl ? 1 : 0);
+}
+
+static ssize_t nvmet_passthru_enable_store(struct config_item *item,
+		const char *page, size_t count)
+{
+	struct nvmet_subsys *subsys = to_subsys(item->ci_parent);
+	bool enable;
+	int ret = 0;
+
+	if (strtobool(page, &enable))
+		return -EINVAL;
+
+	if (enable)
+		ret = nvmet_passthru_ctrl_enable(subsys);
+	else
+		nvmet_passthru_ctrl_disable(subsys);
+
+	return ret ? ret : count;
+}
+CONFIGFS_ATTR(nvmet_passthru_, enable);
+
+static ssize_t nvmet_passthru_admin_timeout_show(struct config_item *item,
+		char *page)
+{
+	return sprintf(page, "%u\n", to_subsys(item->ci_parent)->admin_timeout);
+}
+
+static ssize_t nvmet_passthru_admin_timeout_store(struct config_item *item,
+		const char *page, size_t count)
+{
+	struct nvmet_subsys *subsys = to_subsys(item->ci_parent);
+	unsigned int timeout;
+
+	if (kstrtouint(page, 0, &timeout))
+		return -EINVAL;
+	subsys->admin_timeout = timeout;
+	return count;
+}
+CONFIGFS_ATTR(nvmet_passthru_, admin_timeout);
+
+static ssize_t nvmet_passthru_io_timeout_show(struct config_item *item,
+		char *page)
+{
+	return sprintf(page, "%u\n", to_subsys(item->ci_parent)->io_timeout);
+}
+
+static ssize_t nvmet_passthru_io_timeout_store(struct config_item *item,
+		const char *page, size_t count)
+{
+	struct nvmet_subsys *subsys = to_subsys(item->ci_parent);
+	unsigned int timeout;
+
+	if (kstrtouint(page, 0, &timeout))
+		return -EINVAL;
+	subsys->io_timeout = timeout;
+	return count;
+}
+CONFIGFS_ATTR(nvmet_passthru_, io_timeout);
+
+static struct configfs_attribute *nvmet_passthru_attrs[] = {
+	&nvmet_passthru_attr_device_path,
+	&nvmet_passthru_attr_enable,
+	&nvmet_passthru_attr_admin_timeout,
+	&nvmet_passthru_attr_io_timeout,
+	NULL,
+};
+
+static const struct config_item_type nvmet_passthru_type = {
+	.ct_attrs		= nvmet_passthru_attrs,
+	.ct_owner		= THIS_MODULE,
+};
+
+static void nvmet_add_passthru_group(struct nvmet_subsys *subsys)
+{
+	config_group_init_type_name(&subsys->passthru_group,
+				    "passthru", &nvmet_passthru_type);
+	configfs_add_default_group(&subsys->passthru_group,
+				   &subsys->group);
+}
+
+#else /* CONFIG_NVME_TARGET_PASSTHRU */
+
+static void nvmet_add_passthru_group(struct nvmet_subsys *subsys)
+{
+}
+
+#endif /* CONFIG_NVME_TARGET_PASSTHRU */
+
+>>>>>>> upstream/android-13
 static int nvmet_port_subsys_allow_link(struct config_item *parent,
 		struct config_item *target)
 {
@@ -599,7 +1029,12 @@ static int nvmet_port_subsys_allow_link(struct config_item *parent,
 	}
 
 	list_add_tail(&link->entry, &port->subsystems);
+<<<<<<< HEAD
 	nvmet_genctr++;
+=======
+	nvmet_port_disc_changed(port, subsys);
+
+>>>>>>> upstream/android-13
 	up_write(&nvmet_config_sem);
 	return 0;
 
@@ -626,7 +1061,13 @@ static void nvmet_port_subsys_drop_link(struct config_item *parent,
 
 found:
 	list_del(&p->entry);
+<<<<<<< HEAD
 	nvmet_genctr++;
+=======
+	nvmet_port_del_ctrls(port, subsys);
+	nvmet_port_disc_changed(port, subsys);
+
+>>>>>>> upstream/android-13
 	if (list_empty(&port->subsystems))
 		nvmet_disable_port(port);
 	up_write(&nvmet_config_sem);
@@ -675,7 +1116,12 @@ static int nvmet_allowed_hosts_allow_link(struct config_item *parent,
 			goto out_free_link;
 	}
 	list_add_tail(&link->entry, &subsys->hosts);
+<<<<<<< HEAD
 	nvmet_genctr++;
+=======
+	nvmet_subsys_disc_changed(subsys, host);
+
+>>>>>>> upstream/android-13
 	up_write(&nvmet_config_sem);
 	return 0;
 out_free_link:
@@ -701,7 +1147,12 @@ static void nvmet_allowed_hosts_drop_link(struct config_item *parent,
 
 found:
 	list_del(&p->entry);
+<<<<<<< HEAD
 	nvmet_genctr++;
+=======
+	nvmet_subsys_disc_changed(subsys, host);
+
+>>>>>>> upstream/android-13
 	up_write(&nvmet_config_sem);
 	kfree(p);
 }
@@ -740,7 +1191,15 @@ static ssize_t nvmet_subsys_attr_allow_any_host_store(struct config_item *item,
 		goto out_unlock;
 	}
 
+<<<<<<< HEAD
 	subsys->allow_any_host = allow_any_host;
+=======
+	if (subsys->allow_any_host != allow_any_host) {
+		subsys->allow_any_host = allow_any_host;
+		nvmet_subsys_disc_changed(subsys, NULL);
+	}
+
+>>>>>>> upstream/android-13
 out_unlock:
 	up_write(&nvmet_config_sem);
 	return ret ? ret : count;
@@ -754,6 +1213,7 @@ static ssize_t nvmet_subsys_attr_version_show(struct config_item *item,
 	struct nvmet_subsys *subsys = to_subsys(item);
 
 	if (NVME_TERTIARY(subsys->ver))
+<<<<<<< HEAD
 		return snprintf(page, PAGE_SIZE, "%d.%d.%d\n",
 				(int)NVME_MAJOR(subsys->ver),
 				(int)NVME_MINOR(subsys->ver),
@@ -762,12 +1222,56 @@ static ssize_t nvmet_subsys_attr_version_show(struct config_item *item,
 		return snprintf(page, PAGE_SIZE, "%d.%d\n",
 				(int)NVME_MAJOR(subsys->ver),
 				(int)NVME_MINOR(subsys->ver));
+=======
+		return snprintf(page, PAGE_SIZE, "%llu.%llu.%llu\n",
+				NVME_MAJOR(subsys->ver),
+				NVME_MINOR(subsys->ver),
+				NVME_TERTIARY(subsys->ver));
+
+	return snprintf(page, PAGE_SIZE, "%llu.%llu\n",
+			NVME_MAJOR(subsys->ver),
+			NVME_MINOR(subsys->ver));
+}
+
+static ssize_t
+nvmet_subsys_attr_version_store_locked(struct nvmet_subsys *subsys,
+		const char *page, size_t count)
+{
+	int major, minor, tertiary = 0;
+	int ret;
+
+	if (subsys->subsys_discovered) {
+		if (NVME_TERTIARY(subsys->ver))
+			pr_err("Can't set version number. %llu.%llu.%llu is already assigned\n",
+			       NVME_MAJOR(subsys->ver),
+			       NVME_MINOR(subsys->ver),
+			       NVME_TERTIARY(subsys->ver));
+		else
+			pr_err("Can't set version number. %llu.%llu is already assigned\n",
+			       NVME_MAJOR(subsys->ver),
+			       NVME_MINOR(subsys->ver));
+		return -EINVAL;
+	}
+
+	/* passthru subsystems use the underlying controller's version */
+	if (nvmet_is_passthru_subsys(subsys))
+		return -EINVAL;
+
+	ret = sscanf(page, "%d.%d.%d\n", &major, &minor, &tertiary);
+	if (ret != 2 && ret != 3)
+		return -EINVAL;
+
+	subsys->ver = NVME_VS(major, minor, tertiary);
+
+	return count;
+>>>>>>> upstream/android-13
 }
 
 static ssize_t nvmet_subsys_attr_version_store(struct config_item *item,
 					       const char *page, size_t count)
 {
 	struct nvmet_subsys *subsys = to_subsys(item);
+<<<<<<< HEAD
 	int major, minor, tertiary = 0;
 	int ret;
 
@@ -784,18 +1288,74 @@ static ssize_t nvmet_subsys_attr_version_store(struct config_item *item,
 }
 CONFIGFS_ATTR(nvmet_subsys_, attr_version);
 
+=======
+	ssize_t ret;
+
+	down_write(&nvmet_config_sem);
+	mutex_lock(&subsys->lock);
+	ret = nvmet_subsys_attr_version_store_locked(subsys, page, count);
+	mutex_unlock(&subsys->lock);
+	up_write(&nvmet_config_sem);
+
+	return ret;
+}
+CONFIGFS_ATTR(nvmet_subsys_, attr_version);
+
+/* See Section 1.5 of NVMe 1.4 */
+static bool nvmet_is_ascii(const char c)
+{
+	return c >= 0x20 && c <= 0x7e;
+}
+
+>>>>>>> upstream/android-13
 static ssize_t nvmet_subsys_attr_serial_show(struct config_item *item,
 					     char *page)
 {
 	struct nvmet_subsys *subsys = to_subsys(item);
 
+<<<<<<< HEAD
 	return snprintf(page, PAGE_SIZE, "%llx\n", subsys->serial);
+=======
+	return snprintf(page, PAGE_SIZE, "%.*s\n",
+			NVMET_SN_MAX_SIZE, subsys->serial);
+}
+
+static ssize_t
+nvmet_subsys_attr_serial_store_locked(struct nvmet_subsys *subsys,
+		const char *page, size_t count)
+{
+	int pos, len = strcspn(page, "\n");
+
+	if (subsys->subsys_discovered) {
+		pr_err("Can't set serial number. %s is already assigned\n",
+		       subsys->serial);
+		return -EINVAL;
+	}
+
+	if (!len || len > NVMET_SN_MAX_SIZE) {
+		pr_err("Serial Number can not be empty or exceed %d Bytes\n",
+		       NVMET_SN_MAX_SIZE);
+		return -EINVAL;
+	}
+
+	for (pos = 0; pos < len; pos++) {
+		if (!nvmet_is_ascii(page[pos])) {
+			pr_err("Serial Number must contain only ASCII strings\n");
+			return -EINVAL;
+		}
+	}
+
+	memcpy_and_pad(subsys->serial, NVMET_SN_MAX_SIZE, page, len, ' ');
+
+	return count;
+>>>>>>> upstream/android-13
 }
 
 static ssize_t nvmet_subsys_attr_serial_store(struct config_item *item,
 					      const char *page, size_t count)
 {
 	struct nvmet_subsys *subsys = to_subsys(item);
+<<<<<<< HEAD
 
 	down_write(&nvmet_config_sem);
 	sscanf(page, "%llx\n", &subsys->serial);
@@ -805,10 +1365,171 @@ static ssize_t nvmet_subsys_attr_serial_store(struct config_item *item,
 }
 CONFIGFS_ATTR(nvmet_subsys_, attr_serial);
 
+=======
+	ssize_t ret;
+
+	down_write(&nvmet_config_sem);
+	mutex_lock(&subsys->lock);
+	ret = nvmet_subsys_attr_serial_store_locked(subsys, page, count);
+	mutex_unlock(&subsys->lock);
+	up_write(&nvmet_config_sem);
+
+	return ret;
+}
+CONFIGFS_ATTR(nvmet_subsys_, attr_serial);
+
+static ssize_t nvmet_subsys_attr_cntlid_min_show(struct config_item *item,
+						 char *page)
+{
+	return snprintf(page, PAGE_SIZE, "%u\n", to_subsys(item)->cntlid_min);
+}
+
+static ssize_t nvmet_subsys_attr_cntlid_min_store(struct config_item *item,
+						  const char *page, size_t cnt)
+{
+	u16 cntlid_min;
+
+	if (sscanf(page, "%hu\n", &cntlid_min) != 1)
+		return -EINVAL;
+
+	if (cntlid_min == 0)
+		return -EINVAL;
+
+	down_write(&nvmet_config_sem);
+	if (cntlid_min >= to_subsys(item)->cntlid_max)
+		goto out_unlock;
+	to_subsys(item)->cntlid_min = cntlid_min;
+	up_write(&nvmet_config_sem);
+	return cnt;
+
+out_unlock:
+	up_write(&nvmet_config_sem);
+	return -EINVAL;
+}
+CONFIGFS_ATTR(nvmet_subsys_, attr_cntlid_min);
+
+static ssize_t nvmet_subsys_attr_cntlid_max_show(struct config_item *item,
+						 char *page)
+{
+	return snprintf(page, PAGE_SIZE, "%u\n", to_subsys(item)->cntlid_max);
+}
+
+static ssize_t nvmet_subsys_attr_cntlid_max_store(struct config_item *item,
+						  const char *page, size_t cnt)
+{
+	u16 cntlid_max;
+
+	if (sscanf(page, "%hu\n", &cntlid_max) != 1)
+		return -EINVAL;
+
+	if (cntlid_max == 0)
+		return -EINVAL;
+
+	down_write(&nvmet_config_sem);
+	if (cntlid_max <= to_subsys(item)->cntlid_min)
+		goto out_unlock;
+	to_subsys(item)->cntlid_max = cntlid_max;
+	up_write(&nvmet_config_sem);
+	return cnt;
+
+out_unlock:
+	up_write(&nvmet_config_sem);
+	return -EINVAL;
+}
+CONFIGFS_ATTR(nvmet_subsys_, attr_cntlid_max);
+
+static ssize_t nvmet_subsys_attr_model_show(struct config_item *item,
+					    char *page)
+{
+	struct nvmet_subsys *subsys = to_subsys(item);
+
+	return snprintf(page, PAGE_SIZE, "%s\n", subsys->model_number);
+}
+
+static ssize_t nvmet_subsys_attr_model_store_locked(struct nvmet_subsys *subsys,
+		const char *page, size_t count)
+{
+	int pos = 0, len;
+
+	if (subsys->subsys_discovered) {
+		pr_err("Can't set model number. %s is already assigned\n",
+		       subsys->model_number);
+		return -EINVAL;
+	}
+
+	len = strcspn(page, "\n");
+	if (!len)
+		return -EINVAL;
+
+	if (len > NVMET_MN_MAX_SIZE) {
+		pr_err("Model number size can not exceed %d Bytes\n",
+		       NVMET_MN_MAX_SIZE);
+		return -EINVAL;
+	}
+
+	for (pos = 0; pos < len; pos++) {
+		if (!nvmet_is_ascii(page[pos]))
+			return -EINVAL;
+	}
+
+	subsys->model_number = kmemdup_nul(page, len, GFP_KERNEL);
+	if (!subsys->model_number)
+		return -ENOMEM;
+	return count;
+}
+
+static ssize_t nvmet_subsys_attr_model_store(struct config_item *item,
+					     const char *page, size_t count)
+{
+	struct nvmet_subsys *subsys = to_subsys(item);
+	ssize_t ret;
+
+	down_write(&nvmet_config_sem);
+	mutex_lock(&subsys->lock);
+	ret = nvmet_subsys_attr_model_store_locked(subsys, page, count);
+	mutex_unlock(&subsys->lock);
+	up_write(&nvmet_config_sem);
+
+	return ret;
+}
+CONFIGFS_ATTR(nvmet_subsys_, attr_model);
+
+#ifdef CONFIG_BLK_DEV_INTEGRITY
+static ssize_t nvmet_subsys_attr_pi_enable_show(struct config_item *item,
+						char *page)
+{
+	return snprintf(page, PAGE_SIZE, "%d\n", to_subsys(item)->pi_support);
+}
+
+static ssize_t nvmet_subsys_attr_pi_enable_store(struct config_item *item,
+						 const char *page, size_t count)
+{
+	struct nvmet_subsys *subsys = to_subsys(item);
+	bool pi_enable;
+
+	if (strtobool(page, &pi_enable))
+		return -EINVAL;
+
+	subsys->pi_support = pi_enable;
+	return count;
+}
+CONFIGFS_ATTR(nvmet_subsys_, attr_pi_enable);
+#endif
+
+>>>>>>> upstream/android-13
 static struct configfs_attribute *nvmet_subsys_attrs[] = {
 	&nvmet_subsys_attr_attr_allow_any_host,
 	&nvmet_subsys_attr_attr_version,
 	&nvmet_subsys_attr_attr_serial,
+<<<<<<< HEAD
+=======
+	&nvmet_subsys_attr_attr_cntlid_min,
+	&nvmet_subsys_attr_attr_cntlid_max,
+	&nvmet_subsys_attr_attr_model,
+#ifdef CONFIG_BLK_DEV_INTEGRITY
+	&nvmet_subsys_attr_attr_pi_enable,
+#endif
+>>>>>>> upstream/android-13
 	NULL,
 };
 
@@ -844,8 +1565,13 @@ static struct config_group *nvmet_subsys_make(struct config_group *group,
 	}
 
 	subsys = nvmet_subsys_alloc(name, NVME_NQN_NVME);
+<<<<<<< HEAD
 	if (!subsys)
 		return ERR_PTR(-ENOMEM);
+=======
+	if (IS_ERR(subsys))
+		return ERR_CAST(subsys);
+>>>>>>> upstream/android-13
 
 	config_group_init_type_name(&subsys->group, name, &nvmet_subsys_type);
 
@@ -858,6 +1584,11 @@ static struct config_group *nvmet_subsys_make(struct config_group *group,
 	configfs_add_default_group(&subsys->allowed_hosts_group,
 			&subsys->group);
 
+<<<<<<< HEAD
+=======
+	nvmet_add_passthru_group(subsys);
+
+>>>>>>> upstream/android-13
 	return &subsys->group;
 }
 
@@ -889,7 +1620,11 @@ static ssize_t nvmet_referral_enable_store(struct config_item *item,
 	if (enable)
 		nvmet_referral_enable(parent, port);
 	else
+<<<<<<< HEAD
 		nvmet_referral_disable(port);
+=======
+		nvmet_referral_disable(parent, port);
+>>>>>>> upstream/android-13
 
 	return count;
 inval:
@@ -913,11 +1648,26 @@ static struct configfs_attribute *nvmet_referral_attrs[] = {
 	NULL,
 };
 
+<<<<<<< HEAD
+=======
+static void nvmet_referral_notify(struct config_group *group,
+		struct config_item *item)
+{
+	struct nvmet_port *parent = to_nvmet_port(item->ci_parent->ci_parent);
+	struct nvmet_port *port = to_nvmet_port(item);
+
+	nvmet_referral_disable(parent, port);
+}
+
+>>>>>>> upstream/android-13
 static void nvmet_referral_release(struct config_item *item)
 {
 	struct nvmet_port *port = to_nvmet_port(item);
 
+<<<<<<< HEAD
 	nvmet_referral_disable(port);
+=======
+>>>>>>> upstream/android-13
 	kfree(port);
 }
 
@@ -948,6 +1698,10 @@ static struct config_group *nvmet_referral_make(
 
 static struct configfs_group_operations nvmet_referral_group_ops = {
 	.make_group		= nvmet_referral_make,
+<<<<<<< HEAD
+=======
+	.disconnect_notify	= nvmet_referral_notify,
+>>>>>>> upstream/android-13
 };
 
 static const struct config_item_type nvmet_referrals_type = {
@@ -955,10 +1709,14 @@ static const struct config_item_type nvmet_referrals_type = {
 	.ct_group_ops	= &nvmet_referral_group_ops,
 };
 
+<<<<<<< HEAD
 static struct {
 	enum nvme_ana_state	state;
 	const char		*name;
 } nvmet_ana_state_names[] = {
+=======
+static struct nvmet_type_name_map nvmet_ana_state[] = {
+>>>>>>> upstream/android-13
 	{ NVME_ANA_OPTIMIZED,		"optimized" },
 	{ NVME_ANA_NONOPTIMIZED,	"non-optimized" },
 	{ NVME_ANA_INACCESSIBLE,	"inaccessible" },
@@ -973,10 +1731,16 @@ static ssize_t nvmet_ana_group_ana_state_show(struct config_item *item,
 	enum nvme_ana_state state = grp->port->ana_state[grp->grpid];
 	int i;
 
+<<<<<<< HEAD
 	for (i = 0; i < ARRAY_SIZE(nvmet_ana_state_names); i++) {
 		if (state != nvmet_ana_state_names[i].state)
 			continue;
 		return sprintf(page, "%s\n", nvmet_ana_state_names[i].name);
+=======
+	for (i = 0; i < ARRAY_SIZE(nvmet_ana_state); i++) {
+		if (state == nvmet_ana_state[i].type)
+			return sprintf(page, "%s\n", nvmet_ana_state[i].name);
+>>>>>>> upstream/android-13
 	}
 
 	return sprintf(page, "\n");
@@ -986,10 +1750,18 @@ static ssize_t nvmet_ana_group_ana_state_store(struct config_item *item,
 		const char *page, size_t count)
 {
 	struct nvmet_ana_group *grp = to_ana_group(item);
+<<<<<<< HEAD
 	int i;
 
 	for (i = 0; i < ARRAY_SIZE(nvmet_ana_state_names); i++) {
 		if (sysfs_streq(page, nvmet_ana_state_names[i].name))
+=======
+	enum nvme_ana_state *ana_state = grp->port->ana_state;
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(nvmet_ana_state); i++) {
+		if (sysfs_streq(page, nvmet_ana_state[i].name))
+>>>>>>> upstream/android-13
 			goto found;
 	}
 
@@ -998,10 +1770,16 @@ static ssize_t nvmet_ana_group_ana_state_store(struct config_item *item,
 
 found:
 	down_write(&nvmet_ana_sem);
+<<<<<<< HEAD
 	grp->port->ana_state[grp->grpid] = nvmet_ana_state_names[i].state;
 	nvmet_ana_chgcnt++;
 	up_write(&nvmet_ana_sem);
 
+=======
+	ana_state[grp->grpid] = (enum nvme_ana_state) nvmet_ana_state[i].type;
+	nvmet_ana_chgcnt++;
+	up_write(&nvmet_ana_sem);
+>>>>>>> upstream/android-13
 	nvmet_port_send_ana_event(grp->port);
 	return count;
 }
@@ -1090,6 +1868,13 @@ static void nvmet_port_release(struct config_item *item)
 {
 	struct nvmet_port *port = to_nvmet_port(item);
 
+<<<<<<< HEAD
+=======
+	/* Let inflight controllers teardown complete */
+	flush_scheduled_work();
+	list_del(&port->global_entry);
+
+>>>>>>> upstream/android-13
 	kfree(port->ana_state);
 	kfree(port);
 }
@@ -1101,6 +1886,12 @@ static struct configfs_attribute *nvmet_port_attrs[] = {
 	&nvmet_attr_addr_trsvcid,
 	&nvmet_attr_addr_trtype,
 	&nvmet_attr_param_inline_data_size,
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_BLK_DEV_INTEGRITY
+	&nvmet_attr_param_pi_enable,
+#endif
+>>>>>>> upstream/android-13
 	NULL,
 };
 
@@ -1142,12 +1933,22 @@ static struct config_group *nvmet_ports_make(struct config_group *group,
 			port->ana_state[i] = NVME_ANA_INACCESSIBLE;
 	}
 
+<<<<<<< HEAD
+=======
+	list_add(&port->global_entry, &nvmet_ports_list);
+
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&port->entry);
 	INIT_LIST_HEAD(&port->subsystems);
 	INIT_LIST_HEAD(&port->referrals);
 	port->inline_data_size = -1;	/* < 0 == let the transport choose */
 
 	port->disc_addr.portid = cpu_to_le16(portid);
+<<<<<<< HEAD
+=======
+	port->disc_addr.adrfam = NVMF_ADDR_FAMILY_MAX;
+	port->disc_addr.treq = NVMF_TREQ_DISABLE_SQFLOW;
+>>>>>>> upstream/android-13
 	config_group_init_type_name(&port->group, name, &nvmet_port_type);
 
 	config_group_init_type_name(&port->subsys_group,

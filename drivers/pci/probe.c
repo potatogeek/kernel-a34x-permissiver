@@ -7,6 +7,10 @@
 #include <linux/delay.h>
 #include <linux/init.h>
 #include <linux/pci.h>
+<<<<<<< HEAD
+=======
+#include <linux/msi.h>
+>>>>>>> upstream/android-13
 #include <linux/of_device.h>
 #include <linux/of_pci.h>
 #include <linux/pci_hotplug.h>
@@ -18,6 +22,10 @@
 #include <linux/hypervisor.h>
 #include <linux/irqdomain.h>
 #include <linux/pm_runtime.h>
+<<<<<<< HEAD
+=======
+#include <linux/bitfield.h>
+>>>>>>> upstream/android-13
 #include "pci.h"
 
 #define CARDBUS_LATENCY_TIMER	176	/* secondary latency timer */
@@ -64,11 +72,14 @@ static struct resource *get_pci_domain_busn_res(int domain_nr)
 	return &r->res;
 }
 
+<<<<<<< HEAD
 static int find_anything(struct device *dev, void *data)
 {
 	return 1;
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Some device drivers need know if PCI is initiated.
  * Basically, we think PCI is not initiated when there
@@ -79,7 +90,11 @@ int no_pci_devices(void)
 	struct device *dev;
 	int no_devices;
 
+<<<<<<< HEAD
 	dev = bus_find_device(&pci_bus_type, NULL, NULL, find_anything);
+=======
+	dev = bus_find_next_device(&pci_bus_type, NULL);
+>>>>>>> upstream/android-13
 	no_devices = (dev == NULL);
 	put_device(dev);
 	return no_devices;
@@ -121,13 +136,21 @@ static u64 pci_size(u64 base, u64 maxbase, u64 mask)
 	 * Get the lowest of them to find the decode size, and from that
 	 * the extent.
 	 */
+<<<<<<< HEAD
 	size = (size & ~(size-1)) - 1;
+=======
+	size = size & ~(size-1);
+>>>>>>> upstream/android-13
 
 	/*
 	 * base == maxbase can be valid only if the BAR has already been
 	 * programmed with all 1s.
 	 */
+<<<<<<< HEAD
 	if (base == maxbase && ((base | size) & mask) != mask)
+=======
+	if (base == maxbase && ((base | (size - 1)) & mask) != mask)
+>>>>>>> upstream/android-13
 		return 0;
 
 	return size;
@@ -169,7 +192,11 @@ static inline unsigned long decode_bar(struct pci_dev *dev, u32 bar)
 #define PCI_COMMAND_DECODE_ENABLE	(PCI_COMMAND_MEMORY | PCI_COMMAND_IO)
 
 /**
+<<<<<<< HEAD
  * pci_read_base - Read a PCI BAR
+=======
+ * __pci_read_base - Read a PCI BAR
+>>>>>>> upstream/android-13
  * @dev: the PCI device
  * @type: type of the BAR
  * @res: resource buffer to be filled in
@@ -278,7 +305,11 @@ int __pci_read_base(struct pci_dev *dev, enum pci_bar_type type,
 			/* Above 32-bit boundary; try to reallocate */
 			res->flags |= IORESOURCE_UNSET;
 			res->start = 0;
+<<<<<<< HEAD
 			res->end = sz64;
+=======
+			res->end = sz64 - 1;
+>>>>>>> upstream/android-13
 			pci_info(dev, "reg 0x%x: can't handle BAR above 4GB (bus address %#010llx)\n",
 				 pos, (unsigned long long)l64);
 			goto out;
@@ -286,7 +317,11 @@ int __pci_read_base(struct pci_dev *dev, enum pci_bar_type type,
 	}
 
 	region.start = l64;
+<<<<<<< HEAD
 	region.end = l64 + sz64;
+=======
+	region.end = l64 + sz64 - 1;
+>>>>>>> upstream/android-13
 
 	pcibios_bus_to_resource(dev->bus, res, &region);
 	pcibios_resource_to_bus(dev->bus, &inverted_region, res);
@@ -317,7 +352,11 @@ fail:
 	res->flags = 0;
 out:
 	if (res->flags)
+<<<<<<< HEAD
 		pci_printk(KERN_DEBUG, dev, "reg 0x%x: %pR\n", pos, res);
+=======
+		pci_info(dev, "reg 0x%x: %pR\n", pos, res);
+>>>>>>> upstream/android-13
 
 	return (res->flags & IORESOURCE_MEM_64) ? 1 : 0;
 }
@@ -348,6 +387,60 @@ static void pci_read_bases(struct pci_dev *dev, unsigned int howmany, int rom)
 	}
 }
 
+<<<<<<< HEAD
+=======
+static void pci_read_bridge_windows(struct pci_dev *bridge)
+{
+	u16 io;
+	u32 pmem, tmp;
+
+	pci_read_config_word(bridge, PCI_IO_BASE, &io);
+	if (!io) {
+		pci_write_config_word(bridge, PCI_IO_BASE, 0xe0f0);
+		pci_read_config_word(bridge, PCI_IO_BASE, &io);
+		pci_write_config_word(bridge, PCI_IO_BASE, 0x0);
+	}
+	if (io)
+		bridge->io_window = 1;
+
+	/*
+	 * DECchip 21050 pass 2 errata: the bridge may miss an address
+	 * disconnect boundary by one PCI data phase.  Workaround: do not
+	 * use prefetching on this device.
+	 */
+	if (bridge->vendor == PCI_VENDOR_ID_DEC && bridge->device == 0x0001)
+		return;
+
+	pci_read_config_dword(bridge, PCI_PREF_MEMORY_BASE, &pmem);
+	if (!pmem) {
+		pci_write_config_dword(bridge, PCI_PREF_MEMORY_BASE,
+					       0xffe0fff0);
+		pci_read_config_dword(bridge, PCI_PREF_MEMORY_BASE, &pmem);
+		pci_write_config_dword(bridge, PCI_PREF_MEMORY_BASE, 0x0);
+	}
+	if (!pmem)
+		return;
+
+	bridge->pref_window = 1;
+
+	if ((pmem & PCI_PREF_RANGE_TYPE_MASK) == PCI_PREF_RANGE_TYPE_64) {
+
+		/*
+		 * Bridge claims to have a 64-bit prefetchable memory
+		 * window; verify that the upper bits are actually
+		 * writable.
+		 */
+		pci_read_config_dword(bridge, PCI_PREF_BASE_UPPER32, &pmem);
+		pci_write_config_dword(bridge, PCI_PREF_BASE_UPPER32,
+				       0xffffffff);
+		pci_read_config_dword(bridge, PCI_PREF_BASE_UPPER32, &tmp);
+		pci_write_config_dword(bridge, PCI_PREF_BASE_UPPER32, pmem);
+		if (tmp)
+			bridge->pref_64_window = 1;
+	}
+}
+
+>>>>>>> upstream/android-13
 static void pci_read_bridge_io(struct pci_bus *child)
 {
 	struct pci_dev *dev = child->self;
@@ -384,7 +477,11 @@ static void pci_read_bridge_io(struct pci_bus *child)
 		region.start = base;
 		region.end = limit + io_granularity - 1;
 		pcibios_bus_to_resource(dev->bus, res, &region);
+<<<<<<< HEAD
 		pci_printk(KERN_DEBUG, dev, "  bridge window %pR\n", res);
+=======
+		pci_info(dev, "  bridge window %pR\n", res);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -406,7 +503,11 @@ static void pci_read_bridge_mmio(struct pci_bus *child)
 		region.start = base;
 		region.end = limit + 0xfffff;
 		pcibios_bus_to_resource(dev->bus, res, &region);
+<<<<<<< HEAD
 		pci_printk(KERN_DEBUG, dev, "  bridge window %pR\n", res);
+=======
+		pci_info(dev, "  bridge window %pR\n", res);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -459,7 +560,11 @@ static void pci_read_bridge_mmio_pref(struct pci_bus *child)
 		region.start = base;
 		region.end = limit + 0xfffff;
 		pcibios_bus_to_resource(dev->bus, res, &region);
+<<<<<<< HEAD
 		pci_printk(KERN_DEBUG, dev, "  bridge window %pR\n", res);
+=======
+		pci_info(dev, "  bridge window %pR\n", res);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -489,8 +594,12 @@ void pci_read_bridge_bases(struct pci_bus *child)
 			if (res && res->flags) {
 				pci_bus_add_resource(child, res,
 						     PCI_SUBTRACTIVE_DECODE);
+<<<<<<< HEAD
 				pci_printk(KERN_DEBUG, dev,
 					   "  bridge window %pR (subtractive decode)\n",
+=======
+				pci_info(dev, "  bridge window %pR (subtractive decode)\n",
+>>>>>>> upstream/android-13
 					   res);
 			}
 		}
@@ -519,7 +628,11 @@ static struct pci_bus *pci_alloc_bus(struct pci_bus *parent)
 	return b;
 }
 
+<<<<<<< HEAD
 static void devm_pci_release_host_bridge_dev(struct device *dev)
+=======
+static void pci_release_host_bridge_dev(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct pci_host_bridge *bridge = to_pci_host_bridge(dev);
 
@@ -527,17 +640,26 @@ static void devm_pci_release_host_bridge_dev(struct device *dev)
 		bridge->release_fn(bridge);
 
 	pci_free_resource_list(&bridge->windows);
+<<<<<<< HEAD
 }
 
 static void pci_release_host_bridge_dev(struct device *dev)
 {
 	devm_pci_release_host_bridge_dev(dev);
 	kfree(to_pci_host_bridge(dev));
+=======
+	pci_free_resource_list(&bridge->dma_ranges);
+	kfree(bridge);
+>>>>>>> upstream/android-13
 }
 
 static void pci_init_host_bridge(struct pci_host_bridge *bridge)
 {
 	INIT_LIST_HEAD(&bridge->windows);
+<<<<<<< HEAD
+=======
+	INIT_LIST_HEAD(&bridge->dma_ranges);
+>>>>>>> upstream/android-13
 
 	/*
 	 * We assume we can manage these PCIe features.  Some systems may
@@ -550,6 +672,13 @@ static void pci_init_host_bridge(struct pci_host_bridge *bridge)
 	bridge->native_shpc_hotplug = 1;
 	bridge->native_pme = 1;
 	bridge->native_ltr = 1;
+<<<<<<< HEAD
+=======
+	bridge->native_dpc = 1;
+	bridge->domain_nr = PCI_DOMAIN_NR_NOT_SET;
+
+	device_initialize(&bridge->dev);
+>>>>>>> upstream/android-13
 }
 
 struct pci_host_bridge *pci_alloc_host_bridge(size_t priv)
@@ -567,6 +696,7 @@ struct pci_host_bridge *pci_alloc_host_bridge(size_t priv)
 }
 EXPORT_SYMBOL(pci_alloc_host_bridge);
 
+<<<<<<< HEAD
 struct pci_host_bridge *devm_pci_alloc_host_bridge(struct device *dev,
 						   size_t priv)
 {
@@ -578,6 +708,33 @@ struct pci_host_bridge *devm_pci_alloc_host_bridge(struct device *dev,
 
 	pci_init_host_bridge(bridge);
 	bridge->dev.release = devm_pci_release_host_bridge_dev;
+=======
+static void devm_pci_alloc_host_bridge_release(void *data)
+{
+	pci_free_host_bridge(data);
+}
+
+struct pci_host_bridge *devm_pci_alloc_host_bridge(struct device *dev,
+						   size_t priv)
+{
+	int ret;
+	struct pci_host_bridge *bridge;
+
+	bridge = pci_alloc_host_bridge(priv);
+	if (!bridge)
+		return NULL;
+
+	bridge->dev.parent = dev;
+
+	ret = devm_add_action_or_reset(dev, devm_pci_alloc_host_bridge_release,
+				       bridge);
+	if (ret)
+		return NULL;
+
+	ret = devm_of_pci_bridge_init(dev, bridge);
+	if (ret)
+		return NULL;
+>>>>>>> upstream/android-13
 
 	return bridge;
 }
@@ -585,12 +742,20 @@ EXPORT_SYMBOL(devm_pci_alloc_host_bridge);
 
 void pci_free_host_bridge(struct pci_host_bridge *bridge)
 {
+<<<<<<< HEAD
 	pci_free_resource_list(&bridge->windows);
 
 	kfree(bridge);
 }
 EXPORT_SYMBOL(pci_free_host_bridge);
 
+=======
+	put_device(&bridge->dev);
+}
+EXPORT_SYMBOL(pci_free_host_bridge);
+
+/* Indexed by PCI_X_SSTATUS_FREQ (secondary bus mode and frequency) */
+>>>>>>> upstream/android-13
 static const unsigned char pcix_bus_speed[] = {
 	PCI_SPEED_UNKNOWN,		/* 0 */
 	PCI_SPEED_66MHz_PCIX,		/* 1 */
@@ -610,14 +775,23 @@ static const unsigned char pcix_bus_speed[] = {
 	PCI_SPEED_133MHz_PCIX_533	/* F */
 };
 
+<<<<<<< HEAD
+=======
+/* Indexed by PCI_EXP_LNKCAP_SLS, PCI_EXP_LNKSTA_CLS */
+>>>>>>> upstream/android-13
 const unsigned char pcie_link_speed[] = {
 	PCI_SPEED_UNKNOWN,		/* 0 */
 	PCIE_SPEED_2_5GT,		/* 1 */
 	PCIE_SPEED_5_0GT,		/* 2 */
 	PCIE_SPEED_8_0GT,		/* 3 */
 	PCIE_SPEED_16_0GT,		/* 4 */
+<<<<<<< HEAD
 	PCI_SPEED_UNKNOWN,		/* 5 */
 	PCI_SPEED_UNKNOWN,		/* 6 */
+=======
+	PCIE_SPEED_32_0GT,		/* 5 */
+	PCIE_SPEED_64_0GT,		/* 6 */
+>>>>>>> upstream/android-13
 	PCI_SPEED_UNKNOWN,		/* 7 */
 	PCI_SPEED_UNKNOWN,		/* 8 */
 	PCI_SPEED_UNKNOWN,		/* 9 */
@@ -628,6 +802,48 @@ const unsigned char pcie_link_speed[] = {
 	PCI_SPEED_UNKNOWN,		/* E */
 	PCI_SPEED_UNKNOWN		/* F */
 };
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(pcie_link_speed);
+
+const char *pci_speed_string(enum pci_bus_speed speed)
+{
+	/* Indexed by the pci_bus_speed enum */
+	static const char *speed_strings[] = {
+	    "33 MHz PCI",		/* 0x00 */
+	    "66 MHz PCI",		/* 0x01 */
+	    "66 MHz PCI-X",		/* 0x02 */
+	    "100 MHz PCI-X",		/* 0x03 */
+	    "133 MHz PCI-X",		/* 0x04 */
+	    NULL,			/* 0x05 */
+	    NULL,			/* 0x06 */
+	    NULL,			/* 0x07 */
+	    NULL,			/* 0x08 */
+	    "66 MHz PCI-X 266",		/* 0x09 */
+	    "100 MHz PCI-X 266",	/* 0x0a */
+	    "133 MHz PCI-X 266",	/* 0x0b */
+	    "Unknown AGP",		/* 0x0c */
+	    "1x AGP",			/* 0x0d */
+	    "2x AGP",			/* 0x0e */
+	    "4x AGP",			/* 0x0f */
+	    "8x AGP",			/* 0x10 */
+	    "66 MHz PCI-X 533",		/* 0x11 */
+	    "100 MHz PCI-X 533",	/* 0x12 */
+	    "133 MHz PCI-X 533",	/* 0x13 */
+	    "2.5 GT/s PCIe",		/* 0x14 */
+	    "5.0 GT/s PCIe",		/* 0x15 */
+	    "8.0 GT/s PCIe",		/* 0x16 */
+	    "16.0 GT/s PCIe",		/* 0x17 */
+	    "32.0 GT/s PCIe",		/* 0x18 */
+	    "64.0 GT/s PCIe",		/* 0x19 */
+	};
+
+	if (speed < ARRAY_SIZE(speed_strings))
+		return speed_strings[speed];
+	return "Unknown";
+}
+EXPORT_SYMBOL_GPL(pci_speed_string);
+>>>>>>> upstream/android-13
 
 void pcie_update_link_speed(struct pci_bus *bus, u16 linksta)
 {
@@ -718,6 +934,10 @@ static void pci_set_bus_speed(struct pci_bus *bus)
 
 		pcie_capability_read_dword(bridge, PCI_EXP_LNKCAP, &linkcap);
 		bus->max_bus_speed = pcie_link_speed[linkcap & PCI_EXP_LNKCAP_SLS];
+<<<<<<< HEAD
+=======
+		bridge->link_active_reporting = !!(linkcap & PCI_EXP_LNKCAP_DLLLARC);
+>>>>>>> upstream/android-13
 
 		pcie_capability_read_word(bridge, PCI_EXP_LNKSTA, &linksta);
 		pcie_update_link_speed(bus, linksta);
@@ -728,11 +948,22 @@ static struct irq_domain *pci_host_bridge_msi_domain(struct pci_bus *bus)
 {
 	struct irq_domain *d;
 
+<<<<<<< HEAD
+=======
+	/* If the host bridge driver sets a MSI domain of the bridge, use it */
+	d = dev_get_msi_domain(bus->bridge);
+
+>>>>>>> upstream/android-13
 	/*
 	 * Any firmware interface that can resolve the msi_domain
 	 * should be called from here.
 	 */
+<<<<<<< HEAD
 	d = pci_host_bridge_of_msi_domain(bus);
+=======
+	if (!d)
+		d = pci_host_bridge_of_msi_domain(bus);
+>>>>>>> upstream/android-13
 	if (!d)
 		d = pci_host_bridge_acpi_msi_domain(bus);
 
@@ -795,11 +1026,21 @@ static int pci_register_host_bridge(struct pci_host_bridge *bridge)
 	/* Temporarily move resources off the list */
 	list_splice_init(&bridge->windows, &resources);
 	bus->sysdata = bridge->sysdata;
+<<<<<<< HEAD
 	bus->msi = bridge->msi;
 	bus->ops = bridge->ops;
 	bus->number = bus->busn_res.start = bridge->busnr;
 #ifdef CONFIG_PCI_DOMAINS_GENERIC
 	bus->domain_nr = pci_bus_find_domain_nr(bus, parent);
+=======
+	bus->ops = bridge->ops;
+	bus->number = bus->busn_res.start = bridge->busnr;
+#ifdef CONFIG_PCI_DOMAINS_GENERIC
+	if (bridge->domain_nr == PCI_DOMAIN_NR_NOT_SET)
+		bus->domain_nr = pci_bus_find_domain_nr(bus, parent);
+	else
+		bus->domain_nr = bridge->domain_nr;
+>>>>>>> upstream/android-13
 #endif
 
 	b = pci_find_bus(pci_domain_nr(bus), bridge->busnr);
@@ -817,7 +1058,11 @@ static int pci_register_host_bridge(struct pci_host_bridge *bridge)
 	if (err)
 		goto free;
 
+<<<<<<< HEAD
 	err = device_register(&bridge->dev);
+=======
+	err = device_add(&bridge->dev);
+>>>>>>> upstream/android-13
 	if (err) {
 		put_device(&bridge->dev);
 		goto free;
@@ -826,6 +1071,12 @@ static int pci_register_host_bridge(struct pci_host_bridge *bridge)
 	device_enable_async_suspend(bus->bridge);
 	pci_set_bus_of_node(bus);
 	pci_set_bus_msi_domain(bus);
+<<<<<<< HEAD
+=======
+	if (bridge->msi_domain && !dev_get_msi_domain(&bus->dev) &&
+	    !pci_host_of_has_msi_map(parent))
+		bus->bus_flags |= PCI_BUS_FLAGS_NO_MSI;
+>>>>>>> upstream/android-13
 
 	if (!parent)
 		set_dev_node(bus->bridge, pcibus_to_node(bus));
@@ -842,6 +1093,15 @@ static int pci_register_host_bridge(struct pci_host_bridge *bridge)
 
 	pcibios_add_bus(bus);
 
+<<<<<<< HEAD
+=======
+	if (bus->ops->add_bus) {
+		err = bus->ops->add_bus(bus);
+		if (WARN_ON(err < 0))
+			dev_err(&bus->dev, "failed to add bus: %d\n", err);
+	}
+
+>>>>>>> upstream/android-13
 	/* Create legacy_io and legacy_mem files for this bus */
 	pci_create_legacy_files(bus);
 
@@ -850,6 +1110,12 @@ static int pci_register_host_bridge(struct pci_host_bridge *bridge)
 	else
 		pr_info("PCI host bridge to bus %s\n", name);
 
+<<<<<<< HEAD
+=======
+	if (nr_node_ids > 1 && pcibus_to_node(bus) == NUMA_NO_NODE)
+		dev_warn(&bus->dev, "Unknown NUMA node; performance will be reduced\n");
+
+>>>>>>> upstream/android-13
 	/* Add initial resources to the bus */
 	resource_list_for_each_entry_safe(window, n, &resources) {
 		list_move_tail(&window->node, &bridge->windows);
@@ -884,7 +1150,11 @@ static int pci_register_host_bridge(struct pci_host_bridge *bridge)
 
 unregister:
 	put_device(&bridge->dev);
+<<<<<<< HEAD
 	device_unregister(&bridge->dev);
+=======
+	device_del(&bridge->dev);
+>>>>>>> upstream/android-13
 
 free:
 	kfree(bus);
@@ -934,6 +1204,10 @@ static struct pci_bus *pci_alloc_child_bus(struct pci_bus *parent,
 					   struct pci_dev *bridge, int busnr)
 {
 	struct pci_bus *child;
+<<<<<<< HEAD
+=======
+	struct pci_host_bridge *host;
+>>>>>>> upstream/android-13
 	int i;
 	int ret;
 
@@ -943,11 +1217,23 @@ static struct pci_bus *pci_alloc_child_bus(struct pci_bus *parent,
 		return NULL;
 
 	child->parent = parent;
+<<<<<<< HEAD
 	child->ops = parent->ops;
 	child->msi = parent->msi;
 	child->sysdata = parent->sysdata;
 	child->bus_flags = parent->bus_flags;
 
+=======
+	child->sysdata = parent->sysdata;
+	child->bus_flags = parent->bus_flags;
+
+	host = pci_find_host_bridge(parent);
+	if (host->child_ops)
+		child->ops = host->child_ops;
+	else
+		child->ops = parent->ops;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Initialize some portions of the bus device, but don't register
 	 * it now as the parent is not properly set up yet.
@@ -1035,6 +1321,45 @@ static void pci_enable_crs(struct pci_dev *pdev)
 
 static unsigned int pci_scan_child_bus_extend(struct pci_bus *bus,
 					      unsigned int available_buses);
+<<<<<<< HEAD
+=======
+/**
+ * pci_ea_fixed_busnrs() - Read fixed Secondary and Subordinate bus
+ * numbers from EA capability.
+ * @dev: Bridge
+ * @sec: updated with secondary bus number from EA
+ * @sub: updated with subordinate bus number from EA
+ *
+ * If @dev is a bridge with EA capability that specifies valid secondary
+ * and subordinate bus numbers, return true with the bus numbers in @sec
+ * and @sub.  Otherwise return false.
+ */
+static bool pci_ea_fixed_busnrs(struct pci_dev *dev, u8 *sec, u8 *sub)
+{
+	int ea, offset;
+	u32 dw;
+	u8 ea_sec, ea_sub;
+
+	if (dev->hdr_type != PCI_HEADER_TYPE_BRIDGE)
+		return false;
+
+	/* find PCI EA capability in list */
+	ea = pci_find_capability(dev, PCI_CAP_ID_EA);
+	if (!ea)
+		return false;
+
+	offset = ea + PCI_EA_FIRST_ENT;
+	pci_read_config_dword(dev, offset, &dw);
+	ea_sec =  dw & PCI_EA_SEC_BUS_MASK;
+	ea_sub = (dw & PCI_EA_SUB_BUS_MASK) >> PCI_EA_SUB_BUS_SHIFT;
+	if (ea_sec  == 0 || ea_sub < ea_sec)
+		return false;
+
+	*sec = ea_sec;
+	*sub = ea_sub;
+	return true;
+}
+>>>>>>> upstream/android-13
 
 /*
  * pci_scan_bridge_extend() - Scan buses behind a bridge
@@ -1069,6 +1394,12 @@ static int pci_scan_bridge_extend(struct pci_bus *bus, struct pci_dev *dev,
 	u16 bctl;
 	u8 primary, secondary, subordinate;
 	int broken = 0;
+<<<<<<< HEAD
+=======
+	bool fixed_buses;
+	u8 fixed_sec, fixed_sub;
+	int next_busnr;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Make sure the bridge is powered on to be able to access config
@@ -1168,17 +1499,36 @@ static int pci_scan_bridge_extend(struct pci_bus *bus, struct pci_dev *dev,
 		/* Clear errors */
 		pci_write_config_word(dev, PCI_STATUS, 0xffff);
 
+<<<<<<< HEAD
+=======
+		/* Read bus numbers from EA Capability (if present) */
+		fixed_buses = pci_ea_fixed_busnrs(dev, &fixed_sec, &fixed_sub);
+		if (fixed_buses)
+			next_busnr = fixed_sec;
+		else
+			next_busnr = max + 1;
+
+>>>>>>> upstream/android-13
 		/*
 		 * Prevent assigning a bus number that already exists.
 		 * This can happen when a bridge is hot-plugged, so in this
 		 * case we only re-scan this bus.
 		 */
+<<<<<<< HEAD
 		child = pci_find_bus(pci_domain_nr(bus), max+1);
 		if (!child) {
 			child = pci_add_new_bus(bus, dev, max+1);
 			if (!child)
 				goto out;
 			pci_bus_insert_busn_res(child, max+1,
+=======
+		child = pci_find_bus(pci_domain_nr(bus), next_busnr);
+		if (!child) {
+			child = pci_add_new_bus(bus, dev, next_busnr);
+			if (!child)
+				goto out;
+			pci_bus_insert_busn_res(child, next_busnr,
+>>>>>>> upstream/android-13
 						bus->busn_res.end);
 		}
 		max++;
@@ -1239,7 +1589,17 @@ static int pci_scan_bridge_extend(struct pci_bus *bus, struct pci_dev *dev,
 			max += i;
 		}
 
+<<<<<<< HEAD
 		/* Set subordinate bus number to its real value */
+=======
+		/*
+		 * Set subordinate bus number to its real value.
+		 * If fixed subordinate bus number exists from EA
+		 * capability then use it.
+		 */
+		if (fixed_buses)
+			max = fixed_sub;
+>>>>>>> upstream/android-13
 		pci_bus_update_busn_res_end(child, max);
 		pci_write_config_byte(dev, PCI_SUBORDINATE_BUS, max);
 	}
@@ -1330,6 +1690,7 @@ void set_pcie_port_type(struct pci_dev *pdev)
 	pdev->pcie_cap = pos;
 	pci_read_config_word(pdev, pos + PCI_EXP_FLAGS, &reg16);
 	pdev->pcie_flags_reg = reg16;
+<<<<<<< HEAD
 	pci_read_config_word(pdev, pos + PCI_EXP_DEVCAP, &reg16);
 	pdev->pcie_mpss = reg16 & PCI_EXP_DEVCAP_PAYLOAD;
 
@@ -1353,6 +1714,43 @@ void set_pcie_port_type(struct pci_dev *pdev)
 		 */
 		if (parent && !parent->has_secondary_link)
 			pdev->has_secondary_link = 1;
+=======
+	pci_read_config_dword(pdev, pos + PCI_EXP_DEVCAP, &pdev->devcap);
+	pdev->pcie_mpss = FIELD_GET(PCI_EXP_DEVCAP_PAYLOAD, pdev->devcap);
+
+	parent = pci_upstream_bridge(pdev);
+	if (!parent)
+		return;
+
+	/*
+	 * Some systems do not identify their upstream/downstream ports
+	 * correctly so detect impossible configurations here and correct
+	 * the port type accordingly.
+	 */
+	type = pci_pcie_type(pdev);
+	if (type == PCI_EXP_TYPE_DOWNSTREAM) {
+		/*
+		 * If pdev claims to be downstream port but the parent
+		 * device is also downstream port assume pdev is actually
+		 * upstream port.
+		 */
+		if (pcie_downstream_port(parent)) {
+			pci_info(pdev, "claims to be downstream port but is acting as upstream port, correcting type\n");
+			pdev->pcie_flags_reg &= ~PCI_EXP_FLAGS_TYPE;
+			pdev->pcie_flags_reg |= PCI_EXP_TYPE_UPSTREAM;
+		}
+	} else if (type == PCI_EXP_TYPE_UPSTREAM) {
+		/*
+		 * If pdev claims to be upstream port but the parent
+		 * device is also upstream port assume pdev is actually
+		 * downstream port.
+		 */
+		if (pci_pcie_type(parent) == PCI_EXP_TYPE_UPSTREAM) {
+			pci_info(pdev, "claims to be upstream port but is acting as downstream port, correcting type\n");
+			pdev->pcie_flags_reg &= ~PCI_EXP_FLAGS_TYPE;
+			pdev->pcie_flags_reg |= PCI_EXP_TYPE_DOWNSTREAM;
+		}
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1383,6 +1781,42 @@ static void set_pcie_thunderbolt(struct pci_dev *dev)
 	}
 }
 
+<<<<<<< HEAD
+=======
+static void set_pcie_untrusted(struct pci_dev *dev)
+{
+	struct pci_dev *parent;
+
+	/*
+	 * If the upstream bridge is untrusted we treat this device
+	 * untrusted as well.
+	 */
+	parent = pci_upstream_bridge(dev);
+	if (parent && (parent->untrusted || parent->external_facing))
+		dev->untrusted = true;
+}
+
+static void pci_set_removable(struct pci_dev *dev)
+{
+	struct pci_dev *parent = pci_upstream_bridge(dev);
+
+	/*
+	 * We (only) consider everything downstream from an external_facing
+	 * device to be removable by the user. We're mainly concerned with
+	 * consumer platforms with user accessible thunderbolt ports that are
+	 * vulnerable to DMA attacks, and we expect those ports to be marked by
+	 * the firmware as external_facing. Devices in traditional hotplug
+	 * slots can technically be removed, but the expectation is that unless
+	 * the port is marked with external_facing, such devices are less
+	 * accessible to user / may not be removed by end user, and thus not
+	 * exposed as "removable" to userspace.
+	 */
+	if (parent &&
+	    (parent->external_facing || dev_is_removable(&parent->dev)))
+		dev_set_removable(&dev->dev, DEVICE_REMOVABLE);
+}
+
+>>>>>>> upstream/android-13
 /**
  * pci_ext_cfg_is_aliased - Is ext config space just an alias of std config?
  * @dev: PCI device
@@ -1421,7 +1855,11 @@ static bool pci_ext_cfg_is_aliased(struct pci_dev *dev)
 }
 
 /**
+<<<<<<< HEAD
  * pci_cfg_space_size - Get the configuration space size of the PCI device
+=======
+ * pci_cfg_space_size_ext - Get the configuration space size of the PCI device
+>>>>>>> upstream/android-13
  * @dev: PCI device
  *
  * Regular PCI devices have 256 bytes, but PCI-X 2 and PCI Express devices
@@ -1450,6 +1888,24 @@ int pci_cfg_space_size(struct pci_dev *dev)
 	u32 status;
 	u16 class;
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PCI_IOV
+	/*
+	 * Per the SR-IOV specification (rev 1.1, sec 3.5), VFs are required to
+	 * implement a PCIe capability and therefore must implement extended
+	 * config space.  We can skip the NO_EXTCFG test below and the
+	 * reachability/aliasing test in pci_cfg_space_size_ext() by virtue of
+	 * the fact that the SR-IOV capability on the PF resides in extended
+	 * config space and must be accessible and non-aliased to have enabled
+	 * support for this VF.  This is a micro performance optimization for
+	 * systems supporting many VFs.
+	 */
+	if (dev->is_virtfn)
+		return PCI_CFG_SPACE_EXP_SIZE;
+#endif
+
+>>>>>>> upstream/android-13
 	if (dev->bus->bus_flags & PCI_BUS_FLAGS_NO_EXTCFG)
 		return PCI_CFG_SPACE_SIZE;
 
@@ -1510,6 +1966,7 @@ static u8 pci_hdr_type(struct pci_dev *dev)
 
 #define LEGACY_IO_RESOURCE	(IORESOURCE_IO | IORESOURCE_PCI_FIXED)
 
+<<<<<<< HEAD
 static void pci_msi_setup_pci_dev(struct pci_dev *dev)
 {
 	/*
@@ -1526,6 +1983,8 @@ static void pci_msi_setup_pci_dev(struct pci_dev *dev)
 		pci_msix_clear_and_set_ctrl(dev, PCI_MSIX_FLAGS_ENABLE, 0);
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * pci_intx_mask_broken - Test PCI_COMMAND_INTX_DISABLE writability
  * @dev: PCI device
@@ -1597,6 +2056,12 @@ int pci_setup_device(struct pci_dev *dev)
 	dev->error_state = pci_channel_io_normal;
 	set_pcie_port_type(dev);
 
+<<<<<<< HEAD
+=======
+	pci_set_of_node(dev);
+	pci_set_acpi_fwnode(dev);
+
+>>>>>>> upstream/android-13
 	pci_dev_assign_slot(dev);
 
 	/*
@@ -1614,9 +2079,12 @@ int pci_setup_device(struct pci_dev *dev)
 	dev->revision = class & 0xff;
 	dev->class = class >> 8;		    /* upper 3 bytes */
 
+<<<<<<< HEAD
 	pci_printk(KERN_DEBUG, dev, "[%04x:%04x] type %02x class %#08x\n",
 		   dev->vendor, dev->device, dev->hdr_type, dev->class);
 
+=======
+>>>>>>> upstream/android-13
 	if (pci_early_dump)
 		early_dump_pci_device(dev);
 
@@ -1626,12 +2094,25 @@ int pci_setup_device(struct pci_dev *dev)
 	/* Need to have dev->cfg_size ready */
 	set_pcie_thunderbolt(dev);
 
+<<<<<<< HEAD
+=======
+	set_pcie_untrusted(dev);
+
+>>>>>>> upstream/android-13
 	/* "Unknown power state" */
 	dev->current_state = PCI_UNKNOWN;
 
 	/* Early fixups, before probing the BARs */
 	pci_fixup_device(pci_fixup_early, dev);
 
+<<<<<<< HEAD
+=======
+	pci_set_removable(dev);
+
+	pci_info(dev, "[%04x:%04x] type %02x class %#08x\n",
+		 dev->vendor, dev->device, dev->hdr_type, dev->class);
+
+>>>>>>> upstream/android-13
 	/* Device class may be changed after fixup */
 	class = dev->class >> 8;
 
@@ -1701,9 +2182,12 @@ int pci_setup_device(struct pci_dev *dev)
 		break;
 
 	case PCI_HEADER_TYPE_BRIDGE:		    /* bridge header */
+<<<<<<< HEAD
 		if (class != PCI_CLASS_BRIDGE_PCI)
 			goto bad;
 
+=======
+>>>>>>> upstream/android-13
 		/*
 		 * The PCI-to-PCI bridge spec requires that subtractive
 		 * decoding (i.e. transparent) bridge must have programming
@@ -1712,6 +2196,10 @@ int pci_setup_device(struct pci_dev *dev)
 		pci_read_irq(dev);
 		dev->transparent = ((dev->class & 0xff) == 1);
 		pci_read_bases(dev, 2, PCI_ROM_ADDRESS1);
+<<<<<<< HEAD
+=======
+		pci_read_bridge_windows(dev);
+>>>>>>> upstream/android-13
 		set_pcie_hotplug_bridge(dev);
 		pos = pci_find_capability(dev, PCI_CAP_ID_SSVID);
 		if (pos) {
@@ -1732,6 +2220,10 @@ int pci_setup_device(struct pci_dev *dev)
 	default:				    /* unknown header */
 		pci_err(dev, "unknown header type %02x, ignoring device\n",
 			dev->hdr_type);
+<<<<<<< HEAD
+=======
+		pci_release_of_node(dev);
+>>>>>>> upstream/android-13
 		return -EIO;
 
 	bad:
@@ -1814,6 +2306,7 @@ static void pci_configure_mps(struct pci_dev *dev)
 		 p_mps, mps, mpss);
 }
 
+<<<<<<< HEAD
 static struct hpp_type0 pci_default_type0 = {
 	.revision = 1,
 	.cache_line_size = 8,
@@ -1972,6 +2465,8 @@ static void program_hpp_type2(struct pci_dev *dev, struct hpp_type2 *hpp)
 	 */
 }
 
+=======
+>>>>>>> upstream/android-13
 int pci_configure_extended_tags(struct pci_dev *dev, void *ign)
 {
 	struct pci_host_bridge *host;
@@ -2049,7 +2544,11 @@ static void pci_configure_relaxed_ordering(struct pci_dev *dev)
 	 * For now, we only deal with Relaxed Ordering issues with Root
 	 * Ports. Peer-to-Peer DMA is another can of worms.
 	 */
+<<<<<<< HEAD
 	root = pci_find_pcie_root_port(dev);
+=======
+	root = pcie_find_root_port(dev);
+>>>>>>> upstream/android-13
 	if (!root)
 		return;
 
@@ -2070,6 +2569,12 @@ static void pci_configure_ltr(struct pci_dev *dev)
 	if (!pci_is_pcie(dev))
 		return;
 
+<<<<<<< HEAD
+=======
+	/* Read L1 PM substate capabilities */
+	dev->l1ss = pci_find_ext_capability(dev, PCI_EXT_CAP_ID_L1SS);
+
+>>>>>>> upstream/android-13
 	pcie_capability_read_dword(dev, PCI_EXP_DEVCAP2, &cap);
 	if (!(cap & PCI_EXP_DEVCAP2_LTR))
 		return;
@@ -2132,16 +2637,40 @@ static void pci_configure_eetlp_prefix(struct pci_dev *dev)
 #endif
 }
 
+<<<<<<< HEAD
 static void pci_configure_device(struct pci_dev *dev)
 {
 	struct hotplug_params hpp;
 	int ret;
 
+=======
+static void pci_configure_serr(struct pci_dev *dev)
+{
+	u16 control;
+
+	if (dev->hdr_type == PCI_HEADER_TYPE_BRIDGE) {
+
+		/*
+		 * A bridge will not forward ERR_ messages coming from an
+		 * endpoint unless SERR# forwarding is enabled.
+		 */
+		pci_read_config_word(dev, PCI_BRIDGE_CONTROL, &control);
+		if (!(control & PCI_BRIDGE_CTL_SERR)) {
+			control |= PCI_BRIDGE_CTL_SERR;
+			pci_write_config_word(dev, PCI_BRIDGE_CONTROL, control);
+		}
+	}
+}
+
+static void pci_configure_device(struct pci_dev *dev)
+{
+>>>>>>> upstream/android-13
 	pci_configure_mps(dev);
 	pci_configure_extended_tags(dev, NULL);
 	pci_configure_relaxed_ordering(dev);
 	pci_configure_ltr(dev);
 	pci_configure_eetlp_prefix(dev);
+<<<<<<< HEAD
 
 	memset(&hpp, 0, sizeof(hpp));
 	ret = pci_get_hp_params(dev, &hpp);
@@ -2151,12 +2680,21 @@ static void pci_configure_device(struct pci_dev *dev)
 	program_hpp_type2(dev, hpp.t2);
 	program_hpp_type1(dev, hpp.t1);
 	program_hpp_type0(dev, hpp.t0);
+=======
+	pci_configure_serr(dev);
+
+	pci_acpi_program_hp_params(dev);
+>>>>>>> upstream/android-13
 }
 
 static void pci_release_capabilities(struct pci_dev *dev)
 {
 	pci_aer_exit(dev);
+<<<<<<< HEAD
 	pci_vpd_release(dev);
+=======
+	pci_rcec_exit(dev);
+>>>>>>> upstream/android-13
 	pci_iov_release(dev);
 	pci_free_cap_save_buffers(dev);
 }
@@ -2179,7 +2717,12 @@ static void pci_release_dev(struct device *dev)
 	pcibios_release_device(pci_dev);
 	pci_bus_put(pci_dev->bus);
 	kfree(pci_dev->driver_override);
+<<<<<<< HEAD
 	kfree(pci_dev->dma_alias_mask);
+=======
+	bitmap_free(pci_dev->dma_alias_mask);
+	dev_dbg(dev, "device released\n");
+>>>>>>> upstream/android-13
 	kfree(pci_dev);
 }
 
@@ -2304,10 +2847,14 @@ static struct pci_dev *pci_scan_device(struct pci_bus *bus, int devfn)
 	dev->vendor = l & 0xffff;
 	dev->device = (l >> 16) & 0xffff;
 
+<<<<<<< HEAD
 	pci_set_of_node(dev);
 
 	if (pci_setup_device(dev)) {
 		pci_release_of_node(dev);
+=======
+	if (pci_setup_device(dev)) {
+>>>>>>> upstream/android-13
 		pci_bus_put(dev->bus);
 		kfree(dev);
 		return NULL;
@@ -2316,7 +2863,11 @@ static struct pci_dev *pci_scan_device(struct pci_bus *bus, int devfn)
 	return dev;
 }
 
+<<<<<<< HEAD
 static void pcie_report_downtraining(struct pci_dev *dev)
+=======
+void pcie_report_downtraining(struct pci_dev *dev)
+>>>>>>> upstream/android-13
 {
 	if (!pci_is_pcie(dev))
 		return;
@@ -2337,15 +2888,22 @@ static void pcie_report_downtraining(struct pci_dev *dev)
 
 static void pci_init_capabilities(struct pci_dev *dev)
 {
+<<<<<<< HEAD
 	/* Enhanced Allocation */
 	pci_ea_init(dev);
 
 	/* Setup MSI caps & disable MSI/MSI-X interrupts */
 	pci_msi_setup_pci_dev(dev);
+=======
+	pci_ea_init(dev);		/* Enhanced Allocation */
+	pci_msi_init(dev);		/* Disable MSI */
+	pci_msix_init(dev);		/* Disable MSI-X */
+>>>>>>> upstream/android-13
 
 	/* Buffers for saving PCIe and PCI-X capabilities */
 	pci_allocate_cap_save_buffers(dev);
 
+<<<<<<< HEAD
 	/* Power Management */
 	pci_pm_init(dev);
 
@@ -2374,6 +2932,23 @@ static void pci_init_capabilities(struct pci_dev *dev)
 
 	if (pci_probe_reset_function(dev) == 0)
 		dev->reset_fn = 1;
+=======
+	pci_pm_init(dev);		/* Power Management */
+	pci_vpd_init(dev);		/* Vital Product Data */
+	pci_configure_ari(dev);		/* Alternative Routing-ID Forwarding */
+	pci_iov_init(dev);		/* Single Root I/O Virtualization */
+	pci_ats_init(dev);		/* Address Translation Services */
+	pci_pri_init(dev);		/* Page Request Interface */
+	pci_pasid_init(dev);		/* Process Address Space ID */
+	pci_acs_init(dev);		/* Access Control Services */
+	pci_ptm_init(dev);		/* Precision Time Measurement */
+	pci_aer_init(dev);		/* Advanced Error Reporting */
+	pci_dpc_init(dev);		/* Downstream Port Containment */
+	pci_rcec_init(dev);		/* Root Complex Event Collector */
+
+	pcie_report_downtraining(dev);
+	pci_init_reset_methods(dev);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2434,12 +3009,18 @@ void pci_device_add(struct pci_dev *dev, struct pci_bus *bus)
 	dev->dev.dma_parms = &dev->dma_parms;
 	dev->dev.coherent_dma_mask = 0xffffffffull;
 
+<<<<<<< HEAD
 	pci_set_dma_max_seg_size(dev, 65536);
 	pci_set_dma_seg_boundary(dev, 0xffffffff);
+=======
+	dma_set_max_seg_size(&dev->dev, 65536);
+	dma_set_seg_boundary(&dev->dev, 0xffffffff);
+>>>>>>> upstream/android-13
 
 	/* Fix up broken headers */
 	pci_fixup_device(pci_fixup_header, dev);
 
+<<<<<<< HEAD
 	/* Moved out from quirk header fixup code */
 	pci_reassigndev_resource_alignment(dev);
 
@@ -2447,6 +3028,12 @@ void pci_device_add(struct pci_dev *dev, struct pci_bus *bus)
 	dev->state_saved = false;
 
 	/* Initialize various capabilities */
+=======
+	pci_reassigndev_resource_alignment(dev);
+
+	dev->state_saved = false;
+
+>>>>>>> upstream/android-13
 	pci_init_capabilities(dev);
 
 	/*
@@ -2532,12 +3119,17 @@ static int only_one_child(struct pci_bus *bus)
 	 * A PCIe Downstream Port normally leads to a Link with only Device
 	 * 0 on it (PCIe spec r3.1, sec 7.3.1).  As an optimization, scan
 	 * only for Device 0 in that situation.
+<<<<<<< HEAD
 	 *
 	 * Checking has_secondary_link is a hack to identify Downstream
 	 * Ports because sometimes Switches are configured such that the
 	 * PCIe Port Type labels are backwards.
 	 */
 	if (bridge && pci_is_pcie(bridge) && bridge->has_secondary_link)
+=======
+	 */
+	if (bridge && pci_is_pcie(bridge) && pcie_downstream_port(bridge))
+>>>>>>> upstream/android-13
 		return 1;
 
 	return 0;
@@ -2957,7 +3549,11 @@ struct pci_bus *pci_create_root_bus(struct device *parent, int bus,
 	return bridge->bus;
 
 err_out:
+<<<<<<< HEAD
 	kfree(bridge);
+=======
+	put_device(&bridge->dev);
+>>>>>>> upstream/android-13
 	return NULL;
 }
 EXPORT_SYMBOL_GPL(pci_create_root_bus);
@@ -3014,7 +3610,11 @@ int pci_bus_insert_busn_res(struct pci_bus *b, int bus, int bus_max)
 	conflict = request_resource_conflict(parent_res, res);
 
 	if (conflict)
+<<<<<<< HEAD
 		dev_printk(KERN_DEBUG, &b->dev,
+=======
+		dev_info(&b->dev,
+>>>>>>> upstream/android-13
 			   "busn_res: can not insert %pR under %s%pR (conflicts with %s %pR)\n",
 			    res, pci_is_root_bus(b) ? "domain " : "",
 			    parent_res, conflict->name, conflict);
@@ -3034,8 +3634,12 @@ int pci_bus_update_busn_res_end(struct pci_bus *b, int bus_max)
 
 	size = bus_max - res->start + 1;
 	ret = adjust_resource(res, res->start, size);
+<<<<<<< HEAD
 	dev_printk(KERN_DEBUG, &b->dev,
 			"busn_res: %pR end %s updated to %02x\n",
+=======
+	dev_info(&b->dev, "busn_res: %pR end %s updated to %02x\n",
+>>>>>>> upstream/android-13
 			&old_res, ret ? "can not be" : "is", bus_max);
 
 	if (!ret && !res->parent)
@@ -3053,8 +3657,12 @@ void pci_bus_release_busn_res(struct pci_bus *b)
 		return;
 
 	ret = release_resource(res);
+<<<<<<< HEAD
 	dev_printk(KERN_DEBUG, &b->dev,
 			"busn_res: %pR %s released\n",
+=======
+	dev_info(&b->dev, "busn_res: %pR %s released\n",
+>>>>>>> upstream/android-13
 			res, ret ? "can not be" : "is");
 }
 
@@ -3070,6 +3678,10 @@ int pci_scan_root_bus_bridge(struct pci_host_bridge *bridge)
 
 	resource_list_for_each_entry(window, &bridge->windows)
 		if (window->res->flags & IORESOURCE_BUS) {
+<<<<<<< HEAD
+=======
+			bridge->busnr = window->res->start;
+>>>>>>> upstream/android-13
 			found = true;
 			break;
 		}

@@ -280,7 +280,12 @@ void irq_matrix_remove_managed(struct irq_matrix *m, const struct cpumask *msk)
 /**
  * irq_matrix_alloc_managed - Allocate a managed interrupt in a CPU map
  * @m:		Matrix pointer
+<<<<<<< HEAD
  * @cpu:	On which CPU the interrupt should be allocated
+=======
+ * @msk:	Which CPUs to search in
+ * @mapped_cpu:	Pointer to store the CPU for which the irq was allocated
+>>>>>>> upstream/android-13
  */
 int irq_matrix_alloc_managed(struct irq_matrix *m, const struct cpumask *msk,
 			     unsigned int *mapped_cpu)
@@ -337,15 +342,23 @@ void irq_matrix_assign(struct irq_matrix *m, unsigned int bit)
  * irq_matrix_reserve - Reserve interrupts
  * @m:		Matrix pointer
  *
+<<<<<<< HEAD
  * This is merily a book keeping call. It increments the number of globally
+=======
+ * This is merely a book keeping call. It increments the number of globally
+>>>>>>> upstream/android-13
  * reserved interrupt bits w/o actually allocating them. This allows to
  * setup interrupt descriptors w/o assigning low level resources to it.
  * The actual allocation happens when the interrupt gets activated.
  */
 void irq_matrix_reserve(struct irq_matrix *m)
 {
+<<<<<<< HEAD
 	if (m->global_reserved <= m->global_available &&
 	    m->global_reserved + 1 > m->global_available)
+=======
+	if (m->global_reserved == m->global_available)
+>>>>>>> upstream/android-13
 		pr_warn("Interrupt reservation exceeds available resources\n");
 
 	m->global_reserved++;
@@ -356,7 +369,11 @@ void irq_matrix_reserve(struct irq_matrix *m)
  * irq_matrix_remove_reserved - Remove interrupt reservation
  * @m:		Matrix pointer
  *
+<<<<<<< HEAD
  * This is merily a book keeping call. It decrements the number of globally
+=======
+ * This is merely a book keeping call. It decrements the number of globally
+>>>>>>> upstream/android-13
  * reserved interrupt bits. This is used to undo irq_matrix_reserve() when the
  * interrupt was never in use and a real vector allocated, which undid the
  * reservation.

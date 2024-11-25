@@ -50,7 +50,11 @@ futex_atomic_cmpxchg_inatomic(u32 *uval, u32 __user *uaddr,
 	int ret;
 	u32 val;
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, uaddr, sizeof(u32)))
+=======
+	if (!access_ok(uaddr, sizeof(u32)))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	smp_mb();
@@ -104,16 +108,28 @@ futex_atomic_cmpxchg_inatomic(u32 *uval, u32 __user *uaddr,
 	int ret = 0;
 	u32 val;
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, uaddr, sizeof(u32)))
+=======
+	if (!access_ok(uaddr, sizeof(u32)))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	preempt_disable();
 	__ua_flags = uaccess_save_and_enable();
 	__asm__ __volatile__("@futex_atomic_cmpxchg_inatomic\n"
+<<<<<<< HEAD
 	"1:	" TUSER(ldr) "	%1, [%4]\n"
 	"	teq	%1, %2\n"
 	"	it	eq	@ explicit IT needed for the 2b label\n"
 	"2:	" TUSER(streq) "	%3, [%4]\n"
+=======
+	"	.syntax unified\n"
+	"1:	" TUSER(ldr) "	%1, [%4]\n"
+	"	teq	%1, %2\n"
+	"	it	eq	@ explicit IT needed for the 2b label\n"
+	"2:	" TUSERCOND(str, eq) "	%3, [%4]\n"
+>>>>>>> upstream/android-13
 	__futex_atomic_ex_table("%5")
 	: "+r" (ret), "=&r" (val)
 	: "r" (oldval), "r" (newval), "r" (uaddr), "Ir" (-EFAULT)
@@ -133,10 +149,19 @@ arch_futex_atomic_op_inuser(int op, int oparg, int *oval, u32 __user *uaddr)
 {
 	int oldval = 0, ret, tmp;
 
+<<<<<<< HEAD
 #ifndef CONFIG_SMP
 	preempt_disable();
 #endif
 	pagefault_disable();
+=======
+	if (!access_ok(uaddr, sizeof(u32)))
+		return -EFAULT;
+
+#ifndef CONFIG_SMP
+	preempt_disable();
+#endif
+>>>>>>> upstream/android-13
 
 	switch (op) {
 	case FUTEX_OP_SET:
@@ -158,7 +183,10 @@ arch_futex_atomic_op_inuser(int op, int oparg, int *oval, u32 __user *uaddr)
 		ret = -ENOSYS;
 	}
 
+<<<<<<< HEAD
 	pagefault_enable();
+=======
+>>>>>>> upstream/android-13
 #ifndef CONFIG_SMP
 	preempt_enable();
 #endif

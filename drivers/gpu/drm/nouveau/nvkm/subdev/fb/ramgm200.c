@@ -48,7 +48,11 @@ gm200_ram_probe_fbp_amount(const struct nvkm_ram_func *func, u32 fbpao,
 
 static const struct nvkm_ram_func
 gm200_ram = {
+<<<<<<< HEAD
 	.upper = 0x1000000000,
+=======
+	.upper = 0x1000000000ULL,
+>>>>>>> upstream/android-13
 	.probe_fbp = gm107_ram_probe_fbp,
 	.probe_fbp_amount = gm200_ram_probe_fbp_amount,
 	.probe_fbpa_amount = gf100_ram_probe_fbpa_amount,

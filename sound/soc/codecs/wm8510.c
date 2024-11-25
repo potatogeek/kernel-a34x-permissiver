@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * wm8510.c  --  WM8510 ALSA Soc Audio driver
  *
  * Copyright 2006 Wolfson Microelectronics PLC.
  *
  * Author: Liam Girdwood <lrg@slimlogic.co.uk>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -321,11 +328,19 @@ static int wm8510_set_dai_pll(struct snd_soc_dai *codec_dai, int pll_id,
 
 	if (freq_in == 0 || freq_out == 0) {
 		/* Clock CODEC directly from MCLK */
+<<<<<<< HEAD
 		reg = snd_soc_component_read32(component, WM8510_CLOCK);
 		snd_soc_component_write(component, WM8510_CLOCK, reg & 0x0ff);
 
 		/* Turn off PLL */
 		reg = snd_soc_component_read32(component, WM8510_POWER1);
+=======
+		reg = snd_soc_component_read(component, WM8510_CLOCK);
+		snd_soc_component_write(component, WM8510_CLOCK, reg & 0x0ff);
+
+		/* Turn off PLL */
+		reg = snd_soc_component_read(component, WM8510_POWER1);
+>>>>>>> upstream/android-13
 		snd_soc_component_write(component, WM8510_POWER1, reg & 0x1df);
 		return 0;
 	}
@@ -336,11 +351,19 @@ static int wm8510_set_dai_pll(struct snd_soc_dai *codec_dai, int pll_id,
 	snd_soc_component_write(component, WM8510_PLLK1, pll_div.k >> 18);
 	snd_soc_component_write(component, WM8510_PLLK2, (pll_div.k >> 9) & 0x1ff);
 	snd_soc_component_write(component, WM8510_PLLK3, pll_div.k & 0x1ff);
+<<<<<<< HEAD
 	reg = snd_soc_component_read32(component, WM8510_POWER1);
 	snd_soc_component_write(component, WM8510_POWER1, reg | 0x020);
 
 	/* Run CODEC from PLL instead of MCLK */
 	reg = snd_soc_component_read32(component, WM8510_CLOCK);
+=======
+	reg = snd_soc_component_read(component, WM8510_POWER1);
+	snd_soc_component_write(component, WM8510_POWER1, reg | 0x020);
+
+	/* Run CODEC from PLL instead of MCLK */
+	reg = snd_soc_component_read(component, WM8510_CLOCK);
+>>>>>>> upstream/android-13
 	snd_soc_component_write(component, WM8510_CLOCK, reg | 0x100);
 
 	return 0;
@@ -357,6 +380,7 @@ static int wm8510_set_dai_clkdiv(struct snd_soc_dai *codec_dai,
 
 	switch (div_id) {
 	case WM8510_OPCLKDIV:
+<<<<<<< HEAD
 		reg = snd_soc_component_read32(component, WM8510_GPIO) & 0x1cf;
 		snd_soc_component_write(component, WM8510_GPIO, reg | div);
 		break;
@@ -374,6 +398,25 @@ static int wm8510_set_dai_clkdiv(struct snd_soc_dai *codec_dai,
 		break;
 	case WM8510_BCLKDIV:
 		reg = snd_soc_component_read32(component, WM8510_CLOCK) & 0x1e3;
+=======
+		reg = snd_soc_component_read(component, WM8510_GPIO) & 0x1cf;
+		snd_soc_component_write(component, WM8510_GPIO, reg | div);
+		break;
+	case WM8510_MCLKDIV:
+		reg = snd_soc_component_read(component, WM8510_CLOCK) & 0x11f;
+		snd_soc_component_write(component, WM8510_CLOCK, reg | div);
+		break;
+	case WM8510_ADCCLK:
+		reg = snd_soc_component_read(component, WM8510_ADC) & 0x1f7;
+		snd_soc_component_write(component, WM8510_ADC, reg | div);
+		break;
+	case WM8510_DACCLK:
+		reg = snd_soc_component_read(component, WM8510_DAC) & 0x1f7;
+		snd_soc_component_write(component, WM8510_DAC, reg | div);
+		break;
+	case WM8510_BCLKDIV:
+		reg = snd_soc_component_read(component, WM8510_CLOCK) & 0x1e3;
+>>>>>>> upstream/android-13
 		snd_soc_component_write(component, WM8510_CLOCK, reg | div);
 		break;
 	default:
@@ -388,7 +431,11 @@ static int wm8510_set_dai_fmt(struct snd_soc_dai *codec_dai,
 {
 	struct snd_soc_component *component = codec_dai->component;
 	u16 iface = 0;
+<<<<<<< HEAD
 	u16 clk = snd_soc_component_read32(component, WM8510_CLOCK) & 0x1fe;
+=======
+	u16 clk = snd_soc_component_read(component, WM8510_CLOCK) & 0x1fe;
+>>>>>>> upstream/android-13
 
 	/* set master/slave audio interface */
 	switch (fmt & SND_SOC_DAIFMT_MASTER_MASK) {
@@ -445,8 +492,13 @@ static int wm8510_pcm_hw_params(struct snd_pcm_substream *substream,
 				struct snd_soc_dai *dai)
 {
 	struct snd_soc_component *component = dai->component;
+<<<<<<< HEAD
 	u16 iface = snd_soc_component_read32(component, WM8510_IFACE) & 0x19f;
 	u16 adn = snd_soc_component_read32(component, WM8510_ADD) & 0x1f1;
+=======
+	u16 iface = snd_soc_component_read(component, WM8510_IFACE) & 0x19f;
+	u16 adn = snd_soc_component_read(component, WM8510_ADD) & 0x1f1;
+>>>>>>> upstream/android-13
 
 	/* bit size */
 	switch (params_width(params)) {
@@ -490,10 +542,17 @@ static int wm8510_pcm_hw_params(struct snd_pcm_substream *substream,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int wm8510_mute(struct snd_soc_dai *dai, int mute)
 {
 	struct snd_soc_component *component = dai->component;
 	u16 mute_reg = snd_soc_component_read32(component, WM8510_DAC) & 0xffbf;
+=======
+static int wm8510_mute(struct snd_soc_dai *dai, int mute, int direction)
+{
+	struct snd_soc_component *component = dai->component;
+	u16 mute_reg = snd_soc_component_read(component, WM8510_DAC) & 0xffbf;
+>>>>>>> upstream/android-13
 
 	if (mute)
 		snd_soc_component_write(component, WM8510_DAC, mute_reg | 0x40);
@@ -507,7 +566,11 @@ static int wm8510_set_bias_level(struct snd_soc_component *component,
 	enum snd_soc_bias_level level)
 {
 	struct wm8510_priv *wm8510 = snd_soc_component_get_drvdata(component);
+<<<<<<< HEAD
 	u16 power1 = snd_soc_component_read32(component, WM8510_POWER1) & ~0x3;
+=======
+	u16 power1 = snd_soc_component_read(component, WM8510_POWER1) & ~0x3;
+>>>>>>> upstream/android-13
 
 	switch (level) {
 	case SND_SOC_BIAS_ON:
@@ -550,10 +613,18 @@ static int wm8510_set_bias_level(struct snd_soc_component *component,
 
 static const struct snd_soc_dai_ops wm8510_dai_ops = {
 	.hw_params	= wm8510_pcm_hw_params,
+<<<<<<< HEAD
 	.digital_mute	= wm8510_mute,
 	.set_fmt	= wm8510_set_dai_fmt,
 	.set_clkdiv	= wm8510_set_dai_clkdiv,
 	.set_pll	= wm8510_set_dai_pll,
+=======
+	.mute_stream	= wm8510_mute,
+	.set_fmt	= wm8510_set_dai_fmt,
+	.set_clkdiv	= wm8510_set_dai_clkdiv,
+	.set_pll	= wm8510_set_dai_pll,
+	.no_capture_mute = 1,
+>>>>>>> upstream/android-13
 };
 
 static struct snd_soc_dai_driver wm8510_dai = {
@@ -571,7 +642,11 @@ static struct snd_soc_dai_driver wm8510_dai = {
 		.rates = WM8510_RATES,
 		.formats = WM8510_FORMATS,},
 	.ops = &wm8510_dai_ops,
+<<<<<<< HEAD
 	.symmetric_rates = 1,
+=======
+	.symmetric_rate = 1,
+>>>>>>> upstream/android-13
 };
 
 static int wm8510_probe(struct snd_soc_component *component)

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * MAX1117/MAX1118/MAX1119 8-bit, dual-channel ADCs driver
  *
  * Copyright (c) 2017 Akinobu Mita <akinobu.mita@gmail.com>
  *
+<<<<<<< HEAD
  * This file is subject to the terms and conditions of version 2 of
  * the GNU General Public License.  See the file COPYING in the main
  * directory of this archive for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * Datasheet: https://datasheets.maximintegrated.com/en/ds/MAX1117-MAX1119.pdf
  *
  * SPI interface connections
@@ -21,6 +28,10 @@
  */
 
 #include <linux/module.h>
+<<<<<<< HEAD
+=======
+#include <linux/mod_devicetable.h>
+>>>>>>> upstream/android-13
 #include <linux/spi/spi.h>
 #include <linux/iio/iio.h>
 #include <linux/iio/buffer.h>
@@ -68,9 +79,14 @@ static const struct iio_chan_spec max1118_channels[] = {
 	IIO_CHAN_SOFT_TIMESTAMP(2),
 };
 
+<<<<<<< HEAD
 static int max1118_read(struct spi_device *spi, int channel)
 {
 	struct iio_dev *indio_dev = spi_get_drvdata(spi);
+=======
+static int max1118_read(struct iio_dev *indio_dev, int channel)
+{
+>>>>>>> upstream/android-13
 	struct max1118 *adc = iio_priv(indio_dev);
 	struct spi_transfer xfers[] = {
 		/*
@@ -79,7 +95,14 @@ static int max1118_read(struct spi_device *spi, int channel)
 		 */
 		{
 			.len = 0,
+<<<<<<< HEAD
 			.delay_usecs = 1,	/* > CNVST Low Time 100 ns */
+=======
+			.delay = {	/* > CNVST Low Time 100 ns */
+				.value = 1,
+				.unit = SPI_DELAY_UNIT_USECS
+			},
+>>>>>>> upstream/android-13
 			.cs_change = 1,
 		},
 		/*
@@ -89,7 +112,14 @@ static int max1118_read(struct spi_device *spi, int channel)
 		 */
 		{
 			.len = 0,
+<<<<<<< HEAD
 			.delay_usecs = 8,
+=======
+			.delay = {
+				.value = 8,
+				.unit = SPI_DELAY_UNIT_USECS
+			},
+>>>>>>> upstream/android-13
 		},
 		{
 			.rx_buf = &adc->data,
@@ -99,9 +129,15 @@ static int max1118_read(struct spi_device *spi, int channel)
 	int ret;
 
 	if (channel == 0)
+<<<<<<< HEAD
 		ret = spi_sync_transfer(spi, xfers + 1, 2);
 	else
 		ret = spi_sync_transfer(spi, xfers, 3);
+=======
+		ret = spi_sync_transfer(adc->spi, xfers + 1, 2);
+	else
+		ret = spi_sync_transfer(adc->spi, xfers, 3);
+>>>>>>> upstream/android-13
 
 	if (ret)
 		return ret;
@@ -109,11 +145,18 @@ static int max1118_read(struct spi_device *spi, int channel)
 	return adc->data;
 }
 
+<<<<<<< HEAD
 static int max1118_get_vref_mV(struct spi_device *spi)
 {
 	struct iio_dev *indio_dev = spi_get_drvdata(spi);
 	struct max1118 *adc = iio_priv(indio_dev);
 	const struct spi_device_id *id = spi_get_device_id(spi);
+=======
+static int max1118_get_vref_mV(struct iio_dev *indio_dev)
+{
+	struct max1118 *adc = iio_priv(indio_dev);
+	const struct spi_device_id *id = spi_get_device_id(adc->spi);
+>>>>>>> upstream/android-13
 	int vref_uV;
 
 	switch (id->driver_data) {
@@ -140,14 +183,22 @@ static int max1118_read_raw(struct iio_dev *indio_dev,
 	switch (mask) {
 	case IIO_CHAN_INFO_RAW:
 		mutex_lock(&adc->lock);
+<<<<<<< HEAD
 		*val = max1118_read(adc->spi, chan->channel);
+=======
+		*val = max1118_read(indio_dev, chan->channel);
+>>>>>>> upstream/android-13
 		mutex_unlock(&adc->lock);
 		if (*val < 0)
 			return *val;
 
 		return IIO_VAL_INT;
 	case IIO_CHAN_INFO_SCALE:
+<<<<<<< HEAD
 		*val = max1118_get_vref_mV(adc->spi);
+=======
+		*val = max1118_get_vref_mV(indio_dev);
+>>>>>>> upstream/android-13
 		if (*val < 0)
 			return *val;
 		*val2 = 8;
@@ -176,7 +227,11 @@ static irqreturn_t max1118_trigger_handler(int irq, void *p)
 			indio_dev->masklength) {
 		const struct iio_chan_spec *scan_chan =
 				&indio_dev->channels[scan_index];
+<<<<<<< HEAD
 		int ret = max1118_read(adc->spi, scan_chan->channel);
+=======
+		int ret = max1118_read(indio_dev, scan_chan->channel);
+>>>>>>> upstream/android-13
 
 		if (ret < 0) {
 			dev_warn(&adc->spi->dev,
@@ -197,6 +252,14 @@ out:
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
+=======
+static void max1118_reg_disable(void *reg)
+{
+	regulator_disable(reg);
+}
+
+>>>>>>> upstream/android-13
 static int max1118_probe(struct spi_device *spi)
 {
 	struct iio_dev *indio_dev;
@@ -221,12 +284,24 @@ static int max1118_probe(struct spi_device *spi)
 		ret = regulator_enable(adc->reg);
 		if (ret)
 			return ret;
+<<<<<<< HEAD
 	}
 
 	spi_set_drvdata(spi, indio_dev);
 
 	indio_dev->name = spi_get_device_id(spi)->name;
 	indio_dev->dev.parent = &spi->dev;
+=======
+
+		ret = devm_add_action_or_reset(&spi->dev, max1118_reg_disable,
+					       adc->reg);
+		if (ret)
+			return ret;
+
+	}
+
+	indio_dev->name = spi_get_device_id(spi)->name;
+>>>>>>> upstream/android-13
 	indio_dev->info = &max1118_info;
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->channels = max1118_channels;
@@ -238,6 +313,7 @@ static int max1118_probe(struct spi_device *spi)
 	 * a conversion has been completed, the MAX1117/MAX1118/MAX1119 will go
 	 * into AutoShutdown mode until the next conversion is initiated.
 	 */
+<<<<<<< HEAD
 	max1118_read(spi, 0);
 
 	ret = iio_triggered_buffer_setup(indio_dev, NULL,
@@ -272,6 +348,16 @@ static int max1118_remove(struct spi_device *spi)
 		return regulator_disable(adc->reg);
 
 	return 0;
+=======
+	max1118_read(indio_dev, 0);
+
+	ret = devm_iio_triggered_buffer_setup(&spi->dev, indio_dev, NULL,
+					      max1118_trigger_handler, NULL);
+	if (ret)
+		return ret;
+
+	return devm_iio_device_register(&spi->dev, indio_dev);
+>>>>>>> upstream/android-13
 }
 
 static const struct spi_device_id max1118_id[] = {
@@ -282,8 +368,11 @@ static const struct spi_device_id max1118_id[] = {
 };
 MODULE_DEVICE_TABLE(spi, max1118_id);
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF
 
+=======
+>>>>>>> upstream/android-13
 static const struct of_device_id max1118_dt_ids[] = {
 	{ .compatible = "maxim,max1117" },
 	{ .compatible = "maxim,max1118" },
@@ -292,6 +381,7 @@ static const struct of_device_id max1118_dt_ids[] = {
 };
 MODULE_DEVICE_TABLE(of, max1118_dt_ids);
 
+<<<<<<< HEAD
 #endif
 
 static struct spi_driver max1118_spi_driver = {
@@ -301,6 +391,14 @@ static struct spi_driver max1118_spi_driver = {
 	},
 	.probe = max1118_probe,
 	.remove = max1118_remove,
+=======
+static struct spi_driver max1118_spi_driver = {
+	.driver = {
+		.name = "max1118",
+		.of_match_table = max1118_dt_ids,
+	},
+	.probe = max1118_probe,
+>>>>>>> upstream/android-13
 	.id_table = max1118_id,
 };
 module_spi_driver(max1118_spi_driver);

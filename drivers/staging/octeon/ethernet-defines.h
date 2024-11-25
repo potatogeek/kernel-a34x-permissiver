@@ -21,6 +21,7 @@
 #ifndef __ETHERNET_DEFINES_H__
 #define __ETHERNET_DEFINES_H__
 
+<<<<<<< HEAD
 #include <asm/octeon/cvmx-config.h>
 
 #ifdef CONFIG_NETFILTER
@@ -33,10 +34,26 @@
 
 /* Maximum number of SKBs to try to free per xmit packet. */
 #define MAX_OUT_QUEUE_DEPTH 1000
+=======
+#ifdef CONFIG_NETFILTER
+#define REUSE_SKBUFFS_WITHOUT_FREE	0
+#else
+#define REUSE_SKBUFFS_WITHOUT_FREE	1
+#endif
+
+#define USE_ASYNC_IOBDMA		(CONFIG_CAVIUM_OCTEON_CVMSEG_SIZE > 0)
+
+/* Maximum number of SKBs to try to free per xmit packet. */
+#define MAX_OUT_QUEUE_DEPTH		1000
+>>>>>>> upstream/android-13
 
 #define FAU_TOTAL_TX_TO_CLEAN (CVMX_FAU_REG_END - sizeof(u32))
 #define FAU_NUM_PACKET_BUFFERS_TO_FREE (FAU_TOTAL_TX_TO_CLEAN - sizeof(u32))
 
+<<<<<<< HEAD
 #define TOTAL_NUMBER_OF_PORTS       (CVMX_PIP_NUM_INPUT_PORTS + 1)
+=======
+#define TOTAL_NUMBER_OF_PORTS		(CVMX_PIP_NUM_INPUT_PORTS + 1)
+>>>>>>> upstream/android-13
 
 #endif /* __ETHERNET_DEFINES_H__ */

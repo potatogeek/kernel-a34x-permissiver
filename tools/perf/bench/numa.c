@@ -9,9 +9,12 @@
 /* For the CLR_() macros */
 #include <pthread.h>
 
+<<<<<<< HEAD
 #include "../perf.h"
 #include "../builtin.h"
 #include "../util/util.h"
+=======
+>>>>>>> upstream/android-13
 #include <subcmd/parse-options.h>
 #include "../util/cloexec.h"
 
@@ -34,6 +37,11 @@
 #include <sys/types.h>
 #include <linux/kernel.h>
 #include <linux/time64.h>
+<<<<<<< HEAD
+=======
+#include <linux/numa.h>
+#include <linux/zalloc.h>
+>>>>>>> upstream/android-13
 
 #include <numa.h>
 #include <numaif.h>
@@ -43,7 +51,11 @@
 #endif
 
 /*
+<<<<<<< HEAD
  * Regular printout to the terminal, supressed if -q is specified:
+=======
+ * Regular printout to the terminal, suppressed if -q is specified:
+>>>>>>> upstream/android-13
  */
 #define tprintf(x...) do { if (g && g->p.show_details >= 0) printf(x); } while (0)
 
@@ -138,12 +150,22 @@ struct global_info {
 	u8			*data;
 
 	pthread_mutex_t		startup_mutex;
+<<<<<<< HEAD
 	int			nr_tasks_started;
 
 	pthread_mutex_t		startup_done_mutex;
 
 	pthread_mutex_t		start_work_mutex;
 	int			nr_tasks_working;
+=======
+	pthread_cond_t		startup_cond;
+	int			nr_tasks_started;
+
+	pthread_mutex_t		start_work_mutex;
+	pthread_cond_t		start_work_cond;
+	int			nr_tasks_working;
+	bool			start_work;
+>>>>>>> upstream/android-13
 
 	pthread_mutex_t		stop_work_mutex;
 	u64			bytes_done;
@@ -248,6 +270,7 @@ static int is_node_present(int node)
  */
 static bool node_has_cpus(int node)
 {
+<<<<<<< HEAD
 	struct bitmask *cpu = numa_allocate_cpumask();
 	unsigned int i;
 
@@ -259,6 +282,24 @@ static bool node_has_cpus(int node)
 	}
 
 	return false; /* lets fall back to nocpus safely */
+=======
+	struct bitmask *cpumask = numa_allocate_cpumask();
+	bool ret = false; /* fall back to nocpus */
+	int cpu;
+
+	BUG_ON(!cpumask);
+	if (!numa_node_to_cpus(node, cpumask)) {
+		for (cpu = 0; cpu < (int)cpumask->size; cpu++) {
+			if (numa_bitmask_isbitset(cpumask, cpu)) {
+				ret = true;
+				break;
+			}
+		}
+	}
+	numa_free_cpumask(cpumask);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static cpu_set_t bind_to_cpu(int target_cpu)
@@ -289,19 +330,26 @@ static cpu_set_t bind_to_cpu(int target_cpu)
 
 static cpu_set_t bind_to_node(int target_node)
 {
+<<<<<<< HEAD
 	int cpus_per_node = g->p.nr_cpus / nr_numa_nodes();
+=======
+>>>>>>> upstream/android-13
 	cpu_set_t orig_mask, mask;
 	int cpu;
 	int ret;
 
+<<<<<<< HEAD
 	BUG_ON(cpus_per_node * nr_numa_nodes() != g->p.nr_cpus);
 	BUG_ON(!cpus_per_node);
 
+=======
+>>>>>>> upstream/android-13
 	ret = sched_getaffinity(0, sizeof(orig_mask), &orig_mask);
 	BUG_ON(ret);
 
 	CPU_ZERO(&mask);
 
+<<<<<<< HEAD
 	if (target_node == -1) {
 		for (cpu = 0; cpu < g->p.nr_cpus; cpu++)
 			CPU_SET(cpu, &mask);
@@ -313,6 +361,22 @@ static cpu_set_t bind_to_node(int target_node)
 
 		for (cpu = cpu_start; cpu < cpu_stop; cpu++)
 			CPU_SET(cpu, &mask);
+=======
+	if (target_node == NUMA_NO_NODE) {
+		for (cpu = 0; cpu < g->p.nr_cpus; cpu++)
+			CPU_SET(cpu, &mask);
+	} else {
+		struct bitmask *cpumask = numa_allocate_cpumask();
+
+		BUG_ON(!cpumask);
+		if (!numa_node_to_cpus(target_node, cpumask)) {
+			for (cpu = 0; cpu < (int)cpumask->size; cpu++) {
+				if (numa_bitmask_isbitset(cpumask, cpu))
+					CPU_SET(cpu, &mask);
+			}
+		}
+		numa_free_cpumask(cpumask);
+>>>>>>> upstream/android-13
 	}
 
 	ret = sched_setaffinity(0, sizeof(mask), &mask);
@@ -340,6 +404,7 @@ static void mempol_restore(void)
 
 static void bind_to_memnode(int node)
 {
+<<<<<<< HEAD
 	unsigned long nodemask;
 	int ret;
 
@@ -352,6 +417,24 @@ static void bind_to_memnode(int node)
 	ret = set_mempolicy(MPOL_BIND, &nodemask, sizeof(nodemask)*8);
 	dprintf("binding to node %d, mask: %016lx => %d\n", node, nodemask, ret);
 
+=======
+	struct bitmask *node_mask;
+	int ret;
+
+	if (node == NUMA_NO_NODE)
+		return;
+
+	node_mask = numa_allocate_nodemask();
+	BUG_ON(!node_mask);
+
+	numa_bitmask_clearall(node_mask);
+	numa_bitmask_setbit(node_mask, node);
+
+	ret = set_mempolicy(MPOL_BIND, node_mask->maskp, node_mask->size + 1);
+	dprintf("binding to node %d, mask: %016lx => %d\n", node, *node_mask->maskp, ret);
+
+	numa_bitmask_free(node_mask);
+>>>>>>> upstream/android-13
 	BUG_ON(ret);
 }
 
@@ -480,6 +563,21 @@ static void init_global_mutex(pthread_mutex_t *mutex)
 	pthread_mutex_init(mutex, &attr);
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * Return a process-shared (global) condition variable:
+ */
+static void init_global_cond(pthread_cond_t *cond)
+{
+	pthread_condattr_t attr;
+
+	pthread_condattr_init(&attr);
+	pthread_condattr_setpshared(&attr, PTHREAD_PROCESS_SHARED);
+	pthread_cond_init(cond, &attr);
+}
+
+>>>>>>> upstream/android-13
 static int parse_cpu_list(const char *arg)
 {
 	p0.cpu_list_str = strdup(arg);
@@ -730,8 +828,11 @@ static int parse_nodes_opt(const struct option *opt __maybe_unused,
 		return -1;
 
 	return parse_node_list(arg);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 #define BIT(x) (1ul << x)
@@ -814,12 +915,19 @@ static u64 do_work(u8 *__data, long bytes, int nr, int nr_max, int loop, u64 val
 			}
 		}
 	} else if (!g->p.data_backwards || (nr + loop) & 1) {
+<<<<<<< HEAD
+=======
+		/* Process data forwards: */
+>>>>>>> upstream/android-13
 
 		d0 = data + off;
 		d  = data + off + 1;
 		d1 = data + words;
 
+<<<<<<< HEAD
 		/* Process data forwards: */
+=======
+>>>>>>> upstream/android-13
 		for (;;) {
 			if (unlikely(d >= d1))
 				d = data;
@@ -837,7 +945,10 @@ static u64 do_work(u8 *__data, long bytes, int nr, int nr_max, int loop, u64 val
 		d  = data + off - 1;
 		d1 = data + words;
 
+<<<<<<< HEAD
 		/* Process data forwards: */
+=======
+>>>>>>> upstream/android-13
 		for (;;) {
 			if (unlikely(d < data))
 				d = data + words-1;
@@ -863,8 +974,11 @@ static void update_curr_cpu(int task_nr, unsigned long bytes_worked)
 	prctl(0, bytes_worked);
 }
 
+<<<<<<< HEAD
 #define MAX_NR_NODES	64
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Count the number of nodes a process's threads
  * are spread out on.
@@ -875,10 +989,22 @@ static void update_curr_cpu(int task_nr, unsigned long bytes_worked)
  */
 static int count_process_nodes(int process_nr)
 {
+<<<<<<< HEAD
 	char node_present[MAX_NR_NODES] = { 0, };
 	int nodes;
 	int n, t;
 
+=======
+	char *node_present;
+	int nodes;
+	int n, t;
+
+	node_present = (char *)malloc(g->p.nr_nodes * sizeof(char));
+	BUG_ON(!node_present);
+	for (nodes = 0; nodes < g->p.nr_nodes; nodes++)
+		node_present[nodes] = 0;
+
+>>>>>>> upstream/android-13
 	for (t = 0; t < g->p.nr_threads; t++) {
 		struct thread_data *td;
 		int task_nr;
@@ -888,17 +1014,31 @@ static int count_process_nodes(int process_nr)
 		td = g->threads + task_nr;
 
 		node = numa_node_of_cpu(td->curr_cpu);
+<<<<<<< HEAD
 		if (node < 0) /* curr_cpu was likely still -1 */
 			return 0;
+=======
+		if (node < 0) /* curr_cpu was likely still -1 */ {
+			free(node_present);
+			return 0;
+		}
+>>>>>>> upstream/android-13
 
 		node_present[node] = 1;
 	}
 
 	nodes = 0;
 
+<<<<<<< HEAD
 	for (n = 0; n < MAX_NR_NODES; n++)
 		nodes += node_present[n];
 
+=======
+	for (n = 0; n < g->p.nr_nodes; n++)
+		nodes += node_present[n];
+
+	free(node_present);
+>>>>>>> upstream/android-13
 	return nodes;
 }
 
@@ -967,7 +1107,11 @@ static void calc_convergence(double runtime_ns_max, double *convergence)
 {
 	unsigned int loops_done_min, loops_done_max;
 	int process_groups;
+<<<<<<< HEAD
 	int nodes[MAX_NR_NODES];
+=======
+	int *nodes;
+>>>>>>> upstream/android-13
 	int distance;
 	int nr_min;
 	int nr_max;
@@ -981,6 +1125,11 @@ static void calc_convergence(double runtime_ns_max, double *convergence)
 	if (!g->p.show_convergence && !g->p.measure_convergence)
 		return;
 
+<<<<<<< HEAD
+=======
+	nodes = (int *)malloc(g->p.nr_nodes * sizeof(int));
+	BUG_ON(!nodes);
+>>>>>>> upstream/android-13
 	for (node = 0; node < g->p.nr_nodes; node++)
 		nodes[node] = 0;
 
@@ -1022,8 +1171,15 @@ static void calc_convergence(double runtime_ns_max, double *convergence)
 
 	BUG_ON(sum > g->p.nr_tasks);
 
+<<<<<<< HEAD
 	if (0 && (sum < g->p.nr_tasks))
 		return;
+=======
+	if (0 && (sum < g->p.nr_tasks)) {
+		free(nodes);
+		return;
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * Count the number of distinct process groups present
@@ -1075,6 +1231,11 @@ static void calc_convergence(double runtime_ns_max, double *convergence)
 		}
 		tprintf("\n");
 	}
+<<<<<<< HEAD
+=======
+
+	free(nodes);
+>>>>>>> upstream/android-13
 }
 
 static void show_summary(double runtime_ns_max, int l, double *convergence)
@@ -1136,15 +1297,29 @@ static void *worker_thread(void *__tdata)
 	if (g->p.serialize_startup) {
 		pthread_mutex_lock(&g->startup_mutex);
 		g->nr_tasks_started++;
+<<<<<<< HEAD
+=======
+		/* The last thread wakes the main process. */
+		if (g->nr_tasks_started == g->p.nr_tasks)
+			pthread_cond_signal(&g->startup_cond);
+
+>>>>>>> upstream/android-13
 		pthread_mutex_unlock(&g->startup_mutex);
 
 		/* Here we will wait for the main process to start us all at once: */
 		pthread_mutex_lock(&g->start_work_mutex);
+<<<<<<< HEAD
 		g->nr_tasks_working++;
 
 		/* Last one wake the main process: */
 		if (g->nr_tasks_working == g->p.nr_tasks)
 			pthread_mutex_unlock(&g->startup_done_mutex);
+=======
+		g->start_work = false;
+		g->nr_tasks_working++;
+		while (!g->start_work)
+			pthread_cond_wait(&g->start_work_cond, &g->start_work_mutex);
+>>>>>>> upstream/android-13
 
 		pthread_mutex_unlock(&g->start_work_mutex);
 	}
@@ -1369,7 +1544,11 @@ static void init_thread_data(void)
 		int cpu;
 
 		/* Allow all nodes by default: */
+<<<<<<< HEAD
 		td->bind_node = -1;
+=======
+		td->bind_node = NUMA_NO_NODE;
+>>>>>>> upstream/android-13
 
 		/* Allow all CPUs by default: */
 		CPU_ZERO(&td->bind_cpumask);
@@ -1397,7 +1576,11 @@ static int init(void)
 	g->p.nr_nodes = numa_max_node() + 1;
 
 	/* char array in count_process_nodes(): */
+<<<<<<< HEAD
 	BUG_ON(g->p.nr_nodes > MAX_NR_NODES || g->p.nr_nodes < 0);
+=======
+	BUG_ON(g->p.nr_nodes < 0);
+>>>>>>> upstream/android-13
 
 	if (g->p.show_quiet && !g->p.show_details)
 		g->p.show_details = -1;
@@ -1441,8 +1624,14 @@ static int init(void)
 
 	/* Startup serialization: */
 	init_global_mutex(&g->start_work_mutex);
+<<<<<<< HEAD
 	init_global_mutex(&g->startup_mutex);
 	init_global_mutex(&g->startup_done_mutex);
+=======
+	init_global_cond(&g->start_work_cond);
+	init_global_mutex(&g->startup_mutex);
+	init_global_cond(&g->startup_cond);
+>>>>>>> upstream/android-13
 	init_global_mutex(&g->stop_work_mutex);
 
 	init_thread_data();
@@ -1502,9 +1691,12 @@ static int __bench_numa(const char *name)
 	pids = zalloc(g->p.nr_proc * sizeof(*pids));
 	pid = -1;
 
+<<<<<<< HEAD
 	/* All threads try to acquire it, this way we can wait for them to start up: */
 	pthread_mutex_lock(&g->start_work_mutex);
 
+=======
+>>>>>>> upstream/android-13
 	if (g->p.serialize_startup) {
 		tprintf(" #\n");
 		tprintf(" # Startup synchronization: ..."); fflush(stdout);
@@ -1526,6 +1718,7 @@ static int __bench_numa(const char *name)
 		pids[i] = pid;
 
 	}
+<<<<<<< HEAD
 	/* Wait for all the threads to start up: */
 	while (g->nr_tasks_started != g->p.nr_tasks)
 		usleep(USEC_PER_MSEC);
@@ -1542,6 +1735,31 @@ static int __bench_numa(const char *name)
 
 		/* This mutex is locked - the last started thread will wake us: */
 		pthread_mutex_lock(&g->startup_done_mutex);
+=======
+
+	if (g->p.serialize_startup) {
+		bool threads_ready = false;
+		double startup_sec;
+
+		/*
+		 * Wait for all the threads to start up. The last thread will
+		 * signal this process.
+		 */
+		pthread_mutex_lock(&g->startup_mutex);
+		while (g->nr_tasks_started != g->p.nr_tasks)
+			pthread_cond_wait(&g->startup_cond, &g->startup_mutex);
+
+		pthread_mutex_unlock(&g->startup_mutex);
+
+		/* Wait for all threads to be at the start_work_cond. */
+		while (!threads_ready) {
+			pthread_mutex_lock(&g->start_work_mutex);
+			threads_ready = (g->nr_tasks_working == g->p.nr_tasks);
+			pthread_mutex_unlock(&g->start_work_mutex);
+			if (!threads_ready)
+				usleep(1);
+		}
+>>>>>>> upstream/android-13
 
 		gettimeofday(&stop, NULL);
 
@@ -1555,7 +1773,15 @@ static int __bench_numa(const char *name)
 		tprintf(" #\n");
 
 		start = stop;
+<<<<<<< HEAD
 		pthread_mutex_unlock(&g->startup_done_mutex);
+=======
+		/* Start all threads running. */
+		pthread_mutex_lock(&g->start_work_mutex);
+		g->start_work = true;
+		pthread_mutex_unlock(&g->start_work_mutex);
+		pthread_cond_broadcast(&g->start_work_cond);
+>>>>>>> upstream/android-13
 	} else {
 		gettimeofday(&start, NULL);
 	}
@@ -1734,12 +1960,20 @@ err:
  */
 static const char *tests[][MAX_ARGS] = {
    /* Basic single-stream NUMA bandwidth measurements: */
+<<<<<<< HEAD
    { "RAM-bw-local,",	  "mem",  "-p",  "1",  "-t",  "1", "-P", "1024",
+=======
+   { "RAM-bw-local,",     "mem",  "-p",  "1",  "-t",  "1", "-P", "1024",
+>>>>>>> upstream/android-13
 			  "-C" ,   "0", "-M",   "0", OPT_BW_RAM },
    { "RAM-bw-local-NOTHP,",
 			  "mem",  "-p",  "1",  "-t",  "1", "-P", "1024",
 			  "-C" ,   "0", "-M",   "0", OPT_BW_RAM_NOTHP },
+<<<<<<< HEAD
    { "RAM-bw-remote,",	  "mem",  "-p",  "1",  "-t",  "1", "-P", "1024",
+=======
+   { "RAM-bw-remote,",    "mem",  "-p",  "1",  "-t",  "1", "-P", "1024",
+>>>>>>> upstream/android-13
 			  "-C" ,   "0", "-M",   "1", OPT_BW_RAM },
 
    /* 2-stream NUMA bandwidth measurements: */
@@ -1756,7 +1990,11 @@ static const char *tests[][MAX_ARGS] = {
    { " 1x3-convergence,", "mem",  "-p",  "1", "-t",  "3", "-P",  "512", OPT_CONV },
    { " 1x4-convergence,", "mem",  "-p",  "1", "-t",  "4", "-P",  "512", OPT_CONV },
    { " 1x6-convergence,", "mem",  "-p",  "1", "-t",  "6", "-P", "1020", OPT_CONV },
+<<<<<<< HEAD
    { " 2x3-convergence,", "mem",  "-p",  "3", "-t",  "3", "-P", "1020", OPT_CONV },
+=======
+   { " 2x3-convergence,", "mem",  "-p",  "2", "-t",  "3", "-P", "1020", OPT_CONV },
+>>>>>>> upstream/android-13
    { " 3x3-convergence,", "mem",  "-p",  "3", "-t",  "3", "-P", "1020", OPT_CONV },
    { " 4x4-convergence,", "mem",  "-p",  "4", "-t",  "4", "-P",  "512", OPT_CONV },
    { " 4x4-convergence-NOTHP,",
@@ -1781,6 +2019,7 @@ static const char *tests[][MAX_ARGS] = {
 			  "mem",  "-p",  "8", "-t",  "1", "-P", " 512", OPT_BW_NOTHP },
    { "16x1-bw-process,",  "mem",  "-p", "16", "-t",  "1", "-P",  "256", OPT_BW },
 
+<<<<<<< HEAD
    { " 4x1-bw-thread,",	  "mem",  "-p",  "1", "-t",  "4", "-T",  "256", OPT_BW },
    { " 8x1-bw-thread,",	  "mem",  "-p",  "1", "-t",  "8", "-T",  "256", OPT_BW },
    { "16x1-bw-thread,",   "mem",  "-p",  "1", "-t", "16", "-T",  "128", OPT_BW },
@@ -1799,6 +2038,26 @@ static const char *tests[][MAX_ARGS] = {
    { "1x32-bw-thread,",   "mem",  "-p",  "1", "-t", "32", "-P", "2048", OPT_BW },
 
    { "numa02-bw,",	  "mem",  "-p",  "1", "-t", "32", "-T",   "32", OPT_BW },
+=======
+   { " 1x4-bw-thread,",   "mem",  "-p",  "1", "-t",  "4", "-T",  "256", OPT_BW },
+   { " 1x8-bw-thread,",   "mem",  "-p",  "1", "-t",  "8", "-T",  "256", OPT_BW },
+   { "1x16-bw-thread,",   "mem",  "-p",  "1", "-t", "16", "-T",  "128", OPT_BW },
+   { "1x32-bw-thread,",   "mem",  "-p",  "1", "-t", "32", "-T",   "64", OPT_BW },
+
+   { " 2x3-bw-process,",  "mem",  "-p",  "2", "-t",  "3", "-P",  "512", OPT_BW },
+   { " 4x4-bw-process,",  "mem",  "-p",  "4", "-t",  "4", "-P",  "512", OPT_BW },
+   { " 4x6-bw-process,",  "mem",  "-p",  "4", "-t",  "6", "-P",  "512", OPT_BW },
+   { " 4x8-bw-process,",  "mem",  "-p",  "4", "-t",  "8", "-P",  "512", OPT_BW },
+   { " 4x8-bw-process-NOTHP,",
+			  "mem",  "-p",  "4", "-t",  "8", "-P",  "512", OPT_BW_NOTHP },
+   { " 3x3-bw-process,",  "mem",  "-p",  "3", "-t",  "3", "-P",  "512", OPT_BW },
+   { " 5x5-bw-process,",  "mem",  "-p",  "5", "-t",  "5", "-P",  "512", OPT_BW },
+
+   { "2x16-bw-process,",  "mem",  "-p",  "2", "-t", "16", "-P",  "512", OPT_BW },
+   { "1x32-bw-process,",  "mem",  "-p",  "1", "-t", "32", "-P", "2048", OPT_BW },
+
+   { "numa02-bw,",        "mem",  "-p",  "1", "-t", "32", "-T",   "32", OPT_BW },
+>>>>>>> upstream/android-13
    { "numa02-bw-NOTHP,",  "mem",  "-p",  "1", "-t", "32", "-T",   "32", OPT_BW_NOTHP },
    { "numa01-bw-thread,", "mem",  "-p",  "2", "-t", "16", "-T",  "192", OPT_BW },
    { "numa01-bw-thread-NOTHP,",

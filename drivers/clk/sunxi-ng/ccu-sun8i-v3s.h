@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2016 Icenowy Zheng <icenowy@aosc.xyz>
  *
  * Based on ccu-sun8i-h3.h, which is:
  * Copyright (c) 2016 Maxime Ripard <maxime.ripard@free-electrons.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _CCU_SUN8I_H3_H_
@@ -60,6 +67,9 @@
 
 #define CLK_PLL_DDR1		74
 
+<<<<<<< HEAD
 #define CLK_NUMBER		(CLK_PLL_DDR1 + 1)
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _CCU_SUN8I_H3_H_ */

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* QLogic qed NIC Driver
  * Copyright (c) 2015-2016  QLogic Corporation
  *
@@ -28,6 +29,12 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause) */
+/* QLogic qed NIC Driver
+ * Copyright (c) 2015-2016  QLogic Corporation
+ * Copyright (c) 2019-2020 Marvell International Ltd.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _COMMON_HSI_H
@@ -76,7 +83,10 @@
 
 #define FW_ASSERT_GENERAL_ATTN_IDX		32
 
+<<<<<<< HEAD
 #define MAX_PINNED_CCFC				32
+=======
+>>>>>>> upstream/android-13
 
 /* Queue Zone sizes in bytes */
 #define TSTORM_QZONE_SIZE	8
@@ -105,12 +115,28 @@
 
 #define CORE_SPQE_PAGE_SIZE_BYTES	4096
 
+<<<<<<< HEAD
 #define MAX_NUM_LL2_RX_QUEUES		48
 #define MAX_NUM_LL2_TX_STATS_COUNTERS	48
 
 #define FW_MAJOR_VERSION	8
 #define FW_MINOR_VERSION        37
 #define FW_REVISION_VERSION     2
+=======
+/* Number of LL2 RAM based queues */
+#define MAX_NUM_LL2_RX_RAM_QUEUES 32
+
+/* Number of LL2 context based queues */
+#define MAX_NUM_LL2_RX_CTX_QUEUES 208
+#define MAX_NUM_LL2_RX_QUEUES \
+	(MAX_NUM_LL2_RX_RAM_QUEUES + MAX_NUM_LL2_RX_CTX_QUEUES)
+
+#define MAX_NUM_LL2_TX_STATS_COUNTERS  48
+
+#define FW_MAJOR_VERSION	8
+#define FW_MINOR_VERSION	42
+#define FW_REVISION_VERSION	2
+>>>>>>> upstream/android-13
 #define FW_ENGINEERING_VERSION	0
 
 /***********************/
@@ -132,10 +158,17 @@
 #define MAX_NUM_VFS	(MAX_NUM_VFS_K2)
 
 #define MAX_NUM_FUNCTIONS_BB	(MAX_NUM_PFS_BB + MAX_NUM_VFS_BB)
+<<<<<<< HEAD
 #define MAX_NUM_FUNCTIONS	(MAX_NUM_PFS + MAX_NUM_VFS)
 
 #define MAX_FUNCTION_NUMBER_BB	(MAX_NUM_PFS + MAX_NUM_VFS_BB)
 #define MAX_FUNCTION_NUMBER	(MAX_NUM_PFS + MAX_NUM_VFS)
+=======
+
+#define MAX_FUNCTION_NUMBER_BB	(MAX_NUM_PFS + MAX_NUM_VFS_BB)
+#define MAX_FUNCTION_NUMBER_K2  (MAX_NUM_PFS + MAX_NUM_VFS_K2)
+#define MAX_NUM_FUNCTIONS	(MAX_FUNCTION_NUMBER_K2)
+>>>>>>> upstream/android-13
 
 #define MAX_NUM_VPORTS_K2	(208)
 #define MAX_NUM_VPORTS_BB	(160)
@@ -222,6 +255,10 @@
 #define DQ_XCM_TOE_TX_BD_PROD_CMD		DQ_XCM_AGG_VAL_SEL_WORD4
 #define DQ_XCM_TOE_MORE_TO_SEND_SEQ_CMD		DQ_XCM_AGG_VAL_SEL_REG3
 #define DQ_XCM_TOE_LOCAL_ADV_WND_SEQ_CMD	DQ_XCM_AGG_VAL_SEL_REG4
+<<<<<<< HEAD
+=======
+#define DQ_XCM_ROCE_ACK_EDPM_DORQ_SEQ_CMD	DQ_XCM_AGG_VAL_SEL_WORD5
+>>>>>>> upstream/android-13
 
 /* UCM agg val selection (HW) */
 #define	DQ_UCM_AGG_VAL_SEL_WORD0	0
@@ -340,6 +377,13 @@
 #define DQ_PWM_OFFSET_TCM_ROCE_RQ_PROD		(DQ_PWM_OFFSET_TCM16_BASE + 1)
 #define DQ_PWM_OFFSET_TCM_IWARP_RQ_PROD		(DQ_PWM_OFFSET_TCM16_BASE + 3)
 
+<<<<<<< HEAD
+=======
+/* DQ_DEMS_AGG_VAL_BASE */
+#define DQ_PWM_OFFSET_TCM_LL2_PROD_UPDATE \
+	(DQ_PWM_OFFSET_TCM32_BASE + DQ_TCM_AGG_VAL_SEL_REG9 - 4)
+
+>>>>>>> upstream/android-13
 #define	DQ_REGION_SHIFT			(12)
 
 /* DPM */
@@ -395,6 +439,10 @@
 
 /* Number of Protocol Indices per Status Block */
 #define PIS_PER_SB_E4	12
+<<<<<<< HEAD
+=======
+#define MAX_PIS_PER_SB	PIS_PER_SB
+>>>>>>> upstream/android-13
 
 #define CAU_HC_STOPPED_STATE	3
 #define CAU_HC_DISABLE_STATE	4
@@ -425,8 +473,11 @@
 #define IGU_MEM_PBA_MSIX_RESERVED_UPPER	0x03ff
 
 #define IGU_CMD_INT_ACK_BASE		0x0400
+<<<<<<< HEAD
 #define IGU_CMD_INT_ACK_UPPER		(IGU_CMD_INT_ACK_BASE +	\
 					 MAX_TOT_SB_PER_PATH - 1)
+=======
+>>>>>>> upstream/android-13
 #define IGU_CMD_INT_ACK_RESERVED_UPPER	0x05ff
 
 #define IGU_CMD_ATTN_BIT_UPD_UPPER	0x05f0
@@ -439,8 +490,11 @@
 #define IGU_REG_SISR_MDPC_WOMASK_UPPER		0x05f6
 
 #define IGU_CMD_PROD_UPD_BASE			0x0600
+<<<<<<< HEAD
 #define IGU_CMD_PROD_UPD_UPPER			(IGU_CMD_PROD_UPD_BASE +\
 						 MAX_TOT_SB_PER_PATH - 1)
+=======
+>>>>>>> upstream/android-13
 #define IGU_CMD_PROD_UPD_RESERVED_UPPER		0x07ff
 
 /*****************/
@@ -652,8 +706,13 @@
 #define PBF_MAX_CMD_LINES	3328
 
 /* Number of BTB blocks. Each block is 256B. */
+<<<<<<< HEAD
 #define BTB_MAX_BLOCKS		1440
 
+=======
+#define BTB_MAX_BLOCKS_BB 1440
+#define BTB_MAX_BLOCKS_K2 1840
+>>>>>>> upstream/android-13
 /*****************/
 /* PRS CONSTANTS */
 /*****************/
@@ -720,7 +779,11 @@ enum mf_mode {
 
 /* Per-protocol connection types */
 enum protocol_type {
+<<<<<<< HEAD
 	PROTOCOLID_ISCSI,
+=======
+	PROTOCOLID_TCP_ULP,
+>>>>>>> upstream/android-13
 	PROTOCOLID_FCOE,
 	PROTOCOLID_ROCE,
 	PROTOCOLID_CORE,
@@ -730,6 +793,11 @@ enum protocol_type {
 	PROTOCOLID_PREROCE,
 	PROTOCOLID_COMMON,
 	PROTOCOLID_RESERVED1,
+<<<<<<< HEAD
+=======
+	PROTOCOLID_RDMA,
+	PROTOCOLID_SCSI,
+>>>>>>> upstream/android-13
 	MAX_PROTOCOL_TYPE
 };
 
@@ -750,6 +818,13 @@ union rdma_eqe_data {
 	struct rdma_eqe_destroy_qp rdma_destroy_qp_data;
 };
 
+<<<<<<< HEAD
+=======
+struct tstorm_queue_zone {
+	__le32 reserved[2];
+};
+
+>>>>>>> upstream/android-13
 /* Ustorm Queue Zone */
 struct ustorm_eth_queue_zone {
 	struct coalescing_timeset int_coalescing_timeset;
@@ -872,8 +947,13 @@ struct db_l2_dpm_data {
 #define DB_L2_DPM_DATA_RESERVED0_SHIFT 27
 #define DB_L2_DPM_DATA_SGE_NUM_MASK	0x7
 #define DB_L2_DPM_DATA_SGE_NUM_SHIFT	28
+<<<<<<< HEAD
 #define DB_L2_DPM_DATA_GFS_SRC_EN_MASK	0x1
 #define DB_L2_DPM_DATA_GFS_SRC_EN_SHIFT	31
+=======
+#define DB_L2_DPM_DATA_TGFS_SRC_EN_MASK  0x1
+#define DB_L2_DPM_DATA_TGFS_SRC_EN_SHIFT 31
+>>>>>>> upstream/android-13
 };
 
 /* Structure for SGE in a DPM doorbell of type DPM_L2_BD */
@@ -931,12 +1011,21 @@ struct db_rdma_dpm_params {
 #define DB_RDMA_DPM_PARAMS_WQE_SIZE_SHIFT		16
 #define DB_RDMA_DPM_PARAMS_RESERVED0_MASK		0x1
 #define DB_RDMA_DPM_PARAMS_RESERVED0_SHIFT		27
+<<<<<<< HEAD
 #define DB_RDMA_DPM_PARAMS_COMPLETION_FLG_MASK		0x1
 #define DB_RDMA_DPM_PARAMS_COMPLETION_FLG_SHIFT		28
 #define DB_RDMA_DPM_PARAMS_S_FLG_MASK			0x1
 #define DB_RDMA_DPM_PARAMS_S_FLG_SHIFT			29
 #define DB_RDMA_DPM_PARAMS_RESERVED1_MASK		0x1
 #define DB_RDMA_DPM_PARAMS_RESERVED1_SHIFT		30
+=======
+#define DB_RDMA_DPM_PARAMS_ACK_REQUEST_MASK		0x1
+#define DB_RDMA_DPM_PARAMS_ACK_REQUEST_SHIFT		28
+#define DB_RDMA_DPM_PARAMS_S_FLG_MASK			0x1
+#define DB_RDMA_DPM_PARAMS_S_FLG_SHIFT			29
+#define DB_RDMA_DPM_PARAMS_COMPLETION_FLG_MASK		0x1
+#define DB_RDMA_DPM_PARAMS_COMPLETION_FLG_SHIFT		30
+>>>>>>> upstream/android-13
 #define DB_RDMA_DPM_PARAMS_CONN_TYPE_IS_IWARP_MASK	0x1
 #define DB_RDMA_DPM_PARAMS_CONN_TYPE_IS_IWARP_SHIFT	31
 };

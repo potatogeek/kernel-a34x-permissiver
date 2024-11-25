@@ -29,6 +29,10 @@
 
 struct b53_device;
 struct net_device;
+<<<<<<< HEAD
+=======
+struct phylink_link_state;
+>>>>>>> upstream/android-13
 
 struct b53_io_ops {
 	int (*read8)(struct b53_device *dev, u8 page, u8 reg, u8 *value);
@@ -43,9 +47,33 @@ struct b53_io_ops {
 	int (*write64)(struct b53_device *dev, u8 page, u8 reg, u64 value);
 	int (*phy_read16)(struct b53_device *dev, int addr, int reg, u16 *value);
 	int (*phy_write16)(struct b53_device *dev, int addr, int reg, u16 value);
+<<<<<<< HEAD
 };
 
 enum {
+=======
+	int (*irq_enable)(struct b53_device *dev, int port);
+	void (*irq_disable)(struct b53_device *dev, int port);
+	u8 (*serdes_map_lane)(struct b53_device *dev, int port);
+	int (*serdes_link_state)(struct b53_device *dev, int port,
+				 struct phylink_link_state *state);
+	void (*serdes_config)(struct b53_device *dev, int port,
+			      unsigned int mode,
+			      const struct phylink_link_state *state);
+	void (*serdes_an_restart)(struct b53_device *dev, int port);
+	void (*serdes_link_set)(struct b53_device *dev, int port,
+				unsigned int mode, phy_interface_t interface,
+				bool link_up);
+	void (*serdes_phylink_validate)(struct b53_device *dev, int port,
+					unsigned long *supported,
+					struct phylink_link_state *state);
+};
+
+#define B53_INVALID_LANE	0xff
+
+enum {
+	BCM4908_DEVICE_ID = 0x4908,
+>>>>>>> upstream/android-13
 	BCM5325_DEVICE_ID = 0x25,
 	BCM5365_DEVICE_ID = 0x65,
 	BCM5389_DEVICE_ID = 0x89,
@@ -73,7 +101,10 @@ enum {
 struct b53_port {
 	u16		vlan_ctl_mask;
 	struct ethtool_eee eee;
+<<<<<<< HEAD
 	u16		pvid;
+=======
+>>>>>>> upstream/android-13
 };
 
 struct b53_vlan {
@@ -99,15 +130,29 @@ struct b53_device {
 	u8 jumbo_pm_reg;
 	u8 jumbo_size_reg;
 	int reset_gpio;
+<<<<<<< HEAD
 	u8 num_arl_entries;
 
 	/* used ports mask */
 	u16 enabled_ports;
+=======
+	u8 num_arl_bins;
+	u16 num_arl_buckets;
+	enum dsa_tag_protocol tag_protocol;
+
+	/* used ports mask */
+	u16 enabled_ports;
+	unsigned int imp_port;
+>>>>>>> upstream/android-13
 	unsigned int cpu_port;
 
 	/* connect specific data */
 	u8 current_page;
 	struct device *dev;
+<<<<<<< HEAD
+=======
+	u8 serdes_lane;
+>>>>>>> upstream/android-13
 
 	/* Master MDIO bus we got probed from */
 	struct mii_bus *bus;
@@ -120,7 +165,10 @@ struct b53_device {
 	unsigned int num_vlans;
 	struct b53_vlan *vlans;
 	bool vlan_enabled;
+<<<<<<< HEAD
 	bool vlan_filtering_enabled;
+=======
+>>>>>>> upstream/android-13
 	unsigned int num_ports;
 	struct b53_port *ports;
 };
@@ -166,11 +214,15 @@ static inline int is531x5(struct b53_device *dev)
 
 static inline int is63xx(struct b53_device *dev)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_BCM63XX
 	return dev->chip_id == BCM63XX_DEVICE_ID;
 #else
 	return 0;
 #endif
+=======
+	return dev->chip_id == BCM63XX_DEVICE_ID;
+>>>>>>> upstream/android-13
 }
 
 static inline int is5301x(struct b53_device *dev)
@@ -193,6 +245,14 @@ static inline int is58xx(struct b53_device *dev)
 #define B53_CPU_PORT_25	5
 #define B53_CPU_PORT	8
 
+<<<<<<< HEAD
+=======
+static inline unsigned int b53_max_arl_entries(struct b53_device *dev)
+{
+	return dev->num_arl_buckets * dev->num_arl_bins;
+}
+
+>>>>>>> upstream/android-13
 struct b53_device *b53_switch_alloc(struct device *base,
 				    const struct b53_io_ops *ops,
 				    void *priv);
@@ -206,6 +266,14 @@ static inline void b53_switch_remove(struct b53_device *dev)
 	dsa_unregister_switch(dev->ds);
 }
 
+<<<<<<< HEAD
+=======
+static inline void b53_switch_shutdown(struct b53_device *dev)
+{
+	dsa_switch_shutdown(dev->ds);
+}
+
+>>>>>>> upstream/android-13
 #define b53_build_op(type_op_size, val_type)				\
 static inline int b53_##type_op_size(struct b53_device *dev, u8 page,	\
 				     u8 reg, val_type val)		\
@@ -232,7 +300,11 @@ b53_build_op(write48, u64);
 b53_build_op(write64, u64);
 
 struct b53_arl_entry {
+<<<<<<< HEAD
 	u8 port;
+=======
+	u16 port;
+>>>>>>> upstream/android-13
 	u8 mac[ETH_ALEN];
 	u16 vid;
 	u8 is_valid:1;
@@ -301,11 +373,45 @@ int b53_br_join(struct dsa_switch *ds, int port, struct net_device *bridge);
 void b53_br_leave(struct dsa_switch *ds, int port, struct net_device *bridge);
 void b53_br_set_stp_state(struct dsa_switch *ds, int port, u8 state);
 void b53_br_fast_age(struct dsa_switch *ds, int port);
+<<<<<<< HEAD
 int b53_vlan_filtering(struct dsa_switch *ds, int port, bool vlan_filtering);
 int b53_vlan_prepare(struct dsa_switch *ds, int port,
 		     const struct switchdev_obj_port_vlan *vlan);
 void b53_vlan_add(struct dsa_switch *ds, int port,
 		  const struct switchdev_obj_port_vlan *vlan);
+=======
+int b53_br_flags_pre(struct dsa_switch *ds, int port,
+		     struct switchdev_brport_flags flags,
+		     struct netlink_ext_ack *extack);
+int b53_br_flags(struct dsa_switch *ds, int port,
+		 struct switchdev_brport_flags flags,
+		 struct netlink_ext_ack *extack);
+int b53_setup_devlink_resources(struct dsa_switch *ds);
+void b53_port_event(struct dsa_switch *ds, int port);
+void b53_phylink_validate(struct dsa_switch *ds, int port,
+			  unsigned long *supported,
+			  struct phylink_link_state *state);
+int b53_phylink_mac_link_state(struct dsa_switch *ds, int port,
+			       struct phylink_link_state *state);
+void b53_phylink_mac_config(struct dsa_switch *ds, int port,
+			    unsigned int mode,
+			    const struct phylink_link_state *state);
+void b53_phylink_mac_an_restart(struct dsa_switch *ds, int port);
+void b53_phylink_mac_link_down(struct dsa_switch *ds, int port,
+			       unsigned int mode,
+			       phy_interface_t interface);
+void b53_phylink_mac_link_up(struct dsa_switch *ds, int port,
+			     unsigned int mode,
+			     phy_interface_t interface,
+			     struct phy_device *phydev,
+			     int speed, int duplex,
+			     bool tx_pause, bool rx_pause);
+int b53_vlan_filtering(struct dsa_switch *ds, int port, bool vlan_filtering,
+		       struct netlink_ext_ack *extack);
+int b53_vlan_add(struct dsa_switch *ds, int port,
+		 const struct switchdev_obj_port_vlan *vlan,
+		 struct netlink_ext_ack *extack);
+>>>>>>> upstream/android-13
 int b53_vlan_del(struct dsa_switch *ds, int port,
 		 const struct switchdev_obj_port_vlan *vlan);
 int b53_fdb_add(struct dsa_switch *ds, int port,
@@ -314,6 +420,7 @@ int b53_fdb_del(struct dsa_switch *ds, int port,
 		const unsigned char *addr, u16 vid);
 int b53_fdb_dump(struct dsa_switch *ds, int port,
 		 dsa_fdb_dump_cb_t *cb, void *data);
+<<<<<<< HEAD
 int b53_mirror_add(struct dsa_switch *ds, int port,
 		   struct dsa_mall_mirror_tc_entry *mirror, bool ingress);
 enum dsa_tag_protocol b53_get_tag_protocol(struct dsa_switch *ds, int port);
@@ -321,6 +428,20 @@ void b53_mirror_del(struct dsa_switch *ds, int port,
 		    struct dsa_mall_mirror_tc_entry *mirror);
 int b53_enable_port(struct dsa_switch *ds, int port, struct phy_device *phy);
 void b53_disable_port(struct dsa_switch *ds, int port, struct phy_device *phy);
+=======
+int b53_mdb_add(struct dsa_switch *ds, int port,
+		const struct switchdev_obj_port_mdb *mdb);
+int b53_mdb_del(struct dsa_switch *ds, int port,
+		const struct switchdev_obj_port_mdb *mdb);
+int b53_mirror_add(struct dsa_switch *ds, int port,
+		   struct dsa_mall_mirror_tc_entry *mirror, bool ingress);
+enum dsa_tag_protocol b53_get_tag_protocol(struct dsa_switch *ds, int port,
+					   enum dsa_tag_protocol mprot);
+void b53_mirror_del(struct dsa_switch *ds, int port,
+		    struct dsa_mall_mirror_tc_entry *mirror);
+int b53_enable_port(struct dsa_switch *ds, int port, struct phy_device *phy);
+void b53_disable_port(struct dsa_switch *ds, int port);
+>>>>>>> upstream/android-13
 void b53_brcm_hdr_setup(struct dsa_switch *ds, int port);
 void b53_eee_enable_set(struct dsa_switch *ds, int port, bool enable);
 int b53_eee_init(struct dsa_switch *ds, int port, struct phy_device *phy);

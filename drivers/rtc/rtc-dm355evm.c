@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * rtc-dm355evm.c - access battery-backed counter in MSP430 firmware
  *
  * Copyright (c) 2008 by David Brownell
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/init.h>
@@ -78,7 +85,11 @@ static int dm355evm_rtc_read_time(struct device *dev, struct rtc_time *tm)
 
 	dev_dbg(dev, "read timestamp %08x\n", time.value);
 
+<<<<<<< HEAD
 	rtc_time_to_tm(le32_to_cpu(time.value), tm);
+=======
+	rtc_time64_to_tm(le32_to_cpu(time.value), tm);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -88,7 +99,11 @@ static int dm355evm_rtc_set_time(struct device *dev, struct rtc_time *tm)
 	unsigned long	value;
 	int		status;
 
+<<<<<<< HEAD
 	rtc_tm_to_time(tm, &value);
+=======
+	value = rtc_tm_to_time64(tm);
+>>>>>>> upstream/android-13
 	time.value = cpu_to_le32(value);
 
 	dev_dbg(dev, "write timestamp %08x\n", time.value);
@@ -127,6 +142,7 @@ static int dm355evm_rtc_probe(struct platform_device *pdev)
 {
 	struct rtc_device *rtc;
 
+<<<<<<< HEAD
 	rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
 					&dm355evm_rtc_ops, THIS_MODULE);
 	if (IS_ERR(rtc)) {
@@ -137,6 +153,18 @@ static int dm355evm_rtc_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, rtc);
 
 	return 0;
+=======
+	rtc = devm_rtc_allocate_device(&pdev->dev);
+	if (IS_ERR(rtc))
+		return PTR_ERR(rtc);
+
+	platform_set_drvdata(pdev, rtc);
+
+	rtc->ops = &dm355evm_rtc_ops;
+	rtc->range_max = U32_MAX;
+
+	return devm_rtc_register_device(rtc);
+>>>>>>> upstream/android-13
 }
 
 /*

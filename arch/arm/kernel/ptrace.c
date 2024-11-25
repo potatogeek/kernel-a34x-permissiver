@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/kernel/ptrace.c
  *
  *  By Ross Biro 1/23/92
  * edited by Linus Torvalds
  * ARM modifications Copyright (C) 2000 Russell King
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/sched/signal.h>
@@ -28,7 +35,11 @@
 #include <linux/tracehook.h>
 #include <linux/unistd.h>
 
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+#include <asm/syscall.h>
+>>>>>>> upstream/android-13
 #include <asm/traps.h>
 
 #define CREATE_TRACE_POINTS
@@ -201,6 +212,7 @@ void ptrace_disable(struct task_struct *child)
 /*
  * Handle hitting a breakpoint.
  */
+<<<<<<< HEAD
 void ptrace_break(struct task_struct *tsk, struct pt_regs *regs)
 {
 	siginfo_t info;
@@ -212,11 +224,21 @@ void ptrace_break(struct task_struct *tsk, struct pt_regs *regs)
 	info.si_addr  = (void __user *)instruction_pointer(regs);
 
 	force_sig_info(SIGTRAP, &info, tsk);
+=======
+void ptrace_break(struct pt_regs *regs)
+{
+	force_sig_fault(SIGTRAP, TRAP_BRKPT,
+			(void __user *)instruction_pointer(regs));
+>>>>>>> upstream/android-13
 }
 
 static int break_trap(struct pt_regs *regs, unsigned int instr)
 {
+<<<<<<< HEAD
 	ptrace_break(current, regs);
+=======
+	ptrace_break(regs);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -329,6 +351,7 @@ static int ptrace_setwmmxregs(struct task_struct *tsk, void __user *ufp)
 
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_CRUNCH
 /*
  * Get the child Crunch state.
@@ -355,6 +378,8 @@ static int ptrace_setcrunchregs(struct task_struct *tsk, void __user *ufp)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_HAVE_HW_BREAKPOINT
 /*
  * Convert a virtual register number into an index for a thread_info
@@ -580,6 +605,7 @@ out:
 
 static int gpr_get(struct task_struct *target,
 		   const struct user_regset *regset,
+<<<<<<< HEAD
 		   unsigned int pos, unsigned int count,
 		   void *kbuf, void __user *ubuf)
 {
@@ -588,6 +614,11 @@ static int gpr_get(struct task_struct *target,
 	return user_regset_copyout(&pos, &count, &kbuf, &ubuf,
 				   regs,
 				   0, sizeof(*regs));
+=======
+		   struct membuf to)
+{
+	return membuf_write(&to, task_pt_regs(target), sizeof(struct pt_regs));
+>>>>>>> upstream/android-13
 }
 
 static int gpr_set(struct task_struct *target,
@@ -613,12 +644,19 @@ static int gpr_set(struct task_struct *target,
 
 static int fpa_get(struct task_struct *target,
 		   const struct user_regset *regset,
+<<<<<<< HEAD
 		   unsigned int pos, unsigned int count,
 		   void *kbuf, void __user *ubuf)
 {
 	return user_regset_copyout(&pos, &count, &kbuf, &ubuf,
 				   &task_thread_info(target)->fpstate,
 				   0, sizeof(struct user_fp));
+=======
+		   struct membuf to)
+{
+	return membuf_write(&to, &task_thread_info(target)->fpstate,
+				 sizeof(struct user_fp));
+>>>>>>> upstream/android-13
 }
 
 static int fpa_set(struct task_struct *target,
@@ -653,6 +691,7 @@ static int fpa_set(struct task_struct *target,
  *	vfp_set() ignores this chunk
  *
  * 1 word for the FPSCR
+<<<<<<< HEAD
  *
  * The bounds-checking logic built into user_regset_copyout and friends
  * means that we can make a simple sequence of calls to map the relevant data
@@ -667,10 +706,20 @@ static int vfp_get(struct task_struct *target,
 	struct thread_info *thread = task_thread_info(target);
 	struct vfp_hard_struct const *vfp = &thread->vfpstate.hard;
 	const size_t user_fpregs_offset = offsetof(struct user_vfp, fpregs);
+=======
+ */
+static int vfp_get(struct task_struct *target,
+		   const struct user_regset *regset,
+		   struct membuf to)
+{
+	struct thread_info *thread = task_thread_info(target);
+	struct vfp_hard_struct const *vfp = &thread->vfpstate.hard;
+>>>>>>> upstream/android-13
 	const size_t user_fpscr_offset = offsetof(struct user_vfp, fpscr);
 
 	vfp_sync_hwstate(thread);
 
+<<<<<<< HEAD
 	ret = user_regset_copyout(&pos, &count, &kbuf, &ubuf,
 				  &vfp->fpregs,
 				  user_fpregs_offset,
@@ -688,6 +737,11 @@ static int vfp_get(struct task_struct *target,
 				   &vfp->fpscr,
 				   user_fpscr_offset,
 				   user_fpscr_offset + sizeof(vfp->fpscr));
+=======
+	membuf_write(&to, vfp->fpregs, sizeof(vfp->fpregs));
+	membuf_zero(&to, user_fpscr_offset - sizeof(vfp->fpregs));
+	return membuf_store(&to, vfp->fpscr);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -750,7 +804,11 @@ static const struct user_regset arm_regsets[] = {
 		.n = ELF_NGREG,
 		.size = sizeof(u32),
 		.align = sizeof(u32),
+<<<<<<< HEAD
 		.get = gpr_get,
+=======
+		.regset_get = gpr_get,
+>>>>>>> upstream/android-13
 		.set = gpr_set
 	},
 	[REGSET_FPR] = {
@@ -762,7 +820,11 @@ static const struct user_regset arm_regsets[] = {
 		.n = sizeof(struct user_fp) / sizeof(u32),
 		.size = sizeof(u32),
 		.align = sizeof(u32),
+<<<<<<< HEAD
 		.get = fpa_get,
+=======
+		.regset_get = fpa_get,
+>>>>>>> upstream/android-13
 		.set = fpa_set
 	},
 #ifdef CONFIG_VFP
@@ -775,7 +837,11 @@ static const struct user_regset arm_regsets[] = {
 		.n = ARM_VFPREGS_SIZE / sizeof(u32),
 		.size = sizeof(u32),
 		.align = sizeof(u32),
+<<<<<<< HEAD
 		.get = vfp_get,
+=======
+		.regset_get = vfp_get,
+>>>>>>> upstream/android-13
 		.set = vfp_set
 	},
 #endif /* CONFIG_VFP */
@@ -850,6 +916,7 @@ long arch_ptrace(struct task_struct *child, long request,
 			break;
 
 		case PTRACE_SET_SYSCALL:
+<<<<<<< HEAD
 			task_thread_info(child)->syscall = data;
 			ret = 0;
 			break;
@@ -864,6 +931,13 @@ long arch_ptrace(struct task_struct *child, long request,
 			break;
 #endif
 
+=======
+			task_thread_info(child)->abi_syscall = data &
+							__NR_SYSCALL_MASK;
+			ret = 0;
+			break;
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_VFP
 		case PTRACE_GETVFPREGS:
 			ret = copy_regset_to_user(child,
@@ -919,20 +993,31 @@ static void tracehook_report_syscall(struct pt_regs *regs,
 	if (dir == PTRACE_SYSCALL_EXIT)
 		tracehook_report_syscall_exit(regs, 0);
 	else if (tracehook_report_syscall_entry(regs))
+<<<<<<< HEAD
 		current_thread_info()->syscall = -1;
+=======
+		current_thread_info()->abi_syscall = -1;
+>>>>>>> upstream/android-13
 
 	regs->ARM_ip = ip;
 }
 
+<<<<<<< HEAD
 asmlinkage int syscall_trace_enter(struct pt_regs *regs, int scno)
 {
 	current_thread_info()->syscall = scno;
+=======
+asmlinkage int syscall_trace_enter(struct pt_regs *regs)
+{
+	int scno;
+>>>>>>> upstream/android-13
 
 	if (test_thread_flag(TIF_SYSCALL_TRACE))
 		tracehook_report_syscall(regs, PTRACE_SYSCALL_ENTER);
 
 	/* Do seccomp after ptrace; syscall may have changed. */
 #ifdef CONFIG_HAVE_ARCH_SECCOMP_FILTER
+<<<<<<< HEAD
 	if (secure_computing(NULL) == -1)
 		return -1;
 #else
@@ -942,6 +1027,17 @@ asmlinkage int syscall_trace_enter(struct pt_regs *regs, int scno)
 
 	/* Tracer or seccomp may have changed syscall. */
 	scno = current_thread_info()->syscall;
+=======
+	if (secure_computing() == -1)
+		return -1;
+#else
+	/* XXX: remove this once OABI gets fixed */
+	secure_computing_strict(syscall_get_nr(current, regs));
+#endif
+
+	/* Tracer or seccomp may have changed syscall. */
+	scno = syscall_get_nr(current, regs);
+>>>>>>> upstream/android-13
 
 	if (test_thread_flag(TIF_SYSCALL_TRACEPOINT))
 		trace_sys_enter(regs, scno);

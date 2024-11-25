@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) Fuzhou Rockchip Electronics Co.Ltd
  * Author:Mark Yao <mark.yao@rock-chips.com>
  *
  * based on exynos_drm_drv.h
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ROCKCHIP_DRM_DRV_H
@@ -37,6 +44,11 @@ struct rockchip_crtc_state {
 	int output_type;
 	int output_mode;
 	int output_bpc;
+<<<<<<< HEAD
+=======
+	int output_flags;
+	bool enable_afbc;
+>>>>>>> upstream/android-13
 };
 #define to_rockchip_crtc_state(s) \
 		container_of(s, struct rockchip_crtc_state, base)
@@ -51,7 +63,10 @@ struct rockchip_crtc_state {
 struct rockchip_drm_private {
 	struct drm_fb_helper fbdev_helper;
 	struct drm_gem_object *fbdev_bo;
+<<<<<<< HEAD
 	struct drm_atomic_state *state;
+=======
+>>>>>>> upstream/android-13
 	struct iommu_domain *domain;
 	struct mutex mm_lock;
 	struct drm_mm mm;
@@ -65,11 +80,22 @@ void rockchip_drm_dma_detach_device(struct drm_device *drm_dev,
 				    struct device *dev);
 int rockchip_drm_wait_vact_end(struct drm_crtc *crtc, unsigned int mstimeout);
 
+<<<<<<< HEAD
 extern struct platform_driver cdn_dp_driver;
 extern struct platform_driver dw_hdmi_rockchip_pltfm_driver;
 extern struct platform_driver dw_mipi_dsi_driver;
+=======
+int rockchip_drm_endpoint_is_subdriver(struct device_node *ep);
+extern struct platform_driver cdn_dp_driver;
+extern struct platform_driver dw_hdmi_rockchip_pltfm_driver;
+extern struct platform_driver dw_mipi_dsi_rockchip_driver;
+>>>>>>> upstream/android-13
 extern struct platform_driver inno_hdmi_driver;
 extern struct platform_driver rockchip_dp_driver;
 extern struct platform_driver rockchip_lvds_driver;
 extern struct platform_driver vop_platform_driver;
+<<<<<<< HEAD
+=======
+extern struct platform_driver rk3066_hdmi_driver;
+>>>>>>> upstream/android-13
 #endif /* _ROCKCHIP_DRM_DRV_H_ */

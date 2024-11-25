@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015, The Linux Foundation. All rights reserved.
  *
@@ -10,6 +11,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2015, The Linux Foundation. All rights reserved.
+ *
+>>>>>>> upstream/android-13
  * GPIO and pin control functions on this SOC are handled by the "TLMM"
  * device.  The driver which controls this device is pinctrl-msm.c.  Each
  * SOC with a TLMM is expected to create a client driver that registers
@@ -60,7 +67,11 @@ static int qdf2xxx_pinctrl_probe(struct platform_device *pdev)
 	}
 
 	/* The number of GPIOs in the approved list */
+<<<<<<< HEAD
 	ret = device_property_read_u8_array(&pdev->dev, "gpios", NULL, 0);
+=======
+	ret = device_property_count_u8(&pdev->dev, "gpios");
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(&pdev->dev, "missing 'gpios' property\n");
 		return ret;

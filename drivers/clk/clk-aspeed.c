@@ -1,13 +1,21 @@
 // SPDX-License-Identifier: GPL-2.0+
+<<<<<<< HEAD
 
 #define pr_fmt(fmt) "clk-aspeed: " fmt
 
 #include <linux/clk-provider.h>
+=======
+// Copyright IBM Corp
+
+#define pr_fmt(fmt) "clk-aspeed: " fmt
+
+>>>>>>> upstream/android-13
 #include <linux/mfd/syscon.h>
 #include <linux/of_address.h>
 #include <linux/of_device.h>
 #include <linux/platform_device.h>
 #include <linux/regmap.h>
+<<<<<<< HEAD
 #include <linux/reset-controller.h>
 #include <linux/slab.h>
 #include <linux/spinlock.h>
@@ -15,6 +23,15 @@
 #include <dt-bindings/clock/aspeed-clock.h>
 
 #define ASPEED_NUM_CLKS		36
+=======
+#include <linux/slab.h>
+
+#include <dt-bindings/clock/aspeed-clock.h>
+
+#include "clk-aspeed.h"
+
+#define ASPEED_NUM_CLKS		38
+>>>>>>> upstream/android-13
 
 #define ASPEED_RESET2_OFFSET	32
 
@@ -28,6 +45,10 @@
 #define  AST2400_HPLL_BYPASS_EN	BIT(17)
 #define ASPEED_MISC_CTRL	0x2c
 #define  UART_DIV13_EN		BIT(12)
+<<<<<<< HEAD
+=======
+#define ASPEED_MAC_CLK_DLY	0x48
+>>>>>>> upstream/android-13
 #define ASPEED_STRAP		0x70
 #define  CLKIN_25MHZ_EN		BIT(23)
 #define  AST2400_CLK_SOURCE_SEL	BIT(18)
@@ -42,6 +63,7 @@ static struct clk_hw_onecell_data *aspeed_clk_data;
 
 static void __iomem *scu_base;
 
+<<<<<<< HEAD
 /**
  * struct aspeed_gate_data - Aspeed gated clocks
  * @clock_idx: bit used to gate this clock in the clock register
@@ -91,6 +113,15 @@ static const struct aspeed_gate_data aspeed_gates[] = {
 	[ASPEED_CLK_GATE_GCLK] =	{  1,  7, "gclk-gate",		NULL,	0 }, /* 2D engine */
 	[ASPEED_CLK_GATE_MCLK] =	{  2, -1, "mclk-gate",		"mpll",	CLK_IS_CRITICAL }, /* SDRAM */
 	[ASPEED_CLK_GATE_VCLK] =	{  3,  6, "vclk-gate",		NULL,	0 }, /* Video Capture */
+=======
+/* TODO: ask Aspeed about the actual parent data */
+static const struct aspeed_gate_data aspeed_gates[] = {
+	/*				 clk rst   name			parent	flags */
+	[ASPEED_CLK_GATE_ECLK] =	{  0,  6, "eclk-gate",		"eclk",	0 }, /* Video Engine */
+	[ASPEED_CLK_GATE_GCLK] =	{  1,  7, "gclk-gate",		NULL,	0 }, /* 2D engine */
+	[ASPEED_CLK_GATE_MCLK] =	{  2, -1, "mclk-gate",		"mpll",	CLK_IS_CRITICAL }, /* SDRAM */
+	[ASPEED_CLK_GATE_VCLK] =	{  3, -1, "vclk-gate",		NULL,	0 }, /* Video Capture */
+>>>>>>> upstream/android-13
 	[ASPEED_CLK_GATE_BCLK] =	{  4,  8, "bclk-gate",		"bclk",	CLK_IS_CRITICAL }, /* PCIe/PCI */
 	[ASPEED_CLK_GATE_DCLK] =	{  5, -1, "dclk-gate",		NULL,	CLK_IS_CRITICAL }, /* DAC */
 	[ASPEED_CLK_GATE_REFCLK] =	{  6, -1, "refclk-gate",	"clkin", CLK_IS_CRITICAL },
@@ -113,6 +144,27 @@ static const struct aspeed_gate_data aspeed_gates[] = {
 	[ASPEED_CLK_GATE_LHCCLK] =	{ 28, -1, "lhclk-gate",		"lhclk", 0 }, /* LPC master/LPC+ */
 };
 
+<<<<<<< HEAD
+=======
+static const char * const eclk_parent_names[] = {
+	"mpll",
+	"hpll",
+	"dpll",
+};
+
+static const struct clk_div_table ast2500_eclk_div_table[] = {
+	{ 0x0, 2 },
+	{ 0x1, 2 },
+	{ 0x2, 3 },
+	{ 0x3, 4 },
+	{ 0x4, 5 },
+	{ 0x5, 6 },
+	{ 0x6, 7 },
+	{ 0x7, 8 },
+	{ 0 }
+};
+
+>>>>>>> upstream/android-13
 static const struct clk_div_table ast2500_mac_div_table[] = {
 	{ 0x0, 4 }, /* Yep, really. Aspeed confirmed this is correct */
 	{ 0x1, 4 },
@@ -190,6 +242,7 @@ static struct clk_hw *aspeed_ast2500_calc_pll(const char *name, u32 val)
 			mult, div);
 }
 
+<<<<<<< HEAD
 struct aspeed_clk_soc_data {
 	const struct clk_div_table *div_table;
 	const struct clk_div_table *mac_div_table;
@@ -198,12 +251,21 @@ struct aspeed_clk_soc_data {
 
 static const struct aspeed_clk_soc_data ast2500_data = {
 	.div_table = ast2500_div_table,
+=======
+static const struct aspeed_clk_soc_data ast2500_data = {
+	.div_table = ast2500_div_table,
+	.eclk_div_table = ast2500_eclk_div_table,
+>>>>>>> upstream/android-13
 	.mac_div_table = ast2500_mac_div_table,
 	.calc_pll = aspeed_ast2500_calc_pll,
 };
 
 static const struct aspeed_clk_soc_data ast2400_data = {
 	.div_table = ast2400_div_table,
+<<<<<<< HEAD
+=======
+	.eclk_div_table = ast2400_div_table,
+>>>>>>> upstream/android-13
 	.mac_div_table = ast2400_div_table,
 	.calc_pll = aspeed_ast2400_calc_pll,
 };
@@ -294,6 +356,7 @@ static const struct clk_ops aspeed_clk_gate_ops = {
 	.is_enabled = aspeed_clk_is_enabled,
 };
 
+<<<<<<< HEAD
 /**
  * struct aspeed_reset - Aspeed reset controller
  * @map: regmap to access the containing system controller
@@ -306,6 +369,8 @@ struct aspeed_reset {
 
 #define to_aspeed_reset(p) container_of((p), struct aspeed_reset, rcdev)
 
+=======
+>>>>>>> upstream/android-13
 static const u8 aspeed_resets[] = {
 	/* SCU04 resets */
 	[ASPEED_RESET_XDMA]	= 25,
@@ -387,7 +452,11 @@ static struct clk_hw *aspeed_clk_hw_register_gate(struct device *dev,
 		u8 clk_gate_flags, spinlock_t *lock)
 {
 	struct aspeed_clk_gate *gate;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	struct clk_hw *hw;
 	int ret;
 
@@ -479,9 +548,20 @@ static int aspeed_clk_probe(struct platform_device *pdev)
 		return PTR_ERR(hw);
 	aspeed_clk_data->hws[ASPEED_CLK_MPLL] =	hw;
 
+<<<<<<< HEAD
 	/* SD/SDIO clock divider (TODO: There's a gate too) */
 	hw = clk_hw_register_divider_table(dev, "sdio", "hpll", 0,
 			scu_base + ASPEED_CLK_SELECTION, 12, 3, 0,
+=======
+	/* SD/SDIO clock divider and gate */
+	hw = clk_hw_register_gate(dev, "sd_extclk_gate", "hpll", 0,
+				  scu_base + ASPEED_CLK_SELECTION, 15, 0,
+				  &aspeed_clk_lock);
+	if (IS_ERR(hw))
+		return PTR_ERR(hw);
+	hw = clk_hw_register_divider_table(dev, "sd_extclk", "sd_extclk_gate",
+			0, scu_base + ASPEED_CLK_SELECTION, 12, 3, 0,
+>>>>>>> upstream/android-13
 			soc_data->div_table,
 			&aspeed_clk_lock);
 	if (IS_ERR(hw))
@@ -497,6 +577,33 @@ static int aspeed_clk_probe(struct platform_device *pdev)
 		return PTR_ERR(hw);
 	aspeed_clk_data->hws[ASPEED_CLK_MAC] = hw;
 
+<<<<<<< HEAD
+=======
+	if (of_device_is_compatible(pdev->dev.of_node, "aspeed,ast2500-scu")) {
+		/* RMII 50MHz RCLK */
+		hw = clk_hw_register_fixed_rate(dev, "mac12rclk", "hpll", 0,
+						50000000);
+		if (IS_ERR(hw))
+			return PTR_ERR(hw);
+
+		/* RMII1 50MHz (RCLK) output enable */
+		hw = clk_hw_register_gate(dev, "mac1rclk", "mac12rclk", 0,
+				scu_base + ASPEED_MAC_CLK_DLY, 29, 0,
+				&aspeed_clk_lock);
+		if (IS_ERR(hw))
+			return PTR_ERR(hw);
+		aspeed_clk_data->hws[ASPEED_CLK_MAC1RCLK] = hw;
+
+		/* RMII2 50MHz (RCLK) output enable */
+		hw = clk_hw_register_gate(dev, "mac2rclk", "mac12rclk", 0,
+				scu_base + ASPEED_MAC_CLK_DLY, 30, 0,
+				&aspeed_clk_lock);
+		if (IS_ERR(hw))
+			return PTR_ERR(hw);
+		aspeed_clk_data->hws[ASPEED_CLK_MAC2RCLK] = hw;
+	}
+
+>>>>>>> upstream/android-13
 	/* LPC Host (LHCLK) clock divider */
 	hw = clk_hw_register_divider_table(dev, "lhclk", "hpll", 0,
 			scu_base + ASPEED_CLK_SELECTION, 20, 3, 0,
@@ -522,6 +629,25 @@ static int aspeed_clk_probe(struct platform_device *pdev)
 		return PTR_ERR(hw);
 	aspeed_clk_data->hws[ASPEED_CLK_24M] = hw;
 
+<<<<<<< HEAD
+=======
+	hw = clk_hw_register_mux(dev, "eclk-mux", eclk_parent_names,
+				 ARRAY_SIZE(eclk_parent_names), 0,
+				 scu_base + ASPEED_CLK_SELECTION, 2, 0x3, 0,
+				 &aspeed_clk_lock);
+	if (IS_ERR(hw))
+		return PTR_ERR(hw);
+	aspeed_clk_data->hws[ASPEED_CLK_ECLK_MUX] = hw;
+
+	hw = clk_hw_register_divider_table(dev, "eclk", "eclk-mux", 0,
+					   scu_base + ASPEED_CLK_SELECTION, 28,
+					   3, 0, soc_data->eclk_div_table,
+					   &aspeed_clk_lock);
+	if (IS_ERR(hw))
+		return PTR_ERR(hw);
+	aspeed_clk_data->hws[ASPEED_CLK_ECLK] = hw;
+
+>>>>>>> upstream/android-13
 	/*
 	 * TODO: There are a number of clocks that not included in this driver
 	 * as more information is required:
@@ -531,7 +657,10 @@ static int aspeed_clk_probe(struct platform_device *pdev)
 	 *   RGMII
 	 *   RMII
 	 *   UART[1..5] clock source mux
+<<<<<<< HEAD
 	 *   Video Engine (ECLK) mux and clock divider
+=======
+>>>>>>> upstream/android-13
 	 */
 
 	for (i = 0; i < ARRAY_SIZE(aspeed_gates); i++) {

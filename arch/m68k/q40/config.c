@@ -29,7 +29,10 @@
 
 #include <asm/io.h>
 #include <asm/bootinfo.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/setup.h>
 #include <asm/irq.h>
 #include <asm/traps.h>
@@ -38,9 +41,14 @@
 
 extern void q40_init_IRQ(void);
 static void q40_get_model(char *model);
+<<<<<<< HEAD
 extern void q40_sched_init(irq_handler_t handler);
 
 static u32 q40_gettimeoffset(void);
+=======
+extern void q40_sched_init(void);
+
+>>>>>>> upstream/android-13
 static int q40_hwclk(int, struct rtc_time *);
 static unsigned int q40_get_ss(void);
 static int q40_get_rtc_pll(struct rtc_pll_info *pll);
@@ -169,7 +177,10 @@ void __init config_q40(void)
 	mach_sched_init = q40_sched_init;
 
 	mach_init_IRQ = q40_init_IRQ;
+<<<<<<< HEAD
 	arch_gettimeoffset = q40_gettimeoffset;
+=======
+>>>>>>> upstream/android-13
 	mach_hwclk = q40_hwclk;
 	mach_get_ss = q40_get_ss;
 	mach_get_rtc_pll = q40_get_rtc_pll;
@@ -188,11 +199,14 @@ void __init config_q40(void)
 
 	/* disable a few things that SMSQ might have left enabled */
 	q40_disable_irqs();
+<<<<<<< HEAD
 
 	/* no DMA at all, but ide-scsi requires it.. make sure
 	 * all physical RAM fits into the boundary - otherwise
 	 * allocator may play costly and useless tricks */
 	mach_max_dma_address = 1024*1024*1024;
+=======
+>>>>>>> upstream/android-13
 }
 
 
@@ -201,6 +215,7 @@ int __init q40_parse_bootinfo(const struct bi_record *rec)
 	return 1;
 }
 
+<<<<<<< HEAD
 
 static u32 q40_gettimeoffset(void)
 {
@@ -208,6 +223,8 @@ static u32 q40_gettimeoffset(void)
 }
 
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Looks like op is non-zero for setting the clock, and zero for
  * reading the clock.
@@ -301,6 +318,7 @@ static int q40_set_rtc_pll(struct rtc_pll_info *pll)
 		return -EINVAL;
 }
 
+<<<<<<< HEAD
 static __init int q40_add_kbd_device(void)
 {
 	struct platform_device *pdev;
@@ -312,3 +330,41 @@ static __init int q40_add_kbd_device(void)
 	return PTR_ERR_OR_ZERO(pdev);
 }
 arch_initcall(q40_add_kbd_device);
+=======
+#define PCIDE_BASE1	0x1f0
+#define PCIDE_BASE2	0x170
+#define PCIDE_CTL	0x206
+
+static const struct resource q40_pata_rsrc_0[] __initconst = {
+	DEFINE_RES_MEM(q40_isa_io_base + PCIDE_BASE1 * 4, 0x38),
+	DEFINE_RES_MEM(q40_isa_io_base + (PCIDE_BASE1 + PCIDE_CTL) * 4, 2),
+	DEFINE_RES_IO(PCIDE_BASE1, 8),
+	DEFINE_RES_IO(PCIDE_BASE1 + PCIDE_CTL, 1),
+	DEFINE_RES_IRQ(14),
+};
+
+static const struct resource q40_pata_rsrc_1[] __initconst = {
+	DEFINE_RES_MEM(q40_isa_io_base + PCIDE_BASE2 * 4, 0x38),
+	DEFINE_RES_MEM(q40_isa_io_base + (PCIDE_BASE2 + PCIDE_CTL) * 4, 2),
+	DEFINE_RES_IO(PCIDE_BASE2, 8),
+	DEFINE_RES_IO(PCIDE_BASE2 + PCIDE_CTL, 1),
+	DEFINE_RES_IRQ(15),
+};
+
+static __init int q40_platform_init(void)
+{
+	if (!MACH_IS_Q40)
+		return -ENODEV;
+
+	platform_device_register_simple("q40kbd", -1, NULL, 0);
+
+	platform_device_register_simple("atari-falcon-ide", 0, q40_pata_rsrc_0,
+					ARRAY_SIZE(q40_pata_rsrc_0));
+
+	platform_device_register_simple("atari-falcon-ide", 1, q40_pata_rsrc_1,
+					ARRAY_SIZE(q40_pata_rsrc_1));
+
+	return 0;
+}
+arch_initcall(q40_platform_init);
+>>>>>>> upstream/android-13

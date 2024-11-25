@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014-2015 Hisilicon Limited.
  *
@@ -5,6 +6,11 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2014-2015 Hisilicon Limited.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/cdev.h>
@@ -38,7 +44,11 @@
 /**
  *hns_rcb_wait_fbd_clean - clean fbd
  *@qs: ring struct pointer array
+<<<<<<< HEAD
  *@qnum: num of array
+=======
+ *@q_num: num of array
+>>>>>>> upstream/android-13
  *@flag: tx or rx flag
  */
 void hns_rcb_wait_fbd_clean(struct hnae_queue **qs, int q_num, u32 flag)
@@ -195,7 +205,12 @@ void hns_rcbv2_int_clr_hw(struct hnae_queue *q, u32 flag)
 
 /**
  *hns_rcb_ring_enable_hw - enable ring
+<<<<<<< HEAD
  *@ring: rcb ring
+=======
+ *@q: rcb ring
+ *@val: value to write
+>>>>>>> upstream/android-13
  */
 void hns_rcb_ring_enable_hw(struct hnae_queue *q, u32 val)
 {
@@ -458,7 +473,11 @@ static void hns_rcb_ring_get_cfg(struct hnae_queue *q, int ring_type)
 		mdnum_ppkt = HNS_RCB_RING_MAX_BD_PER_PKT;
 	} else {
 		ring = &q->tx_ring;
+<<<<<<< HEAD
 		ring->io_base = (u8 __iomem *)ring_pair_cb->q.io_base +
+=======
+		ring->io_base = ring_pair_cb->q.io_base +
+>>>>>>> upstream/android-13
 			HNS_RCB_TX_REG_OFFSET;
 		irq_idx = HNS_RCB_IRQ_IDX_TX;
 		mdnum_ppkt = is_ver1 ? HNS_RCB_RING_MAX_TXBD_PER_PKT :
@@ -764,7 +783,11 @@ static int hns_rcb_get_ring_num(struct dsaf_device *dsaf_dev)
 	}
 }
 
+<<<<<<< HEAD
 static void __iomem *hns_rcb_common_get_vaddr(struct rcb_common_cb *rcb_common)
+=======
+static u8 __iomem *hns_rcb_common_get_vaddr(struct rcb_common_cb *rcb_common)
+>>>>>>> upstream/android-13
 {
 	struct dsaf_device *dsaf_dev = rcb_common->dsaf_dev;
 
@@ -788,8 +811,14 @@ int hns_rcb_common_get_cfg(struct dsaf_device *dsaf_dev,
 	int ring_num = hns_rcb_get_ring_num(dsaf_dev);
 
 	rcb_common =
+<<<<<<< HEAD
 		devm_kzalloc(dsaf_dev->dev, sizeof(*rcb_common) +
 			ring_num * sizeof(struct ring_pair_cb), GFP_KERNEL);
+=======
+		devm_kzalloc(dsaf_dev->dev,
+			     struct_size(rcb_common, ring_pair_cb, ring_num),
+			     GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!rcb_common) {
 		dev_err(dsaf_dev->dev, "rcb common devm_kzalloc fail!\n");
 		return -ENOMEM;
@@ -847,7 +876,11 @@ void hns_rcb_update_stats(struct hnae_queue *queue)
 
 /**
  *hns_rcb_get_stats - get rcb statistic
+<<<<<<< HEAD
  *@ring: rcb ring
+=======
+ *@queue: rcb ring
+>>>>>>> upstream/android-13
  *@data:statistic value
  */
 void hns_rcb_get_stats(struct hnae_queue *queue, u64 *data)
@@ -915,7 +948,11 @@ int hns_rcb_get_common_regs_count(void)
 }
 
 /**
+<<<<<<< HEAD
  *rcb_get_sset_count - rcb ring regs count
+=======
+ *hns_rcb_get_ring_regs_count - rcb ring regs count
+>>>>>>> upstream/android-13
  *return regs count
  */
 int hns_rcb_get_ring_regs_count(void)
@@ -931,11 +968,16 @@ int hns_rcb_get_ring_regs_count(void)
  */
 void hns_rcb_get_strings(int stringset, u8 *data, int index)
 {
+<<<<<<< HEAD
 	char *buff = (char *)data;
+=======
+	u8 *buff = data;
+>>>>>>> upstream/android-13
 
 	if (stringset != ETH_SS_STATS)
 		return;
 
+<<<<<<< HEAD
 	snprintf(buff, ETH_GSTRING_LEN, "tx_ring%d_rcb_pkt_num", index);
 	buff = buff + ETH_GSTRING_LEN;
 	snprintf(buff, ETH_GSTRING_LEN, "tx_ring%d_ppe_tx_pkt_num", index);
@@ -994,6 +1036,39 @@ void hns_rcb_get_strings(int stringset, u8 *data, int index)
 	snprintf(buff, ETH_GSTRING_LEN, "rx_ring%d_l2_err", index);
 	buff = buff + ETH_GSTRING_LEN;
 	snprintf(buff, ETH_GSTRING_LEN, "rx_ring%d_l3l4csum_err", index);
+=======
+	ethtool_sprintf(&buff, "tx_ring%d_rcb_pkt_num", index);
+	ethtool_sprintf(&buff, "tx_ring%d_ppe_tx_pkt_num", index);
+	ethtool_sprintf(&buff, "tx_ring%d_ppe_drop_pkt_num", index);
+	ethtool_sprintf(&buff, "tx_ring%d_fbd_num", index);
+
+	ethtool_sprintf(&buff, "tx_ring%d_pkt_num", index);
+	ethtool_sprintf(&buff, "tx_ring%d_bytes", index);
+	ethtool_sprintf(&buff, "tx_ring%d_err_cnt", index);
+	ethtool_sprintf(&buff, "tx_ring%d_io_err", index);
+	ethtool_sprintf(&buff, "tx_ring%d_sw_err", index);
+	ethtool_sprintf(&buff, "tx_ring%d_seg_pkt", index);
+	ethtool_sprintf(&buff, "tx_ring%d_restart_queue", index);
+	ethtool_sprintf(&buff, "tx_ring%d_tx_busy", index);
+
+	ethtool_sprintf(&buff, "rx_ring%d_rcb_pkt_num", index);
+	ethtool_sprintf(&buff, "rx_ring%d_ppe_pkt_num", index);
+	ethtool_sprintf(&buff, "rx_ring%d_ppe_drop_pkt_num", index);
+	ethtool_sprintf(&buff, "rx_ring%d_fbd_num", index);
+
+	ethtool_sprintf(&buff, "rx_ring%d_pkt_num", index);
+	ethtool_sprintf(&buff, "rx_ring%d_bytes", index);
+	ethtool_sprintf(&buff, "rx_ring%d_err_cnt", index);
+	ethtool_sprintf(&buff, "rx_ring%d_io_err", index);
+	ethtool_sprintf(&buff, "rx_ring%d_sw_err", index);
+	ethtool_sprintf(&buff, "rx_ring%d_seg_pkt", index);
+	ethtool_sprintf(&buff, "rx_ring%d_reuse_pg", index);
+	ethtool_sprintf(&buff, "rx_ring%d_len_err", index);
+	ethtool_sprintf(&buff, "rx_ring%d_non_vld_desc_err", index);
+	ethtool_sprintf(&buff, "rx_ring%d_bd_num_err", index);
+	ethtool_sprintf(&buff, "rx_ring%d_l2_err", index);
+	ethtool_sprintf(&buff, "rx_ring%d_l3l4csum_err", index);
+>>>>>>> upstream/android-13
 }
 
 void hns_rcb_get_common_regs(struct rcb_common_cb *rcb_com, void *data)
@@ -1003,7 +1078,11 @@ void hns_rcb_get_common_regs(struct rcb_common_cb *rcb_com, void *data)
 	bool is_dbg = HNS_DSAF_IS_DEBUG(rcb_com->dsaf_dev);
 	u32 reg_tmp;
 	u32 reg_num_tmp;
+<<<<<<< HEAD
 	u32 i = 0;
+=======
+	u32 i;
+>>>>>>> upstream/android-13
 
 	/*rcb common registers */
 	regs[0] = dsaf_read_dev(rcb_com, RCB_COM_CFG_ENDIAN_REG);
@@ -1074,7 +1153,11 @@ void hns_rcb_get_ring_regs(struct hnae_queue *queue, void *data)
 	u32 *regs = data;
 	struct ring_pair_cb *ring_pair
 		= container_of(queue, struct ring_pair_cb, q);
+<<<<<<< HEAD
 	u32 i = 0;
+=======
+	u32 i;
+>>>>>>> upstream/android-13
 
 	/*rcb ring registers */
 	regs[0] = dsaf_read_dev(queue, RCB_RING_RX_RING_BASEADDR_L_REG);

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * IBM Power Virtual Ethernet Device Driver
  *
@@ -14,6 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * IBM Power Virtual Ethernet Device Driver
+ *
+>>>>>>> upstream/android-13
  * Copyright (C) IBM Corporation, 2003, 2010
  *
  * Authors: Dave Larson <larson1@us.ibm.com>
@@ -174,6 +181,12 @@ struct ibmveth_adapter {
     u64 tx_send_failed;
     u64 tx_large_packets;
     u64 rx_large_packets;
+<<<<<<< HEAD
+=======
+    /* Ethtool settings */
+	u8 duplex;
+	u32 speed;
+>>>>>>> upstream/android-13
 };
 
 /*

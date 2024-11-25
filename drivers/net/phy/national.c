@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * drivers/net/phy/national.c
  *
@@ -7,12 +11,15 @@
  * Maintainer: Giuseppe Cavallaro <peppe.cavallaro@st.com>
  *
  * Copyright (c) 2008 STMicroelectronics Limited
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -24,8 +31,11 @@
 #include <linux/phy.h>
 #include <linux/netdevice.h>
 
+<<<<<<< HEAD
 #define DEBUG
 
+=======
+>>>>>>> upstream/android-13
 /* DP83865 phy identifier values */
 #define DP83865_PHY_ID	0x20005c7a
 
@@ -68,6 +78,7 @@ static void ns_exp_write(struct phy_device *phydev, u16 reg, u8 data)
 	phy_write(phydev, NS_EXP_MEM_DATA, data);
 }
 
+<<<<<<< HEAD
 static int ns_config_intr(struct phy_device *phydev)
 {
 	int err;
@@ -81,6 +92,8 @@ static int ns_config_intr(struct phy_device *phydev)
 	return err;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int ns_ack_interrupt(struct phy_device *phydev)
 {
 	int ret = phy_read(phydev, DP83865_INT_STATUS);
@@ -88,12 +101,63 @@ static int ns_ack_interrupt(struct phy_device *phydev)
 		return ret;
 
 	/* Clear the interrupt status bit by writing a “1”
+<<<<<<< HEAD
 	 * to the corresponding bit in INT_CLEAR (2:0 are reserved) */
+=======
+	 * to the corresponding bit in INT_CLEAR (2:0 are reserved)
+	 */
+>>>>>>> upstream/android-13
 	ret = phy_write(phydev, DP83865_INT_CLEAR, ret & ~0x7);
 
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static irqreturn_t ns_handle_interrupt(struct phy_device *phydev)
+{
+	int irq_status;
+
+	irq_status = phy_read(phydev, DP83865_INT_STATUS);
+	if (irq_status < 0) {
+		phy_error(phydev);
+		return IRQ_NONE;
+	}
+
+	if (!(irq_status & DP83865_INT_MASK_DEFAULT))
+		return IRQ_NONE;
+
+	/* clear the interrupt */
+	phy_write(phydev, DP83865_INT_CLEAR, irq_status & ~0x7);
+
+	phy_trigger_machine(phydev);
+
+	return IRQ_HANDLED;
+}
+
+static int ns_config_intr(struct phy_device *phydev)
+{
+	int err;
+
+	if (phydev->interrupts == PHY_INTERRUPT_ENABLED) {
+		err = ns_ack_interrupt(phydev);
+		if (err)
+			return err;
+
+		err = phy_write(phydev, DP83865_INT_MASK,
+				DP83865_INT_MASK_DEFAULT);
+	} else {
+		err = phy_write(phydev, DP83865_INT_MASK, 0);
+		if (err)
+			return err;
+
+		err = ns_ack_interrupt(phydev);
+	}
+
+	return err;
+}
+
+>>>>>>> upstream/android-13
 static void ns_giga_speed_fallback(struct phy_device *phydev, int mode)
 {
 	int bmcr = phy_read(phydev, MII_BMCR);
@@ -127,7 +191,12 @@ static int ns_config_init(struct phy_device *phydev)
 {
 	ns_giga_speed_fallback(phydev, ALL_FALLBACK_ON);
 	/* In the latest MAC or switches design, the 10 Mbps loopback
+<<<<<<< HEAD
 	   is desired to be turned off. */
+=======
+	 * is desired to be turned off.
+	 */
+>>>>>>> upstream/android-13
 	ns_10_base_t_hdx_loopack(phydev, hdx_loopback_off);
 	return ns_ack_interrupt(phydev);
 }
@@ -136,11 +205,18 @@ static struct phy_driver dp83865_driver[] = { {
 	.phy_id = DP83865_PHY_ID,
 	.phy_id_mask = 0xfffffff0,
 	.name = "NatSemi DP83865",
+<<<<<<< HEAD
 	.features = PHY_GBIT_FEATURES,
 	.flags = PHY_HAS_INTERRUPT,
 	.config_init = ns_config_init,
 	.ack_interrupt = ns_ack_interrupt,
 	.config_intr = ns_config_intr,
+=======
+	/* PHY_GBIT_FEATURES */
+	.config_init = ns_config_init,
+	.config_intr = ns_config_intr,
+	.handle_interrupt = ns_handle_interrupt,
+>>>>>>> upstream/android-13
 } };
 
 module_phy_driver(dp83865_driver);

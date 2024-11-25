@@ -14,12 +14,19 @@
 #include <linux/smp.h>
 #include <linux/spinlock.h>
 #include <linux/irq.h>
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 #include <asm/irq_cpu.h>
 #include <asm/i8259.h>
 #include <asm/io.h>
 #include <asm/jazz.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/tlbmisc.h>
 
 static DEFINE_RAW_SPINLOCK(r4030_lock);
@@ -125,6 +132,7 @@ static irqreturn_t r4030_timer_interrupt(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static struct irqaction r4030_timer_irqaction = {
 	.handler	= r4030_timer_interrupt,
 	.flags		= IRQF_TIMER,
@@ -135,14 +143,25 @@ void __init plat_time_init(void)
 {
 	struct clock_event_device *cd = &r4030_clockevent;
 	struct irqaction *action = &r4030_timer_irqaction;
+=======
+void __init plat_time_init(void)
+{
+	struct clock_event_device *cd = &r4030_clockevent;
+>>>>>>> upstream/android-13
 	unsigned int cpu = smp_processor_id();
 
 	BUG_ON(HZ != 100);
 
 	cd->cpumask		= cpumask_of(cpu);
 	clockevents_register_device(cd);
+<<<<<<< HEAD
 	action->dev_id = cd;
 	setup_irq(JAZZ_TIMER_IRQ, action);
+=======
+	if (request_irq(JAZZ_TIMER_IRQ, r4030_timer_interrupt, IRQF_TIMER,
+			"R4030 timer", cd))
+		pr_err("Failed to register R4030 timer interrupt\n");
+>>>>>>> upstream/android-13
 
 	/*
 	 * Set clock to 100Hz.

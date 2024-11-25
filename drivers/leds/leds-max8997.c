@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * leds-max8997.c - LED class driver for MAX8997 LEDs.
  *
  * Copyright (C) 2011 Samsung Electronics
  * Donggeun Kim <dg77.kim@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -164,8 +171,13 @@ static void max8997_led_brightness_set(struct led_classdev *led_cdev,
 	}
 }
 
+<<<<<<< HEAD
 static ssize_t max8997_led_show_mode(struct device *dev,
 				struct device_attribute *attr, char *buf)
+=======
+static ssize_t mode_show(struct device *dev,
+			 struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct led_classdev *led_cdev = dev_get_drvdata(dev);
 	struct max8997_led *led =
@@ -197,9 +209,15 @@ static ssize_t max8997_led_show_mode(struct device *dev,
 	return ret;
 }
 
+<<<<<<< HEAD
 static ssize_t max8997_led_store_mode(struct device *dev,
 				struct device_attribute *attr,
 				const char *buf, size_t size)
+=======
+static ssize_t mode_store(struct device *dev,
+			  struct device_attribute *attr,
+			  const char *buf, size_t size)
+>>>>>>> upstream/android-13
 {
 	struct led_classdev *led_cdev = dev_get_drvdata(dev);
 	struct max8997_led *led =
@@ -226,7 +244,11 @@ static ssize_t max8997_led_store_mode(struct device *dev,
 	return size;
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(mode, 0644, max8997_led_show_mode, max8997_led_store_mode);
+=======
+static DEVICE_ATTR_RW(mode);
+>>>>>>> upstream/android-13
 
 static struct attribute *max8997_attrs[] = {
 	&dev_attr_mode.attr,

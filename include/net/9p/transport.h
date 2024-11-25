@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * include/net/9p/transport.h
  *
@@ -5,6 +9,7 @@
  *
  *  Copyright (C) 2005 by Latchesar Ionkov <lucho@ionkov.net>
  *  Copyright (C) 2004-2008 by Eric Van Hensbergen <ericvh@gmail.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2
@@ -21,6 +26,8 @@
  *  51 Franklin Street, Fifth Floor
  *  Boston, MA  02111-1301  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef NET_9P_TRANSPORT_H
@@ -40,7 +47,11 @@
  * @request: member function to issue a request to the transport
  * @cancel: member function to cancel a request (if it hasn't been sent)
  * @cancelled: member function to notify that a cancelled request will not
+<<<<<<< HEAD
  *             not receive a reply
+=======
+ *             receive a reply
+>>>>>>> upstream/android-13
  *
  * This is the basic API for a transport module which is registered by the
  * transport module with the 9P core network module and used by the client

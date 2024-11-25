@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Fitipower FC0011 tuner driver
  *
@@ -5,6 +9,7 @@
  *
  * Derived from FC0012 tuner driver:
  * Copyright (C) 2012 Hans-Frieder Vogt <hfvogt@gmx.net>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +20,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "fc0011.h"
@@ -259,7 +266,11 @@ static int fc0011_set_params(struct dvb_frontend *fe)
 		dev_warn(&priv->i2c->dev, "Unsupported bandwidth %u kHz. Using 6000 kHz.\n",
 			 bandwidth);
 		bandwidth = 6000;
+<<<<<<< HEAD
 		/* fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 6000:
 		regs[FC11_REG_VCOSEL] |= FC11_VCOSEL_BW6M;
 		break;

@@ -76,11 +76,19 @@ struct uvc_xu_control_query {
 
 /**
  * struct uvc_meta_buf - metadata buffer building block
+<<<<<<< HEAD
  * @ns		- system timestamp of the payload in nanoseconds
  * @sof		- USB Frame Number
  * @length	- length of the payload header
  * @flags	- payload header flags
  * @buf		- optional device-specific header data
+=======
+ * @ns: system timestamp of the payload in nanoseconds
+ * @sof: USB Frame Number
+ * @length: length of the payload header
+ * @flags: payload header flags
+ * @buf: optional device-specific header data
+>>>>>>> upstream/android-13
  *
  * UVC metadata nodes fill buffers with possibly multiple instances of this
  * struct. The first two fields are added by the driver, they can be used for

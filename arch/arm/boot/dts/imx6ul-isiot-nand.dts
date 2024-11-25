@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016 Amarula Solutions B.V.
  * Copyright (C) 2016 Engicam S.r.l.
@@ -38,6 +39,12 @@
  *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *     OTHER DEALINGS IN THE SOFTWARE.
+=======
+// SPDX-License-Identifier: GPL-2.0 OR X11
+/*
+ * Copyright (C) 2016 Amarula Solutions B.V.
+ * Copyright (C) 2016 Engicam S.r.l.
+>>>>>>> upstream/android-13
  */
 
 /dts-v1/;
@@ -50,6 +57,7 @@
 };
 
 &gpmi {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_gpmi_nand>;
 	nand-on-flash-bbt;
@@ -77,3 +85,7 @@
 		>;
 	};
 };
+=======
+	status = "okay";
+};
+>>>>>>> upstream/android-13

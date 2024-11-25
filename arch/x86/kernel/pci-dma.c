@@ -1,9 +1,18 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 #include <linux/dma-direct.h>
 #include <linux/dma-debug.h>
 #include <linux/dmar.h>
 #include <linux/export.h>
 #include <linux/bootmem.h>
+=======
+#include <linux/dma-map-ops.h>
+#include <linux/dma-direct.h>
+#include <linux/iommu.h>
+#include <linux/dmar.h>
+#include <linux/export.h>
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/gfp.h>
 #include <linux/pci.h>
 
@@ -11,13 +20,20 @@
 #include <asm/dma.h>
 #include <asm/iommu.h>
 #include <asm/gart.h>
+<<<<<<< HEAD
 #include <asm/calgary.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/x86_init.h>
 #include <asm/iommu_table.h>
 
 static bool disable_dac_quirk __read_mostly;
 
+<<<<<<< HEAD
 const struct dma_map_ops *dma_ops = &dma_direct_ops;
+=======
+const struct dma_map_ops *dma_ops;
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(dma_ops);
 
 #ifdef CONFIG_IOMMU_DEBUG
@@ -34,6 +50,7 @@ int no_iommu __read_mostly;
 /* Set this to 1 if there is a HW IOMMU in the system */
 int iommu_detected __read_mostly = 0;
 
+<<<<<<< HEAD
 /*
  * This variable becomes 1 if iommu=pt is passed on the kernel command line.
  * If this variable is 1, IOMMU implementations do no DMA translation for
@@ -59,6 +76,10 @@ struct device x86_dma_fallback_dev = {
 };
 EXPORT_SYMBOL(x86_dma_fallback_dev);
 
+=======
+extern struct iommu_table_entry __iommu_table[], __iommu_table_end[];
+
+>>>>>>> upstream/android-13
 void __init pci_iommu_alloc(void)
 {
 	struct iommu_table_entry *p;
@@ -77,6 +98,7 @@ void __init pci_iommu_alloc(void)
 	}
 }
 
+<<<<<<< HEAD
 bool arch_dma_alloc_attrs(struct device **dev)
 {
 	if (!*dev)
@@ -91,6 +113,10 @@ EXPORT_SYMBOL(arch_dma_alloc_attrs);
 
 /*
  * See <Documentation/x86/x86_64/boot-options.txt> for the iommu kernel
+=======
+/*
+ * See <Documentation/x86/x86_64/boot-options.rst> for the iommu kernel
+>>>>>>> upstream/android-13
  * parameter documentation.
  */
 static __init int iommu_setup(char *p)
@@ -140,6 +166,7 @@ static __init int iommu_setup(char *p)
 			swiotlb = 1;
 #endif
 		if (!strncmp(p, "pt", 2))
+<<<<<<< HEAD
 			iommu_pass_through = 1;
 		if (!strncmp(p, "nopt", 4))
 			iommu_pass_through = 0;
@@ -151,6 +178,14 @@ static __init int iommu_setup(char *p)
 			use_calgary = 1;
 #endif /* CONFIG_CALGARY_IOMMU */
 
+=======
+			iommu_set_default_passthrough(true);
+		if (!strncmp(p, "nopt", 4))
+			iommu_set_default_translated(true);
+
+		gart_parse_options(p);
+
+>>>>>>> upstream/android-13
 		p += strcspn(p, ",");
 		if (*p == ',')
 			++p;
@@ -180,7 +215,11 @@ rootfs_initcall(pci_iommu_init);
 
 static int via_no_dac_cb(struct pci_dev *pdev, void *data)
 {
+<<<<<<< HEAD
 	pdev->dev.bus_dma_mask = DMA_BIT_MASK(32);
+=======
+	pdev->dev.bus_dma_limit = DMA_BIT_MASK(32);
+>>>>>>> upstream/android-13
 	return 0;
 }
 

@@ -189,7 +189,11 @@
         "UMask": "0x8",
         "EventName": "BR_MISSP_TYPE_RETIRED.IND_CALL",
         "SampleAfterValue": "200000",
+<<<<<<< HEAD
         "BriefDescription": "Mispredicted indirect calls, including both register and memory indirect. "
+=======
+        "BriefDescription": "Mispredicted indirect calls, including both register and memory indirect."
+>>>>>>> upstream/android-13
     },
     {
         "EventCode": "0x89",

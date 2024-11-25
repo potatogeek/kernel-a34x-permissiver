@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Simplest possible simple frame-buffer driver, as a platform device
  *
@@ -9,6 +13,7 @@
  * Also based on offb.c, which was:
  * Copyright (C) 1997 Geert Uytterhoeven
  * Copyright (C) 1996 Paul Mackerras
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -18,6 +23,8 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/errno.h>
@@ -78,15 +85,30 @@ struct simplefb_par;
 static void simplefb_clocks_destroy(struct simplefb_par *par);
 static void simplefb_regulators_destroy(struct simplefb_par *par);
 
+<<<<<<< HEAD
+=======
+/*
+ * fb_ops.fb_destroy is called by the last put_fb_info() call at the end
+ * of unregister_framebuffer() or fb_release(). Do any cleanup here.
+ */
+>>>>>>> upstream/android-13
 static void simplefb_destroy(struct fb_info *info)
 {
 	simplefb_regulators_destroy(info->par);
 	simplefb_clocks_destroy(info->par);
 	if (info->screen_base)
 		iounmap(info->screen_base);
+<<<<<<< HEAD
 }
 
 static struct fb_ops simplefb_ops = {
+=======
+
+	framebuffer_release(info);
+}
+
+static const struct fb_ops simplefb_ops = {
+>>>>>>> upstream/android-13
 	.owner		= THIS_MODULE,
 	.fb_destroy	= simplefb_destroy,
 	.fb_setcolreg	= simplefb_setcolreg,
@@ -415,6 +437,20 @@ static int simplefb_probe(struct platform_device *pdev)
 	struct simplefb_par *par;
 	struct resource *mem;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Generic drivers must not be registered if a framebuffer exists.
+	 * If a native driver was probed, the display hardware was already
+	 * taken and attempting to use the system framebuffer is dangerous.
+	 */
+	if (num_registered_fb > 0) {
+		dev_err(&pdev->dev,
+			"simplefb: a framebuffer is already registered\n");
+		return -EINVAL;
+	}
+
+>>>>>>> upstream/android-13
 	if (fb_get_options("simplefb", NULL))
 		return -ENODEV;
 
@@ -485,9 +521,14 @@ static int simplefb_probe(struct platform_device *pdev)
 	simplefb_clocks_enable(par, pdev);
 	simplefb_regulators_enable(par, pdev);
 
+<<<<<<< HEAD
 	dev_info(&pdev->dev, "framebuffer at 0x%lx, 0x%x bytes, mapped to 0x%p\n",
 			     info->fix.smem_start, info->fix.smem_len,
 			     info->screen_base);
+=======
+	dev_info(&pdev->dev, "framebuffer at 0x%lx, 0x%x bytes\n",
+			     info->fix.smem_start, info->fix.smem_len);
+>>>>>>> upstream/android-13
 	dev_info(&pdev->dev, "format=%s, mode=%dx%dx%d, linelength=%d\n",
 			     params.format->name,
 			     info->var.xres, info->var.yres,
@@ -518,8 +559,13 @@ static int simplefb_remove(struct platform_device *pdev)
 {
 	struct fb_info *info = platform_get_drvdata(pdev);
 
+<<<<<<< HEAD
 	unregister_framebuffer(info);
 	framebuffer_release(info);
+=======
+	/* simplefb_destroy takes care of info cleanup */
+	unregister_framebuffer(info);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

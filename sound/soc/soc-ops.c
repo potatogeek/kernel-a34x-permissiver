@@ -63,11 +63,16 @@ int snd_soc_get_enum_double(struct snd_kcontrol *kcontrol,
 	struct soc_enum *e = (struct soc_enum *)kcontrol->private_value;
 	unsigned int val, item;
 	unsigned int reg_val;
+<<<<<<< HEAD
 	int ret;
 
 	ret = snd_soc_component_read(component, e->reg, &reg_val);
 	if (ret)
 		return ret;
+=======
+
+	reg_val = snd_soc_component_read(component, e->reg);
+>>>>>>> upstream/android-13
 	val = (reg_val >> e->shift_l) & e->mask;
 	item = snd_soc_enum_val_to_item(e, val);
 	ucontrol->value.enumerated.item[0] = item;
@@ -136,10 +141,14 @@ static int snd_soc_read_signed(struct snd_soc_component *component,
 	int ret;
 	unsigned int val;
 
+<<<<<<< HEAD
 	ret = snd_soc_component_read(component, reg, &val);
 	if (ret < 0)
 		return ret;
 
+=======
+	val = snd_soc_component_read(component, reg);
+>>>>>>> upstream/android-13
 	val = (val >> shift) & mask;
 
 	if (!sign_bit) {
@@ -314,7 +323,11 @@ int snd_soc_put_volsw(struct snd_kcontrol *kcontrol,
 	unsigned int sign_bit = mc->sign_bit;
 	unsigned int mask = (1 << fls(max)) - 1;
 	unsigned int invert = mc->invert;
+<<<<<<< HEAD
 	int err;
+=======
+	int err, ret;
+>>>>>>> upstream/android-13
 	bool type_2r = false;
 	unsigned int val2 = 0;
 	unsigned int val, val_mask;
@@ -322,13 +335,35 @@ int snd_soc_put_volsw(struct snd_kcontrol *kcontrol,
 	if (sign_bit)
 		mask = BIT(sign_bit + 1) - 1;
 
+<<<<<<< HEAD
 	val = ((ucontrol->value.integer.value[0] + min) & mask);
+=======
+	val = ucontrol->value.integer.value[0];
+	if (mc->platform_max && ((int)val + min) > mc->platform_max)
+		return -EINVAL;
+	if (val > max - min)
+		return -EINVAL;
+	if (val < 0)
+		return -EINVAL;
+	val = (val + min) & mask;
+>>>>>>> upstream/android-13
 	if (invert)
 		val = max - val;
 	val_mask = mask << shift;
 	val = val << shift;
 	if (snd_soc_volsw_is_stereo(mc)) {
+<<<<<<< HEAD
 		val2 = ((ucontrol->value.integer.value[1] + min) & mask);
+=======
+		val2 = ucontrol->value.integer.value[1];
+		if (mc->platform_max && ((int)val2 + min) > mc->platform_max)
+			return -EINVAL;
+		if (val2 > max - min)
+			return -EINVAL;
+		if (val2 < 0)
+			return -EINVAL;
+		val2 = (val2 + min) & mask;
+>>>>>>> upstream/android-13
 		if (invert)
 			val2 = max - val2;
 		if (reg == reg2) {
@@ -342,12 +377,27 @@ int snd_soc_put_volsw(struct snd_kcontrol *kcontrol,
 	err = snd_soc_component_update_bits(component, reg, val_mask, val);
 	if (err < 0)
 		return err;
+<<<<<<< HEAD
 
 	if (type_2r)
 		err = snd_soc_component_update_bits(component, reg2, val_mask,
 			val2);
 
 	return err;
+=======
+	ret = err;
+
+	if (type_2r) {
+		err = snd_soc_component_update_bits(component, reg2, val_mask,
+						    val2);
+		/* Don't discard any error code or drop change flag */
+		if (ret == 0 || err < 0) {
+			ret = err;
+		}
+	}
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(snd_soc_put_volsw);
 
@@ -375,6 +425,7 @@ int snd_soc_get_volsw_sx(struct snd_kcontrol *kcontrol,
 	int min = mc->min;
 	unsigned int mask = (1U << (fls(min + max) - 1)) - 1;
 	unsigned int val;
+<<<<<<< HEAD
 	int ret;
 
 	ret = snd_soc_component_read(component, reg, &val);
@@ -388,6 +439,14 @@ int snd_soc_get_volsw_sx(struct snd_kcontrol *kcontrol,
 		if (ret < 0)
 			return ret;
 
+=======
+
+	val = snd_soc_component_read(component, reg);
+	ucontrol->value.integer.value[0] = ((val >> shift) - min) & mask;
+
+	if (snd_soc_volsw_is_stereo(mc)) {
+		val = snd_soc_component_read(component, reg2);
+>>>>>>> upstream/android-13
 		val = ((val >> rshift) - min) & mask;
 		ucontrol->value.integer.value[1] = val;
 	}
@@ -420,25 +479,58 @@ int snd_soc_put_volsw_sx(struct snd_kcontrol *kcontrol,
 	int min = mc->min;
 	unsigned int mask = (1U << (fls(min + max) - 1)) - 1;
 	int err = 0;
+<<<<<<< HEAD
 	unsigned int val, val_mask, val2 = 0;
 
 	val_mask = mask << shift;
 	val = (ucontrol->value.integer.value[0] + min) & mask;
+=======
+	int ret;
+	unsigned int val, val_mask;
+
+	val = ucontrol->value.integer.value[0];
+	if (mc->platform_max && val > mc->platform_max)
+		return -EINVAL;
+	if (val > max - min)
+		return -EINVAL;
+	if (val < 0)
+		return -EINVAL;
+	val_mask = mask << shift;
+	val = (val + min) & mask;
+>>>>>>> upstream/android-13
 	val = val << shift;
 
 	err = snd_soc_component_update_bits(component, reg, val_mask, val);
 	if (err < 0)
 		return err;
+<<<<<<< HEAD
 
 	if (snd_soc_volsw_is_stereo(mc)) {
+=======
+	ret = err;
+
+	if (snd_soc_volsw_is_stereo(mc)) {
+		unsigned int val2;
+
+>>>>>>> upstream/android-13
 		val_mask = mask << rshift;
 		val2 = (ucontrol->value.integer.value[1] + min) & mask;
 		val2 = val2 << rshift;
 
 		err = snd_soc_component_update_bits(component, reg2, val_mask,
 			val2);
+<<<<<<< HEAD
 	}
 	return err;
+=======
+
+		/* Don't discard any error code or drop change flag */
+		if (ret == 0 || err < 0) {
+			ret = err;
+		}
+	}
+	return ret;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(snd_soc_put_volsw_sx);
 
@@ -496,7 +588,19 @@ int snd_soc_put_volsw_range(struct snd_kcontrol *kcontrol,
 	unsigned int mask = (1 << fls(max)) - 1;
 	unsigned int invert = mc->invert;
 	unsigned int val, val_mask;
+<<<<<<< HEAD
 	int ret;
+=======
+	int err, ret, tmp;
+
+	tmp = ucontrol->value.integer.value[0];
+	if (tmp < 0)
+		return -EINVAL;
+	if (mc->platform_max && tmp > mc->platform_max)
+		return -EINVAL;
+	if (tmp > mc->max - mc->min + 1)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	if (invert)
 		val = (max - ucontrol->value.integer.value[0]) & mask;
@@ -505,11 +609,28 @@ int snd_soc_put_volsw_range(struct snd_kcontrol *kcontrol,
 	val_mask = mask << shift;
 	val = val << shift;
 
+<<<<<<< HEAD
 	ret = snd_soc_component_update_bits(component, reg, val_mask, val);
 	if (ret < 0)
 		return ret;
 
 	if (snd_soc_volsw_is_stereo(mc)) {
+=======
+	err = snd_soc_component_update_bits(component, reg, val_mask, val);
+	if (err < 0)
+		return err;
+	ret = err;
+
+	if (snd_soc_volsw_is_stereo(mc)) {
+		tmp = ucontrol->value.integer.value[1];
+		if (tmp < 0)
+			return -EINVAL;
+		if (mc->platform_max && tmp > mc->platform_max)
+			return -EINVAL;
+		if (tmp > mc->max - mc->min + 1)
+			return -EINVAL;
+
+>>>>>>> upstream/android-13
 		if (invert)
 			val = (max - ucontrol->value.integer.value[1]) & mask;
 		else
@@ -517,8 +638,17 @@ int snd_soc_put_volsw_range(struct snd_kcontrol *kcontrol,
 		val_mask = mask << shift;
 		val = val << shift;
 
+<<<<<<< HEAD
 		ret = snd_soc_component_update_bits(component, rreg, val_mask,
 			val);
+=======
+		err = snd_soc_component_update_bits(component, rreg, val_mask,
+			val);
+		/* Don't discard any error code or drop change flag */
+		if (ret == 0 || err < 0) {
+			ret = err;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	return ret;
@@ -548,12 +678,17 @@ int snd_soc_get_volsw_range(struct snd_kcontrol *kcontrol,
 	unsigned int mask = (1 << fls(max)) - 1;
 	unsigned int invert = mc->invert;
 	unsigned int val;
+<<<<<<< HEAD
 	int ret;
 
 	ret = snd_soc_component_read(component, reg, &val);
 	if (ret)
 		return ret;
 
+=======
+
+	val = snd_soc_component_read(component, reg);
+>>>>>>> upstream/android-13
 	ucontrol->value.integer.value[0] = (val >> shift) & mask;
 	if (invert)
 		ucontrol->value.integer.value[0] =
@@ -563,10 +698,14 @@ int snd_soc_get_volsw_range(struct snd_kcontrol *kcontrol,
 			ucontrol->value.integer.value[0] - min;
 
 	if (snd_soc_volsw_is_stereo(mc)) {
+<<<<<<< HEAD
 		ret = snd_soc_component_read(component, rreg, &val);
 		if (ret)
 			return ret;
 
+=======
+		val = snd_soc_component_read(component, rreg);
+>>>>>>> upstream/android-13
 		ucontrol->value.integer.value[1] = (val >> shift) & mask;
 		if (invert)
 			ucontrol->value.integer.value[1] =
@@ -592,16 +731,21 @@ EXPORT_SYMBOL_GPL(snd_soc_get_volsw_range);
 int snd_soc_limit_volume(struct snd_soc_card *card,
 	const char *name, int max)
 {
+<<<<<<< HEAD
 	struct snd_card *snd_card = card->snd_card;
 	struct snd_kcontrol *kctl;
 	struct soc_mixer_control *mc;
 	int found = 0;
+=======
+	struct snd_kcontrol *kctl;
+>>>>>>> upstream/android-13
 	int ret = -EINVAL;
 
 	/* Sanity check for name and max */
 	if (unlikely(!name || max <= 0))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	list_for_each_entry(kctl, &snd_card->controls, list) {
 		if (!strncmp(kctl->id.name, name, sizeof(kctl->id.name))) {
 			found = 1;
@@ -610,6 +754,11 @@ int snd_soc_limit_volume(struct snd_soc_card *card,
 	}
 	if (found) {
 		mc = (struct soc_mixer_control *)kctl->private_value;
+=======
+	kctl = snd_soc_card_get_kcontrol(card, name);
+	if (kctl) {
+		struct soc_mixer_control *mc = (struct soc_mixer_control *)kctl->private_value;
+>>>>>>> upstream/android-13
 		if (max <= mc->max) {
 			mc->platform_max = max;
 			ret = 0;
@@ -838,6 +987,7 @@ int snd_soc_get_xr_sx(struct snd_kcontrol *kcontrol,
 	long min = mc->min;
 	long max = mc->max;
 	long val = 0;
+<<<<<<< HEAD
 	unsigned int regval;
 	unsigned int i;
 	int ret;
@@ -846,6 +996,12 @@ int snd_soc_get_xr_sx(struct snd_kcontrol *kcontrol,
 		ret = snd_soc_component_read(component, regbase+i, &regval);
 		if (ret)
 			return ret;
+=======
+	unsigned int i;
+
+	for (i = 0; i < regcount; i++) {
+		unsigned int regval = snd_soc_component_read(component, regbase+i);
+>>>>>>> upstream/android-13
 		val |= (regval & regwmask) << (regwshift*(regcount-i-1));
 	}
 	val &= mask;
@@ -886,13 +1042,22 @@ int snd_soc_put_xr_sx(struct snd_kcontrol *kcontrol,
 	unsigned long mask = (1UL<<mc->nbits)-1;
 	long max = mc->max;
 	long val = ucontrol->value.integer.value[0];
+<<<<<<< HEAD
 	unsigned int i, regval, regmask;
 	int err;
 
+=======
+	int ret = 0;
+	unsigned int i;
+
+	if (val < mc->min || val > mc->max)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	if (invert)
 		val = max - val;
 	val &= mask;
 	for (i = 0; i < regcount; i++) {
+<<<<<<< HEAD
 		regval = (val >> (regwshift*(regcount-i-1))) & regwmask;
 		regmask = (mask >> (regwshift*(regcount-i-1))) & regwmask;
 		err = snd_soc_component_update_bits(component, regbase+i,
@@ -902,6 +1067,19 @@ int snd_soc_put_xr_sx(struct snd_kcontrol *kcontrol,
 	}
 
 	return 0;
+=======
+		unsigned int regval = (val >> (regwshift*(regcount-i-1))) & regwmask;
+		unsigned int regmask = (mask >> (regwshift*(regcount-i-1))) & regwmask;
+		int err = snd_soc_component_update_bits(component, regbase+i,
+							regmask, regval);
+		if (err < 0)
+			return err;
+		if (err > 0)
+			ret = err;
+	}
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(snd_soc_put_xr_sx);
 
@@ -925,12 +1103,17 @@ int snd_soc_get_strobe(struct snd_kcontrol *kcontrol,
 	unsigned int mask = 1 << shift;
 	unsigned int invert = mc->invert != 0;
 	unsigned int val;
+<<<<<<< HEAD
 	int ret;
 
 	ret = snd_soc_component_read(component, reg, &val);
 	if (ret)
 		return ret;
 
+=======
+
+	val = snd_soc_component_read(component, reg);
+>>>>>>> upstream/android-13
 	val &= mask;
 
 	if (shift != 0 && val != 0)

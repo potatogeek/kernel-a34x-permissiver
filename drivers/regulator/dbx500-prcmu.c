@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) ST-Ericsson SA 2010
  *
  * License Terms: GNU General Public License v2
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) ST-Ericsson SA 2010
+ *
+>>>>>>> upstream/android-13
  * Authors: Sundar Iyer <sundar.iyer@stericsson.com> for ST-Ericsson
  *          Bengt Jonsson <bengt.g.jonsson@stericsson.com> for ST-Ericsson
  *
@@ -67,15 +74,22 @@ static int power_state_active_get(void)
 
 static struct ux500_regulator_debug {
 	struct dentry *dir;
+<<<<<<< HEAD
 	struct dentry *status_file;
 	struct dentry *power_state_cnt_file;
+=======
+>>>>>>> upstream/android-13
 	struct dbx500_regulator_info *regulator_array;
 	int num_regulators;
 	u8 *state_before_suspend;
 	u8 *state_after_suspend;
 } rdebug;
 
+<<<<<<< HEAD
 static int ux500_regulator_power_state_cnt_print(struct seq_file *s, void *p)
+=======
+static int ux500_regulator_power_state_cnt_show(struct seq_file *s, void *p)
+>>>>>>> upstream/android-13
 {
 	/* print power state count */
 	seq_printf(s, "ux500-regulator power state count: %i\n",
@@ -83,6 +97,7 @@ static int ux500_regulator_power_state_cnt_print(struct seq_file *s, void *p)
 
 	return 0;
 }
+<<<<<<< HEAD
 
 static int ux500_regulator_power_state_cnt_open(struct inode *inode,
 	struct file *file)
@@ -100,6 +115,11 @@ static const struct file_operations ux500_regulator_power_state_cnt_fops = {
 };
 
 static int ux500_regulator_status_print(struct seq_file *s, void *p)
+=======
+DEFINE_SHOW_ATTRIBUTE(ux500_regulator_power_state_cnt);
+
+static int ux500_regulator_status_show(struct seq_file *s, void *p)
+>>>>>>> upstream/android-13
 {
 	int i;
 
@@ -122,6 +142,7 @@ static int ux500_regulator_status_print(struct seq_file *s, void *p)
 
 	return 0;
 }
+<<<<<<< HEAD
 
 static int ux500_regulator_status_open(struct inode *inode, struct file *file)
 {
@@ -143,6 +164,9 @@ int __attribute__((weak)) dbx500_regulator_testcase(
 {
 	return 0;
 }
+=======
+DEFINE_SHOW_ATTRIBUTE(ux500_regulator_status);
+>>>>>>> upstream/android-13
 
 int
 ux500_regulator_debug_init(struct platform_device *pdev,
@@ -151,6 +175,7 @@ ux500_regulator_debug_init(struct platform_device *pdev,
 {
 	/* create directory */
 	rdebug.dir = debugfs_create_dir("ux500-regulator", NULL);
+<<<<<<< HEAD
 	if (!rdebug.dir)
 		goto exit_no_debugfs;
 
@@ -167,6 +192,16 @@ ux500_regulator_debug_init(struct platform_device *pdev,
 		&ux500_regulator_power_state_cnt_fops);
 	if (!rdebug.power_state_cnt_file)
 		goto exit_destroy_status;
+=======
+
+	/* create "status" file */
+	debugfs_create_file("status", 0444, rdebug.dir, &pdev->dev,
+			    &ux500_regulator_status_fops);
+
+	/* create "power-state-count" file */
+	debugfs_create_file("power-state-count", 0444, rdebug.dir,
+			    &pdev->dev, &ux500_regulator_power_state_cnt_fops);
+>>>>>>> upstream/android-13
 
 	rdebug.regulator_array = regulator_info;
 	rdebug.num_regulators = num_regulators;
@@ -179,12 +214,16 @@ ux500_regulator_debug_init(struct platform_device *pdev,
 	if (!rdebug.state_after_suspend)
 		goto exit_free;
 
+<<<<<<< HEAD
 	dbx500_regulator_testcase(regulator_info, num_regulators);
+=======
+>>>>>>> upstream/android-13
 	return 0;
 
 exit_free:
 	kfree(rdebug.state_before_suspend);
 exit_destroy_power_state:
+<<<<<<< HEAD
 	debugfs_remove(rdebug.power_state_cnt_file);
 exit_destroy_status:
 	debugfs_remove(rdebug.status_file);
@@ -192,6 +231,9 @@ exit_destroy_dir:
 	debugfs_remove(rdebug.dir);
 exit_no_debugfs:
 	dev_err(&pdev->dev, "failed to create debugfs entries.\n");
+=======
+	debugfs_remove_recursive(rdebug.dir);
+>>>>>>> upstream/android-13
 	return -ENOMEM;
 }
 

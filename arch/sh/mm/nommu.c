@@ -1,17 +1,27 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * arch/sh/mm/nommu.c
  *
  * Various helper routines and stubs for MMUless SH.
  *
  * Copyright (C) 2002 - 2009 Paul Mundt
+<<<<<<< HEAD
  *
  * Released under the terms of the GNU GPL v2.0.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/init.h>
 #include <linux/string.h>
 #include <linux/mm.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/tlbflush.h>
 #include <asm/page.h>
 #include <linux/uaccess.h>
@@ -98,7 +108,10 @@ void __init page_table_range_init(unsigned long start, unsigned long end,
 void __set_fixmap(enum fixed_addresses idx, unsigned long phys, pgprot_t prot)
 {
 }
+<<<<<<< HEAD
 
 void pgtable_cache_init(void)
 {
 }
+=======
+>>>>>>> upstream/android-13

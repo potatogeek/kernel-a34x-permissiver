@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2006-2008 Nokia Corporation
  *
@@ -14,6 +15,12 @@
  * this program; see the file COPYING. If not, write to the Free Software
  * Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2006-2008 Nokia Corporation
+ *
+>>>>>>> upstream/android-13
  * Test OOB read and write on MTD device.
  *
  * Author: Adrian Hunter <ext-adrian.hunter@nokia.com>
@@ -518,7 +525,10 @@ static int __init mtd_oobtest_init(void)
 	err = mtd_write_oob(mtd, addr0, &ops);
 	if (err) {
 		pr_info("error occurred as expected\n");
+<<<<<<< HEAD
 		err = 0;
+=======
+>>>>>>> upstream/android-13
 	} else {
 		pr_err("error: can write past end of OOB\n");
 		errcnt += 1;
@@ -541,7 +551,10 @@ static int __init mtd_oobtest_init(void)
 
 	if (err) {
 		pr_info("error occurred as expected\n");
+<<<<<<< HEAD
 		err = 0;
+=======
+>>>>>>> upstream/android-13
 	} else {
 		pr_err("error: can read past end of OOB\n");
 		errcnt += 1;
@@ -565,7 +578,10 @@ static int __init mtd_oobtest_init(void)
 		err = mtd_write_oob(mtd, mtd->size - mtd->writesize, &ops);
 		if (err) {
 			pr_info("error occurred as expected\n");
+<<<<<<< HEAD
 			err = 0;
+=======
+>>>>>>> upstream/android-13
 		} else {
 			pr_err("error: wrote past end of device\n");
 			errcnt += 1;
@@ -588,7 +604,10 @@ static int __init mtd_oobtest_init(void)
 
 		if (err) {
 			pr_info("error occurred as expected\n");
+<<<<<<< HEAD
 			err = 0;
+=======
+>>>>>>> upstream/android-13
 		} else {
 			pr_err("error: read past end of device\n");
 			errcnt += 1;
@@ -612,7 +631,10 @@ static int __init mtd_oobtest_init(void)
 		err = mtd_write_oob(mtd, mtd->size - mtd->writesize, &ops);
 		if (err) {
 			pr_info("error occurred as expected\n");
+<<<<<<< HEAD
 			err = 0;
+=======
+>>>>>>> upstream/android-13
 		} else {
 			pr_err("error: wrote past end of device\n");
 			errcnt += 1;
@@ -635,7 +657,10 @@ static int __init mtd_oobtest_init(void)
 
 		if (err) {
 			pr_info("error occurred as expected\n");
+<<<<<<< HEAD
 			err = 0;
+=======
+>>>>>>> upstream/android-13
 		} else {
 			pr_err("error: read past end of device\n");
 			errcnt += 1;
@@ -713,6 +738,10 @@ static int __init mtd_oobtest_init(void)
 			       (long long)addr);
 			errcnt += 1;
 			if (errcnt > 1000) {
+<<<<<<< HEAD
+=======
+				err = -EINVAL;
+>>>>>>> upstream/android-13
 				pr_err("error: too many errors\n");
 				goto out;
 			}

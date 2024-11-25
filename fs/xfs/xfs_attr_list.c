@@ -6,6 +6,7 @@
  */
 #include "xfs.h"
 #include "xfs_fs.h"
+<<<<<<< HEAD
 #include "xfs_format.h"
 #include "xfs_log_format.h"
 #include "xfs_trans_resv.h"
@@ -25,6 +26,22 @@
 #include "xfs_trace.h"
 #include "xfs_buf_item.h"
 #include "xfs_cksum.h"
+=======
+#include "xfs_shared.h"
+#include "xfs_format.h"
+#include "xfs_log_format.h"
+#include "xfs_trans_resv.h"
+#include "xfs_mount.h"
+#include "xfs_da_format.h"
+#include "xfs_inode.h"
+#include "xfs_trans.h"
+#include "xfs_bmap.h"
+#include "xfs_attr.h"
+#include "xfs_attr_sf.h"
+#include "xfs_attr_leaf.h"
+#include "xfs_error.h"
+#include "xfs_trace.h"
+>>>>>>> upstream/android-13
 #include "xfs_dir2.h"
 
 STATIC int
@@ -49,11 +66,16 @@ xfs_attr_shortform_compare(const void *a, const void *b)
 /*
  * Copy out entries of shortform attribute lists for attr_list().
  * Shortform attribute lists are not stored in hashval sorted order.
+<<<<<<< HEAD
  * If the output buffer is not large enough to hold them all, then we
+=======
+ * If the output buffer is not large enough to hold them all, then
+>>>>>>> upstream/android-13
  * we have to calculate each entries' hashvalue and sort them before
  * we can begin returning them to the user.
  */
 static int
+<<<<<<< HEAD
 xfs_attr_shortform_list(xfs_attr_list_context_t *context)
 {
 	attrlist_cursor_kern_t *cursor;
@@ -73,6 +95,24 @@ xfs_attr_shortform_list(xfs_attr_list_context_t *context)
 		return 0;
 	cursor = context->cursor;
 	ASSERT(cursor != NULL);
+=======
+xfs_attr_shortform_list(
+	struct xfs_attr_list_context	*context)
+{
+	struct xfs_attrlist_cursor_kern	*cursor = &context->cursor;
+	struct xfs_inode		*dp = context->dp;
+	struct xfs_attr_sf_sort		*sbuf, *sbp;
+	struct xfs_attr_shortform	*sf;
+	struct xfs_attr_sf_entry	*sfe;
+	int				sbsize, nsbuf, count, i;
+	int				error = 0;
+
+	ASSERT(dp->i_afp != NULL);
+	sf = (struct xfs_attr_shortform *)dp->i_afp->if_u1.if_data;
+	ASSERT(sf != NULL);
+	if (!sf->hdr.count)
+		return 0;
+>>>>>>> upstream/android-13
 
 	trace_xfs_attr_list_sf(context);
 
@@ -89,6 +129,13 @@ xfs_attr_shortform_list(xfs_attr_list_context_t *context)
 	    (XFS_ISRESET_CURSOR(cursor) &&
 	     (dp->i_afp->if_bytes + sf->hdr.count * 16) < context->bufsize)) {
 		for (i = 0, sfe = &sf->list[0]; i < sf->hdr.count; i++) {
+<<<<<<< HEAD
+=======
+			if (XFS_IS_CORRUPT(context->dp->i_mount,
+					   !xfs_attr_namecheck(sfe->nameval,
+							       sfe->namelen)))
+				return -EFSCORRUPTED;
+>>>>>>> upstream/android-13
 			context->put_listent(context,
 					     sfe->flags,
 					     sfe->nameval,
@@ -100,7 +147,11 @@ xfs_attr_shortform_list(xfs_attr_list_context_t *context)
 			 */
 			if (context->seen_enough)
 				break;
+<<<<<<< HEAD
 			sfe = XFS_ATTR_SF_NEXTENTRY(sfe);
+=======
+			sfe = xfs_attr_sf_nextentry(sfe);
+>>>>>>> upstream/android-13
 		}
 		trace_xfs_attr_list_sf_all(context);
 		return 0;
@@ -114,7 +165,11 @@ xfs_attr_shortform_list(xfs_attr_list_context_t *context)
 	 * It didn't all fit, so we have to sort everything on hashval.
 	 */
 	sbsize = sf->hdr.count * sizeof(*sbuf);
+<<<<<<< HEAD
 	sbp = sbuf = kmem_alloc(sbsize, KM_SLEEP | KM_NOFS);
+=======
+	sbp = sbuf = kmem_alloc(sbsize, KM_NOFS);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Scan the attribute list for the rest of the entries, storing
@@ -140,7 +195,11 @@ xfs_attr_shortform_list(xfs_attr_list_context_t *context)
 		/* These are bytes, and both on-disk, don't endian-flip */
 		sbp->valuelen = sfe->valuelen;
 		sbp->flags = sfe->flags;
+<<<<<<< HEAD
 		sfe = XFS_ATTR_SF_NEXTENTRY(sfe);
+=======
+		sfe = xfs_attr_sf_nextentry(sfe);
+>>>>>>> upstream/android-13
 		sbp++;
 		nsbuf++;
 	}
@@ -166,10 +225,15 @@ xfs_attr_shortform_list(xfs_attr_list_context_t *context)
 			break;
 		}
 	}
+<<<<<<< HEAD
 	if (i == nsbuf) {
 		kmem_free(sbuf);
 		return 0;
 	}
+=======
+	if (i == nsbuf)
+		goto out;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Loop putting entries into the user buffer.
@@ -179,6 +243,15 @@ xfs_attr_shortform_list(xfs_attr_list_context_t *context)
 			cursor->hashval = sbp->hash;
 			cursor->offset = 0;
 		}
+<<<<<<< HEAD
+=======
+		if (XFS_IS_CORRUPT(context->dp->i_mount,
+				   !xfs_attr_namecheck(sbp->name,
+						       sbp->namelen))) {
+			error = -EFSCORRUPTED;
+			goto out;
+		}
+>>>>>>> upstream/android-13
 		context->put_listent(context,
 				     sbp->flags,
 				     sbp->name,
@@ -188,9 +261,15 @@ xfs_attr_shortform_list(xfs_attr_list_context_t *context)
 			break;
 		cursor->offset++;
 	}
+<<<<<<< HEAD
 
 	kmem_free(sbuf);
 	return 0;
+=======
+out:
+	kmem_free(sbuf);
+	return error;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -200,7 +279,11 @@ xfs_attr_shortform_list(xfs_attr_list_context_t *context)
 STATIC int
 xfs_attr_node_list_lookup(
 	struct xfs_attr_list_context	*context,
+<<<<<<< HEAD
 	struct attrlist_cursor_kern	*cursor,
+=======
+	struct xfs_attrlist_cursor_kern	*cursor,
+>>>>>>> upstream/android-13
 	struct xfs_buf			**pbp)
 {
 	struct xfs_da3_icnode_hdr	nodehdr;
@@ -218,7 +301,11 @@ xfs_attr_node_list_lookup(
 	ASSERT(*pbp == NULL);
 	cursor->blkno = 0;
 	for (;;) {
+<<<<<<< HEAD
 		error = xfs_da3_node_read(tp, dp, cursor->blkno, -1, &bp,
+=======
+		error = xfs_da3_node_read(tp, dp, cursor->blkno, &bp,
+>>>>>>> upstream/android-13
 				XFS_ATTR_FORK);
 		if (error)
 			return error;
@@ -234,7 +321,11 @@ xfs_attr_node_list_lookup(
 			goto out_corruptbuf;
 		}
 
+<<<<<<< HEAD
 		dp->d_ops->node_hdr_from_disk(&nodehdr, node);
+=======
+		xfs_da3_node_hdr_from_disk(mp, &nodehdr, node);
+>>>>>>> upstream/android-13
 
 		/* Tree taller than we can handle; bail out! */
 		if (nodehdr.level >= XFS_DA_NODE_MAXDEPTH)
@@ -248,7 +339,11 @@ xfs_attr_node_list_lookup(
 		else
 			expected_level--;
 
+<<<<<<< HEAD
 		btree = dp->d_ops->node_tree_p(node);
+=======
+		btree = nodehdr.btree;
+>>>>>>> upstream/android-13
 		for (i = 0; i < nodehdr.count; btree++, i++) {
 			if (cursor->hashval <= be32_to_cpu(btree->hashval)) {
 				cursor->blkno = be32_to_cpu(btree->before);
@@ -263,7 +358,11 @@ xfs_attr_node_list_lookup(
 			return 0;
 
 		/* We can't point back to the root. */
+<<<<<<< HEAD
 		if (cursor->blkno == 0)
+=======
+		if (XFS_IS_CORRUPT(mp, cursor->blkno == 0))
+>>>>>>> upstream/android-13
 			return -EFSCORRUPTED;
 	}
 
@@ -274,6 +373,10 @@ xfs_attr_node_list_lookup(
 	return 0;
 
 out_corruptbuf:
+<<<<<<< HEAD
+=======
+	xfs_buf_mark_corrupt(bp);
+>>>>>>> upstream/android-13
 	xfs_trans_brelse(tp, bp);
 	return -EFSCORRUPTED;
 }
@@ -282,18 +385,30 @@ STATIC int
 xfs_attr_node_list(
 	struct xfs_attr_list_context	*context)
 {
+<<<<<<< HEAD
 	struct xfs_attr3_icleaf_hdr	leafhdr;
 	struct attrlist_cursor_kern	*cursor;
+=======
+	struct xfs_attrlist_cursor_kern	*cursor = &context->cursor;
+	struct xfs_attr3_icleaf_hdr	leafhdr;
+>>>>>>> upstream/android-13
 	struct xfs_attr_leafblock	*leaf;
 	struct xfs_da_intnode		*node;
 	struct xfs_buf			*bp;
 	struct xfs_inode		*dp = context->dp;
 	struct xfs_mount		*mp = dp->i_mount;
+<<<<<<< HEAD
 	int				error;
 
 	trace_xfs_attr_node_list(context);
 
 	cursor = context->cursor;
+=======
+	int				error = 0;
+
+	trace_xfs_attr_node_list(context);
+
+>>>>>>> upstream/android-13
 	cursor->initted = 1;
 
 	/*
@@ -303,8 +418,13 @@ xfs_attr_node_list(
 	 */
 	bp = NULL;
 	if (cursor->blkno > 0) {
+<<<<<<< HEAD
 		error = xfs_da3_node_read(context->tp, dp, cursor->blkno, -1,
 					      &bp, XFS_ATTR_FORK);
+=======
+		error = xfs_da3_node_read(context->tp, dp, cursor->blkno, &bp,
+				XFS_ATTR_FORK);
+>>>>>>> upstream/android-13
 		if ((error != 0) && (error != -EFSCORRUPTED))
 			return error;
 		if (bp) {
@@ -363,29 +483,52 @@ xfs_attr_node_list(
 	 */
 	for (;;) {
 		leaf = bp->b_addr;
+<<<<<<< HEAD
 		xfs_attr3_leaf_list_int(bp, context);
+=======
+		error = xfs_attr3_leaf_list_int(bp, context);
+		if (error)
+			break;
+>>>>>>> upstream/android-13
 		xfs_attr3_leaf_hdr_from_disk(mp->m_attr_geo, &leafhdr, leaf);
 		if (context->seen_enough || leafhdr.forw == 0)
 			break;
 		cursor->blkno = leafhdr.forw;
 		xfs_trans_brelse(context->tp, bp);
+<<<<<<< HEAD
 		error = xfs_attr3_leaf_read(context->tp, dp, cursor->blkno, -1, &bp);
+=======
+		error = xfs_attr3_leaf_read(context->tp, dp, cursor->blkno,
+					    &bp);
+>>>>>>> upstream/android-13
 		if (error)
 			return error;
 	}
 	xfs_trans_brelse(context->tp, bp);
+<<<<<<< HEAD
 	return 0;
+=======
+	return error;
+>>>>>>> upstream/android-13
 }
 
 /*
  * Copy out attribute list entries for attr_list(), for leaf attribute lists.
  */
+<<<<<<< HEAD
 void
+=======
+int
+>>>>>>> upstream/android-13
 xfs_attr3_leaf_list_int(
 	struct xfs_buf			*bp,
 	struct xfs_attr_list_context	*context)
 {
+<<<<<<< HEAD
 	struct attrlist_cursor_kern	*cursor;
+=======
+	struct xfs_attrlist_cursor_kern	*cursor = &context->cursor;
+>>>>>>> upstream/android-13
 	struct xfs_attr_leafblock	*leaf;
 	struct xfs_attr3_icleaf_hdr	ichdr;
 	struct xfs_attr_leaf_entry	*entries;
@@ -399,7 +542,10 @@ xfs_attr3_leaf_list_int(
 	xfs_attr3_leaf_hdr_from_disk(mp->m_attr_geo, &ichdr, leaf);
 	entries = xfs_attr3_leaf_entryp(leaf);
 
+<<<<<<< HEAD
 	cursor = context->cursor;
+=======
+>>>>>>> upstream/android-13
 	cursor->initted = 1;
 
 	/*
@@ -422,7 +568,11 @@ xfs_attr3_leaf_list_int(
 		}
 		if (i == ichdr.count) {
 			trace_xfs_attr_list_notfound(context);
+<<<<<<< HEAD
 			return;
+=======
+			return 0;
+>>>>>>> upstream/android-13
 		}
 	} else {
 		entry = &entries[0];
@@ -443,8 +593,13 @@ xfs_attr3_leaf_list_int(
 		}
 
 		if ((entry->flags & XFS_ATTR_INCOMPLETE) &&
+<<<<<<< HEAD
 		    !(context->flags & ATTR_INCOMPLETE))
 			continue;		/* skip incomplete entries */
+=======
+		    !context->allow_incomplete)
+			continue;
+>>>>>>> upstream/android-13
 
 		if (entry->flags & XFS_ATTR_LOCAL) {
 			xfs_attr_leaf_name_local_t *name_loc;
@@ -462,6 +617,12 @@ xfs_attr3_leaf_list_int(
 			valuelen = be32_to_cpu(name_rmt->valuelen);
 		}
 
+<<<<<<< HEAD
+=======
+		if (XFS_IS_CORRUPT(context->dp->i_mount,
+				   !xfs_attr_namecheck(name, namelen)))
+			return -EFSCORRUPTED;
+>>>>>>> upstream/android-13
 		context->put_listent(context, entry->flags,
 					      name, namelen, valuelen);
 		if (context->seen_enough)
@@ -469,13 +630,18 @@ xfs_attr3_leaf_list_int(
 		cursor->offset++;
 	}
 	trace_xfs_attr_list_leaf_end(context);
+<<<<<<< HEAD
 	return;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
  * Copy out attribute entries for attr_list(), for leaf attribute lists.
  */
 STATIC int
+<<<<<<< HEAD
 xfs_attr_leaf_list(xfs_attr_list_context_t *context)
 {
 	int error;
@@ -495,6 +661,28 @@ xfs_attr_leaf_list(xfs_attr_list_context_t *context)
 
 int
 xfs_attr_list_int_ilocked(
+=======
+xfs_attr_leaf_list(
+	struct xfs_attr_list_context	*context)
+{
+	struct xfs_buf			*bp;
+	int				error;
+
+	trace_xfs_attr_leaf_list(context);
+
+	context->cursor.blkno = 0;
+	error = xfs_attr3_leaf_read(context->tp, context->dp, 0, &bp);
+	if (error)
+		return error;
+
+	error = xfs_attr3_leaf_list_int(bp, context);
+	xfs_trans_brelse(context->tp, bp);
+	return error;
+}
+
+int
+xfs_attr_list_ilocked(
+>>>>>>> upstream/android-13
 	struct xfs_attr_list_context	*context)
 {
 	struct xfs_inode		*dp = context->dp;
@@ -506,14 +694,21 @@ xfs_attr_list_int_ilocked(
 	 */
 	if (!xfs_inode_hasattr(dp))
 		return 0;
+<<<<<<< HEAD
 	else if (dp->i_d.di_aformat == XFS_DINODE_FMT_LOCAL)
 		return xfs_attr_shortform_list(context);
 	else if (xfs_bmap_one_block(dp, XFS_ATTR_FORK))
+=======
+	if (dp->i_afp->if_format == XFS_DINODE_FMT_LOCAL)
+		return xfs_attr_shortform_list(context);
+	if (xfs_attr_is_leaf(dp))
+>>>>>>> upstream/android-13
 		return xfs_attr_leaf_list(context);
 	return xfs_attr_node_list(context);
 }
 
 int
+<<<<<<< HEAD
 xfs_attr_list_int(
 	xfs_attr_list_context_t *context)
 {
@@ -654,3 +849,22 @@ xfs_attr_list(
 	ASSERT(error <= 0);
 	return error;
 }
+=======
+xfs_attr_list(
+	struct xfs_attr_list_context	*context)
+{
+	struct xfs_inode		*dp = context->dp;
+	uint				lock_mode;
+	int				error;
+
+	XFS_STATS_INC(dp->i_mount, xs_attr_list);
+
+	if (xfs_is_shutdown(dp->i_mount))
+		return -EIO;
+
+	lock_mode = xfs_ilock_attr_map_shared(dp);
+	error = xfs_attr_list_ilocked(context);
+	xfs_iunlock(dp, lock_mode);
+	return error;
+}
+>>>>>>> upstream/android-13

@@ -18,10 +18,15 @@
 
 #ifdef CONFIG_SHUB_LSI
 #include "shub_lsi.h"
+<<<<<<< HEAD
 #elif defined(CONFIG_SHUB_MTK)
 #include "shub_mtk.h"
 #else
 #include "shub_dummy.h"
+=======
+#else
+#include "shub_mtk.h"
+>>>>>>> upstream/android-13
 #endif
 
 int sensorhub_comms_write(u8 *buf, int length);

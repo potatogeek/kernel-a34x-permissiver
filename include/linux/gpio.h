@@ -102,7 +102,10 @@ void devm_gpio_free(struct device *dev, unsigned int gpio);
 #include <linux/kernel.h>
 #include <linux/types.h>
 #include <linux/bug.h>
+<<<<<<< HEAD
 #include <linux/pinctrl/pinctrl.h>
+=======
+>>>>>>> upstream/android-13
 
 struct device;
 struct gpio_chip;
@@ -220,6 +223,7 @@ static inline int gpio_to_irq(unsigned gpio)
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 static inline int gpiochip_lock_as_irq(struct gpio_chip *chip,
 				       unsigned int offset)
 {
@@ -233,6 +237,8 @@ static inline void gpiochip_unlock_as_irq(struct gpio_chip *chip,
 	WARN_ON(1);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline int irq_to_gpio(unsigned irq)
 {
 	/* irq can never have been returned from gpio_to_irq() */

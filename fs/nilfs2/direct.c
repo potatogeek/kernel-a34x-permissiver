@@ -328,16 +328,30 @@ static int nilfs_direct_assign(struct nilfs_bmap *bmap,
 
 	key = nilfs_bmap_data_get_key(bmap, *bh);
 	if (unlikely(key > NILFS_DIRECT_KEY_MAX)) {
+<<<<<<< HEAD
 		nilfs_msg(bmap->b_inode->i_sb, KERN_CRIT,
 			  "%s (ino=%lu): invalid key: %llu", __func__,
 			  bmap->b_inode->i_ino, (unsigned long long)key);
+=======
+		nilfs_crit(bmap->b_inode->i_sb,
+			   "%s (ino=%lu): invalid key: %llu",
+			   __func__,
+			   bmap->b_inode->i_ino, (unsigned long long)key);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 	ptr = nilfs_direct_get_ptr(bmap, key);
 	if (unlikely(ptr == NILFS_BMAP_INVALID_PTR)) {
+<<<<<<< HEAD
 		nilfs_msg(bmap->b_inode->i_sb, KERN_CRIT,
 			  "%s (ino=%lu): invalid pointer: %llu", __func__,
 			  bmap->b_inode->i_ino, (unsigned long long)ptr);
+=======
+		nilfs_crit(bmap->b_inode->i_sb,
+			   "%s (ino=%lu): invalid pointer: %llu",
+			   __func__,
+			   bmap->b_inode->i_ino, (unsigned long long)ptr);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 

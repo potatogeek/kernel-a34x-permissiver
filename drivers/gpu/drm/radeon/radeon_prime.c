@@ -23,15 +23,27 @@
  *
  * Authors: Alex Deucher
  */
+<<<<<<< HEAD
 #include <drm/drmP.h>
 
 #include "radeon.h"
 #include <drm/radeon_drm.h>
 #include <linux/dma-buf.h>
+=======
+
+#include <linux/dma-buf.h>
+
+#include <drm/drm_prime.h>
+#include <drm/radeon_drm.h>
+
+#include "radeon.h"
+#include "radeon_prime.h"
+>>>>>>> upstream/android-13
 
 struct sg_table *radeon_gem_prime_get_sg_table(struct drm_gem_object *obj)
 {
 	struct radeon_bo *bo = gem_to_radeon_bo(obj);
+<<<<<<< HEAD
 	int npages = bo->tbo.num_pages;
 
 	return drm_prime_pages_to_sg(bo->tbo.ttm->pages, npages);
@@ -55,17 +67,27 @@ void radeon_gem_prime_vunmap(struct drm_gem_object *obj, void *vaddr)
 	struct radeon_bo *bo = gem_to_radeon_bo(obj);
 
 	ttm_bo_kunmap(&bo->dma_buf_vmap);
+=======
+
+	return drm_prime_pages_to_sg(obj->dev, bo->tbo.ttm->pages,
+				     bo->tbo.ttm->num_pages);
+>>>>>>> upstream/android-13
 }
 
 struct drm_gem_object *radeon_gem_prime_import_sg_table(struct drm_device *dev,
 							struct dma_buf_attachment *attach,
 							struct sg_table *sg)
 {
+<<<<<<< HEAD
 	struct reservation_object *resv = attach->dmabuf->resv;
+=======
+	struct dma_resv *resv = attach->dmabuf->resv;
+>>>>>>> upstream/android-13
 	struct radeon_device *rdev = dev->dev_private;
 	struct radeon_bo *bo;
 	int ret;
 
+<<<<<<< HEAD
 	ww_mutex_lock(&resv->lock, NULL);
 	ret = radeon_bo_create(rdev, attach->dmabuf->size, PAGE_SIZE, false,
 			       RADEON_GEM_DOMAIN_GTT, 0, sg, resv, &bo);
@@ -73,12 +95,27 @@ struct drm_gem_object *radeon_gem_prime_import_sg_table(struct drm_device *dev,
 	if (ret)
 		return ERR_PTR(ret);
 
+=======
+	dma_resv_lock(resv, NULL);
+	ret = radeon_bo_create(rdev, attach->dmabuf->size, PAGE_SIZE, false,
+			       RADEON_GEM_DOMAIN_GTT, 0, sg, resv, &bo);
+	dma_resv_unlock(resv);
+	if (ret)
+		return ERR_PTR(ret);
+
+	bo->tbo.base.funcs = &radeon_gem_object_funcs;
+
+>>>>>>> upstream/android-13
 	mutex_lock(&rdev->gem.mutex);
 	list_add_tail(&bo->list, &rdev->gem.objects);
 	mutex_unlock(&rdev->gem.mutex);
 
 	bo->prime_shared_count = 1;
+<<<<<<< HEAD
 	return &bo->gem_base;
+=======
+	return &bo->tbo.base;
+>>>>>>> upstream/android-13
 }
 
 int radeon_gem_prime_pin(struct drm_gem_object *obj)
@@ -92,9 +129,25 @@ int radeon_gem_prime_pin(struct drm_gem_object *obj)
 
 	/* pin buffer into GTT */
 	ret = radeon_bo_pin(bo, RADEON_GEM_DOMAIN_GTT, NULL);
+<<<<<<< HEAD
 	if (likely(ret == 0))
 		bo->prime_shared_count++;
 
+=======
+	if (unlikely(ret))
+		goto error;
+
+	if (bo->tbo.moving) {
+		ret = dma_fence_wait(bo->tbo.moving, false);
+		if (unlikely(ret)) {
+			radeon_bo_unpin(bo);
+			goto error;
+		}
+	}
+
+	bo->prime_shared_count++;
+error:
+>>>>>>> upstream/android-13
 	radeon_bo_unreserve(bo);
 	return ret;
 }
@@ -115,6 +168,7 @@ void radeon_gem_prime_unpin(struct drm_gem_object *obj)
 }
 
 
+<<<<<<< HEAD
 struct reservation_object *radeon_gem_prime_res_obj(struct drm_gem_object *obj)
 {
 	struct radeon_bo *bo = gem_to_radeon_bo(obj);
@@ -130,4 +184,13 @@ struct dma_buf *radeon_gem_prime_export(struct drm_device *dev,
 	if (radeon_ttm_tt_has_userptr(bo->tbo.ttm))
 		return ERR_PTR(-EPERM);
 	return drm_gem_prime_export(dev, gobj, flags);
+=======
+struct dma_buf *radeon_gem_prime_export(struct drm_gem_object *gobj,
+					int flags)
+{
+	struct radeon_bo *bo = gem_to_radeon_bo(gobj);
+	if (radeon_ttm_tt_has_userptr(bo->rdev, bo->tbo.ttm))
+		return ERR_PTR(-EPERM);
+	return drm_gem_prime_export(gobj, flags);
+>>>>>>> upstream/android-13
 }

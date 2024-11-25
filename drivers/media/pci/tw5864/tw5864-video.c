@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  TW5864 driver - video encoding functions
  *
  *  Copyright (C) 2016 Bluecherry, LLC <maintainers@bluecherrydvr.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -184,7 +191,11 @@ static const unsigned int intra4x4_lambda3[] = {
 static v4l2_std_id tw5864_get_v4l2_std(enum tw5864_vid_std std);
 static enum tw5864_vid_std tw5864_from_v4l2_std(v4l2_std_id v4l2_std);
 
+<<<<<<< HEAD
 static void tw5864_handle_frame_task(unsigned long data);
+=======
+static void tw5864_handle_frame_task(struct tasklet_struct *t);
+>>>>>>> upstream/android-13
 static void tw5864_handle_frame(struct tw5864_h264_frame *frame);
 static void tw5864_frame_interval_set(struct tw5864_input *input);
 
@@ -610,7 +621,11 @@ static int tw5864_querycap(struct file *file, void *priv,
 {
 	struct tw5864_input *input = video_drvdata(file);
 
+<<<<<<< HEAD
 	strcpy(cap->driver, "tw5864");
+=======
+	strscpy(cap->driver, "tw5864", sizeof(cap->driver));
+>>>>>>> upstream/android-13
 	snprintf(cap->card, sizeof(cap->card), "TW5864 Encoder %d",
 		 input->nr);
 	sprintf(cap->bus_info, "PCI:%s", pci_name(input->root->pci));
@@ -1072,8 +1087,12 @@ int tw5864_video_init(struct tw5864_dev *dev, int *video_nr)
 	dev->irqmask |= TW5864_INTR_VLC_DONE | TW5864_INTR_TIMER;
 	tw5864_irqmask_apply(dev);
 
+<<<<<<< HEAD
 	tasklet_init(&dev->tasklet, tw5864_handle_frame_task,
 		     (unsigned long)dev);
+=======
+	tasklet_setup(&dev->tasklet, tw5864_handle_frame_task);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < TW5864_INPUTS; i++) {
 		dev->inputs[i].root = dev;
@@ -1171,7 +1190,11 @@ static int tw5864_video_input_init(struct tw5864_input *input, int video_nr)
 	input->gop = GOP_SIZE;
 	input->frame_interval = 1;
 
+<<<<<<< HEAD
 	ret = video_register_device(&input->vdev, VFL_TYPE_GRABBER, video_nr);
+=======
+	ret = video_register_device(&input->vdev, VFL_TYPE_VIDEO, video_nr);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto free_v4l2_hdl;
 
@@ -1193,7 +1216,10 @@ static int tw5864_video_input_init(struct tw5864_input *input, int video_nr)
 
 free_v4l2_hdl:
 	v4l2_ctrl_handler_free(hdl);
+<<<<<<< HEAD
 	vb2_queue_release(&input->vidq);
+=======
+>>>>>>> upstream/android-13
 free_mutex:
 	mutex_destroy(&input->lock);
 
@@ -1202,9 +1228,14 @@ free_mutex:
 
 static void tw5864_video_input_fini(struct tw5864_input *dev)
 {
+<<<<<<< HEAD
 	video_unregister_device(&dev->vdev);
 	v4l2_ctrl_handler_free(&dev->hdl);
 	vb2_queue_release(&dev->vidq);
+=======
+	vb2_video_unregister_device(&dev->vdev);
+	v4l2_ctrl_handler_free(&dev->hdl);
+>>>>>>> upstream/android-13
 }
 
 void tw5864_video_fini(struct tw5864_dev *dev)
@@ -1328,9 +1359,15 @@ static int tw5864_is_motion_triggered(struct tw5864_h264_frame *frame)
 	return detected;
 }
 
+<<<<<<< HEAD
 static void tw5864_handle_frame_task(unsigned long data)
 {
 	struct tw5864_dev *dev = (struct tw5864_dev *)data;
+=======
+static void tw5864_handle_frame_task(struct tasklet_struct *t)
+{
+	struct tw5864_dev *dev = from_tasklet(dev, t, tasklet);
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	int batch_size = H264_BUF_CNT;
 

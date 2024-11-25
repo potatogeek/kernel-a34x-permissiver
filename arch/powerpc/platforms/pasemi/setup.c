@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2006-2007 PA Semi, Inc
  *
@@ -7,6 +11,7 @@
  * Maintained by: Olof Johansson <olof@lixom.net>
  *
  * Based on arch/powerpc/platforms/maple/setup.c
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -20,6 +25,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/errno.h>
@@ -34,6 +41,10 @@
 #include <asm/prom.h>
 #include <asm/iommu.h>
 #include <asm/machdep.h>
+<<<<<<< HEAD
+=======
+#include <asm/i8259.h>
+>>>>>>> upstream/android-13
 #include <asm/mpic.h>
 #include <asm/smp.h>
 #include <asm/time.h>
@@ -72,6 +83,43 @@ static void __noreturn pas_restart(char *cmd)
 		out_le32(reset_reg, 0x6000000);
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PPC_PASEMI_NEMO
+void pas_shutdown(void)
+{
+	/* Set the PLD bit that makes the SB600 think the power button is being pressed */
+	void __iomem *pld_map = ioremap(0xf5000000,4096);
+	while (1)
+		out_8(pld_map+7,0x01);
+}
+
+/* RTC platform device structure as is not in device tree */
+static struct resource rtc_resource[] = {{
+	.name = "rtc",
+	.start = 0x70,
+	.end = 0x71,
+	.flags = IORESOURCE_IO,
+}, {
+	.name = "rtc",
+	.start = 8,
+	.end = 8,
+	.flags = IORESOURCE_IRQ,
+}};
+
+static inline void nemo_init_rtc(void)
+{
+	platform_device_register_simple("rtc_cmos", -1, rtc_resource, 2);
+}
+
+#else
+
+static inline void nemo_init_rtc(void)
+{
+}
+#endif
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_SMP
 static arch_spinlock_t timebase_lock;
 static unsigned long timebase;
@@ -121,12 +169,15 @@ static void __init pas_setup_arch(void)
 	/* Setup SMP callback */
 	smp_ops = &pas_smp_ops;
 #endif
+<<<<<<< HEAD
 	/* Lookup PCI hosts */
 	pas_pci_init();
 
 #ifdef CONFIG_DUMMY_CONSOLE
 	conswitchp = &dummy_con;
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	/* Remap SDC register for doing reset */
 	/* XXXOJN This should maybe come out of the device tree */
@@ -183,6 +234,45 @@ static int __init pas_setup_mce_regs(void)
 }
 machine_device_initcall(pasemi, pas_setup_mce_regs);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PPC_PASEMI_NEMO
+static void sb600_8259_cascade(struct irq_desc *desc)
+{
+	struct irq_chip *chip = irq_desc_get_chip(desc);
+	unsigned int cascade_irq = i8259_irq();
+
+	if (cascade_irq)
+		generic_handle_irq(cascade_irq);
+
+	chip->irq_eoi(&desc->irq_data);
+}
+
+static void nemo_init_IRQ(struct mpic *mpic)
+{
+	struct device_node *np;
+	int gpio_virq;
+	/* Connect the SB600's legacy i8259 controller */
+	np = of_find_node_by_path("/pxp@0,e0000000");
+	i8259_init(np, 0);
+	of_node_put(np);
+
+	gpio_virq = irq_create_mapping(NULL, 3);
+	irq_set_irq_type(gpio_virq, IRQ_TYPE_LEVEL_HIGH);
+	irq_set_chained_handler(gpio_virq, sb600_8259_cascade);
+	mpic_unmask_irq(irq_get_irq_data(gpio_virq));
+
+	irq_set_default_host(mpic->irqhost);
+}
+
+#else
+
+static inline void nemo_init_IRQ(struct mpic *mpic)
+{
+}
+#endif
+
+>>>>>>> upstream/android-13
 static __init void pas_init_IRQ(void)
 {
 	struct device_node *np;
@@ -243,6 +333,11 @@ static __init void pas_init_IRQ(void)
 		mpic_unmask_irq(irq_get_irq_data(nmi_virq));
 	}
 
+<<<<<<< HEAD
+=======
+	nemo_init_IRQ(mpic);
+
+>>>>>>> upstream/android-13
 	of_node_put(mpic_node);
 	of_node_put(root);
 }
@@ -338,6 +433,7 @@ out:
 	return !!(srr1 & 0x2);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PCMCIA
 static int pcmcia_notify(struct notifier_block *nb, unsigned long action,
 			 void *data)
@@ -387,6 +483,8 @@ static inline void pasemi_pcmcia_init(void)
 #endif
 
 
+=======
+>>>>>>> upstream/android-13
 static const struct of_device_id pasemi_bus_ids[] = {
 	/* Unfortunately needed for legacy firmwares */
 	{ .type = "localbus", },
@@ -399,11 +497,19 @@ static const struct of_device_id pasemi_bus_ids[] = {
 
 static int __init pasemi_publish_devices(void)
 {
+<<<<<<< HEAD
 	pasemi_pcmcia_init();
 
 	/* Publish OF platform devices for SDC and other non-PCI devices */
 	of_platform_bus_probe(NULL, pasemi_bus_ids, NULL);
 
+=======
+	/* Publish OF platform devices for SDC and other non-PCI devices */
+	of_platform_bus_probe(NULL, pasemi_bus_ids, NULL);
+
+	nemo_init_rtc();
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 machine_device_initcall(pasemi, pasemi_publish_devices);
@@ -418,6 +524,20 @@ static int __init pas_probe(void)
 	    !of_machine_is_compatible("pasemi,pwrficient"))
 		return 0;
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PPC_PASEMI_NEMO
+	/*
+	 * Check for the Nemo motherboard here, if we are running on one
+	 * change the machine definition to fit
+	 */
+	if (of_machine_is_compatible("pasemi,nemo")) {
+		pm_power_off		= pas_shutdown;
+		ppc_md.name		= "A-EON Amigaone X1000";
+	}
+#endif
+
+>>>>>>> upstream/android-13
 	iommu_init_early_pasemi();
 
 	return 1;
@@ -427,6 +547,10 @@ define_machine(pasemi) {
 	.name			= "PA Semi PWRficient",
 	.probe			= pas_probe,
 	.setup_arch		= pas_setup_arch,
+<<<<<<< HEAD
+=======
+	.discover_phbs		= pas_pci_init,
+>>>>>>> upstream/android-13
 	.init_IRQ		= pas_init_IRQ,
 	.get_irq		= mpic_get_irq,
 	.restart		= pas_restart,

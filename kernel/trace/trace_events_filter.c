@@ -5,6 +5,10 @@
  * Copyright (C) 2009 Tom Zanussi <tzanussi@gmail.com>
  */
 
+<<<<<<< HEAD
+=======
+#include <linux/uaccess.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/ctype.h>
 #include <linux/mutex.h>
@@ -66,7 +70,12 @@ static const char * ops[] = { OPS };
 	C(INVALID_FILTER,	"Meaningless filter expression"),	\
 	C(IP_FIELD_ONLY,	"Only 'ip' field is supported for function trace"), \
 	C(INVALID_VALUE,	"Invalid value (did you forget quotes)?"), \
+<<<<<<< HEAD
 	C(NO_FILTER,		"No filter found"),
+=======
+	C(ERRNO,		"Error"),				\
+	C(NO_FILTER,		"No filter found")
+>>>>>>> upstream/android-13
 
 #undef C
 #define C(a, b)		FILT_ERR_##a
@@ -76,7 +85,11 @@ enum { ERRORS };
 #undef C
 #define C(a, b)		b
 
+<<<<<<< HEAD
 static char *err_text[] = { ERRORS };
+=======
+static const char *err_text[] = { ERRORS };
+>>>>>>> upstream/android-13
 
 /* Called after a '!' character but "!=" and "!~" are not "not"s */
 static bool is_not(const char *str)
@@ -255,7 +268,11 @@ enum {
  * is "&&" we don't call update_preds(). Instead continue to "c". As the
  * next token after "c" is not "&&" but the end of input, we first process the
  * "&&" by calling update_preds() for the "&&" then we process the "||" by
+<<<<<<< HEAD
  * callin updates_preds() with the values for processing "||".
+=======
+ * calling updates_preds() with the values for processing "||".
+>>>>>>> upstream/android-13
  *
  * What does that mean? What update_preds() does is to first save the "target"
  * of the program entry indexed by the current program entry's "target"
@@ -295,7 +312,11 @@ enum {
  * and "FALSE" the program entry after that, we are now done with the first
  * pass.
  *
+<<<<<<< HEAD
  * Making the above "a || b && c" have a progam of:
+=======
+ * Making the above "a || b && c" have a program of:
+>>>>>>> upstream/android-13
  *  prog[0] = { "a", 1, 2 }
  *  prog[1] = { "b", 0, 2 }
  *  prog[2] = { "c", 0, 3 }
@@ -389,7 +410,11 @@ enum {
  * F: return FALSE
  *
  * As "r = a; if (!r) goto n5;" is obviously the same as
+<<<<<<< HEAD
  * "if (!a) goto n5;" without doing anything we can interperate the
+=======
+ * "if (!a) goto n5;" without doing anything we can interpret the
+>>>>>>> upstream/android-13
  * program as:
  * n1: if (!a) goto n5;
  * n2: if (!b) goto n5;
@@ -493,10 +518,18 @@ predicate_parse(const char *str, int nr_parens, int nr_preds,
 				break;
 			case '&':
 			case '|':
+<<<<<<< HEAD
+=======
+				/* accepting only "&&" or "||" */
+>>>>>>> upstream/android-13
 				if (next[1] == next[0]) {
 					ptr++;
 					break;
 				}
+<<<<<<< HEAD
+=======
+				fallthrough;
+>>>>>>> upstream/android-13
 			default:
 				parse_error(pe, FILT_ERR_TOO_MANY_PREDS,
 					    next - str);
@@ -651,6 +684,55 @@ DEFINE_EQUALITY_PRED(32);
 DEFINE_EQUALITY_PRED(16);
 DEFINE_EQUALITY_PRED(8);
 
+<<<<<<< HEAD
+=======
+/* user space strings temp buffer */
+#define USTRING_BUF_SIZE	1024
+
+struct ustring_buffer {
+	char		buffer[USTRING_BUF_SIZE];
+};
+
+static __percpu struct ustring_buffer *ustring_per_cpu;
+
+static __always_inline char *test_string(char *str)
+{
+	struct ustring_buffer *ubuf;
+	char *kstr;
+
+	if (!ustring_per_cpu)
+		return NULL;
+
+	ubuf = this_cpu_ptr(ustring_per_cpu);
+	kstr = ubuf->buffer;
+
+	/* For safety, do not trust the string pointer */
+	if (!strncpy_from_kernel_nofault(kstr, str, USTRING_BUF_SIZE))
+		return NULL;
+	return kstr;
+}
+
+static __always_inline char *test_ustring(char *str)
+{
+	struct ustring_buffer *ubuf;
+	char __user *ustr;
+	char *kstr;
+
+	if (!ustring_per_cpu)
+		return NULL;
+
+	ubuf = this_cpu_ptr(ustring_per_cpu);
+	kstr = ubuf->buffer;
+
+	/* user space address? */
+	ustr = (char __user *)str;
+	if (!strncpy_from_user_nofault(kstr, ustr, USTRING_BUF_SIZE))
+		return NULL;
+
+	return kstr;
+}
+
+>>>>>>> upstream/android-13
 /* Filter predicate for fixed sized arrays of characters */
 static int filter_pred_string(struct filter_pred *pred, void *event)
 {
@@ -664,6 +746,7 @@ static int filter_pred_string(struct filter_pred *pred, void *event)
 	return match;
 }
 
+<<<<<<< HEAD
 /* Filter predicate for char * pointers */
 static int filter_pred_pchar(struct filter_pred *pred, void *event)
 {
@@ -672,11 +755,48 @@ static int filter_pred_pchar(struct filter_pred *pred, void *event)
 	int len = strlen(*addr) + 1;	/* including tailing '\0' */
 
 	cmp = pred->regex.match(*addr, &pred->regex, len);
+=======
+static __always_inline int filter_pchar(struct filter_pred *pred, char *str)
+{
+	int cmp, match;
+	int len;
+
+	len = strlen(str) + 1;	/* including tailing '\0' */
+	cmp = pred->regex.match(str, &pred->regex, len);
+>>>>>>> upstream/android-13
 
 	match = cmp ^ pred->not;
 
 	return match;
 }
+<<<<<<< HEAD
+=======
+/* Filter predicate for char * pointers */
+static int filter_pred_pchar(struct filter_pred *pred, void *event)
+{
+	char **addr = (char **)(event + pred->offset);
+	char *str;
+
+	str = test_string(*addr);
+	if (!str)
+		return 0;
+
+	return filter_pchar(pred, str);
+}
+
+/* Filter predicate for char * pointers in user space*/
+static int filter_pred_pchar_user(struct filter_pred *pred, void *event)
+{
+	char **addr = (char **)(event + pred->offset);
+	char *str;
+
+	str = test_ustring(*addr);
+	if (!str)
+		return 0;
+
+	return filter_pchar(pred, str);
+}
+>>>>>>> upstream/android-13
 
 /*
  * Filter predicate for dynamic sized arrays of characters.
@@ -829,6 +949,12 @@ enum regex_type filter_parse_regex(char *buff, int len, char **search, int *not)
 
 	*search = buff;
 
+<<<<<<< HEAD
+=======
+	if (isdigit(buff[0]))
+		return MATCH_INDEX;
+
+>>>>>>> upstream/android-13
 	for (i = 0; i < len; i++) {
 		if (buff[i] == '*') {
 			if (!i) {
@@ -866,6 +992,11 @@ static void filter_build_regex(struct filter_pred *pred)
 	}
 
 	switch (type) {
+<<<<<<< HEAD
+=======
+	/* MATCH_INDEX should not happen, but if it does, match full */
+	case MATCH_INDEX:
+>>>>>>> upstream/android-13
 	case MATCH_FULL:
 		r->match = regex_match_full;
 		break;
@@ -918,7 +1049,12 @@ static void remove_filter_string(struct event_filter *filter)
 	filter->filter_string = NULL;
 }
 
+<<<<<<< HEAD
 static void append_filter_err(struct filter_parse_error *pe,
+=======
+static void append_filter_err(struct trace_array *tr,
+			      struct filter_parse_error *pe,
+>>>>>>> upstream/android-13
 			      struct event_filter *filter)
 {
 	struct trace_seq *s;
@@ -946,8 +1082,19 @@ static void append_filter_err(struct filter_parse_error *pe,
 	if (pe->lasterr > 0) {
 		trace_seq_printf(s, "\n%*s", pos, "^");
 		trace_seq_printf(s, "\nparse_error: %s\n", err_text[pe->lasterr]);
+<<<<<<< HEAD
 	} else {
 		trace_seq_printf(s, "\nError: (%d)\n", pe->lasterr);
+=======
+		tracing_log_err(tr, "event filter parse error",
+				filter->filter_string, err_text,
+				pe->lasterr, pe->lasterr_pos);
+	} else {
+		trace_seq_printf(s, "\nError: (%d)\n", pe->lasterr);
+		tracing_log_err(tr, "event filter parse error",
+				filter->filter_string, err_text,
+				FILT_ERR_ERRNO, 0);
+>>>>>>> upstream/android-13
 	}
 	trace_seq_putc(s, 0);
 	buf = kmemdup_nul(s->buffer, s->seq.len, GFP_KERNEL);
@@ -1071,6 +1218,12 @@ int filter_assign_type(const char *type)
 	if (strchr(type, '[') && strstr(type, "char"))
 		return FILTER_STATIC_STRING;
 
+<<<<<<< HEAD
+=======
+	if (strcmp(type, "char *") == 0 || strcmp(type, "const char *") == 0)
+		return FILTER_PTR_STRING;
+
+>>>>>>> upstream/android-13
 	return FILTER_OTHER;
 }
 
@@ -1140,6 +1293,10 @@ static int parse_pred(const char *str, void *data,
 	struct filter_pred *pred = NULL;
 	char num_buf[24];	/* Big enough to hold an address */
 	char *field_name;
+<<<<<<< HEAD
+=======
+	bool ustring = false;
+>>>>>>> upstream/android-13
 	char q;
 	u64 val;
 	int len;
@@ -1174,6 +1331,15 @@ static int parse_pred(const char *str, void *data,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
+=======
+	/* See if the field is a user space string */
+	if ((len = str_has_prefix(str + i, ".ustring"))) {
+		ustring = true;
+		i += len;
+	}
+
+>>>>>>> upstream/android-13
 	while (isspace(str[i]))
 		i++;
 
@@ -1213,6 +1379,7 @@ static int parse_pred(const char *str, void *data,
 		 * (perf doesn't use it) and grab everything.
 		 */
 		if (strcmp(field->name, "ip") != 0) {
+<<<<<<< HEAD
 			 parse_error(pe, FILT_ERR_IP_FIELD_ONLY, pos + i);
 			 goto err_free;
 		 }
@@ -1237,6 +1404,32 @@ static int parse_pred(const char *str, void *data,
 		 /* Skip quotes */
 		 if (q)
 			 s++;
+=======
+			parse_error(pe, FILT_ERR_IP_FIELD_ONLY, pos + i);
+			goto err_free;
+		}
+		pred->fn = filter_pred_none;
+
+		/*
+		 * Quotes are not required, but if they exist then we need
+		 * to read them till we hit a matching one.
+		 */
+		if (str[i] == '\'' || str[i] == '"')
+			q = str[i];
+		else
+			q = 0;
+
+		for (i++; str[i]; i++) {
+			if (q && str[i] == q)
+				break;
+			if (!q && (str[i] == ')' || str[i] == '&' ||
+				   str[i] == '|'))
+				break;
+		}
+		/* Skip quotes */
+		if (q)
+			s++;
+>>>>>>> upstream/android-13
 		len = i - s;
 		if (len >= MAX_FILTER_STR_VAL) {
 			parse_error(pe, FILT_ERR_OPERAND_TOO_LONG, pos + i);
@@ -1255,7 +1448,11 @@ static int parse_pred(const char *str, void *data,
 		switch (op) {
 		case OP_NE:
 			pred->not = 1;
+<<<<<<< HEAD
 			/* Fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case OP_GLOB:
 		case OP_EQ:
 			break;
@@ -1302,8 +1499,25 @@ static int parse_pred(const char *str, void *data,
 
 		} else if (field->filter_type == FILTER_DYN_STRING)
 			pred->fn = filter_pred_strloc;
+<<<<<<< HEAD
 		else
 			pred->fn = filter_pred_pchar;
+=======
+		else {
+
+			if (!ustring_per_cpu) {
+				/* Once allocated, keep it around for good */
+				ustring_per_cpu = alloc_percpu(struct ustring_buffer);
+				if (!ustring_per_cpu)
+					goto err_mem;
+			}
+
+			if (ustring)
+				pred->fn = filter_pred_pchar_user;
+			else
+				pred->fn = filter_pred_pchar;
+		}
+>>>>>>> upstream/android-13
 		/* go past the last quote */
 		i++;
 
@@ -1369,6 +1583,12 @@ static int parse_pred(const char *str, void *data,
 err_free:
 	kfree(pred);
 	return -EINVAL;
+<<<<<<< HEAD
+=======
+err_mem:
+	kfree(pred);
+	return -ENOMEM;
+>>>>>>> upstream/android-13
 }
 
 enum {
@@ -1543,6 +1763,7 @@ static inline void event_clear_filter(struct trace_event_file *file)
 	RCU_INIT_POINTER(file->filter, NULL);
 }
 
+<<<<<<< HEAD
 static inline void
 event_set_no_set_filter_flag(struct trace_event_file *file)
 {
@@ -1564,6 +1785,8 @@ event_no_set_filter_flag(struct trace_event_file *file)
 	return false;
 }
 
+=======
+>>>>>>> upstream/android-13
 struct filter_list {
 	struct list_head	list;
 	struct event_filter	*filter;
@@ -1599,7 +1822,11 @@ static int process_system_preds(struct trace_subsystem_dir *dir,
 		if (err) {
 			filter_disable(file);
 			parse_error(pe, FILT_ERR_BAD_SUBSYS_FILTER, 0);
+<<<<<<< HEAD
 			append_filter_err(pe, filter);
+=======
+			append_filter_err(tr, pe, filter);
+>>>>>>> upstream/android-13
 		} else
 			event_set_filtered_flag(file);
 
@@ -1625,7 +1852,11 @@ static int process_system_preds(struct trace_subsystem_dir *dir,
 
 	/*
 	 * The calls can still be using the old filters.
+<<<<<<< HEAD
 	 * Do a synchronize_sched() and to ensure all calls are
+=======
+	 * Do a synchronize_rcu() and to ensure all calls are
+>>>>>>> upstream/android-13
 	 * done with them before we free them.
 	 */
 	tracepoint_synchronize_unregister();
@@ -1696,6 +1927,10 @@ static void create_filter_finish(struct filter_parse_error *pe)
 
 /**
  * create_filter - create a filter for a trace_event_call
+<<<<<<< HEAD
+=======
+ * @tr: the trace array associated with these events
+>>>>>>> upstream/android-13
  * @call: trace_event_call to create a filter for
  * @filter_str: filter string
  * @set_str: remember @filter_str and enable detailed error in filter
@@ -1711,7 +1946,12 @@ static void create_filter_finish(struct filter_parse_error *pe)
  * information if @set_str is %true and the caller is responsible for
  * freeing it.
  */
+<<<<<<< HEAD
 static int create_filter(struct trace_event_call *call,
+=======
+static int create_filter(struct trace_array *tr,
+			 struct trace_event_call *call,
+>>>>>>> upstream/android-13
 			 char *filter_string, bool set_str,
 			 struct event_filter **filterp)
 {
@@ -1728,12 +1968,17 @@ static int create_filter(struct trace_event_call *call,
 
 	err = process_preds(call, filter_string, *filterp, pe);
 	if (err && set_str)
+<<<<<<< HEAD
 		append_filter_err(pe, *filterp);
+=======
+		append_filter_err(tr, pe, *filterp);
+>>>>>>> upstream/android-13
 	create_filter_finish(pe);
 
 	return err;
 }
 
+<<<<<<< HEAD
 int create_event_filter(struct trace_event_call *call,
 			char *filter_str, bool set_str,
 			struct event_filter **filterp)
@@ -1744,6 +1989,19 @@ int create_event_filter(struct trace_event_call *call,
 /**
  * create_system_filter - create a filter for an event_subsystem
  * @system: event_subsystem to create a filter for
+=======
+int create_event_filter(struct trace_array *tr,
+			struct trace_event_call *call,
+			char *filter_str, bool set_str,
+			struct event_filter **filterp)
+{
+	return create_filter(tr, call, filter_str, set_str, filterp);
+}
+
+/**
+ * create_system_filter - create a filter for an event subsystem
+ * @dir: the descriptor for the subsystem directory
+>>>>>>> upstream/android-13
  * @filter_str: filter string
  * @filterp: out param for created filter (always updated on return)
  *
@@ -1751,7 +2009,10 @@ int create_event_filter(struct trace_event_call *call,
  * and always remembers @filter_str.
  */
 static int create_system_filter(struct trace_subsystem_dir *dir,
+<<<<<<< HEAD
 				struct trace_array *tr,
+=======
+>>>>>>> upstream/android-13
 				char *filter_str, struct event_filter **filterp)
 {
 	struct filter_parse_error *pe = NULL;
@@ -1759,13 +2020,21 @@ static int create_system_filter(struct trace_subsystem_dir *dir,
 
 	err = create_filter_start(filter_str, true, &pe, filterp);
 	if (!err) {
+<<<<<<< HEAD
 		err = process_system_preds(dir, tr, pe, filter_str);
+=======
+		err = process_system_preds(dir, dir->tr, pe, filter_str);
+>>>>>>> upstream/android-13
 		if (!err) {
 			/* System filters just show a default message */
 			kfree((*filterp)->filter_string);
 			(*filterp)->filter_string = NULL;
 		} else {
+<<<<<<< HEAD
 			append_filter_err(pe, *filterp);
+=======
+			append_filter_err(dir->tr, pe, *filterp);
+>>>>>>> upstream/android-13
 		}
 	}
 	create_filter_finish(pe);
@@ -1796,7 +2065,11 @@ int apply_event_filter(struct trace_event_file *file, char *filter_string)
 		return 0;
 	}
 
+<<<<<<< HEAD
 	err = create_filter(call, filter_string, true, &filter);
+=======
+	err = create_filter(file->tr, call, filter_string, true, &filter);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Always swap the call filter with the new filter
@@ -1853,11 +2126,19 @@ int apply_subsystem_event_filter(struct trace_subsystem_dir *dir,
 		goto out_unlock;
 	}
 
+<<<<<<< HEAD
 	err = create_system_filter(dir, tr, filter_string, &filter);
 	if (filter) {
 		/*
 		 * No event actually uses the system filter
 		 * we can free it without synchronize_sched().
+=======
+	err = create_system_filter(dir, filter_string, &filter);
+	if (filter) {
+		/*
+		 * No event actually uses the system filter
+		 * we can free it without synchronize_rcu().
+>>>>>>> upstream/android-13
 		 */
 		__free_filter(system->filter);
 		system->filter = filter;
@@ -1930,7 +2211,11 @@ static int __ftrace_function_set_filter(int filter, char *buf, int len,
 	/*
 	 * The 'ip' field could have multiple filters set, separated
 	 * either by space or comma. We first cut the filter and apply
+<<<<<<< HEAD
 	 * all pieces separatelly.
+=======
+	 * all pieces separately.
+>>>>>>> upstream/android-13
 	 */
 	re = ftrace_function_filter_re(buf, len, &re_cnt);
 	if (!re)
@@ -2052,7 +2337,11 @@ int ftrace_profile_set_filter(struct perf_event *event, int event_id,
 	if (event->filter)
 		goto out_unlock;
 
+<<<<<<< HEAD
 	err = create_filter(call, filter_str, false, &filter);
+=======
+	err = create_filter(NULL, call, filter_str, false, &filter);
+>>>>>>> upstream/android-13
 	if (err)
 		goto free_filter;
 
@@ -2201,8 +2490,13 @@ static __init int ftrace_test_event_filter(void)
 		struct test_filter_data_t *d = &test_filter_data[i];
 		int err;
 
+<<<<<<< HEAD
 		err = create_filter(&event_ftrace_test_filter, d->filter,
 				    false, &filter);
+=======
+		err = create_filter(NULL, &event_ftrace_test_filter,
+				    d->filter, false, &filter);
+>>>>>>> upstream/android-13
 		if (err) {
 			printk(KERN_INFO
 			       "Failed to get filter for '%s', err %d\n",

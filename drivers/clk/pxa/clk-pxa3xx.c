@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Marvell PXA3xxx family clocks
  *
@@ -5,10 +9,13 @@
  *
  * Heavily inspired from former arch/arm/mach-pxa/pxa3xx.c
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
  *
+=======
+>>>>>>> upstream/android-13
  * For non-devicetree platforms. Once pxa is fully converted to devicetree, this
  * should go away.
  */

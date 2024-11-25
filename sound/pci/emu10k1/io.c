@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
  *                   Creative Labs, Inc.
@@ -8,6 +12,7 @@
  *
  *  TODO:
  *    --
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -23,6 +28,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/time.h>
@@ -524,7 +531,11 @@ void snd_emu10k1_ac97_write(struct snd_ac97 *ac97, unsigned short reg, unsigned 
 
 unsigned int snd_emu10k1_rate_to_pitch(unsigned int rate)
 {
+<<<<<<< HEAD
 	static u32 logMagTable[128] = {
+=======
+	static const u32 logMagTable[128] = {
+>>>>>>> upstream/android-13
 		0x00000, 0x02dfc, 0x05b9e, 0x088e6, 0x0b5d6, 0x0e26f, 0x10eb3, 0x13aa2,
 		0x1663f, 0x1918a, 0x1bc84, 0x1e72e, 0x2118b, 0x23b9a, 0x2655d, 0x28ed5,
 		0x2b803, 0x2e0e8, 0x30985, 0x331db, 0x359eb, 0x381b6, 0x3a93d, 0x3d081,
@@ -542,7 +553,11 @@ unsigned int snd_emu10k1_rate_to_pitch(unsigned int rate)
 		0xe829f, 0xe9b31, 0xeb3a9, 0xecc08, 0xee44c, 0xefc78, 0xf148a, 0xf2c83,
 		0xf4463, 0xf5c2a, 0xf73da, 0xf8b71, 0xfa2f0, 0xfba57, 0xfd1a7, 0xfe8df
 	};
+<<<<<<< HEAD
 	static char logSlopeTable[128] = {
+=======
+	static const char logSlopeTable[128] = {
+>>>>>>> upstream/android-13
 		0x5c, 0x5c, 0x5b, 0x5a, 0x5a, 0x59, 0x58, 0x58,
 		0x57, 0x56, 0x56, 0x55, 0x55, 0x54, 0x53, 0x53,
 		0x52, 0x52, 0x51, 0x51, 0x50, 0x50, 0x4f, 0x4f,

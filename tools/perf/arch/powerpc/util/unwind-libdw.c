@@ -1,8 +1,15 @@
 // SPDX-License-Identifier: GPL-2.0
 #include <elfutils/libdwfl.h>
+<<<<<<< HEAD
 #include "../../util/unwind-libdw.h"
 #include "../../util/perf_regs.h"
 #include "../../util/event.h"
+=======
+#include <linux/kernel.h>
+#include "../../../util/unwind-libdw.h"
+#include "../../../util/perf_regs.h"
+#include "../../../util/event.h"
+>>>>>>> upstream/android-13
 
 /* See backends/ppc_initreg.c and backends/ppc_regs.c in elfutils.  */
 static const int special_regs[3][2] = {

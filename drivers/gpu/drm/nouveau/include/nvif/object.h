@@ -1,7 +1,13 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
 #ifndef __NVIF_OBJECT_H__
 #define __NVIF_OBJECT_H__
 
+=======
+/* SPDX-License-Identifier: MIT */
+#ifndef __NVIF_OBJECT_H__
+#define __NVIF_OBJECT_H__
+>>>>>>> upstream/android-13
 #include <nvif/os.h>
 
 struct nvif_sclass {
@@ -11,7 +17,13 @@ struct nvif_sclass {
 };
 
 struct nvif_object {
+<<<<<<< HEAD
 	struct nvif_client *client;
+=======
+	struct nvif_parent *parent;
+	struct nvif_client *client;
+	const char *name;
+>>>>>>> upstream/android-13
 	u32 handle;
 	s32 oclass;
 	void *priv; /*XXX: hack */
@@ -21,9 +33,15 @@ struct nvif_object {
 	} map;
 };
 
+<<<<<<< HEAD
 int  nvif_object_init(struct nvif_object *, u32 handle, s32 oclass, void *, u32,
 		      struct nvif_object *);
 void nvif_object_fini(struct nvif_object *);
+=======
+int  nvif_object_ctor(struct nvif_object *, const char *name, u32 handle,
+		      s32 oclass, void *, u32, struct nvif_object *);
+void nvif_object_dtor(struct nvif_object *);
+>>>>>>> upstream/android-13
 int  nvif_object_ioctl(struct nvif_object *, void *, u32, void **);
 int  nvif_object_sclass_get(struct nvif_object *, struct nvif_sclass **);
 void nvif_object_sclass_put(struct nvif_sclass **);
@@ -115,6 +133,22 @@ struct nvif_mclass {
 	_cid;                                                                  \
 })
 
+<<<<<<< HEAD
+=======
+#define NVIF_RD32_(p,o,dr)   nvif_rd32((p), (o) + (dr))
+#define NVIF_WR32_(p,o,dr,f) nvif_wr32((p), (o) + (dr), (f))
+#define NVIF_RD32(p,A...) DRF_RD(NVIF_RD32_,                  (p), 0, ##A)
+#define NVIF_RV32(p,A...) DRF_RV(NVIF_RD32_,                  (p), 0, ##A)
+#define NVIF_TV32(p,A...) DRF_TV(NVIF_RD32_,                  (p), 0, ##A)
+#define NVIF_TD32(p,A...) DRF_TD(NVIF_RD32_,                  (p), 0, ##A)
+#define NVIF_WR32(p,A...) DRF_WR(            NVIF_WR32_,      (p), 0, ##A)
+#define NVIF_WV32(p,A...) DRF_WV(            NVIF_WR32_,      (p), 0, ##A)
+#define NVIF_WD32(p,A...) DRF_WD(            NVIF_WR32_,      (p), 0, ##A)
+#define NVIF_MR32(p,A...) DRF_MR(NVIF_RD32_, NVIF_WR32_, u32, (p), 0, ##A)
+#define NVIF_MV32(p,A...) DRF_MV(NVIF_RD32_, NVIF_WR32_, u32, (p), 0, ##A)
+#define NVIF_MD32(p,A...) DRF_MD(NVIF_RD32_, NVIF_WR32_, u32, (p), 0, ##A)
+
+>>>>>>> upstream/android-13
 /*XXX*/
 #include <core/object.h>
 #define nvxx_object(a) ({                                                      \

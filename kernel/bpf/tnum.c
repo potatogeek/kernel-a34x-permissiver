@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* tnum: tracked (or tristate) numbers
  *
  * A tnum tracks knowledge about the bits of a value.  Each bit can be either
@@ -110,6 +114,7 @@ struct tnum tnum_xor(struct tnum a, struct tnum b)
 	return TNUM(v & ~mu, mu);
 }
 
+<<<<<<< HEAD
 /* half-multiply add: acc += (unknown * mask * value).
  * An intermediate step in the multiply algorithm.
  */
@@ -132,6 +137,33 @@ struct tnum tnum_mul(struct tnum a, struct tnum b)
 	pi = a.value * b.value;
 	acc = hma(TNUM(pi, 0), a.mask, b.mask | b.value);
 	return hma(acc, b.mask, a.value);
+=======
+/* Generate partial products by multiplying each bit in the multiplier (tnum a)
+ * with the multiplicand (tnum b), and add the partial products after
+ * appropriately bit-shifting them. Instead of directly performing tnum addition
+ * on the generated partial products, equivalenty, decompose each partial
+ * product into two tnums, consisting of the value-sum (acc_v) and the
+ * mask-sum (acc_m) and then perform tnum addition on them. The following paper
+ * explains the algorithm in more detail: https://arxiv.org/abs/2105.05398.
+ */
+struct tnum tnum_mul(struct tnum a, struct tnum b)
+{
+	u64 acc_v = a.value * b.value;
+	struct tnum acc_m = TNUM(0, 0);
+
+	while (a.value || a.mask) {
+		/* LSB of tnum a is a certain 1 */
+		if (a.value & 1)
+			acc_m = tnum_add(acc_m, TNUM(0, b.mask));
+		/* LSB of tnum a is uncertain */
+		else if (a.mask & 1)
+			acc_m = tnum_add(acc_m, TNUM(0, b.value | b.mask));
+		/* Note: no case for LSB is certain 0 */
+		a = tnum_rshift(a, 1);
+		b = tnum_lshift(b, 1);
+	}
+	return tnum_add(TNUM(acc_v, 0), acc_m);
+>>>>>>> upstream/android-13
 }
 
 /* Note that if a and b disagree - i.e. one has a 'known 1' where the other has
@@ -193,3 +225,21 @@ int tnum_sbin(char *str, size_t size, struct tnum a)
 	str[min(size - 1, (size_t)64)] = 0;
 	return 64;
 }
+<<<<<<< HEAD
+=======
+
+struct tnum tnum_subreg(struct tnum a)
+{
+	return tnum_cast(a, 4);
+}
+
+struct tnum tnum_clear_subreg(struct tnum a)
+{
+	return tnum_lshift(tnum_rshift(a, 32), 32);
+}
+
+struct tnum tnum_const_subreg(struct tnum a, u32 value)
+{
+	return tnum_or(tnum_clear_subreg(a), tnum_const(value));
+}
+>>>>>>> upstream/android-13

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* -*- mode: c; c-basic-offset: 8; -*-
  * vim: noexpandtab sw=8 ts=8 sts=0:
  *
@@ -18,12 +19,22 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 021110-1307, USA.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * item.c - library routines for handling generic config items
+ *
+>>>>>>> upstream/android-13
  * Based on kobject:
  *	kobject is Copyright (c) 2002-2003 Patrick Mochel
  *
  * configfs Copyright (C) 2005 Oracle.  All rights reserved.
  *
+<<<<<<< HEAD
  * Please see the file Documentation/filesystems/configfs/configfs.txt for
+=======
+ * Please see the file Documentation/filesystems/configfs.rst for
+>>>>>>> upstream/android-13
  * critical information about using the config_item interface.
  */
 

@@ -15,6 +15,10 @@
 #include <linux/kernel.h>
 #include <linux/string.h>
 #include <linux/usb.h>
+<<<<<<< HEAD
+=======
+#include <linux/usb/hcd.h>
+>>>>>>> upstream/android-13
 #include <linux/usb/quirks.h>
 #include <linux/of.h>
 #include "usb.h"
@@ -166,7 +170,14 @@ static ssize_t speed_show(struct device *dev, struct device_attribute *attr,
 		speed = "5000";
 		break;
 	case USB_SPEED_SUPER_PLUS:
+<<<<<<< HEAD
 		speed = "10000";
+=======
+		if (udev->ssp_rate == USB_SSP_GEN_2x2)
+			speed = "20000";
+		else
+			speed = "10000";
+>>>>>>> upstream/android-13
 		break;
 	default:
 		speed = "unknown";
@@ -297,6 +308,7 @@ static ssize_t urbnum_show(struct device *dev, struct device_attribute *attr,
 }
 static DEVICE_ATTR_RO(urbnum);
 
+<<<<<<< HEAD
 static ssize_t removable_show(struct device *dev, struct device_attribute *attr,
 			      char *buf)
 {
@@ -320,6 +332,8 @@ static ssize_t removable_show(struct device *dev, struct device_attribute *attr,
 }
 static DEVICE_ATTR_RO(removable);
 
+=======
+>>>>>>> upstream/android-13
 static ssize_t ltm_capable_show(struct device *dev,
 				struct device_attribute *attr, char *buf)
 {
@@ -640,7 +654,11 @@ static struct attribute *usb2_hardware_lpm_attr[] = {
 	&dev_attr_usb2_lpm_besl.attr,
 	NULL,
 };
+<<<<<<< HEAD
 static struct attribute_group usb2_hardware_lpm_attr_group = {
+=======
+static const struct attribute_group usb2_hardware_lpm_attr_group = {
+>>>>>>> upstream/android-13
 	.name	= power_group_name,
 	.attrs	= usb2_hardware_lpm_attr,
 };
@@ -650,7 +668,11 @@ static struct attribute *usb3_hardware_lpm_attr[] = {
 	&dev_attr_usb3_hardware_lpm_u2.attr,
 	NULL,
 };
+<<<<<<< HEAD
 static struct attribute_group usb3_hardware_lpm_attr_group = {
+=======
+static const struct attribute_group usb3_hardware_lpm_attr_group = {
+>>>>>>> upstream/android-13
 	.name	= power_group_name,
 	.attrs	= usb3_hardware_lpm_attr,
 };
@@ -662,7 +684,11 @@ static struct attribute *power_attrs[] = {
 	&dev_attr_active_duration.attr,
 	NULL,
 };
+<<<<<<< HEAD
 static struct attribute_group power_attr_group = {
+=======
+static const struct attribute_group power_attr_group = {
+>>>>>>> upstream/android-13
 	.name	= power_group_name,
 	.attrs	= power_attrs,
 };
@@ -824,14 +850,21 @@ static struct attribute *dev_attrs[] = {
 	&dev_attr_avoid_reset_quirk.attr,
 	&dev_attr_authorized.attr,
 	&dev_attr_remove.attr,
+<<<<<<< HEAD
 	&dev_attr_removable.attr,
+=======
+>>>>>>> upstream/android-13
 	&dev_attr_ltm_capable.attr,
 #ifdef CONFIG_OF
 	&dev_attr_devspec.attr,
 #endif
 	NULL,
 };
+<<<<<<< HEAD
 static struct attribute_group dev_attr_grp = {
+=======
+static const struct attribute_group dev_attr_grp = {
+>>>>>>> upstream/android-13
 	.attrs = dev_attrs,
 };
 
@@ -848,7 +881,11 @@ static struct attribute *dev_string_attrs[] = {
 static umode_t dev_string_attrs_are_visible(struct kobject *kobj,
 		struct attribute *a, int n)
 {
+<<<<<<< HEAD
 	struct device *dev = container_of(kobj, struct device, kobj);
+=======
+	struct device *dev = kobj_to_dev(kobj);
+>>>>>>> upstream/android-13
 	struct usb_device *udev = to_usb_device(dev);
 
 	if (a == &dev_attr_manufacturer.attr) {
@@ -864,7 +901,11 @@ static umode_t dev_string_attrs_are_visible(struct kobject *kobj,
 	return a->mode;
 }
 
+<<<<<<< HEAD
 static struct attribute_group dev_string_attr_grp = {
+=======
+static const struct attribute_group dev_string_attr_grp = {
+>>>>>>> upstream/android-13
 	.attrs =	dev_string_attrs,
 	.is_visible =	dev_string_attrs_are_visible,
 };
@@ -882,7 +923,11 @@ read_descriptors(struct file *filp, struct kobject *kobj,
 		struct bin_attribute *attr,
 		char *buf, loff_t off, size_t count)
 {
+<<<<<<< HEAD
 	struct device *dev = container_of(kobj, struct device, kobj);
+=======
+	struct device *dev = kobj_to_dev(kobj);
+>>>>>>> upstream/android-13
 	struct usb_device *udev = to_usb_device(dev);
 	size_t nleft = count;
 	size_t srclen, n;
@@ -927,6 +972,119 @@ static struct bin_attribute dev_bin_attr_descriptors = {
 	.size = 18 + 65535,	/* dev descr + max-size raw descriptor */
 };
 
+<<<<<<< HEAD
+=======
+/*
+ * Show & store the current value of authorized_default
+ */
+static ssize_t authorized_default_show(struct device *dev,
+				       struct device_attribute *attr, char *buf)
+{
+	struct usb_device *rh_usb_dev = to_usb_device(dev);
+	struct usb_bus *usb_bus = rh_usb_dev->bus;
+	struct usb_hcd *hcd;
+
+	hcd = bus_to_hcd(usb_bus);
+	return snprintf(buf, PAGE_SIZE, "%u\n", hcd->dev_policy);
+}
+
+static ssize_t authorized_default_store(struct device *dev,
+					struct device_attribute *attr,
+					const char *buf, size_t size)
+{
+	ssize_t result;
+	unsigned int val;
+	struct usb_device *rh_usb_dev = to_usb_device(dev);
+	struct usb_bus *usb_bus = rh_usb_dev->bus;
+	struct usb_hcd *hcd;
+
+	hcd = bus_to_hcd(usb_bus);
+	result = sscanf(buf, "%u\n", &val);
+	if (result == 1) {
+		hcd->dev_policy = val <= USB_DEVICE_AUTHORIZE_INTERNAL ?
+			val : USB_DEVICE_AUTHORIZE_ALL;
+		result = size;
+	} else {
+		result = -EINVAL;
+	}
+	return result;
+}
+static DEVICE_ATTR_RW(authorized_default);
+
+/*
+ * interface_authorized_default_show - show default authorization status
+ * for USB interfaces
+ *
+ * note: interface_authorized_default is the default value
+ *       for initializing the authorized attribute of interfaces
+ */
+static ssize_t interface_authorized_default_show(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+	struct usb_device *usb_dev = to_usb_device(dev);
+	struct usb_hcd *hcd = bus_to_hcd(usb_dev->bus);
+
+	return sprintf(buf, "%u\n", !!HCD_INTF_AUTHORIZED(hcd));
+}
+
+/*
+ * interface_authorized_default_store - store default authorization status
+ * for USB interfaces
+ *
+ * note: interface_authorized_default is the default value
+ *       for initializing the authorized attribute of interfaces
+ */
+static ssize_t interface_authorized_default_store(struct device *dev,
+		struct device_attribute *attr, const char *buf, size_t count)
+{
+	struct usb_device *usb_dev = to_usb_device(dev);
+	struct usb_hcd *hcd = bus_to_hcd(usb_dev->bus);
+	int rc = count;
+	bool val;
+
+	if (strtobool(buf, &val) != 0)
+		return -EINVAL;
+
+	if (val)
+		set_bit(HCD_FLAG_INTF_AUTHORIZED, &hcd->flags);
+	else
+		clear_bit(HCD_FLAG_INTF_AUTHORIZED, &hcd->flags);
+
+	return rc;
+}
+static DEVICE_ATTR_RW(interface_authorized_default);
+
+/* Group all the USB bus attributes */
+static struct attribute *usb_bus_attrs[] = {
+		&dev_attr_authorized_default.attr,
+		&dev_attr_interface_authorized_default.attr,
+		NULL,
+};
+
+static const struct attribute_group usb_bus_attr_group = {
+	.name = NULL,	/* we want them in the same directory */
+	.attrs = usb_bus_attrs,
+};
+
+
+static int add_default_authorized_attributes(struct device *dev)
+{
+	int rc = 0;
+
+	if (is_usb_device(dev))
+		rc = sysfs_create_group(&dev->kobj, &usb_bus_attr_group);
+
+	return rc;
+}
+
+static void remove_default_authorized_attributes(struct device *dev)
+{
+	if (is_usb_device(dev)) {
+		sysfs_remove_group(&dev->kobj, &usb_bus_attr_group);
+	}
+}
+
+>>>>>>> upstream/android-13
 int usb_create_sysfs_dev_files(struct usb_device *udev)
 {
 	struct device *dev = &udev->dev;
@@ -943,7 +1101,18 @@ int usb_create_sysfs_dev_files(struct usb_device *udev)
 	retval = add_power_attributes(dev);
 	if (retval)
 		goto error;
+<<<<<<< HEAD
 	return retval;
+=======
+
+	if (is_root_hub(udev)) {
+		retval = add_default_authorized_attributes(dev);
+		if (retval)
+			goto error;
+	}
+	return retval;
+
+>>>>>>> upstream/android-13
 error:
 	usb_remove_sysfs_dev_files(udev);
 	return retval;
@@ -953,6 +1122,12 @@ void usb_remove_sysfs_dev_files(struct usb_device *udev)
 {
 	struct device *dev = &udev->dev;
 
+<<<<<<< HEAD
+=======
+	if (is_root_hub(udev))
+		remove_default_authorized_attributes(dev);
+
+>>>>>>> upstream/android-13
 	remove_power_attributes(dev);
 	remove_persist_attributes(dev);
 	device_remove_bin_file(dev, &dev_bin_attr_descriptors);
@@ -1101,7 +1276,11 @@ static struct attribute *intf_attrs[] = {
 	&dev_attr_interface_authorized.attr,
 	NULL,
 };
+<<<<<<< HEAD
 static struct attribute_group intf_attr_grp = {
+=======
+static const struct attribute_group intf_attr_grp = {
+>>>>>>> upstream/android-13
 	.attrs = intf_attrs,
 };
 
@@ -1117,7 +1296,11 @@ static struct attribute *intf_assoc_attrs[] = {
 static umode_t intf_assoc_attrs_are_visible(struct kobject *kobj,
 		struct attribute *a, int n)
 {
+<<<<<<< HEAD
 	struct device *dev = container_of(kobj, struct device, kobj);
+=======
+	struct device *dev = kobj_to_dev(kobj);
+>>>>>>> upstream/android-13
 	struct usb_interface *intf = to_usb_interface(dev);
 
 	if (intf->intf_assoc == NULL)
@@ -1125,7 +1308,11 @@ static umode_t intf_assoc_attrs_are_visible(struct kobject *kobj,
 	return a->mode;
 }
 
+<<<<<<< HEAD
 static struct attribute_group intf_assoc_attr_grp = {
+=======
+static const struct attribute_group intf_assoc_attr_grp = {
+>>>>>>> upstream/android-13
 	.attrs =	intf_assoc_attrs,
 	.is_visible =	intf_assoc_attrs_are_visible,
 };
@@ -1146,8 +1333,15 @@ void usb_create_sysfs_intf_files(struct usb_interface *intf)
 
 	if (!alt->string && !(udev->quirks & USB_QUIRK_CONFIG_INTF_STRINGS))
 		alt->string = usb_cache_string(udev, alt->desc.iInterface);
+<<<<<<< HEAD
 	if (alt->string && device_create_file(&intf->dev, &dev_attr_interface))
 		;	/* We don't actually care if the function fails. */
+=======
+	if (alt->string && device_create_file(&intf->dev, &dev_attr_interface)) {
+		/* This is not a serious error */
+		dev_dbg(&intf->dev, "interface string descriptor file not created\n");
+	}
+>>>>>>> upstream/android-13
 	intf->sysfs_files_created = 1;
 }
 

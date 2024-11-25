@@ -1,7 +1,11 @@
 /*
  * TI DaVinci platform support for power management.
  *
+<<<<<<< HEAD
  * Copyright (C) 2009 Texas Instruments, Inc. http://www.ti.com/
+=======
+ * Copyright (C) 2009 Texas Instruments, Inc. https://www.ti.com/
+>>>>>>> upstream/android-13
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as

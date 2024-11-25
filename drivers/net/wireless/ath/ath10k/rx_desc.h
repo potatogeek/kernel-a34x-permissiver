@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2005-2011 Atheros Communications Inc.
  * Copyright (c) 2011-2017 Qualcomm Atheros, Inc.
@@ -13,6 +14,12 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+/* SPDX-License-Identifier: ISC */
+/*
+ * Copyright (c) 2005-2011 Atheros Communications Inc.
+ * Copyright (c) 2011-2017 Qualcomm Atheros, Inc.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _RX_DESC_H_
@@ -79,7 +86,11 @@ struct rx_attention {
  *		first_msdu is set.
  *
  * peer_idx_invalid
+<<<<<<< HEAD
  *		Indicates no matching entries within the the max search
+=======
+ *		Indicates no matching entries within the max search
+>>>>>>> upstream/android-13
  *		count.  Only set when first_msdu is set.
  *
  * peer_idx_timeout
@@ -572,6 +583,10 @@ struct rx_msdu_start {
 #define RX_MSDU_END_INFO0_REPORTED_MPDU_LENGTH_LSB  0
 #define RX_MSDU_END_INFO0_FIRST_MSDU                BIT(14)
 #define RX_MSDU_END_INFO0_LAST_MSDU                 BIT(15)
+<<<<<<< HEAD
+=======
+#define RX_MSDU_END_INFO0_MSDU_LIMIT_ERR            BIT(18)
+>>>>>>> upstream/android-13
 #define RX_MSDU_END_INFO0_PRE_DELIM_ERR             BIT(30)
 #define RX_MSDU_END_INFO0_RESERVED_3B               BIT(31)
 
@@ -676,6 +691,15 @@ struct rx_msdu_end {
  *		Indicates the last MSDU of the A-MSDU.  MPDU end status is
  *		only valid when last_msdu is set.
  *
+<<<<<<< HEAD
+=======
+ *msdu_limit_error
+ *		Indicates that the MSDU threshold was exceeded and thus
+ *		all the rest of the MSDUs will not be scattered and
+ *		will not be decapsulated but will be received in RAW format
+ *		as a single MSDU buffer.
+ *
+>>>>>>> upstream/android-13
  *reserved_3a
  *		Reserved: HW should fill with zero.  FW should ignore.
  *
@@ -1277,4 +1301,34 @@ struct fw_rx_desc_base {
 	u8 info0;
 } __packed;
 
+<<<<<<< HEAD
+=======
+#define FW_RX_DESC_FLAGS_FIRST_MSDU (1 << 0)
+#define FW_RX_DESC_FLAGS_LAST_MSDU  (1 << 1)
+#define FW_RX_DESC_C3_FAILED        (1 << 2)
+#define FW_RX_DESC_C4_FAILED        (1 << 3)
+#define FW_RX_DESC_IPV6             (1 << 4)
+#define FW_RX_DESC_TCP              (1 << 5)
+#define FW_RX_DESC_UDP              (1 << 6)
+
+struct fw_rx_desc_hl {
+	union {
+		struct {
+		u8 discard:1,
+		   forward:1,
+		   any_err:1,
+		   dup_err:1,
+		   reserved:1,
+		   inspect:1,
+		   extension:2;
+		} bits;
+		u8 info0;
+	} u;
+
+	u8 version;
+	u8 len;
+	u8 flags;
+} __packed;
+
+>>>>>>> upstream/android-13
 #endif /* _RX_DESC_H_ */

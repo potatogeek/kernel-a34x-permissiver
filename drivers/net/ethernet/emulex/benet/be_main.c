@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2005 - 2016 Broadcom
  * All rights reserved.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2
  * as published by the Free Software Foundation.  The full GNU General
  * Public License is included in this distribution in the file called COPYING.
  *
+=======
+>>>>>>> upstream/android-13
  * Contact Information:
  * linux-drivers@emulex.com
  *
@@ -25,8 +32,12 @@
 #include <net/busy_poll.h>
 #include <net/vxlan.h>
 
+<<<<<<< HEAD
 MODULE_VERSION(DRV_VER);
 MODULE_DESCRIPTION(DRV_DESC " " DRV_VER);
+=======
+MODULE_DESCRIPTION(DRV_DESC);
+>>>>>>> upstream/android-13
 MODULE_AUTHOR("Emulex Corporation");
 MODULE_LICENSE("GPL");
 
@@ -167,8 +178,13 @@ static int be_queue_alloc(struct be_adapter *adapter, struct be_queue_info *q,
 	q->len = len;
 	q->entry_size = entry_size;
 	mem->size = len * entry_size;
+<<<<<<< HEAD
 	mem->va = dma_zalloc_coherent(&adapter->pdev->dev, mem->size, &mem->dma,
 				      GFP_KERNEL);
+=======
+	mem->va = dma_alloc_coherent(&adapter->pdev->dev, mem->size,
+				     &mem->dma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!mem->va)
 		return -ENOMEM;
 	return 0;
@@ -796,7 +812,11 @@ static inline u16 be_get_tx_vlan_tag(struct be_adapter *adapter,
 	u16 vlan_tag;
 
 	vlan_tag = skb_vlan_tag_get(skb);
+<<<<<<< HEAD
 	vlan_prio = (vlan_tag & VLAN_PRIO_MASK) >> VLAN_PRIO_SHIFT;
+=======
+	vlan_prio = skb_vlan_tag_get_prio(skb);
+>>>>>>> upstream/android-13
 	/* If vlan priority provided by OS is NOT in available bmap */
 	if (!(adapter->vlan_prio_bmap & (1 << vlan_prio)))
 		vlan_tag = (vlan_tag & ~VLAN_PRIO_MASK) |
@@ -1018,7 +1038,11 @@ static u32 be_xmit_enqueue(struct be_adapter *adapter, struct be_tx_obj *txo,
 	}
 
 	for (i = 0; i < skb_shinfo(skb)->nr_frags; i++) {
+<<<<<<< HEAD
 		const struct skb_frag_struct *frag = &skb_shinfo(skb)->frags[i];
+=======
+		const skb_frag_t *frag = &skb_shinfo(skb)->frags[i];
+>>>>>>> upstream/android-13
 		len = skb_frag_size(frag);
 
 		busaddr = skb_frag_dma_map(dev, frag, 0, len, DMA_TO_DEVICE);
@@ -1049,30 +1073,55 @@ static struct sk_buff *be_insert_vlan_in_pkt(struct be_adapter *adapter,
 					     struct be_wrb_params
 					     *wrb_params)
 {
+<<<<<<< HEAD
+=======
+	bool insert_vlan = false;
+>>>>>>> upstream/android-13
 	u16 vlan_tag = 0;
 
 	skb = skb_share_check(skb, GFP_ATOMIC);
 	if (unlikely(!skb))
 		return skb;
 
+<<<<<<< HEAD
 	if (skb_vlan_tag_present(skb))
 		vlan_tag = be_get_tx_vlan_tag(adapter, skb);
 
 	if (qnq_async_evt_rcvd(adapter) && adapter->pvid) {
 		if (!vlan_tag)
 			vlan_tag = adapter->pvid;
+=======
+	if (skb_vlan_tag_present(skb)) {
+		vlan_tag = be_get_tx_vlan_tag(adapter, skb);
+		insert_vlan = true;
+	}
+
+	if (qnq_async_evt_rcvd(adapter) && adapter->pvid) {
+		if (!insert_vlan) {
+			vlan_tag = adapter->pvid;
+			insert_vlan = true;
+		}
+>>>>>>> upstream/android-13
 		/* f/w workaround to set skip_hw_vlan = 1, informs the F/W to
 		 * skip VLAN insertion
 		 */
 		BE_WRB_F_SET(wrb_params->features, VLAN_SKIP_HW, 1);
 	}
 
+<<<<<<< HEAD
 	if (vlan_tag) {
+=======
+	if (insert_vlan) {
+>>>>>>> upstream/android-13
 		skb = vlan_insert_tag_set_proto(skb, htons(ETH_P_8021Q),
 						vlan_tag);
 		if (unlikely(!skb))
 			return skb;
+<<<<<<< HEAD
 		skb->vlan_tci = 0;
+=======
+		__vlan_hwaccel_clear_tag(skb);
+>>>>>>> upstream/android-13
 	}
 
 	/* Insert the outer VLAN, if any */
@@ -1265,10 +1314,13 @@ static void be_xmit_flush(struct be_adapter *adapter, struct be_tx_obj *txo)
 #define is_arp_allowed_on_bmc(adapter, skb)	\
 	(is_arp(skb) && is_arp_filt_enabled(adapter))
 
+<<<<<<< HEAD
 #define is_broadcast_packet(eh, adapter)	\
 		(is_multicast_ether_addr(eh->h_dest) && \
 		!compare_ether_addr(eh->h_dest, adapter->netdev->broadcast))
 
+=======
+>>>>>>> upstream/android-13
 #define is_arp(skb)	(skb->protocol == htons(ETH_P_ARP))
 
 #define is_arp_filt_enabled(adapter)	\
@@ -1375,7 +1427,11 @@ static netdev_tx_t be_xmit(struct sk_buff *skb, struct net_device *netdev)
 	u16 q_idx = skb_get_queue_mapping(skb);
 	struct be_tx_obj *txo = &adapter->tx_obj[q_idx];
 	struct be_wrb_params wrb_params = { 0 };
+<<<<<<< HEAD
 	bool flush = !skb->xmit_more;
+=======
+	bool flush = !netdev_xmit_more();
+>>>>>>> upstream/android-13
 	u16 wrb_cnt;
 
 	skb = be_xmit_workarounds(adapter, skb, &wrb_params);
@@ -1420,7 +1476,11 @@ drop:
 	return NETDEV_TX_OK;
 }
 
+<<<<<<< HEAD
 static void be_tx_timeout(struct net_device *netdev)
+=======
+static void be_tx_timeout(struct net_device *netdev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct be_adapter *adapter = netdev_priv(netdev);
 	struct device *dev = &adapter->pdev->dev;
@@ -2150,7 +2210,11 @@ static int be_get_new_eqd(struct be_eq_obj *eqo)
 	int i;
 
 	aic = &adapter->aic_obj[eqo->idx];
+<<<<<<< HEAD
 	if (!aic->enable) {
+=======
+	if (!adapter->aic_enabled) {
+>>>>>>> upstream/android-13
 		if (aic->jiffies)
 			aic->jiffies = 0;
 		eqd = aic->et_eqd;
@@ -2207,7 +2271,11 @@ static u32 be_get_eq_delay_mult_enc(struct be_eq_obj *eqo)
 	int eqd;
 	u32 mult_enc;
 
+<<<<<<< HEAD
 	if (!aic->enable)
+=======
+	if (!adapter->aic_enabled)
+>>>>>>> upstream/android-13
 		return 0;
 
 	if (jiffies_to_msecs(now - aic->jiffies) < 1)
@@ -2349,8 +2417,13 @@ static void skb_fill_rx_data(struct be_rx_obj *rxo, struct sk_buff *skb,
 		memcpy(skb->data, start, hdr_len);
 		skb_shinfo(skb)->nr_frags = 1;
 		skb_frag_set_page(skb, 0, page_info->page);
+<<<<<<< HEAD
 		skb_shinfo(skb)->frags[0].page_offset =
 					page_info->page_offset + hdr_len;
+=======
+		skb_frag_off_set(&skb_shinfo(skb)->frags[0],
+				 page_info->page_offset + hdr_len);
+>>>>>>> upstream/android-13
 		skb_frag_size_set(&skb_shinfo(skb)->frags[0],
 				  curr_frag_len - hdr_len);
 		skb->data_len = curr_frag_len - hdr_len;
@@ -2375,8 +2448,13 @@ static void skb_fill_rx_data(struct be_rx_obj *rxo, struct sk_buff *skb,
 			/* Fresh page */
 			j++;
 			skb_frag_set_page(skb, j, page_info->page);
+<<<<<<< HEAD
 			skb_shinfo(skb)->frags[j].page_offset =
 							page_info->page_offset;
+=======
+			skb_frag_off_set(&skb_shinfo(skb)->frags[j],
+					 page_info->page_offset);
+>>>>>>> upstream/android-13
 			skb_frag_size_set(&skb_shinfo(skb)->frags[j], 0);
 			skb_shinfo(skb)->nr_frags++;
 		} else {
@@ -2457,8 +2535,13 @@ static void be_rx_compl_process_gro(struct be_rx_obj *rxo,
 			/* First frag or Fresh page */
 			j++;
 			skb_frag_set_page(skb, j, page_info->page);
+<<<<<<< HEAD
 			skb_shinfo(skb)->frags[j].page_offset =
 							page_info->page_offset;
+=======
+			skb_frag_off_set(&skb_shinfo(skb)->frags[j],
+					 page_info->page_offset);
+>>>>>>> upstream/android-13
 			skb_frag_size_set(&skb_shinfo(skb)->frags[j], 0);
 		} else {
 			put_page(page_info->page);
@@ -2962,6 +3045,11 @@ static int be_evt_queues_create(struct be_adapter *adapter)
 				    max(adapter->cfg_num_rx_irqs,
 					adapter->cfg_num_tx_irqs));
 
+<<<<<<< HEAD
+=======
+	adapter->aic_enabled = true;
+
+>>>>>>> upstream/android-13
 	for_all_evt_queues(adapter, eqo, i) {
 		int numa_node = dev_to_node(&adapter->pdev->dev);
 
@@ -2969,7 +3057,10 @@ static int be_evt_queues_create(struct be_adapter *adapter)
 		eqo->adapter = adapter;
 		eqo->idx = i;
 		aic->max_eqd = BE_MAX_EQD;
+<<<<<<< HEAD
 		aic->enable = true;
+=======
+>>>>>>> upstream/android-13
 
 		eq = &eqo->q;
 		rc = be_queue_alloc(adapter, eq, EVNT_Q_LEN,
@@ -3832,8 +3923,13 @@ static int be_open(struct net_device *netdev)
 		be_link_status_update(adapter, link_status);
 
 	netif_tx_start_all_queues(netdev);
+<<<<<<< HEAD
 	if (skyhawk_chip(adapter))
 		udp_tunnel_get_rx_info(netdev);
+=======
+
+	udp_tunnel_nic_reset_ntf(netdev);
+>>>>>>> upstream/android-13
 
 	return 0;
 err:
@@ -3970,6 +4066,7 @@ static void be_cancel_err_detection(struct be_adapter *adapter)
 	}
 }
 
+<<<<<<< HEAD
 static int be_enable_vxlan_offloads(struct be_adapter *adapter)
 {
 	struct net_device *netdev = adapter->netdev;
@@ -3982,6 +4079,25 @@ static int be_enable_vxlan_offloads(struct be_adapter *adapter)
 				      struct be_vxlan_port, list);
 	port = vxlan_port->port;
 
+=======
+/* VxLAN offload Notes:
+ *
+ * The stack defines tunnel offload flags (hw_enc_features) for IP and doesn't
+ * distinguish various types of transports (VxLAN, GRE, NVGRE ..). So, offload
+ * is expected to work across all types of IP tunnels once exported. Skyhawk
+ * supports offloads for either VxLAN or NVGRE, exclusively. So we export VxLAN
+ * offloads in hw_enc_features only when a VxLAN port is added. If other (non
+ * VxLAN) tunnels are configured while VxLAN offloads are enabled, offloads for
+ * those other tunnels are unexported on the fly through ndo_features_check().
+ */
+static int be_vxlan_set_port(struct net_device *netdev, unsigned int table,
+			     unsigned int entry, struct udp_tunnel_info *ti)
+{
+	struct be_adapter *adapter = netdev_priv(netdev);
+	struct device *dev = &adapter->pdev->dev;
+	int status;
+
+>>>>>>> upstream/android-13
 	status = be_cmd_manage_iface(adapter, adapter->if_handle,
 				     OP_CONVERT_NORMAL_TO_TUNNEL);
 	if (status) {
@@ -3990,18 +4106,27 @@ static int be_enable_vxlan_offloads(struct be_adapter *adapter)
 	}
 	adapter->flags |= BE_FLAGS_VXLAN_OFFLOADS;
 
+<<<<<<< HEAD
 	status = be_cmd_set_vxlan_port(adapter, port);
+=======
+	status = be_cmd_set_vxlan_port(adapter, ti->port);
+>>>>>>> upstream/android-13
 	if (status) {
 		dev_warn(dev, "Failed to add VxLAN port\n");
 		return status;
 	}
+<<<<<<< HEAD
 	adapter->vxlan_port = port;
+=======
+	adapter->vxlan_port = ti->port;
+>>>>>>> upstream/android-13
 
 	netdev->hw_enc_features |= NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM |
 				   NETIF_F_TSO | NETIF_F_TSO6 |
 				   NETIF_F_GSO_UDP_TUNNEL;
 
 	dev_info(dev, "Enabled VxLAN offloads for UDP port %d\n",
+<<<<<<< HEAD
 		 be16_to_cpu(port));
 	return 0;
 }
@@ -4009,6 +4134,16 @@ static int be_enable_vxlan_offloads(struct be_adapter *adapter)
 static void be_disable_vxlan_offloads(struct be_adapter *adapter)
 {
 	struct net_device *netdev = adapter->netdev;
+=======
+		 be16_to_cpu(ti->port));
+	return 0;
+}
+
+static int be_vxlan_unset_port(struct net_device *netdev, unsigned int table,
+			       unsigned int entry, struct udp_tunnel_info *ti)
+{
+	struct be_adapter *adapter = netdev_priv(netdev);
+>>>>>>> upstream/android-13
 
 	if (adapter->flags & BE_FLAGS_VXLAN_OFFLOADS)
 		be_cmd_manage_iface(adapter, adapter->if_handle,
@@ -4021,8 +4156,24 @@ static void be_disable_vxlan_offloads(struct be_adapter *adapter)
 	adapter->vxlan_port = 0;
 
 	netdev->hw_enc_features = 0;
+<<<<<<< HEAD
 }
 
+=======
+	return 0;
+}
+
+static const struct udp_tunnel_nic_info be_udp_tunnels = {
+	.set_port	= be_vxlan_set_port,
+	.unset_port	= be_vxlan_unset_port,
+	.flags		= UDP_TUNNEL_NIC_INFO_MAY_SLEEP |
+			  UDP_TUNNEL_NIC_INFO_OPEN_ONLY,
+	.tables		= {
+		{ .n_entries = 1, .tunnel_types = UDP_TUNNEL_TYPE_VXLAN, },
+	},
+};
+
+>>>>>>> upstream/android-13
 static void be_calculate_vf_res(struct be_adapter *adapter, u16 num_vfs,
 				struct be_resources *vft_res)
 {
@@ -4138,7 +4289,11 @@ static int be_clear(struct be_adapter *adapter)
 					&vft_res);
 	}
 
+<<<<<<< HEAD
 	be_disable_vxlan_offloads(adapter);
+=======
+	be_vxlan_unset_port(adapter->netdev, 0, 0, NULL);
+>>>>>>> upstream/android-13
 
 	be_if_destroy(adapter);
 
@@ -4663,7 +4818,10 @@ static int be_if_create(struct be_adapter *adapter)
 {
 	u32 en_flags = BE_IF_FLAGS_RSS | BE_IF_FLAGS_DEFQ_RSS;
 	u32 cap_flags = be_if_cap_flags(adapter);
+<<<<<<< HEAD
 	int status;
+=======
+>>>>>>> upstream/android-13
 
 	/* alloc required memory for other filtering fields */
 	adapter->pmac_id = kcalloc(be_max_uc(adapter),
@@ -4686,6 +4844,7 @@ static int be_if_create(struct be_adapter *adapter)
 
 	en_flags &= cap_flags;
 	/* will enable all the needed filter flags in be_open() */
+<<<<<<< HEAD
 	status = be_cmd_if_create(adapter, be_if_cap_flags(adapter), en_flags,
 				  &adapter->if_handle, 0);
 
@@ -4693,6 +4852,10 @@ static int be_if_create(struct be_adapter *adapter)
 		return status;
 
 	return 0;
+=======
+	return be_cmd_if_create(adapter, be_if_cap_flags(adapter), en_flags,
+				  &adapter->if_handle, 0);
+>>>>>>> upstream/android-13
 }
 
 int be_update_queues(struct be_adapter *adapter)
@@ -4701,8 +4864,18 @@ int be_update_queues(struct be_adapter *adapter)
 	int status;
 
 	if (netif_running(netdev)) {
+<<<<<<< HEAD
 		/* device cannot transmit now, avoid dev_watchdog timeouts */
 		netif_carrier_off(netdev);
+=======
+		/* be_tx_timeout() must not run concurrently with this
+		 * function, synchronize with an already-running dev_watchdog
+		 */
+		netif_tx_lock_bh(netdev);
+		/* device cannot transmit now, avoid dev_watchdog timeouts */
+		netif_carrier_off(netdev);
+		netif_tx_unlock_bh(netdev);
+>>>>>>> upstream/android-13
 
 		be_close(netdev);
 	}
@@ -4954,7 +5127,11 @@ fw_exit:
 }
 
 static int be_ndo_bridge_setlink(struct net_device *dev, struct nlmsghdr *nlh,
+<<<<<<< HEAD
 				 u16 flags)
+=======
+				 u16 flags, struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct be_adapter *adapter = netdev_priv(dev);
 	struct nlattr *attr, *br_spec;
@@ -5051,6 +5228,7 @@ static struct be_cmd_work *be_alloc_work(struct be_adapter *adapter,
 	return work;
 }
 
+<<<<<<< HEAD
 /* VxLAN offload Notes:
  *
  * The stack defines tunnel offload flags (hw_enc_features) for IP and doesn't
@@ -5192,6 +5370,8 @@ static void be_add_vxlan_port(struct net_device *netdev,
 	be_cfg_vxlan_port(netdev, ti, be_work_add_vxlan_port);
 }
 
+=======
+>>>>>>> upstream/android-13
 static netdev_features_t be_features_check(struct sk_buff *skb,
 					   struct net_device *dev,
 					   netdev_features_t features)
@@ -5307,8 +5487,11 @@ static const struct net_device_ops be_netdev_ops = {
 #endif
 	.ndo_bridge_setlink	= be_ndo_bridge_setlink,
 	.ndo_bridge_getlink	= be_ndo_bridge_getlink,
+<<<<<<< HEAD
 	.ndo_udp_tunnel_add	= be_add_vxlan_port,
 	.ndo_udp_tunnel_del	= be_del_vxlan_port,
+=======
+>>>>>>> upstream/android-13
 	.ndo_features_check	= be_features_check,
 	.ndo_get_phys_port_id   = be_get_phys_port_id,
 };
@@ -5340,6 +5523,12 @@ static void be_netdev_init(struct net_device *netdev)
 
 	netdev->ethtool_ops = &be_ethtool_ops;
 
+<<<<<<< HEAD
+=======
+	if (!lancer_chip(adapter) && !BEx_chip(adapter) && !be_is_mc(adapter))
+		netdev->udp_tunnel_nic_info = &be_udp_tunnels;
+
+>>>>>>> upstream/android-13
 	/* MTU range: 256 - 9000 */
 	netdev->min_mtu = BE_MIN_MTU;
 	netdev->max_mtu = BE_MAX_MTU;
@@ -5765,9 +5954,15 @@ static int be_drv_init(struct be_adapter *adapter)
 	int status = 0;
 
 	mbox_mem_alloc->size = sizeof(struct be_mcc_mailbox) + 16;
+<<<<<<< HEAD
 	mbox_mem_alloc->va = dma_zalloc_coherent(dev, mbox_mem_alloc->size,
 						 &mbox_mem_alloc->dma,
 						 GFP_KERNEL);
+=======
+	mbox_mem_alloc->va = dma_alloc_coherent(dev, mbox_mem_alloc->size,
+						&mbox_mem_alloc->dma,
+						GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!mbox_mem_alloc->va)
 		return -ENOMEM;
 
@@ -5776,8 +5971,13 @@ static int be_drv_init(struct be_adapter *adapter)
 	mbox_mem_align->dma = PTR_ALIGN(mbox_mem_alloc->dma, 16);
 
 	rx_filter->size = sizeof(struct be_cmd_req_rx_filter);
+<<<<<<< HEAD
 	rx_filter->va = dma_zalloc_coherent(dev, rx_filter->size,
 					    &rx_filter->dma, GFP_KERNEL);
+=======
+	rx_filter->va = dma_alloc_coherent(dev, rx_filter->size,
+					   &rx_filter->dma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!rx_filter->va) {
 		status = -ENOMEM;
 		goto free_mbox;
@@ -5791,8 +5991,13 @@ static int be_drv_init(struct be_adapter *adapter)
 		stats_cmd->size = sizeof(struct be_cmd_req_get_stats_v1);
 	else
 		stats_cmd->size = sizeof(struct be_cmd_req_get_stats_v2);
+<<<<<<< HEAD
 	stats_cmd->va = dma_zalloc_coherent(dev, stats_cmd->size,
 					    &stats_cmd->dma, GFP_KERNEL);
+=======
+	stats_cmd->va = dma_alloc_coherent(dev, stats_cmd->size,
+					   &stats_cmd->dma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!stats_cmd->va) {
 		status = -ENOMEM;
 		goto free_rx_filter;
@@ -5819,7 +6024,10 @@ static int be_drv_init(struct be_adapter *adapter)
 	/* Must be a power of 2 or else MODULO will BUG_ON */
 	adapter->be_get_temp_freq = 64;
 
+<<<<<<< HEAD
 	INIT_LIST_HEAD(&adapter->vxlan_port_list);
+=======
+>>>>>>> upstream/android-13
 	return 0;
 
 free_rx_filter:
@@ -5948,8 +6156,11 @@ static int be_probe(struct pci_dev *pdev, const struct pci_device_id *pdev_id)
 	struct net_device *netdev;
 	int status = 0;
 
+<<<<<<< HEAD
 	dev_info(&pdev->dev, "%s version is %s\n", DRV_NAME, DRV_VER);
 
+=======
+>>>>>>> upstream/android-13
 	status = pci_enable_device(pdev);
 	if (status)
 		goto do_none;
@@ -6029,6 +6240,10 @@ drv_cleanup:
 unmap_bars:
 	be_unmap_pci_bars(adapter);
 free_netdev:
+<<<<<<< HEAD
+=======
+	pci_disable_pcie_error_reporting(pdev);
+>>>>>>> upstream/android-13
 	free_netdev(netdev);
 rel_reg:
 	pci_release_regions(pdev);
@@ -6039,15 +6254,22 @@ do_none:
 	return status;
 }
 
+<<<<<<< HEAD
 static int be_suspend(struct pci_dev *pdev, pm_message_t state)
 {
 	struct be_adapter *adapter = pci_get_drvdata(pdev);
+=======
+static int __maybe_unused be_suspend(struct device *dev_d)
+{
+	struct be_adapter *adapter = dev_get_drvdata(dev_d);
+>>>>>>> upstream/android-13
 
 	be_intr_set(adapter, false);
 	be_cancel_err_detection(adapter);
 
 	be_cleanup(adapter);
 
+<<<<<<< HEAD
 	pci_save_state(pdev);
 	pci_disable_device(pdev);
 	pci_set_power_state(pdev, pci_choose_state(pdev, state));
@@ -6065,6 +6287,16 @@ static int be_pci_resume(struct pci_dev *pdev)
 
 	pci_restore_state(pdev);
 
+=======
+	return 0;
+}
+
+static int __maybe_unused be_pci_resume(struct device *dev_d)
+{
+	struct be_adapter *adapter = dev_get_drvdata(dev_d);
+	int status = 0;
+
+>>>>>>> upstream/android-13
 	status = be_resume(adapter);
 	if (status)
 		return status;
@@ -6150,7 +6382,10 @@ static pci_ers_result_t be_eeh_reset(struct pci_dev *pdev)
 	if (status)
 		return PCI_ERS_RESULT_DISCONNECT;
 
+<<<<<<< HEAD
 	pci_cleanup_aer_uncorrect_error_status(pdev);
+=======
+>>>>>>> upstream/android-13
 	be_clear_error(adapter, BE_CLEAR_ALL);
 	return PCI_ERS_RESULT_RECOVERED;
 }
@@ -6237,13 +6472,22 @@ static const struct pci_error_handlers be_eeh_handlers = {
 	.resume = be_eeh_resume,
 };
 
+<<<<<<< HEAD
+=======
+static SIMPLE_DEV_PM_OPS(be_pci_pm_ops, be_suspend, be_pci_resume);
+
+>>>>>>> upstream/android-13
 static struct pci_driver be_driver = {
 	.name = DRV_NAME,
 	.id_table = be_dev_ids,
 	.probe = be_probe,
 	.remove = be_remove,
+<<<<<<< HEAD
 	.suspend = be_suspend,
 	.resume = be_pci_resume,
+=======
+	.driver.pm = &be_pci_pm_ops,
+>>>>>>> upstream/android-13
 	.shutdown = be_shutdown,
 	.sriov_configure = be_pci_sriov_configure,
 	.err_handler = &be_eeh_handlers

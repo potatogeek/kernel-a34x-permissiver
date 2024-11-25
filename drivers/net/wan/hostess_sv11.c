@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 /*
  *	Comtrol SV11 card driver
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*	Comtrol SV11 card driver
+>>>>>>> upstream/android-13
  *
  *	This is a slightly odd Z85230 synchronous driver. All you need to
  *	know basically is
@@ -8,7 +13,11 @@
  *
  *	It supports DMA using two DMA channels in SYNC mode. The driver doesn't
  *	use these facilities
+<<<<<<< HEAD
  *	
+=======
+ *
+>>>>>>> upstream/android-13
  *	The control port is at io+1, the data at io+3 and turning off the DMA
  *	is done by writing 0 to io+4
  *
@@ -43,17 +52,28 @@
 
 static int dma;
 
+<<<<<<< HEAD
 /*
  *	Network driver support routines
  */
 
 static inline struct z8530_dev* dev_to_sv(struct net_device *dev)
+=======
+/*	Network driver support routines
+ */
+
+static inline struct z8530_dev *dev_to_sv(struct net_device *dev)
+>>>>>>> upstream/android-13
 {
 	return (struct z8530_dev *)dev_to_hdlc(dev)->priv;
 }
 
+<<<<<<< HEAD
 /*
  *	Frame receive. Simple for our card as we do HDLC and there
+=======
+/*	Frame receive. Simple for our card as we do HDLC and there
+>>>>>>> upstream/android-13
  *	is no funny garbage involved
  */
 
@@ -64,15 +84,23 @@ static void hostess_input(struct z8530_channel *c, struct sk_buff *skb)
 	skb->protocol = hdlc_type_trans(skb, c->netdevice);
 	skb_reset_mac_header(skb);
 	skb->dev = c->netdevice;
+<<<<<<< HEAD
 	/*
 	 *	Send it to the PPP layer. We don't have time to process
+=======
+	/*	Send it to the PPP layer. We don't have time to process
+>>>>>>> upstream/android-13
 	 *	it right now.
 	 */
 	netif_rx(skb);
 }
 
+<<<<<<< HEAD
 /*
  *	We've been placed in the UP state
+=======
+/*	We've been placed in the UP state
+>>>>>>> upstream/android-13
  */
 
 static int hostess_open(struct net_device *d)
@@ -80,6 +108,7 @@ static int hostess_open(struct net_device *d)
 	struct z8530_dev *sv11 = dev_to_sv(d);
 	int err = -1;
 
+<<<<<<< HEAD
 	/*
 	 *	Link layer up
 	 */
@@ -93,6 +122,20 @@ static int hostess_open(struct net_device *d)
 		case 2:
 			err = z8530_sync_txdma_open(d, &sv11->chanA);
 			break;
+=======
+	/*	Link layer up
+	 */
+	switch (dma) {
+	case 0:
+		err = z8530_sync_open(d, &sv11->chanA);
+		break;
+	case 1:
+		err = z8530_sync_dma_open(d, &sv11->chanA);
+		break;
+	case 2:
+		err = z8530_sync_txdma_open(d, &sv11->chanA);
+		break;
+>>>>>>> upstream/android-13
 	}
 
 	if (err)
@@ -101,6 +144,7 @@ static int hostess_open(struct net_device *d)
 	err = hdlc_open(d);
 	if (err) {
 		switch (dma) {
+<<<<<<< HEAD
 			case 0:
 				z8530_sync_close(d, &sv11->chanA);
 				break;
@@ -110,6 +154,17 @@ static int hostess_open(struct net_device *d)
 			case 2:
 				z8530_sync_txdma_close(d, &sv11->chanA);
 				break;
+=======
+		case 0:
+			z8530_sync_close(d, &sv11->chanA);
+			break;
+		case 1:
+			z8530_sync_dma_close(d, &sv11->chanA);
+			break;
+		case 2:
+			z8530_sync_txdma_close(d, &sv11->chanA);
+			break;
+>>>>>>> upstream/android-13
 		}
 		return err;
 	}
@@ -126,8 +181,12 @@ static int hostess_open(struct net_device *d)
 static int hostess_close(struct net_device *d)
 {
 	struct z8530_dev *sv11 = dev_to_sv(d);
+<<<<<<< HEAD
 	/*
 	 *	Discard new frames
+=======
+	/*	Discard new frames
+>>>>>>> upstream/android-13
 	 */
 	sv11->chanA.rx_function = z8530_null_rx;
 
@@ -135,6 +194,7 @@ static int hostess_close(struct net_device *d)
 	netif_stop_queue(d);
 
 	switch (dma) {
+<<<<<<< HEAD
 		case 0:
 			z8530_sync_close(d, &sv11->chanA);
 			break;
@@ -144,10 +204,22 @@ static int hostess_close(struct net_device *d)
 		case 2:
 			z8530_sync_txdma_close(d, &sv11->chanA);
 			break;
+=======
+	case 0:
+		z8530_sync_close(d, &sv11->chanA);
+		break;
+	case 1:
+		z8530_sync_dma_close(d, &sv11->chanA);
+		break;
+	case 2:
+		z8530_sync_txdma_close(d, &sv11->chanA);
+		break;
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
 
+<<<<<<< HEAD
 static int hostess_ioctl(struct net_device *d, struct ifreq *ifr, int cmd)
 {
 	/* struct z8530_dev *sv11=dev_to_sv(d);
@@ -161,6 +233,13 @@ static int hostess_ioctl(struct net_device *d, struct ifreq *ifr, int cmd)
 
 static netdev_tx_t hostess_queue_xmit(struct sk_buff *skb,
 					    struct net_device *d)
+=======
+/*	Passed network frames, fire them downwind.
+ */
+
+static netdev_tx_t hostess_queue_xmit(struct sk_buff *skb,
+				      struct net_device *d)
+>>>>>>> upstream/android-13
 {
 	return z8530_queue_xmit(&dev_to_sv(d)->chanA, skb);
 }
@@ -173,23 +252,35 @@ static int hostess_attach(struct net_device *dev, unsigned short encoding,
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 /*
  *	Description block for a Comtrol Hostess SV11 card
+=======
+/*	Description block for a Comtrol Hostess SV11 card
+>>>>>>> upstream/android-13
  */
 
 static const struct net_device_ops hostess_ops = {
 	.ndo_open       = hostess_open,
 	.ndo_stop       = hostess_close,
 	.ndo_start_xmit = hdlc_start_xmit,
+<<<<<<< HEAD
 	.ndo_do_ioctl   = hostess_ioctl,
+=======
+	.ndo_siocwandev = hdlc_ioctl,
+>>>>>>> upstream/android-13
 };
 
 static struct z8530_dev *sv11_init(int iobase, int irq)
 {
 	struct z8530_dev *sv;
 	struct net_device *netdev;
+<<<<<<< HEAD
 	/*
 	 *	Get the needed I/O space
+=======
+	/*	Get the needed I/O space
+>>>>>>> upstream/android-13
 	 */
 
 	if (!request_region(iobase, 8, "Comtrol SV11")) {
@@ -201,8 +292,12 @@ static struct z8530_dev *sv11_init(int iobase, int irq)
 	if (!sv)
 		goto err_kzalloc;
 
+<<<<<<< HEAD
 	/*
 	 *	Stuff in the I/O addressing
+=======
+	/*	Stuff in the I/O addressing
+>>>>>>> upstream/android-13
 	 */
 
 	sv->active = 0;
@@ -217,7 +312,12 @@ static struct z8530_dev *sv11_init(int iobase, int irq)
 	outb(0, iobase + 4);		/* DMA off */
 
 	/* We want a fast IRQ for this device. Actually we'd like an even faster
+<<<<<<< HEAD
 	   IRQ ;) - This is one driver RtLinux is made for */
+=======
+	 * IRQ ;) - This is one driver RtLinux is made for
+	 */
+>>>>>>> upstream/android-13
 
 	if (request_irq(irq, z8530_interrupt, 0,
 			"Hostess SV11", sv) < 0) {
@@ -231,8 +331,12 @@ static struct z8530_dev *sv11_init(int iobase, int irq)
 	sv->chanB.dev = sv;
 
 	if (dma) {
+<<<<<<< HEAD
 		/*
 		 *	You can have DMA off or 1 and 3 thats the lot
+=======
+		/*	You can have DMA off or 1 and 3 thats the lot
+>>>>>>> upstream/android-13
 		 *	on the Comtrol.
 		 */
 		sv->chanA.txdma = 3;
@@ -247,11 +351,19 @@ static struct z8530_dev *sv11_init(int iobase, int irq)
 	}
 
 	/* Kill our private IRQ line the hostess can end up chattering
+<<<<<<< HEAD
 	   until the configuration is set */
 	disable_irq(irq);
 
 	/*
 	 *	Begin normal initialise
+=======
+	 * until the configuration is set
+	 */
+	disable_irq(irq);
+
+	/*	Begin normal initialise
+>>>>>>> upstream/android-13
 	 */
 
 	if (z8530_init(sv)) {
@@ -267,8 +379,12 @@ static struct z8530_dev *sv11_init(int iobase, int irq)
 
 	enable_irq(irq);
 
+<<<<<<< HEAD
 	/*
 	 *	Now we can take the IRQ
+=======
+	/*	Now we can take the IRQ
+>>>>>>> upstream/android-13
 	 */
 
 	sv->chanA.netdevice = netdev = alloc_hdlcdev(sv);
@@ -337,6 +453,7 @@ MODULE_DESCRIPTION("Modular driver for the Comtrol Hostess SV11");
 
 static struct z8530_dev *sv11_unit;
 
+<<<<<<< HEAD
 int init_module(void)
 {
 	if ((sv11_unit = sv11_init(io, irq)) == NULL)
@@ -345,7 +462,23 @@ int init_module(void)
 }
 
 void cleanup_module(void)
+=======
+static int sv11_module_init(void)
+{
+	sv11_unit = sv11_init(io, irq);
+	if (!sv11_unit)
+		return -ENODEV;
+	return 0;
+}
+module_init(sv11_module_init);
+
+static void sv11_module_cleanup(void)
+>>>>>>> upstream/android-13
 {
 	if (sv11_unit)
 		sv11_shutdown(sv11_unit);
 }
+<<<<<<< HEAD
+=======
+module_exit(sv11_module_cleanup);
+>>>>>>> upstream/android-13

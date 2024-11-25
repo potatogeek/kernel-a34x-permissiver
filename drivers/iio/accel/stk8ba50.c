@@ -1,12 +1,20 @@
+<<<<<<< HEAD
 /**
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  * Sensortek STK8BA50 3-Axis Accelerometer
  *
  * Copyright (c) 2015, Intel Corporation.
  *
+<<<<<<< HEAD
  * This file is subject to the terms and conditions of version 2 of
  * the GNU General Public License. See the file COPYING in the main
  * directory of this archive for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * STK8BA50 7-bit I2C address: 0x18.
  */
 
@@ -94,12 +102,20 @@ struct stk8ba50_data {
 	u8 sample_rate_idx;
 	struct iio_trigger *dready_trig;
 	bool dready_trigger_on;
+<<<<<<< HEAD
 	/*
 	 * 3 x 16-bit channels (10-bit data, 6-bit padding) +
 	 * 1 x 16 padding +
 	 * 4 x 16 64-bit timestamp
 	 */
 	s16 buffer[8];
+=======
+	/* Ensure timestamp is naturally aligned */
+	struct {
+		s16 chans[3];
+		s64 timetamp __aligned(8);
+	} scan;
+>>>>>>> upstream/android-13
 };
 
 #define STK8BA50_ACCEL_CHANNEL(index, reg, axis) {			\
@@ -327,7 +343,11 @@ static irqreturn_t stk8ba50_trigger_handler(int irq, void *p)
 		ret = i2c_smbus_read_i2c_block_data(data->client,
 						    STK8BA50_REG_XOUT,
 						    STK8BA50_ALL_CHANNEL_SIZE,
+<<<<<<< HEAD
 						    (u8 *)data->buffer);
+=======
+						    (u8 *)data->scan.chans);
+>>>>>>> upstream/android-13
 		if (ret < STK8BA50_ALL_CHANNEL_SIZE) {
 			dev_err(&data->client->dev, "register read failed\n");
 			goto err;
@@ -340,10 +360,17 @@ static irqreturn_t stk8ba50_trigger_handler(int irq, void *p)
 			if (ret < 0)
 				goto err;
 
+<<<<<<< HEAD
 			data->buffer[i++] = ret;
 		}
 	}
 	iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
+=======
+			data->scan.chans[i++] = ret;
+		}
+	}
+	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
+>>>>>>> upstream/android-13
 					   pf->timestamp);
 err:
 	mutex_unlock(&data->lock);
@@ -379,8 +406,11 @@ static int stk8ba50_buffer_postdisable(struct iio_dev *indio_dev)
 
 static const struct iio_buffer_setup_ops stk8ba50_buffer_setup_ops = {
 	.preenable   = stk8ba50_buffer_preenable,
+<<<<<<< HEAD
 	.postenable  = iio_triggered_buffer_postenable,
 	.predisable  = iio_triggered_buffer_predisable,
+=======
+>>>>>>> upstream/android-13
 	.postdisable = stk8ba50_buffer_postdisable,
 };
 
@@ -402,7 +432,10 @@ static int stk8ba50_probe(struct i2c_client *client,
 	i2c_set_clientdata(client, indio_dev);
 	mutex_init(&data->lock);
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &client->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->info = &stk8ba50_info;
 	indio_dev->name = STK8BA50_DRIVER_NAME;
 	indio_dev->modes = INDIO_DIRECT_MODE;
@@ -454,13 +487,20 @@ static int stk8ba50_probe(struct i2c_client *client,
 		data->dready_trig = devm_iio_trigger_alloc(&client->dev,
 							   "%s-dev%d",
 							   indio_dev->name,
+<<<<<<< HEAD
 							   indio_dev->id);
+=======
+							   iio_device_id(indio_dev));
+>>>>>>> upstream/android-13
 		if (!data->dready_trig) {
 			ret = -ENOMEM;
 			goto err_power_off;
 		}
 
+<<<<<<< HEAD
 		data->dready_trig->dev.parent = &client->dev;
+=======
+>>>>>>> upstream/android-13
 		data->dready_trig->ops = &stk8ba50_trigger_ops;
 		iio_trigger_set_drvdata(data->dready_trig, indio_dev);
 		ret = iio_trigger_register(data->dready_trig);

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*******************************************************************************
  * This file contains the configfs implementation for iSCSI Target mode
  * from the LIO-Target Project.
@@ -6,6 +10,7 @@
  *
  * Author: Nicholas A. Bellinger <nab@linux-iscsi.org>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -15,6 +20,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  ****************************************************************************/
 
 #include <linux/configfs.h>
@@ -169,14 +176,21 @@ static struct se_tpg_np *lio_target_call_addnptotpg(
 	char *str, *str2, *ip_str, *port_str;
 	struct sockaddr_storage sockaddr = { };
 	int ret;
+<<<<<<< HEAD
 	char buf[MAX_PORTAL_LEN + 1];
+=======
+	char buf[MAX_PORTAL_LEN + 1] = { };
+>>>>>>> upstream/android-13
 
 	if (strlen(name) > MAX_PORTAL_LEN) {
 		pr_err("strlen(name): %d exceeds MAX_PORTAL_LEN: %d\n",
 			(int)strlen(name), MAX_PORTAL_LEN);
 		return ERR_PTR(-EOVERFLOW);
 	}
+<<<<<<< HEAD
 	memset(buf, 0, MAX_PORTAL_LEN + 1);
+=======
+>>>>>>> upstream/android-13
 	snprintf(buf, MAX_PORTAL_LEN + 1, "%s", name);
 
 	str = strstr(buf, "[");
@@ -1343,11 +1357,14 @@ static struct configfs_attribute *lio_target_discovery_auth_attrs[] = {
 
 /* Start functions for target_core_fabric_ops */
 
+<<<<<<< HEAD
 static char *iscsi_get_fabric_name(void)
 {
 	return "iSCSI";
 }
 
+=======
+>>>>>>> upstream/android-13
 static int iscsi_get_cmd_state(struct se_cmd *se_cmd)
 {
 	struct iscsi_cmd *cmd = container_of(se_cmd, struct iscsi_cmd, se_cmd);
@@ -1394,6 +1411,7 @@ static int lio_write_pending(struct se_cmd *se_cmd)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int lio_write_pending_status(struct se_cmd *se_cmd)
 {
 	struct iscsi_cmd *cmd = container_of(se_cmd, struct iscsi_cmd, se_cmd);
@@ -1406,6 +1424,8 @@ static int lio_write_pending_status(struct se_cmd *se_cmd)
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int lio_queue_status(struct se_cmd *se_cmd)
 {
 	struct iscsi_cmd *cmd = container_of(se_cmd, struct iscsi_cmd, se_cmd);
@@ -1552,9 +1572,15 @@ static void lio_release_cmd(struct se_cmd *se_cmd)
 
 const struct target_core_fabric_ops iscsi_ops = {
 	.module				= THIS_MODULE,
+<<<<<<< HEAD
 	.name				= "iscsi",
 	.node_acl_size			= sizeof(struct iscsi_node_acl),
 	.get_fabric_name		= iscsi_get_fabric_name,
+=======
+	.fabric_alias			= "iscsi",
+	.fabric_name			= "iSCSI",
+	.node_acl_size			= sizeof(struct iscsi_node_acl),
+>>>>>>> upstream/android-13
 	.tpg_get_wwn			= lio_tpg_get_endpoint_wwn,
 	.tpg_get_tag			= lio_tpg_get_tag,
 	.tpg_get_default_depth		= lio_tpg_get_default_depth,
@@ -1572,7 +1598,10 @@ const struct target_core_fabric_ops iscsi_ops = {
 	.sess_get_index			= lio_sess_get_index,
 	.sess_get_initiator_sid		= lio_sess_get_initiator_sid,
 	.write_pending			= lio_write_pending,
+<<<<<<< HEAD
 	.write_pending_status		= lio_write_pending_status,
+=======
+>>>>>>> upstream/android-13
 	.set_default_node_attributes	= lio_set_default_node_attributes,
 	.get_cmd_state			= iscsi_get_cmd_state,
 	.queue_data_in			= lio_queue_data_in,
@@ -1599,4 +1628,9 @@ const struct target_core_fabric_ops iscsi_ops = {
 	.tfc_tpg_nacl_attrib_attrs	= lio_target_nacl_attrib_attrs,
 	.tfc_tpg_nacl_auth_attrs	= lio_target_nacl_auth_attrs,
 	.tfc_tpg_nacl_param_attrs	= lio_target_nacl_param_attrs,
+<<<<<<< HEAD
+=======
+
+	.write_pending_must_be_called	= true,
+>>>>>>> upstream/android-13
 };

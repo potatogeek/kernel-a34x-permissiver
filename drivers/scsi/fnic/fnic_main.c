@@ -49,8 +49,13 @@
 
 static struct kmem_cache *fnic_sgl_cache[FNIC_SGL_NUM_CACHES];
 static struct kmem_cache *fnic_io_req_cache;
+<<<<<<< HEAD
 LIST_HEAD(fnic_list);
 DEFINE_SPINLOCK(fnic_list_lock);
+=======
+static LIST_HEAD(fnic_list);
+static DEFINE_SPINLOCK(fnic_list_lock);
+>>>>>>> upstream/android-13
 
 /* Supported devices by fnic module */
 static struct pci_device_id fnic_id_table[] = {
@@ -69,6 +74,14 @@ unsigned int fnic_log_level;
 module_param(fnic_log_level, int, S_IRUGO|S_IWUSR);
 MODULE_PARM_DESC(fnic_log_level, "bit mask of fnic logging levels");
 
+<<<<<<< HEAD
+=======
+
+unsigned int io_completions = FNIC_DFLT_IO_COMPLETIONS;
+module_param(io_completions, int, S_IRUGO|S_IWUSR);
+MODULE_PARM_DESC(io_completions, "Max CQ entries to process at a time");
+
+>>>>>>> upstream/android-13
 unsigned int fnic_trace_max_pages = 16;
 module_param(fnic_trace_max_pages, uint, S_IRUGO|S_IWUSR);
 MODULE_PARM_DESC(fnic_trace_max_pages, "Total allocated memory pages "
@@ -115,7 +128,10 @@ static struct scsi_host_template fnic_host_template = {
 	.this_id = -1,
 	.cmd_per_lun = 3,
 	.can_queue = FNIC_DFLT_IO_REQ,
+<<<<<<< HEAD
 	.use_clustering = ENABLE_CLUSTERING,
+=======
+>>>>>>> upstream/android-13
 	.sg_tablesize = FNIC_MAX_SG_DESC_CNT,
 	.max_sectors = 0xffff,
 	.shost_attrs = fnic_attrs,
@@ -179,6 +195,12 @@ static void fnic_get_host_speed(struct Scsi_Host *shost)
 	case DCEM_PORTSPEED_10G:
 		fc_host_speed(shost) = FC_PORTSPEED_10GBIT;
 		break;
+<<<<<<< HEAD
+=======
+	case DCEM_PORTSPEED_20G:
+		fc_host_speed(shost) = FC_PORTSPEED_20GBIT;
+		break;
+>>>>>>> upstream/android-13
 	case DCEM_PORTSPEED_25G:
 		fc_host_speed(shost) = FC_PORTSPEED_25GBIT;
 		break;
@@ -436,7 +458,11 @@ static void fnic_notify_timer_start(struct fnic *fnic)
 	default:
 		/* Using intr for notification for INTx/MSI-X */
 		break;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 }
 
 static int fnic_dev_wait(struct vnic_dev *vdev,
@@ -501,7 +527,11 @@ static int fnic_cleanup(struct fnic *fnic)
 	}
 
 	/* Clean up completed IOs and FCS frames */
+<<<<<<< HEAD
 	fnic_wq_copy_cmpl_handler(fnic, -1);
+=======
+	fnic_wq_copy_cmpl_handler(fnic, io_completions);
+>>>>>>> upstream/android-13
 	fnic_wq_cmpl_handler(fnic, -1);
 	fnic_rq_cmpl_handler(fnic, -1);
 
@@ -545,8 +575,12 @@ static u8 *fnic_get_mac(struct fc_lport *lport)
 
 static void fnic_set_vlan(struct fnic *fnic, u16 vlan_id)
 {
+<<<<<<< HEAD
 	u16 old_vlan;
 	old_vlan = vnic_dev_set_default_vlan(fnic->vdev, vlan_id);
+=======
+	vnic_dev_set_default_vlan(fnic->vdev, vlan_id);
+>>>>>>> upstream/android-13
 }
 
 static int fnic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
@@ -574,17 +608,26 @@ static int fnic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	fnic->lport = lp;
 	fnic->ctlr.lp = lp;
 
+<<<<<<< HEAD
+=======
+	fnic->link_events = 0;
+
+>>>>>>> upstream/android-13
 	snprintf(fnic->name, sizeof(fnic->name) - 1, "%s%d", DRV_NAME,
 		 host->host_no);
 
 	host->transportt = fnic_fc_transport;
 
+<<<<<<< HEAD
 	err = fnic_stats_debugfs_init(fnic);
 	if (err) {
 		shost_printk(KERN_ERR, fnic->lport->host,
 				"Failed to initialize debugfs for stats\n");
 		fnic_stats_debugfs_remove(fnic);
 	}
+=======
+	fnic_stats_debugfs_init(fnic);
+>>>>>>> upstream/android-13
 
 	/* Setup PCI resources */
 	pci_set_drvdata(pdev, fnic);
@@ -611,15 +654,22 @@ static int fnic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	 * limitation for the device.  Try 64-bit first, and
 	 * fail to 32-bit.
 	 */
+<<<<<<< HEAD
 	err = pci_set_dma_mask(pdev, DMA_BIT_MASK(64));
 	if (err) {
 		err = pci_set_dma_mask(pdev, DMA_BIT_MASK(32));
+=======
+	err = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
+	if (err) {
+		err = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32));
+>>>>>>> upstream/android-13
 		if (err) {
 			shost_printk(KERN_ERR, fnic->lport->host,
 				     "No usable DMA configuration "
 				     "aborting\n");
 			goto err_out_release_regions;
 		}
+<<<<<<< HEAD
 		err = pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(32));
 		if (err) {
 			shost_printk(KERN_ERR, fnic->lport->host,
@@ -635,6 +685,8 @@ static int fnic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 				     "for consistent allocations, aborting.\n");
 			goto err_out_release_regions;
 		}
+=======
+>>>>>>> upstream/android-13
 	}
 
 	/* Map vNIC resources from BAR0 */
@@ -666,12 +718,29 @@ static int fnic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 		goto err_out_iounmap;
 	}
 
+<<<<<<< HEAD
 	err = fnic_dev_wait(fnic->vdev, vnic_dev_open,
 			    vnic_dev_open_done, 0);
 	if (err) {
 		shost_printk(KERN_ERR, fnic->lport->host,
 			     "vNIC dev open failed, aborting.\n");
 		goto err_out_vnic_unregister;
+=======
+	err = vnic_dev_cmd_init(fnic->vdev);
+	if (err) {
+		shost_printk(KERN_ERR, fnic->lport->host,
+				"vnic_dev_cmd_init() returns %d, aborting\n",
+				err);
+		goto err_out_vnic_unregister;
+	}
+
+	err = fnic_dev_wait(fnic->vdev, vnic_dev_open,
+			    vnic_dev_open_done, CMD_OPENF_RQ_ENABLE_THEN_POST);
+	if (err) {
+		shost_printk(KERN_ERR, fnic->lport->host,
+			     "vNIC dev open failed, aborting.\n");
+		goto err_out_dev_cmd_deinit;
+>>>>>>> upstream/android-13
 	}
 
 	err = vnic_dev_init(fnic->vdev, 0);
@@ -813,6 +882,10 @@ static int fnic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 
 	/* allocate RQ buffers and post them to RQ*/
 	for (i = 0; i < fnic->rq_count; i++) {
+<<<<<<< HEAD
+=======
+		vnic_rq_enable(&fnic->rq[i]);
+>>>>>>> upstream/android-13
 		err = vnic_rq_fill(&fnic->rq[i], fnic_alloc_rq_frame);
 		if (err) {
 			shost_printk(KERN_ERR, fnic->lport->host,
@@ -887,15 +960,21 @@ static int fnic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	/* Enable all queues */
 	for (i = 0; i < fnic->raw_wq_count; i++)
 		vnic_wq_enable(&fnic->wq[i]);
+<<<<<<< HEAD
 	for (i = 0; i < fnic->rq_count; i++)
 		vnic_rq_enable(&fnic->rq[i]);
+=======
+>>>>>>> upstream/android-13
 	for (i = 0; i < fnic->wq_copy_count; i++)
 		vnic_wq_copy_enable(&fnic->wq_copy[i]);
 
 	fc_fabric_login(lp);
 
+<<<<<<< HEAD
 	vnic_dev_enable(fnic->vdev);
 
+=======
+>>>>>>> upstream/android-13
 	err = fnic_request_intr(fnic);
 	if (err) {
 		shost_printk(KERN_ERR, fnic->lport->host,
@@ -903,6 +982,11 @@ static int fnic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 		goto err_out_free_exch_mgr;
 	}
 
+<<<<<<< HEAD
+=======
+	vnic_dev_enable(fnic->vdev);
+
+>>>>>>> upstream/android-13
 	for (i = 0; i < fnic->intr_count; i++)
 		vnic_intr_unmask(&fnic->intr[i]);
 
@@ -931,6 +1015,10 @@ err_out_clear_intr:
 	fnic_clear_intr_mode(fnic);
 err_out_dev_close:
 	vnic_dev_close(fnic->vdev);
+<<<<<<< HEAD
+=======
+err_out_dev_cmd_deinit:
+>>>>>>> upstream/android-13
 err_out_vnic_unregister:
 	vnic_dev_unregister(fnic->vdev);
 err_out_iounmap:
@@ -1104,9 +1192,12 @@ static int __init fnic_init_module(void)
 		goto err_create_fnic_workq;
 	}
 
+<<<<<<< HEAD
 	spin_lock_init(&fnic_list_lock);
 	INIT_LIST_HEAD(&fnic_list);
 
+=======
+>>>>>>> upstream/android-13
 	fnic_fip_queue = create_singlethread_workqueue("fnic_fip_q");
 	if (!fnic_fip_queue) {
 		printk(KERN_ERR PFX "fnic FIP work queue create failed\n");

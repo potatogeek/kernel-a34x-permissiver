@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2003 - 2009 NetXen, Inc.
  * Copyright (C) 2009 - QLogic Corporation.
  * All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,6 +24,8 @@
  * The full GNU General Public License is included in this distribution
  * in the file called "COPYING".
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __NETXEN_NIC_HDR_H_

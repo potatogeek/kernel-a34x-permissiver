@@ -19,6 +19,11 @@
 #include <linux/dma-mapping.h>
 #include <linux/dmaengine.h>
 #include <linux/init.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+#include <linux/irqchip/irq-davinci-aintc.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_data/edma.h>
 #include <linux/platform_data/gpio-davinci.h>
 #include <linux/platform_data/keyscan-davinci.h>
@@ -31,6 +36,7 @@
 
 #include <mach/common.h>
 #include <mach/cputype.h>
+<<<<<<< HEAD
 #include <mach/irqs.h>
 #include <mach/mux.h>
 #include <mach/serial.h>
@@ -38,6 +44,16 @@
 
 #include "asp.h"
 #include "davinci.h"
+=======
+#include <mach/mux.h>
+#include <mach/serial.h>
+
+#include <clocksource/timer-davinci.h>
+
+#include "asp.h"
+#include "davinci.h"
+#include "irqs.h"
+>>>>>>> upstream/android-13
 #include "mux.h"
 
 #define DM365_REF_FREQ		24000000	/* 24 MHz on the DM365 EVM */
@@ -224,7 +240,11 @@ static struct resource dm365_spi0_resources[] = {
 		.flags = IORESOURCE_MEM,
 	},
 	{
+<<<<<<< HEAD
 		.start = IRQ_DM365_SPIINT0_0,
+=======
+		.start = DAVINCI_INTC_IRQ(IRQ_DM365_SPIINT0_0),
+>>>>>>> upstream/android-13
 		.flags = IORESOURCE_IRQ,
 	},
 };
@@ -266,6 +286,7 @@ static struct resource dm365_gpio_resources[] = {
 		.flags	= IORESOURCE_MEM,
 	},
 	{	/* interrupt */
+<<<<<<< HEAD
 		.start	= IRQ_DM365_GPIO0,
 		.end	= IRQ_DM365_GPIO0,
 		.flags	= IORESOURCE_IRQ,
@@ -303,11 +324,55 @@ static struct resource dm365_gpio_resources[] = {
 	{
 		.start	= IRQ_DM365_GPIO7,
 		.end	= IRQ_DM365_GPIO7,
+=======
+		.start	= DAVINCI_INTC_IRQ(IRQ_DM365_GPIO0),
+		.end	= DAVINCI_INTC_IRQ(IRQ_DM365_GPIO0),
+		.flags	= IORESOURCE_IRQ,
+	},
+	{
+		.start	= DAVINCI_INTC_IRQ(IRQ_DM365_GPIO1),
+		.end	= DAVINCI_INTC_IRQ(IRQ_DM365_GPIO1),
+		.flags	= IORESOURCE_IRQ,
+	},
+	{
+		.start	= DAVINCI_INTC_IRQ(IRQ_DM365_GPIO2),
+		.end	= DAVINCI_INTC_IRQ(IRQ_DM365_GPIO2),
+		.flags	= IORESOURCE_IRQ,
+	},
+	{
+		.start	= DAVINCI_INTC_IRQ(IRQ_DM365_GPIO3),
+		.end	= DAVINCI_INTC_IRQ(IRQ_DM365_GPIO3),
+		.flags	= IORESOURCE_IRQ,
+	},
+	{
+		.start	= DAVINCI_INTC_IRQ(IRQ_DM365_GPIO4),
+		.end	= DAVINCI_INTC_IRQ(IRQ_DM365_GPIO4),
+		.flags	= IORESOURCE_IRQ,
+	},
+	{
+		.start	= DAVINCI_INTC_IRQ(IRQ_DM365_GPIO5),
+		.end	= DAVINCI_INTC_IRQ(IRQ_DM365_GPIO5),
+		.flags	= IORESOURCE_IRQ,
+	},
+	{
+		.start	= DAVINCI_INTC_IRQ(IRQ_DM365_GPIO6),
+		.end	= DAVINCI_INTC_IRQ(IRQ_DM365_GPIO6),
+		.flags	= IORESOURCE_IRQ,
+	},
+	{
+		.start	= DAVINCI_INTC_IRQ(IRQ_DM365_GPIO7),
+		.end	= DAVINCI_INTC_IRQ(IRQ_DM365_GPIO7),
+>>>>>>> upstream/android-13
 		.flags	= IORESOURCE_IRQ,
 	},
 };
 
 static struct davinci_gpio_platform_data dm365_gpio_platform_data = {
+<<<<<<< HEAD
+=======
+	.no_auto_base	= true,
+	.base		= 0,
+>>>>>>> upstream/android-13
 	.ngpio		= 104,
 	.gpio_unbanked	= 8,
 };
@@ -334,6 +399,7 @@ static struct resource dm365_emac_resources[] = {
 		.flags	= IORESOURCE_MEM,
 	},
 	{
+<<<<<<< HEAD
 		.start	= IRQ_DM365_EMAC_RXTHRESH,
 		.end	= IRQ_DM365_EMAC_RXTHRESH,
 		.flags	= IORESOURCE_IRQ,
@@ -351,6 +417,25 @@ static struct resource dm365_emac_resources[] = {
 	{
 		.start	= IRQ_DM365_EMAC_MISCPULSE,
 		.end	= IRQ_DM365_EMAC_MISCPULSE,
+=======
+		.start	= DAVINCI_INTC_IRQ(IRQ_DM365_EMAC_RXTHRESH),
+		.end	= DAVINCI_INTC_IRQ(IRQ_DM365_EMAC_RXTHRESH),
+		.flags	= IORESOURCE_IRQ,
+	},
+	{
+		.start	= DAVINCI_INTC_IRQ(IRQ_DM365_EMAC_RXPULSE),
+		.end	= DAVINCI_INTC_IRQ(IRQ_DM365_EMAC_RXPULSE),
+		.flags	= IORESOURCE_IRQ,
+	},
+	{
+		.start	= DAVINCI_INTC_IRQ(IRQ_DM365_EMAC_TXPULSE),
+		.end	= DAVINCI_INTC_IRQ(IRQ_DM365_EMAC_TXPULSE),
+		.flags	= IORESOURCE_IRQ,
+	},
+	{
+		.start	= DAVINCI_INTC_IRQ(IRQ_DM365_EMAC_MISCPULSE),
+		.end	= DAVINCI_INTC_IRQ(IRQ_DM365_EMAC_MISCPULSE),
+>>>>>>> upstream/android-13
 		.flags	= IORESOURCE_IRQ,
 	},
 };
@@ -516,12 +601,20 @@ static struct resource edma_resources[] = {
 	},
 	{
 		.name	= "edma3_ccint",
+<<<<<<< HEAD
 		.start	= IRQ_CCINT0,
+=======
+		.start	= DAVINCI_INTC_IRQ(IRQ_CCINT0),
+>>>>>>> upstream/android-13
 		.flags	= IORESOURCE_IRQ,
 	},
 	{
 		.name	= "edma3_ccerrint",
+<<<<<<< HEAD
 		.start	= IRQ_CCERRINT,
+=======
+		.start	= DAVINCI_INTC_IRQ(IRQ_CCERRINT),
+>>>>>>> upstream/android-13
 		.flags	= IORESOURCE_IRQ,
 	},
 	/* not using TC*_ERR */
@@ -595,7 +688,11 @@ static struct resource dm365_rtc_resources[] = {
 		.flags = IORESOURCE_MEM,
 	},
 	{
+<<<<<<< HEAD
 		.start = IRQ_DM365_RTCINT,
+=======
+		.start = DAVINCI_INTC_IRQ(IRQ_DM365_RTCINT),
+>>>>>>> upstream/android-13
 		.flags = IORESOURCE_IRQ,
 	},
 };
@@ -625,8 +722,13 @@ static struct resource dm365_ks_resources[] = {
 	},
 	{
 		/* interrupt */
+<<<<<<< HEAD
 		.start = IRQ_DM365_KEYINT,
 		.end = IRQ_DM365_KEYINT,
+=======
+		.start = DAVINCI_INTC_IRQ(IRQ_DM365_KEYINT),
+		.end = DAVINCI_INTC_IRQ(IRQ_DM365_KEYINT),
+>>>>>>> upstream/android-13
 		.flags = IORESOURCE_IRQ,
 	},
 };
@@ -656,10 +758,23 @@ static struct davinci_id dm365_ids[] = {
 	},
 };
 
+<<<<<<< HEAD
 static struct davinci_timer_info dm365_timer_info = {
 	.timers		= davinci_timer_instance,
 	.clockevent_id	= T0_BOT,
 	.clocksource_id	= T0_TOP,
+=======
+/*
+ * Bottom half of timer0 is used for clockevent, top half is used for
+ * clocksource.
+ */
+static const struct davinci_timer_cfg dm365_timer_cfg = {
+	.reg = DEFINE_RES_IO(DAVINCI_TIMER0_BASE, SZ_128),
+	.irq = {
+		DEFINE_RES_IRQ(DAVINCI_INTC_IRQ(IRQ_TINT0_TINT12)),
+		DEFINE_RES_IRQ(DAVINCI_INTC_IRQ(IRQ_TINT0_TINT34)),
+	},
+>>>>>>> upstream/android-13
 };
 
 #define DM365_UART1_BASE	(IO_PHYS + 0x106000)
@@ -667,7 +782,11 @@ static struct davinci_timer_info dm365_timer_info = {
 static struct plat_serial8250_port dm365_serial0_platform_data[] = {
 	{
 		.mapbase	= DAVINCI_UART0_BASE,
+<<<<<<< HEAD
 		.irq		= IRQ_UARTINT0,
+=======
+		.irq		= DAVINCI_INTC_IRQ(IRQ_UARTINT0),
+>>>>>>> upstream/android-13
 		.flags		= UPF_BOOT_AUTOCONF | UPF_SKIP_TEST |
 				  UPF_IOREMAP,
 		.iotype		= UPIO_MEM,
@@ -680,7 +799,11 @@ static struct plat_serial8250_port dm365_serial0_platform_data[] = {
 static struct plat_serial8250_port dm365_serial1_platform_data[] = {
 	{
 		.mapbase	= DM365_UART1_BASE,
+<<<<<<< HEAD
 		.irq		= IRQ_UARTINT1,
+=======
+		.irq		= DAVINCI_INTC_IRQ(IRQ_UARTINT1),
+>>>>>>> upstream/android-13
 		.flags		= UPF_BOOT_AUTOCONF | UPF_SKIP_TEST |
 				  UPF_IOREMAP,
 		.iotype		= UPIO_MEM,
@@ -719,11 +842,14 @@ static const struct davinci_soc_info davinci_soc_info_dm365 = {
 	.pinmux_base		= DAVINCI_SYSTEM_MODULE_BASE,
 	.pinmux_pins		= dm365_pins,
 	.pinmux_pins_num	= ARRAY_SIZE(dm365_pins),
+<<<<<<< HEAD
 	.intc_base		= DAVINCI_ARM_INTC_BASE,
 	.intc_type		= DAVINCI_INTC_TYPE_AINTC,
 	.intc_irq_prios		= dm365_default_priorities,
 	.intc_irq_num		= DAVINCI_N_AINTC_IRQ,
 	.timer_info		= &dm365_timer_info,
+=======
+>>>>>>> upstream/android-13
 	.emac_pdata		= &dm365_emac_pdata,
 	.sram_dma		= 0x00010000,
 	.sram_len		= SZ_32K,
@@ -771,6 +897,10 @@ void __init dm365_init_time(void)
 {
 	void __iomem *pll1, *pll2, *psc;
 	struct clk *clk;
+<<<<<<< HEAD
+=======
+	int rv;
+>>>>>>> upstream/android-13
 
 	clk_register_fixed_rate(NULL, "ref_clk", NULL, 0, DM365_REF_FREQ);
 
@@ -784,8 +914,18 @@ void __init dm365_init_time(void)
 	dm365_psc_init(NULL, psc);
 
 	clk = clk_get(NULL, "timer0");
+<<<<<<< HEAD
 
 	davinci_timer_init(clk);
+=======
+	if (WARN_ON(IS_ERR(clk))) {
+		pr_err("Unable to get the timer clock\n");
+		return;
+	}
+
+	rv = davinci_timer_register(clk, &dm365_timer_cfg);
+	WARN(rv, "Unable to register the timer: %d\n", rv);
+>>>>>>> upstream/android-13
 }
 
 void __init dm365_register_clocks(void)
@@ -820,6 +960,7 @@ static struct platform_device dm365_vpss_device = {
 
 static struct resource vpfe_resources[] = {
 	{
+<<<<<<< HEAD
 		.start          = IRQ_VDINT0,
 		.end            = IRQ_VDINT0,
 		.flags          = IORESOURCE_IRQ,
@@ -827,6 +968,15 @@ static struct resource vpfe_resources[] = {
 	{
 		.start          = IRQ_VDINT1,
 		.end            = IRQ_VDINT1,
+=======
+		.start          = DAVINCI_INTC_IRQ(IRQ_VDINT0),
+		.end            = DAVINCI_INTC_IRQ(IRQ_VDINT0),
+		.flags          = IORESOURCE_IRQ,
+	},
+	{
+		.start          = DAVINCI_INTC_IRQ(IRQ_VDINT1),
+		.end            = DAVINCI_INTC_IRQ(IRQ_VDINT1),
+>>>>>>> upstream/android-13
 		.flags          = IORESOURCE_IRQ,
 	},
 };
@@ -907,8 +1057,13 @@ static struct platform_device dm365_osd_dev = {
 
 static struct resource dm365_venc_resources[] = {
 	{
+<<<<<<< HEAD
 		.start = IRQ_VENCINT,
 		.end   = IRQ_VENCINT,
+=======
+		.start = DAVINCI_INTC_IRQ(IRQ_VENCINT),
+		.end   = DAVINCI_INTC_IRQ(IRQ_VENCINT),
+>>>>>>> upstream/android-13
 		.flags = IORESOURCE_IRQ,
 	},
 	/* venc registers io space */
@@ -927,8 +1082,13 @@ static struct resource dm365_venc_resources[] = {
 
 static struct resource dm365_v4l2_disp_resources[] = {
 	{
+<<<<<<< HEAD
 		.start = IRQ_VENCINT,
 		.end   = IRQ_VENCINT,
+=======
+		.start = DAVINCI_INTC_IRQ(IRQ_VENCINT),
+		.end   = DAVINCI_INTC_IRQ(IRQ_VENCINT),
+>>>>>>> upstream/android-13
 		.flags = IORESOURCE_IRQ,
 	},
 	/* venc registers io space */
@@ -1050,6 +1210,24 @@ int __init dm365_init_video(struct vpfe_config *vpfe_cfg,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static const struct davinci_aintc_config dm365_aintc_config = {
+	.reg = {
+		.start		= DAVINCI_ARM_INTC_BASE,
+		.end		= DAVINCI_ARM_INTC_BASE + SZ_4K - 1,
+		.flags		= IORESOURCE_MEM,
+	},
+	.num_irqs		= 64,
+	.prios			= dm365_default_priorities,
+};
+
+void __init dm365_init_irq(void)
+{
+	davinci_aintc_init(&dm365_aintc_config);
+}
+
+>>>>>>> upstream/android-13
 static int __init dm365_init_devices(void)
 {
 	struct platform_device *edma_pdev;

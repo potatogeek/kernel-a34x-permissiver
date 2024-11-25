@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+// SPDX-License-Identifier: MIT
+>>>>>>> upstream/android-13
 #include <linux/pci.h>
 #include <linux/acpi.h>
 #include <linux/slab.h>
@@ -49,7 +53,10 @@ static struct nouveau_dsm_priv {
 	bool optimus_flags_detected;
 	bool optimus_skip_dsm;
 	acpi_handle dhandle;
+<<<<<<< HEAD
 	acpi_handle rom_handle;
+=======
+>>>>>>> upstream/android-13
 } nouveau_dsm_priv;
 
 bool nouveau_is_optimus(void) {
@@ -212,6 +219,7 @@ static const struct vga_switcheroo_handler nouveau_dsm_handler = {
 	.get_client_id = nouveau_dsm_get_client_id,
 };
 
+<<<<<<< HEAD
 /*
  * Firmware supporting Windows 8 or later do not use _DSM to put the device into
  * D3cold, they instead rely on disabling power resources on the parent.
@@ -243,6 +251,8 @@ static bool nouveau_pr3_present(struct pci_dev *pdev)
 		acpi_has_method(parent_adev->handle, "_PR3");
 }
 
+=======
+>>>>>>> upstream/android-13
 static void nouveau_dsm_pci_probe(struct pci_dev *pdev, acpi_handle *dhandle_out,
 				  bool *has_mux, bool *has_opt,
 				  bool *has_opt_flags, bool *has_pr3)
@@ -250,6 +260,19 @@ static void nouveau_dsm_pci_probe(struct pci_dev *pdev, acpi_handle *dhandle_out
 	acpi_handle dhandle;
 	bool supports_mux;
 	int optimus_funcs;
+<<<<<<< HEAD
+=======
+	struct pci_dev *parent_pdev;
+
+	*has_pr3 = false;
+	parent_pdev = pci_upstream_bridge(pdev);
+	if (parent_pdev) {
+		if (parent_pdev->bridge_d3)
+			*has_pr3 = pci_pr3_present(parent_pdev);
+		else
+			pci_d3cold_disable(pdev);
+	}
+>>>>>>> upstream/android-13
 
 	dhandle = ACPI_HANDLE(&pdev->dev);
 	if (!dhandle)
@@ -270,7 +293,10 @@ static void nouveau_dsm_pci_probe(struct pci_dev *pdev, acpi_handle *dhandle_out
 	*has_mux = supports_mux;
 	*has_opt = !!optimus_funcs;
 	*has_opt_flags = optimus_funcs & (1 << NOUVEAU_DSM_OPTIMUS_FLAGS);
+<<<<<<< HEAD
 	*has_pr3 = false;
+=======
+>>>>>>> upstream/android-13
 
 	if (optimus_funcs) {
 		uint32_t result;
@@ -280,8 +306,11 @@ static void nouveau_dsm_pci_probe(struct pci_dev *pdev, acpi_handle *dhandle_out
 			 (result & OPTIMUS_ENABLED) ? "enabled" : "disabled",
 			 (result & OPTIMUS_DYNAMIC_PWR_CAP) ? "dynamic power, " : "",
 			 (result & OPTIMUS_HDA_CODEC_MASK) ? "hda bios codec supported" : "");
+<<<<<<< HEAD
 
 		*has_pr3 = nouveau_pr3_present(pdev);
+=======
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -385,6 +414,7 @@ void nouveau_unregister_dsm_handler(void) {}
 void nouveau_switcheroo_optimus_dsm(void) {}
 #endif
 
+<<<<<<< HEAD
 /* retrieve the ROM in 4k blocks */
 static int nouveau_rom_call(acpi_handle rom_handle, uint8_t *bios,
 			    int offset, int len)
@@ -438,6 +468,8 @@ int nouveau_acpi_get_bios_chunk(uint8_t *bios, int offset, int len)
 	return nouveau_rom_call(nouveau_dsm_priv.rom_handle, bios, offset, len);
 }
 
+=======
+>>>>>>> upstream/android-13
 void *
 nouveau_acpi_edid(struct drm_device *dev, struct drm_connector *connector)
 {
@@ -455,7 +487,11 @@ nouveau_acpi_edid(struct drm_device *dev, struct drm_connector *connector)
 		return NULL;
 	}
 
+<<<<<<< HEAD
 	handle = ACPI_HANDLE(&dev->pdev->dev);
+=======
+	handle = ACPI_HANDLE(dev->dev);
+>>>>>>> upstream/android-13
 	if (!handle)
 		return NULL;
 

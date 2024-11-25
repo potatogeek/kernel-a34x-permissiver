@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 config SECURITY_YAMA
 	bool "Yama support"
 	depends on SECURITY

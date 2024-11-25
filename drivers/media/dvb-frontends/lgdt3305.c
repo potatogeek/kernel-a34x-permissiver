@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *    Support for LG Electronics LGDT3304 and LGDT3305 - VSB/QAM
  *
  *    Copyright (C) 2008, 2009, 2010 Michael Krufky <mkrufky@linuxtv.org>
  *
  *    LGDT3304 support by Jarod Wilson <jarod@redhat.com>
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -15,6 +20,8 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <asm/div64.h>

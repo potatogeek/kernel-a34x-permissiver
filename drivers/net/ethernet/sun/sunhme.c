@@ -52,7 +52,10 @@
 #endif
 #include <linux/uaccess.h>
 
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/irq.h>
 
 #ifdef CONFIG_PCI
@@ -252,6 +255,7 @@ static u32 pci_hme_read_desc32(hme32 *p)
 	((__hp)->write_txd((__txd), (__flags), (__addr)))
 #define hme_read_desc32(__hp, __p) \
 	((__hp)->read_desc32(__p))
+<<<<<<< HEAD
 #define hme_dma_map(__hp, __ptr, __size, __dir) \
 	((__hp)->dma_map((__hp)->dma_dev, (__ptr), (__size), (__dir)))
 #define hme_dma_unmap(__hp, __addr, __size, __dir) \
@@ -260,6 +264,8 @@ static u32 pci_hme_read_desc32(hme32 *p)
 	((__hp)->dma_sync_for_cpu((__hp)->dma_dev, (__addr), (__size), (__dir)))
 #define hme_dma_sync_for_device(__hp, __addr, __size, __dir) \
 	((__hp)->dma_sync_for_device((__hp)->dma_dev, (__addr), (__size), (__dir)))
+=======
+>>>>>>> upstream/android-13
 #else
 #ifdef CONFIG_SBUS
 /* SBUS only compilation */
@@ -278,6 +284,7 @@ do {	(__txd)->tx_addr = (__force hme32)(u32)(__addr); \
 	(__txd)->tx_flags = (__force hme32)(u32)(__flags); \
 } while(0)
 #define hme_read_desc32(__hp, __p)	((__force u32)(hme32)*(__p))
+<<<<<<< HEAD
 #define hme_dma_map(__hp, __ptr, __size, __dir) \
 	dma_map_single((__hp)->dma_dev, (__ptr), (__size), (__dir))
 #define hme_dma_unmap(__hp, __addr, __size, __dir) \
@@ -286,6 +293,8 @@ do {	(__txd)->tx_addr = (__force hme32)(u32)(__addr); \
 	dma_dma_sync_single_for_cpu((__hp)->dma_dev, (__addr), (__size), (__dir))
 #define hme_dma_sync_for_device(__hp, __addr, __size, __dir) \
 	dma_dma_sync_single_for_device((__hp)->dma_dev, (__addr), (__size), (__dir))
+=======
+>>>>>>> upstream/android-13
 #else
 /* PCI only compilation */
 #define hme_write32(__hp, __reg, __val) \
@@ -306,6 +315,7 @@ static inline u32 hme_read_desc32(struct happy_meal *hp, hme32 *p)
 {
 	return le32_to_cpup((__le32 *)p);
 }
+<<<<<<< HEAD
 #define hme_dma_map(__hp, __ptr, __size, __dir) \
 	pci_map_single((__hp)->dma_dev, (__ptr), (__size), (__dir))
 #define hme_dma_unmap(__hp, __addr, __size, __dir) \
@@ -314,6 +324,8 @@ static inline u32 hme_read_desc32(struct happy_meal *hp, hme32 *p)
 	pci_dma_sync_single_for_cpu((__hp)->dma_dev, (__addr), (__size), (__dir))
 #define hme_dma_sync_for_device(__hp, __addr, __size, __dir) \
 	pci_dma_sync_single_for_device((__hp)->dma_dev, (__addr), (__size), (__dir))
+=======
+>>>>>>> upstream/android-13
 #endif
 #endif
 
@@ -1962,7 +1974,11 @@ static void happy_meal_tx(struct happy_meal *hp)
 			this = &txbase[elem];
 		}
 
+<<<<<<< HEAD
 		dev_kfree_skb_irq(skb);
+=======
+		dev_consume_skb_irq(skb);
+>>>>>>> upstream/android-13
 		dev->stats.tx_packets++;
 	}
 	hp->tx_old = elem;
@@ -2246,7 +2262,11 @@ static int happy_meal_close(struct net_device *dev)
 #define SXD(x)
 #endif
 
+<<<<<<< HEAD
 static void happy_meal_tx_timeout(struct net_device *dev)
+=======
+static void happy_meal_tx_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct happy_meal *hp = netdev_priv(dev);
 
@@ -2287,8 +2307,13 @@ static netdev_tx_t happy_meal_start_xmit(struct sk_buff *skb,
 					 struct net_device *dev)
 {
 	struct happy_meal *hp = netdev_priv(dev);
+<<<<<<< HEAD
  	int entry;
  	u32 tx_flags;
+=======
+	int entry;
+	u32 tx_flags;
+>>>>>>> upstream/android-13
 
 	tx_flags = TXFLAG_OWN;
 	if (skb->ip_summed == CHECKSUM_PARTIAL) {
@@ -2302,7 +2327,11 @@ static netdev_tx_t happy_meal_start_xmit(struct sk_buff *skb,
 
 	spin_lock_irq(&hp->happy_lock);
 
+<<<<<<< HEAD
  	if (TX_BUFFS_AVAIL(hp) <= (skb_shinfo(skb)->nr_frags + 1)) {
+=======
+	if (TX_BUFFS_AVAIL(hp) <= (skb_shinfo(skb)->nr_frags + 1)) {
+>>>>>>> upstream/android-13
 		netif_stop_queue(dev);
 		spin_unlock_irq(&hp->happy_lock);
 		printk(KERN_ERR "%s: BUG! Tx Ring full when queue awake!\n",
@@ -2691,7 +2720,11 @@ static int happy_meal_sbus_probe_one(struct platform_device *op, int is_qfe)
 	sbus_dp = op->dev.parent->of_node;
 
 	/* We can match PCI devices too, do not accept those here. */
+<<<<<<< HEAD
 	if (strcmp(sbus_dp->name, "sbus") && strcmp(sbus_dp->name, "sbi"))
+=======
+	if (!of_node_name_eq(sbus_dp, "sbus") && !of_node_name_eq(sbus_dp, "sbi"))
+>>>>>>> upstream/android-13
 		return err;
 
 	if (is_qfe) {
@@ -2999,7 +3032,11 @@ static int happy_meal_pci_probe(struct pci_dev *pdev,
 	/* Now make sure pci_dev cookie is there. */
 #ifdef CONFIG_SPARC
 	dp = pci_device_to_OF_node(pdev);
+<<<<<<< HEAD
 	strcpy(prom_name, dp->name);
+=======
+	snprintf(prom_name, sizeof(prom_name), "%pOFn", dp);
+>>>>>>> upstream/android-13
 #else
 	if (is_quattro_p(pdev))
 		strcpy(prom_name, "SUNW,qfe");
@@ -3164,7 +3201,11 @@ static int happy_meal_pci_probe(struct pci_dev *pdev,
 	if (err) {
 		printk(KERN_ERR "happymeal(PCI): Cannot register net device, "
 		       "aborting.\n");
+<<<<<<< HEAD
 		goto err_out_iounmap;
+=======
+		goto err_out_free_coherent;
+>>>>>>> upstream/android-13
 	}
 
 	pci_set_drvdata(pdev, hp);
@@ -3197,6 +3238,13 @@ static int happy_meal_pci_probe(struct pci_dev *pdev,
 
 	return 0;
 
+<<<<<<< HEAD
+=======
+err_out_free_coherent:
+	dma_free_coherent(hp->dma_dev, PAGE_SIZE,
+			  hp->happy_block, hp->hblock_dvma);
+
+>>>>>>> upstream/android-13
 err_out_iounmap:
 	iounmap(hp->gregs);
 

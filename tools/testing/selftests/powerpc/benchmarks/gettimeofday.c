@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright 2015, Anton Blanchard, IBM Corp.
  * Licensed under GPLv2.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2015, Anton Blanchard, IBM Corp.
+>>>>>>> upstream/android-13
  */
 
 #include <sys/time.h>

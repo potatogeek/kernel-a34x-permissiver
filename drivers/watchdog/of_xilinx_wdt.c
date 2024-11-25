@@ -6,6 +6,10 @@
  * (C) Copyright 2011 (Alejandro Cabrera <aldaya@gmail.com>)
  */
 
+<<<<<<< HEAD
+=======
+#include <linux/bits.h>
+>>>>>>> upstream/android-13
 #include <linux/clk.h>
 #include <linux/err.h>
 #include <linux/module.h>
@@ -24,12 +28,21 @@
 #define XWT_TBR_OFFSET      0x8 /* Timebase Register Offset */
 
 /* Control/Status Register Masks  */
+<<<<<<< HEAD
 #define XWT_CSR0_WRS_MASK   0x00000008 /* Reset status */
 #define XWT_CSR0_WDS_MASK   0x00000004 /* Timer state  */
 #define XWT_CSR0_EWDT1_MASK 0x00000002 /* Enable bit 1 */
 
 /* Control/Status Register 0/1 bits  */
 #define XWT_CSRX_EWDT2_MASK 0x00000001 /* Enable bit 2 */
+=======
+#define XWT_CSR0_WRS_MASK	BIT(3) /* Reset status */
+#define XWT_CSR0_WDS_MASK	BIT(2) /* Timer state  */
+#define XWT_CSR0_EWDT1_MASK	BIT(1) /* Enable bit 1 */
+
+/* Control/Status Register 0/1 bits  */
+#define XWT_CSRX_EWDT2_MASK	BIT(0) /* Enable bit 2 */
+>>>>>>> upstream/android-13
 
 /* SelfTest constants */
 #define XWT_MAX_SELFTEST_LOOP_COUNT 0x00010000
@@ -40,7 +53,11 @@
 struct xwdt_device {
 	void __iomem *base;
 	u32 wdt_interval;
+<<<<<<< HEAD
 	spinlock_t spinlock;
+=======
+	spinlock_t spinlock; /* spinlock for register handling */
+>>>>>>> upstream/android-13
 	struct watchdog_device xilinx_wdt_wdd;
 	struct clk		*clk;
 };
@@ -70,6 +87,11 @@ static int xilinx_wdt_start(struct watchdog_device *wdd)
 
 	spin_unlock(&xdev->spinlock);
 
+<<<<<<< HEAD
+=======
+	dev_dbg(wdd->parent, "Watchdog Started!\n");
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -91,7 +113,11 @@ static int xilinx_wdt_stop(struct watchdog_device *wdd)
 
 	clk_disable(xdev->clk);
 
+<<<<<<< HEAD
 	pr_info("Stopped!\n");
+=======
+	dev_dbg(wdd->parent, "Watchdog Stopped!\n");
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -151,6 +177,7 @@ static u32 xwdt_selftest(struct xwdt_device *xdev)
 		return XWT_TIMER_FAILED;
 }
 
+<<<<<<< HEAD
 static int xwdt_probe(struct platform_device *pdev)
 {
 	int rc;
@@ -160,12 +187,29 @@ static int xwdt_probe(struct platform_device *pdev)
 	struct watchdog_device *xilinx_wdt_wdd;
 
 	xdev = devm_kzalloc(&pdev->dev, sizeof(*xdev), GFP_KERNEL);
+=======
+static void xwdt_clk_disable_unprepare(void *data)
+{
+	clk_disable_unprepare(data);
+}
+
+static int xwdt_probe(struct platform_device *pdev)
+{
+	struct device *dev = &pdev->dev;
+	int rc;
+	u32 pfreq = 0, enable_once = 0;
+	struct xwdt_device *xdev;
+	struct watchdog_device *xilinx_wdt_wdd;
+
+	xdev = devm_kzalloc(dev, sizeof(*xdev), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!xdev)
 		return -ENOMEM;
 
 	xilinx_wdt_wdd = &xdev->xilinx_wdt_wdd;
 	xilinx_wdt_wdd->info = &xilinx_wdt_ident;
 	xilinx_wdt_wdd->ops = &xilinx_wdt_ops;
+<<<<<<< HEAD
 	xilinx_wdt_wdd->parent = &pdev->dev;
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
@@ -183,11 +227,32 @@ static int xwdt_probe(struct platform_device *pdev)
 				  &enable_once);
 	if (rc)
 		dev_warn(&pdev->dev,
+=======
+	xilinx_wdt_wdd->parent = dev;
+
+	xdev->base = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(xdev->base))
+		return PTR_ERR(xdev->base);
+
+	rc = of_property_read_u32(dev->of_node, "xlnx,wdt-interval",
+				  &xdev->wdt_interval);
+	if (rc)
+		dev_warn(dev, "Parameter \"xlnx,wdt-interval\" not found\n");
+
+	rc = of_property_read_u32(dev->of_node, "xlnx,wdt-enable-once",
+				  &enable_once);
+	if (rc)
+		dev_warn(dev,
+>>>>>>> upstream/android-13
 			 "Parameter \"xlnx,wdt-enable-once\" not found\n");
 
 	watchdog_set_nowayout(xilinx_wdt_wdd, enable_once);
 
+<<<<<<< HEAD
 	xdev->clk = devm_clk_get(&pdev->dev, NULL);
+=======
+	xdev->clk = devm_clk_get(dev, NULL);
+>>>>>>> upstream/android-13
 	if (IS_ERR(xdev->clk)) {
 		if (PTR_ERR(xdev->clk) != -ENOENT)
 			return PTR_ERR(xdev->clk);
@@ -198,6 +263,7 @@ static int xwdt_probe(struct platform_device *pdev)
 		 */
 		xdev->clk = NULL;
 
+<<<<<<< HEAD
 		rc = of_property_read_u32(pdev->dev.of_node, "clock-frequency",
 					  &pfreq);
 		if (rc)
@@ -205,6 +271,24 @@ static int xwdt_probe(struct platform_device *pdev)
 				 "The watchdog clock freq cannot be obtained\n");
 	} else {
 		pfreq = clk_get_rate(xdev->clk);
+=======
+		rc = of_property_read_u32(dev->of_node, "clock-frequency",
+					  &pfreq);
+		if (rc)
+			dev_warn(dev,
+				 "The watchdog clock freq cannot be obtained\n");
+	} else {
+		pfreq = clk_get_rate(xdev->clk);
+		rc = clk_prepare_enable(xdev->clk);
+		if (rc) {
+			dev_err(dev, "unable to enable clock\n");
+			return rc;
+		}
+		rc = devm_add_action_or_reset(dev, xwdt_clk_disable_unprepare,
+					      xdev->clk);
+		if (rc)
+			return rc;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -218,6 +302,7 @@ static int xwdt_probe(struct platform_device *pdev)
 	spin_lock_init(&xdev->spinlock);
 	watchdog_set_drvdata(xilinx_wdt_wdd, xdev);
 
+<<<<<<< HEAD
 	rc = clk_prepare_enable(xdev->clk);
 	if (rc) {
 		dev_err(&pdev->dev, "unable to enable clock\n");
@@ -240,10 +325,27 @@ static int xwdt_probe(struct platform_device *pdev)
 
 	dev_info(&pdev->dev, "Xilinx Watchdog Timer at %p with timeout %ds\n",
 		 xdev->base, xilinx_wdt_wdd->timeout);
+=======
+	rc = xwdt_selftest(xdev);
+	if (rc == XWT_TIMER_FAILED) {
+		dev_err(dev, "SelfTest routine error\n");
+		return rc;
+	}
+
+	rc = devm_watchdog_register_device(dev, xilinx_wdt_wdd);
+	if (rc)
+		return rc;
+
+	clk_disable(xdev->clk);
+
+	dev_info(dev, "Xilinx Watchdog Timer with timeout %ds\n",
+		 xilinx_wdt_wdd->timeout);
+>>>>>>> upstream/android-13
 
 	platform_set_drvdata(pdev, xdev);
 
 	return 0;
+<<<<<<< HEAD
 err_clk_disable:
 	clk_disable_unprepare(xdev->clk);
 
@@ -258,6 +360,8 @@ static int xwdt_remove(struct platform_device *pdev)
 	clk_disable_unprepare(xdev->clk);
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -305,7 +409,10 @@ MODULE_DEVICE_TABLE(of, xwdt_of_match);
 
 static struct platform_driver xwdt_driver = {
 	.probe       = xwdt_probe,
+<<<<<<< HEAD
 	.remove      = xwdt_remove,
+=======
+>>>>>>> upstream/android-13
 	.driver = {
 		.name  = WATCHDOG_NAME,
 		.of_match_table = xwdt_of_match,

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
   This file is provided under a dual BSD/GPLv2 license.  When using or
   redistributing this file, you may do so under either license.
@@ -44,6 +45,10 @@
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+=======
+// SPDX-License-Identifier: (BSD-3-Clause OR GPL-2.0-only)
+/* Copyright(c) 2015 - 2020 Intel Corporation */
+>>>>>>> upstream/android-13
 #include <linux/workqueue.h>
 #include <linux/pci.h>
 #include <linux/device.h>
@@ -54,6 +59,7 @@
 
 static struct workqueue_struct *pf2vf_resp_wq;
 
+<<<<<<< HEAD
 #define ME2FUNCTION_MAP_A_OFFSET	(0x3A400 + 0x190)
 #define ME2FUNCTION_MAP_A_NUM_REGS	96
 
@@ -79,6 +85,8 @@ static struct workqueue_struct *pf2vf_resp_wq;
 	ADF_CSR_WR(pmisc_bar_addr, ME2FUNCTION_MAP_B_OFFSET +		\
 		   ME2FUNCTION_MAP_REG_SIZE * index, value)
 
+=======
+>>>>>>> upstream/android-13
 struct adf_pf2vf_resp {
 	struct work_struct pf2vf_resp_work;
 	struct adf_accel_vf_info *vf_info;
@@ -93,9 +101,14 @@ static void adf_iov_send_resp(struct work_struct *work)
 	kfree(pf2vf_resp);
 }
 
+<<<<<<< HEAD
 static void adf_vf2pf_bh_handler(void *data)
 {
 	struct adf_accel_vf_info *vf_info = (struct adf_accel_vf_info *)data;
+=======
+void adf_schedule_vf2pf_handler(struct adf_accel_vf_info *vf_info)
+{
+>>>>>>> upstream/android-13
 	struct adf_pf2vf_resp *pf2vf_resp;
 
 	pf2vf_resp = kzalloc(sizeof(*pf2vf_resp), GFP_ATOMIC);
@@ -112,12 +125,17 @@ static int adf_enable_sriov(struct adf_accel_dev *accel_dev)
 	struct pci_dev *pdev = accel_to_pci_dev(accel_dev);
 	int totalvfs = pci_sriov_get_totalvfs(pdev);
 	struct adf_hw_device_data *hw_data = accel_dev->hw_device;
+<<<<<<< HEAD
 	struct adf_bar *pmisc =
 			&GET_BARS(accel_dev)[hw_data->get_misc_bar_id(hw_data)];
 	void __iomem *pmisc_addr = pmisc->virt_addr;
 	struct adf_accel_vf_info *vf_info;
 	int i;
 	u32 reg;
+=======
+	struct adf_accel_vf_info *vf_info;
+	int i;
+>>>>>>> upstream/android-13
 
 	for (i = 0, vf_info = accel_dev->pf.vf_info; i < totalvfs;
 	     i++, vf_info++) {
@@ -125,15 +143,19 @@ static int adf_enable_sriov(struct adf_accel_dev *accel_dev)
 		vf_info->accel_dev = accel_dev;
 		vf_info->vf_nr = i;
 
+<<<<<<< HEAD
 		tasklet_init(&vf_info->vf2pf_bh_tasklet,
 			     (void *)adf_vf2pf_bh_handler,
 			     (unsigned long)vf_info);
+=======
+>>>>>>> upstream/android-13
 		mutex_init(&vf_info->pf2vf_lock);
 		ratelimit_state_init(&vf_info->vf2pf_ratelimit,
 				     DEFAULT_RATELIMIT_INTERVAL,
 				     DEFAULT_RATELIMIT_BURST);
 	}
 
+<<<<<<< HEAD
 	/* Set Valid bits in ME Thread to PCIe Function Mapping Group A */
 	for (i = 0; i < ME2FUNCTION_MAP_A_NUM_REGS; i++) {
 		reg = READ_CSR_ME2FUNCTION_MAP_A(pmisc_addr, i);
@@ -150,6 +172,15 @@ static int adf_enable_sriov(struct adf_accel_dev *accel_dev)
 
 	/* Enable VF to PF interrupts for all VFs */
 	adf_enable_vf2pf_interrupts(accel_dev, GENMASK_ULL(totalvfs - 1, 0));
+=======
+	/* Set Valid bits in AE Thread to PCIe Function Mapping */
+	if (hw_data->configure_iov_threads)
+		hw_data->configure_iov_threads(accel_dev, true);
+
+	/* Enable VF to PF interrupts for all VFs */
+	if (hw_data->get_pf2vf_offset)
+		adf_enable_vf2pf_interrupts(accel_dev, BIT_ULL(totalvfs) - 1);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Due to the hardware design, when SR-IOV and the ring arbiter
@@ -171,22 +202,33 @@ static int adf_enable_sriov(struct adf_accel_dev *accel_dev)
 void adf_disable_sriov(struct adf_accel_dev *accel_dev)
 {
 	struct adf_hw_device_data *hw_data = accel_dev->hw_device;
+<<<<<<< HEAD
 	struct adf_bar *pmisc =
 			&GET_BARS(accel_dev)[hw_data->get_misc_bar_id(hw_data)];
 	void __iomem *pmisc_addr = pmisc->virt_addr;
 	int totalvfs = pci_sriov_get_totalvfs(accel_to_pci_dev(accel_dev));
 	struct adf_accel_vf_info *vf;
 	u32 reg;
+=======
+	int totalvfs = pci_sriov_get_totalvfs(accel_to_pci_dev(accel_dev));
+	struct adf_accel_vf_info *vf;
+>>>>>>> upstream/android-13
 	int i;
 
 	if (!accel_dev->pf.vf_info)
 		return;
 
+<<<<<<< HEAD
 	adf_pf2vf_notify_restarting(accel_dev);
+=======
+	if (hw_data->get_pf2vf_offset)
+		adf_pf2vf_notify_restarting(accel_dev);
+>>>>>>> upstream/android-13
 
 	pci_disable_sriov(accel_to_pci_dev(accel_dev));
 
 	/* Disable VF to PF interrupts */
+<<<<<<< HEAD
 	adf_disable_vf2pf_interrupts(accel_dev, 0xFFFFFFFF);
 
 	/* Clear Valid bits in ME Thread to PCIe Function Mapping Group A */
@@ -206,6 +248,16 @@ void adf_disable_sriov(struct adf_accel_dev *accel_dev)
 	for (i = 0, vf = accel_dev->pf.vf_info; i < totalvfs; i++, vf++) {
 		tasklet_disable(&vf->vf2pf_bh_tasklet);
 		tasklet_kill(&vf->vf2pf_bh_tasklet);
+=======
+	if (hw_data->get_pf2vf_offset)
+		adf_disable_vf2pf_interrupts(accel_dev, GENMASK(31, 0));
+
+	/* Clear Valid bits in AE Thread to PCIe Function Mapping */
+	if (hw_data->configure_iov_threads)
+		hw_data->configure_iov_threads(accel_dev, false);
+
+	for (i = 0, vf = accel_dev->pf.vf_info; i < totalvfs; i++, vf++) {
+>>>>>>> upstream/android-13
 		mutex_destroy(&vf->pf2vf_lock);
 	}
 
@@ -216,11 +268,23 @@ EXPORT_SYMBOL_GPL(adf_disable_sriov);
 
 /**
  * adf_sriov_configure() - Enable SRIOV for the device
+<<<<<<< HEAD
  * @pdev:  Pointer to pci device.
  *
  * Function enables SRIOV for the pci device.
  *
  * Return: 0 on success, error code otherwise.
+=======
+ * @pdev:  Pointer to PCI device.
+ * @numvfs: Number of virtual functions (VFs) to enable.
+ *
+ * Note that the @numvfs parameter is ignored and all VFs supported by the
+ * device are enabled due to the design of the hardware.
+ *
+ * Function enables SRIOV for the PCI device.
+ *
+ * Return: number of VFs enabled on success, error code otherwise.
+>>>>>>> upstream/android-13
  */
 int adf_sriov_configure(struct pci_dev *pdev, int numvfs)
 {

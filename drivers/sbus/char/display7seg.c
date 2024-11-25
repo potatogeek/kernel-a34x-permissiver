@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* display7seg.c - Driver implementation for the 7-segment display
  *                 present on Sun Microsystems CP1400 and CP1500
  *
@@ -49,7 +53,10 @@ MODULE_PARM_DESC(sol_compat,
 MODULE_AUTHOR("Eric Brower <ebrower@usa.net>");
 MODULE_DESCRIPTION("7-Segment Display driver for Sun Microsystems CP1400/1500");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("d7s");
+=======
+>>>>>>> upstream/android-13
 
 struct d7s {
 	void __iomem	*regs;
@@ -155,7 +162,11 @@ static long d7s_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 static const struct file_operations d7s_fops = {
 	.owner =		THIS_MODULE,
 	.unlocked_ioctl =	d7s_ioctl,
+<<<<<<< HEAD
 	.compat_ioctl =		d7s_ioctl,
+=======
+	.compat_ioctl =		compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 	.open =			d7s_open,
 	.release =		d7s_release,
 	.llseek = noop_llseek,
@@ -185,7 +196,11 @@ static int d7s_probe(struct platform_device *op)
 	p->regs = of_ioremap(&op->resource[0], 0, sizeof(u8), "d7s");
 	if (!p->regs) {
 		printk(KERN_ERR PFX "Cannot map chip registers\n");
+<<<<<<< HEAD
 		goto out_free;
+=======
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	err = misc_register(&d7s_miscdev);
@@ -227,8 +242,11 @@ out:
 
 out_iounmap:
 	of_iounmap(&op->resource[0], p->regs, sizeof(u8));
+<<<<<<< HEAD
 
 out_free:
+=======
+>>>>>>> upstream/android-13
 	goto out;
 }
 

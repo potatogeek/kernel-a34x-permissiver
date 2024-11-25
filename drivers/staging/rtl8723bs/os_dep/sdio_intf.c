@@ -4,18 +4,28 @@
  * Copyright(c) 2007 - 2012 Realtek Corporation. All rights reserved.
  *
  ******************************************************************************/
+<<<<<<< HEAD
 #define _HCI_INTF_C_
 
 #include <drv_types.h>
 #include <rtw_debug.h>
+=======
+#include <drv_types.h>
+#include <rtw_debug.h>
+#include <hal_btcoex.h>
+>>>>>>> upstream/android-13
 #include <linux/jiffies.h>
 
 #ifndef dev_to_sdio_func
 #define dev_to_sdio_func(d)     container_of(d, struct sdio_func, dev)
 #endif
 
+<<<<<<< HEAD
 static const struct sdio_device_id sdio_ids[] =
 {
+=======
+static const struct sdio_device_id sdio_ids[] = {
+>>>>>>> upstream/android-13
 	{ SDIO_DEVICE(0x024c, 0x0523), },
 	{ SDIO_DEVICE(0x024c, 0x0525), },
 	{ SDIO_DEVICE(0x024c, 0x0623), },
@@ -36,6 +46,7 @@ static const struct dev_pm_ops rtw_sdio_pm_ops = {
 	.resume	= rtw_sdio_resume,
 };
 
+<<<<<<< HEAD
 struct sdio_drv_priv {
 	struct sdio_driver r871xs_drv;
 	int drv_registered;
@@ -47,6 +58,14 @@ static struct sdio_drv_priv sdio_drvpriv = {
 	.r871xs_drv.name = "rtl8723bs",
 	.r871xs_drv.id_table = sdio_ids,
 	.r871xs_drv.drv = {
+=======
+static struct sdio_driver rtl8723bs_sdio_driver = {
+	.probe = rtw_drv_init,
+	.remove = rtw_dev_remove,
+	.name = "rtl8723bs",
+	.id_table = sdio_ids,
+	.drv = {
+>>>>>>> upstream/android-13
 		.pm = &rtw_sdio_pm_ops,
 	}
 };
@@ -58,10 +77,15 @@ static void sd_sync_int_hdl(struct sdio_func *func)
 
 	psdpriv = sdio_get_drvdata(func);
 
+<<<<<<< HEAD
 	if (!psdpriv->if1) {
 		DBG_871X("%s if1 == NULL\n", __func__);
 		return;
 	}
+=======
+	if (!psdpriv->if1)
+		return;
+>>>>>>> upstream/android-13
 
 	rtw_sdio_set_irq_thd(psdpriv, current);
 	sd_int_hdl(psdpriv->if1);
@@ -70,7 +94,11 @@ static void sd_sync_int_hdl(struct sdio_func *func)
 
 static int sdio_alloc_irq(struct dvobj_priv *dvobj)
 {
+<<<<<<< HEAD
 	PSDIO_DATA psdio_data;
+=======
+	struct sdio_data *psdio_data;
+>>>>>>> upstream/android-13
 	struct sdio_func *func;
 	int err;
 
@@ -80,6 +108,7 @@ static int sdio_alloc_irq(struct dvobj_priv *dvobj)
 	sdio_claim_host(func);
 
 	err = sdio_claim_irq(func, &sd_sync_int_hdl);
+<<<<<<< HEAD
 	if (err)
 	{
 		dvobj->drv_dbg.dbg_sdio_alloc_irq_error_cnt++;
@@ -87,6 +116,12 @@ static int sdio_alloc_irq(struct dvobj_priv *dvobj)
 	}
 	else
 	{
+=======
+	if (err) {
+		dvobj->drv_dbg.dbg_sdio_alloc_irq_error_cnt++;
+		printk(KERN_CRIT "%s: sdio_claim_irq FAIL(%d)!\n", __func__, err);
+	} else {
+>>>>>>> upstream/android-13
 		dvobj->drv_dbg.dbg_sdio_alloc_irq_cnt++;
 		dvobj->irq_alloc = 1;
 	}
@@ -98,6 +133,7 @@ static int sdio_alloc_irq(struct dvobj_priv *dvobj)
 
 static void sdio_free_irq(struct dvobj_priv *dvobj)
 {
+<<<<<<< HEAD
     PSDIO_DATA psdio_data;
     struct sdio_func *func;
     int err;
@@ -173,6 +209,35 @@ static void gpio_hostwakeup_free_irq(struct adapter *padapter)
 static u32 sdio_init(struct dvobj_priv *dvobj)
 {
 	PSDIO_DATA psdio_data;
+=======
+	struct sdio_data *psdio_data;
+	struct sdio_func *func;
+	int err;
+
+	if (dvobj->irq_alloc) {
+		psdio_data = &dvobj->intf_data;
+		func = psdio_data->func;
+
+		if (func) {
+			sdio_claim_host(func);
+			err = sdio_release_irq(func);
+			if (err) {
+				dvobj->drv_dbg.dbg_sdio_free_irq_error_cnt++;
+				netdev_err(dvobj->if1->pnetdev,
+					   "%s: sdio_release_irq FAIL(%d)!\n",
+					   __func__, err);
+			} else
+				dvobj->drv_dbg.dbg_sdio_free_irq_cnt++;
+			sdio_release_host(func);
+		}
+		dvobj->irq_alloc = 0;
+	}
+}
+
+static u32 sdio_init(struct dvobj_priv *dvobj)
+{
+	struct sdio_data *psdio_data;
+>>>>>>> upstream/android-13
 	struct sdio_func *func;
 	int err;
 
@@ -185,14 +250,20 @@ static u32 sdio_init(struct dvobj_priv *dvobj)
 	err = sdio_enable_func(func);
 	if (err) {
 		dvobj->drv_dbg.dbg_sdio_init_error_cnt++;
+<<<<<<< HEAD
 		DBG_8192C(KERN_CRIT "%s: sdio_enable_func FAIL(%d)!\n", __func__, err);
+=======
+>>>>>>> upstream/android-13
 		goto release;
 	}
 
 	err = sdio_set_block_size(func, 512);
 	if (err) {
 		dvobj->drv_dbg.dbg_sdio_init_error_cnt++;
+<<<<<<< HEAD
 		DBG_8192C(KERN_CRIT "%s: sdio_set_block_size FAIL(%d)!\n", __func__, err);
+=======
+>>>>>>> upstream/android-13
 		goto release;
 	}
 	psdio_data->block_transfer_len = 512;
@@ -212,27 +283,38 @@ static void sdio_deinit(struct dvobj_priv *dvobj)
 	struct sdio_func *func;
 	int err;
 
+<<<<<<< HEAD
 
 	RT_TRACE(_module_hci_intfs_c_, _drv_notice_, ("+sdio_deinit\n"));
 
+=======
+>>>>>>> upstream/android-13
 	func = dvobj->intf_data.func;
 
 	if (func) {
 		sdio_claim_host(func);
 		err = sdio_disable_func(func);
 		if (err)
+<<<<<<< HEAD
 		{
 			dvobj->drv_dbg.dbg_sdio_deinit_error_cnt++;
 			DBG_8192C(KERN_ERR "%s: sdio_disable_func(%d)\n", __func__, err);
 		}
+=======
+			dvobj->drv_dbg.dbg_sdio_deinit_error_cnt++;
+>>>>>>> upstream/android-13
 
 		if (dvobj->irq_alloc) {
 			err = sdio_release_irq(func);
 			if (err)
+<<<<<<< HEAD
 			{
 				dvobj->drv_dbg.dbg_sdio_free_irq_error_cnt++;
 				DBG_8192C(KERN_ERR "%s: sdio_release_irq(%d)\n", __func__, err);
 			}
+=======
+				dvobj->drv_dbg.dbg_sdio_free_irq_error_cnt++;
+>>>>>>> upstream/android-13
 			else
 				dvobj->drv_dbg.dbg_sdio_free_irq_cnt++;
 		}
@@ -244,22 +326,36 @@ static struct dvobj_priv *sdio_dvobj_init(struct sdio_func *func)
 {
 	int status = _FAIL;
 	struct dvobj_priv *dvobj = NULL;
+<<<<<<< HEAD
 	PSDIO_DATA psdio;
 
 	dvobj = devobj_init();
 	if (dvobj == NULL) {
 		goto exit;
 	}
+=======
+	struct sdio_data *psdio;
+
+	dvobj = devobj_init();
+	if (!dvobj)
+		goto exit;
+>>>>>>> upstream/android-13
 
 	sdio_set_drvdata(func, dvobj);
 
 	psdio = &dvobj->intf_data;
 	psdio->func = func;
 
+<<<<<<< HEAD
 	if (sdio_init(dvobj) != _SUCCESS) {
 		RT_TRACE(_module_hci_intfs_c_, _drv_err_, ("%s: initialize SDIO Failed!\n", __func__));
 		goto free_dvobj;
 	}
+=======
+	if (sdio_init(dvobj) != _SUCCESS)
+		goto free_dvobj;
+
+>>>>>>> upstream/android-13
 	rtw_reset_continual_io_error(dvobj);
 	status = _SUCCESS;
 
@@ -284,7 +380,10 @@ static void sdio_dvobj_deinit(struct sdio_func *func)
 		sdio_deinit(dvobj);
 		devobj_deinit(dvobj);
 	}
+<<<<<<< HEAD
 	return;
+=======
+>>>>>>> upstream/android-13
 }
 
 void rtw_set_hal_ops(struct adapter *padapter)
@@ -297,10 +396,15 @@ void rtw_set_hal_ops(struct adapter *padapter)
 
 static void sd_intf_start(struct adapter *padapter)
 {
+<<<<<<< HEAD
 	if (padapter == NULL) {
 		DBG_8192C(KERN_ERR "%s: padapter is NULL!\n", __func__);
 		return;
 	}
+=======
+	if (!padapter)
+		return;
+>>>>>>> upstream/android-13
 
 	/*  hal dep */
 	rtw_hal_enable_interrupt(padapter);
@@ -308,10 +412,15 @@ static void sd_intf_start(struct adapter *padapter)
 
 static void sd_intf_stop(struct adapter *padapter)
 {
+<<<<<<< HEAD
 	if (padapter == NULL) {
 		DBG_8192C(KERN_ERR "%s: padapter is NULL!\n", __func__);
 		return;
 	}
+=======
+	if (!padapter)
+		return;
+>>>>>>> upstream/android-13
 
 	/*  hal dep */
 	rtw_hal_disable_interrupt(padapter);
@@ -323,17 +432,29 @@ static struct adapter *rtw_sdio_if1_init(struct dvobj_priv *dvobj, const struct 
 	int status = _FAIL;
 	struct net_device *pnetdev;
 	struct adapter *padapter = NULL;
+<<<<<<< HEAD
 	PSDIO_DATA psdio = &dvobj->intf_data;
 
 	padapter = vzalloc(sizeof(*padapter));
 	if (padapter == NULL) {
 		goto exit;
 	}
+=======
+	struct sdio_data *psdio = &dvobj->intf_data;
+
+	padapter = vzalloc(sizeof(*padapter));
+	if (!padapter)
+		goto exit;
+>>>>>>> upstream/android-13
 
 	padapter->dvobj = dvobj;
 	dvobj->if1 = padapter;
 
+<<<<<<< HEAD
 	padapter->bDriverStopped =true;
+=======
+	padapter->bDriverStopped = true;
+>>>>>>> upstream/android-13
 
 	dvobj->padapters = padapter;
 	padapter->iface_id = 0;
@@ -347,8 +468,11 @@ static struct adapter *rtw_sdio_if1_init(struct dvobj_priv *dvobj, const struct 
 
 	padapter = rtw_netdev_priv(pnetdev);
 
+<<<<<<< HEAD
 	rtw_wdev_alloc(padapter, dvobj_to_dev(dvobj));
 
+=======
+>>>>>>> upstream/android-13
 	/* 3 3. init driver special setting, interface, OS and hardware relative */
 
 	/* 4 3.1 set hardware operation functions */
@@ -365,27 +489,42 @@ static struct adapter *rtw_sdio_if1_init(struct dvobj_priv *dvobj, const struct 
 	padapter->intf_free_irq = &sdio_free_irq;
 
 	if (rtw_init_io_priv(padapter, sdio_set_intf_ops) == _FAIL)
+<<<<<<< HEAD
 	{
 		RT_TRACE(_module_hci_intfs_c_, _drv_err_,
 			("rtw_drv_init: Can't init io_priv\n"));
 		goto free_hal_data;
 	}
+=======
+		goto free_hal_data;
+>>>>>>> upstream/android-13
 
 	rtw_hal_read_chip_version(padapter);
 
 	rtw_hal_chip_configure(padapter);
 
+<<<<<<< HEAD
 	rtw_btcoex_Initialize(padapter);
+=======
+	hal_btcoex_Initialize((void *) padapter);
+>>>>>>> upstream/android-13
 
 	/* 3 6. read efuse/eeprom data */
 	rtw_hal_read_chip_info(padapter);
 
 	/* 3 7. init driver common data */
+<<<<<<< HEAD
 	if (rtw_init_drv_sw(padapter) == _FAIL) {
 		RT_TRACE(_module_hci_intfs_c_, _drv_err_,
 			 ("rtw_drv_init: Initialize driver software resource Failed!\n"));
 		goto free_hal_data;
 	}
+=======
+	if (rtw_init_drv_sw(padapter) == _FAIL)
+		goto free_hal_data;
+
+	rtw_wdev_alloc(padapter, dvobj_to_dev(dvobj));
+>>>>>>> upstream/android-13
 
 	/* 3 8. get WLan MAC address */
 	/*  set mac addr */
@@ -393,6 +532,7 @@ static struct adapter *rtw_sdio_if1_init(struct dvobj_priv *dvobj, const struct 
 
 	rtw_hal_disable_interrupt(padapter);
 
+<<<<<<< HEAD
 	DBG_871X("bDriverStopped:%d, bSurpriseRemoved:%d, bup:%d, hw_init_completed:%d\n"
 		, padapter->bDriverStopped
 		, padapter->bSurpriseRemoved
@@ -400,6 +540,8 @@ static struct adapter *rtw_sdio_if1_init(struct dvobj_priv *dvobj, const struct 
 		, padapter->hw_init_completed
 	);
 
+=======
+>>>>>>> upstream/android-13
 	status = _SUCCESS;
 
 free_hal_data:
@@ -433,6 +575,7 @@ static void rtw_sdio_if1_deinit(struct adapter *if1)
 
 	free_mlme_ap_info(if1);
 
+<<<<<<< HEAD
 #ifdef CONFIG_GPIO_WAKEUP
 	gpio_hostwakeup_free_irq(if1);
 #endif
@@ -450,6 +593,14 @@ static void rtw_sdio_if1_deinit(struct adapter *if1)
 	if (if1->rtw_wdev) {
 		rtw_wdev_free(if1->rtw_wdev);
 	}
+=======
+	rtw_cancel_all_timer(if1);
+
+	rtw_dev_unload(if1);
+
+	if (if1->rtw_wdev)
+		rtw_wdev_free(if1->rtw_wdev);
+>>>>>>> upstream/android-13
 
 	rtw_free_drv_sw(if1);
 
@@ -468,6 +619,7 @@ static int rtw_drv_init(
 	const struct sdio_device_id *id)
 {
 	int status = _FAIL;
+<<<<<<< HEAD
 	struct adapter *if1 = NULL, *if2 = NULL;
 	struct dvobj_priv *dvobj;
 
@@ -497,21 +649,52 @@ static int rtw_drv_init(
 #endif
 
 	RT_TRACE(_module_hci_intfs_c_, _drv_err_, ("-871x_drv - drv_init, success!\n"));
+=======
+	struct adapter *if1 = NULL;
+	struct dvobj_priv *dvobj;
+
+	dvobj = sdio_dvobj_init(func);
+	if (!dvobj)
+		goto exit;
+
+	if1 = rtw_sdio_if1_init(dvobj, id);
+	if (!if1)
+		goto free_dvobj;
+
+	/* dev_alloc_name && register_netdev */
+	status = rtw_drv_register_netdev(if1);
+	if (status != _SUCCESS)
+		goto free_if1;
+
+	if (sdio_alloc_irq(dvobj) != _SUCCESS)
+		goto free_if1;
+>>>>>>> upstream/android-13
 
 	rtw_ndev_notifier_register();
 	status = _SUCCESS;
 
+<<<<<<< HEAD
 free_if2:
 	if (status != _SUCCESS && if2) {
 	}
 	if (status != _SUCCESS && if1) {
 		rtw_sdio_if1_deinit(if1);
 	}
+=======
+free_if1:
+	if (status != _SUCCESS && if1)
+		rtw_sdio_if1_deinit(if1);
+
+>>>>>>> upstream/android-13
 free_dvobj:
 	if (status != _SUCCESS)
 		sdio_dvobj_deinit(func);
 exit:
+<<<<<<< HEAD
 	return status == _SUCCESS?0:-ENODEV;
+=======
+	return status == _SUCCESS ? 0 : -ENODEV;
+>>>>>>> upstream/android-13
 }
 
 static void rtw_dev_remove(struct sdio_func *func)
@@ -519,23 +702,35 @@ static void rtw_dev_remove(struct sdio_func *func)
 	struct dvobj_priv *dvobj = sdio_get_drvdata(func);
 	struct adapter *padapter = dvobj->if1;
 
+<<<<<<< HEAD
 	RT_TRACE(_module_hci_intfs_c_, _drv_notice_, ("+rtw_dev_remove\n"));
 
+=======
+>>>>>>> upstream/android-13
 	dvobj->processing_dev_remove = true;
 
 	rtw_unregister_netdevs(dvobj);
 
+<<<<<<< HEAD
 	if (padapter->bSurpriseRemoved == false) {
+=======
+	if (!padapter->bSurpriseRemoved) {
+>>>>>>> upstream/android-13
 		int err;
 
 		/* test surprise remove */
 		sdio_claim_host(func);
 		sdio_readb(func, 0, &err);
 		sdio_release_host(func);
+<<<<<<< HEAD
 		if (err == -ENOMEDIUM) {
 			padapter->bSurpriseRemoved = true;
 			DBG_871X(KERN_NOTICE "%s: device had been removed!\n", __func__);
 		}
+=======
+		if (err == -ENOMEDIUM)
+			padapter->bSurpriseRemoved = true;
+>>>>>>> upstream/android-13
 	}
 
 	rtw_ps_deny(padapter, PS_DENY_DRV_REMOVE);
@@ -550,6 +745,7 @@ static void rtw_dev_remove(struct sdio_func *func)
 	rtw_sdio_if1_deinit(padapter);
 
 	sdio_dvobj_deinit(func);
+<<<<<<< HEAD
 
 	RT_TRACE(_module_hci_intfs_c_, _drv_notice_, ("-rtw_dev_remove\n"));
 }
@@ -560,11 +756,19 @@ extern int pm_netdev_close(struct net_device *pnetdev, u8 bnormal);
 static int rtw_sdio_suspend(struct device *dev)
 {
 	struct sdio_func *func =dev_to_sdio_func(dev);
+=======
+}
+
+static int rtw_sdio_suspend(struct device *dev)
+{
+	struct sdio_func *func = dev_to_sdio_func(dev);
+>>>>>>> upstream/android-13
 	struct dvobj_priv *psdpriv = sdio_get_drvdata(func);
 	struct pwrctrl_priv *pwrpriv = dvobj_to_pwrctl(psdpriv);
 	struct adapter *padapter = psdpriv->if1;
 	struct debug_priv *pdbgpriv = &psdpriv->drv_dbg;
 
+<<<<<<< HEAD
 	if (padapter->bDriverStopped == true)
 	{
 		DBG_871X("%s bDriverStopped = %d\n", __func__, padapter->bDriverStopped);
@@ -574,11 +778,23 @@ static int rtw_sdio_suspend(struct device *dev)
 	if (pwrpriv->bInSuspend == true)
 	{
 		DBG_871X("%s bInSuspend = %d\n", __func__, pwrpriv->bInSuspend);
+=======
+	if (padapter->bDriverStopped)
+		return 0;
+
+	if (pwrpriv->bInSuspend) {
+>>>>>>> upstream/android-13
 		pdbgpriv->dbg_suspend_error_cnt++;
 		return 0;
 	}
 
+<<<<<<< HEAD
 	return rtw_suspend_common(padapter);
+=======
+	rtw_suspend_common(padapter);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int rtw_resume_process(struct adapter *padapter)
@@ -587,10 +803,15 @@ static int rtw_resume_process(struct adapter *padapter)
 	struct dvobj_priv *psdpriv = padapter->dvobj;
 	struct debug_priv *pdbgpriv = &psdpriv->drv_dbg;
 
+<<<<<<< HEAD
 	if (pwrpriv->bInSuspend == false)
 	{
 		pdbgpriv->dbg_resume_error_cnt++;
 		DBG_871X("%s bInSuspend = %d\n", __func__, pwrpriv->bInSuspend);
+=======
+	if (!pwrpriv->bInSuspend) {
+		pdbgpriv->dbg_resume_error_cnt++;
+>>>>>>> upstream/android-13
 		return -1;
 	}
 
@@ -599,26 +820,37 @@ static int rtw_resume_process(struct adapter *padapter)
 
 static int rtw_sdio_resume(struct device *dev)
 {
+<<<<<<< HEAD
 	struct sdio_func *func =dev_to_sdio_func(dev);
+=======
+	struct sdio_func *func = dev_to_sdio_func(dev);
+>>>>>>> upstream/android-13
 	struct dvobj_priv *psdpriv = sdio_get_drvdata(func);
 	struct adapter *padapter = psdpriv->if1;
 	struct mlme_ext_priv *pmlmeext = &padapter->mlmeextpriv;
 	int ret = 0;
 	struct debug_priv *pdbgpriv = &psdpriv->drv_dbg;
 
+<<<<<<< HEAD
 	DBG_871X("==> %s (%s:%d)\n", __func__, current->comm, current->pid);
 
+=======
+>>>>>>> upstream/android-13
 	pdbgpriv->dbg_resume_cnt++;
 
 	ret = rtw_resume_process(padapter);
 
 	pmlmeext->last_scan_time = jiffies;
+<<<<<<< HEAD
 	DBG_871X("<========  %s return %d\n", __func__, ret);
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 static int __init rtw_drv_entry(void)
 {
+<<<<<<< HEAD
 	int ret = 0;
 
 	DBG_871X_LEVEL(_drv_always_, "module init start\n");
@@ -644,11 +876,20 @@ static int __init rtw_drv_entry(void)
 
 exit:
 	DBG_871X_LEVEL(_drv_always_, "module init ret =%d\n", ret);
+=======
+	int ret;
+
+	ret = sdio_register_driver(&rtl8723bs_sdio_driver);
+	if (ret != 0)
+		rtw_ndev_notifier_unregister();
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 static void __exit rtw_drv_halt(void)
 {
+<<<<<<< HEAD
 	DBG_871X_LEVEL(_drv_always_, "module exit start\n");
 
 	sdio_drvpriv.drv_registered = false;
@@ -661,6 +902,11 @@ static void __exit rtw_drv_halt(void)
 	DBG_871X_LEVEL(_drv_always_, "module exit success\n");
 
 	rtw_mstat_dump(RTW_DBGDUMP);
+=======
+	sdio_unregister_driver(&rtl8723bs_sdio_driver);
+
+	rtw_ndev_notifier_unregister();
+>>>>>>> upstream/android-13
 }
 
 

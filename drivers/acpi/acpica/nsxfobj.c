@@ -24,7 +24,12 @@ ACPI_MODULE_NAME("nsxfobj")
  *
  * RETURN:      Status
  *
+<<<<<<< HEAD
  * DESCRIPTION: This routine returns the type associatd with a particular handle
+=======
+ * DESCRIPTION: This routine returns the type associated with a particular
+ *              handle
+>>>>>>> upstream/android-13
  *
  ******************************************************************************/
 acpi_status acpi_get_type(acpi_handle handle, acpi_object_type *ret_type)

@@ -26,6 +26,7 @@ menuconfig BLOCK
 
 if BLOCK
 
+<<<<<<< HEAD
 config LBDAF
 	bool "Support for large (2TB+) block devices and files"
 	depends on !64BIT
@@ -77,6 +78,20 @@ config BLK_DEV_BSGLIB
 	default n
 	select BLK_DEV_BSG
 	select BLK_SCSI_REQUEST
+=======
+config BLK_RQ_ALLOC_TIME
+	bool
+
+config BLK_CGROUP_RWSTAT
+	bool
+
+config BLK_DEV_BSG_COMMON
+	tristate
+
+config BLK_DEV_BSGLIB
+	bool "Block layer SG support v4 helper lib"
+	select BLK_DEV_BSG_COMMON
+>>>>>>> upstream/android-13
 	help
 	  Subsystems will normally enable this if needed. Users will not
 	  normally need to manually enable this.
@@ -85,8 +100,12 @@ config BLK_DEV_BSGLIB
 
 config BLK_DEV_INTEGRITY
 	bool "Block layer data integrity support"
+<<<<<<< HEAD
 	select CRC_T10DIF if BLK_DEV_INTEGRITY
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	Some storage devices allow extra information to be
 	stored/retrieved to help protect the data.  The block layer
 	data integrity option provides hooks which can be used by
@@ -96,6 +115,7 @@ config BLK_DEV_INTEGRITY
 	T10/SCSI Data Integrity Field or the T13/ATA External Path
 	Protection.  If in doubt, say N.
 
+<<<<<<< HEAD
 config BLK_DEV_ZONED
 	bool "Zoned block device support"
 	---help---
@@ -103,24 +123,53 @@ config BLK_DEV_ZONED
 	support for ZAC/ZBC host-managed and host-aware zoned block devices.
 
 	Say yes here if you have a ZAC or ZBC storage device.
+=======
+config BLK_DEV_INTEGRITY_T10
+	tristate
+	depends on BLK_DEV_INTEGRITY
+	select CRC_T10DIF
+
+config BLK_DEV_ZONED
+	bool "Zoned block device support"
+	select MQ_IOSCHED_DEADLINE
+	help
+	Block layer zoned block device support. This option enables
+	support for ZAC/ZBC/ZNS host-managed and host-aware zoned block
+	devices.
+
+	Say yes here if you have a ZAC, ZBC, or ZNS storage device.
+>>>>>>> upstream/android-13
 
 config BLK_DEV_THROTTLING
 	bool "Block layer bio throttling support"
 	depends on BLK_CGROUP=y
+<<<<<<< HEAD
 	default n
 	---help---
+=======
+	select BLK_CGROUP_RWSTAT
+	help
+>>>>>>> upstream/android-13
 	Block layer bio throttling support. It can be used to limit
 	the IO rate to a device. IO rate policies are per cgroup and
 	one needs to mount and use blkio cgroup controller for creating
 	cgroups and specifying per device IO rate policies.
 
+<<<<<<< HEAD
 	See Documentation/cgroup-v1/blkio-controller.txt for more information.
+=======
+	See Documentation/admin-guide/cgroup-v1/blkio-controller.rst for more information.
+>>>>>>> upstream/android-13
 
 config BLK_DEV_THROTTLING_LOW
 	bool "Block throttling .low limit interface support (EXPERIMENTAL)"
 	depends on BLK_DEV_THROTTLING
+<<<<<<< HEAD
 	default n
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	Add .low limit interface for block throttling. The low limit is a best
 	effort limit to prioritize cgroups. Depending on the setting, the limit
 	can be used to protect cgroups in terms of bandwidth/iops and better
@@ -128,6 +177,7 @@ config BLK_DEV_THROTTLING_LOW
 
 	Note, this is an experimental interface and could be changed someday.
 
+<<<<<<< HEAD
 config BLK_IO_VOLUME
 	bool "Support for updating block IO volume"
 	default n
@@ -162,17 +212,36 @@ config BLK_WBT
 	bool "Enable support for block device writeback throttling"
 	default n
 	---help---
+=======
+config BLK_WBT
+	bool "Enable support for block device writeback throttling"
+	help
+>>>>>>> upstream/android-13
 	Enabling this option enables the block layer to throttle buffered
 	background writeback from the VM, making it more smooth and having
 	less impact on foreground operations. The throttling is done
 	dynamically on an algorithm loosely based on CoDel, factoring in
 	the realtime performance of the disk.
 
+<<<<<<< HEAD
 config BLK_CGROUP_IOLATENCY
 	bool "Enable support for latency based cgroup IO protection"
 	depends on BLK_CGROUP=y
 	default n
 	---help---
+=======
+config BLK_WBT_MQ
+	bool "Enable writeback throttling by default"
+	default y
+	depends on BLK_WBT
+	help
+	Enable writeback throttling by default for request-based block devices.
+
+config BLK_CGROUP_IOLATENCY
+	bool "Enable support for latency based cgroup IO protection"
+	depends on BLK_CGROUP=y
+	help
+>>>>>>> upstream/android-13
 	Enabling this option enables the .latency interface for IO throttling.
 	The IO controller will attempt to maintain average IO latencies below
 	the configured latency target, throttling anybody with a higher latency
@@ -180,6 +249,7 @@ config BLK_CGROUP_IOLATENCY
 
 	Note, this is an experimental interface and could be changed someday.
 
+<<<<<<< HEAD
 config BLK_WBT_SQ
 	bool "Single queue writeback throttling"
 	default n
@@ -195,12 +265,46 @@ config BLK_WBT_MQ
 	Enable writeback throttling by default on multiqueue devices.
 	Multiqueue currently doesn't have support for IO scheduling,
 	enabling this option is recommended.
+=======
+config BLK_CGROUP_FC_APPID
+	bool "Enable support to track FC I/O Traffic across cgroup applications"
+	depends on BLK_CGROUP && NVME_FC
+	help
+	  Enabling this option enables the support to track FC I/O traffic across
+	  cgroup applications. It enables the Fabric and the storage targets to
+	  identify, monitor, and handle FC traffic based on VM tags by inserting
+	  application specific identification into the FC frame.
+
+config BLK_CGROUP_IOCOST
+	bool "Enable support for cost model based cgroup IO controller"
+	depends on BLK_CGROUP=y
+	select BLK_RQ_IO_DATA_LEN
+	select BLK_RQ_ALLOC_TIME
+	help
+	Enabling this option enables the .weight interface for cost
+	model based proportional IO control.  The IO controller
+	distributes IO capacity between different groups based on
+	their share of the overall weight distribution.
+
+config BLK_CGROUP_IOPRIO
+	bool "Cgroup I/O controller for assigning an I/O priority class"
+	depends on BLK_CGROUP
+	help
+	Enable the .prio interface for assigning an I/O priority class to
+	requests. The I/O priority class affects the order in which an I/O
+	scheduler and block devices process requests. Only some I/O schedulers
+	and some block devices support I/O priorities.
+>>>>>>> upstream/android-13
 
 config BLK_DEBUG_FS
 	bool "Block layer debugging information in debugfs"
 	default y
 	depends on DEBUG_FS
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	Include block layer debugging information in debugfs. This information
 	is mostly useful for kernel developers, but it doesn't incur any cost
 	at runtime.
@@ -214,7 +318,11 @@ config BLK_DEBUG_FS_ZONED
 
 config BLK_SED_OPAL
 	bool "Logic for interfacing with Opal enabled SEDs"
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	Builds Logic for interfacing with Opal enabled controllers.
 	Enabling this option enables users to setup/unlock/lock
 	Locking ranges for SED devices using the Opal protocol.
@@ -230,12 +338,25 @@ config BLK_INLINE_ENCRYPTION_FALLBACK
 	bool "Enable crypto API fallback for blk-crypto"
 	depends on BLK_INLINE_ENCRYPTION
 	select CRYPTO
+<<<<<<< HEAD
 	select CRYPTO_BLKCIPHER
+=======
+	select CRYPTO_SKCIPHER
+>>>>>>> upstream/android-13
 	help
 	  Enabling this lets the block layer handle inline encryption
 	  by falling back to the kernel crypto API when inline
 	  encryption hardware is not present.
 
+<<<<<<< HEAD
+=======
+config BLK_SEC_STATS
+	tristate "SEC module for various block layer info"
+	default n
+	help
+	  Say Y here if you want to be enable sec module for blk stats
+
+>>>>>>> upstream/android-13
 menu "Partition Types"
 
 source "block/partitions/Kconfig"
@@ -255,7 +376,11 @@ config BLK_MQ_PCI
 	default y
 
 config BLK_MQ_VIRTIO
+<<<<<<< HEAD
 	tristate
+=======
+	bool
+>>>>>>> upstream/android-13
 	depends on BLOCK && VIRTIO
 	default y
 
@@ -264,9 +389,23 @@ config BLK_MQ_RDMA
 	depends on BLOCK && INFINIBAND
 	default y
 
+<<<<<<< HEAD
+=======
+config BLK_PM
+	def_bool BLOCK && PM
+
+>>>>>>> upstream/android-13
 config BLOCK_SUPPORT_STLOG
 	bool "Enable storage log"
 	depends on BLOCK && PROC_STLOG
 	default y
 
+<<<<<<< HEAD
 source block/Kconfig.iosched
+=======
+# do not use in new code
+config BLOCK_HOLDER_DEPRECATED
+	bool
+
+source "block/Kconfig.iosched"
+>>>>>>> upstream/android-13

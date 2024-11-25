@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**
  * omap-usb-host.c - The USBHS core driver for OMAP EHCI & OHCI
  *
@@ -16,6 +17,15 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * omap-usb-host.c - The USBHS core driver for OMAP EHCI & OHCI
+ *
+ * Copyright (C) 2011-2013 Texas Instruments Incorporated - https://www.ti.com
+ * Author: Keshava Munegowda <keshava_mgowda@ti.com>
+ * Author: Roger Quadros <rogerq@ti.com>
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -131,7 +141,11 @@ static inline u32 usbhs_read(void __iomem *base, u32 reg)
 
 /*-------------------------------------------------------------------------*/
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Map 'enum usbhs_omap_port_mode' found in <linux/platform_data/usb-omap.h>
  * to the device tree binding portN-mode found in
  * 'Documentation/devicetree/bindings/mfd/omap-usb-host.txt'
@@ -319,7 +333,11 @@ static int usbhs_runtime_resume(struct device *dev)
 					 i, r);
 				}
 			}
+<<<<<<< HEAD
 		/* Fall through as HSIC mode needs utmi_clk */
+=======
+			fallthrough;	/* as HSIC mode needs utmi_clk */
+>>>>>>> upstream/android-13
 
 		case OMAP_EHCI_PORT_MODE_TLL:
 			if (!IS_ERR(omap->utmi_clk[i])) {
@@ -355,7 +373,11 @@ static int usbhs_runtime_suspend(struct device *dev)
 
 			if (!IS_ERR(omap->hsic480m_clk[i]))
 				clk_disable_unprepare(omap->hsic480m_clk[i]);
+<<<<<<< HEAD
 		/* Fall through as utmi_clks were used in HSIC mode */
+=======
+			fallthrough;	/* as utmi_clks were used in HSIC mode */
+>>>>>>> upstream/android-13
 
 		case OMAP_EHCI_PORT_MODE_TLL:
 			if (!IS_ERR(omap->utmi_clk[i]))
@@ -537,6 +559,11 @@ static const struct of_device_id usbhs_child_match_table[] = {
  * usbhs_omap_probe - initialize TI-based HCDs
  *
  * Allocates basic resources for this USB host controller.
+<<<<<<< HEAD
+=======
+ *
+ * @pdev: Pointer to this device's platform device structure
+>>>>>>> upstream/android-13
  */
 static int usbhs_omap_probe(struct platform_device *pdev)
 {
@@ -851,7 +878,11 @@ MODULE_DEVICE_TABLE(of, usbhs_omap_dt_ids);
 
 static struct platform_driver usbhs_omap_driver = {
 	.driver = {
+<<<<<<< HEAD
 		.name		= (char *)usbhs_driver_name,
+=======
+		.name		= usbhs_driver_name,
+>>>>>>> upstream/android-13
 		.pm		= &usbhsomap_dev_pm_ops,
 		.of_match_table = usbhs_omap_dt_ids,
 	},

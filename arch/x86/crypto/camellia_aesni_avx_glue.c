@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Glue Code for x86_64/AVX/AES-NI assembler optimized version of Camellia
  *
  * Copyright © 2012-2013 Jussi Kivilinna <jussi.kivilinna@iki.fi>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,11 +20,18 @@
 #include <crypto/algapi.h>
 #include <crypto/internal/simd.h>
 #include <crypto/xts.h>
+=======
+ */
+
+#include <crypto/algapi.h>
+#include <crypto/internal/simd.h>
+>>>>>>> upstream/android-13
 #include <linux/crypto.h>
 #include <linux/err.h>
 #include <linux/module.h>
 #include <linux/types.h>
 
+<<<<<<< HEAD
 #define CAMELLIA_AESNI_PARALLEL_BLOCKS 16
 
 /* 16-way parallel cipher functions (avx/aes-ni) */
@@ -156,26 +168,70 @@ static int camellia_setkey(struct crypto_skcipher *tfm, const u8 *key,
 {
 	return __camellia_setkey(crypto_skcipher_ctx(tfm), key, keylen,
 				 &tfm->base.crt_flags);
+=======
+#include "camellia.h"
+#include "ecb_cbc_helpers.h"
+
+#define CAMELLIA_AESNI_PARALLEL_BLOCKS 16
+
+/* 16-way parallel cipher functions (avx/aes-ni) */
+asmlinkage void camellia_ecb_enc_16way(const void *ctx, u8 *dst, const u8 *src);
+EXPORT_SYMBOL_GPL(camellia_ecb_enc_16way);
+
+asmlinkage void camellia_ecb_dec_16way(const void *ctx, u8 *dst, const u8 *src);
+EXPORT_SYMBOL_GPL(camellia_ecb_dec_16way);
+
+asmlinkage void camellia_cbc_dec_16way(const void *ctx, u8 *dst, const u8 *src);
+EXPORT_SYMBOL_GPL(camellia_cbc_dec_16way);
+
+static int camellia_setkey(struct crypto_skcipher *tfm, const u8 *key,
+			   unsigned int keylen)
+{
+	return __camellia_setkey(crypto_skcipher_ctx(tfm), key, keylen);
+>>>>>>> upstream/android-13
 }
 
 static int ecb_encrypt(struct skcipher_request *req)
 {
+<<<<<<< HEAD
 	return glue_ecb_req_128bit(&camellia_enc, req);
+=======
+	ECB_WALK_START(req, CAMELLIA_BLOCK_SIZE, CAMELLIA_AESNI_PARALLEL_BLOCKS);
+	ECB_BLOCK(CAMELLIA_AESNI_PARALLEL_BLOCKS, camellia_ecb_enc_16way);
+	ECB_BLOCK(2, camellia_enc_blk_2way);
+	ECB_BLOCK(1, camellia_enc_blk);
+	ECB_WALK_END();
+>>>>>>> upstream/android-13
 }
 
 static int ecb_decrypt(struct skcipher_request *req)
 {
+<<<<<<< HEAD
 	return glue_ecb_req_128bit(&camellia_dec, req);
+=======
+	ECB_WALK_START(req, CAMELLIA_BLOCK_SIZE, CAMELLIA_AESNI_PARALLEL_BLOCKS);
+	ECB_BLOCK(CAMELLIA_AESNI_PARALLEL_BLOCKS, camellia_ecb_dec_16way);
+	ECB_BLOCK(2, camellia_dec_blk_2way);
+	ECB_BLOCK(1, camellia_dec_blk);
+	ECB_WALK_END();
+>>>>>>> upstream/android-13
 }
 
 static int cbc_encrypt(struct skcipher_request *req)
 {
+<<<<<<< HEAD
 	return glue_cbc_encrypt_req_128bit(GLUE_FUNC_CAST(camellia_enc_blk),
 					   req);
+=======
+	CBC_WALK_START(req, CAMELLIA_BLOCK_SIZE, -1);
+	CBC_ENC_BLOCK(camellia_enc_blk);
+	CBC_WALK_END();
+>>>>>>> upstream/android-13
 }
 
 static int cbc_decrypt(struct skcipher_request *req)
 {
+<<<<<<< HEAD
 	return glue_cbc_decrypt_req_128bit(&camellia_dec_cbc, req);
 }
 
@@ -224,6 +280,13 @@ static int xts_decrypt(struct skcipher_request *req)
 	return glue_xts_req_128bit(&camellia_dec_xts, req,
 				   XTS_TWEAK_CAST(camellia_enc_blk),
 				   &ctx->tweak_ctx, &ctx->crypt_ctx);
+=======
+	CBC_WALK_START(req, CAMELLIA_BLOCK_SIZE, CAMELLIA_AESNI_PARALLEL_BLOCKS);
+	CBC_DEC_BLOCK(CAMELLIA_AESNI_PARALLEL_BLOCKS, camellia_cbc_dec_16way);
+	CBC_DEC_BLOCK(2, camellia_decrypt_cbc_2way);
+	CBC_DEC_BLOCK(1, camellia_dec_blk);
+	CBC_WALK_END();
+>>>>>>> upstream/android-13
 }
 
 static struct skcipher_alg camellia_algs[] = {
@@ -254,6 +317,7 @@ static struct skcipher_alg camellia_algs[] = {
 		.setkey			= camellia_setkey,
 		.encrypt		= cbc_encrypt,
 		.decrypt		= cbc_decrypt,
+<<<<<<< HEAD
 	}, {
 		.base.cra_name		= "__ctr(camellia)",
 		.base.cra_driver_name	= "__ctr-camellia-aesni",
@@ -284,6 +348,9 @@ static struct skcipher_alg camellia_algs[] = {
 		.encrypt		= xts_encrypt,
 		.decrypt		= xts_decrypt,
 	},
+=======
+	}
+>>>>>>> upstream/android-13
 };
 
 static struct simd_skcipher_alg *camellia_simd_algs[ARRAY_SIZE(camellia_algs)];

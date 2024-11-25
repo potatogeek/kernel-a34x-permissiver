@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * MSI DIGIVOX mini II remote controller keytable
  *
  * Copyright (C) 2010 Antti Palosaari <crope@iki.fi>
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -16,12 +21,15 @@
  *    You should have received a copy of the GNU General Public License along
  *    with this program; if not, write to the Free Software Foundation, Inc.,
  *    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <media/rc-map.h>
 #include <linux/module.h>
 
 static struct rc_map_table msi_digivox_ii[] = {
+<<<<<<< HEAD
 	{ 0x0302, KEY_2 },
 	{ 0x0303, KEY_UP },              /* up */
 	{ 0x0304, KEY_3 },
@@ -32,13 +40,31 @@ static struct rc_map_table msi_digivox_ii[] = {
 	{ 0x030d, KEY_DOWN },            /* down */
 	{ 0x0310, KEY_9 },
 	{ 0x0311, KEY_7 },
+=======
+	{ 0x0302, KEY_NUMERIC_2 },
+	{ 0x0303, KEY_UP },              /* up */
+	{ 0x0304, KEY_NUMERIC_3 },
+	{ 0x0305, KEY_CHANNELDOWN },
+	{ 0x0308, KEY_NUMERIC_5 },
+	{ 0x0309, KEY_NUMERIC_0 },
+	{ 0x030b, KEY_NUMERIC_8 },
+	{ 0x030d, KEY_DOWN },            /* down */
+	{ 0x0310, KEY_NUMERIC_9 },
+	{ 0x0311, KEY_NUMERIC_7 },
+>>>>>>> upstream/android-13
 	{ 0x0314, KEY_VOLUMEUP },
 	{ 0x0315, KEY_CHANNELUP },
 	{ 0x0316, KEY_OK },
 	{ 0x0317, KEY_POWER2 },
+<<<<<<< HEAD
 	{ 0x031a, KEY_1 },
 	{ 0x031c, KEY_4 },
 	{ 0x031d, KEY_6 },
+=======
+	{ 0x031a, KEY_NUMERIC_1 },
+	{ 0x031c, KEY_NUMERIC_4 },
+	{ 0x031d, KEY_NUMERIC_6 },
+>>>>>>> upstream/android-13
 	{ 0x031f, KEY_VOLUMEDOWN },
 };
 

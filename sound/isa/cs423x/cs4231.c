@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Generic driver for CS4231 chips
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
  *  Originally the CS4232/CS4232A driver, modified for use on CS4231 by
  *  Tugrul Galatali <galatalt@stuy.edu>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -37,7 +44,10 @@
 MODULE_DESCRIPTION(CRD_NAME);
 MODULE_AUTHOR("Jaroslav Kysela <perex@perex.cz>");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{{Crystal Semiconductors,CS4231}}");
+=======
+>>>>>>> upstream/android-13
 
 static int index[SNDRV_CARDS] = SNDRV_DEFAULT_IDX;	/* Index 0-MAX */
 static char *id[SNDRV_CARDS] = SNDRV_DEFAULT_STR;	/* ID for this card */
@@ -94,23 +104,38 @@ static int snd_cs4231_probe(struct device *dev, unsigned int n)
 	struct snd_wss *chip;
 	int error;
 
+<<<<<<< HEAD
 	error = snd_card_new(dev, index[n], id[n], THIS_MODULE, 0, &card);
+=======
+	error = snd_devm_card_new(dev, index[n], id[n], THIS_MODULE, 0, &card);
+>>>>>>> upstream/android-13
 	if (error < 0)
 		return error;
 
 	error = snd_wss_create(card, port[n], -1, irq[n], dma1[n], dma2[n],
 			WSS_HW_DETECT, 0, &chip);
 	if (error < 0)
+<<<<<<< HEAD
 		goto out;
+=======
+		return error;
+>>>>>>> upstream/android-13
 
 	card->private_data = chip;
 
 	error = snd_wss_pcm(chip, 0);
 	if (error < 0)
+<<<<<<< HEAD
 		goto out;
 
 	strlcpy(card->driver, "CS4231", sizeof(card->driver));
 	strlcpy(card->shortname, chip->pcm->name, sizeof(card->shortname));
+=======
+		return error;
+
+	strscpy(card->driver, "CS4231", sizeof(card->driver));
+	strscpy(card->shortname, chip->pcm->name, sizeof(card->shortname));
+>>>>>>> upstream/android-13
 
 	if (dma2[n] < 0)
 		snprintf(card->longname, sizeof(card->longname),
@@ -123,11 +148,19 @@ static int snd_cs4231_probe(struct device *dev, unsigned int n)
 
 	error = snd_wss_mixer(chip);
 	if (error < 0)
+<<<<<<< HEAD
 		goto out;
 
 	error = snd_wss_timer(chip, 0);
 	if (error < 0)
 		goto out;
+=======
+		return error;
+
+	error = snd_wss_timer(chip, 0);
+	if (error < 0)
+		return error;
+>>>>>>> upstream/android-13
 
 	if (mpu_port[n] > 0 && mpu_port[n] != SNDRV_AUTO_PORT) {
 		if (mpu_irq[n] == SNDRV_AUTO_IRQ)
@@ -140,6 +173,7 @@ static int snd_cs4231_probe(struct device *dev, unsigned int n)
 
 	error = snd_card_register(card);
 	if (error < 0)
+<<<<<<< HEAD
 		goto out;
 
 	dev_set_drvdata(dev, card);
@@ -153,6 +187,12 @@ static int snd_cs4231_remove(struct device *dev, unsigned int n)
 {
 	snd_card_free(dev_get_drvdata(dev));
 	return 0;
+=======
+		return error;
+
+	dev_set_drvdata(dev, card);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_PM
@@ -180,7 +220,10 @@ static int snd_cs4231_resume(struct device *dev, unsigned int n)
 static struct isa_driver snd_cs4231_driver = {
 	.match		= snd_cs4231_match,
 	.probe		= snd_cs4231_probe,
+<<<<<<< HEAD
 	.remove		= snd_cs4231_remove,
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM
 	.suspend	= snd_cs4231_suspend,
 	.resume		= snd_cs4231_resume,

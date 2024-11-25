@@ -24,6 +24,7 @@
 #include <linux/kthread.h>
 #include <linux/wait.h>
 #include <linux/sched.h>
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include "amdgpu.h"
 #include "amdgpu_trace.h"
@@ -38,6 +39,57 @@ static void amdgpu_job_timedout(struct drm_sched_job *s_job)
 		  ring->fence_drv.sync_seq);
 
 	amdgpu_device_gpu_recover(ring->adev, job, false);
+=======
+
+#include <drm/drm_drv.h>
+
+#include "amdgpu.h"
+#include "amdgpu_trace.h"
+
+static enum drm_gpu_sched_stat amdgpu_job_timedout(struct drm_sched_job *s_job)
+{
+	struct amdgpu_ring *ring = to_amdgpu_ring(s_job->sched);
+	struct amdgpu_job *job = to_amdgpu_job(s_job);
+	struct amdgpu_task_info ti;
+	struct amdgpu_device *adev = ring->adev;
+	int idx;
+
+	if (!drm_dev_enter(&adev->ddev, &idx)) {
+		DRM_INFO("%s - device unplugged skipping recovery on scheduler:%s",
+			 __func__, s_job->sched->name);
+
+		/* Effectively the job is aborted as the device is gone */
+		return DRM_GPU_SCHED_STAT_ENODEV;
+	}
+
+	memset(&ti, 0, sizeof(struct amdgpu_task_info));
+
+	if (amdgpu_gpu_recovery &&
+	    amdgpu_ring_soft_recovery(ring, job->vmid, s_job->s_fence->parent)) {
+		DRM_ERROR("ring %s timeout, but soft recovered\n",
+			  s_job->sched->name);
+		goto exit;
+	}
+
+	amdgpu_vm_get_task_info(ring->adev, job->pasid, &ti);
+	DRM_ERROR("ring %s timeout, signaled seq=%u, emitted seq=%u\n",
+		  job->base.sched->name, atomic_read(&ring->fence_drv.last_seq),
+		  ring->fence_drv.sync_seq);
+	DRM_ERROR("Process information: process %s pid %d thread %s pid %d\n",
+		  ti.process_name, ti.tgid, ti.task_name, ti.pid);
+
+	if (amdgpu_device_should_recover_gpu(ring->adev)) {
+		amdgpu_device_gpu_recover(ring->adev, job);
+	} else {
+		drm_sched_suspend_timeout(&ring->sched);
+		if (amdgpu_sriov_vf(adev))
+			adev->virt.tdr_debug = true;
+	}
+
+exit:
+	drm_dev_exit(idx);
+	return DRM_GPU_SCHED_STAT_NOMINAL;
+>>>>>>> upstream/android-13
 }
 
 int amdgpu_job_alloc(struct amdgpu_device *adev, unsigned num_ibs,
@@ -72,7 +124,12 @@ int amdgpu_job_alloc(struct amdgpu_device *adev, unsigned num_ibs,
 }
 
 int amdgpu_job_alloc_with_ib(struct amdgpu_device *adev, unsigned size,
+<<<<<<< HEAD
 			     struct amdgpu_job **job)
+=======
+		enum amdgpu_ib_pool_type pool_type,
+		struct amdgpu_job **job)
+>>>>>>> upstream/android-13
 {
 	int r;
 
@@ -80,11 +137,17 @@ int amdgpu_job_alloc_with_ib(struct amdgpu_device *adev, unsigned size,
 	if (r)
 		return r;
 
+<<<<<<< HEAD
 	r = amdgpu_ib_get(adev, NULL, size, &(*job)->ibs[0]);
 	if (r)
 		kfree(*job);
 	else
 		(*job)->vm_pd_addr = adev->gart.table_addr;
+=======
+	r = amdgpu_ib_get(adev, NULL, size, pool_type, &(*job)->ibs[0]);
+	if (r)
+		kfree(*job);
+>>>>>>> upstream/android-13
 
 	return r;
 }
@@ -93,17 +156,31 @@ void amdgpu_job_free_resources(struct amdgpu_job *job)
 {
 	struct amdgpu_ring *ring = to_amdgpu_ring(job->base.sched);
 	struct dma_fence *f;
+<<<<<<< HEAD
 	unsigned i;
 
 	/* use sched fence if available */
 	f = job->base.s_fence ? &job->base.s_fence->finished : job->fence;
 
+=======
+	struct dma_fence *hw_fence;
+	unsigned i;
+
+	if (job->hw_fence.ops == NULL)
+		hw_fence = job->external_hw_fence;
+	else
+		hw_fence = &job->hw_fence;
+
+	/* use sched fence if available */
+	f = job->base.s_fence ? &job->base.s_fence->finished : hw_fence;
+>>>>>>> upstream/android-13
 	for (i = 0; i < job->num_ibs; ++i)
 		amdgpu_ib_free(ring->adev, &job->ibs[i], f);
 }
 
 static void amdgpu_job_free_cb(struct drm_sched_job *s_job)
 {
+<<<<<<< HEAD
 	struct amdgpu_ring *ring = to_amdgpu_ring(s_job->sched);
 	struct amdgpu_job *job = to_amdgpu_job(s_job);
 
@@ -112,23 +189,51 @@ static void amdgpu_job_free_cb(struct drm_sched_job *s_job)
 	amdgpu_sync_free(&job->sync);
 	amdgpu_sync_free(&job->sched_sync);
 	kfree(job);
+=======
+	struct amdgpu_job *job = to_amdgpu_job(s_job);
+
+	drm_sched_job_cleanup(s_job);
+
+	amdgpu_sync_free(&job->sync);
+	amdgpu_sync_free(&job->sched_sync);
+
+    /* only put the hw fence if has embedded fence */
+	if (job->hw_fence.ops != NULL)
+		dma_fence_put(&job->hw_fence);
+	else
+		kfree(job);
+>>>>>>> upstream/android-13
 }
 
 void amdgpu_job_free(struct amdgpu_job *job)
 {
 	amdgpu_job_free_resources(job);
+<<<<<<< HEAD
 
 	dma_fence_put(job->fence);
 	amdgpu_sync_free(&job->sync);
 	amdgpu_sync_free(&job->sched_sync);
 	kfree(job);
+=======
+	amdgpu_sync_free(&job->sync);
+	amdgpu_sync_free(&job->sched_sync);
+
+	/* only put the hw fence if has embedded fence */
+	if (job->hw_fence.ops != NULL)
+		dma_fence_put(&job->hw_fence);
+	else
+		kfree(job);
+>>>>>>> upstream/android-13
 }
 
 int amdgpu_job_submit(struct amdgpu_job *job, struct drm_sched_entity *entity,
 		      void *owner, struct dma_fence **f)
 {
+<<<<<<< HEAD
 	enum drm_sched_priority priority;
 	struct amdgpu_ring *ring;
+=======
+>>>>>>> upstream/android-13
 	int r;
 
 	if (!f)
@@ -138,6 +243,7 @@ int amdgpu_job_submit(struct amdgpu_job *job, struct drm_sched_entity *entity,
 	if (r)
 		return r;
 
+<<<<<<< HEAD
 	job->owner = owner;
 	*f = dma_fence_get(&job->base.s_fence->finished);
 	amdgpu_job_free_resources(job);
@@ -147,6 +253,12 @@ int amdgpu_job_submit(struct amdgpu_job *job, struct drm_sched_entity *entity,
 	ring = to_amdgpu_ring(entity->rq->sched);
 	amdgpu_ring_priority_get(ring, priority);
 
+=======
+	*f = dma_fence_get(&job->base.s_fence->finished);
+	amdgpu_job_free_resources(job);
+	drm_sched_entity_push_job(&job->base, entity);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -157,11 +269,21 @@ int amdgpu_job_submit_direct(struct amdgpu_job *job, struct amdgpu_ring *ring,
 
 	job->base.sched = &ring->sched;
 	r = amdgpu_ib_schedule(ring, job->num_ibs, job->ibs, NULL, fence);
+<<<<<<< HEAD
 	job->fence = dma_fence_get(*fence);
+=======
+	/* record external_hw_fence for direct submit */
+	job->external_hw_fence = dma_fence_get(*fence);
+>>>>>>> upstream/android-13
 	if (r)
 		return r;
 
 	amdgpu_job_free(job);
+<<<<<<< HEAD
+=======
+	dma_fence_put(*fence);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -172,6 +294,7 @@ static struct dma_fence *amdgpu_job_dependency(struct drm_sched_job *sched_job,
 	struct amdgpu_job *job = to_amdgpu_job(sched_job);
 	struct amdgpu_vm *vm = job->vm;
 	struct dma_fence *fence;
+<<<<<<< HEAD
 	bool explicit = false;
 	int r;
 
@@ -183,6 +306,15 @@ static struct dma_fence *amdgpu_job_dependency(struct drm_sched_job *sched_job,
 			if (r)
 				DRM_ERROR("Error adding fence (%d)\n", r);
 		}
+=======
+	int r;
+
+	fence = amdgpu_sync_get_fence(&job->sync);
+	if (fence && drm_sched_dependency_optimized(fence, s_entity)) {
+		r = amdgpu_sync_fence(&job->sched_sync, fence);
+		if (r)
+			DRM_ERROR("Error adding fence (%d)\n", r);
+>>>>>>> upstream/android-13
 	}
 
 	while (fence == NULL && vm && !job->vmid) {
@@ -192,7 +324,11 @@ static struct dma_fence *amdgpu_job_dependency(struct drm_sched_job *sched_job,
 		if (r)
 			DRM_ERROR("Error getting VM ID (%d)\n", r);
 
+<<<<<<< HEAD
 		fence = amdgpu_sync_get_fence(&job->sync, NULL);
+=======
+		fence = amdgpu_sync_get_fence(&job->sync);
+>>>>>>> upstream/android-13
 	}
 
 	return fence;
@@ -223,16 +359,66 @@ static struct dma_fence *amdgpu_job_run(struct drm_sched_job *sched_job)
 		if (r)
 			DRM_ERROR("Error scheduling IBs (%d)\n", r);
 	}
+<<<<<<< HEAD
 	/* if gpu reset, hw fence will be replaced here */
 	dma_fence_put(job->fence);
 	job->fence = dma_fence_get(fence);
 
+=======
+
+	if (!job->job_run_counter)
+		dma_fence_get(fence);
+	else if (finished->error < 0)
+		dma_fence_put(&job->hw_fence);
+	job->job_run_counter++;
+>>>>>>> upstream/android-13
 	amdgpu_job_free_resources(job);
 
 	fence = r ? ERR_PTR(r) : fence;
 	return fence;
 }
 
+<<<<<<< HEAD
+=======
+#define to_drm_sched_job(sched_job)		\
+		container_of((sched_job), struct drm_sched_job, queue_node)
+
+void amdgpu_job_stop_all_jobs_on_sched(struct drm_gpu_scheduler *sched)
+{
+	struct drm_sched_job *s_job;
+	struct drm_sched_entity *s_entity = NULL;
+	int i;
+
+	/* Signal all jobs not yet scheduled */
+	for (i = DRM_SCHED_PRIORITY_COUNT - 1; i >= DRM_SCHED_PRIORITY_MIN; i--) {
+		struct drm_sched_rq *rq = &sched->sched_rq[i];
+
+		if (!rq)
+			continue;
+
+		spin_lock(&rq->lock);
+		list_for_each_entry(s_entity, &rq->entities, list) {
+			while ((s_job = to_drm_sched_job(spsc_queue_pop(&s_entity->job_queue)))) {
+				struct drm_sched_fence *s_fence = s_job->s_fence;
+
+				dma_fence_signal(&s_fence->scheduled);
+				dma_fence_set_error(&s_fence->finished, -EHWPOISON);
+				dma_fence_signal(&s_fence->finished);
+			}
+		}
+		spin_unlock(&rq->lock);
+	}
+
+	/* Signal all jobs already scheduled to HW */
+	list_for_each_entry(s_job, &sched->pending_list, list) {
+		struct drm_sched_fence *s_fence = s_job->s_fence;
+
+		dma_fence_set_error(&s_fence->finished, -EHWPOISON);
+		dma_fence_signal(&s_fence->finished);
+	}
+}
+
+>>>>>>> upstream/android-13
 const struct drm_sched_backend_ops amdgpu_sched_ops = {
 	.dependency = amdgpu_job_dependency,
 	.run_job = amdgpu_job_run,

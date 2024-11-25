@@ -2,7 +2,11 @@
 #ifndef LIBFDT_ENV_H
 #define LIBFDT_ENV_H
 
+<<<<<<< HEAD
 #include <linux/kernel.h>	/* For INT_MAX */
+=======
+#include <linux/limits.h>	/* For INT_MAX */
+>>>>>>> upstream/android-13
 #include <linux/string.h>
 
 #include <asm/byteorder.h>

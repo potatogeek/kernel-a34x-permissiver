@@ -17,6 +17,7 @@ static struct rc_map_table pixelview_new[] = {
 	{ 0x3c, KEY_TIME },		/* Timeshift */
 	{ 0x12, KEY_POWER },
 
+<<<<<<< HEAD
 	{ 0x3d, KEY_1 },
 	{ 0x38, KEY_2 },
 	{ 0x18, KEY_3 },
@@ -27,6 +28,18 @@ static struct rc_map_table pixelview_new[] = {
 	{ 0x3a, KEY_8 },
 	{ 0x1e, KEY_9 },
 	{ 0x3e, KEY_0 },
+=======
+	{ 0x3d, KEY_NUMERIC_1 },
+	{ 0x38, KEY_NUMERIC_2 },
+	{ 0x18, KEY_NUMERIC_3 },
+	{ 0x35, KEY_NUMERIC_4 },
+	{ 0x39, KEY_NUMERIC_5 },
+	{ 0x15, KEY_NUMERIC_6 },
+	{ 0x36, KEY_NUMERIC_7 },
+	{ 0x3a, KEY_NUMERIC_8 },
+	{ 0x1e, KEY_NUMERIC_9 },
+	{ 0x3e, KEY_NUMERIC_0 },
+>>>>>>> upstream/android-13
 
 	{ 0x1c, KEY_AGAIN },		/* LOOP	*/
 	{ 0x3f, KEY_VIDEO },		/* Source */

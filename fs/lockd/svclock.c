@@ -31,6 +31,10 @@
 #include <linux/lockd/nlm.h>
 #include <linux/lockd/lockd.h>
 #include <linux/kthread.h>
+<<<<<<< HEAD
+=======
+#include <linux/exportfs.h>
+>>>>>>> upstream/android-13
 
 #define NLMDBG_FACILITY		NLMDBG_SVCLOCK
 
@@ -276,7 +280,11 @@ static int nlmsvc_unlink_block(struct nlm_block *block)
 	dprintk("lockd: unlinking block %p...\n", block);
 
 	/* Remove block from list */
+<<<<<<< HEAD
 	status = posix_unblock_lock(&block->b_call->a_args.lock.fl);
+=======
+	status = locks_delete_block(&block->b_call->a_args.lock.fl);
+>>>>>>> upstream/android-13
 	nlmsvc_remove_block(block);
 	return status;
 }
@@ -332,6 +340,78 @@ restart:
 	mutex_unlock(&file->f_mutex);
 }
 
+<<<<<<< HEAD
+=======
+static struct nlm_lockowner *
+nlmsvc_get_lockowner(struct nlm_lockowner *lockowner)
+{
+	refcount_inc(&lockowner->count);
+	return lockowner;
+}
+
+static void nlmsvc_put_lockowner(struct nlm_lockowner *lockowner)
+{
+	if (!refcount_dec_and_lock(&lockowner->count, &lockowner->host->h_lock))
+		return;
+	list_del(&lockowner->list);
+	spin_unlock(&lockowner->host->h_lock);
+	nlmsvc_release_host(lockowner->host);
+	kfree(lockowner);
+}
+
+static struct nlm_lockowner *__nlmsvc_find_lockowner(struct nlm_host *host, pid_t pid)
+{
+	struct nlm_lockowner *lockowner;
+	list_for_each_entry(lockowner, &host->h_lockowners, list) {
+		if (lockowner->pid != pid)
+			continue;
+		return nlmsvc_get_lockowner(lockowner);
+	}
+	return NULL;
+}
+
+static struct nlm_lockowner *nlmsvc_find_lockowner(struct nlm_host *host, pid_t pid)
+{
+	struct nlm_lockowner *res, *new = NULL;
+
+	spin_lock(&host->h_lock);
+	res = __nlmsvc_find_lockowner(host, pid);
+
+	if (res == NULL) {
+		spin_unlock(&host->h_lock);
+		new = kmalloc(sizeof(*res), GFP_KERNEL);
+		spin_lock(&host->h_lock);
+		res = __nlmsvc_find_lockowner(host, pid);
+		if (res == NULL && new != NULL) {
+			res = new;
+			/* fs/locks.c will manage the refcount through lock_ops */
+			refcount_set(&new->count, 1);
+			new->pid = pid;
+			new->host = nlm_get_host(host);
+			list_add(&new->list, &host->h_lockowners);
+			new = NULL;
+		}
+	}
+
+	spin_unlock(&host->h_lock);
+	kfree(new);
+	return res;
+}
+
+void
+nlmsvc_release_lockowner(struct nlm_lock *lock)
+{
+	if (lock->fl.fl_owner)
+		nlmsvc_put_lockowner(lock->fl.fl_owner);
+}
+
+void nlmsvc_locks_init_private(struct file_lock *fl, struct nlm_host *host,
+						pid_t pid)
+{
+	fl->fl_owner = nlmsvc_find_lockowner(host, pid);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Initialize arguments for GRANTED call. The nlm_rqst structure
  * has been cleared already.
@@ -345,7 +425,11 @@ static int nlmsvc_setgrantargs(struct nlm_rqst *call, struct nlm_lock *lock)
 
 	/* set default data area */
 	call->a_args.lock.oh.data = call->a_owner;
+<<<<<<< HEAD
 	call->a_args.lock.svid = lock->fl.fl_pid;
+=======
+	call->a_args.lock.svid = ((struct nlm_lockowner *)lock->fl.fl_owner)->pid;
+>>>>>>> upstream/android-13
 
 	if (lock->oh.len > NLMCLNT_OHSIZE) {
 		void *data = kmalloc(lock->oh.len, GFP_KERNEL);
@@ -401,17 +485,36 @@ nlmsvc_lock(struct svc_rqst *rqstp, struct nlm_file *file,
 	    struct nlm_cookie *cookie, int reclaim)
 {
 	struct nlm_block	*block = NULL;
+<<<<<<< HEAD
 	int			error;
 	__be32			ret;
 
 	dprintk("lockd: nlmsvc_lock(%s/%ld, ty=%d, pi=%d, %Ld-%Ld, bl=%d)\n",
 				locks_inode(file->f_file)->i_sb->s_id,
 				locks_inode(file->f_file)->i_ino,
+=======
+	struct inode		*inode = nlmsvc_file_inode(file);
+	int			error;
+	int			mode;
+	int			async_block = 0;
+	__be32			ret;
+
+	dprintk("lockd: nlmsvc_lock(%s/%ld, ty=%d, pi=%d, %Ld-%Ld, bl=%d)\n",
+				inode->i_sb->s_id, inode->i_ino,
+>>>>>>> upstream/android-13
 				lock->fl.fl_type, lock->fl.fl_pid,
 				(long long)lock->fl.fl_start,
 				(long long)lock->fl.fl_end,
 				wait);
 
+<<<<<<< HEAD
+=======
+	if (inode->i_sb->s_export_op->flags & EXPORT_OP_SYNC_LOCKS) {
+		async_block = wait;
+		wait = 0;
+	}
+
+>>>>>>> upstream/android-13
 	/* Lock file against concurrent access */
 	mutex_lock(&file->f_mutex);
 	/* Get existing block (in case client is busy-waiting)
@@ -455,7 +558,12 @@ nlmsvc_lock(struct svc_rqst *rqstp, struct nlm_file *file,
 
 	if (!wait)
 		lock->fl.fl_flags &= ~FL_SLEEP;
+<<<<<<< HEAD
 	error = vfs_lock_file(file->f_file, F_SETLK, &lock->fl, NULL);
+=======
+	mode = lock_to_openmode(&lock->fl);
+	error = vfs_lock_file(file->f_file[mode], F_SETLK, &lock->fl, NULL);
+>>>>>>> upstream/android-13
 	lock->fl.fl_flags &= ~FL_SLEEP;
 
 	dprintk("lockd: vfs_lock_file returned %d\n", error);
@@ -471,7 +579,11 @@ nlmsvc_lock(struct svc_rqst *rqstp, struct nlm_file *file,
 			 */
 			if (wait)
 				break;
+<<<<<<< HEAD
 			ret = nlm_lck_denied;
+=======
+			ret = async_block ? nlm_lck_blocked : nlm_lck_denied;
+>>>>>>> upstream/android-13
 			goto out;
 		case FILE_LOCK_DEFERRED:
 			if (wait)
@@ -508,11 +620,21 @@ nlmsvc_testlock(struct svc_rqst *rqstp, struct nlm_file *file,
 		struct nlm_lock *conflock, struct nlm_cookie *cookie)
 {
 	int			error;
+<<<<<<< HEAD
 	__be32			ret;
 
 	dprintk("lockd: nlmsvc_testlock(%s/%ld, ty=%d, %Ld-%Ld)\n",
 				locks_inode(file->f_file)->i_sb->s_id,
 				locks_inode(file->f_file)->i_ino,
+=======
+	int			mode;
+	__be32			ret;
+	struct nlm_lockowner	*test_owner;
+
+	dprintk("lockd: nlmsvc_testlock(%s/%ld, ty=%d, %Ld-%Ld)\n",
+				nlmsvc_file_inode(file)->i_sb->s_id,
+				nlmsvc_file_inode(file)->i_ino,
+>>>>>>> upstream/android-13
 				lock->fl.fl_type,
 				(long long)lock->fl.fl_start,
 				(long long)lock->fl.fl_end);
@@ -522,7 +644,15 @@ nlmsvc_testlock(struct svc_rqst *rqstp, struct nlm_file *file,
 		goto out;
 	}
 
+<<<<<<< HEAD
 	error = vfs_test_lock(file->f_file, &lock->fl);
+=======
+	/* If there's a conflicting lock, remember to clean up the test lock */
+	test_owner = (struct nlm_lockowner *)lock->fl.fl_owner;
+
+	mode = lock_to_openmode(&lock->fl);
+	error = vfs_test_lock(file->f_file[mode], &lock->fl);
+>>>>>>> upstream/android-13
 	if (error) {
 		/* We can't currently deal with deferred test requests */
 		if (error == FILE_LOCK_DEFERRED)
@@ -548,6 +678,14 @@ nlmsvc_testlock(struct svc_rqst *rqstp, struct nlm_file *file,
 	conflock->fl.fl_start = lock->fl.fl_start;
 	conflock->fl.fl_end = lock->fl.fl_end;
 	locks_release_private(&lock->fl);
+<<<<<<< HEAD
+=======
+
+	/* Clean up the test lock */
+	lock->fl.fl_owner = NULL;
+	nlmsvc_put_lockowner(test_owner);
+
+>>>>>>> upstream/android-13
 	ret = nlm_lck_denied;
 out:
 	return ret;
@@ -563,11 +701,19 @@ out:
 __be32
 nlmsvc_unlock(struct net *net, struct nlm_file *file, struct nlm_lock *lock)
 {
+<<<<<<< HEAD
 	int	error;
 
 	dprintk("lockd: nlmsvc_unlock(%s/%ld, pi=%d, %Ld-%Ld)\n",
 				locks_inode(file->f_file)->i_sb->s_id,
 				locks_inode(file->f_file)->i_ino,
+=======
+	int	error = 0;
+
+	dprintk("lockd: nlmsvc_unlock(%s/%ld, pi=%d, %Ld-%Ld)\n",
+				nlmsvc_file_inode(file)->i_sb->s_id,
+				nlmsvc_file_inode(file)->i_ino,
+>>>>>>> upstream/android-13
 				lock->fl.fl_pid,
 				(long long)lock->fl.fl_start,
 				(long long)lock->fl.fl_end);
@@ -576,7 +722,16 @@ nlmsvc_unlock(struct net *net, struct nlm_file *file, struct nlm_lock *lock)
 	nlmsvc_cancel_blocked(net, file, lock);
 
 	lock->fl.fl_type = F_UNLCK;
+<<<<<<< HEAD
 	error = vfs_lock_file(file->f_file, F_SETLK, &lock->fl, NULL);
+=======
+	if (file->f_file[O_RDONLY])
+		error = vfs_lock_file(file->f_file[O_RDONLY], F_SETLK,
+					&lock->fl, NULL);
+	if (file->f_file[O_WRONLY])
+		error = vfs_lock_file(file->f_file[O_WRONLY], F_SETLK,
+					&lock->fl, NULL);
+>>>>>>> upstream/android-13
 
 	return (error < 0)? nlm_lck_denied_nolocks : nlm_granted;
 }
@@ -593,10 +748,18 @@ nlmsvc_cancel_blocked(struct net *net, struct nlm_file *file, struct nlm_lock *l
 {
 	struct nlm_block	*block;
 	int status = 0;
+<<<<<<< HEAD
 
 	dprintk("lockd: nlmsvc_cancel(%s/%ld, pi=%d, %Ld-%Ld)\n",
 				locks_inode(file->f_file)->i_sb->s_id,
 				locks_inode(file->f_file)->i_ino,
+=======
+	int mode;
+
+	dprintk("lockd: nlmsvc_cancel(%s/%ld, pi=%d, %Ld-%Ld)\n",
+				nlmsvc_file_inode(file)->i_sb->s_id,
+				nlmsvc_file_inode(file)->i_ino,
+>>>>>>> upstream/android-13
 				lock->fl.fl_pid,
 				(long long)lock->fl.fl_start,
 				(long long)lock->fl.fl_end);
@@ -608,7 +771,12 @@ nlmsvc_cancel_blocked(struct net *net, struct nlm_file *file, struct nlm_lock *l
 	block = nlmsvc_lookup_block(file, lock);
 	mutex_unlock(&file->f_mutex);
 	if (block != NULL) {
+<<<<<<< HEAD
 		vfs_cancel_lock(block->b_file->f_file,
+=======
+		mode = lock_to_openmode(&lock->fl);
+		vfs_cancel_lock(block->b_file->f_file[mode],
+>>>>>>> upstream/android-13
 				&block->b_call->a_args.lock.fl);
 		status = nlmsvc_unlink_block(block);
 		nlmsvc_release_block(block);
@@ -692,6 +860,7 @@ nlmsvc_notify_blocked(struct file_lock *fl)
 	printk(KERN_WARNING "lockd: notification for unknown block!\n");
 }
 
+<<<<<<< HEAD
 static int nlmsvc_same_owner(struct file_lock *fl1, struct file_lock *fl2)
 {
 	return fl1->fl_owner == fl2->fl_owner && fl1->fl_pid == fl2->fl_pid;
@@ -713,6 +882,23 @@ const struct lock_manager_operations nlmsvc_lock_operations = {
 	.lm_owner_key = nlmsvc_owner_key,
 	.lm_notify = nlmsvc_notify_blocked,
 	.lm_grant = nlmsvc_grant_deferred,
+=======
+static fl_owner_t nlmsvc_get_owner(fl_owner_t owner)
+{
+	return nlmsvc_get_lockowner(owner);
+}
+
+static void nlmsvc_put_owner(fl_owner_t owner)
+{
+	nlmsvc_put_lockowner(owner);
+}
+
+const struct lock_manager_operations nlmsvc_lock_operations = {
+	.lm_notify = nlmsvc_notify_blocked,
+	.lm_grant = nlmsvc_grant_deferred,
+	.lm_get_owner = nlmsvc_get_owner,
+	.lm_put_owner = nlmsvc_put_owner,
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -731,6 +917,10 @@ nlmsvc_grant_blocked(struct nlm_block *block)
 {
 	struct nlm_file		*file = block->b_file;
 	struct nlm_lock		*lock = &block->b_call->a_args.lock;
+<<<<<<< HEAD
+=======
+	int			mode;
+>>>>>>> upstream/android-13
 	int			error;
 	loff_t			fl_start, fl_end;
 
@@ -756,7 +946,12 @@ nlmsvc_grant_blocked(struct nlm_block *block)
 	lock->fl.fl_flags |= FL_SLEEP;
 	fl_start = lock->fl.fl_start;
 	fl_end = lock->fl.fl_end;
+<<<<<<< HEAD
 	error = vfs_lock_file(file->f_file, F_SETLK, &lock->fl, NULL);
+=======
+	mode = lock_to_openmode(&lock->fl);
+	error = vfs_lock_file(file->f_file[mode], F_SETLK, &lock->fl, NULL);
+>>>>>>> upstream/android-13
 	lock->fl.fl_flags &= ~FL_SLEEP;
 	lock->fl.fl_start = fl_start;
 	lock->fl.fl_end = fl_end;

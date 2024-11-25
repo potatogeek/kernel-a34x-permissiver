@@ -16,6 +16,10 @@ extern int
 seq_print_ip_sym(struct trace_seq *s, unsigned long ip,
 		unsigned long sym_flags);
 
+<<<<<<< HEAD
+=======
+extern void trace_seq_print_sym(struct trace_seq *s, unsigned long address, bool offset);
+>>>>>>> upstream/android-13
 extern int trace_print_context(struct trace_iterator *iter);
 extern int trace_print_lat_context(struct trace_iterator *iter);
 

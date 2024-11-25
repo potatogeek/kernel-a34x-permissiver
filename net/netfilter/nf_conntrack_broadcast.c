@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *      broadcast connection tracking helper
  *
  *      (c) 2005 Patrick McHardy <kaber@trash.net>
+<<<<<<< HEAD
  *
  *      This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -41,12 +48,25 @@ int nf_conntrack_broadcast_help(struct sk_buff *skb,
 
 	in_dev = __in_dev_get_rcu(rt->dst.dev);
 	if (in_dev != NULL) {
+<<<<<<< HEAD
 		for_primary_ifa(in_dev) {
+=======
+		const struct in_ifaddr *ifa;
+
+		in_dev_for_each_ifa_rcu(ifa, in_dev) {
+			if (ifa->ifa_flags & IFA_F_SECONDARY)
+				continue;
+
+>>>>>>> upstream/android-13
 			if (ifa->ifa_broadcast == iph->daddr) {
 				mask = ifa->ifa_mask;
 				break;
 			}
+<<<<<<< HEAD
 		} endfor_ifa(in_dev);
+=======
+		}
+>>>>>>> upstream/android-13
 	}
 
 	if (mask == 0)
@@ -67,7 +87,11 @@ int nf_conntrack_broadcast_help(struct sk_buff *skb,
 	exp->class		  = NF_CT_EXPECT_CLASS_DEFAULT;
 	exp->helper               = NULL;
 
+<<<<<<< HEAD
 	nf_ct_expect_related(exp);
+=======
+	nf_ct_expect_related(exp, 0);
+>>>>>>> upstream/android-13
 	nf_ct_expect_put(exp);
 
 	nf_ct_refresh(ct, skb, timeout * HZ);

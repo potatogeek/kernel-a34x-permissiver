@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * wm8523.c  --  WM8523 ALSA SoC Audio driver
  *
  * Copyright 2009 Wolfson Microelectronics plc
  *
  * Author: Mark Brown <broonie@opensource.wolfsonmicro.com>
+<<<<<<< HEAD
  *
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -151,8 +158,13 @@ static int wm8523_hw_params(struct snd_pcm_substream *substream,
 	struct snd_soc_component *component = dai->component;
 	struct wm8523_priv *wm8523 = snd_soc_component_get_drvdata(component);
 	int i;
+<<<<<<< HEAD
 	u16 aifctrl1 = snd_soc_component_read32(component, WM8523_AIF_CTRL1);
 	u16 aifctrl2 = snd_soc_component_read32(component, WM8523_AIF_CTRL2);
+=======
+	u16 aifctrl1 = snd_soc_component_read(component, WM8523_AIF_CTRL1);
+	u16 aifctrl2 = snd_soc_component_read(component, WM8523_AIF_CTRL2);
+>>>>>>> upstream/android-13
 
 	/* Find a supported LRCLK ratio */
 	for (i = 0; i < ARRAY_SIZE(lrclk_ratios); i++) {
@@ -262,7 +274,11 @@ static int wm8523_set_dai_fmt(struct snd_soc_dai *codec_dai,
 		unsigned int fmt)
 {
 	struct snd_soc_component *component = codec_dai->component;
+<<<<<<< HEAD
 	u16 aifctrl1 = snd_soc_component_read32(component, WM8523_AIF_CTRL1);
+=======
+	u16 aifctrl1 = snd_soc_component_read(component, WM8523_AIF_CTRL1);
+>>>>>>> upstream/android-13
 
 	aifctrl1 &= ~(WM8523_BCLK_INV_MASK | WM8523_LRCLK_INV_MASK |
 		      WM8523_FMT_MASK | WM8523_AIF_MSTR_MASK);

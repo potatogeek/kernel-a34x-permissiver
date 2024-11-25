@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 
 #include "notifier-error-inject.h"
@@ -58,25 +62,34 @@ struct dentry *notifier_err_inject_init(const char *name, struct dentry *parent,
 	err_inject->nb.priority = priority;
 
 	dir = debugfs_create_dir(name, parent);
+<<<<<<< HEAD
 	if (!dir)
 		return ERR_PTR(-ENOMEM);
 
 	actions_dir = debugfs_create_dir("actions", dir);
 	if (!actions_dir)
 		goto fail;
+=======
+
+	actions_dir = debugfs_create_dir("actions", dir);
+>>>>>>> upstream/android-13
 
 	for (action = err_inject->actions; action->name; action++) {
 		struct dentry *action_dir;
 
 		action_dir = debugfs_create_dir(action->name, actions_dir);
+<<<<<<< HEAD
 		if (!action_dir)
 			goto fail;
+=======
+>>>>>>> upstream/android-13
 
 		/*
 		 * Create debugfs r/w file containing action->error. If
 		 * notifier call chain is called with action->val, it will
 		 * fail with the error code
 		 */
+<<<<<<< HEAD
 		if (!debugfs_create_errno("error", mode, action_dir,
 					&action->error))
 			goto fail;
@@ -85,6 +98,11 @@ struct dentry *notifier_err_inject_init(const char *name, struct dentry *parent,
 fail:
 	debugfs_remove_recursive(dir);
 	return ERR_PTR(-ENOMEM);
+=======
+		debugfs_create_errno("error", mode, action_dir, &action->error);
+	}
+	return dir;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(notifier_err_inject_init);
 

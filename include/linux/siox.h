@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015 Pengutronix, Uwe Kleine-König <kernel@pengutronix.de>
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License version 2 as published by the
  * Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2015 Pengutronix, Uwe Kleine-König <kernel@pengutronix.de>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -39,7 +45,11 @@ bool siox_device_connected(struct siox_device *sdevice);
 
 struct siox_driver {
 	int (*probe)(struct siox_device *sdevice);
+<<<<<<< HEAD
 	int (*remove)(struct siox_device *sdevice);
+=======
+	void (*remove)(struct siox_device *sdevice);
+>>>>>>> upstream/android-13
 	void (*shutdown)(struct siox_device *sdevice);
 
 	/*
@@ -75,3 +85,16 @@ static inline void siox_driver_unregister(struct siox_driver *sdriver)
 {
 	return driver_unregister(&sdriver->driver);
 }
+<<<<<<< HEAD
+=======
+
+/*
+ * module_siox_driver() - Helper macro for drivers that don't do
+ * anything special in module init/exit.  This eliminates a lot of
+ * boilerplate.  Each module may only use this macro once, and
+ * calling it replaces module_init() and module_exit()
+ */
+#define module_siox_driver(__siox_driver) \
+	module_driver(__siox_driver, siox_driver_register, \
+			siox_driver_unregister)
+>>>>>>> upstream/android-13

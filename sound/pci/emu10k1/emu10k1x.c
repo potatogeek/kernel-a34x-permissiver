@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Copyright (c) by Francisco Moraes <fmoraes@nc.rr.com>
  *  Driver EMU10K1X chips
@@ -13,6 +17,7 @@
  *  Chips (SB0200 model):
  *    - EMU10K1X-DBQ
  *    - STAC 9708T
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -28,6 +33,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/init.h>
 #include <linux/interrupt.h>
@@ -45,7 +52,10 @@
 MODULE_AUTHOR("Francisco Moraes <fmoraes@nc.rr.com>");
 MODULE_DESCRIPTION("EMU10K1X");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{{Dell Creative Labs,SB Live!}");
+=======
+>>>>>>> upstream/android-13
 
 // module parameters (see "Module Parameters")
 static int index[SNDRV_CARDS] = SNDRV_DEFAULT_IDX;
@@ -231,7 +241,10 @@ struct emu10k1x {
 	struct pci_dev *pci;
 
 	unsigned long port;
+<<<<<<< HEAD
 	struct resource *res_port;
+=======
+>>>>>>> upstream/android-13
 	int irq;
 
 	unsigned char revision;		/* chip revision */
@@ -248,7 +261,11 @@ struct emu10k1x {
 	struct emu10k1x_voice capture_voice;
 	u32 spdif_bits[3]; // SPDIF out setup
 
+<<<<<<< HEAD
 	struct snd_dma_buffer dma_buffer;
+=======
+	struct snd_dma_buffer *dma_buffer;
+>>>>>>> upstream/android-13
 
 	struct emu10k1x_midi midi;
 };
@@ -364,7 +381,12 @@ static void snd_emu10k1x_pcm_interrupt(struct emu10k1x *emu, struct emu10k1x_voi
 {
 	struct emu10k1x_pcm *epcm;
 
+<<<<<<< HEAD
 	if ((epcm = voice->epcm) == NULL)
+=======
+	epcm = voice->epcm;
+	if (!epcm)
+>>>>>>> upstream/android-13
 		return;
 	if (epcm->substream == NULL)
 		return;
@@ -386,10 +408,18 @@ static int snd_emu10k1x_playback_open(struct snd_pcm_substream *substream)
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	int err;
 
+<<<<<<< HEAD
 	if ((err = snd_pcm_hw_constraint_integer(runtime, SNDRV_PCM_HW_PARAM_PERIODS)) < 0) {
 		return err;
 	}
 	if ((err = snd_pcm_hw_constraint_step(runtime, 0, SNDRV_PCM_HW_PARAM_PERIOD_BYTES, 64)) < 0)
+=======
+	err = snd_pcm_hw_constraint_integer(runtime, SNDRV_PCM_HW_PARAM_PERIODS);
+	if (err < 0)
+		return err;
+	err = snd_pcm_hw_constraint_step(runtime, 0, SNDRV_PCM_HW_PARAM_PERIOD_BYTES, 64);
+	if (err < 0)
+>>>>>>> upstream/android-13
                 return err;
 
 	epcm = kzalloc(sizeof(*epcm), GFP_KERNEL);
@@ -425,8 +455,12 @@ static int snd_emu10k1x_pcm_hw_params(struct snd_pcm_substream *substream,
 		epcm->voice->epcm = epcm;
 	}
 
+<<<<<<< HEAD
 	return snd_pcm_lib_malloc_pages(substream,
 					params_buffer_bytes(hw_params));
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /* hw_free callback */
@@ -446,7 +480,11 @@ static int snd_emu10k1x_pcm_hw_free(struct snd_pcm_substream *substream)
 		epcm->voice = NULL;
 	}
 
+<<<<<<< HEAD
 	return snd_pcm_lib_free_pages(substream);
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /* prepare callback */
@@ -456,7 +494,11 @@ static int snd_emu10k1x_pcm_prepare(struct snd_pcm_substream *substream)
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct emu10k1x_pcm *epcm = runtime->private_data;
 	int voice = epcm->voice->number;
+<<<<<<< HEAD
 	u32 *table_base = (u32 *)(emu->dma_buffer.area+1024*voice);
+=======
+	u32 *table_base = (u32 *)(emu->dma_buffer->area+1024*voice);
+>>>>>>> upstream/android-13
 	u32 period_size_bytes = frames_to_bytes(runtime, runtime->period_size);
 	int i;
 	
@@ -465,7 +507,11 @@ static int snd_emu10k1x_pcm_prepare(struct snd_pcm_substream *substream)
 		*table_base++=period_size_bytes<<16;
 	}
 
+<<<<<<< HEAD
 	snd_emu10k1x_ptr_write(emu, PLAYBACK_LIST_ADDR, voice, emu->dma_buffer.addr+1024*voice);
+=======
+	snd_emu10k1x_ptr_write(emu, PLAYBACK_LIST_ADDR, voice, emu->dma_buffer->addr+1024*voice);
+>>>>>>> upstream/android-13
 	snd_emu10k1x_ptr_write(emu, PLAYBACK_LIST_SIZE, voice, (runtime->periods - 1) << 19);
 	snd_emu10k1x_ptr_write(emu, PLAYBACK_LIST_PTR, voice, 0);
 	snd_emu10k1x_ptr_write(emu, PLAYBACK_POINTER, voice, 0);
@@ -551,7 +597,10 @@ snd_emu10k1x_pcm_pointer(struct snd_pcm_substream *substream)
 static const struct snd_pcm_ops snd_emu10k1x_playback_ops = {
 	.open =        snd_emu10k1x_playback_open,
 	.close =       snd_emu10k1x_playback_close,
+<<<<<<< HEAD
 	.ioctl =       snd_pcm_lib_ioctl,
+=======
+>>>>>>> upstream/android-13
 	.hw_params =   snd_emu10k1x_pcm_hw_params,
 	.hw_free =     snd_emu10k1x_pcm_hw_free,
 	.prepare =     snd_emu10k1x_pcm_prepare,
@@ -567,10 +616,19 @@ static int snd_emu10k1x_pcm_open_capture(struct snd_pcm_substream *substream)
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	int err;
 
+<<<<<<< HEAD
 	if ((err = snd_pcm_hw_constraint_integer(runtime, SNDRV_PCM_HW_PARAM_PERIODS)) < 0)
                 return err;
 	if ((err = snd_pcm_hw_constraint_step(runtime, 0, SNDRV_PCM_HW_PARAM_PERIOD_BYTES, 64)) < 0)
                 return err;
+=======
+	err = snd_pcm_hw_constraint_integer(runtime, SNDRV_PCM_HW_PARAM_PERIODS);
+	if (err < 0)
+		return err;
+	err = snd_pcm_hw_constraint_step(runtime, 0, SNDRV_PCM_HW_PARAM_PERIOD_BYTES, 64);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 
 	epcm = kzalloc(sizeof(*epcm), GFP_KERNEL);
 	if (epcm == NULL)
@@ -608,8 +666,12 @@ static int snd_emu10k1x_pcm_hw_params_capture(struct snd_pcm_substream *substrea
 		epcm->voice->use = 1;
 	}
 
+<<<<<<< HEAD
 	return snd_pcm_lib_malloc_pages(substream,
 					params_buffer_bytes(hw_params));
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /* hw_free callback */
@@ -629,7 +691,11 @@ static int snd_emu10k1x_pcm_hw_free_capture(struct snd_pcm_substream *substream)
 		epcm->voice = NULL;
 	}
 
+<<<<<<< HEAD
 	return snd_pcm_lib_free_pages(substream);
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /* prepare capture callback */
@@ -697,7 +763,10 @@ snd_emu10k1x_pcm_pointer_capture(struct snd_pcm_substream *substream)
 static const struct snd_pcm_ops snd_emu10k1x_capture_ops = {
 	.open =        snd_emu10k1x_pcm_open_capture,
 	.close =       snd_emu10k1x_pcm_close_capture,
+<<<<<<< HEAD
 	.ioctl =       snd_pcm_lib_ioctl,
+=======
+>>>>>>> upstream/android-13
 	.hw_params =   snd_emu10k1x_pcm_hw_params_capture,
 	.hw_free =     snd_emu10k1x_pcm_hw_free_capture,
 	.prepare =     snd_emu10k1x_pcm_prepare_capture,
@@ -736,12 +805,21 @@ static int snd_emu10k1x_ac97(struct emu10k1x *chip)
 	struct snd_ac97_bus *pbus;
 	struct snd_ac97_template ac97;
 	int err;
+<<<<<<< HEAD
 	static struct snd_ac97_bus_ops ops = {
+=======
+	static const struct snd_ac97_bus_ops ops = {
+>>>>>>> upstream/android-13
 		.write = snd_emu10k1x_ac97_write,
 		.read = snd_emu10k1x_ac97_read,
 	};
   
+<<<<<<< HEAD
 	if ((err = snd_ac97_bus(chip->card, 0, &ops, NULL, &pbus)) < 0)
+=======
+	err = snd_ac97_bus(chip->card, 0, &ops, NULL, &pbus);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 	pbus->no_vra = 1; /* we don't need VRA */
 
@@ -751,13 +829,21 @@ static int snd_emu10k1x_ac97(struct emu10k1x *chip)
 	return snd_ac97_mixer(pbus, &ac97, &chip->ac97);
 }
 
+<<<<<<< HEAD
 static int snd_emu10k1x_free(struct emu10k1x *chip)
 {
+=======
+static void snd_emu10k1x_free(struct snd_card *card)
+{
+	struct emu10k1x *chip = card->private_data;
+
+>>>>>>> upstream/android-13
 	snd_emu10k1x_ptr_write(chip, TRIGGER_CHANNEL, 0, 0);
 	// disable interrupts
 	outl(0, chip->port + INTE);
 	// disable audio
 	outl(HCFG_LOCKSOUNDCACHE, chip->port + HCFG);
+<<<<<<< HEAD
 
 	/* release the irq */
 	if (chip->irq >= 0)
@@ -782,6 +868,8 @@ static int snd_emu10k1x_dev_free(struct snd_device *device)
 {
 	struct emu10k1x *chip = device->device_data;
 	return snd_emu10k1x_free(chip);
+=======
+>>>>>>> upstream/android-13
 }
 
 static irqreturn_t snd_emu10k1x_interrupt(int irq, void *dev_id)
@@ -857,7 +945,12 @@ static int snd_emu10k1x_pcm(struct emu10k1x *emu, int device)
 	if (device == 0)
 		capture = 1;
 	
+<<<<<<< HEAD
 	if ((err = snd_pcm_new(emu->card, "emu10k1x", device, 1, capture, &pcm)) < 0)
+=======
+	err = snd_pcm_new(emu->card, "emu10k1x", device, 1, capture, &pcm);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
   
 	pcm->private_data = emu;
@@ -890,15 +983,21 @@ static int snd_emu10k1x_pcm(struct emu10k1x *emu, int device)
 	}
 	emu->pcm = pcm;
 
+<<<<<<< HEAD
 	snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_DEV,
 					      snd_dma_pci_data(emu->pci), 
 					      32*1024, 32*1024);
+=======
+	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_DEV,
+				       &emu->pci->dev, 32*1024, 32*1024);
+>>>>>>> upstream/android-13
   
 	return snd_pcm_add_chmap_ctls(pcm, SNDRV_PCM_STREAM_PLAYBACK, map, 2,
 				     1 << 2, NULL);
 }
 
 static int snd_emu10k1x_create(struct snd_card *card,
+<<<<<<< HEAD
 			       struct pci_dev *pci,
 			       struct emu10k1x **rchip)
 {
@@ -924,6 +1023,21 @@ static int snd_emu10k1x_create(struct snd_card *card,
 	if (chip == NULL) {
 		pci_disable_device(pci);
 		return -ENOMEM;
+=======
+			       struct pci_dev *pci)
+{
+	struct emu10k1x *chip = card->private_data;
+	int err;
+	int ch;
+
+	err = pcim_enable_device(pci);
+	if (err < 0)
+		return err;
+
+	if (dma_set_mask_and_coherent(&pci->dev, DMA_BIT_MASK(28)) < 0) {
+		dev_err(card->dev, "error to set 28bit mask DMA\n");
+		return -ENXIO;
+>>>>>>> upstream/android-13
 	}
 
 	chip->card = card;
@@ -933,6 +1047,7 @@ static int snd_emu10k1x_create(struct snd_card *card,
 	spin_lock_init(&chip->emu_lock);
 	spin_lock_init(&chip->voice_lock);
   
+<<<<<<< HEAD
 	chip->port = pci_resource_start(pci, 0);
 	if ((chip->res_port = request_region(chip->port, 8,
 					     "EMU10K1X")) == NULL) { 
@@ -955,6 +1070,26 @@ static int snd_emu10k1x_create(struct snd_card *card,
 		snd_emu10k1x_free(chip);
 		return -ENOMEM;
 	}
+=======
+	err = pci_request_regions(pci, "EMU10K1X");
+	if (err < 0)
+		return err;
+	chip->port = pci_resource_start(pci, 0);
+
+	if (devm_request_irq(&pci->dev, pci->irq, snd_emu10k1x_interrupt,
+			     IRQF_SHARED, KBUILD_MODNAME, chip)) {
+		dev_err(card->dev, "cannot grab irq %d\n", pci->irq);
+		return -EBUSY;
+	}
+	chip->irq = pci->irq;
+	card->sync_irq = chip->irq;
+	card->private_free = snd_emu10k1x_free;
+  
+	chip->dma_buffer = snd_devm_alloc_pages(&pci->dev, SNDRV_DMA_TYPE_DEV,
+						4 * 1024);
+	if (!chip->dma_buffer)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	pci_set_master(pci);
 	/* read revision & serial */
@@ -1010,12 +1145,15 @@ static int snd_emu10k1x_create(struct snd_card *card,
 
 	outl(HCFG_LOCKSOUNDCACHE|HCFG_AUDIOENABLE, chip->port+HCFG);
 
+<<<<<<< HEAD
 	if ((err = snd_device_new(card, SNDRV_DEV_LOWLEVEL,
 				  chip, &ops)) < 0) {
 		snd_emu10k1x_free(chip);
 		return err;
 	}
 	*rchip = chip;
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1058,13 +1196,18 @@ static void snd_emu10k1x_proc_reg_write(struct snd_info_entry *entry,
 		if (sscanf(line, "%x %x %x", &reg, &channel_id, &val) != 3)
 			continue;
 
+<<<<<<< HEAD
 		if (reg < 0x49 && val <= 0xffffffff && channel_id <= 2)
+=======
+		if (reg < 0x49 && channel_id <= 2)
+>>>>>>> upstream/android-13
 			snd_emu10k1x_ptr_write(emu, reg, channel_id, val);
 	}
 }
 
 static int snd_emu10k1x_proc_init(struct emu10k1x *emu)
 {
+<<<<<<< HEAD
 	struct snd_info_entry *entry;
 	
 	if(! snd_card_proc_new(emu->card, "emu10k1x_regs", &entry)) {
@@ -1074,6 +1217,11 @@ static int snd_emu10k1x_proc_init(struct emu10k1x *emu)
 		entry->private_data = emu;
 	}
 	
+=======
+	snd_card_rw_proc_new(emu->card, "emu10k1x_regs", emu,
+			     snd_emu10k1x_proc_reg_read,
+			     snd_emu10k1x_proc_reg_write);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1094,7 +1242,10 @@ static int snd_emu10k1x_shared_spdif_put(struct snd_kcontrol *kcontrol,
 {
 	struct emu10k1x *emu = snd_kcontrol_chip(kcontrol);
 	unsigned int val;
+<<<<<<< HEAD
 	int change = 0;
+=======
+>>>>>>> upstream/android-13
 
 	val = ucontrol->value.integer.value[0] ;
 
@@ -1109,7 +1260,11 @@ static int snd_emu10k1x_shared_spdif_put(struct snd_kcontrol *kcontrol,
 		snd_emu10k1x_ptr_write(emu, ROUTING, 0, 0x1003F);
 		snd_emu10k1x_gpio_write(emu, 0x1080);
 	}
+<<<<<<< HEAD
 	return change;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static const struct snd_kcontrol_new snd_emu10k1x_shared_spdif =
@@ -1197,6 +1352,7 @@ static int snd_emu10k1x_mixer(struct emu10k1x *emu)
 	struct snd_kcontrol *kctl;
 	struct snd_card *card = emu->card;
 
+<<<<<<< HEAD
 	if ((kctl = snd_ctl_new1(&snd_emu10k1x_spdif_mask_control, emu)) == NULL)
 		return -ENOMEM;
 	if ((err = snd_ctl_add(card, kctl)))
@@ -1208,6 +1364,25 @@ static int snd_emu10k1x_mixer(struct emu10k1x *emu)
 	if ((kctl = snd_ctl_new1(&snd_emu10k1x_spdif_control, emu)) == NULL)
 		return -ENOMEM;
 	if ((err = snd_ctl_add(card, kctl)))
+=======
+	kctl = snd_ctl_new1(&snd_emu10k1x_spdif_mask_control, emu);
+	if (!kctl)
+		return -ENOMEM;
+	err = snd_ctl_add(card, kctl);
+	if (err)
+		return err;
+	kctl = snd_ctl_new1(&snd_emu10k1x_shared_spdif, emu);
+	if (!kctl)
+		return -ENOMEM;
+	err = snd_ctl_add(card, kctl);
+	if (err)
+		return err;
+	kctl = snd_ctl_new1(&snd_emu10k1x_spdif_control, emu);
+	if (!kctl)
+		return -ENOMEM;
+	err = snd_ctl_add(card, kctl);
+	if (err)
+>>>>>>> upstream/android-13
 		return err;
 
 	return 0;
@@ -1514,7 +1689,12 @@ static int emu10k1x_midi_init(struct emu10k1x *emu,
 	struct snd_rawmidi *rmidi;
 	int err;
 
+<<<<<<< HEAD
 	if ((err = snd_rawmidi_new(emu->card, name, device, 1, 1, &rmidi)) < 0)
+=======
+	err = snd_rawmidi_new(emu->card, name, device, 1, 1, &rmidi);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 	midi->emu = emu;
 	spin_lock_init(&midi->open_lock);
@@ -1537,7 +1717,12 @@ static int snd_emu10k1x_midi(struct emu10k1x *emu)
 	struct emu10k1x_midi *midi = &emu->midi;
 	int err;
 
+<<<<<<< HEAD
 	if ((err = emu10k1x_midi_init(emu, midi, 0, "EMU10K1X MPU-401 (UART)")) < 0)
+=======
+	err = emu10k1x_midi_init(emu, midi, 0, "EMU10K1X MPU-401 (UART)");
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 
 	midi->tx_enable = INTE_MIDITXENABLE;
@@ -1549,8 +1734,13 @@ static int snd_emu10k1x_midi(struct emu10k1x *emu)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int snd_emu10k1x_probe(struct pci_dev *pci,
 			      const struct pci_device_id *pci_id)
+=======
+static int __snd_emu10k1x_probe(struct pci_dev *pci,
+				const struct pci_device_id *pci_id)
+>>>>>>> upstream/android-13
 {
 	static int dev;
 	struct snd_card *card;
@@ -1564,6 +1754,7 @@ static int snd_emu10k1x_probe(struct pci_dev *pci,
 		return -ENOENT;
 	}
 
+<<<<<<< HEAD
 	err = snd_card_new(&pci->dev, index[dev], id[dev], THIS_MODULE,
 			   0, &card);
 	if (err < 0)
@@ -1601,6 +1792,39 @@ static int snd_emu10k1x_probe(struct pci_dev *pci,
 		snd_card_free(card);
 		return err;
 	}
+=======
+	err = snd_devm_card_new(&pci->dev, index[dev], id[dev], THIS_MODULE,
+				sizeof(*chip), &card);
+	if (err < 0)
+		return err;
+	chip = card->private_data;
+
+	err = snd_emu10k1x_create(card, pci);
+	if (err < 0)
+		return err;
+
+	err = snd_emu10k1x_pcm(chip, 0);
+	if (err < 0)
+		return err;
+	err = snd_emu10k1x_pcm(chip, 1);
+	if (err < 0)
+		return err;
+	err = snd_emu10k1x_pcm(chip, 2);
+	if (err < 0)
+		return err;
+
+	err = snd_emu10k1x_ac97(chip);
+	if (err < 0)
+		return err;
+
+	err = snd_emu10k1x_mixer(chip);
+	if (err < 0)
+		return err;
+	
+	err = snd_emu10k1x_midi(chip);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 
 	snd_emu10k1x_proc_init(chip);
 
@@ -1609,19 +1833,32 @@ static int snd_emu10k1x_probe(struct pci_dev *pci,
 	sprintf(card->longname, "%s at 0x%lx irq %i",
 		card->shortname, chip->port, chip->irq);
 
+<<<<<<< HEAD
 	if ((err = snd_card_register(card)) < 0) {
 		snd_card_free(card);
 		return err;
 	}
+=======
+	err = snd_card_register(card);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 
 	pci_set_drvdata(pci, card);
 	dev++;
 	return 0;
 }
 
+<<<<<<< HEAD
 static void snd_emu10k1x_remove(struct pci_dev *pci)
 {
 	snd_card_free(pci_get_drvdata(pci));
+=======
+static int snd_emu10k1x_probe(struct pci_dev *pci,
+			      const struct pci_device_id *pci_id)
+{
+	return snd_card_free_on_error(&pci->dev, __snd_emu10k1x_probe(pci, pci_id));
+>>>>>>> upstream/android-13
 }
 
 // PCI IDs
@@ -1636,7 +1873,10 @@ static struct pci_driver emu10k1x_driver = {
 	.name = KBUILD_MODNAME,
 	.id_table = snd_emu10k1x_ids,
 	.probe = snd_emu10k1x_probe,
+<<<<<<< HEAD
 	.remove = snd_emu10k1x_remove,
+=======
+>>>>>>> upstream/android-13
 };
 
 module_pci_driver(emu10k1x_driver);

@@ -17,9 +17,15 @@ struct page_ext_operations {
 #ifdef CONFIG_PAGE_EXTENSION
 
 enum page_ext_flags {
+<<<<<<< HEAD
 	PAGE_EXT_DEBUG_GUARD,
 	PAGE_EXT_OWNER,
 #if defined(CONFIG_IDLE_PAGE_TRACKING) && !defined(CONFIG_64BIT)
+=======
+	PAGE_EXT_OWNER,
+	PAGE_EXT_OWNER_ALLOCATED,
+#if defined(CONFIG_PAGE_IDLE_FLAG) && !defined(CONFIG_64BIT)
+>>>>>>> upstream/android-13
 	PAGE_EXT_YOUNG,
 	PAGE_EXT_IDLE,
 #endif
@@ -36,6 +42,10 @@ struct page_ext {
 	unsigned long flags;
 };
 
+<<<<<<< HEAD
+=======
+extern unsigned long page_ext_size;
+>>>>>>> upstream/android-13
 extern void pgdat_page_ext_init(struct pglist_data *pgdat);
 
 #ifdef CONFIG_SPARSEMEM
@@ -43,8 +53,17 @@ static inline void page_ext_init_flatmem(void)
 {
 }
 extern void page_ext_init(void);
+<<<<<<< HEAD
 #else
 extern void page_ext_init_flatmem(void);
+=======
+static inline void page_ext_init_flatmem_late(void)
+{
+}
+#else
+extern void page_ext_init_flatmem(void);
+extern void page_ext_init_flatmem_late(void);
+>>>>>>> upstream/android-13
 static inline void page_ext_init(void)
 {
 }
@@ -52,6 +71,16 @@ static inline void page_ext_init(void)
 
 struct page_ext *lookup_page_ext(const struct page *page);
 
+<<<<<<< HEAD
+=======
+static inline struct page_ext *page_ext_next(struct page_ext *curr)
+{
+	void *next = curr;
+	next += page_ext_size;
+	return next;
+}
+
+>>>>>>> upstream/android-13
 #else /* !CONFIG_PAGE_EXTENSION */
 struct page_ext;
 
@@ -68,6 +97,13 @@ static inline void page_ext_init(void)
 {
 }
 
+<<<<<<< HEAD
+=======
+static inline void page_ext_init_flatmem_late(void)
+{
+}
+
+>>>>>>> upstream/android-13
 static inline void page_ext_init_flatmem(void)
 {
 }

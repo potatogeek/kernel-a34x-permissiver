@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /* Texas Instruments Ethernet Switch Driver
  *
  * Copyright (C) 2013 Texas Instruments
  *
  * Module Author: Mugunthan V N <mugunthanvnm@ti.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
@@ -12,6 +17,8 @@
  * kind, whether express or implied; without even the implied warranty
  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/platform_device.h>
@@ -74,11 +81,19 @@ static void cpsw_gmii_sel_am3352(struct cpsw_phy_sel_priv *priv,
 		dev_warn(priv->dev,
 			 "Unsupported PHY mode: \"%s\". Defaulting to MII.\n",
 			phy_modes(phy_mode));
+<<<<<<< HEAD
 		/* fallthrough */
 	case PHY_INTERFACE_MODE_MII:
 		mode = AM33XX_GMII_SEL_MODE_MII;
 		break;
 	};
+=======
+		fallthrough;
+	case PHY_INTERFACE_MODE_MII:
+		mode = AM33XX_GMII_SEL_MODE_MII;
+		break;
+	}
+>>>>>>> upstream/android-13
 
 	mask = GMII_SEL_MODE_MASK << (slave * 2) | BIT(slave + 6);
 	mask |= BIT(slave + 4);
@@ -129,11 +144,19 @@ static void cpsw_gmii_sel_dra7xx(struct cpsw_phy_sel_priv *priv,
 		dev_warn(priv->dev,
 			 "Unsupported PHY mode: \"%s\". Defaulting to MII.\n",
 			phy_modes(phy_mode));
+<<<<<<< HEAD
 		/* fallthrough */
 	case PHY_INTERFACE_MODE_MII:
 		mode = AM33XX_GMII_SEL_MODE_MII;
 		break;
 	};
+=======
+		fallthrough;
+	case PHY_INTERFACE_MODE_MII:
+		mode = AM33XX_GMII_SEL_MODE_MII;
+		break;
+	}
+>>>>>>> upstream/android-13
 
 	switch (slave) {
 	case 0:
@@ -158,9 +181,15 @@ static void cpsw_gmii_sel_dra7xx(struct cpsw_phy_sel_priv *priv,
 }
 
 static struct platform_driver cpsw_phy_sel_driver;
+<<<<<<< HEAD
 static int match(struct device *dev, void *data)
 {
 	struct device_node *node = (struct device_node *)data;
+=======
+static int match(struct device *dev, const void *data)
+{
+	const struct device_node *node = (const struct device_node *)data;
+>>>>>>> upstream/android-13
 	return dev->of_node == node &&
 		dev->driver == &cpsw_phy_sel_driver.driver;
 }
@@ -213,7 +242,10 @@ static const struct of_device_id cpsw_phy_sel_id_table[] = {
 
 static int cpsw_phy_sel_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct resource	*res;
+=======
+>>>>>>> upstream/android-13
 	const struct of_device_id *of_id;
 	struct cpsw_phy_sel_priv *priv;
 
@@ -230,8 +262,12 @@ static int cpsw_phy_sel_probe(struct platform_device *pdev)
 	priv->dev = &pdev->dev;
 	priv->cpsw_phy_sel = of_id->data;
 
+<<<<<<< HEAD
 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "gmii-sel");
 	priv->gmii_sel = devm_ioremap_resource(&pdev->dev, res);
+=======
+	priv->gmii_sel = devm_platform_ioremap_resource_byname(pdev, "gmii-sel");
+>>>>>>> upstream/android-13
 	if (IS_ERR(priv->gmii_sel))
 		return PTR_ERR(priv->gmii_sel);
 

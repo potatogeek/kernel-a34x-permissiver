@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Generic driver for AD1848/AD1847/CS4248 chips (0.1 Alpha)
  *  Copyright (c) by Tugrul Galatali <galatalt@stuy.edu>,
  *                   Jaroslav Kysela <perex@perex.cz>
  *  Based on card-4232.c by Jaroslav Kysela <perex@perex.cz>
+<<<<<<< HEAD
  *
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -19,6 +24,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -37,9 +44,12 @@
 MODULE_DESCRIPTION(CRD_NAME);
 MODULE_AUTHOR("Tugrul Galatali <galatalt@stuy.edu>, Jaroslav Kysela <perex@perex.cz>");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{{Analog Devices,AD1848},"
 	        "{Analog Devices,AD1847},"
 		"{Crystal Semiconductors,CS4248}}");
+=======
+>>>>>>> upstream/android-13
 
 static int index[SNDRV_CARDS] = SNDRV_DEFAULT_IDX;	/* Index 0-MAX */
 static char *id[SNDRV_CARDS] = SNDRV_DEFAULT_STR;	/* ID for this card */
@@ -90,7 +100,11 @@ static int snd_ad1848_probe(struct device *dev, unsigned int n)
 	struct snd_wss *chip;
 	int error;
 
+<<<<<<< HEAD
 	error = snd_card_new(dev, index[n], id[n], THIS_MODULE, 0, &card);
+=======
+	error = snd_devm_card_new(dev, index[n], id[n], THIS_MODULE, 0, &card);
+>>>>>>> upstream/android-13
 	if (error < 0)
 		return error;
 
@@ -98,12 +112,17 @@ static int snd_ad1848_probe(struct device *dev, unsigned int n)
 			thinkpad[n] ? WSS_HW_THINKPAD : WSS_HW_DETECT,
 			0, &chip);
 	if (error < 0)
+<<<<<<< HEAD
 		goto out;
+=======
+		return error;
+>>>>>>> upstream/android-13
 
 	card->private_data = chip;
 
 	error = snd_wss_pcm(chip, 0);
 	if (error < 0)
+<<<<<<< HEAD
 		goto out;
 
 	error = snd_wss_mixer(chip);
@@ -112,6 +131,16 @@ static int snd_ad1848_probe(struct device *dev, unsigned int n)
 
 	strlcpy(card->driver, "AD1848", sizeof(card->driver));
 	strlcpy(card->shortname, chip->pcm->name, sizeof(card->shortname));
+=======
+		return error;
+
+	error = snd_wss_mixer(chip);
+	if (error < 0)
+		return error;
+
+	strscpy(card->driver, "AD1848", sizeof(card->driver));
+	strscpy(card->shortname, chip->pcm->name, sizeof(card->shortname));
+>>>>>>> upstream/android-13
 
 	if (!thinkpad[n])
 		snprintf(card->longname, sizeof(card->longname),
@@ -124,6 +153,7 @@ static int snd_ad1848_probe(struct device *dev, unsigned int n)
 
 	error = snd_card_register(card);
 	if (error < 0)
+<<<<<<< HEAD
 		goto out;
 
 	dev_set_drvdata(dev, card);
@@ -137,6 +167,12 @@ static int snd_ad1848_remove(struct device *dev, unsigned int n)
 {
 	snd_card_free(dev_get_drvdata(dev));
 	return 0;
+=======
+		return error;
+
+	dev_set_drvdata(dev, card);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_PM
@@ -164,7 +200,10 @@ static int snd_ad1848_resume(struct device *dev, unsigned int n)
 static struct isa_driver snd_ad1848_driver = {
 	.match		= snd_ad1848_match,
 	.probe		= snd_ad1848_probe,
+<<<<<<< HEAD
 	.remove		= snd_ad1848_remove,
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM
 	.suspend	= snd_ad1848_suspend,
 	.resume		= snd_ad1848_resume,

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * SuperH process tracing
  *
@@ -5,10 +9,13 @@
  * Copyright (C) 2002 - 2009  Paul Mundt
  *
  * Audit support by Yuichi Nakamura <ynakam@hitachisoft.jp>
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/sched.h>
@@ -28,7 +35,10 @@
 #include <linux/regset.h>
 #include <linux/hw_breakpoint.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/processor.h>
 #include <asm/mmu_context.h>
 #include <asm/syscalls.h>
@@ -138,6 +148,7 @@ void ptrace_disable(struct task_struct *child)
 
 static int genregs_get(struct task_struct *target,
 		       const struct user_regset *regset,
+<<<<<<< HEAD
 		       unsigned int pos, unsigned int count,
 		       void *kbuf, void __user *ubuf)
 {
@@ -158,6 +169,13 @@ static int genregs_get(struct task_struct *target,
 					       sizeof(struct pt_regs), -1);
 
 	return ret;
+=======
+		       struct membuf to)
+{
+	const struct pt_regs *regs = task_pt_regs(target);
+
+	return membuf_write(&to, regs, sizeof(struct pt_regs));
+>>>>>>> upstream/android-13
 }
 
 static int genregs_set(struct task_struct *target,
@@ -184,10 +202,16 @@ static int genregs_set(struct task_struct *target,
 }
 
 #ifdef CONFIG_SH_FPU
+<<<<<<< HEAD
 int fpregs_get(struct task_struct *target,
 	       const struct user_regset *regset,
 	       unsigned int pos, unsigned int count,
 	       void *kbuf, void __user *ubuf)
+=======
+static int fpregs_get(struct task_struct *target,
+	       const struct user_regset *regset,
+	       struct membuf to)
+>>>>>>> upstream/android-13
 {
 	int ret;
 
@@ -195,12 +219,17 @@ int fpregs_get(struct task_struct *target,
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	if ((boot_cpu_data.flags & CPU_HAS_FPU))
 		return user_regset_copyout(&pos, &count, &kbuf, &ubuf,
 					   &target->thread.xstate->hardfpu, 0, -1);
 
 	return user_regset_copyout(&pos, &count, &kbuf, &ubuf,
 				   &target->thread.xstate->softfpu, 0, -1);
+=======
+	return membuf_write(&to, target->thread.xstate,
+			    sizeof(struct user_fpu_struct));
+>>>>>>> upstream/android-13
 }
 
 static int fpregs_set(struct task_struct *target,
@@ -234,6 +263,7 @@ static int fpregs_active(struct task_struct *target,
 #ifdef CONFIG_SH_DSP
 static int dspregs_get(struct task_struct *target,
 		       const struct user_regset *regset,
+<<<<<<< HEAD
 		       unsigned int pos, unsigned int count,
 		       void *kbuf, void __user *ubuf)
 {
@@ -248,6 +278,14 @@ static int dspregs_get(struct task_struct *target,
 					       sizeof(struct pt_dspregs), -1);
 
 	return ret;
+=======
+		       struct membuf to)
+{
+	const struct pt_dspregs *regs =
+		(struct pt_dspregs *)&target->thread.dsp_status.dsp_regs;
+
+	return membuf_write(&to, regs, sizeof(struct pt_dspregs));
+>>>>>>> upstream/android-13
 }
 
 static int dspregs_set(struct task_struct *target,
@@ -328,7 +366,11 @@ static const struct user_regset sh_regsets[] = {
 		.n		= ELF_NGREG,
 		.size		= sizeof(long),
 		.align		= sizeof(long),
+<<<<<<< HEAD
 		.get		= genregs_get,
+=======
+		.regset_get		= genregs_get,
+>>>>>>> upstream/android-13
 		.set		= genregs_set,
 	},
 
@@ -338,7 +380,11 @@ static const struct user_regset sh_regsets[] = {
 		.n		= sizeof(struct user_fpu_struct) / sizeof(long),
 		.size		= sizeof(long),
 		.align		= sizeof(long),
+<<<<<<< HEAD
 		.get		= fpregs_get,
+=======
+		.regset_get		= fpregs_get,
+>>>>>>> upstream/android-13
 		.set		= fpregs_set,
 		.active		= fpregs_active,
 	},
@@ -349,7 +395,11 @@ static const struct user_regset sh_regsets[] = {
 		.n		= sizeof(struct pt_dspregs) / sizeof(long),
 		.size		= sizeof(long),
 		.align		= sizeof(long),
+<<<<<<< HEAD
 		.get		= dspregs_get,
+=======
+		.regset_get		= dspregs_get,
+>>>>>>> upstream/android-13
 		.set		= dspregs_set,
 		.active		= dspregs_active,
 	},
@@ -487,6 +537,7 @@ long arch_ptrace(struct task_struct *child, long request,
 
 asmlinkage long do_syscall_trace_enter(struct pt_regs *regs)
 {
+<<<<<<< HEAD
 	long ret = 0;
 
 	secure_computing_strict(regs->regs[0]);
@@ -499,6 +550,16 @@ asmlinkage long do_syscall_trace_enter(struct pt_regs *regs)
 		 * error, but leave the original number in regs->regs[0].
 		 */
 		ret = -1L;
+=======
+	if (test_thread_flag(TIF_SYSCALL_TRACE) &&
+	    tracehook_report_syscall_entry(regs)) {
+		regs->regs[0] = -ENOSYS;
+		return -1;
+	}
+
+	if (secure_computing() == -1)
+		return -1;
+>>>>>>> upstream/android-13
 
 	if (unlikely(test_thread_flag(TIF_SYSCALL_TRACEPOINT)))
 		trace_sys_enter(regs, regs->regs[0]);
@@ -506,7 +567,11 @@ asmlinkage long do_syscall_trace_enter(struct pt_regs *regs)
 	audit_syscall_entry(regs->regs[3], regs->regs[4], regs->regs[5],
 			    regs->regs[6], regs->regs[7]);
 
+<<<<<<< HEAD
 	return ret ?: regs->regs[0];
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 asmlinkage void do_syscall_trace_leave(struct pt_regs *regs)

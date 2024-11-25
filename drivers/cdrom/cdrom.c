@@ -7,7 +7,11 @@
    License.  See linux/COPYING for more information.
 
    Uniform CD-ROM driver for Linux.
+<<<<<<< HEAD
    See Documentation/cdrom/cdrom-standard.tex for usage information.
+=======
+   See Documentation/cdrom/cdrom-standard.rst for usage information.
+>>>>>>> upstream/android-13
 
    The routines in the file provide a uniform interface between the
    software that uses CD-ROMs and the various low-level drivers that
@@ -586,7 +590,11 @@ static int cdrom_mrw_set_lba_space(struct cdrom_device_info *cdi, int space)
 	return 0;
 }
 
+<<<<<<< HEAD
 int register_cdrom(struct cdrom_device_info *cdi)
+=======
+int register_cdrom(struct gendisk *disk, struct cdrom_device_info *cdi)
+>>>>>>> upstream/android-13
 {
 	static char banner_printed;
 	const struct cdrom_device_ops *cdo = cdi->ops;
@@ -601,8 +609,16 @@ int register_cdrom(struct cdrom_device_info *cdi)
 		cdrom_sysctl_register();
 	}
 
+<<<<<<< HEAD
 	ENSURE(cdo, drive_status, CDC_DRIVE_STATUS);
 	if (cdo->check_events == NULL && cdo->media_changed == NULL)
+=======
+	cdi->disk = disk;
+	disk->cdi = cdi;
+
+	ENSURE(cdo, drive_status, CDC_DRIVE_STATUS);
+	if (cdo->check_events == NULL)
+>>>>>>> upstream/android-13
 		WARN_ON_ONCE(cdo->capability & (CDC_MEDIA_CHANGED | CDC_SELECT_DISC));
 	ENSURE(cdo, tray_move, CDC_CLOSE_TRAY | CDC_OPEN_TRAY);
 	ENSURE(cdo, lock_door, CDC_LOCK);
@@ -626,7 +642,11 @@ int register_cdrom(struct cdrom_device_info *cdi)
 	if (CDROM_CAN(CDC_MRW_W))
 		cdi->exit = cdrom_mrw_exit;
 
+<<<<<<< HEAD
 	if (cdi->disk)
+=======
+	if (cdi->ops->read_cdda_bpc)
+>>>>>>> upstream/android-13
 		cdi->cdda_method = CDDA_BPC_FULL;
 	else
 		cdi->cdda_method = CDDA_OLD;
@@ -1416,8 +1436,11 @@ static int cdrom_select_disc(struct cdrom_device_info *cdi, int slot)
 
 	if (cdi->ops->check_events)
 		cdi->ops->check_events(cdi, 0, slot);
+<<<<<<< HEAD
 	else
 		cdi->ops->media_changed(cdi, slot);
+=======
+>>>>>>> upstream/android-13
 
 	if (slot == CDSL_NONE) {
 		/* set media changed bits, on both queues */
@@ -1514,6 +1537,7 @@ int media_changed(struct cdrom_device_info *cdi, int queue)
 		return ret;
 
 	/* changed since last call? */
+<<<<<<< HEAD
 	if (cdi->ops->check_events) {
 		BUG_ON(!queue);	/* shouldn't be called from VFS path */
 		cdrom_update_events(cdi, DISK_EVENT_MEDIA_CHANGE);
@@ -1521,6 +1545,12 @@ int media_changed(struct cdrom_device_info *cdi, int queue)
 		cdi->ioctl_events = 0;
 	} else
 		changed = cdi->ops->media_changed(cdi, CDSL_CURRENT);
+=======
+	BUG_ON(!queue);	/* shouldn't be called from VFS path */
+	cdrom_update_events(cdi, DISK_EVENT_MEDIA_CHANGE);
+	changed = cdi->ioctl_events & DISK_EVENT_MEDIA_CHANGE;
+	cdi->ioctl_events = 0;
+>>>>>>> upstream/android-13
 
 	if (changed) {
 		cdi->mc_flags = 0x3;    /* set bit on both queues */
@@ -1532,6 +1562,7 @@ int media_changed(struct cdrom_device_info *cdi, int queue)
 	return ret;
 }
 
+<<<<<<< HEAD
 int cdrom_media_changed(struct cdrom_device_info *cdi)
 {
 	/* This talks to the VFS, which doesn't like errors - just 1 or 0.  
@@ -1544,6 +1575,8 @@ int cdrom_media_changed(struct cdrom_device_info *cdi)
 	return media_changed(cdi, 0);
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Requests to the low-level drivers will /always/ be done in the
    following format convention:
 
@@ -2173,6 +2206,7 @@ static int cdrom_read_cdda_old(struct cdrom_device_info *cdi, __u8 __user *ubuf,
 static int cdrom_read_cdda_bpc(struct cdrom_device_info *cdi, __u8 __user *ubuf,
 			       int lba, int nframes)
 {
+<<<<<<< HEAD
 	struct request_queue *q = cdi->disk->queue;
 	struct request *rq;
 	struct scsi_request *req;
@@ -2242,12 +2276,32 @@ static int cdrom_read_cdda_bpc(struct cdrom_device_info *cdi, __u8 __user *ubuf,
 			ret = -EFAULT;
 		blk_put_request(rq);
 
+=======
+	int max_frames = (queue_max_sectors(cdi->disk->queue) << 9) /
+			  CD_FRAMESIZE_RAW;
+	int nr, ret = 0;
+
+	cdi->last_sense = 0;
+
+	while (nframes) {
+		if (cdi->cdda_method == CDDA_BPC_SINGLE)
+			nr = 1;
+		else
+			nr = min(nframes, max_frames);
+
+		ret = cdi->ops->read_cdda_bpc(cdi, ubuf, lba, nr,
+					      &cdi->last_sense);
+>>>>>>> upstream/android-13
 		if (ret)
 			break;
 
 		nframes -= nr;
 		lba += nr;
+<<<<<<< HEAD
 		ubuf += len;
+=======
+		ubuf += (nr * CD_FRAMESIZE_RAW);
+>>>>>>> upstream/android-13
 	}
 
 	return ret;
@@ -2292,6 +2346,7 @@ retry:
 	return cdrom_read_cdda_old(cdi, ubuf, lba, nframes);	
 }
 
+<<<<<<< HEAD
 static int cdrom_ioctl_multisession(struct cdrom_device_info *cdi,
 		void __user *argp)
 {
@@ -2323,6 +2378,48 @@ static int cdrom_ioctl_multisession(struct cdrom_device_info *cdi,
 
 	cd_dbg(CD_DO_IOCTL, "CDROMMULTISESSION successful\n");
 	return 0;
+=======
+int cdrom_multisession(struct cdrom_device_info *cdi,
+		struct cdrom_multisession *info)
+{
+	u8 requested_format;
+	int ret;
+
+	if (!(cdi->ops->capability & CDC_MULTI_SESSION))
+		return -ENOSYS;
+
+	requested_format = info->addr_format;
+	if (requested_format != CDROM_MSF && requested_format != CDROM_LBA)
+		return -EINVAL;
+	info->addr_format = CDROM_LBA;
+
+	ret = cdi->ops->get_last_session(cdi, info);
+	if (!ret)
+		sanitize_format(&info->addr, &info->addr_format,
+				requested_format);
+	return ret;
+}
+EXPORT_SYMBOL_GPL(cdrom_multisession);
+
+static int cdrom_ioctl_multisession(struct cdrom_device_info *cdi,
+		void __user *argp)
+{
+	struct cdrom_multisession info;
+	int ret;
+
+	cd_dbg(CD_DO_IOCTL, "entering CDROMMULTISESSION\n");
+
+	if (copy_from_user(&info, argp, sizeof(info)))
+		return -EFAULT;
+	ret = cdrom_multisession(cdi, &info);
+	if (ret)
+		return ret;
+	if (copy_to_user(argp, &info, sizeof(info)))
+		return -EFAULT;
+
+	cd_dbg(CD_DO_IOCTL, "CDROMMULTISESSION successful\n");
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int cdrom_ioctl_eject(struct cdrom_device_info *cdi)
@@ -2663,10 +2760,33 @@ static int cdrom_ioctl_read_tochdr(struct cdrom_device_info *cdi,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+int cdrom_read_tocentry(struct cdrom_device_info *cdi,
+		struct cdrom_tocentry *entry)
+{
+	u8 requested_format = entry->cdte_format;
+	int ret;
+
+	if (requested_format != CDROM_MSF && requested_format != CDROM_LBA)
+		return -EINVAL;
+
+	/* make interface to low-level uniform */
+	entry->cdte_format = CDROM_MSF;
+	ret = cdi->ops->audio_ioctl(cdi, CDROMREADTOCENTRY, entry);
+	if (!ret)
+		sanitize_format(&entry->cdte_addr, &entry->cdte_format,
+				requested_format);
+	return ret;
+}
+EXPORT_SYMBOL_GPL(cdrom_read_tocentry);
+
+>>>>>>> upstream/android-13
 static int cdrom_ioctl_read_tocentry(struct cdrom_device_info *cdi,
 		void __user *argp)
 {
 	struct cdrom_tocentry entry;
+<<<<<<< HEAD
 	u8 requested_format;
 	int ret;
 
@@ -2689,6 +2809,16 @@ static int cdrom_ioctl_read_tocentry(struct cdrom_device_info *cdi,
 		return -EFAULT;
 	/* cd_dbg(CD_DO_IOCTL, "CDROMREADTOCENTRY successful\n"); */
 	return 0;
+=======
+	int ret;
+
+	if (copy_from_user(&entry, argp, sizeof(entry)))
+		return -EFAULT;
+	ret = cdrom_read_tocentry(cdi, &entry);
+	if (!ret && copy_to_user(argp, &entry, sizeof(entry)))
+		return -EFAULT;
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int cdrom_ioctl_play_msf(struct cdrom_device_info *cdi,
@@ -2996,6 +3126,7 @@ static noinline int mmc_ioctl_cdrom_read_data(struct cdrom_device_info *cdi,
 		 * SCSI-II devices are not required to support
 		 * READ_CD, so let's try switching block size
 		 */
+<<<<<<< HEAD
 		/* FIXME: switch back again... */
 		ret = cdrom_switch_blocksize(cdi, blocksize);
 		if (ret)
@@ -3003,6 +3134,17 @@ static noinline int mmc_ioctl_cdrom_read_data(struct cdrom_device_info *cdi,
 		cgc->sshdr = NULL;
 		ret = cdrom_read_cd(cdi, cgc, lba, blocksize, 1);
 		ret |= cdrom_switch_blocksize(cdi, blocksize);
+=======
+		if (blocksize != CD_FRAMESIZE) {
+			ret = cdrom_switch_blocksize(cdi, blocksize);
+			if (ret)
+				goto out;
+		}
+		cgc->sshdr = NULL;
+		ret = cdrom_read_cd(cdi, cgc, lba, blocksize, 1);
+		if (blocksize != CD_FRAMESIZE)
+			ret |= cdrom_switch_blocksize(cdi, CD_FRAMESIZE);
+>>>>>>> upstream/android-13
 	}
 	if (!ret && copy_to_user(arg, cgc->buffer, blocksize))
 		ret = -EFAULT;
@@ -3017,9 +3159,37 @@ static noinline int mmc_ioctl_cdrom_read_audio(struct cdrom_device_info *cdi,
 	struct cdrom_read_audio ra;
 	int lba;
 
+<<<<<<< HEAD
 	if (copy_from_user(&ra, (struct cdrom_read_audio __user *)arg,
 			   sizeof(ra)))
 		return -EFAULT;
+=======
+#ifdef CONFIG_COMPAT
+	if (in_compat_syscall()) {
+		struct compat_cdrom_read_audio {
+			union cdrom_addr	addr;
+			u8			addr_format;
+			compat_int_t		nframes;
+			compat_caddr_t		buf;
+		} ra32;
+
+		if (copy_from_user(&ra32, arg, sizeof(ra32)))
+			return -EFAULT;
+
+		ra = (struct cdrom_read_audio) {
+			.addr		= ra32.addr,
+			.addr_format	= ra32.addr_format,
+			.nframes	= ra32.nframes,
+			.buf		= compat_ptr(ra32.buf),
+		};
+	} else
+#endif
+	{
+		if (copy_from_user(&ra, (struct cdrom_read_audio __user *)arg,
+				   sizeof(ra)))
+			return -EFAULT;
+	}
+>>>>>>> upstream/android-13
 
 	if (ra.addr_format == CDROM_MSF)
 		lba = msf_to_lba(ra.addr.msf.minute,
@@ -3271,9 +3441,16 @@ static noinline int mmc_ioctl_cdrom_last_written(struct cdrom_device_info *cdi,
 	ret = cdrom_get_last_written(cdi, &last);
 	if (ret)
 		return ret;
+<<<<<<< HEAD
 	if (copy_to_user((long __user *)arg, &last, sizeof(last)))
 		return -EFAULT;
 	return 0;
+=======
+	if (in_compat_syscall())
+		return put_user(last, (__s32 __user *)arg);
+
+	return put_user(last, (long __user *)arg);
+>>>>>>> upstream/android-13
 }
 
 static int mmc_ioctl(struct cdrom_device_info *cdi, unsigned int cmd,
@@ -3332,6 +3509,7 @@ int cdrom_ioctl(struct cdrom_device_info *cdi, struct block_device *bdev,
 	void __user *argp = (void __user *)arg;
 	int ret;
 
+<<<<<<< HEAD
 	/*
 	 * Try the generic SCSI command ioctl's first.
 	 */
@@ -3339,6 +3517,8 @@ int cdrom_ioctl(struct cdrom_device_info *cdi, struct block_device *bdev,
 	if (ret != -ENOTTY)
 		return ret;
 
+=======
+>>>>>>> upstream/android-13
 	switch (cmd) {
 	case CDROMMULTISESSION:
 		return cdrom_ioctl_multisession(cdi, argp);
@@ -3424,7 +3604,10 @@ EXPORT_SYMBOL(unregister_cdrom);
 EXPORT_SYMBOL(cdrom_open);
 EXPORT_SYMBOL(cdrom_release);
 EXPORT_SYMBOL(cdrom_ioctl);
+<<<<<<< HEAD
 EXPORT_SYMBOL(cdrom_media_changed);
+=======
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(cdrom_number_of_slots);
 EXPORT_SYMBOL(cdrom_mode_select);
 EXPORT_SYMBOL(cdrom_mode_sense);
@@ -3495,7 +3678,11 @@ static int cdrom_print_info(const char *header, int val, char *info,
 }
 
 static int cdrom_sysctl_info(struct ctl_table *ctl, int write,
+<<<<<<< HEAD
                            void __user *buffer, size_t *lenp, loff_t *ppos)
+=======
+                           void *buffer, size_t *lenp, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	int pos;
 	char *info = cdrom_sysctl_settings.info;
@@ -3608,7 +3795,11 @@ static void cdrom_update_settings(void)
 }
 
 static int cdrom_sysctl_handler(struct ctl_table *ctl, int write,
+<<<<<<< HEAD
 				void __user *buffer, size_t *lenp, loff_t *ppos)
+=======
+				void *buffer, size_t *lenp, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	int ret;
 	

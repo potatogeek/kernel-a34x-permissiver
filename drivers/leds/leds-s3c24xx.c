@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* drivers/leds/leds-s3c24xx.c
  *
  * (c) 2006 Simtec Electronics
@@ -5,28 +9,42 @@
  *	Ben Dooks <ben@simtec.co.uk>
  *
  * S3C24XX - LEDs GPIO driver
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
 */
 
 #include <linux/kernel.h>
 #include <linux/platform_device.h>
 #include <linux/leds.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/module.h>
 #include <linux/platform_data/leds-s3c24xx.h>
 
+<<<<<<< HEAD
 #include <mach/regs-gpio.h>
 #include <plat/gpio-cfg.h>
 
+=======
+>>>>>>> upstream/android-13
 /* our context */
 
 struct s3c24xx_gpio_led {
 	struct led_classdev		 cdev;
 	struct s3c24xx_led_platdata	*pdata;
+<<<<<<< HEAD
+=======
+	struct gpio_desc		*gpiod;
+>>>>>>> upstream/android-13
 };
 
 static inline struct s3c24xx_gpio_led *to_gpio(struct led_classdev *led_cdev)
@@ -38,6 +56,7 @@ static void s3c24xx_led_set(struct led_classdev *led_cdev,
 			    enum led_brightness value)
 {
 	struct s3c24xx_gpio_led *led = to_gpio(led_cdev);
+<<<<<<< HEAD
 	struct s3c24xx_led_platdata *pd = led->pdata;
 	int state = (value ? 1 : 0) ^ (pd->flags & S3C24XX_LEDF_ACTLOW);
 
@@ -52,6 +71,10 @@ static void s3c24xx_led_set(struct led_classdev *led_cdev,
 		else
 			gpio_direction_input(pd->gpio);
 	}
+=======
+
+	gpiod_set_value(led->gpiod, !!value);
+>>>>>>> upstream/android-13
 }
 
 static int s3c24xx_led_probe(struct platform_device *dev)
@@ -72,6 +95,7 @@ static int s3c24xx_led_probe(struct platform_device *dev)
 
 	led->pdata = pdata;
 
+<<<<<<< HEAD
 	ret = devm_gpio_request(&dev->dev, pdata->gpio, "S3C24XX_LED");
 	if (ret < 0)
 		return ret;
@@ -88,6 +112,14 @@ static int s3c24xx_led_probe(struct platform_device *dev)
 
 	/* register our new led device */
 
+=======
+	/* Default to off */
+	led->gpiod = devm_gpiod_get(&dev->dev, NULL, GPIOD_OUT_LOW);
+	if (IS_ERR(led->gpiod))
+		return PTR_ERR(led->gpiod);
+
+	/* register our new led device */
+>>>>>>> upstream/android-13
 	ret = devm_led_classdev_register(&dev->dev, &led->cdev);
 	if (ret < 0)
 		dev_err(&dev->dev, "led_classdev_register failed\n");

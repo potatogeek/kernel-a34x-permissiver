@@ -48,13 +48,17 @@
 	compatible = "olimex,a20-olinuxino-lime2-emmc", "allwinner,sun7i-a20";
 
 	mmc2_pwrseq: pwrseq {
+<<<<<<< HEAD
 		pinctrl-0 = <&mmc2_pins_nrst>;
 		pinctrl-names = "default";
+=======
+>>>>>>> upstream/android-13
 		compatible = "mmc-pwrseq-emmc";
 		reset-gpios = <&pio 2 16 GPIO_ACTIVE_LOW>;
 	};
 };
 
+<<<<<<< HEAD
 &pio {
 	mmc2_pins_nrst: mmc2-rst-pin {
 		pins = "PC16";
@@ -65,6 +69,9 @@
 &mmc2 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&mmc2_pins_a>;
+=======
+&mmc2 {
+>>>>>>> upstream/android-13
 	vmmc-supply = <&reg_vcc3v3>;
 	vqmmc-supply = <&reg_vcc3v3>;
 	bus-width = <4>;

@@ -16,7 +16,11 @@
 struct socket;
 
 /**
+<<<<<<< HEAD
  * qmi_header - wireformat header of QMI messages
+=======
+ * struct qmi_header - wireformat header of QMI messages
+>>>>>>> upstream/android-13
  * @type:	type of message
  * @txn_id:	transaction id
  * @msg_id:	message id
@@ -88,11 +92,19 @@ struct qmi_elem_info {
 #define QMI_ERR_CLIENT_IDS_EXHAUSTED_V01	5
 #define QMI_ERR_INVALID_ID_V01			41
 #define QMI_ERR_ENCODING_V01			58
+<<<<<<< HEAD
+=======
+#define QMI_ERR_DISABLED_V01                    69
+>>>>>>> upstream/android-13
 #define QMI_ERR_INCOMPATIBLE_STATE_V01		90
 #define QMI_ERR_NOT_SUPPORTED_V01		94
 
 /**
+<<<<<<< HEAD
  * qmi_response_type_v01 - common response header (decoded)
+=======
+ * struct qmi_response_type_v01 - common response header (decoded)
+>>>>>>> upstream/android-13
  * @result:	result of the transaction
  * @error:	error value, when @result is QMI_RESULT_FAILURE_V01
  */
@@ -166,7 +178,11 @@ struct qmi_ops {
 struct qmi_txn {
 	struct qmi_handle *qmi;
 
+<<<<<<< HEAD
 	int id;
+=======
+	u16 id;
+>>>>>>> upstream/android-13
 
 	struct mutex lock;
 	struct completion completion;

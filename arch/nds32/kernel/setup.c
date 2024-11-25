@@ -2,9 +2,14 @@
 // Copyright (C) 2005-2017 Andes Technology Corporation
 
 #include <linux/cpu.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
 #include <linux/seq_file.h>
 #include <linux/memblock.h>
+=======
+#include <linux/memblock.h>
+#include <linux/seq_file.h>
+>>>>>>> upstream/android-13
 #include <linux/console.h>
 #include <linux/screen_info.h>
 #include <linux/delay.h>
@@ -16,6 +21,10 @@
 #include <asm/proc-fns.h>
 #include <asm/cache_info.h>
 #include <asm/elf.h>
+<<<<<<< HEAD
+=======
+#include <asm/fpu.h>
+>>>>>>> upstream/android-13
 #include <nds32_intrinsic.h>
 
 #define HWCAP_MFUSR_PC		0x000001
@@ -39,8 +48,15 @@
 #define HWCAP_FPU_DP		0x040000
 #define HWCAP_V2		0x080000
 #define HWCAP_DX_REGS		0x100000
+<<<<<<< HEAD
 
 unsigned long cpu_id, cpu_rev, cpu_cfgid;
+=======
+#define HWCAP_HWPRE		0x200000
+
+unsigned long cpu_id, cpu_rev, cpu_cfgid;
+bool has_fpu = false;
+>>>>>>> upstream/android-13
 char cpu_series;
 char *endianness = NULL;
 
@@ -50,7 +66,11 @@ EXPORT_SYMBOL(elf_hwcap);
 
 /*
  * The following string table, must sync with HWCAP_xx bitmask,
+<<<<<<< HEAD
  * which is defined in <asm/procinfo.h>
+=======
+ * which is defined above
+>>>>>>> upstream/android-13
  */
 static const char *hwcap_str[] = {
 	"mfusr_pc",
@@ -74,6 +94,10 @@ static const char *hwcap_str[] = {
 	"fpu_dp",
 	"v2",
 	"dx_regs",
+<<<<<<< HEAD
+=======
+	"hw_pre",
+>>>>>>> upstream/android-13
 	NULL,
 };
 
@@ -138,6 +162,14 @@ static void __init dump_cpu_info(int cpu)
 		    (aliasing_num - 1) << PAGE_SHIFT;
 	}
 #endif
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_FPU
+	/* Disable fpu and enable when it is used. */
+	if (has_fpu)
+		disable_fpu();
+#endif
+>>>>>>> upstream/android-13
 }
 
 static void __init setup_cpuinfo(void)
@@ -182,9 +214,16 @@ static void __init setup_cpuinfo(void)
 	if (cpu_cfgid & 0x0004)
 		elf_hwcap |= HWCAP_EXT2;
 
+<<<<<<< HEAD
 	if (cpu_cfgid & 0x0008)
 		elf_hwcap |= HWCAP_FPU;
 
+=======
+	if (cpu_cfgid & 0x0008) {
+		elf_hwcap |= HWCAP_FPU;
+		has_fpu = true;
+	}
+>>>>>>> upstream/android-13
 	if (cpu_cfgid & 0x0010)
 		elf_hwcap |= HWCAP_STRING;
 
@@ -214,6 +253,14 @@ static void __init setup_cpuinfo(void)
 	if (__nds32__mfsr(NDS32_SR_MSC_CFG) & MSC_CFG_mskL2C)
 		elf_hwcap |= HWCAP_L2C;
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_HW_PRE
+	if (__nds32__mfsr(NDS32_SR_MISC_CTL) & MISC_CTL_makHWPRE_EN)
+		elf_hwcap |= HWCAP_HWPRE;
+#endif
+
+>>>>>>> upstream/android-13
 	tmp = __nds32__mfsr(NDS32_SR_CACHE_CTL);
 	if (!IS_ENABLED(CONFIG_CPU_DCACHE_DISABLE))
 		tmp |= CACHE_CTL_mskDC_EN;
@@ -230,17 +277,25 @@ static void __init setup_memory(void)
 	unsigned long ram_start_pfn;
 	unsigned long free_ram_start_pfn;
 	phys_addr_t memory_start, memory_end;
+<<<<<<< HEAD
 	struct memblock_region *region;
+=======
+>>>>>>> upstream/android-13
 
 	memory_end = memory_start = 0;
 
 	/* Find main memory where is the kernel */
+<<<<<<< HEAD
 	for_each_memblock(memory, region) {
 		memory_start = region->base;
 		memory_end = region->base + region->size;
 		pr_info("%s: Memory: 0x%x-0x%x\n", __func__,
 			memory_start, memory_end);
 	}
+=======
+	memory_start = memblock_start_of_DRAM();
+	memory_end = memblock_end_of_DRAM();
+>>>>>>> upstream/android-13
 
 	if (!memory_end) {
 		panic("No memory!");
@@ -284,10 +339,14 @@ void __init setup_arch(char **cmdline_p)
 
 	setup_cpuinfo();
 
+<<<<<<< HEAD
 	init_mm.start_code = (unsigned long)&_stext;
 	init_mm.end_code = (unsigned long)&_etext;
 	init_mm.end_data = (unsigned long)&_edata;
 	init_mm.brk = (unsigned long)&_end;
+=======
+	setup_initial_init_mm(_stext, _etext, _edata, _end);
+>>>>>>> upstream/android-13
 
 	/* setup bootmem allocator */
 	setup_memory();
@@ -303,11 +362,14 @@ void __init setup_arch(char **cmdline_p)
 
 	unflatten_and_copy_device_tree();
 
+<<<<<<< HEAD
 	if(IS_ENABLED(CONFIG_VT)) {
 		if(IS_ENABLED(CONFIG_DUMMY_CONSOLE))
 			conswitchp = &dummy_con;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	*cmdline_p = boot_command_line;
 	early_trap_init();
 }

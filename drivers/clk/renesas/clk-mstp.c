@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * R-Car MSTP clocks
  *
@@ -5,10 +9,13 @@
  * Copyright (C) 2015 Glider bvba
  *
  * Contact: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -33,11 +40,19 @@
 /**
  * struct mstp_clock_group - MSTP gating clocks group
  *
+<<<<<<< HEAD
  * @data: clocks in this group
+=======
+ * @data: clock specifier translation for clocks in this group
+>>>>>>> upstream/android-13
  * @smstpcr: module stop control register
  * @mstpsr: module stop status register (optional)
  * @lock: protects writes to SMSTPCR
  * @width_8bit: registers are 8-bit, not 32-bit
+<<<<<<< HEAD
+=======
+ * @clks: clocks in this group
+>>>>>>> upstream/android-13
  */
 struct mstp_clock_group {
 	struct clk_onecell_data data;
@@ -45,6 +60,10 @@ struct mstp_clock_group {
 	void __iomem *mstpsr;
 	spinlock_t lock;
 	bool width_8bit;
+<<<<<<< HEAD
+=======
+	struct clk *clks[];
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -161,7 +180,11 @@ static struct clk * __init cpg_mstp_clock_register(const char *name,
 
 	init.name = name;
 	init.ops = &cpg_mstp_clock_ops;
+<<<<<<< HEAD
 	init.flags = CLK_IS_BASIC | CLK_SET_RATE_PARENT;
+=======
+	init.flags = CLK_SET_RATE_PARENT;
+>>>>>>> upstream/android-13
 	/* INTC-SYS is the module clock of the GIC, and must not be disabled */
 	if (!strcmp(name, "intc-sys")) {
 		pr_debug("MSTP %s setting CLK_IS_CRITICAL\n", name);
@@ -189,6 +212,7 @@ static void __init cpg_mstp_clocks_init(struct device_node *np)
 	struct clk **clks;
 	unsigned int i;
 
+<<<<<<< HEAD
 	group = kzalloc(sizeof(*group), GFP_KERNEL);
 	clks = kmalloc_array(MSTP_MAX_CLOCKS, sizeof(*clks), GFP_KERNEL);
 	if (group == NULL || clks == NULL) {
@@ -197,6 +221,13 @@ static void __init cpg_mstp_clocks_init(struct device_node *np)
 		return;
 	}
 
+=======
+	group = kzalloc(struct_size(group, clks, MSTP_MAX_CLOCKS), GFP_KERNEL);
+	if (!group)
+		return;
+
+	clks = group->clks;
+>>>>>>> upstream/android-13
 	spin_lock_init(&group->lock);
 	group->data.clks = clks;
 
@@ -206,7 +237,10 @@ static void __init cpg_mstp_clocks_init(struct device_node *np)
 	if (group->smstpcr == NULL) {
 		pr_err("%s: failed to remap SMSTPCR\n", __func__);
 		kfree(group);
+<<<<<<< HEAD
 		kfree(clks);
+=======
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -239,8 +273,13 @@ static void __init cpg_mstp_clocks_init(struct device_node *np)
 			break;
 
 		if (clkidx >= MSTP_MAX_CLOCKS) {
+<<<<<<< HEAD
 			pr_err("%s: invalid clock %s %s index %u\n",
 			       __func__, np->name, name, clkidx);
+=======
+			pr_err("%s: invalid clock %pOFn %s index %u\n",
+			       __func__, np, name, clkidx);
+>>>>>>> upstream/android-13
 			continue;
 		}
 
@@ -259,8 +298,13 @@ static void __init cpg_mstp_clocks_init(struct device_node *np)
 			 */
 			clk_register_clkdev(clks[clkidx], name, NULL);
 		} else {
+<<<<<<< HEAD
 			pr_err("%s: failed to register %s %s clock (%ld)\n",
 			       __func__, np->name, name, PTR_ERR(clks[clkidx]));
+=======
+			pr_err("%s: failed to register %pOFn %s clock (%ld)\n",
+			       __func__, np, name, PTR_ERR(clks[clkidx]));
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -283,7 +327,11 @@ int cpg_mstp_attach_dev(struct generic_pm_domain *unused, struct device *dev)
 			goto found;
 
 		/* BSC on r8a73a4/sh73a0 uses zb_clk instead of an mstp clock */
+<<<<<<< HEAD
 		if (!strcmp(clkspec.np->name, "zb_clk"))
+=======
+		if (of_node_name_eq(clkspec.np, "zb_clk"))
+>>>>>>> upstream/android-13
 			goto found;
 
 		of_node_put(clkspec.np);
@@ -300,6 +348,7 @@ found:
 		return PTR_ERR(clk);
 
 	error = pm_clk_create(dev);
+<<<<<<< HEAD
 	if (error) {
 		dev_err(dev, "pm_clk_create failed %d\n", error);
 		goto fail_put;
@@ -310,6 +359,14 @@ found:
 		dev_err(dev, "pm_clk_add_clk %pC failed %d\n", clk, error);
 		goto fail_destroy;
 	}
+=======
+	if (error)
+		goto fail_put;
+
+	error = pm_clk_add_clk(dev, clk);
+	if (error)
+		goto fail_destroy;
+>>>>>>> upstream/android-13
 
 	return 0;
 

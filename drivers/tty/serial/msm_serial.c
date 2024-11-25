@@ -7,10 +7,13 @@
  * Copyright (c) 2011, Code Aurora Forum. All rights reserved.
  */
 
+<<<<<<< HEAD
 #if defined(CONFIG_SERIAL_MSM_CONSOLE) && defined(CONFIG_MAGIC_SYSRQ)
 # define SUPPORT_SYSRQ
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/atomic.h>
 #include <linux/dma-mapping.h>
@@ -301,7 +304,11 @@ static void msm_request_tx_dma(struct msm_port *msm_port, resource_size_t base)
 	dma = &msm_port->tx_dma;
 
 	/* allocate DMA resources, if available */
+<<<<<<< HEAD
 	dma->chan = dma_request_slave_channel_reason(dev, "tx");
+=======
+	dma->chan = dma_request_chan(dev, "tx");
+>>>>>>> upstream/android-13
 	if (IS_ERR(dma->chan))
 		goto no_tx;
 
@@ -344,7 +351,11 @@ static void msm_request_rx_dma(struct msm_port *msm_port, resource_size_t base)
 	dma = &msm_port->rx_dma;
 
 	/* allocate DMA resources, if available */
+<<<<<<< HEAD
 	dma->chan = dma_request_slave_channel_reason(dev, "rx");
+=======
+	dma->chan = dma_request_chan(dev, "rx");
+>>>>>>> upstream/android-13
 	if (IS_ERR(dma->chan))
 		goto no_rx;
 
@@ -430,7 +441,10 @@ static void msm_complete_tx_dma(void *args)
 	struct circ_buf *xmit = &port->state->xmit;
 	struct msm_dma *dma = &msm_port->tx_dma;
 	struct dma_tx_state state;
+<<<<<<< HEAD
 	enum dma_status status;
+=======
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	unsigned int count;
 	u32 val;
@@ -441,7 +455,11 @@ static void msm_complete_tx_dma(void *args)
 	if (!dma->count)
 		goto done;
 
+<<<<<<< HEAD
 	status = dmaengine_tx_status(dma->chan, dma->cookie, &state);
+=======
+	dmaengine_tx_status(dma->chan, dma->cookie, &state);
+>>>>>>> upstream/android-13
 
 	dma_unmap_single(port->dev, dma->phys, dma->count, dma->dir);
 
@@ -603,6 +621,12 @@ static void msm_start_rx_dma(struct msm_port *msm_port)
 	u32 val;
 	int ret;
 
+<<<<<<< HEAD
+=======
+	if (IS_ENABLED(CONFIG_CONSOLE_POLL))
+		return;
+
+>>>>>>> upstream/android-13
 	if (!dma->chan)
 		return;
 
@@ -610,7 +634,11 @@ static void msm_start_rx_dma(struct msm_port *msm_port)
 				   UARTDM_RX_SIZE, dma->dir);
 	ret = dma_mapping_error(uart->dev, dma->phys);
 	if (ret)
+<<<<<<< HEAD
 		return;
+=======
+		goto sw_mode;
+>>>>>>> upstream/android-13
 
 	dma->desc = dmaengine_prep_slave_single(dma->chan, dma->phys,
 						UARTDM_RX_SIZE, DMA_DEV_TO_MEM,
@@ -661,6 +689,25 @@ static void msm_start_rx_dma(struct msm_port *msm_port)
 	return;
 unmap:
 	dma_unmap_single(uart->dev, dma->phys, UARTDM_RX_SIZE, dma->dir);
+<<<<<<< HEAD
+=======
+
+sw_mode:
+	/*
+	 * Switch from DMA to SW/FIFO mode. After clearing Rx BAM (UARTDM_DMEN),
+	 * receiver must be reset.
+	 */
+	msm_write(uart, UART_CR_CMD_RESET_RX, UART_CR);
+	msm_write(uart, UART_CR_RX_ENABLE, UART_CR);
+
+	msm_write(uart, UART_CR_CMD_RESET_STALE_INT, UART_CR);
+	msm_write(uart, 0xFFFFFF, UARTDM_DMRX);
+	msm_write(uart, UART_CR_CMD_STALE_EVENT_ENABLE, UART_CR);
+
+	/* Re-enable RX interrupts */
+	msm_port->imr |= (UART_IMR_RXLEV | UART_IMR_RXSTALE);
+	msm_write(uart, msm_port->imr, UART_IMR);
+>>>>>>> upstream/android-13
 }
 
 static void msm_stop_rx(struct uart_port *port)
@@ -684,6 +731,10 @@ static void msm_enable_ms(struct uart_port *port)
 }
 
 static void msm_handle_rx_dm(struct uart_port *port, unsigned int misr)
+<<<<<<< HEAD
+=======
+	__must_hold(&port->lock)
+>>>>>>> upstream/android-13
 {
 	struct tty_port *tport = &port->state->port;
 	unsigned int sr;
@@ -745,9 +796,13 @@ static void msm_handle_rx_dm(struct uart_port *port, unsigned int misr)
 		count -= r_count;
 	}
 
+<<<<<<< HEAD
 	spin_unlock(&port->lock);
 	tty_flip_buffer_push(tport);
 	spin_lock(&port->lock);
+=======
+	tty_flip_buffer_push(tport);
+>>>>>>> upstream/android-13
 
 	if (misr & (UART_IMR_RXSTALE))
 		msm_write(port, UART_CR_CMD_RESET_STALE_INT, UART_CR);
@@ -759,6 +814,10 @@ static void msm_handle_rx_dm(struct uart_port *port, unsigned int misr)
 }
 
 static void msm_handle_rx(struct uart_port *port)
+<<<<<<< HEAD
+=======
+	__must_hold(&port->lock)
+>>>>>>> upstream/android-13
 {
 	struct tty_port *tport = &port->state->port;
 	unsigned int sr;
@@ -806,9 +865,13 @@ static void msm_handle_rx(struct uart_port *port)
 			tty_insert_flip_char(tport, c, flag);
 	}
 
+<<<<<<< HEAD
 	spin_unlock(&port->lock);
 	tty_flip_buffer_push(tport);
 	spin_lock(&port->lock);
+=======
+	tty_flip_buffer_push(tport);
+>>>>>>> upstream/android-13
 }
 
 static void msm_handle_tx_pio(struct uart_port *port, unsigned int tx_count)
@@ -1511,7 +1574,11 @@ static void msm_poll_put_char(struct uart_port *port, unsigned char c)
 }
 #endif
 
+<<<<<<< HEAD
 static struct uart_ops msm_uart_pops = {
+=======
+static const struct uart_ops msm_uart_pops = {
+>>>>>>> upstream/android-13
 	.tx_empty = msm_tx_empty,
 	.set_mctrl = msm_set_mctrl,
 	.get_mctrl = msm_get_mctrl,
@@ -1654,7 +1721,11 @@ static void msm_console_write(struct console *co, const char *s,
 	__msm_console_write(port, s, count, msm_port->is_uartdm);
 }
 
+<<<<<<< HEAD
 static int __init msm_console_setup(struct console *co, char *options)
+=======
+static int msm_console_setup(struct console *co, char *options)
+>>>>>>> upstream/android-13
 {
 	struct uart_port *port;
 	int baud = 115200;
@@ -1810,6 +1881,10 @@ static int msm_serial_probe(struct platform_device *pdev)
 	if (unlikely(irq < 0))
 		return -ENXIO;
 	port->irq = irq;
+<<<<<<< HEAD
+=======
+	port->has_sysrq = IS_ENABLED(CONFIG_SERIAL_MSM_CONSOLE);
+>>>>>>> upstream/android-13
 
 	platform_set_drvdata(pdev, port);
 

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * INET		802.1Q VLAN
  *		Ethernet-type device handling.
@@ -11,11 +15,14 @@
  *		Add HW acceleration hooks - David S. Miller <davem@redhat.com>;
  *		Correct all the locking - David S. Miller <davem@redhat.com>;
  *		Use hash table for VLAN groups - David S. Miller <davem@redhat.com>
+<<<<<<< HEAD
  *
  *		This program is free software; you can redistribute it and/or
  *		modify it under the terms of the GNU General Public License
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -55,26 +62,59 @@ static int vlan_group_prealloc_vid(struct vlan_group *vg,
 				   __be16 vlan_proto, u16 vlan_id)
 {
 	struct net_device **array;
+<<<<<<< HEAD
 	unsigned int pidx, vidx;
 	unsigned int size;
+=======
+	unsigned int vidx;
+	unsigned int size;
+	int pidx;
+>>>>>>> upstream/android-13
 
 	ASSERT_RTNL();
 
 	pidx  = vlan_proto_idx(vlan_proto);
+<<<<<<< HEAD
+=======
+	if (pidx < 0)
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	vidx  = vlan_id / VLAN_GROUP_ARRAY_PART_LEN;
 	array = vg->vlan_devices_arrays[pidx][vidx];
 	if (array != NULL)
 		return 0;
 
 	size = sizeof(struct net_device *) * VLAN_GROUP_ARRAY_PART_LEN;
+<<<<<<< HEAD
 	array = kzalloc(size, GFP_KERNEL);
 	if (array == NULL)
 		return -ENOBUFS;
 
+=======
+	array = kzalloc(size, GFP_KERNEL_ACCOUNT);
+	if (array == NULL)
+		return -ENOBUFS;
+
+	/* paired with smp_rmb() in __vlan_group_get_device() */
+	smp_wmb();
+
+>>>>>>> upstream/android-13
 	vg->vlan_devices_arrays[pidx][vidx] = array;
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void vlan_stacked_transfer_operstate(const struct net_device *rootdev,
+					    struct net_device *dev,
+					    struct vlan_dev_priv *vlan)
+{
+	if (!(vlan->flags & VLAN_FLAG_BRIDGE_BINDING))
+		netif_stacked_transfer_operstate(rootdev, dev);
+}
+
+>>>>>>> upstream/android-13
 void unregister_vlan_dev(struct net_device *dev, struct list_head *head)
 {
 	struct vlan_dev_priv *vlan = vlan_dev_priv(dev);
@@ -112,9 +152,12 @@ void unregister_vlan_dev(struct net_device *dev, struct list_head *head)
 	}
 
 	vlan_vid_del(real_dev, vlan->vlan_proto, vlan_id);
+<<<<<<< HEAD
 
 	/* Get rid of the vlan's reference to real_dev */
 	dev_put(real_dev);
+=======
+>>>>>>> upstream/android-13
 }
 
 int vlan_check_real_dev(struct net_device *real_dev,
@@ -168,7 +211,10 @@ int register_vlan_dev(struct net_device *dev, struct netlink_ext_ack *extack)
 	if (err < 0)
 		goto out_uninit_mvrp;
 
+<<<<<<< HEAD
 	vlan->nest_level = dev_get_nest_level(real_dev) + 1;
+=======
+>>>>>>> upstream/android-13
 	err = register_netdevice(dev);
 	if (err < 0)
 		goto out_uninit_mvrp;
@@ -177,10 +223,14 @@ int register_vlan_dev(struct net_device *dev, struct netlink_ext_ack *extack)
 	if (err)
 		goto out_unregister_netdev;
 
+<<<<<<< HEAD
 	/* Account for reference in struct vlan_dev_priv */
 	dev_hold(real_dev);
 
 	netif_stacked_transfer_operstate(real_dev, dev);
+=======
+	vlan_stacked_transfer_operstate(real_dev, dev, vlan);
+>>>>>>> upstream/android-13
 	linkwatch_fire_event(dev); /* _MUST_ call rfc2863_policy() */
 
 	/* So, got the sucker initialized, now lets place
@@ -277,9 +327,13 @@ static int register_vlan_device(struct net_device *real_dev, u16 vlan_id)
 	return 0;
 
 out_free_newdev:
+<<<<<<< HEAD
 	if (new_dev->reg_state == NETREG_UNINITIALIZED ||
 	    new_dev->reg_state == NETREG_UNREGISTERED)
 		free_netdev(new_dev);
+=======
+	free_netdev(new_dev);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -331,6 +385,10 @@ static void vlan_transfer_features(struct net_device *dev,
 
 	vlandev->priv_flags &= ~IFF_XMIT_DST_RELEASE;
 	vlandev->priv_flags |= (vlan->real_dev->priv_flags & IFF_XMIT_DST_RELEASE);
+<<<<<<< HEAD
+=======
+	vlandev->hw_enc_features = vlan_tnl_features(vlan->real_dev);
+>>>>>>> upstream/android-13
 
 	netdev_update_features(vlandev);
 }
@@ -358,6 +416,10 @@ static int __vlan_device_event(struct net_device *dev, unsigned long event)
 static int vlan_device_event(struct notifier_block *unused, unsigned long event,
 			     void *ptr)
 {
+<<<<<<< HEAD
+=======
+	struct netlink_ext_ack *extack = netdev_notifier_info_to_extack(ptr);
+>>>>>>> upstream/android-13
 	struct net_device *dev = netdev_notifier_info_to_dev(ptr);
 	struct vlan_group *grp;
 	struct vlan_info *vlan_info;
@@ -398,7 +460,12 @@ static int vlan_device_event(struct notifier_block *unused, unsigned long event,
 	case NETDEV_CHANGE:
 		/* Propagate real device state to vlan devices */
 		vlan_group_for_each_dev(grp, i, vlandev)
+<<<<<<< HEAD
 			netif_stacked_transfer_operstate(dev, vlandev);
+=======
+			vlan_stacked_transfer_operstate(dev, vlandev,
+							vlan_dev_priv(vlandev));
+>>>>>>> upstream/android-13
 		break;
 
 	case NETDEV_CHANGEADDR:
@@ -445,7 +512,12 @@ static int vlan_device_event(struct notifier_block *unused, unsigned long event,
 		dev_close_many(&close_list, false);
 
 		list_for_each_entry_safe(vlandev, tmp, &close_list, close_list) {
+<<<<<<< HEAD
 			netif_stacked_transfer_operstate(dev, vlandev);
+=======
+			vlan_stacked_transfer_operstate(dev, vlandev,
+							vlan_dev_priv(vlandev));
+>>>>>>> upstream/android-13
 			list_del_init(&vlandev->close_list);
 		}
 		list_del(&close_list);
@@ -460,8 +532,14 @@ static int vlan_device_event(struct notifier_block *unused, unsigned long event,
 
 			vlan = vlan_dev_priv(vlandev);
 			if (!(vlan->flags & VLAN_FLAG_LOOSE_BINDING))
+<<<<<<< HEAD
 				dev_change_flags(vlandev, flgs | IFF_UP);
 			netif_stacked_transfer_operstate(dev, vlandev);
+=======
+				dev_change_flags(vlandev, flgs | IFF_UP,
+						 extack);
+			vlan_stacked_transfer_operstate(dev, vlandev, vlan);
+>>>>>>> upstream/android-13
 		}
 		break;
 
@@ -625,7 +703,12 @@ static int vlan_ioctl_handler(struct net *net, void __user *arg)
 
 	case GET_VLAN_REALDEV_NAME_CMD:
 		err = 0;
+<<<<<<< HEAD
 		vlan_dev_get_realdev_name(dev, args.u.device2);
+=======
+		vlan_dev_get_realdev_name(dev, args.u.device2,
+					  sizeof(args.u.device2));
+>>>>>>> upstream/android-13
 		if (copy_to_user(arg, &args,
 				 sizeof(struct vlan_ioctl_args)))
 			err = -EFAULT;
@@ -648,6 +731,7 @@ out:
 	return err;
 }
 
+<<<<<<< HEAD
 static struct sk_buff *vlan_gro_receive(struct list_head *head,
 					struct sk_buff *skb)
 {
@@ -735,6 +819,8 @@ static struct packet_offload vlan_packet_offloads[] __read_mostly = {
 	},
 };
 
+=======
+>>>>>>> upstream/android-13
 static int __net_init vlan_init_net(struct net *net)
 {
 	struct vlan_net *vn = net_generic(net, vlan_net_id);
@@ -762,7 +848,10 @@ static struct pernet_operations vlan_net_ops = {
 static int __init vlan_proto_init(void)
 {
 	int err;
+<<<<<<< HEAD
 	unsigned int i;
+=======
+>>>>>>> upstream/android-13
 
 	pr_info("%s v%s\n", vlan_fullname, vlan_version);
 
@@ -786,9 +875,12 @@ static int __init vlan_proto_init(void)
 	if (err < 0)
 		goto err5;
 
+<<<<<<< HEAD
 	for (i = 0; i < ARRAY_SIZE(vlan_packet_offloads); i++)
 		dev_add_offload(&vlan_packet_offloads[i]);
 
+=======
+>>>>>>> upstream/android-13
 	vlan_ioctl_set(vlan_ioctl_handler);
 	return 0;
 
@@ -806,6 +898,7 @@ err0:
 
 static void __exit vlan_cleanup_module(void)
 {
+<<<<<<< HEAD
 	unsigned int i;
 
 	vlan_ioctl_set(NULL);
@@ -813,6 +906,10 @@ static void __exit vlan_cleanup_module(void)
 	for (i = 0; i < ARRAY_SIZE(vlan_packet_offloads); i++)
 		dev_remove_offload(&vlan_packet_offloads[i]);
 
+=======
+	vlan_ioctl_set(NULL);
+
+>>>>>>> upstream/android-13
 	vlan_netlink_fini();
 
 	unregister_netdevice_notifier(&vlan_notifier_block);

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * Greybus Firmware Management Header
  *
@@ -9,7 +13,11 @@
 #ifndef __FIRMWARE_H
 #define __FIRMWARE_H
 
+<<<<<<< HEAD
 #include "greybus.h"
+=======
+#include <linux/greybus.h>
+>>>>>>> upstream/android-13
 
 #define FW_NAME_PREFIX	"gmp_"
 

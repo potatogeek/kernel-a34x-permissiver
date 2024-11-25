@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * VGIC system registers handling functions for AArch64 mode
  *
@@ -9,13 +10,22 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * VGIC system registers handling functions for AArch64 mode
+>>>>>>> upstream/android-13
  */
 
 #include <linux/irqchip/arm-gic-v3.h>
 #include <linux/kvm.h>
 #include <linux/kvm_host.h>
 #include <asm/kvm_emulate.h>
+<<<<<<< HEAD
 #include "vgic.h"
+=======
+#include "vgic/vgic.h"
+>>>>>>> upstream/android-13
 #include "sys_regs.h"
 
 static bool access_gic_ctlr(struct kvm_vcpu *vcpu, struct sys_reg_params *p,
@@ -276,8 +286,11 @@ int vgic_v3_has_cpu_sysregs_attr(struct kvm_vcpu *vcpu, bool is_write, u64 id,
 
 	params.regval = *reg;
 	params.is_write = is_write;
+<<<<<<< HEAD
 	params.is_aarch32 = false;
 	params.is_32bit = false;
+=======
+>>>>>>> upstream/android-13
 
 	if (find_reg_by_id(sysreg, &params, gic_v3_icc_reg_descs,
 			      ARRAY_SIZE(gic_v3_icc_reg_descs)))
@@ -296,8 +309,11 @@ int vgic_v3_cpu_sysregs_uaccess(struct kvm_vcpu *vcpu, bool is_write, u64 id,
 	if (is_write)
 		params.regval = *reg;
 	params.is_write = is_write;
+<<<<<<< HEAD
 	params.is_aarch32 = false;
 	params.is_32bit = false;
+=======
+>>>>>>> upstream/android-13
 
 	r = find_reg_by_id(sysreg, &params, gic_v3_icc_reg_descs,
 			   ARRAY_SIZE(gic_v3_icc_reg_descs));

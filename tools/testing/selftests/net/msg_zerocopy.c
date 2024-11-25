@@ -650,12 +650,20 @@ static void do_flush_datagram(int fd, int type)
 
 static void do_rx(int domain, int type, int protocol)
 {
+<<<<<<< HEAD
+=======
+	const int cfg_receiver_wait_ms = 400;
+>>>>>>> upstream/android-13
 	uint64_t tstop;
 	int fd;
 
 	fd = do_setup_rx(domain, type, protocol);
 
+<<<<<<< HEAD
 	tstop = gettimeofday_ms() + cfg_runtime_ms;
+=======
+	tstop = gettimeofday_ms() + cfg_runtime_ms + cfg_receiver_wait_ms;
+>>>>>>> upstream/android-13
 	do {
 		if (type == SOCK_STREAM)
 			do_flush_tcp(fd);

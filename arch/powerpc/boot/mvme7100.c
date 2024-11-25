@@ -1,15 +1,22 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Motload compatibility for the Emerson/Artesyn MVME7100
  *
  * Copyright 2016 Elettra-Sincrotrone Trieste S.C.p.A.
  *
  * Author: Alessio Igor Bogani <alessio.bogani@elettra.eu>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "ops.h"

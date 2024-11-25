@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * drivers/pwm/pwm-pxa.c
  *
  * simple driver for PWM (Pulse Width Modulator) controller
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * 2008-02-13	initial version
  *		eric miao <eric.miao@marvell.com>
  */
@@ -168,8 +175,12 @@ pxa_pwm_of_xlate(struct pwm_chip *pc, const struct of_phandle_args *args)
 static int pwm_probe(struct platform_device *pdev)
 {
 	const struct platform_device_id *id = platform_get_device_id(pdev);
+<<<<<<< HEAD
 	struct pxa_pwm_chip *pwm;
 	struct resource *r;
+=======
+	struct pxa_pwm_chip *pc;
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 	if (IS_ENABLED(CONFIG_OF) && id == NULL)
@@ -178,6 +189,7 @@ static int pwm_probe(struct platform_device *pdev)
 	if (id == NULL)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	pwm = devm_kzalloc(&pdev->dev, sizeof(*pwm), GFP_KERNEL);
 	if (pwm == NULL)
 		return -ENOMEM;
@@ -202,11 +214,36 @@ static int pwm_probe(struct platform_device *pdev)
 		return PTR_ERR(pwm->mmio_base);
 
 	ret = pwmchip_add(&pwm->chip);
+=======
+	pc = devm_kzalloc(&pdev->dev, sizeof(*pc), GFP_KERNEL);
+	if (pc == NULL)
+		return -ENOMEM;
+
+	pc->clk = devm_clk_get(&pdev->dev, NULL);
+	if (IS_ERR(pc->clk))
+		return PTR_ERR(pc->clk);
+
+	pc->chip.dev = &pdev->dev;
+	pc->chip.ops = &pxa_pwm_ops;
+	pc->chip.npwm = (id->driver_data & HAS_SECONDARY_PWM) ? 2 : 1;
+
+	if (IS_ENABLED(CONFIG_OF)) {
+		pc->chip.of_xlate = pxa_pwm_of_xlate;
+		pc->chip.of_pwm_n_cells = 1;
+	}
+
+	pc->mmio_base = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(pc->mmio_base))
+		return PTR_ERR(pc->mmio_base);
+
+	ret = devm_pwmchip_add(&pdev->dev, &pc->chip);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(&pdev->dev, "pwmchip_add() failed: %d\n", ret);
 		return ret;
 	}
 
+<<<<<<< HEAD
 	platform_set_drvdata(pdev, pwm);
 	return 0;
 }
@@ -222,13 +259,21 @@ static int pwm_remove(struct platform_device *pdev)
 	return pwmchip_remove(&chip->chip);
 }
 
+=======
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static struct platform_driver pwm_driver = {
 	.driver		= {
 		.name	= "pxa25x-pwm",
 		.of_match_table = pwm_of_match,
 	},
 	.probe		= pwm_probe,
+<<<<<<< HEAD
 	.remove		= pwm_remove,
+=======
+>>>>>>> upstream/android-13
 	.id_table	= pwm_id_table,
 };
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Spreadtrum pin controller driver
  * Copyright (C) 2017 Spreadtrum  - http://www.spreadtrum.com
@@ -10,6 +11,12 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Spreadtrum pin controller driver
+ * Copyright (C) 2017 Spreadtrum  - http://www.spreadtrum.com
+>>>>>>> upstream/android-13
  */
 
 #include <linux/debugfs.h>
@@ -49,7 +56,12 @@
 #define PUBCP_SLEEP_MODE		BIT(14)
 #define TGLDSP_SLEEP_MODE		BIT(15)
 #define AGDSP_SLEEP_MODE		BIT(16)
+<<<<<<< HEAD
 #define SLEEP_MODE_MASK			GENMASK(3, 0)
+=======
+#define CM4_SLEEP_MODE			BIT(17)
+#define SLEEP_MODE_MASK			GENMASK(5, 0)
+>>>>>>> upstream/android-13
 #define SLEEP_MODE_SHIFT		13
 
 #define SLEEP_INPUT			BIT(1)
@@ -75,8 +87,13 @@
 #define SLEEP_PULL_UP_MASK		0x1
 #define SLEEP_PULL_UP_SHIFT		3
 
+<<<<<<< HEAD
 #define PULL_UP_20K			(BIT(12) | BIT(7))
 #define PULL_UP_4_7K			BIT(12)
+=======
+#define PULL_UP_4_7K			(BIT(12) | BIT(7))
+#define PULL_UP_20K			BIT(7)
+>>>>>>> upstream/android-13
 #define PULL_UP_MASK			0x21
 #define PULL_UP_SHIFT			7
 
@@ -89,6 +106,10 @@ enum pin_sleep_mode {
 	PUBCP_SLEEP = BIT(1),
 	TGLDSP_SLEEP = BIT(2),
 	AGDSP_SLEEP = BIT(3),
+<<<<<<< HEAD
+=======
+	CM4_SLEEP = BIT(4),
+>>>>>>> upstream/android-13
 };
 
 enum pin_func_sel {
@@ -462,7 +483,11 @@ static int sprd_pinconf_get(struct pinctrl_dev *pctldev, unsigned int pin_id,
 	if (pin->type == GLOBAL_CTRL_PIN &&
 	    param == SPRD_PIN_CONFIG_CONTROL) {
 		arg = reg;
+<<<<<<< HEAD
 	} else if (pin->type == COMMON_PIN) {
+=======
+	} else if (pin->type == COMMON_PIN || pin->type == MISC_PIN) {
+>>>>>>> upstream/android-13
 		switch (param) {
 		case SPRD_PIN_CONFIG_SLEEP_MODE:
 			arg = (reg >> SLEEP_MODE_SHIFT) & SLEEP_MODE_MASK;
@@ -470,6 +495,7 @@ static int sprd_pinconf_get(struct pinctrl_dev *pctldev, unsigned int pin_id,
 		case PIN_CONFIG_INPUT_ENABLE:
 			arg = (reg >> SLEEP_INPUT_SHIFT) & SLEEP_INPUT_MASK;
 			break;
+<<<<<<< HEAD
 		case PIN_CONFIG_OUTPUT:
 			arg = reg & SLEEP_OUTPUT_MASK;
 			break;
@@ -481,6 +507,17 @@ static int sprd_pinconf_get(struct pinctrl_dev *pctldev, unsigned int pin_id,
 		}
 	} else if (pin->type == MISC_PIN) {
 		switch (param) {
+=======
+		case PIN_CONFIG_OUTPUT_ENABLE:
+			arg = reg & SLEEP_OUTPUT_MASK;
+			break;
+		case PIN_CONFIG_BIAS_HIGH_IMPEDANCE:
+			if ((reg & SLEEP_OUTPUT) || (reg & SLEEP_INPUT))
+				return -EINVAL;
+
+			arg = 1;
+			break;
+>>>>>>> upstream/android-13
 		case PIN_CONFIG_DRIVE_STRENGTH:
 			arg = (reg >> DRIVE_STRENGTH_SHIFT) &
 				DRIVE_STRENGTH_MASK;
@@ -500,6 +537,16 @@ static int sprd_pinconf_get(struct pinctrl_dev *pctldev, unsigned int pin_id,
 			       SLEEP_PULL_UP_MASK) << 16;
 			arg |= (reg >> PULL_UP_SHIFT) & PULL_UP_MASK;
 			break;
+<<<<<<< HEAD
+=======
+		case PIN_CONFIG_BIAS_DISABLE:
+			if ((reg & (SLEEP_PULL_DOWN | SLEEP_PULL_UP)) ||
+			    (reg & (PULL_DOWN | PULL_UP_4_7K | PULL_UP_20K)))
+				return -EINVAL;
+
+			arg = 1;
+			break;
+>>>>>>> upstream/android-13
 		case PIN_CONFIG_SLEEP_HARDWARE_STATE:
 			arg = 0;
 			break;
@@ -614,7 +661,11 @@ static int sprd_pinconf_set(struct pinctrl_dev *pctldev, unsigned int pin_id,
 		if (pin->type == GLOBAL_CTRL_PIN &&
 		    param == SPRD_PIN_CONFIG_CONTROL) {
 			val = arg;
+<<<<<<< HEAD
 		} else if (pin->type == COMMON_PIN) {
+=======
+		} else if (pin->type == COMMON_PIN || pin->type == MISC_PIN) {
+>>>>>>> upstream/android-13
 			switch (param) {
 			case SPRD_PIN_CONFIG_SLEEP_MODE:
 				if (arg & AP_SLEEP)
@@ -625,6 +676,11 @@ static int sprd_pinconf_set(struct pinctrl_dev *pctldev, unsigned int pin_id,
 					val |= TGLDSP_SLEEP_MODE;
 				if (arg & AGDSP_SLEEP)
 					val |= AGDSP_SLEEP_MODE;
+<<<<<<< HEAD
+=======
+				if (arg & CM4_SLEEP)
+					val |= CM4_SLEEP_MODE;
+>>>>>>> upstream/android-13
 
 				mask = SLEEP_MODE_MASK;
 				shift = SLEEP_MODE_SHIFT;
@@ -640,13 +696,24 @@ static int sprd_pinconf_set(struct pinctrl_dev *pctldev, unsigned int pin_id,
 					shift = SLEEP_INPUT_SHIFT;
 				}
 				break;
+<<<<<<< HEAD
 			case PIN_CONFIG_OUTPUT:
 				if (is_sleep_config == true) {
 					val |= SLEEP_OUTPUT;
+=======
+			case PIN_CONFIG_OUTPUT_ENABLE:
+				if (is_sleep_config == true) {
+					if (arg > 0)
+						val |= SLEEP_OUTPUT;
+					else
+						val &= ~SLEEP_OUTPUT;
+
+>>>>>>> upstream/android-13
 					mask = SLEEP_OUTPUT_MASK;
 					shift = SLEEP_OUTPUT_SHIFT;
 				}
 				break;
+<<<<<<< HEAD
 			case PIN_CONFIG_SLEEP_HARDWARE_STATE:
 				continue;
 			default:
@@ -654,6 +721,14 @@ static int sprd_pinconf_set(struct pinctrl_dev *pctldev, unsigned int pin_id,
 			}
 		} else if (pin->type == MISC_PIN) {
 			switch (param) {
+=======
+			case PIN_CONFIG_BIAS_HIGH_IMPEDANCE:
+				if (is_sleep_config == true) {
+					val = shift = 0;
+					mask = SLEEP_OUTPUT | SLEEP_INPUT;
+				}
+				break;
+>>>>>>> upstream/android-13
 			case PIN_CONFIG_DRIVE_STRENGTH:
 				if (arg < 2 || arg > 60)
 					return -EINVAL;
@@ -683,7 +758,11 @@ static int sprd_pinconf_set(struct pinctrl_dev *pctldev, unsigned int pin_id,
 				shift = INPUT_SCHMITT_SHIFT;
 				break;
 			case PIN_CONFIG_BIAS_PULL_UP:
+<<<<<<< HEAD
 				if (is_sleep_config == true) {
+=======
+				if (is_sleep_config) {
+>>>>>>> upstream/android-13
 					val |= SLEEP_PULL_UP;
 					mask = SLEEP_PULL_UP_MASK;
 					shift = SLEEP_PULL_UP_SHIFT;
@@ -697,6 +776,19 @@ static int sprd_pinconf_set(struct pinctrl_dev *pctldev, unsigned int pin_id,
 					shift = PULL_UP_SHIFT;
 				}
 				break;
+<<<<<<< HEAD
+=======
+			case PIN_CONFIG_BIAS_DISABLE:
+				if (is_sleep_config == true) {
+					val = shift = 0;
+					mask = SLEEP_PULL_DOWN | SLEEP_PULL_UP;
+				} else {
+					val = shift = 0;
+					mask = PULL_DOWN | PULL_UP_20K |
+						PULL_UP_4_7K;
+				}
+				break;
+>>>>>>> upstream/android-13
 			case PIN_CONFIG_SLEEP_HARDWARE_STATE:
 				continue;
 			default:
@@ -948,8 +1040,15 @@ static int sprd_pinctrl_parse_dt(struct sprd_pinctrl *sprd_pctl)
 
 	for_each_child_of_node(np, child) {
 		ret = sprd_pinctrl_parse_groups(child, sprd_pctl, grp);
+<<<<<<< HEAD
 		if (ret)
 			return ret;
+=======
+		if (ret) {
+			of_node_put(child);
+			return ret;
+		}
+>>>>>>> upstream/android-13
 
 		*temp++ = grp->name;
 		grp++;
@@ -958,8 +1057,16 @@ static int sprd_pinctrl_parse_dt(struct sprd_pinctrl *sprd_pctl)
 			for_each_child_of_node(child, sub_child) {
 				ret = sprd_pinctrl_parse_groups(sub_child,
 								sprd_pctl, grp);
+<<<<<<< HEAD
 				if (ret)
 					return ret;
+=======
+				if (ret) {
+					of_node_put(sub_child);
+					of_node_put(child);
+					return ret;
+				}
+>>>>>>> upstream/android-13
 
 				*temp++ = grp->name;
 				grp++;
@@ -1028,7 +1135,10 @@ int sprd_pinctrl_core_probe(struct platform_device *pdev,
 	struct sprd_pinctrl *sprd_pctl;
 	struct sprd_pinctrl_soc_info *pinctrl_info;
 	struct pinctrl_pin_desc *pin_desc;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	int ret, i;
 
 	sprd_pctl = devm_kzalloc(&pdev->dev, sizeof(struct sprd_pinctrl),
@@ -1036,8 +1146,12 @@ int sprd_pinctrl_core_probe(struct platform_device *pdev,
 	if (!sprd_pctl)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	sprd_pctl->base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	sprd_pctl->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(sprd_pctl->base))
 		return PTR_ERR(sprd_pctl->base);
 
@@ -1057,6 +1171,15 @@ int sprd_pinctrl_core_probe(struct platform_device *pdev,
 		return ret;
 	}
 
+<<<<<<< HEAD
+=======
+	ret = sprd_pinctrl_parse_dt(sprd_pctl);
+	if (ret) {
+		dev_err(&pdev->dev, "fail to parse dt properties\n");
+		return ret;
+	}
+
+>>>>>>> upstream/android-13
 	pin_desc = devm_kcalloc(&pdev->dev,
 				pinctrl_info->npins,
 				sizeof(struct pinctrl_pin_desc),
@@ -1081,6 +1204,7 @@ int sprd_pinctrl_core_probe(struct platform_device *pdev,
 		return PTR_ERR(sprd_pctl->pctl);
 	}
 
+<<<<<<< HEAD
 	ret = sprd_pinctrl_parse_dt(sprd_pctl);
 	if (ret) {
 		dev_err(&pdev->dev, "fail to parse dt properties\n");
@@ -1090,6 +1214,11 @@ int sprd_pinctrl_core_probe(struct platform_device *pdev,
 
 	return 0;
 }
+=======
+	return 0;
+}
+EXPORT_SYMBOL_GPL(sprd_pinctrl_core_probe);
+>>>>>>> upstream/android-13
 
 int sprd_pinctrl_remove(struct platform_device *pdev)
 {
@@ -1098,6 +1227,10 @@ int sprd_pinctrl_remove(struct platform_device *pdev)
 	pinctrl_unregister(sprd_pctl->pctl);
 	return 0;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(sprd_pinctrl_remove);
+>>>>>>> upstream/android-13
 
 void sprd_pinctrl_shutdown(struct platform_device *pdev)
 {
@@ -1112,6 +1245,10 @@ void sprd_pinctrl_shutdown(struct platform_device *pdev)
 		return;
 	pinctrl_select_state(pinctl, state);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(sprd_pinctrl_shutdown);
+>>>>>>> upstream/android-13
 
 MODULE_DESCRIPTION("SPREADTRUM Pin Controller Driver");
 MODULE_AUTHOR("Baolin Wang <baolin.wang@spreadtrum.com>");

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
    lru_cache.c
 
@@ -7,6 +11,7 @@
    Copyright (C) 2003-2008, Philipp Reisner <philipp.reisner@linbit.com>.
    Copyright (C) 2003-2008, Lars Ellenberg <lars.ellenberg@linbit.com>.
 
+<<<<<<< HEAD
    drbd is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2, or (at your option)
@@ -20,6 +25,8 @@
    You should have received a copy of the GNU General Public License
    along with drbd; see the file COPYING.  If not, write to
    the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
 
  */
 
@@ -44,7 +51,11 @@ This header file (and its .c file; kernel-doc of functions see there)
   Because of this later property, it is called "lru_cache".
   As it actually Tracks Objects in an Active SeT, we could also call it
   toast (incidentally that is what may happen to the data on the
+<<<<<<< HEAD
   backend storage uppon next resync, if we don't get it right).
+=======
+  backend storage upon next resync, if we don't get it right).
+>>>>>>> upstream/android-13
 
 What for?
 
@@ -164,7 +175,11 @@ struct lc_element {
 	 * for paranoia, and for "lc_element_to_index" */
 	unsigned lc_index;
 	/* if we want to track a larger set of objects,
+<<<<<<< HEAD
 	 * it needs to become arch independend u64 */
+=======
+	 * it needs to become an architecture independent u64 */
+>>>>>>> upstream/android-13
 	unsigned lc_number;
 	/* special label when on free list */
 #define LC_FREE (~0U)
@@ -275,7 +290,11 @@ extern void lc_seq_dump_details(struct seq_file *seq, struct lru_cache *lc, char
  *
  * Allows (expects) the set to be "dirty".  Note that the reference counts and
  * order on the active and lru lists may still change.  Used to serialize
+<<<<<<< HEAD
  * changing transactions.  Returns true if we aquired the lock.
+=======
+ * changing transactions.  Returns true if we acquired the lock.
+>>>>>>> upstream/android-13
  */
 static inline int lc_try_lock_for_transaction(struct lru_cache *lc)
 {
@@ -287,7 +306,11 @@ static inline int lc_try_lock_for_transaction(struct lru_cache *lc)
  * @lc: the lru cache to operate on
  *
  * Note that the reference counts and order on the active and lru lists may
+<<<<<<< HEAD
  * still change.  Only works on a "clean" set.  Returns true if we aquired the
+=======
+ * still change.  Only works on a "clean" set.  Returns true if we acquired the
+>>>>>>> upstream/android-13
  * lock, which means there are no pending changes, and any further attempt to
  * change the set will not succeed until the next lc_unlock().
  */

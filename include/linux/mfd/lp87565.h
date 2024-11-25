@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Functions to access LP87565 power management chip.
  *
@@ -6,6 +7,13 @@
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation version 2.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Functions to access LP87565 power management chip.
+ *
+ * Copyright (C) 2017 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  */
 
 #ifndef __LINUX_MFD_LP87565_H
@@ -17,6 +25,11 @@
 
 enum lp87565_device_type {
 	LP87565_DEVICE_TYPE_UNKNOWN	= 0,
+<<<<<<< HEAD
+=======
+	LP87565_DEVICE_TYPE_LP87524_Q1,
+	LP87565_DEVICE_TYPE_LP87561_Q1,
+>>>>>>> upstream/android-13
 	LP87565_DEVICE_TYPE_LP87565_Q1,
 };
 
@@ -223,6 +236,7 @@ enum lp87565_device_type {
 #define LP87565_GPIO2_SEL			BIT(1)
 #define LP87565_GPIO1_SEL			BIT(0)
 
+<<<<<<< HEAD
 #define LP87565_GOIO3_OD			BIT(6)
 #define LP87565_GOIO2_OD			BIT(5)
 #define LP87565_GOIO1_OD			BIT(4)
@@ -250,6 +264,22 @@ enum LP87565_regulator_id {
 	LP87565_BUCK_10,
 	LP87565_BUCK_23,
 };
+=======
+#define LP87565_GPIO3_OD			BIT(6)
+#define LP87565_GPIO2_OD			BIT(5)
+#define LP87565_GPIO1_OD			BIT(4)
+#define LP87565_GPIO3_DIR			BIT(2)
+#define LP87565_GPIO2_DIR			BIT(1)
+#define LP87565_GPIO1_DIR			BIT(0)
+
+#define LP87565_GPIO3_IN			BIT(2)
+#define LP87565_GPIO2_IN			BIT(1)
+#define LP87565_GPIO1_IN			BIT(0)
+
+#define LP87565_GPIO3_OUT			BIT(2)
+#define LP87565_GPIO2_OUT			BIT(1)
+#define LP87565_GPIO1_OUT			BIT(0)
+>>>>>>> upstream/android-13
 
 /**
  * struct LP87565 - state holder for the LP87565 driver
@@ -266,5 +296,9 @@ struct lp87565 {
 	u8 rev;
 	u8 dev_type;
 	struct regmap *regmap;
+<<<<<<< HEAD
+=======
+	struct gpio_desc *reset_gpio;
+>>>>>>> upstream/android-13
 };
 #endif /* __LINUX_MFD_LP87565_H */

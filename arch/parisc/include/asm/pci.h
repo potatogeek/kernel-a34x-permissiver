@@ -56,7 +56,11 @@ struct pci_hba_data {
 	#define DINO_MAX_LMMIO_RESOURCES	3
 
 	unsigned long   lmmio_space_offset;  /* CPU view - PCI view */
+<<<<<<< HEAD
 	void *          iommu;          /* IOMMU this device is under */
+=======
+	struct ioc	*iommu;		/* IOMMU this device is under */
+>>>>>>> upstream/android-13
 	/* REVISIT - spinlock to protect resources? */
 
 	#define HBA_NAME_SIZE 16
@@ -66,8 +70,11 @@ struct pci_hba_data {
 	char gmmio_name[HBA_NAME_SIZE];
 };
 
+<<<<<<< HEAD
 #define HBA_DATA(d)		((struct pci_hba_data *) (d))
 
+=======
+>>>>>>> upstream/android-13
 /* 
 ** We support 2^16 I/O ports per HBA.  These are set up in the form
 ** 0xbbxxxx, where bb is the bus number and xxxx is the I/O port

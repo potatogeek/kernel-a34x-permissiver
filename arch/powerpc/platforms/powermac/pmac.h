@@ -34,7 +34,11 @@ extern void pmac_check_ht_link(void);
 
 extern void pmac_setup_smp(void);
 extern int psurge_secondary_virq;
+<<<<<<< HEAD
 extern void low_cpu_die(void) __attribute__((noreturn));
+=======
+extern void low_cpu_offline_self(void) __attribute__((noreturn));
+>>>>>>> upstream/android-13
 
 extern int pmac_nvram_init(void);
 extern void pmac_pic_init(void);

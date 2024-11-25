@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * FP/SIMD state saving and restoring macros
  *
  * Copyright (C) 2012 ARM Ltd.
  * Author: Catalin Marinas <catalin.marinas@arm.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -17,6 +22,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+=======
+ */
+
+#include <asm/assembler.h>
+
+>>>>>>> upstream/android-13
 .macro fpsimd_save state, tmpnr
 	stp	q0, q1, [\state, #16 * 0]
 	stp	q2, q3, [\state, #16 * 2]
@@ -103,6 +114,10 @@
 .endm
 
 /* SVE instruction encodings for non-SVE-capable assemblers */
+<<<<<<< HEAD
+=======
+/* (pre binutils 2.28, all kernel capable clang versions support SVE) */
+>>>>>>> upstream/android-13
 
 /* STR (vector): STR Z\nz, [X\nxbase, #\offset, MUL VL] */
 .macro _sve_str_v nz, nxbase, offset=0
@@ -175,25 +190,80 @@
 		| ((\np) << 5)
 .endm
 
+<<<<<<< HEAD
 .macro __for from:req, to:req
 	.if (\from) == (\to)
 		_for__body \from
 	.else
 		__for \from, (\from) + ((\to) - (\from)) / 2
 		__for (\from) + ((\to) - (\from)) / 2 + 1, \to
+=======
+/* PFALSE P\np.B */
+.macro _sve_pfalse np
+	_sve_check_preg \np
+	.inst	0x2518e400			\
+		| (\np)
+.endm
+
+.macro __for from:req, to:req
+	.if (\from) == (\to)
+		_for__body %\from
+	.else
+		__for %\from, %((\from) + ((\to) - (\from)) / 2)
+		__for %((\from) + ((\to) - (\from)) / 2 + 1), %\to
+>>>>>>> upstream/android-13
 	.endif
 .endm
 
 .macro _for var:req, from:req, to:req, insn:vararg
 	.macro _for__body \var:req
+<<<<<<< HEAD
 		\insn
 	.endm
 
 	__for \from, \to
+=======
+		.noaltmacro
+		\insn
+		.altmacro
+	.endm
+
+	.altmacro
+	__for \from, \to
+	.noaltmacro
+>>>>>>> upstream/android-13
 
 	.purgem _for__body
 .endm
 
+<<<<<<< HEAD
+=======
+/* Update ZCR_EL1.LEN with the new VQ */
+.macro sve_load_vq xvqminus1, xtmp, xtmp2
+		mrs_s		\xtmp, SYS_ZCR_EL1
+		bic		\xtmp2, \xtmp, ZCR_ELx_LEN_MASK
+		orr		\xtmp2, \xtmp2, \xvqminus1
+		cmp		\xtmp2, \xtmp
+		b.eq		921f
+		msr_s		SYS_ZCR_EL1, \xtmp2	//self-synchronising
+921:
+.endm
+
+/* Preserve the first 128-bits of Znz and zero the rest. */
+.macro _sve_flush_z nz
+	_sve_check_zreg \nz
+	mov	v\nz\().16b, v\nz\().16b
+.endm
+
+.macro sve_flush_z
+ _for n, 0, 31, _sve_flush_z	\n
+.endm
+.macro sve_flush_p_ffr
+ _for n, 0, 15, _sve_pfalse	\n
+		_sve_wrffr	0
+.endm
+
+>>>>>>> upstream/android-13
 .macro sve_save nxbase, xpfpsr, nxtmp
  _for n, 0, 31,	_sve_str_v	\n, \nxbase, \n - 34
  _for n, 0, 15,	_sve_str_p	\n, \nxbase, \n - 16
@@ -207,6 +277,7 @@
 		str		w\nxtmp, [\xpfpsr, #4]
 .endm
 
+<<<<<<< HEAD
 .macro sve_load nxbase, xpfpsr, xvqminus1, nxtmp, xtmp2
 		mrs_s		x\nxtmp, SYS_ZCR_EL1
 		bic		\xtmp2, x\nxtmp, ZCR_ELx_LEN_MASK
@@ -215,6 +286,9 @@
 		b.eq		921f
 		msr_s		SYS_ZCR_EL1, \xtmp2	// self-synchronising
 921:
+=======
+.macro __sve_load nxbase, xpfpsr, nxtmp
+>>>>>>> upstream/android-13
  _for n, 0, 31,	_sve_ldr_v	\n, \nxbase, \n - 34
 		_sve_ldr_p	0, \nxbase
 		_sve_wrffr	0
@@ -225,3 +299,11 @@
 		ldr		w\nxtmp, [\xpfpsr, #4]
 		msr		fpcr, x\nxtmp
 .endm
+<<<<<<< HEAD
+=======
+
+.macro sve_load nxbase, xpfpsr, xvqminus1, nxtmp, xtmp2
+		sve_load_vq	\xvqminus1, x\nxtmp, \xtmp2
+		__sve_load	\nxbase, \xpfpsr, \nxtmp
+.endm
+>>>>>>> upstream/android-13

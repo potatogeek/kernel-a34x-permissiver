@@ -55,7 +55,10 @@
 
 #define DRV_DESCRIPTION "Chelsio 10Gb Ethernet Driver"
 #define DRV_NAME "cxgb"
+<<<<<<< HEAD
 #define DRV_VERSION "2.2"
+=======
+>>>>>>> upstream/android-13
 
 #define CH_DEVICE(devid, ssid, idx) \
 	{ PCI_VENDOR_ID_CHELSIO, devid, PCI_ANY_ID, ssid, 0, 0, idx }
@@ -239,7 +242,10 @@ struct adapter {
 	int msg_enable;
 	u32 mmio_len;
 
+<<<<<<< HEAD
 	struct work_struct ext_intr_handler_task;
+=======
+>>>>>>> upstream/android-13
 	struct adapter_params params;
 
 	/* Terminator modules. */
@@ -258,6 +264,10 @@ struct adapter {
 
 	/* guards async operations */
 	spinlock_t async_lock ____cacheline_aligned;
+<<<<<<< HEAD
+=======
+	u32 pending_thread_intr;
+>>>>>>> upstream/android-13
 	u32 slow_intr_mask;
 	int t1powersave;
 };
@@ -335,8 +345,12 @@ void t1_interrupts_enable(adapter_t *adapter);
 void t1_interrupts_disable(adapter_t *adapter);
 void t1_interrupts_clear(adapter_t *adapter);
 int t1_elmer0_ext_intr_handler(adapter_t *adapter);
+<<<<<<< HEAD
 void t1_elmer0_ext_intr(adapter_t *adapter);
 int t1_slow_intr_handler(adapter_t *adapter);
+=======
+irqreturn_t t1_slow_intr_handler(adapter_t *adapter);
+>>>>>>> upstream/android-13
 
 int t1_link_start(struct cphy *phy, struct cmac *mac, struct link_config *lc);
 const struct board_info *t1_get_board_info(unsigned int board_id);
@@ -348,7 +362,10 @@ int t1_get_board_rev(adapter_t *adapter, const struct board_info *bi,
 int t1_init_hw_modules(adapter_t *adapter);
 int t1_init_sw_modules(adapter_t *adapter, const struct board_info *bi);
 void t1_free_sw_modules(adapter_t *adapter);
+<<<<<<< HEAD
 void t1_fatal_err(adapter_t *adapter);
+=======
+>>>>>>> upstream/android-13
 void t1_link_changed(adapter_t *adapter, int port_id);
 void t1_link_negotiated(adapter_t *adapter, int port_id, int link_stat,
 			    int speed, int duplex, int pause);

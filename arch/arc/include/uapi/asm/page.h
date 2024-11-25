@@ -33,5 +33,8 @@
 
 #define PAGE_MASK	(~(PAGE_SIZE-1))
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _UAPI__ASM_ARC_PAGE_H */

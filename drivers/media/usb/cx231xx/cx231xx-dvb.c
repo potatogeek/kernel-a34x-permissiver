@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  DVB device driver for cx231xx
 
  Copyright (C) 2008 <srinivasa.deevi at conexant dot com>
 		Based on em28xx driver
 
+<<<<<<< HEAD
  This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
@@ -17,6 +22,8 @@
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "cx231xx.h"
@@ -159,7 +166,11 @@ static struct tda18271_config pv_tda18271_config = {
 	.small_i2c = TDA18271_03_BYTE_CHUNK_INIT,
 };
 
+<<<<<<< HEAD
 static struct lgdt3306a_config hauppauge_955q_lgdt3306a_config = {
+=======
+static const struct lgdt3306a_config hauppauge_955q_lgdt3306a_config = {
+>>>>>>> upstream/android-13
 	.qam_if_khz         = 4000,
 	.vsb_if_khz         = 3250,
 	.spectral_inversion = 1,
@@ -1159,6 +1170,10 @@ static int dvb_fini(struct cx231xx *dev)
 
 	if (dev->dvb) {
 		unregister_dvb(dev->dvb);
+<<<<<<< HEAD
+=======
+		kfree(dev->dvb);
+>>>>>>> upstream/android-13
 		dev->dvb = NULL;
 	}
 

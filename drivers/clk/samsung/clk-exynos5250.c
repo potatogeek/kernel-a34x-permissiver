@@ -1,20 +1,33 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2013 Samsung Electronics Co., Ltd.
  * Copyright (c) 2013 Linaro Ltd.
  * Author: Thomas Abraham <thomas.ab@samsung.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Common Clock Framework support for Exynos5250 SoC.
 */
 
 #include <dt-bindings/clock/exynos5250.h>
 #include <linux/clk-provider.h>
+<<<<<<< HEAD
 #include <linux/of.h>
 #include <linux/of_address.h>
 #include <linux/syscore_ops.h>
+=======
+#include <linux/io.h>
+#include <linux/of.h>
+#include <linux/of_address.h>
+>>>>>>> upstream/android-13
 
 #include "clk.h"
 #include "clk-cpu.h"
@@ -111,9 +124,12 @@ enum exynos5250_plls {
 
 static void __iomem *reg_base;
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM_SLEEP
 static struct samsung_clk_reg_dump *exynos5250_save;
 
+=======
+>>>>>>> upstream/android-13
 /*
  * list of controller registers to be saved and restored during a
  * suspend/resume cycle.
@@ -172,6 +188,7 @@ static const unsigned long exynos5250_clk_regs[] __initconst = {
 	GATE_IP_ISP1,
 };
 
+<<<<<<< HEAD
 static int exynos5250_clk_suspend(void)
 {
 	samsung_clk_save(reg_base, exynos5250_save,
@@ -207,6 +224,8 @@ static void __init exynos5250_clk_sleep_init(void)
 static void __init exynos5250_clk_sleep_init(void) {}
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /* list of all parent clock list */
 PNAME(mout_apll_p)	= { "fin_pll", "fout_apll", };
 PNAME(mout_cpu_p)	= { "mout_apll", "mout_mpll", };
@@ -294,14 +313,22 @@ static const struct samsung_mux_clock exynos5250_mux_clks[] __initconst = {
 	/*
 	 * CMU_CPU
 	 */
+<<<<<<< HEAD
 	MUX_F(0, "mout_apll", mout_apll_p, SRC_CPU, 0, 1,
+=======
+	MUX_F(CLK_MOUT_APLL, "mout_apll", mout_apll_p, SRC_CPU, 0, 1,
+>>>>>>> upstream/android-13
 					CLK_SET_RATE_PARENT, 0),
 	MUX(0, "mout_cpu", mout_cpu_p, SRC_CPU, 16, 1),
 
 	/*
 	 * CMU_CORE
 	 */
+<<<<<<< HEAD
 	MUX(0, "mout_mpll", mout_mpll_p, SRC_CORE1, 8, 1),
+=======
+	MUX(CLK_MOUT_MPLL, "mout_mpll", mout_mpll_p, SRC_CORE1, 8, 1),
+>>>>>>> upstream/android-13
 
 	/*
 	 * CMU_TOP
@@ -722,6 +749,13 @@ static const struct exynos5_subcmu_info exynos5250_disp_subcmu = {
 	.pd_name	= "DISP1",
 };
 
+<<<<<<< HEAD
+=======
+static const struct exynos5_subcmu_info *exynos5250_subcmus[] = {
+	&exynos5250_disp_subcmu,
+};
+
+>>>>>>> upstream/android-13
 static const struct samsung_pll_rate_table vpll_24mhz_tbl[] __initconst = {
 	/* sorted in descending order */
 	/* PLL_36XX_RATE(rate, m, p, s, k) */
@@ -819,6 +853,10 @@ static void __init exynos5250_clk_init(struct device_node *np)
 {
 	struct samsung_clk_provider *ctx;
 	unsigned int tmp;
+<<<<<<< HEAD
+=======
+	struct clk_hw **hws;
+>>>>>>> upstream/android-13
 
 	if (np) {
 		reg_base = of_iomap(np, 0);
@@ -829,6 +867,10 @@ static void __init exynos5250_clk_init(struct device_node *np)
 	}
 
 	ctx = samsung_clk_init(np, reg_base, CLK_NR_CLKS);
+<<<<<<< HEAD
+=======
+	hws = ctx->clk_data.hws;
+>>>>>>> upstream/android-13
 
 	samsung_clk_of_register_fixed_ext(ctx, exynos5250_fixed_rate_ext_clks,
 			ARRAY_SIZE(exynos5250_fixed_rate_ext_clks),
@@ -858,7 +900,11 @@ static void __init exynos5250_clk_init(struct device_node *np)
 	samsung_clk_register_gate(ctx, exynos5250_gate_clks,
 			ARRAY_SIZE(exynos5250_gate_clks));
 	exynos_register_cpu_clock(ctx, CLK_ARM_CLK, "armclk",
+<<<<<<< HEAD
 			mout_cpu_p[0], mout_cpu_p[1], 0x200,
+=======
+			hws[CLK_MOUT_APLL], hws[CLK_MOUT_MPLL], 0x200,
+>>>>>>> upstream/android-13
 			exynos5250_armclk_d, ARRAY_SIZE(exynos5250_armclk_d),
 			CLK_CPU_HAS_DIV1);
 
@@ -882,8 +928,15 @@ static void __init exynos5250_clk_init(struct device_node *np)
 		PWR_CTRL2_CORE2_UP_RATIO | PWR_CTRL2_CORE1_UP_RATIO);
 	__raw_writel(tmp, reg_base + PWR_CTRL2);
 
+<<<<<<< HEAD
 	exynos5250_clk_sleep_init();
 	exynos5_subcmus_init(ctx, 1, &exynos5250_disp_subcmu);
+=======
+	samsung_clk_sleep_init(reg_base, exynos5250_clk_regs,
+			       ARRAY_SIZE(exynos5250_clk_regs));
+	exynos5_subcmus_init(ctx, ARRAY_SIZE(exynos5250_subcmus),
+			     exynos5250_subcmus);
+>>>>>>> upstream/android-13
 
 	samsung_clk_of_add_provider(np, ctx);
 

@@ -134,7 +134,11 @@ typedef enum {
 	HUF_repeat_none,  /**< Cannot use the previous table */
 	HUF_repeat_check, /**< Can use the previous table but it must be checked. Note : The previous table must have been constructed by HUF_compress{1,
 			     4}X_repeat */
+<<<<<<< HEAD
 	HUF_repeat_valid  /**< Can use the previous table and it is asumed to be valid */
+=======
+	HUF_repeat_valid  /**< Can use the previous table and it is assumed to be valid */
+>>>>>>> upstream/android-13
 } HUF_repeat;
 /** HUF_compress4X_repeat() :
 *   Same as HUF_compress4X_wksp(), but considers using hufTable if *repeat != HUF_repeat_none.

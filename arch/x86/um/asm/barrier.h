@@ -2,6 +2,7 @@
 #ifndef _ASM_UM_BARRIER_H_
 #define _ASM_UM_BARRIER_H_
 
+<<<<<<< HEAD
 #include <asm/asm.h>
 #include <asm/segment.h>
 #include <asm/cpufeatures.h>
@@ -10,6 +11,9 @@
 
 #include <linux/kernel.h>
 #include <linux/irqflags.h>
+=======
+#include <asm/alternative.h>
+>>>>>>> upstream/android-13
 
 /*
  * Force strict CPU ordering.
@@ -30,9 +34,12 @@
 
 #endif /* CONFIG_X86_32 */
 
+<<<<<<< HEAD
 #define dma_rmb()	barrier()
 #define dma_wmb()	barrier()
 
+=======
+>>>>>>> upstream/android-13
 #include <asm-generic/barrier.h>
 
 #endif

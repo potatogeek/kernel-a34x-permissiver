@@ -16,12 +16,19 @@
 #include <xen/xen.h>
 #include <xen/xenbus.h>
 
+<<<<<<< HEAD
+=======
+#include <xen/xen-front-pgdir-shbuf.h>
+>>>>>>> upstream/android-13
 #include <xen/interface/io/sndif.h>
 
 #include "xen_snd_front.h"
 #include "xen_snd_front_alsa.h"
 #include "xen_snd_front_evtchnl.h"
+<<<<<<< HEAD
 #include "xen_snd_front_shbuf.h"
+=======
+>>>>>>> upstream/android-13
 
 static struct xensnd_req *
 be_stream_prepare_req(struct xen_snd_front_evtchnl *evtchnl, u8 operation)
@@ -82,7 +89,11 @@ int xen_snd_front_stream_query_hw_param(struct xen_snd_front_evtchnl *evtchnl,
 }
 
 int xen_snd_front_stream_prepare(struct xen_snd_front_evtchnl *evtchnl,
+<<<<<<< HEAD
 				 struct xen_snd_front_shbuf *sh_buf,
+=======
+				 struct xen_front_pgdir_shbuf *shbuf,
+>>>>>>> upstream/android-13
 				 u8 format, unsigned int channels,
 				 unsigned int rate, u32 buffer_sz,
 				 u32 period_sz)
@@ -99,7 +110,12 @@ int xen_snd_front_stream_prepare(struct xen_snd_front_evtchnl *evtchnl,
 	req->op.open.pcm_rate = rate;
 	req->op.open.buffer_sz = buffer_sz;
 	req->op.open.period_sz = period_sz;
+<<<<<<< HEAD
 	req->op.open.gref_directory = xen_snd_front_shbuf_get_dir_start(sh_buf);
+=======
+	req->op.open.gref_directory =
+		xen_front_pgdir_shbuf_get_dir_start(shbuf);
+>>>>>>> upstream/android-13
 	mutex_unlock(&evtchnl->ring_io_lock);
 
 	ret = be_stream_do_io(evtchnl);
@@ -113,7 +129,11 @@ int xen_snd_front_stream_prepare(struct xen_snd_front_evtchnl *evtchnl,
 
 int xen_snd_front_stream_close(struct xen_snd_front_evtchnl *evtchnl)
 {
+<<<<<<< HEAD
 	struct xensnd_req *req;
+=======
+	__always_unused struct xensnd_req *req;
+>>>>>>> upstream/android-13
 	int ret;
 
 	mutex_lock(&evtchnl->u.req.req_io_lock);
@@ -245,11 +265,16 @@ static void sndback_changed(struct xenbus_device *xb_dev,
 
 	switch (backend_state) {
 	case XenbusStateReconfiguring:
+<<<<<<< HEAD
 		/* fall through */
 	case XenbusStateReconfigured:
 		/* fall through */
 	case XenbusStateInitialised:
 		/* fall through */
+=======
+	case XenbusStateReconfigured:
+	case XenbusStateInitialised:
+>>>>>>> upstream/android-13
 		break;
 
 	case XenbusStateInitialising:
@@ -288,7 +313,10 @@ static void sndback_changed(struct xenbus_device *xb_dev,
 		break;
 
 	case XenbusStateUnknown:
+<<<<<<< HEAD
 		/* fall through */
+=======
+>>>>>>> upstream/android-13
 	case XenbusStateClosed:
 		if (xb_dev->state == XenbusStateClosed)
 			break;
@@ -394,4 +422,7 @@ module_exit(xen_drv_fini);
 MODULE_DESCRIPTION("Xen virtual sound device frontend");
 MODULE_LICENSE("GPL");
 MODULE_ALIAS("xen:" XENSND_DRIVER_NAME);
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{{ALSA,Virtual soundcard}}");
+=======
+>>>>>>> upstream/android-13

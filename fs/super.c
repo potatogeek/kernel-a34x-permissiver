@@ -36,7 +36,12 @@
 #include <linux/fsnotify.h>
 #include <linux/lockdep.h>
 #include <linux/user_namespace.h>
+<<<<<<< HEAD
 #include <uapi/linux/magic.h>
+=======
+#include <linux/fs_context.h>
+#include <uapi/linux/mount.h>
+>>>>>>> upstream/android-13
 #include "internal.h"
 
 static int thaw_super_locked(struct super_block *sb);
@@ -257,6 +262,11 @@ static struct super_block *alloc_super(struct file_system_type *type, int flags,
 	s->s_maxbytes = MAX_NON_LFS;
 	s->s_op = &default_op;
 	s->s_time_gran = 1000000000;
+<<<<<<< HEAD
+=======
+	s->s_time_min = TIME64_MIN;
+	s->s_time_max = TIME64_MAX;
+>>>>>>> upstream/android-13
 	s->cleancache_poolid = CLEANCACHE_NO_POOL;
 
 	s->s_shrink.seeks = DEFAULT_SEEKS;
@@ -304,15 +314,22 @@ static void __put_super(struct super_block *s)
  *	Drops a temporary reference, frees superblock if there's no
  *	references left.
  */
+<<<<<<< HEAD
 static void put_super(struct super_block *sb)
+=======
+void put_super(struct super_block *sb)
+>>>>>>> upstream/android-13
 {
 	spin_lock(&sb_lock);
 	__put_super(sb);
 	spin_unlock(&sb_lock);
 }
 
+<<<<<<< HEAD
 /* @fs.sec -- 89e449513e5bea6196d9aaf62a6936ae -- */
 void (*ufs_debug_func)(void *) = NULL;
+=======
+>>>>>>> upstream/android-13
 
 /**
  *	deactivate_locked_super	-	drop an active reference to superblock
@@ -360,7 +377,11 @@ EXPORT_SYMBOL(deactivate_locked_super);
  */
 void deactivate_super(struct super_block *s)
 {
+<<<<<<< HEAD
         if (!atomic_add_unless(&s->s_active, -1, 1)) {
+=======
+	if (!atomic_add_unless(&s->s_active, -1, 1)) {
+>>>>>>> upstream/android-13
 		down_write(&s->s_umount);
 		deactivate_locked_super(s);
 	}
@@ -447,10 +468,20 @@ void generic_shutdown_super(struct super_block *sb)
 		sync_filesystem(sb);
 		sb->s_flags &= ~SB_ACTIVE;
 
+<<<<<<< HEAD
 		fsnotify_unmount_inodes(sb);
 		cgroup_writeback_umount();
 
 		evict_inodes(sb);
+=======
+		cgroup_writeback_umount();
+
+		/* evict all inodes with zero refcount */
+		evict_inodes(sb);
+		/* only nonzero refcount inodes can have marks */
+		fsnotify_sb_delete(sb);
+		security_sb_delete(sb);
+>>>>>>> upstream/android-13
 
 		if (sb->s_dio_done_wq) {
 			destroy_workqueue(sb->s_dio_done_wq);
@@ -479,6 +510,7 @@ void generic_shutdown_super(struct super_block *sb)
 
 EXPORT_SYMBOL(generic_shutdown_super);
 
+<<<<<<< HEAD
 /**
  *	sget_userns -	find or create a superblock
  *	@type:	filesystem type superblock should belong to
@@ -494,14 +526,124 @@ struct super_block *sget_userns(struct file_system_type *type,
 			int flags, struct user_namespace *user_ns,
 			void *data)
 {
+=======
+bool mount_capable(struct fs_context *fc)
+{
+	if (!(fc->fs_type->fs_flags & FS_USERNS_MOUNT))
+		return capable(CAP_SYS_ADMIN);
+	else
+		return ns_capable(fc->user_ns, CAP_SYS_ADMIN);
+}
+
+/**
+ * sget_fc - Find or create a superblock
+ * @fc:	Filesystem context.
+ * @test: Comparison callback
+ * @set: Setup callback
+ *
+ * Find or create a superblock using the parameters stored in the filesystem
+ * context and the two callback functions.
+ *
+ * If an extant superblock is matched, then that will be returned with an
+ * elevated reference count that the caller must transfer or discard.
+ *
+ * If no match is made, a new superblock will be allocated and basic
+ * initialisation will be performed (s_type, s_fs_info and s_id will be set and
+ * the set() callback will be invoked), the superblock will be published and it
+ * will be returned in a partially constructed state with SB_BORN and SB_ACTIVE
+ * as yet unset.
+ */
+struct super_block *sget_fc(struct fs_context *fc,
+			    int (*test)(struct super_block *, struct fs_context *),
+			    int (*set)(struct super_block *, struct fs_context *))
+{
+	struct super_block *s = NULL;
+	struct super_block *old;
+	struct user_namespace *user_ns = fc->global ? &init_user_ns : fc->user_ns;
+	int err;
+
+retry:
+	spin_lock(&sb_lock);
+	if (test) {
+		hlist_for_each_entry(old, &fc->fs_type->fs_supers, s_instances) {
+			if (test(old, fc))
+				goto share_extant_sb;
+		}
+	}
+	if (!s) {
+		spin_unlock(&sb_lock);
+		s = alloc_super(fc->fs_type, fc->sb_flags, user_ns);
+		if (!s)
+			return ERR_PTR(-ENOMEM);
+		goto retry;
+	}
+
+	s->s_fs_info = fc->s_fs_info;
+	err = set(s, fc);
+	if (err) {
+		s->s_fs_info = NULL;
+		spin_unlock(&sb_lock);
+		destroy_unused_super(s);
+		return ERR_PTR(err);
+	}
+	fc->s_fs_info = NULL;
+	s->s_type = fc->fs_type;
+	s->s_iflags |= fc->s_iflags;
+	strlcpy(s->s_id, s->s_type->name, sizeof(s->s_id));
+	list_add_tail(&s->s_list, &super_blocks);
+	hlist_add_head(&s->s_instances, &s->s_type->fs_supers);
+	spin_unlock(&sb_lock);
+	get_filesystem(s->s_type);
+	register_shrinker_prepared(&s->s_shrink);
+	return s;
+
+share_extant_sb:
+	if (user_ns != old->s_user_ns) {
+		spin_unlock(&sb_lock);
+		destroy_unused_super(s);
+		return ERR_PTR(-EBUSY);
+	}
+	if (!grab_super(old))
+		goto retry;
+	destroy_unused_super(s);
+	return old;
+}
+EXPORT_SYMBOL(sget_fc);
+
+/**
+ *	sget	-	find or create a superblock
+ *	@type:	  filesystem type superblock should belong to
+ *	@test:	  comparison callback
+ *	@set:	  setup callback
+ *	@flags:	  mount flags
+ *	@data:	  argument to each of them
+ */
+struct super_block *sget(struct file_system_type *type,
+			int (*test)(struct super_block *,void *),
+			int (*set)(struct super_block *,void *),
+			int flags,
+			void *data)
+{
+	struct user_namespace *user_ns = current_user_ns();
+>>>>>>> upstream/android-13
 	struct super_block *s = NULL;
 	struct super_block *old;
 	int err;
 
+<<<<<<< HEAD
 	if (!(flags & (SB_KERNMOUNT|SB_SUBMOUNT)) &&
 	    !(type->fs_flags & FS_USERNS_MOUNT) &&
 	    !capable(CAP_SYS_ADMIN))
 		return ERR_PTR(-EPERM);
+=======
+	/* We don't yet pass the user namespace of the parent
+	 * mount through to here so always use &init_user_ns
+	 * until that changes.
+	 */
+	if (flags & SB_SUBMOUNT)
+		user_ns = &init_user_ns;
+
+>>>>>>> upstream/android-13
 retry:
 	spin_lock(&sb_lock);
 	if (test) {
@@ -542,6 +684,7 @@ retry:
 	register_shrinker_prepared(&s->s_shrink);
 	return s;
 }
+<<<<<<< HEAD
 
 EXPORT_SYMBOL(sget_userns);
 
@@ -575,6 +718,8 @@ struct super_block *sget(struct file_system_type *type,
 	return sget_userns(type, test, set, flags, user_ns, data);
 }
 
+=======
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(sget);
 
 void drop_super(struct super_block *sb)
@@ -684,7 +829,18 @@ void iterate_supers_type(struct file_system_type *type,
 
 EXPORT_SYMBOL(iterate_supers_type);
 
+<<<<<<< HEAD
 static struct super_block *__get_super(struct block_device *bdev, bool excl)
+=======
+/**
+ * get_super - get the superblock of a device
+ * @bdev: device to get the superblock for
+ *
+ * Scans the superblock list and finds the superblock of the file system
+ * mounted on the device given. %NULL is returned if no match is found.
+ */
+struct super_block *get_super(struct block_device *bdev)
+>>>>>>> upstream/android-13
 {
 	struct super_block *sb;
 
@@ -699,6 +855,7 @@ rescan:
 		if (sb->s_bdev == bdev) {
 			sb->s_count++;
 			spin_unlock(&sb_lock);
+<<<<<<< HEAD
 			if (!excl)
 				down_read(&sb->s_umount);
 			else
@@ -710,6 +867,13 @@ rescan:
 				up_read(&sb->s_umount);
 			else
 				up_write(&sb->s_umount);
+=======
+			down_read(&sb->s_umount);
+			/* still alive? */
+			if (sb->s_root && (sb->s_flags & SB_BORN))
+				return sb;
+			up_read(&sb->s_umount);
+>>>>>>> upstream/android-13
 			/* nope, got unmounted */
 			spin_lock(&sb_lock);
 			__put_super(sb);
@@ -721,6 +885,7 @@ rescan:
 }
 
 /**
+<<<<<<< HEAD
  *	get_super - get the superblock of a device
  *	@bdev: device to get the superblock for
  *
@@ -781,6 +946,8 @@ struct super_block *get_super_exclusive_thawed(struct block_device *bdev)
 EXPORT_SYMBOL(get_super_exclusive_thawed);
 
 /**
+=======
+>>>>>>> upstream/android-13
  * get_active_super - get an active reference to the superblock of a device
  * @bdev: device to get the superblock for
  *
@@ -811,7 +978,11 @@ restart:
 	return NULL;
 }
 
+<<<<<<< HEAD
 struct super_block *user_get_super(dev_t dev)
+=======
+struct super_block *user_get_super(dev_t dev, bool excl)
+>>>>>>> upstream/android-13
 {
 	struct super_block *sb;
 
@@ -823,11 +994,25 @@ rescan:
 		if (sb->s_dev ==  dev) {
 			sb->s_count++;
 			spin_unlock(&sb_lock);
+<<<<<<< HEAD
 			down_read(&sb->s_umount);
 			/* still alive? */
 			if (sb->s_root && (sb->s_flags & SB_BORN))
 				return sb;
 			up_read(&sb->s_umount);
+=======
+			if (excl)
+				down_write(&sb->s_umount);
+			else
+				down_read(&sb->s_umount);
+			/* still alive? */
+			if (sb->s_root && (sb->s_flags & SB_BORN))
+				return sb;
+			if (excl)
+				up_write(&sb->s_umount);
+			else
+				up_read(&sb->s_umount);
+>>>>>>> upstream/android-13
 			/* nope, got unmounted */
 			spin_lock(&sb_lock);
 			__put_super(sb);
@@ -839,6 +1024,7 @@ rescan:
 }
 
 /**
+<<<<<<< HEAD
  *	do_remount_sb2 - asks filesystem to change mount options.
  *	@mnt:   mount we are looking at
  *	@sb:	superblock in question
@@ -862,6 +1048,38 @@ int do_remount_sb2(struct vfsmount *mnt, struct super_block *sb, int sb_flags, v
 #endif
 
 	remount_ro = (sb_flags & SB_RDONLY) && !sb_rdonly(sb);
+=======
+ * reconfigure_super - asks filesystem to change superblock parameters
+ * @fc: The superblock and configuration
+ *
+ * Alters the configuration parameters of a live superblock.
+ */
+int reconfigure_super(struct fs_context *fc)
+{
+	struct super_block *sb = fc->root->d_sb;
+	int retval;
+	bool remount_ro = false;
+	bool force = fc->sb_flags & SB_FORCE;
+
+	if (fc->sb_flags_mask & ~MS_RMT_MASK)
+		return -EINVAL;
+	if (sb->s_writers.frozen != SB_UNFROZEN)
+		return -EBUSY;
+
+	retval = security_sb_remount(sb, fc->security);
+	if (retval)
+		return retval;
+
+	if (fc->sb_flags_mask & SB_RDONLY) {
+#ifdef CONFIG_BLOCK
+		if (!(fc->sb_flags & SB_RDONLY) && sb->s_bdev &&
+		    bdev_read_only(sb->s_bdev))
+			return -EACCES;
+#endif
+
+		remount_ro = (fc->sb_flags & SB_RDONLY) && !sb_rdonly(sb);
+	}
+>>>>>>> upstream/android-13
 
 	if (remount_ro) {
 		if (!hlist_empty(&sb->s_pins)) {
@@ -872,20 +1090,33 @@ int do_remount_sb2(struct vfsmount *mnt, struct super_block *sb, int sb_flags, v
 				return 0;
 			if (sb->s_writers.frozen != SB_UNFROZEN)
 				return -EBUSY;
+<<<<<<< HEAD
 			remount_ro = (sb_flags & SB_RDONLY) && !sb_rdonly(sb);
+=======
+			remount_ro = !sb_rdonly(sb);
+>>>>>>> upstream/android-13
 		}
 	}
 	shrink_dcache_sb(sb);
 
+<<<<<<< HEAD
 	/* If we are remounting RDONLY and current sb is read/write,
 	   make sure there are no rw files opened */
+=======
+	/* If we are reconfiguring to RDONLY and current sb is read/write,
+	 * make sure there are no files open for writing.
+	 */
+>>>>>>> upstream/android-13
 	if (remount_ro) {
 		if (force) {
 			sb->s_readonly_remount = 1;
 			smp_wmb();
+<<<<<<< HEAD
 
 			if (sb->s_magic == F2FS_SUPER_MAGIC)
 				mnt = ERR_PTR(-EROFS);
+=======
+>>>>>>> upstream/android-13
 		} else {
 			retval = sb_prepare_remount_readonly(sb);
 			if (retval)
@@ -893,6 +1124,7 @@ int do_remount_sb2(struct vfsmount *mnt, struct super_block *sb, int sb_flags, v
 		}
 	}
 
+<<<<<<< HEAD
 	if (mnt && sb->s_op->remount_fs2) {
 		retval = sb->s_op->remount_fs2(mnt, sb, &sb_flags, data);
 		if (retval) {
@@ -904,6 +1136,10 @@ int do_remount_sb2(struct vfsmount *mnt, struct super_block *sb, int sb_flags, v
 		}
 	} else if (sb->s_op->remount_fs) {
 		retval = sb->s_op->remount_fs(sb, &sb_flags, data);
+=======
+	if (fc->ops->reconfigure) {
+		retval = fc->ops->reconfigure(fc);
+>>>>>>> upstream/android-13
 		if (retval) {
 			if (!force)
 				goto cancel_readonly;
@@ -912,11 +1148,22 @@ int do_remount_sb2(struct vfsmount *mnt, struct super_block *sb, int sb_flags, v
 			     sb->s_type->name, retval);
 		}
 	}
+<<<<<<< HEAD
 #ifdef CONFIG_FIVE
 	sb->s_flags = (sb->s_flags & ~MS_RMT_MASK) |
 			(sb_flags & MS_RMT_MASK) | MS_I_VERSION;
 #else
 	sb->s_flags = (sb->s_flags & ~MS_RMT_MASK) | (sb_flags & MS_RMT_MASK);
+=======
+
+#ifdef CONFIG_FIVE
+	WRITE_ONCE(sb->s_flags, ((sb->s_flags & ~fc->sb_flags_mask) |
+				 (fc->sb_flags & fc->sb_flags_mask) |
+				 MS_I_VERSION));
+#else
+	WRITE_ONCE(sb->s_flags, ((sb->s_flags & ~fc->sb_flags_mask) |
+				 (fc->sb_flags & fc->sb_flags_mask)));
+>>>>>>> upstream/android-13
 #endif
 	/* Needs to be ordered wrt mnt_is_readonly() */
 	smp_wmb();
@@ -939,20 +1186,35 @@ cancel_readonly:
 	return retval;
 }
 
+<<<<<<< HEAD
 int do_remount_sb(struct super_block *sb, int flags, void *data, int force)
 {
 	return do_remount_sb2(NULL, sb, flags, data, force);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void do_emergency_remount_callback(struct super_block *sb)
 {
 	down_write(&sb->s_umount);
 	if (sb->s_root && sb->s_bdev && (sb->s_flags & SB_BORN) &&
 	    !sb_rdonly(sb)) {
+<<<<<<< HEAD
 		/*
 		 * What lock protects sb->s_flags??
 		 */
 		do_remount_sb(sb, SB_RDONLY, NULL, 1);
+=======
+		struct fs_context *fc;
+
+		fc = fs_context_for_reconfigure(sb->s_root,
+					SB_RDONLY | SB_FORCE, SB_RDONLY);
+		if (!IS_ERR(fc)) {
+			if (parse_monolithic_mount_data(fc, NULL) == 0)
+				(void)reconfigure_super(fc);
+			put_fs_context(fc);
+		}
+>>>>>>> upstream/android-13
 	}
 	up_write(&sb->s_umount);
 }
@@ -1070,6 +1332,7 @@ void kill_litter_super(struct super_block *sb)
 }
 EXPORT_SYMBOL(kill_litter_super);
 
+<<<<<<< HEAD
 static int ns_test_super(struct super_block *sb, void *data)
 {
 	return sb->s_fs_info == data;
@@ -1115,15 +1378,255 @@ struct dentry *mount_ns(struct file_system_type *fs_type,
 EXPORT_SYMBOL(mount_ns);
 
 #ifdef CONFIG_BLOCK
+=======
+int set_anon_super_fc(struct super_block *sb, struct fs_context *fc)
+{
+	return set_anon_super(sb, NULL);
+}
+EXPORT_SYMBOL(set_anon_super_fc);
+
+static int test_keyed_super(struct super_block *sb, struct fs_context *fc)
+{
+	return sb->s_fs_info == fc->s_fs_info;
+}
+
+static int test_single_super(struct super_block *s, struct fs_context *fc)
+{
+	return 1;
+}
+
+/**
+ * vfs_get_super - Get a superblock with a search key set in s_fs_info.
+ * @fc: The filesystem context holding the parameters
+ * @keying: How to distinguish superblocks
+ * @fill_super: Helper to initialise a new superblock
+ *
+ * Search for a superblock and create a new one if not found.  The search
+ * criterion is controlled by @keying.  If the search fails, a new superblock
+ * is created and @fill_super() is called to initialise it.
+ *
+ * @keying can take one of a number of values:
+ *
+ * (1) vfs_get_single_super - Only one superblock of this type may exist on the
+ *     system.  This is typically used for special system filesystems.
+ *
+ * (2) vfs_get_keyed_super - Multiple superblocks may exist, but they must have
+ *     distinct keys (where the key is in s_fs_info).  Searching for the same
+ *     key again will turn up the superblock for that key.
+ *
+ * (3) vfs_get_independent_super - Multiple superblocks may exist and are
+ *     unkeyed.  Each call will get a new superblock.
+ *
+ * A permissions check is made by sget_fc() unless we're getting a superblock
+ * for a kernel-internal mount or a submount.
+ */
+int vfs_get_super(struct fs_context *fc,
+		  enum vfs_get_super_keying keying,
+		  int (*fill_super)(struct super_block *sb,
+				    struct fs_context *fc))
+{
+	int (*test)(struct super_block *, struct fs_context *);
+	struct super_block *sb;
+	int err;
+
+	switch (keying) {
+	case vfs_get_single_super:
+	case vfs_get_single_reconf_super:
+		test = test_single_super;
+		break;
+	case vfs_get_keyed_super:
+		test = test_keyed_super;
+		break;
+	case vfs_get_independent_super:
+		test = NULL;
+		break;
+	default:
+		BUG();
+	}
+
+	sb = sget_fc(fc, test, set_anon_super_fc);
+	if (IS_ERR(sb))
+		return PTR_ERR(sb);
+
+	if (!sb->s_root) {
+		err = fill_super(sb, fc);
+		if (err)
+			goto error;
+
+		sb->s_flags |= SB_ACTIVE;
+		fc->root = dget(sb->s_root);
+	} else {
+		fc->root = dget(sb->s_root);
+		if (keying == vfs_get_single_reconf_super) {
+			err = reconfigure_super(fc);
+			if (err < 0) {
+				dput(fc->root);
+				fc->root = NULL;
+				goto error;
+			}
+		}
+	}
+
+	return 0;
+
+error:
+	deactivate_locked_super(sb);
+	return err;
+}
+EXPORT_SYMBOL(vfs_get_super);
+
+int get_tree_nodev(struct fs_context *fc,
+		  int (*fill_super)(struct super_block *sb,
+				    struct fs_context *fc))
+{
+	return vfs_get_super(fc, vfs_get_independent_super, fill_super);
+}
+EXPORT_SYMBOL(get_tree_nodev);
+
+int get_tree_single(struct fs_context *fc,
+		  int (*fill_super)(struct super_block *sb,
+				    struct fs_context *fc))
+{
+	return vfs_get_super(fc, vfs_get_single_super, fill_super);
+}
+EXPORT_SYMBOL(get_tree_single);
+
+int get_tree_single_reconf(struct fs_context *fc,
+		  int (*fill_super)(struct super_block *sb,
+				    struct fs_context *fc))
+{
+	return vfs_get_super(fc, vfs_get_single_reconf_super, fill_super);
+}
+EXPORT_SYMBOL(get_tree_single_reconf);
+
+int get_tree_keyed(struct fs_context *fc,
+		  int (*fill_super)(struct super_block *sb,
+				    struct fs_context *fc),
+		void *key)
+{
+	fc->s_fs_info = key;
+	return vfs_get_super(fc, vfs_get_keyed_super, fill_super);
+}
+EXPORT_SYMBOL(get_tree_keyed);
+
+#ifdef CONFIG_BLOCK
+
+>>>>>>> upstream/android-13
 static int set_bdev_super(struct super_block *s, void *data)
 {
 	s->s_bdev = data;
 	s->s_dev = s->s_bdev->bd_dev;
+<<<<<<< HEAD
 	s->s_bdi = bdi_get(s->s_bdev->bd_bdi);
 
 	return 0;
 }
 
+=======
+	s->s_bdi = bdi_get(s->s_bdev->bd_disk->bdi);
+
+	if (blk_queue_stable_writes(s->s_bdev->bd_disk->queue))
+		s->s_iflags |= SB_I_STABLE_WRITES;
+	return 0;
+}
+
+static int set_bdev_super_fc(struct super_block *s, struct fs_context *fc)
+{
+	return set_bdev_super(s, fc->sget_key);
+}
+
+static int test_bdev_super_fc(struct super_block *s, struct fs_context *fc)
+{
+	return s->s_bdev == fc->sget_key;
+}
+
+/**
+ * get_tree_bdev - Get a superblock based on a single block device
+ * @fc: The filesystem context holding the parameters
+ * @fill_super: Helper to initialise a new superblock
+ */
+int get_tree_bdev(struct fs_context *fc,
+		int (*fill_super)(struct super_block *,
+				  struct fs_context *))
+{
+	struct block_device *bdev;
+	struct super_block *s;
+	fmode_t mode = FMODE_READ | FMODE_EXCL;
+	int error = 0;
+
+	if (!(fc->sb_flags & SB_RDONLY))
+		mode |= FMODE_WRITE;
+
+	if (!fc->source)
+		return invalf(fc, "No source specified");
+
+	bdev = blkdev_get_by_path(fc->source, mode, fc->fs_type);
+	if (IS_ERR(bdev)) {
+		errorf(fc, "%s: Can't open blockdev", fc->source);
+		return PTR_ERR(bdev);
+	}
+
+	/* Once the superblock is inserted into the list by sget_fc(), s_umount
+	 * will protect the lockfs code from trying to start a snapshot while
+	 * we are mounting
+	 */
+	mutex_lock(&bdev->bd_fsfreeze_mutex);
+	if (bdev->bd_fsfreeze_count > 0) {
+		mutex_unlock(&bdev->bd_fsfreeze_mutex);
+		warnf(fc, "%pg: Can't mount, blockdev is frozen", bdev);
+		blkdev_put(bdev, mode);
+		return -EBUSY;
+	}
+
+	fc->sb_flags |= SB_NOSEC;
+	fc->sget_key = bdev;
+	s = sget_fc(fc, test_bdev_super_fc, set_bdev_super_fc);
+	mutex_unlock(&bdev->bd_fsfreeze_mutex);
+	if (IS_ERR(s)) {
+		blkdev_put(bdev, mode);
+		return PTR_ERR(s);
+	}
+
+	if (s->s_root) {
+		/* Don't summarily change the RO/RW state. */
+		if ((fc->sb_flags ^ s->s_flags) & SB_RDONLY) {
+			warnf(fc, "%pg: Can't mount, would change RO state", bdev);
+			deactivate_locked_super(s);
+			blkdev_put(bdev, mode);
+			return -EBUSY;
+		}
+
+		/*
+		 * s_umount nests inside open_mutex during
+		 * __invalidate_device().  blkdev_put() acquires
+		 * open_mutex and can't be called under s_umount.  Drop
+		 * s_umount temporarily.  This is safe as we're
+		 * holding an active reference.
+		 */
+		up_write(&s->s_umount);
+		blkdev_put(bdev, mode);
+		down_write(&s->s_umount);
+	} else {
+		s->s_mode = mode;
+		snprintf(s->s_id, sizeof(s->s_id), "%pg", bdev);
+		sb_set_blocksize(s, block_size(bdev));
+		error = fill_super(s, fc);
+		if (error) {
+			deactivate_locked_super(s);
+			return error;
+		}
+
+		s->s_flags |= SB_ACTIVE;
+		bdev->bd_super = s;
+	}
+
+	BUG_ON(fc->root);
+	fc->root = dget(s->s_root);
+	return 0;
+}
+EXPORT_SYMBOL(get_tree_bdev);
+
+>>>>>>> upstream/android-13
 static int test_bdev_super(struct super_block *s, void *data)
 {
 	return (void *)s->s_bdev == data;
@@ -1170,9 +1673,15 @@ struct dentry *mount_bdev(struct file_system_type *fs_type,
 		}
 
 		/*
+<<<<<<< HEAD
 		 * s_umount nests inside bd_mutex during
 		 * __invalidate_device().  blkdev_put() acquires
 		 * bd_mutex and can't be called under s_umount.  Drop
+=======
+		 * s_umount nests inside open_mutex during
+		 * __invalidate_device().  blkdev_put() acquires
+		 * open_mutex and can't be called under s_umount.  Drop
+>>>>>>> upstream/android-13
 		 * s_umount temporarily.  This is safe as we're
 		 * holding an active reference.
 		 */
@@ -1202,7 +1711,11 @@ error_bdev:
 error:
 	return ERR_PTR(error);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(mount_bdev);
+=======
+EXPORT_SYMBOL_NS(mount_bdev, ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 
 void kill_block_super(struct super_block *sb)
 {
@@ -1216,7 +1729,11 @@ void kill_block_super(struct super_block *sb)
 	blkdev_put(bdev, mode | FMODE_EXCL);
 }
 
+<<<<<<< HEAD
 EXPORT_SYMBOL(kill_block_super);
+=======
+EXPORT_SYMBOL_NS(kill_block_super, ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 #endif
 
 struct dentry *mount_nodev(struct file_system_type *fs_type,
@@ -1239,6 +1756,34 @@ struct dentry *mount_nodev(struct file_system_type *fs_type,
 }
 EXPORT_SYMBOL(mount_nodev);
 
+<<<<<<< HEAD
+=======
+int reconfigure_single(struct super_block *s,
+		       int flags, void *data)
+{
+	struct fs_context *fc;
+	int ret;
+
+	/* The caller really need to be passing fc down into mount_single(),
+	 * then a chunk of this can be removed.  [Bollocks -- AV]
+	 * Better yet, reconfiguration shouldn't happen, but rather the second
+	 * mount should be rejected if the parameters are not compatible.
+	 */
+	fc = fs_context_for_reconfigure(s->s_root, flags, MS_RMT_MASK);
+	if (IS_ERR(fc))
+		return PTR_ERR(fc);
+
+	ret = parse_monolithic_mount_data(fc, data);
+	if (ret < 0)
+		goto out;
+
+	ret = reconfigure_super(fc);
+out:
+	put_fs_context(fc);
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 static int compare_single(struct super_block *s, void *p)
 {
 	return 1;
@@ -1256,6 +1801,7 @@ struct dentry *mount_single(struct file_system_type *fs_type,
 		return ERR_CAST(s);
 	if (!s->s_root) {
 		error = fill_super(s, data, flags & SB_SILENT ? 1 : 0);
+<<<<<<< HEAD
 		if (error) {
 			deactivate_locked_super(s);
 			return ERR_PTR(error);
@@ -1263,11 +1809,22 @@ struct dentry *mount_single(struct file_system_type *fs_type,
 		s->s_flags |= SB_ACTIVE;
 	} else {
 		do_remount_sb(s, flags, data, 0);
+=======
+		if (!error)
+			s->s_flags |= SB_ACTIVE;
+	} else {
+		error = reconfigure_single(s, flags, data);
+	}
+	if (unlikely(error)) {
+		deactivate_locked_super(s);
+		return ERR_PTR(error);
+>>>>>>> upstream/android-13
 	}
 	return dget(s->s_root);
 }
 EXPORT_SYMBOL(mount_single);
 
+<<<<<<< HEAD
 struct dentry *
 mount_fs(struct file_system_type *type, int flags, const char *name, struct vfsmount *mnt, void *data)
 {
@@ -1296,6 +1853,41 @@ mount_fs(struct file_system_type *type, int flags, const char *name, struct vfsm
 	}
 	sb = root->d_sb;
 	BUG_ON(!sb);
+=======
+/**
+ * vfs_get_tree - Get the mountable root
+ * @fc: The superblock configuration context.
+ *
+ * The filesystem is invoked to get or create a superblock which can then later
+ * be used for mounting.  The filesystem places a pointer to the root to be
+ * used for mounting in @fc->root.
+ */
+int vfs_get_tree(struct fs_context *fc)
+{
+	struct super_block *sb;
+	int error;
+
+	if (fc->root)
+		return -EBUSY;
+
+	/* Get the mountable root in fc->root, with a ref on the root and a ref
+	 * on the superblock.
+	 */
+	error = fc->ops->get_tree(fc);
+	if (error < 0)
+		return error;
+
+	if (!fc->root) {
+		pr_err("Filesystem %s get_tree() didn't set fc->root\n",
+		       fc->fs_type->name);
+		/* We don't know what the locking state of the superblock is -
+		 * if there is a superblock.
+		 */
+		BUG();
+	}
+
+	sb = fc->root->d_sb;
+>>>>>>> upstream/android-13
 	WARN_ON(!sb->s_bdi);
 
 	/*
@@ -1307,9 +1899,17 @@ mount_fs(struct file_system_type *type, int flags, const char *name, struct vfsm
 	smp_wmb();
 	sb->s_flags |= SB_BORN;
 
+<<<<<<< HEAD
 	error = security_sb_kern_mount(sb, flags, secdata);
 	if (error)
 		goto out_sb;
+=======
+	error = security_sb_set_mnt_opts(sb, fc->security, 0, NULL);
+	if (unlikely(error)) {
+		fc_drop_locked(fc);
+		return error;
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * filesystems should never set s_maxbytes larger than MAX_LFS_FILESIZE
@@ -1318,6 +1918,7 @@ mount_fs(struct file_system_type *type, int flags, const char *name, struct vfsm
 	 * violate this rule.
 	 */
 	WARN((sb->s_maxbytes < 0), "%s set sb->s_maxbytes to "
+<<<<<<< HEAD
 		"negative value (%lld)\n", type->name, sb->s_maxbytes);
 
 	up_write(&sb->s_umount);
@@ -1335,16 +1936,34 @@ out:
 static int __super_setup_bdi_name(struct super_block *sb,
 				  struct backing_dev_info *(*bdi_alloc_func)(gfp_t),
 				  char *fmt, va_list args)
+=======
+		"negative value (%lld)\n", fc->fs_type->name, sb->s_maxbytes);
+
+	return 0;
+}
+EXPORT_SYMBOL(vfs_get_tree);
+
+static int __super_setup_bdi_name(struct super_block *sb,
+		struct backing_dev_info *(*bdi_alloc_func)(int),
+		char *fmt, va_list args)
+>>>>>>> upstream/android-13
 {
 	struct backing_dev_info *bdi;
 	int err;
 
+<<<<<<< HEAD
 	bdi = bdi_alloc_func(GFP_KERNEL);
 	if (!bdi)
 		return -ENOMEM;
 
 	bdi->name = sb->s_type->name;
 
+=======
+	bdi = bdi_alloc_func(NUMA_NO_NODE);
+	if (!bdi)
+		return -ENOMEM;
+
+>>>>>>> upstream/android-13
 	err = bdi_register_va(bdi, fmt, args);
 	if (err) {
 		bdi_put(bdi);
@@ -1403,6 +2022,7 @@ int super_setup_bdi(struct super_block *sb)
 }
 EXPORT_SYMBOL(super_setup_bdi);
 
+<<<<<<< HEAD
 /*
  * This is an internal function, please use sb_end_{write,pagefault,intwrite}
  * instead.
@@ -1427,6 +2047,8 @@ int __sb_start_write(struct super_block *sb, int level, bool wait)
 }
 EXPORT_SYMBOL(__sb_start_write);
 
+=======
+>>>>>>> upstream/android-13
 /**
  * sb_wait_write - wait until all writers to given file system finish
  * @sb: the super for which we wait
@@ -1463,11 +2085,17 @@ static void lockdep_sb_freeze_acquire(struct super_block *sb)
 		percpu_rwsem_acquire(sb->s_writers.rw_sem + level, 0, _THIS_IP_);
 }
 
+<<<<<<< HEAD
 static void sb_freeze_unlock(struct super_block *sb)
 {
 	int level;
 
 	for (level = SB_FREEZE_LEVELS - 1; level >= 0; level--)
+=======
+static void sb_freeze_unlock(struct super_block *sb, int level)
+{
+	for (level--; level >= 0; level--)
+>>>>>>> upstream/android-13
 		percpu_up_write(sb->s_writers.rw_sem + level);
 }
 
@@ -1538,7 +2166,18 @@ int freeze_super(struct super_block *sb)
 	sb_wait_write(sb, SB_FREEZE_PAGEFAULT);
 
 	/* All writers are done so after syncing there won't be dirty data */
+<<<<<<< HEAD
 	sync_filesystem(sb);
+=======
+	ret = sync_filesystem(sb);
+	if (ret) {
+		sb->s_writers.frozen = SB_UNFROZEN;
+		sb_freeze_unlock(sb, SB_FREEZE_PAGEFAULT);
+		wake_up(&sb->s_writers.wait_unfrozen);
+		deactivate_locked_super(sb);
+		return ret;
+	}
+>>>>>>> upstream/android-13
 
 	/* Now wait for internal filesystem counter */
 	sb->s_writers.frozen = SB_FREEZE_FS;
@@ -1550,7 +2189,11 @@ int freeze_super(struct super_block *sb)
 			printk(KERN_ERR
 				"VFS:Filesystem freeze failed\n");
 			sb->s_writers.frozen = SB_UNFROZEN;
+<<<<<<< HEAD
 			sb_freeze_unlock(sb);
+=======
+			sb_freeze_unlock(sb, SB_FREEZE_FS);
+>>>>>>> upstream/android-13
 			wake_up(&sb->s_writers.wait_unfrozen);
 			deactivate_locked_super(sb);
 			return ret;
@@ -1567,12 +2210,15 @@ int freeze_super(struct super_block *sb)
 }
 EXPORT_SYMBOL(freeze_super);
 
+<<<<<<< HEAD
 /**
  * thaw_super -- unlock filesystem
  * @sb: the super to thaw
  *
  * Unlocks the filesystem and marks it writeable again after freeze_super().
  */
+=======
+>>>>>>> upstream/android-13
 static int thaw_super_locked(struct super_block *sb)
 {
 	int error;
@@ -1601,13 +2247,26 @@ static int thaw_super_locked(struct super_block *sb)
 	}
 
 	sb->s_writers.frozen = SB_UNFROZEN;
+<<<<<<< HEAD
 	sb_freeze_unlock(sb);
+=======
+	sb_freeze_unlock(sb, SB_FREEZE_FS);
+>>>>>>> upstream/android-13
 out:
 	wake_up(&sb->s_writers.wait_unfrozen);
 	deactivate_locked_super(sb);
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * thaw_super -- unlock filesystem
+ * @sb: the super to thaw
+ *
+ * Unlocks the filesystem and marks it writeable again after freeze_super().
+ */
+>>>>>>> upstream/android-13
 int thaw_super(struct super_block *sb)
 {
 	down_write(&sb->s_umount);

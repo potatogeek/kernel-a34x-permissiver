@@ -86,10 +86,13 @@ typedef unsigned long long u_quad_t;
 
 #define inline
 
+<<<<<<< HEAD
 struct timespec {
         long       ts_sec;
         long       ts_nsec;
 };
+=======
+>>>>>>> upstream/android-13
 #else  /* DJGPP but not KERNEL */
 #include <sys/time.h>
 typedef unsigned long long u_quad_t;
@@ -110,6 +113,7 @@ typedef unsigned long long u_quad_t;
 #define cdev_t dev_t
 #endif
 
+<<<<<<< HEAD
 #ifdef __CYGWIN32__
 struct timespec {
         time_t  tv_sec;         /* seconds */
@@ -117,6 +121,8 @@ struct timespec {
 };
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #ifndef __BIT_TYPES_DEFINED__
 #define __BIT_TYPES_DEFINED__
 typedef signed char	      int8_t;
@@ -211,6 +217,14 @@ struct CodaFid {
  */
 enum coda_vtype	{ C_VNON, C_VREG, C_VDIR, C_VBLK, C_VCHR, C_VLNK, C_VSOCK, C_VFIFO, C_VBAD };
 
+<<<<<<< HEAD
+=======
+struct coda_timespec {
+	int64_t		tv_sec;		/* seconds */
+	long		tv_nsec;	/* nanoseconds */
+};
+
+>>>>>>> upstream/android-13
 struct coda_vattr {
 	long     	va_type;	/* vnode type (for create) */
 	u_short		va_mode;	/* files access mode and type */
@@ -220,9 +234,15 @@ struct coda_vattr {
 	long		va_fileid;	/* file id */
 	u_quad_t	va_size;	/* file size in bytes */
 	long		va_blocksize;	/* blocksize preferred for i/o */
+<<<<<<< HEAD
 	struct timespec	va_atime;	/* time of last access */
 	struct timespec	va_mtime;	/* time of last modification */
 	struct timespec	va_ctime;	/* time file changed */
+=======
+	struct coda_timespec va_atime;	/* time of last access */
+	struct coda_timespec va_mtime;	/* time of last modification */
+	struct coda_timespec va_ctime;	/* time file changed */
+>>>>>>> upstream/android-13
 	u_long		va_gen;		/* generation number of file */
 	u_long		va_flags;	/* flags defined for file */
 	cdev_t	        va_rdev;	/* device special file represents */
@@ -277,7 +297,12 @@ struct coda_statfs {
 #define CODA_STATFS	 34
 #define CODA_STORE	 35
 #define CODA_RELEASE	 36
+<<<<<<< HEAD
 #define CODA_NCALLS 37
+=======
+#define CODA_ACCESS_INTENT 37
+#define CODA_NCALLS 38
+>>>>>>> upstream/android-13
 
 #define DOWNCALL(opcode) (opcode >= CODA_REPLACE && opcode <= CODA_PURGEFID)
 
@@ -287,7 +312,16 @@ struct coda_statfs {
 
 #define CIOC_KERNEL_VERSION _IOWR('c', 10, size_t)
 
+<<<<<<< HEAD
 #define CODA_KERNEL_VERSION 3 /* 128-bit file identifiers */
+=======
+//      CODA_KERNEL_VERSION 0 /* don't care about kernel version number */
+//      CODA_KERNEL_VERSION 1 /* The old venus 4.6 compatible interface */
+//      CODA_KERNEL_VERSION 2 /* venus_lookup gets an extra parameter */
+//      CODA_KERNEL_VERSION 3 /* 128-bit file identifiers */
+//      CODA_KERNEL_VERSION 4 /* 64-bit timespec */
+#define CODA_KERNEL_VERSION 5 /* access intent support */
+>>>>>>> upstream/android-13
 
 /*
  *        Venus <-> Coda  RPC arguments
@@ -295,8 +329,13 @@ struct coda_statfs {
 struct coda_in_hdr {
     u_int32_t opcode;
     u_int32_t unique;	    /* Keep multiple outstanding msgs distinct */
+<<<<<<< HEAD
     pid_t pid;
     pid_t pgid;
+=======
+    __kernel_pid_t pid;
+    __kernel_pid_t pgid;
+>>>>>>> upstream/android-13
     vuid_t uid;
 };
 
@@ -642,6 +681,28 @@ struct coda_statfs_out {
     struct coda_statfs stat;
 };
 
+<<<<<<< HEAD
+=======
+#define CODA_ACCESS_TYPE_READ		1
+#define CODA_ACCESS_TYPE_WRITE		2
+#define CODA_ACCESS_TYPE_MMAP		3
+#define CODA_ACCESS_TYPE_READ_FINISH	4
+#define CODA_ACCESS_TYPE_WRITE_FINISH	5
+
+/* coda_access_intent: NO_OUT */
+struct coda_access_intent_in {
+	struct coda_in_hdr ih;
+	struct CodaFid VFid;
+	int count;
+	int pos;
+	int type;
+};
+
+struct coda_access_intent_out {
+	struct coda_out_hdr out;
+};
+
+>>>>>>> upstream/android-13
 /* 
  * Occasionally, we don't cache the fid returned by CODA_LOOKUP. 
  * For instance, if the fid is inconsistent. 
@@ -673,6 +734,10 @@ union inputArgs {
     struct coda_open_by_fd_in coda_open_by_fd;
     struct coda_open_by_path_in coda_open_by_path;
     struct coda_statfs_in coda_statfs;
+<<<<<<< HEAD
+=======
+    struct coda_access_intent_in coda_access_intent;
+>>>>>>> upstream/android-13
 };
 
 union outputArgs {

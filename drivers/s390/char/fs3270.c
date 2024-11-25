@@ -8,7 +8,11 @@
  *     Copyright IBM Corp. 2003, 2009
  */
 
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/console.h>
 #include <linux/init.h>
 #include <linux/interrupt.h>
@@ -486,7 +490,11 @@ fs3270_open(struct inode *inode, struct file *filp)
 		raw3270_del_view(&fp->view);
 		goto out;
 	}
+<<<<<<< HEAD
 	nonseekable_open(inode, filp);
+=======
+	stream_open(inode, filp);
+>>>>>>> upstream/android-13
 	filp->private_data = fp;
 out:
 	mutex_unlock(&fs3270_mutex);

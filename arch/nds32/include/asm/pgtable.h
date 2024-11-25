@@ -1,44 +1,68 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 // Copyright (C) 2005-2017 Andes Technology Corporation
 
 #ifndef _ASMNDS32_PGTABLE_H
 #define _ASMNDS32_PGTABLE_H
 
+<<<<<<< HEAD
 #define __PAGETABLE_PMD_FOLDED 1
 #include <asm-generic/4level-fixup.h>
 #include <asm-generic/sizes.h>
+=======
+#include <asm-generic/pgtable-nopmd.h>
+#include <linux/sizes.h>
+>>>>>>> upstream/android-13
 
 #include <asm/memory.h>
 #include <asm/nds32.h>
 #ifndef __ASSEMBLY__
 #include <asm/fixmap.h>
+<<<<<<< HEAD
 #include <asm/io.h>
+=======
+>>>>>>> upstream/android-13
 #include <nds32_intrinsic.h>
 #endif
 
 #ifdef CONFIG_ANDES_PAGE_SIZE_4KB
 #define PGDIR_SHIFT      22
 #define PTRS_PER_PGD     1024
+<<<<<<< HEAD
 #define PMD_SHIFT        22
 #define PTRS_PER_PMD     1
+=======
+>>>>>>> upstream/android-13
 #define PTRS_PER_PTE     1024
 #endif
 
 #ifdef CONFIG_ANDES_PAGE_SIZE_8KB
 #define PGDIR_SHIFT      24
 #define PTRS_PER_PGD     256
+<<<<<<< HEAD
 #define PMD_SHIFT        24
 #define PTRS_PER_PMD     1
+=======
+>>>>>>> upstream/android-13
 #define PTRS_PER_PTE     2048
 #endif
 
 #ifndef __ASSEMBLY__
 extern void __pte_error(const char *file, int line, unsigned long val);
+<<<<<<< HEAD
 extern void __pmd_error(const char *file, int line, unsigned long val);
 extern void __pgd_error(const char *file, int line, unsigned long val);
 
 #define pte_ERROR(pte)		__pte_error(__FILE__, __LINE__, pte_val(pte))
 #define pmd_ERROR(pmd)		__pmd_error(__FILE__, __LINE__, pmd_val(pmd))
+=======
+extern void __pgd_error(const char *file, int line, unsigned long val);
+
+#define pte_ERROR(pte)		__pte_error(__FILE__, __LINE__, pte_val(pte))
+>>>>>>> upstream/android-13
 #define pgd_ERROR(pgd)		__pgd_error(__FILE__, __LINE__, pgd_val(pgd))
 #endif /* !__ASSEMBLY__ */
 
@@ -130,6 +154,12 @@ extern void __pgd_error(const char *file, int line, unsigned long val);
 #define _PAGE_CACHE		_PAGE_C_MEM_WB
 #endif
 
+<<<<<<< HEAD
+=======
+#define _PAGE_IOREMAP \
+	(_PAGE_V | _PAGE_M_KRW | _PAGE_D | _PAGE_G | _PAGE_C_DEV)
+
+>>>>>>> upstream/android-13
 /*
  * + Level 1 descriptor (PMD)
  */
@@ -191,6 +221,7 @@ extern void paging_init(void);
 #define pte_clear(mm,addr,ptep)	set_pte_at((mm),(addr),(ptep), __pte(0))
 #define pte_page(pte)		(pfn_to_page(pte_pfn(pte)))
 
+<<<<<<< HEAD
 #define pte_index(address)                   (((address) >> PAGE_SHIFT) & (PTRS_PER_PTE - 1))
 #define pte_offset_kernel(dir, address)	     ((pte_t *)pmd_page_kernel(*(dir)) + pte_index(address))
 #define pte_offset_map(dir, address)	     ((pte_t *)page_address(pmd_page(*(dir))) + pte_index(address))
@@ -201,6 +232,12 @@ extern void paging_init(void);
 #define pte_unmap_nested(pte)	do { } while (0)
 
 #define pmd_off_k(address)	pmd_offset(pgd_offset_k(address), address)
+=======
+static unsigned long pmd_page_vaddr(pmd_t pmd)
+{
+	return ((unsigned long) __va(pmd_val(pmd) & PAGE_MASK));
+}
+>>>>>>> upstream/android-13
 
 #define set_pte_at(mm,addr,ptep,pteval) set_pte(ptep,pteval)
 /*
@@ -291,6 +328,7 @@ PTE_BIT_FUNC(mkclean, &=~_PAGE_D);
 PTE_BIT_FUNC(mkdirty, |=_PAGE_D);
 PTE_BIT_FUNC(mkold, &=~_PAGE_YOUNG);
 PTE_BIT_FUNC(mkyoung, |=_PAGE_YOUNG);
+<<<<<<< HEAD
 static inline int pte_special(pte_t pte)
 {
 	return 0;
@@ -300,6 +338,8 @@ static inline pte_t pte_mkspecial(pte_t pte)
 {
 	return pte;
 }
+=======
+>>>>>>> upstream/android-13
 
 /*
  * Mark the prot value as uncacheable and unbufferable.
@@ -360,6 +400,7 @@ static inline pmd_t __mk_pmd(pte_t * ptep, unsigned long prot)
  *
 */
 
+<<<<<<< HEAD
 /* to find an entry in a page-table-directory */
 #define pgd_index(address)      (((address) >> PGDIR_SHIFT) & (PTRS_PER_PGD - 1))
 #define pgd_offset(mm, address)	((mm)->pgd + pgd_index(address))
@@ -369,6 +410,8 @@ static inline pmd_t __mk_pmd(pte_t * ptep, unsigned long prot)
 /* Find an entry in the second-level page table.. */
 #define pmd_offset(dir, addr)	((pmd_t *)(dir))
 
+=======
+>>>>>>> upstream/android-13
 static inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
 {
 	const unsigned long mask = 0xfff;
@@ -391,8 +434,11 @@ extern pgd_t swapper_pg_dir[PTRS_PER_PGD];
 /* Needs to be defined here and not in linux/mm.h, as it is arch dependent */
 #define kern_addr_valid(addr)	(1)
 
+<<<<<<< HEAD
 #include <asm-generic/pgtable.h>
 
+=======
+>>>>>>> upstream/android-13
 /*
  * We provide our own arch_get_unmapped_area to cope with VIPT caches.
  */
@@ -403,8 +449,11 @@ extern pgd_t swapper_pg_dir[PTRS_PER_PGD];
  * into virtual address `from'
  */
 
+<<<<<<< HEAD
 #define pgtable_cache_init()       do { } while (0)
 
+=======
+>>>>>>> upstream/android-13
 #endif /* !__ASSEMBLY__ */
 
 #endif /* _ASMNDS32_PGTABLE_H */

@@ -39,6 +39,7 @@ struct indicator_t {
 static LIST_HEAD(tiq_list);
 static DEFINE_MUTEX(tiq_list_lock);
 
+<<<<<<< HEAD
 /* Adapter interrupt definitions */
 static void tiqdio_thinint_handler(struct airq_struct *airq);
 
@@ -47,6 +48,8 @@ static struct airq_struct tiqdio_airq = {
 	.isc = QDIO_AIRQ_ISC,
 };
 
+=======
+>>>>>>> upstream/android-13
 static struct indicator_t *q_indicators;
 
 u64 last_ai_time;
@@ -74,6 +77,7 @@ static void put_indicator(u32 *addr)
 	atomic_dec(&ind->count);
 }
 
+<<<<<<< HEAD
 void tiqdio_add_input_queues(struct qdio_irq *irq_ptr)
 {
 	mutex_lock(&tiq_list_lock);
@@ -101,11 +105,14 @@ static inline int has_multiple_inq_on_dsci(struct qdio_irq *irq_ptr)
 	return irq_ptr->nr_input_qs > 1;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline int references_shared_dsci(struct qdio_irq *irq_ptr)
 {
 	return irq_ptr->dsci == &q_indicators[TIQDIO_SHARED_IND].ind;
 }
 
+<<<<<<< HEAD
 static inline int shared_ind(struct qdio_irq *irq_ptr)
 {
 	return references_shared_dsci(irq_ptr) ||
@@ -121,11 +128,17 @@ void clear_nonshared_ind(struct qdio_irq *irq_ptr)
 	xchg(irq_ptr->dsci, 0);
 }
 
+=======
+>>>>>>> upstream/android-13
 int test_nonshared_ind(struct qdio_irq *irq_ptr)
 {
 	if (!is_thinint_irq(irq_ptr))
 		return 0;
+<<<<<<< HEAD
 	if (shared_ind(irq_ptr))
+=======
+	if (references_shared_dsci(irq_ptr))
+>>>>>>> upstream/android-13
 		return 0;
 	if (*irq_ptr->dsci)
 		return 1;
@@ -140,6 +153,7 @@ static inline u32 clear_shared_ind(void)
 	return xchg(&q_indicators[TIQDIO_SHARED_IND].ind, 0);
 }
 
+<<<<<<< HEAD
 static inline void tiqdio_call_inq_handlers(struct qdio_irq *irq)
 {
 	struct qdio_q *q;
@@ -184,11 +198,26 @@ static void tiqdio_thinint_handler(struct airq_struct *airq)
 	struct qdio_q *q;
 
 	last_ai_time = S390_lowcore.int_clock;
+=======
+/**
+ * tiqdio_thinint_handler - thin interrupt handler for qdio
+ * @airq: pointer to adapter interrupt descriptor
+ * @floating: flag to recognize floating vs. directed interrupts (unused)
+ */
+static void tiqdio_thinint_handler(struct airq_struct *airq, bool floating)
+{
+	u64 irq_time = S390_lowcore.int_clock;
+	u32 si_used = clear_shared_ind();
+	struct qdio_irq *irq;
+
+	last_ai_time = irq_time;
+>>>>>>> upstream/android-13
 	inc_irq_stat(IRQIO_QAI);
 
 	/* protect tiq_list entries, only changed in activate or shutdown */
 	rcu_read_lock();
 
+<<<<<<< HEAD
 	/* check for work on all inbound thinint queues */
 	list_for_each_entry_rcu(q, &tiq_list, entry) {
 		struct qdio_irq *irq;
@@ -204,10 +233,36 @@ static void tiqdio_thinint_handler(struct airq_struct *airq)
 		tiqdio_call_inq_handlers(irq);
 
 		qperf_inc(q, adapter_int);
+=======
+	list_for_each_entry_rcu(irq, &tiq_list, entry) {
+		/* only process queues from changed sets */
+		if (unlikely(references_shared_dsci(irq))) {
+			if (!si_used)
+				continue;
+		} else {
+			if (!*irq->dsci)
+				continue;
+
+			xchg(irq->dsci, 0);
+		}
+
+		qdio_deliver_irq(irq);
+		irq->last_data_irq_time = irq_time;
+
+		QDIO_PERF_STAT_INC(irq, adapter_int);
+>>>>>>> upstream/android-13
 	}
 	rcu_read_unlock();
 }
 
+<<<<<<< HEAD
+=======
+static struct airq_struct tiqdio_airq = {
+	.handler = tiqdio_thinint_handler,
+	.isc = QDIO_AIRQ_ISC,
+};
+
+>>>>>>> upstream/android-13
 static int set_subchannel_ind(struct qdio_irq *irq_ptr, int reset)
 {
 	struct chsc_scssc_area *scssc = (void *)irq_ptr->chsc_page;
@@ -223,7 +278,11 @@ static int set_subchannel_ind(struct qdio_irq *irq_ptr, int reset)
 	}
 
 	rc = chsc_sadc(irq_ptr->schid, scssc, summary_indicator_addr,
+<<<<<<< HEAD
 		       subchannel_indicator_addr);
+=======
+		       subchannel_indicator_addr, tiqdio_airq.isc);
+>>>>>>> upstream/android-13
 	if (rc) {
 		DBF_ERROR("%4x SSI r:%4x", irq_ptr->schid.sch_no,
 			  scssc->response.code);
@@ -237,6 +296,7 @@ out:
 	return rc;
 }
 
+<<<<<<< HEAD
 /* allocate non-shared indicators and shared indicator */
 int __init tiqdio_allocate_memory(void)
 {
@@ -265,6 +325,8 @@ int __init tiqdio_register_thinints(void)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 int qdio_establish_thinint(struct qdio_irq *irq_ptr)
 {
 	int rc;
@@ -276,10 +338,22 @@ int qdio_establish_thinint(struct qdio_irq *irq_ptr)
 	DBF_HEX(&irq_ptr->dsci, sizeof(void *));
 
 	rc = set_subchannel_ind(irq_ptr, 0);
+<<<<<<< HEAD
 	if (rc)
 		put_indicator(irq_ptr->dsci);
 
 	return rc;
+=======
+	if (rc) {
+		put_indicator(irq_ptr->dsci);
+		return rc;
+	}
+
+	mutex_lock(&tiq_list_lock);
+	list_add_rcu(&irq_ptr->entry, &tiq_list);
+	mutex_unlock(&tiq_list_lock);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 void qdio_shutdown_thinint(struct qdio_irq *irq_ptr)
@@ -287,13 +361,47 @@ void qdio_shutdown_thinint(struct qdio_irq *irq_ptr)
 	if (!is_thinint_irq(irq_ptr))
 		return;
 
+<<<<<<< HEAD
+=======
+	mutex_lock(&tiq_list_lock);
+	list_del_rcu(&irq_ptr->entry);
+	mutex_unlock(&tiq_list_lock);
+	synchronize_rcu();
+
+>>>>>>> upstream/android-13
 	/* reset adapter interrupt indicators */
 	set_subchannel_ind(irq_ptr, 1);
 	put_indicator(irq_ptr->dsci);
 }
 
+<<<<<<< HEAD
 void __exit tiqdio_unregister_thinints(void)
 {
 	WARN_ON(!list_empty(&tiq_list));
 	unregister_adapter_interrupt(&tiqdio_airq);
+=======
+int __init qdio_thinint_init(void)
+{
+	int rc;
+
+	q_indicators = kcalloc(TIQDIO_NR_INDICATORS, sizeof(struct indicator_t),
+			       GFP_KERNEL);
+	if (!q_indicators)
+		return -ENOMEM;
+
+	rc = register_adapter_interrupt(&tiqdio_airq);
+	if (rc) {
+		DBF_EVENT("RTI:%x", rc);
+		kfree(q_indicators);
+		return rc;
+	}
+	return 0;
+}
+
+void __exit qdio_thinint_exit(void)
+{
+	WARN_ON(!list_empty(&tiq_list));
+	unregister_adapter_interrupt(&tiqdio_airq);
+	kfree(q_indicators);
+>>>>>>> upstream/android-13
 }

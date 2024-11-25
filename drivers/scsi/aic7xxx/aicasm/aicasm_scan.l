@@ -51,11 +51,15 @@
 #include <stdio.h>
 #include <string.h>
 #include <sysexits.h>
+<<<<<<< HEAD
 #ifdef __linux__
 #include "../queue.h"
 #else
 #include <sys/queue.h>
 #endif
+=======
+#include "../queue.h"
+>>>>>>> upstream/android-13
 
 #include "aicasm.h"
 #include "aicasm_symbol.h"

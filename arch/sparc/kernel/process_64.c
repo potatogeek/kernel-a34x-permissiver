@@ -9,9 +9,12 @@
 /*
  * This file handles the architecture-dependent parts of process handling..
  */
+<<<<<<< HEAD
 
 #include <stdarg.h>
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/errno.h>
 #include <linux/export.h>
 #include <linux/sched.h>
@@ -41,7 +44,10 @@
 #include <linux/uaccess.h>
 #include <asm/page.h>
 #include <asm/pgalloc.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/processor.h>
 #include <asm/pstate.h>
 #include <asm/elf.h>
@@ -63,11 +69,19 @@ void arch_cpu_idle(void)
 {
 	if (tlb_type != hypervisor) {
 		touch_nmi_watchdog();
+<<<<<<< HEAD
 		local_irq_enable();
 	} else {
 		unsigned long pstate;
 
 		local_irq_enable();
+=======
+		raw_local_irq_enable();
+	} else {
+		unsigned long pstate;
+
+		raw_local_irq_enable();
+>>>>>>> upstream/android-13
 
                 /* The sun4v sleeping code requires that we have PSTATE.IE cleared over
                  * the cpu sleep hypervisor call.
@@ -195,7 +209,11 @@ void show_regs(struct pt_regs *regs)
 	       regs->u_regs[15]);
 	printk("RPC: <%pS>\n", (void *) regs->u_regs[15]);
 	show_regwindow(regs);
+<<<<<<< HEAD
 	show_stack(current, (unsigned long *) regs->u_regs[UREG_FP]);
+=======
+	show_stack(current, (unsigned long *)regs->u_regs[UREG_FP], KERN_DEFAULT);
+>>>>>>> upstream/android-13
 }
 
 union global_cpu_snapshot global_cpu_snapshot[NR_CPUS];
@@ -313,7 +331,11 @@ static void sysrq_handle_globreg(int key)
 	trigger_all_cpu_backtrace();
 }
 
+<<<<<<< HEAD
 static struct sysrq_key_op sparc_globalreg_op = {
+=======
+static const struct sysrq_key_op sparc_globalreg_op = {
+>>>>>>> upstream/android-13
 	.handler	= sysrq_handle_globreg,
 	.help_msg	= "global-regs(y)",
 	.action_msg	= "Show Global CPU Regs",
@@ -388,7 +410,11 @@ static void sysrq_handle_globpmu(int key)
 	pmu_snapshot_all_cpus();
 }
 
+<<<<<<< HEAD
 static struct sysrq_key_op sparc_globalpmu_op = {
+=======
+static const struct sysrq_key_op sparc_globalpmu_op = {
+>>>>>>> upstream/android-13
 	.handler	= sysrq_handle_globpmu,
 	.help_msg	= "global-pmu(x)",
 	.action_msg	= "Show Global PMU Regs",
@@ -459,7 +485,11 @@ static unsigned long clone_stackframe(unsigned long csp, unsigned long psp)
 
 	distance = fp - psp;
 	rval = (csp - distance);
+<<<<<<< HEAD
 	if (copy_in_user((void __user *) rval, (void __user *) psp, distance))
+=======
+	if (raw_copy_in_user((void __user *)rval, (void __user *)psp, distance))
+>>>>>>> upstream/android-13
 		rval = 0;
 	else if (!stack_64bit) {
 		if (put_user(((u32)csp),
@@ -519,7 +549,11 @@ void synchronize_user_stack(void)
 
 static void stack_unaligned(unsigned long sp)
 {
+<<<<<<< HEAD
 	force_sig_fault(SIGBUS, BUS_ADRALN, (void __user *) sp, 0, current);
+=======
+	force_sig_fault(SIGBUS, BUS_ADRALN, (void __user *) sp);
+>>>>>>> upstream/android-13
 }
 
 static const char uwfault32[] = KERN_INFO \
@@ -570,6 +604,7 @@ void fault_in_user_windows(struct pt_regs *regs)
 
 barf:
 	set_thread_wsaved(window + 1);
+<<<<<<< HEAD
 	force_sig(SIGSEGV, current);
 }
 
@@ -605,6 +640,9 @@ asmlinkage long sparc_do_fork(unsigned long clone_flags,
 		regs->u_regs[UREG_I1] = orig_i1;
 
 	return ret;
+=======
+	force_sig(SIGSEGV);
+>>>>>>> upstream/android-13
 }
 
 /* Copy a Sparc thread.  The fork() return value conventions
@@ -612,8 +650,13 @@ asmlinkage long sparc_do_fork(unsigned long clone_flags,
  * Parent -->  %o0 == childs  pid, %o1 == 0
  * Child  -->  %o0 == parents pid, %o1 == 1
  */
+<<<<<<< HEAD
 int copy_thread(unsigned long clone_flags, unsigned long sp,
 		unsigned long arg, struct task_struct *p)
+=======
+int copy_thread(unsigned long clone_flags, unsigned long sp, unsigned long arg,
+		struct task_struct *p, unsigned long tls)
+>>>>>>> upstream/android-13
 {
 	struct thread_info *t = task_thread_info(p);
 	struct pt_regs *regs = current_pt_regs();
@@ -632,7 +675,11 @@ int copy_thread(unsigned long clone_flags, unsigned long sp,
 				       sizeof(struct sparc_stackf));
 	t->fpsaved[0] = 0;
 
+<<<<<<< HEAD
 	if (unlikely(p->flags & PF_KTHREAD)) {
+=======
+	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
+>>>>>>> upstream/android-13
 		memset(child_trap_frame, 0, child_stack_sz);
 		__thread_flag_byte_ptr(t)[TI_FLAG_BYTE_CWP] = 
 			(current_pt_regs()->tstate + 1) & TSTATE_CWP;
@@ -671,7 +718,11 @@ int copy_thread(unsigned long clone_flags, unsigned long sp,
 	regs->u_regs[UREG_I1] = 0;
 
 	if (clone_flags & CLONE_SETTLS)
+<<<<<<< HEAD
 		t->kregs->u_regs[UREG_G7] = regs->u_regs[UREG_I3];
+=======
+		t->kregs->u_regs[UREG_G7] = tls;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -701,6 +752,7 @@ int arch_dup_task_struct(struct task_struct *dst, struct task_struct *src)
 	return 0;
 }
 
+<<<<<<< HEAD
 typedef struct {
 	union {
 		unsigned int	pr_regs[32];
@@ -767,6 +819,8 @@ int dump_fpu (struct pt_regs * regs, elf_fpregset_t * fpregs)
 }
 EXPORT_SYMBOL(dump_fpu);
 
+=======
+>>>>>>> upstream/android-13
 unsigned long get_wchan(struct task_struct *task)
 {
 	unsigned long pc, fp, bias = 0;
@@ -775,8 +829,12 @@ unsigned long get_wchan(struct task_struct *task)
         unsigned long ret = 0;
 	int count = 0; 
 
+<<<<<<< HEAD
 	if (!task || task == current ||
             task->state == TASK_RUNNING)
+=======
+	if (!task || task == current || task_is_running(task))
+>>>>>>> upstream/android-13
 		goto out;
 
 	tp = task_thread_info(task);

@@ -5,7 +5,11 @@
  * Description: ks0108 LCD Controller driver
  *     Depends: parport
  *
+<<<<<<< HEAD
  *      Author: Copyright (C) Miguel Ojeda Sandonis
+=======
+ *      Author: Copyright (C) Miguel Ojeda <ojeda@kernel.org>
+>>>>>>> upstream/android-13
  *        Date: 2006-10-31
  */
 
@@ -28,11 +32,19 @@
  */
 
 static unsigned int ks0108_port = CONFIG_KS0108_PORT;
+<<<<<<< HEAD
 module_param(ks0108_port, uint, S_IRUGO);
 MODULE_PARM_DESC(ks0108_port, "Parallel port where the LCD is connected");
 
 static unsigned int ks0108_delay = CONFIG_KS0108_DELAY;
 module_param(ks0108_delay, uint, S_IRUGO);
+=======
+module_param(ks0108_port, uint, 0444);
+MODULE_PARM_DESC(ks0108_port, "Parallel port where the LCD is connected");
+
+static unsigned int ks0108_delay = CONFIG_KS0108_DELAY;
+module_param(ks0108_delay, uint, 0444);
+>>>>>>> upstream/android-13
 MODULE_PARM_DESC(ks0108_delay, "Delay between each control writing (microseconds)");
 
 /*
@@ -167,6 +179,7 @@ static struct parport_driver ks0108_parport_driver = {
 	.detach = ks0108_parport_detach,
 	.devmodel = true,
 };
+<<<<<<< HEAD
 
 static int __init ks0108_init(void)
 {
@@ -183,5 +196,11 @@ module_exit(ks0108_exit);
 
 MODULE_LICENSE("GPL v2");
 MODULE_AUTHOR("Miguel Ojeda Sandonis <miguel.ojeda.sandonis@gmail.com>");
+=======
+module_parport_driver(ks0108_parport_driver);
+
+MODULE_LICENSE("GPL v2");
+MODULE_AUTHOR("Miguel Ojeda <ojeda@kernel.org>");
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("ks0108 LCD Controller driver");
 

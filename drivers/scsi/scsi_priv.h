@@ -5,7 +5,13 @@
 #include <linux/device.h>
 #include <linux/async.h>
 #include <scsi/scsi_device.h>
+<<<<<<< HEAD
 
+=======
+#include <linux/sbitmap.h>
+
+struct bsg_device;
+>>>>>>> upstream/android-13
 struct request_queue;
 struct request;
 struct scsi_cmnd;
@@ -15,6 +21,10 @@ struct scsi_host_template;
 struct Scsi_Host;
 struct scsi_nl_hdr;
 
+<<<<<<< HEAD
+=======
+#define SCSI_CMD_RETRIES_NO_LIMIT -1
+>>>>>>> upstream/android-13
 
 /*
  * Scsi Error Handler Flags
@@ -29,7 +39,10 @@ extern int scsi_init_hosts(void);
 extern void scsi_exit_hosts(void);
 
 /* scsi.c */
+<<<<<<< HEAD
 extern bool scsi_use_blk_mq;
+=======
+>>>>>>> upstream/android-13
 int scsi_init_sense_cache(struct Scsi_Host *shost);
 void scsi_init_command(struct scsi_device *dev, struct scsi_cmnd *cmd);
 #ifdef CONFIG_SCSI_LOGGING
@@ -73,7 +86,11 @@ extern void scsi_exit_devinfo(void);
 extern void scmd_eh_abort_handler(struct work_struct *work);
 extern enum blk_eh_timer_return scsi_times_out(struct request *req);
 extern int scsi_error_handler(void *host);
+<<<<<<< HEAD
 extern int scsi_decide_disposition(struct scsi_cmnd *cmd);
+=======
+extern enum scsi_disposition scsi_decide_disposition(struct scsi_cmnd *cmd);
+>>>>>>> upstream/android-13
 extern void scsi_eh_wakeup(struct Scsi_Host *shost);
 extern void scsi_eh_scmd_add(struct scsi_cmnd *);
 void scsi_eh_ready_devs(struct Scsi_Host *shost,
@@ -84,14 +101,20 @@ int scsi_eh_get_sense(struct list_head *work_q,
 int scsi_noretry_cmd(struct scsi_cmnd *scmd);
 
 /* scsi_lib.c */
+<<<<<<< HEAD
 extern void scsi_add_cmd_to_list(struct scsi_cmnd *cmd);
 extern void scsi_del_cmd_from_list(struct scsi_cmnd *cmd);
 extern int scsi_maybe_unblock_host(struct scsi_device *sdev);
 extern void scsi_device_unbusy(struct scsi_device *sdev);
+=======
+extern int scsi_maybe_unblock_host(struct scsi_device *sdev);
+extern void scsi_device_unbusy(struct scsi_device *sdev, struct scsi_cmnd *cmd);
+>>>>>>> upstream/android-13
 extern void scsi_queue_insert(struct scsi_cmnd *cmd, int reason);
 extern void scsi_io_completion(struct scsi_cmnd *, unsigned int);
 extern void scsi_run_host_queues(struct Scsi_Host *shost);
 extern void scsi_requeue_run_queue(struct work_struct *work);
+<<<<<<< HEAD
 extern struct request_queue *scsi_old_alloc_queue(struct scsi_device *sdev);
 extern struct request_queue *scsi_mq_alloc_queue(struct scsi_device *sdev);
 #ifdef CONFIG_BLK_TURBO_WRITE
@@ -105,6 +128,13 @@ extern void scsi_exit_queue(void);
 extern void scsi_evt_thread(struct work_struct *work);
 struct request_queue;
 struct request;
+=======
+extern void scsi_start_queue(struct scsi_device *sdev);
+extern int scsi_mq_setup_tags(struct Scsi_Host *shost);
+extern void scsi_mq_destroy_tags(struct Scsi_Host *shost);
+extern void scsi_exit_queue(void);
+extern void scsi_evt_thread(struct work_struct *work);
+>>>>>>> upstream/android-13
 
 /* scsi_proc.c */
 #ifdef CONFIG_SCSI_PROC_FS
@@ -179,7 +209,10 @@ static inline void scsi_autopm_put_host(struct Scsi_Host *h) {}
 #endif /* CONFIG_PM */
 
 extern struct async_domain scsi_sd_pm_domain;
+<<<<<<< HEAD
 extern struct async_domain scsi_sd_probe_domain;
+=======
+>>>>>>> upstream/android-13
 
 /* scsi_dh.c */
 #ifdef CONFIG_SCSI_DH
@@ -190,6 +223,13 @@ static inline void scsi_dh_add_device(struct scsi_device *sdev) { }
 static inline void scsi_dh_release_device(struct scsi_device *sdev) { }
 #endif
 
+<<<<<<< HEAD
+=======
+struct bsg_device *scsi_bsg_register_queue(struct scsi_device *sdev);
+
+extern int scsi_device_max_queue_depth(struct scsi_device *sdev);
+
+>>>>>>> upstream/android-13
 /* 
  * internal scsi timeout functions: for use by mid-layer and transport
  * classes.

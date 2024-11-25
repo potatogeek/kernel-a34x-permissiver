@@ -16,8 +16,13 @@
 
 #include <asm/ptrace.h>
 #include <asm/sn/addrs.h>
+<<<<<<< HEAD
 #include <asm/sn/arch.h>
 #include <asm/sn/sn0/hub.h>
+=======
+#include <asm/sn/agent.h>
+#include <asm/sn/arch.h>
+>>>>>>> upstream/android-13
 #include <asm/tlbdebug.h>
 #include <asm/traps.h>
 #include <linux/uaccess.h>
@@ -30,6 +35,7 @@ static void dump_hub_information(unsigned long errst0, unsigned long errst1)
 		{ "WERR", "Uncached Partial Write", "PWERR", "Write Timeout",
 		  NULL, NULL, NULL, NULL }
 	};
+<<<<<<< HEAD
 	int wrb = errst1 & PI_ERR_ST1_WRBRRB_MASK;
 
 	if (!(errst0 & PI_ERR_ST0_VALID_MASK)) {
@@ -53,6 +59,33 @@ static void dump_hub_information(unsigned long errst0, unsigned long errst1)
 	printk("Error type is %s\n", err_type[wrb]
 	       [(errst0 & PI_ERR_ST0_TYPE_MASK) >> PI_ERR_ST0_TYPE_SHFT]
 		? : "invalid");
+=======
+	union pi_err_stat0 st0;
+	union pi_err_stat1 st1;
+
+	st0.pi_stat0_word = errst0;
+	st1.pi_stat1_word = errst1;
+
+	if (!st0.pi_stat0_fmt.s0_valid) {
+		pr_info("Hub does not contain valid error information\n");
+		return;
+	}
+
+	pr_info("Hub has valid error information:\n");
+	if (st0.pi_stat0_fmt.s0_ovr_run)
+		pr_info("Overrun is set. Error stack may contain additional "
+		       "information.\n");
+	pr_info("Hub error address is %08lx\n",
+		(unsigned long)st0.pi_stat0_fmt.s0_addr);
+	pr_info("Incoming message command 0x%lx\n",
+		(unsigned long)st0.pi_stat0_fmt.s0_cmd);
+	pr_info("Supplemental field of incoming message is 0x%lx\n",
+		(unsigned long)st0.pi_stat0_fmt.s0_supl);
+	pr_info("T5 Rn (for RRB only) is 0x%lx\n",
+		(unsigned long)st0.pi_stat0_fmt.s0_t5_req);
+	pr_info("Error type is %s\n", err_type[st1.pi_stat1_fmt.s1_rw_rb]
+	       [st0.pi_stat0_fmt.s0_err_type] ? : "invalid");
+>>>>>>> upstream/android-13
 }
 
 int ip27_be_handler(struct pt_regs *regs, int is_fixup)
@@ -74,7 +107,11 @@ int ip27_be_handler(struct pt_regs *regs, int is_fixup)
 	show_regs(regs);
 	dump_tlb_all();
 	while(1);
+<<<<<<< HEAD
 	force_sig(SIGBUS, current);
+=======
+	force_sig(SIGBUS);
+>>>>>>> upstream/android-13
 }
 
 void __init ip27_be_init(void)

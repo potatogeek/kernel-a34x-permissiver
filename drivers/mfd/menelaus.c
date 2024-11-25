@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2004 Texas Instruments, Inc.
  *
@@ -15,6 +19,7 @@
  * Added support for controlling VCORE and regulator sleep states,
  * Amit Kucheria <amit.kucheria@nokia.com>
  * Copyright (C) 2005, 2006 Nokia Corporation
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +34,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -1132,14 +1139,21 @@ static inline void menelaus_rtc_init(struct menelaus_chip *m)
 		menelaus_write_reg(MENELAUS_RTC_CTRL, m->rtc_control);
 	}
 
+<<<<<<< HEAD
 	err = rtc_register_device(m->rtc);
+=======
+	err = devm_rtc_register_device(m->rtc);
+>>>>>>> upstream/android-13
 	if (err) {
 		if (alarm) {
 			menelaus_remove_irq_work(MENELAUS_RTCALM_IRQ);
 			device_init_wakeup(&m->client->dev, 0);
 		}
+<<<<<<< HEAD
 		dev_err(&m->client->dev, "can't register RTC: %d\n",
 				(int) PTR_ERR(m->rtc));
+=======
+>>>>>>> upstream/android-13
 		the_menelaus->rtc = NULL;
 	}
 }

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* linux/drivers/hwmon/s3c-hwmon.c
  *
  * Copyright (C) 2005, 2008, 2009 Simtec Electronics
@@ -5,6 +9,7 @@
  *	Ben Dooks <ben@simtec.co.uk>
  *
  * S3C24XX/S3C64XX ADC hwmon support
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -18,6 +23,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
 */
 
 #include <linux/module.h>
@@ -32,7 +39,11 @@
 #include <linux/hwmon.h>
 #include <linux/hwmon-sysfs.h>
 
+<<<<<<< HEAD
 #include <plat/adc.h>
+=======
+#include <linux/soc/samsung/s3c-adc.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_data/hwmon-s3c.h>
 
 struct s3c_hwmon_attr {
@@ -98,7 +109,11 @@ static int s3c_hwmon_read_ch(struct device *dev,
 static ssize_t s3c_hwmon_show_raw(struct device *dev,
 				  struct device_attribute *attr, char *buf)
 {
+<<<<<<< HEAD
 	struct s3c_hwmon *adc = platform_get_drvdata(to_platform_device(dev));
+=======
+	struct s3c_hwmon *adc = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	struct sensor_device_attribute *sa = to_sensor_dev_attr(attr);
 	int ret;
 
@@ -164,7 +179,11 @@ static ssize_t s3c_hwmon_ch_show(struct device *dev,
 				 char *buf)
 {
 	struct sensor_device_attribute *sen_attr = to_sensor_dev_attr(attr);
+<<<<<<< HEAD
 	struct s3c_hwmon *hwmon = platform_get_drvdata(to_platform_device(dev));
+=======
+	struct s3c_hwmon *hwmon = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	struct s3c_hwmon_pdata *pdata = dev_get_platdata(dev);
 	struct s3c_hwmon_chcfg *cfg;
 	int ret;
@@ -178,7 +197,11 @@ static ssize_t s3c_hwmon_ch_show(struct device *dev,
 	ret *= cfg->mult;
 	ret = DIV_ROUND_CLOSEST(ret, cfg->div);
 
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%d\n", ret);
+=======
+	return sysfs_emit(buf, "%d\n", ret);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -199,7 +222,11 @@ static ssize_t s3c_hwmon_label_show(struct device *dev,
 
 	cfg = pdata->in[sen_attr->index];
 
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%s\n", cfg->name);
+=======
+	return sysfs_emit(buf, "%s\n", cfg->name);
+>>>>>>> upstream/android-13
 }
 
 /**

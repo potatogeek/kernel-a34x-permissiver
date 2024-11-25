@@ -286,7 +286,11 @@ static void *alloc_dma_buffer(struct vio_dev *vdev, size_t size,
 
 	if (dma_mapping_error(&vdev->dev, *dma_handle)) {
 		*dma_handle = 0;
+<<<<<<< HEAD
 		kzfree(buffer);
+=======
+		kfree_sensitive(buffer);
+>>>>>>> upstream/android-13
 		return NULL;
 	}
 
@@ -310,7 +314,11 @@ static void free_dma_buffer(struct vio_dev *vdev, size_t size, void *vaddr,
 	dma_unmap_single(&vdev->dev, dma_handle, size, DMA_BIDIRECTIONAL);
 
 	/* deallocate memory */
+<<<<<<< HEAD
 	kzfree(vaddr);
+=======
+	kfree_sensitive(vaddr);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -760,7 +768,11 @@ static int ibmvmc_send_rem_buffer_resp(struct crq_server_adapter *adapter,
  * @adapter:	crq_server_adapter struct
  * @buffer:	ibmvmc_buffer struct
  * @hmc:	ibmvmc_hmc struct
+<<<<<<< HEAD
  * @msg_length:	message length field
+=======
+ * @msg_len:	message length field
+>>>>>>> upstream/android-13
  *
  * This command is sent between the management partition and the hypervisor
  * in order to signal the arrival of an HMC protocol message. The command
@@ -883,7 +895,11 @@ static int ibmvmc_close(struct inode *inode, struct file *file)
 		spin_unlock_irqrestore(&hmc->lock, flags);
 	}
 
+<<<<<<< HEAD
 	kzfree(session);
+=======
+	kfree_sensitive(session);
+>>>>>>> upstream/android-13
 
 	return rc;
 }
@@ -1028,7 +1044,11 @@ static unsigned int ibmvmc_poll(struct file *file, poll_table *wait)
  * ibmvmc_write - Write
  *
  * @file:	file struct
+<<<<<<< HEAD
  * @buf:	Character buffer
+=======
+ * @buffer:	Character buffer
+>>>>>>> upstream/android-13
  * @count:	Count field
  * @ppos:	Offset
  *
@@ -1347,7 +1367,11 @@ static long ibmvmc_ioctl_requestvmc(struct ibmvmc_file_session *session,
 /**
  * ibmvmc_ioctl - IOCTL
  *
+<<<<<<< HEAD
  * @session:	ibmvmc_file_session struct
+=======
+ * @file:	file information
+>>>>>>> upstream/android-13
  * @cmd:	cmd field
  * @arg:	Argument field
  *
@@ -2288,15 +2312,22 @@ crq_failed:
 	return -EPERM;
 }
 
+<<<<<<< HEAD
 static int ibmvmc_remove(struct vio_dev *vdev)
+=======
+static void ibmvmc_remove(struct vio_dev *vdev)
+>>>>>>> upstream/android-13
 {
 	struct crq_server_adapter *adapter = dev_get_drvdata(&vdev->dev);
 
 	dev_info(adapter->dev, "Entering remove for UA 0x%x\n",
 		 vdev->unit_address);
 	ibmvmc_release_crq_queue(adapter);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static struct vio_device_id ibmvmc_device_table[] = {

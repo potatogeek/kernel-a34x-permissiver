@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * This file is part of the Linux kernel.
  *
  * Copyright (c) 2011, Intel Corporation
  * Authors: Fenghua Yu <fenghua.yu@intel.com>,
  *          H. Peter Anvin <hpa@linux.intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -18,6 +23,8 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <asm/processor.h>
@@ -42,7 +49,12 @@ __setup("nordrand", x86_rdrand_setup);
 #ifdef CONFIG_ARCH_RANDOM
 void x86_init_rdrand(struct cpuinfo_x86 *c)
 {
+<<<<<<< HEAD
 	unsigned long tmp;
+=======
+	unsigned int changed = 0;
+	unsigned long tmp, prev;
+>>>>>>> upstream/android-13
 	int i;
 
 	if (!cpu_has(c, X86_FEATURE_RDRAND))
@@ -55,5 +67,27 @@ void x86_init_rdrand(struct cpuinfo_x86 *c)
 			return;
 		}
 	}
+<<<<<<< HEAD
+=======
+
+	/*
+	 * Stupid sanity-check whether RDRAND does *actually* generate
+	 * some at least random-looking data.
+	 */
+	prev = tmp;
+	for (i = 0; i < SANITY_CHECK_LOOPS; i++) {
+		if (rdrand_long(&tmp)) {
+			if (prev != tmp)
+				changed++;
+
+			prev = tmp;
+		}
+	}
+
+	if (WARN_ON_ONCE(!changed))
+		pr_emerg(
+"RDRAND gives funky smelling output, might consider not using it by booting with \"nordrand\"");
+
+>>>>>>> upstream/android-13
 }
 #endif

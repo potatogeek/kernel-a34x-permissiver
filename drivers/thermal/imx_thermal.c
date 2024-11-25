@@ -3,6 +3,7 @@
 // Copyright 2013 Freescale Semiconductor, Inc.
 
 #include <linux/clk.h>
+<<<<<<< HEAD
 #include <linux/cpu.h>
 #include <linux/cpufreq.h>
 #include <linux/cpu_cooling.h>
@@ -12,16 +13,30 @@
 #include <linux/interrupt.h>
 #include <linux/io.h>
 #include <linux/kernel.h>
+=======
+#include <linux/cpufreq.h>
+#include <linux/cpu_cooling.h>
+#include <linux/delay.h>
+#include <linux/interrupt.h>
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/mfd/syscon.h>
 #include <linux/module.h>
 #include <linux/of.h>
 #include <linux/of_device.h>
+<<<<<<< HEAD
 #include <linux/platform_device.h>
 #include <linux/regmap.h>
 #include <linux/slab.h>
 #include <linux/thermal.h>
 #include <linux/types.h>
 #include <linux/nvmem-consumer.h>
+=======
+#include <linux/regmap.h>
+#include <linux/thermal.h>
+#include <linux/nvmem-consumer.h>
+#include <linux/pm_runtime.h>
+>>>>>>> upstream/android-13
 
 #define REG_SET		0x4
 #define REG_CLR		0x8
@@ -201,10 +216,17 @@ static struct thermal_soc_data thermal_imx7d_data = {
 };
 
 struct imx_thermal_data {
+<<<<<<< HEAD
 	struct cpufreq_policy *policy;
 	struct thermal_zone_device *tz;
 	struct thermal_cooling_device *cdev;
 	enum thermal_device_mode mode;
+=======
+	struct device *dev;
+	struct cpufreq_policy *policy;
+	struct thermal_zone_device *tz;
+	struct thermal_cooling_device *cdev;
+>>>>>>> upstream/android-13
 	struct regmap *tempmon;
 	u32 c1, c2; /* See formula in imx_init_calib() */
 	int temp_passive;
@@ -260,6 +282,7 @@ static int imx_get_temp(struct thermal_zone_device *tz, int *temp)
 	const struct thermal_soc_data *soc_data = data->socdata;
 	struct regmap *map = data->tempmon;
 	unsigned int n_meas;
+<<<<<<< HEAD
 	bool wait;
 	u32 val;
 
@@ -297,6 +320,17 @@ static int imx_get_temp(struct thermal_zone_device *tz, int *temp)
 			     soc_data->power_down_mask);
 	}
 
+=======
+	u32 val;
+	int ret;
+
+	ret = pm_runtime_resume_and_get(data->dev);
+	if (ret < 0)
+		return ret;
+
+	regmap_read(map, soc_data->temp_data, &val);
+
+>>>>>>> upstream/android-13
 	if ((val & soc_data->temp_valid_mask) == 0) {
 		dev_dbg(&tz->device, "temp measurement never finished\n");
 		return -EAGAIN;
@@ -335,6 +369,7 @@ static int imx_get_temp(struct thermal_zone_device *tz, int *temp)
 		enable_irq(data->irq);
 	}
 
+<<<<<<< HEAD
 	return 0;
 }
 
@@ -344,10 +379,14 @@ static int imx_get_mode(struct thermal_zone_device *tz,
 	struct imx_thermal_data *data = tz->devdata;
 
 	*mode = data->mode;
+=======
+	pm_runtime_put(data->dev);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int imx_set_mode(struct thermal_zone_device *tz,
 			enum thermal_device_mode mode)
 {
@@ -363,12 +402,22 @@ static int imx_set_mode(struct thermal_zone_device *tz,
 			     soc_data->power_down_mask);
 		regmap_write(map, soc_data->sensor_ctrl + REG_SET,
 			     soc_data->measure_temp_mask);
+=======
+static int imx_change_mode(struct thermal_zone_device *tz,
+			   enum thermal_device_mode mode)
+{
+	struct imx_thermal_data *data = tz->devdata;
+
+	if (mode == THERMAL_DEVICE_ENABLED) {
+		pm_runtime_get(data->dev);
+>>>>>>> upstream/android-13
 
 		if (!data->irq_enabled) {
 			data->irq_enabled = true;
 			enable_irq(data->irq);
 		}
 	} else {
+<<<<<<< HEAD
 		regmap_write(map, soc_data->sensor_ctrl + REG_CLR,
 			     soc_data->measure_temp_mask);
 		regmap_write(map, soc_data->sensor_ctrl + REG_SET,
@@ -376,6 +425,9 @@ static int imx_set_mode(struct thermal_zone_device *tz,
 
 		tz->polling_delay = 0;
 		tz->passive_delay = 0;
+=======
+		pm_runtime_put(data->dev);
+>>>>>>> upstream/android-13
 
 		if (data->irq_enabled) {
 			disable_irq(data->irq);
@@ -383,9 +435,12 @@ static int imx_set_mode(struct thermal_zone_device *tz,
 		}
 	}
 
+<<<<<<< HEAD
 	data->mode = mode;
 	thermal_zone_device_update(tz, THERMAL_EVENT_UNSPECIFIED);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -419,6 +474,14 @@ static int imx_set_trip_temp(struct thermal_zone_device *tz, int trip,
 			     int temp)
 {
 	struct imx_thermal_data *data = tz->devdata;
+<<<<<<< HEAD
+=======
+	int ret;
+
+	ret = pm_runtime_resume_and_get(data->dev);
+	if (ret < 0)
+		return ret;
+>>>>>>> upstream/android-13
 
 	/* do not allow changing critical threshold */
 	if (trip == IMX_TRIP_CRITICAL)
@@ -432,6 +495,11 @@ static int imx_set_trip_temp(struct thermal_zone_device *tz, int trip,
 
 	imx_set_alarm_temp(data, temp);
 
+<<<<<<< HEAD
+=======
+	pm_runtime_put(data->dev);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -474,8 +542,12 @@ static struct thermal_zone_device_ops imx_tz_ops = {
 	.bind = imx_bind,
 	.unbind = imx_unbind,
 	.get_temp = imx_get_temp,
+<<<<<<< HEAD
 	.get_mode = imx_get_mode,
 	.set_mode = imx_set_mode,
+=======
+	.change_mode = imx_change_mode,
+>>>>>>> upstream/android-13
 	.get_trip_type = imx_get_trip_type,
 	.get_trip_temp = imx_get_trip_temp,
 	.get_crit_temp = imx_get_crit_temp,
@@ -648,20 +720,38 @@ static const struct of_device_id of_imx_thermal_match[] = {
 };
 MODULE_DEVICE_TABLE(of, of_imx_thermal_match);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_CPU_FREQ
+>>>>>>> upstream/android-13
 /*
  * Create cooling device in case no #cooling-cells property is available in
  * CPU node
  */
 static int imx_thermal_register_legacy_cooling(struct imx_thermal_data *data)
 {
+<<<<<<< HEAD
 	struct device_node *np = of_get_cpu_node(data->policy->cpu, NULL);
 	int ret;
+=======
+	struct device_node *np;
+	int ret = 0;
+
+	data->policy = cpufreq_cpu_get(0);
+	if (!data->policy) {
+		pr_debug("%s: CPUFreq policy not found\n", __func__);
+		return -EPROBE_DEFER;
+	}
+
+	np = of_get_cpu_node(data->policy->cpu, NULL);
+>>>>>>> upstream/android-13
 
 	if (!np || !of_find_property(np, "#cooling-cells", NULL)) {
 		data->cdev = cpufreq_cooling_register(data->policy);
 		if (IS_ERR(data->cdev)) {
 			ret = PTR_ERR(data->cdev);
 			cpufreq_cpu_put(data->policy);
+<<<<<<< HEAD
 			return ret;
 		}
 	}
@@ -669,6 +759,34 @@ static int imx_thermal_register_legacy_cooling(struct imx_thermal_data *data)
 	return 0;
 }
 
+=======
+		}
+	}
+
+	of_node_put(np);
+
+	return ret;
+}
+
+static void imx_thermal_unregister_legacy_cooling(struct imx_thermal_data *data)
+{
+	cpufreq_cooling_unregister(data->cdev);
+	cpufreq_cpu_put(data->policy);
+}
+
+#else
+
+static inline int imx_thermal_register_legacy_cooling(struct imx_thermal_data *data)
+{
+	return 0;
+}
+
+static inline void imx_thermal_unregister_legacy_cooling(struct imx_thermal_data *data)
+{
+}
+#endif
+
+>>>>>>> upstream/android-13
 static int imx_thermal_probe(struct platform_device *pdev)
 {
 	struct imx_thermal_data *data;
@@ -680,6 +798,11 @@ static int imx_thermal_probe(struct platform_device *pdev)
 	if (!data)
 		return -ENOMEM;
 
+<<<<<<< HEAD
+=======
+	data->dev = &pdev->dev;
+
+>>>>>>> upstream/android-13
 	map = syscon_regmap_lookup_by_phandle(pdev->dev.of_node, "fsl,tempmon");
 	if (IS_ERR(map)) {
 		ret = PTR_ERR(map);
@@ -715,6 +838,7 @@ static int imx_thermal_probe(struct platform_device *pdev)
 
 	if (of_find_property(pdev->dev.of_node, "nvmem-cells", NULL)) {
 		ret = imx_init_from_nvmem_cells(pdev);
+<<<<<<< HEAD
 		if (ret == -EPROBE_DEFER)
 			return ret;
 		if (ret) {
@@ -726,6 +850,15 @@ static int imx_thermal_probe(struct platform_device *pdev)
 		ret = imx_init_from_tempmon_data(pdev);
 		if (ret) {
 			dev_err(&pdev->dev, "failed to init from from fsl,tempmon-data\n");
+=======
+		if (ret)
+			return dev_err_probe(&pdev->dev, ret,
+					     "failed to init from nvmem\n");
+	} else {
+		ret = imx_init_from_tempmon_data(pdev);
+		if (ret) {
+			dev_err(&pdev->dev, "failed to init from fsl,tempmon-data\n");
+>>>>>>> upstream/android-13
 			return ret;
 		}
 	}
@@ -743,6 +876,7 @@ static int imx_thermal_probe(struct platform_device *pdev)
 	regmap_write(map, data->socdata->sensor_ctrl + REG_SET,
 		     data->socdata->power_down_mask);
 
+<<<<<<< HEAD
 	data->policy = cpufreq_cpu_get(0);
 	if (!data->policy) {
 		pr_debug("%s: CPUFreq policy not found\n", __func__);
@@ -755,6 +889,12 @@ static int imx_thermal_probe(struct platform_device *pdev)
 			"failed to register cpufreq cooling device: %d\n", ret);
 		return ret;
 	}
+=======
+	ret = imx_thermal_register_legacy_cooling(data);
+	if (ret)
+		return dev_err_probe(&pdev->dev, ret,
+				     "failed to register cpufreq cooling device\n");
+>>>>>>> upstream/android-13
 
 	data->thermal_clk = devm_clk_get(&pdev->dev, NULL);
 	if (IS_ERR(data->thermal_clk)) {
@@ -762,9 +902,13 @@ static int imx_thermal_probe(struct platform_device *pdev)
 		if (ret != -EPROBE_DEFER)
 			dev_err(&pdev->dev,
 				"failed to get thermal clk: %d\n", ret);
+<<<<<<< HEAD
 		cpufreq_cooling_unregister(data->cdev);
 		cpufreq_cpu_put(data->policy);
 		return ret;
+=======
+		goto legacy_cleanup;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -777,9 +921,13 @@ static int imx_thermal_probe(struct platform_device *pdev)
 	ret = clk_prepare_enable(data->thermal_clk);
 	if (ret) {
 		dev_err(&pdev->dev, "failed to enable thermal clk: %d\n", ret);
+<<<<<<< HEAD
 		cpufreq_cooling_unregister(data->cdev);
 		cpufreq_cpu_put(data->policy);
 		return ret;
+=======
+		goto legacy_cleanup;
+>>>>>>> upstream/android-13
 	}
 
 	data->tz = thermal_zone_device_register("imx_thermal_zone",
@@ -792,10 +940,14 @@ static int imx_thermal_probe(struct platform_device *pdev)
 		ret = PTR_ERR(data->tz);
 		dev_err(&pdev->dev,
 			"failed to register thermal zone device %d\n", ret);
+<<<<<<< HEAD
 		clk_disable_unprepare(data->thermal_clk);
 		cpufreq_cooling_unregister(data->cdev);
 		cpufreq_cpu_put(data->policy);
 		return ret;
+=======
+		goto clk_disable;
+>>>>>>> upstream/android-13
 	}
 
 	dev_info(&pdev->dev, "%s CPU temperature grade - max:%dC"
@@ -818,15 +970,34 @@ static int imx_thermal_probe(struct platform_device *pdev)
 		     data->socdata->power_down_mask);
 	regmap_write(map, data->socdata->sensor_ctrl + REG_SET,
 		     data->socdata->measure_temp_mask);
+<<<<<<< HEAD
 
 	data->irq_enabled = true;
 	data->mode = THERMAL_DEVICE_ENABLED;
+=======
+	/* After power up, we need a delay before first access can be done. */
+	usleep_range(20, 50);
+
+	/* the core was configured and enabled just before */
+	pm_runtime_set_active(&pdev->dev);
+	pm_runtime_enable(data->dev);
+
+	ret = pm_runtime_resume_and_get(data->dev);
+	if (ret < 0)
+		goto disable_runtime_pm;
+
+	data->irq_enabled = true;
+	ret = thermal_zone_device_enable(data->tz);
+	if (ret)
+		goto thermal_zone_unregister;
+>>>>>>> upstream/android-13
 
 	ret = devm_request_threaded_irq(&pdev->dev, data->irq,
 			imx_thermal_alarm_irq, imx_thermal_alarm_irq_thread,
 			0, "imx_thermal", data);
 	if (ret < 0) {
 		dev_err(&pdev->dev, "failed to request alarm irq: %d\n", ret);
+<<<<<<< HEAD
 		clk_disable_unprepare(data->thermal_clk);
 		thermal_zone_device_unregister(data->tz);
 		cpufreq_cooling_unregister(data->cdev);
@@ -835,11 +1006,32 @@ static int imx_thermal_probe(struct platform_device *pdev)
 	}
 
 	return 0;
+=======
+		goto thermal_zone_unregister;
+	}
+
+	pm_runtime_put(data->dev);
+
+	return 0;
+
+thermal_zone_unregister:
+	thermal_zone_device_unregister(data->tz);
+disable_runtime_pm:
+	pm_runtime_put_noidle(data->dev);
+	pm_runtime_disable(data->dev);
+clk_disable:
+	clk_disable_unprepare(data->thermal_clk);
+legacy_cleanup:
+	imx_thermal_unregister_legacy_cooling(data);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int imx_thermal_remove(struct platform_device *pdev)
 {
 	struct imx_thermal_data *data = platform_get_drvdata(pdev);
+<<<<<<< HEAD
 	struct regmap *map = data->tempmon;
 
 	/* Disable measurements */
@@ -851,20 +1043,36 @@ static int imx_thermal_remove(struct platform_device *pdev)
 	thermal_zone_device_unregister(data->tz);
 	cpufreq_cooling_unregister(data->cdev);
 	cpufreq_cpu_put(data->policy);
+=======
+
+	pm_runtime_put_noidle(data->dev);
+	pm_runtime_disable(data->dev);
+
+	thermal_zone_device_unregister(data->tz);
+	imx_thermal_unregister_legacy_cooling(data);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM_SLEEP
 static int imx_thermal_suspend(struct device *dev)
 {
 	struct imx_thermal_data *data = dev_get_drvdata(dev);
 	struct regmap *map = data->tempmon;
+=======
+static int __maybe_unused imx_thermal_suspend(struct device *dev)
+{
+	struct imx_thermal_data *data = dev_get_drvdata(dev);
+	int ret;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Need to disable thermal sensor, otherwise, when thermal core
 	 * try to get temperature before thermal sensor resume, a wrong
 	 * temperature will be read as the thermal sensor is powered
+<<<<<<< HEAD
 	 * down.
 	 */
 	regmap_write(map, data->socdata->sensor_ctrl + REG_CLR,
@@ -872,20 +1080,69 @@ static int imx_thermal_suspend(struct device *dev)
 	regmap_write(map, data->socdata->sensor_ctrl + REG_SET,
 		     data->socdata->power_down_mask);
 	data->mode = THERMAL_DEVICE_DISABLED;
+=======
+	 * down. This is done in change_mode() operation called from
+	 * thermal_zone_device_disable()
+	 */
+	ret = thermal_zone_device_disable(data->tz);
+	if (ret)
+		return ret;
+
+	return pm_runtime_force_suspend(data->dev);
+}
+
+static int __maybe_unused imx_thermal_resume(struct device *dev)
+{
+	struct imx_thermal_data *data = dev_get_drvdata(dev);
+	int ret;
+
+	ret = pm_runtime_force_resume(data->dev);
+	if (ret)
+		return ret;
+	/* Enabled thermal sensor after resume */
+	return thermal_zone_device_enable(data->tz);
+}
+
+static int __maybe_unused imx_thermal_runtime_suspend(struct device *dev)
+{
+	struct imx_thermal_data *data = dev_get_drvdata(dev);
+	const struct thermal_soc_data *socdata = data->socdata;
+	struct regmap *map = data->tempmon;
+	int ret;
+
+	ret = regmap_write(map, socdata->sensor_ctrl + REG_CLR,
+			   socdata->measure_temp_mask);
+	if (ret)
+		return ret;
+
+	ret = regmap_write(map, socdata->sensor_ctrl + REG_SET,
+			   socdata->power_down_mask);
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	clk_disable_unprepare(data->thermal_clk);
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int imx_thermal_resume(struct device *dev)
 {
 	struct imx_thermal_data *data = dev_get_drvdata(dev);
+=======
+static int __maybe_unused imx_thermal_runtime_resume(struct device *dev)
+{
+	struct imx_thermal_data *data = dev_get_drvdata(dev);
+	const struct thermal_soc_data *socdata = data->socdata;
+>>>>>>> upstream/android-13
 	struct regmap *map = data->tempmon;
 	int ret;
 
 	ret = clk_prepare_enable(data->thermal_clk);
 	if (ret)
 		return ret;
+<<<<<<< HEAD
 	/* Enabled thermal sensor after resume */
 	regmap_write(map, data->socdata->sensor_ctrl + REG_CLR,
 		     data->socdata->power_down_mask);
@@ -899,6 +1156,33 @@ static int imx_thermal_resume(struct device *dev)
 
 static SIMPLE_DEV_PM_OPS(imx_thermal_pm_ops,
 			 imx_thermal_suspend, imx_thermal_resume);
+=======
+
+	ret = regmap_write(map, socdata->sensor_ctrl + REG_CLR,
+			   socdata->power_down_mask);
+	if (ret)
+		return ret;
+
+	ret = regmap_write(map, socdata->sensor_ctrl + REG_SET,
+			   socdata->measure_temp_mask);
+	if (ret)
+		return ret;
+
+	/*
+	 * According to the temp sensor designers, it may require up to ~17us
+	 * to complete a measurement.
+	 */
+	usleep_range(20, 50);
+
+	return 0;
+}
+
+static const struct dev_pm_ops imx_thermal_pm_ops = {
+	SET_SYSTEM_SLEEP_PM_OPS(imx_thermal_suspend, imx_thermal_resume)
+	SET_RUNTIME_PM_OPS(imx_thermal_runtime_suspend,
+			   imx_thermal_runtime_resume, NULL)
+};
+>>>>>>> upstream/android-13
 
 static struct platform_driver imx_thermal = {
 	.driver = {

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver for NXP MCR20A 802.15.4 Wireless-PAN Networking controller
  *
  * Copyright (C) 2018 Xue Liu <liuxuenetmail@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
@@ -12,6 +17,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -132,11 +139,14 @@ static const struct reg_sequence mar20a_iar_overwrites[] = {
 };
 
 #define MCR20A_VALID_CHANNELS (0x07FFF800)
+<<<<<<< HEAD
 
 struct mcr20a_platform_data {
 	int rst_gpio;
 };
 
+=======
+>>>>>>> upstream/android-13
 #define MCR20A_MAX_BUF		(127)
 
 #define printdev(X) (&X->spi->dev)
@@ -412,7 +422,10 @@ struct mcr20a_local {
 	struct spi_device *spi;
 
 	struct ieee802154_hw *hw;
+<<<<<<< HEAD
 	struct mcr20a_platform_data *pdata;
+=======
+>>>>>>> upstream/android-13
 	struct regmap *regmap_dar;
 	struct regmap *regmap_iar;
 
@@ -815,7 +828,11 @@ mcr20a_handle_rx_read_buf_complete(void *context)
 	if (!skb)
 		return;
 
+<<<<<<< HEAD
 	memcpy(skb_put(skb, len), lp->rx_buf, len);
+=======
+	__skb_put_data(skb, lp->rx_buf, len);
+>>>>>>> upstream/android-13
 	ieee802154_rx_irqsafe(lp->hw, skb, lp->rx_lqi[0]);
 
 	print_hex_dump_debug("mcr20a rx: ", DUMP_PREFIX_OFFSET, 16, 1,
@@ -917,9 +934,15 @@ mcr20a_irq_clean_complete(void *context)
 		}
 		break;
 	case (DAR_IRQSTS1_RXIRQ | DAR_IRQSTS1_SEQIRQ):
+<<<<<<< HEAD
 			/* rx is starting */
 			dev_dbg(printdev(lp), "RX is starting\n");
 			mcr20a_handle_rx(lp);
+=======
+		/* rx is starting */
+		dev_dbg(printdev(lp), "RX is starting\n");
+		mcr20a_handle_rx(lp);
+>>>>>>> upstream/android-13
 		break;
 	case (DAR_IRQSTS1_RXIRQ | DAR_IRQSTS1_TXIRQ | DAR_IRQSTS1_SEQIRQ):
 		if (lp->is_tx) {
@@ -982,6 +1005,7 @@ static irqreturn_t mcr20a_irq_isr(int irq, void *data)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static int mcr20a_get_platform_data(struct spi_device *spi,
 				    struct mcr20a_platform_data *pdata)
 {
@@ -996,6 +1020,8 @@ static int mcr20a_get_platform_data(struct spi_device *spi,
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void mcr20a_hw_setup(struct mcr20a_local *lp)
 {
 	u8 i;
@@ -1005,8 +1031,13 @@ static void mcr20a_hw_setup(struct mcr20a_local *lp)
 	dev_dbg(printdev(lp), "%s\n", __func__);
 
 	phy->symbol_duration = 16;
+<<<<<<< HEAD
 	phy->lifs_period = 40;
 	phy->sifs_period = 12;
+=======
+	phy->lifs_period = 40 * phy->symbol_duration;
+	phy->sifs_period = 12 * phy->symbol_duration;
+>>>>>>> upstream/android-13
 
 	hw->flags = IEEE802154_HW_TX_OMIT_CKSUM |
 			IEEE802154_HW_AFILT |
@@ -1255,7 +1286,11 @@ mcr20a_probe(struct spi_device *spi)
 {
 	struct ieee802154_hw *hw;
 	struct mcr20a_local *lp;
+<<<<<<< HEAD
 	struct mcr20a_platform_data *pdata;
+=======
+	struct gpio_desc *rst_b;
+>>>>>>> upstream/android-13
 	int irq_type;
 	int ret = -ENOMEM;
 
@@ -1266,6 +1301,7 @@ mcr20a_probe(struct spi_device *spi)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	pdata = kmalloc(sizeof(*pdata), GFP_KERNEL);
 	if (!pdata)
 		return -ENOMEM;
@@ -1293,21 +1329,44 @@ mcr20a_probe(struct spi_device *spi)
 		gpio_set_value_cansleep(pdata->rst_gpio, 1);
 		usleep_range(120, 240);
 	}
+=======
+	rst_b = devm_gpiod_get(&spi->dev, "rst_b", GPIOD_OUT_HIGH);
+	if (IS_ERR(rst_b)) {
+		ret = PTR_ERR(rst_b);
+		if (ret != -EPROBE_DEFER)
+			dev_err(&spi->dev, "Failed to get 'rst_b' gpio: %d", ret);
+		return ret;
+	}
+
+	/* reset mcr20a */
+	usleep_range(10, 20);
+	gpiod_set_value_cansleep(rst_b, 1);
+	usleep_range(10, 20);
+	gpiod_set_value_cansleep(rst_b, 0);
+	usleep_range(120, 240);
+>>>>>>> upstream/android-13
 
 	/* allocate ieee802154_hw and private data */
 	hw = ieee802154_alloc_hw(sizeof(*lp), &mcr20a_hw_ops);
 	if (!hw) {
 		dev_crit(&spi->dev, "ieee802154_alloc_hw failed\n");
+<<<<<<< HEAD
 		ret = -ENOMEM;
 		goto free_pdata;
+=======
+		return ret;
+>>>>>>> upstream/android-13
 	}
 
 	/* init mcr20a local data */
 	lp = hw->priv;
 	lp->hw = hw;
 	lp->spi = spi;
+<<<<<<< HEAD
 	lp->spi->dev.platform_data = pdata;
 	lp->pdata = pdata;
+=======
+>>>>>>> upstream/android-13
 
 	/* init ieee802154_hw */
 	hw->parent = &spi->dev;
@@ -1376,8 +1435,11 @@ mcr20a_probe(struct spi_device *spi)
 
 free_dev:
 	ieee802154_free_hw(lp->hw);
+<<<<<<< HEAD
 free_pdata:
 	kfree(pdata);
+=======
+>>>>>>> upstream/android-13
 
 	return ret;
 }

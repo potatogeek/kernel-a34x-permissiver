@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014 Free Electrons
  *
@@ -6,6 +7,15 @@
  *
  * Allwinner PRCM (Power/Reset/Clock Management) driver
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2014 Free Electrons
+ *
+ * Author: Boris BREZILLON <boris.brezillon@free-electrons.com>
+ *
+ * Allwinner PRCM (Power/Reset/Clock Management) driver
+>>>>>>> upstream/android-13
  */
 
 #include <linux/mfd/core.h>
@@ -21,6 +31,7 @@ struct prcm_data {
 };
 
 static const struct resource sun6i_a31_ar100_clk_res[] = {
+<<<<<<< HEAD
 	{
 		.start = 0x0,
 		.end = 0x3,
@@ -58,6 +69,25 @@ static const struct resource sun6i_a31_apb0_rstc_res[] = {
 		.end = 0xb3,
 		.flags = IORESOURCE_MEM,
 	},
+=======
+	DEFINE_RES_MEM(0x0, 4)
+};
+
+static const struct resource sun6i_a31_apb0_clk_res[] = {
+	DEFINE_RES_MEM(0xc, 4)
+};
+
+static const struct resource sun6i_a31_apb0_gates_clk_res[] = {
+	DEFINE_RES_MEM(0x28, 4)
+};
+
+static const struct resource sun6i_a31_ir_clk_res[] = {
+	DEFINE_RES_MEM(0x54, 4)
+};
+
+static const struct resource sun6i_a31_apb0_rstc_res[] = {
+	DEFINE_RES_MEM(0xb0, 4)
+>>>>>>> upstream/android-13
 };
 
 static const struct resource sun8i_codec_analog_res[] = {
@@ -148,13 +178,20 @@ static const struct of_device_id sun6i_prcm_dt_ids[] = {
 
 static int sun6i_prcm_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct device_node *np = pdev->dev.of_node;
+=======
+>>>>>>> upstream/android-13
 	const struct of_device_id *match;
 	const struct prcm_data *data;
 	struct resource *res;
 	int ret;
 
+<<<<<<< HEAD
 	match = of_match_node(sun6i_prcm_dt_ids, np);
+=======
+	match = of_match_node(sun6i_prcm_dt_ids, pdev->dev.of_node);
+>>>>>>> upstream/android-13
 	if (!match)
 		return -EINVAL;
 

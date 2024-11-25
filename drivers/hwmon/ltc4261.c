@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for Linear Technology LTC4261 I2C Negative Voltage Hot Swap Controller
  *
@@ -9,6 +13,7 @@
  *  Copyright (C) 2008 Ira W. Snyder <iws@ovro.caltech.edu>
  *
  * Datasheet: http://cds.linear.com/docs/Datasheet/42612fb.pdf
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +28,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -132,7 +139,11 @@ static int ltc4261_get_value(struct ltc4261_data *data, u8 reg)
 	return val;
 }
 
+<<<<<<< HEAD
 static ssize_t ltc4261_show_value(struct device *dev,
+=======
+static ssize_t ltc4261_value_show(struct device *dev,
+>>>>>>> upstream/android-13
 				  struct device_attribute *da, char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
@@ -143,10 +154,17 @@ static ssize_t ltc4261_show_value(struct device *dev,
 		return PTR_ERR(data);
 
 	value = ltc4261_get_value(data, attr->index);
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%d\n", value);
 }
 
 static ssize_t ltc4261_show_bool(struct device *dev,
+=======
+	return sysfs_emit(buf, "%d\n", value);
+}
+
+static ssize_t ltc4261_bool_show(struct device *dev,
+>>>>>>> upstream/android-13
 				 struct device_attribute *da, char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
@@ -160,16 +178,25 @@ static ssize_t ltc4261_show_bool(struct device *dev,
 	if (fault)		/* Clear reported faults in chip register */
 		i2c_smbus_write_byte_data(data->client, LTC4261_FAULT, ~fault);
 
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%d\n", fault ? 1 : 0);
+=======
+	return sysfs_emit(buf, "%d\n", fault ? 1 : 0);
+>>>>>>> upstream/android-13
 }
 
 /*
  * Input voltages.
  */
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(in1_input, S_IRUGO, ltc4261_show_value, NULL,
 			  LTC4261_ADIN_H);
 static SENSOR_DEVICE_ATTR(in2_input, S_IRUGO, ltc4261_show_value, NULL,
 			  LTC4261_ADIN2_H);
+=======
+static SENSOR_DEVICE_ATTR_RO(in1_input, ltc4261_value, LTC4261_ADIN_H);
+static SENSOR_DEVICE_ATTR_RO(in2_input, ltc4261_value, LTC4261_ADIN2_H);
+>>>>>>> upstream/android-13
 
 /*
  * Voltage alarms. The chip has only one set of voltage alarm status bits,
@@ -179,6 +206,7 @@ static SENSOR_DEVICE_ATTR(in2_input, S_IRUGO, ltc4261_show_value, NULL,
  * To ensure that the alarm condition is reported to the user, report it
  * with both voltage sensors.
  */
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(in1_min_alarm, S_IRUGO, ltc4261_show_bool, NULL,
 			  FAULT_UV);
 static SENSOR_DEVICE_ATTR(in1_max_alarm, S_IRUGO, ltc4261_show_bool, NULL,
@@ -195,6 +223,18 @@ static SENSOR_DEVICE_ATTR(curr1_input, S_IRUGO, ltc4261_show_value, NULL,
 /* Overcurrent alarm */
 static SENSOR_DEVICE_ATTR(curr1_max_alarm, S_IRUGO, ltc4261_show_bool, NULL,
 			  FAULT_OC);
+=======
+static SENSOR_DEVICE_ATTR_RO(in1_min_alarm, ltc4261_bool, FAULT_UV);
+static SENSOR_DEVICE_ATTR_RO(in1_max_alarm, ltc4261_bool, FAULT_OV);
+static SENSOR_DEVICE_ATTR_RO(in2_min_alarm, ltc4261_bool, FAULT_UV);
+static SENSOR_DEVICE_ATTR_RO(in2_max_alarm, ltc4261_bool, FAULT_OV);
+
+/* Currents (via sense resistor) */
+static SENSOR_DEVICE_ATTR_RO(curr1_input, ltc4261_value, LTC4261_SENSE_H);
+
+/* Overcurrent alarm */
+static SENSOR_DEVICE_ATTR_RO(curr1_max_alarm, ltc4261_bool, FAULT_OC);
+>>>>>>> upstream/android-13
 
 static struct attribute *ltc4261_attrs[] = {
 	&sensor_dev_attr_in1_input.dev_attr.attr,
@@ -211,8 +251,12 @@ static struct attribute *ltc4261_attrs[] = {
 };
 ATTRIBUTE_GROUPS(ltc4261);
 
+<<<<<<< HEAD
 static int ltc4261_probe(struct i2c_client *client,
 			 const struct i2c_device_id *id)
+=======
+static int ltc4261_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct i2c_adapter *adapter = client->adapter;
 	struct device *dev = &client->dev;
@@ -255,7 +299,11 @@ static struct i2c_driver ltc4261_driver = {
 	.driver = {
 		   .name = "ltc4261",
 		   },
+<<<<<<< HEAD
 	.probe = ltc4261_probe,
+=======
+	.probe_new = ltc4261_probe,
+>>>>>>> upstream/android-13
 	.id_table = ltc4261_id,
 };
 

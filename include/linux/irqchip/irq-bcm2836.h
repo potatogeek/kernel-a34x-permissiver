@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Root interrupt controller for the BCM2836 (Raspberry Pi 2).
  *
  * Copyright 2015 Broadcom
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define LOCAL_CONTROL			0x000
@@ -39,7 +46,11 @@
  */
 #define LOCAL_MAILBOX_INT_CONTROL0	0x050
 /*
+<<<<<<< HEAD
  * The CPU's interrupt status register.  Bits are defined by the the
+=======
+ * The CPU's interrupt status register.  Bits are defined by the
+>>>>>>> upstream/android-13
  * LOCAL_IRQ_* bits below.
  */
 #define LOCAL_IRQ_PENDING0		0x060

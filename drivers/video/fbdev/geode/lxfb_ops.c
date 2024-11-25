@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Geode LX framebuffer driver
  *
  * Copyright (C) 2006-2007, Advanced Micro Devices,Inc.
@@ -6,6 +7,12 @@
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/* Geode LX framebuffer driver
+ *
+ * Copyright (C) 2006-2007, Advanced Micro Devices,Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -584,8 +591,11 @@ int lx_blank_display(struct fb_info *info, int blank_mode)
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 
+=======
+>>>>>>> upstream/android-13
 static void lx_save_regs(struct lxfb_par *par)
 {
 	uint32_t filt;
@@ -688,6 +698,10 @@ static void lx_restore_display_ctlr(struct lxfb_par *par)
 		case DC_DV_CTL:
 			/* set all ram to dirty */
 			write_dc(par, i, par->dc[i] | DC_DV_CTL_CLEAR_DV_RAM);
+<<<<<<< HEAD
+=======
+			break;
+>>>>>>> upstream/android-13
 
 		case DC_RSVD_1:
 		case DC_RSVD_2:
@@ -841,5 +855,8 @@ int lx_powerup(struct fb_info *info)
 	par->powered_down = 0;
 	return 0;
 }
+<<<<<<< HEAD
 
 #endif
+=======
+>>>>>>> upstream/android-13

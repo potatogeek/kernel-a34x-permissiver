@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *
  *  Copyright (C) 1995  Linus Torvalds
@@ -23,7 +27,10 @@
 #include <linux/pci.h>
 #include <linux/pfn.h>
 #include <linux/poison.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/memblock.h>
 #include <linux/proc_fs.h>
 #include <linux/memory_hotplug.h>
@@ -35,7 +42,10 @@
 #include <asm/bios_ebda.h>
 #include <asm/processor.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/dma.h>
 #include <asm/fixmap.h>
 #include <asm/e820/api.h>
@@ -52,6 +62,11 @@
 #include <asm/page_types.h>
 #include <asm/cpu_entry_area.h>
 #include <asm/init.h>
+<<<<<<< HEAD
+=======
+#include <asm/pgtable_areas.h>
+#include <asm/numa.h>
+>>>>>>> upstream/android-13
 
 #include "mm_internal.h"
 
@@ -237,7 +252,15 @@ page_table_range_init(unsigned long start, unsigned long end, pgd_t *pgd_base)
 	}
 }
 
+<<<<<<< HEAD
 static inline int is_kernel_text(unsigned long addr)
+=======
+/*
+ * The <linux/kallsyms.h> already defines is_kernel_text,
+ * using '__' prefix not to get in conflict.
+ */
+static inline int __is_kernel_text(unsigned long addr)
+>>>>>>> upstream/android-13
 {
 	if (addr >= (unsigned long)_text && addr <= (unsigned long)__init_end)
 		return 1;
@@ -252,7 +275,12 @@ static inline int is_kernel_text(unsigned long addr)
 unsigned long __init
 kernel_physical_mapping_init(unsigned long start,
 			     unsigned long end,
+<<<<<<< HEAD
 			     unsigned long page_size_mask)
+=======
+			     unsigned long page_size_mask,
+			     pgprot_t prot)
+>>>>>>> upstream/android-13
 {
 	int use_pse = page_size_mask == (1<<PG_LEVEL_2M);
 	unsigned long last_map_addr = end;
@@ -327,8 +355,13 @@ repeat:
 				addr2 = (pfn + PTRS_PER_PTE-1) * PAGE_SIZE +
 					PAGE_OFFSET + PAGE_SIZE-1;
 
+<<<<<<< HEAD
 				if (is_kernel_text(addr) ||
 				    is_kernel_text(addr2))
+=======
+				if (__is_kernel_text(addr) ||
+				    __is_kernel_text(addr2))
+>>>>>>> upstream/android-13
 					prot = PAGE_KERNEL_LARGE_EXEC;
 
 				pages_2m++;
@@ -353,7 +386,11 @@ repeat:
 				 */
 				pgprot_t init_prot = __pgprot(PTE_IDENT_ATTR);
 
+<<<<<<< HEAD
 				if (is_kernel_text(addr))
+=======
+				if (__is_kernel_text(addr))
+>>>>>>> upstream/android-13
 					prot = PAGE_KERNEL_EXEC;
 
 				pages_4k++;
@@ -388,6 +425,7 @@ repeat:
 	return last_map_addr;
 }
 
+<<<<<<< HEAD
 pte_t *kmap_pte;
 
 static inline pte_t *kmap_get_fixmap_pte(unsigned long vaddr)
@@ -429,6 +467,16 @@ static void __init permanent_kmaps_init(pgd_t *pgd_base)
 	pmd = pmd_offset(pud, vaddr);
 	pte = pte_offset_kernel(pmd, vaddr);
 	pkmap_page_table = pte;
+=======
+#ifdef CONFIG_HIGHMEM
+static void __init permanent_kmaps_init(pgd_t *pgd_base)
+{
+	unsigned long vaddr = PKMAP_BASE;
+
+	page_table_range_init(vaddr, vaddr + PAGE_SIZE*LAST_PKMAP, pgd_base);
+
+	pkmap_page_table = virt_to_kpte(vaddr);
+>>>>>>> upstream/android-13
 }
 
 void __init add_highpages_with_active_regions(int nid,
@@ -678,7 +726,11 @@ void __init find_low_pfn_range(void)
 		highmem_pfn_init();
 }
 
+<<<<<<< HEAD
 #ifndef CONFIG_NEED_MULTIPLE_NODES
+=======
+#ifndef CONFIG_NUMA
+>>>>>>> upstream/android-13
 void __init initmem_init(void)
 {
 #ifdef CONFIG_HIGHMEM
@@ -693,7 +745,10 @@ void __init initmem_init(void)
 #endif
 
 	memblock_set_node(0, PHYS_ADDR_MAX, &memblock.memory, 0);
+<<<<<<< HEAD
 	sparse_memory_present_with_active_regions(0);
+=======
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_FLATMEM
 	max_mapnr = IS_ENABLED(CONFIG_HIGHMEM) ? highend_pfn : max_low_pfn;
@@ -705,7 +760,11 @@ void __init initmem_init(void)
 
 	setup_bootmem_allocator();
 }
+<<<<<<< HEAD
 #endif /* !CONFIG_NEED_MULTIPLE_NODES */
+=======
+#endif /* !CONFIG_NUMA */
+>>>>>>> upstream/android-13
 
 void __init setup_bootmem_allocator(void)
 {
@@ -727,13 +786,19 @@ void __init paging_init(void)
 
 	__flush_tlb_all();
 
+<<<<<<< HEAD
 	kmap_init();
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * NOTE: at this point the bootmem allocator is fully available.
 	 */
 	olpc_dt_build_devicetree();
+<<<<<<< HEAD
 	sparse_memory_present_with_active_regions(MAX_NUMNODES);
+=======
+>>>>>>> upstream/android-13
 	sparse_init();
 	zone_sizes_init();
 }
@@ -752,7 +817,11 @@ static void __init test_wp_bit(void)
 
 	__set_fixmap(FIX_WP_TEST, __pa_symbol(empty_zero_page), PAGE_KERNEL_RO);
 
+<<<<<<< HEAD
 	if (probe_kernel_write((char *)fix_to_virt(FIX_WP_TEST), &z, 1)) {
+=======
+	if (copy_to_kernel_nofault((char *)fix_to_virt(FIX_WP_TEST), &z, 1)) {
+>>>>>>> upstream/android-13
 		clear_fixmap(FIX_WP_TEST);
 		printk(KERN_CONT "Ok.\n");
 		return;
@@ -771,7 +840,11 @@ void __init mem_init(void)
 #endif
 	/*
 	 * With CONFIG_DEBUG_PAGEALLOC initialization of highmem pages has to
+<<<<<<< HEAD
 	 * be done before free_all_bootmem(). Memblock use free low memory for
+=======
+	 * be done before memblock_free_all(). Memblock use free low memory for
+>>>>>>> upstream/android-13
 	 * temporary data (see find_range_array()) and for this purpose can use
 	 * pages that was already passed to the buddy allocator, hence marked as
 	 * not accessible in the page tables when compiled with
@@ -781,11 +854,16 @@ void __init mem_init(void)
 	set_highmem_pages_init();
 
 	/* this will put all low memory onto the freelists */
+<<<<<<< HEAD
 	free_all_bootmem();
+=======
+	memblock_free_all();
+>>>>>>> upstream/android-13
 
 	after_bootmem = 1;
 	x86_init.hyper.init_after_bootmem();
 
+<<<<<<< HEAD
 	mem_init_print_info(NULL);
 	printk(KERN_INFO "virtual kernel memory layout:\n"
 		"    fixmap  : 0x%08lx - 0x%08lx   (%4ld kB)\n"
@@ -826,6 +904,8 @@ void __init mem_init(void)
 		(unsigned long)&_text, (unsigned long)&_etext,
 		((unsigned long)&_etext - (unsigned long)&_text) >> 10);
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Check boundaries twice: Some fundamental inconsistencies can
 	 * be detected at build time already.
@@ -851,6 +931,7 @@ void __init mem_init(void)
 }
 
 #ifdef CONFIG_MEMORY_HOTPLUG
+<<<<<<< HEAD
 int arch_add_memory(int nid, u64 start, u64 size, struct vmem_altmap *altmap,
 		bool want_memblock)
 {
@@ -862,6 +943,30 @@ int arch_add_memory(int nid, u64 start, u64 size, struct vmem_altmap *altmap,
 
 void arch_remove_memory(int nid, u64 start, u64 size,
 			struct vmem_altmap *altmap)
+=======
+int arch_add_memory(int nid, u64 start, u64 size,
+		    struct mhp_params *params)
+{
+	unsigned long start_pfn = start >> PAGE_SHIFT;
+	unsigned long nr_pages = size >> PAGE_SHIFT;
+	int ret;
+
+	/*
+	 * The page tables were already mapped at boot so if the caller
+	 * requests a different mapping type then we must change all the
+	 * pages with __set_memory_prot().
+	 */
+	if (params->pgprot.pgprot != PAGE_KERNEL.pgprot) {
+		ret = __set_memory_prot(start, nr_pages, params->pgprot);
+		if (ret)
+			return ret;
+	}
+
+	return __add_pages(nid, start_pfn, nr_pages, params);
+}
+
+void arch_remove_memory(u64 start, u64 size, struct vmem_altmap *altmap)
+>>>>>>> upstream/android-13
 {
 	unsigned long start_pfn = start >> PAGE_SHIFT;
 	unsigned long nr_pages = size >> PAGE_SHIFT;
@@ -872,6 +977,7 @@ void arch_remove_memory(int nid, u64 start, u64 size,
 
 int kernel_set_to_readonly __read_mostly;
 
+<<<<<<< HEAD
 void set_kernel_text_rw(void)
 {
 	unsigned long start = PFN_ALIGN(_text);
@@ -900,6 +1006,8 @@ void set_kernel_text_ro(void)
 	set_pages_ro(virt_to_page(start), size >> PAGE_SHIFT);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void mark_nxdata_nx(void)
 {
 	/*
@@ -908,27 +1016,43 @@ static void mark_nxdata_nx(void)
 	 */
 	unsigned long start = PFN_ALIGN(_etext);
 	/*
+<<<<<<< HEAD
 	 * This comes from is_kernel_text upper limit. Also HPAGE where used:
+=======
+	 * This comes from __is_kernel_text upper limit. Also HPAGE where used:
+>>>>>>> upstream/android-13
 	 */
 	unsigned long size = (((unsigned long)__init_end + HPAGE_SIZE) & HPAGE_MASK) - start;
 
 	if (__supported_pte_mask & _PAGE_NX)
 		printk(KERN_INFO "NX-protecting the kernel data: %luk\n", size >> 10);
+<<<<<<< HEAD
 	set_pages_nx(virt_to_page(start), size >> PAGE_SHIFT);
+=======
+	set_memory_nx(start, size >> PAGE_SHIFT);
+>>>>>>> upstream/android-13
 }
 
 void mark_rodata_ro(void)
 {
 	unsigned long start = PFN_ALIGN(_text);
+<<<<<<< HEAD
 	unsigned long size = PFN_ALIGN(_etext) - start;
 
 	set_pages_ro(virt_to_page(start), size >> PAGE_SHIFT);
 	printk(KERN_INFO "Write protecting the kernel text: %luk\n",
+=======
+	unsigned long size = (unsigned long)__end_rodata - start;
+
+	set_pages_ro(virt_to_page(start), size >> PAGE_SHIFT);
+	pr_info("Write protecting kernel text and read-only data: %luk\n",
+>>>>>>> upstream/android-13
 		size >> 10);
 
 	kernel_set_to_readonly = 1;
 
 #ifdef CONFIG_CPA_DEBUG
+<<<<<<< HEAD
 	printk(KERN_INFO "Testing CPA: Reverting %lx-%lx\n",
 		start, start+size);
 	set_pages_rw(virt_to_page(start), size>>PAGE_SHIFT);
@@ -948,6 +1072,12 @@ void mark_rodata_ro(void)
 	set_pages_rw(virt_to_page(start), size >> PAGE_SHIFT);
 
 	printk(KERN_INFO "Testing CPA: write protecting again\n");
+=======
+	pr_info("Testing CPA: Reverting %lx-%lx\n", start, start + size);
+	set_pages_rw(virt_to_page(start), size >> PAGE_SHIFT);
+
+	pr_info("Testing CPA: write protecting again\n");
+>>>>>>> upstream/android-13
 	set_pages_ro(virt_to_page(start), size >> PAGE_SHIFT);
 #endif
 	mark_nxdata_nx();

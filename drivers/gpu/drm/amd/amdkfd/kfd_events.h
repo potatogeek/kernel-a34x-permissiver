@@ -79,7 +79,12 @@ struct kfd_event {
 #define KFD_EVENT_TYPE_DEBUG 5
 #define KFD_EVENT_TYPE_MEMORY 8
 
+<<<<<<< HEAD
 extern void kfd_signal_event_interrupt(unsigned int pasid, uint32_t partial_id,
 					uint32_t valid_id_bits);
+=======
+extern void kfd_signal_event_interrupt(u32 pasid, uint32_t partial_id,
+				       uint32_t valid_id_bits);
+>>>>>>> upstream/android-13
 
 #endif

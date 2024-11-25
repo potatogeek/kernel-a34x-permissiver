@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015-2018 The Linux Foundation. All rights reserved.
  *
@@ -18,6 +19,22 @@
 #include "dpu_core_irq.h"
 #include "dpu_formats.h"
 #include "dpu_trace.h"
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2015-2018, 2020-2021 The Linux Foundation. All rights reserved.
+ */
+
+#define pr_fmt(fmt)	"[drm:%s:%d] " fmt, __func__, __LINE__
+#include <linux/delay.h>
+#include "dpu_encoder_phys.h"
+#include "dpu_hw_interrupts.h"
+#include "dpu_hw_pingpong.h"
+#include "dpu_core_irq.h"
+#include "dpu_formats.h"
+#include "dpu_trace.h"
+#include "disp/msm_disp_snapshot.h"
+>>>>>>> upstream/android-13
 
 #define DPU_DEBUG_CMDENC(e, fmt, ...) DPU_DEBUG("enc%d intf%d " fmt, \
 		(e) && (e)->base.parent ? \
@@ -44,6 +61,7 @@
 
 #define DPU_ENC_WR_PTR_START_TIMEOUT_US 20000
 
+<<<<<<< HEAD
 static inline int _dpu_encoder_phys_cmd_get_idle_timeout(
 		struct dpu_encoder_phys_cmd *cmd_enc)
 {
@@ -52,6 +70,11 @@ static inline int _dpu_encoder_phys_cmd_get_idle_timeout(
 
 static inline bool dpu_encoder_phys_cmd_is_master(
 		struct dpu_encoder_phys *phys_enc)
+=======
+#define DPU_ENC_MAX_POLL_TIMEOUT_US	2000
+
+static bool dpu_encoder_phys_cmd_is_master(struct dpu_encoder_phys *phys_enc)
+>>>>>>> upstream/android-13
 {
 	return (phys_enc->split_role != ENC_ROLE_SLAVE) ? true : false;
 }
@@ -61,8 +84,12 @@ static bool dpu_encoder_phys_cmd_mode_fixup(
 		const struct drm_display_mode *mode,
 		struct drm_display_mode *adj_mode)
 {
+<<<<<<< HEAD
 	if (phys_enc)
 		DPU_DEBUG_CMDENC(to_dpu_encoder_phys_cmd(phys_enc), "\n");
+=======
+	DPU_DEBUG_CMDENC(to_dpu_encoder_phys_cmd(phys_enc), "\n");
+>>>>>>> upstream/android-13
 	return true;
 }
 
@@ -74,11 +101,16 @@ static void _dpu_encoder_phys_cmd_update_intf_cfg(
 	struct dpu_hw_ctl *ctl;
 	struct dpu_hw_intf_cfg intf_cfg = { 0 };
 
+<<<<<<< HEAD
 	if (!phys_enc)
 		return;
 
 	ctl = phys_enc->hw_ctl;
 	if (!ctl || !ctl->ops.setup_intf_cfg)
+=======
+	ctl = phys_enc->hw_ctl;
+	if (!ctl->ops.setup_intf_cfg)
+>>>>>>> upstream/android-13
 		return;
 
 	intf_cfg.intf = phys_enc->intf_idx;
@@ -95,7 +127,11 @@ static void dpu_encoder_phys_cmd_pp_tx_done_irq(void *arg, int irq_idx)
 	int new_cnt;
 	u32 event = DPU_ENCODER_FRAME_EVENT_DONE;
 
+<<<<<<< HEAD
 	if (!phys_enc || !phys_enc->hw_pp)
+=======
+	if (!phys_enc->hw_pp)
+>>>>>>> upstream/android-13
 		return;
 
 	DPU_ATRACE_BEGIN("pp_done_irq");
@@ -122,7 +158,11 @@ static void dpu_encoder_phys_cmd_pp_rd_ptr_irq(void *arg, int irq_idx)
 	struct dpu_encoder_phys *phys_enc = arg;
 	struct dpu_encoder_phys_cmd *cmd_enc;
 
+<<<<<<< HEAD
 	if (!phys_enc || !phys_enc->hw_pp)
+=======
+	if (!phys_enc->hw_pp)
+>>>>>>> upstream/android-13
 		return;
 
 	DPU_ATRACE_BEGIN("rd_ptr_irq");
@@ -140,6 +180,7 @@ static void dpu_encoder_phys_cmd_pp_rd_ptr_irq(void *arg, int irq_idx)
 static void dpu_encoder_phys_cmd_ctl_start_irq(void *arg, int irq_idx)
 {
 	struct dpu_encoder_phys *phys_enc = arg;
+<<<<<<< HEAD
 	struct dpu_encoder_phys_cmd *cmd_enc;
 
 	if (!phys_enc || !phys_enc->hw_ctl)
@@ -147,6 +188,10 @@ static void dpu_encoder_phys_cmd_ctl_start_irq(void *arg, int irq_idx)
 
 	DPU_ATRACE_BEGIN("ctl_start_irq");
 	cmd_enc = to_dpu_encoder_phys_cmd(phys_enc);
+=======
+
+	DPU_ATRACE_BEGIN("ctl_start_irq");
+>>>>>>> upstream/android-13
 
 	atomic_add_unless(&phys_enc->pending_ctlstart_cnt, -1, 0);
 
@@ -159,14 +204,18 @@ static void dpu_encoder_phys_cmd_underrun_irq(void *arg, int irq_idx)
 {
 	struct dpu_encoder_phys *phys_enc = arg;
 
+<<<<<<< HEAD
 	if (!phys_enc)
 		return;
 
+=======
+>>>>>>> upstream/android-13
 	if (phys_enc->parent_ops->handle_underrun_virt)
 		phys_enc->parent_ops->handle_underrun_virt(phys_enc->parent,
 			phys_enc);
 }
 
+<<<<<<< HEAD
 static void _dpu_encoder_phys_cmd_setup_irq_hw_idx(
 		struct dpu_encoder_phys *phys_enc)
 {
@@ -189,6 +238,8 @@ static void _dpu_encoder_phys_cmd_setup_irq_hw_idx(
 	irq->irq_idx = -EINVAL;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void dpu_encoder_phys_cmd_mode_set(
 		struct dpu_encoder_phys *phys_enc,
 		struct drm_display_mode *mode,
@@ -196,11 +247,17 @@ static void dpu_encoder_phys_cmd_mode_set(
 {
 	struct dpu_encoder_phys_cmd *cmd_enc =
 		to_dpu_encoder_phys_cmd(phys_enc);
+<<<<<<< HEAD
 	struct dpu_rm *rm = &phys_enc->dpu_kms->rm;
 	struct dpu_rm_hw_iter iter;
 	int i, instance;
 
 	if (!phys_enc || !mode || !adj_mode) {
+=======
+	struct dpu_encoder_irq *irq;
+
+	if (!mode || !adj_mode) {
+>>>>>>> upstream/android-13
 		DPU_ERROR("invalid args\n");
 		return;
 	}
@@ -208,6 +265,7 @@ static void dpu_encoder_phys_cmd_mode_set(
 	DPU_DEBUG_CMDENC(cmd_enc, "caching mode:\n");
 	drm_mode_debug_printmodeline(adj_mode);
 
+<<<<<<< HEAD
 	instance = phys_enc->split_role == ENC_ROLE_SLAVE ? 1 : 0;
 
 	/* Retrieve previously allocated HW Resources. Shouldn't fail */
@@ -225,6 +283,19 @@ static void dpu_encoder_phys_cmd_mode_set(
 	}
 
 	_dpu_encoder_phys_cmd_setup_irq_hw_idx(phys_enc);
+=======
+	irq = &phys_enc->irq[INTR_IDX_CTL_START];
+	irq->irq_idx = phys_enc->hw_ctl->caps->intr_start;
+
+	irq = &phys_enc->irq[INTR_IDX_PINGPONG];
+	irq->irq_idx = phys_enc->hw_pp->caps->intr_done;
+
+	irq = &phys_enc->irq[INTR_IDX_RDPTR];
+	irq->irq_idx = phys_enc->hw_pp->caps->intr_rdptr;
+
+	irq = &phys_enc->irq[INTR_IDX_UNDERRUN];
+	irq->irq_idx = phys_enc->hw_intf->cap->intr_underrun;
+>>>>>>> upstream/android-13
 }
 
 static int _dpu_encoder_phys_cmd_handle_ppdone_timeout(
@@ -234,10 +305,20 @@ static int _dpu_encoder_phys_cmd_handle_ppdone_timeout(
 			to_dpu_encoder_phys_cmd(phys_enc);
 	u32 frame_event = DPU_ENCODER_FRAME_EVENT_ERROR;
 	bool do_log = false;
+<<<<<<< HEAD
 
 	if (!phys_enc || !phys_enc->hw_pp || !phys_enc->hw_ctl)
 		return -EINVAL;
 
+=======
+	struct drm_encoder *drm_enc;
+
+	if (!phys_enc->hw_pp)
+		return -EINVAL;
+
+	drm_enc = phys_enc->parent;
+
+>>>>>>> upstream/android-13
 	cmd_enc->pp_timeout_report_cnt++;
 	if (cmd_enc->pp_timeout_report_cnt == PP_TIMEOUT_MAX_TRIALS) {
 		frame_event |= DPU_ENCODER_FRAME_EVENT_PANEL_DEAD;
@@ -246,7 +327,11 @@ static int _dpu_encoder_phys_cmd_handle_ppdone_timeout(
 		do_log = true;
 	}
 
+<<<<<<< HEAD
 	trace_dpu_enc_phys_cmd_pdone_timeout(DRMID(phys_enc->parent),
+=======
+	trace_dpu_enc_phys_cmd_pdone_timeout(DRMID(drm_enc),
+>>>>>>> upstream/android-13
 		     phys_enc->hw_pp->idx - PINGPONG_0,
 		     cmd_enc->pp_timeout_report_cnt,
 		     atomic_read(&phys_enc->pending_kickoff_cnt),
@@ -255,14 +340,23 @@ static int _dpu_encoder_phys_cmd_handle_ppdone_timeout(
 	/* to avoid flooding, only log first time, and "dead" time */
 	if (do_log) {
 		DRM_ERROR("id:%d pp:%d kickoff timeout %d cnt %d koff_cnt %d\n",
+<<<<<<< HEAD
 			  DRMID(phys_enc->parent),
+=======
+			  DRMID(drm_enc),
+>>>>>>> upstream/android-13
 			  phys_enc->hw_pp->idx - PINGPONG_0,
 			  phys_enc->hw_ctl->idx - CTL_0,
 			  cmd_enc->pp_timeout_report_cnt,
 			  atomic_read(&phys_enc->pending_kickoff_cnt));
+<<<<<<< HEAD
 
 		dpu_encoder_helper_unregister_irq(phys_enc, INTR_IDX_RDPTR);
 		dpu_dbg_dump(false, __func__, true, true);
+=======
+		msm_disp_snapshot_state(drm_enc->dev);
+		dpu_encoder_helper_unregister_irq(phys_enc, INTR_IDX_RDPTR);
+>>>>>>> upstream/android-13
 	}
 
 	atomic_add_unless(&phys_enc->pending_kickoff_cnt, -1, 0);
@@ -272,7 +366,11 @@ static int _dpu_encoder_phys_cmd_handle_ppdone_timeout(
 
 	if (phys_enc->parent_ops->handle_frame_done)
 		phys_enc->parent_ops->handle_frame_done(
+<<<<<<< HEAD
 				phys_enc->parent, phys_enc, frame_event);
+=======
+				drm_enc, phys_enc, frame_event);
+>>>>>>> upstream/android-13
 
 	return -ETIMEDOUT;
 }
@@ -285,11 +383,14 @@ static int _dpu_encoder_phys_cmd_wait_for_idle(
 	struct dpu_encoder_wait_info wait_info;
 	int ret;
 
+<<<<<<< HEAD
 	if (!phys_enc) {
 		DPU_ERROR("invalid encoder\n");
 		return -EINVAL;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	wait_info.wq = &phys_enc->pending_kickoff_wq;
 	wait_info.atomic_cnt = &phys_enc->pending_kickoff_cnt;
 	wait_info.timeout_ms = KICKOFF_TIMEOUT_MS;
@@ -311,7 +412,11 @@ static int dpu_encoder_phys_cmd_control_vblank_irq(
 	int ret = 0;
 	int refcount;
 
+<<<<<<< HEAD
 	if (!phys_enc || !phys_enc->hw_pp) {
+=======
+	if (!phys_enc->hw_pp) {
+>>>>>>> upstream/android-13
 		DPU_ERROR("invalid encoder\n");
 		return -EINVAL;
 	}
@@ -352,6 +457,7 @@ end:
 static void dpu_encoder_phys_cmd_irq_control(struct dpu_encoder_phys *phys_enc,
 		bool enable)
 {
+<<<<<<< HEAD
 	struct dpu_encoder_phys_cmd *cmd_enc;
 
 	if (!phys_enc)
@@ -359,6 +465,8 @@ static void dpu_encoder_phys_cmd_irq_control(struct dpu_encoder_phys *phys_enc,
 
 	cmd_enc = to_dpu_encoder_phys_cmd(phys_enc);
 
+=======
+>>>>>>> upstream/android-13
 	trace_dpu_enc_phys_cmd_irq_ctrl(DRMID(phys_enc->parent),
 			phys_enc->hw_pp->idx - PINGPONG_0,
 			enable, atomic_read(&phys_enc->vblank_refcount));
@@ -391,10 +499,16 @@ static void dpu_encoder_phys_cmd_tearcheck_config(
 	struct drm_display_mode *mode;
 	bool tc_enable = true;
 	u32 vsync_hz;
+<<<<<<< HEAD
 	struct msm_drm_private *priv;
 	struct dpu_kms *dpu_kms;
 
 	if (!phys_enc || !phys_enc->hw_pp) {
+=======
+	struct dpu_kms *dpu_kms;
+
+	if (!phys_enc->hw_pp) {
+>>>>>>> upstream/android-13
 		DPU_ERROR("invalid encoder\n");
 		return;
 	}
@@ -409,11 +523,14 @@ static void dpu_encoder_phys_cmd_tearcheck_config(
 	}
 
 	dpu_kms = phys_enc->dpu_kms;
+<<<<<<< HEAD
 	if (!dpu_kms || !dpu_kms->dev || !dpu_kms->dev->dev_private) {
 		DPU_ERROR("invalid device\n");
 		return;
 	}
 	priv = dpu_kms->dev->dev_private;
+=======
+>>>>>>> upstream/android-13
 
 	/*
 	 * TE default: dsi byte clock calculated base on 70 fps;
@@ -431,6 +548,7 @@ static void dpu_encoder_phys_cmd_tearcheck_config(
 		return;
 	}
 
+<<<<<<< HEAD
 	tc_cfg.vsync_count = vsync_hz / (mode->vtotal * mode->vrefresh);
 
 	/* enable external TE after kickoff to avoid premature autorefresh */
@@ -442,6 +560,17 @@ static void dpu_encoder_phys_cmd_tearcheck_config(
 	 * Only caveat is if due to error, we hit wrap-around.
 	 */
 	tc_cfg.sync_cfg_height = 0xFFF0;
+=======
+	tc_cfg.vsync_count = vsync_hz /
+				(mode->vtotal * drm_mode_vrefresh(mode));
+
+	/*
+	 * Set the sync_cfg_height to twice vtotal so that if we lose a
+	 * TE event coming from the display TE pin we won't stall immediately
+	 */
+	tc_cfg.hw_vsync_mode = 1;
+	tc_cfg.sync_cfg_height = mode->vtotal * 2;
+>>>>>>> upstream/android-13
 	tc_cfg.vsync_init_val = mode->vdisplay;
 	tc_cfg.sync_threshold_start = DEFAULT_TEARCHECK_SYNC_THRESH_START;
 	tc_cfg.sync_threshold_continue = DEFAULT_TEARCHECK_SYNC_THRESH_CONTINUE;
@@ -451,7 +580,11 @@ static void dpu_encoder_phys_cmd_tearcheck_config(
 	DPU_DEBUG_CMDENC(cmd_enc,
 		"tc %d vsync_clk_speed_hz %u vtotal %u vrefresh %u\n",
 		phys_enc->hw_pp->idx - PINGPONG_0, vsync_hz,
+<<<<<<< HEAD
 		mode->vtotal, mode->vrefresh);
+=======
+		mode->vtotal, drm_mode_vrefresh(mode));
+>>>>>>> upstream/android-13
 	DPU_DEBUG_CMDENC(cmd_enc,
 		"tc %d enable %u start_pos %u rd_ptr_irq %u\n",
 		phys_enc->hw_pp->idx - PINGPONG_0, tc_enable, tc_cfg.start_pos,
@@ -475,9 +608,14 @@ static void _dpu_encoder_phys_cmd_pingpong_config(
 	struct dpu_encoder_phys_cmd *cmd_enc =
 		to_dpu_encoder_phys_cmd(phys_enc);
 
+<<<<<<< HEAD
 	if (!phys_enc || !phys_enc->hw_ctl || !phys_enc->hw_pp
 			|| !phys_enc->hw_ctl->ops.setup_intf_cfg) {
 		DPU_ERROR("invalid arg(s), enc %d\n", phys_enc != 0);
+=======
+	if (!phys_enc->hw_pp || !phys_enc->hw_ctl->ops.setup_intf_cfg) {
+		DPU_ERROR("invalid arg(s), enc %d\n", phys_enc != NULL);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -503,10 +641,16 @@ static void dpu_encoder_phys_cmd_enable_helper(
 		struct dpu_encoder_phys *phys_enc)
 {
 	struct dpu_hw_ctl *ctl;
+<<<<<<< HEAD
 	u32 flush_mask = 0;
 
 	if (!phys_enc || !phys_enc->hw_ctl || !phys_enc->hw_pp) {
 		DPU_ERROR("invalid arg(s), encoder %d\n", phys_enc != 0);
+=======
+
+	if (!phys_enc->hw_pp) {
+		DPU_ERROR("invalid arg(s), encoder %d\n", phys_enc != NULL);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -515,6 +659,7 @@ static void dpu_encoder_phys_cmd_enable_helper(
 	_dpu_encoder_phys_cmd_pingpong_config(phys_enc);
 
 	if (!dpu_encoder_phys_cmd_is_master(phys_enc))
+<<<<<<< HEAD
 		goto skip_flush;
 
 	ctl = phys_enc->hw_ctl;
@@ -523,6 +668,12 @@ static void dpu_encoder_phys_cmd_enable_helper(
 
 skip_flush:
 	return;
+=======
+		return;
+
+	ctl = phys_enc->hw_ctl;
+	ctl->ops.update_pending_flush_intf(ctl, phys_enc->intf_idx);
+>>>>>>> upstream/android-13
 }
 
 static void dpu_encoder_phys_cmd_enable(struct dpu_encoder_phys *phys_enc)
@@ -530,7 +681,11 @@ static void dpu_encoder_phys_cmd_enable(struct dpu_encoder_phys *phys_enc)
 	struct dpu_encoder_phys_cmd *cmd_enc =
 		to_dpu_encoder_phys_cmd(phys_enc);
 
+<<<<<<< HEAD
 	if (!phys_enc || !phys_enc->hw_pp) {
+=======
+	if (!phys_enc->hw_pp) {
+>>>>>>> upstream/android-13
 		DPU_ERROR("invalid phys encoder\n");
 		return;
 	}
@@ -549,8 +704,12 @@ static void dpu_encoder_phys_cmd_enable(struct dpu_encoder_phys *phys_enc)
 static void _dpu_encoder_phys_cmd_connect_te(
 		struct dpu_encoder_phys *phys_enc, bool enable)
 {
+<<<<<<< HEAD
 	if (!phys_enc || !phys_enc->hw_pp ||
 			!phys_enc->hw_pp->ops.connect_external_te)
+=======
+	if (!phys_enc->hw_pp || !phys_enc->hw_pp->ops.connect_external_te)
+>>>>>>> upstream/android-13
 		return;
 
 	trace_dpu_enc_phys_cmd_connect_te(DRMID(phys_enc->parent), enable);
@@ -568,7 +727,11 @@ static int dpu_encoder_phys_cmd_get_line_count(
 {
 	struct dpu_hw_pingpong *hw_pp;
 
+<<<<<<< HEAD
 	if (!phys_enc || !phys_enc->hw_pp)
+=======
+	if (!phys_enc->hw_pp)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	if (!dpu_encoder_phys_cmd_is_master(phys_enc))
@@ -586,7 +749,11 @@ static void dpu_encoder_phys_cmd_disable(struct dpu_encoder_phys *phys_enc)
 	struct dpu_encoder_phys_cmd *cmd_enc =
 		to_dpu_encoder_phys_cmd(phys_enc);
 
+<<<<<<< HEAD
 	if (!phys_enc || !phys_enc->hw_pp) {
+=======
+	if (!phys_enc->hw_pp) {
+>>>>>>> upstream/android-13
 		DPU_ERROR("invalid encoder\n");
 		return;
 	}
@@ -609,15 +776,19 @@ static void dpu_encoder_phys_cmd_destroy(struct dpu_encoder_phys *phys_enc)
 	struct dpu_encoder_phys_cmd *cmd_enc =
 		to_dpu_encoder_phys_cmd(phys_enc);
 
+<<<<<<< HEAD
 	if (!phys_enc) {
 		DPU_ERROR("invalid encoder\n");
 		return;
 	}
+=======
+>>>>>>> upstream/android-13
 	kfree(cmd_enc);
 }
 
 static void dpu_encoder_phys_cmd_get_hw_resources(
 		struct dpu_encoder_phys *phys_enc,
+<<<<<<< HEAD
 		struct dpu_encoder_hw_resources *hw_res,
 		struct drm_connector_state *conn_state)
 {
@@ -635,18 +806,30 @@ static void dpu_encoder_phys_cmd_get_hw_resources(
 	}
 
 	DPU_DEBUG_CMDENC(cmd_enc, "\n");
+=======
+		struct dpu_encoder_hw_resources *hw_res)
+{
+>>>>>>> upstream/android-13
 	hw_res->intfs[phys_enc->intf_idx - INTF_0] = INTF_MODE_CMD;
 }
 
 static void dpu_encoder_phys_cmd_prepare_for_kickoff(
+<<<<<<< HEAD
 		struct dpu_encoder_phys *phys_enc,
 		struct dpu_encoder_kickoff_params *params)
+=======
+		struct dpu_encoder_phys *phys_enc)
+>>>>>>> upstream/android-13
 {
 	struct dpu_encoder_phys_cmd *cmd_enc =
 			to_dpu_encoder_phys_cmd(phys_enc);
 	int ret;
 
+<<<<<<< HEAD
 	if (!phys_enc || !phys_enc->hw_pp) {
+=======
+	if (!phys_enc->hw_pp) {
+>>>>>>> upstream/android-13
 		DPU_ERROR("invalid encoder\n");
 		return;
 	}
@@ -672,6 +855,72 @@ static void dpu_encoder_phys_cmd_prepare_for_kickoff(
 			atomic_read(&phys_enc->pending_kickoff_cnt));
 }
 
+<<<<<<< HEAD
+=======
+static bool dpu_encoder_phys_cmd_is_ongoing_pptx(
+		struct dpu_encoder_phys *phys_enc)
+{
+	struct dpu_hw_pp_vsync_info info;
+
+	if (!phys_enc)
+		return false;
+
+	phys_enc->hw_pp->ops.get_vsync_info(phys_enc->hw_pp, &info);
+	if (info.wr_ptr_line_count > 0 &&
+	    info.wr_ptr_line_count < phys_enc->cached_mode.vdisplay)
+		return true;
+
+	return false;
+}
+
+static void dpu_encoder_phys_cmd_prepare_commit(
+		struct dpu_encoder_phys *phys_enc)
+{
+	struct dpu_encoder_phys_cmd *cmd_enc =
+		to_dpu_encoder_phys_cmd(phys_enc);
+	int trial = 0;
+
+	if (!phys_enc)
+		return;
+	if (!phys_enc->hw_pp)
+		return;
+	if (!dpu_encoder_phys_cmd_is_master(phys_enc))
+		return;
+
+	/* If autorefresh is already disabled, we have nothing to do */
+	if (!phys_enc->hw_pp->ops.get_autorefresh(phys_enc->hw_pp, NULL))
+		return;
+
+	/*
+	 * If autorefresh is enabled, disable it and make sure it is safe to
+	 * proceed with current frame commit/push. Sequence fallowed is,
+	 * 1. Disable TE
+	 * 2. Disable autorefresh config
+	 * 4. Poll for frame transfer ongoing to be false
+	 * 5. Enable TE back
+	 */
+	_dpu_encoder_phys_cmd_connect_te(phys_enc, false);
+	phys_enc->hw_pp->ops.setup_autorefresh(phys_enc->hw_pp, 0, false);
+
+	do {
+		udelay(DPU_ENC_MAX_POLL_TIMEOUT_US);
+		if ((trial * DPU_ENC_MAX_POLL_TIMEOUT_US)
+				> (KICKOFF_TIMEOUT_MS * USEC_PER_MSEC)) {
+			DPU_ERROR_CMDENC(cmd_enc,
+					"disable autorefresh failed\n");
+			break;
+		}
+
+		trial++;
+	} while (dpu_encoder_phys_cmd_is_ongoing_pptx(phys_enc));
+
+	_dpu_encoder_phys_cmd_connect_te(phys_enc, true);
+
+	DPU_DEBUG_CMDENC(to_dpu_encoder_phys_cmd(phys_enc),
+			 "disabled autorefresh\n");
+}
+
+>>>>>>> upstream/android-13
 static int _dpu_encoder_phys_cmd_wait_for_ctl_start(
 		struct dpu_encoder_phys *phys_enc)
 {
@@ -680,11 +929,14 @@ static int _dpu_encoder_phys_cmd_wait_for_ctl_start(
 	struct dpu_encoder_wait_info wait_info;
 	int ret;
 
+<<<<<<< HEAD
 	if (!phys_enc || !phys_enc->hw_ctl) {
 		DPU_ERROR("invalid argument(s)\n");
 		return -EINVAL;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	wait_info.wq = &phys_enc->pending_kickoff_wq;
 	wait_info.atomic_cnt = &phys_enc->pending_ctlstart_cnt;
 	wait_info.timeout_ms = KICKOFF_TIMEOUT_MS;
@@ -704,12 +956,15 @@ static int dpu_encoder_phys_cmd_wait_for_tx_complete(
 		struct dpu_encoder_phys *phys_enc)
 {
 	int rc;
+<<<<<<< HEAD
 	struct dpu_encoder_phys_cmd *cmd_enc;
 
 	if (!phys_enc)
 		return -EINVAL;
 
 	cmd_enc = to_dpu_encoder_phys_cmd(phys_enc);
+=======
+>>>>>>> upstream/android-13
 
 	rc = _dpu_encoder_phys_cmd_wait_for_idle(phys_enc);
 	if (rc) {
@@ -724,6 +979,7 @@ static int dpu_encoder_phys_cmd_wait_for_tx_complete(
 static int dpu_encoder_phys_cmd_wait_for_commit_done(
 		struct dpu_encoder_phys *phys_enc)
 {
+<<<<<<< HEAD
 	int rc = 0;
 	struct dpu_encoder_phys_cmd *cmd_enc;
 
@@ -741,6 +997,13 @@ static int dpu_encoder_phys_cmd_wait_for_commit_done(
 		dpu_encoder_phys_cmd_prepare_for_kickoff(phys_enc, NULL);
 
 	return rc;
+=======
+	/* only required for master controller */
+	if (!dpu_encoder_phys_cmd_is_master(phys_enc))
+		return 0;
+
+	return _dpu_encoder_phys_cmd_wait_for_ctl_start(phys_enc);
+>>>>>>> upstream/android-13
 }
 
 static int dpu_encoder_phys_cmd_wait_for_vblank(
@@ -750,9 +1013,12 @@ static int dpu_encoder_phys_cmd_wait_for_vblank(
 	struct dpu_encoder_phys_cmd *cmd_enc;
 	struct dpu_encoder_wait_info wait_info;
 
+<<<<<<< HEAD
 	if (!phys_enc)
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	cmd_enc = to_dpu_encoder_phys_cmd(phys_enc);
 
 	/* only required for master controller */
@@ -761,7 +1027,11 @@ static int dpu_encoder_phys_cmd_wait_for_vblank(
 
 	wait_info.wq = &cmd_enc->pending_vblank_wq;
 	wait_info.atomic_cnt = &cmd_enc->pending_vblank_cnt;
+<<<<<<< HEAD
 	wait_info.timeout_ms = _dpu_encoder_phys_cmd_get_idle_timeout(cmd_enc);
+=======
+	wait_info.timeout_ms = KICKOFF_TIMEOUT_MS;
+>>>>>>> upstream/android-13
 
 	atomic_inc(&cmd_enc->pending_vblank_cnt);
 
@@ -774,9 +1044,12 @@ static int dpu_encoder_phys_cmd_wait_for_vblank(
 static void dpu_encoder_phys_cmd_handle_post_kickoff(
 		struct dpu_encoder_phys *phys_enc)
 {
+<<<<<<< HEAD
 	if (!phys_enc)
 		return;
 
+=======
+>>>>>>> upstream/android-13
 	/**
 	 * re-enable external TE, either for the first time after enabling
 	 * or if disabled for Autorefresh
@@ -787,15 +1060,22 @@ static void dpu_encoder_phys_cmd_handle_post_kickoff(
 static void dpu_encoder_phys_cmd_trigger_start(
 		struct dpu_encoder_phys *phys_enc)
 {
+<<<<<<< HEAD
 	if (!phys_enc)
 		return;
 
+=======
+>>>>>>> upstream/android-13
 	dpu_encoder_helper_trigger_start(phys_enc);
 }
 
 static void dpu_encoder_phys_cmd_init_ops(
 		struct dpu_encoder_phys_ops *ops)
 {
+<<<<<<< HEAD
+=======
+	ops->prepare_commit = dpu_encoder_phys_cmd_prepare_commit;
+>>>>>>> upstream/android-13
 	ops->is_master = dpu_encoder_phys_cmd_is_master;
 	ops->mode_set = dpu_encoder_phys_cmd_mode_set;
 	ops->mode_fixup = dpu_encoder_phys_cmd_mode_fixup;
@@ -810,7 +1090,10 @@ static void dpu_encoder_phys_cmd_init_ops(
 	ops->wait_for_vblank = dpu_encoder_phys_cmd_wait_for_vblank;
 	ops->trigger_start = dpu_encoder_phys_cmd_trigger_start;
 	ops->needs_single_flush = dpu_encoder_phys_cmd_needs_single_flush;
+<<<<<<< HEAD
 	ops->hw_reset = dpu_encoder_helper_hw_reset;
+=======
+>>>>>>> upstream/android-13
 	ops->irq_control = dpu_encoder_phys_cmd_irq_control;
 	ops->restore = dpu_encoder_phys_cmd_enable_helper;
 	ops->prepare_idle_pc = dpu_encoder_phys_cmd_prepare_idle_pc;
@@ -823,7 +1106,10 @@ struct dpu_encoder_phys *dpu_encoder_phys_cmd_init(
 {
 	struct dpu_encoder_phys *phys_enc = NULL;
 	struct dpu_encoder_phys_cmd *cmd_enc = NULL;
+<<<<<<< HEAD
 	struct dpu_hw_mdp *hw_mdp;
+=======
+>>>>>>> upstream/android-13
 	struct dpu_encoder_irq *irq;
 	int i, ret = 0;
 
@@ -833,6 +1119,7 @@ struct dpu_encoder_phys *dpu_encoder_phys_cmd_init(
 	if (!cmd_enc) {
 		ret = -ENOMEM;
 		DPU_ERROR("failed to allocate\n");
+<<<<<<< HEAD
 		goto fail;
 	}
 	phys_enc = &cmd_enc->base;
@@ -844,6 +1131,12 @@ struct dpu_encoder_phys *dpu_encoder_phys_cmd_init(
 		goto fail_mdp_init;
 	}
 	phys_enc->hw_mdptop = hw_mdp;
+=======
+		return ERR_PTR(ret);
+	}
+	phys_enc = &cmd_enc->base;
+	phys_enc->hw_mdptop = p->dpu_kms->hw_mdp;
+>>>>>>> upstream/android-13
 	phys_enc->intf_idx = p->intf_idx;
 
 	dpu_encoder_phys_cmd_init_ops(&phys_enc->ops);
@@ -859,31 +1152,46 @@ struct dpu_encoder_phys *dpu_encoder_phys_cmd_init(
 		irq = &phys_enc->irq[i];
 		INIT_LIST_HEAD(&irq->cb.list);
 		irq->irq_idx = -EINVAL;
+<<<<<<< HEAD
 		irq->hw_idx = -EINVAL;
+=======
+>>>>>>> upstream/android-13
 		irq->cb.arg = phys_enc;
 	}
 
 	irq = &phys_enc->irq[INTR_IDX_CTL_START];
 	irq->name = "ctl_start";
+<<<<<<< HEAD
 	irq->intr_type = DPU_IRQ_TYPE_CTL_START;
+=======
+>>>>>>> upstream/android-13
 	irq->intr_idx = INTR_IDX_CTL_START;
 	irq->cb.func = dpu_encoder_phys_cmd_ctl_start_irq;
 
 	irq = &phys_enc->irq[INTR_IDX_PINGPONG];
 	irq->name = "pp_done";
+<<<<<<< HEAD
 	irq->intr_type = DPU_IRQ_TYPE_PING_PONG_COMP;
+=======
+>>>>>>> upstream/android-13
 	irq->intr_idx = INTR_IDX_PINGPONG;
 	irq->cb.func = dpu_encoder_phys_cmd_pp_tx_done_irq;
 
 	irq = &phys_enc->irq[INTR_IDX_RDPTR];
 	irq->name = "pp_rd_ptr";
+<<<<<<< HEAD
 	irq->intr_type = DPU_IRQ_TYPE_PING_PONG_RD_PTR;
+=======
+>>>>>>> upstream/android-13
 	irq->intr_idx = INTR_IDX_RDPTR;
 	irq->cb.func = dpu_encoder_phys_cmd_pp_rd_ptr_irq;
 
 	irq = &phys_enc->irq[INTR_IDX_UNDERRUN];
 	irq->name = "underrun";
+<<<<<<< HEAD
 	irq->intr_type = DPU_IRQ_TYPE_INTF_UNDER_RUN;
+=======
+>>>>>>> upstream/android-13
 	irq->intr_idx = INTR_IDX_UNDERRUN;
 	irq->cb.func = dpu_encoder_phys_cmd_underrun_irq;
 
@@ -897,9 +1205,12 @@ struct dpu_encoder_phys *dpu_encoder_phys_cmd_init(
 	DPU_DEBUG_CMDENC(cmd_enc, "created\n");
 
 	return phys_enc;
+<<<<<<< HEAD
 
 fail_mdp_init:
 	kfree(cmd_enc);
 fail:
 	return ERR_PTR(ret);
+=======
+>>>>>>> upstream/android-13
 }

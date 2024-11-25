@@ -1,7 +1,11 @@
 /*
  * Device Tree Source for OMAP4460 SoC
  *
+<<<<<<< HEAD
  * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
+=======
+ * Copyright (C) 2012 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  *
  * This file is licensed under the terms of the GNU General Public License
  * version 2.  This program is licensed "as is" without any warranty of any
@@ -26,6 +30,7 @@
 		};
 	};
 
+<<<<<<< HEAD
 	pmu {
 		compatible = "arm,cortex-a9-pmu";
 		interrupts = <GIC_SPI 54 IRQ_TYPE_LEVEL_HIGH>,
@@ -33,6 +38,8 @@
 		ti,hwmods = "debugss";
 	};
 
+=======
+>>>>>>> upstream/android-13
 	thermal-zones {
 		#include "omap4-cpu-thermal.dtsi"
 	};
@@ -128,4 +135,13 @@
 		 <0x00030000 0x00030000 0x00010000>;
 };
 
+<<<<<<< HEAD
+=======
+&pmu {
+	compatible = "arm,cortex-a9-pmu";
+	interrupts = <GIC_SPI 54 IRQ_TYPE_LEVEL_HIGH>,
+		     <GIC_SPI 55 IRQ_TYPE_LEVEL_HIGH>;
+};
+
+>>>>>>> upstream/android-13
 /include/ "omap446x-clocks.dtsi"

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014 Philipp Zabel, Pengutronix
  *
@@ -5,6 +6,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2014 Philipp Zabel, Pengutronix
+ *
+>>>>>>> upstream/android-13
  * PWM (mis)used as clock output
  */
 #include <linux/clk-provider.h>
@@ -47,16 +54,40 @@ static unsigned long clk_pwm_recalc_rate(struct clk_hw *hw,
 	return clk_pwm->fixed_rate;
 }
 
+<<<<<<< HEAD
+=======
+static int clk_pwm_get_duty_cycle(struct clk_hw *hw, struct clk_duty *duty)
+{
+	struct clk_pwm *clk_pwm = to_clk_pwm(hw);
+	struct pwm_state state;
+
+	pwm_get_state(clk_pwm->pwm, &state);
+
+	duty->num = state.duty_cycle;
+	duty->den = state.period;
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static const struct clk_ops clk_pwm_ops = {
 	.prepare = clk_pwm_prepare,
 	.unprepare = clk_pwm_unprepare,
 	.recalc_rate = clk_pwm_recalc_rate,
+<<<<<<< HEAD
+=======
+	.get_duty_cycle = clk_pwm_get_duty_cycle,
+>>>>>>> upstream/android-13
 };
 
 static int clk_pwm_probe(struct platform_device *pdev)
 {
 	struct device_node *node = pdev->dev.of_node;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	struct clk_pwm *clk_pwm;
 	struct pwm_device *pwm;
 	struct pwm_args pargs;
@@ -80,6 +111,14 @@ static int clk_pwm_probe(struct platform_device *pdev)
 	if (of_property_read_u32(node, "clock-frequency", &clk_pwm->fixed_rate))
 		clk_pwm->fixed_rate = div64_u64(NSEC_PER_SEC, pargs.period);
 
+<<<<<<< HEAD
+=======
+	if (!clk_pwm->fixed_rate) {
+		dev_err(&pdev->dev, "fixed_rate cannot be zero\n");
+		return -EINVAL;
+	}
+
+>>>>>>> upstream/android-13
 	if (pargs.period != NSEC_PER_SEC / clk_pwm->fixed_rate &&
 	    pargs.period != DIV_ROUND_UP(NSEC_PER_SEC, clk_pwm->fixed_rate)) {
 		dev_err(&pdev->dev,
@@ -101,7 +140,11 @@ static int clk_pwm_probe(struct platform_device *pdev)
 
 	init.name = clk_name;
 	init.ops = &clk_pwm_ops;
+<<<<<<< HEAD
 	init.flags = CLK_IS_BASIC;
+=======
+	init.flags = 0;
+>>>>>>> upstream/android-13
 	init.num_parents = 0;
 
 	clk_pwm->pwm = pwm;
@@ -131,7 +174,11 @@ static struct platform_driver clk_pwm_driver = {
 	.remove = clk_pwm_remove,
 	.driver = {
 		.name = "pwm-clock",
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(clk_pwm_dt_ids),
+=======
+		.of_match_table = clk_pwm_dt_ids,
+>>>>>>> upstream/android-13
 	},
 };
 

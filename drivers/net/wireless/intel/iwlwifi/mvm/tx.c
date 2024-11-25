@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -64,6 +65,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *****************************************************************************/
+=======
+// SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
+/*
+ * Copyright (C) 2012-2014, 2018-2020 Intel Corporation
+ * Copyright (C) 2013-2015 Intel Mobile Communications GmbH
+ * Copyright (C) 2016-2017 Intel Deutschland GmbH
+ */
+>>>>>>> upstream/android-13
 #include <linux/ieee80211.h>
 #include <linux/etherdevice.h>
 #include <linux/tcp.h>
@@ -82,6 +91,7 @@ iwl_mvm_bar_check_trigger(struct iwl_mvm *mvm, const u8 *addr,
 	struct iwl_fw_dbg_trigger_tlv *trig;
 	struct iwl_fw_dbg_trigger_ba *ba_trig;
 
+<<<<<<< HEAD
 	if (!iwl_fw_dbg_trigger_enabled(mvm->fw, FW_DBG_TRIGGER_BA))
 		return;
 
@@ -91,6 +101,14 @@ iwl_mvm_bar_check_trigger(struct iwl_mvm *mvm, const u8 *addr,
 	if (!iwl_fw_dbg_trigger_check_stop(&mvm->fwrt, NULL, trig))
 		return;
 
+=======
+	trig = iwl_fw_dbg_trigger_on(&mvm->fwrt, NULL, FW_DBG_TRIGGER_BA);
+	if (!trig)
+		return;
+
+	ba_trig = (void *)trig->data;
+
+>>>>>>> upstream/android-13
 	if (!(le16_to_cpu(ba_trig->tx_bar) & BIT(tid)))
 		return;
 
@@ -111,11 +129,16 @@ static u16 iwl_mvm_tx_csum(struct iwl_mvm *mvm, struct sk_buff *skb,
 	u16 mh_len = ieee80211_hdrlen(hdr->frame_control);
 	u8 protocol = 0;
 
+<<<<<<< HEAD
 	/*
 	 * Do not compute checksum if already computed or if transport will
 	 * compute it
 	 */
 	if (skb->ip_summed != CHECKSUM_PARTIAL || IWL_MVM_SW_TX_CSUM_OFFLOAD)
+=======
+	/* Do not compute checksum if already computed */
+	if (skb->ip_summed != CHECKSUM_PARTIAL)
+>>>>>>> upstream/android-13
 		goto out;
 
 	/* We do not expect to be requested to csum stuff we do not support */
@@ -215,7 +238,13 @@ void iwl_mvm_set_tx_cmd(struct iwl_mvm *mvm, struct sk_buff *skb,
 	u16 offload_assist = 0;
 	u8 ac;
 
+<<<<<<< HEAD
 	if (!(info->flags & IEEE80211_TX_CTL_NO_ACK))
+=======
+	if (!(info->flags & IEEE80211_TX_CTL_NO_ACK) ||
+	    (ieee80211_is_probe_resp(fc) &&
+	     !is_multicast_ether_addr(hdr->addr1)))
+>>>>>>> upstream/android-13
 		tx_flags |= TX_CMD_FLG_ACK;
 	else
 		tx_flags &= ~TX_CMD_FLG_ACK;
@@ -245,14 +274,26 @@ void iwl_mvm_set_tx_cmd(struct iwl_mvm *mvm, struct sk_buff *skb,
 		iwl_mvm_bar_check_trigger(mvm, bar->ra, tx_cmd->tid_tspec,
 					  ssn);
 	} else {
+<<<<<<< HEAD
 		tx_cmd->tid_tspec = IWL_TID_NON_QOS;
+=======
+		if (ieee80211_is_data(fc))
+			tx_cmd->tid_tspec = IWL_TID_NON_QOS;
+		else
+			tx_cmd->tid_tspec = IWL_MAX_TID_COUNT;
+
+>>>>>>> upstream/android-13
 		if (info->flags & IEEE80211_TX_CTL_ASSIGN_SEQ)
 			tx_flags |= TX_CMD_FLG_SEQ_CTL;
 		else
 			tx_flags &= ~TX_CMD_FLG_SEQ_CTL;
 	}
 
+<<<<<<< HEAD
 	/* Default to 0 (BE) when tid_spec is set to IWL_TID_NON_QOS */
+=======
+	/* Default to 0 (BE) when tid_spec is set to IWL_MAX_TID_COUNT */
+>>>>>>> upstream/android-13
 	if (tx_cmd->tid_tspec < IWL_MAX_TID_COUNT)
 		ac = tid_to_mac80211_ac[tx_cmd->tid_tspec];
 	else
@@ -280,7 +321,11 @@ void iwl_mvm_set_tx_cmd(struct iwl_mvm *mvm, struct sk_buff *skb,
 	}
 
 	if (ieee80211_is_data(fc) && len > mvm->rts_threshold &&
+<<<<<<< HEAD
 	    !is_multicast_ether_addr(ieee80211_get_DA(hdr)))
+=======
+	    !is_multicast_ether_addr(hdr->addr1))
+>>>>>>> upstream/android-13
 		tx_flags |= TX_CMD_FLG_PROT_REQUIRE;
 
 	if (fw_has_capa(&mvm->fw->ucode_capa,
@@ -304,6 +349,7 @@ void iwl_mvm_set_tx_cmd(struct iwl_mvm *mvm, struct sk_buff *skb,
 					    offload_assist));
 }
 
+<<<<<<< HEAD
 static u32 iwl_mvm_get_tx_rate(struct iwl_mvm *mvm,
 			       struct ieee80211_tx_info *info,
 			       struct ieee80211_sta *sta)
@@ -319,13 +365,62 @@ static u32 iwl_mvm_get_tx_rate(struct iwl_mvm *mvm,
 		  info->control.rates[0].idx);
 
 	rate_idx = info->control.rates[0].idx;
+=======
+static u32 iwl_mvm_get_tx_ant(struct iwl_mvm *mvm,
+			      struct ieee80211_tx_info *info,
+			      struct ieee80211_sta *sta, __le16 fc)
+{
+	if (info->band == NL80211_BAND_2GHZ &&
+	    !iwl_mvm_bt_coex_is_shared_ant_avail(mvm))
+		return mvm->cfg->non_shared_ant << RATE_MCS_ANT_POS;
+
+	if (sta && ieee80211_is_data(fc)) {
+		struct iwl_mvm_sta *mvmsta = iwl_mvm_sta_from_mac80211(sta);
+
+		return BIT(mvmsta->tx_ant) << RATE_MCS_ANT_POS;
+	}
+
+	return BIT(mvm->mgmt_last_antenna_idx) << RATE_MCS_ANT_POS;
+}
+
+static u32 iwl_mvm_get_tx_rate(struct iwl_mvm *mvm,
+			       struct ieee80211_tx_info *info,
+			       struct ieee80211_sta *sta, __le16 fc)
+{
+	int rate_idx = -1;
+	u8 rate_plcp;
+	u32 rate_flags = 0;
+
+	/* info->control is only relevant for non HW rate control */
+	if (!ieee80211_hw_check(mvm->hw, HAS_RATE_CONTROL)) {
+		/* HT rate doesn't make sense for a non data frame */
+		WARN_ONCE(info->control.rates[0].flags & IEEE80211_TX_RC_MCS &&
+			  !ieee80211_is_data(fc),
+			  "Got a HT rate (flags:0x%x/mcs:%d/fc:0x%x/state:%d) for a non data frame\n",
+			  info->control.rates[0].flags,
+			  info->control.rates[0].idx,
+			  le16_to_cpu(fc),
+			  sta ? iwl_mvm_sta_from_mac80211(sta)->sta_state : -1);
+
+		rate_idx = info->control.rates[0].idx;
+	}
+
+>>>>>>> upstream/android-13
 	/* if the rate isn't a well known legacy rate, take the lowest one */
 	if (rate_idx < 0 || rate_idx >= IWL_RATE_COUNT_LEGACY)
 		rate_idx = rate_lowest_index(
 				&mvm->nvm_data->bands[info->band], sta);
 
+<<<<<<< HEAD
 	/* For 5 GHZ band, remap mac80211 rate indices into driver indices */
 	if (info->band == NL80211_BAND_5GHZ)
+=======
+	/*
+	 * For non 2 GHZ band, remap mac80211 rate
+	 * indices into driver indices
+	 */
+	if (info->band != NL80211_BAND_2GHZ)
+>>>>>>> upstream/android-13
 		rate_idx += IWL_FIRST_OFDM_RATE;
 
 	/* For 2.4 GHZ band, check that there is no need to remap */
@@ -334,6 +429,7 @@ static u32 iwl_mvm_get_tx_rate(struct iwl_mvm *mvm,
 	/* Get PLCP rate for tx_cmd->rate_n_flags */
 	rate_plcp = iwl_mvm_mac80211_idx_to_hwrate(rate_idx);
 
+<<<<<<< HEAD
 	if (info->band == NL80211_BAND_2GHZ &&
 	    !iwl_mvm_bt_coex_is_shared_ant_avail(mvm))
 		rate_flags = mvm->cfg->non_shared_ant << RATE_MCS_ANT_POS;
@@ -341,6 +437,8 @@ static u32 iwl_mvm_get_tx_rate(struct iwl_mvm *mvm,
 		rate_flags =
 			BIT(mvm->mgmt_last_antenna_idx) << RATE_MCS_ANT_POS;
 
+=======
+>>>>>>> upstream/android-13
 	/* Set CCK flag as needed */
 	if ((rate_idx >= IWL_FIRST_CCK_RATE) && (rate_idx <= IWL_LAST_CCK_RATE))
 		rate_flags |= RATE_MCS_CCK_MSK;
@@ -348,6 +446,17 @@ static u32 iwl_mvm_get_tx_rate(struct iwl_mvm *mvm,
 	return (u32)rate_plcp | rate_flags;
 }
 
+<<<<<<< HEAD
+=======
+static u32 iwl_mvm_get_tx_rate_n_flags(struct iwl_mvm *mvm,
+				       struct ieee80211_tx_info *info,
+				       struct ieee80211_sta *sta, __le16 fc)
+{
+	return iwl_mvm_get_tx_rate(mvm, info, sta, fc) |
+		iwl_mvm_get_tx_ant(mvm, info, sta, fc);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Sets the fields in the Tx cmd that are rate related
  */
@@ -375,20 +484,36 @@ void iwl_mvm_set_tx_cmd_rate(struct iwl_mvm *mvm, struct iwl_tx_cmd *tx_cmd,
 	 */
 
 	if (ieee80211_is_data(fc) && sta) {
+<<<<<<< HEAD
 		tx_cmd->initial_rate_index = 0;
 		tx_cmd->tx_flags |= cpu_to_le32(TX_CMD_FLG_STA_RATE);
 		return;
+=======
+		struct iwl_mvm_sta *mvmsta = iwl_mvm_sta_from_mac80211(sta);
+
+		if (mvmsta->sta_state >= IEEE80211_STA_AUTHORIZED) {
+			tx_cmd->initial_rate_index = 0;
+			tx_cmd->tx_flags |= cpu_to_le32(TX_CMD_FLG_STA_RATE);
+			return;
+		}
+>>>>>>> upstream/android-13
 	} else if (ieee80211_is_back_req(fc)) {
 		tx_cmd->tx_flags |=
 			cpu_to_le32(TX_CMD_FLG_ACK | TX_CMD_FLG_BAR);
 	}
 
+<<<<<<< HEAD
 	mvm->mgmt_last_antenna_idx =
 		iwl_mvm_next_antenna(mvm, iwl_mvm_get_valid_tx_ant(mvm),
 				     mvm->mgmt_last_antenna_idx);
 
 	/* Set the rate in the TX cmd */
 	tx_cmd->rate_n_flags = cpu_to_le32(iwl_mvm_get_tx_rate(mvm, info, sta));
+=======
+	/* Set the rate in the TX cmd */
+	tx_cmd->rate_n_flags =
+		cpu_to_le32(iwl_mvm_get_tx_rate_n_flags(mvm, info, sta, fc));
+>>>>>>> upstream/android-13
 }
 
 static inline void iwl_mvm_set_tx_cmd_pn(struct ieee80211_tx_info *info,
@@ -437,7 +562,11 @@ static void iwl_mvm_set_tx_cmd_crypto(struct iwl_mvm *mvm,
 
 	case WLAN_CIPHER_SUITE_WEP104:
 		tx_cmd->sec_ctl |= TX_CMD_SEC_KEY128;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case WLAN_CIPHER_SUITE_WEP40:
 		tx_cmd->sec_ctl |= TX_CMD_SEC_WEP |
 			((keyconf->keyidx << TX_CMD_SEC_WEP_KEY_IDX_POS) &
@@ -448,7 +577,11 @@ static void iwl_mvm_set_tx_cmd_crypto(struct iwl_mvm *mvm,
 	case WLAN_CIPHER_SUITE_GCMP:
 	case WLAN_CIPHER_SUITE_GCMP_256:
 		type = TX_CMD_SEC_GCMP;
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case WLAN_CIPHER_SUITE_CCMP_256:
 		/* TODO: Taking the key from the table might introduce a race
 		 * when PTK rekeying is done, having an old packets with a PN
@@ -468,13 +601,21 @@ static void iwl_mvm_set_tx_cmd_crypto(struct iwl_mvm *mvm,
 /*
  * Allocates and sets the Tx cmd the driver data pointers in the skb
  */
+<<<<<<< HEAD
 static struct iwl_device_cmd *
+=======
+static struct iwl_device_tx_cmd *
+>>>>>>> upstream/android-13
 iwl_mvm_set_tx_params(struct iwl_mvm *mvm, struct sk_buff *skb,
 		      struct ieee80211_tx_info *info, int hdrlen,
 		      struct ieee80211_sta *sta, u8 sta_id)
 {
 	struct ieee80211_hdr *hdr = (struct ieee80211_hdr *)skb->data;
+<<<<<<< HEAD
 	struct iwl_device_cmd *dev_cmd;
+=======
+	struct iwl_device_tx_cmd *dev_cmd;
+>>>>>>> upstream/android-13
 	struct iwl_tx_cmd *tx_cmd;
 
 	dev_cmd = iwl_trans_alloc_tx_cmd(mvm->trans);
@@ -482,17 +623,25 @@ iwl_mvm_set_tx_params(struct iwl_mvm *mvm, struct sk_buff *skb,
 	if (unlikely(!dev_cmd))
 		return NULL;
 
+<<<<<<< HEAD
 	/* Make sure we zero enough of dev_cmd */
 	BUILD_BUG_ON(sizeof(struct iwl_tx_cmd_gen2) > sizeof(*tx_cmd));
 	BUILD_BUG_ON(sizeof(struct iwl_tx_cmd_gen3) > sizeof(*tx_cmd));
 
 	memset(dev_cmd, 0, sizeof(dev_cmd->hdr) + sizeof(*tx_cmd));
+=======
+>>>>>>> upstream/android-13
 	dev_cmd->hdr.cmd = TX_CMD;
 
 	if (iwl_mvm_has_new_tx_api(mvm)) {
 		u16 offload_assist = 0;
 		u32 rate_n_flags = 0;
 		u16 flags = 0;
+<<<<<<< HEAD
+=======
+		struct iwl_mvm_sta *mvmsta = sta ?
+			iwl_mvm_sta_from_mac80211(sta) : NULL;
+>>>>>>> upstream/android-13
 
 		if (ieee80211_is_data_qos(hdr->frame_control)) {
 			u8 *qc = ieee80211_get_qos_ctl(hdr);
@@ -512,6 +661,7 @@ iwl_mvm_set_tx_params(struct iwl_mvm *mvm, struct sk_buff *skb,
 		if (!info->control.hw_key)
 			flags |= IWL_TX_FLAGS_ENCRYPT_DIS;
 
+<<<<<<< HEAD
 		/* For data packets rate info comes from the fw */
 		if (!(ieee80211_is_data(hdr->frame_control) && sta)) {
 			flags |= IWL_TX_FLAGS_CMD_RATE;
@@ -520,6 +670,23 @@ iwl_mvm_set_tx_params(struct iwl_mvm *mvm, struct sk_buff *skb,
 
 		if (mvm->trans->cfg->device_family >=
 		    IWL_DEVICE_FAMILY_22560) {
+=======
+		/*
+		 * For data packets rate info comes from the fw. Only
+		 * set rate/antenna during connection establishment or in case
+		 * no station is given.
+		 */
+		if (!sta || !ieee80211_is_data(hdr->frame_control) ||
+		    mvmsta->sta_state < IEEE80211_STA_AUTHORIZED) {
+			flags |= IWL_TX_FLAGS_CMD_RATE;
+			rate_n_flags =
+				iwl_mvm_get_tx_rate_n_flags(mvm, info, sta,
+							    hdr->frame_control);
+		}
+
+		if (mvm->trans->trans_cfg->device_family >=
+		    IWL_DEVICE_FAMILY_AX210) {
+>>>>>>> upstream/android-13
 			struct iwl_tx_cmd_gen3 *cmd = (void *)dev_cmd->payload;
 
 			cmd->offload_assist |= cpu_to_le32(offload_assist);
@@ -566,7 +733,11 @@ out:
 }
 
 static void iwl_mvm_skb_prepare_status(struct sk_buff *skb,
+<<<<<<< HEAD
 				       struct iwl_device_cmd *cmd)
+=======
+				       struct iwl_device_tx_cmd *cmd)
+>>>>>>> upstream/android-13
 {
 	struct ieee80211_tx_info *skb_info = IEEE80211_SKB_CB(skb);
 
@@ -577,11 +748,20 @@ static void iwl_mvm_skb_prepare_status(struct sk_buff *skb,
 }
 
 static int iwl_mvm_get_ctrl_vif_queue(struct iwl_mvm *mvm,
+<<<<<<< HEAD
 				      struct ieee80211_tx_info *info, __le16 fc)
 {
 	struct iwl_mvm_vif *mvmvif;
 
 	mvmvif = iwl_mvm_vif_from_mac80211(info->control.vif);
+=======
+				      struct ieee80211_tx_info *info,
+				      struct ieee80211_hdr *hdr)
+{
+	struct iwl_mvm_vif *mvmvif =
+		iwl_mvm_vif_from_mac80211(info->control.vif);
+	__le16 fc = hdr->frame_control;
+>>>>>>> upstream/android-13
 
 	switch (info->control.vif->type) {
 	case NL80211_IFTYPE_AP:
@@ -600,7 +780,13 @@ static int iwl_mvm_get_ctrl_vif_queue(struct iwl_mvm *mvm,
 		    (!ieee80211_is_bufferable_mmpdu(fc) ||
 		     ieee80211_is_deauth(fc) || ieee80211_is_disassoc(fc)))
 			return mvm->probe_queue;
+<<<<<<< HEAD
 		if (info->hw_queue == info->control.vif->cab_queue)
+=======
+
+		if (!ieee80211_has_order(fc) && !ieee80211_is_probe_req(fc) &&
+		    is_multicast_ether_addr(hdr->addr1))
+>>>>>>> upstream/android-13
 			return mvmvif->cab_queue;
 
 		WARN_ONCE(info->control.vif->type != NL80211_IFTYPE_ADHOC,
@@ -609,8 +795,11 @@ static int iwl_mvm_get_ctrl_vif_queue(struct iwl_mvm *mvm,
 	case NL80211_IFTYPE_P2P_DEVICE:
 		if (ieee80211_is_mgmt(fc))
 			return mvm->p2p_dev_queue;
+<<<<<<< HEAD
 		if (info->hw_queue == info->control.vif->cab_queue)
 			return mvmvif->cab_queue;
+=======
+>>>>>>> upstream/android-13
 
 		WARN_ON_ONCE(1);
 		return mvm->p2p_dev_queue;
@@ -620,6 +809,7 @@ static int iwl_mvm_get_ctrl_vif_queue(struct iwl_mvm *mvm,
 	}
 }
 
+<<<<<<< HEAD
 int iwl_mvm_tx_skb_non_sta(struct iwl_mvm *mvm, struct sk_buff *skb)
 {
 	struct ieee80211_hdr *hdr = (struct ieee80211_hdr *)skb->data;
@@ -638,6 +828,82 @@ int iwl_mvm_tx_skb_non_sta(struct iwl_mvm *mvm, struct sk_buff *skb)
 	if (skb_info->hw_queue == IWL_MVM_OFFCHANNEL_QUEUE &&
 	    skb_info->control.vif->type == NL80211_IFTYPE_STATION)
 		skb_info->hw_queue = mvm->aux_queue;
+=======
+static void iwl_mvm_probe_resp_set_noa(struct iwl_mvm *mvm,
+				       struct sk_buff *skb)
+{
+	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(skb);
+	struct iwl_mvm_vif *mvmvif =
+		iwl_mvm_vif_from_mac80211(info->control.vif);
+	struct ieee80211_mgmt *mgmt = (struct ieee80211_mgmt *)skb->data;
+	int base_len = (u8 *)mgmt->u.probe_resp.variable - (u8 *)mgmt;
+	struct iwl_probe_resp_data *resp_data;
+	u8 *ie, *pos;
+	u8 match[] = {
+		(WLAN_OUI_WFA >> 16) & 0xff,
+		(WLAN_OUI_WFA >> 8) & 0xff,
+		WLAN_OUI_WFA & 0xff,
+		WLAN_OUI_TYPE_WFA_P2P,
+	};
+
+	rcu_read_lock();
+
+	resp_data = rcu_dereference(mvmvif->probe_resp_data);
+	if (!resp_data)
+		goto out;
+
+	if (!resp_data->notif.noa_active)
+		goto out;
+
+	ie = (u8 *)cfg80211_find_ie_match(WLAN_EID_VENDOR_SPECIFIC,
+					  mgmt->u.probe_resp.variable,
+					  skb->len - base_len,
+					  match, 4, 2);
+	if (!ie) {
+		IWL_DEBUG_TX(mvm, "probe resp doesn't have P2P IE\n");
+		goto out;
+	}
+
+	if (skb_tailroom(skb) < resp_data->noa_len) {
+		if (pskb_expand_head(skb, 0, resp_data->noa_len, GFP_ATOMIC)) {
+			IWL_ERR(mvm,
+				"Failed to reallocate probe resp\n");
+			goto out;
+		}
+	}
+
+	pos = skb_put(skb, resp_data->noa_len);
+
+	*pos++ = WLAN_EID_VENDOR_SPECIFIC;
+	/* Set length of IE body (not including ID and length itself) */
+	*pos++ = resp_data->noa_len - 2;
+	*pos++ = (WLAN_OUI_WFA >> 16) & 0xff;
+	*pos++ = (WLAN_OUI_WFA >> 8) & 0xff;
+	*pos++ = WLAN_OUI_WFA & 0xff;
+	*pos++ = WLAN_OUI_TYPE_WFA_P2P;
+
+	memcpy(pos, &resp_data->notif.noa_attr,
+	       resp_data->noa_len - sizeof(struct ieee80211_vendor_ie));
+
+out:
+	rcu_read_unlock();
+}
+
+int iwl_mvm_tx_skb_non_sta(struct iwl_mvm *mvm, struct sk_buff *skb)
+{
+	struct ieee80211_hdr *hdr = (struct ieee80211_hdr *)skb->data;
+	struct ieee80211_tx_info info;
+	struct iwl_device_tx_cmd *dev_cmd;
+	u8 sta_id;
+	int hdrlen = ieee80211_hdrlen(hdr->frame_control);
+	__le16 fc = hdr->frame_control;
+	bool offchannel = IEEE80211_SKB_CB(skb)->flags &
+		IEEE80211_TX_CTL_TX_OFFCHAN;
+	int queue = -1;
+
+	if (IWL_MVM_NON_TRANSMITTING_AP && ieee80211_is_probe_resp(fc))
+		return -1;
+>>>>>>> upstream/android-13
 
 	memcpy(&info, skb->cb, sizeof(info));
 
@@ -647,6 +913,7 @@ int iwl_mvm_tx_skb_non_sta(struct iwl_mvm *mvm, struct sk_buff *skb)
 	if (WARN_ON_ONCE(info.flags & IEEE80211_TX_CTL_AMPDU))
 		return -1;
 
+<<<<<<< HEAD
 	if (WARN_ON_ONCE(info.flags & IEEE80211_TX_CTL_SEND_AFTER_DTIM &&
 			 (!info.control.vif ||
 			  info.hw_queue != info.control.vif->cab_queue)))
@@ -664,6 +931,8 @@ int iwl_mvm_tx_skb_non_sta(struct iwl_mvm *mvm, struct sk_buff *skb)
 	 * AUX station.
 	 */
 	sta_id = mvm->aux_sta.sta_id;
+=======
+>>>>>>> upstream/android-13
 	if (info.control.vif) {
 		struct iwl_mvm_vif *mvmvif =
 			iwl_mvm_vif_from_mac80211(info.control.vif);
@@ -676,6 +945,7 @@ int iwl_mvm_tx_skb_non_sta(struct iwl_mvm *mvm, struct sk_buff *skb)
 			else
 				sta_id = mvmvif->mcast_sta.sta_id;
 
+<<<<<<< HEAD
 			queue = iwl_mvm_get_ctrl_vif_queue(mvm, &info,
 							   hdr->frame_control);
 			if (queue < 0)
@@ -692,6 +962,35 @@ int iwl_mvm_tx_skb_non_sta(struct iwl_mvm *mvm, struct sk_buff *skb)
 		}
 	}
 
+=======
+			queue = iwl_mvm_get_ctrl_vif_queue(mvm, &info, hdr);
+		} else if (info.control.vif->type == NL80211_IFTYPE_MONITOR) {
+			queue = mvm->snif_queue;
+			sta_id = mvm->snif_sta.sta_id;
+		} else if (info.control.vif->type == NL80211_IFTYPE_STATION &&
+			   offchannel) {
+			/*
+			 * IWL_MVM_OFFCHANNEL_QUEUE is used for ROC packets
+			 * that can be used in 2 different types of vifs, P2P &
+			 * STATION.
+			 * P2P uses the offchannel queue.
+			 * STATION (HS2.0) uses the auxiliary context of the FW,
+			 * and hence needs to be sent on the aux queue.
+			 */
+			sta_id = mvm->aux_sta.sta_id;
+			queue = mvm->aux_queue;
+		}
+	}
+
+	if (queue < 0) {
+		IWL_ERR(mvm, "No queue was found. Dropping TX\n");
+		return -1;
+	}
+
+	if (unlikely(ieee80211_is_probe_resp(fc)))
+		iwl_mvm_probe_resp_set_noa(mvm, skb);
+
+>>>>>>> upstream/android-13
 	IWL_DEBUG_TX(mvm, "station Id %d, queue=%d\n", sta_id, queue);
 
 	dev_cmd = iwl_mvm_set_tx_params(mvm, skb, &info, hdrlen, NULL, sta_id);
@@ -709,6 +1008,7 @@ int iwl_mvm_tx_skb_non_sta(struct iwl_mvm *mvm, struct sk_buff *skb)
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_INET
 
 static int
@@ -781,16 +1081,24 @@ iwl_mvm_tx_tso_segment(struct sk_buff *skb, unsigned int num_subframes,
 static unsigned int iwl_mvm_max_amsdu_size(struct iwl_mvm *mvm,
 					   struct ieee80211_sta *sta,
 					   unsigned int tid)
+=======
+unsigned int iwl_mvm_max_amsdu_size(struct iwl_mvm *mvm,
+				    struct ieee80211_sta *sta, unsigned int tid)
+>>>>>>> upstream/android-13
 {
 	struct iwl_mvm_sta *mvmsta = iwl_mvm_sta_from_mac80211(sta);
 	enum nl80211_band band = mvmsta->vif->bss_conf.chandef.chan->band;
 	u8 ac = tid_to_mac80211_ac[tid];
 	unsigned int txf;
+<<<<<<< HEAD
 	int lmac = IWL_LMAC_24G_INDEX;
 
 	if (iwl_mvm_is_cdb_supported(mvm) &&
 	    band == NL80211_BAND_5GHZ)
 		lmac = IWL_LMAC_5G_INDEX;
+=======
+	int lmac = iwl_mvm_get_lmac_id(mvm->fw, band);
+>>>>>>> upstream/android-13
 
 	/* For HE redirect to trigger based fifos */
 	if (sta->he_cap.has_he && !WARN_ON(!iwl_mvm_has_new_tx_api(mvm)))
@@ -808,6 +1116,77 @@ static unsigned int iwl_mvm_max_amsdu_size(struct iwl_mvm *mvm,
 		     mvm->fwrt.smem_cfg.lmac[lmac].txfifo_size[txf] - 256);
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_INET
+
+static int
+iwl_mvm_tx_tso_segment(struct sk_buff *skb, unsigned int num_subframes,
+		       netdev_features_t netdev_flags,
+		       struct sk_buff_head *mpdus_skb)
+{
+	struct sk_buff *tmp, *next;
+	struct ieee80211_hdr *hdr = (void *)skb->data;
+	char cb[sizeof(skb->cb)];
+	u16 i = 0;
+	unsigned int tcp_payload_len;
+	unsigned int mss = skb_shinfo(skb)->gso_size;
+	bool ipv4 = (skb->protocol == htons(ETH_P_IP));
+	bool qos = ieee80211_is_data_qos(hdr->frame_control);
+	u16 ip_base_id = ipv4 ? ntohs(ip_hdr(skb)->id) : 0;
+
+	skb_shinfo(skb)->gso_size = num_subframes * mss;
+	memcpy(cb, skb->cb, sizeof(cb));
+
+	next = skb_gso_segment(skb, netdev_flags);
+	skb_shinfo(skb)->gso_size = mss;
+	skb_shinfo(skb)->gso_type = ipv4 ? SKB_GSO_TCPV4 : SKB_GSO_TCPV6;
+	if (WARN_ON_ONCE(IS_ERR(next)))
+		return -EINVAL;
+	else if (next)
+		consume_skb(skb);
+
+	skb_list_walk_safe(next, tmp, next) {
+		memcpy(tmp->cb, cb, sizeof(tmp->cb));
+		/*
+		 * Compute the length of all the data added for the A-MSDU.
+		 * This will be used to compute the length to write in the TX
+		 * command. We have: SNAP + IP + TCP for n -1 subframes and
+		 * ETH header for n subframes.
+		 */
+		tcp_payload_len = skb_tail_pointer(tmp) -
+			skb_transport_header(tmp) -
+			tcp_hdrlen(tmp) + tmp->data_len;
+
+		if (ipv4)
+			ip_hdr(tmp)->id = htons(ip_base_id + i * num_subframes);
+
+		if (tcp_payload_len > mss) {
+			skb_shinfo(tmp)->gso_size = mss;
+			skb_shinfo(tmp)->gso_type = ipv4 ? SKB_GSO_TCPV4 :
+							   SKB_GSO_TCPV6;
+		} else {
+			if (qos) {
+				u8 *qc;
+
+				if (ipv4)
+					ip_send_check(ip_hdr(tmp));
+
+				qc = ieee80211_get_qos_ctl((void *)tmp->data);
+				*qc &= ~IEEE80211_QOS_CTL_A_MSDU_PRESENT;
+			}
+			skb_shinfo(tmp)->gso_size = 0;
+		}
+
+		skb_mark_not_on_list(tmp);
+		__skb_queue_tail(mpdus_skb, tmp);
+		i++;
+	}
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int iwl_mvm_tx_tso(struct iwl_mvm *mvm, struct sk_buff *skb,
 			  struct ieee80211_tx_info *info,
 			  struct ieee80211_sta *sta,
@@ -818,18 +1197,27 @@ static int iwl_mvm_tx_tso(struct iwl_mvm *mvm, struct sk_buff *skb,
 	unsigned int mss = skb_shinfo(skb)->gso_size;
 	unsigned int num_subframes, tcp_payload_len, subf_len, max_amsdu_len;
 	u16 snap_ip_tcp, pad;
+<<<<<<< HEAD
 	unsigned int dbg_max_amsdu_len;
+=======
+>>>>>>> upstream/android-13
 	netdev_features_t netdev_flags = NETIF_F_CSUM_MASK | NETIF_F_SG;
 	u8 tid;
 
 	snap_ip_tcp = 8 + skb_transport_header(skb) - skb_network_header(skb) +
 		tcp_hdrlen(skb);
 
+<<<<<<< HEAD
 	dbg_max_amsdu_len = READ_ONCE(mvm->max_amsdu_len);
 
 	if (!mvmsta->max_amsdu_len ||
 	    !ieee80211_is_data_qos(hdr->frame_control) ||
 	    (!mvmsta->amsdu_enabled && !dbg_max_amsdu_len))
+=======
+	if (!mvmsta->max_amsdu_len ||
+	    !ieee80211_is_data_qos(hdr->frame_control) ||
+	    !mvmsta->amsdu_enabled)
+>>>>>>> upstream/android-13
 		return iwl_mvm_tx_tso_segment(skb, 1, netdev_flags, mpdus_skb);
 
 	/*
@@ -851,6 +1239,7 @@ static int iwl_mvm_tx_tso(struct iwl_mvm *mvm, struct sk_buff *skb,
 	 * No need to lock amsdu_in_ampdu_allowed since it can't be modified
 	 * during an BA session.
 	 */
+<<<<<<< HEAD
 	if (info->flags & IEEE80211_TX_CTL_AMPDU &&
 	    !mvmsta->tid_data[tid].amsdu_in_ampdu_allowed)
 		return iwl_mvm_tx_tso_segment(skb, 1, netdev_flags, mpdus_skb);
@@ -864,6 +1253,19 @@ static int iwl_mvm_tx_tso(struct iwl_mvm *mvm, struct sk_buff *skb,
 	if (unlikely(dbg_max_amsdu_len))
 		max_amsdu_len = min_t(unsigned int, max_amsdu_len,
 				      dbg_max_amsdu_len);
+=======
+	if ((info->flags & IEEE80211_TX_CTL_AMPDU &&
+	     !mvmsta->tid_data[tid].amsdu_in_ampdu_allowed) ||
+	    !(mvmsta->amsdu_enabled & BIT(tid)))
+		return iwl_mvm_tx_tso_segment(skb, 1, netdev_flags, mpdus_skb);
+
+	/*
+	 * Take the min of ieee80211 station and mvm station
+	 */
+	max_amsdu_len =
+		min_t(unsigned int, sta->max_amsdu_len,
+		      iwl_mvm_max_amsdu_size(mvm, sta, tid));
+>>>>>>> upstream/android-13
 
 	/*
 	 * Limit A-MSDU in A-MPDU to 4095 bytes when VHT is not
@@ -930,6 +1332,7 @@ static int iwl_mvm_tx_tso(struct iwl_mvm *mvm, struct sk_buff *skb,
 }
 #endif
 
+<<<<<<< HEAD
 static void iwl_mvm_tx_add_stream(struct iwl_mvm *mvm,
 				  struct iwl_mvm_sta *mvm_sta, u8 tid,
 				  struct sk_buff *skb)
@@ -958,6 +1361,8 @@ static void iwl_mvm_tx_add_stream(struct iwl_mvm *mvm,
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Check if there are any timed-out TIDs on a given shared TXQ */
 static bool iwl_mvm_txq_should_update(struct iwl_mvm *mvm, int txq_id)
 {
@@ -982,7 +1387,16 @@ static void iwl_mvm_tx_airtime(struct iwl_mvm *mvm,
 			       int airtime)
 {
 	int mac = mvmsta->mac_id_n_color & FW_CTXT_ID_MSK;
+<<<<<<< HEAD
 	struct iwl_mvm_tcm_mac *mdata = &mvm->tcm.data[mac];
+=======
+	struct iwl_mvm_tcm_mac *mdata;
+
+	if (mac >= NUM_MAC_INDEX_DRIVER)
+		return;
+
+	mdata = &mvm->tcm.data[mac];
+>>>>>>> upstream/android-13
 
 	if (mvm->tcm.paused)
 		return;
@@ -993,6 +1407,7 @@ static void iwl_mvm_tx_airtime(struct iwl_mvm *mvm,
 	mdata->tx.airtime += airtime;
 }
 
+<<<<<<< HEAD
 static void iwl_mvm_tx_pkt_queued(struct iwl_mvm *mvm,
 				  struct iwl_mvm_sta *mvmsta, int tid)
 {
@@ -1005,6 +1420,29 @@ static void iwl_mvm_tx_pkt_queued(struct iwl_mvm *mvm,
 
 /*
  * Sets the fields in the Tx cmd that are crypto related
+=======
+static int iwl_mvm_tx_pkt_queued(struct iwl_mvm *mvm,
+				 struct iwl_mvm_sta *mvmsta, int tid)
+{
+	u32 ac = tid_to_mac80211_ac[tid];
+	int mac = mvmsta->mac_id_n_color & FW_CTXT_ID_MSK;
+	struct iwl_mvm_tcm_mac *mdata;
+
+	if (mac >= NUM_MAC_INDEX_DRIVER)
+		return -EINVAL;
+
+	mdata = &mvm->tcm.data[mac];
+
+	mdata->tx.pkts[ac]++;
+
+	return 0;
+}
+
+/*
+ * Sets the fields in the Tx cmd that are crypto related.
+ *
+ * This function must be called with BHs disabled.
+>>>>>>> upstream/android-13
  */
 static int iwl_mvm_tx_mpdu(struct iwl_mvm *mvm, struct sk_buff *skb,
 			   struct ieee80211_tx_info *info,
@@ -1012,11 +1450,19 @@ static int iwl_mvm_tx_mpdu(struct iwl_mvm *mvm, struct sk_buff *skb,
 {
 	struct ieee80211_hdr *hdr = (struct ieee80211_hdr *)skb->data;
 	struct iwl_mvm_sta *mvmsta;
+<<<<<<< HEAD
 	struct iwl_device_cmd *dev_cmd;
 	__le16 fc;
 	u16 seq_number = 0;
 	u8 tid = IWL_MAX_TID_COUNT;
 	u16 txq_id = info->hw_queue;
+=======
+	struct iwl_device_tx_cmd *dev_cmd;
+	__le16 fc;
+	u16 seq_number = 0;
+	u8 tid = IWL_MAX_TID_COUNT;
+	u16 txq_id;
+>>>>>>> upstream/android-13
 	bool is_ampdu = false;
 	int hdrlen;
 
@@ -1024,12 +1470,27 @@ static int iwl_mvm_tx_mpdu(struct iwl_mvm *mvm, struct sk_buff *skb,
 	fc = hdr->frame_control;
 	hdrlen = ieee80211_hdrlen(fc);
 
+<<<<<<< HEAD
+=======
+	if (IWL_MVM_NON_TRANSMITTING_AP && ieee80211_is_probe_resp(fc))
+		return -1;
+
+>>>>>>> upstream/android-13
 	if (WARN_ON_ONCE(!mvmsta))
 		return -1;
 
 	if (WARN_ON_ONCE(mvmsta->sta_id == IWL_MVM_INVALID_STA))
 		return -1;
 
+<<<<<<< HEAD
+=======
+	if (unlikely(ieee80211_is_any_nullfunc(fc)) && sta->he_cap.has_he)
+		return -1;
+
+	if (unlikely(ieee80211_is_probe_resp(fc)))
+		iwl_mvm_probe_resp_set_noa(mvm, skb);
+
+>>>>>>> upstream/android-13
 	dev_cmd = iwl_mvm_set_tx_params(mvm, skb, info, hdrlen,
 					sta, mvmsta->sta_id);
 	if (!dev_cmd)
@@ -1050,12 +1511,23 @@ static int iwl_mvm_tx_mpdu(struct iwl_mvm *mvm, struct sk_buff *skb,
 	 */
 	if (ieee80211_is_data_qos(fc) && !ieee80211_is_qos_nullfunc(fc)) {
 		tid = ieee80211_get_tid(hdr);
+<<<<<<< HEAD
 		if (WARN_ON_ONCE(tid >= IWL_MAX_TID_COUNT))
 			goto drop_unlock_sta;
 
 		is_ampdu = info->flags & IEEE80211_TX_CTL_AMPDU;
 		if (WARN_ON_ONCE(is_ampdu &&
 				 mvmsta->tid_data[tid].state != IWL_AGG_ON))
+=======
+		if (WARN_ONCE(tid >= IWL_MAX_TID_COUNT, "Invalid TID %d", tid))
+			goto drop_unlock_sta;
+
+		is_ampdu = info->flags & IEEE80211_TX_CTL_AMPDU;
+		if (WARN_ONCE(is_ampdu &&
+			      mvmsta->tid_data[tid].state != IWL_AGG_ON,
+			      "Invalid internal agg state %d for TID %d",
+			       mvmsta->tid_data[tid].state, tid))
+>>>>>>> upstream/android-13
 			goto drop_unlock_sta;
 
 		seq_number = mvmsta->tid_data[tid].seq_number;
@@ -1069,12 +1541,18 @@ static int iwl_mvm_tx_mpdu(struct iwl_mvm *mvm, struct sk_buff *skb,
 			/* update the tx_cmd hdr as it was already copied */
 			tx_cmd->hdr->seq_ctrl = hdr->seq_ctrl;
 		}
+<<<<<<< HEAD
+=======
+	} else if (ieee80211_is_data(fc) && !ieee80211_is_data_qos(fc)) {
+		tid = IWL_TID_NON_QOS;
+>>>>>>> upstream/android-13
 	}
 
 	txq_id = mvmsta->tid_data[tid].txq_id;
 
 	WARN_ON_ONCE(info->flags & IEEE80211_TX_CTL_SEND_AFTER_DTIM);
 
+<<<<<<< HEAD
 	/* Check if TXQ needs to be allocated or re-activated */
 	if (unlikely(txq_id == IWL_MVM_INVALID_QUEUE ||
 		     !mvmsta->tid_data[tid].is_tid_active)) {
@@ -1102,6 +1580,12 @@ static int iwl_mvm_tx_mpdu(struct iwl_mvm *mvm, struct sk_buff *skb,
 
 		IWL_DEBUG_TX_QUEUES(mvm, "Re-activating queue %d for TX\n",
 				    txq_id);
+=======
+	if (WARN_ONCE(txq_id == IWL_MVM_INVALID_QUEUE, "Invalid TXQ id")) {
+		iwl_trans_free_tx_cmd(mvm->trans, dev_cmd);
+		spin_unlock(&mvmsta->lock);
+		return -1;
+>>>>>>> upstream/android-13
 	}
 
 	if (!iwl_mvm_has_new_tx_api(mvm)) {
@@ -1112,11 +1596,19 @@ static int iwl_mvm_tx_mpdu(struct iwl_mvm *mvm, struct sk_buff *skb,
 		 * If we have timed-out TIDs - schedule the worker that will
 		 * reconfig the queues and update them
 		 *
+<<<<<<< HEAD
 		 * Note that the mvm->queue_info_lock isn't being taken here in
 		 * order to not serialize the TX flow. This isn't dangerous
 		 * because scheduling mvm->add_stream_wk can't ruin the state,
 		 * and if we DON'T schedule it due to some race condition then
 		 * next TX we get here we will.
+=======
+		 * Note that the no lock is taken here in order to not serialize
+		 * the TX flow. This isn't dangerous because scheduling
+		 * mvm->add_stream_wk can't ruin the state, and if we DON'T
+		 * schedule it due to some race condition then next TX we get
+		 * here we will.
+>>>>>>> upstream/android-13
 		 */
 		if (unlikely(mvm->queue_info[txq_id].status ==
 			     IWL_MVM_QUEUE_SHARED &&
@@ -1124,8 +1616,14 @@ static int iwl_mvm_tx_mpdu(struct iwl_mvm *mvm, struct sk_buff *skb,
 			schedule_work(&mvm->add_stream_wk);
 	}
 
+<<<<<<< HEAD
 	IWL_DEBUG_TX(mvm, "TX to [%d|%d] Q:%d - seq: 0x%x\n", mvmsta->sta_id,
 		     tid, txq_id, IEEE80211_SEQ_TO_SN(seq_number));
+=======
+	IWL_DEBUG_TX(mvm, "TX to [%d|%d] Q:%d - seq: 0x%x len %d\n",
+		     mvmsta->sta_id, tid, txq_id,
+		     IEEE80211_SEQ_TO_SN(seq_number), skb->len);
+>>>>>>> upstream/android-13
 
 	/* From now on, we cannot access info->control */
 	iwl_mvm_skb_prepare_status(skb, dev_cmd);
@@ -1138,7 +1636,13 @@ static int iwl_mvm_tx_mpdu(struct iwl_mvm *mvm, struct sk_buff *skb,
 
 	spin_unlock(&mvmsta->lock);
 
+<<<<<<< HEAD
 	iwl_mvm_tx_pkt_queued(mvm, mvmsta, tid == IWL_MAX_TID_COUNT ? 0 : tid);
+=======
+	if (iwl_mvm_tx_pkt_queued(mvm, mvmsta,
+				  tid == IWL_MAX_TID_COUNT ? 0 : tid))
+		goto drop;
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -1146,11 +1650,20 @@ drop_unlock_sta:
 	iwl_trans_free_tx_cmd(mvm->trans, dev_cmd);
 	spin_unlock(&mvmsta->lock);
 drop:
+<<<<<<< HEAD
 	return -1;
 }
 
 int iwl_mvm_tx_skb(struct iwl_mvm *mvm, struct sk_buff *skb,
 		   struct ieee80211_sta *sta)
+=======
+	IWL_DEBUG_TX(mvm, "TX to [%d|%d] dropped\n", mvmsta->sta_id, tid);
+	return -1;
+}
+
+int iwl_mvm_tx_skb_sta(struct iwl_mvm *mvm, struct sk_buff *skb,
+		       struct ieee80211_sta *sta)
+>>>>>>> upstream/android-13
 {
 	struct iwl_mvm_sta *mvmsta = iwl_mvm_sta_from_mac80211(sta);
 	struct ieee80211_tx_info info;
@@ -1223,7 +1736,11 @@ static void iwl_mvm_check_ratid_empty(struct iwl_mvm *mvm,
 	 * to align the wrap around of ssn so we compare relevant values.
 	 */
 	normalized_ssn = tid_data->ssn;
+<<<<<<< HEAD
 	if (mvm->trans->cfg->gen2)
+=======
+	if (mvm->trans->trans_cfg->gen2)
+>>>>>>> upstream/android-13
 		normalized_ssn &= 0xff;
 
 	if (normalized_ssn != tid_data->next_reclaimed)
@@ -1327,7 +1844,11 @@ void iwl_mvm_hwrate_to_tx_rate(u32 rate_n_flags,
 	}
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * translate ucode response to mac80211 tx status control values
  */
 static void iwl_mvm_hwrate_to_tx_status(u32 rate_n_flags,
@@ -1341,12 +1862,17 @@ static void iwl_mvm_hwrate_to_tx_status(u32 rate_n_flags,
 }
 
 static void iwl_mvm_tx_status_check_trigger(struct iwl_mvm *mvm,
+<<<<<<< HEAD
 					    u32 status)
+=======
+					    u32 status, __le16 frame_control)
+>>>>>>> upstream/android-13
 {
 	struct iwl_fw_dbg_trigger_tlv *trig;
 	struct iwl_fw_dbg_trigger_tx_status *status_trig;
 	int i;
 
+<<<<<<< HEAD
 	if (!iwl_fw_dbg_trigger_enabled(mvm->fw, FW_DBG_TRIGGER_TX_STATUS))
 		return;
 
@@ -1356,6 +1882,27 @@ static void iwl_mvm_tx_status_check_trigger(struct iwl_mvm *mvm,
 	if (!iwl_fw_dbg_trigger_check_stop(&mvm->fwrt, NULL, trig))
 		return;
 
+=======
+	if ((status & TX_STATUS_MSK) != TX_STATUS_SUCCESS) {
+		enum iwl_fw_ini_time_point tp =
+			IWL_FW_INI_TIME_POINT_TX_FAILED;
+
+		if (ieee80211_is_action(frame_control))
+			tp = IWL_FW_INI_TIME_POINT_TX_WFD_ACTION_FRAME_FAILED;
+
+		iwl_dbg_tlv_time_point(&mvm->fwrt,
+				       tp, NULL);
+		return;
+	}
+
+	trig = iwl_fw_dbg_trigger_on(&mvm->fwrt, NULL,
+				     FW_DBG_TRIGGER_TX_STATUS);
+	if (!trig)
+		return;
+
+	status_trig = (void *)trig->data;
+
+>>>>>>> upstream/android-13
 	for (i = 0; i < ARRAY_SIZE(status_trig->statuses); i++) {
 		/* don't collect on status 0 */
 		if (!status_trig->statuses[i].status)
@@ -1371,7 +1918,11 @@ static void iwl_mvm_tx_status_check_trigger(struct iwl_mvm *mvm,
 	}
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * iwl_mvm_get_scd_ssn - returns the SSN of the SCD
  * @tx_resp: the Tx response from the fw (agg or non-agg)
  *
@@ -1405,7 +1956,10 @@ static void iwl_mvm_rx_tx_cmd_single(struct iwl_mvm *mvm,
 		iwl_mvm_get_agg_status(mvm, tx_resp);
 	u32 status = le16_to_cpu(agg_status->status);
 	u16 ssn = iwl_mvm_get_scd_ssn(mvm, tx_resp);
+<<<<<<< HEAD
 	struct iwl_mvm_sta *mvmsta;
+=======
+>>>>>>> upstream/android-13
 	struct sk_buff_head skbs;
 	u8 skb_freed = 0;
 	u8 lq_color;
@@ -1455,6 +2009,13 @@ static void iwl_mvm_rx_tx_cmd_single(struct iwl_mvm *mvm,
 			break;
 		}
 
+<<<<<<< HEAD
+=======
+		if ((status & TX_STATUS_MSK) != TX_STATUS_SUCCESS &&
+		    ieee80211_is_mgmt(hdr->frame_control))
+			iwl_mvm_toggle_tx_ant(mvm, &mvm->mgmt_last_antenna_idx);
+
+>>>>>>> upstream/android-13
 		/*
 		 * If we are freeing multiple frames, mark all the frames
 		 * but the first one as acked, since they were acknowledged
@@ -1463,7 +2024,11 @@ static void iwl_mvm_rx_tx_cmd_single(struct iwl_mvm *mvm,
 		if (skb_freed > 1)
 			info->flags |= IEEE80211_TX_STAT_ACK;
 
+<<<<<<< HEAD
 		iwl_mvm_tx_status_check_trigger(mvm, status);
+=======
+		iwl_mvm_tx_status_check_trigger(mvm, status, hdr->frame_control);
+>>>>>>> upstream/android-13
 
 		info->status.rates[0].count = tx_resp->failure_frame + 1;
 		iwl_mvm_hwrate_to_tx_status(le32_to_cpu(tx_resp->initial_rate),
@@ -1549,12 +2114,24 @@ static void iwl_mvm_rx_tx_cmd_single(struct iwl_mvm *mvm,
 		goto out;
 
 	if (!IS_ERR(sta)) {
+<<<<<<< HEAD
 		mvmsta = iwl_mvm_sta_from_mac80211(sta);
+=======
+		struct iwl_mvm_sta *mvmsta = iwl_mvm_sta_from_mac80211(sta);
+>>>>>>> upstream/android-13
 
 		iwl_mvm_tx_airtime(mvm, mvmsta,
 				   le16_to_cpu(tx_resp->wireless_media_time));
 
+<<<<<<< HEAD
 		if (tid != IWL_TID_NON_QOS && tid != IWL_MGMT_TID) {
+=======
+		if ((status & TX_STATUS_MSK) != TX_STATUS_SUCCESS &&
+		    mvmsta->sta_state < IEEE80211_STA_AUTHORIZED)
+			iwl_mvm_toggle_tx_ant(mvm, &mvmsta->tx_ant);
+
+		if (sta->wme && tid != IWL_MGMT_TID) {
+>>>>>>> upstream/android-13
 			struct iwl_mvm_tid_data *tid_data =
 				&mvmsta->tid_data[tid];
 			bool send_eosp_ndp = false;
@@ -1608,10 +2185,14 @@ static void iwl_mvm_rx_tx_cmd_single(struct iwl_mvm *mvm,
 			mvmsta->next_status_eosp = false;
 			ieee80211_sta_eosp(sta);
 		}
+<<<<<<< HEAD
 	} else {
 		mvmsta = NULL;
 	}
 
+=======
+	}
+>>>>>>> upstream/android-13
 out:
 	rcu_read_unlock();
 }
@@ -1646,10 +2227,20 @@ static void iwl_mvm_rx_tx_cmd_agg_dbg(struct iwl_mvm *mvm,
 	struct agg_tx_status *frame_status =
 		iwl_mvm_get_agg_status(mvm, tx_resp);
 	int i;
+<<<<<<< HEAD
 
 	for (i = 0; i < tx_resp->frame_count; i++) {
 		u16 fstatus = le16_to_cpu(frame_status[i].status);
 
+=======
+	bool tirgger_timepoint = false;
+
+	for (i = 0; i < tx_resp->frame_count; i++) {
+		u16 fstatus = le16_to_cpu(frame_status[i].status);
+		/* In case one frame wasn't transmitted trigger time point */
+		tirgger_timepoint |= ((fstatus & AGG_TX_STATE_STATUS_MSK) !=
+				      AGG_TX_STATE_TRANSMITTED);
+>>>>>>> upstream/android-13
 		IWL_DEBUG_TX_REPLY(mvm,
 				   "status %s (0x%04x), try-count (%d) seq (0x%x)\n",
 				   iwl_get_agg_tx_status(fstatus),
@@ -1658,6 +2249,14 @@ static void iwl_mvm_rx_tx_cmd_agg_dbg(struct iwl_mvm *mvm,
 					AGG_TX_STATE_TRY_CNT_POS,
 				   le16_to_cpu(frame_status[i].sequence));
 	}
+<<<<<<< HEAD
+=======
+
+	if (tirgger_timepoint)
+		iwl_dbg_tlv_time_point(&mvm->fwrt,
+				       IWL_FW_INI_TIME_POINT_TX_FAILED, NULL);
+
+>>>>>>> upstream/android-13
 }
 #else
 static void iwl_mvm_rx_tx_cmd_agg_dbg(struct iwl_mvm *mvm,
@@ -1674,20 +2273,36 @@ static void iwl_mvm_rx_tx_cmd_agg(struct iwl_mvm *mvm,
 	u16 sequence = le16_to_cpu(pkt->hdr.sequence);
 	struct iwl_mvm_sta *mvmsta;
 	int queue = SEQ_TO_QUEUE(sequence);
+<<<<<<< HEAD
+=======
+	struct ieee80211_sta *sta;
+>>>>>>> upstream/android-13
 
 	if (WARN_ON_ONCE(queue < IWL_MVM_DQA_MIN_DATA_QUEUE &&
 			 (queue != IWL_MVM_DQA_BSS_CLIENT_QUEUE)))
 		return;
 
+<<<<<<< HEAD
 	if (WARN_ON_ONCE(tid == IWL_TID_NON_QOS))
 		return;
 
+=======
+>>>>>>> upstream/android-13
 	iwl_mvm_rx_tx_cmd_agg_dbg(mvm, pkt);
 
 	rcu_read_lock();
 
 	mvmsta = iwl_mvm_sta_from_staid_rcu(mvm, sta_id);
 
+<<<<<<< HEAD
+=======
+	sta = rcu_dereference(mvm->fw_id_to_mac_id[sta_id]);
+	if (WARN_ON_ONCE(!sta || !sta->wme)) {
+		rcu_read_unlock();
+		return;
+	}
+
+>>>>>>> upstream/android-13
 	if (!WARN_ON_ONCE(!mvmsta)) {
 		mvmsta->tid_data[tid].rate_n_flags =
 			le32_to_cpu(tx_resp->initial_rate);
@@ -1715,6 +2330,7 @@ void iwl_mvm_rx_tx_cmd(struct iwl_mvm *mvm, struct iwl_rx_cmd_buffer *rxb)
 
 static void iwl_mvm_tx_reclaim(struct iwl_mvm *mvm, int sta_id, int tid,
 			       int txq, int index,
+<<<<<<< HEAD
 			       struct ieee80211_tx_info *ba_info, u32 rate)
 {
 	struct sk_buff_head reclaimed_skbs;
@@ -1725,6 +2341,19 @@ static void iwl_mvm_tx_reclaim(struct iwl_mvm *mvm, int sta_id, int tid,
 	int freed;
 
 	if (WARN_ONCE(sta_id >= IWL_MVM_STATION_COUNT ||
+=======
+			       struct ieee80211_tx_info *tx_info, u32 rate,
+			       bool is_flush)
+{
+	struct sk_buff_head reclaimed_skbs;
+	struct iwl_mvm_tid_data *tid_data = NULL;
+	struct ieee80211_sta *sta;
+	struct iwl_mvm_sta *mvmsta = NULL;
+	struct sk_buff *skb;
+	int freed;
+
+	if (WARN_ONCE(sta_id >= mvm->fw->ucode_capa.num_stations ||
+>>>>>>> upstream/android-13
 		      tid > IWL_MAX_TID_COUNT,
 		      "sta_id %d tid %d", sta_id, tid))
 		return;
@@ -1734,11 +2363,16 @@ static void iwl_mvm_tx_reclaim(struct iwl_mvm *mvm, int sta_id, int tid,
 	sta = rcu_dereference(mvm->fw_id_to_mac_id[sta_id]);
 
 	/* Reclaiming frames for a station that has been deleted ? */
+<<<<<<< HEAD
 	if (WARN_ON_ONCE(IS_ERR_OR_NULL(sta))) {
+=======
+	if (WARN_ON_ONCE(!sta)) {
+>>>>>>> upstream/android-13
 		rcu_read_unlock();
 		return;
 	}
 
+<<<<<<< HEAD
 	mvmsta = iwl_mvm_sta_from_mac80211(sta);
 	tid_data = &mvmsta->tid_data[tid];
 
@@ -1752,6 +2386,8 @@ static void iwl_mvm_tx_reclaim(struct iwl_mvm *mvm, int sta_id, int tid,
 
 	spin_lock_bh(&mvmsta->lock);
 
+=======
+>>>>>>> upstream/android-13
 	__skb_queue_head_init(&reclaimed_skbs);
 
 	/*
@@ -1761,6 +2397,7 @@ static void iwl_mvm_tx_reclaim(struct iwl_mvm *mvm, int sta_id, int tid,
 	 */
 	iwl_trans_reclaim(mvm->trans, txq, index, &reclaimed_skbs);
 
+<<<<<<< HEAD
 	tid_data->next_reclaimed = index;
 
 	iwl_mvm_check_ratid_empty(mvm, sta, tid);
@@ -1782,6 +2419,11 @@ static void iwl_mvm_tx_reclaim(struct iwl_mvm *mvm, int sta_id, int tid,
 		else
 			WARN_ON_ONCE(tid != IWL_MAX_TID_COUNT);
 
+=======
+	skb_queue_walk(&reclaimed_skbs, skb) {
+		struct ieee80211_tx_info *info = IEEE80211_SKB_CB(skb);
+
+>>>>>>> upstream/android-13
 		iwl_trans_free_tx_cmd(mvm->trans, info->driver_data[1]);
 
 		memset(&info->status, 0, sizeof(info->status));
@@ -1789,14 +2431,72 @@ static void iwl_mvm_tx_reclaim(struct iwl_mvm *mvm, int sta_id, int tid,
 		 * frames because before failing a frame the firmware transmits
 		 * it without aggregation at least once.
 		 */
+<<<<<<< HEAD
 		info->flags |= IEEE80211_TX_STAT_ACK;
+=======
+		if (!is_flush)
+			info->flags |= IEEE80211_TX_STAT_ACK;
+	}
+
+	/*
+	 * It's possible to get a BA response after invalidating the rcu (rcu is
+	 * invalidated in order to prevent new Tx from being sent, but there may
+	 * be some frames already in-flight).
+	 * In this case we just want to reclaim, and could skip all the
+	 * sta-dependent stuff since it's in the middle of being removed
+	 * anyways.
+	 */
+	if (IS_ERR(sta))
+		goto out;
+
+	mvmsta = iwl_mvm_sta_from_mac80211(sta);
+	tid_data = &mvmsta->tid_data[tid];
+
+	if (tid_data->txq_id != txq) {
+		IWL_ERR(mvm,
+			"invalid reclaim request: Q %d, tid %d\n",
+			tid_data->txq_id, tid);
+		rcu_read_unlock();
+		return;
+	}
+
+	spin_lock_bh(&mvmsta->lock);
+
+	tid_data->next_reclaimed = index;
+
+	iwl_mvm_check_ratid_empty(mvm, sta, tid);
+
+	freed = 0;
+
+	/* pack lq color from tid_data along the reduced txp */
+	tx_info->status.status_driver_data[0] =
+		RS_DRV_DATA_PACK(tid_data->lq_color,
+				 tx_info->status.status_driver_data[0]);
+	tx_info->status.status_driver_data[1] = (void *)(uintptr_t)rate;
+
+	skb_queue_walk(&reclaimed_skbs, skb) {
+		struct ieee80211_hdr *hdr = (void *)skb->data;
+		struct ieee80211_tx_info *info = IEEE80211_SKB_CB(skb);
+
+		if (!is_flush) {
+			if (ieee80211_is_data_qos(hdr->frame_control))
+				freed++;
+			else
+				WARN_ON_ONCE(tid != IWL_MAX_TID_COUNT);
+		}
+>>>>>>> upstream/android-13
 
 		/* this is the first skb we deliver in this batch */
 		/* put the rate scaling data there */
 		if (freed == 1) {
 			info->flags |= IEEE80211_TX_STAT_AMPDU;
+<<<<<<< HEAD
 			memcpy(&info->status, &ba_info->status,
 			       sizeof(ba_info->status));
+=======
+			memcpy(&info->status, &tx_info->status,
+			       sizeof(tx_info->status));
+>>>>>>> upstream/android-13
 			iwl_mvm_hwrate_to_tx_status(rate, info);
 		}
 	}
@@ -1807,7 +2507,11 @@ static void iwl_mvm_tx_reclaim(struct iwl_mvm *mvm, int sta_id, int tid,
 	 * possible (i.e. first MPDU in the aggregation wasn't acked)
 	 * Still it's important to update RS about sent vs. acked.
 	 */
+<<<<<<< HEAD
 	if (skb_queue_empty(&reclaimed_skbs)) {
+=======
+	if (!is_flush && skb_queue_empty(&reclaimed_skbs)) {
+>>>>>>> upstream/android-13
 		struct ieee80211_chanctx_conf *chanctx_conf = NULL;
 
 		if (mvmsta->vif)
@@ -1817,13 +2521,22 @@ static void iwl_mvm_tx_reclaim(struct iwl_mvm *mvm, int sta_id, int tid,
 		if (WARN_ON_ONCE(!chanctx_conf))
 			goto out;
 
+<<<<<<< HEAD
 		ba_info->band = chanctx_conf->def.chan->band;
 		iwl_mvm_hwrate_to_tx_status(rate, ba_info);
+=======
+		tx_info->band = chanctx_conf->def.chan->band;
+		iwl_mvm_hwrate_to_tx_status(rate, tx_info);
+>>>>>>> upstream/android-13
 
 		if (!iwl_mvm_has_tlc_offload(mvm)) {
 			IWL_DEBUG_TX_REPLY(mvm,
 					   "No reclaim. Update rs directly\n");
+<<<<<<< HEAD
 			iwl_mvm_rs_tx_status(mvm, sta, tid, ba_info, false);
+=======
+			iwl_mvm_rs_tx_status(mvm, sta, tid, tx_info, false);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -1839,6 +2552,10 @@ out:
 void iwl_mvm_rx_ba_notif(struct iwl_mvm *mvm, struct iwl_rx_cmd_buffer *rxb)
 {
 	struct iwl_rx_packet *pkt = rxb_addr(rxb);
+<<<<<<< HEAD
+=======
+	unsigned int pkt_len = iwl_rx_packet_payload_len(pkt);
+>>>>>>> upstream/android-13
 	int sta_id, tid, txq, index;
 	struct ieee80211_tx_info ba_info = {};
 	struct iwl_mvm_ba_notif *ba_notif;
@@ -1851,8 +2568,17 @@ void iwl_mvm_rx_ba_notif(struct iwl_mvm *mvm, struct iwl_rx_cmd_buffer *rxb)
 		struct iwl_mvm_compressed_ba_notif *ba_res =
 			(void *)pkt->data;
 		u8 lq_color = TX_RES_RATE_TABLE_COL_GET(ba_res->tlc_rate_info);
+<<<<<<< HEAD
 		int i;
 
+=======
+		u16 tfd_cnt;
+		int i;
+
+		if (unlikely(sizeof(*ba_res) > pkt_len))
+			return;
+
+>>>>>>> upstream/android-13
 		sta_id = ba_res->sta_id;
 		ba_info.status.ampdu_ack_len = (u8)le16_to_cpu(ba_res->done);
 		ba_info.status.ampdu_len = (u8)le16_to_cpu(ba_res->txed);
@@ -1861,17 +2587,37 @@ void iwl_mvm_rx_ba_notif(struct iwl_mvm *mvm, struct iwl_rx_cmd_buffer *rxb)
 		ba_info.status.status_driver_data[0] =
 			(void *)(uintptr_t)ba_res->reduced_txp;
 
+<<<<<<< HEAD
 		if (!le16_to_cpu(ba_res->tfd_cnt))
 			goto out;
+=======
+		tfd_cnt = le16_to_cpu(ba_res->tfd_cnt);
+		if (!tfd_cnt || struct_size(ba_res, tfd, tfd_cnt) > pkt_len)
+			return;
+>>>>>>> upstream/android-13
 
 		rcu_read_lock();
 
 		mvmsta = iwl_mvm_sta_from_staid_rcu(mvm, sta_id);
+<<<<<<< HEAD
 		if (!mvmsta)
 			goto out_unlock;
 
 		/* Free per TID */
 		for (i = 0; i < le16_to_cpu(ba_res->tfd_cnt); i++) {
+=======
+		/*
+		 * It's possible to get a BA response after invalidating the rcu
+		 * (rcu is invalidated in order to prevent new Tx from being
+		 * sent, but there may be some frames already in-flight).
+		 * In this case we just want to reclaim, and could skip all the
+		 * sta-dependent stuff since it's in the middle of being removed
+		 * anyways.
+		 */
+
+		/* Free per TID */
+		for (i = 0; i < tfd_cnt; i++) {
+>>>>>>> upstream/android-13
 			struct iwl_mvm_compressed_ba_tfd *ba_tfd =
 				&ba_res->tfd[i];
 
@@ -1879,11 +2625,18 @@ void iwl_mvm_rx_ba_notif(struct iwl_mvm *mvm, struct iwl_rx_cmd_buffer *rxb)
 			if (tid == IWL_MGMT_TID)
 				tid = IWL_MAX_TID_COUNT;
 
+<<<<<<< HEAD
 			mvmsta->tid_data[i].lq_color = lq_color;
+=======
+			if (mvmsta)
+				mvmsta->tid_data[i].lq_color = lq_color;
+
+>>>>>>> upstream/android-13
 			iwl_mvm_tx_reclaim(mvm, sta_id, tid,
 					   (int)(le16_to_cpu(ba_tfd->q_num)),
 					   le16_to_cpu(ba_tfd->tfd_index),
 					   &ba_info,
+<<<<<<< HEAD
 					   le32_to_cpu(ba_res->tx_rate));
 		}
 
@@ -1892,6 +2645,16 @@ void iwl_mvm_rx_ba_notif(struct iwl_mvm *mvm, struct iwl_rx_cmd_buffer *rxb)
 out_unlock:
 		rcu_read_unlock();
 out:
+=======
+					   le32_to_cpu(ba_res->tx_rate), false);
+		}
+
+		if (mvmsta)
+			iwl_mvm_tx_airtime(mvm, mvmsta,
+					   le32_to_cpu(ba_res->wireless_time));
+		rcu_read_unlock();
+
+>>>>>>> upstream/android-13
 		IWL_DEBUG_TX_REPLY(mvm,
 				   "BA_NOTIFICATION Received from sta_id = %d, flags %x, sent:%d, acked:%d\n",
 				   sta_id, le32_to_cpu(ba_res->flags),
@@ -1927,7 +2690,11 @@ out:
 	rcu_read_unlock();
 
 	iwl_mvm_tx_reclaim(mvm, sta_id, tid, txq, index, &ba_info,
+<<<<<<< HEAD
 			   tid_data->rate_n_flags);
+=======
+			   tid_data->rate_n_flags, false);
+>>>>>>> upstream/android-13
 
 	IWL_DEBUG_TX_REPLY(mvm,
 			   "BA_NOTIFICATION Received from %pM, sta_id = %d\n",
@@ -1951,7 +2718,11 @@ out:
  * 2) flush the Tx path
  * 3) wait for the transport queues to be empty
  */
+<<<<<<< HEAD
 int iwl_mvm_flush_tx_path(struct iwl_mvm *mvm, u32 tfd_msk, u32 flags)
+=======
+int iwl_mvm_flush_tx_path(struct iwl_mvm *mvm, u32 tfd_msk)
+>>>>>>> upstream/android-13
 {
 	int ret;
 	struct iwl_tx_path_flush_cmd_v1 flush_cmd = {
@@ -1960,23 +2731,35 @@ int iwl_mvm_flush_tx_path(struct iwl_mvm *mvm, u32 tfd_msk, u32 flags)
 	};
 
 	WARN_ON(iwl_mvm_has_new_tx_api(mvm));
+<<<<<<< HEAD
 
 	ret = iwl_mvm_send_cmd_pdu(mvm, TXPATH_FLUSH, flags,
+=======
+	ret = iwl_mvm_send_cmd_pdu(mvm, TXPATH_FLUSH, 0,
+>>>>>>> upstream/android-13
 				   sizeof(flush_cmd), &flush_cmd);
 	if (ret)
 		IWL_ERR(mvm, "Failed to send flush command (%d)\n", ret);
 	return ret;
 }
 
+<<<<<<< HEAD
 int iwl_mvm_flush_sta_tids(struct iwl_mvm *mvm, u32 sta_id,
 			   u16 tids, u32 flags)
 {
 	int ret;
+=======
+int iwl_mvm_flush_sta_tids(struct iwl_mvm *mvm, u32 sta_id, u16 tids)
+{
+	int ret;
+	struct iwl_tx_path_flush_cmd_rsp *rsp;
+>>>>>>> upstream/android-13
 	struct iwl_tx_path_flush_cmd flush_cmd = {
 		.sta_id = cpu_to_le32(sta_id),
 		.tid_mask = cpu_to_le16(tids),
 	};
 
+<<<<<<< HEAD
 	WARN_ON(!iwl_mvm_has_new_tx_api(mvm));
 
 	ret = iwl_mvm_send_cmd_pdu(mvm, TXPATH_FLUSH, flags,
@@ -1987,6 +2770,79 @@ int iwl_mvm_flush_sta_tids(struct iwl_mvm *mvm, u32 sta_id,
 }
 
 int iwl_mvm_flush_sta(struct iwl_mvm *mvm, void *sta, bool internal, u32 flags)
+=======
+	struct iwl_host_cmd cmd = {
+		.id = TXPATH_FLUSH,
+		.len = { sizeof(flush_cmd), },
+		.data = { &flush_cmd, },
+	};
+
+	WARN_ON(!iwl_mvm_has_new_tx_api(mvm));
+
+	if (iwl_fw_lookup_notif_ver(mvm->fw, LONG_GROUP, TXPATH_FLUSH, 0) > 0)
+		cmd.flags |= CMD_WANT_SKB;
+
+	IWL_DEBUG_TX_QUEUES(mvm, "flush for sta id %d tid mask 0x%x\n",
+			    sta_id, tids);
+
+	ret = iwl_mvm_send_cmd(mvm, &cmd);
+
+	if (ret) {
+		IWL_ERR(mvm, "Failed to send flush command (%d)\n", ret);
+		return ret;
+	}
+
+	if (cmd.flags & CMD_WANT_SKB) {
+		int i;
+		int num_flushed_queues;
+
+		if (WARN_ON_ONCE(iwl_rx_packet_payload_len(cmd.resp_pkt) != sizeof(*rsp))) {
+			ret = -EIO;
+			goto free_rsp;
+		}
+
+		rsp = (void *)cmd.resp_pkt->data;
+
+		if (WARN_ONCE(le16_to_cpu(rsp->sta_id) != sta_id,
+			      "sta_id %d != rsp_sta_id %d",
+			      sta_id, le16_to_cpu(rsp->sta_id))) {
+			ret = -EIO;
+			goto free_rsp;
+		}
+
+		num_flushed_queues = le16_to_cpu(rsp->num_flushed_queues);
+		if (WARN_ONCE(num_flushed_queues > IWL_TX_FLUSH_QUEUE_RSP,
+			      "num_flushed_queues %d", num_flushed_queues)) {
+			ret = -EIO;
+			goto free_rsp;
+		}
+
+		for (i = 0; i < num_flushed_queues; i++) {
+			struct ieee80211_tx_info tx_info = {};
+			struct iwl_flush_queue_info *queue_info = &rsp->queues[i];
+			int tid = le16_to_cpu(queue_info->tid);
+			int read_before = le16_to_cpu(queue_info->read_before_flush);
+			int read_after = le16_to_cpu(queue_info->read_after_flush);
+			int queue_num = le16_to_cpu(queue_info->queue_num);
+
+			if (tid == IWL_MGMT_TID)
+				tid = IWL_MAX_TID_COUNT;
+
+			IWL_DEBUG_TX_QUEUES(mvm,
+					    "tid %d queue_id %d read-before %d read-after %d\n",
+					    tid, queue_num, read_before, read_after);
+
+			iwl_mvm_tx_reclaim(mvm, sta_id, tid, queue_num, read_after,
+					   &tx_info, 0, true);
+		}
+free_rsp:
+		iwl_free_resp(&cmd);
+	}
+	return ret;
+}
+
+int iwl_mvm_flush_sta(struct iwl_mvm *mvm, void *sta, bool internal)
+>>>>>>> upstream/android-13
 {
 	struct iwl_mvm_int_sta *int_sta = sta;
 	struct iwl_mvm_sta *mvm_sta = sta;
@@ -1995,6 +2851,7 @@ int iwl_mvm_flush_sta(struct iwl_mvm *mvm, void *sta, bool internal, u32 flags)
 		     offsetof(struct iwl_mvm_sta, sta_id));
 
 	if (iwl_mvm_has_new_tx_api(mvm))
+<<<<<<< HEAD
 		return iwl_mvm_flush_sta_tids(mvm, mvm_sta->sta_id,
 					      0xff | BIT(IWL_MGMT_TID), flags);
 
@@ -2003,4 +2860,12 @@ int iwl_mvm_flush_sta(struct iwl_mvm *mvm, void *sta, bool internal, u32 flags)
 					     flags);
 
 	return iwl_mvm_flush_tx_path(mvm, mvm_sta->tfd_queue_msk, flags);
+=======
+		return iwl_mvm_flush_sta_tids(mvm, mvm_sta->sta_id, 0xffff);
+
+	if (internal)
+		return iwl_mvm_flush_tx_path(mvm, int_sta->tfd_queue_msk);
+
+	return iwl_mvm_flush_tx_path(mvm, mvm_sta->tfd_queue_msk);
+>>>>>>> upstream/android-13
 }

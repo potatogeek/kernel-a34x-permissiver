@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 #
 # Makefile for the 7343 SolutionEngine specific parts of the kernel
 #

@@ -8,9 +8,14 @@
 
 #include <linux/clk.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
 #include <linux/interrupt.h>
 #include <linux/of_gpio.h>
+=======
+#include <linux/gpio/consumer.h>
+#include <linux/interrupt.h>
+>>>>>>> upstream/android-13
 #include <linux/of_irq.h>
 #include <linux/module.h>
 #include <linux/pinctrl/consumer.h>
@@ -20,17 +25,29 @@
 #include <linux/spinlock.h>
 #include "arche_platform.h"
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static void apb_bootret_deassert(struct device *dev);
 
 struct arche_apb_ctrl_drvdata {
 	/* Control GPIO signals to and from AP <=> AP Bridges */
+<<<<<<< HEAD
 	int resetn_gpio;
 	int boot_ret_gpio;
 	int pwroff_gpio;
 	int wake_in_gpio;
 	int wake_out_gpio;
 	int pwrdn_gpio;
+=======
+	struct gpio_desc *resetn;
+	struct gpio_desc *boot_ret;
+	struct gpio_desc *pwroff;
+	struct gpio_desc *wake_in;
+	struct gpio_desc *wake_out;
+	struct gpio_desc *pwrdn;
+>>>>>>> upstream/android-13
 
 	enum arche_platform_state state;
 	bool init_disabled;
@@ -38,20 +55,29 @@ struct arche_apb_ctrl_drvdata {
 	struct regulator *vcore;
 	struct regulator *vio;
 
+<<<<<<< HEAD
 	int clk_en_gpio;
+=======
+	struct gpio_desc *clk_en;
+>>>>>>> upstream/android-13
 	struct clk *clk;
 
 	struct pinctrl *pinctrl;
 	struct pinctrl_state *pin_default;
 
 	/* V2: SPI Bus control  */
+<<<<<<< HEAD
 	int spi_en_gpio;
+=======
+	struct gpio_desc *spi_en;
+>>>>>>> upstream/android-13
 	bool spi_en_polarity_high;
 };
 
 /*
  * Note that these low level api's are active high
  */
+<<<<<<< HEAD
 static inline void deassert_reset(unsigned int gpio)
 {
 	gpio_set_value(gpio, 1);
@@ -60,6 +86,16 @@ static inline void deassert_reset(unsigned int gpio)
 static inline void assert_reset(unsigned int gpio)
 {
 	gpio_set_value(gpio, 0);
+=======
+static inline void deassert_reset(struct gpio_desc *gpio)
+{
+	gpiod_set_raw_value(gpio, 1);
+}
+
+static inline void assert_reset(struct gpio_desc *gpio)
+{
+	gpiod_set_raw_value(gpio, 0);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -76,11 +112,18 @@ static int coldboot_seq(struct platform_device *pdev)
 		return 0;
 
 	/* Hold APB in reset state */
+<<<<<<< HEAD
 	assert_reset(apb->resetn_gpio);
 
 	if (apb->state == ARCHE_PLATFORM_STATE_FW_FLASHING &&
 	    gpio_is_valid(apb->spi_en_gpio))
 		devm_gpio_free(dev, apb->spi_en_gpio);
+=======
+	assert_reset(apb->resetn);
+
+	if (apb->state == ARCHE_PLATFORM_STATE_FW_FLASHING && apb->spi_en)
+		devm_gpiod_put(dev, apb->spi_en);
+>>>>>>> upstream/android-13
 
 	/* Enable power to APB */
 	if (!IS_ERR(apb->vcore)) {
@@ -102,13 +145,22 @@ static int coldboot_seq(struct platform_device *pdev)
 	apb_bootret_deassert(dev);
 
 	/* On DB3 clock was not mandatory */
+<<<<<<< HEAD
 	if (gpio_is_valid(apb->clk_en_gpio))
 		gpio_set_value(apb->clk_en_gpio, 1);
+=======
+	if (apb->clk_en)
+		gpiod_set_value(apb->clk_en, 1);
+>>>>>>> upstream/android-13
 
 	usleep_range(100, 200);
 
 	/* deassert reset to APB : Active-low signal */
+<<<<<<< HEAD
 	deassert_reset(apb->resetn_gpio);
+=======
+	deassert_reset(apb->resetn);
+>>>>>>> upstream/android-13
 
 	apb->state = ARCHE_PLATFORM_STATE_ACTIVE;
 
@@ -137,6 +189,7 @@ static int fw_flashing_seq(struct platform_device *pdev)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	if (gpio_is_valid(apb->spi_en_gpio)) {
 		unsigned long flags;
 
@@ -150,12 +203,31 @@ static int fw_flashing_seq(struct platform_device *pdev)
 		if (ret) {
 			dev_err(dev, "Failed requesting SPI bus en gpio %d\n",
 				apb->spi_en_gpio);
+=======
+	if (apb->spi_en) {
+		unsigned long flags;
+
+		if (apb->spi_en_polarity_high)
+			flags = GPIOD_OUT_HIGH;
+		else
+			flags = GPIOD_OUT_LOW;
+
+		apb->spi_en = devm_gpiod_get(dev, "spi-en", flags);
+		if (IS_ERR(apb->spi_en)) {
+			ret = PTR_ERR(apb->spi_en);
+			dev_err(dev, "Failed requesting SPI bus en GPIO: %d\n",
+				ret);
+>>>>>>> upstream/android-13
 			return ret;
 		}
 	}
 
 	/* for flashing device should be in reset state */
+<<<<<<< HEAD
 	assert_reset(apb->resetn_gpio);
+=======
+	assert_reset(apb->resetn);
+>>>>>>> upstream/android-13
 	apb->state = ARCHE_PLATFORM_STATE_FW_FLASHING;
 
 	return 0;
@@ -177,9 +249,14 @@ static int standby_boot_seq(struct platform_device *pdev)
 	    apb->state == ARCHE_PLATFORM_STATE_OFF)
 		return 0;
 
+<<<<<<< HEAD
 	if (apb->state == ARCHE_PLATFORM_STATE_FW_FLASHING &&
 	    gpio_is_valid(apb->spi_en_gpio))
 		devm_gpio_free(dev, apb->spi_en_gpio);
+=======
+	if (apb->state == ARCHE_PLATFORM_STATE_FW_FLASHING && apb->spi_en)
+		devm_gpiod_put(dev, apb->spi_en);
+>>>>>>> upstream/android-13
 
 	/*
 	 * As per WDM spec, do nothing
@@ -202,6 +279,7 @@ static void poweroff_seq(struct platform_device *pdev)
 	if (apb->init_disabled || apb->state == ARCHE_PLATFORM_STATE_OFF)
 		return;
 
+<<<<<<< HEAD
 	if (apb->state == ARCHE_PLATFORM_STATE_FW_FLASHING &&
 	    gpio_is_valid(apb->spi_en_gpio))
 		devm_gpio_free(dev, apb->spi_en_gpio);
@@ -209,6 +287,14 @@ static void poweroff_seq(struct platform_device *pdev)
 	/* disable the clock */
 	if (gpio_is_valid(apb->clk_en_gpio))
 		gpio_set_value(apb->clk_en_gpio, 0);
+=======
+	if (apb->state == ARCHE_PLATFORM_STATE_FW_FLASHING && apb->spi_en)
+		devm_gpiod_put(dev, apb->spi_en);
+
+	/* disable the clock */
+	if (apb->clk_en)
+		gpiod_set_value(apb->clk_en, 0);
+>>>>>>> upstream/android-13
 
 	if (!IS_ERR(apb->vcore) && regulator_is_enabled(apb->vcore) > 0)
 		regulator_disable(apb->vcore);
@@ -217,7 +303,11 @@ static void poweroff_seq(struct platform_device *pdev)
 		regulator_disable(apb->vio);
 
 	/* As part of exit, put APB back in reset state */
+<<<<<<< HEAD
 	assert_reset(apb->resetn_gpio);
+=======
+	assert_reset(apb->resetn);
+>>>>>>> upstream/android-13
 	apb->state = ARCHE_PLATFORM_STATE_OFF;
 
 	/* TODO: May have to send an event to SVC about this exit */
@@ -227,7 +317,11 @@ static void apb_bootret_deassert(struct device *dev)
 {
 	struct arche_apb_ctrl_drvdata *apb = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	gpio_set_value(apb->boot_ret_gpio, 0);
+=======
+	gpiod_set_value(apb->boot_ret, 0);
+>>>>>>> upstream/android-13
 }
 
 int apb_ctrl_coldboot(struct device *dev)
@@ -323,6 +417,7 @@ static int apb_ctrl_get_devtree_data(struct platform_device *pdev,
 				     struct arche_apb_ctrl_drvdata *apb)
 {
 	struct device *dev = &pdev->dev;
+<<<<<<< HEAD
 	struct device_node *np = dev->of_node;
 	int ret;
 
@@ -349,10 +444,26 @@ static int apb_ctrl_get_devtree_data(struct platform_device *pdev,
 	if (ret) {
 		dev_err(dev, "Failed requesting bootret gpio %d\n",
 			apb->boot_ret_gpio);
+=======
+	int ret;
+
+	apb->resetn = devm_gpiod_get(dev, "reset", GPIOD_OUT_LOW);
+	if (IS_ERR(apb->resetn)) {
+		ret = PTR_ERR(apb->resetn);
+		dev_err(dev, "Failed requesting reset GPIO: %d\n", ret);
+		return ret;
+	}
+
+	apb->boot_ret = devm_gpiod_get(dev, "boot-ret", GPIOD_OUT_LOW);
+	if (IS_ERR(apb->boot_ret)) {
+		ret = PTR_ERR(apb->boot_ret);
+		dev_err(dev, "Failed requesting bootret GPIO: %d\n", ret);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
 	/* It's not mandatory to support power management interface */
+<<<<<<< HEAD
 	apb->pwroff_gpio = of_get_named_gpio(np, "pwr-off-gpios", 0);
 	if (apb->pwroff_gpio < 0) {
 		dev_err(dev, "failed to get power off gpio\n");
@@ -363,10 +474,17 @@ static int apb_ctrl_get_devtree_data(struct platform_device *pdev,
 	if (ret) {
 		dev_err(dev, "Failed requesting pwroff_n gpio %d\n",
 			apb->pwroff_gpio);
+=======
+	apb->pwroff = devm_gpiod_get_optional(dev, "pwr-off", GPIOD_IN);
+	if (IS_ERR(apb->pwroff)) {
+		ret = PTR_ERR(apb->pwroff);
+		dev_err(dev, "Failed requesting pwroff_n GPIO: %d\n", ret);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
 	/* Do not make clock mandatory as of now (for DB3) */
+<<<<<<< HEAD
 	apb->clk_en_gpio = of_get_named_gpio(np, "clock-en-gpio", 0);
 	if (apb->clk_en_gpio < 0) {
 		dev_warn(dev, "failed to get clock en gpio\n");
@@ -383,6 +501,21 @@ static int apb_ctrl_get_devtree_data(struct platform_device *pdev,
 	apb->pwrdn_gpio = of_get_named_gpio(np, "pwr-down-gpios", 0);
 	if (apb->pwrdn_gpio < 0)
 		dev_warn(dev, "failed to get power down gpio\n");
+=======
+	apb->clk_en = devm_gpiod_get_optional(dev, "clock-en", GPIOD_OUT_LOW);
+	if (IS_ERR(apb->clk_en)) {
+		ret = PTR_ERR(apb->clk_en);
+		dev_err(dev, "Failed requesting APB clock en GPIO: %d\n", ret);
+		return ret;
+	}
+
+	apb->pwrdn = devm_gpiod_get(dev, "pwr-down", GPIOD_OUT_LOW);
+	if (IS_ERR(apb->pwrdn)) {
+		ret = PTR_ERR(apb->pwrdn);
+		dev_warn(dev, "Failed requesting power down GPIO: %d\n", ret);
+		return ret;
+	}
+>>>>>>> upstream/android-13
 
 	/* Regulators are optional, as we may have fixed supply coming in */
 	apb->vcore = devm_regulator_get(dev, "vcore");
@@ -405,12 +538,17 @@ static int apb_ctrl_get_devtree_data(struct platform_device *pdev,
 	}
 
 	/* Only applicable for platform >= V2 */
+<<<<<<< HEAD
 	apb->spi_en_gpio = of_get_named_gpio(np, "spi-en-gpio", 0);
 	if (apb->spi_en_gpio >= 0) {
 		if (of_property_read_bool(pdev->dev.of_node,
 					  "spi-en-active-high"))
 			apb->spi_en_polarity_high = true;
 	}
+=======
+	if (of_property_read_bool(pdev->dev.of_node, "gb,spi-en-active-high"))
+		apb->spi_en_polarity_high = true;
+>>>>>>> upstream/android-13
 
 	return 0;
 }

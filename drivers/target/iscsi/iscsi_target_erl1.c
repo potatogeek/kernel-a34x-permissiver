@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*******************************************************************************
  * This file contains error recovery level one used by the iSCSI Target driver.
  *
@@ -5,6 +9,7 @@
  *
  * Author: Nicholas A. Bellinger <nab@linux-iscsi.org>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -14,6 +19,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  ******************************************************************************/
 
 #include <linux/list.h>
@@ -48,14 +55,29 @@ int iscsit_dump_data_payload(
 	u32 buf_len,
 	int dump_padding_digest)
 {
+<<<<<<< HEAD
 	char *buf, pad_bytes[4];
 	int ret = DATAOUT_WITHIN_COMMAND_RECOVERY, rx_got;
 	u32 length, padding, offset = 0, size;
+=======
+	char *buf;
+	int ret = DATAOUT_WITHIN_COMMAND_RECOVERY, rx_got;
+	u32 length, offset = 0, size;
+>>>>>>> upstream/android-13
 	struct kvec iov;
 
 	if (conn->sess->sess_ops->RDMAExtensions)
 		return 0;
 
+<<<<<<< HEAD
+=======
+	if (dump_padding_digest) {
+		buf_len = ALIGN(buf_len, 4);
+		if (conn->conn_ops->DataDigest)
+			buf_len += ISCSI_CRC_LEN;
+	}
+
+>>>>>>> upstream/android-13
 	length = min(buf_len, OFFLOAD_BUF_SIZE);
 
 	buf = kzalloc(length, GFP_ATOMIC);
@@ -75,12 +97,17 @@ int iscsit_dump_data_payload(
 		rx_got = rx_data(conn, &iov, 1, size);
 		if (rx_got != size) {
 			ret = DATAOUT_CANNOT_RECOVER;
+<<<<<<< HEAD
 			goto out;
+=======
+			break;
+>>>>>>> upstream/android-13
 		}
 
 		offset += size;
 	}
 
+<<<<<<< HEAD
 	if (!dump_padding_digest)
 		goto out;
 
@@ -110,6 +137,8 @@ int iscsit_dump_data_payload(
 	}
 
 out:
+=======
+>>>>>>> upstream/android-13
 	kfree(buf);
 	return ret;
 }
@@ -797,14 +826,23 @@ static struct iscsi_ooo_cmdsn *iscsit_allocate_ooo_cmdsn(void)
 	return ooo_cmdsn;
 }
 
+<<<<<<< HEAD
 /*
  *	Called with sess->cmdsn_mutex held.
  */
+=======
+>>>>>>> upstream/android-13
 static int iscsit_attach_ooo_cmdsn(
 	struct iscsi_session *sess,
 	struct iscsi_ooo_cmdsn *ooo_cmdsn)
 {
 	struct iscsi_ooo_cmdsn *ooo_tail, *ooo_tmp;
+<<<<<<< HEAD
+=======
+
+	lockdep_assert_held(&sess->cmdsn_mutex);
+
+>>>>>>> upstream/android-13
 	/*
 	 * We attach the struct iscsi_ooo_cmdsn entry to the out of order
 	 * list in increasing CmdSN order.
@@ -871,15 +909,23 @@ void iscsit_clear_ooo_cmdsns_for_conn(struct iscsi_conn *conn)
 	mutex_unlock(&sess->cmdsn_mutex);
 }
 
+<<<<<<< HEAD
 /*
  *	Called with sess->cmdsn_mutex held.
  */
+=======
+>>>>>>> upstream/android-13
 int iscsit_execute_ooo_cmdsns(struct iscsi_session *sess)
 {
 	int ooo_count = 0;
 	struct iscsi_cmd *cmd = NULL;
 	struct iscsi_ooo_cmdsn *ooo_cmdsn, *ooo_cmdsn_tmp;
 
+<<<<<<< HEAD
+=======
+	lockdep_assert_held(&sess->cmdsn_mutex);
+
+>>>>>>> upstream/android-13
 	list_for_each_entry_safe(ooo_cmdsn, ooo_cmdsn_tmp,
 				&sess->sess_ooo_cmdsn_list, ooo_list) {
 		if (ooo_cmdsn->cmdsn != sess->exp_cmd_sn)
@@ -903,8 +949,11 @@ int iscsit_execute_ooo_cmdsns(struct iscsi_session *sess)
 
 		if (iscsit_execute_cmd(cmd, 1) < 0)
 			return -1;
+<<<<<<< HEAD
 
 		continue;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	return ooo_count;
@@ -943,6 +992,7 @@ int iscsit_execute_cmd(struct iscsi_cmd *cmd, int ooo)
 				return 0;
 			}
 			spin_unlock_bh(&cmd->istate_lock);
+<<<<<<< HEAD
 			/*
 			 * Determine if delayed TASK_ABORTED status for WRITEs
 			 * should be sent now if no unsolicited data out
@@ -957,6 +1007,10 @@ int iscsit_execute_cmd(struct iscsi_cmd *cmd, int ooo)
 			 * Otherwise send CHECK_CONDITION and sense for
 			 * exception
 			 */
+=======
+			if (cmd->se_cmd.transport_state & CMD_T_ABORTED)
+				return 0;
+>>>>>>> upstream/android-13
 			return transport_send_check_condition_and_sense(se_cmd,
 					cmd->sense_reason, 0);
 		}
@@ -974,6 +1028,7 @@ int iscsit_execute_cmd(struct iscsi_cmd *cmd, int ooo)
 
 			if (!(cmd->cmd_flags &
 					ICF_NON_IMMEDIATE_UNSOLICITED_DATA)) {
+<<<<<<< HEAD
 				/*
 				 * Send the delayed TASK_ABORTED status for
 				 * WRITEs if no more unsolicitied data is
@@ -981,6 +1036,9 @@ int iscsit_execute_cmd(struct iscsi_cmd *cmd, int ooo)
 				 */
 				if (transport_check_aborted_status(se_cmd, 1)
 						!= 0)
+=======
+				if (cmd->se_cmd.transport_state & CMD_T_ABORTED)
+>>>>>>> upstream/android-13
 					return 0;
 
 				iscsit_set_dataout_sequence_values(cmd);
@@ -995,6 +1053,7 @@ int iscsit_execute_cmd(struct iscsi_cmd *cmd, int ooo)
 
 		if ((cmd->data_direction == DMA_TO_DEVICE) &&
 		    !(cmd->cmd_flags & ICF_NON_IMMEDIATE_UNSOLICITED_DATA)) {
+<<<<<<< HEAD
 			/*
 			 * Send the delayed TASK_ABORTED status for WRITEs if
 			 * no more nsolicitied data is expected.
@@ -1003,6 +1062,12 @@ int iscsit_execute_cmd(struct iscsi_cmd *cmd, int ooo)
 				return 0;
 
 			iscsit_set_unsoliticed_dataout(cmd);
+=======
+			if (cmd->se_cmd.transport_state & CMD_T_ABORTED)
+				return 0;
+
+			iscsit_set_unsolicited_dataout(cmd);
+>>>>>>> upstream/android-13
 		}
 		return transport_handle_cdb_direct(&cmd->se_cmd);
 
@@ -1169,15 +1234,32 @@ void iscsit_handle_dataout_timeout(struct timer_list *t)
 	na = iscsit_tpg_get_node_attrib(sess);
 
 	if (!sess->sess_ops->ErrorRecoveryLevel) {
+<<<<<<< HEAD
 		pr_debug("Unable to recover from DataOut timeout while"
 			" in ERL=0.\n");
+=======
+		pr_err("Unable to recover from DataOut timeout while"
+			" in ERL=0, closing iSCSI connection for I_T Nexus"
+			" %s,i,0x%6phN,%s,t,0x%02x\n",
+			sess->sess_ops->InitiatorName, sess->isid,
+			sess->tpg->tpg_tiqn->tiqn, (u32)sess->tpg->tpgt);
+>>>>>>> upstream/android-13
 		goto failure;
 	}
 
 	if (++cmd->dataout_timeout_retries == na->dataout_timeout_retries) {
+<<<<<<< HEAD
 		pr_debug("Command ITT: 0x%08x exceeded max retries"
 			" for DataOUT timeout %u, closing iSCSI connection.\n",
 			cmd->init_task_tag, na->dataout_timeout_retries);
+=======
+		pr_err("Command ITT: 0x%08x exceeded max retries"
+			" for DataOUT timeout %u, closing iSCSI connection for"
+			" I_T Nexus %s,i,0x%6phN,%s,t,0x%02x\n",
+			cmd->init_task_tag, na->dataout_timeout_retries,
+			sess->sess_ops->InitiatorName, sess->isid,
+			sess->tpg->tpg_tiqn->tiqn, (u32)sess->tpg->tpgt);
+>>>>>>> upstream/android-13
 		goto failure;
 	}
 
@@ -1224,6 +1306,10 @@ void iscsit_handle_dataout_timeout(struct timer_list *t)
 
 failure:
 	spin_unlock_bh(&cmd->dataout_timeout_lock);
+<<<<<<< HEAD
+=======
+	iscsit_fill_cxn_timeout_err_stats(sess);
+>>>>>>> upstream/android-13
 	iscsit_cause_connection_reinstatement(conn, 0);
 	iscsit_dec_conn_usage_count(conn);
 }
@@ -1247,9 +1333,12 @@ void iscsit_mod_dataout_timer(struct iscsi_cmd *cmd)
 	spin_unlock_bh(&cmd->dataout_timeout_lock);
 }
 
+<<<<<<< HEAD
 /*
  *	Called with cmd->dataout_timeout_lock held.
  */
+=======
+>>>>>>> upstream/android-13
 void iscsit_start_dataout_timer(
 	struct iscsi_cmd *cmd,
 	struct iscsi_conn *conn)
@@ -1257,6 +1346,11 @@ void iscsit_start_dataout_timer(
 	struct iscsi_session *sess = conn->sess;
 	struct iscsi_node_attrib *na = iscsit_tpg_get_node_attrib(sess);
 
+<<<<<<< HEAD
+=======
+	lockdep_assert_held(&cmd->dataout_timeout_lock);
+
+>>>>>>> upstream/android-13
 	if (cmd->dataout_timer_flags & ISCSI_TF_RUNNING)
 		return;
 

@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	G8BPQ compatible "AX.25 via ethernet" driver release 004
  *
  *	This code REQUIRES 2.0.0 or higher/ NET3.029
  *
+<<<<<<< HEAD
  *	This module:
  *		This module is free software; you can redistribute it and/or
  *		modify it under the terms of the GNU General Public License
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *	This is a "pseudo" network driver to allow AX.25 over Ethernet
  *	using G8BPQ encapsulation. It has been extracted from the protocol
  *	implementation because
@@ -153,7 +160,12 @@ static inline struct net_device *bpq_get_ax25_dev(struct net_device *dev)
 {
 	struct bpqdev *bpq;
 
+<<<<<<< HEAD
 	list_for_each_entry_rcu(bpq, &bpq_devices, bpq_list) {
+=======
+	list_for_each_entry_rcu(bpq, &bpq_devices, bpq_list,
+				lockdep_rtnl_is_held()) {
+>>>>>>> upstream/android-13
 		if (bpq->ethdev == dev)
 			return bpq->axdev;
 	}
@@ -318,9 +330,16 @@ static int bpq_set_mac_address(struct net_device *dev, void *addr)
  *					source ethernet address (broadcast
  *					or multicast: accept all)
  */
+<<<<<<< HEAD
 static int bpq_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 {
 	struct bpq_ethaddr __user *ethaddr = ifr->ifr_data;
+=======
+static int bpq_siocdevprivate(struct net_device *dev, struct ifreq *ifr,
+			      void __user *data, int cmd)
+{
+	struct bpq_ethaddr __user *ethaddr = data;
+>>>>>>> upstream/android-13
 	struct bpqdev *bpq = netdev_priv(dev);
 	struct bpq_req req;
 
@@ -329,7 +348,11 @@ static int bpq_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 
 	switch (cmd) {
 		case SIOCSBPQETHOPT:
+<<<<<<< HEAD
 			if (copy_from_user(&req, ifr->ifr_data, sizeof(struct bpq_req)))
+=======
+			if (copy_from_user(&req, data, sizeof(struct bpq_req)))
+>>>>>>> upstream/android-13
 				return -EFAULT;
 			switch (req.cmd) {
 				case SIOCGBPQETHPARAM:
@@ -372,7 +395,11 @@ static int bpq_close(struct net_device *dev)
 
 /* ------------------------------------------------------------------------ */
 
+<<<<<<< HEAD
 
+=======
+#ifdef CONFIG_PROC_FS
+>>>>>>> upstream/android-13
 /*
  *	Proc filesystem
  */
@@ -444,7 +471,11 @@ static const struct seq_operations bpq_seqops = {
 	.stop = bpq_seq_stop,
 	.show = bpq_seq_show,
 };
+<<<<<<< HEAD
 
+=======
+#endif
+>>>>>>> upstream/android-13
 /* ------------------------------------------------------------------------ */
 
 static const struct net_device_ops bpq_netdev_ops = {
@@ -452,7 +483,11 @@ static const struct net_device_ops bpq_netdev_ops = {
 	.ndo_stop	     = bpq_close,
 	.ndo_start_xmit	     = bpq_xmit,
 	.ndo_set_mac_address = bpq_set_mac_address,
+<<<<<<< HEAD
 	.ndo_do_ioctl	     = bpq_ioctl,
+=======
+	.ndo_siocdevprivate  = bpq_siocdevprivate,
+>>>>>>> upstream/android-13
 };
 
 static void bpq_setup(struct net_device *dev)

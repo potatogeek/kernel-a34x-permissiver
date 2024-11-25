@@ -4,12 +4,20 @@
 #include <linux/hwspinlock.h>
 #include <linux/module.h>
 #include <linux/of.h>
+<<<<<<< HEAD
+=======
+#include <linux/of_device.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/regmap.h>
 #include <linux/nvmem-provider.h>
 
 /* PMIC global registers definition */
 #define SC27XX_MODULE_EN		0xc08
+<<<<<<< HEAD
+=======
+#define SC2730_MODULE_EN		0x1808
+>>>>>>> upstream/android-13
 #define SC27XX_EFUSE_EN			BIT(6)
 
 /* Efuse controller registers definition */
@@ -49,12 +57,35 @@
 #define SC27XX_EFUSE_POLL_TIMEOUT	3000000
 #define SC27XX_EFUSE_POLL_DELAY_US	10000
 
+<<<<<<< HEAD
+=======
+/*
+ * Since different PMICs of SC27xx series can have different
+ * address , we should save address in the device data structure.
+ */
+struct sc27xx_efuse_variant_data {
+	u32 module_en;
+};
+
+>>>>>>> upstream/android-13
 struct sc27xx_efuse {
 	struct device *dev;
 	struct regmap *regmap;
 	struct hwspinlock *hwlock;
 	struct mutex mutex;
 	u32 base;
+<<<<<<< HEAD
+=======
+	const struct sc27xx_efuse_variant_data *var_data;
+};
+
+static const struct sc27xx_efuse_variant_data sc2731_edata = {
+	.module_en = SC27XX_MODULE_EN,
+};
+
+static const struct sc27xx_efuse_variant_data sc2730_edata = {
+	.module_en = SC2730_MODULE_EN,
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -106,10 +137,19 @@ static int sc27xx_efuse_poll_status(struct sc27xx_efuse *efuse, u32 bits)
 static int sc27xx_efuse_read(void *context, u32 offset, void *val, size_t bytes)
 {
 	struct sc27xx_efuse *efuse = context;
+<<<<<<< HEAD
 	u32 buf;
 	int ret;
 
 	if (offset > SC27XX_EFUSE_BLOCK_MAX || bytes > SC27XX_EFUSE_BLOCK_WIDTH)
+=======
+	u32 buf, blk_index = offset / SC27XX_EFUSE_BLOCK_WIDTH;
+	u32 blk_offset = (offset % SC27XX_EFUSE_BLOCK_WIDTH) * BITS_PER_BYTE;
+	int ret;
+
+	if (blk_index > SC27XX_EFUSE_BLOCK_MAX ||
+	    bytes > SC27XX_EFUSE_BLOCK_WIDTH)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	ret = sc27xx_efuse_lock(efuse);
@@ -117,7 +157,11 @@ static int sc27xx_efuse_read(void *context, u32 offset, void *val, size_t bytes)
 		return ret;
 
 	/* Enable the efuse controller. */
+<<<<<<< HEAD
 	ret = regmap_update_bits(efuse->regmap, SC27XX_MODULE_EN,
+=======
+	ret = regmap_update_bits(efuse->regmap, efuse->var_data->module_en,
+>>>>>>> upstream/android-13
 				 SC27XX_EFUSE_EN, SC27XX_EFUSE_EN);
 	if (ret)
 		goto unlock_efuse;
@@ -133,7 +177,11 @@ static int sc27xx_efuse_read(void *context, u32 offset, void *val, size_t bytes)
 	/* Set the block address to be read. */
 	ret = regmap_write(efuse->regmap,
 			   efuse->base + SC27XX_EFUSE_BLOCK_INDEX,
+<<<<<<< HEAD
 			   offset & SC27XX_EFUSE_BLOCK_MASK);
+=======
+			   blk_index & SC27XX_EFUSE_BLOCK_MASK);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto disable_efuse;
 
@@ -167,12 +215,23 @@ static int sc27xx_efuse_read(void *context, u32 offset, void *val, size_t bytes)
 
 disable_efuse:
 	/* Disable the efuse controller after reading. */
+<<<<<<< HEAD
 	regmap_update_bits(efuse->regmap, SC27XX_MODULE_EN, SC27XX_EFUSE_EN, 0);
 unlock_efuse:
 	sc27xx_efuse_unlock(efuse);
 
 	if (!ret)
 		memcpy(val, &buf, bytes);
+=======
+	regmap_update_bits(efuse->regmap, efuse->var_data->module_en, SC27XX_EFUSE_EN, 0);
+unlock_efuse:
+	sc27xx_efuse_unlock(efuse);
+
+	if (!ret) {
+		buf >>= blk_offset;
+		memcpy(val, &buf, bytes);
+	}
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -207,7 +266,11 @@ static int sc27xx_efuse_probe(struct platform_device *pdev)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	efuse->hwlock = hwspin_lock_request_specific(ret);
+=======
+	efuse->hwlock = devm_hwspin_lock_request_specific(&pdev->dev, ret);
+>>>>>>> upstream/android-13
 	if (!efuse->hwlock) {
 		dev_err(&pdev->dev, "failed to request hwspinlock\n");
 		return -ENXIO;
@@ -215,7 +278,11 @@ static int sc27xx_efuse_probe(struct platform_device *pdev)
 
 	mutex_init(&efuse->mutex);
 	efuse->dev = &pdev->dev;
+<<<<<<< HEAD
 	platform_set_drvdata(pdev, efuse);
+=======
+	efuse->var_data = of_device_get_match_data(&pdev->dev);
+>>>>>>> upstream/android-13
 
 	econfig.stride = 1;
 	econfig.word_size = 1;
@@ -228,13 +295,17 @@ static int sc27xx_efuse_probe(struct platform_device *pdev)
 	nvmem = devm_nvmem_register(&pdev->dev, &econfig);
 	if (IS_ERR(nvmem)) {
 		dev_err(&pdev->dev, "failed to register nvmem config\n");
+<<<<<<< HEAD
 		hwspin_lock_free(efuse->hwlock);
+=======
+>>>>>>> upstream/android-13
 		return PTR_ERR(nvmem);
 	}
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int sc27xx_efuse_remove(struct platform_device *pdev)
 {
 	struct sc27xx_efuse *efuse = platform_get_drvdata(pdev);
@@ -245,12 +316,20 @@ static int sc27xx_efuse_remove(struct platform_device *pdev)
 
 static const struct of_device_id sc27xx_efuse_of_match[] = {
 	{ .compatible = "sprd,sc2731-efuse" },
+=======
+static const struct of_device_id sc27xx_efuse_of_match[] = {
+	{ .compatible = "sprd,sc2731-efuse", .data = &sc2731_edata},
+	{ .compatible = "sprd,sc2730-efuse", .data = &sc2730_edata},
+>>>>>>> upstream/android-13
 	{ }
 };
 
 static struct platform_driver sc27xx_efuse_driver = {
 	.probe = sc27xx_efuse_probe,
+<<<<<<< HEAD
 	.remove = sc27xx_efuse_remove,
+=======
+>>>>>>> upstream/android-13
 	.driver = {
 		.name = "sc27xx-efuse",
 		.of_match_table = sc27xx_efuse_of_match,

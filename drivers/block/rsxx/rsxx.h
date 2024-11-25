@@ -1,11 +1,19 @@
+<<<<<<< HEAD
 /*
 * Filename: rsxx.h
 *
 *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+* Filename: rsxx.h
+*
+>>>>>>> upstream/android-13
 * Authors: Joshua Morris <josh.h.morris@us.ibm.com>
 *	Philip Kelleher <pjk1939@linux.vnet.ibm.com>
 *
 * (C) Copyright 2013 IBM Corporation
+<<<<<<< HEAD
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -20,6 +28,8 @@
 * You should have received a copy of the GNU General Public License
 * along with this program; if not, write to the Free Software Foundation,
 * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
 */
 
 #ifndef __RSXX_H__

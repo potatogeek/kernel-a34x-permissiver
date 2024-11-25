@@ -91,7 +91,11 @@ da8xx_cfgchip_gate_clk_register(struct device *dev,
 	struct clk *parent;
 	const char *parent_name;
 	struct da8xx_cfgchip_gate_clk *gate;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	int ret;
 
 	parent = devm_clk_get(dev, NULL);
@@ -160,10 +164,15 @@ static int __init da8xx_cfgchip_register_div4p5(struct device *dev,
 	struct da8xx_cfgchip_gate_clk *gate;
 
 	gate = da8xx_cfgchip_gate_clk_register(dev, &da8xx_div4p5ena_info, regmap);
+<<<<<<< HEAD
 	if (IS_ERR(gate))
 		return PTR_ERR(gate);
 
 	return 0;
+=======
+
+	return PTR_ERR_OR_ZERO(gate);
+>>>>>>> upstream/android-13
 }
 
 static int __init
@@ -242,7 +251,11 @@ da8xx_cfgchip_mux_clk_register(struct device *dev,
 {
 	const char * const parent_names[] = { info->parent0, info->parent1 };
 	struct da8xx_cfgchip_mux_clk *mux;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	int ret;
 
 	mux = devm_kzalloc(dev, sizeof(*mux), GFP_KERNEL);
@@ -507,7 +520,11 @@ da8xx_cfgchip_register_usb0_clk48(struct device *dev,
 	const char * const parent_names[] = { "usb_refclkin", "pll0_auxclk" };
 	struct clk *fck_clk;
 	struct da8xx_usb0_clk48 *usb0;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	int ret;
 
 	fck_clk = devm_clk_get(dev, "fck");
@@ -573,6 +590,10 @@ static const struct clk_ops da8xx_usb1_clk48_ops = {
 
 /**
  * da8xx_cfgchip_register_usb1_clk48 - Register a new USB 1.1 PHY clock
+<<<<<<< HEAD
+=======
+ * @dev: The device
+>>>>>>> upstream/android-13
  * @regmap: The CFGCHIP regmap
  */
 static struct da8xx_usb1_clk48 *
@@ -581,7 +602,11 @@ da8xx_cfgchip_register_usb1_clk48(struct device *dev,
 {
 	const char * const parent_names[] = { "usb0_clk48", "usb_refclkin" };
 	struct da8xx_usb1_clk48 *usb1;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	int ret;
 
 	usb1 = devm_kzalloc(dev, sizeof(*usb1), GFP_KERNEL);

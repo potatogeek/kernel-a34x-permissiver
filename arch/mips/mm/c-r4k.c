@@ -19,6 +19,10 @@
 #include <linux/mm.h>
 #include <linux/export.h>
 #include <linux/bitops.h>
+<<<<<<< HEAD
+=======
+#include <linux/dma-map-ops.h> /* for dma_default_coherent */
+>>>>>>> upstream/android-13
 
 #include <asm/bcache.h>
 #include <asm/bootinfo.h>
@@ -29,14 +33,20 @@
 #include <asm/cpu-type.h>
 #include <asm/io.h>
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/r4kcache.h>
 #include <asm/sections.h>
 #include <asm/mmu_context.h>
 #include <asm/war.h>
 #include <asm/cacheflush.h> /* for run_uncached() */
 #include <asm/traps.h>
+<<<<<<< HEAD
 #include <asm/dma-coherence.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/mips-cps.h>
 
 /*
@@ -131,9 +141,16 @@ struct bcache_ops *bcops = &no_sc_ops;
 
 #define R4600_HIT_CACHEOP_WAR_IMPL					\
 do {									\
+<<<<<<< HEAD
 	if (R4600_V2_HIT_CACHEOP_WAR && cpu_is_r4600_v2_x())		\
 		*(volatile unsigned long *)CKSEG1;			\
 	if (R4600_V1_HIT_CACHEOP_WAR)					\
+=======
+	if (IS_ENABLED(CONFIG_WAR_R4600_V2_HIT_CACHEOP) &&		\
+	    cpu_is_r4600_v2_x())					\
+		*(volatile unsigned long *)CKSEG1;			\
+	if (IS_ENABLED(CONFIG_WAR_R4600_V1_HIT_CACHEOP))					\
+>>>>>>> upstream/android-13
 		__asm__ __volatile__("nop;nop;nop;nop");		\
 } while (0)
 
@@ -239,7 +256,11 @@ static void r4k_blast_dcache_setup(void)
 		r4k_blast_dcache = blast_dcache128;
 }
 
+<<<<<<< HEAD
 /* force code alignment (used for TX49XX_ICACHE_INDEX_INV_WAR) */
+=======
+/* force code alignment (used for CONFIG_WAR_TX49XX_ICACHE_INDEX_INV) */
+>>>>>>> upstream/android-13
 #define JUMP_TO_ALIGN(order) \
 	__asm__ __volatile__( \
 		"b\t1f\n\t" \
@@ -271,12 +292,22 @@ static inline void tx49_blast_icache32(void)
 	/* I'm in even chunk.  blast odd chunks */
 	for (ws = 0; ws < ws_end; ws += ws_inc)
 		for (addr = start + 0x400; addr < end; addr += 0x400 * 2)
+<<<<<<< HEAD
 			cache32_unroll32(addr|ws, Index_Invalidate_I);
+=======
+			cache_unroll(32, kernel_cache, Index_Invalidate_I,
+				     addr | ws, 32);
+>>>>>>> upstream/android-13
 	CACHE32_UNROLL32_ALIGN;
 	/* I'm in odd chunk.  blast even chunks */
 	for (ws = 0; ws < ws_end; ws += ws_inc)
 		for (addr = start; addr < end; addr += 0x400 * 2)
+<<<<<<< HEAD
 			cache32_unroll32(addr|ws, Index_Invalidate_I);
+=======
+			cache_unroll(32, kernel_cache, Index_Invalidate_I,
+				     addr | ws, 32);
+>>>>>>> upstream/android-13
 }
 
 static inline void blast_icache32_r4600_v1_page_indexed(unsigned long page)
@@ -302,12 +333,22 @@ static inline void tx49_blast_icache32_page_indexed(unsigned long page)
 	/* I'm in even chunk.  blast odd chunks */
 	for (ws = 0; ws < ws_end; ws += ws_inc)
 		for (addr = start + 0x400; addr < end; addr += 0x400 * 2)
+<<<<<<< HEAD
 			cache32_unroll32(addr|ws, Index_Invalidate_I);
+=======
+			cache_unroll(32, kernel_cache, Index_Invalidate_I,
+				     addr | ws, 32);
+>>>>>>> upstream/android-13
 	CACHE32_UNROLL32_ALIGN;
 	/* I'm in odd chunk.  blast even chunks */
 	for (ws = 0; ws < ws_end; ws += ws_inc)
 		for (addr = start; addr < end; addr += 0x400 * 2)
+<<<<<<< HEAD
 			cache32_unroll32(addr|ws, Index_Invalidate_I);
+=======
+			cache_unroll(32, kernel_cache, Index_Invalidate_I,
+				     addr | ws, 32);
+>>>>>>> upstream/android-13
 }
 
 static void (* r4k_blast_icache_page)(unsigned long addr);
@@ -320,7 +361,11 @@ static void r4k_blast_icache_page_setup(void)
 		r4k_blast_icache_page = (void *)cache_noop;
 	else if (ic_lsize == 16)
 		r4k_blast_icache_page = blast_icache16_page;
+<<<<<<< HEAD
 	else if (ic_lsize == 32 && current_cpu_type() == CPU_LOONGSON2)
+=======
+	else if (ic_lsize == 32 && current_cpu_type() == CPU_LOONGSON2EF)
+>>>>>>> upstream/android-13
 		r4k_blast_icache_page = loongson2_blast_icache32_page;
 	else if (ic_lsize == 32)
 		r4k_blast_icache_page = blast_icache32_page;
@@ -363,6 +408,7 @@ static void r4k_blast_icache_page_indexed_setup(void)
 	else if (ic_lsize == 16)
 		r4k_blast_icache_page_indexed = blast_icache16_page_indexed;
 	else if (ic_lsize == 32) {
+<<<<<<< HEAD
 		if (R4600_V1_INDEX_ICACHEOP_WAR && cpu_is_r4600_v1_x())
 			r4k_blast_icache_page_indexed =
 				blast_icache32_r4600_v1_page_indexed;
@@ -370,6 +416,16 @@ static void r4k_blast_icache_page_indexed_setup(void)
 			r4k_blast_icache_page_indexed =
 				tx49_blast_icache32_page_indexed;
 		else if (current_cpu_type() == CPU_LOONGSON2)
+=======
+		if (IS_ENABLED(CONFIG_WAR_R4600_V1_INDEX_ICACHEOP) &&
+		    cpu_is_r4600_v1_x())
+			r4k_blast_icache_page_indexed =
+				blast_icache32_r4600_v1_page_indexed;
+		else if (IS_ENABLED(CONFIG_WAR_TX49XX_ICACHE_INDEX_INV))
+			r4k_blast_icache_page_indexed =
+				tx49_blast_icache32_page_indexed;
+		else if (current_cpu_type() == CPU_LOONGSON2EF)
+>>>>>>> upstream/android-13
 			r4k_blast_icache_page_indexed =
 				loongson2_blast_icache32_page_indexed;
 		else
@@ -391,11 +447,20 @@ static void r4k_blast_icache_setup(void)
 	else if (ic_lsize == 16)
 		r4k_blast_icache = blast_icache16;
 	else if (ic_lsize == 32) {
+<<<<<<< HEAD
 		if (R4600_V1_INDEX_ICACHEOP_WAR && cpu_is_r4600_v1_x())
 			r4k_blast_icache = blast_r4600_v1_icache32;
 		else if (TX49XX_ICACHE_INDEX_INV_WAR)
 			r4k_blast_icache = tx49_blast_icache32;
 		else if (current_cpu_type() == CPU_LOONGSON2)
+=======
+		if (IS_ENABLED(CONFIG_WAR_R4600_V1_INDEX_ICACHEOP) &&
+		    cpu_is_r4600_v1_x())
+			r4k_blast_icache = blast_r4600_v1_icache32;
+		else if (IS_ENABLED(CONFIG_WAR_TX49XX_ICACHE_INDEX_INV))
+			r4k_blast_icache = tx49_blast_icache32;
+		else if (current_cpu_type() == CPU_LOONGSON2EF)
+>>>>>>> upstream/android-13
 			r4k_blast_icache = loongson2_blast_icache32;
 		else
 			r4k_blast_icache = blast_icache32;
@@ -465,7 +530,11 @@ static void r4k_blast_scache_node_setup(void)
 {
 	unsigned long sc_lsize = cpu_scache_line_size();
 
+<<<<<<< HEAD
 	if (current_cpu_type() != CPU_LOONGSON3)
+=======
+	if (current_cpu_type() != CPU_LOONGSON64)
+>>>>>>> upstream/android-13
 		r4k_blast_scache_node = (void *)cache_noop;
 	else if (sc_lsize == 16)
 		r4k_blast_scache_node = blast_scache16_node;
@@ -480,7 +549,11 @@ static void r4k_blast_scache_node_setup(void)
 static inline void local_r4k___flush_cache_all(void * args)
 {
 	switch (current_cpu_type()) {
+<<<<<<< HEAD
 	case CPU_LOONGSON2:
+=======
+	case CPU_LOONGSON2EF:
+>>>>>>> upstream/android-13
 	case CPU_R4000SC:
 	case CPU_R4000MC:
 	case CPU_R4400SC:
@@ -497,7 +570,11 @@ static inline void local_r4k___flush_cache_all(void * args)
 		r4k_blast_scache();
 		break;
 
+<<<<<<< HEAD
 	case CPU_LOONGSON3:
+=======
+	case CPU_LOONGSON64:
+>>>>>>> upstream/android-13
 		/* Use get_ebase_cpunum() for both NUMA=y/n */
 		r4k_blast_scache_node(get_ebase_cpunum() >> 2);
 		break;
@@ -540,6 +617,12 @@ static inline int has_valid_asid(const struct mm_struct *mm, unsigned int type)
 	unsigned int i;
 	const cpumask_t *mask = cpu_present_mask;
 
+<<<<<<< HEAD
+=======
+	if (cpu_has_mmid)
+		return cpu_context(0, mm) != 0;
+
+>>>>>>> upstream/android-13
 	/* cpu_sibling_map[] undeclared when !CONFIG_SMP */
 #ifdef CONFIG_SMP
 	/*
@@ -646,8 +729,11 @@ static inline void local_r4k_flush_cache_page(void *args)
 	int exec = vma->vm_flags & VM_EXEC;
 	struct mm_struct *mm = vma->vm_mm;
 	int map_coherent = 0;
+<<<<<<< HEAD
 	pgd_t *pgdp;
 	pud_t *pudp;
+=======
+>>>>>>> upstream/android-13
 	pmd_t *pmdp;
 	pte_t *ptep;
 	void *vaddr;
@@ -660,10 +746,15 @@ static inline void local_r4k_flush_cache_page(void *args)
 		return;
 
 	addr &= PAGE_MASK;
+<<<<<<< HEAD
 	pgdp = pgd_offset(mm, addr);
 	pudp = pud_offset(pgdp, addr);
 	pmdp = pmd_offset(pudp, addr);
 	ptep = pte_offset(pmdp, addr);
+=======
+	pmdp = pmd_off(mm, addr);
+	ptep = pte_offset_kernel(pmdp, addr);
+>>>>>>> upstream/android-13
 
 	/*
 	 * If the page isn't marked valid, the page cannot possibly be
@@ -697,10 +788,14 @@ static inline void local_r4k_flush_cache_page(void *args)
 	}
 	if (exec) {
 		if (vaddr && cpu_has_vtag_icache && mm == current->active_mm) {
+<<<<<<< HEAD
 			int cpu = smp_processor_id();
 
 			if (cpu_context(cpu, mm) != 0)
 				drop_mmu_context(mm, cpu);
+=======
+			drop_mmu_context(mm);
+>>>>>>> upstream/android-13
 		} else
 			vaddr ? r4k_blast_icache_page(addr) :
 				r4k_blast_icache_user_page(addr);
@@ -770,7 +865,11 @@ static inline void __local_r4k_flush_icache_range(unsigned long start,
 		r4k_blast_icache();
 	else {
 		switch (boot_cpu_type()) {
+<<<<<<< HEAD
 		case CPU_LOONGSON2:
+=======
+		case CPU_LOONGSON2EF:
+>>>>>>> upstream/android-13
 			protected_loongson2_blast_icache_range(start, end);
 			break;
 
@@ -863,7 +962,11 @@ static void r4k_dma_cache_wback_inv(unsigned long addr, unsigned long size)
 	preempt_disable();
 	if (cpu_has_inclusive_pcaches) {
 		if (size >= scache_size) {
+<<<<<<< HEAD
 			if (current_cpu_type() != CPU_LOONGSON3)
+=======
+			if (current_cpu_type() != CPU_LOONGSON64)
+>>>>>>> upstream/android-13
 				r4k_blast_scache();
 			else
 				r4k_blast_scache_node(pa_to_nid(addr));
@@ -895,6 +998,34 @@ static void r4k_dma_cache_wback_inv(unsigned long addr, unsigned long size)
 	__sync();
 }
 
+<<<<<<< HEAD
+=======
+static void prefetch_cache_inv(unsigned long addr, unsigned long size)
+{
+	unsigned int linesz = cpu_scache_line_size();
+	unsigned long addr0 = addr, addr1;
+
+	addr0 &= ~(linesz - 1);
+	addr1 = (addr0 + size - 1) & ~(linesz - 1);
+
+	protected_writeback_scache_line(addr0);
+	if (likely(addr1 != addr0))
+		protected_writeback_scache_line(addr1);
+	else
+		return;
+
+	addr0 += linesz;
+	if (likely(addr1 != addr0))
+		protected_writeback_scache_line(addr0);
+	else
+		return;
+
+	addr1 -= linesz;
+	if (likely(addr1 > addr0))
+		protected_writeback_scache_line(addr0);
+}
+
+>>>>>>> upstream/android-13
 static void r4k_dma_cache_inv(unsigned long addr, unsigned long size)
 {
 	/* Catch bad driver code */
@@ -902,9 +1033,19 @@ static void r4k_dma_cache_inv(unsigned long addr, unsigned long size)
 		return;
 
 	preempt_disable();
+<<<<<<< HEAD
 	if (cpu_has_inclusive_pcaches) {
 		if (size >= scache_size) {
 			if (current_cpu_type() != CPU_LOONGSON3)
+=======
+
+	if (current_cpu_type() == CPU_BMIPS5000)
+		prefetch_cache_inv(addr, size);
+
+	if (cpu_has_inclusive_pcaches) {
+		if (size >= scache_size) {
+			if (current_cpu_type() != CPU_LOONGSON64)
+>>>>>>> upstream/android-13
 				r4k_blast_scache();
 			else
 				r4k_blast_scache_node(pa_to_nid(addr));
@@ -937,6 +1078,7 @@ static void r4k_dma_cache_inv(unsigned long addr, unsigned long size)
 }
 #endif /* CONFIG_DMA_NONCOHERENT */
 
+<<<<<<< HEAD
 struct flush_cache_sigtramp_args {
 	struct mm_struct *mm;
 	struct page *page;
@@ -1050,6 +1192,8 @@ out:
 	up_read(&current->mm->mmap_sem);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void r4k_flush_icache_all(void)
 {
 	if (cpu_has_vtag_icache)
@@ -1127,7 +1271,11 @@ static inline void rm7k_erratum31(void)
 			"cache\t%1, 0x3000(%0)\n\t"
 			".set pop\n"
 			:
+<<<<<<< HEAD
 			: "r" (addr), "i" (Index_Store_Tag_I), "i" (Fill));
+=======
+			: "r" (addr), "i" (Index_Store_Tag_I), "i" (Fill_I));
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1151,12 +1299,20 @@ static inline int alias_74k_erratum(struct cpuinfo_mips *c)
 		if (rev <= PRID_REV_ENCODE_332(2, 4, 0))
 			present = 1;
 		if (rev == PRID_REV_ENCODE_332(2, 4, 0))
+<<<<<<< HEAD
 			write_c0_config6(read_c0_config6() | MIPS_CONF6_SYND);
+=======
+			write_c0_config6(read_c0_config6() | MTI_CONF6_SYND);
+>>>>>>> upstream/android-13
 		break;
 	case PRID_IMP_1074K:
 		if (rev <= PRID_REV_ENCODE_332(1, 1, 0)) {
 			present = 1;
+<<<<<<< HEAD
 			write_c0_config6(read_c0_config6() | MIPS_CONF6_SYND);
+=======
+			write_c0_config6(read_c0_config6() | MTI_CONF6_SYND);
+>>>>>>> upstream/android-13
 		}
 		break;
 	default:
@@ -1211,7 +1367,10 @@ static void probe_pcache(void)
 		c->options |= MIPS_CPU_CACHE_CDEX_P;
 		break;
 
+<<<<<<< HEAD
 	case CPU_R5432:
+=======
+>>>>>>> upstream/android-13
 	case CPU_R5500:
 		icache_size = 1 << (12 + ((config & CONF_IC) >> 9));
 		c->icache.linesz = 16 << ((config & CONF_IB) >> 5);
@@ -1280,6 +1439,10 @@ static void probe_pcache(void)
 
 	case CPU_VR4133:
 		write_c0_config(config & ~VR41_CONF_P4K);
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case CPU_VR4131:
 		/* Workaround for cache instruction bug of VR4131 */
 		if (c->processor_id == 0x0c80U || c->processor_id == 0x0c81U ||
@@ -1338,7 +1501,11 @@ static void probe_pcache(void)
 		c->options |= MIPS_CPU_PREFETCH;
 		break;
 
+<<<<<<< HEAD
 	case CPU_LOONGSON2:
+=======
+	case CPU_LOONGSON2EF:
+>>>>>>> upstream/android-13
 		icache_size = 1 << (12 + ((config & CONF_IC) >> 9));
 		c->icache.linesz = 16 << ((config & CONF_IB) >> 5);
 		if (prid & 0x3)
@@ -1356,7 +1523,11 @@ static void probe_pcache(void)
 		c->dcache.waybit = 0;
 		break;
 
+<<<<<<< HEAD
 	case CPU_LOONGSON3:
+=======
+	case CPU_LOONGSON64:
+>>>>>>> upstream/android-13
 		config1 = read_c0_config1();
 		lsize = (config1 >> 19) & 7;
 		if (lsize)
@@ -1381,7 +1552,13 @@ static void probe_pcache(void)
 					  c->dcache.ways *
 					  c->dcache.linesz;
 		c->dcache.waybit = 0;
+<<<<<<< HEAD
 		if ((prid & PRID_REV_MASK) >= PRID_REV_LOONGSON3A_R2)
+=======
+		if ((c->processor_id & (PRID_IMP_MASK | PRID_REV_MASK)) >=
+				(PRID_IMP_LOONGSON_64C | PRID_REV_LOONGSON3A_R2_0) ||
+				(c->processor_id & PRID_IMP_MASK) == PRID_IMP_LOONGSON_64R)
+>>>>>>> upstream/android-13
 			c->options |= MIPS_CPU_PREFETCH;
 		break;
 
@@ -1503,7 +1680,11 @@ static void probe_pcache(void)
 	case CPU_74K:
 	case CPU_1074K:
 		has_74k_erratum = alias_74k_erratum(c);
+<<<<<<< HEAD
 		/* Fall through. */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case CPU_M14KC:
 	case CPU_M14KEC:
 	case CPU_24K:
@@ -1527,6 +1708,10 @@ static void probe_pcache(void)
 			c->dcache.flags |= MIPS_CACHE_PINDEX;
 			break;
 		}
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		if (has_74k_erratum || c->dcache.waysize > PAGE_SIZE)
 			c->dcache.flags |= MIPS_CACHE_ALIASES;
@@ -1565,7 +1750,11 @@ static void probe_pcache(void)
 		c->dcache.flags &= ~MIPS_CACHE_ALIASES;
 		break;
 
+<<<<<<< HEAD
 	case CPU_LOONGSON2:
+=======
+	case CPU_LOONGSON2EF:
+>>>>>>> upstream/android-13
 		/*
 		 * LOONGSON2 has 4 way icache, but when using indexed cache op,
 		 * one op will act on all 4 ways
@@ -1573,6 +1762,7 @@ static void probe_pcache(void)
 		c->icache.ways = 1;
 	}
 
+<<<<<<< HEAD
 	printk("Primary instruction cache %ldkB, %s, %s, linesize %d bytes.\n",
 	       icache_size >> 10,
 	       c->icache.flags & MIPS_CACHE_VTAG ? "VIVT" : "VIPT",
@@ -1584,6 +1774,19 @@ static void probe_pcache(void)
 	       (c->dcache.flags & MIPS_CACHE_ALIASES) ?
 			"cache aliases" : "no aliases",
 	       c->dcache.linesz);
+=======
+	pr_info("Primary instruction cache %ldkB, %s, %s, linesize %d bytes.\n",
+		icache_size >> 10,
+		c->icache.flags & MIPS_CACHE_VTAG ? "VIVT" : "VIPT",
+		way_string[c->icache.ways], c->icache.linesz);
+
+	pr_info("Primary data cache %ldkB, %s, %s, %s, linesize %d bytes\n",
+		dcache_size >> 10, way_string[c->dcache.ways],
+		(c->dcache.flags & MIPS_CACHE_PINDEX) ? "PIPT" : "VIPT",
+		(c->dcache.flags & MIPS_CACHE_ALIASES) ?
+			"cache aliases" : "no aliases",
+		c->dcache.linesz);
+>>>>>>> upstream/android-13
 }
 
 static void probe_vcache(void)
@@ -1591,7 +1794,11 @@ static void probe_vcache(void)
 	struct cpuinfo_mips *c = &current_cpu_data;
 	unsigned int config2, lsize;
 
+<<<<<<< HEAD
 	if (current_cpu_type() != CPU_LOONGSON3)
+=======
+	if (current_cpu_type() != CPU_LOONGSON64)
+>>>>>>> upstream/android-13
 		return;
 
 	config2 = read_c0_config2();
@@ -1689,7 +1896,11 @@ static void loongson2_sc_init(void)
 	c->options |= MIPS_CPU_INCLUSIVE_CACHES;
 }
 
+<<<<<<< HEAD
 static void __init loongson3_sc_init(void)
+=======
+static void loongson3_sc_init(void)
+>>>>>>> upstream/android-13
 {
 	struct cpuinfo_mips *c = &current_cpu_data;
 	unsigned int config2, lsize;
@@ -1703,11 +1914,22 @@ static void __init loongson3_sc_init(void)
 	c->scache.sets = 64 << ((config2 >> 8) & 15);
 	c->scache.ways = 1 + (config2 & 15);
 
+<<<<<<< HEAD
 	scache_size = c->scache.sets *
 				  c->scache.ways *
 				  c->scache.linesz;
 	/* Loongson-3 has 4 cores, 1MB scache for each. scaches are shared */
 	scache_size *= 4;
+=======
+	/* Loongson-3 has 4-Scache banks, while Loongson-2K have only 2 banks */
+	if ((c->processor_id & PRID_IMP_MASK) == PRID_IMP_LOONGSON_64R)
+		c->scache.sets *= 2;
+	else
+		c->scache.sets *= 4;
+
+	scache_size = c->scache.sets * c->scache.ways * c->scache.linesz;
+
+>>>>>>> upstream/android-13
 	c->scache.waybit = 0;
 	c->scache.waysize = scache_size / c->scache.ways;
 	pr_info("Unified secondary cache %ldkB %s, linesize %d bytes.\n",
@@ -1766,11 +1988,19 @@ static void setup_scache(void)
 #endif
 		return;
 
+<<<<<<< HEAD
 	case CPU_LOONGSON2:
 		loongson2_sc_init();
 		return;
 
 	case CPU_LOONGSON3:
+=======
+	case CPU_LOONGSON2EF:
+		loongson2_sc_init();
+		return;
+
+	case CPU_LOONGSON64:
+>>>>>>> upstream/android-13
 		loongson3_sc_init();
 		return;
 
@@ -1780,9 +2010,16 @@ static void setup_scache(void)
 		return;
 
 	default:
+<<<<<<< HEAD
 		if (c->isa_level & (MIPS_CPU_ISA_M32R1 | MIPS_CPU_ISA_M32R2 |
 				    MIPS_CPU_ISA_M32R6 | MIPS_CPU_ISA_M64R1 |
 				    MIPS_CPU_ISA_M64R2 | MIPS_CPU_ISA_M64R6)) {
+=======
+		if (c->isa_level & (MIPS_CPU_ISA_M32R1 | MIPS_CPU_ISA_M64R1 |
+				    MIPS_CPU_ISA_M32R2 | MIPS_CPU_ISA_M64R2 |
+				    MIPS_CPU_ISA_M32R5 | MIPS_CPU_ISA_M64R5 |
+				    MIPS_CPU_ISA_M32R6 | MIPS_CPU_ISA_M64R6)) {
+>>>>>>> upstream/android-13
 #ifdef CONFIG_MIPS_CPU_SCACHE
 			if (mips_sc_init ()) {
 				scache_size = c->scache.ways * c->scache.sets * c->scache.linesz;
@@ -1980,7 +2217,10 @@ void r4k_cache_init(void)
 
 	__flush_kernel_vmap_range = r4k_flush_kernel_vmap_range;
 
+<<<<<<< HEAD
 	flush_cache_sigtramp	= r4k_flush_cache_sigtramp;
+=======
+>>>>>>> upstream/android-13
 	flush_icache_all	= r4k_flush_icache_all;
 	local_flush_data_cache_page	= local_r4k_flush_data_cache_page;
 	flush_data_cache_page	= r4k_flush_data_cache_page;
@@ -1989,6 +2229,7 @@ void r4k_cache_init(void)
 	__flush_icache_user_range	= r4k_flush_icache_user_range;
 	__local_flush_icache_user_range	= local_r4k_flush_icache_user_range;
 
+<<<<<<< HEAD
 #if defined(CONFIG_DMA_NONCOHERENT) || defined(CONFIG_DMA_MAYBE_COHERENT)
 # if defined(CONFIG_DMA_PERDEV_COHERENT)
 	if (0) {
@@ -1996,6 +2237,10 @@ void r4k_cache_init(void)
 	if ((coherentio == IO_COHERENCE_ENABLED) ||
 	    ((coherentio == IO_COHERENCE_DEFAULT) && hw_coherentio)) {
 # endif
+=======
+#ifdef CONFIG_DMA_NONCOHERENT
+	if (dma_default_coherent) {
+>>>>>>> upstream/android-13
 		_dma_cache_wback_inv	= (void *)cache_noop;
 		_dma_cache_wback	= (void *)cache_noop;
 		_dma_cache_inv		= (void *)cache_noop;
@@ -2004,7 +2249,11 @@ void r4k_cache_init(void)
 		_dma_cache_wback	= r4k_dma_cache_wback_inv;
 		_dma_cache_inv		= r4k_dma_cache_inv;
 	}
+<<<<<<< HEAD
 #endif
+=======
+#endif /* CONFIG_DMA_NONCOHERENT */
+>>>>>>> upstream/android-13
 
 	build_clear_page();
 	build_copy_page();
@@ -2036,7 +2285,10 @@ void r4k_cache_init(void)
 		/* I$ fills from D$ just by emptying the write buffers */
 		flush_cache_page = (void *)b5k_instruction_hazard;
 		flush_cache_range = (void *)b5k_instruction_hazard;
+<<<<<<< HEAD
 		flush_cache_sigtramp = (void *)b5k_instruction_hazard;
+=======
+>>>>>>> upstream/android-13
 		local_flush_data_cache_page = (void *)b5k_instruction_hazard;
 		flush_data_cache_page = (void *)b5k_instruction_hazard;
 		flush_icache_range = (void *)b5k_instruction_hazard;
@@ -2046,7 +2298,11 @@ void r4k_cache_init(void)
 		/* Optimization: an L2 flush implicitly flushes the L1 */
 		current_cpu_data.options |= MIPS_CPU_INCLUSIVE_CACHES;
 		break;
+<<<<<<< HEAD
 	case CPU_LOONGSON3:
+=======
+	case CPU_LOONGSON64:
+>>>>>>> upstream/android-13
 		/* Loongson-3 maintains cache coherency by hardware */
 		__flush_cache_all	= cache_noop;
 		__flush_cache_vmap	= cache_noop;
@@ -2055,7 +2311,10 @@ void r4k_cache_init(void)
 		flush_cache_mm		= (void *)cache_noop;
 		flush_cache_page	= (void *)cache_noop;
 		flush_cache_range	= (void *)cache_noop;
+<<<<<<< HEAD
 		flush_cache_sigtramp	= (void *)cache_noop;
+=======
+>>>>>>> upstream/android-13
 		flush_icache_all	= (void *)cache_noop;
 		flush_data_cache_page	= (void *)cache_noop;
 		local_flush_data_cache_page	= (void *)cache_noop;

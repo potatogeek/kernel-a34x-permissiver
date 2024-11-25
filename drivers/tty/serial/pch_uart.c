@@ -2,9 +2,12 @@
 /*
  *Copyright (C) 2011 LAPIS Semiconductor Co., Ltd.
  */
+<<<<<<< HEAD
 #if defined(CONFIG_SERIAL_PCH_UART_CONSOLE) && defined(CONFIG_MAGIC_SYSRQ)
 #define SUPPORT_SYSRQ
 #endif
+=======
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/serial_reg.h>
 #include <linux/slab.h>
@@ -239,7 +242,10 @@ struct eg20t_port {
 	void				*rx_buf_virt;
 	dma_addr_t			rx_buf_dma;
 
+<<<<<<< HEAD
 	struct dentry	*debugfs;
+=======
+>>>>>>> upstream/android-13
 #define IRQ_NAME_SIZE 17
 	char				irq_name[IRQ_NAME_SIZE];
 
@@ -295,8 +301,11 @@ static const int trigger_level_64[4] = { 1, 16, 32, 56 };
 static const int trigger_level_16[4] = { 1, 4, 8, 14 };
 static const int trigger_level_1[4] = { 1, 1, 1, 1 };
 
+<<<<<<< HEAD
 #ifdef CONFIG_DEBUG_FS
 
+=======
+>>>>>>> upstream/android-13
 #define PCH_REGS_BUFSIZE	1024
 
 
@@ -313,6 +322,7 @@ static ssize_t port_show_regs(struct file *file, char __user *user_buf,
 	if (!buf)
 		return 0;
 
+<<<<<<< HEAD
 	len += snprintf(buf + len, PCH_REGS_BUFSIZE - len,
 			"PCH EG20T port[%d] regs:\n", priv->port.line);
 
@@ -331,14 +341,40 @@ static ssize_t port_show_regs(struct file *file, char __user *user_buf,
 	len += snprintf(buf + len, PCH_REGS_BUFSIZE - len,
 			"MSR: \t0x%02x\n", ioread8(priv->membase + UART_MSR));
 	len += snprintf(buf + len, PCH_REGS_BUFSIZE - len,
+=======
+	len += scnprintf(buf + len, PCH_REGS_BUFSIZE - len,
+			"PCH EG20T port[%d] regs:\n", priv->port.line);
+
+	len += scnprintf(buf + len, PCH_REGS_BUFSIZE - len,
+			"=================================\n");
+	len += scnprintf(buf + len, PCH_REGS_BUFSIZE - len,
+			"IER: \t0x%02x\n", ioread8(priv->membase + UART_IER));
+	len += scnprintf(buf + len, PCH_REGS_BUFSIZE - len,
+			"IIR: \t0x%02x\n", ioread8(priv->membase + UART_IIR));
+	len += scnprintf(buf + len, PCH_REGS_BUFSIZE - len,
+			"LCR: \t0x%02x\n", ioread8(priv->membase + UART_LCR));
+	len += scnprintf(buf + len, PCH_REGS_BUFSIZE - len,
+			"MCR: \t0x%02x\n", ioread8(priv->membase + UART_MCR));
+	len += scnprintf(buf + len, PCH_REGS_BUFSIZE - len,
+			"LSR: \t0x%02x\n", ioread8(priv->membase + UART_LSR));
+	len += scnprintf(buf + len, PCH_REGS_BUFSIZE - len,
+			"MSR: \t0x%02x\n", ioread8(priv->membase + UART_MSR));
+	len += scnprintf(buf + len, PCH_REGS_BUFSIZE - len,
+>>>>>>> upstream/android-13
 			"BRCSR: \t0x%02x\n",
 			ioread8(priv->membase + PCH_UART_BRCSR));
 
 	lcr = ioread8(priv->membase + UART_LCR);
 	iowrite8(PCH_UART_LCR_DLAB, priv->membase + UART_LCR);
+<<<<<<< HEAD
 	len += snprintf(buf + len, PCH_REGS_BUFSIZE - len,
 			"DLL: \t0x%02x\n", ioread8(priv->membase + UART_DLL));
 	len += snprintf(buf + len, PCH_REGS_BUFSIZE - len,
+=======
+	len += scnprintf(buf + len, PCH_REGS_BUFSIZE - len,
+			"DLL: \t0x%02x\n", ioread8(priv->membase + UART_DLL));
+	len += scnprintf(buf + len, PCH_REGS_BUFSIZE - len,
+>>>>>>> upstream/android-13
 			"DLM: \t0x%02x\n", ioread8(priv->membase + UART_DLM));
 	iowrite8(lcr, priv->membase + UART_LCR);
 
@@ -356,7 +392,10 @@ static const struct file_operations port_regs_ops = {
 	.read		= port_show_regs,
 	.llseek		= default_llseek,
 };
+<<<<<<< HEAD
 #endif	/* CONFIG_DEBUG_FS */
+=======
+>>>>>>> upstream/android-13
 
 static const struct dmi_system_id pch_uart_dmi_table[] = {
 	{
@@ -587,12 +626,17 @@ static int pch_uart_hal_read(struct eg20t_port *priv, unsigned char *buf,
 			if (uart_handle_break(port))
 				continue;
 		}
+<<<<<<< HEAD
 #ifdef SUPPORT_SYSRQ
 		if (port->sysrq) {
 			if (uart_handle_sysrq_char(port, rbr))
 				continue;
 		}
 #endif
+=======
+		if (uart_handle_sysrq_char(port, rbr))
+			continue;
+>>>>>>> upstream/android-13
 
 		buf[i++] = rbr;
 	}
@@ -933,7 +977,10 @@ static unsigned int dma_handle_tx(struct eg20t_port *priv)
 	struct scatterlist *sg;
 	int nent;
 	int fifo_size;
+<<<<<<< HEAD
 	int tx_empty;
+=======
+>>>>>>> upstream/android-13
 	struct dma_async_tx_descriptor *desc;
 	int num;
 	int i;
@@ -958,11 +1005,17 @@ static unsigned int dma_handle_tx(struct eg20t_port *priv)
 	}
 
 	fifo_size = max(priv->fifo_size, 1);
+<<<<<<< HEAD
 	tx_empty = 1;
 	if (pop_tx_x(priv, xmit->buf)) {
 		pch_uart_hal_write(priv, xmit->buf, 1);
 		port->icount.tx++;
 		tx_empty = 0;
+=======
+	if (pop_tx_x(priv, xmit->buf)) {
+		pch_uart_hal_write(priv, xmit->buf, 1);
+		port->icount.tx++;
+>>>>>>> upstream/android-13
 		fifo_size--;
 	}
 
@@ -991,7 +1044,11 @@ static unsigned int dma_handle_tx(struct eg20t_port *priv)
 
 	priv->tx_dma_use = 1;
 
+<<<<<<< HEAD
 	priv->sg_tx_p = kcalloc(num, sizeof(struct scatterlist), GFP_ATOMIC);
+=======
+	priv->sg_tx_p = kmalloc_array(num, sizeof(struct scatterlist), GFP_ATOMIC);
+>>>>>>> upstream/android-13
 	if (!priv->sg_tx_p) {
 		dev_err(priv->port.dev, "%s:kzalloc Failed\n", __func__);
 		return 0;
@@ -1745,9 +1802,13 @@ static struct eg20t_port *pch_uart_init_port(struct pci_dev *pdev,
 	int fifosize;
 	int port_type;
 	struct pch_uart_driver_data *board;
+<<<<<<< HEAD
 #ifdef CONFIG_DEBUG_FS
 	char name[32];	/* for debugfs file name */
 #endif
+=======
+	char name[32];
+>>>>>>> upstream/android-13
 
 	board = &drv_dat[id->driver_data];
 	port_type = board->port_type;
@@ -1799,6 +1860,10 @@ static struct eg20t_port *pch_uart_init_port(struct pci_dev *pdev,
 	priv->port.flags = UPF_BOOT_AUTOCONF;
 	priv->port.fifosize = fifosize;
 	priv->port.line = board->line_no;
+<<<<<<< HEAD
+=======
+	priv->port.has_sysrq = IS_ENABLED(CONFIG_SERIAL_PCH_UART_CONSOLE);
+>>>>>>> upstream/android-13
 	priv->trigger = PCH_UART_HAL_TRIGGER_M;
 
 	snprintf(priv->irq_name, IRQ_NAME_SIZE,
@@ -1822,11 +1887,17 @@ static struct eg20t_port *pch_uart_init_port(struct pci_dev *pdev,
 	if (ret < 0)
 		goto init_port_hal_free;
 
+<<<<<<< HEAD
 #ifdef CONFIG_DEBUG_FS
 	snprintf(name, sizeof(name), "uart%d_regs", board->line_no);
 	priv->debugfs = debugfs_create_file(name, S_IFREG | S_IRUGO,
 				NULL, priv, &port_regs_ops);
 #endif
+=======
+	snprintf(name, sizeof(name), "uart%d_regs", priv->port.line);
+	debugfs_create_file(name, S_IFREG | S_IRUGO, NULL, priv,
+			    &port_regs_ops);
+>>>>>>> upstream/android-13
 
 	return priv;
 
@@ -1844,10 +1915,17 @@ init_port_alloc_err:
 
 static void pch_uart_exit_port(struct eg20t_port *priv)
 {
+<<<<<<< HEAD
 
 #ifdef CONFIG_DEBUG_FS
 	debugfs_remove(priv->debugfs);
 #endif
+=======
+	char name[32];
+
+	snprintf(name, sizeof(name), "uart%d_regs", priv->port.line);
+	debugfs_remove(debugfs_lookup(name, NULL));
+>>>>>>> upstream/android-13
 	uart_remove_one_port(&pch_uart_driver, &priv->port);
 	free_page((unsigned long)priv->rxbuf.buf);
 }
@@ -1866,6 +1944,7 @@ static void pch_uart_pci_remove(struct pci_dev *pdev)
 	kfree(priv);
 	return;
 }
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 static int pch_uart_pci_suspend(struct pci_dev *pdev, pm_message_t state)
 {
@@ -1892,15 +1971,33 @@ static int pch_uart_pci_resume(struct pci_dev *pdev)
 		"%s-pci_enable_device failed(ret=%d) ", __func__, ret);
 		return ret;
 	}
+=======
+
+static int __maybe_unused pch_uart_pci_suspend(struct device *dev)
+{
+	struct eg20t_port *priv = dev_get_drvdata(dev);
+
+	uart_suspend_port(&pch_uart_driver, &priv->port);
+
+	return 0;
+}
+
+static int __maybe_unused pch_uart_pci_resume(struct device *dev)
+{
+	struct eg20t_port *priv = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 
 	uart_resume_port(&pch_uart_driver, &priv->port);
 
 	return 0;
 }
+<<<<<<< HEAD
 #else
 #define pch_uart_pci_suspend NULL
 #define pch_uart_pci_resume NULL
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static const struct pci_device_id pch_uart_pci_id[] = {
 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x8811),
@@ -1954,13 +2051,24 @@ probe_error:
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static SIMPLE_DEV_PM_OPS(pch_uart_pci_pm_ops,
+			 pch_uart_pci_suspend,
+			 pch_uart_pci_resume);
+
+>>>>>>> upstream/android-13
 static struct pci_driver pch_uart_pci_driver = {
 	.name = "pch_uart",
 	.id_table = pch_uart_pci_id,
 	.probe = pch_uart_pci_probe,
 	.remove = pch_uart_pci_remove,
+<<<<<<< HEAD
 	.suspend = pch_uart_pci_suspend,
 	.resume = pch_uart_pci_resume,
+=======
+	.driver.pm = &pch_uart_pci_pm_ops,
+>>>>>>> upstream/android-13
 };
 
 static int __init pch_uart_module_init(void)

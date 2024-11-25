@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2011 Jamie Iles
  *
@@ -5,6 +6,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2011 Jamie Iles
+ *
+>>>>>>> upstream/android-13
  * All enquiries to support@picochip.com
  */
 #include <linux/acpi.h>
@@ -16,6 +23,7 @@
 #include <linux/io.h>
 #include <linux/ioport.h>
 #include <linux/irq.h>
+<<<<<<< HEAD
 #include <linux/irqdomain.h>
 #include <linux/module.h>
 #include <linux/of.h>
@@ -30,6 +38,19 @@
 #include <linux/slab.h>
 
 #include "gpiolib.h"
+=======
+#include <linux/mod_devicetable.h>
+#include <linux/module.h>
+#include <linux/of.h>
+#include <linux/platform_device.h>
+#include <linux/property.h>
+#include <linux/reset.h>
+#include <linux/slab.h>
+#include <linux/spinlock.h>
+
+#include "gpiolib.h"
+#include "gpiolib-acpi.h"
+>>>>>>> upstream/android-13
 
 #define GPIO_SWPORTA_DR		0x00
 #define GPIO_SWPORTA_DDR	0x04
@@ -53,6 +74,10 @@
 
 #define DWAPB_DRIVER_NAME	"gpio-dwapb"
 #define DWAPB_MAX_PORTS		4
+<<<<<<< HEAD
+=======
+#define DWAPB_MAX_GPIOS		32
+>>>>>>> upstream/android-13
 
 #define GPIO_EXT_PORT_STRIDE	0x04 /* register stride 32 bits */
 #define GPIO_SWPORT_DR_STRIDE	0x0c /* register stride 3*32 bits */
@@ -66,8 +91,28 @@
 #define GPIO_INTSTATUS_V2	0x3c
 #define GPIO_PORTA_EOI_V2	0x40
 
+<<<<<<< HEAD
 struct dwapb_gpio;
 
+=======
+#define DWAPB_NR_CLOCKS		2
+
+struct dwapb_gpio;
+
+struct dwapb_port_property {
+	struct fwnode_handle *fwnode;
+	unsigned int idx;
+	unsigned int ngpio;
+	unsigned int gpio_base;
+	int irq[DWAPB_MAX_GPIOS];
+};
+
+struct dwapb_platform_data {
+	struct dwapb_port_property *properties;
+	unsigned int nports;
+};
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM_SLEEP
 /* Store GPIO context across system-wide suspend/resume transitions */
 struct dwapb_context {
@@ -83,25 +128,48 @@ struct dwapb_context {
 };
 #endif
 
+<<<<<<< HEAD
 struct dwapb_gpio_port {
 	struct gpio_chip	gc;
 	bool			is_registered;
+=======
+struct dwapb_gpio_port_irqchip {
+	struct irq_chip		irqchip;
+	unsigned int		nr_irqs;
+	unsigned int		irq[DWAPB_MAX_GPIOS];
+};
+
+struct dwapb_gpio_port {
+	struct gpio_chip	gc;
+	struct dwapb_gpio_port_irqchip *pirq;
+>>>>>>> upstream/android-13
 	struct dwapb_gpio	*gpio;
 #ifdef CONFIG_PM_SLEEP
 	struct dwapb_context	*ctx;
 #endif
 	unsigned int		idx;
 };
+<<<<<<< HEAD
+=======
+#define to_dwapb_gpio(_gc) \
+	(container_of(_gc, struct dwapb_gpio_port, gc)->gpio)
+>>>>>>> upstream/android-13
 
 struct dwapb_gpio {
 	struct	device		*dev;
 	void __iomem		*regs;
 	struct dwapb_gpio_port	*ports;
 	unsigned int		nr_ports;
+<<<<<<< HEAD
 	struct irq_domain	*domain;
 	unsigned int		flags;
 	struct reset_control	*rst;
 	struct clk		*clk;
+=======
+	unsigned int		flags;
+	struct reset_control	*rst;
+	struct clk_bulk_data	clks[DWAPB_NR_CLOCKS];
+>>>>>>> upstream/android-13
 };
 
 static inline u32 gpio_reg_v2_convert(unsigned int offset)
@@ -147,6 +215,7 @@ static inline void dwapb_write(struct dwapb_gpio *gpio, unsigned int offset,
 	gc->write_reg(reg_base + gpio_reg_convert(gpio, offset), val);
 }
 
+<<<<<<< HEAD
 static int dwapb_gpio_to_irq(struct gpio_chip *gc, unsigned offset)
 {
 	struct dwapb_gpio_port *port = gpiochip_get_data(gc);
@@ -155,6 +224,8 @@ static int dwapb_gpio_to_irq(struct gpio_chip *gc, unsigned offset)
 	return irq_find_mapping(gpio->domain, offset);
 }
 
+=======
+>>>>>>> upstream/android-13
 static struct dwapb_gpio_port *dwapb_offs_to_port(struct dwapb_gpio *gpio, unsigned int offs)
 {
 	struct dwapb_gpio_port *port;
@@ -162,7 +233,11 @@ static struct dwapb_gpio_port *dwapb_offs_to_port(struct dwapb_gpio *gpio, unsig
 
 	for (i = 0; i < gpio->nr_ports; i++) {
 		port = &gpio->ports[i];
+<<<<<<< HEAD
 		if (port->idx == offs / 32)
+=======
+		if (port->idx == offs / DWAPB_MAX_GPIOS)
+>>>>>>> upstream/android-13
 			return port;
 	}
 
@@ -182,7 +257,11 @@ static void dwapb_toggle_trigger(struct dwapb_gpio *gpio, unsigned int offs)
 
 	pol = dwapb_read(gpio, GPIO_INT_POLARITY);
 	/* Just read the current value right out of the data register */
+<<<<<<< HEAD
 	val = gc->get(gc, offs % 32);
+=======
+	val = gc->get(gc, offs % DWAPB_MAX_GPIOS);
+>>>>>>> upstream/android-13
 	if (val)
 		pol &= ~BIT(offs);
 	else
@@ -193,6 +272,7 @@ static void dwapb_toggle_trigger(struct dwapb_gpio *gpio, unsigned int offs)
 
 static u32 dwapb_do_irq(struct dwapb_gpio *gpio)
 {
+<<<<<<< HEAD
 	u32 irq_status = dwapb_read(gpio, GPIO_INTSTATUS);
 	u32 ret = irq_status;
 
@@ -209,6 +289,24 @@ static u32 dwapb_do_irq(struct dwapb_gpio *gpio)
 	}
 
 	return ret;
+=======
+	struct gpio_chip *gc = &gpio->ports[0].gc;
+	unsigned long irq_status;
+	irq_hw_number_t hwirq;
+
+	irq_status = dwapb_read(gpio, GPIO_INTSTATUS);
+	for_each_set_bit(hwirq, &irq_status, DWAPB_MAX_GPIOS) {
+		int gpio_irq = irq_find_mapping(gc->irq.domain, hwirq);
+		u32 irq_type = irq_get_trigger_type(gpio_irq);
+
+		generic_handle_irq(gpio_irq);
+
+		if ((irq_type & IRQ_TYPE_SENSE_MASK) == IRQ_TYPE_EDGE_BOTH)
+			dwapb_toggle_trigger(gpio, hwirq);
+	}
+
+	return irq_status;
+>>>>>>> upstream/android-13
 }
 
 static void dwapb_irq_handler(struct irq_desc *desc)
@@ -216,42 +314,110 @@ static void dwapb_irq_handler(struct irq_desc *desc)
 	struct dwapb_gpio *gpio = irq_desc_get_handler_data(desc);
 	struct irq_chip *chip = irq_desc_get_chip(desc);
 
+<<<<<<< HEAD
 	dwapb_do_irq(gpio);
 
 	if (chip->irq_eoi)
 		chip->irq_eoi(irq_desc_get_irq_data(desc));
+=======
+	chained_irq_enter(chip, desc);
+	dwapb_do_irq(gpio);
+	chained_irq_exit(chip, desc);
+}
+
+static irqreturn_t dwapb_irq_handler_mfd(int irq, void *dev_id)
+{
+	return IRQ_RETVAL(dwapb_do_irq(dev_id));
+}
+
+static void dwapb_irq_ack(struct irq_data *d)
+{
+	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
+	struct dwapb_gpio *gpio = to_dwapb_gpio(gc);
+	u32 val = BIT(irqd_to_hwirq(d));
+	unsigned long flags;
+
+	spin_lock_irqsave(&gc->bgpio_lock, flags);
+	dwapb_write(gpio, GPIO_PORTA_EOI, val);
+	spin_unlock_irqrestore(&gc->bgpio_lock, flags);
+}
+
+static void dwapb_irq_mask(struct irq_data *d)
+{
+	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
+	struct dwapb_gpio *gpio = to_dwapb_gpio(gc);
+	unsigned long flags;
+	u32 val;
+
+	spin_lock_irqsave(&gc->bgpio_lock, flags);
+	val = dwapb_read(gpio, GPIO_INTMASK) | BIT(irqd_to_hwirq(d));
+	dwapb_write(gpio, GPIO_INTMASK, val);
+	spin_unlock_irqrestore(&gc->bgpio_lock, flags);
+}
+
+static void dwapb_irq_unmask(struct irq_data *d)
+{
+	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
+	struct dwapb_gpio *gpio = to_dwapb_gpio(gc);
+	unsigned long flags;
+	u32 val;
+
+	spin_lock_irqsave(&gc->bgpio_lock, flags);
+	val = dwapb_read(gpio, GPIO_INTMASK) & ~BIT(irqd_to_hwirq(d));
+	dwapb_write(gpio, GPIO_INTMASK, val);
+	spin_unlock_irqrestore(&gc->bgpio_lock, flags);
+>>>>>>> upstream/android-13
 }
 
 static void dwapb_irq_enable(struct irq_data *d)
 {
+<<<<<<< HEAD
 	struct irq_chip_generic *igc = irq_data_get_irq_chip_data(d);
 	struct dwapb_gpio *gpio = igc->private;
 	struct gpio_chip *gc = &gpio->ports[0].gc;
+=======
+	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
+	struct dwapb_gpio *gpio = to_dwapb_gpio(gc);
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	u32 val;
 
 	spin_lock_irqsave(&gc->bgpio_lock, flags);
 	val = dwapb_read(gpio, GPIO_INTEN);
+<<<<<<< HEAD
 	val |= BIT(d->hwirq);
+=======
+	val |= BIT(irqd_to_hwirq(d));
+>>>>>>> upstream/android-13
 	dwapb_write(gpio, GPIO_INTEN, val);
 	spin_unlock_irqrestore(&gc->bgpio_lock, flags);
 }
 
 static void dwapb_irq_disable(struct irq_data *d)
 {
+<<<<<<< HEAD
 	struct irq_chip_generic *igc = irq_data_get_irq_chip_data(d);
 	struct dwapb_gpio *gpio = igc->private;
 	struct gpio_chip *gc = &gpio->ports[0].gc;
+=======
+	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
+	struct dwapb_gpio *gpio = to_dwapb_gpio(gc);
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	u32 val;
 
 	spin_lock_irqsave(&gc->bgpio_lock, flags);
 	val = dwapb_read(gpio, GPIO_INTEN);
+<<<<<<< HEAD
 	val &= ~BIT(d->hwirq);
+=======
+	val &= ~BIT(irqd_to_hwirq(d));
+>>>>>>> upstream/android-13
 	dwapb_write(gpio, GPIO_INTEN, val);
 	spin_unlock_irqrestore(&gc->bgpio_lock, flags);
 }
 
+<<<<<<< HEAD
 static int dwapb_irq_reqres(struct irq_data *d)
 {
 	struct irq_chip_generic *igc = irq_data_get_irq_chip_data(d);
@@ -289,6 +455,15 @@ static int dwapb_irq_set_type(struct irq_data *d, u32 type)
 		     IRQ_TYPE_LEVEL_HIGH | IRQ_TYPE_LEVEL_LOW))
 		return -EINVAL;
 
+=======
+static int dwapb_irq_set_type(struct irq_data *d, u32 type)
+{
+	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
+	struct dwapb_gpio *gpio = to_dwapb_gpio(gc);
+	irq_hw_number_t bit = irqd_to_hwirq(d);
+	unsigned long level, polarity, flags;
+
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&gc->bgpio_lock, flags);
 	level = dwapb_read(gpio, GPIO_INTTYPE_LEVEL);
 	polarity = dwapb_read(gpio, GPIO_INT_POLARITY);
@@ -316,7 +491,14 @@ static int dwapb_irq_set_type(struct irq_data *d, u32 type)
 		break;
 	}
 
+<<<<<<< HEAD
 	irq_setup_alt_chip(d, type);
+=======
+	if (type & IRQ_TYPE_LEVEL_MASK)
+		irq_set_handler_locked(d, handle_level_irq);
+	else if (type & IRQ_TYPE_EDGE_BOTH)
+		irq_set_handler_locked(d, handle_edge_irq);
+>>>>>>> upstream/android-13
 
 	dwapb_write(gpio, GPIO_INTTYPE_LEVEL, level);
 	if (type != IRQ_TYPE_EDGE_BOTH)
@@ -329,6 +511,7 @@ static int dwapb_irq_set_type(struct irq_data *d, u32 type)
 #ifdef CONFIG_PM_SLEEP
 static int dwapb_irq_set_wake(struct irq_data *d, unsigned int enable)
 {
+<<<<<<< HEAD
 	struct irq_chip_generic *igc = irq_data_get_irq_chip_data(d);
 	struct dwapb_gpio *gpio = igc->private;
 	struct dwapb_context *ctx = gpio->ports[0].ctx;
@@ -337,6 +520,17 @@ static int dwapb_irq_set_wake(struct irq_data *d, unsigned int enable)
 		ctx->wake_en |= BIT(d->hwirq);
 	else
 		ctx->wake_en &= ~BIT(d->hwirq);
+=======
+	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
+	struct dwapb_gpio *gpio = to_dwapb_gpio(gc);
+	struct dwapb_context *ctx = gpio->ports[0].ctx;
+	irq_hw_number_t bit = irqd_to_hwirq(d);
+
+	if (enable)
+		ctx->wake_en |= BIT(bit);
+	else
+		ctx->wake_en &= ~BIT(bit);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -354,9 +548,16 @@ static int dwapb_gpio_set_debounce(struct gpio_chip *gc,
 
 	val_deb = dwapb_read(gpio, GPIO_PORTA_DEBOUNCE);
 	if (debounce)
+<<<<<<< HEAD
 		dwapb_write(gpio, GPIO_PORTA_DEBOUNCE, val_deb | mask);
 	else
 		dwapb_write(gpio, GPIO_PORTA_DEBOUNCE, val_deb & ~mask);
+=======
+		val_deb |= mask;
+	else
+		val_deb &= ~mask;
+	dwapb_write(gpio, GPIO_PORTA_DEBOUNCE, val_deb);
+>>>>>>> upstream/android-13
 
 	spin_unlock_irqrestore(&gc->bgpio_lock, flags);
 
@@ -375,6 +576,7 @@ static int dwapb_gpio_set_config(struct gpio_chip *gc, unsigned offset,
 	return dwapb_gpio_set_debounce(gc, offset, debounce);
 }
 
+<<<<<<< HEAD
 static irqreturn_t dwapb_irq_handler_mfd(int irq, void *dev_id)
 {
 	u32 worked;
@@ -383,12 +585,29 @@ static irqreturn_t dwapb_irq_handler_mfd(int irq, void *dev_id)
 	worked = dwapb_do_irq(gpio);
 
 	return worked ? IRQ_HANDLED : IRQ_NONE;
+=======
+static int dwapb_convert_irqs(struct dwapb_gpio_port_irqchip *pirq,
+			      struct dwapb_port_property *pp)
+{
+	int i;
+
+	/* Group all available IRQs into an array of parental IRQs. */
+	for (i = 0; i < pp->ngpio; ++i) {
+		if (!pp->irq[i])
+			continue;
+
+		pirq->irq[pirq->nr_irqs++] = pp->irq[i];
+	}
+
+	return pirq->nr_irqs ? 0 : -ENOENT;
+>>>>>>> upstream/android-13
 }
 
 static void dwapb_configure_irqs(struct dwapb_gpio *gpio,
 				 struct dwapb_gpio_port *port,
 				 struct dwapb_port_property *pp)
 {
+<<<<<<< HEAD
 	struct gpio_chip *gc = &port->gc;
 	struct fwnode_handle  *fwnode = pp->fwnode;
 	struct irq_chip_generic	*irq_gc = NULL;
@@ -457,11 +676,55 @@ static void dwapb_configure_irqs(struct dwapb_gpio *gpio,
 		 * Request a shared IRQ since where MFD would have devices
 		 * using the same irq pin
 		 */
+=======
+	struct dwapb_gpio_port_irqchip *pirq;
+	struct gpio_chip *gc = &port->gc;
+	struct gpio_irq_chip *girq;
+	int err;
+
+	pirq = devm_kzalloc(gpio->dev, sizeof(*pirq), GFP_KERNEL);
+	if (!pirq)
+		return;
+
+	if (dwapb_convert_irqs(pirq, pp)) {
+		dev_warn(gpio->dev, "no IRQ for port%d\n", pp->idx);
+		goto err_kfree_pirq;
+	}
+
+	girq = &gc->irq;
+	girq->handler = handle_bad_irq;
+	girq->default_type = IRQ_TYPE_NONE;
+
+	port->pirq = pirq;
+	pirq->irqchip.name = DWAPB_DRIVER_NAME;
+	pirq->irqchip.irq_ack = dwapb_irq_ack;
+	pirq->irqchip.irq_mask = dwapb_irq_mask;
+	pirq->irqchip.irq_unmask = dwapb_irq_unmask;
+	pirq->irqchip.irq_set_type = dwapb_irq_set_type;
+	pirq->irqchip.irq_enable = dwapb_irq_enable;
+	pirq->irqchip.irq_disable = dwapb_irq_disable;
+#ifdef CONFIG_PM_SLEEP
+	pirq->irqchip.irq_set_wake = dwapb_irq_set_wake;
+#endif
+
+	/*
+	 * Intel ACPI-based platforms mostly have the DesignWare APB GPIO
+	 * IRQ lane shared between several devices. In that case the parental
+	 * IRQ has to be handled in the shared way so to be properly delivered
+	 * to all the connected devices.
+	 */
+	if (has_acpi_companion(gpio->dev)) {
+		girq->num_parents = 0;
+		girq->parents = NULL;
+		girq->parent_handler = NULL;
+
+>>>>>>> upstream/android-13
 		err = devm_request_irq(gpio->dev, pp->irq[0],
 				       dwapb_irq_handler_mfd,
 				       IRQF_SHARED, DWAPB_DRIVER_NAME, gpio);
 		if (err) {
 			dev_err(gpio->dev, "error requesting IRQ\n");
+<<<<<<< HEAD
 			irq_domain_remove(gpio->domain);
 			gpio->domain = NULL;
 			return;
@@ -489,6 +752,23 @@ static void dwapb_irq_teardown(struct dwapb_gpio *gpio)
 
 	irq_domain_remove(gpio->domain);
 	gpio->domain = NULL;
+=======
+			goto err_kfree_pirq;
+		}
+	} else {
+		girq->num_parents = pirq->nr_irqs;
+		girq->parents = pirq->irq;
+		girq->parent_handler_data = gpio;
+		girq->parent_handler = dwapb_irq_handler;
+	}
+
+	girq->chip = &pirq->irqchip;
+
+	return;
+
+err_kfree_pirq:
+	devm_kfree(gpio->dev, pirq);
+>>>>>>> upstream/android-13
 }
 
 static int dwapb_gpio_add_port(struct dwapb_gpio *gpio,
@@ -509,10 +789,16 @@ static int dwapb_gpio_add_port(struct dwapb_gpio *gpio,
 		return -ENOMEM;
 #endif
 
+<<<<<<< HEAD
 	dat = gpio->regs + GPIO_EXT_PORTA + (pp->idx * GPIO_EXT_PORT_STRIDE);
 	set = gpio->regs + GPIO_SWPORTA_DR + (pp->idx * GPIO_SWPORT_DR_STRIDE);
 	dirout = gpio->regs + GPIO_SWPORTA_DDR +
 		(pp->idx * GPIO_SWPORT_DDR_STRIDE);
+=======
+	dat = gpio->regs + GPIO_EXT_PORTA + pp->idx * GPIO_EXT_PORT_STRIDE;
+	set = gpio->regs + GPIO_SWPORTA_DR + pp->idx * GPIO_SWPORT_DR_STRIDE;
+	dirout = gpio->regs + GPIO_SWPORTA_DDR + pp->idx * GPIO_SWPORT_DDR_STRIDE;
+>>>>>>> upstream/android-13
 
 	/* This registers 32 GPIO lines per port */
 	err = bgpio_init(&port->gc, gpio->dev, 4, dat, set, NULL, dirout,
@@ -533,16 +819,25 @@ static int dwapb_gpio_add_port(struct dwapb_gpio *gpio,
 	if (pp->idx == 0)
 		port->gc.set_config = dwapb_gpio_set_config;
 
+<<<<<<< HEAD
 	if (pp->has_irq)
 		dwapb_configure_irqs(gpio, port, pp);
 
 	err = gpiochip_add_data(&port->gc, port);
+=======
+	/* Only port A can provide interrupts in all configurations of the IP */
+	if (pp->idx == 0)
+		dwapb_configure_irqs(gpio, port, pp);
+
+	err = devm_gpiochip_add_data(gpio->dev, &port->gc, port);
+>>>>>>> upstream/android-13
 	if (err) {
 		dev_err(gpio->dev, "failed to register gpiochip for port%d\n",
 			port->idx);
 		return err;
 	}
 
+<<<<<<< HEAD
 	/* Add GPIO-signaled ACPI event support */
 	acpi_gpiochip_request_interrupts(&port->gc);
 
@@ -568,12 +863,37 @@ static void dwapb_gpio_unregister(struct dwapb_gpio *gpio)
 
 static struct dwapb_platform_data *
 dwapb_gpio_get_pdata(struct device *dev)
+=======
+	return 0;
+}
+
+static void dwapb_get_irq(struct device *dev, struct fwnode_handle *fwnode,
+			  struct dwapb_port_property *pp)
+{
+	int irq, j;
+
+	for (j = 0; j < pp->ngpio; j++) {
+		if (has_acpi_companion(dev))
+			irq = platform_get_irq_optional(to_platform_device(dev), j);
+		else
+			irq = fwnode_irq_get(fwnode, j);
+		if (irq > 0)
+			pp->irq[j] = irq;
+	}
+}
+
+static struct dwapb_platform_data *dwapb_gpio_get_pdata(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct fwnode_handle *fwnode;
 	struct dwapb_platform_data *pdata;
 	struct dwapb_port_property *pp;
 	int nports;
+<<<<<<< HEAD
 	int i, j;
+=======
+	int i;
+>>>>>>> upstream/android-13
 
 	nports = device_get_child_node_count(dev);
 	if (nports == 0)
@@ -591,8 +911,11 @@ dwapb_gpio_get_pdata(struct device *dev)
 
 	i = 0;
 	device_for_each_child_node(dev, fwnode)  {
+<<<<<<< HEAD
 		struct device_node *np = NULL;
 
+=======
+>>>>>>> upstream/android-13
 		pp = &pdata->properties[i++];
 		pp->fwnode = fwnode;
 
@@ -604,6 +927,7 @@ dwapb_gpio_get_pdata(struct device *dev)
 			return ERR_PTR(-EINVAL);
 		}
 
+<<<<<<< HEAD
 		if (fwnode_property_read_u32(fwnode, "snps,nr-gpios",
 					 &pp->ngpio)) {
 			dev_info(dev,
@@ -615,10 +939,27 @@ dwapb_gpio_get_pdata(struct device *dev)
 		pp->irq_shared	= false;
 		pp->gpio_base	= -1;
 
+=======
+		if (fwnode_property_read_u32(fwnode, "ngpios", &pp->ngpio) &&
+		    fwnode_property_read_u32(fwnode, "snps,nr-gpios", &pp->ngpio)) {
+			dev_info(dev,
+				 "failed to get number of gpios for port%d\n",
+				 i);
+			pp->ngpio = DWAPB_MAX_GPIOS;
+		}
+
+		pp->gpio_base	= -1;
+
+		/* For internal use only, new platforms mustn't exercise this */
+		if (is_software_node(fwnode))
+			fwnode_property_read_u32(fwnode, "gpio-base", &pp->gpio_base);
+
+>>>>>>> upstream/android-13
 		/*
 		 * Only port A can provide interrupts in all configurations of
 		 * the IP.
 		 */
+<<<<<<< HEAD
 		if (pp->idx != 0)
 			continue;
 
@@ -641,11 +982,73 @@ dwapb_gpio_get_pdata(struct device *dev)
 
 		if (!pp->has_irq)
 			dev_warn(dev, "no irq for port%d\n", pp->idx);
+=======
+		if (pp->idx == 0)
+			dwapb_get_irq(dev, fwnode, pp);
+>>>>>>> upstream/android-13
 	}
 
 	return pdata;
 }
 
+<<<<<<< HEAD
+=======
+static void dwapb_assert_reset(void *data)
+{
+	struct dwapb_gpio *gpio = data;
+
+	reset_control_assert(gpio->rst);
+}
+
+static int dwapb_get_reset(struct dwapb_gpio *gpio)
+{
+	int err;
+
+	gpio->rst = devm_reset_control_get_optional_shared(gpio->dev, NULL);
+	if (IS_ERR(gpio->rst))
+		return dev_err_probe(gpio->dev, PTR_ERR(gpio->rst),
+				     "Cannot get reset descriptor\n");
+
+	err = reset_control_deassert(gpio->rst);
+	if (err) {
+		dev_err(gpio->dev, "Cannot deassert reset lane\n");
+		return err;
+	}
+
+	return devm_add_action_or_reset(gpio->dev, dwapb_assert_reset, gpio);
+}
+
+static void dwapb_disable_clks(void *data)
+{
+	struct dwapb_gpio *gpio = data;
+
+	clk_bulk_disable_unprepare(DWAPB_NR_CLOCKS, gpio->clks);
+}
+
+static int dwapb_get_clks(struct dwapb_gpio *gpio)
+{
+	int err;
+
+	/* Optional bus and debounce clocks */
+	gpio->clks[0].id = "bus";
+	gpio->clks[1].id = "db";
+	err = devm_clk_bulk_get_optional(gpio->dev, DWAPB_NR_CLOCKS,
+					 gpio->clks);
+	if (err) {
+		dev_err(gpio->dev, "Cannot get APB/Debounce clocks\n");
+		return err;
+	}
+
+	err = clk_bulk_prepare_enable(DWAPB_NR_CLOCKS, gpio->clks);
+	if (err) {
+		dev_err(gpio->dev, "Cannot enable APB/Debounce clocks\n");
+		return err;
+	}
+
+	return devm_add_action_or_reset(gpio->dev, dwapb_disable_clks, gpio);
+}
+
+>>>>>>> upstream/android-13
 static const struct of_device_id dwapb_of_match[] = {
 	{ .compatible = "snps,dw-apb-gpio", .data = (void *)0},
 	{ .compatible = "apm,xgene-gpio-v2", .data = (void *)GPIO_REG_OFFSET_V2},
@@ -664,6 +1067,7 @@ MODULE_DEVICE_TABLE(acpi, dwapb_acpi_match);
 static int dwapb_gpio_probe(struct platform_device *pdev)
 {
 	unsigned int i;
+<<<<<<< HEAD
 	struct resource *res;
 	struct dwapb_gpio *gpio;
 	int err;
@@ -678,6 +1082,16 @@ static int dwapb_gpio_probe(struct platform_device *pdev)
 
 	if (!pdata->nports)
 		return -ENODEV;
+=======
+	struct dwapb_gpio *gpio;
+	int err;
+	struct dwapb_platform_data *pdata;
+	struct device *dev = &pdev->dev;
+
+	pdata = dwapb_gpio_get_pdata(dev);
+	if (IS_ERR(pdata))
+		return PTR_ERR(pdata);
+>>>>>>> upstream/android-13
 
 	gpio = devm_kzalloc(&pdev->dev, sizeof(*gpio), GFP_KERNEL);
 	if (!gpio)
@@ -686,17 +1100,24 @@ static int dwapb_gpio_probe(struct platform_device *pdev)
 	gpio->dev = &pdev->dev;
 	gpio->nr_ports = pdata->nports;
 
+<<<<<<< HEAD
 	gpio->rst = devm_reset_control_get_optional_shared(dev, NULL);
 	if (IS_ERR(gpio->rst))
 		return PTR_ERR(gpio->rst);
 
 	reset_control_deassert(gpio->rst);
+=======
+	err = dwapb_get_reset(gpio);
+	if (err)
+		return err;
+>>>>>>> upstream/android-13
 
 	gpio->ports = devm_kcalloc(&pdev->dev, gpio->nr_ports,
 				   sizeof(*gpio->ports), GFP_KERNEL);
 	if (!gpio->ports)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	gpio->regs = devm_ioremap_resource(&pdev->dev, res);
 	if (IS_ERR(gpio->regs))
@@ -724,10 +1145,22 @@ static int dwapb_gpio_probe(struct platform_device *pdev)
 				gpio->flags = acpi_id->driver_data;
 		}
 	}
+=======
+	gpio->regs = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(gpio->regs))
+		return PTR_ERR(gpio->regs);
+
+	err = dwapb_get_clks(gpio);
+	if (err)
+		return err;
+
+	gpio->flags = (uintptr_t)device_get_match_data(dev);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < gpio->nr_ports; i++) {
 		err = dwapb_gpio_add_port(gpio, &pdata->properties[i], i);
 		if (err)
+<<<<<<< HEAD
 			goto out_unregister;
 	}
 	platform_set_drvdata(pdev, gpio);
@@ -752,13 +1185,25 @@ static int dwapb_gpio_remove(struct platform_device *pdev)
 	clk_disable_unprepare(gpio->clk);
 
 	return 0;
+=======
+			return err;
+	}
+
+	platform_set_drvdata(pdev, gpio);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_PM_SLEEP
 static int dwapb_gpio_suspend(struct device *dev)
 {
+<<<<<<< HEAD
 	struct platform_device *pdev = to_platform_device(dev);
 	struct dwapb_gpio *gpio = platform_get_drvdata(pdev);
+=======
+	struct dwapb_gpio *gpio = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	struct gpio_chip *gc	= &gpio->ports[0].gc;
 	unsigned long flags;
 	int i;
@@ -769,8 +1214,11 @@ static int dwapb_gpio_suspend(struct device *dev)
 		unsigned int idx = gpio->ports[i].idx;
 		struct dwapb_context *ctx = gpio->ports[i].ctx;
 
+<<<<<<< HEAD
 		BUG_ON(!ctx);
 
+=======
+>>>>>>> upstream/android-13
 		offset = GPIO_SWPORTA_DDR + idx * GPIO_SWPORT_DDR_STRIDE;
 		ctx->dir = dwapb_read(gpio, offset);
 
@@ -789,19 +1237,28 @@ static int dwapb_gpio_suspend(struct device *dev)
 			ctx->int_deb	= dwapb_read(gpio, GPIO_PORTA_DEBOUNCE);
 
 			/* Mask out interrupts */
+<<<<<<< HEAD
 			dwapb_write(gpio, GPIO_INTMASK,
 				    0xffffffff & ~ctx->wake_en);
+=======
+			dwapb_write(gpio, GPIO_INTMASK, ~ctx->wake_en);
+>>>>>>> upstream/android-13
 		}
 	}
 	spin_unlock_irqrestore(&gc->bgpio_lock, flags);
 
+<<<<<<< HEAD
 	clk_disable_unprepare(gpio->clk);
+=======
+	clk_bulk_disable_unprepare(DWAPB_NR_CLOCKS, gpio->clks);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static int dwapb_gpio_resume(struct device *dev)
 {
+<<<<<<< HEAD
 	struct platform_device *pdev = to_platform_device(dev);
 	struct dwapb_gpio *gpio = platform_get_drvdata(pdev);
 	struct gpio_chip *gc	= &gpio->ports[0].gc;
@@ -810,6 +1267,18 @@ static int dwapb_gpio_resume(struct device *dev)
 
 	if (!IS_ERR(gpio->clk))
 		clk_prepare_enable(gpio->clk);
+=======
+	struct dwapb_gpio *gpio = dev_get_drvdata(dev);
+	struct gpio_chip *gc	= &gpio->ports[0].gc;
+	unsigned long flags;
+	int i, err;
+
+	err = clk_bulk_prepare_enable(DWAPB_NR_CLOCKS, gpio->clks);
+	if (err) {
+		dev_err(gpio->dev, "Cannot reenable APB/Debounce clocks\n");
+		return err;
+	}
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&gc->bgpio_lock, flags);
 	for (i = 0; i < gpio->nr_ports; i++) {
@@ -817,8 +1286,11 @@ static int dwapb_gpio_resume(struct device *dev)
 		unsigned int idx = gpio->ports[i].idx;
 		struct dwapb_context *ctx = gpio->ports[i].ctx;
 
+<<<<<<< HEAD
 		BUG_ON(!ctx);
 
+=======
+>>>>>>> upstream/android-13
 		offset = GPIO_SWPORTA_DR + idx * GPIO_SWPORT_DR_STRIDE;
 		dwapb_write(gpio, offset, ctx->data);
 
@@ -853,11 +1325,18 @@ static struct platform_driver dwapb_gpio_driver = {
 	.driver		= {
 		.name	= DWAPB_DRIVER_NAME,
 		.pm	= &dwapb_gpio_pm_ops,
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(dwapb_of_match),
 		.acpi_match_table = ACPI_PTR(dwapb_acpi_match),
 	},
 	.probe		= dwapb_gpio_probe,
 	.remove		= dwapb_gpio_remove,
+=======
+		.of_match_table = dwapb_of_match,
+		.acpi_match_table = dwapb_acpi_match,
+	},
+	.probe		= dwapb_gpio_probe,
+>>>>>>> upstream/android-13
 };
 
 module_platform_driver(dwapb_gpio_driver);

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ISHTP client logic
  *
  * Copyright (c) 2003-2016, Intel Corporation.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -12,6 +17,8 @@
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -19,9 +26,35 @@
 #include <linux/wait.h>
 #include <linux/delay.h>
 #include <linux/dma-mapping.h>
+<<<<<<< HEAD
 #include "hbm.h"
 #include "client.h"
 
+=======
+#include <asm/cacheflush.h>
+#include "hbm.h"
+#include "client.h"
+
+int ishtp_cl_get_tx_free_buffer_size(struct ishtp_cl *cl)
+{
+	unsigned long tx_free_flags;
+	int size;
+
+	spin_lock_irqsave(&cl->tx_free_list_spinlock, tx_free_flags);
+	size = cl->tx_ring_free_size * cl->device->fw_client->props.max_msg_length;
+	spin_unlock_irqrestore(&cl->tx_free_list_spinlock, tx_free_flags);
+
+	return size;
+}
+EXPORT_SYMBOL(ishtp_cl_get_tx_free_buffer_size);
+
+int ishtp_cl_get_tx_free_rings(struct ishtp_cl *cl)
+{
+	return cl->tx_ring_free_size;
+}
+EXPORT_SYMBOL(ishtp_cl_get_tx_free_rings);
+
+>>>>>>> upstream/android-13
 /**
  * ishtp_read_list_flush() - Flush read queue
  * @cl: ishtp client instance
@@ -90,6 +123,10 @@ static void ishtp_cl_init(struct ishtp_cl *cl, struct ishtp_device *dev)
 
 	cl->rx_ring_size = CL_DEF_RX_RING_SIZE;
 	cl->tx_ring_size = CL_DEF_TX_RING_SIZE;
+<<<<<<< HEAD
+=======
+	cl->tx_ring_free_size = cl->tx_ring_size;
+>>>>>>> upstream/android-13
 
 	/* dma */
 	cl->last_tx_path = CL_TX_PATH_IPC;
@@ -100,13 +137,21 @@ static void ishtp_cl_init(struct ishtp_cl *cl, struct ishtp_device *dev)
 
 /**
  * ishtp_cl_allocate() - allocates client structure and sets it up.
+<<<<<<< HEAD
  * @dev: ishtp device
+=======
+ * @cl_device: ishtp client device
+>>>>>>> upstream/android-13
  *
  * Allocate memory for new client device and call to initialize each field.
  *
  * Return: The allocated client instance or NULL on failure
  */
+<<<<<<< HEAD
 struct ishtp_cl *ishtp_cl_allocate(struct ishtp_device *dev)
+=======
+struct ishtp_cl *ishtp_cl_allocate(struct ishtp_cl_device *cl_device)
+>>>>>>> upstream/android-13
 {
 	struct ishtp_cl *cl;
 
@@ -114,7 +159,11 @@ struct ishtp_cl *ishtp_cl_allocate(struct ishtp_device *dev)
 	if (!cl)
 		return NULL;
 
+<<<<<<< HEAD
 	ishtp_cl_init(cl, dev);
+=======
+	ishtp_cl_init(cl, cl_device->ishtp_dev);
+>>>>>>> upstream/android-13
 	return cl;
 }
 EXPORT_SYMBOL(ishtp_cl_allocate);
@@ -148,9 +197,12 @@ EXPORT_SYMBOL(ishtp_cl_free);
 /**
  * ishtp_cl_link() - Reserve a host id and link the client instance
  * @cl: client device instance
+<<<<<<< HEAD
  * @id: host client id to use. It can be ISHTP_HOST_CLIENT_ID_ANY if any
  *	id from the available can be used
  *
+=======
+>>>>>>> upstream/android-13
  *
  * This allocates a single bit in the hostmap. This function will make sure
  * that not many client sessions are opened at the same time. Once allocated
@@ -159,11 +211,19 @@ EXPORT_SYMBOL(ishtp_cl_free);
  *
  * Return: 0 or error code on failure
  */
+<<<<<<< HEAD
 int ishtp_cl_link(struct ishtp_cl *cl, int id)
 {
 	struct ishtp_device *dev;
 	unsigned long	flags, flags_cl;
 	int	ret = 0;
+=======
+int ishtp_cl_link(struct ishtp_cl *cl)
+{
+	struct ishtp_device *dev;
+	unsigned long flags, flags_cl;
+	int id, ret = 0;
+>>>>>>> upstream/android-13
 
 	if (WARN_ON(!cl || !cl->dev))
 		return -EINVAL;
@@ -177,10 +237,14 @@ int ishtp_cl_link(struct ishtp_cl *cl, int id)
 		goto unlock_dev;
 	}
 
+<<<<<<< HEAD
 	/* If Id is not assigned get one*/
 	if (id == ISHTP_HOST_CLIENT_ID_ANY)
 		id = find_first_zero_bit(dev->host_clients_map,
 			ISHTP_CLIENTS_MAX);
+=======
+	id = find_first_zero_bit(dev->host_clients_map, ISHTP_CLIENTS_MAX);
+>>>>>>> upstream/android-13
 
 	if (id >= ISHTP_CLIENTS_MAX) {
 		spin_unlock_irqrestore(&dev->device_lock, flags);
@@ -258,7 +322,10 @@ EXPORT_SYMBOL(ishtp_cl_unlink);
 int ishtp_cl_disconnect(struct ishtp_cl *cl)
 {
 	struct ishtp_device *dev;
+<<<<<<< HEAD
 	int err;
+=======
+>>>>>>> upstream/android-13
 
 	if (WARN_ON(!cl || !cl->dev))
 		return -ENODEV;
@@ -278,7 +345,11 @@ int ishtp_cl_disconnect(struct ishtp_cl *cl)
 		return -ENODEV;
 	}
 
+<<<<<<< HEAD
 	err = wait_event_interruptible_timeout(cl->wait_ctrl_res,
+=======
+	wait_event_interruptible_timeout(cl->wait_ctrl_res,
+>>>>>>> upstream/android-13
 			(dev->dev_state != ISHTP_DEV_ENABLED ||
 			cl->state == ISHTP_CL_DISCONNECTED),
 			ishtp_secs_to_jiffies(ISHTP_CL_CONNECT_TIMEOUT));
@@ -577,6 +648,11 @@ int ishtp_cl_send(struct ishtp_cl *cl, uint8_t *buf, size_t length)
 	 * max ISHTP message size per client
 	 */
 	list_del_init(&cl_msg->list);
+<<<<<<< HEAD
+=======
+	--cl->tx_ring_free_size;
+
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&cl->tx_free_list_spinlock, tx_free_flags);
 	memcpy(cl_msg->send_buf.data, buf, length);
 	cl_msg->send_buf.size = length;
@@ -685,6 +761,10 @@ static void ipc_tx_callback(void *prm)
 		ishtp_write_message(dev, &ishtp_hdr, pmsg);
 		spin_lock_irqsave(&cl->tx_free_list_spinlock, tx_free_flags);
 		list_add_tail(&cl_msg->list, &cl->tx_free_list.list);
+<<<<<<< HEAD
+=======
+		++cl->tx_ring_free_size;
+>>>>>>> upstream/android-13
 		spin_unlock_irqrestore(&cl->tx_free_list_spinlock,
 			tx_free_flags);
 	} else {
@@ -765,6 +845,17 @@ static void ishtp_cl_send_msg_dma(struct ishtp_device *dev,
 	/* write msg to dma buf */
 	memcpy(msg_addr, cl_msg->send_buf.data, cl_msg->send_buf.size);
 
+<<<<<<< HEAD
+=======
+	/*
+	 * if current fw don't support cache snooping, driver have to
+	 * flush the cache manually.
+	 */
+	if (dev->ops->dma_no_cache_snooping &&
+		dev->ops->dma_no_cache_snooping(dev))
+		clflush_cache_range(msg_addr, cl_msg->send_buf.size);
+
+>>>>>>> upstream/android-13
 	/* send dma_xfer hbm msg */
 	off = msg_addr - (unsigned char *)dev->ishtp_host_dma_tx_buf;
 	ishtp_hbm_hdr(&hdr, sizeof(struct dma_xfer_hbm));
@@ -778,6 +869,10 @@ static void ishtp_cl_send_msg_dma(struct ishtp_device *dev,
 	ishtp_write_message(dev, &hdr, (unsigned char *)&dma_xfer);
 	spin_lock_irqsave(&cl->tx_free_list_spinlock, tx_free_flags);
 	list_add_tail(&cl_msg->list, &cl->tx_free_list.list);
+<<<<<<< HEAD
+=======
+	++cl->tx_ring_free_size;
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&cl->tx_free_list_spinlock, tx_free_flags);
 	++cl->send_msg_cnt_dma;
 }
@@ -988,6 +1083,18 @@ void recv_ishtp_cl_msg_dma(struct ishtp_device *dev, void *msg,
 		}
 
 		buffer = rb->buffer.data;
+<<<<<<< HEAD
+=======
+
+		/*
+		 * if current fw don't support cache snooping, driver have to
+		 * flush the cache manually.
+		 */
+		if (dev->ops->dma_no_cache_snooping &&
+			dev->ops->dma_no_cache_snooping(dev))
+			clflush_cache_range(msg, hbm->msg_length);
+
+>>>>>>> upstream/android-13
 		memcpy(buffer, msg, hbm->msg_length);
 		rb->buf_idx = hbm->msg_length;
 
@@ -1045,3 +1152,48 @@ void recv_ishtp_cl_msg_dma(struct ishtp_device *dev, void *msg,
 eoi:
 	return;
 }
+<<<<<<< HEAD
+=======
+
+void *ishtp_get_client_data(struct ishtp_cl *cl)
+{
+	return cl->client_data;
+}
+EXPORT_SYMBOL(ishtp_get_client_data);
+
+void ishtp_set_client_data(struct ishtp_cl *cl, void *data)
+{
+	cl->client_data = data;
+}
+EXPORT_SYMBOL(ishtp_set_client_data);
+
+struct ishtp_device *ishtp_get_ishtp_device(struct ishtp_cl *cl)
+{
+	return cl->dev;
+}
+EXPORT_SYMBOL(ishtp_get_ishtp_device);
+
+void ishtp_set_tx_ring_size(struct ishtp_cl *cl, int size)
+{
+	cl->tx_ring_size = size;
+}
+EXPORT_SYMBOL(ishtp_set_tx_ring_size);
+
+void ishtp_set_rx_ring_size(struct ishtp_cl *cl, int size)
+{
+	cl->rx_ring_size = size;
+}
+EXPORT_SYMBOL(ishtp_set_rx_ring_size);
+
+void ishtp_set_connection_state(struct ishtp_cl *cl, int state)
+{
+	cl->state = state;
+}
+EXPORT_SYMBOL(ishtp_set_connection_state);
+
+void ishtp_cl_set_fw_client_id(struct ishtp_cl *cl, int fw_client_id)
+{
+	cl->fw_client_id = fw_client_id;
+}
+EXPORT_SYMBOL(ishtp_cl_set_fw_client_id);
+>>>>>>> upstream/android-13

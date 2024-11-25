@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 /*
  * QLogic Fibre Channel HBA Driver
  * Copyright (c)  2003-2014 QLogic Corporation
  *
  * See LICENSE.qla2xxx for copyright and licensing details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * QLogic Fibre Channel HBA Driver
+ * Copyright (c)  2003-2014 QLogic Corporation
+>>>>>>> upstream/android-13
  */
 #include "qla_def.h"
 #include "qla_target.h"
@@ -26,13 +33,22 @@ qla2x00_sysfs_read_fw_dump(struct file *filp, struct kobject *kobj,
 	struct qla_hw_data *ha = vha->hw;
 	int rval = 0;
 
+<<<<<<< HEAD
 	if (!(ha->fw_dump_reading || ha->mctp_dump_reading))
 		return 0;
 
+=======
+	if (!(ha->fw_dump_reading || ha->mctp_dump_reading ||
+	      ha->mpi_fw_dump_reading))
+		return 0;
+
+	mutex_lock(&ha->optrom_mutex);
+>>>>>>> upstream/android-13
 	if (IS_P3P_TYPE(ha)) {
 		if (off < ha->md_template_size) {
 			rval = memory_read_from_buffer(buf, count,
 			    &off, ha->md_tmplt_hdr, ha->md_template_size);
+<<<<<<< HEAD
 			return rval;
 		}
 		off -= ha->md_template_size;
@@ -47,6 +63,28 @@ qla2x00_sysfs_read_fw_dump(struct file *filp, struct kobject *kobj,
 					ha->fw_dump_len);
 	else
 		return 0;
+=======
+		} else {
+			off -= ha->md_template_size;
+			rval = memory_read_from_buffer(buf, count,
+			    &off, ha->md_dump, ha->md_dump_size);
+		}
+	} else if (ha->mctp_dumped && ha->mctp_dump_reading) {
+		rval = memory_read_from_buffer(buf, count, &off, ha->mctp_dump,
+		    MCTP_DUMP_SIZE);
+	} else if (ha->mpi_fw_dumped && ha->mpi_fw_dump_reading) {
+		rval = memory_read_from_buffer(buf, count, &off,
+					       ha->mpi_fw_dump,
+					       ha->mpi_fw_dump_len);
+	} else if (ha->fw_dump_reading) {
+		rval = memory_read_from_buffer(buf, count, &off, ha->fw_dump,
+					ha->fw_dump_len);
+	} else {
+		rval = 0;
+	}
+	mutex_unlock(&ha->optrom_mutex);
+	return rval;
+>>>>>>> upstream/android-13
 }
 
 static ssize_t
@@ -76,7 +114,11 @@ qla2x00_sysfs_write_fw_dump(struct file *filp, struct kobject *kobj,
 			qla82xx_md_prep(vha);
 		}
 		ha->fw_dump_reading = 0;
+<<<<<<< HEAD
 		ha->fw_dumped = 0;
+=======
+		ha->fw_dumped = false;
+>>>>>>> upstream/android-13
 		break;
 	case 1:
 		if (ha->fw_dumped && !ha->fw_dump_reading) {
@@ -99,8 +141,14 @@ qla2x00_sysfs_write_fw_dump(struct file *filp, struct kobject *kobj,
 			qla8044_idc_lock(ha);
 			qla82xx_set_reset_owner(vha);
 			qla8044_idc_unlock(ha);
+<<<<<<< HEAD
 		} else
 			qla2x00_system_error(vha);
+=======
+		} else {
+			qla2x00_system_error(vha);
+		}
+>>>>>>> upstream/android-13
 		break;
 	case 4:
 		if (IS_P3P_TYPE(ha)) {
@@ -132,6 +180,33 @@ qla2x00_sysfs_write_fw_dump(struct file *filp, struct kobject *kobj,
 			    vha->host_no);
 		}
 		break;
+<<<<<<< HEAD
+=======
+	case 8:
+		if (!ha->mpi_fw_dump_reading)
+			break;
+		ql_log(ql_log_info, vha, 0x70e7,
+		       "MPI firmware dump cleared on (%ld).\n", vha->host_no);
+		ha->mpi_fw_dump_reading = 0;
+		ha->mpi_fw_dumped = 0;
+		break;
+	case 9:
+		if (ha->mpi_fw_dumped && !ha->mpi_fw_dump_reading) {
+			ha->mpi_fw_dump_reading = 1;
+			ql_log(ql_log_info, vha, 0x70e8,
+			       "Raw MPI firmware dump ready for read on (%ld).\n",
+			       vha->host_no);
+		}
+		break;
+	case 10:
+		if (IS_QLA27XX(ha) || IS_QLA28XX(ha)) {
+			ql_log(ql_log_info, vha, 0x70e9,
+			       "Issuing MPI firmware dump on host#%ld.\n",
+			       vha->host_no);
+			ha->isp_ops->mpi_fw_dump(vha, 0);
+		}
+		break;
+>>>>>>> upstream/android-13
 	}
 	return count;
 }
@@ -154,13 +229,43 @@ qla2x00_sysfs_read_nvram(struct file *filp, struct kobject *kobj,
 	struct scsi_qla_host *vha = shost_priv(dev_to_shost(container_of(kobj,
 	    struct device, kobj)));
 	struct qla_hw_data *ha = vha->hw;
+<<<<<<< HEAD
+=======
+	uint32_t faddr;
+	struct active_regions active_regions = { };
+>>>>>>> upstream/android-13
 
 	if (!capable(CAP_SYS_ADMIN))
 		return 0;
 
+<<<<<<< HEAD
 	if (IS_NOCACHE_VPD_TYPE(ha))
 		ha->isp_ops->read_optrom(vha, ha->nvram, ha->flt_region_nvram << 2,
 		    ha->nvram_size);
+=======
+	mutex_lock(&ha->optrom_mutex);
+	if (qla2x00_chip_is_down(vha)) {
+		mutex_unlock(&ha->optrom_mutex);
+		return -EAGAIN;
+	}
+
+	if (!IS_NOCACHE_VPD_TYPE(ha)) {
+		mutex_unlock(&ha->optrom_mutex);
+		goto skip;
+	}
+
+	faddr = ha->flt_region_nvram;
+	if (IS_QLA28XX(ha)) {
+		qla28xx_get_aux_images(vha, &active_regions);
+		if (active_regions.aux.vpd_nvram == QLA27XX_SECONDARY_IMAGE)
+			faddr = ha->flt_region_nvram_sec;
+	}
+	ha->isp_ops->read_optrom(vha, ha->nvram, faddr << 2, ha->nvram_size);
+
+	mutex_unlock(&ha->optrom_mutex);
+
+skip:
+>>>>>>> upstream/android-13
 	return memory_read_from_buffer(buf, count, &off, ha->nvram,
 					ha->nvram_size);
 }
@@ -181,10 +286,16 @@ qla2x00_sysfs_write_nvram(struct file *filp, struct kobject *kobj,
 
 	/* Checksum NVRAM. */
 	if (IS_FWI2_CAPABLE(ha)) {
+<<<<<<< HEAD
 		uint32_t *iter;
 		uint32_t chksum;
 
 		iter = (uint32_t *)buf;
+=======
+		__le32 *iter = (__force __le32 *)buf;
+		uint32_t chksum;
+
+>>>>>>> upstream/android-13
 		chksum = 0;
 		for (cnt = 0; cnt < ((count >> 2) - 1); cnt++, iter++)
 			chksum += le32_to_cpu(*iter);
@@ -208,10 +319,24 @@ qla2x00_sysfs_write_nvram(struct file *filp, struct kobject *kobj,
 		return -EAGAIN;
 	}
 
+<<<<<<< HEAD
 	/* Write NVRAM. */
 	ha->isp_ops->write_nvram(vha, (uint8_t *)buf, ha->nvram_base, count);
 	ha->isp_ops->read_nvram(vha, (uint8_t *)ha->nvram, ha->nvram_base,
 	    count);
+=======
+	mutex_lock(&ha->optrom_mutex);
+	if (qla2x00_chip_is_down(vha)) {
+		mutex_unlock(&ha->optrom_mutex);
+		return -EAGAIN;
+	}
+
+	/* Write NVRAM. */
+	ha->isp_ops->write_nvram(vha, buf, ha->nvram_base, count);
+	ha->isp_ops->read_nvram(vha, ha->nvram, ha->nvram_base,
+	    count);
+	mutex_unlock(&ha->optrom_mutex);
+>>>>>>> upstream/android-13
 
 	ql_dbg(ql_dbg_user, vha, 0x7060,
 	    "Setting ISP_ABORT_NEEDED\n");
@@ -322,6 +447,13 @@ qla2x00_sysfs_write_optrom_ctl(struct file *filp, struct kobject *kobj,
 		size = ha->optrom_size - start;
 
 	mutex_lock(&ha->optrom_mutex);
+<<<<<<< HEAD
+=======
+	if (qla2x00_chip_is_down(vha)) {
+		mutex_unlock(&ha->optrom_mutex);
+		return -EAGAIN;
+	}
+>>>>>>> upstream/android-13
 	switch (val) {
 	case 0:
 		if (ha->optrom_state != QLA_SREADING &&
@@ -348,7 +480,11 @@ qla2x00_sysfs_write_optrom_ctl(struct file *filp, struct kobject *kobj,
 		ha->optrom_region_size = size;
 
 		ha->optrom_state = QLA_SREADING;
+<<<<<<< HEAD
 		ha->optrom_buffer = vmalloc(ha->optrom_region_size);
+=======
+		ha->optrom_buffer = vzalloc(ha->optrom_region_size);
+>>>>>>> upstream/android-13
 		if (ha->optrom_buffer == NULL) {
 			ql_log(ql_log_warn, vha, 0x7062,
 			    "Unable to allocate memory for optrom retrieval "
@@ -370,7 +506,10 @@ qla2x00_sysfs_write_optrom_ctl(struct file *filp, struct kobject *kobj,
 		    "Reading flash region -- 0x%x/0x%x.\n",
 		    ha->optrom_region_start, ha->optrom_region_size);
 
+<<<<<<< HEAD
 		memset(ha->optrom_buffer, 0, ha->optrom_region_size);
+=======
+>>>>>>> upstream/android-13
 		ha->isp_ops->read_optrom(vha, ha->optrom_buffer,
 		    ha->optrom_region_start, ha->optrom_region_size);
 		break;
@@ -399,16 +538,27 @@ qla2x00_sysfs_write_optrom_ctl(struct file *filp, struct kobject *kobj,
 		 * 	0x000000 -> 0x07ffff -- Boot code.
 		 * 	0x080000 -> 0x0fffff -- Firmware.
 		 * 	0x120000 -> 0x12ffff -- VPD and HBA parameters.
+<<<<<<< HEAD
+=======
+		 *
+		 * > ISP25xx type boards:
+		 *
+		 *      None -- should go through BSG.
+>>>>>>> upstream/android-13
 		 */
 		valid = 0;
 		if (ha->optrom_size == OPTROM_SIZE_2300 && start == 0)
 			valid = 1;
+<<<<<<< HEAD
 		else if (start == (ha->flt_region_boot * 4) ||
 		    start == (ha->flt_region_fw * 4))
 			valid = 1;
 		else if (IS_QLA24XX_TYPE(ha) || IS_QLA25XX(ha)
 			|| IS_CNA_CAPABLE(ha) || IS_QLA2031(ha)
 			|| IS_QLA27XX(ha))
+=======
+		else if (IS_QLA24XX_TYPE(ha) || IS_QLA25XX(ha))
+>>>>>>> upstream/android-13
 			valid = 1;
 		if (!valid) {
 			ql_log(ql_log_warn, vha, 0x7065,
@@ -421,7 +571,11 @@ qla2x00_sysfs_write_optrom_ctl(struct file *filp, struct kobject *kobj,
 		ha->optrom_region_size = size;
 
 		ha->optrom_state = QLA_SWRITING;
+<<<<<<< HEAD
 		ha->optrom_buffer = vmalloc(ha->optrom_region_size);
+=======
+		ha->optrom_buffer = vzalloc(ha->optrom_region_size);
+>>>>>>> upstream/android-13
 		if (ha->optrom_buffer == NULL) {
 			ql_log(ql_log_warn, vha, 0x7066,
 			    "Unable to allocate memory for optrom update "
@@ -436,7 +590,10 @@ qla2x00_sysfs_write_optrom_ctl(struct file *filp, struct kobject *kobj,
 		    "Staging flash region write -- 0x%x/0x%x.\n",
 		    ha->optrom_region_start, ha->optrom_region_size);
 
+<<<<<<< HEAD
 		memset(ha->optrom_buffer, 0, ha->optrom_region_size);
+=======
+>>>>>>> upstream/android-13
 		break;
 	case 3:
 		if (ha->optrom_state != QLA_SWRITING) {
@@ -455,8 +612,15 @@ qla2x00_sysfs_write_optrom_ctl(struct file *filp, struct kobject *kobj,
 		    "Writing flash region -- 0x%x/0x%x.\n",
 		    ha->optrom_region_start, ha->optrom_region_size);
 
+<<<<<<< HEAD
 		ha->isp_ops->write_optrom(vha, ha->optrom_buffer,
 		    ha->optrom_region_start, ha->optrom_region_size);
+=======
+		rval = ha->isp_ops->write_optrom(vha, ha->optrom_buffer,
+		    ha->optrom_region_start, ha->optrom_region_size);
+		if (rval)
+			rval = -EIO;
+>>>>>>> upstream/android-13
 		break;
 	default:
 		rval = -EINVAL;
@@ -485,6 +649,10 @@ qla2x00_sysfs_read_vpd(struct file *filp, struct kobject *kobj,
 	    struct device, kobj)));
 	struct qla_hw_data *ha = vha->hw;
 	uint32_t faddr;
+<<<<<<< HEAD
+=======
+	struct active_regions active_regions = { };
+>>>>>>> upstream/android-13
 
 	if (unlikely(pci_channel_offline(ha->pdev)))
 		return -EAGAIN;
@@ -492,6 +660,7 @@ qla2x00_sysfs_read_vpd(struct file *filp, struct kobject *kobj,
 	if (!capable(CAP_SYS_ADMIN))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (IS_NOCACHE_VPD_TYPE(ha)) {
 		faddr = ha->flt_region_vpd << 2;
 
@@ -502,6 +671,35 @@ qla2x00_sysfs_read_vpd(struct file *filp, struct kobject *kobj,
 		ha->isp_ops->read_optrom(vha, ha->vpd, faddr,
 		    ha->vpd_size);
 	}
+=======
+	if (!IS_NOCACHE_VPD_TYPE(ha))
+		goto skip;
+
+	faddr = ha->flt_region_vpd << 2;
+
+	if (IS_QLA28XX(ha)) {
+		qla28xx_get_aux_images(vha, &active_regions);
+		if (active_regions.aux.vpd_nvram == QLA27XX_SECONDARY_IMAGE)
+			faddr = ha->flt_region_vpd_sec << 2;
+
+		ql_dbg(ql_dbg_init, vha, 0x7070,
+		    "Loading %s nvram image.\n",
+		    active_regions.aux.vpd_nvram == QLA27XX_PRIMARY_IMAGE ?
+		    "primary" : "secondary");
+	}
+
+	mutex_lock(&ha->optrom_mutex);
+	if (qla2x00_chip_is_down(vha)) {
+		mutex_unlock(&ha->optrom_mutex);
+		return -EAGAIN;
+	}
+
+	ha->isp_ops->read_optrom(vha, ha->vpd, faddr, ha->vpd_size);
+	mutex_unlock(&ha->optrom_mutex);
+
+	ha->isp_ops->read_optrom(vha, ha->vpd, faddr, ha->vpd_size);
+skip:
+>>>>>>> upstream/android-13
 	return memory_read_from_buffer(buf, count, &off, ha->vpd, ha->vpd_size);
 }
 
@@ -531,6 +729,7 @@ qla2x00_sysfs_write_vpd(struct file *filp, struct kobject *kobj,
 		return -EAGAIN;
 	}
 
+<<<<<<< HEAD
 	/* Write NVRAM. */
 	ha->isp_ops->write_nvram(vha, (uint8_t *)buf, ha->vpd_base, count);
 	ha->isp_ops->read_nvram(vha, (uint8_t *)ha->vpd, ha->vpd_base, count);
@@ -541,6 +740,27 @@ qla2x00_sysfs_write_vpd(struct file *filp, struct kobject *kobj,
 
 	tmp_data = vmalloc(256);
 	if (!tmp_data) {
+=======
+	mutex_lock(&ha->optrom_mutex);
+	if (qla2x00_chip_is_down(vha)) {
+		mutex_unlock(&ha->optrom_mutex);
+		return -EAGAIN;
+	}
+
+	/* Write NVRAM. */
+	ha->isp_ops->write_nvram(vha, buf, ha->vpd_base, count);
+	ha->isp_ops->read_nvram(vha, ha->vpd, ha->vpd_base, count);
+
+	/* Update flash version information for 4Gb & above. */
+	if (!IS_FWI2_CAPABLE(ha)) {
+		mutex_unlock(&ha->optrom_mutex);
+		return -EINVAL;
+	}
+
+	tmp_data = vmalloc(256);
+	if (!tmp_data) {
+		mutex_unlock(&ha->optrom_mutex);
+>>>>>>> upstream/android-13
 		ql_log(ql_log_warn, vha, 0x706b,
 		    "Unable to allocate memory for VPD information update.\n");
 		return -ENOMEM;
@@ -548,6 +768,11 @@ qla2x00_sysfs_write_vpd(struct file *filp, struct kobject *kobj,
 	ha->isp_ops->get_flash_version(vha, tmp_data);
 	vfree(tmp_data);
 
+<<<<<<< HEAD
+=======
+	mutex_unlock(&ha->optrom_mutex);
+
+>>>>>>> upstream/android-13
 	return count;
 }
 
@@ -573,10 +798,22 @@ qla2x00_sysfs_read_sfp(struct file *filp, struct kobject *kobj,
 	if (!capable(CAP_SYS_ADMIN) || off != 0 || count < SFP_DEV_SIZE)
 		return 0;
 
+<<<<<<< HEAD
 	if (qla2x00_chip_is_down(vha))
 		return 0;
 
 	rval = qla2x00_read_sfp_dev(vha, buf, count);
+=======
+	mutex_lock(&vha->hw->optrom_mutex);
+	if (qla2x00_chip_is_down(vha)) {
+		mutex_unlock(&vha->hw->optrom_mutex);
+		return 0;
+	}
+
+	rval = qla2x00_read_sfp_dev(vha, buf, count);
+	mutex_unlock(&vha->hw->optrom_mutex);
+
+>>>>>>> upstream/android-13
 	if (rval)
 		return -EIO;
 
@@ -604,6 +841,10 @@ qla2x00_sysfs_write_reset(struct file *filp, struct kobject *kobj,
 	int type;
 	uint32_t idc_control;
 	uint8_t *tmp_data = NULL;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	if (off != 0)
 		return -EINVAL;
 
@@ -613,6 +854,15 @@ qla2x00_sysfs_write_reset(struct file *filp, struct kobject *kobj,
 		ql_log(ql_log_info, vha, 0x706e,
 		    "Issuing ISP reset.\n");
 
+<<<<<<< HEAD
+=======
+		if (vha->hw->flags.port_isolated) {
+			ql_log(ql_log_info, vha, 0x706e,
+			       "Port is isolated, returning.\n");
+			return -EINVAL;
+		}
+
+>>>>>>> upstream/android-13
 		scsi_block_requests(vha->host);
 		if (IS_QLA82XX(ha)) {
 			ha->flags.isp82xx_no_md_cap = 1;
@@ -635,13 +885,22 @@ qla2x00_sysfs_write_reset(struct file *filp, struct kobject *kobj,
 		scsi_unblock_requests(vha->host);
 		break;
 	case 0x2025d:
+<<<<<<< HEAD
 		if (!IS_QLA81XX(ha) && !IS_QLA83XX(ha))
+=======
+		if (!IS_QLA81XX(ha) && !IS_QLA83XX(ha) &&
+		    !IS_QLA27XX(ha) && !IS_QLA28XX(ha))
+>>>>>>> upstream/android-13
 			return -EPERM;
 
 		ql_log(ql_log_info, vha, 0x706f,
 		    "Issuing MPI reset.\n");
 
+<<<<<<< HEAD
 		if (IS_QLA83XX(ha) || IS_QLA27XX(ha)) {
+=======
+		if (IS_QLA83XX(ha)) {
+>>>>>>> upstream/android-13
 			uint32_t idc_control;
 
 			qla83xx_idc_lock(vha, 0);
@@ -666,6 +925,10 @@ qla2x00_sysfs_write_reset(struct file *filp, struct kobject *kobj,
 			scsi_unblock_requests(vha->host);
 			break;
 		}
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	case 0x2025e:
 		if (!IS_P3P_TYPE(ha) || vha != base_vha) {
 			ql_log(ql_log_info, vha, 0x7071,
@@ -786,9 +1049,17 @@ qla2x00_sysfs_read_xgmac_stats(struct file *filp, struct kobject *kobj,
 
 	if (unlikely(pci_channel_offline(ha->pdev)))
 		return 0;
+<<<<<<< HEAD
 
 	if (qla2x00_chip_is_down(vha))
 		return 0;
+=======
+	mutex_lock(&vha->hw->optrom_mutex);
+	if (qla2x00_chip_is_down(vha)) {
+		mutex_unlock(&vha->hw->optrom_mutex);
+		return 0;
+	}
+>>>>>>> upstream/android-13
 
 	if (ha->xgmac_data)
 		goto do_read;
@@ -796,6 +1067,10 @@ qla2x00_sysfs_read_xgmac_stats(struct file *filp, struct kobject *kobj,
 	ha->xgmac_data = dma_alloc_coherent(&ha->pdev->dev, XGMAC_DATA_SIZE,
 	    &ha->xgmac_data_dma, GFP_KERNEL);
 	if (!ha->xgmac_data) {
+<<<<<<< HEAD
+=======
+		mutex_unlock(&vha->hw->optrom_mutex);
+>>>>>>> upstream/android-13
 		ql_log(ql_log_warn, vha, 0x7076,
 		    "Unable to allocate memory for XGMAC read-data.\n");
 		return 0;
@@ -807,13 +1082,22 @@ do_read:
 
 	rval = qla2x00_get_xgmac_stats(vha, ha->xgmac_data_dma,
 	    XGMAC_DATA_SIZE, &actual_size);
+<<<<<<< HEAD
+=======
+
+	mutex_unlock(&vha->hw->optrom_mutex);
+>>>>>>> upstream/android-13
 	if (rval != QLA_SUCCESS) {
 		ql_log(ql_log_warn, vha, 0x7077,
 		    "Unable to read XGMAC data (%x).\n", rval);
 		count = 0;
 	}
 
+<<<<<<< HEAD
 	count = actual_size > count ? count: actual_size;
+=======
+	count = actual_size > count ? count : actual_size;
+>>>>>>> upstream/android-13
 	memcpy(buf, ha->xgmac_data, count);
 
 	return count;
@@ -843,13 +1127,25 @@ qla2x00_sysfs_read_dcbx_tlv(struct file *filp, struct kobject *kobj,
 
 	if (ha->dcbx_tlv)
 		goto do_read;
+<<<<<<< HEAD
 
 	if (qla2x00_chip_is_down(vha))
 		return 0;
+=======
+	mutex_lock(&vha->hw->optrom_mutex);
+	if (qla2x00_chip_is_down(vha)) {
+		mutex_unlock(&vha->hw->optrom_mutex);
+		return 0;
+	}
+>>>>>>> upstream/android-13
 
 	ha->dcbx_tlv = dma_alloc_coherent(&ha->pdev->dev, DCBX_TLV_DATA_SIZE,
 	    &ha->dcbx_tlv_dma, GFP_KERNEL);
 	if (!ha->dcbx_tlv) {
+<<<<<<< HEAD
+=======
+		mutex_unlock(&vha->hw->optrom_mutex);
+>>>>>>> upstream/android-13
 		ql_log(ql_log_warn, vha, 0x7078,
 		    "Unable to allocate memory for DCBX TLV read-data.\n");
 		return -ENOMEM;
@@ -860,6 +1156,12 @@ do_read:
 
 	rval = qla2x00_get_dcbx_params(vha, ha->dcbx_tlv_dma,
 	    DCBX_TLV_DATA_SIZE);
+<<<<<<< HEAD
+=======
+
+	mutex_unlock(&vha->hw->optrom_mutex);
+
+>>>>>>> upstream/android-13
 	if (rval != QLA_SUCCESS) {
 		ql_log(ql_log_warn, vha, 0x7079,
 		    "Unable to read DCBX TLV (%x).\n", rval);
@@ -883,7 +1185,11 @@ static struct bin_attribute sysfs_dcbx_tlv_attr = {
 static struct sysfs_entry {
 	char *name;
 	struct bin_attribute *attr;
+<<<<<<< HEAD
 	int is4GBp_only;
+=======
+	int type;
+>>>>>>> upstream/android-13
 } bin_file_entries[] = {
 	{ "fw_dump", &sysfs_fw_dump_attr, },
 	{ "nvram", &sysfs_nvram_attr, },
@@ -906,11 +1212,19 @@ qla2x00_alloc_sysfs_attr(scsi_qla_host_t *vha)
 	int ret;
 
 	for (iter = bin_file_entries; iter->name; iter++) {
+<<<<<<< HEAD
 		if (iter->is4GBp_only && !IS_FWI2_CAPABLE(vha->hw))
 			continue;
 		if (iter->is4GBp_only == 2 && !IS_QLA25XX(vha->hw))
 			continue;
 		if (iter->is4GBp_only == 3 && !(IS_CNA_CAPABLE(vha->hw)))
+=======
+		if (iter->type && !IS_FWI2_CAPABLE(vha->hw))
+			continue;
+		if (iter->type == 2 && !IS_QLA25XX(vha->hw))
+			continue;
+		if (iter->type == 3 && !(IS_CNA_CAPABLE(vha->hw)))
+>>>>>>> upstream/android-13
 			continue;
 
 		ret = sysfs_create_bin_file(&host->shost_gendev.kobj,
@@ -934,6 +1248,7 @@ qla2x00_free_sysfs_attr(scsi_qla_host_t *vha, bool stop_beacon)
 	struct qla_hw_data *ha = vha->hw;
 
 	for (iter = bin_file_entries; iter->name; iter++) {
+<<<<<<< HEAD
 		if (iter->is4GBp_only && !IS_FWI2_CAPABLE(ha))
 			continue;
 		if (iter->is4GBp_only == 2 && !IS_QLA25XX(ha))
@@ -941,6 +1256,13 @@ qla2x00_free_sysfs_attr(scsi_qla_host_t *vha, bool stop_beacon)
 		if (iter->is4GBp_only == 3 && !(IS_CNA_CAPABLE(vha->hw)))
 			continue;
 		if (iter->is4GBp_only == 0x27 && !IS_QLA27XX(vha->hw))
+=======
+		if (iter->type && !IS_FWI2_CAPABLE(ha))
+			continue;
+		if (iter->type == 2 && !IS_QLA25XX(ha))
+			continue;
+		if (iter->type == 3 && !(IS_CNA_CAPABLE(ha)))
+>>>>>>> upstream/android-13
 			continue;
 
 		sysfs_remove_bin_file(&host->shost_gendev.kobj,
@@ -954,7 +1276,11 @@ qla2x00_free_sysfs_attr(scsi_qla_host_t *vha, bool stop_beacon)
 /* Scsi_Host attributes. */
 
 static ssize_t
+<<<<<<< HEAD
 qla2x00_drvr_version_show(struct device *dev,
+=======
+qla2x00_driver_version_show(struct device *dev,
+>>>>>>> upstream/android-13
 			  struct device_attribute *attr, char *buf)
 {
 	return scnprintf(buf, PAGE_SIZE, "%s\n", qla2x00_version_str);
@@ -998,6 +1324,10 @@ qla2x00_isp_name_show(struct device *dev, struct device_attribute *attr,
 		      char *buf)
 {
 	scsi_qla_host_t *vha = shost_priv(class_to_shost(dev));
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	return scnprintf(buf, PAGE_SIZE, "ISP%04X\n", vha->hw->pdev->device);
 }
 
@@ -1031,6 +1361,10 @@ qla2x00_model_desc_show(struct device *dev, struct device_attribute *attr,
 			char *buf)
 {
 	scsi_qla_host_t *vha = shost_priv(class_to_shost(dev));
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	return scnprintf(buf, PAGE_SIZE, "%s\n", vha->hw->model_desc);
 }
 
@@ -1042,7 +1376,12 @@ qla2x00_pci_info_show(struct device *dev, struct device_attribute *attr,
 	char pci_info[30];
 
 	return scnprintf(buf, PAGE_SIZE, "%s\n",
+<<<<<<< HEAD
 	    vha->hw->isp_ops->pci_info_str(vha, pci_info));
+=======
+			 vha->hw->isp_ops->pci_info_str(vha, pci_info,
+							sizeof(pci_info)));
+>>>>>>> upstream/android-13
 }
 
 static ssize_t
@@ -1160,6 +1499,37 @@ qla2x00_zio_timer_store(struct device *dev, struct device_attribute *attr,
 }
 
 static ssize_t
+<<<<<<< HEAD
+=======
+qla_zio_threshold_show(struct device *dev, struct device_attribute *attr,
+		       char *buf)
+{
+	scsi_qla_host_t *vha = shost_priv(class_to_shost(dev));
+
+	return scnprintf(buf, PAGE_SIZE, "%d exchanges\n",
+	    vha->hw->last_zio_threshold);
+}
+
+static ssize_t
+qla_zio_threshold_store(struct device *dev, struct device_attribute *attr,
+    const char *buf, size_t count)
+{
+	scsi_qla_host_t *vha = shost_priv(class_to_shost(dev));
+	int val = 0;
+
+	if (vha->hw->zio_mode != QLA_ZIO_MODE_6)
+		return -EINVAL;
+	if (sscanf(buf, "%d", &val) != 1)
+		return -EINVAL;
+	if (val < 0 || val > 256)
+		return -ERANGE;
+
+	atomic_set(&vha->hw->zio_threshold, val);
+	return strlen(buf);
+}
+
+static ssize_t
+>>>>>>> upstream/android-13
 qla2x00_beacon_show(struct device *dev, struct device_attribute *attr,
 		    char *buf)
 {
@@ -1185,15 +1555,27 @@ qla2x00_beacon_store(struct device *dev, struct device_attribute *attr,
 	if (IS_QLA2100(ha) || IS_QLA2200(ha))
 		return -EPERM;
 
+<<<<<<< HEAD
 	if (qla2x00_chip_is_down(vha)) {
+=======
+	if (sscanf(buf, "%d", &val) != 1)
+		return -EINVAL;
+
+	mutex_lock(&vha->hw->optrom_mutex);
+	if (qla2x00_chip_is_down(vha)) {
+		mutex_unlock(&vha->hw->optrom_mutex);
+>>>>>>> upstream/android-13
 		ql_log(ql_log_warn, vha, 0x707a,
 		    "Abort ISP active -- ignoring beacon request.\n");
 		return -EBUSY;
 	}
 
+<<<<<<< HEAD
 	if (sscanf(buf, "%d", &val) != 1)
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	if (val)
 		rval = ha->isp_ops->beacon_on(vha);
 	else
@@ -1202,6 +1584,84 @@ qla2x00_beacon_store(struct device *dev, struct device_attribute *attr,
 	if (rval != QLA_SUCCESS)
 		count = 0;
 
+<<<<<<< HEAD
+=======
+	mutex_unlock(&vha->hw->optrom_mutex);
+
+	return count;
+}
+
+static ssize_t
+qla2x00_beacon_config_show(struct device *dev, struct device_attribute *attr,
+	char *buf)
+{
+	scsi_qla_host_t *vha = shost_priv(class_to_shost(dev));
+	struct qla_hw_data *ha = vha->hw;
+	uint16_t led[3] = { 0 };
+
+	if (!IS_QLA2031(ha) && !IS_QLA27XX(ha) && !IS_QLA28XX(ha))
+		return -EPERM;
+
+	if (ql26xx_led_config(vha, 0, led))
+		return scnprintf(buf, PAGE_SIZE, "\n");
+
+	return scnprintf(buf, PAGE_SIZE, "%#04hx %#04hx %#04hx\n",
+	    led[0], led[1], led[2]);
+}
+
+static ssize_t
+qla2x00_beacon_config_store(struct device *dev, struct device_attribute *attr,
+	const char *buf, size_t count)
+{
+	scsi_qla_host_t *vha = shost_priv(class_to_shost(dev));
+	struct qla_hw_data *ha = vha->hw;
+	uint16_t options = BIT_0;
+	uint16_t led[3] = { 0 };
+	uint16_t word[4];
+	int n;
+
+	if (!IS_QLA2031(ha) && !IS_QLA27XX(ha) && !IS_QLA28XX(ha))
+		return -EPERM;
+
+	n = sscanf(buf, "%hx %hx %hx %hx", word+0, word+1, word+2, word+3);
+	if (n == 4) {
+		if (word[0] == 3) {
+			options |= BIT_3|BIT_2|BIT_1;
+			led[0] = word[1];
+			led[1] = word[2];
+			led[2] = word[3];
+			goto write;
+		}
+		return -EINVAL;
+	}
+
+	if (n == 2) {
+		/* check led index */
+		if (word[0] == 0) {
+			options |= BIT_2;
+			led[0] = word[1];
+			goto write;
+		}
+		if (word[0] == 1) {
+			options |= BIT_3;
+			led[1] = word[1];
+			goto write;
+		}
+		if (word[0] == 2) {
+			options |= BIT_1;
+			led[2] = word[1];
+			goto write;
+		}
+		return -EINVAL;
+	}
+
+	return -EINVAL;
+
+write:
+	if (ql26xx_led_config(vha, options, led))
+		return -EFAULT;
+
+>>>>>>> upstream/android-13
 	return count;
 }
 
@@ -1211,6 +1671,10 @@ qla2x00_optrom_bios_version_show(struct device *dev,
 {
 	scsi_qla_host_t *vha = shost_priv(class_to_shost(dev));
 	struct qla_hw_data *ha = vha->hw;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	return scnprintf(buf, PAGE_SIZE, "%d.%02d\n", ha->bios_revision[1],
 	    ha->bios_revision[0]);
 }
@@ -1221,6 +1685,10 @@ qla2x00_optrom_efi_version_show(struct device *dev,
 {
 	scsi_qla_host_t *vha = shost_priv(class_to_shost(dev));
 	struct qla_hw_data *ha = vha->hw;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	return scnprintf(buf, PAGE_SIZE, "%d.%02d\n", ha->efi_revision[1],
 	    ha->efi_revision[0]);
 }
@@ -1231,6 +1699,10 @@ qla2x00_optrom_fcode_version_show(struct device *dev,
 {
 	scsi_qla_host_t *vha = shost_priv(class_to_shost(dev));
 	struct qla_hw_data *ha = vha->hw;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	return scnprintf(buf, PAGE_SIZE, "%d.%02d\n", ha->fcode_revision[1],
 	    ha->fcode_revision[0]);
 }
@@ -1241,6 +1713,10 @@ qla2x00_optrom_fw_version_show(struct device *dev,
 {
 	scsi_qla_host_t *vha = shost_priv(class_to_shost(dev));
 	struct qla_hw_data *ha = vha->hw;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	return scnprintf(buf, PAGE_SIZE, "%d.%02d.%02d %d\n",
 	    ha->fw_revision[0], ha->fw_revision[1], ha->fw_revision[2],
 	    ha->fw_revision[3]);
@@ -1253,7 +1729,12 @@ qla2x00_optrom_gold_fw_version_show(struct device *dev,
 	scsi_qla_host_t *vha = shost_priv(class_to_shost(dev));
 	struct qla_hw_data *ha = vha->hw;
 
+<<<<<<< HEAD
 	if (!IS_QLA81XX(ha) && !IS_QLA83XX(ha) && !IS_QLA27XX(ha))
+=======
+	if (!IS_QLA81XX(ha) && !IS_QLA83XX(ha) &&
+	    !IS_QLA27XX(ha) && !IS_QLA28XX(ha))
+>>>>>>> upstream/android-13
 		return scnprintf(buf, PAGE_SIZE, "\n");
 
 	return scnprintf(buf, PAGE_SIZE, "%d.%02d.%02d (%d)\n",
@@ -1266,6 +1747,10 @@ qla2x00_total_isp_aborts_show(struct device *dev,
 			      struct device_attribute *attr, char *buf)
 {
 	scsi_qla_host_t *vha = shost_priv(class_to_shost(dev));
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	return scnprintf(buf, PAGE_SIZE, "%d\n",
 	    vha->qla_stats.total_isp_aborts);
 }
@@ -1275,24 +1760,56 @@ qla24xx_84xx_fw_version_show(struct device *dev,
 	struct device_attribute *attr, char *buf)
 {
 	int rval = QLA_SUCCESS;
+<<<<<<< HEAD
 	uint16_t status[2] = {0, 0};
+=======
+	uint16_t status[2] = { 0 };
+>>>>>>> upstream/android-13
 	scsi_qla_host_t *vha = shost_priv(class_to_shost(dev));
 	struct qla_hw_data *ha = vha->hw;
 
 	if (!IS_QLA84XX(ha))
 		return scnprintf(buf, PAGE_SIZE, "\n");
 
+<<<<<<< HEAD
 	if (ha->cs84xx->op_fw_version == 0)
 		rval = qla84xx_verify_chip(vha, status);
 
 	if ((rval == QLA_SUCCESS) && (status[0] == 0))
 		return scnprintf(buf, PAGE_SIZE, "%u\n",
 			(uint32_t)ha->cs84xx->op_fw_version);
+=======
+	if (!ha->cs84xx->op_fw_version) {
+		rval = qla84xx_verify_chip(vha, status);
+
+		if (!rval && !status[0])
+			return scnprintf(buf, PAGE_SIZE, "%u\n",
+			    (uint32_t)ha->cs84xx->op_fw_version);
+	}
+>>>>>>> upstream/android-13
 
 	return scnprintf(buf, PAGE_SIZE, "\n");
 }
 
 static ssize_t
+<<<<<<< HEAD
+=======
+qla2x00_serdes_version_show(struct device *dev, struct device_attribute *attr,
+    char *buf)
+{
+	scsi_qla_host_t *vha = shost_priv(class_to_shost(dev));
+	struct qla_hw_data *ha = vha->hw;
+
+	if (!IS_QLA27XX(ha) && !IS_QLA28XX(ha))
+		return scnprintf(buf, PAGE_SIZE, "\n");
+
+	return scnprintf(buf, PAGE_SIZE, "%d.%02d.%02d\n",
+	    ha->serdes_version[0], ha->serdes_version[1],
+	    ha->serdes_version[2]);
+}
+
+static ssize_t
+>>>>>>> upstream/android-13
 qla2x00_mpi_version_show(struct device *dev, struct device_attribute *attr,
     char *buf)
 {
@@ -1300,7 +1817,11 @@ qla2x00_mpi_version_show(struct device *dev, struct device_attribute *attr,
 	struct qla_hw_data *ha = vha->hw;
 
 	if (!IS_QLA81XX(ha) && !IS_QLA8031(ha) && !IS_QLA8044(ha) &&
+<<<<<<< HEAD
 	    !IS_QLA27XX(ha))
+=======
+	    !IS_QLA27XX(ha) && !IS_QLA28XX(ha))
+>>>>>>> upstream/android-13
 		return scnprintf(buf, PAGE_SIZE, "\n");
 
 	return scnprintf(buf, PAGE_SIZE, "%d.%02d.%02d (%x)\n",
@@ -1371,18 +1892,36 @@ qla2x00_thermal_temp_show(struct device *dev,
 {
 	scsi_qla_host_t *vha = shost_priv(class_to_shost(dev));
 	uint16_t temp = 0;
+<<<<<<< HEAD
 
 	if (qla2x00_chip_is_down(vha)) {
+=======
+	int rc;
+
+	mutex_lock(&vha->hw->optrom_mutex);
+	if (qla2x00_chip_is_down(vha)) {
+		mutex_unlock(&vha->hw->optrom_mutex);
+>>>>>>> upstream/android-13
 		ql_log(ql_log_warn, vha, 0x70dc, "ISP reset active.\n");
 		goto done;
 	}
 
 	if (vha->hw->flags.eeh_busy) {
+<<<<<<< HEAD
+=======
+		mutex_unlock(&vha->hw->optrom_mutex);
+>>>>>>> upstream/android-13
 		ql_log(ql_log_warn, vha, 0x70dd, "PCI EEH busy.\n");
 		goto done;
 	}
 
+<<<<<<< HEAD
 	if (qla2x00_get_thermal_temp(vha, &temp) == QLA_SUCCESS)
+=======
+	rc = qla2x00_get_thermal_temp(vha, &temp);
+	mutex_unlock(&vha->hw->optrom_mutex);
+	if (rc == QLA_SUCCESS)
+>>>>>>> upstream/android-13
 		return scnprintf(buf, PAGE_SIZE, "%d\n", temp);
 
 done:
@@ -1403,6 +1942,7 @@ qla2x00_fw_state_show(struct device *dev, struct device_attribute *attr,
 		return scnprintf(buf, PAGE_SIZE, "0x%x\n", pstate);
 	}
 
+<<<<<<< HEAD
 	if (qla2x00_chip_is_down(vha))
 		ql_log(ql_log_warn, vha, 0x707c,
 		    "ISP reset active.\n");
@@ -1410,6 +1950,26 @@ qla2x00_fw_state_show(struct device *dev, struct device_attribute *attr,
 		rval = qla2x00_get_firmware_state(vha, state);
 	if (rval != QLA_SUCCESS)
 		memset(state, -1, sizeof(state));
+=======
+	mutex_lock(&vha->hw->optrom_mutex);
+	if (qla2x00_chip_is_down(vha)) {
+		mutex_unlock(&vha->hw->optrom_mutex);
+		ql_log(ql_log_warn, vha, 0x707c,
+		    "ISP reset active.\n");
+		goto out;
+	} else if (vha->hw->flags.eeh_busy) {
+		mutex_unlock(&vha->hw->optrom_mutex);
+		goto out;
+	}
+
+	rval = qla2x00_get_firmware_state(vha, state);
+	mutex_unlock(&vha->hw->optrom_mutex);
+out:
+	if (rval != QLA_SUCCESS) {
+		memset(state, -1, sizeof(state));
+		rval = qla2x00_get_firmware_state(vha, state);
+	}
+>>>>>>> upstream/android-13
 
 	return scnprintf(buf, PAGE_SIZE, "0x%x 0x%x 0x%x 0x%x 0x%x 0x%x\n",
 	    state[0], state[1], state[2], state[3], state[4], state[5]);
@@ -1496,7 +2056,11 @@ qla2x00_pep_version_show(struct device *dev, struct device_attribute *attr,
 	scsi_qla_host_t *vha = shost_priv(class_to_shost(dev));
 	struct qla_hw_data *ha = vha->hw;
 
+<<<<<<< HEAD
 	if (!IS_QLA27XX(ha))
+=======
+	if (!IS_QLA27XX(ha) && !IS_QLA28XX(ha))
+>>>>>>> upstream/android-13
 		return scnprintf(buf, PAGE_SIZE, "\n");
 
 	return scnprintf(buf, PAGE_SIZE, "%d.%02d.%02d\n",
@@ -1504,12 +2068,18 @@ qla2x00_pep_version_show(struct device *dev, struct device_attribute *attr,
 }
 
 static ssize_t
+<<<<<<< HEAD
 qla2x00_min_link_speed_show(struct device *dev, struct device_attribute *attr,
     char *buf)
+=======
+qla2x00_min_supported_speed_show(struct device *dev,
+    struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	scsi_qla_host_t *vha = shost_priv(class_to_shost(dev));
 	struct qla_hw_data *ha = vha->hw;
 
+<<<<<<< HEAD
 	if (!IS_QLA27XX(ha))
 		return scnprintf(buf, PAGE_SIZE, "\n");
 
@@ -1524,10 +2094,28 @@ qla2x00_min_link_speed_show(struct device *dev, struct device_attribute *attr,
 static ssize_t
 qla2x00_max_speed_sup_show(struct device *dev, struct device_attribute *attr,
     char *buf)
+=======
+	if (!IS_QLA27XX(ha) && !IS_QLA28XX(ha))
+		return scnprintf(buf, PAGE_SIZE, "\n");
+
+	return scnprintf(buf, PAGE_SIZE, "%s\n",
+	    ha->min_supported_speed == 6 ? "64Gps" :
+	    ha->min_supported_speed == 5 ? "32Gps" :
+	    ha->min_supported_speed == 4 ? "16Gps" :
+	    ha->min_supported_speed == 3 ? "8Gps" :
+	    ha->min_supported_speed == 2 ? "4Gps" :
+	    ha->min_supported_speed != 0 ? "unknown" : "");
+}
+
+static ssize_t
+qla2x00_max_supported_speed_show(struct device *dev,
+    struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	scsi_qla_host_t *vha = shost_priv(class_to_shost(dev));
 	struct qla_hw_data *ha = vha->hw;
 
+<<<<<<< HEAD
 	if (!IS_QLA27XX(ha))
 		return scnprintf(buf, PAGE_SIZE, "\n");
 
@@ -1536,6 +2124,631 @@ qla2x00_max_speed_sup_show(struct device *dev, struct device_attribute *attr,
 }
 
 static DEVICE_ATTR(driver_version, S_IRUGO, qla2x00_drvr_version_show, NULL);
+=======
+	if (!IS_QLA27XX(ha) && !IS_QLA28XX(ha))
+		return scnprintf(buf, PAGE_SIZE, "\n");
+
+	return scnprintf(buf, PAGE_SIZE, "%s\n",
+	    ha->max_supported_speed  == 2 ? "64Gps" :
+	    ha->max_supported_speed  == 1 ? "32Gps" :
+	    ha->max_supported_speed  == 0 ? "16Gps" : "unknown");
+}
+
+static ssize_t
+qla2x00_port_speed_store(struct device *dev, struct device_attribute *attr,
+    const char *buf, size_t count)
+{
+	struct scsi_qla_host *vha = shost_priv(dev_to_shost(dev));
+	ulong type, speed;
+	int oldspeed, rval;
+	int mode = QLA_SET_DATA_RATE_LR;
+	struct qla_hw_data *ha = vha->hw;
+
+	if (!IS_QLA27XX(ha) && !IS_QLA28XX(ha)) {
+		ql_log(ql_log_warn, vha, 0x70d8,
+		    "Speed setting not supported \n");
+		return -EINVAL;
+	}
+
+	rval = kstrtol(buf, 10, &type);
+	if (rval)
+		return rval;
+	speed = type;
+	if (type == 40 || type == 80 || type == 160 ||
+	    type == 320) {
+		ql_dbg(ql_dbg_user, vha, 0x70d9,
+		    "Setting will be affected after a loss of sync\n");
+		type = type/10;
+		mode = QLA_SET_DATA_RATE_NOLR;
+	}
+
+	oldspeed = ha->set_data_rate;
+
+	switch (type) {
+	case 0:
+		ha->set_data_rate = PORT_SPEED_AUTO;
+		break;
+	case 4:
+		ha->set_data_rate = PORT_SPEED_4GB;
+		break;
+	case 8:
+		ha->set_data_rate = PORT_SPEED_8GB;
+		break;
+	case 16:
+		ha->set_data_rate = PORT_SPEED_16GB;
+		break;
+	case 32:
+		ha->set_data_rate = PORT_SPEED_32GB;
+		break;
+	default:
+		ql_log(ql_log_warn, vha, 0x1199,
+		    "Unrecognized speed setting:%lx. Setting Autoneg\n",
+		    speed);
+		ha->set_data_rate = PORT_SPEED_AUTO;
+	}
+
+	if (qla2x00_chip_is_down(vha) || (oldspeed == ha->set_data_rate))
+		return -EINVAL;
+
+	ql_log(ql_log_info, vha, 0x70da,
+	    "Setting speed to %lx Gbps \n", type);
+
+	rval = qla2x00_set_data_rate(vha, mode);
+	if (rval != QLA_SUCCESS)
+		return -EIO;
+
+	return strlen(buf);
+}
+
+static const struct {
+	u16 rate;
+	char *str;
+} port_speed_str[] = {
+	{ PORT_SPEED_4GB, "4" },
+	{ PORT_SPEED_8GB, "8" },
+	{ PORT_SPEED_16GB, "16" },
+	{ PORT_SPEED_32GB, "32" },
+	{ PORT_SPEED_64GB, "64" },
+	{ PORT_SPEED_10GB, "10" },
+};
+
+static ssize_t
+qla2x00_port_speed_show(struct device *dev, struct device_attribute *attr,
+    char *buf)
+{
+	struct scsi_qla_host *vha = shost_priv(dev_to_shost(dev));
+	struct qla_hw_data *ha = vha->hw;
+	ssize_t rval;
+	u16 i;
+	char *speed = "Unknown";
+
+	rval = qla2x00_get_data_rate(vha);
+	if (rval != QLA_SUCCESS) {
+		ql_log(ql_log_warn, vha, 0x70db,
+		    "Unable to get port speed rval:%zd\n", rval);
+		return -EINVAL;
+	}
+
+	for (i = 0; i < ARRAY_SIZE(port_speed_str); i++) {
+		if (port_speed_str[i].rate != ha->link_data_rate)
+			continue;
+		speed = port_speed_str[i].str;
+		break;
+	}
+
+	return scnprintf(buf, PAGE_SIZE, "%s\n", speed);
+}
+
+static ssize_t
+qla2x00_mpi_pause_store(struct device *dev,
+	struct device_attribute *attr, const char *buf, size_t count)
+{
+	scsi_qla_host_t *vha = shost_priv(class_to_shost(dev));
+	int rval = 0;
+
+	if (sscanf(buf, "%d", &rval) != 1)
+		return -EINVAL;
+
+	ql_log(ql_log_warn, vha, 0x7089, "Pausing MPI...\n");
+
+	rval = qla83xx_wr_reg(vha, 0x002012d4, 0x30000001);
+
+	if (rval != QLA_SUCCESS) {
+		ql_log(ql_log_warn, vha, 0x708a, "Unable to pause MPI.\n");
+		count = 0;
+	}
+
+	return count;
+}
+
+static DEVICE_ATTR(mpi_pause, S_IWUSR, NULL, qla2x00_mpi_pause_store);
+
+/* ----- */
+
+static ssize_t
+qlini_mode_show(struct device *dev, struct device_attribute *attr, char *buf)
+{
+	scsi_qla_host_t *vha = shost_priv(class_to_shost(dev));
+	int len = 0;
+
+	len += scnprintf(buf + len, PAGE_SIZE-len,
+	    "Supported options: enabled | disabled | dual | exclusive\n");
+
+	/* --- */
+	len += scnprintf(buf + len, PAGE_SIZE-len, "Current selection: ");
+
+	switch (vha->qlini_mode) {
+	case QLA2XXX_INI_MODE_EXCLUSIVE:
+		len += scnprintf(buf + len, PAGE_SIZE-len,
+		    QLA2XXX_INI_MODE_STR_EXCLUSIVE);
+		break;
+	case QLA2XXX_INI_MODE_DISABLED:
+		len += scnprintf(buf + len, PAGE_SIZE-len,
+		    QLA2XXX_INI_MODE_STR_DISABLED);
+		break;
+	case QLA2XXX_INI_MODE_ENABLED:
+		len += scnprintf(buf + len, PAGE_SIZE-len,
+		    QLA2XXX_INI_MODE_STR_ENABLED);
+		break;
+	case QLA2XXX_INI_MODE_DUAL:
+		len += scnprintf(buf + len, PAGE_SIZE-len,
+		    QLA2XXX_INI_MODE_STR_DUAL);
+		break;
+	}
+	len += scnprintf(buf + len, PAGE_SIZE-len, "\n");
+
+	return len;
+}
+
+static char *mode_to_str[] = {
+	"exclusive",
+	"disabled",
+	"enabled",
+	"dual",
+};
+
+#define NEED_EXCH_OFFLOAD(_exchg) ((_exchg) > FW_DEF_EXCHANGES_CNT)
+static void qla_set_ini_mode(scsi_qla_host_t *vha, int op)
+{
+	enum {
+		NO_ACTION,
+		MODE_CHANGE_ACCEPT,
+		MODE_CHANGE_NO_ACTION,
+		TARGET_STILL_ACTIVE,
+	};
+	int action = NO_ACTION;
+	int set_mode = 0;
+	u8  eo_toggle = 0;	/* exchange offload flipped */
+
+	switch (vha->qlini_mode) {
+	case QLA2XXX_INI_MODE_DISABLED:
+		switch (op) {
+		case QLA2XXX_INI_MODE_DISABLED:
+			if (qla_tgt_mode_enabled(vha)) {
+				if (NEED_EXCH_OFFLOAD(vha->u_ql2xexchoffld) !=
+				    vha->hw->flags.exchoffld_enabled)
+					eo_toggle = 1;
+				if (((vha->ql2xexchoffld !=
+				    vha->u_ql2xexchoffld) &&
+				    NEED_EXCH_OFFLOAD(vha->u_ql2xexchoffld)) ||
+				    eo_toggle) {
+					/*
+					 * The number of exchange to be offload
+					 * was tweaked or offload option was
+					 * flipped
+					 */
+					action = MODE_CHANGE_ACCEPT;
+				} else {
+					action = MODE_CHANGE_NO_ACTION;
+				}
+			} else {
+				action = MODE_CHANGE_NO_ACTION;
+			}
+			break;
+		case QLA2XXX_INI_MODE_EXCLUSIVE:
+			if (qla_tgt_mode_enabled(vha)) {
+				if (NEED_EXCH_OFFLOAD(vha->u_ql2xexchoffld) !=
+				    vha->hw->flags.exchoffld_enabled)
+					eo_toggle = 1;
+				if (((vha->ql2xexchoffld !=
+				    vha->u_ql2xexchoffld) &&
+				    NEED_EXCH_OFFLOAD(vha->u_ql2xexchoffld)) ||
+				    eo_toggle) {
+					/*
+					 * The number of exchange to be offload
+					 * was tweaked or offload option was
+					 * flipped
+					 */
+					action = MODE_CHANGE_ACCEPT;
+				} else {
+					action = MODE_CHANGE_NO_ACTION;
+				}
+			} else {
+				action = MODE_CHANGE_ACCEPT;
+			}
+			break;
+		case QLA2XXX_INI_MODE_DUAL:
+			action = MODE_CHANGE_ACCEPT;
+			/* active_mode is target only, reset it to dual */
+			if (qla_tgt_mode_enabled(vha)) {
+				set_mode = 1;
+				action = MODE_CHANGE_ACCEPT;
+			} else {
+				action = MODE_CHANGE_NO_ACTION;
+			}
+			break;
+
+		case QLA2XXX_INI_MODE_ENABLED:
+			if (qla_tgt_mode_enabled(vha))
+				action = TARGET_STILL_ACTIVE;
+			else {
+				action = MODE_CHANGE_ACCEPT;
+				set_mode = 1;
+			}
+			break;
+		}
+		break;
+
+	case QLA2XXX_INI_MODE_EXCLUSIVE:
+		switch (op) {
+		case QLA2XXX_INI_MODE_EXCLUSIVE:
+			if (qla_tgt_mode_enabled(vha)) {
+				if (NEED_EXCH_OFFLOAD(vha->u_ql2xexchoffld) !=
+				    vha->hw->flags.exchoffld_enabled)
+					eo_toggle = 1;
+				if (((vha->ql2xexchoffld !=
+				    vha->u_ql2xexchoffld) &&
+				    NEED_EXCH_OFFLOAD(vha->u_ql2xexchoffld)) ||
+				    eo_toggle)
+					/*
+					 * The number of exchange to be offload
+					 * was tweaked or offload option was
+					 * flipped
+					 */
+					action = MODE_CHANGE_ACCEPT;
+				else
+					action = NO_ACTION;
+			} else
+				action = NO_ACTION;
+
+			break;
+
+		case QLA2XXX_INI_MODE_DISABLED:
+			if (qla_tgt_mode_enabled(vha)) {
+				if (NEED_EXCH_OFFLOAD(vha->u_ql2xexchoffld) !=
+				    vha->hw->flags.exchoffld_enabled)
+					eo_toggle = 1;
+				if (((vha->ql2xexchoffld !=
+				      vha->u_ql2xexchoffld) &&
+				    NEED_EXCH_OFFLOAD(vha->u_ql2xexchoffld)) ||
+				    eo_toggle)
+					action = MODE_CHANGE_ACCEPT;
+				else
+					action = MODE_CHANGE_NO_ACTION;
+			} else
+				action = MODE_CHANGE_NO_ACTION;
+			break;
+
+		case QLA2XXX_INI_MODE_DUAL: /* exclusive -> dual */
+			if (qla_tgt_mode_enabled(vha)) {
+				action = MODE_CHANGE_ACCEPT;
+				set_mode = 1;
+			} else
+				action = MODE_CHANGE_ACCEPT;
+			break;
+
+		case QLA2XXX_INI_MODE_ENABLED:
+			if (qla_tgt_mode_enabled(vha))
+				action = TARGET_STILL_ACTIVE;
+			else {
+				if (vha->hw->flags.fw_started)
+					action = MODE_CHANGE_NO_ACTION;
+				else
+					action = MODE_CHANGE_ACCEPT;
+			}
+			break;
+		}
+		break;
+
+	case QLA2XXX_INI_MODE_ENABLED:
+		switch (op) {
+		case QLA2XXX_INI_MODE_ENABLED:
+			if (NEED_EXCH_OFFLOAD(vha->u_ql2xiniexchg) !=
+			    vha->hw->flags.exchoffld_enabled)
+				eo_toggle = 1;
+			if (((vha->ql2xiniexchg != vha->u_ql2xiniexchg) &&
+				NEED_EXCH_OFFLOAD(vha->u_ql2xiniexchg)) ||
+			    eo_toggle)
+				action = MODE_CHANGE_ACCEPT;
+			else
+				action = NO_ACTION;
+			break;
+		case QLA2XXX_INI_MODE_DUAL:
+		case QLA2XXX_INI_MODE_DISABLED:
+			action = MODE_CHANGE_ACCEPT;
+			break;
+		default:
+			action = MODE_CHANGE_NO_ACTION;
+			break;
+		}
+		break;
+
+	case QLA2XXX_INI_MODE_DUAL:
+		switch (op) {
+		case QLA2XXX_INI_MODE_DUAL:
+			if (qla_tgt_mode_enabled(vha) ||
+			    qla_dual_mode_enabled(vha)) {
+				if (NEED_EXCH_OFFLOAD(vha->u_ql2xexchoffld +
+					vha->u_ql2xiniexchg) !=
+				    vha->hw->flags.exchoffld_enabled)
+					eo_toggle = 1;
+
+				if ((((vha->ql2xexchoffld +
+				       vha->ql2xiniexchg) !=
+				    (vha->u_ql2xiniexchg +
+				     vha->u_ql2xexchoffld)) &&
+				    NEED_EXCH_OFFLOAD(vha->u_ql2xiniexchg +
+					vha->u_ql2xexchoffld)) || eo_toggle)
+					action = MODE_CHANGE_ACCEPT;
+				else
+					action = NO_ACTION;
+			} else {
+				if (NEED_EXCH_OFFLOAD(vha->u_ql2xexchoffld +
+					vha->u_ql2xiniexchg) !=
+				    vha->hw->flags.exchoffld_enabled)
+					eo_toggle = 1;
+
+				if ((((vha->ql2xexchoffld + vha->ql2xiniexchg)
+				    != (vha->u_ql2xiniexchg +
+					vha->u_ql2xexchoffld)) &&
+				    NEED_EXCH_OFFLOAD(vha->u_ql2xiniexchg +
+					vha->u_ql2xexchoffld)) || eo_toggle)
+					action = MODE_CHANGE_NO_ACTION;
+				else
+					action = NO_ACTION;
+			}
+			break;
+
+		case QLA2XXX_INI_MODE_DISABLED:
+			if (qla_tgt_mode_enabled(vha) ||
+			    qla_dual_mode_enabled(vha)) {
+				/* turning off initiator mode */
+				set_mode = 1;
+				action = MODE_CHANGE_ACCEPT;
+			} else {
+				action = MODE_CHANGE_NO_ACTION;
+			}
+			break;
+
+		case QLA2XXX_INI_MODE_EXCLUSIVE:
+			if (qla_tgt_mode_enabled(vha) ||
+			    qla_dual_mode_enabled(vha)) {
+				set_mode = 1;
+				action = MODE_CHANGE_ACCEPT;
+			} else {
+				action = MODE_CHANGE_ACCEPT;
+			}
+			break;
+
+		case QLA2XXX_INI_MODE_ENABLED:
+			if (qla_tgt_mode_enabled(vha) ||
+			    qla_dual_mode_enabled(vha)) {
+				action = TARGET_STILL_ACTIVE;
+			} else {
+				action = MODE_CHANGE_ACCEPT;
+			}
+		}
+		break;
+	}
+
+	switch (action) {
+	case MODE_CHANGE_ACCEPT:
+		ql_log(ql_log_warn, vha, 0xffff,
+		    "Mode change accepted. From %s to %s, Tgt exchg %d|%d. ini exchg %d|%d\n",
+		    mode_to_str[vha->qlini_mode], mode_to_str[op],
+		    vha->ql2xexchoffld, vha->u_ql2xexchoffld,
+		    vha->ql2xiniexchg, vha->u_ql2xiniexchg);
+
+		vha->qlini_mode = op;
+		vha->ql2xexchoffld = vha->u_ql2xexchoffld;
+		vha->ql2xiniexchg = vha->u_ql2xiniexchg;
+		if (set_mode)
+			qlt_set_mode(vha);
+		vha->flags.online = 1;
+		set_bit(ISP_ABORT_NEEDED, &vha->dpc_flags);
+		break;
+
+	case MODE_CHANGE_NO_ACTION:
+		ql_log(ql_log_warn, vha, 0xffff,
+		    "Mode is set. No action taken. From %s to %s, Tgt exchg %d|%d. ini exchg %d|%d\n",
+		    mode_to_str[vha->qlini_mode], mode_to_str[op],
+		    vha->ql2xexchoffld, vha->u_ql2xexchoffld,
+		    vha->ql2xiniexchg, vha->u_ql2xiniexchg);
+		vha->qlini_mode = op;
+		vha->ql2xexchoffld = vha->u_ql2xexchoffld;
+		vha->ql2xiniexchg = vha->u_ql2xiniexchg;
+		break;
+
+	case TARGET_STILL_ACTIVE:
+		ql_log(ql_log_warn, vha, 0xffff,
+		    "Target Mode is active. Unable to change Mode.\n");
+		break;
+
+	case NO_ACTION:
+	default:
+		ql_log(ql_log_warn, vha, 0xffff,
+		    "Mode unchange. No action taken. %d|%d pct %d|%d.\n",
+		    vha->qlini_mode, op,
+		    vha->ql2xexchoffld, vha->u_ql2xexchoffld);
+		break;
+	}
+}
+
+static ssize_t
+qlini_mode_store(struct device *dev, struct device_attribute *attr,
+    const char *buf, size_t count)
+{
+	scsi_qla_host_t *vha = shost_priv(class_to_shost(dev));
+	int ini;
+
+	if (!buf)
+		return -EINVAL;
+
+	if (strncasecmp(QLA2XXX_INI_MODE_STR_EXCLUSIVE, buf,
+		strlen(QLA2XXX_INI_MODE_STR_EXCLUSIVE)) == 0)
+		ini = QLA2XXX_INI_MODE_EXCLUSIVE;
+	else if (strncasecmp(QLA2XXX_INI_MODE_STR_DISABLED, buf,
+		strlen(QLA2XXX_INI_MODE_STR_DISABLED)) == 0)
+		ini = QLA2XXX_INI_MODE_DISABLED;
+	else if (strncasecmp(QLA2XXX_INI_MODE_STR_ENABLED, buf,
+		  strlen(QLA2XXX_INI_MODE_STR_ENABLED)) == 0)
+		ini = QLA2XXX_INI_MODE_ENABLED;
+	else if (strncasecmp(QLA2XXX_INI_MODE_STR_DUAL, buf,
+		strlen(QLA2XXX_INI_MODE_STR_DUAL)) == 0)
+		ini = QLA2XXX_INI_MODE_DUAL;
+	else
+		return -EINVAL;
+
+	qla_set_ini_mode(vha, ini);
+	return strlen(buf);
+}
+
+static ssize_t
+ql2xexchoffld_show(struct device *dev, struct device_attribute *attr,
+    char *buf)
+{
+	scsi_qla_host_t *vha = shost_priv(class_to_shost(dev));
+	int len = 0;
+
+	len += scnprintf(buf + len, PAGE_SIZE-len,
+		"target exchange: new %d : current: %d\n\n",
+		vha->u_ql2xexchoffld, vha->ql2xexchoffld);
+
+	len += scnprintf(buf + len, PAGE_SIZE-len,
+	    "Please (re)set operating mode via \"/sys/class/scsi_host/host%ld/qlini_mode\" to load new setting.\n",
+	    vha->host_no);
+
+	return len;
+}
+
+static ssize_t
+ql2xexchoffld_store(struct device *dev, struct device_attribute *attr,
+    const char *buf, size_t count)
+{
+	scsi_qla_host_t *vha = shost_priv(class_to_shost(dev));
+	int val = 0;
+
+	if (sscanf(buf, "%d", &val) != 1)
+		return -EINVAL;
+
+	if (val > FW_MAX_EXCHANGES_CNT)
+		val = FW_MAX_EXCHANGES_CNT;
+	else if (val < 0)
+		val = 0;
+
+	vha->u_ql2xexchoffld = val;
+	return strlen(buf);
+}
+
+static ssize_t
+ql2xiniexchg_show(struct device *dev, struct device_attribute *attr,
+    char *buf)
+{
+	scsi_qla_host_t *vha = shost_priv(class_to_shost(dev));
+	int len = 0;
+
+	len += scnprintf(buf + len, PAGE_SIZE-len,
+		"target exchange: new %d : current: %d\n\n",
+		vha->u_ql2xiniexchg, vha->ql2xiniexchg);
+
+	len += scnprintf(buf + len, PAGE_SIZE-len,
+	    "Please (re)set operating mode via \"/sys/class/scsi_host/host%ld/qlini_mode\" to load new setting.\n",
+	    vha->host_no);
+
+	return len;
+}
+
+static ssize_t
+ql2xiniexchg_store(struct device *dev, struct device_attribute *attr,
+    const char *buf, size_t count)
+{
+	scsi_qla_host_t *vha = shost_priv(class_to_shost(dev));
+	int val = 0;
+
+	if (sscanf(buf, "%d", &val) != 1)
+		return -EINVAL;
+
+	if (val > FW_MAX_EXCHANGES_CNT)
+		val = FW_MAX_EXCHANGES_CNT;
+	else if (val < 0)
+		val = 0;
+
+	vha->u_ql2xiniexchg = val;
+	return strlen(buf);
+}
+
+static ssize_t
+qla2x00_dif_bundle_statistics_show(struct device *dev,
+    struct device_attribute *attr, char *buf)
+{
+	scsi_qla_host_t *vha = shost_priv(class_to_shost(dev));
+	struct qla_hw_data *ha = vha->hw;
+
+	return scnprintf(buf, PAGE_SIZE,
+	    "cross=%llu read=%llu write=%llu kalloc=%llu dma_alloc=%llu unusable=%u\n",
+	    ha->dif_bundle_crossed_pages, ha->dif_bundle_reads,
+	    ha->dif_bundle_writes, ha->dif_bundle_kallocs,
+	    ha->dif_bundle_dma_allocs, ha->pool.unusable.count);
+}
+
+static ssize_t
+qla2x00_fw_attr_show(struct device *dev,
+    struct device_attribute *attr, char *buf)
+{
+	scsi_qla_host_t *vha = shost_priv(class_to_shost(dev));
+	struct qla_hw_data *ha = vha->hw;
+
+	if (!IS_QLA27XX(ha) && !IS_QLA28XX(ha))
+		return scnprintf(buf, PAGE_SIZE, "\n");
+
+	return scnprintf(buf, PAGE_SIZE, "%llx\n",
+	    (uint64_t)ha->fw_attributes_ext[1] << 48 |
+	    (uint64_t)ha->fw_attributes_ext[0] << 32 |
+	    (uint64_t)ha->fw_attributes_h << 16 |
+	    (uint64_t)ha->fw_attributes);
+}
+
+static ssize_t
+qla2x00_port_no_show(struct device *dev, struct device_attribute *attr,
+    char *buf)
+{
+	scsi_qla_host_t *vha = shost_priv(class_to_shost(dev));
+
+	return scnprintf(buf, PAGE_SIZE, "%u\n", vha->hw->port_no);
+}
+
+static ssize_t
+qla2x00_dport_diagnostics_show(struct device *dev,
+	struct device_attribute *attr, char *buf)
+{
+	scsi_qla_host_t *vha = shost_priv(class_to_shost(dev));
+
+	if (!IS_QLA83XX(vha->hw) && !IS_QLA27XX(vha->hw) &&
+	    !IS_QLA28XX(vha->hw))
+		return scnprintf(buf, PAGE_SIZE, "\n");
+
+	if (!*vha->dport_data)
+		return scnprintf(buf, PAGE_SIZE, "\n");
+
+	return scnprintf(buf, PAGE_SIZE, "%04x %04x %04x %04x\n",
+	    vha->dport_data[0], vha->dport_data[1],
+	    vha->dport_data[2], vha->dport_data[3]);
+}
+static DEVICE_ATTR(dport_diagnostics, 0444,
+	   qla2x00_dport_diagnostics_show, NULL);
+
+static DEVICE_ATTR(driver_version, S_IRUGO, qla2x00_driver_version_show, NULL);
+>>>>>>> upstream/android-13
 static DEVICE_ATTR(fw_version, S_IRUGO, qla2x00_fw_version_show, NULL);
 static DEVICE_ATTR(serial_num, S_IRUGO, qla2x00_serial_num_show, NULL);
 static DEVICE_ATTR(isp_name, S_IRUGO, qla2x00_isp_name_show, NULL);
@@ -1549,6 +2762,11 @@ static DEVICE_ATTR(zio_timer, S_IRUGO | S_IWUSR, qla2x00_zio_timer_show,
 		   qla2x00_zio_timer_store);
 static DEVICE_ATTR(beacon, S_IRUGO | S_IWUSR, qla2x00_beacon_show,
 		   qla2x00_beacon_store);
+<<<<<<< HEAD
+=======
+static DEVICE_ATTR(beacon_config, 0644, qla2x00_beacon_config_show,
+		   qla2x00_beacon_config_store);
+>>>>>>> upstream/android-13
 static DEVICE_ATTR(optrom_bios_version, S_IRUGO,
 		   qla2x00_optrom_bios_version_show, NULL);
 static DEVICE_ATTR(optrom_efi_version, S_IRUGO,
@@ -1563,6 +2781,10 @@ static DEVICE_ATTR(84xx_fw_version, S_IRUGO, qla24xx_84xx_fw_version_show,
 		   NULL);
 static DEVICE_ATTR(total_isp_aborts, S_IRUGO, qla2x00_total_isp_aborts_show,
 		   NULL);
+<<<<<<< HEAD
+=======
+static DEVICE_ATTR(serdes_version, 0444, qla2x00_serdes_version_show, NULL);
+>>>>>>> upstream/android-13
 static DEVICE_ATTR(mpi_version, S_IRUGO, qla2x00_mpi_version_show, NULL);
 static DEVICE_ATTR(phy_version, S_IRUGO, qla2x00_phy_version_show, NULL);
 static DEVICE_ATTR(flash_block_size, S_IRUGO, qla2x00_flash_block_size_show,
@@ -1580,8 +2802,29 @@ static DEVICE_ATTR(allow_cna_fw_dump, S_IRUGO | S_IWUSR,
 		   qla2x00_allow_cna_fw_dump_show,
 		   qla2x00_allow_cna_fw_dump_store);
 static DEVICE_ATTR(pep_version, S_IRUGO, qla2x00_pep_version_show, NULL);
+<<<<<<< HEAD
 static DEVICE_ATTR(min_link_speed, S_IRUGO, qla2x00_min_link_speed_show, NULL);
 static DEVICE_ATTR(max_speed_sup, S_IRUGO, qla2x00_max_speed_sup_show, NULL);
+=======
+static DEVICE_ATTR(min_supported_speed, 0444,
+		   qla2x00_min_supported_speed_show, NULL);
+static DEVICE_ATTR(max_supported_speed, 0444,
+		   qla2x00_max_supported_speed_show, NULL);
+static DEVICE_ATTR(zio_threshold, 0644,
+    qla_zio_threshold_show,
+    qla_zio_threshold_store);
+static DEVICE_ATTR_RW(qlini_mode);
+static DEVICE_ATTR_RW(ql2xexchoffld);
+static DEVICE_ATTR_RW(ql2xiniexchg);
+static DEVICE_ATTR(dif_bundle_statistics, 0444,
+    qla2x00_dif_bundle_statistics_show, NULL);
+static DEVICE_ATTR(port_speed, 0644, qla2x00_port_speed_show,
+    qla2x00_port_speed_store);
+static DEVICE_ATTR(port_no, 0444, qla2x00_port_no_show, NULL);
+static DEVICE_ATTR(fw_attr, 0444, qla2x00_fw_attr_show, NULL);
+static DEVICE_ATTR_RO(edif_doorbell);
+
+>>>>>>> upstream/android-13
 
 struct device_attribute *qla2x00_host_attrs[] = {
 	&dev_attr_driver_version,
@@ -1596,12 +2839,20 @@ struct device_attribute *qla2x00_host_attrs[] = {
 	&dev_attr_zio,
 	&dev_attr_zio_timer,
 	&dev_attr_beacon,
+<<<<<<< HEAD
+=======
+	&dev_attr_beacon_config,
+>>>>>>> upstream/android-13
 	&dev_attr_optrom_bios_version,
 	&dev_attr_optrom_efi_version,
 	&dev_attr_optrom_fcode_version,
 	&dev_attr_optrom_fw_version,
 	&dev_attr_84xx_fw_version,
 	&dev_attr_total_isp_aborts,
+<<<<<<< HEAD
+=======
+	&dev_attr_serdes_version,
+>>>>>>> upstream/android-13
 	&dev_attr_mpi_version,
 	&dev_attr_phy_version,
 	&dev_attr_flash_block_size,
@@ -1616,11 +2867,45 @@ struct device_attribute *qla2x00_host_attrs[] = {
 	&dev_attr_fw_dump_size,
 	&dev_attr_allow_cna_fw_dump,
 	&dev_attr_pep_version,
+<<<<<<< HEAD
 	&dev_attr_min_link_speed,
 	&dev_attr_max_speed_sup,
 	NULL,
 };
 
+=======
+	&dev_attr_min_supported_speed,
+	&dev_attr_max_supported_speed,
+	&dev_attr_zio_threshold,
+	&dev_attr_dif_bundle_statistics,
+	&dev_attr_port_speed,
+	&dev_attr_port_no,
+	&dev_attr_fw_attr,
+	&dev_attr_dport_diagnostics,
+	&dev_attr_edif_doorbell,
+	&dev_attr_mpi_pause,
+	NULL, /* reserve for qlini_mode */
+	NULL, /* reserve for ql2xiniexchg */
+	NULL, /* reserve for ql2xexchoffld */
+	NULL,
+};
+
+void qla_insert_tgt_attrs(void)
+{
+	struct device_attribute **attr;
+
+	/* advance to empty slot */
+	for (attr = &qla2x00_host_attrs[0]; *attr; ++attr)
+		continue;
+
+	*attr = &dev_attr_qlini_mode;
+	attr++;
+	*attr = &dev_attr_ql2xiniexchg;
+	attr++;
+	*attr = &dev_attr_ql2xexchoffld;
+}
+
+>>>>>>> upstream/android-13
 /* Host attributes. */
 
 static void
@@ -1635,16 +2920,27 @@ qla2x00_get_host_port_id(struct Scsi_Host *shost)
 static void
 qla2x00_get_host_speed(struct Scsi_Host *shost)
 {
+<<<<<<< HEAD
 	struct qla_hw_data *ha = ((struct scsi_qla_host *)
 					(shost_priv(shost)))->hw;
 	u32 speed = FC_PORTSPEED_UNKNOWN;
 
 	if (IS_QLAFX00(ha)) {
+=======
+	scsi_qla_host_t *vha = shost_priv(shost);
+	u32 speed;
+
+	if (IS_QLAFX00(vha->hw)) {
+>>>>>>> upstream/android-13
 		qlafx00_get_host_speed(shost);
 		return;
 	}
 
+<<<<<<< HEAD
 	switch (ha->link_data_rate) {
+=======
+	switch (vha->hw->link_data_rate) {
+>>>>>>> upstream/android-13
 	case PORT_SPEED_1GB:
 		speed = FC_PORTSPEED_1GBIT;
 		break;
@@ -1666,7 +2962,18 @@ qla2x00_get_host_speed(struct Scsi_Host *shost)
 	case PORT_SPEED_32GB:
 		speed = FC_PORTSPEED_32GBIT;
 		break;
+<<<<<<< HEAD
 	}
+=======
+	case PORT_SPEED_64GB:
+		speed = FC_PORTSPEED_64GBIT;
+		break;
+	default:
+		speed = FC_PORTSPEED_UNKNOWN;
+		break;
+	}
+
+>>>>>>> upstream/android-13
 	fc_host_speed(shost) = speed;
 }
 
@@ -1674,7 +2981,11 @@ static void
 qla2x00_get_host_port_type(struct Scsi_Host *shost)
 {
 	scsi_qla_host_t *vha = shost_priv(shost);
+<<<<<<< HEAD
 	uint32_t port_type = FC_PORTTYPE_UNKNOWN;
+=======
+	uint32_t port_type;
+>>>>>>> upstream/android-13
 
 	if (vha->vp_idx) {
 		fc_host_port_type(shost) = FC_PORTTYPE_NPIV;
@@ -1693,7 +3004,15 @@ qla2x00_get_host_port_type(struct Scsi_Host *shost)
 	case ISP_CFG_F:
 		port_type = FC_PORTTYPE_NPORT;
 		break;
+<<<<<<< HEAD
 	}
+=======
+	default:
+		port_type = FC_PORTTYPE_UNKNOWN;
+		break;
+	}
+
+>>>>>>> upstream/android-13
 	fc_host_port_type(shost) = port_type;
 }
 
@@ -1755,6 +3074,7 @@ qla2x00_get_starget_port_id(struct scsi_target *starget)
 	fc_starget_port_id(starget) = port_id;
 }
 
+<<<<<<< HEAD
 static void
 qla2x00_set_rport_loss_tmo(struct fc_rport *rport, uint32_t timeout)
 {
@@ -1762,6 +3082,12 @@ qla2x00_set_rport_loss_tmo(struct fc_rport *rport, uint32_t timeout)
 		rport->dev_loss_tmo = timeout;
 	else
 		rport->dev_loss_tmo = 1;
+=======
+static inline void
+qla2x00_set_rport_loss_tmo(struct fc_rport *rport, uint32_t timeout)
+{
+	rport->dev_loss_tmo = timeout ? timeout : 1;
+>>>>>>> upstream/android-13
 }
 
 static void
@@ -1819,12 +3145,23 @@ qla2x00_terminate_rport_io(struct fc_rport *rport)
 	 * final cleanup of firmware resources (PCBs and XCBs).
 	 */
 	if (fcport->loop_id != FC_NO_LOOP_ID) {
+<<<<<<< HEAD
 		if (IS_FWI2_CAPABLE(fcport->vha->hw))
 			fcport->vha->hw->isp_ops->fabric_logout(fcport->vha,
 			    fcport->loop_id, fcport->d_id.b.domain,
 			    fcport->d_id.b.area, fcport->d_id.b.al_pa);
 		else
 			qla2x00_port_logout(fcport->vha, fcport);
+=======
+		if (IS_FWI2_CAPABLE(fcport->vha->hw)) {
+			if (fcport->loop_id != FC_NO_LOOP_ID)
+				fcport->logout_on_delete = 1;
+
+			qlt_schedule_sess_for_deletion(fcport);
+		} else {
+			qla2x00_port_logout(fcport->vha, fcport);
+		}
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1836,6 +3173,12 @@ qla2x00_issue_lip(struct Scsi_Host *shost)
 	if (IS_QLAFX00(vha->hw))
 		return 0;
 
+<<<<<<< HEAD
+=======
+	if (vha->hw->flags.port_isolated)
+		return 0;
+
+>>>>>>> upstream/android-13
 	qla2x00_loop_reset(vha);
 	return 0;
 }
@@ -1850,6 +3193,12 @@ qla2x00_get_fc_host_stats(struct Scsi_Host *shost)
 	struct link_statistics *stats;
 	dma_addr_t stats_dma;
 	struct fc_host_statistics *p = &vha->fc_host_stat;
+<<<<<<< HEAD
+=======
+	struct qla_qpair *qpair;
+	int i;
+	u64 ib = 0, ob = 0, ir = 0, or = 0;
+>>>>>>> upstream/android-13
 
 	memset(p, -1, sizeof(*p));
 
@@ -1865,8 +3214,13 @@ qla2x00_get_fc_host_stats(struct Scsi_Host *shost)
 	if (qla2x00_chip_is_down(vha))
 		goto done;
 
+<<<<<<< HEAD
 	stats = dma_zalloc_coherent(&ha->pdev->dev, sizeof(*stats),
 				    &stats_dma, GFP_KERNEL);
+=======
+	stats = dma_alloc_coherent(&ha->pdev->dev, sizeof(*stats), &stats_dma,
+				   GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!stats) {
 		ql_log(ql_log_warn, vha, 0x707d,
 		    "Failed to allocate memory for stats.\n");
@@ -1886,6 +3240,7 @@ qla2x00_get_fc_host_stats(struct Scsi_Host *shost)
 	if (rval != QLA_SUCCESS)
 		goto done_free;
 
+<<<<<<< HEAD
 	p->link_failure_count = stats->link_fail_cnt;
 	p->loss_of_sync_count = stats->loss_sync_cnt;
 	p->loss_of_signal_count = stats->loss_sig_cnt;
@@ -1910,6 +3265,60 @@ qla2x00_get_fc_host_stats(struct Scsi_Host *shost)
 	p->fcp_output_megabytes = vha->qla_stats.output_bytes >> 20;
 	p->seconds_since_last_reset =
 		get_jiffies_64() - vha->qla_stats.jiffies_at_last_reset;
+=======
+	/* --- */
+	for (i = 0; i < vha->hw->max_qpairs; i++) {
+		qpair = vha->hw->queue_pair_map[i];
+		if (!qpair)
+			continue;
+		ir += qpair->counters.input_requests;
+		or += qpair->counters.output_requests;
+		ib += qpair->counters.input_bytes;
+		ob += qpair->counters.output_bytes;
+	}
+	ir += ha->base_qpair->counters.input_requests;
+	or += ha->base_qpair->counters.output_requests;
+	ib += ha->base_qpair->counters.input_bytes;
+	ob += ha->base_qpair->counters.output_bytes;
+
+	ir += vha->qla_stats.input_requests;
+	or += vha->qla_stats.output_requests;
+	ib += vha->qla_stats.input_bytes;
+	ob += vha->qla_stats.output_bytes;
+	/* --- */
+
+	p->link_failure_count = le32_to_cpu(stats->link_fail_cnt);
+	p->loss_of_sync_count = le32_to_cpu(stats->loss_sync_cnt);
+	p->loss_of_signal_count = le32_to_cpu(stats->loss_sig_cnt);
+	p->prim_seq_protocol_err_count = le32_to_cpu(stats->prim_seq_err_cnt);
+	p->invalid_tx_word_count = le32_to_cpu(stats->inval_xmit_word_cnt);
+	p->invalid_crc_count = le32_to_cpu(stats->inval_crc_cnt);
+	if (IS_FWI2_CAPABLE(ha)) {
+		p->lip_count = le32_to_cpu(stats->lip_cnt);
+		p->tx_frames = le32_to_cpu(stats->tx_frames);
+		p->rx_frames = le32_to_cpu(stats->rx_frames);
+		p->dumped_frames = le32_to_cpu(stats->discarded_frames);
+		p->nos_count = le32_to_cpu(stats->nos_rcvd);
+		p->error_frames =
+		    le32_to_cpu(stats->dropped_frames) +
+		    le32_to_cpu(stats->discarded_frames);
+		if (IS_QLA83XX(ha) || IS_QLA27XX(ha) || IS_QLA28XX(ha)) {
+			p->rx_words = le64_to_cpu(stats->fpm_recv_word_cnt);
+			p->tx_words = le64_to_cpu(stats->fpm_xmit_word_cnt);
+		} else {
+			p->rx_words = ib >> 2;
+			p->tx_words = ob >> 2;
+		}
+	}
+
+	p->fcp_control_requests = vha->qla_stats.control_requests;
+	p->fcp_input_requests = ir;
+	p->fcp_output_requests = or;
+	p->fcp_input_megabytes  = ib >> 20;
+	p->fcp_output_megabytes = ob >> 20;
+	p->seconds_since_last_reset =
+	    get_jiffies_64() - vha->qla_stats.jiffies_at_last_reset;
+>>>>>>> upstream/android-13
 	do_div(p->seconds_since_last_reset, HZ);
 
 done_free:
@@ -1927,9 +3336,24 @@ qla2x00_reset_host_stats(struct Scsi_Host *shost)
 	struct scsi_qla_host *base_vha = pci_get_drvdata(ha->pdev);
 	struct link_statistics *stats;
 	dma_addr_t stats_dma;
+<<<<<<< HEAD
 
 	memset(&vha->qla_stats, 0, sizeof(vha->qla_stats));
 	memset(&vha->fc_host_stat, 0, sizeof(vha->fc_host_stat));
+=======
+	int i;
+	struct qla_qpair *qpair;
+
+	memset(&vha->qla_stats, 0, sizeof(vha->qla_stats));
+	memset(&vha->fc_host_stat, 0, sizeof(vha->fc_host_stat));
+	for (i = 0; i < vha->hw->max_qpairs; i++) {
+		qpair = vha->hw->queue_pair_map[i];
+		if (!qpair)
+			continue;
+		memset(&qpair->counters, 0, sizeof(qpair->counters));
+	}
+	memset(&ha->base_qpair->counters, 0, sizeof(qpair->counters));
+>>>>>>> upstream/android-13
 
 	vha->qla_stats.jiffies_at_last_reset = get_jiffies_64();
 
@@ -1977,8 +3401,14 @@ static void
 qla2x00_get_host_fabric_name(struct Scsi_Host *shost)
 {
 	scsi_qla_host_t *vha = shost_priv(shost);
+<<<<<<< HEAD
 	uint8_t node_name[WWN_SIZE] = { 0xFF, 0xFF, 0xFF, 0xFF, \
 		0xFF, 0xFF, 0xFF, 0xFF};
+=======
+	static const uint8_t node_name[WWN_SIZE] = {
+		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
+	};
+>>>>>>> upstream/android-13
 	u64 fabric_name = wwn_to_u64(node_name);
 
 	if (vha->device_flags & SWITCH_FOUND)
@@ -2056,8 +3486,13 @@ qla24xx_vport_create(struct fc_vport *fc_vport, bool disable)
 
 	/* initialized vport states */
 	atomic_set(&vha->loop_state, LOOP_DOWN);
+<<<<<<< HEAD
 	vha->vp_err_state=  VP_ERR_PORTDWN;
 	vha->vp_prev_err_state=  VP_ERR_UNKWN;
+=======
+	vha->vp_err_state = VP_ERR_PORTDWN;
+	vha->vp_prev_err_state = VP_ERR_UNKWN;
+>>>>>>> upstream/android-13
 	/* Check if physical ha port is Up */
 	if (atomic_read(&base_vha->loop_state) == LOOP_DOWN ||
 	    atomic_read(&base_vha->loop_state) == LOOP_DEAD) {
@@ -2072,6 +3507,10 @@ qla24xx_vport_create(struct fc_vport *fc_vport, bool disable)
 	if (IS_T10_PI_CAPABLE(ha) && ql2xenabledif) {
 		if (ha->fw_attributes & BIT_4) {
 			int prot = 0, guard;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 			vha->flags.difdix_supported = 1;
 			ql_dbg(ql_dbg_user, vha, 0x7082,
 			    "Registered for DIF/DIX type 1 and 3 protection.\n");
@@ -2164,6 +3603,11 @@ qla24xx_vport_delete(struct fc_vport *fc_vport)
 	struct qla_hw_data *ha = vha->hw;
 	uint16_t id = vha->vp_idx;
 
+<<<<<<< HEAD
+=======
+	set_bit(VPORT_DELETE, &vha->dpc_flags);
+
+>>>>>>> upstream/android-13
 	while (test_bit(LOOP_RESYNC_ACTIVE, &vha->dpc_flags) ||
 	    test_bit(FCPORT_UPDATE_NEEDED, &vha->dpc_flags))
 		msleep(1000);
@@ -2173,6 +3617,12 @@ qla24xx_vport_delete(struct fc_vport *fc_vport)
 	qla2x00_wait_for_sess_deletion(vha);
 
 	qla_nvme_delete(vha);
+<<<<<<< HEAD
+=======
+	qla_enode_stop(vha);
+	qla_edb_stop(vha);
+
+>>>>>>> upstream/android-13
 	vha->flags.delete_progress = 1;
 
 	qlt_remove_target(ha, vha);
@@ -2324,7 +3774,11 @@ void
 qla2x00_init_host_attr(scsi_qla_host_t *vha)
 {
 	struct qla_hw_data *ha = vha->hw;
+<<<<<<< HEAD
 	u32 speed = FC_PORTSPEED_UNKNOWN;
+=======
+	u32 speeds = FC_PORTSPEED_UNKNOWN;
+>>>>>>> upstream/android-13
 
 	fc_host_dev_loss_tmo(vha->host) = ha->port_down_retry_count;
 	fc_host_node_name(vha->host) = wwn_to_u64(vha->node_name);
@@ -2334,6 +3788,7 @@ qla2x00_init_host_attr(scsi_qla_host_t *vha)
 	fc_host_max_npiv_vports(vha->host) = ha->max_npiv_vports;
 	fc_host_npiv_vports_inuse(vha->host) = ha->cur_vport_count;
 
+<<<<<<< HEAD
 	if (IS_CNA_CAPABLE(ha))
 		speed = FC_PORTSPEED_10GBIT;
 	else if (IS_QLA2031(ha))
@@ -2356,4 +3811,9 @@ qla2x00_init_host_attr(scsi_qla_host_t *vha)
 	else
 		speed = FC_PORTSPEED_1GBIT;
 	fc_host_supported_speeds(vha->host) = speed;
+=======
+	speeds = qla25xx_fdmi_port_speed_capability(ha);
+
+	fc_host_supported_speeds(vha->host) = speeds;
+>>>>>>> upstream/android-13
 }

@@ -107,14 +107,21 @@ static int tx4939_rng_data_read(struct hwrng *rng, u32 *buffer)
 static int __init tx4939_rng_probe(struct platform_device *dev)
 {
 	struct tx4939_rng *rngdev;
+<<<<<<< HEAD
 	struct resource *r;
+=======
+>>>>>>> upstream/android-13
 	int i;
 
 	rngdev = devm_kzalloc(&dev->dev, sizeof(*rngdev), GFP_KERNEL);
 	if (!rngdev)
 		return -ENOMEM;
+<<<<<<< HEAD
 	r = platform_get_resource(dev, IORESOURCE_MEM, 0);
 	rngdev->base = devm_ioremap_resource(&dev->dev, r);
+=======
+	rngdev->base = devm_platform_ioremap_resource(dev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(rngdev->base))
 		return PTR_ERR(rngdev->base);
 

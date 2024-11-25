@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * dsp_hwec.c:
  * builtin mISDN dsp pipeline element for enabling the hw echocanceller
@@ -5,6 +9,7 @@
  * Copyright (C) 2007, Nadi Sarrar
  *
  * Nadi Sarrar <nadi@beronet.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -23,6 +28,8 @@
  * The full GNU General Public License is included in this distribution in the
  * file called LICENSE.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>

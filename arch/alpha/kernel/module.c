@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*  Kernel module help for Alpha.
     Copyright (C) 2002 Richard Henderson.
 
@@ -14,6 +15,12 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*  Kernel module help for Alpha.
+    Copyright (C) 2002 Richard Henderson.
+
+>>>>>>> upstream/android-13
 */
 #include <linux/moduleloader.h>
 #include <linux/elf.h>
@@ -224,7 +231,11 @@ apply_relocate_add(Elf64_Shdr *sechdrs, const char *strtab,
 			    STO_ALPHA_STD_GPLOAD)
 				/* Omit the prologue. */
 				value += 8;
+<<<<<<< HEAD
 			/* FALLTHRU */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case R_ALPHA_BRADDR:
 			value -= (u64)location + 4;
 			if (value & 3)

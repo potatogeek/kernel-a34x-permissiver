@@ -183,12 +183,20 @@ static int gdm_tty_write(struct tty_struct *tty, const unsigned char *buf,
 	return len;
 }
 
+<<<<<<< HEAD
 static int gdm_tty_write_room(struct tty_struct *tty)
+=======
+static unsigned int gdm_tty_write_room(struct tty_struct *tty)
+>>>>>>> upstream/android-13
 {
 	struct gdm *gdm = tty->driver_data;
 
 	if (!GDM_TTY_READY(gdm))
+<<<<<<< HEAD
 		return -ENODEV;
+=======
+		return 0;
+>>>>>>> upstream/android-13
 
 	return WRITE_SIZE;
 }
@@ -281,9 +289,16 @@ int register_lte_tty_driver(void)
 	int ret;
 
 	for (i = 0; i < TTY_MAX_COUNT; i++) {
+<<<<<<< HEAD
 		tty_driver = alloc_tty_driver(GDM_TTY_MINOR);
 		if (!tty_driver)
 			return -ENOMEM;
+=======
+		tty_driver = tty_alloc_driver(GDM_TTY_MINOR,
+				TTY_DRIVER_REAL_RAW | TTY_DRIVER_DYNAMIC_DEV);
+		if (IS_ERR(tty_driver))
+			return PTR_ERR(tty_driver);
+>>>>>>> upstream/android-13
 
 		tty_driver->owner = THIS_MODULE;
 		tty_driver->driver_name = DRIVER_STRING[i];
@@ -291,8 +306,11 @@ int register_lte_tty_driver(void)
 		tty_driver->major = GDM_TTY_MAJOR;
 		tty_driver->type = TTY_DRIVER_TYPE_SERIAL;
 		tty_driver->subtype = SERIAL_TYPE_NORMAL;
+<<<<<<< HEAD
 		tty_driver->flags = TTY_DRIVER_REAL_RAW |
 					TTY_DRIVER_DYNAMIC_DEV;
+=======
+>>>>>>> upstream/android-13
 		tty_driver->init_termios = tty_std_termios;
 		tty_driver->init_termios.c_cflag = B9600 | CS8 | HUPCL | CLOCAL;
 		tty_driver->init_termios.c_lflag = ISIG | ICANON | IEXTEN;
@@ -300,7 +318,11 @@ int register_lte_tty_driver(void)
 
 		ret = tty_register_driver(tty_driver);
 		if (ret) {
+<<<<<<< HEAD
 			put_tty_driver(tty_driver);
+=======
+			tty_driver_kref_put(tty_driver);
+>>>>>>> upstream/android-13
 			return ret;
 		}
 
@@ -319,7 +341,11 @@ void unregister_lte_tty_driver(void)
 		tty_driver = gdm_driver[i];
 		if (tty_driver) {
 			tty_unregister_driver(tty_driver);
+<<<<<<< HEAD
 			put_tty_driver(tty_driver);
+=======
+			tty_driver_kref_put(tty_driver);
+>>>>>>> upstream/android-13
 		}
 	}
 }

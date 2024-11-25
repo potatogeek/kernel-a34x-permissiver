@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Glue Code for assembler optimized version of 3DES
  *
@@ -5,6 +9,7 @@
  *
  * CBC & ECB parts based on code (crypto/cbc.c,ecb.c) by:
  *   Copyright (c) 2006 Herbert Xu <herbert@gondor.apana.org.au>
+<<<<<<< HEAD
  * CTR part based on code (crypto/ctr.c) by:
  *   (C) Copyright IBM Corp. 2007 - Joy Latten <latten@us.ibm.com>
  *
@@ -18,6 +23,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <crypto/algapi.h>
@@ -29,8 +36,13 @@
 #include <linux/types.h>
 
 struct des3_ede_x86_ctx {
+<<<<<<< HEAD
 	u32 enc_expkey[DES3_EDE_EXPKEY_WORDS];
 	u32 dec_expkey[DES3_EDE_EXPKEY_WORDS];
+=======
+	struct des3_ede_ctx enc;
+	struct des3_ede_ctx dec;
+>>>>>>> upstream/android-13
 };
 
 /* regular block cipher functions */
@@ -44,7 +56,11 @@ asmlinkage void des3_ede_x86_64_crypt_blk_3way(const u32 *expkey, u8 *dst,
 static inline void des3_ede_enc_blk(struct des3_ede_x86_ctx *ctx, u8 *dst,
 				    const u8 *src)
 {
+<<<<<<< HEAD
 	u32 *enc_ctx = ctx->enc_expkey;
+=======
+	u32 *enc_ctx = ctx->enc.expkey;
+>>>>>>> upstream/android-13
 
 	des3_ede_x86_64_crypt_blk(enc_ctx, dst, src);
 }
@@ -52,7 +68,11 @@ static inline void des3_ede_enc_blk(struct des3_ede_x86_ctx *ctx, u8 *dst,
 static inline void des3_ede_dec_blk(struct des3_ede_x86_ctx *ctx, u8 *dst,
 				    const u8 *src)
 {
+<<<<<<< HEAD
 	u32 *dec_ctx = ctx->dec_expkey;
+=======
+	u32 *dec_ctx = ctx->dec.expkey;
+>>>>>>> upstream/android-13
 
 	des3_ede_x86_64_crypt_blk(dec_ctx, dst, src);
 }
@@ -60,7 +80,11 @@ static inline void des3_ede_dec_blk(struct des3_ede_x86_ctx *ctx, u8 *dst,
 static inline void des3_ede_enc_blk_3way(struct des3_ede_x86_ctx *ctx, u8 *dst,
 					 const u8 *src)
 {
+<<<<<<< HEAD
 	u32 *enc_ctx = ctx->enc_expkey;
+=======
+	u32 *enc_ctx = ctx->enc.expkey;
+>>>>>>> upstream/android-13
 
 	des3_ede_x86_64_crypt_blk_3way(enc_ctx, dst, src);
 }
@@ -68,7 +92,11 @@ static inline void des3_ede_enc_blk_3way(struct des3_ede_x86_ctx *ctx, u8 *dst,
 static inline void des3_ede_dec_blk_3way(struct des3_ede_x86_ctx *ctx, u8 *dst,
 					 const u8 *src)
 {
+<<<<<<< HEAD
 	u32 *dec_ctx = ctx->dec_expkey;
+=======
+	u32 *dec_ctx = ctx->dec.expkey;
+>>>>>>> upstream/android-13
 
 	des3_ede_x86_64_crypt_blk_3way(dec_ctx, dst, src);
 }
@@ -132,7 +160,11 @@ static int ecb_encrypt(struct skcipher_request *req)
 	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
 	struct des3_ede_x86_ctx *ctx = crypto_skcipher_ctx(tfm);
 
+<<<<<<< HEAD
 	return ecb_crypt(req, ctx->enc_expkey);
+=======
+	return ecb_crypt(req, ctx->enc.expkey);
+>>>>>>> upstream/android-13
 }
 
 static int ecb_decrypt(struct skcipher_request *req)
@@ -140,7 +172,11 @@ static int ecb_decrypt(struct skcipher_request *req)
 	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
 	struct des3_ede_x86_ctx *ctx = crypto_skcipher_ctx(tfm);
 
+<<<<<<< HEAD
 	return ecb_crypt(req, ctx->dec_expkey);
+=======
+	return ecb_crypt(req, ctx->dec.expkey);
+>>>>>>> upstream/android-13
 }
 
 static unsigned int __cbc_encrypt(struct des3_ede_x86_ctx *ctx,
@@ -263,6 +299,7 @@ static int cbc_decrypt(struct skcipher_request *req)
 	return err;
 }
 
+<<<<<<< HEAD
 static void ctr_crypt_final(struct des3_ede_x86_ctx *ctx,
 			    struct skcipher_walk *walk)
 {
@@ -351,6 +388,8 @@ static int ctr_crypt(struct skcipher_request *req)
 	return err;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int des3_ede_x86_setkey(struct crypto_tfm *tfm, const u8 *key,
 			       unsigned int keylen)
 {
@@ -358,20 +397,43 @@ static int des3_ede_x86_setkey(struct crypto_tfm *tfm, const u8 *key,
 	u32 i, j, tmp;
 	int err;
 
+<<<<<<< HEAD
 	/* Generate encryption context using generic implementation. */
 	err = __des3_ede_setkey(ctx->enc_expkey, &tfm->crt_flags, key, keylen);
 	if (err < 0)
 		return err;
+=======
+	err = des3_ede_expand_key(&ctx->enc, key, keylen);
+	if (err == -ENOKEY) {
+		if (crypto_tfm_get_flags(tfm) & CRYPTO_TFM_REQ_FORBID_WEAK_KEYS)
+			err = -EINVAL;
+		else
+			err = 0;
+	}
+
+	if (err) {
+		memset(ctx, 0, sizeof(*ctx));
+		return err;
+	}
+>>>>>>> upstream/android-13
 
 	/* Fix encryption context for this implementation and form decryption
 	 * context. */
 	j = DES3_EDE_EXPKEY_WORDS - 2;
 	for (i = 0; i < DES3_EDE_EXPKEY_WORDS; i += 2, j -= 2) {
+<<<<<<< HEAD
 		tmp = ror32(ctx->enc_expkey[i + 1], 4);
 		ctx->enc_expkey[i + 1] = tmp;
 
 		ctx->dec_expkey[j + 0] = ctx->enc_expkey[i + 0];
 		ctx->dec_expkey[j + 1] = tmp;
+=======
+		tmp = ror32(ctx->enc.expkey[i + 1], 4);
+		ctx->enc.expkey[i + 1] = tmp;
+
+		ctx->dec.expkey[j + 0] = ctx->enc.expkey[i + 0];
+		ctx->dec.expkey[j + 1] = tmp;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -430,6 +492,7 @@ static struct skcipher_alg des3_ede_skciphers[] = {
 		.setkey			= des3_ede_x86_setkey_skcipher,
 		.encrypt		= cbc_encrypt,
 		.decrypt		= cbc_decrypt,
+<<<<<<< HEAD
 	}, {
 		.base.cra_name		= "ctr(des3_ede)",
 		.base.cra_driver_name	= "ctr-des3_ede-asm",
@@ -444,6 +507,8 @@ static struct skcipher_alg des3_ede_skciphers[] = {
 		.setkey			= des3_ede_x86_setkey_skcipher,
 		.encrypt		= ctr_crypt,
 		.decrypt		= ctr_crypt,
+=======
+>>>>>>> upstream/android-13
 	}
 };
 

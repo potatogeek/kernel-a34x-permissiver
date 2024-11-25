@@ -6,6 +6,7 @@
 #include <linux/purgatory.h>
 
 extern void purgatory(void);
+<<<<<<< HEAD
 /*
  * These forward declarations serve two purposes:
  *
@@ -16,6 +17,8 @@ extern void purgatory(void);
 extern unsigned long purgatory_backup_dest;
 extern unsigned long purgatory_backup_src;
 extern unsigned long purgatory_backup_sz;
+=======
+>>>>>>> upstream/android-13
 #endif	/* __ASSEMBLY__ */
 
 #endif /* _ASM_PURGATORY_H */

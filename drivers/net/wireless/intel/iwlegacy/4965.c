@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /******************************************************************************
  *
  * Copyright(c) 2003 - 2011 Intel Corporation. All rights reserved.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -18,6 +23,8 @@
  * The full GNU General Public License is included in this distribution in the
  * file called LICENSE.
  *
+=======
+>>>>>>> upstream/android-13
  * Contact Information:
  *  Intel Linux Wireless <ilw@linux.intel.com>
  * Intel Corporation, 5200 N.E. Elam Young Parkway, Hillsboro, OR 97124-6497
@@ -32,6 +39,10 @@
 #include <linux/sched.h>
 #include <linux/skbuff.h>
 #include <linux/netdevice.h>
+<<<<<<< HEAD
+=======
+#include <linux/units.h>
+>>>>>>> upstream/android-13
 #include <net/mac80211.h>
 #include <linux/etherdevice.h>
 #include <asm/unaligned.h>
@@ -39,7 +50,11 @@
 #include "common.h"
 #include "4965.h"
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il_verify_inst_sparse - verify runtime uCode image in card vs. host,
  *   using sample data 100 bytes apart.  If these sample points are good,
  *   it's a pretty good bet that everything between them is good, too.
@@ -71,7 +86,11 @@ il4965_verify_inst_sparse(struct il_priv *il, __le32 * image, u32 len)
 	return ret;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il4965_verify_inst_full - verify runtime uCode image in card vs. host,
  *     looking at all data.
  */
@@ -110,7 +129,11 @@ il4965_verify_inst_full(struct il_priv *il, __le32 * image, u32 len)
 	return ret;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il4965_verify_ucode - determine which instruction image is in SRAM,
  *    and verify its contents
  */
@@ -306,7 +329,11 @@ il4965_verify_bsm(struct il_priv *il)
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il4965_load_bsm - Load bootstrap instructions
  *
  * BSM operation:
@@ -416,7 +443,11 @@ il4965_load_bsm(struct il_priv *il)
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il4965_set_ucode_ptrs - Set uCode address location
  *
  * Tell initialization uCode where to find runtime uCode.
@@ -430,7 +461,10 @@ il4965_set_ucode_ptrs(struct il_priv *il)
 {
 	dma_addr_t pinst;
 	dma_addr_t pdata;
+<<<<<<< HEAD
 	int ret = 0;
+=======
+>>>>>>> upstream/android-13
 
 	/* bits 35:4 for 4965 */
 	pinst = il->ucode_code.p_addr >> 4;
@@ -447,10 +481,17 @@ il4965_set_ucode_ptrs(struct il_priv *il)
 		   il->ucode_code.len | BSM_DRAM_INST_LOAD);
 	D_INFO("Runtime uCode pointers are set.\n");
 
+<<<<<<< HEAD
 	return ret;
 }
 
 /**
+=======
+	return 0;
+}
+
+/*
+>>>>>>> upstream/android-13
  * il4965_init_alive_start - Called after N_ALIVE notification received
  *
  * Called after N_ALIVE notification received from "initialize" uCode.
@@ -577,13 +618,20 @@ il4965_math_div_round(s32 num, s32 denom, s32 * res)
 		sign = -sign;
 		denom = -denom;
 	}
+<<<<<<< HEAD
 	*res = 1;
+=======
+>>>>>>> upstream/android-13
 	*res = ((num * 2 + denom) / (denom * 2)) * sign;
 
 	return 1;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il4965_get_voltage_compensation - Power supply voltage comp for txpower
  *
  * Determines power supply voltage compensation for txpower calculations.
@@ -670,7 +718,11 @@ il4965_interpolate_value(s32 x, s32 x1, s32 y1, s32 x2, s32 y2)
 	}
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il4965_interpolate_chan - Interpolate factory measurements for one channel
  *
  * Interpolates factory measurements from the two sample channels within a
@@ -1120,7 +1172,11 @@ il4965_fill_txpower_tbl(struct il_priv *il, u8 band, u16 channel, u8 is_ht40,
 	/* get current temperature (Celsius) */
 	current_temp = max(il->temperature, IL_TX_POWER_TEMPERATURE_MIN);
 	current_temp = min(il->temperature, IL_TX_POWER_TEMPERATURE_MAX);
+<<<<<<< HEAD
 	current_temp = KELVIN_TO_CELSIUS(current_temp);
+=======
+	current_temp = kelvin_to_celsius(current_temp);
+>>>>>>> upstream/android-13
 
 	/* select thermal txpower adjustment params, based on channel group
 	 *   (same frequency group used for mimo txatten adjustment) */
@@ -1247,7 +1303,11 @@ il4965_fill_txpower_tbl(struct il_priv *il, u8 band, u16 channel, u8 is_ht40,
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il4965_send_tx_power - Configure the TXPOWER level user limit
  *
  * Uses the active RXON for channel, band, and characteristics (ht40, high)
@@ -1297,6 +1357,11 @@ il4965_send_rxon_assoc(struct il_priv *il)
 	const struct il_rxon_cmd *rxon1 = &il->staging;
 	const struct il_rxon_cmd *rxon2 = &il->active;
 
+<<<<<<< HEAD
+=======
+	lockdep_assert_held(&il->mutex);
+
+>>>>>>> upstream/android-13
 	if (rxon1->flags == rxon2->flags &&
 	    rxon1->filter_flags == rxon2->filter_flags &&
 	    rxon1->cck_basic_rates == rxon2->cck_basic_rates &&
@@ -1542,7 +1607,11 @@ il4965_hw_channel_switch(struct il_priv *il,
 	return il_send_cmd_pdu(il, C_CHANNEL_SWITCH, sizeof(cmd), &cmd);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il4965_txq_update_byte_cnt_tbl - Set up entry in Tx byte-count array
  */
 static void
@@ -1567,9 +1636,14 @@ il4965_txq_update_byte_cnt_tbl(struct il_priv *il, struct il_tx_queue *txq,
 		    bc_ent;
 }
 
+<<<<<<< HEAD
 /**
  * il4965_hw_get_temperature - return the calibrated temperature (in Kelvin)
  * @stats: Provides the temperature reading from the uCode
+=======
+/*
+ * il4965_hw_get_temperature - return the calibrated temperature (in Kelvin)
+>>>>>>> upstream/android-13
  *
  * A return of <0 indicates bogus data in the stats
  */
@@ -1624,8 +1698,13 @@ il4965_hw_get_temperature(struct il_priv *il)
 	temperature =
 	    (temperature * 97) / 100 + TEMPERATURE_CALIB_KELVIN_OFFSET;
 
+<<<<<<< HEAD
 	D_TEMP("Calibrated temperature: %dK, %dC\n", temperature,
 	       KELVIN_TO_CELSIUS(temperature));
+=======
+	D_TEMP("Calibrated temperature: %dK, %ldC\n", temperature,
+	       kelvin_to_celsius(temperature));
+>>>>>>> upstream/android-13
 
 	return temperature;
 }
@@ -1633,7 +1712,11 @@ il4965_hw_get_temperature(struct il_priv *il)
 /* Adjust Txpower only if temperature variance is greater than threshold. */
 #define IL_TEMPERATURE_THRESHOLD   3
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il4965_is_temp_calib_needed - determines if new calibration is needed
  *
  * If the temperature changed has changed sufficiently, then a recalibration
@@ -1684,12 +1767,21 @@ il4965_temperature_calib(struct il_priv *il)
 
 	if (il->temperature != temp) {
 		if (il->temperature)
+<<<<<<< HEAD
 			D_TEMP("Temperature changed " "from %dC to %dC\n",
 			       KELVIN_TO_CELSIUS(il->temperature),
 			       KELVIN_TO_CELSIUS(temp));
 		else
 			D_TEMP("Temperature " "initialized to %dC\n",
 			       KELVIN_TO_CELSIUS(temp));
+=======
+			D_TEMP("Temperature changed " "from %ldC to %ldC\n",
+			       kelvin_to_celsius(il->temperature),
+			       kelvin_to_celsius(temp));
+		else
+			D_TEMP("Temperature " "initialized to %ldC\n",
+			       kelvin_to_celsius(temp));
+>>>>>>> upstream/android-13
 	}
 
 	il->temperature = temp;

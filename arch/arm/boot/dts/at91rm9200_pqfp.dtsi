@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * at91rm9200_pqfp.dtsi - Device Tree Include file for AT91RM9200 PQFP family SoC
  *
  * Copyright (C) 2013 Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+<<<<<<< HEAD
  *
  * Licensed under GPLv2 or later.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "at91rm9200.dtsi"

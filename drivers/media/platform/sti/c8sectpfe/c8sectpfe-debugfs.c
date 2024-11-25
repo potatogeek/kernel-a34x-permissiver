@@ -225,6 +225,7 @@ static const struct debugfs_reg32 fei_sys_regs[] = {
 
 void c8sectpfe_debugfs_init(struct c8sectpfei *fei)
 {
+<<<<<<< HEAD
 	struct dentry		*root;
 	struct dentry		*file;
 
@@ -237,11 +238,17 @@ void c8sectpfe_debugfs_init(struct c8sectpfei *fei)
 	fei->regset =  devm_kzalloc(fei->dev, sizeof(*fei->regset), GFP_KERNEL);
 	if (!fei->regset)
 		goto err;
+=======
+	fei->regset =  devm_kzalloc(fei->dev, sizeof(*fei->regset), GFP_KERNEL);
+	if (!fei->regset)
+		return;
+>>>>>>> upstream/android-13
 
 	fei->regset->regs = fei_sys_regs;
 	fei->regset->nregs = ARRAY_SIZE(fei_sys_regs);
 	fei->regset->base = fei->io;
 
+<<<<<<< HEAD
 	file = debugfs_create_regset32("registers", S_IRUGO, root,
 				fei->regset);
 	if (!file) {
@@ -255,6 +262,10 @@ void c8sectpfe_debugfs_init(struct c8sectpfei *fei)
 
 err:
 	debugfs_remove_recursive(root);
+=======
+	fei->root = debugfs_create_dir("c8sectpfe", NULL);
+	debugfs_create_regset32("registers", S_IRUGO, fei->root, fei->regset);
+>>>>>>> upstream/android-13
 }
 
 void c8sectpfe_debugfs_exit(struct c8sectpfei *fei)

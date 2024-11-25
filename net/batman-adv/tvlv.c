@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 /* Copyright (C) 2007-2018  B.A.T.M.A.N. contributors:
  *
  * Marek Lindner, Simon Wunderlich
@@ -14,6 +15,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+/* Copyright (C) B.A.T.M.A.N. contributors:
+ *
+ * Marek Lindner, Simon Wunderlich
+>>>>>>> upstream/android-13
  */
 
 #include "main.h"
@@ -62,6 +68,12 @@ static void batadv_tvlv_handler_release(struct kref *ref)
  */
 static void batadv_tvlv_handler_put(struct batadv_tvlv_handler *tvlv_handler)
 {
+<<<<<<< HEAD
+=======
+	if (!tvlv_handler)
+		return;
+
+>>>>>>> upstream/android-13
 	kref_put(&tvlv_handler->refcount, batadv_tvlv_handler_release);
 }
 
@@ -118,6 +130,12 @@ static void batadv_tvlv_container_release(struct kref *ref)
  */
 static void batadv_tvlv_container_put(struct batadv_tvlv_container *tvlv)
 {
+<<<<<<< HEAD
+=======
+	if (!tvlv)
+		return;
+
+>>>>>>> upstream/android-13
 	kref_put(&tvlv->refcount, batadv_tvlv_container_release);
 }
 
@@ -365,8 +383,13 @@ end:
  * @tvlv_value: tvlv content
  * @tvlv_value_len: tvlv content length
  *
+<<<<<<< HEAD
  * Return: success if handler was not found or the return value of the handler
  * callback.
+=======
+ * Return: success if the handler was not found or the return value of the
+ * handler callback.
+>>>>>>> upstream/android-13
  */
 static int batadv_tvlv_call_handler(struct batadv_priv *bat_priv,
 				    struct batadv_tvlv_handler *tvlv_handler,
@@ -450,8 +473,12 @@ int batadv_tvlv_containers_process(struct batadv_priv *bat_priv,
 						ogm_source, orig_node,
 						src, dst, tvlv_value,
 						tvlv_value_cont_len);
+<<<<<<< HEAD
 		if (tvlv_handler)
 			batadv_tvlv_handler_put(tvlv_handler);
+=======
+		batadv_tvlv_handler_put(tvlv_handler);
+>>>>>>> upstream/android-13
 		tvlv_value = (u8 *)tvlv_value + tvlv_value_cont_len;
 		tvlv_value_len -= tvlv_value_cont_len;
 	}

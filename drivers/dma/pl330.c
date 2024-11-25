@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2012 Samsung Electronics Co., Ltd.
  *		http://www.samsung.com
  *
  * Copyright (C) 2010 Samsung Electronics Co. Ltd.
  *	Jaswinder Singh <jassi.brar@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,6 +16,11 @@
  * (at your option) any later version.
  */
 
+=======
+ */
+
+#include <linux/debugfs.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/io.h>
 #include <linux/init.h>
@@ -20,6 +30,10 @@
 #include <linux/delay.h>
 #include <linux/interrupt.h>
 #include <linux/dma-mapping.h>
+<<<<<<< HEAD
+=======
+#include <linux/dma-map-ops.h>
+>>>>>>> upstream/android-13
 #include <linux/dmaengine.h>
 #include <linux/amba/bus.h>
 #include <linux/scatterlist.h>
@@ -28,6 +42,10 @@
 #include <linux/err.h>
 #include <linux/pm_runtime.h>
 #include <linux/bug.h>
+<<<<<<< HEAD
+=======
+#include <linux/reset.h>
+>>>>>>> upstream/android-13
 
 #include "dmaengine.h"
 #define PL330_MAX_CHAN		8
@@ -35,7 +53,12 @@
 #define PL330_MAX_PERI		32
 #define PL330_MAX_BURST         16
 
+<<<<<<< HEAD
 #define PL330_QUIRK_BROKEN_NO_FLUSHP BIT(0)
+=======
+#define PL330_QUIRK_BROKEN_NO_FLUSHP	BIT(0)
+#define PL330_QUIRK_PERIPH_BURST	BIT(1)
+>>>>>>> upstream/android-13
 
 enum pl330_cachectrl {
 	CCTRL0,		/* Noncacheable and nonbufferable */
@@ -247,16 +270,38 @@ enum pl330_byteswap {
  * For typical scenario, at 1word/burst, 10MB and 20MB xfers per req
  * should be enough for P<->M and M<->M respectively.
  */
+<<<<<<< HEAD
 #define MCODE_BUFF_PER_REQ	256
 
 /* Use this _only_ to wait on transient states */
 #define UNTIL(t, s)	while (!(_state(t) & (s))) cpu_relax();
+=======
+#define MCODE_BUFF_PER_REQ	512
+
+/* Use this _only_ to wait on transient states */
+#define UNTIL(t, s)	do {									\
+				unsigned long timeout = jiffies + msecs_to_jiffies(5);		\
+				bool timeout_flag = true;					\
+				do { 								\
+					if (_state(t) & (s)) {					\
+						timeout_flag = false;				\
+						break;						\
+					}							\
+					cpu_relax();						\
+				} while (time_before(jiffies, timeout));			\
+				if (timeout_flag) pr_err("%s Timeout error!!!!\n", __func__);	\
+			} while (0);
+>>>>>>> upstream/android-13
 
 #ifdef PL330_DEBUG_MCGEN
 static unsigned cmd_line;
 #define PL330_DBGCMD_DUMP(off, x...)	do { \
 						printk("%x:", cmd_line); \
+<<<<<<< HEAD
 						printk(x); \
+=======
+						printk(KERN_CONT x); \
+>>>>>>> upstream/android-13
 						cmd_line += off; \
 					} while (0)
 #define PL330_DBGMC_START(addr)		(cmd_line = addr)
@@ -265,6 +310,15 @@ static unsigned cmd_line;
 #define PL330_DBGMC_START(addr)		do {} while (0)
 #endif
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_DMADEVICES_DEBUG
+#define DBG_PRINT(x...)		exynos_ss_printk(x);
+#else
+#define DBG_PRINT(x...)		do {} while (0)
+#endif
+
+>>>>>>> upstream/android-13
 /* The number of default descriptors */
 
 #define NR_DEFAULT_DESC	16
@@ -286,7 +340,11 @@ struct pl330_config {
 	u32		irq_ns;
 };
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Request Configuration.
  * The PL330 core does not modify this and uses the last
  * working configuration if the request doesn't provide any.
@@ -320,8 +378,13 @@ struct pl330_reqcfg {
  * There may be more than one xfer in a request.
  */
 struct pl330_xfer {
+<<<<<<< HEAD
 	u32 src_addr;
 	u32 dst_addr;
+=======
+	dma_addr_t src_addr;
+	dma_addr_t dst_addr;
+>>>>>>> upstream/android-13
 	/* Size to xfer */
 	u32 bytes;
 };
@@ -382,6 +445,11 @@ struct pl330_thread {
 	unsigned lstenq;
 	/* Index of the last submitted request or -1 if the DMA is stopped */
 	int req_running;
+<<<<<<< HEAD
+=======
+	void __iomem *ar_wrapper;
+	void __iomem *aw_wrapper;
+>>>>>>> upstream/android-13
 };
 
 enum pl330_dmac_state {
@@ -448,6 +516,10 @@ struct dma_pl330_chan {
 	/* DMA-mapped view of the FIFO; may differ if an IOMMU is present */
 	dma_addr_t fifo_dma;
 	enum dma_data_direction dir;
+<<<<<<< HEAD
+=======
+	struct dma_slave_config slave_config;
+>>>>>>> upstream/android-13
 
 	/* for cyclic capability */
 	bool cyclic;
@@ -472,6 +544,13 @@ struct pl330_dmac {
 	unsigned mcbufsz;
 	/* ioremap'ed address of PL330 registers. */
 	void __iomem	*base;
+<<<<<<< HEAD
+=======
+	/* Used the DMA wrapper */
+	bool wrapper;
+	void __iomem *inst_wrapper;
+	int 			usage_count;
+>>>>>>> upstream/android-13
 	/* Populated by the PL330 core driver during pl330_add */
 	struct pl330_config	pcfg;
 
@@ -497,7 +576,18 @@ struct pl330_dmac {
 	/* Peripheral channels connected to this DMAC */
 	unsigned int num_peripherals;
 	struct dma_pl330_chan *peripherals; /* keep at end */
+<<<<<<< HEAD
 	int quirks;
+=======
+
+	bool multi_irq;
+	int irqnum_having_multi[AMBA_NR_IRQS];
+
+	int quirks;
+
+	struct reset_control	*rstc;
+	struct reset_control	*rstc_ocp;
+>>>>>>> upstream/android-13
 };
 
 static struct pl330_of_quirks {
@@ -535,6 +625,10 @@ struct dma_pl330_desc {
 	unsigned peri:5;
 	/* Hook to attach to DMAC's list of reqs with due callback */
 	struct list_head rqd;
+<<<<<<< HEAD
+=======
+	unsigned int infiniteloop;
+>>>>>>> upstream/android-13
 };
 
 struct _xfer_spec {
@@ -542,6 +636,14 @@ struct _xfer_spec {
 	struct dma_pl330_desc *desc;
 };
 
+<<<<<<< HEAD
+=======
+static inline u32 get_unaligned_le32(u8 *p)
+{
+	return p[0] | p[1] << 8 | p[2] << 16 | p[3] << 24;
+}
+
+>>>>>>> upstream/android-13
 static inline bool _queue_full(struct pl330_thread *thrd)
 {
 	return thrd->req[0].desc != NULL && thrd->req[1].desc != NULL;
@@ -563,6 +665,173 @@ static inline u32 get_revision(u32 periph_id)
 	return (periph_id >> PERIPH_REV_SHIFT) & PERIPH_REV_MASK;
 }
 
+<<<<<<< HEAD
+=======
+static void *arm_exynos_dma_mcode_alloc(struct device *dev, size_t size,
+	dma_addr_t *handle, gfp_t gfp, unsigned long attrs);
+static void arm_exynos_dma_mcode_free(struct device *dev, size_t size, void *cpu_addr,
+				  dma_addr_t handle, unsigned long attrs);
+
+struct dma_map_ops arm_exynos_dma_mcode_ops = {
+	.alloc			= arm_exynos_dma_mcode_alloc,
+	.free			= arm_exynos_dma_mcode_free,
+};
+EXPORT_SYMBOL(arm_exynos_dma_mcode_ops);
+
+static void *arm_exynos_dma_mcode_alloc(struct device *dev, size_t size,
+	dma_addr_t *handle, gfp_t gfp, unsigned long attrs)
+{
+	void *addr;
+
+	if (!*handle)
+		return NULL;
+
+	addr = ioremap(*handle, size);
+
+	return addr;
+}
+
+static void arm_exynos_dma_mcode_free(struct device *dev, size_t size, void *cpu_addr,
+				  dma_addr_t handle, unsigned long attrs)
+{
+	iounmap(cpu_addr);
+}
+
+/**
+ * of_dma_get_mcode_addr - Get the DMA micro code buffer address.
+ * @np:		device node of DMA controller
+ *
+ * Return the physical address.
+ */
+static unsigned int of_dma_get_mcode_addr(struct device_node *np)
+{
+	unsigned int addr = 0;
+	const __be32	*prop;
+
+	prop = of_get_property(np, "#dma-mcode-addr", NULL);
+	if (prop)
+		addr = be32_to_cpup(prop);
+
+	return addr;
+}
+
+/**
+ * of_dma_get_arwrapper_address - Get the DMA WAPPER AR address
+ * @np:		device node of DMA controller
+ * @num:	DMA channel thread number
+ *
+ * Return the virtual address.
+ */
+static void __iomem *of_dma_get_arwrapper_address(struct device_node *np, unsigned int num)
+{
+	const __be32 *reg_list;
+	unsigned int length, count;
+
+	reg_list = of_get_property(np, "dma-arwrapper", &length);
+	count = (unsigned int)(length / sizeof(unsigned int));
+
+	if (!reg_list || num >= count)
+		return NULL;
+
+	return ioremap(be32_to_cpup(reg_list + num), SZ_32);
+}
+
+/**
+ * of_dma_get_arwrapper_address - Get the DMA WAPPER AW address
+ * @np:		device node of DMA controller
+ * @num:	DMA channel thread number
+ *
+ * Return the virtual address.
+ */
+static void __iomem *of_dma_get_awwrapper_address(struct device_node *np, unsigned int num)
+{
+	const __be32 *reg_list;
+	unsigned int length, count;
+
+	reg_list = of_get_property(np, "dma-awwrapper", &length);
+	count = (unsigned int)(length / sizeof(unsigned int));
+
+	if (!reg_list || num >= count)
+		return NULL;
+
+	return ioremap(be32_to_cpup(reg_list + num), SZ_32);
+}
+
+/**
+ * of_dma_get_arwrapper_address - Get the DMA WAPPER AR address of DMA instruction
+ * @np:		device node of DMA controller
+ *
+ * Return the virtual address.
+ */
+static void __iomem *of_dma_get_instwrapper_address(struct device_node *np)
+{
+	const __be32 *reg_list;
+	int ret = 0;
+
+	reg_list = of_get_property(np, "dma-instwrapper", NULL);
+
+	if (!reg_list)
+		return NULL;
+
+	ret = be32_to_cpup(reg_list);
+	if (!ret)
+		return NULL;
+
+	return ioremap(ret, SZ_32);
+}
+
+/**
+ * of_dma_get_arwrapper_address - Get the DMA WAPPER availableilable
+ * @np:		device node of DMA controller
+ *
+ */
+static bool of_dma_get_wrapper_available(struct device_node *np)
+{
+	const __be32 *reg_list;
+	int ret = 0;
+
+	reg_list = of_get_property(np, "dma-instwrapper", NULL);
+
+	if (!reg_list)
+		return false;
+
+	ret = be32_to_cpup(reg_list);
+	if (ret)
+		return true;
+	else
+		return false;
+}
+
+/**
+ * of_dma_get_arwrapper_address - Get the DMA WAPPER availableilable
+ * @np:		device node of DMA controller
+ *
+ */
+static u64 of_dma_get_mask(struct device_node *np, char *name)
+{
+	int bit_cnt = 0;
+
+	of_property_read_u32(np, name, &bit_cnt);
+
+	if (bit_cnt)
+		return ((u64)1 << bit_cnt) - 1;
+	else
+		return -1;
+}
+
+static bool of_dma_multi_irq(struct device_node *np)
+{
+	bool ret = 0;
+	const __be32	*prop;
+
+	prop = of_get_property(np, "#dma-multi-irq", NULL);
+	if (prop)
+		ret = be32_to_cpup(prop);
+
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 static inline u32 _emit_END(unsigned dry_run, u8 buf[])
 {
 	if (dry_run)
@@ -720,6 +989,21 @@ static inline u32 _emit_MOV(unsigned dry_run, u8 buf[],
 	return SZ_DMAMOV;
 }
 
+<<<<<<< HEAD
+=======
+static inline u32 _emit_NOP(unsigned dry_run, u8 buf[])
+{
+	if (dry_run)
+		return SZ_DMANOP;
+
+	buf[0] = CMD_DMANOP;
+
+	PL330_DBGCMD_DUMP(SZ_DMANOP, "\tDMANOP\n");
+
+	return SZ_DMANOP;
+}
+
+>>>>>>> upstream/android-13
 static inline u32 _emit_RMB(unsigned dry_run, u8 buf[])
 {
 	if (dry_run)
@@ -851,17 +1135,25 @@ static inline u32 _emit_GO(unsigned dry_run, u8 buf[],
 	return SZ_DMAGO;
 }
 
+<<<<<<< HEAD
 #define msecs_to_loops(t) (loops_per_jiffy / 1000 * HZ * t)
 
+=======
+>>>>>>> upstream/android-13
 /* Returns Time-Out */
 static bool _until_dmac_idle(struct pl330_thread *thrd)
 {
 	void __iomem *regs = thrd->dmac->base;
+<<<<<<< HEAD
 	unsigned long loops = msecs_to_loops(5);
+=======
+	unsigned long timeout = jiffies + msecs_to_jiffies(5);
+>>>>>>> upstream/android-13
 
 	do {
 		/* Until Manager is Idle */
 		if (!(readl(regs + DBGSTATUS) & DBG_BUSY))
+<<<<<<< HEAD
 			break;
 
 		cpu_relax();
@@ -871,6 +1163,14 @@ static bool _until_dmac_idle(struct pl330_thread *thrd)
 		return true;
 
 	return false;
+=======
+			return false;
+
+		cpu_relax();
+	} while (time_before(jiffies, timeout));
+
+	return true;
+>>>>>>> upstream/android-13
 }
 
 static inline void _execute_DBGINSN(struct pl330_thread *thrd,
@@ -886,7 +1186,11 @@ static inline void _execute_DBGINSN(struct pl330_thread *thrd,
 	}
 	writel(val, regs + DBGINST0);
 
+<<<<<<< HEAD
 	val = le32_to_cpu(*((__le32 *)&insn[2]));
+=======
+	val = get_unaligned_le32(&insn[2]);
+>>>>>>> upstream/android-13
 	writel(val, regs + DBGINST1);
 
 	/* If timed out due to halted state-machine */
@@ -1013,10 +1317,13 @@ static bool _trigger(struct pl330_thread *thrd)
 	if (!req)
 		return true;
 
+<<<<<<< HEAD
 	/* Return if req is running */
 	if (idx == thrd->req_running)
 		return true;
 
+=======
+>>>>>>> upstream/android-13
 	desc = req->desc;
 
 	ns = desc->rqcfg.nonsecure ? 1 : 0;
@@ -1050,16 +1357,28 @@ static bool _start(struct pl330_thread *thrd)
 
 		if (_state(thrd) == PL330_STATE_KILLING)
 			UNTIL(thrd, PL330_STATE_STOPPED)
+<<<<<<< HEAD
 		/* fall through */
 
 	case PL330_STATE_FAULTING:
 		_stop(thrd);
 		/* fall through */
+=======
+		fallthrough;
+
+	case PL330_STATE_FAULTING:
+		_stop(thrd);
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case PL330_STATE_KILLING:
 	case PL330_STATE_COMPLETING:
 		UNTIL(thrd, PL330_STATE_STOPPED)
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case PL330_STATE_STOPPED:
 		return _trigger(thrd);
@@ -1110,7 +1429,10 @@ static u32 _emit_load(unsigned int dry_run, u8 buf[],
 
 	switch (direction) {
 	case DMA_MEM_TO_MEM:
+<<<<<<< HEAD
 		/* fall through */
+=======
+>>>>>>> upstream/android-13
 	case DMA_MEM_TO_DEV:
 		off += _emit_LD(dry_run, &buf[off], cond);
 		break;
@@ -1144,7 +1466,10 @@ static inline u32 _emit_store(unsigned int dry_run, u8 buf[],
 
 	switch (direction) {
 	case DMA_MEM_TO_MEM:
+<<<<<<< HEAD
 		/* fall through */
+=======
+>>>>>>> upstream/android-13
 	case DMA_DEV_TO_MEM:
 		off += _emit_ST(dry_run, &buf[off], cond);
 		break;
@@ -1153,11 +1478,17 @@ static inline u32 _emit_store(unsigned int dry_run, u8 buf[],
 		if (cond == ALWAYS) {
 			off += _emit_STP(dry_run, &buf[off], SINGLE,
 				peri);
+<<<<<<< HEAD
 			off += _emit_STP(dry_run, &buf[off], BURST,
 				peri);
 		} else {
 			off += _emit_STP(dry_run, &buf[off], cond,
 				peri);
+=======
+			off += _emit_ST(dry_run, &buf[off], BURST);
+		} else {
+			off += _emit_ST(dry_run, &buf[off], cond);
+>>>>>>> upstream/android-13
 		}
 		break;
 
@@ -1180,18 +1511,29 @@ static inline int _ldst_peripheral(struct pl330_dmac *pl330,
 	if (pl330->quirks & PL330_QUIRK_BROKEN_NO_FLUSHP)
 		cond = BURST;
 
+<<<<<<< HEAD
 	/*
 	 * do FLUSHP at beginning to clear any stale dma requests before the
 	 * first WFP.
 	 */
 	if (!(pl330->quirks & PL330_QUIRK_BROKEN_NO_FLUSHP))
 		off += _emit_FLUSHP(dry_run, &buf[off], pxs->desc->peri);
+=======
+>>>>>>> upstream/android-13
 	while (cyc--) {
 		off += _emit_WFP(dry_run, &buf[off], cond, pxs->desc->peri);
 		off += _emit_load(dry_run, &buf[off], cond, pxs->desc->rqtype,
 			pxs->desc->peri);
 		off += _emit_store(dry_run, &buf[off], cond, pxs->desc->rqtype,
 			pxs->desc->peri);
+<<<<<<< HEAD
+=======
+
+		if (pxs->desc->rqtype == DMA_MEM_TO_DEV) {
+			if (!(pl330->quirks & PL330_QUIRK_BROKEN_NO_FLUSHP))
+				off += _emit_FLUSHP(dry_run, &buf[off], pxs->desc->peri);
+		}
+>>>>>>> upstream/android-13
 	}
 
 	return off;
@@ -1205,7 +1547,10 @@ static int _bursts(struct pl330_dmac *pl330, unsigned dry_run, u8 buf[],
 
 	switch (pxs->desc->rqtype) {
 	case DMA_MEM_TO_DEV:
+<<<<<<< HEAD
 		/* fall through */
+=======
+>>>>>>> upstream/android-13
 	case DMA_DEV_TO_MEM:
 		off += _ldst_peripheral(pl330, dry_run, &buf[off], pxs, cyc,
 			cond);
@@ -1225,8 +1570,14 @@ static int _bursts(struct pl330_dmac *pl330, unsigned dry_run, u8 buf[],
 }
 
 /*
+<<<<<<< HEAD
  * transfer dregs with single transfers to peripheral, or a reduced size burst
  * for mem-to-mem.
+=======
+ * only the unaligned burst transfers have the dregs.
+ * so, still transfer dregs with a reduced size burst
+ * for mem-to-mem, mem-to-dev or dev-to-mem.
+>>>>>>> upstream/android-13
  */
 static int _dregs(struct pl330_dmac *pl330, unsigned int dry_run, u8 buf[],
 		const struct _xfer_spec *pxs, int transfer_length)
@@ -1239,7 +1590,10 @@ static int _dregs(struct pl330_dmac *pl330, unsigned int dry_run, u8 buf[],
 
 	switch (pxs->desc->rqtype) {
 	case DMA_MEM_TO_DEV:
+<<<<<<< HEAD
 		/* fall through */
+=======
+>>>>>>> upstream/android-13
 	case DMA_DEV_TO_MEM:
 		off += _ldst_peripheral(pl330, dry_run, &buf[off], pxs,
 			transfer_length, SINGLE);
@@ -1266,6 +1620,81 @@ static int _dregs(struct pl330_dmac *pl330, unsigned int dry_run, u8 buf[],
 	return off;
 }
 
+<<<<<<< HEAD
+=======
+/* Returns bytes consumed */
+static inline int _loop_infiniteloop(struct pl330_dmac *pl330, unsigned dry_run, u8 buf[],
+		unsigned long bursts, const struct _xfer_spec *pxs, int ev)
+{
+	int cyc, off;
+	unsigned lcnt0, lcnt1, ljmp0, ljmp1, ljmpfe;
+	struct _arg_LPEND lpend;
+
+	off = 0;
+	ljmpfe = off;
+	lcnt0 = pxs->desc->infiniteloop;
+
+	if (bursts > 256) {
+		lcnt1 = 256;
+		cyc = bursts / 256;
+	} else {
+		lcnt1 = (unsigned int)bursts;
+		cyc = 1;
+	}
+
+	/* forever loop */
+	off += _emit_MOV(dry_run, &buf[off], SAR, pxs->desc->px.src_addr);
+	off += _emit_MOV(dry_run, &buf[off], DAR, pxs->desc->px.dst_addr);
+
+	off += _emit_NOP(dry_run, &buf[off]);
+	off += _emit_NOP(dry_run, &buf[off]);
+
+	/* loop0 */
+	off += _emit_LP(dry_run, &buf[off], 0,  lcnt0);
+	ljmp0 = off;
+
+	/* loop1 */
+	off += _emit_LP(dry_run, &buf[off], 1, lcnt1);
+	ljmp1 = off;
+	off += _bursts(pl330, dry_run, &buf[off], pxs, cyc);
+	lpend.cond = ALWAYS;
+	lpend.forever = false;
+	lpend.loop = 1;
+	lpend.bjump = off - ljmp1;
+	off += _emit_LPEND(dry_run, &buf[off], &lpend);
+
+	/* remainder */
+	lcnt1 = (unsigned int)(bursts - (lcnt1 * cyc));
+
+	if (lcnt1) {
+		off += _emit_LP(dry_run, &buf[off], 1, lcnt1);
+		ljmp1 = off;
+		off += _bursts(pl330, dry_run, &buf[off], pxs, 1);
+		lpend.cond = ALWAYS;
+		lpend.forever = false;
+		lpend.loop = 1;
+		lpend.bjump = off - ljmp1;
+		off += _emit_LPEND(dry_run, &buf[off], &lpend);
+	}
+
+	off += _emit_SEV(dry_run, &buf[off], ev);
+
+	lpend.cond = ALWAYS;
+	lpend.forever = false;
+	lpend.loop = 0;
+	lpend.bjump = off - ljmp0;
+	off += _emit_LPEND(dry_run, &buf[off], &lpend);
+
+	lpend.cond = ALWAYS;
+	lpend.forever = true;
+	lpend.loop = 1;
+	lpend.bjump = off - ljmpfe;
+	off +=  _emit_LPEND(dry_run, &buf[off], &lpend);
+
+	return off;
+}
+
+>>>>>>> upstream/android-13
 /* Returns bytes consumed and updates bursts */
 static inline int _loop(struct pl330_dmac *pl330, unsigned dry_run, u8 buf[],
 		unsigned long *bursts, const struct _xfer_spec *pxs)
@@ -1284,10 +1713,17 @@ static inline int _loop(struct pl330_dmac *pl330, unsigned dry_run, u8 buf[],
 		cyc = *bursts / lcnt1 / lcnt0;
 	} else if (*bursts > 256) {
 		lcnt1 = 256;
+<<<<<<< HEAD
 		lcnt0 = *bursts / lcnt1;
 		cyc = 1;
 	} else {
 		lcnt1 = *bursts;
+=======
+		lcnt0 = (unsigned int)((unsigned int)(*bursts) / lcnt1);
+		cyc = 1;
+	} else {
+		lcnt1 = (unsigned int)(*bursts);
+>>>>>>> upstream/android-13
 		lcnt0 = 0;
 		cyc = 1;
 	}
@@ -1341,13 +1777,35 @@ static inline int _loop(struct pl330_dmac *pl330, unsigned dry_run, u8 buf[],
 		off += _emit_LPEND(dry_run, &buf[off], &lpend);
 	}
 
+<<<<<<< HEAD
 	*bursts = lcnt1 * cyc;
+=======
+	*bursts = (unsigned long)lcnt1 * cyc;
+>>>>>>> upstream/android-13
 	if (lcnt0)
 		*bursts *= lcnt0;
 
 	return off;
 }
 
+<<<<<<< HEAD
+=======
+static inline int _setup_xfer_infiniteloop(struct pl330_dmac *pl330,
+		unsigned dry_run, u8 buf[],
+		const struct _xfer_spec *pxs, int ev)
+{
+	struct pl330_xfer *x = &pxs->desc->px;
+	u32 ccr = pxs->ccr;
+	unsigned long bursts = BYTE_TO_BURST(x->bytes, ccr);
+	int off = 0;
+
+	/* Setup Loop(s) */
+	off += _loop_infiniteloop(pl330, dry_run, &buf[off], bursts, pxs, ev);
+
+	return off;
+}
+
+>>>>>>> upstream/android-13
 static inline int _setup_loops(struct pl330_dmac *pl330,
 			       unsigned dry_run, u8 buf[],
 			       const struct _xfer_spec *pxs)
@@ -1404,12 +1862,26 @@ static int _setup_req(struct pl330_dmac *pl330, unsigned dry_run,
 	/* DMAMOV CCR, ccr */
 	off += _emit_MOV(dry_run, &buf[off], CCR, pxs->ccr);
 
+<<<<<<< HEAD
 	off += _setup_xfer(pl330, dry_run, &buf[off], pxs);
 
 	/* DMASEV peripheral/event */
 	off += _emit_SEV(dry_run, &buf[off], thrd->ev);
 	/* DMAEND */
 	off += _emit_END(dry_run, &buf[off]);
+=======
+	if (!pxs->desc->infiniteloop) {
+		off += _setup_xfer(pl330, dry_run, &buf[off], pxs);
+		/* DMASEV peripheral/event */
+		off += _emit_SEV(dry_run, &buf[off], thrd->ev);
+		/* DMAEND */
+		off += _emit_END(dry_run, &buf[off]);
+	} else {
+		off += _setup_xfer_infiniteloop(pl330,
+				dry_run, &buf[off],
+				pxs, thrd->ev);
+	}
+>>>>>>> upstream/android-13
 
 	return off;
 }
@@ -1460,6 +1932,10 @@ static int pl330_submit_req(struct pl330_thread *thrd,
 	unsigned idx;
 	u32 ccr;
 	int ret = 0;
+<<<<<<< HEAD
+=======
+	struct device_node *np = thrd->dmac->ddma.dev->of_node;
+>>>>>>> upstream/android-13
 
 	switch (desc->rqtype) {
 	case DMA_MEM_TO_DEV:
@@ -1513,8 +1989,11 @@ static int pl330_submit_req(struct pl330_thread *thrd,
 
 	/* First dry run to check if req is acceptable */
 	ret = _setup_req(pl330, 1, thrd, idx, &xs);
+<<<<<<< HEAD
 	if (ret < 0)
 		goto xfer_exit;
+=======
+>>>>>>> upstream/android-13
 
 	if (ret > pl330->mcbufsz / 2) {
 		dev_info(pl330->ddma.dev, "%s:%d Try increasing mcbufsz (%i/%i)\n",
@@ -1528,6 +2007,14 @@ static int pl330_submit_req(struct pl330_thread *thrd,
 	thrd->req[idx].desc = desc;
 	_setup_req(pl330, 0, thrd, idx, &xs);
 
+<<<<<<< HEAD
+=======
+	if (np && pl330->wrapper) {
+		__raw_writel((xs.desc->px.src_addr >> 32) & 0xf, thrd->ar_wrapper);
+		__raw_writel((xs.desc->px.dst_addr >> 32) & 0xf, thrd->aw_wrapper);
+	}
+
+>>>>>>> upstream/android-13
 	ret = 0;
 
 xfer_exit:
@@ -1536,6 +2023,11 @@ xfer_exit:
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static void pl330_tasklet(unsigned long data);
+
+>>>>>>> upstream/android-13
 static void dma_pl330_rqcb(struct dma_pl330_desc *desc, enum pl330_op_err err)
 {
 	struct dma_pl330_chan *pch;
@@ -1556,7 +2048,14 @@ static void dma_pl330_rqcb(struct dma_pl330_desc *desc, enum pl330_op_err err)
 
 	spin_unlock_irqrestore(&pch->lock, flags);
 
+<<<<<<< HEAD
 	tasklet_schedule(&pch->task);
+=======
+	if (desc->infiniteloop)
+		pl330_tasklet((unsigned long)pch);
+	else
+		tasklet_schedule(&pch->task);
+>>>>>>> upstream/android-13
 }
 
 static void pl330_dotask(unsigned long data)
@@ -1567,6 +2066,15 @@ static void pl330_dotask(unsigned long data)
 
 	spin_lock_irqsave(&pl330->lock, flags);
 
+<<<<<<< HEAD
+=======
+	if (!pl330->usage_count) {
+		pr_info("[%s] Channel is already free!\n",__func__);
+		spin_unlock_irqrestore(&pl330->lock, flags);
+		return;
+	}
+
+>>>>>>> upstream/android-13
 	/* The DMAC itself gone nuts */
 	if (pl330->dmac_tbd.reset_dmac) {
 		pl330->state = DYING;
@@ -1630,6 +2138,15 @@ static int pl330_update(struct pl330_dmac *pl330)
 
 	spin_lock_irqsave(&pl330->lock, flags);
 
+<<<<<<< HEAD
+=======
+	if (!pl330->usage_count) {
+		dev_err(pl330->ddma.dev, "%s:%d event is not exist!\n", __func__, __LINE__);
+		spin_unlock_irqrestore(&pl330->lock, flags);
+		return 0;
+	}
+
+>>>>>>> upstream/android-13
 	val = readl(regs + FSM) & 0x1;
 	if (val)
 		pl330->dmac_tbd.reset_mngr = true;
@@ -1677,6 +2194,12 @@ static int pl330_update(struct pl330_dmac *pl330)
 
 			id = pl330->events[ev];
 
+<<<<<<< HEAD
+=======
+			if (id == -1)
+				continue;
+
+>>>>>>> upstream/android-13
 			thrd = &pl330->channels[id];
 
 			active = thrd->req_running;
@@ -1685,12 +2208,22 @@ static int pl330_update(struct pl330_dmac *pl330)
 
 			/* Detach the req */
 			descdone = thrd->req[active].desc;
+<<<<<<< HEAD
 			thrd->req[active].desc = NULL;
 
 			thrd->req_running = -1;
 
 			/* Get going again ASAP */
 			_start(thrd);
+=======
+
+			if (!descdone->infiniteloop) {
+				thrd->req[active].desc = NULL;
+
+				/* Get going again ASAP */
+				_start(thrd);
+			}
+>>>>>>> upstream/android-13
 
 			/* For now, just make a list of callbacks to be done */
 			list_add_tail(&descdone->rqd, &pl330->req_done);
@@ -1764,6 +2297,10 @@ static struct pl330_thread *pl330_request_channel(struct pl330_dmac *pl330)
 				thrd->req[0].desc = NULL;
 				thrd->req[1].desc = NULL;
 				thrd->req_running = -1;
+<<<<<<< HEAD
+=======
+				pl330->usage_count++;
+>>>>>>> upstream/android-13
 				break;
 			}
 		}
@@ -1780,8 +2317,15 @@ static inline void _free_event(struct pl330_thread *thrd, int ev)
 
 	/* If the event is valid and was held by the thread */
 	if (ev >= 0 && ev < pl330->pcfg.num_events
+<<<<<<< HEAD
 			&& pl330->events[ev] == thrd->id)
 		pl330->events[ev] = -1;
+=======
+			&& pl330->events[ev] == thrd->id) {
+		pl330->events[ev] = -1;
+		pl330->usage_count--;
+	}
+>>>>>>> upstream/android-13
 }
 
 static void pl330_release_channel(struct pl330_thread *thrd)
@@ -1881,6 +2425,16 @@ static int dmac_alloc_threads(struct pl330_dmac *pl330)
 		thrd->dmac = pl330;
 		_reset_thread(thrd);
 		thrd->free = true;
+<<<<<<< HEAD
+=======
+
+		if (pl330->ddma.dev->of_node && pl330->wrapper) {
+			thrd->ar_wrapper = of_dma_get_arwrapper_address(
+					pl330->ddma.dev->of_node, i);
+			thrd->aw_wrapper = of_dma_get_awwrapper_address(
+					pl330->ddma.dev->of_node, i);
+		}
+>>>>>>> upstream/android-13
 	}
 
 	/* MANAGER is indexed at the end */
@@ -1897,6 +2451,21 @@ static int dmac_alloc_resources(struct pl330_dmac *pl330)
 {
 	int chans = pl330->pcfg.num_chan;
 	int ret;
+<<<<<<< HEAD
+=======
+	dma_addr_t addr;
+
+	if (pl330->ddma.dev->of_node) {
+		addr = of_dma_get_mcode_addr(pl330->ddma.dev->of_node);
+		if (addr) {
+			set_dma_ops(pl330->ddma.dev, &arm_exynos_dma_mcode_ops);
+			pl330->mcode_bus = addr;
+		}
+
+		if (pl330->wrapper)
+			pl330->inst_wrapper = of_dma_get_instwrapper_address(pl330->ddma.dev->of_node);
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * Alloc MicroCode buffer for 'chans' Channel threads.
@@ -1906,6 +2475,13 @@ static int dmac_alloc_resources(struct pl330_dmac *pl330)
 				chans * pl330->mcbufsz,
 				&pl330->mcode_bus, GFP_KERNEL,
 				DMA_ATTR_PRIVILEGED);
+<<<<<<< HEAD
+=======
+
+	if (pl330->inst_wrapper)
+		__raw_writel((pl330->mcode_bus >> 32) & 0xf, pl330->inst_wrapper);
+
+>>>>>>> upstream/android-13
 	if (!pl330->mcode_cpu) {
 		dev_err(pl330->ddma.dev, "%s:%d Can't allocate memory!\n",
 			__func__, __LINE__);
@@ -1967,6 +2543,10 @@ static int pl330_add(struct pl330_dmac *pl330)
 	tasklet_init(&pl330->tasks, pl330_dotask, (unsigned long) pl330);
 
 	pl330->state = INIT;
+<<<<<<< HEAD
+=======
+	pl330->usage_count = 0;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -2100,16 +2680,30 @@ static void pl330_tasklet(unsigned long data)
 			}
 		} else {
 			desc->status = FREE;
+<<<<<<< HEAD
 			list_move_tail(&desc->node, &pch->dmac->desc_pool);
+=======
+			spin_lock(&pch->dmac->pool_lock);
+			list_move_tail(&desc->node, &pch->dmac->desc_pool);
+			spin_unlock(&pch->dmac->pool_lock);
+>>>>>>> upstream/android-13
 		}
 
 		dma_descriptor_unmap(&desc->txd);
 
+<<<<<<< HEAD
+=======
+		DBG_PRINT("[%s] before callback\n", __func__);
+>>>>>>> upstream/android-13
 		if (dmaengine_desc_callback_valid(&cb)) {
 			spin_unlock_irqrestore(&pch->lock, flags);
 			dmaengine_desc_callback_invoke(&cb, NULL);
 			spin_lock_irqsave(&pch->lock, flags);
 		}
+<<<<<<< HEAD
+=======
+		DBG_PRINT("[%s] after callback\n", __func__);
+>>>>>>> upstream/android-13
 	}
 	spin_unlock_irqrestore(&pch->lock, flags);
 
@@ -2503,8 +3097,13 @@ static dma_cookie_t pl330_tx_submit(struct dma_async_tx_descriptor *tx)
 static inline void _init_desc(struct dma_pl330_desc *desc)
 {
 	desc->rqcfg.swap = SWAP_NO;
+<<<<<<< HEAD
 	desc->rqcfg.scctl = CCTRL0;
 	desc->rqcfg.dcctl = CCTRL0;
+=======
+	desc->rqcfg.scctl = CCTRL2;
+	desc->rqcfg.dcctl = CCTRL2;
+>>>>>>> upstream/android-13
 	desc->txd.tx_submit = pl330_tx_submit;
 
 	INIT_LIST_HEAD(&desc->node);
@@ -2583,6 +3182,10 @@ static struct dma_pl330_desc *pl330_get_desc(struct dma_pl330_chan *pch)
 	desc->txd.cookie = 0;
 	async_tx_ack(&desc->txd);
 
+<<<<<<< HEAD
+=======
+	desc->infiniteloop = 0;
+>>>>>>> upstream/android-13
 	desc->peri = peri_id ? pch->chan.chan_id : 0;
 	desc->rqcfg.pcfg = &pch->dmac->pcfg;
 
@@ -2594,7 +3197,11 @@ static struct dma_pl330_desc *pl330_get_desc(struct dma_pl330_chan *pch)
 static inline void fill_px(struct pl330_xfer *px,
 		dma_addr_t dst, dma_addr_t src, size_t len)
 {
+<<<<<<< HEAD
 	px->bytes = len;
+=======
+	px->bytes = (u32)len;
+>>>>>>> upstream/android-13
 	px->dst_addr = dst;
 	px->src_addr = src;
 }
@@ -2644,10 +3251,17 @@ static inline int get_burst_len(struct dma_pl330_desc *desc, size_t len)
 	return burst_len;
 }
 
+<<<<<<< HEAD
 static struct dma_async_tx_descriptor *pl330_prep_dma_cyclic(
 		struct dma_chan *chan, dma_addr_t dma_addr, size_t len,
 		size_t period_len, enum dma_transfer_direction direction,
 		unsigned long flags)
+=======
+struct dma_async_tx_descriptor *__pl330_prep_dma_cyclic(
+		struct dma_chan *chan, dma_addr_t dma_addr, size_t len,
+		size_t period_len, enum dma_transfer_direction direction,
+		unsigned long flags, void *context)
+>>>>>>> upstream/android-13
 {
 	struct dma_pl330_desc *desc = NULL, *first = NULL;
 	struct dma_pl330_chan *pch = to_pchan(chan);
@@ -2655,6 +3269,10 @@ static struct dma_async_tx_descriptor *pl330_prep_dma_cyclic(
 	unsigned int i;
 	dma_addr_t dst;
 	dma_addr_t src;
+<<<<<<< HEAD
+=======
+	unsigned int *infinite = context;
+>>>>>>> upstream/android-13
 
 	if (len % period_len != 0)
 		return NULL;
@@ -2671,13 +3289,22 @@ static struct dma_async_tx_descriptor *pl330_prep_dma_cyclic(
 	for (i = 0; i < len / period_len; i++) {
 		desc = pl330_get_desc(pch);
 		if (!desc) {
+<<<<<<< HEAD
+=======
+			unsigned long iflags;
+
+>>>>>>> upstream/android-13
 			dev_err(pch->dmac->ddma.dev, "%s:%d Unable to fetch desc\n",
 				__func__, __LINE__);
 
 			if (!first)
 				return NULL;
 
+<<<<<<< HEAD
 			spin_lock_irqsave(&pl330->pool_lock, flags);
+=======
+			spin_lock_irqsave(&pl330->pool_lock, iflags);
+>>>>>>> upstream/android-13
 
 			while (!list_empty(&first->node)) {
 				desc = list_entry(first->node.next,
@@ -2687,7 +3314,11 @@ static struct dma_async_tx_descriptor *pl330_prep_dma_cyclic(
 
 			list_move_tail(&first->node, &pl330->desc_pool);
 
+<<<<<<< HEAD
 			spin_unlock_irqrestore(&pl330->pool_lock, flags);
+=======
+			spin_unlock_irqrestore(&pl330->pool_lock, iflags);
+>>>>>>> upstream/android-13
 
 			return NULL;
 		}
@@ -2713,6 +3344,10 @@ static struct dma_async_tx_descriptor *pl330_prep_dma_cyclic(
 		desc->rqcfg.brst_size = pch->burst_sz;
 		desc->rqcfg.brst_len = pch->burst_len;
 		desc->bytes_requested = period_len;
+<<<<<<< HEAD
+=======
+		desc->infiniteloop = *infinite;
+>>>>>>> upstream/android-13
 		fill_px(&desc->px, dst, src, period_len);
 
 		if (!first)
@@ -2731,6 +3366,19 @@ static struct dma_async_tx_descriptor *pl330_prep_dma_cyclic(
 
 	return &desc->txd;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL(__pl330_prep_dma_cyclic);
+
+static struct dma_async_tx_descriptor *pl330_prep_dma_cyclic(
+		struct dma_chan *chan, dma_addr_t dma_addr, size_t len,
+		size_t period_len, enum dma_transfer_direction direction,
+		unsigned long flags)
+{
+	return __pl330_prep_dma_cyclic(chan, dma_addr, len, period_len,
+			direction, flags, NULL);
+}
+>>>>>>> upstream/android-13
 
 static struct dma_async_tx_descriptor *
 pl330_prep_dma_memcpy(struct dma_chan *chan, dma_addr_t dst,
@@ -2769,14 +3417,24 @@ pl330_prep_dma_memcpy(struct dma_chan *chan, dma_addr_t dst,
 	while (burst != (1 << desc->rqcfg.brst_size))
 		desc->rqcfg.brst_size++;
 
+<<<<<<< HEAD
 	desc->rqcfg.brst_len = get_burst_len(desc, len);
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * If burst size is smaller than bus width then make sure we only
 	 * transfer one at a time to avoid a burst stradling an MFIFO entry.
 	 */
+<<<<<<< HEAD
 	if (burst * 8 < pl330->pcfg.data_bus_width)
 		desc->rqcfg.brst_len = 1;
 
+=======
+	if (desc->rqcfg.brst_size * 8 < pl330->pcfg.data_bus_width)
+		desc->rqcfg.brst_len = 1;
+
+	desc->rqcfg.brst_len = get_burst_len(desc, len);
+>>>>>>> upstream/android-13
 	desc->bytes_requested = len;
 
 	desc->txd.flags = flags;
@@ -2862,7 +3520,14 @@ pl330_prep_slave_sg(struct dma_chan *chan, struct scatterlist *sgl,
 	}
 
 	/* Return the last desc in the chain */
+<<<<<<< HEAD
 	desc->txd.flags = flg;
+=======
+	if (desc)
+		desc->txd.flags = flg;
+	else
+		return NULL;
+>>>>>>> upstream/android-13
 	return &desc->txd;
 }
 
@@ -2874,6 +3539,88 @@ static irqreturn_t pl330_irq_handler(int irq, void *data)
 		return IRQ_NONE;
 }
 
+<<<<<<< HEAD
+=======
+int pl330_dma_debug(struct dma_chan *chan)
+{
+	struct dma_pl330_chan *pch = to_pchan(chan);
+	void __iomem *regs;
+	struct pl330_thread *thrd;
+	unsigned idx;
+
+	if (unlikely(!pch))
+		return -EINVAL;
+
+	thrd = pch->thread;
+	regs = pch->dmac->base;
+
+	idx = 1 - thrd->lstenq;
+	if (thrd->req[idx].desc != NULL) {
+		dev_info(pch->dmac->ddma.dev,"%d: mc_cpu:%lu\n",
+				thrd->lstenq, (unsigned long)thrd->req[idx].mc_cpu);
+		dev_info(pch->dmac->ddma.dev,"%d: mc_bus:%lu\n", thrd->lstenq,
+				(unsigned long)thrd->req[idx].mc_bus);
+	} else {
+		idx = thrd->lstenq;
+		if (thrd->req[idx].desc != NULL) {
+			dev_info(pch->dmac->ddma.dev,"%d: mc_cpu:%lu\n",
+					thrd->lstenq, (unsigned long)thrd->req[idx].mc_cpu);
+			dev_info(pch->dmac->ddma.dev,"%d: mc_bus:%lu\n",thrd->lstenq,
+					(unsigned long)thrd->req[idx].mc_bus);
+		} else {
+			dev_info(pch->dmac->ddma.dev,"No Information\n");
+		}
+	}
+
+	dev_info(pch->dmac->ddma.dev,"[ DMA Register Dump(id: %d) ]\n", thrd->id);
+	dev_info(pch->dmac->ddma.dev,"DAR:0x%x\n", readl(regs + DA(thrd->id)));
+	dev_info(pch->dmac->ddma.dev,"SAR:0x%x\n", readl(regs + SA(thrd->id)));
+	dev_info(pch->dmac->ddma.dev,"arwrapper_inst:0x%x\n", readl(pch->dmac->inst_wrapper));
+	dev_info(pch->dmac->ddma.dev,"arwrapper:0x%x\n", readl(thrd->ar_wrapper));
+	dev_info(pch->dmac->ddma.dev,"awwrapper:0x%x\n",readl(thrd->aw_wrapper));
+	dev_info(pch->dmac->ddma.dev,"DBGSTATUS:0x%x\n", readl(regs + DBGSTATUS));
+	dev_info(pch->dmac->ddma.dev,"INTMIS:0x%x\n", readl(regs + INTSTATUS));
+	dev_info(pch->dmac->ddma.dev,"INTEN:0x%x\n", readl(regs + INTEN));
+	dev_info(pch->dmac->ddma.dev,"DSR:0x%x\n", readl(regs + DS));
+	dev_info(pch->dmac->ddma.dev,"CPC:0x%x\n", readl(regs + CPC(thrd->id)));
+	dev_info(pch->dmac->ddma.dev,"CCR:0x%x\n", readl(regs + CC(thrd->id)));
+	dev_info(pch->dmac->ddma.dev,"CSR:0x%x\n", readl(regs + CS(thrd->id)));
+	dev_info(pch->dmac->ddma.dev,"CRD:0x%x\n", readl(regs + CRD));
+	dev_info(pch->dmac->ddma.dev,"LC0:0x%x\n", readl(regs + LC0(thrd->id)));
+	dev_info(pch->dmac->ddma.dev,"LC1:0x%x\n", readl(regs + LC1(thrd->id)));
+	dev_info(pch->dmac->ddma.dev,"FTR:0x%x\n", readl(regs + FTC(thrd->id)));
+	dev_info(pch->dmac->ddma.dev,"FTRD:0x%x\n", readl(regs + FTM));
+	dev_info(pch->dmac->ddma.dev,"FSRC:0x%x\n", readl(regs + FSC));
+	dev_info(pch->dmac->ddma.dev,"FSRD:0x%x\n", readl(regs + FSM));
+
+	return 0;
+}
+EXPORT_SYMBOL(pl330_dma_debug);
+
+int pl330_dma_getposition(struct dma_chan *chan,
+		dma_addr_t *src, dma_addr_t *dst)
+{
+	struct dma_pl330_chan *pch = to_pchan(chan);
+	void __iomem *regs;
+	struct pl330_thread *thrd;
+
+	if (unlikely(!pch))
+		return -EINVAL;
+
+	thrd = pch->thread;
+	regs = pch->dmac->base;
+
+	*src = readl(regs + SA(thrd->id));
+	*dst = readl(regs + DA(thrd->id));
+
+	*src |= (dma_addr_t)readl(thrd->ar_wrapper) << 32;
+	*dst |= (dma_addr_t)readl(thrd->aw_wrapper) << 32;
+
+	return 0;
+}
+EXPORT_SYMBOL(pl330_dma_getposition);
+
+>>>>>>> upstream/android-13
 #define PL330_DMA_BUSWIDTHS \
 	BIT(DMA_SLAVE_BUSWIDTH_UNDEFINED) | \
 	BIT(DMA_SLAVE_BUSWIDTH_1_BYTE) | \
@@ -2881,6 +3628,58 @@ static irqreturn_t pl330_irq_handler(int irq, void *data)
 	BIT(DMA_SLAVE_BUSWIDTH_4_BYTES) | \
 	BIT(DMA_SLAVE_BUSWIDTH_8_BYTES)
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_DEBUG_FS
+static int pl330_debugfs_show(struct seq_file *s, void *data)
+{
+	struct pl330_dmac *pl330 = s->private;
+	int chans, pchs, ch, pr;
+
+	chans = pl330->pcfg.num_chan;
+	pchs = pl330->num_peripherals;
+
+	seq_puts(s, "PL330 physical channels:\n");
+	seq_puts(s, "THREAD:\t\tCHANNEL:\n");
+	seq_puts(s, "--------\t-----\n");
+	for (ch = 0; ch < chans; ch++) {
+		struct pl330_thread *thrd = &pl330->channels[ch];
+		int found = -1;
+
+		for (pr = 0; pr < pchs; pr++) {
+			struct dma_pl330_chan *pch = &pl330->peripherals[pr];
+
+			if (!pch->thread || thrd->id != pch->thread->id)
+				continue;
+
+			found = pr;
+		}
+
+		seq_printf(s, "%d\t\t", thrd->id);
+		if (found == -1)
+			seq_puts(s, "--\n");
+		else
+			seq_printf(s, "%d\n", found);
+	}
+
+	return 0;
+}
+
+DEFINE_SHOW_ATTRIBUTE(pl330_debugfs);
+
+static inline void init_pl330_debugfs(struct pl330_dmac *pl330)
+{
+	debugfs_create_file(dev_name(pl330->ddma.dev),
+			    S_IFREG | 0444, NULL, pl330,
+			    &pl330_debugfs_fops);
+}
+#else
+static inline void init_pl330_debugfs(struct pl330_dmac *pl330)
+{
+}
+#endif
+
+>>>>>>> upstream/android-13
 /*
  * Runtime PM callbacks are provided by amba/bus.c driver.
  *
@@ -2902,6 +3701,7 @@ static int __maybe_unused pl330_suspend(struct device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int __maybe_unused pl330_resume(struct device *dev)
 {
 	struct amba_device *pcdev = to_amba_device(dev);
@@ -2910,12 +3710,25 @@ static int __maybe_unused pl330_resume(struct device *dev)
 	ret = amba_pclk_prepare(pcdev);
 	if (ret)
 		return ret;
+=======
+#ifdef CONFIG_PM
+static int pl330_resume(struct device *dev)
+{
+	struct amba_device *pcdev = to_amba_device(dev);
+	struct pl330_dmac *pl330;
+	int i, ret = 0;
+
+	ret = amba_pclk_prepare(pcdev);
+	if (ret)
+	       return ret;
+>>>>>>> upstream/android-13
 
 	if (!pm_runtime_status_suspended(dev))
 		ret = amba_pclk_enable(pcdev);
 
 	pm_runtime_enable(dev);
 
+<<<<<<< HEAD
 	return ret;
 }
 
@@ -2923,6 +3736,44 @@ static SIMPLE_DEV_PM_OPS(pl330_pm, pl330_suspend, pl330_resume);
 
 static int
 pl330_probe(struct amba_device *adev, const struct amba_id *id)
+=======
+	pl330 = (struct pl330_dmac *)dev_get_drvdata(dev);
+
+	if (pl330->inst_wrapper)
+		__raw_writel((pl330->mcode_bus >> 32) & 0xf, pl330->inst_wrapper);
+
+	if(pl330->multi_irq) {
+		for (i = 0; i < AMBA_NR_IRQS; i++) {
+			int irq = pl330->irqnum_having_multi[i];
+			if (irq)
+#if defined(CONFIG_SCHED_HMP)
+				irq_set_affinity_hint(irq, &hmp_slow_cpu_mask);
+#else
+				irq_set_affinity_hint(irq, cpu_all_mask);
+#endif
+			else
+				break;
+		}
+	}
+	return ret;
+}
+
+static const struct dev_pm_ops pl330_pm_ops = {
+	.resume		= pl330_resume,
+};
+
+static SIMPLE_DEV_PM_OPS(pl330_pm, pl330_suspend, pl330_resume);
+
+#define PL330_PM (&pl330_pm_ops)
+
+#else /* CONFIG_PM */
+
+#define PL330_PM NULL
+
+#endif /* !CONFIG_PM */
+
+static int pl330_probe(struct amba_device *adev, const struct amba_id *id)
+>>>>>>> upstream/android-13
 {
 	struct pl330_config *pcfg;
 	struct pl330_dmac *pl330;
@@ -2932,8 +3783,19 @@ pl330_probe(struct amba_device *adev, const struct amba_id *id)
 	int i, ret, irq;
 	int num_chan;
 	struct device_node *np = adev->dev.of_node;
+<<<<<<< HEAD
 
 	ret = dma_set_mask_and_coherent(&adev->dev, DMA_BIT_MASK(32));
+=======
+	int irq_flags = 0;
+	int count_irq = 0;
+
+#ifdef  CONFIG_ZONE_DMA
+	ret = dma_set_mask_and_coherent(&adev->dev, DMA_BIT_MASK(32));
+#else
+	ret = dma_set_mask_and_coherent(&adev->dev, DMA_BIT_MASK(36));
+#endif
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -2945,7 +3807,10 @@ pl330_probe(struct amba_device *adev, const struct amba_id *id)
 	pd = &pl330->ddma;
 	pd->dev = &adev->dev;
 
+<<<<<<< HEAD
 	pl330->mcbufsz = 0;
+=======
+>>>>>>> upstream/android-13
 
 	/* get quirk */
 	for (i = 0; i < ARRAY_SIZE(of_quirks); i++)
@@ -2959,19 +3824,79 @@ pl330_probe(struct amba_device *adev, const struct amba_id *id)
 
 	amba_set_drvdata(adev, pl330);
 
+<<<<<<< HEAD
+=======
+	if (adev->dev.of_node) {
+		pl330->multi_irq = of_dma_multi_irq(adev->dev.of_node);
+#ifdef MULTI_IRQ_SUPPORT_ITMON
+		if(pl330->multi_irq)
+			irq_flags = IRQF_GIC_MULTI_TARGET;
+#endif
+	}
+
+	pl330->rstc = devm_reset_control_get_optional(&adev->dev, "dma");
+	if (IS_ERR(pl330->rstc)) {
+		return dev_err_probe(&adev->dev, PTR_ERR(pl330->rstc), "Failed to get reset!\n");
+	} else {
+		ret = reset_control_deassert(pl330->rstc);
+		if (ret) {
+			dev_err(&adev->dev, "Couldn't deassert the device from reset!\n");
+			return ret;
+		}
+	}
+
+	pl330->rstc_ocp = devm_reset_control_get_optional(&adev->dev, "dma-ocp");
+	if (IS_ERR(pl330->rstc_ocp)) {
+		return dev_err_probe(&adev->dev, PTR_ERR(pl330->rstc_ocp),
+				     "Failed to get OCP reset!\n");
+	} else {
+		ret = reset_control_deassert(pl330->rstc_ocp);
+		if (ret) {
+			dev_err(&adev->dev, "Couldn't deassert the device from OCP reset!\n");
+			return ret;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	for (i = 0; i < AMBA_NR_IRQS; i++) {
 		irq = adev->irq[i];
 		if (irq) {
 			ret = devm_request_irq(&adev->dev, irq,
+<<<<<<< HEAD
 					       pl330_irq_handler, 0,
 					       dev_name(&adev->dev), pl330);
 			if (ret)
 				return ret;
+=======
+					       pl330_irq_handler, irq_flags,
+					       dev_name(&adev->dev), pl330);
+			if (ret)
+				return ret;
+			if(pl330->multi_irq) {
+#if defined(CONFIG_SCHED_HMP)
+				irq_set_affinity_hint(irq, &hmp_slow_cpu_mask);
+#else
+				irq_set_affinity_hint(irq, cpu_all_mask);
+#endif
+				pl330->irqnum_having_multi[count_irq++] = irq;
+			}
+>>>>>>> upstream/android-13
 		} else {
 			break;
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	if (adev->dev.of_node){
+		*adev->dev.dma_mask = of_dma_get_mask(adev->dev.of_node,
+				"dma-mask-bit");
+		adev->dev.coherent_dma_mask = of_dma_get_mask(adev->dev.of_node,
+				"coherent-mask-bit");
+		pl330->wrapper = of_dma_get_wrapper_available(adev->dev.of_node);
+	}
+
+>>>>>>> upstream/android-13
 	pcfg = &pl330->pcfg;
 
 	pcfg->periph_id = adev->periphid;
@@ -3067,6 +3992,10 @@ pl330_probe(struct amba_device *adev, const struct amba_id *id)
 		dev_err(&adev->dev, "unable to set the seg size\n");
 
 
+<<<<<<< HEAD
+=======
+	init_pl330_debugfs(pl330);
+>>>>>>> upstream/android-13
 	dev_info(&adev->dev,
 		"Loaded driver for PL330 DMAC-%x\n", adev->periphid);
 	dev_info(&adev->dev,
@@ -3098,10 +4027,22 @@ probe_err3:
 probe_err2:
 	pl330_del(pl330);
 
+<<<<<<< HEAD
 	return ret;
 }
 
 static int pl330_remove(struct amba_device *adev)
+=======
+	if (pl330->rstc_ocp)
+		reset_control_assert(pl330->rstc_ocp);
+
+	if (pl330->rstc)
+		reset_control_assert(pl330->rstc);
+	return ret;
+}
+
+static void pl330_remove(struct amba_device *adev)
+>>>>>>> upstream/android-13
 {
 	struct pl330_dmac *pl330 = amba_get_drvdata(adev);
 	struct dma_pl330_chan *pch, *_p;
@@ -3136,7 +4077,15 @@ static int pl330_remove(struct amba_device *adev)
 
 	pl330_del(pl330);
 
+<<<<<<< HEAD
 	return 0;
+=======
+	if (pl330->rstc_ocp)
+		reset_control_assert(pl330->rstc_ocp);
+
+	if (pl330->rstc)
+		reset_control_assert(pl330->rstc);
+>>>>>>> upstream/android-13
 }
 
 static const struct amba_id pl330_ids[] = {

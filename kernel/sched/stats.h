@@ -25,7 +25,11 @@ rq_sched_info_depart(struct rq *rq, unsigned long long delta)
 }
 
 static inline void
+<<<<<<< HEAD
 rq_sched_info_dequeued(struct rq *rq, unsigned long long delta)
+=======
+rq_sched_info_dequeue(struct rq *rq, unsigned long long delta)
+>>>>>>> upstream/android-13
 {
 	if (rq)
 		rq->rq_sched_info.run_delay += delta;
@@ -42,7 +46,11 @@ rq_sched_info_dequeued(struct rq *rq, unsigned long long delta)
 
 #else /* !CONFIG_SCHEDSTATS: */
 static inline void rq_sched_info_arrive  (struct rq *rq, unsigned long long delta) { }
+<<<<<<< HEAD
 static inline void rq_sched_info_dequeued(struct rq *rq, unsigned long long delta) { }
+=======
+static inline void rq_sched_info_dequeue(struct rq *rq, unsigned long long delta) { }
+>>>>>>> upstream/android-13
 static inline void rq_sched_info_depart  (struct rq *rq, unsigned long long delta) { }
 # define   schedstat_enabled()		0
 # define __schedstat_inc(var)		do { } while (0)
@@ -69,8 +77,16 @@ static inline void psi_enqueue(struct task_struct *p, bool wakeup)
 	if (static_branch_likely(&psi_disabled))
 		return;
 
+<<<<<<< HEAD
 	if (!wakeup || p->sched_psi_wake_requeue) {
 		if (p->flags & PF_MEMSTALL)
+=======
+	if (p->in_memstall)
+		set |= TSK_MEMSTALL_RUNNING;
+
+	if (!wakeup || p->sched_psi_wake_requeue) {
+		if (p->in_memstall)
+>>>>>>> upstream/android-13
 			set |= TSK_MEMSTALL;
 		if (p->sched_psi_wake_requeue)
 			p->sched_psi_wake_requeue = 0;
@@ -84,11 +100,16 @@ static inline void psi_enqueue(struct task_struct *p, bool wakeup)
 
 static inline void psi_dequeue(struct task_struct *p, bool sleep)
 {
+<<<<<<< HEAD
 	int clear = TSK_RUNNING, set = 0;
+=======
+	int clear = TSK_RUNNING;
+>>>>>>> upstream/android-13
 
 	if (static_branch_likely(&psi_disabled))
 		return;
 
+<<<<<<< HEAD
 	if (!sleep) {
 		if (p->flags & PF_MEMSTALL)
 			clear |= TSK_MEMSTALL;
@@ -98,6 +119,21 @@ static inline void psi_dequeue(struct task_struct *p, bool sleep)
 	}
 
 	psi_task_change(p, clear, set);
+=======
+	/*
+	 * A voluntary sleep is a dequeue followed by a task switch. To
+	 * avoid walking all ancestors twice, psi_task_switch() handles
+	 * TSK_RUNNING and TSK_IOWAIT for us when it moves TSK_ONCPU.
+	 * Do nothing here.
+	 */
+	if (sleep)
+		return;
+
+	if (p->in_memstall)
+		clear |= (TSK_MEMSTALL | TSK_MEMSTALL_RUNNING);
+
+	psi_task_change(p, clear, 0);
+>>>>>>> upstream/android-13
 }
 
 static inline void psi_ttwu_dequeue(struct task_struct *p)
@@ -109,14 +145,22 @@ static inline void psi_ttwu_dequeue(struct task_struct *p)
 	 * deregister its sleep-persistent psi states from the old
 	 * queue, and let psi_enqueue() know it has to requeue.
 	 */
+<<<<<<< HEAD
 	if (unlikely(p->in_iowait || (p->flags & PF_MEMSTALL))) {
+=======
+	if (unlikely(p->in_iowait || p->in_memstall)) {
+>>>>>>> upstream/android-13
 		struct rq_flags rf;
 		struct rq *rq;
 		int clear = 0;
 
 		if (p->in_iowait)
 			clear |= TSK_IOWAIT;
+<<<<<<< HEAD
 		if (p->flags & PF_MEMSTALL)
+=======
+		if (p->in_memstall)
+>>>>>>> upstream/android-13
 			clear |= TSK_MEMSTALL;
 
 		rq = __task_rq_lock(p, &rf);
@@ -126,18 +170,31 @@ static inline void psi_ttwu_dequeue(struct task_struct *p)
 	}
 }
 
+<<<<<<< HEAD
 static inline void psi_task_tick(struct rq *rq)
+=======
+static inline void psi_sched_switch(struct task_struct *prev,
+				    struct task_struct *next,
+				    bool sleep)
+>>>>>>> upstream/android-13
 {
 	if (static_branch_likely(&psi_disabled))
 		return;
 
+<<<<<<< HEAD
 	if (unlikely(rq->curr->flags & PF_MEMSTALL))
 		psi_memstall_tick(rq->curr, cpu_of(rq));
 }
+=======
+	psi_task_switch(prev, next, sleep);
+}
+
+>>>>>>> upstream/android-13
 #else /* CONFIG_PSI */
 static inline void psi_enqueue(struct task_struct *p, bool wakeup) {}
 static inline void psi_dequeue(struct task_struct *p, bool sleep) {}
 static inline void psi_ttwu_dequeue(struct task_struct *p) {}
+<<<<<<< HEAD
 static inline void psi_task_tick(struct rq *rq) {}
 #endif /* CONFIG_PSI */
 
@@ -147,12 +204,21 @@ static inline void sched_info_reset_dequeued(struct task_struct *t)
 	t->sched_info.last_queued = 0;
 }
 
+=======
+static inline void psi_sched_switch(struct task_struct *prev,
+				    struct task_struct *next,
+				    bool sleep) {}
+#endif /* CONFIG_PSI */
+
+#ifdef CONFIG_SCHED_INFO
+>>>>>>> upstream/android-13
 /*
  * We are interested in knowing how long it was from the *first* time a
  * task was queued to the time that it finally hit a CPU, we call this routine
  * from dequeue_task() to account for possible rq->clock skew across CPUs. The
  * delta taken on each CPU would annul the skew.
  */
+<<<<<<< HEAD
 static inline void sched_info_dequeued(struct rq *rq, struct task_struct *t)
 {
 	unsigned long long now = rq_clock(rq), delta = 0;
@@ -164,6 +230,20 @@ static inline void sched_info_dequeued(struct rq *rq, struct task_struct *t)
 	t->sched_info.run_delay += delta;
 
 	rq_sched_info_dequeued(rq, delta);
+=======
+static inline void sched_info_dequeue(struct rq *rq, struct task_struct *t)
+{
+	unsigned long long delta = 0;
+
+	if (!t->sched_info.last_queued)
+		return;
+
+	delta = rq_clock(rq) - t->sched_info.last_queued;
+	t->sched_info.last_queued = 0;
+	t->sched_info.run_delay += delta;
+
+	rq_sched_info_dequeue(rq, delta);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -173,11 +253,22 @@ static inline void sched_info_dequeued(struct rq *rq, struct task_struct *t)
  */
 static void sched_info_arrive(struct rq *rq, struct task_struct *t)
 {
+<<<<<<< HEAD
 	unsigned long long now = rq_clock(rq), delta = 0;
 
 	if (t->sched_info.last_queued)
 		delta = now - t->sched_info.last_queued;
 	sched_info_reset_dequeued(t);
+=======
+	unsigned long long now, delta = 0;
+
+	if (!t->sched_info.last_queued)
+		return;
+
+	now = rq_clock(rq);
+	delta = now - t->sched_info.last_queued;
+	t->sched_info.last_queued = 0;
+>>>>>>> upstream/android-13
 	t->sched_info.run_delay += delta;
 	t->sched_info.last_arrival = now;
 	t->sched_info.pcount++;
@@ -188,6 +279,7 @@ static void sched_info_arrive(struct rq *rq, struct task_struct *t)
 /*
  * This function is only called from enqueue_task(), but also only updates
  * the timestamp if it is already not set.  It's assumed that
+<<<<<<< HEAD
  * sched_info_dequeued() will clear that stamp when appropriate.
  */
 static inline void sched_info_queued(struct rq *rq, struct task_struct *t)
@@ -196,6 +288,14 @@ static inline void sched_info_queued(struct rq *rq, struct task_struct *t)
 		if (!t->sched_info.last_queued)
 			t->sched_info.last_queued = rq_clock(rq);
 	}
+=======
+ * sched_info_dequeue() will clear that stamp when appropriate.
+ */
+static inline void sched_info_enqueue(struct rq *rq, struct task_struct *t)
+{
+	if (!t->sched_info.last_queued)
+		t->sched_info.last_queued = rq_clock(rq);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -203,7 +303,11 @@ static inline void sched_info_queued(struct rq *rq, struct task_struct *t)
  * due, typically, to expiring its time slice (this may also be called when
  * switching to the idle task).  Now we can calculate how long we ran.
  * Also, if the process is still in the TASK_RUNNING state, call
+<<<<<<< HEAD
  * sched_info_queued() to mark that it has now again started waiting on
+=======
+ * sched_info_enqueue() to mark that it has now again started waiting on
+>>>>>>> upstream/android-13
  * the runqueue.
  */
 static inline void sched_info_depart(struct rq *rq, struct task_struct *t)
@@ -212,8 +316,13 @@ static inline void sched_info_depart(struct rq *rq, struct task_struct *t)
 
 	rq_sched_info_depart(rq, delta);
 
+<<<<<<< HEAD
 	if (t->state == TASK_RUNNING)
 		sched_info_queued(rq, t);
+=======
+	if (task_is_running(t))
+		sched_info_enqueue(rq, t);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -222,7 +331,11 @@ static inline void sched_info_depart(struct rq *rq, struct task_struct *t)
  * the idle task.)  We are only called when prev != next.
  */
 static inline void
+<<<<<<< HEAD
 __sched_info_switch(struct rq *rq, struct task_struct *prev, struct task_struct *next)
+=======
+sched_info_switch(struct rq *rq, struct task_struct *prev, struct task_struct *next)
+>>>>>>> upstream/android-13
 {
 	/*
 	 * prev now departs the CPU.  It's not interesting to record
@@ -236,6 +349,7 @@ __sched_info_switch(struct rq *rq, struct task_struct *prev, struct task_struct 
 		sched_info_arrive(rq, next);
 }
 
+<<<<<<< HEAD
 static inline void
 sched_info_switch(struct rq *rq, struct task_struct *prev, struct task_struct *next)
 {
@@ -249,5 +363,10 @@ sched_info_switch(struct rq *rq, struct task_struct *prev, struct task_struct *n
 # define sched_info_dequeued(rq, t)	do { } while (0)
 # define sched_info_depart(rq, t)	do { } while (0)
 # define sched_info_arrive(rq, next)	do { } while (0)
+=======
+#else /* !CONFIG_SCHED_INFO: */
+# define sched_info_enqueue(rq, t)	do { } while (0)
+# define sched_info_dequeue(rq, t)	do { } while (0)
+>>>>>>> upstream/android-13
 # define sched_info_switch(rq, t, next)	do { } while (0)
 #endif /* CONFIG_SCHED_INFO */

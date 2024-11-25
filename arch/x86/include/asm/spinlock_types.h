@@ -3,6 +3,7 @@
 #define _ASM_X86_SPINLOCK_TYPES_H
 
 #include <linux/types.h>
+<<<<<<< HEAD
 
 #ifdef CONFIG_PARAVIRT_SPINLOCKS
 #define __TICKET_LOCK_INC	2
@@ -26,6 +27,9 @@ typedef u32 __ticketpair_t;
 
 #include <asm-generic/qspinlock_types.h>
 
+=======
+#include <asm-generic/qspinlock_types.h>
+>>>>>>> upstream/android-13
 #include <asm-generic/qrwlock_types.h>
 
 #endif /* _ASM_X86_SPINLOCK_TYPES_H */

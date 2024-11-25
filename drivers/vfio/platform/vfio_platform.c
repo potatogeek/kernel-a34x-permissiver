@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2013 - Virtual Open Systems
  * Author: Antonios Motakis <a.motakis@virtualopensystems.com>
@@ -10,6 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2013 - Virtual Open Systems
+ * Author: Antonios Motakis <a.motakis@virtualopensystems.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -33,6 +40,7 @@ static struct resource *get_platform_resource(struct vfio_platform_device *vdev,
 					      int num)
 {
 	struct platform_device *dev = (struct platform_device *) vdev->opaque;
+<<<<<<< HEAD
 	int i;
 
 	for (i = 0; i < dev->num_resources; i++) {
@@ -46,13 +54,21 @@ static struct resource *get_platform_resource(struct vfio_platform_device *vdev,
 		}
 	}
 	return NULL;
+=======
+
+	return platform_get_mem_or_io(dev, num);
+>>>>>>> upstream/android-13
 }
 
 static int get_platform_irq(struct vfio_platform_device *vdev, int i)
 {
 	struct platform_device *pdev = (struct platform_device *) vdev->opaque;
 
+<<<<<<< HEAD
 	return platform_get_irq(pdev, i);
+=======
+	return platform_get_irq_optional(pdev, i);
+>>>>>>> upstream/android-13
 }
 
 static int vfio_platform_probe(struct platform_device *pdev)
@@ -69,6 +85,7 @@ static int vfio_platform_probe(struct platform_device *pdev)
 	vdev->flags = VFIO_DEVICE_FLAGS_PLATFORM;
 	vdev->get_resource = get_platform_resource;
 	vdev->get_irq = get_platform_irq;
+<<<<<<< HEAD
 	vdev->parent_module = THIS_MODULE;
 	vdev->reset_required = reset_required;
 
@@ -77,10 +94,22 @@ static int vfio_platform_probe(struct platform_device *pdev)
 		kfree(vdev);
 
 	return ret;
+=======
+	vdev->reset_required = reset_required;
+
+	ret = vfio_platform_probe_common(vdev, &pdev->dev);
+	if (ret) {
+		kfree(vdev);
+		return ret;
+	}
+	dev_set_drvdata(&pdev->dev, vdev);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int vfio_platform_remove(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct vfio_platform_device *vdev;
 
 	vdev = vfio_platform_remove_common(&pdev->dev);
@@ -90,6 +119,13 @@ static int vfio_platform_remove(struct platform_device *pdev)
 	}
 
 	return -EINVAL;
+=======
+	struct vfio_platform_device *vdev = dev_get_drvdata(&pdev->dev);
+
+	vfio_platform_remove_common(vdev);
+	kfree(vdev);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static struct platform_driver vfio_platform_driver = {

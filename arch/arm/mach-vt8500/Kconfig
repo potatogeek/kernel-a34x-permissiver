@@ -2,7 +2,10 @@
 config ARCH_VT8500
 	bool
 	select GPIOLIB
+<<<<<<< HEAD
 	select CLKDEV_LOOKUP
+=======
+>>>>>>> upstream/android-13
 	select VT8500_TIMER
 	select PINCTRL
 	help

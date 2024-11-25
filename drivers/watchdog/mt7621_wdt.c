@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Ralink MT7621/MT7628 built-in hardware watchdog timer
  *
  * Copyright (C) 2014 John Crispin <john@phrozen.org>
  *
  * This driver was based on: drivers/watchdog/rt2880_wdt.c
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -133,6 +140,7 @@ static struct watchdog_device mt7621_wdt_dev = {
 
 static int mt7621_wdt_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct resource *res;
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
@@ -141,13 +149,25 @@ static int mt7621_wdt_probe(struct platform_device *pdev)
 		return PTR_ERR(mt7621_wdt_base);
 
 	mt7621_wdt_reset = devm_reset_control_get_exclusive(&pdev->dev, NULL);
+=======
+	struct device *dev = &pdev->dev;
+	mt7621_wdt_base = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(mt7621_wdt_base))
+		return PTR_ERR(mt7621_wdt_base);
+
+	mt7621_wdt_reset = devm_reset_control_get_exclusive(dev, NULL);
+>>>>>>> upstream/android-13
 	if (!IS_ERR(mt7621_wdt_reset))
 		reset_control_deassert(mt7621_wdt_reset);
 
 	mt7621_wdt_dev.bootstatus = mt7621_wdt_bootcause();
 
 	watchdog_init_timeout(&mt7621_wdt_dev, mt7621_wdt_dev.max_timeout,
+<<<<<<< HEAD
 			      &pdev->dev);
+=======
+			      dev);
+>>>>>>> upstream/android-13
 	watchdog_set_nowayout(&mt7621_wdt_dev, nowayout);
 	if (mt7621_wdt_is_running(&mt7621_wdt_dev)) {
 		/*
@@ -164,7 +184,11 @@ static int mt7621_wdt_probe(struct platform_device *pdev)
 		set_bit(WDOG_HW_RUNNING, &mt7621_wdt_dev.status);
 	}
 
+<<<<<<< HEAD
 	return devm_watchdog_register_device(&pdev->dev, &mt7621_wdt_dev);
+=======
+	return devm_watchdog_register_device(dev, &mt7621_wdt_dev);
+>>>>>>> upstream/android-13
 }
 
 static void mt7621_wdt_shutdown(struct platform_device *pdev)

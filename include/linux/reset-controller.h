@@ -33,7 +33,11 @@ struct of_phandle_args;
  * @provider: name of the reset controller device controlling this reset line
  * @index: ID of the reset controller in the reset controller device
  * @dev_id: name of the device associated with this reset line
+<<<<<<< HEAD
  * @con_id name of the reset line (can be NULL)
+=======
+ * @con_id: name of the reset line (can be NULL)
+>>>>>>> upstream/android-13
  */
 struct reset_control_lookup {
 	struct list_head list;
@@ -62,7 +66,12 @@ struct reset_control_lookup {
  * @of_node: corresponding device tree node as phandle target
  * @of_reset_n_cells: number of cells in reset line specifiers
  * @of_xlate: translation function to translate from specifier as found in the
+<<<<<<< HEAD
  *            device tree to id as given to the reset control ops
+=======
+ *            device tree to id as given to the reset control ops, defaults
+ *            to :c:func:`of_reset_simple_xlate`.
+>>>>>>> upstream/android-13
  * @nr_resets: number of reset controls in this reset controller device
  */
 struct reset_controller_dev {
@@ -78,6 +87,10 @@ struct reset_controller_dev {
 	unsigned int nr_resets;
 };
 
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_RESET_CONTROLLER)
+>>>>>>> upstream/android-13
 int reset_controller_register(struct reset_controller_dev *rcdev);
 void reset_controller_unregister(struct reset_controller_dev *rcdev);
 
@@ -87,5 +100,29 @@ int devm_reset_controller_register(struct device *dev,
 
 void reset_controller_add_lookup(struct reset_control_lookup *lookup,
 				 unsigned int num_entries);
+<<<<<<< HEAD
+=======
+#else
+static inline int reset_controller_register(struct reset_controller_dev *rcdev)
+{
+	return 0;
+}
+
+static inline void reset_controller_unregister(struct reset_controller_dev *rcdev)
+{
+}
+
+static inline int devm_reset_controller_register(struct device *dev,
+						 struct reset_controller_dev *rcdev)
+{
+	return 0;
+}
+
+static inline void reset_controller_add_lookup(struct reset_control_lookup *lookup,
+					       unsigned int num_entries)
+{
+}
+#endif
+>>>>>>> upstream/android-13
 
 #endif

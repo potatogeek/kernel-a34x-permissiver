@@ -1,8 +1,13 @@
 #!/bin/bash
 
 #
+<<<<<<< HEAD
 # print Intel PT Power Events and PTWRITE. The intel_pt PMU event needs
 # to be specified with appropriate config terms.
+=======
+# print Intel PT Events including Power Events and PTWRITE. The intel_pt PMU
+# event needs to be specified with appropriate config terms.
+>>>>>>> upstream/android-13
 #
 if ! echo "$@" | grep -q intel_pt ; then
 	echo "Options must include the Intel PT event e.g. -e intel_pt/pwr_evt,ptw/"

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  cpufreq.h - definitions for libcpufreq
  *
  *  Copyright (C) 2004-2009  Dominik Brodowski <linux@dominikbrodowski.de>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -11,6 +16,8 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __CPUPOWER_CPUFREQ_H__
@@ -129,7 +136,11 @@ void cpufreq_put_available_governors(
  *
  * Only present on _some_ ->target() cpufreq drivers. For information purposes
  * only. Please free allocated memory by calling
+<<<<<<< HEAD
  * cpufreq_put_available_frequencies after use.
+=======
+ * cpufreq_put_frequencies after use.
+>>>>>>> upstream/android-13
  */
 
 struct cpufreq_available_frequencies
@@ -138,6 +149,15 @@ struct cpufreq_available_frequencies
 void cpufreq_put_available_frequencies(
 		struct cpufreq_available_frequencies *first);
 
+<<<<<<< HEAD
+=======
+struct cpufreq_available_frequencies
+*cpufreq_get_boost_frequencies(unsigned int cpu);
+
+void cpufreq_put_boost_frequencies(
+		struct cpufreq_available_frequencies *first);
+
+>>>>>>> upstream/android-13
 
 /* determine affected CPUs
  *

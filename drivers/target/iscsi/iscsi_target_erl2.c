@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*******************************************************************************
  * This file contains error recovery level two functions used by
  * the iSCSI Target driver.
@@ -6,6 +10,7 @@
  *
  * Author: Nicholas A. Bellinger <nab@linux-iscsi.org>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -15,6 +20,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  ******************************************************************************/
 
 #include <linux/slab.h>
@@ -125,7 +132,11 @@ struct iscsi_conn_recovery *iscsit_get_inactive_connection_recovery_entry(
 	return NULL;
 }
 
+<<<<<<< HEAD
 void iscsit_free_connection_recovery_entires(struct iscsi_session *sess)
+=======
+void iscsit_free_connection_recovery_entries(struct iscsi_session *sess)
+>>>>>>> upstream/android-13
 {
 	struct iscsi_cmd *cmd, *cmd_tmp;
 	struct iscsi_conn_recovery *cr, *cr_tmp;

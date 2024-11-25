@@ -3,6 +3,10 @@
 #define LINUX_VIRTIO_H
 #include <linux/scatterlist.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
+=======
+#include <linux/spinlock.h>
+>>>>>>> upstream/android-13
 
 struct device {
 	void *parent;
@@ -11,12 +15,21 @@ struct device {
 struct virtio_device {
 	struct device dev;
 	u64 features;
+<<<<<<< HEAD
 };
 
 struct virtqueue {
 	/* TODO: commented as list macros are empty stubs for now.
 	 * Broken but enough for virtio_ring.c
 	 * struct list_head list; */
+=======
+	struct list_head vqs;
+	spinlock_t vqs_list_lock;
+};
+
+struct virtqueue {
+	struct list_head list;
+>>>>>>> upstream/android-13
 	void (*callback)(struct virtqueue *vq);
 	const char *name;
 	struct virtio_device *vdev;

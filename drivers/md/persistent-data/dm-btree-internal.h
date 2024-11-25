@@ -38,7 +38,11 @@ struct node_header {
 
 struct btree_node {
 	struct node_header header;
+<<<<<<< HEAD
 	__le64 keys[0];
+=======
+	__le64 keys[];
+>>>>>>> upstream/android-13
 } __attribute__((packed, aligned(8)));
 
 
@@ -68,7 +72,11 @@ struct ro_spine {
 };
 
 void init_ro_spine(struct ro_spine *s, struct dm_btree_info *info);
+<<<<<<< HEAD
 int exit_ro_spine(struct ro_spine *s);
+=======
+void exit_ro_spine(struct ro_spine *s);
+>>>>>>> upstream/android-13
 int ro_step(struct ro_spine *s, dm_block_t new_child);
 void ro_pop(struct ro_spine *s);
 struct btree_node *ro_node(struct ro_spine *s);
@@ -83,7 +91,11 @@ struct shadow_spine {
 };
 
 void init_shadow_spine(struct shadow_spine *s, struct dm_btree_info *info);
+<<<<<<< HEAD
 int exit_shadow_spine(struct shadow_spine *s);
+=======
+void exit_shadow_spine(struct shadow_spine *s);
+>>>>>>> upstream/android-13
 
 int shadow_step(struct shadow_spine *s, dm_block_t b,
 		struct dm_btree_value_type *vt);
@@ -100,7 +112,11 @@ struct dm_block *shadow_parent(struct shadow_spine *s);
 
 int shadow_has_parent(struct shadow_spine *s);
 
+<<<<<<< HEAD
 int shadow_root(struct shadow_spine *s);
+=======
+dm_block_t shadow_root(struct shadow_spine *s);
+>>>>>>> upstream/android-13
 
 /*
  * Some inlines.
@@ -144,4 +160,20 @@ extern struct dm_block_validator btree_node_validator;
 extern void init_le64_type(struct dm_transaction_manager *tm,
 			   struct dm_btree_value_type *vt);
 
+<<<<<<< HEAD
+=======
+/*
+ * This returns a shadowed btree leaf that you may modify.  In practise
+ * this means overwrites only, since an insert could cause a node to
+ * be split.  Useful if you need access to the old value to calculate the
+ * new one.
+ *
+ * This only works with single level btrees.  The given key must be present in
+ * the tree, otherwise -EINVAL will be returned.
+ */
+int btree_get_overwrite_leaf(struct dm_btree_info *info, dm_block_t root,
+			     uint64_t key, int *index,
+			     dm_block_t *new_root, struct dm_block **leaf);
+
+>>>>>>> upstream/android-13
 #endif	/* DM_BTREE_INTERNAL_H */

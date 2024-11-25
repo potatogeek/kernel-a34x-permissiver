@@ -261,6 +261,7 @@ static int mxuport_send_ctrl_data_urb(struct usb_serial *serial,
 		return status;
 	}
 
+<<<<<<< HEAD
 	if (status != size) {
 		dev_err(&serial->interface->dev,
 			"%s - short write (%d / %zd)\n",
@@ -268,6 +269,8 @@ static int mxuport_send_ctrl_data_urb(struct usb_serial *serial,
 		return -EIO;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -327,14 +330,23 @@ static void mxuport_process_read_urb_data(struct usb_serial_port *port,
 {
 	int i;
 
+<<<<<<< HEAD
 	if (!port->port.console || !port->sysrq) {
 		tty_insert_flip_string(&port->port, data, size);
 	} else {
+=======
+	if (port->sysrq) {
+>>>>>>> upstream/android-13
 		for (i = 0; i < size; i++, data++) {
 			if (!usb_serial_handle_sysrq_char(port, *data))
 				tty_insert_flip_char(&port->port, *data,
 						     TTY_NORMAL);
 		}
+<<<<<<< HEAD
+=======
+	} else {
+		tty_insert_flip_string(&port->port, data, size);
+>>>>>>> upstream/android-13
 	}
 	tty_flip_buffer_push(&port->port);
 }

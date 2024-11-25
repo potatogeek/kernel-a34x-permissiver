@@ -25,6 +25,12 @@
 #ifndef _GVT_PAGE_TRACK_H_
 #define _GVT_PAGE_TRACK_H_
 
+<<<<<<< HEAD
+=======
+#include <linux/types.h>
+
+struct intel_vgpu;
+>>>>>>> upstream/android-13
 struct intel_vgpu_page_track;
 
 typedef int (*gvt_page_track_handler_t)(

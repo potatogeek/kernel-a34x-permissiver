@@ -4,4 +4,8 @@ TODO:
 - We will use the stack in drivers/mmc to implement
   rts5208/5288 in the future
 
+<<<<<<< HEAD
 Micky Ching <micky_ching@realsil.com.cn>
+=======
+Micky Ching <micky_ching@realsil.com.cn>
+>>>>>>> upstream/android-13

@@ -26,6 +26,10 @@
 #include "nbio/nbio_6_1_sh_mask.h"
 #include "gc/gc_9_0_offset.h"
 #include "gc/gc_9_0_sh_mask.h"
+<<<<<<< HEAD
+=======
+#include "mp/mp_9_0_offset.h"
+>>>>>>> upstream/android-13
 #include "soc15.h"
 #include "vega10_ih.h"
 #include "soc15_common.h"
@@ -186,7 +190,20 @@ static int xgpu_ai_send_access_requests(struct amdgpu_device *adev,
 
 static int xgpu_ai_request_reset(struct amdgpu_device *adev)
 {
+<<<<<<< HEAD
 	return xgpu_ai_send_access_requests(adev, IDH_REQ_GPU_RESET_ACCESS);
+=======
+	int ret, i = 0;
+
+	while (i < AI_MAILBOX_POLL_MSG_REP_MAX) {
+		ret = xgpu_ai_send_access_requests(adev, IDH_REQ_GPU_RESET_ACCESS);
+		if (!ret)
+			break;
+		i++;
+	}
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int xgpu_ai_request_full_gpu_access(struct amdgpu_device *adev,
@@ -237,11 +254,15 @@ static void xgpu_ai_mailbox_flr_work(struct work_struct *work)
 	struct amdgpu_virt *virt = container_of(work, struct amdgpu_virt, flr_work);
 	struct amdgpu_device *adev = container_of(virt, struct amdgpu_device, virt);
 	int timeout = AI_MAILBOX_POLL_FLR_TIMEDOUT;
+<<<<<<< HEAD
 	int locked;
+=======
+>>>>>>> upstream/android-13
 
 	/* block amdgpu_gpu_recover till msg FLR COMPLETE received,
 	 * otherwise the mailbox msg will be ruined/reseted by
 	 * the VF FLR.
+<<<<<<< HEAD
 	 *
 	 * we can unlock the lock_reset to allow "amdgpu_job_timedout"
 	 * to run gpu_recover() after FLR_NOTIFICATION_CMPL received
@@ -250,6 +271,16 @@ static void xgpu_ai_mailbox_flr_work(struct work_struct *work)
 	locked = mutex_trylock(&adev->lock_reset);
 	if (locked)
 		adev->in_gpu_reset = 1;
+=======
+	 */
+	if (!down_write_trylock(&adev->reset_sem))
+		return;
+
+	amdgpu_virt_fini_data_exchange(adev);
+	atomic_set(&adev->in_gpu_reset, 1);
+
+	xgpu_ai_mailbox_trans_msg(adev, IDH_READY_TO_RESET, 0, 0, 0);
+>>>>>>> upstream/android-13
 
 	do {
 		if (xgpu_ai_mailbox_peek_msg(adev) == IDH_FLR_NOTIFICATION_CMPL)
@@ -260,6 +291,7 @@ static void xgpu_ai_mailbox_flr_work(struct work_struct *work)
 	} while (timeout > 1);
 
 flr_done:
+<<<<<<< HEAD
 	if (locked) {
 		adev->in_gpu_reset = 0;
 		mutex_unlock(&adev->lock_reset);
@@ -268,6 +300,16 @@ flr_done:
 	/* Trigger recovery for world switch failure if no TDR */
 	if (amdgpu_lockup_timeout == 0)
 		amdgpu_device_gpu_recover(adev, NULL, true);
+=======
+	atomic_set(&adev->in_gpu_reset, 0);
+	up_write(&adev->reset_sem);
+
+	/* Trigger recovery for world switch failure if no TDR */
+	if (amdgpu_device_should_recover_gpu(adev)
+		&& (!amdgpu_device_has_job_running(adev) ||
+		adev->sdma_timeout == MAX_SCHEDULE_TIMEOUT))
+		amdgpu_device_gpu_recover(adev, NULL);
+>>>>>>> upstream/android-13
 }
 
 static int xgpu_ai_set_mailbox_rcv_irq(struct amdgpu_device *adev,
@@ -295,6 +337,12 @@ static int xgpu_ai_mailbox_rcv_irq(struct amdgpu_device *adev,
 		if (amdgpu_sriov_runtime(adev))
 			schedule_work(&adev->virt.flr_work);
 		break;
+<<<<<<< HEAD
+=======
+		case IDH_QUERY_ALIVE:
+			xgpu_ai_mailbox_send_ack(adev);
+			break;
+>>>>>>> upstream/android-13
 		/* READY_TO_ACCESS_GPU is fetched by kernel polling, IRQ can ignore
 		 * it byfar since that polling thread will handle it,
 		 * other msg like flr complete is not handled here.

@@ -47,14 +47,23 @@ struct hgpk_data {
 	int xsaw_secondary, ysaw_secondary; /* jumpiness detection */
 };
 
+<<<<<<< HEAD
 #ifdef CONFIG_MOUSE_PS2_OLPC
 void hgpk_module_init(void);
 int hgpk_detect(struct psmouse *psmouse, bool set_properties);
 int hgpk_init(struct psmouse *psmouse);
+=======
+int hgpk_detect(struct psmouse *psmouse, bool set_properties);
+int hgpk_init(struct psmouse *psmouse);
+
+#ifdef CONFIG_MOUSE_PS2_OLPC
+void hgpk_module_init(void);
+>>>>>>> upstream/android-13
 #else
 static inline void hgpk_module_init(void)
 {
 }
+<<<<<<< HEAD
 static inline int hgpk_detect(struct psmouse *psmouse, bool set_properties)
 {
 	return -ENODEV;
@@ -63,6 +72,8 @@ static inline int hgpk_init(struct psmouse *psmouse)
 {
 	return -ENODEV;
 }
+=======
+>>>>>>> upstream/android-13
 #endif
 
 #endif

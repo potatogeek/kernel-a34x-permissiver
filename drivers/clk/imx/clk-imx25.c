@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2009 by Sascha Hauer, Pengutronix
  *
@@ -14,6 +15,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2009 by Sascha Hauer, Pengutronix
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -86,6 +92,7 @@ enum mx25_clks {
 
 static struct clk *clk[clk_max];
 
+<<<<<<< HEAD
 static struct clk ** const uart_clks[] __initconst = {
 	&clk[uart_ipg_per],
 	&clk[uart1_ipg],
@@ -96,6 +103,8 @@ static struct clk ** const uart_clks[] __initconst = {
 	NULL
 };
 
+=======
+>>>>>>> upstream/android-13
 static int __init __mx25_clocks_init(void __iomem *ccm_base)
 {
 	BUG_ON(!ccm_base);
@@ -241,7 +250,11 @@ static int __init __mx25_clocks_init(void __iomem *ccm_base)
 	 */
 	clk_set_parent(clk[cko_sel], clk[ipg]);
 
+<<<<<<< HEAD
 	imx_register_uart_clocks(uart_clks);
+=======
+	imx_register_uart_clocks(6);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

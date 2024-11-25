@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Shared Memory Communications over RDMA (SMC-R) and RoCE
  *
@@ -21,6 +25,7 @@
 #include "smc.h"
 #include "smc_core.h"
 
+<<<<<<< HEAD
 static void smc_gid_be16_convert(__u8 *buf, u8 *gid_raw)
 {
 	sprintf(buf, "%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x",
@@ -32,6 +37,15 @@ static void smc_gid_be16_convert(__u8 *buf, u8 *gid_raw)
 		be16_to_cpu(((__be16 *)gid_raw)[5]),
 		be16_to_cpu(((__be16 *)gid_raw)[6]),
 		be16_to_cpu(((__be16 *)gid_raw)[7]));
+=======
+struct smc_diag_dump_ctx {
+	int pos[2];
+};
+
+static struct smc_diag_dump_ctx *smc_dump_context(struct netlink_callback *cb)
+{
+	return (struct smc_diag_dump_ctx *)cb->ctx;
+>>>>>>> upstream/android-13
 }
 
 static void smc_diag_msg_common_fill(struct smc_diag_msg *r, struct sock *sk)
@@ -150,17 +164,30 @@ static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
 	    !list_empty(&smc->conn.lgr->list)) {
 		struct smc_diag_lgrinfo linfo = {
 			.role = smc->conn.lgr->role,
+<<<<<<< HEAD
 			.lnk[0].ibport = smc->conn.lgr->lnk[0].ibport,
 			.lnk[0].link_id = smc->conn.lgr->lnk[0].link_id,
+=======
+			.lnk[0].ibport = smc->conn.lnk->ibport,
+			.lnk[0].link_id = smc->conn.lnk->link_id,
+>>>>>>> upstream/android-13
 		};
 
 		memcpy(linfo.lnk[0].ibname,
 		       smc->conn.lgr->lnk[0].smcibdev->ibdev->name,
+<<<<<<< HEAD
 		       sizeof(smc->conn.lgr->lnk[0].smcibdev->ibdev->name));
 		smc_gid_be16_convert(linfo.lnk[0].gid,
 				     smc->conn.lgr->lnk[0].gid);
 		smc_gid_be16_convert(linfo.lnk[0].peer_gid,
 				     smc->conn.lgr->lnk[0].peer_gid);
+=======
+		       sizeof(smc->conn.lnk->smcibdev->ibdev->name));
+		smc_gid_be16_convert(linfo.lnk[0].gid,
+				     smc->conn.lnk->gid);
+		smc_gid_be16_convert(linfo.lnk[0].peer_gid,
+				     smc->conn.lnk->peer_gid);
+>>>>>>> upstream/android-13
 
 		if (nla_put(skb, SMC_DIAG_LGRINFO, sizeof(linfo), &linfo) < 0)
 			goto errout;
@@ -192,6 +219,7 @@ errout:
 }
 
 static int smc_diag_dump_proto(struct proto *prot, struct sk_buff *skb,
+<<<<<<< HEAD
 			       struct netlink_callback *cb)
 {
 	struct net *net = sock_net(skb->sk);
@@ -199,6 +227,17 @@ static int smc_diag_dump_proto(struct proto *prot, struct sk_buff *skb,
 	struct hlist_head *head;
 	struct sock *sk;
 	int rc = 0;
+=======
+			       struct netlink_callback *cb, int p_type)
+{
+	struct smc_diag_dump_ctx *cb_ctx = smc_dump_context(cb);
+	struct net *net = sock_net(skb->sk);
+	int snum = cb_ctx->pos[p_type];
+	struct nlattr *bc = NULL;
+	struct hlist_head *head;
+	int rc = 0, num = 0;
+	struct sock *sk;
+>>>>>>> upstream/android-13
 
 	read_lock(&prot->h.smc_hash->lock);
 	head = &prot->h.smc_hash->ht;
@@ -208,13 +247,27 @@ static int smc_diag_dump_proto(struct proto *prot, struct sk_buff *skb,
 	sk_for_each(sk, head) {
 		if (!net_eq(sock_net(sk), net))
 			continue;
+<<<<<<< HEAD
 		rc = __smc_diag_dump(sk, skb, cb, nlmsg_data(cb->nlh), bc);
 		if (rc)
 			break;
+=======
+		if (num < snum)
+			goto next;
+		rc = __smc_diag_dump(sk, skb, cb, nlmsg_data(cb->nlh), bc);
+		if (rc < 0)
+			goto out;
+next:
+		num++;
+>>>>>>> upstream/android-13
 	}
 
 out:
 	read_unlock(&prot->h.smc_hash->lock);
+<<<<<<< HEAD
+=======
+	cb_ctx->pos[p_type] = num;
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -222,10 +275,17 @@ static int smc_diag_dump(struct sk_buff *skb, struct netlink_callback *cb)
 {
 	int rc = 0;
 
+<<<<<<< HEAD
 	rc = smc_diag_dump_proto(&smc_proto, skb, cb);
 	if (!rc)
 		rc = smc_diag_dump_proto(&smc_proto6, skb, cb);
 	return rc;
+=======
+	rc = smc_diag_dump_proto(&smc_proto, skb, cb, SMCPROTO_SMC);
+	if (!rc)
+		smc_diag_dump_proto(&smc_proto6, skb, cb, SMCPROTO_SMC6);
+	return skb->len;
+>>>>>>> upstream/android-13
 }
 
 static int smc_diag_handler_dump(struct sk_buff *skb, struct nlmsghdr *h)

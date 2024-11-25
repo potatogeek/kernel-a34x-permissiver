@@ -29,7 +29,11 @@
 
 #define STUI_DEV_NAME "tuihw"
 
+<<<<<<< HEAD
 #define TUIHW_LOG_TAG "tuill_hw "
+=======
+#define TUIHW_LOG_TAG "tuill_hw"
+>>>>>>> upstream/android-13
 
 int stui_open_touch(void);
 int stui_open_display(struct tui_hw_buffer *buffer);

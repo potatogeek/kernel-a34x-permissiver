@@ -96,7 +96,11 @@ bool kfd_dbgmgr_create(struct kfd_dbgmgr **ppmgr, struct kfd_dev *pdev)
 long kfd_dbgmgr_register(struct kfd_dbgmgr *pmgr, struct kfd_process *p)
 {
 	if (pmgr->pasid != 0) {
+<<<<<<< HEAD
 		pr_debug("H/W debugger is already active using pasid %d\n",
+=======
+		pr_debug("H/W debugger is already active using pasid 0x%x\n",
+>>>>>>> upstream/android-13
 				pmgr->pasid);
 		return -EBUSY;
 	}
@@ -117,7 +121,11 @@ long kfd_dbgmgr_unregister(struct kfd_dbgmgr *pmgr, struct kfd_process *p)
 {
 	/* Is the requests coming from the already registered process? */
 	if (pmgr->pasid != p->pasid) {
+<<<<<<< HEAD
 		pr_debug("H/W debugger is not registered by calling pasid %d\n",
+=======
+		pr_debug("H/W debugger is not registered by calling pasid 0x%x\n",
+>>>>>>> upstream/android-13
 				p->pasid);
 		return -EINVAL;
 	}
@@ -134,7 +142,11 @@ long kfd_dbgmgr_wave_control(struct kfd_dbgmgr *pmgr,
 {
 	/* Is the requests coming from the already registered process? */
 	if (pmgr->pasid != wac_info->process->pasid) {
+<<<<<<< HEAD
 		pr_debug("H/W debugger support was not registered for requester pasid %d\n",
+=======
+		pr_debug("H/W debugger support was not registered for requester pasid 0x%x\n",
+>>>>>>> upstream/android-13
 				wac_info->process->pasid);
 		return -EINVAL;
 	}
@@ -147,7 +159,11 @@ long kfd_dbgmgr_address_watch(struct kfd_dbgmgr *pmgr,
 {
 	/* Is the requests coming from the already registered process? */
 	if (pmgr->pasid != adw_info->process->pasid) {
+<<<<<<< HEAD
 		pr_debug("H/W debugger support was not registered for requester pasid %d\n",
+=======
+		pr_debug("H/W debugger support was not registered for requester pasid 0x%x\n",
+>>>>>>> upstream/android-13
 				adw_info->process->pasid);
 		return -EINVAL;
 	}

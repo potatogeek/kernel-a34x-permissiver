@@ -30,8 +30,11 @@ static void node_prepare_for_write(struct dm_block_validator *v,
 	h->csum = cpu_to_le32(dm_bm_checksum(&h->flags,
 					     block_size - sizeof(__le32),
 					     BTREE_CSUM_XOR));
+<<<<<<< HEAD
 
 	BUG_ON(node_check(v, b, 4096));
+=======
+>>>>>>> upstream/android-13
 }
 
 static int node_check(struct dm_block_validator *v,
@@ -132,15 +135,24 @@ void init_ro_spine(struct ro_spine *s, struct dm_btree_info *info)
 	s->nodes[1] = NULL;
 }
 
+<<<<<<< HEAD
 int exit_ro_spine(struct ro_spine *s)
 {
 	int r = 0, i;
+=======
+void exit_ro_spine(struct ro_spine *s)
+{
+	int i;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < s->count; i++) {
 		unlock_block(s->info, s->nodes[i]);
 	}
+<<<<<<< HEAD
 
 	return r;
+=======
+>>>>>>> upstream/android-13
 }
 
 int ro_step(struct ro_spine *s, dm_block_t new_child)
@@ -185,15 +197,24 @@ void init_shadow_spine(struct shadow_spine *s, struct dm_btree_info *info)
 	s->count = 0;
 }
 
+<<<<<<< HEAD
 int exit_shadow_spine(struct shadow_spine *s)
 {
 	int r = 0, i;
+=======
+void exit_shadow_spine(struct shadow_spine *s)
+{
+	int i;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < s->count; i++) {
 		unlock_block(s->info, s->nodes[i]);
 	}
+<<<<<<< HEAD
 
 	return r;
+=======
+>>>>>>> upstream/android-13
 }
 
 int shadow_step(struct shadow_spine *s, dm_block_t b,
@@ -237,11 +258,16 @@ int shadow_has_parent(struct shadow_spine *s)
 	return s->count >= 2;
 }
 
+<<<<<<< HEAD
 int shadow_root(struct shadow_spine *s)
+=======
+dm_block_t shadow_root(struct shadow_spine *s)
+>>>>>>> upstream/android-13
 {
 	return s->root;
 }
 
+<<<<<<< HEAD
 static void le64_inc(void *context, const void *value_le)
 {
 	struct dm_transaction_manager *tm = context;
@@ -258,6 +284,16 @@ static void le64_dec(void *context, const void *value_le)
 
 	memcpy(&v_le, value_le, sizeof(v_le));
 	dm_tm_dec(tm, le64_to_cpu(v_le));
+=======
+static void le64_inc(void *context, const void *value_le, unsigned count)
+{
+	dm_tm_with_runs(context, value_le, count, dm_tm_inc_range);
+}
+
+static void le64_dec(void *context, const void *value_le, unsigned count)
+{
+	dm_tm_with_runs(context, value_le, count, dm_tm_dec_range);
+>>>>>>> upstream/android-13
 }
 
 static int le64_equal(void *context, const void *value1_le, const void *value2_le)

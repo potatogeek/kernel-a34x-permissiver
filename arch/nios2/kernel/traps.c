@@ -26,7 +26,11 @@ static DEFINE_SPINLOCK(die_lock);
 
 static void _send_sig(int signo, int code, unsigned long addr)
 {
+<<<<<<< HEAD
 	force_sig_fault(signo, code, (void __user *) addr, current);
+=======
+	force_sig_fault(signo, code, (void __user *) addr);
+>>>>>>> upstream/android-13
 }
 
 void die(const char *str, struct pt_regs *regs, long err)
@@ -52,12 +56,21 @@ void _exception(int signo, struct pt_regs *regs, int code, unsigned long addr)
 }
 
 /*
+<<<<<<< HEAD
  * The show_stack is an external API which we do not use ourselves.
+=======
+ * The show_stack() is external API which we do not use ourselves.
+>>>>>>> upstream/android-13
  */
 
 int kstack_depth_to_print = 48;
 
+<<<<<<< HEAD
 void show_stack(struct task_struct *task, unsigned long *stack)
+=======
+void show_stack(struct task_struct *task, unsigned long *stack,
+		const char *loglvl)
+>>>>>>> upstream/android-13
 {
 	unsigned long *endstack, addr;
 	int i;
@@ -72,16 +85,28 @@ void show_stack(struct task_struct *task, unsigned long *stack)
 	addr = (unsigned long) stack;
 	endstack = (unsigned long *) PAGE_ALIGN(addr);
 
+<<<<<<< HEAD
 	pr_emerg("Stack from %08lx:", (unsigned long)stack);
+=======
+	printk("%sStack from %08lx:", loglvl, (unsigned long)stack);
+>>>>>>> upstream/android-13
 	for (i = 0; i < kstack_depth_to_print; i++) {
 		if (stack + 1 > endstack)
 			break;
 		if (i % 8 == 0)
+<<<<<<< HEAD
 			pr_emerg("\n       ");
 		pr_emerg(" %08lx", *stack++);
 	}
 
 	pr_emerg("\nCall Trace:");
+=======
+			printk("%s\n       ", loglvl);
+		printk("%s %08lx", loglvl, *stack++);
+	}
+
+	printk("%s\nCall Trace:", loglvl);
+>>>>>>> upstream/android-13
 	i = 0;
 	while (stack + 1 <= endstack) {
 		addr = *stack++;
@@ -97,6 +122,7 @@ void show_stack(struct task_struct *task, unsigned long *stack)
 		     (addr <= (unsigned long) _etext))) {
 			if (i % 4 == 0)
 				pr_emerg("\n       ");
+<<<<<<< HEAD
 			pr_emerg(" [<%08lx>]", addr);
 			i++;
 		}
@@ -107,6 +133,13 @@ void show_stack(struct task_struct *task, unsigned long *stack)
 void __init trap_init(void)
 {
 	/* Nothing to do here */
+=======
+			printk("%s [<%08lx>]", loglvl, addr);
+			i++;
+		}
+	}
+	printk("%s\n", loglvl);
+>>>>>>> upstream/android-13
 }
 
 /* Breakpoint handler */

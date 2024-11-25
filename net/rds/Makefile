@@ -7,7 +7,11 @@ rds-y :=	af_rds.o bind.o cong.o connection.o info.o message.o   \
 obj-$(CONFIG_RDS_RDMA) += rds_rdma.o
 rds_rdma-y :=	rdma_transport.o \
 			ib.o ib_cm.o ib_recv.o ib_ring.o ib_send.o ib_stats.o \
+<<<<<<< HEAD
 			ib_sysctl.o ib_rdma.o ib_fmr.o ib_frmr.o
+=======
+			ib_sysctl.o ib_rdma.o ib_frmr.o
+>>>>>>> upstream/android-13
 
 
 obj-$(CONFIG_RDS_TCP) += rds_tcp.o

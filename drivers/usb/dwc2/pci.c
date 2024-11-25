@@ -63,6 +63,7 @@ struct dwc2_pci_glue {
 	struct platform_device *phy;
 };
 
+<<<<<<< HEAD
 static int dwc2_pci_quirks(struct pci_dev *pdev, struct platform_device *dwc2)
 {
 	if (pdev->vendor == PCI_VENDOR_ID_SYNOPSYS &&
@@ -79,6 +80,10 @@ static int dwc2_pci_quirks(struct pci_dev *pdev, struct platform_device *dwc2)
 
 /**
  * dwc2_pci_probe() - Provides the cleanup entry points for the DWC_otg PCI
+=======
+/**
+ * dwc2_pci_remove() - Provides the cleanup entry points for the DWC_otg PCI
+>>>>>>> upstream/android-13
  * driver
  *
  * @pci: The programming view of DWC_otg PCI
@@ -143,10 +148,13 @@ static int dwc2_pci_probe(struct pci_dev *pci,
 
 	dwc2->dev.parent = dev;
 
+<<<<<<< HEAD
 	ret = dwc2_pci_quirks(pci, dwc2);
 	if (ret)
 		goto err;
 
+=======
+>>>>>>> upstream/android-13
 	glue = devm_kzalloc(dev, sizeof(*glue), GFP_KERNEL);
 	if (!glue) {
 		ret = -ENOMEM;

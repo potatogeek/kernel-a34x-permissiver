@@ -116,7 +116,11 @@ void omni_sg_dma_abort_channel(struct cobalt_stream *s)
 {
 	struct cobalt *cobalt = s->cobalt;
 
+<<<<<<< HEAD
 	if (is_dma_done(s) == false)
+=======
+	if (!is_dma_done(s))
+>>>>>>> upstream/android-13
 		iowrite32(ABORT, CS_REG(s->dma_channel));
 }
 

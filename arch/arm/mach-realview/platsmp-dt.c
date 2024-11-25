@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015 Linus Walleij
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2015 Linus Walleij
+>>>>>>> upstream/android-13
  */
 #include <linux/smp.h>
 #include <linux/io.h>
@@ -17,7 +23,10 @@
 #include <asm/smp_scu.h>
 
 #include <plat/platsmp.h>
+<<<<<<< HEAD
 #include "hotplug.h"
+=======
+>>>>>>> upstream/android-13
 
 #define REALVIEW_SYS_FLAGSSET_OFFSET	0x30
 
@@ -79,6 +88,16 @@ static void __init realview_smp_prepare_cpus(unsigned int max_cpus)
 		     __pa_symbol(versatile_secondary_startup));
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_HOTPLUG_CPU
+static void realview_cpu_die(unsigned int cpu)
+{
+	return versatile_immitation_cpu_die(cpu, 0x20);
+}
+#endif
+
+>>>>>>> upstream/android-13
 static const struct smp_operations realview_dt_smp_ops __initconst = {
 	.smp_prepare_cpus	= realview_smp_prepare_cpus,
 	.smp_secondary_init	= versatile_secondary_init,

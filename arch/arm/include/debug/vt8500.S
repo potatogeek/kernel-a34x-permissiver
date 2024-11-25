@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /* 
  * Debugging macro include header
  *
  *  Copyright (C) 2010 Alexey Charkov <alchark@gmail.com>
  *    Moved from arch/arm/mach-vt8500/include/mach/debug-macro.S
  *    Minor changes for readability.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define DEBUG_LL_PHYS_BASE		0xD8000000
@@ -31,7 +38,14 @@
 	bne	1001b
 	.endm
 
+<<<<<<< HEAD
 	.macro	waituart,rd,rx
+=======
+	.macro	waituartcts,rd,rx
+	.endm
+
+	.macro	waituarttxrdy,rd,rx
+>>>>>>> upstream/android-13
 	.endm
 
 #endif

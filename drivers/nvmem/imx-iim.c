@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * i.MX IIM driver
  *
@@ -6,6 +10,7 @@
  * Based on the barebox iim driver,
  * Copyright (c) 2010 Baruch Siach <baruch@tkos.co.il>,
  *	Orex Computed Radiography
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
@@ -13,6 +18,8 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -102,9 +109,13 @@ MODULE_DEVICE_TABLE(of, imx_iim_dt_ids);
 
 static int imx_iim_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	const struct of_device_id *of_id;
 	struct device *dev = &pdev->dev;
 	struct resource *res;
+=======
+	struct device *dev = &pdev->dev;
+>>>>>>> upstream/android-13
 	struct iim_priv *iim;
 	struct nvmem_device *nvmem;
 	struct nvmem_config cfg = {};
@@ -114,6 +125,7 @@ static int imx_iim_probe(struct platform_device *pdev)
 	if (!iim)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	iim->base = devm_ioremap_resource(dev, res);
 	if (IS_ERR(iim->base))
@@ -124,6 +136,13 @@ static int imx_iim_probe(struct platform_device *pdev)
 		return -ENODEV;
 
 	drvdata = of_id->data;
+=======
+	iim->base = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(iim->base))
+		return PTR_ERR(iim->base);
+
+	drvdata = of_device_get_match_data(&pdev->dev);
+>>>>>>> upstream/android-13
 
 	iim->clk = devm_clk_get(dev, NULL);
 	if (IS_ERR(iim->clk))

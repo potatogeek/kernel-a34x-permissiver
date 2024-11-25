@@ -8,8 +8,13 @@
  */
 
 #include <linux/kexec.h>
+<<<<<<< HEAD
 #include <linux/sha256.h>
 #include <linux/string.h>
+=======
+#include <linux/string.h>
+#include <crypto/sha2.h>
+>>>>>>> upstream/android-13
 #include <asm/purgatory.h>
 
 int verify_sha256_digest(void)

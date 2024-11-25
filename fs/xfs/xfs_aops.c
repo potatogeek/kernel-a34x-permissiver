@@ -12,13 +12,17 @@
 #include "xfs_mount.h"
 #include "xfs_inode.h"
 #include "xfs_trans.h"
+<<<<<<< HEAD
 #include "xfs_inode_item.h"
 #include "xfs_alloc.h"
 #include "xfs_error.h"
+=======
+>>>>>>> upstream/android-13
 #include "xfs_iomap.h"
 #include "xfs_trace.h"
 #include "xfs_bmap.h"
 #include "xfs_bmap_util.h"
+<<<<<<< HEAD
 #include "xfs_bmap_btree.h"
 #include "xfs_reflink.h"
 #include <linux/writeback.h>
@@ -118,11 +122,26 @@ xfs_destroy_ioend(
 		xfs_err_ratelimited(XFS_I(inode)->i_mount,
 			"writeback error on sector %llu", start);
 	}
+=======
+#include "xfs_reflink.h"
+
+struct xfs_writepage_ctx {
+	struct iomap_writepage_ctx ctx;
+	unsigned int		data_seq;
+	unsigned int		cow_seq;
+};
+
+static inline struct xfs_writepage_ctx *
+XFS_WPC(struct iomap_writepage_ctx *ctx)
+{
+	return container_of(ctx, struct xfs_writepage_ctx, ctx);
+>>>>>>> upstream/android-13
 }
 
 /*
  * Fast and loose check if this write could update the on-disk inode size.
  */
+<<<<<<< HEAD
 static inline bool xfs_ioend_is_append(struct xfs_ioend *ioend)
 {
 	return ioend->io_offset + ioend->io_size >
@@ -155,11 +174,18 @@ xfs_setfilesize_trans_alloc(
 	 */
 	current_restore_flags_nested(&tp->t_pflags, PF_MEMALLOC_NOFS);
 	return 0;
+=======
+static inline bool xfs_ioend_is_append(struct iomap_ioend *ioend)
+{
+	return ioend->io_offset + ioend->io_size >
+		XFS_I(ioend->io_inode)->i_disk_size;
+>>>>>>> upstream/android-13
 }
 
 /*
  * Update on-disk file size now that data has been written to disk.
  */
+<<<<<<< HEAD
 STATIC int
 __xfs_setfilesize(
 	struct xfs_inode	*ip,
@@ -168,6 +194,22 @@ __xfs_setfilesize(
 	size_t			size)
 {
 	xfs_fsize_t		isize;
+=======
+int
+xfs_setfilesize(
+	struct xfs_inode	*ip,
+	xfs_off_t		offset,
+	size_t			size)
+{
+	struct xfs_mount	*mp = ip->i_mount;
+	struct xfs_trans	*tp;
+	xfs_fsize_t		isize;
+	int			error;
+
+	error = xfs_trans_alloc(mp, &M_RES(mp)->tr_fsyncts, 0, 0, 0, &tp);
+	if (error)
+		return error;
+>>>>>>> upstream/android-13
 
 	xfs_ilock(ip, XFS_ILOCK_EXCL);
 	isize = xfs_new_eof(ip, offset + size);
@@ -179,13 +221,18 @@ __xfs_setfilesize(
 
 	trace_xfs_setfilesize(ip, offset, size);
 
+<<<<<<< HEAD
 	ip->i_d.di_size = isize;
+=======
+	ip->i_disk_size = isize;
+>>>>>>> upstream/android-13
 	xfs_trans_ijoin(tp, ip, XFS_ILOCK_EXCL);
 	xfs_trans_log_inode(tp, ip, XFS_ILOG_CORE);
 
 	return xfs_trans_commit(tp);
 }
 
+<<<<<<< HEAD
 int
 xfs_setfilesize(
 	struct xfs_inode	*ip,
@@ -228,10 +275,13 @@ xfs_setfilesize_ioend(
 	return __xfs_setfilesize(ip, tp, ioend->io_offset, ioend->io_size);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * IO write completion.
  */
 STATIC void
+<<<<<<< HEAD
 xfs_end_io(
 	struct work_struct *work)
 {
@@ -246,6 +296,28 @@ xfs_end_io(
 	 * Just clean up the in-memory strutures if the fs has been shut down.
 	 */
 	if (XFS_FORCED_SHUTDOWN(ip->i_mount)) {
+=======
+xfs_end_ioend(
+	struct iomap_ioend	*ioend)
+{
+	struct xfs_inode	*ip = XFS_I(ioend->io_inode);
+	xfs_off_t		offset = ioend->io_offset;
+	size_t			size = ioend->io_size;
+	unsigned int		nofs_flag;
+	int			error;
+
+	/*
+	 * We can allocate memory here while doing writeback on behalf of
+	 * memory reclaim.  To avoid memory allocation deadlocks set the
+	 * task-wide nofs context for the following operations.
+	 */
+	nofs_flag = memalloc_nofs_save();
+
+	/*
+	 * Just clean up the in-memory structures if the fs has been shut down.
+	 */
+	if (xfs_is_shutdown(ip->i_mount)) {
+>>>>>>> upstream/android-13
 		error = -EIO;
 		goto done;
 	}
@@ -255,16 +327,22 @@ xfs_end_io(
 	 */
 	error = blk_status_to_errno(ioend->io_bio->bi_status);
 	if (unlikely(error)) {
+<<<<<<< HEAD
 		switch (ioend->io_type) {
 		case XFS_IO_COW:
 			xfs_reflink_cancel_cow_range(ip, offset, size, true);
 			break;
 		}
 
+=======
+		if (ioend->io_flags & IOMAP_F_SHARED)
+			xfs_reflink_cancel_cow_range(ip, offset, size, true);
+>>>>>>> upstream/android-13
 		goto done;
 	}
 
 	/*
+<<<<<<< HEAD
 	 * Success:  commit the COW or unwritten blocks if needed.
 	 */
 	switch (ioend->io_type) {
@@ -284,12 +362,51 @@ done:
 	if (ioend->io_append_trans)
 		error = xfs_setfilesize_ioend(ioend, error);
 	xfs_destroy_ioend(ioend, error);
+=======
+	 * Success: commit the COW or unwritten blocks if needed.
+	 */
+	if (ioend->io_flags & IOMAP_F_SHARED)
+		error = xfs_reflink_end_cow(ip, offset, size);
+	else if (ioend->io_type == IOMAP_UNWRITTEN)
+		error = xfs_iomap_write_unwritten(ip, offset, size, false);
+
+	if (!error && xfs_ioend_is_append(ioend))
+		error = xfs_setfilesize(ip, ioend->io_offset, ioend->io_size);
+done:
+	iomap_finish_ioends(ioend, error);
+	memalloc_nofs_restore(nofs_flag);
+}
+
+/* Finish all pending io completions. */
+void
+xfs_end_io(
+	struct work_struct	*work)
+{
+	struct xfs_inode	*ip =
+		container_of(work, struct xfs_inode, i_ioend_work);
+	struct iomap_ioend	*ioend;
+	struct list_head	tmp;
+	unsigned long		flags;
+
+	spin_lock_irqsave(&ip->i_ioend_lock, flags);
+	list_replace_init(&ip->i_ioend_list, &tmp);
+	spin_unlock_irqrestore(&ip->i_ioend_lock, flags);
+
+	iomap_sort_ioends(&tmp);
+	while ((ioend = list_first_entry_or_null(&tmp, struct iomap_ioend,
+			io_list))) {
+		list_del_init(&ioend->io_list);
+		iomap_ioend_try_merge(ioend, &tmp);
+		xfs_end_ioend(ioend);
+	}
+>>>>>>> upstream/android-13
 }
 
 STATIC void
 xfs_end_bio(
 	struct bio		*bio)
 {
+<<<<<<< HEAD
 	struct xfs_ioend	*ioend = bio->bi_private;
 	struct xfs_mount	*mp = XFS_I(ioend->io_inode)->i_mount;
 
@@ -304,12 +421,105 @@ xfs_end_bio(
 STATIC int
 xfs_map_blocks(
 	struct xfs_writepage_ctx *wpc,
+=======
+	struct iomap_ioend	*ioend = bio->bi_private;
+	struct xfs_inode	*ip = XFS_I(ioend->io_inode);
+	unsigned long		flags;
+
+	spin_lock_irqsave(&ip->i_ioend_lock, flags);
+	if (list_empty(&ip->i_ioend_list))
+		WARN_ON_ONCE(!queue_work(ip->i_mount->m_unwritten_workqueue,
+					 &ip->i_ioend_work));
+	list_add_tail(&ioend->io_list, &ip->i_ioend_list);
+	spin_unlock_irqrestore(&ip->i_ioend_lock, flags);
+}
+
+/*
+ * Fast revalidation of the cached writeback mapping. Return true if the current
+ * mapping is valid, false otherwise.
+ */
+static bool
+xfs_imap_valid(
+	struct iomap_writepage_ctx	*wpc,
+	struct xfs_inode		*ip,
+	loff_t				offset)
+{
+	if (offset < wpc->iomap.offset ||
+	    offset >= wpc->iomap.offset + wpc->iomap.length)
+		return false;
+	/*
+	 * If this is a COW mapping, it is sufficient to check that the mapping
+	 * covers the offset. Be careful to check this first because the caller
+	 * can revalidate a COW mapping without updating the data seqno.
+	 */
+	if (wpc->iomap.flags & IOMAP_F_SHARED)
+		return true;
+
+	/*
+	 * This is not a COW mapping. Check the sequence number of the data fork
+	 * because concurrent changes could have invalidated the extent. Check
+	 * the COW fork because concurrent changes since the last time we
+	 * checked (and found nothing at this offset) could have added
+	 * overlapping blocks.
+	 */
+	if (XFS_WPC(wpc)->data_seq != READ_ONCE(ip->i_df.if_seq))
+		return false;
+	if (xfs_inode_has_cow_data(ip) &&
+	    XFS_WPC(wpc)->cow_seq != READ_ONCE(ip->i_cowfp->if_seq))
+		return false;
+	return true;
+}
+
+/*
+ * Pass in a dellalloc extent and convert it to real extents, return the real
+ * extent that maps offset_fsb in wpc->iomap.
+ *
+ * The current page is held locked so nothing could have removed the block
+ * backing offset_fsb, although it could have moved from the COW to the data
+ * fork by another thread.
+ */
+static int
+xfs_convert_blocks(
+	struct iomap_writepage_ctx *wpc,
+	struct xfs_inode	*ip,
+	int			whichfork,
+	loff_t			offset)
+{
+	int			error;
+	unsigned		*seq;
+
+	if (whichfork == XFS_COW_FORK)
+		seq = &XFS_WPC(wpc)->cow_seq;
+	else
+		seq = &XFS_WPC(wpc)->data_seq;
+
+	/*
+	 * Attempt to allocate whatever delalloc extent currently backs offset
+	 * and put the result into wpc->iomap.  Allocate in a loop because it
+	 * may take several attempts to allocate real blocks for a contiguous
+	 * delalloc extent if free space is sufficiently fragmented.
+	 */
+	do {
+		error = xfs_bmapi_convert_delalloc(ip, whichfork, offset,
+				&wpc->iomap, seq);
+		if (error)
+			return error;
+	} while (wpc->iomap.offset + wpc->iomap.length <= offset);
+
+	return 0;
+}
+
+static int
+xfs_map_blocks(
+	struct iomap_writepage_ctx *wpc,
+>>>>>>> upstream/android-13
 	struct inode		*inode,
 	loff_t			offset)
 {
 	struct xfs_inode	*ip = XFS_I(inode);
 	struct xfs_mount	*mp = ip->i_mount;
 	ssize_t			count = i_blocksize(inode);
+<<<<<<< HEAD
 	xfs_fileoff_t		offset_fsb = XFS_B_TO_FSBT(mp, offset), end_fsb;
 	xfs_fileoff_t		cow_fsb = NULLFILEOFF;
 	struct xfs_bmbt_irec	imap;
@@ -330,6 +540,19 @@ xfs_map_blocks(
 	 * just eofblocks.
 	 */
 	xfs_trim_extent_eof(&wpc->imap, ip);
+=======
+	xfs_fileoff_t		offset_fsb = XFS_B_TO_FSBT(mp, offset);
+	xfs_fileoff_t		end_fsb = XFS_B_TO_FSB(mp, offset + count);
+	xfs_fileoff_t		cow_fsb;
+	int			whichfork;
+	struct xfs_bmbt_irec	imap;
+	struct xfs_iext_cursor	icur;
+	int			retries = 0;
+	int			error = 0;
+
+	if (xfs_is_shutdown(mp))
+		return -EIO;
+>>>>>>> upstream/android-13
 
 	/*
 	 * COW fork blocks can overlap data fork blocks even if the blocks
@@ -346,6 +569,7 @@ xfs_map_blocks(
 	 * against concurrent updates and provides a memory barrier on the way
 	 * out that ensures that we always see the current value.
 	 */
+<<<<<<< HEAD
 	imap_valid = offset_fsb >= wpc->imap.br_startoff &&
 		     offset_fsb < wpc->imap.br_startoff + wpc->imap.br_blockcount;
 	if (imap_valid &&
@@ -357,12 +581,18 @@ xfs_map_blocks(
 	if (XFS_FORCED_SHUTDOWN(mp))
 		return -EIO;
 
+=======
+	if (xfs_imap_valid(wpc, ip, offset))
+		return 0;
+
+>>>>>>> upstream/android-13
 	/*
 	 * If we don't have a valid map, now it's time to get a new one for this
 	 * offset.  This will convert delayed allocations (including COW ones)
 	 * into real extents.  If we return without a valid map, it means we
 	 * landed in a hole and we skip the block.
 	 */
+<<<<<<< HEAD
 	xfs_ilock(ip, XFS_ILOCK_SHARED);
 	ASSERT(ip->i_d.di_format != XFS_DINODE_FMT_BTREE ||
 	       (ip->i_df.if_flags & XFS_IFEXTENTS));
@@ -371,6 +601,13 @@ xfs_map_blocks(
 	if (offset > mp->m_super->s_maxbytes - count)
 		count = mp->m_super->s_maxbytes - offset;
 	end_fsb = XFS_B_TO_FSB(mp, (xfs_ufsize_t)offset + count);
+=======
+retry:
+	cow_fsb = NULLFILEOFF;
+	whichfork = XFS_DATA_FORK;
+	xfs_ilock(ip, XFS_ILOCK_SHARED);
+	ASSERT(!xfs_need_iread_extents(&ip->i_df));
+>>>>>>> upstream/android-13
 
 	/*
 	 * Check if this is offset is covered by a COW extents, and if yes use
@@ -380,6 +617,7 @@ xfs_map_blocks(
 	    xfs_iext_lookup_extent(ip, ip->i_cowfp, offset_fsb, &icur, &imap))
 		cow_fsb = imap.br_startoff;
 	if (cow_fsb != NULLFILEOFF && cow_fsb <= offset_fsb) {
+<<<<<<< HEAD
 		wpc->cow_seq = READ_ONCE(ip->i_cowfp->if_seq);
 		xfs_iunlock(ip, XFS_ILOCK_SHARED);
 		/*
@@ -399,13 +637,26 @@ xfs_map_blocks(
 		}
 		whichfork = XFS_COW_FORK;
 		wpc->io_type = XFS_IO_COW;
+=======
+		XFS_WPC(wpc)->cow_seq = READ_ONCE(ip->i_cowfp->if_seq);
+		xfs_iunlock(ip, XFS_ILOCK_SHARED);
+
+		whichfork = XFS_COW_FORK;
+>>>>>>> upstream/android-13
 		goto allocate_blocks;
 	}
 
 	/*
+<<<<<<< HEAD
 	 * Map valid and no COW extent in the way?  We're done.
 	 */
 	if (imap_valid) {
+=======
+	 * No COW extent overlap. Revalidate now that we may have updated
+	 * ->cow_seq. If the data mapping is still valid, we're done.
+	 */
+	if (xfs_imap_valid(wpc, ip, offset)) {
+>>>>>>> upstream/android-13
 		xfs_iunlock(ip, XFS_ILOCK_SHARED);
 		return 0;
 	}
@@ -417,6 +668,7 @@ xfs_map_blocks(
 	 */
 	if (!xfs_iext_lookup_extent(ip, &ip->i_df, offset_fsb, &icur, &imap))
 		imap.br_startoff = end_fsb;	/* fake a hole past EOF */
+<<<<<<< HEAD
 	xfs_iunlock(ip, XFS_ILOCK_SHARED);
 
 	if (imap.br_startoff > offset_fsb) {
@@ -636,6 +888,98 @@ xfs_vm_invalidatepage(
 {
 	trace_xfs_invalidatepage(page->mapping->host, page, offset, length);
 	iomap_invalidatepage(page, offset, length);
+=======
+	XFS_WPC(wpc)->data_seq = READ_ONCE(ip->i_df.if_seq);
+	xfs_iunlock(ip, XFS_ILOCK_SHARED);
+
+	/* landed in a hole or beyond EOF? */
+	if (imap.br_startoff > offset_fsb) {
+		imap.br_blockcount = imap.br_startoff - offset_fsb;
+		imap.br_startoff = offset_fsb;
+		imap.br_startblock = HOLESTARTBLOCK;
+		imap.br_state = XFS_EXT_NORM;
+	}
+
+	/*
+	 * Truncate to the next COW extent if there is one.  This is the only
+	 * opportunity to do this because we can skip COW fork lookups for the
+	 * subsequent blocks in the mapping; however, the requirement to treat
+	 * the COW range separately remains.
+	 */
+	if (cow_fsb != NULLFILEOFF &&
+	    cow_fsb < imap.br_startoff + imap.br_blockcount)
+		imap.br_blockcount = cow_fsb - imap.br_startoff;
+
+	/* got a delalloc extent? */
+	if (imap.br_startblock != HOLESTARTBLOCK &&
+	    isnullstartblock(imap.br_startblock))
+		goto allocate_blocks;
+
+	xfs_bmbt_to_iomap(ip, &wpc->iomap, &imap, 0);
+	trace_xfs_map_blocks_found(ip, offset, count, whichfork, &imap);
+	return 0;
+allocate_blocks:
+	error = xfs_convert_blocks(wpc, ip, whichfork, offset);
+	if (error) {
+		/*
+		 * If we failed to find the extent in the COW fork we might have
+		 * raced with a COW to data fork conversion or truncate.
+		 * Restart the lookup to catch the extent in the data fork for
+		 * the former case, but prevent additional retries to avoid
+		 * looping forever for the latter case.
+		 */
+		if (error == -EAGAIN && whichfork == XFS_COW_FORK && !retries++)
+			goto retry;
+		ASSERT(error != -EAGAIN);
+		return error;
+	}
+
+	/*
+	 * Due to merging the return real extent might be larger than the
+	 * original delalloc one.  Trim the return extent to the next COW
+	 * boundary again to force a re-lookup.
+	 */
+	if (whichfork != XFS_COW_FORK && cow_fsb != NULLFILEOFF) {
+		loff_t		cow_offset = XFS_FSB_TO_B(mp, cow_fsb);
+
+		if (cow_offset < wpc->iomap.offset + wpc->iomap.length)
+			wpc->iomap.length = cow_offset - wpc->iomap.offset;
+	}
+
+	ASSERT(wpc->iomap.offset <= offset);
+	ASSERT(wpc->iomap.offset + wpc->iomap.length > offset);
+	trace_xfs_map_blocks_alloc(ip, offset, count, whichfork, &imap);
+	return 0;
+}
+
+static int
+xfs_prepare_ioend(
+	struct iomap_ioend	*ioend,
+	int			status)
+{
+	unsigned int		nofs_flag;
+
+	/*
+	 * We can allocate memory here while doing writeback on behalf of
+	 * memory reclaim.  To avoid memory allocation deadlocks set the
+	 * task-wide nofs context for the following operations.
+	 */
+	nofs_flag = memalloc_nofs_save();
+
+	/* Convert CoW extents to regular */
+	if (!status && (ioend->io_flags & IOMAP_F_SHARED)) {
+		status = xfs_reflink_convert_cow(XFS_I(ioend->io_inode),
+				ioend->io_offset, ioend->io_size);
+	}
+
+	memalloc_nofs_restore(nofs_flag);
+
+	/* send ioends that might require a transaction to the completion wq */
+	if (xfs_ioend_is_append(ioend) || ioend->io_type == IOMAP_UNWRITTEN ||
+	    (ioend->io_flags & IOMAP_F_SHARED))
+		ioend->io_bio->bi_end_io = xfs_end_bio;
+	return status;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -649,13 +993,21 @@ xfs_vm_invalidatepage(
  * transaction as there is no space left for block reservation (typically why we
  * see a ENOSPC in writeback).
  */
+<<<<<<< HEAD
 STATIC void
 xfs_aops_discard_page(
 	struct page		*page)
+=======
+static void
+xfs_discard_page(
+	struct page		*page,
+	loff_t			fileoff)
+>>>>>>> upstream/android-13
 {
 	struct inode		*inode = page->mapping->host;
 	struct xfs_inode	*ip = XFS_I(inode);
 	struct xfs_mount	*mp = ip->i_mount;
+<<<<<<< HEAD
 	loff_t			offset = page_offset(page);
 	xfs_fileoff_t		start_fsb = XFS_B_TO_FSBT(mp, offset);
 	int			error;
@@ -928,12 +1280,40 @@ xfs_vm_writepage(
 		ret = xfs_submit_ioend(wbc, wpc.ioend, ret);
 	return ret;
 }
+=======
+	unsigned int		pageoff = offset_in_page(fileoff);
+	xfs_fileoff_t		start_fsb = XFS_B_TO_FSBT(mp, fileoff);
+	xfs_fileoff_t		pageoff_fsb = XFS_B_TO_FSBT(mp, pageoff);
+	int			error;
+
+	if (xfs_is_shutdown(mp))
+		goto out_invalidate;
+
+	xfs_alert_ratelimited(mp,
+		"page discard on page "PTR_FMT", inode 0x%llx, offset %llu.",
+			page, ip->i_ino, fileoff);
+
+	error = xfs_bmap_punch_delalloc_range(ip, start_fsb,
+			i_blocks_per_page(inode, page) - pageoff_fsb);
+	if (error && !xfs_is_shutdown(mp))
+		xfs_alert(mp, "page discard unable to remove delalloc mapping.");
+out_invalidate:
+	iomap_invalidatepage(page, pageoff, PAGE_SIZE - pageoff);
+}
+
+static const struct iomap_writeback_ops xfs_writeback_ops = {
+	.map_blocks		= xfs_map_blocks,
+	.prepare_ioend		= xfs_prepare_ioend,
+	.discard_page		= xfs_discard_page,
+};
+>>>>>>> upstream/android-13
 
 STATIC int
 xfs_vm_writepages(
 	struct address_space	*mapping,
 	struct writeback_control *wbc)
 {
+<<<<<<< HEAD
 	struct xfs_writepage_ctx wpc = {
 		.io_type = XFS_IO_INVALID,
 	};
@@ -944,6 +1324,19 @@ xfs_vm_writepages(
 	if (wpc.ioend)
 		ret = xfs_submit_ioend(wbc, wpc.ioend, ret);
 	return ret;
+=======
+	struct xfs_writepage_ctx wpc = { };
+
+	/*
+	 * Writing back data in a transaction context can result in recursive
+	 * transactions. This is bad, so issue a warning and get out of here.
+	 */
+	if (WARN_ON_ONCE(current->journal_info))
+		return 0;
+
+	xfs_iflags_clear(XFS_I(mapping->host), XFS_ITRUNCATED);
+	return iomap_writepages(mapping, wbc, &wpc.ctx, &xfs_writeback_ops);
+>>>>>>> upstream/android-13
 }
 
 STATIC int
@@ -951,6 +1344,7 @@ xfs_dax_writepages(
 	struct address_space	*mapping,
 	struct writeback_control *wbc)
 {
+<<<<<<< HEAD
 	xfs_iflags_clear(XFS_I(mapping->host), XFS_ITRUNCATED);
 	return dax_writeback_mapping_range(mapping,
 			xfs_find_bdev_for_inode(mapping->host), wbc);
@@ -963,6 +1357,13 @@ xfs_vm_releasepage(
 {
 	trace_xfs_releasepage(page->mapping->host, page, 0, 0);
 	return iomap_releasepage(page, gfp_mask);
+=======
+	struct xfs_inode	*ip = XFS_I(mapping->host);
+
+	xfs_iflags_clear(ip, XFS_ITRUNCATED);
+	return dax_writeback_mapping_range(mapping,
+			xfs_inode_buftarg(ip)->bt_daxdev, wbc);
+>>>>>>> upstream/android-13
 }
 
 STATIC sector_t
@@ -983,9 +1384,15 @@ xfs_vm_bmap(
 	 * Since we don't pass back blockdev info, we can't return bmap
 	 * information for rt files either.
 	 */
+<<<<<<< HEAD
 	if (xfs_is_reflink_inode(ip) || XFS_IS_REALTIME_INODE(ip))
 		return 0;
 	return iomap_bmap(mapping, block, &xfs_iomap_ops);
+=======
+	if (xfs_is_cow_inode(ip) || XFS_IS_REALTIME_INODE(ip))
+		return 0;
+	return iomap_bmap(mapping, block, &xfs_read_iomap_ops);
+>>>>>>> upstream/android-13
 }
 
 STATIC int
@@ -993,6 +1400,7 @@ xfs_vm_readpage(
 	struct file		*unused,
 	struct page		*page)
 {
+<<<<<<< HEAD
 	trace_xfs_vm_readpage(page->mapping->host, 1);
 	return iomap_readpage(page, &xfs_iomap_ops);
 }
@@ -1006,6 +1414,16 @@ xfs_vm_readpages(
 {
 	trace_xfs_vm_readpages(mapping->host, nr_pages);
 	return iomap_readpages(mapping, pages, nr_pages, &xfs_iomap_ops);
+=======
+	return iomap_readpage(page, &xfs_read_iomap_ops);
+}
+
+STATIC void
+xfs_vm_readahead(
+	struct readahead_control	*rac)
+{
+	iomap_readahead(rac, &xfs_read_iomap_ops);
+>>>>>>> upstream/android-13
 }
 
 static int
@@ -1014,18 +1432,32 @@ xfs_iomap_swapfile_activate(
 	struct file			*swap_file,
 	sector_t			*span)
 {
+<<<<<<< HEAD
 	sis->bdev = xfs_find_bdev_for_inode(file_inode(swap_file));
 	return iomap_swapfile_activate(sis, swap_file, span, &xfs_iomap_ops);
+=======
+	sis->bdev = xfs_inode_buftarg(XFS_I(file_inode(swap_file)))->bt_bdev;
+	return iomap_swapfile_activate(sis, swap_file, span,
+			&xfs_read_iomap_ops);
+>>>>>>> upstream/android-13
 }
 
 const struct address_space_operations xfs_address_space_operations = {
 	.readpage		= xfs_vm_readpage,
+<<<<<<< HEAD
 	.readpages		= xfs_vm_readpages,
 	.writepage		= xfs_vm_writepage,
 	.writepages		= xfs_vm_writepages,
 	.set_page_dirty		= iomap_set_page_dirty,
 	.releasepage		= xfs_vm_releasepage,
 	.invalidatepage		= xfs_vm_invalidatepage,
+=======
+	.readahead		= xfs_vm_readahead,
+	.writepages		= xfs_vm_writepages,
+	.set_page_dirty		= __set_page_dirty_nobuffers,
+	.releasepage		= iomap_releasepage,
+	.invalidatepage		= iomap_invalidatepage,
+>>>>>>> upstream/android-13
 	.bmap			= xfs_vm_bmap,
 	.direct_IO		= noop_direct_IO,
 	.migratepage		= iomap_migrate_page,
@@ -1037,7 +1469,11 @@ const struct address_space_operations xfs_address_space_operations = {
 const struct address_space_operations xfs_dax_aops = {
 	.writepages		= xfs_dax_writepages,
 	.direct_IO		= noop_direct_IO,
+<<<<<<< HEAD
 	.set_page_dirty		= noop_set_page_dirty,
+=======
+	.set_page_dirty		= __set_page_dirty_no_writeback,
+>>>>>>> upstream/android-13
 	.invalidatepage		= noop_invalidatepage,
 	.swap_activate		= xfs_iomap_swapfile_activate,
 };

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * STM32 ALSA SoC Digital Audio Interface (SAI) driver.
  *
  * Copyright (C) 2016, STMicroelectronics - All Rights Reserved
  * Author(s): Olivier Moysan <olivier.moysan@st.com> for STMicroelectronics.
+<<<<<<< HEAD
  *
  * License terms: GPL V2.0.
  *
@@ -14,6 +19,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitfield.h>
@@ -37,6 +44,15 @@
 #define STM_SAI_PDMCR_REGX	0x40
 #define STM_SAI_PDMLY_REGX	0x44
 
+<<<<<<< HEAD
+=======
+/* Hardware configuration registers */
+#define STM_SAI_HWCFGR		0x3F0
+#define STM_SAI_VERR		0x3F4
+#define STM_SAI_IDR		0x3F8
+#define STM_SAI_SIDR		0x3FC
+
+>>>>>>> upstream/android-13
 /******************** Bit definition for SAI_GCR register *******************/
 #define SAI_GCR_SYNCIN_SHIFT	0
 #define SAI_GCR_SYNCIN_WDTH	2
@@ -82,7 +98,11 @@
 #define SAI_XCR1_NODIV		BIT(SAI_XCR1_NODIV_SHIFT)
 
 #define SAI_XCR1_MCKDIV_SHIFT	20
+<<<<<<< HEAD
 #define SAI_XCR1_MCKDIV_WIDTH(x)	(((x) == SAI_STM32F4) ? 4 : 6)
+=======
+#define SAI_XCR1_MCKDIV_WIDTH(x)	(((x) == STM_SAI_STM32F4) ? 4 : 6)
+>>>>>>> upstream/android-13
 #define SAI_XCR1_MCKDIV_MASK(x) GENMASK((SAI_XCR1_MCKDIV_SHIFT + (x) - 1),\
 				SAI_XCR1_MCKDIV_SHIFT)
 #define SAI_XCR1_MCKDIV_SET(x)	((x) << SAI_XCR1_MCKDIV_SHIFT)
@@ -91,6 +111,12 @@
 #define SAI_XCR1_OSR_SHIFT	26
 #define SAI_XCR1_OSR		BIT(SAI_XCR1_OSR_SHIFT)
 
+<<<<<<< HEAD
+=======
+#define SAI_XCR1_MCKEN_SHIFT	27
+#define SAI_XCR1_MCKEN		BIT(SAI_XCR1_MCKEN_SHIFT)
+
+>>>>>>> upstream/android-13
 /******************* Bit definition for SAI_XCR2 register *******************/
 #define SAI_XCR2_FTH_SHIFT	0
 #define SAI_XCR2_FTH_MASK	GENMASK(2, SAI_XCR2_FTH_SHIFT)
@@ -231,8 +257,38 @@
 #define SAI_PDMDLY_4R_MASK	GENMASK(30, SAI_PDMDLY_4R_SHIFT)
 #define SAI_PDMDLY_4R_WIDTH	3
 
+<<<<<<< HEAD
 #define STM_SAI_IS_F4(ip)	((ip)->conf->version == SAI_STM32F4)
 #define STM_SAI_IS_H7(ip)	((ip)->conf->version == SAI_STM32H7)
+=======
+/* Registers below apply to SAI version 2.1 and more */
+
+/* Bit definition for SAI_HWCFGR register */
+#define SAI_HWCFGR_FIFO_SIZE	GENMASK(7, 0)
+#define SAI_HWCFGR_SPDIF_PDM	GENMASK(11, 8)
+#define SAI_HWCFGR_REGOUT	GENMASK(19, 12)
+
+/* Bit definition for SAI_VERR register */
+#define SAI_VERR_MIN_MASK	GENMASK(3, 0)
+#define SAI_VERR_MAJ_MASK	GENMASK(7, 4)
+
+/* Bit definition for SAI_IDR register */
+#define SAI_IDR_ID_MASK		GENMASK(31, 0)
+
+/* Bit definition for SAI_SIDR register */
+#define SAI_SIDR_ID_MASK	GENMASK(31, 0)
+
+#define SAI_IPIDR_NUMBER	0x00130031
+
+/* SAI version numbers are 1.x for F4. Major version number set to 1 for F4 */
+#define STM_SAI_STM32F4		BIT(4)
+/* Dummy version number for H7 socs and next */
+#define STM_SAI_STM32H7		0x0
+
+#define STM_SAI_IS_F4(ip)	((ip)->conf.version == STM_SAI_STM32F4)
+#define STM_SAI_HAS_SPDIF_PDM(ip)\
+				((ip)->pdata->conf.has_spdif_pdm)
+>>>>>>> upstream/android-13
 
 enum stm32_sai_syncout {
 	STM_SAI_SYNC_OUT_NONE,
@@ -240,6 +296,7 @@ enum stm32_sai_syncout {
 	STM_SAI_SYNC_OUT_B,
 };
 
+<<<<<<< HEAD
 enum stm32_sai_version {
 	SAI_STM32F4,
 	SAI_STM32H7
@@ -253,6 +310,18 @@ enum stm32_sai_version {
 struct stm32_sai_conf {
 	int version;
 	bool has_spdif;
+=======
+/**
+ * struct stm32_sai_conf - SAI configuration
+ * @version: SAI version
+ * @fifo_size: SAI fifo size as words number
+ * @has_spdif_pdm: SAI S/PDIF and PDM features support flag
+ */
+struct stm32_sai_conf {
+	u32 version;
+	u32 fifo_size;
+	bool has_spdif_pdm;
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -262,9 +331,16 @@ struct stm32_sai_conf {
  * @pclk: SAI bus clock
  * @clk_x8k: SAI parent clock for sampling frequencies multiple of 8kHz
  * @clk_x11k: SAI parent clock for sampling frequencies multiple of 11kHz
+<<<<<<< HEAD
  * @version: SOC version
  * @irq: SAI interrupt line
  * @set_sync: pointer to synchro mode configuration callback
+=======
+ * @conf: SAI hardware capabitilites
+ * @irq: SAI interrupt line
+ * @set_sync: pointer to synchro mode configuration callback
+ * @gcr: SAI Global Configuration Register
+>>>>>>> upstream/android-13
  */
 struct stm32_sai_data {
 	struct platform_device *pdev;
@@ -272,8 +348,16 @@ struct stm32_sai_data {
 	struct clk *pclk;
 	struct clk *clk_x8k;
 	struct clk *clk_x11k;
+<<<<<<< HEAD
 	struct stm32_sai_conf *conf;
 	int irq;
 	int (*set_sync)(struct stm32_sai_data *sai,
 			struct device_node *np_provider, int synco, int synci);
+=======
+	struct stm32_sai_conf conf;
+	int irq;
+	int (*set_sync)(struct stm32_sai_data *sai,
+			struct device_node *np_provider, int synco, int synci);
+	u32 gcr;
+>>>>>>> upstream/android-13
 };

@@ -114,7 +114,10 @@
 				#address-cells = <1>;
 				#size-cells = <0>;
 				interrupts = <31>;
+<<<<<<< HEAD
 				timeout-ms = <1000>;
+=======
+>>>>>>> upstream/android-13
 				clocks = <&coreclk 0>;
 				status = "disabled";
 			};
@@ -124,7 +127,10 @@
 				#address-cells = <1>;
 				#size-cells = <0>;
 				interrupts = <32>;
+<<<<<<< HEAD
 				timeout-ms = <1000>;
+=======
+>>>>>>> upstream/android-13
 				clocks = <&coreclk 0>;
 				status = "disabled";
 			};

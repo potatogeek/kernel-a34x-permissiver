@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016 National Instruments Corp.
  *
@@ -10,6 +11,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2016 National Instruments Corp.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/acpi.h>
@@ -217,6 +223,7 @@ static int ni903x_acpi_add(struct acpi_device *device)
 	wdd->parent = dev;
 	watchdog_set_drvdata(wdd, wdt);
 	watchdog_set_nowayout(wdd, nowayout);
+<<<<<<< HEAD
 	ret = watchdog_init_timeout(wdd, timeout, dev);
 	if (ret)
 		dev_err(dev, "unable to set timeout value, using default\n");
@@ -226,6 +233,13 @@ static int ni903x_acpi_add(struct acpi_device *device)
 		dev_err(dev, "failed to register watchdog\n");
 		return ret;
 	}
+=======
+	watchdog_init_timeout(wdd, timeout, dev);
+
+	ret = watchdog_register_device(wdd);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	/* Switch from boot mode to user mode */
 	outb(NIWD_CONTROL_RESET | NIWD_CONTROL_MODE,

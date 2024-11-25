@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * lm78.c - Part of lm_sensors, Linux kernel modules for hardware
  *	    monitoring
  * Copyright (c) 1998, 1999  Frodo Looijaard <frodol@dds.nl>
  * Copyright (c) 2007, 2011  Jean Delvare <jdelvare@suse.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -73,7 +80,10 @@ enum chips { lm78, lm79 };
 #define LM78_REG_CHIPID 0x49
 #define LM78_REG_I2C_ADDR 0x48
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Conversions. Rounding and limit checking is only done on the TO_REG
  * variants.
@@ -147,15 +157,23 @@ struct lm78_data {
 	u16 alarms;		/* Register encoding, combined */
 };
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static int lm78_read_value(struct lm78_data *data, u8 reg);
 static int lm78_write_value(struct lm78_data *data, u8 reg, u8 value);
 static struct lm78_data *lm78_update_device(struct device *dev);
 static void lm78_init_device(struct lm78_data *data);
 
+<<<<<<< HEAD
 
 /* 7 Voltages */
 static ssize_t show_in(struct device *dev, struct device_attribute *da,
+=======
+/* 7 Voltages */
+static ssize_t in_show(struct device *dev, struct device_attribute *da,
+>>>>>>> upstream/android-13
 		       char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
@@ -163,7 +181,11 @@ static ssize_t show_in(struct device *dev, struct device_attribute *da,
 	return sprintf(buf, "%d\n", IN_FROM_REG(data->in[attr->index]));
 }
 
+<<<<<<< HEAD
 static ssize_t show_in_min(struct device *dev, struct device_attribute *da,
+=======
+static ssize_t in_min_show(struct device *dev, struct device_attribute *da,
+>>>>>>> upstream/android-13
 			   char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
@@ -171,7 +193,11 @@ static ssize_t show_in_min(struct device *dev, struct device_attribute *da,
 	return sprintf(buf, "%d\n", IN_FROM_REG(data->in_min[attr->index]));
 }
 
+<<<<<<< HEAD
 static ssize_t show_in_max(struct device *dev, struct device_attribute *da,
+=======
+static ssize_t in_max_show(struct device *dev, struct device_attribute *da,
+>>>>>>> upstream/android-13
 			   char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
@@ -179,8 +205,13 @@ static ssize_t show_in_max(struct device *dev, struct device_attribute *da,
 	return sprintf(buf, "%d\n", IN_FROM_REG(data->in_max[attr->index]));
 }
 
+<<<<<<< HEAD
 static ssize_t set_in_min(struct device *dev, struct device_attribute *da,
 			  const char *buf, size_t count)
+=======
+static ssize_t in_min_store(struct device *dev, struct device_attribute *da,
+			    const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
 	struct lm78_data *data = dev_get_drvdata(dev);
@@ -199,8 +230,13 @@ static ssize_t set_in_min(struct device *dev, struct device_attribute *da,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t set_in_max(struct device *dev, struct device_attribute *da,
 			  const char *buf, size_t count)
+=======
+static ssize_t in_max_store(struct device *dev, struct device_attribute *da,
+			    const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
 	struct lm78_data *data = dev_get_drvdata(dev);
@@ -219,6 +255,7 @@ static ssize_t set_in_max(struct device *dev, struct device_attribute *da,
 	return count;
 }
 
+<<<<<<< HEAD
 #define show_in_offset(offset)					\
 static SENSOR_DEVICE_ATTR(in##offset##_input, S_IRUGO,		\
 		show_in, NULL, offset);				\
@@ -234,6 +271,29 @@ show_in_offset(3);
 show_in_offset(4);
 show_in_offset(5);
 show_in_offset(6);
+=======
+static SENSOR_DEVICE_ATTR_RO(in0_input, in, 0);
+static SENSOR_DEVICE_ATTR_RW(in0_min, in_min, 0);
+static SENSOR_DEVICE_ATTR_RW(in0_max, in_max, 0);
+static SENSOR_DEVICE_ATTR_RO(in1_input, in, 1);
+static SENSOR_DEVICE_ATTR_RW(in1_min, in_min, 1);
+static SENSOR_DEVICE_ATTR_RW(in1_max, in_max, 1);
+static SENSOR_DEVICE_ATTR_RO(in2_input, in, 2);
+static SENSOR_DEVICE_ATTR_RW(in2_min, in_min, 2);
+static SENSOR_DEVICE_ATTR_RW(in2_max, in_max, 2);
+static SENSOR_DEVICE_ATTR_RO(in3_input, in, 3);
+static SENSOR_DEVICE_ATTR_RW(in3_min, in_min, 3);
+static SENSOR_DEVICE_ATTR_RW(in3_max, in_max, 3);
+static SENSOR_DEVICE_ATTR_RO(in4_input, in, 4);
+static SENSOR_DEVICE_ATTR_RW(in4_min, in_min, 4);
+static SENSOR_DEVICE_ATTR_RW(in4_max, in_max, 4);
+static SENSOR_DEVICE_ATTR_RO(in5_input, in, 5);
+static SENSOR_DEVICE_ATTR_RW(in5_min, in_min, 5);
+static SENSOR_DEVICE_ATTR_RW(in5_max, in_max, 5);
+static SENSOR_DEVICE_ATTR_RO(in6_input, in, 6);
+static SENSOR_DEVICE_ATTR_RW(in6_min, in_min, 6);
+static SENSOR_DEVICE_ATTR_RW(in6_max, in_max, 6);
+>>>>>>> upstream/android-13
 
 /* Temperature */
 static ssize_t temp1_input_show(struct device *dev,
@@ -300,7 +360,11 @@ static DEVICE_ATTR_RW(temp1_max);
 static DEVICE_ATTR_RW(temp1_max_hyst);
 
 /* 3 Fans */
+<<<<<<< HEAD
 static ssize_t show_fan(struct device *dev, struct device_attribute *da,
+=======
+static ssize_t fan_show(struct device *dev, struct device_attribute *da,
+>>>>>>> upstream/android-13
 			char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
@@ -310,7 +374,11 @@ static ssize_t show_fan(struct device *dev, struct device_attribute *da,
 		DIV_FROM_REG(data->fan_div[nr])));
 }
 
+<<<<<<< HEAD
 static ssize_t show_fan_min(struct device *dev, struct device_attribute *da,
+=======
+static ssize_t fan_min_show(struct device *dev, struct device_attribute *da,
+>>>>>>> upstream/android-13
 			    char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
@@ -320,8 +388,13 @@ static ssize_t show_fan_min(struct device *dev, struct device_attribute *da,
 		DIV_FROM_REG(data->fan_div[nr])));
 }
 
+<<<<<<< HEAD
 static ssize_t set_fan_min(struct device *dev, struct device_attribute *da,
 			   const char *buf, size_t count)
+=======
+static ssize_t fan_min_store(struct device *dev, struct device_attribute *da,
+			     const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
 	struct lm78_data *data = dev_get_drvdata(dev);
@@ -340,7 +413,11 @@ static ssize_t set_fan_min(struct device *dev, struct device_attribute *da,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t show_fan_div(struct device *dev, struct device_attribute *da,
+=======
+static ssize_t fan_div_show(struct device *dev, struct device_attribute *da,
+>>>>>>> upstream/android-13
 			    char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
@@ -354,8 +431,13 @@ static ssize_t show_fan_div(struct device *dev, struct device_attribute *da,
  * least surprise; the user doesn't expect the fan minimum to change just
  * because the divisor changed.
  */
+<<<<<<< HEAD
 static ssize_t set_fan_div(struct device *dev, struct device_attribute *da,
 			   const char *buf, size_t count)
+=======
+static ssize_t fan_div_store(struct device *dev, struct device_attribute *da,
+			     const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
 	struct lm78_data *data = dev_get_drvdata(dev);
@@ -413,6 +495,7 @@ static ssize_t set_fan_div(struct device *dev, struct device_attribute *da,
 	return count;
 }
 
+<<<<<<< HEAD
 #define show_fan_offset(offset)				\
 static SENSOR_DEVICE_ATTR(fan##offset##_input, S_IRUGO,		\
 		show_fan, NULL, offset - 1);			\
@@ -429,6 +512,19 @@ static SENSOR_DEVICE_ATTR(fan1_div, S_IRUGO | S_IWUSR,
 static SENSOR_DEVICE_ATTR(fan2_div, S_IRUGO | S_IWUSR,
 		show_fan_div, set_fan_div, 1);
 static SENSOR_DEVICE_ATTR(fan3_div, S_IRUGO, show_fan_div, NULL, 2);
+=======
+static SENSOR_DEVICE_ATTR_RO(fan1_input, fan, 0);
+static SENSOR_DEVICE_ATTR_RW(fan1_min, fan_min, 0);
+static SENSOR_DEVICE_ATTR_RO(fan2_input, fan, 1);
+static SENSOR_DEVICE_ATTR_RW(fan2_min, fan_min, 1);
+static SENSOR_DEVICE_ATTR_RO(fan3_input, fan, 2);
+static SENSOR_DEVICE_ATTR_RW(fan3_min, fan_min, 2);
+
+/* Fan 3 divisor is locked in H/W */
+static SENSOR_DEVICE_ATTR_RW(fan1_div, fan_div, 0);
+static SENSOR_DEVICE_ATTR_RW(fan2_div, fan_div, 1);
+static SENSOR_DEVICE_ATTR_RO(fan3_div, fan_div, 2);
+>>>>>>> upstream/android-13
 
 /* VID */
 static ssize_t cpu0_vid_show(struct device *dev, struct device_attribute *da,
@@ -448,13 +544,18 @@ static ssize_t alarms_show(struct device *dev, struct device_attribute *da,
 }
 static DEVICE_ATTR_RO(alarms);
 
+<<<<<<< HEAD
 static ssize_t show_alarm(struct device *dev, struct device_attribute *da,
+=======
+static ssize_t alarm_show(struct device *dev, struct device_attribute *da,
+>>>>>>> upstream/android-13
 			  char *buf)
 {
 	struct lm78_data *data = lm78_update_device(dev);
 	int nr = to_sensor_dev_attr(da)->index;
 	return sprintf(buf, "%u\n", (data->alarms >> nr) & 1);
 }
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(in0_alarm, S_IRUGO, show_alarm, NULL, 0);
 static SENSOR_DEVICE_ATTR(in1_alarm, S_IRUGO, show_alarm, NULL, 1);
 static SENSOR_DEVICE_ATTR(in2_alarm, S_IRUGO, show_alarm, NULL, 2);
@@ -466,6 +567,19 @@ static SENSOR_DEVICE_ATTR(fan1_alarm, S_IRUGO, show_alarm, NULL, 6);
 static SENSOR_DEVICE_ATTR(fan2_alarm, S_IRUGO, show_alarm, NULL, 7);
 static SENSOR_DEVICE_ATTR(fan3_alarm, S_IRUGO, show_alarm, NULL, 11);
 static SENSOR_DEVICE_ATTR(temp1_alarm, S_IRUGO, show_alarm, NULL, 4);
+=======
+static SENSOR_DEVICE_ATTR_RO(in0_alarm, alarm, 0);
+static SENSOR_DEVICE_ATTR_RO(in1_alarm, alarm, 1);
+static SENSOR_DEVICE_ATTR_RO(in2_alarm, alarm, 2);
+static SENSOR_DEVICE_ATTR_RO(in3_alarm, alarm, 3);
+static SENSOR_DEVICE_ATTR_RO(in4_alarm, alarm, 8);
+static SENSOR_DEVICE_ATTR_RO(in5_alarm, alarm, 9);
+static SENSOR_DEVICE_ATTR_RO(in6_alarm, alarm, 10);
+static SENSOR_DEVICE_ATTR_RO(fan1_alarm, alarm, 6);
+static SENSOR_DEVICE_ATTR_RO(fan2_alarm, alarm, 7);
+static SENSOR_DEVICE_ATTR_RO(fan3_alarm, alarm, 11);
+static SENSOR_DEVICE_ATTR_RO(temp1_alarm, alarm, 4);
+>>>>>>> upstream/android-13
 
 static struct attribute *lm78_attrs[] = {
 	&sensor_dev_attr_in0_input.dev_attr.attr,
@@ -642,8 +756,14 @@ static int lm78_i2c_detect(struct i2c_client *client,
 	return -ENODEV;
 }
 
+<<<<<<< HEAD
 static int lm78_i2c_probe(struct i2c_client *client,
 			  const struct i2c_device_id *id)
+=======
+static const struct i2c_device_id lm78_i2c_id[];
+
+static int lm78_i2c_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &client->dev;
 	struct device *hwmon_dev;
@@ -654,7 +774,11 @@ static int lm78_i2c_probe(struct i2c_client *client,
 		return -ENOMEM;
 
 	data->client = client;
+<<<<<<< HEAD
 	data->type = id->driver_data;
+=======
+	data->type = i2c_match_id(lm78_i2c_id, client)->driver_data;
+>>>>>>> upstream/android-13
 
 	/* Initialize the LM78 chip */
 	lm78_init_device(data);
@@ -676,7 +800,11 @@ static struct i2c_driver lm78_driver = {
 	.driver = {
 		.name	= "lm78",
 	},
+<<<<<<< HEAD
 	.probe		= lm78_i2c_probe,
+=======
+	.probe_new	= lm78_i2c_probe,
+>>>>>>> upstream/android-13
 	.id_table	= lm78_i2c_id,
 	.detect		= lm78_i2c_detect,
 	.address_list	= normal_i2c,

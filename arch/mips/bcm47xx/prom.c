@@ -27,6 +27,10 @@
 #include <linux/init.h>
 #include <linux/types.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/spinlock.h>
 #include <linux/ssb/ssb_driver_chipcommon.h>
 #include <linux/ssb/ssb_regs.h>
@@ -97,7 +101,11 @@ static __init void prom_init_mem(void)
 	 */
 	if (c->cputype == CPU_74K && (mem == (128  << 20)))
 		mem -= 0x1000;
+<<<<<<< HEAD
 	add_memory_region(0, mem, BOOT_MEM_RAM);
+=======
+	memblock_add(0, mem);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -112,10 +120,13 @@ void __init prom_init(void)
 	setup_8250_early_printk_port(CKSEG1ADDR(BCM47XX_SERIAL_ADDR), 0, 0);
 }
 
+<<<<<<< HEAD
 void __init prom_free_prom_memory(void)
 {
 }
 
+=======
+>>>>>>> upstream/android-13
 #if defined(CONFIG_BCM47XX_BCMA) && defined(CONFIG_HIGHMEM)
 
 #define EXTVBASE	0xc0000000

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Panasonic MN88473 DVB-T/T2/C demodulator driver
  *
  * Copyright (C) 2014 Antti Palosaari <crope@iki.fi>
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "mn88473_priv.h"
@@ -666,12 +673,20 @@ static int mn88473_probe(struct i2c_client *client,
 	 * Also, register bank 2 do not support sequential I/O. Only single
 	 * register write or read is allowed to that bank.
 	 */
+<<<<<<< HEAD
 	dev->client[1] = i2c_new_dummy(client->adapter, 0x1a);
 	if (dev->client[1] == NULL) {
 		ret = -ENODEV;
 		dev_err(&client->dev, "I2C registration failed\n");
 		if (ret)
 			goto err_regmap_0_regmap_exit;
+=======
+	dev->client[1] = i2c_new_dummy_device(client->adapter, 0x1a);
+	if (IS_ERR(dev->client[1])) {
+		ret = PTR_ERR(dev->client[1]);
+		dev_err(&client->dev, "I2C registration failed\n");
+		goto err_regmap_0_regmap_exit;
+>>>>>>> upstream/android-13
 	}
 	dev->regmap[1] = regmap_init_i2c(dev->client[1], &regmap_config);
 	if (IS_ERR(dev->regmap[1])) {
@@ -680,12 +695,20 @@ static int mn88473_probe(struct i2c_client *client,
 	}
 	i2c_set_clientdata(dev->client[1], dev);
 
+<<<<<<< HEAD
 	dev->client[2] = i2c_new_dummy(client->adapter, 0x1c);
 	if (dev->client[2] == NULL) {
 		ret = -ENODEV;
 		dev_err(&client->dev, "2nd I2C registration failed\n");
 		if (ret)
 			goto err_regmap_1_regmap_exit;
+=======
+	dev->client[2] = i2c_new_dummy_device(client->adapter, 0x1c);
+	if (IS_ERR(dev->client[2])) {
+		ret = PTR_ERR(dev->client[2]);
+		dev_err(&client->dev, "2nd I2C registration failed\n");
+		goto err_regmap_1_regmap_exit;
+>>>>>>> upstream/android-13
 	}
 	dev->regmap[2] = regmap_init_i2c(dev->client[2], &regmap_config);
 	if (IS_ERR(dev->regmap[2])) {

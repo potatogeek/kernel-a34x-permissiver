@@ -34,6 +34,7 @@
 #include <linux/sched/task.h>
 
 
+<<<<<<< HEAD
 #ifdef CONFIG_DEBUG_LOCK_ALLOC
 # define __acq(l, s, t, r, c, n, i)		\
 				lock_acquire(&(l)->dep_map, s, t, r, c, n, i)
@@ -57,6 +58,8 @@
 #endif
 
 
+=======
+>>>>>>> upstream/android-13
 #if BITS_PER_LONG == 64
 # define LDSEM_ACTIVE_MASK	0xffffffffL
 #else
@@ -234,6 +237,10 @@ down_read_failed(struct ld_semaphore *sem, long count, long timeout)
 		raw_spin_lock_irq(&sem->wait_lock);
 		if (waiter.task) {
 			atomic_long_add_return(-LDSEM_WAIT_BIAS, &sem->count);
+<<<<<<< HEAD
+=======
+			sem->wait_readers--;
+>>>>>>> upstream/android-13
 			list_del(&waiter.list);
 			raw_spin_unlock_irq(&sem->wait_lock);
 			put_task_struct(waiter.task);
@@ -319,6 +326,7 @@ static int __ldsem_down_read_nested(struct ld_semaphore *sem,
 {
 	long count;
 
+<<<<<<< HEAD
 	lockdep_acquire_read(sem, subclass, 0, _RET_IP_);
 
 	count = atomic_long_add_return(LDSEM_READ_BIAS, &sem->count);
@@ -330,6 +338,19 @@ static int __ldsem_down_read_nested(struct ld_semaphore *sem,
 		}
 	}
 	lock_stat(sem, acquired);
+=======
+	rwsem_acquire_read(&sem->dep_map, subclass, 0, _RET_IP_);
+
+	count = atomic_long_add_return(LDSEM_READ_BIAS, &sem->count);
+	if (count <= 0) {
+		lock_contended(&sem->dep_map, _RET_IP_);
+		if (!down_read_failed(sem, count, timeout)) {
+			rwsem_release(&sem->dep_map, _RET_IP_);
+			return 0;
+		}
+	}
+	lock_acquired(&sem->dep_map, _RET_IP_);
+>>>>>>> upstream/android-13
 	return 1;
 }
 
@@ -338,6 +359,7 @@ static int __ldsem_down_write_nested(struct ld_semaphore *sem,
 {
 	long count;
 
+<<<<<<< HEAD
 	lockdep_acquire(sem, subclass, 0, _RET_IP_);
 
 	count = atomic_long_add_return(LDSEM_WRITE_BIAS, &sem->count);
@@ -349,6 +371,19 @@ static int __ldsem_down_write_nested(struct ld_semaphore *sem,
 		}
 	}
 	lock_stat(sem, acquired);
+=======
+	rwsem_acquire(&sem->dep_map, subclass, 0, _RET_IP_);
+
+	count = atomic_long_add_return(LDSEM_WRITE_BIAS, &sem->count);
+	if ((count & LDSEM_ACTIVE_MASK) != LDSEM_ACTIVE_BIAS) {
+		lock_contended(&sem->dep_map, _RET_IP_);
+		if (!down_write_failed(sem, count, timeout)) {
+			rwsem_release(&sem->dep_map, _RET_IP_);
+			return 0;
+		}
+	}
+	lock_acquired(&sem->dep_map, _RET_IP_);
+>>>>>>> upstream/android-13
 	return 1;
 }
 
@@ -371,8 +406,13 @@ int ldsem_down_read_trylock(struct ld_semaphore *sem)
 
 	while (count >= 0) {
 		if (atomic_long_try_cmpxchg(&sem->count, &count, count + LDSEM_READ_BIAS)) {
+<<<<<<< HEAD
 			lockdep_acquire_read(sem, 0, 1, _RET_IP_);
 			lock_stat(sem, acquired);
+=======
+			rwsem_acquire_read(&sem->dep_map, 0, 1, _RET_IP_);
+			lock_acquired(&sem->dep_map, _RET_IP_);
+>>>>>>> upstream/android-13
 			return 1;
 		}
 	}
@@ -397,8 +437,13 @@ int ldsem_down_write_trylock(struct ld_semaphore *sem)
 
 	while ((count & LDSEM_ACTIVE_MASK) == 0) {
 		if (atomic_long_try_cmpxchg(&sem->count, &count, count + LDSEM_WRITE_BIAS)) {
+<<<<<<< HEAD
 			lockdep_acquire(sem, 0, 1, _RET_IP_);
 			lock_stat(sem, acquired);
+=======
+			rwsem_acquire(&sem->dep_map, 0, 1, _RET_IP_);
+			lock_acquired(&sem->dep_map, _RET_IP_);
+>>>>>>> upstream/android-13
 			return 1;
 		}
 	}
@@ -412,7 +457,11 @@ void ldsem_up_read(struct ld_semaphore *sem)
 {
 	long count;
 
+<<<<<<< HEAD
 	lockdep_release(sem, 1, _RET_IP_);
+=======
+	rwsem_release(&sem->dep_map, _RET_IP_);
+>>>>>>> upstream/android-13
 
 	count = atomic_long_add_return(-LDSEM_READ_BIAS, &sem->count);
 	if (count < 0 && (count & LDSEM_ACTIVE_MASK) == 0)
@@ -426,7 +475,11 @@ void ldsem_up_write(struct ld_semaphore *sem)
 {
 	long count;
 
+<<<<<<< HEAD
 	lockdep_release(sem, 1, _RET_IP_);
+=======
+	rwsem_release(&sem->dep_map, _RET_IP_);
+>>>>>>> upstream/android-13
 
 	count = atomic_long_add_return(-LDSEM_WRITE_BIAS, &sem->count);
 	if (count < 0)

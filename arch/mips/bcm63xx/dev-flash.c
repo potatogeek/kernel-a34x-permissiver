@@ -94,6 +94,10 @@ static int __init bcm63xx_detect_flash_type(void)
 		case STRAPBUS_6368_BOOT_SEL_PARALLEL:
 			return BCM63XX_FLASH_TYPE_PARALLEL;
 		}
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		return -EINVAL;
 	}

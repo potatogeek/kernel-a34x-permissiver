@@ -29,9 +29,15 @@ static ssize_t nsim_dbg_netdev_ops_read(struct file *filp,
 		return -ENOMEM;
 
 	p = buf;
+<<<<<<< HEAD
 	p += snprintf(p, bufsize - (p - buf),
 		      "SA count=%u tx=%u\n",
 		      ipsec->count, ipsec->tx);
+=======
+	p += scnprintf(p, bufsize - (p - buf),
+		       "SA count=%u tx=%u\n",
+		       ipsec->count, ipsec->tx);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < NSIM_IPSEC_MAX_SA_COUNT; i++) {
 		struct nsim_sa *sap = &ipsec->sa[i];
@@ -39,6 +45,7 @@ static ssize_t nsim_dbg_netdev_ops_read(struct file *filp,
 		if (!sap->used)
 			continue;
 
+<<<<<<< HEAD
 		p += snprintf(p, bufsize - (p - buf),
 			      "sa[%i] %cx ipaddr=0x%08x %08x %08x %08x\n",
 			      i, (sap->rx ? 'r' : 't'), sap->ipaddr[0],
@@ -51,6 +58,20 @@ static ssize_t nsim_dbg_netdev_ops_read(struct file *filp,
 			      "sa[%i]    key=0x%08x %08x %08x %08x\n",
 			      i, sap->key[0], sap->key[1],
 			      sap->key[2], sap->key[3]);
+=======
+		p += scnprintf(p, bufsize - (p - buf),
+			       "sa[%i] %cx ipaddr=0x%08x %08x %08x %08x\n",
+			       i, (sap->rx ? 'r' : 't'), sap->ipaddr[0],
+			       sap->ipaddr[1], sap->ipaddr[2], sap->ipaddr[3]);
+		p += scnprintf(p, bufsize - (p - buf),
+			       "sa[%i]    spi=0x%08x proto=0x%x salt=0x%08x crypt=%d\n",
+			       i, be32_to_cpu(sap->xs->id.spi),
+			       sap->xs->id.proto, sap->salt, sap->crypt);
+		p += scnprintf(p, bufsize - (p - buf),
+			       "sa[%i]    key=0x%08x %08x %08x %08x\n",
+			       i, sap->key[0], sap->key[1],
+			       sap->key[2], sap->key[3]);
+>>>>>>> upstream/android-13
 	}
 
 	len = simple_read_from_buffer(buffer, count, ppos, buf, p - buf);
@@ -85,7 +106,11 @@ static int nsim_ipsec_parse_proto_keys(struct xfrm_state *xs,
 				       u32 *mykey, u32 *mysalt)
 {
 	const char aes_gcm_name[] = "rfc4106(gcm(aes))";
+<<<<<<< HEAD
 	struct net_device *dev = xs->xso.dev;
+=======
+	struct net_device *dev = xs->xso.real_dev;
+>>>>>>> upstream/android-13
 	unsigned char *key_data;
 	char *alg_name = NULL;
 	int key_len;
@@ -134,7 +159,11 @@ static int nsim_ipsec_add_sa(struct xfrm_state *xs)
 	u16 sa_idx;
 	int ret;
 
+<<<<<<< HEAD
 	dev = xs->xso.dev;
+=======
+	dev = xs->xso.real_dev;
+>>>>>>> upstream/android-13
 	ns = netdev_priv(dev);
 	ipsec = &ns->ipsec;
 
@@ -194,7 +223,11 @@ static int nsim_ipsec_add_sa(struct xfrm_state *xs)
 
 static void nsim_ipsec_del_sa(struct xfrm_state *xs)
 {
+<<<<<<< HEAD
 	struct netdevsim *ns = netdev_priv(xs->xso.dev);
+=======
+	struct netdevsim *ns = netdev_priv(xs->xso.real_dev);
+>>>>>>> upstream/android-13
 	struct nsim_ipsec *ipsec = &ns->ipsec;
 	u16 sa_idx;
 
@@ -211,7 +244,11 @@ static void nsim_ipsec_del_sa(struct xfrm_state *xs)
 
 static bool nsim_ipsec_offload_ok(struct sk_buff *skb, struct xfrm_state *xs)
 {
+<<<<<<< HEAD
 	struct netdevsim *ns = netdev_priv(xs->xso.dev);
+=======
+	struct netdevsim *ns = netdev_priv(xs->xso.real_dev);
+>>>>>>> upstream/android-13
 	struct nsim_ipsec *ipsec = &ns->ipsec;
 
 	ipsec->ok++;
@@ -227,18 +264,31 @@ static const struct xfrmdev_ops nsim_xfrmdev_ops = {
 
 bool nsim_ipsec_tx(struct netdevsim *ns, struct sk_buff *skb)
 {
+<<<<<<< HEAD
+=======
+	struct sec_path *sp = skb_sec_path(skb);
+>>>>>>> upstream/android-13
 	struct nsim_ipsec *ipsec = &ns->ipsec;
 	struct xfrm_state *xs;
 	struct nsim_sa *tsa;
 	u32 sa_idx;
 
 	/* do we even need to check this packet? */
+<<<<<<< HEAD
 	if (!skb->sp)
 		return true;
 
 	if (unlikely(!skb->sp->len)) {
 		netdev_err(ns->netdev, "no xfrm state len = %d\n",
 			   skb->sp->len);
+=======
+	if (!sp)
+		return true;
+
+	if (unlikely(!sp->len)) {
+		netdev_err(ns->netdev, "no xfrm state len = %d\n",
+			   sp->len);
+>>>>>>> upstream/android-13
 		return false;
 	}
 
@@ -282,7 +332,12 @@ void nsim_ipsec_init(struct netdevsim *ns)
 	ns->netdev->features |= NSIM_ESP_FEATURES;
 	ns->netdev->hw_enc_features |= NSIM_ESP_FEATURES;
 
+<<<<<<< HEAD
 	ns->ipsec.pfile = debugfs_create_file("ipsec", 0400, ns->ddir, ns,
+=======
+	ns->ipsec.pfile = debugfs_create_file("ipsec", 0400,
+					      ns->nsim_dev_port->ddir, ns,
+>>>>>>> upstream/android-13
 					      &ipsec_dbg_fops);
 }
 

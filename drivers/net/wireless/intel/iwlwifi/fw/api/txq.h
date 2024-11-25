@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -59,6 +60,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *****************************************************************************/
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+/*
+ * Copyright (C) 2005-2014, 2019-2020 Intel Corporation
+ * Copyright (C) 2013-2015 Intel Mobile Communications GmbH
+ * Copyright (C) 2016-2017 Intel Deutschland GmbH
+ */
+>>>>>>> upstream/android-13
 #ifndef __iwl_fw_api_txq_h__
 #define __iwl_fw_api_txq_h__
 
@@ -97,7 +106,11 @@ enum iwl_mvm_dqa_txq {
 	IWL_MVM_DQA_MAX_MGMT_QUEUE = 8,
 	IWL_MVM_DQA_AP_PROBE_RESP_QUEUE = 9,
 	IWL_MVM_DQA_MIN_DATA_QUEUE = 10,
+<<<<<<< HEAD
 	IWL_MVM_DQA_MAX_DATA_QUEUE = 31,
+=======
+	IWL_MVM_DQA_MAX_DATA_QUEUE = 30,
+>>>>>>> upstream/android-13
 };
 
 enum iwl_mvm_tx_fifo {
@@ -133,6 +146,10 @@ enum iwl_tx_queue_cfg_actions {
 
 #define IWL_DEFAULT_QUEUE_SIZE 256
 #define IWL_MGMT_QUEUE_SIZE 16
+<<<<<<< HEAD
+=======
+#define IWL_CMD_QUEUE_SIZE 32
+>>>>>>> upstream/android-13
 /**
  * struct iwl_tx_queue_cfg_cmd - txq hw scheduler config command
  * @sta_id: station id

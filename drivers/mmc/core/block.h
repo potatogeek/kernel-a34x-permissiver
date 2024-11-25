@@ -2,6 +2,7 @@
 #ifndef _MMC_CORE_BLOCK_H
 #define _MMC_CORE_BLOCK_H
 
+<<<<<<< HEAD
 #define MMC_SBC_OFFSET 0
 #define MMC_CMD_OFFSET 2
 #define MMC_DATA_OFFSET 4
@@ -51,6 +52,11 @@ struct mmc_blk_data {
 };
 
 
+=======
+struct mmc_queue;
+struct request;
+
+>>>>>>> upstream/android-13
 void mmc_blk_cqe_recovery(struct mmc_queue *mq);
 
 enum mmc_issued;
@@ -62,6 +68,9 @@ void mmc_blk_mq_recovery(struct mmc_queue *mq);
 struct work_struct;
 
 void mmc_blk_mq_complete_work(struct work_struct *work);
+<<<<<<< HEAD
 void mmc_error_count_log(struct mmc_card *card, int index, int error, u32 status);
+=======
+>>>>>>> upstream/android-13
 
 #endif

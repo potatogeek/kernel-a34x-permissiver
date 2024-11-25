@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0
 #include <linux/export.h>
 #include <linux/errno.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/spi/spi.h>
 #include "fbtft.h"
 
@@ -135,8 +139,12 @@ int fbtft_write_vmem16_bus8(struct fbtft_par *par, size_t offset, size_t len)
 	remain = len / 2;
 	vmem16 = (u16 *)(par->info->screen_buffer + offset);
 
+<<<<<<< HEAD
 	if (par->gpio.dc != -1)
 		gpio_set_value(par->gpio.dc, 1);
+=======
+	gpiod_set_value(par->gpio.dc, 1);
+>>>>>>> upstream/android-13
 
 	/* non buffered write */
 	if (!par->txbuf.buf)

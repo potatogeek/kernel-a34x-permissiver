@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 2010 Tobias Klauser <tklauser@distanz.ch>
  *  Copyright (C) 2009 Thomas Chou <thomas@wytron.com.tw>
@@ -15,6 +16,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ *  Copyright (C) 2010 Tobias Klauser <tklauser@distanz.ch>
+ *  Copyright (C) 2009 Thomas Chou <thomas@wytron.com.tw>
+>>>>>>> upstream/android-13
  */
 
 #include <generated/asm-offsets.h>

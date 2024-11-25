@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2011 Zhang, Keguang <keguang.zhang@gmail.com>
  *
@@ -16,6 +17,19 @@ void __init plat_mem_setup(void)
 	add_memory_region(0x0, (memsize << 20), BOOT_MEM_RAM);
 }
 
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2011 Zhang, Keguang <keguang.zhang@gmail.com>
+ */
+
+#include <linux/io.h>
+#include <linux/init.h>
+#include <linux/smp.h>
+#include <asm/cpu-info.h>
+#include <asm/bootinfo.h>
+
+>>>>>>> upstream/android-13
 const char *get_system_type(void)
 {
 	unsigned int processor_id = (&current_cpu_data)->processor_id;

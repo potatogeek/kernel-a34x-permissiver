@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Event entry/exit for Hexagon
  *
  * Copyright (c) 2010-2013, The Linux Foundation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -16,6 +21,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <asm/asm-offsets.h>  /*  assembly-safer versions of C defines */
@@ -278,12 +285,21 @@ event_dispatch:
 	 * should be in the designated register (usually R19)
 	 *
 	 * If we were in kernel mode, we don't need to check scheduler
+<<<<<<< HEAD
 	 * or signals if CONFIG_PREEMPT is not set.  If set, then it has
 	 * to jump to a need_resched kind of block.
 	 * BTW, CONFIG_PREEMPT is not supported yet.
 	 */
 
 #ifdef CONFIG_PREEMPT
+=======
+	 * or signals if CONFIG_PREEMPTION is not set.  If set, then it has
+	 * to jump to a need_resched kind of block.
+	 * BTW, CONFIG_PREEMPTION is not supported yet.
+	 */
+
+#ifdef CONFIG_PREEMPTION
+>>>>>>> upstream/android-13
 	R0 = #VM_INT_DISABLE
 	trap1(#HVM_TRAP1_VMSETIE)
 #endif

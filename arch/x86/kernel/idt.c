@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Interrupt descriptor table related code
  *
@@ -5,11 +6,22 @@
  */
 #include <linux/interrupt.h>
 
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Interrupt descriptor table related code
+ */
+#include <linux/interrupt.h>
+
+#include <asm/cpu_entry_area.h>
+#include <asm/set_memory.h>
+>>>>>>> upstream/android-13
 #include <asm/traps.h>
 #include <asm/proto.h>
 #include <asm/desc.h>
 #include <asm/hw_irq.h>
 
+<<<<<<< HEAD
 struct idt_data {
 	unsigned int	vector;
 	unsigned int	segment;
@@ -17,6 +29,8 @@ struct idt_data {
 	const void	*addr;
 };
 
+=======
+>>>>>>> upstream/android-13
 #define DPL0		0x0
 #define DPL3		0x3
 
@@ -41,6 +55,7 @@ struct idt_data {
 #define SYSG(_vector, _addr)				\
 	G(_vector, _addr, DEFAULT_STACK, GATE_INTERRUPT, DPL3, __KERNEL_CS)
 
+<<<<<<< HEAD
 /* Interrupt gate with interrupt stack */
 #define ISTG(_vector, _addr, _ist)			\
 	G(_vector, _addr, _ist, GATE_INTERRUPT, DPL0, __KERNEL_CS)
@@ -48,20 +63,50 @@ struct idt_data {
 /* System interrupt gate with interrupt stack */
 #define SISTG(_vector, _addr, _ist)			\
 	G(_vector, _addr, _ist, GATE_INTERRUPT, DPL3, __KERNEL_CS)
+=======
+#ifdef CONFIG_X86_64
+/*
+ * Interrupt gate with interrupt stack. The _ist index is the index in
+ * the tss.ist[] array, but for the descriptor it needs to start at 1.
+ */
+#define ISTG(_vector, _addr, _ist)			\
+	G(_vector, _addr, _ist + 1, GATE_INTERRUPT, DPL0, __KERNEL_CS)
+#else
+#define ISTG(_vector, _addr, _ist)	INTG(_vector, _addr)
+#endif
+>>>>>>> upstream/android-13
 
 /* Task gate */
 #define TSKG(_vector, _gdt)				\
 	G(_vector, NULL, DEFAULT_STACK, GATE_TASK, DPL0, _gdt << 3)
 
+<<<<<<< HEAD
+=======
+#define IDT_TABLE_SIZE		(IDT_ENTRIES * sizeof(gate_desc))
+
+static bool idt_setup_done __initdata;
+
+>>>>>>> upstream/android-13
 /*
  * Early traps running on the DEFAULT_STACK because the other interrupt
  * stacks work only after cpu_init().
  */
 static const __initconst struct idt_data early_idts[] = {
+<<<<<<< HEAD
 	INTG(X86_TRAP_DB,		debug),
 	SYSG(X86_TRAP_BP,		int3),
 #ifdef CONFIG_X86_32
 	INTG(X86_TRAP_PF,		page_fault),
+=======
+	INTG(X86_TRAP_DB,		asm_exc_debug),
+	SYSG(X86_TRAP_BP,		asm_exc_int3),
+
+#ifdef CONFIG_X86_32
+	/*
+	 * Not possible on 64-bit. See idt_setup_early_pf() for details.
+	 */
+	INTG(X86_TRAP_PF,		asm_exc_page_fault),
+>>>>>>> upstream/android-13
 #endif
 };
 
@@ -72,6 +117,7 @@ static const __initconst struct idt_data early_idts[] = {
  * set up TSS.
  */
 static const __initconst struct idt_data def_idts[] = {
+<<<<<<< HEAD
 	INTG(X86_TRAP_DE,		divide_error),
 	INTG(X86_TRAP_NMI,		nmi),
 	INTG(X86_TRAP_BR,		bounds),
@@ -86,10 +132,27 @@ static const __initconst struct idt_data def_idts[] = {
 	INTG(X86_TRAP_MF,		coprocessor_error),
 	INTG(X86_TRAP_AC,		alignment_check),
 	INTG(X86_TRAP_XF,		simd_coprocessor_error),
+=======
+	INTG(X86_TRAP_DE,		asm_exc_divide_error),
+	ISTG(X86_TRAP_NMI,		asm_exc_nmi, IST_INDEX_NMI),
+	INTG(X86_TRAP_BR,		asm_exc_bounds),
+	INTG(X86_TRAP_UD,		asm_exc_invalid_op),
+	INTG(X86_TRAP_NM,		asm_exc_device_not_available),
+	INTG(X86_TRAP_OLD_MF,		asm_exc_coproc_segment_overrun),
+	INTG(X86_TRAP_TS,		asm_exc_invalid_tss),
+	INTG(X86_TRAP_NP,		asm_exc_segment_not_present),
+	INTG(X86_TRAP_SS,		asm_exc_stack_segment),
+	INTG(X86_TRAP_GP,		asm_exc_general_protection),
+	INTG(X86_TRAP_SPURIOUS,		asm_exc_spurious_interrupt_bug),
+	INTG(X86_TRAP_MF,		asm_exc_coprocessor_error),
+	INTG(X86_TRAP_AC,		asm_exc_alignment_check),
+	INTG(X86_TRAP_XF,		asm_exc_simd_coprocessor_error),
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_X86_32
 	TSKG(X86_TRAP_DF,		GDT_ENTRY_DOUBLEFAULT_TSS),
 #else
+<<<<<<< HEAD
 	INTG(X86_TRAP_DF,		double_fault),
 #endif
 	INTG(X86_TRAP_DB,		debug),
@@ -99,6 +162,21 @@ static const __initconst struct idt_data def_idts[] = {
 #endif
 
 	SYSG(X86_TRAP_OF,		overflow),
+=======
+	ISTG(X86_TRAP_DF,		asm_exc_double_fault, IST_INDEX_DF),
+#endif
+	ISTG(X86_TRAP_DB,		asm_exc_debug, IST_INDEX_DB),
+
+#ifdef CONFIG_X86_MCE
+	ISTG(X86_TRAP_MC,		asm_exc_machine_check, IST_INDEX_MCE),
+#endif
+
+#ifdef CONFIG_AMD_MEM_ENCRYPT
+	ISTG(X86_TRAP_VC,		asm_exc_vmm_communication, IST_INDEX_VC),
+#endif
+
+	SYSG(X86_TRAP_OF,		asm_exc_overflow),
+>>>>>>> upstream/android-13
 #if defined(CONFIG_IA32_EMULATION)
 	SYSG(IA32_SYSCALL_VECTOR,	entry_INT80_compat),
 #elif defined(CONFIG_X86_32)
@@ -111,6 +189,7 @@ static const __initconst struct idt_data def_idts[] = {
  */
 static const __initconst struct idt_data apic_idts[] = {
 #ifdef CONFIG_SMP
+<<<<<<< HEAD
 	INTG(RESCHEDULE_VECTOR,		reschedule_interrupt),
 	INTG(CALL_FUNCTION_VECTOR,	call_function_interrupt),
 	INTG(CALL_FUNCTION_SINGLE_VECTOR, call_function_single_interrupt),
@@ -217,6 +296,65 @@ static inline void idt_init_desc(gate_desc *gate, const struct idt_data *d)
 }
 
 static void
+=======
+	INTG(RESCHEDULE_VECTOR,			asm_sysvec_reschedule_ipi),
+	INTG(CALL_FUNCTION_VECTOR,		asm_sysvec_call_function),
+	INTG(CALL_FUNCTION_SINGLE_VECTOR,	asm_sysvec_call_function_single),
+	INTG(IRQ_MOVE_CLEANUP_VECTOR,		asm_sysvec_irq_move_cleanup),
+	INTG(REBOOT_VECTOR,			asm_sysvec_reboot),
+#endif
+
+#ifdef CONFIG_X86_THERMAL_VECTOR
+	INTG(THERMAL_APIC_VECTOR,		asm_sysvec_thermal),
+#endif
+
+#ifdef CONFIG_X86_MCE_THRESHOLD
+	INTG(THRESHOLD_APIC_VECTOR,		asm_sysvec_threshold),
+#endif
+
+#ifdef CONFIG_X86_MCE_AMD
+	INTG(DEFERRED_ERROR_VECTOR,		asm_sysvec_deferred_error),
+#endif
+
+#ifdef CONFIG_X86_LOCAL_APIC
+	INTG(LOCAL_TIMER_VECTOR,		asm_sysvec_apic_timer_interrupt),
+	INTG(X86_PLATFORM_IPI_VECTOR,		asm_sysvec_x86_platform_ipi),
+# ifdef CONFIG_HAVE_KVM
+	INTG(POSTED_INTR_VECTOR,		asm_sysvec_kvm_posted_intr_ipi),
+	INTG(POSTED_INTR_WAKEUP_VECTOR,		asm_sysvec_kvm_posted_intr_wakeup_ipi),
+	INTG(POSTED_INTR_NESTED_VECTOR,		asm_sysvec_kvm_posted_intr_nested_ipi),
+# endif
+# ifdef CONFIG_IRQ_WORK
+	INTG(IRQ_WORK_VECTOR,			asm_sysvec_irq_work),
+# endif
+	INTG(SPURIOUS_APIC_VECTOR,		asm_sysvec_spurious_apic_interrupt),
+	INTG(ERROR_APIC_VECTOR,			asm_sysvec_error_interrupt),
+#endif
+};
+
+/* Must be page-aligned because the real IDT is used in the cpu entry area */
+static gate_desc idt_table[IDT_ENTRIES] __page_aligned_bss;
+
+static struct desc_ptr idt_descr __ro_after_init = {
+	.size		= IDT_TABLE_SIZE - 1,
+	.address	= (unsigned long) idt_table,
+};
+
+void load_current_idt(void)
+{
+	lockdep_assert_irqs_disabled();
+	load_idt(&idt_descr);
+}
+
+#ifdef CONFIG_X86_F00F_BUG
+bool idt_is_f00f_address(unsigned long address)
+{
+	return ((address - idt_descr.address) >> 3) == 6;
+}
+#endif
+
+static __init void
+>>>>>>> upstream/android-13
 idt_setup_from_table(gate_desc *idt, const struct idt_data *t, int size, bool sys)
 {
 	gate_desc desc;
@@ -229,6 +367,7 @@ idt_setup_from_table(gate_desc *idt, const struct idt_data *t, int size, bool sy
 	}
 }
 
+<<<<<<< HEAD
 static void set_intr_gate(unsigned int n, const void *addr)
 {
 	struct idt_data data;
@@ -241,6 +380,13 @@ static void set_intr_gate(unsigned int n, const void *addr)
 	data.segment	= __KERNEL_CS;
 	data.bits.type	= GATE_INTERRUPT;
 	data.bits.p	= 1;
+=======
+static __init void set_intr_gate(unsigned int n, const void *addr)
+{
+	struct idt_data data;
+
+	init_idt_data(&data, n, addr);
+>>>>>>> upstream/android-13
 
 	idt_setup_from_table(idt_table, &data, 1, false);
 }
@@ -268,6 +414,17 @@ void __init idt_setup_traps(void)
 }
 
 #ifdef CONFIG_X86_64
+<<<<<<< HEAD
+=======
+/*
+ * Early traps running on the DEFAULT_STACK because the other interrupt
+ * stacks work only after cpu_init().
+ */
+static const __initconst struct idt_data early_pf_idts[] = {
+	INTG(X86_TRAP_PF,		asm_exc_page_fault),
+};
+
+>>>>>>> upstream/android-13
 /**
  * idt_setup_early_pf - Initialize the idt table with early pagefault handler
  *
@@ -275,14 +432,22 @@ void __init idt_setup_traps(void)
  * cpu_init() is invoked and sets up TSS. The IST variant is installed
  * after that.
  *
+<<<<<<< HEAD
  * FIXME: Why is 32bit and 64bit installing the PF handler at different
  * places in the early setup code?
+=======
+ * Note, that X86_64 cannot install the real #PF handler in
+ * idt_setup_early_traps() because the memory initialization needs the #PF
+ * handler from the early_idt_handler_array to initialize the early page
+ * tables.
+>>>>>>> upstream/android-13
  */
 void __init idt_setup_early_pf(void)
 {
 	idt_setup_from_table(idt_table, early_pf_idts,
 			     ARRAY_SIZE(early_pf_idts), true);
 }
+<<<<<<< HEAD
 
 /**
  * idt_setup_ist_traps - Initialize the idt table with traps using IST
@@ -303,6 +468,23 @@ void __init idt_setup_debugidt_traps(void)
 }
 #endif
 
+=======
+#endif
+
+static void __init idt_map_in_cea(void)
+{
+	/*
+	 * Set the IDT descriptor to a fixed read-only location in the cpu
+	 * entry area, so that the "sidt" instruction will not leak the
+	 * location of the kernel, and to defend the IDT against arbitrary
+	 * memory write vulnerabilities.
+	 */
+	cea_set_pte(CPU_ENTRY_AREA_RO_IDT_VADDR, __pa_symbol(idt_table),
+		    PAGE_KERNEL_RO);
+	idt_descr.address = CPU_ENTRY_AREA_RO_IDT;
+}
+
+>>>>>>> upstream/android-13
 /**
  * idt_setup_apic_and_irq_gates - Setup APIC/SMP and normal interrupt gates
  */
@@ -329,6 +511,17 @@ void __init idt_setup_apic_and_irq_gates(void)
 		set_intr_gate(i, entry);
 	}
 #endif
+<<<<<<< HEAD
+=======
+	/* Map IDT into CPU entry area and reload it. */
+	idt_map_in_cea();
+	load_idt(&idt_descr);
+
+	/* Make the IDT table read only */
+	set_memory_ro((unsigned long)&idt_table, 1);
+
+	idt_setup_done = true;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -349,15 +542,23 @@ void __init idt_setup_early_handler(void)
 
 /**
  * idt_invalidate - Invalidate interrupt descriptor table
+<<<<<<< HEAD
  * @addr:	The virtual address of the 'invalid' IDT
  */
 void idt_invalidate(void *addr)
 {
 	struct desc_ptr idt = { .address = (unsigned long) addr, .size = 0 };
+=======
+ */
+void idt_invalidate(void)
+{
+	static const struct desc_ptr idt = { .address = 0, .size = 0 };
+>>>>>>> upstream/android-13
 
 	load_idt(&idt);
 }
 
+<<<<<<< HEAD
 void __init update_intr_gate(unsigned int n, const void *addr)
 {
 	if (WARN_ON_ONCE(!test_bit(n, system_vectors)))
@@ -369,5 +570,16 @@ void alloc_intr_gate(unsigned int n, const void *addr)
 {
 	BUG_ON(n < FIRST_SYSTEM_VECTOR);
 	if (!test_and_set_bit(n, system_vectors))
+=======
+void __init alloc_intr_gate(unsigned int n, const void *addr)
+{
+	if (WARN_ON(n < FIRST_SYSTEM_VECTOR))
+		return;
+
+	if (WARN_ON(idt_setup_done))
+		return;
+
+	if (!WARN_ON(test_and_set_bit(n, system_vectors)))
+>>>>>>> upstream/android-13
 		set_intr_gate(n, addr);
 }

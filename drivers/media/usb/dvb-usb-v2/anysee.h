@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * DVB USB Linux driver for Anysee E30 DVB-C & DVB-T USB2.0 receiver
  *
  * Copyright (C) 2007 Antti Palosaari <crope@iki.fi>
  *
+<<<<<<< HEAD
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation; either version 2 of the License, or
@@ -13,6 +18,8 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * TODO:
  * - add smart card reader support for Conditional Access (CA)
  *

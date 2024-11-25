@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Junction temperature thermal driver for Maxim Max77620.
  *
@@ -5,10 +9,13 @@
  *
  * Author: Laxman Dewangan <ldewangan@nvidia.com>
  *	   Mallikarjun Kasoju <mkasoju@nvidia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
  * version 2, as published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/irq.h>
@@ -36,7 +43,11 @@ struct max77620_therm_info {
 /**
  * max77620_thermal_read_temp: Read PMIC die temperatue.
  * @data:	Device specific data.
+<<<<<<< HEAD
  * temp:	Temperature in millidegrees Celsius
+=======
+ * @temp:	Temperature in millidegrees Celsius
+>>>>>>> upstream/android-13
  *
  * The actual temperature of PMIC die is not available from PMIC.
  * PMIC only tells the status if it has crossed or not the threshold level

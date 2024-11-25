@@ -19,11 +19,26 @@
 #include "../configfs.h"
 #include <linux/usb/f_accessory.h>
 #include <linux/miscdevice.h>
+<<<<<<< HEAD
 
 #ifdef CONFIG_USB_NOTIFY_PROC_LOG
 #include <linux/usb_notify.h>
 #endif
 
+=======
+#include <linux/workqueue.h>
+
+#if IS_ENABLED(CONFIG_USB_NOTIFY_LAYER)
+#include <linux/usb_notify.h>
+#endif
+
+#if IS_ENABLED(CONFIG_USB_TYPEC_MANAGER_NOTIFIER)
+#include <linux/usb/typec/manager/usb_typec_manager_notifier.h>
+#endif
+
+#include <linux/battery/sec_battery_common.h>
+
+>>>>>>> upstream/android-13
 #define MAX_INST_NAME_LEN		40
 #define MAX_NAME_LEN	40
 
@@ -71,7 +86,10 @@ static struct usb_descriptor_header *log_fs_function[]  = {
 };
 
 /* high speed support: */
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static struct usb_descriptor_header *log_hs_function[]  = {
 	(struct usb_descriptor_header *) &mtp_avd_descriptor,
 	NULL,
@@ -88,6 +106,14 @@ static struct usb_descriptor_header *log_ss_function[] = {
 		  1 << ACCESSORY_STRING_MODEL | \
 		  1 << ACCESSORY_STRING_VERSION)
 
+<<<<<<< HEAD
+=======
+enum {
+	RELEASE = 0,
+	NOTIFY	= 1,
+};
+
+>>>>>>> upstream/android-13
 struct f_ss_monitor {
 	struct usb_function function;
 	int	current_usb_mode;
@@ -96,7 +122,14 @@ struct f_ss_monitor {
 	u8	aoa_start_cmd;
 	int	usb_function_info;
 	char usb_mode[50];
+<<<<<<< HEAD
 	struct ss_monitor_instance *func_inst;
+=======
+	int	vbus_current;
+	bool is_bind;
+	struct ss_monitor_instance *func_inst;
+	struct work_struct		set_vbus_current_work;
+>>>>>>> upstream/android-13
 };
 
 static inline struct f_ss_monitor *func_to_ss_monitor(struct usb_function *f)
@@ -104,10 +137,29 @@ static inline struct f_ss_monitor *func_to_ss_monitor(struct usb_function *f)
 	return container_of(f, struct f_ss_monitor, function);
 }
 
+<<<<<<< HEAD
+=======
+struct aoa_connect_status {
+	struct delayed_work usb_reset_event_work;
+	ktime_t rst_time_before;
+	ktime_t rst_time_first;
+	int rst_err_cnt;
+	bool rst_err_noti;
+	bool event_state;
+	bool acc_dev_status;
+	bool acc_online;
+};
+
+>>>>>>> upstream/android-13
 struct ss_monitor_instance {
 	struct usb_function_instance func_inst;
 	char *name;
 	struct f_ss_monitor *ss_monitor;
+<<<<<<< HEAD
+=======
+	struct aoa_connect_status aoa_reset;
+	bool vbus_session_called;
+>>>>>>> upstream/android-13
 };
 
 static inline struct ss_monitor_instance *to_fi_ss_monitor(struct usb_function_instance *fi)
@@ -115,6 +167,13 @@ static inline struct ss_monitor_instance *to_fi_ss_monitor(struct usb_function_i
 	return container_of(fi, struct ss_monitor_instance, func_inst);
 }
 
+<<<<<<< HEAD
+=======
+static struct ss_monitor_instance *g_ss_monitor;
+
+#define ERR_RESET_CNT	3
+
+>>>>>>> upstream/android-13
 static inline int _lock(atomic_t *excl)
 {
 	pr_info("[%s] \tline = [%d]\n", __func__, __LINE__);
@@ -179,8 +238,20 @@ static struct miscdevice mtpg_device = {
 static int ss_monitor_set_alt(struct usb_function *f,
 		unsigned int intf, unsigned int alt)
 {
+<<<<<<< HEAD
 	/* Set_configuration */
 	/* We can add usb charing event */
+=======
+	struct f_ss_monitor	*ss_monitor;
+
+	ss_monitor = func_to_ss_monitor(f);
+	g_ss_monitor->aoa_reset.acc_dev_status = false;
+	if (ss_monitor->usb_function_info & GADGET_ACCESSORY) {
+		pr_info("usb: %s: aoa connect\n", __func__);
+		g_ss_monitor->aoa_reset.acc_online = true;
+		g_ss_monitor->aoa_reset.rst_err_cnt = 0;
+	}
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -192,11 +263,16 @@ static void ss_monitor_disable(struct usb_function *f)
 	ss_monitor = func_to_ss_monitor(f);
 	if (!ss_monitor)
 		goto ret;
+<<<<<<< HEAD
 #ifdef CONFIG_USB_NOTIFY_PROC_LOG
+=======
+	ss_monitor->vbus_current = USB_CURRENT_UNCONFIGURED;
+>>>>>>> upstream/android-13
 	if (ss_monitor->accessory_string && !ss_monitor->aoa_start_cmd) {
 		snprintf(aoa_check, sizeof(aoa_check), "AOA_ERR_%x", ss_monitor->accessory_string);
 		store_usblog_notify(NOTIFY_USBMODE_EXTRA, (void *)aoa_check, NULL);
 	}
+<<<<<<< HEAD
 #endif
 	ss_monitor->accessory_string = 0;
 	ss_monitor->aoa_start_cmd = 0;
@@ -204,6 +280,74 @@ ret:
 	memset(guid_info, 0, sizeof(guid_info));
 }
 
+=======
+	ss_monitor->accessory_string = 0;
+	ss_monitor->aoa_start_cmd = 0;
+ret:
+	if (g_ss_monitor->aoa_reset.acc_online) {
+		g_ss_monitor->aoa_reset.acc_online = false;
+		g_ss_monitor->aoa_reset.acc_dev_status = true;
+	}
+
+	memset(guid_info, 0, sizeof(guid_info));
+}
+
+/* for BC1.2 spec */
+static int set_vbus_current(int state)
+{
+	struct power_supply *psy;
+	union power_supply_propval pval = {0};
+
+	pr_info("usb: %s : %dmA\n", __func__, state);
+	psy = power_supply_get_by_name("battery");
+	if (!psy) {
+		pr_err("%s: fail to get battery power_supply\n", __func__);
+		return -1;
+	}
+
+	pval.intval = state;
+	psy_do_property("battery", set, POWER_SUPPLY_EXT_PROP_USB_CONFIGURE, pval);
+	power_supply_put(psy);
+	return 0;
+}
+
+/* notify current change */
+static void set_vbus_current_work(struct work_struct *w)
+{
+	struct f_ss_monitor *ss_monitor;
+#if IS_ENABLED(CONFIG_USB_NOTIFY_LAYER)
+	struct otg_notify *o_notify = get_otg_notify();
+#endif
+
+	ss_monitor = container_of(w, struct f_ss_monitor, set_vbus_current_work);
+
+	switch (ss_monitor->vbus_current) {
+	case USB_CURRENT_SUSPENDED:
+#if IS_ENABLED(CONFIG_USB_NOTIFY_LAYER)
+	/* set vbus current for suspend state is called in usb_notify. */
+		send_otg_notify(o_notify, NOTIFY_EVENT_USBD_SUSPENDED, 1);
+#endif
+		goto skip;
+	case USB_CURRENT_UNCONFIGURED:
+#if IS_ENABLED(CONFIG_USB_NOTIFY_LAYER)
+		send_otg_notify(o_notify, NOTIFY_EVENT_USBD_UNCONFIGURED, 1);
+#endif
+		break;
+	case USB_CURRENT_HIGH_SPEED:
+	case USB_CURRENT_SUPER_SPEED:
+#if IS_ENABLED(CONFIG_USB_NOTIFY_LAYER)
+		send_otg_notify(o_notify, NOTIFY_EVENT_USBD_CONFIGURED, 1);
+#endif
+		break;
+	default:
+		break;
+	}
+	set_vbus_current(ss_monitor->vbus_current);
+skip:
+	return;
+}
+
+>>>>>>> upstream/android-13
 /*-------------------------------------------------------------------------*/
 static void
 mtp_complete_get_guid(struct usb_ep *ep, struct usb_request *req)
@@ -250,7 +394,11 @@ static ssize_t guid_store(struct device *dev,
 
 DEVICE_ATTR_RW(guid);
 
+<<<<<<< HEAD
 #if defined(CONFIG_USB_NOTIFY_PROC_LOG) && IS_MODULE(CONFIG_USB_DWC3)
+=======
+#if defined(CONFIG_USB_NOTIFY_PROC_LOG)
+>>>>>>> upstream/android-13
 static bool is_aoa_string_come(int string_index)
 {
 	if ((string_index & (1<<ACCESSORY_STRING_VERSION)) &&
@@ -284,6 +432,121 @@ static char *get_usb_speed(enum usb_device_speed	speed)
 }
 #endif
 
+<<<<<<< HEAD
+=======
+static void ss_mon_usb_event_work(struct work_struct *work)
+{
+	pr_info("%s, event_state: %d\n", __func__, g_ss_monitor->aoa_reset.event_state);
+
+	if (g_ss_monitor->aoa_reset.event_state)
+		send_usb_err_uevent(USB_ERR_ABNORMAL_RESET, NOTIFY);
+	else
+		send_usb_err_uevent(USB_ERR_ABNORMAL_RESET, RELEASE);
+}
+
+void vbus_session_notify(struct usb_gadget *gadget, int is_active, int ret)
+{
+	if (!g_ss_monitor)
+		return;
+
+	if (ret == EAGAIN) {
+		g_ss_monitor->vbus_session_called = true;
+		return;
+	} else if (g_ss_monitor->vbus_session_called) {
+		pr_info("usb: %s : vbus_session %s run_stop(%s)\n",
+			__func__, is_active ? "On" : "Off", ret ? "fail" : "success");
+		g_ss_monitor->vbus_session_called = false;
+		if (is_active) {
+			if (!ret)
+				store_usblog_notify(NOTIFY_USBSTATE,
+					(void *)"USB_STATE=VBUS:EN:SUCCESS", NULL);
+			else
+				store_usblog_notify(NOTIFY_USBSTATE,
+					(void *)"USB_STATE=VBUS:EN:FAIL", NULL);
+		} else {
+
+			if (g_ss_monitor->aoa_reset.rst_err_noti) {
+				g_ss_monitor->aoa_reset.event_state = RELEASE;
+				g_ss_monitor->aoa_reset.rst_err_noti = false;
+				schedule_delayed_work(&g_ss_monitor->aoa_reset.usb_reset_event_work,
+					msecs_to_jiffies(0));
+			}
+			g_ss_monitor->aoa_reset.rst_err_cnt = 0;
+			g_ss_monitor->aoa_reset.acc_dev_status = 0;
+
+			if (!ret)
+				store_usblog_notify(NOTIFY_USBSTATE,
+					(void *)"USB_STATE=VBUS:DIS:SUCCESS", NULL);
+			else
+				store_usblog_notify(NOTIFY_USBSTATE,
+					(void *)"USB_STATE=VBUS:DIS:FAIL", NULL);
+		}
+	}
+}
+EXPORT_SYMBOL(vbus_session_notify);
+
+void usb_reset_notify(struct usb_gadget *gadget)
+{
+	ktime_t current_time;
+
+	if (!g_ss_monitor)
+		return;
+
+	switch (gadget->speed) {
+	case USB_SPEED_SUPER:
+		store_usblog_notify(NOTIFY_USBSTATE,
+			(void *)"USB_STATE=RESET:SUPER", NULL);
+		break;
+	case USB_SPEED_HIGH:
+		store_usblog_notify(NOTIFY_USBSTATE,
+			(void *)"USB_STATE=RESET:HIGH", NULL);
+		break;
+	case USB_SPEED_FULL:
+		store_usblog_notify(NOTIFY_USBSTATE,
+			(void *)"USB_STATE=RESET:FULL", NULL);
+		break;
+	default:
+		break;
+	}
+
+	if (g_ss_monitor->ss_monitor == NULL)
+		return;
+
+	g_ss_monitor->ss_monitor->vbus_current = USB_CURRENT_UNCONFIGURED;
+	schedule_work(&g_ss_monitor->ss_monitor->set_vbus_current_work);
+
+	if (g_ss_monitor->aoa_reset.acc_dev_status && (g_ss_monitor->aoa_reset.rst_err_noti == false)) {
+		current_time = ktime_to_ms(ktime_get_boottime());
+
+		if (g_ss_monitor->aoa_reset.rst_err_cnt == 0) {
+			if ((current_time - g_ss_monitor->aoa_reset.rst_time_before) < 1000) {
+				g_ss_monitor->aoa_reset.rst_err_cnt++;
+				g_ss_monitor->aoa_reset.rst_time_first = g_ss_monitor->aoa_reset.rst_time_before;
+			}
+		} else {
+			if ((current_time - g_ss_monitor->aoa_reset.rst_time_first) < 1000)
+				g_ss_monitor->aoa_reset.rst_err_cnt++;
+			else
+				g_ss_monitor->aoa_reset.rst_err_cnt = 0;
+		}
+
+		if (g_ss_monitor->aoa_reset.rst_err_cnt >= ERR_RESET_CNT) {
+			g_ss_monitor->aoa_reset.event_state = NOTIFY;
+			schedule_delayed_work(&g_ss_monitor->aoa_reset.usb_reset_event_work, msecs_to_jiffies(0));
+			g_ss_monitor->aoa_reset.rst_err_noti = true;
+		}
+
+		pr_info("usb: %s rst_err_cnt: %d, time_current: %lld, time_before: %lld\n",
+			__func__, g_ss_monitor->aoa_reset.rst_err_cnt, current_time,
+			g_ss_monitor->aoa_reset.rst_time_before);
+
+		g_ss_monitor->aoa_reset.rst_time_before = current_time;
+	}
+
+}
+EXPORT_SYMBOL(usb_reset_notify);
+
+>>>>>>> upstream/android-13
 static int ss_monitor_setup(struct usb_function *f,
 				const struct usb_ctrlrequest *ctrl)
 {
@@ -291,7 +554,11 @@ static int ss_monitor_setup(struct usb_function *f,
 	struct usb_composite_dev *cdev;
 	struct usb_request	*req;
 
+<<<<<<< HEAD
 #if defined(CONFIG_USB_NOTIFY_PROC_LOG) &&  IS_MODULE(CONFIG_USB_DWC3)
+=======
+#if defined(CONFIG_USB_NOTIFY_PROC_LOG)
+>>>>>>> upstream/android-13
 	char log_buf[30] = {0};
 	char *usb_speed = NULL;
 #endif
@@ -326,12 +593,15 @@ static int ss_monitor_setup(struct usb_function *f,
 			if (ctrl->bRequest == 0xA3) {
 				pr_info("usb: [%s] RECEIVE PC GUID / line[%d]\n",
 							__func__, __LINE__);
+<<<<<<< HEAD
 				if (w_length > MAX_GUID_SIZE) {
 					pr_info("usb: [%s] Invalid GUID size / line[%d]\n",
 								__func__, __LINE__);
 					goto unknown;
 				}
 
+=======
+>>>>>>> upstream/android-13
 				value = w_length;
 				req->complete = mtp_complete_get_guid;
 				req->zero = 0;
@@ -346,7 +616,11 @@ static int ss_monitor_setup(struct usb_function *f,
 			} else {
 				if (ctrl->bRequest == ACCESSORY_START) {
 					ss_monitor->aoa_start_cmd = 1;
+<<<<<<< HEAD
 #if defined(CONFIG_USB_NOTIFY_PROC_LOG) && IS_MODULE(CONFIG_USB_DWC3)
+=======
+#if defined(CONFIG_USB_NOTIFY_PROC_LOG)
+>>>>>>> upstream/android-13
 					if (!is_aoa_string_come(ss_monitor->accessory_string))
 						store_usblog_notify(NOTIFY_USBMODE_EXTRA,
 							(void *)"AOA_STR_ERR", NULL);
@@ -369,17 +643,30 @@ static int ss_monitor_setup(struct usb_function *f,
 		case USB_REQ_GET_DESCRIPTOR:
 			if (ctrl->bRequestType != USB_DIR_IN)
 				goto unknown;
+<<<<<<< HEAD
 #if defined(CONFIG_USB_NOTIFY_PROC_LOG) && IS_MODULE(CONFIG_USB_DWC3)
 			switch (w_value >> 8) {
 			case USB_DT_DEVICE:
 				if (w_length == USB_DT_DEVICE_SIZE) {
 					ss_monitor->vbus_current = USB_CURRENT_UNCONFIGURED;
 					schedule_work(&ss_monitor->set_vbus_current_work);
+=======
+#if defined(CONFIG_USB_NOTIFY_PROC_LOG)
+			switch (w_value >> 8) {
+			case USB_DT_DEVICE:
+				if (w_length == USB_DT_DEVICE_SIZE) {
+>>>>>>> upstream/android-13
 					usb_speed = get_usb_speed(cdev->gadget->speed);
 					sprintf(log_buf, "USB_STATE=ENUM:GET:DES:%s", usb_speed);
 					pr_info("usb: GET_DES(%s)\n", usb_speed);
 					store_usblog_notify(NOTIFY_USBSTATE,
 						(void *)"USB_STATE=ENUM:GET:DES", NULL);
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_USB_TYPEC_MANAGER_NOTIFIER)
+					set_usb_enumeration_state(cdev->gadget->speed);
+#endif
+>>>>>>> upstream/android-13
 				}
 				break;
 			case USB_DT_CONFIG:
@@ -389,7 +676,11 @@ static int ss_monitor_setup(struct usb_function *f,
 			break;
 #endif
 		case USB_REQ_SET_CONFIGURATION:
+<<<<<<< HEAD
 #if defined(CONFIG_USB_NOTIFY_PROC_LOG) && IS_MODULE(CONFIG_USB_DWC3)
+=======
+#if defined(CONFIG_USB_NOTIFY_PROC_LOG)
+>>>>>>> upstream/android-13
 			pr_info("usb: SET_CONFIG (%d)\n", w_value);
 			if (cdev->gadget->speed >= USB_SPEED_SUPER)
 				ss_monitor->vbus_current = USB_CURRENT_SUPER_SPEED;
@@ -399,6 +690,13 @@ static int ss_monitor_setup(struct usb_function *f,
 			store_usblog_notify(NOTIFY_USBSTATE,
 				(void *)"USB_STATE=ENUM:SET:CON", NULL);
 #endif
+<<<<<<< HEAD
+=======
+			if (ss_monitor->usb_function_info & GADGET_ACCESSORY) {
+				g_ss_monitor->aoa_reset.acc_online = true;
+				g_ss_monitor->aoa_reset.rst_err_cnt = 0;
+			}
+>>>>>>> upstream/android-13
 			break;
 		}
 	}
@@ -406,7 +704,47 @@ unknown:
 	return value;
 }
 
+<<<<<<< HEAD
 #if defined(CONFIG_USB_NOTIFY_PROC_LOG) && IS_MODULE(CONFIG_USB_DWC3)
+=======
+void make_suspend_current_event(void)
+{
+	if (!g_ss_monitor)
+		return;
+
+	if (g_ss_monitor->ss_monitor && g_ss_monitor->ss_monitor->is_bind) {
+		g_ss_monitor->ss_monitor->vbus_current = USB_CURRENT_SUSPENDED;
+		schedule_work(&g_ss_monitor->ss_monitor->set_vbus_current_work);
+	}
+}
+EXPORT_SYMBOL(make_suspend_current_event);
+
+static void ss_monitor_suspend(struct usb_function *f)
+{
+	struct f_ss_monitor *ss_monitor;
+
+	pr_info("usb: %s : usb suspend enter\n", __func__);
+	ss_monitor = func_to_ss_monitor(f);
+	ss_monitor->vbus_current = USB_CURRENT_SUSPENDED;
+	schedule_work(&ss_monitor->set_vbus_current_work);
+}
+
+static void ss_monitor_resume(struct usb_function *f)
+{
+	struct f_ss_monitor *ss_monitor;
+	struct usb_composite_dev *cdev = f->config->cdev;
+
+	pr_info("usb: %s : usb suspend exit\n", __func__);
+	ss_monitor = func_to_ss_monitor(f);
+	if (cdev->gadget->speed >= USB_SPEED_SUPER)
+		ss_monitor->vbus_current = USB_CURRENT_SUPER_SPEED;
+	else
+		ss_monitor->vbus_current = USB_CURRENT_HIGH_SPEED;
+	schedule_work(&ss_monitor->set_vbus_current_work);
+}
+
+#if defined(CONFIG_USB_NOTIFY_PROC_LOG)
+>>>>>>> upstream/android-13
 static void update_usb_gadet_function(char *f_name, struct f_ss_monitor *p_monitor)
 {
 	if (!strcmp(f_name, "mtp")) {
@@ -497,7 +835,11 @@ static int usb_configuration_name(struct usb_configuration *config, struct usb_f
 		} else {
 			if (!strcmp(f->name, "mtp") || !strcmp(f->name, "ptp"))
 				use_ffs_mtp = 0;
+<<<<<<< HEAD
 			name_len = sizeof(f->name);
+=======
+			name_len = strlen(f->name);
+>>>>>>> upstream/android-13
 			if (name_len > MAX_INST_NAME_LEN)
 				return -ENAMETOOLONG;
 
@@ -531,6 +873,7 @@ static int usb_configuration_name(struct usb_configuration *config, struct usb_f
 static int
 ss_monitor_bind(struct usb_configuration *c, struct usb_function *f)
 {
+<<<<<<< HEAD
 #if defined(CONFIG_USB_NOTIFY_PROC_LOG) && IS_MODULE(CONFIG_USB_DWC3)
 	struct f_ss_monitor		*ss_monitor = func_to_ss_monitor(f);
 #endif
@@ -562,10 +905,47 @@ ss_monitor_bind(struct usb_configuration *c, struct usb_function *f)
 
 	/* save usb mode information */
 #if defined(CONFIG_USB_NOTIFY_PROC_LOG) && IS_MODULE(CONFIG_USB_DWC3)
+=======
+	struct f_ss_monitor		*ss_monitor = func_to_ss_monitor(f);
+	struct ss_monitor_instance *opts;
+	int	rc = -1;
+
+	opts = container_of(f->fi, struct ss_monitor_instance, func_inst);
+
+	if (!strcmp(opts->name, "mtp") || !strcmp(opts->name, "ptp")) {
+		/* copy descriptors, and track endpoint copies */
+		f->fs_descriptors = usb_copy_descriptors(log_fs_function);
+
+		/* support all relevant hardware speeds... we expect that when
+		 * hardware is dual speed, all bulk-capable endpoints work at
+		 * both speeds
+		 */
+		if (gadget_is_dualspeed(c->cdev->gadget)) {
+			/* copy descriptors, and track endpoint copies */
+			f->hs_descriptors = usb_copy_descriptors(log_hs_function);
+		}
+
+		if (gadget_is_superspeed(c->cdev->gadget)) {
+			/* copy descriptors, and track endpoint copies */
+			f->ss_descriptors = usb_copy_descriptors(log_ss_function);
+			if (!f->ss_descriptors)
+				goto fail;
+
+			/* copy descriptors, and track endpoint copies for SSP */
+			f->ssp_descriptors = usb_copy_descriptors(log_ss_function);
+			if (!f->ssp_descriptors)
+				goto fail;
+		}
+	}
+
+	/* save usb mode information */
+#if defined(CONFIG_USB_NOTIFY_PROC_LOG)
+>>>>>>> upstream/android-13
 	usb_configuration_name(c, f);
 	store_usblog_notify(NOTIFY_USBSTATE,
 		(void *)"USB_STATE=PULLUP:EN:SUCCESS", NULL);
 #endif
+<<<<<<< HEAD
 
 	f->setup = ss_monitor_setup;
 	pr_info("usb: [%s] ss_mon bind\n", __func__);
@@ -577,6 +957,29 @@ fail:
 		(void *)"USB_STATE=PULLUP:EN:FAIL", NULL);
 #endif
 	pr_info("usb: [%s] ss_monitor bind fail\n", __func__);
+=======
+	INIT_WORK(&ss_monitor->set_vbus_current_work, set_vbus_current_work);
+
+#if IS_ENABLED(CONFIG_USB_TYPEC_MANAGER_NOTIFIER)
+	set_usb_enable_state();
+#endif
+
+	f->setup = ss_monitor_setup;
+	ss_monitor->is_bind = 1;
+	if (!strcmp(opts->name, "mtp") || !strcmp(opts->name, "ptp"))
+		pr_info("usb: [%s] ss_mon.%s bind\n", __func__, opts->name);
+	else
+		pr_info("usb: [%s] ss_mon.%s bind: skip descriptor\n",
+			__func__, opts->name);
+	return 0;
+
+fail:
+#if defined(CONFIG_USB_NOTIFY_PROC_LOG)
+	store_usblog_notify(NOTIFY_USBSTATE,
+		(void *)"USB_STATE=PULLUP:EN:FAIL", NULL);
+#endif
+	pr_err("usb: [%s] ss_mon.%s bind fail\n", __func__, opts->name);
+>>>>>>> upstream/android-13
 	return rc;
 
 }
@@ -584,6 +987,7 @@ fail:
 static void
 ss_monitor_unbind(struct usb_configuration *c, struct usb_function *f)
 {
+<<<<<<< HEAD
 	f->setup = NULL;
 #if defined(CONFIG_USB_NOTIFY_PROC_LOG) && IS_MODULE(CONFIG_USB_DWC3)
 	store_usblog_notify(NOTIFY_USBSTATE,
@@ -591,6 +995,26 @@ ss_monitor_unbind(struct usb_configuration *c, struct usb_function *f)
 #endif
 
 	pr_info("usb: %s: ss_mon unbind\n", __func__);
+=======
+	struct f_ss_monitor *ss_monitor = func_to_ss_monitor(f);
+	struct ss_monitor_instance *opts;
+
+	opts = container_of(f->fi, struct ss_monitor_instance, func_inst);
+	f->setup = NULL;
+#if defined(CONFIG_USB_NOTIFY_PROC_LOG)
+	store_usblog_notify(NOTIFY_USBSTATE,
+		(void *)"USB_STATE=PULLUP:DIS", NULL);
+#endif
+	opts->aoa_reset.rst_err_cnt = 0;
+	ss_monitor->usb_function_info = 0;
+	ss_monitor->is_bind = 0;
+
+	cancel_delayed_work_sync(&opts->aoa_reset.usb_reset_event_work);
+	flush_work(&ss_monitor->set_vbus_current_work);
+
+	pr_info("usb: %s: ss_mon.%s unbind\n", __func__, opts->name);
+
+>>>>>>> upstream/android-13
 }
 
 static struct ss_monitor_instance *to_ss_monitor_instance(struct config_item *item)
@@ -685,6 +1109,11 @@ static struct usb_function_instance *ss_mon_alloc_inst(void)
 	config_group_init_type_name(&fi_ss_monitor->func_inst.group,
 					"", &ss_monitor_func_type);
 
+<<<<<<< HEAD
+=======
+	INIT_DELAYED_WORK(&fi_ss_monitor->aoa_reset.usb_reset_event_work, ss_mon_usb_event_work);
+	g_ss_monitor = fi_ss_monitor;
+>>>>>>> upstream/android-13
 	return  &fi_ss_monitor->func_inst;
 
 err_misc_deregister:
@@ -705,6 +1134,10 @@ static void ss_monitor_free(struct usb_function *f)
 	struct ss_monitor_instance *opts = container_of(f->fi, struct ss_monitor_instance, func_inst);
 
 	opts->func_inst.f = NULL;
+<<<<<<< HEAD
+=======
+	g_ss_monitor->ss_monitor = NULL;
+>>>>>>> upstream/android-13
 	kfree(ss_monitor);
 }
 
@@ -724,11 +1157,21 @@ static struct usb_function *ss_mon_alloc(struct usb_function_instance *fi)
 	ss_monitor->function.set_alt = ss_monitor_set_alt;
 	ss_monitor->function.disable = ss_monitor_disable;
 	ss_monitor->function.free_func = ss_monitor_free;
+<<<<<<< HEAD
 //	ss_monitor->function.setup = ss_monitor_setup;
 
 	fi_ss_monitor->ss_monitor = ss_monitor;
 	fi->f = &ss_monitor->function;
 	ss_monitor->func_inst = fi_ss_monitor;
+=======
+	// ss_monitor->function.setup = ss_monitor_setup;
+	ss_monitor->function.suspend = ss_monitor_suspend;
+	ss_monitor->function.resume  = ss_monitor_resume;
+	fi_ss_monitor->ss_monitor = ss_monitor;
+	fi->f = &ss_monitor->function;
+	ss_monitor->func_inst = fi_ss_monitor;
+	g_ss_monitor->ss_monitor = ss_monitor;
+>>>>>>> upstream/android-13
 
 	return &ss_monitor->function;
 }
@@ -736,4 +1179,8 @@ static struct usb_function *ss_mon_alloc(struct usb_function_instance *fi)
 DECLARE_USB_FUNCTION_INIT(ss_mon, ss_mon_alloc_inst, ss_mon_alloc);
 MODULE_AUTHOR("Samsung USB Team");
 MODULE_DESCRIPTION("usb device monitor gadget");
+<<<<<<< HEAD
 MODULE_LICENSE("GPL");
+=======
+MODULE_LICENSE("GPL");
+>>>>>>> upstream/android-13

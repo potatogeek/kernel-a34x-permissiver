@@ -25,7 +25,11 @@
 #include <linux/of_address.h>
 #include <linux/io.h>
 #include <linux/smp.h>
+<<<<<<< HEAD
 #include <linux/dma-mapping.h>
+=======
+#include <linux/dma-map-ops.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/slab.h>
 #include <linux/mbus.h>

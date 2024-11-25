@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * wm8350.c -- WM8350 ALSA SoC audio driver
  *
  * Copyright (C) 2007-12 Wolfson Microelectronics PLC.
  *
  * Author: Liam Girdwood <lrg@slimlogic.co.uk>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -221,7 +228,12 @@ static void wm8350_pga_work(struct work_struct *work)
 
 	/* PGA volumes have 6 bits of resolution to ramp */
 	for (i = 0; i <= 63; i++) {
+<<<<<<< HEAD
 		out1_complete = 1, out2_complete = 1;
+=======
+		out1_complete = 1;
+		out2_complete = 1;
+>>>>>>> upstream/android-13
 		if (out1->ramp != WM8350_RAMP_NONE)
 			out1_complete = wm8350_out1_ramp_step(wm8350_data);
 		if (out2->ramp != WM8350_RAMP_NONE)
@@ -334,7 +346,11 @@ static int wm8350_put_volsw_2r_vu(struct snd_kcontrol *kcontrol,
 		return ret;
 
 	/* now hit the volume update bits (always bit 8) */
+<<<<<<< HEAD
 	val = snd_soc_component_read32(component, reg);
+=======
+	val = snd_soc_component_read(component, reg);
+>>>>>>> upstream/android-13
 	snd_soc_component_write(component, reg, val | WM8350_OUT1_VU);
 	return 1;
 }
@@ -769,7 +785,11 @@ static int wm8350_set_dai_sysclk(struct snd_soc_dai *codec_dai,
 	case WM8350_MCLK_SEL_PLL_32K:
 		wm8350_set_bits(wm8350, WM8350_CLOCK_CONTROL_1,
 				WM8350_MCLK_SEL);
+<<<<<<< HEAD
 		fll_4 = snd_soc_component_read32(component, WM8350_FLL_CONTROL_4) &
+=======
+		fll_4 = snd_soc_component_read(component, WM8350_FLL_CONTROL_4) &
+>>>>>>> upstream/android-13
 		    ~WM8350_FLL_CLK_SRC_MASK;
 		snd_soc_component_write(component, WM8350_FLL_CONTROL_4, fll_4 | clk_id);
 		break;
@@ -793,37 +813,65 @@ static int wm8350_set_clkdiv(struct snd_soc_dai *codec_dai, int div_id, int div)
 
 	switch (div_id) {
 	case WM8350_ADC_CLKDIV:
+<<<<<<< HEAD
 		val = snd_soc_component_read32(component, WM8350_ADC_DIVIDER) &
+=======
+		val = snd_soc_component_read(component, WM8350_ADC_DIVIDER) &
+>>>>>>> upstream/android-13
 		    ~WM8350_ADC_CLKDIV_MASK;
 		snd_soc_component_write(component, WM8350_ADC_DIVIDER, val | div);
 		break;
 	case WM8350_DAC_CLKDIV:
+<<<<<<< HEAD
 		val = snd_soc_component_read32(component, WM8350_DAC_CLOCK_CONTROL) &
+=======
+		val = snd_soc_component_read(component, WM8350_DAC_CLOCK_CONTROL) &
+>>>>>>> upstream/android-13
 		    ~WM8350_DAC_CLKDIV_MASK;
 		snd_soc_component_write(component, WM8350_DAC_CLOCK_CONTROL, val | div);
 		break;
 	case WM8350_BCLK_CLKDIV:
+<<<<<<< HEAD
 		val = snd_soc_component_read32(component, WM8350_CLOCK_CONTROL_1) &
+=======
+		val = snd_soc_component_read(component, WM8350_CLOCK_CONTROL_1) &
+>>>>>>> upstream/android-13
 		    ~WM8350_BCLK_DIV_MASK;
 		snd_soc_component_write(component, WM8350_CLOCK_CONTROL_1, val | div);
 		break;
 	case WM8350_OPCLK_CLKDIV:
+<<<<<<< HEAD
 		val = snd_soc_component_read32(component, WM8350_CLOCK_CONTROL_1) &
+=======
+		val = snd_soc_component_read(component, WM8350_CLOCK_CONTROL_1) &
+>>>>>>> upstream/android-13
 		    ~WM8350_OPCLK_DIV_MASK;
 		snd_soc_component_write(component, WM8350_CLOCK_CONTROL_1, val | div);
 		break;
 	case WM8350_SYS_CLKDIV:
+<<<<<<< HEAD
 		val = snd_soc_component_read32(component, WM8350_CLOCK_CONTROL_1) &
+=======
+		val = snd_soc_component_read(component, WM8350_CLOCK_CONTROL_1) &
+>>>>>>> upstream/android-13
 		    ~WM8350_MCLK_DIV_MASK;
 		snd_soc_component_write(component, WM8350_CLOCK_CONTROL_1, val | div);
 		break;
 	case WM8350_DACLR_CLKDIV:
+<<<<<<< HEAD
 		val = snd_soc_component_read32(component, WM8350_DAC_LR_RATE) &
+=======
+		val = snd_soc_component_read(component, WM8350_DAC_LR_RATE) &
+>>>>>>> upstream/android-13
 		    ~WM8350_DACLRC_RATE_MASK;
 		snd_soc_component_write(component, WM8350_DAC_LR_RATE, val | div);
 		break;
 	case WM8350_ADCLR_CLKDIV:
+<<<<<<< HEAD
 		val = snd_soc_component_read32(component, WM8350_ADC_LR_RATE) &
+=======
+		val = snd_soc_component_read(component, WM8350_ADC_LR_RATE) &
+>>>>>>> upstream/android-13
 		    ~WM8350_ADCLRC_RATE_MASK;
 		snd_soc_component_write(component, WM8350_ADC_LR_RATE, val | div);
 		break;
@@ -837,6 +885,7 @@ static int wm8350_set_clkdiv(struct snd_soc_dai *codec_dai, int div_id, int div)
 static int wm8350_set_dai_fmt(struct snd_soc_dai *codec_dai, unsigned int fmt)
 {
 	struct snd_soc_component *component = codec_dai->component;
+<<<<<<< HEAD
 	u16 iface = snd_soc_component_read32(component, WM8350_AI_FORMATING) &
 	    ~(WM8350_AIF_BCLK_INV | WM8350_AIF_LRCLK_INV | WM8350_AIF_FMT_MASK);
 	u16 master = snd_soc_component_read32(component, WM8350_AI_DAC_CONTROL) &
@@ -844,6 +893,15 @@ static int wm8350_set_dai_fmt(struct snd_soc_dai *codec_dai, unsigned int fmt)
 	u16 dac_lrc = snd_soc_component_read32(component, WM8350_DAC_LR_RATE) &
 	    ~WM8350_DACLRC_ENA;
 	u16 adc_lrc = snd_soc_component_read32(component, WM8350_ADC_LR_RATE) &
+=======
+	u16 iface = snd_soc_component_read(component, WM8350_AI_FORMATING) &
+	    ~(WM8350_AIF_BCLK_INV | WM8350_AIF_LRCLK_INV | WM8350_AIF_FMT_MASK);
+	u16 master = snd_soc_component_read(component, WM8350_AI_DAC_CONTROL) &
+	    ~WM8350_BCLK_MSTR;
+	u16 dac_lrc = snd_soc_component_read(component, WM8350_DAC_LR_RATE) &
+	    ~WM8350_DACLRC_ENA;
+	u16 adc_lrc = snd_soc_component_read(component, WM8350_ADC_LR_RATE) &
+>>>>>>> upstream/android-13
 	    ~WM8350_ADCLRC_ENA;
 
 	/* set master/slave audio interface */
@@ -910,7 +968,11 @@ static int wm8350_pcm_hw_params(struct snd_pcm_substream *substream,
 	struct snd_soc_component *component = codec_dai->component;
 	struct wm8350_data *wm8350_data = snd_soc_component_get_drvdata(component);
 	struct wm8350 *wm8350 = wm8350_data->wm8350;
+<<<<<<< HEAD
 	u16 iface = snd_soc_component_read32(component, WM8350_AI_FORMATING) &
+=======
+	u16 iface = snd_soc_component_read(component, WM8350_AI_FORMATING) &
+>>>>>>> upstream/android-13
 	    ~WM8350_AIF_WL_MASK;
 
 	/* bit size */
@@ -945,7 +1007,11 @@ static int wm8350_pcm_hw_params(struct snd_pcm_substream *substream,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int wm8350_mute(struct snd_soc_dai *dai, int mute)
+=======
+static int wm8350_mute(struct snd_soc_dai *dai, int mute, int direction)
+>>>>>>> upstream/android-13
 {
 	struct snd_soc_component *component = dai->component;
 	unsigned int val;
@@ -1050,7 +1116,11 @@ static int wm8350_set_fll(struct snd_soc_dai *codec_dai,
 		fll_div.ratio);
 
 	/* set up N.K & dividers */
+<<<<<<< HEAD
 	fll_1 = snd_soc_component_read32(component, WM8350_FLL_CONTROL_1) &
+=======
+	fll_1 = snd_soc_component_read(component, WM8350_FLL_CONTROL_1) &
+>>>>>>> upstream/android-13
 	    ~(WM8350_FLL_OUTDIV_MASK | WM8350_FLL_RSP_RATE_MASK | 0xc000);
 	snd_soc_component_write(component, WM8350_FLL_CONTROL_1,
 			   fll_1 | (fll_div.div << 8) | 0x50);
@@ -1058,7 +1128,11 @@ static int wm8350_set_fll(struct snd_soc_dai *codec_dai,
 			   (fll_div.ratio << 11) | (fll_div.
 						    n & WM8350_FLL_N_MASK));
 	snd_soc_component_write(component, WM8350_FLL_CONTROL_3, fll_div.k);
+<<<<<<< HEAD
 	fll_4 = snd_soc_component_read32(component, WM8350_FLL_CONTROL_4) &
+=======
+	fll_4 = snd_soc_component_read(component, WM8350_FLL_CONTROL_4) &
+>>>>>>> upstream/android-13
 	    ~(WM8350_FLL_FRAC | WM8350_FLL_SLOW_LOCK_REF);
 	snd_soc_component_write(component, WM8350_FLL_CONTROL_4,
 			   fll_4 | (fll_div.k ? WM8350_FLL_FRAC : 0) |
@@ -1429,11 +1503,19 @@ EXPORT_SYMBOL_GPL(wm8350_mic_jack_detect);
 
 static const struct snd_soc_dai_ops wm8350_dai_ops = {
 	 .hw_params	= wm8350_pcm_hw_params,
+<<<<<<< HEAD
 	 .digital_mute	= wm8350_mute,
+=======
+	 .mute_stream	= wm8350_mute,
+>>>>>>> upstream/android-13
 	 .set_fmt	= wm8350_set_dai_fmt,
 	 .set_sysclk	= wm8350_set_dai_sysclk,
 	 .set_pll	= wm8350_set_fll,
 	 .set_clkdiv	= wm8350_set_clkdiv,
+<<<<<<< HEAD
+=======
+	 .no_capture_mute = 1,
+>>>>>>> upstream/android-13
 };
 
 static struct snd_soc_dai_driver wm8350_dai = {
@@ -1538,6 +1620,7 @@ static  int wm8350_component_probe(struct snd_soc_component *component)
 	wm8350_clear_bits(wm8350, WM8350_JACK_DETECT,
 			  WM8350_JDL_ENA | WM8350_JDR_ENA);
 
+<<<<<<< HEAD
 	wm8350_register_irq(wm8350, WM8350_IRQ_CODEC_JCK_DET_L,
 			    wm8350_hpl_jack_handler, 0, "Left jack detect",
 			    priv);
@@ -1550,6 +1633,40 @@ static  int wm8350_component_probe(struct snd_soc_component *component)
 			    wm8350_mic_handler, 0, "Microphone detect", priv);
 
 	return 0;
+=======
+	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CODEC_JCK_DET_L,
+			    wm8350_hpl_jack_handler, 0, "Left jack detect",
+			    priv);
+	if (ret != 0)
+		goto err;
+
+	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CODEC_JCK_DET_R,
+			    wm8350_hpr_jack_handler, 0, "Right jack detect",
+			    priv);
+	if (ret != 0)
+		goto free_jck_det_l;
+
+	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CODEC_MICSCD,
+			    wm8350_mic_handler, 0, "Microphone short", priv);
+	if (ret != 0)
+		goto free_jck_det_r;
+
+	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CODEC_MICD,
+			    wm8350_mic_handler, 0, "Microphone detect", priv);
+	if (ret != 0)
+		goto free_micscd;
+
+	return 0;
+
+free_micscd:
+	wm8350_free_irq(wm8350, WM8350_IRQ_CODEC_MICSCD, priv);
+free_jck_det_r:
+	wm8350_free_irq(wm8350, WM8350_IRQ_CODEC_JCK_DET_R, priv);
+free_jck_det_l:
+	wm8350_free_irq(wm8350, WM8350_IRQ_CODEC_JCK_DET_L, priv);
+err:
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void wm8350_component_remove(struct snd_soc_component *component)

@@ -1,5 +1,6 @@
 #ifndef __NV50_KMS_H__
 #define __NV50_KMS_H__
+<<<<<<< HEAD
 #include <nvif/mem.h>
 
 #include "nouveau_display.h"
@@ -7,6 +8,21 @@
 struct nv50_disp {
 	struct nvif_disp *disp;
 	struct nv50_core *core;
+=======
+#include <linux/workqueue.h>
+#include <nvif/mem.h>
+#include <nvif/push.h>
+
+#include "nouveau_display.h"
+
+struct nv50_msto;
+struct nouveau_encoder;
+
+struct nv50_disp {
+	struct nvif_disp *disp;
+	struct nv50_core *core;
+	struct nvif_object caps;
+>>>>>>> upstream/android-13
 
 #define NV50_DISP_SYNC(c, o)                                ((c) * 0x040 + (o))
 #define NV50_DISP_CORE_NTFY                       NV50_DISP_SYNC(0      , 0x00)
@@ -46,6 +62,11 @@ struct nv50_disp_interlock {
 
 void corec37d_ntfy_init(struct nouveau_bo *, u32);
 
+<<<<<<< HEAD
+=======
+void head907d_olut_load(struct drm_color_lut *, int size, void __iomem *);
+
+>>>>>>> upstream/android-13
 struct nv50_chan {
 	struct nvif_object user;
 	struct nvif_device *device;
@@ -54,7 +75,12 @@ struct nv50_chan {
 struct nv50_dmac {
 	struct nv50_chan base;
 
+<<<<<<< HEAD
 	struct nvif_mem push;
+=======
+	struct nvif_push _push;
+	struct nvif_push *push;
+>>>>>>> upstream/android-13
 	u32 *ptr;
 
 	struct nvif_object sync;
@@ -64,6 +90,27 @@ struct nv50_dmac {
 	 * grabbed by evo_wait (if the pushbuf reservation is successful) and
 	 * dropped again by evo_kick. */
 	struct mutex lock;
+<<<<<<< HEAD
+=======
+
+	u32 cur;
+	u32 put;
+	u32 max;
+};
+
+struct nv50_outp_atom {
+	struct list_head head;
+
+	struct drm_encoder *encoder;
+	bool flush_disable;
+
+	union nv50_outp_atom_mask {
+		struct {
+			bool ctrl:1;
+		};
+		u8 mask;
+	} set, clr;
+>>>>>>> upstream/android-13
 };
 
 int nv50_dmac_create(struct nvif_device *device, struct nvif_object *disp,
@@ -71,6 +118,7 @@ int nv50_dmac_create(struct nvif_device *device, struct nvif_object *disp,
 		     s64 syncbuf, struct nv50_dmac *dmac);
 void nv50_dmac_destroy(struct nv50_dmac *);
 
+<<<<<<< HEAD
 u32 *evo_wait(struct nv50_dmac *, int nr);
 void evo_kick(u32 *, struct nv50_dmac *);
 
@@ -87,4 +135,20 @@ void evo_kick(u32 *, struct nv50_dmac *);
 		pr_err("\t%08x\n", _d);					\
 	*((p)++) = _d;							\
 } while(0)
+=======
+/*
+ * For normal encoders this just returns the encoder. For active MST encoders,
+ * this returns the real outp that's driving displays on the topology.
+ * Inactive MST encoders return NULL, since they would have no real outp to
+ * return anyway.
+ */
+struct nouveau_encoder *nv50_real_outp(struct drm_encoder *encoder);
+
+u32 *evo_wait(struct nv50_dmac *, int nr);
+void evo_kick(u32 *, struct nv50_dmac *);
+
+extern const u64 disp50xx_modifiers[];
+extern const u64 disp90xx_modifiers[];
+extern const u64 wndwc57e_modifiers[];
+>>>>>>> upstream/android-13
 #endif

@@ -12,12 +12,20 @@
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/cpufeature.h>
+<<<<<<< HEAD
 #include <crypto/sha.h>
+=======
+#include <crypto/sha2.h>
+>>>>>>> upstream/android-13
 #include <asm/cpacf.h>
 
 #include "sha.h"
 
+<<<<<<< HEAD
 static int sha256_init(struct shash_desc *desc)
+=======
+static int s390_sha256_init(struct shash_desc *desc)
+>>>>>>> upstream/android-13
 {
 	struct s390_sha_ctx *sctx = shash_desc_ctx(desc);
 
@@ -60,7 +68,11 @@ static int sha256_import(struct shash_desc *desc, const void *in)
 
 static struct shash_alg sha256_alg = {
 	.digestsize	=	SHA256_DIGEST_SIZE,
+<<<<<<< HEAD
 	.init		=	sha256_init,
+=======
+	.init		=	s390_sha256_init,
+>>>>>>> upstream/android-13
 	.update		=	s390_sha_update,
 	.final		=	s390_sha_final,
 	.export		=	sha256_export,
@@ -76,7 +88,11 @@ static struct shash_alg sha256_alg = {
 	}
 };
 
+<<<<<<< HEAD
 static int sha224_init(struct shash_desc *desc)
+=======
+static int s390_sha224_init(struct shash_desc *desc)
+>>>>>>> upstream/android-13
 {
 	struct s390_sha_ctx *sctx = shash_desc_ctx(desc);
 
@@ -96,7 +112,11 @@ static int sha224_init(struct shash_desc *desc)
 
 static struct shash_alg sha224_alg = {
 	.digestsize	=	SHA224_DIGEST_SIZE,
+<<<<<<< HEAD
 	.init		=	sha224_init,
+=======
+	.init		=	s390_sha224_init,
+>>>>>>> upstream/android-13
 	.update		=	s390_sha_update,
 	.final		=	s390_sha_final,
 	.export		=	sha256_export,
@@ -117,7 +137,11 @@ static int __init sha256_s390_init(void)
 	int ret;
 
 	if (!cpacf_query_func(CPACF_KIMD, CPACF_KIMD_SHA_256))
+<<<<<<< HEAD
 		return -EOPNOTSUPP;
+=======
+		return -ENODEV;
+>>>>>>> upstream/android-13
 	ret = crypto_register_shash(&sha256_alg);
 	if (ret < 0)
 		goto out;

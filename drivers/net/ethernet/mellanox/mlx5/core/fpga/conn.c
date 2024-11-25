@@ -54,7 +54,11 @@ static int mlx5_fpga_conn_map_buf(struct mlx5_fpga_conn *conn,
 	if (unlikely(!buf->sg[0].data))
 		goto out;
 
+<<<<<<< HEAD
 	dma_device = &conn->fdev->mdev->pdev->dev;
+=======
+	dma_device = mlx5_core_dma_dev(conn->fdev->mdev);
+>>>>>>> upstream/android-13
 	buf->sg[0].dma_addr = dma_map_single(dma_device, buf->sg[0].data,
 					     buf->sg[0].size, buf->dma_dir);
 	err = dma_mapping_error(dma_device, buf->sg[0].dma_addr);
@@ -86,7 +90,11 @@ static void mlx5_fpga_conn_unmap_buf(struct mlx5_fpga_conn *conn,
 {
 	struct device *dma_device;
 
+<<<<<<< HEAD
 	dma_device = &conn->fdev->mdev->pdev->dev;
+=======
+	dma_device = mlx5_core_dma_dev(conn->fdev->mdev);
+>>>>>>> upstream/android-13
 	if (buf->sg[1].data)
 		dma_unmap_single(dma_device, buf->sg[1].dma_addr,
 				 buf->sg[1].size, buf->dma_dir);
@@ -135,7 +143,11 @@ static void mlx5_fpga_conn_notify_hw(struct mlx5_fpga_conn *conn, void *wqe)
 	*conn->qp.wq.sq.db = cpu_to_be32(conn->qp.sq.pc);
 	/* Make sure that doorbell record is visible before ringing */
 	wmb();
+<<<<<<< HEAD
 	mlx5_write64(wqe, conn->fdev->conn_res.uar->map + MLX5_BF_OFFSET, NULL);
+=======
+	mlx5_write64(wqe, conn->fdev->conn_res.uar->map + MLX5_BF_OFFSET);
+>>>>>>> upstream/android-13
 }
 
 static void mlx5_fpga_conn_post_send(struct mlx5_fpga_conn *conn,
@@ -165,7 +177,11 @@ static void mlx5_fpga_conn_post_send(struct mlx5_fpga_conn *conn,
 	ctrl->fm_ce_se = MLX5_WQE_CTRL_CQ_UPDATE;
 	ctrl->opmod_idx_opcode = cpu_to_be32(((conn->qp.sq.pc & 0xffff) << 8) |
 					     MLX5_OPCODE_SEND);
+<<<<<<< HEAD
 	ctrl->qpn_ds = cpu_to_be32(size | (conn->qp.mqp.qpn << 8));
+=======
+	ctrl->qpn_ds = cpu_to_be32(size | (conn->qp.qpn << 8));
+>>>>>>> upstream/android-13
 
 	conn->qp.sq.pc++;
 	conn->qp.sq.bufs[ix] = buf;
@@ -334,19 +350,31 @@ static void mlx5_fpga_conn_handle_cqe(struct mlx5_fpga_conn *conn,
 {
 	u8 opcode, status = 0;
 
+<<<<<<< HEAD
 	opcode = cqe->op_own >> 4;
+=======
+	opcode = get_cqe_opcode(cqe);
+>>>>>>> upstream/android-13
 
 	switch (opcode) {
 	case MLX5_CQE_REQ_ERR:
 		status = ((struct mlx5_err_cqe *)cqe)->syndrome;
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case MLX5_CQE_REQ:
 		mlx5_fpga_conn_sq_cqe(conn, cqe, status);
 		break;
 
 	case MLX5_CQE_RESP_ERR:
 		status = ((struct mlx5_err_cqe *)cqe)->syndrome;
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case MLX5_CQE_RESP_SEND:
 		mlx5_fpga_conn_rq_cqe(conn, cqe, status);
 		break;
@@ -362,6 +390,7 @@ static void mlx5_fpga_conn_arm_cq(struct mlx5_fpga_conn *conn)
 		    conn->fdev->conn_res.uar->map, conn->cq.wq.cc);
 }
 
+<<<<<<< HEAD
 static void mlx5_fpga_conn_cq_event(struct mlx5_core_cq *mcq,
 				    enum mlx5_event event)
 {
@@ -379,6 +408,8 @@ static void mlx5_fpga_conn_event(struct mlx5_core_qp *mqp, int event)
 	mlx5_fpga_warn(conn->fdev, "QP event %u on QP #%u\n", event, mqp->qpn);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void mlx5_fpga_conn_cqes(struct mlx5_fpga_conn *conn,
 				       unsigned int budget)
 {
@@ -405,16 +436,27 @@ static inline void mlx5_fpga_conn_cqes(struct mlx5_fpga_conn *conn,
 	mlx5_fpga_conn_arm_cq(conn);
 }
 
+<<<<<<< HEAD
 static void mlx5_fpga_conn_cq_tasklet(unsigned long data)
 {
 	struct mlx5_fpga_conn *conn = (void *)data;
+=======
+static void mlx5_fpga_conn_cq_tasklet(struct tasklet_struct *t)
+{
+	struct mlx5_fpga_conn *conn = from_tasklet(conn, t, cq.tasklet);
+>>>>>>> upstream/android-13
 
 	if (unlikely(!conn->qp.active))
 		return;
 	mlx5_fpga_conn_cqes(conn, MLX5_FPGA_CQ_BUDGET);
 }
 
+<<<<<<< HEAD
 static void mlx5_fpga_conn_cq_complete(struct mlx5_core_cq *mcq)
+=======
+static void mlx5_fpga_conn_cq_complete(struct mlx5_core_cq *mcq,
+				       struct mlx5_eqe *eqe)
+>>>>>>> upstream/android-13
 {
 	struct mlx5_fpga_conn *conn;
 
@@ -429,10 +471,17 @@ static int mlx5_fpga_conn_create_cq(struct mlx5_fpga_conn *conn, int cq_size)
 	struct mlx5_fpga_device *fdev = conn->fdev;
 	struct mlx5_core_dev *mdev = fdev->mdev;
 	u32 temp_cqc[MLX5_ST_SZ_DW(cqc)] = {0};
+<<<<<<< HEAD
 	struct mlx5_wq_param wqp;
 	struct mlx5_cqe64 *cqe;
 	int inlen, err, eqn;
 	unsigned int irqn;
+=======
+	u32 out[MLX5_ST_SZ_DW(create_cq_out)];
+	struct mlx5_wq_param wqp;
+	struct mlx5_cqe64 *cqe;
+	int inlen, err, eqn;
+>>>>>>> upstream/android-13
 	void *cqc, *in;
 	__be64 *pas;
 	u32 i;
@@ -461,7 +510,11 @@ static int mlx5_fpga_conn_create_cq(struct mlx5_fpga_conn *conn, int cq_size)
 		goto err_cqwq;
 	}
 
+<<<<<<< HEAD
 	err = mlx5_vector2eqn(mdev, smp_processor_id(), &eqn, &irqn);
+=======
+	err = mlx5_vector2eqn(mdev, smp_processor_id(), &eqn);
+>>>>>>> upstream/android-13
 	if (err) {
 		kvfree(in);
 		goto err_cqwq;
@@ -469,7 +522,11 @@ static int mlx5_fpga_conn_create_cq(struct mlx5_fpga_conn *conn, int cq_size)
 
 	cqc = MLX5_ADDR_OF(create_cq_in, in, cq_context);
 	MLX5_SET(cqc, cqc, log_cq_size, ilog2(cq_size));
+<<<<<<< HEAD
 	MLX5_SET(cqc, cqc, c_eqn, eqn);
+=======
+	MLX5_SET(cqc, cqc, c_eqn_or_apu_element, eqn);
+>>>>>>> upstream/android-13
 	MLX5_SET(cqc, cqc, uar_page, fdev->conn_res.uar->index);
 	MLX5_SET(cqc, cqc, log_page_size, conn->cq.wq_ctrl.buf.page_shift -
 			   MLX5_ADAPTER_PAGE_SHIFT);
@@ -478,7 +535,11 @@ static int mlx5_fpga_conn_create_cq(struct mlx5_fpga_conn *conn, int cq_size)
 	pas = (__be64 *)MLX5_ADDR_OF(create_cq_in, in, pas);
 	mlx5_fill_page_frag_array(&conn->cq.wq_ctrl.buf, pas);
 
+<<<<<<< HEAD
 	err = mlx5_core_create_cq(mdev, &conn->cq.mcq, in, inlen);
+=======
+	err = mlx5_core_create_cq(mdev, &conn->cq.mcq, in, inlen, out, sizeof(out));
+>>>>>>> upstream/android-13
 	kvfree(in);
 
 	if (err)
@@ -491,11 +552,16 @@ static int mlx5_fpga_conn_create_cq(struct mlx5_fpga_conn *conn, int cq_size)
 	*conn->cq.mcq.arm_db    = 0;
 	conn->cq.mcq.vector     = 0;
 	conn->cq.mcq.comp       = mlx5_fpga_conn_cq_complete;
+<<<<<<< HEAD
 	conn->cq.mcq.event      = mlx5_fpga_conn_cq_event;
 	conn->cq.mcq.irqn       = irqn;
 	conn->cq.mcq.uar        = fdev->conn_res.uar;
 	tasklet_init(&conn->cq.tasklet, mlx5_fpga_conn_cq_tasklet,
 		     (unsigned long)conn);
+=======
+	conn->cq.mcq.uar        = fdev->conn_res.uar;
+	tasklet_setup(&conn->cq.tasklet, mlx5_fpga_conn_cq_tasklet);
+>>>>>>> upstream/android-13
 
 	mlx5_fpga_dbg(fdev, "Created CQ #0x%x\n", conn->cq.mcq.cqn);
 
@@ -532,8 +598,14 @@ static int mlx5_fpga_conn_create_qp(struct mlx5_fpga_conn *conn,
 				    unsigned int tx_size, unsigned int rx_size)
 {
 	struct mlx5_fpga_device *fdev = conn->fdev;
+<<<<<<< HEAD
 	struct mlx5_core_dev *mdev = fdev->mdev;
 	u32 temp_qpc[MLX5_ST_SZ_DW(qpc)] = {0};
+=======
+	u32 out[MLX5_ST_SZ_DW(create_qp_out)] = {};
+	struct mlx5_core_dev *mdev = fdev->mdev;
+	u32 temp_qpc[MLX5_ST_SZ_DW(qpc)] = {};
+>>>>>>> upstream/android-13
 	void *in = NULL, *qpc;
 	int err, inlen;
 
@@ -591,6 +663,10 @@ static int mlx5_fpga_conn_create_qp(struct mlx5_fpga_conn *conn,
 	MLX5_SET(qpc, qpc, log_sq_size, ilog2(conn->qp.sq.size));
 	MLX5_SET(qpc, qpc, cqn_snd, conn->cq.mcq.cqn);
 	MLX5_SET(qpc, qpc, cqn_rcv, conn->cq.mcq.cqn);
+<<<<<<< HEAD
+=======
+	MLX5_SET(qpc, qpc, ts_format, mlx5_get_qp_default_ts(mdev));
+>>>>>>> upstream/android-13
 	MLX5_SET64(qpc, qpc, dbr_addr, conn->qp.wq_ctrl.db.dma);
 	if (MLX5_CAP_GEN(mdev, cqe_version) == 1)
 		MLX5_SET(qpc, qpc, user_index, 0xFFFFFF);
@@ -598,12 +674,22 @@ static int mlx5_fpga_conn_create_qp(struct mlx5_fpga_conn *conn,
 	mlx5_fill_page_frag_array(&conn->qp.wq_ctrl.buf,
 				  (__be64 *)MLX5_ADDR_OF(create_qp_in, in, pas));
 
+<<<<<<< HEAD
 	err = mlx5_core_create_qp(mdev, &conn->qp.mqp, in, inlen);
 	if (err)
 		goto err_sq_bufs;
 
 	conn->qp.mqp.event = mlx5_fpga_conn_event;
 	mlx5_fpga_dbg(fdev, "Created QP #0x%x\n", conn->qp.mqp.qpn);
+=======
+	MLX5_SET(create_qp_in, in, opcode, MLX5_CMD_OP_CREATE_QP);
+	err = mlx5_cmd_exec(mdev, in, inlen, out, sizeof(out));
+	if (err)
+		goto err_sq_bufs;
+
+	conn->qp.qpn = MLX5_GET(create_qp_out, out, qpn);
+	mlx5_fpga_dbg(fdev, "Created QP #0x%x\n", conn->qp.qpn);
+>>>>>>> upstream/android-13
 
 	goto out;
 
@@ -656,7 +742,17 @@ static void mlx5_fpga_conn_flush_send_bufs(struct mlx5_fpga_conn *conn)
 
 static void mlx5_fpga_conn_destroy_qp(struct mlx5_fpga_conn *conn)
 {
+<<<<<<< HEAD
 	mlx5_core_destroy_qp(conn->fdev->mdev, &conn->qp.mqp);
+=======
+	struct mlx5_core_dev *dev = conn->fdev->mdev;
+	u32 in[MLX5_ST_SZ_DW(destroy_qp_in)] = {};
+
+	MLX5_SET(destroy_qp_in, in, opcode, MLX5_CMD_OP_DESTROY_QP);
+	MLX5_SET(destroy_qp_in, in, qpn, conn->qp.qpn);
+	mlx5_cmd_exec_in(dev, destroy_qp, in);
+
+>>>>>>> upstream/android-13
 	mlx5_fpga_conn_free_recv_bufs(conn);
 	mlx5_fpga_conn_flush_send_bufs(conn);
 	kvfree(conn->qp.sq.bufs);
@@ -664,6 +760,7 @@ static void mlx5_fpga_conn_destroy_qp(struct mlx5_fpga_conn *conn)
 	mlx5_wq_destroy(&conn->qp.wq_ctrl);
 }
 
+<<<<<<< HEAD
 static inline int mlx5_fpga_conn_reset_qp(struct mlx5_fpga_conn *conn)
 {
 	struct mlx5_core_dev *mdev = conn->fdev->mdev;
@@ -688,6 +785,31 @@ static inline int mlx5_fpga_conn_init_qp(struct mlx5_fpga_conn *conn)
 		err = -ENOMEM;
 		goto out;
 	}
+=======
+static int mlx5_fpga_conn_reset_qp(struct mlx5_fpga_conn *conn)
+{
+	struct mlx5_core_dev *mdev = conn->fdev->mdev;
+	u32 in[MLX5_ST_SZ_DW(qp_2rst_in)] = {};
+
+	mlx5_fpga_dbg(conn->fdev, "Modifying QP %u to RST\n", conn->qp.qpn);
+
+	MLX5_SET(qp_2rst_in, in, opcode, MLX5_CMD_OP_2RST_QP);
+	MLX5_SET(qp_2rst_in, in, qpn, conn->qp.qpn);
+
+	return mlx5_cmd_exec_in(mdev, qp_2rst, in);
+}
+
+static int mlx5_fpga_conn_init_qp(struct mlx5_fpga_conn *conn)
+{
+	u32 in[MLX5_ST_SZ_DW(rst2init_qp_in)] = {};
+	struct mlx5_fpga_device *fdev = conn->fdev;
+	struct mlx5_core_dev *mdev = fdev->mdev;
+	u32 *qpc;
+
+	mlx5_fpga_dbg(conn->fdev, "Modifying QP %u to INIT\n", conn->qp.qpn);
+
+	qpc = MLX5_ADDR_OF(rst2init_qp_in, in, qpc);
+>>>>>>> upstream/android-13
 
 	MLX5_SET(qpc, qpc, st, MLX5_QP_ST_RC);
 	MLX5_SET(qpc, qpc, pm_state, MLX5_QP_PM_MIGRATED);
@@ -698,6 +820,7 @@ static inline int mlx5_fpga_conn_init_qp(struct mlx5_fpga_conn *conn)
 	MLX5_SET(qpc, qpc, cqn_rcv, conn->cq.mcq.cqn);
 	MLX5_SET64(qpc, qpc, dbr_addr, conn->qp.wq_ctrl.db.dma);
 
+<<<<<<< HEAD
 	err = mlx5_core_qp_modify(mdev, MLX5_CMD_OP_RST2INIT_QP, 0, qpc,
 				  &conn->qp.mqp);
 	if (err) {
@@ -724,6 +847,24 @@ static inline int mlx5_fpga_conn_rtr_qp(struct mlx5_fpga_conn *conn)
 		err = -ENOMEM;
 		goto out;
 	}
+=======
+	MLX5_SET(rst2init_qp_in, in, opcode, MLX5_CMD_OP_RST2INIT_QP);
+	MLX5_SET(rst2init_qp_in, in, qpn, conn->qp.qpn);
+
+	return mlx5_cmd_exec_in(mdev, rst2init_qp, in);
+}
+
+static int mlx5_fpga_conn_rtr_qp(struct mlx5_fpga_conn *conn)
+{
+	u32 in[MLX5_ST_SZ_DW(init2rtr_qp_in)] = {};
+	struct mlx5_fpga_device *fdev = conn->fdev;
+	struct mlx5_core_dev *mdev = fdev->mdev;
+	u32 *qpc;
+
+	mlx5_fpga_dbg(conn->fdev, "QP RTR\n");
+
+	qpc = MLX5_ADDR_OF(init2rtr_qp_in, in, qpc);
+>>>>>>> upstream/android-13
 
 	MLX5_SET(qpc, qpc, mtu, MLX5_QPC_MTU_1K_BYTES);
 	MLX5_SET(qpc, qpc, log_msg_max, (u8)MLX5_CAP_GEN(mdev, log_max_msg));
@@ -743,6 +884,7 @@ static inline int mlx5_fpga_conn_rtr_qp(struct mlx5_fpga_conn *conn)
 	       MLX5_ADDR_OF(fpga_qpc, conn->fpga_qpc, fpga_ip),
 	       MLX5_FLD_SZ_BYTES(qpc, primary_address_path.rgid_rip));
 
+<<<<<<< HEAD
 	err = mlx5_core_qp_modify(mdev, MLX5_CMD_OP_INIT2RTR_QP, 0, qpc,
 				  &conn->qp.mqp);
 	if (err) {
@@ -770,6 +912,24 @@ static inline int mlx5_fpga_conn_rts_qp(struct mlx5_fpga_conn *conn)
 		err = -ENOMEM;
 		goto out;
 	}
+=======
+	MLX5_SET(init2rtr_qp_in, in, opcode, MLX5_CMD_OP_INIT2RTR_QP);
+	MLX5_SET(init2rtr_qp_in, in, qpn, conn->qp.qpn);
+
+	return mlx5_cmd_exec_in(mdev, init2rtr_qp, in);
+}
+
+static int mlx5_fpga_conn_rts_qp(struct mlx5_fpga_conn *conn)
+{
+	struct mlx5_fpga_device *fdev = conn->fdev;
+	u32 in[MLX5_ST_SZ_DW(rtr2rts_qp_in)] = {};
+	struct mlx5_core_dev *mdev = fdev->mdev;
+	u32 *qpc;
+
+	mlx5_fpga_dbg(conn->fdev, "QP RTS\n");
+
+	qpc = MLX5_ADDR_OF(rtr2rts_qp_in, in, qpc);
+>>>>>>> upstream/android-13
 
 	MLX5_SET(qpc, qpc, log_ack_req_freq, 8);
 	MLX5_SET(qpc, qpc, min_rnr_nak, 0x12);
@@ -779,6 +939,7 @@ static inline int mlx5_fpga_conn_rts_qp(struct mlx5_fpga_conn *conn)
 	MLX5_SET(qpc, qpc, retry_count, 7);
 	MLX5_SET(qpc, qpc, rnr_retry, 7); /* Infinite retry if RNR NACK */
 
+<<<<<<< HEAD
 	opt_mask = MLX5_QP_OPTPAR_RNR_TIMEOUT;
 	err = mlx5_core_qp_modify(mdev, MLX5_CMD_OP_RTR2RTS_QP, opt_mask, qpc,
 				  &conn->qp.mqp);
@@ -790,6 +951,13 @@ static inline int mlx5_fpga_conn_rts_qp(struct mlx5_fpga_conn *conn)
 out:
 	kfree(qpc);
 	return err;
+=======
+	MLX5_SET(rtr2rts_qp_in, in, opcode, MLX5_CMD_OP_RTR2RTS_QP);
+	MLX5_SET(rtr2rts_qp_in, in, qpn, conn->qp.qpn);
+	MLX5_SET(rtr2rts_qp_in, in, opt_param_mask, MLX5_QP_OPTPAR_RNR_TIMEOUT);
+
+	return mlx5_cmd_exec_in(mdev, rtr2rts_qp, in);
+>>>>>>> upstream/android-13
 }
 
 static int mlx5_fpga_conn_connect(struct mlx5_fpga_conn *conn)
@@ -869,7 +1037,11 @@ struct mlx5_fpga_conn *mlx5_fpga_conn_create(struct mlx5_fpga_device *fdev,
 	conn->cb_arg = attr->cb_arg;
 
 	remote_mac = MLX5_ADDR_OF(fpga_qpc, conn->fpga_qpc, remote_mac_47_32);
+<<<<<<< HEAD
 	err = mlx5_query_nic_vport_mac_address(fdev->mdev, 0, remote_mac);
+=======
+	err = mlx5_query_mac_address(fdev->mdev, remote_mac);
+>>>>>>> upstream/android-13
 	if (err) {
 		mlx5_fpga_err(fdev, "Failed to query local MAC: %d\n", err);
 		ret = ERR_PTR(err);
@@ -929,7 +1101,11 @@ struct mlx5_fpga_conn *mlx5_fpga_conn_create(struct mlx5_fpga_device *fdev,
 	MLX5_SET(fpga_qpc, conn->fpga_qpc, next_rcv_psn, 1);
 	MLX5_SET(fpga_qpc, conn->fpga_qpc, next_send_psn, 0);
 	MLX5_SET(fpga_qpc, conn->fpga_qpc, pkey, MLX5_FPGA_PKEY);
+<<<<<<< HEAD
 	MLX5_SET(fpga_qpc, conn->fpga_qpc, remote_qpn, conn->qp.mqp.qpn);
+=======
+	MLX5_SET(fpga_qpc, conn->fpga_qpc, remote_qpn, conn->qp.qpn);
+>>>>>>> upstream/android-13
 	MLX5_SET(fpga_qpc, conn->fpga_qpc, rnr_retry, 7);
 	MLX5_SET(fpga_qpc, conn->fpga_qpc, retry_count, 7);
 
@@ -970,19 +1146,25 @@ out:
 
 void mlx5_fpga_conn_destroy(struct mlx5_fpga_conn *conn)
 {
+<<<<<<< HEAD
 	struct mlx5_fpga_device *fdev = conn->fdev;
 	struct mlx5_core_dev *mdev = fdev->mdev;
 	int err = 0;
 
+=======
+>>>>>>> upstream/android-13
 	conn->qp.active = false;
 	tasklet_disable(&conn->cq.tasklet);
 	synchronize_irq(conn->cq.mcq.irqn);
 
 	mlx5_fpga_destroy_qp(conn->fdev->mdev, conn->fpga_qpn);
+<<<<<<< HEAD
 	err = mlx5_core_qp_modify(mdev, MLX5_CMD_OP_2ERR_QP, 0, NULL,
 				  &conn->qp.mqp);
 	if (err)
 		mlx5_fpga_warn(fdev, "qp_modify 2ERR failed: %d\n", err);
+=======
+>>>>>>> upstream/android-13
 	mlx5_fpga_conn_destroy_qp(conn);
 	mlx5_fpga_conn_destroy_cq(conn);
 

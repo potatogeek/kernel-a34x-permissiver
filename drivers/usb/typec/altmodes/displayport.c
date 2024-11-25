@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * USB Typec-C DisplayPort Alternate Mode driver
  *
  * Copyright (C) 2018 Intel Corporation
@@ -13,9 +17,16 @@
 #include <linux/module.h>
 #include <linux/usb/pd_vdo.h>
 #include <linux/usb/typec_dp.h>
+<<<<<<< HEAD
 
 #define DP_HEADER(cmd)			(VDO(USB_TYPEC_DP_SID, 1, cmd) | \
 					 VDO_OPOS(USB_TYPEC_DP_MODE))
+=======
+#include "displayport.h"
+
+#define DP_HEADER(_dp, ver, cmd)	(VDO((_dp)->alt->svid, 1, ver, cmd)	\
+					 | VDO_OPOS(USB_TYPEC_DP_MODE))
+>>>>>>> upstream/android-13
 
 enum {
 	DP_CONF_USB,
@@ -24,10 +35,13 @@ enum {
 	DP_CONF_DUAL_D,
 };
 
+<<<<<<< HEAD
 /* Helper for setting/getting the pin assignement value to the configuration */
 #define DP_CONF_SET_PIN_ASSIGN(_a_)	((_a_) << 8)
 #define DP_CONF_GET_PIN_ASSIGN(_conf_)	(((_conf_) & GENMASK(15, 8)) >> 8)
 
+=======
+>>>>>>> upstream/android-13
 /* Pin assignments that use USB3.1 Gen2 signaling to carry DP protocol */
 #define DP_PIN_ASSIGN_GEN2_BR_MASK	(BIT(DP_PIN_ASSIGN_A) | \
 					 BIT(DP_PIN_ASSIGN_B))
@@ -104,7 +118,11 @@ static int dp_altmode_configure(struct dp_altmode *dp, u8 con)
 		if (dp->data.status & DP_STATUS_PREFER_MULTI_FUNC &&
 		    pin_assign & DP_PIN_ASSIGN_MULTI_FUNC_MASK)
 			pin_assign &= DP_PIN_ASSIGN_MULTI_FUNC_MASK;
+<<<<<<< HEAD
 		else
+=======
+		else if (pin_assign & DP_PIN_ASSIGN_DP_ONLY_MASK)
+>>>>>>> upstream/android-13
 			pin_assign &= DP_PIN_ASSIGN_DP_ONLY_MASK;
 
 		if (!pin_assign)
@@ -159,9 +177,20 @@ static int dp_altmode_configured(struct dp_altmode *dp)
 
 static int dp_altmode_configure_vdm(struct dp_altmode *dp, u32 conf)
 {
+<<<<<<< HEAD
 	u32 header = DP_HEADER(DP_CMD_CONFIGURE);
 	int ret;
 
+=======
+	int svdm_version = typec_altmode_get_svdm_version(dp->alt);
+	u32 header;
+	int ret;
+
+	if (svdm_version < 0)
+		return svdm_version;
+
+	header = DP_HEADER(dp, svdm_version, DP_CMD_CONFIGURE);
+>>>>>>> upstream/android-13
 	ret = typec_altmode_notify(dp->alt, TYPEC_STATE_SAFE, &dp->data);
 	if (ret) {
 		dev_err(&dp->alt->dev,
@@ -184,6 +213,10 @@ static int dp_altmode_configure_vdm(struct dp_altmode *dp, u32 conf)
 static void dp_altmode_work(struct work_struct *work)
 {
 	struct dp_altmode *dp = container_of(work, struct dp_altmode, work);
+<<<<<<< HEAD
+=======
+	int svdm_version;
+>>>>>>> upstream/android-13
 	u32 header;
 	u32 vdo;
 	int ret;
@@ -192,12 +225,24 @@ static void dp_altmode_work(struct work_struct *work)
 
 	switch (dp->state) {
 	case DP_STATE_ENTER:
+<<<<<<< HEAD
 		ret = typec_altmode_enter(dp->alt);
 		if (ret)
 			dev_err(&dp->alt->dev, "failed to enter mode\n");
 		break;
 	case DP_STATE_UPDATE:
 		header = DP_HEADER(DP_CMD_STATUS_UPDATE);
+=======
+		ret = typec_altmode_enter(dp->alt, NULL);
+		if (ret && ret != -EBUSY)
+			dev_err(&dp->alt->dev, "failed to enter mode\n");
+		break;
+	case DP_STATE_UPDATE:
+		svdm_version = typec_altmode_get_svdm_version(dp->alt);
+		if (svdm_version < 0)
+			break;
+		header = DP_HEADER(dp, svdm_version, DP_CMD_STATUS_UPDATE);
+>>>>>>> upstream/android-13
 		vdo = 1;
 		ret = typec_altmode_vdm(dp->alt, header, &vdo, 2);
 		if (ret)
@@ -310,7 +355,12 @@ err_unlock:
 
 static int dp_altmode_activate(struct typec_altmode *alt, int activate)
 {
+<<<<<<< HEAD
 	return activate ? typec_altmode_enter(alt) : typec_altmode_exit(alt);
+=======
+	return activate ? typec_altmode_enter(alt, NULL) :
+			  typec_altmode_exit(alt);
+>>>>>>> upstream/android-13
 }
 
 static const struct typec_altmode_ops dp_altmode_ops = {
@@ -511,7 +561,11 @@ static const struct attribute_group dp_altmode_group = {
 	.attrs = dp_altmode_attrs,
 };
 
+<<<<<<< HEAD
 static int dp_altmode_probe(struct typec_altmode *alt)
+=======
+int dp_altmode_probe(struct typec_altmode *alt)
+>>>>>>> upstream/android-13
 {
 	const struct typec_altmode *port = typec_altmode_get_partner(alt);
 	struct dp_altmode *dp;
@@ -549,14 +603,24 @@ static int dp_altmode_probe(struct typec_altmode *alt)
 
 	return 0;
 }
+<<<<<<< HEAD
 
 static void dp_altmode_remove(struct typec_altmode *alt)
+=======
+EXPORT_SYMBOL_GPL(dp_altmode_probe);
+
+void dp_altmode_remove(struct typec_altmode *alt)
+>>>>>>> upstream/android-13
 {
 	struct dp_altmode *dp = typec_altmode_get_drvdata(alt);
 
 	sysfs_remove_group(&alt->dev.kobj, &dp_altmode_group);
 	cancel_work_sync(&dp->work);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(dp_altmode_remove);
+>>>>>>> upstream/android-13
 
 static const struct typec_device_id dp_typec_id[] = {
 	{ USB_TYPEC_DP_SID, USB_TYPEC_DP_MODE },

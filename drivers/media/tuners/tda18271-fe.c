@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
     tda18271-fe.c - driver for the Philips / NXP TDA18271 silicon tuner
 
     Copyright (C) 2007, 2008 Michael Krufky <mkrufky@linuxtv.org>
 
+<<<<<<< HEAD
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -16,6 +21,8 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
 */
 
 #include "tda18271-priv.h"
@@ -48,7 +55,11 @@ static int tda18271_toggle_output(struct dvb_frontend *fe, int standby)
 	if (tda_fail(ret))
 		goto fail;
 
+<<<<<<< HEAD
 	tda_dbg("%s mode: xtal oscillator %s, slave tuner loop thru %s\n",
+=======
+	tda_dbg("%s mode: xtal oscillator %s, slave tuner loop through %s\n",
+>>>>>>> upstream/android-13
 		standby ? "standby" : "active",
 		priv->output_opt & TDA18271_OUTPUT_XT_OFF ? "off" : "on",
 		priv->output_opt & TDA18271_OUTPUT_LT_OFF ? "off" : "on");
@@ -960,7 +971,11 @@ static int tda18271_set_params(struct dvb_frontend *fe)
 		break;
 	case SYS_DVBC_ANNEX_B:
 		bw = 6000000;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SYS_DVBC_ANNEX_A:
 	case SYS_DVBC_ANNEX_C:
 		if (bw <= 6000000) {

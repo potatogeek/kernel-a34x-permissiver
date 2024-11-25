@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	Anycast support for IPv6
  *	Linux INET6 implementation
@@ -6,11 +10,14 @@
  *	David L Stevens (dlstevens@us.ibm.com)
  *
  *	based heavily on net/ipv6/mcast.c
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/capability.h>
@@ -44,8 +51,27 @@
 
 #include <net/checksum.h>
 
+<<<<<<< HEAD
 static int ipv6_dev_ac_dec(struct net_device *dev, const struct in6_addr *addr);
 
+=======
+#define IN6_ADDR_HSIZE_SHIFT	8
+#define IN6_ADDR_HSIZE		BIT(IN6_ADDR_HSIZE_SHIFT)
+/*	anycast address hash table
+ */
+static struct hlist_head inet6_acaddr_lst[IN6_ADDR_HSIZE];
+static DEFINE_SPINLOCK(acaddr_hash_lock);
+
+static int ipv6_dev_ac_dec(struct net_device *dev, const struct in6_addr *addr);
+
+static u32 inet6_acaddr_hash(struct net *net, const struct in6_addr *addr)
+{
+	u32 val = ipv6_addr_hash(addr) ^ net_hash_mix(net);
+
+	return hash_32(val, IN6_ADDR_HSIZE_SHIFT);
+}
+
+>>>>>>> upstream/android-13
 /*
  *	socket join an anycast group
  */
@@ -211,16 +237,50 @@ void ipv6_sock_ac_close(struct sock *sk)
 	rtnl_unlock();
 }
 
+<<<<<<< HEAD
+=======
+static void ipv6_add_acaddr_hash(struct net *net, struct ifacaddr6 *aca)
+{
+	unsigned int hash = inet6_acaddr_hash(net, &aca->aca_addr);
+
+	spin_lock(&acaddr_hash_lock);
+	hlist_add_head_rcu(&aca->aca_addr_lst, &inet6_acaddr_lst[hash]);
+	spin_unlock(&acaddr_hash_lock);
+}
+
+static void ipv6_del_acaddr_hash(struct ifacaddr6 *aca)
+{
+	spin_lock(&acaddr_hash_lock);
+	hlist_del_init_rcu(&aca->aca_addr_lst);
+	spin_unlock(&acaddr_hash_lock);
+}
+
+>>>>>>> upstream/android-13
 static void aca_get(struct ifacaddr6 *aca)
 {
 	refcount_inc(&aca->aca_refcnt);
 }
 
+<<<<<<< HEAD
 static void aca_put(struct ifacaddr6 *ac)
 {
 	if (refcount_dec_and_test(&ac->aca_refcnt)) {
 		fib6_info_release(ac->aca_rt);
 		kfree(ac);
+=======
+static void aca_free_rcu(struct rcu_head *h)
+{
+	struct ifacaddr6 *aca = container_of(h, struct ifacaddr6, rcu);
+
+	fib6_info_release(aca->aca_rt);
+	kfree(aca);
+}
+
+static void aca_put(struct ifacaddr6 *ac)
+{
+	if (refcount_dec_and_test(&ac->aca_refcnt)) {
+		call_rcu(&ac->rcu, aca_free_rcu);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -236,6 +296,10 @@ static struct ifacaddr6 *aca_alloc(struct fib6_info *f6i,
 	aca->aca_addr = *addr;
 	fib6_info_hold(f6i);
 	aca->aca_rt = f6i;
+<<<<<<< HEAD
+=======
+	INIT_HLIST_NODE(&aca->aca_addr_lst);
+>>>>>>> upstream/android-13
 	aca->aca_users = 1;
 	/* aca_tstamp should be updated upon changes */
 	aca->aca_cstamp = aca->aca_tstamp = jiffies;
@@ -292,6 +356,11 @@ int __ipv6_dev_ac_inc(struct inet6_dev *idev, const struct in6_addr *addr)
 	aca_get(aca);
 	write_unlock_bh(&idev->lock);
 
+<<<<<<< HEAD
+=======
+	ipv6_add_acaddr_hash(net, aca);
+
+>>>>>>> upstream/android-13
 	ip6_ins_rt(net, f6i);
 
 	addrconf_join_solict(idev->dev, &aca->aca_addr);
@@ -332,9 +401,16 @@ int __ipv6_dev_ac_dec(struct inet6_dev *idev, const struct in6_addr *addr)
 	else
 		idev->ac_list = aca->aca_next;
 	write_unlock_bh(&idev->lock);
+<<<<<<< HEAD
 	addrconf_leave_solict(idev, &aca->aca_addr);
 
 	ip6_del_rt(dev_net(idev->dev), aca->aca_rt);
+=======
+	ipv6_del_acaddr_hash(aca);
+	addrconf_leave_solict(idev, &aca->aca_addr);
+
+	ip6_del_rt(dev_net(idev->dev), aca->aca_rt, false);
+>>>>>>> upstream/android-13
 
 	aca_put(aca);
 	return 0;
@@ -359,9 +435,17 @@ void ipv6_ac_destroy_dev(struct inet6_dev *idev)
 		idev->ac_list = aca->aca_next;
 		write_unlock_bh(&idev->lock);
 
+<<<<<<< HEAD
 		addrconf_leave_solict(idev, &aca->aca_addr);
 
 		ip6_del_rt(dev_net(idev->dev), aca->aca_rt);
+=======
+		ipv6_del_acaddr_hash(aca);
+
+		addrconf_leave_solict(idev, &aca->aca_addr);
+
+		ip6_del_rt(dev_net(idev->dev), aca->aca_rt, false);
+>>>>>>> upstream/android-13
 
 		aca_put(aca);
 
@@ -397,17 +481,39 @@ static bool ipv6_chk_acast_dev(struct net_device *dev, const struct in6_addr *ad
 bool ipv6_chk_acast_addr(struct net *net, struct net_device *dev,
 			 const struct in6_addr *addr)
 {
+<<<<<<< HEAD
+=======
+	struct net_device *nh_dev;
+	struct ifacaddr6 *aca;
+>>>>>>> upstream/android-13
 	bool found = false;
 
 	rcu_read_lock();
 	if (dev)
 		found = ipv6_chk_acast_dev(dev, addr);
+<<<<<<< HEAD
 	else
 		for_each_netdev_rcu(net, dev)
 			if (ipv6_chk_acast_dev(dev, addr)) {
 				found = true;
 				break;
 			}
+=======
+	else {
+		unsigned int hash = inet6_acaddr_hash(net, addr);
+
+		hlist_for_each_entry_rcu(aca, &inet6_acaddr_lst[hash],
+					 aca_addr_lst) {
+			nh_dev = fib6_info_nh_dev(aca->aca_rt);
+			if (!nh_dev || !net_eq(dev_net(nh_dev), net))
+				continue;
+			if (ipv6_addr_equal(&aca->aca_addr, addr)) {
+				found = true;
+				break;
+			}
+		}
+	}
+>>>>>>> upstream/android-13
 	rcu_read_unlock();
 	return found;
 }
@@ -547,3 +653,27 @@ void ac6_proc_exit(struct net *net)
 	remove_proc_entry("anycast6", net->proc_net);
 }
 #endif
+<<<<<<< HEAD
+=======
+
+/*	Init / cleanup code
+ */
+int __init ipv6_anycast_init(void)
+{
+	int i;
+
+	for (i = 0; i < IN6_ADDR_HSIZE; i++)
+		INIT_HLIST_HEAD(&inet6_acaddr_lst[i]);
+	return 0;
+}
+
+void ipv6_anycast_cleanup(void)
+{
+	int i;
+
+	spin_lock(&acaddr_hash_lock);
+	for (i = 0; i < IN6_ADDR_HSIZE; i++)
+		WARN_ON(!hlist_empty(&inet6_acaddr_lst[i]));
+	spin_unlock(&acaddr_hash_lock);
+}
+>>>>>>> upstream/android-13

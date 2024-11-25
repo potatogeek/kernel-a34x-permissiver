@@ -8,7 +8,13 @@
  * Copyright (C) Linus Torvalds, 2005
  */
 #include "util.h"
+<<<<<<< HEAD
 #include "debug.h"
+=======
+#include <stdio.h>
+#include <stdlib.h>
+#include <linux/compiler.h>
+>>>>>>> upstream/android-13
 
 static __noreturn void usage_builtin(const char *err)
 {

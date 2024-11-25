@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Macro used to simplify coding multi-line assembler.
  * Some of the bit test macro can simplify down to one line
@@ -6,6 +10,7 @@
  * Copyright (C) 2004 Microtronix Datacom Ltd.
  *
  * All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  * NON INFRINGEMENT.  See the GNU General Public License for more
  * details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _ASM_NIOS2_ASMMACROS_H
 #define _ASM_NIOS2_ASMMACROS_H

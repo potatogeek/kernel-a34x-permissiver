@@ -13,12 +13,20 @@ static char *pc873xx_names[] = {
 static unsigned int base, model;
 
 
+<<<<<<< HEAD
 unsigned int __init pc873xx_get_base()
+=======
+unsigned int __init pc873xx_get_base(void)
+>>>>>>> upstream/android-13
 {
 	return base;
 }
 
+<<<<<<< HEAD
 char *__init pc873xx_get_model()
+=======
+char *__init pc873xx_get_model(void)
+>>>>>>> upstream/android-13
 {
 	return pc873xx_names[model];
 }

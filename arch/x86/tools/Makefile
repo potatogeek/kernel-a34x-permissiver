@@ -26,6 +26,7 @@ posttest: $(obj)/insn_decoder_test vmlinux $(obj)/insn_sanity
 	$(call cmd,posttest)
 	$(call cmd,sanitytest)
 
+<<<<<<< HEAD
 hostprogs-y	+= insn_decoder_test insn_sanity
 
 # -I needed for generated C source and C source which in the kernel tree.
@@ -40,6 +41,22 @@ $(obj)/insn_sanity.o: $(srctree)/arch/x86/lib/insn.c $(srctree)/arch/x86/lib/ina
 
 HOST_EXTRACFLAGS += -I$(srctree)/tools/include
 hostprogs-y	+= relocs
+=======
+hostprogs += insn_decoder_test insn_sanity
+
+# -I needed for generated C source and C source which in the kernel tree.
+HOSTCFLAGS_insn_decoder_test.o := -Wall -I$(srctree)/tools/arch/x86/lib/ -I$(srctree)/tools/arch/x86/include/ -I$(objtree)/arch/x86/lib/
+
+HOSTCFLAGS_insn_sanity.o := -Wall -I$(srctree)/tools/arch/x86/lib/ -I$(srctree)/tools/arch/x86/include/ -I$(objtree)/arch/x86/lib/
+
+# Dependencies are also needed.
+$(obj)/insn_decoder_test.o: $(srctree)/tools/arch/x86/lib/insn.c $(srctree)/tools/arch/x86/lib/inat.c $(srctree)/tools/arch/x86/include/asm/inat_types.h $(srctree)/tools/arch/x86/include/asm/inat.h $(srctree)/tools/arch/x86/include/asm/insn.h $(objtree)/arch/x86/lib/inat-tables.c
+
+$(obj)/insn_sanity.o: $(srctree)/tools/arch/x86/lib/insn.c $(srctree)/tools/arch/x86/lib/inat.c $(srctree)/tools/arch/x86/include/asm/inat_types.h $(srctree)/tools/arch/x86/include/asm/inat.h $(srctree)/tools/arch/x86/include/asm/insn.h $(objtree)/arch/x86/lib/inat-tables.c
+
+HOST_EXTRACFLAGS += -I$(srctree)/tools/include
+hostprogs	+= relocs
+>>>>>>> upstream/android-13
 relocs-objs     := relocs_32.o relocs_64.o relocs_common.o
 PHONY += relocs
 relocs: $(obj)/relocs

@@ -653,7 +653,11 @@
 };
 
 &dss {
+<<<<<<< HEAD
 	status = "ok";
+=======
+	status = "okay";
+>>>>>>> upstream/android-13
 
 	pinctrl-names = "default";
 	pinctrl-0 = <&dss_dpi_pins>;
@@ -677,12 +681,20 @@
 };
 
 &dsi2 {
+<<<<<<< HEAD
 	status = "ok";
+=======
+	status = "okay";
+>>>>>>> upstream/android-13
 	vdd-supply = <&ldo4_reg>;
 };
 
 &hdmi {
+<<<<<<< HEAD
 	status = "ok";
+=======
+	status = "okay";
+>>>>>>> upstream/android-13
 	vdda-supply = <&ldo4_reg>;
 
 	pinctrl-names = "default";

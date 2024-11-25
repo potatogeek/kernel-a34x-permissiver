@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015 The Linux Foundation. All rights reserved.
  *
@@ -10,6 +11,11 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2015 The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -25,29 +31,59 @@
 #include <sound/soc.h>
 #include <uapi/linux/input-event-codes.h>
 #include <dt-bindings/sound/apq8016-lpass.h>
+<<<<<<< HEAD
 
 struct apq8016_sbc_data {
+=======
+#include "common.h"
+
+struct apq8016_sbc_data {
+	struct snd_soc_card card;
+>>>>>>> upstream/android-13
 	void __iomem *mic_iomux;
 	void __iomem *spkr_iomux;
 	struct snd_soc_jack jack;
 	bool jack_setup;
+<<<<<<< HEAD
 	struct snd_soc_dai_link dai_link[];	/* dynamically allocated */
+=======
+>>>>>>> upstream/android-13
 };
 
 #define MIC_CTRL_TER_WS_SLAVE_SEL	BIT(21)
 #define MIC_CTRL_QUA_WS_SLAVE_SEL_10	BIT(17)
 #define MIC_CTRL_TLMM_SCLK_EN		BIT(1)
 #define	SPKR_CTL_PRI_WS_SLAVE_SEL_11	(BIT(17) | BIT(16))
+<<<<<<< HEAD
+=======
+#define SPKR_CTL_TLMM_MCLK_EN		BIT(1)
+#define SPKR_CTL_TLMM_SCLK_EN		BIT(2)
+#define SPKR_CTL_TLMM_DATA1_EN		BIT(3)
+#define SPKR_CTL_TLMM_WS_OUT_SEL_MASK	GENMASK(7, 6)
+#define SPKR_CTL_TLMM_WS_OUT_SEL_SEC	BIT(6)
+#define SPKR_CTL_TLMM_WS_EN_SEL_MASK	GENMASK(19, 18)
+#define SPKR_CTL_TLMM_WS_EN_SEL_SEC	BIT(18)
+>>>>>>> upstream/android-13
 #define DEFAULT_MCLK_RATE		9600000
 
 static int apq8016_sbc_dai_init(struct snd_soc_pcm_runtime *rtd)
 {
+<<<<<<< HEAD
 	struct snd_soc_dai *cpu_dai = rtd->cpu_dai;
 	struct snd_soc_component *component;
 	struct snd_soc_dai_link *dai_link = rtd->dai_link;
 	struct snd_soc_card *card = rtd->card;
 	struct apq8016_sbc_data *pdata = snd_soc_card_get_drvdata(card);
 	int i, rval;
+=======
+	struct snd_soc_dai *cpu_dai = asoc_rtd_to_cpu(rtd, 0);
+	struct snd_soc_dai *codec_dai;
+	struct snd_soc_component *component;
+	struct snd_soc_card *card = rtd->card;
+	struct apq8016_sbc_data *pdata = snd_soc_card_get_drvdata(card);
+	int i, rval;
+	u32 value;
+>>>>>>> upstream/android-13
 
 	switch (cpu_dai->id) {
 	case MI2S_PRIMARY:
@@ -61,6 +97,18 @@ static int apq8016_sbc_dai_init(struct snd_soc_pcm_runtime *rtd)
 			MIC_CTRL_TLMM_SCLK_EN,
 			pdata->mic_iomux);
 		break;
+<<<<<<< HEAD
+=======
+	case MI2S_SECONDARY:
+		/* Clear TLMM_WS_OUT_SEL and TLMM_WS_EN_SEL fields */
+		value = readl(pdata->spkr_iomux) &
+			~(SPKR_CTL_TLMM_WS_OUT_SEL_MASK | SPKR_CTL_TLMM_WS_EN_SEL_MASK);
+		/* Configure the Sec MI2S to TLMM */
+		writel(value | SPKR_CTL_TLMM_MCLK_EN | SPKR_CTL_TLMM_SCLK_EN |
+			SPKR_CTL_TLMM_DATA1_EN | SPKR_CTL_TLMM_WS_OUT_SEL_SEC |
+			SPKR_CTL_TLMM_WS_EN_SEL_SEC, pdata->spkr_iomux);
+		break;
+>>>>>>> upstream/android-13
 	case MI2S_TERTIARY:
 		writel(readl(pdata->mic_iomux) | MIC_CTRL_TER_WS_SLAVE_SEL |
 			MIC_CTRL_TLMM_SCLK_EN,
@@ -99,10 +147,16 @@ static int apq8016_sbc_dai_init(struct snd_soc_pcm_runtime *rtd)
 		pdata->jack_setup = true;
 	}
 
+<<<<<<< HEAD
 	for (i = 0 ; i < dai_link->num_codecs; i++) {
 		struct snd_soc_dai *dai = rtd->codec_dais[i];
 
 		component = dai->component;
+=======
+	for_each_rtd_codec_dais(rtd, i, codec_dai) {
+
+		component = codec_dai->component;
+>>>>>>> upstream/android-13
 		/* Set default mclk for internal codec */
 		rval = snd_soc_component_set_sysclk(component, 0, 0, DEFAULT_MCLK_RATE,
 				       SND_SOC_CLOCK_IN);
@@ -120,6 +174,7 @@ static int apq8016_sbc_dai_init(struct snd_soc_pcm_runtime *rtd)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct apq8016_sbc_data *apq8016_sbc_parse_of(struct snd_soc_card *card)
 {
 	struct device *dev = card->dev;
@@ -210,6 +265,15 @@ static struct apq8016_sbc_data *apq8016_sbc_parse_of(struct snd_soc_card *card)
 	of_node_put(cpu);
 	of_node_put(codec);
 	return ERR_PTR(ret);
+=======
+static void apq8016_sbc_add_ops(struct snd_soc_card *card)
+{
+	struct snd_soc_dai_link *link;
+	int i;
+
+	for_each_card_prelinks(card, i, link)
+		link->init = apq8016_sbc_dai_init;
+>>>>>>> upstream/android-13
 }
 
 static const struct snd_soc_dapm_widget apq8016_sbc_dapm_widgets[] = {
@@ -226,16 +290,27 @@ static int apq8016_sbc_platform_probe(struct platform_device *pdev)
 	struct device *dev = &pdev->dev;
 	struct snd_soc_card *card;
 	struct apq8016_sbc_data *data;
+<<<<<<< HEAD
 	struct resource *res;
 
 	card = devm_kzalloc(dev, sizeof(*card), GFP_KERNEL);
 	if (!card)
 		return -ENOMEM;
 
+=======
+	int ret;
+
+	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
+	if (!data)
+		return -ENOMEM;
+
+	card = &data->card;
+>>>>>>> upstream/android-13
 	card->dev = dev;
 	card->owner = THIS_MODULE;
 	card->dapm_widgets = apq8016_sbc_dapm_widgets;
 	card->num_dapm_widgets = ARRAY_SIZE(apq8016_sbc_dapm_widgets);
+<<<<<<< HEAD
 	data = apq8016_sbc_parse_of(card);
 	if (IS_ERR(data)) {
 		dev_err(&pdev->dev, "Error resolving dai links: %ld\n",
@@ -250,15 +325,35 @@ static int apq8016_sbc_platform_probe(struct platform_device *pdev)
 
 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "spkr-iomux");
 	data->spkr_iomux = devm_ioremap_resource(dev, res);
+=======
+
+	ret = qcom_snd_parse_of(card);
+	if (ret)
+		return ret;
+
+	data->mic_iomux = devm_platform_ioremap_resource_byname(pdev, "mic-iomux");
+	if (IS_ERR(data->mic_iomux))
+		return PTR_ERR(data->mic_iomux);
+
+	data->spkr_iomux = devm_platform_ioremap_resource_byname(pdev, "spkr-iomux");
+>>>>>>> upstream/android-13
 	if (IS_ERR(data->spkr_iomux))
 		return PTR_ERR(data->spkr_iomux);
 
 	snd_soc_card_set_drvdata(card, data);
 
+<<<<<<< HEAD
 	return devm_snd_soc_register_card(&pdev->dev, card);
 }
 
 static const struct of_device_id apq8016_sbc_device_id[]  = {
+=======
+	apq8016_sbc_add_ops(card);
+	return devm_snd_soc_register_card(&pdev->dev, card);
+}
+
+static const struct of_device_id apq8016_sbc_device_id[] __maybe_unused = {
+>>>>>>> upstream/android-13
 	{ .compatible = "qcom,apq8016-sbc-sndcard" },
 	{},
 };

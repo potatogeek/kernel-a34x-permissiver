@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Functions related to setting various queue properties from drivers
  */
@@ -6,15 +10,25 @@
 #include <linux/init.h>
 #include <linux/bio.h>
 #include <linux/blkdev.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>	/* for max_pfn/max_low_pfn */
+=======
+#include <linux/pagemap.h>
+#include <linux/backing-dev-defs.h>
+>>>>>>> upstream/android-13
 #include <linux/gcd.h>
 #include <linux/lcm.h>
 #include <linux/jiffies.h>
 #include <linux/gfp.h>
+<<<<<<< HEAD
+=======
+#include <linux/dma-mapping.h>
+>>>>>>> upstream/android-13
 
 #include "blk.h"
 #include "blk-wbt.h"
 
+<<<<<<< HEAD
 unsigned long blk_max_low_pfn;
 EXPORT_SYMBOL(blk_max_low_pfn);
 
@@ -60,12 +74,15 @@ void blk_queue_softirq_done(struct request_queue *q, softirq_done_fn *fn)
 }
 EXPORT_SYMBOL(blk_queue_softirq_done);
 
+=======
+>>>>>>> upstream/android-13
 void blk_queue_rq_timeout(struct request_queue *q, unsigned int timeout)
 {
 	q->rq_timeout = timeout;
 }
 EXPORT_SYMBOL_GPL(blk_queue_rq_timeout);
 
+<<<<<<< HEAD
 void blk_queue_rq_timed_out(struct request_queue *q, rq_timed_out_fn *fn)
 {
 	WARN_ON_ONCE(q->mq_ops);
@@ -79,6 +96,8 @@ void blk_queue_lld_busy(struct request_queue *q, lld_busy_fn *fn)
 }
 EXPORT_SYMBOL_GPL(blk_queue_lld_busy);
 
+=======
+>>>>>>> upstream/android-13
 /**
  * blk_set_default_limits - reset limits to default values
  * @lim:  the queue_limits structure to reset
@@ -99,18 +118,31 @@ void blk_set_default_limits(struct queue_limits *lim)
 	lim->chunk_sectors = 0;
 	lim->max_write_same_sectors = 0;
 	lim->max_write_zeroes_sectors = 0;
+<<<<<<< HEAD
+=======
+	lim->max_zone_append_sectors = 0;
+>>>>>>> upstream/android-13
 	lim->max_discard_sectors = 0;
 	lim->max_hw_discard_sectors = 0;
 	lim->discard_granularity = 0;
 	lim->discard_alignment = 0;
 	lim->discard_misaligned = 0;
 	lim->logical_block_size = lim->physical_block_size = lim->io_min = 512;
+<<<<<<< HEAD
 	lim->bounce_pfn = (unsigned long)(BLK_BOUNCE_ANY >> PAGE_SHIFT);
 	lim->alignment_offset = 0;
 	lim->io_opt = 0;
 	lim->misaligned = 0;
 	lim->cluster = 1;
 	lim->zoned = BLK_ZONED_NONE;
+=======
+	lim->bounce = BLK_BOUNCE_NONE;
+	lim->alignment_offset = 0;
+	lim->io_opt = 0;
+	lim->misaligned = 0;
+	lim->zoned = BLK_ZONED_NONE;
+	lim->zone_write_granularity = 0;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(blk_set_default_limits);
 
@@ -135,10 +167,15 @@ void blk_set_stacking_limits(struct queue_limits *lim)
 	lim->max_dev_sectors = UINT_MAX;
 	lim->max_write_same_sectors = UINT_MAX;
 	lim->max_write_zeroes_sectors = UINT_MAX;
+<<<<<<< HEAD
+=======
+	lim->max_zone_append_sectors = UINT_MAX;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(blk_set_stacking_limits);
 
 /**
+<<<<<<< HEAD
  * blk_queue_make_request - define an alternate make_request function for a device
  * @q:  the request queue for the device to be affected
  * @mfn: the alternate make_request function
@@ -212,6 +249,20 @@ void blk_queue_bounce_limit(struct request_queue *q, u64 max_addr)
 		q->bounce_gfp = GFP_NOIO | GFP_DMA;
 		q->limits.bounce_pfn = b_pfn;
 	}
+=======
+ * blk_queue_bounce_limit - set bounce buffer limit for queue
+ * @q: the request queue for the device
+ * @bounce: bounce limit to enforce
+ *
+ * Description:
+ *    Force bouncing for ISA DMA ranges or highmem.
+ *
+ *    DEPRECATED, don't use in new code.
+ **/
+void blk_queue_bounce_limit(struct request_queue *q, enum blk_bounce bounce)
+{
+	q->limits.bounce = bounce;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(blk_queue_bounce_limit);
 
@@ -245,11 +296,27 @@ void blk_queue_max_hw_sectors(struct request_queue *q, unsigned int max_hw_secto
 		       __func__, max_hw_sectors);
 	}
 
+<<<<<<< HEAD
 	limits->max_hw_sectors = max_hw_sectors;
 	max_sectors = min_not_zero(max_hw_sectors, limits->max_dev_sectors);
 	max_sectors = min_t(unsigned int, max_sectors, BLK_DEF_MAX_SECTORS);
 	limits->max_sectors = max_sectors;
 	q->backing_dev_info->io_pages = max_sectors >> (PAGE_SHIFT - 9);
+=======
+	max_hw_sectors = round_down(max_hw_sectors,
+				    limits->logical_block_size >> SECTOR_SHIFT);
+	limits->max_hw_sectors = max_hw_sectors;
+
+	max_sectors = min_not_zero(max_hw_sectors, limits->max_dev_sectors);
+	max_sectors = min_t(unsigned int, max_sectors, BLK_DEF_MAX_SECTORS);
+	max_sectors = round_down(max_sectors,
+				 limits->logical_block_size >> SECTOR_SHIFT);
+	limits->max_sectors = max_sectors;
+
+	if (!q->disk)
+		return;
+	q->disk->bdi->io_pages = max_sectors >> (PAGE_SHIFT - 9);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(blk_queue_max_hw_sectors);
 
@@ -260,6 +327,7 @@ EXPORT_SYMBOL(blk_queue_max_hw_sectors);
  *
  * Description:
  *    If a driver doesn't want IOs to cross a given chunk size, it can set
+<<<<<<< HEAD
  *    this limit and prevent merging across chunks. Note that the chunk size
  *    must currently be a power-of-2 in sectors. Also note that the block
  *    layer must accept a page worth of data at any offset. So if the
@@ -269,6 +337,15 @@ EXPORT_SYMBOL(blk_queue_max_hw_sectors);
 void blk_queue_chunk_sectors(struct request_queue *q, unsigned int chunk_sectors)
 {
 	BUG_ON(!is_power_of_2(chunk_sectors));
+=======
+ *    this limit and prevent merging across chunks. Note that the block layer
+ *    must accept a page worth of data at any offset. So if the crossing of
+ *    chunks is a hard limitation in the driver, it must still be prepared
+ *    to split single page bios.
+ **/
+void blk_queue_chunk_sectors(struct request_queue *q, unsigned int chunk_sectors)
+{
+>>>>>>> upstream/android-13
 	q->limits.chunk_sectors = chunk_sectors;
 }
 EXPORT_SYMBOL(blk_queue_chunk_sectors);
@@ -312,6 +389,36 @@ void blk_queue_max_write_zeroes_sectors(struct request_queue *q,
 EXPORT_SYMBOL(blk_queue_max_write_zeroes_sectors);
 
 /**
+<<<<<<< HEAD
+=======
+ * blk_queue_max_zone_append_sectors - set max sectors for a single zone append
+ * @q:  the request queue for the device
+ * @max_zone_append_sectors: maximum number of sectors to write per command
+ **/
+void blk_queue_max_zone_append_sectors(struct request_queue *q,
+		unsigned int max_zone_append_sectors)
+{
+	unsigned int max_sectors;
+
+	if (WARN_ON(!blk_queue_is_zoned(q)))
+		return;
+
+	max_sectors = min(q->limits.max_hw_sectors, max_zone_append_sectors);
+	max_sectors = min(q->limits.chunk_sectors, max_sectors);
+
+	/*
+	 * Signal eventual driver bugs resulting in the max_zone_append sectors limit
+	 * being 0 due to a 0 argument, the chunk_sectors limit (zone size) not set,
+	 * or the max_hw_sectors limit not set.
+	 */
+	WARN_ON(!max_sectors);
+
+	q->limits.max_zone_append_sectors = max_sectors;
+}
+EXPORT_SYMBOL_GPL(blk_queue_max_zone_append_sectors);
+
+/**
+>>>>>>> upstream/android-13
  * blk_queue_max_segments - set max hw segments for a request for this queue
  * @q:  the request queue for the device
  * @max_segments:  max number of segments
@@ -365,6 +472,12 @@ void blk_queue_max_segment_size(struct request_queue *q, unsigned int max_size)
 		       __func__, max_size);
 	}
 
+<<<<<<< HEAD
+=======
+	/* see blk_queue_virt_boundary() for the explanation */
+	WARN_ON_ONCE(q->limits.virt_boundary_mask);
+
+>>>>>>> upstream/android-13
 	q->limits.max_segment_size = max_size;
 }
 EXPORT_SYMBOL(blk_queue_max_segment_size);
@@ -381,6 +494,7 @@ EXPORT_SYMBOL(blk_queue_max_segment_size);
  **/
 void blk_queue_logical_block_size(struct request_queue *q, unsigned int size)
 {
+<<<<<<< HEAD
 	q->limits.logical_block_size = size;
 
 	if (q->limits.physical_block_size < size)
@@ -388,6 +502,22 @@ void blk_queue_logical_block_size(struct request_queue *q, unsigned int size)
 
 	if (q->limits.io_min < q->limits.physical_block_size)
 		q->limits.io_min = q->limits.physical_block_size;
+=======
+	struct queue_limits *limits = &q->limits;
+
+	limits->logical_block_size = size;
+
+	if (limits->physical_block_size < size)
+		limits->physical_block_size = size;
+
+	if (limits->io_min < limits->physical_block_size)
+		limits->io_min = limits->physical_block_size;
+
+	limits->max_hw_sectors =
+		round_down(limits->max_hw_sectors, size >> SECTOR_SHIFT);
+	limits->max_sectors =
+		round_down(limits->max_sectors, size >> SECTOR_SHIFT);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(blk_queue_logical_block_size);
 
@@ -414,6 +544,31 @@ void blk_queue_physical_block_size(struct request_queue *q, unsigned int size)
 EXPORT_SYMBOL(blk_queue_physical_block_size);
 
 /**
+<<<<<<< HEAD
+=======
+ * blk_queue_zone_write_granularity - set zone write granularity for the queue
+ * @q:  the request queue for the zoned device
+ * @size:  the zone write granularity size, in bytes
+ *
+ * Description:
+ *   This should be set to the lowest possible size allowing to write in
+ *   sequential zones of a zoned block device.
+ */
+void blk_queue_zone_write_granularity(struct request_queue *q,
+				      unsigned int size)
+{
+	if (WARN_ON_ONCE(!blk_queue_is_zoned(q)))
+		return;
+
+	q->limits.zone_write_granularity = size;
+
+	if (q->limits.zone_write_granularity < q->limits.logical_block_size)
+		q->limits.zone_write_granularity = q->limits.logical_block_size;
+}
+EXPORT_SYMBOL_GPL(blk_queue_zone_write_granularity);
+
+/**
+>>>>>>> upstream/android-13
  * blk_queue_alignment_offset - set physical block alignment offset
  * @q:	the request queue for the device
  * @offset: alignment offset in bytes
@@ -432,6 +587,23 @@ void blk_queue_alignment_offset(struct request_queue *q, unsigned int offset)
 }
 EXPORT_SYMBOL(blk_queue_alignment_offset);
 
+<<<<<<< HEAD
+=======
+void disk_update_readahead(struct gendisk *disk)
+{
+	struct request_queue *q = disk->queue;
+
+	/*
+	 * For read-ahead of large files to be effective, we need to read ahead
+	 * at least twice the optimal I/O size.
+	 */
+	disk->bdi->ra_pages =
+		max(queue_io_opt(q) * 2 / PAGE_SIZE, VM_READAHEAD_PAGES);
+	disk->bdi->io_pages = queue_max_sectors(q) >> (PAGE_SHIFT - 9);
+}
+EXPORT_SYMBOL_GPL(disk_update_readahead);
+
+>>>>>>> upstream/android-13
 /**
  * blk_limits_io_min - set minimum request size for a device
  * @limits: the queue limits
@@ -510,6 +682,13 @@ EXPORT_SYMBOL(blk_limits_io_opt);
 void blk_queue_io_opt(struct request_queue *q, unsigned int opt)
 {
 	blk_limits_io_opt(&q->limits, opt);
+<<<<<<< HEAD
+=======
+	if (!q->disk)
+		return;
+	q->disk->bdi->ra_pages =
+		max(queue_io_opt(q) * 2 / PAGE_SIZE, VM_READAHEAD_PAGES);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(blk_queue_io_opt);
 
@@ -522,6 +701,7 @@ static unsigned int blk_round_down_sectors(unsigned int sectors, unsigned int lb
 }
 
 /**
+<<<<<<< HEAD
  * blk_queue_stack_limits - inherit underlying queue limits for stacked drivers
  * @t:	the stacking driver (top)
  * @b:  the underlying device (bottom)
@@ -533,6 +713,8 @@ void blk_queue_stack_limits(struct request_queue *t, struct request_queue *b)
 EXPORT_SYMBOL(blk_queue_stack_limits);
 
 /**
+=======
+>>>>>>> upstream/android-13
  * blk_stack_limits - adjust queue_limits for stacked devices
  * @t:	the stacking driver limits (top device)
  * @b:  the underlying queue limits (bottom, component device)
@@ -565,7 +747,13 @@ int blk_stack_limits(struct queue_limits *t, struct queue_limits *b,
 					b->max_write_same_sectors);
 	t->max_write_zeroes_sectors = min(t->max_write_zeroes_sectors,
 					b->max_write_zeroes_sectors);
+<<<<<<< HEAD
 	t->bounce_pfn = min_not_zero(t->bounce_pfn, b->bounce_pfn);
+=======
+	t->max_zone_append_sectors = min(t->max_zone_append_sectors,
+					b->max_zone_append_sectors);
+	t->bounce = max(t->bounce, b->bounce);
+>>>>>>> upstream/android-13
 
 	t->seg_boundary_mask = min_not_zero(t->seg_boundary_mask,
 					    b->seg_boundary_mask);
@@ -610,7 +798,13 @@ int blk_stack_limits(struct queue_limits *t, struct queue_limits *b,
 	t->io_min = max(t->io_min, b->io_min);
 	t->io_opt = lcm_not_zero(t->io_opt, b->io_opt);
 
+<<<<<<< HEAD
 	t->cluster &= b->cluster;
+=======
+	/* Set non-power-of-2 compatible chunk_sectors boundary */
+	if (b->chunk_sectors)
+		t->chunk_sectors = gcd(t->chunk_sectors, b->chunk_sectors);
+>>>>>>> upstream/android-13
 
 	/* Physical block size a multiple of the logical block size? */
 	if (t->physical_block_size & (t->logical_block_size - 1)) {
@@ -633,6 +827,16 @@ int blk_stack_limits(struct queue_limits *t, struct queue_limits *b,
 		ret = -1;
 	}
 
+<<<<<<< HEAD
+=======
+	/* chunk_sectors a multiple of the physical block size? */
+	if ((t->chunk_sectors << 9) & (t->physical_block_size - 1)) {
+		t->chunk_sectors = 0;
+		t->misaligned = 1;
+		ret = -1;
+	}
+
+>>>>>>> upstream/android-13
 	t->raid_partial_stripes_expensive =
 		max(t->raid_partial_stripes_expensive,
 		    b->raid_partial_stripes_expensive);
@@ -675,15 +879,22 @@ int blk_stack_limits(struct queue_limits *t, struct queue_limits *b,
 			t->discard_granularity;
 	}
 
+<<<<<<< HEAD
 	if (b->chunk_sectors)
 		t->chunk_sectors = min_not_zero(t->chunk_sectors,
 						b->chunk_sectors);
 
+=======
+	t->zone_write_granularity = max(t->zone_write_granularity,
+					b->zone_write_granularity);
+	t->zoned = max(t->zoned, b->zoned);
+>>>>>>> upstream/android-13
 	return ret;
 }
 EXPORT_SYMBOL(blk_stack_limits);
 
 /**
+<<<<<<< HEAD
  * bdev_stack_limits - adjust queue limits for stacked drivers
  * @t:	the stacking driver limits (top device)
  * @bdev:  the component block_device (bottom)
@@ -706,6 +917,8 @@ int bdev_stack_limits(struct queue_limits *t, struct block_device *bdev,
 EXPORT_SYMBOL(bdev_stack_limits);
 
 /**
+=======
+>>>>>>> upstream/android-13
  * disk_stack_limits - adjust queue limits for stacked drivers
  * @disk:  MD/DM gendisk (top)
  * @bdev:  the underlying block device (bottom)
@@ -720,6 +933,7 @@ void disk_stack_limits(struct gendisk *disk, struct block_device *bdev,
 {
 	struct request_queue *t = disk->queue;
 
+<<<<<<< HEAD
 	if (bdev_stack_limits(&t->limits, bdev, offset >> 9) < 0) {
 		char top[BDEVNAME_SIZE], bottom[BDEVNAME_SIZE];
 
@@ -732,10 +946,19 @@ void disk_stack_limits(struct gendisk *disk, struct block_device *bdev,
 
 	t->backing_dev_info->io_pages =
 		t->limits.max_sectors >> (PAGE_SHIFT - 9);
+=======
+	if (blk_stack_limits(&t->limits, &bdev_get_queue(bdev)->limits,
+			get_start_sect(bdev) + (offset >> 9)) < 0)
+		pr_notice("%s: Warning: Device %pg is misaligned\n",
+			disk->disk_name, bdev);
+
+	disk_update_readahead(disk);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(disk_stack_limits);
 
 /**
+<<<<<<< HEAD
  * blk_queue_dma_pad - set pad mask
  * @q:     the request queue for the device
  * @mask:  pad mask
@@ -752,6 +975,8 @@ void blk_queue_dma_pad(struct request_queue *q, unsigned int mask)
 EXPORT_SYMBOL(blk_queue_dma_pad);
 
 /**
+=======
+>>>>>>> upstream/android-13
  * blk_queue_update_dma_pad - update pad mask
  * @q:     the request queue for the device
  * @mask:  pad mask
@@ -769,6 +994,7 @@ void blk_queue_update_dma_pad(struct request_queue *q, unsigned int mask)
 EXPORT_SYMBOL(blk_queue_update_dma_pad);
 
 /**
+<<<<<<< HEAD
  * blk_queue_dma_drain - Set up a drain buffer for excess dma.
  * @q:  the request queue for the device
  * @dma_drain_needed: fn which returns non-zero if drain is necessary
@@ -806,6 +1032,8 @@ int blk_queue_dma_drain(struct request_queue *q,
 EXPORT_SYMBOL_GPL(blk_queue_dma_drain);
 
 /**
+=======
+>>>>>>> upstream/android-13
  * blk_queue_segment_boundary - set boundary rules for segment merging
  * @q:  the request queue for the device
  * @mask:  the memory boundary mask
@@ -830,6 +1058,18 @@ EXPORT_SYMBOL(blk_queue_segment_boundary);
 void blk_queue_virt_boundary(struct request_queue *q, unsigned long mask)
 {
 	q->limits.virt_boundary_mask = mask;
+<<<<<<< HEAD
+=======
+
+	/*
+	 * Devices that require a virtual boundary do not support scatter/gather
+	 * I/O natively, but instead require a descriptor list entry for each
+	 * page (which might not be idential to the Linux PAGE_SIZE).  Because
+	 * of that they are not limited by our notion of "segment size".
+	 */
+	if (mask)
+		q->limits.max_segment_size = UINT_MAX;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(blk_queue_virt_boundary);
 
@@ -872,6 +1112,7 @@ void blk_queue_update_dma_alignment(struct request_queue *q, int mask)
 }
 EXPORT_SYMBOL(blk_queue_update_dma_alignment);
 
+<<<<<<< HEAD
 void blk_queue_flush_queueable(struct request_queue *q, bool queueable)
 {
 	if (queueable)
@@ -881,6 +1122,8 @@ void blk_queue_flush_queueable(struct request_queue *q, bool queueable)
 }
 EXPORT_SYMBOL_GPL(blk_queue_flush_queueable);
 
+=======
+>>>>>>> upstream/android-13
 /**
  * blk_set_queue_depth - tell the block layer about the device queue depth
  * @q:		the request queue for the device
@@ -890,7 +1133,11 @@ EXPORT_SYMBOL_GPL(blk_queue_flush_queueable);
 void blk_set_queue_depth(struct request_queue *q, unsigned int depth)
 {
 	q->queue_depth = depth;
+<<<<<<< HEAD
 	wbt_set_queue_depth(q, depth);
+=======
+	rq_qos_queue_depth_changed(q);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(blk_set_queue_depth);
 
@@ -904,6 +1151,7 @@ EXPORT_SYMBOL(blk_set_queue_depth);
  */
 void blk_queue_write_cache(struct request_queue *q, bool wc, bool fua)
 {
+<<<<<<< HEAD
 	spin_lock_irq(q->queue_lock);
 	if (wc)
 		queue_flag_set(QUEUE_FLAG_WC, q);
@@ -914,11 +1162,22 @@ void blk_queue_write_cache(struct request_queue *q, bool wc, bool fua)
 	else
 		queue_flag_clear(QUEUE_FLAG_FUA, q);
 	spin_unlock_irq(q->queue_lock);
+=======
+	if (wc)
+		blk_queue_flag_set(QUEUE_FLAG_WC, q);
+	else
+		blk_queue_flag_clear(QUEUE_FLAG_WC, q);
+	if (fua)
+		blk_queue_flag_set(QUEUE_FLAG_FUA, q);
+	else
+		blk_queue_flag_clear(QUEUE_FLAG_FUA, q);
+>>>>>>> upstream/android-13
 
 	wbt_set_write_cache(q, test_bit(QUEUE_FLAG_WC, &q->queue_flags));
 }
 EXPORT_SYMBOL_GPL(blk_queue_write_cache);
 
+<<<<<<< HEAD
 static int __init blk_settings_init(void)
 {
 	blk_max_low_pfn = max_low_pfn - 1;
@@ -926,3 +1185,118 @@ static int __init blk_settings_init(void)
 	return 0;
 }
 subsys_initcall(blk_settings_init);
+=======
+/**
+ * blk_queue_required_elevator_features - Set a queue required elevator features
+ * @q:		the request queue for the target device
+ * @features:	Required elevator features OR'ed together
+ *
+ * Tell the block layer that for the device controlled through @q, only the
+ * only elevators that can be used are those that implement at least the set of
+ * features specified by @features.
+ */
+void blk_queue_required_elevator_features(struct request_queue *q,
+					  unsigned int features)
+{
+	q->required_elevator_features = features;
+}
+EXPORT_SYMBOL_GPL(blk_queue_required_elevator_features);
+
+/**
+ * blk_queue_can_use_dma_map_merging - configure queue for merging segments.
+ * @q:		the request queue for the device
+ * @dev:	the device pointer for dma
+ *
+ * Tell the block layer about merging the segments by dma map of @q.
+ */
+bool blk_queue_can_use_dma_map_merging(struct request_queue *q,
+				       struct device *dev)
+{
+	unsigned long boundary = dma_get_merge_boundary(dev);
+
+	if (!boundary)
+		return false;
+
+	/* No need to update max_segment_size. see blk_queue_virt_boundary() */
+	blk_queue_virt_boundary(q, boundary);
+
+	return true;
+}
+EXPORT_SYMBOL_GPL(blk_queue_can_use_dma_map_merging);
+
+static bool disk_has_partitions(struct gendisk *disk)
+{
+	unsigned long idx;
+	struct block_device *part;
+	bool ret = false;
+
+	rcu_read_lock();
+	xa_for_each(&disk->part_tbl, idx, part) {
+		if (bdev_is_partition(part)) {
+			ret = true;
+			break;
+		}
+	}
+	rcu_read_unlock();
+
+	return ret;
+}
+
+/**
+ * blk_queue_set_zoned - configure a disk queue zoned model.
+ * @disk:	the gendisk of the queue to configure
+ * @model:	the zoned model to set
+ *
+ * Set the zoned model of the request queue of @disk according to @model.
+ * When @model is BLK_ZONED_HM (host managed), this should be called only
+ * if zoned block device support is enabled (CONFIG_BLK_DEV_ZONED option).
+ * If @model specifies BLK_ZONED_HA (host aware), the effective model used
+ * depends on CONFIG_BLK_DEV_ZONED settings and on the existence of partitions
+ * on the disk.
+ */
+void blk_queue_set_zoned(struct gendisk *disk, enum blk_zoned_model model)
+{
+	struct request_queue *q = disk->queue;
+
+	switch (model) {
+	case BLK_ZONED_HM:
+		/*
+		 * Host managed devices are supported only if
+		 * CONFIG_BLK_DEV_ZONED is enabled.
+		 */
+		WARN_ON_ONCE(!IS_ENABLED(CONFIG_BLK_DEV_ZONED));
+		break;
+	case BLK_ZONED_HA:
+		/*
+		 * Host aware devices can be treated either as regular block
+		 * devices (similar to drive managed devices) or as zoned block
+		 * devices to take advantage of the zone command set, similarly
+		 * to host managed devices. We try the latter if there are no
+		 * partitions and zoned block device support is enabled, else
+		 * we do nothing special as far as the block layer is concerned.
+		 */
+		if (!IS_ENABLED(CONFIG_BLK_DEV_ZONED) ||
+		    disk_has_partitions(disk))
+			model = BLK_ZONED_NONE;
+		break;
+	case BLK_ZONED_NONE:
+	default:
+		if (WARN_ON_ONCE(model != BLK_ZONED_NONE))
+			model = BLK_ZONED_NONE;
+		break;
+	}
+
+	q->limits.zoned = model;
+	if (model != BLK_ZONED_NONE) {
+		/*
+		 * Set the zone write granularity to the device logical block
+		 * size by default. The driver can change this value if needed.
+		 */
+		blk_queue_zone_write_granularity(q,
+						queue_logical_block_size(q));
+	} else {
+		blk_queue_clear_zone_settings(q);
+	}
+}
+EXPORT_SYMBOL_GPL(blk_queue_set_zoned);
+>>>>>>> upstream/android-13

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Low-level SPU handling
  *
  * (C) Copyright IBM Deutschland Entwicklung GmbH 2005
  *
  * Author: Arnd Bergmann <arndb@de.ibm.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/sched/signal.h>
 #include <linux/mm.h>
@@ -36,14 +43,18 @@
 static void spufs_handle_event(struct spu_context *ctx,
 				unsigned long ea, int type)
 {
+<<<<<<< HEAD
 	siginfo_t info;
 
+=======
+>>>>>>> upstream/android-13
 	if (ctx->flags & SPU_CREATE_EVENTS_ENABLED) {
 		ctx->event_return |= type;
 		wake_up_all(&ctx->stop_wq);
 		return;
 	}
 
+<<<<<<< HEAD
 	clear_siginfo(&info);
 
 	switch (type) {
@@ -72,6 +83,27 @@ static void spufs_handle_event(struct spu_context *ctx,
 
 	if (info.si_signo)
 		force_sig_info(info.si_signo, &info, current);
+=======
+	switch (type) {
+	case SPE_EVENT_INVALID_DMA:
+		force_sig_fault(SIGBUS, BUS_OBJERR, NULL);
+		break;
+	case SPE_EVENT_SPE_DATA_STORAGE:
+		ctx->ops->restart_dma(ctx);
+		force_sig_fault(SIGSEGV, SEGV_ACCERR, (void __user *)ea);
+		break;
+	case SPE_EVENT_DMA_ALIGNMENT:
+		/* DAR isn't set for an alignment fault :( */
+		force_sig_fault(SIGBUS, BUS_ADRALN, NULL);
+		break;
+	case SPE_EVENT_SPE_ERROR:
+		force_sig_fault(
+			SIGILL, ILL_ILLOPC,
+			(void __user *)(unsigned long)
+			ctx->ops->npc_read(ctx) - 4);
+		break;
+	}
+>>>>>>> upstream/android-13
 }
 
 int spufs_handle_class0(struct spu_context *ctx)

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2002 Roman Zippel <zippel@linux-m68k.org>
  * Released under the terms of the GNU GPL v2.0.
@@ -20,6 +21,29 @@ class ConfigView;
 class ConfigList;
 class ConfigItem;
 class ConfigLineEdit;
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * Copyright (C) 2002 Roman Zippel <zippel@linux-m68k.org>
+ */
+
+#include <QCheckBox>
+#include <QDialog>
+#include <QHeaderView>
+#include <QLineEdit>
+#include <QMainWindow>
+#include <QPushButton>
+#include <QSettings>
+#include <QSplitter>
+#include <QStyledItemDelegate>
+#include <QTextBrowser>
+#include <QTreeWidget>
+
+#include "expr.h"
+
+class ConfigList;
+class ConfigItem;
+>>>>>>> upstream/android-13
 class ConfigMainWindow;
 
 class ConfigSettings : public QSettings {
@@ -30,7 +54,11 @@ public:
 };
 
 enum colIdx {
+<<<<<<< HEAD
 	promptColIdx, nameColIdx, noColIdx, modColIdx, yesColIdx, dataColIdx, colNr
+=======
+	promptColIdx, nameColIdx, dataColIdx
+>>>>>>> upstream/android-13
 };
 enum listMode {
 	singleMode, menuMode, symbolMode, fullMode, listMode
@@ -43,6 +71,7 @@ class ConfigList : public QTreeWidget {
 	Q_OBJECT
 	typedef class QTreeWidget Parent;
 public:
+<<<<<<< HEAD
 	ConfigList(ConfigView* p, const char *name = 0);
 	void reinit(void);
 	ConfigView* parent(void) const
@@ -50,6 +79,18 @@ public:
 		return (ConfigView*)Parent::parent();
 	}
 	ConfigItem* findConfigItem(struct menu *);
+=======
+	ConfigList(QWidget *parent, const char *name = 0);
+	~ConfigList();
+	void reinit(void);
+	ConfigItem* findConfigItem(struct menu *);
+	void setSelected(QTreeWidgetItem *item, bool enable) {
+		for (int i = 0; i < selectedItems().size(); i++)
+			selectedItems().at(i)->setSelected(false);
+
+		item->setSelected(enable);
+	}
+>>>>>>> upstream/android-13
 
 protected:
 	void keyPressEvent(QKeyEvent *e);
@@ -63,21 +104,39 @@ protected:
 public slots:
 	void setRootMenu(struct menu *menu);
 
+<<<<<<< HEAD
 	void updateList(ConfigItem *item);
+=======
+	void updateList();
+>>>>>>> upstream/android-13
 	void setValue(ConfigItem* item, tristate val);
 	void changeValue(ConfigItem* item);
 	void updateSelection(void);
 	void saveSettings(void);
+<<<<<<< HEAD
 signals:
 	void menuChanged(struct menu *menu);
 	void menuSelected(struct menu *menu);
 	void parentSelected(void);
 	void gotFocus(struct menu *);
+=======
+	void setOptionMode(QAction *action);
+	void setShowName(bool on);
+
+signals:
+	void menuChanged(struct menu *menu);
+	void menuSelected(struct menu *menu);
+	void itemSelected(struct menu *menu);
+	void parentSelected(void);
+	void gotFocus(struct menu *);
+	void showNameChanged(bool on);
+>>>>>>> upstream/android-13
 
 public:
 	void updateListAll(void)
 	{
 		updateAll = true;
+<<<<<<< HEAD
 		updateList(NULL);
 		updateAll = false;
 	}
@@ -97,12 +156,18 @@ public:
 	{
 		hideColumn(idx);
 	}
+=======
+		updateList();
+		updateAll = false;
+	}
+>>>>>>> upstream/android-13
 	void setAllOpen(bool open);
 	void setParentMenu(void);
 
 	bool menuSkip(struct menu *);
 
 	void updateMenuList(ConfigItem *parent, struct menu*);
+<<<<<<< HEAD
 	void updateMenuList(ConfigList *parent, struct menu*);
 
 	bool updateAll;
@@ -112,12 +177,28 @@ public:
 	QPixmap menuPix, menuInvPix, menuBackPix, voidPix;
 
 	bool showName, showRange, showData;
+=======
+	void updateMenuList(struct menu *menu);
+
+	bool updateAll;
+
+	bool showName;
+>>>>>>> upstream/android-13
 	enum listMode mode;
 	enum optionMode optMode;
 	struct menu *rootEntry;
 	QPalette disabledColorGroup;
 	QPalette inactivedColorGroup;
 	QMenu* headerPopup;
+<<<<<<< HEAD
+=======
+
+	static QList<ConfigList *> allLists;
+	static void updateListForAll();
+	static void updateListAllForAll();
+
+	static QAction *showNormalAction, *showAllAction, *showPromptAction;
+>>>>>>> upstream/android-13
 };
 
 class ConfigItem : public QTreeWidgetItem {
@@ -140,7 +221,10 @@ public:
 	}
 	~ConfigItem(void);
 	void init(void);
+<<<<<<< HEAD
 	void okRename(int col);
+=======
+>>>>>>> upstream/android-13
 	void updateMenu(void);
 	void testUpdateMenu(bool v);
 	ConfigList* listView() const
@@ -165,6 +249,7 @@ public:
 
 		return ret;
 	}
+<<<<<<< HEAD
 	void setText(colIdx idx, const QString& text)
 	{
 		Parent::setText(idx, text);
@@ -181,12 +266,15 @@ public:
 	{
 		return icon(idx);
 	}
+=======
+>>>>>>> upstream/android-13
 	// TODO: Implement paintCell
 
 	ConfigItem* nextItem;
 	struct menu *menu;
 	bool visible;
 	bool goParent;
+<<<<<<< HEAD
 };
 
 class ConfigLineEdit : public QLineEdit {
@@ -236,11 +324,35 @@ public:
 	static QAction *showNormalAction;
 	static QAction *showAllAction;
 	static QAction *showPromptAction;
+=======
+
+	static QIcon symbolYesIcon, symbolModIcon, symbolNoIcon;
+	static QIcon choiceYesIcon, choiceNoIcon;
+	static QIcon menuIcon, menubackIcon;
+};
+
+class ConfigItemDelegate : public QStyledItemDelegate
+{
+private:
+	struct menu *menu;
+public:
+	ConfigItemDelegate(QObject *parent = nullptr)
+		: QStyledItemDelegate(parent) {}
+	QWidget *createEditor(QWidget *parent,
+			      const QStyleOptionViewItem &option,
+			      const QModelIndex &index) const override;
+	void setModelData(QWidget *editor, QAbstractItemModel *model,
+			  const QModelIndex &index) const override;
+>>>>>>> upstream/android-13
 };
 
 class ConfigInfoView : public QTextBrowser {
 	Q_OBJECT
 	typedef class QTextBrowser Parent;
+<<<<<<< HEAD
+=======
+	QMenu *contextMenu;
+>>>>>>> upstream/android-13
 public:
 	ConfigInfoView(QWidget* parent, const char *name = 0);
 	bool showDebug(void) const { return _showDebug; }
@@ -249,6 +361,10 @@ public slots:
 	void setInfo(struct menu *menu);
 	void saveSettings(void);
 	void setShowDebug(bool);
+<<<<<<< HEAD
+=======
+	void clicked (const QUrl &url);
+>>>>>>> upstream/android-13
 
 signals:
 	void showDebugChanged(bool);
@@ -260,8 +376,12 @@ protected:
 	QString debug_info(struct symbol *sym);
 	static QString print_filter(const QString &str);
 	static void expr_print_help(void *data, struct symbol *sym, const char *str);
+<<<<<<< HEAD
 	QMenu *createStandardContextMenu(const QPoint & pos);
 	void contextMenuEvent(QContextMenuEvent *e);
+=======
+	void contextMenuEvent(QContextMenuEvent *event);
+>>>>>>> upstream/android-13
 
 	struct symbol *sym;
 	struct menu *_menu;
@@ -272,7 +392,11 @@ class ConfigSearchWindow : public QDialog {
 	Q_OBJECT
 	typedef class QDialog Parent;
 public:
+<<<<<<< HEAD
 	ConfigSearchWindow(ConfigMainWindow* parent, const char *name = 0);
+=======
+	ConfigSearchWindow(ConfigMainWindow *parent);
+>>>>>>> upstream/android-13
 
 public slots:
 	void saveSettings(void);
@@ -282,7 +406,11 @@ protected:
 	QLineEdit* editField;
 	QPushButton* searchButton;
 	QSplitter* split;
+<<<<<<< HEAD
 	ConfigView* list;
+=======
+	ConfigList *list;
+>>>>>>> upstream/android-13
 	ConfigInfoView* info;
 
 	struct symbol **result;
@@ -291,12 +419,20 @@ protected:
 class ConfigMainWindow : public QMainWindow {
 	Q_OBJECT
 
+<<<<<<< HEAD
+=======
+	char *configname;
+>>>>>>> upstream/android-13
 	static QAction *saveAction;
 	static void conf_changed(void);
 public:
 	ConfigMainWindow(void);
 public slots:
 	void changeMenu(struct menu *);
+<<<<<<< HEAD
+=======
+	void changeItens(struct menu *);
+>>>>>>> upstream/android-13
 	void setMenuLink(struct menu *);
 	void listFocusChanged(void);
 	void goBack(void);
@@ -315,12 +451,18 @@ protected:
 	void closeEvent(QCloseEvent *e);
 
 	ConfigSearchWindow *searchWindow;
+<<<<<<< HEAD
 	ConfigView *menuView;
 	ConfigList *menuList;
 	ConfigView *configView;
 	ConfigList *configList;
 	ConfigInfoView *helpText;
 	QToolBar *toolBar;
+=======
+	ConfigList *menuList;
+	ConfigList *configList;
+	ConfigInfoView *helpText;
+>>>>>>> upstream/android-13
 	QAction *backAction;
 	QAction *singleViewAction;
 	QAction *splitViewAction;

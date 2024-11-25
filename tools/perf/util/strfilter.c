@@ -1,10 +1,20 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 #include "util.h"
+=======
+>>>>>>> upstream/android-13
 #include "string2.h"
 #include "strfilter.h"
 
 #include <errno.h>
+<<<<<<< HEAD
 #include "sane_ctype.h"
+=======
+#include <stdlib.h>
+#include <linux/ctype.h>
+#include <linux/string.h>
+#include <linux/zalloc.h>
+>>>>>>> upstream/android-13
 
 /* Operators */
 static const char *OP_and	= "&";	/* Logical AND */
@@ -37,8 +47,12 @@ static const char *get_token(const char *s, const char **e)
 {
 	const char *p;
 
+<<<<<<< HEAD
 	while (isspace(*s))	/* Skip spaces */
 		s++;
+=======
+	s = skip_spaces(s);
+>>>>>>> upstream/android-13
 
 	if (*s == '\0') {
 		p = s;

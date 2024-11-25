@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016 Rockchip Electronics Co. Ltd.
  * Author: Elaine <zhangqing@rock-chips.com>
@@ -11,6 +12,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (c) 2016 Rockchip Electronics Co. Ltd.
+ * Author: Elaine <zhangqing@rock-chips.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef _DT_BINDINGS_CLK_ROCKCHIP_RK3328_H
@@ -172,6 +179,11 @@
 #define PCLK_HDCP		232
 #define PCLK_DCF		233
 #define PCLK_SARADC		234
+<<<<<<< HEAD
+=======
+#define PCLK_ACODECPHY		235
+#define PCLK_WDT		236
+>>>>>>> upstream/android-13
 
 /* hclk gates */
 #define HCLK_PERI		308

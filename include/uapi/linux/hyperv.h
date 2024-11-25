@@ -26,7 +26,11 @@
 #ifndef _UAPI_HYPERV_H
 #define _UAPI_HYPERV_H
 
+<<<<<<< HEAD
 #include <linux/uuid.h>
+=======
+#include <linux/types.h>
+>>>>>>> upstream/android-13
 
 /*
  * Framework version for util services.
@@ -119,8 +123,13 @@ enum hv_fcopy_op {
 
 struct hv_fcopy_hdr {
 	__u32 operation;
+<<<<<<< HEAD
 	uuid_le service_id0; /* currently unused */
 	uuid_le service_id1; /* currently unused */
+=======
+	__u8 service_id0[16]; /* currently unused */
+	__u8 service_id1[16]; /* currently unused */
+>>>>>>> upstream/android-13
 } __attribute__((packed));
 
 #define OVER_WRITE	0x1
@@ -219,7 +228,11 @@ struct hv_do_fcopy {
  * kernel and user-level daemon communicate using a connector channel.
  *
  * The user mode component first registers with the
+<<<<<<< HEAD
  * the kernel component. Subsequently, the kernel component requests, data
+=======
+ * kernel component. Subsequently, the kernel component requests, data
+>>>>>>> upstream/android-13
  * for the specified keys. In response to this message the user mode component
  * fills in the value corresponding to the specified key. We overload the
  * sequence field in the cn_msg header to define our KVP message types.

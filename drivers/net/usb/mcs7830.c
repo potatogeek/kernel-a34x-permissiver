@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * MOSCHIP MCS7830 based (7730/7830/7832) USB 2.0 Ethernet Devices
  *
@@ -23,6 +27,7 @@
  * - mcs7830_get_regs() handling is weird: for rev 2 we return 32 regs,
  *   can access only ~ 24, remaining user buffer is uninitialized garbage
  * - anything else?
+<<<<<<< HEAD
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -37,6 +42,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/crc32.h>
@@ -121,8 +128,21 @@ static const char driver_name[] = "MOSCHIP usb-ethernet driver";
 
 static int mcs7830_get_reg(struct usbnet *dev, u16 index, u16 size, void *data)
 {
+<<<<<<< HEAD
 	return usbnet_read_cmd(dev, MCS7830_RD_BREQ, MCS7830_RD_BMREQ,
 				0x0000, index, data, size);
+=======
+	int ret;
+
+	ret = usbnet_read_cmd(dev, MCS7830_RD_BREQ, MCS7830_RD_BMREQ,
+			      0x0000, index, data, size);
+	if (ret < 0)
+		return ret;
+	else if (ret < size)
+		return -ENODATA;
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int mcs7830_set_reg(struct usbnet *dev, u16 index, u16 size, const void *data)
@@ -465,8 +485,13 @@ static const struct ethtool_ops mcs7830_ethtool_ops = {
 	.get_msglevel		= usbnet_get_msglevel,
 	.set_msglevel		= usbnet_set_msglevel,
 	.nway_reset		= usbnet_nway_reset,
+<<<<<<< HEAD
 	.get_link_ksettings	= usbnet_get_link_ksettings,
 	.set_link_ksettings	= usbnet_set_link_ksettings,
+=======
+	.get_link_ksettings	= usbnet_get_link_ksettings_mii,
+	.set_link_ksettings	= usbnet_set_link_ksettings_mii,
+>>>>>>> upstream/android-13
 };
 
 static const struct net_device_ops mcs7830_netdev_ops = {
@@ -475,9 +500,15 @@ static const struct net_device_ops mcs7830_netdev_ops = {
 	.ndo_start_xmit		= usbnet_start_xmit,
 	.ndo_tx_timeout		= usbnet_tx_timeout,
 	.ndo_change_mtu		= usbnet_change_mtu,
+<<<<<<< HEAD
 	.ndo_get_stats64	= usbnet_get_stats64,
 	.ndo_validate_addr	= eth_validate_addr,
 	.ndo_do_ioctl 		= mcs7830_ioctl,
+=======
+	.ndo_get_stats64	= dev_get_tstats64,
+	.ndo_validate_addr	= eth_validate_addr,
+	.ndo_eth_ioctl		= mcs7830_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_set_rx_mode	= mcs7830_set_multicast,
 	.ndo_set_mac_address	= mcs7830_set_mac_address,
 };
@@ -614,7 +645,11 @@ MODULE_DEVICE_TABLE(usb, products);
 
 static int mcs7830_reset_resume (struct usb_interface *intf)
 {
+<<<<<<< HEAD
  	/* YES, this function is successful enough that ethtool -d
+=======
+	/* YES, this function is successful enough that ethtool -d
+>>>>>>> upstream/android-13
            does show same output pre-/post-suspend */
 
 	struct usbnet		*dev = usb_get_intfdata(intf);

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * v4l2-mc.h - Media Controller V4L2 types and prototypes
  *
  * Copyright (C) 2016 Mauro Carvalho Chehab <mchehab@kernel.org>
  * Copyright (C) 2006-2010 Nokia Corporation
  * Copyright (c) 2016 Intel Corporation.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +19,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _V4L2_MC_H
@@ -21,6 +28,7 @@
 
 #include <media/media-device.h>
 #include <media/v4l2-dev.h>
+<<<<<<< HEAD
 #include <linux/types.h>
 
 /**
@@ -101,6 +109,11 @@ enum demod_pad_index {
 	DEMOD_NUM_PADS
 };
 
+=======
+#include <media/v4l2-subdev.h>
+#include <linux/types.h>
+
+>>>>>>> upstream/android-13
 /* We don't need to include pci.h or usb.h here */
 struct pci_dev;
 struct usb_device;
@@ -171,6 +184,7 @@ void v4l_disable_media_source(struct video_device *vdev);
  */
 int v4l_vb2q_enable_media_source(struct vb2_queue *q);
 
+<<<<<<< HEAD
 
 /**
  * v4l2_pipeline_pm_use - Update the use count of an entity
@@ -190,6 +204,87 @@ int v4l_vb2q_enable_media_source(struct vb2_queue *q);
  * set to 0.
  */
 int v4l2_pipeline_pm_use(struct media_entity *entity, int use);
+=======
+/**
+ * v4l2_create_fwnode_links_to_pad - Create fwnode-based links from a
+ *                                   source subdev to a sink subdev pad.
+ *
+ * @src_sd: pointer to a source subdev
+ * @sink:  pointer to a subdev sink pad
+ * @flags: the link flags
+ *
+ * This function searches for fwnode endpoint connections from a source
+ * subdevice to a single sink pad, and if suitable connections are found,
+ * translates them into media links to that pad. The function can be
+ * called by the sink subdevice, in its v4l2-async notifier subdev bound
+ * callback, to create links from a bound source subdevice.
+ *
+ * The @flags argument specifies the link flags. The caller shall ensure that
+ * the flags are valid regardless of the number of links that may be created.
+ * For instance, setting the MEDIA_LNK_FL_ENABLED flag will cause all created
+ * links to be enabled, which isn't valid if more than one link is created.
+ *
+ * .. note::
+ *
+ *    Any sink subdevice that calls this function must implement the
+ *    .get_fwnode_pad media operation in order to verify endpoints passed
+ *    to the sink are owned by the sink.
+ *
+ * Return 0 on success or a negative error code on failure.
+ */
+int v4l2_create_fwnode_links_to_pad(struct v4l2_subdev *src_sd,
+				    struct media_pad *sink, u32 flags);
+
+/**
+ * v4l2_create_fwnode_links - Create fwnode-based links from a source
+ *                            subdev to a sink subdev.
+ *
+ * @src_sd: pointer to a source subdevice
+ * @sink_sd: pointer to a sink subdevice
+ *
+ * This function searches for any and all fwnode endpoint connections
+ * between source and sink subdevices, and translates them into media
+ * links. The function can be called by the sink subdevice, in its
+ * v4l2-async notifier subdev bound callback, to create all links from
+ * a bound source subdevice.
+ *
+ * .. note::
+ *
+ *    Any sink subdevice that calls this function must implement the
+ *    .get_fwnode_pad media operation in order to verify endpoints passed
+ *    to the sink are owned by the sink.
+ *
+ * Return 0 on success or a negative error code on failure.
+ */
+int v4l2_create_fwnode_links(struct v4l2_subdev *src_sd,
+			     struct v4l2_subdev *sink_sd);
+
+/**
+ * v4l2_pipeline_pm_get - Increase the use count of a pipeline
+ * @entity: The root entity of a pipeline
+ *
+ * Update the use count of all entities in the pipeline and power entities on.
+ *
+ * This function is intended to be called in video node open. It uses
+ * struct media_entity.use_count to track the power status. The use
+ * of this function should be paired with v4l2_pipeline_link_notify().
+ *
+ * Return 0 on success or a negative error code on failure.
+ */
+int v4l2_pipeline_pm_get(struct media_entity *entity);
+
+/**
+ * v4l2_pipeline_pm_put - Decrease the use count of a pipeline
+ * @entity: The root entity of a pipeline
+ *
+ * Update the use count of all entities in the pipeline and power entities off.
+ *
+ * This function is intended to be called in video node release. It uses
+ * struct media_entity.use_count to track the power status. The use
+ * of this function should be paired with v4l2_pipeline_link_notify().
+ */
+void v4l2_pipeline_pm_put(struct media_entity *entity);
+>>>>>>> upstream/android-13
 
 
 /**
@@ -201,7 +296,11 @@ int v4l2_pipeline_pm_use(struct media_entity *entity, int use);
  * React to link management on powered pipelines by updating the use count of
  * all entities in the source and sink sides of the link. Entities are powered
  * on or off accordingly. The use of this function should be paired
+<<<<<<< HEAD
  * with v4l2_pipeline_pm_use().
+=======
+ * with v4l2_pipeline_pm_{get,put}().
+>>>>>>> upstream/android-13
  *
  * Return 0 on success or a negative error code on failure. Powering entities
  * off is assumed to never fail. This function will not fail for disconnection
@@ -231,11 +330,21 @@ static inline int v4l_vb2q_enable_media_source(struct vb2_queue *q)
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline int v4l2_pipeline_pm_use(struct media_entity *entity, int use)
+=======
+static inline int v4l2_pipeline_pm_get(struct media_entity *entity)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static inline void v4l2_pipeline_pm_put(struct media_entity *entity)
+{}
+
+>>>>>>> upstream/android-13
 static inline int v4l2_pipeline_link_notify(struct media_link *link, u32 flags,
 					    unsigned int notification)
 {

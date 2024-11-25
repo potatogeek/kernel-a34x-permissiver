@@ -9,7 +9,10 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/of.h>
+<<<<<<< HEAD
 #include <linux/of_address.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/pwm.h>
 #include <linux/slab.h>
@@ -25,12 +28,25 @@
 #define  PERIOD_PERIOD(p)	((p) & 0xffff)
 #define  PERIOD_PERIOD_MAX	0x10000
 #define  PERIOD_ACTIVE_HIGH	(3 << 16)
+<<<<<<< HEAD
 #define  PERIOD_INACTIVE_LOW	(2 << 18)
 #define  PERIOD_CDIV(div)	(((div) & 0x7) << 20)
 #define  PERIOD_CDIV_MAX	8
 
 static const unsigned int cdiv[PERIOD_CDIV_MAX] = {
 	1, 2, 4, 8, 16, 64, 256, 1024
+=======
+#define  PERIOD_ACTIVE_LOW	(2 << 16)
+#define  PERIOD_INACTIVE_HIGH	(3 << 18)
+#define  PERIOD_INACTIVE_LOW	(2 << 18)
+#define  PERIOD_POLARITY_NORMAL	(PERIOD_ACTIVE_HIGH | PERIOD_INACTIVE_LOW)
+#define  PERIOD_POLARITY_INVERSE	(PERIOD_ACTIVE_LOW | PERIOD_INACTIVE_HIGH)
+#define  PERIOD_CDIV(div)	(((div) & 0x7) << 20)
+#define  PERIOD_CDIV_MAX	8
+
+static const u8 cdiv_shift[PERIOD_CDIV_MAX] = {
+	0, 1, 2, 3, 4, 6, 8, 10
+>>>>>>> upstream/android-13
 };
 
 struct mxs_pwm_chip {
@@ -41,19 +57,47 @@ struct mxs_pwm_chip {
 
 #define to_mxs_pwm_chip(_chip) container_of(_chip, struct mxs_pwm_chip, chip)
 
+<<<<<<< HEAD
 static int mxs_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm,
 			  int duty_ns, int period_ns)
+=======
+static int mxs_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
+			 const struct pwm_state *state)
+>>>>>>> upstream/android-13
 {
 	struct mxs_pwm_chip *mxs = to_mxs_pwm_chip(chip);
 	int ret, div = 0;
 	unsigned int period_cycles, duty_cycles;
 	unsigned long rate;
 	unsigned long long c;
+<<<<<<< HEAD
 
 	rate = clk_get_rate(mxs->clk);
 	while (1) {
 		c = rate / cdiv[div];
 		c = c * period_ns;
+=======
+	unsigned int pol_bits;
+
+	/*
+	 * If the PWM channel is disabled, make sure to turn on the
+	 * clock before calling clk_get_rate() and writing to the
+	 * registers. Otherwise, just keep it enabled.
+	 */
+	if (!pwm_is_enabled(pwm)) {
+		ret = clk_prepare_enable(mxs->clk);
+		if (ret)
+			return ret;
+	}
+
+	if (!state->enabled && pwm_is_enabled(pwm))
+		writel(1 << pwm->hwpwm, mxs->base + PWM_CTRL + CLR);
+
+	rate = clk_get_rate(mxs->clk);
+	while (1) {
+		c = rate >> cdiv_shift[div];
+		c = c * state->period;
+>>>>>>> upstream/android-13
 		do_div(c, 1000000000);
 		if (c < PERIOD_PERIOD_MAX)
 			break;
@@ -63,6 +107,7 @@ static int mxs_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm,
 	}
 
 	period_cycles = c;
+<<<<<<< HEAD
 	c *= duty_ns;
 	do_div(c, period_ns);
 	duty_cycles = c;
@@ -119,6 +164,42 @@ static const struct pwm_ops mxs_pwm_ops = {
 	.config = mxs_pwm_config,
 	.enable = mxs_pwm_enable,
 	.disable = mxs_pwm_disable,
+=======
+	c *= state->duty_cycle;
+	do_div(c, state->period);
+	duty_cycles = c;
+
+	/*
+	 * The data sheet the says registers must be written to in
+	 * this order (ACTIVEn, then PERIODn). Also, the new settings
+	 * only take effect at the beginning of a new period, avoiding
+	 * glitches.
+	 */
+
+	pol_bits = state->polarity == PWM_POLARITY_NORMAL ?
+		PERIOD_POLARITY_NORMAL : PERIOD_POLARITY_INVERSE;
+	writel(duty_cycles << 16,
+	       mxs->base + PWM_ACTIVE0 + pwm->hwpwm * 0x20);
+	writel(PERIOD_PERIOD(period_cycles) | pol_bits | PERIOD_CDIV(div),
+	       mxs->base + PWM_PERIOD0 + pwm->hwpwm * 0x20);
+
+	if (state->enabled) {
+		if (!pwm_is_enabled(pwm)) {
+			/*
+			 * The clock was enabled above. Just enable
+			 * the channel in the control register.
+			 */
+			writel(1 << pwm->hwpwm, mxs->base + PWM_CTRL + SET);
+		}
+	} else {
+		clk_disable_unprepare(mxs->clk);
+	}
+	return 0;
+}
+
+static const struct pwm_ops mxs_pwm_ops = {
+	.apply = mxs_pwm_apply,
+>>>>>>> upstream/android-13
 	.owner = THIS_MODULE,
 };
 
@@ -126,15 +207,22 @@ static int mxs_pwm_probe(struct platform_device *pdev)
 {
 	struct device_node *np = pdev->dev.of_node;
 	struct mxs_pwm_chip *mxs;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	mxs = devm_kzalloc(&pdev->dev, sizeof(*mxs), GFP_KERNEL);
 	if (!mxs)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	mxs->base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	mxs->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(mxs->base))
 		return PTR_ERR(mxs->base);
 
@@ -144,7 +232,10 @@ static int mxs_pwm_probe(struct platform_device *pdev)
 
 	mxs->chip.dev = &pdev->dev;
 	mxs->chip.ops = &mxs_pwm_ops;
+<<<<<<< HEAD
 	mxs->chip.base = -1;
+=======
+>>>>>>> upstream/android-13
 
 	ret = of_property_read_u32(np, "fsl,pwm-number", &mxs->chip.npwm);
 	if (ret < 0) {
@@ -152,12 +243,22 @@ static int mxs_pwm_probe(struct platform_device *pdev)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	ret = pwmchip_add(&mxs->chip);
+=======
+	/* FIXME: Only do this if the PWM isn't already running */
+	ret = stmp_reset_block(mxs->base);
+	if (ret)
+		return dev_err_probe(&pdev->dev, ret, "failed to reset PWM\n");
+
+	ret = devm_pwmchip_add(&pdev->dev, &mxs->chip);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(&pdev->dev, "failed to add pwm chip %d\n", ret);
 		return ret;
 	}
 
+<<<<<<< HEAD
 	platform_set_drvdata(pdev, mxs);
 
 	ret = stmp_reset_block(mxs->base);
@@ -176,6 +277,9 @@ static int mxs_pwm_remove(struct platform_device *pdev)
 	struct mxs_pwm_chip *mxs = platform_get_drvdata(pdev);
 
 	return pwmchip_remove(&mxs->chip);
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static const struct of_device_id mxs_pwm_dt_ids[] = {
@@ -190,7 +294,10 @@ static struct platform_driver mxs_pwm_driver = {
 		.of_match_table = mxs_pwm_dt_ids,
 	},
 	.probe = mxs_pwm_probe,
+<<<<<<< HEAD
 	.remove = mxs_pwm_remove,
+=======
+>>>>>>> upstream/android-13
 };
 module_platform_driver(mxs_pwm_driver);
 

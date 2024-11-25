@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Symmetric key cipher operations.
  *
@@ -6,6 +10,7 @@
  * the kernel is given a chance to schedule us once per page.
  *
  * Copyright (c) 2015 Herbert Xu <herbert@gondor.apana.org.au>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -15,6 +20,12 @@
  */
 
 #include <crypto/internal/aead.h>
+=======
+ */
+
+#include <crypto/internal/aead.h>
+#include <crypto/internal/cipher.h>
+>>>>>>> upstream/android-13
 #include <crypto/internal/skcipher.h>
 #include <crypto/scatterwalk.h>
 #include <linux/bug.h>
@@ -435,7 +446,11 @@ static int skcipher_copy_iv(struct skcipher_walk *walk)
 
 static int skcipher_walk_first(struct skcipher_walk *walk)
 {
+<<<<<<< HEAD
 	if (WARN_ON_ONCE(in_irq()))
+=======
+	if (WARN_ON_ONCE(in_hardirq()))
+>>>>>>> upstream/android-13
 		return -EDEADLK;
 
 	walk->buffer = NULL;
@@ -483,6 +498,11 @@ int skcipher_walk_virt(struct skcipher_walk *walk,
 {
 	int err;
 
+<<<<<<< HEAD
+=======
+	might_sleep_if(req->base.flags & CRYPTO_TFM_REQ_MAY_SLEEP);
+
+>>>>>>> upstream/android-13
 	walk->flags &= ~SKCIPHER_WALK_PHYS;
 
 	err = skcipher_walk_skcipher(walk, req);
@@ -493,12 +513,15 @@ int skcipher_walk_virt(struct skcipher_walk *walk,
 }
 EXPORT_SYMBOL_GPL(skcipher_walk_virt);
 
+<<<<<<< HEAD
 void skcipher_walk_atomise(struct skcipher_walk *walk)
 {
 	walk->flags &= ~SKCIPHER_WALK_SLEEP;
 }
 EXPORT_SYMBOL_GPL(skcipher_walk_atomise);
 
+=======
+>>>>>>> upstream/android-13
 int skcipher_walk_async(struct skcipher_walk *walk,
 			struct skcipher_request *req)
 {
@@ -552,6 +575,7 @@ static int skcipher_walk_aead_common(struct skcipher_walk *walk,
 	return err;
 }
 
+<<<<<<< HEAD
 int skcipher_walk_aead(struct skcipher_walk *walk, struct aead_request *req,
 		       bool atomic)
 {
@@ -561,6 +585,8 @@ int skcipher_walk_aead(struct skcipher_walk *walk, struct aead_request *req,
 }
 EXPORT_SYMBOL_GPL(skcipher_walk_aead);
 
+=======
+>>>>>>> upstream/android-13
 int skcipher_walk_aead_encrypt(struct skcipher_walk *walk,
 			       struct aead_request *req, bool atomic)
 {
@@ -581,6 +607,7 @@ int skcipher_walk_aead_decrypt(struct skcipher_walk *walk,
 }
 EXPORT_SYMBOL_GPL(skcipher_walk_aead_decrypt);
 
+<<<<<<< HEAD
 static unsigned int crypto_skcipher_extsize(struct crypto_alg *alg)
 {
 	if (alg->cra_type == &crypto_blkcipher_type)
@@ -798,6 +825,14 @@ static int crypto_init_skcipher_ops_ablkcipher(struct crypto_tfm *tfm)
 	return 0;
 }
 
+=======
+static void skcipher_set_needkey(struct crypto_skcipher *tfm)
+{
+	if (crypto_skcipher_max_keysize(tfm) != 0)
+		crypto_skcipher_set_flags(tfm, CRYPTO_TFM_NEED_KEY);
+}
+
+>>>>>>> upstream/android-13
 static int skcipher_setkey_unaligned(struct crypto_skcipher *tfm,
 				     const u8 *key, unsigned int keylen)
 {
@@ -815,21 +850,34 @@ static int skcipher_setkey_unaligned(struct crypto_skcipher *tfm,
 	alignbuffer = (u8 *)ALIGN((unsigned long)buffer, alignmask + 1);
 	memcpy(alignbuffer, key, keylen);
 	ret = cipher->setkey(tfm, alignbuffer, keylen);
+<<<<<<< HEAD
 	kzfree(buffer);
 	return ret;
 }
 
 static int skcipher_setkey(struct crypto_skcipher *tfm, const u8 *key,
+=======
+	kfree_sensitive(buffer);
+	return ret;
+}
+
+int crypto_skcipher_setkey(struct crypto_skcipher *tfm, const u8 *key,
+>>>>>>> upstream/android-13
 			   unsigned int keylen)
 {
 	struct skcipher_alg *cipher = crypto_skcipher_alg(tfm);
 	unsigned long alignmask = crypto_skcipher_alignmask(tfm);
 	int err;
 
+<<<<<<< HEAD
 	if (keylen < cipher->min_keysize || keylen > cipher->max_keysize) {
 		crypto_skcipher_set_flags(tfm, CRYPTO_TFM_RES_BAD_KEY_LEN);
 		return -EINVAL;
 	}
+=======
+	if (keylen < cipher->min_keysize || keylen > cipher->max_keysize)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	if ((unsigned long)key & alignmask)
 		err = skcipher_setkey_unaligned(tfm, key, keylen);
@@ -844,6 +892,44 @@ static int skcipher_setkey(struct crypto_skcipher *tfm, const u8 *key,
 	crypto_skcipher_clear_flags(tfm, CRYPTO_TFM_NEED_KEY);
 	return 0;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(crypto_skcipher_setkey);
+
+int crypto_skcipher_encrypt(struct skcipher_request *req)
+{
+	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
+	struct crypto_alg *alg = tfm->base.__crt_alg;
+	unsigned int cryptlen = req->cryptlen;
+	int ret;
+
+	crypto_stats_get(alg);
+	if (crypto_skcipher_get_flags(tfm) & CRYPTO_TFM_NEED_KEY)
+		ret = -ENOKEY;
+	else
+		ret = crypto_skcipher_alg(tfm)->encrypt(req);
+	crypto_stats_skcipher_encrypt(cryptlen, ret, alg);
+	return ret;
+}
+EXPORT_SYMBOL_GPL(crypto_skcipher_encrypt);
+
+int crypto_skcipher_decrypt(struct skcipher_request *req)
+{
+	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
+	struct crypto_alg *alg = tfm->base.__crt_alg;
+	unsigned int cryptlen = req->cryptlen;
+	int ret;
+
+	crypto_stats_get(alg);
+	if (crypto_skcipher_get_flags(tfm) & CRYPTO_TFM_NEED_KEY)
+		ret = -ENOKEY;
+	else
+		ret = crypto_skcipher_alg(tfm)->decrypt(req);
+	crypto_stats_skcipher_decrypt(cryptlen, ret, alg);
+	return ret;
+}
+EXPORT_SYMBOL_GPL(crypto_skcipher_decrypt);
+>>>>>>> upstream/android-13
 
 static void crypto_skcipher_exit_tfm(struct crypto_tfm *tfm)
 {
@@ -858,6 +944,7 @@ static int crypto_skcipher_init_tfm(struct crypto_tfm *tfm)
 	struct crypto_skcipher *skcipher = __crypto_skcipher_cast(tfm);
 	struct skcipher_alg *alg = crypto_skcipher_alg(skcipher);
 
+<<<<<<< HEAD
 	if (tfm->__crt_alg->cra_type == &crypto_blkcipher_type)
 		return crypto_init_skcipher_ops_blkcipher(tfm);
 
@@ -871,6 +958,8 @@ static int crypto_skcipher_init_tfm(struct crypto_tfm *tfm)
 	skcipher->ivsize = alg->ivsize;
 	skcipher->keysize = alg->max_keysize;
 
+=======
+>>>>>>> upstream/android-13
 	skcipher_set_needkey(skcipher);
 
 	if (alg->exit)
@@ -915,14 +1004,22 @@ static int crypto_skcipher_report(struct sk_buff *skb, struct crypto_alg *alg)
 	struct skcipher_alg *skcipher = container_of(alg, struct skcipher_alg,
 						     base);
 
+<<<<<<< HEAD
 	strncpy(rblkcipher.type, "skcipher", sizeof(rblkcipher.type));
 	strncpy(rblkcipher.geniv, "<none>", sizeof(rblkcipher.geniv));
+=======
+	memset(&rblkcipher, 0, sizeof(rblkcipher));
+
+	strscpy(rblkcipher.type, "skcipher", sizeof(rblkcipher.type));
+	strscpy(rblkcipher.geniv, "<none>", sizeof(rblkcipher.geniv));
+>>>>>>> upstream/android-13
 
 	rblkcipher.blocksize = alg->cra_blocksize;
 	rblkcipher.min_keysize = skcipher->min_keysize;
 	rblkcipher.max_keysize = skcipher->max_keysize;
 	rblkcipher.ivsize = skcipher->ivsize;
 
+<<<<<<< HEAD
 	if (nla_put(skb, CRYPTOCFGA_REPORT_BLKCIPHER,
 		    sizeof(struct crypto_report_blkcipher), &rblkcipher))
 		goto nla_put_failure;
@@ -930,6 +1027,10 @@ static int crypto_skcipher_report(struct sk_buff *skb, struct crypto_alg *alg)
 
 nla_put_failure:
 	return -EMSGSIZE;
+=======
+	return nla_put(skb, CRYPTOCFGA_REPORT_BLKCIPHER,
+		       sizeof(rblkcipher), &rblkcipher);
+>>>>>>> upstream/android-13
 }
 #else
 static int crypto_skcipher_report(struct sk_buff *skb, struct crypto_alg *alg)
@@ -938,8 +1039,13 @@ static int crypto_skcipher_report(struct sk_buff *skb, struct crypto_alg *alg)
 }
 #endif
 
+<<<<<<< HEAD
 static const struct crypto_type crypto_skcipher_type2 = {
 	.extsize = crypto_skcipher_extsize,
+=======
+static const struct crypto_type crypto_skcipher_type = {
+	.extsize = crypto_alg_extsize,
+>>>>>>> upstream/android-13
 	.init_tfm = crypto_skcipher_init_tfm,
 	.free = crypto_skcipher_free_instance,
 #ifdef CONFIG_PROC_FS
@@ -947,23 +1053,39 @@ static const struct crypto_type crypto_skcipher_type2 = {
 #endif
 	.report = crypto_skcipher_report,
 	.maskclear = ~CRYPTO_ALG_TYPE_MASK,
+<<<<<<< HEAD
 	.maskset = CRYPTO_ALG_TYPE_BLKCIPHER_MASK,
+=======
+	.maskset = CRYPTO_ALG_TYPE_MASK,
+>>>>>>> upstream/android-13
 	.type = CRYPTO_ALG_TYPE_SKCIPHER,
 	.tfmsize = offsetof(struct crypto_skcipher, base),
 };
 
 int crypto_grab_skcipher(struct crypto_skcipher_spawn *spawn,
+<<<<<<< HEAD
 			  const char *name, u32 type, u32 mask)
 {
 	spawn->base.frontend = &crypto_skcipher_type2;
 	return crypto_grab_spawn(&spawn->base, name, type, mask);
+=======
+			 struct crypto_instance *inst,
+			 const char *name, u32 type, u32 mask)
+{
+	spawn->base.frontend = &crypto_skcipher_type;
+	return crypto_grab_spawn(&spawn->base, inst, name, type, mask);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(crypto_grab_skcipher);
 
 struct crypto_skcipher *crypto_alloc_skcipher(const char *alg_name,
 					      u32 type, u32 mask)
 {
+<<<<<<< HEAD
 	return crypto_alloc_tfm(alg_name, &crypto_skcipher_type2, type, mask);
+=======
+	return crypto_alloc_tfm(alg_name, &crypto_skcipher_type, type, mask);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(crypto_alloc_skcipher);
 
@@ -975,7 +1097,11 @@ struct crypto_sync_skcipher *crypto_alloc_sync_skcipher(
 	/* Only sync algorithms allowed. */
 	mask |= CRYPTO_ALG_ASYNC;
 
+<<<<<<< HEAD
 	tfm = crypto_alloc_tfm(alg_name, &crypto_skcipher_type2, type, mask);
+=======
+	tfm = crypto_alloc_tfm(alg_name, &crypto_skcipher_type, type, mask);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Make sure we do not allocate something that might get used with
@@ -991,12 +1117,20 @@ struct crypto_sync_skcipher *crypto_alloc_sync_skcipher(
 }
 EXPORT_SYMBOL_GPL(crypto_alloc_sync_skcipher);
 
+<<<<<<< HEAD
 int crypto_has_skcipher2(const char *alg_name, u32 type, u32 mask)
 {
 	return crypto_type_has_alg(alg_name, &crypto_skcipher_type2,
 				   type, mask);
 }
 EXPORT_SYMBOL_GPL(crypto_has_skcipher2);
+=======
+int crypto_has_skcipher(const char *alg_name, u32 type, u32 mask)
+{
+	return crypto_type_has_alg(alg_name, &crypto_skcipher_type, type, mask);
+}
+EXPORT_SYMBOL_GPL(crypto_has_skcipher);
+>>>>>>> upstream/android-13
 
 static int skcipher_prepare_alg(struct skcipher_alg *alg)
 {
@@ -1011,7 +1145,11 @@ static int skcipher_prepare_alg(struct skcipher_alg *alg)
 	if (!alg->walksize)
 		alg->walksize = alg->chunksize;
 
+<<<<<<< HEAD
 	base->cra_type = &crypto_skcipher_type2;
+=======
+	base->cra_type = &crypto_skcipher_type;
+>>>>>>> upstream/android-13
 	base->cra_flags &= ~CRYPTO_ALG_TYPE_MASK;
 	base->cra_flags |= CRYPTO_ALG_TYPE_SKCIPHER;
 
@@ -1071,6 +1209,12 @@ int skcipher_register_instance(struct crypto_template *tmpl,
 {
 	int err;
 
+<<<<<<< HEAD
+=======
+	if (WARN_ON(!inst->free))
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	err = skcipher_prepare_alg(&inst->alg);
 	if (err)
 		return err;
@@ -1079,5 +1223,119 @@ int skcipher_register_instance(struct crypto_template *tmpl,
 }
 EXPORT_SYMBOL_GPL(skcipher_register_instance);
 
+<<<<<<< HEAD
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("Symmetric key cipher type");
+=======
+static int skcipher_setkey_simple(struct crypto_skcipher *tfm, const u8 *key,
+				  unsigned int keylen)
+{
+	struct crypto_cipher *cipher = skcipher_cipher_simple(tfm);
+
+	crypto_cipher_clear_flags(cipher, CRYPTO_TFM_REQ_MASK);
+	crypto_cipher_set_flags(cipher, crypto_skcipher_get_flags(tfm) &
+				CRYPTO_TFM_REQ_MASK);
+	return crypto_cipher_setkey(cipher, key, keylen);
+}
+
+static int skcipher_init_tfm_simple(struct crypto_skcipher *tfm)
+{
+	struct skcipher_instance *inst = skcipher_alg_instance(tfm);
+	struct crypto_cipher_spawn *spawn = skcipher_instance_ctx(inst);
+	struct skcipher_ctx_simple *ctx = crypto_skcipher_ctx(tfm);
+	struct crypto_cipher *cipher;
+
+	cipher = crypto_spawn_cipher(spawn);
+	if (IS_ERR(cipher))
+		return PTR_ERR(cipher);
+
+	ctx->cipher = cipher;
+	return 0;
+}
+
+static void skcipher_exit_tfm_simple(struct crypto_skcipher *tfm)
+{
+	struct skcipher_ctx_simple *ctx = crypto_skcipher_ctx(tfm);
+
+	crypto_free_cipher(ctx->cipher);
+}
+
+static void skcipher_free_instance_simple(struct skcipher_instance *inst)
+{
+	crypto_drop_cipher(skcipher_instance_ctx(inst));
+	kfree(inst);
+}
+
+/**
+ * skcipher_alloc_instance_simple - allocate instance of simple block cipher mode
+ *
+ * Allocate an skcipher_instance for a simple block cipher mode of operation,
+ * e.g. cbc or ecb.  The instance context will have just a single crypto_spawn,
+ * that for the underlying cipher.  The {min,max}_keysize, ivsize, blocksize,
+ * alignmask, and priority are set from the underlying cipher but can be
+ * overridden if needed.  The tfm context defaults to skcipher_ctx_simple, and
+ * default ->setkey(), ->init(), and ->exit() methods are installed.
+ *
+ * @tmpl: the template being instantiated
+ * @tb: the template parameters
+ *
+ * Return: a pointer to the new instance, or an ERR_PTR().  The caller still
+ *	   needs to register the instance.
+ */
+struct skcipher_instance *skcipher_alloc_instance_simple(
+	struct crypto_template *tmpl, struct rtattr **tb)
+{
+	u32 mask;
+	struct skcipher_instance *inst;
+	struct crypto_cipher_spawn *spawn;
+	struct crypto_alg *cipher_alg;
+	int err;
+
+	err = crypto_check_attr_type(tb, CRYPTO_ALG_TYPE_SKCIPHER, &mask);
+	if (err)
+		return ERR_PTR(err);
+
+	inst = kzalloc(sizeof(*inst) + sizeof(*spawn), GFP_KERNEL);
+	if (!inst)
+		return ERR_PTR(-ENOMEM);
+	spawn = skcipher_instance_ctx(inst);
+
+	err = crypto_grab_cipher(spawn, skcipher_crypto_instance(inst),
+				 crypto_attr_alg_name(tb[1]), 0, mask);
+	if (err)
+		goto err_free_inst;
+	cipher_alg = crypto_spawn_cipher_alg(spawn);
+
+	err = crypto_inst_setname(skcipher_crypto_instance(inst), tmpl->name,
+				  cipher_alg);
+	if (err)
+		goto err_free_inst;
+
+	inst->free = skcipher_free_instance_simple;
+
+	/* Default algorithm properties, can be overridden */
+	inst->alg.base.cra_blocksize = cipher_alg->cra_blocksize;
+	inst->alg.base.cra_alignmask = cipher_alg->cra_alignmask;
+	inst->alg.base.cra_priority = cipher_alg->cra_priority;
+	inst->alg.min_keysize = cipher_alg->cra_cipher.cia_min_keysize;
+	inst->alg.max_keysize = cipher_alg->cra_cipher.cia_max_keysize;
+	inst->alg.ivsize = cipher_alg->cra_blocksize;
+
+	/* Use skcipher_ctx_simple by default, can be overridden */
+	inst->alg.base.cra_ctxsize = sizeof(struct skcipher_ctx_simple);
+	inst->alg.setkey = skcipher_setkey_simple;
+	inst->alg.init = skcipher_init_tfm_simple;
+	inst->alg.exit = skcipher_exit_tfm_simple;
+
+	return inst;
+
+err_free_inst:
+	skcipher_free_instance_simple(inst);
+	return ERR_PTR(err);
+}
+EXPORT_SYMBOL_GPL(skcipher_alloc_instance_simple);
+
+MODULE_LICENSE("GPL");
+MODULE_DESCRIPTION("Symmetric key cipher type");
+MODULE_IMPORT_NS(CRYPTO_INTERNAL);
+>>>>>>> upstream/android-13

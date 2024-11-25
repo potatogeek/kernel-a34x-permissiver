@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Register map access API - debugfs
  *
@@ -9,6 +10,15 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0
+//
+// Register map access API - debugfs
+//
+// Copyright 2011 Wolfson Microelectronics plc
+//
+// Author: Mark Brown <broonie@opensource.wolfsonmicro.com>
+>>>>>>> upstream/android-13
 
 #include <linux/slab.h>
 #include <linux/mutex.h>
@@ -21,7 +31,10 @@
 
 struct regmap_debugfs_node {
 	struct regmap *map;
+<<<<<<< HEAD
 	const char *name;
+=======
+>>>>>>> upstream/android-13
 	struct list_head link;
 };
 
@@ -188,13 +201,42 @@ static inline void regmap_calc_tot_len(struct regmap *map,
 {
 	/* Calculate the length of a fixed format  */
 	if (!map->debugfs_tot_len) {
+<<<<<<< HEAD
 		map->debugfs_reg_len = regmap_calc_reg_len(map->max_register),
+=======
+		map->debugfs_reg_len = regmap_calc_reg_len(map->max_register);
+>>>>>>> upstream/android-13
 		map->debugfs_val_len = 2 * map->format.val_bytes;
 		map->debugfs_tot_len = map->debugfs_reg_len +
 			map->debugfs_val_len + 3;      /* : \n */
 	}
 }
 
+<<<<<<< HEAD
+=======
+static int regmap_next_readable_reg(struct regmap *map, int reg)
+{
+	struct regmap_debugfs_off_cache *c;
+	int ret = -EINVAL;
+
+	if (regmap_printable(map, reg + map->reg_stride)) {
+		ret = reg + map->reg_stride;
+	} else {
+		mutex_lock(&map->cache_lock);
+		list_for_each_entry(c, &map->debugfs_off_cache, list) {
+			if (reg > c->max_reg)
+				continue;
+			if (reg < c->base_reg) {
+				ret = c->base_reg;
+				break;
+			}
+		}
+		mutex_unlock(&map->cache_lock);
+	}
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 static ssize_t regmap_read_debugfs(struct regmap *map, unsigned int from,
 				   unsigned int to, char __user *user_buf,
 				   size_t count, loff_t *ppos)
@@ -221,12 +263,17 @@ static ssize_t regmap_read_debugfs(struct regmap *map, unsigned int from,
 	/* Work out which register we're starting at */
 	start_reg = regmap_debugfs_get_dump_start(map, from, *ppos, &p);
 
+<<<<<<< HEAD
 	for (i = start_reg; i <= to; i += map->reg_stride) {
 		if (!regmap_readable(map, i) && !regmap_cached(map, i))
 			continue;
 
 		if (regmap_precious(map, i))
 			continue;
+=======
+	for (i = start_reg; i >= 0 && i <= to;
+	     i = regmap_next_readable_reg(map, i)) {
+>>>>>>> upstream/android-13
 
 		/* If we're in the region the user is trying to read */
 		if (p >= *ppos) {
@@ -355,7 +402,11 @@ static ssize_t regmap_reg_ranges_read_file(struct file *file,
 	char *buf;
 	char *entry;
 	int ret;
+<<<<<<< HEAD
 	unsigned entry_len;
+=======
+	unsigned int entry_len;
+>>>>>>> upstream/android-13
 
 	if (*ppos < 0 || !count)
 		return -EINVAL;
@@ -441,6 +492,7 @@ static int regmap_access_show(struct seq_file *s, void *ignored)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int access_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, regmap_access_show, inode->i_private);
@@ -452,6 +504,9 @@ static const struct file_operations regmap_access_fops = {
 	.llseek		= seq_lseek,
 	.release	= single_release,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(regmap_access);
+>>>>>>> upstream/android-13
 
 static ssize_t regmap_cache_only_write_file(struct file *file,
 					    const char __user *user_buf,
@@ -540,11 +595,19 @@ static const struct file_operations regmap_cache_bypass_fops = {
 	.write = regmap_cache_bypass_write_file,
 };
 
+<<<<<<< HEAD
 void regmap_debugfs_init(struct regmap *map, const char *name)
+=======
+void regmap_debugfs_init(struct regmap *map)
+>>>>>>> upstream/android-13
 {
 	struct rb_node *next;
 	struct regmap_range_node *range_node;
 	const char *devname = "dummy";
+<<<<<<< HEAD
+=======
+	const char *name = map->name;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Userspace can initiate reads from the hardware over debugfs.
@@ -565,7 +628,10 @@ void regmap_debugfs_init(struct regmap *map, const char *name)
 		if (!node)
 			return;
 		node->map = map;
+<<<<<<< HEAD
 		node->name = name;
+=======
+>>>>>>> upstream/android-13
 		mutex_lock(&regmap_debugfs_early_lock);
 		list_add(&node->link, &regmap_debugfs_early_list);
 		mutex_unlock(&regmap_debugfs_early_lock);
@@ -601,6 +667,7 @@ void regmap_debugfs_init(struct regmap *map, const char *name)
 	}
 
 	map->debugfs = debugfs_create_dir(name, regmap_debugfs_root);
+<<<<<<< HEAD
 	if (!map->debugfs) {
 		dev_warn(map->dev,
 			 "Failed to create %s debugfs directory\n", name);
@@ -609,6 +676,8 @@ void regmap_debugfs_init(struct regmap *map, const char *name)
 		map->debugfs_name = NULL;
 		return;
 	}
+=======
+>>>>>>> upstream/android-13
 
 	debugfs_create_file("name", 0400, map->debugfs,
 			    map, &regmap_name_fops);
@@ -686,6 +755,7 @@ void regmap_debugfs_initcall(void)
 	struct regmap_debugfs_node *node, *tmp;
 
 	regmap_debugfs_root = debugfs_create_dir("regmap", NULL);
+<<<<<<< HEAD
 	if (!regmap_debugfs_root) {
 		pr_warn("regmap: Failed to create debugfs root\n");
 		return;
@@ -694,6 +764,12 @@ void regmap_debugfs_initcall(void)
 	mutex_lock(&regmap_debugfs_early_lock);
 	list_for_each_entry_safe(node, tmp, &regmap_debugfs_early_list, link) {
 		regmap_debugfs_init(node->map, node->name);
+=======
+
+	mutex_lock(&regmap_debugfs_early_lock);
+	list_for_each_entry_safe(node, tmp, &regmap_debugfs_early_list, link) {
+		regmap_debugfs_init(node->map);
+>>>>>>> upstream/android-13
 		list_del(&node->link);
 		kfree(node);
 	}

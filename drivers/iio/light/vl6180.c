@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * vl6180.c - Support for STMicroelectronics VL6180 ALS, range and proximity
  * sensor
@@ -5,10 +9,13 @@
  * Copyright 2017 Peter Meerwald-Stadler <pmeerw@pmeerw.net>
  * Copyright 2017 Manivannan Sadhasivam <manivannanece23@gmail.com>
  *
+<<<<<<< HEAD
  * This file is subject to the terms and conditions of version 2 of
  * the GNU General Public License.  See the file COPYING in the main
  * directory of this archive for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * IIO driver for VL6180 (7-bit I2C slave address 0x29)
  *
  * Range: 0 to 100mm
@@ -19,6 +26,10 @@
  */
 
 #include <linux/module.h>
+<<<<<<< HEAD
+=======
+#include <linux/mod_devicetable.h>
+>>>>>>> upstream/android-13
 #include <linux/i2c.h>
 #include <linux/mutex.h>
 #include <linux/err.h>
@@ -394,7 +405,11 @@ static int vl6180_set_it(struct vl6180_data *data, int val, int val2)
 {
 	int ret, it_ms;
 
+<<<<<<< HEAD
 	it_ms = (val2 + 500) / 1000; /* round to ms */
+=======
+	it_ms = DIV_ROUND_CLOSEST(val2, 1000); /* round to ms */
+>>>>>>> upstream/android-13
 	if (val != 0 || it_ms < 1 || it_ms > 512)
 		return -EINVAL;
 
@@ -511,7 +526,10 @@ static int vl6180_probe(struct i2c_client *client,
 	data->client = client;
 	mutex_init(&data->lock);
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &client->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->info = &vl6180_info;
 	indio_dev->channels = vl6180_channels;
 	indio_dev->num_channels = ARRAY_SIZE(vl6180_channels);
@@ -540,7 +558,11 @@ MODULE_DEVICE_TABLE(i2c, vl6180_id);
 static struct i2c_driver vl6180_driver = {
 	.driver = {
 		.name   = VL6180_DRV_NAME,
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(vl6180_of_match),
+=======
+		.of_match_table = vl6180_of_match,
+>>>>>>> upstream/android-13
 	},
 	.probe  = vl6180_probe,
 	.id_table = vl6180_id,

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # RDC network device configuration
 #
@@ -6,7 +10,11 @@ config NET_VENDOR_RDC
 	bool "RDC devices"
 	default y
 	depends on PCI
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  If you have a network (Ethernet) card belonging to this class, say Y.
 
 	  Note that the answer to this question doesn't directly affect the
@@ -22,7 +30,11 @@ config R6040
 	select CRC32
 	select MII
 	select PHYLIB
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  This is a driver for the R6040 Fast Ethernet MACs found in the
 	  the RDC R-321x System-on-chips.
 

@@ -44,11 +44,16 @@ struct stm32_adfsdm_priv {
 
 static const struct snd_pcm_hardware stm32_adfsdm_pcm_hw = {
 	.info = SNDRV_PCM_INFO_INTERLEAVED | SNDRV_PCM_INFO_BLOCK_TRANSFER |
+<<<<<<< HEAD
 	    SNDRV_PCM_INFO_PAUSE,
 	.formats = SNDRV_PCM_FMTBIT_S32_LE,
 
 	.rate_min = 8000,
 	.rate_max = 32000,
+=======
+		SNDRV_PCM_INFO_MMAP | SNDRV_PCM_INFO_PAUSE,
+	.formats = SNDRV_PCM_FMTBIT_S16_LE | SNDRV_PCM_FMTBIT_S32_LE,
+>>>>>>> upstream/android-13
 
 	.channels_min = 1,
 	.channels_max = 1,
@@ -120,7 +125,11 @@ static int stm32_adfsdm_set_sysclk(struct snd_soc_dai *dai, int clk_id,
 
 	/* Set IIO frequency if CODEC is master as clock comes from SPI_IN */
 
+<<<<<<< HEAD
 	snprintf(str_freq, sizeof(str_freq), "%d\n", freq);
+=======
+	snprintf(str_freq, sizeof(str_freq), "%u\n", freq);
+>>>>>>> upstream/android-13
 	size = iio_write_channel_ext_info(priv->iio_ch, "spi_clk_freq",
 					  str_freq, sizeof(str_freq));
 	if (size != sizeof(str_freq)) {
@@ -141,9 +150,17 @@ static const struct snd_soc_dai_driver stm32_adfsdm_dai = {
 	.capture = {
 		    .channels_min = 1,
 		    .channels_max = 1,
+<<<<<<< HEAD
 		    .formats = SNDRV_PCM_FMTBIT_S32_LE,
 		    .rates = (SNDRV_PCM_RATE_8000 | SNDRV_PCM_RATE_16000 |
 			      SNDRV_PCM_RATE_32000),
+=======
+		    .formats = SNDRV_PCM_FMTBIT_S16_LE |
+			       SNDRV_PCM_FMTBIT_S32_LE,
+		    .rates = SNDRV_PCM_RATE_CONTINUOUS,
+		    .rate_min = 8000,
+		    .rate_max = 48000,
+>>>>>>> upstream/android-13
 		    },
 	.ops = &stm32_adfsdm_dai_ops,
 };
@@ -152,6 +169,7 @@ static const struct snd_soc_component_driver stm32_adfsdm_dai_component = {
 	.name = "stm32_dfsdm_audio",
 };
 
+<<<<<<< HEAD
 static int stm32_afsdm_pcm_cb(const void *data, size_t size, void *private)
 {
 	struct stm32_adfsdm_priv *priv = private;
@@ -168,24 +186,86 @@ static int stm32_afsdm_pcm_cb(const void *data, size_t size, void *private)
 
 	if ((priv->pos + size) > buff_size) {
 		memcpy(&pcm_buff[priv->pos], src_buff, buff_size - priv->pos);
+=======
+static void stm32_memcpy_32to16(void *dest, const void *src, size_t n)
+{
+	unsigned int i = 0;
+	u16 *d = (u16 *)dest, *s = (u16 *)src;
+
+	s++;
+	for (i = n >> 1; i > 0; i--) {
+		*d++ = *s++;
+		s++;
+	}
+}
+
+static int stm32_afsdm_pcm_cb(const void *data, size_t size, void *private)
+{
+	struct stm32_adfsdm_priv *priv = private;
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(priv->substream);
+	u8 *pcm_buff = priv->pcm_buff;
+	u8 *src_buff = (u8 *)data;
+	unsigned int old_pos = priv->pos;
+	size_t buff_size = snd_pcm_lib_buffer_bytes(priv->substream);
+	size_t period_size = snd_pcm_lib_period_bytes(priv->substream);
+	size_t cur_size, src_size = size;
+	snd_pcm_format_t format = priv->substream->runtime->format;
+
+	if (format == SNDRV_PCM_FORMAT_S16_LE)
+		src_size >>= 1;
+	cur_size = src_size;
+
+	dev_dbg(rtd->dev, "%s: buff_add :%pK, pos = %d, size = %zu\n",
+		__func__, &pcm_buff[priv->pos], priv->pos, src_size);
+
+	if ((priv->pos + src_size) > buff_size) {
+		if (format == SNDRV_PCM_FORMAT_S16_LE)
+			stm32_memcpy_32to16(&pcm_buff[priv->pos], src_buff,
+					    buff_size - priv->pos);
+		else
+			memcpy(&pcm_buff[priv->pos], src_buff,
+			       buff_size - priv->pos);
+>>>>>>> upstream/android-13
 		cur_size -= buff_size - priv->pos;
 		priv->pos = 0;
 	}
 
+<<<<<<< HEAD
 	memcpy(&pcm_buff[priv->pos], &src_buff[size - cur_size], cur_size);
 	priv->pos = (priv->pos + cur_size) % buff_size;
 
 	if (cur_size != size || (old_pos && (old_pos % period_size < size)))
+=======
+	if (format == SNDRV_PCM_FORMAT_S16_LE)
+		stm32_memcpy_32to16(&pcm_buff[priv->pos],
+				    &src_buff[src_size - cur_size], cur_size);
+	else
+		memcpy(&pcm_buff[priv->pos], &src_buff[src_size - cur_size],
+		       cur_size);
+
+	priv->pos = (priv->pos + cur_size) % buff_size;
+
+	if (cur_size != src_size || (old_pos && (old_pos % period_size < size)))
+>>>>>>> upstream/android-13
 		snd_pcm_period_elapsed(priv->substream);
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int stm32_adfsdm_trigger(struct snd_pcm_substream *substream, int cmd)
 {
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct stm32_adfsdm_priv *priv =
 		snd_soc_dai_get_drvdata(rtd->cpu_dai);
+=======
+static int stm32_adfsdm_trigger(struct snd_soc_component *component,
+				struct snd_pcm_substream *substream, int cmd)
+{
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct stm32_adfsdm_priv *priv =
+		snd_soc_dai_get_drvdata(asoc_rtd_to_cpu(rtd, 0));
+>>>>>>> upstream/android-13
 
 	switch (cmd) {
 	case SNDRV_PCM_TRIGGER_START:
@@ -201,10 +281,18 @@ static int stm32_adfsdm_trigger(struct snd_pcm_substream *substream, int cmd)
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 static int stm32_adfsdm_pcm_open(struct snd_pcm_substream *substream)
 {
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct stm32_adfsdm_priv *priv = snd_soc_dai_get_drvdata(rtd->cpu_dai);
+=======
+static int stm32_adfsdm_pcm_open(struct snd_soc_component *component,
+				 struct snd_pcm_substream *substream)
+{
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct stm32_adfsdm_priv *priv = snd_soc_dai_get_drvdata(asoc_rtd_to_cpu(rtd, 0));
+>>>>>>> upstream/android-13
 	int ret;
 
 	ret =  snd_soc_set_runtime_hwparams(substream, &stm32_adfsdm_pcm_hw);
@@ -214,6 +302,7 @@ static int stm32_adfsdm_pcm_open(struct snd_pcm_substream *substream)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int stm32_adfsdm_pcm_close(struct snd_pcm_substream *substream)
 {
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
@@ -221,21 +310,40 @@ static int stm32_adfsdm_pcm_close(struct snd_pcm_substream *substream)
 		snd_soc_dai_get_drvdata(rtd->cpu_dai);
 
 	snd_pcm_lib_free_pages(substream);
+=======
+static int stm32_adfsdm_pcm_close(struct snd_soc_component *component,
+				  struct snd_pcm_substream *substream)
+{
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct stm32_adfsdm_priv *priv =
+		snd_soc_dai_get_drvdata(asoc_rtd_to_cpu(rtd, 0));
+
+>>>>>>> upstream/android-13
 	priv->substream = NULL;
 
 	return 0;
 }
 
 static snd_pcm_uframes_t stm32_adfsdm_pcm_pointer(
+<<<<<<< HEAD
 					    struct snd_pcm_substream *substream)
 {
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct stm32_adfsdm_priv *priv =
 		snd_soc_dai_get_drvdata(rtd->cpu_dai);
+=======
+					    struct snd_soc_component *component,
+					    struct snd_pcm_substream *substream)
+{
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct stm32_adfsdm_priv *priv =
+		snd_soc_dai_get_drvdata(asoc_rtd_to_cpu(rtd, 0));
+>>>>>>> upstream/android-13
 
 	return bytes_to_frames(substream->runtime, priv->pos);
 }
 
+<<<<<<< HEAD
 static int stm32_adfsdm_pcm_hw_params(struct snd_pcm_substream *substream,
 				      struct snd_pcm_hw_params *params)
 {
@@ -247,12 +355,23 @@ static int stm32_adfsdm_pcm_hw_params(struct snd_pcm_substream *substream,
 	ret =  snd_pcm_lib_malloc_pages(substream, params_buffer_bytes(params));
 	if (ret < 0)
 		return ret;
+=======
+static int stm32_adfsdm_pcm_hw_params(struct snd_soc_component *component,
+				      struct snd_pcm_substream *substream,
+				      struct snd_pcm_hw_params *params)
+{
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct stm32_adfsdm_priv *priv =
+		snd_soc_dai_get_drvdata(asoc_rtd_to_cpu(rtd, 0));
+
+>>>>>>> upstream/android-13
 	priv->pcm_buff = substream->runtime->dma_area;
 
 	return iio_channel_cb_set_buffer_watermark(priv->iio_cb,
 						   params_period_size(params));
 }
 
+<<<<<<< HEAD
 static int stm32_adfsdm_pcm_hw_free(struct snd_pcm_substream *substream)
 {
 	snd_pcm_lib_free_pages(substream);
@@ -293,6 +412,38 @@ static struct snd_soc_component_driver stm32_adfsdm_soc_platform = {
 	.ops		= &stm32_adfsdm_pcm_ops,
 	.pcm_new	= stm32_adfsdm_pcm_new,
 	.pcm_free	= stm32_adfsdm_pcm_free,
+=======
+static int stm32_adfsdm_pcm_new(struct snd_soc_component *component,
+				struct snd_soc_pcm_runtime *rtd)
+{
+	struct snd_pcm *pcm = rtd->pcm;
+	struct stm32_adfsdm_priv *priv =
+		snd_soc_dai_get_drvdata(asoc_rtd_to_cpu(rtd, 0));
+	unsigned int size = DFSDM_MAX_PERIODS * DFSDM_MAX_PERIOD_SIZE;
+
+	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_DEV,
+				       priv->dev, size, size);
+	return 0;
+}
+
+static int stm32_adfsdm_dummy_cb(const void *data, void *private)
+{
+	/*
+	 * This dummmy callback is requested by iio_channel_get_all_cb() API,
+	 * but the stm32_dfsdm_get_buff_cb() API is used instead, to optimize
+	 * DMA transfers.
+	 */
+	return 0;
+}
+
+static struct snd_soc_component_driver stm32_adfsdm_soc_platform = {
+	.open		= stm32_adfsdm_pcm_open,
+	.close		= stm32_adfsdm_pcm_close,
+	.hw_params	= stm32_adfsdm_pcm_hw_params,
+	.trigger	= stm32_adfsdm_trigger,
+	.pointer	= stm32_adfsdm_pcm_pointer,
+	.pcm_construct	= stm32_adfsdm_pcm_new,
+>>>>>>> upstream/android-13
 };
 
 static const struct of_device_id stm32_adfsdm_of_match[] = {
@@ -328,19 +479,36 @@ static int stm32_adfsdm_probe(struct platform_device *pdev)
 	if (IS_ERR(priv->iio_ch))
 		return PTR_ERR(priv->iio_ch);
 
+<<<<<<< HEAD
 	priv->iio_cb = iio_channel_get_all_cb(&pdev->dev, NULL, NULL);
+=======
+	priv->iio_cb = iio_channel_get_all_cb(&pdev->dev, &stm32_adfsdm_dummy_cb, NULL);
+>>>>>>> upstream/android-13
 	if (IS_ERR(priv->iio_cb))
 		return PTR_ERR(priv->iio_cb);
 
 	component = devm_kzalloc(&pdev->dev, sizeof(*component), GFP_KERNEL);
 	if (!component)
 		return -ENOMEM;
+<<<<<<< HEAD
+=======
+
+	ret = snd_soc_component_initialize(component,
+					   &stm32_adfsdm_soc_platform,
+					   &pdev->dev);
+	if (ret < 0)
+		return ret;
+>>>>>>> upstream/android-13
 #ifdef CONFIG_DEBUG_FS
 	component->debugfs_prefix = "pcm";
 #endif
 
+<<<<<<< HEAD
 	ret = snd_soc_add_component(&pdev->dev, component,
 				    &stm32_adfsdm_soc_platform, NULL, 0);
+=======
+	ret = snd_soc_add_component(component, NULL, 0);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		dev_err(&pdev->dev, "%s: Failed to register PCM platform\n",
 			__func__);

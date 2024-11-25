@@ -26,6 +26,7 @@
 #include <asm/processor.h>
 #include <asm/hypervisor.h>
 
+<<<<<<< HEAD
 extern const struct hypervisor_x86 x86_hyper_vmware;
 extern const struct hypervisor_x86 x86_hyper_ms_hyperv;
 extern const struct hypervisor_x86 x86_hyper_xen_pv;
@@ -33,6 +34,8 @@ extern const struct hypervisor_x86 x86_hyper_xen_hvm;
 extern const struct hypervisor_x86 x86_hyper_kvm;
 extern const struct hypervisor_x86 x86_hyper_jailhouse;
 
+=======
+>>>>>>> upstream/android-13
 static const __initconst struct hypervisor_x86 * const hypervisors[] =
 {
 #ifdef CONFIG_XEN_PV
@@ -49,11 +52,28 @@ static const __initconst struct hypervisor_x86 * const hypervisors[] =
 #ifdef CONFIG_JAILHOUSE_GUEST
 	&x86_hyper_jailhouse,
 #endif
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_ACRN_GUEST
+	&x86_hyper_acrn,
+#endif
+>>>>>>> upstream/android-13
 };
 
 enum x86_hypervisor_type x86_hyper_type;
 EXPORT_SYMBOL(x86_hyper_type);
 
+<<<<<<< HEAD
+=======
+bool __initdata nopv;
+static __init int parse_nopv(char *arg)
+{
+	nopv = true;
+	return 0;
+}
+early_param("nopv", parse_nopv);
+
+>>>>>>> upstream/android-13
 static inline const struct hypervisor_x86 * __init
 detect_hypervisor_vendor(void)
 {
@@ -61,6 +81,12 @@ detect_hypervisor_vendor(void)
 	uint32_t pri, max_pri = 0;
 
 	for (p = hypervisors; p < hypervisors + ARRAY_SIZE(hypervisors); p++) {
+<<<<<<< HEAD
+=======
+		if (unlikely(nopv) && !(*p)->ignore_nopv)
+			continue;
+
+>>>>>>> upstream/android-13
 		pri = (*p)->detect();
 		if (pri > max_pri) {
 			max_pri = pri;

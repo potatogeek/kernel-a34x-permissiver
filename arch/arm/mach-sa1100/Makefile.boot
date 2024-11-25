@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 ifeq ($(CONFIG_SA1111),y)
    zreladdr-y	+= 0xc0208000
 else

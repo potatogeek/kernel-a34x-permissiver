@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * (C) Copyright 2009 Intel Corporation
  * Author: Jacob Pan (jacob.jun.pan@intel.com)
  *
  * Shared with ARM platforms, Jamie Iles, Picochip 2011
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Support for the Synopsys DesignWare APB Timers.
  */
 #include <linux/dw_apb_timer.h>
@@ -274,6 +281,7 @@ dw_apb_clockevent_init(int cpu, const char *name, unsigned rating,
 	dw_ced->ced.rating = rating;
 	dw_ced->ced.name = name;
 
+<<<<<<< HEAD
 	dw_ced->irqaction.name		= dw_ced->ced.name;
 	dw_ced->irqaction.handler	= dw_apb_clockevent_irq;
 	dw_ced->irqaction.dev_id	= &dw_ced->ced;
@@ -283,6 +291,12 @@ dw_apb_clockevent_init(int cpu, const char *name, unsigned rating,
 
 	dw_ced->eoi = apbt_eoi;
 	err = setup_irq(irq, &dw_ced->irqaction);
+=======
+	dw_ced->eoi = apbt_eoi;
+	err = request_irq(irq, dw_apb_clockevent_irq,
+			  IRQF_TIMER | IRQF_IRQPOLL | IRQF_NOBALANCING,
+			  dw_ced->ced.name, &dw_ced->ced);
+>>>>>>> upstream/android-13
 	if (err) {
 		pr_err("failed to request timer irq\n");
 		kfree(dw_ced);

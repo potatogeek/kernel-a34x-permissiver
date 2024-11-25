@@ -12,6 +12,11 @@
 #include <vdso/datapage.h>
 #include <vdso/helpers.h>
 
+<<<<<<< HEAD
+=======
+#include <uapi/linux/time.h>
+
+>>>>>>> upstream/android-13
 #ifdef BUILD_VDSO32_64
 typedef u64 gtod_long_t;
 #else
@@ -19,10 +24,13 @@ typedef unsigned long gtod_long_t;
 #endif
 #endif /* CONFIG_GENERIC_GETTIMEOFDAY */
 
+<<<<<<< HEAD
 extern int vclocks_used;
 static inline bool vclock_was_used(int vclock)
 {
 	return READ_ONCE(vclocks_used) & (1 << vclock);
 }
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _ASM_X86_VGTOD_H */

@@ -20,7 +20,10 @@
 #include <linux/ctype.h>
 #include <linux/poll.h>
 #include <linux/mutex.h>
+<<<<<<< HEAD
 #include <linux/platform_device.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/uaccess.h>
 #include <asm/ebcdic.h>
@@ -40,10 +43,14 @@ struct mon_buf {
 	char *data;
 };
 
+<<<<<<< HEAD
 static LIST_HEAD(mon_priv_list);
 
 struct mon_private {
 	struct list_head priv_list;
+=======
+struct mon_private {
+>>>>>>> upstream/android-13
 	struct list_head list;
 	struct monwrite_hdr hdr;
 	size_t hdr_to_read;
@@ -58,6 +65,7 @@ struct mon_private {
 
 static int monwrite_diag(struct monwrite_hdr *myhdr, char *buffer, int fcn)
 {
+<<<<<<< HEAD
 	struct appldata_product_id id;
 	int rc;
 
@@ -74,6 +82,33 @@ static int monwrite_diag(struct monwrite_hdr *myhdr, char *buffer, int fcn)
 	if (rc == 5)
 		return -EPERM;
 	return -EINVAL;
+=======
+	struct appldata_parameter_list *parm_list;
+	struct appldata_product_id *id;
+	int rc;
+
+	id = kmalloc(sizeof(*id), GFP_KERNEL);
+	parm_list = kmalloc(sizeof(*parm_list), GFP_KERNEL);
+	rc = -ENOMEM;
+	if (!id || !parm_list)
+		goto out;
+	memcpy(id->prod_nr, "LNXAPPL", 7);
+	id->prod_fn = myhdr->applid;
+	id->record_nr = myhdr->record_num;
+	id->version_nr = myhdr->version;
+	id->release_nr = myhdr->release;
+	id->mod_lvl = myhdr->mod_level;
+	rc = appldata_asm(parm_list, id, fcn,
+			  (void *) buffer, myhdr->datalen);
+	if (rc <= 0)
+		goto out;
+	pr_err("Writing monitor data failed with rc=%i\n", rc);
+	rc = (rc == 5) ? -EPERM : -EINVAL;
+out:
+	kfree(id);
+	kfree(parm_list);
+	return rc;
+>>>>>>> upstream/android-13
 }
 
 static struct mon_buf *monwrite_find_hdr(struct mon_private *monpriv,
@@ -190,7 +225,10 @@ static int monwrite_open(struct inode *inode, struct file *filp)
 	monpriv->hdr_to_read = sizeof(monpriv->hdr);
 	mutex_init(&monpriv->thread_mutex);
 	filp->private_data = monpriv;
+<<<<<<< HEAD
 	list_add_tail(&monpriv->priv_list, &mon_priv_list);
+=======
+>>>>>>> upstream/android-13
 	return nonseekable_open(inode, filp);
 }
 
@@ -208,7 +246,10 @@ static int monwrite_close(struct inode *inode, struct file *filp)
 		kfree(entry->data);
 		kfree(entry);
 	}
+<<<<<<< HEAD
 	list_del(&monpriv->priv_list);
+=======
+>>>>>>> upstream/android-13
 	kfree(monpriv);
 	return 0;
 }
@@ -285,6 +326,7 @@ static struct miscdevice mon_dev = {
 };
 
 /*
+<<<<<<< HEAD
  * suspend/resume
  */
 
@@ -342,11 +384,14 @@ static struct platform_driver monwriter_pdrv = {
 static struct platform_device *monwriter_pdev;
 
 /*
+=======
+>>>>>>> upstream/android-13
  * module init/exit
  */
 
 static int __init mon_init(void)
 {
+<<<<<<< HEAD
 	int rc;
 
 	if (!MACHINE_IS_VM)
@@ -363,10 +408,15 @@ static int __init mon_init(void)
 		goto out_driver;
 	}
 
+=======
+	if (!MACHINE_IS_VM)
+		return -ENODEV;
+>>>>>>> upstream/android-13
 	/*
 	 * misc_register() has to be the last action in module_init(), because
 	 * file operations will be available right after this.
 	 */
+<<<<<<< HEAD
 	rc = misc_register(&mon_dev);
 	if (rc)
 		goto out_device;
@@ -377,13 +427,19 @@ out_device:
 out_driver:
 	platform_driver_unregister(&monwriter_pdrv);
 	return rc;
+=======
+	return misc_register(&mon_dev);
+>>>>>>> upstream/android-13
 }
 
 static void __exit mon_exit(void)
 {
 	misc_deregister(&mon_dev);
+<<<<<<< HEAD
 	platform_device_unregister(monwriter_pdev);
 	platform_driver_unregister(&monwriter_pdrv);
+=======
+>>>>>>> upstream/android-13
 }
 
 module_init(mon_init);

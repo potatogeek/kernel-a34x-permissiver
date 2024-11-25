@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #ifndef _ASM_POWERPC_PGALLOC_64_H
 #define _ASM_POWERPC_PGALLOC_64_H
 /*
@@ -5,6 +6,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+#ifndef _ASM_POWERPC_PGALLOC_64_H
+#define _ASM_POWERPC_PGALLOC_64_H
+/*
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -18,6 +25,7 @@ struct vmemmap_backing {
 };
 extern struct vmemmap_backing *vmemmap_list;
 
+<<<<<<< HEAD
 /*
  * Functions that deal with pagetables that could be at any level of
  * the table need to be passed an "index_size" so they know how to
@@ -53,6 +61,9 @@ static inline void pgd_free(struct mm_struct *mm, pgd_t *pgd)
 }
 
 #define pgd_populate(MM, PGD, PUD)	pgd_set(PGD, (unsigned long)PUD)
+=======
+#define p4d_populate(MM, P4D, PUD)	p4d_set(P4D, (unsigned long)PUD)
+>>>>>>> upstream/android-13
 
 static inline pud_t *pud_alloc_one(struct mm_struct *mm, unsigned long addr)
 {
@@ -79,11 +90,17 @@ static inline void pmd_populate_kernel(struct mm_struct *mm, pmd_t *pmd,
 static inline void pmd_populate(struct mm_struct *mm, pmd_t *pmd,
 				pgtable_t pte_page)
 {
+<<<<<<< HEAD
 	pmd_set(pmd, (unsigned long)page_address(pte_page));
 }
 
 #define pmd_pgtable(pmd) pmd_page(pmd)
 
+=======
+	pmd_set(pmd, (unsigned long)pte_page);
+}
+
+>>>>>>> upstream/android-13
 static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long addr)
 {
 	return kmem_cache_alloc(PGT_CACHE(PMD_CACHE_INDEX),
@@ -95,6 +112,7 @@ static inline void pmd_free(struct mm_struct *mm, pmd_t *pmd)
 	kmem_cache_free(PGT_CACHE(PMD_CACHE_INDEX), pmd);
 }
 
+<<<<<<< HEAD
 
 static inline pte_t *pte_alloc_one_kernel(struct mm_struct *mm,
 					  unsigned long address)
@@ -184,4 +202,11 @@ static inline void __pte_free_tlb(struct mmu_gather *tlb, pgtable_t table,
 
 #define check_pgt_cache()	do { } while (0)
 
+=======
+#define __pmd_free_tlb(tlb, pmd, addr)		      \
+	pgtable_free_tlb(tlb, pmd, PMD_CACHE_INDEX)
+#define __pud_free_tlb(tlb, pud, addr)		      \
+	pgtable_free_tlb(tlb, pud, PUD_INDEX_SIZE)
+
+>>>>>>> upstream/android-13
 #endif /* _ASM_POWERPC_PGALLOC_64_H */

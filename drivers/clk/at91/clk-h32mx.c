@@ -1,15 +1,22 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * clk-h32mx.c
  *
  *  Copyright (C) 2014 Atmel
  *
  * Alexandre Belloni <alexandre.belloni@free-electrons.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk-provider.h>
@@ -86,6 +93,7 @@ static const struct clk_ops h32mx_ops = {
 	.set_rate = clk_sama5d4_h32mx_set_rate,
 };
 
+<<<<<<< HEAD
 static void __init of_sama5d4_clk_h32mx_setup(struct device_node *np)
 {
 	struct clk_sama5d4_h32mx *h32mxclk;
@@ -105,6 +113,21 @@ static void __init of_sama5d4_clk_h32mx_setup(struct device_node *np)
 	parent_name = of_clk_get_parent_name(np, 0);
 
 	init.name = np->name;
+=======
+struct clk_hw * __init
+at91_clk_register_h32mx(struct regmap *regmap, const char *name,
+			const char *parent_name)
+{
+	struct clk_sama5d4_h32mx *h32mxclk;
+	struct clk_init_data init;
+	int ret;
+
+	h32mxclk = kzalloc(sizeof(*h32mxclk), GFP_KERNEL);
+	if (!h32mxclk)
+		return ERR_PTR(-ENOMEM);
+
+	init.name = name;
+>>>>>>> upstream/android-13
 	init.ops = &h32mx_ops;
 	init.parent_names = parent_name ? &parent_name : NULL;
 	init.num_parents = parent_name ? 1 : 0;
@@ -116,6 +139,7 @@ static void __init of_sama5d4_clk_h32mx_setup(struct device_node *np)
 	ret = clk_hw_register(NULL, &h32mxclk->hw);
 	if (ret) {
 		kfree(h32mxclk);
+<<<<<<< HEAD
 		return;
 	}
 
@@ -123,3 +147,10 @@ static void __init of_sama5d4_clk_h32mx_setup(struct device_node *np)
 }
 CLK_OF_DECLARE(of_sama5d4_clk_h32mx_setup, "atmel,sama5d4-clk-h32mx",
 	       of_sama5d4_clk_h32mx_setup);
+=======
+		return ERR_PTR(ret);
+	}
+
+	return &h32mxclk->hw;
+}
+>>>>>>> upstream/android-13

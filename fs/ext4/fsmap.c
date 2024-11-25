@@ -280,7 +280,11 @@ static int ext4_getfsmap_logdev(struct super_block *sb, struct ext4_fsmap *keys,
 
 	/* Fabricate an rmap entry for the external log device. */
 	irec.fmr_physical = journal->j_blk_offset;
+<<<<<<< HEAD
 	irec.fmr_length = journal->j_maxlen;
+=======
+	irec.fmr_length = journal->j_total_len;
+>>>>>>> upstream/android-13
 	irec.fmr_owner = EXT4_FMR_OWN_LOG;
 	irec.fmr_flags = 0;
 
@@ -354,8 +358,13 @@ static unsigned int ext4_getfsmap_find_sb(struct super_block *sb,
 
 /* Compare two fsmap items. */
 static int ext4_getfsmap_compare(void *priv,
+<<<<<<< HEAD
 				 struct list_head *a,
 				 struct list_head *b)
+=======
+				 const struct list_head *a,
+				 const struct list_head *b)
+>>>>>>> upstream/android-13
 {
 	struct ext4_fsmap *fa;
 	struct ext4_fsmap *fb;
@@ -574,8 +583,13 @@ static bool ext4_getfsmap_is_valid_device(struct super_block *sb,
 	if (fm->fmr_device == 0 || fm->fmr_device == UINT_MAX ||
 	    fm->fmr_device == new_encode_dev(sb->s_bdev->bd_dev))
 		return true;
+<<<<<<< HEAD
 	if (EXT4_SB(sb)->journal_bdev &&
 	    fm->fmr_device == new_encode_dev(EXT4_SB(sb)->journal_bdev->bd_dev))
+=======
+	if (EXT4_SB(sb)->s_journal_bdev &&
+	    fm->fmr_device == new_encode_dev(EXT4_SB(sb)->s_journal_bdev->bd_dev))
+>>>>>>> upstream/android-13
 		return true;
 	return false;
 }
@@ -629,7 +643,11 @@ int ext4_getfsmap(struct super_block *sb, struct ext4_fsmap_head *head,
 {
 	struct ext4_fsmap dkeys[2];	/* per-dev keys */
 	struct ext4_getfsmap_dev handlers[EXT4_GETFSMAP_DEVS];
+<<<<<<< HEAD
 	struct ext4_getfsmap_info info = {0};
+=======
+	struct ext4_getfsmap_info info = { NULL };
+>>>>>>> upstream/android-13
 	int i;
 	int error = 0;
 
@@ -645,9 +663,15 @@ int ext4_getfsmap(struct super_block *sb, struct ext4_fsmap_head *head,
 	memset(handlers, 0, sizeof(handlers));
 	handlers[0].gfd_dev = new_encode_dev(sb->s_bdev->bd_dev);
 	handlers[0].gfd_fn = ext4_getfsmap_datadev;
+<<<<<<< HEAD
 	if (EXT4_SB(sb)->journal_bdev) {
 		handlers[1].gfd_dev = new_encode_dev(
 				EXT4_SB(sb)->journal_bdev->bd_dev);
+=======
+	if (EXT4_SB(sb)->s_journal_bdev) {
+		handlers[1].gfd_dev = new_encode_dev(
+				EXT4_SB(sb)->s_journal_bdev->bd_dev);
+>>>>>>> upstream/android-13
 		handlers[1].gfd_fn = ext4_getfsmap_logdev;
 	}
 

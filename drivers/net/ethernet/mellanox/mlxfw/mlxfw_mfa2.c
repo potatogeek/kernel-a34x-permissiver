@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * drivers/net/ethernet/mellanox/mlxfw/mlxfw_mfa2.c
  * Copyright (c) 2017 Mellanox Technologies. All rights reserved.
@@ -31,6 +32,10 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+=======
+// SPDX-License-Identifier: BSD-3-Clause OR GPL-2.0
+/* Copyright (c) 2017-2019 Mellanox Technologies. All rights reserved */
+>>>>>>> upstream/android-13
 
 #define pr_fmt(fmt) "mlxfw_mfa2: " fmt
 
@@ -298,7 +303,11 @@ struct mlxfw_mfa2_file *mlxfw_mfa2_file_init(const struct firmware *fw)
 	const void *first_tlv_ptr;
 	const void *cb_top_ptr;
 
+<<<<<<< HEAD
 	mfa2_file = kcalloc(1, sizeof(*mfa2_file), GFP_KERNEL);
+=======
+	mfa2_file = kzalloc(sizeof(*mfa2_file), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!mfa2_file)
 		return ERR_PTR(-ENOMEM);
 
@@ -527,7 +536,11 @@ mlxfw_mfa2_file_component_tlv_get(const struct mlxfw_mfa2_file *mfa2_file,
 
 struct mlxfw_mfa2_comp_data {
 	struct mlxfw_mfa2_component comp;
+<<<<<<< HEAD
 	u8 buff[0];
+=======
+	u8 buff[];
+>>>>>>> upstream/android-13
 };
 
 static const struct mlxfw_mfa2_tlv_component_descriptor *

@@ -1,10 +1,19 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 #
 # Unisys SPAR driver configuration
 #
 menuconfig UNISYSSPAR
 	bool "Unisys SPAR driver support"
+<<<<<<< HEAD
 	---help---
 	Support for the Unisys SPAR drivers
+=======
+	help
+	  Support for the Unisys SPAR drivers
+>>>>>>> upstream/android-13
 
 if UNISYSSPAR
 

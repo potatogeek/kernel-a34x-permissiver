@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Mars MR97310A library
  *
@@ -24,6 +28,7 @@
  *
  * The MR97311A support in gspca/mars.c has been helpful in understanding some
  * of the registers in these cameras.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,6 +39,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -296,7 +303,10 @@ static int zero_the_pointer(struct gspca_dev *gspca_dev)
 			return err_code;
 
 		err_code = cam_get_response16(gspca_dev, 0x21, 0);
+<<<<<<< HEAD
 		status = data[0];
+=======
+>>>>>>> upstream/android-13
 		tries++;
 		if (err_code < 0)
 			return err_code;
@@ -520,7 +530,11 @@ static int start_cif_cam(struct gspca_dev *gspca_dev)
 	switch (gspca_dev->pixfmt.width) {
 	case 160:
 		data[9] |= 0x04;  /* reg 8, 2:1 scale down from 320 */
+<<<<<<< HEAD
 		/* fall thru */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 320:
 	default:
 		data[3] = 0x28;			   /* reg 2, H size/8 */
@@ -530,7 +544,11 @@ static int start_cif_cam(struct gspca_dev *gspca_dev)
 		break;
 	case 176:
 		data[9] |= 0x04;  /* reg 8, 2:1 scale down from 352 */
+<<<<<<< HEAD
 		/* fall thru */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 352:
 		data[3] = 0x2c;			   /* reg 2, H size/8 */
 		data[4] = 0x48;			   /* reg 3, V size/4 */
@@ -617,10 +635,17 @@ static int start_vga_cam(struct gspca_dev *gspca_dev)
 	switch (gspca_dev->pixfmt.width) {
 	case 160:
 		data[9] |= 0x0c;  /* reg 8, 4:1 scale down */
+<<<<<<< HEAD
 		/* fall thru */
 	case 320:
 		data[9] |= 0x04;  /* reg 8, 2:1 scale down */
 		/* fall thru */
+=======
+		fallthrough;
+	case 320:
+		data[9] |= 0x04;  /* reg 8, 2:1 scale down */
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 640:
 	default:
 		data[3] = 0x50;  /* reg 2, H size/8 */
@@ -637,7 +662,11 @@ static int start_vga_cam(struct gspca_dev *gspca_dev)
 
 	case 176:
 		data[9] |= 0x04;  /* reg 8, 2:1 scale down */
+<<<<<<< HEAD
 		/* fall thru */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 352:
 		data[3] = 0x2c;  /* reg 2, H size */
 		data[4] = 0x48;  /* reg 3, V size */

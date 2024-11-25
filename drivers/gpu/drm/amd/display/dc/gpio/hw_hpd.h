@@ -38,9 +38,19 @@ struct hw_hpd {
 #define HW_HPD_FROM_BASE(hw_gpio) \
 	container_of((HW_GPIO_FROM_BASE(hw_gpio)), struct hw_hpd, base)
 
+<<<<<<< HEAD
 struct hw_gpio_pin *dal_hw_hpd_create(
+=======
+void dal_hw_hpd_init(
+	struct hw_hpd **hw_hpd,
+>>>>>>> upstream/android-13
 	struct dc_context *ctx,
 	enum gpio_id id,
 	uint32_t en);
 
+<<<<<<< HEAD
+=======
+struct hw_gpio_pin *dal_hw_hpd_get_pin(struct gpio *gpio);
+
+>>>>>>> upstream/android-13
 #endif

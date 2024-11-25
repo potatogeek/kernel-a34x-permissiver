@@ -22,10 +22,18 @@
 #include <linux/bitops.h>
 #include <linux/time.h>
 #include <linux/ktime.h>
+<<<<<<< HEAD
 #include <xen/platform_pci.h>
 
 #include <asm/xen/swiotlb-xen.h>
 #define INVALID_GRANT_REF (0)
+=======
+#include <linux/swiotlb.h>
+#include <xen/platform_pci.h>
+
+#include <asm/xen/swiotlb-xen.h>
+
+>>>>>>> upstream/android-13
 #define INVALID_EVTCHN    (-1)
 
 struct pci_bus_entry {
@@ -41,7 +49,11 @@ struct pcifront_device {
 	struct list_head root_buses;
 
 	int evtchn;
+<<<<<<< HEAD
 	int gnt_ref;
+=======
+	grant_ref_t gnt_ref;
+>>>>>>> upstream/android-13
 
 	int irq;
 
@@ -77,9 +89,12 @@ static inline void pcifront_init_sd(struct pcifront_sd *sd,
 static DEFINE_SPINLOCK(pcifront_dev_lock);
 static struct pcifront_device *pcifront_dev;
 
+<<<<<<< HEAD
 static int verbose_request;
 module_param(verbose_request, int, 0644);
 
+=======
+>>>>>>> upstream/android-13
 static int errno_to_pcibios_err(int errno)
 {
 	switch (errno) {
@@ -117,7 +132,11 @@ static int do_pci_op(struct pcifront_device *pdev, struct xen_pci_op *op)
 	struct xen_pci_op *active_op = &pdev->sh_info->op;
 	unsigned long irq_flags;
 	evtchn_port_t port = pdev->evtchn;
+<<<<<<< HEAD
 	unsigned irq = pdev->irq;
+=======
+	unsigned int irq = pdev->irq;
+>>>>>>> upstream/android-13
 	s64 ns, ns_timeout;
 
 	spin_lock_irqsave(&pdev->sh_info_lock, irq_flags);
@@ -155,10 +174,17 @@ static int do_pci_op(struct pcifront_device *pdev, struct xen_pci_op *op)
 	}
 
 	/*
+<<<<<<< HEAD
 	* We might lose backend service request since we
 	* reuse same evtchn with pci_conf backend response. So re-schedule
 	* aer pcifront service.
 	*/
+=======
+	 * We might lose backend service request since we
+	 * reuse same evtchn with pci_conf backend response. So re-schedule
+	 * aer pcifront service.
+	 */
+>>>>>>> upstream/android-13
 	if (test_bit(_XEN_PCIB_active,
 			(unsigned long *)&pdev->sh_info->flags)) {
 		dev_err(&pdev->xdev->dev,
@@ -190,18 +216,30 @@ static int pcifront_bus_read(struct pci_bus *bus, unsigned int devfn,
 	struct pcifront_sd *sd = bus->sysdata;
 	struct pcifront_device *pdev = pcifront_get_pdev(sd);
 
+<<<<<<< HEAD
 	if (verbose_request)
 		dev_info(&pdev->xdev->dev,
 			 "read dev=%04x:%02x:%02x.%d - offset %x size %d\n",
 			 pci_domain_nr(bus), bus->number, PCI_SLOT(devfn),
 			 PCI_FUNC(devfn), where, size);
+=======
+	dev_dbg(&pdev->xdev->dev,
+		"read dev=%04x:%02x:%02x.%d - offset %x size %d\n",
+		pci_domain_nr(bus), bus->number, PCI_SLOT(devfn),
+		PCI_FUNC(devfn), where, size);
+>>>>>>> upstream/android-13
 
 	err = do_pci_op(pdev, &op);
 
 	if (likely(!err)) {
+<<<<<<< HEAD
 		if (verbose_request)
 			dev_info(&pdev->xdev->dev, "read got back value %x\n",
 				 op.value);
+=======
+		dev_dbg(&pdev->xdev->dev, "read got back value %x\n",
+			op.value);
+>>>>>>> upstream/android-13
 
 		*val = op.value;
 	} else if (err == -ENODEV) {
@@ -229,12 +267,19 @@ static int pcifront_bus_write(struct pci_bus *bus, unsigned int devfn,
 	struct pcifront_sd *sd = bus->sysdata;
 	struct pcifront_device *pdev = pcifront_get_pdev(sd);
 
+<<<<<<< HEAD
 	if (verbose_request)
 		dev_info(&pdev->xdev->dev,
 			 "write dev=%04x:%02x:%02x.%d - "
 			 "offset %x size %d val %x\n",
 			 pci_domain_nr(bus), bus->number,
 			 PCI_SLOT(devfn), PCI_FUNC(devfn), where, size, val);
+=======
+	dev_dbg(&pdev->xdev->dev,
+		"write dev=%04x:%02x:%02x.%d - offset %x size %d val %x\n",
+		pci_domain_nr(bus), bus->number,
+		PCI_SLOT(devfn), PCI_FUNC(devfn), where, size, val);
+>>>>>>> upstream/android-13
 
 	return errno_to_pcibios_err(do_pci_op(pdev, &op));
 }
@@ -291,8 +336,12 @@ static int pci_frontend_enable_msix(struct pci_dev *dev,
 				vector[i] = op.msix_entries[i].vector;
 			}
 		} else {
+<<<<<<< HEAD
 			printk(KERN_DEBUG "enable msix get value %x\n",
 				op.value);
+=======
+			pr_info("enable msix get value %x\n", op.value);
+>>>>>>> upstream/android-13
 			err = op.value;
 		}
 	} else {
@@ -364,12 +413,20 @@ static void pci_frontend_disable_msi(struct pci_dev *dev)
 	err = do_pci_op(pdev, &op);
 	if (err == XEN_PCI_ERR_dev_not_found) {
 		/* XXX No response from backend, what shall we do? */
+<<<<<<< HEAD
 		printk(KERN_DEBUG "get no response from backend for disable MSI\n");
+=======
+		pr_info("get no response from backend for disable MSI\n");
+>>>>>>> upstream/android-13
 		return;
 	}
 	if (err)
 		/* how can pciback notify us fail? */
+<<<<<<< HEAD
 		printk(KERN_DEBUG "get fake response frombackend\n");
+=======
+		pr_info("get fake response from backend\n");
+>>>>>>> upstream/android-13
 }
 
 static struct xen_pci_frontend_ops pci_frontend_ops = {
@@ -421,7 +478,12 @@ static int pcifront_scan_bus(struct pcifront_device *pdev,
 	struct pci_dev *d;
 	unsigned int devfn;
 
+<<<<<<< HEAD
 	/* Scan the bus for functions and add.
+=======
+	/*
+	 * Scan the bus for functions and add.
+>>>>>>> upstream/android-13
 	 * We omit handling of PCI bridge attachment because pciback prevents
 	 * bridges from being exported.
 	 */
@@ -499,8 +561,15 @@ static int pcifront_scan_root(struct pcifront_device *pdev,
 
 	list_add(&bus_entry->list, &pdev->root_buses);
 
+<<<<<<< HEAD
 	/* pci_scan_root_bus skips devices which do not have a
 	* devfn==0. The pcifront_scan_bus enumerates all devfn. */
+=======
+	/*
+	 * pci_scan_root_bus skips devices which do not have a
+	 * devfn==0. The pcifront_scan_bus enumerates all devfn.
+	 */
+>>>>>>> upstream/android-13
 	err = pcifront_scan_bus(pdev, domain, bus, b);
 
 	/* Claim resources before going "live" with our devices */
@@ -658,8 +727,15 @@ static void pcifront_do_aer(struct work_struct *data)
 	pci_channel_state_t state =
 		(pci_channel_state_t)pdev->sh_info->aer_op.err;
 
+<<<<<<< HEAD
 	/*If a pci_conf op is in progress,
 		we have to wait until it is done before service aer op*/
+=======
+	/*
+	 * If a pci_conf op is in progress, we have to wait until it is done
+	 * before service aer op
+	 */
+>>>>>>> upstream/android-13
 	dev_dbg(&pdev->xdev->dev,
 		"pcifront service aer bus %x devfn %x\n",
 		pdev->sh_info->aer_op.bus, pdev->sh_info->aer_op.devfn);
@@ -683,6 +759,10 @@ static void pcifront_do_aer(struct work_struct *data)
 static irqreturn_t pcifront_handler_aer(int irq, void *dev)
 {
 	struct pcifront_device *pdev = dev;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	schedule_pcifront_aer_op(pdev);
 	return IRQ_HANDLED;
 }
@@ -700,7 +780,11 @@ static int pcifront_connect_and_init_dma(struct pcifront_device *pdev)
 
 	spin_unlock(&pcifront_dev_lock);
 
+<<<<<<< HEAD
 	if (!err && !swiotlb_nr_tbl()) {
+=======
+	if (!err && !is_swiotlb_active(&pdev->xdev->dev)) {
+>>>>>>> upstream/android-13
 		err = pci_xen_swiotlb_init_late();
 		if (err)
 			dev_err(&pdev->xdev->dev, "Could not setup SWIOTLB!\n");
@@ -1034,6 +1118,10 @@ static int pcifront_detach_devices(struct pcifront_device *pdev)
 	/* Find devices being detached and remove them. */
 	for (i = 0; i < num_devs; i++) {
 		int l, state;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		l = snprintf(str, sizeof(str), "state-%d", i);
 		if (unlikely(l >= (sizeof(str) - 1))) {
 			err = -ENOMEM;
@@ -1085,7 +1173,11 @@ out:
 	return err;
 }
 
+<<<<<<< HEAD
 static void __ref pcifront_backend_changed(struct xenbus_device *xdev,
+=======
+static void pcifront_backend_changed(struct xenbus_device *xdev,
+>>>>>>> upstream/android-13
 						  enum xenbus_state be_state)
 {
 	struct pcifront_device *pdev = dev_get_drvdata(&xdev->dev);
@@ -1104,7 +1196,11 @@ static void __ref pcifront_backend_changed(struct xenbus_device *xdev,
 	case XenbusStateClosed:
 		if (xdev->state == XenbusStateClosed)
 			break;
+<<<<<<< HEAD
 		/* Missed the backend's CLOSING state -- fallthrough */
+=======
+		fallthrough;	/* Missed the backend's CLOSING state */
+>>>>>>> upstream/android-13
 	case XenbusStateClosing:
 		dev_warn(&xdev->dev, "backend going away!\n");
 		pcifront_try_disconnect(pdev);
@@ -1144,6 +1240,10 @@ out:
 static int pcifront_xenbus_remove(struct xenbus_device *xdev)
 {
 	struct pcifront_device *pdev = dev_get_drvdata(&xdev->dev);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	if (pdev)
 		free_pdev(pdev);
 

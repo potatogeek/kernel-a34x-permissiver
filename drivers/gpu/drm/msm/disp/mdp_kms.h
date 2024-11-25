@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2013 Red Hat
  * Author: Rob Clark <robdclark@gmail.com>
@@ -13,6 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2013 Red Hat
+ * Author: Rob Clark <robdclark@gmail.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __MDP_KMS_H__
@@ -47,12 +54,25 @@ struct mdp_kms {
 };
 #define to_mdp_kms(x) container_of(x, struct mdp_kms, base)
 
+<<<<<<< HEAD
 static inline void mdp_kms_init(struct mdp_kms *mdp_kms,
+=======
+static inline int mdp_kms_init(struct mdp_kms *mdp_kms,
+>>>>>>> upstream/android-13
 		const struct mdp_kms_funcs *funcs)
 {
 	mdp_kms->funcs = funcs;
 	INIT_LIST_HEAD(&mdp_kms->irq_list);
+<<<<<<< HEAD
 	msm_kms_init(&mdp_kms->base, &funcs->base);
+=======
+	return msm_kms_init(&mdp_kms->base, &funcs->base);
+}
+
+static inline void mdp_kms_destroy(struct mdp_kms *mdp_kms)
+{
+	msm_kms_destroy(&mdp_kms->base);
+>>>>>>> upstream/android-13
 }
 
 /*

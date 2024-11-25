@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * wm831x-ldo.c  --  LDO driver for the WM831x series
  *
@@ -10,6 +11,15 @@
  *  Free Software Foundation;  either version 2 of the  License, or (at your
  *  option) any later version.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0+
+//
+// wm831x-ldo.c  --  LDO driver for the WM831x series
+//
+// Copyright 2009 Wolfson Microelectronics PLC.
+//
+// Author: Mark Brown <broonie@opensource.wolfsonmicro.com>
+>>>>>>> upstream/android-13
 
 #include <linux/module.h>
 #include <linux/moduleparam.h>
@@ -62,7 +72,11 @@ static irqreturn_t wm831x_ldo_uv_irq(int irq, void *data)
  * General purpose LDOs
  */
 
+<<<<<<< HEAD
 static const struct regulator_linear_range wm831x_gp_ldo_ranges[] = {
+=======
+static const struct linear_range wm831x_gp_ldo_ranges[] = {
+>>>>>>> upstream/android-13
 	REGULATOR_LINEAR_RANGE(900000, 0, 14, 50000),
 	REGULATOR_LINEAR_RANGE(1700000, 15, 31, 100000),
 };
@@ -315,7 +329,11 @@ static struct platform_driver wm831x_gp_ldo_driver = {
  * Analogue LDOs
  */
 
+<<<<<<< HEAD
 static const struct regulator_linear_range wm831x_aldo_ranges[] = {
+=======
+static const struct linear_range wm831x_aldo_ranges[] = {
+>>>>>>> upstream/android-13
 	REGULATOR_LINEAR_RANGE(1000000, 0, 12, 50000),
 	REGULATOR_LINEAR_RANGE(1700000, 13, 31, 100000),
 };

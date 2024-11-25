@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Overview:
  *   Platform independent driver for NDFC (NanD Flash Controller)
@@ -14,6 +18,7 @@
  *  Copyright 2006 IBM
  *  Copyright 2008 PIKA Technologies
  *    Sean MacLennan <smaclennan@pikatech.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute	 it and/or modify it
  *  under  the terms of	 the GNU General  Public License as published by the
@@ -24,10 +29,19 @@
 #include <linux/module.h>
 #include <linux/mtd/rawnand.h>
 #include <linux/mtd/nand_ecc.h>
+=======
+ */
+#include <linux/module.h>
+#include <linux/mtd/rawnand.h>
+>>>>>>> upstream/android-13
 #include <linux/mtd/partitions.h>
 #include <linux/mtd/ndfc.h>
 #include <linux/slab.h>
 #include <linux/mtd/mtd.h>
+<<<<<<< HEAD
+=======
+#include <linux/mtd/nand-ecc-sw-hamming.h>
+>>>>>>> upstream/android-13
 #include <linux/of_address.h>
 #include <linux/of_platform.h>
 #include <asm/io.h>
@@ -44,10 +58,16 @@ struct ndfc_controller {
 
 static struct ndfc_controller ndfc_ctrl[NDFC_MAX_CS];
 
+<<<<<<< HEAD
 static void ndfc_select_chip(struct mtd_info *mtd, int chip)
 {
 	uint32_t ccr;
 	struct nand_chip *nchip = mtd_to_nand(mtd);
+=======
+static void ndfc_select_chip(struct nand_chip *nchip, int chip)
+{
+	uint32_t ccr;
+>>>>>>> upstream/android-13
 	struct ndfc_controller *ndfc = nand_get_controller_data(nchip);
 
 	ccr = in_be32(ndfc->ndfcbase + NDFC_CCR);
@@ -59,9 +79,14 @@ static void ndfc_select_chip(struct mtd_info *mtd, int chip)
 	out_be32(ndfc->ndfcbase + NDFC_CCR, ccr);
 }
 
+<<<<<<< HEAD
 static void ndfc_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
+=======
+static void ndfc_hwcontrol(struct nand_chip *chip, int cmd, unsigned int ctrl)
+{
+>>>>>>> upstream/android-13
 	struct ndfc_controller *ndfc = nand_get_controller_data(chip);
 
 	if (cmd == NAND_CMD_NONE)
@@ -73,18 +98,29 @@ static void ndfc_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 		writel(cmd & 0xFF, ndfc->ndfcbase + NDFC_ALE);
 }
 
+<<<<<<< HEAD
 static int ndfc_ready(struct mtd_info *mtd)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
+=======
+static int ndfc_ready(struct nand_chip *chip)
+{
+>>>>>>> upstream/android-13
 	struct ndfc_controller *ndfc = nand_get_controller_data(chip);
 
 	return in_be32(ndfc->ndfcbase + NDFC_STAT) & NDFC_STAT_IS_READY;
 }
 
+<<<<<<< HEAD
 static void ndfc_enable_hwecc(struct mtd_info *mtd, int mode)
 {
 	uint32_t ccr;
 	struct nand_chip *chip = mtd_to_nand(mtd);
+=======
+static void ndfc_enable_hwecc(struct nand_chip *chip, int mode)
+{
+	uint32_t ccr;
+>>>>>>> upstream/android-13
 	struct ndfc_controller *ndfc = nand_get_controller_data(chip);
 
 	ccr = in_be32(ndfc->ndfcbase + NDFC_CCR);
@@ -93,10 +129,16 @@ static void ndfc_enable_hwecc(struct mtd_info *mtd, int mode)
 	wmb();
 }
 
+<<<<<<< HEAD
 static int ndfc_calculate_ecc(struct mtd_info *mtd,
 			      const u_char *dat, u_char *ecc_code)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
+=======
+static int ndfc_calculate_ecc(struct nand_chip *chip,
+			      const u_char *dat, u_char *ecc_code)
+{
+>>>>>>> upstream/android-13
 	struct ndfc_controller *ndfc = nand_get_controller_data(chip);
 	uint32_t ecc;
 	uint8_t *p = (uint8_t *)&ecc;
@@ -111,6 +153,18 @@ static int ndfc_calculate_ecc(struct mtd_info *mtd,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int ndfc_correct_ecc(struct nand_chip *chip,
+			    unsigned char *buf,
+			    unsigned char *read_ecc,
+			    unsigned char *calc_ecc)
+{
+	return ecc_sw_hamming_correct(buf, read_ecc, calc_ecc,
+				      chip->ecc.size, false);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Speedups for buffer read/write/verify
  *
@@ -118,9 +172,14 @@ static int ndfc_calculate_ecc(struct mtd_info *mtd,
  * functions. No further checking, as nand_base will always read/write
  * page aligned.
  */
+<<<<<<< HEAD
 static void ndfc_read_buf(struct mtd_info *mtd, uint8_t *buf, int len)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
+=======
+static void ndfc_read_buf(struct nand_chip *chip, uint8_t *buf, int len)
+{
+>>>>>>> upstream/android-13
 	struct ndfc_controller *ndfc = nand_get_controller_data(chip);
 	uint32_t *p = (uint32_t *) buf;
 
@@ -128,9 +187,14 @@ static void ndfc_read_buf(struct mtd_info *mtd, uint8_t *buf, int len)
 		*p++ = in_be32(ndfc->ndfcbase + NDFC_DATA);
 }
 
+<<<<<<< HEAD
 static void ndfc_write_buf(struct mtd_info *mtd, const uint8_t *buf, int len)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
+=======
+static void ndfc_write_buf(struct nand_chip *chip, const uint8_t *buf, int len)
+{
+>>>>>>> upstream/android-13
 	struct ndfc_controller *ndfc = nand_get_controller_data(chip);
 	uint32_t *p = (uint32_t *) buf;
 
@@ -149,6 +213,7 @@ static int ndfc_chip_init(struct ndfc_controller *ndfc,
 	struct mtd_info *mtd = nand_to_mtd(chip);
 	int ret;
 
+<<<<<<< HEAD
 	chip->IO_ADDR_R = ndfc->ndfcbase + NDFC_DATA;
 	chip->IO_ADDR_W = ndfc->ndfcbase + NDFC_DATA;
 	chip->cmd_ctrl = ndfc_hwcontrol;
@@ -162,6 +227,21 @@ static int ndfc_chip_init(struct ndfc_controller *ndfc,
 	chip->ecc.hwctl = ndfc_enable_hwecc;
 	chip->ecc.calculate = ndfc_calculate_ecc;
 	chip->ecc.mode = NAND_ECC_HW;
+=======
+	chip->legacy.IO_ADDR_R = ndfc->ndfcbase + NDFC_DATA;
+	chip->legacy.IO_ADDR_W = ndfc->ndfcbase + NDFC_DATA;
+	chip->legacy.cmd_ctrl = ndfc_hwcontrol;
+	chip->legacy.dev_ready = ndfc_ready;
+	chip->legacy.select_chip = ndfc_select_chip;
+	chip->legacy.chip_delay = 50;
+	chip->controller = &ndfc->ndfc_control;
+	chip->legacy.read_buf = ndfc_read_buf;
+	chip->legacy.write_buf = ndfc_write_buf;
+	chip->ecc.correct = ndfc_correct_ecc;
+	chip->ecc.hwctl = ndfc_enable_hwecc;
+	chip->ecc.calculate = ndfc_calculate_ecc;
+	chip->ecc.engine_type = NAND_ECC_ENGINE_TYPE_ON_HOST;
+>>>>>>> upstream/android-13
 	chip->ecc.size = 256;
 	chip->ecc.bytes = 3;
 	chip->ecc.strength = 1;
@@ -174,8 +254,13 @@ static int ndfc_chip_init(struct ndfc_controller *ndfc,
 		return -ENODEV;
 	nand_set_flash_node(chip, flash_np);
 
+<<<<<<< HEAD
 	mtd->name = kasprintf(GFP_KERNEL, "%s.%s", dev_name(&ndfc->ofdev->dev),
 			      flash_np->name);
+=======
+	mtd->name = kasprintf(GFP_KERNEL, "%s.%pOFn", dev_name(&ndfc->ofdev->dev),
+			      flash_np);
+>>>>>>> upstream/android-13
 	if (!mtd->name) {
 		ret = -ENOMEM;
 		goto err;
@@ -256,9 +341,19 @@ static int ndfc_probe(struct platform_device *ofdev)
 static int ndfc_remove(struct platform_device *ofdev)
 {
 	struct ndfc_controller *ndfc = dev_get_drvdata(&ofdev->dev);
+<<<<<<< HEAD
 	struct mtd_info *mtd = nand_to_mtd(&ndfc->chip);
 
 	nand_release(&ndfc->chip);
+=======
+	struct nand_chip *chip = &ndfc->chip;
+	struct mtd_info *mtd = nand_to_mtd(chip);
+	int ret;
+
+	ret = mtd_device_unregister(mtd);
+	WARN_ON(ret);
+	nand_cleanup(chip);
+>>>>>>> upstream/android-13
 	kfree(mtd->name);
 
 	return 0;

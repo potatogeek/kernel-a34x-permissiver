@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 /**
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  * eCryptfs: Linux filesystem encryption layer
  * This is where eCryptfs coordinates the symmetric encryption and
  * decryption of the file data as it passes between the lower
@@ -8,6 +13,7 @@
  * Copyright (C) 2001-2003 Stony Brook University
  * Copyright (C) 2004-2007 International Business Machines Corp.
  *   Author(s): Michael A. Halcrow <mahalcro@us.ibm.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,6 +29,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  * 02111-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/pagemap.h>
@@ -36,7 +44,11 @@
 #include <asm/unaligned.h>
 #include "ecryptfs_kernel.h"
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * ecryptfs_get_locked_page
  *
  * Get one page from cache or lower f/s, return error otherwise.
@@ -55,6 +67,10 @@ struct page *ecryptfs_get_locked_page(struct inode *inode, loff_t index)
 /**
  * ecryptfs_writepage
  * @page: Page that is locked before this call is made
+<<<<<<< HEAD
+=======
+ * @wbc: Write-back control structure
+>>>>>>> upstream/android-13
  *
  * Returns zero on success; non-zero otherwise
  *
@@ -92,7 +108,11 @@ static void strip_xattr_flag(char *page_virt,
 	}
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  *   Header Extent:
  *     Octets 0-7:        Unencrypted file size (big-endian)
  *     Octets 8-15:       eCryptfs special marker
@@ -243,7 +263,11 @@ out:
 	return rc;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Called with lower inode mutex held.
  */
 static int fill_zeros_to_end_of_page(struct page *page, unsigned int to)
@@ -382,7 +406,11 @@ out:
 	return rc;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * ecryptfs_write_inode_size_to_header
  *
  * Writes the lower file size to the first 8 bytes of the header.
@@ -440,8 +468,13 @@ static int ecryptfs_write_inode_size_to_xattr(struct inode *ecryptfs_inode)
 	if (size < 0)
 		size = 8;
 	put_unaligned_be64(i_size_read(ecryptfs_inode), xattr_virt);
+<<<<<<< HEAD
 	rc = __vfs_setxattr(lower_dentry, lower_inode, ECRYPTFS_XATTR_NAME,
 			    xattr_virt, size, 0);
+=======
+	rc = __vfs_setxattr(&init_user_ns, lower_dentry, lower_inode,
+			    ECRYPTFS_XATTR_NAME, xattr_virt, size, 0);
+>>>>>>> upstream/android-13
 	inode_unlock(lower_inode);
 	if (rc)
 		printk(KERN_ERR "Error whilst attempting to write inode size "
@@ -538,6 +571,7 @@ out:
 
 static sector_t ecryptfs_bmap(struct address_space *mapping, sector_t block)
 {
+<<<<<<< HEAD
 	int rc = 0;
 	struct inode *inode;
 	struct inode *lower_inode;
@@ -551,6 +585,30 @@ static sector_t ecryptfs_bmap(struct address_space *mapping, sector_t block)
 }
 
 const struct address_space_operations ecryptfs_aops = {
+=======
+	struct inode *lower_inode = ecryptfs_inode_to_lower(mapping->host);
+	int ret = bmap(lower_inode, &block);
+
+	if (ret)
+		return 0;
+	return block;
+}
+
+#include <linux/buffer_head.h>
+
+const struct address_space_operations ecryptfs_aops = {
+	/*
+	 * XXX: This is pretty broken for multiple reasons: ecryptfs does not
+	 * actually use buffer_heads, and ecryptfs will crash without
+	 * CONFIG_BLOCK.  But it matches the behavior before the default for
+	 * address_space_operations without the ->set_page_dirty method was
+	 * cleaned up, so this is the best we can do without maintainer
+	 * feedback.
+	 */
+#ifdef CONFIG_BLOCK
+	.set_page_dirty = __set_page_dirty_buffers,
+#endif
+>>>>>>> upstream/android-13
 	.writepage = ecryptfs_writepage,
 	.readpage = ecryptfs_readpage,
 	.write_begin = ecryptfs_write_begin,

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Samsung SoC USB 1.1/2.0 PHY driver - Exynos 5250 support
  *
  * Copyright (C) 2013 Samsung Electronics Co., Ltd.
  * Author: Kamil Debski <k.debski@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -120,9 +127,15 @@
 
 /* Isolation, configured in the power management unit */
 #define EXYNOS_5250_USB_ISOL_OTG_OFFSET		0x704
+<<<<<<< HEAD
 #define EXYNOS_5250_USB_ISOL_OTG		BIT(0)
 #define EXYNOS_5250_USB_ISOL_HOST_OFFSET	0x708
 #define EXYNOS_5250_USB_ISOL_HOST		BIT(0)
+=======
+#define EXYNOS_5250_USB_ISOL_HOST_OFFSET	0x708
+#define EXYNOS_5420_USB_ISOL_HOST_OFFSET	0x70C
+#define EXYNOS_5250_USB_ISOL_ENABLE		BIT(0)
+>>>>>>> upstream/android-13
 
 /* Mode swtich register */
 #define EXYNOS_5250_MODE_SWITCH_OFFSET		0x230
@@ -135,7 +148,10 @@ enum exynos4x12_phy_id {
 	EXYNOS5250_HOST,
 	EXYNOS5250_HSIC0,
 	EXYNOS5250_HSIC1,
+<<<<<<< HEAD
 	EXYNOS5250_NUM_PHYS,
+=======
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -179,6 +195,7 @@ static void exynos5250_isol(struct samsung_usb2_phy_instance *inst, bool on)
 {
 	struct samsung_usb2_phy_driver *drv = inst->drv;
 	u32 offset;
+<<<<<<< HEAD
 	u32 mask;
 
 	switch (inst->cfg->id) {
@@ -193,6 +210,21 @@ static void exynos5250_isol(struct samsung_usb2_phy_instance *inst, bool on)
 	default:
 		return;
 	}
+=======
+	u32 mask = EXYNOS_5250_USB_ISOL_ENABLE;
+
+	if (drv->cfg == &exynos5250_usb2_phy_config &&
+	    inst->cfg->id == EXYNOS5250_DEVICE)
+		offset = EXYNOS_5250_USB_ISOL_OTG_OFFSET;
+	else if (drv->cfg == &exynos5250_usb2_phy_config &&
+		 inst->cfg->id == EXYNOS5250_HOST)
+		offset = EXYNOS_5250_USB_ISOL_HOST_OFFSET;
+	else if (drv->cfg == &exynos5420_usb2_phy_config &&
+		 inst->cfg->id == EXYNOS5250_HOST)
+		offset = EXYNOS_5420_USB_ISOL_HOST_OFFSET;
+	else
+		return;
+>>>>>>> upstream/android-13
 
 	regmap_update_bits(drv->reg_pmu, offset, mask, on ? 0 : mask);
 }
@@ -393,9 +425,40 @@ static const struct samsung_usb2_common_phy exynos5250_phys[] = {
 	},
 };
 
+<<<<<<< HEAD
 const struct samsung_usb2_phy_config exynos5250_usb2_phy_config = {
 	.has_mode_switch	= 1,
 	.num_phys		= EXYNOS5250_NUM_PHYS,
 	.phys			= exynos5250_phys,
 	.rate_to_clk		= exynos5250_rate_to_clk,
 };
+=======
+static const struct samsung_usb2_common_phy exynos5420_phys[] = {
+	{
+		.label		= "host",
+		.id		= EXYNOS5250_HOST,
+		.power_on	= exynos5250_power_on,
+		.power_off	= exynos5250_power_off,
+	},
+	{
+		.label		= "hsic",
+		.id		= EXYNOS5250_HSIC0,
+		.power_on	= exynos5250_power_on,
+		.power_off	= exynos5250_power_off,
+	},
+};
+
+const struct samsung_usb2_phy_config exynos5250_usb2_phy_config = {
+	.has_mode_switch	= 1,
+	.num_phys		= ARRAY_SIZE(exynos5250_phys),
+	.phys			= exynos5250_phys,
+	.rate_to_clk		= exynos5250_rate_to_clk,
+};
+
+const struct samsung_usb2_phy_config exynos5420_usb2_phy_config = {
+	.has_mode_switch	= 1,
+	.num_phys		= ARRAY_SIZE(exynos5420_phys),
+	.phys			= exynos5420_phys,
+	.rate_to_clk		= exynos5250_rate_to_clk,
+};
+>>>>>>> upstream/android-13

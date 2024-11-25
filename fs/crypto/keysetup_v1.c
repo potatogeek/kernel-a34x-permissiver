@@ -45,7 +45,11 @@ static DEFINE_SPINLOCK(fscrypt_direct_keys_lock);
  * key is longer, then only the first 'derived_keysize' bytes are used.
  */
 static int derive_key_aes(const u8 *master_key,
+<<<<<<< HEAD
 			  const u8 nonce[FS_KEY_DERIVATION_NONCE_SIZE],
+=======
+			  const u8 nonce[FSCRYPT_FILE_NONCE_SIZE],
+>>>>>>> upstream/android-13
 			  u8 *derived_key, unsigned int derived_keysize)
 {
 	int res = 0;
@@ -59,8 +63,13 @@ static int derive_key_aes(const u8 *master_key,
 		tfm = NULL;
 		goto out;
 	}
+<<<<<<< HEAD
 	crypto_skcipher_set_flags(tfm, CRYPTO_TFM_REQ_WEAK_KEY);
 	req = skcipher_request_alloc(tfm, GFP_NOFS);
+=======
+	crypto_skcipher_set_flags(tfm, CRYPTO_TFM_REQ_FORBID_WEAK_KEYS);
+	req = skcipher_request_alloc(tfm, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!req) {
 		res = -ENOMEM;
 		goto out;
@@ -68,7 +77,11 @@ static int derive_key_aes(const u8 *master_key,
 	skcipher_request_set_callback(req,
 			CRYPTO_TFM_REQ_MAY_BACKLOG | CRYPTO_TFM_REQ_MAY_SLEEP,
 			crypto_req_done, &wait);
+<<<<<<< HEAD
 	res = crypto_skcipher_setkey(tfm, nonce, FS_KEY_DERIVATION_NONCE_SIZE);
+=======
+	res = crypto_skcipher_setkey(tfm, nonce, FSCRYPT_FILE_NONCE_SIZE);
+>>>>>>> upstream/android-13
 	if (res < 0)
 		goto out;
 
@@ -99,7 +112,11 @@ find_and_lock_process_key(const char *prefix,
 	const struct user_key_payload *ukp;
 	const struct fscrypt_key *payload;
 
+<<<<<<< HEAD
 	description = kasprintf(GFP_NOFS, "%s%*phN", prefix,
+=======
+	description = kasprintf(GFP_KERNEL, "%s%*phN", prefix,
+>>>>>>> upstream/android-13
 				FSCRYPT_KEY_DESCRIPTOR_SIZE, descriptor);
 	if (!description)
 		return ERR_PTR(-ENOMEM);
@@ -155,7 +172,11 @@ static void free_direct_key(struct fscrypt_direct_key *dk)
 {
 	if (dk) {
 		fscrypt_destroy_prepared_key(&dk->dk_key);
+<<<<<<< HEAD
 		kzfree(dk);
+=======
+		kfree_sensitive(dk);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -228,7 +249,11 @@ fscrypt_get_direct_key(const struct fscrypt_info *ci, const u8 *raw_key)
 		return dk;
 
 	/* Nope, allocate one. */
+<<<<<<< HEAD
 	dk = kzalloc(sizeof(*dk), GFP_NOFS);
+=======
+	dk = kzalloc(sizeof(*dk), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!dk)
 		return ERR_PTR(-ENOMEM);
 	refcount_set(&dk->dk_refcount, 1);
@@ -258,7 +283,11 @@ static int setup_v1_file_key_direct(struct fscrypt_info *ci,
 	if (IS_ERR(dk))
 		return PTR_ERR(dk);
 	ci->ci_direct_key = dk;
+<<<<<<< HEAD
 	ci->ci_key = dk->dk_key;
+=======
+	ci->ci_enc_key = dk->dk_key;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -266,6 +295,7 @@ static int setup_v1_file_key_direct(struct fscrypt_info *ci,
 static int setup_v1_file_key_derived(struct fscrypt_info *ci,
 				     const u8 *raw_master_key)
 {
+<<<<<<< HEAD
 	u8 *derived_key = NULL;
 	int err;
 
@@ -274,10 +304,16 @@ static int setup_v1_file_key_derived(struct fscrypt_info *ci,
 	    fscrypt_using_inline_encryption(ci)) {
 		err = fscrypt_set_per_file_enc_key(ci, raw_master_key);
 	} else {
+=======
+	u8 *derived_key;
+	int err;
+
+>>>>>>> upstream/android-13
 	/*
 	 * This cannot be a stack buffer because it will be passed to the
 	 * scatterlist crypto API during derive_key_aes().
 	 */
+<<<<<<< HEAD
 		derived_key = kmalloc(ci->ci_mode->keysize, GFP_NOFS);
 		if (!derived_key)
 			return -ENOMEM;
@@ -291,6 +327,20 @@ static int setup_v1_file_key_derived(struct fscrypt_info *ci,
 out:
 	if (derived_key)
 		kzfree(derived_key);
+=======
+	derived_key = kmalloc(ci->ci_mode->keysize, GFP_KERNEL);
+	if (!derived_key)
+		return -ENOMEM;
+
+	err = derive_key_aes(raw_master_key, ci->ci_nonce,
+			     derived_key, ci->ci_mode->keysize);
+	if (err)
+		goto out;
+
+	err = fscrypt_set_per_file_enc_key(ci, derived_key);
+out:
+	kfree_sensitive(derived_key);
+>>>>>>> upstream/android-13
 	return err;
 }
 

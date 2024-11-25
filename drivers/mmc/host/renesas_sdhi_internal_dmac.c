@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * DMA support for Internal DMAC with SDHI SD/SDIO controller
  *
@@ -7,6 +8,15 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * DMA support for Internal DMAC with SDHI SD/SDIO controller
+ *
+ * Copyright (C) 2016-19 Renesas Electronics Corporation
+ * Copyright (C) 2016-17 Horms Solutions, Simon Horman
+ * Copyright (C) 2018-19 Sang Engineering, Wolfram Sang
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
@@ -17,6 +27,10 @@
 #include <linux/mmc/host.h>
 #include <linux/mod_devicetable.h>
 #include <linux/module.h>
+<<<<<<< HEAD
+=======
+#include <linux/of_device.h>
+>>>>>>> upstream/android-13
 #include <linux/pagemap.h>
 #include <linux/scatterlist.h>
 #include <linux/sys_soc.h>
@@ -35,9 +49,15 @@
 
 /* DM_CM_DTRAN_MODE */
 #define DTRAN_MODE_CH_NUM_CH0	0	/* "downstream" = for write commands */
+<<<<<<< HEAD
 #define DTRAN_MODE_CH_NUM_CH1	BIT(16)	/* "uptream" = for read commands */
 #define DTRAN_MODE_BUS_WID_TH	(BIT(5) | BIT(4))
 #define DTRAN_MODE_ADDR_MODE	BIT(0)	/* 1 = Increment address */
+=======
+#define DTRAN_MODE_CH_NUM_CH1	BIT(16)	/* "upstream" = for read commands */
+#define DTRAN_MODE_BUS_WIDTH	(BIT(5) | BIT(4))
+#define DTRAN_MODE_ADDR_MODE	BIT(0)	/* 1 = Increment address, 0 = Fixed */
+>>>>>>> upstream/android-13
 
 /* DM_CM_DTRAN_CTRL */
 #define DTRAN_CTRL_DM_START	BIT(0)
@@ -58,6 +78,15 @@
 #define INFO2_DTRANERR1		BIT(17)
 #define INFO2_DTRANERR0		BIT(16)
 
+<<<<<<< HEAD
+=======
+enum renesas_sdhi_dma_cookie {
+	COOKIE_UNMAPPED,
+	COOKIE_PRE_MAPPED,
+	COOKIE_MAPPED,
+};
+
+>>>>>>> upstream/android-13
 /*
  * Specification of this driver:
  * - host->chan_{rx,tx} will be used as a flag of enabling/disabling the dma
@@ -76,11 +105,18 @@ static unsigned long global_flags;
 #define SDHI_INTERNAL_DMAC_ONE_RX_ONLY	0
 #define SDHI_INTERNAL_DMAC_RX_IN_USE	1
 
+<<<<<<< HEAD
+=======
+/* RZ/A2 does not have the ADRR_MODE bit */
+#define SDHI_INTERNAL_DMAC_ADDR_MODE_FIXED_ONLY 2
+
+>>>>>>> upstream/android-13
 /* Definitions for sampling clocks */
 static struct renesas_sdhi_scc rcar_gen3_scc_taps[] = {
 	{
 		.clk_rate = 0,
 		.tap = 0x00000300,
+<<<<<<< HEAD
 	},
 };
 
@@ -106,10 +142,42 @@ static const struct renesas_sdhi_of_data of_rcar_gen3_compatible = {
 	.capabilities	= MMC_CAP_SD_HIGHSPEED | MMC_CAP_SDIO_IRQ |
 			  MMC_CAP_CMD23,
 	.capabilities2	= MMC_CAP2_NO_WRITE_PROTECT,
+=======
+		.tap_hs400_4tap = 0x00000100,
+	},
+};
+
+static const struct renesas_sdhi_of_data of_data_rza2 = {
+	.tmio_flags	= TMIO_MMC_HAS_IDLE_WAIT | TMIO_MMC_CLK_ACTUAL |
+			  TMIO_MMC_HAVE_CBSY,
+	.tmio_ocr_mask	= MMC_VDD_32_33,
+	.capabilities	= MMC_CAP_SD_HIGHSPEED | MMC_CAP_SDIO_IRQ |
+			  MMC_CAP_CMD23 | MMC_CAP_WAIT_WHILE_BUSY,
+	.bus_shift	= 2,
+	.scc_offset	= 0 - 0x1000,
+	.taps		= rcar_gen3_scc_taps,
+	.taps_num	= ARRAY_SIZE(rcar_gen3_scc_taps),
+	/* DMAC can handle 32bit blk count but only 1 segment */
+	.max_blk_count	= UINT_MAX / TMIO_MAX_BLK_SIZE,
+	.max_segs	= 1,
+};
+
+static const struct renesas_sdhi_of_data_with_quirks of_rza2_compatible = {
+	.of_data	= &of_data_rza2,
+};
+
+static const struct renesas_sdhi_of_data of_data_rcar_gen3 = {
+	.tmio_flags	= TMIO_MMC_HAS_IDLE_WAIT | TMIO_MMC_CLK_ACTUAL |
+			  TMIO_MMC_HAVE_CBSY | TMIO_MMC_MIN_RCAR2,
+	.capabilities	= MMC_CAP_SD_HIGHSPEED | MMC_CAP_SDIO_IRQ |
+			  MMC_CAP_CMD23 | MMC_CAP_WAIT_WHILE_BUSY,
+	.capabilities2	= MMC_CAP2_NO_WRITE_PROTECT | MMC_CAP2_MERGE_CAPABLE,
+>>>>>>> upstream/android-13
 	.bus_shift	= 2,
 	.scc_offset	= 0x1000,
 	.taps		= rcar_gen3_scc_taps,
 	.taps_num	= ARRAY_SIZE(rcar_gen3_scc_taps),
+<<<<<<< HEAD
 	/* DMAC can handle 0xffffffff blk count but only 1 segment */
 	.max_blk_count	= 0xffffffff,
 	.max_segs	= 1,
@@ -118,6 +186,123 @@ static const struct renesas_sdhi_of_data of_rcar_gen3_compatible = {
 static const struct of_device_id renesas_sdhi_internal_dmac_of_match[] = {
 	{ .compatible = "renesas,sdhi-r8a7795", .data = &of_rcar_r8a7795_compatible, },
 	{ .compatible = "renesas,sdhi-r8a7796", .data = &of_rcar_r8a7795_compatible, },
+=======
+	/* DMAC can handle 32bit blk count but only 1 segment */
+	.max_blk_count	= UINT_MAX / TMIO_MAX_BLK_SIZE,
+	.max_segs	= 1,
+};
+
+static const u8 r8a7796_es13_calib_table[2][SDHI_CALIB_TABLE_MAX] = {
+	{ 3,  3,  3,  3,  3,  3,  3,  4,  4,  5,  6,  7,  8,  9, 10, 15,
+	 16, 16, 16, 16, 16, 16, 17, 18, 18, 19, 20, 21, 22, 23, 24, 25 },
+	{ 5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  6,  7,  8, 11,
+	 12, 17, 18, 18, 18, 18, 18, 18, 18, 19, 20, 21, 22, 23, 25, 25 }
+};
+
+static const u8 r8a77965_calib_table[2][SDHI_CALIB_TABLE_MAX] = {
+	{ 1,  2,  6,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 15, 15, 16,
+	 17, 18, 19, 20, 21, 22, 23, 24, 25, 25, 26, 27, 28, 29, 30, 31 },
+	{ 2,  3,  4,  4,  5,  6,  7,  9, 10, 11, 12, 13, 14, 15, 16, 17,
+	 17, 17, 20, 21, 22, 23, 24, 25, 27, 28, 29, 30, 31, 31, 31, 31 }
+};
+
+static const u8 r8a77990_calib_table[2][SDHI_CALIB_TABLE_MAX] = {
+	{ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+	  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 },
+	{ 0,  0,  0,  1,  2,  3,  3,  4,  4,  4,  5,  5,  6,  8,  9, 10,
+	 11, 12, 13, 15, 16, 17, 17, 18, 18, 19, 20, 22, 24, 25, 26, 26 }
+};
+
+static const struct renesas_sdhi_quirks sdhi_quirks_4tap_nohs400 = {
+	.hs400_disabled = true,
+	.hs400_4taps = true,
+};
+
+static const struct renesas_sdhi_quirks sdhi_quirks_4tap = {
+	.hs400_4taps = true,
+	.hs400_bad_taps = BIT(2) | BIT(3) | BIT(6) | BIT(7),
+};
+
+static const struct renesas_sdhi_quirks sdhi_quirks_nohs400 = {
+	.hs400_disabled = true,
+};
+
+static const struct renesas_sdhi_quirks sdhi_quirks_bad_taps1357 = {
+	.hs400_bad_taps = BIT(1) | BIT(3) | BIT(5) | BIT(7),
+};
+
+static const struct renesas_sdhi_quirks sdhi_quirks_bad_taps2367 = {
+	.hs400_bad_taps = BIT(2) | BIT(3) | BIT(6) | BIT(7),
+};
+
+static const struct renesas_sdhi_quirks sdhi_quirks_r8a7796_es13 = {
+	.hs400_4taps = true,
+	.hs400_bad_taps = BIT(2) | BIT(3) | BIT(6) | BIT(7),
+	.hs400_calib_table = r8a7796_es13_calib_table,
+};
+
+static const struct renesas_sdhi_quirks sdhi_quirks_r8a77965 = {
+	.hs400_bad_taps = BIT(2) | BIT(3) | BIT(6) | BIT(7),
+	.hs400_calib_table = r8a77965_calib_table,
+};
+
+static const struct renesas_sdhi_quirks sdhi_quirks_r8a77990 = {
+	.hs400_calib_table = r8a77990_calib_table,
+};
+
+/*
+ * Note for r8a7796 / r8a774a1: we can't distinguish ES1.1 and 1.2 as of now.
+ * So, we want to treat them equally and only have a match for ES1.2 to enforce
+ * this if there ever will be a way to distinguish ES1.2.
+ */
+static const struct soc_device_attribute sdhi_quirks_match[]  = {
+	{ .soc_id = "r8a774a1", .revision = "ES1.[012]", .data = &sdhi_quirks_4tap_nohs400 },
+	{ .soc_id = "r8a7795", .revision = "ES1.*", .data = &sdhi_quirks_4tap_nohs400 },
+	{ .soc_id = "r8a7795", .revision = "ES2.0", .data = &sdhi_quirks_4tap },
+	{ .soc_id = "r8a7796", .revision = "ES1.[012]", .data = &sdhi_quirks_4tap_nohs400 },
+	{ .soc_id = "r8a7796", .revision = "ES1.*", .data = &sdhi_quirks_r8a7796_es13 },
+	{ /* Sentinel. */ },
+};
+
+static const struct renesas_sdhi_of_data_with_quirks of_r8a7795_compatible = {
+	.of_data = &of_data_rcar_gen3,
+	.quirks = &sdhi_quirks_bad_taps2367,
+};
+
+static const struct renesas_sdhi_of_data_with_quirks of_r8a77961_compatible = {
+	.of_data = &of_data_rcar_gen3,
+	.quirks = &sdhi_quirks_bad_taps1357,
+};
+
+static const struct renesas_sdhi_of_data_with_quirks of_r8a77965_compatible = {
+	.of_data = &of_data_rcar_gen3,
+	.quirks = &sdhi_quirks_r8a77965,
+};
+
+static const struct renesas_sdhi_of_data_with_quirks of_r8a77980_compatible = {
+	.of_data = &of_data_rcar_gen3,
+	.quirks = &sdhi_quirks_nohs400,
+};
+
+static const struct renesas_sdhi_of_data_with_quirks of_r8a77990_compatible = {
+	.of_data = &of_data_rcar_gen3,
+	.quirks = &sdhi_quirks_r8a77990,
+};
+
+static const struct renesas_sdhi_of_data_with_quirks of_rcar_gen3_compatible = {
+	.of_data = &of_data_rcar_gen3,
+};
+
+static const struct of_device_id renesas_sdhi_internal_dmac_of_match[] = {
+	{ .compatible = "renesas,sdhi-r7s9210", .data = &of_rza2_compatible, },
+	{ .compatible = "renesas,sdhi-mmc-r8a77470", .data = &of_rcar_gen3_compatible, },
+	{ .compatible = "renesas,sdhi-r8a7795", .data = &of_r8a7795_compatible, },
+	{ .compatible = "renesas,sdhi-r8a7796", .data = &of_rcar_gen3_compatible, },
+	{ .compatible = "renesas,sdhi-r8a77961", .data = &of_r8a77961_compatible, },
+	{ .compatible = "renesas,sdhi-r8a77965", .data = &of_r8a77965_compatible, },
+	{ .compatible = "renesas,sdhi-r8a77980", .data = &of_r8a77980_compatible, },
+	{ .compatible = "renesas,sdhi-r8a77990", .data = &of_r8a77990_compatible, },
+>>>>>>> upstream/android-13
 	{ .compatible = "renesas,rcar-gen3-sdhi", .data = &of_rcar_gen3_compatible, },
 	{},
 };
@@ -169,11 +354,59 @@ renesas_sdhi_internal_dmac_dataend_dma(struct tmio_mmc_host *host) {
 	tasklet_schedule(&priv->dma_priv.dma_complete);
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * renesas_sdhi_internal_dmac_map() will be called with two difference
+ * sg pointers in two mmc_data by .pre_req(), but tmio host can have a single
+ * sg_ptr only. So, renesas_sdhi_internal_dmac_{un}map() should use a sg
+ * pointer in a mmc_data instead of host->sg_ptr.
+ */
+static void
+renesas_sdhi_internal_dmac_unmap(struct tmio_mmc_host *host,
+				 struct mmc_data *data,
+				 enum renesas_sdhi_dma_cookie cookie)
+{
+	bool unmap = cookie == COOKIE_UNMAPPED ? (data->host_cookie != cookie) :
+						 (data->host_cookie == cookie);
+
+	if (unmap) {
+		dma_unmap_sg(&host->pdev->dev, data->sg, data->sg_len,
+			     mmc_get_dma_dir(data));
+		data->host_cookie = COOKIE_UNMAPPED;
+	}
+}
+
+static bool
+renesas_sdhi_internal_dmac_map(struct tmio_mmc_host *host,
+			       struct mmc_data *data,
+			       enum renesas_sdhi_dma_cookie cookie)
+{
+	if (data->host_cookie == COOKIE_PRE_MAPPED)
+		return true;
+
+	if (!dma_map_sg(&host->pdev->dev, data->sg, data->sg_len,
+			    mmc_get_dma_dir(data)))
+		return false;
+
+	data->host_cookie = cookie;
+
+	/* This DMAC cannot handle if buffer is not 128-bytes alignment */
+	if (!IS_ALIGNED(sg_dma_address(data->sg), 128)) {
+		renesas_sdhi_internal_dmac_unmap(host, data, cookie);
+		return false;
+	}
+
+	return true;
+}
+
+>>>>>>> upstream/android-13
 static void
 renesas_sdhi_internal_dmac_start_dma(struct tmio_mmc_host *host,
 				     struct mmc_data *data)
 {
 	struct scatterlist *sg = host->sg_ptr;
+<<<<<<< HEAD
 	u32 dtran_mode = DTRAN_MODE_BUS_WID_TH | DTRAN_MODE_ADDR_MODE;
 
 	if (!dma_map_sg(&host->pdev->dev, sg, host->sg_len,
@@ -184,6 +417,16 @@ renesas_sdhi_internal_dmac_start_dma(struct tmio_mmc_host *host,
 	if (!IS_ALIGNED(sg_dma_address(sg), 128))
 		goto force_pio_with_unmap;
 
+=======
+	u32 dtran_mode = DTRAN_MODE_BUS_WIDTH;
+
+	if (!test_bit(SDHI_INTERNAL_DMAC_ADDR_MODE_FIXED_ONLY, &global_flags))
+		dtran_mode |= DTRAN_MODE_ADDR_MODE;
+
+	if (!renesas_sdhi_internal_dmac_map(host, data, COOKIE_MAPPED))
+		goto force_pio;
+
+>>>>>>> upstream/android-13
 	if (data->flags & MMC_DATA_READ) {
 		dtran_mode |= DTRAN_MODE_CH_NUM_CH1;
 		if (test_bit(SDHI_INTERNAL_DMAC_ONE_RX_ONLY, &global_flags) &&
@@ -201,6 +444,7 @@ renesas_sdhi_internal_dmac_start_dma(struct tmio_mmc_host *host,
 	renesas_sdhi_internal_dmac_dm_write(host, DM_DTRAN_ADDR,
 					    sg_dma_address(sg));
 
+<<<<<<< HEAD
 	return;
 
 force_pio_with_unmap:
@@ -208,6 +452,16 @@ force_pio_with_unmap:
 
 force_pio:
 	host->force_pio = true;
+=======
+	host->dma_on = true;
+
+	return;
+
+force_pio_with_unmap:
+	renesas_sdhi_internal_dmac_unmap(host, data, COOKIE_UNMAPPED);
+
+force_pio:
+>>>>>>> upstream/android-13
 	renesas_sdhi_internal_dmac_enable_dma(host, false);
 }
 
@@ -226,6 +480,12 @@ static bool renesas_sdhi_internal_dmac_complete(struct tmio_mmc_host *host)
 {
 	enum dma_data_direction dir;
 
+<<<<<<< HEAD
+=======
+	if (!host->dma_on)
+		return false;
+
+>>>>>>> upstream/android-13
 	if (!host->data)
 		return false;
 
@@ -235,11 +495,20 @@ static bool renesas_sdhi_internal_dmac_complete(struct tmio_mmc_host *host)
 		dir = DMA_TO_DEVICE;
 
 	renesas_sdhi_internal_dmac_enable_dma(host, false);
+<<<<<<< HEAD
 	dma_unmap_sg(&host->pdev->dev, host->sg_ptr, host->sg_len, dir);
+=======
+	renesas_sdhi_internal_dmac_unmap(host, host->data, COOKIE_MAPPED);
+>>>>>>> upstream/android-13
 
 	if (dir == DMA_FROM_DEVICE)
 		clear_bit(SDHI_INTERNAL_DMAC_RX_IN_USE, &global_flags);
 
+<<<<<<< HEAD
+=======
+	host->dma_on = false;
+
+>>>>>>> upstream/android-13
 	return true;
 }
 
@@ -256,6 +525,41 @@ out:
 	spin_unlock_irq(&host->lock);
 }
 
+<<<<<<< HEAD
+=======
+static void renesas_sdhi_internal_dmac_end_dma(struct tmio_mmc_host *host)
+{
+	if (host->data)
+		renesas_sdhi_internal_dmac_complete(host);
+}
+
+static void renesas_sdhi_internal_dmac_post_req(struct mmc_host *mmc,
+						struct mmc_request *mrq,
+						int err)
+{
+	struct tmio_mmc_host *host = mmc_priv(mmc);
+	struct mmc_data *data = mrq->data;
+
+	if (!data)
+		return;
+
+	renesas_sdhi_internal_dmac_unmap(host, data, COOKIE_UNMAPPED);
+}
+
+static void renesas_sdhi_internal_dmac_pre_req(struct mmc_host *mmc,
+					       struct mmc_request *mrq)
+{
+	struct tmio_mmc_host *host = mmc_priv(mmc);
+	struct mmc_data *data = mrq->data;
+
+	if (!data)
+		return;
+
+	data->host_cookie = COOKIE_UNMAPPED;
+	renesas_sdhi_internal_dmac_map(host, data, COOKIE_PRE_MAPPED);
+}
+
+>>>>>>> upstream/android-13
 static void
 renesas_sdhi_internal_dmac_request_dma(struct tmio_mmc_host *host,
 				       struct tmio_mmc_data *pdata)
@@ -277,6 +581,13 @@ renesas_sdhi_internal_dmac_request_dma(struct tmio_mmc_host *host,
 	tasklet_init(&host->dma_issue,
 		     renesas_sdhi_internal_dmac_issue_tasklet_fn,
 		     (unsigned long)host);
+<<<<<<< HEAD
+=======
+
+	/* Add pre_req and post_req */
+	host->ops.pre_req = renesas_sdhi_internal_dmac_pre_req;
+	host->ops.post_req = renesas_sdhi_internal_dmac_post_req;
+>>>>>>> upstream/android-13
 }
 
 static void
@@ -293,18 +604,29 @@ static const struct tmio_mmc_dma_ops renesas_sdhi_internal_dmac_dma_ops = {
 	.release = renesas_sdhi_internal_dmac_release_dma,
 	.abort = renesas_sdhi_internal_dmac_abort_dma,
 	.dataend = renesas_sdhi_internal_dmac_dataend_dma,
+<<<<<<< HEAD
+=======
+	.end = renesas_sdhi_internal_dmac_end_dma,
+>>>>>>> upstream/android-13
 };
 
 /*
  * Whitelist of specific R-Car Gen3 SoC ES versions to use this DMAC
  * implementation as others may use a different implementation.
  */
+<<<<<<< HEAD
 static const struct soc_device_attribute gen3_soc_whitelist[] = {
 	/* specific ones */
+=======
+static const struct soc_device_attribute soc_dma_quirks[] = {
+	{ .soc_id = "r7s9210",
+	  .data = (void *)BIT(SDHI_INTERNAL_DMAC_ADDR_MODE_FIXED_ONLY) },
+>>>>>>> upstream/android-13
 	{ .soc_id = "r8a7795", .revision = "ES1.*",
 	  .data = (void *)BIT(SDHI_INTERNAL_DMAC_ONE_RX_ONLY) },
 	{ .soc_id = "r8a7796", .revision = "ES1.0",
 	  .data = (void *)BIT(SDHI_INTERNAL_DMAC_ONE_RX_ONLY) },
+<<<<<<< HEAD
 	/* generic ones */
 	{ .soc_id = "r8a774a1" },
 	{ .soc_id = "r8a7795" },
@@ -312,11 +634,14 @@ static const struct soc_device_attribute gen3_soc_whitelist[] = {
 	{ .soc_id = "r8a77965" },
 	{ .soc_id = "r8a77980" },
 	{ .soc_id = "r8a77995" },
+=======
+>>>>>>> upstream/android-13
 	{ /* sentinel */ }
 };
 
 static int renesas_sdhi_internal_dmac_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	const struct soc_device_attribute *soc = soc_device_match(gen3_soc_whitelist);
 	struct device *dev = &pdev->dev;
 
@@ -328,11 +653,33 @@ static int renesas_sdhi_internal_dmac_probe(struct platform_device *pdev)
 	dev->dma_parms = devm_kzalloc(dev, sizeof(*dev->dma_parms), GFP_KERNEL);
 	if (!dev->dma_parms)
 		return -ENOMEM;
+=======
+	const struct soc_device_attribute *attr;
+	const struct renesas_sdhi_of_data_with_quirks *of_data_quirks;
+	const struct renesas_sdhi_quirks *quirks;
+	struct device *dev = &pdev->dev;
+
+	of_data_quirks = of_device_get_match_data(&pdev->dev);
+	quirks = of_data_quirks->quirks;
+
+	attr = soc_device_match(soc_dma_quirks);
+	if (attr)
+		global_flags |= (unsigned long)attr->data;
+
+	attr = soc_device_match(sdhi_quirks_match);
+	if (attr)
+		quirks = attr->data;
+>>>>>>> upstream/android-13
 
 	/* value is max of SD_SECCNT. Confirmed by HW engineers */
 	dma_set_max_seg_size(dev, 0xffffffff);
 
+<<<<<<< HEAD
 	return renesas_sdhi_probe(pdev, &renesas_sdhi_internal_dmac_dma_ops);
+=======
+	return renesas_sdhi_probe(pdev, &renesas_sdhi_internal_dmac_dma_ops,
+				  of_data_quirks->of_data, quirks);
+>>>>>>> upstream/android-13
 }
 
 static const struct dev_pm_ops renesas_sdhi_internal_dmac_dev_pm_ops = {
@@ -346,6 +693,10 @@ static const struct dev_pm_ops renesas_sdhi_internal_dmac_dev_pm_ops = {
 static struct platform_driver renesas_internal_dmac_sdhi_driver = {
 	.driver		= {
 		.name	= "renesas_sdhi_internal_dmac",
+<<<<<<< HEAD
+=======
+		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
+>>>>>>> upstream/android-13
 		.pm	= &renesas_sdhi_internal_dmac_dev_pm_ops,
 		.of_match_table = renesas_sdhi_internal_dmac_of_match,
 	},

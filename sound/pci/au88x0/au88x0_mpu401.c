@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
  *  Routines for control of MPU-401 in UART mode
  *
  *   Modified for the Aureal Vortex based Soundcards
  *   by Manuel Jander (mjande@embedded.cl).
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -19,6 +24,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/time.h>
@@ -82,9 +89,15 @@ static int snd_vortex_midi(vortex_t *vortex)
 
 	/* Create MPU401 instance. */
 #ifdef VORTEX_MPU401_LEGACY
+<<<<<<< HEAD
 	if ((temp =
 	     snd_mpu401_uart_new(vortex->card, 0, MPU401_HW_MPU401, 0x330,
 				 MPU401_INFO_IRQ_HOOK, -1, &rmidi)) != 0) {
+=======
+	temp = snd_mpu401_uart_new(vortex->card, 0, MPU401_HW_MPU401, 0x330,
+				   MPU401_INFO_IRQ_HOOK, -1, &rmidi);
+	if (temp) {
+>>>>>>> upstream/android-13
 		hwwrite(vortex->mmio, VORTEX_CTRL,
 			(hwread(vortex->mmio, VORTEX_CTRL) &
 			 ~CTRL_MIDI_PORT) & ~CTRL_MIDI_EN);
@@ -92,10 +105,17 @@ static int snd_vortex_midi(vortex_t *vortex)
 	}
 #else
 	port = (unsigned long)(vortex->mmio + VORTEX_MIDI_DATA);
+<<<<<<< HEAD
 	if ((temp =
 	     snd_mpu401_uart_new(vortex->card, 0, MPU401_HW_AUREAL, port,
 				 MPU401_INFO_INTEGRATED | MPU401_INFO_MMIO |
 				 MPU401_INFO_IRQ_HOOK, -1, &rmidi)) != 0) {
+=======
+	temp = snd_mpu401_uart_new(vortex->card, 0, MPU401_HW_AUREAL, port,
+				   MPU401_INFO_INTEGRATED | MPU401_INFO_MMIO |
+				   MPU401_INFO_IRQ_HOOK, -1, &rmidi);
+	if (temp) {
+>>>>>>> upstream/android-13
 		hwwrite(vortex->mmio, VORTEX_CTRL,
 			(hwread(vortex->mmio, VORTEX_CTRL) &
 			 ~CTRL_MIDI_PORT) & ~CTRL_MIDI_EN);

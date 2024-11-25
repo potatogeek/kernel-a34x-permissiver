@@ -11,6 +11,10 @@
 
 #include <linux/compiler.h>
 #include <linux/module.h>
+<<<<<<< HEAD
+=======
+#include <linux/ethtool.h>
+>>>>>>> upstream/android-13
 #include <linux/errno.h>
 #include <linux/kernel.h>
 #include <linux/major.h>
@@ -39,7 +43,13 @@
 #include <linux/isdn/capiutil.h>
 #include <linux/isdn/capicmd.h>
 
+<<<<<<< HEAD
 MODULE_DESCRIPTION("CAPI4Linux: Userspace /dev/capi20 interface");
+=======
+#include "kcapi.h"
+
+MODULE_DESCRIPTION("CAPI4Linux: kernel CAPI layer and /dev/capi20 interface");
+>>>>>>> upstream/android-13
 MODULE_AUTHOR("Carsten Paeth");
 MODULE_LICENSE("GPL");
 
@@ -950,6 +960,37 @@ capi_unlocked_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_COMPAT
+static long
+capi_compat_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+{
+	int ret;
+
+	if (cmd == CAPI_MANUFACTURER_CMD) {
+		struct {
+			compat_ulong_t cmd;
+			compat_uptr_t data;
+		} mcmd32;
+
+		if (!capable(CAP_SYS_ADMIN))
+			return -EPERM;
+		if (copy_from_user(&mcmd32, compat_ptr(arg), sizeof(mcmd32)))
+			return -EFAULT;
+
+		mutex_lock(&capi_mutex);
+		ret = capi20_manufacturer(mcmd32.cmd, compat_ptr(mcmd32.data));
+		mutex_unlock(&capi_mutex);
+
+		return ret;
+	}
+
+	return capi_unlocked_ioctl(file, cmd, (unsigned long)compat_ptr(arg));
+}
+#endif
+
+>>>>>>> upstream/android-13
 static int capi_open(struct inode *inode, struct file *file)
 {
 	struct capidev *cdev;
@@ -968,7 +1009,11 @@ static int capi_open(struct inode *inode, struct file *file)
 	list_add_tail(&cdev->list, &capidev_list);
 	mutex_unlock(&capidev_list_lock);
 
+<<<<<<< HEAD
 	return nonseekable_open(inode, file);
+=======
+	return stream_open(inode, file);
+>>>>>>> upstream/android-13
 }
 
 static int capi_release(struct inode *inode, struct file *file)
@@ -996,6 +1041,12 @@ static const struct file_operations capi_fops =
 	.write		= capi_write,
 	.poll		= capi_poll,
 	.unlocked_ioctl	= capi_unlocked_ioctl,
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_COMPAT
+	.compat_ioctl	= capi_compat_ioctl,
+#endif
+>>>>>>> upstream/android-13
 	.open		= capi_open,
 	.release	= capi_release,
 };
@@ -1124,8 +1175,11 @@ static void capinc_tty_flush_chars(struct tty_struct *tty)
 	struct capiminor *mp = tty->driver_data;
 	struct sk_buff *skb;
 
+<<<<<<< HEAD
 	pr_debug("capinc_tty_flush_chars\n");
 
+=======
+>>>>>>> upstream/android-13
 	spin_lock_bh(&mp->outlock);
 	skb = mp->outskb;
 	if (skb) {
@@ -1141,6 +1195,7 @@ static void capinc_tty_flush_chars(struct tty_struct *tty)
 	handle_minor_recv(mp);
 }
 
+<<<<<<< HEAD
 static int capinc_tty_write_room(struct tty_struct *tty)
 {
 	struct capiminor *mp = tty->driver_data;
@@ -1153,6 +1208,20 @@ static int capinc_tty_write_room(struct tty_struct *tty)
 }
 
 static int capinc_tty_chars_in_buffer(struct tty_struct *tty)
+=======
+static unsigned int capinc_tty_write_room(struct tty_struct *tty)
+{
+	struct capiminor *mp = tty->driver_data;
+	unsigned int room;
+
+	room = CAPINC_MAX_SENDQUEUE-skb_queue_len(&mp->outqueue);
+	room *= CAPI_MAX_BLKSIZE;
+	pr_debug("capinc_tty_write_room = %u\n", room);
+	return room;
+}
+
+static unsigned int capinc_tty_chars_in_buffer(struct tty_struct *tty)
+>>>>>>> upstream/android-13
 {
 	struct capiminor *mp = tty->driver_data;
 
@@ -1163,6 +1232,7 @@ static int capinc_tty_chars_in_buffer(struct tty_struct *tty)
 	return mp->outbytes;
 }
 
+<<<<<<< HEAD
 static int capinc_tty_ioctl(struct tty_struct *tty,
 			    unsigned int cmd, unsigned long arg)
 {
@@ -1178,6 +1248,11 @@ static void capinc_tty_throttle(struct tty_struct *tty)
 {
 	struct capiminor *mp = tty->driver_data;
 	pr_debug("capinc_tty_throttle\n");
+=======
+static void capinc_tty_throttle(struct tty_struct *tty)
+{
+	struct capiminor *mp = tty->driver_data;
+>>>>>>> upstream/android-13
 	mp->ttyinstop = 1;
 }
 
@@ -1185,7 +1260,10 @@ static void capinc_tty_unthrottle(struct tty_struct *tty)
 {
 	struct capiminor *mp = tty->driver_data;
 
+<<<<<<< HEAD
 	pr_debug("capinc_tty_unthrottle\n");
+=======
+>>>>>>> upstream/android-13
 	mp->ttyinstop = 0;
 	handle_minor_recv(mp);
 }
@@ -1194,7 +1272,10 @@ static void capinc_tty_stop(struct tty_struct *tty)
 {
 	struct capiminor *mp = tty->driver_data;
 
+<<<<<<< HEAD
 	pr_debug("capinc_tty_stop\n");
+=======
+>>>>>>> upstream/android-13
 	mp->ttyoutstop = 1;
 }
 
@@ -1202,7 +1283,10 @@ static void capinc_tty_start(struct tty_struct *tty)
 {
 	struct capiminor *mp = tty->driver_data;
 
+<<<<<<< HEAD
 	pr_debug("capinc_tty_start\n");
+=======
+>>>>>>> upstream/android-13
 	mp->ttyoutstop = 0;
 	handle_minor_send(mp);
 }
@@ -1211,6 +1295,7 @@ static void capinc_tty_hangup(struct tty_struct *tty)
 {
 	struct capiminor *mp = tty->driver_data;
 
+<<<<<<< HEAD
 	pr_debug("capinc_tty_hangup\n");
 	tty_port_hangup(&mp->port);
 }
@@ -1231,6 +1316,11 @@ static void capinc_tty_set_ldisc(struct tty_struct *tty)
 	pr_debug("capinc_tty_set_ldisc\n");
 }
 
+=======
+	tty_port_hangup(&mp->port);
+}
+
+>>>>>>> upstream/android-13
 static void capinc_tty_send_xchar(struct tty_struct *tty, char ch)
 {
 	pr_debug("capinc_tty_send_xchar(%d)\n", ch);
@@ -1244,16 +1334,22 @@ static const struct tty_operations capinc_ops = {
 	.flush_chars = capinc_tty_flush_chars,
 	.write_room = capinc_tty_write_room,
 	.chars_in_buffer = capinc_tty_chars_in_buffer,
+<<<<<<< HEAD
 	.ioctl = capinc_tty_ioctl,
 	.set_termios = capinc_tty_set_termios,
+=======
+>>>>>>> upstream/android-13
 	.throttle = capinc_tty_throttle,
 	.unthrottle = capinc_tty_unthrottle,
 	.stop = capinc_tty_stop,
 	.start = capinc_tty_start,
 	.hangup = capinc_tty_hangup,
+<<<<<<< HEAD
 	.break_ctl = capinc_tty_break_ctl,
 	.flush_buffer = capinc_tty_flush_buffer,
 	.set_ldisc = capinc_tty_set_ldisc,
+=======
+>>>>>>> upstream/android-13
 	.send_xchar = capinc_tty_send_xchar,
 	.install = capinc_tty_install,
 	.cleanup = capinc_tty_cleanup,
@@ -1274,10 +1370,18 @@ static int __init capinc_tty_init(void)
 	if (!capiminors)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	drv = alloc_tty_driver(capi_ttyminors);
 	if (!drv) {
 		kfree(capiminors);
 		return -ENOMEM;
+=======
+	drv = tty_alloc_driver(capi_ttyminors, TTY_DRIVER_REAL_RAW |
+			TTY_DRIVER_RESET_TERMIOS | TTY_DRIVER_DYNAMIC_DEV);
+	if (IS_ERR(drv)) {
+		kfree(capiminors);
+		return PTR_ERR(drv);
+>>>>>>> upstream/android-13
 	}
 	drv->driver_name = "capi_nc";
 	drv->name = "capi!";
@@ -1290,14 +1394,21 @@ static int __init capinc_tty_init(void)
 	drv->init_termios.c_oflag = OPOST | ONLCR;
 	drv->init_termios.c_cflag = B9600 | CS8 | CREAD | HUPCL | CLOCAL;
 	drv->init_termios.c_lflag = 0;
+<<<<<<< HEAD
 	drv->flags =
 		TTY_DRIVER_REAL_RAW | TTY_DRIVER_RESET_TERMIOS |
 		TTY_DRIVER_DYNAMIC_DEV;
+=======
+>>>>>>> upstream/android-13
 	tty_set_operations(drv, &capinc_ops);
 
 	err = tty_register_driver(drv);
 	if (err) {
+<<<<<<< HEAD
 		put_tty_driver(drv);
+=======
+		tty_driver_kref_put(drv);
+>>>>>>> upstream/android-13
 		kfree(capiminors);
 		printk(KERN_ERR "Couldn't register capi_nc driver\n");
 		return err;
@@ -1309,7 +1420,11 @@ static int __init capinc_tty_init(void)
 static void __exit capinc_tty_exit(void)
 {
 	tty_unregister_driver(capinc_tty_driver);
+<<<<<<< HEAD
 	put_tty_driver(capinc_tty_driver);
+=======
+	tty_driver_kref_put(capinc_tty_driver);
+>>>>>>> upstream/android-13
 	kfree(capiminors);
 }
 
@@ -1388,15 +1503,31 @@ static int __init capi_init(void)
 {
 	const char *compileinfo;
 	int major_ret;
+<<<<<<< HEAD
+=======
+	int ret;
+
+	ret = kcapi_init();
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	major_ret = register_chrdev(capi_major, "capi20", &capi_fops);
 	if (major_ret < 0) {
 		printk(KERN_ERR "capi20: unable to get major %d\n", capi_major);
+<<<<<<< HEAD
+=======
+		kcapi_exit();
+>>>>>>> upstream/android-13
 		return major_ret;
 	}
 	capi_class = class_create(THIS_MODULE, "capi");
 	if (IS_ERR(capi_class)) {
 		unregister_chrdev(capi_major, "capi20");
+<<<<<<< HEAD
+=======
+		kcapi_exit();
+>>>>>>> upstream/android-13
 		return PTR_ERR(capi_class);
 	}
 
@@ -1406,6 +1537,10 @@ static int __init capi_init(void)
 		device_destroy(capi_class, MKDEV(capi_major, 0));
 		class_destroy(capi_class);
 		unregister_chrdev(capi_major, "capi20");
+<<<<<<< HEAD
+=======
+		kcapi_exit();
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 	}
 
@@ -1431,6 +1566,11 @@ static void __exit capi_exit(void)
 	unregister_chrdev(capi_major, "capi20");
 
 	capinc_tty_exit();
+<<<<<<< HEAD
+=======
+
+	kcapi_exit();
+>>>>>>> upstream/android-13
 }
 
 module_init(capi_init);

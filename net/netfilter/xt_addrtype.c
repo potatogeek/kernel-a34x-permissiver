@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  iptables module to match inet_addr_type() of an ip.
  *
  *  Copyright (c) 2004 Patrick McHardy <kaber@trash.net>
  *  (C) 2007 Laszlo Attila Toth <panther@balabit.hu>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 #include <linux/kernel.h>
@@ -36,7 +43,10 @@ MODULE_ALIAS("ip6t_addrtype");
 static u32 match_lookup_rt6(struct net *net, const struct net_device *dev,
 			    const struct in6_addr *addr, u16 mask)
 {
+<<<<<<< HEAD
 	const struct nf_ipv6_ops *v6ops;
+=======
+>>>>>>> upstream/android-13
 	struct flowi6 flow;
 	struct rt6_info *rt;
 	u32 ret = 0;
@@ -47,6 +57,7 @@ static u32 match_lookup_rt6(struct net *net, const struct net_device *dev,
 	if (dev)
 		flow.flowi6_oif = dev->ifindex;
 
+<<<<<<< HEAD
 	v6ops = nf_get_ipv6_ops();
 	if (v6ops) {
 		if (dev && (mask & XT_ADDRTYPE_LOCAL)) {
@@ -59,6 +70,15 @@ static u32 match_lookup_rt6(struct net *net, const struct net_device *dev,
 		route_err = 1;
 	}
 
+=======
+	if (dev && (mask & XT_ADDRTYPE_LOCAL)) {
+		if (nf_ipv6_chk_addr(net, addr, dev, true))
+			ret = XT_ADDRTYPE_LOCAL;
+	}
+
+	route_err = nf_ip6_route(net, (struct dst_entry **)&rt,
+				 flowi6_to_flowi(&flow), false);
+>>>>>>> upstream/android-13
 	if (route_err)
 		return XT_ADDRTYPE_UNREACHABLE;
 

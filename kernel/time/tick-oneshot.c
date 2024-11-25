@@ -1,15 +1,23 @@
+<<<<<<< HEAD
 /*
  * linux/kernel/time/tick-oneshot.c
  *
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+>>>>>>> upstream/android-13
  * This file contains functions which manage high resolution tick
  * related events.
  *
  * Copyright(C) 2005-2006, Thomas Gleixner <tglx@linutronix.de>
  * Copyright(C) 2005-2007, Red Hat, Inc., Ingo Molnar
  * Copyright(C) 2006-2007, Timesys Corp., Thomas Gleixner
+<<<<<<< HEAD
  *
  * This code is licenced under the GPL version 2. For details see
  * kernel-base/COPYING.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/cpu.h>
 #include <linux/err.h>
@@ -49,7 +57,11 @@ int tick_program_event(ktime_t expires, int force)
 }
 
 /**
+<<<<<<< HEAD
  * tick_resume_onshot - resume oneshot mode
+=======
+ * tick_resume_oneshot - resume oneshot mode
+>>>>>>> upstream/android-13
  */
 void tick_resume_oneshot(void)
 {

@@ -72,6 +72,7 @@ extern int mpc837x_usb_cfg(void);
 extern int mpc834x_usb_cfg(void);
 extern int mpc831x_usb_cfg(void);
 extern void mpc83xx_ipic_init_IRQ(void);
+<<<<<<< HEAD
 #ifdef CONFIG_QUICC_ENGINE
 extern void mpc83xx_qe_init_IRQ(void);
 extern void mpc83xx_ipic_and_qe_init_IRQ(void);
@@ -79,11 +80,17 @@ extern void mpc83xx_ipic_and_qe_init_IRQ(void);
 static inline void __init mpc83xx_qe_init_IRQ(void) {}
 #define mpc83xx_ipic_and_qe_init_IRQ mpc83xx_ipic_init_IRQ
 #endif /* CONFIG_QUICC_ENGINE */
+=======
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PCI
 extern void mpc83xx_setup_pci(void);
 #else
+<<<<<<< HEAD
 #define mpc83xx_setup_pci()	do {} while (0)
+=======
+#define mpc83xx_setup_pci	NULL
+>>>>>>> upstream/android-13
 #endif
 
 extern int mpc83xx_declare_of_platform_devices(void);

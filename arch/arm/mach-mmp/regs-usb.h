@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2011 Marvell International Ltd. All rights reserved.
  *
@@ -5,6 +6,11 @@
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (C) 2011 Marvell International Ltd. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __ASM_ARCH_REGS_USB_H
@@ -125,6 +131,7 @@
 
 #define UTMI_OTG_ADDON_OTG_ON			(1 << 0)
 
+<<<<<<< HEAD
 /* For MMP3 USB Phy */
 #define USB2_PLL_REG0		0x4
 #define USB2_PLL_REG1		0x8
@@ -219,6 +226,8 @@
 /* USB2_OTG_REG0 */
 #define USB2_OTG_PU_OTG_SHIFT_MMP3		3
 
+=======
+>>>>>>> upstream/android-13
 /* fsic registers */
 #define FSIC_MISC			0x4
 #define FSIC_INT			0x28

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *
  * Procedures for interfacing to the RTAS on CHRP machines.
  *
  * Peter Bergner, IBM	March 2001.
  * Copyright (C) 2001 IBM.
+<<<<<<< HEAD
  *
  *      This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
@@ -12,6 +17,11 @@
  */
 
 #include <stdarg.h>
+=======
+ */
+
+#include <linux/stdarg.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/types.h>
 #include <linux/spinlock.h>
@@ -20,6 +30,10 @@
 #include <linux/capability.h>
 #include <linux/delay.h>
 #include <linux/cpu.h>
+<<<<<<< HEAD
+=======
+#include <linux/sched.h>
+>>>>>>> upstream/android-13
 #include <linux/smp.h>
 #include <linux/completion.h>
 #include <linux/cpumask.h>
@@ -28,6 +42,10 @@
 #include <linux/reboot.h>
 #include <linux/syscalls.h>
 
+<<<<<<< HEAD
+=======
+#include <asm/interrupt.h>
+>>>>>>> upstream/android-13
 #include <asm/prom.h>
 #include <asm/rtas.h>
 #include <asm/hvcall.h>
@@ -44,10 +62,24 @@
 #include <asm/time.h>
 #include <asm/mmu.h>
 #include <asm/topology.h>
+<<<<<<< HEAD
+=======
+#include <asm/paca.h>
+>>>>>>> upstream/android-13
 
 /* This is here deliberately so it's only used in this file */
 void enter_rtas(unsigned long);
 
+<<<<<<< HEAD
+=======
+static inline void do_enter_rtas(unsigned long args)
+{
+	enter_rtas(args);
+
+	srr_regs_clobbered(); /* rtas uses SRRs, invalidate */
+}
+
+>>>>>>> upstream/android-13
 struct rtas_t rtas = {
 	.lock = __ARCH_SPIN_LOCK_UNLOCKED
 };
@@ -386,7 +418,11 @@ static char *__fetch_rtas_last_error(char *altbuf)
 	save_args = rtas.args;
 	rtas.args = err_args;
 
+<<<<<<< HEAD
 	enter_rtas(__pa(&rtas.args));
+=======
+	do_enter_rtas(__pa(&rtas.args));
+>>>>>>> upstream/android-13
 
 	err_args = rtas.args;
 	rtas.args = save_args;
@@ -432,7 +468,11 @@ va_rtas_call_unlocked(struct rtas_args *args, int token, int nargs, int nret,
 	for (i = 0; i < nret; ++i)
 		args->rets[i] = 0;
 
+<<<<<<< HEAD
 	enter_rtas(__pa(args));
+=======
+	do_enter_rtas(__pa(args));
+>>>>>>> upstream/android-13
 }
 
 void rtas_call_unlocked(struct rtas_args *args, int token, int nargs, int nret, ...)
@@ -686,6 +726,66 @@ int rtas_set_indicator_fast(int indicator, int index, int new_value)
 	return rc;
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * rtas_ibm_suspend_me() - Call ibm,suspend-me to suspend the LPAR.
+ *
+ * @fw_status: RTAS call status will be placed here if not NULL.
+ *
+ * rtas_ibm_suspend_me() should be called only on a CPU which has
+ * received H_CONTINUE from the H_JOIN hcall. All other active CPUs
+ * should be waiting to return from H_JOIN.
+ *
+ * rtas_ibm_suspend_me() may suspend execution of the OS
+ * indefinitely. Callers should take appropriate measures upon return, such as
+ * resetting watchdog facilities.
+ *
+ * Callers may choose to retry this call if @fw_status is
+ * %RTAS_THREADS_ACTIVE.
+ *
+ * Return:
+ * 0          - The partition has resumed from suspend, possibly after
+ *              migration to a different host.
+ * -ECANCELED - The operation was aborted.
+ * -EAGAIN    - There were other CPUs not in H_JOIN at the time of the call.
+ * -EBUSY     - Some other condition prevented the suspend from succeeding.
+ * -EIO       - Hardware/platform error.
+ */
+int rtas_ibm_suspend_me(int *fw_status)
+{
+	int fwrc;
+	int ret;
+
+	fwrc = rtas_call(rtas_token("ibm,suspend-me"), 0, 1, NULL);
+
+	switch (fwrc) {
+	case 0:
+		ret = 0;
+		break;
+	case RTAS_SUSPEND_ABORTED:
+		ret = -ECANCELED;
+		break;
+	case RTAS_THREADS_ACTIVE:
+		ret = -EAGAIN;
+		break;
+	case RTAS_NOT_SUSPENDABLE:
+	case RTAS_OUTSTANDING_COPROC:
+		ret = -EBUSY;
+		break;
+	case -1:
+	default:
+		ret = -EIO;
+		break;
+	}
+
+	if (fw_status)
+		*fw_status = fwrc;
+
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 void __noreturn rtas_restart(char *cmd)
 {
 	if (rtas_flash_term_hook)
@@ -743,6 +843,7 @@ void rtas_os_term(char *str)
 		printk(KERN_EMERG "ibm,os-term call failed %d\n", status);
 }
 
+<<<<<<< HEAD
 static int ibm_suspend_me_token = RTAS_UNKNOWN_SERVICE;
 #ifdef CONFIG_PPC_PSERIES
 static int __rtas_suspend_last_cpu(struct rtas_suspend_me_data *data, int wake_when_done)
@@ -1019,6 +1120,90 @@ int rtas_ibm_suspend_me(u64 handle)
 	return -ENOSYS;
 }
 #endif
+=======
+/**
+ * rtas_activate_firmware() - Activate a new version of firmware.
+ *
+ * Activate a new version of partition firmware. The OS must call this
+ * after resuming from a partition hibernation or migration in order
+ * to maintain the ability to perform live firmware updates. It's not
+ * catastrophic for this method to be absent or to fail; just log the
+ * condition in that case.
+ *
+ * Context: This function may sleep.
+ */
+void rtas_activate_firmware(void)
+{
+	int token;
+	int fwrc;
+
+	token = rtas_token("ibm,activate-firmware");
+	if (token == RTAS_UNKNOWN_SERVICE) {
+		pr_notice("ibm,activate-firmware method unavailable\n");
+		return;
+	}
+
+	do {
+		fwrc = rtas_call(token, 0, 1, NULL);
+	} while (rtas_busy_delay(fwrc));
+
+	if (fwrc)
+		pr_err("ibm,activate-firmware failed (%i)\n", fwrc);
+}
+
+#ifdef CONFIG_PPC_PSERIES
+/**
+ * rtas_call_reentrant() - Used for reentrant rtas calls
+ * @token:	Token for desired reentrant RTAS call
+ * @nargs:	Number of Input Parameters
+ * @nret:	Number of Output Parameters
+ * @outputs:	Array of outputs
+ * @...:	Inputs for desired RTAS call
+ *
+ * According to LoPAR documentation, only "ibm,int-on", "ibm,int-off",
+ * "ibm,get-xive" and "ibm,set-xive" are currently reentrant.
+ * Reentrant calls need their own rtas_args buffer, so not using rtas.args, but
+ * PACA one instead.
+ *
+ * Return:	-1 on error,
+ *		First output value of RTAS call if (nret > 0),
+ *		0 otherwise,
+ */
+int rtas_call_reentrant(int token, int nargs, int nret, int *outputs, ...)
+{
+	va_list list;
+	struct rtas_args *args;
+	unsigned long flags;
+	int i, ret = 0;
+
+	if (!rtas.entry || token == RTAS_UNKNOWN_SERVICE)
+		return -1;
+
+	local_irq_save(flags);
+	preempt_disable();
+
+	/* We use the per-cpu (PACA) rtas args buffer */
+	args = local_paca->rtas_args_reentrant;
+
+	va_start(list, outputs);
+	va_rtas_call_unlocked(args, token, nargs, nret, list);
+	va_end(list);
+
+	if (nret > 1 && outputs)
+		for (i = 0; i < nret - 1; ++i)
+			outputs[i] = be32_to_cpu(args->rets[i + 1]);
+
+	if (nret > 0)
+		ret = be32_to_cpu(args->rets[0]);
+
+	local_irq_restore(flags);
+	preempt_enable();
+
+	return ret;
+}
+
+#endif /* CONFIG_PPC_PSERIES */
+>>>>>>> upstream/android-13
 
 /**
  * Find a specific pseries error log in an RTAS extended event log.
@@ -1115,19 +1300,34 @@ static struct rtas_filter rtas_filters[] __ro_after_init = {
 	{ "set-time-for-power-on", -1, -1, -1, -1, -1 },
 	{ "ibm,set-system-parameter", -1, 1, -1, -1, -1 },
 	{ "set-time-of-day", -1, -1, -1, -1, -1 },
+<<<<<<< HEAD
 	{ "ibm,suspend-me", -1, -1, -1, -1, -1 },
 	{ "ibm,update-nodes", -1, 0, -1, -1, -1, 4096 },
 	{ "ibm,update-properties", -1, 0, -1, -1, -1, 4096 },
+=======
+#ifdef CONFIG_CPU_BIG_ENDIAN
+	{ "ibm,suspend-me", -1, -1, -1, -1, -1 },
+	{ "ibm,update-nodes", -1, 0, -1, -1, -1, 4096 },
+	{ "ibm,update-properties", -1, 0, -1, -1, -1, 4096 },
+#endif
+>>>>>>> upstream/android-13
 	{ "ibm,physical-attestation", -1, 0, 1, -1, -1 },
 };
 
 static bool in_rmo_buf(u32 base, u32 end)
 {
 	return base >= rtas_rmo_buf &&
+<<<<<<< HEAD
 		base < (rtas_rmo_buf + RTAS_RMOBUF_MAX) &&
 		base <= end &&
 		end >= rtas_rmo_buf &&
 		end < (rtas_rmo_buf + RTAS_RMOBUF_MAX);
+=======
+		base < (rtas_rmo_buf + RTAS_USER_REGION_SIZE) &&
+		base <= end &&
+		end >= rtas_rmo_buf &&
+		end < (rtas_rmo_buf + RTAS_USER_REGION_SIZE);
+>>>>>>> upstream/android-13
 }
 
 static bool block_rtas_call(int token, int nargs,
@@ -1188,6 +1388,17 @@ err:
 	return true;
 }
 
+<<<<<<< HEAD
+=======
+static void __init rtas_syscall_filter_init(void)
+{
+	unsigned int i;
+
+	for (i = 0; i < ARRAY_SIZE(rtas_filters); i++)
+		rtas_filters[i].token = rtas_token(rtas_filters[i].name);
+}
+
+>>>>>>> upstream/android-13
 #else
 
 static bool block_rtas_call(int token, int nargs,
@@ -1196,6 +1407,13 @@ static bool block_rtas_call(int token, int nargs,
 	return false;
 }
 
+<<<<<<< HEAD
+=======
+static void __init rtas_syscall_filter_init(void)
+{
+}
+
+>>>>>>> upstream/android-13
 #endif /* CONFIG_PPC_RTAS_FILTER */
 
 /* We assume to be passed big endian arguments */
@@ -1239,7 +1457,11 @@ SYSCALL_DEFINE1(rtas, struct rtas_args __user *, uargs)
 		return -EINVAL;
 
 	/* Need to handle ibm,suspend_me call specially */
+<<<<<<< HEAD
 	if (token == ibm_suspend_me_token) {
+=======
+	if (token == rtas_token("ibm,suspend-me")) {
+>>>>>>> upstream/android-13
 
 		/*
 		 * rtas_ibm_suspend_me assumes the streamid handle is in cpu
@@ -1248,7 +1470,11 @@ SYSCALL_DEFINE1(rtas, struct rtas_args __user *, uargs)
 		int rc = 0;
 		u64 handle = ((u64)be32_to_cpu(args.args[0]) << 32)
 		              | be32_to_cpu(args.args[1]);
+<<<<<<< HEAD
 		rc = rtas_ibm_suspend_me(handle);
+=======
+		rc = rtas_syscall_dispatch_ibm_suspend_me(handle);
+>>>>>>> upstream/android-13
 		if (rc == -EAGAIN)
 			args.rets[0] = cpu_to_be32(RTAS_NOT_SUSPENDABLE);
 		else if (rc == -EIO)
@@ -1263,7 +1489,11 @@ SYSCALL_DEFINE1(rtas, struct rtas_args __user *, uargs)
 	flags = lock_rtas();
 
 	rtas.args = args;
+<<<<<<< HEAD
 	enter_rtas(__pa(&rtas.args));
+=======
+	do_enter_rtas(__pa(&rtas.args));
+>>>>>>> upstream/android-13
 	args = rtas.args;
 
 	/* A -1 return code indicates that the last command couldn't
@@ -1299,9 +1529,12 @@ void __init rtas_initialize(void)
 	unsigned long rtas_region = RTAS_INSTANTIATE_MAX;
 	u32 base, size, entry;
 	int no_base, no_size, no_entry;
+<<<<<<< HEAD
 #ifdef CONFIG_PPC_RTAS_FILTER
 	int i;
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	/* Get RTAS dev node and fill up our "rtas" structure with infos
 	 * about it.
@@ -1327,22 +1560,37 @@ void __init rtas_initialize(void)
 	 * the stop-self token if any
 	 */
 #ifdef CONFIG_PPC64
+<<<<<<< HEAD
 	if (firmware_has_feature(FW_FEATURE_LPAR)) {
 		rtas_region = min(ppc64_rma_size, RTAS_INSTANTIATE_MAX);
 		ibm_suspend_me_token = rtas_token("ibm,suspend-me");
 	}
 #endif
 	rtas_rmo_buf = memblock_alloc_base(RTAS_RMOBUF_MAX, PAGE_SIZE, rtas_region);
+=======
+	if (firmware_has_feature(FW_FEATURE_LPAR))
+		rtas_region = min(ppc64_rma_size, RTAS_INSTANTIATE_MAX);
+#endif
+	rtas_rmo_buf = memblock_phys_alloc_range(RTAS_USER_REGION_SIZE, PAGE_SIZE,
+						 0, rtas_region);
+	if (!rtas_rmo_buf)
+		panic("ERROR: RTAS: Failed to allocate %lx bytes below %pa\n",
+		      PAGE_SIZE, &rtas_region);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_RTAS_ERROR_LOGGING
 	rtas_last_error_token = rtas_token("rtas-last-error");
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_PPC_RTAS_FILTER
 	for (i = 0; i < ARRAY_SIZE(rtas_filters); i++) {
 		rtas_filters[i].token = rtas_token(rtas_filters[i].name);
 	}
 #endif
+=======
+	rtas_syscall_filter_init();
+>>>>>>> upstream/android-13
 }
 
 int __init early_init_dt_scan_rtas(unsigned long node,
@@ -1357,6 +1605,15 @@ int __init early_init_dt_scan_rtas(unsigned long node,
 	entryp = of_get_flat_dt_prop(node, "linux,rtas-entry", NULL);
 	sizep  = of_get_flat_dt_prop(node, "rtas-size", NULL);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PPC64
+	/* need this feature to decide the crashkernel offset */
+	if (of_get_flat_dt_prop(node, "ibm,hypertas-functions", NULL))
+		powerpc_firmware_features |= FW_FEATURE_LPAR;
+#endif
+
+>>>>>>> upstream/android-13
 	if (basep && entryp && sizep) {
 		rtas.base = *basep;
 		rtas.entry = *entryp;

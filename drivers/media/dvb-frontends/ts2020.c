@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
     Montage Technology TS2020 - Silicon Tuner driver
     Copyright (C) 2009-2012 Konstantin Dimitrov <kosio.dimitrov@gmail.com>
 
     Copyright (C) 2009-2012 TurboSight.com
 
+<<<<<<< HEAD
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -17,6 +22,8 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <media/dvb_frontend.h>
@@ -180,6 +187,12 @@ static int ts2020_set_tuner_rf(struct dvb_frontend *fe)
 	unsigned int utmp;
 
 	ret = regmap_read(dev->regmap, 0x3d, &utmp);
+<<<<<<< HEAD
+=======
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	utmp &= 0x7f;
 	if (utmp < 0x16)
 		utmp = 0xa1;
@@ -525,11 +538,19 @@ struct dvb_frontend *ts2020_attach(struct dvb_frontend *fe,
 	pdata.attach_in_use = true;
 
 	memset(&board_info, 0, sizeof(board_info));
+<<<<<<< HEAD
 	strlcpy(board_info.type, "ts2020", I2C_NAME_SIZE);
 	board_info.addr = config->tuner_address;
 	board_info.platform_data = &pdata;
 	client = i2c_new_device(i2c, &board_info);
 	if (!client || !client->dev.driver)
+=======
+	strscpy(board_info.type, "ts2020", I2C_NAME_SIZE);
+	board_info.addr = config->tuner_address;
+	board_info.platform_data = &pdata;
+	client = i2c_new_client_device(i2c, &board_info);
+	if (!i2c_client_has_driver(client))
+>>>>>>> upstream/android-13
 		return NULL;
 
 	return fe;
@@ -578,11 +599,19 @@ static int ts2020_probe(struct i2c_client *client,
 
 	/* create regmap */
 	mutex_init(&dev->regmap_mutex);
+<<<<<<< HEAD
 	dev->regmap_config.reg_bits = 8,
 	dev->regmap_config.val_bits = 8,
 	dev->regmap_config.lock = ts2020_regmap_lock,
 	dev->regmap_config.unlock = ts2020_regmap_unlock,
 	dev->regmap_config.lock_arg = dev,
+=======
+	dev->regmap_config.reg_bits = 8;
+	dev->regmap_config.val_bits = 8;
+	dev->regmap_config.lock = ts2020_regmap_lock;
+	dev->regmap_config.unlock = ts2020_regmap_unlock;
+	dev->regmap_config.lock_arg = dev;
+>>>>>>> upstream/android-13
 	dev->regmap = regmap_init_i2c(client, &dev->regmap_config);
 	if (IS_ERR(dev->regmap)) {
 		ret = PTR_ERR(dev->regmap);

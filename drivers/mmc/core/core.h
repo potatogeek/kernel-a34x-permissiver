@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  linux/drivers/mmc/core/core.h
  *
  *  Copyright (C) 2003 Russell King, All Rights Reserved.
  *  Copyright 2007 Pierre Ossman
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _MMC_CORE_CORE_H
 #define _MMC_CORE_CORE_H
@@ -14,7 +21,15 @@
 #include <linux/delay.h>
 #include <linux/sched.h>
 
+<<<<<<< HEAD
 #include "mmc_crypto.h"
+=======
+#ifdef CONFIG_MMC_SUPPORT_STLOG
+#include <linux/fslog.h>
+#else
+#define ST_LOG(fmt, ...)
+#endif
+>>>>>>> upstream/android-13
 
 struct mmc_host;
 struct mmc_card;
@@ -22,12 +37,15 @@ struct mmc_request;
 
 #define MMC_CMD_RETRIES        3
 
+<<<<<<< HEAD
 #ifdef CONFIG_MMC_SUPPORT_STLOG
 #include <linux/fslog.h>
 #else
 #define ST_LOG(fmt, ...)
 #endif
 
+=======
+>>>>>>> upstream/android-13
 struct mmc_bus_ops {
 	void (*remove)(struct mmc_host *);
 	void (*detect)(struct mmc_host *);
@@ -41,6 +59,10 @@ struct mmc_bus_ops {
 	int (*hw_reset)(struct mmc_host *);
 	int (*sw_reset)(struct mmc_host *);
 	bool (*cache_enabled)(struct mmc_host *);
+<<<<<<< HEAD
+=======
+	int (*flush_cache)(struct mmc_host *);
+>>>>>>> upstream/android-13
 };
 
 void mmc_attach_bus(struct mmc_host *host, const struct mmc_bus_ops *ops);
@@ -52,7 +74,11 @@ struct device_node *mmc_of_find_child_device(struct mmc_host *host,
 void mmc_init_erase(struct mmc_card *card);
 
 void mmc_set_chip_select(struct mmc_host *host, int mode);
+<<<<<<< HEAD
 void mmc_set_clock(struct mmc_host *host, unsigned int hz);
+=======
+extern void mmc_set_clock(struct mmc_host *host, unsigned int hz);
+>>>>>>> upstream/android-13
 void mmc_set_bus_mode(struct mmc_host *host, unsigned int mode);
 void mmc_set_bus_width(struct mmc_host *host, unsigned int width);
 u32 mmc_select_voltage(struct mmc_host *host, u32 ocr);
@@ -68,6 +94,10 @@ void mmc_power_up(struct mmc_host *host, u32 ocr);
 void mmc_power_off(struct mmc_host *host);
 void mmc_power_cycle(struct mmc_host *host, u32 ocr);
 void mmc_set_initial_state(struct mmc_host *host);
+<<<<<<< HEAD
+=======
+u32 mmc_vddrange_to_ocrmask(int vdd_min, int vdd_max);
+>>>>>>> upstream/android-13
 
 static inline void mmc_delay(unsigned int ms)
 {
@@ -79,8 +109,16 @@ static inline void mmc_delay(unsigned int ms)
 
 void mmc_rescan(struct work_struct *work);
 void mmc_start_host(struct mmc_host *host);
+<<<<<<< HEAD
 void mmc_stop_host(struct mmc_host *host);
 
+=======
+void __mmc_stop_host(struct mmc_host *host);
+void mmc_stop_host(struct mmc_host *host);
+
+void _mmc_detect_change(struct mmc_host *host, unsigned long delay,
+			bool cd_irq);
+>>>>>>> upstream/android-13
 int _mmc_detect_card_removed(struct mmc_host *host);
 int mmc_detect_card_removed(struct mmc_host *host);
 
@@ -98,6 +136,7 @@ void mmc_remove_host_debugfs(struct mmc_host *host);
 void mmc_add_card_debugfs(struct mmc_card *card);
 void mmc_remove_card_debugfs(struct mmc_card *card);
 
+<<<<<<< HEAD
 #ifdef CONFIG_MTK_EMMC_CQ_SUPPORT
 void mmc_wait_cmdq_empty(struct mmc_host *host);
 void mmc_do_check(struct mmc_host *host);
@@ -109,10 +148,13 @@ int mmc_run_queue_thread(void *data);
 
 
 
+=======
+>>>>>>> upstream/android-13
 int mmc_execute_tuning(struct mmc_card *card);
 int mmc_hs200_to_hs400(struct mmc_card *card);
 int mmc_hs400_to_hs200(struct mmc_card *card);
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM_SLEEP
 void mmc_register_pm_notifier(struct mmc_host *host);
 void mmc_unregister_pm_notifier(struct mmc_host *host);
@@ -121,6 +163,8 @@ static inline void mmc_register_pm_notifier(struct mmc_host *host) { }
 static inline void mmc_unregister_pm_notifier(struct mmc_host *host) { }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 void mmc_wait_for_req_done(struct mmc_host *host, struct mmc_request *mrq);
 bool mmc_is_req_done(struct mmc_host *host, struct mmc_request *mrq);
 
@@ -138,15 +182,23 @@ int mmc_erase_group_aligned(struct mmc_card *card, unsigned int from,
 unsigned int mmc_calc_max_discard(struct mmc_card *card);
 
 int mmc_set_blocklen(struct mmc_card *card, unsigned int blocklen);
+<<<<<<< HEAD
 int mmc_set_blockcount(struct mmc_card *card, unsigned int blockcount,
 			bool is_rel_write);
+=======
+>>>>>>> upstream/android-13
 
 int __mmc_claim_host(struct mmc_host *host, struct mmc_ctx *ctx,
 		     atomic_t *abort);
 void mmc_release_host(struct mmc_host *host);
 void mmc_get_card(struct mmc_card *card, struct mmc_ctx *ctx);
 void mmc_put_card(struct mmc_card *card, struct mmc_ctx *ctx);
+<<<<<<< HEAD
 int mmc_try_claim_host(struct mmc_host *host, unsigned int delay);
+=======
+
+int mmc_card_alternative_gpt_sector(struct mmc_card *card, sector_t *sector);
+>>>>>>> upstream/android-13
 
 /**
  *	mmc_claim_host - exclusively claim a host
@@ -202,4 +254,15 @@ static inline bool mmc_cache_enabled(struct mmc_host *host)
 	return false;
 }
 
+<<<<<<< HEAD
+=======
+static inline int mmc_flush_cache(struct mmc_host *host)
+{
+	if (host->bus_ops->flush_cache)
+		return host->bus_ops->flush_cache(host);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 #endif

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Device driver for the SYMBIOS/LSILOGIC 53C8XX and 53C1010 family 
  * of PCI-SCSI IO processors.
@@ -22,6 +26,7 @@
  * Copyright (C) 1997 Richard Waltham <dormouse@farsrobt.demon.co.uk>
  *
  *-----------------------------------------------------------------------------
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,6 +41,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/ctype.h>
 #include <linux/init.h>
@@ -169,12 +176,17 @@ void sym_xpt_async_bus_reset(struct sym_hcb *np)
 static int sym_xerr_cam_status(int cam_status, int x_status)
 {
 	if (x_status) {
+<<<<<<< HEAD
 		if	(x_status & XE_PARITY_ERR)
 			cam_status = DID_PARITY;
 		else if	(x_status &(XE_EXTRA_DATA|XE_SODL_UNRUN|XE_SWIDE_OVRUN))
 			cam_status = DID_ERROR;
 		else if	(x_status & XE_BAD_PHASE)
 			cam_status = DID_ERROR;
+=======
+		if (x_status & XE_PARITY_ERR)
+			cam_status = DID_PARITY;
+>>>>>>> upstream/android-13
 		else
 			cam_status = DID_ERROR;
 	}
@@ -187,9 +199,14 @@ static int sym_xerr_cam_status(int cam_status, int x_status)
 void sym_set_cam_result_error(struct sym_hcb *np, struct sym_ccb *cp, int resid)
 {
 	struct scsi_cmnd *cmd = cp->cmd;
+<<<<<<< HEAD
 	u_int cam_status, scsi_status, drv_status;
 
 	drv_status  = 0;
+=======
+	u_int cam_status, scsi_status;
+
+>>>>>>> upstream/android-13
 	cam_status  = DID_OK;
 	scsi_status = cp->ssss_status;
 
@@ -203,7 +220,10 @@ void sym_set_cam_result_error(struct sym_hcb *np, struct sym_ccb *cp, int resid)
 		    cp->xerr_status == 0) {
 			cam_status = sym_xerr_cam_status(DID_OK,
 							 cp->sv_xerr_status);
+<<<<<<< HEAD
 			drv_status = DRIVER_SENSE;
+=======
+>>>>>>> upstream/android-13
 			/*
 			 *  Bounce back the sense data to user.
 			 */
@@ -252,7 +272,11 @@ void sym_set_cam_result_error(struct sym_hcb *np, struct sym_ccb *cp, int resid)
 		cam_status = sym_xerr_cam_status(DID_ERROR, cp->xerr_status);
 	}
 	scsi_set_resid(cmd, resid);
+<<<<<<< HEAD
 	cmd->result = (drv_status << 24) | (cam_status << 16) | scsi_status;
+=======
+	cmd->result = (cam_status << 16) | scsi_status;
+>>>>>>> upstream/android-13
 }
 
 static int sym_scatter(struct sym_hcb *np, struct sym_ccb *cp, struct scsi_cmnd *cmd)
@@ -519,8 +543,13 @@ static int sym53c8xx_queue_command_lck(struct scsi_cmnd *cmd,
 	 *  Shorten our settle_time if needed for 
 	 *  this command not to time out.
 	 */
+<<<<<<< HEAD
 	if (np->s.settle_time_valid && cmd->request->timeout) {
 		unsigned long tlimit = jiffies + cmd->request->timeout;
+=======
+	if (np->s.settle_time_valid && scsi_cmd_to_rq(cmd)->timeout) {
+		unsigned long tlimit = jiffies + scsi_cmd_to_rq(cmd)->timeout;
+>>>>>>> upstream/android-13
 		tlimit -= SYM_CONF_TIMER_INTERVAL*2;
 		if (time_after(np->s.settle_time, tlimit)) {
 			np->s.settle_time = tlimit;
@@ -1312,9 +1341,15 @@ static struct Scsi_Host *sym_attach(struct scsi_host_template *tpnt, int unit,
 	sprintf(np->s.inst_name, "sym%d", np->s.unit);
 
 	if ((SYM_CONF_DMA_ADDRESSING_MODE > 0) && (np->features & FE_DAC) &&
+<<<<<<< HEAD
 			!pci_set_dma_mask(pdev, DMA_DAC_MASK)) {
 		set_dac(np);
 	} else if (pci_set_dma_mask(pdev, DMA_BIT_MASK(32))) {
+=======
+			!dma_set_mask(&pdev->dev, DMA_DAC_MASK)) {
+		set_dac(np);
+	} else if (dma_set_mask(&pdev->dev, DMA_BIT_MASK(32))) {
+>>>>>>> upstream/android-13
 		printf_warning("%s: No suitable DMA available\n", sym_name(np));
 		goto attach_failed;
 	}
@@ -1660,7 +1695,10 @@ static struct scsi_host_template sym2_template = {
 	.eh_bus_reset_handler	= sym53c8xx_eh_bus_reset_handler,
 	.eh_host_reset_handler	= sym53c8xx_eh_host_reset_handler,
 	.this_id		= 7,
+<<<<<<< HEAD
 	.use_clustering		= ENABLE_CLUSTERING,
+=======
+>>>>>>> upstream/android-13
 	.max_sectors		= 0xFFFF,
 #ifdef SYM_LINUX_PROC_INFO_SUPPORT
 	.show_info		= sym_show_info,
@@ -1757,7 +1795,11 @@ static void sym2_remove(struct pci_dev *pdev)
  * @state: current state of the PCI slot
  */
 static pci_ers_result_t sym2_io_error_detected(struct pci_dev *pdev,
+<<<<<<< HEAD
                                          enum pci_channel_state state)
+=======
+                                         pci_channel_state_t state)
+>>>>>>> upstream/android-13
 {
 	/* If slot is permanently frozen, turn everything off */
 	if (state == pci_channel_io_perm_failure) {
@@ -1788,6 +1830,10 @@ static pci_ers_result_t sym2_io_slot_dump(struct pci_dev *pdev)
 
 /**
  * sym2_reset_workarounds - hardware-specific work-arounds
+<<<<<<< HEAD
+=======
+ * @pdev: pointer to PCI device
+>>>>>>> upstream/android-13
  *
  * This routine is similar to sym_set_workarounds(), except
  * that, at this point, we already know that the device was

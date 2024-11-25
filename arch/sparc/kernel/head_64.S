@@ -12,13 +12,20 @@
 #include <linux/threads.h>
 #include <linux/init.h>
 #include <linux/linkage.h>
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 #include <asm/thread_info.h>
 #include <asm/asi.h>
 #include <asm/pstate.h>
 #include <asm/ptrace.h>
 #include <asm/spitfire.h>
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/errno.h>
 #include <asm/signal.h>
 #include <asm/processor.h>
@@ -706,7 +713,11 @@ tlb_fixup_done:
 	wr	%g0, ASI_P, %asi
 	mov	1, %g1
 	sllx	%g1, THREAD_SHIFT, %g1
+<<<<<<< HEAD
 	sub	%g1, (STACKFRAME_SZ + STACK_BIAS), %g1
+=======
+	sub	%g1, (STACKFRAME_SZ + STACK_BIAS + TRACEREG_SZ), %g1
+>>>>>>> upstream/android-13
 	add	%g6, %g1, %sp
 
 	/* Set per-cpu pointer initially to zero, this makes

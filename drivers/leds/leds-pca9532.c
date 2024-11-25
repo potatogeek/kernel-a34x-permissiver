@@ -1,15 +1,23 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * pca9532.c - 16-bit Led dimmer
  *
  * Copyright (C) 2011 Jan Weitzel
  * Copyright (C) 2008 Riku Voipio
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
  *
  * Datasheet: http://www.nxp.com/documents/data_sheet/PCA9532.pdf
  *
+=======
+ * Datasheet: http://www.nxp.com/documents/data_sheet/PCA9532.pdf
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -20,7 +28,11 @@
 #include <linux/mutex.h>
 #include <linux/workqueue.h>
 #include <linux/leds-pca9532.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/driver.h>
+>>>>>>> upstream/android-13
 #include <linux/of.h>
 #include <linux/of_device.h>
 
@@ -31,6 +43,11 @@
 #define PCA9532_REG_PWM(m, i)	(PCA9532_REG_OFFSET(m) + 0x2 + (i) * 2)
 #define LED_REG(m, led)		(PCA9532_REG_OFFSET(m) + 0x5 + (led >> 2))
 #define LED_NUM(led)		(led & 0x3)
+<<<<<<< HEAD
+=======
+#define LED_SHIFT(led)		(LED_NUM(led) * 2)
+#define LED_MASK(led)		(0x3 << LED_SHIFT(led))
+>>>>>>> upstream/android-13
 
 #define ldev_to_led(c)       container_of(c, struct pca9532_led, ldev)
 
@@ -166,9 +183,15 @@ static void pca9532_setled(struct pca9532_led *led)
 	mutex_lock(&data->update_lock);
 	reg = i2c_smbus_read_byte_data(client, LED_REG(maxleds, led->id));
 	/* zero led bits */
+<<<<<<< HEAD
 	reg = reg & ~(0x3<<LED_NUM(led->id)*2);
 	/* set the new value */
 	reg = reg | (led->state << LED_NUM(led->id)*2);
+=======
+	reg = reg & ~LED_MASK(led->id);
+	/* set the new value */
+	reg = reg | (led->state << LED_SHIFT(led->id));
+>>>>>>> upstream/android-13
 	i2c_smbus_write_byte_data(client, LED_REG(maxleds, led->id), reg);
 	mutex_unlock(&data->update_lock);
 }
@@ -264,7 +287,11 @@ static enum pca9532_state pca9532_getled(struct pca9532_led *led)
 
 	mutex_lock(&data->update_lock);
 	reg = i2c_smbus_read_byte_data(client, LED_REG(maxleds, led->id));
+<<<<<<< HEAD
 	ret = reg >> LED_NUM(led->id)/2;
+=======
+	ret = (reg & LED_MASK(led->id)) >> LED_SHIFT(led->id);
+>>>>>>> upstream/android-13
 	mutex_unlock(&data->update_lock);
 	return ret;
 }
@@ -471,23 +498,41 @@ pca9532_of_populate_pdata(struct device *dev, struct device_node *np)
 {
 	struct pca9532_platform_data *pdata;
 	struct device_node *child;
+<<<<<<< HEAD
 	const struct of_device_id *match;
+=======
+>>>>>>> upstream/android-13
 	int devid, maxleds;
 	int i = 0;
 	const char *state;
 
+<<<<<<< HEAD
 	match = of_match_device(of_pca9532_leds_match, dev);
 	if (!match)
 		return ERR_PTR(-ENODEV);
 
 	devid = (int)(uintptr_t)match->data;
+=======
+	devid = (int)(uintptr_t)of_device_get_match_data(dev);
+>>>>>>> upstream/android-13
 	maxleds = pca9532_chip_info_tbl[devid].num_leds;
 
 	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
 	if (!pdata)
 		return ERR_PTR(-ENOMEM);
 
+<<<<<<< HEAD
 	for_each_child_of_node(np, child) {
+=======
+	pdata->gpio_base = -1;
+
+	of_property_read_u8_array(np, "nxp,pwm", &pdata->pwm[0],
+				  ARRAY_SIZE(pdata->pwm));
+	of_property_read_u8_array(np, "nxp,psc", &pdata->psc[0],
+				  ARRAY_SIZE(pdata->psc));
+
+	for_each_available_child_of_node(np, child) {
+>>>>>>> upstream/android-13
 		if (of_property_read_string(child, "label",
 					    &pdata->leds[i].name))
 			pdata->leds[i].name = child->name;
@@ -513,11 +558,18 @@ static int pca9532_probe(struct i2c_client *client,
 	const struct i2c_device_id *id)
 {
 	int devid;
+<<<<<<< HEAD
 	const struct of_device_id *of_id;
 	struct pca9532_data *data = i2c_get_clientdata(client);
 	struct pca9532_platform_data *pca9532_pdata =
 			dev_get_platdata(&client->dev);
 	struct device_node *np = client->dev.of_node;
+=======
+	struct pca9532_data *data = i2c_get_clientdata(client);
+	struct pca9532_platform_data *pca9532_pdata =
+			dev_get_platdata(&client->dev);
+	struct device_node *np = dev_of_node(&client->dev);
+>>>>>>> upstream/android-13
 
 	if (!pca9532_pdata) {
 		if (np) {
@@ -529,11 +581,15 @@ static int pca9532_probe(struct i2c_client *client,
 			dev_err(&client->dev, "no platform data\n");
 			return -EINVAL;
 		}
+<<<<<<< HEAD
 		of_id = of_match_device(of_pca9532_leds_match,
 				&client->dev);
 		if (unlikely(!of_id))
 			return -EINVAL;
 		devid = (int)(uintptr_t) of_id->data;
+=======
+		devid = (int)(uintptr_t)of_device_get_match_data(&client->dev);
+>>>>>>> upstream/android-13
 	} else {
 		devid = id->driver_data;
 	}
@@ -559,6 +615,7 @@ static int pca9532_probe(struct i2c_client *client,
 static int pca9532_remove(struct i2c_client *client)
 {
 	struct pca9532_data *data = i2c_get_clientdata(client);
+<<<<<<< HEAD
 	int err;
 
 	err = pca9532_destroy_devices(data, data->chip_info->num_leds);
@@ -566,6 +623,10 @@ static int pca9532_remove(struct i2c_client *client)
 		return err;
 
 	return 0;
+=======
+
+	return pca9532_destroy_devices(data, data->chip_info->num_leds);
+>>>>>>> upstream/android-13
 }
 
 module_i2c_driver(pca9532_driver);

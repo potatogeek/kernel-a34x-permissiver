@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* QLogic qed NIC Driver
  * Copyright (c) 2015-2017  QLogic Corporation
  *
@@ -28,6 +29,12 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause) */
+/* QLogic qed NIC Driver
+ * Copyright (c) 2015-2017  QLogic Corporation
+ * Copyright (c) 2019-2020 Marvell International Ltd.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _QED_LL2_IF_H
@@ -38,20 +45,36 @@
 #include <linux/netdevice.h>
 #include <linux/pci.h>
 #include <linux/skbuff.h>
+<<<<<<< HEAD
 #include <linux/version.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/slab.h>
 #include <linux/qed/qed_if.h>
 
 enum qed_ll2_conn_type {
 	QED_LL2_TYPE_FCOE,
+<<<<<<< HEAD
 	QED_LL2_TYPE_ISCSI,
+=======
+	QED_LL2_TYPE_TCP_ULP,
+>>>>>>> upstream/android-13
 	QED_LL2_TYPE_TEST,
 	QED_LL2_TYPE_OOO,
 	QED_LL2_TYPE_RESERVED2,
 	QED_LL2_TYPE_ROCE,
 	QED_LL2_TYPE_IWARP,
 	QED_LL2_TYPE_RESERVED3,
+<<<<<<< HEAD
+=======
+	MAX_QED_LL2_CONN_TYPE
+};
+
+enum qed_ll2_rx_conn_type {
+	QED_LL2_RX_TYPE_LEGACY,
+	QED_LL2_RX_TYPE_CTX,
+>>>>>>> upstream/android-13
 	MAX_QED_LL2_RX_CONN_TYPE
 };
 
@@ -165,6 +188,10 @@ struct qed_ll2_cbs {
 };
 
 struct qed_ll2_acquire_data_inputs {
+<<<<<<< HEAD
+=======
+	enum qed_ll2_rx_conn_type rx_conn_type;
+>>>>>>> upstream/android-13
 	enum qed_ll2_conn_type conn_type;
 	u16 mtu;
 	u16 rx_num_desc;

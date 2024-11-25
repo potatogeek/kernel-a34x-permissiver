@@ -87,7 +87,11 @@ static unsigned int bw_percentage[VXGE_HW_MAX_VIRTUAL_PATHS] =
 module_param_array(bw_percentage, uint, NULL, 0);
 
 static struct vxge_drv_config *driver_config;
+<<<<<<< HEAD
 static enum vxge_hw_status vxge_reset_all_vpaths(struct vxgedev *vdev);
+=======
+static void vxge_reset_all_vpaths(struct vxgedev *vdev);
+>>>>>>> upstream/android-13
 
 static inline int is_vxge_card_up(struct vxgedev *vdev)
 {
@@ -98,7 +102,11 @@ static inline void VXGE_COMPLETE_VPATH_TX(struct vxge_fifo *fifo)
 {
 	struct sk_buff **skb_ptr = NULL;
 	struct sk_buff **temp;
+<<<<<<< HEAD
 #define NR_SKB_COMPLETED 128
+=======
+#define NR_SKB_COMPLETED 16
+>>>>>>> upstream/android-13
 	struct sk_buff *completed[NR_SKB_COMPLETED];
 	int more;
 
@@ -114,7 +122,11 @@ static inline void VXGE_COMPLETE_VPATH_TX(struct vxge_fifo *fifo)
 
 		/* free SKBs */
 		for (temp = completed; temp != skb_ptr; temp++)
+<<<<<<< HEAD
 			dev_kfree_skb_irq(*temp);
+=======
+			dev_consume_skb_irq(*temp);
+>>>>>>> upstream/android-13
 	} while (more);
 }
 
@@ -241,10 +253,17 @@ static int vxge_rx_map(void *dtrh, struct vxge_ring *ring)
 	rx_priv = vxge_hw_ring_rxd_private_get(dtrh);
 
 	rx_priv->skb_data = rx_priv->skb->data;
+<<<<<<< HEAD
 	dma_addr = pci_map_single(ring->pdev, rx_priv->skb_data,
 				rx_priv->data_size, PCI_DMA_FROMDEVICE);
 
 	if (unlikely(pci_dma_mapping_error(ring->pdev, dma_addr))) {
+=======
+	dma_addr = dma_map_single(&ring->pdev->dev, rx_priv->skb_data,
+				  rx_priv->data_size, DMA_FROM_DEVICE);
+
+	if (unlikely(dma_mapping_error(&ring->pdev->dev, dma_addr))) {
+>>>>>>> upstream/android-13
 		ring->stats.pci_map_fail++;
 		return -EIO;
 	}
@@ -323,8 +342,13 @@ vxge_rx_complete(struct vxge_ring *ring, struct sk_buff *skb, u16 vlan,
 static inline void vxge_re_pre_post(void *dtr, struct vxge_ring *ring,
 				    struct vxge_rx_priv *rx_priv)
 {
+<<<<<<< HEAD
 	pci_dma_sync_single_for_device(ring->pdev,
 		rx_priv->data_dma, rx_priv->data_size, PCI_DMA_FROMDEVICE);
+=======
+	dma_sync_single_for_device(&ring->pdev->dev, rx_priv->data_dma,
+				   rx_priv->data_size, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 
 	vxge_hw_ring_rxd_1b_set(dtr, rx_priv->data_dma, rx_priv->data_size);
 	vxge_hw_ring_rxd_pre_post(ring->handle, dtr);
@@ -425,8 +449,14 @@ vxge_rx_1b_compl(struct __vxge_hw_ring *ringh, void *dtr,
 				if (!vxge_rx_map(dtr, ring)) {
 					skb_put(skb, pkt_length);
 
+<<<<<<< HEAD
 					pci_unmap_single(ring->pdev, data_dma,
 						data_size, PCI_DMA_FROMDEVICE);
+=======
+					dma_unmap_single(&ring->pdev->dev,
+							 data_dma, data_size,
+							 DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 
 					vxge_hw_ring_rxd_pre_post(ringh, dtr);
 					vxge_post(&dtr_cnt, &first_dtr, dtr,
@@ -458,9 +488,15 @@ vxge_rx_1b_compl(struct __vxge_hw_ring *ringh, void *dtr,
 				skb_reserve(skb_up,
 				    VXGE_HW_HEADER_ETHERNET_II_802_3_ALIGN);
 
+<<<<<<< HEAD
 				pci_dma_sync_single_for_cpu(ring->pdev,
 					data_dma, data_size,
 					PCI_DMA_FROMDEVICE);
+=======
+				dma_sync_single_for_cpu(&ring->pdev->dev,
+							data_dma, data_size,
+							DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 
 				vxge_debug_mem(VXGE_TRACE,
 					"%s: %s:%d  skb_up = %p",
@@ -585,6 +621,7 @@ vxge_xmit_compl(struct __vxge_hw_fifo *fifo_hw, void *dtr,
 		}
 
 		/*  for unfragmented skb */
+<<<<<<< HEAD
 		pci_unmap_single(fifo->pdev, txd_priv->dma_buffers[i++],
 				skb_headlen(skb), PCI_DMA_TODEVICE);
 
@@ -592,6 +629,15 @@ vxge_xmit_compl(struct __vxge_hw_fifo *fifo_hw, void *dtr,
 			pci_unmap_page(fifo->pdev,
 					txd_priv->dma_buffers[i++],
 					skb_frag_size(frag), PCI_DMA_TODEVICE);
+=======
+		dma_unmap_single(&fifo->pdev->dev, txd_priv->dma_buffers[i++],
+				 skb_headlen(skb), DMA_TO_DEVICE);
+
+		for (j = 0; j < frg_cnt; j++) {
+			dma_unmap_page(&fifo->pdev->dev,
+				       txd_priv->dma_buffers[i++],
+				       skb_frag_size(frag), DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 			frag += 1;
 		}
 
@@ -897,10 +943,17 @@ vxge_xmit(struct sk_buff *skb, struct net_device *dev)
 
 	first_frg_len = skb_headlen(skb);
 
+<<<<<<< HEAD
 	dma_pointer = pci_map_single(fifo->pdev, skb->data, first_frg_len,
 				PCI_DMA_TODEVICE);
 
 	if (unlikely(pci_dma_mapping_error(fifo->pdev, dma_pointer))) {
+=======
+	dma_pointer = dma_map_single(&fifo->pdev->dev, skb->data,
+				     first_frg_len, DMA_TO_DEVICE);
+
+	if (unlikely(dma_mapping_error(&fifo->pdev->dev, dma_pointer))) {
+>>>>>>> upstream/android-13
 		vxge_hw_fifo_txdl_free(fifo_hw, dtr);
 		fifo->stats.pci_map_fail++;
 		goto _exit0;
@@ -977,12 +1030,21 @@ _exit1:
 	j = 0;
 	frag = &skb_shinfo(skb)->frags[0];
 
+<<<<<<< HEAD
 	pci_unmap_single(fifo->pdev, txdl_priv->dma_buffers[j++],
 			skb_headlen(skb), PCI_DMA_TODEVICE);
 
 	for (; j < i; j++) {
 		pci_unmap_page(fifo->pdev, txdl_priv->dma_buffers[j],
 			skb_frag_size(frag), PCI_DMA_TODEVICE);
+=======
+	dma_unmap_single(&fifo->pdev->dev, txdl_priv->dma_buffers[j++],
+			 skb_headlen(skb), DMA_TO_DEVICE);
+
+	for (; j < i; j++) {
+		dma_unmap_page(&fifo->pdev->dev, txdl_priv->dma_buffers[j],
+			       skb_frag_size(frag), DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 		frag += 1;
 	}
 
@@ -1012,8 +1074,13 @@ vxge_rx_term(void *dtrh, enum vxge_hw_rxd_state state, void *userdata)
 	if (state != VXGE_HW_RXD_STATE_POSTED)
 		return;
 
+<<<<<<< HEAD
 	pci_unmap_single(ring->pdev, rx_priv->data_dma,
 		rx_priv->data_size, PCI_DMA_FROMDEVICE);
+=======
+	dma_unmap_single(&ring->pdev->dev, rx_priv->data_dma,
+			 rx_priv->data_size, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 
 	dev_kfree_skb(rx_priv->skb);
 	rx_priv->skb_data = NULL;
@@ -1048,12 +1115,21 @@ vxge_tx_term(void *dtrh, enum vxge_hw_txdl_state state, void *userdata)
 	frag = &skb_shinfo(skb)->frags[0];
 
 	/*  for unfragmented skb */
+<<<<<<< HEAD
 	pci_unmap_single(fifo->pdev, txd_priv->dma_buffers[i++],
 		skb_headlen(skb), PCI_DMA_TODEVICE);
 
 	for (j = 0; j < frg_cnt; j++) {
 		pci_unmap_page(fifo->pdev, txd_priv->dma_buffers[i++],
 			       skb_frag_size(frag), PCI_DMA_TODEVICE);
+=======
+	dma_unmap_single(&fifo->pdev->dev, txd_priv->dma_buffers[i++],
+			 skb_headlen(skb), DMA_TO_DEVICE);
+
+	for (j = 0; j < frg_cnt; j++) {
+		dma_unmap_page(&fifo->pdev->dev, txd_priv->dma_buffers[i++],
+			       skb_frag_size(frag), DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 		frag += 1;
 	}
 
@@ -1075,7 +1151,11 @@ static int vxge_mac_list_del(struct vxge_vpath *vpath, struct macInfo *mac)
 	list_for_each_safe(entry, next, &vpath->mac_addr_list) {
 		if (((struct vxge_mac_addrs *)entry)->macaddr == del_mac) {
 			list_del(entry);
+<<<<<<< HEAD
 			kfree((struct vxge_mac_addrs *)entry);
+=======
+			kfree(entry);
+>>>>>>> upstream/android-13
 			vpath->mac_addr_cnt--;
 
 			if (is_multicast_ether_addr(mac->macaddr))
@@ -1274,6 +1354,10 @@ _set_all_mcast:
 /**
  * vxge_set_mac_addr
  * @dev: pointer to the device structure
+<<<<<<< HEAD
+=======
+ * @p: socket info
+>>>>>>> upstream/android-13
  *
  * Update entry "0" (default MAC addr)
  */
@@ -1604,7 +1688,10 @@ static void vxge_config_ci_for_tti_rti(struct vxgedev *vdev)
 
 static int do_vxge_reset(struct vxgedev *vdev, int event)
 {
+<<<<<<< HEAD
 	enum vxge_hw_status status;
+=======
+>>>>>>> upstream/android-13
 	int ret = 0, vp_id, i;
 
 	vxge_debug_entryexit(VXGE_TRACE, "%s:%d", __func__, __LINE__);
@@ -1707,6 +1794,7 @@ static int do_vxge_reset(struct vxgedev *vdev, int event)
 		netif_tx_stop_all_queues(vdev->ndev);
 
 	if (event == VXGE_LL_FULL_RESET) {
+<<<<<<< HEAD
 		status = vxge_reset_all_vpaths(vdev);
 		if (status != VXGE_HW_OK) {
 			vxge_debug_init(VXGE_ERR,
@@ -1715,6 +1803,9 @@ static int do_vxge_reset(struct vxgedev *vdev, int event)
 			ret = -EPERM;
 			goto out;
 		}
+=======
+		vxge_reset_all_vpaths(vdev);
+>>>>>>> upstream/android-13
 	}
 
 	if (event == VXGE_LL_COMPL_RESET) {
@@ -1797,8 +1888,13 @@ static void vxge_reset(struct work_struct *work)
 }
 
 /**
+<<<<<<< HEAD
  * vxge_poll - Receive handler when Receive Polling is used.
  * @dev: pointer to the device structure.
+=======
+ * vxge_poll_msix - Receive handler when Receive Polling is used.
+ * @napi: pointer to the napi structure.
+>>>>>>> upstream/android-13
  * @budget: Number of packets budgeted to be processed in this iteration.
  *
  * This function comes into picture only if Receive side is being handled
@@ -1826,7 +1922,10 @@ static int vxge_poll_msix(struct napi_struct *napi, int budget)
 		vxge_hw_channel_msix_unmask(
 				(struct __vxge_hw_channel *)ring->handle,
 				ring->rx_vector_no);
+<<<<<<< HEAD
 		mmiowb();
+=======
+>>>>>>> upstream/android-13
 	}
 
 	/* We are copying and returning the local variable, in case if after
@@ -1968,9 +2067,14 @@ static enum vxge_hw_status vxge_rth_configure(struct vxgedev *vdev)
 }
 
 /* reset vpaths */
+<<<<<<< HEAD
 static enum vxge_hw_status vxge_reset_all_vpaths(struct vxgedev *vdev)
 {
 	enum vxge_hw_status status = VXGE_HW_OK;
+=======
+static void vxge_reset_all_vpaths(struct vxgedev *vdev)
+{
+>>>>>>> upstream/android-13
 	struct vxge_vpath *vpath;
 	int i;
 
@@ -1985,18 +2089,29 @@ static enum vxge_hw_status vxge_reset_all_vpaths(struct vxgedev *vdev)
 						"vxge_hw_vpath_recover_"
 						"from_reset failed for vpath: "
 						"%d", i);
+<<<<<<< HEAD
 					return status;
+=======
+					return;
+>>>>>>> upstream/android-13
 				}
 			} else {
 				vxge_debug_init(VXGE_ERR,
 					"vxge_hw_vpath_reset failed for "
 					"vpath:%d", i);
+<<<<<<< HEAD
 				return status;
 			}
 		}
 	}
 
 	return status;
+=======
+				return;
+			}
+		}
+	}
+>>>>>>> upstream/android-13
 }
 
 /* close vpaths */
@@ -2234,8 +2349,11 @@ static irqreturn_t vxge_tx_msix_handle(int irq, void *dev_id)
 	vxge_hw_channel_msix_unmask((struct __vxge_hw_channel *)fifo->handle,
 				    fifo->tx_vector_no);
 
+<<<<<<< HEAD
 	mmiowb();
 
+=======
+>>>>>>> upstream/android-13
 	return IRQ_HANDLED;
 }
 
@@ -2272,14 +2390,20 @@ vxge_alarm_msix_handle(int irq, void *dev_id)
 		 */
 		vxge_hw_vpath_msix_mask(vdev->vpaths[i].handle, msix_id);
 		vxge_hw_vpath_msix_clear(vdev->vpaths[i].handle, msix_id);
+<<<<<<< HEAD
 		mmiowb();
+=======
+>>>>>>> upstream/android-13
 
 		status = vxge_hw_vpath_alarm_process(vdev->vpaths[i].handle,
 			vdev->exec_mode);
 		if (status == VXGE_HW_OK) {
 			vxge_hw_vpath_msix_unmask(vdev->vpaths[i].handle,
 						  msix_id);
+<<<<<<< HEAD
 			mmiowb();
+=======
+>>>>>>> upstream/android-13
 			continue;
 		}
 		vxge_debug_intr(VXGE_ERR,
@@ -2553,7 +2677,11 @@ static int vxge_add_isr(struct vxgedev *vdev)
 			vxge_debug_init(VXGE_ERR,
 				"%s: Defaulting to INTA",
 				vdev->ndev->name);
+<<<<<<< HEAD
 				goto INTA_MODE;
+=======
+			goto INTA_MODE;
+>>>>>>> upstream/android-13
 		}
 
 		msix_idx = (vdev->vpaths[0].handle->vpath->vp_id *
@@ -2679,11 +2807,15 @@ static int vxge_set_features(struct net_device *dev, netdev_features_t features)
 	/* !netif_running() ensured by vxge_fix_features() */
 
 	vdev->devh->config.rth_en = !!(features & NETIF_F_RXHASH);
+<<<<<<< HEAD
 	if (vxge_reset_all_vpaths(vdev) != VXGE_HW_OK) {
 		dev->features = features ^ NETIF_F_RXHASH;
 		vdev->devh->config.rth_en = !!(dev->features & NETIF_F_RXHASH);
 		return -EIO;
 	}
+=======
+	vxge_reset_all_vpaths(vdev);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -2917,7 +3049,11 @@ static void vxge_free_mac_add_list(struct vxge_vpath *vpath)
 
 	list_for_each_safe(entry, next, &vpath->mac_addr_list) {
 		list_del(entry);
+<<<<<<< HEAD
 		kfree((struct vxge_mac_addrs *)entry);
+=======
+		kfree(entry);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -3100,7 +3236,11 @@ static int vxge_change_mtu(struct net_device *dev, int new_mtu)
 /**
  * vxge_get_stats64
  * @dev: pointer to the device structure
+<<<<<<< HEAD
  * @stats: pointer to struct rtnl_link_stats64
+=======
+ * @net_stats: pointer to struct rtnl_link_stats64
+>>>>>>> upstream/android-13
  *
  */
 static void
@@ -3249,7 +3389,11 @@ static int vxge_hwtstamp_get(struct vxgedev *vdev, void __user *data)
 /**
  * vxge_ioctl
  * @dev: Device pointer.
+<<<<<<< HEAD
  * @ifr: An IOCTL specific structure, that can contain a pointer to
+=======
+ * @rq: An IOCTL specific structure, that can contain a pointer to
+>>>>>>> upstream/android-13
  *       a proprietary structure used to pass information to the driver.
  * @cmd: This is used to distinguish between the different commands that
  *       can be passed to the IOCTL functions.
@@ -3273,12 +3417,20 @@ static int vxge_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 /**
  * vxge_tx_watchdog
  * @dev: pointer to net device structure
+<<<<<<< HEAD
+=======
+ * @txqueue: index of the hanging queue
+>>>>>>> upstream/android-13
  *
  * Watchdog for transmit side.
  * This function is triggered if the Tx Queue is stopped
  * for a pre-defined amount of time when the Interface is still up.
  */
+<<<<<<< HEAD
 static void vxge_tx_watchdog(struct net_device *dev)
+=======
+static void vxge_tx_watchdog(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct vxgedev *vdev;
 
@@ -3356,7 +3508,11 @@ static const struct net_device_ops vxge_netdev_ops = {
 	.ndo_start_xmit         = vxge_xmit,
 	.ndo_validate_addr      = eth_validate_addr,
 	.ndo_set_rx_mode	= vxge_set_multicast,
+<<<<<<< HEAD
 	.ndo_do_ioctl           = vxge_ioctl,
+=======
+	.ndo_eth_ioctl           = vxge_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_set_mac_address    = vxge_set_mac_addr,
 	.ndo_change_mtu         = vxge_change_mtu,
 	.ndo_fix_features	= vxge_fix_features,
@@ -3529,13 +3685,22 @@ static void vxge_device_unregister(struct __vxge_hw_device *hldev)
 
 	kfree(vdev->vpaths);
 
+<<<<<<< HEAD
 	/* we are safe to free it now */
 	free_netdev(dev);
 
+=======
+>>>>>>> upstream/android-13
 	vxge_debug_init(vdev->level_trace, "%s: ethernet device unregistered",
 			buf);
 	vxge_debug_entryexit(vdev->level_trace,	"%s: %s:%d  Exiting...", buf,
 			     __func__, __LINE__);
+<<<<<<< HEAD
+=======
+
+	/* we are safe to free it now */
+	free_netdev(dev);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -3695,10 +3860,16 @@ static int vxge_config_vpaths(struct vxge_hw_device_config *device_config,
 			driver_config->vpath_per_dev = 1;
 
 		for (i = 0; i < VXGE_HW_MAX_VIRTUAL_PATHS; i++)
+<<<<<<< HEAD
 			if (!vxge_bVALn(vpath_mask, i, 1))
 				continue;
 			else
 				default_no_vpath++;
+=======
+			if (vxge_bVALn(vpath_mask, i, 1))
+				default_no_vpath++;
+
+>>>>>>> upstream/android-13
 		if (default_no_vpath < driver_config->vpath_per_dev)
 			driver_config->vpath_per_dev = default_no_vpath;
 
@@ -4004,26 +4175,45 @@ static void vxge_print_parm(struct vxgedev *vdev, u64 vpath_mask)
 	}
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 /**
  * vxge_pm_suspend - vxge power management suspend entry point
  *
  */
 static int vxge_pm_suspend(struct pci_dev *pdev, pm_message_t state)
+=======
+/**
+ * vxge_pm_suspend - vxge power management suspend entry point
+ * @dev_d: device pointer
+ *
+ */
+static int __maybe_unused vxge_pm_suspend(struct device *dev_d)
+>>>>>>> upstream/android-13
 {
 	return -ENOSYS;
 }
 /**
  * vxge_pm_resume - vxge power management resume entry point
+<<<<<<< HEAD
  *
  */
 static int vxge_pm_resume(struct pci_dev *pdev)
+=======
+ * @dev_d: device pointer
+ *
+ */
+static int __maybe_unused vxge_pm_resume(struct device *dev_d)
+>>>>>>> upstream/android-13
 {
 	return -ENOSYS;
 }
 
+<<<<<<< HEAD
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /**
  * vxge_io_error_detected - called when PCI error is detected
  * @pdev: Pointer to PCI device
@@ -4395,21 +4585,33 @@ vxge_probe(struct pci_dev *pdev, const struct pci_device_id *pre)
 		goto _exit0;
 	}
 
+<<<<<<< HEAD
 	if (!pci_set_dma_mask(pdev, DMA_BIT_MASK(64))) {
+=======
+	if (!dma_set_mask(&pdev->dev, DMA_BIT_MASK(64))) {
+>>>>>>> upstream/android-13
 		vxge_debug_ll_config(VXGE_TRACE,
 			"%s : using 64bit DMA", __func__);
 
 		high_dma = 1;
 
+<<<<<<< HEAD
 		if (pci_set_consistent_dma_mask(pdev,
 						DMA_BIT_MASK(64))) {
+=======
+		if (dma_set_coherent_mask(&pdev->dev, DMA_BIT_MASK(64))) {
+>>>>>>> upstream/android-13
 			vxge_debug_init(VXGE_ERR,
 				"%s : unable to obtain 64bit DMA for "
 				"consistent allocations", __func__);
 			ret = -ENOMEM;
 			goto _exit1;
 		}
+<<<<<<< HEAD
 	} else if (!pci_set_dma_mask(pdev, DMA_BIT_MASK(32))) {
+=======
+	} else if (!dma_set_mask(&pdev->dev, DMA_BIT_MASK(32))) {
+>>>>>>> upstream/android-13
 		vxge_debug_ll_config(VXGE_TRACE,
 			"%s : using 32bit DMA", __func__);
 	} else {
@@ -4547,7 +4749,11 @@ vxge_probe(struct pci_dev *pdev, const struct pci_device_id *pre)
 	 * due to the fact that HWTS is using the FCS as the location of the
 	 * timestamp.  The HW FCS checking will still correctly determine if
 	 * there is a valid checksum, and the FCS is being removed by the driver
+<<<<<<< HEAD
 	 * anyway.  So no fucntionality is being lost.  Since it is always
+=======
+	 * anyway.  So no functionality is being lost.  Since it is always
+>>>>>>> upstream/android-13
 	 * enabled, we now simply use the ioctl call to set whether or not the
 	 * driver should be paying attention to the HWTS.
 	 */
@@ -4756,7 +4962,11 @@ _exit0:
 }
 
 /**
+<<<<<<< HEAD
  * vxge_rem_nic - Free the PCI device
+=======
+ * vxge_remove - Free the PCI device
+>>>>>>> upstream/android-13
  * @pdev: structure containing the PCI related information of the device.
  * Description: This function is called by the Pci subsystem to release a
  * PCI device and free up all resource held up by the device.
@@ -4801,15 +5011,24 @@ static const struct pci_error_handlers vxge_err_handler = {
 	.resume = vxge_io_resume,
 };
 
+<<<<<<< HEAD
+=======
+static SIMPLE_DEV_PM_OPS(vxge_pm_ops, vxge_pm_suspend, vxge_pm_resume);
+
+>>>>>>> upstream/android-13
 static struct pci_driver vxge_driver = {
 	.name = VXGE_DRIVER_NAME,
 	.id_table = vxge_id_table,
 	.probe = vxge_probe,
 	.remove = vxge_remove,
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 	.suspend = vxge_pm_suspend,
 	.resume = vxge_pm_resume,
 #endif
+=======
+	.driver.pm = &vxge_pm_ops,
+>>>>>>> upstream/android-13
 	.err_handler = &vxge_err_handler,
 };
 

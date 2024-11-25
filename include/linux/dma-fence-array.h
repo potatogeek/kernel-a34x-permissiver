@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * fence-array: aggregates fence to be waited together
  *
@@ -6,6 +10,7 @@
  * Authors:
  *	Gustavo Padovan <gustavo@padovan.org>
  *	Christian König <christian.koenig@amd.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
@@ -15,6 +20,8 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __LINUX_DMA_FENCE_ARRAY_H
@@ -40,6 +47,10 @@ struct dma_fence_array_cb {
  * @num_fences: number of fences in the array
  * @num_pending: fences in the array still pending
  * @fences: array of the fences
+<<<<<<< HEAD
+=======
+ * @work: internal irq_work function
+>>>>>>> upstream/android-13
  */
 struct dma_fence_array {
 	struct dma_fence base;

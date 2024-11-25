@@ -11,12 +11,21 @@
  * Available benchmark collection list:
  *
  *  sched ... scheduler and IPC performance
+<<<<<<< HEAD
  *  mem   ... memory access performance
  *  numa  ... NUMA scheduling and MM performance
  *  futex ... Futex performance
  */
 #include "perf.h"
 #include "util/util.h"
+=======
+ *  syscall ... System call performance
+ *  mem   ... memory access performance
+ *  numa  ... NUMA scheduling and MM performance
+ *  futex ... Futex performance
+ *  epoll ... Event poll performance
+ */
+>>>>>>> upstream/android-13
 #include <subcmd/parse-options.h>
 #include "builtin.h"
 #include "bench/bench.h"
@@ -25,6 +34,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/prctl.h>
+<<<<<<< HEAD
+=======
+#include <linux/zalloc.h>
+>>>>>>> upstream/android-13
 
 typedef int (*bench_fn_t)(int argc, const char **argv);
 
@@ -49,9 +62,22 @@ static struct bench sched_benchmarks[] = {
 	{ NULL,		NULL,						NULL			}
 };
 
+<<<<<<< HEAD
 static struct bench mem_benchmarks[] = {
 	{ "memcpy",	"Benchmark for memcpy() functions",		bench_mem_memcpy	},
 	{ "memset",	"Benchmark for memset() functions",		bench_mem_memset	},
+=======
+static struct bench syscall_benchmarks[] = {
+	{ "basic",	"Benchmark for basic getppid(2) calls",		bench_syscall_basic	},
+	{ "all",	"Run all syscall benchmarks",			NULL			},
+	{ NULL,		NULL,						NULL			},
+};
+
+static struct bench mem_benchmarks[] = {
+	{ "memcpy",	"Benchmark for memcpy() functions",		bench_mem_memcpy	},
+	{ "memset",	"Benchmark for memset() functions",		bench_mem_memset	},
+	{ "find_bit",	"Benchmark for find_bit() functions",		bench_mem_find_bit	},
+>>>>>>> upstream/android-13
 	{ "all",	"Run all memory access benchmarks",		NULL			},
 	{ NULL,		NULL,						NULL			}
 };
@@ -67,6 +93,26 @@ static struct bench futex_benchmarks[] = {
 	{ NULL,		NULL,						NULL			}
 };
 
+<<<<<<< HEAD
+=======
+#ifdef HAVE_EVENTFD_SUPPORT
+static struct bench epoll_benchmarks[] = {
+	{ "wait",	"Benchmark epoll concurrent epoll_waits",       bench_epoll_wait	},
+	{ "ctl",	"Benchmark epoll concurrent epoll_ctls",        bench_epoll_ctl		},
+	{ "all",	"Run all futex benchmarks",			NULL			},
+	{ NULL,		NULL,						NULL			}
+};
+#endif // HAVE_EVENTFD_SUPPORT
+
+static struct bench internals_benchmarks[] = {
+	{ "synthesize", "Benchmark perf event synthesis",	bench_synthesize	},
+	{ "kallsyms-parse", "Benchmark kallsyms parsing",	bench_kallsyms_parse	},
+	{ "inject-build-id", "Benchmark build-id injection",	bench_inject_build_id	},
+	{ "evlist-open-close", "Benchmark evlist open and close",	bench_evlist_open_close	},
+	{ NULL,		NULL,					NULL			}
+};
+
+>>>>>>> upstream/android-13
 struct collection {
 	const char	*name;
 	const char	*summary;
@@ -75,11 +121,22 @@ struct collection {
 
 static struct collection collections[] = {
 	{ "sched",	"Scheduler and IPC benchmarks",			sched_benchmarks	},
+<<<<<<< HEAD
+=======
+	{ "syscall",	"System call benchmarks",			syscall_benchmarks	},
+>>>>>>> upstream/android-13
 	{ "mem",	"Memory access benchmarks",			mem_benchmarks		},
 #ifdef HAVE_LIBNUMA_SUPPORT
 	{ "numa",	"NUMA scheduling and MM benchmarks",		numa_benchmarks		},
 #endif
 	{"futex",       "Futex stressing benchmarks",                   futex_benchmarks        },
+<<<<<<< HEAD
+=======
+#ifdef HAVE_EVENTFD_SUPPORT
+	{"epoll",       "Epoll stressing benchmarks",                   epoll_benchmarks        },
+#endif
+	{ "internals",	"Perf-internals benchmarks",			internals_benchmarks	},
+>>>>>>> upstream/android-13
 	{ "all",	"All benchmarks",				NULL			},
 	{ NULL,		NULL,						NULL			}
 };

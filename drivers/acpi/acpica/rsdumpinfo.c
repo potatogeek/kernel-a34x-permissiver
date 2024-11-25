@@ -32,7 +32,11 @@ struct acpi_rsdump_info acpi_rs_dump_irq[7] = {
 	 acpi_gbl_he_decode},
 	{ACPI_RSD_1BITFLAG, ACPI_RSD_OFFSET(irq.polarity), "Polarity",
 	 acpi_gbl_ll_decode},
+<<<<<<< HEAD
 	{ACPI_RSD_2BITFLAG, ACPI_RSD_OFFSET(irq.sharable), "Sharing",
+=======
+	{ACPI_RSD_2BITFLAG, ACPI_RSD_OFFSET(irq.shareable), "Sharing",
+>>>>>>> upstream/android-13
 	 acpi_gbl_shr_decode},
 	{ACPI_RSD_UINT8, ACPI_RSD_OFFSET(irq.interrupt_count),
 	 "Interrupt Count", NULL},
@@ -222,7 +226,11 @@ struct acpi_rsdump_info acpi_rs_dump_ext_irq[8] = {
 	 "Triggering", acpi_gbl_he_decode},
 	{ACPI_RSD_1BITFLAG, ACPI_RSD_OFFSET(extended_irq.polarity), "Polarity",
 	 acpi_gbl_ll_decode},
+<<<<<<< HEAD
 	{ACPI_RSD_2BITFLAG, ACPI_RSD_OFFSET(extended_irq.sharable), "Sharing",
+=======
+	{ACPI_RSD_2BITFLAG, ACPI_RSD_OFFSET(extended_irq.shareable), "Sharing",
+>>>>>>> upstream/android-13
 	 acpi_gbl_shr_decode},
 	{ACPI_RSD_SOURCE, ACPI_RSD_OFFSET(extended_irq.resource_source), NULL,
 	 NULL},
@@ -255,7 +263,11 @@ struct acpi_rsdump_info acpi_rs_dump_gpio[16] = {
 	 "ProducerConsumer", acpi_gbl_consume_decode},
 	{ACPI_RSD_UINT8, ACPI_RSD_OFFSET(gpio.pin_config), "PinConfig",
 	 acpi_gbl_ppc_decode},
+<<<<<<< HEAD
 	{ACPI_RSD_2BITFLAG, ACPI_RSD_OFFSET(gpio.sharable), "Sharing",
+=======
+	{ACPI_RSD_2BITFLAG, ACPI_RSD_OFFSET(gpio.shareable), "Sharing",
+>>>>>>> upstream/android-13
 	 acpi_gbl_shr_decode},
 	{ACPI_RSD_2BITFLAG, ACPI_RSD_OFFSET(gpio.io_restriction),
 	 "IoRestriction", acpi_gbl_ior_decode},
@@ -285,7 +297,11 @@ struct acpi_rsdump_info acpi_rs_dump_pin_function[10] = {
 	 "RevisionId", NULL},
 	{ACPI_RSD_UINT8, ACPI_RSD_OFFSET(pin_function.pin_config), "PinConfig",
 	 acpi_gbl_ppc_decode},
+<<<<<<< HEAD
 	{ACPI_RSD_1BITFLAG, ACPI_RSD_OFFSET(pin_function.sharable), "Sharing",
+=======
+	{ACPI_RSD_1BITFLAG, ACPI_RSD_OFFSET(pin_function.shareable), "Sharing",
+>>>>>>> upstream/android-13
 	 acpi_gbl_shr_decode},
 	{ACPI_RSD_UINT16, ACPI_RSD_OFFSET(pin_function.function_number),
 	 "FunctionNumber", NULL},
@@ -308,7 +324,11 @@ struct acpi_rsdump_info acpi_rs_dump_pin_config[11] = {
 	 NULL},
 	{ACPI_RSD_1BITFLAG, ACPI_RSD_OFFSET(pin_config.producer_consumer),
 	 "ProducerConsumer", acpi_gbl_consume_decode},
+<<<<<<< HEAD
 	{ACPI_RSD_1BITFLAG, ACPI_RSD_OFFSET(pin_config.sharable), "Sharing",
+=======
+	{ACPI_RSD_1BITFLAG, ACPI_RSD_OFFSET(pin_config.shareable), "Sharing",
+>>>>>>> upstream/android-13
 	 acpi_gbl_shr_decode},
 	{ACPI_RSD_UINT8, ACPI_RSD_OFFSET(pin_config.pin_config_type),
 	 "PinConfigType", NULL},
@@ -353,7 +373,11 @@ struct acpi_rsdump_info acpi_rs_dump_pin_group_function[9] = {
 	{ACPI_RSD_1BITFLAG,
 	 ACPI_RSD_OFFSET(pin_group_function.producer_consumer),
 	 "ProducerConsumer", acpi_gbl_consume_decode},
+<<<<<<< HEAD
 	{ACPI_RSD_1BITFLAG, ACPI_RSD_OFFSET(pin_group_function.sharable),
+=======
+	{ACPI_RSD_1BITFLAG, ACPI_RSD_OFFSET(pin_group_function.shareable),
+>>>>>>> upstream/android-13
 	 "Sharing", acpi_gbl_shr_decode},
 	{ACPI_RSD_UINT16, ACPI_RSD_OFFSET(pin_group_function.function_number),
 	 "FunctionNumber", NULL},
@@ -375,7 +399,11 @@ struct acpi_rsdump_info acpi_rs_dump_pin_group_config[10] = {
 	 "RevisionId", NULL},
 	{ACPI_RSD_1BITFLAG, ACPI_RSD_OFFSET(pin_group_config.producer_consumer),
 	 "ProducerConsumer", acpi_gbl_consume_decode},
+<<<<<<< HEAD
 	{ACPI_RSD_1BITFLAG, ACPI_RSD_OFFSET(pin_group_config.sharable),
+=======
+	{ACPI_RSD_1BITFLAG, ACPI_RSD_OFFSET(pin_group_config.shareable),
+>>>>>>> upstream/android-13
 	 "Sharing", acpi_gbl_shr_decode},
 	{ACPI_RSD_UINT8, ACPI_RSD_OFFSET(pin_group_config.pin_config_type),
 	 "PinConfigType", NULL},
@@ -421,6 +449,35 @@ struct acpi_rsdump_info acpi_rs_dump_common_serial_bus[11] = {
 	ACPI_RS_DUMP_COMMON_SERIAL_BUS
 };
 
+<<<<<<< HEAD
+=======
+struct acpi_rsdump_info acpi_rs_dump_csi2_serial_bus[11] = {
+	{ ACPI_RSD_TITLE, ACPI_RSD_TABLE_SIZE(acpi_rs_dump_csi2_serial_bus),
+	 "Camera Serial Bus", NULL },
+	{ ACPI_RSD_UINT8, ACPI_RSD_OFFSET(csi2_serial_bus.revision_id),
+	 "RevisionId", NULL },
+	{ ACPI_RSD_UINT8, ACPI_RSD_OFFSET(csi2_serial_bus.type), "Type",
+	 acpi_gbl_sbt_decode },
+	{ ACPI_RSD_1BITFLAG, ACPI_RSD_OFFSET(csi2_serial_bus.producer_consumer),
+	 "ProducerConsumer", acpi_gbl_consume_decode },
+	{ ACPI_RSD_1BITFLAG, ACPI_RSD_OFFSET(csi2_serial_bus.slave_mode),
+	 "SlaveMode", acpi_gbl_sm_decode },
+	{ ACPI_RSD_2BITFLAG, ACPI_RSD_OFFSET(csi2_serial_bus.phy_type),
+	 "PhyType", acpi_gbl_phy_decode },
+	{ ACPI_RSD_6BITFLAG,
+	 ACPI_RSD_OFFSET(csi2_serial_bus.local_port_instance),
+	 "LocalPortInstance", NULL },
+	{ ACPI_RSD_UINT8, ACPI_RSD_OFFSET(csi2_serial_bus.type_revision_id),
+	 "TypeRevisionId", NULL },
+	{ ACPI_RSD_UINT16, ACPI_RSD_OFFSET(csi2_serial_bus.vendor_length),
+	 "VendorLength", NULL },
+	{ ACPI_RSD_SHORTLISTX, ACPI_RSD_OFFSET(csi2_serial_bus.vendor_data),
+	 "VendorData", NULL },
+	{ ACPI_RSD_SOURCE, ACPI_RSD_OFFSET(csi2_serial_bus.resource_source),
+	 "ResourceSource", NULL },
+};
+
+>>>>>>> upstream/android-13
 struct acpi_rsdump_info acpi_rs_dump_i2c_serial_bus[14] = {
 	{ACPI_RSD_TITLE, ACPI_RSD_TABLE_SIZE(acpi_rs_dump_i2c_serial_bus),
 	 "I2C Serial Bus", NULL},

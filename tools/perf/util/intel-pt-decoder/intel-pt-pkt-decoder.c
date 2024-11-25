@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * intel_pt_pkt_decoder.c: Intel Processor Trace support
  * Copyright (c) 2013-2014, Intel Corporation.
@@ -11,6 +12,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * intel_pt_pkt_decoder.c: Intel Processor Trace support
+ * Copyright (c) 2013-2014, Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include <stdio.h>
@@ -25,8 +32,11 @@
 
 #define BIT63		((uint64_t)1 << 63)
 
+<<<<<<< HEAD
 #define NR_FLAG		BIT63
 
+=======
+>>>>>>> upstream/android-13
 #if __BYTE_ORDER == __BIG_ENDIAN
 #define le16_to_cpu bswap_16
 #define le32_to_cpu bswap_32
@@ -71,6 +81,13 @@ static const char * const packet_name[] = {
 	[INTEL_PT_MWAIT]	= "MWAIT",
 	[INTEL_PT_PWRE]		= "PWRE",
 	[INTEL_PT_PWRX]		= "PWRX",
+<<<<<<< HEAD
+=======
+	[INTEL_PT_BBP]		= "BBP",
+	[INTEL_PT_BIP]		= "BIP",
+	[INTEL_PT_BEP]		= "BEP",
+	[INTEL_PT_BEP_IP]	= "BEP",
+>>>>>>> upstream/android-13
 };
 
 const char *intel_pt_pkt_name(enum intel_pt_pkt_type type)
@@ -111,9 +128,13 @@ static int intel_pt_get_pip(const unsigned char *buf, size_t len,
 
 	packet->type = INTEL_PT_PIP;
 	memcpy_le64(&payload, buf + 2, 6);
+<<<<<<< HEAD
 	packet->payload = payload >> 1;
 	if (payload & 1)
 		packet->payload |= NR_FLAG;
+=======
+	packet->payload = payload;
+>>>>>>> upstream/android-13
 
 	return 8;
 }
@@ -289,6 +310,58 @@ static int intel_pt_get_pwrx(const unsigned char *buf, size_t len,
 	return 7;
 }
 
+<<<<<<< HEAD
+=======
+static int intel_pt_get_bbp(const unsigned char *buf, size_t len,
+			    struct intel_pt_pkt *packet)
+{
+	if (len < 3)
+		return INTEL_PT_NEED_MORE_BYTES;
+	packet->type = INTEL_PT_BBP;
+	packet->count = buf[2] >> 7;
+	packet->payload = buf[2] & 0x1f;
+	return 3;
+}
+
+static int intel_pt_get_bip_4(const unsigned char *buf, size_t len,
+			      struct intel_pt_pkt *packet)
+{
+	if (len < 5)
+		return INTEL_PT_NEED_MORE_BYTES;
+	packet->type = INTEL_PT_BIP;
+	packet->count = buf[0] >> 3;
+	memcpy_le64(&packet->payload, buf + 1, 4);
+	return 5;
+}
+
+static int intel_pt_get_bip_8(const unsigned char *buf, size_t len,
+			      struct intel_pt_pkt *packet)
+{
+	if (len < 9)
+		return INTEL_PT_NEED_MORE_BYTES;
+	packet->type = INTEL_PT_BIP;
+	packet->count = buf[0] >> 3;
+	memcpy_le64(&packet->payload, buf + 1, 8);
+	return 9;
+}
+
+static int intel_pt_get_bep(size_t len, struct intel_pt_pkt *packet)
+{
+	if (len < 2)
+		return INTEL_PT_NEED_MORE_BYTES;
+	packet->type = INTEL_PT_BEP;
+	return 2;
+}
+
+static int intel_pt_get_bep_ip(size_t len, struct intel_pt_pkt *packet)
+{
+	if (len < 2)
+		return INTEL_PT_NEED_MORE_BYTES;
+	packet->type = INTEL_PT_BEP_IP;
+	return 2;
+}
+
+>>>>>>> upstream/android-13
 static int intel_pt_get_ext(const unsigned char *buf, size_t len,
 			    struct intel_pt_pkt *packet)
 {
@@ -329,6 +402,15 @@ static int intel_pt_get_ext(const unsigned char *buf, size_t len,
 		return intel_pt_get_pwre(buf, len, packet);
 	case 0xA2: /* PWRX */
 		return intel_pt_get_pwrx(buf, len, packet);
+<<<<<<< HEAD
+=======
+	case 0x63: /* BBP */
+		return intel_pt_get_bbp(buf, len, packet);
+	case 0x33: /* BEP no IP */
+		return intel_pt_get_bep(len, packet);
+	case 0xb3: /* BEP with IP */
+		return intel_pt_get_bep_ip(len, packet);
+>>>>>>> upstream/android-13
 	default:
 		return INTEL_PT_BAD_PACKET;
 	}
@@ -477,7 +559,12 @@ static int intel_pt_get_mtc(const unsigned char *buf, size_t len,
 }
 
 static int intel_pt_do_get_packet(const unsigned char *buf, size_t len,
+<<<<<<< HEAD
 				  struct intel_pt_pkt *packet)
+=======
+				  struct intel_pt_pkt *packet,
+				  enum intel_pt_pkt_ctx ctx)
+>>>>>>> upstream/android-13
 {
 	unsigned int byte;
 
@@ -487,6 +574,25 @@ static int intel_pt_do_get_packet(const unsigned char *buf, size_t len,
 		return INTEL_PT_NEED_MORE_BYTES;
 
 	byte = buf[0];
+<<<<<<< HEAD
+=======
+
+	switch (ctx) {
+	case INTEL_PT_NO_CTX:
+		break;
+	case INTEL_PT_BLK_4_CTX:
+		if ((byte & 0x7) == 4)
+			return intel_pt_get_bip_4(buf, len, packet);
+		break;
+	case INTEL_PT_BLK_8_CTX:
+		if ((byte & 0x7) == 4)
+			return intel_pt_get_bip_8(buf, len, packet);
+		break;
+	default:
+		break;
+	}
+
+>>>>>>> upstream/android-13
 	if (!(byte & BIT(0))) {
 		if (byte == 0)
 			return intel_pt_get_pad(packet);
@@ -525,6 +631,7 @@ static int intel_pt_do_get_packet(const unsigned char *buf, size_t len,
 	}
 }
 
+<<<<<<< HEAD
 int intel_pt_get_packet(const unsigned char *buf, size_t len,
 			struct intel_pt_pkt *packet)
 {
@@ -534,6 +641,67 @@ int intel_pt_get_packet(const unsigned char *buf, size_t len,
 	if (ret > 0) {
 		while (ret < 8 && len > (size_t)ret && !buf[ret])
 			ret += 1;
+=======
+void intel_pt_upd_pkt_ctx(const struct intel_pt_pkt *packet,
+			  enum intel_pt_pkt_ctx *ctx)
+{
+	switch (packet->type) {
+	case INTEL_PT_BAD:
+	case INTEL_PT_PAD:
+	case INTEL_PT_TSC:
+	case INTEL_PT_TMA:
+	case INTEL_PT_MTC:
+	case INTEL_PT_FUP:
+	case INTEL_PT_CYC:
+	case INTEL_PT_CBR:
+	case INTEL_PT_MNT:
+	case INTEL_PT_EXSTOP:
+	case INTEL_PT_EXSTOP_IP:
+	case INTEL_PT_PWRE:
+	case INTEL_PT_PWRX:
+	case INTEL_PT_BIP:
+		break;
+	case INTEL_PT_TNT:
+	case INTEL_PT_TIP:
+	case INTEL_PT_TIP_PGD:
+	case INTEL_PT_TIP_PGE:
+	case INTEL_PT_MODE_EXEC:
+	case INTEL_PT_MODE_TSX:
+	case INTEL_PT_PIP:
+	case INTEL_PT_OVF:
+	case INTEL_PT_VMCS:
+	case INTEL_PT_TRACESTOP:
+	case INTEL_PT_PSB:
+	case INTEL_PT_PSBEND:
+	case INTEL_PT_PTWRITE:
+	case INTEL_PT_PTWRITE_IP:
+	case INTEL_PT_MWAIT:
+	case INTEL_PT_BEP:
+	case INTEL_PT_BEP_IP:
+		*ctx = INTEL_PT_NO_CTX;
+		break;
+	case INTEL_PT_BBP:
+		if (packet->count)
+			*ctx = INTEL_PT_BLK_4_CTX;
+		else
+			*ctx = INTEL_PT_BLK_8_CTX;
+		break;
+	default:
+		break;
+	}
+}
+
+int intel_pt_get_packet(const unsigned char *buf, size_t len,
+			struct intel_pt_pkt *packet, enum intel_pt_pkt_ctx *ctx)
+{
+	int ret;
+
+	ret = intel_pt_do_get_packet(buf, len, packet, *ctx);
+	if (ret > 0) {
+		while (ret < 8 && len > (size_t)ret && !buf[ret])
+			ret += 1;
+		intel_pt_upd_pkt_ctx(packet, ctx);
+>>>>>>> upstream/android-13
 	}
 	return ret;
 }
@@ -602,17 +770,31 @@ int intel_pt_pkt_desc(const struct intel_pt_pkt *packet, char *buf,
 				name, (unsigned)(payload >> 1) & 1,
 				(unsigned)payload & 1);
 	case INTEL_PT_PIP:
+<<<<<<< HEAD
 		nr = packet->payload & NR_FLAG ? 1 : 0;
 		payload &= ~NR_FLAG;
 		ret = snprintf(buf, buf_len, "%s 0x%llx (NR=%d)",
 			       name, payload, nr);
+=======
+		nr = packet->payload & INTEL_PT_VMX_NR_FLAG ? 1 : 0;
+		payload &= ~INTEL_PT_VMX_NR_FLAG;
+		ret = snprintf(buf, buf_len, "%s 0x%llx (NR=%d)",
+			       name, payload >> 1, nr);
+>>>>>>> upstream/android-13
 		return ret;
 	case INTEL_PT_PTWRITE:
 		return snprintf(buf, buf_len, "%s 0x%llx IP:0", name, payload);
 	case INTEL_PT_PTWRITE_IP:
 		return snprintf(buf, buf_len, "%s 0x%llx IP:1", name, payload);
+<<<<<<< HEAD
 	case INTEL_PT_EXSTOP:
 		return snprintf(buf, buf_len, "%s IP:0", name);
+=======
+	case INTEL_PT_BEP:
+	case INTEL_PT_EXSTOP:
+		return snprintf(buf, buf_len, "%s IP:0", name);
+	case INTEL_PT_BEP_IP:
+>>>>>>> upstream/android-13
 	case INTEL_PT_EXSTOP_IP:
 		return snprintf(buf, buf_len, "%s IP:1", name);
 	case INTEL_PT_MWAIT:
@@ -630,6 +812,15 @@ int intel_pt_pkt_desc(const struct intel_pt_pkt *packet, char *buf,
 				(unsigned int)((payload >> 4) & 0xf),
 				(unsigned int)(payload & 0xf),
 				(unsigned int)((payload >> 8) & 0xf));
+<<<<<<< HEAD
+=======
+	case INTEL_PT_BBP:
+		return snprintf(buf, buf_len, "%s SZ %s-byte Type 0x%llx",
+				name, packet->count ? "4" : "8", payload);
+	case INTEL_PT_BIP:
+		return snprintf(buf, buf_len, "%s ID 0x%02x Value 0x%llx",
+				name, packet->count, payload);
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}

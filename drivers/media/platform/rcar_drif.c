@@ -185,7 +185,10 @@ struct rcar_drif_frame_buf {
 /* OF graph endpoint's V4L2 async data */
 struct rcar_drif_graph_ep {
 	struct v4l2_subdev *subdev;	/* Async matched subdev */
+<<<<<<< HEAD
 	struct v4l2_async_subdev asd;	/* Async sub-device descriptor */
+=======
+>>>>>>> upstream/android-13
 };
 
 /* DMA buffer */
@@ -275,10 +278,21 @@ static int rcar_drif_alloc_dmachannels(struct rcar_drif_sdr *sdr)
 	for_each_rcar_drif_channel(i, &sdr->cur_ch_mask) {
 		struct rcar_drif *ch = sdr->ch[i];
 
+<<<<<<< HEAD
 		ch->dmach = dma_request_slave_channel(&ch->pdev->dev, "rx");
 		if (!ch->dmach) {
 			rdrif_err(sdr, "ch%u: dma channel req failed\n", i);
 			ret = -ENODEV;
+=======
+		ch->dmach = dma_request_chan(&ch->pdev->dev, "rx");
+		if (IS_ERR(ch->dmach)) {
+			ret = PTR_ERR(ch->dmach);
+			if (ret != -EPROBE_DEFER)
+				rdrif_err(sdr,
+					  "ch%u: dma channel req failed: %pe\n",
+					  i, ch->dmach);
+			ch->dmach = NULL;
+>>>>>>> upstream/android-13
 			goto dmach_error;
 		}
 
@@ -870,8 +884,13 @@ static int rcar_drif_querycap(struct file *file, void *fh,
 {
 	struct rcar_drif_sdr *sdr = video_drvdata(file);
 
+<<<<<<< HEAD
 	strlcpy(cap->driver, KBUILD_MODNAME, sizeof(cap->driver));
 	strlcpy(cap->card, sdr->vdev->name, sizeof(cap->card));
+=======
+	strscpy(cap->driver, KBUILD_MODNAME, sizeof(cap->driver));
+	strscpy(cap->card, sdr->vdev->name, sizeof(cap->card));
+>>>>>>> upstream/android-13
 	snprintf(cap->bus_info, sizeof(cap->bus_info), "platform:%s",
 		 sdr->vdev->name);
 
@@ -912,7 +931,10 @@ static int rcar_drif_g_fmt_sdr_cap(struct file *file, void *priv,
 {
 	struct rcar_drif_sdr *sdr = video_drvdata(file);
 
+<<<<<<< HEAD
 	memset(f->fmt.sdr.reserved, 0, sizeof(f->fmt.sdr.reserved));
+=======
+>>>>>>> upstream/android-13
 	f->fmt.sdr.pixelformat = sdr->fmt->pixelformat;
 	f->fmt.sdr.buffersize = sdr->fmt->buffersize;
 
@@ -1105,12 +1127,15 @@ static int rcar_drif_notify_bound(struct v4l2_async_notifier *notifier,
 	struct rcar_drif_sdr *sdr =
 		container_of(notifier, struct rcar_drif_sdr, notifier);
 
+<<<<<<< HEAD
 	if (sdr->ep.asd.match.fwnode !=
 	    of_fwnode_handle(subdev->dev->of_node)) {
 		rdrif_err(sdr, "subdev %s cannot bind\n", subdev->name);
 		return -EINVAL;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	v4l2_set_subdev_hostdata(subdev, sdr);
 	sdr->ep.subdev = subdev;
 	rdrif_dbg(sdr, "bound asd %s\n", subdev->name);
@@ -1214,17 +1239,24 @@ static int rcar_drif_parse_subdevs(struct rcar_drif_sdr *sdr)
 {
 	struct v4l2_async_notifier *notifier = &sdr->notifier;
 	struct fwnode_handle *fwnode, *ep;
+<<<<<<< HEAD
 
 	notifier->subdevs = devm_kzalloc(sdr->dev, sizeof(*notifier->subdevs),
 					 GFP_KERNEL);
 	if (!notifier->subdevs)
 		return -ENOMEM;
+=======
+	struct v4l2_async_subdev *asd;
+
+	v4l2_async_notifier_init(notifier);
+>>>>>>> upstream/android-13
 
 	ep = fwnode_graph_get_next_endpoint(of_fwnode_handle(sdr->dev->of_node),
 					    NULL);
 	if (!ep)
 		return 0;
 
+<<<<<<< HEAD
 	notifier->subdevs[notifier->num_subdevs] = &sdr->ep.asd;
 	fwnode = fwnode_graph_get_remote_port_parent(ep);
 	if (!fwnode) {
@@ -1242,6 +1274,23 @@ static int rcar_drif_parse_subdevs(struct rcar_drif_sdr *sdr)
 
 	fwnode_handle_put(fwnode);
 	fwnode_handle_put(ep);
+=======
+	/* Get the endpoint properties */
+	rcar_drif_get_ep_properties(sdr, ep);
+
+	fwnode = fwnode_graph_get_remote_port_parent(ep);
+	fwnode_handle_put(ep);
+	if (!fwnode) {
+		dev_warn(sdr->dev, "bad remote port parent\n");
+		return -EINVAL;
+	}
+
+	asd = v4l2_async_notifier_add_fwnode_subdev(notifier, fwnode,
+						    struct v4l2_async_subdev);
+	fwnode_handle_put(fwnode);
+	if (IS_ERR(asd))
+		return PTR_ERR(asd);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1357,11 +1406,20 @@ static int rcar_drif_sdr_probe(struct rcar_drif_sdr *sdr)
 	ret = v4l2_async_notifier_register(&sdr->v4l2_dev, &sdr->notifier);
 	if (ret < 0) {
 		dev_err(sdr->dev, "failed: notifier register ret %d\n", ret);
+<<<<<<< HEAD
 		goto error;
+=======
+		goto cleanup;
+>>>>>>> upstream/android-13
 	}
 
 	return ret;
 
+<<<<<<< HEAD
+=======
+cleanup:
+	v4l2_async_notifier_cleanup(&sdr->notifier);
+>>>>>>> upstream/android-13
 error:
 	v4l2_device_unregister(&sdr->v4l2_dev);
 
@@ -1372,6 +1430,10 @@ error:
 static void rcar_drif_sdr_remove(struct rcar_drif_sdr *sdr)
 {
 	v4l2_async_notifier_unregister(&sdr->notifier);
+<<<<<<< HEAD
+=======
+	v4l2_async_notifier_cleanup(&sdr->notifier);
+>>>>>>> upstream/android-13
 	v4l2_device_unregister(&sdr->v4l2_dev);
 }
 
@@ -1402,11 +1464,17 @@ static int rcar_drif_probe(struct platform_device *pdev)
 	/* Register map */
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	ch->base = devm_ioremap_resource(&pdev->dev, res);
+<<<<<<< HEAD
 	if (IS_ERR(ch->base)) {
 		ret = PTR_ERR(ch->base);
 		dev_err(&pdev->dev, "ioremap failed (%d)\n", ret);
 		return ret;
 	}
+=======
+	if (IS_ERR(ch->base))
+		return PTR_ERR(ch->base);
+
+>>>>>>> upstream/android-13
 	ch->start = res->start;
 	platform_set_drvdata(pdev, ch);
 

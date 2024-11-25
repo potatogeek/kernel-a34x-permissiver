@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #ifndef _HFI1_VNIC_H
 #define _HFI1_VNIC_H
 /*
@@ -47,6 +48,15 @@
  *
  */
 
+=======
+/* SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause */
+/*
+ * Copyright(c) 2017 - 2020 Intel Corporation.
+ */
+
+#ifndef _HFI1_VNIC_H
+#define _HFI1_VNIC_H
+>>>>>>> upstream/android-13
 #include <rdma/opa_vnic.h>
 #include "hfi.h"
 #include "sdma.h"
@@ -69,6 +79,10 @@
 #define HFI1_VNIC_SC_SHIFT      4
 
 #define HFI1_VNIC_MAX_QUEUE 16
+<<<<<<< HEAD
+=======
+#define HFI1_NUM_VNIC_CTXT 8
+>>>>>>> upstream/android-13
 
 /**
  * struct hfi1_vnic_sdma - VNIC per Tx ring SDMA information
@@ -104,7 +118,10 @@ struct hfi1_vnic_rx_queue {
 	struct hfi1_vnic_vport_info *vinfo;
 	struct net_device           *netdev;
 	struct napi_struct           napi;
+<<<<<<< HEAD
 	struct sk_buff_head          skbq;
+=======
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -146,7 +163,10 @@ struct hfi1_vnic_vport_info {
 
 /* vnic hfi1 internal functions */
 void hfi1_vnic_setup(struct hfi1_devdata *dd);
+<<<<<<< HEAD
 void hfi1_vnic_cleanup(struct hfi1_devdata *dd);
+=======
+>>>>>>> upstream/android-13
 int hfi1_vnic_txreq_init(struct hfi1_devdata *dd);
 void hfi1_vnic_txreq_deinit(struct hfi1_devdata *dd);
 
@@ -157,7 +177,11 @@ bool hfi1_vnic_sdma_write_avail(struct hfi1_vnic_vport_info *vinfo,
 
 /* vnic rdma netdev operations */
 struct net_device *hfi1_vnic_alloc_rn(struct ib_device *device,
+<<<<<<< HEAD
 				      u8 port_num,
+=======
+				      u32 port_num,
+>>>>>>> upstream/android-13
 				      enum rdma_netdev_t type,
 				      const char *name,
 				      unsigned char name_assign_type,

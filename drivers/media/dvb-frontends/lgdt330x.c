@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *    Support for LGDT3302 and LGDT3303 - VSB/QAM
  *
  *    Copyright (C) 2005 Wilson Michaels <wilsonmichaels@earthlink.net>
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -929,11 +936,19 @@ struct dvb_frontend *lgdt330x_attach(const struct lgdt330x_config *_config,
 	struct i2c_board_info board_info = {};
 	struct lgdt330x_config config = *_config;
 
+<<<<<<< HEAD
 	strlcpy(board_info.type, "lgdt330x", sizeof(board_info.type));
 	board_info.addr = demod_address;
 	board_info.platform_data = &config;
 	client = i2c_new_device(i2c, &board_info);
 	if (!client || !client->dev.driver)
+=======
+	strscpy(board_info.type, "lgdt330x", sizeof(board_info.type));
+	board_info.addr = demod_address;
+	board_info.platform_data = &config;
+	client = i2c_new_client_device(i2c, &board_info);
+	if (!i2c_client_has_driver(client))
+>>>>>>> upstream/android-13
 		return NULL;
 
 	return lgdt330x_get_dvb_frontend(client);

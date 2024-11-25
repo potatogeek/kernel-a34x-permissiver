@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /* ------------------------------------------------------------------------- */
 /* i2c-iop3xx.h algorithm driver definitions private to i2c-iop3xx.c         */
 /* ------------------------------------------------------------------------- */
 /*   Copyright (C) 2003 Peter Milne, D-TACQ Solutions Ltd
  *                      <Peter dot Milne at D hyphen TACQ dot com>
 
+<<<<<<< HEAD
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, version 2.
@@ -12,6 +17,9 @@
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.			     */
+=======
+ */
+>>>>>>> upstream/android-13
 /* ------------------------------------------------------------------------- */
 
 
@@ -98,6 +106,11 @@ struct i2c_algo_iop3xx_data {
 	spinlock_t lock;
 	u32 SR_enabled, SR_received;
 	int id;
+<<<<<<< HEAD
+=======
+	struct gpio_desc *gpio_scl;
+	struct gpio_desc *gpio_sda;
+>>>>>>> upstream/android-13
 };
 
 #endif /* I2C_IOP3XX_H */

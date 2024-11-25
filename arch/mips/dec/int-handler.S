@@ -131,7 +131,11 @@
 		 */
 		mfc0	t0,CP0_CAUSE		# get pending interrupts
 		mfc0	t1,CP0_STATUS
+<<<<<<< HEAD
 #ifdef CONFIG_32BIT
+=======
+#if defined(CONFIG_32BIT) && defined(CONFIG_MIPS_FP_SUPPORT)
+>>>>>>> upstream/android-13
 		lw	t2,cpu_fpu_mask
 #endif
 		andi	t0,ST0_IM		# CAUSE.CE may be non-zero!
@@ -139,7 +143,11 @@
 
 		beqz	t0,spurious
 
+<<<<<<< HEAD
 #ifdef CONFIG_32BIT
+=======
+#if defined(CONFIG_32BIT) && defined(CONFIG_MIPS_FP_SUPPORT)
+>>>>>>> upstream/android-13
 		 and	t2,t0
 		bnez	t2,fpu			# handle FPU immediately
 #endif
@@ -280,7 +288,11 @@ handle_it:
 		j	dec_irq_dispatch
 		 nop
 
+<<<<<<< HEAD
 #ifdef CONFIG_32BIT
+=======
+#if defined(CONFIG_32BIT) && defined(CONFIG_MIPS_FP_SUPPORT)
+>>>>>>> upstream/android-13
 fpu:
 		lw	t0,fpu_kstat_irq
 		nop
@@ -304,8 +316,16 @@ spurious:
  */
 		FEXPORT(dec_intr_unimplemented)
 		move	a1,t0			# cheats way of printing an arg!
+<<<<<<< HEAD
 		PANIC("Unimplemented cpu interrupt! CP0_CAUSE: 0x%08x");
 
 		FEXPORT(asic_intr_unimplemented)
 		move	a1,t0			# cheats way of printing an arg!
 		PANIC("Unimplemented asic interrupt! ASIC ISR: 0x%08x");
+=======
+		ASM_PANIC("Unimplemented cpu interrupt! CP0_CAUSE: 0x%08x");
+
+		FEXPORT(asic_intr_unimplemented)
+		move	a1,t0			# cheats way of printing an arg!
+		ASM_PANIC("Unimplemented asic interrupt! ASIC ISR: 0x%08x");
+>>>>>>> upstream/android-13

@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Copyright (c) 2013 Johannes Berg <johannes@sipsolutions.net>
+=======
+ * Copyright (c) 2013, 2021 Johannes Berg <johannes@sipsolutions.net>
+>>>>>>> upstream/android-13
  *
  *  This file is free software: you may copy, redistribute and/or modify it
  *  under the terms of the GNU General Public License as published by the
@@ -49,7 +53,11 @@
 #include "hw.h"
 #include "reg.h"
 
+<<<<<<< HEAD
 const char alx_drv_name[] = "alx";
+=======
+static const char alx_drv_name[] = "alx";
+>>>>>>> upstream/android-13
 
 static void alx_free_txbuf(struct alx_tx_queue *txq, int entry)
 {
@@ -660,10 +668,16 @@ static int alx_alloc_rings(struct alx_priv *alx)
 			    alx->num_txq +
 			    sizeof(struct alx_rrd) * alx->rx_ringsz +
 			    sizeof(struct alx_rfd) * alx->rx_ringsz;
+<<<<<<< HEAD
 	alx->descmem.virt = dma_zalloc_coherent(&alx->hw.pdev->dev,
 						alx->descmem.size,
 						&alx->descmem.dma,
 						GFP_KERNEL);
+=======
+	alx->descmem.virt = dma_alloc_coherent(&alx->hw.pdev->dev,
+					       alx->descmem.size,
+					       &alx->descmem.dma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!alx->descmem.virt)
 		return -ENOMEM;
 
@@ -1092,8 +1106,14 @@ static int alx_init_sw(struct alx_priv *alx)
 		      ALX_MAC_CTRL_RXFC_EN |
 		      ALX_MAC_CTRL_TXFC_EN |
 		      7 << ALX_MAC_CTRL_PRMBLEN_SHIFT;
+<<<<<<< HEAD
 
 	return err;
+=======
+	mutex_init(&alx->mtx);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 
@@ -1123,6 +1143,11 @@ static void alx_halt(struct alx_priv *alx)
 {
 	struct alx_hw *hw = &alx->hw;
 
+<<<<<<< HEAD
+=======
+	lockdep_assert_held(&alx->mtx);
+
+>>>>>>> upstream/android-13
 	alx_netif_stop(alx);
 	hw->link_speed = SPEED_UNKNOWN;
 	hw->duplex = DUPLEX_UNKNOWN;
@@ -1148,6 +1173,11 @@ static void alx_configure(struct alx_priv *alx)
 
 static void alx_activate(struct alx_priv *alx)
 {
+<<<<<<< HEAD
+=======
+	lockdep_assert_held(&alx->mtx);
+
+>>>>>>> upstream/android-13
 	/* hardware setting lost, restore it */
 	alx_reinit_rings(alx);
 	alx_configure(alx);
@@ -1162,7 +1192,11 @@ static void alx_activate(struct alx_priv *alx)
 
 static void alx_reinit(struct alx_priv *alx)
 {
+<<<<<<< HEAD
 	ASSERT_RTNL();
+=======
+	lockdep_assert_held(&alx->mtx);
+>>>>>>> upstream/android-13
 
 	alx_halt(alx);
 	alx_activate(alx);
@@ -1177,8 +1211,16 @@ static int alx_change_mtu(struct net_device *netdev, int mtu)
 	alx->hw.mtu = mtu;
 	alx->rxbuf_size = max(max_frame, ALX_DEF_RXBUF_SIZE);
 	netdev_update_features(netdev);
+<<<<<<< HEAD
 	if (netif_running(netdev))
 		alx_reinit(alx);
+=======
+	if (netif_running(netdev)) {
+		mutex_lock(&alx->mtx);
+		alx_reinit(alx);
+		mutex_unlock(&alx->mtx);
+	}
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1250,6 +1292,11 @@ out_disable_adv_intr:
 
 static void __alx_stop(struct alx_priv *alx)
 {
+<<<<<<< HEAD
+=======
+	lockdep_assert_held(&alx->mtx);
+
+>>>>>>> upstream/android-13
 	alx_free_irq(alx);
 
 	cancel_work_sync(&alx->link_check_wk);
@@ -1285,6 +1332,11 @@ static void alx_check_link(struct alx_priv *alx)
 	int old_speed;
 	int err;
 
+<<<<<<< HEAD
+=======
+	lockdep_assert_held(&alx->mtx);
+
+>>>>>>> upstream/android-13
 	/* clear PHY internal interrupt status, otherwise the main
 	 * interrupt status will be asserted forever
 	 */
@@ -1339,12 +1391,32 @@ reset:
 
 static int alx_open(struct net_device *netdev)
 {
+<<<<<<< HEAD
 	return __alx_open(netdev_priv(netdev), false);
+=======
+	struct alx_priv *alx = netdev_priv(netdev);
+	int ret;
+
+	mutex_lock(&alx->mtx);
+	ret = __alx_open(alx, false);
+	mutex_unlock(&alx->mtx);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int alx_stop(struct net_device *netdev)
 {
+<<<<<<< HEAD
 	__alx_stop(netdev_priv(netdev));
+=======
+	struct alx_priv *alx = netdev_priv(netdev);
+
+	mutex_lock(&alx->mtx);
+	__alx_stop(alx);
+	mutex_unlock(&alx->mtx);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1354,18 +1426,30 @@ static void alx_link_check(struct work_struct *work)
 
 	alx = container_of(work, struct alx_priv, link_check_wk);
 
+<<<<<<< HEAD
 	rtnl_lock();
 	alx_check_link(alx);
 	rtnl_unlock();
+=======
+	mutex_lock(&alx->mtx);
+	alx_check_link(alx);
+	mutex_unlock(&alx->mtx);
+>>>>>>> upstream/android-13
 }
 
 static void alx_reset(struct work_struct *work)
 {
 	struct alx_priv *alx = container_of(work, struct alx_priv, reset_wk);
 
+<<<<<<< HEAD
 	rtnl_lock();
 	alx_reinit(alx);
 	rtnl_unlock();
+=======
+	mutex_lock(&alx->mtx);
+	alx_reinit(alx);
+	mutex_unlock(&alx->mtx);
+>>>>>>> upstream/android-13
 }
 
 static int alx_tpd_req(struct sk_buff *skb)
@@ -1421,10 +1505,14 @@ static int alx_tso(struct sk_buff *skb, struct alx_txd *first)
 							 0, IPPROTO_TCP, 0);
 		first->word1 |= 1 << TPD_IPV4_SHIFT;
 	} else if (skb_is_gso_v6(skb)) {
+<<<<<<< HEAD
 		ipv6_hdr(skb)->payload_len = 0;
 		tcp_hdr(skb)->check = ~csum_ipv6_magic(&ipv6_hdr(skb)->saddr,
 						       &ipv6_hdr(skb)->daddr,
 						       0, IPPROTO_TCP, 0);
+=======
+		tcp_v6_gso_csum_prep(skb);
+>>>>>>> upstream/android-13
 		/* LSOv2: the first TPD only provides the packet length */
 		first->adrl.l.pkt_len = skb->len;
 		first->word1 |= 1 << TPD_LSO_V2_SHIFT;
@@ -1470,9 +1558,13 @@ static int alx_map_tx_skb(struct alx_tx_queue *txq, struct sk_buff *skb)
 	tpd->len = cpu_to_le16(maplen);
 
 	for (f = 0; f < skb_shinfo(skb)->nr_frags; f++) {
+<<<<<<< HEAD
 		struct skb_frag_struct *frag;
 
 		frag = &skb_shinfo(skb)->frags[f];
+=======
+		skb_frag_t *frag = &skb_shinfo(skb)->frags[f];
+>>>>>>> upstream/android-13
 
 		if (++txq->write_idx == txq->count)
 			txq->write_idx = 0;
@@ -1560,7 +1652,11 @@ static netdev_tx_t alx_start_xmit(struct sk_buff *skb,
 	return alx_start_xmit_ring(skb, alx_tx_queue_mapping(alx, skb));
 }
 
+<<<<<<< HEAD
 static void alx_tx_timeout(struct net_device *dev)
+=======
+static void alx_tx_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct alx_priv *alx = netdev_priv(dev);
 
@@ -1686,7 +1782,11 @@ static const struct net_device_ops alx_netdev_ops = {
 	.ndo_validate_addr      = eth_validate_addr,
 	.ndo_set_mac_address    = alx_set_mac_address,
 	.ndo_change_mtu         = alx_change_mtu,
+<<<<<<< HEAD
 	.ndo_do_ioctl           = alx_ioctl,
+=======
+	.ndo_eth_ioctl           = alx_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_tx_timeout         = alx_tx_timeout,
 	.ndo_fix_features	= alx_fix_features,
 #ifdef CONFIG_NET_POLL_CONTROLLER
@@ -1777,6 +1877,11 @@ static int alx_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 		goto out_unmap;
 	}
 
+<<<<<<< HEAD
+=======
+	mutex_lock(&alx->mtx);
+
+>>>>>>> upstream/android-13
 	alx_reset_pcie(hw);
 
 	phy_configured = alx_phy_configured(hw);
@@ -1787,7 +1892,11 @@ static int alx_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	err = alx_reset_mac(hw);
 	if (err) {
 		dev_err(&pdev->dev, "MAC Reset failed, error = %d\n", err);
+<<<<<<< HEAD
 		goto out_unmap;
+=======
+		goto out_unlock;
+>>>>>>> upstream/android-13
 	}
 
 	/* setup link to put it in a known good starting state */
@@ -1797,7 +1906,11 @@ static int alx_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 			dev_err(&pdev->dev,
 				"failed to configure PHY speed/duplex (err=%d)\n",
 				err);
+<<<<<<< HEAD
 			goto out_unmap;
+=======
+			goto out_unlock;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -1830,9 +1943,17 @@ static int alx_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	if (!alx_get_phy_info(hw)) {
 		dev_err(&pdev->dev, "failed to identify PHY\n");
 		err = -EIO;
+<<<<<<< HEAD
 		goto out_unmap;
 	}
 
+=======
+		goto out_unlock;
+	}
+
+	mutex_unlock(&alx->mtx);
+
+>>>>>>> upstream/android-13
 	INIT_WORK(&alx->link_check_wk, alx_link_check);
 	INIT_WORK(&alx->reset_wk, alx_reset);
 	netif_carrier_off(netdev);
@@ -1849,12 +1970,21 @@ static int alx_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 
 	return 0;
 
+<<<<<<< HEAD
+=======
+out_unlock:
+	mutex_unlock(&alx->mtx);
+>>>>>>> upstream/android-13
 out_unmap:
 	iounmap(hw->hw_addr);
 out_free_netdev:
 	free_netdev(netdev);
 out_pci_release:
 	pci_release_mem_regions(pdev);
+<<<<<<< HEAD
+=======
+	pci_disable_pcie_error_reporting(pdev);
+>>>>>>> upstream/android-13
 out_pci_disable:
 	pci_disable_device(pdev);
 	return err;
@@ -1875,24 +2005,42 @@ static void alx_remove(struct pci_dev *pdev)
 	pci_disable_pcie_error_reporting(pdev);
 	pci_disable_device(pdev);
 
+<<<<<<< HEAD
+=======
+	mutex_destroy(&alx->mtx);
+
+>>>>>>> upstream/android-13
 	free_netdev(alx->dev);
 }
 
 #ifdef CONFIG_PM_SLEEP
 static int alx_suspend(struct device *dev)
 {
+<<<<<<< HEAD
 	struct pci_dev *pdev = to_pci_dev(dev);
 	struct alx_priv *alx = pci_get_drvdata(pdev);
+=======
+	struct alx_priv *alx = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 
 	if (!netif_running(alx->dev))
 		return 0;
 	netif_device_detach(alx->dev);
+<<<<<<< HEAD
 	__alx_stop(alx);
+=======
+
+	mutex_lock(&alx->mtx);
+	__alx_stop(alx);
+	mutex_unlock(&alx->mtx);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int alx_resume(struct device *dev)
 {
+<<<<<<< HEAD
 	struct pci_dev *pdev = to_pci_dev(dev);
 	struct alx_priv *alx = pci_get_drvdata(pdev);
 	struct alx_hw *hw = &alx->hw;
@@ -1912,6 +2060,29 @@ static int alx_resume(struct device *dev)
 	netif_device_attach(alx->dev);
 
 	return 0;
+=======
+	struct alx_priv *alx = dev_get_drvdata(dev);
+	struct alx_hw *hw = &alx->hw;
+	int err;
+
+	mutex_lock(&alx->mtx);
+	alx_reset_phy(hw);
+
+	if (!netif_running(alx->dev)) {
+		err = 0;
+		goto unlock;
+	}
+
+	err = __alx_open(alx, true);
+	if (err)
+		goto unlock;
+
+	netif_device_attach(alx->dev);
+
+unlock:
+	mutex_unlock(&alx->mtx);
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static SIMPLE_DEV_PM_OPS(alx_pm_ops, alx_suspend, alx_resume);
@@ -1930,7 +2101,11 @@ static pci_ers_result_t alx_pci_error_detected(struct pci_dev *pdev,
 
 	dev_info(&pdev->dev, "pci error detected\n");
 
+<<<<<<< HEAD
 	rtnl_lock();
+=======
+	mutex_lock(&alx->mtx);
+>>>>>>> upstream/android-13
 
 	if (netif_running(netdev)) {
 		netif_device_detach(netdev);
@@ -1942,7 +2117,11 @@ static pci_ers_result_t alx_pci_error_detected(struct pci_dev *pdev,
 	else
 		pci_disable_device(pdev);
 
+<<<<<<< HEAD
 	rtnl_unlock();
+=======
+	mutex_unlock(&alx->mtx);
+>>>>>>> upstream/android-13
 
 	return rc;
 }
@@ -1955,7 +2134,11 @@ static pci_ers_result_t alx_pci_error_slot_reset(struct pci_dev *pdev)
 
 	dev_info(&pdev->dev, "pci error slot reset\n");
 
+<<<<<<< HEAD
 	rtnl_lock();
+=======
+	mutex_lock(&alx->mtx);
+>>>>>>> upstream/android-13
 
 	if (pci_enable_device(pdev)) {
 		dev_err(&pdev->dev, "Failed to re-enable PCI device after reset\n");
@@ -1968,9 +2151,13 @@ static pci_ers_result_t alx_pci_error_slot_reset(struct pci_dev *pdev)
 	if (!alx_reset_mac(hw))
 		rc = PCI_ERS_RESULT_RECOVERED;
 out:
+<<<<<<< HEAD
 	pci_cleanup_aer_uncorrect_error_status(pdev);
 
 	rtnl_unlock();
+=======
+	mutex_unlock(&alx->mtx);
+>>>>>>> upstream/android-13
 
 	return rc;
 }
@@ -1982,14 +2169,22 @@ static void alx_pci_error_resume(struct pci_dev *pdev)
 
 	dev_info(&pdev->dev, "pci error resume\n");
 
+<<<<<<< HEAD
 	rtnl_lock();
+=======
+	mutex_lock(&alx->mtx);
+>>>>>>> upstream/android-13
 
 	if (netif_running(netdev)) {
 		alx_activate(alx);
 		netif_device_attach(netdev);
 	}
 
+<<<<<<< HEAD
 	rtnl_unlock();
+=======
+	mutex_unlock(&alx->mtx);
+>>>>>>> upstream/android-13
 }
 
 static const struct pci_error_handlers alx_err_handlers = {
@@ -2026,7 +2221,11 @@ static struct pci_driver alx_driver = {
 module_pci_driver(alx_driver);
 MODULE_DEVICE_TABLE(pci, alx_pci_tbl);
 MODULE_AUTHOR("Johannes Berg <johannes@sipsolutions.net>");
+<<<<<<< HEAD
 MODULE_AUTHOR("Qualcomm Corporation, <nic-devel@qualcomm.com>");
+=======
+MODULE_AUTHOR("Qualcomm Corporation");
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION(
 	"Qualcomm Atheros(R) AR816x/AR817x PCI-E Ethernet Network Driver");
 MODULE_LICENSE("GPL");

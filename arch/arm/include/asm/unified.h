@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * include/asm-arm/unified.h - Unified Assembler Syntax helper macros
  *
  * Copyright (C) 2008 ARM Limited
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -15,6 +20,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __ASM_UNIFIED_H
@@ -36,10 +43,13 @@ __asm__(".syntax unified");
 
 #ifdef CONFIG_THUMB2_KERNEL
 
+<<<<<<< HEAD
 #if __GNUC__ < 4
 #error Thumb-2 kernel requires gcc >= 4
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /* The CPSR bit describing the instruction set (Thumb) */
 #define PSR_ISETSTATE	PSR_T_BIT
 

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
    cx231xx_avcore.c - driver for Conexant Cx23100/101/102
 		      USB video capture devices
@@ -7,6 +11,7 @@
    This program contains the specific code to control the avdecoder chip and
    other related usb control functions for cx231xx based chipset.
 
+<<<<<<< HEAD
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
@@ -20,6 +25,8 @@
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "cx231xx.h"
@@ -599,6 +606,7 @@ int cx231xx_set_video_input_mux(struct cx231xx *dev, u8 input)
 				return status;
 			}
 		}
+<<<<<<< HEAD
 		if (dev->tuner_type == TUNER_NXP_TDA18271)
 			status = cx231xx_set_decoder_video_input(dev,
 							CX231XX_VMUX_TELEVISION,
@@ -607,6 +615,29 @@ int cx231xx_set_video_input_mux(struct cx231xx *dev, u8 input)
 			status = cx231xx_set_decoder_video_input(dev,
 							CX231XX_VMUX_COMPOSITE1,
 							INPUT(input)->vmux);
+=======
+		switch (dev->model) { /* i2c device tuners */
+		case CX231XX_BOARD_HAUPPAUGE_930C_HD_1114xx:
+		case CX231XX_BOARD_HAUPPAUGE_935C:
+		case CX231XX_BOARD_HAUPPAUGE_955Q:
+		case CX231XX_BOARD_HAUPPAUGE_975:
+		case CX231XX_BOARD_EVROMEDIA_FULL_HYBRID_FULLHD:
+			status = cx231xx_set_decoder_video_input(dev,
+							CX231XX_VMUX_TELEVISION,
+							INPUT(input)->vmux);
+			break;
+		default:
+			if (dev->tuner_type == TUNER_NXP_TDA18271)
+				status = cx231xx_set_decoder_video_input(dev,
+							CX231XX_VMUX_TELEVISION,
+							INPUT(input)->vmux);
+			else
+				status = cx231xx_set_decoder_video_input(dev,
+							CX231XX_VMUX_COMPOSITE1,
+							INPUT(input)->vmux);
+			break;
+		}
+>>>>>>> upstream/android-13
 
 		break;
 	default:
@@ -1205,12 +1236,31 @@ int cx231xx_set_audio_decoder_input(struct cx231xx *dev,
 					cx231xx_set_field(FLD_SIF_EN, 0));
 			break;
 		default:
+<<<<<<< HEAD
 			/* This is just a casual suggestion to people adding
 			   new boards in case they use a tuner type we don't
 			   currently know about */
 			dev_info(dev->dev,
 				 "Unknown tuner type configuring SIF");
 			break;
+=======
+			switch (dev->model) { /* i2c device tuners */
+			case CX231XX_BOARD_HAUPPAUGE_930C_HD_1114xx:
+			case CX231XX_BOARD_HAUPPAUGE_935C:
+			case CX231XX_BOARD_HAUPPAUGE_955Q:
+			case CX231XX_BOARD_HAUPPAUGE_975:
+			case CX231XX_BOARD_EVROMEDIA_FULL_HYBRID_FULLHD:
+			/* TODO: Normal mode: SIF passthrough at 14.32 MHz?? */
+				break;
+			default:
+			/* This is just a casual suggestion to people adding
+			   new boards in case they use a tuner type we don't
+			   currently know about */
+				dev_info(dev->dev,
+					 "Unknown tuner type configuring SIF");
+				break;
+			}
+>>>>>>> upstream/android-13
 		}
 		break;
 
@@ -1252,7 +1302,11 @@ int cx231xx_init_ctrl_pin_status(struct cx231xx *dev)
 int cx231xx_set_agc_analog_digital_mux_select(struct cx231xx *dev,
 					      u8 analog_or_digital)
 {
+<<<<<<< HEAD
 	int status = 0;
+=======
+	int status;
+>>>>>>> upstream/android-13
 
 	/* first set the direction to output */
 	status = cx231xx_set_gpio_direction(dev,
@@ -2987,7 +3041,11 @@ int cx231xx_gpio_i2c_write_ack(struct cx231xx *dev)
 {
 	int status = 0;
 
+<<<<<<< HEAD
 	/* set SDA to ouput */
+=======
+	/* set SDA to output */
+>>>>>>> upstream/android-13
 	dev->gpio_dir |= 1 << dev->board.tuner_sda_gpio;
 	status = cx231xx_set_gpio_bit(dev, dev->gpio_dir, dev->gpio_val);
 

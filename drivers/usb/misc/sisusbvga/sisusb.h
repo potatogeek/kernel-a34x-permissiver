@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: (GPL-2.0 OR BSD-3-Clause)
+=======
+/* SPDX-License-Identifier: (GPL-2.0 OR BSD-3-Clause) */
+>>>>>>> upstream/android-13
 /*
  * sisusb - usb kernel driver for Net2280/SiS315 based USB2VGA dongles
  *
@@ -38,6 +42,7 @@
 #ifndef _SISUSB_H_
 #define _SISUSB_H_
 
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 #define SISUSB_NEW_CONFIG_COMPAT
 #endif
@@ -49,6 +54,10 @@
  */
 /* #define CONFIG_USB_SISUSBVGA_CON */
 
+=======
+#include <linux/mutex.h>
+
+>>>>>>> upstream/android-13
 /* Version Information */
 
 #define SISUSB_VERSION		0
@@ -57,10 +66,13 @@
 
 /* Include console and mode switching code? */
 
+<<<<<<< HEAD
 #ifdef CONFIG_USB_SISUSBVGA_CON
 #define INCL_SISUSB_CON		1
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/console.h>
 #include <linux/vt_kern.h>
 #include "sisusb_struct.h"
@@ -139,7 +151,11 @@ struct sisusb_usb_data {
 	unsigned char gfxinit;	/* graphics core initialized? */
 	unsigned short chipid, chipvendor;
 	unsigned short chiprevision;
+<<<<<<< HEAD
 #ifdef INCL_SISUSB_CON
+=======
+#ifdef CONFIG_USB_SISUSBVGA_CON
+>>>>>>> upstream/android-13
 	struct SiS_Private *SiS_Pr;
 	unsigned long scrbuf;
 	unsigned int scrbuf_size;

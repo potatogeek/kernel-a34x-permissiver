@@ -11,6 +11,10 @@
 #include <linux/kernel.h>
 #include <scsi/scsi_common.h>
 #include <scsi/scsi_proto.h>
+<<<<<<< HEAD
+=======
+#include <scsi/scsi_status.h>
+>>>>>>> upstream/android-13
 
 struct scsi_cmnd;
 
@@ -30,6 +34,7 @@ enum scsi_timeouts {
  */
 #define SCAN_WILD_CARD	~0
 
+<<<<<<< HEAD
 /** scsi_status_is_good - check the status return.
  *
  * @status: the status passed up from the driver (including host and
@@ -56,6 +61,8 @@ static inline int scsi_status_is_good(int status)
 }
 
 
+=======
+>>>>>>> upstream/android-13
 /*
  * standard mode-select header prepended to all mode-select commands
  */
@@ -88,6 +95,7 @@ static inline int scsi_is_wlun(u64 lun)
 	return (lun & 0xff00) == SCSI_W_LUN_BASE;
 }
 
+<<<<<<< HEAD
 
 /*
  *  MESSAGE CODES
@@ -95,12 +103,34 @@ static inline int scsi_is_wlun(u64 lun)
 
 #define COMMAND_COMPLETE    0x00
 #define EXTENDED_MESSAGE    0x01
+=======
+/**
+ * scsi_status_is_check_condition - check the status return.
+ *
+ * @status: the status passed up from the driver (including host and
+ *          driver components)
+ *
+ * This returns true if the status code is SAM_STAT_CHECK_CONDITION.
+ */
+static inline int scsi_status_is_check_condition(int status)
+{
+	if (status < 0)
+		return false;
+	status &= 0xfe;
+	return status == SAM_STAT_CHECK_CONDITION;
+}
+
+/*
+ *  Extended message codes.
+ */
+>>>>>>> upstream/android-13
 #define     EXTENDED_MODIFY_DATA_POINTER    0x00
 #define     EXTENDED_SDTR                   0x01
 #define     EXTENDED_EXTENDED_IDENTIFY      0x02    /* SCSI-I only */
 #define     EXTENDED_WDTR                   0x03
 #define     EXTENDED_PPR                    0x04
 #define     EXTENDED_MODIFY_BIDI_DATA_PTR   0x05
+<<<<<<< HEAD
 #define SAVE_POINTERS       0x02
 #define RESTORE_POINTERS    0x03
 #define DISCONNECT          0x04
@@ -174,10 +204,13 @@ static inline int scsi_is_wlun(u64 lun)
 #define DRIVER_TIMEOUT      0x06
 #define DRIVER_HARD         0x07
 #define DRIVER_SENSE	    0x08
+=======
+>>>>>>> upstream/android-13
 
 /*
  * Internal return values.
  */
+<<<<<<< HEAD
 
 #define NEEDS_RETRY     0x2001
 #define SUCCESS         0x2002
@@ -188,6 +221,19 @@ static inline int scsi_is_wlun(u64 lun)
 #define TIMEOUT_ERROR   0x2007
 #define SCSI_RETURN_NOT_HANDLED   0x2008
 #define FAST_IO_FAIL	0x2009
+=======
+enum scsi_disposition {
+	NEEDS_RETRY		= 0x2001,
+	SUCCESS			= 0x2002,
+	FAILED			= 0x2003,
+	QUEUED			= 0x2004,
+	SOFT_ERROR		= 0x2005,
+	ADD_TO_MLQUEUE		= 0x2006,
+	TIMEOUT_ERROR		= 0x2007,
+	SCSI_RETURN_NOT_HANDLED	= 0x2008,
+	FAST_IO_FAIL		= 0x2009,
+};
+>>>>>>> upstream/android-13
 
 /*
  * Midlevel queue return values.
@@ -203,6 +249,7 @@ static inline int scsi_is_wlun(u64 lun)
  *  These are set by:
  *
  *      status byte = set from target device
+<<<<<<< HEAD
  *      msg_byte    = return status from host adapter itself.
  *      host_byte   = set by low-level driver to indicate status.
  *      driver_byte = set by mid-level.
@@ -211,6 +258,12 @@ static inline int scsi_is_wlun(u64 lun)
 #define msg_byte(result)    (((result) >> 8) & 0xff)
 #define host_byte(result)   (((result) >> 16) & 0xff)
 #define driver_byte(result) (((result) >> 24) & 0xff)
+=======
+ *      msg_byte    (unused)
+ *      host_byte   = set by low-level driver to indicate status.
+ */
+#define host_byte(result)   (((result) >> 16) & 0xff)
+>>>>>>> upstream/android-13
 
 #define sense_class(sense)  (((sense) >> 4) & 0x7)
 #define sense_error(sense)  ((sense) & 0xf)
@@ -221,7 +274,11 @@ static inline int scsi_is_wlun(u64 lun)
 */
 #define FORMAT_UNIT_TIMEOUT		(2 * 60 * 60 * HZ)
 #define START_STOP_TIMEOUT		(60 * HZ)
+<<<<<<< HEAD
 #define UFS_START_STOP_TIMEOUT	(10 * HZ)
+=======
+#define SCSI_UFS_TIMEOUT		(10 * HZ)
+>>>>>>> upstream/android-13
 #define MOVE_MEDIUM_TIMEOUT		(5 * 60 * HZ)
 #define READ_ELEMENT_STATUS_TIMEOUT	(5 * 60 * HZ)
 #define READ_DEFECT_DATA_TIMEOUT	(60 * HZ )
@@ -275,10 +332,42 @@ static inline int scsi_is_wlun(u64 lun)
 /* Used to obtain the PCI location of a device */
 #define SCSI_IOCTL_GET_PCI		0x5387
 
+<<<<<<< HEAD
 /* Pull a u32 out of a SCSI message (using BE SCSI conventions) */
 static inline __u32 scsi_to_u32(__u8 *ptr)
 {
 	return (ptr[0]<<24) + (ptr[1]<<16) + (ptr[2]<<8) + ptr[3];
+=======
+/** scsi_status_is_good - check the status return.
+ *
+ * @status: the status passed up from the driver (including host and
+ *          driver components)
+ *
+ * This returns true for known good conditions that may be treated as
+ * command completed normally
+ */
+static inline bool scsi_status_is_good(int status)
+{
+	if (status < 0)
+		return false;
+
+	if (host_byte(status) == DID_NO_CONNECT)
+		return false;
+
+	/*
+	 * FIXME: bit0 is listed as reserved in SCSI-2, but is
+	 * significant in SCSI-3.  For now, we follow the SCSI-2
+	 * behaviour and ignore reserved bits.
+	 */
+	status &= 0xfe;
+	return ((status == SAM_STAT_GOOD) ||
+		(status == SAM_STAT_CONDITION_MET) ||
+		/* Next two "intermediate" statuses are obsolete in SAM-4 */
+		(status == SAM_STAT_INTERMEDIATE) ||
+		(status == SAM_STAT_INTERMEDIATE_CONDITION_MET) ||
+		/* FIXME: this is obsolete in SAM-3 */
+		(status == SAM_STAT_COMMAND_TERMINATED));
+>>>>>>> upstream/android-13
 }
 
 #endif /* _SCSI_SCSI_H */

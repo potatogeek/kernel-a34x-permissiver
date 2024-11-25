@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2006, 2007 Eugene Konev
  *
@@ -14,6 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+=======
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (C) 2006, 2007 Eugene Konev
+ *
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -544,7 +551,11 @@ fatal_error:
 
 }
 
+<<<<<<< HEAD
 static int cpmac_start_xmit(struct sk_buff *skb, struct net_device *dev)
+=======
+static netdev_tx_t cpmac_start_xmit(struct sk_buff *skb, struct net_device *dev)
+>>>>>>> upstream/android-13
 {
 	int queue;
 	unsigned int len;
@@ -608,7 +619,11 @@ static void cpmac_end_xmit(struct net_device *dev, int queue)
 			netdev_dbg(dev, "sent 0x%p, len=%d\n",
 				   desc->skb, desc->skb->len);
 
+<<<<<<< HEAD
 		dev_kfree_skb_irq(desc->skb);
+=======
+		dev_consume_skb_irq(desc->skb);
+>>>>>>> upstream/android-13
 		desc->skb = NULL;
 		if (__netif_subqueue_stopped(dev, queue))
 			netif_wake_subqueue(dev, queue);
@@ -809,7 +824,11 @@ static irqreturn_t cpmac_irq(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static void cpmac_tx_timeout(struct net_device *dev)
+=======
+static void cpmac_tx_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct cpmac_priv *priv = netdev_priv(dev);
 
@@ -828,6 +847,7 @@ static void cpmac_tx_timeout(struct net_device *dev)
 	netif_tx_wake_all_queues(priv->dev);
 }
 
+<<<<<<< HEAD
 static int cpmac_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 {
 	if (!(netif_running(dev)))
@@ -838,6 +858,8 @@ static int cpmac_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 	return phy_mii_ioctl(dev->phydev, ifr, cmd);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void cpmac_get_ringparam(struct net_device *dev,
 						struct ethtool_ringparam *ring)
 {
@@ -991,7 +1013,10 @@ static int cpmac_open(struct net_device *dev)
 	cpmac_hw_start(dev);
 
 	napi_enable(&priv->napi);
+<<<<<<< HEAD
 	dev->phydev->state = PHY_CHANGELINK;
+=======
+>>>>>>> upstream/android-13
 	phy_start(dev->phydev);
 
 	return 0;
@@ -1067,7 +1092,11 @@ static const struct net_device_ops cpmac_netdev_ops = {
 	.ndo_start_xmit		= cpmac_start_xmit,
 	.ndo_tx_timeout		= cpmac_tx_timeout,
 	.ndo_set_rx_mode	= cpmac_set_multicast_list,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= cpmac_ioctl,
+=======
+	.ndo_eth_ioctl		= phy_do_ioctl_running,
+>>>>>>> upstream/android-13
 	.ndo_validate_addr	= eth_validate_addr,
 	.ndo_set_mac_address	= eth_mac_addr,
 };

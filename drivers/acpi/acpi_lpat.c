@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * acpi_lpat.c - LPAT table processing functions
  *
  * Copyright (C) 2015 Intel Corporation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version
@@ -11,6 +16,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/export.h>
@@ -22,7 +29,11 @@
  * LPAT conversion table
  *
  * @lpat_table: the temperature_raw mapping table structure
+<<<<<<< HEAD
  * @raw: the raw value, used as a key to get the temerature from the
+=======
+ * @raw: the raw value, used as a key to get the temperature from the
+>>>>>>> upstream/android-13
  *       above mapping table
  *
  * A positive converted temperature value will be returned on success,

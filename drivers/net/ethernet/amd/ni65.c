@@ -193,7 +193,11 @@ static struct card {
 		.vendor_id   = ni_vendor,
 		.cardname    = "ni6510",
 		.config	     = 0x1,
+<<<<<<< HEAD
        	},
+=======
+	},
+>>>>>>> upstream/android-13
 	{
 		.id0	     = NI65_EB_ID0,
 		.id1	     = NI65_EB_ID1,
@@ -204,7 +208,11 @@ static struct card {
 		.vendor_id   = ni_vendor,
 		.cardname    = "ni6510 EtherBlaster",
 		.config	     = 0x2,
+<<<<<<< HEAD
        	},
+=======
+	},
+>>>>>>> upstream/android-13
 	{
 		.id0	     = NE2100_ID0,
 		.id1	     = NE2100_ID1,
@@ -254,7 +262,11 @@ static int  ni65_lance_reinit(struct net_device *dev);
 static void ni65_init_lance(struct priv *p,unsigned char*,int,int);
 static netdev_tx_t ni65_send_packet(struct sk_buff *skb,
 				    struct net_device *dev);
+<<<<<<< HEAD
 static void  ni65_timeout(struct net_device *dev);
+=======
+static void  ni65_timeout(struct net_device *dev, unsigned int txqueue);
+>>>>>>> upstream/android-13
 static int  ni65_close(struct net_device *dev);
 static int  ni65_alloc_buffer(struct net_device *dev);
 static void ni65_free_buffer(struct priv *p);
@@ -435,10 +447,15 @@ static int __init ni65_probe1(struct net_device *dev,int ioaddr)
 		}
 		if(cards[i].vendor_id) {
 			for(j=0;j<3;j++)
+<<<<<<< HEAD
 				if(inb(ioaddr+cards[i].addr_offset+j) != cards[i].vendor_id[j]) {
 					release_region(ioaddr, cards[i].total_size);
 					continue;
 			  }
+=======
+				if(inb(ioaddr+cards[i].addr_offset+j) != cards[i].vendor_id[j])
+					release_region(ioaddr, cards[i].total_size);
+>>>>>>> upstream/android-13
 		}
 		break;
 	}
@@ -699,16 +716,24 @@ static void ni65_free_buffer(struct priv *p)
 	for(i=0;i<TMDNUM;i++) {
 		kfree(p->tmdbounce[i]);
 #ifdef XMT_VIA_SKB
+<<<<<<< HEAD
 		if(p->tmd_skb[i])
 			dev_kfree_skb(p->tmd_skb[i]);
+=======
+		dev_kfree_skb(p->tmd_skb[i]);
+>>>>>>> upstream/android-13
 #endif
 	}
 
 	for(i=0;i<RMDNUM;i++)
 	{
 #ifdef RCV_VIA_SKB
+<<<<<<< HEAD
 		if(p->recv_skb[i])
 			dev_kfree_skb(p->recv_skb[i]);
+=======
+		dev_kfree_skb(p->recv_skb[i]);
+>>>>>>> upstream/android-13
 #else
 		kfree(p->recvbounce[i]);
 #endif
@@ -752,7 +777,11 @@ static void ni65_stop_start(struct net_device *dev,struct priv *p)
 #ifdef XMT_VIA_SKB
 			skb_save[i] = p->tmd_skb[i];
 #endif
+<<<<<<< HEAD
 			buffer[i] = (u32) isa_bus_to_virt(tmdp->u.buffer);
+=======
+			buffer[i] = (unsigned long)isa_bus_to_virt(tmdp->u.buffer);
+>>>>>>> upstream/android-13
 			blen[i] = tmdp->blen;
 			tmdp->u.s.status = 0x0;
 		}
@@ -1030,7 +1059,11 @@ static void ni65_xmit_intr(struct net_device *dev,int csr0)
 
 #ifdef XMT_VIA_SKB
 		if(p->tmd_skb[p->tmdlast]) {
+<<<<<<< HEAD
 			 dev_kfree_skb_irq(p->tmd_skb[p->tmdlast]);
+=======
+			 dev_consume_skb_irq(p->tmd_skb[p->tmdlast]);
+>>>>>>> upstream/android-13
 			 p->tmd_skb[p->tmdlast] = NULL;
 		}
 #endif
@@ -1137,7 +1170,11 @@ static void ni65_recv_intr(struct net_device *dev,int csr0)
  * kick xmitter ..
  */
 
+<<<<<<< HEAD
 static void ni65_timeout(struct net_device *dev)
+=======
+static void ni65_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	int i;
 	struct priv *p = dev->ml_priv;
@@ -1234,6 +1271,7 @@ MODULE_PARM_DESC(irq, "ni6510 IRQ number (ignored for some cards)");
 MODULE_PARM_DESC(io, "ni6510 I/O base address");
 MODULE_PARM_DESC(dma, "ni6510 ISA DMA channel (ignored for some cards)");
 
+<<<<<<< HEAD
 int __init init_module(void)
 {
  	dev_ni65 = ni65_probe(-1);
@@ -1246,6 +1284,22 @@ void __exit cleanup_module(void)
  	cleanup_card(dev_ni65);
  	free_netdev(dev_ni65);
 }
+=======
+static int __init ni65_init_module(void)
+{
+	dev_ni65 = ni65_probe(-1);
+	return PTR_ERR_OR_ZERO(dev_ni65);
+}
+module_init(ni65_init_module);
+
+static void __exit ni65_cleanup_module(void)
+{
+	unregister_netdev(dev_ni65);
+	cleanup_card(dev_ni65);
+	free_netdev(dev_ni65);
+}
+module_exit(ni65_cleanup_module);
+>>>>>>> upstream/android-13
 #endif /* MODULE */
 
 MODULE_LICENSE("GPL");

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Network device driver for the BMAC ethernet controller on
  * Apple Powermacs.  Assumes it's under a DBDMA controller.
@@ -23,11 +27,18 @@
 #include <linux/bitrev.h>
 #include <linux/ethtool.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 #include <asm/prom.h>
 #include <asm/dbdma.h>
 #include <asm/io.h>
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/machdep.h>
 #include <asm/pmac_feature.h>
 #include <asm/macio.h>
@@ -476,6 +487,7 @@ static int bmac_suspend(struct macio_dev *mdev, pm_message_t state)
 		config = bmread(dev, RXCFG);
 		bmwrite(dev, RXCFG, (config & ~RxMACEnable));
 		config = bmread(dev, TXCFG);
+<<<<<<< HEAD
        		bmwrite(dev, TXCFG, (config & ~TxMACEnable));
 		bmwrite(dev, INTDISABLE, DisableAll); /* disable all intrs */
        		/* disable rx and tx dma */
@@ -489,13 +501,32 @@ static int bmac_suspend(struct macio_dev *mdev, pm_message_t state)
        			}
        		}
        		for (i = 0; i<N_TX_RING; i++) {
+=======
+		bmwrite(dev, TXCFG, (config & ~TxMACEnable));
+		bmwrite(dev, INTDISABLE, DisableAll); /* disable all intrs */
+		/* disable rx and tx dma */
+		rd->control = cpu_to_le32(DBDMA_CLEAR(RUN|PAUSE|FLUSH|WAKE));	/* clear run bit */
+		td->control = cpu_to_le32(DBDMA_CLEAR(RUN|PAUSE|FLUSH|WAKE));	/* clear run bit */
+		/* free some skb's */
+		for (i=0; i<N_RX_RING; i++) {
+			if (bp->rx_bufs[i] != NULL) {
+				dev_kfree_skb(bp->rx_bufs[i]);
+				bp->rx_bufs[i] = NULL;
+			}
+		}
+		for (i = 0; i<N_TX_RING; i++) {
+>>>>>>> upstream/android-13
 			if (bp->tx_bufs[i] != NULL) {
 		       		dev_kfree_skb(bp->tx_bufs[i]);
 	       			bp->tx_bufs[i] = NULL;
 		       	}
 		}
 	}
+<<<<<<< HEAD
        	pmac_call_feature(PMAC_FTR_BMAC_ENABLE, macio_get_of_node(bp->mdev), 0, 0);
+=======
+	pmac_call_feature(PMAC_FTR_BMAC_ENABLE, macio_get_of_node(bp->mdev), 0, 0);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -509,9 +540,15 @@ static int bmac_resume(struct macio_dev *mdev)
 		bmac_reset_and_enable(dev);
 
 	enable_irq(dev->irq);
+<<<<<<< HEAD
        	enable_irq(bp->tx_dma_intr);
        	enable_irq(bp->rx_dma_intr);
        	netif_device_attach(dev);
+=======
+	enable_irq(bp->tx_dma_intr);
+	enable_irq(bp->rx_dma_intr);
+	netif_device_attach(dev);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -777,7 +814,11 @@ static irqreturn_t bmac_txdma_intr(int irq, void *dev_id)
 
 		if (bp->tx_bufs[bp->tx_empty]) {
 			++dev->stats.tx_packets;
+<<<<<<< HEAD
 			dev_kfree_skb_irq(bp->tx_bufs[bp->tx_empty]);
+=======
+			dev_consume_skb_irq(bp->tx_bufs[bp->tx_empty]);
+>>>>>>> upstream/android-13
 		}
 		bp->tx_bufs[bp->tx_empty] = NULL;
 		bp->tx_fullup = 0;
@@ -814,8 +855,13 @@ static int reverse6[64] = {
 static unsigned int
 crc416(unsigned int curval, unsigned short nxtval)
 {
+<<<<<<< HEAD
 	register unsigned int counter, cur = curval, next = nxtval;
 	register int high_crc_set, low_data_set;
+=======
+	unsigned int counter, cur = curval, next = nxtval;
+	int high_crc_set, low_data_set;
+>>>>>>> upstream/android-13
 
 	/* Swap bytes */
 	next = ((next & 0x00FF) << 8) | (next >> 8);
@@ -1598,7 +1644,11 @@ static int bmac_remove(struct macio_dev *mdev)
 
 	unregister_netdev(dev);
 
+<<<<<<< HEAD
        	free_irq(dev->irq, dev);
+=======
+	free_irq(dev->irq, dev);
+>>>>>>> upstream/android-13
 	free_irq(bp->tx_dma_intr, dev);
 	free_irq(bp->rx_dma_intr, dev);
 

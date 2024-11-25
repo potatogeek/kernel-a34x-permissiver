@@ -218,6 +218,10 @@
 };
 
 &pwm1 {
+<<<<<<< HEAD
+=======
+	#pwm-cells = <2>;
+>>>>>>> upstream/android-13
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_pwm1>;
 	status = "okay";

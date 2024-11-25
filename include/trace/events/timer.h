@@ -73,7 +73,11 @@ TRACE_EVENT(timer_start,
 		__entry->flags		= flags;
 	),
 
+<<<<<<< HEAD
 	TP_printk("timer=%p function=%pf expires=%lu [timeout=%ld] cpu=%u idx=%u flags=%s",
+=======
+	TP_printk("timer=%p function=%ps expires=%lu [timeout=%ld] cpu=%u idx=%u flags=%s",
+>>>>>>> upstream/android-13
 		  __entry->timer, __entry->function, __entry->expires,
 		  (long)__entry->expires - __entry->now,
 		  __entry->flags & TIMER_CPUMASK,
@@ -89,23 +93,42 @@ TRACE_EVENT(timer_start,
  */
 TRACE_EVENT(timer_expire_entry,
 
+<<<<<<< HEAD
 	TP_PROTO(struct timer_list *timer),
 
 	TP_ARGS(timer),
+=======
+	TP_PROTO(struct timer_list *timer, unsigned long baseclk),
+
+	TP_ARGS(timer, baseclk),
+>>>>>>> upstream/android-13
 
 	TP_STRUCT__entry(
 		__field( void *,	timer	)
 		__field( unsigned long,	now	)
 		__field( void *,	function)
+<<<<<<< HEAD
+=======
+		__field( unsigned long,	baseclk	)
+>>>>>>> upstream/android-13
 	),
 
 	TP_fast_assign(
 		__entry->timer		= timer;
 		__entry->now		= jiffies;
 		__entry->function	= timer->function;
+<<<<<<< HEAD
 	),
 
 	TP_printk("timer=%p function=%pf now=%lu", __entry->timer, __entry->function,__entry->now)
+=======
+		__entry->baseclk	= baseclk;
+	),
+
+	TP_printk("timer=%p function=%ps now=%lu baseclk=%lu",
+		  __entry->timer, __entry->function, __entry->now,
+		  __entry->baseclk)
+>>>>>>> upstream/android-13
 );
 
 /**
@@ -115,7 +138,11 @@ TRACE_EVENT(timer_expire_entry,
  * When used in combination with the timer_expire_entry tracepoint we can
  * determine the runtime of the timer callback function.
  *
+<<<<<<< HEAD
  * NOTE: Do NOT derefernce timer in TP_fast_assign. The pointer might
+=======
+ * NOTE: Do NOT dereference timer in TP_fast_assign. The pointer might
+>>>>>>> upstream/android-13
  * be invalid. We solely track the pointer.
  */
 DEFINE_EVENT(timer_class, timer_expire_exit,
@@ -210,7 +237,11 @@ TRACE_EVENT(hrtimer_start,
 		__entry->mode		= mode;
 	),
 
+<<<<<<< HEAD
 	TP_printk("hrtimer=%p function=%pf expires=%llu softexpires=%llu "
+=======
+	TP_printk("hrtimer=%p function=%ps expires=%llu softexpires=%llu "
+>>>>>>> upstream/android-13
 		  "mode=%s", __entry->hrtimer, __entry->function,
 		  (unsigned long long) __entry->expires,
 		  (unsigned long long) __entry->softexpires,
@@ -243,7 +274,12 @@ TRACE_EVENT(hrtimer_expire_entry,
 		__entry->function	= hrtimer->function;
 	),
 
+<<<<<<< HEAD
 	TP_printk("hrtimer=%p function=%pf now=%llu", __entry->hrtimer, __entry->function,
+=======
+	TP_printk("hrtimer=%p function=%ps now=%llu",
+		  __entry->hrtimer, __entry->function,
+>>>>>>> upstream/android-13
 		  (unsigned long long) __entry->now)
 );
 
@@ -298,7 +334,11 @@ DEFINE_EVENT(hrtimer_class, hrtimer_cancel,
  */
 TRACE_EVENT(itimer_state,
 
+<<<<<<< HEAD
 	TP_PROTO(int which, const struct itimerval *const value,
+=======
+	TP_PROTO(int which, const struct itimerspec64 *const value,
+>>>>>>> upstream/android-13
 		 unsigned long long expires),
 
 	TP_ARGS(which, value, expires),
@@ -307,15 +347,22 @@ TRACE_EVENT(itimer_state,
 		__field(	int,			which		)
 		__field(	unsigned long long,	expires		)
 		__field(	long,			value_sec	)
+<<<<<<< HEAD
 		__field(	long,			value_usec	)
 		__field(	long,			interval_sec	)
 		__field(	long,			interval_usec	)
+=======
+		__field(	long,			value_nsec	)
+		__field(	long,			interval_sec	)
+		__field(	long,			interval_nsec	)
+>>>>>>> upstream/android-13
 	),
 
 	TP_fast_assign(
 		__entry->which		= which;
 		__entry->expires	= expires;
 		__entry->value_sec	= value->it_value.tv_sec;
+<<<<<<< HEAD
 		__entry->value_usec	= value->it_value.tv_usec;
 		__entry->interval_sec	= value->it_interval.tv_sec;
 		__entry->interval_usec	= value->it_interval.tv_usec;
@@ -325,6 +372,17 @@ TRACE_EVENT(itimer_state,
 		  __entry->which, __entry->expires,
 		  __entry->value_sec, __entry->value_usec,
 		  __entry->interval_sec, __entry->interval_usec)
+=======
+		__entry->value_nsec	= value->it_value.tv_nsec;
+		__entry->interval_sec	= value->it_interval.tv_sec;
+		__entry->interval_nsec	= value->it_interval.tv_nsec;
+	),
+
+	TP_printk("which=%d expires=%llu it_value=%ld.%06ld it_interval=%ld.%06ld",
+		  __entry->which, __entry->expires,
+		  __entry->value_sec, __entry->value_nsec / NSEC_PER_USEC,
+		  __entry->interval_sec, __entry->interval_nsec / NSEC_PER_USEC)
+>>>>>>> upstream/android-13
 );
 
 /**
@@ -362,7 +420,12 @@ TRACE_EVENT(itimer_expire,
 		tick_dep_name(POSIX_TIMER)		\
 		tick_dep_name(PERF_EVENTS)		\
 		tick_dep_name(SCHED)			\
+<<<<<<< HEAD
 		tick_dep_name_end(CLOCK_UNSTABLE)
+=======
+		tick_dep_name(CLOCK_UNSTABLE)		\
+		tick_dep_name_end(RCU)
+>>>>>>> upstream/android-13
 
 #undef tick_dep_name
 #undef tick_dep_mask_name

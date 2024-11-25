@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2011 Atmel Corporation
  * Josh Wu, <josh.wu@atmel.com>
@@ -5,10 +9,13 @@
  * Based on previous work by Lars Haring, <lars.haring@atmel.com>
  * and Sedji Gaouaou
  * Based on the bttv driver for Bt848 with respective copyright holders
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -73,7 +80,10 @@ struct frame_buffer {
 struct isi_graph_entity {
 	struct device_node *node;
 
+<<<<<<< HEAD
 	struct v4l2_async_subdev asd;
+=======
+>>>>>>> upstream/android-13
 	struct v4l2_subdev *subdev;
 };
 
@@ -110,7 +120,11 @@ struct atmel_isi {
 	bool				enable_preview_path;
 
 	struct completion		complete;
+<<<<<<< HEAD
 	/* ISI peripherial clock */
+=======
+	/* ISI peripheral clock */
+>>>>>>> upstream/android-13
 	struct clk			*pclk;
 	unsigned int			irq;
 
@@ -151,7 +165,12 @@ static void configure_geometry(struct atmel_isi *isi)
 	u32 fourcc = isi->current_fmt->fourcc;
 
 	isi->enable_preview_path = fourcc == V4L2_PIX_FMT_RGB565 ||
+<<<<<<< HEAD
 				   fourcc == V4L2_PIX_FMT_RGB32;
+=======
+				   fourcc == V4L2_PIX_FMT_RGB32 ||
+				   fourcc == V4L2_PIX_FMT_Y16;
+>>>>>>> upstream/android-13
 
 	/* According to sensor's output format to set cfg2 */
 	cfg2 = isi->current_fmt->swap;
@@ -425,7 +444,13 @@ static int start_streaming(struct vb2_queue *vq, unsigned int count)
 	struct frame_buffer *buf, *node;
 	int ret;
 
+<<<<<<< HEAD
 	pm_runtime_get_sync(isi->dev);
+=======
+	ret = pm_runtime_resume_and_get(isi->dev);
+	if (ret < 0)
+		return ret;
+>>>>>>> upstream/android-13
 
 	/* Enable stream on the sub device */
 	ret = v4l2_subdev_call(isi->entity.subdev, video, s_stream, 1);
@@ -557,12 +582,46 @@ static const struct isi_format *find_format_by_fourcc(struct atmel_isi *isi,
 	return NULL;
 }
 
+<<<<<<< HEAD
+=======
+static void isi_try_fse(struct atmel_isi *isi, const struct isi_format *isi_fmt,
+			struct v4l2_subdev_state *sd_state)
+{
+	int ret;
+	struct v4l2_subdev_frame_size_enum fse = {
+		.code = isi_fmt->mbus_code,
+		.which = V4L2_SUBDEV_FORMAT_TRY,
+	};
+
+	ret = v4l2_subdev_call(isi->entity.subdev, pad, enum_frame_size,
+			       sd_state, &fse);
+	/*
+	 * Attempt to obtain format size from subdev. If not available,
+	 * just use the maximum ISI can receive.
+	 */
+	if (ret) {
+		sd_state->pads->try_crop.width = MAX_SUPPORT_WIDTH;
+		sd_state->pads->try_crop.height = MAX_SUPPORT_HEIGHT;
+	} else {
+		sd_state->pads->try_crop.width = fse.max_width;
+		sd_state->pads->try_crop.height = fse.max_height;
+	}
+}
+
+>>>>>>> upstream/android-13
 static int isi_try_fmt(struct atmel_isi *isi, struct v4l2_format *f,
 		       const struct isi_format **current_fmt)
 {
 	const struct isi_format *isi_fmt;
 	struct v4l2_pix_format *pixfmt = &f->fmt.pix;
+<<<<<<< HEAD
 	struct v4l2_subdev_pad_config pad_cfg;
+=======
+	struct v4l2_subdev_pad_config pad_cfg = {};
+	struct v4l2_subdev_state pad_state = {
+		.pads = &pad_cfg
+		};
+>>>>>>> upstream/android-13
 	struct v4l2_subdev_format format = {
 		.which = V4L2_SUBDEV_FORMAT_TRY,
 	};
@@ -579,8 +638,16 @@ static int isi_try_fmt(struct atmel_isi *isi, struct v4l2_format *f,
 	pixfmt->height = clamp(pixfmt->height, 0U, MAX_SUPPORT_HEIGHT);
 
 	v4l2_fill_mbus_format(&format.format, pixfmt, isi_fmt->mbus_code);
+<<<<<<< HEAD
 	ret = v4l2_subdev_call(isi->entity.subdev, pad, set_fmt,
 			       &pad_cfg, &format);
+=======
+
+	isi_try_fse(isi, isi_fmt, &pad_state);
+
+	ret = v4l2_subdev_call(isi->entity.subdev, pad, set_fmt,
+			       &pad_state, &format);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 
@@ -655,9 +722,15 @@ static int isi_enum_fmt_vid_cap(struct file *file, void  *priv,
 static int isi_querycap(struct file *file, void *priv,
 			struct v4l2_capability *cap)
 {
+<<<<<<< HEAD
 	strlcpy(cap->driver, "atmel-isi", sizeof(cap->driver));
 	strlcpy(cap->card, "Atmel Image Sensor Interface", sizeof(cap->card));
 	strlcpy(cap->bus_info, "platform:isi", sizeof(cap->bus_info));
+=======
+	strscpy(cap->driver, "atmel-isi", sizeof(cap->driver));
+	strscpy(cap->card, "Atmel Image Sensor Interface", sizeof(cap->card));
+	strscpy(cap->bus_info, "platform:isi", sizeof(cap->bus_info));
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -668,7 +741,11 @@ static int isi_enum_input(struct file *file, void *priv,
 		return -EINVAL;
 
 	i->type = V4L2_INPUT_TYPE_CAMERA;
+<<<<<<< HEAD
 	strlcpy(i->name, "Camera", sizeof(i->name));
+=======
+	strscpy(i->name, "Camera", sizeof(i->name));
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -758,9 +835,16 @@ static int isi_enum_frameintervals(struct file *file, void *fh,
 	return 0;
 }
 
+<<<<<<< HEAD
 static void isi_camera_set_bus_param(struct atmel_isi *isi)
 {
 	u32 cfg1 = 0;
+=======
+static int isi_camera_set_bus_param(struct atmel_isi *isi)
+{
+	u32 cfg1 = 0;
+	int ret;
+>>>>>>> upstream/android-13
 
 	/* set bus param for ISI */
 	if (isi->pdata.hsync_act_low)
@@ -777,12 +861,23 @@ static void isi_camera_set_bus_param(struct atmel_isi *isi)
 	cfg1 |= ISI_CFG1_THMASK_BEATS_16;
 
 	/* Enable PM and peripheral clock before operate isi registers */
+<<<<<<< HEAD
 	pm_runtime_get_sync(isi->dev);
+=======
+	ret = pm_runtime_resume_and_get(isi->dev);
+	if (ret < 0)
+		return ret;
+>>>>>>> upstream/android-13
 
 	isi_writel(isi, ISI_CTRL, ISI_CTRL_DIS);
 	isi_writel(isi, ISI_CFG1, cfg1);
 
 	pm_runtime_put(isi->dev);
+<<<<<<< HEAD
+=======
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /* -----------------------------------------------------------------------*/
@@ -790,7 +885,11 @@ static int atmel_isi_parse_dt(struct atmel_isi *isi,
 			struct platform_device *pdev)
 {
 	struct device_node *np = pdev->dev.of_node;
+<<<<<<< HEAD
 	struct v4l2_fwnode_endpoint ep;
+=======
+	struct v4l2_fwnode_endpoint ep = { .bus_type = 0 };
+>>>>>>> upstream/android-13
 	int err;
 
 	/* Default settings for ISI */
@@ -993,6 +1092,19 @@ static const struct isi_format isi_formats[] = {
 		.mbus_code = MEDIA_BUS_FMT_VYUY8_2X8,
 		.bpp = 2,
 		.swap = ISI_CFG2_YCC_SWAP_MODE_1,
+<<<<<<< HEAD
+=======
+	}, {
+		.fourcc = V4L2_PIX_FMT_GREY,
+		.mbus_code = MEDIA_BUS_FMT_Y10_1X10,
+		.bpp = 1,
+		.swap = ISI_CFG2_GS_MODE_2_PIXEL | ISI_CFG2_GRAYSCALE,
+	}, {
+		.fourcc = V4L2_PIX_FMT_Y16,
+		.mbus_code = MEDIA_BUS_FMT_Y10_1X10,
+		.bpp = 2,
+		.swap = ISI_CFG2_GS_MODE_2_PIXEL | ISI_CFG2_GRAYSCALE,
+>>>>>>> upstream/android-13
 	},
 };
 
@@ -1051,7 +1163,15 @@ static int isi_graph_notify_complete(struct v4l2_async_notifier *notifier)
 		dev_err(isi->dev, "No supported mediabus format found\n");
 		return ret;
 	}
+<<<<<<< HEAD
 	isi_camera_set_bus_param(isi);
+=======
+	ret = isi_camera_set_bus_param(isi);
+	if (ret) {
+		dev_err(isi->dev, "Can't wake up device\n");
+		return ret;
+	}
+>>>>>>> upstream/android-13
 
 	ret = isi_set_default_fmt(isi);
 	if (ret) {
@@ -1059,7 +1179,11 @@ static int isi_graph_notify_complete(struct v4l2_async_notifier *notifier)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	ret = video_register_device(isi->vdev, VFL_TYPE_GRABBER, -1);
+=======
+	ret = video_register_device(isi->vdev, VFL_TYPE_VIDEO, -1);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(isi->dev, "Failed to register video device\n");
 		return ret;
@@ -1078,7 +1202,11 @@ static void isi_graph_notify_unbind(struct v4l2_async_notifier *notifier,
 
 	dev_dbg(isi->dev, "Removing %s\n", video_device_node_name(isi->vdev));
 
+<<<<<<< HEAD
 	/* Checks internaly if vdev have been init or not */
+=======
+	/* Checks internally if vdev have been init or not */
+>>>>>>> upstream/android-13
 	video_unregister_device(isi->vdev);
 }
 
@@ -1101,6 +1229,7 @@ static const struct v4l2_async_notifier_operations isi_graph_notify_ops = {
 	.complete = isi_graph_notify_complete,
 };
 
+<<<<<<< HEAD
 static int isi_graph_parse(struct atmel_isi *isi, struct device_node *node)
 {
 	struct device_node *ep = NULL;
@@ -1145,12 +1274,39 @@ static int isi_graph_init(struct atmel_isi *isi)
 
 	isi->notifier.subdevs = subdevs;
 	isi->notifier.num_subdevs = 1;
+=======
+static int isi_graph_init(struct atmel_isi *isi)
+{
+	struct v4l2_async_subdev *asd;
+	struct device_node *ep;
+	int ret;
+
+	ep = of_graph_get_next_endpoint(isi->dev->of_node, NULL);
+	if (!ep)
+		return -EINVAL;
+
+	v4l2_async_notifier_init(&isi->notifier);
+
+	asd = v4l2_async_notifier_add_fwnode_remote_subdev(
+						&isi->notifier,
+						of_fwnode_handle(ep),
+						struct v4l2_async_subdev);
+	of_node_put(ep);
+
+	if (IS_ERR(asd))
+		return PTR_ERR(asd);
+
+>>>>>>> upstream/android-13
 	isi->notifier.ops = &isi_graph_notify_ops;
 
 	ret = v4l2_async_notifier_register(&isi->v4l2_dev, &isi->notifier);
 	if (ret < 0) {
 		dev_err(isi->dev, "Notifier registration failed\n");
+<<<<<<< HEAD
 		of_node_put(isi->entity.node);
+=======
+		v4l2_async_notifier_cleanup(&isi->notifier);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
@@ -1202,7 +1358,11 @@ static int atmel_isi_probe(struct platform_device *pdev)
 	isi->vdev->fops = &isi_fops;
 	isi->vdev->v4l2_dev = &isi->v4l2_dev;
 	isi->vdev->queue = &isi->queue;
+<<<<<<< HEAD
 	strlcpy(isi->vdev->name, KBUILD_MODNAME, sizeof(isi->vdev->name));
+=======
+	strscpy(isi->vdev->name, KBUILD_MODNAME, sizeof(isi->vdev->name));
+>>>>>>> upstream/android-13
 	isi->vdev->release = video_device_release;
 	isi->vdev->ioctl_ops = &isi_ioctl_ops;
 	isi->vdev->lock = &isi->lock;
@@ -1303,6 +1463,10 @@ static int atmel_isi_remove(struct platform_device *pdev)
 			isi->fb_descriptors_phys);
 	pm_runtime_disable(&pdev->dev);
 	v4l2_async_notifier_unregister(&isi->notifier);
+<<<<<<< HEAD
+=======
+	v4l2_async_notifier_cleanup(&isi->notifier);
+>>>>>>> upstream/android-13
 	v4l2_device_unregister(&isi->v4l2_dev);
 
 	return 0;
@@ -1351,4 +1515,7 @@ module_platform_driver(atmel_isi_driver);
 MODULE_AUTHOR("Josh Wu <josh.wu@atmel.com>");
 MODULE_DESCRIPTION("The V4L2 driver for Atmel Linux");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("video");
+=======
+>>>>>>> upstream/android-13

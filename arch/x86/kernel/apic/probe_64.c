@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright 2004 James Cleverdon, IBM.
  * Subject to the GNU Public License, v.2
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2004 James Cleverdon, IBM.
+>>>>>>> upstream/android-13
  *
  * Generic APIC sub-arch probe layer.
  *
@@ -8,6 +14,7 @@
  * Martin Bligh, Andi Kleen, James Bottomley, John Stultz, and
  * James Cleverdon.
  */
+<<<<<<< HEAD
 #include <linux/threads.h>
 #include <linux/cpumask.h>
 #include <linux/string.h>
@@ -21,6 +28,12 @@
 #include <asm/apic.h>
 #include <asm/ipi.h>
 #include <asm/setup.h>
+=======
+#include <linux/thread_info.h>
+#include <asm/apic.h>
+
+#include "local.h"
+>>>>>>> upstream/android-13
 
 /*
  * Check the APIC IDs in bios_cpu_apicid and choose the APIC mode.
@@ -41,6 +54,7 @@ void __init default_setup_apic_routing(void)
 			break;
 		}
 	}
+<<<<<<< HEAD
 
 	if (x86_platform.apic_post_init)
 		x86_platform.apic_post_init();
@@ -51,6 +65,8 @@ void __init default_setup_apic_routing(void)
 void apic_send_IPI_self(int vector)
 {
 	__default_send_IPI_shortcut(APIC_DEST_SELF, vector, APIC_DEST_PHYSICAL);
+=======
+>>>>>>> upstream/android-13
 }
 
 int __init default_acpi_madt_oem_check(char *oem_id, char *oem_table_id)

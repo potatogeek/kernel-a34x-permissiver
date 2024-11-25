@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright © 2006, Intel Corporation.
  *
@@ -14,6 +15,11 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright © 2006, Intel Corporation.
+>>>>>>> upstream/android-13
  */
 #ifndef _ASYNC_TX_H_
 #define _ASYNC_TX_H_
@@ -49,7 +55,11 @@ struct dma_chan_ref {
 /**
  * async_tx_flags - modifiers for the async_* calls
  * @ASYNC_TX_XOR_ZERO_DST: this flag must be used for xor operations where the
+<<<<<<< HEAD
  * the destination address is not a source.  The asynchronous case handles this
+=======
+ * destination address is not a source.  The asynchronous case handles this
+>>>>>>> upstream/android-13
  * implicitly, the synchronous case needs to zero the destination block.
  * @ASYNC_TX_XOR_DROP_DST: this flag must be used if the destination address is
  * also one of the source addresses.  In the synchronous case the destination
@@ -176,11 +186,28 @@ async_xor(struct page *dest, struct page **src_list, unsigned int offset,
 	  int src_cnt, size_t len, struct async_submit_ctl *submit);
 
 struct dma_async_tx_descriptor *
+<<<<<<< HEAD
+=======
+async_xor_offs(struct page *dest, unsigned int offset,
+		struct page **src_list, unsigned int *src_offset,
+		int src_cnt, size_t len, struct async_submit_ctl *submit);
+
+struct dma_async_tx_descriptor *
+>>>>>>> upstream/android-13
 async_xor_val(struct page *dest, struct page **src_list, unsigned int offset,
 	      int src_cnt, size_t len, enum sum_check_flags *result,
 	      struct async_submit_ctl *submit);
 
 struct dma_async_tx_descriptor *
+<<<<<<< HEAD
+=======
+async_xor_val_offs(struct page *dest, unsigned int offset,
+		struct page **src_list, unsigned int *src_offset,
+		int src_cnt, size_t len, enum sum_check_flags *result,
+		struct async_submit_ctl *submit);
+
+struct dma_async_tx_descriptor *
+>>>>>>> upstream/android-13
 async_memcpy(struct page *dest, struct page *src, unsigned int dest_offset,
 	     unsigned int src_offset, size_t len,
 	     struct async_submit_ctl *submit);
@@ -188,6 +215,7 @@ async_memcpy(struct page *dest, struct page *src, unsigned int dest_offset,
 struct dma_async_tx_descriptor *async_trigger_callback(struct async_submit_ctl *submit);
 
 struct dma_async_tx_descriptor *
+<<<<<<< HEAD
 async_gen_syndrome(struct page **blocks, unsigned int offset, int src_cnt,
 		   size_t len, struct async_submit_ctl *submit);
 
@@ -203,6 +231,25 @@ async_raid6_2data_recov(int src_num, size_t bytes, int faila, int failb,
 struct dma_async_tx_descriptor *
 async_raid6_datap_recov(int src_num, size_t bytes, int faila,
 			struct page **ptrs, struct async_submit_ctl *submit);
+=======
+async_gen_syndrome(struct page **blocks, unsigned int *offsets, int src_cnt,
+		   size_t len, struct async_submit_ctl *submit);
+
+struct dma_async_tx_descriptor *
+async_syndrome_val(struct page **blocks, unsigned int *offsets, int src_cnt,
+		   size_t len, enum sum_check_flags *pqres, struct page *spare,
+		   unsigned int s_off, struct async_submit_ctl *submit);
+
+struct dma_async_tx_descriptor *
+async_raid6_2data_recov(int src_num, size_t bytes, int faila, int failb,
+			struct page **ptrs, unsigned int *offs,
+			struct async_submit_ctl *submit);
+
+struct dma_async_tx_descriptor *
+async_raid6_datap_recov(int src_num, size_t bytes, int faila,
+			struct page **ptrs, unsigned int *offs,
+			struct async_submit_ctl *submit);
+>>>>>>> upstream/android-13
 
 void async_tx_quiesce(struct dma_async_tx_descriptor **tx);
 #endif /* _ASYNC_TX_H_ */

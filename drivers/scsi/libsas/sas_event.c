@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Serial Attached SCSI (SAS) Event processing
  *
  * Copyright (C) 2005 Adaptec, Inc.  All rights reserved.
  * Copyright (C) 2005 Luben Tuikov <luben_tuikov@adaptec.com>
+<<<<<<< HEAD
  *
  * This file is licensed under GPLv2.
  *
@@ -20,12 +25,17 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/export.h>
 #include <scsi/scsi_host.h>
 #include "sas_internal.h"
+<<<<<<< HEAD
 #include "sas_dump.h"
+=======
+>>>>>>> upstream/android-13
 
 int sas_queue_work(struct sas_ha_struct *ha, struct sas_work *sw)
 {
@@ -126,7 +136,12 @@ void sas_enable_revalidation(struct sas_ha_struct *ha)
 
 		sas_phy = container_of(port->phy_list.next, struct asd_sas_phy,
 				port_phy_el);
+<<<<<<< HEAD
 		ha->notify_port_event(sas_phy, PORTE_BROADCAST_RCVD);
+=======
+		sas_notify_port_event(sas_phy,
+				PORTE_BROADCAST_RCVD, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	}
 	mutex_unlock(&ha->disco_mutex);
 }
@@ -148,15 +163,27 @@ static void sas_phy_event_worker(struct work_struct *work)
 	sas_free_event(ev);
 }
 
+<<<<<<< HEAD
 static int sas_notify_port_event(struct asd_sas_phy *phy, enum port_event event)
 {
 	struct asd_sas_event *ev;
 	struct sas_ha_struct *ha = phy->ha;
+=======
+int sas_notify_port_event(struct asd_sas_phy *phy, enum port_event event,
+			  gfp_t gfp_flags)
+{
+	struct sas_ha_struct *ha = phy->ha;
+	struct asd_sas_event *ev;
+>>>>>>> upstream/android-13
 	int ret;
 
 	BUG_ON(event >= PORT_NUM_EVENTS);
 
+<<<<<<< HEAD
 	ev = sas_alloc_event(phy);
+=======
+	ev = sas_alloc_event(phy, gfp_flags);
+>>>>>>> upstream/android-13
 	if (!ev)
 		return -ENOMEM;
 
@@ -168,16 +195,30 @@ static int sas_notify_port_event(struct asd_sas_phy *phy, enum port_event event)
 
 	return ret;
 }
+<<<<<<< HEAD
 
 int sas_notify_phy_event(struct asd_sas_phy *phy, enum phy_event event)
 {
 	struct asd_sas_event *ev;
 	struct sas_ha_struct *ha = phy->ha;
+=======
+EXPORT_SYMBOL_GPL(sas_notify_port_event);
+
+int sas_notify_phy_event(struct asd_sas_phy *phy, enum phy_event event,
+			 gfp_t gfp_flags)
+{
+	struct sas_ha_struct *ha = phy->ha;
+	struct asd_sas_event *ev;
+>>>>>>> upstream/android-13
 	int ret;
 
 	BUG_ON(event >= PHY_NUM_EVENTS);
 
+<<<<<<< HEAD
 	ev = sas_alloc_event(phy);
+=======
+	ev = sas_alloc_event(phy, gfp_flags);
+>>>>>>> upstream/android-13
 	if (!ev)
 		return -ENOMEM;
 
@@ -189,6 +230,7 @@ int sas_notify_phy_event(struct asd_sas_phy *phy, enum phy_event event)
 
 	return ret;
 }
+<<<<<<< HEAD
 
 int sas_init_events(struct sas_ha_struct *sas_ha)
 {
@@ -197,3 +239,6 @@ int sas_init_events(struct sas_ha_struct *sas_ha)
 
 	return 0;
 }
+=======
+EXPORT_SYMBOL_GPL(sas_notify_phy_event);
+>>>>>>> upstream/android-13

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Haoyu HYM8563 RTC driver
  *
@@ -6,6 +10,7 @@
  *
  * based on rtc-HYM8563
  * Copyright (C) 2010 ROCKCHIP, Inc.
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -15,6 +20,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -86,7 +93,10 @@
 struct hym8563 {
 	struct i2c_client	*client;
 	struct rtc_device	*rtc;
+<<<<<<< HEAD
 	bool			valid;
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_COMMON_CLK
 	struct clk_hw		clkout_hw;
 #endif
@@ -99,6 +109,7 @@ struct hym8563 {
 static int hym8563_rtc_read_time(struct device *dev, struct rtc_time *tm)
 {
 	struct i2c_client *client = to_i2c_client(dev);
+<<<<<<< HEAD
 	struct hym8563 *hym8563 = i2c_get_clientdata(client);
 	u8 buf[7];
 	int ret;
@@ -110,6 +121,21 @@ static int hym8563_rtc_read_time(struct device *dev, struct rtc_time *tm)
 
 	ret = i2c_smbus_read_i2c_block_data(client, HYM8563_SEC, 7, buf);
 
+=======
+	u8 buf[7];
+	int ret;
+
+	ret = i2c_smbus_read_i2c_block_data(client, HYM8563_SEC, 7, buf);
+	if (ret < 0)
+		return ret;
+
+	if (buf[0] & HYM8563_SEC_VL) {
+		dev_warn(&client->dev,
+			 "no valid clock/calendar values available\n");
+		return -EINVAL;
+	}
+
+>>>>>>> upstream/android-13
 	tm->tm_sec = bcd2bin(buf[0] & HYM8563_SEC_MASK);
 	tm->tm_min = bcd2bin(buf[1] & HYM8563_MIN_MASK);
 	tm->tm_hour = bcd2bin(buf[2] & HYM8563_HOUR_MASK);
@@ -124,7 +150,10 @@ static int hym8563_rtc_read_time(struct device *dev, struct rtc_time *tm)
 static int hym8563_rtc_set_time(struct device *dev, struct rtc_time *tm)
 {
 	struct i2c_client *client = to_i2c_client(dev);
+<<<<<<< HEAD
 	struct hym8563 *hym8563 = i2c_get_clientdata(client);
+=======
+>>>>>>> upstream/android-13
 	u8 buf[7];
 	int ret;
 
@@ -163,8 +192,11 @@ static int hym8563_rtc_set_time(struct device *dev, struct rtc_time *tm)
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	hym8563->valid = true;
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -438,10 +470,16 @@ static irqreturn_t hym8563_irq(int irq, void *dev_id)
 {
 	struct hym8563 *hym8563 = (struct hym8563 *)dev_id;
 	struct i2c_client *client = hym8563->client;
+<<<<<<< HEAD
 	struct mutex *lock = &hym8563->rtc->ops_lock;
 	int data, ret;
 
 	mutex_lock(lock);
+=======
+	int data, ret;
+
+	rtc_lock(hym8563->rtc);
+>>>>>>> upstream/android-13
 
 	/* Clear the alarm flag */
 
@@ -461,7 +499,11 @@ static irqreturn_t hym8563_irq(int irq, void *dev_id)
 	}
 
 out:
+<<<<<<< HEAD
 	mutex_unlock(lock);
+=======
+	rtc_unlock(hym8563->rtc);
+>>>>>>> upstream/android-13
 	return IRQ_HANDLED;
 }
 
@@ -537,8 +579,11 @@ static int hym8563_probe(struct i2c_client *client,
 	hym8563->client = client;
 	i2c_set_clientdata(client, hym8563);
 
+<<<<<<< HEAD
 	device_set_wakeup_capable(&client->dev, true);
 
+=======
+>>>>>>> upstream/android-13
 	ret = hym8563_init_device(client);
 	if (ret) {
 		dev_err(&client->dev, "could not init device, %d\n", ret);
@@ -557,14 +602,27 @@ static int hym8563_probe(struct i2c_client *client,
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	if (client->irq > 0 ||
+	    device_property_read_bool(&client->dev, "wakeup-source")) {
+		device_init_wakeup(&client->dev, true);
+	}
+
+>>>>>>> upstream/android-13
 	/* check state of calendar information */
 	ret = i2c_smbus_read_byte_data(client, HYM8563_SEC);
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	hym8563->valid = !(ret & HYM8563_SEC_VL);
 	dev_dbg(&client->dev, "rtc information is %s\n",
 		hym8563->valid ? "valid" : "invalid");
+=======
+	dev_dbg(&client->dev, "rtc information is %s\n",
+		(ret & HYM8563_SEC_VL) ? "invalid" : "valid");
+>>>>>>> upstream/android-13
 
 	hym8563->rtc = devm_rtc_device_register(&client->dev, client->name,
 						&hym8563_rtc_ops, THIS_MODULE);

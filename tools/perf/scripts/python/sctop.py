@@ -8,7 +8,18 @@
 # will be refreshed every [interval] seconds.  The default interval is
 # 3 seconds.
 
+<<<<<<< HEAD
 import os, sys, thread, time
+=======
+from __future__ import print_function
+
+import os, sys, time
+
+try:
+	import thread
+except ImportError:
+	import _thread as thread
+>>>>>>> upstream/android-13
 
 sys.path.append(os.environ['PERF_EXEC_PATH'] + \
 	'/scripts/python/Perf-Trace-Util/lib/Perf/Trace')
@@ -62,6 +73,7 @@ def print_syscall_totals(interval):
 	while 1:
 		clear_term()
 		if for_comm is not None:
+<<<<<<< HEAD
 			print "\nsyscall events for %s:\n\n" % (for_comm),
 		else:
 			print "\nsyscall events:\n\n",
@@ -74,6 +86,22 @@ def print_syscall_totals(interval):
 					      reverse = True):
 			try:
 				print "%-40s  %10d\n" % (syscall_name(id), val),
+=======
+			print("\nsyscall events for %s:\n" % (for_comm))
+		else:
+			print("\nsyscall events:\n")
+
+		print("%-40s  %10s" % ("event", "count"))
+		print("%-40s  %10s" %
+			("----------------------------------------",
+			"----------"))
+
+		for id, val in sorted(syscalls.items(),
+				key = lambda kv: (kv[1], kv[0]),
+				reverse = True):
+			try:
+				print("%-40s  %10d" % (syscall_name(id), val))
+>>>>>>> upstream/android-13
 			except TypeError:
 				pass
 		syscalls.clear()

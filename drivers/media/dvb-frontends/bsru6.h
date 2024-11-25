@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * bsru6.h - ALPS BSRU6 tuner support (moved from budget-ci.c)
  *
@@ -16,6 +17,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  *
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * bsru6.h - ALPS BSRU6 tuner support (moved from budget-ci.c)
+ *
+>>>>>>> upstream/android-13
  * the project's page is at https://linuxtv.org
  */
 

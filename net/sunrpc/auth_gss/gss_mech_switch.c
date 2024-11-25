@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: BSD-3-Clause
+>>>>>>> upstream/android-13
 /*
  *  linux/net/sunrpc/gss_mech_switch.c
  *
@@ -5,6 +9,7 @@
  *  All rights reserved.
  *
  *  J. Bruce Fields   <bfields@umich.edu>
+<<<<<<< HEAD
  *
  *  Redistribution and use in source and binary forms, with or without
  *  modification, are permitted provided that the following conditions
@@ -31,6 +36,8 @@
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -45,6 +52,10 @@
 #include <linux/sunrpc/sched.h>
 #include <linux/sunrpc/gss_api.h>
 #include <linux/sunrpc/clnt.h>
+<<<<<<< HEAD
+=======
+#include <trace/events/rpcgss.h>
+>>>>>>> upstream/android-13
 
 #if IS_ENABLED(CONFIG_SUNRPC_DEBUG)
 # define RPCDBG_FACILITY        RPCDBG_AUTH
@@ -123,7 +134,11 @@ int gss_mech_register(struct gss_api_mech *gm)
 	if (status)
 		return status;
 	spin_lock(&registered_mechs_lock);
+<<<<<<< HEAD
 	list_add(&gm->gm_list, &registered_mechs);
+=======
+	list_add_rcu(&gm->gm_list, &registered_mechs);
+>>>>>>> upstream/android-13
 	spin_unlock(&registered_mechs_lock);
 	dprintk("RPC:       registered gss mechanism %s\n", gm->gm_name);
 	return 0;
@@ -138,7 +153,11 @@ EXPORT_SYMBOL_GPL(gss_mech_register);
 void gss_mech_unregister(struct gss_api_mech *gm)
 {
 	spin_lock(&registered_mechs_lock);
+<<<<<<< HEAD
 	list_del(&gm->gm_list);
+=======
+	list_del_rcu(&gm->gm_list);
+>>>>>>> upstream/android-13
 	spin_unlock(&registered_mechs_lock);
 	dprintk("RPC:       unregistered gss mechanism %s\n", gm->gm_name);
 	gss_mech_free(gm);
@@ -157,15 +176,24 @@ _gss_mech_get_by_name(const char *name)
 {
 	struct gss_api_mech	*pos, *gm = NULL;
 
+<<<<<<< HEAD
 	spin_lock(&registered_mechs_lock);
 	list_for_each_entry(pos, &registered_mechs, gm_list) {
+=======
+	rcu_read_lock();
+	list_for_each_entry_rcu(pos, &registered_mechs, gm_list) {
+>>>>>>> upstream/android-13
 		if (0 == strcmp(name, pos->gm_name)) {
 			if (try_module_get(pos->gm_owner))
 				gm = pos;
 			break;
 		}
 	}
+<<<<<<< HEAD
 	spin_unlock(&registered_mechs_lock);
+=======
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 	return gm;
 
 }
@@ -189,11 +217,18 @@ struct gss_api_mech *gss_mech_get_by_OID(struct rpcsec_gss_oid *obj)
 
 	if (sprint_oid(obj->data, obj->len, buf, sizeof(buf)) < 0)
 		return NULL;
+<<<<<<< HEAD
 	dprintk("RPC:       %s(%s)\n", __func__, buf);
 	request_module("rpc-auth-gss-%s", buf);
 
 	spin_lock(&registered_mechs_lock);
 	list_for_each_entry(pos, &registered_mechs, gm_list) {
+=======
+	request_module("rpc-auth-gss-%s", buf);
+
+	rcu_read_lock();
+	list_for_each_entry_rcu(pos, &registered_mechs, gm_list) {
+>>>>>>> upstream/android-13
 		if (obj->len == pos->gm_oid.len) {
 			if (0 == memcmp(obj->data, pos->gm_oid.data, obj->len)) {
 				if (try_module_get(pos->gm_owner))
@@ -202,7 +237,13 @@ struct gss_api_mech *gss_mech_get_by_OID(struct rpcsec_gss_oid *obj)
 			}
 		}
 	}
+<<<<<<< HEAD
 	spin_unlock(&registered_mechs_lock);
+=======
+	rcu_read_unlock();
+	if (!gm)
+		trace_rpcgss_oid_to_mech(buf);
+>>>>>>> upstream/android-13
 	return gm;
 }
 
@@ -222,15 +263,24 @@ static struct gss_api_mech *_gss_mech_get_by_pseudoflavor(u32 pseudoflavor)
 {
 	struct gss_api_mech *gm = NULL, *pos;
 
+<<<<<<< HEAD
 	spin_lock(&registered_mechs_lock);
 	list_for_each_entry(pos, &registered_mechs, gm_list) {
+=======
+	rcu_read_lock();
+	list_for_each_entry_rcu(pos, &registered_mechs, gm_list) {
+>>>>>>> upstream/android-13
 		if (!mech_supports_pseudoflavor(pos, pseudoflavor))
 			continue;
 		if (try_module_get(pos->gm_owner))
 			gm = pos;
 		break;
 	}
+<<<<<<< HEAD
 	spin_unlock(&registered_mechs_lock);
+=======
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 	return gm;
 }
 
@@ -249,6 +299,7 @@ gss_mech_get_by_pseudoflavor(u32 pseudoflavor)
 }
 
 /**
+<<<<<<< HEAD
  * gss_mech_list_pseudoflavors - Discover registered GSS pseudoflavors
  * @array: array to fill in
  * @size: size of "array"
@@ -278,6 +329,8 @@ int gss_mech_list_pseudoflavors(rpc_authflavor_t *array_ptr, int size)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * gss_svc_to_pseudoflavor - map a GSS service number to a pseudoflavor
  * @gm: GSS mechanism handle
  * @qop: GSS quality-of-protection value
@@ -405,7 +458,11 @@ int
 gss_import_sec_context(const void *input_token, size_t bufsize,
 		       struct gss_api_mech	*mech,
 		       struct gss_ctx		**ctx_id,
+<<<<<<< HEAD
 		       time_t			*endtime,
+=======
+		       time64_t			*endtime,
+>>>>>>> upstream/android-13
 		       gfp_t gfp_mask)
 {
 	if (!(*ctx_id = kzalloc(sizeof(**ctx_id), gfp_mask)))
@@ -469,10 +526,18 @@ gss_wrap(struct gss_ctx	*ctx_id,
 u32
 gss_unwrap(struct gss_ctx	*ctx_id,
 	   int			offset,
+<<<<<<< HEAD
 	   struct xdr_buf	*buf)
 {
 	return ctx_id->mech_type->gm_ops
 		->gss_unwrap(ctx_id, offset, buf);
+=======
+	   int			len,
+	   struct xdr_buf	*buf)
+{
+	return ctx_id->mech_type->gm_ops
+		->gss_unwrap(ctx_id, offset, len, buf);
+>>>>>>> upstream/android-13
 }
 
 

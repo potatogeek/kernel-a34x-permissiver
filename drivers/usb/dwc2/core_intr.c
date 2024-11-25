@@ -288,6 +288,7 @@ static void dwc2_handle_conn_id_status_change_intr(struct dwc2_hsotg *hsotg)
 
 	/*
 	 * Need to schedule a work, as there are possible DELAY function calls.
+<<<<<<< HEAD
 	 * Release lock before scheduling workq as it holds spinlock during
 	 * scheduling.
 	 */
@@ -296,6 +297,11 @@ static void dwc2_handle_conn_id_status_change_intr(struct dwc2_hsotg *hsotg)
 		queue_work(hsotg->wq_otg, &hsotg->wf_otg);
 		spin_lock(&hsotg->lock);
 	}
+=======
+	 */
+	if (hsotg->wq_otg)
+		queue_work(hsotg->wq_otg, &hsotg->wf_otg);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -322,10 +328,25 @@ static void dwc2_handle_session_req_intr(struct dwc2_hsotg *hsotg)
 
 	if (dwc2_is_device_mode(hsotg)) {
 		if (hsotg->lx_state == DWC2_L2) {
+<<<<<<< HEAD
 			ret = dwc2_exit_partial_power_down(hsotg, true);
 			if (ret && (ret != -ENOTSUPP))
 				dev_err(hsotg->dev,
 					"exit power_down failed\n");
+=======
+			if (hsotg->in_ppd) {
+				ret = dwc2_exit_partial_power_down(hsotg, 0,
+								   true);
+				if (ret)
+					dev_err(hsotg->dev,
+						"exit power_down failed\n");
+			}
+
+			/* Exit gadget mode clock gating. */
+			if (hsotg->params.power_down ==
+			    DWC2_POWER_DOWN_PARAM_NONE && hsotg->bus_suspended)
+				dwc2_gadget_exit_clock_gating(hsotg, 0);
+>>>>>>> upstream/android-13
 		}
 
 		/*
@@ -420,6 +441,7 @@ static void dwc2_handle_wakeup_detected_intr(struct dwc2_hsotg *hsotg)
 		dev_dbg(hsotg->dev, "DSTS=0x%0x\n",
 			dwc2_readl(hsotg, DSTS));
 		if (hsotg->lx_state == DWC2_L2) {
+<<<<<<< HEAD
 			u32 dctl = dwc2_readl(hsotg, DCTL);
 
 			/* Clear Remote Wakeup Signaling */
@@ -432,11 +454,31 @@ static void dwc2_handle_wakeup_detected_intr(struct dwc2_hsotg *hsotg)
 			/* Change to L0 state */
 			hsotg->lx_state = DWC2_L0;
 			call_gadget(hsotg, resume);
+=======
+			if (hsotg->in_ppd) {
+				u32 dctl = dwc2_readl(hsotg, DCTL);
+				/* Clear Remote Wakeup Signaling */
+				dctl &= ~DCTL_RMTWKUPSIG;
+				dwc2_writel(hsotg, dctl, DCTL);
+				ret = dwc2_exit_partial_power_down(hsotg, 1,
+								   true);
+				if (ret)
+					dev_err(hsotg->dev,
+						"exit partial_power_down failed\n");
+				call_gadget(hsotg, resume);
+			}
+
+			/* Exit gadget mode clock gating. */
+			if (hsotg->params.power_down ==
+			    DWC2_POWER_DOWN_PARAM_NONE && hsotg->bus_suspended)
+				dwc2_gadget_exit_clock_gating(hsotg, 0);
+>>>>>>> upstream/android-13
 		} else {
 			/* Change to L0 state */
 			hsotg->lx_state = DWC2_L0;
 		}
 	} else {
+<<<<<<< HEAD
 		if (hsotg->params.power_down)
 			return;
 
@@ -446,6 +488,32 @@ static void dwc2_handle_wakeup_detected_intr(struct dwc2_hsotg *hsotg)
 			/* Restart the Phy Clock */
 			pcgcctl &= ~PCGCTL_STOPPCLK;
 			dwc2_writel(hsotg, pcgcctl, PCGCTL);
+=======
+		if (hsotg->lx_state == DWC2_L2) {
+			if (hsotg->in_ppd) {
+				ret = dwc2_exit_partial_power_down(hsotg, 1,
+								   true);
+				if (ret)
+					dev_err(hsotg->dev,
+						"exit partial_power_down failed\n");
+			}
+
+			if (hsotg->params.power_down ==
+			    DWC2_POWER_DOWN_PARAM_NONE && hsotg->bus_suspended)
+				dwc2_host_exit_clock_gating(hsotg, 1);
+
+			/*
+			 * If we've got this quirk then the PHY is stuck upon
+			 * wakeup.  Assert reset.  This will propagate out and
+			 * eventually we'll re-enumerate the device.  Not great
+			 * but the best we can do.  We can't call phy_reset()
+			 * at interrupt time but there's no hurry, so we'll
+			 * schedule it for later.
+			 */
+			if (hsotg->reset_phy_on_wake)
+				dwc2_host_schedule_phy_reset(hsotg);
+
+>>>>>>> upstream/android-13
 			mod_timer(&hsotg->wkp_timer,
 				  jiffies + msecs_to_jiffies(71));
 		} else {
@@ -509,6 +577,7 @@ static void dwc2_handle_usb_suspend_intr(struct dwc2_hsotg *hsotg)
 			return;
 		}
 		if (dsts & DSTS_SUSPSTS) {
+<<<<<<< HEAD
 			if (hsotg->hw_params.power_optimized) {
 				ret = dwc2_enter_partial_power_down(hsotg);
 				if (ret) {
@@ -518,12 +587,21 @@ static void dwc2_handle_usb_suspend_intr(struct dwc2_hsotg *hsotg)
 							__func__);
 					goto skip_power_saving;
 				}
+=======
+			switch (hsotg->params.power_down) {
+			case DWC2_POWER_DOWN_PARAM_PARTIAL:
+				ret = dwc2_enter_partial_power_down(hsotg);
+				if (ret)
+					dev_err(hsotg->dev,
+						"enter partial_power_down failed\n");
+>>>>>>> upstream/android-13
 
 				udelay(100);
 
 				/* Ask phy to be suspended */
 				if (!IS_ERR_OR_NULL(hsotg->uphy))
 					usb_phy_set_suspend(hsotg->uphy, true);
+<<<<<<< HEAD
 			}
 
 			if (hsotg->hw_params.hibernation) {
@@ -534,6 +612,24 @@ static void dwc2_handle_usb_suspend_intr(struct dwc2_hsotg *hsotg)
 						__func__);
 			}
 skip_power_saving:
+=======
+				break;
+			case DWC2_POWER_DOWN_PARAM_HIBERNATION:
+				ret = dwc2_enter_hibernation(hsotg, 0);
+				if (ret)
+					dev_err(hsotg->dev,
+						"enter hibernation failed\n");
+				break;
+			case DWC2_POWER_DOWN_PARAM_NONE:
+				/*
+				 * If neither hibernation nor partial power down are supported,
+				 * clock gating is used to save power.
+				 */
+				if (!hsotg->params.no_clock_gating)
+					dwc2_gadget_enter_clock_gating(hsotg);
+			}
+
+>>>>>>> upstream/android-13
 			/*
 			 * Change to L2 (suspend) state before releasing
 			 * spinlock
@@ -724,10 +820,18 @@ static inline void dwc_handle_gpwrdn_disc_det(struct dwc2_hsotg *hsotg,
  * The GPWRDN interrupts are those that occur in both Host and
  * Device mode while core is in hibernated state.
  */
+<<<<<<< HEAD
 static void dwc2_handle_gpwrdn_intr(struct dwc2_hsotg *hsotg)
 {
 	u32 gpwrdn;
 	int linestate;
+=======
+static int dwc2_handle_gpwrdn_intr(struct dwc2_hsotg *hsotg)
+{
+	u32 gpwrdn;
+	int linestate;
+	int ret = 0;
+>>>>>>> upstream/android-13
 
 	gpwrdn = dwc2_readl(hsotg, GPWRDN);
 	/* clear all interrupt */
@@ -751,17 +855,39 @@ static void dwc2_handle_gpwrdn_intr(struct dwc2_hsotg *hsotg)
 		if (hsotg->hw_params.hibernation &&
 		    hsotg->hibernated) {
 			if (gpwrdn & GPWRDN_IDSTS) {
+<<<<<<< HEAD
 				dwc2_exit_hibernation(hsotg, 0, 0, 0);
 				call_gadget(hsotg, resume);
 			} else {
 				dwc2_exit_hibernation(hsotg, 1, 0, 1);
+=======
+				ret = dwc2_exit_hibernation(hsotg, 0, 0, 0);
+				if (ret)
+					dev_err(hsotg->dev,
+						"exit hibernation failed.\n");
+				call_gadget(hsotg, resume);
+			} else {
+				ret = dwc2_exit_hibernation(hsotg, 1, 0, 1);
+				if (ret)
+					dev_err(hsotg->dev,
+						"exit hibernation failed.\n");
+>>>>>>> upstream/android-13
 			}
 		}
 	} else if ((gpwrdn & GPWRDN_RST_DET) &&
 		   (gpwrdn & GPWRDN_RST_DET_MSK)) {
 		dev_dbg(hsotg->dev, "%s: GPWRDN_RST_DET\n", __func__);
+<<<<<<< HEAD
 		if (!linestate && (gpwrdn & GPWRDN_BSESSVLD))
 			dwc2_exit_hibernation(hsotg, 0, 1, 0);
+=======
+		if (!linestate) {
+			ret = dwc2_exit_hibernation(hsotg, 0, 1, 0);
+			if (ret)
+				dev_err(hsotg->dev,
+					"exit hibernation failed.\n");
+		}
+>>>>>>> upstream/android-13
 	} else if ((gpwrdn & GPWRDN_STS_CHGINT) &&
 		   (gpwrdn & GPWRDN_STS_CHGINT_MSK)) {
 		dev_dbg(hsotg->dev, "%s: GPWRDN_STS_CHGINT\n", __func__);
@@ -773,6 +899,11 @@ static void dwc2_handle_gpwrdn_intr(struct dwc2_hsotg *hsotg)
 		 */
 		dwc_handle_gpwrdn_disc_det(hsotg, gpwrdn);
 	}
+<<<<<<< HEAD
+=======
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /*

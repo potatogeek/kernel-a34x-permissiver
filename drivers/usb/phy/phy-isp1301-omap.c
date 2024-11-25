@@ -12,7 +12,11 @@
 #include <linux/slab.h>
 #include <linux/interrupt.h>
 #include <linux/platform_device.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
 #include <linux/usb.h>
@@ -555,7 +559,11 @@ pullup:
 	case OTG_STATE_A_PERIPHERAL:
 		if (otg_ctrl & OTG_PULLUP)
 			goto pullup;
+<<<<<<< HEAD
 		/* FALLTHROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	// case OTG_STATE_B_WAIT_ACON:
 	default:
 pulldown:
@@ -581,11 +589,19 @@ pulldown:
 		/* HNP failed for some reason (A_AIDL_BDIS timeout) */
 		notresponding(isp);
 
+<<<<<<< HEAD
 		/* FALLTHROUGH */
 	case OTG_STATE_A_VBUS_ERR:
 		isp->phy.otg->state = OTG_STATE_A_WAIT_VFALL;
 		pr_debug("  --> a_wait_vfall\n");
 		/* FALLTHROUGH */
+=======
+		fallthrough;
+	case OTG_STATE_A_VBUS_ERR:
+		isp->phy.otg->state = OTG_STATE_A_WAIT_VFALL;
+		pr_debug("  --> a_wait_vfall\n");
+		fallthrough;
+>>>>>>> upstream/android-13
 	case OTG_STATE_A_WAIT_VFALL:
 		/* FIXME usbcore thinks port power is still on ... */
 		clr |= OTG1_VBUS_DRV;
@@ -595,7 +611,11 @@ pulldown:
 			isp->phy.otg->state = OTG_STATE_A_WAIT_VRISE;
 			pr_debug("  --> a_wait_vrise\n");
 		}
+<<<<<<< HEAD
 		/* FALLTHROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		toggle(OTG_DRV_VBUS, OTG1_VBUS_DRV);
 	}
@@ -945,10 +965,17 @@ static void isp_update_otg(struct isp1301 *isp, u8 stat)
 			switch (state) {
 			case OTG_STATE_B_IDLE:
 				a_idle(isp, "idle");
+<<<<<<< HEAD
 				/* FALLTHROUGH */
 			case OTG_STATE_A_IDLE:
 				enable_vbus_source(isp);
 				/* FALLTHROUGH */
+=======
+				fallthrough;
+			case OTG_STATE_A_IDLE:
+				enable_vbus_source(isp);
+				fallthrough;
+>>>>>>> upstream/android-13
 			case OTG_STATE_A_WAIT_VRISE:
 				/* we skip over OTG_STATE_A_WAIT_BCON, since
 				 * the HC will transition to A_HOST (or
@@ -1032,12 +1059,20 @@ static void isp_update_otg(struct isp1301 *isp, u8 stat)
 						OTG1_DP_PULLUP);
 			dump_regs(isp, __func__);
 #endif
+<<<<<<< HEAD
 			/* FALLTHROUGH */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case OTG_STATE_B_SRP_INIT:
 			b_idle(isp, __func__);
 			l = omap_readl(OTG_CTRL) & OTG_XCEIV_OUTPUTS;
 			omap_writel(l, OTG_CTRL);
+<<<<<<< HEAD
 			/* FALLTHROUGH */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case OTG_STATE_B_IDLE:
 			if (otg->gadget && (isp_bstat & OTG_B_SESS_VLD)) {
 #ifdef	CONFIG_USB_OTG
@@ -1208,9 +1243,12 @@ static int isp1301_remove(struct i2c_client *i2c)
 #ifdef	CONFIG_USB_OTG
 	otg_unbind(isp);
 #endif
+<<<<<<< HEAD
 	if (machine_is_omap_h2())
 		gpio_free(2);
 
+=======
+>>>>>>> upstream/android-13
 	set_bit(WORK_STOP, &isp->todo);
 	del_timer_sync(&isp->timer);
 	flush_work(&isp->work);
@@ -1480,6 +1518,10 @@ isp1301_probe(struct i2c_client *i2c, const struct i2c_device_id *id)
 {
 	int			status;
 	struct isp1301		*isp;
+<<<<<<< HEAD
+=======
+	int irq;
+>>>>>>> upstream/android-13
 
 	if (the_transceiver)
 		return 0;
@@ -1543,12 +1585,18 @@ isp1301_probe(struct i2c_client *i2c, const struct i2c_device_id *id)
 #endif
 
 	if (machine_is_omap_h2()) {
+<<<<<<< HEAD
+=======
+		struct gpio_desc *gpiod;
+
+>>>>>>> upstream/android-13
 		/* full speed signaling by default */
 		isp1301_set_bits(isp, ISP1301_MODE_CONTROL_1,
 			MC1_SPEED);
 		isp1301_set_bits(isp, ISP1301_MODE_CONTROL_2,
 			MC2_SPD_SUSP_CTRL);
 
+<<<<<<< HEAD
 		/* IRQ wired at M14 */
 		omap_cfg_reg(M14_1510_GPIO2);
 		if (gpio_request(2, "isp1301") == 0)
@@ -1557,6 +1605,21 @@ isp1301_probe(struct i2c_client *i2c, const struct i2c_device_id *id)
 	}
 
 	status = request_irq(i2c->irq, isp1301_irq,
+=======
+		gpiod = devm_gpiod_get(&i2c->dev, NULL, GPIOD_IN);
+		if (IS_ERR(gpiod)) {
+			dev_err(&i2c->dev, "cannot obtain H2 GPIO\n");
+			goto fail;
+		}
+		gpiod_set_consumer_name(gpiod, "isp1301");
+		irq = gpiod_to_irq(gpiod);
+		isp->irq_type = IRQF_TRIGGER_FALLING;
+	} else {
+		irq = i2c->irq;
+	}
+
+	status = request_irq(irq, isp1301_irq,
+>>>>>>> upstream/android-13
 			isp->irq_type, DRIVER_NAME, isp);
 	if (status < 0) {
 		dev_dbg(&i2c->dev, "can't get IRQ %d, err %d\n",
@@ -1566,6 +1629,7 @@ isp1301_probe(struct i2c_client *i2c, const struct i2c_device_id *id)
 
 	isp->phy.dev = &i2c->dev;
 	isp->phy.label = DRIVER_NAME;
+<<<<<<< HEAD
 	isp->phy.set_power = isp1301_set_power,
 
 	isp->phy.otg->usb_phy = &isp->phy;
@@ -1573,6 +1637,15 @@ isp1301_probe(struct i2c_client *i2c, const struct i2c_device_id *id)
 	isp->phy.otg->set_peripheral = isp1301_set_peripheral,
 	isp->phy.otg->start_srp = isp1301_start_srp,
 	isp->phy.otg->start_hnp = isp1301_start_hnp,
+=======
+	isp->phy.set_power = isp1301_set_power;
+
+	isp->phy.otg->usb_phy = &isp->phy;
+	isp->phy.otg->set_host = isp1301_set_host;
+	isp->phy.otg->set_peripheral = isp1301_set_peripheral;
+	isp->phy.otg->start_srp = isp1301_start_srp;
+	isp->phy.otg->start_hnp = isp1301_start_hnp;
+>>>>>>> upstream/android-13
 
 	enable_vbus_draw(isp, 0);
 	power_down(isp);

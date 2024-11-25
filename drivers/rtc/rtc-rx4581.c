@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* drivers/rtc/rtc-rx4581.c
  *
  * written by Torben Hohn <torbenh@linutronix.de>
@@ -8,10 +12,13 @@
  * Copyright (C) 2006 8D Technologies inc.
  * Copyright (C) 2004 Compulab Ltd.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Driver for MAX6902 spi RTC
  *
  * and based on:
@@ -22,6 +29,7 @@
  * Author: Martyn Welch <martyn.welch@ge.com>
  * Copyright 2008 GE Intelligent Platforms Embedded Systems, Inc.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
@@ -29,6 +37,10 @@
  * Based on: rtc-pcf8563.c (An I2C driver for the Philips PCF8563 RTC)
  * Copyright 2005-06 Tower Technologies
  *
+=======
+ * Based on: rtc-pcf8563.c (An I2C driver for the Philips PCF8563 RTC)
+ * Copyright 2005-06 Tower Technologies
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>

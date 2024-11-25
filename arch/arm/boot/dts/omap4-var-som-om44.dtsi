@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014 Joachim Eastwood <manabian@gmail.com>
  * Copyright (C) 2012 Variscite Ltd. - http://www.variscite.com
@@ -7,6 +8,15 @@
  * published by the Free Software Foundation.
  */
 #include "omap4460.dtsi"
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2014 Joachim Eastwood <manabian@gmail.com>
+ * Copyright (C) 2012 Variscite Ltd. - https://www.variscite.com
+ */
+#include "omap4460.dtsi"
+#include "omap4-mcpdm.dtsi"
+>>>>>>> upstream/android-13
 
 / {
 	model = "Variscite VAR-SOM-OM44";
@@ -74,6 +84,7 @@
 		>;
 	};
 
+<<<<<<< HEAD
 	mcpdm_pins: pinmux_mcpdm_pins {
 		pinctrl-single,pins = <
 			OMAP4_IOPAD(0x106, PIN_INPUT_PULLDOWN | MUX_MODE0)	/* abe_pdm_ul_data.abe_pdm_ul_data */
@@ -84,6 +95,8 @@
 		>;
 	};
 
+=======
+>>>>>>> upstream/android-13
 	tsc2004_pins: pinmux_tsc2004_pins {
 		pinctrl-single,pins = <
 			OMAP4_IOPAD(0x090, PIN_INPUT | MUX_MODE3)		/* gpmc_ncs4.gpio_101 (irq) */
@@ -251,6 +264,7 @@
 	status = "disabled";
 };
 
+<<<<<<< HEAD
 &mcpdm {
 	pinctrl-names = "default";
 	pinctrl-0 = <&mcpdm_pins>;
@@ -261,6 +275,8 @@
 	status = "okay";
 };
 
+=======
+>>>>>>> upstream/android-13
 &gpmc {
 	status = "disabled";
 };

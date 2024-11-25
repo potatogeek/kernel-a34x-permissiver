@@ -18,7 +18,11 @@
 
 #include <linux/kernel.h>
 #include <linux/errno.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/gfp.h>
 #include <linux/highmem.h>
 #include <linux/swap.h>
@@ -26,7 +30,11 @@
 #include <linux/nodemask.h>
 #include <linux/mm.h>
 #include <linux/of_fdt.h>
+<<<<<<< HEAD
 #include <linux/dma-contiguous.h>
+=======
+#include <linux/dma-map-ops.h>
+>>>>>>> upstream/android-13
 
 #include <asm/bootparam.h>
 #include <asm/page.h>
@@ -45,10 +53,14 @@ void __init bootmem_init(void)
 	 * If PHYS_OFFSET is zero reserve page at address 0:
 	 * successfull allocations should never return NULL.
 	 */
+<<<<<<< HEAD
 	if (PHYS_OFFSET)
 		memblock_reserve(0, PHYS_OFFSET);
 	else
 		memblock_reserve(0, 1);
+=======
+	memblock_reserve(0, PHYS_OFFSET ? PHYS_OFFSET : 1);
+>>>>>>> upstream/android-13
 
 	early_init_fdt_scan_reserved_mem();
 
@@ -60,6 +72,12 @@ void __init bootmem_init(void)
 	max_pfn = PFN_DOWN(memblock_end_of_DRAM());
 	max_low_pfn = min(max_pfn, MAX_LOW_PFN);
 
+<<<<<<< HEAD
+=======
+	early_memtest((phys_addr_t)min_low_pfn << PAGE_SHIFT,
+		      (phys_addr_t)max_low_pfn << PAGE_SHIFT);
+
+>>>>>>> upstream/android-13
 	memblock_set_current_limit(PFN_PHYS(max_low_pfn));
 	dma_contiguous_reserve(PFN_PHYS(max_low_pfn));
 
@@ -70,6 +88,7 @@ void __init bootmem_init(void)
 void __init zones_init(void)
 {
 	/* All pages are DMA-able, so we put them all in the DMA zone. */
+<<<<<<< HEAD
 	unsigned long zones_size[MAX_NR_ZONES] = {
 		[ZONE_DMA] = max_low_pfn - ARCH_PFN_OFFSET,
 #ifdef CONFIG_HIGHMEM
@@ -84,10 +103,20 @@ static void __init free_area_high(unsigned long pfn, unsigned long end)
 {
 	for (; pfn < end; pfn++)
 		free_highmem_page(pfn_to_page(pfn));
+=======
+	unsigned long max_zone_pfn[MAX_NR_ZONES] = {
+		[ZONE_NORMAL] = max_low_pfn,
+#ifdef CONFIG_HIGHMEM
+		[ZONE_HIGHMEM] = max_pfn,
+#endif
+	};
+	free_area_init(max_zone_pfn);
+>>>>>>> upstream/android-13
 }
 
 static void __init free_highpages(void)
 {
+<<<<<<< HEAD
 	unsigned long max_low = max_low_pfn;
 	struct memblock_region *mem, *res;
 
@@ -96,18 +125,34 @@ static void __init free_highpages(void)
 	for_each_memblock(memory, mem) {
 		unsigned long start = memblock_region_memory_base_pfn(mem);
 		unsigned long end = memblock_region_memory_end_pfn(mem);
+=======
+#ifdef CONFIG_HIGHMEM
+	unsigned long max_low = max_low_pfn;
+	phys_addr_t range_start, range_end;
+	u64 i;
+
+	/* set highmem page free */
+	for_each_free_mem_range(i, NUMA_NO_NODE, MEMBLOCK_NONE,
+				&range_start, &range_end, NULL) {
+		unsigned long start = PFN_UP(range_start);
+		unsigned long end = PFN_DOWN(range_end);
+>>>>>>> upstream/android-13
 
 		/* Ignore complete lowmem entries */
 		if (end <= max_low)
 			continue;
 
+<<<<<<< HEAD
 		if (memblock_is_nomap(mem))
 			continue;
 
+=======
+>>>>>>> upstream/android-13
 		/* Truncate partial highmem entries */
 		if (start < max_low)
 			start = max_low;
 
+<<<<<<< HEAD
 		/* Find and exclude any reserved regions */
 		for_each_memblock(reserved, res) {
 			unsigned long res_start, res_end;
@@ -140,6 +185,13 @@ static void __init free_highpages(void)
 {
 }
 #endif
+=======
+		for (; start < end; start++)
+			free_highmem_page(pfn_to_page(start));
+	}
+#endif
+}
+>>>>>>> upstream/android-13
 
 /*
  * Initialize memory pages.
@@ -152,9 +204,14 @@ void __init mem_init(void)
 	max_mapnr = max_pfn - ARCH_PFN_OFFSET;
 	high_memory = (void *)__va(max_low_pfn << PAGE_SHIFT);
 
+<<<<<<< HEAD
 	free_all_bootmem();
 
 	mem_init_print_info(NULL);
+=======
+	memblock_free_all();
+
+>>>>>>> upstream/android-13
 	pr_info("virtual kernel memory layout:\n"
 #ifdef CONFIG_KASAN
 		"    kasan   : 0x%08lx - 0x%08lx  (%5lu MB)\n"
@@ -182,8 +239,13 @@ void __init mem_init(void)
 #ifdef CONFIG_HIGHMEM
 		PKMAP_BASE, PKMAP_BASE + LAST_PKMAP * PAGE_SIZE,
 		(LAST_PKMAP*PAGE_SIZE) >> 10,
+<<<<<<< HEAD
 		FIXADDR_START, FIXADDR_TOP,
 		(FIXADDR_TOP - FIXADDR_START) >> 10,
+=======
+		FIXADDR_START, FIXADDR_END,
+		(FIXADDR_END - FIXADDR_START) >> 10,
+>>>>>>> upstream/android-13
 #endif
 		PAGE_OFFSET, PAGE_OFFSET +
 		(max_low_pfn - min_low_pfn) * PAGE_SIZE,
@@ -193,8 +255,13 @@ void __init mem_init(void)
 		((max_low_pfn - min_low_pfn) * PAGE_SIZE) >> 20,
 		(unsigned long)_text, (unsigned long)_etext,
 		(unsigned long)(_etext - _text) >> 10,
+<<<<<<< HEAD
 		(unsigned long)__start_rodata, (unsigned long)_sdata,
 		(unsigned long)(_sdata - __start_rodata) >> 10,
+=======
+		(unsigned long)__start_rodata, (unsigned long)__end_rodata,
+		(unsigned long)(__end_rodata - __start_rodata) >> 10,
+>>>>>>> upstream/android-13
 		(unsigned long)_sdata, (unsigned long)_edata,
 		(unsigned long)(_edata - _sdata) >> 10,
 		(unsigned long)__init_begin, (unsigned long)__init_end,
@@ -203,6 +270,7 @@ void __init mem_init(void)
 		(unsigned long)(__bss_stop - __bss_start) >> 10);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_BLK_DEV_INITRD
 extern int initrd_is_mapped;
 
@@ -218,6 +286,8 @@ void free_initmem(void)
 	free_initmem_default(-1);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void __init parse_memmap_one(char *p)
 {
 	char *oldp;

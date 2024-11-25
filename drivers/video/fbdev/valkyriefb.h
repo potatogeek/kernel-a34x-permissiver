@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * valkyriefb.h: Constants of all sorts for valkyriefb
  *
@@ -11,11 +15,14 @@
  *
  * Ported to 68k Macintosh by David Huggins-Daines <dhd@debian.org>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * Based directly on:
  *
  *  controlfb.h: Constants of all sorts for controlfb

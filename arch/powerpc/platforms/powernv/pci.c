@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Support PCI/PCIe on PowerNV platforms
  *
  * Copyright 2011 Benjamin Herrenschmidt, IBM Corp.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -38,12 +45,19 @@
 #include "powernv.h"
 #include "pci.h"
 
+<<<<<<< HEAD
 static DEFINE_MUTEX(p2p_mutex);
+=======
+>>>>>>> upstream/android-13
 static DEFINE_MUTEX(tunnel_mutex);
 
 int pnv_pci_get_slot_id(struct device_node *np, uint64_t *id)
 {
+<<<<<<< HEAD
 	struct device_node *parent = np;
+=======
+	struct device_node *node = np;
+>>>>>>> upstream/android-13
 	u32 bdfn;
 	u64 phbid;
 	int ret;
@@ -53,6 +67,7 @@ int pnv_pci_get_slot_id(struct device_node *np, uint64_t *id)
 		return -ENXIO;
 
 	bdfn = ((bdfn & 0x00ffff00) >> 8);
+<<<<<<< HEAD
 	while ((parent = of_get_parent(parent))) {
 		if (!PCI_DN(parent)) {
 			of_node_put(parent);
@@ -71,6 +86,31 @@ int pnv_pci_get_slot_id(struct device_node *np, uint64_t *id)
 		}
 
 		*id = PCI_SLOT_ID(phbid, bdfn);
+=======
+	for (node = np; node; node = of_get_parent(node)) {
+		if (!PCI_DN(node)) {
+			of_node_put(node);
+			break;
+		}
+
+		if (!of_device_is_compatible(node, "ibm,ioda2-phb") &&
+		    !of_device_is_compatible(node, "ibm,ioda3-phb") &&
+		    !of_device_is_compatible(node, "ibm,ioda2-npu2-opencapi-phb")) {
+			of_node_put(node);
+			continue;
+		}
+
+		ret = of_property_read_u64(node, "ibm,opal-phbid", &phbid);
+		if (ret) {
+			of_node_put(node);
+			return -ENXIO;
+		}
+
+		if (of_device_is_compatible(node, "ibm,ioda2-npu2-opencapi-phb"))
+			*id = PCI_PHB_SLOT_ID(phbid);
+		else
+			*id = PCI_SLOT_ID(phbid, bdfn);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
@@ -160,6 +200,7 @@ exit:
 }
 EXPORT_SYMBOL_GPL(pnv_pci_set_power_state);
 
+<<<<<<< HEAD
 #ifdef CONFIG_PCI_MSI
 int pnv_setup_msi_irqs(struct pci_dev *pdev, int nvec, int type)
 {
@@ -231,6 +272,8 @@ void pnv_teardown_msi_irqs(struct pci_dev *pdev)
 }
 #endif /* CONFIG_PCI_MSI */
 
+=======
+>>>>>>> upstream/android-13
 /* Nicely print the contents of the PE State Tables (PEST). */
 static void pnv_pci_dump_pest(__be64 pestA[], __be64 pestB[], int pest_size)
 {
@@ -715,7 +758,11 @@ int pnv_pci_cfg_write(struct pci_dn *pdn,
 	return PCIBIOS_SUCCESSFUL;
 }
 
+<<<<<<< HEAD
 #if CONFIG_EEH
+=======
+#ifdef CONFIG_EEH
+>>>>>>> upstream/android-13
 static bool pnv_pci_cfg_check(struct pci_dn *pdn)
 {
 	struct eeh_dev *edev = NULL;
@@ -816,6 +863,7 @@ struct iommu_table *pnv_pci_table_alloc(int nid)
 	return tbl;
 }
 
+<<<<<<< HEAD
 void pnv_pci_dma_dev_setup(struct pci_dev *pdev)
 {
 	struct pci_controller *hose = pci_bus_to_host(pdev->bus);
@@ -918,6 +966,8 @@ out:
 }
 EXPORT_SYMBOL_GPL(pnv_pci_set_p2p);
 
+=======
+>>>>>>> upstream/android-13
 struct device_node *pnv_pci_get_phb_node(struct pci_dev *dev)
 {
 	struct pci_controller *hose = pci_bus_to_host(dev->bus);
@@ -926,6 +976,7 @@ struct device_node *pnv_pci_get_phb_node(struct pci_dev *dev)
 }
 EXPORT_SYMBOL(pnv_pci_get_phb_node);
 
+<<<<<<< HEAD
 int pnv_pci_enable_tunnel(struct pci_dev *dev, u64 *asnind)
 {
 	struct device_node *np;
@@ -980,6 +1031,13 @@ int pnv_pci_set_tunnel_bar(struct pci_dev *dev, u64 addr, int enable)
 	struct pci_controller *hose;
 	struct pnv_phb *phb;
 	u64 tunnel_bar;
+=======
+int pnv_pci_set_tunnel_bar(struct pci_dev *dev, u64 addr, int enable)
+{
+	struct pnv_phb *phb = pci_bus_to_pnvhb(dev->bus);
+	u64 tunnel_bar;
+	__be64 val;
+>>>>>>> upstream/android-13
 	int rc;
 
 	if (!opal_check_token(OPAL_PCI_GET_PBCQ_TUNNEL_BAR))
@@ -987,9 +1045,12 @@ int pnv_pci_set_tunnel_bar(struct pci_dev *dev, u64 addr, int enable)
 	if (!opal_check_token(OPAL_PCI_SET_PBCQ_TUNNEL_BAR))
 		return -ENXIO;
 
+<<<<<<< HEAD
 	hose = pci_bus_to_host(dev->bus);
 	phb = hose->private_data;
 
+=======
+>>>>>>> upstream/android-13
 	mutex_lock(&tunnel_mutex);
 	rc = opal_pci_get_pbcq_tunnel_bar(phb->opal_id, &val);
 	if (rc != OPAL_SUCCESS) {
@@ -1028,6 +1089,7 @@ out:
 }
 EXPORT_SYMBOL_GPL(pnv_pci_set_tunnel_bar);
 
+<<<<<<< HEAD
 #ifdef CONFIG_PPC64	/* for thread.tidr */
 int pnv_pci_get_as_notify_info(struct task_struct *task, u32 *lpid, u32 *pid,
 			       u32 *tid)
@@ -1051,6 +1113,8 @@ int pnv_pci_get_as_notify_info(struct task_struct *task, u32 *lpid, u32 *pid,
 EXPORT_SYMBOL_GPL(pnv_pci_get_as_notify_info);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 void pnv_pci_shutdown(void)
 {
 	struct pci_controller *hose;
@@ -1107,6 +1171,7 @@ void __init pnv_pci_init(void)
 	for_each_compatible_node(np, NULL, "ibm,ioda3-phb")
 		pnv_pci_init_ioda2_phb(np);
 
+<<<<<<< HEAD
 	/* Look for NPU PHBs */
 	for_each_compatible_node(np, NULL, "ibm,ioda2-npu-phb")
 		pnv_pci_init_npu_phb(np);
@@ -1118,6 +1183,8 @@ void __init pnv_pci_init(void)
 	for_each_compatible_node(np, NULL, "ibm,ioda2-npu2-phb")
 		pnv_pci_init_npu_phb(np);
 
+=======
+>>>>>>> upstream/android-13
 	/* Look for NPU2 OpenCAPI PHBs */
 	for_each_compatible_node(np, NULL, "ibm,ioda2-npu2-opencapi-phb")
 		pnv_pci_init_npu2_opencapi_phb(np);
@@ -1126,4 +1193,31 @@ void __init pnv_pci_init(void)
 	set_pci_dma_ops(&dma_iommu_ops);
 }
 
+<<<<<<< HEAD
 machine_subsys_initcall_sync(powernv, tce_iommu_bus_notifier_init);
+=======
+static int pnv_tce_iommu_bus_notifier(struct notifier_block *nb,
+		unsigned long action, void *data)
+{
+	struct device *dev = data;
+
+	switch (action) {
+	case BUS_NOTIFY_DEL_DEVICE:
+		iommu_del_device(dev);
+		return 0;
+	default:
+		return 0;
+	}
+}
+
+static struct notifier_block pnv_tce_iommu_bus_nb = {
+	.notifier_call = pnv_tce_iommu_bus_notifier,
+};
+
+static int __init pnv_tce_iommu_bus_notifier_init(void)
+{
+	bus_register_notifier(&pci_bus_type, &pnv_tce_iommu_bus_nb);
+	return 0;
+}
+machine_subsys_initcall_sync(powernv, pnv_tce_iommu_bus_notifier_init);
+>>>>>>> upstream/android-13

@@ -114,7 +114,11 @@ static int __init stnic_probe(void)
   /* New style probing API */
   dev = alloc_ei_netdev();
   if (!dev)
+<<<<<<< HEAD
   	return -ENOMEM;
+=======
+	return -ENOMEM;
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_SH_STANDARD_BIOS
   sh_bios_get_node_addr (stnic_eadr);

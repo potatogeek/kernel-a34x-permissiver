@@ -6,6 +6,7 @@
 #include <linux/sched/rt.h>
 #include <linux/iocontext.h>
 
+<<<<<<< HEAD
 /*
  * Gives us 8 prio classes with 13-bits of data for each class
  */
@@ -46,6 +47,24 @@ enum {
  * Fallback BE priority
  */
 #define IOPRIO_NORM	(4)
+=======
+#include <uapi/linux/ioprio.h>
+
+/*
+ * Default IO priority.
+ */
+#define IOPRIO_DEFAULT	IOPRIO_PRIO_VALUE(IOPRIO_CLASS_BE, IOPRIO_BE_NORM)
+
+/*
+ * Check that a priority value has a valid class.
+ */
+static inline bool ioprio_valid(unsigned short ioprio)
+{
+	unsigned short class = IOPRIO_PRIO_CLASS(ioprio);
+
+	return class > IOPRIO_CLASS_NONE && class <= IOPRIO_CLASS_IDLE;
+}
+>>>>>>> upstream/android-13
 
 /*
  * if process has set io priority explicitly, use that. if not, convert
@@ -71,6 +90,22 @@ static inline int task_nice_ioclass(struct task_struct *task)
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * If the calling process has set an I/O priority, use that. Otherwise, return
+ * the default I/O priority.
+ */
+static inline int get_current_ioprio(void)
+{
+	struct io_context *ioc = current->io_context;
+
+	if (ioc)
+		return ioc->ioprio;
+	return IOPRIO_DEFAULT;
+}
+
+/*
+>>>>>>> upstream/android-13
  * For inheritance, return the highest of the two given priorities
  */
 extern int ioprio_best(unsigned short aprio, unsigned short bprio);

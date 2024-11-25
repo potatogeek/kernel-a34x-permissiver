@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  NSA Security-Enhanced Linux (SELinux) security module
  *
@@ -12,10 +16,13 @@
  *
  *  Copyright (C) 2005 International Business Machines Corporation
  *  Copyright (C) 2006 Trusted Computer Solutions, Inc.
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License version 2,
  *	as published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -50,7 +57,11 @@
 #include "xfrm.h"
 
 /* Labeled XFRM instance counter */
+<<<<<<< HEAD
 atomic_t selinux_xfrm_refcount = ATOMIC_INIT(0);
+=======
+atomic_t selinux_xfrm_refcount __read_mostly = ATOMIC_INIT(0);
+>>>>>>> upstream/android-13
 
 /*
  * Returns true if the context is an LSM/SELinux context.
@@ -79,7 +90,11 @@ static int selinux_xfrm_alloc_user(struct xfrm_sec_ctx **ctxp,
 				   gfp_t gfp)
 {
 	int rc;
+<<<<<<< HEAD
 	const struct task_security_struct *tsec = current_security();
+=======
+	const struct task_security_struct *tsec = selinux_cred(current_cred());
+>>>>>>> upstream/android-13
 	struct xfrm_sec_ctx *ctx = NULL;
 	u32 str_len;
 
@@ -138,7 +153,11 @@ static void selinux_xfrm_free(struct xfrm_sec_ctx *ctx)
  */
 static int selinux_xfrm_delete(struct xfrm_sec_ctx *ctx)
 {
+<<<<<<< HEAD
 	const struct task_security_struct *tsec = current_security();
+=======
+	const struct task_security_struct *tsec = selinux_cred(current_cred());
+>>>>>>> upstream/android-13
 
 	if (!ctx)
 		return 0;
@@ -153,7 +172,11 @@ static int selinux_xfrm_delete(struct xfrm_sec_ctx *ctx)
  * LSM hook implementation that authorizes that a flow can use a xfrm policy
  * rule.
  */
+<<<<<<< HEAD
 int selinux_xfrm_policy_lookup(struct xfrm_sec_ctx *ctx, u32 fl_secid, u8 dir)
+=======
+int selinux_xfrm_policy_lookup(struct xfrm_sec_ctx *ctx, u32 fl_secid)
+>>>>>>> upstream/android-13
 {
 	int rc;
 
@@ -178,9 +201,16 @@ int selinux_xfrm_policy_lookup(struct xfrm_sec_ctx *ctx, u32 fl_secid, u8 dir)
  */
 int selinux_xfrm_state_pol_flow_match(struct xfrm_state *x,
 				      struct xfrm_policy *xp,
+<<<<<<< HEAD
 				      const struct flowi *fl)
 {
 	u32 state_sid;
+=======
+				      const struct flowi_common *flic)
+{
+	u32 state_sid;
+	u32 flic_sid;
+>>>>>>> upstream/android-13
 
 	if (!xp->security)
 		if (x->security)
@@ -199,17 +229,29 @@ int selinux_xfrm_state_pol_flow_match(struct xfrm_state *x,
 				return 0;
 
 	state_sid = x->security->ctx_sid;
+<<<<<<< HEAD
 
 	if (fl->flowi_secid != state_sid)
+=======
+	flic_sid = flic->flowic_secid;
+
+	if (flic_sid != state_sid)
+>>>>>>> upstream/android-13
 		return 0;
 
 	/* We don't need a separate SA Vs. policy polmatch check since the SA
 	 * is now of the same label as the flow and a flow Vs. policy polmatch
 	 * check had already happened in selinux_xfrm_policy_lookup() above. */
+<<<<<<< HEAD
 	return (avc_has_perm(&selinux_state,
 			     fl->flowi_secid, state_sid,
 			    SECCLASS_ASSOCIATION, ASSOCIATION__SENDTO,
 			    NULL) ? 0 : 1);
+=======
+	return (avc_has_perm(&selinux_state, flic_sid, state_sid,
+			     SECCLASS_ASSOCIATION, ASSOCIATION__SENDTO,
+			     NULL) ? 0 : 1);
+>>>>>>> upstream/android-13
 }
 
 static u32 selinux_xfrm_skb_sid_egress(struct sk_buff *skb)
@@ -230,7 +272,11 @@ static int selinux_xfrm_skb_sid_ingress(struct sk_buff *skb,
 					u32 *sid, int ckall)
 {
 	u32 sid_session = SECSID_NULL;
+<<<<<<< HEAD
 	struct sec_path *sp = skb->sp;
+=======
+	struct sec_path *sp = skb_sec_path(skb);
+>>>>>>> upstream/android-13
 
 	if (sp) {
 		int i;
@@ -349,7 +395,11 @@ int selinux_xfrm_state_alloc_acquire(struct xfrm_state *x,
 	int rc;
 	struct xfrm_sec_ctx *ctx;
 	char *ctx_str = NULL;
+<<<<<<< HEAD
 	int str_len;
+=======
+	u32 str_len;
+>>>>>>> upstream/android-13
 
 	if (!polsec)
 		return 0;
@@ -408,7 +458,11 @@ int selinux_xfrm_sock_rcv_skb(u32 sk_sid, struct sk_buff *skb,
 			      struct common_audit_data *ad)
 {
 	int i;
+<<<<<<< HEAD
 	struct sec_path *sp = skb->sp;
+=======
+	struct sec_path *sp = skb_sec_path(skb);
+>>>>>>> upstream/android-13
 	u32 peer_sid = SECINITSID_UNLABELED;
 
 	if (sp) {

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * HCI based Driver for Inside Secure microread NFC Chip - i2c layer
  *
  * Copyright (C) 2013 Intel Corporation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -14,6 +19,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -84,7 +91,11 @@ static void microread_i2c_remove_len_crc(struct sk_buff *skb)
 	skb_trim(skb, MICROREAD_I2C_FRAME_TAILROOM);
 }
 
+<<<<<<< HEAD
 static int check_crc(struct sk_buff *skb)
+=======
+static int check_crc(const struct sk_buff *skb)
+>>>>>>> upstream/android-13
 {
 	int i;
 	u8 crc = 0;
@@ -236,7 +247,11 @@ static irqreturn_t microread_i2c_irq_thread_fn(int irq, void *phy_id)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static struct nfc_phy_ops i2c_phy_ops = {
+=======
+static const struct nfc_phy_ops i2c_phy_ops = {
+>>>>>>> upstream/android-13
 	.write = microread_i2c_write,
 	.enable = microread_i2c_enable,
 	.disable = microread_i2c_disable,

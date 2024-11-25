@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *   Copyright (c) International Business Machines  Corp., 2000,2002
  *
@@ -17,6 +18,13 @@
  *
  * uniupr.h - Unicode compressed case ranges
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ *   Copyright (c) International Business Machines  Corp., 2000,2002
+ *
+ * uniupr.h - Unicode compressed case ranges
+>>>>>>> upstream/android-13
 */
 
 #ifndef UNIUPR_NOUPPER

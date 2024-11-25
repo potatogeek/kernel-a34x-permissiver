@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Copyright (c) 2007   The University of Aberdeen, Scotland, UK
  *  Copyright (c) 2005-7 The University of Waikato, Hamilton, New Zealand.
@@ -6,7 +10,11 @@
  *  An implementation of the DCCP protocol
  *
  *  This code has been developed by the University of Waikato WAND
+<<<<<<< HEAD
  *  research group. For further information please see http://www.wand.net.nz/
+=======
+ *  research group. For further information please see https://www.wand.net.nz/
+>>>>>>> upstream/android-13
  *
  *  This code also uses code from Lulea University, rereleased as GPL by its
  *  authors:
@@ -17,6 +25,7 @@
  *  Arnaldo Carvalho de Melo <acme@conectiva.com.br>.
  *
  *  Copyright (c) 2005 Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -31,6 +40,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 #include "../dccp.h"
 #include "ccid3.h"
@@ -92,6 +103,11 @@ static inline u64 rfc3390_initial_rate(struct sock *sk)
 
 /**
  * ccid3_update_send_interval  -  Calculate new t_ipi = s / X_inst
+<<<<<<< HEAD
+=======
+ * @hc: socket to have the send interval updated
+ *
+>>>>>>> upstream/android-13
  * This respects the granularity of X_inst (64 * bytes/second).
  */
 static void ccid3_update_send_interval(struct ccid3_hc_tx_sock *hc)
@@ -112,6 +128,10 @@ static u32 ccid3_hc_tx_idle_rtt(struct ccid3_hc_tx_sock *hc, ktime_t now)
 
 /**
  * ccid3_hc_tx_update_x  -  Update allowed sending rate X
+<<<<<<< HEAD
+=======
+ * @sk: socket to be updated
+>>>>>>> upstream/android-13
  * @stamp: most recent time if available - can be left NULL.
  *
  * This function tracks draft rfc3448bis, check there for latest details.
@@ -164,6 +184,10 @@ static void ccid3_hc_tx_update_x(struct sock *sk, ktime_t *stamp)
 
 /**
  *	ccid3_hc_tx_update_s - Track the mean packet size `s'
+<<<<<<< HEAD
+=======
+ *	@hc: socket to be updated
+>>>>>>> upstream/android-13
  *	@len: DCCP packet payload size in bytes
  *
  *	cf. RFC 4342, 5.3 and  RFC 3448, 4.1
@@ -272,6 +296,10 @@ out:
 
 /**
  * ccid3_hc_tx_send_packet  -  Delay-based dequeueing of TX packets
+<<<<<<< HEAD
+=======
+ * @sk: socket to send packet from
+>>>>>>> upstream/android-13
  * @skb: next packet candidate to send on @sk
  *
  * This function uses the convention of ccid_packet_dequeue_eval() and
@@ -621,7 +649,11 @@ static void ccid3_hc_rx_send_feedback(struct sock *sk,
 		 */
 		if (hc->rx_x_recv > 0)
 			break;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case CCID3_FBACK_PERIODIC:
 		delta = ktime_us_delta(now, hc->rx_tstamp_last_feedback);
 		if (delta <= 0)
@@ -668,6 +700,10 @@ static int ccid3_hc_rx_insert_options(struct sock *sk, struct sk_buff *skb)
 
 /**
  * ccid3_first_li  -  Implements [RFC 5348, 6.3.1]
+<<<<<<< HEAD
+=======
+ * @sk: socket to calculate loss interval for
+>>>>>>> upstream/android-13
  *
  * Determine the length of the first loss interval via inverse lookup.
  * Assume that X_recv can be computed by the throughput equation

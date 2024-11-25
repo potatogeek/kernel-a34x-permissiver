@@ -11,6 +11,7 @@ static __always_inline struct vdso_data *__arch_get_k_vdso_data(void)
 }
 #endif /* __arch_get_k_vdso_data */
 
+<<<<<<< HEAD
 #ifndef __arch_update_vdso_data
 static __always_inline int __arch_update_vdso_data(void)
 {
@@ -25,6 +26,8 @@ static __always_inline int __arch_get_clock_mode(struct timekeeper *tk)
 }
 #endif /* __arch_get_clock_mode */
 
+=======
+>>>>>>> upstream/android-13
 #ifndef __arch_update_vsyscall
 static __always_inline void __arch_update_vsyscall(struct vdso_data *vdata,
 						   struct timekeeper *tk)

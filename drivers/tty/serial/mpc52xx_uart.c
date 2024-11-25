@@ -44,10 +44,13 @@
 #include <asm/mpc52xx.h>
 #include <asm/mpc52xx_psc.h>
 
+<<<<<<< HEAD
 #if defined(CONFIG_SERIAL_MPC52xx_CONSOLE) && defined(CONFIG_MAGIC_SYSRQ)
 #define SUPPORT_SYSRQ
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/serial_core.h>
 
 
@@ -1382,12 +1385,17 @@ mpc52xx_uart_int_rx_chars(struct uart_port *port)
 		ch = psc_ops->read_char(port);
 
 		/* Handle sysreq char */
+<<<<<<< HEAD
 #ifdef SUPPORT_SYSRQ
 		if (uart_handle_sysrq_char(port, ch)) {
 			port->sysrq = 0;
 			continue;
 		}
 #endif
+=======
+		if (uart_handle_sysrq_char(port, ch))
+			continue;
+>>>>>>> upstream/android-13
 
 		/* Store it */
 
@@ -1429,9 +1437,13 @@ mpc52xx_uart_int_rx_chars(struct uart_port *port)
 		}
 	}
 
+<<<<<<< HEAD
 	spin_unlock(&port->lock);
 	tty_flip_buffer_push(tport);
 	spin_lock(&port->lock);
+=======
+	tty_flip_buffer_push(tport);
+>>>>>>> upstream/android-13
 
 	return psc_ops->raw_rx_rdy(port);
 }
@@ -1770,6 +1782,10 @@ static int mpc52xx_uart_of_probe(struct platform_device *op)
 	spin_lock_init(&port->lock);
 	port->uartclk = uartclk;
 	port->fifosize	= 512;
+<<<<<<< HEAD
+=======
+	port->has_sysrq = IS_ENABLED(CONFIG_SERIAL_MPC52xx_CONSOLE);
+>>>>>>> upstream/android-13
 	port->iotype	= UPIO_MEM;
 	port->flags	= UPF_BOOT_AUTOCONF |
 			  (uart_console(port) ? 0 : UPF_IOREMAP);

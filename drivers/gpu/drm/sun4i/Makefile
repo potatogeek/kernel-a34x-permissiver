@@ -24,9 +24,12 @@ sun4i-tcon-y			+= sun4i_lvds.o
 sun4i-tcon-y			+= sun4i_tcon.o
 sun4i-tcon-y			+= sun4i_rgb.o
 
+<<<<<<< HEAD
 sun6i-dsi-y			+= sun6i_mipi_dphy.o
 sun6i-dsi-y			+= sun6i_mipi_dsi.o
 
+=======
+>>>>>>> upstream/android-13
 obj-$(CONFIG_DRM_SUN4I)		+= sun4i-drm.o
 obj-$(CONFIG_DRM_SUN4I)		+= sun4i-tcon.o
 obj-$(CONFIG_DRM_SUN4I)		+= sun4i_tv.o
@@ -37,7 +40,11 @@ ifdef CONFIG_DRM_SUN4I_BACKEND
 obj-$(CONFIG_DRM_SUN4I)		+= sun4i-frontend.o
 endif
 obj-$(CONFIG_DRM_SUN4I_HDMI)	+= sun4i-drm-hdmi.o
+<<<<<<< HEAD
 obj-$(CONFIG_DRM_SUN6I_DSI)	+= sun6i-dsi.o
+=======
+obj-$(CONFIG_DRM_SUN6I_DSI)	+= sun6i_mipi_dsi.o
+>>>>>>> upstream/android-13
 obj-$(CONFIG_DRM_SUN8I_DW_HDMI)	+= sun8i-drm-hdmi.o
 obj-$(CONFIG_DRM_SUN8I_MIXER)	+= sun8i-mixer.o
 obj-$(CONFIG_DRM_SUN8I_TCON_TOP) += sun8i_tcon_top.o

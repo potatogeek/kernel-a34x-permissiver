@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * arch/sh/mm/cache-j2.c
  *
  * Copyright (C) 2015-2016 Smart Energy Instruments, Inc.
+<<<<<<< HEAD
  *
  * Released under the terms of the GNU GPL v2.0.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>

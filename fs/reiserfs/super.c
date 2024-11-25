@@ -651,6 +651,7 @@ static struct inode *reiserfs_alloc_inode(struct super_block *sb)
 	return &ei->vfs_inode;
 }
 
+<<<<<<< HEAD
 static void reiserfs_i_callback(struct rcu_head *head)
 {
 	struct inode *inode = container_of(head, struct inode, i_rcu);
@@ -662,6 +663,13 @@ static void reiserfs_destroy_inode(struct inode *inode)
 	call_rcu(&inode->i_rcu, reiserfs_i_callback);
 }
 
+=======
+static void reiserfs_free_inode(struct inode *inode)
+{
+	kmem_cache_free(reiserfs_inode_cachep, REISERFS_I(inode));
+}
+
+>>>>>>> upstream/android-13
 static void init_once(void *foo)
 {
 	struct reiserfs_inode_info *ei = (struct reiserfs_inode_info *)foo;
@@ -816,7 +824,11 @@ static struct dquot **reiserfs_get_dquots(struct inode *inode)
 
 static const struct super_operations reiserfs_sops = {
 	.alloc_inode = reiserfs_alloc_inode,
+<<<<<<< HEAD
 	.destroy_inode = reiserfs_destroy_inode,
+=======
+	.free_inode = reiserfs_free_inode,
+>>>>>>> upstream/android-13
 	.write_inode = reiserfs_write_inode,
 	.dirty_inode = reiserfs_dirty_inode,
 	.evict_inode = reiserfs_evict_inode,
@@ -1983,6 +1995,12 @@ static int reiserfs_fill_super(struct super_block *s, void *data, int silent)
 		goto error_unlocked;
 	}
 
+<<<<<<< HEAD
+=======
+	s->s_time_min = 0;
+	s->s_time_max = U32_MAX;
+
+>>>>>>> upstream/android-13
 	rs = SB_DISK_SUPER_BLOCK(s);
 	/*
 	 * Let's do basic sanity check to verify that underlying device is not
@@ -2085,6 +2103,17 @@ static int reiserfs_fill_super(struct super_block *s, void *data, int silent)
 		unlock_new_inode(root_inode);
 	}
 
+<<<<<<< HEAD
+=======
+	if (!S_ISDIR(root_inode->i_mode) || !inode_get_bytes(root_inode) ||
+	    !root_inode->i_size) {
+		SWARN(silent, s, "", "corrupt root inode, run fsck");
+		iput(root_inode);
+		errval = -EUCLEAN;
+		goto error;
+	}
+
+>>>>>>> upstream/android-13
 	s->s_root = d_make_root(root_inode);
 	if (!s->s_root)
 		goto error;
@@ -2411,7 +2440,11 @@ static int reiserfs_quota_on(struct super_block *sb, int type, int format_id,
 	 * IO to work
 	 */
 	if (!(REISERFS_I(inode)->i_flags & i_nopack_mask)) {
+<<<<<<< HEAD
 		err = reiserfs_unpack(inode, NULL);
+=======
+		err = reiserfs_unpack(inode);
+>>>>>>> upstream/android-13
 		if (err) {
 			reiserfs_warning(sb, "super-6520",
 				"Unpacking tail of quota file failed"
@@ -2650,6 +2683,10 @@ MODULE_ALIAS_FS("reiserfs");
 MODULE_DESCRIPTION("ReiserFS journaled filesystem");
 MODULE_AUTHOR("Hans Reiser <reiser@namesys.com>");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 
 module_init(init_reiserfs_fs);
 module_exit(exit_reiserfs_fs);

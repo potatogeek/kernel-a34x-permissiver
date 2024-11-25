@@ -82,15 +82,23 @@ static int ip_frag_reasm(struct ipq *qp, struct sk_buff *skb,
 static void ip4_frag_init(struct inet_frag_queue *q, const void *a)
 {
 	struct ipq *qp = container_of(q, struct ipq, q);
+<<<<<<< HEAD
 	struct netns_ipv4 *ipv4 = container_of(q->net, struct netns_ipv4,
 					       frags);
 	struct net *net = container_of(ipv4, struct net, ipv4);
+=======
+	struct net *net = q->fqdir->net;
+>>>>>>> upstream/android-13
 
 	const struct frag_v4_compare_key *key = a;
 
 	q->key.v4 = *key;
 	qp->ecn = 0;
+<<<<<<< HEAD
 	qp->peer = q->net->max_dist ?
+=======
+	qp->peer = q->fqdir->max_dist ?
+>>>>>>> upstream/android-13
 		inet_getpeer_v4(net->ipv4.peers, key->saddr, key->vif, 1) :
 		NULL;
 }
@@ -142,9 +150,20 @@ static void ip_expire(struct timer_list *t)
 	int err;
 
 	qp = container_of(frag, struct ipq, q);
+<<<<<<< HEAD
 	net = container_of(qp->q.net, struct net, ipv4.frags);
 
 	rcu_read_lock();
+=======
+	net = qp->q.fqdir->net;
+
+	rcu_read_lock();
+
+	/* Paired with WRITE_ONCE() in fqdir_pre_exit(). */
+	if (READ_ONCE(qp->q.fqdir->dead))
+		goto out_rcu_unlock;
+
+>>>>>>> upstream/android-13
 	spin_lock(&qp->q.lock);
 
 	if (qp->q.flags & INET_FRAG_COMPLETE)
@@ -191,8 +210,12 @@ out:
 	spin_unlock(&qp->q.lock);
 out_rcu_unlock:
 	rcu_read_unlock();
+<<<<<<< HEAD
 	if (head)
 		kfree_skb(head);
+=======
+	kfree_skb(head);
+>>>>>>> upstream/android-13
 	ipq_put(qp);
 }
 
@@ -212,7 +235,11 @@ static struct ipq *ip_find(struct net *net, struct iphdr *iph,
 	};
 	struct inet_frag_queue *q;
 
+<<<<<<< HEAD
 	q = inet_frag_find(&net->ipv4.frags, &key);
+=======
+	q = inet_frag_find(net->ipv4.fqdir, &key);
+>>>>>>> upstream/android-13
 	if (!q)
 		return NULL;
 
@@ -223,7 +250,11 @@ static struct ipq *ip_find(struct net *net, struct iphdr *iph,
 static int ip_frag_too_far(struct ipq *qp)
 {
 	struct inet_peer *peer = qp->peer;
+<<<<<<< HEAD
 	unsigned int max = qp->q.net->max_dist;
+=======
+	unsigned int max = qp->q.fqdir->max_dist;
+>>>>>>> upstream/android-13
 	unsigned int start, end;
 
 	int rc;
@@ -237,12 +268,17 @@ static int ip_frag_too_far(struct ipq *qp)
 
 	rc = qp->q.fragments_tail && (end - start) > max;
 
+<<<<<<< HEAD
 	if (rc) {
 		struct net *net;
 
 		net = container_of(qp->q.net, struct net, ipv4.frags);
 		__IP_INC_STATS(net, IPSTATS_MIB_REASMFAILS);
 	}
+=======
+	if (rc)
+		__IP_INC_STATS(qp->q.fqdir->net, IPSTATS_MIB_REASMFAILS);
+>>>>>>> upstream/android-13
 
 	return rc;
 }
@@ -251,18 +287,29 @@ static int ip_frag_reinit(struct ipq *qp)
 {
 	unsigned int sum_truesize = 0;
 
+<<<<<<< HEAD
 	if (!mod_timer(&qp->q.timer, jiffies + qp->q.net->timeout)) {
+=======
+	if (!mod_timer(&qp->q.timer, jiffies + qp->q.fqdir->timeout)) {
+>>>>>>> upstream/android-13
 		refcount_inc(&qp->q.refcnt);
 		return -ETIMEDOUT;
 	}
 
 	sum_truesize = inet_frag_rbtree_purge(&qp->q.rb_fragments);
+<<<<<<< HEAD
 	sub_frag_mem_limit(qp->q.net, sum_truesize);
+=======
+	sub_frag_mem_limit(qp->q.fqdir, sum_truesize);
+>>>>>>> upstream/android-13
 
 	qp->q.flags = 0;
 	qp->q.len = 0;
 	qp->q.meat = 0;
+<<<<<<< HEAD
 	qp->q.fragments = NULL;
+=======
+>>>>>>> upstream/android-13
 	qp->q.rb_fragments = RB_ROOT;
 	qp->q.fragments_tail = NULL;
 	qp->q.last_run_head = NULL;
@@ -275,7 +322,11 @@ static int ip_frag_reinit(struct ipq *qp)
 /* Add new segment to existing queue. */
 static int ip_frag_queue(struct ipq *qp, struct sk_buff *skb)
 {
+<<<<<<< HEAD
 	struct net *net = container_of(qp->q.net, struct net, ipv4.frags);
+=======
+	struct net *net = qp->q.fqdir->net;
+>>>>>>> upstream/android-13
 	int ihl, end, flags, offset;
 	struct sk_buff *prev_tail;
 	struct net_device *dev;
@@ -354,7 +405,11 @@ static int ip_frag_queue(struct ipq *qp, struct sk_buff *skb)
 	qp->q.stamp = skb->tstamp;
 	qp->q.meat += skb->len;
 	qp->ecn |= ecn;
+<<<<<<< HEAD
 	add_frag_mem_limit(qp->q.net, skb->truesize);
+=======
+	add_frag_mem_limit(qp->q.fqdir, skb->truesize);
+>>>>>>> upstream/android-13
 	if (offset == 0)
 		qp->q.flags |= INET_FRAG_FIRST_IN;
 
@@ -397,11 +452,23 @@ err:
 	return err;
 }
 
+<<<<<<< HEAD
+=======
+static bool ip_frag_coalesce_ok(const struct ipq *qp)
+{
+	return qp->q.key.v4.user == IP_DEFRAG_LOCAL_DELIVER;
+}
+
+>>>>>>> upstream/android-13
 /* Build a new IP datagram from all its fragments. */
 static int ip_frag_reasm(struct ipq *qp, struct sk_buff *skb,
 			 struct sk_buff *prev_tail, struct net_device *dev)
 {
+<<<<<<< HEAD
 	struct net *net = container_of(qp->q.net, struct net, ipv4.frags);
+=======
+	struct net *net = qp->q.fqdir->net;
+>>>>>>> upstream/android-13
 	struct iphdr *iph;
 	void *reasm_data;
 	int len, err;
@@ -425,7 +492,12 @@ static int ip_frag_reasm(struct ipq *qp, struct sk_buff *skb,
 	if (len > 65535)
 		goto out_oversize;
 
+<<<<<<< HEAD
 	inet_frag_reasm_finish(&qp->q, skb, reasm_data);
+=======
+	inet_frag_reasm_finish(&qp->q, skb, reasm_data,
+			       ip_frag_coalesce_ok(qp));
+>>>>>>> upstream/android-13
 
 	skb->dev = dev;
 	IPCB(skb)->frag_max_size = max(qp->max_df_size, qp->q.max_size);
@@ -452,7 +524,10 @@ static int ip_frag_reasm(struct ipq *qp, struct sk_buff *skb,
 	ip_send_check(iph);
 
 	__IP_INC_STATS(net, IPSTATS_MIB_REASMOKS);
+<<<<<<< HEAD
 	qp->q.fragments = NULL;
+=======
+>>>>>>> upstream/android-13
 	qp->q.rb_fragments = RB_ROOT;
 	qp->q.fragments_tail = NULL;
 	qp->q.last_run_head = NULL;
@@ -547,6 +622,7 @@ static int dist_min;
 static struct ctl_table ip4_frags_ns_ctl_table[] = {
 	{
 		.procname	= "ipfrag_high_thresh",
+<<<<<<< HEAD
 		.data		= &init_net.ipv4.frags.high_thresh,
 		.maxlen		= sizeof(unsigned long),
 		.mode		= 0644,
@@ -564,13 +640,30 @@ static struct ctl_table ip4_frags_ns_ctl_table[] = {
 	{
 		.procname	= "ipfrag_time",
 		.data		= &init_net.ipv4.frags.timeout,
+=======
+		.maxlen		= sizeof(unsigned long),
+		.mode		= 0644,
+		.proc_handler	= proc_doulongvec_minmax,
+	},
+	{
+		.procname	= "ipfrag_low_thresh",
+		.maxlen		= sizeof(unsigned long),
+		.mode		= 0644,
+		.proc_handler	= proc_doulongvec_minmax,
+	},
+	{
+		.procname	= "ipfrag_time",
+>>>>>>> upstream/android-13
 		.maxlen		= sizeof(int),
 		.mode		= 0644,
 		.proc_handler	= proc_dointvec_jiffies,
 	},
 	{
 		.procname	= "ipfrag_max_dist",
+<<<<<<< HEAD
 		.data		= &init_net.ipv4.frags.max_dist,
+=======
+>>>>>>> upstream/android-13
 		.maxlen		= sizeof(int),
 		.mode		= 0644,
 		.proc_handler	= proc_dointvec_minmax,
@@ -603,6 +696,7 @@ static int __net_init ip4_frags_ns_ctl_register(struct net *net)
 		if (!table)
 			goto err_alloc;
 
+<<<<<<< HEAD
 		table[0].data = &net->ipv4.frags.high_thresh;
 		table[0].extra1 = &net->ipv4.frags.low_thresh;
 		table[0].extra2 = &init_net.ipv4.frags.high_thresh;
@@ -611,6 +705,15 @@ static int __net_init ip4_frags_ns_ctl_register(struct net *net)
 		table[2].data = &net->ipv4.frags.timeout;
 		table[3].data = &net->ipv4.frags.max_dist;
 	}
+=======
+	}
+	table[0].data	= &net->ipv4.fqdir->high_thresh;
+	table[0].extra1	= &net->ipv4.fqdir->low_thresh;
+	table[1].data	= &net->ipv4.fqdir->low_thresh;
+	table[1].extra2	= &net->ipv4.fqdir->high_thresh;
+	table[2].data	= &net->ipv4.fqdir->timeout;
+	table[3].data	= &net->ipv4.fqdir->max_dist;
+>>>>>>> upstream/android-13
 
 	hdr = register_net_sysctl(net, "net/ipv4", table);
 	if (!hdr)
@@ -658,6 +761,12 @@ static int __net_init ipv4_frags_init_net(struct net *net)
 {
 	int res;
 
+<<<<<<< HEAD
+=======
+	res = fqdir_init(&net->ipv4.fqdir, &ip4_frags, net);
+	if (res < 0)
+		return res;
+>>>>>>> upstream/android-13
 	/* Fragment cache limits.
 	 *
 	 * The fragment memory accounting code, (tries to) account for
@@ -672,13 +781,19 @@ static int __net_init ipv4_frags_init_net(struct net *net)
 	 * we will prune down to 3MB, making room for approx 8 big 64K
 	 * fragments 8x128k.
 	 */
+<<<<<<< HEAD
 	net->ipv4.frags.high_thresh = 4 * 1024 * 1024;
 	net->ipv4.frags.low_thresh  = 3 * 1024 * 1024;
+=======
+	net->ipv4.fqdir->high_thresh = 4 * 1024 * 1024;
+	net->ipv4.fqdir->low_thresh  = 3 * 1024 * 1024;
+>>>>>>> upstream/android-13
 	/*
 	 * Important NOTE! Fragment queue must be destroyed before MSL expires.
 	 * RFC791 is wrong proposing to prolongate timer each fragment arrival
 	 * by TTL.
 	 */
+<<<<<<< HEAD
 	net->ipv4.frags.timeout = IP_FRAG_TIME;
 
 	net->ipv4.frags.max_dist = 64;
@@ -702,6 +817,33 @@ static void __net_exit ipv4_frags_exit_net(struct net *net)
 static struct pernet_operations ip4_frags_ops = {
 	.init = ipv4_frags_init_net,
 	.exit = ipv4_frags_exit_net,
+=======
+	net->ipv4.fqdir->timeout = IP_FRAG_TIME;
+
+	net->ipv4.fqdir->max_dist = 64;
+
+	res = ip4_frags_ns_ctl_register(net);
+	if (res < 0)
+		fqdir_exit(net->ipv4.fqdir);
+	return res;
+}
+
+static void __net_exit ipv4_frags_pre_exit_net(struct net *net)
+{
+	fqdir_pre_exit(net->ipv4.fqdir);
+}
+
+static void __net_exit ipv4_frags_exit_net(struct net *net)
+{
+	ip4_frags_ns_ctl_unregister(net);
+	fqdir_exit(net->ipv4.fqdir);
+}
+
+static struct pernet_operations ip4_frags_ops = {
+	.init		= ipv4_frags_init_net,
+	.pre_exit	= ipv4_frags_pre_exit_net,
+	.exit		= ipv4_frags_exit_net,
+>>>>>>> upstream/android-13
 };
 
 

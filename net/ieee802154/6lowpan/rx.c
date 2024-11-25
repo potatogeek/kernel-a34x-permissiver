@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * as published by the Free Software Foundation.
@@ -7,6 +8,9 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 
 #include <linux/if_arp.h>
 
@@ -43,11 +47,19 @@ static int lowpan_rx_handlers_result(struct sk_buff *skb, lowpan_rx_result res)
 		net_warn_ratelimited("%s: received unknown dispatch\n",
 				     __func__);
 
+<<<<<<< HEAD
 		/* fall-through */
 	case RX_DROP_UNUSABLE:
 		kfree_skb(skb);
 
 		/* fall-through */
+=======
+		fallthrough;
+	case RX_DROP_UNUSABLE:
+		kfree_skb(skb);
+
+		fallthrough;
+>>>>>>> upstream/android-13
 	case RX_DROP:
 		return NET_RX_DROP;
 	case RX_QUEUED:
@@ -248,7 +260,11 @@ static inline bool lowpan_is_reserved(u8 dispatch)
 	return ((dispatch >= 0x44 && dispatch <= 0x4F) ||
 		(dispatch >= 0x51 && dispatch <= 0x5F) ||
 		(dispatch >= 0xc8 && dispatch <= 0xdf) ||
+<<<<<<< HEAD
 		(dispatch >= 0xe8 && dispatch <= 0xff));
+=======
+		dispatch >= 0xe8);
+>>>>>>> upstream/android-13
 }
 
 /* lowpan_rx_h_check checks on generic 6LoWPAN requirements

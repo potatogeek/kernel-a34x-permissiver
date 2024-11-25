@@ -67,12 +67,22 @@
 
 #ifdef CONFIG_FUSION_LOGGING
 #define MPT_CHECK_LOGGING(IOC, CMD, BITS)			\
+<<<<<<< HEAD
 {								\
 	if (IOC->debug_level & BITS)				\
 		CMD;						\
 }
 #else
 #define MPT_CHECK_LOGGING(IOC, CMD, BITS)
+=======
+do {								\
+	if (IOC->debug_level & BITS)				\
+		CMD;						\
+} while (0)
+#else
+#define MPT_CHECK_LOGGING(IOC, CMD, BITS)			\
+do { } while (0)
+>>>>>>> upstream/android-13
 #endif
 
 

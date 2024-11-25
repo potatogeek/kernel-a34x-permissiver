@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Libata driver for the HighPoint 371N, 372N, and 302N UDMA66 ATA controllers.
  *
@@ -236,7 +240,11 @@ static void hpt3x2n_set_dmamode(struct ata_port *ap, struct ata_device *adev)
 }
 
 /**
+<<<<<<< HEAD
  *	hpt3x2n_bmdma_end		-	DMA engine stop
+=======
+ *	hpt3x2n_bmdma_stop		-	DMA engine stop
+>>>>>>> upstream/android-13
  *	@qc: ATA command
  *
  *	Clean up after the HPT3x2n and later DMA engine

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014  STMicroelectronics SAS. All rights reserved.
  *
@@ -12,6 +13,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2014  STMicroelectronics SAS. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __LOCAL_ST21NFCA_H_
@@ -155,7 +161,11 @@ struct st21nfca_se_info {
 };
 
 struct st21nfca_hci_info {
+<<<<<<< HEAD
 	struct nfc_phy_ops *phy_ops;
+=======
+	const struct nfc_phy_ops *phy_ops;
+>>>>>>> upstream/android-13
 	void *phy_id;
 
 	struct nfc_hci_dev *hdev;
@@ -174,7 +184,11 @@ struct st21nfca_hci_info {
 	struct st21nfca_vendor_info vendor_info;
 };
 
+<<<<<<< HEAD
 int st21nfca_hci_probe(void *phy_id, struct nfc_phy_ops *phy_ops,
+=======
+int st21nfca_hci_probe(void *phy_id, const struct nfc_phy_ops *phy_ops,
+>>>>>>> upstream/android-13
 		       char *llc_name, int phy_headroom, int phy_tailroom,
 		       int phy_payload, struct nfc_hci_dev **hdev,
 		       struct st21nfca_se_status *se_status);

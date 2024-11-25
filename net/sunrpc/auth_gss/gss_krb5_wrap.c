@@ -137,7 +137,11 @@ gss_krb5_make_confounder(char *p, u32 conflen)
 	switch (conflen) {
 	case 16:
 		*q++ = i++;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 8:
 		*q++ = i++;
 		break;
@@ -163,7 +167,11 @@ gss_wrap_kerberos_v1(struct krb5_ctx *kctx, int offset,
 					    .data = cksumdata};
 	int			blocksize = 0, plainlen;
 	unsigned char		*ptr, *msg_start;
+<<<<<<< HEAD
 	s32			now;
+=======
+	time64_t		now;
+>>>>>>> upstream/android-13
 	int			headlen;
 	struct page		**tmp_pages;
 	u32			seq_send;
@@ -172,9 +180,15 @@ gss_wrap_kerberos_v1(struct krb5_ctx *kctx, int offset,
 
 	dprintk("RPC:       %s\n", __func__);
 
+<<<<<<< HEAD
 	now = get_seconds();
 
 	blocksize = crypto_skcipher_blocksize(kctx->enc);
+=======
+	now = ktime_get_real_seconds();
+
+	blocksize = crypto_sync_skcipher_blocksize(kctx->enc);
+>>>>>>> upstream/android-13
 	gss_krb5_add_padding(buf, offset, blocksize);
 	BUG_ON((buf->len - offset) % blocksize);
 	plainlen = conflen + buf->len - offset;
@@ -228,9 +242,13 @@ gss_wrap_kerberos_v1(struct krb5_ctx *kctx, int offset,
 
 	memcpy(ptr + GSS_KRB5_TOK_HDR_LEN, md5cksum.data, md5cksum.len);
 
+<<<<<<< HEAD
 	spin_lock(&krb5_seq_lock);
 	seq_send = kctx->seq_send++;
 	spin_unlock(&krb5_seq_lock);
+=======
+	seq_send = atomic_fetch_inc(&kctx->seq_send);
+>>>>>>> upstream/android-13
 
 	/* XXX would probably be more efficient to compute checksum
 	 * and encrypt at the same time: */
@@ -238,6 +256,7 @@ gss_wrap_kerberos_v1(struct krb5_ctx *kctx, int offset,
 			       seq_send, ptr + GSS_KRB5_TOK_HDR_LEN, ptr + 8)))
 		return GSS_S_FAILURE;
 
+<<<<<<< HEAD
 	if (kctx->enctype == ENCTYPE_ARCFOUR_HMAC) {
 		struct crypto_skcipher *cipher;
 		int err;
@@ -258,19 +277,34 @@ gss_wrap_kerberos_v1(struct krb5_ctx *kctx, int offset,
 					offset + headlen - conflen, pages))
 			return GSS_S_FAILURE;
 	}
+=======
+	if (gss_encrypt_xdr_buf(kctx->enc, buf,
+				offset + headlen - conflen, pages))
+		return GSS_S_FAILURE;
+>>>>>>> upstream/android-13
 
 	return (kctx->endtime < now) ? GSS_S_CONTEXT_EXPIRED : GSS_S_COMPLETE;
 }
 
 static u32
+<<<<<<< HEAD
 gss_unwrap_kerberos_v1(struct krb5_ctx *kctx, int offset, struct xdr_buf *buf)
+=======
+gss_unwrap_kerberos_v1(struct krb5_ctx *kctx, int offset, int len,
+		       struct xdr_buf *buf, unsigned int *slack,
+		       unsigned int *align)
+>>>>>>> upstream/android-13
 {
 	int			signalg;
 	int			sealalg;
 	char			cksumdata[GSS_KRB5_MAX_CKSUM_LEN];
 	struct xdr_netobj	md5cksum = {.len = sizeof(cksumdata),
 					    .data = cksumdata};
+<<<<<<< HEAD
 	s32			now;
+=======
+	time64_t		now;
+>>>>>>> upstream/android-13
 	int			direction;
 	s32			seqnum;
 	unsigned char		*ptr;
@@ -281,12 +315,20 @@ gss_unwrap_kerberos_v1(struct krb5_ctx *kctx, int offset, struct xdr_buf *buf)
 	u32			conflen = kctx->gk5e->conflen;
 	int			crypt_offset;
 	u8			*cksumkey;
+<<<<<<< HEAD
+=======
+	unsigned int		saved_len = buf->len;
+>>>>>>> upstream/android-13
 
 	dprintk("RPC:       gss_unwrap_kerberos\n");
 
 	ptr = (u8 *)buf->head[0].iov_base + offset;
 	if (g_verify_token_header(&kctx->mech_used, &bodysize, &ptr,
+<<<<<<< HEAD
 					buf->len - offset))
+=======
+					len - offset))
+>>>>>>> upstream/android-13
 		return GSS_S_DEFECTIVE_TOKEN;
 
 	if ((ptr[0] != ((KG_TOK_WRAP_MSG >> 8) & 0xff)) ||
@@ -315,6 +357,7 @@ gss_unwrap_kerberos_v1(struct krb5_ctx *kctx, int offset, struct xdr_buf *buf)
 	crypt_offset = ptr + (GSS_KRB5_TOK_HDR_LEN + kctx->gk5e->cksumlength) -
 					(unsigned char *)buf->head[0].iov_base;
 
+<<<<<<< HEAD
 	/*
 	 * Need plaintext seqnum to derive encryption key for arcfour-hmac
 	 */
@@ -345,6 +388,11 @@ gss_unwrap_kerberos_v1(struct krb5_ctx *kctx, int offset, struct xdr_buf *buf)
 		if (gss_decrypt_xdr_buf(kctx->enc, buf, crypt_offset))
 			return GSS_S_DEFECTIVE_TOKEN;
 	}
+=======
+	buf->len = len;
+	if (gss_decrypt_xdr_buf(kctx->enc, buf, crypt_offset))
+		return GSS_S_DEFECTIVE_TOKEN;
+>>>>>>> upstream/android-13
 
 	if (kctx->gk5e->keyed_cksum)
 		cksumkey = kctx->cksum;
@@ -361,28 +409,58 @@ gss_unwrap_kerberos_v1(struct krb5_ctx *kctx, int offset, struct xdr_buf *buf)
 
 	/* it got through unscathed.  Make sure the context is unexpired */
 
+<<<<<<< HEAD
 	now = get_seconds();
+=======
+	now = ktime_get_real_seconds();
+>>>>>>> upstream/android-13
 
 	if (now > kctx->endtime)
 		return GSS_S_CONTEXT_EXPIRED;
 
 	/* do sequencing checks */
 
+<<<<<<< HEAD
 	/* Copy the data back to the right position.  XXX: Would probably be
 	 * better to copy and encrypt at the same time. */
 
 	blocksize = crypto_skcipher_blocksize(kctx->enc);
+=======
+	if (krb5_get_seq_num(kctx, ptr + GSS_KRB5_TOK_HDR_LEN,
+			     ptr + 8, &direction, &seqnum))
+		return GSS_S_BAD_SIG;
+
+	if ((kctx->initiate && direction != 0xff) ||
+	    (!kctx->initiate && direction != 0))
+		return GSS_S_BAD_SIG;
+
+	/* Copy the data back to the right position.  XXX: Would probably be
+	 * better to copy and encrypt at the same time. */
+
+	blocksize = crypto_sync_skcipher_blocksize(kctx->enc);
+>>>>>>> upstream/android-13
 	data_start = ptr + (GSS_KRB5_TOK_HDR_LEN + kctx->gk5e->cksumlength) +
 					conflen;
 	orig_start = buf->head[0].iov_base + offset;
 	data_len = (buf->head[0].iov_base + buf->head[0].iov_len) - data_start;
 	memmove(orig_start, data_start, data_len);
 	buf->head[0].iov_len -= (data_start - orig_start);
+<<<<<<< HEAD
 	buf->len -= (data_start - orig_start);
+=======
+	buf->len = len - (data_start - orig_start);
+>>>>>>> upstream/android-13
 
 	if (gss_krb5_remove_padding(buf, blocksize))
 		return GSS_S_DEFECTIVE_TOKEN;
 
+<<<<<<< HEAD
+=======
+	/* slack must include room for krb5 padding */
+	*slack = XDR_QUADLEN(saved_len - buf->len);
+	/* The GSS blob always precedes the RPC message payload */
+	*align = *slack;
+>>>>>>> upstream/android-13
 	return GSS_S_COMPLETE;
 }
 
@@ -441,7 +519,11 @@ gss_wrap_kerberos_v2(struct krb5_ctx *kctx, u32 offset,
 		     struct xdr_buf *buf, struct page **pages)
 {
 	u8		*ptr, *plainhdr;
+<<<<<<< HEAD
 	s32		now;
+=======
+	time64_t	now;
+>>>>>>> upstream/android-13
 	u8		flags = 0x00;
 	__be16		*be16ptr;
 	__be64		*be64ptr;
@@ -477,22 +559,38 @@ gss_wrap_kerberos_v2(struct krb5_ctx *kctx, u32 offset,
 	*be16ptr++ = 0;
 
 	be64ptr = (__be64 *)be16ptr;
+<<<<<<< HEAD
 	spin_lock(&krb5_seq_lock);
 	*be64ptr = cpu_to_be64(kctx->seq_send64++);
 	spin_unlock(&krb5_seq_lock);
+=======
+	*be64ptr = cpu_to_be64(atomic64_fetch_inc(&kctx->seq_send64));
+>>>>>>> upstream/android-13
 
 	err = (*kctx->gk5e->encrypt_v2)(kctx, offset, buf, pages);
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	now = get_seconds();
+=======
+	now = ktime_get_real_seconds();
+>>>>>>> upstream/android-13
 	return (kctx->endtime < now) ? GSS_S_CONTEXT_EXPIRED : GSS_S_COMPLETE;
 }
 
 static u32
+<<<<<<< HEAD
 gss_unwrap_kerberos_v2(struct krb5_ctx *kctx, int offset, struct xdr_buf *buf)
 {
 	s32		now;
+=======
+gss_unwrap_kerberos_v2(struct krb5_ctx *kctx, int offset, int len,
+		       struct xdr_buf *buf, unsigned int *slack,
+		       unsigned int *align)
+{
+	time64_t	now;
+>>>>>>> upstream/android-13
 	u8		*ptr;
 	u8		flags = 0x00;
 	u16		ec, rrc;
@@ -536,7 +634,11 @@ gss_unwrap_kerberos_v2(struct krb5_ctx *kctx, int offset, struct xdr_buf *buf)
 	if (rrc != 0)
 		rotate_left(offset + 16, buf, rrc);
 
+<<<<<<< HEAD
 	err = (*kctx->gk5e->decrypt_v2)(kctx, offset, buf,
+=======
+	err = (*kctx->gk5e->decrypt_v2)(kctx, offset, len, buf,
+>>>>>>> upstream/android-13
 					&headskip, &tailskip);
 	if (err)
 		return GSS_S_FAILURE;
@@ -546,7 +648,11 @@ gss_unwrap_kerberos_v2(struct krb5_ctx *kctx, int offset, struct xdr_buf *buf)
 	 * it against the original
 	 */
 	err = read_bytes_from_xdr_buf(buf,
+<<<<<<< HEAD
 				buf->len - GSS_KRB5_TOK_HDR_LEN - tailskip,
+=======
+				len - GSS_KRB5_TOK_HDR_LEN - tailskip,
+>>>>>>> upstream/android-13
 				decrypted_hdr, GSS_KRB5_TOK_HDR_LEN);
 	if (err) {
 		dprintk("%s: error %u getting decrypted_hdr\n", __func__, err);
@@ -561,7 +667,11 @@ gss_unwrap_kerberos_v2(struct krb5_ctx *kctx, int offset, struct xdr_buf *buf)
 	/* do sequencing checks */
 
 	/* it got through unscathed.  Make sure the context is unexpired */
+<<<<<<< HEAD
 	now = get_seconds();
+=======
+	now = ktime_get_real_seconds();
+>>>>>>> upstream/android-13
 	if (now > kctx->endtime)
 		return GSS_S_CONTEXT_EXPIRED;
 
@@ -572,16 +682,30 @@ gss_unwrap_kerberos_v2(struct krb5_ctx *kctx, int offset, struct xdr_buf *buf)
 	 * Note that buf->head[0].iov_len may indicate the available
 	 * head buffer space rather than that actually occupied.
 	 */
+<<<<<<< HEAD
 	movelen = min_t(unsigned int, buf->head[0].iov_len, buf->len);
+=======
+	movelen = min_t(unsigned int, buf->head[0].iov_len, len);
+>>>>>>> upstream/android-13
 	movelen -= offset + GSS_KRB5_TOK_HDR_LEN + headskip;
 	BUG_ON(offset + GSS_KRB5_TOK_HDR_LEN + headskip + movelen >
 							buf->head[0].iov_len);
 	memmove(ptr, ptr + GSS_KRB5_TOK_HDR_LEN + headskip, movelen);
 	buf->head[0].iov_len -= GSS_KRB5_TOK_HDR_LEN + headskip;
+<<<<<<< HEAD
 	buf->len -= GSS_KRB5_TOK_HDR_LEN + headskip;
 
 	/* Trim off the trailing "extra count" and checksum blob */
 	xdr_buf_trim(buf, ec + GSS_KRB5_TOK_HDR_LEN + tailskip);
+=======
+	buf->len = len - (GSS_KRB5_TOK_HDR_LEN + headskip);
+
+	/* Trim off the trailing "extra count" and checksum blob */
+	xdr_buf_trim(buf, ec + GSS_KRB5_TOK_HDR_LEN + tailskip);
+
+	*align = XDR_QUADLEN(GSS_KRB5_TOK_HDR_LEN + headskip);
+	*slack = *align + XDR_QUADLEN(ec + GSS_KRB5_TOK_HDR_LEN + tailskip);
+>>>>>>> upstream/android-13
 	return GSS_S_COMPLETE;
 }
 
@@ -596,7 +720,10 @@ gss_wrap_kerberos(struct gss_ctx *gctx, int offset,
 		BUG();
 	case ENCTYPE_DES_CBC_RAW:
 	case ENCTYPE_DES3_CBC_RAW:
+<<<<<<< HEAD
 	case ENCTYPE_ARCFOUR_HMAC:
+=======
+>>>>>>> upstream/android-13
 		return gss_wrap_kerberos_v1(kctx, offset, buf, pages);
 	case ENCTYPE_AES128_CTS_HMAC_SHA1_96:
 	case ENCTYPE_AES256_CTS_HMAC_SHA1_96:
@@ -605,7 +732,12 @@ gss_wrap_kerberos(struct gss_ctx *gctx, int offset,
 }
 
 u32
+<<<<<<< HEAD
 gss_unwrap_kerberos(struct gss_ctx *gctx, int offset, struct xdr_buf *buf)
+=======
+gss_unwrap_kerberos(struct gss_ctx *gctx, int offset,
+		    int len, struct xdr_buf *buf)
+>>>>>>> upstream/android-13
 {
 	struct krb5_ctx	*kctx = gctx->internal_ctx_id;
 
@@ -614,10 +746,19 @@ gss_unwrap_kerberos(struct gss_ctx *gctx, int offset, struct xdr_buf *buf)
 		BUG();
 	case ENCTYPE_DES_CBC_RAW:
 	case ENCTYPE_DES3_CBC_RAW:
+<<<<<<< HEAD
 	case ENCTYPE_ARCFOUR_HMAC:
 		return gss_unwrap_kerberos_v1(kctx, offset, buf);
 	case ENCTYPE_AES128_CTS_HMAC_SHA1_96:
 	case ENCTYPE_AES256_CTS_HMAC_SHA1_96:
 		return gss_unwrap_kerberos_v2(kctx, offset, buf);
+=======
+		return gss_unwrap_kerberos_v1(kctx, offset, len, buf,
+					      &gctx->slack, &gctx->align);
+	case ENCTYPE_AES128_CTS_HMAC_SHA1_96:
+	case ENCTYPE_AES256_CTS_HMAC_SHA1_96:
+		return gss_unwrap_kerberos_v2(kctx, offset, len, buf,
+					      &gctx->slack, &gctx->align);
+>>>>>>> upstream/android-13
 	}
 }

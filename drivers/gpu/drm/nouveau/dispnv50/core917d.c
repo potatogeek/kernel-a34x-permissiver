@@ -26,9 +26,19 @@ static const struct nv50_core_func
 core917d = {
 	.init = core507d_init,
 	.ntfy_init = core507d_ntfy_init,
+<<<<<<< HEAD
 	.ntfy_wait_done = core507d_ntfy_wait_done,
 	.update = core507d_update,
 	.head = &head917d,
+=======
+	.caps_init = core907d_caps_init,
+	.ntfy_wait_done = core507d_ntfy_wait_done,
+	.update = core507d_update,
+	.head = &head917d,
+#if IS_ENABLED(CONFIG_DEBUG_FS)
+	.crc = &crc907d,
+#endif
+>>>>>>> upstream/android-13
 	.dac = &dac907d,
 	.sor = &sor907d,
 };

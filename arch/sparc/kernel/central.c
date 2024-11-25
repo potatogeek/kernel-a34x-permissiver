@@ -55,7 +55,11 @@ static int clock_board_calc_nslots(struct clock_board *p)
 			else
 				return 5;
 		}
+<<<<<<< HEAD
 		/* Fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		return 4;
 	}
@@ -168,7 +172,11 @@ static int fhc_probe(struct platform_device *op)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	if (!strcmp(op->dev.of_node->parent->name, "central"))
+=======
+	if (of_node_name_eq(op->dev.of_node->parent, "central"))
+>>>>>>> upstream/android-13
 		p->central = true;
 
 	p->pregs = of_ioremap(&op->resource[0], 0,

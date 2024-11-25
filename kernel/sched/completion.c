@@ -29,12 +29,21 @@ void complete(struct completion *x)
 {
 	unsigned long flags;
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&x->wait.lock, flags);
 
 	if (x->done != UINT_MAX)
 		x->done++;
 	__wake_up_locked(&x->wait, TASK_NORMAL, 1);
 	spin_unlock_irqrestore(&x->wait.lock, flags);
+=======
+	raw_spin_lock_irqsave(&x->wait.lock, flags);
+
+	if (x->done != UINT_MAX)
+		x->done++;
+	swake_up_locked(&x->wait);
+	raw_spin_unlock_irqrestore(&x->wait.lock, flags);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(complete);
 
@@ -58,10 +67,19 @@ void complete_all(struct completion *x)
 {
 	unsigned long flags;
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&x->wait.lock, flags);
 	x->done = UINT_MAX;
 	__wake_up_locked(&x->wait, TASK_NORMAL, 0);
 	spin_unlock_irqrestore(&x->wait.lock, flags);
+=======
+	lockdep_assert_RT_in_threaded_ctx();
+
+	raw_spin_lock_irqsave(&x->wait.lock, flags);
+	x->done = UINT_MAX;
+	swake_up_all_locked(&x->wait);
+	raw_spin_unlock_irqrestore(&x->wait.lock, flags);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(complete_all);
 
@@ -70,20 +88,35 @@ do_wait_for_common(struct completion *x,
 		   long (*action)(long), long timeout, int state)
 {
 	if (!x->done) {
+<<<<<<< HEAD
 		DECLARE_WAITQUEUE(wait, current);
 
 		__add_wait_queue_entry_tail_exclusive(&x->wait, &wait);
+=======
+		DECLARE_SWAITQUEUE(wait);
+
+>>>>>>> upstream/android-13
 		do {
 			if (signal_pending_state(state, current)) {
 				timeout = -ERESTARTSYS;
 				break;
 			}
+<<<<<<< HEAD
 			__set_current_state(state);
 			spin_unlock_irq(&x->wait.lock);
 			timeout = action(timeout);
 			spin_lock_irq(&x->wait.lock);
 		} while (!x->done && timeout);
 		__remove_wait_queue(&x->wait, &wait);
+=======
+			__prepare_to_swait(&x->wait, &wait);
+			__set_current_state(state);
+			raw_spin_unlock_irq(&x->wait.lock);
+			timeout = action(timeout);
+			raw_spin_lock_irq(&x->wait.lock);
+		} while (!x->done && timeout);
+		__finish_swait(&x->wait, &wait);
+>>>>>>> upstream/android-13
 		if (!x->done)
 			return timeout;
 	}
@@ -100,9 +133,15 @@ __wait_for_common(struct completion *x,
 
 	complete_acquire(x);
 
+<<<<<<< HEAD
 	spin_lock_irq(&x->wait.lock);
 	timeout = do_wait_for_common(x, action, timeout, state);
 	spin_unlock_irq(&x->wait.lock);
+=======
+	raw_spin_lock_irq(&x->wait.lock);
+	timeout = do_wait_for_common(x, action, timeout, state);
+	raw_spin_unlock_irq(&x->wait.lock);
+>>>>>>> upstream/android-13
 
 	complete_release(x);
 
@@ -291,12 +330,20 @@ bool try_wait_for_completion(struct completion *x)
 	if (!READ_ONCE(x->done))
 		return false;
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&x->wait.lock, flags);
+=======
+	raw_spin_lock_irqsave(&x->wait.lock, flags);
+>>>>>>> upstream/android-13
 	if (!x->done)
 		ret = false;
 	else if (x->done != UINT_MAX)
 		x->done--;
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&x->wait.lock, flags);
+=======
+	raw_spin_unlock_irqrestore(&x->wait.lock, flags);
+>>>>>>> upstream/android-13
 	return ret;
 }
 EXPORT_SYMBOL(try_wait_for_completion);
@@ -322,8 +369,13 @@ bool completion_done(struct completion *x)
 	 * otherwise we can end up freeing the completion before complete()
 	 * is done referencing it.
 	 */
+<<<<<<< HEAD
 	spin_lock_irqsave(&x->wait.lock, flags);
 	spin_unlock_irqrestore(&x->wait.lock, flags);
+=======
+	raw_spin_lock_irqsave(&x->wait.lock, flags);
+	raw_spin_unlock_irqrestore(&x->wait.lock, flags);
+>>>>>>> upstream/android-13
 	return true;
 }
 EXPORT_SYMBOL(completion_done);

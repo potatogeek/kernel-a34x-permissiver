@@ -49,7 +49,11 @@
  *
  * bch_bucket_alloc() allocates a single bucket from a specific cache.
  *
+<<<<<<< HEAD
  * bch_bucket_alloc_set() allocates one or more buckets from different caches
+=======
+ * bch_bucket_alloc_set() allocates one  bucket from different caches
+>>>>>>> upstream/android-13
  * out of a cache set.
  *
  * free_some_buckets() drives all the processes described above. It's called
@@ -87,8 +91,12 @@ void bch_rescale_priorities(struct cache_set *c, int sectors)
 {
 	struct cache *ca;
 	struct bucket *b;
+<<<<<<< HEAD
 	unsigned int next = c->nbuckets * c->sb.bucket_size / 1024;
 	unsigned int i;
+=======
+	unsigned long next = c->nbuckets * c->cache->sb.bucket_size / 1024;
+>>>>>>> upstream/android-13
 	int r;
 
 	atomic_sub(sectors, &c->rescale);
@@ -104,6 +112,7 @@ void bch_rescale_priorities(struct cache_set *c, int sectors)
 
 	c->min_prio = USHRT_MAX;
 
+<<<<<<< HEAD
 	for_each_cache(ca, c, i)
 		for_each_bucket(b, ca)
 			if (b->prio &&
@@ -112,6 +121,16 @@ void bch_rescale_priorities(struct cache_set *c, int sectors)
 				b->prio--;
 				c->min_prio = min(c->min_prio, b->prio);
 			}
+=======
+	ca = c->cache;
+	for_each_bucket(b, ca)
+		if (b->prio &&
+		    b->prio != BTREE_PRIO &&
+		    !atomic_read(&b->pin)) {
+			b->prio--;
+			c->min_prio = min(c->min_prio, b->prio);
+		}
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&c->bucket_lock);
 }
@@ -362,7 +381,11 @@ retry_invalidate:
 		 * new stuff to them:
 		 */
 		allocator_wait(ca, !atomic_read(&ca->set->prio_blocked));
+<<<<<<< HEAD
 		if (CACHE_SYNC(&ca->set->sb)) {
+=======
+		if (CACHE_SYNC(&ca->sb)) {
+>>>>>>> upstream/android-13
 			/*
 			 * This could deadlock if an allocation with a btree
 			 * node locked ever blocked - having the btree node
@@ -483,6 +506,7 @@ void bch_bucket_free(struct cache_set *c, struct bkey *k)
 	unsigned int i;
 
 	for (i = 0; i < KEY_PTRS(k); i++)
+<<<<<<< HEAD
 		__bch_bucket_free(PTR_CACHE(c, k, i),
 				  PTR_BUCKET(c, k, i));
 }
@@ -491,12 +515,23 @@ int __bch_bucket_alloc_set(struct cache_set *c, unsigned int reserve,
 			   struct bkey *k, int n, bool wait)
 {
 	int i;
+=======
+		__bch_bucket_free(c->cache, PTR_BUCKET(c, k, i));
+}
+
+int __bch_bucket_alloc_set(struct cache_set *c, unsigned int reserve,
+			   struct bkey *k, bool wait)
+{
+	struct cache *ca;
+	long b;
+>>>>>>> upstream/android-13
 
 	/* No allocation if CACHE_SET_IO_DISABLE bit is set */
 	if (unlikely(test_bit(CACHE_SET_IO_DISABLE, &c->flags)))
 		return -1;
 
 	lockdep_assert_held(&c->bucket_lock);
+<<<<<<< HEAD
 	BUG_ON(!n || n > c->caches_loaded || n > 8);
 
 	bkey_init(k);
@@ -516,6 +551,21 @@ int __bch_bucket_alloc_set(struct cache_set *c, unsigned int reserve,
 
 		SET_KEY_PTRS(k, i + 1);
 	}
+=======
+
+	bkey_init(k);
+
+	ca = c->cache;
+	b = bch_bucket_alloc(ca, reserve, wait);
+	if (b == -1)
+		goto err;
+
+	k->ptr[0] = MAKE_PTR(ca->buckets[b].gen,
+			     bucket_to_sector(c, b),
+			     ca->sb.nr_this_dev);
+
+	SET_KEY_PTRS(k, 1);
+>>>>>>> upstream/android-13
 
 	return 0;
 err:
@@ -525,12 +575,20 @@ err:
 }
 
 int bch_bucket_alloc_set(struct cache_set *c, unsigned int reserve,
+<<<<<<< HEAD
 			 struct bkey *k, int n, bool wait)
+=======
+			 struct bkey *k, bool wait)
+>>>>>>> upstream/android-13
 {
 	int ret;
 
 	mutex_lock(&c->bucket_lock);
+<<<<<<< HEAD
 	ret = __bch_bucket_alloc_set(c, reserve, k, n, wait);
+=======
+	ret = __bch_bucket_alloc_set(c, reserve, k, wait);
+>>>>>>> upstream/android-13
 	mutex_unlock(&c->bucket_lock);
 	return ret;
 }
@@ -589,7 +647,11 @@ static struct open_bucket *pick_data_bucket(struct cache_set *c,
 					   struct open_bucket, list);
 found:
 	if (!ret->sectors_free && KEY_PTRS(alloc)) {
+<<<<<<< HEAD
 		ret->sectors_free = c->sb.bucket_size;
+=======
+		ret->sectors_free = c->cache->sb.bucket_size;
+>>>>>>> upstream/android-13
 		bkey_copy(&ret->key, alloc);
 		bkey_init(alloc);
 	}
@@ -638,7 +700,11 @@ bool bch_alloc_sectors(struct cache_set *c,
 
 		spin_unlock(&c->data_bucket_lock);
 
+<<<<<<< HEAD
 		if (bch_bucket_alloc_set(c, watermark, &alloc.key, 1, wait))
+=======
+		if (bch_bucket_alloc_set(c, watermark, &alloc.key, wait))
+>>>>>>> upstream/android-13
 			return false;
 
 		spin_lock(&c->data_bucket_lock);
@@ -680,10 +746,17 @@ bool bch_alloc_sectors(struct cache_set *c,
 		SET_PTR_OFFSET(&b->key, i, PTR_OFFSET(&b->key, i) + sectors);
 
 		atomic_long_add(sectors,
+<<<<<<< HEAD
 				&PTR_CACHE(c, &b->key, i)->sectors_written);
 	}
 
 	if (b->sectors_free < c->sb.block_size)
+=======
+				&c->cache->sectors_written);
+	}
+
+	if (b->sectors_free < c->cache->sb.block_size)
+>>>>>>> upstream/android-13
 		b->sectors_free = 0;
 
 	/*

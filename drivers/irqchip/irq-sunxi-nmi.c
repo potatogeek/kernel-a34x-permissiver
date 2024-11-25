@@ -27,6 +27,7 @@
 
 #define SUNXI_NMI_IRQ_BIT	BIT(0)
 
+<<<<<<< HEAD
 #define SUN6I_R_INTC_CTRL	0x0c
 #define SUN6I_R_INTC_PENDING	0x10
 #define SUN6I_R_INTC_ENABLE	0x40
@@ -39,6 +40,14 @@
 #define SUN6I_NMI_CTRL		(SUN6I_R_INTC_CTRL - SUN6I_R_INTC_NMI_OFFSET)
 #define SUN6I_NMI_PENDING	(SUN6I_R_INTC_PENDING - SUN6I_R_INTC_NMI_OFFSET)
 #define SUN6I_NMI_ENABLE	(SUN6I_R_INTC_ENABLE - SUN6I_R_INTC_NMI_OFFSET)
+=======
+/*
+ * For deprecated sun6i-a31-sc-nmi compatible.
+ */
+#define SUN6I_NMI_CTRL		0x00
+#define SUN6I_NMI_PENDING	0x04
+#define SUN6I_NMI_ENABLE	0x34
+>>>>>>> upstream/android-13
 
 #define SUN7I_NMI_CTRL		0x00
 #define SUN7I_NMI_PENDING	0x04
@@ -61,12 +70,15 @@ struct sunxi_sc_nmi_reg_offs {
 	u32 enable;
 };
 
+<<<<<<< HEAD
 static const struct sunxi_sc_nmi_reg_offs sun6i_r_intc_reg_offs __initconst = {
 	.ctrl	= SUN6I_R_INTC_CTRL,
 	.pend	= SUN6I_R_INTC_PENDING,
 	.enable	= SUN6I_R_INTC_ENABLE,
 };
 
+=======
+>>>>>>> upstream/android-13
 static const struct sunxi_sc_nmi_reg_offs sun6i_reg_offs __initconst = {
 	.ctrl	= SUN6I_NMI_CTRL,
 	.pend	= SUN6I_NMI_PENDING,
@@ -100,10 +112,16 @@ static void sunxi_sc_nmi_handle_irq(struct irq_desc *desc)
 {
 	struct irq_domain *domain = irq_desc_get_handler_data(desc);
 	struct irq_chip *chip = irq_desc_get_chip(desc);
+<<<<<<< HEAD
 	unsigned int virq = irq_find_mapping(domain, 0);
 
 	chained_irq_enter(chip, desc);
 	generic_handle_irq(virq);
+=======
+
+	chained_irq_enter(chip, desc);
+	generic_handle_domain_irq(domain, 0);
+>>>>>>> upstream/android-13
 	chained_irq_exit(chip, desc);
 }
 
@@ -232,6 +250,7 @@ fail_irqd_remove:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int __init sun6i_r_intc_irq_init(struct device_node *node,
 					struct device_node *parent)
 {
@@ -240,6 +259,8 @@ static int __init sun6i_r_intc_irq_init(struct device_node *node,
 IRQCHIP_DECLARE(sun6i_r_intc, "allwinner,sun6i-a31-r-intc",
 		sun6i_r_intc_irq_init);
 
+=======
+>>>>>>> upstream/android-13
 static int __init sun6i_sc_nmi_irq_init(struct device_node *node,
 					struct device_node *parent)
 {

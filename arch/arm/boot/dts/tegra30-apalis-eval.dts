@@ -6,11 +6,20 @@
 
 / {
 	model = "Toradex Apalis T30 on Apalis Evaluation Board";
+<<<<<<< HEAD
 	compatible = "toradex,apalis_t30-eval", "toradex,apalis_t30", "nvidia,tegra30";
 
 	aliases {
 		rtc0 = "/i2c@7000c000/rtc@68";
 		rtc1 = "/i2c@7000d000/tps65911@2d";
+=======
+	compatible = "toradex,apalis_t30-eval", "toradex,apalis_t30",
+		     "nvidia,tegra30";
+
+	aliases {
+		rtc0 = "/i2c@7000c000/rtc@68";
+		rtc1 = "/i2c@7000d000/pmic@2d";
+>>>>>>> upstream/android-13
 		rtc2 = "/rtc@7000e000";
 		serial0 = &uarta;
 		serial1 = &uartb;
@@ -23,8 +32,11 @@
 	};
 
 	pcie@3000 {
+<<<<<<< HEAD
 		status = "okay";
 
+=======
+>>>>>>> upstream/android-13
 		pci@1,0 {
 			status = "okay";
 		};
@@ -32,10 +44,13 @@
 		pci@2,0 {
 			status = "okay";
 		};
+<<<<<<< HEAD
 
 		pci@3,0 {
 			status = "okay";
 		};
+=======
+>>>>>>> upstream/android-13
 	};
 
 	host1x@50000000 {
@@ -45,15 +60,27 @@
 				nvidia,panel = <&panel>;
 			};
 		};
+<<<<<<< HEAD
 		hdmi@54280000 {
 			status = "okay";
 		};
 	};
 
+=======
+
+		hdmi@54280000 {
+			status = "okay";
+			hdmi-supply = <&reg_5v0>;
+		};
+	};
+
+	/* Apalis UART1 */
+>>>>>>> upstream/android-13
 	serial@70006000 {
 		status = "okay";
 	};
 
+<<<<<<< HEAD
 	serial@70006040 {
 		compatible = "nvidia,tegra30-hsuart";
 		status = "okay";
@@ -66,6 +93,20 @@
 
 	serial@70006300 {
 		compatible = "nvidia,tegra30-hsuart";
+=======
+	/* Apalis UART2 */
+	serial@70006040 {
+		status = "okay";
+	};
+
+	/* Apalis UART3 */
+	serial@70006200 {
+		status = "okay";
+	};
+
+	/* Apalis UART4 */
+	serial@70006300 {
+>>>>>>> upstream/android-13
 		status = "okay";
 	};
 
@@ -99,13 +140,21 @@
 	 * CAM_I2C: I2C3_SDA/SCL on MXM3 pin 201/203 (e.g. camera sensor on
 	 * carrier board)
 	 */
+<<<<<<< HEAD
 	cami2c: i2c@7000c500 {
+=======
+	i2c@7000c500 {
+>>>>>>> upstream/android-13
 		status = "okay";
 		clock-frequency = <400000>;
 	};
 
 	/* DDC: I2C2_SDA/SCL on MXM3 pin 205/207 (e.g. display EDID) */
+<<<<<<< HEAD
 	hdmiddc: i2c@7000c700 {
+=======
+	i2c@7000c700 {
+>>>>>>> upstream/android-13
 		status = "okay";
 	};
 
@@ -113,17 +162,21 @@
 	spi@7000d400 {
 		status = "okay";
 		spi-max-frequency = <25000000>;
+<<<<<<< HEAD
 		spidev0: spidev@1 {
 			compatible = "spidev";
 			reg = <1>;
 			spi-max-frequency = <25000000>;
 		};
+=======
+>>>>>>> upstream/android-13
 	};
 
 	/* SPI5: Apalis SPI2 */
 	spi@7000dc00 {
 		status = "okay";
 		spi-max-frequency = <25000000>;
+<<<<<<< HEAD
 		spidev1: spidev@2 {
 			compatible = "spidev";
 			reg = <2>;
@@ -136,6 +189,12 @@
 	};
 
 	sd1: sdhci@78000000 {
+=======
+	};
+
+	/* Apalis SD1 */
+	mmc@78000000 {
+>>>>>>> upstream/android-13
 		status = "okay";
 		bus-width = <4>;
 		/* SD1_CD# */
@@ -143,7 +202,12 @@
 		no-1-8-v;
 	};
 
+<<<<<<< HEAD
 	mmc1: sdhci@78000400 {
+=======
+	/* Apalis MMC1 */
+	mmc@78000400 {
+>>>>>>> upstream/android-13
 		status = "okay";
 		bus-width = <8>;
 		/* MMC1_CD# */
@@ -154,12 +218,20 @@
 	/* EHCI instance 0: USB1_DP/N -> USBO1_DP/N */
 	usb@7d000000 {
 		status = "okay";
+<<<<<<< HEAD
+=======
+		dr_mode = "otg";
+>>>>>>> upstream/android-13
 	};
 
 	usb-phy@7d000000 {
 		status = "okay";
+<<<<<<< HEAD
 		dr_mode = "otg";
 		vbus-supply = <&usbo1_vbus_reg>;
+=======
+		vbus-supply = <&reg_usbo1_vbus>;
+>>>>>>> upstream/android-13
 	};
 
 	/* EHCI instance 1: USB2_DP/N -> USBH2_DP/N */
@@ -169,7 +241,11 @@
 
 	usb-phy@7d004000 {
 		status = "okay";
+<<<<<<< HEAD
 		vbus-supply = <&usbh_vbus_reg>;
+=======
+		vbus-supply = <&reg_usbh_vbus>;
+>>>>>>> upstream/android-13
 	};
 
 	/* EHCI instance 2: USB3_DP/N -> USBH3_DP/N */
@@ -179,18 +255,30 @@
 
 	usb-phy@7d008000 {
 		status = "okay";
+<<<<<<< HEAD
 		vbus-supply = <&usbh_vbus_reg>;
+=======
+		vbus-supply = <&reg_usbh_vbus>;
+>>>>>>> upstream/android-13
 	};
 
 	backlight: backlight {
 		compatible = "pwm-backlight";
+<<<<<<< HEAD
 
 		/* PWM_BKL1 */
 		pwms = <&pwm 0 5000000>;
+=======
+>>>>>>> upstream/android-13
 		brightness-levels = <255 231 223 207 191 159 127 0>;
 		default-brightness-level = <6>;
 		/* BKL1_ON */
 		enable-gpios = <&gpio TEGRA_GPIO(V, 2) GPIO_ACTIVE_HIGH>;
+<<<<<<< HEAD
+=======
+		power-supply = <&reg_3v3>;
+		pwms = <&pwm 0 5000000>; /* BKL1_PWM */
+>>>>>>> upstream/android-13
 	};
 
 	gpio-keys {
@@ -210,6 +298,7 @@
 		 * edt,et057090dhu: EDT 5.7" LCD TFT
 		 * edt,et070080dh6: EDT 7.0" LCD TFT
 		 */
+<<<<<<< HEAD
 		compatible = "edt,et057090dhu", "simple-panel";
 
 		backlight = <&backlight>;
@@ -270,5 +359,56 @@
 			enable-active-high;
 			vin-supply = <&sys_5v0_reg>;
 		};
+=======
+		compatible = "edt,et057090dhu";
+		backlight = <&backlight>;
+		power-supply = <&reg_3v3>;
+	};
+
+	reg_3v3: regulator-3v3 {
+		compatible = "regulator-fixed";
+		regulator-name = "3.3V_SW";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+	};
+
+	reg_5v0: regulator-5v0 {
+		compatible = "regulator-fixed";
+		regulator-name = "5V_SW";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+	};
+
+	/* USBO1_EN */
+	reg_usbo1_vbus: regulator-usbo1-vbus {
+		compatible = "regulator-fixed";
+		regulator-name = "VCC_USBO1";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		gpio = <&gpio TEGRA_GPIO(T, 5) GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		vin-supply = <&reg_5v0>;
+	};
+
+	/* USBH_EN */
+	reg_usbh_vbus: regulator-usbh-vbus {
+		compatible = "regulator-fixed";
+		regulator-name = "VCC_USBH(2A|2C|2D|3|4)";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		gpio = <&gpio TEGRA_GPIO(DD, 1) GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		vin-supply = <&reg_5v0>;
+	};
+};
+
+&gpio {
+	/* Apalis GPIO7 MXM3 pin 15 PLX PEX 8605 PCIe Switch Reset */
+	pex-perst-n {
+		gpio-hog;
+		gpios = <TEGRA_GPIO(S, 7) GPIO_ACTIVE_HIGH>;
+		output-high;
+		line-name = "PEX_PERST_N";
+>>>>>>> upstream/android-13
 	};
 };

@@ -11,6 +11,7 @@
  * Copyright (c) 2000-2006 Silicon Graphics, Inc.  All rights reserved.
  */
 
+<<<<<<< HEAD
 
 #include <asm/sal.h>
 #include <asm/sn/sn_cpuid.h>
@@ -90,10 +91,20 @@
 #define  SN_SAL_SET_CPU_NUMBER			   0x02000068
 
 #define  SN_SAL_KERNEL_LAUNCH_EVENT		   0x02000069
+=======
+#include <linux/types.h>
+#include <asm/sal.h>
+
+// SGI Specific Calls
+#define  SN_SAL_GET_PARTITION_ADDR		   0x02000009
+#define  SN_SAL_MEMPROTECT                         0x0200003e
+
+>>>>>>> upstream/android-13
 #define  SN_SAL_WATCHLIST_ALLOC			   0x02000070
 #define  SN_SAL_WATCHLIST_FREE			   0x02000071
 
 /*
+<<<<<<< HEAD
  * Service-specific constants
  */
 
@@ -145,6 +156,8 @@
 #define SAL_ERR_FEAT_SBE_THRESHOLD		0xffff0000
 
 /*
+=======
+>>>>>>> upstream/android-13
  * SAL Error Codes
  */
 #define SALRET_MORE_PASSES	1
@@ -153,6 +166,7 @@
 #define SALRET_INVALID_ARG	(-2)
 #define SALRET_ERROR		(-3)
 
+<<<<<<< HEAD
 #define SN_SAL_FAKE_PROM			   0x02009999
 
 /**
@@ -605,6 +619,8 @@ ia64_sn_sysctl_partition_get(nasid_t nasid)
 	return ((partid_t)ret_stuff.v0);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Returns the physical address of the partition's reserved page through
  * an iterative number of calls.
@@ -634,6 +650,7 @@ sn_partition_reserved_page_pa(u64 buf, u64 *cookie, u64 *addr, u64 *len)
 }
 
 /*
+<<<<<<< HEAD
  * Register or unregister a physical address range being referenced across
  * a partition boundary for which certain SAL errors should be scanned for,
  * cleaned up and ignored.  This is of value for kernel partitioning code only.
@@ -724,6 +741,8 @@ sn_change_coherence(u64 *new_domain, u64 *old_domain)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Change memory access protections for a physical address range.
  * nasid_array is not used on Altix, but may be in future architectures.
  * Available memory protection access classes are defined after the function.
@@ -744,6 +763,7 @@ sn_change_memprotect(u64 paddr, u64 len, u64 perms, u64 *nasid_array)
 #define SN_MEMPROT_ACCESS_CLASS_6		0x084080
 #define SN_MEMPROT_ACCESS_CLASS_7		0x021080
 
+<<<<<<< HEAD
 /*
  * Turns off system power.
  */
@@ -1188,6 +1208,8 @@ ia64_sn_kernel_launch_event(void)
 	return rv.status;
 }
 
+=======
+>>>>>>> upstream/android-13
 union sn_watchlist_u {
 	u64     val;
 	struct {

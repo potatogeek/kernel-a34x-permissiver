@@ -3,8 +3,11 @@
  * Copyright (c) 1996, 2003 VIA Networking Technologies, Inc.
  * All rights reserved.
  *
+<<<<<<< HEAD
  * File: channel.c
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "baseband.h"
@@ -114,16 +117,37 @@ static struct ieee80211_supported_band vnt_supported_5ghz_band = {
 	.n_bitrates = ARRAY_SIZE(vnt_rates_a),
 };
 
+<<<<<<< HEAD
 void vnt_init_bands(struct vnt_private *priv)
 {
 	struct ieee80211_channel *ch;
 	int i;
 
+=======
+static void vnt_init_band(struct vnt_private *priv,
+			  struct ieee80211_supported_band *supported_band,
+			  enum nl80211_band band)
+{
+	int i;
+
+	for (i = 0; i < supported_band->n_channels; i++) {
+		supported_band->channels[i].max_power = 0x3f;
+		supported_band->channels[i].flags =
+			IEEE80211_CHAN_NO_HT40;
+	}
+
+	priv->hw->wiphy->bands[band] = supported_band;
+}
+
+void vnt_init_bands(struct vnt_private *priv)
+{
+>>>>>>> upstream/android-13
 	switch (priv->byRFType) {
 	case RF_AIROHA7230:
 	case RF_UW2452:
 	case RF_NOTHING:
 	default:
+<<<<<<< HEAD
 		ch = vnt_channels_5ghz;
 
 		for (i = 0; i < ARRAY_SIZE(vnt_channels_5ghz); i++) {
@@ -134,11 +158,17 @@ void vnt_init_bands(struct vnt_private *priv)
 		priv->hw->wiphy->bands[NL80211_BAND_5GHZ] =
 						&vnt_supported_5ghz_band;
 	/* fallthrough */
+=======
+		vnt_init_band(priv, &vnt_supported_5ghz_band,
+			      NL80211_BAND_5GHZ);
+		fallthrough;
+>>>>>>> upstream/android-13
 	case RF_RFMD2959:
 	case RF_AIROHA:
 	case RF_AL2230S:
 	case RF_UW2451:
 	case RF_VT3226:
+<<<<<<< HEAD
 		ch = vnt_channels_2ghz;
 
 		for (i = 0; i < ARRAY_SIZE(vnt_channels_2ghz); i++) {
@@ -148,6 +178,10 @@ void vnt_init_bands(struct vnt_private *priv)
 
 		priv->hw->wiphy->bands[NL80211_BAND_2GHZ] =
 						&vnt_supported_2ghz_band;
+=======
+		vnt_init_band(priv, &vnt_supported_2ghz_band,
+			      NL80211_BAND_2GHZ);
+>>>>>>> upstream/android-13
 		break;
 	}
 }
@@ -155,8 +189,13 @@ void vnt_init_bands(struct vnt_private *priv)
 /**
  * set_channel() - Set NIC media channel
  *
+<<<<<<< HEAD
  * @pDeviceHandler: The adapter to be set
  * @uConnectionChannel: Channel to be set
+=======
+ * @priv: The adapter to be set
+ * @ch: Channel to be set
+>>>>>>> upstream/android-13
  *
  * Return Value: true if succeeded; false if failed.
  *
@@ -173,7 +212,11 @@ bool set_channel(struct vnt_private *priv, struct ieee80211_channel *ch)
 	    priv->byBBVGACurrent != priv->abyBBVGA[0]) {
 		priv->byBBVGACurrent = priv->abyBBVGA[0];
 
+<<<<<<< HEAD
 		BBvSetVGAGainOffset(priv, priv->byBBVGACurrent);
+=======
+		bb_set_vga_gain_offset(priv, priv->byBBVGACurrent);
+>>>>>>> upstream/android-13
 	}
 
 	/* clear NAV */
@@ -195,7 +238,11 @@ bool set_channel(struct vnt_private *priv, struct ieee80211_channel *ch)
 	if (priv->bEnablePSMode)
 		RFvWriteWakeProgSyn(priv, priv->byRFType, ch->hw_value);
 
+<<<<<<< HEAD
 	BBvSoftwareReset(priv);
+=======
+	bb_software_reset(priv);
+>>>>>>> upstream/android-13
 
 	if (priv->byLocalID > REV_ID_VT3253_B1) {
 		unsigned long flags;

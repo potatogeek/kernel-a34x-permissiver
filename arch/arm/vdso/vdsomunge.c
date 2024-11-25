@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2015 Mentor Graphics Corporation.
  *
@@ -15,6 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2015 Mentor Graphics Corporation.
+ *
+>>>>>>> upstream/android-13
  * vdsomunge - Host program which produces a shared object
  * architecturally specified to be usable by both soft- and hard-float
  * programs.

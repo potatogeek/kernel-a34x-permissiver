@@ -67,7 +67,10 @@ enum sec_bat_attrs {
 	DCHG_ADC_MODE_CTRL,
 	DCHG_TEMP,
 	DCHG_TEMP_ADC,
+<<<<<<< HEAD
 	DCHG_READ_BATP_BATN,
+=======
+>>>>>>> upstream/android-13
 #endif
 	BLKT_TEMP,
 	BLKT_TEMP_ADC,
@@ -141,8 +144,13 @@ enum sec_bat_attrs {
 	HMT_TA_CHARGE,
 #if defined(CONFIG_SEC_FACTORY)
 	AFC_TEST_FG_MODE,
+<<<<<<< HEAD
 	NOZX_CTRL,
 #endif
+=======
+#endif
+#if defined(CONFIG_BATTERY_AGE_FORECAST)
+>>>>>>> upstream/android-13
 	FG_CYCLE,
 	FG_FULL_VOLTAGE,
 	FG_FULLCAPNOM,
@@ -151,6 +159,10 @@ enum sec_bat_attrs {
 	BATT_AFTER_MANUFACTURED,
 #endif
 	BATTERY_CYCLE_TEST,
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 	BATT_WPC_TEMP,
 	BATT_WPC_TEMP_ADC,
 	BATT_WIRELESS_MST_SWITCH_TEST,
@@ -162,7 +174,10 @@ enum sec_bat_attrs {
 	OTP_FIRMWARE_VER_BIN,
 	OTP_FIRMWARE_VER,
 #endif
+<<<<<<< HEAD
 	WC_PHM_CTRL,
+=======
+>>>>>>> upstream/android-13
 	WC_VOUT,
 	WC_VRECT,
 	WC_TX_EN,
@@ -226,6 +241,10 @@ enum sec_bat_attrs {
 	BATT_CHIP_ID,
 	ERROR_CAUSE,
 	CISD_FULLCAPREP_MAX,
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_BATTERY_CISD)
+>>>>>>> upstream/android-13
 	CISD_DATA,
 	CISD_DATA_JSON,
 	CISD_DATA_D_JSON,
@@ -244,6 +263,10 @@ enum sec_bat_attrs {
 	CISD_EVENT_DATA_JSON,
 	PREV_BATTERY_DATA,
 	PREV_BATTERY_INFO,
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 	SAFETY_TIMER_SET,
 	BATT_SWELLING_CONTROL,
 	BATT_BATTERY_ID,
@@ -265,19 +288,26 @@ enum sec_bat_attrs {
 #if IS_ENABLED(CONFIG_DUAL_BATTERY)
 	BATT_MAIN_VOLTAGE,
 	BATT_SUB_VOLTAGE,
+<<<<<<< HEAD
 	BATT_MAIN_VCELL,
 	BATT_SUB_VCELL,
+=======
+>>>>>>> upstream/android-13
 	BATT_MAIN_CURRENT_MA,
 	BATT_SUB_CURRENT_MA,
 	BATT_MAIN_CON_DET,
 	BATT_SUB_CON_DET,
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_LIMITER_S2ASL01)
 	BATT_MAIN_VCHG,
 	BATT_SUB_VCHG,
+=======
+>>>>>>> upstream/android-13
 	BATT_MAIN_ENB,
 	BATT_MAIN_ENB2,
 	BATT_SUB_ENB,
 	BATT_SUB_PWR_MODE2,
+<<<<<<< HEAD
 #else
 	BATT_MAIN_SHIPMODE,
 	BATT_SUB_SHIPMODE,
@@ -292,6 +322,8 @@ enum sec_bat_attrs {
 	BATT_MAIN_FULLCAPREP,
 	BATT_SUB_FULLCAPREP,
 #endif
+=======
+>>>>>>> upstream/android-13
 #endif
 	EXT_EVENT,
 	DIRECT_CHARGING_STATUS,
@@ -319,6 +351,10 @@ enum sec_bat_attrs {
 	WC_PARAM_INFO,
 #endif
 	CHG_INFO,
+<<<<<<< HEAD
+=======
+	BATT_FULL_CAPACITY,
+>>>>>>> upstream/android-13
 	LRP,
 	HP_D2D,
 	CHARGER_IC_NAME,
@@ -330,6 +366,7 @@ enum sec_bat_attrs {
 	MST_EN,
 	SPSN_TEST,
 	CHG_SOC_LIM,
+<<<<<<< HEAD
 	MAG_COVER,
 	MAG_CLOAK,
 	ARI_CNT,
@@ -338,6 +375,8 @@ enum sec_bat_attrs {
 #endif
 	ADC_RSENSE, /* for tuning adc_rsense of bat_thm only now */
 	SUPPORT_FUNCTIONS,
+=======
+>>>>>>> upstream/android-13
 };
 
 enum sec_pogo_attrs {

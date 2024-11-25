@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #include <linux/mm.h>
 #include <linux/slab.h>
 #include <linux/string.h>
@@ -6,6 +10,10 @@
 #include <linux/err.h>
 #include <linux/sched.h>
 #include <linux/sched/mm.h>
+<<<<<<< HEAD
+=======
+#include <linux/sched/signal.h>
+>>>>>>> upstream/android-13
 #include <linux/sched/task_stack.h>
 #include <linux/security.h>
 #include <linux/swap.h>
@@ -14,6 +22,7 @@
 #include <linux/hugetlb.h>
 #include <linux/vmalloc.h>
 #include <linux/userfaultfd_k.h>
+<<<<<<< HEAD
 
 #include <asm/sections.h>
 #include <linux/uaccess.h>
@@ -25,6 +34,22 @@ static inline int is_kernel_rodata(unsigned long addr)
 	return addr >= (unsigned long)__start_rodata &&
 		addr < (unsigned long)__end_rodata;
 }
+=======
+#include <linux/elf.h>
+#include <linux/elf-randomize.h>
+#include <linux/personality.h>
+#include <linux/random.h>
+#include <linux/processor.h>
+#include <linux/sizes.h>
+#include <linux/compat.h>
+
+#include <linux/uaccess.h>
+
+#include "internal.h"
+#ifndef __GENSYMS__
+#include <trace/hooks/syscall_check.h>
+#endif
+>>>>>>> upstream/android-13
 
 /**
  * kfree_const - conditionally free memory
@@ -43,6 +68,11 @@ EXPORT_SYMBOL(kfree_const);
  * kstrdup - allocate space for and copy an existing string
  * @s: the string to duplicate
  * @gfp: the GFP mask used in the kmalloc() call when allocating memory
+<<<<<<< HEAD
+=======
+ *
+ * Return: newly allocated copy of @s or %NULL in case of error
+>>>>>>> upstream/android-13
  */
 char *kstrdup(const char *s, gfp_t gfp)
 {
@@ -65,9 +95,17 @@ EXPORT_SYMBOL(kstrdup);
  * @s: the string to duplicate
  * @gfp: the GFP mask used in the kmalloc() call when allocating memory
  *
+<<<<<<< HEAD
  * Function returns source string if it is in .rodata section otherwise it
  * fallbacks to kstrdup.
  * Strings allocated by kstrdup_const should be freed by kfree_const.
+=======
+ * Note: Strings allocated by kstrdup_const should be freed by kfree_const and
+ * must not be passed to krealloc().
+ *
+ * Return: source string if it is in .rodata section otherwise
+ * fallback to kstrdup.
+>>>>>>> upstream/android-13
  */
 const char *kstrdup_const(const char *s, gfp_t gfp)
 {
@@ -85,6 +123,11 @@ EXPORT_SYMBOL(kstrdup_const);
  * @gfp: the GFP mask used in the kmalloc() call when allocating memory
  *
  * Note: Use kmemdup_nul() instead if the size is known exactly.
+<<<<<<< HEAD
+=======
+ *
+ * Return: newly allocated copy of @s or %NULL in case of error
+>>>>>>> upstream/android-13
  */
 char *kstrndup(const char *s, size_t max, gfp_t gfp)
 {
@@ -110,6 +153,11 @@ EXPORT_SYMBOL(kstrndup);
  * @src: memory region to duplicate
  * @len: memory region length
  * @gfp: GFP mask to use
+<<<<<<< HEAD
+=======
+ *
+ * Return: newly allocated copy of @src or %NULL in case of error
+>>>>>>> upstream/android-13
  */
 void *kmemdup(const void *src, size_t len, gfp_t gfp)
 {
@@ -127,6 +175,12 @@ EXPORT_SYMBOL(kmemdup);
  * @s: The data to stringify
  * @len: The size of the data
  * @gfp: the GFP mask used in the kmalloc() call when allocating memory
+<<<<<<< HEAD
+=======
+ *
+ * Return: newly allocated copy of @s with NUL-termination or %NULL in
+ * case of error
+>>>>>>> upstream/android-13
  */
 char *kmemdup_nul(const char *s, size_t len, gfp_t gfp)
 {
@@ -150,14 +204,22 @@ EXPORT_SYMBOL(kmemdup_nul);
  * @src: source address in user space
  * @len: number of bytes to copy
  *
+<<<<<<< HEAD
  * Returns an ERR_PTR() on failure.  Result is physically
+=======
+ * Return: an ERR_PTR() on failure.  Result is physically
+>>>>>>> upstream/android-13
  * contiguous, to be freed by kfree().
  */
 void *memdup_user(const void __user *src, size_t len)
 {
 	void *p;
 
+<<<<<<< HEAD
 	p = kmalloc_track_caller(len, GFP_USER);
+=======
+	p = kmalloc_track_caller(len, GFP_USER | __GFP_NOWARN);
+>>>>>>> upstream/android-13
 	if (!p)
 		return ERR_PTR(-ENOMEM);
 
@@ -176,7 +238,11 @@ EXPORT_SYMBOL(memdup_user);
  * @src: source address in user space
  * @len: number of bytes to copy
  *
+<<<<<<< HEAD
  * Returns an ERR_PTR() on failure.  Result may be not
+=======
+ * Return: an ERR_PTR() on failure.  Result may be not
+>>>>>>> upstream/android-13
  * physically contiguous.  Use kvfree() to free.
  */
 void *vmemdup_user(const void __user *src, size_t len)
@@ -200,6 +266,11 @@ EXPORT_SYMBOL(vmemdup_user);
  * strndup_user - duplicate an existing string from user space
  * @s: The string to duplicate
  * @n: Maximum number of bytes to copy, including the trailing NUL.
+<<<<<<< HEAD
+=======
+ *
+ * Return: newly allocated copy of @s or an ERR_PTR() in case of error
+>>>>>>> upstream/android-13
  */
 char *strndup_user(const char __user *s, long n)
 {
@@ -231,7 +302,11 @@ EXPORT_SYMBOL(strndup_user);
  * @src: source address in user space
  * @len: number of bytes to copy
  *
+<<<<<<< HEAD
  * Returns an ERR_PTR() on failure.
+=======
+ * Return: an ERR_PTR() on failure.
+>>>>>>> upstream/android-13
  */
 void *memdup_user_nul(const void __user *src, size_t len)
 {
@@ -257,7 +332,11 @@ void *memdup_user_nul(const void __user *src, size_t len)
 EXPORT_SYMBOL(memdup_user_nul);
 
 void __vma_link_list(struct mm_struct *mm, struct vm_area_struct *vma,
+<<<<<<< HEAD
 		struct vm_area_struct *prev, struct rb_node *rb_parent)
+=======
+		struct vm_area_struct *prev)
+>>>>>>> upstream/android-13
 {
 	struct vm_area_struct *next;
 
@@ -266,18 +345,40 @@ void __vma_link_list(struct mm_struct *mm, struct vm_area_struct *vma,
 		next = prev->vm_next;
 		prev->vm_next = vma;
 	} else {
+<<<<<<< HEAD
 		mm->mmap = vma;
 		if (rb_parent)
 			next = rb_entry(rb_parent,
 					struct vm_area_struct, vm_rb);
 		else
 			next = NULL;
+=======
+		next = mm->mmap;
+		mm->mmap = vma;
+>>>>>>> upstream/android-13
 	}
 	vma->vm_next = next;
 	if (next)
 		next->vm_prev = vma;
 }
 
+<<<<<<< HEAD
+=======
+void __vma_unlink_list(struct mm_struct *mm, struct vm_area_struct *vma)
+{
+	struct vm_area_struct *prev, *next;
+
+	next = vma->vm_next;
+	prev = vma->vm_prev;
+	if (prev)
+		prev->vm_next = next;
+	else
+		mm->mmap = next;
+	if (next)
+		next->vm_prev = prev;
+}
+
+>>>>>>> upstream/android-13
 /* Check if the vma is being used as a stack by this task */
 int vma_is_stack_for_current(struct vm_area_struct *vma)
 {
@@ -286,7 +387,121 @@ int vma_is_stack_for_current(struct vm_area_struct *vma)
 	return (vma->vm_start <= KSTK_ESP(t) && vma->vm_end >= KSTK_ESP(t));
 }
 
+<<<<<<< HEAD
 #if defined(CONFIG_MMU) && !defined(HAVE_ARCH_PICK_MMAP_LAYOUT)
+=======
+/*
+ * Change backing file, only valid to use during initial VMA setup.
+ */
+void vma_set_file(struct vm_area_struct *vma, struct file *file)
+{
+	/* Changing an anonymous vma with this is illegal */
+	get_file(file);
+	swap(vma->vm_file, file);
+	fput(file);
+}
+EXPORT_SYMBOL(vma_set_file);
+
+#ifndef STACK_RND_MASK
+#define STACK_RND_MASK (0x7ff >> (PAGE_SHIFT - 12))     /* 8MB of VA */
+#endif
+
+unsigned long randomize_stack_top(unsigned long stack_top)
+{
+	unsigned long random_variable = 0;
+
+	if (current->flags & PF_RANDOMIZE) {
+		random_variable = get_random_long();
+		random_variable &= STACK_RND_MASK;
+		random_variable <<= PAGE_SHIFT;
+	}
+#ifdef CONFIG_STACK_GROWSUP
+	return PAGE_ALIGN(stack_top) + random_variable;
+#else
+	return PAGE_ALIGN(stack_top) - random_variable;
+#endif
+}
+
+#ifdef CONFIG_ARCH_WANT_DEFAULT_TOPDOWN_MMAP_LAYOUT
+unsigned long arch_randomize_brk(struct mm_struct *mm)
+{
+	/* Is the current task 32bit ? */
+	if (!IS_ENABLED(CONFIG_64BIT) || is_compat_task())
+		return randomize_page(mm->brk, SZ_32M);
+
+	return randomize_page(mm->brk, SZ_1G);
+}
+
+unsigned long arch_mmap_rnd(void)
+{
+	unsigned long rnd;
+
+#ifdef CONFIG_HAVE_ARCH_MMAP_RND_COMPAT_BITS
+	if (is_compat_task())
+		rnd = get_random_long() & ((1UL << mmap_rnd_compat_bits) - 1);
+	else
+#endif /* CONFIG_HAVE_ARCH_MMAP_RND_COMPAT_BITS */
+		rnd = get_random_long() & ((1UL << mmap_rnd_bits) - 1);
+
+	return rnd << PAGE_SHIFT;
+}
+
+static int mmap_is_legacy(struct rlimit *rlim_stack)
+{
+	if (current->personality & ADDR_COMPAT_LAYOUT)
+		return 1;
+
+	if (rlim_stack->rlim_cur == RLIM_INFINITY)
+		return 1;
+
+	return sysctl_legacy_va_layout;
+}
+
+/*
+ * Leave enough space between the mmap area and the stack to honour ulimit in
+ * the face of randomisation.
+ */
+#define MIN_GAP		(SZ_128M)
+#define MAX_GAP		(STACK_TOP / 6 * 5)
+
+static unsigned long mmap_base(unsigned long rnd, struct rlimit *rlim_stack)
+{
+	unsigned long gap = rlim_stack->rlim_cur;
+	unsigned long pad = stack_guard_gap;
+
+	/* Account for stack randomization if necessary */
+	if (current->flags & PF_RANDOMIZE)
+		pad += (STACK_RND_MASK << PAGE_SHIFT);
+
+	/* Values close to RLIM_INFINITY can overflow. */
+	if (gap + pad > gap)
+		gap += pad;
+
+	if (gap < MIN_GAP)
+		gap = MIN_GAP;
+	else if (gap > MAX_GAP)
+		gap = MAX_GAP;
+
+	return PAGE_ALIGN(STACK_TOP - gap - rnd);
+}
+
+void arch_pick_mmap_layout(struct mm_struct *mm, struct rlimit *rlim_stack)
+{
+	unsigned long random_factor = 0UL;
+
+	if (current->flags & PF_RANDOMIZE)
+		random_factor = arch_mmap_rnd();
+
+	if (mmap_is_legacy(rlim_stack)) {
+		mm->mmap_base = TASK_UNMAPPED_BASE + random_factor;
+		mm->get_unmapped_area = arch_get_unmapped_area;
+	} else {
+		mm->mmap_base = mmap_base(random_factor, rlim_stack);
+		mm->get_unmapped_area = arch_get_unmapped_area_topdown;
+	}
+}
+#elif defined(CONFIG_MMU) && !defined(HAVE_ARCH_PICK_MMAP_LAYOUT)
+>>>>>>> upstream/android-13
 void arch_pick_mmap_layout(struct mm_struct *mm, struct rlimit *rlim_stack)
 {
 	mm->mmap_base = TASK_UNMAPPED_BASE;
@@ -294,6 +509,7 @@ void arch_pick_mmap_layout(struct mm_struct *mm, struct rlimit *rlim_stack)
 }
 #endif
 
+<<<<<<< HEAD
 /*
  * Like get_user_pages_fast() except its IRQ-safe in that it won't fall
  * back to the regular GUP.
@@ -340,6 +556,81 @@ int __weak get_user_pages_fast(unsigned long start,
 				       write ? FOLL_WRITE : 0);
 }
 EXPORT_SYMBOL_GPL(get_user_pages_fast);
+=======
+/**
+ * __account_locked_vm - account locked pages to an mm's locked_vm
+ * @mm:          mm to account against
+ * @pages:       number of pages to account
+ * @inc:         %true if @pages should be considered positive, %false if not
+ * @task:        task used to check RLIMIT_MEMLOCK
+ * @bypass_rlim: %true if checking RLIMIT_MEMLOCK should be skipped
+ *
+ * Assumes @task and @mm are valid (i.e. at least one reference on each), and
+ * that mmap_lock is held as writer.
+ *
+ * Return:
+ * * 0       on success
+ * * -ENOMEM if RLIMIT_MEMLOCK would be exceeded.
+ */
+int __account_locked_vm(struct mm_struct *mm, unsigned long pages, bool inc,
+			struct task_struct *task, bool bypass_rlim)
+{
+	unsigned long locked_vm, limit;
+	int ret = 0;
+
+	mmap_assert_write_locked(mm);
+
+	locked_vm = mm->locked_vm;
+	if (inc) {
+		if (!bypass_rlim) {
+			limit = task_rlimit(task, RLIMIT_MEMLOCK) >> PAGE_SHIFT;
+			if (locked_vm + pages > limit)
+				ret = -ENOMEM;
+		}
+		if (!ret)
+			mm->locked_vm = locked_vm + pages;
+	} else {
+		WARN_ON_ONCE(pages > locked_vm);
+		mm->locked_vm = locked_vm - pages;
+	}
+
+	pr_debug("%s: [%d] caller %ps %c%lu %lu/%lu%s\n", __func__, task->pid,
+		 (void *)_RET_IP_, (inc) ? '+' : '-', pages << PAGE_SHIFT,
+		 locked_vm << PAGE_SHIFT, task_rlimit(task, RLIMIT_MEMLOCK),
+		 ret ? " - exceeded" : "");
+
+	return ret;
+}
+EXPORT_SYMBOL_GPL(__account_locked_vm);
+
+/**
+ * account_locked_vm - account locked pages to an mm's locked_vm
+ * @mm:          mm to account against, may be NULL
+ * @pages:       number of pages to account
+ * @inc:         %true if @pages should be considered positive, %false if not
+ *
+ * Assumes a non-NULL @mm is valid (i.e. at least one reference on it).
+ *
+ * Return:
+ * * 0       on success, or if mm is NULL
+ * * -ENOMEM if RLIMIT_MEMLOCK would be exceeded.
+ */
+int account_locked_vm(struct mm_struct *mm, unsigned long pages, bool inc)
+{
+	int ret;
+
+	if (pages == 0 || !mm)
+		return 0;
+
+	mmap_write_lock(mm);
+	ret = __account_locked_vm(mm, pages, inc, current,
+				  capable(CAP_IPC_LOCK));
+	mmap_write_unlock(mm);
+
+	return ret;
+}
+EXPORT_SYMBOL_GPL(account_locked_vm);
+>>>>>>> upstream/android-13
 
 unsigned long vm_mmap_pgoff(struct file *file, unsigned long addr,
 	unsigned long len, unsigned long prot,
@@ -352,15 +643,27 @@ unsigned long vm_mmap_pgoff(struct file *file, unsigned long addr,
 
 	ret = security_mmap_file(file, prot, flag);
 	if (!ret) {
+<<<<<<< HEAD
 		if (down_write_killable(&mm->mmap_sem))
 			return -EINTR;
 		ret = do_mmap_pgoff(file, addr, len, prot, flag, pgoff,
 				    &populate, &uf);
 		up_write(&mm->mmap_sem);
+=======
+		if (mmap_write_lock_killable(mm))
+			return -EINTR;
+		ret = do_mmap(file, addr, len, prot, flag, pgoff, &populate,
+			      &uf);
+		mmap_write_unlock(mm);
+>>>>>>> upstream/android-13
 		userfaultfd_unmap_complete(mm, &uf);
 		if (populate)
 			mm_populate(ret, populate);
 	}
+<<<<<<< HEAD
+=======
+	trace_android_vh_check_mmap_file(file, prot, flag, ret);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -393,6 +696,11 @@ EXPORT_SYMBOL(vm_mmap);
  *
  * Please note that any use of gfp flags outside of GFP_KERNEL is careful to not
  * fall back to vmalloc.
+<<<<<<< HEAD
+=======
+ *
+ * Return: pointer to the allocated memory of %NULL in case of failure
+>>>>>>> upstream/android-13
  */
 void *kvmalloc_node(size_t size, gfp_t flags, int node)
 {
@@ -429,7 +737,17 @@ void *kvmalloc_node(size_t size, gfp_t flags, int node)
 	if (ret || size <= PAGE_SIZE)
 		return ret;
 
+<<<<<<< HEAD
 	return __vmalloc_node_flags_caller(size, node, flags,
+=======
+	/* Don't even allow crazy sizes */
+	if (unlikely(size > INT_MAX)) {
+		WARN_ON_ONCE(!(flags & __GFP_NOWARN));
+		return NULL;
+	}
+
+	return __vmalloc_node(size, 1, flags, node,
+>>>>>>> upstream/android-13
 			__builtin_return_address(0));
 }
 EXPORT_SYMBOL(kvmalloc_node);
@@ -442,7 +760,11 @@ EXPORT_SYMBOL(kvmalloc_node);
  * It is slightly more efficient to use kfree() or vfree() if you are certain
  * that you know which one to use.
  *
+<<<<<<< HEAD
  * Context: Any context except NMI.
+=======
+ * Context: Either preemptible task context or not-NMI interrupt.
+>>>>>>> upstream/android-13
  */
 void kvfree(const void *addr)
 {
@@ -471,6 +793,24 @@ void kvfree_sensitive(const void *addr, size_t len)
 }
 EXPORT_SYMBOL(kvfree_sensitive);
 
+<<<<<<< HEAD
+=======
+void *kvrealloc(const void *p, size_t oldsize, size_t newsize, gfp_t flags)
+{
+	void *newp;
+
+	if (oldsize >= newsize)
+		return (void *)p;
+	newp = kvmalloc(newsize, flags);
+	if (!newp)
+		return NULL;
+	memcpy(newp, p, oldsize);
+	kvfree(p);
+	return newp;
+}
+EXPORT_SYMBOL(kvrealloc);
+
+>>>>>>> upstream/android-13
 static inline void *__page_rmapping(struct page *page)
 {
 	unsigned long mapping;
@@ -503,7 +843,11 @@ bool page_mapped(struct page *page)
 		return true;
 	if (PageHuge(page))
 		return false;
+<<<<<<< HEAD
 	for (i = 0; i < (1 << compound_order(page)); i++) {
+=======
+	for (i = 0; i < compound_nr(page); i++) {
+>>>>>>> upstream/android-13
 		if (atomic_read(&page[i]._mapcount) >= 0)
 			return true;
 	}
@@ -547,6 +891,7 @@ struct address_space *page_mapping(struct page *page)
 }
 EXPORT_SYMBOL(page_mapping);
 
+<<<<<<< HEAD
 /*
  * For file cache pages, return the address_space, otherwise return NULL
  */
@@ -557,6 +902,8 @@ struct address_space *page_mapping_file(struct page *page)
 	return page_mapping(page);
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Slow path of page_mapcount() for compound pages */
 int __page_mapcount(struct page *page)
 {
@@ -577,6 +924,19 @@ int __page_mapcount(struct page *page)
 }
 EXPORT_SYMBOL_GPL(__page_mapcount);
 
+<<<<<<< HEAD
+=======
+void copy_huge_page(struct page *dst, struct page *src)
+{
+	unsigned i, nr = compound_nr(src);
+
+	for (i = 0; i < nr; i++) {
+		cond_resched();
+		copy_highpage(nth_page(dst, i), nth_page(src, i));
+	}
+}
+
+>>>>>>> upstream/android-13
 int sysctl_overcommit_memory __read_mostly = OVERCOMMIT_GUESS;
 int sysctl_overcommit_ratio __read_mostly = 50;
 unsigned long sysctl_overcommit_kbytes __read_mostly;
@@ -584,9 +944,14 @@ int sysctl_max_map_count __read_mostly = DEFAULT_MAX_MAP_COUNT;
 unsigned long sysctl_user_reserve_kbytes __read_mostly = 1UL << 17; /* 128MB */
 unsigned long sysctl_admin_reserve_kbytes __read_mostly = 1UL << 13; /* 8MB */
 
+<<<<<<< HEAD
 int overcommit_ratio_handler(struct ctl_table *table, int write,
 			     void __user *buffer, size_t *lenp,
 			     loff_t *ppos)
+=======
+int overcommit_ratio_handler(struct ctl_table *table, int write, void *buffer,
+		size_t *lenp, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	int ret;
 
@@ -596,9 +961,55 @@ int overcommit_ratio_handler(struct ctl_table *table, int write,
 	return ret;
 }
 
+<<<<<<< HEAD
 int overcommit_kbytes_handler(struct ctl_table *table, int write,
 			     void __user *buffer, size_t *lenp,
 			     loff_t *ppos)
+=======
+static void sync_overcommit_as(struct work_struct *dummy)
+{
+	percpu_counter_sync(&vm_committed_as);
+}
+
+int overcommit_policy_handler(struct ctl_table *table, int write, void *buffer,
+		size_t *lenp, loff_t *ppos)
+{
+	struct ctl_table t;
+	int new_policy = -1;
+	int ret;
+
+	/*
+	 * The deviation of sync_overcommit_as could be big with loose policy
+	 * like OVERCOMMIT_ALWAYS/OVERCOMMIT_GUESS. When changing policy to
+	 * strict OVERCOMMIT_NEVER, we need to reduce the deviation to comply
+	 * with the strict "NEVER", and to avoid possible race condition (even
+	 * though user usually won't too frequently do the switching to policy
+	 * OVERCOMMIT_NEVER), the switch is done in the following order:
+	 *	1. changing the batch
+	 *	2. sync percpu count on each CPU
+	 *	3. switch the policy
+	 */
+	if (write) {
+		t = *table;
+		t.data = &new_policy;
+		ret = proc_dointvec_minmax(&t, write, buffer, lenp, ppos);
+		if (ret || new_policy == -1)
+			return ret;
+
+		mm_compute_batch(new_policy);
+		if (new_policy == OVERCOMMIT_NEVER)
+			schedule_on_each_cpu(sync_overcommit_as);
+		sysctl_overcommit_memory = new_policy;
+	} else {
+		ret = proc_dointvec_minmax(table, write, buffer, lenp, ppos);
+	}
+
+	return ret;
+}
+
+int overcommit_kbytes_handler(struct ctl_table *table, int write, void *buffer,
+		size_t *lenp, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	int ret;
 
@@ -618,7 +1029,11 @@ unsigned long vm_commit_limit(void)
 	if (sysctl_overcommit_kbytes)
 		allowed = sysctl_overcommit_kbytes >> (PAGE_SHIFT - 10);
 	else
+<<<<<<< HEAD
 		allowed = ((totalram_pages - hugetlb_total_pages())
+=======
+		allowed = ((totalram_pages() - hugetlb_total_pages())
+>>>>>>> upstream/android-13
 			   * sysctl_overcommit_ratio / 100);
 	allowed += total_swap_pages;
 
@@ -638,10 +1053,22 @@ struct percpu_counter vm_committed_as ____cacheline_aligned_in_smp;
  * balancing memory across competing virtual machines that are hosted.
  * Several metrics drive this policy engine including the guest reported
  * memory commitment.
+<<<<<<< HEAD
  */
 unsigned long vm_memory_committed(void)
 {
 	return percpu_counter_read_positive(&vm_committed_as);
+=======
+ *
+ * The time cost of this is very low for small platforms, and for big
+ * platform like a 2S/36C/72T Skylake server, in worst case where
+ * vm_committed_as's spinlock is under severe contention, the time cost
+ * could be about 30~40 microseconds.
+ */
+unsigned long vm_memory_committed(void)
+{
+	return percpu_counter_sum_positive(&vm_committed_as);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(vm_memory_committed);
 
@@ -663,11 +1090,15 @@ EXPORT_SYMBOL_GPL(vm_memory_committed);
  */
 int __vm_enough_memory(struct mm_struct *mm, long pages, int cap_sys_admin)
 {
+<<<<<<< HEAD
 	long free, allowed, reserve;
 
 	VM_WARN_ONCE(percpu_counter_read(&vm_committed_as) <
 			-(s64)vm_committed_as_batch * num_online_cpus(),
 			"memory commitment underflow");
+=======
+	long allowed;
+>>>>>>> upstream/android-13
 
 	vm_acct_memory(pages);
 
@@ -678,6 +1109,7 @@ int __vm_enough_memory(struct mm_struct *mm, long pages, int cap_sys_admin)
 		return 0;
 
 	if (sysctl_overcommit_memory == OVERCOMMIT_GUESS) {
+<<<<<<< HEAD
 		free = global_zone_page_state(NR_FREE_PAGES);
 		free += global_node_page_state(NR_FILE_PAGES);
 
@@ -723,6 +1155,11 @@ int __vm_enough_memory(struct mm_struct *mm, long pages, int cap_sys_admin)
 			return 0;
 
 		goto error;
+=======
+		if (pages > totalram_pages() + total_swap_pages)
+			goto error;
+		return 0;
+>>>>>>> upstream/android-13
 	}
 
 	allowed = vm_commit_limit();
@@ -736,7 +1173,12 @@ int __vm_enough_memory(struct mm_struct *mm, long pages, int cap_sys_admin)
 	 * Don't let a single process grow so big a user can't recover
 	 */
 	if (mm) {
+<<<<<<< HEAD
 		reserve = sysctl_user_reserve_kbytes >> (PAGE_SHIFT - 10);
+=======
+		long reserve = sysctl_user_reserve_kbytes >> (PAGE_SHIFT - 10);
+
+>>>>>>> upstream/android-13
 		allowed -= min_t(long, mm->total_vm / 32, reserve);
 	}
 
@@ -754,7 +1196,12 @@ error:
  * @buffer:   the buffer to copy to.
  * @buflen:   the length of the buffer. Larger cmdline values are truncated
  *            to this length.
+<<<<<<< HEAD
  * Returns the size of the cmdline field copied. Note that the copy does
+=======
+ *
+ * Return: the size of the cmdline field copied. Note that the copy does
+>>>>>>> upstream/android-13
  * not guarantee an ending NULL byte.
  */
 int get_cmdline(struct task_struct *task, char *buffer, int buflen)
@@ -768,12 +1215,20 @@ int get_cmdline(struct task_struct *task, char *buffer, int buflen)
 	if (!mm->arg_end)
 		goto out_mm;	/* Shh! No looking before we're done */
 
+<<<<<<< HEAD
 	down_read(&mm->mmap_sem);
+=======
+	spin_lock(&mm->arg_lock);
+>>>>>>> upstream/android-13
 	arg_start = mm->arg_start;
 	arg_end = mm->arg_end;
 	env_start = mm->env_start;
 	env_end = mm->env_end;
+<<<<<<< HEAD
 	up_read(&mm->mmap_sem);
+=======
+	spin_unlock(&mm->arg_lock);
+>>>>>>> upstream/android-13
 
 	len = arg_end - arg_start;
 
@@ -805,3 +1260,97 @@ out_mm:
 out:
 	return res;
 }
+<<<<<<< HEAD
+=======
+
+int __weak memcmp_pages(struct page *page1, struct page *page2)
+{
+	char *addr1, *addr2;
+	int ret;
+
+	addr1 = kmap_atomic(page1);
+	addr2 = kmap_atomic(page2);
+	ret = memcmp(addr1, addr2, PAGE_SIZE);
+	kunmap_atomic(addr2);
+	kunmap_atomic(addr1);
+	return ret;
+}
+
+#ifdef CONFIG_PRINTK
+/**
+ * mem_dump_obj - Print available provenance information
+ * @object: object for which to find provenance information.
+ *
+ * This function uses pr_cont(), so that the caller is expected to have
+ * printed out whatever preamble is appropriate.  The provenance information
+ * depends on the type of object and on how much debugging is enabled.
+ * For example, for a slab-cache object, the slab name is printed, and,
+ * if available, the return address and stack trace from the allocation
+ * and last free path of that object.
+ */
+void mem_dump_obj(void *object)
+{
+	const char *type;
+
+	if (kmem_valid_obj(object)) {
+		kmem_dump_obj(object);
+		return;
+	}
+
+	if (vmalloc_dump_obj(object))
+		return;
+
+	if (virt_addr_valid(object))
+		type = "non-slab/vmalloc memory";
+	else if (object == NULL)
+		type = "NULL pointer";
+	else if (object == ZERO_SIZE_PTR)
+		type = "zero-size pointer";
+	else
+		type = "non-paged memory";
+
+	pr_cont(" %s\n", type);
+}
+EXPORT_SYMBOL_GPL(mem_dump_obj);
+#endif
+
+/*
+ * A driver might set a page logically offline -- PageOffline() -- and
+ * turn the page inaccessible in the hypervisor; after that, access to page
+ * content can be fatal.
+ *
+ * Some special PFN walkers -- i.e., /proc/kcore -- read content of random
+ * pages after checking PageOffline(); however, these PFN walkers can race
+ * with drivers that set PageOffline().
+ *
+ * page_offline_freeze()/page_offline_thaw() allows for a subsystem to
+ * synchronize with such drivers, achieving that a page cannot be set
+ * PageOffline() while frozen.
+ *
+ * page_offline_begin()/page_offline_end() is used by drivers that care about
+ * such races when setting a page PageOffline().
+ */
+static DECLARE_RWSEM(page_offline_rwsem);
+
+void page_offline_freeze(void)
+{
+	down_read(&page_offline_rwsem);
+}
+
+void page_offline_thaw(void)
+{
+	up_read(&page_offline_rwsem);
+}
+
+void page_offline_begin(void)
+{
+	down_write(&page_offline_rwsem);
+}
+EXPORT_SYMBOL(page_offline_begin);
+
+void page_offline_end(void)
+{
+	up_write(&page_offline_rwsem);
+}
+EXPORT_SYMBOL(page_offline_end);
+>>>>>>> upstream/android-13

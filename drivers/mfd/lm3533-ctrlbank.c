@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * lm3533-ctrlbank.c -- LM3533 Generic Control Bank interface
  *
  * Copyright (C) 2011-2012 Texas Instruments
  *
  * Author: Johan Hovold <jhovold@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under  the terms of the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -21,7 +28,10 @@
 #define LM3533_MAX_CURRENT_MAX		29800
 #define LM3533_MAX_CURRENT_STEP		800
 
+<<<<<<< HEAD
 #define LM3533_BRIGHTNESS_MAX		255
+=======
+>>>>>>> upstream/android-13
 #define LM3533_PWM_MAX			0x3f
 
 #define LM3533_REG_PWM_BASE		0x14
@@ -93,6 +103,7 @@ int lm3533_ctrlbank_set_max_current(struct lm3533_ctrlbank *cb, u16 imax)
 }
 EXPORT_SYMBOL_GPL(lm3533_ctrlbank_set_max_current);
 
+<<<<<<< HEAD
 #define lm3533_ctrlbank_set(_name, _NAME)				\
 int lm3533_ctrlbank_set_##_name(struct lm3533_ctrlbank *cb, u8 val)	\
 {									\
@@ -128,6 +139,35 @@ EXPORT_SYMBOL_GPL(lm3533_ctrlbank_get_##_name);
 
 lm3533_ctrlbank_set(brightness, BRIGHTNESS);
 lm3533_ctrlbank_get(brightness, BRIGHTNESS);
+=======
+int lm3533_ctrlbank_set_brightness(struct lm3533_ctrlbank *cb, u8 val)
+{
+	u8 reg;
+	int ret;
+
+	reg = lm3533_ctrlbank_get_reg(cb, LM3533_REG_BRIGHTNESS_BASE);
+	ret = lm3533_write(cb->lm3533, reg, val);
+	if (ret)
+		dev_err(cb->dev, "failed to set brightness\n");
+
+	return ret;
+}
+EXPORT_SYMBOL_GPL(lm3533_ctrlbank_set_brightness);
+
+int lm3533_ctrlbank_get_brightness(struct lm3533_ctrlbank *cb, u8 *val)
+{
+	u8 reg;
+	int ret;
+
+	reg = lm3533_ctrlbank_get_reg(cb, LM3533_REG_BRIGHTNESS_BASE);
+	ret = lm3533_read(cb->lm3533, reg, val);
+	if (ret)
+		dev_err(cb->dev, "failed to get brightness\n");
+
+	return ret;
+}
+EXPORT_SYMBOL_GPL(lm3533_ctrlbank_get_brightness);
+>>>>>>> upstream/android-13
 
 /*
  * PWM-input control mask:
@@ -139,9 +179,42 @@ lm3533_ctrlbank_get(brightness, BRIGHTNESS);
  *   bit 1 - PWM-input enabled in Zone 0
  *   bit 0 - PWM-input enabled
  */
+<<<<<<< HEAD
 lm3533_ctrlbank_set(pwm, PWM);
 lm3533_ctrlbank_get(pwm, PWM);
 
+=======
+int lm3533_ctrlbank_set_pwm(struct lm3533_ctrlbank *cb, u8 val)
+{
+	u8 reg;
+	int ret;
+
+	if (val > LM3533_PWM_MAX)
+		return -EINVAL;
+
+	reg = lm3533_ctrlbank_get_reg(cb, LM3533_REG_PWM_BASE);
+	ret = lm3533_write(cb->lm3533, reg, val);
+	if (ret)
+		dev_err(cb->dev, "failed to set PWM mask\n");
+
+	return ret;
+}
+EXPORT_SYMBOL_GPL(lm3533_ctrlbank_set_pwm);
+
+int lm3533_ctrlbank_get_pwm(struct lm3533_ctrlbank *cb, u8 *val)
+{
+	u8 reg;
+	int ret;
+
+	reg = lm3533_ctrlbank_get_reg(cb, LM3533_REG_PWM_BASE);
+	ret = lm3533_read(cb->lm3533, reg, val);
+	if (ret)
+		dev_err(cb->dev, "failed to get PWM mask\n");
+
+	return ret;
+}
+EXPORT_SYMBOL_GPL(lm3533_ctrlbank_get_pwm);
+>>>>>>> upstream/android-13
 
 MODULE_AUTHOR("Johan Hovold <jhovold@gmail.com>");
 MODULE_DESCRIPTION("LM3533 Control Bank interface");

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2012-2014, The Linux Foundation. All rights reserved.
  *
@@ -9,6 +10,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2012-2014, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
@@ -561,8 +567,11 @@ static int iadc_probe(struct platform_device *pdev)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = dev;
 	indio_dev->dev.of_node = node;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->name = pdev->name;
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->info = &iadc_info;

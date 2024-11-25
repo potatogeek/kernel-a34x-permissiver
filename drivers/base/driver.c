@@ -8,6 +8,10 @@
  * Copyright (c) 2007 Novell Inc.
  */
 
+<<<<<<< HEAD
+=======
+#include <linux/device/driver.h>
+>>>>>>> upstream/android-13
 #include <linux/device.h>
 #include <linux/module.h>
 #include <linux/errno.h>
@@ -73,8 +77,13 @@ EXPORT_SYMBOL_GPL(driver_for_each_device);
  * return to the caller and not iterate over any more devices.
  */
 struct device *driver_find_device(struct device_driver *drv,
+<<<<<<< HEAD
 				  struct device *start, void *data,
 				  int (*match)(struct device *dev, void *data))
+=======
+				  struct device *start, const void *data,
+				  int (*match)(struct device *dev, const void *data))
+>>>>>>> upstream/android-13
 {
 	struct klist_iter i;
 	struct device *dev;
@@ -157,12 +166,20 @@ int driver_register(struct device_driver *drv)
 	if ((drv->bus->probe && drv->probe) ||
 	    (drv->bus->remove && drv->remove) ||
 	    (drv->bus->shutdown && drv->shutdown))
+<<<<<<< HEAD
 		printk(KERN_WARNING "Driver '%s' needs updating - please use "
+=======
+		pr_warn("Driver '%s' needs updating - please use "
+>>>>>>> upstream/android-13
 			"bus_type methods\n", drv->name);
 
 	other = driver_find(drv->name, drv->bus);
 	if (other) {
+<<<<<<< HEAD
 		printk(KERN_ERR "Error: Driver '%s' is already registered, "
+=======
+		pr_err("Error: Driver '%s' is already registered, "
+>>>>>>> upstream/android-13
 			"aborting...\n", drv->name);
 		return -EBUSY;
 	}

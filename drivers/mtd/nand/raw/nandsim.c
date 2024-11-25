@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * NAND flash simulator.
  *
@@ -7,6 +11,7 @@
  *
  * Note: NS means "NAND Simulator".
  * Note: Input means input TO flash chip, output means output FROM chip.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,6 +26,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt)  "[nandsim]" fmt
@@ -36,7 +43,10 @@
 #include <linux/string.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/rawnand.h>
+<<<<<<< HEAD
 #include <linux/mtd/nand_bch.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/mtd/partitions.h>
 #include <linux/delay.h>
 #include <linux/list.h>
@@ -298,6 +308,11 @@ union ns_mem {
  * The structure which describes all the internal simulator data.
  */
 struct nandsim {
+<<<<<<< HEAD
+=======
+	struct nand_chip chip;
+	struct nand_controller base;
+>>>>>>> upstream/android-13
 	struct mtd_partition partitions[CONFIG_NANDSIM_MAX_PARTS];
 	unsigned int nbparts;
 
@@ -364,6 +379,12 @@ struct nandsim {
 	void *file_buf;
 	struct page *held_pages[NS_MAX_HELD_PAGES];
 	int held_cnt;
+<<<<<<< HEAD
+=======
+
+	/* debugfs entry */
+	struct dentry *dent;
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -443,7 +464,11 @@ static unsigned long total_wear = 0;
 /* MTD structure for NAND controller */
 static struct mtd_info *nsmtd;
 
+<<<<<<< HEAD
 static int nandsim_debugfs_show(struct seq_file *m, void *private)
+=======
+static int ns_show(struct seq_file *m, void *private)
+>>>>>>> upstream/android-13
 {
 	unsigned long wmin = -1, wmax = 0, avg;
 	unsigned long deciles[10], decile_max[10], tot = 0;
@@ -494,6 +519,7 @@ static int nandsim_debugfs_show(struct seq_file *m, void *private)
 
 	return 0;
 }
+<<<<<<< HEAD
 
 static int nandsim_debugfs_open(struct inode *inode, struct file *file)
 {
@@ -510,14 +536,27 @@ static const struct file_operations dfs_fops = {
 /**
  * nandsim_debugfs_create - initialize debugfs
  * @dev: nandsim device description object
+=======
+DEFINE_SHOW_ATTRIBUTE(ns);
+
+/**
+ * ns_debugfs_create - initialize debugfs
+ * @ns: nandsim device description object
+>>>>>>> upstream/android-13
  *
  * This function creates all debugfs files for UBI device @ubi. Returns zero in
  * case of success and a negative error code in case of failure.
  */
+<<<<<<< HEAD
 static int nandsim_debugfs_create(struct nandsim *dev)
 {
 	struct dentry *root = nsmtd->dbg.dfs_dir;
 	struct dentry *dent;
+=======
+static int ns_debugfs_create(struct nandsim *ns)
+{
+	struct dentry *root = nsmtd->dbg.dfs_dir;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Just skip debugfs initialization when the debugfs directory is
@@ -530,9 +569,15 @@ static int nandsim_debugfs_create(struct nandsim *dev)
 		return 0;
 	}
 
+<<<<<<< HEAD
 	dent = debugfs_create_file("nandsim_wear_report", S_IRUSR,
 				   root, dev, &dfs_fops);
 	if (IS_ERR_OR_NULL(dent)) {
+=======
+	ns->dent = debugfs_create_file("nandsim_wear_report", 0400, root, ns,
+				       &ns_fops);
+	if (IS_ERR_OR_NULL(ns->dent)) {
+>>>>>>> upstream/android-13
 		NS_ERR("cannot create \"nandsim_wear_report\" debugfs entry\n");
 		return -1;
 	}
@@ -540,13 +585,25 @@ static int nandsim_debugfs_create(struct nandsim *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void ns_debugfs_remove(struct nandsim *ns)
+{
+	debugfs_remove_recursive(ns->dent);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Allocate array of page pointers, create slab allocation for an array
  * and initialize the array by NULL pointers.
  *
  * RETURNS: 0 if success, -ENOMEM if memory alloc fails.
  */
+<<<<<<< HEAD
 static int __init alloc_device(struct nandsim *ns)
+=======
+static int __init ns_alloc_device(struct nandsim *ns)
+>>>>>>> upstream/android-13
 {
 	struct file *cfile;
 	int i, err;
@@ -558,12 +615,20 @@ static int __init alloc_device(struct nandsim *ns)
 		if (!(cfile->f_mode & FMODE_CAN_READ)) {
 			NS_ERR("alloc_device: cache file not readable\n");
 			err = -EINVAL;
+<<<<<<< HEAD
 			goto err_close;
+=======
+			goto err_close_filp;
+>>>>>>> upstream/android-13
 		}
 		if (!(cfile->f_mode & FMODE_CAN_WRITE)) {
 			NS_ERR("alloc_device: cache file not writeable\n");
 			err = -EINVAL;
+<<<<<<< HEAD
 			goto err_close;
+=======
+			goto err_close_filp;
+>>>>>>> upstream/android-13
 		}
 		ns->pages_written =
 			vzalloc(array_size(sizeof(unsigned long),
@@ -571,16 +636,35 @@ static int __init alloc_device(struct nandsim *ns)
 		if (!ns->pages_written) {
 			NS_ERR("alloc_device: unable to allocate pages written array\n");
 			err = -ENOMEM;
+<<<<<<< HEAD
 			goto err_close;
+=======
+			goto err_close_filp;
+>>>>>>> upstream/android-13
 		}
 		ns->file_buf = kmalloc(ns->geom.pgszoob, GFP_KERNEL);
 		if (!ns->file_buf) {
 			NS_ERR("alloc_device: unable to allocate file buf\n");
 			err = -ENOMEM;
+<<<<<<< HEAD
 			goto err_free;
 		}
 		ns->cfile = cfile;
 		return 0;
+=======
+			goto err_free_pw;
+		}
+		ns->cfile = cfile;
+
+		return 0;
+
+err_free_pw:
+		vfree(ns->pages_written);
+err_close_filp:
+		filp_close(cfile, NULL);
+
+		return err;
+>>>>>>> upstream/android-13
 	}
 
 	ns->pages = vmalloc(array_size(sizeof(union ns_mem), ns->geom.pgnum));
@@ -595,22 +679,37 @@ static int __init alloc_device(struct nandsim *ns)
 						ns->geom.pgszoob, 0, 0, NULL);
 	if (!ns->nand_pages_slab) {
 		NS_ERR("cache_create: unable to create kmem_cache\n");
+<<<<<<< HEAD
 		return -ENOMEM;
+=======
+		err = -ENOMEM;
+		goto err_free_pg;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
 
+<<<<<<< HEAD
 err_free:
 	vfree(ns->pages_written);
 err_close:
 	filp_close(cfile, NULL);
+=======
+err_free_pg:
+	vfree(ns->pages);
+
+>>>>>>> upstream/android-13
 	return err;
 }
 
 /*
  * Free any allocated pages, and free the array of page pointers.
  */
+<<<<<<< HEAD
 static void free_device(struct nandsim *ns)
+=======
+static void ns_free_device(struct nandsim *ns)
+>>>>>>> upstream/android-13
 {
 	int i;
 
@@ -632,7 +731,11 @@ static void free_device(struct nandsim *ns)
 	}
 }
 
+<<<<<<< HEAD
 static char __init *get_partition_name(int i)
+=======
+static char __init *ns_get_partition_name(int i)
+>>>>>>> upstream/android-13
 {
 	return kasprintf(GFP_KERNEL, "NAND simulator partition %d", i);
 }
@@ -642,7 +745,11 @@ static char __init *get_partition_name(int i)
  *
  * RETURNS: 0 if success, -ERRNO if failure.
  */
+<<<<<<< HEAD
 static int __init init_nandsim(struct mtd_info *mtd)
+=======
+static int __init ns_init(struct mtd_info *mtd)
+>>>>>>> upstream/android-13
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
 	struct nandsim   *ns   = nand_get_controller_data(chip);
@@ -655,9 +762,12 @@ static int __init init_nandsim(struct mtd_info *mtd)
 		return -EIO;
 	}
 
+<<<<<<< HEAD
 	/* Force mtd to not do delays */
 	chip->chip_delay = 0;
 
+=======
+>>>>>>> upstream/android-13
 	/* Initialize the NAND flash parameters */
 	ns->busw = chip->options & NAND_BUSWIDTH_16 ? 16 : 8;
 	ns->geom.totsz    = mtd->size;
@@ -718,7 +828,11 @@ static int __init init_nandsim(struct mtd_info *mtd)
 			NS_ERR("bad partition size.\n");
 			return -EINVAL;
 		}
+<<<<<<< HEAD
 		ns->partitions[i].name   = get_partition_name(i);
+=======
+		ns->partitions[i].name = ns_get_partition_name(i);
+>>>>>>> upstream/android-13
 		if (!ns->partitions[i].name) {
 			NS_ERR("unable to allocate memory.\n");
 			return -ENOMEM;
@@ -732,12 +846,23 @@ static int __init init_nandsim(struct mtd_info *mtd)
 	if (remains) {
 		if (parts_num + 1 > ARRAY_SIZE(ns->partitions)) {
 			NS_ERR("too many partitions.\n");
+<<<<<<< HEAD
 			return -EINVAL;
 		}
 		ns->partitions[i].name   = get_partition_name(i);
 		if (!ns->partitions[i].name) {
 			NS_ERR("unable to allocate memory.\n");
 			return -ENOMEM;
+=======
+			ret = -EINVAL;
+			goto free_partition_names;
+		}
+		ns->partitions[i].name = ns_get_partition_name(i);
+		if (!ns->partitions[i].name) {
+			NS_ERR("unable to allocate memory.\n");
+			ret = -ENOMEM;
+			goto free_partition_names;
+>>>>>>> upstream/android-13
 		}
 		ns->partitions[i].offset = next_offset;
 		ns->partitions[i].size   = remains;
@@ -764,33 +889,71 @@ static int __init init_nandsim(struct mtd_info *mtd)
 	printk("sector address bytes: %u\n",    ns->geom.secaddrbytes);
 	printk("options: %#x\n",                ns->options);
 
+<<<<<<< HEAD
 	if ((ret = alloc_device(ns)) != 0)
 		return ret;
+=======
+	ret = ns_alloc_device(ns);
+	if (ret)
+		goto free_partition_names;
+>>>>>>> upstream/android-13
 
 	/* Allocate / initialize the internal buffer */
 	ns->buf.byte = kmalloc(ns->geom.pgszoob, GFP_KERNEL);
 	if (!ns->buf.byte) {
 		NS_ERR("init_nandsim: unable to allocate %u bytes for the internal buffer\n",
 			ns->geom.pgszoob);
+<<<<<<< HEAD
 		return -ENOMEM;
+=======
+		ret = -ENOMEM;
+		goto free_device;
+>>>>>>> upstream/android-13
 	}
 	memset(ns->buf.byte, 0xFF, ns->geom.pgszoob);
 
 	return 0;
+<<<<<<< HEAD
+=======
+
+free_device:
+	ns_free_device(ns);
+free_partition_names:
+	for (i = 0; i < ARRAY_SIZE(ns->partitions); ++i)
+		kfree(ns->partitions[i].name);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /*
  * Free the nandsim structure.
  */
+<<<<<<< HEAD
 static void free_nandsim(struct nandsim *ns)
 {
 	kfree(ns->buf.byte);
 	free_device(ns);
+=======
+static void ns_free(struct nandsim *ns)
+{
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(ns->partitions); ++i)
+		kfree(ns->partitions[i].name);
+
+	kfree(ns->buf.byte);
+	ns_free_device(ns);
+>>>>>>> upstream/android-13
 
 	return;
 }
 
+<<<<<<< HEAD
 static int parse_badblocks(struct nandsim *ns, struct mtd_info *mtd)
+=======
+static int ns_parse_badblocks(struct nandsim *ns, struct mtd_info *mtd)
+>>>>>>> upstream/android-13
 {
 	char *w;
 	int zero_ok;
@@ -818,7 +981,11 @@ static int parse_badblocks(struct nandsim *ns, struct mtd_info *mtd)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int parse_weakblocks(void)
+=======
+static int ns_parse_weakblocks(void)
+>>>>>>> upstream/android-13
 {
 	char *w;
 	int zero_ok;
@@ -855,7 +1022,11 @@ static int parse_weakblocks(void)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int erase_error(unsigned int erase_block_no)
+=======
+static int ns_erase_error(unsigned int erase_block_no)
+>>>>>>> upstream/android-13
 {
 	struct weak_block *wb;
 
@@ -869,7 +1040,11 @@ static int erase_error(unsigned int erase_block_no)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int parse_weakpages(void)
+=======
+static int ns_parse_weakpages(void)
+>>>>>>> upstream/android-13
 {
 	char *w;
 	int zero_ok;
@@ -906,7 +1081,11 @@ static int parse_weakpages(void)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int write_error(unsigned int page_no)
+=======
+static int ns_write_error(unsigned int page_no)
+>>>>>>> upstream/android-13
 {
 	struct weak_page *wp;
 
@@ -920,7 +1099,11 @@ static int write_error(unsigned int page_no)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int parse_gravepages(void)
+=======
+static int ns_parse_gravepages(void)
+>>>>>>> upstream/android-13
 {
 	char *g;
 	int zero_ok;
@@ -957,7 +1140,11 @@ static int parse_gravepages(void)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int read_error(unsigned int page_no)
+=======
+static int ns_read_error(unsigned int page_no)
+>>>>>>> upstream/android-13
 {
 	struct grave_page *gp;
 
@@ -971,6 +1158,7 @@ static int read_error(unsigned int page_no)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void free_lists(void)
 {
 	struct list_head *pos, *n;
@@ -990,6 +1178,9 @@ static void free_lists(void)
 }
 
 static int setup_wear_reporting(struct mtd_info *mtd)
+=======
+static int ns_setup_wear_reporting(struct mtd_info *mtd)
+>>>>>>> upstream/android-13
 {
 	size_t mem;
 
@@ -1007,7 +1198,11 @@ static int setup_wear_reporting(struct mtd_info *mtd)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void update_wear(unsigned int erase_block_no)
+=======
+static void ns_update_wear(unsigned int erase_block_no)
+>>>>>>> upstream/android-13
 {
 	if (!erase_block_wear)
 		return;
@@ -1026,7 +1221,11 @@ static void update_wear(unsigned int erase_block_no)
 /*
  * Returns the string representation of 'state' state.
  */
+<<<<<<< HEAD
 static char *get_state_name(uint32_t state)
+=======
+static char *ns_get_state_name(uint32_t state)
+>>>>>>> upstream/android-13
 {
 	switch (NS_STATE(state)) {
 		case STATE_CMD_READ0:
@@ -1086,7 +1285,11 @@ static char *get_state_name(uint32_t state)
  *
  * RETURNS: 1 if wrong command, 0 if right.
  */
+<<<<<<< HEAD
 static int check_command(int cmd)
+=======
+static int ns_check_command(int cmd)
+>>>>>>> upstream/android-13
 {
 	switch (cmd) {
 
@@ -1113,7 +1316,11 @@ static int check_command(int cmd)
 /*
  * Returns state after command is accepted by command number.
  */
+<<<<<<< HEAD
 static uint32_t get_state_by_command(unsigned command)
+=======
+static uint32_t ns_get_state_by_command(unsigned command)
+>>>>>>> upstream/android-13
 {
 	switch (command) {
 		case NAND_CMD_READ0:
@@ -1151,7 +1358,11 @@ static uint32_t get_state_by_command(unsigned command)
 /*
  * Move an address byte to the correspondent internal register.
  */
+<<<<<<< HEAD
 static inline void accept_addr_byte(struct nandsim *ns, u_char bt)
+=======
+static inline void ns_accept_addr_byte(struct nandsim *ns, u_char bt)
+>>>>>>> upstream/android-13
 {
 	uint byte = (uint)bt;
 
@@ -1169,9 +1380,16 @@ static inline void accept_addr_byte(struct nandsim *ns, u_char bt)
 /*
  * Switch to STATE_READY state.
  */
+<<<<<<< HEAD
 static inline void switch_to_ready_state(struct nandsim *ns, u_char status)
 {
 	NS_DBG("switch_to_ready_state: switch to %s state\n", get_state_name(STATE_READY));
+=======
+static inline void ns_switch_to_ready_state(struct nandsim *ns, u_char status)
+{
+	NS_DBG("switch_to_ready_state: switch to %s state\n",
+	       ns_get_state_name(STATE_READY));
+>>>>>>> upstream/android-13
 
 	ns->state       = STATE_READY;
 	ns->nxstate     = STATE_UNKNOWN;
@@ -1228,7 +1446,11 @@ static inline void switch_to_ready_state(struct nandsim *ns, u_char status)
  *          -1 - several matches.
  *           0 - operation is found.
  */
+<<<<<<< HEAD
 static int find_operation(struct nandsim *ns, uint32_t flag)
+=======
+static int ns_find_operation(struct nandsim *ns, uint32_t flag)
+>>>>>>> upstream/android-13
 {
 	int opsfound = 0;
 	int i, j, idx = 0;
@@ -1281,7 +1503,12 @@ static int find_operation(struct nandsim *ns, uint32_t flag)
 		ns->state = ns->op[ns->stateidx];
 		ns->nxstate = ns->op[ns->stateidx + 1];
 		NS_DBG("find_operation: operation found, index: %d, state: %s, nxstate %s\n",
+<<<<<<< HEAD
 				idx, get_state_name(ns->state), get_state_name(ns->nxstate));
+=======
+		       idx, ns_get_state_name(ns->state),
+		       ns_get_state_name(ns->nxstate));
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
@@ -1289,6 +1516,7 @@ static int find_operation(struct nandsim *ns, uint32_t flag)
 		/* Nothing was found. Try to ignore previous commands (if any) and search again */
 		if (ns->npstates != 0) {
 			NS_DBG("find_operation: no operation found, try again with state %s\n",
+<<<<<<< HEAD
 					get_state_name(ns->state));
 			ns->npstates = 0;
 			return find_operation(ns, 0);
@@ -1296,6 +1524,15 @@ static int find_operation(struct nandsim *ns, uint32_t flag)
 		}
 		NS_DBG("find_operation: no operations found\n");
 		switch_to_ready_state(ns, NS_STATUS_FAILED(ns));
+=======
+			       ns_get_state_name(ns->state));
+			ns->npstates = 0;
+			return ns_find_operation(ns, 0);
+
+		}
+		NS_DBG("find_operation: no operations found\n");
+		ns_switch_to_ready_state(ns, NS_STATUS_FAILED(ns));
+>>>>>>> upstream/android-13
 		return -2;
 	}
 
@@ -1312,7 +1549,11 @@ static int find_operation(struct nandsim *ns, uint32_t flag)
 	return -1;
 }
 
+<<<<<<< HEAD
 static void put_pages(struct nandsim *ns)
+=======
+static void ns_put_pages(struct nandsim *ns)
+>>>>>>> upstream/android-13
 {
 	int i;
 
@@ -1321,7 +1562,12 @@ static void put_pages(struct nandsim *ns)
 }
 
 /* Get page cache pages in advance to provide NOFS memory allocation */
+<<<<<<< HEAD
 static int get_pages(struct nandsim *ns, struct file *file, size_t count, loff_t pos)
+=======
+static int ns_get_pages(struct nandsim *ns, struct file *file, size_t count,
+			loff_t pos)
+>>>>>>> upstream/android-13
 {
 	pgoff_t index, start_index, end_index;
 	struct page *page;
@@ -1341,7 +1587,11 @@ static int get_pages(struct nandsim *ns, struct file *file, size_t count, loff_t
 				page = find_or_create_page(mapping, index, GFP_NOFS);
 			}
 			if (page == NULL) {
+<<<<<<< HEAD
 				put_pages(ns);
+=======
+				ns_put_pages(ns);
+>>>>>>> upstream/android-13
 				return -ENOMEM;
 			}
 			unlock_page(page);
@@ -1351,35 +1601,61 @@ static int get_pages(struct nandsim *ns, struct file *file, size_t count, loff_t
 	return 0;
 }
 
+<<<<<<< HEAD
 static ssize_t read_file(struct nandsim *ns, struct file *file, void *buf, size_t count, loff_t pos)
+=======
+static ssize_t ns_read_file(struct nandsim *ns, struct file *file, void *buf,
+			    size_t count, loff_t pos)
+>>>>>>> upstream/android-13
 {
 	ssize_t tx;
 	int err;
 	unsigned int noreclaim_flag;
 
+<<<<<<< HEAD
 	err = get_pages(ns, file, count, pos);
+=======
+	err = ns_get_pages(ns, file, count, pos);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 	noreclaim_flag = memalloc_noreclaim_save();
 	tx = kernel_read(file, buf, count, &pos);
 	memalloc_noreclaim_restore(noreclaim_flag);
+<<<<<<< HEAD
 	put_pages(ns);
 	return tx;
 }
 
 static ssize_t write_file(struct nandsim *ns, struct file *file, void *buf, size_t count, loff_t pos)
+=======
+	ns_put_pages(ns);
+	return tx;
+}
+
+static ssize_t ns_write_file(struct nandsim *ns, struct file *file, void *buf,
+			     size_t count, loff_t pos)
+>>>>>>> upstream/android-13
 {
 	ssize_t tx;
 	int err;
 	unsigned int noreclaim_flag;
 
+<<<<<<< HEAD
 	err = get_pages(ns, file, count, pos);
+=======
+	err = ns_get_pages(ns, file, count, pos);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 	noreclaim_flag = memalloc_noreclaim_save();
 	tx = kernel_write(file, buf, count, &pos);
 	memalloc_noreclaim_restore(noreclaim_flag);
+<<<<<<< HEAD
 	put_pages(ns);
+=======
+	ns_put_pages(ns);
+>>>>>>> upstream/android-13
 	return tx;
 }
 
@@ -1399,11 +1675,19 @@ static inline u_char *NS_PAGE_BYTE_OFF(struct nandsim *ns)
 	return NS_GET_PAGE(ns)->byte + ns->regs.column + ns->regs.off;
 }
 
+<<<<<<< HEAD
 static int do_read_error(struct nandsim *ns, int num)
 {
 	unsigned int page_no = ns->regs.row;
 
 	if (read_error(page_no)) {
+=======
+static int ns_do_read_error(struct nandsim *ns, int num)
+{
+	unsigned int page_no = ns->regs.row;
+
+	if (ns_read_error(page_no)) {
+>>>>>>> upstream/android-13
 		prandom_bytes(ns->buf.byte, num);
 		NS_WARN("simulating read error in page %u\n", page_no);
 		return 1;
@@ -1411,7 +1695,11 @@ static int do_read_error(struct nandsim *ns, int num)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void do_bit_flips(struct nandsim *ns, int num)
+=======
+static void ns_do_bit_flips(struct nandsim *ns, int num)
+>>>>>>> upstream/android-13
 {
 	if (bitflips && prandom_u32() < (1 << 22)) {
 		int flips = 1;
@@ -1431,7 +1719,11 @@ static void do_bit_flips(struct nandsim *ns, int num)
 /*
  * Fill the NAND buffer with data read from the specified page.
  */
+<<<<<<< HEAD
 static void read_page(struct nandsim *ns, int num)
+=======
+static void ns_read_page(struct nandsim *ns, int num)
+>>>>>>> upstream/android-13
 {
 	union ns_mem *mypage;
 
@@ -1445,15 +1737,27 @@ static void read_page(struct nandsim *ns, int num)
 
 			NS_DBG("read_page: page %d written, reading from %d\n",
 				ns->regs.row, ns->regs.column + ns->regs.off);
+<<<<<<< HEAD
 			if (do_read_error(ns, num))
 				return;
 			pos = (loff_t)NS_RAW_OFFSET(ns) + ns->regs.off;
 			tx = read_file(ns, ns->cfile, ns->buf.byte, num, pos);
+=======
+			if (ns_do_read_error(ns, num))
+				return;
+			pos = (loff_t)NS_RAW_OFFSET(ns) + ns->regs.off;
+			tx = ns_read_file(ns, ns->cfile, ns->buf.byte, num,
+					  pos);
+>>>>>>> upstream/android-13
 			if (tx != num) {
 				NS_ERR("read_page: read error for page %d ret %ld\n", ns->regs.row, (long)tx);
 				return;
 			}
+<<<<<<< HEAD
 			do_bit_flips(ns, num);
+=======
+			ns_do_bit_flips(ns, num);
+>>>>>>> upstream/android-13
 		}
 		return;
 	}
@@ -1465,17 +1769,28 @@ static void read_page(struct nandsim *ns, int num)
 	} else {
 		NS_DBG("read_page: page %d allocated, reading from %d\n",
 			ns->regs.row, ns->regs.column + ns->regs.off);
+<<<<<<< HEAD
 		if (do_read_error(ns, num))
 			return;
 		memcpy(ns->buf.byte, NS_PAGE_BYTE_OFF(ns), num);
 		do_bit_flips(ns, num);
+=======
+		if (ns_do_read_error(ns, num))
+			return;
+		memcpy(ns->buf.byte, NS_PAGE_BYTE_OFF(ns), num);
+		ns_do_bit_flips(ns, num);
+>>>>>>> upstream/android-13
 	}
 }
 
 /*
  * Erase all pages in the specified sector.
  */
+<<<<<<< HEAD
 static void erase_sector(struct nandsim *ns)
+=======
+static void ns_erase_sector(struct nandsim *ns)
+>>>>>>> upstream/android-13
 {
 	union ns_mem *mypage;
 	int i;
@@ -1503,7 +1818,11 @@ static void erase_sector(struct nandsim *ns)
 /*
  * Program the specified page with the contents from the NAND buffer.
  */
+<<<<<<< HEAD
 static int prog_page(struct nandsim *ns, int num)
+=======
+static int ns_prog_page(struct nandsim *ns, int num)
+>>>>>>> upstream/android-13
 {
 	int i;
 	union ns_mem *mypage;
@@ -1522,7 +1841,11 @@ static int prog_page(struct nandsim *ns, int num)
 			memset(ns->file_buf, 0xff, ns->geom.pgszoob);
 		} else {
 			all = 0;
+<<<<<<< HEAD
 			tx = read_file(ns, ns->cfile, pg_off, num, off);
+=======
+			tx = ns_read_file(ns, ns->cfile, pg_off, num, off);
+>>>>>>> upstream/android-13
 			if (tx != num) {
 				NS_ERR("prog_page: read error for page %d ret %ld\n", ns->regs.row, (long)tx);
 				return -1;
@@ -1532,14 +1855,23 @@ static int prog_page(struct nandsim *ns, int num)
 			pg_off[i] &= ns->buf.byte[i];
 		if (all) {
 			loff_t pos = (loff_t)ns->regs.row * ns->geom.pgszoob;
+<<<<<<< HEAD
 			tx = write_file(ns, ns->cfile, ns->file_buf, ns->geom.pgszoob, pos);
+=======
+			tx = ns_write_file(ns, ns->cfile, ns->file_buf,
+					   ns->geom.pgszoob, pos);
+>>>>>>> upstream/android-13
 			if (tx != ns->geom.pgszoob) {
 				NS_ERR("prog_page: write error for page %d ret %ld\n", ns->regs.row, (long)tx);
 				return -1;
 			}
 			__set_bit(ns->regs.row, ns->pages_written);
 		} else {
+<<<<<<< HEAD
 			tx = write_file(ns, ns->cfile, pg_off, num, off);
+=======
+			tx = ns_write_file(ns, ns->cfile, pg_off, num, off);
+>>>>>>> upstream/android-13
 			if (tx != num) {
 				NS_ERR("prog_page: write error for page %d ret %ld\n", ns->regs.row, (long)tx);
 				return -1;
@@ -1577,7 +1909,11 @@ static int prog_page(struct nandsim *ns, int num)
  *
  * RETURNS: 0 if success, -1 if error.
  */
+<<<<<<< HEAD
 static int do_state_action(struct nandsim *ns, uint32_t action)
+=======
+static int ns_do_state_action(struct nandsim *ns, uint32_t action)
+>>>>>>> upstream/android-13
 {
 	int num;
 	int busdiv = ns->busw == 8 ? 1 : 2;
@@ -1604,7 +1940,11 @@ static int do_state_action(struct nandsim *ns, uint32_t action)
 			break;
 		}
 		num = ns->geom.pgszoob - ns->regs.off - ns->regs.column;
+<<<<<<< HEAD
 		read_page(ns, num);
+=======
+		ns_read_page(ns, num);
+>>>>>>> upstream/android-13
 
 		NS_DBG("do_state_action: (ACTION_CPY:) copy %d bytes to int buf, raw offset %d\n",
 			num, NS_RAW_OFFSET(ns) + ns->regs.off);
@@ -1647,14 +1987,24 @@ static int do_state_action(struct nandsim *ns, uint32_t action)
 				ns->regs.row, NS_RAW_OFFSET(ns));
 		NS_LOG("erase sector %u\n", erase_block_no);
 
+<<<<<<< HEAD
 		erase_sector(ns);
+=======
+		ns_erase_sector(ns);
+>>>>>>> upstream/android-13
 
 		NS_MDELAY(erase_delay);
 
 		if (erase_block_wear)
+<<<<<<< HEAD
 			update_wear(erase_block_no);
 
 		if (erase_error(erase_block_no)) {
+=======
+			ns_update_wear(erase_block_no);
+
+		if (ns_erase_error(erase_block_no)) {
+>>>>>>> upstream/android-13
 			NS_WARN("simulating erase failure in erase block %u\n", erase_block_no);
 			return -1;
 		}
@@ -1678,7 +2028,11 @@ static int do_state_action(struct nandsim *ns, uint32_t action)
 			return -1;
 		}
 
+<<<<<<< HEAD
 		if (prog_page(ns, num) == -1)
+=======
+		if (ns_prog_page(ns, num) == -1)
+>>>>>>> upstream/android-13
 			return -1;
 
 		page_no = ns->regs.row;
@@ -1690,7 +2044,11 @@ static int do_state_action(struct nandsim *ns, uint32_t action)
 		NS_UDELAY(programm_delay);
 		NS_UDELAY(output_cycle * ns->geom.pgsz / 1000 / busdiv);
 
+<<<<<<< HEAD
 		if (write_error(page_no)) {
+=======
+		if (ns_write_error(page_no)) {
+>>>>>>> upstream/android-13
 			NS_WARN("simulating write failure in page %u\n", page_no);
 			return -1;
 		}
@@ -1727,7 +2085,11 @@ static int do_state_action(struct nandsim *ns, uint32_t action)
 /*
  * Switch simulator's state.
  */
+<<<<<<< HEAD
 static void switch_state(struct nandsim *ns)
+=======
+static void ns_switch_state(struct nandsim *ns)
+>>>>>>> upstream/android-13
 {
 	if (ns->op) {
 		/*
@@ -1741,11 +2103,21 @@ static void switch_state(struct nandsim *ns)
 
 		NS_DBG("switch_state: operation is known, switch to the next state, "
 			"state: %s, nxstate: %s\n",
+<<<<<<< HEAD
 			get_state_name(ns->state), get_state_name(ns->nxstate));
 
 		/* See, whether we need to do some action */
 		if ((ns->state & ACTION_MASK) && do_state_action(ns, ns->state) < 0) {
 			switch_to_ready_state(ns, NS_STATUS_FAILED(ns));
+=======
+		       ns_get_state_name(ns->state),
+		       ns_get_state_name(ns->nxstate));
+
+		/* See, whether we need to do some action */
+		if ((ns->state & ACTION_MASK) &&
+		    ns_do_state_action(ns, ns->state) < 0) {
+			ns_switch_to_ready_state(ns, NS_STATUS_FAILED(ns));
+>>>>>>> upstream/android-13
 			return;
 		}
 
@@ -1759,6 +2131,7 @@ static void switch_state(struct nandsim *ns)
 		 *  The only event causing the switch_state function to
 		 *  be called with yet unknown operation is new command.
 		 */
+<<<<<<< HEAD
 		ns->state = get_state_by_command(ns->regs.command);
 
 		NS_DBG("switch_state: operation is unknown, try to find it\n");
@@ -1768,6 +2141,18 @@ static void switch_state(struct nandsim *ns)
 
 		if ((ns->state & ACTION_MASK) && do_state_action(ns, ns->state) < 0) {
 			switch_to_ready_state(ns, NS_STATUS_FAILED(ns));
+=======
+		ns->state = ns_get_state_by_command(ns->regs.command);
+
+		NS_DBG("switch_state: operation is unknown, try to find it\n");
+
+		if (ns_find_operation(ns, 0))
+			return;
+
+		if ((ns->state & ACTION_MASK) &&
+		    ns_do_state_action(ns, ns->state) < 0) {
+			ns_switch_to_ready_state(ns, NS_STATUS_FAILED(ns));
+>>>>>>> upstream/android-13
 			return;
 		}
 	}
@@ -1795,7 +2180,11 @@ static void switch_state(struct nandsim *ns)
 
 		NS_DBG("switch_state: operation complete, switch to STATE_READY state\n");
 
+<<<<<<< HEAD
 		switch_to_ready_state(ns, status);
+=======
+		ns_switch_to_ready_state(ns, status);
+>>>>>>> upstream/android-13
 
 		return;
 	} else if (ns->nxstate & (STATE_DATAIN_MASK | STATE_DATAOUT_MASK)) {
@@ -1809,7 +2198,12 @@ static void switch_state(struct nandsim *ns)
 
 		NS_DBG("switch_state: the next state is data I/O, switch, "
 			"state: %s, nxstate: %s\n",
+<<<<<<< HEAD
 			get_state_name(ns->state), get_state_name(ns->nxstate));
+=======
+		       ns_get_state_name(ns->state),
+		       ns_get_state_name(ns->nxstate));
+>>>>>>> upstream/android-13
 
 		/*
 		 * Set the internal register to the count of bytes which
@@ -1872,9 +2266,14 @@ static void switch_state(struct nandsim *ns)
 	}
 }
 
+<<<<<<< HEAD
 static u_char ns_nand_read_byte(struct mtd_info *mtd)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
+=======
+static u_char ns_nand_read_byte(struct nand_chip *chip)
+{
+>>>>>>> upstream/android-13
 	struct nandsim *ns = nand_get_controller_data(chip);
 	u_char outb = 0x00;
 
@@ -1888,8 +2287,13 @@ static u_char ns_nand_read_byte(struct mtd_info *mtd)
 		return outb;
 	}
 	if (!(ns->state & STATE_DATAOUT_MASK)) {
+<<<<<<< HEAD
 		NS_WARN("read_byte: unexpected data output cycle, state is %s "
 			"return %#x\n", get_state_name(ns->state), (uint)outb);
+=======
+		NS_WARN("read_byte: unexpected data output cycle, state is %s return %#x\n",
+			ns_get_state_name(ns->state), (uint)outb);
+>>>>>>> upstream/android-13
 		return outb;
 	}
 
@@ -1928,15 +2332,24 @@ static u_char ns_nand_read_byte(struct mtd_info *mtd)
 		NS_DBG("read_byte: all bytes were read\n");
 
 		if (NS_STATE(ns->nxstate) == STATE_READY)
+<<<<<<< HEAD
 			switch_state(ns);
+=======
+			ns_switch_state(ns);
+>>>>>>> upstream/android-13
 	}
 
 	return outb;
 }
 
+<<<<<<< HEAD
 static void ns_nand_write_byte(struct mtd_info *mtd, u_char byte)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
+=======
+static void ns_nand_write_byte(struct nand_chip *chip, u_char byte)
+{
+>>>>>>> upstream/android-13
 	struct nandsim *ns = nand_get_controller_data(chip);
 
 	/* Sanity and correctness checks */
@@ -1956,12 +2369,20 @@ static void ns_nand_write_byte(struct mtd_info *mtd, u_char byte)
 
 		if (byte == NAND_CMD_RESET) {
 			NS_LOG("reset chip\n");
+<<<<<<< HEAD
 			switch_to_ready_state(ns, NS_STATUS_OK(ns));
+=======
+			ns_switch_to_ready_state(ns, NS_STATUS_OK(ns));
+>>>>>>> upstream/android-13
 			return;
 		}
 
 		/* Check that the command byte is correct */
+<<<<<<< HEAD
 		if (check_command(byte)) {
+=======
+		if (ns_check_command(byte)) {
+>>>>>>> upstream/android-13
 			NS_ERR("write_byte: unknown command %#x\n", (uint)byte);
 			return;
 		}
@@ -1970,7 +2391,11 @@ static void ns_nand_write_byte(struct mtd_info *mtd, u_char byte)
 			|| NS_STATE(ns->state) == STATE_DATAOUT) {
 			int row = ns->regs.row;
 
+<<<<<<< HEAD
 			switch_state(ns);
+=======
+			ns_switch_state(ns);
+>>>>>>> upstream/android-13
 			if (byte == NAND_CMD_RNDOUT)
 				ns->regs.row = row;
 		}
@@ -1985,6 +2410,7 @@ static void ns_nand_write_byte(struct mtd_info *mtd, u_char byte)
 				 * was expected but command was input. In this case ignore
 				 * previous command(s)/state(s) and accept the last one.
 				 */
+<<<<<<< HEAD
 				NS_WARN("write_byte: command (%#x) wasn't expected, expected state is %s, "
 					"ignore previous states\n", (uint)byte, get_state_name(ns->nxstate));
 			}
@@ -1995,6 +2421,19 @@ static void ns_nand_write_byte(struct mtd_info *mtd, u_char byte)
 			get_state_name(get_state_by_command(byte)));
 		ns->regs.command = byte;
 		switch_state(ns);
+=======
+				NS_WARN("write_byte: command (%#x) wasn't expected, expected state is %s, ignore previous states\n",
+					(uint)byte,
+					ns_get_state_name(ns->nxstate));
+			}
+			ns_switch_to_ready_state(ns, NS_STATUS_FAILED(ns));
+		}
+
+		NS_DBG("command byte corresponding to %s state accepted\n",
+			ns_get_state_name(ns_get_state_by_command(byte)));
+		ns->regs.command = byte;
+		ns_switch_state(ns);
+>>>>>>> upstream/android-13
 
 	} else if (ns->lines.ale == 1) {
 		/*
@@ -2005,11 +2444,21 @@ static void ns_nand_write_byte(struct mtd_info *mtd, u_char byte)
 
 			NS_DBG("write_byte: operation isn't known yet, identify it\n");
 
+<<<<<<< HEAD
 			if (find_operation(ns, 1) < 0)
 				return;
 
 			if ((ns->state & ACTION_MASK) && do_state_action(ns, ns->state) < 0) {
 				switch_to_ready_state(ns, NS_STATUS_FAILED(ns));
+=======
+			if (ns_find_operation(ns, 1) < 0)
+				return;
+
+			if ((ns->state & ACTION_MASK) &&
+			    ns_do_state_action(ns, ns->state) < 0) {
+				ns_switch_to_ready_state(ns,
+							 NS_STATUS_FAILED(ns));
+>>>>>>> upstream/android-13
 				return;
 			}
 
@@ -2031,20 +2480,34 @@ static void ns_nand_write_byte(struct mtd_info *mtd, u_char byte)
 
 		/* Check that chip is expecting address */
 		if (!(ns->nxstate & STATE_ADDR_MASK)) {
+<<<<<<< HEAD
 			NS_ERR("write_byte: address (%#x) isn't expected, expected state is %s, "
 				"switch to STATE_READY\n", (uint)byte, get_state_name(ns->nxstate));
 			switch_to_ready_state(ns, NS_STATUS_FAILED(ns));
+=======
+			NS_ERR("write_byte: address (%#x) isn't expected, expected state is %s, switch to STATE_READY\n",
+			       (uint)byte, ns_get_state_name(ns->nxstate));
+			ns_switch_to_ready_state(ns, NS_STATUS_FAILED(ns));
+>>>>>>> upstream/android-13
 			return;
 		}
 
 		/* Check if this is expected byte */
 		if (ns->regs.count == ns->regs.num) {
 			NS_ERR("write_byte: no more address bytes expected\n");
+<<<<<<< HEAD
 			switch_to_ready_state(ns, NS_STATUS_FAILED(ns));
 			return;
 		}
 
 		accept_addr_byte(ns, byte);
+=======
+			ns_switch_to_ready_state(ns, NS_STATUS_FAILED(ns));
+			return;
+		}
+
+		ns_accept_addr_byte(ns, byte);
+>>>>>>> upstream/android-13
 
 		ns->regs.count += 1;
 
@@ -2053,7 +2516,11 @@ static void ns_nand_write_byte(struct mtd_info *mtd, u_char byte)
 
 		if (ns->regs.count == ns->regs.num) {
 			NS_DBG("address (%#x, %#x) is accepted\n", ns->regs.row, ns->regs.column);
+<<<<<<< HEAD
 			switch_state(ns);
+=======
+			ns_switch_state(ns);
+>>>>>>> upstream/android-13
 		}
 
 	} else {
@@ -2063,10 +2530,17 @@ static void ns_nand_write_byte(struct mtd_info *mtd, u_char byte)
 
 		/* Check that chip is expecting data input */
 		if (!(ns->state & STATE_DATAIN_MASK)) {
+<<<<<<< HEAD
 			NS_ERR("write_byte: data input (%#x) isn't expected, state is %s, "
 				"switch to %s\n", (uint)byte,
 				get_state_name(ns->state), get_state_name(STATE_READY));
 			switch_to_ready_state(ns, NS_STATUS_FAILED(ns));
+=======
+			NS_ERR("write_byte: data input (%#x) isn't expected, state is %s, switch to %s\n",
+			       (uint)byte, ns_get_state_name(ns->state),
+			       ns_get_state_name(STATE_READY));
+			ns_switch_to_ready_state(ns, NS_STATUS_FAILED(ns));
+>>>>>>> upstream/android-13
 			return;
 		}
 
@@ -2089,6 +2563,7 @@ static void ns_nand_write_byte(struct mtd_info *mtd, u_char byte)
 	return;
 }
 
+<<<<<<< HEAD
 static void ns_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int bitmask)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
@@ -2120,20 +2595,35 @@ static uint16_t ns_nand_read_word(struct mtd_info *mtd)
 static void ns_nand_write_buf(struct mtd_info *mtd, const u_char *buf, int len)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
+=======
+static void ns_nand_write_buf(struct nand_chip *chip, const u_char *buf,
+			      int len)
+{
+>>>>>>> upstream/android-13
 	struct nandsim *ns = nand_get_controller_data(chip);
 
 	/* Check that chip is expecting data input */
 	if (!(ns->state & STATE_DATAIN_MASK)) {
+<<<<<<< HEAD
 		NS_ERR("write_buf: data input isn't expected, state is %s, "
 			"switch to STATE_READY\n", get_state_name(ns->state));
 		switch_to_ready_state(ns, NS_STATUS_FAILED(ns));
+=======
+		NS_ERR("write_buf: data input isn't expected, state is %s, switch to STATE_READY\n",
+		       ns_get_state_name(ns->state));
+		ns_switch_to_ready_state(ns, NS_STATUS_FAILED(ns));
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	/* Check if these are expected bytes */
 	if (ns->regs.count + len > ns->regs.num) {
 		NS_ERR("write_buf: too many input bytes\n");
+<<<<<<< HEAD
 		switch_to_ready_state(ns, NS_STATUS_FAILED(ns));
+=======
+		ns_switch_to_ready_state(ns, NS_STATUS_FAILED(ns));
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -2145,9 +2635,14 @@ static void ns_nand_write_buf(struct mtd_info *mtd, const u_char *buf, int len)
 	}
 }
 
+<<<<<<< HEAD
 static void ns_nand_read_buf(struct mtd_info *mtd, u_char *buf, int len)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
+=======
+static void ns_nand_read_buf(struct nand_chip *chip, u_char *buf, int len)
+{
+>>>>>>> upstream/android-13
 	struct nandsim *ns = nand_get_controller_data(chip);
 
 	/* Sanity and correctness checks */
@@ -2161,7 +2656,11 @@ static void ns_nand_read_buf(struct mtd_info *mtd, u_char *buf, int len)
 	}
 	if (!(ns->state & STATE_DATAOUT_MASK)) {
 		NS_WARN("read_buf: unexpected data output cycle, current state is %s\n",
+<<<<<<< HEAD
 			get_state_name(ns->state));
+=======
+			ns_get_state_name(ns->state));
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -2169,7 +2668,11 @@ static void ns_nand_read_buf(struct mtd_info *mtd, u_char *buf, int len)
 		int i;
 
 		for (i = 0; i < len; i++)
+<<<<<<< HEAD
 			buf[i] = mtd_to_nand(mtd)->read_byte(mtd);
+=======
+			buf[i] = ns_nand_read_byte(chip);
+>>>>>>> upstream/android-13
 
 		return;
 	}
@@ -2177,7 +2680,11 @@ static void ns_nand_read_buf(struct mtd_info *mtd, u_char *buf, int len)
 	/* Check if these are expected bytes */
 	if (ns->regs.count + len > ns->regs.num) {
 		NS_ERR("read_buf: too many bytes to read\n");
+<<<<<<< HEAD
 		switch_to_ready_state(ns, NS_STATUS_FAILED(ns));
+=======
+		ns_switch_to_ready_state(ns, NS_STATUS_FAILED(ns));
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -2186,20 +2693,80 @@ static void ns_nand_read_buf(struct mtd_info *mtd, u_char *buf, int len)
 
 	if (ns->regs.count == ns->regs.num) {
 		if (NS_STATE(ns->nxstate) == STATE_READY)
+<<<<<<< HEAD
 			switch_state(ns);
+=======
+			ns_switch_state(ns);
+>>>>>>> upstream/android-13
 	}
 
 	return;
 }
 
+<<<<<<< HEAD
+=======
+static int ns_exec_op(struct nand_chip *chip, const struct nand_operation *op,
+		      bool check_only)
+{
+	int i;
+	unsigned int op_id;
+	const struct nand_op_instr *instr = NULL;
+	struct nandsim *ns = nand_get_controller_data(chip);
+
+	if (check_only)
+		return 0;
+
+	ns->lines.ce = 1;
+
+	for (op_id = 0; op_id < op->ninstrs; op_id++) {
+		instr = &op->instrs[op_id];
+		ns->lines.cle = 0;
+		ns->lines.ale = 0;
+
+		switch (instr->type) {
+		case NAND_OP_CMD_INSTR:
+			ns->lines.cle = 1;
+			ns_nand_write_byte(chip, instr->ctx.cmd.opcode);
+			break;
+		case NAND_OP_ADDR_INSTR:
+			ns->lines.ale = 1;
+			for (i = 0; i < instr->ctx.addr.naddrs; i++)
+				ns_nand_write_byte(chip, instr->ctx.addr.addrs[i]);
+			break;
+		case NAND_OP_DATA_IN_INSTR:
+			ns_nand_read_buf(chip, instr->ctx.data.buf.in, instr->ctx.data.len);
+			break;
+		case NAND_OP_DATA_OUT_INSTR:
+			ns_nand_write_buf(chip, instr->ctx.data.buf.out, instr->ctx.data.len);
+			break;
+		case NAND_OP_WAITRDY_INSTR:
+			/* we are always ready */
+			break;
+		}
+	}
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int ns_attach_chip(struct nand_chip *chip)
 {
 	unsigned int eccsteps, eccbytes;
 
+<<<<<<< HEAD
 	if (!bch)
 		return 0;
 
 	if (!mtd_nand_has_bch()) {
+=======
+	chip->ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
+	chip->ecc.algo = bch ? NAND_ECC_ALGO_BCH : NAND_ECC_ALGO_HAMMING;
+
+	if (!bch)
+		return 0;
+
+	if (!IS_ENABLED(CONFIG_MTD_NAND_ECC_SW_BCH)) {
+>>>>>>> upstream/android-13
 		NS_ERR("BCH ECC support is disabled\n");
 		return -EINVAL;
 	}
@@ -2219,8 +2786,11 @@ static int ns_attach_chip(struct nand_chip *chip)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	chip->ecc.mode = NAND_ECC_SOFT;
 	chip->ecc.algo = NAND_ECC_BCH;
+=======
+>>>>>>> upstream/android-13
 	chip->ecc.size = 512;
 	chip->ecc.strength = bch;
 	chip->ecc.bytes = eccbytes;
@@ -2232,6 +2802,10 @@ static int ns_attach_chip(struct nand_chip *chip)
 
 static const struct nand_controller_ops ns_controller_ops = {
 	.attach_chip = ns_attach_chip,
+<<<<<<< HEAD
+=======
+	.exec_op = ns_exec_op,
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -2239,15 +2813,23 @@ static const struct nand_controller_ops ns_controller_ops = {
  */
 static int __init ns_init_module(void)
 {
+<<<<<<< HEAD
 	struct nand_chip *chip;
 	struct nandsim *nand;
 	int retval = -ENOMEM, i;
+=======
+	struct list_head *pos, *n;
+	struct nand_chip *chip;
+	struct nandsim *ns;
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (bus_width != 8 && bus_width != 16) {
 		NS_ERR("wrong bus width (%d), use only 8 or 16\n", bus_width);
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	/* Allocate and initialize mtd_info, nand_chip and nandsim structures */
 	chip = kzalloc(sizeof(struct nand_chip) + sizeof(struct nandsim),
 		       GFP_KERNEL);
@@ -2270,27 +2852,52 @@ static int __init ns_init_module(void)
 	chip->read_word  = ns_nand_read_word;
 	chip->ecc.mode   = NAND_ECC_SOFT;
 	chip->ecc.algo   = NAND_ECC_HAMMING;
+=======
+	ns = kzalloc(sizeof(struct nandsim), GFP_KERNEL);
+	if (!ns) {
+		NS_ERR("unable to allocate core structures.\n");
+		return -ENOMEM;
+	}
+	chip	    = &ns->chip;
+	nsmtd       = nand_to_mtd(chip);
+	nand_set_controller_data(chip, (void *)ns);
+
+>>>>>>> upstream/android-13
 	/* The NAND_SKIP_BBTSCAN option is necessary for 'overridesize' */
 	/* and 'badblocks' parameters to work */
 	chip->options   |= NAND_SKIP_BBTSCAN;
 
 	switch (bbt) {
 	case 2:
+<<<<<<< HEAD
 		 chip->bbt_options |= NAND_BBT_NO_OOB;
 	case 1:
 		 chip->bbt_options |= NAND_BBT_USE_FLASH;
+=======
+		chip->bbt_options |= NAND_BBT_NO_OOB;
+		fallthrough;
+	case 1:
+		chip->bbt_options |= NAND_BBT_USE_FLASH;
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 0:
 		break;
 	default:
 		NS_ERR("bbt has to be 0..2\n");
+<<<<<<< HEAD
 		retval = -EINVAL;
 		goto error;
+=======
+		ret = -EINVAL;
+		goto free_ns_struct;
+>>>>>>> upstream/android-13
 	}
 	/*
 	 * Perform minimum nandsim structure initialization to handle
 	 * the initial ID read command correctly
 	 */
 	if (id_bytes[6] != 0xFF || id_bytes[7] != 0xFF)
+<<<<<<< HEAD
 		nand->geom.idbytes = 8;
 	else if (id_bytes[4] != 0xFF || id_bytes[5] != 0xFF)
 		nand->geom.idbytes = 6;
@@ -2304,11 +2911,27 @@ static int __init ns_init_module(void)
 	memcpy(nand->ids, id_bytes, sizeof(nand->ids));
 	if (bus_width == 16) {
 		nand->busw = 16;
+=======
+		ns->geom.idbytes = 8;
+	else if (id_bytes[4] != 0xFF || id_bytes[5] != 0xFF)
+		ns->geom.idbytes = 6;
+	else if (id_bytes[2] != 0xFF || id_bytes[3] != 0xFF)
+		ns->geom.idbytes = 4;
+	else
+		ns->geom.idbytes = 2;
+	ns->regs.status = NS_STATUS_OK(ns);
+	ns->nxstate = STATE_UNKNOWN;
+	ns->options |= OPT_PAGE512; /* temporary value */
+	memcpy(ns->ids, id_bytes, sizeof(ns->ids));
+	if (bus_width == 16) {
+		ns->busw = 16;
+>>>>>>> upstream/android-13
 		chip->options |= NAND_BUSWIDTH_16;
 	}
 
 	nsmtd->owner = THIS_MODULE;
 
+<<<<<<< HEAD
 	if ((retval = parse_weakblocks()) != 0)
 		goto error;
 
@@ -2323,10 +2946,33 @@ static int __init ns_init_module(void)
 	if (retval) {
 		NS_ERR("Could not scan NAND Simulator device\n");
 		goto error;
+=======
+	ret = ns_parse_weakblocks();
+	if (ret)
+		goto free_ns_struct;
+
+	ret = ns_parse_weakpages();
+	if (ret)
+		goto free_wb_list;
+
+	ret = ns_parse_gravepages();
+	if (ret)
+		goto free_wp_list;
+
+	nand_controller_init(&ns->base);
+	ns->base.ops = &ns_controller_ops;
+	chip->controller = &ns->base;
+
+	ret = nand_scan(chip, 1);
+	if (ret) {
+		NS_ERR("Could not scan NAND Simulator device\n");
+		goto free_gp_list;
+>>>>>>> upstream/android-13
 	}
 
 	if (overridesize) {
 		uint64_t new_size = (uint64_t)nsmtd->erasesize << overridesize;
+<<<<<<< HEAD
 		if (new_size >> overridesize != nsmtd->erasesize) {
 			NS_ERR("overridesize is too big\n");
 			retval = -EINVAL;
@@ -2372,6 +3018,81 @@ error:
 	free_lists();
 
 	return retval;
+=======
+		struct nand_memory_organization *memorg;
+		u64 targetsize;
+
+		memorg = nanddev_get_memorg(&chip->base);
+
+		if (new_size >> overridesize != nsmtd->erasesize) {
+			NS_ERR("overridesize is too big\n");
+			ret = -EINVAL;
+			goto cleanup_nand;
+		}
+
+		/* N.B. This relies on nand_scan not doing anything with the size before we change it */
+		nsmtd->size = new_size;
+		memorg->eraseblocks_per_lun = 1 << overridesize;
+		targetsize = nanddev_target_size(&chip->base);
+		chip->chip_shift = ffs(nsmtd->erasesize) + overridesize - 1;
+		chip->pagemask = (targetsize >> chip->page_shift) - 1;
+	}
+
+	ret = ns_setup_wear_reporting(nsmtd);
+	if (ret)
+		goto cleanup_nand;
+
+	ret = ns_init(nsmtd);
+	if (ret)
+		goto free_ebw;
+
+	ret = nand_create_bbt(chip);
+	if (ret)
+		goto free_ns_object;
+
+	ret = ns_parse_badblocks(ns, nsmtd);
+	if (ret)
+		goto free_ns_object;
+
+	/* Register NAND partitions */
+	ret = mtd_device_register(nsmtd, &ns->partitions[0], ns->nbparts);
+	if (ret)
+		goto free_ns_object;
+
+	ret = ns_debugfs_create(ns);
+	if (ret)
+		goto unregister_mtd;
+
+        return 0;
+
+unregister_mtd:
+	WARN_ON(mtd_device_unregister(nsmtd));
+free_ns_object:
+	ns_free(ns);
+free_ebw:
+	kfree(erase_block_wear);
+cleanup_nand:
+	nand_cleanup(chip);
+free_gp_list:
+	list_for_each_safe(pos, n, &grave_pages) {
+		list_del(pos);
+		kfree(list_entry(pos, struct grave_page, list));
+	}
+free_wp_list:
+	list_for_each_safe(pos, n, &weak_pages) {
+		list_del(pos);
+		kfree(list_entry(pos, struct weak_page, list));
+	}
+free_wb_list:
+	list_for_each_safe(pos, n, &weak_blocks) {
+		list_del(pos);
+		kfree(list_entry(pos, struct weak_block, list));
+	}
+free_ns_struct:
+	kfree(ns);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 module_init(ns_init_module);
@@ -2383,6 +3104,7 @@ static void __exit ns_cleanup_module(void)
 {
 	struct nand_chip *chip = mtd_to_nand(nsmtd);
 	struct nandsim *ns = nand_get_controller_data(chip);
+<<<<<<< HEAD
 	int i;
 
 	free_nandsim(ns);    /* Free nandsim private resources */
@@ -2391,10 +3113,40 @@ static void __exit ns_cleanup_module(void)
 		kfree(ns->partitions[i].name);
 	kfree(mtd_to_nand(nsmtd));        /* Free other structures */
 	free_lists();
+=======
+	struct list_head *pos, *n;
+
+	ns_debugfs_remove(ns);
+	WARN_ON(mtd_device_unregister(nsmtd));
+	ns_free(ns);
+	kfree(erase_block_wear);
+	nand_cleanup(chip);
+
+	list_for_each_safe(pos, n, &grave_pages) {
+		list_del(pos);
+		kfree(list_entry(pos, struct grave_page, list));
+	}
+
+	list_for_each_safe(pos, n, &weak_pages) {
+		list_del(pos);
+		kfree(list_entry(pos, struct weak_page, list));
+	}
+
+	list_for_each_safe(pos, n, &weak_blocks) {
+		list_del(pos);
+		kfree(list_entry(pos, struct weak_block, list));
+	}
+
+	kfree(ns);
+>>>>>>> upstream/android-13
 }
 
 module_exit(ns_cleanup_module);
 
 MODULE_LICENSE ("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(VFS_internal_I_am_really_a_filesystem_and_am_NOT_a_driver);
+>>>>>>> upstream/android-13
 MODULE_AUTHOR ("Artem B. Bityuckiy");
 MODULE_DESCRIPTION ("The NAND flash simulator");

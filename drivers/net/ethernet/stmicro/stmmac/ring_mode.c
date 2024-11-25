@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*******************************************************************************
   Specialised functions for managing Ring mode
 
@@ -7,6 +11,7 @@
   descriptors in case of the DMA is configured to work in chained or
   in ring mode.
 
+<<<<<<< HEAD
   This program is free software; you can redistribute it and/or modify it
   under the terms and conditions of the GNU General Public License,
   version 2, as published by the Free Software Foundation.
@@ -18,6 +23,8 @@
 
   The full GNU General Public License is included in this distribution in
   the file called "COPYING".
+=======
+>>>>>>> upstream/android-13
 
   Author: Giuseppe Cavallaro <peppe.cavallaro@st.com>
 *******************************************************************************/
@@ -59,9 +66,15 @@ static int jumbo_frm(void *p, struct sk_buff *skb, int csum)
 
 		desc->des3 = cpu_to_le32(des2 + BUF_SIZE_4KiB);
 		stmmac_prepare_tx_desc(priv, desc, 1, bmax, csum,
+<<<<<<< HEAD
 				STMMAC_RING_MODE, 1, false, skb->len);
 		tx_q->tx_skbuff[entry] = NULL;
 		entry = STMMAC_GET_ENTRY(entry, DMA_TX_SIZE);
+=======
+				STMMAC_RING_MODE, 0, false, skb->len);
+		tx_q->tx_skbuff[entry] = NULL;
+		entry = STMMAC_GET_ENTRY(entry, priv->dma_tx_size);
+>>>>>>> upstream/android-13
 
 		if (priv->extend_desc)
 			desc = (struct dma_desc *)(tx_q->dma_etx + entry);
@@ -79,7 +92,12 @@ static int jumbo_frm(void *p, struct sk_buff *skb, int csum)
 
 		desc->des3 = cpu_to_le32(des2 + BUF_SIZE_4KiB);
 		stmmac_prepare_tx_desc(priv, desc, 0, len, csum,
+<<<<<<< HEAD
 				STMMAC_RING_MODE, 1, true, skb->len);
+=======
+				STMMAC_RING_MODE, 1, !skb_is_nonlinear(skb),
+				skb->len);
+>>>>>>> upstream/android-13
 	} else {
 		des2 = dma_map_single(priv->device, skb->data,
 				      nopaged_len, DMA_TO_DEVICE);
@@ -91,7 +109,12 @@ static int jumbo_frm(void *p, struct sk_buff *skb, int csum)
 		tx_q->tx_skbuff_dma[entry].is_jumbo = true;
 		desc->des3 = cpu_to_le32(des2 + BUF_SIZE_4KiB);
 		stmmac_prepare_tx_desc(priv, desc, 1, nopaged_len, csum,
+<<<<<<< HEAD
 				STMMAC_RING_MODE, 1, true, skb->len);
+=======
+				STMMAC_RING_MODE, 0, !skb_is_nonlinear(skb),
+				skb->len);
+>>>>>>> upstream/android-13
 	}
 
 	tx_q->cur_tx = entry;
@@ -111,10 +134,18 @@ static unsigned int is_jumbo_frm(int len, int enh_desc)
 
 static void refill_desc3(void *priv_ptr, struct dma_desc *p)
 {
+<<<<<<< HEAD
 	struct stmmac_priv *priv = (struct stmmac_priv *)priv_ptr;
 
 	/* Fill DES3 in case of RING mode */
 	if (priv->dma_buf_sz >= BUF_SIZE_8KiB)
+=======
+	struct stmmac_rx_queue *rx_q = priv_ptr;
+	struct stmmac_priv *priv = rx_q->priv_data;
+
+	/* Fill DES3 in case of RING mode */
+	if (priv->dma_buf_sz == BUF_SIZE_16KiB)
+>>>>>>> upstream/android-13
 		p->des3 = cpu_to_le32(le32_to_cpu(p->des2) + BUF_SIZE_8KiB);
 }
 

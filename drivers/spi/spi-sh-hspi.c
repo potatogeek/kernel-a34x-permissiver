@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * SuperH HSPI bus driver
  *
@@ -7,6 +11,7 @@
  * Based on pxa2xx_spi.c:
  * Copyright (C) 2011 Renesas Solutions Corp.
  * Copyright (C) 2005 Stephen Street / StreetFire Sound Labs
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -43,7 +50,11 @@
 
 struct hspi_priv {
 	void __iomem *addr;
+<<<<<<< HEAD
 	struct spi_master *master;
+=======
+	struct spi_controller *ctlr;
+>>>>>>> upstream/android-13
 	struct device *dev;
 	struct clk *clk;
 };
@@ -148,10 +159,17 @@ static void hspi_hw_setup(struct hspi_priv *hspi,
 	hspi_write(hspi, SPSCR, 0x21);	/* master mode / CS control */
 }
 
+<<<<<<< HEAD
 static int hspi_transfer_one_message(struct spi_master *master,
 				     struct spi_message *msg)
 {
 	struct hspi_priv *hspi = spi_master_get_devdata(master);
+=======
+static int hspi_transfer_one_message(struct spi_controller *ctlr,
+				     struct spi_message *msg)
+{
+	struct hspi_priv *hspi = spi_controller_get_devdata(ctlr);
+>>>>>>> upstream/android-13
 	struct spi_transfer *t;
 	u32 tx;
 	u32 rx;
@@ -198,8 +216,12 @@ static int hspi_transfer_one_message(struct spi_master *master,
 
 		msg->actual_length += t->len;
 
+<<<<<<< HEAD
 		if (t->delay_usecs)
 			udelay(t->delay_usecs);
+=======
+		spi_transfer_delay_exec(t);
+>>>>>>> upstream/android-13
 
 		if (cs_change) {
 			ndelay(nsecs);
@@ -213,7 +235,11 @@ static int hspi_transfer_one_message(struct spi_master *master,
 		ndelay(nsecs);
 		hspi_hw_cs_disable(hspi);
 	}
+<<<<<<< HEAD
 	spi_finalize_current_message(master);
+=======
+	spi_finalize_current_message(ctlr);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -221,7 +247,11 @@ static int hspi_transfer_one_message(struct spi_master *master,
 static int hspi_probe(struct platform_device *pdev)
 {
 	struct resource *res;
+<<<<<<< HEAD
 	struct spi_master *master;
+=======
+	struct spi_controller *ctlr;
+>>>>>>> upstream/android-13
 	struct hspi_priv *hspi;
 	struct clk *clk;
 	int ret;
@@ -233,11 +263,17 @@ static int hspi_probe(struct platform_device *pdev)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	master = spi_alloc_master(&pdev->dev, sizeof(*hspi));
 	if (!master) {
 		dev_err(&pdev->dev, "spi_alloc_master error.\n");
 		return -ENOMEM;
 	}
+=======
+	ctlr = spi_alloc_master(&pdev->dev, sizeof(*hspi));
+	if (!ctlr)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	clk = clk_get(&pdev->dev, NULL);
 	if (IS_ERR(clk)) {
@@ -246,23 +282,35 @@ static int hspi_probe(struct platform_device *pdev)
 		goto error0;
 	}
 
+<<<<<<< HEAD
 	hspi = spi_master_get_devdata(master);
 	platform_set_drvdata(pdev, hspi);
 
 	/* init hspi */
 	hspi->master	= master;
+=======
+	hspi = spi_controller_get_devdata(ctlr);
+	platform_set_drvdata(pdev, hspi);
+
+	/* init hspi */
+	hspi->ctlr	= ctlr;
+>>>>>>> upstream/android-13
 	hspi->dev	= &pdev->dev;
 	hspi->clk	= clk;
 	hspi->addr	= devm_ioremap(hspi->dev,
 				       res->start, resource_size(res));
 	if (!hspi->addr) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "ioremap error.\n");
+=======
+>>>>>>> upstream/android-13
 		ret = -ENOMEM;
 		goto error1;
 	}
 
 	pm_runtime_enable(&pdev->dev);
 
+<<<<<<< HEAD
 	master->bus_num		= pdev->id;
 	master->mode_bits	= SPI_CPOL | SPI_CPHA;
 	master->dev.of_node	= pdev->dev.of_node;
@@ -273,6 +321,18 @@ static int hspi_probe(struct platform_device *pdev)
 	ret = devm_spi_register_master(&pdev->dev, master);
 	if (ret < 0) {
 		dev_err(&pdev->dev, "spi_register_master error.\n");
+=======
+	ctlr->bus_num = pdev->id;
+	ctlr->mode_bits	= SPI_CPOL | SPI_CPHA;
+	ctlr->dev.of_node = pdev->dev.of_node;
+	ctlr->auto_runtime_pm = true;
+	ctlr->transfer_one_message = hspi_transfer_one_message;
+	ctlr->bits_per_word_mask = SPI_BPW_MASK(8);
+
+	ret = devm_spi_register_controller(&pdev->dev, ctlr);
+	if (ret < 0) {
+		dev_err(&pdev->dev, "devm_spi_register_controller error.\n");
+>>>>>>> upstream/android-13
 		goto error2;
 	}
 
@@ -283,7 +343,11 @@ static int hspi_probe(struct platform_device *pdev)
  error1:
 	clk_put(clk);
  error0:
+<<<<<<< HEAD
 	spi_master_put(master);
+=======
+	spi_controller_put(ctlr);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -316,6 +380,10 @@ static struct platform_driver hspi_driver = {
 module_platform_driver(hspi_driver);
 
 MODULE_DESCRIPTION("SuperH HSPI bus driver");
+<<<<<<< HEAD
 MODULE_LICENSE("GPL");
+=======
+MODULE_LICENSE("GPL v2");
+>>>>>>> upstream/android-13
 MODULE_AUTHOR("Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>");
 MODULE_ALIAS("platform:sh-hspi");

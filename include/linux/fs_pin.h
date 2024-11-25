@@ -20,6 +20,9 @@ static inline void init_fs_pin(struct fs_pin *p, void (*kill)(struct fs_pin *))
 }
 
 void pin_remove(struct fs_pin *);
+<<<<<<< HEAD
 void pin_insert_group(struct fs_pin *, struct vfsmount *, struct hlist_head *);
+=======
+>>>>>>> upstream/android-13
 void pin_insert(struct fs_pin *, struct vfsmount *);
 void pin_kill(struct fs_pin *);

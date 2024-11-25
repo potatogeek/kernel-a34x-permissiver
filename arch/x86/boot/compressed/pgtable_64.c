@@ -5,6 +5,7 @@
 #include "pgtable.h"
 #include "../string.h"
 
+<<<<<<< HEAD
 /*
  * __force_order is used by special_insns.h asm code to force instruction
  * serialization.
@@ -17,6 +18,18 @@ unsigned long __force_order;
 #define BIOS_START_MIN		0x20000U	/* 128K, less than this is insane */
 #define BIOS_START_MAX		0x9f000U	/* 640K, absolute maximum */
 
+=======
+#define BIOS_START_MIN		0x20000U	/* 128K, less than this is insane */
+#define BIOS_START_MAX		0x9f000U	/* 640K, absolute maximum */
+
+#ifdef CONFIG_X86_5LEVEL
+/* __pgtable_l5_enabled needs to be in .data to avoid being cleared along with .bss */
+unsigned int __section(".data") __pgtable_l5_enabled;
+unsigned int __section(".data") pgdir_shift = 39;
+unsigned int __section(".data") ptrs_per_p4d = 1;
+#endif
+
+>>>>>>> upstream/android-13
 struct paging_config {
 	unsigned long trampoline_start;
 	unsigned long l5_required;
@@ -32,7 +45,11 @@ static char trampoline_save[TRAMPOLINE_32BIT_SIZE];
  * Avoid putting the pointer into .bss as it will be cleared between
  * paging_prepare() and extract_kernel().
  */
+<<<<<<< HEAD
 unsigned long *trampoline_32bit __section(.data);
+=======
+unsigned long *trampoline_32bit __section(".data");
+>>>>>>> upstream/android-13
 
 extern struct boot_params *boot_params;
 int cmdline_find_option_bool(const char *option);
@@ -40,7 +57,10 @@ int cmdline_find_option_bool(const char *option);
 static unsigned long find_trampoline_placement(void)
 {
 	unsigned long bios_start = 0, ebda_start = 0;
+<<<<<<< HEAD
 	unsigned long trampoline_start;
+=======
+>>>>>>> upstream/android-13
 	struct boot_e820_entry *entry;
 	char *signature;
 	int i;
@@ -208,4 +228,16 @@ void cleanup_trampoline(void *pgtable)
 
 	/* Restore trampoline memory */
 	memcpy(trampoline_32bit, trampoline_save, TRAMPOLINE_32BIT_SIZE);
+<<<<<<< HEAD
+=======
+
+	/* Initialize variables for 5-level paging */
+#ifdef CONFIG_X86_5LEVEL
+	if (__read_cr4() & X86_CR4_LA57) {
+		__pgtable_l5_enabled = 1;
+		pgdir_shift = 48;
+		ptrs_per_p4d = 512;
+	}
+#endif
+>>>>>>> upstream/android-13
 }

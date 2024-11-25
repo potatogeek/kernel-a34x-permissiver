@@ -1,3 +1,8 @@
 #!/bin/bash
+<<<<<<< HEAD
 # description: print Intel PT Power Events and PTWRITE
 perf script $@ -s "$PERF_EXEC_PATH"/scripts/python/intel-pt-events.py
+=======
+# description: print Intel PT Events including Power Events and PTWRITE
+perf script $@ -s "$PERF_EXEC_PATH"/scripts/python/intel-pt-events.py
+>>>>>>> upstream/android-13

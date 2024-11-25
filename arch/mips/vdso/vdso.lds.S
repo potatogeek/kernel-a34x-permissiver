@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015 Imagination Technologies
  * Author: Alex Smith <alex.smith@imgtec.com>
@@ -6,6 +7,12 @@
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (C) 2015 Imagination Technologies
+ * Author: Alex Smith <alex.smith@imgtec.com>
+>>>>>>> upstream/android-13
  */
 
 #include <asm/sgidefs.h>
@@ -95,7 +102,11 @@ PHDRS
 VERSION
 {
 	LINUX_2.6 {
+<<<<<<< HEAD
 #ifndef DISABLE_MIPS_VDSO
+=======
+#ifndef CONFIG_MIPS_DISABLE_VDSO
+>>>>>>> upstream/android-13
 	global:
 		__vdso_clock_gettime;
 		__vdso_gettimeofday;

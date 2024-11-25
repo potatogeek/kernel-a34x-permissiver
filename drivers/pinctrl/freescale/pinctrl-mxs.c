@@ -488,8 +488,15 @@ static int mxs_pinctrl_probe_dt(struct platform_device *pdev,
 		if (of_property_read_u32(child, "reg", &val)) {
 			ret = mxs_pinctrl_parse_group(pdev, child,
 						      idxg++, NULL);
+<<<<<<< HEAD
 			if (ret)
 				return ret;
+=======
+			if (ret) {
+				of_node_put(child);
+				return ret;
+			}
+>>>>>>> upstream/android-13
 			continue;
 		}
 
@@ -499,15 +506,29 @@ static int mxs_pinctrl_probe_dt(struct platform_device *pdev,
 						 f->ngroups,
 						 sizeof(*f->groups),
 						 GFP_KERNEL);
+<<<<<<< HEAD
 			if (!f->groups)
 				return -ENOMEM;
+=======
+			if (!f->groups) {
+				of_node_put(child);
+				return -ENOMEM;
+			}
+>>>>>>> upstream/android-13
 			fn = child->name;
 			i = 0;
 		}
 		ret = mxs_pinctrl_parse_group(pdev, child, idxg++,
 					      &f->groups[i++]);
+<<<<<<< HEAD
 		if (ret)
 			return ret;
+=======
+		if (ret) {
+			of_node_put(child);
+			return ret;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -556,4 +577,7 @@ err:
 	iounmap(d->base);
 	return ret;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(mxs_pinctrl_probe);
+=======
+>>>>>>> upstream/android-13

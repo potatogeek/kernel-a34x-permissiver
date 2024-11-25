@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 	Copyright (C) 2010 Willow Garage <http://www.willowgarage.com>
 	Copyright (C) 2004 - 2010 Ivo van Doorn <IvDoorn@gmail.com>
 	<http://rt2x00.serialmonkey.com>
 
+<<<<<<< HEAD
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation; either version 2 of the License, or
@@ -15,6 +20,8 @@
 
 	You should have received a copy of the GNU General Public License
 	along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -205,8 +212,12 @@ static void rt2x00lib_beaconupdate_iter(void *data, u8 *mac,
 
 	if (vif->type != NL80211_IFTYPE_AP &&
 	    vif->type != NL80211_IFTYPE_ADHOC &&
+<<<<<<< HEAD
 	    vif->type != NL80211_IFTYPE_MESH_POINT &&
 	    vif->type != NL80211_IFTYPE_WDS)
+=======
+	    vif->type != NL80211_IFTYPE_MESH_POINT)
+>>>>>>> upstream/android-13
 		return;
 
 	/*
@@ -382,9 +393,12 @@ static void rt2x00lib_fill_tx_status(struct rt2x00_dev *rt2x00dev,
 				  IEEE80211_TX_CTL_AMPDU;
 		tx_info->status.ampdu_len = 1;
 		tx_info->status.ampdu_ack_len = success ? 1 : 0;
+<<<<<<< HEAD
 
 		if (!success)
 			tx_info->flags |= IEEE80211_TX_STAT_AMPDU_NO_BACK;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	if (rate_flags & IEEE80211_TX_RC_USE_RTS_CTS) {
@@ -1004,11 +1018,15 @@ static void rt2x00lib_rate(struct ieee80211_rate *entry,
 
 void rt2x00lib_set_mac_address(struct rt2x00_dev *rt2x00dev, u8 *eeprom_mac_addr)
 {
+<<<<<<< HEAD
 	const char *mac_addr;
 
 	mac_addr = of_get_mac_address(rt2x00dev->dev->of_node);
 	if (mac_addr)
 		ether_addr_copy(eeprom_mac_addr, mac_addr);
+=======
+	of_get_mac_address(rt2x00dev->dev->of_node, eeprom_mac_addr);
+>>>>>>> upstream/android-13
 
 	if (!is_valid_ether_addr(eeprom_mac_addr)) {
 		eth_random_addr(eeprom_mac_addr);
@@ -1181,9 +1199,14 @@ static int rt2x00lib_probe_hw(struct rt2x00_dev *rt2x00dev)
 	 */
 #define RT2X00_TASKLET_INIT(taskletname) \
 	if (rt2x00dev->ops->lib->taskletname) { \
+<<<<<<< HEAD
 		tasklet_init(&rt2x00dev->taskletname, \
 			     rt2x00dev->ops->lib->taskletname, \
 			     (unsigned long)rt2x00dev); \
+=======
+		tasklet_setup(&rt2x00dev->taskletname, \
+			     rt2x00dev->ops->lib->taskletname); \
+>>>>>>> upstream/android-13
 	}
 
 	RT2X00_TASKLET_INIT(txstatus_tasklet);
@@ -1267,10 +1290,14 @@ static int rt2x00lib_initialize(struct rt2x00_dev *rt2x00dev)
 
 int rt2x00lib_start(struct rt2x00_dev *rt2x00dev)
 {
+<<<<<<< HEAD
 	int retval;
 
 	if (test_bit(DEVICE_STATE_STARTED, &rt2x00dev->flags))
 		return 0;
+=======
+	int retval = 0;
+>>>>>>> upstream/android-13
 
 	/*
 	 * If this is the first interface which is added,
@@ -1278,14 +1305,22 @@ int rt2x00lib_start(struct rt2x00_dev *rt2x00dev)
 	 */
 	retval = rt2x00lib_load_firmware(rt2x00dev);
 	if (retval)
+<<<<<<< HEAD
 		return retval;
+=======
+		goto out;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Initialize the device.
 	 */
 	retval = rt2x00lib_initialize(rt2x00dev);
 	if (retval)
+<<<<<<< HEAD
 		return retval;
+=======
+		goto out;
+>>>>>>> upstream/android-13
 
 	rt2x00dev->intf_ap_count = 0;
 	rt2x00dev->intf_sta_count = 0;
@@ -1294,11 +1329,20 @@ int rt2x00lib_start(struct rt2x00_dev *rt2x00dev)
 	/* Enable the radio */
 	retval = rt2x00lib_enable_radio(rt2x00dev);
 	if (retval)
+<<<<<<< HEAD
 		return retval;
 
 	set_bit(DEVICE_STATE_STARTED, &rt2x00dev->flags);
 
 	return 0;
+=======
+		goto out;
+
+	set_bit(DEVICE_STATE_STARTED, &rt2x00dev->flags);
+
+out:
+	return retval;
+>>>>>>> upstream/android-13
 }
 
 void rt2x00lib_stop(struct rt2x00_dev *rt2x00dev)
@@ -1391,6 +1435,11 @@ int rt2x00lib_probe_dev(struct rt2x00_dev *rt2x00dev)
 	mutex_init(&rt2x00dev->conf_mutex);
 	INIT_LIST_HEAD(&rt2x00dev->bar_list);
 	spin_lock_init(&rt2x00dev->bar_list_lock);
+<<<<<<< HEAD
+=======
+	hrtimer_init(&rt2x00dev->txstatus_timer, CLOCK_MONOTONIC,
+		     HRTIMER_MODE_REL);
+>>>>>>> upstream/android-13
 
 	set_bit(DEVICE_STATE_PRESENT, &rt2x00dev->flags);
 
@@ -1452,9 +1501,12 @@ int rt2x00lib_probe_dev(struct rt2x00_dev *rt2x00dev)
 #ifdef CONFIG_MAC80211_MESH
 		    BIT(NL80211_IFTYPE_MESH_POINT) |
 #endif
+<<<<<<< HEAD
 #ifdef CONFIG_WIRELESS_WDS
 		    BIT(NL80211_IFTYPE_WDS) |
 #endif
+=======
+>>>>>>> upstream/android-13
 		    BIT(NL80211_IFTYPE_AP);
 
 	rt2x00dev->hw->wiphy->flags |= WIPHY_FLAG_IBSS_RSN;
@@ -1515,6 +1567,11 @@ void rt2x00lib_remove_dev(struct rt2x00_dev *rt2x00dev)
 	cancel_delayed_work_sync(&rt2x00dev->autowakeup_work);
 	cancel_work_sync(&rt2x00dev->sleep_work);
 
+<<<<<<< HEAD
+=======
+	hrtimer_cancel(&rt2x00dev->txstatus_timer);
+
+>>>>>>> upstream/android-13
 	/*
 	 * Kill the tx status tasklet.
 	 */
@@ -1568,8 +1625,12 @@ EXPORT_SYMBOL_GPL(rt2x00lib_remove_dev);
 /*
  * Device state handlers
  */
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 int rt2x00lib_suspend(struct rt2x00_dev *rt2x00dev, pm_message_t state)
+=======
+int rt2x00lib_suspend(struct rt2x00_dev *rt2x00dev)
+>>>>>>> upstream/android-13
 {
 	rt2x00_dbg(rt2x00dev, "Going to sleep\n");
 
@@ -1626,7 +1687,10 @@ int rt2x00lib_resume(struct rt2x00_dev *rt2x00dev)
 	return 0;
 }
 EXPORT_SYMBOL_GPL(rt2x00lib_resume);
+<<<<<<< HEAD
 #endif /* CONFIG_PM */
+=======
+>>>>>>> upstream/android-13
 
 /*
  * rt2x00lib module information.

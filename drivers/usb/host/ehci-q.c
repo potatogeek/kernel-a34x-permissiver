@@ -256,12 +256,20 @@ ehci_urb_done(struct ehci_hcd *ehci, struct urb *urb, int status)
 	}
 
 	if (unlikely(urb->unlinked)) {
+<<<<<<< HEAD
 		COUNT(ehci->stats.unlink);
+=======
+		INCR(ehci->stats.unlink);
+>>>>>>> upstream/android-13
 	} else {
 		/* report non-error and short read status as zero */
 		if (status == -EINPROGRESS || status == -EREMOTEIO)
 			status = 0;
+<<<<<<< HEAD
 		COUNT(ehci->stats.complete);
+=======
+		INCR(ehci->stats.complete);
+>>>>>>> upstream/android-13
 	}
 
 #ifdef EHCI_URB_TRACE
@@ -874,7 +882,11 @@ qh_make (
 	switch (urb->dev->speed) {
 	case USB_SPEED_LOW:
 		info1 |= QH_LOW_SPEED;
+<<<<<<< HEAD
 		/* FALL THROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case USB_SPEED_FULL:
 		/* EPS 0 means "full" */
@@ -1165,7 +1177,11 @@ submit_async (
  * performed; TRUE - SETUP and FALSE - IN+STATUS
  * Returns 0 if success
  */
+<<<<<<< HEAD
 static int submit_single_step_set_feature(
+=======
+static int ehci_submit_single_step_set_feature(
+>>>>>>> upstream/android-13
 	struct usb_hcd  *hcd,
 	struct urb      *urb,
 	int             is_setup

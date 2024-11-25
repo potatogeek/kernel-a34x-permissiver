@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * PowerNV LPC bus handling.
  *
  * Copyright 2013 IBM Corp.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -14,13 +21,20 @@
 #include <linux/bug.h>
 #include <linux/io.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
+=======
+#include <linux/debugfs.h>
+>>>>>>> upstream/android-13
 
 #include <asm/machdep.h>
 #include <asm/firmware.h>
 #include <asm/opal.h>
 #include <asm/prom.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
 #include <asm/debugfs.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/isa-bridge.h>
 
 static int opal_lpc_chip_id = -1;
@@ -192,7 +206,11 @@ static ssize_t lpc_debug_read(struct file *filp, char __user *ubuf,
 	u32 data, pos, len, todo;
 	int rc;
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, ubuf, count))
+=======
+	if (!access_ok(ubuf, count))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	todo = count;
@@ -283,7 +301,11 @@ static ssize_t lpc_debug_write(struct file *filp, const char __user *ubuf,
 	u32 data, pos, len, todo;
 	int rc;
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_READ, ubuf, count))
+=======
+	if (!access_ok(ubuf, count))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	todo = count;
@@ -375,7 +397,11 @@ static int opal_lpc_init_debugfs(void)
 	if (opal_lpc_chip_id < 0)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	root = debugfs_create_dir("lpc", powerpc_debugfs_root);
+=======
+	root = debugfs_create_dir("lpc", arch_debugfs_dir);
+>>>>>>> upstream/android-13
 
 	rc |= opal_lpc_debugfs_create_type(root, "io", OPAL_LPC_IO);
 	rc |= opal_lpc_debugfs_create_type(root, "mem", OPAL_LPC_MEM);
@@ -400,6 +426,10 @@ void __init opal_lpc_init(void)
 		if (!of_get_property(np, "primary", NULL))
 			continue;
 		opal_lpc_chip_id = of_get_ibm_chip_id(np);
+<<<<<<< HEAD
+=======
+		of_node_put(np);
+>>>>>>> upstream/android-13
 		break;
 	}
 	if (opal_lpc_chip_id < 0)

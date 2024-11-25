@@ -1,6 +1,14 @@
+<<<<<<< HEAD
 config MODULES
 	def_bool y
 	option modules
+=======
+# SPDX-License-Identifier: GPL-2.0
+
+config MODULES
+	def_bool y
+	modules
+>>>>>>> upstream/android-13
 
 config DEP
 	tristate

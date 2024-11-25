@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 /* Copyright (C) 2012-2018  B.A.T.M.A.N. contributors:
  *
  * Edo Monticelli, Antonio Quartulli
@@ -14,6 +15,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+/* Copyright (C) B.A.T.M.A.N. contributors:
+ *
+ * Edo Monticelli, Antonio Quartulli
+>>>>>>> upstream/android-13
  */
 
 #include "tp_meter.h"
@@ -33,7 +39,13 @@
 #include <linux/kernel.h>
 #include <linux/kref.h>
 #include <linux/kthread.h>
+<<<<<<< HEAD
 #include <linux/list.h>
+=======
+#include <linux/limits.h>
+#include <linux/list.h>
+#include <linux/minmax.h>
+>>>>>>> upstream/android-13
 #include <linux/netdevice.h>
 #include <linux/param.h>
 #include <linux/printk.h>
@@ -77,7 +89,11 @@
 
 /**
  * BATADV_TP_MAX_RTO - Maximum sender timeout. If the sender RTO gets beyond
+<<<<<<< HEAD
  * such amound of milliseconds, the receiver is considered unreachable and the
+=======
+ * such amount of milliseconds, the receiver is considered unreachable and the
+>>>>>>> upstream/android-13
  * connection is killed
  */
 #define BATADV_TP_MAX_RTO 30000
@@ -119,10 +135,17 @@ static u32 batadv_tp_session_cookie(const u8 session[2], u8 icmp_uid)
  * batadv_tp_cwnd() - compute the new cwnd size
  * @base: base cwnd size value
  * @increment: the value to add to base to get the new size
+<<<<<<< HEAD
  * @min: minumim cwnd value (usually MSS)
  *
  * Return the new cwnd size and ensures it does not exceed the Advertised
  * Receiver Window size. It is wrap around safe.
+=======
+ * @min: minimum cwnd value (usually MSS)
+ *
+ * Return the new cwnd size and ensure it does not exceed the Advertised
+ * Receiver Window size. It is wrapped around safely.
+>>>>>>> upstream/android-13
  * For details refer to Section 3.1 of RFC5681
  *
  * Return: new congestion window size in bytes
@@ -141,7 +164,11 @@ static u32 batadv_tp_cwnd(u32 base, u32 increment, u32 min)
 }
 
 /**
+<<<<<<< HEAD
  * batadv_tp_updated_cwnd() - update the Congestion Windows
+=======
+ * batadv_tp_update_cwnd() - update the Congestion Windows
+>>>>>>> upstream/android-13
  * @tp_vars: the private data of the current TP meter session
  * @mss: maximum segment size of transmission
  *
@@ -265,7 +292,11 @@ static void batadv_tp_batctl_error_notify(enum batadv_tp_meter_reason reason,
  * @dst: the other endpoint MAC address to look for
  *
  * Look for a tp_vars object matching dst as end_point and return it after
+<<<<<<< HEAD
  * having incremented the refcounter. Return NULL is not found
+=======
+ * having increment the refcounter. Return NULL is not found
+>>>>>>> upstream/android-13
  *
  * Return: matching tp_vars or NULL when no tp_vars with @dst was found
  */
@@ -302,7 +333,11 @@ static struct batadv_tp_vars *batadv_tp_list_find(struct batadv_priv *bat_priv,
  * @session: session identifier
  *
  * Look for a tp_vars object matching dst as end_point, session as tp meter
+<<<<<<< HEAD
  * session and return it after having incremented the refcounter. Return NULL
+=======
+ * session and return it after having increment the refcounter. Return NULL
+>>>>>>> upstream/android-13
  * is not found
  *
  * Return: matching tp_vars or NULL when no tp_vars was found
@@ -368,6 +403,12 @@ static void batadv_tp_vars_release(struct kref *ref)
  */
 static void batadv_tp_vars_put(struct batadv_tp_vars *tp_vars)
 {
+<<<<<<< HEAD
+=======
+	if (!tp_vars)
+		return;
+
+>>>>>>> upstream/android-13
 	kref_put(&tp_vars->refcount, batadv_tp_vars_release);
 }
 
@@ -758,12 +799,18 @@ move_twnd:
 
 	wake_up(&tp_vars->more_bytes);
 out:
+<<<<<<< HEAD
 	if (likely(primary_if))
 		batadv_hardif_put(primary_if);
 	if (likely(orig_node))
 		batadv_orig_node_put(orig_node);
 	if (likely(tp_vars))
 		batadv_tp_vars_put(tp_vars);
+=======
+	batadv_hardif_put(primary_if);
+	batadv_orig_node_put(orig_node);
+	batadv_tp_vars_put(tp_vars);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -892,10 +939,15 @@ static int batadv_tp_send(void *arg)
 	}
 
 out:
+<<<<<<< HEAD
 	if (likely(primary_if))
 		batadv_hardif_put(primary_if);
 	if (likely(orig_node))
 		batadv_orig_node_put(orig_node);
+=======
+	batadv_hardif_put(primary_if);
+	batadv_orig_node_put(orig_node);
+>>>>>>> upstream/android-13
 
 	batadv_tp_sender_end(bat_priv, tp_vars);
 	batadv_tp_sender_cleanup(bat_priv, tp_vars);
@@ -1215,10 +1267,15 @@ static int batadv_tp_send_ack(struct batadv_priv *bat_priv, const u8 *dst,
 	ret = 0;
 
 out:
+<<<<<<< HEAD
 	if (likely(orig_node))
 		batadv_orig_node_put(orig_node);
 	if (likely(primary_if))
 		batadv_hardif_put(primary_if);
+=======
+	batadv_orig_node_put(orig_node);
+	batadv_hardif_put(primary_if);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -1466,8 +1523,12 @@ send_ack:
 	batadv_tp_send_ack(bat_priv, icmp->orig, tp_vars->last_recv,
 			   icmp->timestamp, icmp->session, icmp->uid);
 out:
+<<<<<<< HEAD
 	if (likely(tp_vars))
 		batadv_tp_vars_put(tp_vars);
+=======
+	batadv_tp_vars_put(tp_vars);
+>>>>>>> upstream/android-13
 }
 
 /**

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Parade PS8622 eDP/LVDS bridge driver
  *
  * Copyright (C) 2014 Google, Inc.
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -11,12 +16,17 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/backlight.h>
 #include <linux/delay.h>
 #include <linux/err.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/gpio/consumer.h>
 #include <linux/i2c.h>
 #include <linux/module.h>
@@ -24,12 +34,23 @@
 #include <linux/of_device.h>
 #include <linux/pm.h>
 #include <linux/regulator/consumer.h>
+<<<<<<< HEAD
 #include <drm/drm_atomic_helper.h>
 #include <drm/drm_crtc.h>
 #include <drm/drm_crtc_helper.h>
 #include <drm/drm_of.h>
 #include <drm/drm_panel.h>
 #include <drm/drmP.h>
+=======
+
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_bridge.h>
+#include <drm/drm_crtc.h>
+#include <drm/drm_of.h>
+#include <drm/drm_panel.h>
+#include <drm/drm_print.h>
+#include <drm/drm_probe_helper.h>
+>>>>>>> upstream/android-13
 
 /* Brightness scale on the Parade chip */
 #define PS8622_MAX_BRIGHTNESS 0xff
@@ -49,10 +70,16 @@
 #endif
 
 struct ps8622_bridge {
+<<<<<<< HEAD
 	struct drm_connector connector;
 	struct i2c_client *client;
 	struct drm_bridge bridge;
 	struct drm_panel *panel;
+=======
+	struct i2c_client *client;
+	struct drm_bridge bridge;
+	struct drm_bridge *panel_bridge;
+>>>>>>> upstream/android-13
 	struct regulator *v12;
 	struct backlight_device *bl;
 
@@ -71,12 +98,15 @@ static inline struct ps8622_bridge *
 	return container_of(bridge, struct ps8622_bridge, bridge);
 }
 
+<<<<<<< HEAD
 static inline struct ps8622_bridge *
 		connector_to_ps8622(struct drm_connector *connector)
 {
 	return container_of(connector, struct ps8622_bridge, connector);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int ps8622_set(struct i2c_client *client, u8 page, u8 reg, u8 val)
 {
 	int ret;
@@ -372,11 +402,14 @@ static void ps8622_pre_enable(struct drm_bridge *bridge)
 			DRM_ERROR("fails to enable ps8622->v12");
 	}
 
+<<<<<<< HEAD
 	if (drm_panel_prepare(ps8622->panel)) {
 		DRM_ERROR("failed to prepare panel\n");
 		return;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	gpiod_set_value(ps8622->gpio_slp, 1);
 
 	/*
@@ -406,6 +439,7 @@ static void ps8622_pre_enable(struct drm_bridge *bridge)
 	ps8622->enabled = true;
 }
 
+<<<<<<< HEAD
 static void ps8622_enable(struct drm_bridge *bridge)
 {
 	struct ps8622_bridge *ps8622 = bridge_to_ps8622(bridge);
@@ -424,6 +458,11 @@ static void ps8622_disable(struct drm_bridge *bridge)
 		DRM_ERROR("failed to disable panel\n");
 		return;
 	}
+=======
+static void ps8622_disable(struct drm_bridge *bridge)
+{
+	/* Delay after panel is disabled */
+>>>>>>> upstream/android-13
 	msleep(PS8622_PWMO_END_T12_MS);
 }
 
@@ -443,11 +482,14 @@ static void ps8622_post_disable(struct drm_bridge *bridge)
 	 */
 	gpiod_set_value(ps8622->gpio_slp, 0);
 
+<<<<<<< HEAD
 	if (drm_panel_unprepare(ps8622->panel)) {
 		DRM_ERROR("failed to unprepare panel\n");
 		return;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (ps8622->v12)
 		regulator_disable(ps8622->v12);
 
@@ -462,6 +504,7 @@ static void ps8622_post_disable(struct drm_bridge *bridge)
 	msleep(PS8622_POWER_OFF_T17_MS);
 }
 
+<<<<<<< HEAD
 static int ps8622_get_modes(struct drm_connector *connector)
 {
 	struct ps8622_bridge *ps8622;
@@ -512,11 +555,23 @@ static int ps8622_attach(struct drm_bridge *bridge)
 	drm_helper_hpd_irq_event(ps8622->connector.dev);
 
 	return ret;
+=======
+static int ps8622_attach(struct drm_bridge *bridge,
+			 enum drm_bridge_attach_flags flags)
+{
+	struct ps8622_bridge *ps8622 = bridge_to_ps8622(bridge);
+
+	return drm_bridge_attach(ps8622->bridge.encoder, ps8622->panel_bridge,
+				 &ps8622->bridge, flags);
+>>>>>>> upstream/android-13
 }
 
 static const struct drm_bridge_funcs ps8622_bridge_funcs = {
 	.pre_enable = ps8622_pre_enable,
+<<<<<<< HEAD
 	.enable = ps8622_enable,
+=======
+>>>>>>> upstream/android-13
 	.disable = ps8622_disable,
 	.post_disable = ps8622_post_disable,
 	.attach = ps8622_attach,
@@ -534,16 +589,33 @@ static int ps8622_probe(struct i2c_client *client,
 {
 	struct device *dev = &client->dev;
 	struct ps8622_bridge *ps8622;
+<<<<<<< HEAD
+=======
+	struct drm_bridge *panel_bridge;
+	struct drm_panel *panel;
+>>>>>>> upstream/android-13
 	int ret;
 
 	ps8622 = devm_kzalloc(dev, sizeof(*ps8622), GFP_KERNEL);
 	if (!ps8622)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	ret = drm_of_find_panel_or_bridge(dev->of_node, 0, 0, &ps8622->panel, NULL);
 	if (ret)
 		return ret;
 
+=======
+	ret = drm_of_find_panel_or_bridge(dev->of_node, 0, 0, &panel, NULL);
+	if (ret)
+		return ret;
+
+	panel_bridge = devm_drm_panel_bridge_add(dev, panel);
+	if (IS_ERR(panel_bridge))
+		return PTR_ERR(panel_bridge);
+
+	ps8622->panel_bridge = panel_bridge;
+>>>>>>> upstream/android-13
 	ps8622->client = client;
 
 	ps8622->v12 = devm_regulator_get(dev, "vdd12");
@@ -596,6 +668,10 @@ static int ps8622_probe(struct i2c_client *client,
 	}
 
 	ps8622->bridge.funcs = &ps8622_bridge_funcs;
+<<<<<<< HEAD
+=======
+	ps8622->bridge.type = DRM_MODE_CONNECTOR_LVDS;
+>>>>>>> upstream/android-13
 	ps8622->bridge.of_node = dev->of_node;
 	drm_bridge_add(&ps8622->bridge);
 

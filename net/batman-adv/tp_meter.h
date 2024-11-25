@@ -1,4 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0 */
+<<<<<<< HEAD
 /* Copyright (C) 2012-2018  B.A.T.M.A.N. contributors:
  *
  * Edo Monticelli, Antonio Quartulli
@@ -14,6 +15,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+/* Copyright (C) B.A.T.M.A.N. contributors:
+ *
+ * Edo Monticelli, Antonio Quartulli
+>>>>>>> upstream/android-13
  */
 
 #ifndef _NET_BATMAN_ADV_TP_METER_H_
@@ -21,10 +27,16 @@
 
 #include "main.h"
 
+<<<<<<< HEAD
 #include <linux/types.h>
 
 struct sk_buff;
 
+=======
+#include <linux/skbuff.h>
+#include <linux/types.h>
+
+>>>>>>> upstream/android-13
 void batadv_tp_meter_init(void);
 void batadv_tp_start(struct batadv_priv *bat_priv, const u8 *dst,
 		     u32 test_length, u32 *cookie);

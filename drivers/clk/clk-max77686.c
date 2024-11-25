@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * clk-max77686.c - Clock driver for Maxim 77686/MAX77802
  *
@@ -19,6 +20,14 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
+=======
+// SPDX-License-Identifier: GPL-2.0+
+//
+// clk-max77686.c - Clock driver for Maxim 77686/MAX77802
+//
+// Copyright (C) 2012 Samsung Electornics
+// Jonghwa Lee <jonghwa3.lee@samsung.com>
+>>>>>>> upstream/android-13
 
 #include <linux/kernel.h>
 #include <linux/slab.h>
@@ -152,7 +161,11 @@ static unsigned long max77686_recalc_rate(struct clk_hw *hw,
 	return 32768;
 }
 
+<<<<<<< HEAD
 static struct clk_ops max77686_clk_ops = {
+=======
+static const struct clk_ops max77686_clk_ops = {
+>>>>>>> upstream/android-13
 	.prepare	= max77686_clk_prepare,
 	.unprepare	= max77686_clk_unprepare,
 	.is_prepared	= max77686_clk_is_prepared,
@@ -250,8 +263,14 @@ static int max77686_clk_probe(struct platform_device *pdev)
 			return ret;
 		}
 
+<<<<<<< HEAD
 		ret = clk_hw_register_clkdev(&max_clk_data->hw,
 					     max_clk_data->clk_idata.name, NULL);
+=======
+		ret = devm_clk_hw_register_clkdev(dev, &max_clk_data->hw,
+						  max_clk_data->clk_idata.name,
+						  NULL);
+>>>>>>> upstream/android-13
 		if (ret < 0) {
 			dev_err(dev, "Failed to clkdev register: %d\n", ret);
 			return ret;
@@ -259,8 +278,13 @@ static int max77686_clk_probe(struct platform_device *pdev)
 	}
 
 	if (parent->of_node) {
+<<<<<<< HEAD
 		ret = of_clk_add_hw_provider(parent->of_node, of_clk_max77686_get,
 					     drv_data);
+=======
+		ret = devm_of_clk_add_hw_provider(dev, of_clk_max77686_get,
+						  drv_data);
+>>>>>>> upstream/android-13
 
 		if (ret < 0) {
 			dev_err(dev, "Failed to register OF clock provider: %d\n",
@@ -276,11 +300,16 @@ static int max77686_clk_probe(struct platform_device *pdev)
 					 1 << MAX77802_CLOCK_LOW_JITTER_SHIFT);
 		if (ret < 0) {
 			dev_err(dev, "Failed to config low-jitter: %d\n", ret);
+<<<<<<< HEAD
 			goto remove_of_clk_provider;
+=======
+			return ret;
+>>>>>>> upstream/android-13
 		}
 	}
 
 	return 0;
+<<<<<<< HEAD
 
 remove_of_clk_provider:
 	if (parent->of_node)
@@ -297,6 +326,8 @@ static int max77686_clk_remove(struct platform_device *pdev)
 		of_clk_del_provider(parent->of_node);
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static const struct platform_device_id max77686_clk_id[] = {
@@ -312,7 +343,10 @@ static struct platform_driver max77686_clk_driver = {
 		.name  = "max77686-clk",
 	},
 	.probe = max77686_clk_probe,
+<<<<<<< HEAD
 	.remove = max77686_clk_remove,
+=======
+>>>>>>> upstream/android-13
 	.id_table = max77686_clk_id,
 };
 

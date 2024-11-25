@@ -14,7 +14,10 @@
 #include <linux/blk-mq.h>
 #include <linux/spinlock.h>
 #include <linux/mutex.h>
+<<<<<<< HEAD
 #include <linux/kthread.h>
+=======
+>>>>>>> upstream/android-13
 #include <uapi/linux/loop.h>
 
 /* Possible states of device */
@@ -22,6 +25,10 @@ enum {
 	Lo_unbound,
 	Lo_bound,
 	Lo_rundown,
+<<<<<<< HEAD
+=======
+	Lo_deleting,
+>>>>>>> upstream/android-13
 };
 
 struct loop_func_table;
@@ -54,24 +61,48 @@ struct loop_device {
 
 	spinlock_t		lo_lock;
 	int			lo_state;
+<<<<<<< HEAD
 	struct kthread_worker	worker;
 	struct task_struct	*worker_task;
+=======
+	spinlock_t              lo_work_lock;
+	struct workqueue_struct *workqueue;
+	struct work_struct      rootcg_work;
+	struct list_head        rootcg_cmd_list;
+	struct list_head        idle_worker_list;
+	struct rb_root          worker_tree;
+	struct timer_list       timer;
+>>>>>>> upstream/android-13
 	bool			use_dio;
 	bool			sysfs_inited;
 
 	struct request_queue	*lo_queue;
 	struct blk_mq_tag_set	tag_set;
 	struct gendisk		*lo_disk;
+<<<<<<< HEAD
 };
 
 struct loop_cmd {
 	struct kthread_work work;
+=======
+	struct mutex		lo_mutex;
+	bool			idr_visible;
+};
+
+struct loop_cmd {
+	struct list_head list_entry;
+>>>>>>> upstream/android-13
 	bool use_aio; /* use AIO interface to handle I/O */
 	atomic_t ref; /* only for aio */
 	long ret;
 	struct kiocb iocb;
 	struct bio_vec *bvec;
+<<<<<<< HEAD
 	struct cgroup_subsys_state *css;
+=======
+	struct cgroup_subsys_state *blkcg_css;
+	struct cgroup_subsys_state *memcg_css;
+>>>>>>> upstream/android-13
 };
 
 /* Support for loadable transfer modules */

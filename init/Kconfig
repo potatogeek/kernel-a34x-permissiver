@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 config DEFCONFIG_LIST
 	string
 	depends on !UML
@@ -25,21 +26,116 @@ config LD_IS_LLD
 config CLANG_VERSION
 	int
 	default $(shell,$(srctree)/scripts/clang-version.sh $(CC))
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+config CC_VERSION_TEXT
+	string
+	default "$(CC_VERSION_TEXT)"
+	help
+	  This is used in unclear ways:
+
+	  - Re-run Kconfig when the compiler is updated
+	    The 'default' property references the environment variable,
+	    CC_VERSION_TEXT so it is recorded in include/config/auto.conf.cmd.
+	    When the compiler is updated, Kconfig will be invoked.
+
+	  - Ensure full rebuild when the compiler is updated
+	    include/linux/compiler-version.h contains this option in the comment
+	    line so fixdep adds include/config/CC_VERSION_TEXT into the
+	    auto-generated dependency. When the compiler is updated, syncconfig
+	    will touch it and then every file will be rebuilt.
+
+config CC_IS_GCC
+	def_bool $(success,test "$(cc-name)" = GCC)
+
+config GCC_VERSION
+	int
+	default $(cc-version) if CC_IS_GCC
+	default 0
+
+config CC_IS_CLANG
+	def_bool $(success,test "$(cc-name)" = Clang)
+
+config CLANG_VERSION
+	int
+	default $(cc-version) if CC_IS_CLANG
+	default 0
+
+config AS_IS_GNU
+	def_bool $(success,test "$(as-name)" = GNU)
+
+config AS_IS_LLVM
+	def_bool $(success,test "$(as-name)" = LLVM)
+
+config AS_VERSION
+	int
+	# Use clang version if this is the integrated assembler
+	default CLANG_VERSION if AS_IS_LLVM
+	default $(as-version)
+
+config LD_IS_BFD
+	def_bool $(success,test "$(ld-name)" = BFD)
+
+config LD_VERSION
+	int
+	default $(ld-version) if LD_IS_BFD
+	default 0
+
+config LD_IS_LLD
+	def_bool $(success,test "$(ld-name)" = LLD)
+
+config LLD_VERSION
+	int
+	default $(ld-version) if LD_IS_LLD
+	default 0
+
+config CC_CAN_LINK
+	bool
+	default $(success,$(srctree)/scripts/cc-can-link.sh $(CC) $(CLANG_FLAGS) $(USERCFLAGS) $(USERLDFLAGS) $(m64-flag)) if 64BIT
+	default $(success,$(srctree)/scripts/cc-can-link.sh $(CC) $(CLANG_FLAGS) $(USERCFLAGS) $(USERLDFLAGS) $(m32-flag))
+
+config CC_CAN_LINK_STATIC
+	bool
+	default $(success,$(srctree)/scripts/cc-can-link.sh $(CC) $(CLANG_FLAGS) $(USERCFLAGS) $(USERLDFLAGS) $(m64-flag) -static) if 64BIT
+	default $(success,$(srctree)/scripts/cc-can-link.sh $(CC) $(CLANG_FLAGS) $(USERCFLAGS) $(USERLDFLAGS) $(m32-flag) -static)
+>>>>>>> upstream/android-13
 
 config CC_HAS_ASM_GOTO
 	def_bool $(success,$(srctree)/scripts/gcc-goto.sh $(CC))
 
+<<<<<<< HEAD
 config TOOLS_SUPPORT_RELR
 	def_bool $(success,env "CC=$(CC)" "LD=$(LD)" "NM=$(NM)" "OBJCOPY=$(OBJCOPY)" $(srctree)/scripts/tools-support-relr.sh)
 
 config CONSTRUCTORS
 	bool
 	depends on !UML
+=======
+config CC_HAS_ASM_GOTO_OUTPUT
+	depends on CC_HAS_ASM_GOTO
+	def_bool $(success,echo 'int foo(int x) { asm goto ("": "=r"(x) ::: bar); return x; bar: return 0; }' | $(CC) -x c - -c -o /dev/null)
+
+config TOOLS_SUPPORT_RELR
+	def_bool $(success,env "CC=$(CC)" "LD=$(LD)" "NM=$(NM)" "OBJCOPY=$(OBJCOPY)" $(srctree)/scripts/tools-support-relr.sh)
+
+config CC_HAS_ASM_INLINE
+	def_bool $(success,echo 'void foo(void) { asm inline (""); }' | $(CC) -x c - -c -o /dev/null)
+
+config CC_HAS_NO_PROFILE_FN_ATTR
+	def_bool $(success,echo '__attribute__((no_profile_instrument_function)) int x();' | $(CC) -x c - -c -o /dev/null -Werror)
+
+config CONSTRUCTORS
+	bool
+>>>>>>> upstream/android-13
 
 config IRQ_WORK
 	bool
 
+<<<<<<< HEAD
 config BUILDTIME_EXTABLE_SORT
+=======
+config BUILDTIME_TABLE_SORT
+>>>>>>> upstream/android-13
 	bool
 
 config THREAD_INFO_IN_TASK
@@ -84,6 +180,33 @@ config COMPILE_TEST
 	  here. If you are a user/distributor, say N here to exclude useless
 	  drivers to be distributed.
 
+<<<<<<< HEAD
+=======
+config WERROR
+	bool "Compile the kernel with warnings as errors"
+	default y
+	help
+	  A kernel build should not cause any compiler warnings, and this
+	  enables the '-Werror' flag to enforce that rule by default.
+
+	  However, if you have a new (or very old) compiler with odd and
+	  unusual warnings, or you have some architecture with problems,
+	  you may need to disable this config option in order to
+	  successfully build the kernel.
+
+	  If in doubt, say Y.
+
+config UAPI_HEADER_TEST
+	bool "Compile test UAPI headers"
+	depends on HEADERS_INSTALL && CC_CAN_LINK
+	help
+	  Compile test headers exported to user-space to ensure they are
+	  self-contained, i.e. compilable as standalone units.
+
+	  If you are a developer or tester and want to ensure the exported
+	  headers are self-contained, say Y here. Otherwise, choose N.
+
+>>>>>>> upstream/android-13
 config LOCALVERSION
 	string "Local version - append to kernel release"
 	help
@@ -116,6 +239,7 @@ config LOCALVERSION_AUTO
 	  which is done within the script "scripts/setlocalversion".)
 
 config BUILD_SALT
+<<<<<<< HEAD
        string "Build ID Salt"
        default ""
        help
@@ -123,6 +247,15 @@ config BUILD_SALT
           this option will use the value in the calculation of the build id.
           This is mostly useful for distributions which want to ensure the
           build is unique between builds. It's safe to leave the default.
+=======
+	string "Build ID Salt"
+	default ""
+	help
+	  The build ID is used to link binaries and their debug info. Setting
+	  this option will use the value in the calculation of the build id.
+	  This is mostly useful for distributions which want to ensure the
+	  build is unique between builds. It's safe to leave the default.
+>>>>>>> upstream/android-13
 
 config HAVE_KERNEL_GZIP
 	bool
@@ -142,13 +275,23 @@ config HAVE_KERNEL_LZO
 config HAVE_KERNEL_LZ4
 	bool
 
+<<<<<<< HEAD
+=======
+config HAVE_KERNEL_ZSTD
+	bool
+
+>>>>>>> upstream/android-13
 config HAVE_KERNEL_UNCOMPRESSED
 	bool
 
 choice
 	prompt "Kernel compression mode"
 	default KERNEL_GZIP
+<<<<<<< HEAD
 	depends on HAVE_KERNEL_GZIP || HAVE_KERNEL_BZIP2 || HAVE_KERNEL_LZMA || HAVE_KERNEL_XZ || HAVE_KERNEL_LZO || HAVE_KERNEL_LZ4 || HAVE_KERNEL_UNCOMPRESSED
+=======
+	depends on HAVE_KERNEL_GZIP || HAVE_KERNEL_BZIP2 || HAVE_KERNEL_LZMA || HAVE_KERNEL_XZ || HAVE_KERNEL_LZO || HAVE_KERNEL_LZ4 || HAVE_KERNEL_ZSTD || HAVE_KERNEL_UNCOMPRESSED
+>>>>>>> upstream/android-13
 	help
 	  The linux kernel is a kind of self-extracting executable.
 	  Several compression algorithms are available, which differ
@@ -227,6 +370,19 @@ config KERNEL_LZ4
 	  is about 8% bigger than LZO. But the decompression speed is
 	  faster than LZO.
 
+<<<<<<< HEAD
+=======
+config KERNEL_ZSTD
+	bool "ZSTD"
+	depends on HAVE_KERNEL_ZSTD
+	help
+	  ZSTD is a compression algorithm targeting intermediate compression
+	  with fast decompression speed. It will compress better than GZIP and
+	  decompress around the same speed as LZO, but slower than LZ4. You
+	  will need at least 192 KB RAM or more for booting. The zstd command
+	  line tool is required for compression.
+
+>>>>>>> upstream/android-13
 config KERNEL_UNCOMPRESSED
 	bool "None"
 	depends on HAVE_KERNEL_UNCOMPRESSED
@@ -239,6 +395,19 @@ config KERNEL_UNCOMPRESSED
 
 endchoice
 
+<<<<<<< HEAD
+=======
+config DEFAULT_INIT
+	string "Default init path"
+	default ""
+	help
+	  This option determines the default init for the system if no init=
+	  option is passed on the kernel command line. If the requested path is
+	  not present, we will still then move on to attempting further
+	  locations (e.g. /sbin/init, etc). If this is empty, we will just use
+	  the fallback list when init= is not passed.
+
+>>>>>>> upstream/android-13
 config DEFAULT_HOSTNAME
 	string "Default hostname"
 	default "(none)"
@@ -267,7 +436,11 @@ config SWAP
 
 config SYSVIPC
 	bool "System V IPC"
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  Inter Process Communication is a suite of library functions and
 	  system calls which let processes (running programs) synchronize and
 	  exchange information. It is generally considered to be a good thing,
@@ -289,7 +462,11 @@ config SYSVIPC_SYSCTL
 config POSIX_MQUEUE
 	bool "POSIX Message Queues"
 	depends on NET
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  POSIX variant of message queues is a part of IPC. In POSIX message
 	  queues every message has a priority which decides about succession
 	  of receiving it by a process. If you want to compile and run
@@ -308,6 +485,21 @@ config POSIX_MQUEUE_SYSCTL
 	depends on SYSCTL
 	default y
 
+<<<<<<< HEAD
+=======
+config WATCH_QUEUE
+	bool "General notification queue"
+	default n
+	help
+
+	  This is a general notification queue for the kernel to pass events to
+	  userspace by splicing them into pipes.  It can be used in conjunction
+	  with watches for key/keyring change notifications and device
+	  notifications.
+
+	  See Documentation/watch_queue.rst
+
+>>>>>>> upstream/android-13
 config CROSS_MEMORY_ATTACH
 	bool "Enable process_vm_readv/writev syscalls"
 	depends on MMU
@@ -343,6 +535,7 @@ config HAVE_ARCH_AUDITSYSCALL
 config AUDITSYSCALL
 	def_bool y
 	depends on AUDIT && HAVE_ARCH_AUDITSYSCALL
+<<<<<<< HEAD
 
 config AUDIT_WATCH
 	def_bool y
@@ -352,10 +545,16 @@ config AUDIT_WATCH
 config AUDIT_TREE
 	def_bool y
 	depends on AUDITSYSCALL
+=======
+>>>>>>> upstream/android-13
 	select FSNOTIFY
 
 source "kernel/irq/Kconfig"
 source "kernel/time/Kconfig"
+<<<<<<< HEAD
+=======
+source "kernel/bpf/Kconfig"
+>>>>>>> upstream/android-13
 source "kernel/Kconfig.preempt"
 
 menu "CPU/Task time and stats accounting"
@@ -396,6 +595,10 @@ config VIRT_CPU_ACCOUNTING_GEN
 	bool "Full dynticks CPU time accounting"
 	depends on HAVE_CONTEXT_TRACKING
 	depends on HAVE_VIRT_CPU_ACCOUNTING_GEN
+<<<<<<< HEAD
+=======
+	depends on GENERIC_CLOCKEVENTS
+>>>>>>> upstream/android-13
 	select VIRT_CPU_ACCOUNTING
 	select CONTEXT_TRACKING
 	help
@@ -428,6 +631,28 @@ config HAVE_SCHED_AVG_IRQ
 	depends on IRQ_TIME_ACCOUNTING || PARAVIRT_TIME_ACCOUNTING
 	depends on SMP
 
+<<<<<<< HEAD
+=======
+config SCHED_THERMAL_PRESSURE
+	bool
+	default y if ARM && ARM_CPU_TOPOLOGY
+	default y if ARM64
+	depends on SMP
+	depends on CPU_FREQ_THERMAL
+	help
+	  Select this option to enable thermal pressure accounting in the
+	  scheduler. Thermal pressure is the value conveyed to the scheduler
+	  that reflects the reduction in CPU compute capacity resulted from
+	  thermal throttling. Thermal throttling occurs when the performance of
+	  a CPU is capped due to high operating temperatures.
+
+	  If selected, the scheduler will be able to balance tasks accordingly,
+	  i.e. put less load on throttled CPUs than on non/less throttled ones.
+
+	  This requires the architecture to implement
+	  arch_set_thermal_pressure() and arch_scale_thermal_pressure().
+
+>>>>>>> upstream/android-13
 config BSD_PROCESS_ACCT
 	bool "BSD Process Accounting"
 	depends on MULTIUSER
@@ -513,7 +738,11 @@ config PSI
 	  have cpu.pressure, memory.pressure, and io.pressure files,
 	  which aggregate pressure stalls for the grouped tasks only.
 
+<<<<<<< HEAD
 	  For more details see Documentation/accounting/psi.txt.
+=======
+	  For more details see Documentation/accounting/psi.rst.
+>>>>>>> upstream/android-13
 
 	  Say N if unsure.
 
@@ -559,8 +788,12 @@ config BUILD_BIN2C
 
 config IKCONFIG
 	tristate "Kernel .config support"
+<<<<<<< HEAD
 	select BUILD_BIN2C
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  This option enables the complete Linux kernel ".config" file
 	  contents to be saved in the kernel. It provides documentation
 	  of which kernel options are used in a running kernel or in an
@@ -573,7 +806,11 @@ config IKCONFIG
 config IKCONFIG_PROC
 	bool "Enable access to .config through /proc/config.gz"
 	depends on IKCONFIG && PROC_FS
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  This option enables access to the kernel configuration file
 	  through /proc/config.gz.
 
@@ -625,7 +862,11 @@ config LOG_CPU_MAX_BUF_SHIFT
 	  with more CPUs. Therefore this value is used only when the sum of
 	  contributions is greater than the half of the default kernel ring
 	  buffer as defined by LOG_BUF_SHIFT. The default values are set
+<<<<<<< HEAD
 	  so that more than 64 CPUs are needed to trigger the allocation.
+=======
+	  so that more than 16 CPUs are needed to trigger the allocation.
+>>>>>>> upstream/android-13
 
 	  Also this option is ignored when "log_buf_len" kernel parameter is
 	  used as it forces an exact (power of two) size of the ring buffer.
@@ -666,6 +907,23 @@ config PRINTK_SAFE_LOG_BUF_SHIFT
 		     13 =>   8 KB for each CPU
 		     12 =>   4 KB for each CPU
 
+<<<<<<< HEAD
+=======
+config PRINTK_INDEX
+	bool "Printk indexing debugfs interface"
+	depends on PRINTK && DEBUG_FS
+	help
+	  Add support for indexing of all printk formats known at compile time
+	  at <debugfs>/printk/index/<module>.
+
+	  This can be used as part of maintaining daemons which monitor
+	  /dev/kmsg, as it permits auditing the printk formats present in a
+	  kernel, allowing detection of cases where monitored printks are
+	  changed or no longer present.
+
+	  There is no additional runtime cost to printk with this enabled.
+
+>>>>>>> upstream/android-13
 #
 # Architectures with an unreliable sched_clock() should select this:
 #
@@ -726,6 +984,7 @@ config UCLAMP_BUCKETS_COUNT
 
 	  If in doubt, use the default value.
 
+<<<<<<< HEAD
 choice
 	bool "Configure PELT speed for load/utilization tracking"
 	default PELT_HALFLIFE_16
@@ -766,6 +1025,8 @@ config PELT_HALFLIFE_8
 
 endchoice
 
+=======
+>>>>>>> upstream/android-13
 endmenu
 
 #
@@ -785,6 +1046,12 @@ config ARCH_SUPPORTS_NUMA_BALANCING
 config ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH
 	bool
 
+<<<<<<< HEAD
+=======
+config CC_HAS_INT128
+	def_bool !$(cc-option,$(m64-flag) -D__SIZEOF_INT128__=0) && 64BIT
+
+>>>>>>> upstream/android-13
 #
 # For architectures that know their GCC __int128 support is sound
 #
@@ -825,8 +1092,13 @@ menuconfig CGROUPS
 	  use with process control subsystems such as Cpusets, CFS, memory
 	  controls or device isolation.
 	  See
+<<<<<<< HEAD
 		- Documentation/scheduler/sched-design-CFS.txt	(CFS)
 		- Documentation/cgroup-v1/ (features for grouping, isolation
+=======
+		- Documentation/scheduler/sched-design-CFS.rst	(CFS)
+		- Documentation/admin-guide/cgroup-v1/ (features for grouping, isolation
+>>>>>>> upstream/android-13
 					  and resource control)
 
 	  Say N if unsure.
@@ -834,7 +1106,11 @@ menuconfig CGROUPS
 if CGROUPS
 
 config PAGE_COUNTER
+<<<<<<< HEAD
        bool
+=======
+	bool
+>>>>>>> upstream/android-13
 
 config MEMCG
 	bool "Memory controller"
@@ -844,6 +1120,7 @@ config MEMCG
 	  Provides control over the memory footprint of tasks in a cgroup.
 
 config MEMCG_SWAP
+<<<<<<< HEAD
 	bool "Swap controller"
 	depends on MEMCG && SWAP
 	help
@@ -862,6 +1139,11 @@ config MEMCG_SWAP_ENABLED
 	  For those who want to have the feature enabled by default should
 	  select this option (if, for some reason, they need to disable it
 	  then swapaccount=0 does the trick).
+=======
+	bool
+	depends on MEMCG && SWAP
+	default y
+>>>>>>> upstream/android-13
 
 config MEMCG_FORCE_USE_VM_SWAPPINESS
 	bool "Force to use vm_swappiness instead of memcg->swappiness"
@@ -877,7 +1159,11 @@ config BLK_CGROUP
 	bool "IO controller"
 	depends on BLOCK
 	default n
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	Generic block IO controller cgroup interface. This is the common
 	cgroup interface which should be used by various IO controlling
 	policies.
@@ -890,6 +1176,7 @@ config BLK_CGROUP
 	This option only enables generic Block IO controller infrastructure.
 	One needs to also enable actual IO controlling logic/policy. For
 	enabling proportional weight division of disk bandwidth in CFQ, set
+<<<<<<< HEAD
 	CONFIG_CFQ_GROUP_IOSCHED=y; for enabling throttling policy, set
 	CONFIG_BLK_DEV_THROTTLING=y.
 
@@ -902,6 +1189,12 @@ config DEBUG_BLK_CGROUP
 	---help---
 	Enable some debugging help. Currently it exports additional stat
 	files in a cgroup which can be useful for debugging.
+=======
+	CONFIG_BFQ_GROUP_IOSCHED=y; for enabling throttling policy, set
+	CONFIG_BLK_DEV_THROTTLING=y.
+
+	See Documentation/admin-guide/cgroup-v1/blkio-controller.rst for more information.
+>>>>>>> upstream/android-13
 
 config CGROUP_WRITEBACK
 	bool
@@ -931,7 +1224,11 @@ config CFS_BANDWIDTH
 	  tasks running within the fair group scheduler.  Groups with no limit
 	  set are considered to be unconstrained and will run with no
 	  restriction.
+<<<<<<< HEAD
 	  See Documentation/scheduler/sched-bwc.txt for more information.
+=======
+	  See Documentation/scheduler/sched-bwc.rst for more information.
+>>>>>>> upstream/android-13
 
 config RT_GROUP_SCHED
 	bool "Group scheduling for SCHED_RR/FIFO"
@@ -942,7 +1239,11 @@ config RT_GROUP_SCHED
 	  to task groups. If enabled, it will also make it impossible to
 	  schedule realtime tasks for non-root users until you allocate
 	  realtime bandwidth for them.
+<<<<<<< HEAD
 	  See Documentation/scheduler/sched-rt-group.txt for more information.
+=======
+	  See Documentation/scheduler/sched-rt-group.rst for more information.
+>>>>>>> upstream/android-13
 
 endif #CGROUP_SCHED
 
@@ -980,7 +1281,11 @@ config CGROUP_PIDS
 	  PIDs controller is designed to stop this from happening.
 
 	  It should be noted that organisational operations (such as attaching
+<<<<<<< HEAD
 	  to a cgroup hierarchy will *not* be blocked by the PIDs controller),
+=======
+	  to a cgroup hierarchy) will *not* be blocked by the PIDs controller,
+>>>>>>> upstream/android-13
 	  since the PIDs limit only affects a process's ability to fork, not to
 	  attach to a cgroup.
 
@@ -1055,7 +1360,12 @@ config CGROUP_PERF
 	help
 	  This option extends the perf per-cpu mode to restrict monitoring
 	  to threads which belong to the cgroup specified and run on the
+<<<<<<< HEAD
 	  designated cpu.
+=======
+	  designated cpu.  Or this can be used to have cgroup ID in samples
+	  so that it can monitor performance events among cgroups.
+>>>>>>> upstream/android-13
 
 	  Say N if unsure.
 
@@ -1072,6 +1382,23 @@ config CGROUP_BPF
 	  BPF_CGROUP_INET_INGRESS will be executed on the ingress path of
 	  inet sockets.
 
+<<<<<<< HEAD
+=======
+config CGROUP_MISC
+	bool "Misc resource controller"
+	default n
+	help
+	  Provides a controller for miscellaneous resources on a host.
+
+	  Miscellaneous scalar resources are the resources on the host system
+	  which cannot be abstracted like the other cgroups. This controller
+	  tracks and limits the miscellaneous resources used by a process
+	  attached to a cgroup hierarchy.
+
+	  For more information, please check misc cgroup section in
+	  /Documentation/admin-guide/cgroup-v2.rst.
+
+>>>>>>> upstream/android-13
 config CGROUP_DEBUG
 	bool "Debug controller"
 	default n
@@ -1109,6 +1436,17 @@ config UTS_NS
 	  In this namespace tasks see different info provided with the
 	  uname() system call
 
+<<<<<<< HEAD
+=======
+config TIME_NS
+	bool "TIME namespace"
+	depends on GENERIC_VDSO_TIME_NS
+	default y
+	help
+	  In this namespace boottime and monotonic clocks can be set.
+	  The time will keep going with the same pace.
+
+>>>>>>> upstream/android-13
 config IPC_NS
 	bool "IPC namespace"
 	depends on (SYSVIPC || POSIX_MQUEUE)
@@ -1149,9 +1487,47 @@ config NET_NS
 
 endif # NAMESPACES
 
+<<<<<<< HEAD
 config CHECKPOINT_RESTORE
 	bool "Checkpoint/restore support"
 	select PROC_CHILDREN
+=======
+config SCHED_EMS
+	tristate "Exynos Mobile Scheduler"
+	depends on SMP
+	default n
+	help
+	  This option supports Exynos mobile scheduler. It is designed to
+	  secure the limits of energy aware scheduler. This option provides
+	  features such as independent boosting functinos such as on-time migration,
+	  and prefer_perf and enhanced prefer_idle that work in conjunction with
+	  SCHEDTUNE.
+
+	  If unsure, say N.
+
+config SCHED_EMS_TUNE
+	bool "Tuner for Exynos Mobile Scheduler"
+	depends on SCHED_EMS
+	default n
+	help
+	  This option supports tuner for Exynos mobile scheduler.
+
+	  If unsure, say N.
+
+config MHDVFS
+	bool "Memory Hieararchy Dynamic Voltage and Frequency Scaling"
+	depends on SCHED_EMS
+	default n
+	help
+	  This option supports memory hierarchy DVFS.
+
+	  If unsure, say N.
+
+config CHECKPOINT_RESTORE
+	bool "Checkpoint/restore support"
+	select PROC_CHILDREN
+	select KCMP
+>>>>>>> upstream/android-13
 	default n
 	help
 	  Enables additional kernel features in a sake of checkpoint/restore.
@@ -1173,6 +1549,7 @@ config SCHED_AUTOGROUP
 	  desktop applications.  Task group autogeneration is currently based
 	  upon task session.
 
+<<<<<<< HEAD
 config SCHED_TUNE
 	bool "Boosting for CFS tasks (EXPERIMENTAL)"
 	depends on SMP
@@ -1195,6 +1572,18 @@ config SCHED_TUNE
 	  utilization-driven frequency selection is in use).
 
 	  If unsure, say N.
+=======
+config RT_SOFTINT_OPTIMIZATION
+       bool "Improve RT scheduling during long softint execution"
+       depends on ARM64
+       depends on SMP
+       default n
+       help
+         Enable an optimization which tries to avoid placing RT tasks on CPUs
+	 occupied by nonpreemptible tasks, such as a long softint, or CPUs
+	 which may soon block preemptions, such as a CPU running a ksoftirq
+	 thread which handles slow softints.
+>>>>>>> upstream/android-13
 
 config SYSFS_DEPRECATED
 	bool "Enable deprecated sysfs features to support old userspace tools"
@@ -1267,17 +1656,37 @@ source "usr/Kconfig"
 
 endif
 
+<<<<<<< HEAD
+=======
+config BOOT_CONFIG
+	bool "Boot config support"
+	select BLK_DEV_INITRD
+	help
+	  Extra boot config allows system admin to pass a config file as
+	  complemental extension of kernel cmdline when booting.
+	  The boot config file must be attached at the end of initramfs
+	  with checksum, size and magic word.
+	  See <file:Documentation/admin-guide/bootconfig.rst> for details.
+
+	  If unsure, say Y.
+
+>>>>>>> upstream/android-13
 choice
 	prompt "Compiler optimization level"
 	default CC_OPTIMIZE_FOR_PERFORMANCE
 
 config CC_OPTIMIZE_FOR_PERFORMANCE
+<<<<<<< HEAD
 	bool "Optimize for performance"
+=======
+	bool "Optimize for performance (-O2)"
+>>>>>>> upstream/android-13
 	help
 	  This is the default optimization level for the kernel, building
 	  with the "-O2" compiler flag for best performance and most
 	  helpful compile-time warnings.
 
+<<<<<<< HEAD
 config CC_OPTIMIZE_FOR_SIZE
 	bool "Optimize for size"
 	help
@@ -1285,6 +1694,20 @@ config CC_OPTIMIZE_FOR_SIZE
 	  your compiler resulting in a smaller kernel.
 
 	  If unsure, say N.
+=======
+config CC_OPTIMIZE_FOR_PERFORMANCE_O3
+	bool "Optimize more for performance (-O3)"
+	depends on ARC
+	help
+	  Choosing this option will pass "-O3" to your compiler to optimize
+	  the kernel yet more for performance.
+
+config CC_OPTIMIZE_FOR_SIZE
+	bool "Optimize for size (-Os)"
+	help
+	  Choosing this option will pass "-Os" to your compiler resulting
+	  in a smaller kernel.
+>>>>>>> upstream/android-13
 
 endchoice
 
@@ -1302,7 +1725,10 @@ config LD_DEAD_CODE_DATA_ELIMINATION
 	bool "Dead code and data elimination (EXPERIMENTAL)"
 	depends on HAVE_LD_DEAD_CODE_DATA_ELIMINATION
 	depends on EXPERT
+<<<<<<< HEAD
 	depends on !(FUNCTION_TRACER && CC_IS_GCC && GCC_VERSION < 40800)
+=======
+>>>>>>> upstream/android-13
 	depends on $(cc-option,-ffunction-sections -fdata-sections)
 	depends on $(ld-option,--gc-sections)
 	help
@@ -1317,6 +1743,15 @@ config LD_DEAD_CODE_DATA_ELIMINATION
 	  present. This option is not well tested yet, so use at your
 	  own risk.
 
+<<<<<<< HEAD
+=======
+config LD_ORPHAN_WARN
+	def_bool y
+	depends on ARCH_WANT_LD_ORPHAN_WARN
+	depends on !LD_IS_LLD || LLD_VERSION >= 110000
+	depends on $(ld-option,--orphan-handling=warn)
+
+>>>>>>> upstream/android-13
 config SYSCTL
 	bool
 
@@ -1356,9 +1791,15 @@ menuconfig EXPERT
 	select DEBUG_KERNEL
 	help
 	  This option allows certain base kernel options and settings
+<<<<<<< HEAD
           to be disabled or tweaked. This is for specialized
           environments which can tolerate a "non-standard" kernel.
           Only use this if you really know what you are doing.
+=======
+	  to be disabled or tweaked. This is for specialized
+	  environments which can tolerate a "non-standard" kernel.
+	  Only use this if you really know what you are doing.
+>>>>>>> upstream/android-13
 
 config UID16
 	bool "Enable 16-bit UID system calls" if EXPERT
@@ -1384,7 +1825,11 @@ config MULTIUSER
 config SGETMASK_SYSCALL
 	bool "sgetmask/ssetmask syscalls support" if EXPERT
 	def_bool PARISC || M68K || PPC || MIPS || X86 || SPARC || MICROBLAZE || SUPERH
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  sys_sgetmask and sys_ssetmask are obsolete system calls
 	  no longer supported in libc but still enabled by default in some
 	  architectures.
@@ -1394,13 +1839,18 @@ config SGETMASK_SYSCALL
 config SYSFS_SYSCALL
 	bool "Sysfs syscall support" if EXPERT
 	default y
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  sys_sysfs is an obsolete system call no longer supported in libc.
 	  Note that disabling this option is more secure but might break
 	  compatibility with some systems.
 
 	  If unsure say Y here.
 
+<<<<<<< HEAD
 config SYSCTL_SYSCALL
 	bool "Sysctl syscall support" if EXPERT
 	depends on PROC_SYSCTL
@@ -1418,6 +1868,8 @@ config SYSCTL_SYSCALL
 
 	  If unsure say N here.
 
+=======
+>>>>>>> upstream/android-13
 config FHANDLE
 	bool "open by fhandle syscalls" if EXPERT
 	select EXPORTFS
@@ -1459,20 +1911,31 @@ config PRINTK
 	  very difficult to diagnose system problems, saying N here is
 	  strongly discouraged.
 
+<<<<<<< HEAD
 config PRINTK_NMI
 	def_bool y
 	depends on PRINTK
 	depends on HAVE_NMI
 
+=======
+>>>>>>> upstream/android-13
 config BUG
 	bool "BUG() support" if EXPERT
 	default y
 	help
+<<<<<<< HEAD
           Disabling this option eliminates support for BUG and WARN, reducing
           the size of your kernel image and potentially quietly ignoring
           numerous fatal conditions. You should only consider disabling this
           option for embedded systems with no facilities for reporting errors.
           Just say Y.
+=======
+	  Disabling this option eliminates support for BUG and WARN, reducing
+	  the size of your kernel image and potentially quietly ignoring
+	  numerous fatal conditions. You should only consider disabling this
+	  option for embedded systems with no facilities for reporting errors.
+	  Just say Y.
+>>>>>>> upstream/android-13
 
 config ELF_CORE
 	depends on COREDUMP
@@ -1488,8 +1951,13 @@ config PCSPKR_PLATFORM
 	select I8253_LOCK
 	default y
 	help
+<<<<<<< HEAD
           This option allows to disable the internal PC-Speaker
           support, saving some memory.
+=======
+	  This option allows to disable the internal PC-Speaker
+	  support, saving some memory.
+>>>>>>> upstream/android-13
 
 config BASE_FULL
 	default y
@@ -1574,6 +2042,18 @@ config AIO
 	  by some high performance threaded applications. Disabling
 	  this option saves about 7k.
 
+<<<<<<< HEAD
+=======
+config IO_URING
+	bool "Enable IO uring support" if EXPERT
+	select IO_WQ
+	default y
+	help
+	  This option enables support for the io_uring interface, enabling
+	  applications to submit and complete IO through submission and
+	  completion rings that are shared between the kernel and application.
+
+>>>>>>> upstream/android-13
 config ADVISE_SYSCALLS
 	bool "Enable madvise/fadvise syscalls" if EXPERT
 	default y
@@ -1584,6 +2064,19 @@ config ADVISE_SYSCALLS
 	  applications use these syscalls, you can disable this option to save
 	  space.
 
+<<<<<<< HEAD
+=======
+config HAVE_ARCH_USERFAULTFD_WP
+	bool
+	help
+	  Arch has userfaultfd write protection support
+
+config HAVE_ARCH_USERFAULTFD_MINOR
+	bool
+	help
+	  Arch has userfaultfd minor fault support
+
+>>>>>>> upstream/android-13
 config MEMBARRIER
 	bool "Enable membarrier() system call" if EXPERT
 	default y
@@ -1597,17 +2090,27 @@ config MEMBARRIER
 	  If unsure, say Y.
 
 config KALLSYMS
+<<<<<<< HEAD
 	 bool "Load all symbols for debugging/ksymoops" if EXPERT
 	 default y
 	 help
 	   Say Y here to let the kernel print out symbolic crash information and
 	   symbolic stack backtraces. This increases the size of the kernel
 	   somewhat, as all symbols have to be loaded into the kernel image.
+=======
+	bool "Load all symbols for debugging/ksymoops" if EXPERT
+	default y
+	help
+	  Say Y here to let the kernel print out symbolic crash information and
+	  symbolic stack backtraces. This increases the size of the kernel
+	  somewhat, as all symbols have to be loaded into the kernel image.
+>>>>>>> upstream/android-13
 
 config KALLSYMS_ALL
 	bool "Include all symbols in kallsyms"
 	depends on DEBUG_KERNEL && KALLSYMS
 	help
+<<<<<<< HEAD
 	   Normally kallsyms only contains the symbols of functions for nicer
 	   OOPS messages and backtraces (i.e., symbols from the text and inittext
 	   sections). This is sufficient for most cases. And only in very rare
@@ -1620,6 +2123,20 @@ config KALLSYMS_ALL
 	   something like this).
 
 	   Say N unless you really need all symbols.
+=======
+	  Normally kallsyms only contains the symbols of functions for nicer
+	  OOPS messages and backtraces (i.e., symbols from the text and inittext
+	  sections). This is sufficient for most cases. And only in very rare
+	  cases (e.g., when a debugger is used) all symbols are required (e.g.,
+	  names of variables from the data sections, etc).
+
+	  This option makes sure that all symbols are loaded into the kernel
+	  image (i.e., symbols from all sections) in cost of increased kernel
+	  size (depending on the kernel configuration, it may be 300KiB or
+	  something like this).
+
+	  Say N unless you really need all symbols.
+>>>>>>> upstream/android-13
 
 config KALLSYMS_ABSOLUTE_PERCPU
 	bool
@@ -1627,7 +2144,11 @@ config KALLSYMS_ABSOLUTE_PERCPU
 	default X86_64 && SMP
 
 config KALLSYMS_BASE_RELATIVE
+<<<<<<< HEAD
 	bool "Enable KALLSYMS_BASE_RELATIVE or not"
+=======
+	bool
+>>>>>>> upstream/android-13
 	depends on KALLSYMS
 	default !IA64
 	help
@@ -1647,6 +2168,7 @@ config KALLSYMS_BASE_RELATIVE
 # end of the "standard kernel features (expert users)" menu
 
 # syscall, maps, verifier
+<<<<<<< HEAD
 config BPF_SYSCALL
 	bool "Enable bpf() system call"
 	select BPF
@@ -1662,6 +2184,8 @@ config BPF_JIT_ALWAYS_ON
 	help
 	  Enables BPF JIT and removes BPF interpreter to avoid
 	  speculative execution of BPF instructions by the interpreter
+=======
+>>>>>>> upstream/android-13
 
 config USERFAULTFD
 	bool "Enable userfaultfd() system call"
@@ -1676,6 +2200,19 @@ config ARCH_HAS_MEMBARRIER_CALLBACKS
 config ARCH_HAS_MEMBARRIER_SYNC_CORE
 	bool
 
+<<<<<<< HEAD
+=======
+config KCMP
+	bool "Enable kcmp() system call" if EXPERT
+	help
+	  Enable the kernel resource comparison system call. It provides
+	  user-space with the ability to compare two processes to see if they
+	  share a common resource, such as a file descriptor or even virtual
+	  memory space.
+
+	  If unsure, say N.
+
+>>>>>>> upstream/android-13
 config RSEQ
 	bool "Enable rseq() system call" if EXPERT
 	default y
@@ -1701,7 +2238,10 @@ config DEBUG_RSEQ
 
 config EMBEDDED
 	bool "Embedded system"
+<<<<<<< HEAD
 	option allnoconfig_y
+=======
+>>>>>>> upstream/android-13
 	select EXPERT
 	help
 	  This option should be enabled if compiling the kernel for
@@ -1725,11 +2265,14 @@ config PC104
 	  selection and configuration. Enable this option if your target
 	  machine has a PC/104 bus.
 
+<<<<<<< HEAD
 
 menu "Extension scheduler feature"
 source "kernel/sched/extension/Kconfig"
 endmenu
 
+=======
+>>>>>>> upstream/android-13
 menu "Kernel Performance Events And Counters"
 
 config PERF_EVENTS
@@ -1767,12 +2310,21 @@ config DEBUG_PERF_USE_VMALLOC
 	depends on PERF_EVENTS && DEBUG_KERNEL && !PPC
 	select PERF_USE_VMALLOC
 	help
+<<<<<<< HEAD
 	 Use vmalloc memory to back perf mmap() buffers.
 
 	 Mostly useful for debugging the vmalloc code on platforms
 	 that don't require it.
 
 	 Say N if unsure.
+=======
+	  Use vmalloc memory to back perf mmap() buffers.
+
+	  Mostly useful for debugging the vmalloc code on platforms
+	  that don't require it.
+
+	  Say N if unsure.
+>>>>>>> upstream/android-13
 
 endmenu
 
@@ -1795,6 +2347,7 @@ config SLUB_DEBUG
 	  SLUB sysfs support. /sys/slab will not exist and there will be
 	  no support for cache validation etc.
 
+<<<<<<< HEAD
 config SLUB_MEMCG_SYSFS_ON
 	default n
 	bool "Enable memcg SLUB sysfs support by default" if EXPERT
@@ -1809,6 +2362,8 @@ config SLUB_MEMCG_SYSFS_ON
 	  controlled by slub_memcg_sysfs boot parameter and this
 	  config option determines the parameter's default value.
 
+=======
+>>>>>>> upstream/android-13
 config COMPAT_BRK
 	bool "Disable heap randomization"
 	default y
@@ -1871,9 +2426,14 @@ config SLAB_MERGE_DEFAULT
 	  command line.
 
 config SLAB_FREELIST_RANDOM
+<<<<<<< HEAD
 	default n
 	depends on SLAB || SLUB
 	bool "SLAB freelist randomization"
+=======
+	bool "Randomize slab freelist"
+	depends on SLAB || SLUB
+>>>>>>> upstream/android-13
 	help
 	  Randomizes the freelist order used on creating new pages. This
 	  security feature reduces the predictability of the kernel slab
@@ -1881,19 +2441,58 @@ config SLAB_FREELIST_RANDOM
 
 config SLAB_FREELIST_HARDENED
 	bool "Harden slab freelist metadata"
+<<<<<<< HEAD
 	depends on SLUB
 	help
 	  Many kernel heap attacks try to target slab cache metadata and
 	  other infrastructure. This options makes minor performance
 	  sacrifies to harden the kernel slab allocator against common
 	  freelist exploit methods.
+=======
+	depends on SLAB || SLUB
+	help
+	  Many kernel heap attacks try to target slab cache metadata and
+	  other infrastructure. This options makes minor performance
+	  sacrifices to harden the kernel slab allocator against common
+	  freelist exploit methods. Some slab implementations have more
+	  sanity-checking than others. This option is most effective with
+	  CONFIG_SLUB.
+
+config SHUFFLE_PAGE_ALLOCATOR
+	bool "Page allocator randomization"
+	default SLAB_FREELIST_RANDOM && ACPI_NUMA
+	help
+	  Randomization of the page allocator improves the average
+	  utilization of a direct-mapped memory-side-cache. See section
+	  5.2.27 Heterogeneous Memory Attribute Table (HMAT) in the ACPI
+	  6.2a specification for an example of how a platform advertises
+	  the presence of a memory-side-cache. There are also incidental
+	  security benefits as it reduces the predictability of page
+	  allocations to compliment SLAB_FREELIST_RANDOM, but the
+	  default granularity of shuffling on the "MAX_ORDER - 1" i.e,
+	  10th order of pages is selected based on cache utilization
+	  benefits on x86.
+
+	  While the randomization improves cache utilization it may
+	  negatively impact workloads on platforms without a cache. For
+	  this reason, by default, the randomization is enabled only
+	  after runtime detection of a direct-mapped memory-side-cache.
+	  Otherwise, the randomization may be force enabled with the
+	  'page_alloc.shuffle' kernel command line parameter.
+
+	  Say Y if unsure.
+>>>>>>> upstream/android-13
 
 config SLUB_CPU_PARTIAL
 	default y
 	depends on SLUB && SMP
 	bool "SLUB per cpu partial cache"
 	help
+<<<<<<< HEAD
 	  Per cpu partial caches accellerate objects allocation and freeing
+=======
+	  Per cpu partial caches accelerate objects allocation and freeing
+>>>>>>> upstream/android-13
 	  that is local to a processor at the price of more indeterminism
 	  in the latency of the free. On overflow these caches will be cleared
 	  which requires the taking of locks that may cause latency spikes.
@@ -1919,7 +2518,11 @@ config MMAP_ALLOW_UNINITIALIZED
 	  userspace.  Since that isn't generally a problem on no-MMU systems,
 	  it is normally safe to say Y here.
 
+<<<<<<< HEAD
 	  See Documentation/nommu-mmap.txt for more information.
+=======
+	  See Documentation/admin-guide/mm/nommu-mmap.rst for more information.
+>>>>>>> upstream/android-13
 
 config SYSTEM_DATA_VERIFICATION
 	def_bool n
@@ -1943,7 +2546,11 @@ config PROFILING
 	bool "Profiling support"
 	help
 	  Say Y here to enable the extended profiling support mechanisms used
+<<<<<<< HEAD
 	  by profilers such as OProfile.
+=======
+	  by profilers.
+>>>>>>> upstream/android-13
 
 #
 # Place an empty function call at each tracepoint site. Can be
@@ -1964,9 +2571,19 @@ config BASE_SMALL
 	default 0 if BASE_FULL
 	default 1 if !BASE_FULL
 
+<<<<<<< HEAD
 menuconfig MODULES
 	bool "Enable loadable module support"
 	option modules
+=======
+config MODULE_SIG_FORMAT
+	def_bool n
+	select SYSTEM_DATA_VERIFICATION
+
+menuconfig MODULES
+	bool "Enable loadable module support"
+	modules
+>>>>>>> upstream/android-13
 	help
 	  Kernel modules are small pieces of compiled code which can
 	  be inserted in the running kernel, rather than being
@@ -2023,6 +2640,17 @@ config MODVERSIONS
 	  make them incompatible with the kernel you are running.  If
 	  unsure, say N.
 
+<<<<<<< HEAD
+=======
+config ASM_MODVERSIONS
+	bool
+	default HAVE_ASM_MODVERSIONS && MODVERSIONS
+	help
+	  This enables module versioning for exported symbols also from
+	  assembly. This can be enabled only when the target architecture
+	  supports it.
+
+>>>>>>> upstream/android-13
 config MODULE_REL_CRCS
 	bool
 	depends on MODVERSIONS
@@ -2038,10 +2666,30 @@ config MODULE_SRCVERSION_ALL
 	  the version).  With this option, such a "srcversion" field
 	  will be created for all modules.  If unsure, say N.
 
+<<<<<<< HEAD
 config MODULE_SIG
 	bool "Module signature verification"
 	depends on MODULES
 	select SYSTEM_DATA_VERIFICATION
+=======
+config MODULE_SCMVERSION
+	bool "SCM version for modules"
+	depends on LOCALVERSION_AUTO
+	help
+	  This enables the module attribute "scmversion" which can be used
+	  by developers to identify the SCM version of a given module, e.g.
+	  git sha1 or hg sha1. The SCM version can be queried by modinfo or
+	  via the sysfs node: /sys/modules/MODULENAME/scmversion. This is
+	  useful when the kernel or kernel modules are updated separately
+	  since that causes the vermagic of the kernel and the module to
+	  differ.
+
+	  If unsure, say N.
+
+config MODULE_SIG
+	bool "Module signature verification"
+	select MODULE_SIG_FORMAT
+>>>>>>> upstream/android-13
 	help
 	  Check modules for valid signatures upon load: the signature
 	  is simply appended to the module. For more information see
@@ -2051,6 +2699,14 @@ config MODULE_SIG
 	  kernel build dependency so that the signing tool can use its crypto
 	  library.
 
+<<<<<<< HEAD
+=======
+	  You should enable this option if you wish to use either
+	  CONFIG_SECURITY_LOCKDOWN_LSM or lockdown functionality imposed via
+	  another LSM - otherwise unsigned modules will be loadable regardless
+	  of the lockdown policy.
+
+>>>>>>> upstream/android-13
 	  !!!WARNING!!!  If you enable this option, you MUST make sure that the
 	  module DOES NOT get stripped after being signed.  This includes the
 	  debuginfo strip done by some packagers (such as rpmbuild) and
@@ -2063,10 +2719,30 @@ config MODULE_SIG_FORCE
 	  Reject unsigned modules or signed modules for which we don't have a
 	  key.  Without this, such modules will simply taint the kernel.
 
+<<<<<<< HEAD
 config MODULE_SIG_ALL
 	bool "Automatically sign all modules"
 	default y
 	depends on MODULE_SIG
+=======
+config MODULE_SIG_PROTECT
+	bool "Android GKI module protection"
+	depends on MODULE_SIG && !MODULE_SIG_FORCE
+	help
+	  Enables Android GKI symbol and export protection support.
+
+	  This modifies the behavior of the MODULE_SIG_FORCE as follows:
+	  - Allows Android GKI Modules signed using MODULE_SIG_ALL during build.
+	  - Allows other modules to load if they don't violate the access to
+	    Android GKI protected symbols and do not export the symbols already
+	    exported by the Android GKI modules. Loading will fail and return
+	    -EACCES (Permission denied) if symbol access contidions are not met.
+
+config MODULE_SIG_ALL
+	bool "Automatically sign all modules"
+	default y
+	depends on MODULE_SIG || IMA_APPRAISE_MODSIG
+>>>>>>> upstream/android-13
 	help
 	  Sign all modules during make modules_install. Without this option,
 	  modules must be signed manually, using the scripts/sign-file tool.
@@ -2076,7 +2752,11 @@ comment "Do not forget to sign required modules with scripts/sign-file"
 
 choice
 	prompt "Which hash algorithm should modules be signed with?"
+<<<<<<< HEAD
 	depends on MODULE_SIG
+=======
+	depends on MODULE_SIG || IMA_APPRAISE_MODSIG
+>>>>>>> upstream/android-13
 	help
 	  This determines which sort of hashing algorithm will be used during
 	  signature generation.  This algorithm _must_ be built into the kernel
@@ -2108,13 +2788,18 @@ endchoice
 
 config MODULE_SIG_HASH
 	string
+<<<<<<< HEAD
 	depends on MODULE_SIG
+=======
+	depends on MODULE_SIG || IMA_APPRAISE_MODSIG
+>>>>>>> upstream/android-13
 	default "sha1" if MODULE_SIG_SHA1
 	default "sha224" if MODULE_SIG_SHA224
 	default "sha256" if MODULE_SIG_SHA256
 	default "sha384" if MODULE_SIG_SHA384
 	default "sha512" if MODULE_SIG_SHA512
 
+<<<<<<< HEAD
 config MODULE_COMPRESS
 	bool "Compress modules on installation"
 	depends on MODULES
@@ -2156,6 +2841,86 @@ endchoice
 config TRIM_UNUSED_KSYMS
 	bool "Trim unused exported kernel symbols"
 	depends on MODULES && !UNUSED_SYMBOLS
+=======
+choice
+	prompt "Module compression mode"
+	help
+	  This option allows you to choose the algorithm which will be used to
+	  compress modules when 'make modules_install' is run. (or, you can
+	  choose to not compress modules at all.)
+
+	  External modules will also be compressed in the same way during the
+	  installation.
+
+	  For modules inside an initrd or initramfs, it's more efficient to
+	  compress the whole initrd or initramfs instead.
+
+	  This is fully compatible with signed modules.
+
+	  Please note that the tool used to load modules needs to support the
+	  corresponding algorithm. module-init-tools MAY support gzip, and kmod
+	  MAY support gzip, xz and zstd.
+
+	  Your build system needs to provide the appropriate compression tool
+	  to compress the modules.
+
+	  If in doubt, select 'None'.
+
+config MODULE_COMPRESS_NONE
+	bool "None"
+	help
+	  Do not compress modules. The installed modules are suffixed
+	  with .ko.
+
+config MODULE_COMPRESS_GZIP
+	bool "GZIP"
+	help
+	  Compress modules with GZIP. The installed modules are suffixed
+	  with .ko.gz.
+
+config MODULE_COMPRESS_XZ
+	bool "XZ"
+	help
+	  Compress modules with XZ. The installed modules are suffixed
+	  with .ko.xz.
+
+config MODULE_COMPRESS_ZSTD
+	bool "ZSTD"
+	help
+	  Compress modules with ZSTD. The installed modules are suffixed
+	  with .ko.zst.
+
+endchoice
+
+config MODULE_ALLOW_MISSING_NAMESPACE_IMPORTS
+	bool "Allow loading of modules with missing namespace imports"
+	help
+	  Symbols exported with EXPORT_SYMBOL_NS*() are considered exported in
+	  a namespace. A module that makes use of a symbol exported with such a
+	  namespace is required to import the namespace via MODULE_IMPORT_NS().
+	  There is no technical reason to enforce correct namespace imports,
+	  but it creates consistency between symbols defining namespaces and
+	  users importing namespaces they make use of. This option relaxes this
+	  requirement and lifts the enforcement when loading a module.
+
+	  If unsure, say N.
+
+config MODPROBE_PATH
+	string "Path to modprobe binary"
+	default "/sbin/modprobe"
+	help
+	  When kernel code requests a module, it does so by calling
+	  the "modprobe" userspace utility. This option allows you to
+	  set the path where that binary is found. This can be changed
+	  at runtime via the sysctl file
+	  /proc/sys/kernel/modprobe. Setting this to the empty string
+	  removes the kernel's ability to request modules (but
+	  userspace can still load modules explicitly).
+
+config TRIM_UNUSED_KSYMS
+	bool "Trim unused exported kernel symbols" if EXPERT
+	depends on !COMPILE_TEST
+>>>>>>> upstream/android-13
 	help
 	  The kernel and some modules make many symbols available for
 	  other modules to use via EXPORT_SYMBOL() and variants. Depending
@@ -2182,6 +2947,15 @@ config UNUSED_KSYMS_WHITELIST
 	  one per line. The path can be absolute, or relative to the kernel
 	  source tree.
 
+<<<<<<< HEAD
+=======
+config KMI_SYMBOL_LISTS
+	string "KMI symbol lists to keep in ksymtab"
+	help
+	  By default, all unused exported symbols will be un-exported from the
+	  build when TRIM_UNUSED_KSYMS is selected.
+
+>>>>>>> upstream/android-13
 endif # MODULES
 
 config MODULES_TREE_LOOKUP
@@ -2216,6 +2990,12 @@ config ASN1
 
 source "kernel/Kconfig.locks"
 
+<<<<<<< HEAD
+=======
+config ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE
+	bool
+
+>>>>>>> upstream/android-13
 config ARCH_HAS_SYNC_CORE_BEFORE_USERMODE
 	bool
 

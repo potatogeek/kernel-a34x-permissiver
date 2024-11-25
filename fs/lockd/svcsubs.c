@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/fs/lockd/svcsubs.c
  *
@@ -44,7 +48,11 @@ static inline void nlm_debug_print_fh(char *msg, struct nfs_fh *f)
 
 static inline void nlm_debug_print_file(char *msg, struct nlm_file *file)
 {
+<<<<<<< HEAD
 	struct inode *inode = locks_inode(file->f_file);
+=======
+	struct inode *inode = nlmsvc_file_inode(file);
+>>>>>>> upstream/android-13
 
 	dprintk("lockd: %s %s/%ld\n",
 		msg, inode->i_sb->s_id, inode->i_ino);
@@ -70,6 +78,7 @@ static inline unsigned int file_hash(struct nfs_fh *f)
 	return tmp & (FILE_NRHASH - 1);
 }
 
+<<<<<<< HEAD
 /*
  * Lookup file info. If it doesn't exist, create a file info struct
  * and open a (VFS) file for the given inode.
@@ -82,34 +91,95 @@ static inline unsigned int file_hash(struct nfs_fh *f)
 __be32
 nlm_lookup_file(struct svc_rqst *rqstp, struct nlm_file **result,
 					struct nfs_fh *f)
+=======
+int lock_to_openmode(struct file_lock *lock)
+{
+	return (lock->fl_type == F_WRLCK) ? O_WRONLY : O_RDONLY;
+}
+
+/*
+ * Open the file. Note that if we're reexporting, for example,
+ * this could block the lockd thread for a while.
+ *
+ * We have to make sure we have the right credential to open
+ * the file.
+ */
+static __be32 nlm_do_fopen(struct svc_rqst *rqstp,
+			   struct nlm_file *file, int mode)
+{
+	struct file **fp = &file->f_file[mode];
+	__be32	nfserr;
+
+	if (*fp)
+		return 0;
+	nfserr = nlmsvc_ops->fopen(rqstp, &file->f_handle, fp, mode);
+	if (nfserr)
+		dprintk("lockd: open failed (error %d)\n", nfserr);
+	return nfserr;
+}
+
+/*
+ * Lookup file info. If it doesn't exist, create a file info struct
+ * and open a (VFS) file for the given inode.
+ */
+__be32
+nlm_lookup_file(struct svc_rqst *rqstp, struct nlm_file **result,
+					struct nlm_lock *lock)
+>>>>>>> upstream/android-13
 {
 	struct nlm_file	*file;
 	unsigned int	hash;
 	__be32		nfserr;
+<<<<<<< HEAD
 
 	nlm_debug_print_fh("nlm_lookup_file", f);
 
 	hash = file_hash(f);
+=======
+	int		mode;
+
+	nlm_debug_print_fh("nlm_lookup_file", &lock->fh);
+
+	hash = file_hash(&lock->fh);
+	mode = lock_to_openmode(&lock->fl);
+>>>>>>> upstream/android-13
 
 	/* Lock file table */
 	mutex_lock(&nlm_file_mutex);
 
 	hlist_for_each_entry(file, &nlm_files[hash], f_list)
+<<<<<<< HEAD
 		if (!nfs_compare_fh(&file->f_handle, f))
 			goto found;
 
 	nlm_debug_print_fh("creating file for", f);
+=======
+		if (!nfs_compare_fh(&file->f_handle, &lock->fh)) {
+			mutex_lock(&file->f_mutex);
+			nfserr = nlm_do_fopen(rqstp, file, mode);
+			mutex_unlock(&file->f_mutex);
+			goto found;
+		}
+	nlm_debug_print_fh("creating file for", &lock->fh);
+>>>>>>> upstream/android-13
 
 	nfserr = nlm_lck_denied_nolocks;
 	file = kzalloc(sizeof(*file), GFP_KERNEL);
 	if (!file)
+<<<<<<< HEAD
 		goto out_unlock;
 
 	memcpy(&file->f_handle, f, sizeof(struct nfs_fh));
+=======
+		goto out_free;
+
+	memcpy(&file->f_handle, &lock->fh, sizeof(struct nfs_fh));
+>>>>>>> upstream/android-13
 	mutex_init(&file->f_mutex);
 	INIT_HLIST_NODE(&file->f_list);
 	INIT_LIST_HEAD(&file->f_blocks);
 
+<<<<<<< HEAD
 	/* Open the file. Note that this must not sleep for too long, else
 	 * we would lock up lockd:-) So no NFS re-exports, folks.
 	 *
@@ -120,6 +190,11 @@ nlm_lookup_file(struct svc_rqst *rqstp, struct nlm_file **result,
 		dprintk("lockd: open failed (error %d)\n", nfserr);
 		goto out_free;
 	}
+=======
+	nfserr = nlm_do_fopen(rqstp, file, mode);
+	if (nfserr)
+		goto out_unlock;
+>>>>>>> upstream/android-13
 
 	hlist_add_head(&file->f_list, &nlm_files[hash]);
 
@@ -127,7 +202,10 @@ found:
 	dprintk("lockd: found file %p (count %d)\n", file, file->f_count);
 	*result = file;
 	file->f_count++;
+<<<<<<< HEAD
 	nfserr = 0;
+=======
+>>>>>>> upstream/android-13
 
 out_unlock:
 	mutex_unlock(&nlm_file_mutex);
@@ -147,13 +225,43 @@ nlm_delete_file(struct nlm_file *file)
 	nlm_debug_print_file("closing file", file);
 	if (!hlist_unhashed(&file->f_list)) {
 		hlist_del(&file->f_list);
+<<<<<<< HEAD
 		nlmsvc_ops->fclose(file->f_file);
+=======
+		if (file->f_file[O_RDONLY])
+			nlmsvc_ops->fclose(file->f_file[O_RDONLY]);
+		if (file->f_file[O_WRONLY])
+			nlmsvc_ops->fclose(file->f_file[O_WRONLY]);
+>>>>>>> upstream/android-13
 		kfree(file);
 	} else {
 		printk(KERN_WARNING "lockd: attempt to release unknown file!\n");
 	}
 }
 
+<<<<<<< HEAD
+=======
+static int nlm_unlock_files(struct nlm_file *file)
+{
+	struct file_lock lock;
+
+	locks_init_lock(&lock);
+	lock.fl_type  = F_UNLCK;
+	lock.fl_start = 0;
+	lock.fl_end   = OFFSET_MAX;
+	if (file->f_file[O_RDONLY] &&
+	    vfs_lock_file(file->f_file[O_RDONLY], F_SETLK, &lock, NULL))
+		goto out_err;
+	if (file->f_file[O_WRONLY] &&
+	    vfs_lock_file(file->f_file[O_WRONLY], F_SETLK, &lock, NULL))
+		goto out_err;
+	return 0;
+out_err:
+	pr_warn("lockd: unlock failure in %s:%d\n", __FILE__, __LINE__);
+	return 1;
+}
+
+>>>>>>> upstream/android-13
 /*
  * Loop over all locks on the given file and perform the specified
  * action.
@@ -179,6 +287,7 @@ again:
 		/* update current lock count */
 		file->f_locks++;
 
+<<<<<<< HEAD
 		lockhost = (struct nlm_host *) fl->fl_owner;
 		if (match(lockhost, host)) {
 			struct file_lock lock = *fl;
@@ -192,6 +301,14 @@ again:
 						__FILE__, __LINE__);
 				return 1;
 			}
+=======
+		lockhost = ((struct nlm_lockowner *)fl->fl_owner)->host;
+		if (match(lockhost, host)) {
+
+			spin_unlock(&flctx->flc_lock);
+			if (nlm_unlock_files(file))
+				return 1;
+>>>>>>> upstream/android-13
 			goto again;
 		}
 	}
@@ -245,6 +362,18 @@ nlm_file_inuse(struct nlm_file *file)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void nlm_close_files(struct nlm_file *file)
+{
+	struct file *f;
+
+	for (f = file->f_file[0]; f <= file->f_file[1]; f++)
+		if (f)
+			nlmsvc_ops->fclose(f);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Loop over all files in the file table.
  */
@@ -275,7 +404,11 @@ nlm_traverse_files(void *data, nlm_host_match_fn_t match,
 			if (list_empty(&file->f_blocks) && !file->f_locks
 			 && !file->f_shares && !file->f_count) {
 				hlist_del(&file->f_list);
+<<<<<<< HEAD
 				nlmsvc_ops->fclose(file->f_file);
+=======
+				nlm_close_files(file);
+>>>>>>> upstream/android-13
 				kfree(file);
 			}
 		}
@@ -409,12 +542,20 @@ nlmsvc_invalidate_all(void)
 	nlm_traverse_files(NULL, nlmsvc_is_client, NULL);
 }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 static int
 nlmsvc_match_sb(void *datap, struct nlm_file *file)
 {
 	struct super_block *sb = datap;
 
+<<<<<<< HEAD
 	return sb == locks_inode(file->f_file)->i_sb;
+=======
+	return sb == nlmsvc_file_inode(file)->i_sb;
+>>>>>>> upstream/android-13
 }
 
 /**

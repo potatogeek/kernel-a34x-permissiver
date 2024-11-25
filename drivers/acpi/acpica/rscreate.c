@@ -312,6 +312,12 @@ acpi_rs_create_pci_routing_table(union acpi_operand_object *package_object,
 				path_buffer.pointer = user_prt->source;
 
 				status = acpi_ns_handle_to_pathname((acpi_handle)node, &path_buffer, FALSE);
+<<<<<<< HEAD
+=======
+				if (ACPI_FAILURE(status)) {
+					return_ACPI_STATUS(status);
+				}
+>>>>>>> upstream/android-13
 
 				/* +1 to include null terminator */
 

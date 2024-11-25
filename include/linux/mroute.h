@@ -8,6 +8,10 @@
 #include <net/fib_notifier.h>
 #include <uapi/linux/mroute.h>
 #include <linux/mroute_base.h>
+<<<<<<< HEAD
+=======
+#include <linux/sockptr.h>
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_IP_MROUTE
 static inline int ip_mroute_opt(int opt)
@@ -15,7 +19,11 @@ static inline int ip_mroute_opt(int opt)
 	return opt >= MRT_BASE && opt <= MRT_MAX;
 }
 
+<<<<<<< HEAD
 int ip_mroute_setsockopt(struct sock *, int, char __user *, unsigned int);
+=======
+int ip_mroute_setsockopt(struct sock *, int, sockptr_t, unsigned int);
+>>>>>>> upstream/android-13
 int ip_mroute_getsockopt(struct sock *, int, char __user *, int __user *);
 int ipmr_ioctl(struct sock *sk, int cmd, void __user *arg);
 int ipmr_compat_ioctl(struct sock *sk, unsigned int cmd, void __user *arg);
@@ -23,7 +31,11 @@ int ip_mr_init(void);
 bool ipmr_rule_default(const struct fib_rule *rule);
 #else
 static inline int ip_mroute_setsockopt(struct sock *sock, int optname,
+<<<<<<< HEAD
 				       char __user *optval, unsigned int optlen)
+=======
+				       sockptr_t optval, unsigned int optlen)
+>>>>>>> upstream/android-13
 {
 	return -ENOPROTOOPT;
 }

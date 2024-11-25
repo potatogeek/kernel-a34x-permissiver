@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Wistron laptop button driver
  * Copyright (C) 2005 Miloslav Trmac <mitr@volny.cz>
  * Copyright (C) 2005 Bernhard Rosenkraenzer <bero@arklinux.org>
  * Copyright (C) 2005 Dmitry Torokhov <dtor@mail.ru>
+<<<<<<< HEAD
  *
  * You can redistribute and/or modify this program under the terms of the
  * GNU General Public License version 2 as published by the Free Software
@@ -16,11 +21,17 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place Suite 330, Boston, MA 02111-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/io.h>
 #include <linux/dmi.h>
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <linux/input-polldev.h>
+=======
+#include <linux/input.h>
+>>>>>>> upstream/android-13
 #include <linux/input/sparse-keymap.h>
 #include <linux/interrupt.h>
 #include <linux/jiffies.h>
@@ -1042,7 +1053,11 @@ static int __init select_keymap(void)
 
  /* Input layer interface */
 
+<<<<<<< HEAD
 static struct input_polled_dev *wistron_idev;
+=======
+static struct input_dev *wistron_idev;
+>>>>>>> upstream/android-13
 static unsigned long jiffies_last_press;
 static bool wifi_enabled;
 static bool bluetooth_enabled;
@@ -1126,7 +1141,11 @@ static inline void wistron_led_resume(void)
 static void handle_key(u8 code)
 {
 	const struct key_entry *key =
+<<<<<<< HEAD
 		sparse_keymap_entry_from_scancode(wistron_idev->input, code);
+=======
+		sparse_keymap_entry_from_scancode(wistron_idev, code);
+>>>>>>> upstream/android-13
 
 	if (key) {
 		switch (key->type) {
@@ -1145,6 +1164,7 @@ static void handle_key(u8 code)
 			break;
 
 		default:
+<<<<<<< HEAD
 			sparse_keymap_report_entry(wistron_idev->input,
 						   key, 1, true);
 			break;
@@ -1153,6 +1173,16 @@ static void handle_key(u8 code)
 	} else
 		printk(KERN_NOTICE
 			"wistron_btns: Unknown key code %02X\n", code);
+=======
+			sparse_keymap_report_entry(wistron_idev, key, 1, true);
+			break;
+		}
+		jiffies_last_press = jiffies;
+	} else {
+		printk(KERN_NOTICE
+			"wistron_btns: Unknown key code %02X\n", code);
+	}
+>>>>>>> upstream/android-13
 }
 
 static void poll_bios(bool discard)
@@ -1170,6 +1200,7 @@ static void poll_bios(bool discard)
 	}
 }
 
+<<<<<<< HEAD
 static void wistron_flush(struct input_polled_dev *dev)
 {
 	/* Flush stale event queue */
@@ -1177,14 +1208,31 @@ static void wistron_flush(struct input_polled_dev *dev)
 }
 
 static void wistron_poll(struct input_polled_dev *dev)
+=======
+static int wistron_flush(struct input_dev *dev)
+{
+	/* Flush stale event queue */
+	poll_bios(true);
+
+	return 0;
+}
+
+static void wistron_poll(struct input_dev *dev)
+>>>>>>> upstream/android-13
 {
 	poll_bios(false);
 
 	/* Increase poll frequency if user is currently pressing keys (< 2s ago) */
 	if (time_before(jiffies, jiffies_last_press + 2 * HZ))
+<<<<<<< HEAD
 		dev->poll_interval = POLL_INTERVAL_BURST;
 	else
 		dev->poll_interval = POLL_INTERVAL_DEFAULT;
+=======
+		input_set_poll_interval(dev, POLL_INTERVAL_BURST);
+	else
+		input_set_poll_interval(dev, POLL_INTERVAL_DEFAULT);
+>>>>>>> upstream/android-13
 }
 
 static int wistron_setup_keymap(struct input_dev *dev,
@@ -1220,6 +1268,7 @@ static int wistron_setup_keymap(struct input_dev *dev,
 
 static int setup_input_dev(void)
 {
+<<<<<<< HEAD
 	struct input_dev *input_dev;
 	int error;
 
@@ -1242,13 +1291,43 @@ static int setup_input_dev(void)
 		goto err_free_dev;
 
 	error = input_register_polled_device(wistron_idev);
+=======
+	int error;
+
+	wistron_idev = input_allocate_device();
+	if (!wistron_idev)
+		return -ENOMEM;
+
+	wistron_idev->name = "Wistron laptop buttons";
+	wistron_idev->phys = "wistron/input0";
+	wistron_idev->id.bustype = BUS_HOST;
+	wistron_idev->dev.parent = &wistron_device->dev;
+
+	wistron_idev->open = wistron_flush;
+
+	error = sparse_keymap_setup(wistron_idev, keymap, wistron_setup_keymap);
+	if (error)
+		goto err_free_dev;
+
+	error = input_setup_polling(wistron_idev, wistron_poll);
+	if (error)
+		goto err_free_dev;
+
+	input_set_poll_interval(wistron_idev, POLL_INTERVAL_DEFAULT);
+
+	error = input_register_device(wistron_idev);
+>>>>>>> upstream/android-13
 	if (error)
 		goto err_free_dev;
 
 	return 0;
 
  err_free_dev:
+<<<<<<< HEAD
 	input_free_polled_device(wistron_idev);
+=======
+	input_free_device(wistron_idev);
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -1297,8 +1376,12 @@ static int wistron_probe(struct platform_device *dev)
 static int wistron_remove(struct platform_device *dev)
 {
 	wistron_led_remove();
+<<<<<<< HEAD
 	input_unregister_polled_device(wistron_idev);
 	input_free_polled_device(wistron_idev);
+=======
+	input_unregister_device(wistron_idev);
+>>>>>>> upstream/android-13
 	bios_detach();
 
 	return 0;

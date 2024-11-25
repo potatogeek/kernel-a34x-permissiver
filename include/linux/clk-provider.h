@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  linux/include/linux/clk-provider.h
  *
@@ -7,16 +8,27 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ *  Copyright (c) 2010-2011 Jeremy Kerr <jeremy.kerr@canonical.com>
+ *  Copyright (C) 2011-2012 Linaro Ltd <mturquette@linaro.org>
+>>>>>>> upstream/android-13
  */
 #ifndef __LINUX_CLK_PROVIDER_H
 #define __LINUX_CLK_PROVIDER_H
 
+<<<<<<< HEAD
 #include <linux/io.h>
 #include <linux/of.h>
 #include <linux/of_clk.h>
 #include <linux/mutex.h>
 
 #ifdef CONFIG_COMMON_CLK
+=======
+#include <linux/of.h>
+#include <linux/of_clk.h>
+>>>>>>> upstream/android-13
 
 /*
  * flags used across common struct clk.  these flags should only affect the
@@ -30,7 +42,11 @@
 #define CLK_SET_RATE_PARENT	BIT(2) /* propagate rate change up one level */
 #define CLK_IGNORE_UNUSED	BIT(3) /* do not gate even if unused */
 				/* unused */
+<<<<<<< HEAD
 #define CLK_IS_BASIC		BIT(5) /* Basic clk, can't do a to_clk_foo() */
+=======
+				/* unused */
+>>>>>>> upstream/android-13
 #define CLK_GET_RATE_NOCACHE	BIT(6) /* do not use the cached clk rate */
 #define CLK_SET_RATE_NO_REPARENT BIT(7) /* don't re-parent on rate change */
 #define CLK_GET_ACCURACY_NOCACHE BIT(8) /* do not use the cached clk accuracy */
@@ -42,12 +58,15 @@
 /* duty cycle call may be forwarded to the parent clock */
 #define CLK_DUTY_CYCLE_PARENT	BIT(13)
 #define CLK_DONT_HOLD_STATE	BIT(14) /* Don't hold state */
+<<<<<<< HEAD
 #define CLK_ENABLE_HAND_OFF	BIT(15) /* enable clock when registered. */
 					/*
 					 * hand-off enable_count & prepare_count
 					 * to first consumer that enables clk
 					 */
 #define CLK_IS_MEASURE          BIT(16) /* measure clock */
+=======
+>>>>>>> upstream/android-13
 
 struct clk;
 struct clk_hw;
@@ -127,6 +146,14 @@ struct clk_duty {
  *		Called with enable_lock held.  This function must not
  *		sleep.
  *
+<<<<<<< HEAD
+=======
+ * @save_context: Save the context of the clock in prepration for poweroff.
+ *
+ * @restore_context: Restore the context of the clock after a restoration
+ *		of power.
+ *
+>>>>>>> upstream/android-13
  * @recalc_rate	Recalculate the rate of this clock, by querying hardware. The
  *		parent rate is an input parameter.  It is up to the caller to
  *		ensure that the prepare_mutex is held across this call.
@@ -200,9 +227,21 @@ struct clk_duty {
  *              and >= numerator) Return 0 on success, otherwise -EERROR.
  *
  * @init:	Perform platform-specific initialization magic.
+<<<<<<< HEAD
  *		This is not not used by any of the basic clock types.
  *		Please consider other ways of solving initialization problems
  *		before using this callback, as its use is discouraged.
+=======
+ *		This is not used by any of the basic clock types.
+ *		This callback exist for HW which needs to perform some
+ *		initialisation magic for CCF to get an accurate view of the
+ *		clock. It may also be used dynamic resource allocation is
+ *		required. It shall not used to deal with clock parameters,
+ *		such as rate or parents.
+ *		Returns 0 on success, -EERROR otherwise.
+ *
+ * @terminate:  Free any resource allocated by init.
+>>>>>>> upstream/android-13
  *
  * @debug_init:	Set up type-specific debugfs entries for this clock.  This
  *		is called once, after the debugfs directory entry for this
@@ -210,6 +249,7 @@ struct clk_duty {
  *		directory is provided as an argument.  Called with
  *		prepare_lock held.  Returns 0 on success, -EERROR otherwise.
  *
+<<<<<<< HEAD
  * @set_flags: Set custom flags which deal with hardware specifics. Returns 0
  *	       on success, -EERROR otherwise.
  *
@@ -222,6 +262,15 @@ struct clk_duty {
  *
  * @bus_vote:	Votes for bandwidth on certain config slaves to connect
  *		ports in order to gain access to clock controllers.
+=======
+ * @pre_rate_change: Optional callback for a clock to fulfill its rate
+ *		change requirements before any rate change has occurred in
+ *		its clock tree. Returns 0 on success, -EERROR otherwise.
+ *
+ * @post_rate_change: Optional callback for a clock to clean up any
+ *		requirements that were needed while the clock and its tree
+ *		was changing states. Returns 0 on success, -EERROR otherwise.
+>>>>>>> upstream/android-13
  *
  * The clk_enable/clk_disable and clk_prepare/clk_unprepare pairs allow
  * implementations to split any work between atomic (enable) and sleepable
@@ -243,6 +292,11 @@ struct clk_ops {
 	void		(*disable)(struct clk_hw *hw);
 	int		(*is_enabled)(struct clk_hw *hw);
 	void		(*disable_unused)(struct clk_hw *hw);
+<<<<<<< HEAD
+=======
+	int		(*save_context)(struct clk_hw *hw);
+	void		(*restore_context)(struct clk_hw *hw);
+>>>>>>> upstream/android-13
 	unsigned long	(*recalc_rate)(struct clk_hw *hw,
 					unsigned long parent_rate);
 	long		(*round_rate)(struct clk_hw *hw, unsigned long rate,
@@ -264,6 +318,7 @@ struct clk_ops {
 					  struct clk_duty *duty);
 	int		(*set_duty_cycle)(struct clk_hw *hw,
 					  struct clk_duty *duty);
+<<<<<<< HEAD
 	void		(*init)(struct clk_hw *hw);
 	void		(*debug_init)(struct clk_hw *hw, struct dentry *dentry);
 	int		(*set_flags)(struct clk_hw *hw, unsigned int flags);
@@ -272,6 +327,31 @@ struct clk_ops {
 	long		(*list_rate)(struct clk_hw *hw, unsigned int n,
 							unsigned long rate_max);
 	void		(*bus_vote)(struct clk_hw *hw, bool enable);
+=======
+	int		(*init)(struct clk_hw *hw);
+	void		(*terminate)(struct clk_hw *hw);
+	void		(*debug_init)(struct clk_hw *hw, struct dentry *dentry);
+	int		(*pre_rate_change)(struct clk_hw *hw,
+					   unsigned long rate,
+					   unsigned long new_rate);
+	int		(*post_rate_change)(struct clk_hw *hw,
+					    unsigned long old_rate,
+					    unsigned long rate);
+};
+
+/**
+ * struct clk_parent_data - clk parent information
+ * @hw: parent clk_hw pointer (used for clk providers with internal clks)
+ * @fw_name: parent name local to provider registering clk
+ * @name: globally unique parent name (used as a fallback)
+ * @index: parent index local to provider registering clk (if @fw_name absent)
+ */
+struct clk_parent_data {
+	const struct clk_hw	*hw;
+	const char		*fw_name;
+	const char		*name;
+	int			index;
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -281,16 +361,26 @@ struct clk_ops {
  * @name: clock name
  * @ops: operations this clock supports
  * @parent_names: array of string names for all possible parents
+<<<<<<< HEAD
  * @num_parents: number of possible parents
  * @flags: framework-level hints and quirks
  * @vdd_class: voltage scaling requirement class
  * @rate_max: maximum clock rate in Hz supported at each voltage level
  * @num_rate_max: number of maximum voltage level supported
  * @bus_cl_id: client id registered with the bus driver used for bw votes
+=======
+ * @parent_data: array of parent data for all possible parents (when some
+ *               parents are external to the clk controller)
+ * @parent_hws: array of pointers to all possible parents (when all parents
+ *              are internal to the clk controller)
+ * @num_parents: number of possible parents
+ * @flags: framework-level hints and quirks
+>>>>>>> upstream/android-13
  */
 struct clk_init_data {
 	const char		*name;
 	const struct clk_ops	*ops;
+<<<<<<< HEAD
 	const char		* const *parent_names;
 	unsigned int		num_parents;
 	unsigned long		flags;
@@ -363,6 +453,16 @@ struct clk_vdd_class {
 int clk_vote_vdd_level(struct clk_vdd_class *vdd_class, int level);
 int clk_unvote_vdd_level(struct clk_vdd_class *vdd_class, int level);
 
+=======
+	/* Only one of the following three should be assigned */
+	const char		* const *parent_names;
+	const struct clk_parent_data	*parent_data;
+	const struct clk_hw		**parent_hws;
+	u8			num_parents;
+	unsigned long		flags;
+};
+
+>>>>>>> upstream/android-13
 /**
  * struct clk_hw - handle for traversing from a struct clk to its corresponding
  * hardware-specific structure.  struct clk_hw should be declared within struct
@@ -376,7 +476,12 @@ int clk_unvote_vdd_level(struct clk_vdd_class *vdd_class, int level);
  * into the clk API
  *
  * @init: pointer to struct clk_init_data that contains the init data shared
+<<<<<<< HEAD
  * with the common clock framework.
+=======
+ * with the common clock framework. This pointer will be set to NULL once
+ * a clk_register() variant is called on this clk_hw pointer.
+>>>>>>> upstream/android-13
  */
 struct clk_hw {
 	struct clk_core *core;
@@ -397,11 +502,21 @@ struct clk_hw {
  * struct clk_fixed_rate - fixed-rate clock
  * @hw:		handle between common and hardware-specific interfaces
  * @fixed_rate:	constant frequency of clock
+<<<<<<< HEAD
+=======
+ * @fixed_accuracy: constant accuracy of clock in ppb (parts per billion)
+ * @flags:	hardware specific flags
+ *
+ * Flags:
+ * * CLK_FIXED_RATE_PARENT_ACCURACY - Use the accuracy of the parent clk
+ *                                    instead of what's set in @fixed_accuracy.
+>>>>>>> upstream/android-13
  */
 struct clk_fixed_rate {
 	struct		clk_hw hw;
 	unsigned long	fixed_rate;
 	unsigned long	fixed_accuracy;
+<<<<<<< HEAD
 	u8		flags;
 };
 
@@ -421,6 +536,110 @@ void clk_unregister_fixed_rate(struct clk *clk);
 struct clk_hw *clk_hw_register_fixed_rate_with_accuracy(struct device *dev,
 		const char *name, const char *parent_name, unsigned long flags,
 		unsigned long fixed_rate, unsigned long fixed_accuracy);
+=======
+	unsigned long	flags;
+};
+
+#define CLK_FIXED_RATE_PARENT_ACCURACY	BIT(0)
+
+extern const struct clk_ops clk_fixed_rate_ops;
+struct clk_hw *__clk_hw_register_fixed_rate(struct device *dev,
+		struct device_node *np, const char *name,
+		const char *parent_name, const struct clk_hw *parent_hw,
+		const struct clk_parent_data *parent_data, unsigned long flags,
+		unsigned long fixed_rate, unsigned long fixed_accuracy,
+		unsigned long clk_fixed_flags);
+struct clk *clk_register_fixed_rate(struct device *dev, const char *name,
+		const char *parent_name, unsigned long flags,
+		unsigned long fixed_rate);
+/**
+ * clk_hw_register_fixed_rate - register fixed-rate clock with the clock
+ * framework
+ * @dev: device that is registering this clock
+ * @name: name of this clock
+ * @parent_name: name of clock's parent
+ * @flags: framework-specific flags
+ * @fixed_rate: non-adjustable clock rate
+ */
+#define clk_hw_register_fixed_rate(dev, name, parent_name, flags, fixed_rate)  \
+	__clk_hw_register_fixed_rate((dev), NULL, (name), (parent_name), NULL, \
+				     NULL, (flags), (fixed_rate), 0, 0)
+/**
+ * clk_hw_register_fixed_rate_parent_hw - register fixed-rate clock with
+ * the clock framework
+ * @dev: device that is registering this clock
+ * @name: name of this clock
+ * @parent_hw: pointer to parent clk
+ * @flags: framework-specific flags
+ * @fixed_rate: non-adjustable clock rate
+ */
+#define clk_hw_register_fixed_rate_parent_hw(dev, name, parent_hw, flags,     \
+					     fixed_rate)		      \
+	__clk_hw_register_fixed_rate((dev), NULL, (name), NULL, (parent_hw),  \
+				     NULL, (flags), (fixed_rate), 0, 0)
+/**
+ * clk_hw_register_fixed_rate_parent_data - register fixed-rate clock with
+ * the clock framework
+ * @dev: device that is registering this clock
+ * @name: name of this clock
+ * @parent_data: parent clk data
+ * @flags: framework-specific flags
+ * @fixed_rate: non-adjustable clock rate
+ */
+#define clk_hw_register_fixed_rate_parent_data(dev, name, parent_hw, flags,   \
+					     fixed_rate)		      \
+	__clk_hw_register_fixed_rate((dev), NULL, (name), NULL, NULL,	      \
+				     (parent_data), (flags), (fixed_rate), 0, \
+				     0)
+/**
+ * clk_hw_register_fixed_rate_with_accuracy - register fixed-rate clock with
+ * the clock framework
+ * @dev: device that is registering this clock
+ * @name: name of this clock
+ * @parent_name: name of clock's parent
+ * @flags: framework-specific flags
+ * @fixed_rate: non-adjustable clock rate
+ * @fixed_accuracy: non-adjustable clock accuracy
+ */
+#define clk_hw_register_fixed_rate_with_accuracy(dev, name, parent_name,      \
+						 flags, fixed_rate,	      \
+						 fixed_accuracy)	      \
+	__clk_hw_register_fixed_rate((dev), NULL, (name), (parent_name),      \
+				     NULL, NULL, (flags), (fixed_rate),       \
+				     (fixed_accuracy), 0)
+/**
+ * clk_hw_register_fixed_rate_with_accuracy_parent_hw - register fixed-rate
+ * clock with the clock framework
+ * @dev: device that is registering this clock
+ * @name: name of this clock
+ * @parent_hw: pointer to parent clk
+ * @flags: framework-specific flags
+ * @fixed_rate: non-adjustable clock rate
+ * @fixed_accuracy: non-adjustable clock accuracy
+ */
+#define clk_hw_register_fixed_rate_with_accuracy_parent_hw(dev, name,	      \
+		parent_hw, flags, fixed_rate, fixed_accuracy)		      \
+	__clk_hw_register_fixed_rate((dev), NULL, (name), NULL, (parent_hw)   \
+				     NULL, NULL, (flags), (fixed_rate),	      \
+				     (fixed_accuracy), 0)
+/**
+ * clk_hw_register_fixed_rate_with_accuracy_parent_data - register fixed-rate
+ * clock with the clock framework
+ * @dev: device that is registering this clock
+ * @name: name of this clock
+ * @parent_name: name of clock's parent
+ * @flags: framework-specific flags
+ * @fixed_rate: non-adjustable clock rate
+ * @fixed_accuracy: non-adjustable clock accuracy
+ */
+#define clk_hw_register_fixed_rate_with_accuracy_parent_data(dev, name,	      \
+		parent_data, flags, fixed_rate, fixed_accuracy)		      \
+	__clk_hw_register_fixed_rate((dev), NULL, (name), NULL, NULL,	      \
+				     (parent_data), NULL, (flags),	      \
+				     (fixed_rate), (fixed_accuracy), 0)
+
+void clk_unregister_fixed_rate(struct clk *clk);
+>>>>>>> upstream/android-13
 void clk_hw_unregister_fixed_rate(struct clk_hw *hw);
 
 void of_fixed_clk_setup(struct device_node *np);
@@ -444,6 +663,12 @@ void of_fixed_clk_setup(struct device_node *np);
  *	of this register, and mask of gate bits are in higher 16-bit of this
  *	register.  While setting the gate bits, higher 16-bit should also be
  *	updated to indicate changing gate bits.
+<<<<<<< HEAD
+=======
+ * CLK_GATE_BIG_ENDIAN - by default little endian register accesses are used for
+ *	the gate register.  Setting this flag makes the register accesses big
+ *	endian.
+>>>>>>> upstream/android-13
  */
 struct clk_gate {
 	struct clk_hw hw;
@@ -457,16 +682,82 @@ struct clk_gate {
 
 #define CLK_GATE_SET_TO_DISABLE		BIT(0)
 #define CLK_GATE_HIWORD_MASK		BIT(1)
+<<<<<<< HEAD
 
 extern const struct clk_ops clk_gate_ops;
+=======
+#define CLK_GATE_BIG_ENDIAN		BIT(2)
+
+extern const struct clk_ops clk_gate_ops;
+struct clk_hw *__clk_hw_register_gate(struct device *dev,
+		struct device_node *np, const char *name,
+		const char *parent_name, const struct clk_hw *parent_hw,
+		const struct clk_parent_data *parent_data,
+		unsigned long flags,
+		void __iomem *reg, u8 bit_idx,
+		u8 clk_gate_flags, spinlock_t *lock);
+>>>>>>> upstream/android-13
 struct clk *clk_register_gate(struct device *dev, const char *name,
 		const char *parent_name, unsigned long flags,
 		void __iomem *reg, u8 bit_idx,
 		u8 clk_gate_flags, spinlock_t *lock);
+<<<<<<< HEAD
 struct clk_hw *clk_hw_register_gate(struct device *dev, const char *name,
 		const char *parent_name, unsigned long flags,
 		void __iomem *reg, u8 bit_idx,
 		u8 clk_gate_flags, spinlock_t *lock);
+=======
+/**
+ * clk_hw_register_gate - register a gate clock with the clock framework
+ * @dev: device that is registering this clock
+ * @name: name of this clock
+ * @parent_name: name of this clock's parent
+ * @flags: framework-specific flags for this clock
+ * @reg: register address to control gating of this clock
+ * @bit_idx: which bit in the register controls gating of this clock
+ * @clk_gate_flags: gate-specific flags for this clock
+ * @lock: shared register lock for this clock
+ */
+#define clk_hw_register_gate(dev, name, parent_name, flags, reg, bit_idx,     \
+			     clk_gate_flags, lock)			      \
+	__clk_hw_register_gate((dev), NULL, (name), (parent_name), NULL,      \
+			       NULL, (flags), (reg), (bit_idx),		      \
+			       (clk_gate_flags), (lock))
+/**
+ * clk_hw_register_gate_parent_hw - register a gate clock with the clock
+ * framework
+ * @dev: device that is registering this clock
+ * @name: name of this clock
+ * @parent_hw: pointer to parent clk
+ * @flags: framework-specific flags for this clock
+ * @reg: register address to control gating of this clock
+ * @bit_idx: which bit in the register controls gating of this clock
+ * @clk_gate_flags: gate-specific flags for this clock
+ * @lock: shared register lock for this clock
+ */
+#define clk_hw_register_gate_parent_hw(dev, name, parent_hw, flags, reg,      \
+				       bit_idx, clk_gate_flags, lock)	      \
+	__clk_hw_register_gate((dev), NULL, (name), NULL, (parent_hw),        \
+			       NULL, (flags), (reg), (bit_idx),		      \
+			       (clk_gate_flags), (lock))
+/**
+ * clk_hw_register_gate_parent_data - register a gate clock with the clock
+ * framework
+ * @dev: device that is registering this clock
+ * @name: name of this clock
+ * @parent_data: parent clk data
+ * @flags: framework-specific flags for this clock
+ * @reg: register address to control gating of this clock
+ * @bit_idx: which bit in the register controls gating of this clock
+ * @clk_gate_flags: gate-specific flags for this clock
+ * @lock: shared register lock for this clock
+ */
+#define clk_hw_register_gate_parent_data(dev, name, parent_data, flags, reg,  \
+				       bit_idx, clk_gate_flags, lock)	      \
+	__clk_hw_register_gate((dev), NULL, (name), NULL, NULL, (parent_data), \
+			       (flags), (reg), (bit_idx),		      \
+			       (clk_gate_flags), (lock))
+>>>>>>> upstream/android-13
 void clk_unregister_gate(struct clk *clk);
 void clk_hw_unregister_gate(struct clk_hw *hw);
 int clk_gate_is_enabled(struct clk_hw *hw);
@@ -512,6 +803,12 @@ struct clk_div_table {
  * CLK_DIVIDER_MAX_AT_ZERO - For dividers which are like CLK_DIVIDER_ONE_BASED
  *	except when the value read from the register is zero, the divisor is
  *	2^width of the field.
+<<<<<<< HEAD
+=======
+ * CLK_DIVIDER_BIG_ENDIAN - By default little endian register accesses are used
+ *	for the divider register.  Setting this flag makes the register accesses
+ *	big endian.
+>>>>>>> upstream/android-13
  */
 struct clk_divider {
 	struct clk_hw	hw;
@@ -533,6 +830,10 @@ struct clk_divider {
 #define CLK_DIVIDER_ROUND_CLOSEST	BIT(4)
 #define CLK_DIVIDER_READ_ONLY		BIT(5)
 #define CLK_DIVIDER_MAX_AT_ZERO		BIT(6)
+<<<<<<< HEAD
+=======
+#define CLK_DIVIDER_BIG_ENDIAN		BIT(7)
+>>>>>>> upstream/android-13
 
 extern const struct clk_ops clk_divider_ops;
 extern const struct clk_ops clk_divider_ro_ops;
@@ -548,10 +849,20 @@ long divider_ro_round_rate_parent(struct clk_hw *hw, struct clk_hw *parent,
 				  unsigned long rate, unsigned long *prate,
 				  const struct clk_div_table *table, u8 width,
 				  unsigned long flags, unsigned int val);
+<<<<<<< HEAD
+=======
+int divider_determine_rate(struct clk_hw *hw, struct clk_rate_request *req,
+			   const struct clk_div_table *table, u8 width,
+			   unsigned long flags);
+int divider_ro_determine_rate(struct clk_hw *hw, struct clk_rate_request *req,
+			      const struct clk_div_table *table, u8 width,
+			      unsigned long flags, unsigned int val);
+>>>>>>> upstream/android-13
 int divider_get_val(unsigned long rate, unsigned long parent_rate,
 		const struct clk_div_table *table, u8 width,
 		unsigned long flags);
 
+<<<<<<< HEAD
 struct clk *clk_register_divider(struct device *dev, const char *name,
 		const char *parent_name, unsigned long flags,
 		void __iomem *reg, u8 shift, u8 width,
@@ -560,16 +871,207 @@ struct clk_hw *clk_hw_register_divider(struct device *dev, const char *name,
 		const char *parent_name, unsigned long flags,
 		void __iomem *reg, u8 shift, u8 width,
 		u8 clk_divider_flags, spinlock_t *lock);
+=======
+struct clk_hw *__clk_hw_register_divider(struct device *dev,
+		struct device_node *np, const char *name,
+		const char *parent_name, const struct clk_hw *parent_hw,
+		const struct clk_parent_data *parent_data, unsigned long flags,
+		void __iomem *reg, u8 shift, u8 width, u8 clk_divider_flags,
+		const struct clk_div_table *table, spinlock_t *lock);
+struct clk_hw *__devm_clk_hw_register_divider(struct device *dev,
+		struct device_node *np, const char *name,
+		const char *parent_name, const struct clk_hw *parent_hw,
+		const struct clk_parent_data *parent_data, unsigned long flags,
+		void __iomem *reg, u8 shift, u8 width, u8 clk_divider_flags,
+		const struct clk_div_table *table, spinlock_t *lock);
+>>>>>>> upstream/android-13
 struct clk *clk_register_divider_table(struct device *dev, const char *name,
 		const char *parent_name, unsigned long flags,
 		void __iomem *reg, u8 shift, u8 width,
 		u8 clk_divider_flags, const struct clk_div_table *table,
 		spinlock_t *lock);
+<<<<<<< HEAD
 struct clk_hw *clk_hw_register_divider_table(struct device *dev,
 		const char *name, const char *parent_name, unsigned long flags,
 		void __iomem *reg, u8 shift, u8 width,
 		u8 clk_divider_flags, const struct clk_div_table *table,
 		spinlock_t *lock);
+=======
+/**
+ * clk_register_divider - register a divider clock with the clock framework
+ * @dev: device registering this clock
+ * @name: name of this clock
+ * @parent_name: name of clock's parent
+ * @flags: framework-specific flags
+ * @reg: register address to adjust divider
+ * @shift: number of bits to shift the bitfield
+ * @width: width of the bitfield
+ * @clk_divider_flags: divider-specific flags for this clock
+ * @lock: shared register lock for this clock
+ */
+#define clk_register_divider(dev, name, parent_name, flags, reg, shift, width, \
+			     clk_divider_flags, lock)			       \
+	clk_register_divider_table((dev), (name), (parent_name), (flags),      \
+				   (reg), (shift), (width),		       \
+				   (clk_divider_flags), NULL, (lock))
+/**
+ * clk_hw_register_divider - register a divider clock with the clock framework
+ * @dev: device registering this clock
+ * @name: name of this clock
+ * @parent_name: name of clock's parent
+ * @flags: framework-specific flags
+ * @reg: register address to adjust divider
+ * @shift: number of bits to shift the bitfield
+ * @width: width of the bitfield
+ * @clk_divider_flags: divider-specific flags for this clock
+ * @lock: shared register lock for this clock
+ */
+#define clk_hw_register_divider(dev, name, parent_name, flags, reg, shift,    \
+				width, clk_divider_flags, lock)		      \
+	__clk_hw_register_divider((dev), NULL, (name), (parent_name), NULL,   \
+				  NULL, (flags), (reg), (shift), (width),     \
+				  (clk_divider_flags), NULL, (lock))
+/**
+ * clk_hw_register_divider_parent_hw - register a divider clock with the clock
+ * framework
+ * @dev: device registering this clock
+ * @name: name of this clock
+ * @parent_hw: pointer to parent clk
+ * @flags: framework-specific flags
+ * @reg: register address to adjust divider
+ * @shift: number of bits to shift the bitfield
+ * @width: width of the bitfield
+ * @clk_divider_flags: divider-specific flags for this clock
+ * @lock: shared register lock for this clock
+ */
+#define clk_hw_register_divider_parent_hw(dev, name, parent_hw, flags, reg,   \
+					  shift, width, clk_divider_flags,    \
+					  lock)				      \
+	__clk_hw_register_divider((dev), NULL, (name), NULL, (parent_hw),     \
+				  NULL, (flags), (reg), (shift), (width),     \
+				  (clk_divider_flags), NULL, (lock))
+/**
+ * clk_hw_register_divider_parent_data - register a divider clock with the clock
+ * framework
+ * @dev: device registering this clock
+ * @name: name of this clock
+ * @parent_data: parent clk data
+ * @flags: framework-specific flags
+ * @reg: register address to adjust divider
+ * @shift: number of bits to shift the bitfield
+ * @width: width of the bitfield
+ * @clk_divider_flags: divider-specific flags for this clock
+ * @lock: shared register lock for this clock
+ */
+#define clk_hw_register_divider_parent_data(dev, name, parent_data, flags,    \
+					    reg, shift, width,		      \
+					    clk_divider_flags, lock)	      \
+	__clk_hw_register_divider((dev), NULL, (name), NULL, NULL,	      \
+				  (parent_data), (flags), (reg), (shift),     \
+				  (width), (clk_divider_flags), NULL, (lock))
+/**
+ * clk_hw_register_divider_table - register a table based divider clock with
+ * the clock framework
+ * @dev: device registering this clock
+ * @name: name of this clock
+ * @parent_name: name of clock's parent
+ * @flags: framework-specific flags
+ * @reg: register address to adjust divider
+ * @shift: number of bits to shift the bitfield
+ * @width: width of the bitfield
+ * @clk_divider_flags: divider-specific flags for this clock
+ * @table: array of divider/value pairs ending with a div set to 0
+ * @lock: shared register lock for this clock
+ */
+#define clk_hw_register_divider_table(dev, name, parent_name, flags, reg,     \
+				      shift, width, clk_divider_flags, table, \
+				      lock)				      \
+	__clk_hw_register_divider((dev), NULL, (name), (parent_name), NULL,   \
+				  NULL, (flags), (reg), (shift), (width),     \
+				  (clk_divider_flags), (table), (lock))
+/**
+ * clk_hw_register_divider_table_parent_hw - register a table based divider
+ * clock with the clock framework
+ * @dev: device registering this clock
+ * @name: name of this clock
+ * @parent_hw: pointer to parent clk
+ * @flags: framework-specific flags
+ * @reg: register address to adjust divider
+ * @shift: number of bits to shift the bitfield
+ * @width: width of the bitfield
+ * @clk_divider_flags: divider-specific flags for this clock
+ * @table: array of divider/value pairs ending with a div set to 0
+ * @lock: shared register lock for this clock
+ */
+#define clk_hw_register_divider_table_parent_hw(dev, name, parent_hw, flags,  \
+						reg, shift, width,	      \
+						clk_divider_flags, table,     \
+						lock)			      \
+	__clk_hw_register_divider((dev), NULL, (name), NULL, (parent_hw),     \
+				  NULL, (flags), (reg), (shift), (width),     \
+				  (clk_divider_flags), (table), (lock))
+/**
+ * clk_hw_register_divider_table_parent_data - register a table based divider
+ * clock with the clock framework
+ * @dev: device registering this clock
+ * @name: name of this clock
+ * @parent_data: parent clk data
+ * @flags: framework-specific flags
+ * @reg: register address to adjust divider
+ * @shift: number of bits to shift the bitfield
+ * @width: width of the bitfield
+ * @clk_divider_flags: divider-specific flags for this clock
+ * @table: array of divider/value pairs ending with a div set to 0
+ * @lock: shared register lock for this clock
+ */
+#define clk_hw_register_divider_table_parent_data(dev, name, parent_data,     \
+						  flags, reg, shift, width,   \
+						  clk_divider_flags, table,   \
+						  lock)			      \
+	__clk_hw_register_divider((dev), NULL, (name), NULL, NULL,	      \
+				  (parent_data), (flags), (reg), (shift),     \
+				  (width), (clk_divider_flags), (table),      \
+				  (lock))
+/**
+ * devm_clk_hw_register_divider - register a divider clock with the clock framework
+ * @dev: device registering this clock
+ * @name: name of this clock
+ * @parent_name: name of clock's parent
+ * @flags: framework-specific flags
+ * @reg: register address to adjust divider
+ * @shift: number of bits to shift the bitfield
+ * @width: width of the bitfield
+ * @clk_divider_flags: divider-specific flags for this clock
+ * @lock: shared register lock for this clock
+ */
+#define devm_clk_hw_register_divider(dev, name, parent_name, flags, reg, shift,    \
+				width, clk_divider_flags, lock)		      \
+	__devm_clk_hw_register_divider((dev), NULL, (name), (parent_name), NULL,   \
+				  NULL, (flags), (reg), (shift), (width),     \
+				  (clk_divider_flags), NULL, (lock))
+/**
+ * devm_clk_hw_register_divider_table - register a table based divider clock
+ * with the clock framework (devres variant)
+ * @dev: device registering this clock
+ * @name: name of this clock
+ * @parent_name: name of clock's parent
+ * @flags: framework-specific flags
+ * @reg: register address to adjust divider
+ * @shift: number of bits to shift the bitfield
+ * @width: width of the bitfield
+ * @clk_divider_flags: divider-specific flags for this clock
+ * @table: array of divider/value pairs ending with a div set to 0
+ * @lock: shared register lock for this clock
+ */
+#define devm_clk_hw_register_divider_table(dev, name, parent_name, flags,     \
+					   reg, shift, width,		      \
+					   clk_divider_flags, table, lock)    \
+	__devm_clk_hw_register_divider((dev), NULL, (name), (parent_name),    \
+				       NULL, NULL, (flags), (reg), (shift),   \
+				       (width), (clk_divider_flags), (table), \
+				       (lock))
+
+>>>>>>> upstream/android-13
 void clk_unregister_divider(struct clk *clk);
 void clk_hw_unregister_divider(struct clk_hw *hw);
 
@@ -594,8 +1096,18 @@ void clk_hw_unregister_divider(struct clk_hw *hw);
  *	register, and mask of mux bits are in higher 16-bit of this register.
  *	While setting the mux bits, higher 16-bit should also be updated to
  *	indicate changing mux bits.
+<<<<<<< HEAD
  * CLK_MUX_ROUND_CLOSEST - Use the parent rate that is closest to the desired
  *	frequency.
+=======
+ * CLK_MUX_READ_ONLY - The mux registers can't be written, only read in the
+ * 	.get_parent clk_op.
+ * CLK_MUX_ROUND_CLOSEST - Use the parent rate that is closest to the desired
+ *	frequency.
+ * CLK_MUX_BIG_ENDIAN - By default little endian register accesses are used for
+ *	the mux register.  Setting this flag makes the register accesses big
+ *	endian.
+>>>>>>> upstream/android-13
  */
 struct clk_mux {
 	struct clk_hw	hw;
@@ -614,10 +1126,15 @@ struct clk_mux {
 #define CLK_MUX_HIWORD_MASK		BIT(2)
 #define CLK_MUX_READ_ONLY		BIT(3) /* mux can't be changed */
 #define CLK_MUX_ROUND_CLOSEST		BIT(4)
+<<<<<<< HEAD
+=======
+#define CLK_MUX_BIG_ENDIAN		BIT(5)
+>>>>>>> upstream/android-13
 
 extern const struct clk_ops clk_mux_ops;
 extern const struct clk_ops clk_mux_ro_ops;
 
+<<<<<<< HEAD
 struct clk *clk_register_mux(struct device *dev, const char *name,
 		const char * const *parent_names, u8 num_parents,
 		unsigned long flags,
@@ -640,6 +1157,63 @@ struct clk_hw *clk_hw_register_mux_table(struct device *dev, const char *name,
 		void __iomem *reg, u8 shift, u32 mask,
 		u8 clk_mux_flags, u32 *table, spinlock_t *lock);
 
+=======
+struct clk_hw *__clk_hw_register_mux(struct device *dev, struct device_node *np,
+		const char *name, u8 num_parents,
+		const char * const *parent_names,
+		const struct clk_hw **parent_hws,
+		const struct clk_parent_data *parent_data,
+		unsigned long flags, void __iomem *reg, u8 shift, u32 mask,
+		u8 clk_mux_flags, u32 *table, spinlock_t *lock);
+struct clk_hw *__devm_clk_hw_register_mux(struct device *dev, struct device_node *np,
+		const char *name, u8 num_parents,
+		const char * const *parent_names,
+		const struct clk_hw **parent_hws,
+		const struct clk_parent_data *parent_data,
+		unsigned long flags, void __iomem *reg, u8 shift, u32 mask,
+		u8 clk_mux_flags, u32 *table, spinlock_t *lock);
+struct clk *clk_register_mux_table(struct device *dev, const char *name,
+		const char * const *parent_names, u8 num_parents,
+		unsigned long flags, void __iomem *reg, u8 shift, u32 mask,
+		u8 clk_mux_flags, u32 *table, spinlock_t *lock);
+
+#define clk_register_mux(dev, name, parent_names, num_parents, flags, reg,    \
+			 shift, width, clk_mux_flags, lock)		      \
+	clk_register_mux_table((dev), (name), (parent_names), (num_parents),  \
+			       (flags), (reg), (shift), BIT((width)) - 1,     \
+			       (clk_mux_flags), NULL, (lock))
+#define clk_hw_register_mux_table(dev, name, parent_names, num_parents,	      \
+				  flags, reg, shift, mask, clk_mux_flags,     \
+				  table, lock)				      \
+	__clk_hw_register_mux((dev), NULL, (name), (num_parents),	      \
+			      (parent_names), NULL, NULL, (flags), (reg),     \
+			      (shift), (mask), (clk_mux_flags), (table),      \
+			      (lock))
+#define clk_hw_register_mux(dev, name, parent_names, num_parents, flags, reg, \
+			    shift, width, clk_mux_flags, lock)		      \
+	__clk_hw_register_mux((dev), NULL, (name), (num_parents),	      \
+			      (parent_names), NULL, NULL, (flags), (reg),     \
+			      (shift), BIT((width)) - 1, (clk_mux_flags),     \
+			      NULL, (lock))
+#define clk_hw_register_mux_hws(dev, name, parent_hws, num_parents, flags,    \
+				reg, shift, width, clk_mux_flags, lock)	      \
+	__clk_hw_register_mux((dev), NULL, (name), (num_parents), NULL,	      \
+			      (parent_hws), NULL, (flags), (reg), (shift),    \
+			      BIT((width)) - 1, (clk_mux_flags), NULL, (lock))
+#define clk_hw_register_mux_parent_data(dev, name, parent_data, num_parents,  \
+					flags, reg, shift, width,	      \
+					clk_mux_flags, lock)		      \
+	__clk_hw_register_mux((dev), NULL, (name), (num_parents), NULL, NULL, \
+			      (parent_data), (flags), (reg), (shift),	      \
+			      BIT((width)) - 1, (clk_mux_flags), NULL, (lock))
+#define devm_clk_hw_register_mux(dev, name, parent_names, num_parents, flags, reg, \
+			    shift, width, clk_mux_flags, lock)		      \
+	__devm_clk_hw_register_mux((dev), NULL, (name), (num_parents),	      \
+			      (parent_names), NULL, NULL, (flags), (reg),     \
+			      (shift), BIT((width)) - 1, (clk_mux_flags),     \
+			      NULL, (lock))
+
+>>>>>>> upstream/android-13
 int clk_mux_val_to_index(struct clk_hw *hw, u32 *table, unsigned int flags,
 			 unsigned int val);
 unsigned int clk_mux_index_to_val(u32 *table, unsigned int flags, u8 index);
@@ -678,7 +1252,13 @@ struct clk_hw *clk_hw_register_fixed_factor(struct device *dev,
 		const char *name, const char *parent_name, unsigned long flags,
 		unsigned int mult, unsigned int div);
 void clk_hw_unregister_fixed_factor(struct clk_hw *hw);
+<<<<<<< HEAD
 
+=======
+struct clk_hw *devm_clk_hw_register_fixed_factor(struct device *dev,
+		const char *name, const char *parent_name, unsigned long flags,
+		unsigned int mult, unsigned int div);
+>>>>>>> upstream/android-13
 /**
  * struct clk_fractional_divider - adjustable fractional divider clock
  *
@@ -691,6 +1271,24 @@ void clk_hw_unregister_fixed_factor(struct clk_hw *hw);
  * @lock:	register lock
  *
  * Clock with adjustable fractional divider affecting its output frequency.
+<<<<<<< HEAD
+=======
+ *
+ * Flags:
+ * CLK_FRAC_DIVIDER_ZERO_BASED - by default the numerator and denominator
+ *	is the value read from the register. If CLK_FRAC_DIVIDER_ZERO_BASED
+ *	is set then the numerator and denominator are both the value read
+ *	plus one.
+ * CLK_FRAC_DIVIDER_BIG_ENDIAN - By default little endian register accesses are
+ *	used for the divider register.  Setting this flag makes the register
+ *	accesses big endian.
+ * CLK_FRAC_DIVIDER_POWER_OF_TWO_PS - By default the resulting fraction might
+ *	be saturated and the caller will get quite far from the good enough
+ *	approximation. Instead the caller may require, by setting this flag,
+ *	to shift left by a few bits in case, when the asked one is quite small
+ *	to satisfy the desired range of denominator. It assumes that on the
+ *	caller's side the power-of-two capable prescaler exists.
+>>>>>>> upstream/android-13
  */
 struct clk_fractional_divider {
 	struct clk_hw	hw;
@@ -710,7 +1308,14 @@ struct clk_fractional_divider {
 
 #define to_clk_fd(_hw) container_of(_hw, struct clk_fractional_divider, hw)
 
+<<<<<<< HEAD
 extern const struct clk_ops clk_fractional_divider_ops;
+=======
+#define CLK_FRAC_DIVIDER_ZERO_BASED		BIT(0)
+#define CLK_FRAC_DIVIDER_BIG_ENDIAN		BIT(1)
+#define CLK_FRAC_DIVIDER_POWER_OF_TWO_PS	BIT(2)
+
+>>>>>>> upstream/android-13
 struct clk *clk_register_fractional_divider(struct device *dev,
 		const char *name, const char *parent_name, unsigned long flags,
 		void __iomem *reg, u8 mshift, u8 mwidth, u8 nshift, u8 nwidth,
@@ -741,6 +1346,12 @@ void clk_hw_unregister_fractional_divider(struct clk_hw *hw);
  *	leaving the parent rate unmodified.
  * CLK_MULTIPLIER_ROUND_CLOSEST - Makes the best calculated divider to be
  *	rounded to the closest integer instead of the down one.
+<<<<<<< HEAD
+=======
+ * CLK_MULTIPLIER_BIG_ENDIAN - By default little endian register accesses are
+ *	used for the multiplier register.  Setting this flag makes the register
+ *	accesses big endian.
+>>>>>>> upstream/android-13
  */
 struct clk_multiplier {
 	struct clk_hw	hw;
@@ -753,8 +1364,14 @@ struct clk_multiplier {
 
 #define to_clk_multiplier(_hw) container_of(_hw, struct clk_multiplier, hw)
 
+<<<<<<< HEAD
 #define CLK_MULTIPLIER_ZERO_BYPASS		BIT(0)
 #define CLK_MULTIPLIER_ROUND_CLOSEST	BIT(1)
+=======
+#define CLK_MULTIPLIER_ZERO_BYPASS	BIT(0)
+#define CLK_MULTIPLIER_ROUND_CLOSEST	BIT(1)
+#define CLK_MULTIPLIER_BIG_ENDIAN	BIT(2)
+>>>>>>> upstream/android-13
 
 extern const struct clk_ops clk_multiplier_ops;
 
@@ -790,6 +1407,15 @@ struct clk *clk_register_composite(struct device *dev, const char *name,
 		struct clk_hw *rate_hw, const struct clk_ops *rate_ops,
 		struct clk_hw *gate_hw, const struct clk_ops *gate_ops,
 		unsigned long flags);
+<<<<<<< HEAD
+=======
+struct clk *clk_register_composite_pdata(struct device *dev, const char *name,
+		const struct clk_parent_data *parent_data, int num_parents,
+		struct clk_hw *mux_hw, const struct clk_ops *mux_ops,
+		struct clk_hw *rate_hw, const struct clk_ops *rate_ops,
+		struct clk_hw *gate_hw, const struct clk_ops *gate_ops,
+		unsigned long flags);
+>>>>>>> upstream/android-13
 void clk_unregister_composite(struct clk *clk);
 struct clk_hw *clk_hw_register_composite(struct device *dev, const char *name,
 		const char * const *parent_names, int num_parents,
@@ -797,6 +1423,7 @@ struct clk_hw *clk_hw_register_composite(struct device *dev, const char *name,
 		struct clk_hw *rate_hw, const struct clk_ops *rate_ops,
 		struct clk_hw *gate_hw, const struct clk_ops *gate_ops,
 		unsigned long flags);
+<<<<<<< HEAD
 void clk_hw_unregister_composite(struct clk_hw *hw);
 
 /***
@@ -855,11 +1482,33 @@ void clk_hw_unregister_gpio_mux(struct clk_hw *hw);
  * rest of the clock API.  In the event of an error clk_register will return an
  * error code; drivers must test for an error code after calling clk_register.
  */
+=======
+struct clk_hw *clk_hw_register_composite_pdata(struct device *dev,
+		const char *name,
+		const struct clk_parent_data *parent_data, int num_parents,
+		struct clk_hw *mux_hw, const struct clk_ops *mux_ops,
+		struct clk_hw *rate_hw, const struct clk_ops *rate_ops,
+		struct clk_hw *gate_hw, const struct clk_ops *gate_ops,
+		unsigned long flags);
+struct clk_hw *devm_clk_hw_register_composite_pdata(struct device *dev,
+		const char *name, const struct clk_parent_data *parent_data,
+		int num_parents,
+		struct clk_hw *mux_hw, const struct clk_ops *mux_ops,
+		struct clk_hw *rate_hw, const struct clk_ops *rate_ops,
+		struct clk_hw *gate_hw, const struct clk_ops *gate_ops,
+		unsigned long flags);
+void clk_hw_unregister_composite(struct clk_hw *hw);
+
+>>>>>>> upstream/android-13
 struct clk *clk_register(struct device *dev, struct clk_hw *hw);
 struct clk *devm_clk_register(struct device *dev, struct clk_hw *hw);
 
 int __must_check clk_hw_register(struct device *dev, struct clk_hw *hw);
 int __must_check devm_clk_hw_register(struct device *dev, struct clk_hw *hw);
+<<<<<<< HEAD
+=======
+int __must_check of_clk_hw_register(struct device_node *node, struct clk_hw *hw);
+>>>>>>> upstream/android-13
 
 void clk_unregister(struct clk *clk);
 void devm_clk_unregister(struct device *dev, struct clk *clk);
@@ -871,14 +1520,37 @@ void clk_sync_state(struct device *dev);
 /* helper functions */
 const char *__clk_get_name(const struct clk *clk);
 const char *clk_hw_get_name(const struct clk_hw *hw);
+<<<<<<< HEAD
 struct clk_hw *__clk_get_hw(struct clk *clk);
+=======
+#ifdef CONFIG_COMMON_CLK
+struct clk_hw *__clk_get_hw(struct clk *clk);
+#else
+static inline struct clk_hw *__clk_get_hw(struct clk *clk)
+{
+	return (struct clk_hw *)clk;
+}
+#endif
+
+struct clk *clk_hw_get_clk(struct clk_hw *hw, const char *con_id);
+struct clk *devm_clk_hw_get_clk(struct device *dev, struct clk_hw *hw,
+				const char *con_id);
+
+>>>>>>> upstream/android-13
 unsigned int clk_hw_get_num_parents(const struct clk_hw *hw);
 struct clk_hw *clk_hw_get_parent(const struct clk_hw *hw);
 struct clk_hw *clk_hw_get_parent_by_index(const struct clk_hw *hw,
 					  unsigned int index);
+<<<<<<< HEAD
 unsigned int __clk_get_enable_count(struct clk *clk);
 unsigned long clk_hw_get_rate(const struct clk_hw *hw);
 unsigned long __clk_get_flags(struct clk *clk);
+=======
+int clk_hw_get_parent_index(struct clk_hw *hw);
+int clk_hw_set_parent(struct clk_hw *hw, struct clk_hw *new_parent);
+unsigned int __clk_get_enable_count(struct clk *clk);
+unsigned long clk_hw_get_rate(const struct clk_hw *hw);
+>>>>>>> upstream/android-13
 unsigned long clk_hw_get_flags(const struct clk_hw *hw);
 #define clk_hw_can_set_rate_parent(hw) \
 	(clk_hw_get_flags((hw)) & CLK_SET_RATE_PARENT)
@@ -900,11 +1572,14 @@ void clk_hw_reparent(struct clk_hw *hw, struct clk_hw *new_parent);
 void clk_hw_set_rate_range(struct clk_hw *hw, unsigned long min_rate,
 			   unsigned long max_rate);
 
+<<<<<<< HEAD
 unsigned long clk_aggregate_rate(struct clk_hw *hw,
 					const struct clk_core *parent);
 int clk_vote_rate_vdd(struct clk_core *core, unsigned long rate);
 void clk_unvote_rate_vdd(struct clk_core *core, unsigned long rate);
 
+=======
+>>>>>>> upstream/android-13
 static inline void __clk_hw_set_clk(struct clk_hw *dst, struct clk_hw *src)
 {
 	dst->clk = src->clk;
@@ -936,8 +1611,11 @@ static inline long divider_ro_round_rate(struct clk_hw *hw, unsigned long rate,
  */
 unsigned long clk_hw_round_rate(struct clk_hw *hw, unsigned long rate);
 
+<<<<<<< HEAD
 struct of_device_id;
 
+=======
+>>>>>>> upstream/android-13
 struct clk_onecell_data {
 	struct clk **clks;
 	unsigned int clk_num;
@@ -948,8 +1626,11 @@ struct clk_hw_onecell_data {
 	struct clk_hw *hws[];
 };
 
+<<<<<<< HEAD
 extern struct of_device_id __clk_of_table;
 
+=======
+>>>>>>> upstream/android-13
 #define CLK_OF_DECLARE(name, compat, fn) OF_DECLARE_1(clk, name, compat, fn)
 
 /*
@@ -973,6 +1654,43 @@ extern struct of_device_id __clk_of_table;
 		.ops		= _ops,				\
 	})
 
+<<<<<<< HEAD
+=======
+#define CLK_HW_INIT_HW(_name, _parent, _ops, _flags)			\
+	(&(struct clk_init_data) {					\
+		.flags		= _flags,				\
+		.name		= _name,				\
+		.parent_hws	= (const struct clk_hw*[]) { _parent },	\
+		.num_parents	= 1,					\
+		.ops		= _ops,					\
+	})
+
+/*
+ * This macro is intended for drivers to be able to share the otherwise
+ * individual struct clk_hw[] compound literals created by the compiler
+ * when using CLK_HW_INIT_HW. It does NOT support multiple parents.
+ */
+#define CLK_HW_INIT_HWS(_name, _parent, _ops, _flags)			\
+	(&(struct clk_init_data) {					\
+		.flags		= _flags,				\
+		.name		= _name,				\
+		.parent_hws	= _parent,				\
+		.num_parents	= 1,					\
+		.ops		= _ops,					\
+	})
+
+#define CLK_HW_INIT_FW_NAME(_name, _parent, _ops, _flags)		\
+	(&(struct clk_init_data) {					\
+		.flags		= _flags,				\
+		.name		= _name,				\
+		.parent_data	= (const struct clk_parent_data[]) {	\
+					{ .fw_name = _parent },		\
+				  },					\
+		.num_parents	= 1,					\
+		.ops		= _ops,					\
+	})
+
+>>>>>>> upstream/android-13
 #define CLK_HW_INIT_PARENTS(_name, _parents, _ops, _flags)	\
 	(&(struct clk_init_data) {				\
 		.flags		= _flags,			\
@@ -982,6 +1700,27 @@ extern struct of_device_id __clk_of_table;
 		.ops		= _ops,				\
 	})
 
+<<<<<<< HEAD
+=======
+#define CLK_HW_INIT_PARENTS_HW(_name, _parents, _ops, _flags)	\
+	(&(struct clk_init_data) {				\
+		.flags		= _flags,			\
+		.name		= _name,			\
+		.parent_hws	= _parents,			\
+		.num_parents	= ARRAY_SIZE(_parents),		\
+		.ops		= _ops,				\
+	})
+
+#define CLK_HW_INIT_PARENTS_DATA(_name, _parents, _ops, _flags)	\
+	(&(struct clk_init_data) {				\
+		.flags		= _flags,			\
+		.name		= _name,			\
+		.parent_data	= _parents,			\
+		.num_parents	= ARRAY_SIZE(_parents),		\
+		.ops		= _ops,				\
+	})
+
+>>>>>>> upstream/android-13
 #define CLK_HW_INIT_NO_PARENT(_name, _ops, _flags)	\
 	(&(struct clk_init_data) {			\
 		.flags          = _flags,		\
@@ -1002,6 +1741,46 @@ extern struct of_device_id __clk_of_table;
 					      _flags),			\
 	}
 
+<<<<<<< HEAD
+=======
+#define CLK_FIXED_FACTOR_HW(_struct, _name, _parent,			\
+			    _div, _mult, _flags)			\
+	struct clk_fixed_factor _struct = {				\
+		.div		= _div,					\
+		.mult		= _mult,				\
+		.hw.init	= CLK_HW_INIT_HW(_name,			\
+						 _parent,		\
+						 &clk_fixed_factor_ops,	\
+						 _flags),		\
+	}
+
+/*
+ * This macro allows the driver to reuse the _parent array for multiple
+ * fixed factor clk declarations.
+ */
+#define CLK_FIXED_FACTOR_HWS(_struct, _name, _parent,			\
+			     _div, _mult, _flags)			\
+	struct clk_fixed_factor _struct = {				\
+		.div		= _div,					\
+		.mult		= _mult,				\
+		.hw.init	= CLK_HW_INIT_HWS(_name,		\
+						  _parent,		\
+						  &clk_fixed_factor_ops, \
+						  _flags),	\
+	}
+
+#define CLK_FIXED_FACTOR_FW_NAME(_struct, _name, _parent,		\
+				 _div, _mult, _flags)			\
+	struct clk_fixed_factor _struct = {				\
+		.div		= _div,					\
+		.mult		= _mult,				\
+		.hw.init	= CLK_HW_INIT_FW_NAME(_name,		\
+						      _parent,		\
+						      &clk_fixed_factor_ops, \
+						      _flags),		\
+	}
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_OF
 int of_clk_add_provider(struct device_node *np,
 			struct clk *(*clk_src_get)(struct of_phandle_args *args,
@@ -1086,6 +1865,7 @@ static inline int of_clk_detect_critical(struct device_node *np, int index,
 }
 #endif /* CONFIG_OF */
 
+<<<<<<< HEAD
 /*
  * wrap access to peripherals in accessor routines
  * for improved portability across platforms
@@ -1118,4 +1898,8 @@ static inline void clk_writel(u32 val, u32 __iomem *reg)
 #endif	/* platform dependent I/O accessors */
 
 #endif /* CONFIG_COMMON_CLK */
+=======
+void clk_gate_restore_context(struct clk_hw *hw);
+
+>>>>>>> upstream/android-13
 #endif /* CLK_PROVIDER_H */

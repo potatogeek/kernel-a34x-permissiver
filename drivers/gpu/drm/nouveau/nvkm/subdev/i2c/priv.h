@@ -1,11 +1,20 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
+=======
+/* SPDX-License-Identifier: MIT */
+>>>>>>> upstream/android-13
 #ifndef __NVKM_I2C_PRIV_H__
 #define __NVKM_I2C_PRIV_H__
 #define nvkm_i2c(p) container_of((p), struct nvkm_i2c, subdev)
 #include <subdev/i2c.h>
 
+<<<<<<< HEAD
 int nvkm_i2c_new_(const struct nvkm_i2c_func *, struct nvkm_device *,
 		  int index, struct nvkm_i2c **);
+=======
+int nvkm_i2c_new_(const struct nvkm_i2c_func *, struct nvkm_device *, enum nvkm_subdev_type, int,
+		  struct nvkm_i2c **);
+>>>>>>> upstream/android-13
 
 struct nvkm_i2c_func {
 	int (*pad_x_new)(struct nvkm_i2c *, int id, struct nvkm_i2c_pad **);
@@ -23,6 +32,13 @@ struct nvkm_i2c_func {
 	/* mask on/off interrupt types for a given set of auxch
 	 */
 	void (*aux_mask)(struct nvkm_i2c *, u32, u32, u32);
+<<<<<<< HEAD
+=======
+
+	/* enable/disable HW-initiated DPCD reads
+	 */
+	void (*aux_autodpcd)(struct nvkm_i2c *, int aux, bool enable);
+>>>>>>> upstream/android-13
 };
 
 void g94_aux_stat(struct nvkm_i2c *, u32 *, u32 *, u32 *, u32 *);

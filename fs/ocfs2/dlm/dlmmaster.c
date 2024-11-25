@@ -1,11 +1,17 @@
+<<<<<<< HEAD
 /* -*- mode: c; c-basic-offset: 8; -*-
  * vim: noexpandtab sw=8 ts=8 sts=0:
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  * dlmmod.c
  *
  * standalone DLM module
  *
  * Copyright (C) 2004 Oracle.  All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -22,6 +28,8 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 021110-1307, USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 
@@ -40,9 +48,15 @@
 #include <linux/delay.h>
 
 
+<<<<<<< HEAD
 #include "cluster/heartbeat.h"
 #include "cluster/nodemanager.h"
 #include "cluster/tcp.h"
+=======
+#include "../cluster/heartbeat.h"
+#include "../cluster/nodemanager.h"
+#include "../cluster/tcp.h"
+>>>>>>> upstream/android-13
 
 #include "dlmapi.h"
 #include "dlmcommon.h"
@@ -50,7 +64,11 @@
 #include "dlmdebug.h"
 
 #define MLOG_MASK_PREFIX (ML_DLM|ML_DLM_MASTER)
+<<<<<<< HEAD
 #include "cluster/masklog.h"
+=======
+#include "../cluster/masklog.h"
+>>>>>>> upstream/android-13
 
 static void dlm_mle_node_down(struct dlm_ctxt *dlm,
 			      struct dlm_master_list_entry *mle,
@@ -2176,7 +2194,11 @@ put:
  * think that $RECOVERY is currently mastered by a dead node.  If so,
  * we wait a short time to allow that node to get notified by its own
  * heartbeat stack, then check again.  All $RECOVERY lock resources
+<<<<<<< HEAD
  * mastered by dead nodes are purged when the hearbeat callback is
+=======
+ * mastered by dead nodes are purged when the heartbeat callback is
+>>>>>>> upstream/android-13
  * fired, so we can know for sure that it is safe to continue once
  * the node returns a live node or no node.  */
 static int dlm_pre_master_reco_lockres(struct dlm_ctxt *dlm,
@@ -2569,8 +2591,11 @@ static int dlm_migrate_lockres(struct dlm_ctxt *dlm,
 	if (!dlm_grab(dlm))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	BUG_ON(target == O2NM_MAX_NODES);
 
+=======
+>>>>>>> upstream/android-13
 	name = res->lockname.name;
 	namelen = res->lockname.len;
 
@@ -2766,8 +2791,11 @@ leave:
 	return ret;
 }
 
+<<<<<<< HEAD
 #define DLM_MIGRATION_RETRY_MS  100
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Should be called only after beginning the domain leave process.
  * There should not be any remaining locks on nonlocal lock resources,
@@ -2779,6 +2807,10 @@ leave:
  * Returns: 1 if dlm->spinlock was dropped/retaken, 0 if never dropped
  */
 int dlm_empty_lockres(struct dlm_ctxt *dlm, struct dlm_lock_resource *res)
+<<<<<<< HEAD
+=======
+	__must_hold(&dlm->spinlock)
+>>>>>>> upstream/android-13
 {
 	int ret;
 	int lock_dropped = 0;
@@ -2997,7 +3029,11 @@ static u8 dlm_pick_migration_target(struct dlm_ctxt *dlm,
 				    struct dlm_lock_resource *res)
 {
 	enum dlm_lockres_list idx;
+<<<<<<< HEAD
 	struct list_head *queue = &res->granted;
+=======
+	struct list_head *queue;
+>>>>>>> upstream/android-13
 	struct dlm_lock *lock;
 	int noderef;
 	u8 nodenum = O2NM_MAX_NODES;

@@ -147,7 +147,11 @@ static int riscv_map_hw_event(u64 config)
 	return riscv_pmu->hw_events[config];
 }
 
+<<<<<<< HEAD
 int riscv_map_cache_decode(u64 config, unsigned int *type,
+=======
+static int riscv_map_cache_decode(u64 config, unsigned int *type,
+>>>>>>> upstream/android-13
 			   unsigned int *op, unsigned int *result)
 {
 	return -ENOENT;
@@ -185,10 +189,17 @@ static inline u64 read_counter(int idx)
 
 	switch (idx) {
 	case RISCV_PMU_CYCLE:
+<<<<<<< HEAD
 		val = csr_read(cycle);
 		break;
 	case RISCV_PMU_INSTRET:
 		val = csr_read(instret);
+=======
+		val = csr_read(CSR_CYCLE);
+		break;
+	case RISCV_PMU_INSTRET:
+		val = csr_read(CSR_INSTRET);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		WARN_ON_ONCE(idx < 0 ||	idx > RISCV_MAX_COUNTERS);
@@ -342,7 +353,11 @@ static void riscv_pmu_del(struct perf_event *event, int flags)
 
 static DEFINE_MUTEX(pmc_reserve_mutex);
 
+<<<<<<< HEAD
 irqreturn_t riscv_base_pmu_handle_irq(int irq_num, void *dev)
+=======
+static irqreturn_t riscv_base_pmu_handle_irq(int irq_num, void *dev)
+>>>>>>> upstream/android-13
 {
 	return IRQ_NONE;
 }
@@ -361,7 +376,11 @@ static int reserve_pmc_hardware(void)
 	return err;
 }
 
+<<<<<<< HEAD
 void release_pmc_hardware(void)
+=======
+static void release_pmc_hardware(void)
+>>>>>>> upstream/android-13
 {
 	mutex_lock(&pmc_reserve_mutex);
 	if (riscv_pmu->irq >= 0)
@@ -464,7 +483,11 @@ static const struct of_device_id riscv_pmu_of_ids[] = {
 	{ /* sentinel value */ }
 };
 
+<<<<<<< HEAD
 int __init init_hw_perf_events(void)
+=======
+static int __init init_hw_perf_events(void)
+>>>>>>> upstream/android-13
 {
 	struct device_node *node = of_find_node_by_type(NULL, "pmu");
 	const struct of_device_id *of_id;
@@ -476,6 +499,10 @@ int __init init_hw_perf_events(void)
 
 		if (of_id)
 			riscv_pmu = of_id->data;
+<<<<<<< HEAD
+=======
+		of_node_put(node);
+>>>>>>> upstream/android-13
 	}
 
 	perf_pmu_register(riscv_pmu->pmu, "cpu", PERF_TYPE_RAW);

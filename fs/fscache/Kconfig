@@ -1,17 +1,33 @@
+<<<<<<< HEAD
 
 config FSCACHE
 	tristate "General filesystem local caching manager"
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+
+config FSCACHE
+	tristate "General filesystem local caching manager"
+	select NETFS_SUPPORT
+>>>>>>> upstream/android-13
 	help
 	  This option enables a generic filesystem caching manager that can be
 	  used by various network and other filesystems to cache data locally.
 	  Different sorts of caches can be plugged in, depending on the
 	  resources available.
 
+<<<<<<< HEAD
 	  See Documentation/filesystems/caching/fscache.txt for more information.
+=======
+	  See Documentation/filesystems/caching/fscache.rst for more information.
+>>>>>>> upstream/android-13
 
 config FSCACHE_STATS
 	bool "Gather statistical information on local caching"
 	depends on FSCACHE && PROC_FS
+<<<<<<< HEAD
+=======
+	select NETFS_STATS
+>>>>>>> upstream/android-13
 	help
 	  This option causes statistical information to be gathered on local
 	  caching and exported through file:
@@ -24,6 +40,7 @@ config FSCACHE_STATS
 	  between CPUs.  On the other hand, the stats are very useful for
 	  debugging purposes.  Saying 'Y' here is recommended.
 
+<<<<<<< HEAD
 	  See Documentation/filesystems/caching/fscache.txt for more information.
 
 config FSCACHE_HISTOGRAM
@@ -42,6 +59,9 @@ config FSCACHE_HISTOGRAM
 	  useful for debugging purposes.  Saying 'N' here is recommended.
 
 	  See Documentation/filesystems/caching/fscache.txt for more information.
+=======
+	  See Documentation/filesystems/caching/fscache.rst for more information.
+>>>>>>> upstream/android-13
 
 config FSCACHE_DEBUG
 	bool "Debug FS-Cache"
@@ -51,6 +71,7 @@ config FSCACHE_DEBUG
 	  management module.  If this is set, the debugging output may be
 	  enabled by setting bits in /sys/modules/fscache/parameter/debug.
 
+<<<<<<< HEAD
 	  See Documentation/filesystems/caching/fscache.txt for more information.
 
 config FSCACHE_OBJECT_LIST
@@ -59,3 +80,6 @@ config FSCACHE_OBJECT_LIST
 	help
 	  Maintain a global list of active fscache objects that can be
 	  retrieved through /proc/fs/fscache/objects for debugging purposes
+=======
+	  See Documentation/filesystems/caching/fscache.rst for more information.
+>>>>>>> upstream/android-13

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  Ralink RT288x SoC PCI register definitions
  *
@@ -5,10 +9,13 @@
  *  Copyright (C) 2009 Gabor Juhos <juhosg@openwrt.org>
  *
  *  Parts of this file are based on Ralink's 2.6.21 BSP
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU General Public License version 2 as published
  *  by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -44,7 +51,10 @@
 #define RT2880_PCI_REG_ARBCTL		0x80
 
 static void __iomem *rt2880_pci_base;
+<<<<<<< HEAD
 static DEFINE_SPINLOCK(rt2880_pci_lock);
+=======
+>>>>>>> upstream/android-13
 
 static u32 rt2880_pci_reg_read(u32 reg)
 {
@@ -66,17 +76,25 @@ static inline u32 rt2880_pci_get_cfgaddr(unsigned int bus, unsigned int slot,
 static int rt2880_pci_config_read(struct pci_bus *bus, unsigned int devfn,
 				  int where, int size, u32 *val)
 {
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 	u32 address;
 	u32 data;
 
 	address = rt2880_pci_get_cfgaddr(bus->number, PCI_SLOT(devfn),
 					 PCI_FUNC(devfn), where);
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&rt2880_pci_lock, flags);
 	rt2880_pci_reg_write(address, RT2880_PCI_REG_CONFIG_ADDR);
 	data = rt2880_pci_reg_read(RT2880_PCI_REG_CONFIG_DATA);
 	spin_unlock_irqrestore(&rt2880_pci_lock, flags);
+=======
+	rt2880_pci_reg_write(address, RT2880_PCI_REG_CONFIG_ADDR);
+	data = rt2880_pci_reg_read(RT2880_PCI_REG_CONFIG_DATA);
+>>>>>>> upstream/android-13
 
 	switch (size) {
 	case 1:
@@ -96,14 +114,20 @@ static int rt2880_pci_config_read(struct pci_bus *bus, unsigned int devfn,
 static int rt2880_pci_config_write(struct pci_bus *bus, unsigned int devfn,
 				   int where, int size, u32 val)
 {
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 	u32 address;
 	u32 data;
 
 	address = rt2880_pci_get_cfgaddr(bus->number, PCI_SLOT(devfn),
 					 PCI_FUNC(devfn), where);
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&rt2880_pci_lock, flags);
+=======
+>>>>>>> upstream/android-13
 	rt2880_pci_reg_write(address, RT2880_PCI_REG_CONFIG_ADDR);
 	data = rt2880_pci_reg_read(RT2880_PCI_REG_CONFIG_DATA);
 
@@ -122,7 +146,10 @@ static int rt2880_pci_config_write(struct pci_bus *bus, unsigned int devfn,
 	}
 
 	rt2880_pci_reg_write(data, RT2880_PCI_REG_CONFIG_DATA);
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&rt2880_pci_lock, flags);
+=======
+>>>>>>> upstream/android-13
 
 	return PCIBIOS_SUCCESSFUL;
 }
@@ -154,31 +181,47 @@ static struct pci_controller rt2880_pci_controller = {
 
 static inline u32 rt2880_pci_read_u32(unsigned long reg)
 {
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 	u32 address;
 	u32 ret;
 
 	address = rt2880_pci_get_cfgaddr(0, 0, 0, reg);
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&rt2880_pci_lock, flags);
 	rt2880_pci_reg_write(address, RT2880_PCI_REG_CONFIG_ADDR);
 	ret = rt2880_pci_reg_read(RT2880_PCI_REG_CONFIG_DATA);
 	spin_unlock_irqrestore(&rt2880_pci_lock, flags);
+=======
+	rt2880_pci_reg_write(address, RT2880_PCI_REG_CONFIG_ADDR);
+	ret = rt2880_pci_reg_read(RT2880_PCI_REG_CONFIG_DATA);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
 static inline void rt2880_pci_write_u32(unsigned long reg, u32 val)
 {
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 	u32 address;
 
 	address = rt2880_pci_get_cfgaddr(0, 0, 0, reg);
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&rt2880_pci_lock, flags);
 	rt2880_pci_reg_write(address, RT2880_PCI_REG_CONFIG_ADDR);
 	rt2880_pci_reg_write(val, RT2880_PCI_REG_CONFIG_DATA);
 	spin_unlock_irqrestore(&rt2880_pci_lock, flags);
+=======
+	rt2880_pci_reg_write(address, RT2880_PCI_REG_CONFIG_ADDR);
+	rt2880_pci_reg_write(val, RT2880_PCI_REG_CONFIG_DATA);
+>>>>>>> upstream/android-13
 }
 
 int pcibios_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
@@ -208,7 +251,11 @@ static int rt288x_pci_probe(struct platform_device *pdev)
 {
 	void __iomem *io_map_base;
 
+<<<<<<< HEAD
 	rt2880_pci_base = ioremap_nocache(RT2880_PCI_BASE, PAGE_SIZE);
+=======
+	rt2880_pci_base = ioremap(RT2880_PCI_BASE, PAGE_SIZE);
+>>>>>>> upstream/android-13
 
 	io_map_base = ioremap(RT2880_PCI_IO_BASE, RT2880_PCI_IO_SIZE);
 	rt2880_pci_controller.io_map_base = (unsigned long) io_map_base;
@@ -233,6 +280,11 @@ static int rt288x_pci_probe(struct platform_device *pdev)
 	rt2880_pci_write_u32(PCI_BASE_ADDRESS_0, 0x08000000);
 	(void) rt2880_pci_read_u32(PCI_BASE_ADDRESS_0);
 
+<<<<<<< HEAD
+=======
+	rt2880_pci_controller.of_node = pdev->dev.of_node;
+
+>>>>>>> upstream/android-13
 	register_pci_controller(&rt2880_pci_controller);
 	return 0;
 }

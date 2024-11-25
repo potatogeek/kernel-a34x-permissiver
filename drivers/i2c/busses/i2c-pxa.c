@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  i2c_adap_pxa.c
  *
@@ -6,10 +10,13 @@
  *  Copyright (C) 2002 Intrinsyc Software Inc.
  *  Copyright (C) 2004-2005 Deep Blue Solutions Ltd.
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  *  History:
  *    Apr 2002: Initial version [CS]
  *    Jun 2002: Properly separated algo/adap [FB]
@@ -19,6 +26,7 @@
  *    Dec 2004: Added support for PXA27x and slave device probing [Liam Girdwood]
  *    Feb 2005: Rework slave mode handling [RMK]
  */
+<<<<<<< HEAD
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/i2c.h>
@@ -39,6 +47,122 @@
 #include <linux/platform_data/i2c-pxa.h>
 
 #include <asm/irq.h>
+=======
+#include <linux/clk.h>
+#include <linux/delay.h>
+#include <linux/err.h>
+#include <linux/errno.h>
+#include <linux/gpio/consumer.h>
+#include <linux/i2c.h>
+#include <linux/init.h>
+#include <linux/interrupt.h>
+#include <linux/io.h>
+#include <linux/kernel.h>
+#include <linux/module.h>
+#include <linux/of.h>
+#include <linux/of_device.h>
+#include <linux/pinctrl/consumer.h>
+#include <linux/platform_device.h>
+#include <linux/platform_data/i2c-pxa.h>
+#include <linux/slab.h>
+
+/* I2C register field definitions */
+#define IBMR_SDAS	(1 << 0)
+#define IBMR_SCLS	(1 << 1)
+
+#define ICR_START	(1 << 0)	   /* start bit */
+#define ICR_STOP	(1 << 1)	   /* stop bit */
+#define ICR_ACKNAK	(1 << 2)	   /* send ACK(0) or NAK(1) */
+#define ICR_TB		(1 << 3)	   /* transfer byte bit */
+#define ICR_MA		(1 << 4)	   /* master abort */
+#define ICR_SCLE	(1 << 5)	   /* master clock enable */
+#define ICR_IUE		(1 << 6)	   /* unit enable */
+#define ICR_GCD		(1 << 7)	   /* general call disable */
+#define ICR_ITEIE	(1 << 8)	   /* enable tx interrupts */
+#define ICR_IRFIE	(1 << 9)	   /* enable rx interrupts */
+#define ICR_BEIE	(1 << 10)	   /* enable bus error ints */
+#define ICR_SSDIE	(1 << 11)	   /* slave STOP detected int enable */
+#define ICR_ALDIE	(1 << 12)	   /* enable arbitration interrupt */
+#define ICR_SADIE	(1 << 13)	   /* slave address detected int enable */
+#define ICR_UR		(1 << 14)	   /* unit reset */
+#define ICR_FM		(1 << 15)	   /* fast mode */
+#define ICR_HS		(1 << 16)	   /* High Speed mode */
+#define ICR_A3700_FM	(1 << 16)	   /* fast mode for armada-3700 */
+#define ICR_A3700_HS	(1 << 17)	   /* high speed mode for armada-3700 */
+#define ICR_GPIOEN	(1 << 19)	   /* enable GPIO mode for SCL in HS */
+
+#define ISR_RWM		(1 << 0)	   /* read/write mode */
+#define ISR_ACKNAK	(1 << 1)	   /* ack/nak status */
+#define ISR_UB		(1 << 2)	   /* unit busy */
+#define ISR_IBB		(1 << 3)	   /* bus busy */
+#define ISR_SSD		(1 << 4)	   /* slave stop detected */
+#define ISR_ALD		(1 << 5)	   /* arbitration loss detected */
+#define ISR_ITE		(1 << 6)	   /* tx buffer empty */
+#define ISR_IRF		(1 << 7)	   /* rx buffer full */
+#define ISR_GCAD	(1 << 8)	   /* general call address detected */
+#define ISR_SAD		(1 << 9)	   /* slave address detected */
+#define ISR_BED		(1 << 10)	   /* bus error no ACK/NAK */
+
+#define ILCR_SLV_SHIFT		0
+#define ILCR_SLV_MASK		(0x1FF << ILCR_SLV_SHIFT)
+#define ILCR_FLV_SHIFT		9
+#define ILCR_FLV_MASK		(0x1FF << ILCR_FLV_SHIFT)
+#define ILCR_HLVL_SHIFT		18
+#define ILCR_HLVL_MASK		(0x1FF << ILCR_HLVL_SHIFT)
+#define ILCR_HLVH_SHIFT		27
+#define ILCR_HLVH_MASK		(0x1F << ILCR_HLVH_SHIFT)
+
+#define IWCR_CNT_SHIFT		0
+#define IWCR_CNT_MASK		(0x1F << IWCR_CNT_SHIFT)
+#define IWCR_HS_CNT1_SHIFT	5
+#define IWCR_HS_CNT1_MASK	(0x1F << IWCR_HS_CNT1_SHIFT)
+#define IWCR_HS_CNT2_SHIFT	10
+#define IWCR_HS_CNT2_MASK	(0x1F << IWCR_HS_CNT2_SHIFT)
+
+/* need a longer timeout if we're dealing with the fact we may well be
+ * looking at a multi-master environment
+ */
+#define DEF_TIMEOUT             32
+
+#define NO_SLAVE		(-ENXIO)
+#define BUS_ERROR               (-EREMOTEIO)
+#define XFER_NAKED              (-ECONNREFUSED)
+#define I2C_RETRY               (-2000) /* an error has occurred retry transmit */
+
+/* ICR initialize bit values
+ *
+ * 15 FM     0 (100 kHz operation)
+ * 14 UR     0 (No unit reset)
+ * 13 SADIE  0 (Disables the unit from interrupting on slave addresses
+ *              matching its slave address)
+ * 12 ALDIE  0 (Disables the unit from interrupt when it loses arbitration
+ *              in master mode)
+ * 11 SSDIE  0 (Disables interrupts from a slave stop detected, in slave mode)
+ * 10 BEIE   1 (Enable interrupts from detected bus errors, no ACK sent)
+ *  9 IRFIE  1 (Enable interrupts from full buffer received)
+ *  8 ITEIE  1 (Enables the I2C unit to interrupt when transmit buffer empty)
+ *  7 GCD    1 (Disables i2c unit response to general call messages as a slave)
+ *  6 IUE    0 (Disable unit until we change settings)
+ *  5 SCLE   1 (Enables the i2c clock output for master mode (drives SCL)
+ *  4 MA     0 (Only send stop with the ICR stop bit)
+ *  3 TB     0 (We are not transmitting a byte initially)
+ *  2 ACKNAK 0 (Send an ACK after the unit receives a byte)
+ *  1 STOP   0 (Do not send a STOP)
+ *  0 START  0 (Do not send a START)
+ */
+#define I2C_ICR_INIT	(ICR_BEIE | ICR_IRFIE | ICR_ITEIE | ICR_GCD | ICR_SCLE)
+
+/* I2C status register init values
+ *
+ * 10 BED    1 (Clear bus error detected)
+ *  9 SAD    1 (Clear slave address detected)
+ *  7 IRF    1 (Clear IDBR Receive Full)
+ *  6 ITE    1 (Clear IDBR Transmit Empty)
+ *  5 ALD    1 (Clear Arbitration Loss Detected)
+ *  4 SSD    1 (Clear Slave Stop Detected)
+ */
+#define I2C_ISR_INIT	0x7FF  /* status register init */
+>>>>>>> upstream/android-13
 
 struct pxa_reg_layout {
 	u32 ibmr;
@@ -60,12 +184,16 @@ enum pxa_i2c_types {
 	REGS_A3700,
 };
 
+<<<<<<< HEAD
 #define ICR_BUSMODE_FM	(1 << 16)	   /* shifted fast mode for armada-3700 */
 #define ICR_BUSMODE_HS	(1 << 17)	   /* shifted high speed mode for armada-3700 */
 
 /*
  * I2C registers definitions
  */
+=======
+/* I2C register layout definitions */
+>>>>>>> upstream/android-13
 static struct pxa_reg_layout pxa_reg_layout[] = {
 	[REGS_PXA2XX] = {
 		.ibmr =	0x00,
@@ -73,6 +201,11 @@ static struct pxa_reg_layout pxa_reg_layout[] = {
 		.icr =	0x10,
 		.isr =	0x18,
 		.isar =	0x20,
+<<<<<<< HEAD
+=======
+		.fm = ICR_FM,
+		.hs = ICR_HS,
+>>>>>>> upstream/android-13
 	},
 	[REGS_PXA3XX] = {
 		.ibmr =	0x00,
@@ -80,6 +213,11 @@ static struct pxa_reg_layout pxa_reg_layout[] = {
 		.icr =	0x08,
 		.isr =	0x0c,
 		.isar =	0x10,
+<<<<<<< HEAD
+=======
+		.fm = ICR_FM,
+		.hs = ICR_HS,
+>>>>>>> upstream/android-13
 	},
 	[REGS_CE4100] = {
 		.ibmr =	0x14,
@@ -87,6 +225,11 @@ static struct pxa_reg_layout pxa_reg_layout[] = {
 		.icr =	0x00,
 		.isr =	0x04,
 		/* no isar register */
+<<<<<<< HEAD
+=======
+		.fm = ICR_FM,
+		.hs = ICR_HS,
+>>>>>>> upstream/android-13
 	},
 	[REGS_PXA910] = {
 		.ibmr = 0x00,
@@ -96,6 +239,11 @@ static struct pxa_reg_layout pxa_reg_layout[] = {
 		.isar = 0x20,
 		.ilcr = 0x28,
 		.iwcr = 0x30,
+<<<<<<< HEAD
+=======
+		.fm = ICR_FM,
+		.hs = ICR_HS,
+>>>>>>> upstream/android-13
 	},
 	[REGS_A3700] = {
 		.ibmr =	0x00,
@@ -103,11 +251,28 @@ static struct pxa_reg_layout pxa_reg_layout[] = {
 		.icr =	0x08,
 		.isr =	0x0c,
 		.isar =	0x10,
+<<<<<<< HEAD
 		.fm = ICR_BUSMODE_FM,
 		.hs = ICR_BUSMODE_HS,
 	},
 };
 
+=======
+		.fm = ICR_A3700_FM,
+		.hs = ICR_A3700_HS,
+	},
+};
+
+static const struct of_device_id i2c_pxa_dt_ids[] = {
+	{ .compatible = "mrvl,pxa-i2c", .data = (void *)REGS_PXA2XX },
+	{ .compatible = "mrvl,pwri2c", .data = (void *)REGS_PXA3XX },
+	{ .compatible = "mrvl,mmp-twsi", .data = (void *)REGS_PXA910 },
+	{ .compatible = "marvell,armada-3700-i2c", .data = (void *)REGS_A3700 },
+	{}
+};
+MODULE_DEVICE_TABLE(of, i2c_pxa_dt_ids);
+
+>>>>>>> upstream/android-13
 static const struct platform_device_id i2c_pxa_id_table[] = {
 	{ "pxa2xx-i2c",		REGS_PXA2XX },
 	{ "pxa3xx-pwri2c",	REGS_PXA3XX },
@@ -118,6 +283,7 @@ static const struct platform_device_id i2c_pxa_id_table[] = {
 };
 MODULE_DEVICE_TABLE(platform, i2c_pxa_id_table);
 
+<<<<<<< HEAD
 /*
  * I2C bit definitions
  */
@@ -170,6 +336,8 @@ MODULE_DEVICE_TABLE(platform, i2c_pxa_id_table);
 #define IWCR_HS_CNT2_SHIFT	10
 #define IWCR_HS_CNT2_MASK	(0x1F << IWCR_HS_CNT2_SHIFT)
 
+=======
+>>>>>>> upstream/android-13
 struct pxa_i2c {
 	spinlock_t		lock;
 	wait_queue_head_t	wait;
@@ -183,7 +351,11 @@ struct pxa_i2c {
 	struct i2c_adapter	adap;
 	struct clk		*clk;
 #ifdef CONFIG_I2C_PXA_SLAVE
+<<<<<<< HEAD
 	struct i2c_slave_client *slave;
+=======
+	struct i2c_client	*slave;
+>>>>>>> upstream/android-13
 #endif
 
 	unsigned int		irqlogidx;
@@ -211,6 +383,11 @@ struct pxa_i2c {
 	bool			highmode_enter;
 	u32			fm_mask;
 	u32			hs_mask;
+<<<<<<< HEAD
+=======
+
+	struct i2c_bus_recovery_info recovery;
+>>>>>>> upstream/android-13
 };
 
 #define _IBMR(i2c)	((i2c)->reg_ibmr)
@@ -238,6 +415,7 @@ struct bits {
 static inline void
 decode_bits(const char *prefix, const struct bits *bits, int num, u32 val)
 {
+<<<<<<< HEAD
 	printk("%s %08x: ", prefix, val);
 	while (num--) {
 		const char *str = val & bits->mask ? bits->set : bits->unset;
@@ -245,6 +423,16 @@ decode_bits(const char *prefix, const struct bits *bits, int num, u32 val)
 			printk("%s ", str);
 		bits++;
 	}
+=======
+	printk("%s %08x:", prefix, val);
+	while (num--) {
+		const char *str = val & bits->mask ? bits->set : bits->unset;
+		if (str)
+			pr_cont(" %s", str);
+		bits++;
+	}
+	pr_cont("\n");
+>>>>>>> upstream/android-13
 }
 
 static const struct bits isr_bits[] = {
@@ -264,7 +452,10 @@ static const struct bits isr_bits[] = {
 static void decode_ISR(unsigned int val)
 {
 	decode_bits(KERN_DEBUG "ISR", isr_bits, ARRAY_SIZE(isr_bits), val);
+<<<<<<< HEAD
 	printk("\n");
+=======
+>>>>>>> upstream/android-13
 }
 
 static const struct bits icr_bits[] = {
@@ -289,7 +480,10 @@ static const struct bits icr_bits[] = {
 static void decode_ICR(unsigned int val)
 {
 	decode_bits(KERN_DEBUG "ICR", icr_bits, ARRAY_SIZE(icr_bits), val);
+<<<<<<< HEAD
 	printk("\n");
+=======
+>>>>>>> upstream/android-13
 }
 #endif
 
@@ -333,7 +527,10 @@ static void i2c_pxa_scream_blue_murder(struct pxa_i2c *i2c, const char *why)
 #endif /* ifdef DEBUG / else */
 
 static void i2c_pxa_master_complete(struct pxa_i2c *i2c, int ret);
+<<<<<<< HEAD
 static irqreturn_t i2c_pxa_handler(int this_irq, void *dev_id);
+=======
+>>>>>>> upstream/android-13
 
 static inline int i2c_pxa_is_slavemode(struct pxa_i2c *i2c)
 {
@@ -349,7 +546,11 @@ static void i2c_pxa_abort(struct pxa_i2c *i2c)
 		return;
 	}
 
+<<<<<<< HEAD
 	while ((i > 0) && (readl(_IBMR(i2c)) & 0x1) == 0) {
+=======
+	while ((i > 0) && (readl(_IBMR(i2c)) & IBMR_SDAS) == 0) {
+>>>>>>> upstream/android-13
 		unsigned long icr = readl(_ICR(i2c));
 
 		icr &= ~ICR_START;
@@ -370,19 +571,41 @@ static void i2c_pxa_abort(struct pxa_i2c *i2c)
 static int i2c_pxa_wait_bus_not_busy(struct pxa_i2c *i2c)
 {
 	int timeout = DEF_TIMEOUT;
+<<<<<<< HEAD
 
 	while (timeout-- && readl(_ISR(i2c)) & (ISR_IBB | ISR_UB)) {
 		if ((readl(_ISR(i2c)) & ISR_SAD) != 0)
 			timeout += 4;
 
+=======
+	u32 isr;
+
+	while (1) {
+		isr = readl(_ISR(i2c));
+		if (!(isr & (ISR_IBB | ISR_UB)))
+			return 0;
+
+		if (isr & ISR_SAD)
+			timeout += 4;
+
+		if (!timeout--)
+			break;
+
+>>>>>>> upstream/android-13
 		msleep(2);
 		show_state(i2c);
 	}
 
+<<<<<<< HEAD
 	if (timeout < 0)
 		show_state(i2c);
 
 	return timeout < 0 ? I2C_RETRY : 0;
+=======
+	show_state(i2c);
+
+	return I2C_RETRY;
+>>>>>>> upstream/android-13
 }
 
 static int i2c_pxa_wait_master(struct pxa_i2c *i2c)
@@ -404,7 +627,12 @@ static int i2c_pxa_wait_master(struct pxa_i2c *i2c)
 		 * quick check of the i2c lines themselves to ensure they've
 		 * gone high...
 		 */
+<<<<<<< HEAD
 		if ((readl(_ISR(i2c)) & (ISR_UB | ISR_IBB)) == 0 && readl(_IBMR(i2c)) == 3) {
+=======
+		if ((readl(_ISR(i2c)) & (ISR_UB | ISR_IBB)) == 0 &&
+		    readl(_IBMR(i2c)) == (IBMR_SCLS | IBMR_SDAS)) {
+>>>>>>> upstream/android-13
 			if (i2c_debug > 0)
 				dev_dbg(&i2c->adap.dev, "%s: done\n", __func__);
 			return 1;
@@ -504,6 +732,7 @@ static void i2c_pxa_set_slave(struct pxa_i2c *i2c, int errcode)
 #define i2c_pxa_set_slave(i2c, err)	do { } while (0)
 #endif
 
+<<<<<<< HEAD
 static void i2c_pxa_reset(struct pxa_i2c *i2c)
 {
 	pr_debug("Resetting I2C Controller Unit\n");
@@ -511,6 +740,10 @@ static void i2c_pxa_reset(struct pxa_i2c *i2c)
 	/* abort any transfer currently under way */
 	i2c_pxa_abort(i2c);
 
+=======
+static void i2c_pxa_do_reset(struct pxa_i2c *i2c)
+{
+>>>>>>> upstream/android-13
 	/* reset according to 9.8 */
 	writel(ICR_UR, _ICR(i2c));
 	writel(I2C_ISR_INIT, _ISR(i2c));
@@ -529,12 +762,32 @@ static void i2c_pxa_reset(struct pxa_i2c *i2c)
 #endif
 
 	i2c_pxa_set_slave(i2c, 0);
+<<<<<<< HEAD
 
+=======
+}
+
+static void i2c_pxa_enable(struct pxa_i2c *i2c)
+{
+>>>>>>> upstream/android-13
 	/* enable unit */
 	writel(readl(_ICR(i2c)) | ICR_IUE, _ICR(i2c));
 	udelay(100);
 }
 
+<<<<<<< HEAD
+=======
+static void i2c_pxa_reset(struct pxa_i2c *i2c)
+{
+	pr_debug("Resetting I2C Controller Unit\n");
+
+	/* abort any transfer currently under way */
+	i2c_pxa_abort(i2c);
+	i2c_pxa_do_reset(i2c);
+	i2c_pxa_enable(i2c);
+}
+
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_I2C_PXA_SLAVE
 /*
@@ -546,22 +799,39 @@ static void i2c_pxa_slave_txempty(struct pxa_i2c *i2c, u32 isr)
 	if (isr & ISR_BED) {
 		/* what should we do here? */
 	} else {
+<<<<<<< HEAD
 		int ret = 0;
 
 		if (i2c->slave != NULL)
 			ret = i2c->slave->read(i2c->slave->data);
 
 		writel(ret, _IDBR(i2c));
+=======
+		u8 byte = 0;
+
+		if (i2c->slave != NULL)
+			i2c_slave_event(i2c->slave, I2C_SLAVE_READ_PROCESSED,
+					&byte);
+
+		writel(byte, _IDBR(i2c));
+>>>>>>> upstream/android-13
 		writel(readl(_ICR(i2c)) | ICR_TB, _ICR(i2c));   /* allow next byte */
 	}
 }
 
 static void i2c_pxa_slave_rxfull(struct pxa_i2c *i2c, u32 isr)
 {
+<<<<<<< HEAD
 	unsigned int byte = readl(_IDBR(i2c));
 
 	if (i2c->slave != NULL)
 		i2c->slave->write(i2c->slave->data, byte);
+=======
+	u8 byte = readl(_IDBR(i2c));
+
+	if (i2c->slave != NULL)
+		i2c_slave_event(i2c->slave, I2C_SLAVE_WRITE_RECEIVED, &byte);
+>>>>>>> upstream/android-13
 
 	writel(readl(_ICR(i2c)) | ICR_TB, _ICR(i2c));
 }
@@ -574,9 +844,24 @@ static void i2c_pxa_slave_start(struct pxa_i2c *i2c, u32 isr)
 		dev_dbg(&i2c->adap.dev, "SAD, mode is slave-%cx\n",
 		       (isr & ISR_RWM) ? 'r' : 't');
 
+<<<<<<< HEAD
 	if (i2c->slave != NULL)
 		i2c->slave->event(i2c->slave->data,
 				 (isr & ISR_RWM) ? I2C_SLAVE_EVENT_START_READ : I2C_SLAVE_EVENT_START_WRITE);
+=======
+	if (i2c->slave != NULL) {
+		if (isr & ISR_RWM) {
+			u8 byte = 0;
+
+			i2c_slave_event(i2c->slave, I2C_SLAVE_READ_REQUESTED,
+					&byte);
+			writel(byte, _IDBR(i2c));
+		} else {
+			i2c_slave_event(i2c->slave, I2C_SLAVE_WRITE_REQUESTED,
+					NULL);
+		}
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * slave could interrupt in the middle of us generating a
@@ -589,7 +874,11 @@ static void i2c_pxa_slave_start(struct pxa_i2c *i2c, u32 isr)
 	timeout = 0x10000;
 
 	while (1) {
+<<<<<<< HEAD
 		if ((readl(_IBMR(i2c)) & 2) == 2)
+=======
+		if ((readl(_IBMR(i2c)) & IBMR_SCLS) == IBMR_SCLS)
+>>>>>>> upstream/android-13
 			break;
 
 		timeout--;
@@ -609,7 +898,11 @@ static void i2c_pxa_slave_stop(struct pxa_i2c *i2c)
 		dev_dbg(&i2c->adap.dev, "ISR: SSD (Slave Stop)\n");
 
 	if (i2c->slave != NULL)
+<<<<<<< HEAD
 		i2c->slave->event(i2c->slave->data, I2C_SLAVE_EVENT_STOP);
+=======
+		i2c_slave_event(i2c->slave, I2C_SLAVE_STOP, NULL);
+>>>>>>> upstream/android-13
 
 	if (i2c_debug > 2)
 		dev_dbg(&i2c->adap.dev, "ISR: SSD (Slave Stop) acked\n");
@@ -621,6 +914,41 @@ static void i2c_pxa_slave_stop(struct pxa_i2c *i2c)
 	if (i2c->msg)
 		i2c_pxa_master_complete(i2c, I2C_RETRY);
 }
+<<<<<<< HEAD
+=======
+
+static int i2c_pxa_slave_reg(struct i2c_client *slave)
+{
+	struct pxa_i2c *i2c = slave->adapter->algo_data;
+
+	if (i2c->slave)
+		return -EBUSY;
+
+	if (!i2c->reg_isar)
+		return -EAFNOSUPPORT;
+
+	i2c->slave = slave;
+	i2c->slave_addr = slave->addr;
+
+	writel(i2c->slave_addr, _ISAR(i2c));
+
+	return 0;
+}
+
+static int i2c_pxa_slave_unreg(struct i2c_client *slave)
+{
+	struct pxa_i2c *i2c = slave->adapter->algo_data;
+
+	WARN_ON(!i2c->slave);
+
+	i2c->slave_addr = I2C_PXA_SLAVE_ADDR;
+	writel(i2c->slave_addr, _ISAR(i2c));
+
+	i2c->slave = NULL;
+
+	return 0;
+}
+>>>>>>> upstream/android-13
 #else
 static void i2c_pxa_slave_txempty(struct pxa_i2c *i2c, u32 isr)
 {
@@ -652,7 +980,11 @@ static void i2c_pxa_slave_start(struct pxa_i2c *i2c, u32 isr)
 	timeout = 0x10000;
 
 	while (1) {
+<<<<<<< HEAD
 		if ((readl(_IBMR(i2c)) & 2) == 2)
+=======
+		if ((readl(_IBMR(i2c)) & IBMR_SCLS) == IBMR_SCLS)
+>>>>>>> upstream/android-13
 			break;
 
 		timeout--;
@@ -677,6 +1009,7 @@ static void i2c_pxa_slave_stop(struct pxa_i2c *i2c)
  * PXA I2C Master mode
  */
 
+<<<<<<< HEAD
 static inline unsigned int i2c_pxa_addr_byte(struct i2c_msg *msg)
 {
 	unsigned int addr = (msg->addr & 0x7f) << 1;
@@ -687,6 +1020,8 @@ static inline unsigned int i2c_pxa_addr_byte(struct i2c_msg *msg)
 	return addr;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void i2c_pxa_start_message(struct pxa_i2c *i2c)
 {
 	u32 icr;
@@ -694,8 +1029,13 @@ static inline void i2c_pxa_start_message(struct pxa_i2c *i2c)
 	/*
 	 * Step 1: target slave address into IDBR
 	 */
+<<<<<<< HEAD
 	writel(i2c_pxa_addr_byte(i2c->msg), _IDBR(i2c));
 	i2c->req_slave_addr = i2c_pxa_addr_byte(i2c->msg);
+=======
+	i2c->req_slave_addr = i2c_8bit_addr_from_msg(i2c->msg);
+	writel(i2c->req_slave_addr, _IDBR(i2c));
+>>>>>>> upstream/android-13
 
 	/*
 	 * Step 2: initiate the write.
@@ -714,6 +1054,7 @@ static inline void i2c_pxa_stop_message(struct pxa_i2c *i2c)
 	writel(icr, _ICR(i2c));
 }
 
+<<<<<<< HEAD
 static int i2c_pxa_pio_set_master(struct pxa_i2c *i2c)
 {
 	/* make timeout the same as for interrupt based functions */
@@ -742,6 +1083,8 @@ static int i2c_pxa_pio_set_master(struct pxa_i2c *i2c)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * PXA I2C send master code
  * 1. Load master code to IDBR and send it.
@@ -770,6 +1113,7 @@ static int i2c_pxa_send_mastercode(struct pxa_i2c *i2c)
 	return (timeout == 0) ? I2C_RETRY : 0;
 }
 
+<<<<<<< HEAD
 static int i2c_pxa_do_pio_xfer(struct pxa_i2c *i2c,
 			       struct i2c_msg *msg, int num)
 {
@@ -904,6 +1248,8 @@ static int i2c_pxa_pio_xfer(struct i2c_adapter *adap,
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * i2c_pxa_master_complete - complete the message and wake up.
  */
@@ -955,7 +1301,11 @@ static void i2c_pxa_irq_txempty(struct pxa_i2c *i2c, u32 isr)
 		 */
 		if (isr & ISR_ACKNAK) {
 			if (i2c->msg_ptr == 0 && i2c->msg_idx == 0)
+<<<<<<< HEAD
 				ret = I2C_RETRY;
+=======
+				ret = NO_SLAVE;
+>>>>>>> upstream/android-13
 			else
 				ret = XFER_NAKED;
 		}
@@ -1006,8 +1356,13 @@ static void i2c_pxa_irq_txempty(struct pxa_i2c *i2c, u32 isr)
 		/*
 		 * Write the next address.
 		 */
+<<<<<<< HEAD
 		writel(i2c_pxa_addr_byte(i2c->msg), _IDBR(i2c));
 		i2c->req_slave_addr = i2c_pxa_addr_byte(i2c->msg);
+=======
+		i2c->req_slave_addr = i2c_8bit_addr_from_msg(i2c->msg);
+		writel(i2c->req_slave_addr, _IDBR(i2c));
+>>>>>>> upstream/android-13
 
 		/*
 		 * And trigger a repeated start, and send the byte.
@@ -1015,6 +1370,7 @@ static void i2c_pxa_irq_txempty(struct pxa_i2c *i2c, u32 isr)
 		icr &= ~ICR_ALDIE;
 		icr |= ICR_START | ICR_TB;
 	} else {
+<<<<<<< HEAD
 		if (i2c->msg->len == 0) {
 			/*
 			 * Device probes have a message length of zero
@@ -1023,6 +1379,10 @@ static void i2c_pxa_irq_txempty(struct pxa_i2c *i2c, u32 isr)
 			 */
 			i2c_pxa_reset(i2c);
 		}
+=======
+		if (i2c->msg->len == 0)
+			icr |= ICR_MA;
+>>>>>>> upstream/android-13
 		i2c_pxa_master_complete(i2c, 0);
 	}
 
@@ -1110,6 +1470,7 @@ static irqreturn_t i2c_pxa_handler(int this_irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 
 static int i2c_pxa_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
 {
@@ -1126,12 +1487,113 @@ static int i2c_pxa_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num
 		udelay(100);
 	}
 	i2c_pxa_scream_blue_murder(i2c, "exhausted retries");
+=======
+/*
+ * We are protected by the adapter bus mutex.
+ */
+static int i2c_pxa_do_xfer(struct pxa_i2c *i2c, struct i2c_msg *msg, int num)
+{
+	long timeout;
+	int ret;
+
+	/*
+	 * Wait for the bus to become free.
+	 */
+	ret = i2c_pxa_wait_bus_not_busy(i2c);
+	if (ret) {
+		dev_err(&i2c->adap.dev, "i2c_pxa: timeout waiting for bus free\n");
+		i2c_recover_bus(&i2c->adap);
+		goto out;
+	}
+
+	/*
+	 * Set master mode.
+	 */
+	ret = i2c_pxa_set_master(i2c);
+	if (ret) {
+		dev_err(&i2c->adap.dev, "i2c_pxa_set_master: error %d\n", ret);
+		goto out;
+	}
+
+	if (i2c->high_mode) {
+		ret = i2c_pxa_send_mastercode(i2c);
+		if (ret) {
+			dev_err(&i2c->adap.dev, "i2c_pxa_send_mastercode timeout\n");
+			goto out;
+			}
+	}
+
+	spin_lock_irq(&i2c->lock);
+
+	i2c->msg = msg;
+	i2c->msg_num = num;
+	i2c->msg_idx = 0;
+	i2c->msg_ptr = 0;
+	i2c->irqlogidx = 0;
+
+	i2c_pxa_start_message(i2c);
+
+	spin_unlock_irq(&i2c->lock);
+
+	/*
+	 * The rest of the processing occurs in the interrupt handler.
+	 */
+	timeout = wait_event_timeout(i2c->wait, i2c->msg_num == 0, HZ * 5);
+	i2c_pxa_stop_message(i2c);
+
+	/*
+	 * We place the return code in i2c->msg_idx.
+	 */
+	ret = i2c->msg_idx;
+
+	if (!timeout && i2c->msg_num) {
+		i2c_pxa_scream_blue_murder(i2c, "timeout with active message");
+		i2c_recover_bus(&i2c->adap);
+		ret = I2C_RETRY;
+	}
+
+ out:
+	return ret;
+}
+
+static int i2c_pxa_internal_xfer(struct pxa_i2c *i2c,
+				 struct i2c_msg *msgs, int num,
+				 int (*xfer)(struct pxa_i2c *,
+					     struct i2c_msg *, int num))
+{
+	int ret, i;
+
+	for (i = 0; ; ) {
+		ret = xfer(i2c, msgs, num);
+		if (ret != I2C_RETRY && ret != NO_SLAVE)
+			goto out;
+		if (++i >= i2c->adap.retries)
+			break;
+
+		if (i2c_debug)
+			dev_dbg(&i2c->adap.dev, "Retrying transmission\n");
+		udelay(100);
+	}
+	if (ret != NO_SLAVE)
+		i2c_pxa_scream_blue_murder(i2c, "exhausted retries");
+>>>>>>> upstream/android-13
 	ret = -EREMOTEIO;
  out:
 	i2c_pxa_set_slave(i2c, ret);
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static int i2c_pxa_xfer(struct i2c_adapter *adap,
+			struct i2c_msg msgs[], int num)
+{
+	struct pxa_i2c *i2c = adap->algo_data;
+
+	return i2c_pxa_internal_xfer(i2c, msgs, num, i2c_pxa_do_xfer);
+}
+
+>>>>>>> upstream/android-13
 static u32 i2c_pxa_functionality(struct i2c_adapter *adap)
 {
 	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL |
@@ -1141,6 +1603,7 @@ static u32 i2c_pxa_functionality(struct i2c_adapter *adap)
 static const struct i2c_algorithm i2c_pxa_algorithm = {
 	.master_xfer	= i2c_pxa_xfer,
 	.functionality	= i2c_pxa_functionality,
+<<<<<<< HEAD
 };
 
 static const struct i2c_algorithm i2c_pxa_pio_algorithm = {
@@ -1157,6 +1620,104 @@ static const struct of_device_id i2c_pxa_dt_ids[] = {
 };
 MODULE_DEVICE_TABLE(of, i2c_pxa_dt_ids);
 
+=======
+#ifdef CONFIG_I2C_PXA_SLAVE
+	.reg_slave	= i2c_pxa_slave_reg,
+	.unreg_slave	= i2c_pxa_slave_unreg,
+#endif
+};
+
+/* Non-interrupt mode support */
+static int i2c_pxa_pio_set_master(struct pxa_i2c *i2c)
+{
+	/* make timeout the same as for interrupt based functions */
+	long timeout = 2 * DEF_TIMEOUT;
+
+	/*
+	 * Wait for the bus to become free.
+	 */
+	while (timeout-- && readl(_ISR(i2c)) & (ISR_IBB | ISR_UB))
+		udelay(1000);
+
+	if (timeout < 0) {
+		show_state(i2c);
+		dev_err(&i2c->adap.dev,
+			"i2c_pxa: timeout waiting for bus free (set_master)\n");
+		return I2C_RETRY;
+	}
+
+	/*
+	 * Set master mode.
+	 */
+	writel(readl(_ICR(i2c)) | ICR_SCLE, _ICR(i2c));
+
+	return 0;
+}
+
+static int i2c_pxa_do_pio_xfer(struct pxa_i2c *i2c,
+			       struct i2c_msg *msg, int num)
+{
+	unsigned long timeout = 500000; /* 5 seconds */
+	int ret = 0;
+
+	ret = i2c_pxa_pio_set_master(i2c);
+	if (ret)
+		goto out;
+
+	i2c->msg = msg;
+	i2c->msg_num = num;
+	i2c->msg_idx = 0;
+	i2c->msg_ptr = 0;
+	i2c->irqlogidx = 0;
+
+	i2c_pxa_start_message(i2c);
+
+	while (i2c->msg_num > 0 && --timeout) {
+		i2c_pxa_handler(0, i2c);
+		udelay(10);
+	}
+
+	i2c_pxa_stop_message(i2c);
+
+	/*
+	 * We place the return code in i2c->msg_idx.
+	 */
+	ret = i2c->msg_idx;
+
+out:
+	if (timeout == 0) {
+		i2c_pxa_scream_blue_murder(i2c, "timeout (do_pio_xfer)");
+		ret = I2C_RETRY;
+	}
+
+	return ret;
+}
+
+static int i2c_pxa_pio_xfer(struct i2c_adapter *adap,
+			    struct i2c_msg msgs[], int num)
+{
+	struct pxa_i2c *i2c = adap->algo_data;
+
+	/* If the I2C controller is disabled we need to reset it
+	  (probably due to a suspend/resume destroying state). We do
+	  this here as we can then avoid worrying about resuming the
+	  controller before its users. */
+	if (!(readl(_ICR(i2c)) & ICR_IUE))
+		i2c_pxa_reset(i2c);
+
+	return i2c_pxa_internal_xfer(i2c, msgs, num, i2c_pxa_do_pio_xfer);
+}
+
+static const struct i2c_algorithm i2c_pxa_pio_algorithm = {
+	.master_xfer	= i2c_pxa_pio_xfer,
+	.functionality	= i2c_pxa_functionality,
+#ifdef CONFIG_I2C_PXA_SLAVE
+	.reg_slave	= i2c_pxa_slave_reg,
+	.unreg_slave	= i2c_pxa_slave_unreg,
+#endif
+};
+
+>>>>>>> upstream/android-13
 static int i2c_pxa_probe_dt(struct platform_device *pdev, struct pxa_i2c *i2c,
 			    enum pxa_i2c_types *i2c_types)
 {
@@ -1200,6 +1761,77 @@ static int i2c_pxa_probe_pdata(struct platform_device *pdev,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void i2c_pxa_prepare_recovery(struct i2c_adapter *adap)
+{
+	struct pxa_i2c *i2c = adap->algo_data;
+	u32 ibmr = readl(_IBMR(i2c));
+
+	/*
+	 * Program the GPIOs to reflect the current I2C bus state while
+	 * we transition to recovery; this avoids glitching the bus.
+	 */
+	gpiod_set_value(i2c->recovery.scl_gpiod, ibmr & IBMR_SCLS);
+	gpiod_set_value(i2c->recovery.sda_gpiod, ibmr & IBMR_SDAS);
+}
+
+static void i2c_pxa_unprepare_recovery(struct i2c_adapter *adap)
+{
+	struct pxa_i2c *i2c = adap->algo_data;
+	struct i2c_bus_recovery_info *bri = adap->bus_recovery_info;
+	u32 isr;
+
+	/*
+	 * The bus should now be free. Clear up the I2C controller before
+	 * handing control of the bus back to avoid the bus changing state.
+	 */
+	isr = readl(_ISR(i2c));
+	if (isr & (ISR_UB | ISR_IBB)) {
+		dev_dbg(&i2c->adap.dev,
+			"recovery: resetting controller, ISR=0x%08x\n", isr);
+		i2c_pxa_do_reset(i2c);
+	}
+
+	WARN_ON(pinctrl_select_state(bri->pinctrl, bri->pins_default));
+
+	dev_dbg(&i2c->adap.dev, "recovery: IBMR 0x%08x ISR 0x%08x\n",
+	        readl(_IBMR(i2c)), readl(_ISR(i2c)));
+
+	i2c_pxa_enable(i2c);
+}
+
+static int i2c_pxa_init_recovery(struct pxa_i2c *i2c)
+{
+	struct i2c_bus_recovery_info *bri = &i2c->recovery;
+	struct device *dev = i2c->adap.dev.parent;
+
+	/*
+	 * When slave mode is enabled, we are not the only master on the bus.
+	 * Bus recovery can only be performed when we are the master, which
+	 * we can't be certain of. Therefore, when slave mode is enabled, do
+	 * not configure bus recovery.
+	 */
+	if (IS_ENABLED(CONFIG_I2C_PXA_SLAVE))
+		return 0;
+
+	bri->pinctrl = devm_pinctrl_get(dev);
+	if (PTR_ERR(bri->pinctrl) == -ENODEV) {
+		bri->pinctrl = NULL;
+		return 0;
+	}
+	if (IS_ERR(bri->pinctrl))
+		return PTR_ERR(bri->pinctrl);
+
+	bri->prepare_recovery = i2c_pxa_prepare_recovery;
+	bri->unprepare_recovery = i2c_pxa_unprepare_recovery;
+
+	i2c->adap.bus_recovery_info = bri;
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int i2c_pxa_probe(struct platform_device *dev)
 {
 	struct i2c_pxa_platform_data *plat = dev_get_platdata(&dev->dev);
@@ -1212,12 +1844,26 @@ static int i2c_pxa_probe(struct platform_device *dev)
 	if (!i2c)
 		return -ENOMEM;
 
+<<<<<<< HEAD
+=======
+	/* Default adapter num to device id; i2c_pxa_probe_dt can override. */
+	i2c->adap.nr = dev->id;
+	i2c->adap.owner   = THIS_MODULE;
+	i2c->adap.retries = 5;
+	i2c->adap.algo_data = i2c;
+	i2c->adap.dev.parent = &dev->dev;
+#ifdef CONFIG_OF
+	i2c->adap.dev.of_node = dev->dev.of_node;
+#endif
+
+>>>>>>> upstream/android-13
 	res = platform_get_resource(dev, IORESOURCE_MEM, 0);
 	i2c->reg_base = devm_ioremap_resource(&dev->dev, res);
 	if (IS_ERR(i2c->reg_base))
 		return PTR_ERR(i2c->reg_base);
 
 	irq = platform_get_irq(dev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(&dev->dev, "no irq resource: %d\n", irq);
 		return irq;
@@ -1225,6 +1871,14 @@ static int i2c_pxa_probe(struct platform_device *dev)
 
 	/* Default adapter num to device id; i2c_pxa_probe_dt can override. */
 	i2c->adap.nr = dev->id;
+=======
+	if (irq < 0)
+		return irq;
+
+	ret = i2c_pxa_init_recovery(i2c);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	ret = i2c_pxa_probe_dt(dev, i2c, &i2c_type);
 	if (ret > 0)
@@ -1232,9 +1886,12 @@ static int i2c_pxa_probe(struct platform_device *dev)
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	i2c->adap.owner   = THIS_MODULE;
 	i2c->adap.retries = 5;
 
+=======
+>>>>>>> upstream/android-13
 	spin_lock_init(&i2c->lock);
 	init_waitqueue_head(&i2c->wait);
 
@@ -1250,8 +1907,13 @@ static int i2c_pxa_probe(struct platform_device *dev)
 	i2c->reg_idbr = i2c->reg_base + pxa_reg_layout[i2c_type].idbr;
 	i2c->reg_icr = i2c->reg_base + pxa_reg_layout[i2c_type].icr;
 	i2c->reg_isr = i2c->reg_base + pxa_reg_layout[i2c_type].isr;
+<<<<<<< HEAD
 	i2c->fm_mask = pxa_reg_layout[i2c_type].fm ? : ICR_FM;
 	i2c->hs_mask = pxa_reg_layout[i2c_type].hs ? : ICR_HS;
+=======
+	i2c->fm_mask = pxa_reg_layout[i2c_type].fm;
+	i2c->hs_mask = pxa_reg_layout[i2c_type].hs;
+>>>>>>> upstream/android-13
 
 	if (i2c_type != REGS_CE4100)
 		i2c->reg_isar = i2c->reg_base + pxa_reg_layout[i2c_type].isar;
@@ -1270,10 +1932,13 @@ static int i2c_pxa_probe(struct platform_device *dev)
 	i2c->highmode_enter = false;
 
 	if (plat) {
+<<<<<<< HEAD
 #ifdef CONFIG_I2C_PXA_SLAVE
 		i2c->slave_addr = plat->slave_addr;
 		i2c->slave = plat->slave;
 #endif
+=======
+>>>>>>> upstream/android-13
 		i2c->adap.class = plat->class;
 	}
 
@@ -1304,12 +1969,15 @@ static int i2c_pxa_probe(struct platform_device *dev)
 
 	i2c_pxa_reset(i2c);
 
+<<<<<<< HEAD
 	i2c->adap.algo_data = i2c;
 	i2c->adap.dev.parent = &dev->dev;
 #ifdef CONFIG_OF
 	i2c->adap.dev.of_node = dev->dev.of_node;
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	ret = i2c_add_numbered_adapter(&i2c->adap);
 	if (ret < 0)
 		goto ereqirq;

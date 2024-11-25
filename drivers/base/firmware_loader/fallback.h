@@ -33,7 +33,11 @@ struct firmware_fallback_config {
 #ifdef CONFIG_FW_LOADER_USER_HELPER
 int firmware_fallback_sysfs(struct firmware *fw, const char *name,
 			    struct device *device,
+<<<<<<< HEAD
 			    enum fw_opt opt_flags,
+=======
+			    u32 opt_flags,
+>>>>>>> upstream/android-13
 			    int ret);
 void kill_pending_fw_fallback_reqs(bool only_kill_custom);
 
@@ -45,7 +49,11 @@ void unregister_sysfs_loader(void);
 #else /* CONFIG_FW_LOADER_USER_HELPER */
 static inline int firmware_fallback_sysfs(struct firmware *fw, const char *name,
 					  struct device *device,
+<<<<<<< HEAD
 					  enum fw_opt opt_flags,
+=======
+					  u32 opt_flags,
+>>>>>>> upstream/android-13
 					  int ret)
 {
 	/* Keep carrying over the same error */
@@ -66,4 +74,16 @@ static inline void unregister_sysfs_loader(void)
 }
 #endif /* CONFIG_FW_LOADER_USER_HELPER */
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_EFI_EMBEDDED_FIRMWARE
+int firmware_fallback_platform(struct fw_priv *fw_priv);
+#else
+static inline int firmware_fallback_platform(struct fw_priv *fw_priv)
+{
+	return -ENOENT;
+}
+#endif
+
+>>>>>>> upstream/android-13
 #endif /* __FIRMWARE_FALLBACK_H */

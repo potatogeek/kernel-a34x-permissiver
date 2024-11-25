@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 CFLAGS := -static -ffreestanding -nostartfiles -s
 
 TEST_GEN_PROGS := get_size

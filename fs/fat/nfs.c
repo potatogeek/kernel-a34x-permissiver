@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* fs/fat/nfs.c
  *
  * This software is licensed under the terms of the GNU General Public
@@ -9,6 +10,10 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* fs/fat/nfs.c
+>>>>>>> upstream/android-13
  */
 
 #include <linux/exportfs.h>

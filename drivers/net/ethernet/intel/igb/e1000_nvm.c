@@ -721,7 +721,11 @@ void igb_get_fw_version(struct e1000_hw *hw, struct e1000_fw_version *fw_vers)
 			igb_read_invm_version(hw, fw_vers);
 			return;
 		}
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case e1000_i350:
 		/* find combo image version */
 		hw->nvm.ops.read(hw, NVM_COMB_VER_PTR, 1, &comb_offset);

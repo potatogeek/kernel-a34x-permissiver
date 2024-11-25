@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2000  Frodo Looijaard <frodol@dds.nl>,
  *                      Philip Edelbrock <phil@netroedge.com>,
  *                      Mark D. Studebaker <mdsxyz123@yahoo.com>,
  *                      Dan Eaton <dan.eaton@rocketlogix.com> and
  *                      Stephen Rousset <stephen.rousset@rocketlogix.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -14,6 +19,8 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
 */
 
 /*
@@ -517,6 +524,14 @@ static void ali1535_remove(struct pci_dev *dev)
 {
 	i2c_del_adapter(&ali1535_adapter);
 	release_region(ali1535_smba, ALI1535_SMB_IOSIZE);
+<<<<<<< HEAD
+=======
+
+	/*
+	 * do not call pci_disable_device(dev) since it can cause hard hangs on
+	 * some systems during power-off
+	 */
+>>>>>>> upstream/android-13
 }
 
 static struct pci_driver ali1535_driver = {
@@ -528,9 +543,16 @@ static struct pci_driver ali1535_driver = {
 
 module_pci_driver(ali1535_driver);
 
+<<<<<<< HEAD
 MODULE_AUTHOR("Frodo Looijaard <frodol@dds.nl>, "
 	      "Philip Edelbrock <phil@netroedge.com>, "
 	      "Mark D. Studebaker <mdsxyz123@yahoo.com> "
 	      "and Dan Eaton <dan.eaton@rocketlogix.com>");
+=======
+MODULE_AUTHOR("Frodo Looijaard <frodol@dds.nl>");
+MODULE_AUTHOR("Philip Edelbrock <phil@netroedge.com>");
+MODULE_AUTHOR("Mark D. Studebaker <mdsxyz123@yahoo.com>");
+MODULE_AUTHOR("Dan Eaton <dan.eaton@rocketlogix.com>");
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("ALI1535 SMBus driver");
 MODULE_LICENSE("GPL");

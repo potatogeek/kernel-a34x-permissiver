@@ -136,10 +136,16 @@ static const char ixgbe_gstrings_test[][ETH_GSTRING_LEN] = {
 static const char ixgbe_priv_flags_strings[][ETH_GSTRING_LEN] = {
 #define IXGBE_PRIV_FLAGS_LEGACY_RX	BIT(0)
 	"legacy-rx",
+<<<<<<< HEAD
+=======
+#define IXGBE_PRIV_FLAGS_VF_IPSEC_EN	BIT(1)
+	"vf-ipsec",
+>>>>>>> upstream/android-13
 };
 
 #define IXGBE_PRIV_FLAGS_STR_LEN ARRAY_SIZE(ixgbe_priv_flags_strings)
 
+<<<<<<< HEAD
 /* currently supported speeds for 10G */
 #define ADVRTSD_MSK_10G (SUPPORTED_10000baseT_Full | \
 			 SUPPORTED_10000baseKX4_Full | \
@@ -151,21 +157,84 @@ static u32 ixgbe_get_supported_10gtypes(struct ixgbe_hw *hw)
 {
 	if (!ixgbe_isbackplane(hw->phy.media_type))
 		return SUPPORTED_10000baseT_Full;
+=======
+#define ixgbe_isbackplane(type) ((type) == ixgbe_media_type_backplane)
+
+static void ixgbe_set_supported_10gtypes(struct ixgbe_hw *hw,
+					 struct ethtool_link_ksettings *cmd)
+{
+	if (!ixgbe_isbackplane(hw->phy.media_type)) {
+		ethtool_link_ksettings_add_link_mode(cmd, supported,
+						     10000baseT_Full);
+		return;
+	}
+>>>>>>> upstream/android-13
 
 	switch (hw->device_id) {
 	case IXGBE_DEV_ID_82598:
 	case IXGBE_DEV_ID_82599_KX4:
 	case IXGBE_DEV_ID_82599_KX4_MEZZ:
 	case IXGBE_DEV_ID_X550EM_X_KX4:
+<<<<<<< HEAD
 		return SUPPORTED_10000baseKX4_Full;
+=======
+		ethtool_link_ksettings_add_link_mode
+			(cmd, supported, 10000baseKX4_Full);
+		break;
+>>>>>>> upstream/android-13
 	case IXGBE_DEV_ID_82598_BX:
 	case IXGBE_DEV_ID_82599_KR:
 	case IXGBE_DEV_ID_X550EM_X_KR:
 	case IXGBE_DEV_ID_X550EM_X_XFI:
+<<<<<<< HEAD
 		return SUPPORTED_10000baseKR_Full;
 	default:
 		return SUPPORTED_10000baseKX4_Full |
 		       SUPPORTED_10000baseKR_Full;
+=======
+		ethtool_link_ksettings_add_link_mode
+			(cmd, supported, 10000baseKR_Full);
+		break;
+	default:
+		ethtool_link_ksettings_add_link_mode
+			(cmd, supported, 10000baseKX4_Full);
+		ethtool_link_ksettings_add_link_mode
+			(cmd, supported, 10000baseKR_Full);
+		break;
+	}
+}
+
+static void ixgbe_set_advertising_10gtypes(struct ixgbe_hw *hw,
+					   struct ethtool_link_ksettings *cmd)
+{
+	if (!ixgbe_isbackplane(hw->phy.media_type)) {
+		ethtool_link_ksettings_add_link_mode(cmd, advertising,
+						     10000baseT_Full);
+		return;
+	}
+
+	switch (hw->device_id) {
+	case IXGBE_DEV_ID_82598:
+	case IXGBE_DEV_ID_82599_KX4:
+	case IXGBE_DEV_ID_82599_KX4_MEZZ:
+	case IXGBE_DEV_ID_X550EM_X_KX4:
+		ethtool_link_ksettings_add_link_mode
+			(cmd, advertising, 10000baseKX4_Full);
+		break;
+	case IXGBE_DEV_ID_82598_BX:
+	case IXGBE_DEV_ID_82599_KR:
+	case IXGBE_DEV_ID_X550EM_X_KR:
+	case IXGBE_DEV_ID_X550EM_X_XFI:
+		ethtool_link_ksettings_add_link_mode
+			(cmd, advertising, 10000baseKR_Full);
+		break;
+	default:
+		ethtool_link_ksettings_add_link_mode
+			(cmd, advertising, 10000baseKX4_Full);
+		ethtool_link_ksettings_add_link_mode
+			(cmd, advertising, 10000baseKR_Full);
+		break;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -176,14 +245,21 @@ static int ixgbe_get_link_ksettings(struct net_device *netdev,
 	struct ixgbe_hw *hw = &adapter->hw;
 	ixgbe_link_speed supported_link;
 	bool autoneg = false;
+<<<<<<< HEAD
 	u32 supported, advertising;
 
 	ethtool_convert_link_mode_to_legacy_u32(&supported,
 						cmd->link_modes.supported);
+=======
+
+	ethtool_link_ksettings_zero_link_mode(cmd, supported);
+	ethtool_link_ksettings_zero_link_mode(cmd, advertising);
+>>>>>>> upstream/android-13
 
 	hw->mac.ops.get_link_capabilities(hw, &supported_link, &autoneg);
 
 	/* set the supported link speeds */
+<<<<<<< HEAD
 	if (supported_link & IXGBE_LINK_SPEED_10GB_FULL)
 		supported |= ixgbe_get_supported_10gtypes(hw);
 	if (supported_link & IXGBE_LINK_SPEED_1GB_FULL)
@@ -216,12 +292,88 @@ static int ixgbe_get_link_ksettings(struct net_device *netdev,
 		if (hw->phy.multispeed_fiber && !autoneg) {
 			if (supported_link & IXGBE_LINK_SPEED_10GB_FULL)
 				advertising = ADVERTISED_10000baseT_Full;
+=======
+	if (supported_link & IXGBE_LINK_SPEED_10GB_FULL) {
+		ixgbe_set_supported_10gtypes(hw, cmd);
+		ixgbe_set_advertising_10gtypes(hw, cmd);
+	}
+	if (supported_link & IXGBE_LINK_SPEED_5GB_FULL)
+		ethtool_link_ksettings_add_link_mode(cmd, supported,
+						     5000baseT_Full);
+
+	if (supported_link & IXGBE_LINK_SPEED_2_5GB_FULL)
+		ethtool_link_ksettings_add_link_mode(cmd, supported,
+						     2500baseT_Full);
+
+	if (supported_link & IXGBE_LINK_SPEED_1GB_FULL) {
+		if (ixgbe_isbackplane(hw->phy.media_type)) {
+			ethtool_link_ksettings_add_link_mode(cmd, supported,
+							     1000baseKX_Full);
+			ethtool_link_ksettings_add_link_mode(cmd, advertising,
+							     1000baseKX_Full);
+		} else {
+			ethtool_link_ksettings_add_link_mode(cmd, supported,
+							     1000baseT_Full);
+			ethtool_link_ksettings_add_link_mode(cmd, advertising,
+							     1000baseT_Full);
+		}
+	}
+	if (supported_link & IXGBE_LINK_SPEED_100_FULL) {
+		ethtool_link_ksettings_add_link_mode(cmd, supported,
+						     100baseT_Full);
+		ethtool_link_ksettings_add_link_mode(cmd, advertising,
+						     100baseT_Full);
+	}
+	if (supported_link & IXGBE_LINK_SPEED_10_FULL) {
+		ethtool_link_ksettings_add_link_mode(cmd, supported,
+						     10baseT_Full);
+		ethtool_link_ksettings_add_link_mode(cmd, advertising,
+						     10baseT_Full);
+	}
+
+	/* set the advertised speeds */
+	if (hw->phy.autoneg_advertised) {
+		ethtool_link_ksettings_zero_link_mode(cmd, advertising);
+		if (hw->phy.autoneg_advertised & IXGBE_LINK_SPEED_10_FULL)
+			ethtool_link_ksettings_add_link_mode(cmd, advertising,
+							     10baseT_Full);
+		if (hw->phy.autoneg_advertised & IXGBE_LINK_SPEED_100_FULL)
+			ethtool_link_ksettings_add_link_mode(cmd, advertising,
+							     100baseT_Full);
+		if (hw->phy.autoneg_advertised & IXGBE_LINK_SPEED_10GB_FULL)
+			ixgbe_set_advertising_10gtypes(hw, cmd);
+		if (hw->phy.autoneg_advertised & IXGBE_LINK_SPEED_1GB_FULL) {
+			if (ethtool_link_ksettings_test_link_mode
+				(cmd, supported, 1000baseKX_Full))
+				ethtool_link_ksettings_add_link_mode
+					(cmd, advertising, 1000baseKX_Full);
+			else
+				ethtool_link_ksettings_add_link_mode
+					(cmd, advertising, 1000baseT_Full);
+		}
+		if (hw->phy.autoneg_advertised & IXGBE_LINK_SPEED_5GB_FULL)
+			ethtool_link_ksettings_add_link_mode(cmd, advertising,
+							     5000baseT_Full);
+		if (hw->phy.autoneg_advertised & IXGBE_LINK_SPEED_2_5GB_FULL)
+			ethtool_link_ksettings_add_link_mode(cmd, advertising,
+							     2500baseT_Full);
+	} else {
+		if (hw->phy.multispeed_fiber && !autoneg) {
+			if (supported_link & IXGBE_LINK_SPEED_10GB_FULL)
+				ethtool_link_ksettings_add_link_mode
+					(cmd, advertising, 10000baseT_Full);
+>>>>>>> upstream/android-13
 		}
 	}
 
 	if (autoneg) {
+<<<<<<< HEAD
 		supported |= SUPPORTED_Autoneg;
 		advertising |= ADVERTISED_Autoneg;
+=======
+		ethtool_link_ksettings_add_link_mode(cmd, supported, Autoneg);
+		ethtool_link_ksettings_add_link_mode(cmd, advertising, Autoneg);
+>>>>>>> upstream/android-13
 		cmd->base.autoneg = AUTONEG_ENABLE;
 	} else
 		cmd->base.autoneg = AUTONEG_DISABLE;
@@ -233,6 +385,7 @@ static int ixgbe_get_link_ksettings(struct net_device *netdev,
 	case ixgbe_phy_x550em_ext_t:
 	case ixgbe_phy_fw:
 	case ixgbe_phy_cu_unknown:
+<<<<<<< HEAD
 		supported |= SUPPORTED_TP;
 		advertising |= ADVERTISED_TP;
 		cmd->base.port = PORT_TP;
@@ -240,6 +393,15 @@ static int ixgbe_get_link_ksettings(struct net_device *netdev,
 	case ixgbe_phy_qt:
 		supported |= SUPPORTED_FIBRE;
 		advertising |= ADVERTISED_FIBRE;
+=======
+		ethtool_link_ksettings_add_link_mode(cmd, supported, TP);
+		ethtool_link_ksettings_add_link_mode(cmd, advertising, TP);
+		cmd->base.port = PORT_TP;
+		break;
+	case ixgbe_phy_qt:
+		ethtool_link_ksettings_add_link_mode(cmd, supported, FIBRE);
+		ethtool_link_ksettings_add_link_mode(cmd, advertising, FIBRE);
+>>>>>>> upstream/android-13
 		cmd->base.port = PORT_FIBRE;
 		break;
 	case ixgbe_phy_nl:
@@ -258,8 +420,15 @@ static int ixgbe_get_link_ksettings(struct net_device *netdev,
 		case ixgbe_sfp_type_da_cu:
 		case ixgbe_sfp_type_da_cu_core0:
 		case ixgbe_sfp_type_da_cu_core1:
+<<<<<<< HEAD
 			supported |= SUPPORTED_FIBRE;
 			advertising |= ADVERTISED_FIBRE;
+=======
+			ethtool_link_ksettings_add_link_mode(cmd, supported,
+							     FIBRE);
+			ethtool_link_ksettings_add_link_mode(cmd, advertising,
+							     FIBRE);
+>>>>>>> upstream/android-13
 			cmd->base.port = PORT_DA;
 			break;
 		case ixgbe_sfp_type_sr:
@@ -270,6 +439,7 @@ static int ixgbe_get_link_ksettings(struct net_device *netdev,
 		case ixgbe_sfp_type_1g_sx_core1:
 		case ixgbe_sfp_type_1g_lx_core0:
 		case ixgbe_sfp_type_1g_lx_core1:
+<<<<<<< HEAD
 			supported |= SUPPORTED_FIBRE;
 			advertising |= ADVERTISED_FIBRE;
 			cmd->base.port = PORT_FIBRE;
@@ -277,38 +447,80 @@ static int ixgbe_get_link_ksettings(struct net_device *netdev,
 		case ixgbe_sfp_type_not_present:
 			supported |= SUPPORTED_FIBRE;
 			advertising |= ADVERTISED_FIBRE;
+=======
+			ethtool_link_ksettings_add_link_mode(cmd, supported,
+							     FIBRE);
+			ethtool_link_ksettings_add_link_mode(cmd, advertising,
+							     FIBRE);
+			cmd->base.port = PORT_FIBRE;
+			break;
+		case ixgbe_sfp_type_not_present:
+			ethtool_link_ksettings_add_link_mode(cmd, supported,
+							     FIBRE);
+			ethtool_link_ksettings_add_link_mode(cmd, advertising,
+							     FIBRE);
+>>>>>>> upstream/android-13
 			cmd->base.port = PORT_NONE;
 			break;
 		case ixgbe_sfp_type_1g_cu_core0:
 		case ixgbe_sfp_type_1g_cu_core1:
+<<<<<<< HEAD
 			supported |= SUPPORTED_TP;
 			advertising |= ADVERTISED_TP;
+=======
+			ethtool_link_ksettings_add_link_mode(cmd, supported,
+							     TP);
+			ethtool_link_ksettings_add_link_mode(cmd, advertising,
+							     TP);
+>>>>>>> upstream/android-13
 			cmd->base.port = PORT_TP;
 			break;
 		case ixgbe_sfp_type_unknown:
 		default:
+<<<<<<< HEAD
 			supported |= SUPPORTED_FIBRE;
 			advertising |= ADVERTISED_FIBRE;
+=======
+			ethtool_link_ksettings_add_link_mode(cmd, supported,
+							     FIBRE);
+			ethtool_link_ksettings_add_link_mode(cmd, advertising,
+							     FIBRE);
+>>>>>>> upstream/android-13
 			cmd->base.port = PORT_OTHER;
 			break;
 		}
 		break;
 	case ixgbe_phy_xaui:
+<<<<<<< HEAD
 		supported |= SUPPORTED_FIBRE;
 		advertising |= ADVERTISED_FIBRE;
+=======
+		ethtool_link_ksettings_add_link_mode(cmd, supported,
+						     FIBRE);
+		ethtool_link_ksettings_add_link_mode(cmd, advertising,
+						     FIBRE);
+>>>>>>> upstream/android-13
 		cmd->base.port = PORT_NONE;
 		break;
 	case ixgbe_phy_unknown:
 	case ixgbe_phy_generic:
 	case ixgbe_phy_sfp_unsupported:
 	default:
+<<<<<<< HEAD
 		supported |= SUPPORTED_FIBRE;
 		advertising |= ADVERTISED_FIBRE;
+=======
+		ethtool_link_ksettings_add_link_mode(cmd, supported,
+						     FIBRE);
+		ethtool_link_ksettings_add_link_mode(cmd, advertising,
+						     FIBRE);
+>>>>>>> upstream/android-13
 		cmd->base.port = PORT_OTHER;
 		break;
 	}
 
 	/* Indicate pause support */
+<<<<<<< HEAD
 	supported |= SUPPORTED_Pause;
 
 	switch (hw->fc.requested_mode) {
@@ -325,6 +537,27 @@ static int ixgbe_get_link_ksettings(struct net_device *netdev,
 	default:
 		advertising &= ~(ADVERTISED_Pause |
 				       ADVERTISED_Asym_Pause);
+=======
+	ethtool_link_ksettings_add_link_mode(cmd, supported, Pause);
+
+	switch (hw->fc.requested_mode) {
+	case ixgbe_fc_full:
+		ethtool_link_ksettings_add_link_mode(cmd, advertising, Pause);
+		break;
+	case ixgbe_fc_rx_pause:
+		ethtool_link_ksettings_add_link_mode(cmd, advertising, Pause);
+		ethtool_link_ksettings_add_link_mode(cmd, advertising,
+						     Asym_Pause);
+		break;
+	case ixgbe_fc_tx_pause:
+		ethtool_link_ksettings_add_link_mode(cmd, advertising,
+						     Asym_Pause);
+		break;
+	default:
+		ethtool_link_ksettings_del_link_mode(cmd, advertising, Pause);
+		ethtool_link_ksettings_del_link_mode(cmd, advertising,
+						     Asym_Pause);
+>>>>>>> upstream/android-13
 	}
 
 	if (netif_carrier_ok(netdev)) {
@@ -356,11 +589,14 @@ static int ixgbe_get_link_ksettings(struct net_device *netdev,
 		cmd->base.duplex = DUPLEX_UNKNOWN;
 	}
 
+<<<<<<< HEAD
 	ethtool_convert_legacy_u32_to_link_mode(cmd->link_modes.supported,
 						supported);
 	ethtool_convert_legacy_u32_to_link_mode(cmd->link_modes.advertising,
 						advertising);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -371,12 +607,15 @@ static int ixgbe_set_link_ksettings(struct net_device *netdev,
 	struct ixgbe_hw *hw = &adapter->hw;
 	u32 advertised, old;
 	s32 err = 0;
+<<<<<<< HEAD
 	u32 supported, advertising;
 
 	ethtool_convert_link_mode_to_legacy_u32(&supported,
 						cmd->link_modes.supported);
 	ethtool_convert_link_mode_to_legacy_u32(&advertising,
 						cmd->link_modes.advertising);
+=======
+>>>>>>> upstream/android-13
 
 	if ((hw->phy.media_type == ixgbe_media_type_copper) ||
 	    (hw->phy.multispeed_fiber)) {
@@ -384,19 +623,33 @@ static int ixgbe_set_link_ksettings(struct net_device *netdev,
 		 * this function does not support duplex forcing, but can
 		 * limit the advertising of the adapter to the specified speed
 		 */
+<<<<<<< HEAD
 		if (advertising & ~supported)
+=======
+		if (!bitmap_subset(cmd->link_modes.advertising,
+				   cmd->link_modes.supported,
+				   __ETHTOOL_LINK_MODE_MASK_NBITS))
+>>>>>>> upstream/android-13
 			return -EINVAL;
 
 		/* only allow one speed at a time if no autoneg */
 		if (!cmd->base.autoneg && hw->phy.multispeed_fiber) {
+<<<<<<< HEAD
 			if (advertising ==
 			    (ADVERTISED_10000baseT_Full |
 			     ADVERTISED_1000baseT_Full))
+=======
+			if (ethtool_link_ksettings_test_link_mode(cmd, advertising,
+								  10000baseT_Full) &&
+			    ethtool_link_ksettings_test_link_mode(cmd, advertising,
+								  1000baseT_Full))
+>>>>>>> upstream/android-13
 				return -EINVAL;
 		}
 
 		old = hw->phy.autoneg_advertised;
 		advertised = 0;
+<<<<<<< HEAD
 		if (advertising & ADVERTISED_10000baseT_Full)
 			advertised |= IXGBE_LINK_SPEED_10GB_FULL;
 
@@ -407,6 +660,27 @@ static int ixgbe_set_link_ksettings(struct net_device *netdev,
 			advertised |= IXGBE_LINK_SPEED_100_FULL;
 
 		if (advertising & ADVERTISED_10baseT_Full)
+=======
+		if (ethtool_link_ksettings_test_link_mode(cmd, advertising,
+							  10000baseT_Full))
+			advertised |= IXGBE_LINK_SPEED_10GB_FULL;
+		if (ethtool_link_ksettings_test_link_mode(cmd, advertising,
+							  5000baseT_Full))
+			advertised |= IXGBE_LINK_SPEED_5GB_FULL;
+		if (ethtool_link_ksettings_test_link_mode(cmd, advertising,
+							  2500baseT_Full))
+			advertised |= IXGBE_LINK_SPEED_2_5GB_FULL;
+		if (ethtool_link_ksettings_test_link_mode(cmd, advertising,
+							  1000baseT_Full))
+			advertised |= IXGBE_LINK_SPEED_1GB_FULL;
+
+		if (ethtool_link_ksettings_test_link_mode(cmd, advertising,
+							  100baseT_Full))
+			advertised |= IXGBE_LINK_SPEED_100_FULL;
+
+		if (ethtool_link_ksettings_test_link_mode(cmd, advertising,
+							  10baseT_Full))
+>>>>>>> upstream/android-13
 			advertised |= IXGBE_LINK_SPEED_10_FULL;
 
 		if (old == advertised)
@@ -427,7 +701,12 @@ static int ixgbe_set_link_ksettings(struct net_device *netdev,
 		u32 speed = cmd->base.speed;
 
 		if ((cmd->base.autoneg == AUTONEG_ENABLE) ||
+<<<<<<< HEAD
 		    (advertising != ADVERTISED_10000baseT_Full) ||
+=======
+		    (!ethtool_link_ksettings_test_link_mode(cmd, advertising,
+							    10000baseT_Full)) ||
+>>>>>>> upstream/android-13
 		    (speed + cmd->base.duplex != SPEED_10000 + DUPLEX_FULL))
 			return -EINVAL;
 	}
@@ -435,6 +714,19 @@ static int ixgbe_set_link_ksettings(struct net_device *netdev,
 	return err;
 }
 
+<<<<<<< HEAD
+=======
+static void ixgbe_get_pause_stats(struct net_device *netdev,
+				  struct ethtool_pause_stats *stats)
+{
+	struct ixgbe_adapter *adapter = netdev_priv(netdev);
+	struct ixgbe_hw_stats *hwstats = &adapter->stats;
+
+	stats->tx_pause_frames = hwstats->lxontxc + hwstats->lxofftxc;
+	stats->rx_pause_frames = hwstats->lxonrxc + hwstats->lxoffrxc;
+}
+
+>>>>>>> upstream/android-13
 static void ixgbe_get_pauseparam(struct net_device *netdev,
 				 struct ethtool_pauseparam *pause)
 {
@@ -1002,8 +1294,11 @@ static void ixgbe_get_drvinfo(struct net_device *netdev,
 	struct ixgbe_adapter *adapter = netdev_priv(netdev);
 
 	strlcpy(drvinfo->driver, ixgbe_driver_name, sizeof(drvinfo->driver));
+<<<<<<< HEAD
 	strlcpy(drvinfo->version, ixgbe_driver_version,
 		sizeof(drvinfo->version));
+=======
+>>>>>>> upstream/android-13
 
 	strlcpy(drvinfo->fw_version, adapter->eeprom_id,
 		sizeof(drvinfo->fw_version));
@@ -1264,6 +1559,7 @@ static void ixgbe_get_ethtool_stats(struct net_device *netdev,
 static void ixgbe_get_strings(struct net_device *netdev, u32 stringset,
 			      u8 *data)
 {
+<<<<<<< HEAD
 	char *p = (char *)data;
 	unsigned int i;
 
@@ -1303,6 +1599,35 @@ static void ixgbe_get_strings(struct net_device *netdev, u32 stringset,
 			p += ETH_GSTRING_LEN;
 			sprintf(p, "rx_pb_%u_pxoff", i);
 			p += ETH_GSTRING_LEN;
+=======
+	unsigned int i;
+	u8 *p = data;
+
+	switch (stringset) {
+	case ETH_SS_TEST:
+		for (i = 0; i < IXGBE_TEST_LEN; i++)
+			ethtool_sprintf(&p, ixgbe_gstrings_test[i]);
+		break;
+	case ETH_SS_STATS:
+		for (i = 0; i < IXGBE_GLOBAL_STATS_LEN; i++)
+			ethtool_sprintf(&p,
+					ixgbe_gstrings_stats[i].stat_string);
+		for (i = 0; i < netdev->num_tx_queues; i++) {
+			ethtool_sprintf(&p, "tx_queue_%u_packets", i);
+			ethtool_sprintf(&p, "tx_queue_%u_bytes", i);
+		}
+		for (i = 0; i < IXGBE_NUM_RX_QUEUES; i++) {
+			ethtool_sprintf(&p, "rx_queue_%u_packets", i);
+			ethtool_sprintf(&p, "rx_queue_%u_bytes", i);
+		}
+		for (i = 0; i < IXGBE_MAX_PACKET_BUFFERS; i++) {
+			ethtool_sprintf(&p, "tx_pb_%u_pxon", i);
+			ethtool_sprintf(&p, "tx_pb_%u_pxoff", i);
+		}
+		for (i = 0; i < IXGBE_MAX_PACKET_BUFFERS; i++) {
+			ethtool_sprintf(&p, "rx_pb_%u_pxon", i);
+			ethtool_sprintf(&p, "rx_pb_%u_pxoff", i);
+>>>>>>> upstream/android-13
 		}
 		/* BUG_ON(p - data != IXGBE_STATS_LEN * ETH_GSTRING_LEN); */
 		break;
@@ -1857,8 +2182,13 @@ static void ixgbe_create_lbtest_frame(struct sk_buff *skb,
 	memset(skb->data, 0xFF, frame_size);
 	frame_size >>= 1;
 	memset(&skb->data[frame_size], 0xAA, frame_size / 2 - 1);
+<<<<<<< HEAD
 	memset(&skb->data[frame_size + 10], 0xBE, 1);
 	memset(&skb->data[frame_size + 12], 0xAF, 1);
+=======
+	skb->data[frame_size + 10] = 0xBE;
+	skb->data[frame_size + 12] = 0xAF;
+>>>>>>> upstream/android-13
 }
 
 static bool ixgbe_check_lbtest_frame(struct ixgbe_rx_buffer *rx_buffer,
@@ -2084,7 +2414,11 @@ static void ixgbe_diag_test(struct net_device *netdev,
 					eth_test->flags |= ETH_TEST_FL_FAILED;
 					clear_bit(__IXGBE_TESTING,
 						  &adapter->state);
+<<<<<<< HEAD
 					goto skip_ol_tests;
+=======
+					return;
+>>>>>>> upstream/android-13
 				}
 			}
 		}
@@ -2156,9 +2490,12 @@ skip_loopback:
 
 		clear_bit(__IXGBE_TESTING, &adapter->state);
 	}
+<<<<<<< HEAD
 
 skip_ol_tests:
 	msleep_interruptible(4 * 1000);
+=======
+>>>>>>> upstream/android-13
 }
 
 static int ixgbe_wol_exclusion(struct ixgbe_adapter *adapter,
@@ -2204,7 +2541,12 @@ static int ixgbe_set_wol(struct net_device *netdev, struct ethtool_wolinfo *wol)
 {
 	struct ixgbe_adapter *adapter = netdev_priv(netdev);
 
+<<<<<<< HEAD
 	if (wol->wolopts & (WAKE_PHY | WAKE_ARP | WAKE_MAGICSECURE))
+=======
+	if (wol->wolopts & (WAKE_PHY | WAKE_ARP | WAKE_MAGICSECURE |
+			    WAKE_FILTER))
+>>>>>>> upstream/android-13
 		return -EOPNOTSUPP;
 
 	if (ixgbe_wol_exclusion(adapter, wol))
@@ -2268,7 +2610,13 @@ static int ixgbe_set_phys_id(struct net_device *netdev,
 }
 
 static int ixgbe_get_coalesce(struct net_device *netdev,
+<<<<<<< HEAD
 			      struct ethtool_coalesce *ec)
+=======
+			      struct ethtool_coalesce *ec,
+			      struct kernel_ethtool_coalesce *kernel_coal,
+			      struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct ixgbe_adapter *adapter = netdev_priv(netdev);
 
@@ -2322,7 +2670,13 @@ static bool ixgbe_update_rsc(struct ixgbe_adapter *adapter)
 }
 
 static int ixgbe_set_coalesce(struct net_device *netdev,
+<<<<<<< HEAD
 			      struct ethtool_coalesce *ec)
+=======
+			      struct ethtool_coalesce *ec,
+			      struct kernel_ethtool_coalesce *kernel_coal,
+			      struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct ixgbe_adapter *adapter = netdev_priv(netdev);
 	struct ixgbe_q_vector *q_vector;
@@ -2506,11 +2860,19 @@ static int ixgbe_get_rss_hash_opts(struct ixgbe_adapter *adapter,
 	switch (cmd->flow_type) {
 	case TCP_V4_FLOW:
 		cmd->data |= RXH_L4_B_0_1 | RXH_L4_B_2_3;
+<<<<<<< HEAD
 		/* fallthrough */
 	case UDP_V4_FLOW:
 		if (adapter->flags2 & IXGBE_FLAG2_RSS_FIELD_IPV4_UDP)
 			cmd->data |= RXH_L4_B_0_1 | RXH_L4_B_2_3;
 		/* fallthrough */
+=======
+		fallthrough;
+	case UDP_V4_FLOW:
+		if (adapter->flags2 & IXGBE_FLAG2_RSS_FIELD_IPV4_UDP)
+			cmd->data |= RXH_L4_B_0_1 | RXH_L4_B_2_3;
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SCTP_V4_FLOW:
 	case AH_ESP_V4_FLOW:
 	case AH_V4_FLOW:
@@ -2520,11 +2882,19 @@ static int ixgbe_get_rss_hash_opts(struct ixgbe_adapter *adapter,
 		break;
 	case TCP_V6_FLOW:
 		cmd->data |= RXH_L4_B_0_1 | RXH_L4_B_2_3;
+<<<<<<< HEAD
 		/* fallthrough */
 	case UDP_V6_FLOW:
 		if (adapter->flags2 & IXGBE_FLAG2_RSS_FIELD_IPV6_UDP)
 			cmd->data |= RXH_L4_B_0_1 | RXH_L4_B_2_3;
 		/* fallthrough */
+=======
+		fallthrough;
+	case UDP_V6_FLOW:
+		if (adapter->flags2 & IXGBE_FLAG2_RSS_FIELD_IPV6_UDP)
+			cmd->data |= RXH_L4_B_0_1 | RXH_L4_B_2_3;
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SCTP_V6_FLOW:
 	case AH_ESP_V6_FLOW:
 	case AH_V6_FLOW:
@@ -2656,7 +3026,11 @@ static int ixgbe_flowspec_to_flow_type(struct ethtool_rx_flow_spec *fsp,
 				*flow_type = IXGBE_ATR_FLOW_TYPE_IPV4;
 				break;
 			}
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		default:
 			return 0;
 		}
@@ -3114,7 +3488,11 @@ static unsigned int ixgbe_max_channels(struct ixgbe_adapter *adapter)
 		max_combined = ixgbe_max_rss_indices(adapter);
 	}
 
+<<<<<<< HEAD
 	return max_combined;
+=======
+	return min_t(int, max_combined, num_online_cpus());
+>>>>>>> upstream/android-13
 }
 
 static void ixgbe_get_channels(struct net_device *dev,
@@ -3410,6 +3788,12 @@ static u32 ixgbe_get_priv_flags(struct net_device *netdev)
 	if (adapter->flags2 & IXGBE_FLAG2_RX_LEGACY)
 		priv_flags |= IXGBE_PRIV_FLAGS_LEGACY_RX;
 
+<<<<<<< HEAD
+=======
+	if (adapter->flags2 & IXGBE_FLAG2_VF_IPSEC_ENABLED)
+		priv_flags |= IXGBE_PRIV_FLAGS_VF_IPSEC_EN;
+
+>>>>>>> upstream/android-13
 	return priv_flags;
 }
 
@@ -3422,6 +3806,13 @@ static int ixgbe_set_priv_flags(struct net_device *netdev, u32 priv_flags)
 	if (priv_flags & IXGBE_PRIV_FLAGS_LEGACY_RX)
 		flags2 |= IXGBE_FLAG2_RX_LEGACY;
 
+<<<<<<< HEAD
+=======
+	flags2 &= ~IXGBE_FLAG2_VF_IPSEC_ENABLED;
+	if (priv_flags & IXGBE_PRIV_FLAGS_VF_IPSEC_EN)
+		flags2 |= IXGBE_FLAG2_VF_IPSEC_ENABLED;
+
+>>>>>>> upstream/android-13
 	if (flags2 != adapter->flags2) {
 		adapter->flags2 = flags2;
 
@@ -3434,6 +3825,10 @@ static int ixgbe_set_priv_flags(struct net_device *netdev, u32 priv_flags)
 }
 
 static const struct ethtool_ops ixgbe_ethtool_ops = {
+<<<<<<< HEAD
+=======
+	.supported_coalesce_params = ETHTOOL_COALESCE_USECS,
+>>>>>>> upstream/android-13
 	.get_drvinfo            = ixgbe_get_drvinfo,
 	.get_regs_len           = ixgbe_get_regs_len,
 	.get_regs               = ixgbe_get_regs,
@@ -3446,6 +3841,10 @@ static const struct ethtool_ops ixgbe_ethtool_ops = {
 	.set_eeprom             = ixgbe_set_eeprom,
 	.get_ringparam          = ixgbe_get_ringparam,
 	.set_ringparam          = ixgbe_set_ringparam,
+<<<<<<< HEAD
+=======
+	.get_pause_stats	= ixgbe_get_pause_stats,
+>>>>>>> upstream/android-13
 	.get_pauseparam         = ixgbe_get_pauseparam,
 	.set_pauseparam         = ixgbe_set_pauseparam,
 	.get_msglevel           = ixgbe_get_msglevel,

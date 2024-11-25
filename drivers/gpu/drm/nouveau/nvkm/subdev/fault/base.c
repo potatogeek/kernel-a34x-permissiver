@@ -23,21 +23,32 @@
 
 #include <core/memory.h>
 #include <core/notify.h>
+<<<<<<< HEAD
 #include <subdev/bar.h>
 #include <subdev/mmu.h>
+=======
+>>>>>>> upstream/android-13
 
 static void
 nvkm_fault_ntfy_fini(struct nvkm_event *event, int type, int index)
 {
 	struct nvkm_fault *fault = container_of(event, typeof(*fault), event);
+<<<<<<< HEAD
 	fault->func->buffer.fini(fault->buffer[index]);
+=======
+	fault->func->buffer.intr(fault->buffer[index], false);
+>>>>>>> upstream/android-13
 }
 
 static void
 nvkm_fault_ntfy_init(struct nvkm_event *event, int type, int index)
 {
 	struct nvkm_fault *fault = container_of(event, typeof(*fault), event);
+<<<<<<< HEAD
 	fault->func->buffer.init(fault->buffer[index]);
+=======
+	fault->func->buffer.intr(fault->buffer[index], true);
+>>>>>>> upstream/android-13
 }
 
 static int
@@ -91,7 +102,10 @@ nvkm_fault_oneinit_buffer(struct nvkm_fault *fault, int id)
 {
 	struct nvkm_subdev *subdev = &fault->subdev;
 	struct nvkm_device *device = subdev->device;
+<<<<<<< HEAD
 	struct nvkm_vmm *bar2 = nvkm_bar_bar2_vmm(device);
+=======
+>>>>>>> upstream/android-13
 	struct nvkm_fault_buffer *buffer;
 	int ret;
 
@@ -99,7 +113,11 @@ nvkm_fault_oneinit_buffer(struct nvkm_fault *fault, int id)
 		return -ENOMEM;
 	buffer->fault = fault;
 	buffer->id = id;
+<<<<<<< HEAD
 	buffer->entries = fault->func->buffer.entries(buffer);
+=======
+	fault->func->buffer.info(buffer);
+>>>>>>> upstream/android-13
 	fault->buffer[id] = buffer;
 
 	nvkm_debug(subdev, "buffer %d: %d entries\n", id, buffer->entries);
@@ -110,12 +128,21 @@ nvkm_fault_oneinit_buffer(struct nvkm_fault *fault, int id)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	ret = nvkm_vmm_get(bar2, 12, nvkm_memory_size(buffer->mem),
 			   &buffer->vma);
 	if (ret)
 		return ret;
 
 	return nvkm_memory_map(buffer->mem, 0, bar2, buffer->vma, NULL, 0);
+=======
+	/* Pin fault buffer in BAR2. */
+	buffer->addr = fault->func->buffer.pin(buffer);
+	if (buffer->addr == ~0ULL)
+		return -EFAULT;
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int
@@ -146,7 +173,10 @@ nvkm_fault_oneinit(struct nvkm_subdev *subdev)
 static void *
 nvkm_fault_dtor(struct nvkm_subdev *subdev)
 {
+<<<<<<< HEAD
 	struct nvkm_vmm *bar2 = nvkm_bar_bar2_vmm(subdev->device);
+=======
+>>>>>>> upstream/android-13
 	struct nvkm_fault *fault = nvkm_fault(subdev);
 	int i;
 
@@ -155,7 +185,10 @@ nvkm_fault_dtor(struct nvkm_subdev *subdev)
 
 	for (i = 0; i < fault->buffer_nr; i++) {
 		if (fault->buffer[i]) {
+<<<<<<< HEAD
 			nvkm_vmm_put(bar2, &fault->buffer[i]->vma);
+=======
+>>>>>>> upstream/android-13
 			nvkm_memory_unref(&fault->buffer[i]->mem);
 			kfree(fault->buffer[i]);
 		}
@@ -175,12 +208,23 @@ nvkm_fault = {
 
 int
 nvkm_fault_new_(const struct nvkm_fault_func *func, struct nvkm_device *device,
+<<<<<<< HEAD
 		int index, struct nvkm_fault **pfault)
+=======
+		enum nvkm_subdev_type type, int inst, struct nvkm_fault **pfault)
+>>>>>>> upstream/android-13
 {
 	struct nvkm_fault *fault;
 	if (!(fault = *pfault = kzalloc(sizeof(*fault), GFP_KERNEL)))
 		return -ENOMEM;
+<<<<<<< HEAD
 	nvkm_subdev_ctor(&nvkm_fault, device, index, &fault->subdev);
 	fault->func = func;
+=======
+	nvkm_subdev_ctor(&nvkm_fault, device, type, inst, &fault->subdev);
+	fault->func = func;
+	fault->user.ctor = nvkm_ufault_new;
+	fault->user.base = func->user.base;
+>>>>>>> upstream/android-13
 	return 0;
 }

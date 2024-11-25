@@ -14,6 +14,7 @@ available subsections can be seen below.
 .. toctree::
    :maxdepth: 2
 
+<<<<<<< HEAD
    basics
    infrastructure
    pm/index
@@ -32,20 +33,64 @@ available subsections can be seen below.
    pci
    spi
    i2c
+=======
+   driver-model/index
+   basics
+   infrastructure
+   ioctl
+   early-userspace/index
+   pm/index
+   clk
+   device-io
+   dma-buf
+   device_link
+   component
+   message-based
+   infiniband
+   frame-buffer
+   regulator
+   reset
+   iio/index
+   input
+   usb/index
+   firewire
+   pci/index
+   cxl/index
+   spi
+   i2c
+   ipmb
+   ipmi
+   i3c/index
+   interconnect
+   devfreq
+>>>>>>> upstream/android-13
    hsi
    edac
    scsi
    libata
    target
+<<<<<<< HEAD
    mtdnand
    miscellaneous
    w1
    rapidio
+=======
+   mailbox
+   mtdnand
+   miscellaneous
+   mei/index
+   mtd/index
+   mmc/index
+   nvdimm/index
+   w1
+   rapidio/index
+>>>>>>> upstream/android-13
    s390-drivers
    vme
    80211/index
    uio-howto
    firmware/index
+<<<<<<< HEAD
    pinctl
    gpio/index
    misc_devices
@@ -53,6 +98,52 @@ available subsections can be seen below.
    slimbus
    soundwire/index
    fpga/index
+=======
+   pin-control
+   gpio/index
+   md/index
+   media/index
+   misc_devices
+   nfc/index
+   dmaengine/index
+   slimbus
+   soundwire/index
+   thermal/index
+   fpga/index
+   acpi/index
+   auxiliary_bus
+   backlight/lp855x-driver.rst
+   connector
+   console
+   dcdbas
+   eisa
+   isa
+   isapnp
+   io-mapping
+   io_ordering
+   generic-counter
+   memory-devices/index
+   men-chameleon-bus
+   ntb
+   nvmem
+   parport-lowlevel
+   pps
+   ptp
+   phy/index
+   pwm
+   pldmfw/index
+   rfkill
+   serial/index
+   sm501
+   surface_aggregator/index
+   switchtec
+   sync_file
+   vfio-mediated-device
+   vfio
+   xilinx/index
+   xillybus
+   zorro
+>>>>>>> upstream/android-13
 
 .. only::  subproject and html
 

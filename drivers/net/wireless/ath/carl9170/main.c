@@ -646,7 +646,10 @@ static int carl9170_op_add_interface(struct ieee80211_hw *hw,
 		case NL80211_IFTYPE_MESH_POINT:
 		case NL80211_IFTYPE_AP:
 			if ((vif->type == NL80211_IFTYPE_STATION) ||
+<<<<<<< HEAD
 			    (vif->type == NL80211_IFTYPE_WDS) ||
+=======
+>>>>>>> upstream/android-13
 			    (vif->type == NL80211_IFTYPE_AP) ||
 			    (vif->type == NL80211_IFTYPE_MESH_POINT))
 				break;
@@ -1374,6 +1377,7 @@ static int carl9170_op_conf_tx(struct ieee80211_hw *hw,
 	int ret;
 
 	mutex_lock(&ar->mutex);
+<<<<<<< HEAD
 	if (queue < ar->hw->queues) {
 		memcpy(&ar->edcf[ar9170_qmap[queue]], param, sizeof(*param));
 		ret = carl9170_set_qos(ar);
@@ -1381,6 +1385,10 @@ static int carl9170_op_conf_tx(struct ieee80211_hw *hw,
 		ret = -EINVAL;
 	}
 
+=======
+	memcpy(&ar->edcf[ar9170_qmap(queue)], param, sizeof(*param));
+	ret = carl9170_set_qos(ar);
+>>>>>>> upstream/android-13
 	mutex_unlock(&ar->mutex);
 	return ret;
 }
@@ -1441,8 +1449,12 @@ static int carl9170_op_ampdu_action(struct ieee80211_hw *hw,
 		rcu_assign_pointer(sta_info->agg[tid], tid_info);
 		spin_unlock_bh(&ar->tx_ampdu_list_lock);
 
+<<<<<<< HEAD
 		ieee80211_start_tx_ba_cb_irqsafe(vif, sta->addr, tid);
 		break;
+=======
+		return IEEE80211_AMPDU_TX_START_IMMEDIATE;
+>>>>>>> upstream/android-13
 
 	case IEEE80211_AMPDU_TX_STOP_CONT:
 	case IEEE80211_AMPDU_TX_STOP_FLUSH:
@@ -1922,7 +1934,11 @@ static int carl9170_parse_eeprom(struct ar9170 *ar)
 		WARN_ON(!(tx_streams >= 1 && tx_streams <=
 			IEEE80211_HT_MCS_TX_MAX_STREAMS));
 
+<<<<<<< HEAD
 		tx_params = (tx_streams - 1) <<
+=======
+		tx_params |= (tx_streams - 1) <<
+>>>>>>> upstream/android-13
 			    IEEE80211_HT_MCS_TX_MAX_STREAMS_SHIFT;
 
 		carl9170_band_2GHz.ht_cap.mcs.tx_params |= tx_params;

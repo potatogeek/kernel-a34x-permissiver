@@ -6,6 +6,10 @@
 
 #include <linux/kernel.h>
 #include <linux/pci.h>
+<<<<<<< HEAD
+=======
+#include <linux/pci-ecam.h>
+>>>>>>> upstream/android-13
 #include <linux/msi.h>
 #include <linux/clk.h>
 #include <linux/module.h>
@@ -39,6 +43,7 @@
 
 #define CFG_IND_ADDR_MASK		0x00001ffc
 
+<<<<<<< HEAD
 #define CFG_ADDR_BUS_NUM_SHIFT		20
 #define CFG_ADDR_BUS_NUM_MASK		0x0ff00000
 #define CFG_ADDR_DEV_NUM_SHIFT		15
@@ -49,6 +54,10 @@
 #define CFG_ADDR_REG_NUM_MASK		0x00000ffc
 #define CFG_ADDR_CFG_TYPE_SHIFT		0
 #define CFG_ADDR_CFG_TYPE_MASK		0x00000003
+=======
+#define CFG_ADDR_REG_NUM_MASK		0x00000ffc
+#define CFG_ADDR_CFG_TYPE_1		1
+>>>>>>> upstream/android-13
 
 #define SYS_RC_INTX_MASK		0xf
 
@@ -60,6 +69,13 @@
 #define APB_ERR_EN_SHIFT		0
 #define APB_ERR_EN			BIT(APB_ERR_EN_SHIFT)
 
+<<<<<<< HEAD
+=======
+#define CFG_RD_SUCCESS			0
+#define CFG_RD_UR			1
+#define CFG_RD_CRS			2
+#define CFG_RD_CA			3
+>>>>>>> upstream/android-13
 #define CFG_RETRY_STATUS		0xffff0001
 #define CFG_RETRY_STATUS_TIMEOUT_US	500000 /* 500 milliseconds */
 
@@ -92,8 +108,13 @@
 #define IPROC_PCIE_REG_INVALID		0xffff
 
 /**
+<<<<<<< HEAD
  * iProc PCIe outbound mapping controller specific parameters
  *
+=======
+ * struct iproc_pcie_ob_map - iProc PCIe outbound mapping controller-specific
+ * parameters
+>>>>>>> upstream/android-13
  * @window_sizes: list of supported outbound mapping window sizes in MB
  * @nr_sizes: number of supported outbound mapping window sizes
  */
@@ -139,6 +160,7 @@ static const struct iproc_pcie_ob_map paxb_v2_ob_map[] = {
 };
 
 /**
+<<<<<<< HEAD
  * iProc PCIe inbound mapping type
  */
 enum iproc_pcie_ib_map_type {
@@ -149,17 +171,36 @@ enum iproc_pcie_ib_map_type {
 	IPROC_PCIE_IB_MAP_IO,
 
 	/* invalid or unused */
+=======
+ * enum iproc_pcie_ib_map_type - iProc PCIe inbound mapping type
+ * @IPROC_PCIE_IB_MAP_MEM: DDR memory
+ * @IPROC_PCIE_IB_MAP_IO: device I/O memory
+ * @IPROC_PCIE_IB_MAP_INVALID: invalid or unused
+ */
+enum iproc_pcie_ib_map_type {
+	IPROC_PCIE_IB_MAP_MEM = 0,
+	IPROC_PCIE_IB_MAP_IO,
+>>>>>>> upstream/android-13
 	IPROC_PCIE_IB_MAP_INVALID
 };
 
 /**
+<<<<<<< HEAD
  * iProc PCIe inbound mapping controller specific parameters
  *
+=======
+ * struct iproc_pcie_ib_map - iProc PCIe inbound mapping controller-specific
+ * parameters
+>>>>>>> upstream/android-13
  * @type: inbound mapping region type
  * @size_unit: inbound mapping region size unit, could be SZ_1K, SZ_1M, or
  * SZ_1G
  * @region_sizes: list of supported inbound mapping region sizes in KB, MB, or
+<<<<<<< HEAD
  * GB, depedning on the size unit
+=======
+ * GB, depending on the size unit
+>>>>>>> upstream/android-13
  * @nr_sizes: number of supported inbound mapping region sizes
  * @nr_windows: number of supported inbound mapping windows for the region
  * @imap_addr_offset: register offset between the upper and lower 32-bit
@@ -188,8 +229,20 @@ static const struct iproc_pcie_ib_map paxb_v2_ib_map[] = {
 		.imap_window_offset = 0x4,
 	},
 	{
+<<<<<<< HEAD
 		/* IARR1/IMAP1 (currently unused) */
 		.type = IPROC_PCIE_IB_MAP_INVALID,
+=======
+		/* IARR1/IMAP1 */
+		.type = IPROC_PCIE_IB_MAP_MEM,
+		.size_unit = SZ_1M,
+		.region_sizes = { 8 },
+		.nr_sizes = 1,
+		.nr_windows = 8,
+		.imap_addr_offset = 0x4,
+		.imap_window_offset = 0x8,
+
+>>>>>>> upstream/android-13
 	},
 	{
 		/* IARR2/IMAP2 */
@@ -289,6 +342,12 @@ enum iproc_pcie_reg {
 	IPROC_PCIE_IARR4,
 	IPROC_PCIE_IMAP4,
 
+<<<<<<< HEAD
+=======
+	/* config read status */
+	IPROC_PCIE_CFG_RD_STATUS,
+
+>>>>>>> upstream/android-13
 	/* link status */
 	IPROC_PCIE_LINK_STATUS,
 
@@ -344,12 +403,21 @@ static const u16 iproc_pcie_reg_paxb_v2[IPROC_PCIE_MAX_NUM_REG] = {
 	[IPROC_PCIE_OMAP3]		= 0xdf8,
 	[IPROC_PCIE_IARR0]		= 0xd00,
 	[IPROC_PCIE_IMAP0]		= 0xc00,
+<<<<<<< HEAD
+=======
+	[IPROC_PCIE_IARR1]		= 0xd08,
+	[IPROC_PCIE_IMAP1]		= 0xd70,
+>>>>>>> upstream/android-13
 	[IPROC_PCIE_IARR2]		= 0xd10,
 	[IPROC_PCIE_IMAP2]		= 0xcc0,
 	[IPROC_PCIE_IARR3]		= 0xe00,
 	[IPROC_PCIE_IMAP3]		= 0xe08,
 	[IPROC_PCIE_IARR4]		= 0xe68,
 	[IPROC_PCIE_IMAP4]		= 0xe70,
+<<<<<<< HEAD
+=======
+	[IPROC_PCIE_CFG_RD_STATUS]	= 0xee0,
+>>>>>>> upstream/android-13
 	[IPROC_PCIE_LINK_STATUS]	= 0xf0c,
 	[IPROC_PCIE_APB_ERR_EN]		= 0xf40,
 };
@@ -427,7 +495,11 @@ static inline void iproc_pcie_write_reg(struct iproc_pcie *pcie,
 	writel(val, pcie->base + offset);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * APB error forwarding can be disabled during access of configuration
  * registers of the endpoint device, to prevent unsupported requests
  * (typically seen during enumeration with multi-function devices) from
@@ -451,19 +523,28 @@ static inline void iproc_pcie_apb_err_disable(struct pci_bus *bus,
 
 static void __iomem *iproc_pcie_map_ep_cfg_reg(struct iproc_pcie *pcie,
 					       unsigned int busno,
+<<<<<<< HEAD
 					       unsigned int slot,
 					       unsigned int fn,
+=======
+					       unsigned int devfn,
+>>>>>>> upstream/android-13
 					       int where)
 {
 	u16 offset;
 	u32 val;
 
 	/* EP device access */
+<<<<<<< HEAD
 	val = (busno << CFG_ADDR_BUS_NUM_SHIFT) |
 		(slot << CFG_ADDR_DEV_NUM_SHIFT) |
 		(fn << CFG_ADDR_FUNC_NUM_SHIFT) |
 		(where & CFG_ADDR_REG_NUM_MASK) |
 		(1 & CFG_ADDR_CFG_TYPE_MASK);
+=======
+	val = ALIGN_DOWN(PCIE_ECAM_OFFSET(busno, devfn, where), 4) |
+		CFG_ADDR_CFG_TYPE_1;
+>>>>>>> upstream/android-13
 
 	iproc_pcie_write_reg(pcie, IPROC_PCIE_CFG_ADDR, val);
 	offset = iproc_pcie_reg_offset(pcie, IPROC_PCIE_CFG_DATA);
@@ -474,10 +555,19 @@ static void __iomem *iproc_pcie_map_ep_cfg_reg(struct iproc_pcie *pcie,
 	return (pcie->base + offset);
 }
 
+<<<<<<< HEAD
 static unsigned int iproc_pcie_cfg_retry(void __iomem *cfg_data_p)
 {
 	int timeout = CFG_RETRY_STATUS_TIMEOUT_US;
 	unsigned int data;
+=======
+static unsigned int iproc_pcie_cfg_retry(struct iproc_pcie *pcie,
+					 void __iomem *cfg_data_p)
+{
+	int timeout = CFG_RETRY_STATUS_TIMEOUT_US;
+	unsigned int data;
+	u32 status;
+>>>>>>> upstream/android-13
 
 	/*
 	 * As per PCIe spec r3.1, sec 2.3.2, CRS Software Visibility only
@@ -498,6 +588,18 @@ static unsigned int iproc_pcie_cfg_retry(void __iomem *cfg_data_p)
 	 */
 	data = readl(cfg_data_p);
 	while (data == CFG_RETRY_STATUS && timeout--) {
+<<<<<<< HEAD
+=======
+		/*
+		 * CRS state is set in CFG_RD status register
+		 * This will handle the case where CFG_RETRY_STATUS is
+		 * valid config data.
+		 */
+		status = iproc_pcie_read_reg(pcie, IPROC_PCIE_CFG_RD_STATUS);
+		if (status != CFG_RD_CRS)
+			return data;
+
+>>>>>>> upstream/android-13
 		udelay(1);
 		data = readl(cfg_data_p);
 	}
@@ -555,8 +657,11 @@ static int iproc_pcie_config_read(struct pci_bus *bus, unsigned int devfn,
 				  int where, int size, u32 *val)
 {
 	struct iproc_pcie *pcie = iproc_data(bus);
+<<<<<<< HEAD
 	unsigned int slot = PCI_SLOT(devfn);
 	unsigned int fn = PCI_FUNC(devfn);
+=======
+>>>>>>> upstream/android-13
 	unsigned int busno = bus->number;
 	void __iomem *cfg_data_p;
 	unsigned int data;
@@ -571,12 +676,20 @@ static int iproc_pcie_config_read(struct pci_bus *bus, unsigned int devfn,
 		return ret;
 	}
 
+<<<<<<< HEAD
 	cfg_data_p = iproc_pcie_map_ep_cfg_reg(pcie, busno, slot, fn, where);
+=======
+	cfg_data_p = iproc_pcie_map_ep_cfg_reg(pcie, busno, devfn, where);
+>>>>>>> upstream/android-13
 
 	if (!cfg_data_p)
 		return PCIBIOS_DEVICE_NOT_FOUND;
 
+<<<<<<< HEAD
 	data = iproc_pcie_cfg_retry(cfg_data_p);
+=======
+	data = iproc_pcie_cfg_retry(pcie, cfg_data_p);
+>>>>>>> upstream/android-13
 
 	*val = data;
 	if (size <= 2)
@@ -604,7 +717,11 @@ static int iproc_pcie_config_read(struct pci_bus *bus, unsigned int devfn,
 	return PCIBIOS_SUCCESSFUL;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Note access to the configuration registers are protected at the higher layer
  * by 'pci_lock' in drivers/pci/access.c
  */
@@ -612,13 +729,20 @@ static void __iomem *iproc_pcie_map_cfg_bus(struct iproc_pcie *pcie,
 					    int busno, unsigned int devfn,
 					    int where)
 {
+<<<<<<< HEAD
 	unsigned slot = PCI_SLOT(devfn);
 	unsigned fn = PCI_FUNC(devfn);
+=======
+>>>>>>> upstream/android-13
 	u16 offset;
 
 	/* root complex access */
 	if (busno == 0) {
+<<<<<<< HEAD
 		if (slot > 0 || fn > 0)
+=======
+		if (PCIE_ECAM_DEVFN(devfn) > 0)
+>>>>>>> upstream/android-13
 			return NULL;
 
 		iproc_pcie_write_reg(pcie, IPROC_PCIE_CFG_IND_ADDR,
@@ -630,7 +754,11 @@ static void __iomem *iproc_pcie_map_cfg_bus(struct iproc_pcie *pcie,
 			return (pcie->base + offset);
 	}
 
+<<<<<<< HEAD
 	return iproc_pcie_map_ep_cfg_reg(pcie, busno, slot, fn, where);
+=======
+	return iproc_pcie_map_ep_cfg_reg(pcie, busno, devfn, where);
+>>>>>>> upstream/android-13
 }
 
 static void __iomem *iproc_pcie_bus_map_cfg_bus(struct pci_bus *bus,
@@ -884,7 +1012,11 @@ static inline int iproc_pcie_ob_write(struct iproc_pcie *pcie, int window_idx,
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Some iProc SoCs require the SW to configure the outbound address mapping
  *
  * Outbound address translation:
@@ -936,8 +1068,30 @@ static int iproc_pcie_setup_ob(struct iproc_pcie *pcie, u64 axi_addr,
 			resource_size_t window_size =
 				ob_map->window_sizes[size_idx] * SZ_1M;
 
+<<<<<<< HEAD
 			if (size < window_size)
 				continue;
+=======
+			/*
+			 * Keep iterating until we reach the last window and
+			 * with the minimal window size at index zero. In this
+			 * case, we take a compromise by mapping it using the
+			 * minimum window size that can be supported
+			 */
+			if (size < window_size) {
+				if (size_idx > 0 || window_idx > 0)
+					continue;
+
+				/*
+				 * For the corner case of reaching the minimal
+				 * window size that can be supported on the
+				 * last window
+				 */
+				axi_addr = ALIGN_DOWN(axi_addr, window_size);
+				pci_addr = ALIGN_DOWN(pci_addr, window_size);
+				size = window_size;
+			}
+>>>>>>> upstream/android-13
 
 			if (!IS_ALIGNED(axi_addr, window_size) ||
 			    !IS_ALIGNED(pci_addr, window_size)) {
@@ -1086,15 +1240,25 @@ static int iproc_pcie_ib_write(struct iproc_pcie *pcie, int region_idx,
 }
 
 static int iproc_pcie_setup_ib(struct iproc_pcie *pcie,
+<<<<<<< HEAD
 			       struct of_pci_range *range,
+=======
+			       struct resource_entry *entry,
+>>>>>>> upstream/android-13
 			       enum iproc_pcie_ib_map_type type)
 {
 	struct device *dev = pcie->dev;
 	struct iproc_pcie_ib *ib = &pcie->ib;
 	int ret;
 	unsigned int region_idx, size_idx;
+<<<<<<< HEAD
 	u64 axi_addr = range->cpu_addr, pci_addr = range->pci_addr;
 	resource_size_t size = range->size;
+=======
+	u64 axi_addr = entry->res->start;
+	u64 pci_addr = entry->res->start - entry->offset;
+	resource_size_t size = resource_size(entry->res);
+>>>>>>> upstream/android-13
 
 	/* iterate through all IARR mapping regions */
 	for (region_idx = 0; region_idx < ib->nr_regions; region_idx++) {
@@ -1148,6 +1312,7 @@ err_ib:
 
 static int iproc_pcie_map_dma_ranges(struct iproc_pcie *pcie)
 {
+<<<<<<< HEAD
 	struct of_pci_range range;
 	struct of_pci_range_parser parser;
 	int ret;
@@ -1165,6 +1330,46 @@ static int iproc_pcie_map_dma_ranges(struct iproc_pcie *pcie)
 	}
 
 	return 0;
+=======
+	struct pci_host_bridge *host = pci_host_bridge_from_priv(pcie);
+	struct resource_entry *entry;
+	int ret = 0;
+
+	resource_list_for_each_entry(entry, &host->dma_ranges) {
+		/* Each range entry corresponds to an inbound mapping region */
+		ret = iproc_pcie_setup_ib(pcie, entry, IPROC_PCIE_IB_MAP_MEM);
+		if (ret)
+			break;
+	}
+
+	return ret;
+}
+
+static void iproc_pcie_invalidate_mapping(struct iproc_pcie *pcie)
+{
+	struct iproc_pcie_ib *ib = &pcie->ib;
+	struct iproc_pcie_ob *ob = &pcie->ob;
+	int idx;
+
+	if (pcie->ep_is_internal)
+		return;
+
+	if (pcie->need_ob_cfg) {
+		/* iterate through all OARR mapping regions */
+		for (idx = ob->nr_windows - 1; idx >= 0; idx--) {
+			iproc_pcie_write_reg(pcie,
+					     MAP_REG(IPROC_PCIE_OARR0, idx), 0);
+		}
+	}
+
+	if (pcie->need_ib_cfg) {
+		/* iterate through all IARR mapping regions */
+		for (idx = 0; idx < ib->nr_regions; idx++) {
+			iproc_pcie_write_reg(pcie,
+					     MAP_REG(IPROC_PCIE_IARR0, idx), 0);
+		}
+	}
+>>>>>>> upstream/android-13
 }
 
 static int iproce_pcie_get_msi(struct iproc_pcie *pcie,
@@ -1198,6 +1403,7 @@ static int iproce_pcie_get_msi(struct iproc_pcie *pcie,
 static int iproc_pcie_paxb_v2_msi_steer(struct iproc_pcie *pcie, u64 msi_addr)
 {
 	int ret;
+<<<<<<< HEAD
 	struct of_pci_range range;
 
 	memset(&range, 0, sizeof(range));
@@ -1205,6 +1411,18 @@ static int iproc_pcie_paxb_v2_msi_steer(struct iproc_pcie *pcie, u64 msi_addr)
 	range.pci_addr = range.cpu_addr = msi_addr & ~(range.size - 1);
 
 	ret = iproc_pcie_setup_ib(pcie, &range, IPROC_PCIE_IB_MAP_IO);
+=======
+	struct resource_entry entry;
+
+	memset(&entry, 0, sizeof(entry));
+	entry.res = &entry.__res;
+
+	msi_addr &= ~(SZ_32K - 1);
+	entry.res->start = msi_addr;
+	entry.res->end = msi_addr + SZ_32K - 1;
+
+	ret = iproc_pcie_setup_ib(pcie, &entry, IPROC_PCIE_IB_MAP_IO);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -1320,14 +1538,26 @@ static int iproc_pcie_msi_enable(struct iproc_pcie *pcie)
 	if (pcie->need_msi_steer) {
 		ret = iproc_pcie_msi_steer(pcie, msi_node);
 		if (ret)
+<<<<<<< HEAD
 			return ret;
+=======
+			goto out_put_node;
+>>>>>>> upstream/android-13
 	}
 
 	/*
 	 * If another MSI controller is being used, the call below should fail
 	 * but that is okay
 	 */
+<<<<<<< HEAD
 	return iproc_msi_init(pcie, msi_node);
+=======
+	ret = iproc_msi_init(pcie, msi_node);
+
+out_put_node:
+	of_node_put(msi_node);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void iproc_pcie_msi_disable(struct iproc_pcie *pcie)
@@ -1405,7 +1635,11 @@ int iproc_pcie_setup(struct iproc_pcie *pcie, struct list_head *res)
 {
 	struct device *dev;
 	int ret;
+<<<<<<< HEAD
 	struct pci_bus *child;
+=======
+	struct pci_dev *pdev;
+>>>>>>> upstream/android-13
 	struct pci_host_bridge *host = pci_host_bridge_from_priv(pcie);
 
 	dev = pcie->dev;
@@ -1416,10 +1650,13 @@ int iproc_pcie_setup(struct iproc_pcie *pcie, struct list_head *res)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	ret = devm_request_pci_bus_resources(dev, res);
 	if (ret)
 		return ret;
 
+=======
+>>>>>>> upstream/android-13
 	ret = phy_init(pcie->phy);
 	if (ret) {
 		dev_err(dev, "unable to initialize PCIe PHY\n");
@@ -1435,6 +1672,11 @@ int iproc_pcie_setup(struct iproc_pcie *pcie, struct list_head *res)
 	iproc_pcie_perst_ctrl(pcie, true);
 	iproc_pcie_perst_ctrl(pcie, false);
 
+<<<<<<< HEAD
+=======
+	iproc_pcie_invalidate_mapping(pcie);
+
+>>>>>>> upstream/android-13
 	if (pcie->need_ob_cfg) {
 		ret = iproc_pcie_map_ranges(pcie, res);
 		if (ret) {
@@ -1461,6 +1703,7 @@ int iproc_pcie_setup(struct iproc_pcie *pcie, struct list_head *res)
 		if (iproc_pcie_msi_enable(pcie))
 			dev_info(dev, "not using iProc MSI\n");
 
+<<<<<<< HEAD
 	list_splice_init(res, &host->windows);
 	host->busnr = 0;
 	host->dev.parent = dev;
@@ -1470,11 +1713,19 @@ int iproc_pcie_setup(struct iproc_pcie *pcie, struct list_head *res)
 	host->swizzle_irq = pci_common_swizzle;
 
 	ret = pci_scan_root_bus_bridge(host);
+=======
+	host->ops = &iproc_pcie_ops;
+	host->sysdata = pcie;
+	host->map_irq = pcie->map_irq;
+
+	ret = pci_host_probe(host);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(dev, "failed to scan host: %d\n", ret);
 		goto err_power_off_phy;
 	}
 
+<<<<<<< HEAD
 	pci_assign_unassigned_bus_resources(host->bus);
 
 	pcie->root_bus = host->bus;
@@ -1483,6 +1734,12 @@ int iproc_pcie_setup(struct iproc_pcie *pcie, struct list_head *res)
 		pcie_bus_configure_settings(child);
 
 	pci_bus_add_devices(host->bus);
+=======
+	for_each_pci_bridge(pdev, host->bus) {
+		if (pci_pcie_type(pdev) == PCI_EXP_TYPE_ROOT_PORT)
+			pcie_print_link_status(pdev);
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -1496,8 +1753,15 @@ EXPORT_SYMBOL(iproc_pcie_setup);
 
 int iproc_pcie_remove(struct iproc_pcie *pcie)
 {
+<<<<<<< HEAD
 	pci_stop_root_bus(pcie->root_bus);
 	pci_remove_root_bus(pcie->root_bus);
+=======
+	struct pci_host_bridge *host = pci_host_bridge_from_priv(pcie);
+
+	pci_stop_root_bus(host->bus);
+	pci_remove_root_bus(host->bus);
+>>>>>>> upstream/android-13
 
 	iproc_pcie_msi_disable(pcie);
 

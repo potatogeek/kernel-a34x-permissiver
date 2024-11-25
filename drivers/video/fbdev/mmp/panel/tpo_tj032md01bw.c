@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * linux/drivers/video/mmp/panel/tpo_tj032md01bw.c
  * active panel using spi interface to do init
@@ -6,6 +10,7 @@
  * Authors:  Guoqing Li <ligq@marvell.com>
  *          Lisa Du <cldu@marvell.com>
  *          Zhou Zhu <zzhu3@marvell.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,6 +25,8 @@
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>

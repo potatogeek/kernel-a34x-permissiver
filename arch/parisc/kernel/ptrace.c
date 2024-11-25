@@ -26,7 +26,10 @@
 #include <linux/audit.h>
 
 #include <linux/uaccess.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/processor.h>
 #include <asm/asm-offsets.h>
 
@@ -88,9 +91,15 @@ void user_enable_single_step(struct task_struct *task)
 		ptrace_disable(task);
 		/* Don't wake up the task, but let the
 		   parent know something happened. */
+<<<<<<< HEAD
 		force_sig_fault(SIGTRAP, TRAP_TRACE,
 				(void __user *) (task_regs(task)->iaoq[0] & ~3),
 				task);
+=======
+		force_sig_fault_to_task(SIGTRAP, TRAP_TRACE,
+					(void __user *) (task_regs(task)->iaoq[0] & ~3),
+					task);
+>>>>>>> upstream/android-13
 		/* notify_parent(task, SIGCHLD); */
 		return;
 	}
@@ -342,7 +351,11 @@ long do_syscall_trace_enter(struct pt_regs *regs)
 	}
 
 	/* Do the secure computing check after ptrace. */
+<<<<<<< HEAD
 	if (secure_computing(NULL) == -1)
+=======
+	if (secure_computing() == -1)
+>>>>>>> upstream/android-13
 		return -1;
 
 #ifdef CONFIG_HAVE_SYSCALL_TRACEPOINTS
@@ -392,6 +405,7 @@ void do_syscall_trace_exit(struct pt_regs *regs)
 
 static int fpr_get(struct task_struct *target,
 		     const struct user_regset *regset,
+<<<<<<< HEAD
 		     unsigned int pos, unsigned int count,
 		     void *kbuf, void __user *ubuf)
 {
@@ -417,6 +431,13 @@ static int fpr_get(struct task_struct *target,
 	count *= sizeof(reg);
 	return user_regset_copyout_zero(&pos, &count, &kbuf, &ubuf,
 					ELF_NFPREG * sizeof(reg), -1);
+=======
+		     struct membuf to)
+{
+	struct pt_regs *regs = task_regs(target);
+
+	return membuf_write(&to, regs->fr, ELF_NFPREG * sizeof(__u64));
+>>>>>>> upstream/android-13
 }
 
 static int fpr_set(struct task_struct *target,
@@ -528,6 +549,7 @@ static void set_reg(struct pt_regs *regs, int num, unsigned long val)
 
 static int gpr_get(struct task_struct *target,
 		     const struct user_regset *regset,
+<<<<<<< HEAD
 		     unsigned int pos, unsigned int count,
 		     void *kbuf, void __user *ubuf)
 {
@@ -552,6 +574,16 @@ static int gpr_get(struct task_struct *target,
 	count *= sizeof(reg);
 	return user_regset_copyout_zero(&pos, &count, &kbuf, &ubuf,
 					ELF_NGREG * sizeof(reg), -1);
+=======
+		     struct membuf to)
+{
+	struct pt_regs *regs = task_regs(target);
+	unsigned int pos;
+
+	for (pos = 0; pos < ELF_NGREG; pos++)
+		membuf_store(&to, get_reg(regs, pos));
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int gpr_set(struct task_struct *target,
@@ -589,12 +621,20 @@ static const struct user_regset native_regsets[] = {
 	[REGSET_GENERAL] = {
 		.core_note_type = NT_PRSTATUS, .n = ELF_NGREG,
 		.size = sizeof(long), .align = sizeof(long),
+<<<<<<< HEAD
 		.get = gpr_get, .set = gpr_set
+=======
+		.regset_get = gpr_get, .set = gpr_set
+>>>>>>> upstream/android-13
 	},
 	[REGSET_FP] = {
 		.core_note_type = NT_PRFPREG, .n = ELF_NFPREG,
 		.size = sizeof(__u64), .align = sizeof(__u64),
+<<<<<<< HEAD
 		.get = fpr_get, .set = fpr_set
+=======
+		.regset_get = fpr_get, .set = fpr_set
+>>>>>>> upstream/android-13
 	}
 };
 
@@ -604,6 +644,7 @@ static const struct user_regset_view user_parisc_native_view = {
 };
 
 #ifdef CONFIG_64BIT
+<<<<<<< HEAD
 #include <linux/compat.h>
 
 static int gpr32_get(struct task_struct *target,
@@ -633,6 +674,19 @@ static int gpr32_get(struct task_struct *target,
 	count *= sizeof(reg);
 	return user_regset_copyout_zero(&pos, &count, &kbuf, &ubuf,
 					ELF_NGREG * sizeof(reg), -1);
+=======
+static int gpr32_get(struct task_struct *target,
+		     const struct user_regset *regset,
+		     struct membuf to)
+{
+	struct pt_regs *regs = task_regs(target);
+	unsigned int pos;
+
+	for (pos = 0; pos < ELF_NGREG; pos++)
+		membuf_store(&to, (compat_ulong_t)get_reg(regs, pos));
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int gpr32_set(struct task_struct *target,
@@ -673,12 +727,20 @@ static const struct user_regset compat_regsets[] = {
 	[REGSET_GENERAL] = {
 		.core_note_type = NT_PRSTATUS, .n = ELF_NGREG,
 		.size = sizeof(compat_long_t), .align = sizeof(compat_long_t),
+<<<<<<< HEAD
 		.get = gpr32_get, .set = gpr32_set
+=======
+		.regset_get = gpr32_get, .set = gpr32_set
+>>>>>>> upstream/android-13
 	},
 	[REGSET_FP] = {
 		.core_note_type = NT_PRFPREG, .n = ELF_NFPREG,
 		.size = sizeof(__u64), .align = sizeof(__u64),
+<<<<<<< HEAD
 		.get = fpr_get, .set = fpr_set
+=======
+		.regset_get = fpr_get, .set = fpr_set
+>>>>>>> upstream/android-13
 	}
 };
 
@@ -798,3 +860,41 @@ const char *regs_query_register_name(unsigned int offset)
 			return roff->name;
 	return NULL;
 }
+<<<<<<< HEAD
+=======
+
+/**
+ * regs_within_kernel_stack() - check the address in the stack
+ * @regs:      pt_regs which contains kernel stack pointer.
+ * @addr:      address which is checked.
+ *
+ * regs_within_kernel_stack() checks @addr is within the kernel stack page(s).
+ * If @addr is within the kernel stack, it returns true. If not, returns false.
+ */
+int regs_within_kernel_stack(struct pt_regs *regs, unsigned long addr)
+{
+	return ((addr & ~(THREAD_SIZE - 1))  ==
+		(kernel_stack_pointer(regs) & ~(THREAD_SIZE - 1)));
+}
+
+/**
+ * regs_get_kernel_stack_nth() - get Nth entry of the stack
+ * @regs:	pt_regs which contains kernel stack pointer.
+ * @n:		stack entry number.
+ *
+ * regs_get_kernel_stack_nth() returns @n th entry of the kernel stack which
+ * is specified by @regs. If the @n th entry is NOT in the kernel stack,
+ * this returns 0.
+ */
+unsigned long regs_get_kernel_stack_nth(struct pt_regs *regs, unsigned int n)
+{
+	unsigned long *addr = (unsigned long *)kernel_stack_pointer(regs);
+
+	addr -= n;
+
+	if (!regs_within_kernel_stack(regs, (unsigned long)addr))
+		return 0;
+
+	return *addr;
+}
+>>>>>>> upstream/android-13

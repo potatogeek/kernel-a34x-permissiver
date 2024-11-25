@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * (C) COPYRIGHT 2012-2013 ARM Limited. All rights reserved.
  *
@@ -6,6 +10,7 @@
  * Copyright (c) 2006-2008 Intel Corporation
  * Copyright (c) 2007 Dave Airlie <airlied@linux.ie>
  * Copyright (C) 2011 Texas Instruments
+<<<<<<< HEAD
  *
  * This program is free software and is provided to you under the terms of the
  * GNU General Public License version 2 as published by the Free Software
@@ -24,6 +29,20 @@
 #include <drm/drm_gem_cma_helper.h>
 #include <drm/drm_gem_framebuffer_helper.h>
 #include <drm/drm_fb_cma_helper.h>
+=======
+ */
+
+#include <linux/clk.h>
+#include <linux/delay.h>
+#include <linux/dma-buf.h>
+#include <linux/of_graph.h>
+
+#include <drm/drm_fb_cma_helper.h>
+#include <drm/drm_fourcc.h>
+#include <drm/drm_gem_atomic_helper.h>
+#include <drm/drm_gem_cma_helper.h>
+#include <drm/drm_vblank.h>
+>>>>>>> upstream/android-13
 
 #include "pl111_drm.h"
 
@@ -51,10 +70,17 @@ irqreturn_t pl111_irq(int irq, void *data)
 }
 
 static enum drm_mode_status
+<<<<<<< HEAD
 pl111_mode_valid(struct drm_crtc *crtc,
 		 const struct drm_display_mode *mode)
 {
 	struct drm_device *drm = crtc->dev;
+=======
+pl111_mode_valid(struct drm_simple_display_pipe *pipe,
+		 const struct drm_display_mode *mode)
+{
+	struct drm_device *drm = pipe->crtc.dev;
+>>>>>>> upstream/android-13
 	struct pl111_drm_dev_private *priv = drm->dev_private;
 	u32 cpp = priv->variant->fb_bpp / 8;
 	u64 bw;
@@ -131,6 +157,10 @@ static void pl111_display_enable(struct drm_simple_display_pipe *pipe,
 	struct drm_framebuffer *fb = plane->state->fb;
 	struct drm_connector *connector = priv->connector;
 	struct drm_bridge *bridge = priv->bridge;
+<<<<<<< HEAD
+=======
+	bool grayscale = false;
+>>>>>>> upstream/android-13
 	u32 cntl;
 	u32 ppl, hsw, hfp, hbp;
 	u32 lpp, vsw, vfp, vbp;
@@ -188,8 +218,27 @@ static void pl111_display_enable(struct drm_simple_display_pipe *pipe,
 			tim2 |= TIM2_IOE;
 
 		if (connector->display_info.bus_flags &
+<<<<<<< HEAD
 		    DRM_BUS_FLAG_PIXDATA_NEGEDGE)
 			tim2 |= TIM2_IPC;
+=======
+		    DRM_BUS_FLAG_PIXDATA_DRIVE_NEGEDGE)
+			tim2 |= TIM2_IPC;
+
+		if (connector->display_info.num_bus_formats == 1 &&
+		    connector->display_info.bus_formats[0] ==
+		    MEDIA_BUS_FMT_Y8_1X8)
+			grayscale = true;
+
+		/*
+		 * The AC pin bias frequency is set to max count when using
+		 * grayscale so at least once in a while we will reverse
+		 * polarity and get rid of any DC built up that could
+		 * damage the display.
+		 */
+		if (grayscale)
+			tim2 |= TIM2_ACB_MASK;
+>>>>>>> upstream/android-13
 	}
 
 	if (bridge) {
@@ -221,8 +270,23 @@ static void pl111_display_enable(struct drm_simple_display_pipe *pipe,
 
 	writel(0, priv->regs + CLCD_TIM3);
 
+<<<<<<< HEAD
 	/* Hard-code TFT panel */
 	cntl = CNTL_LCDEN | CNTL_LCDTFT | CNTL_LCDVCOMP(1);
+=======
+	/*
+	 * Detect grayscale bus format. We do not support a grayscale mode
+	 * toward userspace, instead we expose an RGB24 buffer and then the
+	 * hardware will activate its grayscaler to convert to the grayscale
+	 * format.
+	 */
+	if (grayscale)
+		cntl = CNTL_LCDEN | CNTL_LCDMONO8;
+	else
+		/* Else we assume TFT display */
+		cntl = CNTL_LCDEN | CNTL_LCDTFT | CNTL_LCDVCOMP(1);
+
+>>>>>>> upstream/android-13
 	/* On the ST Micro variant, assume all 24 bits are connected */
 	if (priv->variant->st_bitmux_control)
 		cntl |= CNTL_ST_CDWID_24;
@@ -332,7 +396,11 @@ static void pl111_display_enable(struct drm_simple_display_pipe *pipe,
 		drm_crtc_vblank_on(crtc);
 }
 
+<<<<<<< HEAD
 void pl111_display_disable(struct drm_simple_display_pipe *pipe)
+=======
+static void pl111_display_disable(struct drm_simple_display_pipe *pipe)
+>>>>>>> upstream/android-13
 {
 	struct drm_crtc *crtc = &pipe->crtc;
 	struct drm_device *drm = crtc->dev;
@@ -419,7 +487,10 @@ static struct drm_simple_display_pipe_funcs pl111_display_funcs = {
 	.enable = pl111_display_enable,
 	.disable = pl111_display_disable,
 	.update = pl111_display_update,
+<<<<<<< HEAD
 	.prepare_fb = drm_gem_fb_simple_display_pipe_prepare_fb,
+=======
+>>>>>>> upstream/android-13
 };
 
 static int pl111_clk_div_choose_div(struct clk_hw *hw, unsigned long rate,
@@ -551,6 +622,7 @@ pl111_init_clock_divider(struct drm_device *drm)
 int pl111_display_init(struct drm_device *drm)
 {
 	struct pl111_drm_dev_private *priv = drm->dev_private;
+<<<<<<< HEAD
 	struct device *dev = drm->dev;
 	struct device_node *endpoint;
 	u32 tft_r0b0g0[3];
@@ -570,6 +642,10 @@ int pl111_display_init(struct drm_device *drm)
 	}
 	of_node_put(endpoint);
 
+=======
+	int ret;
+
+>>>>>>> upstream/android-13
 	ret = pl111_init_clock_divider(drm);
 	if (ret)
 		return ret;

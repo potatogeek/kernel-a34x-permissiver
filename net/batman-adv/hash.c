@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 /* Copyright (C) 2006-2018  B.A.T.M.A.N. contributors:
  *
  * Simon Wunderlich, Marek Lindner
@@ -14,6 +15,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+/* Copyright (C) B.A.T.M.A.N. contributors:
+ *
+ * Simon Wunderlich, Marek Lindner
+>>>>>>> upstream/android-13
  */
 
 #include "hash.h"
@@ -32,6 +38,11 @@ static void batadv_hash_init(struct batadv_hashtable *hash)
 		INIT_HLIST_HEAD(&hash->table[i]);
 		spin_lock_init(&hash->list_locks[i]);
 	}
+<<<<<<< HEAD
+=======
+
+	atomic_set(&hash->generation, 0);
+>>>>>>> upstream/android-13
 }
 
 /**

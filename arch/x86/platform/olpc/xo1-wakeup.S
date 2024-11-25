@@ -77,7 +77,11 @@ save_registers:
 	pushfl
 	popl saved_context_eflags
 
+<<<<<<< HEAD
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 
 restore_registers:
 	movl saved_context_ebp, %ebp
@@ -88,9 +92,15 @@ restore_registers:
 	pushl saved_context_eflags
 	popfl
 
+<<<<<<< HEAD
 	ret
 
 ENTRY(do_olpc_suspend_lowlevel)
+=======
+	RET
+
+SYM_CODE_START(do_olpc_suspend_lowlevel)
+>>>>>>> upstream/android-13
 	call	save_processor_state
 	call	save_registers
 
@@ -109,7 +119,12 @@ ret_point:
 
 	call	restore_registers
 	call	restore_processor_state
+<<<<<<< HEAD
 	ret
+=======
+	RET
+SYM_CODE_END(do_olpc_suspend_lowlevel)
+>>>>>>> upstream/android-13
 
 .data
 saved_gdt:             .long   0,0

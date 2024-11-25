@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 Russell King
  *
@@ -5,14 +6,37 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2012 Russell King
+ */
+
+>>>>>>> upstream/android-13
 #include <linux/clk.h>
 #include <linux/component.h>
 #include <linux/module.h>
 #include <linux/of_graph.h>
+<<<<<<< HEAD
 #include <drm/drm_atomic_helper.h>
 #include <drm/drm_crtc_helper.h>
 #include <drm/drm_fb_helper.h>
 #include <drm/drm_of.h>
+=======
+#include <linux/platform_device.h>
+
+#include <drm/drm_aperture.h>
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_drv.h>
+#include <drm/drm_ioctl.h>
+#include <drm/drm_managed.h>
+#include <drm/drm_prime.h>
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_fb_helper.h>
+#include <drm/drm_of.h>
+#include <drm/drm_vblank.h>
+
+>>>>>>> upstream/android-13
 #include "armada_crtc.h"
 #include "armada_drm.h"
 #include "armada_gem.h"
@@ -21,7 +45,11 @@
 #include <drm/armada_drm.h>
 #include "armada_ioctlP.h"
 
+<<<<<<< HEAD
 static struct drm_ioctl_desc armada_ioctls[] = {
+=======
+static const struct drm_ioctl_desc armada_ioctls[] = {
+>>>>>>> upstream/android-13
 	DRM_IOCTL_DEF_DRV(ARMADA_GEM_CREATE, armada_gem_create_ioctl,0),
 	DRM_IOCTL_DEF_DRV(ARMADA_GEM_MMAP, armada_gem_mmap_ioctl, 0),
 	DRM_IOCTL_DEF_DRV(ARMADA_GEM_PWRITE, armada_gem_pwrite_ioctl, 0),
@@ -29,6 +57,7 @@ static struct drm_ioctl_desc armada_ioctls[] = {
 
 DEFINE_DRM_GEM_FOPS(armada_drm_fops);
 
+<<<<<<< HEAD
 static struct drm_driver armada_drm_driver = {
 	.lastclose		= drm_fb_helper_lastclose,
 	.gem_free_object_unlocked = armada_gem_free_object,
@@ -38,14 +67,28 @@ static struct drm_driver armada_drm_driver = {
 	.gem_prime_import	= armada_gem_prime_import,
 	.dumb_create		= armada_gem_dumb_create,
 	.gem_vm_ops		= &armada_gem_vm_ops,
+=======
+static const struct drm_driver armada_drm_driver = {
+	.lastclose		= drm_fb_helper_lastclose,
+	.prime_handle_to_fd	= drm_gem_prime_handle_to_fd,
+	.prime_fd_to_handle	= drm_gem_prime_fd_to_handle,
+	.gem_prime_import	= armada_gem_prime_import,
+	.dumb_create		= armada_gem_dumb_create,
+>>>>>>> upstream/android-13
 	.major			= 1,
 	.minor			= 0,
 	.name			= "armada-drm",
 	.desc			= "Armada SoC DRM",
 	.date			= "20120730",
+<<<<<<< HEAD
 	.driver_features	= DRIVER_GEM | DRIVER_MODESET |
 				  DRIVER_PRIME | DRIVER_ATOMIC,
 	.ioctls			= armada_ioctls,
+=======
+	.driver_features	= DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC,
+	.ioctls			= armada_ioctls,
+	.num_ioctls = ARRAY_SIZE(armada_ioctls),
+>>>>>>> upstream/android-13
 	.fops			= &armada_drm_fops,
 };
 
@@ -82,6 +125,7 @@ static int armada_drm_bind(struct device *dev)
 				     "armada-drm"))
 		return -EBUSY;
 
+<<<<<<< HEAD
 	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
 	if (!priv)
 		return -ENOMEM;
@@ -95,13 +139,30 @@ static int armada_drm_bind(struct device *dev)
 	ret = drm_dev_init(&priv->drm, &armada_drm_driver, dev);
 	if (ret) {
 		dev_err(dev, "[" DRM_NAME ":%s] drm_dev_init failed: %d\n",
+=======
+	priv = devm_drm_dev_alloc(dev, &armada_drm_driver,
+				  struct armada_private, drm);
+	if (IS_ERR(priv)) {
+		dev_err(dev, "[" DRM_NAME ":%s] devm_drm_dev_alloc failed: %li\n",
+			__func__, PTR_ERR(priv));
+		return PTR_ERR(priv);
+	}
+
+	/* Remove early framebuffers */
+	ret = drm_aperture_remove_framebuffers(false, &armada_drm_driver);
+	if (ret) {
+		dev_err(dev, "[" DRM_NAME ":%s] can't kick out simple-fb: %d\n",
+>>>>>>> upstream/android-13
 			__func__, ret);
 		kfree(priv);
 		return ret;
 	}
 
+<<<<<<< HEAD
 	priv->drm.dev_private = priv;
 
+=======
+>>>>>>> upstream/android-13
 	dev_set_drvdata(dev, &priv->drm);
 
 	/* Mode setting support */
@@ -129,8 +190,11 @@ static int armada_drm_bind(struct device *dev)
 	if (ret)
 		goto err_comp;
 
+<<<<<<< HEAD
 	priv->drm.irq_enabled = true;
 
+=======
+>>>>>>> upstream/android-13
 	drm_mode_config_reset(&priv->drm);
 
 	ret = armada_fbdev_init(&priv->drm);
@@ -157,26 +221,41 @@ static int armada_drm_bind(struct device *dev)
  err_kms:
 	drm_mode_config_cleanup(&priv->drm);
 	drm_mm_takedown(&priv->linear);
+<<<<<<< HEAD
 	drm_dev_put(&priv->drm);
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 static void armada_drm_unbind(struct device *dev)
 {
 	struct drm_device *drm = dev_get_drvdata(dev);
+<<<<<<< HEAD
 	struct armada_private *priv = drm->dev_private;
+=======
+	struct armada_private *priv = drm_to_armada_dev(drm);
+>>>>>>> upstream/android-13
 
 	drm_kms_helper_poll_fini(&priv->drm);
 	armada_fbdev_fini(&priv->drm);
 
 	drm_dev_unregister(&priv->drm);
 
+<<<<<<< HEAD
+=======
+	drm_atomic_helper_shutdown(&priv->drm);
+
+>>>>>>> upstream/android-13
 	component_unbind_all(dev, &priv->drm);
 
 	drm_mode_config_cleanup(&priv->drm);
 	drm_mm_takedown(&priv->linear);
+<<<<<<< HEAD
 
 	drm_dev_put(&priv->drm);
+=======
+>>>>>>> upstream/android-13
 }
 
 static int compare_of(struct device *dev, void *data)
@@ -191,6 +270,7 @@ static int compare_dev_name(struct device *dev, void *data)
 }
 
 static void armada_add_endpoints(struct device *dev,
+<<<<<<< HEAD
 	struct component_match **match, struct device_node *port)
 {
 	struct device_node *ep, *remote;
@@ -208,6 +288,17 @@ static void armada_add_endpoints(struct device *dev,
 		}
 
 		drm_of_component_match_add(dev, match, compare_of, remote);
+=======
+	struct component_match **match, struct device_node *dev_node)
+{
+	struct device_node *ep, *remote;
+
+	for_each_endpoint_of_node(dev_node, ep) {
+		remote = of_graph_get_remote_port_parent(ep);
+		if (remote && of_device_is_available(remote))
+			drm_of_component_match_add(dev, match, compare_of,
+						   remote);
+>>>>>>> upstream/android-13
 		of_node_put(remote);
 	}
 }
@@ -229,7 +320,10 @@ static int armada_drm_probe(struct platform_device *pdev)
 
 	if (dev->platform_data) {
 		char **devices = dev->platform_data;
+<<<<<<< HEAD
 		struct device_node *port;
+=======
+>>>>>>> upstream/android-13
 		struct device *d;
 		int i;
 
@@ -245,10 +339,15 @@ static int armada_drm_probe(struct platform_device *pdev)
 		for (i = 0; devices[i]; i++) {
 			d = bus_find_device_by_name(&platform_bus_type, NULL,
 						    devices[i]);
+<<<<<<< HEAD
 			if (d && d->of_node) {
 				for_each_child_of_node(d->of_node, port)
 					armada_add_endpoints(dev, &match, port);
 			}
+=======
+			if (d && d->of_node)
+				armada_add_endpoints(dev, &match, d->of_node);
+>>>>>>> upstream/android-13
 			put_device(d);
 		}
 	}
@@ -286,8 +385,11 @@ static int __init armada_drm_init(void)
 {
 	int ret;
 
+<<<<<<< HEAD
 	armada_drm_driver.num_ioctls = ARRAY_SIZE(armada_ioctls);
 
+=======
+>>>>>>> upstream/android-13
 	ret = platform_driver_register(&armada_lcd_platform_driver);
 	if (ret)
 		return ret;
@@ -305,7 +407,11 @@ static void __exit armada_drm_exit(void)
 }
 module_exit(armada_drm_exit);
 
+<<<<<<< HEAD
 MODULE_AUTHOR("Russell King <rmk+kernel@arm.linux.org.uk>");
+=======
+MODULE_AUTHOR("Russell King <rmk+kernel@armlinux.org.uk>");
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("Armada DRM Driver");
 MODULE_LICENSE("GPL");
 MODULE_ALIAS("platform:armada-drm");

@@ -2,6 +2,11 @@
 #ifndef _LINUX_TTY_LDISC_H
 #define _LINUX_TTY_LDISC_H
 
+<<<<<<< HEAD
+=======
+struct tty_struct;
+
+>>>>>>> upstream/android-13
 /*
  * This structure defines the interface between the tty line discipline
  * implementation and the tty routines.  The following routines can be
@@ -54,11 +59,24 @@
  *	low-level driver can "grab" an ioctl request before the line
  *	discpline has a chance to see it.
  *
+<<<<<<< HEAD
  * long	(*compat_ioctl)(struct tty_struct * tty, struct file * file,
+=======
+ * int	(*compat_ioctl)(struct tty_struct * tty, struct file * file,
+>>>>>>> upstream/android-13
  *		        unsigned int cmd, unsigned long arg);
  *
  *	Process ioctl calls from 32-bit process on 64-bit system
  *
+<<<<<<< HEAD
+=======
+ *	NOTE: only ioctls that are neither "pointer to compatible
+ *	structure" nor tty-generic.  Something private that takes
+ *	an integer or a pointer to wordsize-sensitive structure
+ *	belongs here, but most of ldiscs will happily leave
+ *	it NULL.
+ *
+>>>>>>> upstream/android-13
  * void	(*set_termios)(struct tty_struct *tty, struct ktermios * old);
  *
  *	This function notifies the line discpline that a change has
@@ -120,6 +138,13 @@
 #include <linux/fs.h>
 #include <linux/wait.h>
 #include <linux/atomic.h>
+<<<<<<< HEAD
+=======
+#include <linux/list.h>
+#include <linux/lockdep.h>
+#include <linux/seq_file.h>
+#include <linux/android_kabi.h>
+>>>>>>> upstream/android-13
 
 /*
  * the semaphore definition
@@ -167,7 +192,10 @@ extern int ldsem_down_write_nested(struct ld_semaphore *sem, int subclass,
 
 
 struct tty_ldisc_ops {
+<<<<<<< HEAD
 	int	magic;
+=======
+>>>>>>> upstream/android-13
 	char	*name;
 	int	num;
 	int	flags;
@@ -179,12 +207,21 @@ struct tty_ldisc_ops {
 	void	(*close)(struct tty_struct *);
 	void	(*flush_buffer)(struct tty_struct *tty);
 	ssize_t	(*read)(struct tty_struct *tty, struct file *file,
+<<<<<<< HEAD
 			unsigned char __user *buf, size_t nr);
+=======
+			unsigned char *buf, size_t nr,
+			void **cookie, unsigned long offset);
+>>>>>>> upstream/android-13
 	ssize_t	(*write)(struct tty_struct *tty, struct file *file,
 			 const unsigned char *buf, size_t nr);
 	int	(*ioctl)(struct tty_struct *tty, struct file *file,
 			 unsigned int cmd, unsigned long arg);
+<<<<<<< HEAD
 	long	(*compat_ioctl)(struct tty_struct *tty, struct file *file,
+=======
+	int	(*compat_ioctl)(struct tty_struct *tty, struct file *file,
+>>>>>>> upstream/android-13
 				unsigned int cmd, unsigned long arg);
 	void	(*set_termios)(struct tty_struct *tty, struct ktermios *old);
 	__poll_t (*poll)(struct tty_struct *, struct file *,
@@ -195,6 +232,7 @@ struct tty_ldisc_ops {
 	 * The following routines are called from below.
 	 */
 	void	(*receive_buf)(struct tty_struct *, const unsigned char *cp,
+<<<<<<< HEAD
 			       char *fp, int count);
 	void	(*write_wakeup)(struct tty_struct *);
 	void	(*dcd_change)(struct tty_struct *, unsigned int);
@@ -204,6 +242,18 @@ struct tty_ldisc_ops {
 	struct  module *owner;
 
 	int refcount;
+=======
+			       const char *fp, int count);
+	void	(*write_wakeup)(struct tty_struct *);
+	void	(*dcd_change)(struct tty_struct *, unsigned int);
+	int	(*receive_buf2)(struct tty_struct *, const unsigned char *cp,
+				const char *fp, int count);
+
+	struct  module *owner;
+
+	ANDROID_KABI_RESERVE(1);
+	ANDROID_KABI_RESERVE(2);
+>>>>>>> upstream/android-13
 };
 
 struct tty_ldisc {
@@ -211,11 +261,29 @@ struct tty_ldisc {
 	struct tty_struct *tty;
 };
 
+<<<<<<< HEAD
 #define TTY_LDISC_MAGIC	0x5403
 
+=======
+>>>>>>> upstream/android-13
 #define LDISC_FLAG_DEFINED	0x00000001
 
 #define MODULE_ALIAS_LDISC(ldisc) \
 	MODULE_ALIAS("tty-ldisc-" __stringify(ldisc))
 
+<<<<<<< HEAD
+=======
+extern const struct seq_operations tty_ldiscs_seq_ops;
+
+struct tty_ldisc *tty_ldisc_ref(struct tty_struct *);
+void tty_ldisc_deref(struct tty_ldisc *);
+struct tty_ldisc *tty_ldisc_ref_wait(struct tty_struct *);
+
+void tty_ldisc_flush(struct tty_struct *tty);
+
+int tty_register_ldisc(struct tty_ldisc_ops *new_ldisc);
+void tty_unregister_ldisc(struct tty_ldisc_ops *ldisc);
+int tty_set_ldisc(struct tty_struct *tty, int disc);
+
+>>>>>>> upstream/android-13
 #endif /* _LINUX_TTY_LDISC_H */

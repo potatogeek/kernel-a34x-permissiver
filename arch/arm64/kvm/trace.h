@@ -1,4 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0 */
+<<<<<<< HEAD
 #if !defined(_TRACE_ARM64_KVM_H) || defined(TRACE_HEADER_MULTI_READ)
 #define _TRACE_ARM64_KVM_H
 
@@ -179,3 +180,12 @@ TRACE_EVENT(kvm_set_guest_debug,
 
 /* This part must be outside protection */
 #include <trace/define_trace.h>
+=======
+#ifndef _TRACE_ARM64_KVM_H
+#define _TRACE_ARM64_KVM_H
+
+#include "trace_arm.h"
+#include "trace_handle_exit.h"
+
+#endif	/* _TRACE_ARM64_KVM_H */
+>>>>>>> upstream/android-13

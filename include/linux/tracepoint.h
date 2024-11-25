@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 #ifndef _LINUX_TRACEPOINT_H
 #define _LINUX_TRACEPOINT_H
 
@@ -9,9 +13,12 @@
  * Copyright (C) 2008-2014 Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
  *
  * Heavily inspired from the Linux Kernel Markers.
+<<<<<<< HEAD
  *
  * This file is released under the GPLv2.
  * See the file COPYING for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/smp.h>
@@ -21,6 +28,10 @@
 #include <linux/cpumask.h>
 #include <linux/rcupdate.h>
 #include <linux/tracepoint-defs.h>
+<<<<<<< HEAD
+=======
+#include <linux/static_call.h>
+>>>>>>> upstream/android-13
 
 struct module;
 struct tracepoint;
@@ -42,7 +53,21 @@ extern int
 tracepoint_probe_register_prio(struct tracepoint *tp, void *probe, void *data,
 			       int prio);
 extern int
+<<<<<<< HEAD
 tracepoint_probe_unregister(struct tracepoint *tp, void *probe, void *data);
+=======
+tracepoint_probe_register_prio_may_exist(struct tracepoint *tp, void *probe, void *data,
+					 int prio);
+extern int
+tracepoint_probe_unregister(struct tracepoint *tp, void *probe, void *data);
+static inline int
+tracepoint_probe_register_may_exist(struct tracepoint *tp, void *probe,
+				    void *data)
+{
+	return tracepoint_probe_register_prio_may_exist(tp, probe, data,
+							TRACEPOINT_DEFAULT_PRIO);
+}
+>>>>>>> upstream/android-13
 extern void
 for_each_kernel_tracepoint(void (*fct)(struct tracepoint *tp, void *priv),
 		void *priv);
@@ -82,7 +107,11 @@ int unregister_tracepoint_module_notifier(struct notifier_block *nb)
 static inline void tracepoint_synchronize_unregister(void)
 {
 	synchronize_srcu(&tracepoint_srcu);
+<<<<<<< HEAD
 	synchronize_sched();
+=======
+	synchronize_rcu();
+>>>>>>> upstream/android-13
 }
 #else
 static inline void tracepoint_synchronize_unregister(void)
@@ -94,7 +123,13 @@ extern int syscall_regfunc(void);
 extern void syscall_unregfunc(void);
 #endif /* CONFIG_HAVE_SYSCALL_TRACEPOINTS */
 
+<<<<<<< HEAD
 #define PARAMS(args...) args
+=======
+#ifndef PARAMS
+#define PARAMS(args...) args
+#endif
+>>>>>>> upstream/android-13
 
 #define TRACE_DEFINE_ENUM(x)
 #define TRACE_DEFINE_SIZEOF(x)
@@ -118,8 +153,12 @@ static inline struct tracepoint *tracepoint_ptr_deref(tracepoint_ptr_t *p)
 
 #define __TRACEPOINT_ENTRY(name)					 \
 	static tracepoint_ptr_t __tracepoint_ptr_##name __used		 \
+<<<<<<< HEAD
 	__attribute__((section("__tracepoints_ptrs"))) =		 \
 		&__tracepoint_##name
+=======
+	__section("__tracepoints_ptrs") = &__tracepoint_##name
+>>>>>>> upstream/android-13
 #endif
 
 #endif /* _LINUX_TRACEPOINT_H */
@@ -151,6 +190,7 @@ static inline struct tracepoint *tracepoint_ptr_deref(tracepoint_ptr_t *p)
 
 #ifdef TRACEPOINTS_ENABLED
 
+<<<<<<< HEAD
 /*
  * it_func[0] is never NULL because there is at least one element in the array
  * when the array itself is non NULL.
@@ -166,6 +206,30 @@ static inline struct tracepoint *tracepoint_ptr_deref(tracepoint_ptr_t *p)
 		struct tracepoint_func *it_func_ptr;			\
 		void *it_func;						\
 		void *__data;						\
+=======
+#ifdef CONFIG_HAVE_STATIC_CALL
+#define __DO_TRACE_CALL(name, args)					\
+	do {								\
+		struct tracepoint_func *it_func_ptr;			\
+		void *__data;						\
+		it_func_ptr =						\
+			rcu_dereference_raw((&__tracepoint_##name)->funcs); \
+		if (it_func_ptr) {					\
+			__data = (it_func_ptr)->data;			\
+			static_call(tp_func_##name)(__data, args);	\
+		}							\
+	} while (0)
+#else
+#define __DO_TRACE_CALL(name, args)	__traceiter_##name(NULL, args)
+#endif /* CONFIG_HAVE_STATIC_CALL */
+
+/*
+ * it_func[0] is never NULL because there is at least one element in the array
+ * when the array itself is non NULL.
+ */
+#define __DO_TRACE(name, args, cond, rcuidle)				\
+	do {								\
+>>>>>>> upstream/android-13
 		int __maybe_unused __idx = 0;				\
 									\
 		if (!(cond))						\
@@ -186,6 +250,7 @@ static inline struct tracepoint *tracepoint_ptr_deref(tracepoint_ptr_t *p)
 			rcu_irq_enter_irqson();				\
 		}							\
 									\
+<<<<<<< HEAD
 		it_func_ptr = rcu_dereference_raw((tp)->funcs);		\
 									\
 		if (it_func_ptr) {					\
@@ -195,6 +260,9 @@ static inline struct tracepoint *tracepoint_ptr_deref(tracepoint_ptr_t *p)
 				((void(*)(proto))(it_func))(args);	\
 			} while ((++it_func_ptr)->func);		\
 		}							\
+=======
+		__DO_TRACE_CALL(name, TP_ARGS(args));			\
+>>>>>>> upstream/android-13
 									\
 		if (rcuidle) {						\
 			rcu_irq_exit_irqson();				\
@@ -205,6 +273,7 @@ static inline struct tracepoint *tracepoint_ptr_deref(tracepoint_ptr_t *p)
 	} while (0)
 
 #ifndef MODULE
+<<<<<<< HEAD
 #define __DECLARE_TRACE_RCU(name, proto, args, cond, data_proto, data_args) \
 	static inline void trace_##name##_rcuidle(proto)		\
 	{								\
@@ -216,6 +285,18 @@ static inline struct tracepoint *tracepoint_ptr_deref(tracepoint_ptr_t *p)
 	}
 #else
 #define __DECLARE_TRACE_RCU(name, proto, args, cond, data_proto, data_args)
+=======
+#define __DECLARE_TRACE_RCU(name, proto, args, cond)			\
+	static inline void trace_##name##_rcuidle(proto)		\
+	{								\
+		if (static_key_false(&__tracepoint_##name.key))		\
+			__DO_TRACE(name,				\
+				TP_ARGS(args),				\
+				TP_CONDITION(cond), 1);			\
+	}
+#else
+#define __DECLARE_TRACE_RCU(name, proto, args, cond)
+>>>>>>> upstream/android-13
 #endif
 
 /*
@@ -230,6 +311,7 @@ static inline struct tracepoint *tracepoint_ptr_deref(tracepoint_ptr_t *p)
  * even when this tracepoint is off. This code has no purpose other than
  * poking RCU a bit.
  */
+<<<<<<< HEAD
 #define __DECLARE_TRACE(name, proto, args, cond, data_proto, data_args) \
 	extern struct tracepoint __tracepoint_##name;			\
 	static inline void trace_##name(proto)				\
@@ -238,6 +320,17 @@ static inline struct tracepoint *tracepoint_ptr_deref(tracepoint_ptr_t *p)
 			__DO_TRACE(&__tracepoint_##name,		\
 				TP_PROTO(data_proto),			\
 				TP_ARGS(data_args),			\
+=======
+#define __DECLARE_TRACE(name, proto, args, cond, data_proto)		\
+	extern int __traceiter_##name(data_proto);			\
+	DECLARE_STATIC_CALL(tp_func_##name, __traceiter_##name);	\
+	extern struct tracepoint __tracepoint_##name;			\
+	static inline void __nocfi trace_##name(proto)				\
+	{								\
+		if (static_key_false(&__tracepoint_##name.key))		\
+			__DO_TRACE(name,				\
+				TP_ARGS(args),				\
+>>>>>>> upstream/android-13
 				TP_CONDITION(cond), 0);			\
 		if (IS_ENABLED(CONFIG_LOCKDEP) && (cond)) {		\
 			rcu_read_lock_sched_notrace();			\
@@ -246,7 +339,11 @@ static inline struct tracepoint *tracepoint_ptr_deref(tracepoint_ptr_t *p)
 		}							\
 	}								\
 	__DECLARE_TRACE_RCU(name, PARAMS(proto), PARAMS(args),		\
+<<<<<<< HEAD
 		PARAMS(cond), PARAMS(data_proto), PARAMS(data_args))	\
+=======
+			    PARAMS(cond))				\
+>>>>>>> upstream/android-13
 	static inline int						\
 	register_trace_##name(void (*probe)(data_proto), void *data)	\
 	{								\
@@ -281,6 +378,7 @@ static inline struct tracepoint *tracepoint_ptr_deref(tracepoint_ptr_t *p)
  * structures, so we create an array of pointers that will be used for iteration
  * on the tracepoints.
  */
+<<<<<<< HEAD
 #define DEFINE_TRACE_FN(name, reg, unreg)				 \
 	static const char __tpstrtab_##name[]				 \
 	__attribute__((section("__tracepoints_strings"))) = #name;	 \
@@ -299,6 +397,57 @@ static inline struct tracepoint *tracepoint_ptr_deref(tracepoint_ptr_t *p)
 
 #else /* !TRACEPOINTS_ENABLED */
 #define __DECLARE_TRACE(name, proto, args, cond, data_proto, data_args) \
+=======
+#define DEFINE_TRACE_FN(_name, _reg, _unreg, proto, args)		\
+	static const char __tpstrtab_##_name[]				\
+	__section("__tracepoints_strings") = #_name;			\
+	extern struct static_call_key STATIC_CALL_KEY(tp_func_##_name);	\
+	int __traceiter_##_name(void *__data, proto);			\
+	struct tracepoint __tracepoint_##_name	__used			\
+	__section("__tracepoints") = {					\
+		.name = __tpstrtab_##_name,				\
+		.key = STATIC_KEY_INIT_FALSE,				\
+		.static_call_key = &STATIC_CALL_KEY(tp_func_##_name),	\
+		.static_call_tramp = STATIC_CALL_TRAMP_ADDR(tp_func_##_name), \
+		.iterator = &__traceiter_##_name,			\
+		.regfunc = _reg,					\
+		.unregfunc = _unreg,					\
+		.funcs = NULL };					\
+	__TRACEPOINT_ENTRY(_name);					\
+	int __nocfi __traceiter_##_name(void *__data, proto)			\
+	{								\
+		struct tracepoint_func *it_func_ptr;			\
+		void *it_func;						\
+									\
+		it_func_ptr =						\
+			rcu_dereference_raw((&__tracepoint_##_name)->funcs); \
+		if (it_func_ptr) {					\
+			do {						\
+				it_func = READ_ONCE((it_func_ptr)->func); \
+				__data = (it_func_ptr)->data;		\
+				((void(*)(void *, proto))(it_func))(__data, args); \
+			} while ((++it_func_ptr)->func);		\
+		}							\
+		return 0;						\
+	}								\
+	DEFINE_STATIC_CALL(tp_func_##_name, __traceiter_##_name);
+
+#define DEFINE_TRACE(name, proto, args)		\
+	DEFINE_TRACE_FN(name, NULL, NULL, PARAMS(proto), PARAMS(args));
+
+#define EXPORT_TRACEPOINT_SYMBOL_GPL(name)				\
+	EXPORT_SYMBOL_GPL(__tracepoint_##name);				\
+	EXPORT_SYMBOL_GPL(__traceiter_##name);				\
+	EXPORT_STATIC_CALL_GPL(tp_func_##name)
+#define EXPORT_TRACEPOINT_SYMBOL(name)					\
+	EXPORT_SYMBOL(__tracepoint_##name);				\
+	EXPORT_SYMBOL(__traceiter_##name);				\
+	EXPORT_STATIC_CALL(tp_func_##name)
+
+
+#else /* !TRACEPOINTS_ENABLED */
+#define __DECLARE_TRACE(name, proto, args, cond, data_proto)		\
+>>>>>>> upstream/android-13
 	static inline void trace_##name(proto)				\
 	{ }								\
 	static inline void trace_##name##_rcuidle(proto)		\
@@ -324,8 +473,13 @@ static inline struct tracepoint *tracepoint_ptr_deref(tracepoint_ptr_t *p)
 		return false;						\
 	}
 
+<<<<<<< HEAD
 #define DEFINE_TRACE_FN(name, reg, unreg)
 #define DEFINE_TRACE(name)
+=======
+#define DEFINE_TRACE_FN(name, reg, unreg, proto, args)
+#define DEFINE_TRACE(name, proto, args)
+>>>>>>> upstream/android-13
 #define EXPORT_TRACEPOINT_SYMBOL_GPL(name)
 #define EXPORT_TRACEPOINT_SYMBOL(name)
 
@@ -364,7 +518,11 @@ static inline struct tracepoint *tracepoint_ptr_deref(tracepoint_ptr_t *p)
 		static const char *___tp_str __tracepoint_string = str; \
 		___tp_str;						\
 	})
+<<<<<<< HEAD
 #define __tracepoint_string	__attribute__((section("__tracepoint_str"), used))
+=======
+#define __tracepoint_string	__used __section("__tracepoint_str")
+>>>>>>> upstream/android-13
 #else
 /*
  * tracepoint_string() is used to save the string address for userspace
@@ -375,6 +533,7 @@ static inline struct tracepoint *tracepoint_ptr_deref(tracepoint_ptr_t *p)
 # define __tracepoint_string
 #endif
 
+<<<<<<< HEAD
 /*
  * The need for the DECLARE_TRACE_NOARGS() is to handle the prototype
  * (void). "void" is a special value in a function prototype and can
@@ -399,12 +558,22 @@ static inline struct tracepoint *tracepoint_ptr_deref(tracepoint_ptr_t *p)
 			cpu_online(raw_smp_processor_id()),		\
 			PARAMS(void *__data, proto),			\
 			PARAMS(__data, args))
+=======
+#define DECLARE_TRACE(name, proto, args)				\
+	__DECLARE_TRACE(name, PARAMS(proto), PARAMS(args),		\
+			cpu_online(raw_smp_processor_id()),		\
+			PARAMS(void *__data, proto))
+>>>>>>> upstream/android-13
 
 #define DECLARE_TRACE_CONDITION(name, proto, args, cond)		\
 	__DECLARE_TRACE(name, PARAMS(proto), PARAMS(args),		\
 			cpu_online(raw_smp_processor_id()) && (PARAMS(cond)), \
+<<<<<<< HEAD
 			PARAMS(void *__data, proto),			\
 			PARAMS(__data, args))
+=======
+			PARAMS(void *__data, proto))
+>>>>>>> upstream/android-13
 
 #define TRACE_EVENT_FLAGS(event, flag)
 
@@ -456,7 +625,11 @@ static inline struct tracepoint *tracepoint_ptr_deref(tracepoint_ptr_t *p)
  *	*
  *	* The declared 'local variable' is called '__entry'
  *	*
+<<<<<<< HEAD
  *	* __field(pid_t, prev_prid) is equivalent to a standard declariton:
+=======
+ *	* __field(pid_t, prev_pid) is equivalent to a standard declaration:
+>>>>>>> upstream/android-13
  *	*
  *	*	pid_t	prev_pid;
  *	*
@@ -548,4 +721,22 @@ static inline struct tracepoint *tracepoint_ptr_deref(tracepoint_ptr_t *p)
 
 #define TRACE_EVENT_PERF_PERM(event, expr...)
 
+<<<<<<< HEAD
+=======
+#define DECLARE_EVENT_NOP(name, proto, args)				\
+	static inline void trace_##name(proto)				\
+	{ }								\
+	static inline bool trace_##name##_enabled(void)			\
+	{								\
+		return false;						\
+	}
+
+#define TRACE_EVENT_NOP(name, proto, args, struct, assign, print)	\
+	DECLARE_EVENT_NOP(name, PARAMS(proto), PARAMS(args))
+
+#define DECLARE_EVENT_CLASS_NOP(name, proto, args, tstruct, assign, print)
+#define DEFINE_EVENT_NOP(template, name, proto, args)			\
+	DECLARE_EVENT_NOP(name, PARAMS(proto), PARAMS(args))
+
+>>>>>>> upstream/android-13
 #endif /* ifdef TRACE_EVENT (see note above) */

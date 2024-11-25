@@ -350,7 +350,10 @@ static s32 ixgbe_calc_eeprom_checksum_X540(struct ixgbe_hw *hw)
 		if (ixgbe_read_eerd_generic(hw, pointer, &length)) {
 			hw_dbg(hw, "EEPROM read failed\n");
 			return IXGBE_ERR_EEPROM;
+<<<<<<< HEAD
 			break;
+=======
+>>>>>>> upstream/android-13
 		}
 
 		/* Skip pointer section if length is invalid. */
@@ -702,7 +705,11 @@ static s32 ixgbe_get_swfw_sync_semaphore(struct ixgbe_hw *hw)
 }
 
 /**
+<<<<<<< HEAD
  * ixgbe_release_nvm_semaphore - Release hardware semaphore
+=======
+ * ixgbe_release_swfw_sync_semaphore - Release hardware semaphore
+>>>>>>> upstream/android-13
  * @hw: pointer to hardware structure
  *
  * This function clears hardware semaphore bits.

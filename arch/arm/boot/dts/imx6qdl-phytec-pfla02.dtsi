@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2013 Christian Hemp, Phytec Messtechnik GmbH
  *
@@ -7,6 +8,11 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2013 Christian Hemp, Phytec Messtechnik GmbH
+>>>>>>> upstream/android-13
  */
 
 #include <dt-bindings/gpio/gpio.h>
@@ -16,6 +22,10 @@
 	compatible = "phytec,imx6q-pfla02", "fsl,imx6q";
 
 	memory@10000000 {
+<<<<<<< HEAD
+=======
+		device_type = "memory";
+>>>>>>> upstream/android-13
 		reg = <0x10000000 0x80000000>;
 	};
 
@@ -36,6 +46,11 @@
 
 		reg_usb_h1_vbus: regulator@1 {
 			compatible = "regulator-fixed";
+<<<<<<< HEAD
+=======
+			pinctrl-names = "default";
+			pinctrl-0 = <&pinctrl_usbh1_vbus>;
+>>>>>>> upstream/android-13
 			reg = <1>;
 			regulator-name = "usb_h1_vbus";
 			regulator-min-microvolt = <5000000>;
@@ -46,6 +61,11 @@
 	};
 
 	gpio_leds: leds {
+<<<<<<< HEAD
+=======
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_leds>;
+>>>>>>> upstream/android-13
 		compatible = "gpio-leds";
 
 		green {
@@ -76,9 +96,15 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_ecspi3>;
 	status = "okay";
+<<<<<<< HEAD
 	cs-gpios = <&gpio4 24 0>;
 
 	flash@0 {
+=======
+	cs-gpios = <&gpio4 24 GPIO_ACTIVE_LOW>;
+
+	som_flash: flash@0 {
+>>>>>>> upstream/android-13
 		compatible = "m25p80", "jedec,spi-nor";
 		spi-max-frequency = <20000000>;
 		reg = <0>;
@@ -88,11 +114,30 @@
 &fec {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_enet>;
+<<<<<<< HEAD
+=======
+	phy-handle = <&ethphy>;
+>>>>>>> upstream/android-13
 	phy-mode = "rgmii";
 	phy-reset-duration = <10>; /* in msecs */
 	phy-reset-gpios = <&gpio3 23 GPIO_ACTIVE_LOW>;
 	phy-supply = <&vdd_eth_io_reg>;
 	status = "disabled";
+<<<<<<< HEAD
+=======
+
+	fec_mdio: mdio {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		ethphy: ethernet-phy@0 {
+			compatible = "ethernet-phy-ieee802.3-c22";
+			reg = <0>;
+			txc-skew-ps = <1680>;
+			rxc-skew-ps = <1860>;
+		};
+	};
+>>>>>>> upstream/android-13
 };
 
 &gpmi {
@@ -107,16 +152,31 @@
 	pinctrl-0 = <&pinctrl_i2c1>;
 	status = "okay";
 
+<<<<<<< HEAD
 	eeprom@50 {
 		compatible = "atmel,24c32";
+=======
+	som_eeprom: eeprom@50 {
+		compatible = "catalyst,24c32", "atmel,24c32";
+		pagesize = <32>;
+>>>>>>> upstream/android-13
 		reg = <0x50>;
 	};
 
 	pmic@58 {
+<<<<<<< HEAD
+=======
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_pmic>;
+>>>>>>> upstream/android-13
 		compatible = "dlg,da9063";
 		reg = <0x58>;
 		interrupt-parent = <&gpio2>;
 		interrupts = <9 IRQ_TYPE_LEVEL_LOW>; /* active-low GPIO2_9 */
+<<<<<<< HEAD
+=======
+		interrupt-controller;
+>>>>>>> upstream/android-13
 
 		regulators {
 			vddcore_reg: bcore1 {
@@ -205,6 +265,7 @@
 };
 
 &iomuxc {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_hog>;
 
@@ -219,11 +280,18 @@
 			>;
 		};
 
+=======
+	imx6q-phytec-pfla02 {
+>>>>>>> upstream/android-13
 		pinctrl_ecspi3: ecspi3grp {
 			fsl,pins = <
 				MX6QDL_PAD_DISP0_DAT2__ECSPI3_MISO	0x100b1
 				MX6QDL_PAD_DISP0_DAT1__ECSPI3_MOSI	0x100b1
 				MX6QDL_PAD_DISP0_DAT0__ECSPI3_SCLK	0x100b1
+<<<<<<< HEAD
+=======
+				MX6QDL_PAD_DISP0_DAT3__GPIO4_IO24	0x80000000 /* CS0 */
+>>>>>>> upstream/android-13
 			>;
 		};
 
@@ -245,6 +313,10 @@
 				MX6QDL_PAD_RGMII_RD3__RGMII_RD3		0x1b030
 				MX6QDL_PAD_RGMII_RX_CTL__RGMII_RX_CTL	0x1b030
 				MX6QDL_PAD_ENET_TX_EN__ENET_TX_EN	0x1b0b0
+<<<<<<< HEAD
+=======
+				MX6QDL_PAD_EIM_D23__GPIO3_IO23		0x80000000 /* Reset GPIO */
+>>>>>>> upstream/android-13
 			>;
 		};
 
@@ -298,16 +370,38 @@
 			>;
 		};
 
+<<<<<<< HEAD
+=======
+		pinctrl_leds: ledsgrp {
+			fsl,pins = <
+				MX6QDL_PAD_ENET_TXD0__GPIO1_IO30	0x80000000 /* Green LED */
+				MX6QDL_PAD_EIM_EB3__GPIO2_IO31		0x80000000 /* Red LED */
+			>;
+		};
+
+>>>>>>> upstream/android-13
 		pinctrl_pcie: pciegrp {
 			fsl,pins = <MX6QDL_PAD_DI0_PIN15__GPIO4_IO17  0x80000000>;
 		};
 
+<<<<<<< HEAD
+=======
+		pinctrl_pmic: pmicgrp {
+			fsl,pins = <MX6QDL_PAD_SD4_DAT1__GPIO2_IO09	0x80000000>; /* PMIC interrupt */
+		};
+
+>>>>>>> upstream/android-13
 		pinctrl_uart3: uart3grp {
 			fsl,pins = <
 				MX6QDL_PAD_EIM_D24__UART3_TX_DATA	0x1b0b1
 				MX6QDL_PAD_EIM_D25__UART3_RX_DATA	0x1b0b1
+<<<<<<< HEAD
 				MX6QDL_PAD_EIM_D30__UART3_RTS_B		0x1b0b1
 				MX6QDL_PAD_EIM_D31__UART3_CTS_B		0x1b0b1
+=======
+				MX6QDL_PAD_EIM_D31__UART3_RTS_B		0x1b0b1
+				MX6QDL_PAD_EIM_D30__UART3_CTS_B		0x1b0b1
+>>>>>>> upstream/android-13
 			>;
 		};
 
@@ -318,9 +412,15 @@
 			>;
 		};
 
+<<<<<<< HEAD
 		pinctrl_usbh1: usbh1grp {
 			fsl,pins = <
 				MX6QDL_PAD_GPIO_0__USB_H1_PWR		0x80000000
+=======
+		pinctrl_usbh1_vbus: usbh1vbusgrp {
+			fsl,pins = <
+				MX6QDL_PAD_GPIO_0__GPIO1_IO00		0x1b0b0
+>>>>>>> upstream/android-13
 			>;
 		};
 
@@ -394,6 +494,10 @@
 &uart3 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_uart3>;
+<<<<<<< HEAD
+=======
+	uart-has-rtscts;
+>>>>>>> upstream/android-13
 	status = "disabled";
 };
 
@@ -405,8 +509,11 @@
 
 &usbh1 {
 	vbus-supply = <&reg_usb_h1_vbus>;
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_usbh1>;
+=======
+>>>>>>> upstream/android-13
 	status = "disabled";
 };
 

@@ -24,12 +24,36 @@
 #include <linux/list_nulls.h>
 #include <linux/workqueue.h>
 #include <linux/rculist.h>
+<<<<<<< HEAD
 
 #include <linux/rhashtable-types.h>
 /*
  * The end of the chain is marked with a special nulls marks which has
  * the least significant bit set.
  */
+=======
+#include <linux/bit_spinlock.h>
+
+#include <linux/rhashtable-types.h>
+/*
+ * Objects in an rhashtable have an embedded struct rhash_head
+ * which is linked into as hash chain from the hash table - or one
+ * of two or more hash tables when the rhashtable is being resized.
+ * The end of the chain is marked with a special nulls marks which has
+ * the least significant bit set but otherwise stores the address of
+ * the hash bucket.  This allows us to be sure we've found the end
+ * of the right list.
+ * The value stored in the hash bucket has BIT(0) used as a lock bit.
+ * This bit must be atomically set before any changes are made to
+ * the chain.  To avoid dereferencing this pointer without clearing
+ * the bit first, we use an opaque 'struct rhash_lock_head *' for the
+ * pointer stored in the bucket.  This struct needs to be defined so
+ * that rcu_dereference() works on it, but it has no content so a
+ * cast is needed for it to be useful.  This ensures it isn't
+ * used by mistake with clearing the lock bit first.
+ */
+struct rhash_lock_head {};
+>>>>>>> upstream/android-13
 
 /* Maximum chain length before rehash
  *
@@ -52,8 +76,11 @@
  * @nest: Number of bits of first-level nested table.
  * @rehash: Current bucket being rehashed
  * @hash_rnd: Random seed to fold into hash
+<<<<<<< HEAD
  * @locks_mask: Mask to apply before accessing locks[]
  * @locks: Array of spinlocks protecting individual buckets
+=======
+>>>>>>> upstream/android-13
  * @walkers: List of active walkers
  * @rcu: RCU structure for freeing the table
  * @future_tbl: Table under construction during rehashing
@@ -63,20 +90,49 @@
 struct bucket_table {
 	unsigned int		size;
 	unsigned int		nest;
+<<<<<<< HEAD
 	unsigned int		rehash;
 	u32			hash_rnd;
 	unsigned int		locks_mask;
 	spinlock_t		*locks;
+=======
+	u32			hash_rnd;
+>>>>>>> upstream/android-13
 	struct list_head	walkers;
 	struct rcu_head		rcu;
 
 	struct bucket_table __rcu *future_tbl;
 
+<<<<<<< HEAD
 	struct rhash_head __rcu *buckets[] ____cacheline_aligned_in_smp;
 };
 
 #define INIT_RHT_NULLS_HEAD(ptr)	\
 	((ptr) = (typeof(ptr)) NULLS_MARKER(0))
+=======
+	struct lockdep_map	dep_map;
+
+	struct rhash_lock_head __rcu *buckets[] ____cacheline_aligned_in_smp;
+};
+
+/*
+ * NULLS_MARKER() expects a hash value with the low
+ * bits mostly likely to be significant, and it discards
+ * the msb.
+ * We give it an address, in which the bottom bit is
+ * always 0, and the msb might be significant.
+ * So we shift the address down one bit to align with
+ * expectations and avoid losing a significant bit.
+ *
+ * We never store the NULLS_MARKER in the hash table
+ * itself as we need the lsb for locking.
+ * Instead we store a NULL
+ */
+#define	RHT_NULLS_MARKER(ptr)	\
+	((void *)NULLS_MARKER(((unsigned long) (ptr)) >> 1))
+#define INIT_RHT_NULLS_HEAD(ptr)	\
+	((ptr) = NULL)
+>>>>>>> upstream/android-13
 
 static inline bool rht_is_a_nulls(const struct rhash_head *ptr)
 {
@@ -196,6 +252,7 @@ static inline bool rht_grow_above_max(const struct rhashtable *ht,
 	return atomic_read(&ht->nelems) >= ht->max_elems;
 }
 
+<<<<<<< HEAD
 /* The bucket lock is selected based on the hash and protects mutations
  * on a group of hash buckets.
  *
@@ -215,6 +272,8 @@ static inline spinlock_t *rht_bucket_lock(const struct bucket_table *tbl,
 	return &tbl->locks[hash & tbl->locks_mask];
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PROVE_LOCKING
 int lockdep_rht_mutex_is_held(struct rhashtable *ht);
 int lockdep_rht_bucket_is_held(const struct bucket_table *tbl, u32 hash);
@@ -253,11 +312,20 @@ void rhashtable_free_and_destroy(struct rhashtable *ht,
 				 void *arg);
 void rhashtable_destroy(struct rhashtable *ht);
 
+<<<<<<< HEAD
 struct rhash_head __rcu **rht_bucket_nested(const struct bucket_table *tbl,
 					    unsigned int hash);
 struct rhash_head __rcu **rht_bucket_nested_insert(struct rhashtable *ht,
 						   struct bucket_table *tbl,
 						   unsigned int hash);
+=======
+struct rhash_lock_head __rcu **rht_bucket_nested(
+	const struct bucket_table *tbl, unsigned int hash);
+struct rhash_lock_head __rcu **__rht_bucket_nested(
+	const struct bucket_table *tbl, unsigned int hash);
+struct rhash_lock_head __rcu **rht_bucket_nested_insert(
+	struct rhashtable *ht, struct bucket_table *tbl, unsigned int hash);
+>>>>>>> upstream/android-13
 
 #define rht_dereference(p, ht) \
 	rcu_dereference_protected(p, lockdep_rht_mutex_is_held(ht))
@@ -274,13 +342,18 @@ struct rhash_head __rcu **rht_bucket_nested_insert(struct rhashtable *ht,
 #define rht_entry(tpos, pos, member) \
 	({ tpos = container_of(pos, typeof(*tpos), member); 1; })
 
+<<<<<<< HEAD
 static inline struct rhash_head __rcu *const *rht_bucket(
+=======
+static inline struct rhash_lock_head __rcu *const *rht_bucket(
+>>>>>>> upstream/android-13
 	const struct bucket_table *tbl, unsigned int hash)
 {
 	return unlikely(tbl->nest) ? rht_bucket_nested(tbl, hash) :
 				     &tbl->buckets[hash];
 }
 
+<<<<<<< HEAD
 static inline struct rhash_head __rcu **rht_bucket_var(
 	struct bucket_table *tbl, unsigned int hash)
 {
@@ -289,12 +362,23 @@ static inline struct rhash_head __rcu **rht_bucket_var(
 }
 
 static inline struct rhash_head __rcu **rht_bucket_insert(
+=======
+static inline struct rhash_lock_head __rcu **rht_bucket_var(
+	struct bucket_table *tbl, unsigned int hash)
+{
+	return unlikely(tbl->nest) ? __rht_bucket_nested(tbl, hash) :
+				     &tbl->buckets[hash];
+}
+
+static inline struct rhash_lock_head __rcu **rht_bucket_insert(
+>>>>>>> upstream/android-13
 	struct rhashtable *ht, struct bucket_table *tbl, unsigned int hash)
 {
 	return unlikely(tbl->nest) ? rht_bucket_nested_insert(ht, tbl, hash) :
 				     &tbl->buckets[hash];
 }
 
+<<<<<<< HEAD
 /**
  * rht_for_each_continue - continue iterating over hash chain
  * @pos:	the &struct rhash_head to use as a loop cursor.
@@ -305,6 +389,118 @@ static inline struct rhash_head __rcu **rht_bucket_insert(
 #define rht_for_each_continue(pos, head, tbl, hash) \
 	for (pos = rht_dereference_bucket(head, tbl, hash); \
 	     !rht_is_a_nulls(pos); \
+=======
+/*
+ * We lock a bucket by setting BIT(0) in the pointer - this is always
+ * zero in real pointers.  The NULLS mark is never stored in the bucket,
+ * rather we store NULL if the bucket is empty.
+ * bit_spin_locks do not handle contention well, but the whole point
+ * of the hashtable design is to achieve minimum per-bucket contention.
+ * A nested hash table might not have a bucket pointer.  In that case
+ * we cannot get a lock.  For remove and replace the bucket cannot be
+ * interesting and doesn't need locking.
+ * For insert we allocate the bucket if this is the last bucket_table,
+ * and then take the lock.
+ * Sometimes we unlock a bucket by writing a new pointer there.  In that
+ * case we don't need to unlock, but we do need to reset state such as
+ * local_bh. For that we have rht_assign_unlock().  As rcu_assign_pointer()
+ * provides the same release semantics that bit_spin_unlock() provides,
+ * this is safe.
+ * When we write to a bucket without unlocking, we use rht_assign_locked().
+ */
+
+static inline void rht_lock(struct bucket_table *tbl,
+			    struct rhash_lock_head __rcu **bkt)
+{
+	local_bh_disable();
+	bit_spin_lock(0, (unsigned long *)bkt);
+	lock_map_acquire(&tbl->dep_map);
+}
+
+static inline void rht_lock_nested(struct bucket_table *tbl,
+				   struct rhash_lock_head __rcu **bucket,
+				   unsigned int subclass)
+{
+	local_bh_disable();
+	bit_spin_lock(0, (unsigned long *)bucket);
+	lock_acquire_exclusive(&tbl->dep_map, subclass, 0, NULL, _THIS_IP_);
+}
+
+static inline void rht_unlock(struct bucket_table *tbl,
+			      struct rhash_lock_head __rcu **bkt)
+{
+	lock_map_release(&tbl->dep_map);
+	bit_spin_unlock(0, (unsigned long *)bkt);
+	local_bh_enable();
+}
+
+static inline struct rhash_head *__rht_ptr(
+	struct rhash_lock_head *p, struct rhash_lock_head __rcu *const *bkt)
+{
+	return (struct rhash_head *)
+		((unsigned long)p & ~BIT(0) ?:
+		 (unsigned long)RHT_NULLS_MARKER(bkt));
+}
+
+/*
+ * Where 'bkt' is a bucket and might be locked:
+ *   rht_ptr_rcu() dereferences that pointer and clears the lock bit.
+ *   rht_ptr() dereferences in a context where the bucket is locked.
+ *   rht_ptr_exclusive() dereferences in a context where exclusive
+ *            access is guaranteed, such as when destroying the table.
+ */
+static inline struct rhash_head *rht_ptr_rcu(
+	struct rhash_lock_head __rcu *const *bkt)
+{
+	return __rht_ptr(rcu_dereference(*bkt), bkt);
+}
+
+static inline struct rhash_head *rht_ptr(
+	struct rhash_lock_head __rcu *const *bkt,
+	struct bucket_table *tbl,
+	unsigned int hash)
+{
+	return __rht_ptr(rht_dereference_bucket(*bkt, tbl, hash), bkt);
+}
+
+static inline struct rhash_head *rht_ptr_exclusive(
+	struct rhash_lock_head __rcu *const *bkt)
+{
+	return __rht_ptr(rcu_dereference_protected(*bkt, 1), bkt);
+}
+
+static inline void rht_assign_locked(struct rhash_lock_head __rcu **bkt,
+				     struct rhash_head *obj)
+{
+	if (rht_is_a_nulls(obj))
+		obj = NULL;
+	rcu_assign_pointer(*bkt, (void *)((unsigned long)obj | BIT(0)));
+}
+
+static inline void rht_assign_unlock(struct bucket_table *tbl,
+				     struct rhash_lock_head __rcu **bkt,
+				     struct rhash_head *obj)
+{
+	if (rht_is_a_nulls(obj))
+		obj = NULL;
+	lock_map_release(&tbl->dep_map);
+	rcu_assign_pointer(*bkt, (void *)obj);
+	preempt_enable();
+	__release(bitlock);
+	local_bh_enable();
+}
+
+/**
+ * rht_for_each_from - iterate over hash chain from given head
+ * @pos:	the &struct rhash_head to use as a loop cursor.
+ * @head:	the &struct rhash_head to start from
+ * @tbl:	the &struct bucket_table
+ * @hash:	the hash value / bucket index
+ */
+#define rht_for_each_from(pos, head, tbl, hash) \
+	for (pos = head;			\
+	     !rht_is_a_nulls(pos);		\
+>>>>>>> upstream/android-13
 	     pos = rht_dereference_bucket((pos)->next, tbl, hash))
 
 /**
@@ -314,6 +510,7 @@ static inline struct rhash_head __rcu **rht_bucket_insert(
  * @hash:	the hash value / bucket index
  */
 #define rht_for_each(pos, tbl, hash) \
+<<<<<<< HEAD
 	rht_for_each_continue(pos, *rht_bucket(tbl, hash), tbl, hash)
 
 /**
@@ -321,12 +518,27 @@ static inline struct rhash_head __rcu **rht_bucket_insert(
  * @tpos:	the type * to use as a loop cursor.
  * @pos:	the &struct rhash_head to use as a loop cursor.
  * @head:	the previous &struct rhash_head to continue from
+=======
+	rht_for_each_from(pos, rht_ptr(rht_bucket(tbl, hash), tbl, hash),  \
+			  tbl, hash)
+
+/**
+ * rht_for_each_entry_from - iterate over hash chain from given head
+ * @tpos:	the type * to use as a loop cursor.
+ * @pos:	the &struct rhash_head to use as a loop cursor.
+ * @head:	the &struct rhash_head to start from
+>>>>>>> upstream/android-13
  * @tbl:	the &struct bucket_table
  * @hash:	the hash value / bucket index
  * @member:	name of the &struct rhash_head within the hashable struct.
  */
+<<<<<<< HEAD
 #define rht_for_each_entry_continue(tpos, pos, head, tbl, hash, member)	\
 	for (pos = rht_dereference_bucket(head, tbl, hash);		\
+=======
+#define rht_for_each_entry_from(tpos, pos, head, tbl, hash, member)	\
+	for (pos = head;						\
+>>>>>>> upstream/android-13
 	     (!rht_is_a_nulls(pos)) && rht_entry(tpos, pos, member);	\
 	     pos = rht_dereference_bucket((pos)->next, tbl, hash))
 
@@ -339,8 +551,14 @@ static inline struct rhash_head __rcu **rht_bucket_insert(
  * @member:	name of the &struct rhash_head within the hashable struct.
  */
 #define rht_for_each_entry(tpos, pos, tbl, hash, member)		\
+<<<<<<< HEAD
 	rht_for_each_entry_continue(tpos, pos, *rht_bucket(tbl, hash),	\
 				    tbl, hash, member)
+=======
+	rht_for_each_entry_from(tpos, pos,				\
+				rht_ptr(rht_bucket(tbl, hash), tbl, hash), \
+				tbl, hash, member)
+>>>>>>> upstream/android-13
 
 /**
  * rht_for_each_entry_safe - safely iterate over hash chain of given type
@@ -355,7 +573,11 @@ static inline struct rhash_head __rcu **rht_bucket_insert(
  * remove the loop cursor from the list.
  */
 #define rht_for_each_entry_safe(tpos, pos, next, tbl, hash, member)	      \
+<<<<<<< HEAD
 	for (pos = rht_dereference_bucket(*rht_bucket(tbl, hash), tbl, hash), \
+=======
+	for (pos = rht_ptr(rht_bucket(tbl, hash), tbl, hash),		      \
+>>>>>>> upstream/android-13
 	     next = !rht_is_a_nulls(pos) ?				      \
 		       rht_dereference_bucket(pos->next, tbl, hash) : NULL;   \
 	     (!rht_is_a_nulls(pos)) && rht_entry(tpos, pos, member);	      \
@@ -364,9 +586,15 @@ static inline struct rhash_head __rcu **rht_bucket_insert(
 		       rht_dereference_bucket(pos->next, tbl, hash) : NULL)
 
 /**
+<<<<<<< HEAD
  * rht_for_each_rcu_continue - continue iterating over rcu hash chain
  * @pos:	the &struct rhash_head to use as a loop cursor.
  * @head:	the previous &struct rhash_head to continue from
+=======
+ * rht_for_each_rcu_from - iterate over rcu hash chain from given head
+ * @pos:	the &struct rhash_head to use as a loop cursor.
+ * @head:	the &struct rhash_head to start from
+>>>>>>> upstream/android-13
  * @tbl:	the &struct bucket_table
  * @hash:	the hash value / bucket index
  *
@@ -374,9 +602,15 @@ static inline struct rhash_head __rcu **rht_bucket_insert(
  * the _rcu mutation primitives such as rhashtable_insert() as long as the
  * traversal is guarded by rcu_read_lock().
  */
+<<<<<<< HEAD
 #define rht_for_each_rcu_continue(pos, head, tbl, hash)			\
 	for (({barrier(); }),						\
 	     pos = rht_dereference_bucket_rcu(head, tbl, hash);		\
+=======
+#define rht_for_each_rcu_from(pos, head, tbl, hash)			\
+	for (({barrier(); }),						\
+	     pos = head;						\
+>>>>>>> upstream/android-13
 	     !rht_is_a_nulls(pos);					\
 	     pos = rcu_dereference_raw(pos->next))
 
@@ -390,6 +624,7 @@ static inline struct rhash_head __rcu **rht_bucket_insert(
  * the _rcu mutation primitives such as rhashtable_insert() as long as the
  * traversal is guarded by rcu_read_lock().
  */
+<<<<<<< HEAD
 #define rht_for_each_rcu(pos, tbl, hash)				\
 	rht_for_each_rcu_continue(pos, *rht_bucket(tbl, hash), tbl, hash)
 
@@ -398,6 +633,19 @@ static inline struct rhash_head __rcu **rht_bucket_insert(
  * @tpos:	the type * to use as a loop cursor.
  * @pos:	the &struct rhash_head to use as a loop cursor.
  * @head:	the previous &struct rhash_head to continue from
+=======
+#define rht_for_each_rcu(pos, tbl, hash)			\
+	for (({barrier(); }),					\
+	     pos = rht_ptr_rcu(rht_bucket(tbl, hash));		\
+	     !rht_is_a_nulls(pos);				\
+	     pos = rcu_dereference_raw(pos->next))
+
+/**
+ * rht_for_each_entry_rcu_from - iterated over rcu hash chain from given head
+ * @tpos:	the type * to use as a loop cursor.
+ * @pos:	the &struct rhash_head to use as a loop cursor.
+ * @head:	the &struct rhash_head to start from
+>>>>>>> upstream/android-13
  * @tbl:	the &struct bucket_table
  * @hash:	the hash value / bucket index
  * @member:	name of the &struct rhash_head within the hashable struct.
@@ -406,9 +654,15 @@ static inline struct rhash_head __rcu **rht_bucket_insert(
  * the _rcu mutation primitives such as rhashtable_insert() as long as the
  * traversal is guarded by rcu_read_lock().
  */
+<<<<<<< HEAD
 #define rht_for_each_entry_rcu_continue(tpos, pos, head, tbl, hash, member) \
 	for (({barrier(); }),						    \
 	     pos = rht_dereference_bucket_rcu(head, tbl, hash);		    \
+=======
+#define rht_for_each_entry_rcu_from(tpos, pos, head, tbl, hash, member) \
+	for (({barrier(); }),						    \
+	     pos = head;						    \
+>>>>>>> upstream/android-13
 	     (!rht_is_a_nulls(pos)) && rht_entry(tpos, pos, member);	    \
 	     pos = rht_dereference_bucket_rcu(pos->next, tbl, hash))
 
@@ -425,8 +679,14 @@ static inline struct rhash_head __rcu **rht_bucket_insert(
  * traversal is guarded by rcu_read_lock().
  */
 #define rht_for_each_entry_rcu(tpos, pos, tbl, hash, member)		   \
+<<<<<<< HEAD
 	rht_for_each_entry_rcu_continue(tpos, pos, *rht_bucket(tbl, hash), \
 					tbl, hash, member)
+=======
+	rht_for_each_entry_rcu_from(tpos, pos,				   \
+				    rht_ptr_rcu(rht_bucket(tbl, hash)),	   \
+				    tbl, hash, member)
+>>>>>>> upstream/android-13
 
 /**
  * rhl_for_each_rcu - iterate over rcu hash table list
@@ -471,6 +731,10 @@ static inline struct rhash_head *__rhashtable_lookup(
 		.ht = ht,
 		.key = key,
 	};
+<<<<<<< HEAD
+=======
+	struct rhash_lock_head __rcu *const *bkt;
+>>>>>>> upstream/android-13
 	struct bucket_table *tbl;
 	struct rhash_head *he;
 	unsigned int hash;
@@ -478,6 +742,7 @@ static inline struct rhash_head *__rhashtable_lookup(
 	tbl = rht_dereference_rcu(ht->tbl, ht);
 restart:
 	hash = rht_key_hashfn(ht, tbl, key, params);
+<<<<<<< HEAD
 	rht_for_each_rcu(he, tbl, hash) {
 		if (params.obj_cmpfn ?
 		    params.obj_cmpfn(&arg, rht_obj(ht, he)) :
@@ -485,6 +750,21 @@ restart:
 			continue;
 		return he;
 	}
+=======
+	bkt = rht_bucket(tbl, hash);
+	do {
+		rht_for_each_rcu_from(he, rht_ptr_rcu(bkt), tbl, hash) {
+			if (params.obj_cmpfn ?
+			    params.obj_cmpfn(&arg, rht_obj(ht, he)) :
+			    rhashtable_compare(&arg, rht_obj(ht, he)))
+				continue;
+			return he;
+		}
+		/* An object might have been moved to a different hash chain,
+		 * while we walk along it - better check and retry.
+		 */
+	} while (he != RHT_NULLS_MARKER(bkt));
+>>>>>>> upstream/android-13
 
 	/* Ensure we see any new tables. */
 	smp_rmb();
@@ -580,10 +860,17 @@ static inline void *__rhashtable_insert_fast(
 		.ht = ht,
 		.key = key,
 	};
+<<<<<<< HEAD
 	struct rhash_head __rcu **pprev;
 	struct bucket_table *tbl;
 	struct rhash_head *head;
 	spinlock_t *lock;
+=======
+	struct rhash_lock_head __rcu **bkt;
+	struct rhash_head __rcu **pprev;
+	struct bucket_table *tbl;
+	struct rhash_head *head;
+>>>>>>> upstream/android-13
 	unsigned int hash;
 	int elasticity;
 	void *data;
@@ -592,16 +879,31 @@ static inline void *__rhashtable_insert_fast(
 
 	tbl = rht_dereference_rcu(ht->tbl, ht);
 	hash = rht_head_hashfn(ht, tbl, obj, params);
+<<<<<<< HEAD
 	lock = rht_bucket_lock(tbl, hash);
 	spin_lock_bh(lock);
 
 	if (unlikely(rcu_access_pointer(tbl->future_tbl))) {
 slow_path:
 		spin_unlock_bh(lock);
+=======
+	elasticity = RHT_ELASTICITY;
+	bkt = rht_bucket_insert(ht, tbl, hash);
+	data = ERR_PTR(-ENOMEM);
+	if (!bkt)
+		goto out;
+	pprev = NULL;
+	rht_lock(tbl, bkt);
+
+	if (unlikely(rcu_access_pointer(tbl->future_tbl))) {
+slow_path:
+		rht_unlock(tbl, bkt);
+>>>>>>> upstream/android-13
 		rcu_read_unlock();
 		return rhashtable_insert_slow(ht, key, obj);
 	}
 
+<<<<<<< HEAD
 	elasticity = RHT_ELASTICITY;
 	pprev = rht_bucket_insert(ht, tbl, hash);
 	data = ERR_PTR(-ENOMEM);
@@ -609,6 +911,9 @@ slow_path:
 		goto out;
 
 	rht_for_each_continue(head, *pprev, tbl, hash) {
+=======
+	rht_for_each_from(head, rht_ptr(bkt, tbl, hash), tbl, hash) {
+>>>>>>> upstream/android-13
 		struct rhlist_head *plist;
 		struct rhlist_head *list;
 
@@ -624,7 +929,11 @@ slow_path:
 		data = rht_obj(ht, head);
 
 		if (!rhlist)
+<<<<<<< HEAD
 			goto out;
+=======
+			goto out_unlock;
+>>>>>>> upstream/android-13
 
 
 		list = container_of(obj, struct rhlist_head, rhead);
@@ -633,9 +942,19 @@ slow_path:
 		RCU_INIT_POINTER(list->next, plist);
 		head = rht_dereference_bucket(head->next, tbl, hash);
 		RCU_INIT_POINTER(list->rhead.next, head);
+<<<<<<< HEAD
 		rcu_assign_pointer(*pprev, obj);
 
 		goto good;
+=======
+		if (pprev) {
+			rcu_assign_pointer(*pprev, obj);
+			rht_unlock(tbl, bkt);
+		} else
+			rht_assign_unlock(tbl, bkt, obj);
+		data = NULL;
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	if (elasticity <= 0)
@@ -643,12 +962,21 @@ slow_path:
 
 	data = ERR_PTR(-E2BIG);
 	if (unlikely(rht_grow_above_max(ht, tbl)))
+<<<<<<< HEAD
 		goto out;
+=======
+		goto out_unlock;
+>>>>>>> upstream/android-13
 
 	if (unlikely(rht_grow_above_100(ht, tbl)))
 		goto slow_path;
 
+<<<<<<< HEAD
 	head = rht_dereference_bucket(*pprev, tbl, hash);
+=======
+	/* Inserting at head of list makes unlocking free. */
+	head = rht_ptr(bkt, tbl, hash);
+>>>>>>> upstream/android-13
 
 	RCU_INIT_POINTER(obj->next, head);
 	if (rhlist) {
@@ -658,6 +986,7 @@ slow_path:
 		RCU_INIT_POINTER(list->next, NULL);
 	}
 
+<<<<<<< HEAD
 	rcu_assign_pointer(*pprev, obj);
 
 	atomic_inc(&ht->nelems);
@@ -672,6 +1001,23 @@ out:
 	rcu_read_unlock();
 
 	return data;
+=======
+	atomic_inc(&ht->nelems);
+	rht_assign_unlock(tbl, bkt, obj);
+
+	if (rht_grow_above_75(ht, tbl))
+		schedule_work(&ht->run_work);
+
+	data = NULL;
+out:
+	rcu_read_unlock();
+
+	return data;
+
+out_unlock:
+	rht_unlock(tbl, bkt);
+	goto out;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -680,9 +1026,15 @@ out:
  * @obj:	pointer to hash head inside object
  * @params:	hash table parameters
  *
+<<<<<<< HEAD
  * Will take a per bucket spinlock to protect against mutual mutations
  * on the same bucket. Multiple insertions may occur in parallel unless
  * they map to the same bucket lock.
+=======
+ * Will take the per bucket bitlock to protect against mutual mutations
+ * on the same bucket. Multiple insertions may occur in parallel unless
+ * they map to the same bucket.
+>>>>>>> upstream/android-13
  *
  * It is safe to call this function from atomic context.
  *
@@ -709,9 +1061,15 @@ static inline int rhashtable_insert_fast(
  * @list:	pointer to hash list head inside object
  * @params:	hash table parameters
  *
+<<<<<<< HEAD
  * Will take a per bucket spinlock to protect against mutual mutations
  * on the same bucket. Multiple insertions may occur in parallel unless
  * they map to the same bucket lock.
+=======
+ * Will take the per bucket bitlock to protect against mutual mutations
+ * on the same bucket. Multiple insertions may occur in parallel unless
+ * they map to the same bucket.
+>>>>>>> upstream/android-13
  *
  * It is safe to call this function from atomic context.
  *
@@ -732,9 +1090,15 @@ static inline int rhltable_insert_key(
  * @list:	pointer to hash list head inside object
  * @params:	hash table parameters
  *
+<<<<<<< HEAD
  * Will take a per bucket spinlock to protect against mutual mutations
  * on the same bucket. Multiple insertions may occur in parallel unless
  * they map to the same bucket lock.
+=======
+ * Will take the per bucket bitlock to protect against mutual mutations
+ * on the same bucket. Multiple insertions may occur in parallel unless
+ * they map to the same bucket.
+>>>>>>> upstream/android-13
  *
  * It is safe to call this function from atomic context.
  *
@@ -758,12 +1122,15 @@ static inline int rhltable_insert(
  * @obj:	pointer to hash head inside object
  * @params:	hash table parameters
  *
+<<<<<<< HEAD
  * Locks down the bucket chain in both the old and new table if a resize
  * is in progress to ensure that writers can't remove from the old table
  * and can't insert to the new table during the atomic operation of search
  * and insertion. Searches for duplicates in both the old and new table if
  * a resize is in progress.
  *
+=======
+>>>>>>> upstream/android-13
  * This lookup function may only be used for fixed key hash table (key_len
  * parameter set). It will BUG() if used inappropriately.
  *
@@ -819,12 +1186,15 @@ static inline void *rhashtable_lookup_get_insert_fast(
  * @obj:	pointer to hash head inside object
  * @params:	hash table parameters
  *
+<<<<<<< HEAD
  * Locks down the bucket chain in both the old and new table if a resize
  * is in progress to ensure that writers can't remove from the old table
  * and can't insert to the new table during the atomic operation of search
  * and insertion. Searches for duplicates in both the old and new table if
  * a resize is in progress.
  *
+=======
+>>>>>>> upstream/android-13
  * Lookups may occur in parallel with hashtable mutations and resizing.
  *
  * Will trigger an automatic deferred table resizing if residency in the
@@ -850,9 +1220,15 @@ static inline int rhashtable_lookup_insert_key(
 /**
  * rhashtable_lookup_get_insert_key - lookup and insert object into hash table
  * @ht:		hash table
+<<<<<<< HEAD
  * @obj:	pointer to hash head inside object
  * @params:	hash table parameters
  * @data:	pointer to element data already in hashes
+=======
+ * @key:	key
+ * @obj:	pointer to hash head inside object
+ * @params:	hash table parameters
+>>>>>>> upstream/android-13
  *
  * Just like rhashtable_lookup_insert_key(), but this function returns the
  * object if it exists, NULL if it does not and the insertion was successful,
@@ -873,19 +1249,35 @@ static inline int __rhashtable_remove_fast_one(
 	struct rhash_head *obj, const struct rhashtable_params params,
 	bool rhlist)
 {
+<<<<<<< HEAD
 	struct rhash_head __rcu **pprev;
 	struct rhash_head *he;
 	spinlock_t * lock;
+=======
+	struct rhash_lock_head __rcu **bkt;
+	struct rhash_head __rcu **pprev;
+	struct rhash_head *he;
+>>>>>>> upstream/android-13
 	unsigned int hash;
 	int err = -ENOENT;
 
 	hash = rht_head_hashfn(ht, tbl, obj, params);
+<<<<<<< HEAD
 	lock = rht_bucket_lock(tbl, hash);
 
 	spin_lock_bh(lock);
 
 	pprev = rht_bucket_var(tbl, hash);
 	rht_for_each_continue(he, *pprev, tbl, hash) {
+=======
+	bkt = rht_bucket_var(tbl, hash);
+	if (!bkt)
+		return -ENOENT;
+	pprev = NULL;
+	rht_lock(tbl, bkt);
+
+	rht_for_each_from(he, rht_ptr(bkt, tbl, hash), tbl, hash) {
+>>>>>>> upstream/android-13
 		struct rhlist_head *list;
 
 		list = container_of(he, struct rhlist_head, rhead);
@@ -925,12 +1317,26 @@ static inline int __rhashtable_remove_fast_one(
 			}
 		}
 
+<<<<<<< HEAD
 		rcu_assign_pointer(*pprev, obj);
 		break;
 	}
 
 	spin_unlock_bh(lock);
 
+=======
+		if (pprev) {
+			rcu_assign_pointer(*pprev, obj);
+			rht_unlock(tbl, bkt);
+		} else {
+			rht_assign_unlock(tbl, bkt, obj);
+		}
+		goto unlocked;
+	}
+
+	rht_unlock(tbl, bkt);
+unlocked:
+>>>>>>> upstream/android-13
 	if (err > 0) {
 		atomic_dec(&ht->nelems);
 		if (unlikely(ht->p.automatic_shrinking &&
@@ -1019,9 +1425,15 @@ static inline int __rhashtable_replace_fast(
 	struct rhash_head *obj_old, struct rhash_head *obj_new,
 	const struct rhashtable_params params)
 {
+<<<<<<< HEAD
 	struct rhash_head __rcu **pprev;
 	struct rhash_head *he;
 	spinlock_t *lock;
+=======
+	struct rhash_lock_head __rcu **bkt;
+	struct rhash_head __rcu **pprev;
+	struct rhash_head *he;
+>>>>>>> upstream/android-13
 	unsigned int hash;
 	int err = -ENOENT;
 
@@ -1032,18 +1444,30 @@ static inline int __rhashtable_replace_fast(
 	if (hash != rht_head_hashfn(ht, tbl, obj_new, params))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	lock = rht_bucket_lock(tbl, hash);
 
 	spin_lock_bh(lock);
 
 	pprev = rht_bucket_var(tbl, hash);
 	rht_for_each_continue(he, *pprev, tbl, hash) {
+=======
+	bkt = rht_bucket_var(tbl, hash);
+	if (!bkt)
+		return -ENOENT;
+
+	pprev = NULL;
+	rht_lock(tbl, bkt);
+
+	rht_for_each_from(he, rht_ptr(bkt, tbl, hash), tbl, hash) {
+>>>>>>> upstream/android-13
 		if (he != obj_old) {
 			pprev = &he->next;
 			continue;
 		}
 
 		rcu_assign_pointer(obj_new->next, obj_old->next);
+<<<<<<< HEAD
 		rcu_assign_pointer(*pprev, obj_new);
 		err = 0;
 		break;
@@ -1051,6 +1475,21 @@ static inline int __rhashtable_replace_fast(
 
 	spin_unlock_bh(lock);
 
+=======
+		if (pprev) {
+			rcu_assign_pointer(*pprev, obj_new);
+			rht_unlock(tbl, bkt);
+		} else {
+			rht_assign_unlock(tbl, bkt, obj_new);
+		}
+		err = 0;
+		goto unlocked;
+	}
+
+	rht_unlock(tbl, bkt);
+
+unlocked:
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -1095,6 +1534,7 @@ static inline int rhashtable_replace_fast(
 	return err;
 }
 
+<<<<<<< HEAD
 /* Obsolete function, do not use in new code. */
 static inline int rhashtable_walk_init(struct rhashtable *ht,
 				       struct rhashtable_iter *iter, gfp_t gfp)
@@ -1103,6 +1543,8 @@ static inline int rhashtable_walk_init(struct rhashtable *ht,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * rhltable_walk_enter - Initialise an iterator
  * @hlt:	Table to walk over

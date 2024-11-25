@@ -57,8 +57,11 @@
 		compatible = "gpio-keys-polled";
 		pinctrl-names = "default";
 		pinctrl-0 = <&gpio_joystick_pins>;
+<<<<<<< HEAD
 		#address-cells = <1>;
 		#size-cells = <0>;
+=======
+>>>>>>> upstream/android-13
 		poll-interval = <100>;
 		autorepeat;
 

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * errors.h - Definitions of errors for DIM2 HAL API
  * (MediaLB, Device Interface Macro IP, OS62420)

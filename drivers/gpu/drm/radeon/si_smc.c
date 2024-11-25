@@ -23,7 +23,11 @@
  */
 
 #include <linux/firmware.h>
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+
+>>>>>>> upstream/android-13
 #include "radeon.h"
 #include "sid.h"
 #include "ppsmc.h"

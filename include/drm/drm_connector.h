@@ -28,6 +28,10 @@
 #include <linux/ctype.h>
 #include <linux/hdmi.h>
 #include <drm/drm_mode_object.h>
+<<<<<<< HEAD
+=======
+#include <drm/drm_util.h>
+>>>>>>> upstream/android-13
 
 #include <uapi/drm/drm_mode.h>
 
@@ -39,8 +43,13 @@ struct drm_encoder;
 struct drm_property;
 struct drm_property_blob;
 struct drm_printer;
+<<<<<<< HEAD
 struct drm_panel;
 struct edid;
+=======
+struct edid;
+struct i2c_adapter;
+>>>>>>> upstream/android-13
 
 enum drm_connector_force {
 	DRM_FORCE_UNSPECIFIED,
@@ -82,6 +91,56 @@ enum drm_connector_status {
 	connector_status_unknown = 3,
 };
 
+<<<<<<< HEAD
+=======
+/**
+ * enum drm_connector_registration_state - userspace registration status for
+ * a &drm_connector
+ *
+ * This enum is used to track the status of initializing a connector and
+ * registering it with userspace, so that DRM can prevent bogus modesets on
+ * connectors that no longer exist.
+ */
+enum drm_connector_registration_state {
+	/**
+	 * @DRM_CONNECTOR_INITIALIZING: The connector has just been created,
+	 * but has yet to be exposed to userspace. There should be no
+	 * additional restrictions to how the state of this connector may be
+	 * modified.
+	 */
+	DRM_CONNECTOR_INITIALIZING = 0,
+
+	/**
+	 * @DRM_CONNECTOR_REGISTERED: The connector has been fully initialized
+	 * and registered with sysfs, as such it has been exposed to
+	 * userspace. There should be no additional restrictions to how the
+	 * state of this connector may be modified.
+	 */
+	DRM_CONNECTOR_REGISTERED = 1,
+
+	/**
+	 * @DRM_CONNECTOR_UNREGISTERED: The connector has either been exposed
+	 * to userspace and has since been unregistered and removed from
+	 * userspace, or the connector was unregistered before it had a chance
+	 * to be exposed to userspace (e.g. still in the
+	 * @DRM_CONNECTOR_INITIALIZING state). When a connector is
+	 * unregistered, there are additional restrictions to how its state
+	 * may be modified:
+	 *
+	 * - An unregistered connector may only have its DPMS changed from
+	 *   On->Off. Once DPMS is changed to Off, it may not be switched back
+	 *   to On.
+	 * - Modesets are not allowed on unregistered connectors, unless they
+	 *   would result in disabling its assigned CRTCs. This means
+	 *   disabling a CRTC on an unregistered connector is OK, but enabling
+	 *   one is not.
+	 * - Removing a CRTC from an unregistered connector is OK, but new
+	 *   CRTCs may never be assigned to an unregistered connector.
+	 */
+	DRM_CONNECTOR_UNREGISTERED = 2,
+};
+
+>>>>>>> upstream/android-13
 enum subpixel_order {
 	SubPixelUnknown = 0,
 	SubPixelHorizontalRGB,
@@ -127,6 +186,49 @@ struct drm_scdc {
 	struct drm_scrambling scrambling;
 };
 
+<<<<<<< HEAD
+=======
+/**
+ * struct drm_hdmi_dsc_cap - DSC capabilities of HDMI sink
+ *
+ * Describes the DSC support provided by HDMI 2.1 sink.
+ * The information is fetched fom additional HFVSDB blocks defined
+ * for HDMI 2.1.
+ */
+struct drm_hdmi_dsc_cap {
+	/** @v_1p2: flag for dsc1.2 version support by sink */
+	bool v_1p2;
+
+	/** @native_420: Does sink support DSC with 4:2:0 compression */
+	bool native_420;
+
+	/**
+	 * @all_bpp: Does sink support all bpp with 4:4:4: or 4:2:2
+	 * compressed formats
+	 */
+	bool all_bpp;
+
+	/**
+	 * @bpc_supported: compressed bpc supported by sink : 10, 12 or 16 bpc
+	 */
+	u8 bpc_supported;
+
+	/** @max_slices: maximum number of Horizontal slices supported by */
+	u8 max_slices;
+
+	/** @clk_per_slice : max pixel clock in MHz supported per slice */
+	int clk_per_slice;
+
+	/** @max_lanes : dsc max lanes supported for Fixed rate Link training */
+	u8 max_lanes;
+
+	/** @max_frl_rate_per_lane : maximum frl rate with DSC per lane */
+	u8 max_frl_rate_per_lane;
+
+	/** @total_chunk_kbytes: max size of chunks in KBs supported per line*/
+	u8 total_chunk_kbytes;
+};
+>>>>>>> upstream/android-13
 
 /**
  * struct drm_hdmi_info - runtime information about the connected HDMI sink
@@ -140,6 +242,7 @@ struct drm_hdmi_info {
 
 	/**
 	 * @y420_vdb_modes: bitmap of modes which can support ycbcr420
+<<<<<<< HEAD
 	 * output only (not normal RGB/YCBCR444/422 outputs). There are total
 	 * 107 VICs defined by CEA-861-F spec, so the size is 128 bits to map
 	 * upto 128 VICs;
@@ -153,12 +256,39 @@ struct drm_hdmi_info {
 	 * 128 VICs;
 	 */
 	unsigned long y420_cmdb_modes[BITS_TO_LONGS(128)];
+=======
+	 * output only (not normal RGB/YCBCR444/422 outputs). The max VIC
+	 * defined by the CEA-861-G spec is 219, so the size is 256 bits to map
+	 * up to 256 VICs.
+	 */
+	unsigned long y420_vdb_modes[BITS_TO_LONGS(256)];
+
+	/**
+	 * @y420_cmdb_modes: bitmap of modes which can support ycbcr420
+	 * output also, along with normal HDMI outputs. The max VIC defined by
+	 * the CEA-861-G spec is 219, so the size is 256 bits to map up to 256
+	 * VICs.
+	 */
+	unsigned long y420_cmdb_modes[BITS_TO_LONGS(256)];
+>>>>>>> upstream/android-13
 
 	/** @y420_cmdb_map: bitmap of SVD index, to extraxt vcb modes */
 	u64 y420_cmdb_map;
 
 	/** @y420_dc_modes: bitmap of deep color support index */
 	u8 y420_dc_modes;
+<<<<<<< HEAD
+=======
+
+	/** @max_frl_rate_per_lane: support fixed rate link */
+	u8 max_frl_rate_per_lane;
+
+	/** @max_lanes: supported by sink */
+	u8 max_lanes;
+
+	/** @dsc_cap: DSC capabilities of the sink */
+	struct drm_hdmi_dsc_cap dsc_cap;
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -206,6 +336,26 @@ enum drm_panel_orientation {
 	DRM_MODE_PANEL_ORIENTATION_RIGHT_UP,
 };
 
+<<<<<<< HEAD
+=======
+/**
+ * struct drm_monitor_range_info - Panel's Monitor range in EDID for
+ * &drm_display_info
+ *
+ * This struct is used to store a frequency range supported by panel
+ * as parsed from EDID's detailed monitor range descriptor block.
+ *
+ * @min_vfreq: This is the min supported refresh rate in Hz from
+ *             EDID's detailed monitor range.
+ * @max_vfreq: This is the max supported refresh rate in Hz from
+ *             EDID's detailed monitor range
+ */
+struct drm_monitor_range_info {
+	u8 min_vfreq;
+	u8 max_vfreq;
+};
+
+>>>>>>> upstream/android-13
 /*
  * This is a consolidated colorimetry list supported by HDMI and
  * DP protocol standard. The respective connectors will register
@@ -233,12 +383,130 @@ enum drm_panel_orientation {
 /* Additional Colorimetry extension added as part of CTA 861.G */
 #define DRM_MODE_COLORIMETRY_DCI_P3_RGB_D65		11
 #define DRM_MODE_COLORIMETRY_DCI_P3_RGB_THEATER		12
+<<<<<<< HEAD
 /* DP MSA Colorimetry Options */
 #define DRM_MODE_DP_COLORIMETRY_BT601_YCC		13
 #define DRM_MODE_DP_COLORIMETRY_BT709_YCC		14
 #define DRM_MODE_DP_COLORIMETRY_SRGB			15
 #define DRM_MODE_DP_COLORIMETRY_RGB_WIDE_GAMUT		16
 #define DRM_MODE_DP_COLORIMETRY_SCRGB			17
+=======
+/* Additional Colorimetry Options added for DP 1.4a VSC Colorimetry Format */
+#define DRM_MODE_COLORIMETRY_RGB_WIDE_FIXED		13
+#define DRM_MODE_COLORIMETRY_RGB_WIDE_FLOAT		14
+#define DRM_MODE_COLORIMETRY_BT601_YCC			15
+
+/**
+ * enum drm_bus_flags - bus_flags info for &drm_display_info
+ *
+ * This enum defines signal polarities and clock edge information for signals on
+ * a bus as bitmask flags.
+ *
+ * The clock edge information is conveyed by two sets of symbols,
+ * DRM_BUS_FLAGS_*_DRIVE_\* and DRM_BUS_FLAGS_*_SAMPLE_\*. When this enum is
+ * used to describe a bus from the point of view of the transmitter, the
+ * \*_DRIVE_\* flags should be used. When used from the point of view of the
+ * receiver, the \*_SAMPLE_\* flags should be used. The \*_DRIVE_\* and
+ * \*_SAMPLE_\* flags alias each other, with the \*_SAMPLE_POSEDGE and
+ * \*_SAMPLE_NEGEDGE flags being equal to \*_DRIVE_NEGEDGE and \*_DRIVE_POSEDGE
+ * respectively. This simplifies code as signals are usually sampled on the
+ * opposite edge of the driving edge. Transmitters and receivers may however
+ * need to take other signal timings into account to convert between driving
+ * and sample edges.
+ */
+enum drm_bus_flags {
+	/**
+	 * @DRM_BUS_FLAG_DE_LOW:
+	 *
+	 * The Data Enable signal is active low
+	 */
+	DRM_BUS_FLAG_DE_LOW = BIT(0),
+
+	/**
+	 * @DRM_BUS_FLAG_DE_HIGH:
+	 *
+	 * The Data Enable signal is active high
+	 */
+	DRM_BUS_FLAG_DE_HIGH = BIT(1),
+
+	/**
+	 * @DRM_BUS_FLAG_PIXDATA_DRIVE_POSEDGE:
+	 *
+	 * Data is driven on the rising edge of the pixel clock
+	 */
+	DRM_BUS_FLAG_PIXDATA_DRIVE_POSEDGE = BIT(2),
+
+	/**
+	 * @DRM_BUS_FLAG_PIXDATA_DRIVE_NEGEDGE:
+	 *
+	 * Data is driven on the falling edge of the pixel clock
+	 */
+	DRM_BUS_FLAG_PIXDATA_DRIVE_NEGEDGE = BIT(3),
+
+	/**
+	 * @DRM_BUS_FLAG_PIXDATA_SAMPLE_POSEDGE:
+	 *
+	 * Data is sampled on the rising edge of the pixel clock
+	 */
+	DRM_BUS_FLAG_PIXDATA_SAMPLE_POSEDGE = DRM_BUS_FLAG_PIXDATA_DRIVE_NEGEDGE,
+
+	/**
+	 * @DRM_BUS_FLAG_PIXDATA_SAMPLE_NEGEDGE:
+	 *
+	 * Data is sampled on the falling edge of the pixel clock
+	 */
+	DRM_BUS_FLAG_PIXDATA_SAMPLE_NEGEDGE = DRM_BUS_FLAG_PIXDATA_DRIVE_POSEDGE,
+
+	/**
+	 * @DRM_BUS_FLAG_DATA_MSB_TO_LSB:
+	 *
+	 * Data is transmitted MSB to LSB on the bus
+	 */
+	DRM_BUS_FLAG_DATA_MSB_TO_LSB = BIT(4),
+
+	/**
+	 * @DRM_BUS_FLAG_DATA_LSB_TO_MSB:
+	 *
+	 * Data is transmitted LSB to MSB on the bus
+	 */
+	DRM_BUS_FLAG_DATA_LSB_TO_MSB = BIT(5),
+
+	/**
+	 * @DRM_BUS_FLAG_SYNC_DRIVE_POSEDGE:
+	 *
+	 * Sync signals are driven on the rising edge of the pixel clock
+	 */
+	DRM_BUS_FLAG_SYNC_DRIVE_POSEDGE = BIT(6),
+
+	/**
+	 * @DRM_BUS_FLAG_SYNC_DRIVE_NEGEDGE:
+	 *
+	 * Sync signals are driven on the falling edge of the pixel clock
+	 */
+	DRM_BUS_FLAG_SYNC_DRIVE_NEGEDGE = BIT(7),
+
+	/**
+	 * @DRM_BUS_FLAG_SYNC_SAMPLE_POSEDGE:
+	 *
+	 * Sync signals are sampled on the rising edge of the pixel clock
+	 */
+	DRM_BUS_FLAG_SYNC_SAMPLE_POSEDGE = DRM_BUS_FLAG_SYNC_DRIVE_NEGEDGE,
+
+	/**
+	 * @DRM_BUS_FLAG_SYNC_SAMPLE_NEGEDGE:
+	 *
+	 * Sync signals are sampled on the falling edge of the pixel clock
+	 */
+	DRM_BUS_FLAG_SYNC_SAMPLE_NEGEDGE = DRM_BUS_FLAG_SYNC_DRIVE_POSEDGE,
+
+	/**
+	 * @DRM_BUS_FLAG_SHARP_SIGNALS:
+	 *
+	 *  Set if the Sharp-specific signals (SPL, CLS, PS, REV) must be used
+	 */
+	DRM_BUS_FLAG_SHARP_SIGNALS = BIT(8),
+};
+>>>>>>> upstream/android-13
 
 /**
  * struct drm_display_info - runtime data about the connected sink
@@ -253,6 +521,7 @@ enum drm_panel_orientation {
  */
 struct drm_display_info {
 	/**
+<<<<<<< HEAD
 	 * @name: Name of the display.
 	 */
 	char name[DRM_DISPLAY_INFO_LEN];
@@ -261,18 +530,27 @@ struct drm_display_info {
 	 * @width_mm: Physical width in mm.
 	 */
         unsigned int width_mm;
+=======
+	 * @width_mm: Physical width in mm.
+	 */
+	unsigned int width_mm;
+
+>>>>>>> upstream/android-13
 	/**
 	 * @height_mm: Physical height in mm.
 	 */
 	unsigned int height_mm;
 
 	/**
+<<<<<<< HEAD
 	 * @pixel_clock: Maximum pixel clock supported by the sink, in units of
 	 * 100Hz. This mismatches the clock in &drm_display_mode (which is in
 	 * kHZ), because that's what the EDID uses as base unit.
 	 */
 	unsigned int pixel_clock;
 	/**
+=======
+>>>>>>> upstream/android-13
 	 * @bpc: Maximum bits per color channel. Used by HDMI and DP outputs.
 	 */
 	unsigned int bpc;
@@ -315,6 +593,7 @@ struct drm_display_info {
 	 */
 	unsigned int num_bus_formats;
 
+<<<<<<< HEAD
 #define DRM_BUS_FLAG_DE_LOW		(1<<0)
 #define DRM_BUS_FLAG_DE_HIGH		(1<<1)
 /* drive data on pos. edge */
@@ -333,6 +612,12 @@ struct drm_display_info {
 	/**
 	 * @bus_flags: Additional information (like pixel signal polarity) for
 	 * the pixel data on the bus, using DRM_BUS_FLAGS\_ defines.
+=======
+	/**
+	 * @bus_flags: Additional information (like pixel signal polarity) for
+	 * the pixel data on the bus, using &enum drm_bus_flags values
+	 * DRM_BUS_FLAGS\_.
+>>>>>>> upstream/android-13
 	 */
 	u32 bus_flags;
 
@@ -348,15 +633,45 @@ struct drm_display_info {
 	bool dvi_dual;
 
 	/**
+<<<<<<< HEAD
+=======
+	 * @is_hdmi: True if the sink is an HDMI device.
+	 *
+	 * This field shall be used instead of calling
+	 * drm_detect_hdmi_monitor() when possible.
+	 */
+	bool is_hdmi;
+
+	/**
+>>>>>>> upstream/android-13
 	 * @has_hdmi_infoframe: Does the sink support the HDMI infoframe?
 	 */
 	bool has_hdmi_infoframe;
 
 	/**
+<<<<<<< HEAD
 	 * @edid_hdmi_dc_modes: Mask of supported hdmi deep color modes. Even
 	 * more stuff redundant with @bus_formats.
 	 */
 	u8 edid_hdmi_dc_modes;
+=======
+	 * @rgb_quant_range_selectable: Does the sink support selecting
+	 * the RGB quantization range?
+	 */
+	bool rgb_quant_range_selectable;
+
+	/**
+	 * @edid_hdmi_rgb444_dc_modes: Mask of supported hdmi deep color modes
+	 * in RGB 4:4:4. Even more stuff redundant with @bus_formats.
+	 */
+	u8 edid_hdmi_rgb444_dc_modes;
+
+	/**
+	 * @edid_hdmi_ycbcr444_dc_modes: Mask of supported hdmi deep color
+	 * modes in YCbCr 4:4:4. Even more stuff redundant with @bus_formats.
+	 */
+	u8 edid_hdmi_ycbcr444_dc_modes;
+>>>>>>> upstream/android-13
 
 	/**
 	 * @cea_rev: CEA revision of the HDMI sink.
@@ -372,6 +687,14 @@ struct drm_display_info {
 	 * @non_desktop: Non desktop display (HMD).
 	 */
 	bool non_desktop;
+<<<<<<< HEAD
+=======
+
+	/**
+	 * @monitor_range: Frequency range supported by monitor range descriptor
+	 */
+	struct drm_monitor_range_info monitor_range;
+>>>>>>> upstream/android-13
 };
 
 int drm_display_info_set_bus_formats(struct drm_display_info *info,
@@ -379,6 +702,7 @@ int drm_display_info_set_bus_formats(struct drm_display_info *info,
 				     unsigned int num_formats);
 
 /**
+<<<<<<< HEAD
  * struct drm_tv_connector_state - TV connector related states
  * @subconnector: selected subconnector
  * @margins: margins
@@ -386,6 +710,39 @@ int drm_display_info_set_bus_formats(struct drm_display_info *info,
  * @margins.right: right margin
  * @margins.top: top margin
  * @margins.bottom: bottom margin
+=======
+ * struct drm_connector_tv_margins - TV connector related margins
+ *
+ * Describes the margins in pixels to put around the image on TV
+ * connectors to deal with overscan.
+ */
+struct drm_connector_tv_margins {
+	/**
+	 * @bottom: Bottom margin in pixels.
+	 */
+	unsigned int bottom;
+
+	/**
+	 * @left: Left margin in pixels.
+	 */
+	unsigned int left;
+
+	/**
+	 * @right: Right margin in pixels.
+	 */
+	unsigned int right;
+
+	/**
+	 * @top: Top margin in pixels.
+	 */
+	unsigned int top;
+};
+
+/**
+ * struct drm_tv_connector_state - TV connector related states
+ * @subconnector: selected subconnector
+ * @margins: TV margins
+>>>>>>> upstream/android-13
  * @mode: TV mode
  * @brightness: brightness in percent
  * @contrast: contrast in percent
@@ -396,12 +753,16 @@ int drm_display_info_set_bus_formats(struct drm_display_info *info,
  */
 struct drm_tv_connector_state {
 	enum drm_mode_subconnector subconnector;
+<<<<<<< HEAD
 	struct {
 		unsigned int left;
 		unsigned int right;
 		unsigned int top;
 		unsigned int bottom;
 	} margins;
+=======
+	struct drm_connector_tv_margins margins;
+>>>>>>> upstream/android-13
 	unsigned int mode;
 	unsigned int brightness;
 	unsigned int contrast;
@@ -432,6 +793,18 @@ struct drm_connector_state {
 	 * Used by the atomic helpers to select the encoder, through the
 	 * &drm_connector_helper_funcs.atomic_best_encoder or
 	 * &drm_connector_helper_funcs.best_encoder callbacks.
+<<<<<<< HEAD
+=======
+	 *
+	 * This is also used in the atomic helpers to map encoders to their
+	 * current and previous connectors, see
+	 * drm_atomic_get_old_connector_for_encoder() and
+	 * drm_atomic_get_new_connector_for_encoder().
+	 *
+	 * NOTE: Atomic drivers must fill this out (either themselves or through
+	 * helpers), for otherwise the GETCONNECTOR and GETENCODER IOCTLs will
+	 * not return correct data to userspace.
+>>>>>>> upstream/android-13
 	 */
 	struct drm_encoder *best_encoder;
 
@@ -455,6 +828,23 @@ struct drm_connector_state {
 	struct drm_tv_connector_state tv;
 
 	/**
+<<<<<<< HEAD
+=======
+	 * @self_refresh_aware:
+	 *
+	 * This tracks whether a connector is aware of the self refresh state.
+	 * It should be set to true for those connector implementations which
+	 * understand the self refresh state. This is needed since the crtc
+	 * registers the self refresh helpers and it doesn't know if the
+	 * connectors downstream have implemented self refresh entry/exit.
+	 *
+	 * Drivers should set this to true in atomic_check if they know how to
+	 * handle self_refresh requests.
+	 */
+	bool self_refresh_aware;
+
+	/**
+>>>>>>> upstream/android-13
 	 * @picture_aspect_ratio: Connector property to control the
 	 * HDMI infoframe aspect ratio setting.
 	 *
@@ -472,6 +862,15 @@ struct drm_connector_state {
 	unsigned int content_type;
 
 	/**
+<<<<<<< HEAD
+=======
+	 * @hdcp_content_type: Connector property to pass the type of
+	 * protected content. This is most commonly used for HDCP.
+	 */
+	unsigned int hdcp_content_type;
+
+	/**
+>>>>>>> upstream/android-13
 	 * @scaling_mode: Connector property to control the
 	 * upscaling, mostly used for built-in panels.
 	 */
@@ -502,6 +901,27 @@ struct drm_connector_state {
 	 * drm_writeback_signal_completion()
 	 */
 	struct drm_writeback_job *writeback_job;
+<<<<<<< HEAD
+=======
+
+	/**
+	 * @max_requested_bpc: Connector property to limit the maximum bit
+	 * depth of the pixels.
+	 */
+	u8 max_requested_bpc;
+
+	/**
+	 * @max_bpc: Connector max_bpc based on the requested max_bpc property
+	 * and the connector bpc limitations obtained from edid.
+	 */
+	u8 max_bpc;
+
+	/**
+	 * @hdr_output_metadata:
+	 * DRM blob property for HDR output metadata
+	 */
+	struct drm_property_blob *hdr_output_metadata;
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -564,6 +984,14 @@ struct drm_connector_funcs {
 	 * locks to avoid races with concurrent modeset changes need to use
 	 * &drm_connector_helper_funcs.detect_ctx instead.
 	 *
+<<<<<<< HEAD
+=======
+	 * Also note that this callback can be called no matter the
+	 * state the connector is in. Drivers that need the underlying
+	 * device to be powered to perform the detection will first need
+	 * to make sure it's been properly enabled.
+	 *
+>>>>>>> upstream/android-13
 	 * RETURNS:
 	 *
 	 * drm_connector_status indicating the connector's status.
@@ -797,6 +1225,7 @@ struct drm_connector_funcs {
 				   const struct drm_connector_state *state);
 };
 
+<<<<<<< HEAD
 /* mode specified on the command line */
 struct drm_cmdline_mode {
 	bool specified;
@@ -810,6 +1239,133 @@ struct drm_cmdline_mode {
 	bool cvt;
 	bool margins;
 	enum drm_connector_force force;
+=======
+/**
+ * struct drm_cmdline_mode - DRM Mode passed through the kernel command-line
+ *
+ * Each connector can have an initial mode with additional options
+ * passed through the kernel command line. This structure allows to
+ * express those parameters and will be filled by the command-line
+ * parser.
+ */
+struct drm_cmdline_mode {
+	/**
+	 * @name:
+	 *
+	 * Name of the mode.
+	 */
+	char name[DRM_DISPLAY_MODE_LEN];
+
+	/**
+	 * @specified:
+	 *
+	 * Has a mode been read from the command-line?
+	 */
+	bool specified;
+
+	/**
+	 * @refresh_specified:
+	 *
+	 * Did the mode have a preferred refresh rate?
+	 */
+	bool refresh_specified;
+
+	/**
+	 * @bpp_specified:
+	 *
+	 * Did the mode have a preferred BPP?
+	 */
+	bool bpp_specified;
+
+	/**
+	 * @xres:
+	 *
+	 * Active resolution on the X axis, in pixels.
+	 */
+	int xres;
+
+	/**
+	 * @yres:
+	 *
+	 * Active resolution on the Y axis, in pixels.
+	 */
+	int yres;
+
+	/**
+	 * @bpp:
+	 *
+	 * Bits per pixels for the mode.
+	 */
+	int bpp;
+
+	/**
+	 * @refresh:
+	 *
+	 * Refresh rate, in Hertz.
+	 */
+	int refresh;
+
+	/**
+	 * @rb:
+	 *
+	 * Do we need to use reduced blanking?
+	 */
+	bool rb;
+
+	/**
+	 * @interlace:
+	 *
+	 * The mode is interlaced.
+	 */
+	bool interlace;
+
+	/**
+	 * @cvt:
+	 *
+	 * The timings will be calculated using the VESA Coordinated
+	 * Video Timings instead of looking up the mode from a table.
+	 */
+	bool cvt;
+
+	/**
+	 * @margins:
+	 *
+	 * Add margins to the mode calculation (1.8% of xres rounded
+	 * down to 8 pixels and 1.8% of yres).
+	 */
+	bool margins;
+
+	/**
+	 * @force:
+	 *
+	 * Ignore the hotplug state of the connector, and force its
+	 * state to one of the DRM_FORCE_* values.
+	 */
+	enum drm_connector_force force;
+
+	/**
+	 * @rotation_reflection:
+	 *
+	 * Initial rotation and reflection of the mode setup from the
+	 * command line. See DRM_MODE_ROTATE_* and
+	 * DRM_MODE_REFLECT_*. The only rotations supported are
+	 * DRM_MODE_ROTATE_0 and DRM_MODE_ROTATE_180.
+	 */
+	unsigned int rotation_reflection;
+
+	/**
+	 * @panel_orientation:
+	 *
+	 * drm-connector "panel orientation" property override value,
+	 * DRM_MODE_PANEL_ORIENTATION_UNKNOWN if not set.
+	 */
+	enum drm_panel_orientation panel_orientation;
+
+	/**
+	 * @tv_margins: TV margins to apply to the mode.
+	 */
+	struct drm_connector_tv_margins tv_margins;
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -888,16 +1444,29 @@ struct drm_connector {
 	/**
 	 * @ycbcr_420_allowed : This bool indicates if this connector is
 	 * capable of handling YCBCR 420 output. While parsing the EDID
+<<<<<<< HEAD
 	 * blocks, its very helpful to know, if the source is capable of
+=======
+	 * blocks it's very helpful to know if the source is capable of
+>>>>>>> upstream/android-13
 	 * handling YCBCR 420 outputs.
 	 */
 	bool ycbcr_420_allowed;
 
 	/**
+<<<<<<< HEAD
 	 * @registered: Is this connector exposed (registered) with userspace?
 	 * Protected by @mutex.
 	 */
 	bool registered;
+=======
+	 * @registration_state: Is this connector initializing, exposed
+	 * (registered) with userspace, or unregistered?
+	 *
+	 * Protected by @mutex.
+	 */
+	enum drm_connector_registration_state registration_state;
+>>>>>>> upstream/android-13
 
 	/**
 	 * @modes:
@@ -952,10 +1521,22 @@ struct drm_connector {
 	struct drm_property *scaling_mode_property;
 
 	/**
+<<<<<<< HEAD
 	 * @content_protection_property: DRM ENUM property for content
 	 * protection. See drm_connector_attach_content_protection_property().
 	 */
 	struct drm_property *content_protection_property;
+=======
+	 * @vrr_capable_property: Optional property to help userspace
+	 * query hardware support for variable refresh rate on a connector.
+	 * connector. Drivers can add the property to a connector by
+	 * calling drm_connector_attach_vrr_capable_property().
+	 *
+	 * This should be updated only by calling
+	 * drm_connector_set_vrr_capable_property().
+	 */
+	struct drm_property *vrr_capable_property;
+>>>>>>> upstream/android-13
 
 	/**
 	 * @colorspace_property: Connector property to set the suitable
@@ -971,6 +1552,15 @@ struct drm_connector {
 	 */
 	struct drm_property_blob *path_blob_ptr;
 
+<<<<<<< HEAD
+=======
+	/**
+	 * @max_bpc_property: Default connector property for the max bpc to be
+	 * driven out of the connector.
+	 */
+	struct drm_property *max_bpc_property;
+
+>>>>>>> upstream/android-13
 #define DRM_CONNECTOR_POLL_HPD (1 << 0)
 #define DRM_CONNECTOR_POLL_CONNECT (1 << 1)
 #define DRM_CONNECTOR_POLL_DISCONNECT (1 << 2)
@@ -1015,6 +1605,7 @@ struct drm_connector {
 	enum drm_connector_force force;
 	/** @override_edid: has the EDID been overwritten through debugfs for testing? */
 	bool override_edid;
+<<<<<<< HEAD
 
 #define DRM_CONNECTOR_MAX_ENCODER 3
 	/**
@@ -1022,6 +1613,17 @@ struct drm_connector {
 	 * drm_connector_for_each_possible_encoder() to enumerate these.
 	 */
 	uint32_t encoder_ids[DRM_CONNECTOR_MAX_ENCODER];
+=======
+	/** @epoch_counter: used to detect any other changes in connector, besides status */
+	u64 epoch_counter;
+
+	/**
+	 * @possible_encoders: Bit mask of encoders that can drive this
+	 * connector, drm_encoder_index() determines the index into the bitfield
+	 * and the bits are set with drm_connector_attach_encoder().
+	 */
+	u32 possible_encoders;
+>>>>>>> upstream/android-13
 
 	/**
 	 * @encoder: Currently bound encoder driving this connector, if any.
@@ -1046,6 +1648,21 @@ struct drm_connector {
 	 * [0]: progressive, [1]: interlaced
 	 */
 	int audio_latency[2];
+<<<<<<< HEAD
+=======
+
+	/**
+	 * @ddc: associated ddc adapter.
+	 * A connector usually has its associated ddc adapter. If a driver uses
+	 * this field, then an appropriate symbolic link is created in connector
+	 * sysfs directory to make it easy for the user to tell which i2c
+	 * adapter is for a particular display.
+	 *
+	 * The field should be set by calling drm_connector_init_with_ddc().
+	 */
+	struct i2c_adapter *ddc;
+
+>>>>>>> upstream/android-13
 	/**
 	 * @null_edid_counter: track sinks that give us all zeros for the EDID.
 	 * Needed to workaround some HW bugs where we get all 0s
@@ -1055,6 +1672,7 @@ struct drm_connector {
 	/** @bad_edid_counter: track sinks that give us an EDID with invalid checksum */
 	unsigned bad_edid_counter;
 
+<<<<<<< HEAD
 	/*
 	 * @pt_scan_info: PT scan info obtained from the VCDB of EDID
 	 * @it_scan_info: IT scan info obtained from the VCDB of EDID
@@ -1103,12 +1721,23 @@ struct drm_connector {
 	bool supports_scramble;
 	int flags_3d;
 
+=======
+>>>>>>> upstream/android-13
 	/**
 	 * @edid_corrupt: Indicates whether the last read EDID was corrupt. Used
 	 * in Displayport compliance testing - Displayport Link CTS Core 1.2
 	 * rev1.1 4.2.2.6
 	 */
 	bool edid_corrupt;
+<<<<<<< HEAD
+=======
+	/**
+	 * @real_edid_checksum: real edid checksum for corrupted edid block.
+	 * Required in Displayport 1.4 compliance testing
+	 * rev1.1 4.2.2.6
+	 */
+	u8 real_edid_checksum;
+>>>>>>> upstream/android-13
 
 	/** @debugfs_entry: debugfs directory for this connector */
 	struct dentry *debugfs_entry;
@@ -1172,6 +1801,7 @@ struct drm_connector {
 	 */
 	struct llist_node free_node;
 
+<<<<<<< HEAD
 	/**
 	 * @panel:
 	 *
@@ -1185,6 +1815,10 @@ struct drm_connector {
 	 * The calculated checksum value of first 127 bytes of associated EDID.
 	 */
 	u8 checksum;
+=======
+	/** @hdr_sink_metadata: HDR Metadata Information read from sink */
+	struct hdr_sink_metadata hdr_sink_metadata;
+>>>>>>> upstream/android-13
 };
 
 #define obj_to_connector(x) container_of(x, struct drm_connector, base)
@@ -1193,6 +1827,14 @@ int drm_connector_init(struct drm_device *dev,
 		       struct drm_connector *connector,
 		       const struct drm_connector_funcs *funcs,
 		       int connector_type);
+<<<<<<< HEAD
+=======
+int drm_connector_init_with_ddc(struct drm_device *dev,
+				struct drm_connector *connector,
+				const struct drm_connector_funcs *funcs,
+				int connector_type,
+				struct i2c_adapter *ddc);
+>>>>>>> upstream/android-13
 void drm_connector_attach_edid_property(struct drm_connector *connector);
 int drm_connector_register(struct drm_connector *connector);
 void drm_connector_unregister(struct drm_connector *connector);
@@ -1253,6 +1895,7 @@ static inline void drm_connector_put(struct drm_connector *connector)
 }
 
 /**
+<<<<<<< HEAD
  * drm_connector_reference - acquire a connector reference
  * @connector: DRM connector
  *
@@ -1276,6 +1919,26 @@ static inline void drm_connector_unreference(struct drm_connector *connector)
 	drm_connector_put(connector);
 }
 
+=======
+ * drm_connector_is_unregistered - has the connector been unregistered from
+ * userspace?
+ * @connector: DRM connector
+ *
+ * Checks whether or not @connector has been unregistered from userspace.
+ *
+ * Returns:
+ * True if the connector was unregistered, false if the connector is
+ * registered or has not yet been registered with userspace.
+ */
+static inline bool
+drm_connector_is_unregistered(struct drm_connector *connector)
+{
+	return READ_ONCE(connector->registration_state) ==
+		DRM_CONNECTOR_UNREGISTERED;
+}
+
+const char *drm_get_connector_type_name(unsigned int connector_type);
+>>>>>>> upstream/android-13
 const char *drm_get_connector_status_name(enum drm_connector_status status);
 const char *drm_get_subpixel_order_name(enum subpixel_order order);
 const char *drm_get_dpms_name(int val);
@@ -1283,20 +1946,47 @@ const char *drm_get_dvi_i_subconnector_name(int val);
 const char *drm_get_dvi_i_select_name(int val);
 const char *drm_get_tv_subconnector_name(int val);
 const char *drm_get_tv_select_name(int val);
+<<<<<<< HEAD
 const char *drm_get_content_protection_name(int val);
 
 int drm_mode_create_dvi_i_properties(struct drm_device *dev);
 int drm_mode_create_tv_properties(struct drm_device *dev,
 				  unsigned int num_modes,
 				  const char * const modes[]);
+=======
+const char *drm_get_dp_subconnector_name(int val);
+const char *drm_get_content_protection_name(int val);
+const char *drm_get_hdcp_content_type_name(int val);
+
+int drm_mode_create_dvi_i_properties(struct drm_device *dev);
+void drm_connector_attach_dp_subconnector_property(struct drm_connector *connector);
+
+int drm_mode_create_tv_margin_properties(struct drm_device *dev);
+int drm_mode_create_tv_properties(struct drm_device *dev,
+				  unsigned int num_modes,
+				  const char * const modes[]);
+void drm_connector_attach_tv_margin_properties(struct drm_connector *conn);
+>>>>>>> upstream/android-13
 int drm_mode_create_scaling_mode_property(struct drm_device *dev);
 int drm_connector_attach_content_type_property(struct drm_connector *dev);
 int drm_connector_attach_scaling_mode_property(struct drm_connector *connector,
 					       u32 scaling_mode_mask);
+<<<<<<< HEAD
 int drm_connector_attach_content_protection_property(
 		struct drm_connector *connector);
 int drm_mode_create_aspect_ratio_property(struct drm_device *dev);
 int drm_mode_create_colorspace_property(struct drm_connector *connector);
+=======
+int drm_connector_attach_vrr_capable_property(
+		struct drm_connector *connector);
+int drm_connector_attach_colorspace_property(struct drm_connector *connector);
+int drm_connector_attach_hdr_output_metadata_property(struct drm_connector *connector);
+bool drm_connector_atomic_hdr_metadata_equal(struct drm_connector_state *old_state,
+					     struct drm_connector_state *new_state);
+int drm_mode_create_aspect_ratio_property(struct drm_device *dev);
+int drm_mode_create_hdmi_colorspace_property(struct drm_connector *connector);
+int drm_mode_create_dp_colorspace_property(struct drm_connector *connector);
+>>>>>>> upstream/android-13
 int drm_mode_create_content_type_property(struct drm_device *dev);
 void drm_hdmi_avi_infoframe_content_type(struct hdmi_avi_infoframe *frame,
 					 const struct drm_connector_state *conn_state);
@@ -1310,8 +2000,22 @@ int drm_connector_update_edid_property(struct drm_connector *connector,
 				       const struct edid *edid);
 void drm_connector_set_link_status_property(struct drm_connector *connector,
 					    uint64_t link_status);
+<<<<<<< HEAD
 int drm_connector_init_panel_orientation_property(
 	struct drm_connector *connector, int width, int height);
+=======
+void drm_connector_set_vrr_capable_property(
+		struct drm_connector *connector, bool capable);
+int drm_connector_set_panel_orientation(
+	struct drm_connector *connector,
+	enum drm_panel_orientation panel_orientation);
+int drm_connector_set_panel_orientation_with_quirk(
+	struct drm_connector *connector,
+	enum drm_panel_orientation panel_orientation,
+	int width, int height);
+int drm_connector_attach_max_bpc_property(struct drm_connector *connector,
+					  int min, int max);
+>>>>>>> upstream/android-13
 
 /**
  * struct drm_tile_group - Tile group metadata
@@ -1331,9 +2035,15 @@ struct drm_tile_group {
 };
 
 struct drm_tile_group *drm_mode_create_tile_group(struct drm_device *dev,
+<<<<<<< HEAD
 						  char topology[8]);
 struct drm_tile_group *drm_mode_get_tile_group(struct drm_device *dev,
 					       char topology[8]);
+=======
+						  const char topology[8]);
+struct drm_tile_group *drm_mode_get_tile_group(struct drm_device *dev,
+					       const char topology[8]);
+>>>>>>> upstream/android-13
 void drm_mode_put_tile_group(struct drm_device *dev,
 			     struct drm_tile_group *tg);
 
@@ -1345,6 +2055,14 @@ void drm_mode_put_tile_group(struct drm_device *dev,
  * drm_connector_list_iter_begin(), drm_connector_list_iter_end() and
  * drm_connector_list_iter_next() respectively the convenience macro
  * drm_for_each_connector_iter().
+<<<<<<< HEAD
+=======
+ *
+ * Note that the return value of drm_connector_list_iter_next() is only valid
+ * up to the next drm_connector_list_iter_next() or
+ * drm_connector_list_iter_end() call. If you want to use the connector later,
+ * then you need to grab your own reference first using drm_connector_get().
+>>>>>>> upstream/android-13
  */
 struct drm_connector_list_iter {
 /* private: */
@@ -1377,6 +2095,7 @@ bool drm_connector_has_possible_encoder(struct drm_connector *connector,
  * drm_connector_for_each_possible_encoder - iterate connector's possible encoders
  * @connector: &struct drm_connector pointer
  * @encoder: &struct drm_encoder pointer used as cursor
+<<<<<<< HEAD
  * @__i: int iteration cursor, for macro-internal use
  */
 #define drm_connector_for_each_possible_encoder(connector, encoder, __i) \
@@ -1385,5 +2104,11 @@ bool drm_connector_has_possible_encoder(struct drm_connector *connector,
 		for_each_if((encoder) = \
 			    drm_encoder_find((connector)->dev, NULL, \
 					     (connector)->encoder_ids[(__i)])) \
+=======
+ */
+#define drm_connector_for_each_possible_encoder(connector, encoder) \
+	drm_for_each_encoder_mask(encoder, (connector)->dev, \
+				  (connector)->possible_encoders)
+>>>>>>> upstream/android-13
 
 #endif

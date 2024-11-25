@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * cx20442.c  --  CX20442 ALSA Soc Audio driver
  *
@@ -6,11 +10,14 @@
  * Initially based on sound/soc/codecs/wm8400.c
  * Copyright 2008, 2009 Wolfson Microelectronics PLC.
  * Author: Mark Brown <broonie@opensource.wolfsonmicro.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute  it and/or modify it
  *  under  the terms of  the GNU General  Public License as published by the
  *  Free Software Foundation;  either version 2 of the  License, or (at your
  *  option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/tty.h>
@@ -210,7 +217,11 @@ static int cx20442_write(struct snd_soc_component *component, unsigned int reg,
  */
 
 /* Modem init: echo off, digital speaker off, quiet off, voice mode */
+<<<<<<< HEAD
 static const char *v253_init = "ate0m0q0+fclass=8\r";
+=======
+static const char v253_init[] = "ate0m0q0+fclass=8\r";
+>>>>>>> upstream/android-13
 
 /* Line discipline .open() */
 static int v253_open(struct tty_struct *tty)
@@ -263,8 +274,13 @@ static int v253_hangup(struct tty_struct *tty)
 }
 
 /* Line discipline .receive_buf() */
+<<<<<<< HEAD
 static void v253_receive(struct tty_struct *tty,
 				const unsigned char *cp, char *fp, int count)
+=======
+static void v253_receive(struct tty_struct *tty, const unsigned char *cp,
+		const char *fp, int count)
+>>>>>>> upstream/android-13
 {
 	struct snd_soc_component *component = tty->disc_data;
 	struct cx20442_priv *cx20442;
@@ -283,6 +299,7 @@ static void v253_receive(struct tty_struct *tty,
 	}
 }
 
+<<<<<<< HEAD
 /* Line discipline .write_wakeup() */
 static void v253_wakeup(struct tty_struct *tty)
 {
@@ -290,13 +307,19 @@ static void v253_wakeup(struct tty_struct *tty)
 
 struct tty_ldisc_ops v253_ops = {
 	.magic = TTY_LDISC_MAGIC,
+=======
+struct tty_ldisc_ops v253_ops = {
+>>>>>>> upstream/android-13
 	.name = "cx20442",
 	.owner = THIS_MODULE,
 	.open = v253_open,
 	.close = v253_close,
 	.hangup = v253_hangup,
 	.receive_buf = v253_receive,
+<<<<<<< HEAD
 	.write_wakeup = v253_wakeup,
+=======
+>>>>>>> upstream/android-13
 };
 EXPORT_SYMBOL_GPL(v253_ops);
 

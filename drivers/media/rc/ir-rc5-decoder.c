@@ -16,7 +16,11 @@
 #define RC5_SZ_NBITS		15
 #define RC5X_NBITS		20
 #define CHECK_RC5X_NBITS	8
+<<<<<<< HEAD
 #define RC5_UNIT		888888 /* ns */
+=======
+#define RC5_UNIT		889 /* us */
+>>>>>>> upstream/android-13
 #define RC5_BIT_START		(1 * RC5_UNIT)
 #define RC5_BIT_END		(1 * RC5_UNIT)
 #define RC5X_SPACE		(4 * RC5_UNIT)
@@ -55,7 +59,11 @@ static int ir_rc5_decode(struct rc_dev *dev, struct ir_raw_event ev)
 
 again:
 	dev_dbg(&dev->dev, "RC5(x/sz) decode started at state %i (%uus %s)\n",
+<<<<<<< HEAD
 		data->state, TO_US(ev.duration), TO_STR(ev.pulse));
+=======
+		data->state, ev.duration, TO_STR(ev.pulse));
+>>>>>>> upstream/android-13
 
 	if (!geq_margin(ev.duration, RC5_UNIT, RC5_UNIT / 2))
 		return 0;
@@ -164,7 +172,11 @@ again:
 
 out:
 	dev_dbg(&dev->dev, "RC5(x/sz) decode failed at state %i count %d (%uus %s)\n",
+<<<<<<< HEAD
 		data->state, data->count, TO_US(ev.duration), TO_STR(ev.pulse));
+=======
+		data->state, data->count, ev.duration, TO_STR(ev.pulse));
+>>>>>>> upstream/android-13
 	data->state = STATE_INACTIVE;
 	return -EINVAL;
 }

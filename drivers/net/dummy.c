@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* dummy.c: a dummy net driver
 
 	The purpose of this driver is to provide a device to point a
@@ -32,6 +36,10 @@
 #include <linux/kernel.h>
 #include <linux/netdevice.h>
 #include <linux/etherdevice.h>
+<<<<<<< HEAD
+=======
+#include <linux/ethtool.h>
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/moduleparam.h>
 #include <linux/rtnetlink.h>
@@ -40,7 +48,10 @@
 #include <linux/u64_stats_sync.h>
 
 #define DRV_NAME	"dummy"
+<<<<<<< HEAD
 #define DRV_VERSION	"1.0"
+=======
+>>>>>>> upstream/android-13
 
 static int numdummies = 1;
 
@@ -49,6 +60,7 @@ static void set_multicast_list(struct net_device *dev)
 {
 }
 
+<<<<<<< HEAD
 struct pcpu_dstats {
 	u64			tx_packets;
 	u64			tx_bytes;
@@ -74,16 +86,26 @@ static void dummy_get_stats64(struct net_device *dev,
 		stats->tx_bytes += tbytes;
 		stats->tx_packets += tpackets;
 	}
+=======
+static void dummy_get_stats64(struct net_device *dev,
+			      struct rtnl_link_stats64 *stats)
+{
+	dev_lstats_read(dev, &stats->tx_packets, &stats->tx_bytes);
+>>>>>>> upstream/android-13
 }
 
 static netdev_tx_t dummy_xmit(struct sk_buff *skb, struct net_device *dev)
 {
+<<<<<<< HEAD
 	struct pcpu_dstats *dstats = this_cpu_ptr(dev->dstats);
 
 	u64_stats_update_begin(&dstats->syncp);
 	dstats->tx_packets++;
 	dstats->tx_bytes += skb->len;
 	u64_stats_update_end(&dstats->syncp);
+=======
+	dev_lstats_add(dev, skb->len);
+>>>>>>> upstream/android-13
 
 	skb_tx_timestamp(skb);
 	dev_kfree_skb(skb);
@@ -92,8 +114,13 @@ static netdev_tx_t dummy_xmit(struct sk_buff *skb, struct net_device *dev)
 
 static int dummy_dev_init(struct net_device *dev)
 {
+<<<<<<< HEAD
 	dev->dstats = netdev_alloc_pcpu_stats(struct pcpu_dstats);
 	if (!dev->dstats)
+=======
+	dev->lstats = netdev_alloc_pcpu_stats(struct pcpu_lstats);
+	if (!dev->lstats)
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 
 	return 0;
@@ -101,7 +128,11 @@ static int dummy_dev_init(struct net_device *dev)
 
 static void dummy_dev_uninit(struct net_device *dev)
 {
+<<<<<<< HEAD
 	free_percpu(dev->dstats);
+=======
+	free_percpu(dev->lstats);
+>>>>>>> upstream/android-13
 }
 
 static int dummy_change_carrier(struct net_device *dev, bool new_carrier)
@@ -128,6 +159,7 @@ static void dummy_get_drvinfo(struct net_device *dev,
 			      struct ethtool_drvinfo *info)
 {
 	strlcpy(info->driver, DRV_NAME, sizeof(info->driver));
+<<<<<<< HEAD
 	strlcpy(info->version, DRV_VERSION, sizeof(info->version));
 }
 
@@ -146,6 +178,13 @@ static int dummy_get_ts_info(struct net_device *dev,
 static const struct ethtool_ops dummy_ethtool_ops = {
 	.get_drvinfo            = dummy_get_drvinfo,
 	.get_ts_info		= dummy_get_ts_info,
+=======
+}
+
+static const struct ethtool_ops dummy_ethtool_ops = {
+	.get_drvinfo            = dummy_get_drvinfo,
+	.get_ts_info		= ethtool_op_get_ts_info,
+>>>>>>> upstream/android-13
 };
 
 static void dummy_setup(struct net_device *dev)
@@ -162,7 +201,11 @@ static void dummy_setup(struct net_device *dev)
 	dev->flags &= ~IFF_MULTICAST;
 	dev->priv_flags |= IFF_LIVE_ADDR_CHANGE | IFF_NO_QUEUE;
 	dev->features	|= NETIF_F_SG | NETIF_F_FRAGLIST;
+<<<<<<< HEAD
 	dev->features	|= NETIF_F_ALL_TSO;
+=======
+	dev->features	|= NETIF_F_GSO_SOFTWARE;
+>>>>>>> upstream/android-13
 	dev->features	|= NETIF_F_HW_CSUM | NETIF_F_HIGHDMA | NETIF_F_LLTX;
 	dev->features	|= NETIF_F_GSO_ENCAP_ALL;
 	dev->hw_features |= dev->features;
@@ -248,4 +291,7 @@ module_init(dummy_init_module);
 module_exit(dummy_cleanup_module);
 MODULE_LICENSE("GPL");
 MODULE_ALIAS_RTNL_LINK(DRV_NAME);
+<<<<<<< HEAD
 MODULE_VERSION(DRV_VERSION);
+=======
+>>>>>>> upstream/android-13

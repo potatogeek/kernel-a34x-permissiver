@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2017 Linaro Ltd.
  * Copyright 2017 ZTE Corporation.
@@ -6,6 +7,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright 2017 Linaro Ltd.
+ * Copyright 2017 ZTE Corporation.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __ZX_TVENC_REGS_H__

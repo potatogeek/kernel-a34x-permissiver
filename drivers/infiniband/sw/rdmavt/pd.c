@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2016 Intel Corporation.
  *
@@ -43,6 +44,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause
+/*
+ * Copyright(c) 2016 Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -50,14 +56,19 @@
 
 /**
  * rvt_alloc_pd - allocate a protection domain
+<<<<<<< HEAD
  * @ibdev: ib device
  * @context: optional user context
+=======
+ * @ibpd: PD
+>>>>>>> upstream/android-13
  * @udata: optional user data
  *
  * Allocate and keep track of a PD.
  *
  * Return: 0 on success
  */
+<<<<<<< HEAD
 struct ib_pd *rvt_alloc_pd(struct ib_device *ibdev,
 			   struct ib_ucontext *context,
 			   struct ib_udata *udata)
@@ -71,6 +82,15 @@ struct ib_pd *rvt_alloc_pd(struct ib_device *ibdev,
 		ret = ERR_PTR(-ENOMEM);
 		goto bail;
 	}
+=======
+int rvt_alloc_pd(struct ib_pd *ibpd, struct ib_udata *udata)
+{
+	struct ib_device *ibdev = ibpd->device;
+	struct rvt_dev_info *dev = ib_to_rvt(ibdev);
+	struct rvt_pd *pd = ibpd_to_rvtpd(ibpd);
+	int ret = 0;
+
+>>>>>>> upstream/android-13
 	/*
 	 * While we could continue allocating protecetion domains, being
 	 * constrained only by system resources. The IBTA spec defines that
@@ -81,8 +101,12 @@ struct ib_pd *rvt_alloc_pd(struct ib_device *ibdev,
 	spin_lock(&dev->n_pds_lock);
 	if (dev->n_pds_allocated == dev->dparms.props.max_pd) {
 		spin_unlock(&dev->n_pds_lock);
+<<<<<<< HEAD
 		kfree(pd);
 		ret = ERR_PTR(-ENOMEM);
+=======
+		ret = -ENOMEM;
+>>>>>>> upstream/android-13
 		goto bail;
 	}
 
@@ -92,8 +116,11 @@ struct ib_pd *rvt_alloc_pd(struct ib_device *ibdev,
 	/* ib_alloc_pd() will initialize pd->ibpd. */
 	pd->user = !!udata;
 
+<<<<<<< HEAD
 	ret = &pd->ibpd;
 
+=======
+>>>>>>> upstream/android-13
 bail:
 	return ret;
 }
@@ -101,19 +128,31 @@ bail:
 /**
  * rvt_dealloc_pd - Free PD
  * @ibpd: Free up PD
+<<<<<<< HEAD
  *
  * Return: always 0
  */
 int rvt_dealloc_pd(struct ib_pd *ibpd)
 {
 	struct rvt_pd *pd = ibpd_to_rvtpd(ibpd);
+=======
+ * @udata: Valid user data or NULL for kernel object
+ *
+ * Return: always 0
+ */
+int rvt_dealloc_pd(struct ib_pd *ibpd, struct ib_udata *udata)
+{
+>>>>>>> upstream/android-13
 	struct rvt_dev_info *dev = ib_to_rvt(ibpd->device);
 
 	spin_lock(&dev->n_pds_lock);
 	dev->n_pds_allocated--;
 	spin_unlock(&dev->n_pds_lock);
+<<<<<<< HEAD
 
 	kfree(pd);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }

@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  linux/drivers/mmc/host/wbsd.c - Winbond W83L51xD SD/MMC driver
  *
  *  Copyright (C) 2004-2007 Pierre Ossman, All Rights Reserved.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or (at
  * your option) any later version.
  *
  *
+=======
+>>>>>>> upstream/android-13
  * Warning!
  *
  * Changes to the FIFO system should be done with extreme care since
@@ -33,6 +40,11 @@
 #include <linux/pnp.h>
 #include <linux/highmem.h>
 #include <linux/mmc/host.h>
+<<<<<<< HEAD
+=======
+#include <linux/mmc/mmc.h>
+#include <linux/mmc/sd.h>
+>>>>>>> upstream/android-13
 #include <linux/scatterlist.h>
 #include <linux/slab.h>
 
@@ -775,6 +787,7 @@ static void wbsd_request(struct mmc_host *mmc, struct mmc_request *mrq)
 		 * interrupts.
 		 */
 		switch (cmd->opcode) {
+<<<<<<< HEAD
 		case 11:
 		case 17:
 		case 18:
@@ -786,11 +799,28 @@ static void wbsd_request(struct mmc_host *mmc, struct mmc_request *mrq)
 		case 30:
 		case 42:
 		case 56:
+=======
+		case SD_SWITCH_VOLTAGE:
+		case MMC_READ_SINGLE_BLOCK:
+		case MMC_READ_MULTIPLE_BLOCK:
+		case MMC_WRITE_DAT_UNTIL_STOP:
+		case MMC_WRITE_BLOCK:
+		case MMC_WRITE_MULTIPLE_BLOCK:
+		case MMC_PROGRAM_CID:
+		case MMC_PROGRAM_CSD:
+		case MMC_SEND_WRITE_PROT:
+		case MMC_LOCK_UNLOCK:
+		case MMC_GEN_CMD:
+>>>>>>> upstream/android-13
 			break;
 
 		/* ACMDs. We don't keep track of state, so we just treat them
 		 * like any other command. */
+<<<<<<< HEAD
 		case 51:
+=======
+		case SD_APP_SEND_SCR:
+>>>>>>> upstream/android-13
 			break;
 
 		default:
@@ -990,9 +1020,15 @@ static inline struct mmc_data *wbsd_get_data(struct wbsd_host *host)
 	return host->mrq->cmd->data;
 }
 
+<<<<<<< HEAD
 static void wbsd_tasklet_card(unsigned long param)
 {
 	struct wbsd_host *host = (struct wbsd_host *)param;
+=======
+static void wbsd_tasklet_card(struct tasklet_struct *t)
+{
+	struct wbsd_host *host = from_tasklet(host, t, card_tasklet);
+>>>>>>> upstream/android-13
 	u8 csr;
 	int delay = -1;
 
@@ -1039,9 +1075,15 @@ static void wbsd_tasklet_card(unsigned long param)
 		mmc_detect_change(host->mmc, msecs_to_jiffies(delay));
 }
 
+<<<<<<< HEAD
 static void wbsd_tasklet_fifo(unsigned long param)
 {
 	struct wbsd_host *host = (struct wbsd_host *)param;
+=======
+static void wbsd_tasklet_fifo(struct tasklet_struct *t)
+{
+	struct wbsd_host *host = from_tasklet(host, t, fifo_tasklet);
+>>>>>>> upstream/android-13
 	struct mmc_data *data;
 
 	spin_lock(&host->lock);
@@ -1070,9 +1112,15 @@ end:
 	spin_unlock(&host->lock);
 }
 
+<<<<<<< HEAD
 static void wbsd_tasklet_crc(unsigned long param)
 {
 	struct wbsd_host *host = (struct wbsd_host *)param;
+=======
+static void wbsd_tasklet_crc(struct tasklet_struct *t)
+{
+	struct wbsd_host *host = from_tasklet(host, t, crc_tasklet);
+>>>>>>> upstream/android-13
 	struct mmc_data *data;
 
 	spin_lock(&host->lock);
@@ -1094,9 +1142,15 @@ end:
 	spin_unlock(&host->lock);
 }
 
+<<<<<<< HEAD
 static void wbsd_tasklet_timeout(unsigned long param)
 {
 	struct wbsd_host *host = (struct wbsd_host *)param;
+=======
+static void wbsd_tasklet_timeout(struct tasklet_struct *t)
+{
+	struct wbsd_host *host = from_tasklet(host, t, timeout_tasklet);
+>>>>>>> upstream/android-13
 	struct mmc_data *data;
 
 	spin_lock(&host->lock);
@@ -1118,9 +1172,15 @@ end:
 	spin_unlock(&host->lock);
 }
 
+<<<<<<< HEAD
 static void wbsd_tasklet_finish(unsigned long param)
 {
 	struct wbsd_host *host = (struct wbsd_host *)param;
+=======
+static void wbsd_tasklet_finish(struct tasklet_struct *t)
+{
+	struct wbsd_host *host = from_tasklet(host, t, finish_tasklet);
+>>>>>>> upstream/android-13
 	struct mmc_data *data;
 
 	spin_lock(&host->lock);
@@ -1452,6 +1512,7 @@ static int wbsd_request_irq(struct wbsd_host *host, int irq)
 	/*
 	 * Set up tasklets. Must be done before requesting interrupt.
 	 */
+<<<<<<< HEAD
 	tasklet_init(&host->card_tasklet, wbsd_tasklet_card,
 			(unsigned long)host);
 	tasklet_init(&host->fifo_tasklet, wbsd_tasklet_fifo,
@@ -1462,6 +1523,13 @@ static int wbsd_request_irq(struct wbsd_host *host, int irq)
 			(unsigned long)host);
 	tasklet_init(&host->finish_tasklet, wbsd_tasklet_finish,
 			(unsigned long)host);
+=======
+	tasklet_setup(&host->card_tasklet, wbsd_tasklet_card);
+	tasklet_setup(&host->fifo_tasklet, wbsd_tasklet_fifo);
+	tasklet_setup(&host->crc_tasklet, wbsd_tasklet_crc);
+	tasklet_setup(&host->timeout_tasklet, wbsd_tasklet_timeout);
+	tasklet_setup(&host->finish_tasklet, wbsd_tasklet_finish);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Allocate interrupt.
@@ -1908,6 +1976,10 @@ static struct platform_driver wbsd_driver = {
 	.resume		= wbsd_platform_resume,
 	.driver		= {
 		.name	= DRIVER_NAME,
+<<<<<<< HEAD
+=======
+		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
+>>>>>>> upstream/android-13
 	},
 };
 

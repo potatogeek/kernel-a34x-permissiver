@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * wm8962.c  --  WM8962 ALSA SoC Audio driver
  *
  * Copyright 2010-2 Wolfson Microelectronics plc
  *
  * Author: Mark Brown <broonie@opensource.wolfsonmicro.com>
+<<<<<<< HEAD
  *
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -122,7 +129,11 @@ static const struct reg_default wm8962_reg[] = {
 	{ 5, 0x0018 },   /* R5     - ADC & DAC Control 1 */
 	{ 6, 0x2008 },   /* R6     - ADC & DAC Control 2 */
 	{ 7, 0x000A },   /* R7     - Audio Interface 0 */
+<<<<<<< HEAD
 
+=======
+	{ 8, 0x01E4 },   /* R8     - Clocking2 */
+>>>>>>> upstream/android-13
 	{ 9, 0x0300 },   /* R9     - Audio Interface 1 */
 	{ 10, 0x00C0 },  /* R10    - Left DAC volume */
 	{ 11, 0x00C0 },  /* R11    - Right DAC volume */
@@ -792,7 +803,10 @@ static bool wm8962_volatile_register(struct device *dev, unsigned int reg)
 {
 	switch (reg) {
 	case WM8962_CLOCKING1:
+<<<<<<< HEAD
 	case WM8962_CLOCKING2:
+=======
+>>>>>>> upstream/android-13
 	case WM8962_SOFTWARE_RESET:
 	case WM8962_THERMAL_SHUTDOWN_STATUS:
 	case WM8962_ADDITIONAL_CONTROL_4:
@@ -961,7 +975,10 @@ static bool wm8962_readable_register(struct device *dev, unsigned int reg)
 	case WM8962_EQ39:
 	case WM8962_EQ40:
 	case WM8962_EQ41:
+<<<<<<< HEAD
 	case WM8962_GPIO_BASE:
+=======
+>>>>>>> upstream/android-13
 	case WM8962_GPIO_2:
 	case WM8962_GPIO_3:
 	case WM8962_GPIO_5:
@@ -1485,9 +1502,15 @@ static int wm8962_dsp2_write_config(struct snd_soc_component *component)
 
 static int wm8962_dsp2_set_enable(struct snd_soc_component *component, u16 val)
 {
+<<<<<<< HEAD
 	u16 adcl = snd_soc_component_read32(component, WM8962_LEFT_ADC_VOLUME);
 	u16 adcr = snd_soc_component_read32(component, WM8962_RIGHT_ADC_VOLUME);
 	u16 dac = snd_soc_component_read32(component, WM8962_ADC_DAC_CONTROL_1);
+=======
+	u16 adcl = snd_soc_component_read(component, WM8962_LEFT_ADC_VOLUME);
+	u16 adcr = snd_soc_component_read(component, WM8962_RIGHT_ADC_VOLUME);
+	u16 dac = snd_soc_component_read(component, WM8962_ADC_DAC_CONTROL_1);
+>>>>>>> upstream/android-13
 
 	/* Mute the ADCs and DACs */
 	snd_soc_component_write(component, WM8962_LEFT_ADC_VOLUME, 0);
@@ -1566,7 +1589,11 @@ static int wm8962_dsp2_ena_put(struct snd_kcontrol *kcontrol,
 	struct wm8962_priv *wm8962 = snd_soc_component_get_drvdata(component);
 	int old = wm8962->dsp2_ena;
 	int ret = 0;
+<<<<<<< HEAD
 	int dsp2_running = snd_soc_component_read32(component, WM8962_DSP2_POWER_MANAGEMENT) &
+=======
+	int dsp2_running = snd_soc_component_read(component, WM8962_DSP2_POWER_MANAGEMENT) &
+>>>>>>> upstream/android-13
 		WM8962_DSP2_ENA;
 
 	mutex_lock(&wm8962->dsp2_ena_lock);
@@ -1609,17 +1636,28 @@ static int wm8962_put_hp_sw(struct snd_kcontrol *kcontrol,
 		return 0;
 
 	/* If the left PGA is enabled hit that VU bit... */
+<<<<<<< HEAD
 	ret = snd_soc_component_read32(component, WM8962_PWR_MGMT_2);
 	if (ret & WM8962_HPOUTL_PGA_ENA) {
 		snd_soc_component_write(component, WM8962_HPOUTL_VOLUME,
 			      snd_soc_component_read32(component, WM8962_HPOUTL_VOLUME));
+=======
+	ret = snd_soc_component_read(component, WM8962_PWR_MGMT_2);
+	if (ret & WM8962_HPOUTL_PGA_ENA) {
+		snd_soc_component_write(component, WM8962_HPOUTL_VOLUME,
+			      snd_soc_component_read(component, WM8962_HPOUTL_VOLUME));
+>>>>>>> upstream/android-13
 		return 1;
 	}
 
 	/* ...otherwise the right.  The VU is stereo. */
 	if (ret & WM8962_HPOUTR_PGA_ENA)
 		snd_soc_component_write(component, WM8962_HPOUTR_VOLUME,
+<<<<<<< HEAD
 			      snd_soc_component_read32(component, WM8962_HPOUTR_VOLUME));
+=======
+			      snd_soc_component_read(component, WM8962_HPOUTR_VOLUME));
+>>>>>>> upstream/android-13
 
 	return 1;
 }
@@ -1639,17 +1677,28 @@ static int wm8962_put_spk_sw(struct snd_kcontrol *kcontrol,
 		return 0;
 
 	/* If the left PGA is enabled hit that VU bit... */
+<<<<<<< HEAD
 	ret = snd_soc_component_read32(component, WM8962_PWR_MGMT_2);
 	if (ret & WM8962_SPKOUTL_PGA_ENA) {
 		snd_soc_component_write(component, WM8962_SPKOUTL_VOLUME,
 			      snd_soc_component_read32(component, WM8962_SPKOUTL_VOLUME));
+=======
+	ret = snd_soc_component_read(component, WM8962_PWR_MGMT_2);
+	if (ret & WM8962_SPKOUTL_PGA_ENA) {
+		snd_soc_component_write(component, WM8962_SPKOUTL_VOLUME,
+			      snd_soc_component_read(component, WM8962_SPKOUTL_VOLUME));
+>>>>>>> upstream/android-13
 		return 1;
 	}
 
 	/* ...otherwise the right.  The VU is stereo. */
 	if (ret & WM8962_SPKOUTR_PGA_ENA)
 		snd_soc_component_write(component, WM8962_SPKOUTR_VOLUME,
+<<<<<<< HEAD
 			      snd_soc_component_read32(component, WM8962_SPKOUTR_VOLUME));
+=======
+			      snd_soc_component_read(component, WM8962_SPKOUTR_VOLUME));
+>>>>>>> upstream/android-13
 
 	return 1;
 }
@@ -1708,6 +1757,11 @@ SOC_DOUBLE_R_TLV("Digital Playback Volume", WM8962_LEFT_DAC_VOLUME,
 SOC_SINGLE("DAC High Performance Switch", WM8962_ADC_DAC_CONTROL_2, 0, 1, 0),
 SOC_SINGLE("DAC L/R Swap Switch", WM8962_AUDIO_INTERFACE_0, 5, 1, 0),
 SOC_SINGLE("ADC L/R Swap Switch", WM8962_AUDIO_INTERFACE_0, 8, 1, 0),
+<<<<<<< HEAD
+=======
+SOC_SINGLE("DAC Monomix Switch", WM8962_DAC_DSP_MIXING_1, WM8962_DAC_MONOMIX_SHIFT, 1, 0),
+SOC_SINGLE("ADC Monomix Switch", WM8962_THREED1, WM8962_ADC_MONOMIX_SHIFT, 1, 0),
+>>>>>>> upstream/android-13
 
 SOC_SINGLE("ADC High Performance Switch", WM8962_ADDITIONAL_CONTROL_1,
 	   5, 1, 0),
@@ -1893,7 +1947,11 @@ static int hp_event(struct snd_soc_dapm_widget *w,
 		timeout = 0;
 		do {
 			msleep(1);
+<<<<<<< HEAD
 			reg = snd_soc_component_read32(component, WM8962_DC_SERVO_6);
+=======
+			reg = snd_soc_component_read(component, WM8962_DC_SERVO_6);
+>>>>>>> upstream/android-13
 			if (reg < 0) {
 				dev_err(component->dev,
 					"Failed to read DCS status: %d\n",
@@ -1980,7 +2038,12 @@ static int out_pga_event(struct snd_soc_dapm_widget *w,
 
 	switch (event) {
 	case SND_SOC_DAPM_POST_PMU:
+<<<<<<< HEAD
 		return snd_soc_component_write(component, reg, snd_soc_component_read32(component, reg));
+=======
+		return snd_soc_component_write(component, reg,
+			snd_soc_component_read(component, reg));
+>>>>>>> upstream/android-13
 	default:
 		WARN(1, "Invalid event %d\n", event);
 		return -EINVAL;
@@ -2406,6 +2469,10 @@ static const int sysclk_rates[] = {
 static void wm8962_configure_bclk(struct snd_soc_component *component)
 {
 	struct wm8962_priv *wm8962 = snd_soc_component_get_drvdata(component);
+<<<<<<< HEAD
+=======
+	int best, min_diff, diff;
+>>>>>>> upstream/android-13
 	int dspclk, i;
 	int clocking2 = 0;
 	int clocking4 = 0;
@@ -2447,7 +2514,11 @@ static void wm8962_configure_bclk(struct snd_soc_component *component)
 		snd_soc_component_update_bits(component, WM8962_CLOCKING2,
 				WM8962_SYSCLK_ENA_MASK, WM8962_SYSCLK_ENA);
 
+<<<<<<< HEAD
 	dspclk = snd_soc_component_read32(component, WM8962_CLOCKING1);
+=======
+	dspclk = snd_soc_component_read(component, WM8962_CLOCKING1);
+>>>>>>> upstream/android-13
 
 	if (snd_soc_component_get_bias_level(component) != SND_SOC_BIAS_ON)
 		snd_soc_component_update_bits(component, WM8962_CLOCKING2,
@@ -2476,11 +2547,18 @@ static void wm8962_configure_bclk(struct snd_soc_component *component)
 
 	dev_dbg(component->dev, "DSPCLK is %dHz, BCLK %d\n", dspclk, wm8962->bclk);
 
+<<<<<<< HEAD
 	/* We're expecting an exact match */
+=======
+	/* Search a proper bclk, not exact match. */
+	best = 0;
+	min_diff = INT_MAX;
+>>>>>>> upstream/android-13
 	for (i = 0; i < ARRAY_SIZE(bclk_divs); i++) {
 		if (bclk_divs[i] < 0)
 			continue;
 
+<<<<<<< HEAD
 		if (dspclk / bclk_divs[i] == wm8962->bclk) {
 			dev_dbg(component->dev, "Selected BCLK_DIV %d for %dHz\n",
 				bclk_divs[i], wm8962->bclk);
@@ -2493,6 +2571,20 @@ static void wm8962_configure_bclk(struct snd_soc_component *component)
 			dspclk / wm8962->bclk);
 		return;
 	}
+=======
+		diff = (dspclk / bclk_divs[i]) - wm8962->bclk;
+		if (diff < 0) /* Table is sorted */
+			break;
+		if (diff < min_diff) {
+			best = i;
+			min_diff = diff;
+		}
+	}
+	wm8962->bclk = dspclk / bclk_divs[best];
+	clocking2 |= best;
+	dev_dbg(component->dev, "Selected BCLK_DIV %d for %dHz\n",
+		bclk_divs[best], wm8962->bclk);
+>>>>>>> upstream/android-13
 
 	aif2 |= wm8962->bclk / wm8962->lrclk;
 	dev_dbg(component->dev, "Selected LRCLK divisor %d for %dHz\n",
@@ -2649,7 +2741,11 @@ static int wm8962_set_dai_fmt(struct snd_soc_dai *dai, unsigned int fmt)
 	switch (fmt & SND_SOC_DAIFMT_FORMAT_MASK) {
 	case SND_SOC_DAIFMT_DSP_B:
 		aif0 |= WM8962_LRCLK_INV | 3;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SND_SOC_DAIFMT_DSP_A:
 		aif0 |= 3;
 
@@ -2885,6 +2981,10 @@ static int wm8962_set_fll(struct snd_soc_component *component, int fll_id, int s
 
 	ret = pm_runtime_get_sync(component->dev);
 	if (ret < 0) {
+<<<<<<< HEAD
+=======
+		pm_runtime_put_noidle(component->dev);
+>>>>>>> upstream/android-13
 		dev_err(component->dev, "Failed to resume device: %d\n", ret);
 		return ret;
 	}
@@ -2921,7 +3021,11 @@ static int wm8962_set_fll(struct snd_soc_component *component, int fll_id, int s
 	return 0;
 }
 
+<<<<<<< HEAD
 static int wm8962_mute(struct snd_soc_dai *dai, int mute)
+=======
+static int wm8962_mute(struct snd_soc_dai *dai, int mute, int direction)
+>>>>>>> upstream/android-13
 {
 	struct snd_soc_component *component = dai->component;
 	int val, ret;
@@ -2954,7 +3058,12 @@ static const struct snd_soc_dai_ops wm8962_dai_ops = {
 	.hw_params = wm8962_hw_params,
 	.set_sysclk = wm8962_set_dai_sysclk,
 	.set_fmt = wm8962_set_dai_fmt,
+<<<<<<< HEAD
 	.digital_mute = wm8962_mute,
+=======
+	.mute_stream = wm8962_mute,
+	.no_capture_mute = 1,
+>>>>>>> upstream/android-13
 };
 
 static struct snd_soc_dai_driver wm8962_dai = {
@@ -2974,7 +3083,11 @@ static struct snd_soc_dai_driver wm8962_dai = {
 		.formats = WM8962_FORMATS,
 	},
 	.ops = &wm8962_dai_ops,
+<<<<<<< HEAD
 	.symmetric_rates = 1,
+=======
+	.symmetric_rate = 1,
+>>>>>>> upstream/android-13
 };
 
 static void wm8962_mic_work(struct work_struct *work)
@@ -2987,7 +3100,11 @@ static void wm8962_mic_work(struct work_struct *work)
 	int irq_pol = 0;
 	int reg;
 
+<<<<<<< HEAD
 	reg = snd_soc_component_read32(component, WM8962_ADDITIONAL_CONTROL_4);
+=======
+	reg = snd_soc_component_read(component, WM8962_ADDITIONAL_CONTROL_4);
+>>>>>>> upstream/android-13
 
 	if (reg & WM8962_MICDET_STS) {
 		status |= SND_JACK_MICROPHONE;
@@ -3017,6 +3134,10 @@ static irqreturn_t wm8962_irq(int irq, void *data)
 
 	ret = pm_runtime_get_sync(dev);
 	if (ret < 0) {
+<<<<<<< HEAD
+=======
+		pm_runtime_put_noidle(dev);
+>>>>>>> upstream/android-13
 		dev_err(dev, "Failed to resume: %d\n", ret);
 		return IRQ_NONE;
 	}
@@ -3203,6 +3324,10 @@ static int wm8962_beep_event(struct input_dev *dev, unsigned int type,
 	case SND_BELL:
 		if (hz)
 			hz = 1000;
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SND_TONE:
 		break;
 	default:
@@ -3215,9 +3340,14 @@ static int wm8962_beep_event(struct input_dev *dev, unsigned int type,
 	return 0;
 }
 
+<<<<<<< HEAD
 static ssize_t wm8962_beep_set(struct device *dev,
 			       struct device_attribute *attr,
 			       const char *buf, size_t count)
+=======
+static ssize_t beep_store(struct device *dev, struct device_attribute *attr,
+			  const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct wm8962_priv *wm8962 = dev_get_drvdata(dev);
 	long int time;
@@ -3232,7 +3362,11 @@ static ssize_t wm8962_beep_set(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(beep, 0200, NULL, wm8962_beep_set);
+=======
+static DEVICE_ATTR_WO(beep);
+>>>>>>> upstream/android-13
 
 static void wm8962_init_beep(struct snd_soc_component *component)
 {
@@ -3424,8 +3558,14 @@ static int wm8962_probe(struct snd_soc_component *component)
 
 	/* This should really be moved into the regulator core */
 	for (i = 0; i < ARRAY_SIZE(wm8962->supplies); i++) {
+<<<<<<< HEAD
 		ret = regulator_register_notifier(wm8962->supplies[i].consumer,
 						  &wm8962->disable_nb[i]);
+=======
+		ret = devm_regulator_register_notifier(
+						wm8962->supplies[i].consumer,
+						&wm8962->disable_nb[i]);
+>>>>>>> upstream/android-13
 		if (ret != 0) {
 			dev_err(component->dev,
 				"Failed to register regulator notifier: %d\n",
@@ -3438,8 +3578,19 @@ static int wm8962_probe(struct snd_soc_component *component)
 	/* Save boards having to disable DMIC when not in use */
 	dmicclk = false;
 	dmicdat = false;
+<<<<<<< HEAD
 	for (i = 0; i < WM8962_MAX_GPIO; i++) {
 		switch (snd_soc_component_read32(component, WM8962_GPIO_BASE + i)
+=======
+	for (i = 1; i < WM8962_MAX_GPIO; i++) {
+		/*
+		 * Register 515 (WM8962_GPIO_BASE + 3) does not exist,
+		 * so skip its access
+		 */
+		if (i == 3)
+			continue;
+		switch (snd_soc_component_read(component, WM8962_GPIO_BASE + i)
+>>>>>>> upstream/android-13
 			& WM8962_GP2_FN_MASK) {
 		case WM8962_GPIO_FN_DMICCLK:
 			dmicclk = true;
@@ -3467,15 +3618,21 @@ static int wm8962_probe(struct snd_soc_component *component)
 static void wm8962_remove(struct snd_soc_component *component)
 {
 	struct wm8962_priv *wm8962 = snd_soc_component_get_drvdata(component);
+<<<<<<< HEAD
 	int i;
+=======
+>>>>>>> upstream/android-13
 
 	cancel_delayed_work_sync(&wm8962->mic_work);
 
 	wm8962_free_gpio(component);
 	wm8962_free_beep(component);
+<<<<<<< HEAD
 	for (i = 0; i < ARRAY_SIZE(wm8962->supplies); i++)
 		regulator_unregister_notifier(wm8962->supplies[i].consumer,
 					      &wm8962->disable_nb[i]);
+=======
+>>>>>>> upstream/android-13
 }
 
 static const struct snd_soc_component_driver soc_component_dev_wm8962 = {
@@ -3806,8 +3963,13 @@ static int wm8962_runtime_resume(struct device *dev)
 	/* SYSCLK defaults to on; make sure it is off so we can safely
 	 * write to registers if the device is declocked.
 	 */
+<<<<<<< HEAD
 	regmap_update_bits(wm8962->regmap, WM8962_CLOCKING2,
 			   WM8962_SYSCLK_ENA, 0);
+=======
+	regmap_write_bits(wm8962->regmap, WM8962_CLOCKING2,
+			  WM8962_SYSCLK_ENA, 0);
+>>>>>>> upstream/android-13
 
 	/* Ensure we have soft control over all registers */
 	regmap_update_bits(wm8962->regmap, WM8962_CLOCKING2,

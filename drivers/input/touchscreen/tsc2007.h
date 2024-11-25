@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 
 /*
  * Copyright (c) 2008 MtekVision Co., Ltd.
@@ -13,15 +17,23 @@
  *	Copyright (C) 2002 MontaVista Software
  *	Copyright (C) 2004 Texas Instruments
  *	Copyright (C) 2005 Dirk Behme
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _TSC2007_H
 #define _TSC2007_H
 
+<<<<<<< HEAD
+=======
+struct gpio_desc;
+
+>>>>>>> upstream/android-13
 #define TSC2007_MEASURE_TEMP0		(0x0 << 4)
 #define TSC2007_MEASURE_AUX		(0x2 << 4)
 #define TSC2007_MEASURE_TEMP1		(0x4 << 4)
@@ -72,7 +84,11 @@ struct tsc2007 {
 	int			fuzzy;
 	int			fuzzz;
 
+<<<<<<< HEAD
 	unsigned int		gpio;
+=======
+	struct gpio_desc	*gpiod;
+>>>>>>> upstream/android-13
 	int			irq;
 
 	wait_queue_head_t	wait;

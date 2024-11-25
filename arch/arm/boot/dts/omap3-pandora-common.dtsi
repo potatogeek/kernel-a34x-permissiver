@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2015
  *   Nikolaus Schaller <hns@goldelico.com>
  *
  * Common device tree include for OpenPandora devices.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <dt-bindings/input/input.h>
@@ -705,7 +712,11 @@
 };
 
 &venc {
+<<<<<<< HEAD
 	status = "ok";
+=======
+	status = "okay";
+>>>>>>> upstream/android-13
 
 	vdda-supply = <&vdac>;
 
@@ -721,7 +732,11 @@
 	pinctrl-names = "default";
 	pinctrl-0 = < &dss_dpi_pins >;
 
+<<<<<<< HEAD
 	status = "ok";
+=======
+	status = "okay";
+>>>>>>> upstream/android-13
 	vdds_dsi-supply = <&vpll2>;
 
 	port {

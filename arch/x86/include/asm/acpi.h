@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef _ASM_X86_ACPI_H
 #define _ASM_X86_ACPI_H
 
 /*
  *  Copyright (C) 2001 Paul Diefenbaugh <paul.s.diefenbaugh@intel.com>
  *  Copyright (C) 2001 Patrick Mochel <mochel@osdl.org>
+<<<<<<< HEAD
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
@@ -22,6 +27,8 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=======
+>>>>>>> upstream/android-13
  */
 #include <acpi/pdc_intel.h>
 
@@ -30,7 +37,10 @@
 #include <asm/processor.h>
 #include <asm/mmu.h>
 #include <asm/mpspec.h>
+<<<<<<< HEAD
 #include <asm/realmode.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/x86_init.h>
 
 #ifdef CONFIG_ACPI_APEI
@@ -79,7 +89,11 @@ static inline void acpi_disable_pci(void)
 extern int (*acpi_suspend_lowlevel)(void);
 
 /* Physical address to resume after wakeup */
+<<<<<<< HEAD
 #define acpi_wakeup_address ((unsigned long)(real_mode_header->wakeup_start))
+=======
+unsigned long acpi_get_wakeup_address(void);
+>>>>>>> upstream/android-13
 
 /*
  * Check if the CPU can handle C2 and deeper
@@ -134,6 +148,15 @@ static inline bool acpi_has_cpu_in_madt(void)
 	return !!acpi_lapic;
 }
 
+<<<<<<< HEAD
+=======
+#define ACPI_HAVE_ARCH_SET_ROOT_POINTER
+static inline void acpi_arch_set_root_pointer(u64 addr)
+{
+	x86_init.acpi.set_root_pointer(addr);
+}
+
+>>>>>>> upstream/android-13
 #define ACPI_HAVE_ARCH_GET_ROOT_POINTER
 static inline u64 acpi_arch_get_root_pointer(void)
 {
@@ -142,6 +165,12 @@ static inline u64 acpi_arch_get_root_pointer(void)
 
 void acpi_generic_reduced_hw_init(void);
 
+<<<<<<< HEAD
+=======
+void x86_default_set_root_pointer(u64 addr);
+u64 x86_default_get_root_pointer(void);
+
+>>>>>>> upstream/android-13
 #else /* !CONFIG_ACPI */
 
 #define acpi_lapic 0
@@ -153,6 +182,16 @@ static inline void disable_acpi(void) { }
 
 static inline void acpi_generic_reduced_hw_init(void) { }
 
+<<<<<<< HEAD
+=======
+static inline void x86_default_set_root_pointer(u64 addr) { }
+
+static inline u64 x86_default_get_root_pointer(void)
+{
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 #endif /* !CONFIG_ACPI */
 
 #define ARCH_HAS_POWER_INIT	1
@@ -161,7 +200,11 @@ static inline void acpi_generic_reduced_hw_init(void) { }
 extern int x86_acpi_numa_init(void);
 #endif /* CONFIG_ACPI_NUMA */
 
+<<<<<<< HEAD
 #define acpi_unlazy_tlb(x)	leave_mm(x)
+=======
+struct cper_ia_proc_ctx;
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_ACPI_APEI
 static inline pgprot_t arch_apei_get_mem_attribute(phys_addr_t addr)
@@ -181,6 +224,18 @@ static inline pgprot_t arch_apei_get_mem_attribute(phys_addr_t addr)
 	 */
 	return PAGE_KERNEL_NOENC;
 }
+<<<<<<< HEAD
+=======
+
+int arch_apei_report_x86_error(struct cper_ia_proc_ctx *ctx_info,
+			       u64 lapic_id);
+#else
+static inline int arch_apei_report_x86_error(struct cper_ia_proc_ctx *ctx_info,
+					     u64 lapic_id)
+{
+	return -EINVAL;
+}
+>>>>>>> upstream/android-13
 #endif
 
 #define ACPI_TABLE_UPGRADE_MAX_PHYS (max_low_pfn_mapped << PAGE_SHIFT)

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * IPVS:        Destination Hashing scheduling module
  *
@@ -6,6 +10,7 @@
  *              Inspired by the consistent hashing scheduler patch from
  *              Thomas Proell <proellt@gmx.de>
  *
+<<<<<<< HEAD
  *              This program is free software; you can redistribute it and/or
  *              modify it under the terms of the GNU General Public License
  *              as published by the Free Software Foundation; either version
@@ -13,6 +18,9 @@
  *
  * Changes:
  *
+=======
+ * Changes:
+>>>>>>> upstream/android-13
  */
 
 /*

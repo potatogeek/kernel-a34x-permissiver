@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  *  Support for the Marvell PXA168 Teton BGA Development Platform.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
  *  publishhed by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ *  Support for the Marvell PXA168 Teton BGA Development Platform.
+>>>>>>> upstream/android-13
  */
 #ifndef __ASM_MACH_TETON_BGA_H
 #define __ASM_MACH_TETON_BGA_H

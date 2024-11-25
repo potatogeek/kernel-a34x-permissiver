@@ -1,13 +1,25 @@
 * Amlogic Audio SPDIF Output
 
 Required properties:
+<<<<<<< HEAD
 - compatible: 'amlogic,axg-spdifout'
+=======
+- compatible: 'amlogic,axg-spdifout' or
+	      'amlogic,g12a-spdifout' or
+	      'amlogic,sm1-spdifout'
+>>>>>>> upstream/android-13
 - clocks: list of clock phandle, one for each entry clock-names.
 - clock-names: should contain the following:
   * "pclk" : peripheral clock.
   * "mclk" : master clock
 - #sound-dai-cells: must be 0.
 
+<<<<<<< HEAD
+=======
+Optional property:
+- resets: phandle to the dedicated reset line of the spdif output.
+
+>>>>>>> upstream/android-13
 Example on the A113 SoC:
 
 spdifout: audio-controller@480 {

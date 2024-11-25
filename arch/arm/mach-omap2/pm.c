@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * pm.c - Common OMAP2+ power management-related code
  *
  * Copyright (C) 2010 Texas Instruments, Inc.
  * Copyright (C) 2010 Nokia Corporation
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -31,6 +38,11 @@
 #include "clockdomain.h"
 #include "pm.h"
 
+<<<<<<< HEAD
+=======
+u32 enable_off_mode;
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_SUSPEND
 /*
  * omap_pm_suspend: points to a function that does the SoC-specific
@@ -151,6 +163,10 @@ int __init omap2_common_pm_late_init(void)
 	/* Init the voltage layer */
 	omap3_twl_init();
 	omap4_twl_init();
+<<<<<<< HEAD
+=======
+	omap4_cpcap_init();
+>>>>>>> upstream/android-13
 	omap_voltage_late_init();
 
 	/* Smartreflex device init */

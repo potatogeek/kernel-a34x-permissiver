@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Keytable for the Astrometa T2hybrid remote controller
  *
  * Copyright (C) 2017 Oleh Kravchenko <oleg@kaa.org.ua>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -9,6 +14,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <media/rc-map.h>
@@ -27,6 +34,7 @@ static struct rc_map_table t2hybrid[] = {
 	{ 0x40, KEY_ZOOM }, /* Fullscreen */
 	{ 0x1e, KEY_VOLUMEUP },
 
+<<<<<<< HEAD
 	{ 0x12, KEY_0 },
 	{ 0x02, KEY_CHANNELDOWN },
 	{ 0x1c, KEY_AGAIN }, /* Recall */
@@ -42,6 +50,23 @@ static struct rc_map_table t2hybrid[] = {
 	{ 0x11, KEY_7 },
 	{ 0x15, KEY_8 },
 	{ 0x17, KEY_9 },
+=======
+	{ 0x12, KEY_NUMERIC_0 },
+	{ 0x02, KEY_CHANNELDOWN },
+	{ 0x1c, KEY_AGAIN }, /* Recall */
+
+	{ 0x09, KEY_NUMERIC_1 },
+	{ 0x1d, KEY_NUMERIC_2 },
+	{ 0x1f, KEY_NUMERIC_3 },
+
+	{ 0x0d, KEY_NUMERIC_4 },
+	{ 0x19, KEY_NUMERIC_5 },
+	{ 0x1b, KEY_NUMERIC_6 },
+
+	{ 0x11, KEY_NUMERIC_7 },
+	{ 0x15, KEY_NUMERIC_8 },
+	{ 0x17, KEY_NUMERIC_9 },
+>>>>>>> upstream/android-13
 };
 
 static struct rc_map_list t2hybrid_map = {

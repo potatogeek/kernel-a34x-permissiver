@@ -35,8 +35,15 @@
 #include <rdma/ib_user_verbs.h>
 #include <rdma/ib_cache.h>
 #include "mlx5_ib.h"
+<<<<<<< HEAD
 
 static void mlx5_ib_cq_comp(struct mlx5_core_cq *cq)
+=======
+#include "srq.h"
+#include "qp.h"
+
+static void mlx5_ib_cq_comp(struct mlx5_core_cq *cq, struct mlx5_eqe *eqe)
+>>>>>>> upstream/android-13
 {
 	struct ib_cq *ibcq = &to_mibcq(cq)->ibcq;
 
@@ -81,7 +88,11 @@ static void *get_sw_cqe(struct mlx5_ib_cq *cq, int n)
 
 	cqe64 = (cq->mcq.cqe_sz == 64) ? cqe : cqe + 64;
 
+<<<<<<< HEAD
 	if (likely((cqe64->op_own) >> 4 != MLX5_CQE_INVALID) &&
+=======
+	if (likely(get_cqe_opcode(cqe64) != MLX5_CQE_INVALID) &&
+>>>>>>> upstream/android-13
 	    !((cqe64->op_own & MLX5_CQE_OWNER_MASK) ^ !!(n & (cq->ibcq.cqe + 1)))) {
 		return cqe;
 	} else {
@@ -119,13 +130,21 @@ static void handle_good_req(struct ib_wc *wc, struct mlx5_cqe64 *cqe,
 	switch (be32_to_cpu(cqe->sop_drop_qpn) >> 24) {
 	case MLX5_OPCODE_RDMA_WRITE_IMM:
 		wc->wc_flags |= IB_WC_WITH_IMM;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case MLX5_OPCODE_RDMA_WRITE:
 		wc->opcode    = IB_WC_RDMA_WRITE;
 		break;
 	case MLX5_OPCODE_SEND_IMM:
 		wc->wc_flags |= IB_WC_WITH_IMM;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case MLX5_OPCODE_SEND:
 	case MLX5_OPCODE_SEND_INVAL:
 		wc->opcode    = IB_WC_SEND;
@@ -166,7 +185,11 @@ static void handle_responder(struct ib_wc *wc, struct mlx5_cqe64 *cqe,
 {
 	enum rdma_link_layer ll = rdma_port_get_link_layer(qp->ibqp.device, 1);
 	struct mlx5_ib_dev *dev = to_mdev(qp->ibqp.device);
+<<<<<<< HEAD
 	struct mlx5_ib_srq *srq;
+=======
+	struct mlx5_ib_srq *srq = NULL;
+>>>>>>> upstream/android-13
 	struct mlx5_ib_wq *wq;
 	u16 wqe_ctr;
 	u8  roce_packet_type;
@@ -177,9 +200,15 @@ static void handle_responder(struct ib_wc *wc, struct mlx5_cqe64 *cqe,
 		struct mlx5_core_srq *msrq = NULL;
 
 		if (qp->ibqp.xrcd) {
+<<<<<<< HEAD
 			msrq = mlx5_core_get_srq(dev->mdev,
 						 be32_to_cpu(cqe->srqn));
 			srq = to_mibsrq(msrq);
+=======
+			msrq = mlx5_cmd_get_srq(dev, be32_to_cpu(cqe->srqn));
+			if (msrq)
+				srq = to_mibsrq(msrq);
+>>>>>>> upstream/android-13
 		} else {
 			srq = to_msrq(qp->ibqp.srq);
 		}
@@ -187,8 +216,13 @@ static void handle_responder(struct ib_wc *wc, struct mlx5_cqe64 *cqe,
 			wqe_ctr = be16_to_cpu(cqe->wqe_counter);
 			wc->wr_id = srq->wrid[wqe_ctr];
 			mlx5_ib_free_srq_wqe(srq, wqe_ctr);
+<<<<<<< HEAD
 			if (msrq && atomic_dec_and_test(&msrq->refcount))
 				complete(&msrq->free);
+=======
+			if (msrq)
+				mlx5_core_res_put(&msrq->common);
+>>>>>>> upstream/android-13
 		}
 	} else {
 		wq	  = &qp->rq;
@@ -197,11 +231,19 @@ static void handle_responder(struct ib_wc *wc, struct mlx5_cqe64 *cqe,
 	}
 	wc->byte_len = be32_to_cpu(cqe->byte_cnt);
 
+<<<<<<< HEAD
 	switch (cqe->op_own >> 4) {
 	case MLX5_CQE_RESP_WR_IMM:
 		wc->opcode	= IB_WC_RECV_RDMA_WITH_IMM;
 		wc->wc_flags	= IB_WC_WITH_IMM;
 		wc->ex.imm_data = cqe->imm_inval_pkey;
+=======
+	switch (get_cqe_opcode(cqe)) {
+	case MLX5_CQE_RESP_WR_IMM:
+		wc->opcode	= IB_WC_RECV_RDMA_WITH_IMM;
+		wc->wc_flags	= IB_WC_WITH_IMM;
+		wc->ex.imm_data = cqe->immediate;
+>>>>>>> upstream/android-13
 		break;
 	case MLX5_CQE_RESP_SEND:
 		wc->opcode   = IB_WC_RECV;
@@ -213,20 +255,33 @@ static void handle_responder(struct ib_wc *wc, struct mlx5_cqe64 *cqe,
 	case MLX5_CQE_RESP_SEND_IMM:
 		wc->opcode	= IB_WC_RECV;
 		wc->wc_flags	= IB_WC_WITH_IMM;
+<<<<<<< HEAD
 		wc->ex.imm_data = cqe->imm_inval_pkey;
+=======
+		wc->ex.imm_data = cqe->immediate;
+>>>>>>> upstream/android-13
 		break;
 	case MLX5_CQE_RESP_SEND_INV:
 		wc->opcode	= IB_WC_RECV;
 		wc->wc_flags	= IB_WC_WITH_INVALIDATE;
+<<<<<<< HEAD
 		wc->ex.invalidate_rkey = be32_to_cpu(cqe->imm_inval_pkey);
+=======
+		wc->ex.invalidate_rkey = be32_to_cpu(cqe->inval_rkey);
+>>>>>>> upstream/android-13
 		break;
 	}
 	wc->src_qp	   = be32_to_cpu(cqe->flags_rqpn) & 0xffffff;
 	wc->dlid_path_bits = cqe->ml_path;
 	g = (be32_to_cpu(cqe->flags_rqpn) >> 28) & 3;
 	wc->wc_flags |= g ? IB_WC_GRH : 0;
+<<<<<<< HEAD
 	if (unlikely(is_qp1(qp->ibqp.qp_type))) {
 		u16 pkey = be32_to_cpu(cqe->imm_inval_pkey) & 0xffff;
+=======
+	if (is_qp1(qp->type)) {
+		u16 pkey = be32_to_cpu(cqe->pkey) & 0xffff;
+>>>>>>> upstream/android-13
 
 		ib_find_cached_pkey(&dev->ib_dev, qp->port, pkey,
 				    &wc->pkey_index);
@@ -253,7 +308,11 @@ static void handle_responder(struct ib_wc *wc, struct mlx5_cqe64 *cqe,
 
 	switch (roce_packet_type) {
 	case MLX5_CQE_ROCE_L3_HEADER_TYPE_GRH:
+<<<<<<< HEAD
 		wc->network_hdr_type = RDMA_NETWORK_IB;
+=======
+		wc->network_hdr_type = RDMA_NETWORK_ROCE_V1;
+>>>>>>> upstream/android-13
 		break;
 	case MLX5_CQE_ROCE_L3_HEADER_TYPE_IPV6:
 		wc->network_hdr_type = RDMA_NETWORK_IPV6;
@@ -330,6 +389,7 @@ static void mlx5_handle_error_cqe(struct mlx5_ib_dev *dev,
 		dump_cqe(dev, cqe);
 }
 
+<<<<<<< HEAD
 static int is_atomic_response(struct mlx5_ib_qp *qp, uint16_t idx)
 {
 	/* TBD: waiting decision
@@ -374,6 +434,8 @@ static void handle_atomic(struct mlx5_ib_qp *qp, struct mlx5_cqe64 *cqe64,
 	return;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void handle_atomics(struct mlx5_ib_qp *qp, struct mlx5_cqe64 *cqe64,
 			   u16 tail, u16 head)
 {
@@ -381,7 +443,10 @@ static void handle_atomics(struct mlx5_ib_qp *qp, struct mlx5_cqe64 *cqe64,
 
 	do {
 		idx = tail & (qp->sq.wqe_cnt - 1);
+<<<<<<< HEAD
 		handle_atomic(qp, cqe64, idx);
+=======
+>>>>>>> upstream/android-13
 		if (idx == head)
 			break;
 
@@ -393,7 +458,11 @@ static void handle_atomics(struct mlx5_ib_qp *qp, struct mlx5_cqe64 *cqe64,
 
 static void free_cq_buf(struct mlx5_ib_dev *dev, struct mlx5_ib_cq_buf *buf)
 {
+<<<<<<< HEAD
 	mlx5_frag_buf_free(dev->mdev, &buf->fbc.frag_buf);
+=======
+	mlx5_frag_buf_free(dev->mdev, &buf->frag_buf);
+>>>>>>> upstream/android-13
 }
 
 static void get_sig_err_item(struct mlx5_sig_err_cqe *cqe,
@@ -428,6 +497,7 @@ static void get_sig_err_item(struct mlx5_sig_err_cqe *cqe,
 	item->key = be32_to_cpu(cqe->mkey);
 }
 
+<<<<<<< HEAD
 static void sw_send_comp(struct mlx5_ib_qp *qp, int num_entries,
 			 struct ib_wc *wc, int *npolled)
 {
@@ -438,6 +508,17 @@ static void sw_send_comp(struct mlx5_ib_qp *qp, int num_entries,
 	int i;
 
 	wq = &qp->sq;
+=======
+static void sw_comp(struct mlx5_ib_qp *qp, int num_entries, struct ib_wc *wc,
+		    int *npolled, bool is_send)
+{
+	struct mlx5_ib_wq *wq;
+	unsigned int cur;
+	int np;
+	int i;
+
+	wq = (is_send) ? &qp->sq : &qp->rq;
+>>>>>>> upstream/android-13
 	cur = wq->head - wq->tail;
 	np = *npolled;
 
@@ -445,11 +526,19 @@ static void sw_send_comp(struct mlx5_ib_qp *qp, int num_entries,
 		return;
 
 	for (i = 0;  i < cur && np < num_entries; i++) {
+<<<<<<< HEAD
 		idx = wq->last_poll & (wq->wqe_cnt - 1);
+=======
+		unsigned int idx;
+
+		idx = (is_send) ? wq->last_poll : wq->tail;
+		idx &= (wq->wqe_cnt - 1);
+>>>>>>> upstream/android-13
 		wc->wr_id = wq->wrid[idx];
 		wc->status = IB_WC_WR_FLUSH_ERR;
 		wc->vendor_err = MLX5_CQE_SYNDROME_WR_FLUSH_ERR;
 		wq->tail++;
+<<<<<<< HEAD
 		np++;
 		wc->qp = &qp->ibqp;
 		wc++;
@@ -478,6 +567,10 @@ static void sw_recv_comp(struct mlx5_ib_qp *qp, int num_entries,
 		wc->status = IB_WC_WR_FLUSH_ERR;
 		wc->vendor_err = MLX5_CQE_SYNDROME_WR_FLUSH_ERR;
 		wq->tail++;
+=======
+		if (is_send)
+			wq->last_poll = wq->w_list[idx].next;
+>>>>>>> upstream/android-13
 		np++;
 		wc->qp = &qp->ibqp;
 		wc++;
@@ -493,13 +586,21 @@ static void mlx5_ib_poll_sw_comp(struct mlx5_ib_cq *cq, int num_entries,
 	*npolled = 0;
 	/* Find uncompleted WQEs belonging to that cq and return mmics ones */
 	list_for_each_entry(qp, &cq->list_send_qp, cq_send_list) {
+<<<<<<< HEAD
 		sw_send_comp(qp, num_entries, wc + *npolled, npolled);
+=======
+		sw_comp(qp, num_entries, wc + *npolled, npolled, true);
+>>>>>>> upstream/android-13
 		if (*npolled >= num_entries)
 			return;
 	}
 
 	list_for_each_entry(qp, &cq->list_recv_qp, cq_recv_list) {
+<<<<<<< HEAD
 		sw_recv_comp(qp, num_entries, wc + *npolled, npolled);
+=======
+		sw_comp(qp, num_entries, wc + *npolled, npolled, false);
+>>>>>>> upstream/android-13
 		if (*npolled >= num_entries)
 			return;
 	}
@@ -514,9 +615,12 @@ static int mlx5_poll_one(struct mlx5_ib_cq *cq,
 	struct mlx5_cqe64 *cqe64;
 	struct mlx5_core_qp *mqp;
 	struct mlx5_ib_wq *wq;
+<<<<<<< HEAD
 	struct mlx5_sig_err_cqe *sig_err_cqe;
 	struct mlx5_core_mkey *mmkey;
 	struct mlx5_ib_mr *mr;
+=======
+>>>>>>> upstream/android-13
 	uint8_t opcode;
 	uint32_t qpn;
 	u16 wqe_ctr;
@@ -537,7 +641,11 @@ repoll:
 	 */
 	rmb();
 
+<<<<<<< HEAD
 	opcode = cqe64->op_own >> 4;
+=======
+	opcode = get_cqe_opcode(cqe64);
+>>>>>>> upstream/android-13
 	if (unlikely(opcode == MLX5_CQE_RESIZE_CQ)) {
 		if (likely(cq->resize_buf)) {
 			free_cq_buf(dev, &cq->buf);
@@ -556,7 +664,11 @@ repoll:
 		 * because CQs will be locked while QPs are removed
 		 * from the table.
 		 */
+<<<<<<< HEAD
 		mqp = __mlx5_qp_lookup(dev->mdev, qpn);
+=======
+		mqp = radix_tree_lookup(&dev->qp_table.tree, qpn);
+>>>>>>> upstream/android-13
 		*cur_qp = to_mibqp(mqp);
 	}
 
@@ -611,6 +723,7 @@ repoll:
 			}
 		}
 		break;
+<<<<<<< HEAD
 	case MLX5_CQE_SIG_ERR:
 		sig_err_cqe = (struct mlx5_sig_err_cqe *)cqe64;
 
@@ -632,6 +745,31 @@ repoll:
 		read_unlock(&dev->mdev->priv.mkey_table.lock);
 		goto repoll;
 	}
+=======
+	case MLX5_CQE_SIG_ERR: {
+		struct mlx5_sig_err_cqe *sig_err_cqe =
+			(struct mlx5_sig_err_cqe *)cqe64;
+		struct mlx5_core_sig_ctx *sig;
+
+		xa_lock(&dev->sig_mrs);
+		sig = xa_load(&dev->sig_mrs,
+				mlx5_base_mkey(be32_to_cpu(sig_err_cqe->mkey)));
+		get_sig_err_item(sig_err_cqe, &sig->err_item);
+		sig->sig_err_exists = true;
+		sig->sigerr_count++;
+
+		mlx5_ib_warn(dev, "CQN: 0x%x Got SIGERR on key: 0x%x err_type %x err_offset %llx expected %x actual %x\n",
+			     cq->mcq.cqn, sig->err_item.key,
+			     sig->err_item.err_type,
+			     sig->err_item.sig_err_offset,
+			     sig->err_item.expected,
+			     sig->err_item.actual);
+
+		xa_unlock(&dev->sig_mrs);
+		goto repoll;
+	}
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -728,6 +866,7 @@ static int alloc_cq_frag_buf(struct mlx5_ib_dev *dev,
 			     int nent,
 			     int cqe_size)
 {
+<<<<<<< HEAD
 	struct mlx5_frag_buf_ctrl *c = &buf->fbc;
 	struct mlx5_frag_buf *frag_buf = &c->frag_buf;
 	u32 cqc_buff[MLX5_ST_SZ_DW(cqc)] = {0};
@@ -738,6 +877,13 @@ static int alloc_cq_frag_buf(struct mlx5_ib_dev *dev,
 
 	mlx5_core_init_cq_frag_buf(&buf->fbc, cqc_buff);
 
+=======
+	struct mlx5_frag_buf *frag_buf = &buf->frag_buf;
+	u8 log_wq_stride = 6 + (cqe_size == 128 ? 1 : 0);
+	u8 log_wq_sz     = ilog2(cqe_size);
+	int err;
+
+>>>>>>> upstream/android-13
 	err = mlx5_frag_buf_alloc_node(dev->mdev,
 				       nent * cqe_size,
 				       frag_buf,
@@ -745,6 +891,11 @@ static int alloc_cq_frag_buf(struct mlx5_ib_dev *dev,
 	if (err)
 		return err;
 
+<<<<<<< HEAD
+=======
+	mlx5_init_fbc(frag_buf->frags, log_wq_stride, log_wq_sz, &buf->fbc);
+
+>>>>>>> upstream/android-13
 	buf->cqe_size = cqe_size;
 	buf->nent = nent;
 
@@ -774,6 +925,7 @@ static int mini_cqe_res_format_to_hw(struct mlx5_ib_dev *dev, u8 format)
 }
 
 static int create_cq_user(struct mlx5_ib_dev *dev, struct ib_udata *udata,
+<<<<<<< HEAD
 			  struct ib_ucontext *context, struct mlx5_ib_cq *cq,
 			  int entries, u32 **cqb,
 			  int *cqe_size, int *index, int *inlen)
@@ -789,27 +941,63 @@ static int create_cq_user(struct mlx5_ib_dev *dev, struct ib_udata *udata,
 
 	ucmdlen = udata->inlen < sizeof(ucmd) ?
 		  (sizeof(ucmd) - sizeof(ucmd.flags)) : sizeof(ucmd);
+=======
+			  struct mlx5_ib_cq *cq, int entries, u32 **cqb,
+			  int *cqe_size, int *index, int *inlen)
+{
+	struct mlx5_ib_create_cq ucmd = {};
+	unsigned long page_size;
+	unsigned int page_offset_quantized;
+	size_t ucmdlen;
+	__be64 *pas;
+	int ncont;
+	void *cqc;
+	int err;
+	struct mlx5_ib_ucontext *context = rdma_udata_to_drv_context(
+		udata, struct mlx5_ib_ucontext, ibucontext);
+
+	ucmdlen = min(udata->inlen, sizeof(ucmd));
+	if (ucmdlen < offsetof(struct mlx5_ib_create_cq, flags))
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	if (ib_copy_from_udata(&ucmd, udata, ucmdlen))
 		return -EFAULT;
 
+<<<<<<< HEAD
 	if (ucmdlen == sizeof(ucmd) &&
 	    (ucmd.flags & ~(MLX5_IB_CREATE_CQ_FLAGS_CQE_128B_PAD)))
 		return -EINVAL;
 
 	if (ucmd.cqe_size != 64 && ucmd.cqe_size != 128)
+=======
+	if ((ucmd.flags & ~(MLX5_IB_CREATE_CQ_FLAGS_CQE_128B_PAD |
+			    MLX5_IB_CREATE_CQ_FLAGS_UAR_PAGE_INDEX |
+			    MLX5_IB_CREATE_CQ_FLAGS_REAL_TIME_TS)))
+		return -EINVAL;
+
+	if ((ucmd.cqe_size != 64 && ucmd.cqe_size != 128) ||
+	    ucmd.reserved0 || ucmd.reserved1)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	*cqe_size = ucmd.cqe_size;
 
+<<<<<<< HEAD
 	cq->buf.umem = ib_umem_get(context, ucmd.buf_addr,
 				   entries * ucmd.cqe_size,
 				   IB_ACCESS_LOCAL_WRITE, 1);
+=======
+	cq->buf.umem =
+		ib_umem_get(&dev->ib_dev, ucmd.buf_addr,
+			    entries * ucmd.cqe_size, IB_ACCESS_LOCAL_WRITE);
+>>>>>>> upstream/android-13
 	if (IS_ERR(cq->buf.umem)) {
 		err = PTR_ERR(cq->buf.umem);
 		return err;
 	}
 
+<<<<<<< HEAD
 	err = mlx5_ib_db_map_user(to_mucontext(context), ucmd.db_addr,
 				  &cq->db);
 	if (err)
@@ -819,6 +1007,26 @@ static int create_cq_user(struct mlx5_ib_dev *dev, struct ib_udata *udata,
 			   &ncont, NULL);
 	mlx5_ib_dbg(dev, "addr 0x%llx, size %u, npages %d, page_shift %d, ncont %d\n",
 		    ucmd.buf_addr, entries * ucmd.cqe_size, npages, page_shift, ncont);
+=======
+	page_size = mlx5_umem_find_best_cq_quantized_pgoff(
+		cq->buf.umem, cqc, log_page_size, MLX5_ADAPTER_PAGE_SHIFT,
+		page_offset, 64, &page_offset_quantized);
+	if (!page_size) {
+		err = -EINVAL;
+		goto err_umem;
+	}
+
+	err = mlx5_ib_db_map_user(context, ucmd.db_addr, &cq->db);
+	if (err)
+		goto err_umem;
+
+	ncont = ib_umem_num_dma_blocks(cq->buf.umem, page_size);
+	mlx5_ib_dbg(
+		dev,
+		"addr 0x%llx, size %u, npages %zu, page_size %lu, ncont %d\n",
+		ucmd.buf_addr, entries * ucmd.cqe_size,
+		ib_umem_num_pages(cq->buf.umem), page_size, ncont);
+>>>>>>> upstream/android-13
 
 	*inlen = MLX5_ST_SZ_BYTES(create_cq_in) +
 		 MLX5_FLD_SZ_BYTES(create_cq_in, pas[0]) * ncont;
@@ -829,6 +1037,7 @@ static int create_cq_user(struct mlx5_ib_dev *dev, struct ib_udata *udata,
 	}
 
 	pas = (__be64 *)MLX5_ADDR_OF(create_cq_in, *cqb, pas);
+<<<<<<< HEAD
 	mlx5_ib_populate_pas(dev, cq->buf.umem, page_shift, pas, 0);
 
 	cqc = MLX5_ADDR_OF(create_cq_in, *cqb, cq_context);
@@ -836,6 +1045,23 @@ static int create_cq_user(struct mlx5_ib_dev *dev, struct ib_udata *udata,
 		 page_shift - MLX5_ADAPTER_PAGE_SHIFT);
 
 	*index = to_mucontext(context)->bfregi.sys_pages[0];
+=======
+	mlx5_ib_populate_pas(cq->buf.umem, page_size, pas, 0);
+
+	cqc = MLX5_ADDR_OF(create_cq_in, *cqb, cq_context);
+	MLX5_SET(cqc, cqc, log_page_size,
+		 order_base_2(page_size) - MLX5_ADAPTER_PAGE_SHIFT);
+	MLX5_SET(cqc, cqc, page_offset, page_offset_quantized);
+
+	if (ucmd.flags & MLX5_IB_CREATE_CQ_FLAGS_UAR_PAGE_INDEX) {
+		*index = ucmd.uar_page_index;
+	} else if (context->bfregi.lib_uar_dyn) {
+		err = -EINVAL;
+		goto err_cqb;
+	} else {
+		*index = context->bfregi.sys_pages[0];
+	}
+>>>>>>> upstream/android-13
 
 	if (ucmd.cqe_comp_en == 1) {
 		int mini_cqe_format;
@@ -877,19 +1103,31 @@ static int create_cq_user(struct mlx5_ib_dev *dev, struct ib_udata *udata,
 		cq->private_flags |= MLX5_IB_CQ_PR_FLAGS_CQE_128_PAD;
 	}
 
+<<<<<<< HEAD
+=======
+	if (ucmd.flags & MLX5_IB_CREATE_CQ_FLAGS_REAL_TIME_TS)
+		cq->private_flags |= MLX5_IB_CQ_PR_FLAGS_REAL_TIME_TS;
+
+	MLX5_SET(create_cq_in, *cqb, uid, context->devx_uid);
+>>>>>>> upstream/android-13
 	return 0;
 
 err_cqb:
 	kvfree(*cqb);
 
 err_db:
+<<<<<<< HEAD
 	mlx5_ib_db_unmap_user(to_mucontext(context), &cq->db);
+=======
+	mlx5_ib_db_unmap_user(context, &cq->db);
+>>>>>>> upstream/android-13
 
 err_umem:
 	ib_umem_release(cq->buf.umem);
 	return err;
 }
 
+<<<<<<< HEAD
 static void destroy_cq_user(struct mlx5_ib_cq *cq, struct ib_ucontext *context)
 {
 	mlx5_ib_db_unmap_user(to_mucontext(context), &cq->db);
@@ -898,13 +1136,29 @@ static void destroy_cq_user(struct mlx5_ib_cq *cq, struct ib_ucontext *context)
 
 static void init_cq_frag_buf(struct mlx5_ib_cq *cq,
 			     struct mlx5_ib_cq_buf *buf)
+=======
+static void destroy_cq_user(struct mlx5_ib_cq *cq, struct ib_udata *udata)
+{
+	struct mlx5_ib_ucontext *context = rdma_udata_to_drv_context(
+		udata, struct mlx5_ib_ucontext, ibucontext);
+
+	mlx5_ib_db_unmap_user(context, &cq->db);
+	ib_umem_release(cq->buf.umem);
+}
+
+static void init_cq_frag_buf(struct mlx5_ib_cq_buf *buf)
+>>>>>>> upstream/android-13
 {
 	int i;
 	void *cqe;
 	struct mlx5_cqe64 *cqe64;
 
 	for (i = 0; i < buf->nent; i++) {
+<<<<<<< HEAD
 		cqe = get_cqe(cq, i);
+=======
+		cqe = mlx5_frag_buf_get_wqe(&buf->fbc, i);
+>>>>>>> upstream/android-13
 		cqe64 = buf->cqe_size == 64 ? cqe : cqe + 64;
 		cqe64->op_own = MLX5_CQE_INVALID << 4;
 	}
@@ -930,11 +1184,19 @@ static int create_cq_kernel(struct mlx5_ib_dev *dev, struct mlx5_ib_cq *cq,
 	if (err)
 		goto err_db;
 
+<<<<<<< HEAD
 	init_cq_frag_buf(cq, &cq->buf);
 
 	*inlen = MLX5_ST_SZ_BYTES(create_cq_in) +
 		 MLX5_FLD_SZ_BYTES(create_cq_in, pas[0]) *
 		 cq->buf.fbc.frag_buf.npages;
+=======
+	init_cq_frag_buf(&cq->buf);
+
+	*inlen = MLX5_ST_SZ_BYTES(create_cq_in) +
+		 MLX5_FLD_SZ_BYTES(create_cq_in, pas[0]) *
+		 cq->buf.frag_buf.npages;
+>>>>>>> upstream/android-13
 	*cqb = kvzalloc(*inlen, GFP_KERNEL);
 	if (!*cqb) {
 		err = -ENOMEM;
@@ -942,11 +1204,19 @@ static int create_cq_kernel(struct mlx5_ib_dev *dev, struct mlx5_ib_cq *cq,
 	}
 
 	pas = (__be64 *)MLX5_ADDR_OF(create_cq_in, *cqb, pas);
+<<<<<<< HEAD
 	mlx5_fill_page_frag_array(&cq->buf.fbc.frag_buf, pas);
 
 	cqc = MLX5_ADDR_OF(create_cq_in, *cqb, cq_context);
 	MLX5_SET(cqc, cqc, log_page_size,
 		 cq->buf.fbc.frag_buf.page_shift -
+=======
+	mlx5_fill_page_frag_array(&cq->buf.frag_buf, pas);
+
+	cqc = MLX5_ADDR_OF(create_cq_in, *cqb, cq_context);
+	MLX5_SET(cqc, cqc, log_page_size,
+		 cq->buf.frag_buf.page_shift -
+>>>>>>> upstream/android-13
 		 MLX5_ADAPTER_PAGE_SHIFT);
 
 	*index = dev->mdev->priv.uar->index;
@@ -975,6 +1245,7 @@ static void notify_soft_wc_handler(struct work_struct *work)
 	cq->ibcq.comp_handler(&cq->ibcq, cq->ibcq.cq_context);
 }
 
+<<<<<<< HEAD
 struct ib_cq *mlx5_ib_create_cq(struct ib_device *ibdev,
 				const struct ib_cq_init_attr *attr,
 				struct ib_ucontext *context,
@@ -990,11 +1261,28 @@ struct ib_cq *mlx5_ib_create_cq(struct ib_device *ibdev,
 	void *cqc;
 	int cqe_size;
 	unsigned int irqn;
+=======
+int mlx5_ib_create_cq(struct ib_cq *ibcq, const struct ib_cq_init_attr *attr,
+		      struct ib_udata *udata)
+{
+	struct ib_device *ibdev = ibcq->device;
+	int entries = attr->cqe;
+	int vector = attr->comp_vector;
+	struct mlx5_ib_dev *dev = to_mdev(ibdev);
+	struct mlx5_ib_cq *cq = to_mcq(ibcq);
+	u32 out[MLX5_ST_SZ_DW(create_cq_out)];
+	int index;
+	int inlen;
+	u32 *cqb = NULL;
+	void *cqc;
+	int cqe_size;
+>>>>>>> upstream/android-13
 	int eqn;
 	int err;
 
 	if (entries < 0 ||
 	    (entries > (1 << MLX5_CAP_GEN(dev->mdev, log_max_cq_sz))))
+<<<<<<< HEAD
 		return ERR_PTR(-EINVAL);
 
 	if (check_cq_create_flags(attr->flags))
@@ -1007,6 +1295,16 @@ struct ib_cq *mlx5_ib_create_cq(struct ib_device *ibdev,
 	cq = kzalloc(sizeof(*cq), GFP_KERNEL);
 	if (!cq)
 		return ERR_PTR(-ENOMEM);
+=======
+		return -EINVAL;
+
+	if (check_cq_create_flags(attr->flags))
+		return -EOPNOTSUPP;
+
+	entries = roundup_pow_of_two(entries + 1);
+	if (entries > (1 << MLX5_CAP_GEN(dev->mdev, log_max_cq_sz)))
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	cq->ibcq.cqe = entries - 1;
 	mutex_init(&cq->resize_mutex);
@@ -1017,22 +1315,38 @@ struct ib_cq *mlx5_ib_create_cq(struct ib_device *ibdev,
 	INIT_LIST_HEAD(&cq->list_send_qp);
 	INIT_LIST_HEAD(&cq->list_recv_qp);
 
+<<<<<<< HEAD
 	if (context) {
 		err = create_cq_user(dev, udata, context, cq, entries,
 				     &cqb, &cqe_size, &index, &inlen);
 		if (err)
 			goto err_create;
+=======
+	if (udata) {
+		err = create_cq_user(dev, udata, cq, entries, &cqb, &cqe_size,
+				     &index, &inlen);
+		if (err)
+			return err;
+>>>>>>> upstream/android-13
 	} else {
 		cqe_size = cache_line_size() == 128 ? 128 : 64;
 		err = create_cq_kernel(dev, cq, entries, cqe_size, &cqb,
 				       &index, &inlen);
 		if (err)
+<<<<<<< HEAD
 			goto err_create;
+=======
+			return err;
+>>>>>>> upstream/android-13
 
 		INIT_WORK(&cq->notify_work, notify_soft_wc_handler);
 	}
 
+<<<<<<< HEAD
 	err = mlx5_vector2eqn(dev->mdev, vector, &eqn, &irqn);
+=======
+	err = mlx5_vector2eqn(dev->mdev, vector, &eqn);
+>>>>>>> upstream/android-13
 	if (err)
 		goto err_cqb;
 
@@ -1045,18 +1359,30 @@ struct ib_cq *mlx5_ib_create_cq(struct ib_device *ibdev,
 				  MLX5_IB_CQ_PR_FLAGS_CQE_128_PAD));
 	MLX5_SET(cqc, cqc, log_cq_size, ilog2(entries));
 	MLX5_SET(cqc, cqc, uar_page, index);
+<<<<<<< HEAD
 	MLX5_SET(cqc, cqc, c_eqn, eqn);
+=======
+	MLX5_SET(cqc, cqc, c_eqn_or_apu_element, eqn);
+>>>>>>> upstream/android-13
 	MLX5_SET64(cqc, cqc, dbr_addr, cq->db.dma);
 	if (cq->create_flags & IB_UVERBS_CQ_FLAGS_IGNORE_OVERRUN)
 		MLX5_SET(cqc, cqc, oi, 1);
 
+<<<<<<< HEAD
 	err = mlx5_core_create_cq(dev->mdev, &cq->mcq, cqb, inlen);
+=======
+	err = mlx5_core_create_cq(dev->mdev, &cq->mcq, cqb, inlen, out, sizeof(out));
+>>>>>>> upstream/android-13
 	if (err)
 		goto err_cqb;
 
 	mlx5_ib_dbg(dev, "cqn 0x%x\n", cq->mcq.cqn);
+<<<<<<< HEAD
 	cq->mcq.irqn = irqn;
 	if (context)
+=======
+	if (udata)
+>>>>>>> upstream/android-13
 		cq->mcq.tasklet_ctx.comp = mlx5_ib_cq_comp;
 	else
 		cq->mcq.comp  = mlx5_ib_cq_comp;
@@ -1064,7 +1390,11 @@ struct ib_cq *mlx5_ib_create_cq(struct ib_device *ibdev,
 
 	INIT_LIST_HEAD(&cq->wc_list);
 
+<<<<<<< HEAD
 	if (context)
+=======
+	if (udata)
+>>>>>>> upstream/android-13
 		if (ib_copy_to_udata(udata, &cq->mcq.cqn, sizeof(__u32))) {
 			err = -EFAULT;
 			goto err_cmd;
@@ -1072,13 +1402,18 @@ struct ib_cq *mlx5_ib_create_cq(struct ib_device *ibdev,
 
 
 	kvfree(cqb);
+<<<<<<< HEAD
 	return &cq->ibcq;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 
 err_cmd:
 	mlx5_core_destroy_cq(dev->mdev, &cq->mcq);
 
 err_cqb:
 	kvfree(cqb);
+<<<<<<< HEAD
 	if (context)
 		destroy_cq_user(cq, context);
 	else
@@ -1108,6 +1443,29 @@ int mlx5_ib_destroy_cq(struct ib_cq *cq)
 
 	kfree(mcq);
 
+=======
+	if (udata)
+		destroy_cq_user(cq, udata);
+	else
+		destroy_cq_kernel(dev, cq);
+	return err;
+}
+
+int mlx5_ib_destroy_cq(struct ib_cq *cq, struct ib_udata *udata)
+{
+	struct mlx5_ib_dev *dev = to_mdev(cq->device);
+	struct mlx5_ib_cq *mcq = to_mcq(cq);
+	int ret;
+
+	ret = mlx5_core_destroy_cq(dev->mdev, &mcq->mcq);
+	if (ret)
+		return ret;
+
+	if (udata)
+		destroy_cq_user(mcq, udata);
+	else
+		destroy_cq_kernel(dev, mcq);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1198,14 +1556,22 @@ int mlx5_ib_modify_cq(struct ib_cq *cq, u16 cq_count, u16 cq_period)
 }
 
 static int resize_user(struct mlx5_ib_dev *dev, struct mlx5_ib_cq *cq,
+<<<<<<< HEAD
 		       int entries, struct ib_udata *udata, int *npas,
 		       int *page_shift, int *cqe_size)
+=======
+		       int entries, struct ib_udata *udata,
+		       int *cqe_size)
+>>>>>>> upstream/android-13
 {
 	struct mlx5_ib_resize_cq ucmd;
 	struct ib_umem *umem;
 	int err;
+<<<<<<< HEAD
 	int npages;
 	struct ib_ucontext *context = cq->buf.umem->context;
+=======
+>>>>>>> upstream/android-13
 
 	err = ib_copy_from_udata(&ucmd, udata, sizeof(ucmd));
 	if (err)
@@ -1218,28 +1584,40 @@ static int resize_user(struct mlx5_ib_dev *dev, struct mlx5_ib_cq *cq,
 	if (ucmd.cqe_size && SIZE_MAX / ucmd.cqe_size <= entries - 1)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	umem = ib_umem_get(context, ucmd.buf_addr,
 			   (size_t)ucmd.cqe_size * entries,
 			   IB_ACCESS_LOCAL_WRITE, 1);
+=======
+	umem = ib_umem_get(&dev->ib_dev, ucmd.buf_addr,
+			   (size_t)ucmd.cqe_size * entries,
+			   IB_ACCESS_LOCAL_WRITE);
+>>>>>>> upstream/android-13
 	if (IS_ERR(umem)) {
 		err = PTR_ERR(umem);
 		return err;
 	}
 
+<<<<<<< HEAD
 	mlx5_ib_cont_pages(umem, ucmd.buf_addr, 0, &npages, page_shift,
 			   npas, NULL);
 
+=======
+>>>>>>> upstream/android-13
 	cq->resize_umem = umem;
 	*cqe_size = ucmd.cqe_size;
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static void un_resize_user(struct mlx5_ib_cq *cq)
 {
 	ib_umem_release(cq->resize_umem);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int resize_kernel(struct mlx5_ib_dev *dev, struct mlx5_ib_cq *cq,
 			 int entries, int cqe_size)
 {
@@ -1253,7 +1631,11 @@ static int resize_kernel(struct mlx5_ib_dev *dev, struct mlx5_ib_cq *cq,
 	if (err)
 		goto ex;
 
+<<<<<<< HEAD
 	init_cq_frag_buf(cq, cq->resize_buf);
+=======
+	init_cq_frag_buf(cq->resize_buf);
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -1262,12 +1644,15 @@ ex:
 	return err;
 }
 
+<<<<<<< HEAD
 static void un_resize_kernel(struct mlx5_ib_dev *dev, struct mlx5_ib_cq *cq)
 {
 	free_cq_buf(dev, cq->resize_buf);
 	cq->resize_buf = NULL;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int copy_resize_cqes(struct mlx5_ib_cq *cq)
 {
 	struct mlx5_ib_dev *dev = to_mdev(cq->ibcq.device);
@@ -1297,7 +1682,11 @@ static int copy_resize_cqes(struct mlx5_ib_cq *cq)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	while ((scqe64->op_own >> 4) != MLX5_CQE_RESIZE_CQ) {
+=======
+	while (get_cqe_opcode(scqe64) != MLX5_CQE_RESIZE_CQ) {
+>>>>>>> upstream/android-13
 		dcqe = mlx5_frag_buf_get_wqe(&cq->resize_buf->fbc,
 					     (i + 1) & cq->resize_buf->nent);
 		dcqe64 = dsize == 64 ? dcqe : dcqe + 64;
@@ -1332,9 +1721,16 @@ int mlx5_ib_resize_cq(struct ib_cq *ibcq, int entries, struct ib_udata *udata)
 	int err;
 	int npas;
 	__be64 *pas;
+<<<<<<< HEAD
 	int page_shift;
 	int inlen;
 	int uninitialized_var(cqe_size);
+=======
+	unsigned int page_offset_quantized = 0;
+	unsigned int page_shift;
+	int inlen;
+	int cqe_size;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 
 	if (!MLX5_CAP_GEN(dev->mdev, cq_resize)) {
@@ -1359,6 +1755,7 @@ int mlx5_ib_resize_cq(struct ib_cq *ibcq, int entries, struct ib_udata *udata)
 
 	mutex_lock(&cq->resize_mutex);
 	if (udata) {
+<<<<<<< HEAD
 		err = resize_user(dev, cq, entries, udata, &npas, &page_shift,
 				  &cqe_size);
 	} else {
@@ -1376,6 +1773,36 @@ int mlx5_ib_resize_cq(struct ib_cq *ibcq, int entries, struct ib_udata *udata)
 	if (err)
 		goto ex;
 
+=======
+		unsigned long page_size;
+
+		err = resize_user(dev, cq, entries, udata, &cqe_size);
+		if (err)
+			goto ex;
+
+		page_size = mlx5_umem_find_best_cq_quantized_pgoff(
+			cq->resize_umem, cqc, log_page_size,
+			MLX5_ADAPTER_PAGE_SHIFT, page_offset, 64,
+			&page_offset_quantized);
+		if (!page_size) {
+			err = -EINVAL;
+			goto ex_resize;
+		}
+		npas = ib_umem_num_dma_blocks(cq->resize_umem, page_size);
+		page_shift = order_base_2(page_size);
+	} else {
+		struct mlx5_frag_buf *frag_buf;
+
+		cqe_size = 64;
+		err = resize_kernel(dev, cq, entries, cqe_size);
+		if (err)
+			goto ex;
+		frag_buf = &cq->resize_buf->frag_buf;
+		npas = frag_buf->npages;
+		page_shift = frag_buf->page_shift;
+	}
+
+>>>>>>> upstream/android-13
 	inlen = MLX5_ST_SZ_BYTES(modify_cq_in) +
 		MLX5_FLD_SZ_BYTES(modify_cq_in, pas[0]) * npas;
 
@@ -1387,11 +1814,18 @@ int mlx5_ib_resize_cq(struct ib_cq *ibcq, int entries, struct ib_udata *udata)
 
 	pas = (__be64 *)MLX5_ADDR_OF(modify_cq_in, in, pas);
 	if (udata)
+<<<<<<< HEAD
 		mlx5_ib_populate_pas(dev, cq->resize_umem, page_shift,
 				     pas, 0);
 	else
 		mlx5_fill_page_frag_array(&cq->resize_buf->fbc.frag_buf,
 					  pas);
+=======
+		mlx5_ib_populate_pas(cq->resize_umem, 1UL << page_shift, pas,
+				     0);
+	else
+		mlx5_fill_page_frag_array(&cq->resize_buf->frag_buf, pas);
+>>>>>>> upstream/android-13
 
 	MLX5_SET(modify_cq_in, in,
 		 modify_field_select_resize_field_select.resize_field_select.resize_field_select,
@@ -1403,6 +1837,10 @@ int mlx5_ib_resize_cq(struct ib_cq *ibcq, int entries, struct ib_udata *udata)
 
 	MLX5_SET(cqc, cqc, log_page_size,
 		 page_shift - MLX5_ADAPTER_PAGE_SHIFT);
+<<<<<<< HEAD
+=======
+	MLX5_SET(cqc, cqc, page_offset, page_offset_quantized);
+>>>>>>> upstream/android-13
 	MLX5_SET(cqc, cqc, cqe_sz,
 		 cqe_sz_to_mlx_sz(cqe_size,
 				  cq->private_flags &
@@ -1450,16 +1888,28 @@ ex_alloc:
 	kvfree(in);
 
 ex_resize:
+<<<<<<< HEAD
 	if (udata)
 		un_resize_user(cq);
 	else
 		un_resize_kernel(dev, cq);
+=======
+	ib_umem_release(cq->resize_umem);
+	if (!udata) {
+		free_cq_buf(dev, cq->resize_buf);
+		cq->resize_buf = NULL;
+	}
+>>>>>>> upstream/android-13
 ex:
 	mutex_unlock(&cq->resize_mutex);
 	return err;
 }
 
+<<<<<<< HEAD
 int mlx5_ib_get_cqe_size(struct mlx5_ib_dev *dev, struct ib_cq *ibcq)
+=======
+int mlx5_ib_get_cqe_size(struct ib_cq *ibcq)
+>>>>>>> upstream/android-13
 {
 	struct mlx5_ib_cq *cq;
 

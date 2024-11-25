@@ -365,7 +365,11 @@ ENTRY(ret_from_interrupt)
 	ldw	r1, PT_ESTATUS(sp)	/* check if returning to kernel */
 	TSTBNZ	r1, r1, ESTATUS_EU, Luser_return
 
+<<<<<<< HEAD
 #ifdef CONFIG_PREEMPT
+=======
+#ifdef CONFIG_PREEMPTION
+>>>>>>> upstream/android-13
 	GET_THREAD_INFO	r1
 	ldw	r4, TI_PREEMPT_COUNT(r1)
 	bne	r4, r0, restore_all
@@ -389,12 +393,19 @@ ENTRY(ret_from_interrupt)
  */
 ENTRY(sys_clone)
 	SAVE_SWITCH_STACK
+<<<<<<< HEAD
 	addi	sp, sp, -4
 	stw	r7, 0(sp)	/* Pass 5th arg thru stack */
 	mov	r7, r6		/* 4th arg is 3rd of clone() */
 	mov	r6, zero	/* 3rd arg always 0 */
 	call	do_fork
 	addi	sp, sp, 4
+=======
+	subi    sp, sp, 4 /* make space for tls pointer */
+	stw     r8, 0(sp) /* pass tls pointer (r8) via stack (5th argument) */
+	call	nios2_clone
+	addi    sp, sp, 4
+>>>>>>> upstream/android-13
 	RESTORE_SWITCH_STACK
 	ret
 

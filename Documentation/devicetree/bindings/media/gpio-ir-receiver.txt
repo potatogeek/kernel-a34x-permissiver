@@ -7,6 +7,11 @@ Required properties:
 Optional properties:
 	- linux,rc-map-name: see rc.txt file in the same
 	  directory.
+<<<<<<< HEAD
+=======
+	- linux,autosuspend-period: autosuspend delay time,
+	  the unit is milisecond.
+>>>>>>> upstream/android-13
 
 Example node:
 
@@ -14,4 +19,8 @@ Example node:
 		compatible = "gpio-ir-receiver";
 		gpios = <&gpio0 19 1>;
 		linux,rc-map-name = "rc-rc6-mce";
+<<<<<<< HEAD
+=======
+		linux,autosuspend-period = <125>;
+>>>>>>> upstream/android-13
 	};

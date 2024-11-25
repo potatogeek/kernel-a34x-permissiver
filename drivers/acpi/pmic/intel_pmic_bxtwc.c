@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * intel_pmic_bxtwc.c - Intel BXT WhiskeyCove PMIC operation region driver
  *
@@ -11,6 +12,13 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Intel BXT WhiskeyCove PMIC operation region driver
+ *
+ * Copyright (C) 2015 Intel Corporation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>

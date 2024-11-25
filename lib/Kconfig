@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # Library configuration
 #
@@ -10,17 +14,52 @@ menu "Library routines"
 config RAID6_PQ
 	tristate
 
+<<<<<<< HEAD
+=======
+config RAID6_PQ_BENCHMARK
+	bool "Automatically choose fastest RAID6 PQ functions"
+	depends on RAID6_PQ
+	default y
+	help
+	  Benchmark all available RAID6 PQ functions on init and choose the
+	  fastest one.
+
+config LINEAR_RANGES
+	tristate
+
+config PACKING
+	bool "Generic bitfield packing and unpacking"
+	default n
+	help
+	  This option provides the packing() helper function, which permits
+	  converting bitfields between a CPU-usable representation and a
+	  memory representation that can have any combination of these quirks:
+	    - Is little endian (bytes are reversed within a 32-bit group)
+	    - The least-significant 32-bit word comes first (within a 64-bit
+	      group)
+	    - The most significant bit of a byte is at its right (bit 0 of a
+	      register description is numerically 2^7).
+	  Drivers may use these helpers to match the bit indices as described
+	  in the data sheets of the peripherals they are in control of.
+
+	  When in doubt, say N.
+
+>>>>>>> upstream/android-13
 config BITREVERSE
 	tristate
 
 config HAVE_ARCH_BITREVERSE
 	bool
 	default n
+<<<<<<< HEAD
 	depends on BITREVERSE
+=======
+>>>>>>> upstream/android-13
 	help
 	  This option enables the use of hardware bit-reversal instructions on
 	  architectures which support such operations.
 
+<<<<<<< HEAD
 config RATIONAL
 	bool
 
@@ -29,6 +68,19 @@ config GENERIC_STRNCPY_FROM_USER
 
 config GENERIC_STRNLEN_USER
 	bool
+=======
+config ARCH_HAS_STRNCPY_FROM_USER
+	bool
+
+config ARCH_HAS_STRNLEN_USER
+	bool
+
+config GENERIC_STRNCPY_FROM_USER
+	def_bool !ARCH_HAS_STRNCPY_FROM_USER
+
+config GENERIC_STRNLEN_USER
+	def_bool !ARCH_HAS_STRNLEN_USER
+>>>>>>> upstream/android-13
 
 config GENERIC_NET_UTILS
 	bool
@@ -36,6 +88,11 @@ config GENERIC_NET_UTILS
 config GENERIC_FIND_FIRST_BIT
 	bool
 
+<<<<<<< HEAD
+=======
+source "lib/math/Kconfig"
+
+>>>>>>> upstream/android-13
 config NO_GENERIC_PCI_IOPORT_MAP
 	bool
 
@@ -55,6 +112,12 @@ config ARCH_USE_CMPXCHG_LOCKREF
 config ARCH_HAS_FAST_MULTIPLIER
 	bool
 
+<<<<<<< HEAD
+=======
+config ARCH_USE_SYM_ANNOTATIONS
+	bool
+
+>>>>>>> upstream/android-13
 config INDIRECT_PIO
 	bool "Access I/O in non-MMIO mode"
 	depends on ARM64
@@ -71,6 +134,23 @@ config INDIRECT_PIO
 
 	  When in doubt, say N.
 
+<<<<<<< HEAD
+=======
+config INDIRECT_IOMEM
+	bool
+	help
+	  This is selected by other options/architectures to provide the
+	  emulated iomem accessors.
+
+config INDIRECT_IOMEM_FALLBACK
+	bool
+	depends on INDIRECT_IOMEM
+	help
+	  If INDIRECT_IOMEM is selected, this enables falling back to plain
+	  mmio accesses when the IO memory address is not a registered
+	  emulated region.
+
+>>>>>>> upstream/android-13
 config CRC_CCITT
 	tristate "CRC-CCITT functions"
 	help
@@ -253,6 +333,16 @@ config ZLIB_DEFLATE
 	tristate
 	select BITREVERSE
 
+<<<<<<< HEAD
+=======
+config ZLIB_DFLTCC
+	def_bool y
+	depends on S390
+	prompt "Enable s390x DEFLATE CONVERSION CALL support for kernel zlib"
+	help
+	 Enable s390x hardware support for zlib in the kernel.
+
+>>>>>>> upstream/android-13
 config LZO_COMPRESS
 	tristate
 
@@ -304,6 +394,13 @@ config DECOMPRESS_LZ4
 	select LZ4_DECOMPRESS
 	tristate
 
+<<<<<<< HEAD
+=======
+config DECOMPRESS_ZSTD
+	select ZSTD_DECOMPRESS
+	tristate
+
+>>>>>>> upstream/android-13
 #
 # Generic allocator support is selected if needed
 #
@@ -395,12 +492,24 @@ config INTERVAL_TREE
 
 	  See:
 
+<<<<<<< HEAD
 		Documentation/rbtree.txt
 
 	  for more information.
 
 config RADIX_TREE_MULTIORDER
 	bool
+=======
+		Documentation/core-api/rbtree.rst
+
+	  for more information.
+
+config XARRAY_MULTI
+	bool
+	help
+	  Support entries which occupy multiple consecutive indices in the
+	  XArray.
+>>>>>>> upstream/android-13
 
 config ASSOCIATIVE_ARRAY
 	bool
@@ -419,7 +528,10 @@ config ASSOCIATIVE_ARRAY
 config HAS_IOMEM
 	bool
 	depends on !NO_IOMEM
+<<<<<<< HEAD
 	select GENERIC_IO
+=======
+>>>>>>> upstream/android-13
 	default y
 
 config HAS_IOPORT_MAP
@@ -503,6 +615,7 @@ config LRU_CACHE
 config CLZ_TAB
 	bool
 
+<<<<<<< HEAD
 config CORDIC
 	tristate "CORDIC algorithm"
 	help
@@ -517,6 +630,8 @@ config DDR
 	  information. This data is useful for drivers handling
 	  DDR SDRAM controllers.
 
+=======
+>>>>>>> upstream/android-13
 config IRQ_POLL
 	bool "IRQ polling library"
 	help
@@ -540,6 +655,16 @@ config SIGNATURE
 	  Digital signature verification. Currently only RSA is supported.
 	  Implementation is done using GnuPG MPI library
 
+<<<<<<< HEAD
+=======
+config DIMLIB
+	bool
+	help
+	  Dynamic Interrupt Moderation library.
+	  Implements an algorithm for dynamically changing CQ moderation values
+	  according to run time performance.
+
+>>>>>>> upstream/android-13
 #
 # libfdt files, only selected if needed.
 #
@@ -552,7 +677,11 @@ config OID_REGISTRY
 	  Enable fast lookup object identifier registry.
 
 config UCS2_STRING
+<<<<<<< HEAD
         tristate
+=======
+	tristate
+>>>>>>> upstream/android-13
 
 #
 # generic vdso
@@ -579,28 +708,73 @@ config SG_POOL
 # sg chaining option
 #
 
+<<<<<<< HEAD
 config ARCH_HAS_SG_CHAIN
+=======
+config ARCH_NO_SG_CHAIN
+>>>>>>> upstream/android-13
 	def_bool n
 
 config ARCH_HAS_PMEM_API
 	bool
 
+<<<<<<< HEAD
 config ARCH_HAS_UACCESS_FLUSHCACHE
 	bool
 
 config ARCH_HAS_UACCESS_MCSAFE
 	bool
 
+=======
+config MEMREGION
+	bool
+
+config ARCH_HAS_MEMREMAP_COMPAT_ALIGN
+	bool
+
+# use memcpy to implement user copies for nommu architectures
+config UACCESS_MEMCPY
+	bool
+
+config ARCH_HAS_UACCESS_FLUSHCACHE
+	bool
+
+# arch has a concept of a recoverable synchronous exception due to a
+# memory-read error like x86 machine-check or ARM data-abort, and
+# implements copy_mc_to_{user,kernel} to abort and report
+# 'bytes-transferred' if that exception fires when accessing the source
+# buffer.
+config ARCH_HAS_COPY_MC
+	bool
+
+# Temporary. Goes away when all archs are cleaned up
+config ARCH_STACKWALK
+       bool
+
+>>>>>>> upstream/android-13
 config STACKDEPOT
 	bool
 	select STACKTRACE
 
+<<<<<<< HEAD
+=======
+config STACK_HASH_ORDER
+	int "stack depot hash size (12 => 4KB, 20 => 1024KB)"
+	range 12 20
+	default 20
+	depends on STACKDEPOT
+	help
+	 Select the hash size as a power of 2 for the stackdepot hash table.
+	 Choose a lower value to reduce the memory impact.
+
+>>>>>>> upstream/android-13
 config SBITMAP
 	bool
 
 config PARMAN
 	tristate "parman" if COMPILE_TEST
 
+<<<<<<< HEAD
 config PRIME_NUMBERS
 	tristate
 
@@ -609,6 +783,16 @@ config STRING_SELFTEST
 
 endmenu
 
+=======
+config OBJAGG
+	tristate "objagg" if COMPILE_TEST
+
+endmenu
+
+config GENERIC_IOREMAP
+	bool
+
+>>>>>>> upstream/android-13
 config GENERIC_LIB_ASHLDI3
 	bool
 
@@ -626,3 +810,16 @@ config GENERIC_LIB_CMPDI2
 
 config GENERIC_LIB_UCMPDI2
 	bool
+<<<<<<< HEAD
+=======
+
+config GENERIC_LIB_DEVMEM_IS_ALLOWED
+	bool
+
+config PLDMFW
+	bool
+	default n
+
+config ASN1_ENCODER
+       tristate
+>>>>>>> upstream/android-13

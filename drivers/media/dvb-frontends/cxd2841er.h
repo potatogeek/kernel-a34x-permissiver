@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * cxd2841er.h
  *
@@ -7,6 +11,7 @@
  * Copyright (C) 2014 NetUP Inc.
  * Copyright (C) 2014 Sergey Kozlov <serjk@netup.ru>
  * Copyright (C) 2014 Abylay Ospan <aospan@netup.ru>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
   */
 
 #ifndef CXD2841ER_H

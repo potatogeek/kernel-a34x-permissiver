@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Audio support for Philips UDA1380
  *
@@ -5,6 +6,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Audio support for Philips UDA1380
+ *
+>>>>>>> upstream/android-13
  * Copyright (c) 2005 Giorgio Padrin <giorgio@mandarinlogiq.org>
  */
 

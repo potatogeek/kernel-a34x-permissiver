@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Process creation support for Hexagon
  *
  * Copyright (c) 2010-2012, The Linux Foundation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -16,6 +21,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/sched.h>
@@ -57,14 +64,23 @@ void arch_cpu_idle(void)
 {
 	__vmwait();
 	/*  interrupts wake us up, but irqs are still disabled */
+<<<<<<< HEAD
 	local_irq_enable();
+=======
+	raw_local_irq_enable();
+>>>>>>> upstream/android-13
 }
 
 /*
  * Copy architecture-specific thread state
  */
+<<<<<<< HEAD
 int copy_thread(unsigned long clone_flags, unsigned long usp,
 		unsigned long arg, struct task_struct *p)
+=======
+int copy_thread(unsigned long clone_flags, unsigned long usp, unsigned long arg,
+		struct task_struct *p, unsigned long tls)
+>>>>>>> upstream/android-13
 {
 	struct thread_info *ti = task_thread_info(p);
 	struct hexagon_switch_stack *ss;
@@ -86,7 +102,11 @@ int copy_thread(unsigned long clone_flags, unsigned long usp,
 						    sizeof(*ss));
 	ss->lr = (unsigned long)ret_from_fork;
 	p->thread.switch_sp = ss;
+<<<<<<< HEAD
 	if (unlikely(p->flags & PF_KTHREAD)) {
+=======
+	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
+>>>>>>> upstream/android-13
 		memset(childregs, 0, sizeof(struct pt_regs));
 		/* r24 <- fn, r25 <- arg */
 		ss->r24 = usp;
@@ -113,7 +133,11 @@ int copy_thread(unsigned long clone_flags, unsigned long usp,
 	 * ugp is used to provide TLS support.
 	 */
 	if (clone_flags & CLONE_SETTLS)
+<<<<<<< HEAD
 		childregs->ugp = childregs->r04;
+=======
+		childregs->ugp = tls;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Parent sees new pid -- not necessary, not even possible at
@@ -148,7 +172,11 @@ unsigned long get_wchan(struct task_struct *p)
 	unsigned long fp, pc;
 	unsigned long stack_page;
 	int count = 0;
+<<<<<<< HEAD
 	if (!p || p == current || p->state == TASK_RUNNING)
+=======
+	if (!p || p == current || task_is_running(p))
+>>>>>>> upstream/android-13
 		return 0;
 
 	stack_page = (unsigned long)task_stack_page(p);
@@ -167,6 +195,7 @@ unsigned long get_wchan(struct task_struct *p)
 }
 
 /*
+<<<<<<< HEAD
  * Required placeholder.
  */
 int dump_fpu(struct pt_regs *regs, elf_fpregset_t *fpu)
@@ -176,6 +205,8 @@ int dump_fpu(struct pt_regs *regs, elf_fpregset_t *fpu)
 
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Called on the exit path of event entry; see vm_entry.S
  *
  * Interrupts will already be disabled.
@@ -196,13 +227,20 @@ int do_work_pending(struct pt_regs *regs, u32 thread_info_flags)
 		return 1;
 	}
 
+<<<<<<< HEAD
 	if (thread_info_flags & _TIF_SIGPENDING) {
+=======
+	if (thread_info_flags & (_TIF_SIGPENDING | _TIF_NOTIFY_SIGNAL)) {
+>>>>>>> upstream/android-13
 		do_signal(regs);
 		return 1;
 	}
 
 	if (thread_info_flags & _TIF_NOTIFY_RESUME) {
+<<<<<<< HEAD
 		clear_thread_flag(TIF_NOTIFY_RESUME);
+=======
+>>>>>>> upstream/android-13
 		tracehook_notify_resume(regs);
 		return 1;
 	}

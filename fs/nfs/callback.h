@@ -72,8 +72,13 @@ struct cb_getattrres {
 	uint32_t bitmap[2];
 	uint64_t size;
 	uint64_t change_attr;
+<<<<<<< HEAD
 	struct timespec ctime;
 	struct timespec mtime;
+=======
+	struct timespec64 ctime;
+	struct timespec64 mtime;
+>>>>>>> upstream/android-13
 };
 
 struct cb_recallargs {
@@ -127,7 +132,13 @@ extern __be32 nfs4_callback_sequence(void *argp, void *resp,
 #define RCA4_TYPE_MASK_OBJ_LAYOUT_MAX  9
 #define RCA4_TYPE_MASK_OTHER_LAYOUT_MIN 12
 #define RCA4_TYPE_MASK_OTHER_LAYOUT_MAX 15
+<<<<<<< HEAD
 #define RCA4_TYPE_MASK_ALL 0xf31f
+=======
+#define PNFS_FF_RCA4_TYPE_MASK_READ 16
+#define PNFS_FF_RCA4_TYPE_MASK_RW 17
+#define RCA4_TYPE_MASK_ALL 0x3f31f
+>>>>>>> upstream/android-13
 
 struct cb_recallanyargs {
 	uint32_t	craa_objs_to_keep;
@@ -168,7 +179,11 @@ struct cb_devicenotifyitem {
 };
 
 struct cb_devicenotifyargs {
+<<<<<<< HEAD
 	int				 ndevs;
+=======
+	uint32_t			 ndevs;
+>>>>>>> upstream/android-13
 	struct cb_devicenotifyitem	 *devs;
 };
 

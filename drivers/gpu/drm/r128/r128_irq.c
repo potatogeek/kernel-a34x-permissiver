@@ -30,8 +30,16 @@
  *    Eric Anholt <anholt@FreeBSD.org>
  */
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/r128_drm.h>
+=======
+#include <drm/drm_device.h>
+#include <drm/drm_print.h>
+#include <drm/drm_vblank.h>
+#include <drm/r128_drm.h>
+
+>>>>>>> upstream/android-13
 #include "r128_drv.h"
 
 u32 r128_get_vblank_counter(struct drm_device *dev, unsigned int pipe)

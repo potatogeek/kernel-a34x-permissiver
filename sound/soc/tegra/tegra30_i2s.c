@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * tegra30_i2s.c - Tegra30 I2S driver
  *
@@ -11,6 +15,7 @@
  *
  * Copyright (C) 2010 Google, Inc.
  * Iliyan Malchev <malchev@google.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -23,6 +28,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -34,6 +41,10 @@
 #include <linux/platform_device.h>
 #include <linux/pm_runtime.h>
 #include <linux/regmap.h>
+<<<<<<< HEAD
+=======
+#include <linux/reset.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <sound/core.h>
 #include <sound/pcm.h>
@@ -46,7 +57,11 @@
 
 #define DRV_NAME "tegra30-i2s"
 
+<<<<<<< HEAD
 static int tegra30_i2s_runtime_suspend(struct device *dev)
+=======
+static __maybe_unused int tegra30_i2s_runtime_suspend(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct tegra30_i2s *i2s = dev_get_drvdata(dev);
 
@@ -57,7 +72,11 @@ static int tegra30_i2s_runtime_suspend(struct device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int tegra30_i2s_runtime_resume(struct device *dev)
+=======
+static __maybe_unused int tegra30_i2s_runtime_resume(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct tegra30_i2s *i2s = dev_get_drvdata(dev);
 	int ret;
@@ -69,8 +88,23 @@ static int tegra30_i2s_runtime_resume(struct device *dev)
 	}
 
 	regcache_cache_only(i2s->regmap, false);
+<<<<<<< HEAD
 
 	return 0;
+=======
+	regcache_mark_dirty(i2s->regmap);
+
+	ret = regcache_sync(i2s->regmap);
+	if (ret)
+		goto disable_clocks;
+
+	return 0;
+
+disable_clocks:
+	clk_disable_unprepare(i2s->clk_i2s);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int tegra30_i2s_set_fmt(struct snd_soc_dai *dai,
@@ -231,9 +265,15 @@ static void tegra30_i2s_start_capture(struct tegra30_i2s *i2s)
 
 static void tegra30_i2s_stop_capture(struct tegra30_i2s *i2s)
 {
+<<<<<<< HEAD
 	tegra30_ahub_disable_rx_fifo(i2s->capture_fifo_cif);
 	regmap_update_bits(i2s->regmap, TEGRA30_I2S_CTRL,
 			   TEGRA30_I2S_CTRL_XFER_EN_RX, 0);
+=======
+	regmap_update_bits(i2s->regmap, TEGRA30_I2S_CTRL,
+			   TEGRA30_I2S_CTRL_XFER_EN_RX, 0);
+	tegra30_ahub_disable_rx_fifo(i2s->capture_fifo_cif);
+>>>>>>> upstream/android-13
 }
 
 static int tegra30_i2s_trigger(struct snd_pcm_substream *substream, int cmd,
@@ -265,6 +305,37 @@ static int tegra30_i2s_trigger(struct snd_pcm_substream *substream, int cmd,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int tegra30_i2s_set_tdm(struct snd_soc_dai *dai,
+			       unsigned int tx_mask, unsigned int rx_mask,
+			       int slots, int slot_width)
+{
+	struct tegra30_i2s *i2s = snd_soc_dai_get_drvdata(dai);
+	unsigned int mask, val;
+
+	dev_dbg(dai->dev, "%s: txmask=0x%08x rxmask=0x%08x slots=%d width=%d\n",
+		 __func__, tx_mask, rx_mask, slots, slot_width);
+
+	mask = TEGRA30_I2S_SLOT_CTRL_TOTAL_SLOTS_MASK |
+	       TEGRA30_I2S_SLOT_CTRL_RX_SLOT_ENABLES_MASK |
+	       TEGRA30_I2S_SLOT_CTRL_TX_SLOT_ENABLES_MASK;
+
+	val = (tx_mask << TEGRA30_I2S_SLOT_CTRL_TX_SLOT_ENABLES_SHIFT) |
+	      (rx_mask << TEGRA30_I2S_SLOT_CTRL_RX_SLOT_ENABLES_SHIFT) |
+	      ((slots - 1) << TEGRA30_I2S_SLOT_CTRL_TOTAL_SLOTS_SHIFT);
+
+	pm_runtime_get_sync(dai->dev);
+	regmap_update_bits(i2s->regmap, TEGRA30_I2S_SLOT_CTRL, mask, val);
+	/* set the fsync width to minimum of 1 clock width */
+	regmap_update_bits(i2s->regmap, TEGRA30_I2S_CH_CTRL,
+			   TEGRA30_I2S_CH_CTRL_FSYNC_WIDTH_MASK, 0x0);
+	pm_runtime_put(dai->dev);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int tegra30_i2s_probe(struct snd_soc_dai *dai)
 {
 	struct tegra30_i2s *i2s = snd_soc_dai_get_drvdata(dai);
@@ -279,6 +350,10 @@ static const struct snd_soc_dai_ops tegra30_i2s_dai_ops = {
 	.set_fmt	= tegra30_i2s_set_fmt,
 	.hw_params	= tegra30_i2s_hw_params,
 	.trigger	= tegra30_i2s_trigger,
+<<<<<<< HEAD
+=======
+	.set_tdm_slot	= tegra30_i2s_set_tdm,
+>>>>>>> upstream/android-13
 };
 
 static const struct snd_soc_dai_driver tegra30_i2s_dai_template = {
@@ -298,7 +373,11 @@ static const struct snd_soc_dai_driver tegra30_i2s_dai_template = {
 		.formats = SNDRV_PCM_FMTBIT_S16_LE,
 	},
 	.ops = &tegra30_i2s_dai_ops,
+<<<<<<< HEAD
 	.symmetric_rates = 1,
+=======
+	.symmetric_rate = 1,
+>>>>>>> upstream/android-13
 };
 
 static const struct snd_soc_component_driver tegra30_i2s_component = {
@@ -377,9 +456,14 @@ static const struct of_device_id tegra30_i2s_of_match[] = {
 static int tegra30_i2s_platform_probe(struct platform_device *pdev)
 {
 	struct tegra30_i2s *i2s;
+<<<<<<< HEAD
 	const struct of_device_id *match;
 	u32 cif_ids[2];
 	struct resource *mem;
+=======
+	const struct tegra30_i2s_soc_data *soc_data;
+	u32 cif_ids[2];
+>>>>>>> upstream/android-13
 	void __iomem *regs;
 	int ret;
 
@@ -390,13 +474,22 @@ static int tegra30_i2s_platform_probe(struct platform_device *pdev)
 	}
 	dev_set_drvdata(&pdev->dev, i2s);
 
+<<<<<<< HEAD
 	match = of_match_device(tegra30_i2s_of_match, &pdev->dev);
 	if (!match) {
+=======
+	soc_data = of_device_get_match_data(&pdev->dev);
+	if (!soc_data) {
+>>>>>>> upstream/android-13
 		dev_err(&pdev->dev, "Error: No device match found\n");
 		ret = -ENODEV;
 		goto err;
 	}
+<<<<<<< HEAD
 	i2s->soc_data = (struct tegra30_i2s_soc_data *)match->data;
+=======
+	i2s->soc_data = soc_data;
+>>>>>>> upstream/android-13
 
 	i2s->dai = tegra30_i2s_dai_template;
 	i2s->dai.name = dev_name(&pdev->dev);
@@ -410,18 +503,29 @@ static int tegra30_i2s_platform_probe(struct platform_device *pdev)
 	i2s->playback_i2s_cif = cif_ids[0];
 	i2s->capture_i2s_cif = cif_ids[1];
 
+<<<<<<< HEAD
 	i2s->clk_i2s = clk_get(&pdev->dev, NULL);
+=======
+	i2s->clk_i2s = devm_clk_get(&pdev->dev, NULL);
+>>>>>>> upstream/android-13
 	if (IS_ERR(i2s->clk_i2s)) {
 		dev_err(&pdev->dev, "Can't retrieve i2s clock\n");
 		ret = PTR_ERR(i2s->clk_i2s);
 		goto err;
 	}
 
+<<<<<<< HEAD
 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	regs = devm_ioremap_resource(&pdev->dev, mem);
 	if (IS_ERR(regs)) {
 		ret = PTR_ERR(regs);
 		goto err_clk_put;
+=======
+	regs = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(regs)) {
+		ret = PTR_ERR(regs);
+		goto err;
+>>>>>>> upstream/android-13
 	}
 
 	i2s->regmap = devm_regmap_init_mmio(&pdev->dev, regs,
@@ -429,16 +533,23 @@ static int tegra30_i2s_platform_probe(struct platform_device *pdev)
 	if (IS_ERR(i2s->regmap)) {
 		dev_err(&pdev->dev, "regmap init failed\n");
 		ret = PTR_ERR(i2s->regmap);
+<<<<<<< HEAD
 		goto err_clk_put;
+=======
+		goto err;
+>>>>>>> upstream/android-13
 	}
 	regcache_cache_only(i2s->regmap, true);
 
 	pm_runtime_enable(&pdev->dev);
+<<<<<<< HEAD
 	if (!pm_runtime_enabled(&pdev->dev)) {
 		ret = tegra30_i2s_runtime_resume(&pdev->dev);
 		if (ret)
 			goto err_pm_disable;
 	}
+=======
+>>>>>>> upstream/android-13
 
 	i2s->playback_dma_data.addr_width = DMA_SLAVE_BUSWIDTH_4_BYTES;
 	i2s->playback_dma_data.maxburst = 4;
@@ -448,7 +559,11 @@ static int tegra30_i2s_platform_probe(struct platform_device *pdev)
 					    &i2s->playback_dma_data.addr);
 	if (ret) {
 		dev_err(&pdev->dev, "Could not alloc TX FIFO: %d\n", ret);
+<<<<<<< HEAD
 		goto err_suspend;
+=======
+		goto err_pm_disable;
+>>>>>>> upstream/android-13
 	}
 	ret = tegra30_ahub_set_rx_cif_source(i2s->playback_i2s_cif,
 					     i2s->playback_fifo_cif);
@@ -502,6 +617,7 @@ err_unroute_tx_fifo:
 	tegra30_ahub_unset_rx_cif_source(i2s->playback_i2s_cif);
 err_free_tx_fifo:
 	tegra30_ahub_free_tx_fifo(i2s->playback_fifo_cif);
+<<<<<<< HEAD
 err_suspend:
 	if (!pm_runtime_status_suspended(&pdev->dev))
 		tegra30_i2s_runtime_suspend(&pdev->dev);
@@ -509,6 +625,10 @@ err_pm_disable:
 	pm_runtime_disable(&pdev->dev);
 err_clk_put:
 	clk_put(i2s->clk_i2s);
+=======
+err_pm_disable:
+	pm_runtime_disable(&pdev->dev);
+>>>>>>> upstream/android-13
 err:
 	return ret;
 }
@@ -517,10 +637,13 @@ static int tegra30_i2s_platform_remove(struct platform_device *pdev)
 {
 	struct tegra30_i2s *i2s = dev_get_drvdata(&pdev->dev);
 
+<<<<<<< HEAD
 	pm_runtime_disable(&pdev->dev);
 	if (!pm_runtime_status_suspended(&pdev->dev))
 		tegra30_i2s_runtime_suspend(&pdev->dev);
 
+=======
+>>>>>>> upstream/android-13
 	tegra_pcm_platform_unregister(&pdev->dev);
 	snd_soc_unregister_component(&pdev->dev);
 
@@ -530,11 +653,16 @@ static int tegra30_i2s_platform_remove(struct platform_device *pdev)
 	tegra30_ahub_unset_rx_cif_source(i2s->playback_i2s_cif);
 	tegra30_ahub_free_tx_fifo(i2s->playback_fifo_cif);
 
+<<<<<<< HEAD
 	clk_put(i2s->clk_i2s);
+=======
+	pm_runtime_disable(&pdev->dev);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM_SLEEP
 static int tegra30_i2s_suspend(struct device *dev)
 {
@@ -566,6 +694,13 @@ static const struct dev_pm_ops tegra30_i2s_pm_ops = {
 	SET_RUNTIME_PM_OPS(tegra30_i2s_runtime_suspend,
 			   tegra30_i2s_runtime_resume, NULL)
 	SET_SYSTEM_SLEEP_PM_OPS(tegra30_i2s_suspend, tegra30_i2s_resume)
+=======
+static const struct dev_pm_ops tegra30_i2s_pm_ops = {
+	SET_RUNTIME_PM_OPS(tegra30_i2s_runtime_suspend,
+			   tegra30_i2s_runtime_resume, NULL)
+	SET_SYSTEM_SLEEP_PM_OPS(pm_runtime_force_suspend,
+				pm_runtime_force_resume)
+>>>>>>> upstream/android-13
 };
 
 static struct platform_driver tegra30_i2s_driver = {

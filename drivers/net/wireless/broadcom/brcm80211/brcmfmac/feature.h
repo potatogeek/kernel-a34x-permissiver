@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014 Broadcom Corporation
  *
@@ -12,6 +13,11 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2014 Broadcom Corporation
+>>>>>>> upstream/android-13
  */
 #ifndef _BRCMF_FEATURE_H
 #define _BRCMF_FEATURE_H
@@ -34,7 +40,16 @@
  * GSCAN: enhanced scan offload feature.
  * FWSUP: Firmware supplicant.
  * MONITOR: firmware can pass monitor packets to host.
+<<<<<<< HEAD
  * MONITOR_FMT_RADIOTAP: firmware provides monitor packets with radiotap header
+=======
+ * MONITOR_FLAG: firmware flags monitor packets.
+ * MONITOR_FMT_RADIOTAP: firmware provides monitor packets with radiotap header
+ * MONITOR_FMT_HW_RX_HDR: firmware provides monitor packets with hw/ucode header
+ * DOT11H: firmware supports 802.11h
+ * SAE: simultaneous authentication of equals
+ * FWAUTH: Firmware authenticator
+>>>>>>> upstream/android-13
  */
 #define BRCMF_FEAT_LIST \
 	BRCMF_FEAT_DEF(MBSS) \
@@ -52,7 +67,16 @@
 	BRCMF_FEAT_DEF(GSCAN) \
 	BRCMF_FEAT_DEF(FWSUP) \
 	BRCMF_FEAT_DEF(MONITOR) \
+<<<<<<< HEAD
 	BRCMF_FEAT_DEF(MONITOR_FMT_RADIOTAP)
+=======
+	BRCMF_FEAT_DEF(MONITOR_FLAG) \
+	BRCMF_FEAT_DEF(MONITOR_FMT_RADIOTAP) \
+	BRCMF_FEAT_DEF(MONITOR_FMT_HW_RX_HDR) \
+	BRCMF_FEAT_DEF(DOT11H) \
+	BRCMF_FEAT_DEF(SAE) \
+	BRCMF_FEAT_DEF(FWAUTH)
+>>>>>>> upstream/android-13
 
 /*
  * Quirks:

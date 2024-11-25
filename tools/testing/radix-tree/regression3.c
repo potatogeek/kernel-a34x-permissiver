@@ -69,6 +69,7 @@ void regression3_test(void)
 			continue;
 		}
 	}
+<<<<<<< HEAD
 	radix_tree_delete(&root, 1);
 
 	first = true;
@@ -84,6 +85,8 @@ void regression3_test(void)
 			continue;
 		}
 	}
+=======
+>>>>>>> upstream/android-13
 
 	radix_tree_for_each_slot(slot, &root, &iter, 0) {
 		printv(2, "slot %ld %p\n", iter.index, *slot);
@@ -93,6 +96,7 @@ void regression3_test(void)
 		}
 	}
 
+<<<<<<< HEAD
 	radix_tree_for_each_contig(slot, &root, &iter, 0) {
 		printv(2, "contig %ld %p\n", iter.index, *slot);
 		if (!iter.index) {
@@ -101,6 +105,8 @@ void regression3_test(void)
 		}
 	}
 
+=======
+>>>>>>> upstream/android-13
 	radix_tree_tag_set(&root, 0, 0);
 	radix_tree_tag_set(&root, 1, 0);
 	radix_tree_for_each_tagged(slot, &root, &iter, 0, 0) {

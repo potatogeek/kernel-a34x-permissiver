@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -11,6 +12,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright IBM Corp. 2008
  *
@@ -19,6 +24,7 @@
 #ifndef __POWERPC_KVM_PARA_H__
 #define __POWERPC_KVM_PARA_H__
 
+<<<<<<< HEAD
 #include <uapi/asm/kvm_para.h>
 
 #ifdef CONFIG_KVM_GUEST
@@ -48,6 +54,17 @@ static inline int kvm_para_available(void)
 
 #endif
 
+=======
+#include <asm/kvm_guest.h>
+
+#include <uapi/asm/kvm_para.h>
+
+static inline int kvm_para_available(void)
+{
+	return IS_ENABLED(CONFIG_KVM_GUEST) && is_kvm_guest();
+}
+
+>>>>>>> upstream/android-13
 static inline unsigned int kvm_arch_para_features(void)
 {
 	unsigned long r;

@@ -12,6 +12,11 @@
  *  for more details.
  */
 
+<<<<<<< HEAD
+=======
+#include <linux/build_bug.h>
+
+>>>>>>> upstream/android-13
 
     /*
      *  Basic transpose step
@@ -27,9 +32,13 @@ static inline void _transp(u32 d[], unsigned int i1, unsigned int i2,
 }
 
 
+<<<<<<< HEAD
 extern void c2p_unsupported(void);
 
 static inline u32 get_mask(unsigned int n)
+=======
+static __always_inline u32 get_mask(unsigned int n)
+>>>>>>> upstream/android-13
 {
 	switch (n) {
 	case 1:
@@ -48,7 +57,11 @@ static inline u32 get_mask(unsigned int n)
 		return 0x0000ffff;
 	}
 
+<<<<<<< HEAD
 	c2p_unsupported();
+=======
+	BUILD_BUG();
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -57,7 +70,11 @@ static inline u32 get_mask(unsigned int n)
      *  Transpose operations on 8 32-bit words
      */
 
+<<<<<<< HEAD
 static inline void transp8(u32 d[], unsigned int n, unsigned int m)
+=======
+static __always_inline void transp8(u32 d[], unsigned int n, unsigned int m)
+>>>>>>> upstream/android-13
 {
 	u32 mask = get_mask(n);
 
@@ -91,7 +108,11 @@ static inline void transp8(u32 d[], unsigned int n, unsigned int m)
 		return;
 	}
 
+<<<<<<< HEAD
 	c2p_unsupported();
+=======
+	BUILD_BUG();
+>>>>>>> upstream/android-13
 }
 
 
@@ -99,7 +120,11 @@ static inline void transp8(u32 d[], unsigned int n, unsigned int m)
      *  Transpose operations on 4 32-bit words
      */
 
+<<<<<<< HEAD
 static inline void transp4(u32 d[], unsigned int n, unsigned int m)
+=======
+static __always_inline void transp4(u32 d[], unsigned int n, unsigned int m)
+>>>>>>> upstream/android-13
 {
 	u32 mask = get_mask(n);
 
@@ -118,7 +143,11 @@ static inline void transp4(u32 d[], unsigned int n, unsigned int m)
 		return;
 	}
 
+<<<<<<< HEAD
 	c2p_unsupported();
+=======
+	BUILD_BUG();
+>>>>>>> upstream/android-13
 }
 
 
@@ -126,7 +155,11 @@ static inline void transp4(u32 d[], unsigned int n, unsigned int m)
      *  Transpose operations on 4 32-bit words (reverse order)
      */
 
+<<<<<<< HEAD
 static inline void transp4x(u32 d[], unsigned int n, unsigned int m)
+=======
+static __always_inline void transp4x(u32 d[], unsigned int n, unsigned int m)
+>>>>>>> upstream/android-13
 {
 	u32 mask = get_mask(n);
 
@@ -138,7 +171,11 @@ static inline void transp4x(u32 d[], unsigned int n, unsigned int m)
 		return;
 	}
 
+<<<<<<< HEAD
 	c2p_unsupported();
+=======
+	BUILD_BUG();
+>>>>>>> upstream/android-13
 }
 
 

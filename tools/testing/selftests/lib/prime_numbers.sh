@@ -1,6 +1,7 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-2.0
 # Checks fast/slow prime_number generation for inconsistencies
+<<<<<<< HEAD
 
 # Kselftest framework requirement - SKIP code is 4.
 ksft_skip=4
@@ -17,3 +18,6 @@ else
 	echo "prime_numbers: [FAIL]"
 	exit 1
 fi
+=======
+$(dirname $0)/../kselftest/module.sh "prime numbers" prime_numbers selftest=65536
+>>>>>>> upstream/android-13

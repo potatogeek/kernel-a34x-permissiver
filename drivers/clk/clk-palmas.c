@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Clock driver for Palmas device.
  *
@@ -6,6 +10,7 @@
  *
  * Author:	Laxman Dewangan <ldewangan@nvidia.com>
  *		Peter Ujfalusi <peter.ujfalusi@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,6 +20,8 @@
  * whether express or implied; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -115,7 +122,11 @@ static int palmas_clks_is_prepared(struct clk_hw *hw)
 	return !!(val & cinfo->clk_desc->enable_mask);
 }
 
+<<<<<<< HEAD
 static struct clk_ops palmas_clks_ops = {
+=======
+static const struct clk_ops palmas_clks_ops = {
+>>>>>>> upstream/android-13
 	.prepare	= palmas_clks_prepare,
 	.unprepare	= palmas_clks_unprepare,
 	.is_prepared	= palmas_clks_is_prepared,
@@ -195,8 +206,13 @@ static void palmas_clks_get_clk_data(struct platform_device *pdev,
 		prop = PALMAS_EXT_CONTROL_NSLEEP;
 		break;
 	default:
+<<<<<<< HEAD
 		dev_warn(&pdev->dev, "%s: Invalid ext control option: %u\n",
 			 node->name, prop);
+=======
+		dev_warn(&pdev->dev, "%pOFn: Invalid ext control option: %u\n",
+			 node, prop);
+>>>>>>> upstream/android-13
 		prop = 0;
 		break;
 	}

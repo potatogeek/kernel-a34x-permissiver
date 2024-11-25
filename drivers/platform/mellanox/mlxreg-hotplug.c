@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016-2018 Mellanox Technologies. All rights reserved.
  * Copyright (c) 2016-2018 Vadim Pasternak <vadimp@mellanox.com>
@@ -29,6 +30,13 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
+=======
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Mellanox hotplug driver
+ *
+ * Copyright (C) 2016-2020 Mellanox Technologies
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
@@ -42,6 +50,10 @@
 #include <linux/platform_data/mlxreg.h>
 #include <linux/platform_device.h>
 #include <linux/spinlock.h>
+<<<<<<< HEAD
+=======
+#include <linux/string_helpers.h>
+>>>>>>> upstream/android-13
 #include <linux/regmap.h>
 #include <linux/workqueue.h>
 
@@ -97,13 +109,40 @@ struct mlxreg_hotplug_priv_data {
 	u8 not_asserted;
 };
 
+<<<<<<< HEAD
+=======
+/* Environment variables array for udev. */
+static char *mlxreg_hotplug_udev_envp[] = { NULL, NULL };
+
+static int
+mlxreg_hotplug_udev_event_send(struct kobject *kobj,
+			       struct mlxreg_core_data *data, bool action)
+{
+	char event_str[MLXREG_CORE_LABEL_MAX_SIZE + 2];
+	char label[MLXREG_CORE_LABEL_MAX_SIZE] = { 0 };
+
+	mlxreg_hotplug_udev_envp[0] = event_str;
+	string_upper(label, data->label);
+	snprintf(event_str, MLXREG_CORE_LABEL_MAX_SIZE, "%s=%d", label, !!action);
+
+	return kobject_uevent_env(kobj, KOBJ_CHANGE, mlxreg_hotplug_udev_envp);
+}
+
+>>>>>>> upstream/android-13
 static int mlxreg_hotplug_device_create(struct mlxreg_hotplug_priv_data *priv,
 					struct mlxreg_core_data *data)
 {
 	struct mlxreg_core_hotplug_platform_data *pdata;
+<<<<<<< HEAD
 
 	/* Notify user by sending hwmon uevent. */
 	kobject_uevent(&priv->hwmon->kobj, KOBJ_CHANGE);
+=======
+	struct i2c_client *client;
+
+	/* Notify user by sending hwmon uevent. */
+	mlxreg_hotplug_udev_event_send(&priv->hwmon->kobj, data, true);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Return if adapter number is negative. It could be in case hotplug
@@ -121,18 +160,32 @@ static int mlxreg_hotplug_device_create(struct mlxreg_hotplug_priv_data *priv,
 		return -EFAULT;
 	}
 
+<<<<<<< HEAD
 	data->hpdev.client = i2c_new_device(data->hpdev.adapter,
 					    data->hpdev.brdinfo);
 	if (!data->hpdev.client) {
+=======
+	client = i2c_new_client_device(data->hpdev.adapter,
+				       data->hpdev.brdinfo);
+	if (IS_ERR(client)) {
+>>>>>>> upstream/android-13
 		dev_err(priv->dev, "Failed to create client %s at bus %d at addr 0x%02x\n",
 			data->hpdev.brdinfo->type, data->hpdev.nr +
 			pdata->shift_nr, data->hpdev.brdinfo->addr);
 
 		i2c_put_adapter(data->hpdev.adapter);
 		data->hpdev.adapter = NULL;
+<<<<<<< HEAD
 		return -EFAULT;
 	}
 
+=======
+		return PTR_ERR(client);
+	}
+
+	data->hpdev.client = client;
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -141,7 +194,11 @@ mlxreg_hotplug_device_destroy(struct mlxreg_hotplug_priv_data *priv,
 			      struct mlxreg_core_data *data)
 {
 	/* Notify user by sending hwmon uevent. */
+<<<<<<< HEAD
 	kobject_uevent(&priv->hwmon->kobj, KOBJ_CHANGE);
+=======
+	mlxreg_hotplug_udev_event_send(&priv->hwmon->kobj, data, false);
+>>>>>>> upstream/android-13
 
 	if (data->hpdev.client) {
 		i2c_unregister_device(data->hpdev.client);
@@ -196,17 +253,60 @@ static int mlxreg_hotplug_attr_init(struct mlxreg_hotplug_priv_data *priv)
 	struct mlxreg_core_hotplug_platform_data *pdata;
 	struct mlxreg_core_item *item;
 	struct mlxreg_core_data *data;
+<<<<<<< HEAD
 	int num_attrs = 0, id = 0, i, j;
+=======
+	unsigned long mask;
+	u32 regval;
+	int num_attrs = 0, id = 0, i, j, k, ret;
+>>>>>>> upstream/android-13
 
 	pdata = dev_get_platdata(&priv->pdev->dev);
 	item = pdata->items;
 
 	/* Go over all kinds of items - psu, pwr, fan. */
 	for (i = 0; i < pdata->counter; i++, item++) {
+<<<<<<< HEAD
 		num_attrs += item->count;
 		data = item->data;
 		/* Go over all units within the item. */
 		for (j = 0; j < item->count; j++, data++, id++) {
+=======
+		if (item->capability) {
+			/*
+			 * Read group capability register to get actual number
+			 * of interrupt capable components and set group mask
+			 * accordingly.
+			 */
+			ret = regmap_read(priv->regmap, item->capability,
+					  &regval);
+			if (ret)
+				return ret;
+
+			item->mask = GENMASK((regval & item->mask) - 1, 0);
+		}
+
+		data = item->data;
+
+		/* Go over all unmasked units within item. */
+		mask = item->mask;
+		k = 0;
+		for_each_set_bit(j, &mask, item->count) {
+			if (data->capability) {
+				/*
+				 * Read capability register and skip non
+				 * relevant attributes.
+				 */
+				ret = regmap_read(priv->regmap,
+						  data->capability, &regval);
+				if (ret)
+					return ret;
+				if (!(regval & data->bit)) {
+					data++;
+					continue;
+				}
+			}
+>>>>>>> upstream/android-13
 			PRIV_ATTR(id) = &PRIV_DEV_ATTR(id).dev_attr.attr;
 			PRIV_ATTR(id)->name = devm_kasprintf(&priv->pdev->dev,
 							     GFP_KERNEL,
@@ -224,9 +324,19 @@ static int mlxreg_hotplug_attr_init(struct mlxreg_hotplug_priv_data *priv)
 			PRIV_DEV_ATTR(id).dev_attr.show =
 						mlxreg_hotplug_attr_show;
 			PRIV_DEV_ATTR(id).nr = i;
+<<<<<<< HEAD
 			PRIV_DEV_ATTR(id).index = j;
 			sysfs_attr_init(&PRIV_DEV_ATTR(id).dev_attr.attr);
 		}
+=======
+			PRIV_DEV_ATTR(id).index = k;
+			sysfs_attr_init(&PRIV_DEV_ATTR(id).dev_attr.attr);
+			data++;
+			id++;
+			k++;
+		}
+		num_attrs += k;
+>>>>>>> upstream/android-13
 	}
 
 	priv->group.attrs = devm_kcalloc(&priv->pdev->dev,
@@ -496,7 +606,13 @@ static int mlxreg_hotplug_set_irq(struct mlxreg_hotplug_priv_data *priv)
 {
 	struct mlxreg_core_hotplug_platform_data *pdata;
 	struct mlxreg_core_item *item;
+<<<<<<< HEAD
 	int i, ret;
+=======
+	struct mlxreg_core_data *data;
+	u32 regval;
+	int i, j, ret;
+>>>>>>> upstream/android-13
 
 	pdata = dev_get_platdata(&priv->pdev->dev);
 	item = pdata->items;
@@ -508,6 +624,28 @@ static int mlxreg_hotplug_set_irq(struct mlxreg_hotplug_priv_data *priv)
 		if (ret)
 			goto out;
 
+<<<<<<< HEAD
+=======
+		/*
+		 * Verify if hardware configuration requires to disable
+		 * interrupt capability for some of components.
+		 */
+		data = item->data;
+		for (j = 0; j < item->count; j++, data++) {
+			/* Verify if the attribute has capability register. */
+			if (data->capability) {
+				/* Read capability register. */
+				ret = regmap_read(priv->regmap,
+						  data->capability, &regval);
+				if (ret)
+					goto out;
+
+				if (!(regval & data->bit))
+					item->mask &= ~BIT(j);
+			}
+		}
+
+>>>>>>> upstream/android-13
 		/* Set group initial status as mask and unmask group event. */
 		if (item->inversed) {
 			item->cache = item->mask;
@@ -621,11 +759,16 @@ static int mlxreg_hotplug_probe(struct platform_device *pdev)
 		priv->irq = pdata->irq;
 	} else {
 		priv->irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 		if (priv->irq < 0) {
 			dev_err(&pdev->dev, "Failed to get platform irq: %d\n",
 				priv->irq);
 			return priv->irq;
 		}
+=======
+		if (priv->irq < 0)
+			return priv->irq;
+>>>>>>> upstream/android-13
 	}
 
 	priv->regmap = pdata->regmap;

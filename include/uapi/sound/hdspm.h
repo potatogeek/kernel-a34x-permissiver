@@ -21,7 +21,13 @@
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+<<<<<<< HEAD
 #include <linux/types.h>
+=======
+#ifdef __linux__
+#include <linux/types.h>
+#endif
+>>>>>>> upstream/android-13
 
 /* Maximum channels is 64 even on 56Mode you have 64playbacks to matrix */
 #define HDSPM_MAX_CHANNELS      64
@@ -221,6 +227,7 @@ struct hdspm_mixer_ioctl {
 /* use indirect access due to the limit of ioctl bit size */
 #define SNDRV_HDSPM_IOCTL_GET_MIXER _IOR('H', 0x44, struct hdspm_mixer_ioctl)
 
+<<<<<<< HEAD
 /* typedefs for compatibility to user-space */
 typedef struct hdspm_peak_rms hdspm_peak_rms_t;
 typedef struct hdspm_config_info hdspm_config_info_t;
@@ -229,4 +236,6 @@ typedef struct hdspm_channelfader snd_hdspm_channelfader_t;
 typedef struct hdspm_mixer hdspm_mixer_t;
 
 
+=======
+>>>>>>> upstream/android-13
 #endif

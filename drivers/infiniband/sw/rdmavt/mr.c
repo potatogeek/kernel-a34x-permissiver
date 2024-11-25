@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2016 Intel Corporation.
  *
@@ -43,6 +44,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause
+/*
+ * Copyright(c) 2016 Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -97,13 +103,21 @@ int rvt_driver_mr_init(struct rvt_dev_info *rdi)
 		RCU_INIT_POINTER(rdi->lkey_table.table[i], NULL);
 
 	rdi->dparms.props.max_mr = rdi->lkey_table.max;
+<<<<<<< HEAD
 	rdi->dparms.props.max_fmr = rdi->lkey_table.max;
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 /**
+<<<<<<< HEAD
  *rvt_mr_exit: clean up MR
  *@rdi: rvt dev structure
+=======
+ * rvt_mr_exit - clean up MR
+ * @rdi: rvt dev structure
+>>>>>>> upstream/android-13
  *
  * called when drivers have unregistered or perhaps failed to register with us
  */
@@ -325,8 +339,11 @@ static void __rvt_free_mr(struct rvt_mr *mr)
  * @acc: access flags
  *
  * Return: the memory region on success, otherwise returns an errno.
+<<<<<<< HEAD
  * Note that all DMA addresses should be created via the functions in
  * struct dma_virt_ops.
+=======
+>>>>>>> upstream/android-13
  */
 struct ib_mr *rvt_get_dma_mr(struct ib_pd *pd, int acc)
 {
@@ -372,6 +389,10 @@ bail:
  * @pd: protection domain for this memory region
  * @start: starting userspace address
  * @length: length of region to register
+<<<<<<< HEAD
+=======
+ * @virt_addr: associated virtual address
+>>>>>>> upstream/android-13
  * @mr_access_flags: access flags for this memory region
  * @udata: unused by the driver
  *
@@ -383,19 +404,32 @@ struct ib_mr *rvt_reg_user_mr(struct ib_pd *pd, u64 start, u64 length,
 {
 	struct rvt_mr *mr;
 	struct ib_umem *umem;
+<<<<<<< HEAD
 	struct scatterlist *sg;
 	int n, m, entry;
+=======
+	struct sg_page_iter sg_iter;
+	int n, m;
+>>>>>>> upstream/android-13
 	struct ib_mr *ret;
 
 	if (length == 0)
 		return ERR_PTR(-EINVAL);
 
+<<<<<<< HEAD
 	umem = ib_umem_get(pd->uobject->context, start, length,
 			   mr_access_flags, 0);
 	if (IS_ERR(umem))
 		return (void *)umem;
 
 	n = umem->nmap;
+=======
+	umem = ib_umem_get(pd->device, start, length, mr_access_flags);
+	if (IS_ERR(umem))
+		return (void *)umem;
+
+	n = ib_umem_num_pages(umem);
+>>>>>>> upstream/android-13
 
 	mr = __rvt_alloc_mr(n, pd);
 	if (IS_ERR(mr)) {
@@ -410,6 +444,7 @@ struct ib_mr *rvt_reg_user_mr(struct ib_pd *pd, u64 start, u64 length,
 	mr->mr.access_flags = mr_access_flags;
 	mr->umem = umem;
 
+<<<<<<< HEAD
 	mr->mr.page_shift = umem->page_shift;
 	m = 0;
 	n = 0;
@@ -417,16 +452,31 @@ struct ib_mr *rvt_reg_user_mr(struct ib_pd *pd, u64 start, u64 length,
 		void *vaddr;
 
 		vaddr = page_address(sg_page(sg));
+=======
+	mr->mr.page_shift = PAGE_SHIFT;
+	m = 0;
+	n = 0;
+	for_each_sgtable_page (&umem->sgt_append.sgt, &sg_iter, 0) {
+		void *vaddr;
+
+		vaddr = page_address(sg_page_iter_page(&sg_iter));
+>>>>>>> upstream/android-13
 		if (!vaddr) {
 			ret = ERR_PTR(-EINVAL);
 			goto bail_inval;
 		}
 		mr->mr.map[m]->segs[n].vaddr = vaddr;
+<<<<<<< HEAD
 		mr->mr.map[m]->segs[n].length = BIT(umem->page_shift);
 		trace_rvt_mr_user_seg(&mr->mr, m, n, vaddr,
 				      BIT(umem->page_shift));
 		n++;
 		if (n == RVT_SEGSZ) {
+=======
+		mr->mr.map[m]->segs[n].length = PAGE_SIZE;
+		trace_rvt_mr_user_seg(&mr->mr, m, n, vaddr, PAGE_SIZE);
+		if (++n == RVT_SEGSZ) {
+>>>>>>> upstream/android-13
 			m++;
 			n = 0;
 		}
@@ -444,8 +494,13 @@ bail_umem:
 
 /**
  * rvt_dereg_clean_qp_cb - callback from iterator
+<<<<<<< HEAD
  * @qp - the qp
  * @v - the mregion (as u64)
+=======
+ * @qp: the qp
+ * @v: the mregion (as u64)
+>>>>>>> upstream/android-13
  *
  * This routine fields the callback for all QPs and
  * for QPs in the same PD as the MR will call the
@@ -463,7 +518,11 @@ static void rvt_dereg_clean_qp_cb(struct rvt_qp *qp, u64 v)
 
 /**
  * rvt_dereg_clean_qps - find QPs for reference cleanup
+<<<<<<< HEAD
  * @mr - the MR that is being deregistered
+=======
+ * @mr: the MR that is being deregistered
+>>>>>>> upstream/android-13
  *
  * This routine iterates RC QPs looking for references
  * to the lkey noted in mr.
@@ -477,8 +536,13 @@ static void rvt_dereg_clean_qps(struct rvt_mregion *mr)
 
 /**
  * rvt_check_refs - check references
+<<<<<<< HEAD
  * @mr - the megion
  * @t - the caller identification
+=======
+ * @mr: the megion
+ * @t: the caller identification
+>>>>>>> upstream/android-13
  *
  * This routine checks MRs holding a reference during
  * when being de-registered.
@@ -503,7 +567,11 @@ static int rvt_check_refs(struct rvt_mregion *mr, const char *t)
 		rvt_pr_err(rdi,
 			   "%s timeout mr %p pd %p lkey %x refcount %ld\n",
 			   t, mr, mr->pd, mr->lkey,
+<<<<<<< HEAD
 			   atomic_long_read(&mr->refcount.count));
+=======
+			   atomic_long_read(&mr->refcount.data->count));
+>>>>>>> upstream/android-13
 		rvt_get_mr(mr);
 		return -EBUSY;
 	}
@@ -512,8 +580,13 @@ static int rvt_check_refs(struct rvt_mregion *mr, const char *t)
 
 /**
  * rvt_mr_has_lkey - is MR
+<<<<<<< HEAD
  * @mr - the mregion
  * @lkey - the lkey
+=======
+ * @mr: the mregion
+ * @lkey: the lkey
+>>>>>>> upstream/android-13
  */
 bool rvt_mr_has_lkey(struct rvt_mregion *mr, u32 lkey)
 {
@@ -522,8 +595,13 @@ bool rvt_mr_has_lkey(struct rvt_mregion *mr, u32 lkey)
 
 /**
  * rvt_ss_has_lkey - is mr in sge tests
+<<<<<<< HEAD
  * @ss - the sge state
  * @lkey
+=======
+ * @ss: the sge state
+ * @lkey: the lkey
+>>>>>>> upstream/android-13
  *
  * This code tests for an MR in the indicated
  * sge state.
@@ -546,14 +624,22 @@ bool rvt_ss_has_lkey(struct rvt_sge_state *ss, u32 lkey)
 /**
  * rvt_dereg_mr - unregister and free a memory region
  * @ibmr: the memory region to free
+<<<<<<< HEAD
  *
+=======
+ * @udata: unused by the driver
+>>>>>>> upstream/android-13
  *
  * Note that this is called to free MRs created by rvt_get_dma_mr()
  * or rvt_reg_user_mr().
  *
  * Returns 0 on success.
  */
+<<<<<<< HEAD
 int rvt_dereg_mr(struct ib_mr *ibmr)
+=======
+int rvt_dereg_mr(struct ib_mr *ibmr, struct ib_udata *udata)
+>>>>>>> upstream/android-13
 {
 	struct rvt_mr *mr = to_imr(ibmr);
 	int ret;
@@ -565,8 +651,12 @@ int rvt_dereg_mr(struct ib_mr *ibmr)
 	if (ret)
 		goto out;
 	rvt_deinit_mregion(&mr->mr);
+<<<<<<< HEAD
 	if (mr->umem)
 		ib_umem_release(mr->umem);
+=======
+	ib_umem_release(mr->umem);
+>>>>>>> upstream/android-13
 	kfree(mr);
 out:
 	return ret;
@@ -580,8 +670,12 @@ out:
  *
  * Return: the memory region on success, otherwise return an errno.
  */
+<<<<<<< HEAD
 struct ib_mr *rvt_alloc_mr(struct ib_pd *pd,
 			   enum ib_mr_type mr_type,
+=======
+struct ib_mr *rvt_alloc_mr(struct ib_pd *pd, enum ib_mr_type mr_type,
+>>>>>>> upstream/android-13
 			   u32 max_num_sg)
 {
 	struct rvt_mr *mr;
@@ -617,8 +711,13 @@ static int rvt_set_page(struct ib_mr *ibmr, u64 addr)
 	n = mapped_segs % RVT_SEGSZ;
 	mr->mr.map[m]->segs[n].vaddr = (void *)addr;
 	mr->mr.map[m]->segs[n].length = ps;
+<<<<<<< HEAD
 	trace_rvt_mr_page_seg(&mr->mr, m, n, (void *)addr, ps);
 	mr->mr.length += ps;
+=======
+	mr->mr.length += ps;
+	trace_rvt_mr_page_seg(&mr->mr, m, n, (void *)addr, ps);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -647,6 +746,10 @@ int rvt_map_mr_sg(struct ib_mr *ibmr, struct scatterlist *sg,
 	mr->mr.iova = ibmr->iova;
 	mr->mr.offset = ibmr->iova - (u64)mr->mr.map[0]->segs[0].vaddr;
 	mr->mr.length = (size_t)ibmr->length;
+<<<<<<< HEAD
+=======
+	trace_rvt_map_mr_sg(ibmr, sg_nents, sg_offset);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -718,6 +821,7 @@ bail:
 EXPORT_SYMBOL(rvt_invalidate_rkey);
 
 /**
+<<<<<<< HEAD
  * rvt_alloc_fmr - allocate a fast memory region
  * @pd: the protection domain for this memory region
  * @mr_access_flags: access flags for this memory region
@@ -872,6 +976,8 @@ out:
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * rvt_sge_adjacent - is isge compressible
  * @last_sge: last outgoing SGE written
  * @sge: SGE to check
@@ -925,7 +1031,11 @@ int rvt_lkey_ok(struct rvt_lkey_table *rkt, struct rvt_pd *pd,
 
 	/*
 	 * We use LKEY == zero for kernel virtual addresses
+<<<<<<< HEAD
 	 * (see rvt_get_dma_mr() and dma_virt_ops).
+=======
+	 * (see rvt_get_dma_mr()).
+>>>>>>> upstream/android-13
 	 */
 	if (sge->lkey == 0) {
 		struct rvt_dev_info *dev = ib_to_rvt(pd->ibpd.device);
@@ -1036,7 +1146,11 @@ int rvt_rkey_ok(struct rvt_qp *qp, struct rvt_sge *sge,
 
 	/*
 	 * We use RKEY == zero for kernel virtual addresses
+<<<<<<< HEAD
 	 * (see rvt_get_dma_mr() and dma_virt_ops).
+=======
+	 * (see rvt_get_dma_mr()).
+>>>>>>> upstream/android-13
 	 */
 	rcu_read_lock();
 	if (rkey == 0) {

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**
  * Copyright (c) 2011 Jonathan Cameron
  *
@@ -5,6 +6,12 @@
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2011 Jonathan Cameron
+ *
+>>>>>>> upstream/android-13
  * A reference industrial I/O driver to illustrate the functionality available.
  *
  * There are numerous real drivers to illustrate the finer points.
@@ -556,7 +563,11 @@ static int iio_dummy_init_device(struct iio_dev *indio_dev)
 
 /**
  * iio_dummy_probe() - device instance probe
+<<<<<<< HEAD
  * @index: an id number for this instance.
+=======
+ * @name: name of this instance.
+>>>>>>> upstream/android-13
  *
  * Arguments are bus type specific.
  * I2C: iio_dummy_probe(struct i2c_client *client,
@@ -569,6 +580,16 @@ static struct iio_sw_device *iio_dummy_probe(const char *name)
 	struct iio_dev *indio_dev;
 	struct iio_dummy_state *st;
 	struct iio_sw_device *swd;
+<<<<<<< HEAD
+=======
+	struct device *parent = NULL;
+
+	/*
+	 * With hardware: Set the parent device.
+	 * parent = &spi->dev;
+	 * parent = &client->dev;
+	 */
+>>>>>>> upstream/android-13
 
 	swd = kzalloc(sizeof(*swd), GFP_KERNEL);
 	if (!swd) {
@@ -583,7 +604,11 @@ static struct iio_sw_device *iio_dummy_probe(const char *name)
 	 * It also has a region (accessed by iio_priv()
 	 * for chip specific state information.
 	 */
+<<<<<<< HEAD
 	indio_dev = iio_device_alloc(sizeof(*st));
+=======
+	indio_dev = iio_device_alloc(parent, sizeof(*st));
+>>>>>>> upstream/android-13
 	if (!indio_dev) {
 		ret = -ENOMEM;
 		goto error_ret;
@@ -593,11 +618,14 @@ static struct iio_sw_device *iio_dummy_probe(const char *name)
 	mutex_init(&st->lock);
 
 	iio_dummy_init_device(indio_dev);
+<<<<<<< HEAD
 	/*
 	 * With hardware: Set the parent device.
 	 * indio_dev->dev.parent = &spi->dev;
 	 * indio_dev->dev.parent = &client->dev;
 	 */
+=======
+>>>>>>> upstream/android-13
 
 	 /*
 	 * Make the iio_dev struct available to remove function.
@@ -690,15 +718,26 @@ static int iio_dummy_remove(struct iio_sw_device *swd)
 
 	return 0;
 }
+<<<<<<< HEAD
 /**
+=======
+
+/*
+>>>>>>> upstream/android-13
  * module_iio_sw_device_driver() -  device driver registration
  *
  * Varies depending on bus type of the device. As there is no device
  * here, call probe directly. For information on device registration
  * i2c:
+<<<<<<< HEAD
  * Documentation/i2c/writing-clients
  * spi:
  * Documentation/spi/spi-summary
+=======
+ * Documentation/i2c/writing-clients.rst
+ * spi:
+ * Documentation/spi/spi-summary.rst
+>>>>>>> upstream/android-13
  */
 static const struct iio_sw_device_ops iio_dummy_device_ops = {
 	.probe = iio_dummy_probe,

@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * i2c-stm32.c
  *
  * Copyright (C) M'boumba Cedric Madianga 2017
  * Author: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
+<<<<<<< HEAD
  *
  * License terms:  GNU General Public License (GPL), version 2
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "i2c-stm32.h"
@@ -26,8 +33,15 @@ struct stm32_i2c_dma *stm32_i2c_dma_request(struct device *dev,
 	/* Request and configure I2C TX dma channel */
 	dma->chan_tx = dma_request_chan(dev, "tx");
 	if (IS_ERR(dma->chan_tx)) {
+<<<<<<< HEAD
 		dev_dbg(dev, "can't request DMA tx channel\n");
 		ret = PTR_ERR(dma->chan_tx);
+=======
+		ret = PTR_ERR(dma->chan_tx);
+		if (ret != -ENODEV)
+			ret = dev_err_probe(dev, ret,
+					    "can't request DMA tx channel\n");
+>>>>>>> upstream/android-13
 		goto fail_al;
 	}
 
@@ -45,8 +59,16 @@ struct stm32_i2c_dma *stm32_i2c_dma_request(struct device *dev,
 	/* Request and configure I2C RX dma channel */
 	dma->chan_rx = dma_request_chan(dev, "rx");
 	if (IS_ERR(dma->chan_rx)) {
+<<<<<<< HEAD
 		dev_err(dev, "can't request DMA rx channel\n");
 		ret = PTR_ERR(dma->chan_rx);
+=======
+		ret = PTR_ERR(dma->chan_rx);
+		if (ret != -ENODEV)
+			ret = dev_err_probe(dev, ret,
+					    "can't request DMA rx channel\n");
+
+>>>>>>> upstream/android-13
 		goto fail_tx;
 	}
 
@@ -74,7 +96,10 @@ fail_tx:
 	dma_release_channel(dma->chan_tx);
 fail_al:
 	devm_kfree(dev, dma);
+<<<<<<< HEAD
 	dev_info(dev, "can't use DMA\n");
+=======
+>>>>>>> upstream/android-13
 
 	return ERR_PTR(ret);
 }

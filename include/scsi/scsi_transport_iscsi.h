@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * iSCSI transport class definitions
  *
@@ -5,6 +9,7 @@
  * Copyright (C) Mike Christie, 2004 - 2006
  * Copyright (C) Dmitry Yusupov, 2004 - 2005
  * Copyright (C) Alex Aizman, 2004 - 2005
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +24,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef SCSI_TRANSPORT_ISCSI_H
 #define SCSI_TRANSPORT_ISCSI_H
@@ -70,7 +77,11 @@ struct iscsi_bus_flash_conn;
  *			When not offloading the data path, this is called
  *			from the scsi work queue without the session lock.
  * @xmit_task		Requests LLD to transfer cmd task. Returns 0 or the
+<<<<<<< HEAD
  *			the number of bytes transferred on success, and -Exyz
+=======
+ *			number of bytes transferred on success, and -Exyz
+>>>>>>> upstream/android-13
  *			value on error. When offloading the data path, this
  *			is called from queuecommand with the session lock, or
  *			from the iscsi_conn_send_pdu context with the session
@@ -95,6 +106,10 @@ struct iscsi_transport {
 	void (*destroy_session) (struct iscsi_cls_session *session);
 	struct iscsi_cls_conn *(*create_conn) (struct iscsi_cls_session *sess,
 				uint32_t cid);
+<<<<<<< HEAD
+=======
+	void (*unbind_conn) (struct iscsi_cls_conn *conn, bool is_active);
+>>>>>>> upstream/android-13
 	int (*bind_conn) (struct iscsi_cls_session *session,
 			  struct iscsi_cls_conn *cls_conn,
 			  uint64_t transport_eph, int is_leading);
@@ -201,15 +216,45 @@ extern void iscsi_ping_comp_event(uint32_t host_no,
 				  uint32_t status, uint32_t pid,
 				  uint32_t data_size, uint8_t *data);
 
+<<<<<<< HEAD
+=======
+/* iscsi class connection state */
+enum iscsi_connection_state {
+	ISCSI_CONN_UP = 0,
+	ISCSI_CONN_DOWN,
+	ISCSI_CONN_FAILED,
+	ISCSI_CONN_BOUND,
+};
+
+#define ISCSI_CLS_CONN_BIT_CLEANUP	1
+
+>>>>>>> upstream/android-13
 struct iscsi_cls_conn {
 	struct list_head conn_list;	/* item in connlist */
 	void *dd_data;			/* LLD private data */
 	struct iscsi_transport *transport;
 	uint32_t cid;			/* connection id */
+<<<<<<< HEAD
 	struct mutex ep_mutex;
 	struct iscsi_endpoint *ep;
 
 	struct device dev;		/* sysfs transport/container device */
+=======
+	/*
+	 * This protects the conn startup and binding/unbinding of the ep to
+	 * the conn. Unbinding includes ep_disconnect and stop_conn.
+	 */
+	struct mutex ep_mutex;
+	struct iscsi_endpoint *ep;
+
+	/* Used when accessing flags and queueing work. */
+	spinlock_t lock;
+	unsigned long flags;
+	struct work_struct cleanup_work;
+
+	struct device dev;		/* sysfs transport/container device */
+	enum iscsi_connection_state state;
+>>>>>>> upstream/android-13
 };
 
 #define iscsi_dev_to_conn(_dev) \
@@ -238,6 +283,10 @@ struct iscsi_cls_session {
 	struct work_struct unblock_work;
 	struct work_struct scan_work;
 	struct work_struct unbind_work;
+<<<<<<< HEAD
+=======
+	struct work_struct destroy_work;
+>>>>>>> upstream/android-13
 
 	/* recovery fields */
 	int recovery_tmo;
@@ -287,7 +336,11 @@ extern void iscsi_host_for_each_session(struct Scsi_Host *shost,
 struct iscsi_endpoint {
 	void *dd_data;			/* LLD private data */
 	struct device dev;
+<<<<<<< HEAD
 	uint64_t id;
+=======
+	int id;
+>>>>>>> upstream/android-13
 	struct iscsi_cls_conn *conn;
 };
 
@@ -436,6 +489,11 @@ extern void iscsi_remove_session(struct iscsi_cls_session *session);
 extern void iscsi_free_session(struct iscsi_cls_session *session);
 extern struct iscsi_cls_conn *iscsi_create_conn(struct iscsi_cls_session *sess,
 						int dd_size, uint32_t cid);
+<<<<<<< HEAD
+=======
+extern void iscsi_put_conn(struct iscsi_cls_conn *conn);
+extern void iscsi_get_conn(struct iscsi_cls_conn *conn);
+>>>>>>> upstream/android-13
 extern int iscsi_destroy_conn(struct iscsi_cls_conn *conn);
 extern void iscsi_unblock_session(struct iscsi_cls_session *session);
 extern void iscsi_block_session(struct iscsi_cls_session *session);
@@ -443,6 +501,10 @@ extern int iscsi_scan_finished(struct Scsi_Host *shost, unsigned long time);
 extern struct iscsi_endpoint *iscsi_create_endpoint(int dd_size);
 extern void iscsi_destroy_endpoint(struct iscsi_endpoint *ep);
 extern struct iscsi_endpoint *iscsi_lookup_endpoint(u64 handle);
+<<<<<<< HEAD
+=======
+extern void iscsi_put_endpoint(struct iscsi_endpoint *ep);
+>>>>>>> upstream/android-13
 extern int iscsi_block_scsi_eh(struct scsi_cmnd *cmd);
 extern struct iscsi_iface *iscsi_create_iface(struct Scsi_Host *shost,
 					      struct iscsi_transport *t,

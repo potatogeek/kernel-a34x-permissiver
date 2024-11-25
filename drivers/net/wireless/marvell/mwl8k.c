@@ -592,7 +592,11 @@ struct mwl8k_cmd_pkt {
 	__u8	seq_num;
 	__u8	macid;
 	__le16	result;
+<<<<<<< HEAD
 	char	payload[0];
+=======
+	char	payload[];
+>>>>>>> upstream/android-13
 } __packed;
 
 /*
@@ -605,8 +609,14 @@ mwl8k_send_fw_load_cmd(struct mwl8k_priv *priv, void *data, int length)
 	dma_addr_t dma_addr;
 	int loops;
 
+<<<<<<< HEAD
 	dma_addr = pci_map_single(priv->pdev, data, length, PCI_DMA_TODEVICE);
 	if (pci_dma_mapping_error(priv->pdev, dma_addr))
+=======
+	dma_addr = dma_map_single(&priv->pdev->dev, data, length,
+				  DMA_TO_DEVICE);
+	if (dma_mapping_error(&priv->pdev->dev, dma_addr))
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 
 	iowrite32(dma_addr, regs + MWL8K_HIU_GEN_PTR);
@@ -635,7 +645,11 @@ mwl8k_send_fw_load_cmd(struct mwl8k_priv *priv, void *data, int length)
 		udelay(1);
 	} while (--loops);
 
+<<<<<<< HEAD
 	pci_unmap_single(priv->pdev, dma_addr, length, PCI_DMA_TODEVICE);
+=======
+	dma_unmap_single(&priv->pdev->dev, dma_addr, length, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 
 	return loops ? 0 : -ETIMEDOUT;
 }
@@ -806,8 +820,13 @@ static int mwl8k_load_firmware(struct ieee80211_hw *hw)
 struct mwl8k_dma_data {
 	__le16 fwlen;
 	struct ieee80211_hdr wh;
+<<<<<<< HEAD
 	char data[0];
 } __packed;
+=======
+	char data[];
+} __packed __aligned(2);
+>>>>>>> upstream/android-13
 
 /* Routines to add/remove DMA header from skb.  */
 static inline void mwl8k_remove_dma_header(struct sk_buff *skb, __le16 qos)
@@ -1169,7 +1188,12 @@ static int mwl8k_rxq_init(struct ieee80211_hw *hw, int index)
 
 	size = MWL8K_RX_DESCS * priv->rxd_ops->rxd_size;
 
+<<<<<<< HEAD
 	rxq->rxd = pci_zalloc_consistent(priv->pdev, size, &rxq->rxd_dma);
+=======
+	rxq->rxd = dma_alloc_coherent(&priv->pdev->dev, size, &rxq->rxd_dma,
+				      GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (rxq->rxd == NULL) {
 		wiphy_err(hw->wiphy, "failed to alloc RX descriptors\n");
 		return -ENOMEM;
@@ -1177,7 +1201,12 @@ static int mwl8k_rxq_init(struct ieee80211_hw *hw, int index)
 
 	rxq->buf = kcalloc(MWL8K_RX_DESCS, sizeof(*rxq->buf), GFP_KERNEL);
 	if (rxq->buf == NULL) {
+<<<<<<< HEAD
 		pci_free_consistent(priv->pdev, size, rxq->rxd, rxq->rxd_dma);
+=======
+		dma_free_coherent(&priv->pdev->dev, size, rxq->rxd,
+				  rxq->rxd_dma);
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 	}
 
@@ -1205,9 +1234,14 @@ static int rxq_refill(struct ieee80211_hw *hw, int index, int limit)
 {
 	struct mwl8k_priv *priv = hw->priv;
 	struct mwl8k_rx_queue *rxq = priv->rxq + index;
+<<<<<<< HEAD
 	int refilled;
 
 	refilled = 0;
+=======
+	int refilled = 0;
+
+>>>>>>> upstream/android-13
 	while (rxq->rxd_count < MWL8K_RX_DESCS && limit--) {
 		struct sk_buff *skb;
 		dma_addr_t addr;
@@ -1218,7 +1252,11 @@ static int rxq_refill(struct ieee80211_hw *hw, int index, int limit)
 		if (skb == NULL)
 			break;
 
+<<<<<<< HEAD
 		addr = pci_map_single(priv->pdev, skb->data,
+=======
+		addr = dma_map_single(&priv->pdev->dev, skb->data,
+>>>>>>> upstream/android-13
 				      MWL8K_RX_MAXSZ, DMA_FROM_DEVICE);
 
 		rxq->rxd_count++;
@@ -1249,9 +1287,15 @@ static void mwl8k_rxq_deinit(struct ieee80211_hw *hw, int index)
 
 	for (i = 0; i < MWL8K_RX_DESCS; i++) {
 		if (rxq->buf[i].skb != NULL) {
+<<<<<<< HEAD
 			pci_unmap_single(priv->pdev,
 					 dma_unmap_addr(&rxq->buf[i], dma),
 					 MWL8K_RX_MAXSZ, PCI_DMA_FROMDEVICE);
+=======
+			dma_unmap_single(&priv->pdev->dev,
+					 dma_unmap_addr(&rxq->buf[i], dma),
+					 MWL8K_RX_MAXSZ, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 			dma_unmap_addr_set(&rxq->buf[i], dma, 0);
 
 			kfree_skb(rxq->buf[i].skb);
@@ -1262,9 +1306,15 @@ static void mwl8k_rxq_deinit(struct ieee80211_hw *hw, int index)
 	kfree(rxq->buf);
 	rxq->buf = NULL;
 
+<<<<<<< HEAD
 	pci_free_consistent(priv->pdev,
 			    MWL8K_RX_DESCS * priv->rxd_ops->rxd_size,
 			    rxq->rxd, rxq->rxd_dma);
+=======
+	dma_free_coherent(&priv->pdev->dev,
+			  MWL8K_RX_DESCS * priv->rxd_ops->rxd_size, rxq->rxd,
+			  rxq->rxd_dma);
+>>>>>>> upstream/android-13
 	rxq->rxd = NULL;
 }
 
@@ -1343,9 +1393,15 @@ static int rxq_process(struct ieee80211_hw *hw, int index, int limit)
 
 		rxq->buf[rxq->head].skb = NULL;
 
+<<<<<<< HEAD
 		pci_unmap_single(priv->pdev,
 				 dma_unmap_addr(&rxq->buf[rxq->head], dma),
 				 MWL8K_RX_MAXSZ, PCI_DMA_FROMDEVICE);
+=======
+		dma_unmap_single(&priv->pdev->dev,
+				 dma_unmap_addr(&rxq->buf[rxq->head], dma),
+				 MWL8K_RX_MAXSZ, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 		dma_unmap_addr_set(&rxq->buf[rxq->head], dma, 0);
 
 		rxq->head++;
@@ -1460,7 +1516,12 @@ static int mwl8k_txq_init(struct ieee80211_hw *hw, int index)
 
 	size = MWL8K_TX_DESCS * sizeof(struct mwl8k_tx_desc);
 
+<<<<<<< HEAD
 	txq->txd = pci_zalloc_consistent(priv->pdev, size, &txq->txd_dma);
+=======
+	txq->txd = dma_alloc_coherent(&priv->pdev->dev, size, &txq->txd_dma,
+				      GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (txq->txd == NULL) {
 		wiphy_err(hw->wiphy, "failed to alloc TX descriptors\n");
 		return -ENOMEM;
@@ -1468,7 +1529,12 @@ static int mwl8k_txq_init(struct ieee80211_hw *hw, int index)
 
 	txq->skb = kcalloc(MWL8K_TX_DESCS, sizeof(*txq->skb), GFP_KERNEL);
 	if (txq->skb == NULL) {
+<<<<<<< HEAD
 		pci_free_consistent(priv->pdev, size, txq->txd, txq->txd_dma);
+=======
+		dma_free_coherent(&priv->pdev->dev, size, txq->txd,
+				  txq->txd_dma);
+>>>>>>> upstream/android-13
 		txq->txd = NULL;
 		return -ENOMEM;
 	}
@@ -1708,7 +1774,11 @@ mwl8k_txq_reclaim(struct ieee80211_hw *hw, int index, int limit, int force)
 		txq->skb[tx] = NULL;
 
 		BUG_ON(skb == NULL);
+<<<<<<< HEAD
 		pci_unmap_single(priv->pdev, addr, size, PCI_DMA_TODEVICE);
+=======
+		dma_unmap_single(&priv->pdev->dev, addr, size, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 
 		mwl8k_remove_dma_header(skb, tx_desc->qos_control);
 
@@ -1775,9 +1845,15 @@ static void mwl8k_txq_deinit(struct ieee80211_hw *hw, int index)
 	kfree(txq->skb);
 	txq->skb = NULL;
 
+<<<<<<< HEAD
 	pci_free_consistent(priv->pdev,
 			    MWL8K_TX_DESCS * sizeof(struct mwl8k_tx_desc),
 			    txq->txd, txq->txd_dma);
+=======
+	dma_free_coherent(&priv->pdev->dev,
+			  MWL8K_TX_DESCS * sizeof(struct mwl8k_tx_desc),
+			  txq->txd, txq->txd_dma);
+>>>>>>> upstream/android-13
 	txq->txd = NULL;
 }
 
@@ -2042,10 +2118,17 @@ mwl8k_txq_xmit(struct ieee80211_hw *hw,
 		qos |= MWL8K_QOS_ACK_POLICY_NORMAL;
 	}
 
+<<<<<<< HEAD
 	dma = pci_map_single(priv->pdev, skb->data,
 				skb->len, PCI_DMA_TODEVICE);
 
 	if (pci_dma_mapping_error(priv->pdev, dma)) {
+=======
+	dma = dma_map_single(&priv->pdev->dev, skb->data, skb->len,
+			     DMA_TO_DEVICE);
+
+	if (dma_mapping_error(&priv->pdev->dev, dma)) {
+>>>>>>> upstream/android-13
 		wiphy_debug(hw->wiphy,
 			    "failed to dma map skb, dropping TX frame.\n");
 		if (start_ba_session) {
@@ -2078,8 +2161,13 @@ mwl8k_txq_xmit(struct ieee80211_hw *hw,
 			}
 			mwl8k_tx_start(priv);
 			spin_unlock_bh(&priv->tx_lock);
+<<<<<<< HEAD
 			pci_unmap_single(priv->pdev, dma, skb->len,
 					 PCI_DMA_TODEVICE);
+=======
+			dma_unmap_single(&priv->pdev->dev, dma, skb->len,
+					 DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 			dev_kfree_skb(skb);
 			return;
 		}
@@ -2238,10 +2326,19 @@ static int mwl8k_post_cmd(struct ieee80211_hw *hw, struct mwl8k_cmd_pkt *cmd)
 
 	cmd->result = (__force __le16) 0xffff;
 	dma_size = le16_to_cpu(cmd->length);
+<<<<<<< HEAD
 	dma_addr = pci_map_single(priv->pdev, cmd, dma_size,
 				  PCI_DMA_BIDIRECTIONAL);
 	if (pci_dma_mapping_error(priv->pdev, dma_addr))
 		return -ENOMEM;
+=======
+	dma_addr = dma_map_single(&priv->pdev->dev, cmd, dma_size,
+				  DMA_BIDIRECTIONAL);
+	if (dma_mapping_error(&priv->pdev->dev, dma_addr)) {
+		rc = -ENOMEM;
+		goto exit;
+	}
+>>>>>>> upstream/android-13
 
 	priv->hostcmd_wait = &cmd_wait;
 	iowrite32(dma_addr, regs + MWL8K_HIU_GEN_PTR);
@@ -2256,8 +2353,13 @@ static int mwl8k_post_cmd(struct ieee80211_hw *hw, struct mwl8k_cmd_pkt *cmd)
 	priv->hostcmd_wait = NULL;
 
 
+<<<<<<< HEAD
 	pci_unmap_single(priv->pdev, dma_addr, dma_size,
 					PCI_DMA_BIDIRECTIONAL);
+=======
+	dma_unmap_single(&priv->pdev->dev, dma_addr, dma_size,
+			 DMA_BIDIRECTIONAL);
+>>>>>>> upstream/android-13
 
 	if (!timeout) {
 		wiphy_err(hw->wiphy, "Command %s timeout after %u ms\n",
@@ -2281,6 +2383,10 @@ static int mwl8k_post_cmd(struct ieee80211_hw *hw, struct mwl8k_cmd_pkt *cmd)
 				     ms);
 	}
 
+<<<<<<< HEAD
+=======
+exit:
+>>>>>>> upstream/android-13
 	if (bitmap)
 		mwl8k_enable_bsses(hw, true, bitmap);
 
@@ -2666,7 +2772,11 @@ struct mwl8k_cmd_mac_multicast_adr {
 	struct mwl8k_cmd_pkt header;
 	__le16 action;
 	__le16 numaddr;
+<<<<<<< HEAD
 	__u8 addr[0][ETH_ALEN];
+=======
+	__u8 addr[][ETH_ALEN];
+>>>>>>> upstream/android-13
 };
 
 #define MWL8K_ENABLE_RX_DIRECTED	0x0001
@@ -2953,7 +3063,11 @@ mwl8k_cmd_rf_antenna(struct ieee80211_hw *hw, int antenna, int mask)
 struct mwl8k_cmd_set_beacon {
 	struct mwl8k_cmd_pkt header;
 	__le16 beacon_len;
+<<<<<<< HEAD
 	__u8 beacon[0];
+=======
+	__u8 beacon[];
+>>>>>>> upstream/android-13
 };
 
 static int mwl8k_cmd_set_beacon(struct ieee80211_hw *hw,
@@ -4545,7 +4659,11 @@ static int mwl8k_cmd_update_stadb_add(struct ieee80211_hw *hw,
 	else
 		rates = sta->supp_rates[NL80211_BAND_5GHZ] << 5;
 	legacy_rate_mask_to_array(p->legacy_rates, rates);
+<<<<<<< HEAD
 	memcpy(p->ht_rates, sta->ht_cap.mcs.rx_mask, 16);
+=======
+	memcpy(p->ht_rates, &sta->ht_cap.mcs, 16);
+>>>>>>> upstream/android-13
 	p->interop = 1;
 	p->amsdu_enabled = 0;
 
@@ -4628,16 +4746,27 @@ static irqreturn_t mwl8k_interrupt(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static void mwl8k_tx_poll(unsigned long data)
 {
 	struct ieee80211_hw *hw = (struct ieee80211_hw *)data;
 	struct mwl8k_priv *priv = hw->priv;
+=======
+static void mwl8k_tx_poll(struct tasklet_struct *t)
+{
+	struct mwl8k_priv *priv = from_tasklet(priv, t, poll_tx_task);
+	struct ieee80211_hw *hw = pci_get_drvdata(priv->pdev);
+>>>>>>> upstream/android-13
 	int limit;
 	int i;
 
 	limit = 32;
 
+<<<<<<< HEAD
 	spin_lock_bh(&priv->tx_lock);
+=======
+	spin_lock(&priv->tx_lock);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < mwl8k_tx_queues(priv); i++)
 		limit -= mwl8k_txq_reclaim(hw, i, limit, 0);
@@ -4647,7 +4776,11 @@ static void mwl8k_tx_poll(unsigned long data)
 		priv->tx_wait = NULL;
 	}
 
+<<<<<<< HEAD
 	spin_unlock_bh(&priv->tx_lock);
+=======
+	spin_unlock(&priv->tx_lock);
+>>>>>>> upstream/android-13
 
 	if (limit) {
 		writel(~MWL8K_A2H_INT_TX_DONE,
@@ -4657,10 +4790,17 @@ static void mwl8k_tx_poll(unsigned long data)
 	}
 }
 
+<<<<<<< HEAD
 static void mwl8k_rx_poll(unsigned long data)
 {
 	struct ieee80211_hw *hw = (struct ieee80211_hw *)data;
 	struct mwl8k_priv *priv = hw->priv;
+=======
+static void mwl8k_rx_poll(struct tasklet_struct *t)
+{
+	struct mwl8k_priv *priv = from_tasklet(priv, t, poll_rx_task);
+	struct ieee80211_hw *hw = pci_get_drvdata(priv->pdev);
+>>>>>>> upstream/android-13
 	int limit;
 
 	limit = 32;
@@ -5027,7 +5167,11 @@ mwl8k_bss_info_changed_sta(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 			ap_legacy_rates =
 				ap->supp_rates[NL80211_BAND_5GHZ] << 5;
 		}
+<<<<<<< HEAD
 		memcpy(ap_mcs_rates, ap->ht_cap.mcs.rx_mask, 16);
+=======
+		memcpy(ap_mcs_rates, &ap->ht_cap.mcs, 16);
+>>>>>>> upstream/android-13
 
 		rcu_read_unlock();
 
@@ -5518,7 +5662,11 @@ mwl8k_ampdu_action(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 			rc = -EBUSY;
 			break;
 		}
+<<<<<<< HEAD
 		ieee80211_start_tx_ba_cb_irqsafe(vif, addr, tid);
+=======
+		rc = IEEE80211_AMPDU_TX_START_IMMEDIATE;
+>>>>>>> upstream/android-13
 		break;
 	case IEEE80211_AMPDU_TX_STOP_CONT:
 	case IEEE80211_AMPDU_TX_STOP_FLUSH:
@@ -5793,8 +5941,13 @@ static void mwl8k_fw_state_machine(const struct firmware *fw, void *context)
 fail:
 	priv->fw_state = FW_STATE_ERROR;
 	complete(&priv->firmware_loading_complete);
+<<<<<<< HEAD
 	device_release_driver(&priv->pdev->dev);
 	mwl8k_release_firmware(priv);
+=======
+	mwl8k_release_firmware(priv);
+	device_release_driver(&priv->pdev->dev);
+>>>>>>> upstream/android-13
 }
 
 #define MAX_RESTART_ATTEMPTS 1
@@ -6118,6 +6271,7 @@ static int mwl8k_firmware_load_success(struct mwl8k_priv *priv)
 	INIT_WORK(&priv->fw_reload, mwl8k_hw_restart_work);
 
 	/* TX reclaim and RX tasklets.  */
+<<<<<<< HEAD
 	tasklet_init(&priv->poll_tx_task, mwl8k_tx_poll, (unsigned long)hw);
 	tasklet_disable(&priv->poll_tx_task);
 	tasklet_init(&priv->poll_rx_task, mwl8k_rx_poll, (unsigned long)hw);
@@ -6125,6 +6279,16 @@ static int mwl8k_firmware_load_success(struct mwl8k_priv *priv)
 
 	/* Power management cookie */
 	priv->cookie = pci_alloc_consistent(priv->pdev, 4, &priv->cookie_dma);
+=======
+	tasklet_setup(&priv->poll_tx_task, mwl8k_tx_poll);
+	tasklet_disable(&priv->poll_tx_task);
+	tasklet_setup(&priv->poll_rx_task, mwl8k_rx_poll);
+	tasklet_disable(&priv->poll_rx_task);
+
+	/* Power management cookie */
+	priv->cookie = dma_alloc_coherent(&priv->pdev->dev, 4,
+					  &priv->cookie_dma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (priv->cookie == NULL)
 		return -ENOMEM;
 
@@ -6172,8 +6336,13 @@ err_unprobe_hw:
 
 err_free_cookie:
 	if (priv->cookie != NULL)
+<<<<<<< HEAD
 		pci_free_consistent(priv->pdev, 4,
 				priv->cookie, priv->cookie_dma);
+=======
+		dma_free_coherent(&priv->pdev->dev, 4, priv->cookie,
+				  priv->cookie_dma);
+>>>>>>> upstream/android-13
 
 	return rc;
 }
@@ -6336,7 +6505,11 @@ static void mwl8k_remove(struct pci_dev *pdev)
 
 	mwl8k_rxq_deinit(hw, 0);
 
+<<<<<<< HEAD
 	pci_free_consistent(priv->pdev, 4, priv->cookie, priv->cookie_dma);
+=======
+	dma_free_coherent(&priv->pdev->dev, 4, priv->cookie, priv->cookie_dma);
+>>>>>>> upstream/android-13
 
 unmap:
 	pci_iounmap(pdev, priv->regs);

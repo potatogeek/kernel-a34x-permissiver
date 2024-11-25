@@ -1,5 +1,11 @@
+<<<<<<< HEAD
 /*
  *    pata_ns87415.c - NS87415 (non PARISC) PATA
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *    pata_ns87415.c - NS87415 (and PARISC SUPERIO 87560) PATA
+>>>>>>> upstream/android-13
  *
  *	(C) 2005 Red Hat <alan@lxorguk.ukuu.org.uk>
  *
@@ -15,7 +21,10 @@
  *    systems. This has its own special mountain of errata.
  *
  *    TODO:
+<<<<<<< HEAD
  *	Test PARISC SuperIO
+=======
+>>>>>>> upstream/android-13
  *	Get someone to test on SPARC
  *	Implement lazy pio/dma switching for better performance
  *	8bit shared timing.
@@ -113,7 +122,11 @@ static void ns87415_set_piomode(struct ata_port *ap, struct ata_device *adev)
  *	ns87415_bmdma_setup		-	Set up DMA
  *	@qc: Command block
  *
+<<<<<<< HEAD
  *	Set up for bus masterng DMA. We have to do this ourselves
+=======
+ *	Set up for bus mastering DMA. We have to do this ourselves
+>>>>>>> upstream/android-13
  *	rather than use the helper due to a chip erratum
  */
 
@@ -174,7 +187,11 @@ static void ns87415_bmdma_stop(struct ata_queued_cmd *qc)
  *	ns87415_irq_clear		-	Clear interrupt
  *	@ap: Channel to clear
  *
+<<<<<<< HEAD
  *	Erratum: Due to a chip bug regisers 02 and 0A bit 1 and 2 (the
+=======
+ *	Erratum: Due to a chip bug registers 02 and 0A bit 1 and 2 (the
+>>>>>>> upstream/android-13
  *	error bits) are reset by writing to register 00 or 08.
  */
 

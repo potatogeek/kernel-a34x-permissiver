@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+:orphan:
+
+>>>>>>> upstream/android-13
 =====================
 MSM Crash Dump Format
 =====================

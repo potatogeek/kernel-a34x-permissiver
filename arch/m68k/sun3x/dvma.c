@@ -15,15 +15,23 @@
 #include <linux/init.h>
 #include <linux/bitops.h>
 #include <linux/mm.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/vmalloc.h>
 
 #include <asm/sun3x.h>
 #include <asm/dvma.h>
 #include <asm/io.h>
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
 #include <asm/pgalloc.h>
+=======
+#include <asm/tlbflush.h>
+>>>>>>> upstream/android-13
 
 /* IOMMU support */
 
@@ -80,6 +88,11 @@ inline int dvma_map_cpu(unsigned long kaddr,
 			       unsigned long vaddr, int len)
 {
 	pgd_t *pgd;
+<<<<<<< HEAD
+=======
+	p4d_t *p4d;
+	pud_t *pud;
+>>>>>>> upstream/android-13
 	unsigned long end;
 	int ret = 0;
 
@@ -90,12 +103,21 @@ inline int dvma_map_cpu(unsigned long kaddr,
 
 	pr_debug("dvma: mapping kern %08lx to virt %08lx\n", kaddr, vaddr);
 	pgd = pgd_offset_k(vaddr);
+<<<<<<< HEAD
+=======
+	p4d = p4d_offset(pgd, vaddr);
+	pud = pud_offset(p4d, vaddr);
+>>>>>>> upstream/android-13
 
 	do {
 		pmd_t *pmd;
 		unsigned long end2;
 
+<<<<<<< HEAD
 		if((pmd = pmd_alloc(&init_mm, pgd, vaddr)) == NULL) {
+=======
+		if((pmd = pmd_alloc(&init_mm, pud, vaddr)) == NULL) {
+>>>>>>> upstream/android-13
 			ret = -ENOMEM;
 			goto out;
 		}
@@ -196,4 +218,7 @@ void dvma_unmap_iommu(unsigned long baddr, int len)
 	}
 
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13

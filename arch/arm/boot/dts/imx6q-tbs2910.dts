@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2014 Soeren Moch <smoch@web.de>
  *
@@ -44,6 +45,11 @@
  *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *     OTHER DEALINGS IN THE SOFTWARE.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+//
+// Copyright 2014 Soeren Moch <smoch@web.de>
+>>>>>>> upstream/android-13
 
 /dts-v1/;
 
@@ -59,7 +65,19 @@
 		stdout-path = &uart1;
 	};
 
+<<<<<<< HEAD
 	memory@10000000 {
+=======
+	aliases {
+		mmc0 = &usdhc2;
+		mmc1 = &usdhc3;
+		mmc2 = &usdhc4;
+		/delete-property/ mmc3;
+	};
+
+	memory@10000000 {
+		device_type = "memory";
+>>>>>>> upstream/android-13
 		reg = <0x10000000 0x80000000>;
 	};
 
@@ -140,9 +158,27 @@
 &fec {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_enet>;
+<<<<<<< HEAD
 	phy-mode = "rgmii";
 	phy-reset-gpios = <&gpio1 25 GPIO_ACTIVE_LOW>;
 	status = "okay";
+=======
+	phy-mode = "rgmii-id";
+	phy-handle = <&phy>;
+	status = "okay";
+
+	mdio {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		phy: ethernet-phy@4 {
+			reg = <4>;
+			qca,clk-out-frequency = <125000000>;
+			reset-gpios = <&gpio1 25 GPIO_ACTIVE_LOW>;
+			reset-assert-us = <10000>;
+		};
+	};
+>>>>>>> upstream/android-13
 };
 
 &hdmi {

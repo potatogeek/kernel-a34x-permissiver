@@ -1,6 +1,10 @@
 /*
  * Copyright (c) 2017		Intel Deutschland GmbH
+<<<<<<< HEAD
  * Copyright (c) 2018		Intel Corporation
+=======
+ * Copyright (c) 2018-2019	Intel Corporation
+>>>>>>> upstream/android-13
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -43,6 +47,14 @@ struct ieee80211_radiotap_header {
 	 * @it_present: (first) present word
 	 */
 	__le32 it_present;
+<<<<<<< HEAD
+=======
+
+	/**
+	 * @it_optional: all remaining presence bitmaps
+	 */
+	__le32 it_optional[];
+>>>>>>> upstream/android-13
 } __packed;
 
 /* version is always 0 */
@@ -75,6 +87,11 @@ enum ieee80211_radiotap_presence {
 	IEEE80211_RADIOTAP_TIMESTAMP = 22,
 	IEEE80211_RADIOTAP_HE = 23,
 	IEEE80211_RADIOTAP_HE_MU = 24,
+<<<<<<< HEAD
+=======
+	IEEE80211_RADIOTAP_ZERO_LEN_PSDU = 26,
+	IEEE80211_RADIOTAP_LSIG = 27,
+>>>>>>> upstream/android-13
 
 	/* valid in every it_present bitmap, even vendor namespaces */
 	IEEE80211_RADIOTAP_RADIOTAP_NAMESPACE = 29,
@@ -115,6 +132,11 @@ enum ieee80211_radiotap_tx_flags {
 	IEEE80211_RADIOTAP_F_TX_CTS = 0x0002,
 	IEEE80211_RADIOTAP_F_TX_RTS = 0x0004,
 	IEEE80211_RADIOTAP_F_TX_NOACK = 0x0008,
+<<<<<<< HEAD
+=======
+	IEEE80211_RADIOTAP_F_TX_NOSEQNO = 0x0010,
+	IEEE80211_RADIOTAP_F_TX_ORDER = 0x0020,
+>>>>>>> upstream/android-13
 };
 
 /* for IEEE80211_RADIOTAP_MCS "have" flags */
@@ -289,6 +311,15 @@ enum ieee80211_radiotap_he_bits {
 
 	IEEE80211_RADIOTAP_HE_DATA6_NSTS		= 0x000f,
 	IEEE80211_RADIOTAP_HE_DATA6_DOPPLER		= 0x0010,
+<<<<<<< HEAD
+=======
+	IEEE80211_RADIOTAP_HE_DATA6_TB_PPDU_BW_KNOWN	= 0x0020,
+	IEEE80211_RADIOTAP_HE_DATA6_TB_PPDU_BW		= 0x00c0,
+		IEEE80211_RADIOTAP_HE_DATA6_TB_PPDU_BW_20MHZ	= 0,
+		IEEE80211_RADIOTAP_HE_DATA6_TB_PPDU_BW_40MHZ	= 1,
+		IEEE80211_RADIOTAP_HE_DATA6_TB_PPDU_BW_80MHZ	= 2,
+		IEEE80211_RADIOTAP_HE_DATA6_TB_PPDU_BW_160MHZ	= 3,
+>>>>>>> upstream/android-13
 	IEEE80211_RADIOTAP_HE_DATA6_TXOP		= 0x7f00,
 	IEEE80211_RADIOTAP_HE_DATA6_MIDAMBLE_PDCTY	= 0x8000,
 };
@@ -325,6 +356,29 @@ enum ieee80211_radiotap_he_mu_bits {
 	IEEE80211_RADIOTAP_HE_MU_FLAGS2_CH2_CTR_26T_RU		= 0x0800,
 };
 
+<<<<<<< HEAD
+=======
+enum ieee80211_radiotap_lsig_data1 {
+	IEEE80211_RADIOTAP_LSIG_DATA1_RATE_KNOWN		= 0x0001,
+	IEEE80211_RADIOTAP_LSIG_DATA1_LENGTH_KNOWN		= 0x0002,
+};
+
+enum ieee80211_radiotap_lsig_data2 {
+	IEEE80211_RADIOTAP_LSIG_DATA2_RATE			= 0x000f,
+	IEEE80211_RADIOTAP_LSIG_DATA2_LENGTH			= 0xfff0,
+};
+
+struct ieee80211_radiotap_lsig {
+	__le16 data1, data2;
+};
+
+enum ieee80211_radiotap_zero_len_psdu_type {
+	IEEE80211_RADIOTAP_ZERO_LEN_PSDU_SOUNDING		= 0,
+	IEEE80211_RADIOTAP_ZERO_LEN_PSDU_NOT_CAPTURED		= 1,
+	IEEE80211_RADIOTAP_ZERO_LEN_PSDU_VENDOR			= 0xff,
+};
+
+>>>>>>> upstream/android-13
 /**
  * ieee80211_get_radiotap_len - get radiotap header length
  */

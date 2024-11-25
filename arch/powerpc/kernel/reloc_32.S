@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Code to process dynamic relocations for PPC32.
  *
@@ -5,11 +9,14 @@
  *	Author: Suzuki Poulose <suzuki@in.ibm.com>
  *
  *  - Based on ppc64 code - reloc_64.S
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version
  *  2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <asm/ppc_asm.h>
@@ -34,7 +41,11 @@ R_PPC_RELATIVE = 22
 _GLOBAL(relocate)
 
 	mflr	r0		/* Save our LR */
+<<<<<<< HEAD
 	bl	0f		/* Find our current runtime address */
+=======
+	bcl	20,31,$+4	/* Find our current runtime address */
+>>>>>>> upstream/android-13
 0:	mflr	r12		/* Make it accessible */
 	mtlr	r0
 

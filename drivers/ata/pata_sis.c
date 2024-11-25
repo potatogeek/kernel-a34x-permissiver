@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *    pata_sis.c - SiS ATA driver
  *
@@ -113,7 +117,10 @@ static int sis_port_base(struct ata_device *adev)
 /**
  *	sis_133_cable_detect - check for 40/80 pin
  *	@ap: Port
+<<<<<<< HEAD
  *	@deadline: deadline jiffies for the operation
+=======
+>>>>>>> upstream/android-13
  *
  *	Perform cable detection for the later UDMA133 capable
  *	SiS chipset.
@@ -520,6 +527,10 @@ static void sis_133_set_dmamode (struct ata_port *ap, struct ata_device *adev)
 /**
  *	sis_133_mode_filter - mode selection filter
  *	@adev: ATA device
+<<<<<<< HEAD
+=======
+ *	@mask: received mask to manipulate and pass back
+>>>>>>> upstream/android-13
  *
  *	Block UDMA6 on devices that do not support it.
  */

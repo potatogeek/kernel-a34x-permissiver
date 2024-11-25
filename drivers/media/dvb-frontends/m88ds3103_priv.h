@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Montage Technology M88DS3103/M88RS6000 demodulator driver
  *
  * Copyright (C) 2013 Antti Palosaari <crope@iki.fi>
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef M88DS3103_PRIV_H
@@ -25,6 +32,7 @@
 #include <linux/regmap.h>
 #include <linux/math64.h>
 
+<<<<<<< HEAD
 #define M88DS3103_FIRMWARE "dvb-demod-m88ds3103.fw"
 #define M88RS6000_FIRMWARE "dvb-demod-m88rs6000.fw"
 #define M88RS6000_CHIP_ID 0x74
@@ -32,6 +40,22 @@
 
 struct m88ds3103_dev {
 	struct i2c_client *client;
+=======
+#define M88DS3103B_FIRMWARE "dvb-demod-m88ds3103b.fw"
+#define M88DS3103_FIRMWARE  "dvb-demod-m88ds3103.fw"
+#define M88RS6000_FIRMWARE  "dvb-demod-m88rs6000.fw"
+
+#define M88RS6000_CHIP_ID 0x74
+#define M88DS3103_CHIP_ID 0x70
+
+#define M88DS3103_CHIPTYPE_3103   0
+#define M88DS3103_CHIPTYPE_RS6000 1
+#define M88DS3103_CHIPTYPE_3103B  2
+
+struct m88ds3103_dev {
+	struct i2c_client *client;
+	struct i2c_client *dt_client;
+>>>>>>> upstream/android-13
 	struct regmap_config regmap_config;
 	struct regmap *regmap;
 	struct m88ds3103_config config;
@@ -44,10 +68,19 @@ struct m88ds3103_dev {
 	struct i2c_mux_core *muxc;
 	/* auto detect chip id to do different config */
 	u8 chip_id;
+<<<<<<< HEAD
+=======
+	/* chip type to differentiate m88rs6000 from m88ds3103b */
+	u8 chiptype;
+>>>>>>> upstream/android-13
 	/* main mclk is calculated for M88RS6000 dynamically */
 	s32 mclk;
 	u64 post_bit_error;
 	u64 post_bit_count;
+<<<<<<< HEAD
+=======
+	u8 dt_addr;
+>>>>>>> upstream/android-13
 };
 
 struct m88ds3103_reg_val {

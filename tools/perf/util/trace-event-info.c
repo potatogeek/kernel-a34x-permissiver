@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2008,2009, Steven Rostedt <srostedt@redhat.com>
  *
@@ -19,6 +20,12 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  */
 #include "util.h"
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2008,2009, Steven Rostedt <srostedt@redhat.com>
+ */
+>>>>>>> upstream/android-13
 #include <dirent.h>
 #include <mntent.h>
 #include <stdio.h>
@@ -34,8 +41,14 @@
 #include <stdbool.h>
 #include <linux/list.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
 
 #include "../perf.h"
+=======
+#include <linux/zalloc.h>
+#include <internal/lib.h> // page_size
+
+>>>>>>> upstream/android-13
 #include "trace-event.h"
 #include <api/fs/tracing_path.h>
 #include "evsel.h"
@@ -168,7 +181,11 @@ static bool name_in_tp_list(char *sys, struct tracepoint_path *tps)
 	return false;
 }
 
+<<<<<<< HEAD
 #define for_each_event(dir, dent, tps)				\
+=======
+#define for_each_event_tps(dir, dent, tps)			\
+>>>>>>> upstream/android-13
 	while ((dent = readdir(dir)))				\
 		if (dent->d_type == DT_DIR &&			\
 		    (strcmp(dent->d_name, ".")) &&		\
@@ -190,7 +207,11 @@ static int copy_event_system(const char *sys, struct tracepoint_path *tps)
 		return -errno;
 	}
 
+<<<<<<< HEAD
 	for_each_event(dir, dent, tps) {
+=======
+	for_each_event_tps(dir, dent, tps) {
+>>>>>>> upstream/android-13
 		if (!name_in_tp_list(dent->d_name, tps))
 			continue;
 
@@ -212,7 +233,11 @@ static int copy_event_system(const char *sys, struct tracepoint_path *tps)
 	}
 
 	rewinddir(dir);
+<<<<<<< HEAD
 	for_each_event(dir, dent, tps) {
+=======
+	for_each_event_tps(dir, dent, tps) {
+>>>>>>> upstream/android-13
 		if (!name_in_tp_list(dent->d_name, tps))
 			continue;
 
@@ -290,7 +315,11 @@ static int record_event_files(struct tracepoint_path *tps)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	for_each_event(dir, dent, tps) {
+=======
+	for_each_event_tps(dir, dent, tps) {
+>>>>>>> upstream/android-13
 		if (strcmp(dent->d_name, "ftrace") == 0 ||
 		    !system_in_tp_list(dent->d_name, tps))
 			continue;
@@ -305,7 +334,11 @@ static int record_event_files(struct tracepoint_path *tps)
 	}
 
 	rewinddir(dir);
+<<<<<<< HEAD
 	for_each_event(dir, dent, tps) {
+=======
+	for_each_event_tps(dir, dent, tps) {
+>>>>>>> upstream/android-13
 		if (strcmp(dent->d_name, "ftrace") == 0 ||
 		    !system_in_tp_list(dent->d_name, tps))
 			continue;
@@ -420,11 +453,19 @@ static struct tracepoint_path *
 get_tracepoints_path(struct list_head *pattrs)
 {
 	struct tracepoint_path path, *ppath = &path;
+<<<<<<< HEAD
 	struct perf_evsel *pos;
 	int nr_tracepoints = 0;
 
 	list_for_each_entry(pos, pattrs, node) {
 		if (pos->attr.type != PERF_TYPE_TRACEPOINT)
+=======
+	struct evsel *pos;
+	int nr_tracepoints = 0;
+
+	list_for_each_entry(pos, pattrs, core.node) {
+		if (pos->core.attr.type != PERF_TYPE_TRACEPOINT)
+>>>>>>> upstream/android-13
 			continue;
 		++nr_tracepoints;
 
@@ -440,11 +481,19 @@ get_tracepoints_path(struct list_head *pattrs)
 		}
 
 try_id:
+<<<<<<< HEAD
 		ppath->next = tracepoint_id_to_path(pos->attr.config);
 		if (!ppath->next) {
 error:
 			pr_debug("No memory to alloc tracepoints list\n");
 			put_tracepoints_path(&path);
+=======
+		ppath->next = tracepoint_id_to_path(pos->core.attr.config);
+		if (!ppath->next) {
+error:
+			pr_debug("No memory to alloc tracepoints list\n");
+			put_tracepoints_path(path.next);
+>>>>>>> upstream/android-13
 			return NULL;
 		}
 next:
@@ -456,10 +505,17 @@ next:
 
 bool have_tracepoints(struct list_head *pattrs)
 {
+<<<<<<< HEAD
 	struct perf_evsel *pos;
 
 	list_for_each_entry(pos, pattrs, node)
 		if (pos->attr.type == PERF_TYPE_TRACEPOINT)
+=======
+	struct evsel *pos;
+
+	list_for_each_entry(pos, pattrs, core.node)
+		if (pos->core.attr.type == PERF_TYPE_TRACEPOINT)
+>>>>>>> upstream/android-13
 			return true;
 
 	return false;
